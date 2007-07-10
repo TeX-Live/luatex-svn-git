@@ -638,10 +638,13 @@ void create_fontdictionary(fm_entry * fm, integer font_objnum,
 void do_pdf_font(integer font_objnum, internalfontnumber f)
 {
     fm_entry *fm;
-    /* this test is not 100% correct, but close */
+    /* This is not 100% true: CID is actually needed whenever (and
+	 * only) there are more than 256 separate glyphs used. But for
+	 * now, just assume the user knows what he is doing;
+	 */
     if (font_encodingbytes(f)==2) {
-      /* Create an fm entry, as this is needed by the rest of the font mechanism.
-	 I am not sure wether it makes sense to store it in the avl_tree.
+      /* Create a virtual font map entry, as this is needed by the
+	   * rest of the font inclusion mechanism.
        */
       /* TODO: take slant and extend from the texfont struct */
       fm = new_fm_entry();
@@ -652,23 +655,21 @@ void do_pdf_font(integer font_objnum, internalfontnumber f)
       fm->fd_flags = 4;                     /* can perhaps be done better */
       fm->in_use = true;
 
-      if (font_format(f)==opentype_format) {
-	set_opentype(fm);
-      } else if (font_format(f)==truetype_format) {
-	set_truetype(fm);
-      } else {
-	pdftex_fail("writefont.c: The file format (%s) for font `%s' is incompatible with wide characters\n", 
-		    font_format_name(f),font_name(f));
+	  switch (font_format(f)) {
+	  case opentype_format:  set_opentype(fm); break; 
+	  case truetype_format:  set_truetype(fm); break; 
+		/*case type1_format:     set_type1(fm); break; */
+      default:
+		pdftex_fail("writefont.c: The file format (%s) for font `%s' is incompatible with wide characters\n", 
+					font_format_name(f),font_name(f));
       }
-
-      set_included(fm);
-      if ((font_format(f)==opentype_format 
-	   || 
-	   font_format(f)==truetype_format)
-	  &&
-	  font_embedding(f)==subset_embedding) {
-	set_subsetted(fm);
-      }
+	  /* This makes "unknown" default to subsetted inclusion */
+	  if (font_embedding(f)!=no_embedding) {
+		set_included(fm);
+		if (font_embedding(f)!=full_embedding) {
+		  set_subsetted(fm);
+		}
+	  }
       set_cidkeyed(fm);
       create_cid_fontdictionary(fm, font_objnum, f);
       
@@ -841,11 +842,7 @@ void write_cid_fontdictionary(fo_entry * fo, internalfontnumber f)
       pdf_puts("/Subtype /CIDFontType0\n");
     } else {
       pdf_puts("/Subtype /CIDFontType2\n");
-      if (cidtogid_obj == 0) {
-	pdf_printf("/CIDToGIDMap /Identity\n");
-      } else {
-	pdf_printf("/CIDToGIDMap %u 0 R\n", (unsigned int)cidtogid_obj);
-      }
+	  pdf_printf("/CIDToGIDMap /Identity\n");
     }
     write_fontname(fo->fd, "BaseFont");
     pdf_printf("/FontDescriptor %i 0 R\n", (int) fo->fd->fd_objnum);
