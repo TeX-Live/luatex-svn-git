@@ -1,0 +1,124 @@
+# Makefile for libpdf - te@dbs.uni-hannover.de
+# $Id: //depot/Build/source.development/TeX/texk/web2c/pdftexdir/Makefile.in#23 $
+
+kpse_include ../make/common.mk
+kpse_include ../make/programs.mk
+kpse_include ../make/library.mk
+
+kpathsea_srcdir_parent = $(srcdir)/../..
+kpathsea_dir_parent = ../..
+
+ALL_CXXFLAGS = @CXXFLAGS@ @DEFS@ $(XXCFLAGS) -I. -I$(srcdir) -I$(kpathsea_dir_parent) -I$(kpathsea_srcdir_parent) @LIBXPDFCPPFLAGS@ -I$(LIBOBSDCOMPATDIR) -I$(LIBOBSDCOMPATDIR)/.. -I$(LIBOBSDCOMPATFSRCDIR) -I$(LIBOBSDCOMPATFSRCDIR)/..
+CXX = @CXX@
+
+.SUFFIXES: .cc .o
+.cc.o:
+	$(CXX) $(ALL_CXXFLAGS) -c $< -o $@
+
+# XCFLAGS=-Wstrict-prototypes -Wmissing-prototypes 
+
+LIBPNGDIR=../../../libs/libpng
+LIBPNGSRCDIR=$(srcdir)/$(LIBPNGDIR)
+
+ZLIBDIR=../../../libs/zlib
+ZLIBSRCDIR=$(srcdir)/$(ZLIBDIR)
+
+LIBXPDFDIR=../../../libs/xpdf
+LIBXPDFSRCDIR=$(srcdir)/$(LIBXPDFDIR)
+
+LIBMD5DIR=../../../libs/md5
+LIBMD5SRCDIR=$(srcdir)/$(LIBMD5DIR)
+
+LIBOBSDCOMPATDIR=../../../libs/obsdcompat
+LIBOBSDCOMPATFSRCDIR=$(srcdir)/$(LIBOBSDCOMPATDIR)
+
+XCPPFLAGS=-I.. -I$(srcdir)/.. -I../.. -I$(srcdir)/../.. -I$(LIBMD5DIR) \
+  -I$(LIBMD5SRCDIR) @LIBPNGCPPFLAGS@ @ZLIBCPPFLAGS@ \
+  -I$(LIBXPDFDIR) -I$(LIBXPDFDIR)/.. -I$(LIBXPDFSRCDIR) -I$(LIBXPDFSRCDIR)/.. \
+  -I$(LIBOBSDCOMPATDIR) -I$(LIBOBSDCOMPATDIR)/.. -I$(LIBOBSDCOMPATFSRCDIR) \
+  -I$(LIBOBSDCOMPATFSRCDIR)/.. -DpdfTeX
+
+
+OBJS = \
+avl.o \
+avlstuff.o \
+font/mapfile.o \
+font/pkin.o \
+font/subfont.o \
+font/tounicode.o \
+font/vfpacket.o \
+font/writeenc.o \
+font/writefont.o \
+font/writet1.o \
+font/writet3.o \
+font/writettf.o \
+font/writetype0.o \
+font/writetype2.o \
+font/writecff.o \
+font/tt_glyf.o \
+font/tt_table.o \
+font/sfnt.o \
+font/texfont.o \
+font/tfmofm.o \
+font/vfovf.o \
+font/luafont.o \
+font/dofont.o \
+image/epdf.o \
+image/pdftoepdf.o \
+image/writeimg.o \
+image/writejbig2.o \
+image/writejpg.o \
+image/writepng.o \
+lua/lcallbacklib.o \
+lua/lkpselib.o \
+lua/llualib.o \
+lua/lnodelib.o \
+lua/lpdflib.o \
+lua/lstatslib.o \
+lua/ltexiolib.o \
+lua/ltexlib.o \
+lua/ltokenlib.o \
+lua/lfontlib.o \
+lua/luainit.o \
+lua/luastuff.o \
+lua/luatex.o \
+lua/luatoken.o \
+lua/luanode.o \
+managed-sa.o \
+mathcodes.o \
+textcodes.o \
+utils.o \
+writezip.o
+
+all: libpdf.a makecpool
+
+pdftosrc.o: $(srcdir)/pdftosrc.cc
+
+font/texfont.o: font/texfont.h
+
+font/tfmofm.o: font/texfont.h
+
+lua/luanode.o: lua/nodes.h
+
+lua/luawhatsits.o: lua/nodes.h
+
+libpdf.a: $(OBJS)
+	rm -f $@
+	$(AR) $(ARFLAGS) $@  $(OBJS)
+	$(RANLIB) $@
+
+makecpool: makecpool.o
+	$(link_command) makecpool.o
+
+kpse_include ../make/clean.mk
+
+clean::
+	rm -f libpdf.a ttf2afm pdftosrc
+
+depend:
+	rm -f $(OBJS) ttf2afm.o pdftosrc.o
+	XXCFLAGS=-MM XCFLAGS=-MM $(MAKE) -k $(OBJS) ttf2afm.o pdftosrc.o | \
+	    grep -v "^$(CC)\|$(CXX)\|$(AR)\|make\|klibtool" | \
+	    sed 's: [^ ]*/\.\./libs/[^ ]*::g' > $(srcdir)/depend.mk
+
+# kpse_include luatexdir/depend.mk
