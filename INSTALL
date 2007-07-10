@@ -1,0 +1,36 @@
+
+INSTALL for LuaTeX Snapshots
+
+=========================================================
+The snapshot code is NOT stable, it may not even compile
+properly!  Features that are present today may be gone
+in tomorrow. There ARE bugs. You should NOT use this
+program for ANYTHING except testing!
+=========================================================
+
+This distribution is essentially a stripped-down version of 
+the TeXlive distribution with some additional libraries.
+
+All source code is in the directory src; the build.sh.xxx 
+scripts will generate and populate a directory build.
+
+The actual code of luaTeX is in src/texk/web2c/luatexdir
+
+* build.sh builds a native luatex on your system, but
+  with a 'generic' lua inpreter embedded (assuming posix
+  compliance).
+* build.sh.linux creates luatex for linux on i386
+* build.sh.cross crosscompiles luatex for mingw32 on linux
+
+These somewhat bizarre build scripts are needed because 
+Lua is not using autoconf (unlike the rest of the tree).
+
+LuaTeX does not need a run-time pool file, and it locates
+texmf.cnf based on its relative position in the TeX tree.
+
+Post-compilation installation should be a simple matter 
+of copying the executable to a normal place for web2c 
+binaries and generating the desired formats.
+
+
+=========================================================
