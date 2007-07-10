@@ -1,0 +1,45 @@
+
+README for LuaTeX Snapshots
+=========================================================
+
+This directory contains a snapshot release of LuaTeX, 
+an experimental pdfTeX extension that is to eventually 
+become its successor, under the new name MetaTeX. It is
+developed by a subset of the current pdfTeX team.
+
+=========================================================
+The snapshot code is NOT stable, it may not even compile
+properly!  Features that are present today may be gone 
+in tomorrow. There ARE bugs. You should NOT use this 
+program for ANYTHING except testing!
+=========================================================
+
+LuaTeX uses Lua scripting both as an extension to the TeX 
+macro language and as an extension to the typesetting 
+engine itself. A (growing) number of TeX internals are 
+made available to the embedded lua interpreter.
+
+LuaTeX uses code and interfaces from Aleph to improve the 
+typesetting of non-latin alphabet languages, instead of
+the TeXXeT code present in the current releases of pdfTeX. 
+
+Unicode and OpenType font support are added progressively,
+and regular pdfTeX development will continue in this
+branch as well.
+
+The multi-lingual extensions are coded and merged by Taco 
+Hoekwater. Swift progress in that area is made possible 
+by a joint grant from Colorado State University and TUG, 
+under the 'Oriental TeX' project.
+
+The final release will contain an embedded MetaPost 
+interpreter for graphics (hence the expected name change).
+
+Further documentation about LuaTeX can be found at 
+http://www.luatex.org 
+
+A mailing list for the development of LuaTeX can be found 
+at http://www.ntg.nl/mailman/listinfo/dev-luatex
+
+=========================================================
+
