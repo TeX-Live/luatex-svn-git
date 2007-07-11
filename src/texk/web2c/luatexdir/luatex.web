@@ -241,7 +241,10 @@ known as `\eTeX'.
 @d pdftex_revision=="0" { \.{\\pdftexrevision} }
 @d pdftex_version_string=='-2.00.0' {current \pdfTeX\ version}
 @#
-@d luatex_version_string=='-snapshot' {current \LuaTeX\ version}
+@d luatex_version==10 { \.{\\luatexversion} }
+@d luatex_revision=="0" { \.{\\luatexrevision} }
+@d luatex_version_string=='-beta-0.10.0' {current \LuaTeX\ version}
+@d luatex_date_info==-extra_version_info { the compile date is negated }
 @#
 @d luaTeX_banner=='This is luaTeX, Version 3.141592',luatex_version_string,extra_version_info
    {printed when \LuaTeX\ starts}
@@ -10651,7 +10654,8 @@ the codes for its extensions: |eTeX_version_code|, \dots\ .
 @d pdf_last_ximage_colordepth_code = pdftex_first_rint_code + 9 {code for \.{\\pdflastximagecolordepth}}
 @d random_seed_code           = pdftex_first_rint_code + 10 {code for \.{\\pdfrandomseed}}
 @d pdf_last_link_code         = pdftex_first_rint_code + 11 {code for \.{\\pdflastlink}}
-@d pdftex_last_item_codes     = pdftex_first_rint_code + 11 {end of \pdfTeX's command codes}
+@d luatex_version_code        = pdftex_first_rint_code + 12 {code for \.{\\luatexversion}}
+@d pdftex_last_item_codes     = pdftex_first_rint_code + 12 {end of \pdfTeX's command codes}
 @#
 @d Aleph_int=pdftex_last_item_codes+1 {first of \Aleph\ codes for integers}
 @d Aleph_int_num=5 {number of \Aleph\ integers}
@@ -10688,6 +10692,8 @@ primitive("badness",last_item,badness_code);
 @!@:badness_}{\.{\\badness} primitive@>
 primitive("pdftexversion",last_item,pdftex_version_code);@/
 @!@:pdftex_version_}{\.{\\pdftexversion} primitive@>
+primitive("luatexversion",last_item,luatex_version_code);@/
+@!@:luatex_version_}{\.{\\luatexversion} primitive@>
 primitive("pdflastobj",last_item,pdf_last_obj_code);@/
 @!@:pdf_last_obj_}{\.{\\pdflastobj} primitive@>
 primitive("pdflastxform",last_item,pdf_last_xform_code);@/
@@ -10727,6 +10733,7 @@ last_item: case chr_code of
   input_line_no_code: print_esc("inputlineno");
   @/@<Cases of |last_item| for |print_cmd_chr|@>@/
   pdftex_version_code:  print_esc("pdftexversion");
+  luatex_version_code:  print_esc("luatexversion");
   pdf_last_obj_code:    print_esc("pdflastobj");
   pdf_last_xform_code:  print_esc("pdflastxform");
   pdf_last_ximage_code: print_esc("pdflastximage");
@@ -10818,6 +10825,7 @@ if m>=input_line_no_code then
   input_line_no_code: cur_val:=line;
   badness_code: cur_val:=last_badness;
   pdftex_version_code:  cur_val := pdftex_version;
+  luatex_version_code:  cur_val := luatex_version;
   pdf_last_obj_code:    cur_val := pdf_last_obj;
   pdf_last_xform_code:  cur_val := pdf_last_xform;
   pdf_last_ximage_code: cur_val := pdf_last_ximage;
@@ -11851,7 +11859,9 @@ such that |job_name_code| remains last.
 @d lua_code                 = pdftex_first_expand_code + 14 {command code for \.{\\directlua}}
 @d lua_escape_string_code   = pdftex_first_expand_code + 15 {command code for \.{\\luaescapestring}}
 @d pdf_colorstack_init_code = pdftex_first_expand_code + 16 {command code for \.{\\pdfcolorstackinit}}
-@d pdftex_convert_codes     = pdftex_first_expand_code + 17 {end of \pdfTeX's command codes}
+@d luatex_revision_code     = pdftex_first_expand_code + 17 {command code for \.{\\luatexrevision}}
+@d luatex_date_code         = pdftex_first_expand_code + 18 {command code for \.{\\luatexdate}}
+@d pdftex_convert_codes     = pdftex_first_expand_code + 19 {end of \pdfTeX's command codes}
 @d job_name_code=pdftex_convert_codes {command code for \.{\\jobname}}
 
 
@@ -11874,6 +11884,10 @@ primitive("fontname",convert,font_name_code);@/
 @!@:font_name_}{\.{\\fontname} primitive@>
 primitive("pdftexrevision",convert,pdftex_revision_code);@/
 @!@:pdftex_revision_}{\.{\\pdftexrevision} primitive@>
+primitive("luatexrevision",convert,luatex_revision_code);@/
+@!@:luatex_revision_}{\.{\\luatexrevision} primitive@>
+primitive("luatexdatestamp",convert,luatex_date_code);@/
+@!@:luatex_date_}{\.{\\luatexdatestamp} primitive@>
 primitive("pdftexbanner",convert,pdftex_banner_code);@/
 @!@:pdftex_banner_}{\.{\\pdftexbanner} primitive@>
 primitive("pdffontname",convert,pdf_font_name_code);@/
@@ -11923,6 +11937,8 @@ convert: case chr_code of
   aleph_code: print_esc("AlephVersion");
   font_name_code: print_esc("fontname");
   pdftex_revision_code: print_esc("pdftexrevision");
+  luatex_revision_code: print_esc("luatexrevision");
+  luatex_date_code:     print_esc("luatexdatestamp");
   pdftex_banner_code:   print_esc("pdftexbanner");
   pdf_font_name_code:   print_esc("pdffontname");
   pdf_font_objnum_code: print_esc("pdffontobjnum");
@@ -11991,6 +12007,8 @@ omega_code: do_nothing;
 aleph_code: do_nothing;
 font_name_code: scan_font_ident;
 pdftex_revision_code: do_nothing;
+luatex_revision_code: do_nothing;
+luatex_date_code: do_nothing;
 pdftex_banner_code: do_nothing;
 pdf_font_name_code, pdf_font_objnum_code, pdf_font_size_code: begin
     scan_font_ident;
@@ -12143,6 +12161,8 @@ font_name_code: begin
     end;
   end;
 pdftex_revision_code: print(pdftex_revision);
+luatex_revision_code: print(luatex_revision);
+luatex_date_code:   print_int(luatex_date_info);
 pdftex_banner_code: print(pdftex_banner);
 pdf_font_name_code, pdf_font_objnum_code: begin
     set_ff(cur_val);
@@ -12231,6 +12251,8 @@ begin
   omega_code:           print(Omega_version_string);
   aleph_code:           print(Aleph_version_string);
   pdftex_revision_code: print(pdftex_revision);
+  luatex_revision_code: print(luatex_revision);
+  luatex_date_code:     print_int(luatex_date_info);
   pdftex_banner_code:   print(pdftex_banner);
   normal_deviate_code:  print_int(norm_rand);
   format_name_code:     print(format_name);
@@ -20907,12 +20929,12 @@ begin
 end;
 
 @ @<Print the Producer key@>=
-pdf_print("/Producer (pdfTeX-");
-pdf_print_int(pdftex_version div 100);
+pdf_print("/Producer (luaTeX-");
+pdf_print_int(luatex_version div 100);
 pdf_out(".");
-pdf_print_int(pdftex_version mod 100);
+pdf_print_int(luatex_version mod 100);
 pdf_out(".");
-pdf_print(pdftex_revision);
+pdf_print(luatex_revision);
 pdf_print_ln(")")
 
 @ @<Print the CreationDate key@>=
