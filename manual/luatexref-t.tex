@@ -8,7 +8,7 @@
  
 \setvariables
   [document]
-  [snapshot=2007-07-09]
+  [snapshot=2007-07-11]
 
 \starttext
 
@@ -68,6 +68,28 @@ Neither I/O translation processes, nor tcx files, nor
 superseded by a \LUA|-|based solution (reader callbacks).
 
 \chapter{Basic \TEX\ enhancements}
+
+
+\section{Version information}
+
+There are three new primitives to test the version of \LUATEX:
+
+\starttabulate[|l|p|]
+\NC \bf primitive         \NC explanation \NC\NR
+\NC \type{\luatexversion}   \NC A combination of major an minor number, as in pdfTeX. 
+                              Current value: {\bf\the\luatexversion} \NC\NR
+\NC \type{\luatexrevision}  \NC The revision, als as in pdfTeX. 
+                              Current value: {\bf\luatexrevision} \NC\NR
+\NC \type{\luatexdatestamp} \NC A combination of the local date and hour when
+                              the current executable was compiled,
+                              the syntax is identical to \tex{luatexrevision}.
+                              Value for the executable that generated this 
+                              document: {\bf\luatexdatestamp} \NC\NR
+\stoptabulate
+
+Note that the \type{\luatexdatestamp} depends on both the compilation time and place of the current
+executable, it is defined in terms of the local time. The purpose of this primitive is solely to be
+an aid in the development process, do not use it for anything besides debugging.
 
 \section{\UNICODE\ support}
 
