@@ -2,7 +2,7 @@
 #include "luatex-api.h"
 #include <ptexlib.h>
 
-#define SAVE_REF 0
+#define SAVE_REF 1
 
 char *font_type_strings[]      = {"unknown","virtual","real", NULL};
 char *font_format_strings[]    = {"unknown","type1","type3","truetype", "opentype", NULL};
