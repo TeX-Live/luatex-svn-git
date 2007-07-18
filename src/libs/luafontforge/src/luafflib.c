@@ -118,6 +118,7 @@ ff_open (lua_State *L) {
 static int 
 ff_close (lua_State *L) {
   SplineFont *sf;
+  /*fputs("ff_close called",stderr);*/
   sf = *(check_isfont(L,1));
   SplineFontFree(sf);
   return 0;
@@ -132,7 +133,7 @@ dump_intfield (lua_State *L, char *name, long int field) {
   lua_rawset(L,-3);
 }
 
-#define dump_cond_intfield(a,b,c) if ((c)>0) { dump_intfield ((a),(b),(c)); }
+#define dump_cond_intfield(a,b,c) if ((c)!=0) { dump_intfield ((a),(b),(c)); }
 
 
 static void 
@@ -363,34 +364,28 @@ handle_kernpair (lua_State *L, struct kernpair *kp) {
 void
 handle_splinecharlist (lua_State *L, struct splinecharlist *scl) {
 
-  struct splinecharlist *next;
+  struct splinecharlist *next = scl;
   int k = 1;
-
   lua_checkstack(L,10);
-  if (scl->sc != NULL) {
-    lua_pushnumber(L,k); k++;
-    lua_newtable(L);
-    dump_char_ref(L, scl->sc); 
-    lua_rawset(L,-3);
-  }
-  next = scl->next;
   while( next != NULL) {
     if (next->sc != NULL) {
       lua_pushnumber(L,k); k++;
-      lua_newtable(L);
-      dump_char_ref(L,next->sc); 
+      lua_pushstring(L,next->sc->name);
       lua_rawset(L,-3);
     }
     next = next->next;
   }
 }
 
+
+#define interesting_vr(a) (((a)->xoff!=0) || ((a)->yoff!=0) || ((a)->h_adv_off!=0) || ((a)->v_adv_off!=0))
+
 void handle_vr (lua_State *L, struct vr *pos) {
 
-  dump_intfield(L,"xoff",              pos->xoff); 
-  dump_intfield(L,"yoff",              pos->yoff); 
-  dump_intfield(L,"h_adv_off",         pos->h_adv_off); 
-  dump_intfield(L,"v_adv_off",         pos->v_adv_off);
+  dump_cond_intfield(L,"x", pos->xoff); 
+  dump_cond_intfield(L,"y", pos->yoff); 
+  dump_cond_intfield(L,"h", pos->h_adv_off); 
+  dump_cond_intfield(L,"v", pos->v_adv_off);
 
 }
 
@@ -402,7 +397,8 @@ do_handle_generic_pst (lua_State *L, struct generic_pst *pst) {
   } else {
     dump_enumfield(L,"type",             pst->type, possub_type_enum); 
   }
-
+  fprintf(stdout,"pst: %p %s\n", pst, possub_type_enum[pst->type]);
+      
   /*dump_intfield(L,"macfeature",        pst->macfeature); */
 
   lua_checkstack(L,4);
@@ -413,14 +409,18 @@ do_handle_generic_pst (lua_State *L, struct generic_pst *pst) {
   } else if (pst->type == pst_pair) {
     dump_stringfield(L,"paired",pst->u.pair.paired);
     if (pst->u.pair.vr != NULL) {
-      lua_pushstring(L,"vr");
+      lua_pushstring(L,"offsets");
       lua_createtable(L,2,0);
-      lua_createtable(L,0,4);
-      handle_vr (L, pst->u.pair.vr);
-      lua_rawseti(L,-2,1);
-      lua_createtable(L,0,4);
-      handle_vr (L, pst->u.pair.vr+1);
-      lua_rawseti(L,-2,2);
+      if (interesting_vr(pst->u.pair.vr)) {
+	lua_createtable(L,0,4);
+	handle_vr (L, pst->u.pair.vr);
+	lua_rawseti(L,-2,1);
+      }
+      if (interesting_vr(pst->u.pair.vr+1)) {
+	lua_createtable(L,0,4);
+	handle_vr (L, pst->u.pair.vr+1);
+	lua_rawseti(L,-2,2);
+      }
       lua_rawset(L,-3);
     }
   } else if (pst->type == pst_substitution) {
@@ -542,17 +542,37 @@ do_handle_anchorpoint (lua_State *L, struct anchorpoint *anchor) {
     lua_rawget(L,-2);
   }
   /* now the 'type' table is top of stack */
-  lua_pushstring(L,anchor->anchor->name);
-  lua_newtable(L);
-  dump_intfield(L,"x",      anchor->me.x);
-  dump_intfield(L,"y",      anchor->me.y);
+  if (anchor->type==at_baselig) {
+    lua_pushstring(L,anchor->anchor->name);
+    lua_rawget(L,-2);
+    if (!lua_istable(L,-1)) {
+      /* create the table first */
+      lua_pop(L,1);
+      lua_pushstring(L,anchor->anchor->name);
+      lua_pushvalue(L,-1);
+      lua_newtable(L);
+      lua_rawset(L,-4);
+      lua_rawget(L,-2);
+    }
+    lua_newtable(L);
+    dump_intfield(L,"x",      anchor->me.x);
+    dump_intfield(L,"y",      anchor->me.y);
   
-  /* dump_intfield(L,"selected",      anchor->selected);*/
-  /* dump_intfield(L,"ticked",        anchor->ticked);*/
-  if (anchor->has_ttf_pt)
-    dump_intfield(L,"ttf_pt_index",  anchor->ttf_pt_index);
-  dump_cond_intfield(L,"lig_index",     anchor->lig_index);
-  lua_rawset(L,-3);  
+    if (anchor->has_ttf_pt)
+      dump_intfield(L,"ttf_pt_index",  anchor->ttf_pt_index);
+    /* dump_intfield(L,"lig_index",     anchor->lig_index); */
+    lua_rawseti(L,-2,(anchor->lig_index+1));  
+    lua_pop(L,1);  
+  } else {
+    lua_pushstring(L,anchor->anchor->name);
+    lua_newtable(L);
+    dump_intfield(L,"x",      anchor->me.x);
+    dump_intfield(L,"y",      anchor->me.y);
+  
+    if (anchor->has_ttf_pt)
+      dump_intfield(L,"ttf_pt_index",  anchor->ttf_pt_index);
+    lua_rawset(L,-3);  
+  }
   lua_pop(L,1);
 }
 
@@ -571,7 +591,7 @@ handle_splinechar (lua_State *L,struct splinechar *glyph, int hasvmetrics) {
   
   dump_stringfield(L,"name",        glyph->name);
   dump_intfield(L,"unicodeenc",     glyph->unicodeenc);
-
+  fprintf(stdout,"running glyph %s\n",glyph->name);
   lua_createtable(L,4,0);
   lua_pushnumber(L,1);  lua_pushnumber(L,glyph->xmin); lua_rawset(L,-3);
   lua_pushnumber(L,2);  lua_pushnumber(L,glyph->ymin); lua_rawset(L,-3);
@@ -660,7 +680,7 @@ handle_splinechar (lua_State *L,struct splinechar *glyph, int hasvmetrics) {
  if (glyph->ligofme != NULL) {
    lua_newtable(L);
    handle_liglist(L,glyph->ligofme);
-   lua_setfield(L,-2,"ligofme");
+   lua_setfield(L,-2,"ligatures");
  }
 
  if (glyph->comment != NULL)
@@ -671,7 +691,7 @@ handle_splinechar (lua_State *L,struct splinechar *glyph, int hasvmetrics) {
  if (glyph->anchor != NULL) {
    lua_newtable(L);
    handle_anchorpoint(L,glyph->anchor);
-   lua_setfield(L,-2,"anchor");
+   lua_setfield(L,-2,"anchors");
  }
  
   if (glyph->tex_height != TEX_UNDEF)
@@ -973,9 +993,10 @@ void
 do_handle_kernclass (lua_State *L, struct kernclass *kerns) {
   int k;
   
-  dump_intfield(L,"first_cnt",       kerns->first_cnt);
-  dump_intfield(L,"second_cnt",      kerns->second_cnt);
-
+  /*
+   * dump_intfield(L,"first_cnt",       kerns->first_cnt);
+   * dump_intfield(L,"second_cnt",      kerns->second_cnt);
+   */
   lua_checkstack(L,4);
   lua_createtable(L,kerns->first_cnt,1);
   for (k=0;k<kerns->first_cnt;k++) {
@@ -996,7 +1017,7 @@ do_handle_kernclass (lua_State *L, struct kernclass *kerns) {
   if (kerns->subtable != NULL) {
     dump_stringfield(L,"lookup", kerns->subtable->subtable_name);
   }
-  dump_intfield(L,"kcid",            kerns->kcid); /* probably not needed */
+  /*dump_intfield(L,"kcid",            kerns->kcid); *//* probably not needed */
 
   lua_createtable(L,kerns->second_cnt*kerns->first_cnt,1);
   for (k=0;k<(kerns->second_cnt*kerns->first_cnt);k++) {
@@ -1087,11 +1108,11 @@ void handle_fpst_rule (lua_State *L, struct fpst_rule *rule, int format) {
   if (rule->lookup_cnt>0) {
     lua_newtable(L);
     for (k=0;k<rule->lookup_cnt;k++) {
-      lua_pushnumber(L,(k+1));
-      lua_newtable(L);
-      dump_intfield(L,"seq",rule->lookups[k].seq);
+      lua_pushnumber(L,(rule->lookups[k].seq+1)); 
       if (rule->lookups[k].lookup!=NULL) {
-	dump_stringfield(L,"lookup", rule->lookups[k].lookup->lookup_name);
+	lua_pushstring(L,rule->lookups[k].lookup->lookup_name);
+      } else {
+	lua_pushnil(L);
       }
       lua_rawset(L,-3);
     }
@@ -1243,7 +1264,8 @@ void
 handle_splinefont(lua_State *L, struct splinefont *sf) {
   int k;
 
-  dump_stringfield(L,"table_version",   LUA_OTF_VERSION);
+  fprintf(stdout,"running font %s\n",sf->fontname);
+    dump_stringfield(L,"table_version",   LUA_OTF_VERSION);
   dump_stringfield(L,"fontname",        sf->fontname);
   dump_stringfield(L,"fullname",        sf->fullname);
   dump_stringfield(L,"familyname",      sf->familyname);
@@ -1493,6 +1515,7 @@ static struct luaL_reg fflib[] = {
 };
 
 static const struct luaL_reg fflib_m [] = {
+  {"__gc", ff_close }, /* doesnt work yet! */
   {NULL, NULL}  /* sentinel */
 };
 
