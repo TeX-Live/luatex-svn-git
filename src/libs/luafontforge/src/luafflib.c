@@ -117,10 +117,13 @@ ff_open (lua_State *L) {
 
 static int 
 ff_close (lua_State *L) {
-  SplineFont *sf;
+  SplineFont **sf;
   /*fputs("ff_close called",stderr);*/
-  sf = *(check_isfont(L,1));
-  SplineFontFree(sf);
+  sf = check_isfont(L,1);
+  if (*sf!=NULL) {
+    SplineFontFree(*sf);
+    *sf = NULL;
+  }
   return 0;
 }
 
@@ -397,7 +400,6 @@ do_handle_generic_pst (lua_State *L, struct generic_pst *pst) {
   } else {
     dump_enumfield(L,"type",             pst->type, possub_type_enum); 
   }
-  fprintf(stdout,"pst: %p %s\n", pst, possub_type_enum[pst->type]);
       
   /*dump_intfield(L,"macfeature",        pst->macfeature); */
 
@@ -591,7 +593,6 @@ handle_splinechar (lua_State *L,struct splinechar *glyph, int hasvmetrics) {
   
   dump_stringfield(L,"name",        glyph->name);
   dump_intfield(L,"unicodeenc",     glyph->unicodeenc);
-  fprintf(stdout,"running glyph %s\n",glyph->name);
   lua_createtable(L,4,0);
   lua_pushnumber(L,1);  lua_pushnumber(L,glyph->xmin); lua_rawset(L,-3);
   lua_pushnumber(L,2);  lua_pushnumber(L,glyph->ymin); lua_rawset(L,-3);
@@ -1264,8 +1265,7 @@ void
 handle_splinefont(lua_State *L, struct splinefont *sf) {
   int k;
 
-  fprintf(stdout,"running font %s\n",sf->fontname);
-    dump_stringfield(L,"table_version",   LUA_OTF_VERSION);
+  dump_stringfield(L,"table_version",   LUA_OTF_VERSION);
   dump_stringfield(L,"fontname",        sf->fontname);
   dump_stringfield(L,"fullname",        sf->fullname);
   dump_stringfield(L,"familyname",      sf->familyname);
