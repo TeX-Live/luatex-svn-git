@@ -796,3 +796,23 @@ lua_hyphenate_callback (int callback_id, int lang, halfword ha, halfword hb) {
   lua_pop(L,2); /* result and callback container table */
   return true;
 }
+
+/* This is a quick hack to fix etex's \lastnodetype now that
+ * there are many more visible node types. TODO: check the
+ * eTeX manual for the expected return values.
+ */
+
+int 
+visible_last_node_type (int n) {
+  int i = type(n);
+  if ((i!=math_node) && (i<=unset_node))  
+    return i+1;
+  if (i==glyph_node)
+    return -1; 
+  if (i==whatsit_node && subtype(n)==local_par_node)
+    return -1;  
+  if (i==255)
+    return -1 ; /* this is not right, probably dir nodes! */
+  return last_known_node +1 ;
+}
+

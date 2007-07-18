@@ -137,7 +137,7 @@ typedef enum {
   attribute_node = 42,
   glue_spec_node = 43,
   attribute_list_node = 44,
-  last_known_node = 45,
+  last_known_node = 45, /* used by \lastnodetype */
   unhyphenated_node = 50, 
   hyphenated_node = 51,
   delta_node = 52,

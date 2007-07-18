@@ -36,6 +36,7 @@ $Id $
 @define procedure print_node_mem_stats;
 @define procedure dump_node_mem;
 @define procedure undump_node_mem;
+@define function visible_last_node_type();
 @define var NULL;
 @define var varmem;
 @define var var_mem_max;

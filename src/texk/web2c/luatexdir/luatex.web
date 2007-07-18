@@ -10856,9 +10856,7 @@ else begin if cur_chr=glue_val then cur_val:=zero_glue@+else cur_val:=0;
       if subtype(tail)=mu_glue then cur_val_level:=mu_val;
       end;
     last_node_type_code:
-      if type(tail)<>math_node then
-        if type(tail)<=unset_node then cur_val:=type(tail)+1
-        else cur_val:=unset_node+2;
+      cur_val := visible_last_node_type(tail);
     end {there are no other cases}
   else if (mode=vmode)and(tail=head) then
     case cur_chr of
