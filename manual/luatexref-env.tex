@@ -213,7 +213,13 @@
           [align=middle,
            foregroundcolor=blue,
            frame=off]
-          {\doifsomething{\getvariable{document}{snapshot}}{snapshot \getvariable{document}{snapshot}}}
+          {\doifsomething
+               {\getvariable{document}{snapshot}}
+               {snapshot \getvariable{document}{snapshot}}%
+           \doifsomething
+               {\getvariable{document}{beta}}
+               {beta \getvariable{document}{beta}}%
+            }
 
     \stopstandardmakeup
 
