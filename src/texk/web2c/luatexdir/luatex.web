@@ -3660,7 +3660,7 @@ var r,q:halfword;
 begin
   pdfassert(b<>cache_disabled);
   if b<>null then begin
-    pdfassert(attr_list_ref(b)>0);
+    {|pdfassert(attr_list_ref(b)>0);|}
     decr(attr_list_ref(b));
     if attr_list_ref(b)=0 then begin
 	  if b=attr_list_cache then
@@ -26929,7 +26929,7 @@ loop@+ begin if is_char_node(s) then begin
        end
      else 
        q:=s;
-     c:=qo(character(q)); hf:=font(q); hattr:=node_attr(q);
+     c:=qo(character(q)); hf:=font(q); hattr:=copy_node_list(node_attr(q));
     end
   else if (type(s)=kern_node)and(subtype(s)=normal) then goto continue
   else if type(s)=whatsit_node then

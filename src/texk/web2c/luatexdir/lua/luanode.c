@@ -456,6 +456,16 @@ get_node (integer s) {
       break;
     } 
     t=node_size(rover);
+    /* TODO, BUG: 
+       
+    \parshapes are not free()d right now, because this bit of code
+    assumes there is only one |rover|. free() ing \parshapes would
+    create a linked list of those instead, with the last free()d one
+    in front.  In that case, it is likely that |t<=s|, and therefore
+    the check may fail without reason. That way, a large percentage of
+    \parshape requests may generate a realloc() of the whole array,
+    running out of system memory quickly.
+    */
     if (t>s) {
       node_size(rover) = t-s;
       r=rover+node_size(rover);
@@ -474,10 +484,11 @@ get_node (integer s) {
       } else {
 	q = rover;
       }
-      x = (var_mem_max/5)+s; /* this way |s| will always fit */
+      x = (var_mem_max/5)+s+1; /* this way |s| will always fit */
       /* make sure we get up to speed quickly */
       if (var_mem_max<2500) {	x += 100000;  }
       t=var_mem_max+x;
+      /* fprintf(stdout,"allocating %d extra nodes for %d requested\n",x,s); */
       varmem = (memory_word *)realloc(varmem,sizeof(memory_word)*t);
       varmem_sizes = (char *)realloc(varmem_sizes,sizeof(char)*t);
       if (varmem==NULL) {
@@ -504,15 +515,23 @@ get_node (integer s) {
 void
 free_node (halfword p, integer s) {
   /*fprintf(stdout,"free_node(%d), %d (%p)\n",s,p,varmem);*/
-  assert (p>prealloc) ;
+  if (s>MAX_CHAIN_SIZE) {
+    /*fprintf(stdout,"node %d will not be free()d!\n",p,varmem_sizes[p],s);*/
+    return;
+  }
+  if (p<=prealloc) { 
+    fprintf(stdout,"node %d (type %d) should not be freed!\n",p, type(p));
+    return;
+  }
+
   if (varmem_sizes[p]<=0) {
-    fprintf(stdout,"assert(varmem_sizes[p]>0): varmem_sizes[p]=%d,p=%d,s=%d,^=%d\n",varmem_sizes[p],p,s,var_mem_max);
-    fprintf(stdout,"varmem[p]: type=%d,subtype=%d,link=%d\n",type(p),subtype(p),vlink(p));
-    assert(varmem_sizes[p]>0);
+    fprintf(stdout,"node %d (size %d, type %d) is already free!\n",p,varmem_sizes[p],type(p));
+    /*assert(varmem_sizes[p]>0);*/
+    return;
   }
   assert(varmem_sizes[p]==s);
-  varmem_sizes[p] = -varmem_sizes[p];
   if (s<MAX_CHAIN_SIZE) {
+    varmem_sizes[p] = -varmem_sizes[p];
     TEST_CHAIN(s);
     /* this seemed like an interesting idea for debugging, but it doesn't work
        (found too late) */
@@ -521,6 +540,7 @@ free_node (halfword p, integer s) {
     free_chain[s] = p;
     TEST_CHAIN(s);
   } else {
+    varmem_sizes[p] = -varmem_sizes[p];
     node_size(p)=s; vlink(p)=rover;
     rover=p;
   }
