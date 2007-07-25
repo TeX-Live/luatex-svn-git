@@ -2758,8 +2758,10 @@ there can be holes in the sequence.
 local info = fontforge.info('filename')
 \stopfunctioncall
 
-This function returns either \type{nil}, or a \type{table} containing six
-fairly interesting information items from the font file:
+This function returns either \type{nil}, or a \type{table}, or an
+array of small tables (in the case of a TrueType collection). The
+returned table(s) will contain six fairly interesting information
+items from the font(s) defined by the file:
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf key                      \NC \bf type \NC \bf explanation \NC\NR
