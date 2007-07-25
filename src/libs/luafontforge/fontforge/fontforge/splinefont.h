@@ -1126,6 +1126,7 @@ typedef struct splinefont {
     real italicangle, upos, uwidth;		/* In font info */
 #ifdef LUA_FF_LIB
     int units_per_em;
+    struct splinefont *next;
 #endif
     int ascent, descent;
     int vertical_origin;			/* height of vertical origin in character coordinate system */

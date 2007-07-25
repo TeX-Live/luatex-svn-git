@@ -10784,10 +10784,12 @@ return( sf );
 
 #ifdef LUA_FF_LIB
 SplineFont *ReadSplineFontInfo(char *filename,enum openflags openflags) {
-    SplineFont *sf;
+  SplineFont *sf, *sf_ptr;
+	char **fontlist;
     char *pt =NULL, *strippedname=filename, *paren=NULL, *fullname=filename;
-    FILE *foo;
-    int checked;
+    FILE *foo = NULL;
+    int checked = 0;
+	char s[512] = {0};
 
     if ( filename==NULL )
 return( NULL );
@@ -10811,10 +10813,22 @@ return( NULL );
 	fclose(foo);
 	if (( ch1==0 && ch2==1 && ch3==0 && ch4==0 ) ||
 		(ch1=='O' && ch2=='T' && ch3=='T' && ch4=='O') ||
-		(ch1=='t' && ch2=='r' && ch3=='u' && ch4=='e') ||
-		(ch1=='t' && ch2=='t' && ch3=='c' && ch4=='f') ) {
+		(ch1=='t' && ch2=='r' && ch3=='u' && ch4=='e') ) {
 	    sf = SFReadTTFInfo(fullname,0,openflags);
 	    checked = 't';
+	} else if ((ch1=='t' && ch2=='t' && ch3=='c' && ch4=='f')) {
+	  /* read all fonts in a collection */
+	  fontlist = NamesReadTTF(fullname);
+	  if (fontlist) {
+		while (*fontlist != NULL) {
+		  snprintf(s,511, "%s(%s)", fullname,*fontlist);
+		  sf_ptr = SFReadTTFInfo(s,0,openflags);
+		  if (sf != NULL)
+			sf_ptr->next = sf;	  
+		  sf = sf_ptr;
+		  fontlist++;
+		}
+	  }
 	} else if (( ch1=='%' && ch2=='!' ) ||
 		    ( ch1==0x80 && ch2=='\01' ) ) {	/* PFB header */
 	    sf = SFReadPostscriptInfo(fullname);

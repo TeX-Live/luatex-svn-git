@@ -3141,6 +3141,9 @@ SplineFont *SplineFontNew(void) {
     sf->order2 = new_fonts_are_order2;
 
     sf->map = EncMapNew(enclen,enclen,default_encoding);
+#ifdef LUA_FF_LIB
+	sf->next = NULL;
+#endif
 return( sf );
 }
 

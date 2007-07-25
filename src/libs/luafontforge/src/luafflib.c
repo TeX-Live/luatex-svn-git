@@ -480,6 +480,7 @@ handle_generic_pst (lua_State *L, struct generic_pst *pst) {
 	  lua_createtable(L,0,4);    
 	  do_handle_generic_pst(L, next);                
 	  lua_rawset(L,-3);          
+	  next = next->next;         
 	}
   }
 }
@@ -1296,7 +1297,8 @@ handle_splinefont(lua_State *L, struct splinefont *sf) {
   for (k=0;k<sf->glyphcnt;k++) {
     lua_pushnumber(L,k);
     lua_createtable(L,0,12);
-    handle_splinechar(L,sf->glyphs[k], sf->hasvmetrics);
+	if (sf->glyphs[k])
+	  handle_splinechar(L,sf->glyphs[k], sf->hasvmetrics);
     lua_rawset(L,-3);
   }
   lua_setfield(L,-2,"glyphs");
@@ -1481,9 +1483,21 @@ ff_make_table (lua_State *L) {
   return 1;
 }
 
+void do_ff_info (lua_State *L, SplineFont *sf) {
+  lua_newtable(L);
+  dump_stringfield(L,"familyname",      sf->familyname);
+  dump_stringfield(L,"fontname",        sf->fontname);
+  dump_stringfield(L,"fullname",        sf->fullname);
+  dump_intfield   (L,"italicangle",     sf->italicangle);
+  dump_stringfield(L,"version",         sf->version);
+  dump_stringfield(L,"weight",          sf->weight);
+
+}
+
 static int 
 ff_info (lua_State *L) {
   SplineFont *sf;
+  int i;
   const char *fontname;
   int openflags = 0;
   fontname = luaL_checkstring(L,1);
@@ -1493,14 +1507,21 @@ ff_info (lua_State *L) {
     lua_pushfstring(L,"font loading failed for %s\n", fontname);
     lua_error(L);
   } else {
-    lua_newtable(L);
-    dump_stringfield(L,"familyname",      sf->familyname);
-    dump_stringfield(L,"fontname",        sf->fontname);
-    dump_stringfield(L,"fullname",        sf->fullname);
-    dump_intfield   (L,"italicangle",     sf->italicangle);
-    dump_stringfield(L,"version",         sf->version);
-    dump_stringfield(L,"weight",          sf->weight);
-    SplineFontFree(sf);
+	fprintf(stdout,"BOE! %p, %p\n", sf, sf->next);
+	if (sf->next != NULL) {
+	  i = 1;
+	  lua_newtable(L);
+	  while (sf) {
+		do_ff_info(L, sf);
+		lua_rawseti(L,-2,i);
+		i++;
+		SplineFontFree(sf);
+		sf = sf->next;
+	  }
+	} else {
+	  do_ff_info(L, sf);
+	  SplineFontFree(sf);
+	}	  
   }
   return 1;
 }
