@@ -602,14 +602,11 @@ handle_splinechar (lua_State *L,struct splinechar *glyph, int hasvmetrics) {
   lua_setfield(L,-2,"boundingbox");
 
   /*dump_intfield(L,"orig_pos",       glyph->orig_pos);*/
-  if (hasvmetrics) {
+  if (hasvmetrics)
     dump_intfield(L,"vwidth",         glyph->vwidth);
-  } else {
-    dump_intfield(L,"width",          glyph->width);
-  }
-  if (glyph->lsidebearing>0) {
-    dump_intfield(L,"lsidebearing",   glyph->lsidebearing); 
-  }
+  dump_intfield(L,"width",          glyph->width);
+
+  dump_cond_intfield(L,"lsidebearing",   glyph->lsidebearing); 
   
   /* Layer layers[2];	*/	/* TH Not used */
   /*  int layer_cnt;    */	/* TH Not used */
