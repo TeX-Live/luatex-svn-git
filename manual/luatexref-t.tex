@@ -2799,6 +2799,22 @@ end
 myfont = load_font('/opt/tex/texmf/fonts/data/arial.ttf')
 \stoptyping
 
+The main function call is
+
+\startfunctioncall
+local info = fontforge.open('filename')
+\stopfunctioncall
+
+For \TRUETYPE\ collections (when filename ends in 'ttc'), you have to
+use a second string argument to specify which font you want from the
+collection.  Use one of the \type{fullname} strings that are returned
+by \type{fontforge.info} for that.
+
+\startfunctioncall
+local info = fontforge.open('filename','fullname')
+\stopfunctioncall
+
+
 The font file is parsed and partially interpreted by the font
 loading routines from \FONTFORGE. The file format can be \OPENTYPE,
 \TRUETYPE, \TRUETYPE\ Collection, \CFF, or \TYPEONE.
