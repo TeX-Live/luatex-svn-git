@@ -10493,8 +10493,8 @@ return( NULL );
     pt = strrchr(filename,'/');
     if ( pt==NULL ) pt = filename;
     if ( (paren=strchr(pt,'('))!=NULL && strchr(paren,')')!=NULL ) {
-	strippedname = copy(filename);
-	strippedname[paren-filename] = '\0';
+	  strippedname = copy(filename);
+	  strippedname[paren-filename] = '\0';
     }
 
     pt = strrchr(strippedname,'.');
@@ -10545,6 +10545,7 @@ return( NULL );
 
     sf = NULL;
     foo = fopen(strippedname,"rb");
+
     checked = false;
 /* checked == false => not checked */
 /* checked == 'u'   => UFO */
@@ -10557,8 +10558,8 @@ return( NULL );
 /* checked == 'F'   => sfdir */
 /* checked == 'b'   => bdf */
 /* checked == 'i'   => ikarus */
-    if ( GFileIsDir(strippedname) ) {
 #ifndef LUA_FF_LIB
+    if ( GFileIsDir(strippedname) ) {
 	  char *temp = galloc(strlen(strippedname)+strlen("/glyphs/contents.plist")+1);
 	  strcpy(temp,strippedname);
 	  strcat(temp,"/glyphs/contents.plist");
@@ -10576,8 +10577,10 @@ return( NULL );
 	  free(temp);
 	  if ( foo!=NULL )
 	    fclose(foo);
-#endif
     } else if ( foo!=NULL ) {
+#else 
+	  {
+#endif
 	/* Try to guess the file type from the first few characters... */
 	int ch1 = getc(foo);
 	int ch2 = getc(foo);
