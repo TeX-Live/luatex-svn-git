@@ -227,10 +227,29 @@ static struct
 };
 
 
+unsigned long ttc_read_offset (sfnt *sfont, int ttc_idx)
+{
+  long version;
+  unsigned long offset = 0;
+  unsigned long num_dirs = 0;
+
+  sfnt_seek_set (sfont, 4); /* skip version tag */
+
+  version = sfnt_get_ulong(sfont);
+  num_dirs = sfnt_get_ulong(sfont);
+  if (ttc_idx < 0 || ttc_idx > num_dirs - 1) {
+    fprintf(stderr,"Invalid TTC index number\n");
+    uexit(1);
+  }
+
+  sfnt_seek_set (sfont, 12 + ttc_idx * 4);
+  offset = sfnt_get_ulong (sfont);
+
+  return offset;
+}
 
 void make_tt_subset (fd_entry * fd,unsigned char *buffer, integer buflen) {
 
-  int verbose = 0;
   long i, cid;
   unsigned int last_cid;
   glw_entry *glyph, *found;
@@ -241,12 +260,18 @@ void make_tt_subset (fd_entry * fd,unsigned char *buffer, integer buflen) {
   char *used_chars;
   sfnt *sfont;
   pdf_obj *fontfile;
-
+  int verbose = 0, error = 0;
+  
   cidtogidmap = NULL;
 
   sfont = sfnt_open(buffer, buflen);
 
-  if (sfnt_read_table_directory(sfont, 0) < 0) {
+  if (sfont->type == SFNT_TYPE_TTC)
+    error = sfnt_read_table_directory(sfont, ttc_read_offset(sfont, 0));
+  else 
+	error = sfnt_read_table_directory(sfont, 0);
+
+  if (error  < 0) {
     fprintf(stderr,"Could not parse the ttf directory.\n");
     uexit(1);
   }
