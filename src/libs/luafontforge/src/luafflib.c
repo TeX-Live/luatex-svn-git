@@ -102,19 +102,20 @@ ff_open (lua_State *L) {
   SplineFont *sf;
   const char *fontname;
   char s[511];
+  size_t len;
   int args ;
-  int openflags = 0;
+  int openflags = 1;
   fontname = luaL_checkstring(L,1);
   args = lua_gettop(L);
   if (args>=2) {
 	if (lua_isstring(L,2)) {
 	  if (*(fontname+strlen(fontname))!=')') {
 		/* possibly fails for embedded parens in the font name */
-		snprintf(s,511,"%s(%s)", fontname, lua_tostring(L,2));
+		snprintf(s,511,"%s(%s)", fontname, lua_tolstring(L,2,&len));
+		if (len==0) {
+		  snprintf(s,511,"%s", fontname);
+		}
 	  }
-	  openflags = (int)luaL_optinteger(L,3,0);
-	} else {
-	  openflags = (int)luaL_optinteger(L,2,0);
 	}
   } else {
 	snprintf(s,511,"%s", fontname);
@@ -1511,9 +1512,8 @@ ff_info (lua_State *L) {
   SplineFont *sf;
   int i;
   const char *fontname;
-  int openflags = 0;
+  int openflags = 1;
   fontname = luaL_checkstring(L,1);
-  openflags = (int)luaL_optinteger(L,2,0);
   sf = ReadSplineFontInfo((char *)fontname,openflags);
   if (sf==NULL) {
     lua_pushfstring(L,"font loading failed for %s\n", fontname);
