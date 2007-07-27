@@ -561,7 +561,7 @@ LUALIB_API int luaL_loadfile (lua_State *L, const char *filename) {
   }
   else {
     lua_pushfstring(L, "@%s", filename);
-    lf.f = fopen(filename, "r");
+    lf.f = fopen(filename, "rb");
     if (lf.f == NULL) return errfile(L, "open", fnameindex);
   }
   c = getc(lf.f);

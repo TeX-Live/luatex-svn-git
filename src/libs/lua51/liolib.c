@@ -148,7 +148,7 @@ static int io_tostring (lua_State *L) {
 
 static int io_open (lua_State *L) {
   const char *filename = luaL_checkstring(L, 1);
-  const char *mode = luaL_optstring(L, 2, "r");
+  const char *mode = luaL_optstring(L, 2, "rb");
   FILE **pf = newfile(L);
   *pf = fopen(filename, mode);
   return (*pf == NULL) ? pushresult(L, 0, filename) : 1;
@@ -156,7 +156,7 @@ static int io_open (lua_State *L) {
 
 static int io_open_ro (lua_State *L) {
   const char *filename = luaL_checkstring(L, 1);
-  const char *mode = luaL_optstring(L, 2, "r");
+  const char *mode = luaL_optstring(L, 2, "rb");
   if ((strcmp(mode,"r")!= 0)&&(strcmp(mode,"rb")!=0))
 	return pushresult(L, 0, filename);
   FILE **pf = newfile(L);
@@ -170,7 +170,7 @@ static int io_open_ro (lua_State *L) {
 
 static int io_popen (lua_State *L) {
   const char *filename = luaL_checkstring(L, 1);
-  const char *mode = luaL_optstring(L, 2, "r");
+  const char *mode = luaL_optstring(L, 2, "rb");
   FILE **pf = newfile(L);
   *pf = lua_popen(L, filename, mode);
   return (*pf == NULL) ? pushresult(L, 0, filename) : 1;
@@ -251,7 +251,7 @@ static int io_lines (lua_State *L) {
   else {
     const char *filename = luaL_checkstring(L, 1);
     FILE **pf = newfile(L);
-    *pf = fopen(filename, "r");
+    *pf = fopen(filename, "rb");
     if (*pf == NULL)
       fileerror(L, 1, filename);
     aux_lines(L, lua_gettop(L), 1);
