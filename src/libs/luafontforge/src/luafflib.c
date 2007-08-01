@@ -143,6 +143,16 @@ ff_close (lua_State *L) {
   return 0;
 }
 
+static int 
+ff_apply_featurefile (lua_State *L) {
+  SplineFont **sf;
+  char *fname;
+  sf = check_isfont(L,1);
+  fname = (char *)luaL_checkstring(L,2);
+  SFApplyFeatureFilename(*sf,fname);
+  return 0;
+}
+
 
 static void 
 dump_intfield (lua_State *L, char *name, long int field) {
@@ -1542,6 +1552,7 @@ static struct luaL_reg fflib[] = {
   {"open", ff_open},
   {"info", ff_info},
   {"close", ff_close},
+  {"apply_featurefile", ff_apply_featurefile},
   {"to_table", ff_make_table},
   {NULL, NULL}
 };

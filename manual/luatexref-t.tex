@@ -2802,7 +2802,7 @@ myfont = load_font('/opt/tex/texmf/fonts/data/arial.ttf')
 The main function call is
 
 \startfunctioncall
-local info = fontforge.open('filename')
+local f = fontforge.open('filename')
 \stopfunctioncall
 
 For \TRUETYPE\ collections (when filename ends in 'ttc'), you have to
@@ -2811,7 +2811,7 @@ collection.  Use one of the \type{fullname} strings that are returned
 by \type{fontforge.info} for that.
 
 \startfunctioncall
-local info = fontforge.open('filename','fullname')
+local f = fontforge.open('filename','fullname')
 \stopfunctioncall
 
 
@@ -2839,6 +2839,23 @@ actual font file ourselves:
   the font program itself, perhaps even creating or changing the font.
 
 \stopitemize
+
+\subsection{Applying a `feature file'}
+
+You can apply a  `feature file' to a loaded font:
+
+\startfunctioncall
+fontforge.apply_featurefile(f,'filename')
+\stopfunctioncall
+
+A `feature file' is a textual representation of the features in an
+OpenType font.  See
+\hyphenatedurl{http://www.adobe.com/devnet/opentype/afdko/topic_feature_file_syntax.html}
+and \hyphenatedurl{http://fontforge.sourceforge.net/featurefile.html}
+for a more detailed description of feature files.
+
+
+\section{Fontforge font tables}
 
 The top|-|level keys in the returned table are (the explanations in
 this part of the documentation is not yet finished):
