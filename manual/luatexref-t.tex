@@ -2854,6 +2854,23 @@ OpenType font.  See
 and \hyphenatedurl{http://fontforge.sourceforge.net/featurefile.html}
 for a more detailed description of feature files.
 
+\subsection{Applying an `afm file'}
+
+You can apply a  `afm file' to a loaded font:
+
+\startfunctioncall
+fontforge.apply_afmfile(f,'filename')
+\stopfunctioncall
+
+An `afm file' is a textual representation of (some of) the metainformation
+in a Type~1 font. See \hyphenatedurl{http://www.adobe.com/devnet/font/pdfs/5004.AFM_Spec.pdf}
+for more information about afm files.
+
+Note: if you \type{fontforge.open()} a PFB file named \type{font.pfb},
+the library will automatically search for, and apply, \type{font.afm}
+if it exists in the same directory as \type{font.pfb}. In that case,
+there is no need for an explicit call to \type{apply_afmfile()}.
+
 
 \section{Fontforge font tables}
 
