@@ -3220,7 +3220,7 @@ int LoadKerningDataFromAfm(SplineFont *sf, char *filename,EncMap *map) {
     FILE *file = fopen(filename,"r");
     char buffer[200], *pt, *ept, ch;
     SplineChar *sc1, *sc2;
-    int off;
+    int off, lx, ly, rx, ry;
     char name[44], second[44], lig[44], buf2[100];
     PST *liga;
     double scale = (sf->ascent+sf->descent)/1000.0;
@@ -3247,9 +3247,17 @@ return( 0 );
 	    char *pt;
 	    sc2 = NULL;
 	    for ( pt= strchr(buffer,';'); pt!=NULL; pt=strchr(pt+1,';') ) {
-		if ( sscanf( pt, "; N %40s", name )==1 )
+		  if ( sscanf( pt, "; N %40s", name )==1 )
 		    sc2 = SFGetChar(sf,-1,name);
-		else if ( sc2!=NULL &&
+		  else if ( sc2!=NULL &&
+					sscanf( pt, "; B %d %d %d %d", &lx, &ly, &rx, &ry)==4 ) {
+			sc2->xmin = lx;
+			sc2->ymin = ly;
+			sc2->xmax = rx;
+			sc2->ymax = ry;
+
+		  } 
+		  else if ( sc2!=NULL &&
 			sscanf( pt, "; L %40s %40s", second, lig)==2 ) {
 		    sc1 = SFGetChar(sf,-1,lig);
 		    if ( sc1!=NULL ) {
