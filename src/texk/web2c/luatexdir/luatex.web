@@ -3840,7 +3840,7 @@ end;
 function glyph_width(@!p:halfword):pointer;
 var w:integer;
 begin
-  w := char_width(font(p),character(p)); { + x_displace(p); }
+  w := char_width(font(p),character(p)); { |+ x_displace(p);| }
   glyph_width := w;
 end;
 @#
@@ -11697,7 +11697,7 @@ var p:pointer; {tail of the token list}
 @!q:pointer; {new node being added to the token list via |store_new_token|}
 @!t:halfword; {token being appended}
 @!k:pool_pointer; {index into |str_pool|}
-begin str_room(1);
+begin
 p:=temp_token_head; link(p):=null; k:=b;
 while k<pool_ptr do
   begin t:=pool_to_unichar(k);
@@ -11720,7 +11720,7 @@ var p:pointer; {tail of the token list}
 @!q:pointer; {new node being added to the token list via |store_new_token|}
 @!t:halfword; {token being appended}
 @!k:pool_pointer; {index into |str_pool|}
-begin str_room(1);
+begin
 p:=temp_token_head; link(p):=null; k:=b;
 while k<pool_ptr do
   begin t:=pool_to_unichar(k);
@@ -19561,7 +19561,7 @@ if (rule_ht>0)and(rule_wd>0) then {we don't output empty rules}
   case font_direction(dvi_direction) of
   dir__LT: begin
     pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
-    {pdf_dvicmd_left(rule_wd);}
+    {|pdf_dvicmd_left(rule_wd);|}
     end;
   dir__LB: begin
     pdf_dvicmd_down(rule_ht);
@@ -24476,7 +24476,7 @@ set so that the columns line up, taking due account of spanned columns.
 procedure@?resume_after_display; forward;@t\2@>@/
 procedure@?build_page; forward;@t\2@>@/
 procedure fin_align;
-var @!p,@!q,@!r,@!s,@!u,@!v: pointer; {registers for the list operations}
+var @!p,@!q,@!r,@!s,@!u,@!v,@!rr: pointer; {registers for the list operations}
 @!t,@!w:scaled; {width of column}
 @!o:scaled; {shift offset for unset boxes}
 @!n:halfword; {matching span amount}
@@ -24665,7 +24665,7 @@ else if glue_sign(p)=shrinking then
   begin if shrink_order(v)=glue_order(p) then
     t:=t-round(float(glue_set(p))*shrink(v));
   end;
-s:=vlink(s); r:=new_null_box; vlink(u):=r; u:=vlink(u); t:=t+width(s);
+s:=vlink(s); rr:=new_null_box; vlink(u):=rr; u:=vlink(u); t:=t+width(s);
 if mode=-vmode then width(u):=width(s)@+else
   begin set_type(u,vlist_node); height(u):=width(s);
   end
