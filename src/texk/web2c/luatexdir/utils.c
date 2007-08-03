@@ -1676,13 +1676,15 @@ check_buffer_overflow (int wsize) {
   }
 }
 
+#define EXTRA_STRING 500
+
 void 
 check_pool_overflow (int wsize) {
   int nsize ;
-  if (wsize>poolsize) {
-	nsize = poolsize + poolsize/5+5;
+  if ((wsize-1)>poolsize) {
+	nsize = poolsize + poolsize/5+EXTRA_STRING;
 	if (nsize<wsize) {
-	  nsize = wsize+5;
+	  nsize = wsize+EXTRA_STRING;
 	}
 	strpool = xreallocarray (strpool, char, nsize);	
 	poolsize = nsize;

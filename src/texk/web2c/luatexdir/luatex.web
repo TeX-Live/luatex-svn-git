@@ -1469,11 +1469,7 @@ apologetic error message if there isn't enough room.
 begin str_pool[pool_ptr]:=si(#); incr(pool_ptr);
 end
 @d flush_char == decr(pool_ptr) {forget the last character in the pool}
-@d str_room(#) == {make sure that the pool hasn't overflowed}
-  begin if pool_ptr+# > pool_size then
-  overflow("pool size",pool_size-init_pool_ptr);
-@:TeX capacity exceeded pool size}{\quad pool size@>
-  end
+@d str_room(#) == check_pool_overflow((pool_ptr+#)) {test or grow the pool}
 
 @p procedure string_room(t:integer);
 begin
