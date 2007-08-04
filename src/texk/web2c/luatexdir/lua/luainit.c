@@ -230,7 +230,7 @@ parse_options(int argc, char **argv)
 "tex       by Donald Knuth\n"
 "etex      by Peter Breitenlohner, Phil Taylor and friends\n"
 "omega     by John Plaice and Yannis Haralambous\n"
-"aleph     by Guiseppe Bilotta\n"
+"aleph     by Giuseppe Bilotta\n"
 "pdftex    by Han The Thanh and friends\n"
 "kpathsea  by Karl Berry, Olaf Weber and others\n"
 "lua       by Roberto Ierusalimschy, Waldemar Celes,\n"
