@@ -113,6 +113,18 @@ $(SLNUNICODEDEP): $(SLNUNICODEDIR)/slnunico.c $(SLNUNICODEDIR)/slnudata.c
 
 # zziplib
 
+# zziplib is a configuration nightmare, because it is so stubborn
+# about using a pre-installed zlib. configure and make have to
+# be fooled in two different ways. 
+# - configure needs to find
+# the subdirs 'include' and 'lib' in the --with-zlib prefix,
+# and these need to contain the proper headers and libraries.
+# - make needs to find the right headers using an -I via CPPFLAGS, 
+# because the zlib path is relative and can't be found otherwise.
+#
+# final trickyness: configure writes a Makefile in the source
+# directory. it is needed by anything, so I delete it right away
+
 zzipretarget=
 
 ifeq ($(target),i386-mingw32)
@@ -123,19 +135,23 @@ endif
 ZZIPLIBDIR=../../libs/zziplib
 ZZIPLIBSRCDIR=$(srcdir)/$(ZZIPLIBDIR)
 ZZIPLIBDEP = $(ZZIPLIBDIR)/zzip/.libs/libzzip.a
-ZIPZIPINC = -I$(ZLIBSRCDIR)
 
 $(ZZIPLIBDEP): $(ZZIPLIBSRCDIR)
 	mkdir -p $(ZZIPLIBDIR) && cd $(ZZIPLIBDIR) &&                \
-    cp -R $(ZZIPLIBSRCDIR)/* . &&                                \
-    env CPPFLAGS=$(ZIPZIPINC) ./configure --disable-builddir --disable-shared $(zzipretarget) && cd $(ZZIPLIBDIR)/zzip && $(MAKE) $(common_makeargs) libzzip.la
+	mkdir -p zlib/include && cp $(ZLIBSRCDIR)/*.h  zlib/include && \
+	mkdir -p zlib/lib && cp $(ZLIBDIR)/*.a  zlib/lib  && \
+    env CPPFLAGS=-I../zlib/include $(ZZIPLIBSRCDIR)/configure --with-zlib=zlib \
+        --srcdir=$(ZZIPLIBSRCDIR) --disable-builddir --disable-shared $(zzipretarget) && \
+    rm $(ZZIPLIBSRCDIR)/Makefile && \
+	cd $(ZZIPLIBDIR)/zzip && \
+	$(MAKE) $(common_makeargs) libzzip.la
 
 # luazip
 
 LUAZIPDIR=../../libs/luazip
 LUAZIPSRCDIR=$(srcdir)/$(LUAZIPDIR)
 LUAZIPDEP=$(LUAZIPDIR)/src/luazip.o
-LUAZIPINC=-I../../lua51 -I../../zziplib
+LUAZIPINC=-I../../lua51 -I../$(ZZIPLIBSRCDIR) -I../$(ZZIPLIBDIR)
 
 $(LUAZIPDEP): $(LUAZIPDIR)/src/luazip.c
 	mkdir -p $(LUAZIPDIR) && cd $(LUAZIPDIR) && cp -R $(LUAZIPSRCDIR)/* . && \
