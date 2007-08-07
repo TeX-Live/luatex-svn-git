@@ -376,9 +376,14 @@ lua_initialize(int ac, char **av)
     /* Save to pass along to topenin.  */
     argc = ac;
     argv = av;
-
+	
     ptexbanner = BANNER;
     program_invocation_name = argv[0];
+
+	/* be 'luac' */
+	if (strstr(argv[0],"luac") != NULL ) {
+	  exit(luac_main(ac,av));
+	}
 
     /* Must be initialized before options are parsed.  */
     interactionoption = 4;

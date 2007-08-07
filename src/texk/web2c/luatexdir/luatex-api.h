@@ -17,6 +17,8 @@ extern lua_State *Luas[];
 
 extern void make_table (lua_State *L, char *tab, char *getfunc, char*setfunc);
 
+extern int luac_main (int argc, char* argv[]);
+
 extern int luaopen_tex (lua_State *L);
 
 extern int luaopen_pdf (lua_State *L);

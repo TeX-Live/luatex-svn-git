@@ -79,6 +79,7 @@ lua/ltexiolib.o \
 lua/ltexlib.o \
 lua/ltokenlib.o \
 lua/lfontlib.o \
+lua/texluac.o \
 lua/luainit.o \
 lua/luastuff.o \
 lua/luatex.o \
