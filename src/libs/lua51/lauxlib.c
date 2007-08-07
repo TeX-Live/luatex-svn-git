@@ -572,7 +572,7 @@ LUALIB_API int luaL_loadfile (lua_State *L, const char *filename) {
   }
   if (c == LUA_SIGNATURE[0] && lf.f != stdin) {  /* binary file? */
     fclose(lf.f);
-    lf.f = fopen(filename, "r");  /* reopen in binary mode */
+    lf.f = fopen(filename, "rb");  /* reopen in binary mode */
     if (lf.f == NULL) return errfile(L, "reopen", fnameindex);
     /* skip eventual `#!...' */
    while ((c = getc(lf.f)) != EOF && c != LUA_SIGNATURE[0]) ;
