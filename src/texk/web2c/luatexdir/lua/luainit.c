@@ -381,7 +381,10 @@ lua_initialize(int ac, char **av)
     program_invocation_name = argv[0];
 
 	/* be 'luac' */
-	if (strstr(argv[0],"luac") != NULL ) {
+	if (argc>1 &&
+		(STREQ(argv[0],"texluac") ||
+		 STREQ(argv[1],"--luaconly") ||
+		 STREQ(argv[1],"--luac"))) {
 	  exit(luac_main(ac,av));
 	}
 

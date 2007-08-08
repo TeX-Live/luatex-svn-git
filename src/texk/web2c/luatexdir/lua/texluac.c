@@ -94,6 +94,10 @@ static int doargs(int argc, char* argv[])
    stripping=1;
   else if (IS("-v"))			/* show version */
    ++version;
+  else if (IS("--luaconly"))	/* ignore */
+	;
+  else if (IS("--luac"))	/* ignore */
+	;
   else					/* unknown option */
    usage(argv[i]);
  }
