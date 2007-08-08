@@ -16,13 +16,19 @@ font_read_tfm (lua_State *L) {
     cnom = (char *)lua_tostring(L, 1);
     if(lua_isnumber(L, 2)) {
       s = (integer)lua_tonumber(L,2);
-      f = new_font();
-      if (read_tfm_info(f, cnom, "", s)) {
-		k =  font_to_lua(L,f);
-		delete_font(f);
-		return k;
+	  if (strlen(cnom)) {
+		f = new_font();
+		if (read_tfm_info(f, cnom, "", s)) {
+		  k =  font_to_lua(L,f);
+		  delete_font(f);
+		  return k;
+		} else {
+		  delete_font(f);
+		  lua_pushstring(L, "font loading failed");
+		  lua_error(L);
+		}
       } else {
-		lua_pushstring(L, "font loading failed");
+		lua_pushstring(L, "expected tfm name as first argument");
 		lua_error(L);
       }
     } else {
@@ -43,17 +49,19 @@ font_read_vf (lua_State *L) {
   char *cnom;
   if(lua_isstring(L, 1)) {
     cnom = (char *)lua_tostring(L, 1);
-    if(lua_isnumber(L, 2)) {
-      s = lua_tonumber(L,2);
-      return make_vf_table(L,cnom,s);
-    } else {
-      lua_pushstring(L, "expected an integer size as second argument");
-      lua_error(L);
-    }
-  } else {
-    lua_pushstring(L, "expected vf name as first argument"); 
-    lua_error(L);
+	if (strlen(cnom)) {
+	  if(lua_isnumber(L, 2)) {
+		s = lua_tonumber(L,2);
+		return make_vf_table(L,cnom,s);
+	  } else {
+		lua_pushstring(L, "expected an integer size as second argument");
+		lua_error(L);
+		return;
+	  }
+	}
   }
+  lua_pushstring(L, "expected vf name as first argument"); 
+  lua_error(L);
   return 2; /* not reached */
 }
 
