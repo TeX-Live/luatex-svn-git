@@ -101,11 +101,19 @@ static int
 ff_open (lua_State *L) {
   SplineFont *sf;
   const char *fontname;
+  FILE *l;
   char s[511];
   size_t len;
   int args ;
   int openflags = 1;
   fontname = luaL_checkstring(L,1);
+  /* test fontname for existance */
+  if ((l = fopen(fontname,"r"))) {
+	fclose(l); 
+  } else {
+	lua_pushfstring(L,"font loading failed for %s (read error)\n", fontname);
+	lua_error(L);
+  }
   args = lua_gettop(L);
   if (args>=2) {
 	if (lua_isstring(L,2)) {
@@ -120,12 +128,17 @@ ff_open (lua_State *L) {
   } else {
 	snprintf(s,511,"%s", fontname);
   }
-  sf = ReadSplineFont((char *)s,openflags);
-  if (sf==NULL) {
-	lua_pushfstring(L,"font loading failed for %s\n", fontname);
-	lua_error(L);
+  if (strlen(s)>0) {
+	sf = ReadSplineFont((char *)s,openflags);
+	if (sf==NULL) {
+	  lua_pushfstring(L,"font loading failed for %s\n", fontname);
+	  lua_error(L);
+	} else {
+	  lua_ff_pushfont(L,sf);
+	}
   } else {
-	lua_ff_pushfont(L,sf);
+	lua_pushfstring(L,"font loading failed: empty string given\n", fontname);
+	lua_error(L);
   }
   return 1;
 }
@@ -1532,10 +1545,23 @@ void do_ff_info (lua_State *L, SplineFont *sf) {
 static int 
 ff_info (lua_State *L) {
   SplineFont *sf;
+  FILE *l;
   int i;
   const char *fontname;
   int openflags = 1;
   fontname = luaL_checkstring(L,1);
+  if (!strlen(fontname)) {
+  	lua_pushfstring(L,"font loading failed: empty string given\n", fontname);
+	lua_error(L);
+	return 1;
+  } 
+  /* test fontname for existance */
+  if ((l = fopen(fontname,"r"))) {
+	fclose(l); 
+  } else {
+	lua_pushfstring(L,"font loading failed for %s (read error)\n", fontname);
+	lua_error(L);
+  }
   sf = ReadSplineFontInfo((char *)fontname,openflags);
   if (sf==NULL) {
     lua_pushfstring(L,"font loading failed for %s\n", fontname);
