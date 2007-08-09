@@ -268,7 +268,7 @@ open_vf_file (char *fn, unsigned char **vbuffer, integer *vsize) {
   callback_id=callback_defined(find_vf_file_callback);
   if (callback_id>0) {
     res = run_callback(callback_id,"S->S",fn, &fnam);
-    if (res && (fnam!=0) && (strlen(fnam)>0)) {
+    if (res && (fnam!=NULL) && (strlen(fnam)>0)) {
       /* @<Fixup |nameoffile| after callback@>; */
       free(nameoffile);
       namelength = strlen(fnam);
