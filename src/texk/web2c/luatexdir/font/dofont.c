@@ -39,7 +39,7 @@ static char *
 font_error_message (pointer u, char *nom, scaled s) {
   char *str = xmalloc(256);
   char *c = makecstring(zget_cs_text(u));
-  char *extra =  "Metric (TFM/OFM) file not found or bad";
+  char *extra =  "metric data not found or bad";
   if (s>=0 ) {
     snprintf(str,255,"Font \\%s=%s at %gpt not loadable: %s", c, nom, (double)s/65536, extra);
   } else if (s!=-1000) {
@@ -67,12 +67,10 @@ do_define_font (integer f, char *cnom, char *caire, scaled s, integer natural_di
   callback_id=callback_defined(define_font_callback);
   if (callback_id>0) {
     if (caire == NULL || strlen(caire)==0) {
-      cnam = cnom;
+      cnam = xstrdup(cnom);
     } else {
       cnam = xmalloc(strlen(cnom)+strlen(caire)+2);
       sprintf(cnam,"%s/%s",caire,cnom);
-      free(caire);
-      free(cnom);
     }
 #if TIMERS
 	gettimeofday(&tva,NULL);
@@ -149,6 +147,8 @@ read_font_info(pointer u,  strnumber nom, strnumber aire, scaled s,
 
   f = new_font();
   if ((f = do_define_font(f, cnom,caire,s,natural_dir))) {
+	if (caire != NULL) free(caire);
+	free(cnom);
     return f;
   } else {
     char *help[] = {"I wasn't able to read the size data for this font,",
@@ -158,6 +158,8 @@ read_font_info(pointer u,  strnumber nom, strnumber aire, scaled s,
 		    "e.g., type `I\font<same font id>=<substitute font name>'.",
 		    NULL } ;
     msg = font_error_message(u, cnom, s);
+	if (caire != NULL) free(caire);
+	free(cnom);
     tex_error(msg,help);
 	free(msg);
     return 0;
@@ -172,7 +174,7 @@ int
 find_font_id (char *nom, char *aire, scaled s) {
   integer f;
   f = new_font();
-  if ((f = do_define_font(f, xstrdup(nom),xstrdup(aire),s,-1))) {
+  if ((f = do_define_font(f, nom, aire,s,-1))) {
     return f;
   } else {
     return 0;
