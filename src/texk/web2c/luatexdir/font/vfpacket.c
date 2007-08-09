@@ -221,7 +221,7 @@ do_vf_packet (internal_font_number vf_f, integer c) {
 
 
 integer *packet_local_fonts(internal_font_number f, integer *num) {
-  int c, cmd, cur_packet_byte, lf, k,l;
+  int c, cmd, cur_packet_byte, lf, k,l, i;
   integer localfonts[256] = {0};
   integer *lfs;
   charinfo *co;
@@ -263,8 +263,8 @@ integer *packet_local_fonts(internal_font_number f, integer *num) {
 	  cur_packet_byte+=8;
 	  break;
 	case packet_special_code:
-	  packet_number(k);
-	  while (k-- > 0) 
+	  packet_number(i);
+	  while (i-- > 0) 
 	    do_packet_byte();
 	  break;
 	default: 
