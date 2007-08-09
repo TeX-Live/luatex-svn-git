@@ -841,8 +841,6 @@ make_vf_table(lua_State *L, char *cnom, scaled atsize) {
 
   stack_level = 0;
   /* @<Open |vf_file|, return if not found@>; */
-  if (vf_buffer!=NULL)
-    free(vf_buffer);
   vf_cur=0; vf_buffer=NULL; vf_size=0;  
   if (!open_vf_file(cnom, &vf_buffer, &vf_size)) {
     lua_pushnil(L);
@@ -906,8 +904,9 @@ make_vf_table(lua_State *L, char *cnom, scaled atsize) {
 
     vf_read(4,k);
     fs = sqxfw(k, atsize);
+	lua_pushstring(L,"size");
     lua_pushnumber(L,fs);
-    lua_rawseti(L,-2,2);
+    lua_rawset(L,-3);
     
     vf_read(4,k);
     ds = k / 16; /* dsize, not used */
@@ -920,9 +919,10 @@ make_vf_table(lua_State *L, char *cnom, scaled atsize) {
     while (tmp_b1-- > 0)
       vf_byte(s[k++]);    
     s[k]=0;
+	lua_pushstring(L,"name");
     lua_pushstring(L,xstrdup(s));
     free(s);
-    lua_rawseti(L,-2,1);
+    lua_rawset(L,-3);
     
     lua_rawseti(L,-2,vf_nf);
     i++;   
@@ -962,25 +962,23 @@ make_vf_table(lua_State *L, char *cnom, scaled atsize) {
     while (packet_length > 0) {
       vf_byte(cmd);
       decr(packet_length);
-
+	  
       if ((cmd >= set_char_0) && (cmd < set1)) {
-	if (vf_nf == 0) {
-	  vf_nf  = 1;
-	  make_command1("font",vf_nf,k);
-	}
-	make_command1("char",cmd,k);
-
+		if (vf_nf == 0) {
+		  vf_nf  = 1;
+		  make_command1("font",vf_nf,k);
+		}
+		make_command1("char",cmd,k);
+		
       } else if (((fnt_num_0 <= cmd) && (cmd <= fnt_num_0 + 63)) ||
 		 ((fnt1 <= cmd) && (cmd <= fnt1 + 3))) {
-	if (cmd >= fnt1) {
-	  vf_read_u((cmd - fnt1 + 1),vf_nf); vf_nf++;
-	  packet_length -= (cmd - fnt1 + 1);
-	} else {
-	  vf_nf = cmd - fnt_num_0 + 1;
-	}
-
-	make_command1("font",vf_nf,k);
-
+		if (cmd >= fnt1) {
+		  vf_read_u((cmd - fnt1 + 1),vf_nf); vf_nf++;
+		  packet_length -= (cmd - fnt1 + 1);
+		} else {
+		  vf_nf = cmd - fnt_num_0 + 1;
+		}
+		make_command1("font",vf_nf,k);
       } else { 
 	switch (cmd) {
 	case set_rule: 
