@@ -376,35 +376,35 @@ read_char_packets  (lua_State *L, integer *l_fonts, charinfo *co) {
       /* fetch the command code */
       lua_rawgeti(L,-1,1);
       if (lua_isstring(L,-1)) {
-	s = (char *)lua_tostring(L,-1);
-	cmd = 0;
-	if      (streq(s,"font"))    {  cmd = packet_font_code;     }
-	else if (streq(s,"char"))    {  cmd = packet_char_code;     
-	  if (ff==0) {
-	    append_packet(packet_font_code);
-	    ff = l_fonts[1];
-	    do_store_four(ff);
-	  }
-	} 
-	else if (streq(s,"slot"))    {  cmd = packet_nop_code;
-	  lua_rawgeti(L,-2,2);  n = lua_tointeger(L,-1);
-	  ff = (n>max_f ? 1 : l_fonts[n]);
-
-	  lua_rawgeti(L,-3,3);  n = lua_tointeger(L,-1);
-	  lua_pop(L,2);
-	  append_packet(packet_font_code);
-	  do_store_four(ff);
-	  append_packet(packet_char_code);
-	  do_store_four(n);
-	} 
-	else if (streq(s,"comment")) {  cmd = packet_nop_code;     } 
-	else if (streq(s,"node"))    {  cmd = packet_node_code;    }
-	else if (streq(s,"push"))    {  cmd = packet_push_code;    } 
-	else if (streq(s,"pop"))     {  cmd = packet_pop_code;     } 
-	else if (streq(s,"rule"))    {  cmd = packet_rule_code;    }
-	else if (streq(s,"right"))   {  cmd = packet_right_code;   }
-	else if (streq(s,"down"))    {  cmd = packet_down_code;    }
-	else if (streq(s,"special")) {  cmd = packet_special_code; } 
+		s = (char *)lua_tostring(L,-1);
+		cmd = 0;
+		if      (streq(s,"font"))    {  cmd = packet_font_code;     
+		}
+		else if (streq(s,"char"))    {  cmd = packet_char_code;     
+		  if (ff==0) {
+			append_packet(packet_font_code);
+			ff = l_fonts[1];
+			do_store_four(ff);
+		  }
+		} 
+		else if (streq(s,"slot"))    {  cmd = packet_nop_code;
+		  lua_rawgeti(L,-2,2);  n = lua_tointeger(L,-1);
+		  ff = (n>max_f ? l_fonts[1] : l_fonts[n]);
+		  lua_rawgeti(L,-3,3);  n = lua_tointeger(L,-1);
+		  lua_pop(L,2);
+		  append_packet(packet_font_code);
+		  do_store_four(ff);
+		  append_packet(packet_char_code);
+		  do_store_four(n);
+		} 
+		else if (streq(s,"comment")) {  cmd = packet_nop_code;     } 
+		else if (streq(s,"node"))    {  cmd = packet_node_code;    }
+		else if (streq(s,"push"))    {  cmd = packet_push_code;    } 
+		else if (streq(s,"pop"))     {  cmd = packet_pop_code;     } 
+		else if (streq(s,"rule"))    {  cmd = packet_rule_code;    }
+		else if (streq(s,"right"))   {  cmd = packet_right_code;   }
+		else if (streq(s,"down"))    {  cmd = packet_down_code;    }
+		else if (streq(s,"special")) {  cmd = packet_special_code; } 
 
 	switch(cmd) {
 	case packet_push_code:
@@ -415,7 +415,7 @@ read_char_packets  (lua_State *L, integer *l_fonts, charinfo *co) {
 	  append_packet(cmd);
 	  lua_rawgeti(L,-2,2);
 	  n = lua_tointeger(L,-1);
-	  ff = (n>max_f ? 1 : l_fonts[n]);
+	  ff = (n>max_f ? l_fonts[1] : l_fonts[n]);
 	  do_store_four(ff);
 	  lua_pop(L,1);
 	  break;
