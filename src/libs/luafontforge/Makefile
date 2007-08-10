@@ -10,8 +10,8 @@ MY_CFLAGS=-g -O2 -Wall -DFONTFORGE_CONFIG_NO_WINDOWING_UI=1 -DLUA_FF_LIB=1 $(CFL
 
 fontforge: $(FF_LIB) newfile
 	rm -f libff.a
-	cd fontforge && make
-	cd Unicode && make
+	cd fontforge && $(MAKE)
+	cd Unicode && $(MAKE)
 	sh -c "ar cru libff.a fontforge/*.o Unicode/*.o $(FF_LIB)"
 	ranlib libff.a
 
@@ -20,5 +20,5 @@ fontforge: $(FF_LIB) newfile
 
 clean:
 	rm  -f libff.a $(FF_LIB)
-	cd fontforge; make clean
-	cd Unicode; make clean
+	cd fontforge; $(MAKE) clean
+	cd Unicode; $(MAKE) clean

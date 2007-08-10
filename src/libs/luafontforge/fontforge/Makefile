@@ -70,7 +70,7 @@ install_docs:
 	-$(INSTALL_DATA) $(srcdir)/htdocs/ja/* $(docdir)/ja
 
 install_po:
-	( cd po ; make install )
+	( cd po ; $(MAKE) install )
 
 install: $(sharedir) all install_libs install_po
 # You may need to be root to do the install
