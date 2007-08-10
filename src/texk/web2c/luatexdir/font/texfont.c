@@ -850,7 +850,7 @@ dump_font (int f) {
   dump_string(font_cidregistry(f));
   dump_string(font_cidordering(f));
 
-  dump_things(*param_base(f),font_params(f));
+  dump_things(*param_base(f),(font_params(f)+1));
 
   if (has_left_boundary(f)) {
     dump_int(1);  dump_charinfo(f,left_boundarychar);
@@ -969,7 +969,7 @@ undump_font(int f)
   i = sizeof(*param_base(f))*(font_params(f)+1); 
   font_bytes += i;
   param_base(f) = xmalloc (i);
-  undump_things(*param_base(f),    font_params(f));
+  undump_things(*param_base(f),    (font_params(f)+1));
 
   font_tables[f]->_left_boundary = NULL;
   undump_int(x);
