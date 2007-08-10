@@ -18586,6 +18586,7 @@ end;
 
 function tfm_lookup(s: str_number; fs: scaled): internal_font_number;
 {looks up for a TFM with name |s| loaded at |fs| size; if found then flushes |s|}
+label exit;
 var k: internal_font_number;
 begin
     if fs <> 0 then begin
@@ -18606,6 +18607,7 @@ begin
             end else flush_string;
     end;
     tfm_lookup := null_font;
+exit:
 end;
 
 function load_expand_font(f: internal_font_number; e: integer): internal_font_number;
@@ -18760,7 +18762,7 @@ begin
             pdf_error("font expansion", "font has been expanded with different parameters");
     end
     else begin
-        if font_touched(f) then
+        if font_used(f) then
             pdf_warning("font expansion", "font should be expanded before its first use",
                         true, true);
         set_expand_params(f, auto_expand, font_stretch, font_shrink, font_step, 0);
