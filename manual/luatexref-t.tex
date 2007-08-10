@@ -10,7 +10,7 @@
  
 \setvariables
   [document]
-  [snapshot=2007-07-11]
+  [snapshot=2007-08-10]
 
 \starttext
 
@@ -264,7 +264,10 @@ indicated by the \syntax{<16-bit number>}. If the state does not exist
 yet, it will be initialized automatically. The current category codes
 are applied to the \syntax{<general text>}, and it is passed on as if
 it was displayed using \type{\the\toks}. On the \LUA\ side, each of
-these blocks is treated a single chunk.
+these blocks is treated as a chunk comprising  a single line. This
+means that you can not use \LUA\ line comments (starting with
+\type{--}) within the argument, as that will last for the rest of the 
+input. You need to use \TEX-style comments (starting with \%) instead.
 
 \startbuffer
 $\pi = \directlua0{tex.print(math.pi)}$
@@ -486,6 +489,19 @@ interpreter.
 \LUATEX\ will exit immediately after executing the specified \LUA\
 script and is, in effect, a somewhat bulky standalone \LUA\
 interpreter with a bunch of extra preloaded libraries.
+
+\subsection{\LUATEX\ as a \LUA\ byte compiler}
+
+There are two situations that make \LUATEX\ behaves like the \LUA\
+byte compiler:
+\startitemize[packed]
+\item If a \type{--luaconly} option is given on the commandline
+\item If the executable is named \type{texluac}
+\stopitemize
+
+In this mode, \LUATEX\ is exactly like \type{luac} from the standalone
+\LUA\ distribution, except that it does not have the \type{-l} switch,
+and that it accepts (but ignores) the \type{--luaconly} switch.
 
 \subsection{Other commandline processing}
 
