@@ -1191,6 +1191,7 @@ auto_expand_vf(internal_font_number f) {
   return true;
 }
 
+/* this function is not always safe, because it needs makecstring() */
 str_number 
 expand_font_name (internal_font_number f, integer e) {
   int old_setting;
@@ -1211,10 +1212,13 @@ auto_expand_font (internal_font_number f, integer e) {
   internal_font_number k;
   kerninfo *krn;
   charinfo *co;
+  char *fn;
   integer i;
   k = copy_font(f);
-  set_font_name(k,makecstring(expand_font_name(f, e)));
-  
+  i = strlen(font_name(f))+12;
+  fn = xmalloc(i);
+  snprintf(fn,i,"%s%s%d",font_name(f),(e>0 ? "+" : ""), e);
+  set_font_name(k,fn);
   for (i = font_bc(k);i<=font_ec(k);i++) {
     if (char_exists(k,i)) {
       co = get_charinfo(k,i);
