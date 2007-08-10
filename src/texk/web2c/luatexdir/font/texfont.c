@@ -92,6 +92,16 @@ new_font (void) {
   font_bytes += sizeof(texfont);
   /* most stuff is zero */
   font_tables[id] = xcalloc(1,sizeof(texfont));
+  font_tables[id]->_font_name = NULL;   
+  font_tables[id]->_font_area = NULL;   
+  font_tables[id]->_font_filename = NULL;   
+  font_tables[id]->_font_fullname = NULL;   
+  font_tables[id]->_font_encodingname = NULL;   
+  font_tables[id]->_font_cidregistry = NULL;   
+  font_tables[id]->_font_cidordering = NULL;   
+  font_tables[id]->_left_boundary = NULL;   
+  font_tables[id]->_right_boundary = NULL;   
+  font_tables[id]->_param_base = NULL;   
   
   set_font_bc(id, 1); /* ec = 0 */
   set_hyphen_char(id,'-');
@@ -554,6 +564,7 @@ create_null_font (void) {
   int i = new_font();
   assert(i==0);
   set_font_name(i,xstrdup("nullfont")); 
+  set_font_area(i,xstrdup(""));
   set_font_touched(i,1);
 }
 

@@ -591,7 +591,7 @@ read_tfm_info(internalfontnumber f, char *cnom, char *caire, scaled s) {
     *(tmpnam+strlen(tmpnam)-4) =0;
   }
   set_font_name(f,tmpnam);
-  set_font_area(f,caire);
+  set_font_area(f,xstrdup(caire)); /* perhaps it leaks, but it doesnt crash  */
 
   /* @<Read the {\.{TFM}} size fields@>; */
   nco=0; ncw=0; npc=0;
