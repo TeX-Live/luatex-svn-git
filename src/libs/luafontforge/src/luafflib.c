@@ -1184,8 +1184,8 @@ do_handle_generic_fpst(lua_State *L, struct generic_fpst *fpst) {
   dump_enumfield(L,"format", fpst->format, fpossub_format_enum);
 
   DUMP_STRING_ARRAY("current_class",fpst->nccnt,fpst->nclass);
-  DUMP_STRING_ARRAY("before_class",fpst->nccnt,fpst->bclass);
-  DUMP_STRING_ARRAY("after_class",fpst->nccnt,fpst->fclass);
+  DUMP_STRING_ARRAY("before_class",fpst->bccnt,fpst->bclass);
+  DUMP_STRING_ARRAY("after_class",fpst->fccnt,fpst->fclass);
 
   lua_checkstack(L,4);
   if (fpst->rule_cnt>0) {
