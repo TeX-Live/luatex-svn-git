@@ -730,14 +730,14 @@ static void mark_cid_subset_glyphs(fo_entry *fo, internal_font_number f)
   glw_entry *j;
   void *aa;
   for (k = 1; k <= max_font_id(); k++) {
-    if ( k == f || f == abs(pdf_font_num[k])) { 
+    if ( k == f || -f == pdf_font_num[k]) { 
       for (i = font_bc(k); i <= font_ec(k); i++) {
 		if (char_exists(k,i) && char_used(k,i)) {
 		  j = xtalloc(1,glw_entry);
 		  j->id = char_index(k,i);
 		  j->wd = divide_scaled(char_width(k, i), pdf_font_size[k], 4);
 		  if ((glw_entry *)avl_find(fo->fd->gl_tree,j) == NULL) {
-			aa = avl_probe(fo->fd->gl_tree, j);
+		    	aa = avl_probe(fo->fd->gl_tree, j);
 			assert(aa != NULL);
 		  }
 		}
