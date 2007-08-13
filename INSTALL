@@ -32,5 +32,7 @@ Post-compilation installation should be a simple matter
 of copying the executable to a normal place for web2c 
 binaries and generating the desired formats.
 
+You may want to install the executable under the names
+'texlua' and 'texluac' as well (create a copy or symlink)
 
 =========================================================
