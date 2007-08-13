@@ -729,9 +729,8 @@ static void mark_cid_subset_glyphs(fo_entry *fo, internal_font_number f)
   int i, k;
   glw_entry *j;
   void *aa;
-
   for (k = 1; k <= max_font_id(); k++) {
-    if ( k == f || fo->fo_objnum == abs(pdf_font_num[k])) { 
+    if ( k == f || f == abs(pdf_font_num[k])) { 
       for (i = font_bc(k); i <= font_ec(k); i++) {
 		if (char_exists(k,i) && char_used(k,i)) {
 		  j = xtalloc(1,glw_entry);
