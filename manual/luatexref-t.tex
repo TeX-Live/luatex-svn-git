@@ -659,6 +659,16 @@ The \lua{os} library has a few extra functions and variables:
 
 \stopitemize
 
+In stock Lua, many things depend on the current locale. In \LUATEX, we
+can't do that, because it makes documents unportable.  While \LUATEX\
+is running if forces the following locale settings:
+\starttyping
+	LC_CTYPE=C
+	LC_COLLATE=C
+	LC_NUMERIC=C
+\stoptyping
+
+
 \section {\LUA\ Modules}
 
 Some modules that are normally external to Lua are statically linked
