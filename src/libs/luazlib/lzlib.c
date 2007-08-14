@@ -552,7 +552,7 @@ LUALIB_API int luaopen_zlib(lua_State *L)
 
     /* make sure header and library version are consistent */
     const char* version = zlibVersion();
-    if (strcmp(version, ZLIB_VERSION))
+    if (strncmp(version, ZLIB_VERSION, 5))
     {
         lua_pushfstring(L, "zlib library version does not match - header: %s, library: %s", ZLIB_VERSION, version);
         lua_error(L);
