@@ -1395,18 +1395,21 @@ handle_splinefont(lua_State *L, struct splinefont *sf) {
   if (sf->subfontcnt>0) {
     lua_createtable(L,sf->subfontcnt,0);
     for (k=0;k<sf->subfontcnt;k++) {
-      lua_pushnumber(L,(k+1));
+	  lua_checkstack(L,10);
+	  lua_newtable(L);
       handle_splinefont(L,sf->subfonts[k]);
-      lua_rawset(L,-3);
+      lua_rawseti(L,-2,(k+1));
     }
     lua_setfield(L,-2,"subfonts");
   }
-  
-  if (sf->cidmaster != NULL) {
-    lua_newtable(L);
-    handle_splinefont(L, sf->cidmaster);
-    lua_setfield(L,-2,"cidmaster");
-  }
+
+  /* always the parent of a subfont, so why bother? */
+  /*
+	if (sf->cidmaster != NULL) {
+      lua_pushstring(L, sf->cidmaster->origname);
+      lua_setfield(L,-2,"cidmaster");
+    }
+  */
   
   dump_stringfield(L,"comments",    sf->comments);
   
