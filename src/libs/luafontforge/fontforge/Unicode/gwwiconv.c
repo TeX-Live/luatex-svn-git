@@ -143,7 +143,7 @@ return( (iconv_t)(-1) );
 return( (iconv_t)(-1) );
 #else
     } else if ( stuff.from!=e_ucs4 && stuff.to!=e_ucs4 ) {
-	fprintf( stderr, "Bad call to gww_iconv_open, neither arg is UCS4\n" );
+	  fprintf( stderr, "Bad call to gww_iconv_open, neither arg is UCS4 (%s->%s)\n" , fromenc, toenc);
 return( (iconv_t)(-1) );
 #endif
     }
