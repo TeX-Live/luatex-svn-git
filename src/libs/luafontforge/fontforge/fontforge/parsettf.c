@@ -3168,6 +3168,9 @@ static void cidfigure(struct ttfinfo *info, struct topdicts *dict,
     struct cidmap *map;
     char buffer[100];
     struct pscontext pscontext;
+#ifdef LUA_FF_LIB
+    DBounds bb;
+#endif
     EncMap *encmap = NULL;
 
     memset(&pscontext,0,sizeof(pscontext));
@@ -3229,6 +3232,15 @@ static void cidfigure(struct ttfinfo *info, struct topdicts *dict,
 	info->chars[i] = PSCharStringToSplines(
 		dict->glyphs.values[i], dict->glyphs.lens[i],&pscontext,
 		subrs,gsubrs,buffer);
+
+#ifdef LUA_FF_LIB
+	  SplineCharFindBounds(info->chars[i],&bb);
+	  info->chars[i]->xmin = bb.minx;
+	  info->chars[i]->ymin = bb.miny;
+	  info->chars[i]->xmax = bb.maxx;
+	  info->chars[i]->ymax = bb.maxy;
+#endif
+
 	info->chars[i]->vwidth = sf->ascent+sf->descent;
 	info->chars[i]->unicodeenc = uni;
 	sf->glyphs[cid] = info->chars[i];
