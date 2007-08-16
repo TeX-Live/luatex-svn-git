@@ -860,12 +860,11 @@ make_vf_table(lua_State *L, char *cnom, scaled atsize) {
     lua_bad_vf("wrong id byte");
   vf_byte(cmd_length);
 
-  s = xmalloc(cmd_length+1);
+  s = xmalloc(cmd_length);
   for (k = 1;k<= cmd_length;k++)
     vf_byte(s[(k-1)]);
-  s[k] = 0;
 
-  lua_pushlstring(L,xstrdup(s),cmd_length);
+  lua_pushlstring(L,s,cmd_length);
   free(s);
   lua_setfield(L,-2,"header");
 
