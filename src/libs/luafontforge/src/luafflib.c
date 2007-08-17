@@ -1588,6 +1588,70 @@ ff_info (lua_State *L) {
   return 1;
 }
 
+/* possible flags:
+
+   ttf_flag_shortps = 1, 
+   ttf_flag_nohints = 2,
+   ttf_flag_applemode=4,
+   ttf_flag_pfed_comments=8, 
+   ttf_flag_pfed_colors=0x10,
+   ttf_flag_otmode=0x20,
+   ttf_flag_glyphmap=0x40,
+   ttf_flag_TeXtable=0x80,
+   ttf_flag_ofm=0x100,
+   ttf_flag_oldkern=0x200,	
+   ttf_flag_brokensize=0x400	
+
+   ps_flag_nohintsubs = 0x10000, 
+   ps_flag_noflex=0x20000,
+   ps_flag_nohints = 0x40000, 
+   ps_flag_restrict256=0x80000,
+   ps_flag_afm = 0x100000, 
+   ps_flag_pfm = 0x200000,
+   ps_flag_tfm = 0x400000,
+   ps_flag_round = 0x800000,
+   ps_flag_nocffsugar = 0x1000000,
+   ps_flag_identitycidmap = 0x2000000,
+   ps_flag_afmwithmarks = 0x4000000,
+   ps_flag_noseac = 0x8000000,
+
+
+*/
+
+extern int readbinfile(FILE *f, unsigned char **b, int *s);
+
+void ff_createcff (char *file, unsigned char **buf, int *bufsiz) {
+  SplineFont *sf;
+  FILE *f;
+  int openflags = 1;
+  int32 *bsizes = NULL;
+  int flags = ps_flag_nocffsugar + ps_flag_nohints;
+  EncMap *map;
+
+  sf =  ReadSplineFont(file,openflags);
+  map = sf->map; /* built-in encoding ? */
+
+  if(WriteTTFFont("myfont.cff", sf, ff_cff, bsizes, bf_none, flags,map)) {
+    /* success */
+    f = fopen("myfont.cff","rb");
+    readbinfile(f , buf, bufsiz);
+    fprintf(stdout,"\n%s => CFF, size: %d\n", file, *bufsiz);
+    fclose(f);
+    return;
+  } 
+  /* errors */
+  fprintf(stdout,"\n%s => CFF, failed\n", file);
+}
+
+static int ff_make_cff (lua_State *L) {
+  char *file = (char *)luaL_checkstring(L,1);
+  unsigned char *buf = NULL;
+  int bufsiz = 0;
+
+  ff_createcff (file, &buf, &bufsiz);
+  return 0;
+}
+
 
 static struct luaL_reg fflib[] = {
   {"open", ff_open},
@@ -1596,6 +1660,7 @@ static struct luaL_reg fflib[] = {
   {"apply_afmfile", ff_apply_afmfile},
   {"apply_featurefile", ff_apply_featurefile},
   {"to_table", ff_make_table},
+  {"to_cff", ff_make_cff},
   {NULL, NULL}
 };
 

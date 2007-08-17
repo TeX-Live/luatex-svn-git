@@ -11,7 +11,8 @@ OBJECTS =autohint.o charview.o fontinfo.o \
  splinefill.o splineoverlap.o splinestroke.o splineutil.o splineutil2.o stamp.o \
  start.o encoding.o macbinary.o splineorder2.o kernclass.o ttfspecial.o \
  parsettfatt.o contextchain.o macenc.o splinerefigure.o parsettfvar.o pua.o \
- stemdb.o lookups.o featurefile.o
+ stemdb.o lookups.o featurefile.o \
+ tottf.o tottfgpos.o tottfvar.o splinesave.o
 
 _CFLAGS = -I$(top_srcdir)/inc -I$(srcdir) -I. -Wall $(XCFLAGS) \
  -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 \

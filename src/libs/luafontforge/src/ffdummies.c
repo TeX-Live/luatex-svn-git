@@ -128,6 +128,438 @@ char *sgettext(const char *msgid) {
 
 /* some utype.c macros, in function from */
 
+int unic_isrighttoleft (int c) {
+  /* most of the holes are combining chars */
+  if ((c==0x05be) || (c==0x05c0) || (c==0x05c3) || (c==0x05c6) ||
+	  (c>=0x05d0 && c<=0x05ea) ||
+	  (c>=0x05f0 && c<=0x05f4) ||
+	  (c>=0x0600 && c<=0x0603) ||
+	  (c==0x060b) || (c==0x060d) || (c==0x061b) ||
+	  (c>=0x061e && c<=0x061f) ||
+	  (c>=0x0621 && c<=0x063a) ||
+	  (c>=0x0640 && c<=0x064a) ||
+	  (c>=0x066d && c<=0x066f) ||
+	  (c>=0x0671 && c<=0x06d5) ||
+	  (c==0x06dd) ||
+	  (c>=0x06e5 && c<=0x06e6) ||
+	  (c>=0x06ee && c<=0x06ef) ||
+	  (c>=0x06fa && c<=0x070d) ||
+	  (c==0x0710) ||
+	  (c>=0x0712 && c<=0x072f) ||
+	  (c>=0x074d && c<=0x076d) ||
+	  (c>=0x0780 && c<=0x07a5) ||
+	  (c==0x07b1) ||
+	  (c>=0x07c0 && c<=0x07ea) ||
+	  (c>=0x07f4 && c<=0x07f5) ||
+	  (c==0x07fa) ||
+	  (c==0x200f) || (c==0x202b) || (c==0x202e) || 
+	  (c>=0xfb1d && c<=0xfb3c) ||
+	  (c==0xfb3e) ||
+	  (c>=0xfb40 && c<=0xfbb1) ||
+	  (c>=0xfbd3 && c<=0xfd3d) || 
+	  (c>=0xfd50 && c<=0xfd8f) ||
+	  (c>=0xfd92 && c<=0xfdc7) || 
+	  (c>=0xfdf0 && c<=0xfdfc) ||
+	  (c>=0xfe70 && c<=0xfefc)) {
+	if ((c==0xfe75) || (c==0xfb42) || 
+		(c==0xfb45) || (c==0xfb29) || 
+		(c==0xfb37) || (c==0xfb1e)) {
+	  return 0;
+	}
+	return 1;
+  }
+  return 0;
+}
+
+int unic_islefttoright (int c) {
+  if((c>=0x0041 && c<=0x005a) || 
+	 (c>=0x0061 && c<=0x007a) || 
+	 (c==0x00aa) || (c==0x00b5) || (c==0x00ba) || 
+	 (c>=0x00c0 && c<=0x00d6) || 
+	 (c>=0x00d8 && c<=0x00f6) || 
+	 (c>=0x00f8 && c<=0x02b8) || 
+	 (c>=0x02bb && c<=0x02c1) || 
+	 (c>=0x02d0 && c<=0x02d1) || 
+	 (c>=0x02e0 && c<=0x02e4) || 
+	 (c==0x02ee) || 
+	 (c>=0x037a && c<=0x037d) || 
+	 (c==0x0386) || 
+	 (c>=0x0388 && c<=0x038a) || 
+	 (c==0x038c) || 
+	 (c>=0x038e && c<=0x03a1) || 
+	 (c>=0x03a3 && c<=0x03ce) || 
+	 (c>=0x03d0 && c<=0x03f5) || 
+	 (c>=0x03f7 && c<=0x0482) || 
+	 (c>=0x048a && c<=0x0513) || 
+	 (c>=0x0531 && c<=0x0556) || 
+	 (c>=0x0559 && c<=0x055f) || 
+	 (c>=0x0561 && c<=0x0587) || 
+	 (c==0x0589) || 
+	 (c>=0x0903 && c<=0x0939) || 
+	 (c>=0x093d && c<=0x0940) || 
+	 (c>=0x0949 && c<=0x094c) || 
+	 (c==0x0950) || 
+	 (c>=0x0958 && c<=0x0961) || 
+	 (c>=0x0964 && c<=0x0970) || 
+	 (c>=0x097b && c<=0x097f) || 
+	 (c>=0x0982 && c<=0x0983) || 
+	 (c>=0x0985 && c<=0x098c) || 
+	 (c>=0x098f && c<=0x0990) || 
+	 (c>=0x0993 && c<=0x09a8) || 
+	 (c>=0x09aa && c<=0x09b0) || 
+	 (c==0x09b2) || 
+	 (c>=0x09b6 && c<=0x09b9) || 
+	 (c>=0x09bd && c<=0x09c0) || 
+	 (c>=0x09c7 && c<=0x09c8) || 
+	 (c>=0x09cb && c<=0x09cc) || 
+	 (c==0x09ce) || 
+	 (c==0x09d7) || 
+	 (c>=0x09dc && c<=0x09dd) || 
+	 (c>=0x09df && c<=0x09e1) || 
+	 (c>=0x09e6 && c<=0x09f1) || 
+	 (c>=0x09f4 && c<=0x09fa) || 
+	 (c==0x0a03) || 
+	 (c>=0x0a05 && c<=0x0a0a) || 
+	 (c>=0x0a0f && c<=0x0a10) || 
+	 (c>=0x0a13 && c<=0x0a28) || 
+	 (c>=0x0a2a && c<=0x0a30) || 
+	 (c>=0x0a32 && c<=0x0a33) || 
+	 (c>=0x0a35 && c<=0x0a36) || 
+	 (c>=0x0a38 && c<=0x0a39) || 
+	 (c>=0x0a3e && c<=0x0a40) || 
+	 (c>=0x0a59 && c<=0x0a5c) || 
+	 (c==0x0a5e) || 
+	 (c>=0x0a66 && c<=0x0a6f) || 
+	 (c>=0x0a72 && c<=0x0a74) || 
+	 (c==0x0a83) || 
+	 (c>=0x0a85 && c<=0x0a8d) || 
+	 (c>=0x0a8f && c<=0x0a91) || 
+	 (c>=0x0a93 && c<=0x0aa8) || 
+	 (c>=0x0aaa && c<=0x0ab0) || 
+	 (c>=0x0ab2 && c<=0x0ab3) || 
+	 (c>=0x0ab5 && c<=0x0ab9) || 
+	 (c>=0x0abd && c<=0x0ac0) || 
+	 (c==0x0ac9) || 
+	 (c>=0x0acb && c<=0x0acc) || 
+	 (c==0x0ad0) || 
+	 (c>=0x0ae0 && c<=0x0ae1) || 
+	 (c>=0x0ae6 && c<=0x0aef) || 
+	 (c>=0x0b02 && c<=0x0b03) || 
+	 (c>=0x0b05 && c<=0x0b0c) || 
+	 (c>=0x0b0f && c<=0x0b10) || 
+	 (c>=0x0b13 && c<=0x0b28) || 
+	 (c>=0x0b2a && c<=0x0b30) || 
+	 (c>=0x0b32 && c<=0x0b33) || 
+	 (c>=0x0b35 && c<=0x0b39) || 
+	 (c>=0x0b3d && c<=0x0b3e) || 
+	 (c==0x0b40) || 
+	 (c>=0x0b47 && c<=0x0b48) || 
+	 (c>=0x0b4b && c<=0x0b4c) || 
+	 (c==0x0b57) || 
+	 (c>=0x0b5c && c<=0x0b5d) || 
+	 (c>=0x0b5f && c<=0x0b61) || 
+	 (c>=0x0b66 && c<=0x0b71) || 
+	 (c==0x0b83) || 
+	 (c>=0x0b85 && c<=0x0b8a) || 
+	 (c>=0x0b8e && c<=0x0b90) || 
+	 (c>=0x0b92 && c<=0x0b95) || 
+	 (c>=0x0b99 && c<=0x0b9a) || 
+	 (c==0x0b9c) || 
+	 (c>=0x0b9e && c<=0x0b9f) || 
+	 (c>=0x0ba3 && c<=0x0ba4) || 
+	 (c>=0x0ba8 && c<=0x0baa) || 
+	 (c>=0x0bae && c<=0x0bb9) || 
+	 (c>=0x0bbe && c<=0x0bbf) || 
+	 (c>=0x0bc1 && c<=0x0bc2) || 
+	 (c>=0x0bc6 && c<=0x0bc8) || 
+	 (c>=0x0bca && c<=0x0bcc) || 
+	 (c==0x0bd7) || 
+	 (c>=0x0be6 && c<=0x0bf2) || 
+	 (c>=0x0c01 && c<=0x0c03) || 
+	 (c>=0x0c05 && c<=0x0c0c) || 
+	 (c>=0x0c0e && c<=0x0c10) || 
+	 (c>=0x0c12 && c<=0x0c28) || 
+	 (c>=0x0c2a && c<=0x0c33) || 
+	 (c>=0x0c35 && c<=0x0c39) || 
+	 (c>=0x0c41 && c<=0x0c44) || 
+	 (c>=0x0c60 && c<=0x0c61) || 
+	 (c>=0x0c66 && c<=0x0c6f) || 
+	 (c>=0x0c82 && c<=0x0c83) || 
+	 (c>=0x0c85 && c<=0x0c8c) || 
+	 (c>=0x0c8e && c<=0x0c90) || 
+	 (c>=0x0c92 && c<=0x0ca8) || 
+	 (c>=0x0caa && c<=0x0cb3) || 
+	 (c>=0x0cb5 && c<=0x0cb9) || 
+	 (c>=0x0cbd && c<=0x0cc4) || 
+	 (c>=0x0cc6 && c<=0x0cc8) || 
+	 (c>=0x0cca && c<=0x0ccb) || 
+	 (c>=0x0cd5 && c<=0x0cd6) || 
+	 (c==0x0cde) || 
+	 (c>=0x0ce0 && c<=0x0ce1) || 
+	 (c>=0x0ce6 && c<=0x0cef) || 
+	 (c>=0x0d02 && c<=0x0d03) || 
+	 (c>=0x0d05 && c<=0x0d0c) || 
+	 (c>=0x0d0e && c<=0x0d10) || 
+	 (c>=0x0d12 && c<=0x0d28) || 
+	 (c>=0x0d2a && c<=0x0d39) || 
+	 (c>=0x0d3e && c<=0x0d40) || 
+	 (c>=0x0d46 && c<=0x0d48) || 
+	 (c>=0x0d4a && c<=0x0d4c) || 
+	 (c==0x0d57) || 
+	 (c>=0x0d60 && c<=0x0d61) || 
+	 (c>=0x0d66 && c<=0x0d6f) || 
+	 (c>=0x0d82 && c<=0x0d83) || 
+	 (c>=0x0d85 && c<=0x0d96) || 
+	 (c>=0x0d9a && c<=0x0db1) || 
+	 (c>=0x0db3 && c<=0x0dbb) || 
+	 (c==0x0dbd) || 
+	 (c>=0x0dc0 && c<=0x0dc6) || 
+	 (c>=0x0dcf && c<=0x0dd1) || 
+	 (c>=0x0dd8 && c<=0x0ddf) || 
+	 (c>=0x0df2 && c<=0x0df4) || 
+	 (c>=0x0e01 && c<=0x0e30) || 
+	 (c>=0x0e32 && c<=0x0e33) || 
+	 (c>=0x0e40 && c<=0x0e46) || 
+	 (c>=0x0e4f && c<=0x0e5b) || 
+	 (c>=0x0e81 && c<=0x0e82) || 
+	 (c==0x0e84) || 
+	 (c>=0x0e87 && c<=0x0e88) || 
+	 (c==0x0e8a) || 
+	 (c==0x0e8d) || 
+	 (c>=0x0e94 && c<=0x0e97) || 
+	 (c>=0x0e99 && c<=0x0e9f) || 
+	 (c>=0x0ea1 && c<=0x0ea3) || 
+	 (c==0x0ea5) || 
+	 (c==0x0ea7) || 
+	 (c>=0x0eaa && c<=0x0eab) || 
+	 (c>=0x0ead && c<=0x0eb0) || 
+	 (c>=0x0eb2 && c<=0x0eb3) || 
+	 (c==0x0ebd) || 
+	 (c>=0x0ec0 && c<=0x0ec4) || 
+	 (c==0x0ec6) || 
+	 (c>=0x0ed0 && c<=0x0ed9) || 
+	 (c>=0x0edc && c<=0x0edd) || 
+	 (c>=0x0f00 && c<=0x0f17) || 
+	 (c>=0x0f1a && c<=0x0f34) || 
+	 (c==0x0f36) || 
+	 (c==0x0f38) || 
+	 (c>=0x0f3e && c<=0x0f47) || 
+	 (c>=0x0f49 && c<=0x0f6a) || 
+	 (c==0x0f7f) || 
+	 (c==0x0f85) || 
+	 (c>=0x0f88 && c<=0x0f8b) || 
+	 (c>=0x0fbe && c<=0x0fc5) || 
+	 (c>=0x0fc7 && c<=0x0fcc) || 
+	 (c>=0x0fcf && c<=0x0fd1) || 
+	 (c>=0x1000 && c<=0x1021) || 
+	 (c>=0x1023 && c<=0x1027) || 
+	 (c>=0x1029 && c<=0x102a) || 
+	 (c==0x102c) || 
+	 (c==0x1031) || 
+	 (c==0x1038) || 
+	 (c>=0x1040 && c<=0x1057) || 
+	 (c>=0x10a0 && c<=0x10c5) || 
+	 (c>=0x10d0 && c<=0x10fc) || 
+	 (c>=0x1100 && c<=0x1159) || 
+	 (c>=0x115f && c<=0x11a2) || 
+	 (c>=0x11a8 && c<=0x11f9) || 
+	 (c>=0x1200 && c<=0x1248) || 
+	 (c>=0x124a && c<=0x124d) || 
+	 (c>=0x1250 && c<=0x1256) || 
+	 (c==0x1258) || 
+	 (c>=0x125a && c<=0x125d) || 
+	 (c>=0x1260 && c<=0x1288) || 
+	 (c>=0x128a && c<=0x128d) || 
+	 (c>=0x1290 && c<=0x12b0) || 
+	 (c>=0x12b2 && c<=0x12b5) || 
+	 (c>=0x12b8 && c<=0x12be) || 
+	 (c==0x12c0) || 
+	 (c>=0x12c2 && c<=0x12c5) || 
+	 (c>=0x12c8 && c<=0x12d6) || 
+	 (c>=0x12d8 && c<=0x1310) || 
+	 (c>=0x1312 && c<=0x1315) || 
+	 (c>=0x1318 && c<=0x135a) || 
+	 (c>=0x1360 && c<=0x137c) || 
+	 (c>=0x1380 && c<=0x138f) || 
+	 (c>=0x13a0 && c<=0x13f4) || 
+	 (c>=0x1401 && c<=0x1676) || 
+	 (c>=0x1681 && c<=0x169a) || 
+	 (c>=0x16a0 && c<=0x16f0) || 
+	 (c>=0x1700 && c<=0x170c) || 
+	 (c>=0x170e && c<=0x1711) || 
+	 (c>=0x1720 && c<=0x1731) || 
+	 (c>=0x1735 && c<=0x1736) || 
+	 (c>=0x1740 && c<=0x1751) || 
+	 (c>=0x1760 && c<=0x176c) || 
+	 (c>=0x176e && c<=0x1770) || 
+	 (c>=0x1780 && c<=0x17b6) || 
+	 (c>=0x17be && c<=0x17c5) || 
+	 (c>=0x17c7 && c<=0x17c8) || 
+	 (c>=0x17d4 && c<=0x17da) || 
+	 (c==0x17dc) || 
+	 (c>=0x17e0 && c<=0x17e9) || 
+	 (c>=0x1810 && c<=0x1819) || 
+	 (c>=0x1820 && c<=0x1877) || 
+	 (c>=0x1880 && c<=0x18a8) || 
+	 (c>=0x1900 && c<=0x191c) || 
+	 (c>=0x1923 && c<=0x1926) || 
+	 (c>=0x1930 && c<=0x1931) || 
+	 (c>=0x1933 && c<=0x1938) || 
+	 (c>=0x1946 && c<=0x196d) || 
+	 (c>=0x1970 && c<=0x1974) || 
+	 (c>=0x1980 && c<=0x19a9) || 
+	 (c>=0x19b0 && c<=0x19c9) || 
+	 (c>=0x19d0 && c<=0x19d9) || 
+	 (c>=0x1a00 && c<=0x1a16) || 
+	 (c>=0x1a19 && c<=0x1a1b) || 
+	 (c>=0x1a1e && c<=0x1a1f) || 
+	 (c>=0x1b04 && c<=0x1b33) || 
+	 (c==0x1b35) || 
+	 (c==0x1b3b) || 
+	 (c>=0x1b3d && c<=0x1b41) || 
+	 (c>=0x1b43 && c<=0x1b4b) || 
+	 (c>=0x1b50 && c<=0x1b6a) || 
+	 (c>=0x1b74 && c<=0x1b7c) || 
+	 (c>=0x1d00 && c<=0x1dbf) || 
+	 (c>=0x1e00 && c<=0x1e9b) || 
+	 (c>=0x1ea0 && c<=0x1ef9) || 
+	 (c>=0x1f00 && c<=0x1f15) || 
+	 (c>=0x1f18 && c<=0x1f1d) || 
+	 (c>=0x1f20 && c<=0x1f45) || 
+	 (c>=0x1f48 && c<=0x1f4d) || 
+	 (c>=0x1f50 && c<=0x1f57) || 
+	 (c==0x1f59) || 
+	 (c==0x1f5b) || 
+	 (c==0x1f5d) || 
+	 (c>=0x1f5f && c<=0x1f7d) || 
+	 (c>=0x1f80 && c<=0x1fb4) || 
+	 (c>=0x1fb6 && c<=0x1fbc) || 
+	 (c==0x1fbe) || 
+	 (c>=0x1fc2 && c<=0x1fc4) || 
+	 (c>=0x1fc6 && c<=0x1fcc) || 
+	 (c>=0x1fd0 && c<=0x1fd3) || 
+	 (c>=0x1fd6 && c<=0x1fdb) || 
+	 (c>=0x1fe0 && c<=0x1fec) || 
+	 (c>=0x1ff2 && c<=0x1ff4) || 
+	 (c>=0x1ff6 && c<=0x1ffc) || 
+	 (c==0x200e) || 
+	 (c==0x202a) || 
+	 (c==0x202d) || 
+	 (c==0x2071) || 
+	 (c==0x207f) || 
+	 (c>=0x2090 && c<=0x2094) || 
+	 (c==0x2102) || 
+	 (c==0x2107) || 
+	 (c>=0x210a && c<=0x2113) || 
+	 (c==0x2115) || 
+	 (c>=0x2119 && c<=0x211d) || 
+	 (c==0x2124) || 
+	 (c==0x2126) || 
+	 (c==0x2128) || 
+	 (c>=0x212a && c<=0x212d) || 
+	 (c>=0x212f && c<=0x2139) || 
+	 (c>=0x213c && c<=0x213f) || 
+	 (c>=0x2145 && c<=0x2149) || 
+	 (c==0x214e) || 
+	 (c>=0x2160 && c<=0x2184) || 
+	 (c>=0x2336 && c<=0x237a) || 
+	 (c==0x2395) || 
+	 (c>=0x249c && c<=0x24e9) || 
+	 (c==0x26ac) || 
+	 (c>=0x2800 && c<=0x28ff) || 
+	 (c>=0x2c00 && c<=0x2c2e) || 
+	 (c>=0x2c30 && c<=0x2c5e) || 
+	 (c>=0x2c60 && c<=0x2c6c) || 
+	 (c>=0x2c74 && c<=0x2c77) || 
+	 (c>=0x2c80 && c<=0x2ce4) || 
+	 (c>=0x2d00 && c<=0x2d25) || 
+	 (c>=0x2d30 && c<=0x2d65) || 
+	 (c==0x2d6f) || 
+	 (c>=0x2d80 && c<=0x2d96) || 
+	 (c>=0x2da0 && c<=0x2da6) || 
+	 (c>=0x2da8 && c<=0x2dae) || 
+	 (c>=0x2db0 && c<=0x2db6) || 
+	 (c>=0x2db8 && c<=0x2dbe) || 
+	 (c>=0x2dc0 && c<=0x2dc6) || 
+	 (c>=0x2dc8 && c<=0x2dce) || 
+	 (c>=0x2dd0 && c<=0x2dd6) || 
+	 (c>=0x2dd8 && c<=0x2dde) || 
+	 (c>=0x3005 && c<=0x3007) || 
+	 (c>=0x3021 && c<=0x3029) || 
+	 (c>=0x3031 && c<=0x3035) || 
+	 (c>=0x3038 && c<=0x303c) || 
+	 (c>=0x3041 && c<=0x3096) || 
+	 (c>=0x309d && c<=0x309f) || 
+	 (c>=0x30a1 && c<=0x30fa) || 
+	 (c>=0x30fc && c<=0x30ff) || 
+	 (c>=0x3105 && c<=0x312c) || 
+	 (c>=0x3131 && c<=0x318e) || 
+	 (c>=0x3190 && c<=0x31b7) || 
+	 (c>=0x31f0 && c<=0x321c) || 
+	 (c>=0x3220 && c<=0x3243) || 
+	 (c>=0x3260 && c<=0x327b) || 
+	 (c>=0x327f && c<=0x32b0) || 
+	 (c>=0x32c0 && c<=0x32cb) || 
+	 (c>=0x32d0 && c<=0x32fe) || 
+	 (c>=0x3300 && c<=0x3376) || 
+	 (c>=0x337b && c<=0x33dd) || 
+	 (c>=0x33e0 && c<=0x33fe) || 
+	 (c>=0x3400 && c<=0x4db5) || 
+	 (c>=0x4e00 && c<=0x9fbb) || 
+	 (c>=0xa000 && c<=0xa48c) || 
+	 (c>=0xa800 && c<=0xa801) || 
+	 (c>=0xa803 && c<=0xa805) || 
+	 (c>=0xa807 && c<=0xa80a) || 
+	 (c>=0xa80c && c<=0xa824) || 
+	 (c==0xa827) || 
+	 (c>=0xa840 && c<=0xa873) || 
+	 (c>=0xac00 && c<=0xd7a3) || 
+	 (c>=0xd800 && c<=0xfa2d) || 
+	 (c>=0xfa30 && c<=0xfa6a) || 
+	 (c>=0xfa70 && c<=0xfad9) || 
+	 (c>=0xfb00 && c<=0xfb06) || 
+	 (c>=0xfb13 && c<=0xfb17) || 
+	 (c>=0xff21 && c<=0xff3a) || 
+	 (c>=0xff41 && c<=0xff5a) || 
+	 (c>=0xff66 && c<=0xffbe) || 
+	 (c>=0xffc2 && c<=0xffc7) || 
+	 (c>=0xffca && c<=0xffcf) || 
+	 (c>=0xffd2 && c<=0xffd7) || 
+	 (c>=0xffda && c<=0xffdc)) {
+	return 1;
+  }
+  return 0;
+}
+
+int unic_isdigit (int c) {
+  if ((c>=0x0030 && c<=0x0039) ||
+	  (c>=0x0660 && c<=0x0669) ||
+	  (c>=0x06f0 && c<=0x06f9) ||
+	  (c>=0x07c0 && c<=0x07c9) ||
+	  (c>=0x0966 && c<=0x096f) ||
+	  (c>=0x09e6 && c<=0x09ef) ||
+	  (c>=0x0a66 && c<=0x0a6f) ||
+	  (c>=0x0ae6 && c<=0x0aef) ||
+	  (c>=0x0b66 && c<=0x0b6f) ||
+	  (c>=0x0be6 && c<=0x0bef) ||
+	  (c>=0x0c66 && c<=0x0c6f) ||
+	  (c>=0x0ce6 && c<=0x0cef) ||
+	  (c>=0x0d66 && c<=0x0d6f) ||
+	  (c>=0x0e50 && c<=0x0e59) ||
+	  (c>=0x0ed0 && c<=0x0ed9) ||
+	  (c>=0x0f20 && c<=0x0f29) ||
+	  (c>=0x1040 && c<=0x1049) ||
+	  (c>=0x17e0 && c<=0x17e9) ||
+	  (c>=0x1810 && c<=0x1819) ||
+	  (c>=0x1946 && c<=0x194f) ||
+	  (c>=0x19d0 && c<=0x19d9) ||
+	  (c>=0x1b50 && c<=0x1b59) ||
+	  (c>=0xff10 && c<=0xff19))
+	return 1;
+  return 0;
+}
+
+
 int unic_iscombining (int c) {
   if ((c>=0x0300 && c<=0x0357) ||
       (c>=0x035d && c<=0x0362) ||
@@ -2233,6 +2665,7 @@ void SCCopyFgToBg(SplineChar *sc, int show) {
 
 
 /* from tottf.c, whole */
+#if 0
 
 void putshort(FILE *file,int sval) {
     putc((sval>>8)&0xff,file);
@@ -2893,6 +3326,8 @@ void cvt_unix_to_1904( long time, int32 result[2]) {
     result[1] = (tm[3]<<16) | tm[2];
 }
 
+#endif /* for tottf.c */
+
 /* from fvimportbdf.c */
  
 void SFCheckPSBitmap(SplineFont *sf) {
@@ -2918,34 +3353,6 @@ return( font->props[i].u.val );
     }
 return( def );
 }
-
-/* from splinesave.c */
-
-int CIDOneWidth(SplineFont *_sf) {
-    int width, i;
-    int k;
-    SplineFont *sf;
-
-    if ( _sf->cidmaster!=NULL ) _sf = _sf->cidmaster;
-    width = -2;
-    k=0;
-    do {
-	sf = _sf->subfonts==NULL? _sf : _sf->subfonts[k];
-	for ( i=0; i<sf->glyphcnt; ++i ) if ( SCWorthOutputting(sf->glyphs[i]) &&
-		(strcmp(sf->glyphs[i]->name,".notdef")!=0 || sf->glyphs[i]->layers[ly_fore].splines!=NULL)) {
-	    /* Only trust the width of notdef if it's got some content */
-	    /* (at least as far as fixed pitch determination goes) */
-	    if ( width==-2 ) width = sf->glyphs[i]->width;
-	    else if ( width!=sf->glyphs[i]->width ) {
-		width = -1;
-	break;
-	    }
-	}
-	++k;
-    } while ( k<_sf->subfontcnt );
-return(width);
-}
-
 
 /* from tottfaat.c */
 
@@ -2990,6 +3397,352 @@ return( true );
     *featureSetting = 0;
 return( false );
 }
+
+static void DumpKernClass(FILE *file, uint16 *class,int cnt,int add,int mul) {
+    int i, first=-1, last=-1;
+
+    for ( i=0; i<cnt; ++i ) {
+	if ( class[i] ) last = i;
+	if ( class[i] && first==-1 ) first = i;
+    }
+    putshort(file,first);
+    putshort(file,last-first+1);
+    for ( i=first; i<=last; ++i )
+	putshort(file,class[i]*mul+add);
+}
+
+struct kerncounts {
+    int cnt;
+    int vcnt;
+    int mh, mv;
+    int kccnt;
+    int vkccnt;
+    int ksm;
+    int hsubs;
+    int *hbreaks;
+    int vsubs;
+    int *vbreaks;
+};
+
+static int CountKerns(struct alltabs *at, SplineFont *sf, struct kerncounts *kcnt) {
+    int i, cnt, vcnt, j, kccnt=0, vkccnt=0, ksm=0, mh, mv;
+    KernPair *kp;
+    KernClass *kc;
+    ASM *sm;
+
+    cnt = mh = vcnt = mv = 0;
+    for ( i=0; i<at->gi.gcnt; ++i ) if ( at->gi.bygid[i]!=-1 ) {
+	j = 0;
+	for ( kp = sf->glyphs[at->gi.bygid[i]]->kerns; kp!=NULL; kp=kp->next )
+	    if ( kp->off!=0 && LookupHasDefault(kp->subtable->lookup ))
+		++cnt, ++j;
+	if ( j>mh ) mh=j;
+	j=0;
+	for ( kp = sf->glyphs[at->gi.bygid[i]]->vkerns; kp!=NULL; kp=kp->next )
+	    if ( kp->off!=0 && LookupHasDefault(kp->subtable->lookup ))
+		++vcnt, ++j;
+	if ( j>mv ) mv=j;
+    }
+    kcnt->cnt = cnt;
+    kcnt->vcnt = vcnt;
+    kcnt->mh = mh;
+    kcnt->mv = mv;
+    kcnt->hbreaks = kcnt->vbreaks = NULL;
+    if ( cnt>=10000 ) {
+	/* the sub-table size is 6*cnt+14 or so and needs to be less 65535 */
+	/*  so break it up into little bits */
+	/* We might not need this when applemode is set because the subtable */
+	/*  length is a long. BUT... there's a damn binsearch header with */
+	/*  shorts in it still */
+	int b=0;
+	kcnt->hbreaks = galloc((at->gi.gcnt+1)*sizeof(int));
+	cnt = 0;
+	for ( i=0; i<at->gi.gcnt; ++i ) if ( at->gi.bygid[i]!=-1 ) {
+	    j = 0;
+	    for ( kp = sf->glyphs[at->gi.bygid[i]]->kerns; kp!=NULL; kp=kp->next )
+		if ( kp->off!=0 && LookupHasDefault(kp->subtable->lookup ))
+		    ++j;
+	    if ( (cnt+j)*6>64000L && cnt!=0 ) {
+		kcnt->hbreaks[b++] = cnt;
+		cnt = 0;
+	    }
+	    cnt += j;
+	}
+	kcnt->hbreaks[b++] = cnt;
+	kcnt->hsubs = b;
+    } else if ( cnt!=0 )
+	kcnt->hsubs = 1;
+    else
+	kcnt->hsubs = 0;
+    if ( vcnt>=10000 ) {
+	int b=0;
+	kcnt->vbreaks = galloc((at->gi.gcnt+1)*sizeof(int));
+	vcnt = 0;
+	for ( i=0; i<at->gi.gcnt; ++i ) if ( at->gi.bygid[i]!=-1 ) {
+	    j = 0;
+	    for ( kp = sf->glyphs[at->gi.bygid[i]]->vkerns; kp!=NULL; kp=kp->next )
+		if ( kp->off!=0 && LookupHasDefault(kp->subtable->lookup))
+		    ++j;
+	    if ( (vcnt+j)*6>64000L && vcnt!=0 ) {
+		kcnt->vbreaks[b++] = vcnt;
+		vcnt = 0;
+	    }
+	    vcnt += j;
+	}
+	kcnt->vbreaks[b++] = vcnt;
+	kcnt->vsubs = b;
+    } else if ( vcnt!=0 )
+	kcnt->vsubs = 1;
+    else
+	kcnt->vsubs = 0;
+
+    if ( at->applemode ) {	/* if we aren't outputting Apple's extensions to kerning (by classes, and by state machine) then don't check for those extensions */
+	for ( kc=sf->kerns; kc!=NULL; kc = kc->next ) if ( LookupHasDefault(kc->subtable->lookup) )
+	    ++kccnt;
+	for ( kc=sf->vkerns; kc!=NULL; kc = kc->next ) if ( LookupHasDefault(kc->subtable->lookup) )
+	    ++vkccnt;
+	for ( sm=sf->sm; sm!=NULL; sm=sm->next )
+	    if ( sm->type == asm_kern )
+		++ksm;
+    }
+    kcnt->kccnt = kccnt;
+    kcnt->vkccnt = vkccnt;
+    kcnt->ksm = ksm;
+return( kcnt->hsubs + kcnt->vsubs + kccnt + vkccnt + ksm );
+}
+
+static void ttf_dumpsfkerns(struct alltabs *at, SplineFont *sf, int tupleIndex, int version) {
+    struct kerncounts kcnt;
+    int i, j, k, m, c, gid, tot, km;
+    KernPair *kp;
+    KernClass *kc;
+    ASM *sm;
+    uint16 *glnum, *offsets;
+    int isv;
+    int tupleMask = tupleIndex==-1 ? 0 : 0x2000;
+    int b, bmax;
+    int *breaks;
+
+    if ( CountKerns(at,sf,&kcnt)==0 )
+return;
+
+    if ( tupleIndex==-1 ) tupleIndex = 0;
+    
+    for ( isv=0; isv<2; ++isv ) {
+	c = isv ? kcnt.vcnt : kcnt.cnt;
+	bmax = isv ? kcnt.vsubs : kcnt.hsubs;
+	breaks = isv ? kcnt.vbreaks : kcnt.hbreaks;
+	if ( c!=0 ) {
+	    km = isv ? kcnt.mv : kcnt.mh;
+	    glnum = galloc(km*sizeof(uint16));
+	    offsets = galloc(km*sizeof(uint16));
+	    gid = 0;
+	    for ( b=0; b<bmax; ++b ) {
+		c = bmax==1 ? c : breaks[b];
+		if ( version==0 ) {
+		    putshort(at->kern,0);		/* subtable version */
+		    putshort(at->kern,(7+3*c)*sizeof(uint16)); /* subtable length */
+		    putshort(at->kern,!isv);	/* coverage, flags=hor/vert&format=0 */
+		} else {
+		    putlong(at->kern,(8+3*c)*sizeof(uint16)); /* subtable length */
+		    /* Apple's new format has a completely different coverage format */
+		    putshort(at->kern,(isv?0x8000:0)| /* format 0, horizontal/vertical flags (coverage) */
+				    tupleMask);
+		    putshort(at->kern,tupleIndex);
+		}
+		putshort(at->kern,c);
+		for ( i=1,j=0; i<=c; i<<=1, ++j );
+		i>>=1; --j;
+		putshort(at->kern,i*6);		/* binary search headers */
+		putshort(at->kern,j);
+		putshort(at->kern,6*(c-i));
+
+		for ( tot = 0; gid<at->gi.gcnt && tot<c; ++gid ) if ( at->gi.bygid[gid]!=-1 ) {
+		    SplineChar *sc = sf->glyphs[at->gi.bygid[gid]];
+		    m = 0;
+		    for ( kp = isv ? sc->vkerns : sc->kerns; kp!=NULL; kp=kp->next ) {
+			if ( kp->off!=0 && LookupHasDefault(kp->subtable->lookup)) {
+			    /* order the pairs */
+			    for ( j=0; j<m; ++j )
+				if ( kp->sc->ttf_glyph<glnum[j] )
+			    break;
+			    for ( k=m; k>j; --k ) {
+				glnum[k] = glnum[k-1];
+				offsets[k] = offsets[k-1];
+			    }
+			    glnum[j] = kp->sc->ttf_glyph;
+			    offsets[j] = kp->off;
+			    ++m;
+			}
+		    }
+		    for ( j=0; j<m; ++j ) {
+			putshort(at->kern,gid);
+			putshort(at->kern,glnum[j]);
+			putshort(at->kern,offsets[j]);
+		    }
+		    tot += m;
+		}
+	    }
+	    free(offsets);
+	    free(glnum);
+	}
+    }
+    free(kcnt.hbreaks); free(kcnt.vbreaks);
+
+    if ( at->applemode ) for ( isv=0; isv<2; ++isv ) {
+	for ( kc=isv ? sf->vkerns : sf->kerns; kc!=NULL; kc=kc->next ) if ( LookupHasDefault(kc->subtable->lookup) ) {
+	    /* If we are here, we must be using version 1 */
+	    uint32 len_pos = ftell(at->kern), pos;
+	    uint16 *class1, *class2;
+	    int first_cnt = kc->first_cnt;
+
+	    /* OpenType fonts can actually have a set of glyphs in class[0] of*/
+	    /*  the first class. This happens when there are glyphs in the */
+	    /*  coverage table which are not in any of the classes. Otherwise */
+	    /*  class 0 is sort of useless in opentype */
+	    if ( kc->firsts[0]!=NULL )
+		++first_cnt;
+
+	    putlong(at->kern,0); /* subtable length */
+	    putshort(at->kern,(isv?0x8002:2)|	/* format 2, horizontal/vertical flags (coverage) */
+			    tupleMask);
+	    putshort(at->kern,tupleIndex);
+
+	    putshort(at->kern,sizeof(uint16)*kc->second_cnt);
+	    putshort(at->kern,0);		/* left classes */
+	    putshort(at->kern,0);		/* right classes */
+	    putshort(at->kern,16);		/* Offset to array, next byte */
+
+	    if ( kc->firsts[0]!=NULL ) {
+		/* Create a dummy class to correspond to the mac's class 0 */
+		/*  all entries will be 0 */
+		for ( i=0 ; i<kc->second_cnt; ++i )
+		    putshort(at->kern,0);
+	    }
+	    for ( i=0; i<kc->first_cnt*kc->second_cnt; ++i )
+		putshort(at->kern,kc->offsets[i]);
+
+	    pos = ftell(at->kern);
+	    fseek(at->kern,len_pos+10,SEEK_SET);
+	    putshort(at->kern,pos-len_pos);
+	    fseek(at->kern,pos,SEEK_SET);
+	    class1 = ClassesFromNames(sf,kc->firsts,kc->first_cnt,at->maxp.numGlyphs,NULL,true);
+	    DumpKernClass(at->kern,class1,at->maxp.numGlyphs,16,sizeof(uint16)*kc->second_cnt);
+	    free(class1);
+
+	    pos = ftell(at->kern);
+	    fseek(at->kern,len_pos+12,SEEK_SET);
+	    putshort(at->kern,pos-len_pos);
+	    fseek(at->kern,pos,SEEK_SET);
+	    class2 = ClassesFromNames(sf,kc->seconds,kc->second_cnt,at->maxp.numGlyphs,NULL,true);
+	    DumpKernClass(at->kern,class2,at->maxp.numGlyphs,0,sizeof(uint16));
+	    free(class2);
+
+	    pos = ftell(at->kern);
+	    fseek(at->kern,len_pos,SEEK_SET);
+	    putlong(at->kern,pos-len_pos);
+	    fseek(at->kern,pos,SEEK_SET);
+	}
+    }
+
+    if ( at->applemode ) if ( kcnt.ksm!=0 ) {
+#ifndef LUA_FF_LIB
+	for ( sm=sf->sm; sm!=NULL; sm=sm->next ) if ( sm->type == asm_kern ) {
+	    uint32 len_pos = ftell(at->kern), pos;
+
+	    putlong(at->kern,0); 		/* subtable length */
+	    putshort(at->kern,((sm->flags&0x8000)?0x8001:1)|	/* format 1, horizontal/vertical flags (coverage) */
+			    tupleMask);
+	    putshort(at->kern,tupleIndex);
+	    morx_dumpASM(at->kern,sm,at,sf);
+
+	    pos = ftell(at->kern);
+	    fseek(at->kern,len_pos,SEEK_SET);
+	    putlong(at->kern,pos-len_pos);
+	    fseek(at->kern,pos,SEEK_SET);
+	}
+#endif
+    }
+}
+
+void ttf_dumpkerns(struct alltabs *at, SplineFont *sf) {
+    int i, mmcnt=0, sum;
+    int version;
+    MMSet *mm = at->dovariations ? sf->mm : NULL;
+    struct kerncounts kcnt;
+    int must_use_old_style = 0;
+
+    if ( !at->applemode && (!at->opentypemode || (at->gi.flags&ttf_flag_oldkern)) ) {
+	must_use_old_style = true;
+	SFKernClassTempDecompose(sf,false);
+	mm = NULL;
+    } else {
+	if ( mm!=NULL ) {
+	    for ( i=0; i<mm->instance_count; ++i ) {
+		mmcnt += CountKerns(at,mm->instances[i],&kcnt);
+		free(kcnt.hbreaks); free(kcnt.vbreaks);
+	    }
+	    sf = mm->normal;
+	}
+    }
+
+    sum = CountKerns(at,sf,&kcnt);
+    free(kcnt.hbreaks); free(kcnt.vbreaks);
+    if ( sum==0 && mmcnt==0 ) {
+	if ( must_use_old_style )
+	    SFKernCleanup(sf,false);
+return;
+    }
+
+    /* Old kerning format (version 0) uses 16 bit quantities */
+    /* Apple's new format (version 0x00010000) uses 32 bit quantities */
+    at->kern = tmpfile();
+    if ( must_use_old_style  ||
+	    ( kcnt.kccnt==0 && kcnt.vkccnt==0 && kcnt.ksm==0 && mmcnt==0 )) {
+	/* MS does not support format 1,2,3 kern sub-tables so if we have them */
+	/*  we might as well admit that this table is for apple only and use */
+	/*  the new format apple recommends. Otherwise, use the old format */
+	/* If we might need to store tuple data, use the new format */
+	putshort(at->kern,0);			/* version */
+	putshort(at->kern,sum);			/* number of subtables */
+	version = 0;
+    } else {
+	putlong(at->kern,0x00010000);		/* version */
+	putlong(at->kern,sum+mmcnt);		/* number of subtables */
+	version = 1;
+    }
+
+    ttf_dumpsfkerns(at, sf, -1, version);
+    if ( mm!=NULL ) {
+	for ( i=0; i<mm->instance_count; ++i )
+	    ttf_dumpsfkerns(at, mm->instances[i], i, version);
+    }
+    if ( must_use_old_style )
+	SFKernCleanup(sf,false);
+
+    at->kernlen = ftell(at->kern);
+    if ( at->kernlen&2 )
+	putshort(at->kern,0);		/* pad it */
+}
+
+
+int LookupHasDefault(OTLookup *otl) {
+    FeatureScriptLangList *feats;
+
+    if ( otl->def_lang_checked )
+return( otl->def_lang_found );
+
+    otl->def_lang_checked = true;
+    for ( feats=otl->features; feats!=NULL; feats = feats->next ) {
+	if ( scriptsHaveDefault(feats->scripts) ) {
+	    otl->def_lang_found = true;
+return( true );
+	}
+    }
+    otl->def_lang_found = false;
+return( false );
+}
+
 
 /* from sfd1.c, full */
 
@@ -3113,6 +3866,185 @@ return( sc!=NULL &&
 	    sc->dependents!=NULL /*||
 	    sc->width!=sc->parent->ascent+sc->parent->descent*/ ) );
 }
+
+void SFKernCleanup(SplineFont *sf,int isv) {
+    int i;
+    KernPair *kp, *p, *n;
+    OTLookup *otl, *otlp, *otln;
+
+    if ( (!isv && sf->kerns==NULL) || (isv && sf->vkerns==NULL) )	/* can't have gotten messed up */
+return;
+    for ( i=0; i<sf->glyphcnt; ++i ) if ( sf->glyphs[i]!=NULL ) {
+	for ( kp = isv ? sf->glyphs[i]->vkerns : sf->glyphs[i]->kerns, p=NULL; kp!=NULL; kp = n ) {
+	    n = kp->next;
+	    if ( kp->kcid!=0 ) {
+		if ( p!=NULL )
+		    p->next = n;
+		else if ( isv )
+		    sf->glyphs[i]->vkerns = n;
+		else
+		    sf->glyphs[i]->kerns = n;
+		chunkfree(kp,sizeof(*kp));
+	    } else
+		p = kp;
+	}
+    }
+    for ( otl=sf->gpos_lookups, otlp = NULL; otl!=NULL; otl = otln ) {
+	otln = otl->next;
+	if ( otl->temporary_kern ) {
+	    if ( otlp!=NULL )
+		otlp->next = otln;
+	    else
+		sf->gpos_lookups = otln;
+	    OTLookupFree(otl);
+	} else
+	    otlp = otl;
+    }
+}
+
+
+static void KCSfree(SplineChar ***scs,int cnt) {
+    int i;
+    for ( i=1; i<cnt; ++i )
+	free( scs[i]);
+    free(scs);
+}
+
+static SplineChar ***KernClassToSC(SplineFont *sf, char **classnames, int cnt) {
+    SplineChar ***scs, *sc;
+    int i,j;
+    char *pt, *end, ch;
+
+    scs = galloc(cnt*sizeof(SplineChar **));
+    for ( i=1; i<cnt; ++i ) {
+	for ( pt=classnames[i]-1, j=0; pt!=NULL; pt=strchr(pt+1,' ') )
+	    ++j;
+	scs[i] = galloc((j+1)*sizeof(SplineChar *));
+	for ( pt=classnames[i], j=0; *pt!='\0'; pt=end+1 ) {
+	    end = strchr(pt,' ');
+	    if ( end==NULL )
+		end = pt+strlen(pt);
+	    ch = *end;
+	    *end = '\0';
+	    sc = SFGetChar(sf,-1,pt);
+	    if ( sc!=NULL )
+		scs[i][j++] = sc;
+	    if ( ch=='\0' )
+	break;
+	    *end = ch;
+	}
+	scs[i][j] = NULL;
+    }
+return( scs );
+}
+
+static void AddTempKP(SplineChar *first,SplineChar *second,
+	int16 offset, struct lookup_subtable *sub,uint16 kcid,int isv) {
+    KernPair *kp;
+
+    for ( kp=first->kerns; kp!=NULL; kp=kp->next )
+	if ( kp->sc == second )
+    break;
+    if ( kp==NULL ) {
+	kp = chunkalloc(sizeof(KernPair));
+	kp->sc = second;
+	kp->off = offset;
+	kp->subtable = sub;
+	kp->kcid = kcid;
+	if ( isv ) {
+	    kp->next = first->vkerns;
+	    first->vkerns = kp;
+	} else {
+	    kp->next = first->kerns;
+	    first->kerns = kp;
+	}
+    }
+}
+
+
+void SFKernClassTempDecompose(SplineFont *sf,int isv) {
+    KernClass *kc, *head= isv ? sf->vkerns : sf->kerns;
+    SplineChar ***first, ***last;
+    int i, j, k, l;
+    OTLookup *otl;
+
+    for ( kc = head, i=0; kc!=NULL; kc = kc->next )
+	kc->kcid = ++i;
+    for ( kc = head; kc!=NULL; kc = kc->next ) {
+
+	otl = chunkalloc(sizeof(OTLookup));
+	otl->next = sf->gpos_lookups;
+	sf->gpos_lookups = otl;
+	otl->lookup_type = gpos_pair;
+	otl->lookup_flags = kc->subtable->lookup->lookup_flags;
+	otl->features = FeatureListCopy(kc->subtable->lookup->features);
+	otl->lookup_name = copy(_("<Temporary kerning>"));
+	otl->temporary_kern = otl->store_in_afm = true;
+	otl->subtables = chunkalloc(sizeof(struct lookup_subtable));
+	otl->subtables->lookup = otl;
+	otl->subtables->per_glyph_pst_or_kern = true;
+	otl->subtables->subtable_name = copy(_("<Temporary kerning>"));
+
+	first = KernClassToSC(sf,kc->firsts,kc->first_cnt);
+	last = KernClassToSC(sf,kc->seconds,kc->second_cnt);
+	for ( i=1; i<kc->first_cnt; ++i ) for ( j=1; j<kc->second_cnt; ++j ) {
+	    if ( kc->offsets[i*kc->second_cnt+j]!=0 ) {
+		for ( k=0; first[i][k]!=NULL; ++k )
+		    for ( l=0; last[j][l]!=NULL; ++l )
+			AddTempKP(first[i][k],last[j][l],
+				kc->offsets[i*kc->second_cnt+j],
+			        otl->subtables,kc->kcid,isv);
+	    }
+	}
+	KCSfree(first,kc->first_cnt);
+	KCSfree(last,kc->second_cnt);
+    }
+}
+
+int SFFindNotdef(SplineFont *sf, int fixed) {
+    int notdefpos = -1, i, width=-1;
+    /* If all glyphs have the same known width set fixed to it */
+    /* If glyphs are proportional set fixed to -1 */
+    /* If we don't know yet, set fixed to -2 */
+
+    if ( fixed==-2 ) {          /* Unknown */
+        for ( i=0; i<sf->glyphcnt; ++i ) if ( SCWorthOutputting(sf->glyphs[i]) ) {
+            if ( strcmp(sf->glyphs[i]->name,".notdef")==0 ) {
+                if ( notdefpos==-1 ) notdefpos = i;
+            } else if ( width==-1 )
+                width = sf->glyphs[i]->width;
+            else if ( width!=sf->glyphs[i]->width )
+                width = -2;
+        }
+        if ( width>=0 && sf->glyphcnt>2 && notdefpos>=0) {
+            if ( width!=sf->glyphs[notdefpos]->width ) {
+                notdefpos = -1;
+                for ( i=0; i<sf->glyphcnt; ++i ) if ( SCWorthOutputting(sf->glyphs[i]) ) {
+                    if ( strcmp(sf->glyphs[i]->name,".notdef")==0 &&
+                            sf->glyphs[i]->width == width ) {
+                        notdefpos = i;
+                break;
+                    }
+                }
+            }
+        }
+    } else if ( fixed>=0 ) {            /* Known, fixed width */
+
+        for ( i=0; i<sf->glyphcnt; ++i ) if ( SCWorthOutputting(sf->glyphs[i]) ) {
+            if ( strcmp(sf->glyphs[i]->name,".notdef")==0 &&
+                    sf->glyphs[i]->width == fixed )
+return( i );
+        }
+    } else {                            /* Known, variable width */
+        for ( i=0; i<sf->glyphcnt; ++i ) if ( SCWorthOutputting(sf->glyphs[i]) ) {
+            if ( strcmp(sf->glyphs[i]->name,".notdef")==0 )
+return( i );
+        }
+    }
+
+return( notdefpos );
+}
+
 
 #ifdef LUA_FF_LIB
 /* no need for iconv here, since PS is 8-bit legacy */
@@ -3367,7 +4299,7 @@ return( true );
 
 /* from tottfgpos.c */
 
-
+#if 0 
 static uint32 scripts[][15] = {
 /* Arabic */	{ CHR('a','r','a','b'), 0x0600, 0x06ff, 0xfb50, 0xfdff, 0xfe70, 0xfeff },
 /* Aramaic */	{ CHR('a','r','a','m'), 0x820, 0x83f },
@@ -3615,6 +4547,7 @@ return( 1 );
     /* Anyway I never return class 4 */ /* (I've never seen it used by others) */
 }
 
+#endif /* tottfgpos.c */
 
 /* from charinfo.c */
 
@@ -4423,3 +5356,188 @@ char *MMMakeMasterFontname(MMSet *mm,int ipos,char **fullname) {
 return( _MMMakeFontname(mm,&mm->positions[ipos*mm->axis_count],fullname));
 }
 
+/* from splinesaveafm.c */
+
+
+void SFLigatureCleanup(SplineFont *sf) {
+    LigList *l, *next;
+    struct splinecharlist *scl, *sclnext;
+    int j;
+
+    for ( j=0; j<sf->glyphcnt; ++j ) if ( sf->glyphs[j]!=NULL ) {
+        for ( l = sf->glyphs[j]->ligofme; l!=NULL; l = next ) {
+            next = l->next;
+            for ( scl = l->components; scl!=NULL; scl = sclnext ) {
+                sclnext = scl->next;
+                chunkfree(scl,sizeof(struct splinecharlist));
+            }
+            if ( l->lig->temporary ) {
+                free(l->lig->u.lig.components);
+                chunkfree(l->lig,sizeof(PST));
+            }
+            free( l );
+        }
+        sf->glyphs[j]->ligofme = NULL;
+    }
+}
+
+
+void SFLigaturePrepare(SplineFont *sf) {
+    PST *lig;
+    LigList *ll;
+    int i,j,k,ch;
+    char *pt, *ligstart;
+    SplineChar *sc, *tsc;
+    struct splinecharlist *head, *last;
+    int ccnt, lcnt, lmax=20;
+    LigList **all = galloc(lmax*sizeof(LigList *));
+	ccnt = 0; /* for -Wall */
+    /* First clear out any old stuff */
+    for ( j=0; j<sf->glyphcnt; ++j ) if ( sf->glyphs[j]!=NULL )
+	sf->glyphs[j]->ligofme = NULL;
+
+    /* Attach all the ligatures to the first character of their components */
+    /* Figure out what the components are, and if they all exist */
+    /* we're only interested in the lig if all components are worth outputting */
+    for ( i=0 ; i<sf->glyphcnt; ++i ) if ( SCWorthOutputting(sf->glyphs[i]) && sf->glyphs[i]->possub!=NULL ) {
+	for ( lig = sf->glyphs[i]->possub; lig!=NULL; lig=lig->next ) if ( lig->type==pst_ligature ) {
+	    ligstart = lig->u.lig.components;
+	    last = head = NULL; sc = NULL;
+	    for ( pt = ligstart; *pt!='\0'; ) {
+		char *start = pt;
+		for ( ; *pt!='\0' && *pt!=' '; ++pt );
+		ch = *pt; *pt = '\0';
+		tsc = SFGetChar(sf,-1,start);
+		*pt = ch;
+		if ( tsc!=NULL ) {
+		    if ( !SCWorthOutputting(tsc)) {
+			sc = NULL;
+	    break;
+		    }
+		    if ( sc==NULL ) {
+			sc = tsc;
+			ccnt = 1;
+		    } else {
+			struct splinecharlist *cur = chunkalloc(sizeof(struct splinecharlist));
+			if ( head==NULL )
+			    head = cur;
+			else
+			    last->next = cur;
+			last = cur;
+			cur->sc = tsc;
+			cur->next = NULL;
+			++ccnt;
+		    }
+		} else {
+		    sc = NULL;
+	    break;
+		}
+		while ( *pt==' ' ) ++pt;
+	    }
+	    if ( sc!=NULL ) {
+		ll = galloc(sizeof(LigList));
+		ll->lig = lig;
+		ll->next = sc->ligofme;
+		ll->first = sc;
+		ll->components = head;
+		ll->ccnt = ccnt;
+		sc->ligofme = ll;
+	    } else {
+		while ( head!=NULL ) {
+		    last = head->next;
+		    chunkfree(head,sizeof(*head));
+		    head = last;
+		}
+	    }
+	}
+    }
+    for ( i=0 ; i<sf->glyphcnt; ++i ) if ( (sc=sf->glyphs[i])!=NULL && sc->ligofme!=NULL ) {
+	for ( ll=sc->ligofme, lcnt=0; ll!=NULL; ll=ll->next, ++lcnt );
+	/* Finally, order the list so that the longest ligatures are first */
+	if ( lcnt>1 ) {
+	    if ( lcnt>=lmax )
+		all = grealloc(all,(lmax=lcnt+30)*sizeof(LigList *));
+	    for ( ll=sc->ligofme, k=0; ll!=NULL; ll=ll->next, ++k )
+		all[k] = ll;
+	    for ( k=0; k<lcnt-1; ++k ) for ( j=k+1; j<lcnt; ++j )
+		if ( all[k]->ccnt<all[j]->ccnt ) {
+		    ll = all[k];
+		    all[k] = all[j];
+		    all[j] = ll;
+		}
+	    sc->ligofme = all[0];
+	    for ( k=0; k<lcnt-1; ++k )
+		all[k]->next = all[k+1];
+	    all[k]->next = NULL;
+	}
+    }
+    free( all );
+}
+
+/* from autohint.c, stubs for now */
+
+void FindBlues( SplineFont *sf, real blues[14], real otherblues[10]) { 
+}
+
+void QuickBlues(SplineFont *_sf, BlueData *bd) {
+}
+
+void SplineFontAutoHint( SplineFont *sf) {
+}
+
+void SplineFontAutoHintRefs( SplineFont *_sf) {
+}
+
+void SplineCharAutoHint( SplineChar *sc, BlueData *bd ) {
+}
+
+
+/* from genttfinstrs.c */
+
+int TTF__getcvtval(SplineFont *sf,int val) {
+    int i;
+    struct ttf_table *cvt_tab = SFFindTable(sf,CHR('c','v','t',' '));
+
+    if ( cvt_tab==NULL ) {
+	cvt_tab = chunkalloc(sizeof(struct ttf_table));
+	cvt_tab->tag = CHR('c','v','t',' ');
+	cvt_tab->maxlen = 200;
+	cvt_tab->data = galloc(100*sizeof(short));
+	cvt_tab->next = sf->ttf_tables;
+	sf->ttf_tables = cvt_tab;
+    }
+    for ( i=0; sizeof(uint16)*i<cvt_tab->len; ++i ) {
+	int tval = (int16) memushort(cvt_tab->data,cvt_tab->len, sizeof(uint16)*i);
+	if ( val>=tval-1 && val<=tval+1 )
+return( i );
+    }
+    if ( sizeof(uint16)*i>=cvt_tab->maxlen ) {
+	if ( cvt_tab->maxlen==0 ) cvt_tab->maxlen = cvt_tab->len;
+	cvt_tab->maxlen += 200;
+	cvt_tab->data = grealloc(cvt_tab->data,cvt_tab->maxlen);
+    }
+    memputshort(cvt_tab->data,sizeof(uint16)*i,val);
+    cvt_tab->len += sizeof(uint16);
+return( i );
+}
+
+int TTF_getcvtval(SplineFont *sf,int val) {
+
+    /* by default sign is unimportant in the cvt */
+    /* For some instructions anyway, but not for MIAP so this routine has */
+    /*  been broken in two. */
+    if ( val<0 ) val = -val;
+return( TTF__getcvtval(sf,val));
+}
+
+
+
+struct ttf_table *SFFindTable(SplineFont *sf,uint32 tag) {
+    struct ttf_table *tab;
+
+    for ( tab=sf->ttf_tables; tab!=NULL && tab->tag!=tag; tab=tab->next );
+return( tab );
+}
+
+void initforinstrs(SplineChar *sc) {
+}

@@ -3011,3 +3011,61 @@ void writet1c (fd_entry *fd) {
   fclose(fp);
   write_cff(cffont,fd);
 }
+
+/* here is a sneaky trick: fontforge knows how to convert Type1 to CFF, so 
+ * I have defined a utility function in luafflib.c that does exactly that.
+ * If it works out ok, I will clean up this code.
+ */
+
+extern void ff_createcff (char *, unsigned char **, integer *);
+
+void writetype1w (fd_entry *fd) { 
+  cff_font *cff;
+  int i;
+  FILE *fp;
+  ff_entry *ff;
+  unsigned char *tfm_buffer = NULL;
+  integer tfm_size = 0;
+
+  ff = check_ff_exist(fd->fm->ff_name, 0);
+    
+  fp = fopen (ff->ff_path, "rb");
+  cur_file_name = ff->ff_path;
+
+  if (!fp) {
+    fprintf(stderr,"Type1: Could not open Type1 font: %s", cur_file_name);
+    uexit(1);
+  }
+  fclose(fp);
+
+  if (tracefilenames) {
+    if (is_subsetted(fd->fm))
+      tex_printf ("<%s", cur_file_name);
+    else
+      tex_printf ("<<%s", cur_file_name);
+  }
+
+  ff_createcff(ff->ff_path,&tfm_buffer,&tfm_size);
+  if (tfm_size>0) {
+    cff = read_cff(tfm_buffer,tfm_size,0);
+    if (cff != NULL) {
+      write_cff(cff,fd);
+    } else {
+      for (i = 0; i < tfm_size ; i++)
+	fb_putchar (tfm_buffer[i]);
+    }
+    fd->ff_found = 1;
+  } else {
+    fprintf(stderr,"Type1: Could not understand Type1 font: %s", cur_file_name);
+    uexit(1);
+  }
+  if (tracefilenames) {
+	if (is_subsetted (fd->fm))
+      tex_printf (">");
+    else 
+      tex_printf (">>");
+  }
+  cur_file_name = NULL;
+}
+
+

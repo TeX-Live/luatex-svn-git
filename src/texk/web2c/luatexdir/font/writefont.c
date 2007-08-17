@@ -27,8 +27,10 @@ extern void writetype2 (fd_entry * fd) ;
 extern unsigned long cidtogid_obj;
 
 #ifdef DO_TYPE1C
-extern void writet1c(fd); /* in writecff.c */
+extern void writet1c(fd_entry * fd); /* in writecff.c */
 #endif
+
+extern void writet1w   (fd_entry * fd); /* in writecff.c */
 
 void write_cid_fontdictionary(fo_entry * fo, internalfontnumber f);
 void create_cid_fontdictionary(fm_entry * fm, integer font_objnum, internalfontnumber f);
@@ -378,53 +380,55 @@ void register_fo_entry(fo_entry * fo)
 
 static void write_fontfile(fd_entry * fd)
 {
-    assert(is_included(fd->fm));
-    if (is_cidkeyed(fd->fm)) {
-      if (is_opentype(fd->fm))
-	writetype0(fd);
-      else if (is_truetype(fd->fm))
-	writetype2(fd);
-      else
-        assert(0);
-    } else {
-      if (is_type1(fd->fm))
+  assert(is_included(fd->fm));
+  if (is_cidkeyed(fd->fm)) {
+    if (is_opentype(fd->fm))
+      writetype0(fd);
+    else if (is_truetype(fd->fm))
+      writetype2(fd);
+    else if (is_type1(fd->fm))
+      writetype1w(fd);
+    else 
+      assert(0);
+  } else {
+    if (is_type1(fd->fm))
 #ifdef DO_TYPE1C
-        writet1c(fd);
+      writet1c(fd);
 #else
-        writet1(fd);
+    writet1(fd);
 #endif
-      else if (is_truetype(fd->fm))
-        writettf(fd);
-      else if (is_opentype(fd->fm))
-        writeotf(fd);
-      else
-        assert(0);
+    else if (is_truetype(fd->fm))
+      writettf(fd);
+    else if (is_opentype(fd->fm))
+      writeotf(fd);
+    else
+      assert(0);
+  }
+  if (!fd->ff_found)
+    return;
+  assert(fd->ff_objnum == 0);
+  fd->ff_objnum = pdf_new_objnum();
+  pdf_begin_dict(fd->ff_objnum, 0);     /* font file stream */
+  if (is_cidkeyed(fd->fm)) {
+    /* No subtype is used for TrueType-based OpenType fonts */
+    if (is_opentype(fd->fm) || is_type1(fd->fm))
+      pdf_puts("/Subtype /CIDFontType0C\n");
+    /* else
+       pdf_puts("/Subtype /OpenType\n");*/
+  } else {
+    if (is_type1(fd->fm))
+      pdf_printf("/Length1 %i\n/Length2 %i\n/Length3 %i\n",
+		 (int) t1_length1, (int) t1_length2, (int) t1_length3);
+    else if (is_truetype(fd->fm))
+      pdf_printf("/Length1 %i\n", (int) ttf_length);
+    else if (is_opentype(fd->fm))
+      pdf_puts("/Subtype /Type1C\n");
+    else
+      assert(0);
     }
-    if (!fd->ff_found)
-        return;
-    assert(fd->ff_objnum == 0);
-    fd->ff_objnum = pdf_new_objnum();
-    pdf_begin_dict(fd->ff_objnum, 0);     /* font file stream */
-    if (is_cidkeyed(fd->fm)) {
-      /* No subtype is used for TrueType-based OpenType fonts */
-      if (is_opentype(fd->fm))
-	pdf_puts("/Subtype /CIDFontType0C\n");
-      /* else
-	 pdf_puts("/Subtype /OpenType\n");*/
-    } else {
-      if (is_type1(fd->fm))
-        pdf_printf("/Length1 %i\n/Length2 %i\n/Length3 %i\n",
-                   (int) t1_length1, (int) t1_length2, (int) t1_length3);
-      else if (is_truetype(fd->fm))
-        pdf_printf("/Length1 %i\n", (int) ttf_length);
-      else if (is_opentype(fd->fm))
-        pdf_puts("/Subtype /Type1C\n");
-      else
-        assert(0);
-    }
-    pdf_begin_stream();
-    fb_flush();
-    pdf_end_stream();
+  pdf_begin_stream();
+  fb_flush();
+  pdf_end_stream();
 }
 
 /**********************************************************************/
@@ -449,7 +453,17 @@ static void write_fontdescriptor(fd_entry * fd)
     else
         pdf_printf("/Flags %i\n", (int) fd->fm->fd_flags);
     write_fontmetrics(fd);
-    if (fd->ff_found) {
+    if (is_cidkeyed(fd->fm)) {
+        if (is_type1(fd->fm)) 
+            pdf_printf("/FontFile3 %i 0 R\n", (int) fd->ff_objnum);
+        else if (is_truetype(fd->fm))
+            pdf_printf("/FontFile2 %i 0 R\n", (int) fd->ff_objnum);
+        else if (is_opentype(fd->fm))
+            pdf_printf("/FontFile3 %i 0 R\n", (int) fd->ff_objnum);
+        else
+            assert(0);
+    } else {
+      if (fd->ff_found) {
         if (is_subsetted(fd->fm) && is_type1(fd->fm)) {
             /* /CharSet is optional; names may appear in any order */
             assert(fd->gl_tree != NULL);
@@ -460,7 +474,7 @@ static void write_fontdescriptor(fd_entry * fd)
                 pdf_printf("/%s", glyph);
             pdf_puts(")\n");
         }
-        if (is_type1(fd->fm))
+        if (is_type1(fd->fm)) 
             pdf_printf("/FontFile %i 0 R\n", (int) fd->ff_objnum);
         else if (is_truetype(fd->fm))
             pdf_printf("/FontFile2 %i 0 R\n", (int) fd->ff_objnum);
@@ -468,6 +482,7 @@ static void write_fontdescriptor(fd_entry * fd)
             pdf_printf("/FontFile3 %i 0 R\n", (int) fd->ff_objnum);
         else
             assert(0);
+      }
     }
     /* TODO: Optional keys for CID fonts. 
     
@@ -658,7 +673,7 @@ void do_pdf_font(integer font_objnum, internalfontnumber f)
 	  switch (font_format(f)) {
 	  case opentype_format:  set_opentype(fm); break; 
 	  case truetype_format:  set_truetype(fm); break; 
-		/*case type1_format:     set_type1(fm); break; */
+	  case type1_format:     set_type1(fm); break;
       default:
 		pdftex_fail("writefont.c: The file format (%s) for font `%s' is incompatible with wide characters\n", 
 					font_format_name(f),font_name(f));
@@ -837,7 +852,7 @@ void write_cid_fontdictionary(fo_entry * fo, internalfontnumber f)
 
     pdf_begin_dict(i, 1);
     pdf_puts("/Type /Font\n");
-    if (is_opentype(fo->fm)) {
+    if (is_opentype(fo->fm) || is_type1(fo->fm)) {
       pdf_puts("/Subtype /CIDFontType0\n");
     } else {
       pdf_puts("/Subtype /CIDFontType2\n");
@@ -847,8 +862,8 @@ void write_cid_fontdictionary(fo_entry * fo, internalfontnumber f)
     pdf_printf("/FontDescriptor %i 0 R\n", (int) fo->fd->fd_objnum);
     pdf_printf("/W %i 0 R\n",(int) fo->cw_objnum);
     pdf_printf("/CIDSystemInfo <<\n");
-    pdf_printf("/Registry (%s)\n", font_cidregistry(f));
-    pdf_printf("/Ordering (%s)\n",font_cidordering(f));
+    pdf_printf("/Registry (%s)\n", (font_cidregistry(f)? font_cidregistry(f): "Adobe"));
+    pdf_printf("/Ordering (%s)\n",(font_cidordering(f)? font_cidordering(f) : "Identity")) ;
     pdf_printf("/Supplement %u\n",(unsigned int)font_cidsupplement(f));
     pdf_printf(">>\n");
 
