@@ -2789,12 +2789,13 @@ void write_cff(cff_font *cffont, fd_entry *fd, int uglytype1fix) {
   double        nominal_width, default_width, notdef_width;
   int           verbose;
   char         *fullname;
-  long i, cid, notdef_used, notdef_val;
+  long i, cid, notdef_used;
   glw_entry *glyph, *found;
   struct avl_traverser t;
 
   cff_charsets *charset  = NULL;
   cff_encoding *encoding = NULL;
+  int zeroseen = 0;
   
   notdef_used=0;
 
@@ -2843,7 +2844,8 @@ void write_cff(cff_font *cffont, fd_entry *fd, int uglytype1fix) {
       last_cid = found->id;
     num_glyphs++;
   }
-  /*num_glyphs++;*/
+  if (uglytype1fix)
+    num_glyphs++;
 
   {
     cff_fdselect *fdselect;
@@ -2914,6 +2916,12 @@ void write_cff(cff_font *cffont, fd_entry *fd, int uglytype1fix) {
     CFF_ERROR("No valid charstring data found.");
   }
 
+  
+  if (uglytype1fix && num_glyphs>cs_count) {
+    num_glyphs--;
+    cffont->charsets->num_entries--;
+  }
+
   /* build the new charstrings entry */ 
   charstrings       = cff_new_index(cs_count+1);
   max_len           = 2 * CS_STR_LEN_MAX;
@@ -2923,18 +2931,20 @@ void write_cff(cff_font *cffont, fd_entry *fd, int uglytype1fix) {
   gid = 0;
   data = xcalloc(CS_STR_LEN_MAX, sizeof(card8));
 
-
   for (code=0; code < cs_count; code++) {
     if (uglytype1fix) {
-      if (code>0)
+      /* yes, that is right: zero (notdef) is included twice */
+      if (code>0) {
 	glyph->id = code-1;
-      else
+      } else {
 	glyph->id = code;
+      }
     } else {
       glyph->id = code;
     }
     if ((avl_find(fd->gl_tree,glyph) != NULL)) {
       size = cs_idx->offset[code+1] - cs_idx->offset[code];
+      
       if (size > CS_STR_LEN_MAX) {
 	pdftex_fail("Charstring too long: gid=%u, %ld bytes", code, size);
       }
@@ -2954,10 +2964,10 @@ void write_cff(cff_font *cffont, fd_entry *fd, int uglytype1fix) {
     }
   }
   
-  /* If (uglytype1fix) and (not complete subset) then gid == num_glyphs+1,
-     so use a 'less' instead of 'notequal' */ 
+  /* */ 
+  /*fprintf(stderr,"gid=%i, num_glyphs=%i", gid, num_glyphs);*/
   
-  if (gid < num_glyphs)
+  if (gid != num_glyphs)
     CFF_ERROR("Unexpected error: %i != %i", gid, num_glyphs);
   
   xfree(data);
