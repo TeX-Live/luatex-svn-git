@@ -9,6 +9,7 @@
 #include <lua.h>
 #include <lauxlib.h>
 
+
 #include "pfaedit.h"
 
 extern void  LoadPrefs(void);
@@ -1620,35 +1621,49 @@ ff_info (lua_State *L) {
 
 extern int readbinfile(FILE *f, unsigned char **b, int *s);
 
-void ff_createcff (char *file, unsigned char **buf, int *bufsiz) {
-  SplineFont *sf;
+static void ff_do_cff (SplineFont *sf, char *filename, unsigned char **buf, int *bufsiz) {
   FILE *f;
-  int openflags = 1;
   int32 *bsizes = NULL;
   int flags = ps_flag_nocffsugar + ps_flag_nohints;
   EncMap *map;
 
-  sf =  ReadSplineFont(file,openflags);
   map = sf->map; /* built-in encoding ? */
 
-  if(WriteTTFFont("myfont.cff", sf, ff_cff, bsizes, bf_none, flags,map)) {
+  if(WriteTTFFont(filename, sf, ff_cff, bsizes, bf_none, flags,map)) {
     /* success */
-    f = fopen("myfont.cff","rb");
+    f = fopen(filename,"rb");
     readbinfile(f , buf, bufsiz);
-    fprintf(stdout,"\n%s => CFF, size: %d\n", file, *bufsiz);
+    /*fprintf(stdout,"\n%s => CFF, size: %d\n", sf->filename, *bufsiz);*/
     fclose(f);
     return;
   } 
   /* errors */
-  fprintf(stdout,"\n%s => CFF, failed\n", file);
+  /*fprintf(stdout,"\n%s => CFF, failed\n", sf->filename);*/
+
+}
+
+/* exported for writecff.c */
+
+void ff_createcff (char *file, unsigned char **buf, int *bufsiz) {
+  SplineFont *sf;
+  char s[] = "tempfile.cff";
+  int openflags = 1;
+  sf =  ReadSplineFont(file,openflags);
+  if (sf) {
+    /* this is not the best way. nicer to have no temp file at all */
+    ff_do_cff(sf, s, buf,bufsiz);
+    unlink(s);
+  }
 }
 
 static int ff_make_cff (lua_State *L) {
-  char *file = (char *)luaL_checkstring(L,1);
+  SplineFont **sf;
+  char *s;
   unsigned char *buf = NULL;
   int bufsiz = 0;
-
-  ff_createcff (file, &buf, &bufsiz);
+  sf = check_isfont(L,1);
+  s = (char *)luaL_checkstring(L,2);
+  ff_do_cff (*sf, s, &buf, &bufsiz);
   return 0;
 }
 
