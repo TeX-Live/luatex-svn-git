@@ -5456,7 +5456,7 @@ return( SFFillFromTTF(&info));
 }
 
 SplineFont *CFFParse(char *filename) {
-    FILE *cff = fopen(filename,"r");
+    FILE *cff = fopen(filename,"rb");
     SplineFont *sf;
     long len;
 
@@ -5484,7 +5484,7 @@ return( SFFillFromTTFInfo(&info));
 }
 
 SplineFont *CFFParseInfo(char *filename) {
-    FILE *cff = fopen(filename,"r");
+    FILE *cff = fopen(filename,"rb");
     SplineFont *sf;
     long len;
 
