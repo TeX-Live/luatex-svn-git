@@ -103,7 +103,7 @@ void writetype0 (fd_entry * fd) {
       for (i = tab->length; i > 0; i--)
 	fb_putchar (ttf_getnum(1));
     } else {
-      write_cff(cff,fd_cur);
+      write_cff(cff,fd_cur,0);
     }
   } else {
     /* not understood, just do a copy */

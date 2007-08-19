@@ -2777,10 +2777,7 @@ write_fontfile (cff_font *cffont, char *fullname)
 */
 
 
-
-
-
-void write_cff(cff_font *cffont, fd_entry *fd) {
+void write_cff(cff_font *cffont, fd_entry *fd, int uglytype1fix) {
   cff_index    *charstrings, *topdict, *cs_idx;
   long          topdict_offset, private_size, subrs_size;
   long          charstring_len, max_len;
@@ -2792,12 +2789,14 @@ void write_cff(cff_font *cffont, fd_entry *fd) {
   double        nominal_width, default_width, notdef_width;
   int           verbose;
   char         *fullname;
-  long i, cid;
+  long i, cid, notdef_used, notdef_val;
   glw_entry *glyph, *found;
   struct avl_traverser t;
 
   cff_charsets *charset  = NULL;
   cff_encoding *encoding = NULL;
+  
+  notdef_used=0;
 
   fullname = xcalloc(8+strlen(fd->fontname),1);
   sprintf(fullname,"%s+%s",fd->subset_tag,fd->fontname);
@@ -2827,17 +2826,24 @@ void write_cff(cff_font *cffont, fd_entry *fd) {
   glyph = xtalloc(1,glw_entry);
 
   /* insert notdef */ 
-
+  
+  glyph->id = 0;
+  if (avl_find(fd->gl_tree, glyph)!=NULL) {
+    notdef_used=1;
+  } else {
+    avl_insert(fd->gl_tree, glyph);
+    glyph = xtalloc(1,glw_entry); /* new one needed */
+  }
+  
   avl_t_init(&t, fd->gl_tree);
   for (found = (glw_entry *) avl_t_first(&t, fd->gl_tree); 
        found != NULL; 
        found = (glw_entry *) avl_t_next(&t)) {
     if (found->id > last_cid)
-	  last_cid = found->id;
-	if (found->id!=0)
-	  num_glyphs++;
+      last_cid = found->id;
+    num_glyphs++;
   }
-  num_glyphs++;
+  /*num_glyphs++;*/
 
   {
     cff_fdselect *fdselect;
@@ -2859,14 +2865,19 @@ void write_cff(cff_font *cffont, fd_entry *fd) {
     charset->num_entries = num_glyphs-1;
     charset->data.glyphs = xcalloc(num_glyphs, sizeof(s_SID));
 
+    gid = 0;
 
     avl_t_init(&t, fd->gl_tree);
-    gid = 0;
     for (found = (glw_entry *) avl_t_first(&t, fd->gl_tree); 
-		 found != NULL; 
-		 found = (glw_entry *) avl_t_next(&t)) {
-      charset->data.glyphs[gid] = found->id;
-      gid++;
+	 found != NULL; 
+	 found = (glw_entry *) avl_t_next(&t)) {      
+      /* this test is needed because there is a small but important
+	 difference between fontforge-generated standalone CFF and
+	 the CFF as included in an opentype font */
+      if (found->id!=0 || uglytype1fix) { 
+	charset->data.glyphs[gid] = found->id;
+	gid++;
+      }
     }
     cffont->charsets = charset;
   }
@@ -2912,10 +2923,17 @@ void write_cff(cff_font *cffont, fd_entry *fd) {
   gid = 0;
   data = xcalloc(CS_STR_LEN_MAX, sizeof(card8));
 
-  avl_t_init(&t, fd->gl_tree);
-  for (code = 0; code < cs_count; code++) {
-    glyph->id = code;
-    if (code==0 || (avl_find(fd->gl_tree,glyph) != NULL)) {
+
+  for (code=0; code < cs_count; code++) {
+    if (uglytype1fix) {
+      if (code>0)
+	glyph->id = code-1;
+      else
+	glyph->id = code;
+    } else {
+      glyph->id = code;
+    }
+    if ((avl_find(fd->gl_tree,glyph) != NULL)) {
       size = cs_idx->offset[code+1] - cs_idx->offset[code];
       if (size > CS_STR_LEN_MAX) {
 	pdftex_fail("Charstring too long: gid=%u, %ld bytes", code, size);
@@ -2935,9 +2953,13 @@ void write_cff(cff_font *cffont, fd_entry *fd) {
       gid++;
     }
   }
-  if (gid != num_glyphs)
+  
+  /* If (uglytype1fix) and (not complete subset) then gid == num_glyphs+1,
+     so use a 'less' instead of 'notequal' */ 
+  
+  if (gid < num_glyphs)
     CFF_ERROR("Unexpected error: %i != %i", gid, num_glyphs);
-
+  
   xfree(data);
   cff_release_index(cs_idx);
   
@@ -3009,7 +3031,7 @@ void writet1c (fd_entry *fd) {
     uexit(1);
   }
   fclose(fp);
-  write_cff(cffont,fd);
+  write_cff(cffont,fd,1);
 }
 
 /* here is a sneaky trick: fontforge knows how to convert Type1 to CFF, so 
@@ -3049,7 +3071,7 @@ void writetype1w (fd_entry *fd) {
   if (tfm_size>0) {
     cff = read_cff(tfm_buffer,tfm_size,0);
     if (cff != NULL) {
-      write_cff(cff,fd);
+      write_cff(cff,fd,1);
     } else {
       for (i = 0; i < tfm_size ; i++)
 	fb_putchar (tfm_buffer[i]);

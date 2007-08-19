@@ -345,5 +345,5 @@ extern long cs_copy_charstring (card8 *dest, long destlen,
 
 extern cff_font *read_cff(unsigned char *buf,long buflength, int subf);
 
-extern void write_cff(cff_font *cff, fd_entry *fd);
+extern void write_cff(cff_font *cff, fd_entry *fd, int hack);
 
