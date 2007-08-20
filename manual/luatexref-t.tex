@@ -10,7 +10,7 @@
  
 \setvariables
   [document]
-  [snapshot=2007-08-10]
+  [snapshot=2007-08-20]
 
 \starttext
 
@@ -3710,9 +3710,12 @@ The actions to be taken depend on a number of different variables:
 A font that uses anything other than an 8-bit encoding vector has to
 be written to the \PDF\ in a different way.
 
-The rule is: if the font table has \type {encodingbytes} set to~2, then this
-is a wide font, in all other cases it isn't. The value~2 is the
-default for \OPENTYPE\ and \TRUETYPE\ fonts loaded via \LUA.
+The rule is: if the font table has \type {encodingbytes} set to~2,
+then this is a wide font, in all other cases it isn't. The value~2 is
+the default for \OPENTYPE\ and \TRUETYPE\ fonts loaded via \LUA. For
+\TYPEONE\ fonts, you have to set \type {encodingbytes} to~2
+explicitly. For \PK\ bitmap fonts, wide font encoding is not
+supported at all.
 
 If no special care is needed, \LUATEX\ currently falls back to the
 mapfile|-|based solution used by \PDFTEX\ and \DVIPS. This behaviour
@@ -3737,8 +3740,8 @@ Values for \type{format} are:
 \NC opentype  \NC this is a \POSTSCRIPT|-|based \OPENTYPE\ font             \NC\NR
 \stoptabulate
 
-Currently, only \TRUETYPE\ and \OPENTYPE\ fonts can be \quote{wide}
-fonts (\TYPEONE\ \POSTSCRIPT\ fonts are not supported).
+(\type{type3} fonts are provided for backward compatibility only, and do not
+support the new wide encoding options.)
 
 Values for \type{embedding} are:
 
@@ -3749,9 +3752,8 @@ Values for \type{embedding} are:
 \NC full      \NC include this font in it's entirety \NC\NR
 \stoptabulate
 
-At the moment, \type{subset} only works for \POSTSCRIPT|-|based non|-|\CID\
-\OPENTYPE\ and \TRUETYPE\ fonts, every other font format essentially is treated as
-\type{full}.
+At the moment, \type{subset} only works for non|-|\CID\ fonts. These
+are essentially  treated as if \type{full} was specified.
 
 It is not possible to artificially modify the transformation matrix
 for the font at the moment.
@@ -3773,7 +3775,10 @@ of the font.
 Typeset strings are written out in a wide format using 2~bytes per
 glyph, using the \type{index} key in the character information as
 value. The overall effect is like having an encoding based on numbers
-instead of traditional (\POSTSCRIPT) name|-|based reencoding.
+instead of traditional (\POSTSCRIPT) name|-|based reencoding. The way
+to get the correct \type{index} numbers for \TYPEONE\ fonts is by
+loading the font via \type{fontforge.open}; use the table indices as
+\type{index} fields.
 
 This type of reencoding means that there is no longer a clear
 connection between the text in your input file and the strings in the
