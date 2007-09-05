@@ -16560,6 +16560,13 @@ begin
   get_cur_font:= cur_font;
 end;
 
+procedure set_cur_font (f: internal_font_number);
+var a:small_number;
+begin
+  a:=0;
+  define(cur_font_loc,data,f);
+end;
+
 function get_current_name: str_number;
 begin
   get_current_name:= name;
@@ -24874,8 +24881,16 @@ pop_nest;
 
 @ It is possible that the user wants to interfere at some point.  
 
-@d check_filter(#)==if (not output_active) and (vlink(head)<>null) then
+The choice between |check_head_filter| and |check_contrib_filter| is not
+quite clear to me yet, but it seems that the latter is the better choice.
+
+@d check_head_filter(#)==if (not output_active) and (vlink(head)<>null) then
 lua_node_filter_s(buildpage_filter_callback,#,head,addressof(tail))
+
+@d check_contrib_filter(#)==if (not output_active) and (vlink(contrib_head)<>null) then
+lua_node_filter_s(buildpage_filter_callback,#,contrib_head,addressof(garbage))
+
+@d check_filter==check_contrib_filter
 
 @ When looking for optimal line breaks, \TeX\ creates a ``break node'' for
 each break that is {\sl feasible}, in the sense that there is a way to end
