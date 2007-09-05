@@ -132,7 +132,7 @@ versions of the program.
 @!pool_name='TeXformats:TEX.POOL                     ';
   {string of length |file_name_size|; tells where the string pool appears}
 @y
-@d stack_limit=@"400000
+@d stack_limit=@"1E0000
 @d file_name_size == max_halfword-1 { has to be big enough to force namelength into integer }
 @d ssup_error_line = 255
 @d ssup_max_strings == 262143
