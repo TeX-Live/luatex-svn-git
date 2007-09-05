@@ -24890,7 +24890,7 @@ lua_node_filter_s(buildpage_filter_callback,#,head,addressof(tail))
 @d check_contrib_filter(#)==if (not output_active) and (vlink(contrib_head)<>null) then
 lua_node_filter_s(buildpage_filter_callback,#,contrib_head,addressof(garbage))
 
-@d check_filter==check_contrib_filter
+@d check_filter==check_head_filter
 
 @ When looking for optimal line breaks, \TeX\ creates a ``break node'' for
 each break that is {\sl feasible}, in the sense that there is a way to end
@@ -31528,7 +31528,7 @@ eq_word_define(dimen_base+pre_display_size_code,w);
 eq_word_define(dimen_base+display_width_code,l);
 eq_word_define(dimen_base+display_indent_code,s);
 if every_display<>null then begin_token_list(every_display,every_display_text);
-if nest_ptr=1 then begin check_filter('before_display'); build_page; end;
+if nest_ptr=1 then begin check_contrib_filter('before_display'); build_page; end;
 end
 
 @ @<Calculate the natural width, |w|, by which...@>=
@@ -32347,7 +32347,7 @@ prev_graf:=(norm_min(left_hyphen_min)*@'100+norm_min(right_hyphen_min))
              *@'200000+cur_lang;
 @<LOCAL: Add local paragraph node@>;
 @<Scan an optional space@>;
-if nest_ptr=1 then begin check_filter('after_display'); build_page; end;
+if nest_ptr=1 then begin check_contrib_filter('after_display'); build_page; end;
 end;
 
 @ The user can force the equation number to go on a separate line
