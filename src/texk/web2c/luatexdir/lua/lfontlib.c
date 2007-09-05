@@ -56,7 +56,7 @@ font_read_vf (lua_State *L) {
 	  } else {
 		lua_pushstring(L, "expected an integer size as second argument");
 		lua_error(L);
-		return;
+		return 2;
 	  }
 	}
   }
@@ -67,8 +67,21 @@ font_read_vf (lua_State *L) {
 
 static int 
 tex_current_font (lua_State *L) {
-  lua_pushnumber(L,get_cur_font());
-  return 1;
+  int i;
+  i = (int)luaL_optinteger(L,1,0);
+  if (i>0) {
+	if (is_valid_font(i)) {
+	  zset_cur_font(i);
+	  return 0;
+	} else {
+	  lua_pushstring(L, "expected a valid font id");
+	  lua_error(L);
+	  return 2; /* not reached */
+	}
+  } else {
+	lua_pushnumber(L,get_cur_font());
+	return 1;
+  }
 }
 
 static int 
