@@ -31,6 +31,13 @@ label @<Labels in the outer block@>@/
 program TEX; {all file names are defined dynamically}
 @z
 
+@x [1.4] initialize the "stack base" value early
+  begin @<Initialize whatever \TeX\ might access@>@;
+@y
+  begin stack_base:=stringcast(addressof(i));
+    @<Initialize whatever \TeX\ might access@>@;
+@z
+
 @x
 @ Three labels must be declared in the main program, so we give them
 symbolic names.
@@ -125,6 +132,7 @@ versions of the program.
 @!pool_name='TeXformats:TEX.POOL                     ';
   {string of length |file_name_size|; tells where the string pool appears}
 @y
+@d stack_limit=@"400000
 @d file_name_size == max_halfword-1 { has to be big enough to force namelength into integer }
 @d ssup_error_line = 255
 @d ssup_max_strings == 262143
@@ -422,6 +430,8 @@ tini@/
 @!insertsrcspecialeveryhbox : boolean;
 @!insertsrcspecialeveryvbox : boolean;
 @!insertsrcspecialeverydisplay : boolean;
+{for stack overflow check}
+@!stack_base : ^char;
 @z
 
 @x
@@ -1032,6 +1042,15 @@ aligning:begin print(" while scanning preamble"); info(p):=right_brace_token+"}"
   end;
 absorbing:begin print(" while scanning text"); info(p):=right_brace_token+"}";
 @z
+
+@x [25.366] stack overflow protection
+begin cv_backup:=cur_val; cvl_backup:=cur_val_level; radix_backup:=radix;
+@y
+begin if abs(stringcast(addressof(t)) - stack_base) > stack_limit
+  then overflow("stack", stack_limit);
+cv_backup:=cur_val; cvl_backup:=cur_val_level; radix_backup:=radix;
+@z
+
 
 @x
 if_eof_code: begin scan_four_bit_int; b:=(read_open[cur_val]=closed);
