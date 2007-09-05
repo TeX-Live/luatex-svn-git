@@ -954,7 +954,7 @@ static int nodelib_aux_next (lua_State *L) {
     lua_pushnumber(L,t);
     lua_nodelib_push(L);
   } else {
-    while (type(t)!=i && t!=m) { t = vlink(t); }
+    while (t!=null && t!=m && type(t)!=i) { t = vlink(t); }
     if (t==m) {
       lua_pushnil(L);
     } else {
