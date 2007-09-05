@@ -573,20 +573,20 @@ print_node_mem_stats (void) {
   int i,a;
   halfword j;
   a = node_size(rover);
-  fprintf(stdout,"\nin use: %d node words from %d\n",(var_used+prealloc), var_mem_max);
-  fprintf(stdout,"still untouched: %d node words\n",a);
-  for (i=0;i<MAX_CHAIN_SIZE;i++) {
-    free_chain_counts[i]=0;
-  }
-  for (i=0;i<MAX_CHAIN_SIZE;i++) {
+  fprintf(stdout,"\nnode memory in use: %d words out of %d (%d untouched)\n",
+		  (var_used+prealloc), var_mem_max, a);
+  fprintf(stdout,"currently available: ");
+  for (i=1;i<MAX_CHAIN_SIZE;i++) {
 	j = free_chain[i];
+    free_chain_counts[i]=0;
     while(j!=null) {
-	  free_chain_counts[i] += i;
+	  free_chain_counts[i] ++;
 	  j = vlink(j);
 	}
-	if (free_chain_counts[i]!=0) 
-	  fprintf(stdout,"size %2d avail list: %5d\n",i,free_chain_counts[i]);
+	if (free_chain_counts[i]>0)
+	  fprintf(stdout,"%s%d:%d",(i>1 ? ", " : ""),i, free_chain_counts[i]);
   }
+  fprintf(stdout," nodes\n");
 }
 
 void
