@@ -134,17 +134,11 @@ endif
 
 ZZIPLIBDIR=../../libs/zziplib
 ZZIPLIBSRCDIR=$(srcdir)/$(ZZIPLIBDIR)
-ZZIPLIBDEP = $(ZZIPLIBDIR)/zzip/.libs/libzzip.a
+ZZIPLIBDEP = $(ZZIPLIBDIR)/zzip/libzzip.a
 
 $(ZZIPLIBDEP): $(ZZIPLIBSRCDIR)
-	mkdir -p $(ZZIPLIBDIR) && cd $(ZZIPLIBDIR) &&                \
-	mkdir -p zlib/include && cp $(ZLIBSRCDIR)/*.h  zlib/include && \
-	mkdir -p zlib/lib && cp $(ZLIBDIR)/*.a  zlib/lib  && \
-    env CPPFLAGS=-I../zlib/include $(ZZIPLIBSRCDIR)/configure --with-zlib=zlib \
-        --srcdir=$(ZZIPLIBSRCDIR) --disable-builddir --disable-shared $(zzipretarget) && \
-    rm $(ZZIPLIBSRCDIR)/Makefile && \
-	cd $(ZZIPLIBDIR)/zzip && \
-	$(MAKE) $(common_makeargs) libzzip.la
+	mkdir -p $(ZZIPLIBDIR)/zzip && cd $(ZZIPLIBDIR)/zzip && \
+	cp ../$(ZZIPLIBSRCDIR)/zzip/Makefile . && $(MAKE) $(common_makeargs)
 
 # luazip
 
