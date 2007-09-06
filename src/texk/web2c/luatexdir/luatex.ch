@@ -2785,7 +2785,7 @@ begin @!{|start_here|}
   setup_bound_var(1000)('ocp_stack_size')(ocp_stack_size);
   setup_bound_var (0)('hash_extra')(hash_extra);
   setup_bound_var (72)('pk_dpi')(pk_dpi);
-  setup_bound_var (100)('expand_depth')(expand_depth);
+  setup_bound_var (10000)('expand_depth')(expand_depth);
 
   {Check other constants against their sup and inf.}
   const_chk (trie_size);
