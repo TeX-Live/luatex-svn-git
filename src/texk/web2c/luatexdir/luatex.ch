@@ -121,7 +121,7 @@ versions of the program.
   \.{INITEX} than it is in production versions of \TeX}
 @!trie_op_size=500; {space for ``opcodes'' in the hyphenation patterns}
 @!dvi_buf_size=800; {size of the output buffer; must be a multiple of 8}
-@!expand_depth=100; {limits recursive calls of the |expand| procedure}
+@!expand_depth=10000; {limits recursive calls of the |expand| procedure}
 @!file_name_size=40; {file names shouldn't be longer than this}
 @!pool_name='TeXformats:TEX.POOL                     ';
   {string of length |file_name_size|; tells where the string pool appears}
@@ -199,8 +199,8 @@ versions of the program.
 @!sup_ocp_stack_size = 1000000;
 @!inf_ocp_stack_size = 1000;
 
-@!inf_expand_depth = 10;
-@!sup_expand_depth = 10000;
+@!inf_expand_depth = 100;
+@!sup_expand_depth = 1000000;
 @z
 
 @x
