@@ -121,6 +121,7 @@ versions of the program.
   \.{INITEX} than it is in production versions of \TeX}
 @!trie_op_size=500; {space for ``opcodes'' in the hyphenation patterns}
 @!dvi_buf_size=800; {size of the output buffer; must be a multiple of 8}
+@!expand_depth=100; {limits recursive calls of the |expand| procedure}
 @!file_name_size=40; {file names shouldn't be longer than this}
 @!pool_name='TeXformats:TEX.POOL                     ';
   {string of length |file_name_size|; tells where the string pool appears}
@@ -197,6 +198,9 @@ versions of the program.
 @!inf_ocp_buf_size = 1000;
 @!sup_ocp_stack_size = 1000000;
 @!inf_ocp_stack_size = 1000;
+
+@!inf_expand_depth = 10;
+@!sup_expand_depth = 10000;
 @z
 
 @x
@@ -408,6 +412,7 @@ tini@/
 @!save_size:integer; {space for saving values outside of current group; must be
   at most |max_halfword|}
 @!dvi_buf_size:integer; {size of the output buffer; must be a multiple of 8}
+@!expand_depth:integer; {limits recursive calls of the |expand| procedure}
 @!parsefirstlinep:cinttype; {parse the first line for options}
 @!filelineerrorstylep:cinttype; {format messages as file:line:error}
 @!haltonerrorp:cinttype; {stop at first error}
@@ -2780,6 +2785,7 @@ begin @!{|start_here|}
   setup_bound_var(1000)('ocp_stack_size')(ocp_stack_size);
   setup_bound_var (0)('hash_extra')(hash_extra);
   setup_bound_var (72)('pk_dpi')(pk_dpi);
+  setup_bound_var (100)('expand_depth')(expand_depth);
 
   {Check other constants against their sup and inf.}
   const_chk (trie_size);

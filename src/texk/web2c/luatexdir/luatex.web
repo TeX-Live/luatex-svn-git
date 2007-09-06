@@ -474,6 +474,7 @@ in production versions of \TeX.
   \.{INITEX} than it is in production versions of \TeX}
 @!trie_op_size=500; {space for ``opcodes'' in the hyphenation patterns}
 @!dvi_buf_size=800; {size of the output buffer; must be a multiple of 8}
+@!expand_depth=100; {limits recursive calls of the |expand| procedure}
 @!file_name_size=40; {file names shouldn't be longer than this}
 @!pool_name='TeXformats:TEX.POOL                     ';
   {string of length |file_name_size|; tells where the string pool appears}
@@ -9585,7 +9586,25 @@ Only a dozen or so command codes |>max_command| can possibly be returned by
 |top_bot_mark|, |call|, |long_call|, |outer_call|, |long_outer_call|, and
 |end_template|.{\emergencystretch=40pt\par}
 
-The |expand| subroutine is used when |cur_cmd>max_command|. It removes a
+@ Sometimes, recursive calls to the following |expand| routine may 
+cause exhaustion of the run-time calling stack, resulting in
+forced execution stops by the operating system. To diminish the chance
+of this happening, a counter is used to keep track of the recursion
+depth, in conjunction with a constant called |expand_depth|. 
+
+Note that this does not catch all possible infinite recursion loops,
+just the ones that exhaust the application calling stack. The
+actual maximum value of |expand_depth| is outside of our control, but
+the initial setting of |100| should be enough to prevent problems.
+@^system dependencies@>
+
+@<Global...@>=
+expand_depth_count:integer;
+
+@ @<Initialize..@>=
+expand_depth_count:=0;
+
+@ The |expand| subroutine is used when |cur_cmd>max_command|. It removes a
 ``call'' or a conditional or one of the other special operations just
 listed.  It follows that |expand| might invoke itself recursively. In all
 cases, |expand| destroys the current token, but it sets things up so that
@@ -9618,7 +9637,10 @@ var t:halfword; {token that is being ``expanded after''}
   {to save |cur_val_level|, etc.}
 @!backup_backup:pointer; {to save |link(backup_head)|}
 @!save_scanner_status:small_number; {temporary storage of |scanner_status|}
-begin cv_backup:=cur_val; cvl_backup:=cur_val_level; radix_backup:=radix;
+begin 
+incr(expand_depth_count);
+if expand_depth_count>=expand_depth then overflow("expansion_depth",expand_depth);
+cv_backup:=cur_val; cvl_backup:=cur_val_level; radix_backup:=radix;
 co_backup:=cur_order; backup_backup:=link(backup_head);
 reswitch:
 if cur_cmd<call then @<Expand a nonmacro@>
@@ -9626,6 +9648,7 @@ else if cur_cmd<end_template then macro_call
 else @<Insert a token containing |frozen_endv|@>;
 cur_val:=cv_backup; cur_val_level:=cvl_backup; radix:=radix_backup;
 cur_order:=co_backup; link(backup_head):=backup_backup;
+decr(expand_depth_count);
 end;
 
 @ @<Glob...@>=
