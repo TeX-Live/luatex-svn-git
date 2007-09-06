@@ -2222,7 +2222,10 @@ return( copy( sc->name ));
 static SplineChar *fea_glyphname_get(struct parseState *tok,char *name) {
     SplineFont *sf = tok->sf;
     SplineChar *sc = SFGetChar(sf,-1,name);
-    int enc, gid;
+    int gid;
+#ifndef LUA_FF_LIB
+	int enc;
+#endif
 
     if ( sf->subfontcnt!=0 ) {
 	LogError(_("Reference to a glyph name in a CID-keyed font on line %d of %s"), tok->line[tok->inc_depth], tok->filename[tok->inc_depth] );

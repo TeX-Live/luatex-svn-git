@@ -3516,7 +3516,7 @@ static void ttf_dumpsfkerns(struct alltabs *at, SplineFont *sf, int tupleIndex, 
     int i, j, k, m, c, gid, tot, km;
     KernPair *kp;
     KernClass *kc;
-    ASM *sm;
+    /*ASM *sm;*/
     uint16 *glnum, *offsets;
     int isv;
     int tupleMask = tupleIndex==-1 ? 0 : 0x2000;

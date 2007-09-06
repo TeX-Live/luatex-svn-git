@@ -2914,7 +2914,7 @@ static void RSC2PS2(GrowBuf *gb, SplineChar *base,SplineChar *rsc,
     int hc, vc;
     SplineSet *freeme, *temp;
     int wasntconflicted = hdb->noconflicts;
-
+	oldh = NULL; oldv = NULL; hc = 0; vc = 0; /* for -Wall */
     if ( flags&ps_flag_nohints ) {
 	oldh = rsc->hstem; oldv = rsc->vstem;
 	hc = rsc->hconflicts; vc = rsc->vconflicts;
@@ -2998,7 +2998,7 @@ static unsigned char *SplineChar2PS2(SplineChar *sc,int *len, int nomwid,
     int round = (flags&ps_flag_round)? true : false;
     HintMask *hm = NULL;
     BasePoint trans;
-
+	oldh = NULL; oldv = NULL; hc = 0; vc = 0; /* for -Wall */
     if ( autohint_before_generate && sc->changedsincelasthinted &&
 	    !sc->manualhints && !(flags&ps_flag_nohints))
 	SplineCharAutoHint(sc,NULL);

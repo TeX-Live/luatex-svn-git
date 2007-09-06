@@ -8,7 +8,7 @@
 PLAT= none
 
 CC= gcc
-CFLAGS= -g -O2 -Wall $(XCFLAGS)
+CFLAGS= -g -O2 -Wall $(XCFLAGS) $(MYCFLAGS)
 AR= ar rcu
 RANLIB= ranlib
 RM= rm -f

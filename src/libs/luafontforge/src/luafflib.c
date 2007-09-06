@@ -5,10 +5,9 @@
 *  @author Taco Hoekwater
 */
 
-
+#include <stdio.h>
 #include <lua.h>
 #include <lauxlib.h>
-
 
 #include "pfaedit.h"
 
@@ -1652,7 +1651,7 @@ void ff_createcff (char *file, unsigned char **buf, int *bufsiz) {
   if (sf) {
     /* this is not the best way. nicer to have no temp file at all */
     ff_do_cff(sf, s, buf,bufsiz);
-    unlink(s);
+    remove(s);
   }
 }
 

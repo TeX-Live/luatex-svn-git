@@ -33,6 +33,8 @@ int coverageformatsallowed=3;
 #include "ttf.h"
 
 #ifdef LUA_FF_LIB
+extern void gwwv_post_error(char *a, ...);
+extern int unic_isrighttoleft (int);
 #define isrighttoleft  unic_isrighttoleft 
 #endif
 
@@ -1483,8 +1485,9 @@ static void dumpgposkernclass(FILE *gpos,SplineFont *sf,
 }
 
 static void dumpanchor(FILE *gpos,AnchorPoint *ap, int is_ttf ) {
+#ifdef FONTFORGE_CONFIG_DEVICETABLES
     int base = ftell(gpos);
-
+#endif
 #ifdef FONTFORGE_CONFIG_DEVICETABLES
     if ( ap->xadjust.corrections!=NULL || ap->yadjust.corrections!=NULL )
 	putshort(gpos,3);	/* format 3 w/ device tables */
@@ -1632,7 +1635,7 @@ static void dumpgposAnchorData(FILE *gpos,AnchorClass *_ac,
     AnchorClass *ac=NULL;
     int j,cnt,k,l, pos, offset, tot, max;
     uint32 coverage_offset, markarray_offset, subtable_start;
-    AnchorPoint *ap, **aps;
+    AnchorPoint *ap = NULL, **aps;
     SplineChar **markglyphs;
 
     for ( cnt=0; base[cnt]!=NULL; ++cnt );
@@ -2278,7 +2281,7 @@ static void dumpg___ContextChainCoverage(FILE *lfile,SplineFont *sf,
 	struct lookup_subtable *sub, struct alltabs *at) {
     FPST *fpst = sub->fpst;
     int iscontext = fpst->type==pst_contextpos || fpst->type==pst_contextsub;
-    uint32 base = ftell(lfile), ibase, lbase, bbase;
+    uint32 base = ftell(lfile), ibase=0, lbase, bbase;
     int i, l;
     SplineChar **glyphs;
     int curcontext;
@@ -2442,9 +2445,11 @@ static void AnchorsAway(FILE *lfile,SplineFont *sf,
 	    dumpgposAnchorData(lfile,acfirst,at_baselig,marks,lig,classcnt,gi);
       break;
       case gpos_mark2mark:
-	if ( marks[0]!=NULL && mkmk!=NULL )
-	    dumpgposAnchorData(lfile,acfirst,at_basemark,marks,mkmk,classcnt,gi);
-      break;
+		if ( marks[0]!=NULL && mkmk!=NULL )
+		  dumpgposAnchorData(lfile,acfirst,at_basemark,marks,mkmk,classcnt,gi);
+		break;
+	default:
+	  break;
     }
     for ( i=0; i<classcnt; ++i )
 	free(marks[i]);
@@ -2514,6 +2519,8 @@ return( false );
 		}
 	    }
 	    all = all->next;
+	default:
+	  break;
 	}
 	if ( anymac )
 return( true );
@@ -2603,6 +2610,8 @@ static FILE *G___figureLookups(SplineFont *sf,int is_gpos,
 		      case gsub_reversecchain:
 			dumpg___ContextChain(lfile,sf,sub,at);
 		      break;
+			default:
+			  break;
 		    }
 		    if ( ftell(lfile)-sub->subtable_offset==0 ) {
 			IError( "Lookup sub table, %s in %s, contains no data.\n",
