@@ -57,10 +57,14 @@
 /* Define to 1 if you have the <ndir.h> header file, and it defines `DIR'. */
 /* #undef ZZIP_HAVE_NDIR_H */
 
+#ifdef __sun__
+/* Define to 1 if you have the <sys/int_types.h> header file. */
+#define ZZIP_HAVE_SYS_INT_TYPES_H 1
+#else
 /* Define to 1 if you have the <stdint.h> header file. */
-#ifndef ZZIP_HAVE_STDINT_H 
-#define ZZIP_HAVE_STDINT_H  1 
+#define ZZIP_HAVE_STDINT_H 1 
 #endif
+
 
 /* Define to 1 if you have the <stdlib.h> header file. */
 #ifndef ZZIP_HAVE_STDLIB_H 
@@ -90,9 +94,6 @@
 /* Define to 1 if you have the <sys/dir.h> header file, and it defines `DIR'.
    */
 /* #undef ZZIP_HAVE_SYS_DIR_H */
-
-/* Define to 1 if you have the <sys/int_types.h> header file. */
-/* #undef ZZIP_HAVE_SYS_INT_TYPES_H */
 
 /* Define to 1 if you have the <sys/mman.h> header file. */
 /* undefe ZZIP_HAVE_SYS_MMAN_H  */
