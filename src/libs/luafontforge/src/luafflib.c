@@ -1626,9 +1626,9 @@ static void ff_do_cff (SplineFont *sf, char *filename, unsigned char **buf, int 
   int flags = ps_flag_nocffsugar + ps_flag_nohints;
   EncMap *map;
 
-  map = sf->map; /* built-in encoding ? */
+  map = EncMap1to1(sf->glyphcnt);
 
-  if(WriteTTFFont(filename, sf, ff_cff, bsizes, bf_none, flags,map)) {
+  if(WriteTTFFont(filename, sf, ff_cff, bsizes, bf_none, flags, map)) {
     /* success */
     f = fopen(filename,"rb");
     readbinfile(f , buf, bufsiz);
@@ -1643,16 +1643,26 @@ static void ff_do_cff (SplineFont *sf, char *filename, unsigned char **buf, int 
 
 /* exported for writecff.c */
 
-void ff_createcff (char *file, unsigned char **buf, int *bufsiz) {
+int ff_createcff (char *file, unsigned char **buf, int *bufsiz) {
   SplineFont *sf;
+  int k ;
   char s[] = "tempfile.cff";
   int openflags = 1;
+  int notdefpos = 0;
   sf =  ReadSplineFont(file,openflags);
   if (sf) {
     /* this is not the best way. nicer to have no temp file at all */
     ff_do_cff(sf, s, buf,bufsiz);
+	for (k=0;k<sf->glyphcnt;k++) {
+	  if (sf->glyphs[k] && strcmp(sf->glyphs[k]->name,".notdef")==0) {
+		notdefpos=k;
+		break;
+	  }
+	}
     remove(s);
+	SplineFontFree(sf);
   }
+  return notdefpos;
 }
 
 static int ff_make_cff (lua_State *L) {

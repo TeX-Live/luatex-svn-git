@@ -2777,6 +2777,9 @@ write_fontfile (cff_font *cffont, char *fullname)
 */
 
 
+/* if the CFF data was converted from an old type1 font, then the .notdef 
+   glyph may not be at id 0, so in that case |uglytype1fix| is nonzero */
+
 void write_cff(cff_font *cffont, fd_entry *fd, int uglytype1fix) {
   cff_index    *charstrings, *topdict, *cs_idx;
   long          topdict_offset, private_size, subrs_size;
@@ -2789,16 +2792,13 @@ void write_cff(cff_font *cffont, fd_entry *fd, int uglytype1fix) {
   double        nominal_width, default_width, notdef_width;
   int           verbose;
   char         *fullname;
-  long i, cid, notdef_used;
+  long i, cid;
   glw_entry *glyph, *found;
   struct avl_traverser t;
 
   cff_charsets *charset  = NULL;
   cff_encoding *encoding = NULL;
-  int zeroseen = 0;
   
-  notdef_used=0;
-
   fullname = xcalloc(8+strlen(fd->fontname),1);
   sprintf(fullname,"%s+%s",fd->subset_tag,fd->fontname);
 
@@ -2826,16 +2826,15 @@ void write_cff(cff_font *cffont, fd_entry *fd, int uglytype1fix) {
   last_cid = 0;  
   glyph = xtalloc(1,glw_entry);
 
-  /* insert notdef */ 
-  
-  glyph->id = 0;
-  if (avl_find(fd->gl_tree, glyph)!=NULL) {
-    notdef_used=1;
-  } else {
+  /* insert notdef */   
+  glyph->id = uglytype1fix;
+  if (avl_find(fd->gl_tree, glyph)==NULL) {
+	/*fprintf(stderr,"seeding .notdef at %i\n",uglytype1fix);*/
     avl_insert(fd->gl_tree, glyph);
-    glyph = xtalloc(1,glw_entry); /* new one needed */
+    glyph = xtalloc(1,glw_entry);
   }
-  
+
+
   avl_t_init(&t, fd->gl_tree);
   for (found = (glw_entry *) avl_t_first(&t, fd->gl_tree); 
        found != NULL; 
@@ -2844,8 +2843,6 @@ void write_cff(cff_font *cffont, fd_entry *fd, int uglytype1fix) {
       last_cid = found->id;
     num_glyphs++;
   }
-  if (uglytype1fix)
-    num_glyphs++;
 
   {
     cff_fdselect *fdselect;
@@ -2873,12 +2870,9 @@ void write_cff(cff_font *cffont, fd_entry *fd, int uglytype1fix) {
     for (found = (glw_entry *) avl_t_first(&t, fd->gl_tree); 
 	 found != NULL; 
 	 found = (glw_entry *) avl_t_next(&t)) {      
-      /* this test is needed because there is a small but important
-	 difference between fontforge-generated standalone CFF and
-	 the CFF as included in an opentype font */
-      if (found->id!=0 || uglytype1fix) { 
-	charset->data.glyphs[gid] = found->id;
-	gid++;
+	  if(found->id!=0) { 
+		charset->data.glyphs[gid] = found->id;
+		gid++;
       }
     }
     cffont->charsets = charset;
@@ -2916,12 +2910,6 @@ void write_cff(cff_font *cffont, fd_entry *fd, int uglytype1fix) {
     CFF_ERROR("No valid charstring data found.");
   }
 
-  
-  if (uglytype1fix && num_glyphs>cs_count) {
-    num_glyphs--;
-    cffont->charsets->num_entries--;
-  }
-
   /* build the new charstrings entry */ 
   charstrings       = cff_new_index(cs_count+1);
   max_len           = 2 * CS_STR_LEN_MAX;
@@ -2932,25 +2920,16 @@ void write_cff(cff_font *cffont, fd_entry *fd, int uglytype1fix) {
   data = xcalloc(CS_STR_LEN_MAX, sizeof(card8));
 
   for (code=0; code < cs_count; code++) {
-    if (uglytype1fix) {
-      /* yes, that is right: zero (notdef) is included twice */
-      if (code>0) {
-	glyph->id = code-1;
-      } else {
 	glyph->id = code;
-      }
-    } else {
-      glyph->id = code;
-    }
     if ((avl_find(fd->gl_tree,glyph) != NULL)) {
       size = cs_idx->offset[code+1] - cs_idx->offset[code];
       
       if (size > CS_STR_LEN_MAX) {
-	pdftex_fail("Charstring too long: gid=%u, %ld bytes", code, size);
+		pdftex_fail("Charstring too long: gid=%u, %ld bytes", code, size);
       }
       if (charstring_len + CS_STR_LEN_MAX >= max_len) {
-	max_len = charstring_len + 2 * CS_STR_LEN_MAX;
-	charstrings->data = xrealloc(charstrings->data, max_len*sizeof(card8));
+		max_len = charstring_len + 2 * CS_STR_LEN_MAX;
+		charstrings->data = xrealloc(charstrings->data, max_len*sizeof(card8));
       }
       (charstrings->offset)[gid] = charstring_len + 1;
       cffont->offset= offset + (cs_idx->offset)[code] - 1;
@@ -3020,7 +2999,7 @@ void writet1c (fd_entry *fd) {
   cff_font *cffont;
   FILE *fp;
   ff_entry *ff;
-  
+
   ff = check_ff_exist(fd->fm->ff_name, 0);
     
   fp = xfopen (ff->ff_path, "rb");
@@ -3049,7 +3028,7 @@ void writet1c (fd_entry *fd) {
  * If it works out ok, I will clean up this code.
  */
 
-extern void ff_createcff (char *, unsigned char **, integer *);
+extern int ff_createcff (char *, unsigned char **, integer *);
 
 void writetype1w (fd_entry *fd) { 
   cff_font *cff;
@@ -3058,6 +3037,7 @@ void writetype1w (fd_entry *fd) {
   ff_entry *ff;
   unsigned char *tfm_buffer = NULL;
   integer tfm_size = 0;
+  int notdefpos = 0;
 
   ff = check_ff_exist(fd->fm->ff_name, 0);
     
@@ -3077,11 +3057,12 @@ void writetype1w (fd_entry *fd) {
       tex_printf ("<<%s", cur_file_name);
   }
 
-  ff_createcff(ff->ff_path,&tfm_buffer,&tfm_size);
+  notdefpos = ff_createcff(ff->ff_path,&tfm_buffer,&tfm_size);
+
   if (tfm_size>0) {
     cff = read_cff(tfm_buffer,tfm_size,0);
     if (cff != NULL) {
-      write_cff(cff,fd,1);
+      write_cff(cff,fd,notdefpos);
     } else {
       for (i = 0; i < tfm_size ; i++)
 	fb_putchar (tfm_buffer[i]);
