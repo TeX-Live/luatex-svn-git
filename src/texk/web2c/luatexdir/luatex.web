@@ -32370,7 +32370,7 @@ prev_graf:=(norm_min(left_hyphen_min)*@'100+norm_min(right_hyphen_min))
              *@'200000+cur_lang;
 @<LOCAL: Add local paragraph node@>;
 @<Scan an optional space@>;
-if nest_ptr=1 then begin check_contrib_filter('after_display'); build_page; end;
+if nest_ptr=1 then begin check_filter('after_display'); build_page; end;
 end;
 
 @ The user can force the equation number to go on a separate line
