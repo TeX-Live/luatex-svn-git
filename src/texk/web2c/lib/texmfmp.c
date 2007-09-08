@@ -193,6 +193,31 @@ texmf_yesno(const_string var)
 #define inputfile input_file
 #endif
 
+#ifndef WIN32
+
+static void segv_handler P1C(int, sig)
+{
+  sigset_t set;
+  sigaddset(&set, SIGSEGV);
+  sigprocmask(SIG_UNBLOCK, &set, NULL);
+  fatal_error(maketexstring("segmentation fault, probably due to infinite macro recursion"));
+}
+
+#else
+
+#include <winerror.h>
+
+static LONG WINAPI
+segv_handler_filter (EXCEPTION_POINTERS *ExceptionInfo) {
+  if (ExceptionInfo->ExceptionRecord->ExceptionCode == STATUS_STACK_OVERFLOW) {
+    fatal_error(maketexstring("stack overflow, probably due to infinite macro recursion"));
+  } else if (ExceptionInfo->ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION) {
+    fatal_error(maketexstring("access violation"));
+  }
+  return EXCEPTION_CONTINUE_SEARCH;
+}
+#endif
+
 /* The entry point: set up for reading the command line, which will
    happen in `topenin', then call the main body.  */
 
@@ -367,6 +392,30 @@ main P2C(int, ac,  string *, av)
   _wildcard (&ac, &av);
   _response (&ac, &av);
 #endif
+
+  /*  set up signal stack */
+  {
+#ifdef WIN32
+    SetUnhandledExceptionFilter ((LPTOP_LEVEL_EXCEPTION_FILTER) &segv_handler_filter);
+#else
+    struct sigaltstack sigstk;
+    struct sigaction segv_act;
+    sigstk.ss_sp = xmalloc(SIGSTKSZ);
+    sigstk.ss_size = SIGSTKSZ;
+    sigstk.ss_flags = 0;
+    if (sigaltstack(&sigstk,0) < 0) {
+      perror("sigaltstack");
+      uexit(3);
+    }
+    segv_act.sa_handler = segv_handler;
+    segv_act.sa_flags = SA_ONSTACK | SA_RESETHAND;
+    sigemptyset(&segv_act.sa_mask);
+    if (sigaction(SIGSEGV, &segv_act, NULL) != 0) {
+      perror("sigaction");
+      uexit(3);
+    }
+#endif
+  }
 
 #if defined(luaTeX)
   lua_initialize(ac, av);
