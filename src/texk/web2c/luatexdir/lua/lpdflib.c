@@ -4,26 +4,30 @@
 #include <ptexlib.h>
 
 
-int findcurv (lua_State *L) {
+static int 
+findcurv (lua_State *L) {
   int j;
   j = get_cur_v();
   lua_pushnumber(L, j);
   return 1;
 }
 
-int findcurh (lua_State *L) {
+static int 
+findcurh (lua_State *L) {
   int j;
   j = get_cur_h();
   lua_pushnumber(L, j);
   return 1;
 }
 
-int makecurv (lua_State *L) {
+static int 
+makecurv (lua_State *L) {
   lua_pop(L,1); /* table at -1 */
   return 0;
 }
 
-int makecurh (lua_State *L) {
+static int 
+makecurh (lua_State *L) {
   lua_pop(L,1); /* table at -1 */
   return 0;
 }
@@ -86,20 +90,48 @@ int luapdfprint(lua_State * L)
     return 0;
 }
 
+static int 
+getpdf (lua_State *L) {
+  char *st;
+  if (lua_isstring(L,2)) {
+    st = (char *)lua_tostring(L,2);
+    if (st && *st) {
+       if (*st == 'h')
+	 return findcurh(L);
+       else if (*st == 'v')
+	 return findcurv(L);
+    }
+  }
+  lua_pushnil(L);
+  return 1;
+}
+
+static int 
+setpdf (lua_State *L) {
+  return 0;
+}
+
 static const struct luaL_reg pdflib[] = {
     {"print", luapdfprint},
-    {"getv", findcurv},
-    {"geth", findcurh},
-    {"setv", makecurv},
-    {"seth", makecurh},
     {NULL, NULL}                /* sentinel */
 };
 
-int luaopen_pdf (lua_State *L) 
-{
+
+int 
+luaopen_pdf (lua_State *L) {
   luaL_register(L, "pdf", pdflib);
-  make_table(L,"v","getv","setv");
-  make_table(L,"h","geth","seth");
+  /* build meta table */
+  luaL_newmetatable(L,"pdf_meta"); 
+  lua_pushstring(L, "__index");
+  lua_pushcfunction(L, getpdf); 
+  /* do these later, NYI */
+  if (0) {
+    lua_settable(L, -3);
+    lua_pushstring(L, "__newindex");
+    lua_pushcfunction(L, setpdf); 
+  }
+  lua_settable(L, -3);
+  lua_setmetatable(L,-2); /* meta to itself */
   return 1;
 }
 
