@@ -450,7 +450,12 @@ get_node (integer s) {
       r = free_chain[s];
       free_chain[s] = vlink(r);
       TEST_CHAIN(s);
-      assert(varmem_sizes[r]<0);
+      if (varmem_sizes[r]>=0) {
+	fprintf(stdout,"node %d (size %d, type %d) is not free!\n",r,varmem_sizes[r],type(r));
+	/*assert(varmem_sizes[r]<0);*/
+	break;
+      }
+
       varmem_sizes[r] = abs(varmem_sizes[r]);
       assert(varmem_sizes[r]==s);
       break;
