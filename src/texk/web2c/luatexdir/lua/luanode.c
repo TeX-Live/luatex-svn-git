@@ -625,7 +625,7 @@ lua_node_filter_s (int filterid, char *extrainfo, halfword head_node, halfword *
   int nargs = 2;
   lua_State *L = Luas[0];
   callback_id = callback_defined(filterid);
-  if (vlink(head_node)==null)
+  if (head_node==null || vlink(head_node)==null)
 	return;
   if (callback_id==0) {
     return;
@@ -691,7 +691,7 @@ lua_hpack_filter (halfword head_node, scaled size, int pack_type, int extrainfo)
   int glyph_count;
   lua_State *L = Luas[0];
   callback_id = callback_defined(hpack_filter_callback);
-  if (vlink(head_node)==null)
+  if (head_node==null || vlink(head_node)==null)
 	return head_node;
   if (callback_id==0) {
     return head_node;
@@ -740,7 +740,7 @@ lua_vpack_filter (halfword head_node, scaled size, int pack_type, scaled maxd, i
   halfword ret,r;  
   integer callback_id ; 
   lua_State *L = Luas[0];
-  if (vlink(head_node)==null)
+  if (head_node==null || vlink(head_node)==null)
 	return head_node;
   if (strcmp("output",group_code_names[extrainfo])==0) {
     callback_id = callback_defined(pre_output_filter_callback);
