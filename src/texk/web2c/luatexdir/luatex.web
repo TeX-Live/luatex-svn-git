@@ -23405,8 +23405,9 @@ if cur_style<text_style then delta:=delim1(cur_size)
 else delta:=delim2(cur_size);
 x:=var_delimiter(left_delimiter(q), cur_size, delta); vlink(x):=v;@/
 z:=var_delimiter(right_delimiter(q), cur_size, delta); vlink(v):=z;@/
+y:=hpack(x,natural); 
 node_attr(y):=node_attr(q); add_node_attr_ref(node_attr(q));
-y:=hpack(x,natural); new_hlist(q):=y
+new_hlist(q):=y
 
 @ If the nucleus of an |op_noad| is a single character, it is to be
 centered vertically with respect to the axis, after first being enlarged
@@ -32064,6 +32065,7 @@ if incompleat_noad<>null then
 else  begin incompleat_noad:=get_node(fraction_noad_size);
   type(incompleat_noad):=fraction_noad;
   subtype(incompleat_noad):=normal;
+  node_attr(incompleat_noad):=null;
   math_type(numerator(incompleat_noad)):=sub_mlist;
   vinfo(numerator(incompleat_noad)):=vlink(head);
   vmem(denominator(incompleat_noad)).hh:=empty_field;
