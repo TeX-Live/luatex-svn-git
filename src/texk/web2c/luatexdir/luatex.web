@@ -15425,26 +15425,22 @@ this is essentially the depth of |push| commands in the \.{DVI} output.
 @!cur_s:integer; {current depth of output box nesting, initially $-1$}
 
 @ @<Calculate DVI page dimensions and margins@>=
-cur_h_offset := h_offset;
-cur_v_offset := v_offset;
-if page_width <> 0 then
+if page_width > 0 then
     cur_page_width := page_width
 else
-    cur_page_width := width(p) + 2*cur_h_offset + 2*4736286;
-    {4736286 = 1in, the funny DVI origin offset}
-if page_height <> 0 then
+    cur_page_width := width(p) + 2*(h_offset + one_inch);
+if page_height > 0 then
     cur_page_height := page_height
 else
-    cur_page_height := height(p) + depth(p) + 2*cur_v_offset + 2*4736286;
-    {4736286 = 1in, the funny DVI origin offset}
+    cur_page_height := height(p) + depth(p) + 2*(v_offset + one_inch);
 if page_bottom_offset <> 0 then
     cur_bottom_offset := page_bottom_offset
 else
-    cur_bottom_offset := 2*4736286;
+    cur_bottom_offset := 2*one_inch;
 if page_right_offset <> 0 then
     cur_right_offset := page_right_offset
 else
-    cur_right_offset :=  2*4736286
+    cur_right_offset :=  2*one_inch
 
 
 @ @<Initialize variables as |ship_out| begins@>=
@@ -16453,8 +16449,8 @@ Initialize \pdfTeX's parameters to some useful default value.
 Helpful in case one forgets to set them during initex run.
 
 @<Initialize table entries...@>=
-pdf_h_origin := (one_hundred_inch + 50) div 100;
-pdf_v_origin := (one_hundred_inch + 50) div 100;
+pdf_h_origin := one_inch;
+pdf_v_origin := one_inch;
 pdf_compress_level := 9;
 pdf_objcompresslevel := 0;
 pdf_decimal_digits := 3;
@@ -17143,19 +17139,22 @@ accurary.
 @d max_integer == @"7FFFFFFF {$2^{31}-1$}
 @d call_func(#) == begin if # <> 0 then do_nothing end
 
+
 @<Glob...@>=
-@!one_bp: scaled; {scaled value corresponds to 1bp}
-@!one_hundred_bp: scaled; {scaled value corresponds to 100bp}
 @!one_hundred_inch: scaled; {scaled value corresponds to 100in}
+@!one_inch: scaled; {scaled value corresponds to 1in (rounded!)}
+@!one_hundred_bp: scaled; {scaled value corresponds to 100bp}
+@!one_bp: scaled; {scaled value corresponds to 1bp (rounded!)}
 @!ten_pow: array[0..9] of integer; {$10^0..10^9$}
 @!scaled_out: integer; {amount of |scaled| that was taken out in
 |divide_scaled|}
 @!init_pdf_output: boolean;
 
 @ @<Set init...@>=
-one_bp := 65782; {65781.76}
-one_hundred_bp := 6578176;
-one_hundred_inch := 473628672;
+one_hundred_inch := 7227 * 65536; {exact, 473628672}
+one_inch := (one_hundred_inch + 50) div 100; {rounded to 4736287}
+one_hundred_bp := one_hundred_inch div 72; {exact, 6578176}
+one_bp := (one_hundred_bp + 50) div 100; {rounded to 65782}
 ten_pow[0] := 1;
 for i := 1 to 9 do
     ten_pow[i] := 10*ten_pow[i - 1];
@@ -17299,14 +17298,10 @@ end;
 
 @* \[32c] PDF page description.
 
-@d pdf_x(#) == ((#) - pdf_origin_h) {convert $x$-coordinate from \.{DVI} to
-PDF}
-@d pdf_y(#) == (pdf_origin_v - (#)) {convert $y$-coordinate from \.{DVI} to
-PDF}
-@d dvi_x(#) == ((#) + pdf_origin_h) {convert $x$-coordinate from \.{PDF} to
-DVI}
-@d dvi_y(#) == (pdf_origin_v - (#)) {convert $y$-coordinate from \.{PDF} to
-DVI}
+@d pdf_h_offset == (h_offset + pdf_h_origin)
+@d pdf_v_offset == (v_offset + pdf_v_origin)
+@d pdf_x(#) == ((#) - pdf_h_offset + one_inch) {convert $x$-coordinate from \.{DVI} to PDF}
+@d pdf_y(#) == (cur_page_height - (#) - pdf_v_offset + one_inch) {convert $y$-coordinate from \.{DVI} to PDF}
 
 @<Glob...@>=
 @!pdf_f: internal_font_number; {the current font in PDF output page}
@@ -19739,6 +19734,7 @@ save_ximage_list: pointer; {to save |pdf_ximage_list|}
 save_xform_list: pointer; {to save |pdf_xform_list|}
 save_image_procset: integer;  {to save |pdf_image_procset|}
 save_text_procset: integer;  {to save |pdf_text_procset|}
+save_cur_page_height: scaled; {to save |cur_page_height| during flushing pending forms}
 pdf_last_resources: integer; {pointer to most recently generated Resources object}
 pre_callback_id:integer;
 post_callback_id:integer;
@@ -19802,37 +19798,19 @@ temp_ptr:=p;
 prepare_mag;
 pdf_last_resources := pdf_new_objnum;
 @<Reset resource lists@>;
+@<Calculate PDF page dimensions and margins@>;
 dvi_direction:=page_direction;
 if not shipping_page then begin
-    pdf_xform_width := width(p);
-    pdf_xform_height := height(p);
-    pdf_xform_depth := depth(p);
     pdf_begin_dict(pdf_cur_form, 0);
     pdf_last_stream := pdf_cur_form;
-    cur_v := height(p);
-    cur_h := 0;
-    pdf_origin_h := 0;
-    pdf_origin_v := pdf_xform_height + pdf_xform_depth;
+    @<Write out Form stream header@>;
 end
 else begin
-    @<Calculate page dimensions and margins@>;
     pdf_last_page := get_obj(obj_type_page, total_pages + 1, 0);
     obj_aux(pdf_last_page) := 1; {mark that this page has beed created}
     pdf_new_dict(obj_type_others, 0, 0);
     pdf_last_stream := obj_ptr;
-	cur_v := height(p) + cur_v_offset; 
-   	case box_direction(dvi_direction) of
-    dir_TL_,dir_LT_: begin cur_h:=cur_h_offset; end;
-    dir_TR_,dir_RT_: begin cur_h:=cur_page_width-cur_right_offset; end;
-    dir_RB_,dir_BR_: begin cur_h:=-cur_right_offset;  cur_v:=-cur_bottom_offset;  end;
-    dir_BL_,dir_LB_: begin cur_v:=-cur_bottom_offset; end; 
-    end;
-    pdf_origin_h := 0;
-    pdf_origin_v := cur_page_height;
     @<Reset PDF mark lists@>;
-end;
-if not shipping_page then begin
-    @<Write out Form stream header@>;
 end;
 @<Start stream of page/form contents@>
 
@@ -19851,26 +19829,41 @@ pdf_dest_list := null;
 pdf_bead_list := null;
 last_thread := null
 
-@ @<Calculate page dimensions and margins@>=
-cur_h_offset := pdf_h_origin + h_offset;
-cur_v_offset := pdf_v_origin + v_offset;
-if page_width <> 0 then
-    cur_page_width := page_width
-else
-    cur_page_width := width(p) + 2*cur_h_offset;
-if page_height <> 0 then
-    cur_page_height := page_height
-else
-    cur_page_height := height(p) + depth(p) + 2*cur_v_offset;
-if page_bottom_offset <> 0 then
-    cur_bottom_offset := page_bottom_offset
-else
-    cur_bottom_offset := 4736286;
-if page_right_offset <> 0 then
-    cur_right_offset := page_right_offset
-else
-    cur_right_offset :=  4736286
-
+@ @<Calculate PDF page dimensions and margins@>=
+if is_shipping_page then begin
+    if page_width > 0 then
+        cur_page_width := page_width
+    else
+        cur_page_width := width(p) + 2 * pdf_h_offset;
+    if page_height > 0 then
+        cur_page_height := page_height
+    else
+        cur_page_height := height(p) + depth(p) + 2 * pdf_v_offset;
+    if page_bottom_offset <> 0 then
+        cur_bottom_offset := page_bottom_offset
+    else
+        cur_bottom_offset := one_inch;
+    if page_right_offset <> 0 then
+        cur_right_offset := page_right_offset
+    else
+        cur_right_offset :=  one_inch;
+    cur_h := pdf_h_offset;
+    cur_v := height(p) + pdf_v_offset;
+    case box_direction(dvi_direction) of
+        dir_TL_,dir_LT_: begin end;
+        dir_TR_,dir_RT_: begin cur_h:=cur_page_width-cur_right_offset; end;
+        dir_RB_,dir_BR_: begin cur_h:=cur_page_width-cur_right_offset; cur_v:=-cur_bottom_offset; end;
+        dir_BL_,dir_LB_: begin cur_v:=-cur_bottom_offset; end; 
+    end;
+end
+else begin
+   cur_page_width := width(p);
+   cur_page_height := height(p) + depth(p);
+   cur_h := 0;
+   cur_v := height(p);
+end;
+pdf_origin_h := 0;
+pdf_origin_v := cur_page_height;
 
 @ Here we write out the header for Form.
 
@@ -19883,8 +19876,8 @@ if obj_xform_attr(pdf_cur_form) <> null then begin
 end;
 pdf_print("/BBox [");
 pdf_print("0 0 ");
-pdf_print_bp(pdf_xform_width); pdf_out(" ");
-pdf_print_bp(pdf_xform_height + pdf_xform_depth); pdf_print_ln("]");
+pdf_print_bp(cur_page_width); pdf_out(" ");
+pdf_print_bp(cur_page_height); pdf_print_ln("]");
 pdf_print_ln("/FormType 1");
 pdf_print_ln("/Matrix [1 0 0 1 0 0]");
 pdf_indirect_ln("Resources", pdf_last_resources)
@@ -20167,8 +20160,10 @@ if pdf_obj_list <> null then begin
 end
 
 @ When flushing pending forms we need to save and restore resource lists
-  (|pdf_font_list|, |pdf_obj_list|, |pdf_xform_list| and |pdf_ximage_list|),
-  which are also used by page shipping.
+(|pdf_font_list|, |pdf_obj_list|, |pdf_xform_list| and |pdf_ximage_list|),
+which are also used by page shipping.
+Saving and restoring |cur_page_height| is needed for proper
+writing out pending PDF marks.
 
 @<Write out pending forms@>=
 if pdf_xform_list <> null then begin
@@ -20178,7 +20173,9 @@ if pdf_xform_list <> null then begin
             pdf_cur_form := info(k);
             @<Save resource lists@>;
             @<Reset resource lists@>;
+            save_cur_page_height := cur_page_height;
             pdf_ship_out(obj_xform_box(pdf_cur_form), false);
+            cur_page_height := save_cur_page_height;
             @<Restore resource lists@>;
         end;
         k := link(k);
@@ -37156,9 +37153,8 @@ end;
 
 @ @<Save current position in DVI mode@>=
 begin
-    {4736286 = 1in, the funny DVI origin offset}
-    pdf_last_x_pos := cur_h + 4736286;
-    pdf_last_y_pos := cur_page_height - cur_v - 4736286;
+    pdf_last_x_pos := cur_h + one_inch;
+    pdf_last_y_pos := cur_page_height - cur_v - one_inch;
 end
 
 @ We don't implement \.{\\write} inside of leaders. (The reason is that
@@ -37773,8 +37769,6 @@ end;
 @ @<Glob...@>=
 @!cur_page_width: scaled; {width of page being shipped}
 @!cur_page_height: scaled; {height of page being shipped}
-@!cur_h_offset: scaled; {horizontal offset of page being shipped}
-@!cur_v_offset: scaled; {vertical offset of page being shipped}
 @!cur_right_offset: scaled; {horizontal inverted offset of page being shipped}
 @!cur_bottom_offset: scaled; {vertical inverted offset of page being shipped}
 @!pdf_obj_list: pointer; {list of objects in the current page}
@@ -37795,9 +37789,6 @@ thread}
 @!pdf_ximage_count: integer; {counter of images}
 @!pdf_cur_form: integer; {the form being output}
 @!pdf_first_outline, pdf_last_outline, pdf_parent_outline: integer;
-@!pdf_xform_width,
-@!pdf_xform_height,
-@!pdf_xform_depth: scaled; {dimension of the current form}
 @!pdf_info_toks: pointer; {additional keys of Info dictionary}
 @!pdf_catalog_toks: pointer; {additional keys of Catalog dictionary}
 @!pdf_catalog_openaction: integer;
@@ -38222,16 +38213,14 @@ begin
 end;
 
 procedure out_form(p: pointer);
+var v: scaled;
 begin
     pdf_end_text;
     pdf_print_ln("q");
     if pdf_lookup_list(pdf_xform_list, pdf_xform_objnum(p)) = null then
         pdf_append_list(pdf_xform_objnum(p))(pdf_xform_list);
-    cur_v := cur_v + obj_xform_depth(pdf_xform_objnum(p));
-    pdf_print("1 0 0 1 ");
-    pdf_print_bp(pdf_x(cur_h)); pdf_out(" ");
-    pdf_print_bp(pdf_y(cur_v));
-    pdf_print_ln(" cm");
+    v := cur_v + obj_xform_depth(pdf_xform_objnum(p));
+    pdf_set_origin_temp(cur_h, v);
     pdf_print("/Fm");
     pdf_print_int(obj_info(pdf_xform_objnum(p)));
     pdf_print_resname_prefix;
@@ -38254,8 +38243,8 @@ begin
         pdf_print_real(ext_xn_over_d(pdf_height(p) + pdf_depth(p),
                        ten_pow[6], one_hundred_bp), 4);
         pdf_out(" ");
-        pdf_print_bp(pdf_x(cur_h)); pdf_out(" ");
-        pdf_print_bp(pdf_y(cur_v));
+        pdf_print_bp(cur_h - pdf_origin_h); pdf_out(" ");
+        pdf_print_bp(pdf_origin_v - cur_v);
     end
     else begin
         pdf_print_real(ext_xn_over_d(pdf_width(p),
@@ -38264,11 +38253,11 @@ begin
         pdf_print_real(ext_xn_over_d(pdf_height(p) + pdf_depth(p),
                        ten_pow[6], image_height(image)), 6);
         pdf_out(" ");
-        pdf_print_bp(pdf_x(cur_h) -
+        pdf_print_bp(cur_h - pdf_origin_h -
                      ext_xn_over_d(pdf_width(p), epdf_orig_x(image),
                                    image_width(image)));
         pdf_out(" ");
-        pdf_print_bp(pdf_y(cur_v) -
+        pdf_print_bp(pdf_origin_v - cur_v -
                      ext_xn_over_d(pdf_height(p), epdf_orig_y(image),
                                    image_height(image)));
     end;
@@ -38348,24 +38337,20 @@ endcases
 @ @<Save current position to |pdf_last_x_pos|, |pdf_last_y_pos|@>=
 begin
     pdf_last_x_pos := cur_h;
-    if is_shipping_page then
-        pdf_last_y_pos := cur_page_height - cur_v
-    else
-        pdf_last_y_pos := pdf_xform_height + pdf_xform_depth - cur_v;
+    pdf_last_y_pos := cur_page_height - cur_v
 end
 
 @ @<Output a Image node in a vlist@>=
-begin cur_v:=cur_v+pdf_height(p)+pdf_depth(p); save_v:=cur_v;
+begin cur_v:=cur_v+pdf_height(p)+pdf_depth(p);
   cur_h:=left_edge;
   out_image(p);
-  cur_v:=save_v; cur_h:=left_edge;
   end
 
 @ @<Output a Form node in a vlist@>=
-begin cur_v:=cur_v+pdf_height(p); save_v:=cur_v;
+begin cur_v:=cur_v+pdf_height(p);
   cur_h:=left_edge;
   out_form(p);
-  cur_v:=save_v+pdf_depth(p); cur_h:=left_edge;
+  cur_v:=cur_v+pdf_depth(p);
   end
 
 @ @<Output the whatsit node |p| in |pdf_hlist_out|@>=
@@ -38415,17 +38400,15 @@ endcases
 @ @<Output a Image node in a hlist@>=
 begin
   cur_v:=base_line+pdf_depth(p);
-  edge:=cur_h;
   out_image(p);
-  cur_h:=edge+pdf_width(p); cur_v:=base_line;
+  edge:=cur_h+pdf_width(p); cur_h:=edge; cur_v:=base_line;
   end
 
 @ @<Output a Form node in a hlist@>=
 begin
   cur_v:=base_line;
-  edge:=cur_h;
   out_form(p);
-  cur_h:=edge+pdf_width(p); cur_v:=base_line;
+  edge:=cur_h+pdf_width(p); cur_h:=edge;
   end
 
 @* \[53a] The extended features of \eTeX.
@@ -40450,10 +40433,7 @@ end;
 
 function get_cur_v: integer;
 begin
-    if is_shipping_page then
-        get_cur_v := cur_page_height - cur_v
-    else
-        get_cur_v := pdf_xform_height + pdf_xform_depth - cur_v;
+    get_cur_v := cur_page_height - cur_v;
 end;
 
 function get_cur_h: integer;
