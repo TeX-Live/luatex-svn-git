@@ -215,7 +215,9 @@
 
 /* Define to 1 if your processor stores words with the most significant byte
    first (like Motorola and SPARC, unlike Intel and VAX). */
+#ifndef WORDS_BIGENDIAN
 #undef WORDS_BIGENDIAN
+#endif
 
 /* Number of bits in a file offset, on hosts where this is settable. */
 #undef _FILE_OFFSET_BITS
