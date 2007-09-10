@@ -1312,7 +1312,7 @@ char *uni_interp_enum[9] = {
 
 void
 handle_splinefont(lua_State *L, struct splinefont *sf) {
-  int k;
+  int k,l;
 
   dump_stringfield(L,"table_version",   LUA_OTF_VERSION);
   dump_stringfield(L,"fontname",        sf->fontname);
@@ -1342,11 +1342,22 @@ handle_splinefont(lua_State *L, struct splinefont *sf) {
 
   lua_checkstack(L,4);
   lua_createtable(L,sf->glyphcnt,0);
-  for (k=0;k<sf->glyphcnt;k++) {
-    lua_pushnumber(L,k);
+  /* here is a bit of hackery for .notdef's that appear in the middle
+  of a type1 font. This situation should be handled nicer, because the
+  trick assumes a specific way of handling cff fonts, and that will
+  fail. The current code will at least make sure that the intended use
+  works, for now. */
+  l = 0;
+  for (k=0;k<sf->glyphcnt;k++,l++) {
+    lua_pushnumber(L,l);
     lua_createtable(L,0,12);
-	if (sf->glyphs[k])
-	  handle_splinechar(L,sf->glyphs[k], sf->hasvmetrics);
+	if (sf->glyphs[k]) {
+	  if (k>0 && strcmp(sf->glyphs[k]->name,".notdef") == 0) {
+		l--;
+	  } else {
+		handle_splinechar(L,sf->glyphs[k], sf->hasvmetrics);
+	  }
+	}
     lua_rawset(L,-3);
   }
   lua_setfield(L,-2,"glyphs");
