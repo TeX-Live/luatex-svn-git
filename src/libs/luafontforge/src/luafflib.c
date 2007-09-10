@@ -1676,6 +1676,29 @@ int ff_createcff (char *file, unsigned char **buf, int *bufsiz) {
   return notdefpos;
 }
 
+int ff_get_ttc_index(char *ffname, char*psname) {
+  SplineFont *sf;
+  int i = 0;
+  int openflags = 1;
+  int index = 0;
+
+  sf = ReadSplineFontInfo((char *)ffname,openflags);
+  if (sf==NULL) {
+    perror("font loading failed unexpectedly\n");
+    exit(EXIT_FAILURE);
+  } 
+  while (sf != NULL) {
+	if (strcmp(sf->fontname,psname)==0) {
+	  index = i;
+	  break;
+	}
+	i++;
+	sf = sf->next;
+  }
+  return index;
+}
+
+
 static int ff_make_cff (lua_State *L) {
   SplineFont **sf;
   char *s;

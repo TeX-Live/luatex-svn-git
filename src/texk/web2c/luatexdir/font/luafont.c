@@ -731,6 +731,7 @@ font_from_lua (lua_State *L, int f) {
   s = string_field(L,"encodingname",NULL);       set_font_encodingname(f,s);
 
   s = string_field(L,"name",NULL);               set_font_name(f,s);
+  s = string_field(L,"fullname",font_name(f));   set_font_fullname(f,s);
 
   if (s==NULL) {
     pdftex_fail("lua-loaded font [%d] has no name!",f);

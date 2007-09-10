@@ -248,6 +248,8 @@ unsigned long ttc_read_offset (sfnt *sfont, int ttc_idx)
   return offset;
 }
 
+extern int ff_get_ttc_index(char *ffname, char*psname);
+
 void make_tt_subset (fd_entry * fd,unsigned char *buffer, integer buflen) {
 
   long i, cid;
@@ -266,10 +268,12 @@ void make_tt_subset (fd_entry * fd,unsigned char *buffer, integer buflen) {
 
   sfont = sfnt_open(buffer, buflen);
 
-  if (sfont->type == SFNT_TYPE_TTC)
-    error = sfnt_read_table_directory(sfont, ttc_read_offset(sfont, 0));
-  else 
+  if (sfont->type == SFNT_TYPE_TTC) {
+	i = ff_get_ttc_index(fd->fm->ff_name,fd->fm->ps_name);
+    error = sfnt_read_table_directory(sfont, ttc_read_offset(sfont, i));
+  } else {
 	error = sfnt_read_table_directory(sfont, 0);
+  }
 
   if (error  < 0) {
     fprintf(stderr,"Could not parse the ttf directory.\n");
