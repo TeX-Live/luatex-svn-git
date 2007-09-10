@@ -422,7 +422,7 @@ lua_node_new(int i, int j) {
 
 memory_word *varmem = NULL;
 
-char *varmem_sizes = NULL;
+signed char *varmem_sizes = NULL;
 halfword var_mem_max = 0;
 halfword rover = 0;
 
@@ -495,13 +495,13 @@ get_node (integer s) {
       t=var_mem_max+x;
       /* fprintf(stdout,"allocating %d extra nodes for %d requested\n",x,s); */
       varmem = (memory_word *)realloc(varmem,sizeof(memory_word)*t);
-      varmem_sizes = (char *)realloc(varmem_sizes,sizeof(char)*t);
+      varmem_sizes = (char *)realloc(varmem_sizes,sizeof(signed char)*t);
       if (varmem==NULL) {
 	runaway;
 	overflow(maketexstring("node memory size"),var_mem_max);
       }
       memset ((void *)(varmem+var_mem_max),0,x*sizeof(memory_word));
-      memset ((void *)(varmem_sizes+var_mem_max),0,x*sizeof(char));
+      memset ((void *)(varmem_sizes+var_mem_max),0,x*sizeof(signed char));
       p = var_mem_max;
       node_size(p) = x; vlink(p) = q;
       rover = p;
@@ -560,13 +560,13 @@ init_node_mem (halfword prealloced, halfword t) {
     free_chain[i]=null;
   }
   varmem = (memory_word *)realloc(varmem,sizeof(memory_word)*t);
-  varmem_sizes = (char *)realloc(varmem_sizes,sizeof(char)*t);
+  varmem_sizes = (signed char *)realloc(varmem_sizes,sizeof(signed char)*t);
   if (varmem==NULL) {
     runaway; /* if memory is exhausted, display possible runaway text */
     overflow("node memory size",var_mem_max);
   }
   memset ((void *)varmem,0,sizeof(memory_word)*t);
-  memset ((void *)varmem_sizes,0,sizeof(char)*t);
+  memset ((void *)varmem_sizes,0,sizeof(signed char)*t);
   var_mem_max=t; 
   rover = prealloced+1; vlink(rover) = null;
   node_size(rover)=(t-prealloced-1);
@@ -612,8 +612,8 @@ undump_node_mem (void) {
   varmem = xmallocarray (memory_word, var_mem_max);
   memset ((void *)varmem,0,var_mem_max*sizeof(memory_word));
   undump_things(varmem[0],var_mem_max);
-  varmem_sizes = xmallocarray (char, var_mem_max);
-  memset ((void *)varmem_sizes,0,var_mem_max*sizeof(char));
+  varmem_sizes = xmallocarray (signed char, var_mem_max);
+  memset ((void *)varmem_sizes,0,var_mem_max*sizeof(signed char));
   undump_things(varmem_sizes[0],var_mem_max);
   undump_things(free_chain[0],MAX_CHAIN_SIZE);
   undump_int(var_used); 
