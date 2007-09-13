@@ -289,6 +289,20 @@ static void set_glyph_unicode(char *s, glyph_unicode_entry * gp)
     }
 }
 
+static void set_cid_glyph_unicode(long index, glyph_unicode_entry * gp, 
+								  internal_font_number f) {
+  char *s;
+  if (font_tounicode(f)) {
+	if ((s = get_charinfo_tounicode(char_info(f,index)))!=NULL) {
+        gp->code = UNI_EXTRA_STRING;
+        gp->unicode_seq = xstrdup(s);
+	}
+  } else {
+	gp->code = index; /* fallback */
+  }
+}
+
+
 integer write_tounicode(char **glyph_names, char *name)
 {
     char buf[SMALL_BUF_SIZE], *p;
@@ -426,6 +440,158 @@ integer write_tounicode(char **glyph_names, char *name)
 
     /* free strings allocated by set_glyph_unicode() */
     for (i = 0; i < 256; ++i) {
+        if (gtab[i].code == UNI_EXTRA_STRING)
+            xfree(gtab[i].unicode_seq);
+    }
+
+    pdf_printf("endcmap\n"
+               "CMapName currentdict /CMap defineresource pop\n"
+               "end\n" "end\n" "%%%%EndResource\n" "%%%%EOF\n");
+    pdf_end_stream();
+    return objnum;
+}
+
+integer write_cid_tounicode(fo_entry * fo, internalfontnumber f) {
+    char *p;
+    int range_size[65537];
+    glyph_unicode_entry gtab[65537];
+    integer objnum;
+    int i, j, k;
+    int bfchar_count, bfrange_count, subrange_count;
+	char *buf;
+
+	assert(fo->fd->fontname);
+	buf = xmalloc(strlen(fo->fd->fontname)+8);
+	sprintf(buf,"%s-%s",(fo->fd->subset_tag!=NULL ? fo->fd->subset_tag : "UCS"),
+			            fo->fd->fontname);
+
+    objnum = pdf_new_objnum();
+    pdf_begin_dict(objnum, 0);
+    pdf_begin_stream();
+    pdf_printf("%%!PS-Adobe-3.0 Resource-CMap\n"
+               "%%%%DocumentNeededResources: ProcSet (CIDInit)\n"
+               "%%%%IncludeResource: ProcSet (CIDInit)\n"
+               "%%%%BeginResource: CMap (TeX-%s-0)\n"
+               "%%%%Title: (TeX-%s-0 TeX %s 0)\n"
+               "%%%%Version: 1.000\n"
+               "%%%%EndComments\n"
+               "/CIDInit /ProcSet findresource begin\n"
+               "12 dict begin\n"
+               "begincmap\n"
+               "/CIDSystemInfo\n"
+               "<< /Registry (TeX)\n"
+               "/Ordering (%s)\n"
+               "/Supplement 0\n"
+               ">> def\n"
+               "/CMapName /TeX-Identity-%s def\n"
+               "/CMapType 2 def\n"
+               "1 begincodespacerange\n"
+               "<0000> <FFFF>\n" 
+               "endcodespacerange\n", buf, buf, buf, buf, buf);
+	xfree(buf);
+    /* set up gtab */
+    for (i = 0; i < 65537; ++i) {
+        gtab[i].code = UNI_UNDEF;
+    }
+	for (k = 1; k <= max_font_id(); k++) {
+	  if (k == f || -f == pdf_font_num[k]) { 
+		for (i = font_bc(k); i <= font_ec(k); i++) {
+		  if (char_exists(k,i) && char_used(k,i)) {
+			j = char_index(k,i);
+			if (gtab[j].code == UNI_UNDEF) {
+			  set_cid_glyph_unicode(i, &gtab[j], f);
+			}
+		  }
+		}
+	  }
+	}
+
+    /* set range_size */
+    for (i = 0; i < 65536;) {
+        if (gtab[i].code == UNI_STRING || gtab[i].code == UNI_EXTRA_STRING) {
+            range_size[i] = 1;  /* single entry */
+            i++;
+        } else if (gtab[i].code == UNI_UNDEF) {
+            range_size[i] = 0;  /* no entry */
+            i++;
+        } else {                /* gtab[i].code >= 0 */
+            j = i;
+            while (i < 65536 && gtab[i + 1].code >= 0 &&
+                   gtab[i].code + 1 == gtab[i + 1].code)
+                i++;
+            /* at this point i is the last entry of the subrange */
+            i++;                /* move i to the next entry */
+            range_size[j] = i - j;
+		}
+    }
+
+    /* calculate bfrange_count and bfchar_count */
+    bfrange_count = 0;
+    bfchar_count = 0;
+    for (i = 0; i < 65536;) {
+        if (range_size[i] == 1) {
+            bfchar_count++;
+            i++;
+        } else if (range_size[i] > 1) {
+            bfrange_count++;
+            i += range_size[i];
+        } else
+            i++;
+    }
+
+    /* write out bfrange */
+    i = 0;
+  write_bfrange:
+    if (bfrange_count > 100)
+        subrange_count = 100;
+    else
+        subrange_count = bfrange_count;
+    bfrange_count -= subrange_count;
+    pdf_printf("%i beginbfrange\n", subrange_count);
+    for (j = 0; j < subrange_count; j++) {
+        while (range_size[i] <= 1 && i < 65536)
+            i++;
+        assert(i < 65536);
+        pdf_printf("<%04X> <%04X> <%s>\n", i, i + range_size[i] - 1,
+                   utf16be_str(gtab[i].code));
+        i += range_size[i];
+    }
+    pdf_printf("endbfrange\n");
+    if (bfrange_count > 0)
+        goto write_bfrange;
+
+    /* write out bfchar */
+    i = 0;
+  write_bfchar:
+    if (bfchar_count > 100)
+        subrange_count = 100;
+    else
+        subrange_count = bfchar_count;
+    bfchar_count -= subrange_count;
+    pdf_printf("%i beginbfchar\n", subrange_count);
+    for (j = 0; j < subrange_count; j++) {
+        while (i < 65536) {
+            if (range_size[i] > 1)
+                i += range_size[i];
+            else if (range_size[i] == 0)
+                i++;
+            else                /* range_size[i] == 1 */
+                break;
+        }
+        assert(i < 65536 && gtab[i].code != UNI_UNDEF);
+        if (gtab[i].code == UNI_STRING || gtab[i].code == UNI_EXTRA_STRING) {
+            assert(gtab[i].unicode_seq != NULL);
+            pdf_printf("<%04X> <%s>\n", i, gtab[i].unicode_seq);
+        } else
+            pdf_printf("<%04X> <%s>\n", i, utf16be_str(gtab[i].code));
+        i++;
+    }
+    pdf_printf("endbfchar\n");
+    if (bfchar_count > 0)
+        goto write_bfchar;
+
+    /* free strings allocated by set_glyph_unicode() */
+    for (i = 0; i < 65536; ++i) {
         if (gtab[i].code == UNI_EXTRA_STRING)
             xfree(gtab[i].unicode_seq);
     }

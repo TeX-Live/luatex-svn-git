@@ -10,7 +10,7 @@
  
 \setvariables
   [document]
-  [snapshot=2007-08-20]
+  [snapshot=2007-09-13]
 
 \starttext
 
@@ -3518,6 +3518,8 @@ The top|-|level keys in the table are as follows:
 \NC format             \NC no       \NC no       \NC yes \NC string \NC disk format type\NC \NR
 \NC embedding          \NC no       \NC no       \NC yes \NC string \NC \PDF\ inclusion\NC \NR
 \NC filename           \NC no       \NC no       \NC yes \NC string \NC disk file name\NC\NR
+\NC tounicode          \NC no       \NC yes      \NC yes \NC number \NC if 1, \LUATEX\ assumes per-glyph tounicode entries are
+present in the font\NC\NR
 \stoptabulate
 
 The key \type{name} is always required.
@@ -3618,6 +3620,8 @@ The following top|-|level keys can be present inside a character hash:
 \NC height     \NC no          \NC yes          \NC yes      \NC number         \NC character's height, in sp (default 0) \NC\NR
 \NC depth      \NC no          \NC yes          \NC yes      \NC number         \NC character's depth, in sp (default 0) \NC\NR
 \NC italic     \NC no          \NC yes          \NC yes      \NC number         \NC character's italic correction, in sp (default zero) \NC\NR
+\NC tounicode  \NC no          \NC no           \NC maybe    \NC string         \NC character's Unicode equivalent(s), in
+UTF-16BE hexadecimal format\NC\NR
 \NC next       \NC no          \NC yes          \NC yes      \NC number         \NC the \quote{next larger} character index \NC\NR
 \NC extensible \NC no          \NC yes          \NC yes      \NC table          \NC the constituent parts of an extensible recipe \NC\NR
 \NC kerns      \NC no          \NC yes          \NC yes      \NC table          \NC kerning information \NC\NR
@@ -3627,6 +3631,19 @@ The following top|-|level keys can be present inside a character hash:
 \NC index      \NC no          \NC no           \NC yes      \NC number         \NC the (\OPENTYPE\ or \TRUETYPE) font glyph index \NC\NR
 \NC used       \NC no          \NC yes          \NC yes      \NC boolean        \NC typeset already (default: false)? \NC\NR
 \stoptabulate
+
+The usage of \type{tounicode} is this: if this font specifies a \type{tounicode=1} at
+the top level, then \LUATEX\ will construct a \type{/ToUnicode} entry for the PDF
+font (or font subset) based on the character-level \type{tounicode} strings, where
+they are available. If a character does not have a sensible Unicode equivalent,
+do not provide a string either (no empty strings).
+
+If the font-level \type{tounicode} is not set, then \LUATEX\ will build up
+\type{/ToUnicode} based on the \TEX\ code points you used, and any character-level
+\type{tounicodes} will be ignored. {\it At the moment, the string format is exactly the
+format that is expected by Adobe CMAP files (UTF-16BE in hexadecimal encoding), minus
+the enclosing angle brackets. This may change in the future.}. Small example: the
+\type{tounicode} for a \type{fi} ligature would be \type{00660069}.
 
 The presence of \type{extensible} will overrule \type{next}, if that is also present.
 
@@ -4839,10 +4856,6 @@ be worth the hassle and the limitations will eventually be documented.
 
 \startitemize
 
-\item Seaching of directly-generated PDF documents that use wide fonts 
-is impossible, due to explicit referencing (by \LUATEX) of font glyph
-indices without a ToUnicode map being included.
-
 \item Hyphenation can only deal with the Base Multilingual Plane (BMP)
 
 \item \luatex{tex.print()} and \luatex{tex.sprint()} do not work if
@@ -4873,8 +4886,8 @@ because it is straightforward to set up letterspacing using the \LUA\
 \quote{define_font} interface.
 
 \item Node pointers are not always checked for validity, so if you make a 
-mistake in the node list processing, \LUATEX\ may about with an
-assertion error.
+mistake in the node list processing, \LUATEX\ may terminate itself with an
+assertion error or ``Emergency stop''.
 
 \stopitemize
 
@@ -4910,7 +4923,6 @@ the natural width of the included items into account.
 \item Finish the interface from Lua to \TeX's internals, specially the hash and 
 equivalence table (a small subpart is implementing \type{\csname}
 lookups for \type{tex.box} access).
-
 
 \item Integrate the various \PDFTEX\ extended font codes for hz en protruding into
 the font table

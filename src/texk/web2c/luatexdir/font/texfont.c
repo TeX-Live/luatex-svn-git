@@ -190,12 +190,16 @@ copy_charinfo (charinfo *ci) {
   memcpy(co,ci,sizeof(charinfo));
   set_charinfo_used(co,false);
   co->name = NULL;
+  co->tounicode = NULL;
   co->packets = NULL;
   co->ligatures = NULL;
   co->kerns = NULL;
   co->extensible = NULL;
   if (ci->name!=NULL) {
     co->name = xstrdup(ci->name);
+  }
+  if (ci->tounicode!=NULL) {
+    co->tounicode = xstrdup(ci->tounicode);
   }
   /* kerns */
   if ((kern = get_charinfo_kerns(ci)) != NULL) {
@@ -308,6 +312,7 @@ void set_charinfo_remainder   (charinfo *ci, scaled val)          { ci->remainde
 void set_charinfo_used        (charinfo *ci, scaled val)          { ci->used = val;      }
 void set_charinfo_index       (charinfo *ci, scaled val)          { ci->index = val;     }
 void set_charinfo_name        (charinfo *ci, char *val)           { dxfree(ci->name,val);        }
+void set_charinfo_tounicode   (charinfo *ci, char *val)           { dxfree(ci->tounicode,val);        }
 void set_charinfo_ligatures   (charinfo *ci, liginfo *val)        { dxfree(ci->ligatures,val);   }
 void set_charinfo_kerns       (charinfo *ci, kerninfo *val)       { dxfree(ci->kerns,val);       }
 void set_charinfo_packets     (charinfo *ci, real_eight_bits *val){ dxfree(ci->packets,val);     }
@@ -338,6 +343,7 @@ integer          get_charinfo_remainder   (charinfo *ci) { return ci->remainder;
 char             get_charinfo_used        (charinfo *ci) { return ci->used;      }
 integer          get_charinfo_index       (charinfo *ci) { return ci->index;     }
 char            *get_charinfo_name        (charinfo *ci) { return ci->name;      }
+char            *get_charinfo_tounicode   (charinfo *ci) { return ci->tounicode; }
 liginfo         *get_charinfo_ligatures   (charinfo *ci) { return ci->ligatures; }
 kerninfo        *get_charinfo_kerns       (charinfo *ci) { return ci->kerns;     }
 real_eight_bits *get_charinfo_packets     (charinfo *ci) { return ci->packets;   }
@@ -538,6 +544,7 @@ void delete_font (integer f) {
       if (char_exists(f,i)) {
 		co = char_info(f,i);
 		set_charinfo_name(co,NULL);
+		set_charinfo_tounicode(co,NULL);
 		set_charinfo_packets(co,NULL);
 		set_charinfo_ligatures(co,NULL);
 		set_charinfo_kerns(co,NULL);
@@ -802,6 +809,7 @@ dump_charinfo (int f , int c) {
   dump_int(get_charinfo_used(co));
   dump_int(get_charinfo_index(co));
   dump_string(get_charinfo_name(co));
+  dump_string(get_charinfo_tounicode(co));
 
   /* ligatures */
   x = 0;
@@ -899,6 +907,15 @@ undump_charinfo (int f) {
     undump_things(*s,x);
   }
   set_charinfo_name(co,s); 
+
+  /* tounicode */
+  undump_int (x);
+  if (x>0) {
+    font_bytes += x;
+    s = xmalloc(x); 
+    undump_things(*s,x);
+  }
+  set_charinfo_tounicode(co,s); 
 
   /* ligatures */
   undump_int (x);      

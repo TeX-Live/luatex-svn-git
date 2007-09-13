@@ -46,6 +46,12 @@ font_char_to_lua (lua_State *L, internalfontnumber f, charinfo *co) {
     lua_rawset(L,-3);
   }
 
+  if (get_charinfo_tounicode(co)!=NULL) {
+	lua_pushstring(L,"tounicode");
+    lua_pushstring(L,get_charinfo_tounicode(co));
+    lua_rawset(L,-3);
+  }
+
   if (get_charinfo_tag(co) == list_tag) {
 	lua_pushstring(L,"next");
     lua_pushnumber(L,get_charinfo_remainder(co));
@@ -183,6 +189,8 @@ font_to_lua (lua_State *L, int f) {
   lua_setfield(L,-2,"direction");
   lua_pushnumber(L,font_encodingbytes(f));
   lua_setfield(L,-2,"encodingbytes");
+  lua_pushnumber(L,font_tounicode(f));
+  lua_setfield(L,-2,"tounicode");
 
   /* params */
   write_lua_parameters(L,f);
@@ -579,13 +587,14 @@ font_char_from_lua (lua_State *L, internal_font_number f, integer i, integer *l_
   if (lua_istable(L,-1)) {
     co = get_charinfo(f,i); 
     set_charinfo_tag       (co,0);
-    j = numeric_field(L,"width",0);   set_charinfo_width (co,j);
-    j = numeric_field(L,"height",0);  set_charinfo_height (co,j);
-    j = numeric_field(L,"depth",0);   set_charinfo_depth (co,j);
-    j = numeric_field(L,"italic",0);  set_charinfo_italic (co,j);	      
-    k = boolean_field(L,"used",0);    set_charinfo_used(co,k);
-    j = numeric_field(L,"index",0);   set_charinfo_index(co,j);
-    s = string_field (L,"name",NULL); set_charinfo_name(co,s);
+    j = numeric_field(L,"width",0);        set_charinfo_width (co,j);
+    j = numeric_field(L,"height",0);       set_charinfo_height (co,j);
+    j = numeric_field(L,"depth",0);        set_charinfo_depth (co,j);
+    j = numeric_field(L,"italic",0);       set_charinfo_italic (co,j);	      
+    k = boolean_field(L,"used",0);         set_charinfo_used(co,k);
+    j = numeric_field(L,"index",0);        set_charinfo_index(co,j);
+    s = string_field (L,"name",NULL);      set_charinfo_name(co,s);
+    s = string_field (L,"tounicode",NULL); set_charinfo_tounicode(co,s);
       
     k = numeric_field(L,"next",-1); 
     if (k>=0) {
@@ -743,6 +752,7 @@ font_from_lua (lua_State *L, int f) {
   i = numeric_field(L,"checksum",0);             set_font_checksum(f,i);
   i = numeric_field(L,"direction",0);            set_font_natural_dir(f,i);
   i = numeric_field(L,"encodingbytes",0);        set_font_encodingbytes(f,i);
+  i = numeric_field(L,"tounicode",0);            set_font_tounicode(f,i);
   i = numeric_field(L,"hyphenchar",get_default_hyphen_char()); set_hyphen_char(f,i);
   i = numeric_field(L,"skewchar",get_default_skew_char());     set_skew_char(f,i);
   i = boolean_field(L,"used",0);                 set_font_used(f,i);

@@ -59,6 +59,7 @@ typedef struct charinfo {
   scaled italic;             /* italic correction */
   char tag ;                 /* list / ext taginfo */
   char used ;                /* char is typeset ? */
+  char *tounicode;           /* unicode equivalent */
 } charinfo;
 
 
@@ -99,6 +100,7 @@ typedef struct texfont {
   char    _font_touched ;    /* internal information */
   integer _font_cache_id ;   /* internal information */
   char    _font_encodingbytes ; /* 1 or 2 bytes */
+  char    _font_tounicode ; /* 1 if info is present */
   fm_entry_ptr _font_map;
   integer _font_type;
   integer _font_format;
@@ -236,6 +238,9 @@ boolean font_shareable(internal_font_number,internal_font_number);
 #define font_encodingbytes(a)       font_tables[a]->_font_encodingbytes
 #define set_font_encodingbytes(a,b) font_encodingbytes(a) = b
 
+#define font_tounicode(a)           font_tables[a]->_font_tounicode
+#define set_font_tounicode(a,b)     font_tounicode(a) = b
+
 #define hyphen_char(a)              font_tables[a]->_hyphen_char
 #define set_hyphen_char(a,b)        hyphen_char(a) = b
 
@@ -306,6 +311,7 @@ extern void set_charinfo_remainder   (charinfo *ci, scaled val);
 extern void set_charinfo_used        (charinfo *ci, scaled val);
 extern void set_charinfo_index       (charinfo *ci, scaled val);
 extern void set_charinfo_name        (charinfo *ci, char *val) ;
+extern void set_charinfo_tounicode   (charinfo *ci, char *val) ;
 extern void set_charinfo_ligatures   (charinfo *ci, liginfo *val);
 extern void set_charinfo_kerns       (charinfo *ci, kerninfo *val);
 extern void set_charinfo_packets     (charinfo *ci, real_eight_bits *val);
@@ -322,6 +328,7 @@ extern integer get_charinfo_remainder        (charinfo *ci);
 extern char    get_charinfo_used             (charinfo *ci);
 extern integer get_charinfo_index            (charinfo *ci);
 extern char * get_charinfo_name              (charinfo *ci) ;
+extern char * get_charinfo_tounicode         (charinfo *ci) ;
 extern liginfo * get_charinfo_ligatures      (charinfo *ci);
 extern kerninfo *get_charinfo_kerns          (charinfo *ci);
 extern real_eight_bits *get_charinfo_packets (charinfo *ci);
