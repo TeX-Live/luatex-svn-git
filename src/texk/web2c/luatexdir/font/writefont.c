@@ -31,6 +31,8 @@ extern void writet1c(fd_entry * fd); /* in writecff.c */
 #endif
 
 extern void writet1w   (fd_entry * fd); /* in writecff.c */
+extern integer write_cid_tounicode(fo_entry * fo, internalfontnumber f); /* in tounicode.c */
+
 
 void write_cid_fontdictionary(fo_entry * fo, internalfontnumber f);
 void create_cid_fontdictionary(fm_entry * fm, integer font_objnum, internalfontnumber f);
@@ -836,6 +838,8 @@ void write_cid_fontdictionary(fo_entry * fo, internalfontnumber f)
 {
     int i;
 
+    fo->tounicode_objnum = write_cid_tounicode(fo,f);
+
     pdf_begin_dict(fo->fo_objnum, 1);
     pdf_puts("/Type /Font\n");
     pdf_puts("/Subtype /Type0\n");
@@ -844,10 +848,9 @@ void write_cid_fontdictionary(fo_entry * fo, internalfontnumber f)
     i  = pdf_new_objnum();
     pdf_printf("/DescendantFonts [%i 0 R]\n", i);
     /* todo: the ToUnicode CMap */
-    /*
-      if (fo->tounicode_objnum != 0)
-        pdf_printf("/ToUnicode %i 0 R\n", (int) fo->tounicode_objnum);
-    */
+	if (fo->tounicode_objnum != 0)
+	  pdf_printf("/ToUnicode %i 0 R\n", (int) fo->tounicode_objnum);
+    
     pdf_end_dict();
 
     pdf_begin_dict(i, 1);
