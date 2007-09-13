@@ -11280,8 +11280,12 @@ if cur_tok<cs_token_flag then
   end
 else if cur_tok<cs_token_flag+null_cs then
   cur_val:=cur_tok-cs_token_flag-active_base
-else {the value of a csname in this context is its name}
-  cur_val:=pool_to_unichar(str_start_macro(text(cur_tok-cs_token_flag)));
+else begin {the value of a csname in this context is its name}
+  if single_letter(text(cur_tok-cs_token_flag)) then
+    cur_val:=pool_to_unichar(str_start_macro(text(cur_tok-cs_token_flag)))
+  else
+    cur_val:=too_big_char;
+end;
 if cur_val>biggest_char then
   begin print_err("Improper alphabetic constant");
 @.Improper alphabetic constant@>
