@@ -822,12 +822,59 @@ double cff_dict_get (cff_dict *dict, const char *key, int idx)
   return value;
 }
 
+card8 cff_fdselect_lookup (cff_font *cff, card16 gid)
+{
+  card8 fd = 0xff;
+  cff_fdselect *fdsel;
+
+  if (cff->fdselect == NULL)
+    CFF_ERROR("in cff_fdselect_lookup(): FDSelect not available");
+
+  fdsel = cff->fdselect;
+
+  if (gid >= cff->num_glyphs)
+    CFF_ERROR("in cff_fdselect_lookup(): Invalid glyph index");
+
+  switch (fdsel->format) {
+  case 0:
+    fd = fdsel->data.fds[gid];
+    break;
+  case 3:
+    {
+      if (gid == 0) {
+	fd = (fdsel->data).ranges[0].fd;
+      } else {
+	card16 i;
+	for (i=1;i<(fdsel->num_entries);i++) {
+	  if (gid < (fdsel->data).ranges[i].first)
+	    break;
+	}
+	fd = (fdsel->data).ranges[i-1].fd;
+      }
+    }
+    break;
+  default:
+    CFF_ERROR("in cff_fdselect_lookup(): Invalid FDSelect format");
+    break;
+  }
+
+  if (fd >= cff->num_fds)
+    CFF_ERROR("in cff_fdselect_lookup(): Invalid Font DICT index");
+
+  return fd;
+}
+
 long cff_read_subrs (cff_font *cff)
 {
   long len = 0;
   long offset;
   int i;
 
+  /*
+  if ((cff->flag & FONTTYPE_CIDFONT) && cff->fdselect == NULL) {
+    cff_read_fdselect(cff);
+  }
+  */
   if ((cff->flag & FONTTYPE_CIDFONT) && cff->fdarray == NULL) {
     cff_read_fdarray(cff);
   }
@@ -2589,6 +2636,60 @@ long cff_pack_encoding (cff_font *cff, card8 *dest, long destlen)
   return len;
 }
 
+/* CID-Keyed font specific */
+long cff_read_fdselect (cff_font *cff)
+{
+  cff_fdselect *fdsel;
+  long offset, length;
+  card16 i;
+
+  if (cff->topdict == NULL)
+    CFF_ERROR("Top DICT not available");
+
+  if (!(cff->flag & FONTTYPE_CIDFONT))
+    return 0;
+
+  offset = (long) cff_dict_get(cff->topdict, "FDSelect", 0);
+  cff->offset = offset;
+  cff->fdselect = fdsel = xcalloc(1, sizeof(cff_fdselect));
+  fdsel->format = get_card8(cff);
+
+  length = 1;
+
+  switch (fdsel->format) {
+  case 0:
+    fdsel->num_entries = cff->num_glyphs;
+    (fdsel->data).fds = xcalloc(fdsel->num_entries, sizeof(card8));
+    for (i=0;i<(fdsel->num_entries);i++) {
+      (fdsel->data).fds[i] = get_card8(cff);
+    }
+    length += fdsel->num_entries;
+    break;
+  case 3:
+    {
+      cff_range3 *ranges;
+      fdsel->num_entries = get_card16(cff);
+      fdsel->data.ranges = ranges = xcalloc(fdsel->num_entries, sizeof(cff_range3));
+      for (i=0;i<(fdsel->num_entries);i++) {
+	ranges[i].first = get_card16(cff);
+	ranges[i].fd = get_card8(cff);
+      }
+      if (ranges[0].first != 0)
+	CFF_ERROR("Range not starting with 0.");
+      if (cff->num_glyphs != get_card16(cff))
+	CFF_ERROR("Sentinel value mismatched with number of glyphs.");
+      length += (fdsel->num_entries) * 3 + 4;
+    }
+    break;
+  default:
+    xfree(fdsel);
+    CFF_ERROR("Unknown FDSelect format.");
+    break;
+  }
+
+  return length;
+}
+
 
 long cff_pack_fdselect (cff_font *cff, card8 *dest, long destlen)
 {
@@ -2673,15 +2774,15 @@ write_fontfile (cff_font *cffont, char *fullname)
     size = 0;
     if (cffont->private && cffont->private[i]) {
       size = cff_dict_pack(cffont->private[i],
-			   (card8 *) work_buffer, WORK_BUFFER_SIZE);
+						   (card8 *) work_buffer, WORK_BUFFER_SIZE);
       if (size < 1) { /* Private had contained only Subr */
-	cff_dict_remove(cffont->fdarray[i], "Private");
+		cff_dict_remove(cffont->fdarray[i], "Private");
       }
     }
     (private->offset)[i+1] = (private->offset)[i] + size;
     (fdarray->offset)[i+1] = (fdarray->offset)[i] +
       cff_dict_pack(cffont->fdarray[i],
-		    (card8 *) work_buffer, WORK_BUFFER_SIZE);
+					(card8 *) work_buffer, WORK_BUFFER_SIZE);
   }
 
   destlen = 4; /* header size */
@@ -2762,19 +2863,6 @@ write_fontfile (cff_font *cffont, char *fullname)
   xfree(dest);
   return ;
 }
-
-
- 
-
-/* remarkably little needs to be changed in the CFF, because
-   we can't alter the encoding. The CIDs in the PDF will be used
-   as straight indexes into CHARSTRINGS, so the best we can do
-   for subsetting is to remove the actual charstrings (and their
-   subs, but do that later)
-
-   The only other thing is the deletion of  "UniqueID" and "XUID"
-   from the topdict.
-*/
 
 
 /* if the CFF data was converted from an old type1 font, then the .notdef 
@@ -2993,34 +3081,238 @@ void write_cff(cff_font *cffont, fd_entry *fd, int uglytype1fix) {
 
 }
 
+
+void write_cid_cff(cff_font *cffont, fd_entry *fd, int uglytype1fix) {
+  cff_index    *charstrings, *topdict, *cs_idx;
+  long          topdict_offset, private_size, subrs_size;
+  long          charstring_len, max_len;
+  long          size, offset = 0;
+  long          stream_data_len = 0;
+  card8        *stream_data_ptr, *data;
+  card16        num_glyphs, cs_count, code, gid, last_cid;
+  double        nominal_width, default_width;
+  int           verbose;
+  char         *fullname;
+  long          i, cid;
+  glw_entry    *glyph, *found;
+  struct avl_traverser t;
+
+  cff_charsets *charset  = NULL;
+  cff_encoding *encoding = NULL;
+  
+  fullname = xcalloc(8+strlen(fd->fontname),1);
+  sprintf(fullname,"%s+%s",fd->subset_tag,fd->fontname);
+
+  /* finish parsing the CFF */
+  cff_read_private(cffont);
+  cff_read_subrs  (cffont);
+
+  /*
+   * Widths
+   */
+  if (cffont->private[0] &&
+      cff_dict_known(cffont->private[0], "defaultWidthX")) {
+    default_width = (double) cff_dict_get(cffont->private[0], "defaultWidthX", 0);
+  } else {
+    default_width = CFF_DEFAULTWIDTHX_DEFAULT;
+  }
+  if (cffont->private[0] &&
+      cff_dict_known(cffont->private[0], "nominalWidthX")) {
+    nominal_width = (double) cff_dict_get(cffont->private[0], "nominalWidthX", 0);
+  } else {
+    nominal_width = CFF_NOMINALWIDTHX_DEFAULT;
+  }
+
+  num_glyphs = 0; 
+  last_cid = 0;  
+  glyph = xtalloc(1,glw_entry);
+
+  /* insert notdef */   
+  glyph->id = uglytype1fix;
+  if (avl_find(fd->gl_tree, glyph)==NULL) {
+	/*fprintf(stderr,"seeding .notdef at %i\n",uglytype1fix);*/
+    avl_insert(fd->gl_tree, glyph);
+    glyph = xtalloc(1,glw_entry);
+  }
+
+
+  avl_t_init(&t, fd->gl_tree);
+  for (found = (glw_entry *) avl_t_first(&t, fd->gl_tree); 
+       found != NULL; 
+       found = (glw_entry *) avl_t_next(&t)) {
+    if (found->id > last_cid)
+      last_cid = found->id;
+    num_glyphs++;
+  }
+
+  {
+    cff_fdselect *fdselect;
+
+    fdselect = xcalloc(1, sizeof(cff_fdselect));
+    fdselect->format = 3;
+    fdselect->num_entries = 1;
+    fdselect->data.ranges = xcalloc(num_glyphs, sizeof(cff_range3));
+    cffont->fdselect = fdselect;
+  }
+
+  {
+    cff_charsets *charset;
+
+    charset  = xcalloc(1, sizeof(cff_charsets));
+    charset->format = 0;
+    charset->num_entries = num_glyphs-1;
+    charset->data.glyphs = xcalloc(num_glyphs, sizeof(s_SID));
+
+    gid = 0;
+
+    avl_t_init(&t, fd->gl_tree);
+    for (found = (glw_entry *) avl_t_first(&t, fd->gl_tree); 
+	 found != NULL; 
+	 found = (glw_entry *) avl_t_next(&t)) {      
+	  if(found->id!=0) { 
+		charset->data.glyphs[gid] = found->id;
+		gid++;
+      }
+    }
+    cffont->charsets = charset;
+  }
+
+  cff_dict_add(cffont->topdict, "CIDCount", 1);
+  cff_dict_set(cffont->topdict, "CIDCount", 0, last_cid + 1);
+  cffont->num_fds = 1;  /* TH: need to force this */
+  cffont->fdarray    = xcalloc(1, sizeof(cff_dict *));
+  cffont->fdarray[0] = cff_new_dict();
+  cff_dict_add(cffont->fdarray[0], "FontName", 1);
+  cff_dict_set(cffont->fdarray[0], "FontName", 0,
+	       (double) cff_add_string(cffont, fullname)); /* FIXME: Skip XXXXXX+ */
+  cff_dict_add(cffont->fdarray[0], "Private", 2);
+  cff_dict_set(cffont->fdarray[0], "Private", 0, 0.0);
+  cff_dict_set(cffont->fdarray[0], "Private", 0, 0.0);
+  /* FDArray  - index offset, not known yet */
+  cff_dict_add(cffont->topdict, "FDArray", 1);
+  cff_dict_set(cffont->topdict, "FDArray", 0, 0.0);
+  /* FDSelect - offset, not known yet */
+  cff_dict_add(cffont->topdict, "FDSelect", 1);
+  cff_dict_set(cffont->topdict, "FDSelect", 0, 0.0);
+
+  cff_dict_remove(cffont->topdict, "UniqueID");
+  cff_dict_remove(cffont->topdict, "XUID");
+  cff_dict_remove(cffont->topdict, "Private");
+  cff_dict_remove(cffont->topdict, "Encoding");
+
+  cffont->offset = cff_dict_get(cffont->topdict, "CharStrings", 0);
+  cs_idx = cff_get_index_header(cffont);
+
+  offset   = cffont->offset;
+  cs_count = cs_idx->count;
+  if (cs_count < 2) {
+    CFF_ERROR("No valid charstring data found.");
+  }
+
+  /* build the new charstrings entry */ 
+  charstrings       = cff_new_index(cs_count+1);
+  max_len           = 2 * CS_STR_LEN_MAX;
+  charstrings->data = xcalloc(max_len, sizeof(card8));
+  charstring_len    = 0;
+
+  gid = 0;
+  data = xcalloc(CS_STR_LEN_MAX, sizeof(card8));
+
+  for (code=0; code < cs_count; code++) {
+    unsigned short gid_org;
+	glyph->id = code;
+    if ((avl_find(fd->gl_tree,glyph) != NULL)) {
+      size = cs_idx->offset[code+1] - cs_idx->offset[code];
+	  if (size > CS_STR_LEN_MAX) {
+		pdftex_fail("Charstring too long: gid=%u, %ld bytes", code, size);
+      }
+      if (charstring_len + CS_STR_LEN_MAX >= max_len) {
+		max_len = charstring_len + 2 * CS_STR_LEN_MAX;
+		charstrings->data = xrealloc(charstrings->data, max_len*sizeof(card8));
+      }
+      (charstrings->offset)[gid] = charstring_len + 1;
+      cffont->offset= offset + (cs_idx->offset)[code] - 1;
+      memcpy(data,&cffont->stream[cffont->offset],size);
+	  
+      charstring_len += cs_copy_charstring(charstrings->data + charstring_len,
+					   max_len - charstring_len,
+					   data, size,
+					   cffont->gsubr, (cffont->subrs)[0],
+					   default_width, nominal_width, NULL);
+	  /*
+    if (cid > 0 && gid_org > 0) {
+      charset->data.glyphs[charset->num_entries] = cid;
+      charset->num_entries += 1;
+    }
+	  *//*
+    if (fdsel != prev_fd) {
+	  
+      cffont->fdselect->data.ranges[cffont->fdselect->num_entries].first = gid;
+      cffont->fdselect->data.ranges[cffont->fdselect->num_entries].fd    = fdsel;
+	  fprintf(stderr,"fdselect->data.ranges[%i]={first=%i,fd=%i}", cffont->fdselect->num_entries, gid, fdsel);
+      cffont->fdselect->num_entries += 1;
+      prev_fd = fdsel;
+    }
+	 */
+
+      gid++;
+    }
+  }
+  
+  /* */ 
+  /*fprintf(stderr,"gid=%i, num_glyphs=%i", gid, num_glyphs);*/
+  
+  if (gid != num_glyphs)
+    CFF_ERROR("Unexpected error: %i != %i", gid, num_glyphs);
+  
+  xfree(data);
+  cff_release_index(cs_idx);
+  
+  (charstrings->offset)[num_glyphs] = charstring_len + 1;
+  charstrings->count = num_glyphs;
+  cffont->num_glyphs = num_glyphs;
+  cffont->cstrings      = charstrings;
+
+  /*
+   * We don't use subroutines at all.
+   */
+  if (cffont->gsubr)
+    cff_release_index(cffont->gsubr);
+  cffont->gsubr = cff_new_index(0);
+
+  if (cffont->subrs && cffont->subrs[0])
+    cff_release_index(cffont->subrs[0]);
+  cffont->subrs[0] = NULL;
+
+  if (cffont->private && (cffont->private)[0]) {
+    cff_dict_remove((cffont->private)[0], "Subrs"); /* no Subrs */
+  }
+
+  cff_add_string(cffont, (char *)"Adobe");
+  cff_add_string(cffont, (char *)"Identity");
+
+  cff_dict_update(cffont->topdict, cffont);
+  cff_dict_update(cffont->private[0], cffont);
+  cff_update_string(cffont);
+
+  /* CFF code need to be rewrote... */
+  cff_dict_add(cffont->topdict, "ROS", 3);
+  cff_dict_set(cffont->topdict, "ROS", 0,
+	       (double) cff_get_sid(cffont, (char *)"Adobe"));
+  cff_dict_set(cffont->topdict, "ROS", 1,
+	       (double) cff_get_sid(cffont, (char *)"Identity"));
+  cff_dict_set(cffont->topdict, "ROS", 2, 0.0);
+
+  write_fontfile(cffont,fullname);
+  xfree(fullname);
+  cff_close (cffont);
+
+}
+
+
 /* not finished yet */
 
 void writet1c (fd_entry *fd) {
-  cff_font *cffont;
-  FILE *fp;
-  ff_entry *ff;
-
-  ff = check_ff_exist(fd->fm->ff_name, 0);
-    
-  fp = xfopen (ff->ff_path, "rb");
-  cur_file_name = ff->ff_path;
-
-  if (!fp) {
-    fprintf(stderr,"Type1: Could not open Type1 font: %s", cur_file_name);
-    uexit(1);
-  }
-
-  /* this is the main point: it converts the Type1 source to CFF */
-  /*
-    cffont = t1_load_font(NULL, 0, fp);
-  */
-
-  if (!cffont) {
-    fprintf(stderr,"Could not load Type 1 font: %s", cur_file_name);
-    uexit(1);
-  }
-  fclose(fp);
-  write_cff(cffont,fd,1);
 }
 
 /* here is a sneaky trick: fontforge knows how to convert Type1 to CFF, so 
