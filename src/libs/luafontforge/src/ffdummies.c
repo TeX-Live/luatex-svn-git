@@ -18,6 +18,8 @@
 
 #include "ttf.h" /* for macsettingname */
 
+void _gwwv_post_error(const char *fmt, va_list ap) ;
+
 /* some Gdraw routines for filesystem access */
 
 
@@ -2338,17 +2340,14 @@ int unic_tolower (int c) {
 char **gww_errors = NULL;
 int gww_error_count = 0;
 
-void gwwv_post_error(char *fmt, ...) { 
+void _gwwv_post_error(const char *fmt, va_list args) { 
   char *buf;
-  va_list args;
   buf = malloc(1024);
   if (buf==NULL) {
 	perror("memory allocation failed");
 	exit(EXIT_FAILURE);
   }
-  va_start (args, fmt);
   vsnprintf(buf,1024,fmt,args);
-  va_end (args);
   gww_errors = realloc(gww_errors, (gww_error_count+2)*sizeof(char *));
   if (gww_errors==NULL) {
 	perror("memory allocation failed");
@@ -2359,6 +2358,14 @@ void gwwv_post_error(char *fmt, ...) {
   gww_errors[gww_error_count ] = NULL;
 
 }
+
+void gwwv_post_error(const char *fmt, ...) { 
+  va_list args;
+  va_start (args, fmt);
+  _gwwv_post_error(fmt,args);
+  va_end (args);
+}
+
 
 void gwwv_errors_free (void) { 
   int i;
@@ -5033,22 +5040,29 @@ void IError(const char *format,...) {
 	exit(EXIT_FAILURE);
   }
   sprintf(newf,"%s%s",ierr,format);
-  gwwv_post_error(newf,ap);
+  _gwwv_post_error(newf,ap);
   va_end(ap);
 }
 
 void LogError(const char *format,...) {
     va_list ap;
     va_start(ap,format);
-    gwwv_post_error((char *)format,ap);
+    _gwwv_post_error(format,ap);
     va_end(ap);
 }
 
 void ff_post_notice(const char *title,const char *statement,...) {
-    va_list ap;
-    va_start(ap,statement);
-	gwwv_post_error((char *)statement,ap);
-    va_end(ap);
+  char *newf;
+  va_list ap;
+  va_start(ap,statement);
+  newf = malloc(strlen(statement)+strlen(title)+3);
+  if (newf==NULL) {
+	perror("memory allocation failed");
+	exit(EXIT_FAILURE);
+  }
+  sprintf(newf,"%s: %s",title,statement);
+  _gwwv_post_error(newf,ap);
+  va_end(ap);
 }
 
 
