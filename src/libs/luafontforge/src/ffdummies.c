@@ -2335,9 +2335,45 @@ int unic_tolower (int c) {
 
 /* some error and process reporting stuff */
 
-void gwwv_post_error(char *a, ...) { }
+char **gww_errors = NULL;
+int gww_error_count = 0;
+
+void gwwv_post_error(char *fmt, ...) { 
+  char *buf;
+  va_list args;
+  buf = malloc(1024);
+  if (buf==NULL) {
+	perror("memory allocation failed");
+	exit(EXIT_FAILURE);
+  }
+  va_start (args, fmt);
+  vsnprintf(buf,1024,fmt,args);
+  va_end (args);
+  gww_errors = realloc(gww_errors, (gww_error_count+2)*sizeof(char *));
+  if (gww_errors==NULL) {
+	perror("memory allocation failed");
+	exit(EXIT_FAILURE);
+  }
+  gww_errors[gww_error_count ] = buf ;
+  gww_error_count ++;
+  gww_errors[gww_error_count ] = NULL;
+
+}
+
+void gwwv_errors_free (void) { 
+  int i;
+  if (gww_error_count>0) {
+	for (i=0;i<gww_error_count;i++) {
+	  free(gww_errors[i]);
+	}
+	free(gww_errors);
+	gww_error_count = 0;
+	gww_errors = NULL;
+  }
+}
+
+void gwwv_post_notice (char *fmt, ...) { }
 void gwwv_ask (char *a) { }
-void gwwv_post_notice (char *a, ...) { }
 void gwwv_progress_change_line1 (char *a) { }
 void gwwv_progress_change_line2 (char *b) { }
 void gwwv_progress_next (void){ }
@@ -4987,72 +5023,31 @@ return( angle );
 /* from uiutil.c */
 
 void IError(const char *format,...) {
-    va_list ap;
-#if defined( FONTFORGE_CONFIG_NO_WINDOWING_UI )
-    va_start(ap,format);
-    fprintf(stderr, "Internal Error: " );
-    vfprintf(stderr,format,ap);
-#elif defined( FONTFORGE_CONFIG_GDRAW )
-    char buffer[300];
-    va_start(ap,format);
-    vsnprintf(buffer,sizeof(buffer),format,ap);
-    GDrawIError("%s",buffer);
-#elif defined( FONTFORGE_CONFIG_GTK )
-    char buffer[340];
-    int len;
-    va_start(ap,format);
-    strcpy(buffer,_("Internal Error: "));
-    len = strlen(buffer);
-    vsnprintf(buffer+len,sizeof(buffer)-len,format,ap);
-#endif
-    va_end(ap);
-}
-
-
-static void _LogError(const char *format,va_list ap) {
-    char buffer[400], *str;
-    vsnprintf(buffer,sizeof(buffer),format,ap);
-#if defined( FONTFORGE_CONFIG_NO_WINDOWING_UI )
-    str = copy(buffer);
-    fprintf(stderr,"%s",str);
-    free(str);
-#else
-    if ( no_windowing_ui ) {
-	str = utf82def_copy(buffer);
-	fprintf(stderr,"%s",str);
-	free(str);
-    } else {
-	if ( !ErrorWindowExists())
-	    CreateErrorWindow();
-	AppendToErrorWindow(buffer);
-	ShowErrorWindow();
-    }
-#endif
+  char *newf;
+  va_list ap;
+  const char *ierr = "Internal Error: ";
+  va_start(ap,format);
+  newf = malloc(strlen(format)+strlen(ierr)+1);
+  if (newf==NULL) {
+	perror("memory allocation failed");
+	exit(EXIT_FAILURE);
+  }
+  sprintf(newf,"%s%s",ierr,format);
+  gwwv_post_error(newf,ap);
+  va_end(ap);
 }
 
 void LogError(const char *format,...) {
     va_list ap;
-
     va_start(ap,format);
-    _LogError(format,ap);
+    gwwv_post_error((char *)format,ap);
     va_end(ap);
 }
 
 void ff_post_notice(const char *title,const char *statement,...) {
     va_list ap;
     va_start(ap,statement);
-#if defined( FONTFORGE_CONFIG_NO_WINDOWING_UI )
-    _LogError(statement,ap);
-#else
-    if ( no_windowing_ui ) {
-	_LogError(statement,ap);
-    } else {
-	if ( GWidgetPostNoticeActive8(title))
-	    _LogError(statement,ap);
-	else
-	    _GWidgetPostNotice8(title,statement,ap);
-    }
-#endif
+	gwwv_post_error((char *)statement,ap);
     va_end(ap);
 }
 

@@ -13,6 +13,10 @@
 
 extern void  LoadPrefs(void);
 
+extern char **gww_errors;
+extern int gww_error_count;
+extern void gwwv_errors_free (void);
+
 #define FONT_METATABLE "fontforge.splinefont"
 
 #define LUA_OTF_VERSION "0.2"
@@ -104,7 +108,7 @@ ff_open (lua_State *L) {
   FILE *l;
   char s[511];
   size_t len;
-  int args ;
+  int args,i ;
   int openflags = 1;
   fontname = luaL_checkstring(L,1);
   /* test fontname for existance */
@@ -135,12 +139,22 @@ ff_open (lua_State *L) {
 	  lua_error(L);
 	} else {
 	  lua_ff_pushfont(L,sf);
+	  if (gww_error_count>0) {
+		lua_newtable(L);
+		for (i=0;i<gww_error_count;i++) {
+		  lua_pushstring(L,gww_errors[i]);
+		  lua_rawseti(L,-2,(i+1));
+		}
+		gwwv_errors_free();
+	  } else {
+		lua_pushnil(L);
+	  }
 	}
   } else {
 	lua_pushfstring(L,"font loading failed: empty string given\n", fontname);
 	lua_error(L);
   }
-  return 1;
+  return 2;
 }
 
 
