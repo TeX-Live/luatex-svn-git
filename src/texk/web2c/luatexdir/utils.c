@@ -1115,8 +1115,8 @@ void initversionstring(char **versions)
   /* TH this code used to use asprintf(). It should really calculate
      the required size properly, but they are all static version 
 	 strings, so 1k should be plenty. */
-  versions = xmalloc(1024);
-  (void) sprintf(versions,
+  *versions = xmalloc(1024);
+  (void) sprintf(*versions,
 				 "Compiled with libpng %s; using libpng %s\n"
 				 "Compiled with zlib %s; using zlib %s\n"
 				 "Compiled with xpdf version %s\n",
