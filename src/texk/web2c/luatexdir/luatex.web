@@ -12737,7 +12737,7 @@ which is a recursive procedure.
 label exit,common_ending;
 var b:boolean; {is the condition true?}
 @!r:"<"..">"; {relation to be evaluated}
-@!m,@!n:integer; {to be tested against the second operand}
+@!m,@!n,@!s:integer; {to be tested against the second operand}
 @!p,@!q:pointer; {for traversing token lists in \.{\\ifx} tests}
 @!save_scanner_status:small_number; {|scanner_status| upon entry}
 @!save_cond_ptr:pointer; {|cond_ptr| corresponding to this conditional}
@@ -39337,12 +39337,31 @@ if_cs_code:begin n:=get_avail; p:=n; {head of the list of characters}
 m:=first; p:=link(n);
 while p<>null do
   begin if m>=max_buf_stack then
-    begin max_buf_stack:=m+1;
+    begin max_buf_stack:=m+4;
     if max_buf_stack=buf_size then
       check_buffer_overflow(max_buf_stack);
 @:TeX capacity exceeded buffer size}{\quad buffer size@>
     end;
-  buffer[m]:=info(p) mod @'400; incr(m); p:=link(p);
+  s := info(p) mod string_offset;
+  if s <= @"7F then begin
+    buffer[m]:=s; incr(m);
+    end
+  else if s<=@"7FF then begin
+    buffer[m]:=@"C0 + s div @"40; incr(m);
+    buffer[m]:=@"80 + s mod @"40; incr(m);
+    end
+  else if s<=@"FFFF then begin
+    buffer[m]:=@"E0 + s div @"1000; incr(m);
+    buffer[m]:=@"80 + (s mod @"1000) div @"40; incr(m);
+    buffer[m]:=@"80 + (s mod @"1000) mod @"40; incr(m);
+    end 
+  else begin
+    buffer[m]:=@"F0 + s div @"40000;  incr(m);
+    buffer[m]:=@"80 + (s mod @"40000) div @"1000;  incr(m);
+    buffer[m]:=@"80 + ((s mod @"40000) mod @"1000) div @"40;  incr(m);
+    buffer[m]:=@"80 + ((s mod @"40000) mod @"1000) mod @"40;  incr(m);
+    end;
+  p:=link(p); 
   end;
 if m>first then
   cur_cs:=id_lookup(first,m-first) {|no_new_control_sequence| is |true|}
