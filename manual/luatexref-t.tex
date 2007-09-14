@@ -3775,9 +3775,6 @@ Values for \type{embedding} are:
 \NC full      \NC include this font in it's entirety \NC\NR
 \stoptabulate
 
-At the moment, \type{subset} only works for non|-|\CID\ fonts. These
-are essentially  treated as if \type{full} was specified.
-
 It is not possible to artificially modify the transformation matrix
 for the font at the moment.
 
@@ -4861,6 +4858,16 @@ going to be replaced by a new subsystem soon anyway, or it may not
 be worth the hassle and the limitations will eventually be documented.
 
 \startitemize
+
+\item Some particular CID fonts (e.g. KozMinProIV-Regular.otf) give
+problems when subsetting is turned on.
+
+\item Sometimes font loading via fontforge generates a message like this
+\starttyping
+Bad call to gww_iconv_open, neither arg is UCS4 (EUC-CN->UTF-8)
+\stoptyping
+during font loading. This is a limitation of the internal iconv
+implementation.
 
 \item Hyphenation can only deal with the Base Multilingual Plane (BMP)
 
