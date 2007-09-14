@@ -10,7 +10,7 @@
  
 \setvariables
   [document]
-  [snapshot=2007-09-13]
+  [snapshot=2007-09-14]
 
 \starttext
 
@@ -2828,8 +2828,14 @@ myfont = load_font('/opt/tex/texmf/fonts/data/arial.ttf')
 The main function call is
 
 \startfunctioncall
-local f = fontforge.open('filename')
+f, w = fontforge.open('filename')
 \stopfunctioncall
+
+The first return value is a table representation of the font. The
+second return value is a table containing any warnings and errors
+reported by fontforge while opening the font. In normal typesetting,
+you would probably ignore the second argument, but it can be useful
+for debugging purposes.
 
 For \TRUETYPE\ collections (when filename ends in 'ttc'), you have to
 use a second string argument to specify which font you want from the
@@ -2837,7 +2843,7 @@ collection.  Use one of the \type{fullname} strings that are returned
 by \type{fontforge.info} for that.
 
 \startfunctioncall
-local f = fontforge.open('filename','fullname')
+f, w = fontforge.open('filename','fullname')
 \stopfunctioncall
 
 
