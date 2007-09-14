@@ -8,7 +8,7 @@ kpse_include ../make/library.mk
 kpathsea_srcdir_parent = $(srcdir)/../..
 kpathsea_dir_parent = ../..
 
-ALL_CXXFLAGS = @CXXFLAGS@ @DEFS@ $(XXCFLAGS) -I. -I$(srcdir) -I$(kpathsea_dir_parent) -I$(kpathsea_srcdir_parent) @LIBXPDFCPPFLAGS@ -I$(LIBOBSDCOMPATDIR) -I$(LIBOBSDCOMPATDIR)/.. -I$(LIBOBSDCOMPATFSRCDIR) -I$(LIBOBSDCOMPATFSRCDIR)/..
+ALL_CXXFLAGS = @CXXFLAGS@ @DEFS@ $(XXCFLAGS) -I. -I$(srcdir) -I$(kpathsea_dir_parent) -I$(kpathsea_srcdir_parent) @LIBXPDFCPPFLAGS@
 CXX = @CXX@
 
 .SUFFIXES: .cc .o
@@ -29,14 +29,10 @@ LIBXPDFSRCDIR=$(srcdir)/$(LIBXPDFDIR)
 LIBMD5DIR=../../../libs/md5
 LIBMD5SRCDIR=$(srcdir)/$(LIBMD5DIR)
 
-LIBOBSDCOMPATDIR=../../../libs/obsdcompat
-LIBOBSDCOMPATFSRCDIR=$(srcdir)/$(LIBOBSDCOMPATDIR)
-
 XCPPFLAGS=-I.. -I$(srcdir)/.. -I../.. -I$(srcdir)/../.. -I$(LIBMD5DIR) \
   -I$(LIBMD5SRCDIR) @LIBPNGCPPFLAGS@ @ZLIBCPPFLAGS@ \
   -I$(LIBXPDFDIR) -I$(LIBXPDFDIR)/.. -I$(LIBXPDFSRCDIR) -I$(LIBXPDFSRCDIR)/.. \
-  -I$(LIBOBSDCOMPATDIR) -I$(LIBOBSDCOMPATDIR)/.. -I$(LIBOBSDCOMPATFSRCDIR) \
-  -I$(LIBOBSDCOMPATFSRCDIR)/.. -DpdfTeX
+  -DpdfTeX
 
 
 OBJS = \

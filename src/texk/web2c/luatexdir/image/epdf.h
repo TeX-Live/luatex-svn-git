@@ -44,7 +44,7 @@ extern "C" {
 
 #include <web2c/luatexdir/ptexmac.h>
 
-#include "openbsd-compat.h"
+
 
 /* #-define pdfbufsize      pdfbufmax */
 

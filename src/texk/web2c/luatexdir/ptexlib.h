@@ -38,8 +38,6 @@ $Id: //depot/Build/source.development/TeX/texk/web2c/luatexdir/ptexlib.h#26 $
 /* avl */
 #  include "avlstuff.h"
 
-#  include "openbsd-compat.h"
-
 /* pdftexlib type declarations */
 typedef struct {
     const char *pdfname;
