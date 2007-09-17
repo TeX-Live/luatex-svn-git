@@ -6143,7 +6143,7 @@ that will be defined later.
 @d last_line_fit_code=etex_int_base+6 {adjustment for last line of paragraph}
 @d saving_vdiscards_code=etex_int_base+7 {save items discarded from vlists}
 @d saving_hyph_codes_code=etex_int_base+8 {save hyphenation codes for languages}
-@d no_fontnotfound_error_code=etex_int_base+9 {surpress errors for missing fonts}
+@d suppress_fontnotfound_error_code=etex_int_base+9 {surpress errors for missing fonts}
 @d etex_int_pars=etex_int_base+10 {total number of \eTeX's integer parameters}
 @#
 @d int_pars=etex_int_pars {total number of integer parameters}
@@ -6263,7 +6263,7 @@ that will be defined later.
 @d last_line_fit==int_par(last_line_fit_code)
 @d saving_vdiscards==int_par(saving_vdiscards_code)
 @d saving_hyph_codes==int_par(saving_hyph_codes_code)
-@d no_fontnotfound_error==int_par(no_fontnotfound_error_code)
+@d suppress_fontnotfound_error==int_par(suppress_fontnotfound_error_code)
 
 @<Assign the values |depth_threshold:=show_box_depth|...@>=
 depth_threshold:=show_box_depth;
@@ -7003,9 +7003,9 @@ function get_toks_base:halfword;
 begin
   get_toks_base := toks_base;
 end;
-function get_no_fontnotfound_error:boolean;
+function get_suppress_fontnotfound_error:boolean;
 begin
-  get_no_fontnotfound_error := no_fontnotfound_error;
+  get_suppress_fontnotfound_error := suppress_fontnotfound_error;
 end;
 
 
@@ -38580,8 +38580,8 @@ primitive("savingvdiscards",assign_int,int_base+saving_vdiscards_code);@/
 @!@:saving_vdiscards_}{\.{\\savingvdiscards} primitive@>
 primitive("savinghyphcodes",assign_int,int_base+saving_hyph_codes_code);@/
 @!@:saving_hyph_codes_}{\.{\\savinghyphcodes} primitive@>
-primitive("nofontnotfounderror",assign_int,int_base+no_fontnotfound_error_code);@/
-@!@:no_fontnotfound_error_codes_}{\.{\\nofontnotfounderror} primitive@>
+primitive("suppressfontnotfounderror",assign_int,int_base+suppress_fontnotfound_error_code);@/
+@!@:suppress_fontnotfound_error_codes_}{\.{\\suppressfontnotfounderror} primitive@>
 
 @ @d every_eof==equiv(every_eof_loc)
 
@@ -38598,7 +38598,7 @@ pre_display_direction_code:print_esc("predisplaydirection");
 last_line_fit_code:print_esc("lastlinefit");
 saving_vdiscards_code:print_esc("savingvdiscards");
 saving_hyph_codes_code:print_esc("savinghyphcodes");
-no_fontnotfound_error_code:print_esc("nofontnotfounderror");
+suppress_fontnotfound_error_code:print_esc("suppressfontnotfounderror");
 
 @ In order to handle \.{\\everyeof} we need an array |eof_seen| of
 boolean variables.

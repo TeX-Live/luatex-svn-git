@@ -157,7 +157,7 @@ read_font_info(pointer u,  strnumber nom, strnumber aire, scaled s,
 		    "You might try inserting a different font spec;",
 		    "e.g., type `I\font<same font id>=<substitute font name>'.",
 		    NULL } ;
-	if(!get_no_fontnotfound_error()) {
+	if(!get_suppress_fontnotfound_error()) {
 	  msg = font_error_message(u, cnom, s);
 	  tex_error(msg,help);
 	  free(msg);
