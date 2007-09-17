@@ -10,7 +10,7 @@
  
 \setvariables
   [document]
-  [snapshot=2007-09-14]
+  [snapshot=2007-09-17]
 
 \starttext
 
@@ -454,6 +454,18 @@ are all treated as if they were made in the outermost level.
 The new table is allocated globally: it will not go away after the
 current group has ended. If the supplied number is the currently
 active table, an error is raised.
+
+\subsection{\tex{nofontnotfounderror}}
+
+\startsyntax
+\nofontnotfounderror = 1
+\stopsyntax
+
+If this new integer parameter is non-zero, then \LUATEX\ will not
+complain about font metrics that are not found. Instead it will
+silently skip the font assignment, making the requested csname for the
+font \type{\ifx} equal to \type{\nullfont}, so that it can be tested
+against that without bothering the user.
 
 \subsection{Font syntax}
 
@@ -4938,11 +4950,13 @@ equivalence table (a small subpart is implementing \type{\csname}
 lookups for \type{tex.box} access).
 
 \item Integrate the various \PDFTEX\ extended font codes for hz en protruding into
-the font table
+the font table.
 
-\item Use of Type1C for embedded PostScript font subsets.
+\item Use of Type1C for embedded PostScript font subsets in
+traditional 8-bit encodings.
 
-\item Support font reencoding of 8-bit fonts via char index.
+\item Support font reencoding of 8-bit fonts via char index instead of
+via map files.
 
 \item Attempt to parse OFM level~0 fonts that are masquerading as level~1.
 
