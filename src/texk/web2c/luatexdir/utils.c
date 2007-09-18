@@ -36,7 +36,7 @@ $Id: //depot/Build/source.development/TeX/texk/web2c/pdftexdir/utils.c#24 $
 #include "zlib.h"
 #include "ptexlib.h"
 
-
+#include "openbsd-compat.h"
 #include "png.h"
 #include "xpdf/config.h"        /* just to get the xpdf version */
 
@@ -1112,16 +1112,12 @@ char *stripzeros (char *a)
 
 void initversionstring(char **versions)
 {
-  /* TH this code used to use asprintf(). It should really calculate
-     the required size properly, but they are all static version 
-	 strings, so 1k should be plenty. */
-  *versions = xmalloc(1024);
-  (void) sprintf(*versions,
-				 "Compiled with libpng %s; using libpng %s\n"
-				 "Compiled with zlib %s; using zlib %s\n"
-				 "Compiled with xpdf version %s\n",
-				 PNG_LIBPNG_VER_STRING, png_libpng_ver,
-				 ZLIB_VERSION, zlib_version, xpdfVersion);
+    (void) asprintf(versions,
+                    "Compiled with libpng %s; using libpng %s\n"
+                    "Compiled with zlib %s; using zlib %s\n"
+                    "Compiled with xpdf version %s\n",
+                    PNG_LIBPNG_VER_STRING, png_libpng_ver,
+                    ZLIB_VERSION, zlib_version, xpdfVersion);
 }
 
 
