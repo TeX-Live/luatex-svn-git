@@ -724,7 +724,7 @@ font_char_from_lua (lua_State *L, internal_font_number f, integer i, integer *l_
 /* The caller has to fix the state of the lua stack when there is an error! */
 
 
-boolean
+int
 font_from_lua (lua_State *L, int f) {
   int i,k,n,r,t;
   int s_top; /* lua stack top */
