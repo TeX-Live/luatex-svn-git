@@ -37462,7 +37462,8 @@ if dir_dir(cur_p)>=0 then begin
   end
 else begin
   pop_dir_node;
-  line_break_dir:=dir_dir(dir_ptr);
+  if dir_ptr<>null then
+    line_break_dir:=dir_dir(dir_ptr);
   end
 end
 
@@ -37474,7 +37475,8 @@ if dir_dir(p)>=0 then begin
   end
 else begin
   pop_dir_node;
-  hpack_dir:=dir_dir(dir_ptr);
+  if dir_ptr<>null then
+    hpack_dir:=dir_dir(dir_ptr);
   end
 end
 
@@ -37653,7 +37655,8 @@ else begin
   dvi_dir_ptr:=dir_dvi_ptr(dir_ptr);
   pop_dir_node;
   synch_h; synch_v;
-  dvi_direction:=dir_dir(dir_ptr);
+  if dir_ptr<>null then
+    dvi_direction:=dir_dir(dir_ptr);
  if dir_opposite(dir_secondary[dir_dir(p)+64])(dir_secondary[dvi_direction])
   then begin
     dvi_temp_ptr:=dvi_ptr;
@@ -37702,7 +37705,8 @@ if dir_dir(p)>=0 then begin
   end
 else begin
   pop_dir_node;
-  dvi_direction:=dir_dir(dir_ptr);
+  if dir_ptr<>null then
+    dvi_direction:=dir_dir(dir_ptr);
   case box_direction(dvi_direction) of
     dir_TL_,dir_BL_: pdf_dvicmd_right(dir_dvi_h(p));
     dir_TR_,dir_BR_: pdf_dvicmd_left(dir_dvi_h(p));
@@ -37720,7 +37724,7 @@ begin
    so let us not do it either }
   {|w:=w-cur_g; cur_glue:=0;|}
   dir_nest:=1;
-  while vlink(q)<>null do begin
+  while (q<>null) and (vlink(q)<>null) do begin
 	q:=vlink(q);
     if is_char_node(q) then begin
       w:=w+glyph_width(q); {TODO no vertical support for now}
