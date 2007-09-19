@@ -37720,7 +37720,7 @@ begin
    so let us not do it either }
   {|w:=w-cur_g; cur_glue:=0;|}
   dir_nest:=1;
-  while q<>null do begin
+  while vlink(q)<>null do begin
 	q:=vlink(q);
     if is_char_node(q) then begin
       w:=w+glyph_width(q); {TODO no vertical support for now}
