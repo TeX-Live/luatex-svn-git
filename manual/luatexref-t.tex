@@ -4914,7 +4914,9 @@ assertion error or ``Emergency stop''.
 \item In \DVI\ generation mode, using a \type{\textdir} switch inside the
 preamble of a \type{\halign} results in overprinted text in the \DVI\ file,
 because the column width is not taken into account during the final
-placement phase (this is a bug inherited from \ALEPH).
+placement phase (this is a bug inherited from \ALEPH). Also, \ALEPH\
+apparently dislikes having more than one non-grouped \type{\textdir}
+command in a single lined paragraph.
 
 \stopitemize
 
