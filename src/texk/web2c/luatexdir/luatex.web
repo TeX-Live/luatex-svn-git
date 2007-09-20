@@ -1810,7 +1810,18 @@ using the |xchr| array to map it into an external character compatible with
                      incr(term_offset); wterm('^'); incr(term_offset); wterm('^'); 
                      wterm(xchr[#+64]);  
                  end; end
-
+@d fix_term_offset(#)==
+      if ((#>=@"C0) and (#<=@"DF) and (term_offset+2>=max_print_line)) or
+         ((#>=@"E0) and (#<=@"EF) and (term_offset+3>=max_print_line)) or
+         ((#>=@"F0) and (term_offset+4>=max_print_line)) then begin
+        wterm_cr; term_offset:=0;
+       end
+@d fix_log_offset(#)==
+      if ((#>=@"C0) and (#<=@"DF) and (file_offset+2>=max_print_line)) or
+         ((#>=@"E0) and (#<=@"EF) and (file_offset+3>=max_print_line)) or
+         ((#>=@"F0) and (file_offset+4>=max_print_line)) then begin
+        wlog_cr; file_offset:=0;
+       end
 
 @<Basic print...@>=
 procedure print_char(@!s:ASCII_code); {prints a single character}
@@ -1820,7 +1831,9 @@ begin if @<Character |s| is the current new-line character@> then
   begin print_ln; return;
   end;
 case selector of
-term_and_log: begin wterm_char(s); wlog(xchr[s]);
+term_and_log: begin 
+  fix_term_offset(s); fix_log_offset(s);
+  wterm_char(s); wlog(xchr[s]);
   incr(term_offset); incr(file_offset);
   if term_offset=max_print_line then
     begin wterm_cr; term_offset:=0;
@@ -1829,10 +1842,14 @@ term_and_log: begin wterm_char(s); wlog(xchr[s]);
     begin wlog_cr; file_offset:=0;
     end;
   end;
-log_only: begin wlog(xchr[s]); incr(file_offset);
+log_only: begin 
+  fix_log_offset(s);
+  wlog(xchr[s]); incr(file_offset);
   if file_offset=max_print_line then print_ln;
   end;
-term_only: begin wterm_char(s); incr(term_offset);
+term_only: begin 
+  fix_term_offset(s); 
+  wterm_char(s); incr(term_offset);
   if term_offset=max_print_line then print_ln;
   end;
 no_print: do_nothing;
