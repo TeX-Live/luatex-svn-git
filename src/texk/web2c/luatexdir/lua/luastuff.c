@@ -472,9 +472,9 @@ luatex_error (lua_State * L, int is_fatal) {
   size_t len;
   char *err;
   strnumber s;
-  const char *luaerr = lua_tostring(L, -1);
-  err = (char *)xmalloc(128);
-  len = snprintf(err,128,"%s",luaerr);
+  const char *luaerr = lua_tolstring(L, -1,&len);
+  err = (char *)xmalloc(len+1);
+  len = snprintf(err,(len+1),"%s",luaerr);
   if (is_fatal>0) {
     /* Normally a memory error from lua. 
        The pool may overflow during the maketexstring(), but we 
