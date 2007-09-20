@@ -15,6 +15,7 @@ XCFLAGS = -fomit-frame-pointer $(_CFLAGS)
 
 all: $(OBJECTS)
 	$(AR) libzzip.a $(OBJECTS)
+	$(RANLIB) libzzip.a
 
 %.o: $(srcdir)/%.c 
 	$(CC) $(CFLAGS) $(XCFLAGS) -c $< -o $@
