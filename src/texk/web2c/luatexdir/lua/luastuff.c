@@ -362,6 +362,7 @@ luainterpreter (int n) {
   luaopen_lua(L,n,startup_filename);
   luaopen_stats(L);
   luaopen_font(L);
+  luaopen_lang(L);
 
   if (safer_option) {
 	/* disable some stuff if --safer */

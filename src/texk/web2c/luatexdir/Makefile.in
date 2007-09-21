@@ -85,6 +85,9 @@ lua/luastuff.o \
 lua/luatex.o \
 lua/luatoken.o \
 lua/luanode.o \
+lua/hnjalloc.o \
+lua/hyphen.o \
+lua/llanglib.o \
 managed-sa.o \
 mathcodes.o \
 textcodes.o \
