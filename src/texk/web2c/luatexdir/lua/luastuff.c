@@ -305,6 +305,12 @@ luainterpreter (int n) {
   luaL_openlibs(L);
   find_env(L);
   find_sleep(L);
+
+  lua_getglobal(L,"package");
+  lua_pushstring(L,"");
+  lua_setfield(L,-2,"cpath");
+  lua_pop(L,1); /* pop the table */
+
   if (!safer_option) {
 	put_env(L);
 	make_exec(L);
