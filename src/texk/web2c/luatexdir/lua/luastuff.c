@@ -253,6 +253,26 @@ void find_env (lua_State *L){
   lua_pop(L,1);
 }
 
+static int ex_sleep(lua_State *L)
+{
+  lua_Number interval = luaL_checknumber(L, 1);
+  lua_Number units = luaL_optnumber(L, 2, 1);
+#ifdef WIN32
+  Sleep(1e3 * interval / units);
+#else /* assumes posix or bsd */
+  usleep(1e6 * interval / units);
+#endif
+  return 0;
+}
+
+static void find_sleep (lua_State *L)
+{
+  lua_getglobal(L,"os");
+  lua_pushcfunction(L, ex_sleep);
+  lua_setfield(L,-2,"sleep");
+}
+
+
 void *my_luaalloc (void *ud, void *ptr, size_t osize, size_t nsize) {
   void *ret = NULL;
   if (nsize == 0)
@@ -284,6 +304,7 @@ luainterpreter (int n) {
   luastate_max++;
   luaL_openlibs(L);
   find_env(L);
+  find_sleep(L);
   if (!safer_option) {
 	put_env(L);
 	make_exec(L);
