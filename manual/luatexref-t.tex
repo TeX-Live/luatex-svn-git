@@ -302,10 +302,11 @@ statements directly to the \PDF\ file.
 
 \subsection{\tex{luaescapestring}}
 
-This primitive converts a \TEX\ token sequence so that it can be safely
-used as the contents of a \LUA\ string: embedded backslashes, double
-quotes and single quotes are escaped by prepending an extra token
-consisting of a backslash with category code~12.
+This primitive converts a \TEX\ token sequence so that it can be
+safely used as the contents of a \LUA\ string: embedded backslashes,
+double quotes and single quotes are escaped by prepending an extra
+token consisting of a backslash with category code~12. The token
+sequence is fully expanded.
 
 \startsyntax
 \luaescapestring <general text>
@@ -1048,7 +1049,8 @@ strings (with an included absolute dimension; \type {em} and \type {ex} and \typ
 are forbidden). The result is always a number in scaled points.
 
 The token registers accept and return \LUA\ strings. \LUA\ strings are
-converted to token lists using \tex{the}\tex{toks} style expansion.
+converted to and from token lists using \tex{the}\tex{toks} style
+expansion: all category codes are either space (10) or other (12).
 
 As an alternative to array addressing, there are also accessor
 functions defined:
