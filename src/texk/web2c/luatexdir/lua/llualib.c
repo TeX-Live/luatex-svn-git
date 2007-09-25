@@ -5,6 +5,7 @@
 #include <ptexlib.h>
 
 #define LOAD_BUF_SIZE 256
+#define UINT_MAX32 0xFFFFFFFF
 
 typedef struct {
   unsigned char* buf;
@@ -16,7 +17,7 @@ typedef struct {
 static bytecode *lua_bytecode_registers = NULL;
 
 int luabytecode_max = -1;
-int luabytecode_bytes = 0;
+unsigned int luabytecode_bytes = 0;
 
 void dump_luac_registers (void) {
   int k,n;
@@ -41,13 +42,17 @@ void dump_luac_registers (void) {
 }
 
 void undump_luac_registers (void) {
-  int k,i,n;
+  int k,n;
+  unsigned int i;
   bytecode b;
   undump_int(luabytecode_max);
   if (luabytecode_max>=0) {
-	i = sizeof(bytecode)*(luabytecode_max+1);
-    lua_bytecode_registers = xmalloc(i);
-	luabytecode_bytes  = i;
+	i = (luabytecode_max+1);
+	if ((int)(UINT_MAX32/sizeof(bytecode)+1)<=i) {
+	  lua_fatal_error("Corrupt format file");
+	}
+    lua_bytecode_registers = xmalloc(i*sizeof(bytecode));
+	luabytecode_bytes  = i*sizeof(bytecode);
     for (i=0;i<=luabytecode_max;i++) {
       lua_bytecode_registers[i].done = 0;
       lua_bytecode_registers[i].size = 0;
@@ -125,7 +130,7 @@ const char* reader(lua_State* L, void* ud, size_t* size) {
 }
 
 int get_bytecode (lua_State *L) {
-  int i,j,k;
+  int k;
   k = (int)luaL_checkinteger(L,-1);
   if (k<0) {
     lua_pushnil(L);
@@ -146,9 +151,14 @@ int get_bytecode (lua_State *L) {
 }
 
 int set_bytecode (lua_State *L) {
-  int i,j,k;
-  int ltype;
+  int k, ltype;
+  unsigned int i;
   k = (int)luaL_checkinteger(L,-2);
+  i = k+1;
+  if ((int)(UINT_MAX32/sizeof(bytecode)+1)<i) {
+    lua_pushstring(L, "value too large");
+    lua_error(L);
+  }
   if (k<0) {
     lua_pushstring(L, "negative values not allowed");
     lua_error(L);
@@ -159,7 +169,8 @@ int set_bytecode (lua_State *L) {
     lua_error(L);
   }
   if (k>luabytecode_max) {
-    lua_bytecode_registers = xrealloc(lua_bytecode_registers,sizeof(bytecode)*(k+1));
+	i = sizeof(bytecode)*(k+1);
+    lua_bytecode_registers = xrealloc(lua_bytecode_registers,i);
 	if (luabytecode_max==-1) {
 	  luabytecode_bytes += sizeof(bytecode)*(k+1);
 	} else {
