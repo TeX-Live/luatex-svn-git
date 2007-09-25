@@ -46,7 +46,9 @@
 #include <unistd.h> /* for exit */
 #endif
 
-#define VERBOSE
+#include <ctype.h>
+
+//#define VERBOSE
 
 #include "hnjalloc.h"
 #include "hyphen.h"
@@ -337,6 +339,10 @@ static void hnj_add_trans(
 ) {
   int num_trans;
 
+  if (uni_ch<32 || (uni_ch>126 && uni_ch<160)) {
+    fprintf(stderr,"Character out of bounds: u%04x\n",uni_ch);
+    exit(1);
+  }
   num_trans = dict->states[state1].num_trans;
   if (num_trans == 0) {
     dict->states[state1].trans = hnj_malloc(sizeof(HyphenTrans));
@@ -401,9 +407,9 @@ HyphenDict * hnj_hyphen_load(
 ) {
   HyphenDict *dict;
   HashTab *hashtab;
-  char buf[80];
+  /*char buf[80];*/
   int state_num, last_state;
-  int i, j;
+  int i, j = 0;
   char ch;
   int found;
   HashEntry *e;
@@ -435,28 +441,29 @@ HyphenDict * hnj_hyphen_load(
 
   char format[132]; // 64+65+newline+zero+spare
   while((l = next_pattern(format,(sizeof(format)-1),f))>0) {
-	int i,j;
-	f += l;
-	//printf("%s\n",format);
-	for (i=0,j=0; i<l; i++) if (format[i]>='0'&&format[i]<='9') j++;
-	char *pat = (char*) malloc(1+l-j);
-	char *org = (char*) malloc(2+l-j);
-	// remove hyphenation encoders (digits) from pat
-	org[0] = '0';
-	for (i=0,j=0; i<l; i++) {
-	  char c = format[i];
-	  if (c<'0' || c>'9') {
-		pat[j++] = c;
-		org[j]   = '0';
-	  } else {
-		org[j]   = c;
-	  }
-	}
-	pat[j]   = 0;
-	org[j+1] = 0;
-	pattab_key[patterns]   = pat;
-	pattab_val[patterns++] = org;
-	if (patterns>=MAXPATHS) die("too many base patterns");
+    int i,j = 0;
+    f += l;
+    l = strlen(format); // TODO this is kind of waistful
+    //printf("%s\n",format);
+    for (i=0,j=0; i<l; i++) if (format[i]>='0'&&format[i]<='9') j++;
+    char *pat = (char*) malloc(1+l-j);
+    char *org = (char*) malloc(2+l-j);
+    // remove hyphenation encoders (digits) from pat
+    org[0] = '0';
+    for (i=0,j=0; i<l; i++) {
+      char c = format[i];
+      if (c<'0' || c>'9') {
+        pat[j++] = c;
+        org[j]   = '0';
+      } else {
+        org[j]   = c;
+      }
+    }
+    pat[j]   = 0;
+    org[j+1] = 0;
+    pattab_key[patterns]   = pat;
+    pattab_val[patterns++] = org;
+    if (patterns>=MAXPATHS) die("too many base patterns");
   }
   // As we use binairy search, make sure it is sorted
   qsort_arr(pattab_key,pattab_val,0,patterns-1);
@@ -502,13 +509,13 @@ HyphenDict * hnj_hyphen_load(
     char *pattern = newpattab_val[p];
     /* Optimize away leading zeroes */
     for (i = 0; pattern[i] == '0'; i++) {}
-
-#ifdef VERBOSE
-    printf ("word %s pattern %s, j = %d\n", word, pattern + i, j);
+    int j = strlen(word);
+#ifdef XVERBOSE
+    printf ("word %s pattern %s, j = %d\n", word, pattern /*+ i*/, j);
 #endif
     found = hnj_hash_lookup( hashtab, word );
     state_num = hnj_get_state( dict, hashtab, word );
-    dict->states[state_num].match = hnj_strdup( pattern + i );
+    dict->states[state_num].match = hnj_strdup( pattern+i );
 
     /* now, put in the prefix transitions */
     for (; found < 0 ;j--) {
@@ -536,13 +543,13 @@ HyphenDict * hnj_hyphen_load(
       if (e->val) dict->states[e->val].fallback_state = state_num;
     }
   }
-#ifdef VERBOSE
+#ifdef XVERBOSE
   for (i = 0; i < HASH_SIZE; i++) {
     for (e = hashtab->entries[i]; e; e = e->next) {
       printf ("%d string %s state %d, fallback=%d\n", i, e->key, e->val,
         dict->states[e->val].fallback_state);
       for (j = 0; j < dict->states[e->val].num_trans; j++) {
-        printf (" %c->%d\n", dict->states[e->val].trans[j].uni_ch,
+        printf (" u%4x->%d\n", (int)dict->states[e->val].trans[j].uni_ch,
           dict->states[e->val].trans[j].new_state);
       }
     }
@@ -587,7 +594,7 @@ int hnj_hyphen_hyphenate(
 ) {
   char prep_word_buf[MAX_WORD];
   char *prep_word;
-  int i, j, k;
+  int i, ext_word_len, k;
   int state;
   char ch;
   HyphenState *hstate;
@@ -599,19 +606,19 @@ int hnj_hyphen_hyphenate(
   else
     prep_word = hnj_malloc (word_size + 3);
 
-  j = 0;
-  prep_word[j++] = '.';
-  for (i = 0; i < word_size; i++) prep_word[j++] = word[i];
-  for (i = 0; i < j; i++) hyphens[i] = '0';    
-  prep_word[j++] = '.';
-  prep_word[j] = '\0';
+  ext_word_len = 0;
+  prep_word[ext_word_len++] = '.';
+  for (i = 0; i < word_size; i++) prep_word[ext_word_len++] = word[i];
+  for (i = 0; i < ext_word_len; i++) hyphens[i] = '0';    
+  prep_word[ext_word_len++] = '.';
+  prep_word[ext_word_len] = '\0';
 #ifdef VERBOSE
   printf ("prep_word = %s\n", prep_word);
 #endif
 
   /* now, run the finite state machine */
   state = 0;
-  for (i = 0; i < j; i++) {
+  for (i = 0; i < ext_word_len; i++) {
     ch = prep_word[i];
     for (;;) {
       if (state == -1) {
@@ -622,66 +629,61 @@ int hnj_hyphen_hyphenate(
       }          
 
 #ifdef VERBOSE
-      char *state_str;
-      state_str = get_state_str (state);
-	  for (k = 0; k < i - strlen (state_str); k++) putchar (' ');
-	  printf ("%s", state_str);
+      printf("%*s%s%c",i-strlen(get_state_str(state)),"",get_state_str(state),ch);
 #endif
 
       hstate = &dict->states[state];
       for (k = 0; k < hstate->num_trans; k++) {
         if (hstate->trans[k].uni_ch == ch) {
           state = hstate->trans[k].new_state;
-	  goto found_state;
+#ifdef VERBOSE
+          printf(" state %d\n",state);
+#endif
+          /* Additional optimization is possible here - especially,
+             elimination of trailing zeroes from the match. Leading zeroes
+             have already been optimized. */
+          match = dict->states[state].match;
+          if (match) {
+            offset = i + 1 - strlen (match);
+#ifdef VERBOSE
+            printf ("%*s%s\n", offset,"", match);
+#endif
+            /* This is a linear search because I tried a binary search and
+               found it to be just a teeny bit slower. */
+            for (k = 0; match[k]; k++) {
+              if (hyphens[offset + k] < match[k]) hyphens[offset + k] = match[k];
+            }
+          }
+          goto try_next_letter;
         }
       }
       state = hstate->fallback_state;
 #ifdef VERBOSE
-      printf (" falling back, fallback_state %d\n", state);
+      printf (" back to %d\n", state);
 #endif
     }
-found_state:
-#ifndef VERBOSE
-    printf ("found state %d\n",state);
-#endif
-    /* Additional optimization is possible here - especially,
-       elimination of trailing zeroes from the match. Leading zeroes
-       have already been optimized. */
-    match = dict->states[state].match;
-    if (match) {
-      offset = i + 1 - strlen (match);
-#ifdef VERBOSE
-      for (k = 0; k < offset; k++) putchar (' ');
-      printf ("%s\n", match);
-#endif
-      /* This is a linear search because I tried a binary search and
-         found it to be just a teeny bit slower. */
-      for (k = 0; match[k]; k++) {
-        if (hyphens[offset + k] < match[k]) hyphens[offset + k] = match[k];
-      }
-    }
-
-      /* KBH: we need this to make sure we keep looking in a word */
-      /* for patterns even if the current character is not known in state 0 */
-      /* since patterns for hyphenation may occur anywhere in the word */
+    /* KBH: we need this to make sure we keep looking in a word */
+    /* for patterns even if the current character is not known in state 0 */
+    /* since patterns for hyphenation may occur anywhere in the word */
 try_next_letter: ;
   }
 #ifdef VERBOSE
-  for (i = 0; i < j; i++) putchar (hyphens[i]);
+  printf("%s\n",prep_word);
+  for (i = 0; i < ext_word_len; i++) putchar (hyphens[i]);
   putchar ('\n');
 #endif
 
-  for (i = 0; i < j - 4; i++) {
-#if 0
-    if (hyphens[i + 1] & 1)
-      hyphens[i] = '-';
-#else
-    hyphens[i] = hyphens[i + 1];
-#endif
+  for (i = 0; i < word_size-1; i++) {
+    if ((hyphens[i+1] & 1)==0)
+      hyphens[i] = '0';
+    else
+      hyphens[i] = hyphens[i + 1];
   }
-  hyphens[0] = '0';
-  for (; i < word_size; i++) hyphens[i] = '0';
-  hyphens[word_size] = '\0';
+  /* Let TeX decide if first n, last m characters can have a hyphen */
+//hyphens[0] = '0';
+//for (; i < word_size; i++) hyphens[i] = '0';
+//hyphens[word_size] = '\0';
+  hyphens[word_size-1] = '\0';
 
   if (prep_word != prep_word_buf) hnj_free (prep_word);
   return 0;    
