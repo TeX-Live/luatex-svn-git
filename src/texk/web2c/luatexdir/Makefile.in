@@ -106,6 +106,8 @@ lua/luanode.o: lua/nodes.h
 
 lua/luawhatsits.o: lua/nodes.h
 
+utils.o: svnversion.h
+
 libpdf.a: $(OBJS)
 	rm -f $@
 	$(AR) $(ARFLAGS) $@  $(OBJS)

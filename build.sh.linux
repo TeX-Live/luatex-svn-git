@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 # $Id$
-# builds new pdftex binaries
+# builds new luatex binaries
 # try to find gnu make; we need it
 MAKE=make
 if make -v 2>&1| grep -q "GNU Make" 
@@ -14,26 +14,45 @@ else
   echo "I can't find a GNU-make; I'll try to use make and hope that works." 
   echo "If it doesn't, please install GNU-make."
 fi
+
 # ----------
 # Options:
 #       --make      : only make, no make distclean; configure
+#       --version   : only update and commit svnversion.h
 #       --parallel  : make -j 2 -l 3.0
 ONLY_MAKE=FALSE
+UPDATE_VERSION=FALSE
 JOBS_IF_PARALLEL=2
 MAX_LOAD_IF_PARALLEL=3.0
 while [ "$1" != "" ] ; do
   if [ "$1" = "--make" ] ;
   then ONLY_MAKE=TRUE ;
+  elif [ "$1" = "--version" ] ; 
+  then UPDATE_VERSION=TRUE ;
   elif [ "$1" = "--parallel" ] ;
   then MAKE="$MAKE -j $JOBS_IF_PARALLEL -l $MAX_LOAD_IF_PARALLEL" ;
   fi ;
   shift ;
 done
+# ----------
+# update the version info
+if [ "$UPDATE_VERSION" = "TRUE" ] 
+then
+  echo '#define BUILD_REVISION "$Revision$"' > src/texk/web2c/luatexdir/svnversion.h
+  echo -n '#define BUILD_DATE '             >> src/texk/web2c/luatexdir/svnversion.h
+  date -u '+%Y%m%d'                         >> src/texk/web2c/luatexdir/svnversion.h
+  echo -n '#define BUILD_TIME '             >> src/texk/web2c/luatexdir/svnversion.h
+  date -u '+%H%M%S'                         >> src/texk/web2c/luatexdir/svnversion.h
+  svn commit -m 'building'                     src/texk/web2c/luatexdir/svnversion.h
+  exit 0
+fi
+
 #
 STRIP=strip
 B=build
 NATIVE=`pwd`
 export NATIVE
+
 # ----------
 # clean up, if needed
 if [ -e "$B"/Makefile -a $ONLY_MAKE = "FALSE" ]
