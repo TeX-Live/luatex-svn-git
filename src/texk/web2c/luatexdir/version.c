@@ -1,3 +1,3 @@
-#define revision $Revision$
+#define revision $Rev$
 #define DATE 20070926
-#define TIME 114118
+#define TIME 114208
