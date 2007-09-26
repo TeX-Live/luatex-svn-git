@@ -1,3 +1,3 @@
-#define revision $Rev$
-#define DATE 20070926
-#define TIME 114331
+#define BUILD_REVISION $Revision::6$
+#define BUILD_DATE 20070926
+#define BUILD_TIME 114606
