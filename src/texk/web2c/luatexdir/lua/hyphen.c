@@ -48,20 +48,18 @@
 
 #include <ctype.h>
 
-//#define VERBOSE
+#define noVERBOSE
 
 #include "hnjalloc.h"
 #include "hyphen.h"
 
-#define free(a)
-
-static char *
-hnj_strdup (const char *s)
-{
-  char *new;
+static unsigned char * hnj_strdup(
+  const unsigned char *s
+) {
+  unsigned char *new;
   int l;
 
-  l = strlen (s);
+  l = strlen ((char*)s);
   new = hnj_malloc (l + 1);
   memcpy (new, s, l);
   new[l] = 0;
@@ -83,7 +81,7 @@ struct _HashTab {
 
 struct _HashEntry {
   HashEntry *next;
-  char *key;
+  unsigned char *key;
   int val;
 };
 
@@ -92,7 +90,7 @@ struct _HashEntry {
 static void die(
   const char*msg
 ) {
-  fprintf(stderr,"%s\n",msg);
+  fprintf(stderr,"FATAL: %s\n",msg);
   exit(1);
 }
 
@@ -100,14 +98,14 @@ static void die(
 // Finds the index of an entry, only used on xxx_key arrays
 // Caveat: the table has to be sorted
 static int find_in(
-  char *tab[],
+  unsigned char *tab[],
   int max,
-  const char *pat
+  const unsigned char *pat
 ) {
   int left=0, right=max-1;
   while (left <= right) {
     int mid = ((right-left)/2)+left;
-    int v   = strcmp(pat,tab[mid]);
+    int v   = strcmp((char*)pat,(char*)tab[mid]);
     if (v>0) {
       left = mid + 1;
     } else if (v<0) {
@@ -145,14 +143,15 @@ static char *combine(
 // used by partition (which is used by qsort_arr)
 //
 static void swap2(
-  char *a[],
-  char *b[],
+  unsigned char *a[],
+           char *b[],
   int i,
   int j
 ) {
   if (i==j) return;
-  char*v;
-  v=a[i]; a[i]=a[j]; a[j]=v;
+  unsigned char*w;
+           char*v;
+  w=a[i]; a[i]=a[j]; a[j]=w;
   v=b[i]; b[i]=b[j]; b[j]=v;
 }
 
@@ -160,18 +159,18 @@ static void swap2(
 // used by qsort_arr
 //
 static int partition(
-  char *a[],
-  char *b[],
+  unsigned char *a[],
+           char *b[],
   int left,
   int right,
   int p
 ) {
-  const char *pivotValue = a[p];
+  const unsigned char *pivotValue = a[p];
   int i;
   swap2(a,b,p,right); // Move pivot to end
   p = left;
   for (i=left; i<right; i++) {
-    if (strcmp(a[i],pivotValue)<=0) {
+    if (strcmp((char*)a[i],(char*)pivotValue)<=0) {
       swap2(a,b,p,i);
       p++;
     }
@@ -184,8 +183,8 @@ static int partition(
 // not full recursive: tail end the biggest part
 //
 static void qsort_arr(
-  char *a[],
-  char *b[],
+  unsigned char *a[],
+           char *b[],
   int left,
   int right
 ) {
@@ -212,9 +211,9 @@ static void qsort_arr(
 //
 /* a char* hash function from ASU - adapted from Gtk+ */
 static unsigned int
-hnj_string_hash (const char *s)
+hnj_string_hash (const unsigned char *s)
 {
-  const char *p;
+  const unsigned char *p;
   unsigned int h=0, g;
 
   for(p = s; *p != '\0'; p += 1) {
@@ -265,7 +264,7 @@ static void hnj_hash_free(
 /* assumes that key is not already present! */
 static void hnj_hash_insert(
   HashTab *hashtab,
-  const char *key,
+  const unsigned char *key,
   int val
 ) {
   int i;
@@ -284,14 +283,13 @@ static void hnj_hash_insert(
 /* return val if found, otherwise -1 */
 static int hnj_hash_lookup(
   HashTab *hashtab,
-  const char *key
+  const unsigned char *key
 ) {
   int i;
   HashEntry *e;
-
   i = hnj_string_hash (key) % HASH_SIZE;
   for (e = hashtab->entries[i]; e; e = e->next) {
-    if (!strcmp (key, e->key)) {
+    if (!strcmp ((char*)key, (char*)e->key)) {
       return e->val;
     }
   }
@@ -304,7 +302,7 @@ static int hnj_hash_lookup(
 static int hnj_get_state(
   HyphenDict *dict,
   HashTab *hashtab,
-  const char *string
+  const unsigned char *string
 ) {
   int state_num;
 
@@ -362,7 +360,7 @@ HashTab *global;
 
 //
 //
-static char *get_state_str(
+static unsigned char *get_state_str(
   int state
 ) {
   int i;
@@ -381,53 +379,54 @@ static char *get_state_str(
    operate on a file, but now the argument is a string buffer.
  */
 
-static size_t
-next_pattern(char *target, int max, const char *buf) {
-  int i = 0;
-  char *rover = (char *)buf;
-  target[0] = 0;
-  while ((rover-buf)<max && *rover && isspace(*rover)) {
-	rover++;
-  }
+static const unsigned char* next_pattern(
+  size_t* length,
+  const unsigned char **buf
+) {
+  const unsigned char *rover = *buf;
+  while (*rover && isspace(*rover)) rover++;
+  const unsigned char *here = rover;
   while (*rover) {
-	if ((rover-buf)<max && !isspace(*rover)) {
-	  target[i++] = *rover++;
-	} else {
-	  target[i] = 0;
-	  return (rover-buf);
-	}
+    if (isspace(*rover)) {
+      *length = rover-here;
+      *buf = rover;
+      return here;
+    }
+    rover++;
   }
-  return 0; /* zero sensed */
+  *length = rover-here;
+  *buf = rover;
+  return *length ? here : NULL; /* zero sensed */
 }
 
 //
 //
 HyphenDict * hnj_hyphen_load(
-  const char *f
+  const unsigned char *f
 ) {
   HyphenDict *dict;
   HashTab *hashtab;
   /*char buf[80];*/
   int state_num, last_state;
   int i, j = 0;
-  char ch;
+  unsigned char ch;
   int found;
   HashEntry *e;
   int p;
 
-  char *pattab_key[MAXPATHS];
-  char *pattab_val[MAXPATHS];
+  unsigned char *pattab_key[MAXPATHS];
+           char *pattab_val[MAXPATHS];
   int   patterns = 0;
-  char *newpattab_key[MAXPATHS];
-  char *newpattab_val[MAXPATHS];
+  unsigned char *newpattab_key[MAXPATHS];
+           char *newpattab_val[MAXPATHS];
   int   newpatterns = 0;
 
   size_t l = 0;
-  hashtab = hnj_hash_new ();
+  hashtab = hnj_hash_new();
 #ifdef VERBOSE
   global = hashtab;
 #endif
-  hnj_hash_insert (hashtab, "", 0);
+  hnj_hash_insert(hashtab, (unsigned char*)"", 0);
 
   dict = hnj_malloc (sizeof(HyphenDict));
   dict->num_states = 1;
@@ -439,27 +438,32 @@ HyphenDict * hnj_hyphen_load(
 
 //***************************************
 
-  char format[132]; // 64+65+newline+zero+spare
-  while((l = next_pattern(format,(sizeof(format)-1),f))>0) {
-    int i,j = 0;
-    f += l;
-    l = strlen(format); // TODO this is kind of waistful
+  const unsigned char* format;
+  while((format = next_pattern(&l,&f))!=NULL) {
+    int i,j,e;
     //printf("%s\n",format);
-    for (i=0,j=0; i<l; i++) if (format[i]>='0'&&format[i]<='9') j++;
-    char *pat = (char*) malloc(1+l-j);
-    char *org = (char*) malloc(2+l-j);
+    for (i=0,j=0,e=0; i<l; i++) {
+      if (format[i]>='0'&&format[i]<='9') j++;
+      if (format[i]>=0x80) e++;
+    }
+    // l-e   => number of _characters_ not _bytes_
+    // l-e-j => number of pattern characters
+    unsigned char *pat = (unsigned char*) malloc(1+l-j);
+             char *org = (         char*) malloc(2+l-e-j);
     // remove hyphenation encoders (digits) from pat
     org[0] = '0';
-    for (i=0,j=0; i<l; i++) {
-      char c = format[i];
-      if (c<'0' || c>'9') {
-        pat[j++] = c;
+    for (i=0,j=0,e=0; i<l; i++) {
+      unsigned char c = format[i];
+      if (c>=0x80) {
+        pat[j+e++] = c;
+      } else if (c<'0' || c>'9') {
+        pat[e+j++] = c;
         org[j]   = '0';
       } else {
         org[j]   = c;
       }
     }
-    pat[j]   = 0;
+    pat[e+j]   = 0;
     org[j+1] = 0;
     pattab_key[patterns]   = pat;
     pattab_val[patterns++] = org;
@@ -469,23 +473,27 @@ HyphenDict * hnj_hyphen_load(
   qsort_arr(pattab_key,pattab_val,0,patterns-1);
 
   for (p=0; p<patterns; p++) {
-    char *pat = pattab_key[p];
-    int   patsize = strlen(pat);
+    unsigned char *pat = pattab_key[p];
+    int   patsize = strlen((char*)pat);
     int   j,l;
     for (l=1; l<=patsize; l++) {
+      if (pat[l]>=0x80) continue; // Do not clip an utf8 sequence
       for (j=1; j<=l; j++) {
         int i = l-j;
         int  subpat_ndx;
-        char subpat[132];
-        strncpy(subpat,pat+i,j); subpat[j]=0;
+        if (pat[i]>=0x80) continue; // Do not start halfway an utf8 sequence
+        unsigned char subpat[132];
+        strncpy((char*)subpat,(char*)pat+i,j); subpat[j]=0;
         if ((subpat_ndx = find_in(pattab_key,patterns,subpat))>=0) {
           int   newpat_ndx;
-          char *newpat=malloc(l+1);
+          unsigned char *newpat=(unsigned char*)malloc(l+1);
 		  //printf("%s is embedded in %s\n",pattab_val[subpat_ndx],pattab_val[p]);
-          strncpy(newpat, pat+0,l); newpat[l]=0;
+          strncpy((char*)newpat, (char*)pat+0,l); newpat[l]=0;
           if ((newpat_ndx = find_in(newpattab_key,newpatterns,newpat))<0) {
-            char *neworg = malloc(l+2);
-            sprintf(neworg,"%0*d",l+1,0); // fill with right amount of '0'
+            int e=0;
+            for (i=0; i<l; i++) if (newpat[i]>=0x80) e++;
+            char *neworg = malloc(l+2-e);
+            sprintf(neworg,"%0*d",l+1-e,0); // fill with right amount of '0'
             newpattab_key[newpatterns]   = newpat;
             newpattab_val[newpatterns++] = combine(neworg,pattab_val[subpat_ndx]);
             if (newpatterns>MAXPATHS) die("to many new patterns");
@@ -505,29 +513,37 @@ HyphenDict * hnj_hyphen_load(
     free(pattab_val[p]);
   }
   for (p=0; p<newpatterns; p++) {
-    char *word    = newpattab_key[p];
-    char *pattern = newpattab_val[p];
-    /* Optimize away leading zeroes */
-    for (i = 0; pattern[i] == '0'; i++) {}
-    int j = strlen(word);
-#ifdef XVERBOSE
-    printf ("word %s pattern %s, j = %d\n", word, pattern /*+ i*/, j);
+    static unsigned char mask[] = {0x3F,0x1F,0xF,0x7};
+    unsigned char *word    = newpattab_key[p];
+             char *pattern = newpattab_val[p];
+    int j = strlen((char*)word);
+#ifdef VERBOSE
+    printf ("word %s pattern %s, j = %d\n", word, pattern, j);
 #endif
     found = hnj_hash_lookup( hashtab, word );
     state_num = hnj_get_state( dict, hashtab, word );
-    dict->states[state_num].match = hnj_strdup( pattern+i );
+    dict->states[state_num].match = pattern;
 
     /* now, put in the prefix transitions */
-    for (; found < 0 ;j--) {
+    while (found < 0) {
+      j--;
       last_state = state_num;
-      ch = word[j - 1];
-      word[j - 1] = '\0';
+      ch = word[j];
+      if (ch>=0x80) {
+        int i=1;
+        while (word[j-i]>=0x80) i++;
+        ch = word[j-i] & mask[i];
+        int m = j-i;
+        while (i--) ch = (ch<<6)+(0x3F & word[j-i]);
+        j = m;
+      }
+      word[j] = '\0';
       found = hnj_hash_lookup (hashtab, word);
       state_num = hnj_get_state (dict, hashtab, word);
       hnj_add_trans (dict, state_num, last_state, ch);
     }
     free(newpattab_key[p]);
-    free(newpattab_val[p]);
+    // free(newpattab_val[p]); assigned to .match
   }
 
 //***************************************
@@ -543,7 +559,7 @@ HyphenDict * hnj_hyphen_load(
       if (e->val) dict->states[e->val].fallback_state = state_num;
     }
   }
-#ifdef XVERBOSE
+#ifdef VERBOSE
   for (i = 0; i < HASH_SIZE; i++) {
     for (e = hashtab->entries[i]; e; e = e->next) {
       printf ("%d string %s state %d, fallback=%d\n", i, e->key, e->val,
@@ -588,15 +604,15 @@ void hnj_hyphen_free(
 //
 int hnj_hyphen_hyphenate(
   HyphenDict *dict,
-  const char *word,
+  const int *word,
   int word_size,
   char *hyphens
 ) {
-  char prep_word_buf[MAX_WORD];
-  char *prep_word;
+  int prep_word_buf[MAX_WORD];
+  int *prep_word;
   int i, ext_word_len, k;
   int state;
-  char ch;
+  int ch;
   HyphenState *hstate;
   char *match;
   int offset;
@@ -604,17 +620,14 @@ int hnj_hyphen_hyphenate(
   if (word_size + 3 < MAX_WORD)
     prep_word = prep_word_buf;
   else
-    prep_word = hnj_malloc (word_size + 3);
+    prep_word = hnj_malloc((word_size + 3)*sizeof(int));
 
   ext_word_len = 0;
   prep_word[ext_word_len++] = '.';
   for (i = 0; i < word_size; i++) prep_word[ext_word_len++] = word[i];
   for (i = 0; i < ext_word_len; i++) hyphens[i] = '0';    
   prep_word[ext_word_len++] = '.';
-  prep_word[ext_word_len] = '\0';
-#ifdef VERBOSE
-  printf ("prep_word = %s\n", prep_word);
-#endif
+  prep_word[ext_word_len] = 0;
 
   /* now, run the finite state machine */
   state = 0;
@@ -629,7 +642,7 @@ int hnj_hyphen_hyphenate(
       }          
 
 #ifdef VERBOSE
-      printf("%*s%s%c",i-strlen(get_state_str(state)),"",get_state_str(state),ch);
+      printf("%*s%s%c",i-strlen(get_state_str(state)),"",get_state_str(state),(char)ch);
 #endif
 
       hstate = &dict->states[state];
@@ -668,8 +681,8 @@ int hnj_hyphen_hyphenate(
 try_next_letter: ;
   }
 #ifdef VERBOSE
-  printf("%s\n",prep_word);
-  for (i = 0; i < ext_word_len; i++) putchar (hyphens[i]);
+  for (i = 0; i < ext_word_len; i++) putchar((char)prep_word[i]);
+  for (i = 0; i < ext_word_len; i++) putchar(hyphens[i]);
   putchar ('\n');
 #endif
 

@@ -64,10 +64,10 @@ struct _HyphenTrans {
   int new_state;
 };
 
-HyphenDict *hnj_hyphen_load (const char *fn);
+HyphenDict *hnj_hyphen_load (const unsigned char *fn);
 void hnj_hyphen_free (HyphenDict *dict);
 int hnj_hyphen_hyphenate (HyphenDict *dict,
-			   const char *word, int word_size,
+			   const int *word, int word_size,
 			   char *hyphens);
 
 #ifdef __cplusplus
