@@ -490,8 +490,8 @@ closelua(int n) {
 
 void 
 luatex_load_init (int s, LoadS *ls) {
-  ls->s = (const char *)&(strpool[strstart[s]]);
-  ls->size = strstart[s + 1] - strstart[s];
+  ls->s = (const char *)&(str_pool[str_start[s]]);
+  ls->size = str_start[s + 1] - str_start[s];
 }
 
 lua_State *
@@ -519,10 +519,10 @@ luatex_error (lua_State * L, int is_fatal) {
      * condition, since the lua chunk that caused the error is the current string.
      */
     s = str_ptr-0x200000;
-    //    fprintf(stderr,"poolinfo: %d: %d,%d out of %d\n",s,poolptr,strstart[(s-1)],poolsize);
-    poolptr = strstart[(s-1)];
-    strstart[s] = poolptr;
-    if (poolptr+len>=poolsize) {
+    //    fprintf(stderr,"poolinfo: %d: %d,%d out of %d\n",s,pool_ptr,str_start[(s-1)],pool_size);
+    pool_ptr = str_start[(s-1)];
+    str_start[s] = pool_ptr;
+    if (pool_ptr+len>=pool_size) {
       lua_norm_error(' ');
     } else {
       s = maketexstring(err);

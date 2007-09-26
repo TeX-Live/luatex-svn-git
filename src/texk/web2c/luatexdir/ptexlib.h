@@ -353,10 +353,4 @@ typedef enum {
 
 #include "font/texfont.h"
 
-/* prevent some of the more common problems with the restored underscores */
-#define strpool str_pool
-#define strstart str_start
-#define poolptr pool_ptr
-#define poolsize pool_size
-
 #endif                          /* PDFTEXLIB */

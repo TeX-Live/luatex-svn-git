@@ -182,9 +182,9 @@ strnumber maketexlstring (const char *s, size_t l)
 {
     if (s == NULL || *s == 0)
         return get_nullstr ();
-    check_pool_overflow (poolptr + l);
+    check_pool_overflow (pool_ptr + l);
     while (l-- > 0)
-        strpool[poolptr++] = *s++;
+        str_pool[pool_ptr++] = *s++;
     last_tex_string = make_string ();
     return last_tex_string;
 }
@@ -343,7 +343,7 @@ char *makeclstring (integer s, int *len)
     int allocgrow, i, l;
     if (s >=2097152) {
       s -= 2097152;
-      l = strstart[s + 1] - strstart[s];
+      l = str_start[s + 1] - str_start[s];
       *len = l;
       check_buf (l + 1, MAX_CSTRING_LEN);
       if (cstrbuf == NULL) {
@@ -361,7 +361,7 @@ char *makeclstring (integer s, int *len)
       }
       p = cstrbuf;
       for (i = 0; i < l; i++)
-	*p++ = strpool[i + strstart[s]];
+	*p++ = str_pool[i + str_start[s]];
       *p = 0;
     } else {
       if (cstrbuf == NULL) {
@@ -596,32 +596,32 @@ char *convertStringToPDFString (const char *in, int len)
  */
 void escapestring (poolpointer in)
 {
-    const poolpointer out = poolptr;
+    const poolpointer out = pool_ptr;
     unsigned char ch;
 	int i;
     while (in < out) {
-        if (poolptr + 4 >= poolsize) {
-            poolptr = poolsize;
+        if (pool_ptr + 4 >= pool_size) {
+            pool_ptr = pool_size;
             /* error by str_toks that calls str_room(1) */
             return;
         }
 
-        ch = (unsigned char) strpool[in++];
+        ch = (unsigned char) str_pool[in++];
 
         if ((ch < '!') || (ch > '~')) {
             /* convert control characters into oct */
-            i = snprintf ((char *) &strpool[poolptr], 5,
+            i = snprintf ((char *) &str_pool[pool_ptr], 5,
                      "\\%.3o", (unsigned int) ch);
 			check_nprintf (i, 5);
-            poolptr += i;
+            pool_ptr += i;
             continue;
         }
         if ((ch == '(') || (ch == ')') || (ch == '\\')) {
             /* escape parenthesis and backslash */
-            strpool[poolptr++] = '\\';
+            str_pool[pool_ptr++] = '\\';
         }
         /* copy char :-) */
-        strpool[poolptr++] = ch;
+        str_pool[pool_ptr++] = ch;
     }
 }
 
@@ -664,30 +664,30 @@ void escapestring (poolpointer in)
    the input string is located. The output string is written
    as temporary string right after the input string.
    Thus at the begin of the procedure the global variable
-   "poolptr" points to the start of the output string and
+   "pool_ptr" points to the start of the output string and
    after the end when the procedure returns.
 */
 void escapename (poolpointer in)
 {
-    const poolpointer out = poolptr;
+    const poolpointer out = pool_ptr;
     unsigned char ch;
 	int i;
 
     while (in < out) {
-        if (poolptr + 3 >= poolsize) {
-            poolptr = poolsize;
+        if (pool_ptr + 3 >= pool_size) {
+            pool_ptr = pool_size;
             /* error by str_toks that calls str_room(1) */
             return;
         }
 
-        ch = (unsigned char) strpool[in++];
+        ch = (unsigned char) str_pool[in++];
 
         if ((ch >= 1 && ch <= 32) || ch >= 127) {
             /* escape */
-            i = snprintf ((char *) &strpool[poolptr], 4,
+            i = snprintf ((char *) &str_pool[pool_ptr], 4,
                      "#%.2X", (unsigned int) ch);
 			check_nprintf (i, 4);
-            poolptr += i;
+            pool_ptr += i;
             continue;
         }
         switch (ch) {
@@ -706,14 +706,14 @@ void escapename (poolpointer in)
         case 123:
         case 125:
             /* escape */
-            i = snprintf ((char *) &strpool[poolptr], 4,
+            i = snprintf ((char *) &str_pool[pool_ptr], 4,
                      "#%.2X", (unsigned int) ch);
 			check_nprintf (i, 4);
-            poolptr += i;
+            pool_ptr += i;
             break;
         default:
             /* copy */
-            strpool[poolptr++] = ch;
+            str_pool[pool_ptr++] = ch;
         }
     }
 }
@@ -727,22 +727,22 @@ void escapename (poolpointer in)
 */
 void escapehex (poolpointer in)
 {
-    const poolpointer out = poolptr;
+    const poolpointer out = pool_ptr;
     unsigned char ch;
 	int i;
 	
     while (in < out) {
-        if (poolptr + 2 >= poolsize) {
-            poolptr = poolsize;
+        if (pool_ptr + 2 >= pool_size) {
+            pool_ptr = pool_size;
             /* error by str_toks that calls str_room(1) */
             return;
         }
 
-        ch = (unsigned char) strpool[in++];
+        ch = (unsigned char) str_pool[in++];
 
-        i = snprintf ((char *) &strpool[poolptr], 3,"%.2X", (unsigned int) ch);
+        i = snprintf ((char *) &str_pool[pool_ptr], 3,"%.2X", (unsigned int) ch);
 		check_nprintf (i, 3);
-        poolptr += 2;
+        pool_ptr += 2;
     }
 }
 
@@ -757,18 +757,18 @@ void escapehex (poolpointer in)
 */
 void unescapehex (poolpointer in)
 {
-    const poolpointer out = poolptr;
+    const poolpointer out = pool_ptr;
     unsigned char ch;
     boolean first = true;
 	unsigned char a = 0;        /* to avoid warning about uninitialized use of a */
     while (in < out) {
-        if (poolptr + 1 >= poolsize) {
-            poolptr = poolsize;
+        if (pool_ptr + 1 >= pool_size) {
+            pool_ptr = pool_size;
             /* error by str_toks that calls str_room(1) */
             return;
         }
 
-        ch = (unsigned char) strpool[in++];
+        ch = (unsigned char) str_pool[in++];
 
         if ((ch >= '0') && (ch <= '9')) {
             ch -= '0';
@@ -786,11 +786,11 @@ void unescapehex (poolpointer in)
             continue;
         }
 
-        strpool[poolptr++] = a + ch;
+        str_pool[pool_ptr++] = a + ch;
         first = true;
     }
     if (!first) {               /* last hex digit is omitted */
-        strpool[poolptr++] = ch << 4;
+        str_pool[pool_ptr++] = ch << 4;
     }
 }
 
@@ -1003,19 +1003,19 @@ void print_mod_date ()
 
 void getcreationdate ()
 {
-    /* put creation date on top of string pool and update poolptr */
+    /* put creation date on top of string pool and update pool_ptr */
     size_t len = strlen (start_time_str);
 
     init_start_time ();
 
-    if ((unsigned)(poolptr + len) >= (unsigned)poolsize) {
-        poolptr = poolsize;
+    if ((unsigned)(pool_ptr + len) >= (unsigned)pool_size) {
+        pool_ptr = pool_size;
         /* error by str_toks that calls str_room(1) */
         return;
     }
 
-    memcpy (&strpool[poolptr], start_time_str, len);
-    poolptr += len;
+    memcpy (&str_pool[pool_ptr], start_time_str, len);
+    pool_ptr += len;
 }
 
 /* makecfilename
@@ -1253,9 +1253,9 @@ int newcolorstack(integer s, integer literal_mode, boolean page_start)
 #define get_colstack(n) (&colstacks[n])
 
 /*
-    Puts a string on top of the string pool and updates poolptr.
+    Puts a string on top of the string pool and updates pool_ptr.
 */
-void put_cstring_on_strpool(poolpointer start, char *str)
+void put_cstring_on_str_pool(poolpointer start, char *str)
 {
     size_t len;
 
@@ -1264,13 +1264,13 @@ void put_cstring_on_strpool(poolpointer start, char *str)
     }
 
     len = strlen(str);
-    poolptr = start + len;
-    if (poolptr >= poolsize) {
-        poolptr = poolsize;
+    pool_ptr = start + len;
+    if (pool_ptr >= pool_size) {
+        pool_ptr = pool_size;
         /* error by str_toks that calls str_room(1) */
         return;
     }
-    memcpy(&strpool[start], str, len);
+    memcpy(&str_pool[start], str, len);
 }
 
 integer colorstackset(int colstack_no, integer s)
@@ -1292,9 +1292,9 @@ integer colorstackcurrent(int colstack_no)
     colstack_type *colstack = get_colstack(colstack_no);
 
     if (page_mode) {
-        put_cstring_on_strpool(poolptr, colstack->page_current);
+        put_cstring_on_str_pool(pool_ptr, colstack->page_current);
     } else {
-        put_cstring_on_strpool(poolptr, colstack->form_current);
+        put_cstring_on_str_pool(pool_ptr, colstack->form_current);
     }
     return colstack->literal_mode;
 }
@@ -1346,7 +1346,7 @@ integer colorstackpop(int colstack_no)
         }
         xfree(colstack->page_current);
         colstack->page_current = colstack->page_stack[--colstack->page_used];
-        put_cstring_on_strpool(poolptr, colstack->page_current);
+        put_cstring_on_str_pool(pool_ptr, colstack->page_current);
     } else {
         if (colstack->form_used == 0) {
             pdftex_warn("pop empty color form stack %u",
@@ -1355,7 +1355,7 @@ integer colorstackpop(int colstack_no)
         }
         xfree(colstack->form_current);
         colstack->form_current = colstack->form_stack[--colstack->form_used];
-        put_cstring_on_strpool(poolptr, colstack->form_current);
+        put_cstring_on_str_pool(pool_ptr, colstack->form_current);
     }
     return colstack->literal_mode;
 }
@@ -1531,16 +1531,16 @@ void pdfshipoutend(boolean shipping_page)
 
 void pdfsetmatrix(poolpointer in, scaled cur_h, scaled cur_v)
 {
-    /* Argument of \pdfsetmatrix starts with strpool[in] and ends
-       before strpool[poolptr]. */
+    /* Argument of \pdfsetmatrix starts with str_pool[in] and ends
+       before str_pool[pool_ptr]. */
 
     matrix_entry x, *y, *z;
 
     if (page_mode) {
-        if (sscanf((const char *) &strpool[in], " %lf %lf %lf %lf ",
+        if (sscanf((const char *) &str_pool[in], " %lf %lf %lf %lf ",
                    &x.a, &x.b, &x.c, &x.d) != 4) {
             pdftex_warn("Unrecognized format of \\pdfsetmatrix{%s}",
-                        &strpool[poolptr]);
+                        &str_pool[pool_ptr]);
             return;
         }
         /* calculate this transformation matrix */
@@ -1681,12 +1681,12 @@ check_buffer_overflow (int wsize) {
 void 
 check_pool_overflow (int wsize) {
   int nsize ;
-  if ((wsize-1)>poolsize) {
-	nsize = poolsize + poolsize/5+EXTRA_STRING;
+  if ((wsize-1)>pool_size) {
+	nsize = pool_size + pool_size/5+EXTRA_STRING;
 	if (nsize<wsize) {
 	  nsize = wsize+EXTRA_STRING;
 	}
-	strpool = xreallocarray (strpool, char, nsize);	
-	poolsize = nsize;
+	str_pool = xreallocarray (str_pool, char, nsize);	
+	pool_size = nsize;
   }
 }

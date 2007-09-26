@@ -191,6 +191,10 @@ texmf_yesno(const_string var)
 #define maxbufstack max_buf_stack
 #define inopen in_open
 #define inputfile input_file
+#define strstart str_start
+#define strpool str_pool
+#define poolptr pool_ptr
+#define poolsize pool_size
 #endif
 
 #ifndef WIN32

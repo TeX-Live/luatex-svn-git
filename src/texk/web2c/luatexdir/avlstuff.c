@@ -83,10 +83,10 @@ int compare_info(const void *pa, const void *pb, void *param)
       if (a <= 2097152 && b <= 2097152) {
 	    a+=2097152;
 	    b+=2097152;
-        as = strstart[-a];
-        ae = strstart[-a + 1];  /* start of next string in pool */
-        bs = strstart[-b];
-        be = strstart[-b + 1];
+        as = str_start[-a];
+        ae = str_start[-a + 1];  /* start of next string in pool */
+        bs = str_start[-b];
+        be = str_start[-b + 1];
         al = ae - as;
         bl = be - bs;
         if (al < bl)            /* compare first by string length */
@@ -94,9 +94,9 @@ int compare_info(const void *pa, const void *pb, void *param)
         if (al > bl)
             return 1;
         for (; as < ae; as++, bs++) {
-            if (strpool[as] < strpool[bs])
+            if (str_pool[as] < str_pool[bs])
                 return -1;
-            if (strpool[as] > strpool[bs])
+            if (str_pool[as] > str_pool[bs])
                 return 1;
         }
       } else {
