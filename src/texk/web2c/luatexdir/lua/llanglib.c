@@ -36,18 +36,17 @@ static int lang_new (lua_State *L) {
 static int 
 lang_exceptions (lua_State *L) {
   struct tex_language *lang_ptr;
-  int i;
   lang_ptr = check_islang(L,1);
   if (lua_gettop(L)==2 && lua_istable(L,2)) {
-	lang_ptr->exceptions = luaL_ref(L,LUA_REGISTRYINDEX);
+    lang_ptr->exceptions = luaL_ref(L,LUA_REGISTRYINDEX);
     return 0;
   } else {
-	if (lang_ptr->exceptions==0) {
-	  lua_pushnil(L);
-	} else {
+    if (lang_ptr->exceptions==0) {
+      lua_pushnil(L);
+    } else {
       lua_rawgeti(L,LUA_REGISTRYINDEX,lang_ptr->exceptions);
-	}
-	return 1;
+    }
+    return 1;
   }
 }
 
@@ -166,47 +165,47 @@ lang_hyphenation (lua_State *L) {
 
 static int 
 lang_hyphenate (lua_State *L) {
-  int c,i,k,l,r;
+  int i,l,r,len;
   struct tex_language *lang_ptr;
-  char *word;
-  char hyphenated[2*MAX_WORD_LEN] = {0};
+  char *w;
+  unsigned int *wword;
+  char hyphenated[(4*MAX_WORD_LEN)+1] = {0};
   char hyphens[MAX_WORD_LEN] = {0};
   lang_ptr = check_islang(L,1);
   if (lua_isstring(L,2)) { /* word lang */
     if (lang_ptr->exceptions!=0) {
       lua_rawgeti(L,LUA_REGISTRYINDEX,lang_ptr->exceptions);
       if (lua_istable(L,-1)) { /* ?? word lang */
-		lua_pushvalue(L,-2);    /* word table word lang */
-		lua_rawget(L,-2);    
-		if (lua_isstring(L,-1)) { /* ?? table word lang */
-		  lua_replace(L,-3); 
-		  lua_pop(L,1); 
-		  return 1; 
-		} else {
-		  lua_pop(L,2);
-		}
+	lua_pushvalue(L,-2);    /* word table word lang */
+	lua_rawget(L,-2);    
+	if (lua_isstring(L,-1)) { /* ?? table word lang */
+	  lua_replace(L,-3); 
+	  lua_pop(L,1); 
+	  return 1; 
+	} else {
+	  lua_pop(L,2);
+	}
       } else {
-		lua_pop(L,1);
+	lua_pop(L,1);
       }
     };
-    word = (char *)lua_tolstring(L,2,&l);
-	if (l>=MAX_WORD_LEN) {
-	  lua_pushstring(L,"lang:hyphenate(): word too long");
-	  return lua_error(L);
-	}
-    (void)hnj_hyphen_hyphenate(lang_ptr->patterns,word,l,hyphens);
-	r = (lang_ptr->rhmin>0 ? lang_ptr->rhmin : 1);
-	for (c=0,i=0,k=0;i<l;) {
-	  hyphenated[k++] = word[i];
-	  if (hyphens[c]!='0' 
-		  && c<(l-r) 
-		  && c>=lang_ptr->lhmin ) {
-		hyphenated[k++] = '-';
-	  }
-	  i++; 
-	  c++;
-	}
-	hyphenated[k]=0;
+    wword = utf82u_strcpy(wword,(char *)lua_tostring(L,2));
+    len = u_strlen(wword); 
+    if (len>=MAX_WORD_LEN) {
+      lua_pushstring(L,"lang:hyphenate(): word too long");
+      return lua_error(L);
+    }
+    (void)hnj_hyphen_hyphenate(lang_ptr->patterns,wword,len,hyphens);
+    r = (lang_ptr->rhmin>0 ? lang_ptr->rhmin : 1);
+    l = (lang_ptr->lhmin>0 ? lang_ptr->lhmin : 1);
+    w = hyphenated;
+    for (i=0;i<len;i++) {
+      w = utf8_idpb(w,wword[i]);
+      if (hyphens[i]!='0' && i<(len-r)  && i>=l)
+	*w++ = '-';
+    }
+    free(wword);
+    *w=0;
     lua_pushstring(L,hyphenated);
     return 1;
   }
