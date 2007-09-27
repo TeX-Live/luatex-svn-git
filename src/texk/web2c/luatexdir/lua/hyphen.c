@@ -48,7 +48,7 @@
 
 #include <ctype.h>
 
-#define noVERBOSE
+#define VERBOSE
 
 #include "hnjalloc.h"
 #include "hyphen.h"
@@ -287,6 +287,7 @@ static int hnj_hash_lookup(
 ) {
   int i;
   HashEntry *e;
+
   i = hnj_string_hash (key) % HASH_SIZE;
   for (e = hashtab->entries[i]; e; e = e->next) {
     if (!strcmp ((char*)key, (char*)e->key)) {
@@ -338,7 +339,7 @@ static void hnj_add_trans(
   int num_trans;
 
   if (uni_ch<32 || (uni_ch>126 && uni_ch<160)) {
-    fprintf(stderr,"Character out of bounds: u%04x\n",uni_ch);
+    fprintf(stderr,"Character out of bounds: u%04x \n",uni_ch);
     exit(1);
   }
   num_trans = dict->states[state1].num_trans;
@@ -409,7 +410,7 @@ HyphenDict * hnj_hyphen_load(
   /*char buf[80];*/
   int state_num, last_state;
   int i, j = 0;
-  unsigned char ch;
+  int ch;
   int found;
   HashEntry *e;
   int p;
@@ -530,11 +531,17 @@ HyphenDict * hnj_hyphen_load(
       last_state = state_num;
       ch = word[j];
       if (ch>=0x80) {
+        printf("UTF8 seq:");
         int i=1;
-        while (word[j-i]>=0x80) i++;
+        while (word[j-i]>=0x80 && word[j-i]<0xC0) i++;
         ch = word[j-i] & mask[i];
+        printf("%d u%02X/%02X",i,(int) word[j-i],mask[i]);
         int m = j-i;
-        while (i--) ch = (ch<<6)+(0x3F & word[j-i]);
+        while (i--) {
+          ch = (ch<<6)+(0x3F & word[j-i]);
+          printf(" u%02X",(int) word[j-i]);
+        }
+        printf(" %04X\n",ch);
         j = m;
       }
       word[j] = '\0';
