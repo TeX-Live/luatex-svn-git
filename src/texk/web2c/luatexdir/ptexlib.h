@@ -353,4 +353,28 @@ typedef enum {
 
 #include "font/texfont.h"
 
+/* language stuff */
+
+#include "hyphen.h"
+
+extern int use_new_hyphenation;
+
+struct tex_language {
+  HyphenDict *patterns;
+  void *L;
+  int exceptions; /* lua registry pointer, should be replaced */
+  int lhmin;
+  int rhmin;
+  int id;
+};
+
+#define MAX_WORD_LEN 255 /* in chars */
+
+extern struct tex_language *new_language (void) ;
+extern void load_patterns (struct tex_language *lang, unsigned char *buf) ;
+extern void load_hyphenation (struct tex_language *lang, unsigned char *buf);
+extern int hyphenate_string(struct tex_language *lang, char *w, char **ret);
+
+extern void new_hyphenation (halfword h, halfword t, int clang, int lmin, int rmin);
+
 #endif                          /* PDFTEXLIB */

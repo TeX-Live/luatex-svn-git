@@ -26920,9 +26920,14 @@ tried per paragraph, since the line breaking algorithm needed to use two
 passes on only about 5 per cent of the paragraphs.
 
 @<Initialize for hyphenating...@>=
-begin @!init if trie_not_ready then init_trie;@+tini@;@/
-cur_lang:=init_cur_lang; l_hyf:=init_l_hyf; r_hyf:=init_r_hyf;
-set_hyph_index;
+begin if use_new_hyphenation then begin
+   new_hyphenation(temp_head, tail, init_cur_lang, init_l_hyf, init_r_hyf);
+   end 
+else begin
+  @!init if trie_not_ready then init_trie;@+tini@;@/
+  cur_lang:=init_cur_lang; l_hyf:=init_l_hyf; r_hyf:=init_r_hyf;
+  set_hyph_index;
+end;
 end
 
 @ The letters $c_1\ldots c_n$ that are candidates for hyphenation are placed
@@ -26952,7 +26957,8 @@ nodes $p_{a-1}$ and~$p_b$ in the description above are placed into variables
 second pass, and |cur_p| points to a glue node.
 
 @<Try to hyphenate...@>=
-begin prev_s:=cur_p; s:=vlink(prev_s);
+begin if not use_new_hyphenation then begin 
+prev_s:=cur_p; s:=vlink(prev_s);
 if s<>null then
   begin @<Skip to node |ha|, or |goto done1| if no hyphenation
     should be attempted@>;
@@ -26962,7 +26968,8 @@ if s<>null then
     |l_hyf+r_hyf| letters have been found, otherwise |goto done1|@>;
   hyphenate;
   end;
-done1: end
+done1: end;
+end
 
 @ @<Declare subprocedures for |line_break|@>=
 @t\4@>@<Declare the function called |reconstitute|@>

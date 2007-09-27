@@ -43,6 +43,9 @@ $Id $
 @define procedure check_buffer_overflow();
 @define procedure check_pool_overflow();
 
+@define var use_new_hyphenation;
+@define procedure new_hyphenation();
+
 { macros from luatex.h }
 @define function pdf_char_marked();
 @define function get_lp_code();
