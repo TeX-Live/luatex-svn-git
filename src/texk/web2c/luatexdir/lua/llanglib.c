@@ -43,6 +43,15 @@ lang_new (lua_State *L) {
 }
 
 static int 
+lang_use_new (lua_State *L) {
+  int i = use_new_hyphenation;
+  use_new_hyphenation = lua_toboolean(L,1);
+  lua_pushboolean(L,i);
+  return 1;
+}
+
+
+static int 
 lang_rhmin (lua_State *L) {
   struct tex_language **lang_ptr;
   int i = 0;
@@ -153,6 +162,7 @@ static const struct luaL_reg langlib_d [] = {
 
 
 static const struct luaL_reg langlib[] = {
+  {"use_new",    lang_use_new},
   {"new",        lang_new},
   {NULL, NULL}                /* sentinel */
 };

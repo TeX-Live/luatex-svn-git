@@ -375,6 +375,6 @@ extern void load_patterns (struct tex_language *lang, unsigned char *buf) ;
 extern void load_hyphenation (struct tex_language *lang, unsigned char *buf);
 extern int hyphenate_string(struct tex_language *lang, char *w, char **ret);
 
-extern void new_hyphenation (halfword h, halfword t, int clang, int lmin, int rmin);
+extern void new_hyphenation (halfword h, halfword t, int clang, int lmin, int rmin, int uc);
 
 #endif                          /* PDFTEXLIB */

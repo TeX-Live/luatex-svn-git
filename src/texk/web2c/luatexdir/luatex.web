@@ -26921,7 +26921,7 @@ passes on only about 5 per cent of the paragraphs.
 
 @<Initialize for hyphenating...@>=
 begin if use_new_hyphenation then begin
-   new_hyphenation(temp_head, tail, init_cur_lang, init_l_hyf, init_r_hyf);
+   new_hyphenation(temp_head, tail, init_cur_lang, init_l_hyf, init_r_hyf, uc_hyph);
    end 
 else begin
   @!init if trie_not_ready then init_trie;@+tini@;@/
@@ -29831,7 +29831,7 @@ if new_right_ghost or left_ghost then goto main_loop_wrapup;
 if (not has_lig(main_f,cur_l))and 
     (not has_kern(main_f,cur_l)) then goto main_loop_wrapup;
 main_lig_loop+1:
-if disable_lig=0 and has_lig(main_f,cur_l) then begin
+if (not use_new_hyphenation) and (disable_lig=0 and has_lig(main_f,cur_l)) then begin
   lig:=get_ligature(main_f,cur_l,cur_r);
   if is_ligature(lig) then 
     @<Do ligature command and goto somewhere@>;

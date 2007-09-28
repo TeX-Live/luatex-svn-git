@@ -1183,7 +1183,15 @@ that makes it suitable for use as a partial line input mechanism:
    that leading spaces are not ignored.
 \item No \tex{endlinechar} is inserted.
 \item Trailing spaces are not removed.
+(Note that this does not prevent \TEX\ itself from eating spaces as
+result of interpreting the line. For example, in 
+\starttyping
+before\directlua0{tex.sprint("\\relax")tex.sprint(" inbetween")}after
+\stoptyping
+the space before \type{inbetween} will be gobbled as a result of 
+the `normal' scanning of \type{\relax}).
 \stopitemize
+
 
 \subsubsection{\luatex{tex.write}}
 
