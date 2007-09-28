@@ -446,7 +446,7 @@ int setbox (lua_State *L) {
   if (lua_isboolean(L,-1)) {
     j = lua_toboolean(L,-1);
     if (j==0)
-      j == null;
+      j = null;
     else 
       return 0;
   } else {

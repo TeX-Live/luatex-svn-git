@@ -246,7 +246,7 @@ integer *packet_local_fonts(internal_font_number f, integer *num) {
 	    }
 	  }
 	  if (l==k) {
-	    localfonts[k++]==lf;
+	    localfonts[k++]=lf;
 	  }
 	  break;
 	case packet_push_code: 
