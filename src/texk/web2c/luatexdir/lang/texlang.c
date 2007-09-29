@@ -228,13 +228,12 @@ new_hyphenation (halfword head, halfword tail, int init_cur_lang, int init_lhyf,
       while (type(r)!=math_node && r!=null)
 	r = vlink(r);
     } else {
-      if (wordlen>=(lhmin+rhmin) && (tex_languages[curlang]!=NULL)) {
+      if (wordlen>=(lhmin+rhmin) && ((lang = tex_languages[curlang])!=NULL) && lang->patterns!=NULL) {
 #ifdef VERBOSE
-	fprintf(stderr,"found a word: ");
+	fprintf(stderr,"found a word (lang=%d): ",curlang);
 	for (i=0;i<(wordlen);i++) fprintf(stderr,"%c", wword[i]);
 	fprintf(stderr,"\n");
-#endif	
-	lang = tex_languages[curlang];
+#endif		
 	(void)hnj_hyphen_hyphenate(lang->patterns,(int *)wword,wordlen,hyphens);
 	/* fixup hyphens[] for lhmin and rhmin */
 	for (i=0;i<wordlen;i++)   {

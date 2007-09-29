@@ -26921,7 +26921,8 @@ passes on only about 5 per cent of the paragraphs.
 
 @<Initialize for hyphenating...@>=
 begin if use_new_hyphenation then begin
-   new_hyphenation(temp_head, tail, init_cur_lang, init_l_hyf, init_r_hyf, uc_hyph);
+   cur_lang:=init_cur_lang; set_cur_lang;
+   new_hyphenation(temp_head, tail, cur_lang, init_l_hyf, init_r_hyf, uc_hyph);
    end 
 else begin
   @!init if trie_not_ready then init_trie;@+tini@;@/
