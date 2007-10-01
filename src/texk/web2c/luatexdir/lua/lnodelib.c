@@ -5,10 +5,6 @@
 
 #include "nodes.h"
 
-#define NODE_METATABLE "luatex.node"
-
-#define check_isnode(L,b) (halfword *)luaL_checkudata(L,b,NODE_METATABLE)
-
 /* This routine finds the numerical value of a string (or number) at
   lua stack index |n|. If it is not a valid node type, raises a lua
   error. */

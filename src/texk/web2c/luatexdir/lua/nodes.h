@@ -285,6 +285,9 @@ typedef enum {
 #define user_node_id(a)    vlink((a)+2)
 #define user_node_value(a) vinfo((a)+3)
 
+#define NODE_METATABLE "luatex.node"
+
+#define check_isnode(L,b) (halfword *)luaL_checkudata(L,b,NODE_METATABLE)
 
 /* from luanode.c */
 
@@ -308,4 +311,5 @@ extern halfword lua_node_new(int i, int j);
 #define active          pre_adjust_head+temp_node_size
 #define align_head      active+temp_node_size
 #define end_span        align_head+temp_node_size
+
 

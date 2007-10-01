@@ -365,12 +365,14 @@ struct tex_language {
   int exceptions; /* lua registry pointer, should be replaced */
   int lhmin;
   int rhmin;
+  int uchyph;
   int id;
 };
 
 #define MAX_WORD_LEN 255 /* in chars */
 
 extern struct tex_language *new_language (void) ;
+extern struct tex_language *get_language (int n) ;
 extern void load_patterns (struct tex_language *lang, unsigned char *buf) ;
 extern void load_hyphenation (struct tex_language *lang, unsigned char *buf);
 extern int hyphenate_string(struct tex_language *lang, char *w, char **ret);
