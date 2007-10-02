@@ -49,6 +49,8 @@ void hnj_hyphen_clear (HyphenDict *dict);
 void hnj_hyphen_hyphenate (HyphenDict *dict,
 			   const int *word, int word_size,
 			   char *hyphens);
+unsigned char* hnj_serialize(HyphenDict*);
+void hnj_free_serialize(unsigned char*);
 
 #ifdef __cplusplus
 }

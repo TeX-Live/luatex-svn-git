@@ -67,6 +67,13 @@ static unsigned char * hnj_strdup(
   return new;
 }
 
+static int is_utf8_follow(
+  unsigned char c
+) {
+  if (c>=0x80 && c<0xC0) return 1;
+  return 0;
+}
+
 // --------------------------------------------------------------------
 //
 // Type definitions
@@ -78,6 +85,8 @@ static unsigned char * hnj_strdup(
 
 typedef struct _HashTab HashTab;
 typedef struct _HashEntry HashEntry;
+typedef struct _HashIter HashIter;
+typedef union  _HashVal HashVal;
 
 /* A cheap, but effective, hack. */
 #define HASH_SIZE 31627
@@ -86,10 +95,21 @@ struct _HashTab {
   HashEntry *entries[HASH_SIZE];
 };
 
+union _HashVal {
+  int state;
+  char* hyppat;
+};
+
 struct _HashEntry {
   HashEntry *next;
   unsigned char *key;
-  int state;
+  HashVal u;
+};
+
+struct _HashIter {
+  HashEntry** e;
+  HashEntry*  cur;
+  int         ndx;
 };
 
 /* State machine */
@@ -100,9 +120,12 @@ typedef struct _HyphenTrans HyphenTrans;
 
 struct _HyphenDict {
   int num_states;
+  int pat_length;
   char cset[MAX_NAME];
   HyphenState *states;
-  HashTab hashtab;
+  HashTab *patterns;
+  HashTab *merged;
+  HashTab *state_num;
 };
 
 struct _HyphenState {
@@ -116,40 +139,6 @@ struct _HyphenTrans {
   int uni_ch;
   int new_state;
 };
-
-
-//
-//
-static void die(
-  const char*msg
-) {
-  fprintf(stderr,"FATAL: %s\n",msg);
-  exit(1);
-}
-
-
-// Finds the index of an entry, only used on xxx_key arrays
-// Caveat: the table has to be sorted
-static int find_in(
-  unsigned char *tab[],
-  int max,
-  const unsigned char *pat,
-  int len
-) {
-  int left=0, right=max-1;
-  while (left <= right) {
-    int mid = ((right-left)/2)+left;
-    int v   = strncmp((char*)pat,(char*)tab[mid],len);
-    if (v>0) {
-      left = mid + 1;
-    } else if (v<0 || tab[mid][len]!=0) {
-      right = mid -1;
-    } else {
-      return mid;
-    }
-  }
-  return -1;
-}
 
 
 // Combine two right-aligned number patterns, 04000 + 020 becomes 04020
@@ -171,68 +160,6 @@ static char *combine(
 }
 
 
-// used by partition (which is used by qsort_arr)
-//
-static void swap2(
-  unsigned char *a[],
-           char *b[],
-  int i,
-  int j
-) {
-  if (i==j) return;
-  unsigned char*w;
-           char*v;
-  w=a[i]; a[i]=a[j]; a[j]=w;
-  v=b[i]; b[i]=b[j]; b[j]=v;
-}
-
-
-// used by qsort_arr
-//
-static int partition(
-  unsigned char *a[],
-           char *b[],
-  int left,
-  int right,
-  int p
-) {
-  const unsigned char *pivotValue = a[p];
-  int i;
-  swap2(a,b,p,right); // Move pivot to end
-  p = left;
-  for (i=left; i<right; i++) {
-    if (strcmp((char*)a[i],(char*)pivotValue)<=0) {
-      swap2(a,b,p,i);
-      p++;
-    }
-  }
-  swap2(a,b,right,p); // Move pivot to its final place
-  return p;
-}
-
-
-// not full recursive: tail end the biggest part
-//
-static void qsort_arr(
-  unsigned char *a[],
-           char *b[],
-  int left,
-  int right
-) {
-  while (right > left) {
-    int p = left + (right-left)/2; //select a pivot
-    p = partition(a,b, left, right, p);
-    if ((p-1) - left < right - (p+1)) {
-      qsort_arr(a,b, left, p-1);
-      left  = p+1;
-    } else {
-      qsort_arr(a,b, p+1, right);
-      right = p-1;
-    }
-  }
-}
-
-
 // --------------------------------------------------------------------
 // ORIGINAL CODE
 // --------------------------------------------------------------------
@@ -240,14 +167,89 @@ static void qsort_arr(
 
 //
 //
+HashIter* new_HashIter(
+  HashTab* h
+) {
+  HashIter* i = hnj_malloc(sizeof(HashIter));
+  i->e = h->entries;
+  i->cur = NULL;
+  i->ndx = -1;
+  return i;
+}
+
+
+//
+//
+int nextHashStealPattern(
+  HashIter*i,
+  unsigned char**word,
+  char **pattern
+) {
+  while (i->cur==NULL) {
+    if (i->ndx >= HASH_SIZE-1) return 0;
+    i->cur = i->e[++i->ndx];
+  }
+  *word = i->cur->key;
+  *pattern = i->cur->u.hyppat;
+  i->cur->u.hyppat = NULL;
+  i->cur = i->cur->next;
+  return 1;
+}
+
+
+//
+//
+int nextHash(
+  HashIter*i,
+  unsigned char**word
+) {
+  while (i->cur==NULL) {
+    if (i->ndx >= HASH_SIZE-1) return 0;
+    i->cur = i->e[++i->ndx];
+  }
+  *word = i->cur->key;
+  i->cur = i->cur->next;
+  return 1;
+}
+
+
+//
+//
+int eachHash(
+  HashIter*i,
+  unsigned char**word,
+           char**pattern
+) {
+  while (i->cur==NULL) {
+    if (i->ndx >= HASH_SIZE-1) return 0;
+    i->cur = i->e[++i->ndx];
+  }
+  *word = i->cur->key;
+  *pattern = i->cur->u.hyppat;
+  i->cur = i->cur->next;
+  return 1;
+}
+
+
+//
+//
+void delete_HashIter(
+  HashIter*i
+) {
+  hnj_free(i);
+}
+
+
+//
+//
 /* a char* hash function from ASU - adapted from Gtk+ */
-static unsigned int
-hnj_string_hash (const unsigned char *s)
-{
+static unsigned int hnj_string_hash (
+  const unsigned char *s
+) {
   const unsigned char *p;
   unsigned int h=0, g;
 
-  for(p = s; *p != '\0'; p += 1) {
+  for (p = s; *p != '\0'; p += 1) {
     h = ( h << 4 ) + *p;
     if ( ( g = h & 0xf0000000 ) ) {
       h = h ^ (g >> 24);
@@ -260,9 +262,9 @@ hnj_string_hash (const unsigned char *s)
 
 //
 /* assumes that key is not already present! */
-static void hnj_hash_insert(
+static void state_insert(
   HashTab *hashtab,
-  const unsigned char *key,
+  unsigned char *key,
   int state
 ) {
   int i;
@@ -271,15 +273,42 @@ static void hnj_hash_insert(
   i = hnj_string_hash (key) % HASH_SIZE;
   e = hnj_malloc (sizeof(HashEntry));
   e->next = hashtab->entries[i];
-  e->key = hnj_strdup (key);
-  e->state = state;
+  e->key = key;
+  e->u.state = state;
+  hashtab->entries[i] = e;
+}
+
+
+//
+/* assumes that key is not already present! */
+static void hyppat_insert(
+  HashTab *hashtab,
+  unsigned char *key,
+  char* hyppat
+) {
+  int i;
+  HashEntry *e;
+
+  i = hnj_string_hash (key) % HASH_SIZE;
+  for (e = hashtab->entries[i]; e; e=e->next) {
+    if (strcmp((char*)e->key,(char*)key)==0) {
+      if (e->u.hyppat) hnj_free(e->u.hyppat);
+      e->u.hyppat = hyppat;
+      hnj_free(key);
+      return;
+    }
+  }
+  e = hnj_malloc (sizeof(HashEntry));
+  e->next = hashtab->entries[i];
+  e->key = key;
+  e->u.hyppat = hyppat;
   hashtab->entries[i] = e;
 }
 
 
 //
 /* return state if found, otherwise -1 */
-static int hnj_hash_lookup(
+static int state_lookup(
   HashTab *hashtab,
   const unsigned char *key
 ) {
@@ -289,10 +318,31 @@ static int hnj_hash_lookup(
   i = hnj_string_hash (key) % HASH_SIZE;
   for (e = hashtab->entries[i]; e; e = e->next) {
     if (!strcmp ((char*)key, (char*)e->key)) {
-      return e->state;
+      return e->u.state;
     }
   }
   return -1;
+}
+
+
+//
+/* return state if found, otherwise -1 */
+static char* hyppat_lookup(
+  HashTab *hashtab,
+  const unsigned char *chars,
+  int l
+) {
+  int i;
+  HashEntry *e;
+  unsigned char key[128]; // should be ample
+  strncpy((char*)key,(char*)chars,l); key[l]=0;
+  i = hnj_string_hash (key) % HASH_SIZE;
+  for (e = hashtab->entries[i]; e; e = e->next) {
+    if (!strcmp ((char*)key, (char*)e->key)) {
+      return e->u.hyppat;
+    }
+  }
+  return NULL;
 }
 
 
@@ -303,12 +353,12 @@ static int hnj_get_state(
   const unsigned char *string,
   int *state_num
 ) {
-  *state_num = hnj_hash_lookup(&dict->hashtab, string);
+  *state_num = state_lookup(dict->state_num, string);
 
   if (*state_num >= 0)
     return *state_num;
 
-  hnj_hash_insert(&dict->hashtab, string, dict->num_states);
+  state_insert(dict->state_num, hnj_strdup(string), dict->num_states);
   /* predicate is true if dict->num_states is a power of two */
   if (!(dict->num_states & (dict->num_states - 1))) {
     dict->states = hnj_realloc(
@@ -364,7 +414,7 @@ static unsigned char *get_state_str(
 
   for (i = 0; i < HASH_SIZE; i++)
     for (e = global->entries[i]; e; e = e->next)
-      if (e->state == state)
+      if (e->u.state == state)
 	return e->key;
   return NULL;
 }
@@ -397,19 +447,73 @@ static const unsigned char* next_pattern(
 
 //
 //
+static void init_hash(
+  HashTab**h
+) {
+  if (*h) return;
+  int i;
+  *h = hnj_malloc(sizeof(HashTab));
+  for (i = 0; i < HASH_SIZE; i++) (*h)->entries[i] = NULL;
+}
+
+
+//
+//
+static void clear_state_hash(
+  HashTab**h
+) {
+  if (*h==NULL) return;
+  int i;
+  for (i = 0; i < HASH_SIZE; i++) {
+    HashEntry *e, *next;
+    for (e = (*h)->entries[i]; e; e = next) {
+      next = e->next;
+      hnj_free (e->key);
+      hnj_free (e);
+    }
+  }
+  hnj_free(*h);
+  *h=NULL;
+}
+
+
+//
+//
+static void clear_hyppat_hash(
+  HashTab**h
+) {
+  if (*h==NULL) return;
+  int i;
+  for (i = 0; i < HASH_SIZE; i++) {
+    HashEntry *e, *next;
+    for (e = (*h)->entries[i]; e; e = next) {
+      next = e->next;
+      hnj_free(e->key);
+      if (e->u.hyppat) hnj_free(e->u.hyppat);
+      hnj_free(e);
+    }
+  }
+  hnj_free(*h);
+  *h=NULL;
+}
+
+
+//
+//
 static void init_dict(
   HyphenDict* dict
 ) {
-  int i;
   dict->num_states = 1;
+  dict->pat_length = 0;
   dict->states = hnj_malloc (sizeof(HyphenState));
   dict->states[0].match = NULL;
   dict->states[0].fallback_state = -1;
   dict->states[0].num_trans = 0;
   dict->states[0].trans = NULL;
-  for (i = 0; i < HASH_SIZE; i++)
-    dict->hashtab.entries[i] = NULL;
-  hnj_hash_insert(&dict->hashtab, (unsigned char*)"", 0);
+  dict->patterns  = NULL;
+  dict->merged    = NULL;
+  dict->state_num = NULL;
+  init_hash(&dict->patterns);
 }
 
 
@@ -425,16 +529,9 @@ static void clear_dict(
     if (hstate->trans) hnj_free (hstate->trans);
   }
   hnj_free (dict->states);
-  int i;
-  HashEntry *e, *next;
-
-  for (i = 0; i < HASH_SIZE; i++) {
-    for (e = dict->hashtab.entries[i]; e; e = next) {
-      next = e->next;
-      hnj_free (e->key);
-      hnj_free (e);
-    }
-  }
+  clear_hyppat_hash(&dict->patterns);
+  clear_hyppat_hash(&dict->merged);
+  clear_state_hash(&dict->state_num);
 }
 
 
@@ -466,6 +563,41 @@ void hnj_hyphen_free(
   hnj_free(dict);
 }
 
+//
+//
+unsigned char* hnj_serialize(
+  HyphenDict* dict
+) {
+  HashIter *v;
+  unsigned char* word;
+           char* pattern;
+  unsigned char* buf = hnj_malloc(dict->pat_length);
+  unsigned char* cur = buf;
+  v = new_HashIter(dict->patterns);
+  while (eachHash(v,&word,&pattern)) {
+    int i=0, e=0;
+    while(word[e+i]) {
+      if (pattern[i]!='0') *cur++ = (unsigned char) pattern[i];
+      *cur++ = word[e+i++];
+      while (is_utf8_follow(word[e+i])) *cur++ = word[i+e++];
+    }
+    if (pattern[i]!='0') *cur++ = (unsigned char) pattern[i];
+    *cur++ = ' ';
+  }
+  delete_HashIter(v);
+  *cur = 0;
+  return buf;
+}
+
+
+//
+//
+void hnj_free_serialize(
+  unsigned char* c
+) {
+  hnj_free(c);
+}
+
 
 //
 //
@@ -478,27 +610,22 @@ void hnj_hyphen_load(
   int ch;
   int found;
   HashEntry *e;
-  int p;
-
-  unsigned char *pattab_key[MAXPATHS];
-           char *pattab_val[MAXPATHS];
-  int   patterns = 0;
-  unsigned char *newpattab_key[MAXPATHS];
-           char *newpattab_val[MAXPATHS];
-  int   newpatterns = 0;
-
+  HashIter *v;
+  unsigned char* word;
+           char* pattern;
   size_t l = 0;
 
 
 //***************************************
 
   const unsigned char* format;
+  const unsigned char* begin = f;
   while((format = next_pattern(&l,&f))!=NULL) {
     int i,j,e;
     //printf("%s\n",format);
     for (i=0,j=0,e=0; i<l; i++) {
       if (format[i]>='0'&&format[i]<='9') j++;
-      if (format[i]>=0x80) e++;
+      if (is_utf8_follow(format[i])) e++;
     }
     // l-e   => number of _characters_ not _bytes_
     // l-e-j => number of pattern characters
@@ -508,7 +635,7 @@ void hnj_hyphen_load(
     org[0] = '0';
     for (i=0,j=0,e=0; i<l; i++) {
       unsigned char c = format[i];
-      if (c>=0x80) {
+      if (is_utf8_follow(c)) {
         pat[j+e++] = c;
       } else if (c<'0' || c>'9') {
         pat[e+j++] = c;
@@ -517,54 +644,46 @@ void hnj_hyphen_load(
         org[j]   = c;
       }
     }
-    pat[e+j]   = 0;
+    pat[e+j] = 0;
     org[j+1] = 0;
-    pattab_key[patterns]   = pat;
-    pattab_val[patterns++] = org;
-    if (patterns>=MAXPATHS) die("too many base patterns");
+    hyppat_insert(dict->patterns,pat,org);
   }
-  // As we use binairy search, make sure it is sorted
-  qsort_arr(pattab_key,pattab_val,0,patterns-1);
-
-  for (p=0; p<patterns; p++) {
-    unsigned char *pat = pattab_key[p];
-    int   patsize = strlen((char*)pat);
+  dict->pat_length += (f-begin)+2; // 2 for spurious spaces
+  init_hash(&dict->merged);
+  v = new_HashIter(dict->patterns);
+  while (nextHash(v,&word)) {
+    int   wordsize = strlen((char*)word);
     int   j,l;
-    for (l=1; l<=patsize; l++) {
-      if (pat[l]>=0x80) continue; // Do not clip an utf8 sequence
+    for (l=1; l<=wordsize; l++) {
+      if (is_utf8_follow(word[l])) continue; // Do not clip an utf8 sequence
       for (j=1; j<=l; j++) {
         int i = l-j;
-        int  subpat_ndx;
-        if (pat[i]>=0x80) continue; // Do not start halfway an utf8 sequence
-        if ((subpat_ndx = find_in(pattab_key,patterns,pat+i,j))>=0) {
-          int   newpat_ndx;
-          if ((newpat_ndx = find_in(newpattab_key,newpatterns,pat,l))<0) {
-            unsigned char *newpat=(unsigned char*)malloc(l+1);
-            strncpy((char*)newpat, (char*)pat,l); newpat[l]=0;
+        if (is_utf8_follow(word[i])) continue; // Do not start halfway an utf8 sequence
+        char *subpat_pat;
+        if ((subpat_pat = hyppat_lookup(dict->patterns,word+i,j))!=NULL) {
+          char* newpat_pat;
+          if ((newpat_pat = hyppat_lookup(dict->merged,word,l))==NULL) {
+            unsigned char *newword=(unsigned char*)malloc(l+1);
+            strncpy((char*)newword, (char*)word,l); newword[l]=0;
             int e=0;
-            for (i=0; i<l; i++) if (newpat[i]>=0x80) e++;
+            for (i=0; i<l; i++) if (is_utf8_follow(newword[i])) e++;
             char *neworg = malloc(l+2-e);
             sprintf(neworg,"%0*d",l+1-e,0); // fill with right amount of '0'
-            newpattab_key[newpatterns]   = newpat;
-            newpattab_val[newpatterns++] = combine(neworg,pattab_val[subpat_ndx]);
-            if (newpatterns>MAXPATHS) die("to many new patterns");
+            hyppat_insert(dict->merged,newword,combine(neworg,subpat_pat));
           } else {
-            newpattab_val[newpat_ndx] = combine(
-              newpattab_val[newpat_ndx], pattab_val[subpat_ndx] ); 
+            combine(newpat_pat,subpat_pat);
           }
         }
       }
     }
   }
+  delete_HashIter(v);
 
-  for (p=0; p<patterns; p++) {
-    free(pattab_key[p]);
-    free(pattab_val[p]);
-  }
-  for (p=0; p<newpatterns; p++) {
+  init_hash(&dict->state_num);
+  state_insert(dict->state_num, hnj_strdup((unsigned char*)""), 0);
+  v = new_HashIter(dict->merged);
+  while (nextHashStealPattern(v,&word,&pattern)) {
     static unsigned char mask[] = {0x3F,0x1F,0xF,0x7};
-    unsigned char *word    = newpattab_key[p];
-             char *pattern = newpattab_val[p];
     int j = strlen((char*)word);
 #ifdef VERBOSE
     printf ("word %s pattern %s, j = %d\n", word, pattern, j);
@@ -579,7 +698,7 @@ void hnj_hyphen_load(
       ch = word[j];
       if (ch>=0x80) {
         int i=1;
-        while (word[j-i]>=0x80 && word[j-i]<0xC0) i++;
+        while (is_utf8_follow(word[j-i])) i++;
         ch = word[j-i] & mask[i];
         int m = j-i;
         while (i--) {
@@ -591,37 +710,38 @@ void hnj_hyphen_load(
       state_num = hnj_get_state (dict, word, &found);
       hnj_add_trans (dict, state_num, last_state, ch);
     }
-    free(newpattab_key[p]);
-    // free(newpattab_val[p]); assigned to .match
   }
+  delete_HashIter(v);
+  clear_hyppat_hash(&dict->merged);
 
 //***************************************
 
   /* put in the fallback states */
   for (i = 0; i < HASH_SIZE; i++) {
-    for (e = dict->hashtab.entries[i]; e; e = e->next) {
-      if (e->state) {
+    for (e = dict->state_num->entries[i]; e; e = e->next) {
+      // do not do state==0 otherwise things get confused
+      if (e->u.state) {
         for (j = 1; 1; j++) {
-          state_num = hnj_hash_lookup(&dict->hashtab, e->key + j);
+          state_num = state_lookup(dict->state_num, e->key + j);
           if (state_num >= 0) break;
         }
-        /* KBH: FIXME state 0 fallback_state should always be -1? */
-        dict->states[e->state].fallback_state = state_num;
+        dict->states[e->u.state].fallback_state = state_num;
       }
     }
   }
 #ifdef VERBOSE
   for (i = 0; i < HASH_SIZE; i++) {
-    for (e = dict->hashtab->entries[i]; e; e = e->next) {
-      printf ("%d string %s state %d, fallback=%d\n", i, e->key, e->state,
-        dict->states[e->state].fallback_state);
-      for (j = 0; j < dict->states[e->state].num_trans; j++) {
-        printf (" u%4x->%d\n", (int)dict->states[e->state].trans[j].uni_ch,
-          dict->states[e->state].trans[j].new_state);
+    for (e = dict->state_num->entries[i]; e; e = e->next) {
+      printf ("%d string %s state %d, fallback=%d\n", i, e->key, e->u.state,
+        dict->states[e->u.state].fallback_state);
+      for (j = 0; j < dict->states[e->u.state].num_trans; j++) {
+        printf (" u%4x->%d\n", (int)dict->states[e->u.state].trans[j].uni_ch,
+          dict->states[e->u.state].trans[j].new_state);
       }
     }
   }
 #endif
+  clear_state_hash(&dict->state_num);
 }
 
 
