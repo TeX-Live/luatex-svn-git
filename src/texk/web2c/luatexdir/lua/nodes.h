@@ -1,6 +1,9 @@
 
 #include <stdarg.h>
 
+#ifndef __NODES_H__
+#define __NODES_H__
+
 #define max_halfword  0x3FFFFFFF
 #define null         -0x3FFFFFFF
 #define null_flag    -0x40000000
@@ -312,4 +315,4 @@ extern halfword lua_node_new(int i, int j);
 #define align_head      active+temp_node_size
 #define end_span        align_head+temp_node_size
 
-
+#endif
