@@ -252,7 +252,7 @@ hnj_hyphenation (halfword head, halfword tail, int init_cur_lang, int init_lhyf,
   assert (init_lhyf>0);
   assert (init_rhyf>0);
   assert (tail!=null);
-  assert (type(tail)!=glyph_node);
+  /*assert (type(tail)!=glyph_node);*/
 
   r = head;
   wordstart = null;
@@ -418,7 +418,7 @@ hnj_hyphenation (halfword head, halfword tail, int init_cur_lang, int init_lhyf,
 	  rhmin = what_rhm(r);
 	  if (rhmin<1) rhmin=1;
 #ifdef VERBOSE
-	  fprintf(stderr,"node(%d): lang=%d,lhm=%d,rhm=%d\n",r,curlang,lhmin,rhmin);
+	  fprintf(stderr,"node(%d): lang=%d,lhm=%d,rhm=%d\n",(int)r,curlang,lhmin,rhmin);
 #endif
 	}
       }
