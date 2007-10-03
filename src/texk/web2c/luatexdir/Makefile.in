@@ -103,9 +103,9 @@ font/texfont.o: font/texfont.h
 
 font/tfmofm.o: font/texfont.h
 
-lua/luanode.o: lua/nodes.h
+lua/luanode.o: nodes.h
 
-lua/luawhatsits.o: lua/nodes.h
+lua/luawhatsits.o: nodes.h
 
 utils.o: svnversion.h
 

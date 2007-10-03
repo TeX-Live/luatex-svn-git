@@ -130,6 +130,9 @@ struct _HyphenDict {
 
 struct _HyphenState {
   char *match;
+//char *repl;
+//signed char replindex;
+//signed char replcut;
   int fallback_state;
   int num_trans;
   HyphenTrans *trans;
@@ -599,6 +602,14 @@ void hnj_free_serialize(
 }
 
 
+// hyphenation pattern:
+// signed bytes
+// 0 indicates end (actually any negative number)
+// : prio(1+),startpos,length,len1,[replace],len2,[replace]
+// most basic example is:
+//  p n 0 0 0
+// for a hyphenation point between characters
+
 //
 //
 void hnj_hyphen_load(
@@ -623,6 +634,28 @@ void hnj_hyphen_load(
   while((format = next_pattern(&l,&f))!=NULL) {
     int i,j,e;
     //printf("%s\n",format);
+    /*
+    char* repl = strnchr(format, '/',l);
+    int replindex = 0;
+    int replcut = 0;
+    if (repl) {
+      int clen = l-(repl-format);
+      l = repl-format;
+      char * index = strnchr(repl + 1, ',',clen);
+      if (index) {
+        char * index2 = strnchr(index + 1, ',',clen-(index-repl));
+        if (index2) {
+          replindex = (signed char) atoi(index + 1) - 1;
+          replcut = (signed char) atoi(index2 + 1);                
+        }
+      } else {
+        hnj_strchomp(repl + 1);
+//      replindex = 0;
+        replcut = strlen(buf);
+      }
+      repl = hnj_strdup(repl + 1);
+    }
+    */
     for (i=0,j=0,e=0; i<l; i++) {
       if (format[i]>='0'&&format[i]<='9') j++;
       if (is_utf8_follow(format[i])) e++;
@@ -752,45 +785,57 @@ void hnj_hyphen_load(
 //
 void hnj_hyphen_hyphenate(
   HyphenDict *dict,
-  const int *word,
-  int word_size,
-  char *hyphens
+  halfword first,
+  halfword last,
+  int length,
+  halfword left,
+  halfword right
 ) {
-  int prep_word_buf[MAX_WORD];
-  int *prep_word;
-  int i, ext_word_len, k;
+  static halfword begin = null;
+  static halfword end   = null;
+  halfword here;
+  // +2 for dots at each end, +1 for points /outside/ characters
+  int ext_word_len = length+2;
+  int hyphen_len   = ext_word_len+1;
+//char *hyphens = hnj_malloc((hyphen_len*2)+1); // LATER
+  char *hyphens = hnj_malloc(hyphen_len+1);
+  int char_num, k;
   int state;
-  int ch;
   HyphenState *hstate;
   char *match;
   int offset;
+  if (begin==null) begin = insert_character(null,(int)'.');
+  if (end  ==null) end   = insert_character(null,(int)'.');
 
-  if (word_size + 3 < MAX_WORD)
-    prep_word = prep_word_buf;
-  else
-    prep_word = hnj_malloc((word_size + 3)*sizeof(int));
+  set_vlink(begin,first);
+  set_vlink(end,get_vlink(last));
+  set_vlink(last,end);
 
-  ext_word_len = 0;
-  prep_word[ext_word_len++] = '.';
-  for (i = 0; i < word_size; i++) prep_word[ext_word_len++] = word[i];
-  prep_word[ext_word_len++] = '.';
-  prep_word[ext_word_len] = 0;
   // NB: less-equal because there is always one more hyphenation point
   //     than number of characters:  ^.^w^o^r^d^.^
-  for (i = 0; i <= ext_word_len; i++) hyphens[i] = '0';    
+  for (char_num = 0; char_num < hyphen_len; char_num++) {
+//  hyphens[char_num*2] = '0';    // LATER
+//  hyphens[char_num*2+1] = '0';    // LATER
+    hyphens[char_num] = '0';    
+  }
+//hyphens[hyphen_len*2] = 0;  // LATER
+  hyphens[hyphen_len] = 0;
 
   /* now, run the finite state machine */
   state = 0;
-  for (i = 0; i < ext_word_len; i++) {
-    ch = prep_word[i];
-    for (;;) {
+
+  for (char_num=0, here=begin; here!=end; here=get_vlink(here)) {
+
+    int ch = get_character(here);
+
+    while (1) {
       if (state == -1) {
         state = 0;
         goto try_next_letter;
       }          
 
 #ifdef VERBOSE
-      printf("%*s%s%c",i-strlen(get_state_str(state)),"",get_state_str(state),(char)ch);
+      printf("%*s%s%c",char_num-strlen(get_state_str(state)),"",get_state_str(state),(char)ch);
 #endif
 
       hstate = &dict->states[state];
@@ -800,15 +845,12 @@ void hnj_hyphen_hyphenate(
 #ifdef VERBOSE
           printf(" state %d\n",state);
 #endif
-          /* Additional optimization is possible here - especially,
-             elimination of trailing zeroes from the match. Leading zeroes
-             have already been optimized. */
           match = dict->states[state].match;
           if (match) {
             // +2 because:
             //  1 string length is one bigger than offset
             //  1 hyphenation starts before first character
-            offset = i + 2 - strlen (match);
+            offset = char_num + 2 - strlen (match);
 #ifdef VERBOSE
             printf ("%*s%s\n", offset,"", match);
 #endif
@@ -831,154 +873,21 @@ void hnj_hyphen_hyphenate(
     /* for patterns even if the current character is not known in state 0 */
     /* since patterns for hyphenation may occur anywhere in the word */
 try_next_letter: ;
+    char_num++;
   }
-#ifdef VERBOSE
-  putchar(' ');
-  for (i = 0; i < ext_word_len; i++) {
-    putchar(' ');
-    putchar((char)prep_word[i]);
-  }
-  putchar ('\n');
-  for (i = 0; i <= ext_word_len; i++) {
-    putchar(' ');
-    putchar(hyphens[i]);
-  }
-  putchar ('\n');
-#endif
 
   // pattern is ^.^w^o^r^d^.^   word_len=4, ext_word_len=6, hyphens=7
   // convert to     ^ ^ ^       so drop first two and stop after word_len-1
-  for (i = 0; i < word_size-1; i++) {
-    if ((hyphens[i+2] & 1)==0)
-      hyphens[i] = '0';
-    else
-      hyphens[i] = hyphens[i + 2];
-  }
-  /* Let TeX decide if first n, last m characters can have a hyphen */
-//hyphens[0] = '0';
-//for (; i < word_size; i++) hyphens[i] = '0';
-//hyphens[word_size] = '\0';
-  hyphens[word_size-1] = '\0';
 
-  if (prep_word != prep_word_buf) hnj_free (prep_word);
+  set_vlink(last,get_vlink(end));
+
+  for (here=first,char_num=0; here!=left; here=get_vlink(here)) char_num++;
+  for (; here!=right; here=get_vlink(here)) {
+    if (hyphens[char_num+2] & 1)
+      here = insert_discretionary(here, null, null, 0);
+    char_num++;
+  }
+  hnj_free(hyphens);
 }
 
 
-#if 0 /* ignore for the moment */
-//
-//
-int hnj_hyphen_tok_hyphenate(
-  HyphenDict *dict,
-  TACO_TOKEN *word,
-  int hyphen_value
-) {
-  int cur_pos, state = 0;
-
-  TACO_TOKEN lead = {NULL, TOKEN_TYPE_CHARACTER|'.'};
-  TACO_TOKEN tail = {NULL, TOKEN_TYPE_CHARACTER|'.'};
-
-  // insert starting and trailing dots
-  lead.next = word;
-  while (IS_WORD_PART_TOKEN(TOKEN_TYPE(word->ptr->data))) word = word->ptr;
-  tail.ptr  = word->ptr;
-  word->ptr = &tail;
-  word = &lead;
-
-  // WAS: prefill hyphens with ascii zero's
-
-  /* now, run the finite state machine */
-  state = 0;
-  for (cur_pos=0; word!=tail.ptr; word=word->ptr) {
-    if (IS_CHARACTER_TOKEN(TOKEN_TYPE(word->data))) {
-      char *match;
-      UniChar ch = word->data & UNI_CHAR_MASK;
-      for (;;) {
-        HyphenState *hstate;
-        int k;
-        if (state == -1) {
-          /* return 1; */
-	  /*  KBH: FIXME shouldn't this be as follows? */
-          state = 0;
-          goto try_next_letter;
-        }          
-
-        hstate = &dict->states[state];
-        for (k = 0; k < hstate->num_trans; k++) {
-          if (hstate->trans[k].ch == ch) {
-            state = hstate->trans[k].new_state;
-	    goto found_state;
-          }
-        }
-        state = hstate->fallback_state;
-      }
-found_state:
-      /* Additional optimization is possible here - especially,
-         elimination of trailing zeroes from the match. Leading zeroes
-         have already been optimized. */
-      match = dict->states[state].match;
-      if (match) {
-        TACO_TOKEN *htoken = &head;
-        int offset = cur_pos + 1 - strlen (match);
-        assert(offset>=0);
-        while (offset) {
-          if (IS_CHARACTER_TOKEN(TOKEN_TYPE(htoken->data))) offset--;
-          htoken = htoken->ptr;
-        }
-        for (; *match; htoken=htoken->ptr) {
-          if (IS_CHARACTER_TOKEN(TOKEN_TYPE(htoken->data))) {
-            int v = (*match++-'0')<<TOKEN_SCRATCH_SHIFT;
-            if (v) {
-              int w = htoken->data & TOKEN_SCRATCH_MASK;
-              if (w<v) {
-                htoken->data &= ~TOKEN_SCRATCH_MASK;
-                htoken->data |= v;
-              }
-            }
-          }
-        }
-        assert(htoken==word);
-      }
-      cur_pos++;
-    }
-try_next_letter: ;
-  }
-  // cur_pos is the total amount of characters, including both '.'s
-  cur_pos -= 2;
-  // cur_pos is the total amount of characters, excluding both '.'s
-  int skip_first = left_hyphen_min-1;
-  int skip_last  = cur_pos - right_hyphen_min;
-  if (compat_hyphen_max_length>skip_last)
-    skip_last = compat_hyphen_max_length;
-  // we must 0 de scratchs of
-  //   the first left_hyphen_min-1, and
-  //   the last MAX(right_hyphen_min-1, cur_pos - compat_hyphen_max_length)
-  // replace all odd scratches with a following hyphen-token,
-  // except when it is already followed by a hyphen: then OR the value
-  for (word = lead.next, cur_pos=0; word->ptr != &tail; word=word->ptr) {
-    if (IS_CHARACTER_TOKEN(TOKEN_TYPE(word->data))) {
-      int w = (word->data & TOKEN_SCRATCH_MASK)>>TOKEN_SCRATCH_SHIFT;
-      if (w) {
-        word->data &= ~TOKEN_SCRATCH_MASK;
-        if (w&1 && cur_pos>=skip_first && cur_pos<skip_last) { // hyphenate
-          if (! IS_HYPHEN_TOKEN(TOKEN_TYPE(word->ptr->data))) {
-            TACO_TOKEN &hyphen = (TACO_TOKEN*)malloc(sizeof(TACO_TOKEN));
-            hyphen->ptr = word.ptr;
-            hyphen->data = HYPHEN_TOKEN_TYPE;
-            word->ptr = hyphen;
-          }
-          word->ptr->data |= hyphen_value;
-        } else { // no hyphenation
-          // even if there's a hyphen following, we keep it, as
-          // we assume the party inserting knew what it was doing
-        }
-      }
-      cur_pos++;
-    }
-  }
-  word->data &= ~TOKEN_SCRATCH_MASK; // clear bits of last char (never hyphen)
-  word->ptr   = word->ptr->ptr; // remove trailing '.'
-
-  return 0;    
-}
-
-#endif

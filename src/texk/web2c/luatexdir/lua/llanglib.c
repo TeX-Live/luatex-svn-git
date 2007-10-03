@@ -23,7 +23,7 @@ This is llanglib.c
 #include "luatex-api.h"
 #include <ptexlib.h>
 
-#include "../lua/nodes.h"
+#include "nodes.h"
 
 #define LANG_METATABLE "luatex.lang"
 

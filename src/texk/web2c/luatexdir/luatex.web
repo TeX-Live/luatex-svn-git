@@ -29747,7 +29747,7 @@ nodes inside of other discretionaries.
   end
 
 @d wrapup(#)==if cur_l<>non_boundarychar then
-  begin if character(tail)=qi(hyphen_char(main_f)) then if vlink(cur_q)>null then
+  begin if (character(tail)=qi(hyphen_char(main_f))) and (not use_new_hyphenation) then if vlink(cur_q)>null then
     ins_disc:=true;
   if ligature_present then pack_lig(#);
   if ins_disc then
@@ -29837,7 +29837,7 @@ if (not use_new_hyphenation) and (disable_lig=0 and has_lig(main_f,cur_l)) then 
   if is_ligature(lig) then 
     @<Do ligature command and goto somewhere@>;
   end;
-if disable_kern=0 and has_kern(main_f,cur_l) then begin
+if (not use_new_hyphenation) and (disable_kern=0 and has_kern(main_f,cur_l)) then begin
   main_k:=get_kern(main_f,cur_l,cur_r);
   if main_k<>0 then begin 
     wrapup(rt_hit);

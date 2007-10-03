@@ -4,6 +4,21 @@
 #ifndef __NODES_H__
 #define __NODES_H__
 
+#ifndef LUATEX /* for hyphen.c */
+#ifndef pointer
+#include "cpascal.h"
+typedef integer halfword ;
+#endif
+#endif
+
+/* these three are in texlang.c */
+
+extern void set_vlink (halfword t, halfword v);
+extern halfword get_vlink(halfword t);
+extern int get_character(halfword t);
+extern halfword insert_discretionary ( halfword t,  halfword pre,  halfword post,  int replace);
+extern halfword insert_character ( halfword t,  int c) ;
+
 #define max_halfword  0x3FFFFFFF
 #define null         -0x3FFFFFFF
 #define null_flag    -0x40000000
