@@ -336,21 +336,9 @@ void do_exception (halfword wordstart, halfword r, char *replacement) {
 	perror ("broken pattern 3");
 	uexit(1);
       }
-      i++; /* jump over the last right brace */
-      insert_discretionary(t,gg,hh,repl);
-      /* now skip past the replaced nodes, if any */
-      {
-	int j = repl;
-	while (j>0) {
-	  while (vlink(t)!=r && type(t)!=glyph_node)
-	    t = vlink(t);
-	  j--;
-	  if (vlink(t)==r) {
-	    perror ("broken pattern 4");
-	    uexit(1);
-	  }
-	}
-      }
+      /* jump over the last right brace */
+      t = insert_discretionary(t,gg,hh,repl);
+
     }
     t = vlink(t);
     i++;
