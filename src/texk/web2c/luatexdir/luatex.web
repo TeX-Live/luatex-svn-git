@@ -470,9 +470,6 @@ in production versions of \TeX.
   length of \TeX's own strings, which is currently about 23000}
 @!save_size=600; {space for saving values outside of current group; must be
   at most |max_halfword|}
-@!trie_size=8000; {space for hyphenation patterns; should be larger for
-  \.{INITEX} than it is in production versions of \TeX}
-@!trie_op_size=500; {space for ``opcodes'' in the hyphenation patterns}
 @!dvi_buf_size=800; {size of the output buffer; must be a multiple of 8}
 @!expand_depth=10000; {limits recursive calls of the |expand| procedure}
 @!file_name_size=40; {file names shouldn't be longer than this}
@@ -499,7 +496,6 @@ emphasize this distinction.
 @d hash_size=2100 {maximum number of control sequences; it should be at most
   about |(fix_mem_max-fix_mem_min)/10|}
 @d hash_prime=1777 {a prime number equal to about 85\pct! of |hash_size|}
-@d hyph_size=307 {another prime; the number of \.{\\hyphenation} exceptions}
 @d ocp_base=0 {smallest internal ocp number; must not be less
   than |min_quarterword|}
 @d ocp_biggest=32767 {the real biggest ocp}
@@ -26920,16 +26916,10 @@ tried per paragraph, since the line breaking algorithm needed to use two
 passes on only about 5 per cent of the paragraphs.
 
 @<Initialize for hyphenating...@>=
-begin if use_new_hyphenation then begin
-   cur_lang:=init_cur_lang; set_cur_lang;
-   new_hyphenation(temp_head, tail, cur_lang, init_l_hyf, init_r_hyf, uc_hyph);
-   end 
-else begin
-  @!init if trie_not_ready then init_trie;@+tini@;@/
-  cur_lang:=init_cur_lang; l_hyf:=init_l_hyf; r_hyf:=init_r_hyf;
-  set_hyph_index;
-end;
-end
+begin 
+cur_lang:=init_cur_lang; set_cur_lang;
+new_hyphenation(temp_head, tail, cur_lang, init_l_hyf, init_r_hyf, uc_hyph);
+end 
 
 @ The letters $c_1\ldots c_n$ that are candidates for hyphenation are placed
 into an array called |hc|; the number |n| is placed into |hn|; pointers to
@@ -26958,132 +26948,7 @@ nodes $p_{a-1}$ and~$p_b$ in the description above are placed into variables
 second pass, and |cur_p| points to a glue node.
 
 @<Try to hyphenate...@>=
-begin if not use_new_hyphenation then begin 
-prev_s:=cur_p; s:=vlink(prev_s);
-if s<>null then
-  begin @<Skip to node |ha|, or |goto done1| if no hyphenation
-    should be attempted@>;
-  if l_hyf+r_hyf>63 then goto done1;
-  @<Skip to node |hb|, putting letters into |hu| and |hc|@>;
-  @<Check that the nodes following |hb| permit hyphenation and that at least
-    |l_hyf+r_hyf| letters have been found, otherwise |goto done1|@>;
-  hyphenate;
-  end;
-done1: end;
-end
-
-@ @<Declare subprocedures for |line_break|@>=
-@t\4@>@<Declare the function called |reconstitute|@>
-procedure hyphenate;
-label common_ending,done,found,found1,found2,not_found,exit;
-var @<Local variables for hyphenation@>@;
-callback_id:integer;
-begin 
-callback_id := callback_defined(hyphenate_callback);
-if callback_id=0 then begin
-@<Find hyphen locations for the word in |hc|, or |return|@>;
-@<If no hyphens were found, |return|@>;
-@<Replace nodes |ha..hb| by a sequence of nodes that includes
-  the discretionary hyphens@>;
-end else begin
-  i := lua_hyphenate_callback(callback_id,cur_lang,ha,hb);
-  end;
-exit:end;
-
-@ The first thing we need to do is find the node |ha| just before the
-first letter.
-
-@<Skip to node |ha|, or |goto done1|...@>=
-loop@+ begin if is_char_node(s) then begin
-    if is_lig_node(s) then begin
-       if lig_ptr(s)=null then goto continue
-       else q:=lig_ptr(s);
-       end
-     else 
-       q:=s;
-     c:=qo(character(q)); hf:=font(q); hattr:=copy_node_list(node_attr(q));
-    end
-  else if (type(s)=kern_node)and(subtype(s)=normal) then goto continue
-  else if type(s)=whatsit_node then
-    begin @<Advance \(p)past a whatsit node in the \(p)pre-hyphenation loop@>;
-    goto continue;
-    end
-  else goto done1;
-  do_set_lc_code(c);
-  if hc[0]<>0 then
-    if (hc[0]=c)or(uc_hyph>0) then goto done2
-    else goto done1;
-continue: prev_s:=s; s:=vlink(prev_s);
-  end;
-done2: hyf_char:=hyphen_char(hf);
-if hyf_char<0 then goto done1;
-if hyf_char>255 then goto done1;
-ha:=prev_s
-
-@ The word to be hyphenated is now moved to the |hu| and |hc| arrays.
-
-@<Skip to node |hb|, putting letters...@>=
-hn:=0;
-loop@+ begin if is_char_node(s) then begin 
-    if font(s)<>hf then goto done3;
-    if is_lig_node(s) then begin
-      @<Move the characters of a ligature node to |hu| and |hc|;
-        but |goto done3| if they are not all letters@>;
-      end
-    else begin
-      hyf_bchar:=character(s); c:=qo(hyf_bchar);
-      do_set_lc_code(c);
-      if hc[0]=0 then goto done3;
-      if hn=63 then goto done3;
-      hb:=s; incr(hn); 
-      hu[hn]:=c; 
-      hc[hn]:=hc[0]; 
-      hyf_bchar:=non_boundarychar;
-      end;
-    end
-  else if (type(s)=kern_node)and(subtype(s)=normal) then
-    begin hb:=s;
-      if has_right_boundary(hf) then  hyf_bchar:=right_boundarychar
-      else hyf_bchar:=non_boundarychar;
-    end
-  else goto done3;
-  s:=vlink(s);
-  end;
-done3:
-
-@ We let |j| be the index of the character being stored when a ligature node
-is being expanded, since we do not want to advance |hn| until we are sure
-that the entire ligature consists of letters. Note that it is possible
-to get to |done3| with |hn=0| and |hb| not set to any value.
-
-@<Move the characters of a ligature node to |hu| and |hc|...@>=
-begin if font(s)<>hf then goto done3;
-j:=hn; q:=lig_ptr(s);@+if q>null then hyf_bchar:=character(q);
-while q>null do
-  begin c:=qo(character(q));
-  do_set_lc_code(c);
-  if hc[0]=0 then goto done3;
-  if j=63 then goto done3;
-  incr(j); hu[j]:=c; hc[j]:=hc[0];@/
-  q:=vlink(q);
-  end;
-hb:=s; hn:=j;
-if subtype(s)=2 then hyf_bchar:=font_bchar(hf)
-else if subtype(s)=3 then hyf_bchar:=non_boundarychar;
-end
-
-@ @<Check that the nodes following |hb| permit hyphenation...@>=
-if hn<l_hyf+r_hyf then goto done1; {|l_hyf| and |r_hyf| are |>=1|}
-loop@+  begin if not(is_char_node(s)) then
-    case type(s) of
-    kern_node: if subtype(s)<>normal then goto done4;
-    whatsit_node,glue_node,penalty_node,ins_node,adjust_node,mark_node:
-      goto done4;
-    othercases goto done1
-    endcases;
-  s:=vlink(s);
-  end;
-done4:
+do_nothing
 
 @* \[41] Post-hyphenation.
 If a hyphen may be inserted between |hc[j]| and |hc[j+1]|, the hyphenation
@@ -27115,46 +26980,6 @@ paragraph.
 for j:=l_hyf to hn-r_hyf do if odd(hyf[j]) then goto found1;
 return;
 found1:
-
-@ If hyphens are in fact going to be inserted, \TeX\ first deletes the
-subsequence of nodes between |ha| and~|hb|. An attempt is made to
-preserve the effect that implicit boundary characters and punctuation marks
-had on ligatures inside the hyphenated word, by storing a left boundary or
-preceding character in |hu[0]| and by storing a possible right boundary
-in |bchar|. We set |j:=0| if |hu[0]| is to be part of the reconstruction;
-otherwise |j:=1|.
-The variable |s| will point to the tail of the current hlist, and
-|q| will point to the node following |hb|, so that
-things can be hooked up after we reconstitute the hyphenated word.
-
-@<Replace nodes |ha..hb| by a sequence of nodes...@>=
-q:=vlink(hb); vlink(hb):=null; r:=vlink(ha); vlink(ha):=null; bchar:=hyf_bchar;
-if is_char_node(ha) then
-  if font(ha)<>hf then goto found2
-  else begin if is_lig_node(ha) then begin 
-      init_list:=lig_ptr(ha); init_lig:=true; init_lft:=(subtype(ha)>1);
-      hu[0]:=qo(character(ha));
-      if init_list=null then if init_lft then
-        begin hu[0]:=65536; init_lig:=false;
-        end; {in this case a ligature will be reconstructed from scratch}
-      ext_free_node(ha,glyph_node_size);
-      end
-    else begin 
-      init_list:=ha; init_lig:=false; hu[0]:=qo(character(ha)); 
-      end
-    end
-else begin {no punctuation found; look for left boundary}
-  if is_char_node(r) and is_lig_node(r) then
-    if subtype(r)>2 then goto found2;
-  j:=1; s:=ha; init_list:=null; goto common_ending;
-  end;
-s:=cur_p; {we have |cur_p<>ha| because |type(cur_p)=glue_node|}
-while vlink(s)<>ha do s:=vlink(s);
-j:=0; goto common_ending;
-found2: s:=ha; j:=0; hu[0]:=65536; init_lig:=false; init_list:=null;
-common_ending: flush_node_list(r);
-@<Reconstitute nodes for the hyphenated word, inserting discretionary hyphens@>;
-flush_node_list(init_list)
 
 @ We must now face the fact that the battle is not over, even though the
 {\def\!{\kern-1pt}%
@@ -27395,310 +27220,14 @@ if lig_type(lig)>qi(4) then if lig_type(lig)<>qi(7) then goto done;
 goto continue;
 end
 
-
-@ Okay, we're ready to insert the potential hyphenations that were found.
-When the following program is executed, we want to append the word
-|hu[1..hn]| after node |ha|, and node |q| should be appended to the result.
-During this process, the variable |i| will be a temporary
-index into |hu|; the variable |j| will be an index to our current position
-in |hu|; the variable |l| will be the counterpart of |j|, in a discretionary
-branch; the variable |r| will point to new nodes being created; and
-we need a few new local variables:
-
-@<Local variables for hyph...@>=
-@!major_tail,@!minor_tail:pointer; {the end of lists in the main and
-  discretionary branches being reconstructed}
-@!c:ASCII_code; {character temporarily replaced by a hyphen}
-@!c_loc:0..63; {where that character came from}
-@!r_count:integer; {replacement count for discretionary}
-@!hyf_node:pointer; {the hyphen, if it exists}
-
-@ When the following code is performed, |hyf[0]| and |hyf[hn]| will be zero.
-
-@<Reconstitute nodes for the hyphenated word...@>=
-repeat l:=j; j:=reconstitute(j,hn,bchar,qi(hyf_char))+1;
-if hyphen_passed=0 then
-  begin vlink(s):=vlink(hold_head);
-  while vlink(s)>null do s:=vlink(s);
-  if odd(hyf[j-1]) then
-    begin l:=j; hyphen_passed:=j-1; vlink(hold_head):=null;
-    end;
-  end;
-if hyphen_passed>0 then
-  @<Create and append a discretionary node as an alternative to the
-    unhyphenated word, and continue to develop both branches until they
-    become equivalent@>;
-until j>hn;
-vlink(s):=q
-
-@ In this repeat loop we will insert another discretionary if |hyf[j-1]| is
-odd, when both branches of the previous discretionary end at position |j-1|.
-Strictly speaking, we aren't justified in doing this, because we don't know
-that a hyphen after |j-1| is truly independent of those branches. But in almost
-all applications we would rather not lose a potentially valuable hyphenation
-point. (Consider the word `difficult', where the letter `c' is in position |j|.)
-
-@d advance_major_tail==begin major_tail:=vlink(major_tail); incr(r_count);
-    end
-
-@<Create and append a discretionary node as an alternative...@>=
-repeat r:=get_node(disc_node_size);
-vlink(r):=vlink(hold_head); set_type(r,disc_node); node_attr(r):=null;
-major_tail:=r; r_count:=0;
-while vlink(major_tail)>null do advance_major_tail;
-i:=hyphen_passed; hyf[i]:=0;
-@<Put the \(c)characters |hu[l..i]| and a hyphen into |pre_break(r)|@>;
-@<Put the \(c)characters |hu[i+1..@,]| into |post_break(r)|, appending to this
-  list and to |major_tail| until synchronization has been achieved@>;
-@<Move pointer |s| to the end of the current list, and set |replace_count(r)|
-  appropriately@>;
-hyphen_passed:=j-1; vlink(hold_head):=null;
-until not odd(hyf[j-1])
-
-@ The new hyphen might combine with the previous character via ligature
-or kern. At this point we have |l-1<=i<j| and |i<hn|.
-
-@<Put the \(c)characters |hu[l..i]| and a hyphen into |pre_break(r)|@>=
-minor_tail:=null; pre_break(r):=null; hyf_node:=new_character(hf,hyf_char);
-if hyf_node<>null then begin 
-    incr(i); c:=hu[i]; hu[i]:=hyf_char; 
-    ext_free_node(hyf_node,glyph_node_size);
-  end;
-while l<=i do
-  begin l:=reconstitute(l,i,font_bchar(hf),non_boundarychar)+1;
-  if vlink(hold_head)>null then
-    begin if minor_tail=null then pre_break(r):=vlink(hold_head)
-    else vlink(minor_tail):=vlink(hold_head);
-    minor_tail:=vlink(hold_head);
-    while vlink(minor_tail)>null do minor_tail:=vlink(minor_tail);
-    end;
-  end;
-if hyf_node<>null then
-  begin hu[i]:=c; {restore the character in the hyphen position}
-  l:=i; decr(i);
-  end
-
-@ The synchronization algorithm begins with |l=i+1<=j|.
-
-@<Put the \(c)characters |hu[i+1..@,]| into |post_break(r)|...@>=
-minor_tail:=null; post_break(r):=null; c_loc:=0;
-if has_left_boundary(hf) then {put left boundary at beginning of new line}
-  begin decr(l); c:=hu[l]; c_loc:=l; hu[l]:=65536;
-  end;
-while l<j do
-  begin repeat l:=reconstitute(l,hn,bchar,non_boundarychar)+1;
-  if c_loc>0 then
-    begin hu[c_loc]:=c; c_loc:=0;
-    end;
-  if vlink(hold_head)>null then
-    begin if minor_tail=null then post_break(r):=vlink(hold_head)
-    else vlink(minor_tail):=vlink(hold_head);
-    minor_tail:=vlink(hold_head);
-    while vlink(minor_tail)>null do minor_tail:=vlink(minor_tail);
-    end;
-  until l>=j;
-  while l>j do
-    @<Append characters of |hu[j..@,]| to |major_tail|, advancing~|j|@>;
-  end
-
-@ @<Append characters of |hu[j..@,]|...@>=
-begin j:=reconstitute(j,hn,bchar,non_boundarychar)+1;
-vlink(major_tail):=vlink(hold_head);
-while vlink(major_tail)>null do advance_major_tail;
-end
-
-@ Ligature insertion can cause a word to grow exponentially in size. Therefore
-we must test the size of |r_count| here, even though the hyphenated text
-was at most 63 characters long.
-
-@<Move pointer |s| to the end of the current list...@>=
-if r_count>127 then {we have to forget the discretionary hyphen}
-  begin vlink(s):=vlink(r); vlink(r):=null; flush_node_list(r);
-  end
-else begin vlink(s):=r; replace_count(r):=r_count;
-  end;
-s:=major_tail
-
 @* \[42] Hyphenation.
-When a word |hc[1..hn]| has been set up to contain a candidate for hyphenation,
+When a word been set up to contain a candidate for hyphenation,
 \TeX\ first looks to see if it is in the user's exception dictionary. If not,
 hyphens are inserted based on patterns that appear within the given word,
 using an algorithm due to Frank~M. Liang.
 @^Liang, Franklin Mark@>
 
-Let's consider Liang's method first, since it is much more interesting than the
-exception-lookup routine.  The algorithm begins by setting |hyf[j]| to zero
-for all |j|, and invalid characters are inserted into |hc[0]|
-and |hc[hn+1]| to serve as delimiters. Then a reasonably fast method is
-used to see which of a given set of patterns occurs in the word
-|hc[0..(hn+1)]|. Each pattern $p_1\ldots p_k$ of length |k| has an associated
-sequence of |k+1| numbers $n_0\ldots n_k$; and if the pattern occurs in
-|hc[(j+1)..(j+k)]|, \TeX\ will set |hyf[j+i]:=@tmax@>(hyf[j+i],@t$n_i$@>)| for
-|0<=i<=k|. After this has been done for each pattern that occurs, a
-discretionary hyphen will be inserted between |hc[j]| and |hc[j+1]| when
-|hyf[j]| is odd, as we have already seen.
-
-The set of patterns $p_1\ldots p_k$ and associated numbers $n_0\ldots n_k$
-depends, of course, on the language whose words are being hyphenated, and
-on the degree of hyphenation that is desired. A method for finding
-appropriate |p|'s and |n|'s, from a given dictionary of words and acceptable
-hyphenations, is discussed in Liang's Ph.D. thesis (Stanford University,
-1983); \TeX\ simply starts with the patterns and works from there.
-
-@ The patterns are stored in a compact table that is also efficient for
-retrieval, using a variant of ``trie memory'' [cf.\ {\sl The Art of
-Computer Programming \bf3} (1973), 481--505]. We can find each pattern
-$p_1\ldots p_k$ by letting $z_0$ be one greater than the relevant language
-index and then, for |1<=i<=k|,
-setting |@t$z_i$@>:=trie_link@t$(z_{i-1})+p_i$@>|; the pattern will be
-identified by the number $z_k$. Since all the pattern information is
-packed together into a single |trie_link| array, it is necessary to
-prevent confusion between the data from inequivalent patterns, so another
-table is provided such that |trie_char@t$(z_i)=p_i$@>| for all |i|. There
-is also a table |trie_op|$(z_k)$ to identify the numbers $n_0\ldots n_k$
-associated with $p_1\ldots p_k$.
-
-Comparatively few different number sequences $n_0\ldots n_k$ actually occur,
-since most of the |n|'s are generally zero. Therefore the number sequences
-are encoded in such a way that |trie_op|$(z_k)$ is only one byte long.
-If |trie_op(@t$z_k$@>)<>min_quarterword|, when $p_1\ldots p_k$ has matched
-the letters in |hc[(l-k+1)..l@,]| of language |t|,
-we perform all of the required operations
-for this pattern by carrying out the following little program: Set
-|v:=trie_op(@t$z_k$@>)|. Then set |v:=v+op_start[t]|,
-|hyf[l-hyf_distance[v]]:=@tmax@>(hyf[l-hyf_distance[v]], hyf_num[v])|,
-and |v:=hyf_next[v]|; repeat, if necessary, until |v=min_quarterword|.
-
-@<Types...@>=
-@!trie_pointer=integer; {an index into |trie|}
-
-@ @d trie_link(#)==trie[#].rh {``downward'' link in a trie}
-@d trie_char(#)==trie[#].b1 {character matched at this trie location}
-@d trie_op(#)==trie[#].b0 {program for hyphenation at this trie location}
-
-@<Glob...@>=
-@!trie:array[trie_pointer] of two_halves; {|trie_link|, |trie_char|, |trie_op|}
-@!hyf_distance:array[1..trie_op_size] of small_number; {position |k-j| of $n_j$}
-@!hyf_num:array[1..trie_op_size] of small_number; {value of $n_j$}
-@!hyf_next:array[1..trie_op_size] of quarterword; {continuation code}
-@!op_start:array[0..biggest_lang] of 0..trie_op_size; {offset for current language}
-
-@ @<Local variables for hyph...@>=
-@!z:trie_pointer; {an index into |trie|}
-@!v:integer; {an index into |hyf_distance|, etc.}
-
-@ Assuming that these auxiliary tables have been set up properly, the
-hyphenation algorithm is quite short. In the following code we set |hc[hn+2]|
-to the impossible value 65536, in order to guarantee that |hc[hn+3]| will
-never be fetched.
-
-@<Find hyphen locations for the word in |hc|...@>=
-for j:=0 to hn do hyf[j]:=0;
-@<Look for the word |hc[1..hn]| in the exception table, and |goto found| (with
-  |hyf| containing the hyphens) if an entry is found@>;
-if trie_char(cur_lang+1)<>qi(cur_lang) then return; {no patterns for |cur_lang|}
-hc[0]:=0; hc[hn+1]:=0; hc[hn+2]:=256; {insert delimiters}
-for j:=0 to hn-r_hyf+1 do
-  begin z:=trie_link(cur_lang+1)+hc[j]; l:=j;
-  while hc[l]=qo(trie_char(z)) do
-    begin if trie_op(z)<>min_quarterword then
-      @<Store \(m)maximum values in the |hyf| table@>;
-    incr(l); z:=trie_link(z)+hc[l];
-    end;
-  end;
-found: for j:=0 to l_hyf-1 do hyf[j]:=0;
-for j:=0 to r_hyf-1 do hyf[hn-j]:=0
-
-@ @<Store \(m)maximum values in the |hyf| table@>=
-begin v:=trie_op(z);
-repeat v:=v+op_start[cur_lang]; i:=l-hyf_distance[v];
-if hyf_num[v]>hyf[i] then hyf[i]:=hyf_num[v];
-v:=hyf_next[v];
-until v=min_quarterword;
-end
-
-@ The exception table that is built by \TeX's \.{\\hyphenation} primitive is
-organized as an ordered hash table [cf.\ Amble and Knuth, {\sl The Computer
-@^Amble, Ole@> @^Knuth, Donald Ervin@>
-Journal\/ \bf17} (1974), 135--142] using linear probing. If $\alpha$ and
-$\beta$ are words, we will say that $\alpha<\beta$ if $\vert\alpha\vert<
-\vert\beta\vert$ or if $\vert\alpha\vert=\vert\beta\vert$ and
-$\alpha$ is lexicographically smaller than $\beta$. (The notation $\vert
-\alpha\vert$ stands for the length of $\alpha$.) The idea of ordered hashing
-is to arrange the table so that a given word $\alpha$ can be sought by computing
-a hash address $h=h(\alpha)$ and then looking in table positions |h|, |h-1|,
-\dots, until encountering the first word $\L\alpha$. If this word is
-different from $\alpha$, we can conclude that $\alpha$ is not in the table.
-
-The words in the table point to lists in |mem| that specify hyphen positions
-in their |info| fields. The list for $c_1\ldots c_n$ contains the number |k| if
-the word $c_1\ldots c_n$ has a discretionary hyphen between $c_k$ and
-$c_{k+1}$.
-
-@<Types...@>=
-@!hyph_pointer=0..hyph_size; {an index into the ordered hash table}
-
-@ @<Glob...@>=
-@!hyph_word:array[hyph_pointer] of str_number; {exception words}
-@!hyph_list:array[hyph_pointer] of pointer; {list of hyphen positions}
-@!hyph_count:hyph_pointer; {the number of words in the exception dictionary}
-
-@ @<Local variables for init...@>=
-@!z:hyph_pointer; {runs through the exception dictionary}
-
-@ @<Set init...@>=
-for z:=0 to hyph_size do
-  begin hyph_word[z]:=0; hyph_list[z]:=null;
-  end;
-hyph_count:=0;
-
-@ The algorithm for exception lookup is quite simple, as soon as we have
-a few more local variables to work with.
-
-@<Local variables for hyph...@>=
-@!h:hyph_pointer; {an index into |hyph_word| and |hyph_list|}
-@!k:str_number; {an index into |str_start|}
-@!u:pool_pointer; {an index into |str_pool|}
-
-@ First we compute the hash code |h|, then we search until we either
-find the word or we don't. Words from different languages are kept
-separate by appending the language code to the string.
-
-@<Look for the word |hc[1...@>=
-h:=hc[1]; incr(hn); hc[hn]:=cur_lang;
-for j:=2 to hn do h:=(h+h+hc[j]) mod hyph_size;
-loop@+  begin @<If the string |hyph_word[h]| is less than \(hc)|hc[1..hn]|,
-    |goto not_found|; but if the two strings are equal,
-    set |hyf| to the hyphen positions and |goto found|@>;
-  if h>0 then decr(h)@+else h:=hyph_size;
-  end;
-not_found: decr(hn)
-
-@ @<If the string |hyph_word[h]| is less than \(hc)...@>=
-k:=hyph_word[h]; if k=0 then goto not_found;
-if length(k)<hn then goto not_found;
-if length(k)=hn then
-  begin j:=1; u:=str_start_macro(k);
-  repeat if so(str_pool[u])<hc[j] then goto not_found;
-  if so(str_pool[u])>hc[j] then goto done;
-  incr(j); incr(u);
-  until j>hn;
-  @<Insert hyphens as specified in |hyph_list[h]|@>;
-  decr(hn); goto found;
-  end;
-done:
-
-@ @<Insert hyphens as specified...@>=
-s:=hyph_list[h];
-while s<>null do
-  begin hyf[info(s)]:=1; s:=link(s);
-  end
-
-@ We have now completed the hyphenation routine, so the |line_break| procedure
-is finished at last. Since the hyphenation exception table is fresh in our
-minds, it's a good time to deal with the routine that adds new entries to it.
-
-When \TeX\ has scanned `\.{\\hyphenation}', it calls on a procedure named
+@ When \TeX\ has scanned `\.{\\hyphenation}', it calls on a procedure named
 |new_hyph_exceptions| to do the right thing.
 
 @d set_cur_lang==if language<=0 then cur_lang:=0
@@ -27706,615 +27235,28 @@ When \TeX\ has scanned `\.{\\hyphenation}', it calls on a procedure named
   else cur_lang:=language
 
 @p procedure new_hyph_exceptions; {enters new exceptions}
-label reswitch, exit, found, not_found, not_found1;
-var n:0..64; {length of current word; not always a |small_number|}
-@!j:0..64; {an index into |hc|}
-@!h:hyph_pointer; {an index into |hyph_word| and |hyph_list|}
-@!k:str_number; {an index into |str_start|}
-@!p:pointer; {head of a list of hyphen positions}
-@!q:pointer; {used when creating a new node for list |p|}
-@!s,@!t:str_number; {strings being compared or stored}
-@!u,@!v:pool_pointer; {indices into |str_pool|}
-begin scan_left_brace; {a left brace must follow \.{\\hyphenation}}
-set_cur_lang;
-@!init if trie_not_ready then
-  begin hyph_index:=0; goto not_found1;
-  end;
-tini@/
-set_hyph_index;
-not_found1:
-@<Enter as many hyphenation exceptions as are listed,
-until coming to a right brace; then |return|@>;
-exit:end;
+var p:halfword; {just to catch the return value of |scan_toks|}
+begin set_cur_lang;
+p:=scan_toks(false,true);
+load_tex_hyphenation(cur_lang,link(def_ref));
+flush_list(def_ref); 
+end;
 
-@ @<Enter as many...@>=
-n:=0; p:=null;
-loop@+  begin get_x_token;
-  reswitch: case cur_cmd of
-  letter,other_char,char_given: if cur_chr>65535 then
-             @<Give improper \.{\\hyphenation} error@>
-           else
-             @<Append a new letter or hyphen@>;
-  char_num: begin scan_char_num; cur_chr:=cur_val; cur_cmd:=char_given;
-    goto reswitch;
-    end;
-  spacer,right_brace: begin if n>1 then @<Enter a hyphenation exception@>;
-    if cur_cmd=right_brace then return;
-    n:=0; p:=null;
-    end;
-  othercases @<Give improper \.{\\hyphenation} error@>
-  endcases;
-  end
+@ Similarly, when \TeX\ has scanned `\.{\\patterns}', it calls on a
+procedure named |new_patterns|.
 
-@ @<Give improper \.{\\hyph...@>=
-begin print_err("Improper "); print_esc("hyphenation");
-@.Improper \\hyphenation...@>
-  print(" will be flushed");
-help2("Hyphenation exceptions must contain only letters below")@/
-  ("65536 and hyphens. But continue; I'll forgive and forget.");
-error;
-end
+@p procedure new_patterns; {initializes the hyphenation pattern data}
+var p:halfword; {just to catch the return value of |scan_toks|}
+begin set_cur_lang;
+p:=scan_toks(false,true);
+load_tex_patterns(cur_lang,link(def_ref));
+flush_list(def_ref); 
+end;
 
-@ @<Append a new letter or hyphen@>=
-if cur_chr="-" then @<Append the value |n| to list |p|@>
-else begin 
-  do_set_lc_code(cur_chr);
-  if hc[0]=0 then 
-    begin print_err("Not a letter");
-@.Not a letter@>
-    help2("Letters in \hyphenation words must have \lccode>0.")@/
-      ("Proceed; I'll ignore the character I just read.");
-    error;
-    end
-  else if n<63 then
-    begin incr(n); hc[n]:=hc[0];
-    end;
-end
-
-@ @<Append the value |n| to list |p|@>=
-begin if n<63 then
-  begin q:=get_avail; link(q):=p; info(q):=n; p:=q;
-  end;
-end
-
-@ @<Enter a hyphenation exception@>=
-begin incr(n); hc[n]:=cur_lang; str_room(n); h:=0;
-for j:=1 to n do
-  begin h:=(h+h+hc[j]) mod hyph_size;
-  append_char(hc[j]);
-  end;
-s:=make_string;
-@<Insert the \(p)pair |(s,p)| into the exception table@>;
-end
-
-@ @<Insert the \(p)pair |(s,p)|...@>=
-if hyph_count=hyph_size then overflow("exception dictionary",hyph_size);
-@:TeX capacity exceeded exception dictionary}{\quad exception dictionary@>
-incr(hyph_count);
-while hyph_word[h]<>0 do
-  begin @<If the string |hyph_word[h]| is less than \(or)or equal to
-  |s|, interchange |(hyph_word[h],hyph_list[h])| with |(s,p)|@>;
-  if h>0 then decr(h)@+else h:=hyph_size;
-  end;
-hyph_word[h]:=s; hyph_list[h]:=p
-
-@ @<If the string |hyph_word[h]| is less than \(or)...@>=
-k:=hyph_word[h];
-if length(k)<length(s) then goto found;
-if length(k)>length(s) then goto not_found;
-u:=str_start_macro(k); v:=str_start_macro(s);
-repeat if str_pool[u]<str_pool[v] then goto found;
-if str_pool[u]>str_pool[v] then goto not_found;
-incr(u); incr(v);
-until u=str_start_macro(k+1);
-found:q:=hyph_list[h]; hyph_list[h]:=p; p:=q;@/
-t:=hyph_word[h]; hyph_word[h]:=s; s:=t;
-not_found:
 
 @* \[43] Initializing the hyphenation tables.
-The trie for \TeX's hyphenation algorithm is built from a sequence of
-patterns following a \.{\\patterns} specification. Such a specification
-is allowed only in \.{INITEX}, since the extra memory for auxiliary tables
-and for the initialization program itself would only clutter up the
-production version of \TeX\ with a lot of deadwood.
 
-The first step is to build a trie that is linked, instead of packed
-into sequential storage, so that insertions are readily made.
-After all patterns have been processed, \.{INITEX}
-compresses the linked trie by identifying common subtries. Finally the
-trie is packed into the efficient sequential form that the hyphenation
-algorithm actually uses.
-
-@<Declare subprocedures for |line_break|@>=
-@!init @<Declare procedures for preprocessing hyphenation patterns@>@;
-tini
-
-@ Before we discuss trie building in detail, let's consider the simpler
-problem of creating the |hyf_distance|, |hyf_num|, and |hyf_next| arrays.
-
-Suppose, for example, that \TeX\ reads the pattern `\.{ab2cde1}'. This is
-a pattern of length 5, with $n_0\ldots n_5=0\,0\,2\,0\,0\,1$ in the
-notation above. We want the corresponding |trie_op| code |v| to have
-|hyf_distance[v]=3|, |hyf_num[v]=2|, and |hyf_next[v]=@t$v^\prime$@>|,
-where the auxiliary |trie_op| code $v^\prime$ has
-|hyf_distance[@t$v^\prime$@>]=0|, |hyf_num[@t$v^\prime$@>]=1|, and
-|hyf_next[@t$v^\prime$@>]=min_quarterword|.
-
-\TeX\ computes an appropriate value |v| with the |new_trie_op| subroutine
-below, by setting
-$$\hbox{|@t$v^\prime$@>:=new_trie_op(0,1,min_quarterword)|,\qquad
-|v:=new_trie_op(3,2,@t$v^\prime$@>)|.}$$
-This subroutine looks up its three
-parameters in a special hash table, assigning a new value only if these
-three have not appeared before for the current language.
-
-The hash table is called |trie_op_hash|, and the number of entries it contains
-is |trie_op_ptr|.
-
-@<Glob...@>=
-@!init@! trie_op_hash:array[-trie_op_size..trie_op_size] of 0..trie_op_size;
-  {trie op codes for quadruples}
-@!trie_used:array[BMP_code] of quarterword;
-  {largest opcode used so far for this language}
-@!trie_op_lang:array[1..trie_op_size] of packed_ASCII_code;
-  {language part of a hashed quadruple}
-@!trie_op_val:array[1..trie_op_size] of quarterword;
-  {opcode corresponding to a hashed quadruple}
-@!trie_op_ptr:0..trie_op_size; {number of stored ops so far}
-tini
-
-@ It's tempting to remove the |overflow| stops in the following procedure;
-|new_trie_op| could return |min_quarterword| (thereby simply ignoring
-part of a hyphenation pattern) instead of aborting the job. However, that would
-lead to different hyphenation results on different installations of \TeX\
-using the same patterns. The |overflow| stops are necessary for portability
-of patterns.
-
-@<Declare procedures for preprocessing hyph...@>=
-function new_trie_op(@!d,@!n:small_number;@!v:quarterword):quarterword;
-label exit;
-var h:-trie_op_size..trie_op_size; {trial hash location}
-@!u:quarterword; {trial op code}
-@!l:0..trie_op_size; {pointer to stored data}
-begin h:=abs(n+313*d+361*v+1009*cur_lang) mod (trie_op_size+trie_op_size)
-  - trie_op_size;
-loop@+  begin l:=trie_op_hash[h];
-  if l=0 then {empty position found for a new op}
-    begin if trie_op_ptr=trie_op_size then
-      overflow("pattern memory ops",trie_op_size);
-    u:=trie_used[cur_lang];
-    if u=max_quarterword then
-      overflow("pattern memory ops per language",
-        max_quarterword-min_quarterword);
-    incr(trie_op_ptr); incr(u); trie_used[cur_lang]:=u;
-    hyf_distance[trie_op_ptr]:=d;
-    hyf_num[trie_op_ptr]:=n; hyf_next[trie_op_ptr]:=v;
-    trie_op_lang[trie_op_ptr]:=cur_lang; trie_op_hash[h]:=trie_op_ptr;
-    trie_op_val[trie_op_ptr]:=u; new_trie_op:=u; return;
-    end;
-  if (hyf_distance[l]=d)and(hyf_num[l]=n)and(hyf_next[l]=v)
-   and(trie_op_lang[l]=cur_lang) then
-    begin new_trie_op:=trie_op_val[l]; return;
-    end;
-  if h>-trie_op_size then decr(h)@+else h:=trie_op_size;
-  end;
-exit:end;
-
-@ After |new_trie_op| has compressed the necessary opcode information,
-plenty of information is available to unscramble the data into the
-final form needed by our hyphenation algorithm.
-
-@<Sort \(t)the hyphenation op tables into proper order@>=
-op_start[0]:=-min_quarterword;
-for j:=1 to 255 do op_start[j]:=op_start[j-1]+qo(trie_used[j-1]);
-for j:=1 to trie_op_ptr do
-  trie_op_hash[j]:=op_start[trie_op_lang[j]]+trie_op_val[j]; {destination}
-for j:=1 to trie_op_ptr do while trie_op_hash[j]>j do
-  begin k:=trie_op_hash[j];@/
-  t:=hyf_distance[k]; hyf_distance[k]:=hyf_distance[j]; hyf_distance[j]:=t;@/
-  t:=hyf_num[k]; hyf_num[k]:=hyf_num[j]; hyf_num[j]:=t;@/
-  t:=hyf_next[k]; hyf_next[k]:=hyf_next[j]; hyf_next[j]:=t;@/
-  trie_op_hash[j]:=trie_op_hash[k]; trie_op_hash[k]:=k;
-  end
-
-@ Before we forget how to initialize the data structures that have been
-mentioned so far, let's write down the code that gets them started.
-
-@<Initialize table entries...@>=
-for k:=-trie_op_size to trie_op_size do trie_op_hash[k]:=0;
-for k:=0 to 255 do trie_used[k]:=min_quarterword;
-trie_op_ptr:=0;
-
-@ The linked trie that is used to preprocess hyphenation patterns appears
-in several global arrays. Each node represents an instruction of the form
-``if you see character |c|, then perform operation |o|, move to the
-next character, and go to node |l|; otherwise go to node |r|.''
-The four quantities |c|, |o|, |l|, and |r| are stored in four arrays
-|trie_c|, |trie_o|, |trie_l|, and |trie_r|. The root of the trie
-is |trie_l[0]|, and the number of nodes is |trie_ptr|. Null trie
-pointers are represented by zero. To initialize the trie, we simply
-set |trie_l[0]| and |trie_ptr| to zero. We also set |trie_c[0]| to some
-arbitrary value, since the algorithm may access it.
-
-The algorithms maintain the condition
-$$\hbox{|trie_c[trie_r[z]]>trie_c[z]|\qquad
-whenever |z<>0| and |trie_r[z]<>0|};$$ in other words, sibling nodes are
-ordered by their |c| fields.
-
-@d trie_root==trie_l[0] {root of the linked trie}
-
-@<Glob...@>=
-@!init @!trie_c:packed array[trie_pointer] of BMP_code;
-  {characters to match}
-@t\hskip10pt@>@!trie_o:packed array[trie_pointer] of quarterword;
-  {operations to perform}
-@t\hskip10pt@>@!trie_l:packed array[trie_pointer] of trie_pointer;
-  {left subtrie links}
-@t\hskip10pt@>@!trie_r:packed array[trie_pointer] of trie_pointer;
-  {right subtrie links}
-@t\hskip10pt@>@!trie_ptr:trie_pointer; {the number of nodes in the trie}
-@t\hskip10pt@>@!trie_hash:packed array[trie_pointer] of trie_pointer;
-  {used to identify equivalent subtries}
-tini
-
-@ Let us suppose that a linked trie has already been constructed.
-Experience shows that we can often reduce its size by recognizing common
-subtries; therefore another hash table is introduced for this purpose,
-somewhat similar to |trie_op_hash|. The new hash table will be
-initialized to zero.
-
-The function |trie_node(p)| returns |p| if |p| is distinct from other nodes
-that it has seen, otherwise it returns the number of the first equivalent
-node that it has seen.
-
-Notice that we might make subtries equivalent even if they correspond to
-patterns for different languages, in which the trie ops might mean quite
-different things. That's perfectly all right.
-
-@<Declare procedures for preprocessing hyph...@>=
-function trie_node(@!p:trie_pointer):trie_pointer; {converts
-  to a canonical form}
-label exit;
-var h:trie_pointer; {trial hash location}
-@!q:trie_pointer; {trial trie node}
-begin h:=abs(trie_c[p]+1009*trie_o[p]+@|
-    2718*trie_l[p]+3142*trie_r[p]) mod trie_size;
-loop@+  begin q:=trie_hash[h];
-  if q=0 then
-    begin trie_hash[h]:=p; trie_node:=p; return;
-    end;
-  if (trie_c[q]=trie_c[p])and(trie_o[q]=trie_o[p])and@|
-    (trie_l[q]=trie_l[p])and(trie_r[q]=trie_r[p]) then
-    begin trie_node:=q; return;
-    end;
-  if h>0 then decr(h)@+else h:=trie_size;
-  end;
-exit:end;
-
-@ A neat recursive procedure is now able to compress a trie by
-traversing it and applying |trie_node| to its nodes in ``bottom up''
-fashion. We will compress the entire trie by clearing |trie_hash| to
-zero and then saying `|trie_root:=compress_trie(trie_root)|'.
-@^recursion@>
-
-@<Declare procedures for preprocessing hyph...@>=
-function compress_trie(@!p:trie_pointer):trie_pointer;
-begin if p=0 then compress_trie:=0
-else  begin trie_l[p]:=compress_trie(trie_l[p]);
-  trie_r[p]:=compress_trie(trie_r[p]);
-  compress_trie:=trie_node(p);
-  end;
-end;
-
-@ The compressed trie will be packed into the |trie| array using a
-``top-down first-fit'' procedure. This is a little tricky, so the reader
-should pay close attention: The |trie_hash| array is cleared to zero
-again and renamed |trie_ref| for this phase of the operation; later on,
-|trie_ref[p]| will be nonzero only if the linked trie node |p| is the
-smallest character
-in a family and if the characters |c| of that family have been allocated to
-locations |trie_ref[p]+c| in the |trie| array. Locations of |trie| that
-are in use will have |trie_link=0|, while the unused holes in |trie|
-will be doubly linked with |trie_link| pointing to the next larger vacant
-location and |trie_back| pointing to the next smaller one. This double
-linking will have been carried out only as far as |trie_max|, where
-|trie_max| is the largest index of |trie| that will be needed.
-To save time at the low end of the trie, we maintain array entries
-|trie_min[c]| pointing to the smallest hole that is greater than~|c|.
-Another array |trie_taken| tells whether or not a given location is
-equal to |trie_ref[p]| for some |p|; this array is used to ensure that
-distinct nodes in the compressed trie will have distinct |trie_ref|
-entries.
-
-@d trie_ref==trie_hash {where linked trie families go into |trie|}
-@d trie_back(#)==trie[#].lh {backward links in |trie| holes}
-
-@<Glob...@>=
-@!init@!trie_taken:packed array[1..trie_size] of boolean;
-  {does a family start here?}
-@t\hskip10pt@>@!trie_min:array[BMP_code] of trie_pointer;
-  {the first possible slot for each character}
-@t\hskip10pt@>@!trie_max:trie_pointer; {largest location used in |trie|}
-@t\hskip10pt@>@!trie_not_ready:boolean; {is the trie still in linked form?}
-tini
-
-@ Each time \.{\\patterns} appears, it contributes further patterns to
-the future trie, which will be built only when hyphenation is attempted or
-when a format file is dumped. The boolean variable |trie_not_ready|
-will change to |false| when the trie is compressed; this will disable
-further patterns.
-
-@<Initialize table entries...@>=
-trie_not_ready:=true; trie_root:=0; trie_c[0]:=si(0); trie_ptr:=0;
-
-@ Here is how the trie-compression data structures are initialized.
-If storage is tight, it would be possible to overlap |trie_op_hash|,
-|trie_op_lang|, and |trie_op_val| with |trie|, |trie_hash|, and |trie_taken|,
-because we finish with the former just before we need the latter.
-
-@<Get ready to compress the trie@>=
-@<Sort \(t)the hyphenation...@>;
-for p:=0 to trie_size do trie_hash[p]:=0;
-hyph_root:=compress_trie(hyph_root);
-trie_root:=compress_trie(trie_root); {identify equivalent subtries}
-for p:=0 to trie_ptr do trie_ref[p]:=0;
-for p:=0 to 65536 do trie_min[p]:=p+1;
-trie_link(0):=1; trie_max:=0
-
-@ The |first_fit| procedure finds the smallest hole |z| in |trie| such that
-a trie family starting at a given node |p| will fit into vacant positions
-starting at |z|. If |c=trie_c[p]|, this means that location |z-c| must
-not already be taken by some other family, and that |z-c+@t$c^\prime$@>|
-must be vacant for all characters $c^\prime$ in the family. The procedure
-sets |trie_ref[p]| to |z-c| when the first fit has been found.
-
-@<Declare procedures for preprocessing hyph...@>=
-procedure first_fit(@!p:trie_pointer); {packs a family into |trie|}
-label not_found,found;
-var h:trie_pointer; {candidate for |trie_ref[p]|}
-@!z:trie_pointer; {runs through holes}
-@!q:trie_pointer; {runs through the family starting at |p|}
-@!c:ASCII_code; {smallest character in the family}
-@!l,@!r:trie_pointer; {left and right neighbors}
-@!ll:1..65536; {upper limit of |trie_min| updating}
-begin c:=so(trie_c[p]);
-z:=trie_min[c]; {get the first conceivably good hole}
-loop@+  begin h:=z-c;@/
-  @<Ensure that |trie_max>=h+65536|@>;
-  if trie_taken[h] then goto not_found;
-  @<If all characters of the family fit relative to |h|, then
-    |goto found|,\30\ otherwise |goto not_found|@>;
-  not_found: z:=trie_link(z); {move to the next hole}
-  end;
-found: @<Pack the family into |trie| relative to |h|@>;
-end;
-
-@ By making sure that |trie_max| is at least |h+65536|, we can be sure that
-|trie_max>z|, since |h=z-c|. It follows that location |trie_max| will
-never be occupied in |trie|, and we will have |trie_max>=trie_link(z)|.
-
-@<Ensure that |trie_max>=h+65536|@>=
-if trie_max<h+65536 then
-  begin 
-  if trie_size<=h+65536 then overflow("pattern memory",trie_size);
-@:TeX capacity exceeded pattern memory}{\quad pattern memory@>
-  repeat incr(trie_max); trie_taken[trie_max]:=false;
-  trie_link(trie_max):=trie_max+1; trie_back(trie_max):=trie_max-1;
-  until trie_max=h+65536;
-  end
-
-@ @<If all characters of the family fit relative to |h|...@>=
-q:=trie_r[p];
-while q>0 do
-  begin if trie_link(h+so(trie_c[q]))=0 then goto not_found;
-  q:=trie_r[q];
-  end;
-goto found
-
-@ @<Pack the family into |trie| relative to |h|@>=
-trie_taken[h]:=true; trie_ref[p]:=h; q:=p;
-repeat z:=h+so(trie_c[q]); l:=trie_back(z); r:=trie_link(z);
-trie_back(r):=l; trie_link(l):=r; trie_link(z):=0;
-if l<65536 then
-  begin if z<65536 then ll:=z @+else ll:=65536;
-  repeat trie_min[l]:=r; incr(l);
-  until l=ll;
-  end;
-q:=trie_r[q];
-until q=0
-
-@ To pack the entire linked trie, we use the following recursive procedure.
-@^recursion@>
-
-@<Declare procedures for preprocessing hyph...@>=
-procedure trie_pack(@!p:trie_pointer); {pack subtries of a family}
-var q:trie_pointer; {a local variable that need not be saved on recursive calls}
-begin repeat q:=trie_l[p];
-if (q>0)and(trie_ref[q]=0) then
-  begin first_fit(q); trie_pack(q);
-  end;
-p:=trie_r[p];
-until p=0;
-end;
-
-@ When the whole trie has been allocated into the sequential table, we
-must go through it once again so that |trie| contains the correct
-information. Null pointers in the linked trie will be represented by the
-value~0, which properly implements an ``empty'' family.
-
-@<Move the data into |trie|@>=
-h.rh:=0; h.b0:=min_quarterword; h.b1:=min_quarterword; {|trie_link:=0|,
-  |trie_op:=min_quarterword|, |trie_char:=qi(0)|}
-if trie_max=0 then {no patterns were given}
-  begin for r:=0 to 65536 do trie[r]:=h;
-  trie_max:=65536;
-  end
-else begin if hyph_root>0 then trie_fix(hyph_root);
-  if trie_root>0 then trie_fix(trie_root); {this fixes the non-holes in |trie|}
-  r:=0; {now we will zero out all the holes}
-  repeat s:=trie_link(r); trie[r]:=h; r:=s;
-  until r>trie_max;
-  end;
-trie_char(0):=qi("?"); {make |trie_char(c)<>c| for all |c|}
-
-@ The fixing-up procedure is, of course, recursive. Since the linked trie
-usually has overlapping subtries, the same data may be moved several
-times; but that causes no harm, and at most as much work is done as it
-took to build the uncompressed trie.
-@^recursion@>
-
-@<Declare procedures for preprocessing hyph...@>=
-procedure trie_fix(@!p:trie_pointer); {moves |p| and its siblings into |trie|}
-var q:trie_pointer; {a local variable that need not be saved on recursive calls}
-@!c:ASCII_code; {another one that need not be saved}
-@!z:trie_pointer; {|trie| reference; this local variable must be saved}
-begin z:=trie_ref[p];
-repeat q:=trie_l[p]; c:=so(trie_c[p]);
-trie_link(z+c):=trie_ref[q]; trie_char(z+c):=qi(c); trie_op(z+c):=trie_o[p];
-if q>0 then trie_fix(q);
-p:=trie_r[p];
-until p=0;
-end;
-
-@ Now let's go back to the easier problem, of building the linked
-trie.  When \.{INITEX} has scanned the `\.{\\patterns}' control
-sequence, it calls on |new_patterns| to do the right thing.
-
-@<Declare procedures for preprocessing hyph...@>=
-procedure new_patterns; {initializes the hyphenation pattern data}
-label done, done1;
-var k,@!l:0..64; {indices into |hc| and |hyf|;
-                  not always in |small_number| range}
-@!digit_sensed:boolean; {should the next digit be treated as a letter?}
-@!v:quarterword; {trie op code}
-@!p,@!q:trie_pointer; {nodes of trie traversed during insertion}
-@!first_child:boolean; {is |p=trie_l[q]|?}
-@!c:ASCII_code; {character being inserted}
-@!junk:pointer;
-begin if trie_not_ready then
-  begin set_cur_lang; scan_left_brace; {a left brace must follow \.{\\patterns}}
-  @<Enter all of the patterns into a linked trie, until coming to a right
-  brace@>;
-  if saving_hyph_codes>0 then
-    @<Store hyphenation codes for current language@>;
-  end
-else begin print_err("Too late for "); print_esc("patterns");
-  help1("All patterns must be given before typesetting begins.");
-  error; junk:=scan_toks(false,false); flush_list(def_ref);
-  end;
-end;
-
-@ Novices are not supposed to be using \.{\\patterns}, so the error
-messages are terse. (Note that all error messages appear in \TeX's string
-pool, even if they are used only by \.{INITEX}.)
-
-@<Enter all of the patterns into a linked trie...@>=
-k:=0; hyf[0]:=0; digit_sensed:=false;
-loop@+  begin get_x_token;
-  case cur_cmd of
-  letter,other_char:@<Append a new letter or a hyphen level@>;
-  spacer,right_brace: begin if k>0 then
-      @<Insert a new pattern into the linked trie@>;
-    if cur_cmd=right_brace then goto done;
-    k:=0; hyf[0]:=0; digit_sensed:=false;
-    end;
-  othercases begin print_err("Bad "); print_esc("patterns");
-@.Bad \\patterns@>
-    help1("(See Appendix H.)"); error;
-    end
-  endcases;
-  end;
-done:
-
-@ @<Append a new letter or a hyphen level@>=
-if digit_sensed or(cur_chr<"0")or(cur_chr>"9") then
-  begin if cur_chr="." then cur_chr:=0 {edge-of-word delimiter}
-  else  begin  
-	if cur_chr>65535 then
-      begin print_err("Character out of range");
-      help1("This version of luaTeX can only hyphenate 16-bit characters.)"); error;
-      cur_chr:=0;
-      end 
-    else begin
-      cur_chr:=get_lc_code(cur_chr);
-      if cur_chr=0 then
-        begin print_err("Nonletter");
-@.Nonletter@>
-        help1("(See Appendix H.)"); error;
-        end;
-      end;
-    end;
-  if k<63 then
-    begin incr(k); hc[k]:=cur_chr; hyf[k]:=0; digit_sensed:=false;
-    end;
-  end
-else if k<63 then
-  begin hyf[k]:=cur_chr-"0"; digit_sensed:=true;
-  end
-
-@ When the following code comes into play, the pattern $p_1\ldots p_k$
-appears in |hc[1..k]|, and the corresponding sequence of numbers $n_0\ldots
-n_k$ appears in |hyf[0..k]|.
-
-@<Insert a new pattern into the linked trie@>=
-begin @<Compute the trie op code, |v|, and set |l:=0|@>;
-q:=0; hc[0]:=cur_lang;
-while l<=k do
-  begin c:=hc[l]; incr(l); p:=trie_l[q]; first_child:=true;
-  while (p>0)and(c>so(trie_c[p])) do
-    begin q:=p; p:=trie_r[q]; first_child:=false;
-    end;
-  if (p=0)or(c<so(trie_c[p])) then
-    @<Insert a new trie node between |q| and |p|, and
-      make |p| point to it@>;
-  q:=p; {now node |q| represents $p_1\ldots p_{l-1}$}
-  end;
-if trie_o[q]<>min_quarterword then
-  begin print_err("Duplicate pattern");
-@.Duplicate pattern@>
-  help1("(See Appendix H.)"); error;
-  end;
-trie_o[q]:=v;
-end
-
-@ @<Insert a new trie node between |q| and |p|...@>=
-begin if trie_ptr=trie_size then overflow("pattern memory",trie_size);
-@:TeX capacity exceeded pattern memory}{\quad pattern memory@>
-incr(trie_ptr); trie_r[trie_ptr]:=p; p:=trie_ptr; trie_l[p]:=0;
-if first_child then trie_l[q]:=p@+else trie_r[q]:=p;
-trie_c[p]:=si(c); trie_o[p]:=min_quarterword;
-end
-
-@ @<Compute the trie op code, |v|...@>=
-if hc[1]=0 then hyf[0]:=0;
-if hc[k]=0 then hyf[k]:=0;
-l:=k; v:=min_quarterword;
-loop@+  begin if hyf[l]<>0 then v:=new_trie_op(k-l,hyf[l],v);
-  if l>0 then decr(l)@+else goto done1;
-  end;
-done1:
-
-@ Finally we put everything together: Here is how the trie gets to its
-final, efficient form.
-The following packing routine is rigged so that the root of the linked
-tree gets mapped into location 1 of |trie|, as required by the hyphenation
-algorithm. This happens because the first call of |first_fit| will
-``take'' location~1.
-
-@<Declare procedures for preprocessing hyphenation patterns@>=
-procedure init_trie;
-var @!p:trie_pointer; {pointer for initialization}
-@!j,@!k,@!t:integer; {all-purpose registers for initialization}
-@!r,@!s:trie_pointer; {used to clean up the packed |trie|}
-@!h:two_halves; {template used to zero out |trie|'s holes}
-begin @<Get ready to compress the trie@>;
-if trie_root<>0 then
-  begin first_fit(trie_root); trie_pack(trie_root);
-  end;
-if hyph_root<>0 then @<Pack all stored |hyph_codes|@>;
-@<Move the data into |trie|@>;
-trie_not_ready:=false;
-end;
+None of the trie-related stuff is applicable any more in luatex.
 
 @* \[44] Breaking vertical lists into pages.
 The |vsplit| procedure, which implements \TeX's \.{\\vsplit} operation,
@@ -29641,7 +28583,6 @@ Several additional global variables are needed.
 @!right_ghost:boolean; {character left of cursor is a right ghost}
 @!new_left_ghost:boolean; {character right of cursor is a left ghost}
 @!new_right_ghost:boolean; {character right of cursor is a right ghost}
-@!ins_disc:boolean; {should we insert a discretionary node?}
 @!k_glue:integer;
 
 @ The boolean variables of the main loop are normally false, and always reset
@@ -29652,7 +28593,6 @@ each time.
 ligature_present:=false; cancel_boundary:=false; lft_hit:=false; rt_hit:=false;
 left_ghost:=false; right_ghost:=false;
 new_left_ghost:=false; new_right_ghost:=false;
-ins_disc:=false;
 
 @ We leave the |space_factor| unchanged if |sf_code(cur_chr)=0|; otherwise we
 set it equal to |sf_code(cur_chr)|, except that it should never change
@@ -29747,13 +28687,8 @@ nodes inside of other discretionaries.
   end
 
 @d wrapup(#)==if cur_l<>non_boundarychar then
-  begin if (character(tail)=qi(hyphen_char(main_f))) and (not use_new_hyphenation) then if vlink(cur_q)>null then
-    ins_disc:=true;
+  begin 
   if ligature_present then pack_lig(#);
-  if ins_disc then
-    begin ins_disc:=false;
-    if mode>0 then tail_append(new_disc);
-    end;
   end
 
 @<Make a ligature node, if |ligature_present|;...@>=
@@ -29832,12 +28767,13 @@ if new_right_ghost or left_ghost then goto main_loop_wrapup;
 if (not has_lig(main_f,cur_l))and 
     (not has_kern(main_f,cur_l)) then goto main_loop_wrapup;
 main_lig_loop+1:
-if (not use_new_hyphenation) and (disable_lig=0 and has_lig(main_f,cur_l)) then begin
+@{
+if disable_lig=0 and has_lig(main_f,cur_l) then begin
   lig:=get_ligature(main_f,cur_l,cur_r);
   if is_ligature(lig) then 
     @<Do ligature command and goto somewhere@>;
   end;
-if (not use_new_hyphenation) and (disable_kern=0 and has_kern(main_f,cur_l)) then begin
+if disable_kern=0 and has_kern(main_f,cur_l) then begin
   main_k:=get_kern(main_f,cur_l,cur_r);
   if main_k<>0 then begin 
     wrapup(rt_hit);
@@ -29848,6 +28784,7 @@ if (not use_new_hyphenation) and (disable_kern=0 and has_kern(main_f,cur_l)) the
     goto main_loop_move;
     end;
   end;
+@}
 goto main_loop_wrapup
 
 @ @<If |tmp_k1| is not null then append that kern@>=
@@ -34037,8 +32974,7 @@ dump/undump macros.
 dump_int(@$);@/
 @<Dump the \eTeX\ state@>@/
 dump_int(eqtb_size);@/
-dump_int(hash_prime);@/
-dump_int(hyph_size)
+dump_int(hash_prime)
 
 @ Sections of a \.{WEB} program that are ``commented out'' still contribute
 strings to the string pool; therefore \.{INITEX} and \TeX\ will have
@@ -34053,9 +32989,7 @@ if x<>@$ then goto bad_fmt; {check that strings are the same}
 undump_int(x);@/
 if x<>eqtb_size then goto bad_fmt;
 undump_int(x);
-if x<>hash_prime then goto bad_fmt;
-undump_int(x);
-if x<>hyph_size then goto bad_fmt
+if x<>hash_prime then goto bad_fmt
 
 @ @d dump_four_ASCII==
   w.b0:=qi(so(str_pool[k])); w.b1:=qi(so(str_pool[k+1]));
@@ -34316,62 +33250,15 @@ for k:=null_ocp_list to ocp_list_ptr do
 undump_size(1)(1000000)('ocp lstack mem size')(ocp_lstackmem_ptr);
 for k:=0 to ocp_lstackmem_ptr-1 do undump_wd(ocp_lstack_info[k])
 
-
-@ @<Dump the hyphenation tables@>=
-dump_int(hyph_count);
-for k:=0 to hyph_size do if hyph_word[k]<>0 then
-  begin dump_int(k); dump_int(hyph_word[k]); dump_int(hyph_list[k]);
-  end;
-print_ln; print_int(hyph_count); print(" hyphenation exception");
-if hyph_count<>1 then print_char("s");
-if trie_not_ready then init_trie;
-dump_int(trie_max);
-dump_int(hyph_start);
-for k:=0 to trie_max do dump_hh(trie[k]);
-dump_int(trie_op_ptr);
-for k:=1 to trie_op_ptr do
-  begin dump_int(hyf_distance[k]);
-  dump_int(hyf_num[k]);
-  dump_int(hyf_next[k]);
-  end;
-print_nl("Hyphenation trie of length "); print_int(trie_max);
-@.Hyphenation trie...@>
-print(" has "); print_int(trie_op_ptr); print(" op");
-if trie_op_ptr<>1 then print_char("s");
-print(" out of "); print_int(trie_op_size);
-for k:=biggest_lang downto 0 do if trie_used[k]>min_quarterword then
-  begin print_nl("  "); print_int(qo(trie_used[k]));
-  print(" for language "); print_int(k);
-  dump_int(k); dump_int(qo(trie_used[k]));
-  end
-
-@ Only ``nonempty'' parts of |op_start| need to be restored.
-
-@<Undump the hyphenation tables@>=
-undump(0)(hyph_size)(hyph_count);
-for k:=1 to hyph_count do
-  begin undump(0)(hyph_size)(j);
-  undump(0)(str_ptr)(hyph_word[j]);
-  undump(min_halfword)(max_halfword)(hyph_list[j]);
-  end;
-undump_size(0)(trie_size)('trie size')(j); @+init trie_max:=j;@+tini
-undump(0)(j)(hyph_start);
-for k:=0 to j do undump_hh(trie[k]);
-undump_size(0)(trie_op_size)('trie op size')(j); @+init trie_op_ptr:=j;@+tini
-for k:=1 to j do
-  begin undump(0)(63)(hyf_distance[k]); {a |small_number|}
-  undump(0)(63)(hyf_num[k]);
-  undump(min_quarterword)(max_quarterword)(hyf_next[k]);
-  end;
-init for k:=0 to 65535 do trie_used[k]:=min_quarterword;@+tini@;@/
-k:=65536;
-while j>0 do
-  begin undump(0)(k-1)(k); undump(1)(j)(x);@+init trie_used[k]:=qi(x);@+tini@;@/
-  j:=j-x; op_start[k]:=qo(j);
-  end;
-@!init trie_not_ready:=false @+tini
-
 @ This is done in C
+
+@<Dump the hyphenation tables@>=
+dump_language_data
+
+@ @<Undump the hyphenation tables@>=
+undump_language_data
+
+@ This is also done in C
 
 @<Dump the lua bytecodes@>=
 dump_luac_registers;
@@ -34625,9 +33512,6 @@ if log_opened then
   wlog(' ',max_font_id,' font');
   if max_font_id<>1 then wlog('s');
   wlog_ln(' using ', font_bytes:1, ' bytes');
-  wlog(' ',hyph_count:1,' hyphenation exception');
-  if hyph_count<>1 then wlog('s');
-  wlog_ln(' out of ',hyph_size:1);@/
   wlog_ln(' ',max_in_stack:1,'i,',max_nest_stack:1,'n,',@|
     max_param_stack:1,'p,',@|
     max_buf_stack+1:1,'b,',@|
@@ -40194,78 +39078,6 @@ else  begin q:=new_spec(glue_ptr(last_line_fill));
   width(q):=width(q)+active_short(best_bet)-active_glue(best_bet);
   stretch(q):=0; glue_ptr(last_line_fill):=q;
   end
-
-@ When reading \.{\\patterns} while \.{\\savinghyphcodes} is positive
-the current |lc_code| values are stored together with the hyphenation
-patterns for the current language.  They will later be used instead of
-the |lc_code| values for hyphenation purposes.
-
-The |lc_code| values are stored in the linked trie analogous to patterns
-$p_1$ of length~1, with |hyph_root=trie_r[0]| replacing |trie_root| and
-|lc_code(p_1)| replacing the |trie_op| code.  This allows to compress
-and pack them together with the patterns with minimal changes to the
-existing code.
-
-@d hyph_root==trie_r[0] {root of the linked trie for |hyph_codes|}
-
-@<Initialize table entries...@>=
-hyph_root:=0; hyph_start:=0;
-
-@ @<Store hyphenation codes for current language@>=
-begin c:=cur_lang; first_child:=false; p:=0;
-repeat q:=p; p:=trie_r[q];
-until (p=0)or(c<=so(trie_c[p]));
-if (p=0)or(c<so(trie_c[p])) then
-  @<Insert a new trie node between |q| and |p|, and
-    make |p| point to it@>;
-q:=p; {now node |q| represents |cur_lang|}
-@<Store all current |lc_code| values@>;
-end
-
-@ We store all nonzero |lc_code| values, overwriting any previously
-stored values (and possibly wasting a few trie nodes that were used
-previously and are not needed now).  We always store at least one
-|lc_code| value such that |hyph_index| (defined below) will not be zero.
-
-{TH FIXME: this only works for 8bit chars!}
-@<Store all current |lc_code| values@>=
-p:=trie_l[q]; first_child:=true;
-for c:=0 to 255 do
-  if (get_lc_code(c)>0)or((c=255)and first_child) then
-    begin if p=0 then
-      @<Insert a new trie node between |q| and |p|, and
-        make |p| point to it@>
-    else trie_c[p]:=si(c);
-    trie_o[p]:=qi(get_lc_code(c));
-    q:=p; p:=trie_r[q]; first_child:=false;
-    end;
-if first_child then trie_l[q]:=0@+else trie_r[q]:=0
-
-@ We must avoid to ``take'' location~1, in order to distinguish between
-|lc_code| values and patterns.
-
-@<Pack all stored |hyph_codes|@>=
-begin if trie_root=0 then for p:=0 to 255 do trie_min[p]:=p+2;
-first_fit(hyph_root); trie_pack(hyph_root);
-hyph_start:=trie_ref[hyph_root];
-end
-
-@ The global variable |hyph_index| will point to the hyphenation codes
-for the current language.
-
-@d set_hyph_index== {set |hyph_index| for current language}
-  if trie_char(hyph_start+cur_lang)<>qi(cur_lang)
-    then hyph_index:=0 {no hyphenation codes for |cur_lang|}
-  else hyph_index:=trie_link(hyph_start+cur_lang)
-@#
-@d do_set_lc_code(#)== {set |hc[0]| to hyphenation or lc code for |#|}
-  if hyph_index=0 then hc[0]:=get_lc_code(#)
-  else if trie_char(hyph_index+#)<>qi(#) then hc[0]:=0
-  else hc[0]:=qo(trie_op(hyph_index+#))
-
-@<Glob...@>=
-@!hyph_start:trie_pointer; {root of the packed trie for |hyph_codes|}
-@!hyph_index:trie_pointer; {pointer to hyphenation codes for |cur_lang|}
 
 @ When |saving_vdiscards| is positive then the glue, kern, and penalty
 nodes removed by the page builder or by \.{\\vsplit} from the top of a
