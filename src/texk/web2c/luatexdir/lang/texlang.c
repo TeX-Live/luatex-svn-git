@@ -23,6 +23,8 @@ This is texlang.c
 #include "luatex-api.h"
 #include <ptexlib.h>
 
+#include <string.h>
+
 #include "nodes.h"
 #include "hyphen.h"
 
@@ -35,8 +37,6 @@ extern char *utf8_idpb(char *w,unsigned int i);
 #define noVERBOSE
 
 #define MAX_TEX_LANGUAGES 256
-
-int use_new_hyphenation = 0;
 
 static struct tex_language *tex_languages[MAX_TEX_LANGUAGES] = {NULL};
 static int next_lang_id = 0;
@@ -61,122 +61,123 @@ new_language (void) {
 
 struct tex_language *
 get_language (int n) {
-  if (n>=0 && n<=MAX_TEX_LANGUAGES) {
-    return tex_languages[n];
+  if (n>=0 && n<=MAX_TEX_LANGUAGES )  {
+    if (tex_languages[n]!=NULL) {
+      return tex_languages[n];
+    } else {
+      return new_language();
+    }
   } else {
     return NULL;
   }
 }
 
-
 void 
 load_patterns (struct tex_language *lang, unsigned char *buffer) {
+  if (lang==NULL)
+    return;
   if (lang->patterns==NULL) {
-	lang->patterns = hnj_hyphen_new();
-  } else {
-	hnj_hyphen_clear(lang->patterns);
+    lang->patterns = hnj_hyphen_new();
   }
   hnj_hyphen_load (lang->patterns,buffer);
 }
 
-#define STORE_WORD()                    \
-  if (w>0) {                            \
-    word[w] = 0;                        \
-    *s = 0;                             \
-    lua_pushlstring(L,(char *)word,w);  \
-    lua_pushlstring(L,value,(s-value)); \
-    lua_rawset(L,-3);                   \
-    w=0;                                \
+void 
+clear_patterns (struct tex_language *lang) {
+  if (lang==NULL)
+    return;
+  if (lang->patterns!=NULL) {
+    hnj_hyphen_clear(lang->patterns);
+  }
 }
+
+
+void
+load_tex_patterns(int curlang, halfword head) {
+  char *s = tokenlist_to_cstring (head,1, NULL);
+  load_patterns(get_language(curlang),s);
+}
+
 
 #define STORE_CHAR(x) { word[w] = x ; if (w<MAX_WORD_LEN) w++; }
  
-void
-load_hyphenation (struct tex_language *lang, unsigned char *buffer) {
-  char *s, *value;
+char *
+clean_hyphenation (char *buffer, char **cleaned) {
+  int items;
   unsigned char word [MAX_WORD_LEN+1];
   int w = 0;
-  lua_State *L = Luas[0];
-  if (lang->exceptions==0) {
-    lua_newtable(L);
-    lang->exceptions = luaL_ref(L,LUA_REGISTRYINDEX);
-  }
-  lua_rawgeti(L, LUA_REGISTRYINDEX, lang->exceptions);
-  s = value = (char *)buffer;
-  while (*s) {
-	if (isspace(*s)) {
-      STORE_WORD();
-      value = s+1;
-    } else if (*s == '-') {	 /* skip */
+  char *s = buffer;
+  while (*s && !isspace(*s)) {
+    if (*s == '-') {	 /* skip */
     } else if (*s == '=') {
       STORE_CHAR('-');
-	  *s = '-' ; 
+    } else if (*s == '{') {
+      s++;
+      items=0;
+      while (*s && *s!='}') { STORE_CHAR(*s); s++; }
+      if (*s=='}') { items++; s++; }
+      if (*s=='{') { while (*s && *s!='}') s++; }
+      if (*s=='}') { items++; s++; }
+      if (*s=='{') { while (*s && *s!='}') s++; }
+      if (*s=='}') { items++; } else { s--; }
+      if (items!=3) { /* syntax error */
+	*cleaned = NULL;	
+	while (*s && !isspace(*s)) { s++; }
+	return s;
+      }
     } else {
       STORE_CHAR(*s); 
     }
     s++;
   }
-  STORE_WORD();   /* fix a trailing word */
+  word[w] = 0;
+  *cleaned = xstrdup((char *)word);
+  return s;
 }
 
 
-int
-hyphenate_string(struct tex_language *lang, char *w, char **ret) {
-  int i;
-  unsigned len;
-  unsigned int wword [(4*MAX_WORD_LEN)+1] = {0};
-  char hyphenated[(2*MAX_WORD_LEN)+1] = {0};
-  char hyphens[MAX_WORD_LEN] = {0};
-  char *hy = hyphenated;
-  if (lang->exceptions!=0) {
-	lua_State *L = Luas[0];
-	lua_rawgeti(L,LUA_REGISTRYINDEX,lang->exceptions);
-	if (lua_istable(L,-1)) { /* ?? */
-	  lua_pushstring(L,w);    /* word table */
-	  lua_rawget(L,-2);    
-	  if (lua_isstring(L,-1)) { /* ?? table */
-		hy = (char *)lua_tostring(L,-1);
-		lua_pop(L,2);
-		/* TODO: process special {}{}{} stuff into ret */
-		*ret = xstrdup(hy);
-		return 1; 
-	  } else {
-		lua_pop(L,2); 
-	  }
-	} else {
-	  lua_pop(L,1); 
-	}
-  };
-  len = strlen(w);
-  if (len>(4*MAX_WORD_LEN)) {
-	*ret = "word too long";
-	return 0;
+#define STORE_WORD(L,value,cleaned) {		\
+  if ((s-value)>0) {				\
+    lua_pushstring(L,cleaned);			\
+    lua_pushlstring(L,value,(s-value));		\
+    lua_rawset(L,-3);				\
+  }						\
+  free(cleaned); }
+
+void
+load_hyphenation (struct tex_language *lang, unsigned char *buffer) {
+  char *s, *value, *cleaned;
+  lua_State *L = Luas[0];
+  if (lang==NULL)
+    return;
+  if (lang->exceptions==0) {
+    lua_newtable(L);
+    lang->exceptions = luaL_ref(L,LUA_REGISTRYINDEX);
   }
-  if (len==0) {
-	*ret = xstrdup(w);
-	return 1;
-  }
-  (void)utf82u_strcpy((unsigned int *)wword,w);
-  len = u_strlen((unsigned int *)wword); 
-  if (len>MAX_WORD_LEN) {
-	*ret = "word too long";
-	return 0;
-  }
-  if (len==0) {
-	*ret = xstrdup(w);
-	return 1;
-  }
-#if 0
-  (void)hnj_hyphen_hyphenate(lang->patterns,(int *)wword,len,hyphens);
+  lua_rawgeti(L, LUA_REGISTRYINDEX, lang->exceptions);
+  s = (char *)buffer;
+  while (*s) {
+    while (isspace(*s)) s++;
+    if (*s) {
+      value = s;
+      s = clean_hyphenation(s, &cleaned);
+      if (cleaned!=NULL) {
+	STORE_WORD(L,value,cleaned);
+      } else {
+#ifdef VERBOSE
+	fprintf(stderr,"skipping invalid hyphenation exception: %s\n",value);      
 #endif
-  for (i=0;i<len;i++) {
-	hy = utf8_idpb(hy,wword[i]);
-	if (i<(len-lang->rhmin) && i>=(lang->lhmin-1) && hyphens[i]!='0')
-	  *hy++ = '-';
+      }
+    }
   }
-  *hy=0;
-  *ret = xstrdup(hyphenated);
-  return 1;
+}
+
+
+
+void
+load_tex_hyphenation(int curlang, halfword head) {
+  char *s = tokenlist_to_cstring (head,1, NULL);
+  load_hyphenation(get_language(curlang),s);
 }
 
 /* these are just a temporary measure to smooth out the interface between 
@@ -195,13 +196,10 @@ int get_character(halfword t) {
   return character(t);
 }
 
-
-
-
 halfword insert_discretionary ( halfword t,  halfword pre,  halfword post,  int replace) {
   halfword g;
-#ifdef verbose
-  fprintf(stderr,"disc (%d,%d,%d) after %c\n", pre, post, replace, character(t));
+#ifdef VERBOSE
+  /* fprintf(stderr,"disc (%d,%d,%d) after %c\n", pre, post, replace, character(t));*/
 #endif
   g = lua_node_new(disc_node,0);
   vlink(g) = vlink(t);
@@ -231,6 +229,27 @@ halfword insert_discretionary ( halfword t,  halfword pre,  halfword post,  int 
   return t;
 }
 
+halfword insert_syllable_discretionary ( halfword t,  lang_variables *lan) {
+  halfword pre = null, pos = null;
+  if (lan->pre_hyphenchar >0) pre = insert_character ( null,  lan->pre_hyphenchar);
+  if (lan->post_hyphenchar>0) pos = insert_character ( null,  lan->post_hyphenchar);
+  insert_discretionary ( t, pre, pos, 0);
+}
+
+halfword insert_word_discretionary ( halfword t,  lang_variables *lan) {
+  halfword pre = null, pos = null;
+  if (lan->pre_hyphenchar >0) pre = insert_character ( null,  lan->pre_hyphenchar);
+  if (lan->post_hyphenchar>0) pos = insert_character ( null,  lan->post_hyphenchar);
+  insert_discretionary ( t, pre, pos, 0);
+  insert_discretionary ( t, pre, pos, 0);
+}
+
+halfword insert_complex_discretionary ( halfword t, lang_variables *lan, 
+					halfword pre,  halfword pos,  int replace) {
+  insert_discretionary ( t, pre, pos, replace);
+}
+
+
 halfword insert_character ( halfword t,  int c) {
   halfword g;
   g = lua_node_new(glyph_node,0);
@@ -259,6 +278,33 @@ char *hyphenation_exception(int curlang, char *w) {
     lua_pop(L,1);
     return ret;
   }
+}
+
+char *exception_strings(struct tex_language *lang) {
+  char *value;
+  int size = 0, current =0, l =0;
+  char *ret = NULL;
+  lua_State *L = Luas[0];
+  if (lang->exceptions==0)
+    return NULL;
+  lua_checkstack(L,2);
+  lua_rawgeti(L,LUA_REGISTRYINDEX,lang->exceptions);
+  if (lua_istable(L,-1)) {
+    /* iterate and join */
+    lua_pushnil(L);  /* first key */
+    while (lua_next(L,-2) != 0) {
+      value = (char *)lua_tolstring(L, -1, &l);
+      if (current + 2 + l > size ) {
+	ret = xrealloc(ret, (1.2*size)+current+l+1024);
+	size = (1.2*size)+current+l+1024;
+      }
+      *(ret+current) = ' ';
+      strcpy(ret+current+1,value);
+      current += l+1;
+      lua_pop(L, 1);
+    }
+  }
+  return ret;
 }
 
 /* TODO : this is all wrong */
@@ -345,13 +391,6 @@ void do_exception (halfword wordstart, halfword r, char *replacement) {
   }
 }
 
-typedef struct _lang_variables {
-  unsigned char lhmin;
-  unsigned char rhmin;
-  unsigned char curlang;
-  unsigned char uc_hyph;
-} lang_variables;
-
 /* todo:  \hyphenation exceptions
  * incomp: first word hyphenated 
  */
@@ -397,34 +436,6 @@ halfword find_next_wordstart(halfword r, lang_variables *langdata) {
   return r;
 }
 
-void fix_discs (halfword wordstart, halfword r) {
-  halfword a,n,s,t;
-  int f;
-  a = null;
-  for (n=wordstart;n!=r;n=vlink(n)) {
-    if (type(n)==disc_node) {
-      s = lua_node_new(glyph_node, 0);
-      character(s) = '-';
-      font(s) = f;
-      if (a!=null) {
-	node_attr(s) = a;
-	attr_list_ref(node_attr(s)) += 1; 
-      }
-      if (pre_break(n) == null) {
-	pre_break(n) = s;  
-      } else {
-	t = pre_break(n);
-	while (vlink(t)!=null)
-	  t = vlink(t);
-	vlink(t) = s;  
-      }
-    } else {
-      f = font(n);
-      a = node_attr(n);
-    }
-  }
-}
-
 void 
 hnj_hyphenation (halfword head, halfword tail, int init_cur_lang, int init_lhyf, int init_rhyf, int uc_hyph) {
   int lchar, i;
@@ -446,6 +457,8 @@ hnj_hyphenation (halfword head, halfword tail, int init_cur_lang, int init_lhyf,
   langdata.rhmin = init_rhyf;
   langdata.curlang = init_cur_lang;
   langdata.uc_hyph = uc_hyph;
+  langdata.pre_hyphenchar = '-';
+  langdata.post_hyphenchar = -1;
 
   save_tail = vlink(tail);
   vlink(tail) = null;
@@ -467,7 +480,7 @@ hnj_hyphenation (halfword head, halfword tail, int init_cur_lang, int init_lhyf,
       r = vlink(r);
       hy = utf8_idpb(hy,lchar);
     }
-    if (wordlen>=2 &&
+    if (wordlen >= langdata.lhmin+langdata.rhmin &&
 	(lang=tex_languages[langdata.curlang])!=NULL) {
       *hy=0;
       if (lang->exceptions!=0 && 
@@ -477,8 +490,7 @@ hnj_hyphenation (halfword head, halfword tail, int init_cur_lang, int init_lhyf,
 #endif		
 	do_exception(wordstart,r,replacement);
 	free(replacement);
-      } else if (lang->patterns!=NULL && 
-		 wordlen >= langdata.lhmin+langdata.rhmin) {
+      } else if (lang->patterns!=NULL) {
 	left = wordstart;
 	for (i=langdata.lhmin;i>1;i--)
 	  left = vlink(left);
@@ -487,8 +499,7 @@ hnj_hyphenation (halfword head, halfword tail, int init_cur_lang, int init_lhyf,
 		langdata.curlang,langdata.lhmin,langdata.rhmin,
 		character(left), character(right));
 #endif		
-	(void)hnj_hyphen_hyphenate(lang->patterns,wordstart,r,wordlen,left,right); 
-	fix_discs(wordstart,r);
+	(void)hnj_hyphen_hyphenate(lang->patterns,wordstart,r,wordlen,left,right, &langdata); 
       }
     }
     wordlen = 0;
@@ -533,5 +544,92 @@ new_hyphenation (halfword head, halfword tail, int init_cur_lang,
     lua_pop(L,1);
   }  else {
     hnj_hyphenation(head,tail,init_cur_lang,init_lhyf,init_rhyf,uc_hyph);
+  }
+}
+
+/* dumping and undumping fonts */
+
+#define dump_string(a)				\
+  if (a!=NULL) {				\
+    x = strlen(a)+1;				\
+    dump_int(x);  dump_things(*a, x);		\
+  } else {					\
+    x = 0; dump_int(x);				\
+  }
+
+
+void dump_one_language (int i) {
+  char *s = NULL;
+  unsigned x = 0;
+  struct tex_language *lang;
+  lang = tex_languages[i];
+  dump_int(lang->id);
+  dump_int(lang->lhmin);
+  dump_int(lang->rhmin);
+  dump_int(lang->uchyph);  
+  if (lang->patterns!=NULL) {
+    s = hnj_serialize(lang->patterns);
+  }
+  dump_string(s);
+  if (s!=NULL) {
+    free(s);
+    s = NULL;
+  }
+  if (lang->exceptions!=0)
+   s = exception_strings(lang);
+  dump_string(s);
+  if (s!=NULL) {
+    free(s);
+  }
+  free (lang);
+}
+
+void dump_language_data (void) {
+  int i;
+  for (i=0;i<MAX_TEX_LANGUAGES;i++) {
+    if (tex_languages[i]) {
+      dump_int(1);
+      dump_one_language(i);
+    } else {
+      dump_int(0);
+    }
+  }
+}
+
+
+void undump_one_language (int i) {
+  char *s = NULL;
+  unsigned x = 0;
+  struct tex_language *lang = get_language(i);
+  undump_int(x); lang->id = x;
+  undump_int(x); lang->lhmin = x;
+  undump_int(x); lang->rhmin = x;
+  undump_int(x); lang->uchyph = x;
+  /* patterns */
+  undump_int (x);
+  if (x>0) {
+    s = xmalloc(x); 
+    undump_things(*s,x);
+    load_patterns(lang,s);
+    free(s);
+  }
+  /* exceptions */
+  undump_int (x);
+  if (x>0) {
+    s = xmalloc(x); 
+    undump_things(*s,x);
+    load_hyphenation(lang,s);
+    free(s);
+  }
+}
+
+void undump_language_data (void) {
+  int i;
+  unsigned x;
+  for (i=0;i<MAX_TEX_LANGUAGES;i++) {
+    undump_int(x);
+    if (x==1) {
+      undump_one_language(i);
+    }
   }
 }

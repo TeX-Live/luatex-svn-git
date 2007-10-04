@@ -72,8 +72,6 @@ static struct statistic stats[] = {
   { "hash_extra",                'g', &hash_extra       },
   { "font_ptr",                  'G', &max_font_id      }, 
  //{ "font_base",                 'g', &fontbase        },
-  { "hyph_count",                'g', &hyph_count       },
-  { "hyph_size",                 'g', &hyph_size        },
   { "max_in_stack",              'g', &max_in_stack      },
   { "max_nest_stack",            'g', &max_nest_stack    },
   { "max_param_stack",           'g', &max_param_stack   },

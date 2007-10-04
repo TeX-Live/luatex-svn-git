@@ -48,7 +48,7 @@ HyphenDict* hnj_hyphen_new();
 void hnj_hyphen_load(HyphenDict*dict, const unsigned char *fn);
 void hnj_hyphen_free (HyphenDict *dict);
 void hnj_hyphen_clear (HyphenDict *dict);
-void hnj_hyphen_hyphenate (HyphenDict *dict, halfword first, halfword last, int size, halfword left, halfword right);
+void hnj_hyphen_hyphenate (HyphenDict *dict, halfword first, halfword last, int size, halfword left, halfword right, lang_variables*lan);
 unsigned char* hnj_serialize(HyphenDict*);
 void hnj_free_serialize(unsigned char*);
 

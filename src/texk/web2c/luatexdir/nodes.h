@@ -13,11 +13,24 @@ typedef integer halfword ;
 
 /* these three are in texlang.c */
 
-extern void set_vlink (halfword t, halfword v);
+typedef struct _lang_variables {
+  unsigned char lhmin;
+  unsigned char rhmin;
+  unsigned char curlang;
+  unsigned char uc_hyph;
+  int pre_hyphenchar;
+  int post_hyphenchar;
+} lang_variables;
+
+extern void     set_vlink (halfword t, halfword v);
 extern halfword get_vlink(halfword t);
-extern int get_character(halfword t);
+extern int      get_character(halfword t);
 extern halfword insert_discretionary ( halfword t,  halfword pre,  halfword post,  int replace);
-extern halfword insert_character ( halfword t,  int c) ;
+extern halfword insert_syllable_discretionary ( halfword t,  lang_variables *lan);
+extern halfword insert_word_discretionary ( halfword t,  lang_variables *lan);
+extern halfword insert_complex_discretionary ( halfword t,   lang_variables *lan, 
+					       halfword pre,  halfword post,  int replace);
+extern halfword insert_character ( halfword t,  int n);
 
 #define max_halfword  0x3FFFFFFF
 #define null         -0x3FFFFFFF

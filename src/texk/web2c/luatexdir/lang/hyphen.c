@@ -538,11 +538,18 @@ static void clear_dict(
 }
 
 
+// used by hyphnate
+// NB: we 'loose' this memory as it is never freed
+static halfword begin = null;
+static halfword end   = null;
+
 //
 //
 HyphenDict* hnj_hyphen_new() {
   HyphenDict* dict = hnj_malloc (sizeof(HyphenDict));
   init_dict(dict);
+  if (begin==null) begin = insert_character(null,(int)'.');
+  if (end  ==null) end   = insert_character(null,(int)'.');
   return dict;
 }
 
@@ -778,9 +785,6 @@ void hnj_hyphen_load(
 }
 
 
-#define MAX_WORD 256
-
-
 //
 //
 void hnj_hyphen_hyphenate(
@@ -789,30 +793,21 @@ void hnj_hyphen_hyphenate(
   halfword last,
   int length,
   halfword left,
-  halfword right
+  halfword right,
+  lang_variables *lan
 ) {
-  static halfword begin = null;
-  static halfword end   = null;
-  halfword here;
   // +2 for dots at each end, +1 for points /outside/ characters
   int ext_word_len = length+2;
   int hyphen_len   = ext_word_len+1;
 //char *hyphens = hnj_malloc((hyphen_len*2)+1); // LATER
   char *hyphens = hnj_malloc(hyphen_len+1);
-  int char_num, k;
-  int state;
-  HyphenState *hstate;
-  char *match;
-  int offset;
-  if (begin==null) begin = insert_character(null,(int)'.');
-  if (end  ==null) end   = insert_character(null,(int)'.');
 
+  // Add a '.' to beginning and end to facilitate matching
   set_vlink(begin,first);
   set_vlink(end,get_vlink(last));
   set_vlink(last,end);
 
-  // NB: less-equal because there is always one more hyphenation point
-  //     than number of characters:  ^.^w^o^r^d^.^
+  int char_num;
   for (char_num = 0; char_num < hyphen_len; char_num++) {
 //  hyphens[char_num*2] = '0';    // LATER
 //  hyphens[char_num*2+1] = '0';    // LATER
@@ -822,40 +817,27 @@ void hnj_hyphen_hyphenate(
   hyphens[hyphen_len] = 0;
 
   /* now, run the finite state machine */
-  state = 0;
-
+  int state = 0;
+  halfword here;
   for (char_num=0, here=begin; here!=end; here=get_vlink(here)) {
 
     int ch = get_character(here);
 
-    while (1) {
-      if (state == -1) {
-        state = 0;
-        goto try_next_letter;
-      }          
-
-#ifdef VERBOSE
-      printf("%*s%s%c",char_num-strlen(get_state_str(state)),"",get_state_str(state),(char)ch);
-#endif
-
-      hstate = &dict->states[state];
+    while (state!=-1) {
+//+   printf("%*s%s%c",char_num-strlen(get_state_str(state)),"",get_state_str(state),(char)ch);
+      HyphenState *hstate = &dict->states[state];
+      int k;
       for (k = 0; k < hstate->num_trans; k++) {
         if (hstate->trans[k].uni_ch == ch) {
           state = hstate->trans[k].new_state;
-#ifdef VERBOSE
-          printf(" state %d\n",state);
-#endif
-          match = dict->states[state].match;
+//+       printf(" state %d\n",state);
+          char *match = dict->states[state].match;
           if (match) {
             // +2 because:
             //  1 string length is one bigger than offset
             //  1 hyphenation starts before first character
-            offset = char_num + 2 - strlen (match);
-#ifdef VERBOSE
-            printf ("%*s%s\n", offset,"", match);
-#endif
-            /* This is a linear search because I tried a binary search and
-               found it to be just a teeny bit slower. */
+            int offset = char_num + 2 - strlen (match);
+//+         printf ("%*s%s\n", offset,"", match);
             int m;
             for (m = 0; match[m]; m++) {
               if (hyphens[offset+m] < match[m]) hyphens[offset+m] = match[m];
@@ -865,29 +847,24 @@ void hnj_hyphen_hyphenate(
         }
       }
       state = hstate->fallback_state;
-#ifdef VERBOSE
-      printf (" back to %d\n", state);
-#endif
+//+   printf (" back to %d\n", state);
     }
-    /* KBH: we need this to make sure we keep looking in a word */
-    /* for patterns even if the current character is not known in state 0 */
-    /* since patterns for hyphenation may occur anywhere in the word */
+    // nothing worked, let's go to the next character
+    state = 0;
 try_next_letter: ;
     char_num++;
   }
 
-  // pattern is ^.^w^o^r^d^.^   word_len=4, ext_word_len=6, hyphens=7
-  // convert to     ^ ^ ^       so drop first two and stop after word_len-1
-
+  // restore the correct pointers
   set_vlink(last,get_vlink(end));
 
-  for (here=first,char_num=0; here!=left; here=get_vlink(here)) char_num++;
+  // pattern is ^.^w^o^r^d^.^   word_len=4, ext_word_len=6, hyphens=7
+  // check          ^ ^ ^       so drop first two and stop after word_len-1
+  for (here=first,char_num=2; here!=left; here=get_vlink(here)) char_num++;
   for (; here!=right; here=get_vlink(here)) {
-    if (hyphens[char_num+2] & 1)
-      here = insert_discretionary(here, null, null, 0);
+    if (hyphens[char_num] & 1)
+      here = insert_syllable_discretionary(here, lan);
     char_num++;
   }
   hnj_free(hyphens);
 }
-
-

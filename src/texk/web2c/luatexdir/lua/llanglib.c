@@ -42,10 +42,6 @@ lang_new (lua_State *L) {
   } else {
     lang = lua_newuserdata(L, sizeof(struct tex_language *));
     *lang = get_language(lua_tonumber(L,1));
-    if (!*lang) {
-      lua_pushstring(L,"lang.new(): no such language");
-      return lua_error(L);
-    }
   }
   luaL_getmetatable(L,LANG_METATABLE);
   lua_setmetatable(L,-2);
@@ -54,10 +50,7 @@ lang_new (lua_State *L) {
 
 static int 
 lang_use_new (lua_State *L) {
-  int i = use_new_hyphenation;
-  use_new_hyphenation = lua_toboolean(L,1);
-  lua_pushboolean(L,i);
-  return 1;
+  return 0;
 }
 
 
@@ -143,6 +136,15 @@ lang_patterns (lua_State *L) {
 }
 
 static int 
+lang_clear_patterns (lua_State *L) {
+  struct tex_language **lang_ptr;
+  lang_ptr = check_islang(L,1);
+  clear_patterns(*lang_ptr);
+  return 0;
+}
+
+
+static int 
 lang_hyphenation (lua_State *L) {
   struct tex_language **lang_ptr;
   lang_ptr = check_islang(L,1);
@@ -152,6 +154,18 @@ lang_hyphenation (lua_State *L) {
   }
   load_hyphenation(*lang_ptr,(unsigned char *)lua_tostring(L,2));
   return 0;
+}
+
+static int 
+do_lang_clean (lua_State *L) {
+  char *cleaned;
+  if (!lua_isstring(L,1)) {
+    lua_pushstring(L,"lang.clean(): argument should be a string");
+    return lua_error(L);
+  }
+  (void)clean_hyphenation((char *)lua_tostring(L,1),&cleaned);
+  lua_pushstring(L,cleaned);
+  return 1;
 }
 
 static int 
@@ -168,7 +182,7 @@ do_lang_hyphenate (lua_State *L) {
       *t = vlink(*t);
   }
   if (lua_gettop(L)!=i) {
-	lua_pushstring(L,"lang.hyphenation(): not enough arguments");
+	lua_pushstring(L,"lang.hyphenate(): not enough arguments");
 	return lua_error(L);
   }
   id = lua_tointeger(L,(i-3));
@@ -183,17 +197,7 @@ static int
 lang_hyphenate (lua_State *L) {
   struct tex_language **lang_ptr;
   lang_ptr = check_islang(L,1);
-  if (lua_isstring(L,2)) {
-    char *w, *ret = NULL;
-    w = (char *)lua_tostring(L,2);
-    if (hyphenate_string(*lang_ptr,w, &ret)) {
-      lua_pushstring(L,ret);
-      return 1;
-    } else {
-      lua_pushfstring(L,"lang:hyphenate(): %s",ret);
-      return lua_error(L);
-    }
-  } else if (lua_isuserdata(L,2)) {
+  if (lua_isuserdata(L,2)) {
     halfword *h,*t;
     int uc = 0, i = 3, l = 0 , r = 0;
     h = check_isnode(L,2);
@@ -220,16 +224,15 @@ lang_hyphenate (lua_State *L) {
     hnj_hyphenation(*h,*t,(*lang_ptr)->id,l,r,uc);
     return 0;
   } else {
-    lua_pushstring(L,"lang.hyphenate(): argument should be a string or a node list");
+    lua_pushstring(L,"lang:hyphenate(): argument should be a node list");
     return lua_error(L);
   }
 }
 
 
 
-
 static const struct luaL_reg langlib_d [] = {
-  {"hyphenate",       lang_hyphenate},
+  {"clear_patterns",  lang_clear_patterns},
   {"patterns",        lang_patterns},
   {"hyphenation",     lang_hyphenation},
   {"lefthyphenmin",   lang_lhmin},
@@ -242,9 +245,18 @@ static const struct luaL_reg langlib_d [] = {
 
 
 static const struct luaL_reg langlib[] = {
-  {"hyphenate",  do_lang_hyphenate},
-  {"use_new",    lang_use_new},
-  {"new",        lang_new},
+  {"clear_patterns",  lang_clear_patterns},
+  {"patterns",        lang_patterns},
+  {"hyphenation",     lang_hyphenation},
+  {"lefthyphenmin",   lang_lhmin},
+  {"righthyphenmin",  lang_rhmin},
+  {"uchyph",          lang_uchyph},
+  {"exceptions",      lang_exceptions},
+  {"id",              lang_id},
+  {"clean",           do_lang_clean},
+  {"hyphenate",       do_lang_hyphenate},
+  {"use_new",         lang_use_new},
+  {"new",             lang_new},
   {NULL, NULL}                /* sentinel */
 };
 
