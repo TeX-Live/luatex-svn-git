@@ -36,7 +36,7 @@ extern char *utf8_idpb(char *w,unsigned int i);
 
 #define noVERBOSE
 
-#define MAX_TEX_LANGUAGES 256
+#define MAX_TEX_LANGUAGES 65536
 
 static struct tex_language *tex_languages[MAX_TEX_LANGUAGES] = {NULL};
 static int next_lang_id = 0;
@@ -95,7 +95,7 @@ clear_patterns (struct tex_language *lang) {
 void
 load_tex_patterns(int curlang, halfword head) {
   char *s = tokenlist_to_cstring (head,1, NULL);
-  load_patterns(get_language(curlang),s);
+  load_patterns(get_language(curlang),(unsigned char *)s);
 }
 
 
@@ -177,7 +177,7 @@ load_hyphenation (struct tex_language *lang, unsigned char *buffer) {
 void
 load_tex_hyphenation(int curlang, halfword head) {
   char *s = tokenlist_to_cstring (head,1, NULL);
-  load_hyphenation(get_language(curlang),s);
+  load_hyphenation(get_language(curlang),(unsigned char *)s);
 }
 
 /* these are just a temporary measure to smooth out the interface between 
@@ -233,20 +233,19 @@ halfword insert_syllable_discretionary ( halfword t,  lang_variables *lan) {
   halfword pre = null, pos = null;
   if (lan->pre_hyphenchar >0) pre = insert_character ( null,  lan->pre_hyphenchar);
   if (lan->post_hyphenchar>0) pos = insert_character ( null,  lan->post_hyphenchar);
-  insert_discretionary ( t, pre, pos, 0);
+  return insert_discretionary ( t, pre, pos, 0);
 }
 
 halfword insert_word_discretionary ( halfword t,  lang_variables *lan) {
   halfword pre = null, pos = null;
   if (lan->pre_hyphenchar >0) pre = insert_character ( null,  lan->pre_hyphenchar);
   if (lan->post_hyphenchar>0) pos = insert_character ( null,  lan->post_hyphenchar);
-  insert_discretionary ( t, pre, pos, 0);
-  insert_discretionary ( t, pre, pos, 0);
+  return insert_discretionary ( t, pre, pos, 0);
 }
 
 halfword insert_complex_discretionary ( halfword t, lang_variables *lan, 
 					halfword pre,  halfword pos,  int replace) {
-  insert_discretionary ( t, pre, pos, replace);
+  return insert_discretionary ( t, pre, pos, replace);
 }
 
 
@@ -282,7 +281,8 @@ char *hyphenation_exception(int curlang, char *w) {
 
 char *exception_strings(struct tex_language *lang) {
   char *value;
-  int size = 0, current =0, l =0;
+  int size = 0, current =0;
+  unsigned l =0;
   char *ret = NULL;
   lua_State *L = Luas[0];
   if (lang->exceptions==0)
@@ -568,7 +568,7 @@ void dump_one_language (int i) {
   dump_int(lang->rhmin);
   dump_int(lang->uchyph);  
   if (lang->patterns!=NULL) {
-    s = hnj_serialize(lang->patterns);
+    s = (char *)hnj_serialize(lang->patterns);
   }
   dump_string(s);
   if (s!=NULL) {
@@ -586,7 +586,8 @@ void dump_one_language (int i) {
 
 void dump_language_data (void) {
   int i;
-  for (i=0;i<MAX_TEX_LANGUAGES;i++) {
+  dump_int(next_lang_id);
+  for (i=0;i<next_lang_id;i++) {
     if (tex_languages[i]) {
       dump_int(1);
       dump_one_language(i);
@@ -610,7 +611,7 @@ void undump_one_language (int i) {
   if (x>0) {
     s = xmalloc(x); 
     undump_things(*s,x);
-    load_patterns(lang,s);
+    load_patterns(lang,(unsigned char *)s);
     free(s);
   }
   /* exceptions */
@@ -618,15 +619,16 @@ void undump_one_language (int i) {
   if (x>0) {
     s = xmalloc(x); 
     undump_things(*s,x);
-    load_hyphenation(lang,s);
+    load_hyphenation(lang,(unsigned char *)s);
     free(s);
   }
 }
 
 void undump_language_data (void) {
   int i;
-  unsigned x;
-  for (i=0;i<MAX_TEX_LANGUAGES;i++) {
+  unsigned x, numlangs;
+  undump_int(numlangs);
+  for (i=0;i<numlangs;i++) {
     undump_int(x);
     if (x==1) {
       undump_one_language(i);
