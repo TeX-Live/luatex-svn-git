@@ -361,7 +361,6 @@ extern int use_new_hyphenation;
 
 struct tex_language {
   HyphenDict *patterns;
-  void *L;
   int exceptions; /* lua registry pointer, should be replaced */
   int lhmin;
   int rhmin;
@@ -378,5 +377,8 @@ extern void load_hyphenation (struct tex_language *lang, unsigned char *buf);
 extern int hyphenate_string(struct tex_language *lang, char *w, char **ret);
 
 extern void new_hyphenation (halfword h, halfword t, int clang, int lmin, int rmin, int uc);
+extern void clear_patterns (struct tex_language *lang) ;
+extern char *clean_hyphenation (char *buffer, char **cleaned) ;
+extern void hnj_hyphenation (halfword head, halfword tail, int clang, int lhyf, int rhyf, int uc) ;
 
 #endif                          /* PDFTEXLIB */

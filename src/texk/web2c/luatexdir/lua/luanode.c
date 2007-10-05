@@ -451,7 +451,7 @@ get_node (integer s) {
       free_chain[s] = vlink(r);
       TEST_CHAIN(s);
       if (varmem_sizes[r]>=0) {
-	fprintf(stdout,"node %d (size %d, type %d) is not free!\n",r,varmem_sizes[r],type(r));
+		fprintf(stdout,"node %d (size %d, type %d) is not free!\n",(int)r,varmem_sizes[r],type(r));
 	/*assert(varmem_sizes[r]<0);*/
 	break;
       }
@@ -495,10 +495,9 @@ get_node (integer s) {
       t=var_mem_max+x;
       /* fprintf(stdout,"allocating %d extra nodes for %d requested\n",x,s); */
       varmem = (memory_word *)realloc(varmem,sizeof(memory_word)*t);
-      varmem_sizes = (char *)realloc(varmem_sizes,sizeof(signed char)*t);
+      varmem_sizes = (signed char *)realloc(varmem_sizes,sizeof(signed char)*t);
       if (varmem==NULL) {
-	runaway;
-	overflow(maketexstring("node memory size"),var_mem_max);
+		overflow(maketexstring("node memory size"),var_mem_max);
       }
       memset ((void *)(varmem+var_mem_max),0,x*sizeof(memory_word));
       memset ((void *)(varmem_sizes+var_mem_max),0,x*sizeof(signed char));
@@ -525,12 +524,12 @@ free_node (halfword p, integer s) {
     return;
   }
   if (p<=prealloc) { 
-    fprintf(stdout,"node %d (type %d) should not be freed!\n",p, type(p));
+    fprintf(stdout,"node %d (type %d) should not be freed!\n",(int)p, type(p));
     return;
   }
 
   if (varmem_sizes[p]<=0) {
-    fprintf(stdout,"node %d (size %d, type %d) is already free!\n",p,varmem_sizes[p],type(p));
+    fprintf(stdout,"node %d (size %d, type %d) is already free!\n",(int)p,varmem_sizes[p],type(p));
     /*assert(varmem_sizes[p]>0);*/
     return;
   }
@@ -562,7 +561,6 @@ init_node_mem (halfword prealloced, halfword t) {
   varmem = (memory_word *)realloc(varmem,sizeof(memory_word)*t);
   varmem_sizes = (signed char *)realloc(varmem_sizes,sizeof(signed char)*t);
   if (varmem==NULL) {
-    runaway; /* if memory is exhausted, display possible runaway text */
     overflow("node memory size",var_mem_max);
   }
   memset ((void *)varmem,0,sizeof(memory_word)*t);
@@ -579,7 +577,7 @@ print_node_mem_stats (void) {
   halfword j;
   a = node_size(rover);
   fprintf(stdout,"\nnode memory in use: %d words out of %d (%d untouched)\n",
-		  (var_used+prealloc), var_mem_max, a);
+		  (int)(var_used+prealloc), (int)var_mem_max, (int)a);
   fprintf(stdout,"currently available: ");
   for (i=1;i<MAX_CHAIN_SIZE;i++) {
 	j = free_chain[i];
@@ -589,7 +587,7 @@ print_node_mem_stats (void) {
 	  j = vlink(j);
 	}
 	if (free_chain_counts[i]>0)
-	  fprintf(stdout,"%s%d:%d",(i>1 ? ", " : ""),i, free_chain_counts[i]);
+	  fprintf(stdout,"%s%d:%d",(i>1 ? ", " : ""),i, (int)free_chain_counts[i]);
   }
   fprintf(stdout," nodes\n");
 }
@@ -742,7 +740,7 @@ lua_hpack_filter (halfword head_node, scaled size, int pack_type, int extrainfo)
 
 halfword
 lua_vpack_filter (halfword head_node, scaled size, int pack_type, scaled maxd, int extrainfo) {
-  halfword ret,r;  
+  halfword ret;  
   integer callback_id ; 
   lua_State *L = Luas[0];
   if (head_node==null || vlink(head_node)==null)
@@ -790,7 +788,6 @@ lua_vpack_filter (halfword head_node, scaled size, int pack_type, scaled maxd, i
 
 boolean 
 lua_hyphenate_callback (int callback_id, int lang, halfword ha, halfword hb) {
-  int i;
   halfword ret,p,q,r;
   lua_State *L = Luas[0];
 

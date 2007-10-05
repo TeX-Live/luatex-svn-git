@@ -190,45 +190,8 @@ do_lang_hyphenate (lua_State *L) {
   r  = lua_tointeger(L,(i-1));
   uc = lua_toboolean(L,i);
   hnj_hyphenation(*h,*t,id,l,r,uc);
+  return 0;
 }
-
-
-static int 
-lang_hyphenate (lua_State *L) {
-  struct tex_language **lang_ptr;
-  lang_ptr = check_islang(L,1);
-  if (lua_isuserdata(L,2)) {
-    halfword *h,*t;
-    int uc = 0, i = 3, l = 0 , r = 0;
-    h = check_isnode(L,2);
-    if (lua_isuserdata(L,3)) {
-      t = check_isnode(L,3);
-      i = 4;
-    } else {
-      t = h;
-      while (vlink(*t)!=null)
-	*t = vlink(*t);
-    }
-    l = (*lang_ptr)->lhmin;
-    if (lua_gettop(L)>=i) {
-      l = lua_tointeger(L,i); i++;
-    }
-    r = (*lang_ptr)->rhmin;
-    if (lua_gettop(L)>=i) {
-      r = lua_tointeger(L,i); i++;
-    }
-    uc = (*lang_ptr)->uchyph;
-    if (lua_gettop(L)>=i) {
-      uc = lua_toboolean(L,i);
-    }
-    hnj_hyphenation(*h,*t,(*lang_ptr)->id,l,r,uc);
-    return 0;
-  } else {
-    lua_pushstring(L,"lang:hyphenate(): argument should be a node list");
-    return lua_error(L);
-  }
-}
-
 
 
 static const struct luaL_reg langlib_d [] = {

@@ -32,6 +32,7 @@ extern halfword insert_complex_discretionary ( halfword t,   lang_variables *lan
 					       halfword pre,  halfword post,  int replace);
 extern halfword insert_character ( halfword t,  int n);
 
+
 #define max_halfword  0x3FFFFFFF
 #define null         -0x3FFFFFFF
 #define null_flag    -0x40000000
