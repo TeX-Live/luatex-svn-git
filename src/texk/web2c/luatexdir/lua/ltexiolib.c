@@ -12,66 +12,69 @@ do_texio_print (lua_State *L, texio_printer printfunction) {
   strnumber s,u;
   char *outputstr;
   char save_selector;
-  int n;
+  int n,i;
   u = 0;
   n = lua_gettop(L);
-  if (!lua_isstring(L, -1)) {
+  if (n==0 || !lua_isstring(L, -1)) {
     lua_pushstring(L, "no string to print");
     lua_error(L);
   }
-  if (n==2) {
-    if (!lua_isstring(L, -2)) {
-      lua_pushstring(L, "invalid argument for print selector");
-      lua_error(L);
-    } else {
-      save_selector = selector;  
-      outputstr=(char *)lua_tostring(L, -2);
-      if      (strcmp(outputstr,"log") == 0)          { selector = log_only;     }
-      else if (strcmp(outputstr,"term") == 0)         { selector = term_only;    }
-      else if (strcmp(outputstr,"term and log") == 0) {	selector = term_and_log; }
-      else {
-		lua_pushstring(L, "invalid argument for print selector");
-		lua_error(L);
-      }
-    }
-  } else {
-    if (n!=1) {
-      lua_pushstring(L, "invalid number of arguments");
-      lua_error(L);
-    }
-    save_selector = selector;
-    if (selector!=log_only &&
-	selector!=term_only &&
-	selector != term_and_log) {
-      normalize_selector(); /* sets selector */
-    }
+  save_selector = selector;
+  i = 1;
+  if (n>1) {
+	outputstr=(char *)lua_tostring(L, 1);
+	if      (strcmp(outputstr,"log") == 0)          { i++; selector = log_only;     }
+	else if (strcmp(outputstr,"term") == 0)         { i++; selector = term_only;    }
+	else if (strcmp(outputstr,"term and log") == 0) { i++; selector = term_and_log; }
   }
+  if (selector!=log_only &&  selector!=term_only && selector != term_and_log) {
+	normalize_selector(); /* sets selector */
+  }
+  /* just in case there is a string in progress */
   if (str_start[str_ptr-0x200000]<pool_ptr) 
     u=make_string();
-  s = maketexstring(lua_tostring(L, -1));
-  printfunction(s);
-  flush_str(s);
+  for (;i<=n;i++) {
+	s = maketexstring(lua_tostring(L, i));
+	printfunction(s);
+	flush_str(s);
+  }
   selector = save_selector;
   if (u!=0) str_ptr--;
   return 0; 
 }
 
-static int
-texio_print (lua_State *L) {
+static void
+do_texio_ini_print (lua_State *L, char *extra) {
   char *s;
-  if (ready_already!=314159 || pool_ptr==0) {
-	if(lua_isstring(L, -1)) {
-	  s = (char *)lua_tostring(L, -1);
-	  fprintf(stdout,"%s",s);
-	  if ((lua_isstring(L, -2) && strcmp(lua_tostring(L, -2),"term"))||
-		  (!lua_isstring(L, -2))) {
+  int i,n,l;
+  n = lua_gettop(L);
+  i = 1;
+  l = 3;
+  if (n>1) {
+	s=(char *)lua_tostring(L, 1);
+	if      (strcmp(s,"log") == 0)          { i++; l = 1; }
+	else if (strcmp(s,"term") == 0)         { i++; l = 2; }
+	else if (strcmp(s,"term and log") == 0) { i++; l = 3; }
+  }
+  for (;i<=n;i++) {
+	if(lua_isstring(L, i)) {
+	  s = (char *)lua_tostring(L, i);
+	  if (l==2||l==3)
+		fprintf(stdout,"%s%s", extra, s);
+	  if (l==1||l==3) {
 		if (loggable_info==NULL)
 		  loggable_info = s;
 		else
-		  loggable_info = concat (loggable_info,s);
-	  } else {
+		  loggable_info = concat3 (loggable_info,extra,s);
 	  }
 	}
+  }
+}
+
+static int
+texio_print (lua_State *L) {
+  if (ready_already!=314159 || pool_ptr==0) {
+	do_texio_ini_print(L,"");
 	return 0;
   }
   return do_texio_print(L,zprint);
@@ -79,19 +82,8 @@ texio_print (lua_State *L) {
 
 static int
 texio_printnl (lua_State *L) {
-  char *s;
   if (ready_already!=314159 || pool_ptr==0) {
-	if(lua_isstring(L, -1)) {
-	  s = (char *)lua_tostring(L, -1);
-	  fprintf(stdout,"\n%s",s);
-	  if ((lua_isstring(L, -2) && strcmp(lua_tostring(L, -2),"term"))||
-          (!lua_isstring(L, -2))) {
-		if (loggable_info==NULL)
-		  loggable_info = s;
-		else
-		  loggable_info = concat3 (loggable_info,"\n", s);
-	  }
-	}
+	do_texio_ini_print(L,"\n");
 	return 0;
   }
   return do_texio_print(L,zprint_nl);
