@@ -12154,7 +12154,7 @@ lua_code:
     def_ref := save_def_ref;
     scanner_status := save_scanner_status;
     luacstrings:=0;
-    luatokencall(i,link(s));
+    luatokencall(i,s);
     delete_token_ref(s);
 	if u<>0 then begin
       if str_ptr=u+1 then 
@@ -27238,7 +27238,7 @@ using an algorithm due to Frank~M. Liang.
 var p:halfword; {just to catch the return value of |scan_toks|}
 begin set_cur_lang;
 p:=scan_toks(false,true);
-load_tex_hyphenation(cur_lang,link(def_ref));
+load_tex_hyphenation(cur_lang,def_ref);
 flush_list(def_ref); 
 end;
 
@@ -27249,7 +27249,7 @@ procedure named |new_patterns|.
 var p:halfword; {just to catch the return value of |scan_toks|}
 begin set_cur_lang;
 p:=scan_toks(false,true);
-load_tex_patterns(cur_lang,link(def_ref));
+load_tex_patterns(cur_lang,def_ref);
 flush_list(def_ref); 
 end;
 

@@ -310,11 +310,12 @@ tokenlist_to_cstring ( int p , int inhibit_par, int *siz) {
   int n = '0';
   int alloci = 0;
   int i = 0;
-  if (p==null) {
+  if (p==null || link(p)==null) {
     if (siz!=NULL)
       *siz = 0;
     return NULL;
   }
+  p = link(p); /* skip refcount */
   active_base = get_active_base();
   hash_base = get_hash_base();
   null_cs = get_nullcs();
