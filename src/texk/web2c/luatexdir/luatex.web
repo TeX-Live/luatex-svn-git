@@ -24873,6 +24873,7 @@ begin pack_begin_line:=mode_line; {this is for over/underfull box messages}
 if not output_active then 
   lua_node_filter(linebreak_filter_callback,line_break_context,head,addressof(tail));
 @<Get ready to start line breaking@>;
+@<Initialize for hyphenating a paragraph@>;
 @<Find optimal breakpoints@>;
 @<Break the paragraph at the chosen breakpoints, justify the resulting lines
 to the correct widths, and append them to the current vertical list@>;
@@ -26195,7 +26196,6 @@ else  begin threshold:=tolerance; second_pass:=true;
   @!stat if tracing_paragraphs>0 then begin_diagnostic;@+tats@;
   end;
 loop@+  begin if threshold>inf_bad then threshold:=inf_bad;
-  if second_pass then @<Initialize for hyphenating a paragraph@>;
   @<Create an active breakpoint representing the beginning of the paragraph@>;
   cur_p:=vlink(temp_head); auto_breaking:=true;@/
   prev_p:=cur_p; {glue at beginning is not a legal breakpoint}
