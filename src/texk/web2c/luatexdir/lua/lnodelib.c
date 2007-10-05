@@ -416,10 +416,10 @@ lua_nodelib_hpack(lua_State *L) {
 }
 
 /* A whole set of static data for field information */
-/* every node is supposed to have at least "next", 
-   "id", and "subtype" */
+/* every node is supposed to have at least "next",  "id", and "subtype".  */
 
 /* ordinary nodes */
+
 static char * node_fields_list        [] = { "attr", "width", "depth", "height", "dir", "shift", 
 					     "glue_order", "glue_sign", "glue_set" , "list",  NULL };
 static char * node_fields_rule        [] = { "attr", "width", "depth", "height", "dir", NULL };
@@ -591,6 +591,16 @@ static char ** node_fields_whatsits [] = {
    identifiers are valid for all types of nodes.
 */
 
+/* this inlining is an optimisation trick. it would be even faster to
+   compare string pointers on the lua stack, but that would require a
+   lot of code reworking that I don't have time for right now.
+*/
+
+#define TEST2(a,b) (*s==a && *(s+1)==b && *(s+2) == 0)
+
+#define TEST4(a,b,c,d)						\
+  (*s==a && *(s+1)==b && *(s+2)==c && *(s+3)==d && *(s+4)==0)
+
 static int
 get_node_field_id (lua_State *L, int n, int node ) {
   int j;
@@ -600,10 +610,20 @@ get_node_field_id (lua_State *L, int n, int node ) {
   char *** fields = node_fields;
   if (lua_type(L,n)==LUA_TSTRING) {
     s = (char *)lua_tostring(L,n);
-    if      (strcmp(s,"prev")    == 0) {  i = -1; } 
-    else if (strcmp(s,"next")    == 0) {  i = 0; } 
-    else if (strcmp(s,"id")      == 0) {  i = 1; } 
-    else if (strcmp(s,"subtype") == 0) {  i = 2; }
+    if      (TEST2('i','d'))                     { i = 1;  }
+    else if (TEST4('n','e','x','t'))             { i = 0;  } 
+    else if (t==glyph_node) {
+      if      (TEST4('c','h','a','r'))           { i = 4;  } /* char */
+      else if (TEST4('f','o','n','t'))           { i = 5;  } /* font */
+      else if (TEST4('a','t','t','r'))           { i = 3;  } /* attr */
+      else if (TEST4('p','r','e','v'))           { i = -1; } /* prev */
+      else if (strcmp(s,"xoffset") == 0 )        { i = 7;  } /* yoffset */
+      else if (strcmp(s,"yoffset") == 0 )        { i = 8;  } /* yoffset */
+      else if (strcmp(s,"components") == 0 )     { i = 6;  } /* components */
+      else if (strcmp(s,"subtype") == 0 )        { i = 2;  } /* subtype */
+    }
+    else if (TEST4('p','r','e','v'))             { i = -1; }
+    else if (strcmp(s,"subtype") == 0)           { i = 2;  }
     else {
       if (t==whatsit_node) {
 	t = subtype(node);
