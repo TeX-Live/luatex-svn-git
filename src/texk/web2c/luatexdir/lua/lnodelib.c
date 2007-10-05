@@ -1166,6 +1166,7 @@ lua_nodelib_getfield_whatsit  (lua_State *L, int n, int field) {
     case  5: lua_pushnumber(L,pdf_height(n));                break;
     case  6: lua_pushnumber(L,pdf_depth(n));                 break;
     case  7: lua_pushnumber(L,pdf_annot_objnum(n));          break;
+    case  8: tokenlist_to_luastring(L,pdf_annot_data(n));    break;
     default: lua_pushnil(L); 
     }
     break;
@@ -1619,6 +1620,7 @@ lua_nodelib_setfield_whatsit(lua_State *L, int n, int field) {
     case  5: pdf_height(n) = lua_tointeger(L,3);            break;
     case  6: pdf_depth(n) = lua_tointeger(L,3);             break;
     case  7: pdf_annot_objnum(n) = lua_tointeger(L,3);      break;
+    case  8: pdf_annot_data(n) = nodelib_getstring(L,3);    break;
     default: return nodelib_cantset(L,field,n);
     }
     break;
@@ -1628,7 +1630,7 @@ lua_nodelib_setfield_whatsit(lua_State *L, int n, int field) {
     case  5: pdf_height(n) = lua_tointeger(L,3);            break;
     case  6: pdf_depth(n) = lua_tointeger(L,3);             break;
     case  7: pdf_link_objnum(n) = lua_tointeger(L,3);       break;
-    case  8: pdf_link_attr(n) = nodelib_gettoks(L,3);       break;
+    case  8: pdf_link_attr(n) = nodelib_getstring(L,3);     break;
     case  9: pdf_link_action(n) = nodelib_getaction(L,3);   break;
     default: return nodelib_cantset(L,field,n);
     }
