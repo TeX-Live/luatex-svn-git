@@ -11,7 +11,7 @@ OBJECTS =dir.o err.o fetch.o file.o info.o memdisk.o mmapped.o \
 
 _CFLAGS = -DHAVE_CONFIG_H -I.. -I../../../../src/libs/zziplib -I../../../../src/libs/zlib -Wall
 
-XCFLAGS = -fomit-frame-pointer $(_CFLAGS)
+XCFLAGS = $(_CFLAGS)
 
 all: $(OBJECTS)
 	$(AR) libzzip.a $(OBJECTS)
