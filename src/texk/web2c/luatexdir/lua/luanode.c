@@ -99,6 +99,9 @@ char *whatsit_node_names[] = {
   "pdf_setmatrix",
   "pdf_save",
   "pdf_restore",
+  "cancel_boundary",
+  "left_ghost_marker",
+  "right_ghost_marker",
   "user_defined",
   NULL };
 
@@ -274,6 +277,15 @@ lua_node_whatsit_new(int j) {
     break;
   case pdf_restore_node:
     p =get_node(pdf_restore_node_size);
+    break;
+  case cancel_boundary_node:
+    p =get_node(cancel_boundary_size);
+    break;
+  case left_ghost_marker_node:
+    p =get_node(left_ghost_marker_size);
+    break;
+  case right_ghost_marker_node:
+    p =get_node(right_ghost_marker_size);
     break;
   case user_defined_node:
     p = get_node(user_defined_node_size);

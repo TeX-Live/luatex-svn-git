@@ -541,6 +541,9 @@ static char * node_fields_whatsit_pdf_colorstack     [] = { "attr", "stack", "cm
 static char * node_fields_whatsit_pdf_setmatrix      [] = { "attr", "data", NULL };
 static char * node_fields_whatsit_pdf_save           [] = { "attr", NULL };
 static char * node_fields_whatsit_pdf_restore        [] = { "attr", NULL };
+static char * node_fields_whatsit_cancel_boundary    [] = { "attr", NULL };
+static char * node_fields_whatsit_left_ghost_marker  [] = { "attr", NULL };
+static char * node_fields_whatsit_right_ghost_marker [] = { "attr", NULL };
 static char * node_fields_whatsit_user_defined       [] = { "attr", "user_id", "type", "value", NULL };
 
 /* there are holes in this list because not all extension
@@ -581,6 +584,9 @@ static char ** node_fields_whatsits [] = {
   node_fields_whatsit_pdf_setmatrix,
   node_fields_whatsit_pdf_save,
   node_fields_whatsit_pdf_restore,
+  node_fields_whatsit_cancel_boundary,
+  node_fields_whatsit_left_ghost_marker,
+  node_fields_whatsit_right_ghost_marker,
   node_fields_whatsit_user_defined,
   NULL
 };
@@ -1268,6 +1274,9 @@ lua_nodelib_getfield_whatsit  (lua_State *L, int n, int field) {
     break;
   case pdf_save_node:           
   case pdf_restore_node:        
+  case cancel_boundary_node:        
+  case left_ghost_marker_node:        
+  case right_ghost_marker_node:        
     lua_pushnil(L); 
     break;
   case user_defined_node:       
@@ -1724,6 +1733,9 @@ lua_nodelib_setfield_whatsit(lua_State *L, int n, int field) {
     break;
   case pdf_save_node:           
   case pdf_restore_node:        
+  case cancel_boundary_node:        
+  case left_ghost_marker_node:        
+  case right_ghost_marker_node:        
     return nodelib_cantset(L,field,n);
     break;
   case user_defined_node:       

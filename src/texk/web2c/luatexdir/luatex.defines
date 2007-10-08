@@ -43,6 +43,8 @@ $Id $
 @define procedure check_buffer_overflow();
 @define procedure check_pool_overflow();
 
+@define procedure new_ligkern();
+
 @define procedure new_hyphenation();
 @define procedure load_tex_hyphenation();
 @define procedure load_tex_patterns();

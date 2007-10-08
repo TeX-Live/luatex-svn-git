@@ -503,9 +503,9 @@ new_hyphenation (halfword head, halfword tail, int init_cur_lang,
 		 int init_lhyf, int init_rhyf, int uc_hyph) {
   int callback_id = 0;
   lua_State *L = Luas[0];
-  callback_id = callback_defined(hyphenate_callback);
   if (head==null || vlink(head)==null)
     return;
+  callback_id = callback_defined(hyphenate_callback);
   if (callback_id>0) {
     /* */
     lua_rawgeti(L,LUA_REGISTRYINDEX,callback_callbacks_id);

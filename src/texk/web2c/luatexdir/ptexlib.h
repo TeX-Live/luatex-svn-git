@@ -376,7 +376,7 @@ struct tex_language {
   int id;
 };
 
-#define MAX_WORD_LEN 255 /* in chars */
+#define MAX_WORD_LEN 256 /* in chars */
 
 extern struct tex_language *new_language (void) ;
 extern struct tex_language *get_language (int n) ;
@@ -388,5 +388,7 @@ extern void new_hyphenation (halfword h, halfword t, int clang, int lmin, int rm
 extern void clear_patterns (struct tex_language *lang) ;
 extern char *clean_hyphenation (char *buffer, char **cleaned) ;
 extern void hnj_hyphenation (halfword head, halfword tail, int clang, int lhyf, int rhyf, int uc) ;
+
+void new_ligkern(halfword head, halfword tail, int dir);
 
 #endif                          /* PDFTEXLIB */

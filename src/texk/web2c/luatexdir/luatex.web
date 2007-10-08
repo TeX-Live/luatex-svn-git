@@ -24873,8 +24873,10 @@ var @<Local variables for line breaking@>@;
 begin pack_begin_line:=mode_line; {this is for over/underfull box messages}
 if not output_active then 
   lua_node_filter(linebreak_filter_callback,line_break_context,head,addressof(tail));
-@<Get ready to start line breaking@>;
+vlink(temp_head):=vlink(head);
 @<Initialize for hyphenating a paragraph@>;
+@<Get ready to start line breaking@>;
+@<Insert ligatures and kerns into the paragraph@>;
 @<Find optimal breakpoints@>;
 @<Break the paragraph at the chosen breakpoints, justify the resulting lines
 to the correct widths, and append them to the current vertical list@>;
@@ -24901,7 +24903,6 @@ same number of |mem|~words.
 @^data structure assumptions@>
 
 @<Get ready to start...@>=
-vlink(temp_head):=vlink(head);
 if is_char_node(tail) then tail_append(new_penalty(inf_penalty))
 else if type(tail)<>glue_node then tail_append(new_penalty(inf_penalty))
 else begin 
@@ -24913,9 +24914,6 @@ else begin
 final_par_glue:=new_param_glue(par_fill_skip_code);
 vlink(tail):=final_par_glue;
 last_line_fill:=vlink(tail);
-init_cur_lang:=prev_graf mod @'200000;
-init_l_hyf:=prev_graf div @'20000000;
-init_r_hyf:=(prev_graf div @'200000) mod @'100;
 if (not is_char_node(vlink(head))) and ((type(vlink(head))=whatsit_node)
    and (subtype(vlink(head))=local_par_node)) then 
   paragraph_dir:=local_par_dir(vlink(head)) 
@@ -24937,6 +24935,14 @@ lua_node_filter_s(buildpage_filter_callback,#,head,addressof(tail))
 lua_node_filter_s(buildpage_filter_callback,#,contrib_head,addressof(garbage))
 
 @d check_filter==check_head_filter
+
+@ Now that the ligkern processing is no longer part of the main loop,
+it has to be handled elsewhere. There are two places where this has to
+take place: just before the line breaking stage, and just before
+|hpack|.
+
+@<Insert ligatures and kerns into the paragraph@>=
+new_ligkern(temp_head,tail, paragraph_dir);
 
 @ When looking for optimal line breaks, \TeX\ creates a ``break node'' for
 each break that is {\sl feasible}, in the sense that there is a way to end
@@ -26918,7 +26924,11 @@ passes on only about 5 per cent of the paragraphs.
 
 @<Initialize for hyphenating...@>=
 begin 
-cur_lang:=init_cur_lang; set_cur_lang;
+init_cur_lang:=prev_graf mod @"10000;
+init_l_hyf:=prev_graf div @"1000000;
+init_r_hyf:=(prev_graf div @"10000) mod @"100;
+cur_lang:=init_cur_lang; 
+set_cur_lang;
 new_hyphenation(temp_head, tail, cur_lang, init_l_hyf, init_r_hyf, uc_hyph);
 end 
 
@@ -26937,7 +26947,6 @@ nodes $p_{a-1}$ and~$p_b$ in the description above are placed into variables
 @!hyf_char:integer; {hyphen character of the relevant font}
 @!cur_lang,@!init_cur_lang:ASCII_code; {current hyphenation table of interest}
 @!l_hyf,@!r_hyf,@!init_l_hyf,@!init_r_hyf:integer; {limits on fragment sizes}
-@!hyf_bchar:integer; {boundary character after $c_n$}
 
 @ Hyphenation routines need a few more local variables.
 
@@ -26952,274 +26961,11 @@ second pass, and |cur_p| points to a glue node.
 do_nothing
 
 @* \[41] Post-hyphenation.
-If a hyphen may be inserted between |hc[j]| and |hc[j+1]|, the hyphenation
-procedure will set |hyf[j]| to some small odd number. But before we look
-at \TeX's hyphenation procedure, which is independent of the rest of the
-line-breaking algorithm, let us consider what we will do with the hyphens
-it finds, since it is better to work on this part of the program before
-forgetting what |ha| and |hb|, etc., are all about.
 
-@<Glob...@>=
-@!hyf:array [0..64] of 0..9; {odd values indicate discretionary hyphens}
-@!init_list:pointer; {list of punctuation characters preceding the word}
-@!init_lig:boolean; {does |init_list| represent a ligature?}
-@!init_lft:boolean; {if so, did the ligature involve a left boundary?}
-
-@ @<Local variables for hyphenation@>=
-@!i,@!j,@!l:0..65; {indices into |hc| or |hu|}
-@!q,@!r,@!s:pointer; {temporary registers for list manipulation}
-@!bchar:integer; {right boundary character of hyphenated word, or |non_boundarychar|}
-
-@ \TeX\ will never insert a hyphen that has fewer than
-\.{\\lefthyphenmin} letters before it or fewer than
-\.{\\righthyphenmin} after it; hence, a short word has
-comparatively little chance of being hyphenated. If no hyphens have
-been found, we can save time by not having to make any changes to the
-paragraph.
-
-@<If no hyphens were found, |return|@>=
-for j:=l_hyf to hn-r_hyf do if odd(hyf[j]) then goto found1;
-return;
-found1:
-
-@ We must now face the fact that the battle is not over, even though the
-{\def\!{\kern-1pt}%
-hyphens have been found: The process of reconstituting a word can be nontrivial
-because ligatures might change when a hyphen is present. {\sl The \TeX book\/}
-discusses the difficulties of the word ``difficult'', and
-the discretionary material surrounding a
-hyphen can be considerably more complex than that. Suppose
-\.{abcdef} is a word in a font for which the only ligatures are \.{b\!c},
-\.{c\!d}, \.{d\!e}, and \.{e\!f}. If this word permits hyphenation
-between \.b and \.c, the two patterns with and without hyphenation are
-$\.a\,\.b\,\.-\,\.{c\!d}\,\.{e\!f}$ and $\.a\,\.{b\!c}\,\.{d\!e}\,\.f$.
-Thus the insertion of a hyphen might cause effects to ripple arbitrarily
-far into the rest of the word. A further complication arises if additional
-hyphens appear together with such rippling, e.g., if the word in the
-example just given could also be hyphenated between \.c and \.d; \TeX\
-avoids this by simply ignoring the additional hyphens in such weird cases.}
-
-Still further complications arise in the presence of ligatures that do not
-delete the original characters. When punctuation precedes the word being
-hyphenated, \TeX's method is not perfect under all possible scenarios,
-because punctuation marks and letters can propagate information back and forth.
-For example, suppose the original pre-hyphenation pair
-\.{*a} changes to \.{*y} via a \.{\?=:} ligature, which changes to \.{xy}
-via a \.{=:\?} ligature; if $p_{a-1}=\.x$ and $p_a=\.y$, the reconstitution
-procedure isn't smart enough to obtain \.{xy} again. In such cases the
-font designer should include a ligature that goes from \.{xa} to \.{xy}.
-
-@ The processing is facilitated by a subroutine called |reconstitute|. Given
-a string of characters $x_j\ldots x_n$, there is a smallest index $m\ge j$
-such that the ``translation'' of $x_j\ldots x_n$ by ligatures and kerning
-has the form $y_1\ldots y_t$ followed by the translation of $x_{m+1}\ldots x_n$,
-where $y_1\ldots y_t$ is some nonempty sequence of character, ligature, and
-kern nodes. We call $x_j\ldots x_m$ a ``cut prefix'' of $x_j\ldots x_n$.
-For example, if $x_1x_2x_3=\.{fly}$, and if the font contains `fl' as a
-ligature and a kern between `fl' and `y', then $m=2$, $t=2$, and $y_1$ will
-be a ligature node for `fl' followed by an appropriate kern node~$y_2$.
-In the most common case, $x_j$~forms no ligature with $x_{j+1}$ and we
-simply have $m=j$, $y_1=x_j$. If $m<n$ we can repeat the procedure on
-$x_{m+1}\ldots x_n$ until the entire translation has been found.
-
-The |reconstitute| function returns the integer $m$ and puts the nodes
-$y_1\ldots y_t$ into a vlinked list starting at |vlink(hold_head)|,
-getting the input $x_j\ldots x_n$ from the |hu| array. If $x_j=256$,
-we consider $x_j$ to be an implicit left boundary character; in this
-case |j| must be strictly less than~|n|. There is a
-parameter |bchar|, which is either 256 or an implicit right boundary character
-assumed to be present just following~$x_n$. (The value |hu[n+1]| is never
-explicitly examined, but the algorithm imagines that |bchar| is there.)
-
-If there exists an index |k| in the range $j\le k\le m$ such that |hyf[k]|
-is odd and such that the result of |reconstitute| would have been different
-if $x_{k+1}$ had been |hchar|, then |reconstitute| sets |hyphen_passed|
-to the smallest such~|k|. Otherwise it sets |hyphen_passed| to zero.
-
-A special convention is used in the case |j=0|: Then we assume that the
-translation of |hu[0]| appears in a special list of charnodes starting at
-|init_list|; moreover, if |init_lig| is |true|, then |hu[0]| will be
-a ligature character, involving a left boundary if |init_lft| is |true|.
-This facility is provided for cases when a hyphenated
-word is preceded by punctuation (like single or double quotes) that might
-affect the translation of the beginning of the word.
-
-@<Glob...@>=
-@!hyphen_passed:small_number; {first hyphen in a ligature, if any}
-
-@ @<Declare the function called |reconstitute|@>=
-function reconstitute(@!j,@!n:small_number;@!bchar,@!hchar:integer):
-  small_number;
-label continue,done;
-var @!p:pointer; {temporary register for list manipulation}
-@!t:pointer; {a node being appended to}
-@!q:four_quarters; {character information or a lig/kern instruction}
-@!cur_rh:integer; {hyphen character for ligature testing}
-@!test_char:integer; {hyphen or other character for ligature testing}
-@!w:scaled; {amount of kerning}
-@!k:integer; {position of current lig/kern instruction}
-@!lig:liginfo; {a ligature structure}
-begin hyphen_passed:=0; t:=hold_head; w:=0; vlink(hold_head):=null;
- {at this point |ligature_present=lft_hit=rt_hit=false|}
-@<Set up data structures with the cursor following position |j|@>;
-continue:@<If there's a ligature or kern at the cursor position, update the data
-  structures, possibly advancing~|j|; continue until the cursor moves@>;
-@<Append a ligature and/or kern to the translation;
-  |goto continue| if the stack of inserted ligatures is nonempty@>;
-reconstitute:=j;
-end;
-
-@ The reconstitution procedure shares many of the global data structures
-by which \TeX\ has processed the words before they were hyphenated.
-There is an implied ``cursor'' between characters |cur_l| and |cur_r|;
-these characters will be tested for possible ligature activity. If
-|ligature_present| then |cur_l| is a ligature character formed from the
-original characters following |cur_q| in the current translation list.
-There is a ``ligature stack'' between the cursor and character |j+1|,
-consisting of pseudo-ligature nodes linked together by their |vlink| fields.
-This stack is normally empty unless a ligature command has created a new
-character that will need to be processed later. A pseudo-ligature is
-a special node having a |character| field that represents a potential
-ligature and a |lig_ptr| field that points to a |char_node| or is |null|.
-We have
-$$|cur_r|=\cases{|character(lig_stack)|,&if |lig_stack>null|;\cr
-  |qi(hu[j+1])|,&if |lig_stack=null| and |j<n|;\cr
-  bchar,&if |lig_stack=null| and |j=n|.\cr}$$
-
-@<Glob...@>=
+@ @<Glob...@>=
 @!cur_l,@!cur_r:integer; {characters before and after the cursor}
 @!cur_q:pointer; {where a ligature should be detached}
 @!lig_stack:pointer; {unfinished business to the right of the cursor}
-@!ligature_present:boolean; {should a ligature node be made for |cur_l|?}
-@!lft_hit,@!rt_hit:boolean; {did we hit a ligature with a boundary character?}
-@!charnode_to_t_tmp:pointer;
-
-@ @d append_charnode_to_t(#)== begin charnode_to_t_tmp:=new_glyph(hf,#); 
-    vlink(t):=charnode_to_t_tmp; t:=vlink(t); 
-    node_attr(t):=hattr; add_node_attr_ref(hattr);
-   end
-@d set_cur_r==begin if j<n then cur_r:=qi(hu[j+1])@+else cur_r:=bchar;
-    if odd(hyf[j]) then cur_rh:=hchar@+else cur_rh:=non_boundarychar;
-    end
-
-@<Set up data structures with the cursor following position |j|@>=
-cur_l:=qi(hu[j]); cur_q:=t;
-if j=0 then
-  begin ligature_present:=init_lig; p:=init_list;
-  if ligature_present then lft_hit:=init_lft;
-  while p>null do
-    begin append_charnode_to_t(character(p)); p:=vlink(p);
-    end;
-  end
-else if cur_l<>non_boundarychar then append_charnode_to_t(cur_l);
-lig_stack:=null; set_cur_r
-
-@ We may want to look at the lig/kern program twice, once for a hyphen
-and once for a normal letter. (The hyphen might appear after the letter
-in the program, so we'd better not try to look for both at once.)
-
-@<If there's a ligature or kern at the cursor position, update...@>=
-if cur_l=non_boundarychar then
-  begin k:= non_boundarychar;
-  if has_left_boundary(hf) then k:=left_boundarychar;
-  if k=non_boundarychar then goto done;
-  end
-else
-  k:=cur_l;
-begin
-  if cur_rh<>non_boundarychar then test_char:=cur_rh@+else test_char:=cur_r;
-  if disable_lig=0 and has_lig(hf,k) then begin
-	lig:=get_ligature(hf,k,test_char);
-    if is_ligature(lig) then begin
-	  @<Update |hyphen_passed| and |hchar|, maybe goto continue@>;
-      @<Carry out a ligature replacement, updating the cursor structure
-        and possibly advancing~|j|; |goto continue| if the cursor doesn't
-        advance, otherwise |goto done|@>;
-      end;
-    end
-  else begin if disable_kern=0 and has_kern(hf,k) then
-	  {TH: this 'Update ..' should not be needed ? }
-	  @<Update |hyphen_passed| and |hchar|, maybe goto continue@>;
-	  w:=get_kern(hf,k,test_char);
-    end;
-  end;
-done:
-
-@ @<Update |hyphen_passed| and |hchar|, maybe goto continue@>=
-if cur_rh<>non_boundarychar then begin 
-  hyphen_passed:=j; hchar:=non_boundarychar; cur_rh:=non_boundarychar; 
-  goto continue;
-  end
-else begin
-  if hchar<>non_boundarychar then if odd(hyf[j]) then
-    begin hyphen_passed:=j; hchar:=non_boundarychar;
-    end;
-  end
-
-
-@ @d wrap_lig(#)==if ligature_present then
-    begin p:=new_ligature(hf,cur_l,vlink(cur_q));
-    delete_attribute_ref(node_attr(p));
-    node_attr(p):=hattr; add_node_attr_ref(hattr);
-    if lft_hit then
-      begin subtype(p):=3; lft_hit:=false;
-      end;
-    if # then if lig_stack=null then
-      begin incr(subtype(p)); rt_hit:=false;
-      end;
-    vlink(cur_q):=p; t:=p; ligature_present:=false;
-    end
-@d pop_lig_stack==begin if lig_ptr(lig_stack)>null then
-    begin vlink(t):=lig_ptr(lig_stack); {this is a charnode for |hu[j+1]|}
-    t:=vlink(t); incr(j);
-    end;
-  p:=lig_stack; lig_stack:=vlink(p); ext_free_node(p,glyph_node_size);
-  if lig_stack=null then set_cur_r@+else cur_r:=character(lig_stack);
-  end {if |lig_stack| isn't |null| we have |cur_rh=non_boundarychar|}
-
-@<Append a ligature and/or kern to the translation...@>=
-wrap_lig(rt_hit);
-if w<>0 then
-  begin charnode_to_t_tmp:=new_kern(w); vlink(t):= charnode_to_t_tmp; t:=vlink(t); w:=0;
-  end;
-if lig_stack>null then
-  begin cur_q:=t; cur_l:=character(lig_stack); ligature_present:=true;
-  pop_lig_stack; goto continue;
-  end
-
-@ @<Carry out a ligature replacement, updating the cursor structure...@>=
-begin if cur_l=non_boundarychar then lft_hit:=true;
-if j=n then if lig_stack=null then rt_hit:=true;
-check_interrupt; {allow a way out in case there's an infinite ligature loop}
-case lig_type(lig) of
-qi(1),qi(5):begin cur_l:=lig_replacement(lig); {\.{=:\?}, \.{=:\?>}}
-  ligature_present:=true;
-  end;
-qi(2),qi(6):begin cur_r:=lig_replacement(lig); {\.{\?=:}, \.{\?=:>}}
-  if lig_stack>null then character(lig_stack):=cur_r
-  else begin lig_stack:=new_lig_item(cur_r);
-    if j=n then bchar:=non_boundarychar
-    else begin p:=new_glyph(hf,qi(hu[j+1])); lig_ptr(lig_stack):=p;
-      delete_attribute_ref(node_attr(p));
-      node_attr(p):=hattr; add_node_attr_ref(hattr); end;
-    end;
-  end;
-qi(3):begin cur_r:=lig_replacement(lig); {\.{\?=:\?}}
-  p:=lig_stack; lig_stack:=new_lig_item(cur_r); vlink(lig_stack):=p;
-  end;
-qi(7),qi(11):begin wrap_lig(false); {\.{\?=:\?>}, \.{\?=:\?>>}}
-  cur_q:=t; cur_l:=lig_replacement(lig); ligature_present:=true;
-  end;
-othercases begin cur_l:=lig_replacement(lig); ligature_present:=true; {\.{=:}}
-  if lig_stack>null then pop_lig_stack
-  else if j=n then goto done
-  else begin append_charnode_to_t(cur_r); incr(j); set_cur_r;
-    end;
-  end
-endcases;
-if lig_type(lig)>qi(4) then if lig_type(lig)<>qi(7) then goto done;
-goto continue;
-end
 
 @* \[42] Hyphenation.
 When a word been set up to contain a candidate for hyphenation,
@@ -28480,24 +28226,13 @@ consideration of the other cases until later.
 @^inner loop@>
 
 @d big_switch=60 {go here to branch on the next token of input}
-@d main_loop=70 {go here to typeset a string of consecutive characters}
-@d main_loop_wrapup=80 {go here to finish a character or ligature}
-@d main_loop_move=90 {go here to advance the ligature cursor}
-@d main_loop_move_lig=95 {same, when advancing past a generated ligature}
-@d main_loop_lookahead=100 {go here to bring in another character, if any}
-@d main_lig_loop=110 {go here to check for ligatures or kerning}
 
 @p @t\4@>@<Declare action procedures for use by |main_control|@>@;
 @t\4@>@<Declare the procedure called |handle_right_brace|@>@;
 procedure main_control; {governs \TeX's activities}
-label big_switch,reswitch,main_loop_wrapup,
-  main_loop_move,main_loop_move+1,main_loop_move+2,main_loop_move_lig,
-  main_loop_lookahead,main_loop_lookahead+1,
-  main_lig_loop,main_lig_loop+1,main_lig_loop+2,
-  exit;
+label big_switch,reswitch,exit;
 var@!t,k:integer; {general-purpose temporary variables}
-tmp_k1, tmp_k2: pointer; {for testing whether an auto kern should be inserted}
-lig:liginfo; { a ligature }
+p:pointer; {for whatsit node insertion and testing whether an auto kern should be inserted}
 begin if every_job<>null then begin_token_list(every_job,every_job_text);
 big_switch: get_x_token;@/
 reswitch: @<Give diagnostic information, if requested@>;
@@ -28519,14 +28254,14 @@ hmode+letter,hmode+other_char,hmode+char_given,hmode+char_num: begin
   end;
 hmode+no_boundary: begin get_x_token;
   if (cur_cmd=letter)or(cur_cmd=other_char)or(cur_cmd=char_given)or
-   (cur_cmd=char_num) then cancel_boundary:=true;
+   (cur_cmd=char_num) then @<Append a |cancel_boundary_node| @>;
   goto reswitch;
   end;
 hmode+char_ghost: begin t:=cur_chr; get_x_token;
   if (cur_cmd=letter)or(cur_cmd=other_char)or(cur_cmd=char_given)or
-   (cur_cmd=char_num) then begin
-    if t=0 then new_left_ghost:=true
-    else new_right_ghost:=true;
+   (cur_cmd=char_num) then begin 
+    if t=0 then @<Append a |left_ghost_marker_node| @>
+    else @<Append a |right_ghost_marker_node| @>;
     end;
   goto reswitch;
   end;
@@ -28556,44 +28291,13 @@ if tracing_commands>0 then show_cur_cmd_chr
 manner, according to the philosophy that ``premature optimization is
 the root of all evil.'' Then it was rearranged into pieces of
 spaghetti so that the most common actions could proceed with little or
-no redundancy.
-
-The original unoptimized form of this algorithm resembles the
-|reconstitute| procedure, which was described earlier in connection with
-hyphenation. Again we have an implied ``cursor'' between characters
-|cur_l| and |cur_r|. The main difference is that the |lig_stack| can now
-contain a charnode as well as pseudo-ligatures; that stack is now
-usually nonempty, because the next character of input (if any) has been
-appended to it. In |main_control| we have
-$$|cur_r|=\cases{|character(lig_stack)|,&if |lig_stack>null|;\cr
-  |font_bchar(cur_font)|,&otherwise;\cr}$$
-except when |character(lig_stack)=font_false_bchar(cur_font)|.
-Several additional global variables are needed.
+no redundancy. And finally, it is replaced by a completely standalone
+loop over the node list: luatex does not have a |main+loop| at all.
+@^inner loop@>
 
 @<Glob...@>=
-@!main_f:internal_font_number; {the current font}
-@!main_i:four_quarters; {character information bytes for |cur_l|}
-@!main_j:four_quarters; {ligature/kern command}
-@!main_k:integer; {index into |font_info|}
 @!main_p:pointer; {temporary register for list manipulation}
 @!main_s:integer; {space factor value}
-@!bchar:integer; {right boundary character of current font, or |non_boundarychar|}
-@!false_bchar:integer; {nonexistent character matching |bchar|, or |non_boundarychar|}
-@!cancel_boundary:boolean; {should the left boundary be ignored?}
-@!left_ghost:boolean; {character left of cursor is a left ghost}
-@!right_ghost:boolean; {character left of cursor is a right ghost}
-@!new_left_ghost:boolean; {character right of cursor is a left ghost}
-@!new_right_ghost:boolean; {character right of cursor is a right ghost}
-@!k_glue:integer;
-
-@ The boolean variables of the main loop are normally false, and always reset
-to false before the loop is left. That saves us the extra work of initializing
-each time.
-
-@<Set init...@>=
-ligature_present:=false; cancel_boundary:=false; lft_hit:=false; rt_hit:=false;
-left_ghost:=false; right_ghost:=false;
-new_left_ghost:=false; new_right_ghost:=false;
 
 @ We leave the |space_factor| unchanged if |sf_code(cur_chr)=0|; otherwise we
 set it equal to |sf_code(cur_chr)|, except that it should never change
@@ -28614,236 +28318,9 @@ are inside the individual sections.
 
 @<Append character |cur_chr|...@>=
 adjust_space_factor;@/
-save_tail := null;
-main_f:=cur_font;
-if has_right_boundary(main_f) then
-  bchar:=right_boundarychar
-else
-  bchar:=non_boundarychar;
-false_bchar:= non_boundarychar;
-if mode>0 then if language<>clang then fix_language;
-lig_stack:=new_glyph(main_f,cur_chr); cur_l:=cur_chr;
-cur_q:=tail;
-tmp_k1 := get_auto_kern(main_f, -1, cur_l);
-@<If |tmp_k1| is not null then append that kern@>;
-if cancel_boundary then
-  begin cancel_boundary:=false; main_k:=non_boundarychar;
-  left_ghost:=new_left_ghost; right_ghost:=new_right_ghost;
-  new_left_ghost:=false; new_right_ghost:=false;
-  end
-else begin 
-  if has_left_boundary(main_f) then
-    main_k := left_boundarychar
-  else
-    main_k := non_boundarychar;
-  end;
-if main_k=non_boundarychar then goto main_loop_move+2; {no left boundary processing}
-cur_r:=cur_l; cur_l:=main_k;
-if not new_right_ghost then
-  goto main_lig_loop+1; {begin with cursor after left boundary}
-@#
-main_loop_wrapup:@<Make a ligature node, if |ligature_present|;
-  insert a null discretionary, if appropriate@>;
-main_loop_move:@<If the cursor is immediately followed by the right boundary,
-  |goto reswitch|; if it's followed by an invalid character, |goto big_switch|;
-  otherwise move the cursor one step to the right and |goto main_lig_loop|@>;
-main_loop_lookahead:@<Look ahead for another character, or leave |lig_stack|
-  empty if there's none there@>;
-main_lig_loop:@<If there's a ligature/kern command relevant to |cur_l| and
-  |cur_r|, adjust the text appropriately; exit to |main_loop_wrapup|@>;
-main_loop_move_lig:@<Move the cursor past a pseudo-ligature, then
-  |goto main_loop_lookahead| or |main_lig_loop|@>
-
-@ If the current horizontal list is empty, the reference to |character(tail)|
-here is not strictly legal, since |tail| will be a node freshly returned by
-|get_avail|. But this should cause no problem on most implementations, and we
-do want the inner loop to be fast.
-@^dirty \PASCAL@>
-
-A discretionary break is not inserted for an explicit hyphen when we are in
-restricted horizontal mode. In particular, this avoids putting discretionary
-nodes inside of other discretionaries.
-
-@d pack_lig(#)== {the parameter is either |rt_hit| or |false|}
-  begin main_p:=new_ligature(main_f,cur_l,vlink(cur_q));
-  if lft_hit then
-    begin subtype(main_p):=3; lft_hit:=false;
-    end;
-  if # then if lig_stack=null then
-    begin incr(subtype(main_p)); rt_hit:=false;
-    end;
-  if pdf_prepend_kern > 0 then
-      tmp_k2 := get_auto_kern(main_f, -1, cur_l)
-  else
-      tmp_k2 := null;
-  if tmp_k2 = null then begin
-      vlink(cur_q):=main_p; tail:=main_p; ligature_present:=false;
-  end
-  else begin
-      vlink(cur_q) := tmp_k2;
-      vlink(tmp_k2) := main_p;
-      tail := main_p;
-      ligature_present := false;
-  end
-  end
-
-@d wrapup(#)==if cur_l<>non_boundarychar then
-  begin 
-  if ligature_present then pack_lig(#);
-  end
-
-@<Make a ligature node, if |ligature_present|;...@>=
-wrapup(rt_hit)
-
-@ @<If the cursor is immediately followed by the right boundary...@>=
-if lig_stack=null then goto reswitch;
-cur_q:=tail; cur_l:=character(lig_stack);
-main_loop_move+1:if not is_char_node(lig_stack) then goto main_loop_move_lig;
-main_loop_move+2:
-left_ghost:=new_left_ghost; right_ghost:=new_right_ghost;
-new_left_ghost:=false; new_right_ghost:=false;
-if ((cur_chr<font_bc(main_f))or(cur_chr>font_ec(main_f)))or
-   (not char_exists(main_f,cur_chr)) then
-  begin char_warning(main_f,cur_chr); 
-    ext_free_node(lig_stack,glyph_node_size); goto big_switch;
-  end;
-if not (left_ghost or right_ghost) then begin
-  tail_append(lig_stack);  {|main_loop_lookahead| is next}
-end;
-
-@ Here we are at |main_loop_move_lig|.
-When we begin this code we have |cur_q=tail| and |cur_l=character(lig_stack)|.
-
-@<Move the cursor past a pseudo-ligature...@>=
-main_p:=lig_ptr(lig_stack);
-if main_p>null then tail_append(main_p);
-temp_ptr:=lig_stack; lig_stack:=vlink(temp_ptr);
-ext_free_node(temp_ptr,glyph_node_size);
-ligature_present:=true;
-if lig_stack=null then
-  if main_p>null then goto main_loop_lookahead
-  else cur_r:=bchar
-else cur_r:=character(lig_stack);
-goto main_lig_loop
-
-@ The result of \.{\\char} can participate in a ligature or kern, so we must
-look ahead for it.
-
-@<Look ahead for another character...@>=
-get_x_token;
-if cur_cmd=letter then goto main_loop_lookahead+1;
-if cur_cmd=other_char then goto main_loop_lookahead+1;
-if cur_cmd=char_given then goto main_loop_lookahead+1;
-if cur_cmd=char_num then
-  begin scan_char_num; cur_chr:=cur_val; goto main_loop_lookahead+1;
-  end;
-if cur_cmd=char_ghost then begin t:=cur_chr; get_x_token;
-  if (cur_cmd=letter)or(cur_cmd=other_char)or(cur_cmd=char_given)or
-   (cur_cmd=char_num) then begin
-    if t=0 then new_left_ghost:=true
-    else new_right_ghost:=true;
-    back_input;
-    goto main_loop_lookahead;
-    end;
-  end;
-if cur_cmd=no_boundary then bchar:=non_boundarychar;
-cur_r:=bchar; lig_stack:=null; goto main_lig_loop;
-main_loop_lookahead+1: adjust_space_factor;
-lig_stack:=new_glyph(main_f, cur_chr);
-cur_r:=cur_chr;
-if cur_r=false_bchar then cur_r:=non_boundarychar {this prevents spurious ligatures}
-
-@ Even though comparatively few characters have a lig/kern program, several
-of the instructions here count as part of \TeX's inner loop, since a
-@^inner loop@>
-potentially long sequential search must be performed. For example, tests with
-Computer Modern Roman showed that about 40 per cent of all characters
-actually encountered in practice had a lig/kern program, and that about four
-lig/kern commands were investigated for every such character.
-
-@<If there's a ligature/kern command...@>=
-tmp_k1 := get_auto_kern(main_f, cur_l, cur_r);
-@<If |tmp_k1| is not null then append that kern@>;
-if new_right_ghost or left_ghost then goto main_loop_wrapup;
-if (not has_lig(main_f,cur_l))and 
-    (not has_kern(main_f,cur_l)) then goto main_loop_wrapup;
-main_lig_loop+1:
-@{
-if disable_lig=0 and has_lig(main_f,cur_l) then begin
-  lig:=get_ligature(main_f,cur_l,cur_r);
-  if is_ligature(lig) then 
-    @<Do ligature command and goto somewhere@>;
-  end;
-if disable_kern=0 and has_kern(main_f,cur_l) then begin
-  main_k:=get_kern(main_f,cur_l,cur_r);
-  if main_k<>0 then begin 
-    wrapup(rt_hit);
-    tail_append(new_kern(main_k));
-    if new_left_ghost or right_ghost then begin
-      subtype(tail):=explicit;
-      end;
-    goto main_loop_move;
-    end;
-  end;
-@}
-goto main_loop_wrapup
-
-@ @<If |tmp_k1| is not null then append that kern@>=
-if tmp_k1 <> null then begin
-    wrapup(rt_hit);
-    save_tail := tail;
-    tail_append(tmp_k1);
-    goto main_loop_move;
-end
-
-@ When a ligature or kern instruction matches a character, we know from
-|read_font_info| that the character exists in the font, even though we
-haven't verified its existence in the normal way.
-
-This section could be made into a subroutine, if the code inside
-|main_control| needs to be shortened.
-
-\chardef\?='174 % vertical line to indicate character retention
-
-@<Do ligature command...@>=
-begin if new_left_ghost or right_ghost then goto main_loop_wrapup;
-if cur_l=non_boundarychar then lft_hit:=true
-else if lig_stack=null then rt_hit:=true;
-check_interrupt; {allow a way out in case there's an infinite ligature loop}
-case lig_type(lig) of
-qi(1),qi(5):begin cur_l:=lig_replacement(lig); {\.{=:\?}, \.{=:\?>}}
-  ligature_present:=true;
-  end;
-qi(2),qi(6):begin cur_r:=lig_replacement(lig); {\.{\?=:}, \.{\?=:>}}
-  if lig_stack=null then {right boundary character is being consumed}
-    begin lig_stack:=new_lig_item(cur_r); bchar:=non_boundarychar;
-    end
-  else if is_char_node(lig_stack) then {|vlink(lig_stack)=null|}
-    begin main_p:=lig_stack; lig_stack:=new_lig_item(cur_r);
-    lig_ptr(lig_stack):=main_p;
-    end
-  else character(lig_stack):=cur_r;
-  end;
-qi(3):begin cur_r:=lig_replacement(lig); {\.{\?=:\?}}
-  main_p:=lig_stack; lig_stack:=new_lig_item(cur_r);
-  vlink(lig_stack):=main_p;
-  end;
-qi(7),qi(11):begin wrapup(false); {\.{\?=:\?>}, \.{\?=:\?>>}}
-  cur_q:=tail; cur_l:=lig_replacement(lig);
-  ligature_present:=true;
-  end;
-othercases begin cur_l:=lig_replacement(lig); 
- ligature_present:=true; {\.{=:}}
-  if lig_stack=null then goto main_loop_wrapup
-  else goto main_loop_move+1;
-  end
-endcases;
-if lig_type(lig)>qi(4) then
-  if lig_type(lig)<>qi(7) then goto main_loop_wrapup;
-if cur_l<>non_boundarychar then goto main_lig_loop;
-if has_left_boundary(main_f) then main_k:=left_boundarychar
-else main_k:=non_boundarychar; goto main_lig_loop+1;
-end
+tail_append(new_glyph(cur_font,cur_chr));
+p := get_auto_kern(cur_font, -1, cur_chr);
+if p <> null then tail_append(p)
 
 @ The occurrence of blank spaces is almost part of \TeX's inner loop,
 @^inner loop@>
@@ -29748,8 +29225,8 @@ vmode+letter,vmode+other_char,vmode+char_num,vmode+char_given,
   end;
 
 @ @<Declare act...@>=
-function norm_min(@!h:integer):small_number;
-begin if h<=0 then norm_min:=1@+else if h>=63 then norm_min:=63@+
+function norm_min(@!h:integer):quarterword;
+begin if h<=0 then norm_min:=1@+else if h>=255 then norm_min:=255@+
 else norm_min:=h;
 end;
 @#
@@ -29762,8 +29239,8 @@ if (mode=vmode)or(head<>tail) then begin
     check_filter('begin_of_par'); 
   end;
 push_nest; mode:=hmode; space_factor:=1000; set_cur_lang; clang:=cur_lang;
-prev_graf:=(norm_min(left_hyphen_min)*@'100+norm_min(right_hyphen_min))
-             *@'200000+cur_lang;
+prev_graf:=(norm_min(left_hyphen_min)*@"100+norm_min(right_hyphen_min))
+             *@"10000+cur_lang;
 @<LOCAL: Add local paragraph node@>;
 if indented then begin
   p:=new_null_box; box_dir(p):=par_direction;
@@ -31338,8 +30815,8 @@ begin if cur_group<>math_shift_group then confusion("display");
 @<DIR: |unsave| math@>;
 prev_graf:=prev_graf+3;
 push_nest; mode:=hmode; space_factor:=1000; set_cur_lang; clang:=cur_lang;
-prev_graf:=(norm_min(left_hyphen_min)*@'100+norm_min(right_hyphen_min))
-             *@'200000+cur_lang;
+prev_graf:=(norm_min(left_hyphen_min)*@"100+norm_min(right_hyphen_min))
+             *@"10000+cur_lang;
 @<LOCAL: Add local paragraph node@>;
 @<Scan an optional space@>;
 if nest_ptr=1 then begin check_filter('after_display'); build_page; end;
@@ -34017,6 +33494,9 @@ extension: case chr_code of
   pdf_glyph_to_unicode_code: print_esc("pdfglyphtounicode");
   late_lua_node: print_esc("latelua");
   close_lua_node: print_esc("closelua");
+  cancel_boundary_node: print_esc("noboundary");
+  left_ghost_marker_node: print_esc("leftghost");
+  right_ghost_marker_node: print_esc("rightghost");
   othercases print("[unknown extension!]")
   endcases;
 
@@ -35420,12 +34900,54 @@ else if write_stream(p)=16 then print_char("*")
 else print_char("-");
 end;
 
+@ Three extra node types carry information from |main_control|.
+
+@ |cancel_boundary_nodes| indicate that the next left boundary be
+ignored. These are created by the \.{\\noboundary} command in
+horizontal mode.
+
+@d cancel_boundary_node==pdf_restore_node+1
+@d cancel_boundary_size==3
+
+@<Append a |cancel_boundary_node| @>=
+begin p:=get_node(cancel_boundary_size);
+type(p):=whatsit_node; subtype(p):=cancel_boundary_node;
+build_attribute_list(p);
+tail_append(p);
+end
+
+@ A |left_ghost_marker_node| indicates that the next character node
+is a left ghost.
+
+@d left_ghost_marker_node==pdf_restore_node+2
+@d left_ghost_marker_size==3
+
+@<Append a |left_ghost_marker_node| @>=
+begin p:=get_node(left_ghost_marker_size);
+type(p):=whatsit_node; subtype(p):=left_ghost_marker_node;
+build_attribute_list(p);
+tail_append(p);
+end
+
+@  A |right_ghost_marker_node| indicates that the next character node 
+is a right ghost.
+
+@d right_ghost_marker_node==pdf_restore_node+3
+@d right_ghost_marker_size==3
+
+@<Append a |right_ghost_marker_node| @>=
+begin p:=get_node(right_ghost_marker_size);
+type(p):=whatsit_node; subtype(p):=right_ghost_marker_node;
+build_attribute_list(p);
+tail_append(p);
+end
+
 @ User defined whatsits can be inserted into node lists to pass data
 along from one lua call to anotherb without interference from the
 typesetting engine itself. Each has an id, a type, and a value. The
 type of the value depends on the |user_node_type| field. 
 
-@d user_defined_node==pdf_restore_node+1
+@d user_defined_node==right_ghost_marker_node+1
 @d user_defined_node_size=4
 @d user_node_id(#)==vlink(#+2)
 @d user_node_type(#)==vinfo(#+2)
@@ -35495,6 +35017,15 @@ pdf_save_node: begin
 end;
 pdf_restore_node: begin
     print_esc("pdfrestore");
+end;
+cancel_boundary_node: begin
+    print_esc("noboundary");
+end;
+left_ghost_marker_node: begin
+    print_esc("leftghost");
+end;
+right_ghost_marker_node: begin
+    print_esc("rightghost");
 end;
 late_lua_node: begin
     print_esc("latelua");
@@ -35709,6 +35240,12 @@ pdf_save_node: begin r := get_node(pdf_save_node_size);
   end;
 pdf_restore_node: begin r := get_node(pdf_restore_node_size);
   end;
+cancel_boundary_node: begin r := get_node(cancel_boundary_size);
+  end;
+left_ghost_marker_node: begin r := get_node(left_ghost_marker_size);
+  end;
+right_ghost_marker_node: begin r := get_node(right_ghost_marker_size);
+  end;
 late_lua_node: begin r := get_node(write_node_size);
   add_token_ref(late_lua_data(p));
   late_lua_data(r):=late_lua_data(p);
@@ -35838,6 +35375,15 @@ pdf_save_node: begin
 end;
 pdf_restore_node: begin
     free_node(p, pdf_restore_node_size);
+end;
+cancel_boundary_node: begin
+    free_node(p, cancel_boundary_size);
+end;
+left_ghost_marker_node: begin
+    free_node(p, left_ghost_marker_size);
+end;
+right_ghost_marker_node: begin
+    free_node(p, right_ghost_marker_size);
 end;
 late_lua_node: begin
     delete_token_ref(late_lua_data(p));
@@ -36166,7 +35712,7 @@ if abs(mode)<>hmode then report_illegal_case
 else begin new_whatsit(language_node,language_node_size);
   scan_int;
   if cur_val<=0 then clang:=0
-  else if cur_val>255 then clang:=0
+  else if cur_val>65535 then clang:=0 {this is incompatible!}
   else clang:=cur_val;
   what_lang(tail):=clang;
   what_lhm(tail):=norm_min(left_hyphen_min);

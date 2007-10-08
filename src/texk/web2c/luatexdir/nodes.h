@@ -206,7 +206,10 @@ typedef enum {
   pdf_setmatrix_node, /* 40 */
   pdf_save_node,
   pdf_restore_node,
-  user_defined_node /* 43 */ } whatsit_types ;
+  cancel_boundary_node,
+  left_ghost_marker_node,
+  right_ghost_marker_node,
+  user_defined_node /* 46 */ } whatsit_types ;
 
 #define open_node_size 4
 #define write_node_size 3
@@ -303,6 +306,11 @@ typedef enum {
 #define user_node_type(a)  vinfo((a)+2)
 #define user_node_id(a)    vlink((a)+2)
 #define user_node_value(a) vinfo((a)+3)
+
+#define cancel_boundary_size   3
+#define left_ghost_marker_size        3
+#define right_ghost_marker_size       3
+
 
 #define NODE_METATABLE "luatex.node"
 

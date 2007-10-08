@@ -169,6 +169,7 @@ typedef enum {
   buildpage_filter_callback,
   hpack_filter_callback,  vpack_filter_callback,
   char_exists_callback, hyphenate_callback,
+  ligkern_callback,
   total_callbacks } callback_callback_types;
 
 extern int callback_set[];
