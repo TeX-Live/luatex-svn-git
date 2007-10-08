@@ -4,27 +4,12 @@
 #ifndef __NODES_H__
 #define __NODES_H__
 
-#ifndef LUATEX /* for hyphen.c */
-#ifndef pointer
-#include "cpascal.h"
-typedef integer halfword ;
-#endif
-#endif
+/* these are in texlang.c */
 
-/* these three are in texlang.c */
+#define set_vlink(a,b)  vlink(a)=b
+#define get_vlink(a)  vlink(a)
+#define get_character(a)  character(a)
 
-typedef struct _lang_variables {
-  unsigned char lhmin;
-  unsigned char rhmin;
-  unsigned char curlang;
-  unsigned char uc_hyph;
-  int pre_hyphenchar;
-  int post_hyphenchar;
-} lang_variables;
-
-extern void     set_vlink (halfword t, halfword v);
-extern halfword get_vlink(halfword t);
-extern int      get_character(halfword t);
 extern halfword insert_discretionary ( halfword t,  halfword pre,  halfword post,  int replace);
 extern halfword insert_syllable_discretionary ( halfword t,  lang_variables *lan);
 extern halfword insert_word_discretionary ( halfword t,  lang_variables *lan);
@@ -34,7 +19,9 @@ extern halfword insert_character ( halfword t,  int n);
 
 
 #define max_halfword  0x3FFFFFFF
+#ifndef null
 #define null         -0x3FFFFFFF
+#endif
 #define null_flag    -0x40000000
 #define zero_glue 0
 #define normal 0
@@ -226,7 +213,7 @@ typedef enum {
 #define close_node_size 3
 #define special_node_size 3
 #define language_node_size 4
-#define dir_node_size 4
+#define dir_node_size 5
 
 #define dir_dir(a)       vinfo((a)+2)
 #define dir_level(a)     vlink((a)+2)

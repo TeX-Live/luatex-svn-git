@@ -493,7 +493,7 @@ get_node (integer s) {
       /* make sure we get up to speed quickly */
       if (var_mem_max<2500) {	x += 100000;  }
       t=var_mem_max+x;
-      /* fprintf(stdout,"allocating %d extra nodes for %d requested\n",x,s); */
+      /*fprintf(stdout,"\nallocating %d extra nodes for %d requested\n",x,s); */
       varmem = (memory_word *)realloc(varmem,sizeof(memory_word)*t);
       varmem_sizes = (signed char *)realloc(varmem_sizes,sizeof(signed char)*t);
       if (varmem==NULL) {

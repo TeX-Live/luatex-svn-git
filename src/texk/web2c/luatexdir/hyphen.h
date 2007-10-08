@@ -36,13 +36,14 @@
 #ifndef __HYPHEN_H__
 #define __HYPHEN_H__
 
-#include "nodes.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 typedef struct _HyphenDict HyphenDict;
+
+#include "ptexlib.h"
+#include "nodes.h"
 
 HyphenDict* hnj_hyphen_new();
 void hnj_hyphen_load(HyphenDict*dict, const unsigned char *fn);

@@ -180,21 +180,6 @@ load_tex_hyphenation(int curlang, halfword head) {
   load_hyphenation(get_language(curlang),(unsigned char *)s);
 }
 
-/* these are just a temporary measure to smooth out the interface between 
-   libkhnj (hyphen.c) and luatex (texlang.c).
-*/
-
-void set_vlink (halfword t, halfword v) {  
-  vlink(t) = v;
-}
-
-halfword get_vlink(halfword t) {
-  return vlink(t);
-}
-
-int get_character(halfword t) {
-  return character(t);
-}
 
 halfword insert_discretionary ( halfword t,  halfword pre,  halfword post,  int replace) {
   halfword g;

@@ -355,9 +355,17 @@ typedef enum {
 
 /* language stuff */
 
-#include "hyphen.h"
+typedef struct _lang_variables {
+  unsigned char lhmin;
+  unsigned char rhmin;
+  unsigned char curlang;
+  unsigned char uc_hyph;
+  int pre_hyphenchar;
+  int post_hyphenchar;
+} lang_variables;
 
-extern int use_new_hyphenation;
+
+#include "hyphen.h"
 
 struct tex_language {
   HyphenDict *patterns;
