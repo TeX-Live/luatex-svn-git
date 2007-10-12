@@ -1210,12 +1210,15 @@ handle_lig_word (halfword prev, halfword cur, int left_boundary, int right_bound
 
   if (right_boundary && has_right_boundary(font(cur))) {
     halfword p = new_glyph_node(0,right_boundarychar);
-	font(p)     = font(cur);
+    font(p)     = font(cur);
     vlink(p)   = vlink(cur);
     vlink(cur) = p;
-    if (try_ligature(&prev,p,&dummy,&dummy)) {
+    while (try_ligature(&prev,p,&dummy,&dummy)) {
       cur = vlink(prev);
+      p = vlink(cur);
+      if (p==null || type(p)!=glyph_node) break;
     }
+
   } else {
 	if (type(fwd)==whatsit_node && subtype(fwd)==cancel_boundary_node)
 	  cur = fwd;
