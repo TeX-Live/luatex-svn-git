@@ -317,7 +317,7 @@ lua_nodelib_insert_before (lua_State *L) {
 
 static int
 lua_nodelib_insert_after (lua_State *L) {
-  halfword head, current, n, t;
+  halfword head, current, n;
   if (lua_gettop(L)<3) {
     lua_pushstring(L,"Not enough arguments for node.insert_after()");
     lua_error(L);
@@ -542,8 +542,6 @@ static char * node_fields_whatsit_pdf_setmatrix      [] = { "attr", "data", NULL
 static char * node_fields_whatsit_pdf_save           [] = { "attr", NULL };
 static char * node_fields_whatsit_pdf_restore        [] = { "attr", NULL };
 static char * node_fields_whatsit_cancel_boundary    [] = { "attr", NULL };
-static char * node_fields_whatsit_left_ghost_marker  [] = { "attr", NULL };
-static char * node_fields_whatsit_right_ghost_marker [] = { "attr", NULL };
 static char * node_fields_whatsit_user_defined       [] = { "attr", "user_id", "type", "value", NULL };
 
 /* there are holes in this list because not all extension
@@ -585,8 +583,6 @@ static char ** node_fields_whatsits [] = {
   node_fields_whatsit_pdf_save,
   node_fields_whatsit_pdf_restore,
   node_fields_whatsit_cancel_boundary,
-  node_fields_whatsit_left_ghost_marker,
-  node_fields_whatsit_right_ghost_marker,
   node_fields_whatsit_user_defined,
   NULL
 };
@@ -795,7 +791,7 @@ lua_nodelib_has_attribute (lua_State *L) {
 
 static int
 do_unset_attribute (halfword *n, int i, int val) {
-  halfword head,p,t;
+  halfword head,t;
   int seen, ret;
   /* TODO: check for nodes, as in set_attribute */
   head=node_attr(*n);
@@ -990,8 +986,6 @@ static int nodelib_aux_next (lua_State *L) {
 
 static int
 do_lua_nodelib_traverse (lua_State *L, halfword match, int i, halfword first) {
-  halfword *n;
-  halfword *m = NULL;
   /* first upvalue: match */
   lua_pushnumber(L, match);
   /* second upvalue: filter */
@@ -1275,8 +1269,6 @@ lua_nodelib_getfield_whatsit  (lua_State *L, int n, int field) {
   case pdf_save_node:           
   case pdf_restore_node:        
   case cancel_boundary_node:        
-  case left_ghost_marker_node:        
-  case right_ghost_marker_node:        
     lua_pushnil(L); 
     break;
   case user_defined_node:       
@@ -1312,7 +1304,7 @@ lua_nodelib_getfield  (lua_State *L) {
   n = *n_ptr;
   field = get_valid_node_field_id(L,2, n);
   if (field<-1)
-    return;
+    return 0;
   if (field==0) {
     lua_pushnumber(L,vlink(n));
     lua_nodelib_push(L);
@@ -1734,8 +1726,6 @@ lua_nodelib_setfield_whatsit(lua_State *L, int n, int field) {
   case pdf_save_node:           
   case pdf_restore_node:        
   case cancel_boundary_node:        
-  case left_ghost_marker_node:        
-  case right_ghost_marker_node:        
     return nodelib_cantset(L,field,n);
     break;
   case user_defined_node:       
@@ -1763,8 +1753,7 @@ lua_nodelib_setfield_whatsit(lua_State *L, int n, int field) {
 
 static int
 lua_nodelib_setfield  (lua_State *L) {
-  int i;
-  halfword *m, *n_ptr;
+  halfword *n_ptr;
   halfword n;
   int field;
   n_ptr = check_isnode(L,1);
@@ -1979,10 +1968,10 @@ lua_nodelib_print  (lua_State *L) {
   n = check_isnode(L,1);
   msg = xmalloc(256);
   if (alink(*n)!=null) 
-    snprintf(a,7,"%6d",alink(*n));
+    snprintf(a,7,"%6d",(int)alink(*n));
   if (vlink(*n)!=null) 
-    snprintf(v,7,"%6d",vlink(*n));
-  snprintf(msg,255,"<node %s < %6d > %s : %s %d>", a, *n, v, node_names[type(*n)], subtype(*n));
+    snprintf(v,7,"%6d",(int)vlink(*n));
+  snprintf(msg,255,"<node %s < %6d > %s : %s %d>", a, (int)*n, v, node_names[type(*n)], subtype(*n));
   lua_pushstring(L,msg);
   free(msg);
   return 1;

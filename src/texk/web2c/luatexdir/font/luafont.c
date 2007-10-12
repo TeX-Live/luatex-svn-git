@@ -2,6 +2,10 @@
 #include "luatex-api.h"
 #include <ptexlib.h>
 
+#include "nodes.h"
+
+#define noVERBOSE
+
 #define SAVE_REF 1
 
 char *font_type_strings[]      = {"unknown","virtual","real", NULL};
@@ -885,25 +889,6 @@ font_from_lua (lua_State *L, int f) {
 
  
 /*
-if disable_lig=0 and has_lig(main_f,cur_l) then begin
-  lig:=get_ligature(main_f,cur_l,cur_r);
-  if is_ligature(lig) then 
-    @<Do ligature command and goto somewhere@>;
-  end;
-if disable_kern=0 and has_kern(main_f,cur_l) then begin
-  main_k:=get_kern(main_f,cur_l,cur_r);
-  if main_k<>0 then begin 
-    wrapup(rt_hit);
-    tail_append(new_kern(main_k));
-    if new_left_ghost or right_ghost then begin
-      subtype(tail):=explicit;
-      end;
-    goto main_loop_move;
-    end;
-  end;
-*/
-
-/*
 
 @ When a ligature or kern instruction matches a character, we know from
 |read_font_info| that the character exists in the font, even though we
@@ -911,8 +896,6 @@ haven't verified its existence in the normal way.
 
 This section could be made into a subroutine, if the code inside
 |main_control| needs to be shortened.
-
-\chardef\?='174 % vertical line to indicate character retention
 
 @<Do ligature command...@>=
 begin if new_left_ghost or right_ghost then goto main_loop_wrapup;
@@ -956,33 +939,403 @@ end
 
 */
 
+/* three kinds of whatsit nodes were inserted specifically to help
+ *  this procedure:
+ *
+ * cancel_boundary_node
+ * left_ghost_marker_node
+ * right_ghost_marker_node
+ *
+ */
+
+/*
+There are eight kinds of ligature steps, having |op_byte| codes $4a+2b+c$ where
+$0\le a\le b+c$ and $0\le b,c\le1$. The character whose code is
+|remainder| is inserted between the current character and |next_char|;
+then the current character is deleted if $b=0$, and |next_char| is
+deleted if $c=0$; then we pass over $a$~characters to reach the next
+current character (which may have a ligature/kerning program of its own).
+*/
+
+static halfword 
+append_to (halfword r, halfword t) {
+  halfword p;
+  if (r==null) {
+    return t;
+  } else {
+    p = r;
+    while (vlink(p)!=null)
+      p = vlink(p);
+    vlink(p)=t;
+    return r;
+  }
+}
+
+
+static halfword 
+prepend_to (halfword r, halfword t) {
+  if (r!=null) {
+    vlink(t) = r;
+  }
+  return t;
+}
+
+
+/* Appends a glyph, or its lig_ptr glyphs if it's a ligature
+ * to this lig_ptr list
+ * Throw away the glyph if its a ligature  */
+static halfword
+append_lig(halfword p, halfword s) {
+  halfword t;
+  return t;
+}
+
+static halfword
+copy_glyph(halfword s) {
+  halfword p;
+  halfword t = new_glyph_node(font(s),character(s));
+  subtype(t) = subtype(s);
+  for (p=lig_ptr(s); p!=null; p=vlink(p)) {
+    lig_ptr(t) = append_to(lig_ptr(t),copy_glyph(p));
+  }
+  return t;
+}
+
+
+/* TODO, reset unicode bit on glyph subtype */
+static int 
+try_ligature (halfword *ftail, halfword second,int*inc_left,int*inc_right) {
+  halfword first = vlink(*ftail);
+  liginfo lig;
+  if (is_ghost(first) || is_ghost(second))
+    return 0;
+  lig = get_ligature(font(first),character(first),character(second)) ;
+  if (is_valid_ligature(lig)) {
+    int move_after = (lig_type(lig) & 0x0C)>>2;
+    int keep_right = ((lig_type(lig) & 0x01) != 0);
+    int keep_left  = ((lig_type(lig) & 0x02) != 0);
+    halfword prev = *ftail;
+    halfword newgl; /* The new ligature glyph */
+    halfword newpt; /* start of the ligature glyph
+                     * either the glyph itself, or the prepended disc */
+    newgl = new_glyph_node(font(first),lig_replacement(lig));
+    set_is_ligature(newgl);
+	if (character(first)<0)
+	  set_is_leftboundary(newgl);
+	if (character(second)<0)
+	  set_is_rightboundary(newgl);
+    if (vlink(first)!=second) { /* We have a discretionary in between */
+      halfword disc = vlink(first);
+      assert(type(disc)==disc_node);
+      vlink(disc) = newgl;
+      /* MAGIC! 
+       * technically we always need to prepend first in pre_break
+       * BUT
+       * keep_left should only insert first if disc is _not_ taken
+       * However it always does.
+       * so if disc is taken, first is output twice instead of once.
+       * SO
+       * By _not_ prepending first in pre_break when we've got a keep_left
+       * the optimal (qv minimal) list is created.
+       */
+      if (! keep_left) {
+        pre_break(disc) = prepend_to(pre_break(disc),copy_glyph(first));
+      }
+      if (replace_count(disc)==0) {
+        post_break(disc) = append_to(post_break(disc),copy_glyph(second));
+        replace_count(disc)=1;
+      }
+      newpt = disc;
+    } else {
+      newpt = newgl;
+    }
+    /* TODO if character(first)<0 then we should not insert, but set
+     * a bit in subtype(newgl) */
+    /* TODO if character(second)<0 then we should not insert, but set
+     * a bit in subtype(newgl) */
+    if (keep_left) {
+      lig_ptr(newgl) = copy_glyph(first);
+      vlink(first) = newpt;
+      if (move_after) {
+        move_after--;
+        prev = first;
+      }
+      (*inc_left)++;
+    } else {
+      vlink(first) = null;
+      lig_ptr(newgl) = first;
+      vlink(prev) = newpt;
+    }
+    if (keep_right) {
+      lig_ptr(newgl) = append_to(lig_ptr(newgl),copy_glyph(second));
+      vlink(newgl) = second;
+      if (move_after) {
+        move_after--;
+        prev = newgl;
+      }
+      (*inc_right)++;
+    } else {
+      vlink(newgl) = vlink(second);
+      vlink(second) = null;
+      lig_ptr(newgl) = append_to(lig_ptr(newgl),second);
+    }
+    assert(move_after==0);
+    *ftail = prev;
+    return 1;
+  }
+  return 0;
+}
+
+/* ret value is immutable from now on */
+
+halfword 
+handle_lig_word (halfword prev, halfword cur, int left_boundary, int right_boundary) {
+  halfword fwd, next;
+  liginfo lig;
+  int dummy=0;
+      
+  if (left_boundary && has_left_boundary(font(cur))) {
+    halfword p  = new_glyph_node(0,left_boundarychar);
+	font(p)     = font(cur);
+    vlink(prev) = p;
+    vlink(p)    = cur;
+    cur         = p;
+  }
+
+  while ((fwd = vlink(cur)) != null) {
+    
+    if (type(cur)==glyph_node && type(fwd)==glyph_node) {
+      
+      if (font(cur)==font(fwd) && try_ligature (&prev,fwd,&dummy,&dummy)) {
+        cur = vlink(prev);
+        continue;
+      }
+      /* else, the word has ended */
+      
+    } else if (type(cur)==glyph_node && type(fwd)==disc_node) {
+	  int replace = 0;
+      next = vlink(fwd);
+      if (next == null || type(next)!=glyph_node || font(cur)!=font(next)) {
+	/* word ends on a disc node, return it  */
+	/* no right boundary processing because of manual intervention */
+	return fwd; 
+      }
+	  
+      if (try_ligature(&prev,next,&dummy,&replace)) {
+		replace_count(fwd) += replace;
+	cur = vlink(prev);
+	continue;
+      }
+
+    } else if (type(cur)==disc_node && type(fwd)==glyph_node) {
+      halfword disc = cur;
+      halfword p;
+      int next_char;
+      int replace = 0;
+      next = vlink(fwd);
+      if (next == null || type(next)!=glyph_node || font(fwd)!=font(next)) {
+		fwd = next;
+		prev = cur;
+		cur = fwd;
+		break;
+      }
+      next_char = character(next);
+      if (try_ligature(&cur,next,&replace,&replace)) {
+		if (replace_count(disc)!=0) {
+          replace_count(disc) += replace;
+		  post_break(disc) = append_to(post_break(disc),new_glyph_node(font(vlink(disc)),next_char));
+		}
+        /* Nasty problem: we should continue to eat right hand side characters
+         * after the disc (and appending the to post break) as long as the
+         * current character is the one directly after the disc (== move_after
+         * equals zero). We can test it if the value of cur (which is the
+         * prev of the glyphs) is equal to disc itself. In that case the real
+         * prev is still valid and cur does indeed refer to the disc.
+         * If not then the value of cur is actually the prev, and we do the
+         * reassign to cur like we always do */
+        if (disc!=cur) {
+          prev = cur;
+          cur  = vlink(prev);
+        }
+      } else {
+        /* because we are forced to do a continue below - as we have forgotten
+         * that we successfully did a ligature by then, we must do the normal
+         * step-to-next-node we would do by falling out of this if.
+         * This is no probem here because we only use disc hereafter */
+        prev = cur;
+        cur  = fwd;
+      }
+      /* we've done everything to the disc that we could,
+       * does it contain ligatures itself ? */
+      p = new_glyph_node(0,0);
+      if (pre_break(disc)!=null) {
+		vlink(p) = pre_break(disc);
+		handle_lig_word (p, pre_break(disc), 0, 0);
+		pre_break(disc) = vlink(p);
+      }
+      if (post_break(disc)!=null) {
+		vlink(p) = post_break(disc);
+		handle_lig_word (p, post_break(disc), 0, 0);
+		post_break(disc) = vlink(p);
+      }
+      free_node(p, glyph_node_size);
+//    TODO what about aa->A ab->B and a-ab
+//    TODO this now results in {a-}{a}{A}b
+//    TODO but should be {a-}{B}{Ab}
+      continue;
+    } else if (type(cur)==glyph_node) {
+      break;
+
+    } else if (type(cur)==disc_node) {
+      /* word ends on a disc node, return it  */
+      /* no right boundary processing because of manual intervention */
+      return cur; 
+    } else {
+      /* this should not happen */
+      assert(0);
+      return cur;
+    }
+    /* step-to-next-node */
+    prev = cur;
+    cur  = fwd;
+  }
+  
+  /* cur = last glyph of word */
+  fwd = vlink(cur);
+#ifdef VERBOSE
+  fprintf(stderr,"character(cur)=%d,type(fwd)=%d\n",character(cur),type(fwd));
+#endif
+  if (fwd!=null && type(fwd)==whatsit_node && subtype(fwd)==cancel_boundary_node) 
+    right_boundary = 0;
+
+  if (right_boundary && has_right_boundary(font(cur))) {
+    halfword p = new_glyph_node(0,right_boundarychar);
+	font(p)     = font(cur);
+    vlink(p)   = vlink(cur);
+    vlink(cur) = p;
+    if (try_ligature(&prev,p,&dummy,&dummy)) {
+      cur = vlink(prev);
+    }
+  } else {
+	if (type(fwd)==whatsit_node && subtype(fwd)==cancel_boundary_node)
+	  cur = fwd;
+  }
+
+  return cur;
+}
+
+
 void 
 handle_ligkern(halfword head, halfword tail, int dir) {
-  halfword r = head, save_tail = vlink(tail);
+  halfword save_tail ; /* trick to allow explicit node==null tests */
+  halfword cur, prev, fwd;
+  int i;
+  liginfo lig;
+  int boundary = 1;
+
+  if (vlink(head)==null)
+    return;
+
+  save_tail = vlink(tail);
   vlink(tail) = null;
-  while (r!=null) {
-	switch (type(r)) {
-	case glyph_node:
+  lig_stack = null;
+  
+  cur = vlink(head);
 #ifdef VERBOSE
-	  fprintf(stderr,"%c",character(r));
-#endif
-	  break;
-	case glue_node:
-#ifdef VERBOSE
-	  fprintf(stderr," ");
-#endif
-	  break;
-	default:
-	  break;
-	}
-	r = vlink(r);
+  while (cur!=null) {
+	fprintf(stderr,"type(cur)=%d (%c)\n", type(cur), (type(cur)==glyph_node ? (char)(character(cur)) : ' '));
+	cur = vlink(cur);
   }
-#ifdef VERBOSE
-  fprintf(stderr,"\n");
 #endif
+  cur = vlink(head);
+  prev = head;
+  /* left word boundary */
+  while (cur!=null) {
+    if (type(cur)==whatsit_node &&
+		subtype(cur)==cancel_boundary_node) {
+      boundary = 0;
+    } else if (type(prev)!=glyph_node &&
+			   type(cur)==glyph_node) {
+      cur = handle_lig_word(prev,cur,boundary,1);
+      boundary = 1;
+    } else {
+      boundary = 1;
+	}
+    prev = cur;
+    cur = vlink(cur);
+  }
+
+  cur = vlink(head);
+  prev = head;
+  while (cur!=null) {
+    if (type(cur)==whatsit_node &&
+		subtype(cur)==cancel_boundary_node) {
+      vlink(prev) = vlink(cur);
+      free_node(cur, cancel_boundary_size);
+      cur = vlink(prev);
+      continue;
+    } else if (type(cur)==glyph_node && 
+			   character(cur)<0) {
+      vlink(prev) = vlink(cur);
+      free_node(cur, glyph_node_size);
+      cur = vlink(prev);
+      continue;
+	}
+    prev = cur;
+    cur = vlink(cur);
+  }
+
+  cur = vlink(head);
+
+  /*  print_list(cur); */
   vlink(tail) = save_tail;
 }
 
+void 
+print_list (halfword cur) {
+    while (cur!=null) {
+	switch (type(cur)) {
+	case glyph_node:
+	  if (is_ligature(cur)) 
+		fprintf(stderr,"(ligature %c)", character(cur));
+	  else if (subtype(cur)>1)
+		fprintf(stderr,"(%c,%d)", character(cur),subtype(cur));
+	  else
+		fprintf(stderr,"%c", character(cur));
+	  break;
+	case glue_node:
+	  fprintf(stderr," ");
+	  break;
+	case whatsit_node:
+	  fprintf(stderr,"[*%d]",subtype(cur));
+	  break;
+	case disc_node:
+	  fprintf(stderr,"{");
+	  if (pre_break(cur)!=null)
+		print_list(pre_break(cur));
+	  fprintf(stderr,"}{");
+	  if (post_break(cur)!=null)
+		print_list(post_break(cur));
+	  fprintf(stderr,"}");
+	  if (replace_count(cur))
+		fprintf(stderr,"{%d}", replace_count(cur));
+	  break;
+	case hlist_node:
+	case vlist_node:
+	  fprintf(stderr,"[]");
+	  break;
+	case kern_node:
+	  break;
+	case penalty_node:
+	  fprintf(stderr,"<%d>", penalty(cur));
+	  break;
+	default:
+	  fprintf(stderr,"?%d?", type(cur));
+	  break;
+	}
+	cur = vlink(cur);
+  }
+}
 
 
 void 
@@ -990,7 +1343,7 @@ new_ligkern(halfword head, halfword tail, int dir) {
   int callback_id = 0;
   lua_State *L = Luas[0];
   /*  fprintf(stderr,"new_ligkern(%d, %d, %d)",vlink(head),tail,dir);*/
-  callback_id = callback_defined(ligkern_callback);
+  callback_id = callback_defined(ligaturing_callback);
   if (head==null || vlink(head)==null)
     return;
   if (callback_id>0) {
@@ -1160,7 +1513,7 @@ $$|cur_r|=\cases{|character(lig_stack)|,&if |lig_stack>null|;\cr
 @!lft_hit,@!rt_hit:boolean; {did we hit a ligature with a boundary character?}
 @!charnode_to_t_tmp:pointer;
 
-@ @d append_charnode_to_t(#)== begin charnode_to_t_tmp:=new_glyph(hf,#); 
+@ @d append_charnode_to_t(#)== begin charnode_to_t_tmp:=new_glyph_node(hf,#); 
     vlink(t):=charnode_to_t_tmp; t:=vlink(t); 
     node_attr(t):=hattr; add_node_attr_ref(hattr);
    end
@@ -1265,7 +1618,7 @@ qi(2),qi(6):begin cur_r:=lig_replacement(lig); {\.{\?=:}, \.{\?=:>}}
   if lig_stack>null then character(lig_stack):=cur_r
   else begin lig_stack:=new_lig_item(cur_r);
     if j=n then bchar:=non_boundarychar
-    else begin p:=new_glyph(hf,qi(hu[j+1])); lig_ptr(lig_stack):=p;
+    else begin p:=new_glyph_node(hf,qi(hu[j+1])); lig_ptr(lig_stack):=p;
       delete_attribute_ref(node_attr(p));
       node_attr(p):=hattr; add_node_attr_ref(hattr); end;
     end;

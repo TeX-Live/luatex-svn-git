@@ -166,7 +166,7 @@ set_charinfo (internal_font_number f, integer c, charinfo *ci) {
     if (glyph) {
       font_tables[f]->charinfo[glyph] = *ci;
     } else {
-      pdftex_fail("font","character insertion failed");
+      pdftex_fail("font: %s","character insertion failed");
     }
   } else if (c == left_boundarychar) {
     set_left_boundary(f,ci);
@@ -250,7 +250,6 @@ charinfo_short
 char_info_short (internal_font_number f, integer c) {
   charinfo_short s;
   charinfo *i;
-  sa_tree_item glyph = 0;
   i = char_info(f,c);
   s.ci_wd = i->width;
   s.ci_dp = i->depth;

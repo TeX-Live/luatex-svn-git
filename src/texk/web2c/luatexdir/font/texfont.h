@@ -369,7 +369,7 @@ extern integer ext_mid                       (internal_font_number f, integer c)
 
 #define charinfo_ligature(b,c)     b->ligatures[c]
 
-#define is_ligature(a)         ((a).type!=0)
+#define is_valid_ligature(a)   ((a).type!=0)
 #define lig_type(a)            ((a).type>>1)
 #define lig_char(a)            (a).adj
 #define lig_replacement(a)     (a).lig

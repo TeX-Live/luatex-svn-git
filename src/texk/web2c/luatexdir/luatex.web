@@ -3827,7 +3827,20 @@ versions of \TeX\ could use token memory for characters, because the
 font,char combination would fit in a single word (both values were
 required to be strictly less than $2^{16}$). In \LuaTeX, room is
 needed for characters that are larger than that, as well as a pointer
-to a potential attribute list. 
+to a potential attribute list, and the two displacement values.  
+
+In turn, that made the node so large that it made sense to merge
+ligature glyphs as well, as that requires only one extra pointer.  A
+few extra classes of glyph nodes will be introduced later.  The
+unification of all those types makes it easier to manipulate lists of
+glyphs. The subtype differentiates various glyph kinds.
+
+First, here is a function that returns a pointer to a glyph node for a given
+glyph in a given font. If that glyph doesn't exist, |null| is returned
+instead.  Nodes of this subtype are directly created only for accents
+and their base (through |make_accent|), and math nucleus items (in the
+conversion from |mlist| to |hlist|).
+
 
 @d glyph_node_size=5
 @d glyph_node=41 {|type| of a glyph node}
@@ -3838,20 +3851,60 @@ to a potential attribute list.
 @d x_displace(#)==vinfo(#+4) { horizontal displacement }
 @d y_displace(#)==vlink(#+4) { vertical displacement  }
 
-@p function new_glyph(@!f,@!c:integer):pointer;
+@p function new_glyph_node(@!f,@!c:integer):pointer;
+label exit;
+var p:pointer; {the new node}
+begin if (f=0) or (char_exists(f,c)) then begin
+  p:=get_node(glyph_node_size); type(p) := glyph_node;
+  set_to_glyph(p); font(p):=f;  character(p):=c; 
+  x_displace(p):=0; y_displace(p):=0;
+  if max_used_attr<>0 then build_attribute_list(p)
+  else node_attr(p):=null;
+  lig_ptr(p):=null;
+  new_glyph_node:=p; return;
+  end;
+{|char_warning(f,c);|}
+new_glyph_node:=null;
+exit:end;
+
+
+@ A subset of the glyphs nodes represent ligatures: characters
+fabricated from the interaction of two or more actual characters.  The
+characters that generated the ligature have not been forgotten, since
+they are needed for diagnostic messages; the |lig_ptr| field points to
+a linked list of character nodes for all original characters that have
+been deleted. (This list might be empty if the characters that
+generated the ligature were retained in other nodes.)
+
+The |subtype| field of these |glyph_node|s is 1, plus 2 and/or 1 if
+the original source of the ligature included implicit left and/or
+right boundaries. These nodes are created by the C function |new_ligkern|.
+
+@ A third general type of glyphs could be called a character, as it
+only appears in lists that are not yet processed by the ligaturing and
+kerning steps of the program.
+
+|main_control| inserts these, and they are later converted to
+|subtype_normal| by |new_ligkern|.
+
+@p function new_char_node(@!f,@!c:integer):pointer;
 var p:pointer; {the new node}
 begin p:=get_node(glyph_node_size); type(p) := glyph_node;
-subtype(p):=0; font(p):=f;  character(p):=c; 
+set_to_character(p); font(p):=f;  character(p):=c; 
 x_displace(p):=0; y_displace(p):=0;
-if f<>0 then begin
-  call_func(char_exists(f,c));
-end;
 if max_used_attr<>0 then build_attribute_list(p)
 else node_attr(p):=null;
 lig_ptr(p):=null;
-new_glyph:=p;
+new_char_node:=p;
 end;
-@#
+
+@ Left and right ghost glyph nodes are the result of \.{\\leftghost}
+and \.{\\rightghost}, respectively. They are going to be removed by
+|new_ligkern|, at the end of which they are no longer needed.
+
+@ Here are a few handy helpers used by the list output routines.
+
+@p
 function glyph_width(@!p:halfword):pointer;
 var w:integer;
 begin
@@ -3876,47 +3929,6 @@ begin
   glyph_depth := w;
 end;
 
-
-@ A subset of the glyphs nodes represent ligatures: characters
-fabricated from the interaction of two or more actual characters.  The
-characters that generated the ligature have not been forgotten, since
-they are needed for diagnostic messages and for hyphenation; the
-|lig_ptr| field points to a linked list of character nodes for all
-original characters that have been deleted. (This list might be empty
-if the characters that generated the ligature were retained in other
-nodes.)
-
-The |subtype| field of these |glyph_node|s is 1, plus 2 and/or 1 if
-the original source of the ligature included implicit left and/or
-right boundaries.
-
-@d is_lig_node(#)==subtype(#)>0 { |glyph_node| is a ligature }
-
-@ The |new_ligature| function creates a ligature node having given
-contents of the |font|, |character|, and |lig_ptr| fields. We also have
-a |new_lig_item| function, which returns a two-word node having a given
-|character| field. Such nodes are used for temporary processing as ligatures
-are being created.
-
-@p function new_ligature(@!f,@!c:integer; @!q:pointer):pointer;
-var p:pointer; {the new node}
-begin p:=get_node(glyph_node_size);  type(p):=glyph_node;
-subtype(p):=1; font(p):=f;  character(p):=c; 
-x_displace(p):=0; y_displace(p):=0;
-if f<>0 then begin
-  call_func(char_exists(f,c));
-end;
-build_attribute_list(p); lig_ptr(p):=q;
-new_ligature:=p;
-end;
-@#
-function new_lig_item(@!c:integer):pointer;
-var p:pointer; {the new node}
-begin p:=get_node(glyph_node_size); character(p):=c; lig_ptr(p):=null;
-x_displace(p):=0; y_displace(p):=0;
-build_attribute_list(p);
-new_lig_item:=p;
-end;
 
 @ A |disc_node|, which occurs only in horizontal lists, specifies a
 ``dis\-cretion\-ary'' line break. If such a break occurs at node |p|, the text
@@ -4538,7 +4550,7 @@ end;
 @ @<Display node |p|@>=
 if is_char_node(p) then begin 
  print_font_and_char(p);
- if is_lig_node(p) then @<Display ligature |p|@>;
+ if is_ligature(p) then @<Display ligature |p|@>;
  end
 else case type(p) of
   hlist_node,vlist_node,unset_node: @<Display box |p|@>;
@@ -4684,9 +4696,9 @@ end
 
 @ @<Display ligature |p|@>=
 begin print(" (ligature ");
-if subtype(p)>1 then print_char("|");
+if is_leftboundary(p) then print_char("|");
 font_in_short_display:=font(p); short_display(lig_ptr(p));
-if odd(subtype(p)) then print_char("|");
+if is_rightboundary(p) then print_char("|");
 print_char(")");
 end
 
@@ -13630,21 +13642,6 @@ begin if tracing_lost_chars>0 then
  end;
 end;
 
-@ Here is a function that returns a pointer to a character node for a
-given character in a given font. If that character doesn't exist,
-|null| is returned instead.
-
-@p function new_character(@!f:internal_font_number;@!c:integer):pointer;
-label exit;
-var p:pointer; {newly allocated node}
-begin if char_exists(f,c) then
-    begin p:=new_glyph(f,c);
-    new_character:=p; return;
-    end;
-char_warning(f,c);
-new_character:=null;
-exit:end;
-
 @
 @<Types...@>=
 @!active_index=0..active_mem_size;
@@ -21255,7 +21252,7 @@ end
 begin
     lp := last_leftmost_char;
     rp := last_rightmost_char;
-    cp := new_glyph(0,0);
+    cp := new_char_node(0,0);
     if lp <> null then
         cal_margin_kern_var(lp);
     if rp <> null then
@@ -21473,7 +21470,7 @@ begin
     build_attribute_list(k);
     if p = null then
         pdf_error("margin kerning", "invalid pointer to marginal char node");
-    q := new_glyph(font(p), character(p)); margin_char(k):=q;
+    q := new_char_node(font(p), character(p)); margin_char(k):=q;
     new_margin_kern := k;
 end;
 
@@ -22767,7 +22764,7 @@ begin
 b:=new_null_box; ci:=char_info_short(f,c);
 width(b):=charinfo_width(ci)+char_italic(f,c);
 height(b):=charinfo_height(ci); depth(b):=charinfo_depth(ci);
-p:=new_glyph(f,c); list_ptr(b):=p; char_box:=b;
+p:=new_char_node(f,c); list_ptr(b):=p; char_box:=b;
 end;
 
 @ When the following code is executed, |char_tag(q)| will be equal to
@@ -23567,7 +23564,7 @@ ligatures only when this convention makes sense.
 begin
 if disable_lig=0 and has_lig(cur_f,a) then begin
   lig:=get_ligature(cur_f,a,cur_c);
-  if is_ligature(lig) then begin
+  if is_valid_ligature(lig) then begin
 	check_interrupt; {allow a way out of infinite ligature loop}
     case lig_type(lig) of
     qi(1),qi(5): mcharacter(nucleus(q)):=lig_replacement(lig); {\.{=:\?}, \.{=:\?>}}
@@ -23635,7 +23632,7 @@ make_scripts(q,delta)
 @ @<Create a character node |p| for |nucleus(q)|...@>=
 begin fetch(nucleus(q));
 if char_exists(cur_f,cur_c) then
-  begin delta:=char_italic(cur_f,cur_c); p:=new_character(cur_f,cur_c);
+  begin delta:=char_italic(cur_f,cur_c); p:=new_glyph_node(cur_f,cur_c);
   if (math_type(nucleus(q))=math_text_char)and(space(cur_f)<>0) then
     delta:=0; {no italic correction in mid-word of text font}
   if (math_type(subscr(q))=empty)and(delta<>0) then
@@ -24871,9 +24868,9 @@ procedure line_break(@!d:boolean);
 label done,done1,done2,done3,done4,done5,continue;
 var @<Local variables for line breaking@>@;
 begin pack_begin_line:=mode_line; {this is for over/underfull box messages}
-if not output_active then 
-  lua_node_filter(linebreak_filter_callback,line_break_context,head,addressof(tail));
 vlink(temp_head):=vlink(head);
+if not output_active then 
+  lua_node_filter(pre_linebreak_filter_callback,line_break_context,temp_head,addressof(tail));
 @<Initialize for hyphenating a paragraph@>;
 @<Get ready to start line breaking@>;
 @<Insert ligatures and kerns into the paragraph@>;
@@ -26927,8 +26924,7 @@ begin
 init_cur_lang:=prev_graf mod @"10000;
 init_l_hyf:=prev_graf div @"1000000;
 init_r_hyf:=(prev_graf div @"10000) mod @"100;
-cur_lang:=init_cur_lang; 
-set_cur_lang;
+cur_lang:=init_cur_lang; set_cur_lang;
 new_hyphenation(temp_head, tail, cur_lang, init_l_hyf, init_r_hyf, uc_hyph);
 end 
 
@@ -28252,18 +28248,16 @@ hmode+letter,hmode+other_char,hmode+char_given,hmode+char_num: begin
       to this buffer@>;
     end;
   end;
-hmode+no_boundary: begin get_x_token;
-  if (cur_cmd=letter)or(cur_cmd=other_char)or(cur_cmd=char_given)or
-   (cur_cmd=char_num) then @<Append a |cancel_boundary_node| @>;
-  goto reswitch;
+hmode+no_boundary: begin @<Append a |cancel_boundary_node| @>;
   end;
 hmode+char_ghost: begin t:=cur_chr; get_x_token;
   if (cur_cmd=letter)or(cur_cmd=other_char)or(cur_cmd=char_given)or
    (cur_cmd=char_num) then begin 
-    if t=0 then @<Append a |left_ghost_marker_node| @>
-    else @<Append a |right_ghost_marker_node| @>;
+	p:=new_glyph_node(cur_font,cur_chr);
+    if t=0 then set_is_leftghost(p)
+    else set_is_rightghost(p);
+    tail_append(p);
     end;
-  goto reswitch;
   end;
 hmode+spacer,hmode+ex_space,mmode+ex_space: 
 if (abs(mode)+cur_cmd=hmode+spacer) and 
@@ -28318,7 +28312,7 @@ are inside the individual sections.
 
 @<Append character |cur_chr|...@>=
 adjust_space_factor;@/
-tail_append(new_glyph(cur_font,cur_chr));
+tail_append(new_char_node(cur_font,cur_chr));
 p := get_auto_kern(cur_font, -1, cur_chr);
 if p <> null then tail_append(p)
 
@@ -29596,14 +29590,10 @@ scan_left_brace; push_nest; mode:=-hmode; space_factor:=1000;
 end;
 
 procedure append_discretionary;
-var c:integer; {hyphen character}
-	p:pointer;
+var p:pointer;
 begin tail_append(new_disc);
-if cur_chr=1 then
-  begin c:=hyphen_char(cur_font);
-  if c>=0 then if c<65536 then begin
-        p:=new_character(cur_font,c); pre_break(tail):=p;
-      end;
+if cur_chr=1 then begin 
+	p:=new_char_node(cur_font,'-'); pre_break(tail):=p;
   end
 else  begin incr(save_ptr); saved(-1):=0; new_save_level(disc_group);
   scan_left_brace; push_nest; mode:=-hmode; space_factor:=1000;
@@ -29720,7 +29710,7 @@ var s,@!t: real; {amount of slant}
 @!f:internal_font_number; {relevant font}
 @!a,@!h,@!x,@!w,@!delta:scaled; {heights and widths, as explained above}
 @!i:four_quarters; {character information}
-begin scan_char_num; f:=cur_font; p:=new_character(f,cur_val);
+begin scan_char_num; f:=cur_font; p:=new_glyph_node(f,cur_val);
 if p<>null then
   begin x:=x_height(f); s:=slant(f)/float_constant(65536);
 @^real division@>
@@ -29737,9 +29727,9 @@ end;
 @ @<Create a character node |q| for the next...@>=
 q:=null; f:=cur_font;
 if (cur_cmd=letter)or(cur_cmd=other_char)or(cur_cmd=char_given) then
-  q:=new_character(f,cur_chr)
+  q:=new_glyph_node(f,cur_chr)
 else if cur_cmd=char_num then
-  begin scan_char_num; q:=new_character(f,cur_val);
+  begin scan_char_num; q:=new_glyph_node(f,cur_val);
   end
 else back_input
 
@@ -33495,8 +33485,6 @@ extension: case chr_code of
   late_lua_node: print_esc("latelua");
   close_lua_node: print_esc("closelua");
   cancel_boundary_node: print_esc("noboundary");
-  left_ghost_marker_node: print_esc("leftghost");
-  right_ghost_marker_node: print_esc("rightghost");
   othercases print("[unknown extension!]")
   endcases;
 
@@ -34916,38 +34904,12 @@ build_attribute_list(p);
 tail_append(p);
 end
 
-@ A |left_ghost_marker_node| indicates that the next character node
-is a left ghost.
-
-@d left_ghost_marker_node==pdf_restore_node+2
-@d left_ghost_marker_size==3
-
-@<Append a |left_ghost_marker_node| @>=
-begin p:=get_node(left_ghost_marker_size);
-type(p):=whatsit_node; subtype(p):=left_ghost_marker_node;
-build_attribute_list(p);
-tail_append(p);
-end
-
-@  A |right_ghost_marker_node| indicates that the next character node 
-is a right ghost.
-
-@d right_ghost_marker_node==pdf_restore_node+3
-@d right_ghost_marker_size==3
-
-@<Append a |right_ghost_marker_node| @>=
-begin p:=get_node(right_ghost_marker_size);
-type(p):=whatsit_node; subtype(p):=right_ghost_marker_node;
-build_attribute_list(p);
-tail_append(p);
-end
-
 @ User defined whatsits can be inserted into node lists to pass data
 along from one lua call to anotherb without interference from the
 typesetting engine itself. Each has an id, a type, and a value. The
 type of the value depends on the |user_node_type| field. 
 
-@d user_defined_node==right_ghost_marker_node+1
+@d user_defined_node==cancel_boundary_node+1
 @d user_defined_node_size=4
 @d user_node_id(#)==vlink(#+2)
 @d user_node_type(#)==vinfo(#+2)
@@ -35020,12 +34982,6 @@ pdf_restore_node: begin
 end;
 cancel_boundary_node: begin
     print_esc("noboundary");
-end;
-left_ghost_marker_node: begin
-    print_esc("leftghost");
-end;
-right_ghost_marker_node: begin
-    print_esc("rightghost");
 end;
 late_lua_node: begin
     print_esc("latelua");
@@ -35242,10 +35198,6 @@ pdf_restore_node: begin r := get_node(pdf_restore_node_size);
   end;
 cancel_boundary_node: begin r := get_node(cancel_boundary_size);
   end;
-left_ghost_marker_node: begin r := get_node(left_ghost_marker_size);
-  end;
-right_ghost_marker_node: begin r := get_node(right_ghost_marker_size);
-  end;
 late_lua_node: begin r := get_node(write_node_size);
   add_token_ref(late_lua_data(p));
   late_lua_data(r):=late_lua_data(p);
@@ -35378,12 +35330,6 @@ pdf_restore_node: begin
 end;
 cancel_boundary_node: begin
     free_node(p, cancel_boundary_size);
-end;
-left_ghost_marker_node: begin
-    free_node(p, left_ghost_marker_size);
-end;
-right_ghost_marker_node: begin
-    free_node(p, right_ghost_marker_size);
 end;
 late_lua_node: begin
     delete_token_ref(late_lua_data(p));
@@ -35614,6 +35560,7 @@ language_node:do_nothing;
 pdf_save_pos_node:
   @<Save current position in DVI mode@>;
 local_par_node:do_nothing;
+cancel_boundary_node: do_nothing;
 othercases  confusion("ext4") {TH: those will be pdf extension nodes in dvi mode, most likely}
 @:this can't happen ext4}{\quad ext4@>
 endcases;

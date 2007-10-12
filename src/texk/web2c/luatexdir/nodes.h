@@ -88,6 +88,9 @@ typedef enum {
 #define post_break(a)    vlink((a)+2)
 
 #define kern_node_size 3
+#define explicit 1  /*|subtype| of kern nodes from \.{\\kern} and \.{\\/}*/
+#define acc_kern 2  /*|subtype| of kern nodes from accents */
+
 #define box_node_size 8
 #define width(a)         varmem[(a+2)].cint
 #define depth(a)         varmem[(a+3)].cint
@@ -207,9 +210,36 @@ typedef enum {
   pdf_save_node,
   pdf_restore_node,
   cancel_boundary_node,
-  left_ghost_marker_node,
-  right_ghost_marker_node,
-  user_defined_node /* 46 */ } whatsit_types ;
+  user_defined_node /* 44 */ } whatsit_types ;
+
+
+#define GLYPH_CHARACTER     (1 << 0)
+#define GLYPH_LIGATURE      (1 << 1)
+#define GLYPH_LEFTBOUNDARY  (1 << 2)
+#define GLYPH_RIGHTBOUNDARY (1 << 3)
+#define GLYPH_LEFTGHOST     (1 << 4)
+#define GLYPH_RIGHTGHOST    (1 << 5)
+
+#define is_character(p)         ((subtype(p)) & GLYPH_CHARACTER     )
+#define is_ligature(p)          ((subtype(p)) & GLYPH_LIGATURE      )
+#define is_leftboundary(p) 	((subtype(p)) & GLYPH_LEFTBOUNDARY  )
+#define is_rightboundary(p) 	((subtype(p)) & GLYPH_RIGHTBOUNDARY )
+#define is_leftghost(p) 	((subtype(p)) & GLYPH_LEFTGHOST	   )
+#define is_rightghost(p)  	((subtype(p)) & GLYPH_RIGHTGHOST    )
+
+#define is_simple_character(p)  ((subtype(p)) == GLYPH_CHARACTER    )
+
+#define set_to_character(p)     subtype(p) = GLYPH_CHARACTER
+#define set_to_glyph(p)         subtype(p) = 0
+
+#define set_is_character(p)     subtype(p) |= GLYPH_CHARACTER	   
+#define set_is_ligature(p)      subtype(p) |= GLYPH_LIGATURE	   
+#define set_is_leftboundary(p)  subtype(p) |= GLYPH_LEFTBOUNDARY  
+#define set_is_rightboundary(p) subtype(p) |= GLYPH_RIGHTBOUNDARY 
+#define set_is_leftghost(p)     subtype(p) |= GLYPH_LEFTGHOST	   
+#define set_is_rightghost(p)    subtype(p) |= GLYPH_RIGHTGHOST    
+
+#define is_ghost(a) (is_leftghost(a) || is_rightghost(a))
 
 #define open_node_size 4
 #define write_node_size 3
@@ -308,9 +338,6 @@ typedef enum {
 #define user_node_value(a) vinfo((a)+3)
 
 #define cancel_boundary_size   3
-#define left_ghost_marker_size        3
-#define right_ghost_marker_size       3
-
 
 #define NODE_METATABLE "luatex.node"
 

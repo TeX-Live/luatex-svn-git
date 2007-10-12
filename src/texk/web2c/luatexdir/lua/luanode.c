@@ -100,8 +100,6 @@ char *whatsit_node_names[] = {
   "pdf_save",
   "pdf_restore",
   "cancel_boundary",
-  "left_ghost_marker",
-  "right_ghost_marker",
   "user_defined",
   NULL };
 
@@ -281,12 +279,6 @@ lua_node_whatsit_new(int j) {
   case cancel_boundary_node:
     p =get_node(cancel_boundary_size);
     break;
-  case left_ghost_marker_node:
-    p =get_node(left_ghost_marker_size);
-    break;
-  case right_ghost_marker_node:
-    p =get_node(right_ghost_marker_size);
-    break;
   case user_defined_node:
     p = get_node(user_defined_node_size);
     user_node_id(p) = 0;
@@ -341,8 +333,8 @@ lua_node_new(int i, int j) {
     lig_ptr(n) = null; 
     character(n) = 0;
     font(n) = 0;
-	x_displace(n) = 0;
-	y_displace(n) = 0;
+    x_displace(n) = 0;
+    y_displace(n) = 0;
     break;
   case disc_node: 
     n = get_node(disc_node_size);  

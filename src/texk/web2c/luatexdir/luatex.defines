@@ -124,7 +124,7 @@ $Id $
 @define var stop_run_callback;
 @define var define_font_callback;
 @define var token_filter_callback;
-@define var linebreak_filter_callback;
+@define var pre_linebreak_filter_callback;
 @define var buildpage_filter_callback;
 @define var hyphenate_callback;
 
@@ -247,13 +247,6 @@ $Id $
 @define function font_dsize();
 @define function font_natural_dir();
 
-@define function has_left_boundary();
-@define function has_right_boundary();
-@define var left_boundarychar;
-@define var right_boundarychar;
-@define var non_boundarychar;
-@define function font_bchar();
-
 @define function font_params();
 @define function font_param();
 @define procedure set_font_params();
@@ -280,9 +273,20 @@ $Id $
 @define type liginfo;
 
 @define function get_ligature();
-@define function is_ligature();
+@define function is_valid_ligature();
 @define function lig_type();
 @define function lig_replacement();
+
+@define function is_ligature();
+@define function is_leftboundary();
+@define function is_rightboundary();
+
+@define procedure set_to_character();
+@define procedure set_to_glyph();
+@define procedure set_is_leftghost();
+@define procedure set_is_rightghost();
+
+@define var non_boundarychar;
 
 @define function ext_top();
 @define function ext_mid();

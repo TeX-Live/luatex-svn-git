@@ -165,11 +165,16 @@ typedef enum {
   start_run_callback,          stop_run_callback,
   define_font_callback,
   token_filter_callback,
-  linebreak_filter_callback, pre_output_filter_callback,
+  pre_output_filter_callback,
   buildpage_filter_callback,
   hpack_filter_callback,  vpack_filter_callback,
-  char_exists_callback, hyphenate_callback,
-  ligkern_callback,
+  char_exists_callback, 
+  hyphenate_callback,
+  ligaturing_callback,
+  kerning_callback,
+  pre_linebreak_filter_callback,
+  linebreak_filter_callback, 
+  post_linebreak_filter_callback,
   total_callbacks } callback_callback_types;
 
 extern int callback_set[];
