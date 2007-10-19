@@ -18,7 +18,6 @@ font_char_to_lua (lua_State *L, internalfontnumber f, charinfo *co) {
   int i;
   liginfo *l;
   kerninfo *ki;
-  real_eight_bits *vp;
 
   lua_createtable(L,0,7);
 
@@ -482,12 +481,12 @@ read_char_packets  (lua_State *L, integer *l_fonts, charinfo *co) {
 	case packet_nop_code:
 	  break;
 	default:
-	  fprintf(stdout,"Unknown char packet code %s (char %d in font %s)\n",s,c,font_name(f));
+	  fprintf(stdout,"Unknown char packet code %s (char %d in font %s)\n",s,(int)c,font_name(f));
 	}
       }
       lua_pop(L,1); /* command code */
     } else {
-      fprintf(stdout,"Found a `commands' item that is not a table (char %d in font %s)\n",c,font_name(f));
+      fprintf(stdout,"Found a `commands' item that is not a table (char %d in font %s)\n",(int)c,font_name(f));
     }
     lua_pop(L,1); /* command table */
   }
@@ -579,10 +578,8 @@ font_char_from_lua (lua_State *L, internal_font_number f, integer i, integer *l_
   charinfo *co;
   kerninfo *ckerns;
   liginfo *cligs;
-  real_eight_bits *cpackets;
   scaled j;
   char *s;
-  int nc; /* number of character info items */
   int nl; /* number of ligature table items */
   int nk; /* number of kern table items */
   int np; /* number of virtual packet bytes */
@@ -617,7 +614,7 @@ font_char_from_lua (lua_State *L, internal_font_number f, integer i, integer *l_
 	set_charinfo_tag       (co,ext_tag);
 	set_charinfo_extensible (co,top,bot,mid,rep);
       } else {
-	pdftex_warn("lua-loaded font %s char [%d] has an invalid extensible field!",font_name(f),i);
+	pdftex_warn("lua-loaded font %s char [%d] has an invalid extensible field!",font_name(f),(int)i);
       }
     }
     lua_pop(L,1);
@@ -648,7 +645,7 @@ font_char_from_lua (lua_State *L, internal_font_number f, integer i, integer *l_
 	    set_kern_item(ckerns[ctr],k,j);
 	    ctr++;
 	  } else {
-	    pdftex_warn("lua-loaded font %s char [%d] has an invalid kern field!",font_name(f),i);
+	    pdftex_warn("lua-loaded font %s char [%d] has an invalid kern field!",font_name(f),(int)i);
 	  }
 	  lua_pop(L,1);
 	}
@@ -657,7 +654,7 @@ font_char_from_lua (lua_State *L, internal_font_number f, integer i, integer *l_
 	  set_kern_item(ckerns[ctr],end_kern,0);
 	  set_charinfo_kerns(co,ckerns);
 	} else {
-	  pdftex_warn("lua-loaded font %s char [%d] has an invalid kerns field!",font_name(f),i);
+	  pdftex_warn("lua-loaded font %s char [%d] has an invalid kerns field!",font_name(f),(int)i);
 	}
       }
       lua_pop(L,1);
@@ -706,7 +703,7 @@ font_char_from_lua (lua_State *L, internal_font_number f, integer i, integer *l_
 	    set_ligature_item(cligs[ctr],(t*2)+1,k,r);
 	    ctr++;
 	  } else {
-	    pdftex_warn("lua-loaded font %s char [%d] has an invalid ligature field!",font_name(f),i);
+	    pdftex_warn("lua-loaded font %s char [%d] has an invalid ligature field!",font_name(f),(int)i);
 	  }
 	  lua_pop(L,1); /* iterator value */
 	}		  
@@ -715,7 +712,7 @@ font_char_from_lua (lua_State *L, internal_font_number f, integer i, integer *l_
 	  set_ligature_item(cligs[ctr],0,end_ligature,0);
 	  set_charinfo_ligatures(co,cligs);
 	} else {
-	  pdftex_warn("lua-loaded font %s char [%d] has an invalid ligatures field!",font_name(f),i);
+	  pdftex_warn("lua-loaded font %s char [%d] has an invalid ligatures field!",font_name(f),(int)i);
 	}
       }
       lua_pop(L,1); /* ligatures table */
@@ -730,11 +727,10 @@ font_char_from_lua (lua_State *L, internal_font_number f, integer i, integer *l_
 
 int
 font_from_lua (lua_State *L, int f) {
-  int i,k,n,r,t;
+  int i,n,r,t;
   int s_top; /* lua stack top */
   int bc; /* first char index */
   int ec; /* last char index */
-  int ctr;
   char *s;
   integer *l_fonts = NULL;
   /* the table is at stack index -1 */
@@ -957,6 +953,9 @@ deleted if $c=0$; then we pass over $a$~characters to reach the next
 current character (which may have a ligature/kerning program of its own).
 */
 
+#define couple_nodes(a,b) vlink(a)=b;if (b!=null) alink(b)=a
+#define uncouple_node(a) vlink(a)=null;alink(a)=null
+
 static halfword 
 append_to (halfword r, halfword t) {
   halfword p;
@@ -966,7 +965,8 @@ append_to (halfword r, halfword t) {
     p = r;
     while (vlink(p)!=null)
       p = vlink(p);
-    vlink(p)=t;
+    couple_nodes(p,t);
+/*  vlink(t)=null; // already true */
     return r;
   }
 }
@@ -975,18 +975,12 @@ append_to (halfword r, halfword t) {
 static halfword 
 prepend_to (halfword r, halfword t) {
   if (r!=null) {
-    vlink(t) = r;
+    couple_nodes(t,r);
+/*  alink(t) = null; // already true */
+/*} else {
+    vlink(t) = null;
+    alink(t) = null; // both already true */
   }
-  return t;
-}
-
-
-/* Appends a glyph, or its lig_ptr glyphs if it's a ligature
- * to this lig_ptr list
- * Throw away the glyph if its a ligature  */
-static halfword
-append_lig(halfword p, halfword s) {
-  halfword t;
   return t;
 }
 
@@ -1002,7 +996,6 @@ copy_glyph(halfword s) {
 }
 
 
-/* TODO, reset unicode bit on glyph subtype */
 static int 
 try_ligature (halfword *ftail, halfword second,int*inc_left,int*inc_right) {
   halfword first = vlink(*ftail);
@@ -1018,8 +1011,11 @@ try_ligature (halfword *ftail, halfword second,int*inc_left,int*inc_right) {
     halfword newgl; /* The new ligature glyph */
     halfword newpt; /* start of the ligature glyph
                      * either the glyph itself, or the prepended disc */
+    halfword next;  /* used for forward d-list resolving */
     newgl = new_glyph_node(font(first),lig_replacement(lig));
     set_is_ligature(newgl);
+    /* below might not be correct in contrived border case.
+     * but we use it only for debugging, so ... */ 
 	if (character(first)<0)
 	  set_is_leftboundary(newgl);
 	if (character(second)<0)
@@ -1027,7 +1023,7 @@ try_ligature (halfword *ftail, halfword second,int*inc_left,int*inc_right) {
     if (vlink(first)!=second) { /* We have a discretionary in between */
       halfword disc = vlink(first);
       assert(type(disc)==disc_node);
-      vlink(disc) = newgl;
+      couple_nodes(disc,newgl);
       /* MAGIC! 
        * technically we always need to prepend first in pre_break
        * BUT
@@ -1049,36 +1045,42 @@ try_ligature (halfword *ftail, halfword second,int*inc_left,int*inc_right) {
     } else {
       newpt = newgl;
     }
-    /* TODO if character(first)<0 then we should not insert, but set
-     * a bit in subtype(newgl) */
-    /* TODO if character(second)<0 then we should not insert, but set
-     * a bit in subtype(newgl) */
+    /* IMPORTANT: on keep_xxx we MUST put the first/second in the lig_ptr
+     * list and put a copy of it in the main stream.
+     * Otherwise we cannot differ between a ligature taken or not. */
+    /* left side */
     if (keep_left) {
-      lig_ptr(newgl) = copy_glyph(first);
-      vlink(first) = newpt;
+      halfword new_first = copy_glyph(first);
+      couple_nodes(prev,new_first);
+      couple_nodes(new_first,newpt);
       if (move_after) {
         move_after--;
-        prev = first;
+        prev = new_first;
       }
       (*inc_left)++;
     } else {
-      vlink(first) = null;
-      lig_ptr(newgl) = first;
-      vlink(prev) = newpt;
+      couple_nodes(prev,newpt);
     }
+    uncouple_node(first);
+    lig_ptr(newgl) = first;
+    /* right side, please note the warning above */
+    next = vlink(second);
     if (keep_right) {
-      lig_ptr(newgl) = append_to(lig_ptr(newgl),copy_glyph(second));
-      vlink(newgl) = second;
+      halfword new_second = copy_glyph(second);
+      couple_nodes(newgl,new_second);
+      if (next!=null) couple_nodes(new_second,next);
       if (move_after) {
         move_after--;
         prev = newgl;
       }
       (*inc_right)++;
     } else {
-      vlink(newgl) = vlink(second);
-      vlink(second) = null;
-      lig_ptr(newgl) = append_to(lig_ptr(newgl),second);
+      if (next!=null) couple_nodes(newgl,next);
     }
+    uncouple_node(second);
+    lig_ptr(newgl) = append_to(lig_ptr(newgl),second);
+
+    /* check and return */
     assert(move_after==0);
     *ftail = prev;
     return 1;
@@ -1086,110 +1088,153 @@ try_ligature (halfword *ftail, halfword second,int*inc_left,int*inc_right) {
   return 0;
 }
 
-/* ret value is immutable from now on */
-
 halfword 
-handle_lig_word (halfword prev, halfword cur, int left_boundary, int right_boundary) {
-  halfword fwd, next;
-  liginfo lig;
+handle_lig_word (halfword prev, halfword cur, int is_word ) {
+  halfword right;
   int dummy=0;
       
-  if (left_boundary && has_left_boundary(font(cur))) {
-    halfword p  = new_glyph_node(0,left_boundarychar);
-	font(p)     = font(cur);
-    vlink(prev) = p;
-    vlink(p)    = cur;
-    cur         = p;
+  if (is_word) {
+    if (type(cur)==whatsit_node && subtype(cur)==cancel_boundary_node) {
+      halfword fwd = vlink(cur);
+      couple_nodes(prev,fwd);
+/*    uncouple_node(cur); // not needed, it is freed */
+      free_node(cur, cancel_boundary_size);
+      cur = fwd;
+      if (cur==null || type(cur)!=glyph_node) return prev;
+    } else if (has_left_boundary(font(cur))) {
+      halfword p  = new_glyph_node(font(cur),left_boundarychar);
+      couple_nodes(prev,p);
+      couple_nodes(p,cur);
+      cur         = p;
+    }
+  }
+  if (is_word && has_right_boundary(font(cur))) {
+    right = new_glyph_node(font(cur),right_boundarychar);
+  } else {
+    right = null;
   }
 
-  while ((fwd = vlink(cur)) != null) {
-    
-    if (type(cur)==glyph_node && type(fwd)==glyph_node) {
-      
-      if (font(cur)==font(fwd) && try_ligature (&prev,fwd,&dummy,&dummy)) {
+  while (1) {
+    halfword fwd = vlink(cur);
+    if (type(cur)==glyph_node && fwd!=null && type(fwd)==glyph_node) {
+      if (font(cur)!=font(fwd)) break;
+      if (try_ligature (&prev,fwd,&dummy,&dummy)) {
         cur = vlink(prev);
         continue;
       }
-      /* else, the word has ended */
-      
-    } else if (type(cur)==glyph_node && type(fwd)==disc_node) {
-	  int replace = 0;
-      next = vlink(fwd);
-      if (next == null || type(next)!=glyph_node || font(cur)!=font(next)) {
-	/* word ends on a disc node, return it  */
-	/* no right boundary processing because of manual intervention */
-	return fwd; 
-      }
-	  
-      if (try_ligature(&prev,next,&dummy,&replace)) {
-		replace_count(fwd) += replace;
-	cur = vlink(prev);
-	continue;
-      }
-
-    } else if (type(cur)==disc_node && type(fwd)==glyph_node) {
-      halfword disc = cur;
-      halfword p;
-      int next_char;
+    } else if (type(cur)==glyph_node && fwd!=null && type(fwd)==disc_node) {
       int replace = 0;
-      next = vlink(fwd);
-      if (next == null || type(next)!=glyph_node || font(fwd)!=font(next)) {
-		fwd = next;
-		prev = cur;
-		cur = fwd;
-		break;
-      }
-      next_char = character(next);
-      if (try_ligature(&cur,next,&replace,&replace)) {
-		if (replace_count(disc)!=0) {
-          replace_count(disc) += replace;
-		  post_break(disc) = append_to(post_break(disc),new_glyph_node(font(vlink(disc)),next_char));
-		}
-        /* Nasty problem: we should continue to eat right hand side characters
-         * after the disc (and appending the to post break) as long as the
-         * current character is the one directly after the disc (== move_after
-         * equals zero). We can test it if the value of cur (which is the
-         * prev of the glyphs) is equal to disc itself. In that case the real
-         * prev is still valid and cur does indeed refer to the disc.
-         * If not then the value of cur is actually the prev, and we do the
-         * reassign to cur like we always do */
-        if (disc!=cur) {
-          prev = cur;
-          cur  = vlink(prev);
-        }
+      /* if  a{bx}{}{y} and a+b=>B convert to {Bx}{}{ay} */
+      halfword pre = pre_break(fwd);
+      halfword anchor=null;
+      liginfo lig;
+      /* NOTE: we NEED to test if (a{bx}{}{y} and a+b=>B)
+       * if not, and we try, but 'a' isn't changed, then we would
+       * continue in the a{}{}{}b step. However, we _would_ have
+       * replaced ligatures in pre_break, so if a{}{}{}b gives a
+       * ligature and is a (keep_left,move=0) we will get here
+       * again, doing pre_break twice! */
+      if ( pre!=null
+        && font(cur)==font(pre)
+        && !is_ghost(cur) && !is_ghost(pre)
+        && (lig = get_ligature(font(cur),character(cur),character(pre)),
+            is_valid_ligature(lig))) {
+        /* anchor <-> try <-> pre */
+        halfword next = vlink(fwd);
+        halfword try = copy_glyph(cur);
+        anchor = get_node(temp_node_size);
+        couple_nodes(try,pre);
+        couple_nodes(anchor,try);
+        /* move cur from before disc, to replace part */
+        uncouple_node(cur); /* perhaps a bit paranoia, but if next==null... */
+        couple_nodes(prev,fwd);
+        couple_nodes(fwd,cur);
+        if (next!=null) couple_nodes(cur,next);
+        replace_count(fwd)++;
+        cur=prev; /* prev stays prev, but next loop our fwd will become cur */
       } else {
-        /* because we are forced to do a continue below - as we have forgotten
-         * that we successfully did a ligature by then, we must do the normal
-         * step-to-next-node we would do by falling out of this if.
-         * This is no probem here because we only use disc hereafter */
-        prev = cur;
-        cur  = fwd;
+        /* Now check if we have a{}{}{}b */
+        halfword next = vlink(fwd);
+        if (next == null || type(next)!=glyph_node || font(cur)!=font(next)) {
+	  /* word ends on a disc node, return it  */
+	  /* no right boundary processing because of manual intervention */
+	  return fwd; 
+        }
+        /* Now check on a{}{}{}b */
+        if (try_ligature(&prev,next,&dummy,&replace)) {
+          replace_count(fwd) += replace;
+	  cur = vlink(prev);
+	  continue;
+        }
+        if (pre!=null) {
+          halfword anchor = get_node(temp_node_size);
+          couple_nodes(anchor,pre);
+        }
       }
-      /* we've done everything to the disc that we could,
-       * does it contain ligatures itself ? */
-      p = new_glyph_node(0,0);
-      if (pre_break(disc)!=null) {
-		vlink(p) = pre_break(disc);
-		handle_lig_word (p, pre_break(disc), 0, 0);
-		pre_break(disc) = vlink(p);
+      if (anchor!=null) {
+        handle_lig_word(anchor, vlink(anchor), 0);
+        pre_break(fwd)=vlink(anchor);
+        free_node(anchor,temp_node_size);
+        alink(vlink(anchor)) = null;
       }
-      if (post_break(disc)!=null) {
-		vlink(p) = post_break(disc);
-		handle_lig_word (p, post_break(disc), 0, 0);
-		post_break(disc) = vlink(p);
+    } else if (type(cur)==disc_node && fwd!=null && type(fwd)==glyph_node) {
+      halfword disc = cur;
+      if (replace_count(disc)!=0) {
+        halfword next = vlink(fwd);
+        if (next != null && type(next)==glyph_node && font(fwd)==font(next)) {
+          int next_char = character(next);
+          int replace = 0;
+          if (try_ligature(&cur,next,&replace,&replace)) {
+            if (replace_count(disc)==1) {
+              post_break(disc) = append_to(post_break(disc),new_glyph_node(font(vlink(disc)),next_char));
+            } else {
+              replace_count(disc)--;
+            }
+            replace_count(disc) += replace;
+            /* If we stay in place (move_after equals zero), we must continue
+             * checking if characters on the right side would create ligatures
+             * and influence the disc in anyway (post_break or replace_count)
+             * We can check that with cur==disc
+             * else we are ready with the disc */
+            if (disc==cur) continue;
+          }
+        }
       }
-      free_node(p, glyph_node_size);
 //    TODO what about aa->A ab->B and a-ab
 //    TODO this now results in {a-}{a}{A}b
 //    TODO but should be {a-}{B}{Ab}
-      continue;
-    } else if (type(cur)==glyph_node) {
-      break;
-
+      /* we've done everything to the disc that we could,
+       * does it contain ligatures itself ? */
+      if (post_break(disc)!=null) {
+		//printf("Postbreak starting with %c\n",(char)character(post_break(disc)));
+        halfword p = get_node(temp_node_size);
+        couple_nodes(p,post_break(disc));
+        handle_lig_word (p, post_break(disc), 0);
+        post_break(disc) = vlink(p);
+        alink(post_break(disc)) = null;
+        free_node(p, temp_node_size);
+		//printf("Postbreak ending   with %c\n",(char)character(post_break(disc)));
+      }
     } else if (type(cur)==disc_node) {
       /* word ends on a disc node, return it  */
       /* no right boundary processing because of manual intervention */
       return cur; 
+    } else if (type(cur)==glyph_node) {
+      if (fwd!=null && type(fwd)==whatsit_node && subtype(fwd)==cancel_boundary_node) {
+        halfword next = vlink(fwd);
+        couple_nodes(cur,next);
+        free_node(fwd,cancel_boundary_size);
+        if (right!=null) {
+          free_node(right, glyph_node_size); /* What a shame, didn't need it */
+          right = null;
+        }
+        fwd = next;
+      }
+      if (right==null) break;
+      couple_nodes(cur,right);
+      if (fwd!=null) couple_nodes(right,fwd);
+      right = null;
+      continue;
     } else {
       /* this should not happen */
       assert(0);
@@ -1197,51 +1242,24 @@ handle_lig_word (halfword prev, halfword cur, int left_boundary, int right_bound
     }
     /* step-to-next-node */
     prev = cur;
-    cur  = fwd;
-  }
-  
-  /* cur = last glyph of word */
-  fwd = vlink(cur);
-#ifdef VERBOSE
-  fprintf(stderr,"character(cur)=%d,type(fwd)=%d\n",character(cur),type(fwd));
-#endif
-  if (fwd!=null && type(fwd)==whatsit_node && subtype(fwd)==cancel_boundary_node) 
-    right_boundary = 0;
-
-  if (right_boundary && has_right_boundary(font(cur))) {
-    halfword p = new_glyph_node(0,right_boundarychar);
-    font(p)     = font(cur);
-    vlink(p)   = vlink(cur);
-    vlink(cur) = p;
-    while (try_ligature(&prev,p,&dummy,&dummy)) {
-      cur = vlink(prev);
-      p = vlink(cur);
-      if (p==null || type(p)!=glyph_node) break;
-    }
-
-  } else {
-	if (type(fwd)==whatsit_node && subtype(fwd)==cancel_boundary_node)
-	  cur = fwd;
+    cur  = vlink(prev);
+/*  assert(alink(cur)==prev); TODO, once we have set alink everywhere */
+    alink(cur) = prev;
   }
 
   return cur;
 }
 
-
 void 
-handle_ligkern(halfword head, halfword tail, int dir) {
+handle_ligaturing(halfword head, halfword tail, int dir) {
   halfword save_tail ; /* trick to allow explicit node==null tests */
-  halfword cur, prev, fwd;
-  int i;
-  liginfo lig;
-  int boundary = 1;
+  halfword cur, prev;
 
   if (vlink(head)==null)
     return;
 
   save_tail = vlink(tail);
   vlink(tail) = null;
-  lig_stack = null;
   
   cur = vlink(head);
 #ifdef VERBOSE
@@ -1250,42 +1268,38 @@ handle_ligkern(halfword head, halfword tail, int dir) {
 	cur = vlink(cur);
   }
 #endif
-  cur = vlink(head);
   prev = head;
+  cur = vlink(prev);
+/*assert(alink(cur) == prev); TODO */
+  alink(cur) = prev;
   /* left word boundary */
   while (cur!=null) {
-    if (type(cur)==whatsit_node &&
-		subtype(cur)==cancel_boundary_node) {
-      boundary = 0;
-    } else if (type(prev)!=glyph_node &&
-			   type(cur)==glyph_node) {
-      cur = handle_lig_word(prev,cur,boundary,1);
-      boundary = 1;
-    } else {
-      boundary = 1;
-	}
+    if ( type(cur)==glyph_node ||
+        (type(cur)==whatsit_node && subtype(cur)==cancel_boundary_node)) {
+      cur = handle_lig_word(prev,cur,1);
+    }
     prev = cur;
     cur = vlink(cur);
+/*  assert(alink(cur) == prev); TODO */
+	if (cur!=null) /* TH subtle bug, this is */
+	  alink(cur) = prev;
   }
 
-  cur = vlink(head);
   prev = head;
-  while (cur!=null) {
+
+  for (cur = vlink(prev); cur!=null; cur = vlink(cur)) {
     if (type(cur)==whatsit_node &&
 		subtype(cur)==cancel_boundary_node) {
-      vlink(prev) = vlink(cur);
-      free_node(cur, cancel_boundary_size);
-      cur = vlink(prev);
-      continue;
+      assert(0); /* They should be all gone */
     } else if (type(cur)==glyph_node && 
 			   character(cur)<0) {
-      vlink(prev) = vlink(cur);
+      halfword next = vlink(cur);
+      couple_nodes(prev,next);
       free_node(cur, glyph_node_size);
-      cur = vlink(prev);
-      continue;
-	}
-    prev = cur;
-    cur = vlink(cur);
+      cur = prev;
+    } else {
+      prev = cur;
+    }
   }
 
   cur = vlink(head);
@@ -1294,17 +1308,108 @@ handle_ligkern(halfword head, halfword tail, int dir) {
   vlink(tail) = save_tail;
 }
 
+/* only called on 'left' items */
+
+#define	maybe_delete_glyph_node(a)			\
+  if (character(a)<0 || is_ghost(a)) {			\
+    vlink(alink(a)) = vlink(a);				\
+    alink(vlink(a)) = alink(a);				\
+    free_node(a,glyph_node_size);			\
+  }
+
+void 
+do_handle_kerning (halfword head, halfword init_left, halfword init_right) {
+  halfword cur, left;
+  int k;
+  cur = head;
+  left = init_left;
+  while (cur!=null) {
+    if (type(cur)==glyph_node) {
+      set_is_glyph(cur);
+      if (left != null) { 
+	if ((!is_rightghost(cur)) && 
+	    font(left)==font(cur) && 
+	    has_kern(font(left),character(left))) {
+	  k = get_kern(font(left),character(left),character(cur));
+	  if (k!=0) {
+	    /* this means that head must always have a valid alink() */
+	    halfword kern = new_kern(k);
+	    alink(kern) = alink(cur);
+	    vlink(alink(cur)) = kern;
+	    alink(cur)  = kern;
+	    vlink(kern) = cur;
+	  }
+	}
+	maybe_delete_glyph_node(left);
+      }
+      left = (is_leftghost(cur) ? null :  cur);
+    } else if (type(cur)==disc_node) {
+      if (pre_break(cur)!=null) { 
+	/* need to insert a temporary fake head here because 
+	   alink() maybe needed during recursion */
+	halfword tmp = get_node(temp_node_size);
+	couple_nodes(tmp,pre_break(cur));
+	do_handle_kerning(vlink(tmp),left,null);
+	pre_break(cur) = vlink(tmp);
+	alink(vlink(tmp)) = null;
+	free_node(tmp,temp_node_size);
+      }
+      if (post_break(cur)!=null) {   
+	halfword right = vlink(cur);
+	int i = replace_count(cur);
+	while(right!=null && i-->0) 
+	  right = vlink(right);
+	assert (i<=0);
+	do_handle_kerning(post_break(cur),null,right);
+      }
+      /* don't reset left */
+    } else {
+      if (left!=null)
+	maybe_delete_glyph_node(left);
+      left = null;	
+    }
+    cur = vlink(cur);
+  }
+  
+  if (left!=null) {
+    if (init_right!=null && has_kern(font(left),character(left))) {
+      k = get_kern(font(left),character(left),character(init_right));
+      if (k!=0) {
+	halfword kern = new_kern(k);
+	vlink(kern) = vlink(left);
+	alink(vlink(kern)) = kern;
+	vlink(left) = kern;
+	alink(vlink(left)) = left;
+      }
+    }
+    maybe_delete_glyph_node(left);
+  }
+}
+
+
+void 
+handle_kerning(halfword head, halfword tail, int dir) {
+  halfword save_tail ; /* trick to allow explicit node==null tests */
+  if (vlink(head)==null)
+    return;
+  save_tail = vlink(tail);
+  vlink(tail) = null;
+  do_handle_kerning(vlink(head),null,null);
+  vlink(tail) = save_tail;
+}
+
+
 void 
 print_list (halfword cur) {
     while (cur!=null) {
 	switch (type(cur)) {
 	case glyph_node:
 	  if (is_ligature(cur)) 
-		fprintf(stderr,"(ligature %c)", character(cur));
+	    fprintf(stderr,"(ligature %c)", (int)character(cur));
 	  else if (subtype(cur)>1)
-		fprintf(stderr,"(%c,%d)", character(cur),subtype(cur));
+		fprintf(stderr,"(%c,%d)", (int)character(cur),subtype(cur));
 	  else
-		fprintf(stderr,"%c", character(cur));
+		fprintf(stderr,"%c", (int)character(cur));
 	  break;
 	case glue_node:
 	  fprintf(stderr," ");
@@ -1330,7 +1435,7 @@ print_list (halfword cur) {
 	case kern_node:
 	  break;
 	case penalty_node:
-	  fprintf(stderr,"<%d>", penalty(cur));
+	  fprintf(stderr,"<%d>", (int)penalty(cur));
 	  break;
 	default:
 	  fprintf(stderr,"?%d?", type(cur));
@@ -1368,7 +1473,30 @@ new_ligkern(halfword head, halfword tail, int dir) {
     } 
     lua_pop(L,1);
   }  else {
-    handle_ligkern(head,tail,dir);
+    handle_ligaturing(head,tail,dir);
+  }
+
+  callback_id = callback_defined(kerning_callback);
+  if (callback_id>0) {
+    /* */
+    lua_rawgeti(L,LUA_REGISTRYINDEX,callback_callbacks_id);
+    lua_rawgeti(L,-1, callback_id);
+    if (!lua_isfunction(L,-1)) {
+      lua_pop(L,2);
+      return;
+    }
+    nodelist_to_lua(L,head);
+    nodelist_to_lua(L,tail);
+    lua_pushnumber(L,dir);
+    if (lua_pcall(L,3,0,0) != 0) {
+      fprintf(stdout,"error: %s\n",lua_tostring(L,-1));
+      lua_pop(L,2);
+      lua_error(L);
+      return;
+    } 
+    lua_pop(L,1);
+  }  else {
+    handle_kerning(head,tail,dir);
   }
 }
 

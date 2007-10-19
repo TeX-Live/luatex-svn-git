@@ -2,6 +2,7 @@
 
 #include "luatex-api.h"
 #include <ptexlib.h>
+#include "nodes.h"
 
 /* this function is in vfovf.c for the moment */
 extern int make_vf_table(lua_State *L, char *name, scaled s);

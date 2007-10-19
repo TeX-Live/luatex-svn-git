@@ -1670,6 +1670,34 @@ the \type{head} and the \type{new}, set up to be part of the list
 (with correct \type{next} field). If \type{head} is initially
 \type{nil}, it will become \type{new}.
 
+\subsubsection{\luatex{node.first_character}}
+
+\startfunctioncall
+<node> n = node.first_character(<node> n)
+<node> n = node.first_character(<node> n, <node> m)
+\stopfunctioncall
+
+Returns the first node that is a glyph node with a subtype indicating
+it is a character, or \type{nil}. 
+
+\subsubsection{\luatex{node.ligaturing}}
+
+\startfunctioncall
+node.ligaturing(<node> n)
+node.ligaturing(<node> n, <node> m)
+\stopfunctioncall
+
+Apply \TEX-style ligaturing to the specified nodelist.
+
+\subsubsection{\luatex{node.kerning}}
+
+\startfunctioncall
+node.kerning(<node> n)
+node.kerning(<node> n, <node> m)
+\stopfunctioncall
+
+Apply \TEX-style kerning to the specified nodelist.
+
 
 \subsection{Attribute handling}
 
@@ -2178,7 +2206,7 @@ and the subsequent insertion of \tex{parfillskip} has not happened
 yet at that moment.
 
 \startfunctioncall
-function(<node> head, string groupcode, int glyph_count)
+function(<node> head, string groupcode)
     return true | false | <node> newhead
 end
 \stopfunctioncall
@@ -2203,7 +2231,6 @@ will be explained in the next two paragraphs.
 \NC \tt local_box    \NC \tex{localleftbox} or \tex{localrightbox} \NC\NR
 \NC \tt split_off    \NC top of a \tex{vsplit}                     \NC\NR
 \NC \tt split_keep   \NC remainder of a \tex{vsplit}               \NC\NR
-\NC \tt preamble     \NC alignment preamble                        \NC\NR
 \NC \tt align_set    \NC alignment cell                            \NC\NR
 \NC \tt fin_row      \NC alignment row                             \NC\NR
 \stoptabulate
@@ -2214,8 +2241,7 @@ This callback is called when \TEX\ is ready to start boxing some
 horizontal mode material. Math items are ignored at the moment.
 
 \startfunctioncall
-function(<node> head, number size, string packtype,
-        string groupcode, number glyphcount)
+function(<node> head, string groupcode, number size, string packtype)
     return true | false | <node> newhead
 end
 \stopfunctioncall
@@ -2232,12 +2258,10 @@ vertical mode material. Math displays are ignored at the moment.
 
 This function is very similar to the \luatex{hpack_filter}. Besides
 the fact that it is called at different moments, there is an extra
-variable that matches \TEX's \tex{maxdepth} setting, but there is
-no glyph count.
+variable that matches \TEX's \tex{maxdepth} setting.
 
 \startfunctioncall
-function(<node> head, number size, string packtype,
-        number maxdepth, string groupcode)
+function(<node> head, string groupcode, number size, string packtype,  number maxdepth)
     return true | false | <node> newhead
 end
 \stopfunctioncall
@@ -2248,11 +2272,41 @@ This callback is called when \TEX\ is ready to start boxing the
 box 255 for \tex{output}.
 
 \startfunctioncall
-function(<node> head, number size, string packtype,
-        number maxdepth, string groupcode)
+function(<node> head, string groupcode, number size, string packtype, number maxdepth)
     return true | false | <node> newhead
 end
 \stopfunctioncall
+
+\subsubsection{\luatex{hyphenate}}
+
+\startfunctioncall
+function(<node> head, <node> tail)
+end
+\stopfunctioncall
+
+No return values. This callback has to insert discretionary nodes in
+the node list it receives.
+
+
+\subsubsection{\luatex{ligaturing}}
+
+\startfunctioncall
+function(<node> head, <node> tail)
+end
+\stopfunctioncall
+
+No return values. This callback has to apply ligaturing to the node
+list it receives.
+
+\subsubsection{\luatex{kerning}}
+
+\startfunctioncall
+function(<node> head, <node> tail)
+end
+\stopfunctioncall
+
+No return values. This callback has to apply kerning between the nodes
+in the node list it receives.
 
 \subsection{Information reporting callbacks}
 
@@ -4251,6 +4305,10 @@ Valid fields: \showfields{glyph}
 \NC attr       \NC \syntax{<node>}    \NC  \NC\NR
 \NC char       \NC number  \NC \NC\NR
 \NC font       \NC number  \NC \NC\NR
+\NC lang       \NC number  \NC \NC\NR
+\NC left       \NC number  \NC \NC\NR
+\NC right      \NC number  \NC \NC\NR
+\NC uchyph     \NC boolean  \NC \NC\NR
 \NC components \NC \syntax{<node>}    \NC pointer to ligature components\NC\NR
 \NC xoffset    \NC number  \NC \NC \NR
 \NC yoffset    \NC number  \NC \NC \NR
@@ -4321,15 +4379,9 @@ Valid fields: \showfields{whatsit,special}
 
 \subsubsection{language nodes}
 
-Valid fields: \showfields{whatsit,language}
 
-\starttabulate[|lT|l|p|]
-\NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
-\NC attr      \NC \syntax{<node>}    \NC  \NC\NR
-\NC lang      \NC number  \NC language id number\NC\NR
-\NC left      \NC number  \NC value of \tex{lefthyphenmin}\NC\NR
-\NC right     \NC number  \NC value of \tex{righthyphenmin}\NC\NR
-\stoptabulate
+\LUATEX\ does not have language whatsits. All language information in
+already present inside the glyph nodes themselves.
 
 
 \subsubsection{local_par nodes}

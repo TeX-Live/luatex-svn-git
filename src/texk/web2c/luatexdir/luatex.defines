@@ -44,6 +44,14 @@ $Id $
 @define procedure check_pool_overflow();
 
 @define procedure new_ligkern();
+@define function make_lang_data();
+@define procedure ext_do_line_break();
+
+@define var last_special_line;
+@define var first_width;
+@define var first_indent;
+@define var second_width;
+@define var second_indent;
 
 @define procedure new_hyphenation();
 @define procedure load_tex_hyphenation();

@@ -89,6 +89,7 @@ lua/llanglib.o \
 lang/hnjalloc.o \
 lang/hyphen.o \
 lang/texlang.o \
+tex/linebreak.o \
 managed-sa.o \
 mathcodes.o \
 textcodes.o \

@@ -5,6 +5,11 @@
 
 #include "nodes.h"
 
+/* sometimes I need a temporary node, because a function wants to
+   operate on a static item */
+
+static halfword tmp_head = null;
+
 /* This routine finds the numerical value of a string (or number) at
   lua stack index |n|. If it is not a valid node type, raises a lua
   error. */
@@ -40,7 +45,6 @@ int get_valid_node_type_id (lua_State *L, int n) {
   }
   return i;
 }
-
 
 /* Same, but for whatsits. */
 
@@ -409,7 +413,7 @@ lua_nodelib_hpack(lua_State *L) {
       }
     }
   }
-  p = hpack_extra(n,w,m);
+  p = hpack(n,w,m);
   lua_pushnumber(L,p);
   lua_nodelib_push(L);
   return 1;
@@ -434,7 +438,7 @@ static char * node_fields_penalty     [] = { "attr", "penalty", NULL };
 static char * node_fields_unset       [] = { "attr", "width", "depth", "height", "dir", "shrink",
 					     "glue_order", "glue_sign", "stretch" , "span",  "list",  NULL };
 static char * node_fields_margin_kern [] = { "attr", "width", "glyph", NULL };
-static char * node_fields_glyph       [] = { "attr", "char", "font", "components", "xoffset", "yoffset", NULL };
+static char * node_fields_glyph       [] = { "attr", "char", "font", "lang", "left", "right", "uchyph", "components", "xoffset", "yoffset", NULL };
 
 /* math nodes and noads */
 static char * node_fields_style    [] = { NULL };
@@ -514,7 +518,7 @@ static char * node_fields_whatsit_open               [] = { "attr", "stream", "n
 static char * node_fields_whatsit_write              [] = { "attr", "stream", "data", NULL };
 static char * node_fields_whatsit_close              [] = { "attr", "stream", NULL };
 static char * node_fields_whatsit_special            [] = { "attr", "data", NULL };
-static char * node_fields_whatsit_language           [] = { "attr", "lang", "left", "right", NULL };
+static char * node_fields_whatsit_language           [] = {  NULL };
 static char * node_fields_whatsit_local_par          [] = { "attr", "pen_inter", "pen_broken", "dir", 
 							    "box_left", "box_left_width", "box_right", "box_right_width", NULL };
 static char * node_fields_whatsit_dir                [] = { "attr", "dir", "level", "dvi_ptr", "dvi_h", NULL };
@@ -619,10 +623,14 @@ get_node_field_id (lua_State *L, int n, int node ) {
       else if (TEST4('f','o','n','t'))           { i = 5;  } /* font */
       else if (TEST4('a','t','t','r'))           { i = 3;  } /* attr */
       else if (TEST4('p','r','e','v'))           { i = -1; } /* prev */
-      else if (strcmp(s,"xoffset") == 0 )        { i = 7;  } /* yoffset */
-      else if (strcmp(s,"yoffset") == 0 )        { i = 8;  } /* yoffset */
-      else if (strcmp(s,"components") == 0 )     { i = 6;  } /* components */
+      else if (TEST4('l','a','n','g'))           { i = 6; }  /* lang */
       else if (strcmp(s,"subtype") == 0 )        { i = 2;  } /* subtype */
+      else if (TEST4('l','e','f','t'))           { i = 7; }  /* left */
+      else if (strcmp(s,"right") == 0 )          { i = 8;  } /* right */
+      else if (strcmp(s,"uchyph") == 0 )         { i = 9;  } /* uchyph */
+      else if (strcmp(s,"components") == 0 )     { i = 10;  } /* components */
+      else if (strcmp(s,"xoffset") == 0 )        { i = 11;  } /* yoffset */
+      else if (strcmp(s,"yoffset") == 0 )        { i = 12;  } /* yoffset */
     }
     else if (TEST4('p','r','e','v'))             { i = -1; }
     else if (strcmp(s,"subtype") == 0)           { i = 2;  }
@@ -1122,9 +1130,6 @@ lua_nodelib_getfield_whatsit  (lua_State *L, int n, int field) {
     break;
   case language_node:           
     switch (field) {
-    case  4: lua_pushnumber(L,what_lang(n));                 break;
-    case  5: lua_pushnumber(L,what_lhm(n));                  break;
-    case  6: lua_pushnumber(L,what_rhm(n));                  break;
     default: lua_pushnil(L); 
     }
     break;
@@ -1450,9 +1455,13 @@ lua_nodelib_getfield  (lua_State *L) {
       case  3: nodelib_pushattr(L,node_attr(n));      break;
       case  4: lua_pushnumber(L,character(n));	      break;
       case  5: lua_pushnumber(L,font(n));	      break;
-      case  6: nodelib_pushlist(L,lig_ptr(n));	      break;
-      case  7: lua_pushnumber(L,x_displace(n));	      break;
-      case  8: lua_pushnumber(L,y_displace(n));	      break;
+      case  6: lua_pushnumber(L,char_lang(n));	      break;
+      case  7: lua_pushnumber(L,char_lhmin(n));	      break;
+      case  8: lua_pushnumber(L,char_rhmin(n));	      break;
+      case  9: lua_pushnumber(L,char_uchyph(n));      break;
+      case 10: nodelib_pushlist(L,lig_ptr(n));	      break;
+      case 11: lua_pushnumber(L,x_displace(n));	      break;
+      case 12: lua_pushnumber(L,y_displace(n));	      break;
       default: lua_pushnil(L);
       }
       break;
@@ -1577,9 +1586,6 @@ lua_nodelib_setfield_whatsit(lua_State *L, int n, int field) {
     break;
   case language_node:
     switch (field) {
-    case  4: what_lang(n) = lua_tointeger(L,3);             break;
-    case  5: what_lhm(n) = lua_tointeger(L,3);              break;
-    case  6: what_rhm(n) = lua_tointeger(L,3);              break;
     default: return nodelib_cantset(L,field,n);
     }
     break;
@@ -1900,11 +1906,15 @@ lua_nodelib_setfield  (lua_State *L) {
       switch (field) {
       case  2: subtype(n) = lua_tointeger(L,3);	        break;
       case  3: nodelib_setattr(L,3,n);                  break;
-      case  4: character(n) = lua_tointeger(L,3);	    break;
+      case  4: character(n) = lua_tointeger(L,3);       break;
       case  5: font(n) = lua_tointeger(L,3);	        break;
-      case  6: lig_ptr(n) = nodelib_getlist(L,3);       break;
-      case  7: x_displace(n) = lua_tointeger(L,3);      break;
-      case  8: y_displace(n) = lua_tointeger(L,3);      break;
+      case  6: set_char_lang(n,lua_tointeger(L,3));     break;
+      case  7: set_char_lhmin(n,lua_tointeger(L,3));    break;
+      case  8: set_char_rhmin(n,lua_tointeger(L,3));    break;
+      case  9: set_char_uchyph(n,lua_tointeger(L,3));   break;
+      case 10: lig_ptr(n) = nodelib_getlist(L,3);       break;
+      case 11: x_displace(n) = lua_tointeger(L,3);      break;
+      case 12: y_displace(n) = lua_tointeger(L,3);      break;
       default: return nodelib_cantset(L,field,n);
       }
       break;
@@ -1987,6 +1997,124 @@ lua_nodelib_equal  (lua_State *L) {
   return 1;
 }
 
+static int 
+font_tex_ligaturing (lua_State *L) {
+  /* on the stack are two nodes and a direction */
+
+  halfword *h;
+  halfword t =null;
+  int d = 0;
+  if (lua_gettop(L)<1) {
+	lua_pushnil(L);
+    lua_pushboolean(L,0);
+    return 2;
+  } 
+  h = check_isnode(L,1);
+  if (lua_gettop(L)>1) {
+	t = *(check_isnode(L,2));
+  }
+  if (lua_gettop(L)>2) {
+	d = lua_tointeger(L,3);
+  }
+  if (tmp_head==null)
+	tmp_head = get_node(temp_node_size);
+  vlink(tmp_head) = *h;
+  handle_kerning(tmp_head,t,d);
+  lua_pushnumber(L,vlink(tmp_head));
+  lua_nodelib_push(L);  
+  lua_pushboolean(L,1);
+  return 2;
+}
+
+static int 
+font_tex_kerning (lua_State *L) {
+  /* on the stack are two nodes and a direction */
+
+  halfword *h;
+  halfword t =null;
+  int d = 0;
+  if (lua_gettop(L)<1) {
+    lua_pushnil(L);
+    lua_pushboolean(L,0);
+    return 2;
+  } 
+  h = check_isnode(L,1);
+  if (lua_gettop(L)>1) {
+	t = *(check_isnode(L,2));
+  }
+  if (lua_gettop(L)>2) {
+	d = lua_tointeger(L,3);
+  }
+  if (tmp_head==null)
+	tmp_head = get_node(temp_node_size);
+  vlink(tmp_head) = *h;
+  handle_kerning(tmp_head,t,d);
+  lua_pushnumber(L,vlink(tmp_head));
+  lua_nodelib_push(L);  
+  lua_pushboolean(L,1);
+  return 2;
+}
+
+
+static int 
+lua_nodelib_first_character (lua_State *L) {
+  /* on the stack are two nodes and a direction */
+  halfword h, savetail = null, t = null;
+  if (lua_gettop(L)<1) {
+    lua_pushnil(L);
+    lua_pushboolean(L,0);
+    return 2;
+  } 
+  h = *(check_isnode(L,1));
+  if (lua_gettop(L)>1) {
+    t = *(check_isnode(L,2));
+    savetail = vlink(t);
+    vlink(t) = null;
+  }
+  while (h!=null && !is_simple_character(h)) {
+    h = vlink(h);
+  }
+  if (savetail!=null) { vlink(t) = savetail; }
+  lua_pushnumber(L,h);
+  lua_nodelib_push(L);
+  lua_pushboolean(L,(h==null? 0 : 1));
+  return 2;
+}
+
+
+/* this is too simplistic, but it helps Hans to get going */
+
+halfword
+do_ligature_n  (halfword prev, halfword stop, halfword lig) {
+  vlink(lig) = vlink(stop);
+  vlink(stop) = null;
+  lig_ptr(lig) = vlink(prev);
+  vlink(prev) = lig;
+  return lig;
+}
+
+
+
+/* node.do_ligature_n(node prev, node last, node lig) */
+static int
+lua_nodelib_do_ligature_n  (lua_State *L) {
+  halfword n, m, o, p;
+  n = *(check_isnode(L,1));
+  m = *(check_isnode(L,2));
+  o = *(check_isnode(L,3));
+  if (alink(n)==null || vlink(alink(n))!=n) {
+	if (tmp_head==null)
+	  tmp_head = get_node(temp_node_size);
+	vlink(tmp_head) = n;
+	p = do_ligature_n(tmp_head,m,o);
+  } else {
+	p = do_ligature_n(alink(n),m,o);
+  }
+  lua_pushnumber(L,p);
+  lua_nodelib_push(L);
+  return 1;
+}
+
 
 static const struct luaL_reg nodelib_f [] = {
   {"id",            lua_nodelib_id},
@@ -2013,6 +2141,10 @@ static const struct luaL_reg nodelib_f [] = {
   {"has_attribute", lua_nodelib_has_attribute},
   {"set_attribute", lua_nodelib_set_attribute},
   {"unset_attribute", lua_nodelib_unset_attribute},
+  {"do_ligature_n",   lua_nodelib_do_ligature_n},
+  {"ligaturing",      font_tex_ligaturing},
+  {"kerning",         font_tex_kerning},
+  {"first_character", lua_nodelib_first_character},
   {NULL, NULL}  /* sentinel */
 };
 

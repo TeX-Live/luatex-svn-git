@@ -267,9 +267,9 @@ char_exists (internal_font_number f, integer c) {
     glyph = get_sa_item(font_tables[f]->characters, c);
     if (glyph) 
       ret=1;
-  } else if (c == left_boundarychar && has_left_boundary(f)) {
+  } else if ((c == left_boundarychar) && has_left_boundary(f)) {
       ret=1;
-  } else if (c == right_boundarychar && has_right_boundary(f)) {
+  } else if ((c == right_boundarychar) && has_right_boundary(f)) {
       ret=1;
   }
   return ret;

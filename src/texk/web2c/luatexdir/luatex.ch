@@ -1616,18 +1616,6 @@ endifn ('IPC')
 @z
 
 @x
-if abs(fit_class-fitness(r))>1 then d:=d+adj_demerits;
-@y
-if abs(intcast(fit_class)-intcast(fitness(r)))>1 then d:=d+adj_demerits;
-@z
-
-@x
-  begin line_diff:=line_number(r)-best_line;
-@y
-  begin line_diff:=intcast(line_number(r))-intcast(best_line);
-@z
-
-@x
 @<Append character |cur_chr|...@>=
 adjust_space_factor;@/
 @y

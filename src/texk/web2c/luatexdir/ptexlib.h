@@ -356,10 +356,6 @@ typedef enum {
 /* language stuff */
 
 typedef struct _lang_variables {
-  unsigned char lhmin;
-  unsigned char rhmin;
-  unsigned char curlang;
-  unsigned char uc_hyph;
   int pre_hyphenchar;
   int post_hyphenchar;
 } lang_variables;
@@ -370,9 +366,6 @@ typedef struct _lang_variables {
 struct tex_language {
   HyphenDict *patterns;
   int exceptions; /* lua registry pointer, should be replaced */
-  int lhmin;
-  int rhmin;
-  int uchyph;
   int id;
 };
 
@@ -384,11 +377,38 @@ extern void load_patterns (struct tex_language *lang, unsigned char *buf) ;
 extern void load_hyphenation (struct tex_language *lang, unsigned char *buf);
 extern int hyphenate_string(struct tex_language *lang, char *w, char **ret);
 
-extern void new_hyphenation (halfword h, halfword t, int clang, int lmin, int rmin, int uc);
+extern void new_hyphenation (halfword h, halfword t);
 extern void clear_patterns (struct tex_language *lang) ;
 extern char *clean_hyphenation (char *buffer, char **cleaned) ;
-extern void hnj_hyphenation (halfword head, halfword tail, int clang, int lhyf, int rhyf, int uc) ;
+extern void hnj_hyphenation (halfword head, halfword tail) ;
 
 void new_ligkern(halfword head, halfword tail, int dir);
+void handle_ligaturing(halfword head, halfword tail, int dir);
+void handle_kerning(halfword head, halfword tail, int dir);
+
+void ext_do_line_break (int d, int pretolerance, int tracing_paragraphs, int tolerance, 
+			scaled emergency_stretch, int prev_graf, int looseness, 
+			int hyphen_penalty, int ex_hyphen_penalty,
+			int pdf_adjust_spacing, int par_shape_ptr, int adj_demerits,
+			int pdf_protrude_chars,  int line_penalty, 
+			int last_line_fit,  int double_hyphen_demerits,  
+			int final_hyphen_demerits,
+			int hang_indent, int hsize, int hang_after,
+			halfword left_skip, halfword right_skip);
+
+extern halfword last_special_line;
+extern scaled first_width;
+extern scaled second_width;
+extern scaled first_indent;
+extern scaled second_indent;
+
+
+halfword lua_hpack_filter (halfword head_node, scaled size, int pack_type, int extrainfo);
+void lua_node_filter (int filterid, int extrainfo, halfword head_node, halfword *tail_node);
+halfword lua_vpack_filter (halfword head_node, scaled size, int pack_type, scaled maxd, int extrainfo);
+void lua_node_filter_s (int filterid, char *extrainfo, halfword head_node, halfword *tail_node) ;
+
+void load_tex_patterns(int curlang, halfword head);
+void load_tex_hyphenation(int curlang, halfword head);
 
 #endif                          /* PDFTEXLIB */

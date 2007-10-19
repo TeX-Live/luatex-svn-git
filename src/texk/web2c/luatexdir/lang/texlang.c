@@ -36,7 +36,7 @@ extern char *utf8_idpb(char *w,unsigned int i);
 
 #define noVERBOSE
 
-#define MAX_TEX_LANGUAGES 65536
+#define MAX_TEX_LANGUAGES  32767
 
 static struct tex_language *tex_languages[MAX_TEX_LANGUAGES] = {NULL};
 static int next_lang_id = 0;
@@ -48,9 +48,6 @@ new_language (void) {
 	lang = xmalloc(sizeof(struct tex_language));
 	tex_languages[next_lang_id] = lang;
 	lang->id = next_lang_id++;
-	lang->lhmin = 2;
-	lang->rhmin = 3;
-	lang->uchyph = 0;
 	lang->exceptions = 0;
 	lang->patterns = NULL;
 	return lang;
@@ -309,23 +306,22 @@ void do_exception (halfword wordstart, halfword r, char *replacement) {
   i = 0;
   t=wordstart;
   while (i<len) { /* still stuff to do */
-    while (vlink(t)!=r && (type(t)!=glyph_node || !is_simple_character(t)))
-      t = vlink(t);
-    if (vlink(t)==r)
-      break;
     if (uword[i+1] == '-') { /* a hyphen follows */
       g = new_char_node(font(t),'-');
-      insert_discretionary(t,g,null,0);
-      i++;
+	  while (vlink(t)!=r && (type(t)!=glyph_node || !is_simple_character(t)))
+		t = vlink(t);
+	  if (vlink(t)==r)
+		break;
+      t = insert_discretionary(t,g,null,0);	  
     } else if (uword[i+1] == '=') { 
-      t = vlink(t);
-      i++;
+	  /* do nothing ? */
+	  t = vlink(t);
     } else if (uword[i+1] == '{') {
       /* a three-part exception */
       int repl = 0;
       i++;
       while (i<len && uword[i+1] != '}') { /* find the replace count */
-	repl++; i++;
+		repl++; i++;
       }
       i++;
       if (i==len || uword[i+1] != '{') { perror ("broken pattern 1");  uexit(1); }
@@ -335,44 +331,48 @@ void do_exception (halfword wordstart, halfword r, char *replacement) {
 #endif
       g = null; gg =null;
       while (i<len && uword[i+1] != '}') { /* find the prebreak text */
-	if (g==null) {
-	  gg = new_char_node(0,uword[i+1]);
-	  g = gg;
-	} else {
-	  vlink(g) = new_char_node(0,uword[i+1]);
-	  g = vlink(g);
-	}
+		if (g==null) {
+		  gg = new_char_node(0,uword[i+1]);
+		  g = gg;
+		} else {
+		  vlink(g) = new_char_node(0,uword[i+1]);
+		  g = vlink(g);
+		}
 #ifdef VERBOSE	
-	fprintf (stderr,"prebreak: %c\n",uword[i+1]);
+		fprintf (stderr,"prebreak: %c\n",uword[i+1]);
 #endif
-	i++;
+		i++;
       }
       i++;
       if (i==len || uword[i+1] != '{') { perror ("broken pattern 2");  uexit(1); }
       i++;
       h = null; hh =null;
       while (i<len && uword[i+1] != '}') {  /* find the postbreak text */
-	if (h==null) {
-	  hh = new_char_node(0,uword[i+1]);
-	  h = hh;
-	} else {
-	  vlink(h) = new_char_node(0,uword[i+1]);
-	  h = vlink(h);
-	}
+		if (h==null) {
+		  hh = new_char_node(0,uword[i+1]);
+		  h = hh;
+		} else {
+		  vlink(h) = new_char_node(0,uword[i+1]);
+		  h = vlink(h);
+		}
 #ifdef VERBOSE	
-	fprintf (stderr,"postbreak: %c\n",uword[i+1]);
+		fprintf (stderr,"postbreak: %c\n",uword[i+1]);
 #endif
-	i++;
+		i++;
       }
       if (i==len) {
-	perror ("broken pattern 3");
-	uexit(1);
+		perror ("broken pattern 3");
+		uexit(1);
       }
       /* jump over the last right brace */
+	  while (vlink(t)!=r && (type(t)!=glyph_node || !is_simple_character(t)))
+		t = vlink(t);
+	  if (vlink(t)==r)
+		break;
       t = insert_discretionary(t,gg,hh,repl);
-
-    }
-    t = vlink(t);
+    } else {
+	  t = vlink(t);
+	}
     i++;
   }
 }
@@ -383,7 +383,7 @@ void do_exception (halfword wordstart, halfword r, char *replacement) {
  * hyphenation there was not a good idea.
  */
 
-halfword find_next_wordstart(halfword r, lang_variables *langdata) {
+halfword find_next_wordstart(halfword r) {
   int start_ok = 1;
   int l;
   while (r!=null) {
@@ -393,25 +393,18 @@ halfword find_next_wordstart(halfword r, lang_variables *langdata) {
       break;
     case glyph_node:
       if (start_ok && 
-	  is_simple_character(r) &&
-	  (l = get_lc_code(character(r)))>0 &&
-	  (langdata->uc_hyph || l == character(r)))
-	return r;
+		  is_simple_character(r) &&
+		  (l = get_lc_code(character(r)))>0 &&
+		  (char_uchyph(r) || l == character(r)))
+		return r;
       if (is_ghost(r))
-	break;
+		break;
       start_ok = 0;
       break;
     case math_node:
       r = vlink(r);
       while (r && type(r)!=math_node) 
-	r = vlink(r);
-      break;
-    case whatsit_node:
-      if (subtype(r)==language_node) {
-	langdata->curlang = what_lang(r);
-	langdata->lhmin   = what_lhm(r)>0 ? what_lhm(r) : 1;
-	langdata->rhmin   = what_rhm(r)>0 ? what_rhm(r) : 1;
-      }
+		r = vlink(r);
       break;
     default:
       start_ok = 0;
@@ -424,16 +417,18 @@ halfword find_next_wordstart(halfword r, lang_variables *langdata) {
 
 int valid_wordend( halfword s) {
   halfword r = s;
+  int clang = char_lang(s);
   if (r==null)
     return 1;
-  while (r!=null && 
-	 ((type(r)==glyph_node && 
-	   (is_simple_character(r) ||  is_ghost(r))
-	   ) ||
-	  (type(r)==kern_node && subtype(r)==normal))) {
+  while (r!=null &&
+		 (type(r)==glyph_node && is_simple_character(r) && clang == char_lang(r)) ||
+		 (type(r)==glyph_node && is_ghost(r)) ||
+		 (type(r)==kern_node  && subtype(r)==normal)) {
     r = vlink(r);
   }
   if (r==null ||
+	  (type(r)==glyph_node && 
+	   (is_simple_character(r) && clang != char_lang(r))) ||
       type(r)==glue_node ||
       type(r)==whatsit_node ||
       type(r)==ins_node ||
@@ -445,7 +440,7 @@ int valid_wordend( halfword s) {
 }
 
 void 
-hnj_hyphenation (halfword head, halfword tail, int init_cur_lang, int init_lhyf, int init_rhyf, int uc_hyph) {
+hnj_hyphenation (halfword head, halfword tail) {
   int lchar, i;
   struct tex_language* lang;
   lang_variables langdata;
@@ -455,18 +450,7 @@ hnj_hyphenation (halfword head, halfword tail, int init_cur_lang, int init_lhyf,
   char *replacement = NULL;
   halfword r = head, wordstart = null, save_tail = null, left = null, right = null;
 
-  assert (init_cur_lang>=0);
-  assert (init_cur_lang<MAX_TEX_LANGUAGES);
-  assert (init_lhyf>0);
-  assert (init_rhyf>0);
   assert (tail!=null);
-
-  langdata.lhmin = init_lhyf;
-  langdata.rhmin = init_rhyf;
-  langdata.curlang = init_cur_lang;
-  langdata.uc_hyph = uc_hyph;
-  langdata.pre_hyphenchar = '-';
-  langdata.post_hyphenchar = -1;
 
   save_tail = vlink(tail);
   vlink(tail) = new_penalty(0);
@@ -482,64 +466,74 @@ hnj_hyphenation (halfword head, halfword tail, int init_cur_lang, int init_lhyf,
   while (r!=null && (type(r)!=glyph_node || !is_simple_character(r)))
     r =vlink(r);
   /* this will make |r| a glyph node with subtype_character */
-  r = find_next_wordstart(r, &langdata); 
+  r = find_next_wordstart(r); 
+
+  langdata.pre_hyphenchar = '-';
+  langdata.post_hyphenchar = -1;
+  
   while (r!=null) { /* could be while(1), but let's be paranoid */
     wordstart = r;
     assert (is_simple_character(wordstart));
+	int clang = char_lang(wordstart);
+	int lhmin = char_lhmin(wordstart);
+	int rhmin = char_rhmin(wordstart);
+	int uchyph = char_uchyph(wordstart);
     while (r!=null && 
-	   (type(r)==glyph_node && 
-	    ((is_simple_character(r) && 
-	      get_lc_code(character(r))>0) ||
-	     (is_ghost(r))))) {
+		   (type(r)==glyph_node && 
+			(
+			 (is_simple_character(r) && clang == char_lang(r) && get_lc_code(character(r))>0) 
+			 ||
+			 (is_ghost(r))
+			 )
+			)
+		   ) {
       if (is_simple_character(r)) { 
-	wordlen++;
-	 /* -Wall falls on inline assigment above */
-	lchar=get_lc_code(character(r));
-	hy = utf8_idpb(hy,lchar);
+		wordlen++;
+		/* -Wall warns if inline assigment done above */
+		lchar=get_lc_code(character(r));
+		hy = utf8_idpb(hy,lchar);
       }
       if (vlink(r)!=null)
-	alink(vlink(r))=r;
-      r = vlink(r);
+		alink(vlink(r))=r;
+	  r = vlink(r);
     }
-    if (valid_wordend(r) &&
-	wordlen >= langdata.lhmin+langdata.rhmin &&
-	(lang=tex_languages[langdata.curlang])!=NULL) {
+    if (valid_wordend(r) && wordlen>=lhmin+rhmin && (lang=tex_languages[clang])!=NULL) {
       *hy=0;
       if (lang->exceptions!=0 && 
-	  (replacement = hyphenation_exception(langdata.curlang,utf8word))!=NULL) {
+		  (replacement = hyphenation_exception(clang,utf8word))!=NULL) {
 #ifdef VERBOSE
-	fprintf(stderr,"replacing %s (c=%d) by %s\n",utf8word,langdata.curlang,replacement);
+		fprintf(stderr,"replacing %s (c=%d) by %s\n",utf8word,clang,replacement);
 #endif		
-	do_exception(wordstart,r,replacement);
-	free(replacement);
+		do_exception(wordstart,r,replacement);
+		free(replacement);
       } else if (lang->patterns!=NULL) {
 
-	left = wordstart;
-	for (i=langdata.lhmin;i>1;i--) {
-	  left = vlink(left);
-	  while (!is_simple_character(left))
-	    left = vlink(left);	    
-	}
-	right = r;
-	for (i=langdata.rhmin;i>0;i--) {
-	  right = alink(right);
-	  while (!is_simple_character(right))
-	    right = alink(right);
-	}
-	
+		left = wordstart;
+		for (i=lhmin;i>1;i--) {
+		  left = vlink(left);
+		  while (!is_simple_character(left))
+			left = vlink(left);	    
+		}
+		right = r;
+		for (i=rhmin;i>0;i--) {
+		  right = alink(right);
+		  while (!is_simple_character(right))
+			right = alink(right);
+		}
+		
 #ifdef VERBOSE
-	fprintf(stderr,"hyphenate %s (c=%d,l=%d,r=%d) from %c to %c\n",utf8word,
-		langdata.curlang,langdata.lhmin,langdata.rhmin,
-		character(left), character(right));
+		fprintf(stderr,"hyphenate %s (c=%d,l=%d,r=%d) from %c to %c\n",utf8word,
+				clang,lhmin,rhmin,
+				character(left), character(right));
 #endif		
-	(void)hnj_hyphen_hyphenate(lang->patterns,wordstart,r,wordlen,left,right, &langdata); 
+		(void)hnj_hyphen_hyphenate(lang->patterns,wordstart,r,wordlen,left,right, &langdata); 
       }
     }
     wordlen = 0;
     hy = utf8word;
     if (r==null)
       break;
-    r = find_next_wordstart(r, &langdata);
+    r = find_next_wordstart(r);
   }
   free_node(vlink(tail), penalty_node_size);
   vlink(tail) = save_tail;
@@ -547,8 +541,7 @@ hnj_hyphenation (halfword head, halfword tail, int init_cur_lang, int init_lhyf,
 
 
 void 
-new_hyphenation (halfword head, halfword tail, int init_cur_lang, 
-		 int init_lhyf, int init_rhyf, int uc_hyph) {
+new_hyphenation (halfword head, halfword tail) {
   int callback_id = 0;
   lua_State *L = Luas[0];
   if (head==null || vlink(head)==null)
@@ -564,11 +557,7 @@ new_hyphenation (halfword head, halfword tail, int init_cur_lang,
     }
     nodelist_to_lua(L,head);
     nodelist_to_lua(L,tail);
-    lua_pushnumber(L,init_cur_lang);
-    lua_pushnumber(L,init_lhyf);
-    lua_pushnumber(L,init_rhyf);
-    lua_pushnumber(L,uc_hyph);
-    if (lua_pcall(L,6,0,0) != 0) {
+    if (lua_pcall(L,2,0,0) != 0) {
       fprintf(stdout,"error: %s\n",lua_tostring(L,-1));
       lua_pop(L,2);
       lua_error(L);
@@ -576,7 +565,7 @@ new_hyphenation (halfword head, halfword tail, int init_cur_lang,
     } 
     lua_pop(L,1);
   }  else {
-    hnj_hyphenation(head,tail,init_cur_lang,init_lhyf,init_rhyf,uc_hyph);
+    hnj_hyphenation(head,tail);
   }
 }
 
@@ -597,9 +586,6 @@ void dump_one_language (int i) {
   struct tex_language *lang;
   lang = tex_languages[i];
   dump_int(lang->id);
-  dump_int(lang->lhmin);
-  dump_int(lang->rhmin);
-  dump_int(lang->uchyph);  
   if (lang->patterns!=NULL) {
     s = (char *)hnj_serialize(lang->patterns);
   }
@@ -636,9 +622,6 @@ void undump_one_language (int i) {
   unsigned x = 0;
   struct tex_language *lang = get_language(i);
   undump_int(x); lang->id = x;
-  undump_int(x); lang->lhmin = x;
-  undump_int(x); lang->rhmin = x;
-  undump_int(x); lang->uchyph = x;
   /* patterns */
   undump_int (x);
   if (x>0) {

@@ -49,52 +49,6 @@ lang_new (lua_State *L) {
 }
 
 static int 
-lang_use_new (lua_State *L) {
-  return 0;
-}
-
-
-static int 
-lang_uchyph (lua_State *L) {
-  struct tex_language **lang_ptr;
-  int i = -1;
-  lang_ptr = check_islang(L,1);
-  if (lua_gettop(L)>=2 && lua_isnumber(L,2))
-    i = lua_toboolean(L,2);
-  lua_pushnumber(L,(*lang_ptr)->uchyph);
-  if (i>=0)
-    (*lang_ptr)->uchyph = i;
-  return 1;
-}
-
-
-static int 
-lang_rhmin (lua_State *L) {
-  struct tex_language **lang_ptr;
-  int i = 0;
-  lang_ptr = check_islang(L,1);
-  if (lua_gettop(L)>=2 && lua_isnumber(L,2))
-    i = lua_tointeger(L,2);
-  lua_pushnumber(L,(*lang_ptr)->rhmin);
-  if (i>0)
-    (*lang_ptr)->rhmin = (i>MAX_WORD_LEN? MAX_WORD_LEN : i);
-  return 1;
-}
-
-static int 
-lang_lhmin (lua_State *L) {
-  struct tex_language **lang_ptr;
-  int i = 0;
-  lang_ptr = check_islang(L,1);
-  if (lua_gettop(L)>=2 && lua_isnumber(L,2))
-    i = lua_tonumber(L,2);
-  lua_pushnumber(L,(*lang_ptr)->lhmin);
-  if (i>0)
-    (*lang_ptr)->lhmin = (i>MAX_WORD_LEN? MAX_WORD_LEN : i);
-  return 1;
-}
-
-static int 
 lang_id (lua_State *L) {
   struct tex_language **lang_ptr;
   lang_ptr = check_islang(L,1);
@@ -171,26 +125,19 @@ do_lang_clean (lua_State *L) {
 static int 
 do_lang_hyphenate (lua_State *L) {
   halfword *h,*t;
-  int uc = 0, i = 6, l = 0 , r = 0, id = 0;
   h = check_isnode(L,1);
   if (lua_isuserdata(L,2)) {
-    t = check_isnode(L,2);
+	t = check_isnode(L,2);
+	lua_pop(L,1);
   } else {
-	i = 5;
-    t = h;
-    while (vlink(*t)!=null)
-      *t = vlink(*t);
+	t = h;
+	while (vlink(*t)!=null)
+	  *t = vlink(*t);
   }
-  if (lua_gettop(L)!=i) {
-	lua_pushstring(L,"lang.hyphenate(): not enough arguments");
-	return lua_error(L);
-  }
-  id = lua_tointeger(L,(i-3));
-  l  = lua_tointeger(L,(i-2));
-  r  = lua_tointeger(L,(i-1));
-  uc = lua_toboolean(L,i);
-  hnj_hyphenation(*h,*t,id,l,r,uc);
-  return 0;
+  hnj_hyphenation(*h,*t);
+  lua_pushvalue(L,1);
+  lua_pushboolean(L,1);
+  return 2;
 }
 
 
@@ -198,9 +145,6 @@ static const struct luaL_reg langlib_d [] = {
   {"clear_patterns",  lang_clear_patterns},
   {"patterns",        lang_patterns},
   {"hyphenation",     lang_hyphenation},
-  {"lefthyphenmin",   lang_lhmin},
-  {"righthyphenmin",  lang_rhmin},
-  {"uchyph",          lang_uchyph},
   {"exceptions",      lang_exceptions},
   {"id",              lang_id},
   {NULL, NULL}  /* sentinel */
@@ -211,14 +155,10 @@ static const struct luaL_reg langlib[] = {
   {"clear_patterns",  lang_clear_patterns},
   {"patterns",        lang_patterns},
   {"hyphenation",     lang_hyphenation},
-  {"lefthyphenmin",   lang_lhmin},
-  {"righthyphenmin",  lang_rhmin},
-  {"uchyph",          lang_uchyph},
   {"exceptions",      lang_exceptions},
   {"id",              lang_id},
   {"clean",           do_lang_clean},
   {"hyphenate",       do_lang_hyphenate},
-  {"use_new",         lang_use_new},
   {"new",             lang_new},
   {NULL, NULL}                /* sentinel */
 };

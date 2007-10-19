@@ -331,6 +331,9 @@ lua_node_new(int i, int j) {
   case glyph_node:          
     n = get_node(glyph_node_size); 
     lig_ptr(n) = null; 
+    lang_data(n) = 0;
+    set_char_lhmin(n,1);
+    set_char_rhmin(n,1);
     character(n) = 0;
     font(n) = 0;
     x_displace(n) = 0;
@@ -627,16 +630,10 @@ void
 lua_node_filter_s (int filterid, char *extrainfo, halfword head_node, halfword *tail_node) {
   halfword ret,r;  
   int a;
-  integer callback_id ; 
-  int glyph_count;
-  int nargs = 2;
   lua_State *L = Luas[0];
-  callback_id = callback_defined(filterid);
-  if (head_node==null || vlink(head_node)==null)
-	return;
-  if (callback_id==0) {
+  int callback_id = callback_defined(filterid);
+  if (head_node==null || vlink(head_node)==null || callback_id==0)
     return;
-  }
   lua_rawgeti(L,LUA_REGISTRYINDEX,callback_callbacks_id);
   lua_rawgeti(L,-1, callback_id);
   if (!lua_isfunction(L,-1)) {
@@ -645,18 +642,7 @@ lua_node_filter_s (int filterid, char *extrainfo, halfword head_node, halfword *
   }
   nodelist_to_lua(L,vlink(head_node)); /* arg 1 */
   lua_pushstring(L,extrainfo);         /* arg 2 */
-  if (filterid==linebreak_filter_callback) {
-    glyph_count = 0;
-    r = vlink(head_node);
-    while (r!=null) {
-      if (type(r)==glyph_node) 
-	glyph_count++;
-      r=vlink(r);
-    }
-    nargs++;
-    lua_pushnumber(L,glyph_count); /* arg 3 */
-  }
-  if (lua_pcall(L,nargs,1,0) != 0) { /* no arg, 1 result */
+  if (lua_pcall(L,2,1,0) != 0) { /* no arg, 1 result */
     fprintf(stdout,"error: %s\n",lua_tostring(L,-1));
     lua_pop(L,2);
     error();
@@ -693,16 +679,11 @@ lua_node_filter (int filterid, int extrainfo, halfword head_node, halfword *tail
 
 halfword
 lua_hpack_filter (halfword head_node, scaled size, int pack_type, int extrainfo) {
-  halfword ret,r;  
-  integer callback_id ; 
-  int glyph_count;
+  halfword ret, r;  
   lua_State *L = Luas[0];
-  callback_id = callback_defined(hpack_filter_callback);
-  if (head_node==null || vlink(head_node)==null)
-	return head_node;
-  if (callback_id==0) {
+  int callback_id = callback_defined(hpack_filter_callback);
+  if (head_node==null || vlink(head_node)==null || callback_id == 0)
     return head_node;
-  }
   lua_rawgeti(L,LUA_REGISTRYINDEX,callback_callbacks_id);
   lua_rawgeti(L,-1, callback_id);
   if (!lua_isfunction(L,-1)) {
@@ -710,19 +691,11 @@ lua_hpack_filter (halfword head_node, scaled size, int pack_type, int extrainfo)
     return head_node;
   }
 
-  r =head_node;
-  glyph_count = 0;
-  while (r!=null) {
-    if (type(r)==glyph_node) 
-      glyph_count++;
-    r=vlink(r);
-  }
   nodelist_to_lua(L,head_node);
+  lua_pushstring(L,group_code_names[extrainfo]);
   lua_pushnumber(L,size);
   lua_pushstring(L,pack_type_name[pack_type]);
-  lua_pushstring(L,group_code_names[extrainfo]);
-  lua_pushnumber(L,glyph_count);
-  if (lua_pcall(L,5,1,0) != 0) { /* no arg, 1 result */
+  if (lua_pcall(L,4,1,0) != 0) { /* no arg, 1 result */
     fprintf(stdout,"error: %s\n",lua_tostring(L,-1));
     lua_pop(L,2);
     error();
@@ -764,10 +737,10 @@ lua_vpack_filter (halfword head_node, scaled size, int pack_type, scaled maxd, i
     return head_node;
   }
   nodelist_to_lua(L,head_node);
+  lua_pushstring(L,group_code_names[extrainfo]);
   lua_pushnumber(L,size);
   lua_pushstring(L,pack_type_name[pack_type]);
   lua_pushnumber(L,maxd);
-  lua_pushstring(L,group_code_names[extrainfo]);
   if (lua_pcall(L,5,1,0) != 0) { /* no arg, 1 result */
     fprintf(stdout,"error: %s\n",lua_tostring(L,-1));
     lua_pop(L,2);
@@ -788,46 +761,6 @@ lua_vpack_filter (halfword head_node, scaled size, int pack_type, scaled maxd, i
   return ret;
 }
 
-/* This callback does not actually work yet! */
-
-boolean 
-lua_hyphenate_callback (int callback_id, int lang, halfword ha, halfword hb) {
-  halfword ret,p,q,r;
-  lua_State *L = Luas[0];
-
-  lua_rawgeti(L,LUA_REGISTRYINDEX,callback_callbacks_id);
-  lua_rawgeti(L,-1, callback_id);
-  if (!lua_isfunction(L,-1)) {
-    lua_pop(L,2);
-    return false;
-  } 
-
-  p = vlink(hb);  /* for safe keeping */
-  vlink(hb)=null; 
-  r=vlink(ha); 
-  nodelist_to_lua(L,r);
-  lua_pushnumber(L,lang);
-  if (lua_pcall(L,2,1,0) != 0) { /* no arg, 1 result */
-    fprintf(stdout,"error: %s\n",lua_tostring(L,-1));
-    lua_pop(L,2);
-    error();
-    return false;
-  }
-  ret = nodelist_from_lua(L);
-  if (ret!=null) {
-    flush_node_list(r);
-    vlink(ha)=ret;
-    q = ret;
-    while(vlink(q)!=null) {
-      q=vlink(q);
-    }
-    vlink(q) = p;
-  } else {
-    vlink(hb) = p;
-  }
-  lua_pop(L,2); /* result and callback container table */
-  return true;
-}
 
 /* This is a quick hack to fix etex's \lastnodetype now that
  * there are many more visible node types. TODO: check the

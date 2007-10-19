@@ -34,9 +34,13 @@ extern halfword insert_character ( halfword t,  int n);
 #define node_attr(a)       vinfo((a)+1)
 #define alink(a)           vlink((a)+1)
 
+#define rlink(a)           vlink((a)+1) /* aka alink() */
+#define llink(a)           vinfo((a)+1) /* overlaps with node_attr() */
+
+
 /* really special head node pointers that only need vlink */
 
-#define temp_node_size 1
+#define temp_node_size 2
 
 /* attribute lists */
 #define attribute_node_size 2
@@ -74,6 +78,10 @@ typedef enum {
 #define pdf_action_refcount(a)    vlink((a) + 3)
 
 /* normal nodes */
+
+#define inf_bad  10000  /* infinitely bad value */
+#define inf_penalty inf_bad /*``infinite'' penalty value*/
+#define eject_penalty -(inf_penalty) /*``negatively infinite'' penalty value */
 
 #define penalty_node_size 3 
 #define penalty(a)       vlink((a)+2)
@@ -117,14 +125,28 @@ typedef enum {
 #define adjust_node_size 3
 #define adjust_ptr(a)    vlink(a+2)
 
-#define glyph_node_size 5 /* and ligatures */
+#define glyph_node_size 5
 
-#define font(a)         vlink((a)+2)
 #define character(a)    vinfo((a)+2)
+#define font(a)         vlink((a)+2)
+#define lang_data(a)    vinfo((a)+3)
 #define lig_ptr(a)      vlink((a)+3)
 #define x_displace(a)   vinfo((a)+4)
 #define y_displace(a)   vlink((a)+4)
 #define is_char_node(a) (a!=null && type(a)==glyph_node)
+
+#define char_lang(a)     ((const int)(((unsigned)lang_data(a) & 0x7FFF0000)>>16))
+#define char_lhmin(a)    ((const int)(((unsigned)lang_data(a) & 0x0000FF00)>>8))
+#define char_rhmin(a)    ((const int)(((unsigned)lang_data(a) & 0x000000FF)))
+#define char_uchyph(a)   ((const int)(((unsigned)lang_data(a) & 0x80000000)>>31))
+
+#define make_lang_data(a,b,c,d) (a>0 ? (1<<31): 0)+			\
+  (b<<16)+ (((c>0 && c<256) ? c : 1)<<8)+(((d>0 && d<256) ? d : 1))
+
+#define set_char_lang(a,b)    lang_data(a)=make_lang_data(char_uchyph(a),b,char_lhmin(a),char_rhmin(a))
+#define set_char_lhmin(a,b)   lang_data(a)=make_lang_data(char_uchyph(a),char_lang(a),b,char_rhmin(a))
+#define set_char_rhmin(a,b)   lang_data(a)=make_lang_data(char_uchyph(a),char_lang(a),char_lhmin(a),b)
+#define set_char_uchyph(a,b)  lang_data(a)=make_lang_data(b,char_lang(a),char_lhmin(a),char_rhmin(a))
 
 #define margin_kern_node_size 4
 #define margin_char(a)  vlink((a)+3)
@@ -215,31 +237,36 @@ typedef enum {
 
 #define GLYPH_CHARACTER     (1 << 0)
 #define GLYPH_LIGATURE      (1 << 1)
-#define GLYPH_LEFTBOUNDARY  (1 << 2)
-#define GLYPH_RIGHTBOUNDARY (1 << 3)
-#define GLYPH_LEFTGHOST     (1 << 4)
-#define GLYPH_RIGHTGHOST    (1 << 5)
+#define GLYPH_GHOST         (1 << 2)
+#define GLYPH_LEFT          (1 << 3)
+#define GLYPH_RIGHT         (1 << 4)
 
-#define is_character(p)         ((subtype(p)) & GLYPH_CHARACTER     )
-#define is_ligature(p)          ((subtype(p)) & GLYPH_LIGATURE      )
-#define is_leftboundary(p) 	((subtype(p)) & GLYPH_LEFTBOUNDARY  )
-#define is_rightboundary(p) 	((subtype(p)) & GLYPH_RIGHTBOUNDARY )
-#define is_leftghost(p) 	((subtype(p)) & GLYPH_LEFTGHOST	   )
-#define is_rightghost(p)  	((subtype(p)) & GLYPH_RIGHTGHOST    )
+#define is_character(p)        ((subtype(p)) & GLYPH_CHARACTER)
+#define is_ligature(p)         ((subtype(p)) & GLYPH_LIGATURE )
+#define is_ghost(p)            ((subtype(p)) & GLYPH_GHOST    )
 
-#define is_simple_character(p)  ((subtype(p)) == GLYPH_CHARACTER    )
+#define is_simple_character(p) (is_character(p) && !is_ligature(p) && !is_ghost(p))
 
-#define set_to_character(p)     subtype(p) = GLYPH_CHARACTER
-#define set_to_glyph(p)         subtype(p) = 0
+#define is_leftboundary(p) 	   (is_ligature(p) && ((subtype(p)) & GLYPH_LEFT  ))
+#define is_rightboundary(p)    (is_ligature(p) && ((subtype(p)) & GLYPH_RIGHT ))
+#define is_leftghost(p) 	   (is_ghost(p)    && ((subtype(p)) & GLYPH_LEFT  ))
+#define is_rightghost(p)  	   (is_ghost(p)    && ((subtype(p)) & GLYPH_RIGHT ))
 
-#define set_is_character(p)     subtype(p) |= GLYPH_CHARACTER	   
-#define set_is_ligature(p)      subtype(p) |= GLYPH_LIGATURE	   
-#define set_is_leftboundary(p)  subtype(p) |= GLYPH_LEFTBOUNDARY  
-#define set_is_rightboundary(p) subtype(p) |= GLYPH_RIGHTBOUNDARY 
-#define set_is_leftghost(p)     subtype(p) |= GLYPH_LEFTGHOST	   
-#define set_is_rightghost(p)    subtype(p) |= GLYPH_RIGHTGHOST    
+#define set_is_glyph(p)         subtype(p) &= ~GLYPH_CHARACTER
+#define set_is_character(p)     subtype(p) |= GLYPH_CHARACTER
+#define set_is_ligature(p)      subtype(p) |= GLYPH_LIGATURE
+#define set_is_ghost(p)         subtype(p) |= GLYPH_GHOST
 
-#define is_ghost(a) (is_leftghost(a) || is_rightghost(a))
+#define set_to_glyph(p)         subtype(p) = (subtype(p) & 0xFF00)
+#define set_to_character(p)     subtype(p) = (subtype(p) & 0xFF00) | GLYPH_CHARACTER
+#define set_to_ligature(p)      subtype(p) = (subtype(p) & 0xFF00) | GLYPH_LIGATURE
+#define set_to_ghost(p)         subtype(p) = (subtype(p) & 0xFF00) | GLYPH_GHOST
+
+#define set_is_leftboundary(p)  { set_to_ligature(p); subtype(p) |= GLYPH_LEFT;  }
+#define set_is_rightboundary(p) { set_to_ligature(p); subtype(p) |= GLYPH_RIGHT; }
+#define set_is_leftghost(p)     { set_to_ghost(p);    subtype(p) |= GLYPH_LEFT;  }
+#define set_is_rightghost(p)    { set_to_ghost(p);    subtype(p) |= GLYPH_RIGHT; }
+
 
 #define open_node_size 4
 #define write_node_size 3
@@ -365,5 +392,22 @@ extern halfword lua_node_new(int i, int j);
 #define active          pre_adjust_head+temp_node_size
 #define align_head      active+temp_node_size
 #define end_span        align_head+temp_node_size
+
+
+#define delta_node_size 11
+
+#define passive_node_size 8
+#define cur_break                      rlink /*in passive node, points to position of this breakpoint*/
+#define prev_break                     llink /*points to passive node that should precede this one */
+#define serial(a)                      vlink((a)+7) /* serial number for symbolic identification*/
+#define passive_pen_inter(a)           varmem[((a)+2)].cint
+#define passive_pen_broken(a)          varmem[((a)+3)].cint
+#define passive_left_box(a)            vlink((a)+4)
+#define passive_left_box_width(a)      vinfo((a)+4)
+#define passive_last_left_box(a)       vlink((a)+5)
+#define passive_last_left_box_width(a) vinfo((a)+5)
+#define passive_right_box(a)           vlink((a)+6)
+#define passive_right_box_width(a)     vinfo((a)+6)
+
 
 #endif
