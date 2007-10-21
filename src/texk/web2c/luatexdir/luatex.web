@@ -1495,7 +1495,7 @@ end;
 @ To destroy the most recently made string, we say |flush_string|.
 
 The helper routines reads one utf sequence from the pool resp. the
-buffer, and returns its character value.
+buffer, and returns its character value. 
 
 @d flush_string==begin decr(str_ptr); pool_ptr:=str_start_macro(str_ptr);
   end
@@ -1505,7 +1505,9 @@ buffer, and returns its character value.
   help2("A funny symbol that I can't read has just been input.")@/
     ("Just continue, I'll change it to 0xFFFD.");@/
   deletions_allowed:=false; error; deletions_allowed:=true;
-  a:=@"FFFD; return; end
+{the assigment before return is needed because web2c generates incorrect code}
+  a:=@"FFFD; buffer_to_unichar:=a; return; end
+
 
 @p function buffer_to_unichar(@!k:integer):integer;
 label exit;
@@ -19085,7 +19087,7 @@ begin cur_g:=0; cur_glue:=float_constant(0);
 this_box:=temp_ptr; g_order:=glue_order(this_box);
 g_sign:=glue_sign(this_box); p:=list_ptr(this_box);
 save_direction:=dvi_direction;
-dvi_direction:=box_dir(this_box);
+dvi_direction:=box_dir(this_box); dvi_ptr:=0;
 @<DIR: Initialize |dir_ptr| for |ship_out|@>;
 saving_h:=cur_h; saving_v:=cur_v;
 incr(cur_s);
@@ -30040,11 +30042,13 @@ end;
 procedure assign_internal_int(cmd:halfword;value:integer);
 var  a:small_number;
 begin
-	word_define(cmd,value);
+   a:=0;
+   word_define(cmd,value);
 end;
 procedure assign_internal_dim(cmd:halfword;value:integer);
 var  a:small_number;
 begin
+   a:=0;
   word_define(cmd,value);
 end;
 
@@ -37364,6 +37368,7 @@ end;
 function set_tex_dimen_register (j:integer;v:scaled):integer;
 var a:small_number;
 begin  {return non-nil for error}
+a:=0;
 word_define(j+scaled_base,v);
 set_tex_dimen_register := 0;
 end;
@@ -37376,6 +37381,7 @@ end;
 function set_tex_count_register (j:integer;v:scaled):integer;
 var a:small_number;
 begin  {return non-nil for error}
+a:=0;
 word_define(j+count_base,v);
 set_tex_count_register := 0;
 end;
@@ -37388,6 +37394,7 @@ end;
 function set_tex_attribute_register (j:integer;v:scaled):integer;
 var a:small_number;
 begin  {return non-nil for error}
+a:=0;
 word_define(j+attribute_base,v);
 set_tex_attribute_register := 0;
 end;
