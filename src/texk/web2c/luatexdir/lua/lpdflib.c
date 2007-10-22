@@ -20,23 +20,13 @@ findcurh (lua_State *L) {
   return 1;
 }
 
-static int 
-makecurv (lua_State *L) {
-  lua_pop(L,1); /* table at -1 */
-  return 0;
-}
-
-static int 
-makecurh (lua_State *L) {
-  lua_pop(L,1); /* table at -1 */
-  return 0;
-}
 
 typedef enum { set_origin, direct_page, direct_always } pdf_lit_mode;
 
 int luapdfprint(lua_State * L)
 {
-    int i, j, k, n, len;
+    int n;
+	unsigned i, len;
     const char *outputstr, *st;
     pdf_lit_mode literal_mode;
     n = lua_gettop(L);
@@ -108,7 +98,7 @@ getpdf (lua_State *L) {
 
 static int 
 setpdf (lua_State *L) {
-  return 0;
+  return (L==NULL ? 0 : 0); /* for -Wall */
 }
 
 static const struct luaL_reg pdflib[] = {

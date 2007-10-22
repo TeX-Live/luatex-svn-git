@@ -43,7 +43,7 @@ font_error_message (pointer u, char *nom, scaled s) {
   if (s>=0 ) {
     snprintf(str,255,"Font \\%s=%s at %gpt not loadable: %s", c, nom, (double)s/65536, extra);
   } else if (s!=-1000) {
-    snprintf(str,255,"Font \\%s=%s scaled %d not loadable: %s", c, nom, -s, extra);
+    snprintf(str,255,"Font \\%s=%s scaled %d not loadable: %s", c, nom, (int)(-s), extra);
   } else {
     snprintf(str,255,"Font \\%s=%s not loadable: %s", c, nom, extra);
   }
@@ -52,7 +52,7 @@ font_error_message (pointer u, char *nom, scaled s) {
 
 static int
 do_define_font (integer f, char *cnom, char *caire, scaled s, integer natural_dir) {
-  int success;
+
   boolean res; /* was the callback successful? */
   integer callback_id;
   char *cnam;

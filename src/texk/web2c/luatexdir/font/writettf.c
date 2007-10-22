@@ -1442,7 +1442,7 @@ void writeotf (fd_entry * fd) {
   int callback_id;
   int file_opened = 0;
   char *ftemp = NULL;
-  long i;
+
   
   fd_cur = fd;                /* fd_cur is global inside writettf.c */
   assert(fd_cur->fm != NULL);

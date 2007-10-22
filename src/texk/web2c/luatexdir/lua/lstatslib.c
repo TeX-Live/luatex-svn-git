@@ -213,4 +213,5 @@ int luaopen_stats (lua_State *L)
   lua_pushcfunction(L, setstats); 
   lua_settable(L, -3);
   lua_setmetatable(L,-2); /* meta to itself */
+  return 1;
 }

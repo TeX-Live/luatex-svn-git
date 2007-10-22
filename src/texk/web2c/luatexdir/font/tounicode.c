@@ -452,7 +452,7 @@ integer write_tounicode(char **glyph_names, char *name)
 }
 
 integer write_cid_tounicode(fo_entry * fo, internalfontnumber f) {
-    char *p;
+
     int range_size[65537];
     glyph_unicode_entry gtab[65537];
     integer objnum;

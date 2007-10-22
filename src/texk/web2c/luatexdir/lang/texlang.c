@@ -477,7 +477,7 @@ hnj_hyphenation (halfword head, halfword tail) {
 	int clang = char_lang(wordstart);
 	int lhmin = char_lhmin(wordstart);
 	int rhmin = char_rhmin(wordstart);
-	int uchyph = char_uchyph(wordstart);
+
     while (r!=null && 
 		   (type(r)==glyph_node && 
 			(

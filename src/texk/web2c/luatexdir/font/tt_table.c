@@ -27,6 +27,8 @@
 #include "error.h"
 #include "mem.h"
 #include "mfileio.h"
+#else
+extern void pdftex_fail (const char *fmt, ...); /* utils.c */
 #endif
 
 #include "sfnt.h"

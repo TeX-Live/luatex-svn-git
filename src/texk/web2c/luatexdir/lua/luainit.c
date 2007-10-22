@@ -9,6 +9,8 @@
 /*  char *program_invocation_name = NULL; */
 #endif
 
+extern void parse_src_specials_option (char *n) ;
+
 const_string LUATEX_IHELP[] = {
     "Usage: luatex --lua=FILE [OPTION]... [TEXNAME[.tex]] [COMMANDS]",
     "   or: luatex --lua=FILE [OPTION]... \\FIRST-LINE",
@@ -367,7 +369,7 @@ fix_dumpname (void) {
 void
 lua_initialize(int ac, char **av)
 {
-    FILE *test;
+
     int kpse_init;
     int tex_table_id;
     int pdf_table_id;

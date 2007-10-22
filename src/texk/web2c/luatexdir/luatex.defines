@@ -227,6 +227,8 @@ $Id $
 
 @define function font_name();
 @define function font_area();
+@define function get_font_name();
+@define function get_font_area();
 @define function font_bc();
 @define function font_ec();
 

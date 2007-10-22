@@ -257,9 +257,9 @@ open_vf_file (char *fn, unsigned char **vbuffer, integer *vsize) {
   boolean file_read; /* was |vf_file| successfully read? */
   FILE *vf_file;
   char *fnam = NULL;
-  real_eight_bits *vf_buffer = NULL; /* byte buffer for vf files */
-  integer vf_size = 0; /* total size of the vf file */
-  integer vf_cur = 0; /* index into |vf_buffer| */
+
+
+
 
   namelength = strlen(fn);
   nameoffile = xmalloc(namelength+2);
@@ -1161,7 +1161,7 @@ extern internal_font_number auto_expand_font (internal_font_number f, integer e)
 boolean 
 auto_expand_vf(internal_font_number f) {
 
-  internal_font_number bf, lf;
+  internal_font_number bf;
   integer e, k;
   integer *vf_old_fonts, *vf_new_fonts;
   integer num = 0;
@@ -1216,7 +1216,7 @@ auto_expand_font (internal_font_number f, integer e) {
   k = copy_font(f);
   i = strlen(font_name(f))+12;
   fn = xmalloc(i);
-  snprintf(fn,i,"%s%s%d",font_name(f),(e>0 ? "+" : ""), e);
+  snprintf(fn,i,"%s%s%d",font_name(f),(e>0 ? "+" : ""), (int)e);
   set_font_name(k,fn);
   for (i = font_bc(k);i<=font_ec(k);i++) {
     if (char_exists(k,i)) {
@@ -1261,7 +1261,7 @@ internal_font_number
 letter_space_font (halfword u, internal_font_number f, integer e) {
   internal_font_number k;
   scaled  w, r;
-  integer i;
+
   char *new_font_name;
   integer vf_z;
   integer vf_alpha;

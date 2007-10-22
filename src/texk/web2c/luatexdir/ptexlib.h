@@ -44,7 +44,6 @@ $Id: //depot/Build/source.development/TeX/texk/web2c/luatexdir/ptexlib.h#26 $
 typedef struct {
     const char *pdfname;
     const char *t1name;
-    float value;
     boolean valid;
 } key_entry;
 
@@ -161,6 +160,10 @@ extern integer ttf_length;
 extern strnumber last_tex_string;
 extern size_t last_ptr_index;
 
+/* loadpool.c */
+
+int loadpoolstrings (integer spare_size) ;
+
 /* pdftexlib function prototypes */
 
 /* epdf.c */
@@ -203,6 +206,7 @@ extern char *makecstring(integer);
 extern char *makeclstring (integer, int *);
 extern void print_string (char *j);
 extern void append_string (char *s);
+extern void getcreationdate (void);
 
 #define overflow_string(a,b) { overflow(maketexstring(a),b); flush_str(last_tex_string); }
 
@@ -327,17 +331,17 @@ extern integer avl_find_obj(integer, integer, integer);
 
 /**********************************************************************/
 static const key_entry font_key[FONT_KEYS_NUM] = {
-    {"Ascent", "Ascender"}
-    , {"CapHeight", "CapHeight"}
-    , {"Descent", "Descender"}
-    , {"ItalicAngle", "ItalicAngle"}
-    , {"StemV", "StdVW"}
-    , {"XHeight", "XHeight"}
-    , {"FontBBox", "FontBBox"}
+      {"Ascent", "Ascender", 1}
+    , {"CapHeight", "CapHeight", 1}
+    , {"Descent", "Descender", 1}
+    , {"ItalicAngle", "ItalicAngle", 1}
+    , {"StemV", "StdVW", 1}
+    , {"XHeight", "XHeight", 1}
+    , {"FontBBox", "FontBBox", 1}
     , {"", "", 0}
     , {"", "", 0}
     , {"", "", 0}
-    , {"FontName", "FontName"}
+    , {"FontName", "FontName", 1}
 };
 
 /**********************************************************************/
@@ -402,7 +406,6 @@ extern scaled second_width;
 extern scaled first_indent;
 extern scaled second_indent;
 
-
 halfword lua_hpack_filter (halfword head_node, scaled size, int pack_type, int extrainfo);
 void lua_node_filter (int filterid, int extrainfo, halfword head_node, halfword *tail_node);
 halfword lua_vpack_filter (halfword head_node, scaled size, int pack_type, scaled maxd, int extrainfo);
@@ -410,5 +413,82 @@ void lua_node_filter_s (int filterid, char *extrainfo, halfword head_node, halfw
 
 void load_tex_patterns(int curlang, halfword head);
 void load_tex_hyphenation(int curlang, halfword head);
+
+/* textcodes.c */
+void     set_lc_code (integer n, halfword v, quarterword gl);
+halfword get_lc_code (integer n) ;
+void     set_uc_code (integer n, halfword v, quarterword gl);
+halfword get_uc_code (integer n) ;
+void     set_sf_code (integer n, halfword v, quarterword gl);
+halfword get_sf_code (integer n) ;
+void     set_cat_code (integer h, integer n, halfword v, quarterword gl) ;
+halfword get_cat_code (integer h, integer n) ;
+void     unsave_cat_codes (integer h, quarterword gl) ;
+int      valid_catcode_table (int h) ;
+void     unsave_text_codes (quarterword grouplevel) ;
+void     initialize_text_codes (void) ;
+void     dump_text_codes (void) ;
+void     undump_text_codes (void) ;
+
+/* mathcodes.c */
+
+void     set_math_code (integer n, halfword v, quarterword gl) ;
+halfword get_math_code (integer n) ;
+void     set_del_code (integer n, halfword v, halfword w, quarterword gl) ;
+halfword get_del_code_a (integer n) ;
+halfword get_del_code_b (integer n) ;
+void     unsave_math_codes (quarterword grouplevel) ;
+void     initialize_math_codes (void) ;
+void     dump_math_codes(void) ;
+void     undump_math_codes(void) ;
+
+/* texlang.c */
+
+void dump_language_data (void) ;
+void undump_language_data (void) ;
+
+/* llualib.c */
+
+void dump_luac_registers (void) ;
+void undump_luac_registers (void) ;
+
+/* ltexlib.c */
+void luacstring_start (int n) ;
+void luacstring_close (int n) ;
+int luacstring_detokenized (void) ;
+int luacstring_defaultcattable (void) ;
+integer luacstring_cattable (void);
+int luacstring_simple (void);
+int luacstring_penultimate (void);
+int luacstring_input (void);
+
+
+/* luatoken.c */
+void get_token_lua (void);
+
+/* luanode.c */
+int visible_last_node_type (int n) ;
+void print_node_mem_stats (void);
+
+/* writeimg.c */
+integer epdf_orig_y (integer i);
+integer epdf_orig_x (integer i);
+
+/* vfovf.c */
+void  vf_expand_local_fonts(internal_font_number f) ;
+internal_font_number  letter_space_font (halfword u, internal_font_number f, integer e) ;
+internal_font_number auto_expand_font (internal_font_number f, integer e) ;
+str_number  expand_font_name (internal_font_number f, integer e) ;
+void pdf_check_vf_cur_val (void) ;
+
+/* ltexiolib.c */
+void flush_loggable_info (void);
+
+/* luastuff.c */
+void  closelua(int n) ;
+void  luacall(int n, int s) ;
+void  luatokencall(int n, int p) ;
+
+void tex_error(char *msg, char **hlp);
 
 #endif                          /* PDFTEXLIB */

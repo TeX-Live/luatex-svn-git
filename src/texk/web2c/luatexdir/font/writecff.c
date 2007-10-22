@@ -2869,23 +2869,23 @@ write_fontfile (cff_font *cffont, char *fullname)
    glyph may not be at id 0, so in that case |uglytype1fix| is nonzero */
 
 void write_cff(cff_font *cffont, fd_entry *fd, int uglytype1fix) {
-  cff_index    *charstrings, *topdict, *cs_idx;
-  long          topdict_offset, private_size, subrs_size;
+  cff_index    *charstrings, *cs_idx;
+
   long          charstring_len, max_len;
   long          size, offset = 0;
-  long          stream_data_len = 0;
-  card8        *stream_data_ptr, *data;
+
+  card8         *data;
   card16        num_glyphs, cs_count, code, gid, last_cid;
-  cs_ginfo      ginfo;
-  double        nominal_width, default_width, notdef_width;
-  int           verbose;
+
+  double        nominal_width, default_width;
+
   char         *fullname;
-  long i, cid;
+
   glw_entry *glyph, *found;
   struct avl_traverser t;
 
-  cff_charsets *charset  = NULL;
-  cff_encoding *encoding = NULL;
+
+
   
   fullname = xcalloc(8+strlen(fd->fontname),1);
   sprintf(fullname,"%s+%s",fd->subset_tag,fd->fontname);
@@ -3081,7 +3081,7 @@ void write_cff(cff_font *cffont, fd_entry *fd, int uglytype1fix) {
 
 }
 
-#define ERROR(a) { perror(a); return; }
+#define ERROR(a) { perror(a); return 0; }
 
 /* Input : SID or CID (16-bit unsigned int)
  * Output: glyph index
@@ -3147,25 +3147,25 @@ cff_charsets_lookup (cff_font *cff, card16 cid)
 #define CID_MAX 65535
 
 void write_cid_cff(cff_font *cffont, fd_entry *fd, int uglytype1fix) {
-  cff_index    *charstrings, *topdict, *cs_idx;
-  long          topdict_offset, private_size, subrs_size;
+  cff_index    *charstrings, *cs_idx;
+
   long          charstring_len, max_len;
   long          size, offset = 0;
-  long          stream_data_len = 0;
-  card8        *stream_data_ptr, *data;
+
+  card8        *data;
   card16        num_glyphs, cs_count, gid, last_cid;
-  double        nominal_width, default_width;
-  int           verbose;
+
+
   int          fdsel, prev_fd, cid_count, cid;
   char         *fullname;
-  long          i;
-  glw_entry    *glyph, *found;
-  struct avl_traverser t;
+
+  glw_entry    *glyph;
+
   unsigned char *CIDToGIDMap = NULL;
 
   cff_fdselect *fdselect = NULL;
   cff_charsets *charset  = NULL;
-  cff_encoding *encoding = NULL;
+
 
   if (!is_cidfont(cffont)) {
 	perror("Not a CIDfont.");

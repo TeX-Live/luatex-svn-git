@@ -446,6 +446,7 @@ ext_try_break(integer pi,
   scaled shortfall; /*used in badness calculations*/
   scaled g; /*glue stretch or shrink of test line, adjustment for last line*/
 
+  line_width=0;  g=0; prev_prev_r=null;
   /*@<Make sure that |pi| is in the proper range@>;*/
   if (pi>=inf_penalty) {
     goto EXIT; /* this breakpoint is inhibited by infinite penalty */
@@ -994,7 +995,7 @@ ext_do_line_break (int d, int pretolerance, int tracing_paragraphs,
   /* DONE,DONE1,DONE2,DONE3,DONE4,DONE5,CONTINUE;*/
   halfword q,r,s; /* miscellaneous nodes of temporary interest */
   internal_font_number f;  /* used when calculating character widths */
-  integer c;
+
 
   /* Get ready to start ... */
   minimum_demerits=awful_bad;

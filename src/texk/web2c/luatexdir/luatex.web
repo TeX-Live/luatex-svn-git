@@ -951,7 +951,7 @@ end;
 @
 
 @p function lua_a_open_in(var f:alpha_file; n:quarterword):boolean;
-var ret,test:boolean;
+var test:boolean;
   k:integer;
   fnam:str_number;
   stored_callback_id:integer;
@@ -1216,7 +1216,6 @@ end;
 function lua_input_ln(var f:alpha_file;n:quarterword;@!bypass_eoln:boolean):boolean;
 var lua_result:boolean;
 	last_ptr:integer;
-	k:pool_pointer;
     callback_id:integer;
 begin
 if n=0 then
@@ -1645,11 +1644,7 @@ between characters and strings.
 @p @!init function get_strings_started:boolean; {initializes the string pool,
   but returns |false| if something goes wrong}
 label done,exit;
-var k,@!l:0..255; {small indices or counters}
-@!m,@!n:text_char; {characters input from |pool_file|}
-@!g:str_number; {garbage}
-@!a:integer; {accumulator for check sum}
-@!c:boolean; {check sum has been checked}
+var @!g:str_number; {garbage}
 begin pool_ptr:=0; str_ptr:=string_offset; str_start[0]:=0;
 @<Read the other strings from the \.{TEX.POOL} file and return |true|,
   or give an error message and return |false|@>;
@@ -1879,7 +1874,6 @@ to do the same substraction while typesetting.
 
 @<Basic print...@>=
 function pool_to_unichar(@!t:pool_pointer):ASCII_code;
-label not_found;
 var a,result:@!ASCII_code; {a utf char}
 b:@!quarterword; { a utf nibble}
 begin
@@ -1917,13 +1911,12 @@ begin
       a:=@"FFFD;
       end;
 result := a;
-not_found: pool_to_unichar := result;
+pool_to_unichar := result;
 end ;
 
 procedure print(@!s:integer); {prints string |s|}
 label exit;
 var j:pool_pointer; {current character code position}
-@!nl:integer; {new-line character to restore}
 @!v:integer; { a unicode char }
 begin if s>=str_ptr then s:="???" {this can't happen}
 @.???@>
@@ -4891,7 +4884,8 @@ var h:pointer; {temporary head of copied list}
 @!q:pointer; {previous position in new list}
 @!r:pointer; {current node being fabricated for new list}
 @!s:pointer; {a helper variable for copying into variable mem }
-begin h:=get_node(temp_node_size); q:=h;
+begin h:=get_node(temp_node_size); q:=h; 
+r:=h; {for -Wall only}
 while p<>null do
   begin @<Make a copy of node |p| in node |r|@>;
   type(r):=type(p); subtype(r):=subtype(p);
@@ -4991,8 +4985,10 @@ glue_spec_node: begin r:=get_node(glue_spec_size);
   width(r):=width(p); stretch(r):=stretch(p); shrink(r):=shrink(p);
   stretch_order(r):=stretch_order(p); shrink_order(r):=shrink_order(p);
   end;
-othercases confusion("copying")
+othercases begin r:=get_node(temp_node_size); 
+  confusion("copying");
 @:this can't happen copying}{\quad copying@>
+  end
 endcases
 
 @* \[15] The command codes.
@@ -5300,13 +5296,15 @@ begin
   case m div (max_command+1) of
   0:get_mode_id := "v";
   1:get_mode_id := "h";
-  2:get_mode_id := "m";
+  2:get_mode_id := "m"; 
+  othercases get_mode_id := "";
   end
 else if m=0 then get_mode_id := "n"
 else  case (-m) div (max_command+1) of
   0:get_mode_id := "V";
   1:get_mode_id := "H";
   2:get_mode_id := "M";
+  othercases get_mode_id := "";
   end;
 end;
 
@@ -7777,7 +7775,7 @@ var p:pointer; {position to be restored}
 @!l:quarterword; {saved level, if in fullword regions of |eqtb|}
 @!t:halfword; {saved value of |cur_tok|}
 @!a:boolean; {have we already processed an \.{\\aftergroup} ?}
-begin a:=false;
+begin a:=false; l:=level_one; {just in case}
 unsave_math_codes(cur_level);
 unsave_cat_codes (cat_code_table,cur_level);
 unsave_text_codes(cur_level);
@@ -8369,7 +8367,8 @@ when a subfile has ended, and at certain other crucial times:
 @<Declare the procedure called |runaway|@>=
 procedure runaway;
 var p:pointer; {head of runaway list}
-begin if scanner_status>skipping then
+begin p:=null;
+  if scanner_status>skipping then
   begin print_nl("Runaway ");
 @.Runaway...@>
   case scanner_status of
@@ -9037,10 +9036,10 @@ var k,l:0..buf_size; {an index into |buffer|}
 @!t:halfword; {a token}
 @!cat:0..15; {|cat_code(cur_chr)|, usually}
 @!c,@!cc,@!ccc,@!cccc,@!ccccc,@!cccccc:ASCII_code; {constituents of a possible expanded code}
-@!d:2..7; {number of excess characters in an expanded code}
+@!d:1..7; {number of excess characters in an expanded code}
 @!inhibit_eol:boolean; {a way to end a pseudo file without trailing space}
 @!tab:integer; {a category table}
-begin restart: cur_cs:=0; inhibit_eol:=false;
+begin restart: cur_cs:=0; inhibit_eol:=false; d:=1;
 if state<>token_list then
 @<Input from external file, |goto restart| if no input found@>
 else @<Input from token list, |goto restart| if end of list or
@@ -10121,6 +10120,7 @@ var r:pointer; {current node in the macro's token list}
 @!match_chr:ASCII_code; {character used in parameter}
 begin save_scanner_status:=scanner_status; save_warning_index:=warning_index;
 warning_index:=cur_cs; ref_count:=cur_chr; r:=link(ref_count); n:=0;
+p:=null; m:=0; rbrace_ptr:=null; match_chr:=0;
 if tracing_macros>0 then @<Show the text of the macro being expanded@>;
 if info(r)=protected_token then r:=link(r);
 if info(r)<>end_match_token then
@@ -10558,7 +10558,6 @@ label exit;
 var m:halfword; {|chr_code| part of the operand token}
     n, k: integer; {accumulators}
 @!q:halfword; {general purpose index}
-@!i:four_quarters; {character info}
 @!p:0..nest_size; {index into |nest|}
 begin m:=cur_chr;
 case cur_cmd of
@@ -10600,9 +10599,6 @@ procedure scan_something_simple(@!cmd:halfword;@!subitem:halfword);
   {fetch an internal parameter}
 label exit;
 var m:halfword; {|chr_code| part of the operand token}
-    n, k: integer; {accumulators}
-@!q:halfword; {general purpose index}
-@!i:four_quarters; {character info}
 @!p:0..nest_size; {index into |nest|}
 @!level:small_number; { allowed level}
 begin m:=subitem; level:=tok_val;
@@ -11817,7 +11813,6 @@ var old_setting:0..max_selector; {holds |selector| setting}
 @!p,@!q,@!r:pointer; {used for copying a token list}
 @!b:pool_pointer; {base of temporary string}
 @!c:small_number; {value of |cur_chr|}
-mcur_val_save:integer;
 begin @<Handle \.{\\unexpanded} or \.{\\detokenize} and |return|@>;@/
 get_x_token; scan_something_internal(tok_val,false);
 if cur_val_level>=ident_val then begin
@@ -11842,8 +11837,6 @@ exit:end;
 
 function the_scanned_result:str_number;
 var old_setting:0..max_selector; {holds |selector| setting}
-@!p,@!q,@!r:pointer; {used for copying a token list}
-@!c:small_number; {value of |cur_chr|}
 begin
 old_setting:=selector; selector:=new_string;
 if cur_val_level>=ident_val then begin
@@ -12049,12 +12042,12 @@ p, q: pointer;
 @!j: integer; {second temp integer}
 @!b:pool_pointer; {base of temporary string}
 @!s: str_number; {first temp string}
-@!t: str_number; {second temp string}
 @!u: str_number; {third temp string}
 @!junk: pointer;
 begin
 c:=cur_chr;
 u:=0; { will become non-nil if a string is already being built}
+j:=0; i:=0;
 @<Scan the argument for command |c|@>;
 old_setting:=selector; selector:=new_string; b:=pool_ptr;
 @<Print the result of command |c|@>;
@@ -12205,8 +12198,8 @@ pdf_ximage_bbox_code: begin
     j := cur_val;
     if (j < 1) or (j > 4) then
         pdf_error("pdfximagebbox", "invalid parameter");
-@<Cases of `Scan the argument for command |c|'@>;
-end;
+    end;
+@<Cases of `Scan the argument for command |c|'@>
 end {there are no other cases}
 
 @ @<Print the result of command |c|@>=
@@ -12788,7 +12781,8 @@ var b:boolean; {is the condition true?}
 @!save_cond_ptr:pointer; {|cond_ptr| corresponding to this conditional}
 @!this_if:small_number; {type of this conditional}
 @!is_unless:boolean; {was this if preceded by `\.{\\unless}' ?}
-begin if tracing_ifs>0 then if tracing_commands<=1 then show_cur_cmd_chr;
+begin b:= false; {default is false, just in case}
+if tracing_ifs>0 then if tracing_commands<=1 then show_cur_cmd_chr;
 @<Push the condition stack@>;@+save_cond_ptr:=cond_ptr;
 is_unless:=(cur_chr>=unless_code); this_if:=cur_chr mod unless_code;@/
 @<Either process \.{\\ifcase} or set |b| to the value of a boolean condition@>;
@@ -12849,7 +12843,10 @@ if_primitive_code: begin
        (cur_cmd=get_prim_eq_type(m)) and
        (cur_chr=get_prim_equiv(m)));
   end;
-end {there are no other cases}
+{there are no other cases, but for -Wall: }
+othercases
+  b:=false;
+endcases
 
 @ @<Display the value of |b|@>=
 begin begin_diagnostic;
@@ -12877,6 +12874,7 @@ case r of
 "<": b:=(n<cur_val);
 "=": b:=(n=cur_val);
 ">": b:=(n>cur_val);
+othercases b:=false; {can't happen}
 end;
 end
 
@@ -13743,6 +13741,7 @@ begin
 active_min_ptr:=active_max_ptr;
 min_stack_ocp:=ocp_maxint;
 max_active:=equiv(ocp_active_number_base)-1;
+min_index:=max_active; {TH I hope ... }
 for i:=max_active downto 0 do begin
   holding[i]:=ocp_list_list[equiv(ocp_active_base+i)];
   stack_value:=ocp_list_lstack_no(holding[i]);
@@ -13918,7 +13917,7 @@ var
 @!temp_ocp_no_tables:integer;
 @!temp_ocp_no_states:integer;
 @!i,new_offset,room_for_tables,room_for_states:integer;
-begin g:=null_ocp;@/
+begin g:=null_ocp; f:=null_ocp;@/ 
 @<Read and check the ocp data; |ocp_abort| if the \.{OCP} file is
   malformed; if there's no room for this ocp, say so and |goto
   done|; otherwise |incr(ocp_ptr)| and |goto done|@>;
@@ -15118,9 +15117,9 @@ dvi_out(strlen(font_name(f)));
 end;
 
 @ @<Output the font name whose internal number is |f|@>=
-fa := font_name(f); k := 0;
+fa := get_font_name(f); k := 0;
 while fa[k]<>0 do begin dvi_out(fa[k]); incr(k); end;
-fa := font_area(f); k := 0;
+fa := get_font_area(f); k := 0;
 while fa[k]<>0 do begin dvi_out(fa[k]); incr(k); end
 
 @ Versions of \TeX\ intended for small computers might well choose to omit
@@ -15520,7 +15519,7 @@ that a \.{DVI}-reading program will push onto its coordinate stack.
 
 @p @t\4@>@<Declare procedures needed in |hlist_out|, |vlist_out|@>@t@>@/
 procedure hlist_out; {output an |hlist_node| box}
-label reswitch, move_past, fin_rule, next_p;
+label move_past, fin_rule, next_p;
 var base_line: scaled; {the baseline coordinate for this box}
 c_wd,c_ht,c_dp: scaled;
   {the real width, height and depth of the character}
@@ -15594,7 +15593,7 @@ reaching a non-|char_node|. The program uses the fact that |set_char_0=0|.
 @^inner loop@>
 
 @<Output node |p| for |hlist_out|...@>=
-reswitch: if is_char_node(p) then
+if is_char_node(p) then
   begin synch_h; synch_v;
   repeat f:=font(p); c:=character(p);
   ci := char_info_short(f,c);
@@ -15602,6 +15601,7 @@ reswitch: if is_char_node(p) then
   if is_rotated(dvi_direction) then begin
     c_ht:=charinfo_width(ci) div 2;
     c_wd:=charinfo_height(ci)+charinfo_depth(ci);
+    c_dp:=0;
     end
   else begin
     c_ht:=charinfo_height(ci);
@@ -17569,7 +17569,7 @@ end;
 procedure pdf_begin_string(f: internal_font_number); {begin to draw a string}
 var s_out, v, v_out: scaled;
     s: integer;
-begin
+begin s_out:=0;
     if not pdf_doing_text then
         pdf_begin_text;
     if f <> pdf_f then begin
@@ -18905,6 +18905,7 @@ var old_setting: 0..max_selector; {holds print |selector|}
 begin
     cmd := pdf_colorstack_cmd(p);
     stack_no := pdf_colorstack_stack(p);
+    literal_mode := 0;
     if stack_no >= colorstackused then begin
         print_nl("");
         print("Color stack ");
@@ -19049,7 +19050,7 @@ end;
 @p @t\4@>@<Declare procedures needed in |pdf_hlist_out|, |pdf_vlist_out|@>@t@>@/
 
 procedure pdf_hlist_out; {output an |hlist_node| box}
-label reswitch, move_past, fin_rule, next_p;
+label move_past, fin_rule, next_p;
 var base_line: scaled; {the baseline coordinate for this box}
 c_wd,c_ht,c_dp: scaled;
   {the real width, height and depth of the character}
@@ -19064,13 +19065,12 @@ saving_h: scaled;
 saving_v: scaled;
 save_direction: integer;
 dvi_ptr,dir_tmp:pointer;
-dvi_dir_h,dvi_dir_ptr,dvi_temp_ptr:integer;
 @!left_edge: scaled; {the left coordinate for this box}
-@!save_h,@!save_v: scaled; {what |cur_h| should pop to}
+@!save_h: scaled; {what |cur_h| should pop to}
 @!this_box: pointer; {pointer to containing box}
 @!g_order: glue_ord; {applicable order of infinity for glue}
 @!g_sign: normal..shrinking; {selects type of glue}
-@!p,q,r:pointer; {current position in the hlist}
+@!p,q:pointer; {current position in the hlist}
 @!leader_box:pointer; {the leader box being replicated}
 @!leader_wd:scaled; {width of leader box being replicated}
 @!lx:scaled; {extra space between leader boxes}
@@ -19132,7 +19132,7 @@ end
 
 
 @<Output node |p| for |pdf_hlist_out|...@>=
-reswitch: if is_char_node(p) then 
+if is_char_node(p) then 
   begin
   repeat f:=font(p); c:=character(p);
   ci := char_info_short (f,c);
@@ -19140,6 +19140,7 @@ reswitch: if is_char_node(p) then
   if is_valid_char(c) then begin
   if is_rotated(dvi_direction) then begin
     c_ht:=charinfo_width(ci) div 2;
+    c_dp:=0;
     c_wd:=charinfo_height(ci)+charinfo_depth(ci);
     end
   else begin
@@ -19495,7 +19496,7 @@ end
 label move_past, fin_rule, next_p;
 var left_edge: scaled; {the left coordinate for this box}
 @!top_edge: scaled; {the top coordinate for this box}
-@!save_h,@!save_v: scaled; {what |cur_v| should pop to}
+@!save_v: scaled; {what |cur_v| should pop to}
 @!this_box: pointer; {pointer to containing box}
 @!g_order: glue_ord; {applicable order of infinity for glue}
 @!g_sign: normal..shrinking; {selects type of glue}
@@ -20949,6 +20950,7 @@ procedure pdf_print_info; {print info object}
 var s: str_number;
     creator_given, producer_given, creationdate_given, moddate_given, trapped_given: boolean;
 begin
+    s:="";
     pdf_new_dict(obj_type_others, 0, 3); {keep Info readable unless explicitely forced}
     creator_given:=false;
     producer_given:=false;
@@ -21159,7 +21161,8 @@ are placed just below the new group code, because scanning can change
 label found;
 var @!s:integer; {temporarily saved value}
 @!spec_code:exactly..additional;
-begin if three_codes then s:=saved(0);
+begin s:=0;
+if three_codes then s:=saved(0);
 if (c<>align_group) and (c<>vcenter_group) then begin
   if scan_keyword("dir") then begin
     scan_direction; spec_direction:=cur_val;
@@ -21418,6 +21421,7 @@ begin
     else begin
         {|short_display_n(p, 5);|}
         pdf_error("font expansion", "invalid node type");
+	    return;
     end;
     f := font(r);
     ef := get_ef_code(f, character(r));
@@ -21488,7 +21492,7 @@ begin
 end;
 
 function hpack(@!p:pointer;@!w:scaled;@!m:small_number):pointer;
-label reswitch,common_ending,exit;
+label common_ending,exit;
 var r:pointer; {the box node that will be returned}
 @!q:pointer; {trails behind |p|}
 @!h,@!d,@!x:scaled; {height, depth, and natural width}
@@ -21496,7 +21500,6 @@ var r:pointer; {the box node that will be returned}
 @!g:pointer; {points to a glue specification}
 @!o:glue_ord; {order of infinity}
 @!f:internal_font_number; {the font in a |char_node|}
-@!i:four_quarters; {font information about a |char_node|}
 @!dir_tmp,dir_ptr:pointer; {for managing the direction stack}
 @!hpack_dir:integer; {the current direction}
 font_stretch: scaled;
@@ -21565,7 +21568,7 @@ total_stretch[filll]:=0; total_shrink[filll]:=0
 
 @ @<Examine node |p| in the hlist, taking account of its effect...@>=
 @^inner loop@>
-begin reswitch: while is_char_node(p) do
+begin while is_char_node(p) do
   @<Incorporate character dimensions into the dimensions of
     the hbox that will contain~it, then move to the next node@>;
 if p<>null then
@@ -22709,11 +22712,9 @@ var b:pointer; {the box that will be constructed}
 @!m,@!n: integer; {the number of extensible pieces}
 @!u: scaled; {height-plus-depth of a tentative character}
 @!w: scaled; {largest height-plus-depth so far}
-@!hd: eight_bits; {height-depth byte}
-@!r: four_quarters; {extensible pieces}
 @!z: integer; {runs through font family members}
 @!large_attempt: boolean; {are we trying the ``large'' variant?}
-begin f:=null_font; w:=0; large_attempt:=false;
+begin f:=null_font; c:=0; w:=0; large_attempt:=false;
 z:=small_fam(d); x:=small_char(d);
 loop@+  begin @<Look at the variants of |(z,x)|; set |f| and |c| whenever
     a better character is found; |goto found| as soon as a
@@ -22972,7 +22973,8 @@ var q:pointer; {beginning of a list to be boxed}
 @!save_style:integer; {|cur_style| to be restored}
 @!x:pointer; {box to be returned}
 @!r:pointer; {temporary pointer}
-begin case math_type(p) of
+begin 
+case math_type(p) of
 math_char: begin cur_mlist:=new_noad; vmem(nucleus(cur_mlist)):=vmem(p);
   end;
 sub_box: begin q:=vinfo(p); goto found;
@@ -23086,7 +23088,7 @@ var mlist:pointer; {beginning of the given list}
 @!delta:scaled; {offset between subscript and superscript}
 begin mlist:=cur_mlist; penalties:=mlist_penalties;
 style:=cur_style; {tuck global parameters away as local variables}
-q:=mlist; r:=null; r_type:=op_noad; max_h:=0; max_d:=0;
+q:=mlist; r:=null; r_type:=op_noad; max_h:=0; max_d:=0; x:=null; p:=null;
 @<Set up the values of |cur_size| and |cur_mu|, based on |cur_style|@>;
 while q<>null do @<Process node-or-noad |q| as much as possible in preparation
     for the second pass of |mlist_to_hlist|, then move to the next
@@ -23297,9 +23299,8 @@ respect to the size of the final box.
 
 @<Declare math...@>=
 procedure make_math_accent(@!q:pointer);
-label done,done1;
+label done;
 var p,@!x,@!y:pointer; {temporary registers for box construction}
-@!a:integer; {address of lig/kern instruction}
 @!c:quarterword; {accent character}
 @!f:internal_font_number; {its font}
 @!s:scaled; {amount to skew the accent to the right}
@@ -23347,8 +23348,7 @@ s:=0;
 if math_type(nucleus(q))=math_char then
   begin fetch(nucleus(q));
   s := get_kern(cur_f,cur_c,skew_char(cur_f));
-  end;
-done1:
+  end
 
 @ @<Swap the subscript and superscript into box |x|@>=
 begin flush_node_list(x); x:=new_noad;
@@ -23466,7 +23466,7 @@ the limits have been set above and below the operator. In that case,
 function make_op(@!q:pointer):scaled;
 var delta:scaled; {offset between subscript and superscript}
 @!p,@!v,@!x,@!y,@!z:pointer; {temporary registers for box construction}
-@!c:quarterword;@+@!i:four_quarters; {registers for character examination}
+@!c:quarterword; {register for character examination}
 @!shift_up,@!shift_down:scaled; {dimensions for box calculation}
 begin if (subtype(q)=normal)and(cur_style<text_style) then
   subtype(q):=limits;
@@ -24871,7 +24871,6 @@ general outline.
 @p@t\4@>@<Declare subprocedures for |line_break|@>
 procedure line_break(@!d:boolean);
 label done,done1,done2,done3,done4,done5,continue;
-var @<Local variables for line breaking@>@;
 begin pack_begin_line:=mode_line; {this is for over/underfull box messages}
 vlink(temp_head):=vlink(head);
 @<Initialize for hyphenating a paragraph@>;
@@ -25434,13 +25433,6 @@ meaning of |prev_p| is this: If |type(cur_p)=glue_node| then |cur_p| is a legal
 breakpoint if and only if |auto_breaking| is true and |prev_p| does not
 point to a glue node, penalty node, explicit kern node, or math node.
 
-The following declarations provide for a few other local variables that are
-used in special calculations.
-
-@<Local variables for line breaking@>=
-@!q,@!r,@!s:pointer; {miscellaneous nodes of temporary interest}
-@!f:internal_font_number; {used when calculating character widths}
-
 @ @<Glob...@>=
 @!best_bet:pointer; {use this passive node and its predecessors}
 @!fewest_demerits:integer; {the demerits associated with |best_bet|}
@@ -25875,11 +25867,6 @@ nodes $p_{a-1}$ and~$p_b$ in the description above are placed into variables
 @!hyf_char:integer; {hyphen character of the relevant font}
 @!l_hyf,@!r_hyf,@!init_l_hyf,@!init_r_hyf:integer; {limits on fragment sizes}
 
-@ Hyphenation routines need a few more local variables.
-
-@<Local variables for line...@>=
-@!c:integer; {character being considered for hyphenation}
-
 @* \[41] Post-hyphenation.
 
 @ @<Glob...@>=
@@ -25938,11 +25925,9 @@ otherwise they are collected in a list starting at |split_disc|.
 
 @d discard_or_move = 60
 @p function prune_page_top(@!p:pointer;@!s:boolean):pointer;
-label discard_or_move;
-  {adjust top after page break}
 var prev_p:pointer; {lags one step behind |p|}
 @!q,@!r:pointer; {temporary variables for list manipulation}
-begin prev_p:=temp_head; vlink(temp_head):=p;
+begin prev_p:=temp_head; vlink(temp_head):=p; r:=null;
 while p<>null do
   case type(p) of
   hlist_node,vlist_node,rule_node:@<Insert glue for |split_top_skip|
@@ -25951,16 +25936,10 @@ while p<>null do
     prev_p:=p; p:=vlink(prev_p);
     end;
   glue_node,kern_node,penalty_node: begin
-discard_or_move:
-    @{
-    print("discard_or_move: ");
-    show_node_list(p);
-    print_ln;
-    @}
     q:=p; p:=vlink(q); vlink(q):=null;
     vlink(prev_p):=p;
     if s then
-      begin if split_disc=null then split_disc:=q@+else vlink(r):=q;
+      begin if split_disc=null then split_disc:=q else vlink(r):=q;
       r:=q;
       end
     else flush_node_list(q);
@@ -26012,6 +25991,7 @@ var prev_p:pointer; {if |p| is a glue node, |type(prev_p)| determines
 @!t:small_number; {|type| of the node following a kern}
 begin prev_p:=p; {an initial glue node is not a legal breakpoint}
 least_cost:=awful_bad; do_all_six(set_height_zero); prev_dp:=0;
+best_place:=null; pi:=0;
 loop@+  begin @<If node |p| is a legal breakpoint, check if this break is
     the best known, and |goto done| if |p| is null or
     if the page-so-far is already too full to accept more stuff@>;
@@ -26513,7 +26493,8 @@ var p:pointer; {the node being appended}
 @!pi:integer; {penalty to be added to the badness}
 @!n:min_quarterword..255; {insertion box number}
 @!delta,@!h,@!w:scaled; {sizes used for insertion calculations}
-begin if (vlink(contrib_head)=null)or output_active then return;
+begin pi:=0;
+if (vlink(contrib_head)=null)or output_active then return;
 repeat continue: p:=vlink(contrib_head);@/
 @<Update the values of |last_glue|, |last_penalty|, and |last_kern|@>;
 @<Move node |p| to the current page; if it is time for a page break,
@@ -27148,7 +27129,8 @@ procedure main_control; {governs \TeX's activities}
 label big_switch,reswitch,exit;
 var@!t,k:integer; {general-purpose temporary variables}
 p:pointer; {for whatsit node insertion and testing whether an auto kern should be inserted}
-begin if every_job<>null then begin_token_list(every_job,every_job_text);
+begin t:=0; {for -Wall}
+if every_job<>null then begin_token_list(every_job,every_job_text);
 big_switch: get_x_token;@/
 reswitch: @<Give diagnostic information, if requested@>;
 case abs(mode)+cur_cmd of
@@ -28621,7 +28603,6 @@ var s,@!t: real; {amount of slant}
 @!p,@!q,@!r:pointer; {character, box, and kern nodes}
 @!f:internal_font_number; {relevant font}
 @!a,@!h,@!x,@!w,@!delta:scaled; {heights and widths, as explained above}
-@!i:four_quarters; {character information}
 begin scan_char_num; f:=cur_font; p:=new_glyph_node(f,cur_val);
 if p<>null then
   begin x:=x_height(f); s:=slant(f)/float_constant(65536);
@@ -28826,7 +28807,7 @@ hmode+math_shift:init_math;
 
 @ @<Declare act...@>=
 procedure init_math;
-label reswitch,found,not_found,done;
+label found,not_found,done;
 var w:scaled; {new or partial |pre_display_size|}
 @!l:scaled; {new |display_width|}
 @!s:scaled; {new |display_indent|}
@@ -28923,7 +28904,7 @@ while p<>null do
 done:
 
 @ @<Let |d| be the natural width of node |p|...@>=
-reswitch: if is_char_node(p) then
+if is_char_node(p) then
   begin f:=font(p); d:=glyph_width(p);
   goto found;
   end;
@@ -29101,7 +29082,7 @@ nothing is appended.
 
 @<Declare act...@>=
 procedure set_math_char(@!c:integer);
-var p,q,r:pointer; {the new noad}
+var p:pointer; {the new noad}
 begin if c>=@"8000000 then
   @<Treat |cur_chr|...@>
 else  begin p:=new_noad; math_type(nucleus(p)):=math_char;
@@ -29932,7 +29913,6 @@ label done,exit;
 var a:small_number; {accumulated prefix codes so far}
 @!f:internal_font_number; {identifies a font}
 @!j:halfword; {index into a \.{\\parshape} specification}
-@!k:font_index; {index into |font_info|}
 @!p,@!q:pointer; {for temporary short-term use}
 @!n:integer; {ditto}
 @!e:boolean; {should a definition be expanded? or was \.{\\let} not done?}
@@ -30473,7 +30453,7 @@ procedure do_register_command(@!a:small_number);
 label found,exit;
 var l,@!q,@!r,@!s:pointer; {for list manipulation}
 @!p:int_val..mu_val; {type of register involved}
-begin q:=cur_cmd;
+begin q:=cur_cmd; 
 @<Compute the register location |l| and its type |p|; but |return| if invalid@>;
 if q=register then scan_optional_equals
 else if scan_keyword("by") then do_nothing; {optional `\.{by}'}
@@ -30503,7 +30483,8 @@ exit: end;
 |assign_int..assign_mu_glue| correspond to each other nicely.
 
 @<Compute the register location |l| and its type |p|...@>=
-begin if q<>register then
+begin l:=0;
+if q<>register then
   begin get_x_token;
   if (cur_cmd>=assign_int)and(cur_cmd<=assign_mu_glue) then
     begin l:=cur_chr; p:=cur_cmd-assign_int; goto found;
@@ -30794,7 +30775,6 @@ letterspace_font: new_letterspaced_font(a);
 
 @ @<Declare subprocedures for |prefixed_command|@>=
 procedure def_new_font(@!a:small_number);
-label common_ending;
 var u:pointer; {user's font identifier}
 @!s:scaled; {stated ``at'' size, or negative of scaled magnification}
 @!f:internal_font_number; {runs through existing fonts}
@@ -30854,7 +30834,7 @@ if cur_area = "" then
   f:=read_font_info(u,cur_name,"",s,natural_dir)
 else
   f:=read_font_info(u,cur_name,cur_area,s,natural_dir);
-common_ending: equiv(u):=f; eqtb[font_id_base+f]:=eqtb[u]; font_id_text(f):=t;
+equiv(u):=f; eqtb[font_id_base+f]:=eqtb[u]; font_id_text(f):=t;
 end;
 
 @ @<Scan the font size specification@>=
@@ -31253,7 +31233,7 @@ format_ident:=" (INITEX)";
 @!init procedure store_fmt_file;
 label found1,found2,done1,done2;
 var j,@!k,@!l:integer; {all-purpose indices}
-@!p,@!q: pointer; {all-purpose pointers}
+@!p: pointer; {all-purpose pointer}
 @!x: integer; {something to dump}
 @!w: four_quarters; {four ASCII codes}
 begin @<If dumping is not allowed, abort@>;
@@ -31289,7 +31269,7 @@ incompatible with the present \TeX\ table sizes, etc.
 function load_fmt_file:boolean;
 label bad_fmt,exit;
 var j,@!k:integer; {all-purpose indices}
-@!p,@!q: pointer; {all-purpose pointers}
+@!p: pointer; {all-purpose pointer}
 @!x: integer; {something undumped}
 @!w: four_quarters; {four ASCII codes}
 begin @<Undump constants for consistency check@>;
@@ -32976,6 +32956,7 @@ begin
     else
         obj_ximage_attr(k) := null;
     named := 0;
+    page := 0;
     if scan_keyword("named") then begin
         scan_pdf_ext_toks;
         named := tokens_to_string(def_ref);
@@ -35070,7 +35051,7 @@ pdf_trailer_toks := null;
 procedure write_action(p: pointer); {write an action specification}
 var s: str_number;
     d: integer;
-begin
+begin d:=0;
     if pdf_action_type(p) = pdf_action_user then begin
         pdf_print_toks_ln(pdf_action_tokens(p));
         return;
@@ -36076,7 +36057,7 @@ var p:0..nest_size; {index into |nest|}
 begin p:=nest_ptr; nest[p]:=cur_list; {put the top level into the array}
 v:=save_ptr; l:=cur_level; c:=cur_group;
 save_ptr:=cur_boundary; decr(cur_level);@/
-a:=1;
+a:=1; s:="";
 print_nl(""); print_ln;
 loop@+begin print_nl("### "); print_group(true);
   if cur_group=bottom_level then goto done;
@@ -36371,8 +36352,7 @@ flush_string;
 end;
 
 procedure pseudo_from_string;
-var old_setting:0..max_selector; {holds |selector| setting}
-@!s:str_number; {string to be converted into a pseudo file}
+var @!s:str_number; {string to be converted into a pseudo file}
 @!l,@!m:pool_pointer; {indices into |str_pool|}
 @!p,@!q,@!r:pointer; {for list construction}
 @!w: four_quarters; {four ASCII codes}
@@ -36570,6 +36550,7 @@ preceding the mandatory \.{\\endcsname} have been expanded).
 
 @<Cases for |conditional|@>=
 if_cs_code:begin n:=get_avail; p:=n; {head of the list of characters}
+  b:=false;
   repeat get_x_token;
   if cur_cs=0 then store_new_token(cur_tok);
   until cur_cs<>0;

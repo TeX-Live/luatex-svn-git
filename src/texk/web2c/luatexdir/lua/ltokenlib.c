@@ -102,14 +102,14 @@ static int
 run_get_csname_name (lua_State *L) {
   int cs,cmd,n;
   char *s;
-  integer chr = -1;
+
   if (is_valid_token(L,-1)) {
     get_token_cmd(L,-1);
 	if (lua_isnumber(L,-1)) {
 	  cmd = lua_tointeger(L,-1);
 	}
 	lua_pop(L,1);
-
+    cs = 0;
     get_token_cs(L,-1);
 	if (lua_isnumber(L,-1)) {
 	  cs = lua_tointeger(L,-1);

@@ -437,9 +437,9 @@ int getbox (lua_State *L) {
 
 int setbox (lua_State *L) {
   int i,j,k;
-  int cur_cs;
-  char *s;
-  int ok = 0;
+
+
+
   k = (int)luaL_checkinteger(L,-2);
   check_index_range(k);
   i = get_tex_box_register(k);

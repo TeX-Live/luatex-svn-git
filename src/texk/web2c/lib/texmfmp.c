@@ -109,6 +109,9 @@
 #include "xetexdir/XeTeX_ext.h"
 #endif
 
+#if defined(luaTeX)
+extern void lua_initialize(int ac, char **av);
+#endif
 
 /* What we were invoked as and with.  */
 char **argv;
@@ -391,7 +394,6 @@ maininit P2C(int, ac, string *, av)
 int
 main P2C(int, ac,  string *, av)
 {
-  int i;
 #ifdef __EMX__
   _wildcard (&ac, &av);
   _response (&ac, &av);
@@ -1607,6 +1609,11 @@ get_date_and_time P4C(integer *, minutes,  integer *, day,
 /*
  Getting a high resolution time.
  */
+
+#if defined (HAVE_GETTIMEOFDAY)
+#include <sys/time.h>
+#endif
+
 void
 get_seconds_and_micros P2C(integer *, seconds,  integer *, micros)
 {
@@ -1657,7 +1664,7 @@ getrandomseed()
 boolean
 input_line P1C(FILE *, f)
 {
-  int i;
+  int i = EOF;
 
   /* Recognize either LF or CR as a line terminator.  */
   last = first;

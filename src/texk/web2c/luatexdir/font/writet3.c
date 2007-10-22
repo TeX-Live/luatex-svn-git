@@ -61,33 +61,6 @@ static integer        t3_curbyte = 0;
     if (t3_eof())                                          \
         pdftex_fail("unexpected end of file");
 
-static void t3_getline (void)
-{
-    int c;
-  restart:
-    t3_line_ptr = t3_line_array;
-    c = t3_getchar ();
-    while (!t3_eof ()) {
-        alloc_array (t3_line, 1, T3_BUF_SIZE);
-        append_char_to_buf (c, t3_line_ptr, t3_line_array, t3_line_limit);
-        if (c == 10)
-            break;
-        c = t3_getchar ();
-    }
-    alloc_array (t3_line, 2, T3_BUF_SIZE);
-    append_eol (t3_line_ptr, t3_line_array, T3_BUF_SIZE);
-    if (t3_line_ptr - t3_line_array < 2 || *t3_line_array == '%') {
-        if (!t3_eof ())
-            goto restart;
-    }
-}
-
-static void t3_putline (void)
-{
-    char *p = t3_line_array;
-    while (p < t3_line_ptr)
-        t3_putchar (*p++);
-}
 
 static void update_bbox (integer llx, integer lly, integer urx, integer ury,
                          boolean is_first_glyph)
@@ -160,7 +133,7 @@ static boolean writepk (internalfontnumber f)
       cur_file_name = font_name(f);
       mallocsize = strlen(cur_file_name)+24+9;
       name = xmalloc(mallocsize);
-      snprintf(name,mallocsize,"%ddpi/%s.%dpk",fixed_pk_resolution,cur_file_name,dpi);
+      snprintf(name,mallocsize,"%ddpi/%s.%dpk",(int)fixed_pk_resolution,cur_file_name,(int)dpi);
 	  if(run_callback(callback_id,"S->S",name,&ftemp)) {
 		if(ftemp!=NULL&&strlen(ftemp)) {
 		  free(name);
@@ -263,14 +236,14 @@ static boolean writepk (internalfontnumber f)
 
 void writet3 (int objnum, internalfontnumber f)
 {
-    static char t3_font_scale_str[] = "\\pdffontscale";
+
     int i;
     integer wptr, eptr, cptr;
     int first_char, last_char;
     integer pk_font_scale;
     boolean is_notdef;
-    int callback_id=0;
-    int file_opened=0;
+
+
     t3_glyph_num = 0;
     t3_image_used = false;
     for (i = 0; i < 256; i++) {

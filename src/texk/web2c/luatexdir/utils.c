@@ -1235,7 +1235,7 @@ int newcolorstack(integer s, integer literal_mode, boolean page_start)
         colstacks_size += STACK_INCREMENT;
         /* If (MAX_COLORSTACKS mod STACK_INCREMENT = 0) then we don't
            need to check the case that size overruns MAX_COLORSTACKS. */
-        colstacks = xretalloc(colstacks, colstacks_size, colstack_type);
+        colstacks = xreallocarray(colstacks, colstack_type, colstacks_size);
     }
     /* claim new color stack */
     colstack_num = colstacks_used++;
@@ -1683,7 +1683,7 @@ check_buffer_overflow (int wsize) {
 	if (nsize<wsize) {
 	  nsize = wsize+5;
 	}
-	buffer = xreallocarray (buffer, char, nsize);
+	buffer = (unsigned char *)xreallocarray (buffer, char, nsize);
 	buf_size = nsize;
   }
 }
@@ -1698,7 +1698,7 @@ check_pool_overflow (int wsize) {
 	if (nsize<wsize) {
 	  nsize = wsize+EXTRA_STRING;
 	}
-	str_pool = xreallocarray (str_pool, char, nsize);	
+	str_pool = (unsigned char *)xreallocarray (str_pool, char, nsize);	
 	pool_size = nsize;
   }
 }

@@ -392,7 +392,7 @@ static int t1_getbyte (void)
         c = t1_getchar ();
         if (c == 3) {
             while (!t1_eof ())
-                t1_getchar ();
+			  (void)t1_getchar ();
             return EOF;
         }
         t1_block_length = t1_getchar () & 0xff;
@@ -1587,6 +1587,7 @@ static void t1_flush_cs (boolean is_subr)
     t1_line_ptr = eol (t1_line_array);
     t1_putline ();
 
+	cs_len = 0; /* for -Wall */
     /* create return_cs to replace unsused subr's */
     if (is_subr) {
         cr = 4330;
@@ -1605,7 +1606,7 @@ static void t1_flush_cs (boolean is_subr)
     for (ptr = tab; ptr < end_tab; ptr++) {
         if (ptr->used) {
             if (is_subr)
-                sprintf (t1_line_array, "dup %li %u", ptr - tab, ptr->cslen);
+			  sprintf (t1_line_array, "dup %li %u", (long int)(ptr - tab), ptr->cslen);
             else
                 sprintf (t1_line_array, "/%s %u", ptr->name, ptr->cslen);
             p = strend (t1_line_array);
@@ -1615,7 +1616,7 @@ static void t1_flush_cs (boolean is_subr)
         } else {
             /* replace unsused subr's by return_cs */
             if (is_subr) {
-                sprintf (t1_line_array, "dup %li %u%s ", ptr - tab, cs_len,
+			  sprintf (t1_line_array, "dup %li %u%s ", (long int)(ptr - tab), cs_len,
                          cs_token_pair[0]);
                 p = strend (t1_line_array);
                 memcpy (p, return_cs, cs_len);

@@ -163,12 +163,14 @@ extern char *font_embedding_strings[];
 #define set_font_dsize(a,b)       font_dsize(a) = b
 
 #define font_name(a)              font_tables[a]->_font_name
+#define get_font_name(a)          (unsigned char *)font_name(a)
 #define set_font_name(f,b)        font_name(f) = b
 #define tex_font_name(a)          maketexstring(font_name(a))
 
 boolean cmp_font_name (integer, strnumber);
 
 #define font_area(a)              font_tables[a]->_font_area
+#define get_font_area(a)          (unsigned char *)font_area(a)
 #define set_font_area(f,b)        font_area(f) = b
 #define tex_font_area(a)          maketexstring(font_area(a))
 
@@ -456,5 +458,7 @@ extern scaled sqxfw (scaled sq, integer fw);
 
 extern void do_vf_packet (internal_font_number vf_f, integer c);
 extern int vf_packet_bytes (charinfo *co);
+
+extern void set_tag_code (internal_font_number f, eight_bits c, integer i) ;
 
 #endif

@@ -628,7 +628,7 @@ undump_node_mem (void) {
 
 void
 lua_node_filter_s (int filterid, char *extrainfo, halfword head_node, halfword *tail_node) {
-  halfword ret,r;  
+  halfword ret;  
   int a;
   lua_State *L = Luas[0];
   int callback_id = callback_defined(filterid);
@@ -679,7 +679,7 @@ lua_node_filter (int filterid, int extrainfo, halfword head_node, halfword *tail
 
 halfword
 lua_hpack_filter (halfword head_node, scaled size, int pack_type, int extrainfo) {
-  halfword ret, r;  
+  halfword ret;  
   lua_State *L = Luas[0];
   int callback_id = callback_defined(hpack_filter_callback);
   if (head_node==null || vlink(head_node)==null || callback_id == 0)

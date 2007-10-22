@@ -428,7 +428,7 @@ void unhide_lua_value(lua_State *L, char *name, char *item, int r) {
 void 
 luacall(int n, int s) {
   LoadS ls;
-  int i, j, k ;
+  int i ;
   char lua_id[12];
   if (Luas[n] == NULL) {
     luainterpreter(n);
@@ -451,7 +451,7 @@ luacall(int n, int s) {
 void 
 luatokencall(int n, int p) {
   LoadS ls;
-  int i, j, k, l;
+  int i, l;
   char *s=NULL;
   char lua_id[12];
   if (Luas[n] == NULL) {
@@ -496,7 +496,7 @@ luatex_load_init (int s, LoadS *ls) {
 
 lua_State *
 luatex_error (lua_State * L, int is_fatal) {
-  int i,j;
+
   size_t len;
   char *err;
   strnumber s;

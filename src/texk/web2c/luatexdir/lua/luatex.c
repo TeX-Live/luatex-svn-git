@@ -285,8 +285,6 @@ zopen_w_input (FILE **f, int format, const_string fopen_mode) {
 
 boolean 
 zopen_w_output (FILE **f, const_string fopen_mode) {
-  int callbackid;
-  char *fnam;
   int res = 1;
   if (luainit) {
     *f = fopen((nameoffile+1),fopen_mode);

@@ -27,6 +27,8 @@ extern int luaopen_pdf (lua_State *L);
 
 extern int luaopen_texio (lua_State *L);
 
+extern int luaopen_lang (lua_State *L);
+
 extern void luatex_load_init (int s, LoadS *ls);
 
 extern lua_State *luatex_error (lua_State *L, int fatal);
@@ -92,4 +94,5 @@ typedef struct command_item_ {
 extern command_item command_names[];
 extern int callback_callbacks_id;
 
+void  luainterpreter (int n) ;
 

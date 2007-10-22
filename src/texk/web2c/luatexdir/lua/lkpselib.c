@@ -5,6 +5,7 @@
 #include <kpathsea/expand.h>
 #include <kpathsea/variable.h>
 #include <kpathsea/tex-glyph.h>
+#include <kpathsea/readable.h>
 
 static const int filetypes[] = {
   kpse_gf_format,
@@ -116,7 +117,7 @@ static const char *const filetypenames[] = {
 static int find_file (lua_State *L) {
   int i;
   char *st;
-  char *ret;
+
   int ftype = kpse_tex_format;
   int mexist = 0;
   if (!lua_isstring(L,1)) {

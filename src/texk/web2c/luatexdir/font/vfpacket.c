@@ -265,7 +265,7 @@ integer *packet_local_fonts(internal_font_number f, integer *num) {
 	case packet_special_code:
 	  packet_number(i);
 	  while (i-- > 0) 
-	    do_packet_byte();
+	    (void)do_packet_byte();
 	  break;
 	default: 
 	  pdf_error("vf", "invalid DVI command");     
@@ -331,7 +331,7 @@ replace_packet_fonts(internal_font_number f, integer *old_fontid, integer *new_f
 	case packet_special_code:
 	  packet_number(k);
 	  while (k-- > 0) 
-	    do_packet_byte();
+	    (void)do_packet_byte();
 	  break;
 	default: 
 	  pdf_error("vf", "invalid DVI command");     

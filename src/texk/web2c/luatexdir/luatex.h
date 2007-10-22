@@ -125,8 +125,8 @@ extern void b_test_in();
 
 extern int open_outfile(FILE **f, char *name, char *mode);
 
-#define do_a_open_out(f) open_outfile(&(f),(nameoffile+1),FOPEN_W_MODE)
-#define do_b_open_out(f) open_outfile(&(f),(nameoffile+1),FOPEN_WBIN_MODE)
+#define do_a_open_out(f) open_outfile(&(f),(char *)(nameoffile+1),FOPEN_W_MODE)
+#define do_b_open_out(f) open_outfile(&(f),(char *)(nameoffile+1),FOPEN_WBIN_MODE)
 
 #define pdfassert assert
 #define voidcast(a) (void *)(a)

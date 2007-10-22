@@ -31,6 +31,7 @@ extern void writet1c(fd_entry * fd); /* in writecff.c */
 #endif
 
 extern void writet1w   (fd_entry * fd); /* in writecff.c */
+extern void writetype1w (fd_entry * fd);
 extern integer write_cid_tounicode(fo_entry * fo, internalfontnumber f); /* in tounicode.c */
 
 
