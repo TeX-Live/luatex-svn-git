@@ -57,36 +57,24 @@ lang_id (lua_State *L) {
 }
 
 static int 
-lang_exceptions (lua_State *L) {
-  struct tex_language **lang_ptr;
-  lang_ptr = check_islang(L,1);
-  if (L!=Luas[0]) {
-    lua_pushstring(L,"lang:exceptions(): only accessible from lua state 0");
-    return lua_error(L);
-  }
-  if (lua_gettop(L)==2 && lua_istable(L,2)) {
-    (*lang_ptr)->exceptions = luaL_ref(L,LUA_REGISTRYINDEX);
-    return 0;
-  } else {
-    if ((*lang_ptr)->exceptions==0) {
-      lua_pushnil(L);
-    } else {
-      lua_rawgeti(L,LUA_REGISTRYINDEX,(*lang_ptr)->exceptions);
-    }
-    return 1;
-  }
-}
-
-static int 
 lang_patterns (lua_State *L) {
   struct tex_language **lang_ptr;
   lang_ptr = check_islang(L,1);
-  if (!lua_isstring(L,2)) {
-    lua_pushstring(L,"lang.patterns(): argument should be a string");
-    return lua_error(L);
+  if (lua_gettop(L)!=1) {
+	if (!lua_isstring(L,2)) {
+	  lua_pushstring(L,"lang.patterns(): argument should be a string");
+	  return lua_error(L);
+	}
+	load_patterns(*lang_ptr, (unsigned char *)lua_tostring(L,2));
+	return 0;
+  } else {
+	if ((*lang_ptr)->patterns!=NULL) {
+	  lua_pushstring(L,(char *)hnj_serialize((*lang_ptr)->patterns));
+	} else {
+	  lua_pushnil(L);
+	}
+	return 1;
   }
-  load_patterns(*lang_ptr, (unsigned char *)lua_tostring(L,2));
-  return 0;
 }
 
 static int 
@@ -102,13 +90,31 @@ static int
 lang_hyphenation (lua_State *L) {
   struct tex_language **lang_ptr;
   lang_ptr = check_islang(L,1);
-  if (!lua_isstring(L,2)) {
-    lua_pushstring(L,"lang.hyphenation(): argument should be a string");
-    return lua_error(L);
+  if (lua_gettop(L)!=1) {
+	if(!lua_isstring(L,2)) {
+	  lua_pushstring(L,"lang.hyphenation(): argument should be a string");
+	  return lua_error(L);
+	}
+	load_hyphenation(*lang_ptr,(unsigned char *)lua_tostring(L,2));
+	return 0;
+  } else {
+	if ((*lang_ptr)->exceptions!=0) {
+	  lua_pushstring(L,exception_strings(*lang_ptr));
+	} else {
+	  lua_pushnil(L);
+	}
+	return 1;
   }
-  load_hyphenation(*lang_ptr,(unsigned char *)lua_tostring(L,2));
+}
+
+static int 
+lang_clear_hyphenation (lua_State *L) {
+  struct tex_language **lang_ptr;
+  lang_ptr = check_islang(L,1);
+  clear_hyphenation(*lang_ptr);
   return 0;
 }
+
 
 static int 
 do_lang_clean (lua_State *L) {
@@ -142,24 +148,24 @@ do_lang_hyphenate (lua_State *L) {
 
 
 static const struct luaL_reg langlib_d [] = {
-  {"clear_patterns",  lang_clear_patterns},
-  {"patterns",        lang_patterns},
-  {"hyphenation",     lang_hyphenation},
-  {"exceptions",      lang_exceptions},
-  {"id",              lang_id},
+  {"clear_patterns",    lang_clear_patterns},
+  {"clear_hyphenation", lang_clear_hyphenation},
+  {"patterns",          lang_patterns},
+  {"hyphenation",       lang_hyphenation},
+  {"id",                lang_id},
   {NULL, NULL}  /* sentinel */
 };
 
 
 static const struct luaL_reg langlib[] = {
-  {"clear_patterns",  lang_clear_patterns},
-  {"patterns",        lang_patterns},
-  {"hyphenation",     lang_hyphenation},
-  {"exceptions",      lang_exceptions},
-  {"id",              lang_id},
-  {"clean",           do_lang_clean},
-  {"hyphenate",       do_lang_hyphenate},
-  {"new",             lang_new},
+  {"clear_patterns",    lang_clear_patterns},
+  {"clear_hyphenation", lang_clear_hyphenation},
+  {"patterns",          lang_patterns},
+  {"hyphenation",       lang_hyphenation},
+  {"id",                lang_id},
+  {"clean",             do_lang_clean},
+  {"hyphenate",         do_lang_hyphenate},
+  {"new",               lang_new},
   {NULL, NULL}                /* sentinel */
 };
 

@@ -88,7 +88,6 @@ clear_patterns (struct tex_language *lang) {
   }
 }
 
-
 void
 load_tex_patterns(int curlang, halfword head) {
   char *s = tokenlist_to_cstring (head,1, NULL);
@@ -169,6 +168,15 @@ load_hyphenation (struct tex_language *lang, unsigned char *buffer) {
   }
 }
 
+void 
+clear_hyphenation (struct tex_language *lang) {
+  if (lang==NULL)
+    return;
+  if (lang->exceptions!=0) {
+	luaL_unref(Luas[0],LUA_REGISTRYINDEX,lang->exceptions);
+	lang->exceptions = 0;
+  }
+}
 
 
 void
@@ -259,6 +267,7 @@ char *hyphenation_exception(int curlang, char *w) {
     return ret;
   }
 }
+
 
 char *exception_strings(struct tex_language *lang) {
   char *value;
