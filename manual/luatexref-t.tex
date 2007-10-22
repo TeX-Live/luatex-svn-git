@@ -1,4 +1,4 @@
-% engine=luatex language=uk
+ï»¿% engine=luatex language=uk
 
 % TODO: fix layout of function legend descriptions
 
@@ -10,7 +10,7 @@
  
 \setvariables
   [document]
-  [snapshot=2007-09-18]
+  [snapshot=2007-10-22]
 
 \starttext
 
@@ -269,7 +269,7 @@ side, each \type{\directlua} block is treated as a separate chunk.
 
 The conversion from and to a token list means that you normally can
 not use \LUA\ line comments (starting with \type{--}) within the
-argument, as there typically will be only one `line', so that comment
+argument, as there typically will be only one \quote{line}, so that comment
 will then run on until the end of the input. You will either need to
 use \TEX-style line comments (starting with \%), or change the \TEX\
 category codes locally.
@@ -635,7 +635,7 @@ is either empty (this splits the string into characters), a single
 character (this splits on each occurrence of that character, possibly
 introducing empty strings), or a single character followed by the plus
 sign \type{+} (this special version does not create empty
-substrings). The default value for \type{m} is `\type{ +}' (multiple
+substrings). The default value for \type{m} is \quote{\type{ +}} (multiple
 spaces).
 
 
@@ -1195,7 +1195,7 @@ result of interpreting the line. For example, in
 before\directlua0{tex.sprint("\\relax")tex.sprint(" inbetween")}after
 \stoptyping
 the space before \type{inbetween} will be gobbled as a result of 
-the `normal' scanning of \type{\relax}).
+the \quote{normal} scanning of \type{\relax}).
 \stopitemize
 
 
@@ -1225,7 +1225,7 @@ number n =  tex.round(number o)
 
 Rounds lua number \type{o}, and returns a number that is in the range
 of a valid \TEX\ register value. If the number starts out of range, it
-generates a `Number to big' error as well.
+generates a \quote{Number to big} error as well.
 
 \subsubsection{\luatex{tex.scale}}
 
@@ -1238,7 +1238,7 @@ Multiplies the lua numbers \type{o} and \type{delta}, and returns a
 rounded number that is in the range of a valid \TEX\ register value.
 In the table version, it creates a copy of the table with all numeric
 top||level values scaled in that manner. If the mutiplied number(s) are
-of range, it generates `Number to big' error(s) as well.
+of range, it generates \quote{Number to big} error(s) as well.
 
 \section{The \luatex{token} library}
 
@@ -2181,7 +2181,7 @@ ignored and flushed from memory
 \stopitemize
 
 The string \type{extrainfo} gives some additional information about
-what \TEX's state is with respect to the `current page'. The possible
+what \TEX's state is with respect to the \quote{current page}. The possible
 values are:
 
 \starttabulate[|lT|p|]
@@ -2954,29 +2954,29 @@ actual font file ourselves:
 
 \stopitemize
 
-\subsection{Applying a `feature file'}
+\subsection{Applying a \quote{feature file}}
 
-You can apply a  `feature file' to a loaded font:
+You can apply a  \quote{feature file} to a loaded font:
 
 \startfunctioncall
 fontforge.apply_featurefile(f,'filename')
 \stopfunctioncall
 
-A `feature file' is a textual representation of the features in an
+A \quote{feature file} is a textual representation of the features in an
 OpenType font.  See
 \hyphenatedurl{http://www.adobe.com/devnet/opentype/afdko/topic_feature_file_syntax.html}
 and \hyphenatedurl{http://fontforge.sourceforge.net/featurefile.html}
 for a more detailed description of feature files.
 
-\subsection{Applying an `afm file'}
+\subsection{Applying an \quote{afm file}}
 
-You can apply a  `afm file' to a loaded font:
+You can apply a  \quote{afm file} to a loaded font:
 
 \startfunctioncall
 fontforge.apply_afmfile(f,'filename')
 \stopfunctioncall
 
-An `afm file' is a textual representation of (some of) the metainformation
+An \quote{afm file} is a textual representation of (some of) the metainformation
 in a Type~1 font. See \hyphenatedurl{http://www.adobe.com/devnet/font/pdfs/5004.AFM_Spec.pdf}
 for more information about afm files.
 
@@ -3556,8 +3556,78 @@ reversecoverage:
 
 \section{The \luatex{lang} library}
 
-This library will provide the interface to \LUATEX's structure
-representing a language. 
+This library provides the interface to \LUATEX's structure
+representing a language, and the associated functions.
+
+\startfunctioncall
+<language> l = lang.new()
+<language> l = lang.new(number id)
+\stopfunctioncall
+
+This function creates a new userdata object. An object of type
+\type{<language>} is the first argument to most of the other functions
+in the \luatex{lang} library. These functions can also be used as if
+they were object methods, using the colon syntax.
+
+Without an argument, the next available internal id number will be
+assigned to this object. With argument, an object will be created that
+links to the internal language with that id number.
+
+\startfunctioncall
+number n = lang.id(<language> l)
+\stopfunctioncall
+
+returns the internal \tex{language} id number this object refers to.
+
+\startfunctioncall
+string n = lang.hyphenation(<language> l)
+lang.hyphenation(<language> l, string n)
+\stopfunctioncall
+
+Either returns the current hyphenation exceptions for this language,
+or adds new ones. The syntax of the string is explained in the next
+chapter,~\in{section}[patternsexceptions].
+
+\startfunctioncall
+lang.clear_hyphenation(<language> l)
+\stopfunctioncall
+
+Clears the exception dictionary for this language.
+
+\startfunctioncall
+string n = lang.clean(string o)
+\stopfunctioncall
+
+Creates a hypenation key from the supplied hyphenation value. The
+syntax of the argument string is explained in the next
+chapter,~\in{section}[patternsexceptions]. This function is useful if
+you want to do something else based on the words in a dictionary file,
+like spell-checking.
+
+\startfunctioncall
+string n = lang.patterns(<language> l)
+lang.patterns(<language> l, string n)
+\stopfunctioncall
+
+Adds additional patterns for this language object, or returns the
+current set. The syntax of this string is explained in the next
+chapter,~\in{section}[patternsexceptions].
+
+\startfunctioncall
+lang.clear_patterns(<language> l)
+\stopfunctioncall
+
+Clears the pattern dictionary for this language.
+
+\startfunctioncall
+<node> head, boolean succes = lang.hyphenate(<node> head)
+<node> head, boolean succes = lang.hyphenate(<node> head, <node> tail)
+\stopfunctioncall
+
+Inserts hyphenation points (discretionary nodes) in a node list. If
+\type{tail} is given as argument, processings stops on that node. 
+Currently, \type{succes} is always true if \type{head} and \type{tail}
+are proper nodes, regardless of possible other errors.
 
 \chapter{Languages and characters, Fonts and glyphs}
 
@@ -3571,21 +3641,21 @@ horizontal and math modes.
 In \TEX82, the characters you type are converted into \type{char_node}
 record when they are encountered by the main control loop. \TEX\
 attaches and processes the font information while creating those
-records, so that the resulting `horizontal list' contains the final
+records, so that the resulting \quote{horizontal list} contains the final
 forms of ligatures and implicit kerning. 
 
 When it becomes necessary to hyphenate words in a paragraph, \TEX\
 converts the \type{char_node} records into a string one word at time
 (by replacing ligatures with their components and ignoring the
 kerning), runs the hyphenation algorithm on this string, and converts
-the hyphenated result back into a `horizontal list' that is then
+the hyphenated result back into a \quote{horizontal list} that is then
 spliced back into the main paragraph stream.
 
 The \type{char_node} records are somewhat misnamed, as they are glyph
-posisitions in specific fonts, and therefore not really `characters'
+posisitions in specific fonts, and therefore not really \quote{characters}
 in the linguistic sense. There is no language information inside the
 \type{char_node} records. Instead, language information is passed along 
-using \type{language whatsit} records inside the `horizontal list'.
+using \type{language whatsit} records inside the horizontal list.
 
 IN \LUATEX, the situation is quite different. The characters you type
 are always converted into \type{glyph_node} records with a special
@@ -3594,47 +3664,47 @@ characters. \LUATEX\ stores the needed language information in those
 records, but does not do any font-related processing yet.
 
 When it becomes necessary to typeset a paragraph, \LUATEX\ first
-inserts all hyphenation points into the whole `horizontal list'. Next
+inserts all hyphenation points into the whole horizontal list. Next
 it processes all the font information in the whole list (creating
 ligatures and kerning), and finally it adjusts all the subtype
-identifiers so that the records are `glyph nodes' from now on.
+identifiers so that the records are \quote{glyph nodes} from now on.
 
 That was the broad overview. The rest of this chapter will deal with the
 minutiae of the new process.
 
 \section{Characters and glyphs}
 
-\TEX82 differentiated between \type{char_node}s and \type{lig_node}s. 
-The former were simple items that contained nothing but a `character'
-and a `font' field, and they lived in the same memory are as
-tokens. The latter also contained a list of components, and a subtype
-indicating whether this ligature was the result of a word boundary,
-and it was stored in the same place as other nodes like boxes and
-kerns and glues.
+\TEX82 (including \PDFTEX) differentiates between \type{char_node}s
+and \type{lig_node}s.  The former are simple items that contained
+nothing but a \quote{character} and a \quote{font] field, and they
+lived in the same memory are as tokens. The latter also contained a
+list of components, and a subtype indicating whether this ligature was
+the result of a word boundary, and it was stored in the same place as
+other nodes like boxes and kerns and glues.
 
 In \LUATEX, these two types are merged into one, somewhat larger
 structure called a \type{glyph_node}. Besides having the old
 character, font, and component fields, and the new special fields like
-`attr' (see~\in{section}[glyphnodes]), these nodes also contain:
+\quote{attr} (see~\in{section}[glyphnodes]), these nodes also contain:
 
 \startitemize
 \item A subtype, split into four main types: 
    \startitemize 
-   \item `character' -- for characters to be hyphenated
-   \item `glyph'  -- for specific font glyphs
-   \item `ligature'  -- for ligatures
-   \item `ghost'  -- for `ghost objects', explained  below
+   \item \quote{character} -- for characters to be hyphenated
+   \item \quote{glyph}  -- for specific font glyphs
+   \item \quote{ligature}  -- for ligatures
+   \item \quote{ghost}  -- for \quote{ghost objects}
    \stopitemize
    The latter two make further use of two extra fields:
    \startitemize 
-   \item `left'  -- for ligatures: created from a left word boundary. 
+   \item \quote{left}  -- for ligatures: created from a left word boundary. 
                     for ghosts:  created from \tex{leftghost}
-   \item `right' -- for ligatures: created from a right word boundary. 
+   \item \quote{right} -- for ligatures: created from a right word boundary. 
                     for ghosts:  created from \tex{rightghost}
    \stopitemize
    for ligatures, both bits can be set at the same time (in case of a single-glyph word).
 
-\item \type{glyph_node}s of type `character' also contain language data, 
+\item \type{glyph_node}s of type \quote{character} also contain language data, 
   split into four items that were current when the node was created:
   the \tex{setlanguage} (15 bits), \tex{lefthyphenmin} (8 bits),
   \tex{righthyphenmin} (8 bits), and \tex{uchyph} (1 bit).
@@ -3653,36 +3723,36 @@ the nodes themselves, so there is no longer a possible dependancy on
 the surrounding language settings. In \TEX82, a mid-paragraph
 statement like \type{\unhbox0} would process the box using the current
 paragraph language unless there was a \tex{setlanguage} issued inside
-the box. In \LUATEX, all language variables are already fixed.
+the box. In \LUATEX, all language variables are already frozen.
 
 
 \section{The main control loop}
 
 In \LUATEX's main loop, almost all input characters that are to be
 typeset are converted into \type{glyph_node} records with subtype
-`character', but there are a few small exceptions.
+\quote{character}, but there are a few small exceptions.
 
-First, the \tex{accent} primitives creates nodes with subtype `glyph'
-instead of `character': one for the actual accent and one for the
+First, the \tex{accent} primitives creates nodes with subtype \quote{glyph}
+instead of \quote{character}: one for the actual accent and one for the
 accentee. The primary reason for this is that \tex{accent} in \TEX82
 is explicitly dependant on the current font encoding, so it would not
 make much sense to attach a new meaning to the primitive's name, as
 that would invalidate many old documents and macro packages. A
 secondary reason is that in \TEX82, \tex{accent} prohibits hyphenation
 of the current word. Since in \LUATEX\ hyphenation only takes place on
-`character' nodes, it is possible to achieve the same effect.
+\quote{character} nodes, it is possible to achieve the same effect.
 
 This change of meaning did happen with \tex{char}, that now generates
-`character' nodes, consistent with it's changed meaning in \XETEX.
+\quote{character} nodes, consistent with it's changed meaning in \XETEX.
 The changed status of \tex{char} is not yet finalized, but if it stays
 as it is now, a new primitive \tex{glyph} should be added to directly
 insert a font glyph id.
 
 Second, all the results of processing in math mode eventually become
-nodes with `glyph' subtypes.
+nodes with \quote{glyph} subtypes.
 
-Third, the \ALELPH-derived commands \tex{leftghost} and
-\tex{rightghost} create nodes of a third subtype: `ghost'. These nodes
+Third, the \ALEPH-derived commands \tex{leftghost} and
+\tex{rightghost} create nodes of a third subtype: \quote{ghost}. These nodes
 are ignored completely by all further processing until the stage where
 inter-glyph kerning is added.
 
@@ -3694,8 +3764,8 @@ words.) The exact status and meaning of \tex{hyphenchar} is still
 under consideration, but the test that is performed by \TEX82 is
 arguably wrong: wether or not hyphenation takes place should not
 depend on the current font, it is a language property.  Soon, a new
-primitive will likely be created to indicate the `explicit hyphenation
-chararacter' for input in a particular language.
+primitive will likely be created to indicate the \quote{explicit hyphenation
+chararacter} for input in a particular language.
 
 Fifth, \tex{setlanguage} no longer creates whatsits. The meaning of
 \tex{setlanguage} is changed so that it is now an integer parameter 
@@ -3704,16 +3774,17 @@ creation to add language information to the glyph nodes. In
 conjunction, the \tex{language} primitive is extended so that it
 always also updates the value of \tex{setlanguage}.
 
-Sixth, the \tex{noboundary} command now does create whatsits. These
-whatsits are needed because the exact place of the \tex{noboundary}
-command in the input stream has to be retained until after the
-ligature and font processing stages.
+Sixth, the \tex{noboundary} command (this command prohibits word
+boundary processing where that would normally take place) now does
+create whatsits. These whatsits are needed because the exact place of
+the \tex{noboundary} command in the input stream has to be retained
+until after the ligature and font processing stages.
 
 Finally, there is no longer a \type{main_loop} label in the
 code. Remember that \TEX82 did quite a lot of processing while adding
 \type{char_nodes} to the horizontal list? For speed reasons, it handled 
-that processing code outside of the `main control' loop, and only the
-first character of any `word' was handled by that `main control' loop.
+that processing code outside of the \quote{main control} loop, and only the
+first character of any \quote{word} was handled by that \quote{main control} loop.
 In \LUATEX, there is no longer a need for that (all hard work is done
 later), and the (now very small) bits of character-handling code have
 been moved back inline. When \tex{tracingcommands} is on, this is
@@ -3721,7 +3792,7 @@ visible because the full word is reported, instead of just the initial
 character.
 
 
-\section{Loading patterns and exceptions}
+\section[patternsexceptions]{Loading patterns and exceptions}
 
 The hyphenation algorithm in \LUATEX\ is quite different from the one
 in \TEX82, although it uses essentially the same user input.
@@ -3757,19 +3828,18 @@ by converting the other listed items. It is important to note that the
 keys in an exception dictionary can always be generated from the
 values. Here are a few examples:
 
-\starttabulate[|l|l|]
+\starttabulate[|l|l|l|]
 \NC \ssbf value          \NC \ssbf implied key (input) \NC \ssbf effect\NC\NR 
-\NC ta-ble               \NC table            \NC \type{ta\-ble}  
-   ($=$ \type{ta\discretionary{-}{}{}ble})\NC\NR
-\NC vis=à=vis            \NC vis-à-vis        \NC \type{vis-à-vis}\NC\NR % fix utf
-\NC user=\discretionary{}{}{}friendly  \NC user-friendly    \NC \type{user-\discretionary{}{}{}friendly}\NC\NR
-\NC user=-friendly       \NC user-friendly    \NC \type{user-\-friendly} 
+\NC \type{ta-ble}               \NC table            \NC \type{ta\-ble} ($=$ \type{ta\discretionary{-}{}{}ble})\NC\NR
+\NC \type{vis=Ã =vis}            \NC vis-Ã -vis        \NC \type{vis-Ã -vis}\NC\NR
+\NC \type{user=\discretionary{}{}{}friendly}  \NC user-friendly    \NC \type{user-\discretionary{}{}{}friendly}\NC\NR
+\NC \type{user=-friendly}       \NC user-friendly    \NC \type{user-\-friendly} 
    ($=$ \type{user\discretionary{--}{}{-}friendly}) \NC\NR
-\NC ba{k-}{k}{c}ken  \NC backen \NC \type{ba\discretionary{k-}{k}{c}ken}\NC\NR
+\NC \type{ba{k-}{k}{c}ken}  \NC backen \NC \type{ba\discretionary{k-}{k}{c}ken}\NC\NR
 \stoptabulate
 
 Keep in mind that, as explained above, \LUATEX\ does not currently
-insert automatic discretionaries, so the word `vis-à-vis' will never
+insert automatic discretionaries, so the word \quote{vis-Ã -vis} will never
 be split over two lines.
 
 The resultant patterns and exception dictionary will be stored under
@@ -3799,8 +3869,9 @@ discretionaries in words is very different from the ones in \TEX82,
 and that means there are some noticable differences in handling as
 well.
 
-First and foremost, there is no `compressed trie' involved (\LUATEX\
-uses a finite state hash, like OpenOffice). Differences between
+First and foremost, there is no \quote{compressed trie} involved (\LUATEX\
+uses a finite state hash, an idea based on the \quote{libhnj} library
+that is used by OpenOffice). Differences between
 \LUATEX\ and \TEX82 that are a direct result of that:
 
 \startitemize
@@ -3808,9 +3879,9 @@ uses a finite state hash, like OpenOffice). Differences between
 \item Pattern and exception dictionary size is limited by the
   available memory only, all allocations are done dynamically.
   The trie-related settings in \type{texmf.cnf} are ignored.
-\item Because there is no `trie preparation' stage, language patterns 
+\item Because there is no \quote{trie preparation} stage, language patterns 
   never become frozen. This means that the primitive \tex{patterns}
-  (and it's lua counterpart \texlua{lang.patterns}) can be used at any
+  (and it's lua counterpart \luatex{lang.patterns}) can be used at any
   time, not only in initex.
 \item Only the string representation of \tex{patterns} and 
   \tex{hyphenation} is stored in the format file. At format load time,
@@ -3823,7 +3894,10 @@ uses a finite state hash, like OpenOffice). Differences between
 Previously, there were problems with changing the node attributes
 mid-word, but that problem is now solved, as nodes in a word are not
 converted to and from a string any more (this was required by the old
-hyphenation code), they are editted in place.
+hyphenation code), they are editted in place. Inserted characters and
+ligatures inherit their attributes from the nearest glyph node item
+(usually the preceding one, but the following one for the items
+inserted at the left-hand side of a word).
 
 Word boundaries are no longer implied by font switches, but by
 language switches. One word can have two separate fonts and still be
@@ -3839,26 +3913,26 @@ silently ignore the excess characters (this is what happens in \TEX82,
 but there the behaviour cannot be controlled).
 
 If you are using the Lua function \type{lang.hyphenate}, you should be
-aware that this function expects to receive a list of `character'
-nodes. It will not operate properly in the presence of `glyph',
-`ligature', or 'ghost' nodes, nor does it know how to deal with
-kerning.  In the near future, it will be able to skip over `ghost'
+aware that this function expects to receive a list of \quote{character}
+nodes. It will not operate properly in the presence of \quote{glyph},
+\quote{ligature}, or \quote{ghost} nodes, nor does it know how to deal with
+kerning.  In the near future, it will be able to skip over \quote{ghost}
 nodes, and we may add a less fuzzy function you can call as well.
 
 \section{Applying ligatures and kerning}
 
 After all possible hyphenation points have been inserted in the list,
-\LUATEX\ will process the list to convert the `character' nodes into 
-`glyph' and `ligature' nodes. This is actually done in two stages:
+\LUATEX\ will process the list to convert the \quote{character} nodes into 
+\quote{glyph} and \quote{ligature} nodes. This is actually done in two stages:
 first all ligatures are processed, then all kerning information is
 applied to the result list. But those two stages are somewhat
 dependant on each other: If the used font makes it possible to do so,
-the ligaturing stage adds virtual `character' nodes to the word
+the ligaturing stage adds virtual \quote{character} nodes to the word
 boundaries in the list. While doing so, it removes and interprets
 \type{noboundary} nodes. The kerning stage deletes those word boundary 
-items after it is done with them, and it does the same for `ghost'
+items after it is done with them, and it does the same for \quote{ghost}
 nodes. Finally, at the end of the kerning stage, all remaining
-`character' nodes are converted to `glyph' nodes.
+\quote{character} nodes are converted to \quote{glyph} nodes.
 
 This work separation is worth mentioning because, if you overrule from
 Lua only one of the two callbacks related to font handling, then you
@@ -3874,7 +3948,7 @@ Nevertheless, we are working hard to make sure all of the possible
 inputs will become supported soon.
 
 For example, take the word \type{office}, hyphenated \type{of-fice},
-using a `normal' font with all the \type{f}-\type{i} ligatures:
+using a \quote{normal} font with all the \type{f}-\type{i} ligatures:
 \starttabulate[|l|l|]
 \NC Initial:               \NC \type{{o}{f}{f}{i}{c}{e}}           \NC\NR
 \NC After hyphenation:     \NC \type{{o}{f}{{-},{},{}}{f}{i}{c}{e}}\NC\NR
@@ -5333,7 +5407,7 @@ because it is straightforward to set up letterspacing using the \LUA\
 
 \item Node pointers are not always checked for validity, so if you make a 
 mistake in the node list processing, \LUATEX\ may terminate itself with an
-assertion error or ``Emergency stop''.
+assertion error or \quote{Emergency stop}.
 
 \item In \DVI\ generation mode, using a \type{\textdir} switch inside the
 preamble of a \type{\halign} results in overprinted text in the \DVI\ file,
