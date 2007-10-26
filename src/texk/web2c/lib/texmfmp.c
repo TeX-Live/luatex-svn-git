@@ -205,6 +205,7 @@ texmf_yesno(const_string var)
 static void segv_handler P1C(int, sig)
 {
   sigset_t set;
+  assert(sig); /* for -Wunused */
   sigaddset(&set, SIGSEGV);
   sigprocmask(SIG_UNBLOCK, &set, NULL);
   fatal_error(maketexstring("segmentation fault, probably due to infinite macro recursion"));
@@ -1012,19 +1013,19 @@ static struct option long_options[]
 
 
 static void
-parse_options P2C(int, argc,  string *, argv)
+parse_options P2C(int, ac,  string *, av)
 {
   int g;   /* `getopt' return code.  */
   int option_index;
 
   for (;;) {
-    g = getopt_long_only (argc, argv, "+", long_options, &option_index);
+    g = getopt_long_only (ac, av, "+", long_options, &option_index);
 
     if (g == -1) /* End of arguments, exit the loop.  */
       break;
 
     if (g == '?') { /* Unknown option.  */
-      /* FIXME: usage (argv[0]); replaced by continue. */
+      /* FIXME: usage (av[0]); replaced by continue. */
       continue;
     }
 
@@ -1548,6 +1549,7 @@ catch_interrupt (DWORD arg)
 static RETSIGTYPE
 catch_interrupt P1C (int, arg)
 {
+  assert(arg); /* for -Wunused */
   interrupt = 1;
 #ifdef OS2
   (void) signal (SIGINT, SIG_ACK);
@@ -1567,8 +1569,8 @@ void
 get_date_and_time P4C(integer *, minutes,  integer *, day,
                       integer *, month,  integer *, year)
 {
-  time_t clock = time ((time_t *) 0);
-  struct tm *tmptr = localtime (&clock);
+  time_t myclock = time ((time_t *) 0);
+  struct tm *tmptr = localtime (&myclock);
 
   *minutes = tmptr->tm_hour * 60 + tmptr->tm_min;
   *day = tmptr->tm_mday;
@@ -1628,8 +1630,8 @@ get_seconds_and_micros P2C(integer *, seconds,  integer *, micros)
   *seconds = tb.time;
   *micros  = tb.millitm*1000;
 #else
-  time_t clock = time((time_t*)NULL);
-  *seconds = clock;
+  time_t myclock = time((time_t*)NULL);
+  *seconds = myclock;
   *micros  = 0;
 #endif
 }
@@ -1649,8 +1651,8 @@ getrandomseed()
   ftime(&tb);
   return (tb.millitm + 1000 * tb.time);
 #else
-  time_t clock = time ((time_t*)NULL);
-  struct tm *tmptr = localtime(&clock);
+  time_t myclock = time ((time_t*)NULL);
+  struct tm *tmptr = localtime(&myclock);
   return (tmptr->tm_sec + 60*(tmptr->tm_min + 60*tmptr->tm_hour));
 #endif
 }
@@ -1901,7 +1903,7 @@ do_dump P4C(char *, p,  int, item_size,  int, nitems,  FILE *, out_file)
   swap_items (p, nitems, item_size);
 #endif
 
-  if (fwrite (p, item_size, nitems, out_file) != nitems)
+  if (fwrite (p, item_size, nitems, out_file) != (size_t)nitems)
     {
       fprintf (stderr, "! Could not write %d %d-byte item(s).\n",
                nitems, item_size);
@@ -1921,7 +1923,7 @@ do_dump P4C(char *, p,  int, item_size,  int, nitems,  FILE *, out_file)
 void
 do_undump P4C(char *, p,  int, item_size,  int, nitems,  FILE *, in_file)
 {
-  if (fread (p, item_size, nitems, in_file) != nitems)
+  if (fread (p, item_size, nitems, in_file) != (size_t)nitems)
     FATAL2 ("Could not undump %d %d-byte item(s)", nitems, item_size);
 
 #if !defined (WORDS_BIGENDIAN) && !defined (NO_DUMP_SHARE)
@@ -2110,7 +2112,7 @@ makesrcspecial P2C(strnumber, srcfilename,
    */
   sprintf (buf, "src:%d ", lineno);
 
-  if (poolptr + strlen(buf) + strlen(filename) >= poolsize) {
+  if (poolptr + strlen(buf) + strlen(filename) >= (size_t)poolsize) {
        fprintf (stderr, "\nstring pool overflow\n"); /* fixme */
        exit (1);
   }

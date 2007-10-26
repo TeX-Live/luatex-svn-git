@@ -360,8 +360,8 @@ typedef enum {
 /* language stuff */
 
 typedef struct _lang_variables {
-  int pre_hyphenchar;
-  int post_hyphenchar;
+  int pre_hyphen_char;
+  int post_hyphen_char;
 } lang_variables;
 
 
@@ -371,6 +371,8 @@ struct tex_language {
   HyphenDict *patterns;
   int exceptions; /* lua registry pointer, should be replaced */
   int id;
+  int pre_hyphen_char;
+  int post_hyphen_char;
 };
 
 #define MAX_WORD_LEN 256 /* in chars */
@@ -387,25 +389,114 @@ extern void clear_hyphenation (struct tex_language *lang) ;
 extern char *clean_hyphenation (char *buffer, char **cleaned) ;
 extern void hnj_hyphenation (halfword head, halfword tail) ;
 
+extern void set_pre_hyphen_char (integer lan, integer val);
+extern void set_post_hyphen_char(integer lan, integer val);
+extern integer get_pre_hyphen_char  (integer lan);
+extern integer get_post_hyphen_char (integer lan);
+
 void new_ligkern(halfword head, halfword tail, int dir);
 void handle_ligaturing(halfword head, halfword tail, int dir);
 void handle_kerning(halfword head, halfword tail, int dir);
 
-void ext_do_line_break (int d, int pretolerance, int tracing_paragraphs, int tolerance, 
-			scaled emergency_stretch, int prev_graf, int looseness, 
-			int hyphen_penalty, int ex_hyphen_penalty,
-			int pdf_adjust_spacing, int par_shape_ptr, int adj_demerits,
-			int pdf_protrude_chars,  int line_penalty, 
-			int last_line_fit,  int double_hyphen_demerits,  
-			int final_hyphen_demerits,
-			int hang_indent, int hsize, int hang_after,
-			halfword left_skip, halfword right_skip);
+#define push_dir(a)								\
+  { dir_tmp=new_dir((a));						\
+	vlink(dir_tmp)=dir_ptr; dir_ptr=dir_tmp;	\
+	dir_ptr=dir_tmp;							\
+  }
 
-extern halfword last_special_line;
-extern scaled first_width;
-extern scaled second_width;
-extern scaled first_indent;
-extern scaled second_indent;
+#define push_dir_node(a)			\
+  { dir_tmp=get_node(dir_node_size);		\
+    type(dir_tmp)=whatsit_node;			\
+    subtype(dir_tmp)=dir_node;			\
+    dir_dir(dir_tmp)=dir_dir((a));		\
+    dir_level(dir_tmp)=dir_level((a));		\
+    dir_dvi_h(dir_tmp)=dir_dvi_h((a));		\
+    dir_dvi_ptr(dir_tmp)=dir_dvi_ptr((a));	\
+    vlink(dir_tmp)=dir_ptr; dir_ptr=dir_tmp;	\
+  }
+
+#define pop_dir_node()				\
+  { dir_tmp=dir_ptr;				\
+    dir_ptr=vlink(dir_tmp);			\
+    free_node(dir_tmp,dir_node_size);		\
+  }
+
+
+
+#define dir_parallel(a,b) (((a) % 2)==((b) % 2))
+#define dir_orthogonal(a,b) (((a) % 2)!=((b) % 2))
+
+#define is_rotated(a) dir_parallel(dir_secondary[(a)],dir_tertiary[(a)])
+
+void initialize_active (void) ;
+
+halfword find_protchar_left(halfword l, boolean d) ;
+halfword find_protchar_right(halfword l, halfword r) ;
+
+void ext_do_line_break (boolean d, 
+			int pretolerance, 
+			int tracing_paragraphs, 
+			int tolerance, 
+			scaled emergency_stretch, 
+			int looseness, 
+			int hyphen_penalty, 
+			int ex_hyphen_penalty,
+			int pdf_adjust_spacing, 
+			halfword par_shape_ptr, 
+			int adj_demerits,
+			int pdf_protrude_chars,  
+			int line_penalty, 
+			int last_line_fit,  
+			int double_hyphen_demerits,  
+			int final_hyphen_demerits,
+			int hang_indent, 
+			int hsize, 
+			int hang_after,
+			halfword left_skip, 
+			halfword right_skip,
+			int pdf_each_line_height,
+			int pdf_each_line_depth,
+			int pdf_first_line_height,
+			int pdf_last_line_depth,
+			halfword inter_line_penalties_ptr,
+			int inter_line_penalty,
+			int club_penalty,
+			halfword club_penalties_ptr,
+			halfword display_widow_penalties_ptr,
+			halfword widow_penalties_ptr,
+			int display_widow_penalty,
+			int widow_penalty,
+	 		int broken_penalty,
+			halfword final_par_glue
+			);
+
+void ext_post_line_break(boolean d, 
+			 int right_skip,
+			 int left_skip,
+			 int pdf_protrude_chars,
+			 halfword par_shape_ptr,
+			 int pdf_adjust_spacing,
+			 int pdf_each_line_height,
+			 int pdf_each_line_depth,
+			 int pdf_first_line_height,
+			 int pdf_last_line_depth,
+			 halfword inter_line_penalties_ptr,
+			 int inter_line_penalty,
+			 int club_penalty,
+			 halfword club_penalties_ptr,
+			 halfword display_widow_penalties_ptr,
+			 halfword widow_penalties_ptr,
+			 int display_widow_penalty,
+			 int widow_penalty,
+			 int broken_penalty,
+			 halfword final_par_glue,
+			 halfword best_bet,
+			 halfword last_special_line,
+			 scaled second_width,
+			 scaled second_indent,
+			 scaled first_width,
+			 scaled first_indent,
+			 halfword best_line );
 
 halfword lua_hpack_filter (halfword head_node, scaled size, int pack_type, int extrainfo);
 void lua_node_filter (int filterid, int extrainfo, halfword head_node, halfword *tail_node);

@@ -2,6 +2,10 @@
 # $Id$
 # builds new luatex binaries
 # try to find gnu make; we need it
+
+# Pascal: -g -Wall -Wno-parentheses -Wno-char-subscripts -Wextra [-Wshadow]
+# C: -g -Wall -Wextra [-Wshadow]
+
 MAKE=make
 if make -v 2>&1| grep -q "GNU Make" 
 then 

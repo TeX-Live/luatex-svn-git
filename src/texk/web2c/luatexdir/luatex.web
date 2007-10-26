@@ -599,7 +599,7 @@ because some fussy \PASCAL\ compilers will complain about redundant labels.
 @d loop == @+ while true do@+ {repeat over and over until a |goto| happens}
 @f loop == xclause
   {\.{WEB}'s |xclause| acts like `\ignorespaces|while true do|\unskip'}
-@d do_nothing == {empty statement}
+@d do_nothing == pdfassert(1) {empty statement}
 @d return == goto exit {terminate a procedure call}
 @f return == nil
 @d empty=0 {symbolic name for a null constant}
@@ -1217,6 +1217,7 @@ function lua_input_ln(var f:alpha_file;n:quarterword;@!bypass_eoln:boolean):bool
 var lua_result:boolean;
 	last_ptr:integer;
     callback_id:integer;
+	bypass_p:boolean;
 begin
 if n=0 then
   callback_id:=input_file_callback_id[index]
@@ -1236,7 +1237,8 @@ if callback_id>0 then begin
       lua_input_ln := false;
     end
   else begin
-    lua_result := input_ln(f,bypass_eoln);
+    bypass_p := bypass_eoln; {this is for -Wextra}
+    lua_result := input_ln(f,bypass_p);
 	if lua_result=true then begin
       lua_input_ln := true;
       @<Fix up the input buffer using callbacks@>; 
@@ -3936,14 +3938,16 @@ end;
 @ A |disc_node|, which occurs only in horizontal lists, specifies a
 ``dis\-cretion\-ary'' line break. If such a break occurs at node |p|, the text
 that starts at |pre_break(p)| will precede the break, the text that starts at
-|post_break(p)| will follow the break, and text that appears in the next
-|replace_count(p)| nodes will be ignored. For example, an ordinary
+|post_break(p)| will follow the break, and text that appears in 
+|no_break(p)| nodes will be ignored. For example, an ordinary
 discretionary hyphen, indicated by `\.{\\-}', yields a |disc_node| with
 |pre_break| pointing to a |char_node| containing a hyphen, |post_break=null|,
-and |replace_count=0|. All three of the discretionary texts must be
-lists that consist entirely of character, kern, box and rule nodes.
+and |no_break=null|. 
 
-If |pre_break(p)=null|, the |ex_hyphen_penalty| will be charged for this
+{TODO: Knuth said: All three of the discretionary texts must be lists
+that consist entirely of character, kern, box and rule nodes.}
+
+If |subtype(p)=automatic_disc|, the |ex_hyphen_penalty| will be charged for this
 break.  Otherwise the |hyphen_penalty| will be charged.  The texts will
 actually be substituted into the list by the line-breaking algorithm if it
 decides to make the break, and the discretionary node will disappear at
@@ -3951,15 +3955,36 @@ that time; thus, the output routine sees only discretionaries that were
 not chosen.
 
 @d disc_node=7 {|type| of a discretionary node}
-@d disc_node_size=3
-@d replace_count==subtype {how many subsequent nodes to replace}
+@d disc_node_size=10
+@d automatic_disc=2
+@d syllable_disc=3
+@d disc_type==subtype {the kind of discretionary}
 @d pre_break(#)==vinfo(#+2) {text that precedes a discretionary break}
 @d post_break(#)==vlink(#+2) {text that follows a discretionary break}
+@d no_break(#)==vlink(#+3) {text this discretionary break replaces}
+@d pre_break_head(#)==(#+4)
+@d post_break_head(#)==(#+6)
+@d no_break_head(#)==(#+8)
+@d tlink==llink
 
 @p function new_disc:pointer; {creates an empty |disc_node|}
 var p:pointer; {the new node}
 begin p:=get_node(disc_node_size); type(p):=disc_node;
-replace_count(p):=0; pre_break(p):=null; post_break(p):=null;
+pre_break(p):=pre_break_head(p); 
+type(pre_break(p)):=255;  
+vlink(pre_break(p)):=null;  
+alink(pre_break(p)):=null; 
+tlink(pre_break(p)):=null; 
+post_break(p):=post_break_head(p);
+type(post_break(p)):=255;  
+vlink(post_break(p)):=null;  
+alink(post_break(p)):=null; 
+tlink(post_break(p)):=null; 
+no_break(p):=no_break_head(p);
+type(no_break(p)):=255;  
+vlink(no_break(p)):=null;  
+alink(no_break(p)):=null; 
+tlink(no_break(p)):=null; 
 build_attribute_list(p);
 new_disc:=p;
 end;
@@ -4168,9 +4193,6 @@ inserted from \.{\\mkern} specifications in math formulas).
 @d auto_kern == explicit
 @d no_lig_code == 6
 
-@d max_hlist_stack = 512 {maximum fill level for |hlist_stack|}
-{maybe good if larger than |2 * max_quarterword|, so that box nesting level would overflow first}
-
 @ The |new_kern| function creates a kern node having a given width.
 
 @p function new_kern(@!w:scaled):pointer;
@@ -4257,8 +4279,8 @@ symbolic names to the fixed positions.
 @d hold_head==temp_head+temp_node_size {head of a temporary list of another kind}
 @d adjust_head==hold_head+temp_node_size {head of adjustment list returned by |hpack|}
 @d pre_adjust_head==adjust_head+temp_node_size {head of pre-adjustment list returned by |hpack|}
-@d active==pre_adjust_head+temp_node_size {head of active list in |line_break}
-@d align_head==active+temp_node_size {head of preamble list for alignments}
+@d active==pre_adjust_head+temp_node_size {head of active list in |line_break|}
+@d align_head==active+active_node_size {head of preamble list for alignments}
 @d end_span==align_head+temp_node_size {tail of spanned-width lists}
 @d var_mem_stat_max==(end_span+temp_node_size-1) {largest statically allocated word in the variable-size |mem|}
 
@@ -4317,6 +4339,7 @@ vinfo(end_span):=0; vlink(end_span):=null; alink(end_span):=null;
 avail:=null; fix_mem_end:=0;
 init_list_heads;
 @<Initialize the special list heads and constant nodes@>;
+initialize_active;
 dyn_used:=0; {initialize statistics}
 
 @ @p procedure init_list_heads; {initialize token list heads}
@@ -4384,7 +4407,6 @@ begin
 end;
 
 procedure short_display(@!p:integer); {prints highlights of list |p|}
-var n:integer; {for replacement counts}
 begin while p<>null do
   begin if is_char_node(p) then
       begin if lig_ptr(p)<>null then 
@@ -4412,13 +4434,8 @@ hlist_node,vlist_node,ins_node,whatsit_node,mark_node,adjust_node,
 rule_node: print_char("|");
 glue_node: if glue_ptr(p)<>zero_glue then print_char(" ");
 math_node: print_char("$");
-disc_node: begin short_display(pre_break(p));
-  short_display(post_break(p));@/
-  n:=replace_count(p);
-  while n>0 do
-    begin if vlink(p)<>null then p:=vlink(p);
-    decr(n);
-    end;
+disc_node: begin short_display(vlink(pre_break(p)));
+  short_display(vlink(post_break(p)));@/
   end;
 othercases do_nothing
 endcases
@@ -4714,11 +4731,11 @@ end
 
 @<Display discretionary |p|@>=
 begin print_esc("discretionary");
-if replace_count(p)>0 then
-  begin print(" replacing "); print_int(replace_count(p));
+if vlink(no_break(p))<>null then
+  begin print(" replacing "); node_list_display(vlink(no_break(p)));
   end;
-node_list_display(pre_break(p)); {recursive call}
-append_char("|"); show_node_list(post_break(p)); flush_char; {recursive call}
+node_list_display(vlink(pre_break(p))); {recursive call}
+append_char("|"); show_node_list(vlink(post_break(p))); flush_char; {recursive call}
 end
 
 @ @<Display mark |p|@>=
@@ -4790,36 +4807,35 @@ and they are glue nodes in about half of the remaining cases.
 @p procedure flush_node_list(@!pp:pointer); {erase list of nodes starting at |p|}
 var q,p:pointer; {successor to node |p|}
 begin 
-{if p<>null then pdfassert(p>0);}
 p:=pp; {to prevent trashing of the argument pointer, for debugging}
 while p<>null do
 @^inner loop@>
   begin q:=vlink(p);
     case type(p) of
     glyph_node: begin
-      flush_node_list(lig_ptr(p));
+	  if lig_ptr(p)<>null then flush_node_list(lig_ptr(p));
       ext_free_node(p,glyph_node_size); 
       end;
+    glue_node: begin 
+      delete_glue_ref(glue_ptr(p));
+      if leader_ptr(p)<>null then flush_node_list(leader_ptr(p));
+      ext_free_node(p,glue_node_size);
+      end;
     hlist_node,vlist_node,unset_node: begin 
-	  {|if list_ptr(p)<>null then pdfassert(list_ptr(p)>0);|}
-      flush_node_list(list_ptr(p));
+	  if list_ptr(p)<>null then flush_node_list(list_ptr(p));
       ext_free_node(p,box_node_size);
       end;
     rule_node: begin 
       ext_free_node(p,rule_node_size); 
 	  end;
     ins_node: begin 
+      pdfassert(ins_ptr(p)<>null);
       flush_node_list(ins_ptr(p));
       delete_glue_ref(split_top_ptr(p));
       ext_free_node(p,ins_node_size);
       end;
     whatsit_node: 
       @<Wipe out the whatsit node |p|@>;
-    glue_node: begin 
-      delete_glue_ref(glue_ptr(p));
-      if leader_ptr(p)<>null then flush_node_list(leader_ptr(p));
-      ext_free_node(p,glue_node_size);
-      end;
     kern_node:  begin 
       ext_free_node(p,kern_node_size); 
       end;
@@ -4838,16 +4854,27 @@ while p<>null do
       ext_free_node(p,mark_node_size); 
       end;
     disc_node: begin 
-      flush_node_list(pre_break(p));
-      flush_node_list(post_break(p));
+      if vlink(pre_break(p))<>null  then begin 
+         flush_node_list(vlink(pre_break(p)));
+         end;
+      if vlink(post_break(p))<>null then begin 
+         flush_node_list(vlink(post_break(p)));
+         end;
+      if vlink(no_break(p))<>null   then begin
+         flush_node_list(vlink(no_break(p)));
+         end;
       ext_free_node(p,disc_node_size);
       end;
     adjust_node: begin 
+      pdfassert(adjust_ptr(p)<>null);
       flush_node_list(adjust_ptr(p)); 
       ext_free_node(p,adjust_node_size); 
       end;
     @t\4@>@<Cases of |flush_node_list| that arise in mlists only@>@;
-    othercases begin writeln('type is ', type(p):1); confusion("flushing"); end
+    othercases begin 
+      writeln('type is ', type(p):1); 
+      if false then confusion("flushing"); 
+      end
 @:this can't happen flushing}{\quad flushing@>
     endcases;@/
     p:=q;
@@ -4878,7 +4905,16 @@ example, if the size is altered, or if some link field is moved to another
 relative position---then this code may need to be changed too.
 @^data structure assumptions@>
 
-@p function copy_node_list(@!p:pointer):pointer; {makes a duplicate of the
+@p
+function tail_of_list (@!p:pointer):pointer;
+var q:pointer;
+begin
+  q:=p;
+  while vlink(q)<>null do q:=vlink(q);
+  tail_of_list:=q;
+end;
+@#
+function copy_node_list(@!p:pointer):pointer; {makes a duplicate of the
   node list that starts at |p| and returns a pointer to the new list}
 var h:pointer; {temporary head of copied list}
 @!q:pointer; {previous position in new list}
@@ -4893,6 +4929,16 @@ while p<>null do
   end;
 vlink(q):=null; q:=vlink(h); free_node(h,temp_node_size);
 copy_node_list:=q;
+end;
+@#
+function copy_node(@!p:pointer):pointer; {make a dupe of a single node}
+var q:pointer; {the new node}
+    s:pointer; {a saved tail}
+begin
+   s:=vlink(p); vlink(p):=null;
+   q:=copy_node_list(p);
+   vlink(p):=s; 
+   copy_node:=q;
 end;
 
 @ @<Make a copy of node |p|...@>=
@@ -4960,9 +5006,26 @@ margin_kern_node: begin r:=get_node(margin_kern_node_size);
   node_attr(margin_char(r)):=node_attr(margin_char(p));
   add_node_attr_ref(node_attr(margin_char(p)));
   end;
-disc_node: begin r:=get_node(disc_node_size);
-  s:=copy_node_list(pre_break(p)); pre_break(r):=s;
-  s:=copy_node_list(post_break(p)); post_break(r):=s;
+disc_node: begin r:=new_disc;
+  if vlink(pre_break(p))<>null then begin
+    s:=copy_node_list(vlink(pre_break(p)));
+    alink(s):=pre_break(r);
+    tlink(pre_break(r)):=tail_of_list(s); 
+    vlink(pre_break(r)):=s;
+    end;
+
+  if vlink(post_break(p))<>null then begin
+    s:=copy_node_list(vlink(post_break(p)));
+    alink(s):=post_break(r);
+    tlink(post_break(r)):=tail_of_list(s); 
+    vlink(post_break(r)):=s;
+    end;
+  if vlink(no_break(p))<>null then begin
+    s:=copy_node_list(vlink(no_break(p)));
+    alink(s):=no_break(r);
+    tlink(no_break(r)):=tail_of_list(s); 
+    vlink(no_break(r)):=s;
+    end;
   node_attr(r):=node_attr(p); add_node_attr_ref(node_attr(p)); 
   end;
 mark_node: begin r:=get_node(mark_node_size); add_token_ref(mark_ptr(p));
@@ -6126,7 +6189,8 @@ that will be defined later.
 @d disable_kern_code=62
 @d cat_code_table_code=63
 @d cur_lang_code=64 {current language id}
-@d tex_int_pars=65 {total number of \.{\\TeX} + Aleph integer parameters}
+@d ex_hyphen_char_code=65
+@d tex_int_pars=66 {total number of \.{\\TeX} + Aleph integer parameters}
 @#
 @d dir_base=int_base+tex_int_pars
 @d page_direction_code=0
@@ -6251,6 +6315,7 @@ that will be defined later.
 @d math_direction==dir_par(math_direction_code)
 @d language==int_par(language_code)
 @d cur_lang==int_par(cur_lang_code)
+@d ex_hyphen_char==int_par(ex_hyphen_char_code)
 @d left_hyphen_min==int_par(left_hyphen_min_code)
 @d right_hyphen_min==int_par(right_hyphen_min_code)
 @d holding_inserts==int_par(holding_inserts_code)
@@ -6359,6 +6424,7 @@ end_line_char_code:print_esc("endlinechar");
 new_line_char_code:print_esc("newlinechar");
 language_code:print_esc("language");
 cur_lang_code:print_esc("setlanguage");
+ex_hyphen_char_code:print_esc("exhyphenchar");
 left_hyphen_min_code:print_esc("lefthyphenmin");
 right_hyphen_min_code:print_esc("righthyphenmin");
 holding_inserts_code:print_esc("holdinginserts");
@@ -6517,6 +6583,8 @@ primitive("language",assign_int,int_base+language_code);@/
 @!@:language_}{\.{\\language} primitive@>
 primitive("setlanguage",assign_int,int_base+cur_lang_code);@/
 @!@:cur_lang_}{\.{\\setlanguage} primitive@>
+primitive("exhyphenchar",assign_int,int_base+ex_hyphen_char_code);@/
+@!@:ex_hyphen_char_}{\.{\\exhyphenchar} primitive@>
 primitive("lefthyphenmin",assign_int,int_base+left_hyphen_min_code);@/
 @!@:left_hyphen_min_}{\.{\\lefthyphenmin} primitive@>
 primitive("righthyphenmin",assign_int,int_base+right_hyphen_min_code);@/
@@ -6609,7 +6677,7 @@ mag:=1000; tolerance:=10000; hang_after:=1; max_dead_cycles:=25;
 escape_char:="\"; end_line_char:=carriage_return;
 eqtb[int_base+level_local_dir_code].int:=level_one;
 set_del_code(".",0,0,level_one); {this null delimiter is used in error recovery}
-
+ex_hyphen_char:="-";
 
 @ The following procedure, which is called just before \TeX\ initializes its
 input and output, establishes the initial values of the date and time.
@@ -6652,7 +6720,7 @@ goes only into the transcript file, unless |tracing_online| is positive.
 Here are two routines that adjust the destination of print commands:
 
 @p procedure begin_diagnostic; {prepare to do some tracing}
-begin old_setting:=selector;
+begin global_old_setting:=selector;
 if (tracing_online<=0)and(selector=term_and_log) then
   begin decr(selector);
   if history=spotless then history:=warning_issued;
@@ -6663,14 +6731,14 @@ procedure end_diagnostic(@!blank_line:boolean);
   {restore proper conditions after tracing}
 begin print_nl("");
 if blank_line then print_ln;
-selector:=old_setting;
+selector:=global_old_setting;
 end;
 
 @ Of course we had better declare another global variable, if the previous
 routines are going to work.
 
 @<Glob...@>=
-@!old_setting:0..max_selector;
+@!global_old_setting:0..max_selector;
 
 @ The final region of |eqtb| contains the dimension parameters defined
 here, and the |number_regs| \.{\\dimen} registers.
@@ -6985,33 +7053,33 @@ begin
   else 
      get_char_cat_code:=get_cat_code(cat_code_table,c)
 end;
-function get_prim_eq_level(prim:integer):quarterword;
+function get_prim_eq_level(p:integer):quarterword;
 begin
-  get_prim_eq_level := prim_eq_level(prim);
+  get_prim_eq_level := prim_eq_level(p);
 end;
-function get_prim_eq_type(prim:integer):quarterword;
+function get_prim_eq_type(p:integer):quarterword;
 begin
-  get_prim_eq_type := prim_eq_type(prim);
+  get_prim_eq_type := prim_eq_type(p);
 end;
-function get_prim_equiv(prim:integer):halfword;
+function get_prim_equiv(p:integer):halfword;
 begin
-  get_prim_equiv := prim_equiv(prim);
+  get_prim_equiv := prim_equiv(p);
 end;
-function get_eq_type(prim:integer):quarterword;
+function get_eq_type(p:integer):quarterword;
 begin
-  get_eq_type := eq_type(prim);
+  get_eq_type := eq_type(p);
 end;
-function get_eq_level(prim:integer):quarterword;
+function get_eq_level(p:integer):quarterword;
 begin
-  get_eq_level := eq_level(prim);
+  get_eq_level := eq_level(p);
 end;
 function is_undefined_cs(cs:integer):boolean;
 begin
   is_undefined_cs := (cs=undefined_cs);
 end;
-function get_equiv(prim:integer):halfword;
+function get_equiv(p:integer):halfword;
 begin
-  get_equiv := equiv(prim);
+  get_equiv := equiv(p);
 end;
 function get_cs_text(cs:integer):str_number;
 begin if cs<hash_base then
@@ -9645,7 +9713,7 @@ the initial setting of |100| should be enough to prevent problems.
 @<Global...@>=
 expand_depth_count:integer;
 
-@ @<Initialize..@>=
+@ @<Initialize whatever ...@>=
 expand_depth_count:=0;
 
 @ The |expand| subroutine is used when |cur_cmd>max_command|. It removes a
@@ -13267,6 +13335,10 @@ most recently opened, if it is possible to do this in a \PASCAL\ program.
 This routine might be called after string memory has overflowed, hence
 we dare not use `|str_room|'.
 
+@d a_make_name_string(#)==make_name_string
+@d b_make_name_string(#)==make_name_string
+@d w_make_name_string(#)==make_name_string
+
 @p function make_name_string:str_number;
 var k:1..file_name_size; {index into |nameoffile|}
 begin if (pool_ptr+namelength>pool_size)or(str_ptr=max_strings)or
@@ -13275,15 +13347,6 @@ begin if (pool_ptr+namelength>pool_size)or(str_ptr=max_strings)or
 else  begin for k:=1 to namelength do append_char(nameoffile[k]);
   make_name_string:=make_string;
   end;
-end;
-function a_make_name_string(var f:alpha_file):str_number;
-begin a_make_name_string:=make_name_string;
-end;
-function b_make_name_string(var f:byte_file):str_number;
-begin b_make_name_string:=make_name_string;
-end;
-function w_make_name_string(var f:word_file):str_number;
-begin w_make_name_string:=make_name_string;
 end;
 
 @ Now let's consider the ``driver''
@@ -13716,7 +13779,9 @@ procedure add_ocp_stack(min_index:integer; min_value:scaled);
 var p:ocp_lstack_index;
     llstack_no:scaled;
     counter:integer;
+	m:scaled;
 begin
+m:=min_value; { TH: whatever this is ..}
 p:=ocp_list_lstack(holding[min_index]);
 llstack_no:=ocp_list_lstack_no(holding[min_index]);
 counter:=0;
@@ -15538,7 +15603,7 @@ dvi_dir_h,dvi_dir_ptr,dvi_temp_ptr:integer;
 @!this_box: pointer; {pointer to containing box}
 @!g_order: glue_ord; {applicable order of infinity for glue}
 @!g_sign: normal..shrinking; {selects type of glue}
-@!p:pointer; {current position in the hlist}
+@!p,q:pointer; {current position in the hlist}
 @!save_loc:integer; {\.{DVI} byte location upon entry}
 @!leader_box:pointer; {the leader box being replicated}
 @!leader_wd:scaled; {width of leader box being replicated}
@@ -15745,6 +15810,12 @@ rule_node: begin
   end;
 whatsit_node: @<Output the whatsit node |p| in an hlist@>;
 glue_node: @<Move right or output leaders@>;
+disc_node: if vlink(no_break(p))<>null then begin
+  vlink(tlink(no_break(p))):=vlink(p);
+  q:=vlink(no_break(p)); 
+  vlink(no_break(p)):=null;
+  vlink(p):=q; 
+  end;
 margin_kern_node,kern_node:cur_h:=cur_h+width(p);
 math_node:cur_h:=cur_h+surround(p);
 othercases do_nothing
@@ -16629,8 +16700,7 @@ end;
 @ Helper for debugging purposes
 
 @p procedure short_display_n(@!p, m:integer); {prints highlights of list |p|}
-var n:integer; {for replacement counts}
-    i: integer;
+var i: integer;
 begin
 i := 0;
 font_in_short_display:=null_font;
@@ -16659,15 +16729,10 @@ while p<>null do
          return;
       if (type(p) = disc_node) then begin
           print("|");
-          short_display(pre_break(p));
+          short_display(vlink(pre_break(p)));
           print("|");
-          short_display(post_break(p));
+          short_display(vlink(post_break(p)));
           print("|");
-          n:=replace_count(p);
-          while n>0 do
-              begin if vlink(p)<>null then p:=vlink(p);
-          decr(n);
-          end;
         end
         else
             @<Print a short indication of the contents of node |p|@>;
@@ -17156,6 +17221,7 @@ end;
 
 function tokens_to_string(p: pointer): str_number; {return a string from tokens
 list}
+var old_setting:integer;
 begin
     if selector = new_string then
         pdf_error("tokens", "tokens_to_string() called while selector = new_string");
@@ -17638,19 +17704,19 @@ begin
     pdf_end_text;
     pdf_print_ln("q");
     if h <= one_bp then begin
-        pdf_set_origin_temp(cur_h, cur_v - (h + 1)/2);
+        pdf_set_origin_temp(x, y - (h + 1)/2);
         pdf_print("[]0 d 0 J ");
         pdf_print_bp(h); pdf_print(" w 0 0 m ");
         pdf_print_bp(w); pdf_print_ln(" 0 l S");
     end
     else if w <= one_bp then begin
-        pdf_set_origin_temp(cur_h + (w + 1)/2, cur_v);
+        pdf_set_origin_temp(x + (w + 1)/2, cur_v);
         pdf_print("[]0 d 0 J ");
         pdf_print_bp(w); pdf_print(" w 0 0 m 0 ");
         pdf_print_bp(h); pdf_print_ln(" l S");
     end
     else begin
-        pdf_set_origin_temp(cur_h, cur_v);
+        pdf_set_origin_temp(x, y);
         pdf_print("0 0 ");
         pdf_print_bp(w); pdf_out(" ");
         pdf_print_bp(h); pdf_print_ln(" re f");
@@ -18437,14 +18503,14 @@ The |has_packet()| C macro checks for this condition.
 
 @ The following code typesets a character to PDF output.
 
-@p procedure output_one_char(ff:internal_font_number;c:integer);
+@p procedure output_one_char(ffi:internal_font_number;c:integer);
 begin
-  if has_packet(ff,c) then
-      do_vf_packet(ff, c)
+  if has_packet(ffi,c) then
+      do_vf_packet(ffi, c)
   else begin
-      pdf_begin_string(ff);
-      pdf_print_char(ff, c);
-      adv_char_width(ff, c);
+      pdf_begin_string(ffi);
+      pdf_print_char(ffi, c);
+      adv_char_width(ffi, c);
   end;
 end;
 
@@ -18986,13 +19052,13 @@ begin
     flush_str(s);
 end;
 
-procedure pdf_out_save(p:pointer);
+procedure pdf_out_save;
 begin
     checkpdfsave(cur_h, cur_v);
     literal("q", set_origin, false);
 end;
 
-procedure pdf_out_restore(p:pointer);
+procedure pdf_out_restore;
 begin
     checkpdfrestore(cur_h, cur_v);
     literal("Q", set_origin, false);
@@ -19132,6 +19198,7 @@ end
 
 
 @<Output node |p| for |pdf_hlist_out|...@>=
+begin
 if is_char_node(p) then 
   begin
   repeat f:=font(p); c:=character(p);
@@ -19276,12 +19343,19 @@ if is_char_node(p) then
   until not is_char_node(p);
   end
 else @<Output the non-|char_node| |p| for |pdf_hlist_out|
-    and move to the next node@>
-
+    and move to the next node@>;
+end
 
 @ @<Output the non-|char_node| |p| for |pdf_hlist_out|...@>=
 begin case type(p) of
 hlist_node,vlist_node:@<(\pdfTeX) Output a box in an hlist@>;
+disc_node: if vlink(no_break(p))<>null then begin
+  q:=tail_of_list (vlink(no_break(p))); {TODO, this should be a tlink}
+  vlink(q):=vlink(p);
+  q:=vlink(no_break(p)); 
+  vlink(no_break(p)):=null;
+  vlink(p):=q; 
+  end;
 rule_node: begin 
   if not (dir_orthogonal(dir_primary[rule_dir(p)])(dir_primary[dvi_direction]))
     then begin
@@ -20527,19 +20601,19 @@ if (pdf_unique_resname > 0) and (pdf_resname_prefix = 0) then
 
 The following procedures sort the table of destination names
 @p function str_less_str(s1, s2: str_number): boolean; {compare two strings}
-var j1, j2: pool_pointer;
+var c1, c2: pool_pointer;
     l, i: integer;
 begin
-    j1 := str_start_macro(s1);
-    j2 := str_start_macro(s2);
+    c1 := str_start_macro(s1);
+    c2 := str_start_macro(s2);
     if length(s1) < length(s2) then
         l := length(s1)
     else
         l := length(s2);
     i := 0;
-    while (i < l) and (str_pool[j1 + i] = str_pool[j2 + i]) do
+    while (i < l) and (str_pool[c1 + i] = str_pool[c2 + i]) do
         incr(i);
-    if ((i < l) and (str_pool[j1 + i] < str_pool[j2 + i])) or
+    if ((i < l) and (str_pool[c1 + i] < str_pool[c2 + i])) or
         ((i = l) and (length(s1) < length(s2))) then
         str_less_str := true
     else
@@ -21248,8 +21322,6 @@ location |adjust_tail|.
 @!font_expand_ratio: integer; {current expansion ratio}
 @!last_leftmost_char: pointer;
 @!last_rightmost_char: pointer;
-@!hlist_stack:array[0..max_hlist_stack] of pointer; {stack for |find_protchar_left()| and |find_protchar_right()|}
-@!hlist_stack_level:0..max_hlist_stack; {fill level for |hlist_stack|}
 
 @ @d cal_margin_kern_var(#) ==
 begin
@@ -21264,17 +21336,15 @@ begin
         margin_kern_shrink := margin_kern_shrink + left_pw(cp) - left_pw(#);
 end
 
-@<Calculate variations of marginal kerns@>=
-begin
-    lp := last_leftmost_char;
-    rp := last_rightmost_char;
-    cp := new_char_node(0,0);
-    if lp <> null then
-        cal_margin_kern_var(lp);
-    if rp <> null then
-        cal_margin_kern_var(rp);
-    ext_free_node(cp,glyph_node_size);
-end
+@ @<Glob...@>=
+next_char_p:pointer; {pointer to the next char of an implicit kern}
+prev_char_p:pointer; {pointer to the previous char of an implicit kern}
+
+@ This procedure is called repeatedly from inside the line break algorithm.
+
+@p procedure set_prev_char_p(p:pointer);
+begin prev_char_p:=p;
+end;
 
 @ Here is |hpack|, which is place where we do font substituting when
 font expansion is being used. We define some constants used when calling
@@ -21289,36 +21359,7 @@ font expansion is being used. We define some constants used when calling
 @d left_pw(#) == char_pw(#, left_side)
 @d right_pw(#) == char_pw(#, right_side)
 
-@p
-function check_expand_pars(f: internal_font_number): boolean;
-var k: internal_font_number;
-begin
-    check_expand_pars := false;
-    if (pdf_font_step[f] = 0) or ((pdf_font_stretch[f] = null_font) and
-                                  (pdf_font_shrink[f] = null_font)) then
-        return;
-    if cur_font_step < 0 then
-        cur_font_step := pdf_font_step[f]
-    else if cur_font_step <> pdf_font_step[f] then
-        pdf_error("font expansion", "using fonts with different step of expansion in one paragraph is not allowed");
-    k := pdf_font_stretch[f];
-    if k <> null_font then begin
-        if max_stretch_ratio < 0 then
-            max_stretch_ratio := pdf_font_expand_ratio[k]
-        else if max_stretch_ratio <> pdf_font_expand_ratio[k] then
-            pdf_error("font expansion", "using fonts with different limit of expansion in one paragraph is not allowed");
-    end;
-    k := pdf_font_shrink[f];
-    if k <> null_font then begin
-        if max_shrink_ratio < 0 then
-            max_shrink_ratio := pdf_font_expand_ratio[k]
-        else if max_shrink_ratio <> pdf_font_expand_ratio[k] then
-            pdf_error("font expansion", "using fonts with different limit of expansion in one paragraph is not allowed");
-    end;
-    check_expand_pars := true;
-end;
-
-function char_stretch(p:halfword): scaled;
+@p function char_stretch(p:halfword): scaled;
 var k: internal_font_number;
     dw: scaled;
     ef: integer;
@@ -21402,13 +21443,19 @@ var f, k: internal_font_number;
     ef: integer;
 begin
     if not is_char_node(p) and (type(p) = disc_node) then begin
-        r := pre_break(p);
+        r := vlink(pre_break(p));
         while r <> null do begin
             if is_char_node(r) then
                 do_subst_font(r, ex_ratio);
             r := vlink(r);
         end;
-        r := post_break(p);
+        r := vlink(post_break(p));
+        while r <> null do begin
+            if is_char_node(r) then
+                do_subst_font(r, ex_ratio);
+            r := vlink(r);
+        end;
+        r := vlink(no_break(p));
         while r <> null do begin
             if is_char_node(r) then
                 do_subst_font(r, ex_ratio);
@@ -21492,7 +21539,7 @@ begin
 end;
 
 function hpack(@!p:pointer;@!w:scaled;@!m:small_number):pointer;
-label common_ending,exit;
+label reswitch,common_ending,exit;
 var r:pointer; {the box node that will be returned}
 @!q:pointer; {trails behind |p|}
 @!h,@!d,@!x:scaled; {height, depth, and natural width}
@@ -21502,6 +21549,8 @@ var r:pointer; {the box node that will be returned}
 @!f:internal_font_number; {the font in a |char_node|}
 @!dir_tmp,dir_ptr:pointer; {for managing the direction stack}
 @!hpack_dir:integer; {the current direction}
+@!disc_level:integer;
+pack_interrupt:array[0..255] of halfword;
 font_stretch: scaled;
 font_shrink: scaled;
 k: scaled;
@@ -21523,9 +21572,18 @@ if m = cal_expand_ratio then begin
     font_expand_ratio := 0;
 end;
 h:=0; @<Clear dimensions to zero@>;
-while p<>null do @<Examine node |p| in the hlist, taking account of its effect
+disc_level:=0;
+reswitch:
+while (p<>null)or(disc_level>0) do begin
+  if p=null then begin
+     decr(disc_level);
+     p:=pack_interrupt[disc_level];
+     goto reswitch;
+     end;
+  @<Examine node |p| in the hlist, taking account of its effect
   on the dimensions of the new box, or moving it to the adjustment list;
   then advance |p| to the next node@>;
+  end;
 if adjust_tail<>null then vlink(adjust_tail):=null;
 if pre_adjust_tail<>null then vlink(pre_adjust_tail):=null;
 height(r):=h; depth(r):=d;@/
@@ -21621,8 +21679,14 @@ if p<>null then
     end;
   math_node: x:=x+surround(p);
   disc_node:
-      if m = subst_ex_font then
-          do_subst_font(p, font_expand_ratio);
+      begin
+      if m = subst_ex_font then do_subst_font(p, font_expand_ratio);
+      if vlink(no_break(p))<>null then begin
+        pack_interrupt[disc_level]:=vlink(p);
+        incr(disc_level);
+        p:=no_break(p);
+        end;
+      end;
   othercases do_nothing
   endcases;@/
   p:=vlink(p);
@@ -23084,11 +23148,11 @@ var mlist:pointer; {beginning of the given list}
 @!p,@!x,@!y,@!z: pointer; {temporary registers for list construction}
 @!pen:integer; {a penalty to be inserted}
 @!s:integer; {the size of a noad to be deleted}
-@!max_h,@!max_d:scaled; {maximum height and depth of the list translated so far}
+@!max_hl,@!max_d:scaled; {maximum height and depth of the list translated so far}
 @!delta:scaled; {offset between subscript and superscript}
 begin mlist:=cur_mlist; penalties:=mlist_penalties;
 style:=cur_style; {tuck global parameters away as local variables}
-q:=mlist; r:=null; r_type:=op_noad; max_h:=0; max_d:=0; x:=null; p:=null;
+q:=mlist; r:=null; r_type:=op_noad; max_hl:=0; max_d:=0; x:=null; p:=null;
 @<Set up the values of |cur_size| and |cur_mu|, based on |cur_style|@>;
 while q<>null do @<Process node-or-noad |q| as much as possible in preparation
     for the second pass of |mlist_to_hlist|, then move to the next
@@ -23107,7 +23171,7 @@ begin @<Do first-pass processing based on |type(q)|; |goto done_with_noad|
   has been translated into |new_hlist(q)|, or |goto done_with_node|
   if a node has been fully processed@>;
 check_dimensions: z:=hpack(new_hlist(q),natural);
-if height(z)>max_h then max_h:=height(z);
+if height(z)>max_hl then max_hl:=height(z);
 if depth(z)>max_d then max_d:=depth(z);
 ext_free_node(z,box_node_size);
 done_with_noad: r:=q; r_type:=type(r);
@@ -23154,7 +23218,7 @@ choice_node: @<Change this node to a style node followed by the correct choice,
    then |goto done_with_node|@>;
 ins_node,mark_node,adjust_node,
   whatsit_node,penalty_node,disc_node: goto done_with_node;
-rule_node: begin if height(q)>max_h then max_h:=height(q);
+rule_node: begin if height(q)>max_hl then max_hl:=height(q);
   if depth(q)>max_d then max_d:=depth(q); goto done_with_node;
   end;
 glue_node: begin @<Convert \(m)math glue to ordinary glue@>;
@@ -23754,7 +23818,7 @@ end
 @ We have now tied up all the loose ends of the first pass of |mlist_to_hlist|.
 The second pass simply goes through and hooks everything together with the
 proper glue and penalties. It also handles the |left_noad| and |right_noad| that
-might be present, since |max_h| and |max_d| are now known. Variable |p| points
+might be present, since |max_hl| and |max_d| are now known. Variable |p| points
 to a node at the current end of the final hlist.
 
 @<Make a second pass over the mlist, ...@>=
@@ -23789,7 +23853,7 @@ radical_noad: s:=radical_noad_size;
 accent_noad: s:=accent_noad_size;
 fraction_noad: begin t:=inner_noad; s:=fraction_noad_size;
   end;
-left_noad,right_noad: t:=make_left_right(q,style,max_d,max_h);
+left_noad,right_noad: t:=make_left_right(q,style,max_d,max_hl);
 style_node: @<Change the current style and |goto delete_q|@>;
 whatsit_node,penalty_node,rule_node,disc_node,adjust_node,ins_node,mark_node,
  glue_node,kern_node:@t@>@;@/
@@ -23808,12 +23872,12 @@ We use the fact that |right_noad-left_noad=close_noad-open_noad|.
 
 @<Declare math...@>=
 function make_left_right(@!q:pointer;@!style:integer;
-  @!max_d,@!max_h:scaled):small_number;
+  @!max_d,@!max_hv:scaled):small_number;
 var delta,@!delta1,@!delta2:scaled; {dimensions used in the calculation}
 tmp:pointer;
 begin cur_style:=style; @<Set up the values...@>;
 delta2:=max_d+axis_height(cur_size);
-delta1:=max_h+max_d-delta2;
+delta1:=max_hv+max_d-delta2;
 if delta2>delta1 then delta1:=delta2; {|delta1| is max distance from axis}
 delta:=(delta1 div 500)*delimiter_factor;
 delta2:=delta1+delta1-delimiter_shortfall;
@@ -24863,34 +24927,66 @@ temp_no_whatsits:=0; temp_no_dirs:=0; temporary_dir:=0;
 dir_ptr:=null; dir_tmp:=null; dir_rover:=null;
 line_break_context := bottom_level;
 
-@ Since |line_break| is a rather lengthy procedure---sort of a small world unto
-itself---we must build it up little by little, somewhat more cautiously
-than we have done with the simpler procedures of \TeX. Here is the
-general outline.
+@ In it's complete form, |line_break| is a rather lengthy
+procedure---sort of a small world unto itself---we must build it up
+little by little. Below you see only te general outline.
 
-@p@t\4@>@<Declare subprocedures for |line_break|@>
-procedure line_break(@!d:boolean);
-label done,done1,done2,done3,done4,done5,continue;
+The main task performed here is to move the list from |head| to
+|temp_head| and go into the enclosing semantic level. We also append
+the \.{\\parfillskip} glue to the end of the paragraph, removing a
+space (or other glue node) if it was there, since spaces usually
+precede blank lines and instances of `\.{\$\$}'. The |par_fill_skip|
+is preceded by an infinite penalty, so it will never be considered as
+a potential breakpoint.
+
+That code assumes that a |glue_node| and a |penalty_node| occupy the
+same number of |mem|~words.
+@^data structure assumptions@>
+
+Most other processing is delegated to external functions.
+
+@p procedure line_break(@!d:boolean);
+var final_par_glue:pointer;
 begin pack_begin_line:=mode_line; {this is for over/underfull box messages}
 vlink(temp_head):=vlink(head);
-@<Initialize for hyphenating a paragraph@>;
+new_hyphenation(temp_head, tail);
 if (not is_char_node(vlink(head))) and ((type(vlink(head))=whatsit_node)
    and (subtype(vlink(head))=local_par_node)) then 
   paragraph_dir:=local_par_dir(vlink(head)) 
 else
   paragraph_dir:=0;
 line_break_dir:=paragraph_dir;
-@<DIR: Initialize |dir_ptr| for |line_break|@>;
-@<Insert ligatures and kerns into the paragraph@>;
-@<Get ready to start line breaking@>;
+new_ligkern(temp_head,tail, paragraph_dir);
+if is_char_node(tail) then tail_append(new_penalty(inf_penalty))
+else if type(tail)<>glue_node then tail_append(new_penalty(inf_penalty))
+else begin 
+  type(tail):=penalty_node; 
+  delete_glue_ref(glue_ptr(tail));
+  if leader_ptr(tail)<>null then
+    flush_node_list(leader_ptr(tail));
+  penalty(tail):=inf_penalty;
+  end;
+final_par_glue:=new_param_glue(par_fill_skip_code);
+vlink(tail):=final_par_glue;
+alink(final_par_glue):=tail;
+if not output_active then 
+  lua_node_filter(pre_linebreak_filter_callback,
+	line_break_context,temp_head,addressof(tail));
 last_line_fill:=vlink(tail);
 pop_nest;
 ext_do_line_break(d,pretolerance,tracing_paragraphs,tolerance,emergency_stretch,
-		   prev_graf,looseness,hyphen_penalty,ex_hyphen_penalty,
+		   looseness,hyphen_penalty,ex_hyphen_penalty,
 		   pdf_adjust_spacing, par_shape_ptr, adj_demerits,
 		   pdf_protrude_chars, line_penalty, last_line_fit, 
 		   double_hyphen_demerits, final_hyphen_demerits,
-		   hang_indent, hsize, hang_after, left_skip, right_skip);
+		   hang_indent, hsize, hang_after, left_skip, right_skip,
+		   pdf_each_line_height,pdf_each_line_depth,
+		   pdf_first_line_height, pdf_last_line_depth,
+		   inter_line_penalties_ptr, inter_line_penalty,
+		   club_penalty, club_penalties_ptr,
+		   display_widow_penalties_ptr,widow_penalties_ptr,
+		   display_widow_penalty, widow_penalty,
+		   broken_penalty, final_par_glue);
 {TODO the next line was supposed to fix a mem leak, but in the 
   presence of \.{\\textdir} it creates crashes instead. Apparently,
   some of the nodes in the list can be freed, others not. For the
@@ -24900,33 +24996,6 @@ pack_begin_line:=0;
 end;
 @#
 @t\4@>@<Declare \eTeX\ procedures for use by |main_control|@>
-
-@ The first task is to move the list from |head| to |temp_head| and go
-into the enclosing semantic level. We also append the \.{\\parfillskip}
-glue to the end of the paragraph, removing a space (or other glue node) if
-it was there, since spaces usually precede blank lines and instances of
-`\.{\$\$}'. The |par_fill_skip| is preceded by an infinite penalty, so
-it will never be considered as a potential breakpoint.
-
-This code assumes that a |glue_node| and a |penalty_node| occupy the
-same number of |mem|~words.
-@^data structure assumptions@>
-
-@<Get ready to start...@>=
-begin
-if is_char_node(tail) then tail_append(new_penalty(inf_penalty))
-else if type(tail)<>glue_node then tail_append(new_penalty(inf_penalty))
-else begin 
-  type(tail):=penalty_node; 
-  delete_glue_ref(glue_ptr(tail));
-  flush_node_list(leader_ptr(tail));
-  penalty(tail):=inf_penalty;
-  end;
-final_par_glue:=new_param_glue(par_fill_skip_code);
-vlink(tail):=final_par_glue;
-if not output_active then 
-  lua_node_filter(pre_linebreak_filter_callback,line_break_context,temp_head,addressof(tail));
-end
 
 @ It is possible that the user wants to interfere at some point.  
 
@@ -24941,945 +25010,16 @@ lua_node_filter_s(buildpage_filter_callback,#,contrib_head,addressof(garbage))
 
 @d check_filter==check_head_filter
 
-@ Now that the ligkern processing is no longer part of the main loop,
-it has to be handled elsewhere. There are two places where this has to
-take place: just before the line breaking stage, and just before
-|hpack|.
-
-@<Insert ligatures and kerns into the paragraph@>=
-new_ligkern(temp_head,tail, paragraph_dir);
-
-@ When looking for optimal line breaks, \TeX\ creates a ``break node'' for
-each break that is {\sl feasible}, in the sense that there is a way to end
-a line at the given place without requiring any line to stretch more than
-a given tolerance. A break node is characterized by three things: the position
-of the break (which is a pointer to a |glue_node|, |math_node|, |penalty_node|,
-or |disc_node|); the ordinal number of the line that will follow this
-breakpoint; and the fitness classification of the line that has just
-ended, i.e., |tight_fit|, |decent_fit|, |loose_fit|, or |very_loose_fit|.
-
-@d tight_fit=3 {fitness classification for lines shrinking 0.5 to 1.0 of their
-  shrinkability}
-@d loose_fit=1 {fitness classification for lines stretching 0.5 to 1.0 of their
-  stretchability}
-@d very_loose_fit=0 {fitness classification for lines stretching more than
-  their stretchability}
-@d decent_fit=2 {fitness classification for all other lines}
-
-@ The algorithm essentially determines the best possible way to achieve
-each feasible combination of position, line, and fitness. Thus, it answers
-questions like, ``What is the best way to break the opening part of the
-paragraph so that the fourth line is a tight line ending at such-and-such
-a place?'' However, the fact that all lines are to be the same length
-after a certain point makes it possible to regard all sufficiently large
-line numbers as equivalent, when the looseness parameter is zero, and this
-makes it possible for the algorithm to save space and time.
-
-An ``active node'' and a ``passive node'' are created in |mem| for each
-feasible breakpoint that needs to be considered. Active nodes are three
-words long and passive nodes are two words long. We need active nodes only
-for breakpoints near the place in the paragraph that is currently being
-examined, so they are recycled within a comparatively short time after
-they are created.
-
-@ An active node for a given breakpoint contains six fields:
-
-\yskip\hang|vlink| points to the next node in the list of active nodes; the
-last active node has |vlink=last_active|.
-
-\yskip\hang|break_node| points to the passive node associated with this
-breakpoint.
-
-\yskip\hang|line_number| is the number of the line that follows this
-breakpoint.
-
-\yskip\hang|fitness| is the fitness classification of the line ending at this
-breakpoint.
-
-\yskip\hang|type| is either |hyphenated| or |unhyphenated|, depending on
-whether this breakpoint is a |disc_node|.
-
-\yskip\hang|total_demerits| is the minimum possible sum of demerits over all
-lines leading from the beginning of the paragraph to this breakpoint.
-
-\yskip\noindent
-The value of |vlink(active)| points to the first active node on a vlinked list
-of all currently active nodes. This list is in order by |line_number|,
-except that nodes with |line_number>easy_line| may be in any order relative
-to each other.
-
-@d active_node_size_normal=3 {number of words in normal active nodes}
-@d fitness==subtype {|very_loose_fit..tight_fit| on final line for this break}
-@d break_node==rlink {pointer to the corresponding passive node}
-@d line_number==llink {line that begins at this breakpoint}
-@d total_demerits(#)==vmem(#+2).int {the quantity that \TeX\ minimizes}
-@d unhyphenated=50 {the |type| of a normal active break node}
-@d hyphenated=51 {the |type| of an active node that breaks at a |disc_node|}
-@d last_active==active {the active list ends where it begins}
-
-@ @<Initialize the special list heads...@>=
-type(last_active):=hyphenated; line_number(last_active):=max_halfword;
-subtype(last_active):=0; {the |subtype| is never examined by the algorithm}
-
-@ The passive node for a given breakpoint contains EIGHT fields:
-
-\yskip\hang|vlink| points to the passive node created just before this one,
-if any, otherwise it is |null|.
-
-\yskip\hang|cur_break| points to the position of this breakpoint in the
-horizontal list for the paragraph being broken.
-
-\yskip\hang|prev_break| points to the passive node that should precede this
-one in an optimal path to this breakpoint.
-
-\yskip\hang|serial| is equal to |n| if this passive node is the |n|th
-one created during the current pass. (This field is used only when
-printing out detailed statistics about the line-breaking calculations.)
-
-\yskip\hang|passive_pen_inter| holds the current \.{\\localinterlinepenalty}
-
-\yskip\hang|passive_pen_broken| holds the current \.{\\localbrokenpenalty}
-
-\yskip\noindent
-There is a global variable called |passive| that points to the most
-recently created passive node. Another global variable, |printed_node|,
-is used to help print out the paragraph when detailed information about
-the line-breaking computation is being displayed.
-
-@d passive_node_size=8 {number of words in passive nodes}
-@d passive_node=53
-@d cur_break==rlink {in passive node, points to position of this breakpoint}
-@d prev_break==llink {points to passive node that should precede this one}
-@d serial(#)==vlink(#+7) {serial number for symbolic identification}
-@d passive_pen_inter(#)==vmem(#+2).int
-@d passive_pen_broken(#)==vmem(#+3).int
-@d passive_left_box(#)==vlink(#+4)
-@d passive_left_box_width(#)==vinfo(#+4)
-@d passive_last_left_box(#)==vlink(#+5)
-@d passive_last_left_box_width(#)==vinfo(#+5)
-@d passive_right_box(#)==vlink(#+6)
-@d passive_right_box_width(#)==vinfo(#+6)
-
-@<Glob...@>=
-@!passive:pointer; {most recent node on passive list}
-@!printed_node:pointer; {most recent node that has been printed}
-@!pass_number:halfword; {the number of passive nodes allocated on this pass}
-@!final_par_glue:pointer;
-
-@ The active list also contains ``delta'' nodes that help the algorithm
-compute the badness of individual lines. Such nodes appear only between two
-active nodes, and they have |type=delta_node|. If |p| and |r| are active nodes
-and if |q| is a delta node between them, so that |vlink(p)=q| and |vlink(q)=r|,
-then |q| tells the space difference between lines in the horizontal list that
-start after breakpoint |p| and lines that start after breakpoint |r|. In
-other words, if we know the length of the line that starts after |p| and
-ends at our current position, then the corresponding length of the line that
-starts after |r| is obtained by adding the amounts in node~|q|. A delta node
-contains seven scaled numbers, since it must record the net change in glue
-stretchability with respect to all orders of infinity. The natural width
-difference appears in |mem[q+1].sc|; the stretch differences in units of
-pt, sfi, fil, fill, and filll appear in |mem[q+2..q+6].sc|; and the shrink
-difference appears in |mem[q+7].sc|. The |subtype| field of a delta node
-is not used.
-
-Actually, we have two more fields that are used by |pdftex|.
-
-@d delta_node_size=11 {number of words in a delta node}
-@d delta_node=52 {|type| field in a delta node}
-
-@ As the algorithm runs, it maintains a set of seven delta-like registers
-for the length of the line following the first active breakpoint to the
-current position in the given hlist. When it makes a pass through the
-active list, it also maintains a similar set of seven registers for the
-length following the active breakpoint of current interest. A third set
-holds the length of an empty line (namely, the sum of \.{\\leftskip} and
-\.{\\rightskip}); and a fourth set is used to create new delta nodes.
-
-When we pass a delta node we want to do operations like
-$$\hbox{\ignorespaces|for
-k:=1 to 7 do cur_active_width[k]:=cur_active_width[k]+mem[q+k].sc|};$$ and we
-want to do this without the overhead of |for| loops. The |do_all_six|
-macro makes such six-tuples convenient.
-
-@d do_all_six(#)==#(1);#(2);#(3);#(4);#(5);#(6);#(7)
-
-@d do_seven_eight(#) == if pdf_adjust_spacing > 1 then begin #(8);#(9); end
-@d do_all_eight(#) == do_all_six(#); do_seven_eight(#)
-@d do_one_seven_eight(#) == #(1); do_seven_eight(#)
-
-@d total_font_stretch == cur_active_width[8]
-@d total_font_shrink == cur_active_width[9]
-
-@d save_active_width(#) == prev_active_width[#] := active_width[#]
-@d restore_active_width(#) == active_width[#] := prev_active_width[#]
-
-@<Glo...@>=
-@!active_width:array[1..9] of scaled;
-  {distance from first active node to~|cur_p|}
-@!cur_active_width:array[1..9] of scaled; {distance from current active node}
-@!background:array[1..9] of scaled; {length of an ``empty'' line}
-@!break_width:array[1..9] of scaled; {length being computed after current break}
-@#
-@!auto_breaking: boolean; {make |auto_breaking| accessible out of |line_break|}
-@!prev_p: pointer; {make |prev_p| accessible out of |line_break|}
-@!first_p: pointer; {to access the first node of the paragraph}
-@!prev_char_p: pointer; {pointer to the previous char of an implicit kern}
-@!next_char_p: pointer; {pointer to the next char of an implicit kern}
-@#
-@!try_prev_break: boolean; {force break at the previous legal breakpoint?}
-@!prev_legal: pointer; {the previous legal breakpoint}
-@!prev_prev_legal: pointer; {to save |prev_p| corresponding to |prev_legal|}
-@!prev_auto_breaking: boolean; {to save |auto_breaking| corresponding to |prev_legal|}
-@!prev_active_width: array[1..8] of scaled; {to save |active_width| corresponding to |prev_legal|}
-@!rejected_cur_p: pointer; {the last |cur_p| that has been rejected}
-@!before_rejected_cur_p: boolean; {|cur_p| is still before |rejected_cur_p|?}
-@#
-@!max_stretch_ratio: integer; {maximal stretch ratio of expanded fonts}
-@!max_shrink_ratio: integer; {maximal shrink ratio of expanded fonts}
-@!cur_font_step: integer; {the current step of expanded fonts}
-
-@ Let's state the principles of the delta nodes more precisely and concisely,
-so that the following programs will be less obscure. For each legal
-breakpoint~|p| in the paragraph, we define two quantities $\alpha(p)$ and
-$\beta(p)$ such that the length of material in a line from breakpoint~|p|
-to breakpoint~|q| is $\gamma+\beta(q)-\alpha(p)$, for some fixed $\gamma$.
-Intuitively, $\alpha(p)$ and $\beta(q)$ are the total length of material from
-the beginning of the paragraph to a point ``after'' a break at |p| and to a
-point ``before'' a break at |q|; and $\gamma$ is the width of an empty line,
-namely the length contributed by \.{\\leftskip} and \.{\\rightskip}.
-
-Suppose, for example, that the paragraph consists entirely of alternating
-boxes and glue skips; let the boxes have widths $x_1\ldots x_n$ and
-let the skips have widths $y_1\ldots y_n$, so that the paragraph can be
-represented by $x_1y_1\ldots x_ny_n$. Let $p_i$ be the legal breakpoint
-at $y_i$; then $\alpha(p_i)=x_1+y_1+\cdots+x_i+y_i$, and $\beta(p_i)=
-x_1+y_1+\cdots+x_i$. To check this, note that the length of material from
-$p_2$ to $p_5$, say, is $\gamma+x_3+y_3+x_4+y_4+x_5=\gamma+\beta(p_5)
--\alpha(p_2)$.
-
-The quantities $\alpha$, $\beta$, $\gamma$ involve glue stretchability and
-shrinkability as well as a natural width. If we were to compute $\alpha(p)$
-and $\beta(p)$ for each |p|, we would need multiple precision arithmetic, and
-the multiprecise numbers would have to be kept in the active nodes.
-\TeX\ avoids this problem by working entirely with relative differences
-or ``deltas.'' Suppose, for example, that the active list contains
-$a_1\,\delta_1\,a_2\,\delta_2\,a_3$, where the |a|'s are active breakpoints
-and the $\delta$'s are delta nodes. Then $\delta_1=\alpha(a_1)-\alpha(a_2)$
-and $\delta_2=\alpha(a_2)-\alpha(a_3)$. If the line breaking algorithm is
-currently positioned at some other breakpoint |p|, the |active_width| array
-contains the value $\gamma+\beta(p)-\alpha(a_1)$. If we are scanning through
-the list of active nodes and considering a tentative line that runs from
-$a_2$ to~|p|, say, the |cur_active_width| array will contain the value
-$\gamma+\beta(p)-\alpha(a_2)$. Thus, when we move from $a_2$ to $a_3$,
-we want to add $\alpha(a_2)-\alpha(a_3)$ to |cur_active_width|; and this
-is just $\delta_2$, which appears in the active list between $a_2$ and
-$a_3$. The |background| array contains $\gamma$. The |break_width| array
-will be used to calculate values of new delta nodes when the active
-list is being updated.
-
-@ Glue nodes in a horizontal list that is being paragraphed are not supposed to
-include ``infinite'' shrinkability; that is why the algorithm maintains
-four registers for stretching but only one for shrinking. If the user tries to
-introduce infinite shrinkability, the shrinkability will be reset to finite
-and an error message will be issued. A boolean variable |no_shrink_error_yet|
-prevents this error message from appearing more than once per paragraph.
-
-@d check_shrinkage(#)==if (shrink_order(#)<>normal)and(shrink(#)<>0) then
-  begin #:=finite_shrink(#);
-  end
-
-@<Glob...@>=
-@!no_shrink_error_yet:boolean; {have we complained about infinite shrinkage?}
-
-@ @<Declare subprocedures for |line_break|@>=
-function finite_shrink(@!p:pointer):pointer; {recovers from infinite shrinkage}
-var q:pointer; {new glue specification}
-begin if no_shrink_error_yet then
-  begin no_shrink_error_yet:=false;
-  print_err("Infinite glue shrinkage found in a paragraph");
-@.Infinite glue shrinkage...@>
-  help5("The paragraph just ended includes some glue that has")@/
-  ("infinite shrinkability, e.g., `\hskip 0pt minus 1fil'.")@/
-  ("Such glue doesn't belong there---it allows a paragraph")@/
-  ("of any length to fit on one line. But it's safe to proceed,")@/
-  ("since the offensive shrinkability has been made finite.");
-  error;
-  end;
-q:=new_spec(p); shrink_order(q):=normal;
-delete_glue_ref(p); finite_shrink:=q;
-end;
-
-@ A pointer variable |cur_p| runs through the given horizontal list as we look
-for breakpoints. This variable is global, since it is used both by |line_break|
-and by its subprocedure |try_break|.
-
-Another global variable called |threshold| is used to determine the feasibility
-of individual lines: breakpoints are feasible if there is a way to reach
-them without creating lines whose badness exceeds |threshold|.  (The
-badness is compared to |threshold| before penalties are added, so that
-penalty values do not affect the feasibility of breakpoints, except that
-no break is allowed when the penalty is 10000 or more.) If |threshold|
-is 10000 or more, all legal breaks are considered feasible, since the
-|badness| function specified above never returns a value greater than~10000.
-
-Up to three passes might be made through the paragraph in an attempt to find at
-least one set of feasible breakpoints. On the first pass, we have
-|threshold=pretolerance| and |second_pass=final_pass=false|.
-If this pass fails to find a
-feasible solution, |threshold| is set to |tolerance|, |second_pass| is set
-|true|, and an attempt is made to hyphenate as many words as possible.
-If that fails too, we add |emergency_stretch| to the background
-stretchability and set |final_pass=true|.
-
-@<Glob...@>=
-@!cur_p:pointer; {the current breakpoint under consideration}
-@!second_pass:boolean; {is this our second attempt to break this paragraph?}
-@!final_pass:boolean; {is this our final attempt to break this paragraph?}
-@!threshold:integer; {maximum badness on feasible lines}
-
-@ The heart of the line-breaking procedure is `|try_break|', a subroutine
-that tests if the current breakpoint |cur_p| is feasible, by running
-through the active list to see what lines of text can be made from active
-nodes to~|cur_p|.  If feasible breaks are possible, new break nodes are
-created.  If |cur_p| is too far from an active node, that node is
-deactivated.
-
-The parameter |pi| to |try_break| is the penalty associated
-with a break at |cur_p|; we have |pi=eject_penalty| if the break is forced,
-and |pi=inf_penalty| if the break is illegal.
-
-The other parameter, |break_type|, is set to |hyphenated| or |unhyphenated|,
-depending on whether or not the current break is at a |disc_node|. The
-end of a paragraph is also regarded as `|hyphenated|'; this case is
-distinguishable by the condition |cur_p=null|.
-
-@d copy_to_cur_active(#)==cur_active_width[#]:=active_width[#]
-@d deactivate=60 {go here when node |r| should be deactivated}
-
-@d cp_skipable(#) == {skipable nodes at the margins during character protrusion}
-(
-    not is_char_node(#) and
-    (
-        (type(#) = ins_node)
-        or (type(#) = mark_node)
-        or (type(#) = adjust_node)
-        or (type(#) = penalty_node)
-        or ((type(#) = whatsit_node) and
-            (subtype(#) <> pdf_refximage_node) and
-            (subtype(#) <> pdf_refxform_node)) {reference to an image or XObject form}
-        or ((type(#) = disc_node) and
-            (pre_break(#) = null) and
-            (post_break(#) = null) and
-            (replace_count(#) = 0)) {an empty |disc_node|}
-        or ((type(#) = math_node) and (surround(#) = 0))
-        or ((type(#) = kern_node) and
-            ((width(#) = 0) or (subtype(#) = normal)))
-        or ((type(#) = glue_node) and (glue_ptr(#) = zero_glue))
-        or ((type(#) = hlist_node) and (width(#) = 0) and (height(#) = 0) and
-            (depth(#) = 0) and (list_ptr(#) = null))
-    )
-)
-
-
-@<Declare subprocedures for |line_break|@>=
-procedure push_node(p: pointer);
-begin
-    if hlist_stack_level > max_hlist_stack then
-        pdf_error("push_node", "stack overflow");
-    hlist_stack[hlist_stack_level] := p;
-    hlist_stack_level := hlist_stack_level + 1;
-end;
-
-function pop_node: pointer;
-begin
-    hlist_stack_level := hlist_stack_level - 1;
-    if hlist_stack_level < 0 then {would point to some bug}
-        pdf_error("pop_node", "stack underflow (internal error)");
-    pop_node := hlist_stack[hlist_stack_level];
-end;
-
-function find_protchar_left(l: pointer; d: boolean): pointer;
-{searches left to right from list head |l|, returns 1st non-skipable item}
-var t: pointer;
-    run: boolean;
-begin
-    if (vlink(l) <> null) and (type(l) = hlist_node) and (width(l) = 0)
-        and (height(l) = 0) and (depth(l) = 0) and (list_ptr(l) = null) then
-        l := vlink(l) {for paragraph start with \.{\\parindent = 0pt}}
-    else if d then
-            while (vlink(l) <> null) and (not (is_char_node(l) or non_discardable(l))) do
-                l := vlink(l); {std.\ discardables at line break, \TeX book, p 95}
-    hlist_stack_level := 0;
-    run := true;
-    repeat
-        t := l;
-        while run and (type(l) = hlist_node) and (list_ptr(l) <> null) do begin
-            push_node(l);
-            l := list_ptr(l);
-        end;
-        while run and cp_skipable(l) do begin
-            while (vlink(l) = null) and (hlist_stack_level > 0) do begin
-                l := pop_node; {don't visit this node again}
-            end;
-            if vlink(l) <> null then
-                l := vlink(l)
-            else if hlist_stack_level = 0 then run := false
-        end;
-    until t = l;
-    find_protchar_left := l;
-end;
-
-function find_protchar_right(l, r: pointer): pointer;
-{searches right to left from list tail |r| to head |l|, returns 1st non-skipable item}
-var t: pointer;
-    run: boolean;
-begin
-    find_protchar_right := null;
-    if r = null then return;
-    hlist_stack_level := 0;
-    run := true;
-    repeat
-        t := r;
-        while run and (type(r) = hlist_node) and (list_ptr(r) <> null) do begin
-            push_node(l);
-            push_node(r);
-            l := list_ptr(r);
-            r := l;
-            while vlink(r) <> null do
-                r := vlink(r);
-        end;
-        while run and cp_skipable(r) do begin
-            while (r = l) and (hlist_stack_level > 0) do begin
-                r := pop_node; {don't visit this node again}
-                l := pop_node;
-            end;
-            if (r <> l) and (r <> null) then
-                r := prev_rightmost(l, r)
-            else if (r = l) and (hlist_stack_level = 0) then run := false
-        end;
-    until t = r;
-    find_protchar_right := r;
-end;
-
-function total_pw(q, p: pointer): scaled;
-{returns the total width of character protrusion of a line;
-|cur_break(break_node(q))| and |p| is the leftmost resp. rightmost node in the
-horizontal list representing the actual line}
-var l, r: pointer;
-    n: integer;
-begin
-    if break_node(q) = null then
-        l := first_p
-    else
-        l := cur_break(break_node(q));
-    r := prev_rightmost(prev_p, p); {get |link(r)=p|}
-    {let's look at the right margin first}
-    @{
-    short_display_n(r, 2);
-    print("&");
-    short_display_n(p, 2);
-    print_ln;
-    @}
-    if (p <> null) and (type(p) = disc_node) and (pre_break(p) <> null) then
-    {a |disc_node| with non-empty |pre_break|, protrude the last char of |pre_break|}
-    begin
-        r := pre_break(p);
-        while vlink(r) <> null do
-            r := vlink(r);
-    end else r := find_protchar_right(l, r);
-    {now the left margin}
-    @{
-    short_display_n(l, 2);
-    print_ln;
-    breadth_max := 10;
-    depth_threshold := 2;
-    show_node_list(l);
-    print_ln;
-    @}
-    if (l <> null) and (type(l) = disc_node) then begin
-        if post_break(l) <> null then begin
-            l := post_break(l); {protrude the first char}
-            goto done;
-        end else {discard |replace_count(l)| nodes}
-        begin
-            n := replace_count(l);
-            l := vlink(l);
-            while n > 0 do begin
-                if vlink(l) <> null then
-                    l := vlink(l);
-                decr(n);
-            end;
-        end;
-    end;
-    l := find_protchar_left(l, true);
-done:
-    total_pw := left_pw(l) + right_pw(r);
-end;
-
 @* \[39] Breaking paragraphs into lines, continued.
-So far we have gotten a little way into the |line_break| routine, having
-covered its important |try_break| subroutine. Now let's consider the
-rest of the process.
 
-The main loop of |line_break| traverses the given hlist,
-starting at |vlink(temp_head)|, and calls |try_break| at each legal
-breakpoint. A variable called |auto_breaking| is set to true except
-within math formulas, since glue nodes are not legal breakpoints when
-they appear in formulas.
-
-The current node of interest in the hlist is pointed to by |cur_p|. Another
-variable, |prev_p|, is usually one step behind |cur_p|, but the real
-meaning of |prev_p| is this: If |type(cur_p)=glue_node| then |cur_p| is a legal
-breakpoint if and only if |auto_breaking| is true and |prev_p| does not
-point to a glue node, penalty node, explicit kern node, or math node.
-
-@ @<Glob...@>=
-@!best_bet:pointer; {use this passive node and its predecessors}
-@!fewest_demerits:integer; {the demerits associated with |best_bet|}
-@!best_line:halfword; {line number following the last line of the new paragraph}
-@!actual_looseness:integer; {the difference between |line_number(best_bet)|
-  and the optimum |best_line|}
-@!line_diff:integer; {the difference between the current line number and
-  the optimum |best_line|}
-
-@ The total number of lines that will be set by |post_line_break|
-is |best_line-prev_graf-1|. The last breakpoint is specified by
-|break_node(best_bet)|, and this passive node points to the other breakpoints
-via the |prev_break| links. The finishing-up phase starts by linking the
-relevant passive nodes in forward order, changing |prev_break| to
-|next_break|. (The |next_break| fields actually reside in the same memory
-space as the |prev_break| fields did, but we give them a new name because
-of their new significance.) Then the lines are justified, one by one.
-
-The |post_line_break| must also keep an dir stack, so that it can
-output end direction instructions at the ends of lines
-and begin direction instructions at the beginnings of lines.
-
-@d next_break==prev_break {new name for |prev_break| after links are reversed}
-
-@<Declare subprocedures for |line_break|@>=
-procedure post_line_break(@!d:boolean);
-label done,done1;
-var q,@!r,@!s:pointer; {temporary registers for list manipulation}
-    p, k: pointer;
-    w: scaled;
-    glue_break: boolean; {was a break at glue?}
-    ptmp: pointer;
-@!disc_break:boolean; {was the current break at a discretionary node?}
-@!post_disc_break:boolean; {and did it have a nonempty post-break part?}
-@!cur_width:scaled; {width of line number |cur_line|}
-@!cur_indent:scaled; {left margin of line number |cur_line|}
-@!t:quarterword; {used for replacement counts in discretionary nodes}
-@!pen:integer; {use when calculating penalties between lines}
-@!cur_line: halfword; {the current line number being justified}
-begin  dir_ptr:=dir_save;
-@<Reverse the links of the relevant passive nodes, setting |cur_p| to the
-  first breakpoint@>;
-cur_line:=prev_graf+1;
-repeat @<Justify the line ending at breakpoint |cur_p|, and append it to the
-  current vertical list, together with associated penalties and other
-  insertions@>;
-incr(cur_line); cur_p:=next_break(cur_p);
-if cur_p<>null then if not post_disc_break then
-  @<Prune unwanted nodes at the beginning of the next line@>;
-until cur_p=null;
-if (cur_line<>best_line)or(vlink(temp_head)<>null) then
-  confusion("line breaking");
-@:this can't happen line breaking}{\quad line breaking@>
-prev_graf:=best_line-1; dir_save:=dir_ptr;
-end;
-
-@ The job of reversing links in a list is conveniently regarded as the job
-of taking items off one stack and putting them on another. In this case we
-take them off a stack pointed to by |q| and having |prev_break| fields;
-we put them on a stack pointed to by |cur_p| and having |next_break| fields.
-Node |r| is the passive node being moved from stack to stack.
-
-@<Reverse the links of the relevant passive nodes...@>=
-q:=break_node(best_bet); cur_p:=null;
-repeat r:=q; q:=prev_break(q); next_break(r):=cur_p; cur_p:=r;
-until q=null
-
-@ Glue and penalty and kern and math nodes are deleted at the beginning of
-a line, except in the anomalous case that the node to be deleted is actually
-one of the chosen breakpoints. Otherwise
-the pruning done here is designed to match
-the lookahead computation in |try_break|, where the |break_width| values
-are computed for non-discretionary breakpoints.
-
-@<Prune unwanted nodes at the beginning of the next line@>=
-begin r:=temp_head;
-loop@+  begin q:=vlink(r);
-  if q=cur_break(cur_p) then goto done1;
-    {|cur_break(cur_p)| is the next breakpoint}
-  {now |q| cannot be |null|}
-  if is_char_node(q) then goto done1;
-  if @<LOCAL: local paragraph node@> then begin end
-  else begin
-    if non_discardable(q) then goto done1;
-    if type(q)=kern_node then if subtype(q)<>explicit then goto done1;
-    end;
-  r:=q; {now |type(q)=glue_node|, |kern_node|, |math_node| or |penalty_node|}
-  end;
-done1: if r<>temp_head then
-  begin vlink(r):=null; flush_node_list(vlink(temp_head));
-  vlink(temp_head):=q;
-  end;
-end
-
-@ The current line to be justified appears in a horizontal list starting
-at |vlink(temp_head)| and ending at |cur_break(cur_p)|. If |cur_break(cur_p)| is
-a glue node, we reset the glue to equal the |right_skip| glue; otherwise
-we append the |right_skip| glue at the right. If |cur_break(cur_p)| is a
-discretionary node, we modify the list so that the discretionary break
-is compulsory, and we set |disc_break| to |true|. We also append
-the |left_skip| glue at the left of the line, unless it is zero.
-
-@<Justify the line ending at breakpoint |cur_p|, and append it...@>=
-@<DIR: Insert dir nodes at the beginning of the current line@>;
-@<DIR: Adjust the dir stack based on dir nodes in this line@>;
-@<Modify the end of the line to reflect the nature of the break and to include
-  \.{\\rightskip}; also set the proper value of |disc_break|@>;
-@<Put the \(l)\.{\\leftskip} glue at the left and detach this line@>;
-@<Call the packaging subroutine, setting |just_box| to the justified box@>;
-@<Append the new box to the current vertical list, followed by the list of
-  special nodes taken out of the box by the packager@>;
-@<Append a penalty node, if a nonzero penalty is appropriate@>
-
-@ At the end of the following code, |q| will point to the final node on the
-list about to be justified.
-
-@<Modify the end of the line...@>=
-q:=cur_break(cur_p); disc_break:=false; post_disc_break:=false;
-glue_break := false;
-if q<>null then {|q| cannot be a |char_node|}
-  if type(q)=glue_node then begin
-    if passive_right_box(cur_p)<>null then begin
-      r:=temp_head;
-      while vlink(r)<>q do r:=vlink(r);
-      @<DIR: Insert dir nodes at the end of the current line@>;
-      s:=copy_node_list(passive_right_box(cur_p));
-      vlink(r):=s;
-      vlink(s):=q;
-      end
-    else begin
-      r:=temp_head;
-      while vlink(r)<>q do r:=vlink(r);
-      @<DIR: Insert dir nodes at the end of the current line@>;
-      end;
-    delete_glue_ref(glue_ptr(q));
-    glue_ptr(q):=right_skip;
-    subtype(q):=right_skip_code+1; add_glue_ref(right_skip);
-    glue_break := true;
-    goto done;
-    end
-  else  begin if type(q)=disc_node then
-      @<Change discretionary to compulsory and set
-        |disc_break:=true|@>
-    else if type(q)=kern_node then width(q):=0
-    else if type(q)=math_node then surround(q):=0
-    end
-else  begin q:=temp_head;
-  while vlink(q)<>null do q:=vlink(q);
-  end;
-r:=q;
-@<DIR: Insert dir nodes at the end of the current line@>;
-if passive_right_box(cur_p)<>null then begin
-  r:=copy_node_list(passive_right_box(cur_p));
-  vlink(r):=vlink(q);
-  vlink(q):=r;
-  q:=r;
-  end;
-done:
-
-{at this point |q| is the rightmost breakpoint; the only exception is the case
-of a discretionary break with non-empty |pre_break|, then |q| has been changed
-to the last node of the |pre_break| list}
-
-if pdf_protrude_chars > 0 then begin
-    if disc_break and (is_char_node(q) or (type(q) <> disc_node))
-    {|q| has been reset to the last node of |pre_break|}
-    then begin
-        p := q;
-        ptmp := p;
-    end else begin
-        p := prev_rightmost(vlink(temp_head), q); {get |link(p) = q|}
-        ptmp := p;
-        p := find_protchar_right(vlink(temp_head), p);
-    end;
-    @{
-    short_display_n(p, 1);
-    print_ln;
-    @}
-    w := right_pw(p);
-    if w <> 0 then {we have found a marginal kern, append it after |ptmp|}
-    begin
-        k := new_margin_kern(-w, last_rightmost_char, right_side);
-        vlink(k) := vlink(ptmp);
-        vlink(ptmp) := k;
-        if (ptmp = q) then
-            q := vlink(q);
-    end;
-end;
-
-{if |q| was not a breakpoint at glue and has been reset to |rightskip| then
- we append |rightskip| after |q| now}
-if not glue_break then begin
-    @<Put the \(r)\.{\\rightskip} glue after node |q|@>;
-end;
-
-@ @<Change discretionary to compulsory...@>=
-begin t:=replace_count(q);
-@<Destroy the |t| nodes following |q|, and
-   make |r| point to the following node@>;
-if post_break(q)<>null then @<Transplant the post-break list@>;
-if pre_break(q)<>null then @<Transplant the pre-break list@>;
-vlink(q):=r; disc_break:=true;
-end
-
-@ @<Destroy the |t| nodes following |q|...@>=
-if t=0 then r:=vlink(q)
-else  begin r:=q;
-  while t>1 do
-    begin r:=vlink(r); decr(t);
-    end;
-  s:=vlink(r);
-  r:=vlink(s); vlink(s):=null;
-  flush_node_list(vlink(q)); replace_count(q):=0;
-  end
-
-@ We move the post-break list from inside node |q| to the main list by
-re\-attaching it just before the present node |r|, then resetting |r|.
-
-@<Transplant the post-break list@>=
-begin s:=post_break(q);
-while vlink(s)<>null do s:=vlink(s);
-vlink(s):=r; r:=post_break(q); post_break(q):=null; post_disc_break:=true;
-end
-
-@ We move the pre-break list from inside node |q| to the main list by
-re\-attaching it just after the present node |q|, then resetting |q|.
-
-@<Transplant the pre-break list@>=
-begin s:=pre_break(q); vlink(q):=s;
-while vlink(s)<>null do s:=vlink(s);
-pre_break(q):=null; q:=s;
-end
-
-@ @<Put the \(r)\.{\\rightskip} glue after node |q|@>=
-r:=new_param_glue(right_skip_code); vlink(r):=vlink(q); vlink(q):=r; q:=r
-
-@ The following code begins with |q| at the end of the list to be
-justified. It ends with |q| at the beginning of that list, and with
-|vlink(temp_head)| pointing to the remainder of the paragraph, if any.
-
-@<Put the \(l)\.{\\leftskip} glue at the left...@>=
-r:=vlink(q); vlink(q):=null; q:=vlink(temp_head); vlink(temp_head):=r;
-{TH: this zero test is a hack!}
-if (passive_left_box(cur_p)<>null)and(passive_left_box(cur_p)<>0) then begin
-  r:=copy_node_list(passive_left_box(cur_p));
-  s:=vlink(q);
-  vlink(r):=q;
-  q:=r;
-  if (cur_line=prev_graf+1) and (s<>null) then
-    if type(s)=hlist_node then
-      if list_ptr(s)=null then begin
-        q:=vlink(q);
-        vlink(r):=vlink(s);
-        vlink(s):=r;
-        end;
-  end;
-{at this point |q| is the leftmost node; all discardable nodes have been discarded}
-if pdf_protrude_chars > 0 then begin
-    p := q;
-    p := find_protchar_left(p, false); {no more discardables}
-    w := left_pw(p);
-    if w <> 0 then begin
-        k := new_margin_kern(-w, last_leftmost_char, left_side);
-        vlink(k) := q;
-        q := k;
-        end;
-    end;
-{ omega bit}
-if left_skip<>zero_glue then
-  begin r:=new_param_glue(left_skip_code);
-  vlink(r):=q; q:=r;
-  end
-
-@ @<Append the new box to the current vertical list...@>=
-if pdf_each_line_height <> 0 then
-    height(just_box) := pdf_each_line_height;
-if pdf_each_line_depth <> 0 then
-    depth(just_box) := pdf_each_line_depth;
-if (pdf_first_line_height <> 0) and (cur_line = prev_graf + 1) then
-    height(just_box) := pdf_first_line_height;
-if (pdf_last_line_depth <> 0) and (cur_line + 1 = best_line) then
-    depth(just_box) := pdf_last_line_depth;
-if pre_adjust_head <> pre_adjust_tail then
-    append_list(pre_adjust_head)(pre_adjust_tail);
-pre_adjust_tail := null;
-append_to_vlist(just_box);
-if adjust_head <> adjust_tail then
-    append_list(adjust_head)(adjust_tail);
-adjust_tail := null
-
-@ Now |q| points to the hlist that represents the current line of the
-paragraph. We need to compute the appropriate line width, pack the
-line into a box of this size, and shift the box by the appropriate
-amount of indentation.
-
-@<Call the packaging subroutine...@>=
-if cur_line>last_special_line then
-  begin cur_width:=second_width; cur_indent:=second_indent;
-  end
-else if par_shape_ptr=null then
-  begin cur_width:=first_width; cur_indent:=first_indent;
-  end
-else  begin cur_width:=vmem(par_shape_ptr+2*cur_line).sc;
-  cur_indent:=vmem(par_shape_ptr+2*cur_line-1).sc;
-  end;
-adjust_tail:=adjust_head;
-pack_direction:=paragraph_dir;
-pre_adjust_tail := pre_adjust_head;
-if pdf_adjust_spacing > 0 then
-    just_box := hpack(q, cur_width, cal_expand_ratio)
-else
-    just_box := hpack(q, cur_width, exactly);
-shift_amount(just_box):=cur_indent
-
-@ Penalties between the lines of a paragraph come from club and widow lines,
-from the |inter_line_penalty| parameter, and from lines that end at
-discretionary breaks.  Breaking between lines of a two-line paragraph gets
-both club-line and widow-line penalties. The local variable |pen| will
-be set to the sum of all relevant penalties for the current line, except
-that the final line is never penalized.
-
-@<Append a penalty node, if a nonzero penalty is appropriate@>=
-if cur_line+1<>best_line then begin
-  q:=inter_line_penalties_ptr;
-  if q<>null then
-    begin r:=cur_line;
-    if r>penalty(q) then r:=penalty(q);
-    pen:=penalty(q+r);
-    end
-  else begin
-  if passive_pen_inter(cur_p)<>0 then
-      pen:=passive_pen_inter(cur_p)
-  else pen:=inter_line_penalty;
-  end;
-  q:=club_penalties_ptr;
-  if q<>null then
-    begin r:=cur_line-prev_graf;
-    if r>penalty(q) then r:=penalty(q);
-    pen:=pen+penalty(q+r);
-    end
-  else if cur_line=prev_graf+1 then pen:=pen+club_penalty;
-  if d then q:=display_widow_penalties_ptr
-  else q:=widow_penalties_ptr;
-  if q<>null then
-    begin r:=best_line-cur_line-1;
-    if r>penalty(q) then r:=penalty(q);
-    pen:=pen+penalty(q+r);
-    end
-  else if cur_line+2=best_line then
-    if d then pen:=pen+display_widow_penalty
-    else pen:=pen+widow_penalty;
-  if disc_break then
-    if passive_pen_broken(cur_p)<>0 then
-      pen:=pen+passive_pen_broken(cur_p)
-    else pen:=pen+broken_penalty;
-  if pen<>0 then
-    begin r:=new_penalty(pen);
-    vlink(tail):=r; tail:=r;
-    end;
-  end
+Hyphenation and line breaking are now all handled in C. Only the
+section heads are kept here.
 
 @* \[40] Pre-hyphenation.
-When the line-breaking routine is unable to find a feasible sequence of
-breakpoints, it makes a second pass over the paragraph, attempting to
-hyphenate the hyphenatable words. The goal of hyphenation is to insert
-discretionary material into the paragraph so that there are more
-potential places to break.
-
-The general rules for hyphenation are somewhat complex and technical,
-because we want to be able to hyphenate words that are preceded or
-followed by punctuation marks, and because we want the rules to work
-for languages other than English. We also must contend with the fact
-that hyphens might radically alter the ligature and kerning structure
-of a word.
-
-A sequence of characters will be considered for hyphenation only if it
-belongs to a ``potentially hyphenatable part'' of the current paragraph.
-This is a sequence of nodes $p_0p_1\ldots p_m$ where $p_0$ is a glue node,
-$p_1\ldots p_{m-1}$ are either character or ligature or whatsit or
-implicit kern nodes, and $p_m$ is a glue or penalty or insertion or adjust
-or mark or whatsit or explicit kern node.  (Therefore hyphenation is
-disabled by boxes, math formulas, and discretionary nodes already inserted
-by the user.) The ligature nodes among $p_1\ldots p_{m-1}$ are effectively
-expanded into the original non-ligature characters; the kern nodes and
-whatsits are ignored. Each character |c| is now classified as either a
-nonletter (if |lc_code(c)=0|), a lowercase letter (if
-|lc_code(c)=c|), or an uppercase letter (otherwise); an uppercase letter
-is treated as if it were |lc_code(c)| for purposes of hyphenation. The
-characters generated by $p_1\ldots p_{m-1}$ may begin with nonletters; let
-$c_1$ be the first letter that is not in the middle of a ligature. Whatsit
-nodes preceding $c_1$ are ignored; a whatsit found after $c_1$ will be the
-terminating node $p_m$. All characters that do not have the same font as
-$c_1$ will be treated as nonletters. The |hyphen_char| for that font
-must be between 0 and 255, otherwise hyphenation will not be attempted.
-\TeX\ looks ahead for as many consecutive letters $c_1\ldots c_n$ as
-possible; however, |n| must be less than 64, so a character that would
-otherwise be $c_{64}$ is effectively not a letter. Furthermore $c_n$ must
-not be in the middle of a ligature.  In this way we obtain a string of
-letters $c_1\ldots c_n$ that are generated by nodes $p_a\ldots p_b$, where
-|1<=a<=b+1<=m|. If |n>=l_hyf+r_hyf|, this string qualifies for hyphenation;
-however, |uc_hyph| must be positive, if $c_1$ is uppercase.
-
-The hyphenation process takes place in three stages. First, the candidate
-sequence $c_1\ldots c_n$ is found; then potential positions for hyphens
-are determined by referring to hyphenation tables; and finally, the nodes
-$p_a\ldots p_b$ are replaced by a new sequence of nodes that includes the
-discretionary breaks found.
-
-Fortunately, we do not have to do all this calculation very often, because
-of the way it has been taken out of \TeX's inner loop. For example, when
-the second edition of the author's 700-page book {\sl Seminumerical
-Algorithms} was typeset by \TeX, only about 1.2 hyphenations needed to be
-@^Knuth, Donald Ervin@>
-tried per paragraph, since the line breaking algorithm needed to use two
-passes on only about 5 per cent of the paragraphs.
-
-@<Initialize for hyphenating...@>=
-new_hyphenation(temp_head, tail)
-
-@ The letters $c_1\ldots c_n$ that are candidates for hyphenation are placed
-into an array called |hc|; the number |n| is placed into |hn|; pointers to
-nodes $p_{a-1}$ and~$p_b$ in the description above are placed into variables
-|ha| and |hb|; and the font number is placed into |hf|.
-
-@<Glob...@>=
-@!hc:array[0..65] of integer; {word to be hyphenated}
-@!hn:small_number; {the number of positions occupied in |hc|}
-@!ha,@!hb:pointer; {nodes |ha..hb| should be replaced by the hyphenated result}
-@!hf:internal_font_number; {font number of the letters in |hc|}
-@!hattr:halfword; {attribute pointer of the letters in |hc|}
-@!hu:array[0..63] of integer; {like |hc|, before conversion to lowercase}
-@!hyf_char:integer; {hyphen character of the relevant font}
-@!l_hyf,@!r_hyf,@!init_l_hyf,@!init_r_hyf:integer; {limits on fragment sizes}
 
 @* \[41] Post-hyphenation.
 
-@ @<Glob...@>=
-@!cur_l,@!cur_r:integer; {characters before and after the cursor}
-@!cur_q:pointer; {where a ligature should be detached}
-@!lig_stack:pointer; {unfinished business to the right of the cursor}
-
 @* \[42] Hyphenation.
-When a word been set up to contain a candidate for hyphenation,
-\TeX\ first looks to see if it is in the user's exception dictionary. If not,
-hyphens are inserted based on patterns that appear within the given word,
-using an algorithm due to Frank~M. Liang.
-@^Liang, Franklin Mark@>
 
 @ When \TeX\ has scanned `\.{\\hyphenation}', it calls on a procedure named
 |new_hyph_exceptions| to do the right thing.
@@ -25901,6 +25041,19 @@ load_tex_patterns(language,def_ref);
 flush_list(def_ref); 
 end;
 
+@ `\.{\\prehyphenchar}', sets the |pre_break| character, and
+`\.{\\posthyphenchar}' the |post_break| character. Their respective
+defaults are ascii hyphen ("-") and zero (nul).
+
+@p procedure new_pre_hyphen_char;
+begin scan_int;
+   set_pre_hyphen_char(cur_font,cur_val);
+end;
+@#
+procedure new_post_hyphen_char;
+begin scan_int;
+   set_post_hyphen_char(cur_font,cur_val);
+end;
 
 @* \[43] Initializing the hyphenation tables.
 
@@ -25965,12 +25118,17 @@ and a pointer to the optimum breakpoint is returned. The list is effectively
 followed by a forced break, i.e., a penalty node with the |eject_penalty|;
 if the best break occurs at this artificial node, the value |null| is returned.
 
-An array of six |scaled| distances is used to keep track of the height
+@<Glob...@>=
+@!active_height:array[1..9] of scaled;
+  {distance from first active node to~|cur_p|}
+
+@ An array of six |scaled| distances is used to keep track of the height
 from the beginning of the list to the current place, just as in |line_break|.
 In fact, we use one of the same arrays, only changing its name to reflect
 its new significance.
 
-@d active_height==active_width {new name for the six distance variables}
+@d do_all_six(#)==#(1);#(2);#(3);#(4);#(5);#(6);#(7)
+
 @d cur_height==active_height[1] {the natural height}
 @d set_height_zero(#)==active_height[#]:=0 {initialize the height to zero}
 @#
@@ -26623,6 +25781,10 @@ if page_depth>page_max_depth then
 @ @<Update the current page measurements with respect to the glue...@>=
 if type(p)=kern_node then q:=p
 else begin q:=glue_ptr(p);
+if stretch_order(q)>1 then
+  page_so_far[1+stretch_order(q)]:=@|
+    page_so_far[1+stretch_order(q)]+stretch(q)@/
+else
   page_so_far[2+stretch_order(q)]:=@|
     page_so_far[2+stretch_order(q)]+stretch(q);@/
   page_shrink:=page_shrink+shrink(q);
@@ -26730,7 +25892,10 @@ q:=skip(n);
 if count(n)=1000 then h:=height(r)
 else h:=x_over_n(height(r),1000)*count(n);
 page_goal:=page_goal-h-width(q);@/
-page_so_far[2+stretch_order(q)]:=@|page_so_far[2+stretch_order(q)]+stretch(q);@/
+if stretch_order(q)>1 then
+  page_so_far[1+stretch_order(q)]:=@|page_so_far[1+stretch_order(q)]+stretch(q)@/
+else
+  page_so_far[2+stretch_order(q)]:=@|page_so_far[2+stretch_order(q)]+stretch(q);@/
 page_shrink:=page_shrink+shrink(q);
 if (shrink_order(q)<>normal)and(shrink(q)<>0) then
   begin print_err("Infinite glue shrinkage inserted from "); print_esc("skip");
@@ -27128,7 +26293,7 @@ consideration of the other cases until later.
 procedure main_control; {governs \TeX's activities}
 label big_switch,reswitch,exit;
 var@!t,k:integer; {general-purpose temporary variables}
-p:pointer; {for whatsit node insertion and testing whether an auto kern should be inserted}
+p:pointer; {for whatsit nodes and testing whether an auto kern should be inserted}
 begin t:=0; {for -Wall}
 if every_job<>null then begin_token_list(every_job,every_job_text);
 big_switch: get_x_token;@/
@@ -27213,7 +26378,26 @@ are inside the individual sections.
 
 @<Append character |cur_chr|...@>=
 adjust_space_factor;@/
-tail_append(new_char_node(cur_font,cur_chr));
+if cur_chr=ex_hyphen_char then begin
+  {soon: |tail:=insert_discretionary(tail,p,q,new_char_node(cur_font,cur_chr));|}
+  tail_append(new_disc);
+  subtype(tail):=automatic_disc;
+  if get_pre_hyphen_char(cur_lang)<>0 then begin
+	vlink(pre_break(tail)):=new_char_node(cur_font, get_pre_hyphen_char(cur_lang));
+    alink(vlink(pre_break(tail))):=pre_break(tail);
+	tlink(pre_break(tail)):=vlink(pre_break(tail));
+    end;
+  if get_post_hyphen_char(cur_lang)<>0 then begin
+	vlink(post_break(tail)):=new_char_node(cur_font, get_post_hyphen_char(cur_lang));
+    alink(vlink(post_break(tail))):=post_break(tail);
+	tlink(post_break(tail)):=vlink(post_break(tail));
+	end;
+  vlink(no_break(tail)):=new_char_node(cur_font,cur_chr);
+  alink(vlink(no_break(tail))):=no_break(tail);
+  tlink(no_break(tail)):=vlink(no_break(tail));
+  end
+else
+  tail_append(new_char_node(cur_font,cur_chr));
 p := get_auto_kern(cur_font, -1, cur_chr);
 if p <> null then tail_append(p)
 
@@ -27595,7 +26779,6 @@ any_mode(end_group):
     if abs(mode)=hmode then begin
       if temp_no_dirs<>0 then begin
         @<DIR: Add local dir node@>;
-        writeln('endgroup(12)',tail);
         dir_dir(tail):=temporary_dir-64;
         end;
       if temp_no_whatsits<>0 then
@@ -27934,7 +27117,6 @@ box desired, and |cur_cmd=make_box|.
 procedure begin_box(@!box_context:integer);
 label exit, done;
 var @!p,@!q:pointer; {run through the current list}
-@!m:quarterword; {the length of a replacement list}
 @!k:halfword; {0 or |vmode| or |hmode|}
 @!n:eight_bits; {a box number}
 begin case cur_chr of
@@ -27974,7 +27156,7 @@ end
 begin q:=head;
 repeat p:=q;
 if not is_char_node(q) then if type(q)=disc_node then
-  begin for m:=1 to replace_count(q) do p:=vlink(p);
+  begin 
   if p=tail then goto done;
   end;
 q:=vlink(p);
@@ -28208,7 +27390,7 @@ procedure end_graf;
 begin if mode=hmode then
   begin if (head=tail) or (vlink(head)=tail) then pop_nest
         {null paragraphs are ignored, all contain a |local_paragraph| node}
-  else line_break(widow_penalty);
+  else line_break(false);
   if dir_save<>null then
     begin flush_node_list(dir_save); dir_save:=null;
     end;
@@ -28329,7 +27511,6 @@ will be deleted, if present.
 procedure delete_last;
 label exit;
 var @!p,@!q:pointer; {run through the current list}
-@!m:quarterword; {the length of a replacement list}
 begin if (mode=vmode)and(tail=head) then
   @<Apologize for inability to do the operation now,
     unless \.{\\unskip} follows non-glue@>
@@ -28337,7 +27518,7 @@ else  begin if not is_char_node(tail) then if type(tail)=cur_chr then
     begin q:=head;
     repeat p:=q;
     if not is_char_node(q) then if type(q)=disc_node then
-      begin for m:=1 to replace_count(q) do p:=vlink(p);
+      begin
       if p=tail then return;
       end;
     q:=vlink(p);
@@ -28453,10 +27634,16 @@ exit:end;
 @ Discretionary nodes are easy in the common case `\.{\\-}', but in the
 general case we must process three braces full of items.
 
+There are four subtypes of discretionaries, but only the first two are
+generated by primitive commands.
+
+@d discretionary_disc=0
+@d explicit_disc=1
+
 @<Put each...@>=
-primitive("-",discretionary,1);
+primitive("-",discretionary,explicit_disc);
 @!@:Single-character primitives -}{\quad\.{\\-}@>
-primitive("discretionary",discretionary,0);
+primitive("discretionary",discretionary,discretionary_disc);
 @!@:discretionary_}{\.{\\discretionary} primitive@>
 primitive("localleftbox",assign_local_box,0);
 @!@:assign_local_box}{\.{\\localleftbox} primitive@>
@@ -28464,7 +27651,7 @@ primitive("localrightbox",assign_local_box,1);
 @!@:assign_local_box}{\.{\\localrightbox} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
-discretionary: if chr_code=1 then
+discretionary: if chr_code=explicit_disc then
   print_esc("-")@+else print_esc("discretionary");
 assign_local_box: if chr_code=0 then print_esc("localleftbox")
                   else print_esc("localrightbox");
@@ -28484,11 +27671,23 @@ scan_left_brace; push_nest; mode:=-hmode; space_factor:=1000;
 end;
 
 procedure append_discretionary;
-var p:pointer;
+var c:integer;
 begin tail_append(new_disc);
-if cur_chr=1 then begin 
-	p:=new_char_node(cur_font,'-'); pre_break(tail):=p;
-  end
+subtype(tail):=cur_chr;
+if cur_chr=explicit_disc then begin 
+    c:=get_pre_hyphen_char(cur_lang);
+    if c<>0 then begin 
+   	  vlink(pre_break(tail)):=new_char_node(cur_font,c);
+      alink(vlink(pre_break(tail))):=pre_break(tail);
+   	  tlink(pre_break(tail)):=vlink(pre_break(tail));
+      end;
+    c:=get_post_hyphen_char(cur_lang);
+    if c<>0 then begin
+       vlink(post_break(tail)):=new_char_node(cur_font,c);
+       alink(vlink(post_break(tail))):=post_break(tail);
+       tlink(post_break(tail)):=vlink(post_break(tail));
+       end;
+    end
 else  begin incr(save_ptr); saved(-1):=0; new_save_level(disc_group);
   scan_left_brace; push_nest; mode:=-hmode; space_factor:=1000;
   end;
@@ -28532,8 +27731,8 @@ begin unsave;
   and set |q| to the list's tail@>;
 p:=vlink(head); pop_nest;
 case saved(-1) of
-0:pre_break(tail):=p;
-1:post_break(tail):=p;
+0:vlink(pre_break(tail)):=p;
+1:vlink(post_break(tail)):=p;
 2:@<Attach list |p| to the current list, and record its length;
   then finish up and |return|@>;
 end; {there are no other cases}
@@ -28547,17 +27746,9 @@ begin if (n>0)and(abs(mode)=mmode) then
 @.Illegal math \\disc...@>
   help2("Sorry: The third part of a discretionary break must be")@/
   ("empty, in math formulas. I had to delete your third part.");
-  flush_node_list(p); n:=0; error;
+  flush_node_list(p); error;
   end
-else vlink(tail):=p;
-if n<=max_quarterword then replace_count(tail):=n
-else  begin print_err("Discretionary list is too long");
-@.Discretionary list is too long@>
-  help2("Wow---I never thought anybody would tweak me here.")@/
-  ("You can't seriously need such a huge discretionary list?");
-  error;
-  end;
-if n>0 then tail:=q;
+else vlink(no_break(tail)):=p;
 decr(save_ptr); return;
 end
 
@@ -28566,8 +27757,8 @@ end
 @<Prune the current list, if necessary...@>=
 q:=head; p:=vlink(q); n:=0;
 while p<>null do
-  begin if not is_char_node(p) then if type(p)>rule_node then
-    if type(p)<>kern_node then 
+  begin if not is_char_node(p) then if type(p)<>disc_node then
+    if type(p)>rule_node then if type(p)<>kern_node then 
       begin print_err("Improper discretionary list");
 @.Improper discretionary list@>
       help1("Discretionary lists must contain only boxes and kerns.");@/
@@ -30672,29 +29863,36 @@ set_shape: begin q:=cur_chr; scan_optional_equals; scan_int; n:=cur_val;
   define(q,shape_ref,p);
   end;
 
-@ New hyphenation data is loaded by the |hyph_data| command.
+@ New language information data is loaded by the |hyph_data| command.
 
 @<Put each...@>=
 primitive("hyphenation",hyph_data,0);
 @!@:hyphenation_}{\.{\\hyphenation} primitive@>
 primitive("patterns",hyph_data,1);
 @!@:patterns_}{\.{\\patterns} primitive@>
+primitive("prehyphenchar",hyph_data,2);
+@!@:prehyphenchar_}{\.{\\prehyphenchar} primitive@>
+primitive("posthyphenchar",hyph_data,3);
+@!@:posthyphenchar_}{\.{\\posthyphenchar} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
-hyph_data: if chr_code=1 then print_esc("patterns")
-  else print_esc("hyphenation");
+hyph_data: case cur_chr of 
+    0: print_esc("hyphenation"); 
+    1: print_esc("patterns"); 
+    2: print_esc("prehyphenchar"); 
+    3: print_esc("posthyphenchar");
+    endcases;
 
 @ @<Assignments@>=
-hyph_data: if cur_chr=1 then
-    begin @!init new_patterns; goto done;@;@+tini@/
-    print_err("Patterns can be loaded only by INITEX");
-@.Patterns can be...@>
-    help0; error;
-    repeat get_token; until cur_cmd=right_brace; {flush the patterns}
-    return;
-    end
-  else  begin new_hyph_exceptions; goto done;
-    end;
+hyph_data: begin 
+   case cur_chr of 
+    0: new_hyph_exceptions; 
+    1: new_patterns; 
+    2: new_pre_hyphen_char; 
+    3: new_post_hyphen_char;
+    endcases;
+  goto done;
+  end;
 
 @ All of \TeX's parameters are kept in |eqtb| except the font information,
 the interaction mode, and the hyphenation tables; these are strictly global.
@@ -34302,9 +33500,6 @@ if (subtype(p) = pdf_refxform_node) or (subtype(p) = pdf_refximage_node) then
 else
     d := 0
 
-@ @<Advance \(p)past a whatsit node in the \(p)pre-hyphenation loop@>=@+
-if subtype(s)=language_node then do_nothing
-
 @ @<Prepare to move whatsit |p| to the current page, then |goto contribute|@>=
 begin
   if (subtype(p) = pdf_refxform_node) or (subtype(p) = pdf_refximage_node) then
@@ -34581,9 +33776,6 @@ local_par_node: begin
 @ @<LOCAL: Add local paragraph node@>=
 begin tail_append(make_local_par_node) end
 
-@ @<LOCAL: local paragraph node@>=
-((type(q)=whatsit_node) and (subtype(q)=local_par_node))
-
 @ @<DIR: Assign direction codes@>=
 case cur_chr of
 dir_base+page_direction_code: begin
@@ -34667,20 +33859,6 @@ tail_append(new_dir(math_direction-64))
 @ @<DIR: Add local dir node@>=
 tail_append(new_dir(text_direction))
 
-@ @<DIR: Adjust the dir stack for the |line_break| routine@>=
-if subtype(cur_p)=dir_node then
-begin
-if dir_dir(cur_p)>=0 then begin
-  line_break_dir:=dir_dir(cur_p);
-  push_dir_node(cur_p);
-  end
-else begin
-  pop_dir_node;
-  if dir_ptr<>null then
-    line_break_dir:=dir_dir(dir_ptr);
-  end
-end
-
 @ @<DIR: Adjust the dir stack for the |hpack| routine@>=
 begin
 if dir_dir(p)>=0 then begin
@@ -34693,79 +33871,6 @@ else begin
     hpack_dir:=dir_dir(dir_ptr);
   end
 end
-
-@ @<DIR: Insert dir nodes at the beginning of the current line@>=
-begin
-dir_rover:=dir_ptr;
-while dir_rover<>null do
-  begin
-  dir_tmp:=new_dir(dir_dir(dir_rover));
-  vlink(dir_tmp):=vlink(temp_head);
-  vlink(temp_head):=dir_tmp; dir_rover:=vlink(dir_rover);
-  end
-end
-
-@ @<DIR: Adjust the dir stack based on dir nodes in this line@>=
-begin flush_node_list(dir_ptr); dir_ptr:=null;
-q:=vlink(temp_head);
-while q<>cur_break(cur_p) do
-  begin if not is_char_node(q) then
-    if type(q)=whatsit_node then
-      if subtype(q)=dir_node then begin
-        if dir_dir(q)>=0 then begin
-          push_dir_node(q)
-          end
-        else if dir_ptr<>null then
-          if dir_dir(dir_ptr)=(dir_dir(q)+64) then begin
-            pop_dir_node;
-            end;
-        end;
-  q:=vlink(q);
-  end
-end
-
-@ @<DIR: Insert dir nodes at the end of the current line@>=
-if dir_ptr<>null then
-  begin
-  if vlink(r)=q then begin
-    dir_rover:=dir_ptr;
-    while dir_rover<>null do
-      begin
-      dir_tmp:=new_dir(dir_dir(dir_rover)-64);
-      vlink(dir_tmp):=q;
-      vlink(r):=dir_tmp;
-      r:=dir_tmp;
-      dir_rover:=vlink(dir_rover);
-      end;
-    end
-  else if r=final_par_glue then begin
-    s:=temp_head;
-    while vlink(s)<>r do
-      s:=vlink(s);
-    dir_rover:=dir_ptr;
-    while dir_rover<>null do
-      begin
-      dir_tmp:=new_dir(dir_dir(dir_rover)-64);
-      vlink(dir_tmp):=q;
-      vlink(s):=dir_tmp;
-      s:=dir_tmp;
-      dir_rover:=vlink(dir_rover);
-      end;
-    end
-  else begin
-    dir_rover:=dir_ptr;
-    s:=vlink(q);
-    while dir_rover<>null do
-      begin
-      dir_tmp:=new_dir(dir_dir(dir_rover)-64);
-      vlink(dir_tmp):=s;
-      vlink(q):=dir_tmp;
-      q:=dir_tmp;
-      dir_rover:=vlink(dir_rover);
-      end;
-    r:=q;
-    end
-  end
 
 @ @<DIR: Reset |dir_ptr|@>=
 begin
@@ -34836,10 +33941,6 @@ end
 @ @<DIR: Initialize |dir_ptr| for |hpack|@>=
 begin {|if dir_ptr<>null then free_node(dir_ptr,dir_node_size);|}
 dir_ptr:=null; push_dir(hpack_dir) end
-
-@ @<DIR: Initialize |dir_ptr| for |line_break|@>=
-begin {|if dir_ptr<>null then free_node(dir_ptr,dir_node_size);|}
-dir_ptr:=null; push_dir(paragraph_dir); end
 
 @ @<Output a reflection instruction if the direction has changed@>=
 begin
@@ -35499,26 +34600,6 @@ begin
     pdf_print_ln("Q");
 end;
 
-@ @<Move down without outputting leaders@>=
-begin g:=glue_ptr(p); rule_ht:=width(g)-cur_g;
-if g_sign<>normal then
-  begin if g_sign=stretching then
-    begin if stretch_order(g)=g_order then
-      begin cur_glue:=cur_glue+stretch(g);
-      vet_glue(float(glue_set(this_box))*cur_glue);
-@^real multiplication@>
-      cur_g:=round(glue_temp);
-      end;
-    end
-  else if shrink_order(g)=g_order then
-      begin cur_glue:=cur_glue-shrink(g);
-      vet_glue(float(glue_set(this_box))*cur_glue);
-      cur_g:=round(glue_temp);
-      end;
-  end;
-rule_ht:=rule_ht+cur_g;
-end
-
 @ @<Output the whatsit node |p| in |pdf_vlist_out|@>=
 case subtype(p) of
 pdf_literal_node:
@@ -35528,9 +34609,9 @@ pdf_colorstack_node:
 pdf_setmatrix_node:
     pdf_out_setmatrix(p);
 pdf_save_node:
-    pdf_out_save(p);
+    pdf_out_save;
 pdf_restore_node:
-    pdf_out_restore(p);
+    pdf_out_restore;
 late_lua_node:
     do_late_lua(p);
 close_lua_node:
@@ -35592,9 +34673,9 @@ pdf_colorstack_node:
 pdf_setmatrix_node:
     pdf_out_setmatrix(p);
 pdf_save_node:
-    pdf_out_save(p);
+    pdf_out_save;
 pdf_restore_node:
-    pdf_out_restore(p);
+    pdf_out_restore;
 late_lua_node:
     do_late_lua(p);
 close_lua_node:
@@ -37242,15 +36323,7 @@ mu_to_glue_code: scan_mu_glue;
 @ @<Cases for fetching a mu value@>=
 glue_to_mu_code: scan_normal_glue;
 
-@ When the value of |last_line_fit| is positive, the last line of a
-(partial) paragraph is treated in a special way and we need additional
-fields in the active nodes.
-
-@d active_node_size_extended=5 {number of words in extended active nodes}
-@d active_short(#)==vmem(#+3).sc {|shortfall| of this line}
-@d active_glue(#)==vmem(#+4).sc {corresponding glue stretch or shrink}
-
-@<Glob...@>=
+@ @<Glob...@>=
 @!last_line_fill:pointer; {the |par_fill_skip| glue node of the new paragraph}
 
 @ When |saving_vdiscards| is positive then the glue, kern, and penalty
@@ -37391,17 +36464,17 @@ begin
 end;
 
 function set_tex_toks_register (j:integer;s:str_number):integer;
-var save_pool_ptr:pool_pointer;
+var s_pool_ptr:pool_pointer;
   ref:pointer;
   a:small_number;
   junk:pointer;
 begin
   set_tex_toks_register := 0;
-  save_pool_ptr := pool_ptr;
+  s_pool_ptr := pool_ptr;
   pool_ptr := str_start_macro(s+1);
   ref := get_avail;
   junk := str_toks(str_start_macro(s));
-  pool_ptr := save_pool_ptr;
+  pool_ptr := s_pool_ptr;
   token_ref_count(ref) := 0;
   link(ref) := link(temp_token_head);
   a:=0;

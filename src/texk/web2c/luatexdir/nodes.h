@@ -10,11 +10,11 @@
 #define get_vlink(a)  vlink(a)
 #define get_character(a)  character(a)
 
-extern halfword insert_discretionary ( halfword t,  halfword pre,  halfword post,  int replace);
+extern halfword insert_discretionary ( halfword t,  halfword pre,  halfword post,  halfword replace);
 extern halfword insert_syllable_discretionary ( halfword t,  lang_variables *lan);
 extern halfword insert_word_discretionary ( halfword t,  lang_variables *lan);
 extern halfword insert_complex_discretionary ( halfword t,   lang_variables *lan, 
-					       halfword pre,  halfword post,  int replace);
+					       halfword pre,  halfword post,  halfword replace);
 extern halfword insert_character ( halfword t,  int n);
 
 
@@ -38,7 +38,7 @@ extern halfword insert_character ( halfword t,  int n);
 #define llink(a)           vinfo((a)+1) /* overlaps with node_attr() */
 
 
-/* really special head node pointers that only need vlink */
+/* really special head node pointers that only need links */
 
 #define temp_node_size 2
 
@@ -90,10 +90,23 @@ typedef enum {
 #define glue_ptr(a)      vinfo((a)+2)
 #define leader_ptr(a)    vlink((a)+2)
 
-#define disc_node_size 3
-#define replace_count    subtype
+#define disc_node_size 10
+
+typedef enum {
+  discretionary_disc=0,
+  explicit_disc,
+  automatic_disc,
+  syllable_disc } discretionary_types;
+
+#define pre_break_head(a)   ((a)+4)
+#define post_break_head(a)  ((a)+6)
+#define no_break_head(a)    ((a)+8)
+
 #define pre_break(a)     vinfo((a)+2)
 #define post_break(a)    vlink((a)+2)
+#define no_break(a)      vlink((a)+3)
+#define tlink llink
+
 
 #define kern_node_size 3
 #define explicit 1  /*|subtype| of kern nodes from \.{\\kern} and \.{\\/}*/
@@ -151,8 +164,16 @@ typedef enum {
 #define margin_kern_node_size 4
 #define margin_char(a)  vlink((a)+3)
 
+/*@# {|subtype| of marginal kerns}*/
+#define left_side 0
+#define right_side 1
+
 #define math_node_size 3
 #define surround(a)      vlink((a)+2)
+#define before 0 /*|subtype| for math node that introduces a formula*/
+#define after 1 /*|subtype| for math node that winds up a formula*/
+
+
 
 #define ins_node_size 6
 #define float_cost(a)    varmem[(a)+2].cint
@@ -366,6 +387,47 @@ typedef enum {
 
 #define cancel_boundary_size   3
 
+typedef enum {
+  exactly=0, /*a box dimension is pre-specified*/
+  additional, /*a box dimension is increased from the natural one*/
+  cal_expand_ratio, /* calculate amount for font expansion after breaking
+		       paragraph into lines*/
+  subst_ex_font  /* substitute fonts */
+} hpack_subtypes;
+
+#define active_node_size 5 /*number of words in extended active nodes*/
+#define fitness subtype /*|very_loose_fit..tight_fit| on final line for this break*/
+#define break_node(a) vlink((a)+1) /*pointer to the corresponding passive node */
+#define line_number(a) vinfo((a)+1) /*line that begins at this breakpoint*/
+#define total_demerits(a) varmem[(a)+2].cint /* the quantity that \TeX\ minimizes*/
+#define active_short(a) varmem[(a)+3].cint /* |shortfall| of this line */
+#define active_glue(a) varmem[(a)+4].cint /*corresponding glue stretch or shrink*/
+
+#define passive_node_size 8
+#define cur_break                      rlink /*in passive node, points to position of this breakpoint*/
+#define prev_break                     llink /*points to passive node that should precede this one */
+#define passive_pen_inter(a)           varmem[((a)+2)].cint
+#define passive_pen_broken(a)          varmem[((a)+3)].cint
+#define passive_left_box(a)            vlink((a)+4)
+#define passive_left_box_width(a)      vinfo((a)+4)
+#define passive_last_left_box(a)       vlink((a)+5)
+#define passive_last_left_box_width(a) vinfo((a)+5)
+#define passive_right_box(a)           vlink((a)+6)
+#define passive_right_box_width(a)     vinfo((a)+6)
+#define serial(a)                      vlink((a)+7) /* serial number for symbolic identification*/
+
+#define delta_node_size 11
+
+#define couple_nodes(a,b) {assert(b!=null);vlink(a)=b;alink(b)=a;}
+#define try_couple_nodes(a,b) if (b==null) vlink(a)=b; else {couple_nodes(a,b);}
+#define uncouple_node(a) {assert(a!=null);vlink(a)=null;alink(a)=null;}
+
+/* TH: these two defines still need checking. The node ordering in luatex is not 
+   quite the same as in tex82 */
+
+#define precedes_break(a) (type((a))<math_node)
+#define non_discardable(a) (type((a))<math_node)
+
 #define NODE_METATABLE "luatex.node"
 
 #define check_isnode(L,b) (halfword *)luaL_checkudata(L,b,NODE_METATABLE)
@@ -390,24 +452,8 @@ extern halfword lua_node_new(int i, int j);
 #define adjust_head     hold_head+temp_node_size
 #define pre_adjust_head adjust_head+temp_node_size
 #define active          pre_adjust_head+temp_node_size
-#define align_head      active+temp_node_size
+#define align_head      active+active_node_size
 #define end_span        align_head+temp_node_size
-
-
-#define delta_node_size 11
-
-#define passive_node_size 8
-#define cur_break                      rlink /*in passive node, points to position of this breakpoint*/
-#define prev_break                     llink /*points to passive node that should precede this one */
-#define serial(a)                      vlink((a)+7) /* serial number for symbolic identification*/
-#define passive_pen_inter(a)           varmem[((a)+2)].cint
-#define passive_pen_broken(a)          varmem[((a)+3)].cint
-#define passive_left_box(a)            vlink((a)+4)
-#define passive_left_box_width(a)      vinfo((a)+4)
-#define passive_last_left_box(a)       vlink((a)+5)
-#define passive_last_left_box_width(a) vinfo((a)+5)
-#define passive_right_box(a)           vlink((a)+6)
-#define passive_right_box_width(a)     vinfo((a)+6)
 
 
 #endif

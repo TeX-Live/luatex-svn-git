@@ -7,8 +7,6 @@ extern int do_run_callback (int special, char *values, va_list vl);
 
 int callback_set[total_callbacks] = {0};
 
-static int next_callback = 0;
-
 static const char *const callbacknames[] = {
   "", /* empty on purpose */
   "find_write_file",
@@ -291,7 +289,7 @@ do_run_callback (int special, char *values, va_list vl) {
 		goto EXIT;
       }
       int b = lua_toboolean(L,nres);
-      *va_arg(vl, int *) = b;
+      *va_arg(vl, boolean *) = (boolean)b;
       break;
     case CALLBACK_INTEGER: 
       if (!lua_isnumber(L,nres)) {

@@ -341,9 +341,22 @@ lua_node_new(int i, int j) {
     break;
   case disc_node: 
     n = get_node(disc_node_size);  
-    replace_count(n)=0;
-    pre_break(n)=null;
-    post_break(n)=null;
+    subtype(n)=0;
+    pre_break(n)=pre_break_head(n); 
+    type(pre_break(n))=255;  
+    vlink(pre_break(n))=null;  
+    alink(pre_break(n))=null; 
+    tlink(pre_break(n))=null; 
+    post_break(n)=post_break_head(n);
+    type(post_break(n))=255;  
+    vlink(post_break(n))=null;  
+    alink(post_break(n))=null; 
+    tlink(post_break(n))=null; 
+    no_break(n)=no_break_head(n);
+    type(no_break(n))=255;  
+    vlink(no_break(n))=null;  
+    alink(no_break(n))=null; 
+    tlink(no_break(n))=null; 
     break;
   case whatsit_node:        
     n = lua_node_whatsit_new(j);
@@ -536,7 +549,9 @@ free_node (halfword p, integer s) {
   }
 
   if (varmem_sizes[p]<=0) {
-    fprintf(stdout,"node %d (size %d, type %d) is already free!\n",(int)p,varmem_sizes[p],type(p));
+    /*fprintf(stdout,"node %d (size %d, type %d, c %c) is already free!\n",(int)p,-varmem_sizes[p],type(p),
+      (type(p)==glyph_node ? (int)character(p) : '-'));*/
+    fprintf(stdout,"%c",(type(p)==glyph_node ? (character(p)>31? character(p) : '#'): '*'));
     /*assert(varmem_sizes[p]>0);*/
     return;
   }

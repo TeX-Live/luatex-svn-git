@@ -90,6 +90,7 @@ lang/hnjalloc.o \
 lang/hyphen.o \
 lang/texlang.o \
 tex/linebreak.o \
+tex/postlinebreak.o \
 managed-sa.o \
 mathcodes.o \
 textcodes.o \

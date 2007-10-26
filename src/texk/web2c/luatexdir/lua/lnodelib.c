@@ -1396,11 +1396,11 @@ lua_nodelib_getfield  (lua_State *L) {
       break;
     case disc_node: 
       switch (field) {
-      case  2: lua_pushnumber(L,0);                   break;
-      case  3: nodelib_pushattr(L,node_attr(n));      break;
-      case  4: nodelib_pushlist(L,pre_break(n));      break;
-      case  5: nodelib_pushlist(L,post_break(n));     break;
-      case  6: lua_pushnumber(L,replace_count(n));    break;
+      case  2: lua_pushnumber(L,subtype(n));             break;
+      case  3: nodelib_pushattr(L,node_attr(n));         break;
+      case  4: nodelib_pushlist(L,vlink(pre_break(n)));  break;
+      case  5: nodelib_pushlist(L,vlink(post_break(n))); break;
+      case  6: nodelib_pushlist(L,vlink(no_break(n)));   break;
       default: lua_pushnil(L);
       }
       break;
@@ -1849,11 +1849,11 @@ lua_nodelib_setfield  (lua_State *L) {
       break;
     case disc_node: 
       switch (field) {
-      case  2: /* dummy subtype */                      break;
-      case  3: nodelib_setattr(L,3,n);                  break;
-      case  4: pre_break(n) = nodelib_getlist(L,3);     break;
-      case  5: post_break(n) = nodelib_getlist(L,3);    break;
-      case  6: replace_count(n) = lua_tointeger(L,3);   break;
+      case  2: subtype(n) = lua_tointeger(L,3);	            break;
+      case  3: nodelib_setattr(L,3,n);                      break;
+      case  4: vlink(pre_break(n)) = nodelib_getlist(L,3);  break;
+      case  5: vlink(post_break(n)) = nodelib_getlist(L,3); break;
+      case  6: vlink(no_break(n)) = nodelib_getlist(L,3);   break;
       default: return nodelib_cantset(L,field,n);
       }
       break;

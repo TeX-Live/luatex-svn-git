@@ -1685,12 +1685,6 @@ if (cur_cs=0)or(cur_cs>eqtb_top)or
 @z
 
 @x
-    begin @!init new_patterns; goto done;@;@+tini@/
-@y
-    begin @!Init new_patterns; goto done;@;@+Tini@/
-@z
-
-@x
 @!flushable_string:str_number; {string not yet referenced}
 @y
 @z

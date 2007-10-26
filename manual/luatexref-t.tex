@@ -2832,9 +2832,10 @@ raised. The table is a font structure, as explained in
 
 \startfunctioncall
 number i = font.current();
+font.current(number i);
 \stopfunctioncall
 
-This is the currently used font number.
+This gets or sets the currently used font number.
 
 \subsection{Maximum font id}
 
@@ -3620,6 +3621,23 @@ lang.clear_patterns(<language> l)
 Clears the pattern dictionary for this language.
 
 \startfunctioncall
+number n = lang.prehyphenchar(<language> l)
+lang.prehyphenchar(<language> l, number n)
+\stopfunctioncall
+
+Gets or sets the \quote{pre-break} hyphen character for this font
+(initially the hyphen, decimal 45).
+
+\startfunctioncall
+number n = lang.posthyphenchar(<language> l)
+lang.posthyphenchar(<language> l, number n)
+\stopfunctioncall
+
+Gets or sets the \quote{post-break} hyphen character for this font
+(initially null, decimal 0).
+
+
+\startfunctioncall
 <node> head, boolean succes = lang.hyphenate(<node> head)
 <node> head, boolean succes = lang.hyphenate(<node> head, <node> tail)
 \stopfunctioncall
@@ -3756,16 +3774,29 @@ Third, the \ALEPH-derived commands \tex{leftghost} and
 are ignored completely by all further processing until the stage where
 inter-glyph kerning is added.
 
-Fourth, no automatic discretionaries are inserted. \TEX82 inserts an
-empty discretionary after sensing an input character that matches the
-\tex{hyphenchar} in the current font, \LUATEX\ does not. (This means 
-that at the moment, there is no automatic hyphenation of compound
-words.) The exact status and meaning of \tex{hyphenchar} is still
-under consideration, but the test that is performed by \TEX82 is
-arguably wrong: wether or not hyphenation takes place should not
-depend on the current font, it is a language property.  Soon, a new
-primitive will likely be created to indicate the \quote{explicit hyphenation
-chararacter} for input in a particular language.
+Fourth, automatic discretionaries are handled differently. \TEX82
+inserts an empty discretionary after sensing an input character that
+matches the \tex{hyphenchar} in the current font. This test is wrong,
+in our opinion: wether or not hyphenation takes place should not
+depend on the current font, it is a language property.
+
+In \LUATEX, it works like this: if \LUATEX\ senses an input character
+that matches the value of the new integer parameter
+\tex{exhyphenchar}, it will insert an automatic discretionary with the
+current language's \tex{prehyphenchar} in the pre-break text (if it is
+non-zero, otherwise the pre-break text will be empty), the current
+language's \tex{posthyphenchar} in the post-break (also only if it is
+non-zero), and the actual input character in the no-break text.
+
+Initex sets the \type{\exhyphenchar=`\-}, and all languages start out
+with \type{\prehyphenchar=`\-} and \type{\posthyphenchar=0}. When you
+assign the values of \tex{prehyphenchar} and \tex{posthyphenchar}, you
+are actually changing the settings for the current \tex{language},
+this behaviour is compatible with \tex{patterns} and \tex{hyphenation}.
+
+The exact status and meaning of \tex{hyphenchar} is still under
+consideration, it will probably become used in the character to glyph
+conversion stage. Currently, it is simply ignored.
 
 Fifth, \tex{setlanguage} no longer creates whatsits. The meaning of
 \tex{setlanguage} is changed so that it is now an integer parameter 
@@ -3805,9 +3836,7 @@ now, the generated errors are a valuable tool in discovering
 font-encoding specific pattern files)
 
 Likewise, the expanded argument for \tex{hyphenation} also has to be
-proper UTF-8, but here a little bit of extra syntax is provided (this
-is not yet true at the moment of writing, but will be by the time the
-next snapshot is released):
+proper UTF-8, but here a tiny little bit of extra syntax is provided:
 
 \startitemize[n]
 \item three sets of arguments in curly braces (\type{{}{}{}})
@@ -3818,7 +3847,9 @@ next snapshot is released):
 \item Internal command names are ignored. This rule is provided 
    especially for \tex{discretionary}, but it also helps deal with
   \tex{relax} commands that may sneak in.
-\item \type{=} indicates a hyphen in the document input.
+\item \type{=} indicates a hyphen in the document input (but that
+  is only useful in documents where \tex{exhyphenchar} is not equal to
+  the hyphen).
 \stopitemize
 
 The expanded argument is first converted back to a space-separated
@@ -3830,26 +3861,19 @@ values. Here are a few examples:
 
 \starttabulate[|l|l|l|]
 \NC \ssbf value          \NC \ssbf implied key (input) \NC \ssbf effect\NC\NR 
-\NC \type{ta-ble}               \NC table            \NC \type{ta\-ble} ($=$ \type{ta\discretionary{-}{}{}ble})\NC\NR
-\NC \type{vis=à=vis}            \NC vis-à-vis        \NC \type{vis-à-vis}\NC\NR
-\NC \type{user=\discretionary{}{}{}friendly}  \NC user-friendly    \NC \type{user-\discretionary{}{}{}friendly}\NC\NR
-\NC \type{user=-friendly}       \NC user-friendly    \NC \type{user-\-friendly} 
-   ($=$ \type{user\discretionary{--}{}{-}friendly}) \NC\NR
-\NC \type{ba{k-}{k}{c}ken}  \NC backen \NC \type{ba\discretionary{k-}{k}{c}ken}\NC\NR
+\NC \type{ta-ble}        \NC table  \NC \type{ta\-ble} 
+                                        ($=$ \type{ta\discretionary{-}{}{}ble})\NC\NR
+\NC \type{ba{k-}{}{c}ken}\NC backen \NC \type{ba\discretionary{k-}{}{c}ken}\NC\NR
 \stoptabulate
-
-Keep in mind that, as explained above, \LUATEX\ does not currently
-insert automatic discretionaries, so the word \quote{vis-à-vis} will never
-be split over two lines.
 
 The resultant patterns and exception dictionary will be stored under
 the language code that is the present value of \tex{language}. 
 
 In the last line of the table, you see there is no \tex{discretionary}
-command in the value: the command is optional in the syntax. The
-underlying reason for that is that it is conceivable that a whole
-dictionary of words is stored as a plain text file and loaded into
-\LUATEX\ using one of the functions in the Lua \luatex{lang}
+command in the value: the command is optional in the \TEX-based input
+syntax. The underlying reason for that is that it is conceivable that
+a whole dictionary of words is stored as a plain text file and loaded
+into \LUATEX\ using one of the functions in the Lua \luatex{lang}
 library. This loading method is quite a bit faster than going through
 the \TEX\ language primitives, but some (most?) of that speed gain
 would be lost if it had to interpret command sequences while doing so.
@@ -3940,12 +3964,11 @@ have to make sure you perform the tasks normally done by \LUATEX\
 itself in order to make sure that the other, non-overrruled, routine
 continues to function properly.
 
-Work in this area is not yet complete: only about 25\% of all possible
-cases are handled by our rewritten ligaturing engine. We are simply
-lucky that this covers about 99\% of all paragraphs in western
-languages, and that most other problems will go unnoticed.
-Nevertheless, we are working hard to make sure all of the possible
-inputs will become supported soon.
+Work in this area is not yet complete: almost all of the possible
+cases are handled by our rewritten ligaturing engine, except for the
+fact that ligatures with the explicit hyphen character do not work
+yet. We are working hard to make sure all of the possible inputs will
+become supported soon.
 
 For example, take the word \type{office}, hyphenated \type{of-fice},
 using a \quote{normal} font with all the \type{f}-\type{i} ligatures:
@@ -3982,8 +4005,6 @@ other discretionaries.
 % TODO: 
 %   Check \sfcode handling
 %   Implement \glyph
-%   Implement \exhyphenchar
-%   Implement \{pre,post}hyphenchar
 %
 %   Remove \savinghyphcodes
 %   Change exception syntax for \discretionary
@@ -4650,8 +4671,7 @@ Valid fields: \showfields{disc}
 \NC attr       \NC \syntax{<node>}    \NC  \NC\NR
 \NC pre        \NC \syntax{<node>}    \NC  pointer to the pre|-|break text\NC\NR
 \NC post       \NC \syntax{<node>}    \NC  pointer to the post|-|break text\NC\NR
-\NC replace    \NC number  \NC  the number of nodes to skip if this
-                                discretionary is chosen as a breakpoint\NC\NR
+\NC replace    \NC \syntax{<node>}    \NC  pointer to the no|-|break text\NC\NR
 \stoptabulate
 
 \subsubsection{math nodes}
@@ -4710,27 +4730,31 @@ Valid fields: \showfields{penalty}
 
 Valid fields: \showfields{glyph}
 
+\startbuffer[bitfields]
+\starttabulate[|l|l|]
+\NC 0 \NC character \NC\NR
+\NC 1 \NC glyph     \NC\NR
+\NC 2 \NC ligature  \NC\NR
+\NC 3 \NC ghost     \NC\NR
+\NC 4 \NC left      \NC\NR
+\NC 5 \NC right     \NC\NR
+\stoptabulate 
+\stopbuffer
+
 \starttabulate[|lT|l|p|]
-\NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
-\NC subtype    \NC number  \NC  bitfield, with bits:
-                                {\starttabulate[|l|l|]
-                                 \NC 0 \NC character \NC\NR
-                                 \NC 1 \NC glyph     \NC\NR
-                                 \NC 2 \NC ligature  \NC\NR
-                                 \NC 3 \NC ghost     \NC\NR
-                                 \NC 4 \NC left      \NC\NR
-                                 \NC 5 \NC right     \NC\NR
-                                 \stoptabulate }\NC\NR
-\NC attr       \NC \syntax{<node>}    \NC  \NC\NR
-\NC char       \NC number  \NC \NC\NR
-\NC font       \NC number  \NC \NC\NR
-\NC lang       \NC number  \NC \NC\NR
-\NC left       \NC number  \NC \NC\NR
-\NC right      \NC number  \NC \NC\NR
-\NC uchyph     \NC boolean  \NC \NC\NR
+\NC \ssbf field\NC \ssbf type         \NC \ssbf explanation \NC\NR
+\NC subtype    \NC number             \NC bitfield, with bits:\crlf
+                                          \getbuffer[bitfields]\NC\NR
+\NC attr       \NC \syntax{<node>}    \NC \NC\NR
+\NC char       \NC number             \NC \NC\NR
+\NC font       \NC number             \NC \NC\NR
+\NC lang       \NC number             \NC \NC\NR
+\NC left       \NC number             \NC \NC\NR
+\NC right      \NC number             \NC \NC\NR
+\NC uchyph     \NC boolean            \NC \NC\NR
 \NC components \NC \syntax{<node>}    \NC pointer to ligature components\NC\NR
-\NC xoffset    \NC number  \NC \NC \NR
-\NC yoffset    \NC number  \NC \NC \NR
+\NC xoffset    \NC number             \NC \NC\NR
+\NC yoffset    \NC number             \NC \NC\NR
 \stoptabulate
 
 \subsubsection{margin\_kern nodes}
@@ -5371,8 +5395,6 @@ Bad call to gww_iconv_open, neither arg is UCS4 (EUC-CN->UTF-8)
 \stoptyping
 during font loading. This is a limitation of the internal iconv
 implementation.
-
-\item Hyphenation can only deal with the Base Multilingual Plane (BMP)
 
 \item Font expansion does not work quite as it should. On the mailing
 list (sep 21), Jonathan Sauer posted a very nice test file along with
