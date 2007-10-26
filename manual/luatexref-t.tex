@@ -3964,11 +3964,9 @@ have to make sure you perform the tasks normally done by \LUATEX\
 itself in order to make sure that the other, non-overrruled, routine
 continues to function properly.
 
-Work in this area is not yet complete: almost all of the possible
-cases are handled by our rewritten ligaturing engine, except for the
-fact that ligatures with the explicit hyphen character do not work
-yet. We are working hard to make sure all of the possible inputs will
-become supported soon.
+Work in this area is not yet complete, but most of the possible cases
+are handled by our rewritten ligaturing engine. We are working hard to
+make sure all of the possible inputs will become supported soon.
 
 For example, take the word \type{office}, hyphenated \type{of-fice},
 using a \quote{normal} font with all the \type{f}-\type{i} ligatures:
@@ -4730,7 +4728,7 @@ Valid fields: \showfields{penalty}
 
 Valid fields: \showfields{glyph}
 
-\startbuffer[bitfields]
+\setbox2=\hbox{\vbox {\hsize=3cm
 \starttabulate[|l|l|]
 \NC 0 \NC character \NC\NR
 \NC 1 \NC glyph     \NC\NR
@@ -4739,12 +4737,12 @@ Valid fields: \showfields{glyph}
 \NC 4 \NC left      \NC\NR
 \NC 5 \NC right     \NC\NR
 \stoptabulate 
-\stopbuffer
+}}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field\NC \ssbf type         \NC \ssbf explanation \NC\NR
 \NC subtype    \NC number             \NC bitfield, with bits:\crlf
-                                          \getbuffer[bitfields]\NC\NR
+                                          \unhbox2\NC\NR
 \NC attr       \NC \syntax{<node>}    \NC \NC\NR
 \NC char       \NC number             \NC \NC\NR
 \NC font       \NC number             \NC \NC\NR
