@@ -700,7 +700,7 @@ in with \LUATEX, because they offer useful functionality:
   (version 1.2.1, but patched for compilation with lua 5.1)
 \item \lua{luafilesystem}, also from the kepler project, \hyphenatedurl{http://www.keplerproject.org/luafilesystem/}.  
   (version 1.2, but patched for compilation with lua 5.1)
-\item \lua{lpeg}, by Roberto Ierusalimschy, \hyphenatedurl{http://www.inf.puc-rio.br/~roberto/lpeg.html}. (version 0.6)
+\item \lua{lpeg}, by Roberto Ierusalimschy, \hyphenatedurl{http://www.inf.puc-rio.br/~roberto/lpeg.html}. (version 0.7)
 \item \lua{lzlib}, by Tiago Dionizio, \hyphenatedurl{http://mega.ist.utl.pt/~tngd/lua/}. (version 0.2)
 \item \lua{md5}, by Roberto Ierusalimschy \hyphenatedurl{http://www.inf.puc-rio.br/~roberto/md5/md5-5/md5.html}.
 \stopitemize
@@ -2966,8 +2966,10 @@ fontforge.apply_featurefile(f,'filename')
 A \quote{feature file} is a textual representation of the features in an
 OpenType font.  See
 \hyphenatedurl{http://www.adobe.com/devnet/opentype/afdko/topic_feature_file_syntax.html}
-and \hyphenatedurl{http://fontforge.sourceforge.net/featurefile.html}
+and 
+\hyphenatedurl{http://fontforge.sourceforge.net/featurefile.html}
 for a more detailed description of feature files.
+
 
 \subsection{Applying an \quote{afm file}}
 
@@ -3694,7 +3696,7 @@ minutiae of the new process.
 
 \TEX82 (including \PDFTEX) differentiates between \type{char_node}s
 and \type{lig_node}s.  The former are simple items that contained
-nothing but a \quote{character} and a \quote{font] field, and they
+nothing but a \quote{character} and a \quote{font} field, and they
 lived in the same memory are as tokens. The latter also contained a
 list of components, and a subtype indicating whether this ligature was
 the result of a word boundary, and it was stored in the same place as
@@ -3994,11 +3996,24 @@ first hyphenation point.  And this is only a simple case.
 
 \section{Breaking paragraphs into lines}
 
-This code is unchanged as yet, but because of the above-mentioned
-issues with discretionaries and ligatures, line breaking will possibly
-be different: the current code is still based on the \TEX82 algoritms,
-and it does not expect there to be discretionaries in the middle of
-other discretionaries.
+This code is still almost unchanged, but because of the
+above-mentioned changes with respect to discretionaries and ligatures,
+line breaking will potentially be different from traditional \TEX.
+The actual line breaking code is still based on the \TEX82 algoritms,
+and it does not expect there to be discretionaries inside of
+discretionaries. 
+
+But that situation is now fairly common in \LUATEX, due to the changes
+to the ligaturing mechanism. And also, the \LUATEX\ discretionary
+nodes are implemented slightly different from the \TEX82 nodes: the
+\type{no_break} text is now embedded inside the disc node where 
+previously, these nodes kept their place in the horizontal list (the
+discretionary node contained a counter indicating how many nodes to
+skip).
+
+The combined effect of these two differences is that \LUATEX\ does not
+always use all of the potential breakpoints in a paragraph, especially
+when fonts with many ligatures are used.
 
 % TODO: 
 %   Check \sfcode handling
@@ -4728,7 +4743,8 @@ Valid fields: \showfields{penalty}
 
 Valid fields: \showfields{glyph}
 
-\setbox2=\hbox{\vbox {\hsize=3cm
+\newbox\mybox
+\setbox\mybox=\hbox{\vbox {\hsize=3cm
 \starttabulate[|l|l|]
 \NC 0 \NC character \NC\NR
 \NC 1 \NC glyph     \NC\NR
@@ -4742,7 +4758,7 @@ Valid fields: \showfields{glyph}
 \starttabulate[|lT|l|p|]
 \NC \ssbf field\NC \ssbf type         \NC \ssbf explanation \NC\NR
 \NC subtype    \NC number             \NC bitfield, with bits:\crlf
-                                          \unhbox2\NC\NR
+                                          \copy\mybox\NC\NR
 \NC attr       \NC \syntax{<node>}    \NC \NC\NR
 \NC char       \NC number             \NC \NC\NR
 \NC font       \NC number             \NC \NC\NR
@@ -4821,8 +4837,9 @@ Valid fields: \showfields{whatsit,special}
 \subsubsection{language nodes}
 
 
-\LUATEX\ does not have language whatsits. All language information in
-already present inside the glyph nodes themselves.
+\LUATEX\ does not have language whatsits any more. All language 
+information is already present inside the glyph nodes themselves.
+This whatsit subtype will be removed in the next release.
 
 
 \subsubsection{local_par nodes}
