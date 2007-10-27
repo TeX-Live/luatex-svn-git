@@ -21607,7 +21607,7 @@ var q:pointer;
 	d:integer; { a direction }
 begin
   q:=p;
-  while vlink(q)<>null do q:=vlink(q);
+  q:=tail_of_list(p);
   new_hyphenation(p,q);
   if pack_direction=-1 then d:=text_direction else d:=pack_direction;
   new_ligkern(p,q,d);
@@ -24957,6 +24957,7 @@ else
   paragraph_dir:=0;
 line_break_dir:=paragraph_dir;
 new_ligkern(temp_head,tail, paragraph_dir);
+tail:=tail_of_list(temp_head); { TODO should not be needed}
 if is_char_node(tail) then tail_append(new_penalty(inf_penalty))
 else if type(tail)<>glue_node then tail_append(new_penalty(inf_penalty))
 else begin 
@@ -27731,8 +27732,16 @@ begin unsave;
   and set |q| to the list's tail@>;
 p:=vlink(head); pop_nest;
 case saved(-1) of
-0:vlink(pre_break(tail)):=p;
-1:vlink(post_break(tail)):=p;
+0: if (n>0) then begin 
+   vlink(pre_break(tail)):=p; 
+   alink(p):=pre_break(tail);
+   tlink(pre_break(tail)):=q; 
+   end;
+1: if (n>0) then begin
+   vlink(post_break(tail)):=p;
+   alink(p):=post_break(tail);
+   tlink(post_break(tail)):=q; 
+   end;
 2:@<Attach list |p| to the current list, and record its length;
   then finish up and |return|@>;
 end; {there are no other cases}
@@ -27748,7 +27757,13 @@ begin if (n>0)and(abs(mode)=mmode) then
   ("empty, in math formulas. I had to delete your third part.");
   flush_node_list(p); error;
   end
-else vlink(no_break(tail)):=p;
+else begin 
+  if (n>0) then begin  
+    vlink(no_break(tail)):=p;
+    alink(p):=no_break(tail);
+    tlink(no_break(tail)):=q; 
+    end;
+  end;
 decr(save_ptr); return;
 end
 
