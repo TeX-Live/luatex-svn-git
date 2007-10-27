@@ -1629,10 +1629,9 @@ ext_do_line_break (boolean d,
         prev_p=cur_p;
         cur_p=vlink(cur_p);
       }
-      if (cur_p==null) /* TODO */
-	return ;
-      assert(cur_p!=null);
-
+      if (cur_p==null) { /* TODO */
+	confusion(maketexstring("linebreak_tail"));
+      }
     /* Determine legal breaks: As we move through the hlist, we need to keep the |active_width|
          array up to date, so that the badness of individual lines is readily calculated by
          |try_break|. It is convenient to use the short name |act_width| for the component of
