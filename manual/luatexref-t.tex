@@ -5,12 +5,15 @@
 \environment luatexref-env
 
 \def\CFF{\kap{cff}}
+\def\PATGEN{\kap{patgen}}
+
+\dontcomplain
 
 \catcode`\_=12
  
 \setvariables
   [document]
-  [snapshot=2007-10-22]
+  [snapshot=2007-10-29]
 
 \starttext
 
@@ -2704,8 +2707,6 @@ the executable after loading and executing the startup file.
 \NC pool_free \NC 	        number\NC  5000\NC cf.\ web2c docs \NC \NR
 \NC max_strings \NC        number\NC  15000\NC cf.\ web2c docs \NC \NR
 \NC strings_free \NC       number\NC  100\NC cf.\ web2c docs \NC \NR
-\NC trie_size \NC 	        number\NC  20000\NC cf.\ web2c docs \NC \NR
-\NC hyph_size \NC 	        number\NC  659\NC cf.\ web2c docs \NC \NR
 \NC nest_size \NC 	        number\NC  50\NC cf.\ web2c docs \NC \NR
 \NC max_in_open \NC        number\NC  15\NC cf.\ web2c docs \NC \NR
 \NC param_size \NC         number\NC  60\NC cf.\ web2c docs \NC \NR
@@ -3649,7 +3650,7 @@ Inserts hyphenation points (discretionary nodes) in a node list. If
 Currently, \type{succes} is always true if \type{head} and \type{tail}
 are proper nodes, regardless of possible other errors.
 
-\chapter{Languages and characters, Fonts and glyphs}
+\chapter[languages]{Languages and characters, Fonts and glyphs}
 
 \LUATEX's internal handling of the characters and glyphs that eventually 
 become typeset is quite different from the way \TEX82 handles those
@@ -3692,7 +3693,7 @@ identifiers so that the records are \quote{glyph nodes} from now on.
 That was the broad overview. The rest of this chapter will deal with the
 minutiae of the new process.
 
-\section{Characters and glyphs}
+\section[charsandglyphs]{Characters and glyphs}
 
 \TEX82 (including \PDFTEX) differentiates between \type{char_node}s
 and \type{lig_node}s.  The former are simple items that contained
@@ -3895,10 +3896,15 @@ discretionaries in words is very different from the ones in \TEX82,
 and that means there are some noticable differences in handling as
 well.
 
-First and foremost, there is no \quote{compressed trie} involved (\LUATEX\
-uses a finite state hash, an idea based on the \quote{libhnj} library
-that is used by OpenOffice). Differences between
-\LUATEX\ and \TEX82 that are a direct result of that:
+First and foremost, there is no \quote{compressed trie} involved in
+hyphenation. The algorithm still reads \PATGEN-generated pattern
+files, but \LUATEX\ uses a finite state hash to match the patterns
+against the word to be hyphenated. This algorithm is based on the
+\quote{libhnj} library used by OpenOffice. 
+The memory allocation for this new implementation is completely
+dynamic, so the \WEBC\ setting for \type{trie_size} is ignored.
+
+Differences between \LUATEX\ and \TEX82 that are a direct result of that:
 
 \startitemize
 \item \LUATEX\ happily hyphenates the full Unicode character range.
@@ -3944,6 +3950,13 @@ nodes. It will not operate properly in the presence of \quote{glyph},
 \quote{ligature}, or \quote{ghost} nodes, nor does it know how to deal with
 kerning.  In the near future, it will be able to skip over \quote{ghost}
 nodes, and we may add a less fuzzy function you can call as well.
+
+The hyphenation exception dictionary is maintained as simole key-value
+hash, and that is also dynamic, so the \type{hyph_size} setting is not
+used either.
+
+A technical paper detailing the new algorithm will be released as a
+separate document.
 
 \section{Applying ligatures and kerning}
 
@@ -4680,7 +4693,11 @@ Valid fields: \showfields{disc}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
-\NC subtype    \NC number  \NC  unused\NC\NR
+\NC subtype    \NC number  \NC  indicates the source of a discretionary. 
+                                0 = the \tex{discretionary} command, 
+                                1 = the \tex{-} command, 
+                                2 = added automatically following a \type{-},
+                                3 = added by the hyphenation algorithm\NC\NR
 \NC attr       \NC \syntax{<node>}    \NC  \NC\NR
 \NC pre        \NC \syntax{<node>}    \NC  pointer to the pre|-|break text\NC\NR
 \NC post       \NC \syntax{<node>}    \NC  pointer to the post|-|break text\NC\NR
@@ -4746,12 +4763,12 @@ Valid fields: \showfields{glyph}
 \newbox\mybox
 \setbox\mybox=\hbox{\vbox {\hsize=3cm
 \starttabulate[|l|l|]
-\NC 0 \NC character \NC\NR
-\NC 1 \NC glyph     \NC\NR
-\NC 2 \NC ligature  \NC\NR
-\NC 3 \NC ghost     \NC\NR
-\NC 4 \NC left      \NC\NR
-\NC 5 \NC right     \NC\NR
+\NC bit 0 \NC character \NC\NR
+\NC bit 1 \NC glyph     \NC\NR
+\NC bit 2 \NC ligature  \NC\NR
+\NC bit 3 \NC ghost     \NC\NR
+\NC bit 4 \NC left      \NC\NR
+\NC bit 5 \NC right     \NC\NR
 \stoptabulate 
 }}
 
@@ -4771,6 +4788,9 @@ Valid fields: \showfields{glyph}
 \NC yoffset    \NC number             \NC \NC\NR
 \stoptabulate
 
+See \in{section}[charsandglyphs] for a detailed description of the
+\type{subtype} field.
+
 \subsubsection{margin\_kern nodes}
 
 Valid fields: \showfields{margin_kern}
@@ -4787,7 +4807,8 @@ Valid fields: \showfields{margin_kern}
 \subsection{whatsit nodes}
 
 Whatsit nodes come in many subtypes, that you can ask for my running
-\luatex{node.whatsits()}: \ctxlua {for _,v in pairs(node.whatsits()) do
+\luatex{node.whatsits()}: 
+\ctxlua {for _,v in pairs(node.whatsits()) do
 tex.print('\\type{' .. v .. '} (' .. _ .. '), ') end }
 
 \subsubsection{open nodes}
@@ -5115,6 +5136,9 @@ necessary to clean up the internal interfaces.
 
 \startitemize
 
+\item See~\in{chapter}[languages] for many small changes related to paragraph 
+  building, language handling, and hyphenation.
+
 \item There is no pool file, all strings are embedded during compilation.
 
 \item \type {plus 1 fillll} does not generate an error. The extra \quote{l} is
@@ -5153,6 +5177,9 @@ are missing
   and the implementation uses a flat array instead of the mixed
  flat|\&|sparse model from \ETEX.
 
+\item \type{savinghyphcodes} is a no-op and may possibly be removed. 
+ See~\in{chapter}[languages] for details.
+
 \stopitemize
 
 \section{Changes from \PDFTEX\ 1.40}
@@ -5160,7 +5187,7 @@ are missing
 \startitemize
 
 \item The (experimental) support for snap nodes has been removed, because 
-it much more natural to build this functionality on top of node
+it is much more natural to build this functionality on top of node
 processing and attributes. The associated primitives that are now gone
 are: \tex{pdfsnaprefpoint}, \tex{pdfsnapy}, and \tex{pdfsnapycomp}.
 
@@ -5247,7 +5274,7 @@ removing the need for an explicit fix to \tex{hoffset}
 This resulted for instance in a bug that sometimes caused an eternal
 loop when trying to \tex{show} a box.
 
-\item A fair amount of minor bugs are fixed as well, most of these
+\item A fair amount of other minor bugs are fixed as well, most of these
 related to \tex{tracingcommands} output.
 
 \item The number of possible fonts, ocps and ocplists is
