@@ -241,15 +241,13 @@ known as `\eTeX'.
 @d pdftex_revision=="0" { \.{\\pdftexrevision} }
 @d pdftex_version_string=='-2.00.0' {current \pdfTeX\ version}
 @#
-@d luatex_version==15 { \.{\\luatexversion} }
+@d luatex_version==16 { \.{\\luatexversion} }
 @d luatex_revision=="0" { \.{\\luatexrevision} }
-@d luatex_version_string=='-snapshot-0.15.0' {current \LuaTeX\ version}
+@d luatex_version_string=='snapshot-0.16.0' {current \LuaTeX\ version}
 @d luatex_date_info==-extra_version_info { the compile date is negated }
 @#
-@d luaTeX_banner=='This is luaTeX, Version 3.141592',luatex_version_string,extra_version_info
+@d luaTeX_banner=='This is LuaTeX, Version ',luatex_version_string,extra_version_info
    {printed when \LuaTeX\ starts}
-@#
-@d TeX_banner=='This is TeX, Version 3.141592' {printed when \TeX\ starts}
 @#
 @d banner==luaTeX_banner
 @#

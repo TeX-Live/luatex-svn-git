@@ -21,7 +21,7 @@ linux_build_dir = $(HOME)/luatex/build/linux/texk/web2c
 $(luatexdir)/luatex.version: $(srcdir)/$(luatexdir)/luatex.web
 	test -d $(luatexdir) || mkdir $(luatexdir)
 	grep '^@d luatex_version_string==' $(srcdir)/$(luatexdir)/luatex.web \
-	  | sed "s/^.*'-//;s/'.*$$//" \
+	  | sed "s/^.*=='//;s/' .*$$//" \
 	  >$(luatexdir)/luatex.version
 
 # The C sources.

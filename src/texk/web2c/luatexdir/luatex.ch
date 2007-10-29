@@ -10,7 +10,7 @@
 @x
 @d banner==luaTeX_banner
 @y
-@d luaTeXk_banner=='This is luaTeXk, Version 3.141592',luatex_version_string
+@d luaTeXk_banner=='This is luaTeXk, Version ',luatex_version_string
 @#
 @d banner==luaTeX_banner
 @d banner_k==luaTeXk_banner
