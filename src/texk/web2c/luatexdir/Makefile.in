@@ -91,6 +91,7 @@ lang/hyphen.o \
 lang/texlang.o \
 tex/linebreak.o \
 tex/postlinebreak.o \
+tex/texnodes.o \
 managed-sa.o \
 mathcodes.o \
 textcodes.o \

@@ -6,7 +6,6 @@
 #define cs_token_flag 0x1FFFFFFF
 #define string_offset 2097152
 
-#define null -0x3FFFFFFF
 #undef link /* defined by cpascal.h */
 #define info(a)    fixmem[(a)].hhlh
 #define link(a)    fixmem[(a)].hhrh

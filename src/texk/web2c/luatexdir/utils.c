@@ -1702,3 +1702,49 @@ check_pool_overflow (int wsize) {
 	pool_size = nsize;
   }
 }
+
+#define max_integer 0x7FFFFFFF
+
+scaled divide_scaled (scaled s, scaled m, integer dd) {
+  register scaled q;
+  register scaled r;
+  int i;
+  int sign = 1;
+  if (s < 0) {
+	sign = -sign;
+	s = -s;
+  }
+  if (m < 0) {
+	sign = -sign;
+	m = -m;
+  }
+  if (m == 0) {
+	pdf_error(maketexstring("arithmetic"), maketexstring("divided by zero"));
+  } else if (m >= (max_integer / 10)) {
+	pdf_error(maketexstring("arithmetic"), maketexstring("number too big"));
+  }
+  q = s / m;
+  r = s % m;
+  for (i = 1;i<=(int)dd;i++) {
+	q = 10*q + (10*r) / m;
+	r = (10*r) % m;
+  }
+  if (2*r >= m) {
+	q++;
+	r -= m;
+  }
+  switch(dd) {
+  case 0: scaled_out = sign*(s - r); break;
+  case 1: scaled_out = sign*(s - (r/10)); break;
+  case 2: scaled_out = sign*(s - (r/100)); break;
+  case 3: scaled_out = sign*(s - (r/1000)); break;
+  case 4: scaled_out = sign*(s - (r/10000)); break;
+  case 5: scaled_out = sign*(s - (r/100000)); break;
+  case 6: scaled_out = sign*(s - (r/1000000)); break;
+  case 7: scaled_out = sign*(s - (r/10000000)); break;
+  case 8: scaled_out = sign*(s - (r/100000000)); break;
+  case 9: scaled_out = sign*(s - (r/1000000000)); break;
+  }
+  return sign*q;
+}
+

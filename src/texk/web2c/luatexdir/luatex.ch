@@ -2451,13 +2451,6 @@ selector:=old_setting;
 @z
 
 @x
-@!eTeX_mode: 0..1; {identifies compatibility and extended mode}
-@y
-@!eTeX_mode: 0..1; {identifies compatibility and extended mode}
-@!etex_p: boolean; {was the -etex option specified}
-@z
-
-@x
 @!eof_seen : array[1..max_in_open] of boolean; {has eof been seen?}
 @y
 @!eof_seen : ^boolean; {has eof been seen?}
@@ -2696,7 +2689,7 @@ var q : pointer;
 begin
   if (source_filename_stack[in_open] > 0 and isnewsource (source_filename_stack[in_open]
 , line)) then begin
-    new_whatsit (special_node, write_node_size);
+    new_whatsit (special_node);
     write_stream(tail) := 0;
     q:=get_avail; def_ref := q;
     token_ref_count(def_ref) := null;

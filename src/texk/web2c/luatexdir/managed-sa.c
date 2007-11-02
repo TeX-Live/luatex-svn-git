@@ -34,14 +34,15 @@ skip_in_stack (sa_tree a, integer n) {
 }
 
 sa_tree_item
-get_sa_item (sa_tree head, integer n) {
-  int h,m;
+get_sa_item (const sa_tree head, const integer n) {
+  register int h;
+  register int m;
   if (head->tree != NULL) {
     h = HIGHPART_PART(n);
     if (head->tree[h] != NULL) {
       m = MIDPART_PART(n);
       if (head->tree[h][m] != NULL) {
-	return head->tree[h][m][LOWPART_PART(n)];
+      	return head->tree[h][m][LOWPART_PART(n)];
       }
     }
   }

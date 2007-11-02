@@ -219,7 +219,7 @@ halfword insert_discretionary ( halfword t,  halfword pre,  halfword post,  half
 #ifdef VERBOSE
   /* fprintf(stderr,"disc (%d,%d,%d) after %c\n", pre, post, replace, character(t));*/
 #endif
-  g = lua_node_new(disc_node,syllable_disc);
+  g = new_node(disc_node,syllable_disc);
   vlink(g) = vlink(t);
   vlink(t) = g;
   for (g=pre;g!=null;g =vlink(g)) {
@@ -643,7 +643,7 @@ hnj_hyphenation (halfword head, halfword tail) {
       break;
     r = find_next_wordstart(r);
   }
-  free_node(vlink(tail), penalty_node_size);
+  flush_node(vlink(tail));
   vlink(tail) = save_tail;
 }
 

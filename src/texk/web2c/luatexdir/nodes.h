@@ -4,6 +4,12 @@
 #ifndef __NODES_H__
 #define __NODES_H__
 
+/* these don't really belong here */
+
+#define token_ref_count(a) info((a)) /* reference count preceding a token list */
+#define add_token_ref(a) token_ref_count(a)++  /* new reference to a token list */
+
+
 /* these are in texlang.c */
 
 #define set_vlink(a,b)  vlink(a)=b
@@ -20,23 +26,31 @@ extern halfword insert_character ( halfword t,  int n);
 
 #define max_halfword  0x3FFFFFFF
 #ifndef null
-#define null         -0x3FFFFFFF
+#define null         0
 #endif
 #define null_flag    -0x40000000
 #define zero_glue 0
 #define normal 0
 
 #define vinfo(a)           varmem[(a)].hh.v.LH 
-#define node_size(a)       varmem[(a)].hh.v.LH
 #define vlink(a)           varmem[(a)].hh.v.RH 
 #define type(a)            varmem[(a)].hh.u.B0
 #define subtype(a)         varmem[(a)].hh.u.B1
 #define node_attr(a)       vinfo((a)+1)
 #define alink(a)           vlink((a)+1)
 
+#define node_size(a)       varmem[(a)].hh.v.LH
+
 #define rlink(a)           vlink((a)+1) /* aka alink() */
 #define llink(a)           vinfo((a)+1) /* overlaps with node_attr() */
 
+#define attr_list_ref(a) vinfo((a)+1) /* the reference count */
+
+#define cache_disabled max_halfword
+#define add_node_attr_ref(a) { assert(a!=cache_disabled);	\
+	if (a!=null)  attr_list_ref((a))++; }
+
+#define add_glue_ref(a) glue_ref_count(a)++ /* new reference to a glue spec */
 
 /* really special head node pointers that only need links */
 
@@ -77,6 +91,32 @@ typedef enum {
 #define pdf_action_tokens(a)      vinfo((a) + 3)
 #define pdf_action_refcount(a)    vlink((a) + 3)
 
+/*increase count of references to this action*/
+#define add_action_ref(a) pdf_action_refcount((a))++ 
+
+/* decrease count of references to this
+   action; free it if there is no reference to this action*/
+
+#define delete_action_ref(a) {									\
+    if (pdf_action_refcount(a) == null) {						\
+	  if (pdf_action_type(a) == pdf_action_user) {				\
+		delete_token_ref(pdf_action_tokens(a));					\
+	  } else {													\
+		if (pdf_action_file(a) != null)							\
+		  delete_token_ref(pdf_action_file(a));					\
+		if (pdf_action_type(a) == pdf_action_page)				\
+		  delete_token_ref(pdf_action_tokens(a));				\
+		else if (pdf_action_named_id(a) > 0)					\
+		  delete_token_ref(pdf_action_id(a));					\
+	  }															\
+	  free_node(a, pdf_action_size);							\
+	} else {													\
+	  decr(pdf_action_refcount(a));								\
+	}															\
+  }
+
+
+
 /* normal nodes */
 
 #define inf_bad  10000  /* infinitely bad value */
@@ -107,6 +147,13 @@ typedef enum {
 #define no_break(a)      vlink((a)+3)
 #define tlink llink
 
+#define vlink_pre_break(a)  vlink(pre_break_head(a))
+#define vlink_post_break(a) vlink(post_break_head(a))
+#define vlink_no_break(a)   vlink(no_break_head(a))
+
+#define tlink_pre_break(a)  tlink(pre_break_head(a))
+#define tlink_post_break(a) tlink(post_break_head(a))
+#define tlink_no_break(a)   tlink(no_break_head(a))
 
 #define kern_node_size 3
 #define explicit 1  /*|subtype| of kern nodes from \.{\\kern} and \.{\\/}*/
@@ -156,6 +203,8 @@ typedef enum {
 #define make_lang_data(a,b,c,d) (a>0 ? (1<<31): 0)+			\
   (b<<16)+ (((c>0 && c<256) ? c : 1)<<8)+(((d>0 && d<256) ? d : 1))
 
+#define init_lang_data(a)      lang_data(a)=256+1
+
 #define set_char_lang(a,b)    lang_data(a)=make_lang_data(char_uchyph(a),b,char_lhmin(a),char_rhmin(a))
 #define set_char_lhmin(a,b)   lang_data(a)=make_lang_data(char_uchyph(a),char_lang(a),b,char_rhmin(a))
 #define set_char_rhmin(a,b)   lang_data(a)=make_lang_data(char_uchyph(a),char_lang(a),char_lhmin(a),b)
@@ -195,18 +244,88 @@ typedef enum {
   kern_node,      
   penalty_node,   
   unset_node,   /* 13 */
-  right_noad = 31,
-  action_node = 39,
-  margin_kern_node = 40,
-  glyph_node = 41,
+  style_node,
+  choice_node,
+  ord_noad,
+  op_noad,
+  bin_noad,
+  rel_noad,
+  open_noad,
+  close_noad,
+  punct_noad,
+  inner_noad,
+  radical_noad,
+  fraction_noad,
+  under_noad,
+  over_noad,
+  accent_noad,
+  vcenter_noad,
+  left_noad,
+  right_noad,
+  margin_kern_node = 32,
+  glyph_node = 33,
+  align_record_node = 34,
+  pseudo_file_node = 35,
+  pseudo_line_node = 36,
+  nesting_node = 40,
+  span_node = 41,
   attribute_node = 42,
   glue_spec_node = 43,
   attribute_list_node = 44,
-  last_known_node = 45, /* used by \lastnodetype */
+  action_node = 45,
+  temp_node = 46,
+  align_stack_node = 47,
+  movement_node = 48,
+  if_node = 49,
   unhyphenated_node = 50, 
   hyphenated_node = 51,
   delta_node = 52,
   passive_node = 53 } node_types ;
+
+#define last_known_node temp_node /* used by \lastnodetype */
+
+#define movement_node_size 3
+#define if_node_size 2
+#define align_stack_node_size 6
+#define nesting_node_size 2
+
+#define span_node_size 3
+#define span_span(a) vlink((a)+1)
+#define span_link(a) vinfo((a)+1)
+
+#define pseudo_file_node_size 2
+#define pseudo_lines(a) vlink((a)+1)
+
+#define nodetype_has_attributes(t) ((t)<=glyph_node)
+
+#define style_node_size 4 /* number of words in a style node*/
+#define radical_noad_size 6 /*number of |mem| words in a radical noad*/
+#define accent_noad_size 6 /*number of |mem| words in an accent noad*/
+
+
+#define display_mlist(a) vinfo((a)+2) /* mlist to be used in display style*/
+#define text_mlist(a) vlink((a)+2) /* mlist to be used in text style */
+#define script_mlist(a) vinfo((a)+3) /* mlist to be used in script style */
+#define script_script_mlist(a) vlink((a)+3) /* mlist to be used in scriptscript style */
+
+#define noad_size 5 /*number of words in a normal noad*/
+#define nucleus(a) (a)+2 /* the |nucleus| field of a noad */
+#define supscr(a) (a)+3 /* the |supscr| field of a noad */
+#define subscr(a) (a)+4 /* the |subscr| field of a noad */
+#define math_type vlink /* a |quarterword| in |mem| */
+#define fam(a) type((a)) /* a |quarterword| in |mem| */
+
+#define fraction_noad_size 7 /*number of |mem| words in a fraction noad*/
+#define numerator supscr /*|numerator| field in a fraction noad*/
+#define denominator subscr /*|denominator| field in a fraction noad*/
+
+typedef enum {
+  math_char=1, /* |math_type| when the attribute is simple */
+  sub_box, /* |math_type| when the attribute is a box */
+  sub_mlist, /* |math_type| when the attribute is a formula */
+  math_text_char /* |math_type| when italic correction is dubious */
+} math_types;
+
 
 typedef enum {
   open_node = 0,
@@ -233,8 +352,8 @@ typedef enum {
   pdf_start_thread_node,
   pdf_end_thread_node,
   pdf_save_pos_node,
-  pdf_info_code,
-  pdf_catalog_code,
+  pdf_thread_data_node,
+  pdf_link_data_node,
   pdf_names_code,
   pdf_font_attr_code,
   pdf_include_chars_code,
@@ -254,6 +373,9 @@ typedef enum {
   pdf_restore_node,
   cancel_boundary_node,
   user_defined_node /* 44 */ } whatsit_types ;
+
+#define pdf_info_code pdf_thread_data_node
+#define pdf_catalog_code  pdf_link_data_node
 
 
 #define GLYPH_CHARACTER     (1 << 0)
@@ -289,22 +411,24 @@ typedef enum {
 #define set_is_rightghost(p)    { set_to_ghost(p);    subtype(p) |= GLYPH_RIGHT; }
 
 
-#define open_node_size 4
-#define write_node_size 3
-#define close_node_size 3
 #define special_node_size 3
-#define language_node_size 4
-#define dir_node_size 5
 
+#define dir_node_size 4
 #define dir_dir(a)       vinfo((a)+2)
 #define dir_level(a)     vlink((a)+2)
 #define dir_dvi_ptr(a)   vinfo((a)+3)
 #define dir_dvi_h(a)     vlink((a)+3)
-#define what_lang(a)   vlink((a)+2)
-#define what_lhm(a)    type((a)+2)
-#define what_rhm(a)    subtype((a)+2)
+
+#define free_dir_node(a) {			\
+    flush_node(a);				\
+  }
+
+#define write_node_size 3
+#define close_node_size 3
 #define write_tokens(a)  vlink(a+2)
 #define write_stream(a)  vinfo(a+2)
+
+#define open_node_size 4
 #define open_name(a)   vlink((a)+2)
 #define open_area(a)   vinfo((a)+3)
 #define open_ext(a)    vlink((a)+3)
@@ -380,6 +504,8 @@ typedef enum {
   colorstack_pop,
   colorstack_current } colorstack_commands;
 
+#define colorstack_data   colorstack_push /* last value where data field is set */
+
 #define user_defined_node_size 4
 #define user_node_type(a)  vinfo((a)+2)
 #define user_node_id(a)    vlink((a)+2)
@@ -422,6 +548,11 @@ typedef enum {
 #define try_couple_nodes(a,b) if (b==null) vlink(a)=b; else {couple_nodes(a,b);}
 #define uncouple_node(a) {assert(a!=null);vlink(a)=null;alink(a)=null;}
 
+extern halfword copy_node (halfword p) ;
+extern void ext_free_node (halfword p, integer siz);
+
+extern halfword new_span_node (halfword n, int c, scaled w);
+
 /* TH: these two defines still need checking. The node ordering in luatex is not 
    quite the same as in tex82 */
 
@@ -434,9 +565,26 @@ typedef enum {
 
 /* from luanode.c */
 
-extern char * node_names[];
-extern char * whatsit_node_names[];
-extern halfword lua_node_new(int i, int j);
+typedef struct _node_info {
+  int id;
+  int size;
+  char *name; }  node_info;
+
+extern node_info node_data[];
+extern node_info whatsit_node_data[];
+extern halfword new_node(int i, int j);
+extern void flush_node_list(halfword);
+extern void flush_node(halfword);
+extern halfword copy_node_list(halfword);
+extern halfword copy_node(halfword);
+
+#define unity 0x10000
+typedef enum {
+  normal_g=0,
+  sfi,
+  fil,
+  fill,
+  filll } glue_orders;
 
 #define zero_glue       0
 #define sfi_glue        zero_glue+glue_spec_size
@@ -454,6 +602,5 @@ extern halfword lua_node_new(int i, int j);
 #define active          pre_adjust_head+temp_node_size
 #define align_head      active+active_node_size
 #define end_span        align_head+temp_node_size
-
 
 #endif

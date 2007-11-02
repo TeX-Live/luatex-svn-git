@@ -111,6 +111,7 @@
 
 #if defined(luaTeX)
 extern void lua_initialize(int ac, char **av);
+int etexp;
 #endif
 
 /* What we were invoked as and with.  */
@@ -178,7 +179,6 @@ texmf_yesno(const_string var)
 #ifdef luaTeX
 #define TEXformatdefault TEX_format_default
 #define debugformatfile debug_format_file
-#define etexp etex_p
 #define formatdefaultlength format_default_length
 #define iniversion ini_version
 #define outputfilename output_file_name
@@ -329,7 +329,7 @@ maininit P2C(int, ac, string *, av)
     }
 #endif
 #endif
-#if defined(eTeX) || defined(Aleph) || defined(XeTeX) || defined(luaTeX)
+#if defined(eTeX) || defined(Aleph) || defined(XeTeX) 
     if (etexp) {
       fprintf(stderr, "-etex only works with -ini\n");
     }

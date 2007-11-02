@@ -76,9 +76,9 @@ static integer threshold; /* maximum badness on feasible lines */
 			     (subtype((a)) != pdf_refxform_node))	\
 			 /* reference to an image or XObject form */	\
 			 || ((type((a)) == disc_node) &&		\
-			     (vlink(pre_break(a)) == null) &&		\
-			     (vlink(post_break(a)) == null) &&		\
-			     (vlink(no_break(a)) == null))		\
+			     (vlink_pre_break(a) == null) &&		\
+			     (vlink_post_break(a) == null) &&		\
+			     (vlink_no_break(a) == null))		\
 			 /* an empty |disc_node| */			\
 			 || ((type((a)) == math_node) &&		\
 			     (surround((a)) == 0))			\
@@ -551,32 +551,32 @@ static integer line_diff; /*the difference between the current line number and
 
 #define act_width active_width[1] /*length from first active node to current node*/
 
-#define kern_break() {                                                        \
-    if ((!is_char_node(vlink(cur_p))) && auto_breaking)                        \
-      if (type(vlink(cur_p))==glue_node)                                \
-        ext_try_break(0,unhyphenated_node, pdf_adjust_spacing,        \
-                      par_shape_ptr, adj_demerits,                        \
-                      tracing_paragraphs, pdf_protrude_chars,                \
-                      line_penalty, last_line_fit,                        \
-                      double_hyphen_demerits,  final_hyphen_demerits,first_p,cur_p);        \
-    if (type(cur_p)!=math_node) act_width+=width(cur_p);                \
-    else                        act_width+=surround(cur_p);                \
+#define kern_break() {  \
+    if ((!is_char_node(vlink(cur_p))) && auto_breaking)  \
+      if (type(vlink(cur_p))==glue_node)  \
+        ext_try_break(0,unhyphenated_node, pdf_adjust_spacing,  \
+                      par_shape_ptr, adj_demerits,  \
+                      tracing_paragraphs, pdf_protrude_chars,  \
+                      line_penalty, last_line_fit,  \
+                      double_hyphen_demerits,  final_hyphen_demerits,first_p,cur_p);  \
+    if (type(cur_p)!=math_node) act_width+=width(cur_p);  \
+    else                        act_width+=surround(cur_p);  \
   }
 
-#define clean_up_the_memory() {                                        \
-    q=vlink(active);                                                \
-    while (q!=active) {                                        \
-      cur_p=vlink(q);                                                \
-      if (type(q)==delta_node)         free_node(q,delta_node_size);        \
-      else                        free_node(q,active_node_size);        \
-      q=cur_p;                                                        \
-    }                                                                \
-    q=passive;                                                        \
-    while (q!=null) {                                                \
-      cur_p=vlink(q);                                                \
-      free_node(q,passive_node_size);                                \
-      q=cur_p;                                                        \
-    }                                                                \
+#define clean_up_the_memory() {  \
+    q=vlink(active);  \
+    while (q!=active) {  \
+      cur_p=vlink(q);  \
+      if (type(q)==delta_node)         flush_node(q);  \
+      else                        flush_node(q);  \
+      q=cur_p;  \
+    }  \
+    q=passive;  \
+    while (q!=null) {  \
+      cur_p=vlink(q);  \
+      flush_node(q);  \
+      q=cur_p;  \
+    }  \
   }
 
 #define inf_bad 10000 /* infinitely bad value */
@@ -608,23 +608,6 @@ static scaled best_pl_glue[4]; /*corresponding glue stretch or shrink */
 #define sub_kern_stretch(a,b) a -= kern_stretch((b))
 
 
-#define update_width(a) cur_active_width[a] += varmem[(r+(a))].cint
-
-#define set_break_width_to_background(a) break_width[(a)]=background[(a)]
-
-#define convert_to_break_width(a)                                        \
-  varmem[(prev_r+(a))].cint -= (cur_active_width[(a)]+break_width[(a)])
-
-#define store_break_width(a)      active_width[(a)]=break_width[(a)]
-
-#define new_delta_to_break_width(a)                                                        \
-  varmem[(q+(a))].cint=break_width[(a)]-cur_active_width[(a)]
-
-#define new_delta_from_break_width(a)                                                \
-  varmem[(q+(a))].cint=cur_active_width[(a)]-break_width[(a)]
-
-#define copy_to_cur_active(a) cur_active_width[(a)]=active_width[(a)]
-
 /* When we insert a new active node for a break at |cur_p|, suppose this
    new node is to be placed just before active node |a|; then we essentially
    want to insert `$\delta\,|cur_p|\,\delta^\prime$' before |a|, where
@@ -652,143 +635,145 @@ static scaled best_pl_glue[4]; /*corresponding glue stretch or shrink */
    disc_width[]
    line_break_dir
 */
-void 
-compute_break_width (int break_type, int pdf_adjust_spacing, halfword p) {
-  halfword s; /*runs through nodes ahead of |cur_p|*/
-  halfword v; /*points to a glue specification or a node ahead of |cur_p|*/
+static void 
+compute_break_width (int break_type, int pdf_adjust_spacing, halfword p
+    /*, halfword s*/) {
+  halfword s; /* glue and other 'whitespace' to be skipped after a break
+               * used if unhyphenated, or post_break==empty */
   s=p;
-  if (break_type>unhyphenated_node) {
-    if (p!=null) {
-      /*@<Compute the discretionary |break_width| values@>;*/
-      /* When |p| is a discretionary break, the length of a line
-         ``from |p| to |p|'' has to be defined properly so
-         that the other calculations work out.  Suppose that the
-         pre-break text at |p| has length $l_0$, the post-break
-         text has length $l_1$, and the replacement text has length
-         |l|. Suppose also that |q| is the node following the
-         replacement text. Then length of a line from |p| to |q|
-         will be computed as $\gamma+\beta(q)-\alpha(|p|)$, where
-         $\beta(q)=\beta(|p|)-l_0+l$. The actual length will be
-         the background plus $l_1$, so the length from |p| to
-         |p| should be $\gamma+l_0+l_1-l$.  If the post-break text
-         of the discretionary is empty, a break may also discard~|q|;
-         in that unusual case we subtract the length of~|q| and any
-         other nodes that will be discarded after the discretionary
-         break.
+  if (break_type>unhyphenated_node && p!=null) {
+    /*@<Compute the discretionary |break_width| values@>;*/
+    /* When |p| is a discretionary break, the length of a line
+       ``from |p| to |p|'' has to be defined properly so
+       that the other calculations work out.  Suppose that the
+       pre-break text at |p| has length $l_0$, the post-break
+       text has length $l_1$, and the replacement text has length
+       |l|. Suppose also that |q| is the node following the
+       replacement text. Then length of a line from |p| to |q|
+       will be computed as $\gamma+\beta(q)-\alpha(|p|)$, where
+       $\beta(q)=\beta(|p|)-l_0+l$. The actual length will be
+       the background plus $l_1$, so the length from |p| to
+       |p| should be $\gamma+l_0+l_1-l$.  If the post-break text
+       of the discretionary is empty, a break may also discard~|q|;
+       in that unusual case we subtract the length of~|q| and any
+       other nodes that will be discarded after the discretionary
+       break.
 
-         TH: I don't quite understand the above remarks.
-                 
-         The value of $l_0$ need not be computed, since |line_break|
-         will put it into the global variable |disc_width| before
-         calling |try_break|.
-      */
+       TH: I don't quite understand the above remarks.
+               
+       The value of $l_0$ need not be computed, since |line_break|
+       will put it into the global variable |disc_width| before
+       calling |try_break|.
+    */
+    /* In case of nested discretionaries, we always follow the no_break
+       path, as we are talking about the breaking on _this_ position.
+    */
 
-      v=vlink(no_break(p)); 
-      while (v!=null) {
-        /* @<Subtract the width of node |v| from |break_width|@>; */
-        /* Replacement texts and discretionary texts are supposed to contain
-           only character nodes, kern nodes, and box or rule nodes.*/
-        if (is_char_node(v)) {
-          if (is_rotated(line_break_dir)) {
-            break_width[1] -= (glyph_height(v)+glyph_depth(v));
-          } else {
-            break_width[1] -= glyph_width(v);
-          }
-          if ((pdf_adjust_spacing > 1) && check_expand_pars(font(v))) {
-            set_prev_char_p(v);
-            sub_char_stretch(break_width[8],v);
-            sub_char_shrink(break_width[9],v);
-          }
+    halfword v;
+    for (v=vlink_no_break(p); v!=null; v=vlink(v)) {
+      /* @<Subtract the width of node |v| from |break_width|@>; */
+      /* Replacement texts and discretionary texts are supposed to contain
+         only character nodes, kern nodes, and box or rule nodes.*/
+      if (is_char_node(v)) {
+        if (is_rotated(line_break_dir)) {
+          break_width[1] -= (glyph_height(v)+glyph_depth(v));
         } else {
-          switch (type(v)) {
-          case hlist_node:
-          case vlist_node:
-            if (!(dir_orthogonal(dir_primary[box_dir(v)],
-                                 dir_primary[line_break_dir])))
-              break_width[1] -= width(v);
-            else
-              break_width[1] -= (depth(v)+height(v));
-            break;
-          case kern_node: 
-            if ((pdf_adjust_spacing > 1) && (subtype(v) == normal)) {
-              sub_kern_stretch(break_width[8],v);
-              sub_kern_shrink(break_width[9],v);
-            }
-            /* fall through */
-          case rule_node:
+          break_width[1] -= glyph_width(v);
+        }
+        if ((pdf_adjust_spacing > 1) && check_expand_pars(font(v))) {
+          set_prev_char_p(v);
+          sub_char_stretch(break_width[8],v);
+          sub_char_shrink(break_width[9],v);
+        }
+      } else {
+        switch (type(v)) {
+        case hlist_node:
+        case vlist_node:
+          if (!(dir_orthogonal(dir_primary[box_dir(v)],
+                               dir_primary[line_break_dir])))
             break_width[1] -= width(v);
-            break;
-          case disc_node:
-            /* well? */
-            break;
-          default:
-            confusion(maketexstring("disc1"));
-            break;
-          }
-        }
-        v=vlink(v);
-      }
-      s=vlink(post_break(p));
-      while (s!=null) {
-        /* @<Add the width of node |s| to |break_width|@>; */
-        if (is_char_node(s)) { 
-          if (is_rotated(line_break_dir)) 
-            break_width[1] += (glyph_height(s)+glyph_depth(s));
           else
-            break_width[1] += glyph_width(s);
-          if ((pdf_adjust_spacing > 1) && check_expand_pars(font(s))) {
-            set_prev_char_p(s);
-            add_char_stretch(break_width[8],s);
-            add_char_shrink(break_width[9],s);
+            break_width[1] -= (depth(v)+height(v));
+          break;
+        case kern_node: 
+          if ((pdf_adjust_spacing > 1) && (subtype(v) == normal)) {
+            sub_kern_stretch(break_width[8],v);
+            sub_kern_shrink(break_width[9],v);
           }
-        } else  { 
-          switch (type(s)) {
-          case hlist_node:
-          case vlist_node: 
-            if (!(dir_orthogonal(dir_primary[box_dir(s)],
-                                 dir_primary[line_break_dir])))
-              break_width[1] += width(s);
-            else
-              break_width[1] += (depth(s)+height(s));
-            break;
-          case kern_node:
-            if ((pdf_adjust_spacing > 1) && (subtype(s) == normal)) {
-              add_kern_stretch(break_width[8],s);
-              add_kern_shrink(break_width[9],s);
-            }
-            /* fall through */
-          case rule_node:
-            break_width[1] += width(s);
-            break;
-          case disc_node:
-            /* NB: now what */
-            assert(vlink(s)==null);
-            /* NB: temporary solution: not good, but not bad either */
-            s = no_break(s);
-            break;
-          default:
-            confusion(maketexstring("disc2"));
-          }
+          /* fall through */
+        case rule_node:
+          break_width[1] -= width(v);
+          break;
+        case disc_node:
+          assert(vlink(v)==null); /* discs are _always_ last */
+          v = no_break(v);
+          break;
+        default:
+          confusion(maketexstring("disc1"));
+          break;
         }
-        s=vlink(s);
-      };
-      do_one_seven_eight(add_disc_width_to_break_width);
-      if (vlink(post_break(p))==null) {
-        /* nodes may be discardable after the break */
-        /* fixme */
-        s=vlink(p);
       }
     }
+
+    for (v=vlink_post_break(p); v!=null; v=vlink(v)) {
+      /* @<Add the width of node |v| to |break_width|@>; */
+      if (is_char_node(v)) { 
+        if (is_rotated(line_break_dir)) 
+          break_width[1] += (glyph_height(v)+glyph_depth(v));
+        else
+          break_width[1] += glyph_width(v);
+        if ((pdf_adjust_spacing > 1) && check_expand_pars(font(v))) {
+          set_prev_char_p(v);
+          add_char_stretch(break_width[8],v);
+          add_char_shrink(break_width[9],v);
+        }
+      } else  { 
+        switch (type(v)) {
+        case hlist_node:
+        case vlist_node: 
+          if (!(dir_orthogonal(dir_primary[box_dir(v)],
+                               dir_primary[line_break_dir])))
+            break_width[1] += width(v);
+          else
+            break_width[1] += (depth(v)+height(v));
+          break;
+        case kern_node:
+          if ((pdf_adjust_spacing > 1) && (subtype(v) == normal)) {
+            add_kern_stretch(break_width[8],v);
+            add_kern_shrink(break_width[9],v);
+          }
+          /* fall through */
+        case rule_node:
+          break_width[1] += width(v);
+          break;
+        case disc_node:
+          assert(vlink(v)==null);
+          v = no_break(v);
+          break;
+        default:
+          confusion(maketexstring("disc2"));
+        }
+      }
+    }
+
+    do_one_seven_eight(add_disc_width_to_break_width);
+    if (vlink_post_break(p)==null) {
+      s=vlink(p); /* no post_break: 'skip' any 'whitespace' following */
+    } else {
+      s=null;
+    }
+  } else {
+    s = p; /* unhyphenated: we need to 'skip' any 'whitespace' following */
   }
   while (s!=null) {
     switch (type(s)) {
     case glue_node:
       /*@<Subtract glue from |break_width|@>;*/
-      v=glue_ptr(s);
+      {halfword v=glue_ptr(s);
       break_width[1] -= width(v);
       break_width[2+stretch_order(v)] -= stretch(v);
       break_width[7] -= shrink(v);
-      break;
+      }break;
     case penalty_node: 
       break;
     case math_node: 
@@ -807,6 +792,102 @@ compute_break_width (int break_type, int pdf_adjust_spacing, halfword p) {
   }
 }
 
+
+static void
+print_break_node(halfword q, fitness_value fit_class,
+    quarterword break_type, halfword cur_p) {
+  /* @<Print a symbolic description of the new break node@> */
+  print_nl(maketexstring("@@")); 
+  print_int(serial(passive));
+  print(maketexstring(": line ")); 
+  print_int(line_number(q)-1);
+  print_char('.'); 
+  print_int(fit_class);
+  if (break_type==hyphenated_node) 
+    print_char('-');
+  print(maketexstring(" t=")); 
+  print_int(total_demerits(q));
+  if (do_last_line_fit) {
+    /*@<Print additional data in the new active node@>; */
+    print(maketexstring(" s=")); 
+    print_scaled(active_short(q));
+    if (cur_p==null) 
+      print(maketexstring(" a="));
+    else 
+      print(maketexstring(" g="));
+    print_scaled(active_glue(q));
+  }
+  print(maketexstring(" -> @@"));
+  if (prev_break(passive)==null) 
+    print_char('0');
+  else 
+    print_int(serial(prev_break(passive)));
+}
+
+
+static void 
+print_feasible_break(halfword cur_p, pointer r, halfword b, integer pi,
+    integer d, boolean artificial_demerits) {
+  /* @<Print a symbolic description of this feasible break@>;*/
+  if (printed_node!=cur_p) {
+    /* @<Print the list between |printed_node| and |cur_p|, then
+       set |printed_node:=cur_p|@>;*/
+    print_nl(maketexstring(""));
+    if (cur_p==null) {
+      short_display(vlink(printed_node));
+    } else {
+      halfword save_link=vlink(cur_p);
+      vlink(cur_p)=null; 
+      print_nl(maketexstring("")); 
+      short_display(vlink(printed_node));
+      vlink(cur_p)=save_link;
+    }
+    printed_node=cur_p;
+  }
+  print_nl(maketexstring("@"));
+  if (cur_p==null) { 
+    print_esc(maketexstring("par")); 
+  } else if (type(cur_p)!=glue_node) {
+    if      (type(cur_p)==penalty_node)  print_esc(maketexstring("penalty"));
+    else if (type(cur_p)==disc_node)     print_esc(maketexstring("discretionary"));
+    else if (type(cur_p)==kern_node)     print_esc(maketexstring("kern"));
+    else                                 print_esc(maketexstring("math"));
+  }
+  print(maketexstring(" via @@"));
+  if (break_node(r)==null) 
+    print_char('0');
+  else 
+    print_int(serial(break_node(r)));
+  print(maketexstring(" b="));
+  if (b>inf_bad)  
+    print_char('*');
+  else 
+    print_int(b);
+  print(maketexstring(" p=")); 
+  print_int(pi); 
+  print(maketexstring(" d="));
+  if (artificial_demerits) 
+    print_char('*');
+  else 
+    print_int(d);
+}
+#define update_width(a) cur_active_width[a] += varmem[(r+(a))].cint
+
+#define set_break_width_to_background(a) break_width[(a)]=background[(a)]
+
+#define convert_to_break_width(a)  \
+  varmem[(prev_r+(a))].cint -= (cur_active_width[(a)]+break_width[(a)])
+
+#define store_break_width(a)      active_width[(a)]=break_width[(a)]
+
+#define new_delta_to_break_width(a)  \
+  varmem[(q+(a))].cint=break_width[(a)]-cur_active_width[(a)]
+
+#define new_delta_from_break_width(a)  \
+  varmem[(q+(a))].cint=cur_active_width[(a)]-break_width[(a)]
+
+#define copy_to_cur_active(a) cur_active_width[(a)]=active_width[(a)]
+
 #define combine_two_deltas(a) varmem[(prev_r+(a))].cint += varmem[(r+(a))].cint
 #define downdate_width(a) cur_active_width[(a)] -= varmem[(prev_r+(a))].cint
 #define update_active(a) active_width[(a)]+=varmem[(r+(a))].cint
@@ -820,17 +901,17 @@ compute_break_width (int break_type, int pdf_adjust_spacing, halfword p) {
 #define right_side 1
 
 
-#define cal_margin_kern_var(a) {                                        \
-character(cp) = character((a));                                                \
-font(cp) = font((a));                                                        \
-do_subst_font(cp, 1000);                                                \
-if (font(cp) != font((a)))                                                 \
-  margin_kern_stretch += left_pw((a)) - left_pw(cp);                        \
-font(cp) = font((a));                                                        \
-do_subst_font(cp, -1000);                                                \
-if (font(cp) != font((a)))                                                \
-  margin_kern_shrink += left_pw(cp) - left_pw((a));                        \
-}
+#define cal_margin_kern_var(a) {  \
+  character(cp) = character((a));  \
+  font(cp) = font((a));  \
+  do_subst_font(cp, 1000);  \
+  if (font(cp) != font((a)))  \
+    margin_kern_stretch += left_pw((a)) - left_pw(cp);  \
+  font(cp) = font((a));  \
+  do_subst_font(cp, -1000);  \
+  if (font(cp) != font((a)))  \
+    margin_kern_shrink += left_pw(cp) - left_pw((a));  \
+  }
 
 static void 
 ext_try_break(integer pi,
@@ -863,7 +944,7 @@ ext_try_break(integer pi,
   halfword b; /*badness of test line*/
   integer d; /*demerits of test line*/
   boolean artificial_demerits; /*has |d| been forced to zero?*/
-  halfword save_link; /*temporarily holds value of |vlink(cur_p)|*/
+
   scaled shortfall; /*used in badness calculations*/
   scaled g; /*glue stretch or shrink of test line, adjustment for last line*/
 
@@ -880,7 +961,6 @@ ext_try_break(integer pi,
   old_l=0;
   do_all_eight(copy_to_cur_active);
 
- CONTINUE: 
   while (1)  {
     r=vlink(prev_r);
     /* @<If node |r| is of type |delta_node|, update |cur_active_width|,
@@ -890,7 +970,7 @@ ext_try_break(integer pi,
       do_all_eight(update_width);
       prev_prev_r=prev_r; 
       prev_r=r; 
-      goto CONTINUE;
+      continue;
     }
     /* @<If a line number class has ended, create new active nodes for
        the best feasible breaks in that class; then |return|
@@ -923,10 +1003,8 @@ ext_try_break(integer pi,
         } else if (prev_r==active) { /* no delta node needed at the beginning */
           do_all_eight(store_break_width);                                
         } else {                                                        
-          q=get_node(delta_node_size); 
+          q=new_node(delta_node,0); 
           vlink(q)=r; 
-          type(q)=delta_node;        
-          subtype(q)=0; /* the |subtype| is not used */                        
           do_all_eight(new_delta_to_break_width);                        
           vlink(prev_r)=q;  
           prev_prev_r=prev_r; 
@@ -944,8 +1022,7 @@ ext_try_break(integer pi,
             /* When we create an active node, we also create the corresponding
                passive node.
             */
-            q=get_node(passive_node_size); 
-            type(q)=passive_node;
+            q=new_node(passive_node,0); 
             vlink(q)=passive; 
             passive=q; 
             cur_break(q)=cur_p;
@@ -966,11 +1043,9 @@ ext_try_break(integer pi,
             }
             passive_right_box(q)=internal_right_box;
             passive_right_box_width(q)=internal_right_box_width;
-            q=get_node(active_node_size); 
+            q=new_node(break_type,fit_class); 
             break_node(q)=passive;
             line_number(q)=best_pl_line[fit_class]+1;
-            fitness(q)=fit_class; 
-            type(q)=break_type;
             total_demerits(q)=minimal_demerits[fit_class];
             if (do_last_line_fit) {
               /*@<Store \(a)additional data in the new active node@>*/
@@ -982,34 +1057,8 @@ ext_try_break(integer pi,
             vlink(q)=r;
             vlink(prev_r)=q; 
             prev_r=q;
-            if (tracing_paragraphs>0) {
-              /* @<Print a symbolic description of the new break node@> */
-              print_nl(maketexstring("@@")); 
-              print_int(serial(passive));
-              print(maketexstring(": line ")); 
-              print_int(line_number(q)-1);
-              print_char('.'); 
-              print_int(fit_class);
-              if (break_type==hyphenated_node) 
-                print_char('-');
-              print(maketexstring(" t=")); 
-              print_int(total_demerits(q));
-              if (do_last_line_fit) {
-                /*@<Print additional data in the new active node@>; */
-                print(maketexstring(" s=")); 
-                print_scaled(active_short(q));
-                if (cur_p==null) 
-                  print(maketexstring(" a="));
-                else 
-                  print(maketexstring(" g="));
-                print_scaled(active_glue(q));
-              }
-              print(maketexstring(" -> @@"));
-              if (prev_break(passive)==null) 
-                print_char('0');
-              else 
-                print_int(serial(prev_break(passive)));
-            }
+            if (tracing_paragraphs>0) 
+              print_break_node(q,fit_class,break_type,cur_p);
           }
           minimal_demerits[fit_class]=awful_bad;
         }
@@ -1019,10 +1068,8 @@ ext_try_break(integer pi,
            least one active node before |r|, so |type(prev_r)<>delta_node|. 
         */
         if (r!=active) {                                                
-          q=get_node(delta_node_size); 
+          q=new_node(delta_node,0); 
           vlink(q)=r; 
-          type(q)=delta_node;        
-          subtype(q)=0; /* the |subtype| is not used */                        
           do_all_eight(new_delta_from_break_width);                                
           vlink(prev_r)=q; 
           prev_prev_r=prev_r; 
@@ -1071,19 +1118,23 @@ ext_try_break(integer pi,
     if (pdf_protrude_chars > 1) {
       halfword l, o;
       l = (break_node(r) == null) ? first_p : cur_break(break_node(r));
-      assert(vlink(alink(cur_p))==cur_p);
-      o = alink(cur_p);
+      if (cur_p==null) {
+        o = null;
+      } else {
+        o = alink(cur_p);
+        assert(vlink(o)==cur_p);
+      }
       /* let's look at the right margin first */
-      if ((cur_p != null) && (type(cur_p) == disc_node) && (vlink(pre_break(cur_p)) != null)) {
+      if ((cur_p != null) && (type(cur_p) == disc_node) && (vlink_pre_break(cur_p) != null)) {
         /* a |disc_node| with non-empty |pre_break|, protrude the last char of |pre_break| */
-        o = tlink(pre_break(cur_p));
+        o = tlink_pre_break(cur_p);
       } else { 
         o = find_protchar_right(l, o);
       }
       /* now the left margin */
-      if ((l != null) && (type(l) == disc_node) &&  (vlink(post_break(l)) != null)) {
+      if ((l != null) && (type(l) == disc_node) &&  (vlink_post_break(l) != null)) {
         /* FIXME: first 'char' could be a disc! */
-        l = vlink(post_break(l)); /* protrude the first char */
+        l = vlink_post_break(l); /* protrude the first char */
       } else {
         l = find_protchar_left(l, true);
       }
@@ -1103,7 +1154,7 @@ ext_try_break(integer pi,
         if (rp != null) {
           cal_margin_kern_var(rp);
         }
-        ext_free_node(cp,glyph_node_size);
+        flush_node(cp);
       }
       if ((shortfall > 0) && ((total_font_stretch + margin_kern_stretch) > 0)) {
         if ((total_font_stretch + margin_kern_stretch) > shortfall)
@@ -1268,7 +1319,7 @@ ext_try_break(integer pi,
     } else { 
       prev_r=r;
       if (b>threshold) 
-        goto CONTINUE;
+        continue;
       node_r_stays_active=true;
     }
     /* @<Record a new feasible break@>;*/
@@ -1300,50 +1351,8 @@ ext_try_break(integer pi,
       }
       if (abs(fit_class-fitness(r))>1) d=d+adj_demerits;
     }
-    if (tracing_paragraphs>0) {
-      /* @<Print a symbolic description of this feasible break@>;*/
-      if (printed_node!=cur_p) {
-        /* @<Print the list between |printed_node| and |cur_p|, then
-           set |printed_node:=cur_p|@>;*/
-        print_nl(maketexstring(""));
-        if (cur_p==null) {
-          short_display(vlink(printed_node));
-        } else {
-          save_link=vlink(cur_p);
-          vlink(cur_p)=null; 
-          print_nl(maketexstring("")); 
-          short_display(vlink(printed_node));
-          vlink(cur_p)=save_link;
-        }
-        printed_node=cur_p;
-      }
-      print_nl(maketexstring("@"));
-      if (cur_p==null) { 
-        print_esc(maketexstring("par")); 
-      } else if (type(cur_p)!=glue_node) {
-        if      (type(cur_p)==penalty_node)  print_esc(maketexstring("penalty"));
-        else if (type(cur_p)==disc_node)     print_esc(maketexstring("discretionary"));
-        else if (type(cur_p)==kern_node)     print_esc(maketexstring("kern"));
-        else                                 print_esc(maketexstring("math"));
-      }
-      print(maketexstring(" via @@"));
-      if (break_node(r)==null) 
-        print_char('0');
-      else 
-        print_int(serial(break_node(r)));
-      print(maketexstring(" b="));
-      if (b>inf_bad)  
-        print_char('*');
-      else 
-        print_int(b);
-      print(maketexstring(" p=")); 
-      print_int(pi); 
-      print(maketexstring(" d="));
-      if (artificial_demerits) 
-        print_char('*');
-      else 
-        print_int(d);
-    }
+    if (tracing_paragraphs>0)
+      print_feasible_break(cur_p, r, b, pi, d, artificial_demerits);
     d += total_demerits(r); /*this is the minimum total demerits
                               from the beginning to |cur_p| via |r| */
     if (d<=minimal_demerits[fit_class]) {
@@ -1362,7 +1371,7 @@ ext_try_break(integer pi,
     }
     /* /Record a new feasible break */
     if (node_r_stays_active) 
-      goto CONTINUE; /*|prev_r| has been set to |r| */
+      continue; /*|prev_r| has been set to |r| */
   DEACTIVATE: 
     /* @<Deactivate node |r|@>; */
     /* When an active node disappears, we must delete an adjacent delta node if the
@@ -1372,7 +1381,7 @@ ext_try_break(integer pi,
        to~|cur_p|.*/
     
     vlink(prev_r)=vlink(r); 
-    free_node(r,active_node_size);
+    flush_node(r);
     if (prev_r==active) {
       /*@<Update the active widths, since the first active node has been deleted@>*/
       /* The following code uses the fact that |type(active)<>delta_node|. If the
@@ -1385,20 +1394,20 @@ ext_try_break(integer pi,
         do_all_eight(update_active);
         do_all_eight(copy_to_cur_active);
         vlink(active)=vlink(r); 
-        free_node(r,delta_node_size);
+        flush_node(r);
       };
     } else if (type(prev_r)==delta_node){
       r=vlink(prev_r);
       if (r==active) {
         do_all_eight(downdate_width);
         vlink(prev_prev_r)=active;
-        free_node(prev_r,delta_node_size); 
+        flush_node(prev_r); 
         prev_r=prev_prev_r;
       } else if (type(r)==delta_node) {
         do_all_eight(update_width);
         do_all_eight(combine_two_deltas);
         vlink(prev_r)=vlink(r); 
-        free_node(r,delta_node_size);
+        flush_node(r);
       }
     }   
   }
@@ -1534,7 +1543,10 @@ ext_do_line_break (boolean d,
     }
   }
   /* @<DIR: Initialize |dir_ptr| for |line_break|@> */
-  /*if dir_ptr<>null then free_node(dir_ptr,dir_node_size);*/
+  if (dir_ptr!=null) {
+	fprintf(stdout,"-dir_node s %d\n",dir_ptr);
+	flush_node_list(dir_ptr);
+  }
   dir_ptr=null; 
   push_dir(paragraph_dir);
 
@@ -1560,9 +1572,7 @@ ext_do_line_break (boolean d,
     if (threshold>inf_bad)
       threshold=inf_bad;
     /* Create an active breakpoint representing the beginning of the paragraph */
-    q=get_node(active_node_size);
-    type(q)=unhyphenated_node; 
-    fitness(q)=decent_fit;
+    q=new_node(unhyphenated_node,decent_fit);
     vlink(q)=active; 
     break_node(q)=null;
     line_number(q)=cur_list.pg_field+1; 
@@ -1718,7 +1728,7 @@ ext_do_line_break (boolean d,
           int actual_penalty = hyphen_penalty;
           if (subtype(cur_p)==automatic_disc) 
             actual_penalty = ex_hyphen_penalty;
-          s=vlink(pre_break(cur_p));
+          s=vlink_pre_break(cur_p);
           do_one_seven_eight(reset_disc_width);
           if (s==null) { /* trivial pre-break */
             ext_try_break(actual_penalty,hyphenated_node, pdf_adjust_spacing, 
@@ -1761,6 +1771,7 @@ ext_do_line_break (boolean d,
                   break;
                 case disc_node:
                   confusion(maketexstring("pre_break_disc"));
+		  break;
                 default:
                   confusion(maketexstring("disc3"));
                 } 
@@ -1775,7 +1786,7 @@ ext_do_line_break (boolean d,
                           double_hyphen_demerits,  final_hyphen_demerits,first_p,cur_p);
             do_one_seven_eight(sub_disc_width_from_active_width);
           }
-          s=vlink(no_break(cur_p));
+          s=vlink_no_break(cur_p);
           while (s!=null) { 
             /* @<Add the width of node |s| to |act_width|@>;*/
             if (is_char_node(s)) { 
@@ -1822,7 +1833,7 @@ ext_do_line_break (boolean d,
             s=vlink(s);
           }
         } else { /* first pass, just take the no_break path */
-          s=vlink(no_break(cur_p));
+          s=vlink_no_break(cur_p);
           while (s!=null) { 
             /* @<Add the width of node |s| to |act_width|@>;*/
             if (is_char_node(s)) { 
@@ -2037,7 +2048,8 @@ ext_do_line_break (boolean d,
   /* /Break the paragraph at the chosen... */
   /* Clean up the memory by removing the break nodes; */
   clean_up_the_memory();
-  /* /Clean up the memory by removing the break nodes; */
+  flush_node_list(dir_ptr);
+  dir_ptr=null;
 }
 
 

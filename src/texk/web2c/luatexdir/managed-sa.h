@@ -57,7 +57,7 @@ typedef struct {
 
 typedef sa_tree_head *sa_tree;
 
-extern sa_tree_item get_sa_item     (sa_tree head, integer n) ;
+extern sa_tree_item get_sa_item     (const sa_tree head, const integer n) ;
 extern void         set_sa_item     (sa_tree head, integer n, sa_tree_item v, integer gl) ;
 
 extern sa_tree      new_sa_tree     (integer size, sa_tree_item dflt);

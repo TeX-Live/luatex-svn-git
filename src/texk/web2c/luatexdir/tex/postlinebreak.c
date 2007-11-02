@@ -25,7 +25,6 @@ point to a glue node, penalty node, explicit kern node, or math node.
 halfword 
 do_push_dir_node (halfword p, halfword a ) {
   halfword n;
-  assert (type(a)==whatsit_node && subtype(a)==dir_node);
   n = copy_node(a);
   vlink(n) = p; 
   return n;
@@ -34,7 +33,7 @@ do_push_dir_node (halfword p, halfword a ) {
 halfword 
 do_pop_dir_node ( halfword p ) {
   halfword n = vlink(p); 
-  free_node(p,dir_node_size);
+  flush_node(p);
   return n;
 }
 
@@ -178,18 +177,15 @@ void ext_post_line_break(boolean d,
       flush_node_list(dir_ptr); dir_ptr=null;
     }
     q=vlink(temp_head);
-    while (q!=cur_break(cur_p)) {
+    while (q!=null && q!=cur_break(cur_p)) {
       if (type(q)==whatsit_node && subtype(q)==dir_node) {
-	if (dir_dir(q)>=0) {
-	  dir_ptr = do_push_dir_node(dir_ptr,q);
-	} else if (dir_ptr!=null) {
-	  if (dir_dir(dir_ptr)==(dir_dir(q)+64)) {
-	    dir_ptr = do_pop_dir_node(dir_ptr);
-	  }
-	}
-      }
-      if (q==null || vlink(q)==0) {
-	break;
+		if (dir_dir(q)>=0) {
+		  dir_ptr = do_push_dir_node(dir_ptr,q);
+		} else if (dir_ptr!=null) {
+		  if (dir_dir(dir_ptr)==(dir_dir(q)+64)) {
+			dir_ptr = do_pop_dir_node(dir_ptr);
+		  }
+		}
       }
       q=vlink(q);
     }
@@ -253,9 +249,9 @@ void ext_post_line_break(boolean d,
 	}
 	disc_break=true;
       } else if (type(q)==kern_node) {
-	width(q)=0;
+		width(q)=0;
       } else if (type(q)==math_node) {
-	surround(q)=0;
+		surround(q)=0;
       }
       r=q;
       /* @<DIR: Insert dir nodes at the end of the current line@>;*/
@@ -277,13 +273,13 @@ void ext_post_line_break(boolean d,
         ptmp = p;
       } else {
         p = alink(q); /* get |vlink(p) = q| */
-	assert(vlink(p)==q);
+		assert(vlink(p)==q);
         ptmp = p;
         p = find_protchar_right(vlink(temp_head), p);
       }
       w = char_pw(p, right_side);
       if (w!=0) { /* we have found a marginal kern, append it after |ptmp| */
-	k = new_margin_kern(-w, last_rightmost_char, right_side);
+		k = new_margin_kern(-w, last_rightmost_char, right_side);
         vlink(k) = vlink(ptmp);
         vlink(ptmp) = k;
         if (ptmp == q) 

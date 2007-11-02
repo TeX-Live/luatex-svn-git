@@ -394,9 +394,9 @@ extern void set_post_hyphen_char(integer lan, integer val);
 extern integer get_pre_hyphen_char  (integer lan);
 extern integer get_post_hyphen_char (integer lan);
 
-void new_ligkern(halfword head, halfword tail, int dir);
-void handle_ligaturing(halfword head, halfword tail, int dir);
-void handle_kerning(halfword head, halfword tail, int dir);
+extern halfword new_ligkern(halfword head, halfword tail, int dir);
+extern halfword handle_ligaturing(halfword head, halfword tail, int dir);
+extern halfword handle_kerning(halfword head, halfword tail, int dir);
 
 #define push_dir(a)								\
   { dir_tmp=new_dir((a));						\
@@ -404,21 +404,19 @@ void handle_kerning(halfword head, halfword tail, int dir);
 	dir_ptr=dir_tmp;							\
   }
 
-#define push_dir_node(a)			\
-  { dir_tmp=get_node(dir_node_size);		\
-    type(dir_tmp)=whatsit_node;			\
-    subtype(dir_tmp)=dir_node;			\
-    dir_dir(dir_tmp)=dir_dir((a));		\
-    dir_level(dir_tmp)=dir_level((a));		\
-    dir_dvi_h(dir_tmp)=dir_dvi_h((a));		\
-    dir_dvi_ptr(dir_tmp)=dir_dvi_ptr((a));	\
+#define push_dir_node(a)						\
+  { dir_tmp=new_node(whatsit_node,dir_node);	\
+    dir_dir(dir_tmp)=dir_dir((a));				\
+    dir_level(dir_tmp)=dir_level((a));			\
+    dir_dvi_h(dir_tmp)=dir_dvi_h((a));			\
+    dir_dvi_ptr(dir_tmp)=dir_dvi_ptr((a));		\
     vlink(dir_tmp)=dir_ptr; dir_ptr=dir_tmp;	\
   }
 
-#define pop_dir_node()				\
-  { dir_tmp=dir_ptr;				\
-    dir_ptr=vlink(dir_tmp);			\
-    free_node(dir_tmp,dir_node_size);		\
+#define pop_dir_node()					\
+  { dir_tmp=dir_ptr;					\
+    dir_ptr=vlink(dir_tmp);				\
+    flush_node(dir_tmp);				\
   }
 
 
@@ -583,5 +581,7 @@ void  luacall(int n, int s) ;
 void  luatokencall(int n, int p) ;
 
 void tex_error(char *msg, char **hlp);
+
+scaled divide_scaled (scaled s, scaled m, integer dd);
 
 #endif                          /* PDFTEXLIB */

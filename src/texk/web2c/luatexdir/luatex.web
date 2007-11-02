@@ -3375,7 +3375,7 @@ allow pointers to assume any |halfword| value. The minimum halfword
 value represents a null pointer. \TeX\ does not assume that |mem[null]| exists.
 
 @d pointer==halfword {a flag or a location in |mem| or |eqtb|}
-@d null==min_halfword {the null pointer}
+@d null==0 {the null pointer}
 
 @<Glob...@>=
 @!temp_ptr:pointer; {a pointer variable for occasional emergency use}
@@ -3517,6 +3517,7 @@ end;
 of |mem| is a nonempty, doubly-linked circular list of empty nodes,
 pointed to by the roving pointer |rover|.
 
+@d temp_node==46
 @d temp_node_size==2
 @d vmem(#) == varmem[#]
 @d vlink(#) == vmem(#).hh.rh {the |link| field of a memory word}
@@ -3624,8 +3625,8 @@ used to attach the current attribute values to the main nodes.
 @p
 function new_attribute_node(@!i,@!c:integer):pointer;
 var p:pointer; {the new node}
-begin p:=get_node(attribute_node_size);  type(p):=attribute_node;
-subtype(p):=0; attribute_id(p):=i;  attribute_value(p):=c; 
+begin p:=new_node(attribute_node,0);
+attribute_id(p):=i;  attribute_value(p):=c; 
 new_attribute_node:=p;
 end;
 
@@ -3636,8 +3637,7 @@ begin i:=0;
 node_attr(b):=null;
 if max_used_attr<>0 then begin
   if attr_list_cache=cache_disabled then begin
-    q:=get_node(attribute_list_node_size); p:=q;
-	type(q) :=attribute_list_node;
+    q:=new_node(attribute_list_node,0); p:=q;
     while i<=max_used_attr do begin
       v:=attribute(i);
       if v>=0 then begin
@@ -3651,7 +3651,7 @@ if max_used_attr<>0 then begin
       attr_list_ref(attr_list_cache):=0;
       end
     else begin
-      free_node(q,attribute_list_node_size);
+      flush_node(q);
       attr_list_cache:=null;
       end;
     end;
@@ -3674,17 +3674,11 @@ begin
       q:=vlink(b);
       while q<>null do begin
         r:=q; q:=vlink(q);
-        free_node(r,attribute_node_size);
+        flush_node(r);
         end;
-      free_node(b,attribute_list_node_size);      
+      flush_node(b);
     end;
   end;
-end;
-@#
-procedure ext_free_node(@!p:pointer; @!s:halfword); {node liberation}
-begin 
-delete_attribute_ref(node_attr(p));
-free_node(p,s);
 end;
 
 
@@ -3734,9 +3728,7 @@ The |subtype| field is set to |min_quarterword|, since that's the desired
 
 @p function new_null_box:pointer; {creates a new box node}
 var p:pointer; {the new node}
-begin p:=get_node(box_node_size); type(p) := hlist_node; subtype(p):=min_quarterword;
-width(p):=0; depth(p):=0; height(p):=0; shift_amount(p):=0; list_ptr(p):=null;
-glue_sign(p):=normal; glue_order(p):=normal; set_glue_ratio_zero(glue_set(p));
+begin p:=new_node(hlist_node,min_quarterword);
 box_dir(p):=text_direction; 
 build_attribute_list(p);
 new_null_box:=p;
@@ -3767,10 +3759,7 @@ ones that are not allowed to run.
 @p 
 function new_rule:pointer;
 var p:pointer; {the new node}
-begin p:=get_node(rule_node_size); type(p) := rule_node;
-subtype(p):=0; {the |subtype| is not used}
-width(p):=null_flag; depth(p):=null_flag; height(p):=null_flag;
-rule_dir(p):=-1;
+begin p:=new_node(rule_node,0); {the |subtype| is not used}
 build_attribute_list(p);
 new_rule:=p;
 end;
@@ -3839,7 +3828,7 @@ conversion from |mlist| to |hlist|).
 
 
 @d glyph_node_size=5
-@d glyph_node=41 {|type| of a glyph node}
+@d glyph_node=33 {|type| of a glyph node}
 @d is_char_node(#) == ((#<>null)and(type(#)=glyph_node))
 @d font(#)==vlink(#+2) {the font code in a |glyph_node|}
 @d character(#)==vinfo(#+2) {the character code in a |glyph_node|}
@@ -3849,20 +3838,15 @@ conversion from |mlist| to |hlist|).
 @d y_displace(#)==vlink(#+4) { vertical displacement  }
 
 @p function new_glyph_node(@!f,@!c:integer):pointer;
-label exit;
 var p:pointer; {the new node}
-begin if (f=0) or (char_exists(f,c)) then begin
-  p:=get_node(glyph_node_size); type(p) := glyph_node;
+begin p:=null;
+if (f=0) or (char_exists(f,c)) then begin
+  p:=new_node(glyph_node,0);
   set_to_glyph(p); font(p):=f;  character(p):=c; 
-  x_displace(p):=0; y_displace(p):=0;
-  if max_used_attr<>0 then build_attribute_list(p)
-  else node_attr(p):=null;
-  lig_ptr(p):=null;
-  new_glyph_node:=p; return;
+  if max_used_attr<>0 then build_attribute_list(p);
   end;
-{|char_warning(f,c);|}
-new_glyph_node:=null;
-exit:end;
+new_glyph_node:=p;
+end;
 
 
 @ A subset of the glyphs nodes represent ligatures: characters
@@ -3891,13 +3875,10 @@ end;
 @#
 function new_char_node(@!f,@!c:integer):pointer;
 var p:pointer; {the new node}
-begin p:=get_node(glyph_node_size); type(p) := glyph_node;
+begin p:=new_node(glyph_node,0);
 set_to_character(p); font(p):=f;  character(p):=c;
 lang_data(p):=make_lang_data(uc_hyph,cur_lang,left_hyphen_min,right_hyphen_min);
-x_displace(p):=0; y_displace(p):=0;
-if max_used_attr<>0 then build_attribute_list(p)
-else node_attr(p):=null;
-lig_ptr(p):=null;
+if max_used_attr<>0 then build_attribute_list(p);
 new_char_node:=p;
 end;
 
@@ -3967,22 +3948,7 @@ not chosen.
 
 @p function new_disc:pointer; {creates an empty |disc_node|}
 var p:pointer; {the new node}
-begin p:=get_node(disc_node_size); type(p):=disc_node;
-pre_break(p):=pre_break_head(p); 
-type(pre_break(p)):=255;  
-vlink(pre_break(p)):=null;  
-alink(pre_break(p)):=null; 
-tlink(pre_break(p)):=null; 
-post_break(p):=post_break_head(p);
-type(post_break(p)):=255;  
-vlink(post_break(p)):=null;  
-alink(post_break(p)):=null; 
-tlink(post_break(p)):=null; 
-no_break(p):=no_break_head(p);
-type(no_break(p)):=255;  
-vlink(no_break(p)):=null;  
-alink(no_break(p)):=null; 
-tlink(no_break(p)):=null; 
+begin p:=new_node(disc_node,0);
 build_attribute_list(p);
 new_disc:=p;
 end;
@@ -4018,8 +3984,8 @@ the amount of surrounding space inserted by \.{\\mathsurround}.
 
 @p function new_math(@!w:scaled;@!s:small_number):pointer;
 var p:pointer; {the new node}
-begin p:=get_node(math_node_size); type(p):=math_node;
-subtype(p):=s; build_attribute_list(p); surround(p):=w; new_math:=p;
+begin p:=new_node(math_node,s);
+build_attribute_list(p); surround(p):=w; new_math:=p;
 end;
 
 @ \TeX\ makes use of the fact that |hlist_node|, |vlist_node|,
@@ -4103,9 +4069,8 @@ to be exactly one reference to the new specification.
 
 @p function new_spec(@!p:pointer):pointer; {duplicates a glue specification}
 var q:pointer; {the new spec}
-begin q:=get_node(glue_spec_size);@/ type(q):=glue_spec_node;
-subtype(q):=0; vmem(q+3):=vmem(p+3); glue_ref_count(q):=null;@/
-width(q):=width(p); stretch(q):=stretch(p); shrink(q):=shrink(p);
+begin q:=copy_node(p); 
+glue_ref_count(q):=null;
 new_spec:=q;
 end;
 
@@ -4117,8 +4082,7 @@ current \.{\\lineskip}.
 @p function new_param_glue(@!n:small_number):pointer;
 var p:pointer; {the new node}
 @!q:pointer; {the glue specification}
-begin p:=get_node(glue_node_size); type(p):=glue_node; subtype(p):=n+1;
-leader_ptr(p):=null;@/
+begin p:=new_node(glue_node,n+1);
 q:=@<Current |mem| equivalent of glue parameter number |n|@>@t@>;
 glue_ptr(p):=q; incr(glue_ref_count(q));
 build_attribute_list(p);
@@ -4130,8 +4094,8 @@ whose argument points to a glue specification.
 
 @p function new_glue(@!q:pointer):pointer;
 var p:pointer; {the new node}
-begin p:=get_node(glue_node_size); type(p):=glue_node; subtype(p):=normal;
-leader_ptr(p):=null; glue_ptr(p):=q; incr(glue_ref_count(q));
+begin p:=new_node(glue_node,normal);
+glue_ptr(p):=q; incr(glue_ref_count(q));
 build_attribute_list(p);
 new_glue:=p;
 end;
@@ -4167,7 +4131,7 @@ inserted from \.{\\mkern} specifications in math formulas).
 @d acc_kern=2 {|subtype| of kern nodes from accents}
 
 @# {memory structure for marginal kerns}
-@d margin_kern_node = 40
+@d margin_kern_node = 32
 @d margin_kern_node_size = 4
 @d margin_char(#) == vlink(#+3)
 
@@ -4195,8 +4159,8 @@ inserted from \.{\\mkern} specifications in math formulas).
 
 @p function new_kern(@!w:scaled):pointer;
 var p:pointer; {the new node}
-begin p:=get_node(kern_node_size); type(p):=kern_node;
-build_attribute_list(p); subtype(p):=normal; width(p):=w;
+begin p:=new_node(kern_node,normal);
+build_attribute_list(p); width(p):=w;
 new_kern:=p;
 end;
 
@@ -4218,8 +4182,7 @@ be able to guess what comes next.
 
 @p function new_penalty(@!m:integer):pointer;
 var p:pointer; {the new node}
-begin p:=get_node(penalty_node_size); type(p):=penalty_node;
-subtype(p):=0; {the |subtype| is not used}
+begin p:=new_node(penalty_node,0); {the |subtype| is not used}
 build_attribute_list(p); penalty(p):=m; new_penalty:=p;
 end;
 
@@ -4280,7 +4243,7 @@ symbolic names to the fixed positions.
 @d active==pre_adjust_head+temp_node_size {head of active list in |line_break|}
 @d align_head==active+active_node_size {head of preamble list for alignments}
 @d end_span==align_head+temp_node_size {tail of spanned-width lists}
-@d var_mem_stat_max==(end_span+temp_node_size-1) {largest statically allocated word in the variable-size |mem|}
+@d var_mem_stat_max==(end_span+span_node_size-1) {largest statically allocated word in the variable-size |mem|}
 
 @<Glob...@>=
 garbage:pointer;         {head of a junk list, write only}
@@ -4789,7 +4752,7 @@ specification is being withdrawn.
 @^reference counts@>
 @d fast_delete_glue_ref(#)==@t@>@;@/
   begin if glue_ref_count(#)=null then begin 
-    free_node(#,glue_spec_size);
+    flush_node(#);
     end
   else decr(glue_ref_count(#));
   end
@@ -4802,82 +4765,6 @@ In practice, the nodes deleted are usually charnodes (about 2/3 of the time),
 and they are glue nodes in about half of the remaining cases.
 @^recursion@>
 
-@p procedure flush_node_list(@!pp:pointer); {erase list of nodes starting at |p|}
-var q,p:pointer; {successor to node |p|}
-begin 
-p:=pp; {to prevent trashing of the argument pointer, for debugging}
-while p<>null do
-@^inner loop@>
-  begin q:=vlink(p);
-    case type(p) of
-    glyph_node: begin
-	  if lig_ptr(p)<>null then flush_node_list(lig_ptr(p));
-      ext_free_node(p,glyph_node_size); 
-      end;
-    glue_node: begin 
-      delete_glue_ref(glue_ptr(p));
-      if leader_ptr(p)<>null then flush_node_list(leader_ptr(p));
-      ext_free_node(p,glue_node_size);
-      end;
-    hlist_node,vlist_node,unset_node: begin 
-	  if list_ptr(p)<>null then flush_node_list(list_ptr(p));
-      ext_free_node(p,box_node_size);
-      end;
-    rule_node: begin 
-      ext_free_node(p,rule_node_size); 
-	  end;
-    ins_node: begin 
-      pdfassert(ins_ptr(p)<>null);
-      flush_node_list(ins_ptr(p));
-      delete_glue_ref(split_top_ptr(p));
-      ext_free_node(p,ins_node_size);
-      end;
-    whatsit_node: 
-      @<Wipe out the whatsit node |p|@>;
-    kern_node:  begin 
-      ext_free_node(p,kern_node_size); 
-      end;
-    math_node:  begin 
-      ext_free_node(p,math_node_size); 
-      end;
-    penalty_node: begin 
-      ext_free_node(p,penalty_node_size); 
-      end;
-    margin_kern_node: begin
-      ext_free_node(margin_char(p),glyph_node_size);
-      ext_free_node(p,margin_kern_node_size);
-      end;
-    mark_node: begin 
-      delete_token_ref(mark_ptr(p)); 
-      ext_free_node(p,mark_node_size); 
-      end;
-    disc_node: begin 
-      if vlink(pre_break(p))<>null  then begin 
-         flush_node_list(vlink(pre_break(p)));
-         end;
-      if vlink(post_break(p))<>null then begin 
-         flush_node_list(vlink(post_break(p)));
-         end;
-      if vlink(no_break(p))<>null   then begin
-         flush_node_list(vlink(no_break(p)));
-         end;
-      ext_free_node(p,disc_node_size);
-      end;
-    adjust_node: begin 
-      pdfassert(adjust_ptr(p)<>null);
-      flush_node_list(adjust_ptr(p)); 
-      ext_free_node(p,adjust_node_size); 
-      end;
-    @t\4@>@<Cases of |flush_node_list| that arise in mlists only@>@;
-    othercases begin 
-      writeln('type is ', type(p):1); 
-      if false then confusion("flushing"); 
-      end
-@:this can't happen flushing}{\quad flushing@>
-    endcases;@/
-    p:=q;
-  end;
-end;
 
 @* \[14] Copying boxes.
 Another recursive operation that acts on boxes is sometimes needed: The
@@ -4897,160 +4784,13 @@ to break \TeX\ by overflowing a reference count. But who would want to do that?)
 @d add_token_ref(#)==incr(token_ref_count(#)) {new reference to a token list}
 @d add_glue_ref(#)==incr(glue_ref_count(#)) {new reference to a glue spec}
 
-@ The copying procedure copies words en masse without bothering
-to look at their individual fields. If the node format changes---for
-example, if the size is altered, or if some link field is moved to another
-relative position---then this code may need to be changed too.
-@^data structure assumptions@>
-
-@p
-function tail_of_list (@!p:pointer):pointer;
+@p function tail_of_list (@!p:pointer):pointer;
 var q:pointer;
 begin
   q:=p;
   while vlink(q)<>null do q:=vlink(q);
   tail_of_list:=q;
 end;
-@#
-function copy_node_list(@!p:pointer):pointer; {makes a duplicate of the
-  node list that starts at |p| and returns a pointer to the new list}
-var h:pointer; {temporary head of copied list}
-@!q:pointer; {previous position in new list}
-@!r:pointer; {current node being fabricated for new list}
-@!s:pointer; {a helper variable for copying into variable mem }
-begin h:=get_node(temp_node_size); q:=h; 
-r:=h; {for -Wall only}
-while p<>null do
-  begin @<Make a copy of node |p| in node |r|@>;
-  type(r):=type(p); subtype(r):=subtype(p);
-  vlink(q):=r; q:=r; p:=vlink(p);
-  end;
-vlink(q):=null; q:=vlink(h); free_node(h,temp_node_size);
-copy_node_list:=q;
-end;
-@#
-function copy_node(@!p:pointer):pointer; {make a dupe of a single node}
-var q:pointer; {the new node}
-    s:pointer; {a saved tail}
-begin
-   s:=vlink(p); vlink(p):=null;
-   q:=copy_node_list(p);
-   vlink(p):=s; 
-   copy_node:=q;
-end;
-
-@ @<Make a copy of node |p|...@>=
-case type(p) of
-glyph_node: begin r:=get_node(glyph_node_size);
-  character(r):=character(p); font(r):=font(p);
-  node_attr(r):=node_attr(p); add_node_attr_ref(node_attr(p)); 
-  s:=copy_node_list(lig_ptr(p));
-  lang_data(r):=lang_data(p);
-  x_displace(r):=x_displace(p);
-  y_displace(r):=y_displace(p);
-  lig_ptr(r):=s;
-  end;
-hlist_node,vlist_node,unset_node: begin r:=get_node(box_node_size);
-  width(r):=width(p);  height(r):=height(p); depth(r):=depth(p);
-  shift_amount(r):=shift_amount(p); 
-  {|pdfassert(list_ptr(p)<>0);|}
-  s:=copy_node_list(list_ptr(p));
-  list_ptr(r):=s;
-  {|pdfassert(list_ptr(r)<>0);|}
-  glue_order(r):=glue_order(p); glue_sign(r):=glue_sign(p);
-  glue_set(r):=glue_set(p); box_dir(r):=box_dir(p);
-  node_attr(r):=node_attr(p); add_node_attr_ref(node_attr(p)); 
-  end;
-rule_node: begin r:=get_node(rule_node_size);
-  width(r):=width(p);  height(r):=height(p); depth(r):=depth(p);
-  rule_dir(r):=rule_dir(p);
-  node_attr(r):=node_attr(p); add_node_attr_ref(node_attr(p)); 
-  end;
-ins_node: begin r:=get_node(ins_node_size);
-  float_cost(r):=float_cost(p); 
-  height(r):=height(p); depth(r):=depth(p);
-  split_top_ptr(r):=split_top_ptr(p); add_glue_ref(split_top_ptr(p)); 
-  s:=copy_node_list(ins_ptr(p));
-  ins_ptr(r):=s;
-  node_attr(r):=node_attr(p); add_node_attr_ref(node_attr(p)); 
-  end;
-whatsit_node:@<Make a partial copy of the whatsit node |p| and make |r|
-  point to it; set |words| to the number of initial words not yet copied@>;
-glue_node: begin r:=get_node(glue_node_size); add_glue_ref(glue_ptr(p));
-  glue_ptr(r):=glue_ptr(p); 
-  s:=copy_node_list(leader_ptr(p));
-  leader_ptr(r):=s;
-  node_attr(r):=node_attr(p); add_node_attr_ref(node_attr(p)); 
-  end;
-kern_node: begin r:=get_node(kern_node_size);
-  width(r):=width(p);
-  node_attr(r):=node_attr(p); add_node_attr_ref(node_attr(p)); 
-  end;
-math_node: begin r:=get_node(math_node_size);
-  surround(r):=surround(p);
-  node_attr(r):=node_attr(p); add_node_attr_ref(node_attr(p)); 
-  end;
-penalty_node: begin r:=get_node(penalty_node_size);
-  penalty(r):=penalty(p);
-  node_attr(r):=node_attr(p); add_node_attr_ref(node_attr(p)); 
-  end;
-margin_kern_node: begin r:=get_node(margin_kern_node_size);
-  width(r):=width(p);
-  node_attr(r):=node_attr(p); add_node_attr_ref(node_attr(p)); 
-  s:=get_node(glyph_node_size); margin_char(r):=s;
-  font(margin_char(r)):=font(margin_char(p));
-  character(margin_char(r)):=character(margin_char(p));  
-  lig_ptr(margin_char(r)):=null;
-  node_attr(margin_char(r)):=node_attr(margin_char(p));
-  add_node_attr_ref(node_attr(margin_char(p)));
-  end;
-disc_node: begin r:=new_disc;
-  if vlink(pre_break(p))<>null then begin
-    s:=copy_node_list(vlink(pre_break(p)));
-    alink(s):=pre_break(r);
-    tlink(pre_break(r)):=tail_of_list(s); 
-    vlink(pre_break(r)):=s;
-    end;
-
-  if vlink(post_break(p))<>null then begin
-    s:=copy_node_list(vlink(post_break(p)));
-    alink(s):=post_break(r);
-    tlink(post_break(r)):=tail_of_list(s); 
-    vlink(post_break(r)):=s;
-    end;
-  if vlink(no_break(p))<>null then begin
-    s:=copy_node_list(vlink(no_break(p)));
-    alink(s):=no_break(r);
-    tlink(no_break(r)):=tail_of_list(s); 
-    vlink(no_break(r)):=s;
-    end;
-  node_attr(r):=node_attr(p); add_node_attr_ref(node_attr(p)); 
-  end;
-mark_node: begin r:=get_node(mark_node_size); add_token_ref(mark_ptr(p));
-  mark_ptr(r):=mark_ptr(p); mark_class(r):=mark_class(p);
-  node_attr(r):=node_attr(p); add_node_attr_ref(node_attr(p)); 
-  end;
-adjust_node: begin r:=get_node(adjust_node_size);
-  s:=copy_node_list(adjust_ptr(p)); adjust_ptr(r):=s;
-  node_attr(r):=node_attr(p); add_node_attr_ref(node_attr(p)); 
-  end;
-attribute_list_node: begin r:=get_node(attribute_list_node_size);
-  attr_list_ref(r):=0;
-  end;
-attribute_node: begin r:=get_node(attribute_node_size);
-  attribute_id(r):=attribute_id(p);
-  attribute_value(r):=attribute_value(p);
-  end;
-glue_spec_node: begin r:=get_node(glue_spec_size);  
-  glue_ref_count(r):=null;
-  width(r):=width(p); stretch(r):=stretch(p); shrink(r):=shrink(p);
-  stretch_order(r):=stretch_order(p); shrink_order(r):=shrink_order(p);
-  end;
-othercases begin r:=get_node(temp_node_size); 
-  confusion("copying");
-@:this can't happen copying}{\quad copying@>
-  end
-endcases
 
 @* \[15] The command codes.
 Before we can go any further, we need to define symbolic names for the internal
@@ -5501,7 +5241,7 @@ begin if nest_ptr>max_nest_stack then
 @:TeX capacity exceeded semantic nest size}{\quad semantic nest size@>
   end;
 nest[nest_ptr]:=cur_list; {stack the record}
-incr(nest_ptr); head:=get_node(temp_node_size); tail:=head; prev_graf:=0; mode_line:=line;
+incr(nest_ptr); head:=new_node(temp_node,0); tail:=head; prev_graf:=0; mode_line:=line;
 dir_save:=null; dir_math_save:=false;
 local_par:=make_local_par_node; local_par_bool:=false;
 eTeX_aux:=null;
@@ -5516,9 +5256,9 @@ is a node that should be returned to free memory.
 begin
 if local_par<>null then begin
   if local_par_bool then begin end {|tail_append(local_par)|}
-  else free_node(local_par,local_par_size);
+  else flush_node(local_par);
   end;
-free_node(head,temp_node_size); decr(nest_ptr); cur_list:=nest[nest_ptr];
+flush_node(head); decr(nest_ptr); cur_list:=nest[nest_ptr];
 end;
 
 @ Here is a procedure that displays what \TeX\ is working on, at all levels.
@@ -7710,9 +7450,7 @@ appears in location |save_ptr+k| of the save stack.
 
 @p procedure new_save_level(@!c:group_code); {begin a new level of grouping}
 begin check_full_save_stack;
-if eTeX_ex then
-  begin saved(0):=line; incr(save_ptr);
-  end;
+saved(0):=line; incr(save_ptr);
 save_type(save_ptr):=level_boundary; save_level(save_ptr):=cur_group;
 save_index(save_ptr):=cur_boundary;
 if cur_level=max_quarterword then overflow("grouping levels",
@@ -7769,7 +7507,7 @@ the call, since |eq_save| makes the necessary test.
 @p procedure eq_define(@!p:pointer;@!t:quarterword;@!e:halfword);
   {new data for |eqtb|}
 label exit;
-begin if eTeX_ex and(eq_type(p)=t)and(equiv(p)=e) then
+begin if (eq_type(p)=t)and(equiv(p)=e) then
   begin assign_trace(p,"reassigning")@;@/
   eq_destroy(eqtb[p]); return;
   end;
@@ -7786,7 +7524,7 @@ exit:end;
 
 @p procedure eq_word_define(@!p:pointer;@!w:integer);
 label exit;
-begin if eTeX_ex and(eqtb[p].int=w) then
+begin if eqtb[p].int=w then
   begin assign_trace(p,"reassigning")@;@/
   return;
   end;
@@ -7872,7 +7610,7 @@ done: @!stat if tracing_groups>0 then group_trace(true);@+tats@;@/
 if grp_stack[in_open]=cur_boundary then group_warning;
   {groups possibly not properly nested with files}
 cur_group:=save_level(save_ptr); cur_boundary:=save_index(save_ptr);
-if eTeX_ex then decr(save_ptr)
+decr(save_ptr)
 
 @ A global definition, which sets the level to |level_one|,
 @^global definitions@>
@@ -8881,7 +8619,7 @@ if a then
     if cur_tok<left_brace_limit then decr(align_state)
     else incr(align_state);
   end
-else  begin back_input; a:=eTeX_ex;
+else  begin back_input; a:=1; { etex is always on }
   end;
 cur_tok:=t;
 end
@@ -12735,8 +12473,11 @@ Otherwise |cond_ptr| points to a two-word node; the |type|, |subtype|, and
 |cond_ptr| at the next level, and the second word contains the
 corresponding |if_line|.
 
+@d if_node==49
 @d if_node_size=2 {number of words in stack entry for conditionals}
-@d if_line_field(#)==vmem(#+1).int
+@d if_limit_subtype(#)==subtype(#+1)
+@d if_limit_type(#)==type(#+1)
+@d if_line_field(#)==vlink(#+1)
 @d if_code=1 {code for \.{\\if...} being evaluated}
 @d fi_code=2 {code for \.{\\fi}}
 @d else_code=3 {code for \.{\\else}}
@@ -12801,17 +12542,22 @@ For example, a sequence of commands like `\.{\\ifvoid1\\else...\\fi}'
 would otherwise require something after the `\.1'.
 
 @<Push the condition stack@>=
-begin p:=get_node(if_node_size); vlink(p):=cond_ptr; type(p):=if_limit;
-subtype(p):=cur_if; if_line_field(p):=if_line;
+begin p:=new_node(if_node,0); vlink(p):=cond_ptr; 
+if_limit_type(p):=if_limit;
+if_limit_subtype(p):=cur_if; 
+if_line_field(p):=if_line;
 cond_ptr:=p; cur_if:=cur_chr; if_limit:=if_code; if_line:=line;
 end
 
 @ @<Pop the condition stack@>=
 begin if if_stack[in_open]=cond_ptr then if_warning;
   {conditionals possibly not properly nested with files}
-p:=cond_ptr; if_line:=if_line_field(p);
-cur_if:=subtype(p); if_limit:=type(p); cond_ptr:=vlink(p);
-free_node(p,if_node_size);
+p:=cond_ptr;
+if_line:=if_line_field(p);
+cur_if:=if_limit_subtype(p); 
+if_limit:=if_limit_type(p); 
+cond_ptr:=vlink(p);
+flush_node(p);
 end
 
 @ Here's a procedure that changes the |if_limit| code corresponding to
@@ -13701,7 +13447,7 @@ prints a warning message unless the user has suppressed it.
 var old_setting: integer; {saved value of |tracing_online|}
 begin if tracing_lost_chars>0 then
  begin old_setting:=tracing_online;
- if eTeX_ex and(tracing_lost_chars>1) then tracing_online:=1;
+ if tracing_lost_chars>1 then tracing_online:=1;
   begin begin_diagnostic;
   print_nl("Missing character: There is no ");
 @.Missing character@>
@@ -15243,8 +14989,9 @@ byte number of the \.{DVI} command in question (including the appropriate
 on the stack; and the |vinfo| field encodes the options for possible change
 in the \.{DVI} command.
 
+@d movement_node=48
 @d movement_node_size=3 {number of words per entry in the down and right stacks}
-@d location(#)==vmem(#+2).int {\.{DVI} byte number for a movement command}
+@d location(#)==vmem(#+1).int {\.{DVI} byte number for a movement command}
 
 @<Glob...@>=
 @!down_ptr,@!right_ptr:pointer; {heads of the down and right stacks}
@@ -15308,7 +15055,7 @@ case box_direction(dvi_direction) of
     end;
   end;
 if false then begin
-q:=get_node(movement_node_size); {new node for the top of the stack}
+q:=new_node(movement_node,0); {new node for the top of the stack}
 width(q):=w; location(q):=dvi_offset+dvi_ptr;
 if o=down1 then
   begin vlink(q):=down_ptr; down_ptr:=q;
@@ -15476,11 +15223,11 @@ label done,exit;
 var p:pointer; {node being deleted}
 begin while down_ptr<>null do
   begin if location(down_ptr)<l then goto done;
-  p:=down_ptr; down_ptr:=vlink(p); free_node(p,movement_node_size);
+  p:=down_ptr; down_ptr:=vlink(p); flush_node(p);
   end;
 done: while right_ptr<>null do
   begin if location(right_ptr)<l then return;
-  p:=right_ptr; right_ptr:=vlink(p); free_node(p,movement_node_size);
+  p:=right_ptr; right_ptr:=vlink(p); flush_node(p);
   end;
 exit:end;
 
@@ -17259,40 +17006,11 @@ for i := 1 to 9 do
 init_pdf_output := false;
 
 
-@ The following function divides |s| by |m|. |dd| is number of decimal digits.
+@ The function |divide_scaled| divides |s| by |m| using |dd| decimal
+digits of precision. It is defined in C because it is a good candidate
+for optimizations that are not possible in pascal.
 
 @<Declare procedures that need to be declared forward for \pdfTeX@>=
-function divide_scaled(s, m: scaled; dd: integer): scaled;
-var q, r: scaled;
-    sign, i: integer;
-begin
-    sign := 1;
-    if s < 0 then begin
-        sign := -sign;
-        s := -s;
-    end;
-    if m < 0 then begin
-        sign := -sign;
-        m := -m;
-    end;
-    if m = 0 then
-        pdf_error("arithmetic", "divided by zero")
-    else if m >= (max_integer div 10) then
-        pdf_error("arithmetic", "number too big");
-    q := s div m;
-    r := s mod m;
-    for i := 1 to dd do begin
-        q := 10*q + (10*r) div m;
-        r := (10*r) mod m;
-    end;
-    if 2*r >= m then begin
-        incr(q);
-        r := r - m;
-    end;
-    scaled_out := sign*(s - (r div ten_pow[dd]));
-    divide_scaled := sign*q;
-end;
-
 function round_xn_over_d(@!x:scaled; @!n,@!d:integer):scaled;
 var positive:boolean; {was |x>=0|?}
 @!t,@!u,@!v:nonnegative_integer; {intermediate quantities}
@@ -17959,7 +17677,7 @@ destination |pdf_left| and |pdf_top| are used for some types of destinations}
 
 @# {data structure of actions}
 @d pdf_action_size         == 4 {size of action structure in |mem|}
-@d action_node         == 39
+@d action_node         == 45
 @d pdf_action_type(#)      == type(#+1) {action type}
 @d pdf_action_named_id(#)  == subtype(#+1) {identifier is type of name}
 @d pdf_action_id(#)        == vlink(#+1) {destination/thread name identifier}
@@ -19128,7 +18846,7 @@ basepoint_vertical: scaled;
 saving_h: scaled;
 saving_v: scaled;
 save_direction: integer;
-dvi_ptr,dir_tmp:pointer;
+dvi_ptr,dir_ptr,dir_tmp:pointer;
 @!left_edge: scaled; {the left coordinate for this box}
 @!save_h: scaled; {what |cur_h| should pop to}
 @!this_box: pointer; {pointer to containing box}
@@ -20247,15 +19965,6 @@ begin
     flush_str(s);
 end;
 
-procedure flush_whatsit_node(p: pointer; s: small_number);
-begin
-    type(p):=whatsit_node;
-    subtype(p) := s;
-    if vlink(p) <> null then
-        pdf_error("flush_whatsit_node", "link(p) is not null");
-    flush_node_list(p);
-end;
-
 @ @<Write out pending raw objects@>=
 if pdf_obj_list <> null then begin
     k := pdf_obj_list;
@@ -20375,10 +20084,10 @@ end
 k := pdf_link_list;
 while k <> null do begin
     i := obj_annot_ptr(info(k));
-    {nodes with |info = max_halfword| were created by |append_link| and
+    {nodes with |subtype = pdf_link_data_node| were created by |append_link| and
      must be flushed here, as they are not linked in any list}
-    if vinfo(i) = max_halfword then
-        flush_whatsit_node(i, pdf_start_link_node);
+    if subtype(i) = pdf_link_data_node then
+        flush_node(i);
     k := link(k);
 end
 
@@ -20467,8 +20176,8 @@ if pdf_bead_list <> null then begin
         pdf_out("[");
         i := obj_bead_data(info(k)); {pointer to a whatsit or whatsit-like node}
         pdf_print_rect_spec(i);
-        if info(i) = max_halfword then {not a whatsit node, so must be destroyed here}
-            flush_whatsit_node(i, pdf_start_thread_node);
+        if subtype(i) = pdf_thread_data_node then {thanh says it mis be destroyed here}
+            flush_node(i);
         pdf_print_ln("]");
         obj_bead_rect(info(k)) := obj_ptr; {rewrite |obj_bead_data|}
         pdf_end_obj;
@@ -21525,9 +21234,7 @@ end;
 function new_margin_kern(w: scaled; p: pointer; side: small_number): pointer;
 var k,q: pointer;
 begin
-    k := get_node(margin_kern_node_size);
-    type(k):=margin_kern_node;
-    subtype(k) := side;
+    k := new_node(margin_kern_node,side);
     width(k) := w;
     build_attribute_list(k);
     if p = null then
@@ -21552,7 +21259,7 @@ pack_interrupt:array[0..255] of halfword;
 font_stretch: scaled;
 font_shrink: scaled;
 k: scaled;
-begin last_badness:=0; r:=get_node(box_node_size); type(r):=hlist_node;
+begin last_badness:=0; r:=new_node(hlist_node,0);
 build_attribute_list(r);
 if pack_direction=-1 then
   box_dir(r):=text_direction
@@ -21593,22 +21300,20 @@ exit:
 if (m = cal_expand_ratio) and (font_expand_ratio <> 0) then begin
     font_expand_ratio := fix_int(font_expand_ratio, -1000, 1000);
     q := list_ptr(r);
-    ext_free_node(r, box_node_size);
+	list_ptr(r):=null; flush_node(r);
     r:=hpack(q, w, subst_ex_font);
 end;
 @<DIR: Reset |dir_ptr|@>;
 hpack:=r;
 end;
 
-function filtered_hpack(@!p:pointer;@!w:scaled;@!m:small_number;@!grp:integer):pointer;
+function filtered_hpack(@!p:pointer;@!qt:pointer;@!w:scaled;@!m:small_number;@!grp:integer):pointer;
 var q:pointer;
-	d:integer; { a direction }
+  d:integer; { a direction }
 begin
-  q:=p;
-  q:=tail_of_list(p);
-  new_hyphenation(p,q);
+  new_hyphenation(p,qt);
   if pack_direction=-1 then d:=text_direction else d:=pack_direction;
-  new_ligkern(p,q,d);
+  q:=new_ligkern(p,qt,d); {don't care about the tail in this case}
   q:=vlink(p);
   q:=lua_hpack_filter(q,w,m,grp);
   filtered_hpack:=hpack(q,w,m);
@@ -21799,7 +21504,8 @@ begin while vlink(q)<>p do q:=vlink(q);
             update_adjust_list(pre_adjust_tail)
         else
             update_adjust_list(adjust_tail);
-        p := vlink(p); ext_free_node(vlink(q), adjust_node_size);
+        p := vlink(p); 
+        adjust_ptr(vlink(q)):=null; flush_node(vlink(q));
     end
 else  begin vlink(adjust_tail):=p; adjust_tail:=p; p:=vlink(p);
   end;
@@ -21972,7 +21678,7 @@ var r:pointer; {the box node that will be returned}
 @!o:glue_ord; {order of infinity}
 begin last_badness:=0; 
 {pdfassert(p<>0);}
-r:=get_node(box_node_size); type(r):=vlist_node; build_attribute_list(r);
+r:=new_node(vlist_node,0); build_attribute_list(r);
 if pack_direction=-1 then
   box_dir(r):=body_direction
 else begin
@@ -22365,8 +22071,7 @@ null_delimiter.b2:=0; null_delimiter.b3:=min_quarterword;
 
 @p function new_noad:pointer;
 var p:pointer;
-begin p:=get_node(noad_size);
-type(p):=ord_noad; subtype(p):=normal;
+begin p:=new_node(ord_noad,normal);
 build_attribute_list(p);
 vmem(nucleus(p)).hh:=empty_field;
 vmem(subscr(p)).hh:=empty_field;
@@ -22429,8 +22134,7 @@ i.e., a smaller style has a larger numerical value.
 
 @p function new_style(@!s:small_number):pointer; {create a style node}
 var p:pointer; {the new node}
-begin p:=get_node(style_node_size); type(p):=style_node;
-subtype(p):=s; width(p):=0; depth(p):=0; {the |width| and |depth| are not used}
+begin p:=new_node(style_node,s);
 build_attribute_list(p);
 new_style:=p;
 end;
@@ -22447,11 +22151,8 @@ and |script_script_mlist| pointing to the mlists for each style.
 
 @p function new_choice:pointer; {create a choice node}
 var p:pointer; {the new node}
-begin p:=get_node(style_node_size); type(p):=choice_node;
-subtype(p):=0; {the |subtype| is not used}
+begin p:=new_node(choice_node,0); {the |subtype| is not used}
 build_attribute_list(p);
-display_mlist(p):=null; text_mlist(p):=null; script_mlist(p):=null;
-script_script_mlist(p):=null;
 new_choice:=p;
 end;
 
@@ -22613,36 +22314,6 @@ if (small_fam(right_delimiter(p))<>0)or@|
 print_subsidiary_data(numerator(p),"\");
 print_subsidiary_data(denominator(p),"/");
 end
-
-@ That which can be displayed can also be destroyed.
-
-@<Cases of |flush_node_list| that arise...@>=
-style_node: begin ext_free_node(p,style_node_size); 
-  end;
-choice_node:begin flush_node_list(display_mlist(p));
-  flush_node_list(text_mlist(p));
-  flush_node_list(script_mlist(p));
-  flush_node_list(script_script_mlist(p));
-  ext_free_node(p,style_node_size);
-  end;
-ord_noad,op_noad,bin_noad,rel_noad,open_noad,close_noad,punct_noad,inner_noad,
-  radical_noad,over_noad,under_noad,vcenter_noad,accent_noad:@t@>@;@/
-  begin if math_type(nucleus(p))>=sub_box then
-    flush_node_list(vinfo(nucleus(p)));
-  if math_type(supscr(p))>=sub_box then
-    flush_node_list(vinfo(supscr(p)));
-  if math_type(subscr(p))>=sub_box then
-    flush_node_list(vinfo(subscr(p)));
-  if type(p)=radical_noad then ext_free_node(p,radical_noad_size)
-  else if type(p)=accent_noad then ext_free_node(p,accent_noad_size)
-  else ext_free_node(p,noad_size);
-  end;
-left_noad,right_noad: begin ext_free_node(p,noad_size);
-  end;
-fraction_noad: begin flush_node_list(vinfo(numerator(p)));
-  flush_node_list(vinfo(denominator(p)));
-  ext_free_node(p,fraction_noad_size); 
-  end;
 
 @* \[35] Subroutines for math mode.
 In order to convert mlists to hlists, i.e., noads to nodes, we need several
@@ -22939,7 +22610,7 @@ begin if (width(b)<>w)and(list_ptr(b)<>null) then
        q:=new_kern(width(b)-v); vlink(p):=q;
        end;
     end;
-  ext_free_node(b,box_node_size);
+  list_ptr(b):=null; flush_node(b);
   b:=new_glue(ss_glue); vlink(b):=p;
   while vlink(p)<>null do p:=vlink(p);
   q:=new_glue(ss_glue); vlink(p):=q;
@@ -22962,7 +22633,7 @@ begin n:=x_over_n(m,@'200000); f:=remainder;@/
 if f<0 then
   begin decr(n); f:=f+@'200000;
   end;
-p:=get_node(glue_spec_size);
+p:=new_node(glue_spec_node,0);
 width(p):=mu_mult(width(g)); {convert \.{mu} to \.{pt}}
 stretch_order(p):=stretch_order(g);
 if stretch_order(p)=normal then stretch(p):=mu_mult(stretch(g))
@@ -23065,7 +22736,7 @@ if is_char_node(q) then
   begin r:=vlink(q);
   if r<>null then if vlink(r)=null then if not is_char_node(r) then
    if type(r)=kern_node then {unneeded italic correction}
-    begin ext_free_node(r,kern_node_size); vlink(q):=null;
+    begin flush_node(r); vlink(q):=null;
     end;
   end
 
@@ -23171,7 +22842,7 @@ begin @<Do first-pass processing based on |type(q)|; |goto done_with_noad|
 check_dimensions: z:=hpack(new_hlist(q),natural);
 if height(z)>max_hl then max_hl:=height(z);
 if depth(z)>max_d then max_d:=depth(z);
-ext_free_node(z,box_node_size);
+list_ptr(z):=null; flush_node(z);
 done_with_noad: r:=q; r_type:=type(r);
 if r_type=right_noad then
   begin r_type:=left_noad; cur_style:=style; @<Set up the values...@>;
@@ -23578,7 +23249,7 @@ by |z|, with kern nodes for the spaces between and around them.
 
 @<Attach the limits to |y| and adjust |height(v)|, |depth(v)|...@>=
 if math_type(supscr(q))=empty then
-  begin ext_free_node(x,box_node_size); list_ptr(v):=y;
+  begin list_ptr(x):=null; flush_node(x); list_ptr(v):=y;
   end
 else  begin shift_up:=big_op_spacing3-depth(x);
   if shift_up<big_op_spacing1 then shift_up:=big_op_spacing1;
@@ -23586,7 +23257,7 @@ else  begin shift_up:=big_op_spacing3-depth(x);
   p:=new_kern(big_op_spacing5); vlink(p):=x; list_ptr(v):=p;
   height(v):=height(v)+big_op_spacing5+height(x)+depth(x)+shift_up;
   end;
-if math_type(subscr(q))=empty then ext_free_node(z,box_node_size)
+if math_type(subscr(q))=empty then begin list_ptr(z):=null; flush_node(z); end
 else  begin shift_down:=big_op_spacing4-height(z);
   if shift_down<big_op_spacing2 then shift_down:=big_op_spacing2;
   p:=new_kern(shift_down); vlink(y):=p; vlink(p):=z;@/
@@ -23659,7 +23330,7 @@ if disable_lig=0 and has_lig(cur_f,a) then begin
     othercases begin vlink(q):=vlink(p);
       mcharacter(nucleus(q)):=lig_replacement(lig); {\.{=:}}
       vmem(subscr(q)):=vmem(subscr(p)); vmem(supscr(q)):=vmem(supscr(p));@/
-      ext_free_node(p,noad_size);
+      flush_node(p);
       end
     endcases;
     if lig_type(lig)>qi(3) then return;
@@ -23745,7 +23416,7 @@ else  begin z:=hpack(p,natural);
   shift_up:=height(z)-sup_drop(cur_size);
   shift_down:=depth(z)+sub_drop(cur_size);
   cur_size:=t;
-  ext_free_node(z,box_node_size);
+  list_ptr(z):=null; flush_node(z);
   end;
 if math_type(supscr(q))=empty then
   @<Construct a subscript box |x| when there is no superscript@>
@@ -23832,7 +23503,8 @@ while q<>null do
   @<Append any |new_hlist| entries for |q|, and any appropriate penalties@>;
   if type(q)=right_noad then t:=open_noad;
   r_type:=t;
-  delete_q: r:=q; q:=vlink(q); ext_free_node(r,s);
+  delete_q: r:=q; q:=vlink(q); 
+  flush_node(r); {|r| had better be a noad-like thing }
   done: end
 
 @ Just before doing the big |case| switch in the second pass, the program
@@ -24007,14 +23679,14 @@ $$\vbox{\halign{\.{#}\hfil\qquad&(#)\hfil\cr
 {}\\alignrecord, width $-\infty$&preamble info for column 3\cr
 {}\\glue 1pt plus 1fil&the tabskip following column 3\cr}}$$
 These ``alignrecord'' entries have the same size as an |unset_node|,
-since they will later be converted into such nodes. However, at the
-moment they have no |type| or |subtype| fields; they have |info| fields
-instead, and these |info| fields are initially set to the value |end_span|,
-for reasons explained below. Furthermore, the alignrecord nodes have no
-|height| or |depth| fields; these are renamed |u_part| and |v_part|,
-and they point to token lists for the templates of the alignment.
-For example, the |u_part| field in the first alignrecord points to the
-token list `\.{u1}', i.e., the template preceding the `\.\#' for column~1.
+since they will later be converted into such nodes. These alignrecord
+nodes have no |depth| field; this is split into |u_part| and |v_part|,
+and they point to token lists for the templates of the alignment. For
+example, the |u_part| field in the first alignrecord points to the
+token list `\.{u1}', i.e., the template preceding the `\.\#' for
+column~1.  Furthermore, They have a |span_ptr| instead of a |height|
+field, and these |span_ptr| fields are initially set to the value
+|end_span|, for reasons explained below.
 
 (2) \TeX\ now looks at what follows the \.{\\cr} that ended the preamble.
 It is not `\.{\\noalign}' or `\.{\\omit}', so this input is put back to
@@ -24097,8 +23769,10 @@ Their |glue_sign| and |glue_order| are pre-empted as well, since it
 is necessary to store information about what to do when a template ends.
 This information is called the |extra_info| field.
 
-@d u_part(#)==vmem(#+height_offset).int {pointer to \<u_j> token list}
-@d v_part(#)==vmem(#+depth_offset).int {pointer to \<v_j> token list}
+@d align_record_node=34
+@d u_part(#)==vlink(#+depth_offset) {pointer to \<u_j> token list}
+@d v_part(#)==vinfo(#+depth_offset) {pointer to \<v_j> token list}
+@d span_ptr(#)==vlink(#+height_offset) {column spanning list}
 @d extra_info(#)==vinfo(#+list_offset) {info to remember during template}
 
 @ Alignments can occur within alignments, so a small stack is used to access
@@ -24112,14 +23786,15 @@ and the |align_state| variable, which indicates the nesting of braces so
 that \.{\\cr} and \.{\\span} and tab marks are properly intercepted.
 There also are pointers |cur_head| and |cur_tail| to the head and tail
 of a list of adjustments being moved out from horizontal mode to
-vertical~mode.
+vertical~mode, and alike |cur_pre_head| and |cur_pre_tail| for pre-adjust 
+lists.
 
-The current values of these seven quantities appear in global variables;
-when they have to be pushed down, they are stored in 5-word nodes, and
+The current values of these nine quantities appear in global variables;
+when they have to be pushed down, they are stored in 6-word nodes, and
 |align_ptr| points to the topmost such node.
 
 @d preamble==vlink(align_head) {the current preamble list}
-@d align_stack_node_size=6 {number of |mem| words to save alignment states}
+@d align_stack_node=47 
 
 @<Glob...@>=
 @!cur_align:pointer; {current position in preamble list}
@@ -24141,26 +23816,26 @@ called |push_alignment| and |pop_alignment|.
 
 @p procedure push_alignment;
 var p:pointer; {the new alignment stack node}
-begin p:=get_node(align_stack_node_size);
-vlink(p):=align_ptr; vinfo(p):=cur_align;
-llink(p):=preamble; rlink(p):=cur_span;
-vmem(p+2).int:=cur_loop; vmem(p+3).int:=align_state;
-vinfo(p+4):=cur_head; vlink(p+4):=cur_tail;
-vinfo(p+5):=cur_pre_head; vlink(p+5):=cur_pre_tail;
+begin p:=new_node(align_stack_node,0);
+vinfo(p+1):=align_ptr;       vlink(p+1):=cur_align;
+vinfo(p+2):=preamble;        vlink(p+2):=cur_span;
+vinfo(p+3):=cur_loop;        vlink(p+3):=align_state;
+vinfo(p+4):=cur_head;        vlink(p+4):=cur_tail;
+vinfo(p+5):=cur_pre_head;    vlink(p+5):=cur_pre_tail;
 align_ptr:=p;
-cur_head:=get_node(temp_node_size);
+cur_head:=new_node(temp_node,0);
 end;
 @#
 procedure pop_alignment;
 var p:pointer; {the top alignment stack node}
-begin free_node(cur_head,temp_node_size);
+begin flush_node(cur_head); 
 p:=align_ptr;
-cur_tail:=vlink(p+4); cur_head:=vinfo(p+4);
 cur_pre_tail:=vlink(p+5); cur_pre_head:=vinfo(p+5);
-align_state:=vmem(p+3).int; cur_loop:=vmem(p+2).int;
-cur_span:=rlink(p); preamble:=llink(p);
-cur_align:=vinfo(p); align_ptr:=vlink(p);
-free_node(p,align_stack_node_size);
+cur_tail    :=vlink(p+4); cur_head    :=vinfo(p+4);
+align_state :=vlink(p+3); cur_loop    :=vinfo(p+3);
+cur_span    :=vlink(p+2); preamble    :=vinfo(p+2);
+cur_align   :=vlink(p+1); align_ptr   :=vinfo(p+1);
+flush_node(p);
 end;
 
 @ \TeX\ has eight procedures that govern alignments: |init_align| and
@@ -24242,9 +23917,9 @@ cur_align:=vlink(cur_align)
 
 @ @<Scan preamble text until |cur_cmd| is |tab_mark| or |car_ret|...@>=
 @<Scan the template \<u_j>, putting the resulting token list in |hold_token_head|@>;
-r:=new_null_box; vlink(cur_align):=r;
+r:=new_node(align_record_node,0); vlink(cur_align):=r;
 cur_align:=vlink(cur_align); {a new alignrecord}
-vinfo(cur_align):=end_span; width(cur_align):=null_flag;
+span_ptr(cur_align):=end_span; width(cur_align):=null_flag;
 u_part(cur_align):=link(hold_token_head);
 @<Scan the template \<v_j>, putting the resulting token list in |hold_token_head|@>;
 v_part(cur_align):=link(hold_token_head)
@@ -24503,8 +24178,8 @@ if (p=null)and(extra_info(cur_align)<cr_code) then
   end
 
 @ @<Lengthen the preamble...@>=
-begin r:=new_null_box; vlink(q):=r; p:=vlink(q); {a new alignrecord}
-vinfo(p):=end_span; width(p):=null_flag; cur_loop:=vlink(cur_loop);
+begin r:=new_node(align_record_node,0); vlink(q):=r; p:=vlink(q); {a new alignrecord}
+span_ptr(p):=end_span; width(p):=null_flag; cur_loop:=vlink(cur_loop);
 @<Copy the templates from node |cur_loop| into node |p|@>;
 cur_loop:=vlink(cur_loop);
 r:=new_glue(glue_ptr(cur_loop)); vlink(p):=r;
@@ -24529,7 +24204,7 @@ subtype(tail):=tab_skip_code+1
 @ @<Package an unset...@>=
 begin if mode=-hmode then
   begin adjust_tail:=cur_tail; pre_adjust_tail:=cur_pre_tail;
-  u:=filtered_hpack(head,natural,align_set_group); w:=width(u);
+  u:=filtered_hpack(head,tail,natural,align_set_group); w:=width(u);
   cur_tail:=adjust_tail; adjust_tail:=null;
   cur_pre_tail:=pre_adjust_tail; pre_adjust_tail:=null;
   end
@@ -24557,10 +24232,15 @@ A list of the maximum widths so far, for spanned columns starting at a
 given column, begins with the |vinfo| field of the alignrecord for that
 column.
 
-@d span_node_size=3 {number of |mem| words for a span node}
+The |new_span_node| function is defined in |texnodes.c|.
+
+@d span_node==41
+@d span_node_size==3 {number of |mem| words for a span node}
+@d span_span(#)==vlink(#+1)
+@d span_link(#)==vinfo(#+1)
 
 @<Initialize the special list heads...@>=
-vlink(end_span):=max_quarterword+1; vinfo(end_span):=null;
+span_span(end_span):=max_quarterword+1; span_link(end_span):=null;
 
 @ @<Update width entry for spanned columns@>=
 begin q:=cur_span;
@@ -24569,12 +24249,29 @@ until q=cur_align;
 if n>max_quarterword then confusion("too many spans"); {this can happen, but won't}
 @^system dependencies@>
 @:this can't happen too many spans}{\quad too many spans@>
-q:=cur_span; while vlink(vinfo(q))<n do q:=vinfo(q);
-if vlink(vinfo(q))>n then
-  begin s:=get_node(span_node_size); vinfo(s):=vinfo(q); vlink(s):=n;
-  vinfo(q):=s; width(s):=w;
-  end
-else if width(vinfo(q))<w then width(vinfo(q)):=w;
+q:=cur_span;
+if span_ptr(cur_span)=end_span then begin
+  s:=new_span_node(span_ptr(cur_span),n,w); 
+  span_ptr(cur_span):=s; 
+  end 
+else begin { there is at least one ...}
+  if span_span(span_ptr(cur_span))<n then begin
+    q:=span_ptr(cur_span);
+	while span_span(span_link(q))<n do q:=span_link(q);
+    if span_span(span_link(q))>n then begin
+	  s:=new_span_node(span_link(q),n,w); 
+      span_link(q):=s; 
+      end
+    else if width(span_link(q))<w then width(span_link(q)):=w;
+    end
+  else begin 
+    if span_span(span_ptr(cur_span))>n then begin
+      s:=new_span_node(span_ptr(cur_span),n,w); 
+      span_ptr(cur_span):=s; 
+      end
+    else if width(span_ptr(cur_span))<w then width(span_ptr(cur_span)):=w;
+    end
+  end;
 end
 
 @ At the end of a row, we append an unset box to the current vlist (for
@@ -24585,7 +24282,7 @@ Everything will be set later.
 @p procedure fin_row;
 var p:pointer; {the new unset box}
 begin if mode=-hmode then
-  begin p:=filtered_hpack(head,natural,fin_row_group);
+  begin p:=filtered_hpack(head,tail,natural,fin_row_group);
   pop_nest;
   if cur_pre_head <> cur_pre_tail then
       append_list(cur_pre_head)(cur_pre_tail);
@@ -24661,7 +24358,7 @@ repeat flush_list(u_part(q)); flush_list(v_part(q));
 p:=vlink(vlink(q));
 if width(q)=null_flag then
   @<Nullify |width(q)| and the tabskip glue following this column@>;
-if vinfo(q)<>end_span then
+if span_ptr(q)<>end_span then
   @<Merge the widths in the span nodes of |q| with those of |p|,
     destroying the span nodes of |q|@>;
 type(q):=unset_node; span_count(q):=min_quarterword; height(q):=0;
@@ -24686,16 +24383,16 @@ or follows |r|, according as |link(r)=n| or |link(r)>n| or |link(r)<n|.
 
 @<Merge the widths...@>=
 begin t:=width(q)+width(glue_ptr(vlink(q)));
-r:=vinfo(q); s:=end_span; vinfo(s):=p; n:=min_quarterword+1;
-repeat width(r):=width(r)-t; u:=vinfo(r);
-while vlink(r)>n do
-  begin s:=vinfo(s); n:=vlink(vinfo(s))+1;
+r:=vinfo(q); s:=end_span; span_link(s):=p; n:=min_quarterword+1;
+repeat width(r):=width(r)-t; u:=span_link(r);
+while span_span(r)>n do
+  begin s:=span_link(s); n:=span_span(span_link(s))+1;
   end;
-if vlink(r)<n then
-  begin vinfo(r):=vinfo(s); vinfo(s):=r; decr(vlink(r)); s:=r;
+if span_span(r)<n then
+  begin span_link(r):=span_link(s); span_link(s):=r; decr(span_span(r)); s:=r;
   end
-else  begin if width(r)>width(vinfo(s)) then width(vinfo(s)):=width(r);
-  free_node(r,span_node_size);
+else  begin if width(r)>width(span_link(s)) then width(span_link(s)):=width(r);
+  flush_node(r);
   end;
 r:=u;
 until r=end_span;
@@ -24954,8 +24651,7 @@ if (not is_char_node(vlink(head))) and ((type(vlink(head))=whatsit_node)
 else
   paragraph_dir:=0;
 line_break_dir:=paragraph_dir;
-new_ligkern(temp_head,tail, paragraph_dir);
-tail:=tail_of_list(temp_head); { TODO should not be needed}
+tail:=new_ligkern(temp_head,tail, paragraph_dir);
 if is_char_node(tail) then tail_append(new_penalty(inf_penalty))
 else if type(tail)<>glue_node then tail_append(new_penalty(inf_penalty))
 else begin 
@@ -24986,11 +24682,6 @@ ext_do_line_break(d,pretolerance,tracing_paragraphs,tolerance,emergency_stretch,
 		   display_widow_penalties_ptr,widow_penalties_ptr,
 		   display_widow_penalty, widow_penalty,
 		   broken_penalty, final_par_glue);
-{TODO the next line was supposed to fix a mem leak, but in the 
-  presence of \.{\\textdir} it creates crashes instead. Apparently,
-  some of the nodes in the list can be freed, others not. For the
-  moment, it is better to live with the memory leak. }
-{|flush_node_list(dir_tmp);|}
 pack_begin_line:=0;
 end;
 @#
@@ -25287,7 +24978,7 @@ q:=vert_break(list_ptr(v),h,split_max_depth);
 @<Look at all the marks in nodes before the break, and set the final
   link to |null| at the break@>;
 q:=prune_page_top(q,saving_vdiscards>0);
-p:=list_ptr(v); ext_free_node(v,box_node_size);
+p:=list_ptr(v); list_ptr(v):=null; flush_node(v);
 pack_direction:=vdir;
 if q=null then box(n):=null {the |eq_level| of the box stays the same}
 else box(n):=filtered_vpackage(q,0,additional,max_depth,split_keep_group);
@@ -26103,7 +25794,7 @@ end
 @ @<Delete \(t)the page-insertion nodes@>=
 r:=vlink(page_ins_head);
 while r<>page_ins_head do
-  begin q:=vlink(r); ext_free_node(r,page_ins_node_size); r:=q;
+  begin q:=vlink(r); free_node(r,page_ins_node_size); r:=q;
   end;
 vlink(page_ins_head):=page_ins_head
 
@@ -26139,13 +25830,13 @@ begin if type(r)=split_up then
     if ins_ptr(p)<>null then
       begin temp_ptr:=vpack(ins_ptr(p),natural);
       height(p):=height(temp_ptr)+depth(temp_ptr);
-      ext_free_node(temp_ptr,box_node_size); wait:=true;
+      list_ptr(temp_ptr):=null; flush_node(temp_ptr); wait:=true;
       end;
     end;
 best_ins_ptr(r):=null;
 n:=qo(subtype(r));
 temp_ptr:=list_ptr(box(n));
-ext_free_node(box(n),box_node_size);
+list_ptr(box(n)):=null; flush_node(box(n));
 pack_direction:=body_direction;
 box(n):=vpack(temp_ptr,natural);
 end
@@ -26156,7 +25847,7 @@ if wait then
   begin vlink(q):=p; q:=p; incr(insert_penalties);
   end
 else  begin delete_glue_ref(split_top_ptr(p));
-  ext_free_node(p,ins_node_size);
+  flush_node(p);
   end;
 p:=prev_p
 
@@ -26377,23 +26068,25 @@ are inside the individual sections.
 
 @<Append character |cur_chr|...@>=
 adjust_space_factor;@/
-if cur_chr=ex_hyphen_char then begin
-  {soon: |tail:=insert_discretionary(tail,p,q,new_char_node(cur_font,cur_chr));|}
-  tail_append(new_disc);
-  subtype(tail):=automatic_disc;
-  if get_pre_hyphen_char(cur_lang)<>0 then begin
-	vlink(pre_break(tail)):=new_char_node(cur_font, get_pre_hyphen_char(cur_lang));
-    alink(vlink(pre_break(tail))):=pre_break(tail);
-	tlink(pre_break(tail)):=vlink(pre_break(tail));
+if cur_chr=ex_hyphen_char then begin 
+  if mode>0 then begin
+    {soon: |tail:=insert_discretionary(tail,p,q,new_char_node(cur_font,cur_chr));|}
+    tail_append(new_disc);
+    subtype(tail):=automatic_disc;
+    if get_pre_hyphen_char(cur_lang)<>0 then begin
+	  vlink(pre_break(tail)):=new_char_node(cur_font, get_pre_hyphen_char(cur_lang));
+      alink(vlink(pre_break(tail))):=pre_break(tail);
+  	  tlink(pre_break(tail)):=vlink(pre_break(tail));
+      end;
+    if get_post_hyphen_char(cur_lang)<>0 then begin
+	  vlink(post_break(tail)):=new_char_node(cur_font, get_post_hyphen_char(cur_lang));
+      alink(vlink(post_break(tail))):=post_break(tail);
+	  tlink(post_break(tail)):=vlink(post_break(tail));
+	  end;
+    vlink(no_break(tail)):=new_char_node(cur_font,cur_chr);
+    alink(vlink(no_break(tail))):=no_break(tail);
+    tlink(no_break(tail)):=vlink(no_break(tail));
     end;
-  if get_post_hyphen_char(cur_lang)<>0 then begin
-	vlink(post_break(tail)):=new_char_node(cur_font, get_post_hyphen_char(cur_lang));
-    alink(vlink(post_break(tail))):=post_break(tail);
-	tlink(post_break(tail)):=vlink(post_break(tail));
-	end;
-  vlink(no_break(tail)):=new_char_node(cur_font,cur_chr);
-  alink(vlink(no_break(tail))):=no_break(tail);
-  tlink(no_break(tail)):=vlink(no_break(tail));
   end
 else
   tail_append(new_char_node(cur_font,cur_chr));
@@ -27249,7 +26942,7 @@ var h:scaled; {height of box}
 begin grp:=cur_group;
 d:=box_max_depth; unsave; save_ptr:=save_ptr-5;
 pack_direction:=saved(3);
-if mode=-hmode then cur_box:=filtered_hpack(head,saved(2),saved(1),grp)
+if mode=-hmode then cur_box:=filtered_hpack(head,tail,saved(2),saved(1),grp)
 else  begin cur_box:=filtered_vpackage(vlink(head),saved(2),saved(1),d,grp);
   if c=vtop_code then @<Readjust the height and depth of |cur_box|,
     for \.{\\vtop}@>;
@@ -27437,19 +27130,16 @@ insert_group: begin
   {now |saved(0)| is the insertion number, or 255 for |vadjust|}
   p:=vpack(vlink(head),natural); pop_nest;
   if saved(0)<>255 then
-    begin tail_append(get_node(ins_node_size)); 
+    begin tail_append(new_node(ins_node,saved(0))); 
     build_attribute_list(tail);
-    type(tail):=ins_node; subtype(tail):=qi(saved(0));
     height(tail):=height(p)+depth(p); ins_ptr(tail):=list_ptr(p);
     split_top_ptr(tail):=q; depth(tail):=d; float_cost(tail):=f;
     end
-  else  begin tail_append(get_node(adjust_node_size));
-    type(tail):=adjust_node;@/
+  else  begin tail_append(new_node(adjust_node,saved(1))); {the |subtype| is used for |adjust_pre|}
     build_attribute_list(tail);
-    adjust_pre(tail) := saved(1); {the |subtype| is used for |adjust_pre|}
     adjust_ptr(tail):=list_ptr(p); delete_glue_ref(q);
     end;
-  ext_free_node(p,box_node_size);
+  list_ptr(p):=null; flush_node(p);
   if nest_ptr=0 then begin check_filter('insert'); build_page; end;
   end;
 output_group: @<Resume the page builder...@>;
@@ -27473,10 +27163,9 @@ if cur_chr=0 then c:=0
 else begin scan_mark_num; c:=cur_val;
   if c > biggest_used_mark then biggest_used_mark := c;
   end;
-p:=scan_toks(false,true); p:=get_node(mark_node_size);
-mark_class(p):=c;
-type(p):=mark_node; subtype(p):=0; {the |subtype| is not used}
-build_attribute_list(p);
+p:=scan_toks(false,true); 
+p:=new_node(mark_node,0); {the |subtype| is not used}
+mark_class(p):=c; build_attribute_list(p);
 mark_ptr(p):=def_ref; vlink(tail):=p; tail:=p;
 end;
 end;
@@ -27592,15 +27281,14 @@ if (abs(mode)=mmode)or((abs(mode)=vmode)and(type(p)<>vlist_node))or@|
   end;
 if c=copy_code then begin s:=copy_node_list(list_ptr(p)); vlink(tail):=s; end
 else  begin vlink(tail):=list_ptr(p); box(cur_val):=null;
-  ext_free_node(p,box_node_size);
+  list_ptr(p):=null; flush_node(p);
   end;
 done:
 while vlink(tail) <> null do begin
     r := vlink(tail);
     if not is_char_node(r) and (type(r) = margin_kern_node) then begin
         vlink(tail) := vlink(r);
-        ext_free_node(margin_char(r),glyph_node_size);
-        ext_free_node(r, margin_kern_node_size);
+        flush_node(r);
     end;
     tail:=vlink(tail);
 end;
@@ -28414,8 +28102,7 @@ mmode+radical:math_radical;
 
 @ @<Declare act...@>=
 procedure math_radical;
-begin tail_append(get_node(radical_noad_size));
-type(tail):=radical_noad; subtype(tail):=normal;
+begin tail_append(new_node(radical_noad,normal));
 vmem(nucleus(tail)).hh:=empty_field;
 vmem(subscr(tail)).hh:=empty_field;
 vmem(supscr(tail)).hh:=empty_field;
@@ -28430,8 +28117,7 @@ mmode+accent,mmode+math_accent:math_ac;
 procedure math_ac;
 begin if cur_cmd=accent then
   @<Complain that the user should have said \.{\\mathaccent}@>;
-tail_append(get_node(accent_noad_size));
-type(tail):=accent_noad; subtype(tail):=normal;
+tail_append(new_node(accent_noad,normal));
 vmem(nucleus(tail)).hh:=empty_field;
 vmem(subscr(tail)).hh:=empty_field;
 vmem(supscr(tail)).hh:=empty_field;
@@ -28599,10 +28285,7 @@ var c:small_number; {the type of generalized fraction we are scanning}
 begin c:=cur_chr;
 if incompleat_noad<>null then
   @<Ignore the fraction operation and complain about this ambiguous case@>
-else  begin incompleat_noad:=get_node(fraction_noad_size);
-  type(incompleat_noad):=fraction_noad;
-  subtype(incompleat_noad):=normal;
-  node_attr(incompleat_noad):=null;
+else  begin incompleat_noad:=new_node(fraction_noad,normal);
   math_type(numerator(incompleat_noad)):=sub_mlist;
   vinfo(numerator(incompleat_noad)):=vlink(head);
   vmem(denominator(incompleat_noad)).hh:=empty_field;
@@ -28679,7 +28362,7 @@ math_group: begin @<DIR: |unsave| math@>; decr(save_ptr);@/
     begin if math_type(subscr(p))=empty then
      if math_type(supscr(p))=empty then
       begin vmem(saved(0)).hh:=vmem(nucleus(p)).hh;
-      ext_free_node(p,noad_size);
+      flush_node(p);
       end;
     end
   else if type(p)=accent_noad then if saved(0)=nucleus(tail) then
@@ -28688,7 +28371,7 @@ math_group: begin @<DIR: |unsave| math@>; decr(save_ptr);@/
 
 @ @<Replace the tail...@>=
 begin q:=head; while vlink(q)<>tail do q:=vlink(q);
-vlink(q):=p; ext_free_node(tail,noad_size); tail:=p;
+vlink(q):=p; flush_node(tail); tail:=p;
 end
 
 @ We have dealt with all constructions of math mode except `\.{\\left}' and
@@ -28914,12 +28597,13 @@ by causing its width to be zero.
 begin if (e<>0)and((w-total_shrink[normal]+q<=z)or@|
    (total_shrink[sfi]<>0)or(total_shrink[fil]<>0)or
    (total_shrink[fill]<>0)or(total_shrink[filll]<>0)) then
-  begin ext_free_node(b,box_node_size);
+  begin flush_node(b);
   b:=hpack(p,z-q,exactly);
   end
 else  begin e:=0;
   if w>z then
-    begin ext_free_node(b,box_node_size);
+    begin 
+    list_ptr(b):=null; flush_node(b);
     b:=hpack(p,z,exactly);
     end;
   end;
@@ -29126,7 +28810,7 @@ while cur_cmd=prefix do
   @<Get the next non-blank non-relax...@>;
   if cur_cmd<=max_non_prefixed_command then
     @<Discard erroneous prefixes and |return|@>;
-  if tracing_commands>2 then if eTeX_ex then show_cur_cmd_chr;
+  if tracing_commands>2 then show_cur_cmd_chr;
   end;
 @<Discard the prefixes \.{\\long} and \.{\\outer} if they are irrelevant@>;
 @<Adjust \(f)for the setting of \.{\\globaldefs}@>;
@@ -30544,7 +30228,6 @@ dump/undump macros.
 
 @<Dump constants for consistency check@>=
 dump_int(@$);@/
-@<Dump the \eTeX\ state@>@/
 dump_int(eqtb_size);@/
 dump_int(hash_prime)
 
@@ -30557,7 +30240,6 @@ the same strings. (And it is, of course, a good thing that they do.)
 @<Undump constants for consistency check@>=
 x:=fmt_file^.int;
 if x<>@$ then goto bad_fmt; {check that strings are the same}
-@/@<Undump the \eTeX\ state@>@/
 undump_int(x);@/
 if x<>eqtb_size then goto bad_fmt;
 undump_int(x);
@@ -31117,7 +30799,7 @@ if cur_level>level_one then
   print("inside a group at level ");
 @:end_}{\.{(\\end occurred...)}@>
   print_int(cur_level-level_one); print_char(")");
-  if eTeX_ex then show_save_groups;
+  show_save_groups;
   end;
 while cond_ptr<>null do
   begin print_nl("("); print_esc("end occurred ");
@@ -31128,7 +30810,7 @@ while cond_ptr<>null do
   print(" was incomplete)");
   if_line:=if_line_field(cond_ptr);
   cur_if:=subtype(cond_ptr); temp_ptr:=cond_ptr;
-  cond_ptr:=vlink(cond_ptr); free_node(temp_ptr,if_node_size);
+  cond_ptr:=vlink(cond_ptr); flush_node(temp_ptr);
   end;
 if not callback_defined(stop_run_callback) then 
   if history<>spotless then
@@ -31321,9 +31003,7 @@ to hold the string numbers for name, area, and extension.
 @d close_node_size==3 {number of words in a write/whatsit node}
 @d special_node=3 {|subtype| in whatsits that represent \.{\\special} things}
 @d special_node_size==3 {number of words in a write/whatsit node}
-@d language_node=4 {|subtype| in whatsits that change the current language}
-@d language_node_size==3 {number of words in a write/whatsit node}
-@d dir_node_size=5 {number of words in change direction node}
+@d dir_node_size=4 {number of words in change direction node}
 @d dir_dir(#)==vinfo(#+2) {keep the direction to be taken}
 @d dir_level(#)==vlink(#+2) {the save level at which the direction was defined}
 @d dir_dvi_ptr(#)==vinfo(#+3) {for reflecting dvi output}
@@ -31425,7 +31105,9 @@ stays the same.
 @d pdf_save_pos_node           == pdftex_first_extension_code + 15
 @d pdf_save_pos_node_size==3
 @d pdf_info_code               == pdftex_first_extension_code + 16
+@d pdf_thread_data_node        == pdftex_first_extension_code + 16
 @d pdf_catalog_code            == pdftex_first_extension_code + 17
+@d pdf_link_data_node          == pdftex_first_extension_code + 17
 @d pdf_names_code              == pdftex_first_extension_code + 18
 @d pdf_font_attr_code          == pdftex_first_extension_code + 19
 @d pdf_include_chars_code      == pdftex_first_extension_code + 20
@@ -31650,9 +31332,9 @@ and a given number of words. It initializes only the first word of the whatsit,
 and appends it to the current list.
 
 @<Declare procedures needed in |do_extension|@>=
-procedure new_whatsit(@!s:small_number;@!w:small_number);
+procedure new_whatsit(@!s:small_number);
 var p:pointer; {the new node}
-begin p:=get_node(w); type(p):=whatsit_node; subtype(p):=s;
+begin p:=new_node(whatsit_node,s);
 build_attribute_list(p);
 vlink(tail):=p; tail:=p;
 end;
@@ -31662,7 +31344,7 @@ involved, and also inserts a |write_stream| number.
 
 @<Declare procedures needed in |do_ext...@>=
 procedure new_write_whatsit(@!w:small_number);
-begin new_whatsit(cur_chr,w);
+begin new_whatsit(cur_chr);
 if w<>write_node_size then scan_four_bit_int
 else  begin scan_int;
   if cur_val<0 then cur_val:=17
@@ -31694,7 +31376,7 @@ end
 list as in \.{\\xdef} and \.{\\mark}.
 
 @<Implement \.{\\special}@>=
-begin new_whatsit(special_node,write_node_size); write_stream(tail):=null;
+begin new_whatsit(special_node); write_stream(tail):=null;
 p:=scan_toks(false,true); write_tokens(tail):=def_ref;
 end
 
@@ -31721,7 +31403,7 @@ begin
             else if pdf_action_named_id(#) > 0 then
                 delete_token_ref(pdf_action_id(#));
         end;
-        free_node(#, pdf_action_size);
+        flush_node(#);
     end
     else
         decr(pdf_action_refcount(#));
@@ -31749,7 +31431,7 @@ end;
 @ @<Implement \.{\\pdfliteral}@>=
 begin
     check_pdfoutput("\pdfliteral", true);
-    new_whatsit(pdf_literal_node, write_node_size);
+    new_whatsit(pdf_literal_node);
     if scan_keyword("direct") then
         pdf_literal_mode(tail) := direct_always
     else if scan_keyword("page") then
@@ -31799,7 +31481,7 @@ begin
         i := -1; {error}
     end;
     if i >= 0 then begin
-        new_whatsit(pdf_colorstack_node, pdf_colorstack_node_size);
+        new_whatsit(pdf_colorstack_node);
         pdf_colorstack_stack(tail) := cur_val;
         pdf_colorstack_cmd(tail)   := i;
 	    pdf_colorstack_data(tail)  := null;
@@ -31821,7 +31503,7 @@ end
 @ @<Implement \.{\\pdfsetmatrix}@>=
 begin
     check_pdfoutput("\pdfsetmatrix", true);
-    new_whatsit(pdf_setmatrix_node, pdf_setmatrix_node_size);
+    new_whatsit(pdf_setmatrix_node);
     scan_pdf_ext_toks;
     pdf_setmatrix_data(tail) := def_ref;
 end
@@ -31829,20 +31511,20 @@ end
 @ @<Implement \.{\\pdfsave}@>=
 begin
     check_pdfoutput("\pdfsave", true);
-    new_whatsit(pdf_save_node, pdf_save_node_size);
+    new_whatsit(pdf_save_node);
 end
 
 @ @<Implement \.{\\pdfrestore}@>=
 begin
     check_pdfoutput("\pdfrestore", true);
-    new_whatsit(pdf_restore_node, pdf_restore_node_size);
+    new_whatsit(pdf_restore_node);
 end
 
 
 @ @<Implement \.{\\latelua}@>=
 begin
     check_pdfoutput("\latelua", true);
-    new_whatsit(late_lua_node, write_node_size);
+    new_whatsit(late_lua_node);
     scan_register_num;
     late_lua_reg(tail) := cur_val;
     scan_pdf_ext_toks;
@@ -31852,7 +31534,7 @@ end
 @ @<Implement \.{\\closelua}@>=
 begin
     check_pdfoutput("\closelua", true);
-    new_whatsit(close_lua_node, write_node_size);
+    new_whatsit(close_lua_node);
 	scan_register_num;
 	late_lua_reg(tail) := cur_val;
 end
@@ -31949,7 +31631,7 @@ begin
     check_pdfoutput("\pdfrefobj", true);
     scan_int;
     pdf_check_obj(obj_type_obj, cur_val);
-    new_whatsit(pdf_refobj_node, pdf_refobj_node_size);
+    new_whatsit(pdf_refobj_node);
     pdf_obj_objnum(tail) := cur_val;
 end
 
@@ -31995,7 +31677,7 @@ begin
     check_pdfoutput("\pdfrefxform", true);
     scan_int;
     pdf_check_obj(obj_type_xform, cur_val);
-    new_whatsit(pdf_refxform_node, pdf_refxform_node_size);
+    new_whatsit(pdf_refxform_node);
     pdf_xform_objnum(tail) := cur_val;
     pdf_width(tail) := obj_xform_width(cur_val);
     pdf_height(tail) := obj_xform_height(cur_val);
@@ -32234,7 +31916,7 @@ begin
     check_pdfoutput("\pdfrefximage", true);
     scan_int;
     pdf_check_obj(obj_type_ximage, cur_val);
-    new_whatsit(pdf_refximage_node, pdf_refximage_node_size);
+    new_whatsit(pdf_refximage_node);
     pdf_ximage_objnum(tail) := cur_val;
     pdf_width(tail) := obj_ximage_width(cur_val);
     pdf_height(tail) := obj_ximage_height(cur_val);
@@ -32306,12 +31988,8 @@ end;
 function scan_action: pointer; {read an action specification}
 var p: integer;
 begin
-    p := get_node(pdf_action_size);
-	type(p):=action_node;
-	subtype(p):=0;
+    p := new_node(action_node,0);
     scan_action := p;
-    pdf_action_file(p) := null;
-    pdf_action_refcount(p) := null;
     if scan_keyword("user") then
         pdf_action_type(p) := pdf_action_user
     else if scan_keyword("goto") then
@@ -32375,10 +32053,10 @@ begin
                 "`newwindow'/`nonewwindow' must be used with `goto' and `file' option");
 end;
 
-procedure new_annot_whatsit(w, s: small_number); {create a new whatsit node for
+procedure new_annot_whatsit(w: small_number); {create a new whatsit node for
 annotation}
 begin
-    new_whatsit(w, s);
+    new_whatsit(w);
     scan_alt_rule; {scans |<rule spec>| to |alt_rule|}
     pdf_width(tail) := width(alt_rule);
     pdf_height(tail) := height(alt_rule);
@@ -32411,7 +32089,7 @@ begin
         end
         else
             k := pdf_new_objnum;
-        new_annot_whatsit(pdf_annot_node, pdf_annot_node_size);
+        new_annot_whatsit(pdf_annot_node);
         pdf_annot_objnum(tail) := k;
         scan_pdf_ext_toks;
         pdf_annot_data(tail) := def_ref;
@@ -32429,7 +32107,7 @@ begin
     if abs(mode) = vmode then
         pdf_error("ext1", "\pdfstartlink cannot be used in vertical mode");
     k := pdf_new_objnum;
-    new_annot_whatsit(pdf_start_link_node, pdf_annot_node_size);
+    new_annot_whatsit(pdf_start_link_node);
 	    pdf_link_attr(tail) := null;
         if scan_keyword("attr") then begin
             scan_pdf_ext_toks;
@@ -32448,7 +32126,7 @@ begin
     check_pdfoutput("\pdfendlink", true);
     if abs(mode) = vmode then
         pdf_error("ext1", "\pdfendlink cannot be used in vertical mode");
-    new_whatsit(pdf_end_link_node, pdf_end_link_node_size);
+    new_whatsit(pdf_end_link_node);
 end
 
 @ @<Declare procedures needed in |do_ext...@>=
@@ -32568,7 +32246,7 @@ order from the longest one to the shortest one.
 begin
     check_pdfoutput("\pdfdest", true);
     q := tail;
-    new_whatsit(pdf_dest_node, pdf_dest_node_size);
+    new_whatsit(pdf_dest_node);
     if scan_keyword("num") then begin
         scan_int;
         if cur_val <= 0 then
@@ -32659,21 +32337,21 @@ end;
 @ @<Implement \.{\\pdfthread}@>=
 begin
     check_pdfoutput("\pdfthread", true);
-    new_annot_whatsit(pdf_thread_node, pdf_thread_node_size);
+    new_annot_whatsit(pdf_thread_node);
     scan_thread_id;
 end
 
 @ @<Implement \.{\\pdfstartthread}@>=
 begin
     check_pdfoutput("\pdfstartthread", true);
-    new_annot_whatsit(pdf_start_thread_node, pdf_thread_node_size);
+    new_annot_whatsit(pdf_start_thread_node);
     scan_thread_id;
 end
 
 @ @<Implement \.{\\pdfendthread}@>=
 begin
     check_pdfoutput("\pdfendthread", true);
-    new_whatsit(pdf_end_thread_node, pdf_end_thread_node_size);
+    new_whatsit(pdf_end_thread_node);
 end
 
 @ @<Glob...@>=
@@ -32682,7 +32360,7 @@ end
 
 @ @<Implement \.{\\pdfsavepos}@>=
 begin
-    new_whatsit(pdf_save_pos_node, pdf_save_pos_node_size);
+    new_whatsit(pdf_save_pos_node);
 end
 
 @ To implement primitives as \.{\\pdfinfo}, \.{\\pdfcatalog} or
@@ -32998,10 +32676,8 @@ horizontal mode.
 @d cancel_boundary_size==3
 
 @<Append a |cancel_boundary_node| @>=
-begin p:=get_node(cancel_boundary_size);
-type(p):=whatsit_node; subtype(p):=cancel_boundary_node;
-build_attribute_list(p);
-tail_append(p);
+begin new_whatsit(cancel_boundary_node);
+build_attribute_list(tail);
 end
 
 @ User defined whatsits can be inserted into node lists to pass data
@@ -33242,248 +32918,6 @@ user_defined_node: begin
 othercases print("whatsit?")
 endcases
 
-@ @<Make a partial copy of the whatsit...@>=
-begin case subtype(p) of
-open_node: begin r:=get_node(open_node_size);
-  write_stream(r) := write_stream(p);
-  open_name(r) := open_name(p);
-  open_area(r) := open_area(p);
-  open_ext(r) := open_ext(p);
-  end;
-write_node,special_node: begin r:=get_node(write_node_size);
-  add_token_ref(write_tokens(p)); 
-  write_tokens(r):=write_tokens(p);
-  write_stream(r):=write_stream(p);
-  end;
-close_node: begin r:=get_node(close_node_size);
-  write_stream(r):=write_stream(p);
-  end;
-language_node: begin r:=get_node(language_node_size);
-  what_lang(r):=what_lang(p);
-  what_lhm(r):=what_lhm(p);
-  what_rhm(r):=what_rhm(p);
-  end;
-dir_node: begin r:=get_node(dir_node_size);
-  dir_dir(r):=dir_dir(p);
-  dir_level(r):=dir_level(p);
-  dir_dvi_ptr(r):=dir_dvi_ptr(p);
-  dir_dvi_h(r):=dir_dvi_h(p);
-  end;
-pdf_literal_node: begin r := get_node(write_node_size);
-  add_token_ref(pdf_literal_data(p)); 
-  pdf_literal_data(r):=pdf_literal_data(p);
-  pdf_literal_mode(r):=pdf_literal_mode(p);
-  end;
-pdf_colorstack_node: begin
-  r := get_node(pdf_colorstack_node_size);
-  pdf_colorstack_stack(r):=pdf_colorstack_stack(p);
-  pdf_colorstack_cmd(r):=pdf_colorstack_cmd(p);
-  pdf_colorstack_data(r):=pdf_colorstack_data(p);
-  if pdf_colorstack_cmd(p) <= colorstack_data then
-    add_token_ref(pdf_colorstack_data(p));
-  end;
-pdf_setmatrix_node: begin
-  r := get_node(pdf_setmatrix_node_size);
-  pdf_setmatrix_data(r):=pdf_setmatrix_data(p);
-  add_token_ref(pdf_setmatrix_data(p));
-  end;
-pdf_save_node: begin r := get_node(pdf_save_node_size);
-  end;
-pdf_restore_node: begin r := get_node(pdf_restore_node_size);
-  end;
-cancel_boundary_node: begin r := get_node(cancel_boundary_size);
-  end;
-late_lua_node: begin r := get_node(write_node_size);
-  add_token_ref(late_lua_data(p));
-  late_lua_data(r):=late_lua_data(p);
-  late_lua_reg(r):=late_lua_reg(p);
-  end;
-close_lua_node: begin r := get_node(write_node_size);
-  late_lua_reg(r):=late_lua_reg(p);
-  end;
-pdf_refobj_node: begin  r := get_node(pdf_refobj_node_size);
-  pdf_obj_objnum(r):=pdf_obj_objnum(p);
-  end;
-pdf_refxform_node: begin r := get_node(pdf_refxform_node_size);
-  pdf_width(r) := pdf_width(p);
-  pdf_height(r) := pdf_height(p);
-  pdf_depth(r) := pdf_depth(p);
-  pdf_xform_objnum(r):=pdf_xform_objnum(p);
-  end;
-pdf_refximage_node: begin r := get_node(pdf_refximage_node_size);
-  pdf_width(r) := pdf_width(p);
-  pdf_height(r) := pdf_height(p);
-  pdf_depth(r) := pdf_depth(p);
-  pdf_ximage_objnum(r):=pdf_ximage_objnum(p);
-  end;
-pdf_annot_node: begin r := get_node(pdf_annot_node_size);
-  pdf_width(r) := pdf_width(p);
-  pdf_height(r) := pdf_height(p);
-  pdf_depth(r) := pdf_depth(p);
-  pdf_annot_objnum(r):=pdf_annot_objnum(p);
-  add_token_ref(pdf_annot_data(p));
-  pdf_annot_data(r):=pdf_annot_data(p);
-  end;
-pdf_start_link_node: begin r := get_node(pdf_annot_node_size);
-  pdf_width(r)  := pdf_width(p);
-  pdf_height(r) := pdf_height(p);
-  pdf_depth(r)  := pdf_depth(p);
-  pdf_link_attr(r) := pdf_link_attr(p);
-  if pdf_link_attr(r) <> null then
-    add_token_ref(pdf_link_attr(r));
-  pdf_link_action(r) := pdf_link_action(p);
-  add_action_ref(pdf_link_action(r));
-  pdf_link_objnum(r) := pdf_link_objnum(p);
-  end;
-pdf_end_link_node: r := get_node(pdf_end_link_node_size);
-pdf_dest_node: begin r := get_node(pdf_dest_node_size);
-  pdf_width(r)  := pdf_width(p);
-  pdf_height(r) := pdf_height(p);
-  pdf_depth(r)  := pdf_depth(p);
-  pdf_dest_named_id(r) := pdf_dest_named_id(p);
-  if pdf_dest_named_id(p) > 0 then
-    add_token_ref(pdf_dest_id(p));
-  pdf_dest_id(r) := pdf_dest_id(p);
-  pdf_dest_type(r) := pdf_dest_type(p);
-  pdf_dest_xyz_zoom(r) := pdf_dest_xyz_zoom(p);
-  pdf_dest_objnum(r) := pdf_dest_objnum(p);
-  end;
-pdf_thread_node,pdf_start_thread_node: begin 
-  r := get_node(pdf_thread_node_size);
-  pdf_width(r)  := pdf_width(p);
-  pdf_height(r) := pdf_height(p);
-  pdf_depth(r)  := pdf_depth(p);
-  pdf_thread_named_id(r) := pdf_thread_named_id(p);
-  if pdf_thread_named_id(p) > 0 then
-    add_token_ref(pdf_thread_id(p));
-  pdf_thread_id(r) := pdf_thread_id(p);
-  pdf_thread_attr(r) := pdf_thread_attr(p);
-  if pdf_thread_attr(p) <> null then
-    add_token_ref(pdf_thread_attr(p));
-  end;
-pdf_end_thread_node: begin r := get_node(pdf_end_thread_node_size);
-  end;
-pdf_save_pos_node: begin r := get_node(pdf_save_pos_node_size);
-  end;
-local_par_node: begin r:=get_node(local_par_size);
-  local_pen_inter(r) := local_pen_inter(p);
-  local_pen_broken(r) := local_pen_broken(p);
-  local_par_dir(r) := local_par_dir(p);  
-  local_box_left(r) := local_box_left(p);
-  local_box_left_width(r) := local_box_left_width(p);
-  local_box_right(r) := local_box_right(p);
-  local_box_right_width(r) := local_box_right_width(p);
-  end;
-user_defined_node: begin r:=get_node(user_defined_node_size);
-  user_node_id(r):=user_node_id(p);
-  user_node_type(r):=user_node_type(p);
-  user_node_value(r):=user_node_value(p);
-  case user_node_type(p) of 
-  "a": add_node_attr_ref(user_node_value(p));
-  "t": add_token_ref(user_node_value(p));
-  "n": begin s:=copy_node_list(user_node_value(p)); user_node_value(r):=s; end;
-  endcases;
-  end;
-othercases confusion("ext2")
-@:this can't happen ext2}{\quad ext2@>
-endcases;
-node_attr(r):=node_attr(p); 
-add_node_attr_ref(node_attr(p));
-end
-
-
-@ @<Wipe out the whatsit...@>=
-begin case subtype(p) of
-open_node: free_node(p,open_node_size);
-write_node,special_node: begin delete_token_ref(write_tokens(p));
-  free_node(p,write_node_size); 
-  end;
-close_node:  free_node(p,language_node_size);
-language_node: free_node(p,close_node_size);
-dir_node: free_node(p,dir_node_size);
-pdf_literal_node: begin
-    delete_token_ref(pdf_literal_data(p));
-    free_node(p, write_node_size);
-end;
-pdf_colorstack_node: begin
-    if pdf_colorstack_cmd(p) <= colorstack_data then begin
-        delete_token_ref(pdf_colorstack_data(p));
-        free_node(p, pdf_colorstack_node_size);
-    end
-    else
-        free_node(p, pdf_colorstack_node_size);
-end;
-pdf_setmatrix_node: begin
-    delete_token_ref(pdf_setmatrix_data(p));
-    free_node(p, pdf_setmatrix_node_size);
-end;
-pdf_save_node: begin
-    free_node(p, pdf_save_node_size);
-end;
-pdf_restore_node: begin
-    free_node(p, pdf_restore_node_size);
-end;
-cancel_boundary_node: begin
-    free_node(p, cancel_boundary_size);
-end;
-late_lua_node: begin
-    delete_token_ref(late_lua_data(p));
-    free_node(p, write_node_size);
-end;
-close_lua_node: begin
-    free_node(p, write_node_size);
-end;
-pdf_refobj_node:
-    free_node(p, pdf_refobj_node_size);
-pdf_refxform_node:
-    free_node(p, pdf_refxform_node_size);
-pdf_refximage_node:
-    free_node(p, pdf_refximage_node_size);
-pdf_annot_node: begin
-    delete_token_ref(pdf_annot_data(p));
-    free_node(p, pdf_annot_node_size);
-end;
-pdf_start_link_node: begin
-    if pdf_link_attr(p) <> null then
-        delete_token_ref(pdf_link_attr(p));
-    delete_action_ref(pdf_link_action(p));
-    free_node(p, pdf_annot_node_size);
-end;
-pdf_end_link_node:
-    free_node(p, pdf_end_link_node_size);
-pdf_dest_node: begin
-    if pdf_dest_named_id(p) > 0 then
-        delete_token_ref(pdf_dest_id(p));
-    free_node(p, pdf_dest_node_size);
-end;
-pdf_thread_node,
-pdf_start_thread_node: begin
-    if pdf_thread_named_id(p) > 0 then
-        delete_token_ref(pdf_thread_id(p));
-    if pdf_thread_attr(p) <> null then
-        delete_token_ref(pdf_thread_attr(p));
-    free_node(p, pdf_thread_node_size);
-end;
-pdf_end_thread_node:
-    free_node(p, pdf_end_thread_node_size);
-pdf_save_pos_node:
-    free_node(p, pdf_save_pos_node_size);
-local_par_node: 
-    free_node(p,local_par_size);
-user_defined_node: begin
-  case user_node_type(p) of 
-  "a": delete_attribute_ref(user_node_value(p));
-  "t": delete_token_ref(user_node_value(p));
-  "n": flush_node_list(user_node_value(p));
-  endcases;
-  free_node(p,user_defined_node_size);
-  end;
-othercases confusion("ext3")
-@:this can't happen ext3}{\quad ext3@>
-endcases;@/
-delete_attribute_ref(node_attr(p));
-end
-
 @ @<Incorporate a whatsit node into a vbox@>=
 if (subtype(p) = pdf_refxform_node) or (subtype(p) = pdf_refximage_node) then
 begin x:=x+d+pdf_height(p); d:=pdf_depth(p);
@@ -33634,7 +33068,6 @@ begin case subtype(p) of
 open_node,write_node,close_node:@<Do some work that has been queued up
   for \.{\\write}@>;
 special_node:special_out(p);
-language_node:do_nothing;
 pdf_save_pos_node:
   @<Save current position in DVI mode@>;
 local_par_node:do_nothing;
@@ -33732,24 +33165,15 @@ function make_local_par_node:pointer;
 {This function creates a |local_paragraph| node}
 var p,q:pointer;
 begin
-p:=get_node(local_par_size); type(p):=whatsit_node;
-subtype(p):=local_par_node; vlink(p):=null;
+p:=new_node(whatsit_node,local_par_node);
 build_attribute_list(p);
 local_pen_inter(p):=local_inter_line_penalty;
 local_pen_broken(p):=local_broken_penalty;
-if local_left_box=null then begin
-  local_box_left(p):=null;
-  local_box_left_width(p):=0;
-  end
-else begin
+if local_left_box<>null then begin
   q:=copy_node_list(local_left_box); local_box_left(p):=q;
   local_box_left_width(p):=width(local_left_box);
   end;
-if local_right_box=null then begin
-  local_box_right(p):=null;
-  local_box_right_width(p):=0;
-  end
-else begin
+if local_right_box<>null then begin
   q:=copy_node_list(local_right_box); local_box_right(p):=q;
   local_box_right_width(p):=width(local_right_box);
   end;
@@ -33832,34 +33256,27 @@ end;
 @
 @d push_dir(#)==
 begin dir_tmp:=new_dir(#);
-vlink(dir_tmp):=dir_ptr; dir_ptr:=dir_tmp;
+vlink(dir_tmp):=dir_ptr;
 dir_ptr:=dir_tmp;
 end
 
 @d push_dir_node(#)==
-begin dir_tmp:=get_node(dir_node_size);
-type(dir_tmp):=whatsit_node; 
-subtype(dir_tmp):=dir_node;
-dir_dir(dir_tmp):=dir_dir(#);
-dir_level(dir_tmp):=dir_level(#);
-dir_dvi_h(dir_tmp):=dir_dvi_h(#);
-dir_dvi_ptr(dir_tmp):=dir_dvi_ptr(#);
-vlink(dir_tmp):=dir_ptr; dir_ptr:=dir_tmp;
+begin dir_tmp:=copy_node(#);
+vlink(dir_tmp):=dir_ptr; 
+dir_ptr:=dir_tmp;
 end
 
 @d pop_dir_node==
 begin dir_tmp:=dir_ptr;
 dir_ptr:=vlink(dir_tmp);
-free_node(dir_tmp,dir_node_size);
+free_dir_node(dir_tmp);
 end
 
 @ @<DIR: Declare |new_dir|@>=
 function new_dir(s:small_number): pointer;
 var p:pointer; {the new node}
-begin p:=get_node(dir_node_size);
-type(p):=whatsit_node;
-subtype(p):=dir_node; dir_dir(p):=s;
-dir_dvi_h(p):=0; dir_dvi_ptr(p):=-1;
+begin p:=new_node(whatsit_node,dir_node);
+dir_dir(p):=s; dir_dvi_ptr(p):=-1;
 dir_level(p):=cur_level; new_dir:=p;
 end
 
@@ -33936,7 +33353,7 @@ end
 @ @<DIR: Remove from |text_dir_ptr|@>=
 begin
 text_dir_tmp:=vlink(text_dir_ptr);
-free_node(text_dir_ptr,dir_node_size);
+free_dir_node(text_dir_ptr);
 text_dir_ptr:=text_dir_tmp;
 end
 
@@ -33946,13 +33363,12 @@ text_dir_ptr:=new_dir(0);
 end
 
 @ @<DIR: Initialize |dir_ptr| for |ship_out|@>=
-begin {|if dir_ptr<>null then free_node(dir_ptr,dir_node_size);|}
-dir_ptr:=null; push_dir(dvi_direction);
+begin dir_ptr:=null; push_dir(dvi_direction);
 dir_dvi_ptr(dir_ptr):=dvi_ptr;
 end
 
 @ @<DIR: Initialize |dir_ptr| for |hpack|@>=
-begin {|if dir_ptr<>null then free_node(dir_ptr,dir_node_size);|}
+begin {|if dir_ptr<>null then free_dir_node(dir_ptr);|}
 dir_ptr:=null; push_dir(hpack_dir) end
 
 @ @<Output a reflection instruction if the direction has changed@>=
@@ -34378,10 +33794,9 @@ pdf annot to |pdf_link_list|}
 var p: pointer;
 begin
     pdfassert(type(parent_box) = hlist_node);
-    p := copy_node_list(pdf_link_stack[i].link_node);
+    p := copy_node(pdf_link_stack[i].link_node);
     pdf_link_stack[i].ref_link_node := p;
-    vinfo(p) := max_halfword; {mark that this node is not a whatsit node}
-    vlink(p) := null; {this node is not linked in any list}
+    subtype(p) := pdf_link_data_node; { this node is not a normal link node}
     set_rect_dimens(p, parent_box, x, y,
                     pdf_width(p), pdf_height(p), pdf_depth(p),
                     pdf_link_margin);
@@ -34447,9 +33862,7 @@ end;
 procedure append_thread(parent_box: pointer; x, y: scaled);
 var p: pointer;
 begin
-    p := get_node(pdf_thread_node_size);
-    vinfo(p) := max_halfword; {this is not a whatsit node}
-    vlink(p) := null; {this node will be destroyed separately}
+    p := new_node(whatsit_node,pdf_thread_data_node);
     pdf_width(p) := pdf_thread_wd;
     pdf_height(p) := pdf_thread_ht;
     pdf_depth(p) := pdf_thread_dp;
@@ -34758,7 +34171,6 @@ is a run-time switch.
   begin no_new_control_sequence:=false;
   @<Generate all \eTeX\ primitives@>@;
   if buffer[loc]="*" then incr(loc); 
-  eTeX_mode:=1; {enter extended mode}
   end;
 tini@;@/
 if not no_new_control_sequence then {just entered extended mode ?}
@@ -34838,34 +34250,6 @@ eTeX_revision_code: do_nothing;
 Aleph_revision_code: print(Aleph_revision);
 Omega_revision_code: print(Omega_revision);
 eTeX_revision_code: print(eTeX_revision);
-
-@ @d eTeX_ex==(eTeX_mode=1) {is this extended mode?}
-
-@<Glob...@>=
-@!eTeX_mode: 0..1; {identifies compatibility and extended mode}
-
-@ @<Initialize table entries...@>=
-eTeX_mode:=0; {initially we are in compatibility mode}
-
-@ @<Dump the \eTeX\ state@>=
-dump_int(eTeX_mode);
-
-@ @<Undump the \eTeX\ state@>=
-undump(0)(1)(eTeX_mode);
-
-@ The |eTeX_enabled| function simply returns its first argument as
-result.  This argument is |true| if an optional \eTeX\ feature is
-currently enabled; otherwise, if the argument is |false|, the function
-gives an error message.
-
-@<Declare \eTeX\ procedures for use...@>=
-function eTeX_enabled(@!b:boolean;@!j:quarterword;@!k:halfword):boolean;
-begin if not b then
-  begin print_err("Improper "); print_cmd_chr(j,k);
-  help1("Sorry, this optional e-TeX feature has been disabled."); error;
-  end;
-eTeX_enabled:=b;
-end;
 
 @ First we implement the additional \eTeX\ parameters in the table of
 equivalents.
@@ -35411,10 +34795,10 @@ else if cur_chr=2 then pseudo_start
 else if cur_chr=3 then begin pseudo_start; name := 19; end
 
 @ The global variable |pseudo_files| is used to maintain a stack of
-pseudo files.  The |vinfo| field of each pseudo file points to a linked
-list of variable size nodes representing lines not yet processed: the
-|vinfo| field of the first word contains the size of this node, all the
-following words contain ASCII codes.
+pseudo files.  The |pseudo_lines| field of each pseudo file points to
+a linked list of variable size nodes representing lines not yet
+processed: the |subtype| field contains the size of this node, 
+all the following words contain ASCII codes.
 
 @<Glob...@>=
 @!pseudo_files:pointer; {stack of pseudo files}
@@ -35447,10 +34831,7 @@ end;
 
 procedure pseudo_from_string;
 var @!s:str_number; {string to be converted into a pseudo file}
-@!l,@!m:pool_pointer; {indices into |str_pool|}
 @!p,@!q,@!r:pointer; {for list construction}
-@!w: four_quarters; {four ASCII codes}
-@!nl,@!sz:integer;
 begin 
 s:=make_string;
 @<Convert string |s| into a new pseudo file@>;
@@ -35466,36 +34847,9 @@ name:=21; luacstring_start(index);
 end;
 
 @ @<Convert string |s| into a new pseudo file@>=
-str_pool[pool_ptr]:=si(" "); l:=str_start_macro(s);
-nl:=si(new_line_char);
-p:=get_node(temp_node_size); q:=p;
-while l<pool_ptr do
-  begin m:=l;
-  while (l<pool_ptr)and(str_pool[l]<>nl) do incr(l);
-  sz:=(l-m+7)div 4;
-  if sz=1 then sz:=2;
-  r:=get_node(sz); vlink(q):=r; q:=r; vinfo(q):=hi(sz);
-  while sz>2 do
-    begin decr(sz); incr(r);
-    w.b0:=qi(so(str_pool[m])); w.b1:=qi(so(str_pool[m+1]));
-    w.b2:=qi(so(str_pool[m+2])); w.b3:=qi(so(str_pool[m+3]));
-    vmem(r).qqqq:=w; m:=m+4;
-    end;
-  w.b0:=qi(" "); w.b1:=qi(" "); w.b2:=qi(" "); w.b3:=qi(" ");
-  if l>m then
-    begin w.b0:=qi(so(str_pool[m]));
-    if l>m+1 then
-      begin  w.b1:=qi(so(str_pool[m+1]));
-      if l>m+2 then
-        begin  w.b2:=qi(so(str_pool[m+2]));
-        if l>m+3 then w.b3:=qi(so(str_pool[m+3]));
-        end;
-      end;
-    end;
-  vmem(r+1).qqqq:=w;
-  if str_pool[l]=nl then incr(l);
-  end;
-vinfo(p):=vlink(p); vlink(p):=pseudo_files; pseudo_files:=p
+str_pool[pool_ptr]:=si(" ");
+p:=string_to_pseudo(str_start_macro(s),pool_ptr,new_line_char);
+vlink(p):=pseudo_files; pseudo_files:=p
 
 @ @<Initiate input from new pseudo file@>=
 begin_file_reading; {set up |cur_file| and new level of input}
@@ -35509,6 +34863,8 @@ else name:=18
 
 @ Here we read a line from the current pseudo file into |buffer|.
 
+@d pseudo_lines(#)==vlink(#+1)
+
 @<Declare \eTeX\ procedures for tr...@>=
 function pseudo_input: boolean; {inputs the next line or returns |false|}
 var p:pointer; {current line from pseudo file}
@@ -35516,9 +34872,9 @@ var p:pointer; {current line from pseudo file}
 @!w:four_quarters; {four ASCII codes}
 @!r:pointer; {loop index}
 begin last:=first; {cf.\ Matthew 19\thinspace:\thinspace30}
-p:=vinfo(pseudo_files);
+p:=pseudo_lines(pseudo_files);
 if p=null then pseudo_input:=false
-else  begin vinfo(pseudo_files):=vlink(p); sz:=ho(vinfo(p));
+else  begin pseudo_lines(pseudo_files):=vlink(p); sz:=subtype(p);
   if 4*sz-3>=buf_size-last then
      check_buffer_overflow(last+4*sz);
   last:=first;
@@ -35530,7 +34886,7 @@ else  begin vinfo(pseudo_files):=vlink(p); sz:=ho(vinfo(p));
     end;
   if last>=max_buf_stack then max_buf_stack:=last+1;
   while (last>first)and(buffer[last-1]=" ") do decr(last);
-  free_node(p,sz);
+  flush_node(p);
   pseudo_input:=true;
   end;
 end;
@@ -35540,11 +34896,9 @@ end;
 @<Declare \eTeX\ procedures for tr...@>=
 procedure pseudo_close; {close the top level pseudo file}
 var p,@!q: pointer;
-begin p:=vlink(pseudo_files); q:=vinfo(pseudo_files);
-free_node(pseudo_files,temp_node_size); pseudo_files:=p;
-while q<>null do
-  begin p:=q; q:=vlink(p); free_node(p,ho(vinfo(p)));
-  end;
+begin p:=vlink(pseudo_files);
+flush_node(pseudo_files); 
+pseudo_files:=p;
 end;
 
 @ @<Dump the \eTeX\ state@>=

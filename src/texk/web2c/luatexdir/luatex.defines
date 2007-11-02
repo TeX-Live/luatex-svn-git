@@ -22,6 +22,16 @@ $Id $
 
 { luatex.defines: additions for luaTeX }
 
+@define function new_node();
+@define procedure flush_node();
+@define procedure free_dir_node();
+@define function copy_node();
+@define function copy_node_list();
+@define procedure flush_node_list();
+@define function string_to_pseudo();
+
+@define function new_span_node();
+
 @define function sizeof();
 @define procedure memset();
 @define function realloc();
@@ -43,7 +53,7 @@ $Id $
 @define procedure check_buffer_overflow();
 @define procedure check_pool_overflow();
 
-@define procedure new_ligkern();
+@define function new_ligkern();
 @define function make_lang_data();
 @define procedure ext_do_line_break();
 @define procedure initialize_active;
@@ -51,6 +61,8 @@ $Id $
 @define var prev_char_p;
 @define function cur_break();
 @define function break_node();
+
+@define function divide_scaled();
 
 @define procedure new_hyphenation();
 @define procedure load_tex_hyphenation();
