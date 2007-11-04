@@ -751,13 +751,9 @@ end;
 @z
 
 @x
-prev_graf:=0; shown_mode:=0;
-dir_save:=null; dir_math_save:=false;
 local_par:=null; local_par_bool:=false;
 @<Start a new current page@>;
 @y
-prev_graf:=0; shown_mode:=0;
-dir_save:=null; dir_math_save:=false;
 local_par:=null; local_par_bool:=false;
 @/{The following piece of code is a copy of module 991:}
 page_contents:=empty; page_tail:=page_head; {|link(page_head):=null;|}@/
