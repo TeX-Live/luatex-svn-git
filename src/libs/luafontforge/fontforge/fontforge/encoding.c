@@ -931,6 +931,7 @@ return(NULL);
 return( item );
 }
 
+#ifndef LUA_FF_LIB
 void LoadEncodingFile(void) {
     char *filename;
     char *fn = NULL;
@@ -945,6 +946,7 @@ return;
     free(fn); free(filename);
     DumpPfaEditEncodings();
 }
+#endif
 
 void SFFindNearTop(SplineFont *sf) {
 #ifndef FONTFORGE_CONFIG_NO_WINDOWING_UI
