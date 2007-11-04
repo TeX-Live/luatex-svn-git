@@ -961,13 +961,13 @@ current character (which may have a ligature/kerning program of its own).
 
 #define assert_disc(a) \
   assert(pre_break(a)!=null); /* expect head_node */ \
-  assert(type(pre_break(a))==255);					  \
+  assert(type(pre_break(a))==nesting_node);				\
   assert((vlink_pre_break(a)==null && tlink_pre_break(a)==null) || tail_of_list(vlink_pre_break(a))==tlink_pre_break(a)); \
   assert(post_break(a)!=null); /* expect head_node */ \
-  assert(type(post_break(a))==255);					  \
+  assert(type(post_break(a))==nesting_node);					  \
   assert((vlink_post_break(a)==null && tlink_post_break(a)==null) || tail_of_list(vlink_post_break(a))==tlink_post_break(a)); \
   assert(no_break(a)!=null); /* expect head_node */	  \
-  assert(type(no_break(a))==255);					  \
+  assert(type(no_break(a))==nesting_node);					  \
   assert((vlink_no_break(a)==null && tlink_no_break(a)==null) || tail_of_list(vlink_no_break(a))==tlink_no_break(a)); 
 
 static void 
