@@ -559,7 +559,7 @@ void get_token_lua (void);
 
 /* luanode.c */
 int visible_last_node_type (int n) ;
-void print_node_mem_stats (void);
+void print_node_mem_stats (int n, int o);
 
 /* writeimg.c */
 integer epdf_orig_y (integer i);
@@ -583,5 +583,6 @@ void  luatokencall(int n, int p) ;
 void tex_error(char *msg, char **hlp);
 
 scaled divide_scaled (scaled s, scaled m, integer dd);
+scaled divide_scaled_n (double s, double m, double d);
 
 #endif                          /* PDFTEXLIB */
