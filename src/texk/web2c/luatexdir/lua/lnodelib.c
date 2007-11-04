@@ -748,155 +748,34 @@ lua_nodelib_tail (lua_State *L) {
 
 static int
 lua_nodelib_has_attribute (lua_State *L) {
-  int i;
   halfword *n;
-  halfword t;
-  int m;
+  int i, val ;
   if (lua_isnil(L,1))
     return 1; /* the nil itself */
   n = check_isnode(L,1);
-  t=node_attr(*n);
-  if (t!=null && type(t)==attribute_list_node)  {
-    t = vlink(t);
-    i = lua_tointeger(L,2);
-    m = luaL_optinteger(L,3,-1);
-    while (t!=null) {
-      if (attribute_id(t)==i) {
-	if (m==-1 || attribute_value(t)==m) {
-	  lua_pushnumber(L,attribute_value(t));
-	  return 1;
-	}
-      } else if (attribute_id(t)>i) {
-	break;
-      }
-      t = vlink(t);
-    }
+  i = lua_tointeger(L,2);
+  val = luaL_optinteger(L,3,-1);
+  if((val = has_attribute(*n,i,val))>=0) {
+    lua_pushnumber(L,val);
+  } else {
+    lua_pushnil(L);
   }
-  lua_pushnil(L);
   return 1;
 }
 
 static int
-do_unset_attribute (halfword *n, int i, int val) {
-  halfword head,t;
-  int seen, ret;
-  /* TODO: check for nodes, as in set_attribute */
-  head=node_attr(*n);
-  if (head==null) {
-    return -1; /* done. nothing to erase */
-  } else if (vlink(head)==null) {
-    flush_node(head);
-    node_attr(*n)=null;
-    return -1; /* done. nothing to erase */
-  }
-  /* check if even present */
-  t = vlink(head);
-  seen = 0;
-  while (t!=null) {
-    if (attribute_id(t)==i) {
-      if (val==-1 || attribute_value(t)==val)
-	seen = 1 ;
-      break;
-    }
-    t = vlink(t);
-  }
-  if (!seen) {
-    return -1; /* done. nothing to erase */
-  }
-  head = copy_node_list(head); /* attr_list_ref = 0 */
-  attr_list_ref(head) = 1; /* used once */
-  if (node_attr(*n)!=null)
-    delete_attribute_ref(node_attr(*n));
-  node_attr(*n) = head;
-  /* */
-  t = head;
-  while (vlink(t)!=null) {
-    if (attribute_id(vlink(t))==i) {
-      if (val==-1 || attribute_value(vlink(t))==val) {
-	/* for retval */
-	ret = attribute_value(vlink(t));
-	/* destroy this node, reuse seen */
-	seen = vlink(vlink(t));
-	flush_node(vlink(t));
-	vlink(t) = seen;
-	/* if we just deleted the *only* attribute, kill the list */
-	if (vlink(head)==null) {
-	  flush_node(head);
-	  node_attr(*n)=null;
-	}
-	return ret;
-      }
-      break;
-    }
-    t = vlink(t);
-  }
-  return -1; /* not reached */
-}
-
-
-static int
 lua_nodelib_set_attribute (lua_State *L) {
   halfword *n;
-  halfword head,p,t;
   int i, val;
   if (lua_gettop(L)==3) {
     i = lua_tointeger(L,2);
     val = lua_tointeger(L,3);
     n = check_isnode(L,1);
     if (val<0) {
-      do_unset_attribute(n,i,val);
-      return 0;
-    }
-    /* TODO: check that nodes with type n can have node attributes ! */
-    head = node_attr(*n);
-    if (head==null) {   /* create a new one */
-      head = new_node(attribute_list_node,0);
+      (void)unset_attribute(*n,i,val);
     } else {
-      /* check for duplicate def */
-      t = vlink(head);
-      while (t!=null) {
-	if (attribute_id(t)==i && attribute_value(t)==val) {
-	  return 0;
-	} else if (attribute_id(t)>i) {
-	  break;
-	}
-	t = vlink(t);
-      }
-      head = copy_node_list(head);
+      set_attribute(*n,i,val);
     }
-    if (node_attr(*n)!=null)
-      delete_attribute_ref(node_attr(*n));
-    attr_list_ref(head) = 1; /* used once */
-    node_attr(*n) = head;
-    /* */
-    t = head;
-    if (vlink(t)!=null) {
-      t = vlink(t);
-      while (1) {
-	if (attribute_id(t)==i) {
-	  attribute_value(t)=val;
-	  return 1;
-	} else if (attribute_id(t)>i) {
-	  p = new_node(attribute_node,0);
-	  vlink(p) = vlink(t);
-	  vlink(t) = p;
-	  attribute_id(p) = attribute_id(t) ;
-	  attribute_value(p) = attribute_value(t) ;
-	  attribute_id(t) = i;
-	  attribute_value(t) = val;
-	  return 1;
-	}
-	if (vlink(t)==null)
-	  break;
-	t = vlink(t);
-      }
-      /* this point is reached if the new id is higher 
-	 than the last id in the original list */
-    }
-    p = new_node(attribute_node,0);
-    attribute_id(p) = i;
-    attribute_value(p) = val;
-    vlink(t) = p;
   } else {
     lua_pushstring(L,"incorrect number of arguments");
     lua_error(L);
@@ -913,7 +792,7 @@ lua_nodelib_unset_attribute (lua_State *L) {
     i = luaL_checknumber(L,2);
     val = luaL_optnumber(L,3,-1); 
     n = check_isnode(L,1);
-    ret = do_unset_attribute(n,i,val);
+    ret = unset_attribute(*n,i,val);
     if(ret>=0) {
       lua_pushnumber(L,ret);
     } else {
