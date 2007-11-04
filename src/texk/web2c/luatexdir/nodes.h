@@ -44,12 +44,6 @@ extern halfword insert_character ( halfword t,  int n);
 #define rlink(a)           vlink((a)+1) /* aka alink() */
 #define llink(a)           vinfo((a)+1) /* overlaps with node_attr() */
 
-#define attr_list_ref(a) vinfo((a)+1) /* the reference count */
-
-#define cache_disabled max_halfword
-#define add_node_attr_ref(a) { assert(a!=cache_disabled);	\
-	if (a!=null)  attr_list_ref((a))++; }
-
 #define add_glue_ref(a) glue_ref_count(a)++ /* new reference to a glue spec */
 
 /* really special head node pointers that only need links */
@@ -60,9 +54,12 @@ extern halfword insert_character ( halfword t,  int n);
 #define attribute_node_size 2
 #define attribute_list_node_size 2
 
-#define attr_list_ref(a)   vinfo((a)+1)
 #define attribute_id(a)    vlink((a)+1)
 #define attribute_value(a) vinfo((a)+1)
+#define attr_list_ref(a) vinfo((a)+1) /* the reference count */
+
+#define cache_disabled max_halfword
+#define add_node_attr_ref(a) { if (a!=null)  attr_list_ref((a))++; }
 
 /* a glue spec */
 #define glue_spec_size 4
@@ -229,6 +226,15 @@ typedef enum {
 #define ins_ptr(a)       vinfo((a)+5)
 #define split_top_ptr(a) vlink((a)+5)
 
+
+#define page_ins_node_size 5
+
+#define broken_ptr(a) vlink((a)+2) /* an insertion for this class will break here if anywhere */
+#define broken_ins(a) vinfo((a)+2) /* this insertion might break at |broken_ptr| */
+#define last_ins_ptr(a) vlink((a)+3) /*the most recent insertion for this |subtype|*/
+#define best_ins_ptr(a) vinfo((a)+3) /*the optimum most recent insertion*/
+/* height = 4 */
+
 typedef enum {
   hlist_node = 0, 
   vlist_node = 1, 
@@ -267,6 +273,9 @@ typedef enum {
   align_record_node = 34,
   pseudo_file_node = 35,
   pseudo_line_node = 36,
+  inserting_node = 37,
+  split_up_node = 38,
+  expr_node = 39,
   nesting_node = 40,
   span_node = 41,
   attribute_node = 42,
@@ -280,11 +289,13 @@ typedef enum {
   unhyphenated_node = 50, 
   hyphenated_node = 51,
   delta_node = 52,
-  passive_node = 53 } node_types ;
+  passive_node = 53,
+  shape_node = 54 } node_types ;
 
 #define last_known_node temp_node /* used by \lastnodetype */
 
 #define movement_node_size 3
+#define expr_node_size 3
 #define if_node_size 2
 #define align_stack_node_size 6
 #define nesting_node_size 2
@@ -419,10 +430,6 @@ typedef enum {
 #define dir_dvi_ptr(a)   vinfo((a)+3)
 #define dir_dvi_h(a)     vlink((a)+3)
 
-#define free_dir_node(a) {			\
-    flush_node(a);				\
-  }
-
 #define write_node_size 3
 #define close_node_size 3
 #define write_tokens(a)  vlink(a+2)
@@ -548,10 +555,17 @@ typedef enum {
 #define try_couple_nodes(a,b) if (b==null) vlink(a)=b; else {couple_nodes(a,b);}
 #define uncouple_node(a) {assert(a!=null);vlink(a)=null;alink(a)=null;}
 
-extern halfword copy_node (halfword p) ;
-extern void ext_free_node (halfword p, integer siz);
+#define cache_disabled max_halfword
+
+extern void delete_attribute_ref(halfword b) ;
+extern void build_attribute_list(halfword b) ;
+extern halfword new_attribute_node(integer i, integer c) ;
+extern int unset_attribute(halfword n, int c, int w);
+extern void set_attribute(halfword n, int c, int w);
+extern int has_attribute(halfword n, int c, int w);
 
 extern halfword new_span_node (halfword n, int c, scaled w);
+extern halfword string_to_pseudo(integer l,integer pool_ptr, integer nl);
 
 /* TH: these two defines still need checking. The node ordering in luatex is not 
    quite the same as in tex82 */
@@ -577,6 +591,8 @@ extern void flush_node_list(halfword);
 extern void flush_node(halfword);
 extern halfword copy_node_list(halfword);
 extern halfword copy_node(halfword);
+extern void check_node(halfword);
+extern void check_node_mem (void);
 
 #define unity 0x10000
 typedef enum {
