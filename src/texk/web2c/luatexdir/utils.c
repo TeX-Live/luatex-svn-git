@@ -1705,23 +1705,27 @@ check_pool_overflow (int wsize) {
 
 #define max_integer 0x7FFFFFFF
 
+/* the return value is a decimal number with the point |dd| places from the back, 
+   |scaled_out| is the number of scaled points corresponding to that.
+*/
+
 scaled divide_scaled (scaled s, scaled m, integer dd) {
   register scaled q;
   register scaled r;
   int i;
   int sign = 1;
   if (s < 0) {
-	sign = -sign;
-	s = -s;
+    sign = -sign;
+    s = -s;
   }
   if (m < 0) {
-	sign = -sign;
-	m = -m;
+    sign = -sign;
+    m = -m;
   }
   if (m == 0) {
-	pdf_error(maketexstring("arithmetic"), maketexstring("divided by zero"));
+    pdf_error(maketexstring("arithmetic"), maketexstring("divided by zero"));
   } else if (m >= (max_integer / 10)) {
-	pdf_error(maketexstring("arithmetic"), maketexstring("number too big"));
+    pdf_error(maketexstring("arithmetic"), maketexstring("number too big"));
   }
   q = s / m;
   r = s % m;
@@ -1729,10 +1733,12 @@ scaled divide_scaled (scaled s, scaled m, integer dd) {
 	q = 10*q + (10*r) / m;
 	r = (10*r) % m;
   }
+  /* rounding */
   if (2*r >= m) {
-	q++;
-	r -= m;
+    q++;
+    r -= m;
   }
+  /* set up the value of q, in scaled points */
   switch(dd) {
   case 0: scaled_out = sign*(s - r); break;
   case 1: scaled_out = sign*(s - (r/10)); break;
@@ -1748,3 +1754,15 @@ scaled divide_scaled (scaled s, scaled m, integer dd) {
   return sign*q;
 }
 
+
+/* Sometimes there is one sp of difference in |scaled_out|
+ * compared to the 'perfect' answer given above, but this
+ * routine is only used by the pdf backend, not for typesetting.
+ */
+
+scaled 
+divide_scaled_n (double sd, double md, double n) {
+  int d = (int)(sd/md*n+0.5);
+  scaled_out = (int)(d/n*md);
+  return d;
+}
