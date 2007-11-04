@@ -24,7 +24,6 @@ $Id $
 
 @define function new_node();
 @define procedure flush_node();
-@define procedure free_dir_node();
 @define function copy_node();
 @define function copy_node_list();
 @define procedure flush_node_list();
@@ -40,10 +39,8 @@ $Id $
 @define function fixmemcast();
 @define function varmemcast();
 @define type void;
-@define function get_node();
-@define procedure free_node();
 @define procedure init_node_mem();
-@define procedure print_node_mem_stats;
+@define procedure print_node_mem_stats();
 @define procedure dump_node_mem;
 @define procedure undump_node_mem;
 @define function visible_last_node_type();
@@ -63,6 +60,7 @@ $Id $
 @define function break_node();
 
 @define function divide_scaled();
+@define function divide_scaled_n();
 
 @define procedure new_hyphenation();
 @define procedure load_tex_hyphenation();
