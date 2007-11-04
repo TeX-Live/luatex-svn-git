@@ -133,7 +133,6 @@ void ext_post_line_break(boolean d,
   halfword cur_p; /* cur_p, but localized */
   halfword cur_line; /*the current line number being justified*/
 
-  dir_ptr = cur_list.dirs_field;
   /* @<Reverse the links of the relevant passive nodes, setting |cur_p| to 
      the first breakpoint@>; */
   /* The job of reversing links in a list is conveniently regarded as the job
@@ -152,6 +151,10 @@ void ext_post_line_break(boolean d,
   } while (q!=null);  
   /* |cur_p| is now the first breakpoint; */
 
+  /* this fixes a leak, but it is not correct. */
+  if (dir_ptr!=null)
+    flush_node_list(dir_ptr);
+  dir_ptr=cur_list.dirs_field;
   cur_line=cur_list.pg_field+1; /* prevgraf+1 */
 
   do {
@@ -353,8 +356,8 @@ void ext_post_line_break(boolean d,
       cur_width=first_width; 
       cur_indent=first_indent;
     } else  { 
-      cur_width=varmem[(par_shape_ptr+2*cur_line)].cint;
-      cur_indent=varmem[(par_shape_ptr+2*cur_line-1)].cint;
+      cur_width=varmem[(par_shape_ptr+2*cur_line)+1].cint;
+      cur_indent=varmem[(par_shape_ptr+2*cur_line-1)+1].cint;
     }
     adjust_tail=adjust_head;
     pack_direction=paragraph_dir;
@@ -399,6 +402,7 @@ void ext_post_line_break(boolean d,
     if (cur_line+1!=best_line) {
       q=inter_line_penalties_ptr;
       if (q!=null) {
+	q++; /* skip the first word */
 	r=cur_line;
 	if (r>penalty(q))
 	  r=penalty(q);
@@ -412,6 +416,7 @@ void ext_post_line_break(boolean d,
       }
       q=club_penalties_ptr;
       if (q!=null) {
+	q++; /* skip the first word */
 	r=cur_line-cur_list.pg_field; /* prevgraf */
 	if (r>penalty(q))  
 	  r=penalty(q);
@@ -424,6 +429,7 @@ void ext_post_line_break(boolean d,
       else 
 	q = widow_penalties_ptr;
       if (q!=null) {
+	q++; /* skip the first word */
 	r=best_line-cur_line-1;
 	if (r>penalty(q)) 
 	  r=penalty(q);
@@ -485,6 +491,7 @@ void ext_post_line_break(boolean d,
   if ((cur_line!=best_line)||(vlink(temp_head)!=null)) 
 	confusion(maketexstring("line breaking"));
   cur_list.pg_field=best_line-1;  /* prevgraf */
-  cur_list.dirs_field=dir_ptr; /* dir_save */
+  cur_list.dirs_field=dir_ptr;
+  dir_ptr=null;
 }
 
