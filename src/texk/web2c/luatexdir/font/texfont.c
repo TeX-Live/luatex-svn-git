@@ -117,6 +117,7 @@ new_font (void) {
   ci = xcalloc(1,sizeof(charinfo));
   set_charinfo_name(ci,xstrdup(".notdef"));
   font_tables[id]->charinfo = ci;
+  font_tables[id]->charinfo_cache = NULL;
   return id;
 }
 
@@ -232,11 +233,33 @@ copy_charinfo (charinfo *ci) {
   return co;
 }
 
+
+int 
+find_charinfo_id (internal_font_number f, integer c) {
+  register int g=0;
+
+  if (font_tables[f]->charinfo_cache==NULL) {
+    int i  = (font_ec(f)+1)*sizeof(int);
+    font_tables[f]->charinfo_cache = xmalloc(i);
+    memset(font_tables[f]->charinfo_cache,0,i);
+  } else {
+    g = font_tables[f]->charinfo_cache[c];
+  }
+  if (g==0) {
+
+    g = get_sa_item(font_tables[f]->characters, c);
+
+    font_tables[f]->charinfo_cache[c] = g;
+  }
+
+  return g;
+}
+
 charinfo *
 char_info (internal_font_number f, integer c) {
-  sa_tree_item glyph = 0;
+  register int glyph ;
   if (proper_char_index(c)) {
-    glyph = get_sa_item(font_tables[f]->characters, c);
+    glyph = find_charinfo_id(f,c);
     return &(font_tables[f]->charinfo[glyph]);
   } else if (c == left_boundarychar && left_boundary(f)!=NULL) {
     return left_boundary(f);
@@ -257,22 +280,16 @@ char_info_short (internal_font_number f, integer c) {
   return s;
 }
 
-
 integer
 char_exists (internal_font_number f, integer c) {
-  sa_tree_item glyph;
-  int ret;
-  ret = 0;
   if (proper_char_index(c)) {
-    glyph = get_sa_item(font_tables[f]->characters, c);
-    if (glyph) 
-      ret=1;
+    return find_charinfo_id(f,c);
   } else if ((c == left_boundarychar) && has_left_boundary(f)) {
-      ret=1;
+    return 1;
   } else if ((c == right_boundarychar) && has_right_boundary(f)) {
-      ret=1;
+    return 1;
   }
-  return ret;
+  return 0;
 }
 
 int
@@ -848,6 +865,7 @@ dump_font (int f) {
   int i,x;
 
   set_font_used(f,0);
+  font_tables[f]->charinfo_cache = NULL;
   dump_things(*(font_tables[f]), 1);
   dump_string(font_name(f));
   dump_string(font_area(f));

@@ -120,7 +120,7 @@ typedef struct texfont {
   integer   charinfo_count;
   integer   charinfo_size;
   charinfo *charinfo;
-
+  int      *charinfo_cache;
 } texfont;
 
 typedef enum {
