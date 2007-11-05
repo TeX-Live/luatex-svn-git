@@ -121,6 +121,7 @@ typedef struct texfont {
   integer   charinfo_size;
   charinfo *charinfo;
   int      *charinfo_cache;
+  integer  ligatures_disabled;
 } texfont;
 
 typedef enum {

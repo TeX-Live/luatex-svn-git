@@ -233,11 +233,10 @@ copy_charinfo (charinfo *ci) {
   return co;
 }
 
-
+#if 0
 int 
 find_charinfo_id (internal_font_number f, integer c) {
   register int g=0;
-
   if (font_tables[f]->charinfo_cache==NULL) {
     int i  = (font_ec(f)+1)*sizeof(int);
     font_tables[f]->charinfo_cache = xmalloc(i);
@@ -246,14 +245,15 @@ find_charinfo_id (internal_font_number f, integer c) {
     g = font_tables[f]->charinfo_cache[c];
   }
   if (g==0) {
-
     g = get_sa_item(font_tables[f]->characters, c);
-
     font_tables[f]->charinfo_cache[c] = g;
   }
-
   return g;
 }
+#else
+#define find_charinfo_id(f,c) get_sa_item(font_tables[f]->characters,c)
+#endif
+
 
 charinfo *
 char_info (internal_font_number f, integer c) {
@@ -676,7 +676,7 @@ integer
 test_no_ligatures (internal_font_number f) {
  integer c;
  for (c=font_bc(f);c<=font_ec(f);c++) {
-   if (char_exists(f,c) && has_lig(f,c))
+   if (has_lig(f,c)) /* char_exists(f,c) */
      return 0;
  }
  return 1;
@@ -728,18 +728,18 @@ set_no_ligatures (internal_font_number f) {
   integer c;
   charinfo * co;
   
+  if (font_tables[f]->ligatures_disabled)
+	return;
+
   co = char_info(f,left_boundarychar);
   set_charinfo_ligatures(co,NULL);
-
   co = char_info(f,right_boundarychar); /* this is weird */
   set_charinfo_ligatures(co,NULL);
-  
-  for (c=font_bc(f);c<=font_ec(f);c++) {
-    if (char_exists(f,c) && has_lig(f,c)) {
-      co = char_info(f,c);
-      set_charinfo_ligatures(co,NULL);
-    }
+  for (c=0;c<font_tables[f]->charinfo_count;c++) {
+	co = font_tables[f]->charinfo+c;
+	set_charinfo_ligatures(co,NULL);
   }
+  font_tables[f]->ligatures_disabled =1;
 }
 
 liginfo 
