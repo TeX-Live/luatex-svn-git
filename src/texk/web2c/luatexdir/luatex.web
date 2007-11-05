@@ -25746,8 +25746,7 @@ vlink(prev_p):=vlink(p); vlink(p):=null;
 if wait then
   begin vlink(q):=p; q:=p; incr(insert_penalties);
   end
-else  begin delete_glue_ref(split_top_ptr(p));
-  flush_node(p);
+else  begin ins_ptr(p):=null; flush_node(p);
   end;
 p:=prev_p
 
