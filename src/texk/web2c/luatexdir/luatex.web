@@ -9215,7 +9215,7 @@ if not force_eof then
     begin if pseudo_input then {not end of file}
       begin
       firm_up_the_line; {this sets |limit|}
-	  if (name=19)and(vinfo(pseudo_files)=null) then inhibit_eol:=true;
+	  if (name=19)and(pseudo_lines(pseudo_files)=null) then inhibit_eol:=true;
       end
     else if (every_eof<>null)and not eof_seen[index] then
       begin limit:=first-1; eof_seen[index]:=true; {fake one empty line}
