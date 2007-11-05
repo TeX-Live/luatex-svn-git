@@ -29,8 +29,7 @@ halfword slow_get_node (integer s) ; /* defined below */
 #define fake_node_size 2
 #define fake_node_name ""
 
-#define pseudo_line_node_size 2
-#define shape_node_size 2
+#define variable_node_size 2
 
 node_info node_data[] = {
   { hlist_node,           box_node_size,             "hlist"          },
@@ -69,7 +68,7 @@ node_info node_data[] = {
   { glyph_node,           glyph_node_size,           "glyph"          },
   { align_record_node,    box_node_size,             "align_record"   },
   { pseudo_file_node,     pseudo_file_node_size,     "pseudo_file"    },
-  { pseudo_line_node,     pseudo_line_node_size,     "pseudo_line"    },
+  { pseudo_line_node,     variable_node_size,        "pseudo_line"    },
   { inserting_node,       page_ins_node_size,        "insert_head"    },
   { split_up_node,        page_ins_node_size,        "split_head"     },
   { expr_node,            expr_node_size,            "expr_stack"     },
@@ -87,7 +86,7 @@ node_info node_data[] = {
   { hyphenated_node,      active_node_size,          "hyphenated"     },
   { delta_node,           delta_node_size,           "delta"          },
   { passive_node,         passive_node_size,         "passive"        },
-  { shape_node,           shape_node_size,           "shape"          },
+  { shape_node,           variable_node_size,        "shape"          },
   { -1,                   -1,                        NULL             }};
 
 #define last_normal_node shape_node
@@ -195,17 +194,12 @@ new_node(int i, int j) {
     width(n) = null_flag;
     break; 
   case pseudo_line_node: 
+  case shape_node: 
     /* this is a trick that makes pseudo_files slightly slower,
      * but the overall allocation faster then an explicit test
      * at the top of new_node().
      */
-    free_node(n,pseudo_line_node_size);
-    n = slow_get_node(j);
-    (void)memset((varmem+n+1),0, (sizeof(memory_word)*(j-1)));
-    break;
-  case shape_node: 
-    /* likewise for (par)shapes */
-    free_node(n,shape_node_size);
+    free_node(n,variable_node_size);
     n = slow_get_node(j);
     (void)memset((varmem+n+1),0, (sizeof(memory_word)*(j-1)));
     break;
@@ -713,7 +707,6 @@ check_node (halfword p) {
     dorangetest(p,pseudo_lines(p),var_mem_max);
     break;
   case pseudo_line_node:
-    break;
   case shape_node:
     break;
   case choice_node: 
@@ -1115,7 +1108,7 @@ halfword
 string_to_pseudo(integer l,integer pool_ptr, integer nl) {
   halfword i, r, q = null;
   four_quarters w;
-  int sz ;
+  int sz ,k;
   halfword h = new_node(pseudo_file_node,0);
   while (l<pool_ptr) {
     int m = l;
