@@ -224,18 +224,18 @@ lua_nodelib_remove (lua_State *L) {
   current = *(check_isnode(L,2));
 
   if (head == current) {
-    if (vlink(current)!=null) {
+    if (alink(head)!=null && vlink(current)!=null) {
       alink(vlink(current)) = alink(head);
     }
     head  = vlink(current);
     current = head;
   } else {  /* head != current */
     t = alink(current);
-    if (t==null) {
+    if (t==null || vlink(t)!=current) {
       set_t_to_prev(head,current);
       if (t==null) { /* error! */
-		lua_pushstring(L,"Attempt to node.remove() a non-existing node");
-		lua_error(L);
+	lua_pushstring(L,"Attempt to node.remove() a non-existing node");
+	lua_error(L);
       }
     }
     /* t is now the previous node */
@@ -278,22 +278,20 @@ lua_nodelib_insert_before (lua_State *L) {
     head = *(check_isnode(L,1));
   }
   if (lua_isnil(L,2)) {
-    current = head;
-    while (vlink(current)!=null)  
-      current = vlink(current);
+    current = tail_of_list(head);
   } else {
     current = *(check_isnode(L,2));
   }
   t = alink(current);
-  if (t!=null) {
-	if (vlink(t)!=current) {
-	  /* TODO the backlink was wrong, should attempt to find a new one */
-	}
-    vlink(t) = n;
+  if (t==null || vlink(t)!=current) {
+    set_t_to_prev(head,current);
+    if (t==null) { /* error! */
+      lua_pushstring(L,"Attempt to node.insert_before() a non-existing node");
+      lua_error(L);
+    }
   }
-  alink(n) = t;
-  vlink(n) = current;    
-  alink(current) = n;
+  couple_nodes(t,n);
+  couple_nodes(n,current);
   if (head==current) {
     lua_pushnumber(L,n);
   } else {
@@ -336,9 +334,8 @@ lua_nodelib_insert_after (lua_State *L) {
   } else {
     current = *(check_isnode(L,2));
   }
-  vlink(n) = vlink(current);
-  vlink(current) = n;
-  alink(n) = current;
+  couple_nodes(n,vlink(current));
+  couple_nodes(current, n);
 
   lua_pop(L,2);
   lua_pushnumber(L,n);
@@ -462,7 +459,7 @@ static char ** node_fields[] = {
   node_fields_insert,
   node_fields_mark,
   node_fields_adjust,
-  node_fields_glyph,
+  NULL, /* this was ligatures */
   node_fields_disc,
   NULL, /*node_fields_whatsit,*/
   node_fields_math,
@@ -488,14 +485,29 @@ static char ** node_fields[] = {
   node_fields_vcenter,
   node_fields_left,  /* 30 */
   node_fields_right, 
-  NULL,  NULL,  NULL,  NULL,  
-  NULL,  NULL,  NULL,
-  node_fields_action,
-  node_fields_margin_kern, /* 40 */
+  node_fields_margin_kern, 
   node_fields_glyph,
+  NULL,  /* align_record*/
+  NULL,  /* pseudo_file */
+  NULL,  /* pseudo_line */
+  NULL,  /* inserting */
+  NULL,  /* split_up */
+  NULL,  /* expr */
+  NULL,  /* nesting */
+  NULL,  /* span */
   node_fields_attribute,
   node_fields_glue_spec,
   node_fields_attribute_list,
+  node_fields_action,
+  NULL,  /* temp */
+  NULL,  /* align_stack */
+  NULL,  /* movement */
+  NULL,  /* if */
+  NULL,  /* unhyphenated */
+  NULL,  /* hyphenated */
+  NULL,  /* delta */
+  NULL,  /* passive */
+  NULL,  /* shape */
   NULL };
 
 
@@ -561,12 +573,21 @@ static char ** node_fields_whatsits [] = {
   node_fields_whatsit_pdf_start_thread,
   node_fields_whatsit_pdf_end_thread,
   node_fields_whatsit_pdf_save_pos,
-  NULL,  NULL,  NULL,  NULL,  NULL, 
-  NULL,  NULL,  NULL,  NULL,  NULL,
+  NULL, /* thread_data */
+  NULL, /* link_data */
+  NULL, 
+  NULL,  
+  NULL, 
+  NULL,  
+  NULL,  
+  NULL,  
+  NULL, 
+  NULL,
   NULL,
   node_fields_whatsit_late_lua,
   node_fields_whatsit_close_lua,
-  NULL,  NULL,
+  NULL,  
+  NULL,
   node_fields_whatsit_pdf_colorstack,
   node_fields_whatsit_pdf_setmatrix,
   node_fields_whatsit_pdf_save,
@@ -634,8 +655,8 @@ get_node_field_id (lua_State *L, int n, int node ) {
 	i=-2;
     }
   } else if (lua_isnumber(L,n)) {
+    /* TODO do some test here as well !*/
     i = lua_tointeger(L,n);
-    /* do some test here as well !*/
   }
   return i;
 }
@@ -742,8 +763,6 @@ lua_nodelib_tail (lua_State *L) {
   return 1;
 }
 
-
-
 /* a few utility functions for attribute stuff */
 
 static int
@@ -801,10 +820,8 @@ lua_nodelib_unset_attribute (lua_State *L) {
     return 1;
   } else {
     lua_pushstring(L,"incorrect number of arguments");
-    lua_error(L);
+    return lua_error(L);
   }
-  lua_pushnil(L);
-  return 1;
 }
 
 
@@ -938,10 +955,6 @@ static int lua_nodelib_count (lua_State *L) {
   return do_lua_nodelib_count(L,m,i,n);
 }
 
-
-
-
-
 /* fetching a field from a node */
 
 #define nodelib_pushlist(L,n) { lua_pushnumber(L,n); lua_nodelib_push(L); }
@@ -1059,9 +1072,6 @@ lua_nodelib_getfield_whatsit  (lua_State *L, int n, int field) {
     default: lua_pushnil(L); 
     }
     break;
-  case pdf_end_link_node:       
-    lua_pushnil(L); 
-    break;
   case pdf_dest_node:           
     switch (field) {
     case  4: lua_pushnumber(L,pdf_width(n));                 break;
@@ -1093,10 +1103,6 @@ lua_nodelib_getfield_whatsit  (lua_State *L, int n, int field) {
     default: lua_pushnil(L); 
     }
     break;
-  case pdf_end_thread_node:     
-  case pdf_save_pos_node:       
-    lua_pushnil(L); 
-    break;
   case late_lua_node:           
     switch (field) {
     case  4: lua_pushnumber(L,late_lua_reg(n));              break;
@@ -1123,11 +1129,6 @@ lua_nodelib_getfield_whatsit  (lua_State *L, int n, int field) {
     case  4: tokenlist_to_luastring(L,pdf_setmatrix_data(n)); break;
     default: lua_pushnil(L); 
     }
-    break;
-  case pdf_save_node:           
-  case pdf_restore_node:        
-  case cancel_boundary_node:        
-    lua_pushnil(L); 
     break;
   case user_defined_node:       
     switch (field) {
@@ -1161,6 +1162,7 @@ lua_nodelib_getfield  (lua_State *L) {
   n_ptr = check_isnode(L,1);
   n = *n_ptr;
   field = get_valid_node_field_id(L,2, n);
+
   if (field<-1)
     return 0;
   if (field==0) {
