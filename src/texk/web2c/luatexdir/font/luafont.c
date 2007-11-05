@@ -1008,7 +1008,8 @@ nesting_prepend (halfword nest, halfword newn) {
 
 static int
 test_ligature( liginfo *lig, halfword left, halfword right ) {
-  assert(type(left)==glyph_node);
+  if (type(left)!=glyph_node)
+	return 0;
   assert(type(right)==glyph_node);
   if (font(left)!=font(right)) return 0;
   if (is_ghost(left) || is_ghost(right)) return 0;
@@ -1092,10 +1093,8 @@ handle_lig_nest(halfword root, halfword cur) {
   if (cur==null) return root;
   while (vlink(cur)!=null) {
     halfword fwd = vlink(cur);
-    assert(type(cur)==glyph_node);
-    assert(type(fwd)==glyph_node);
-    assert(font(cur)==font(fwd));
-    if (try_ligature(&cur,fwd)) continue;
+    if (type(cur)==glyph_node && type(fwd)==glyph_node &&
+        font(cur)==font(fwd)  && try_ligature(&cur,fwd)) continue;
     cur  = vlink(cur);
     assert(vlink(alink(cur))==cur);
   }
@@ -1154,8 +1153,8 @@ handle_lig_word(halfword cur) {
         assert_disc(fwd);
         /* Check on: a{b?}{?}{?} and a+b=>B : {B?}{?}{a?}*/
         /* Check on: a{?}{?}{b?} and a+b=>B : {a?}{?}{B?} */
-        if ( (pre!=null && test_ligature(&lig,cur,pre))
-          || (nob!=null && test_ligature(&lig,cur,nob))) {
+        if ( (pre!=null && type(pre)==glyph_node && test_ligature(&lig,cur,pre))
+          || (nob!=null && type(nob)==glyph_node && test_ligature(&lig,cur,nob))) {
           /* move cur from before disc, to skipped part */
           halfword prev = alink(cur);
           assert(vlink(prev)==cur);
