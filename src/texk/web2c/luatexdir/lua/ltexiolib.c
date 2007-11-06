@@ -62,10 +62,13 @@ do_texio_ini_print (lua_State *L, char *extra) {
 	  if (l==2||l==3)
 		fprintf(stdout,"%s%s", extra, s);
 	  if (l==1||l==3) {
-		if (loggable_info==NULL)
-		  loggable_info = s;
-		else
-		  loggable_info = concat3 (loggable_info,extra,s);
+		if (loggable_info==NULL) {
+		  loggable_info = strdup(s);
+		} else {
+		  char *v = concat3 (loggable_info,extra,s);
+		  free(loggable_info);
+		  loggable_info = v;
+		}
 	  }
 	}
   }
