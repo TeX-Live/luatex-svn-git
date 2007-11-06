@@ -709,7 +709,7 @@ compute_break_width (int break_type, int pdf_adjust_spacing, halfword p
           v = no_break(v);
           break;
         default:
-          confusion(maketexstring("disc1"));
+          tconfusion("disc1");
           break;
         }
       }
@@ -751,7 +751,7 @@ compute_break_width (int break_type, int pdf_adjust_spacing, halfword p
           v = no_break(v);
           break;
         default:
-          confusion(maketexstring("disc2"));
+          tconfusion("disc2");
         }
       }
     }
@@ -797,27 +797,27 @@ static void
 print_break_node(halfword q, fitness_value fit_class,
     quarterword break_type, halfword cur_p) {
   /* @<Print a symbolic description of the new break node@> */
-  print_nl(maketexstring("@@")); 
+  tprint_nl("@@"); 
   print_int(serial(passive));
-  print(maketexstring(": line ")); 
+  tprint(": line "); 
   print_int(line_number(q)-1);
   print_char('.'); 
   print_int(fit_class);
   if (break_type==hyphenated_node) 
     print_char('-');
-  print(maketexstring(" t=")); 
+  tprint(" t="); 
   print_int(total_demerits(q));
   if (do_last_line_fit) {
     /*@<Print additional data in the new active node@>; */
-    print(maketexstring(" s=")); 
+    tprint(" s="); 
     print_scaled(active_short(q));
     if (cur_p==null) 
-      print(maketexstring(" a="));
+      tprint(" a=");
     else 
-      print(maketexstring(" g="));
+      tprint(" g=");
     print_scaled(active_glue(q));
   }
-  print(maketexstring(" -> @@"));
+  tprint(" -> @@");
   if (prev_break(passive)==null) 
     print_char('0');
   else 
@@ -832,40 +832,40 @@ print_feasible_break(halfword cur_p, pointer r, halfword b, integer pi,
   if (printed_node!=cur_p) {
     /* @<Print the list between |printed_node| and |cur_p|, then
        set |printed_node:=cur_p|@>;*/
-    print_nl(maketexstring(""));
+    tprint_nl("");
     if (cur_p==null) {
       short_display(vlink(printed_node));
     } else {
       halfword save_link=vlink(cur_p);
       vlink(cur_p)=null; 
-      print_nl(maketexstring("")); 
+      tprint_nl(""); 
       short_display(vlink(printed_node));
       vlink(cur_p)=save_link;
     }
     printed_node=cur_p;
   }
-  print_nl(maketexstring("@"));
+  tprint_nl("@");
   if (cur_p==null) { 
-    print_esc(maketexstring("par")); 
+    tprint_esc("par"); 
   } else if (type(cur_p)!=glue_node) {
-    if      (type(cur_p)==penalty_node)  print_esc(maketexstring("penalty"));
-    else if (type(cur_p)==disc_node)     print_esc(maketexstring("discretionary"));
-    else if (type(cur_p)==kern_node)     print_esc(maketexstring("kern"));
-    else                                 print_esc(maketexstring("math"));
+    if      (type(cur_p)==penalty_node)  tprint_esc("penalty");
+    else if (type(cur_p)==disc_node)     tprint_esc("discretionary");
+    else if (type(cur_p)==kern_node)     tprint_esc("kern");
+    else                                 tprint_esc("math");
   }
-  print(maketexstring(" via @@"));
+  tprint(" via @@");
   if (break_node(r)==null) 
     print_char('0');
   else 
     print_int(serial(break_node(r)));
-  print(maketexstring(" b="));
+  tprint(" b=");
   if (b>inf_bad)  
     print_char('*');
   else 
     print_int(b);
-  print(maketexstring(" p=")); 
+  tprint(" p="); 
   print_int(pi); 
-  print(maketexstring(" d="));
+  tprint(" d=");
   if (artificial_demerits) 
     print_char('*');
   else 
@@ -1555,7 +1555,7 @@ ext_do_line_break (boolean d,
   if (threshold>=0) {
     if (tracing_paragraphs>0) {
       begin_diagnostic(); 
-      print_nl(maketexstring("@firstpass"));
+      tprint_nl("@firstpass");
     }
     second_pass=false; 
     final_pass=false;
@@ -1640,7 +1640,7 @@ ext_do_line_break (boolean d,
         cur_p=vlink(cur_p);
       }
       if (cur_p==null) { /* TODO */
-	confusion(maketexstring("linebreak_tail"));
+		tconfusion("linebreak_tail");
       }
     /* Determine legal breaks: As we move through the hlist, we need to keep the |active_width|
          array up to date, so that the badness of individual lines is readily calculated by
@@ -1770,10 +1770,10 @@ ext_do_line_break (boolean d,
                   disc_width[1] += width(s);
                   break;
                 case disc_node:
-                  confusion(maketexstring("pre_break_disc"));
+                  tconfusion("pre_break_disc");
 		  break;
                 default:
-                  confusion(maketexstring("disc3"));
+                  tconfusion("disc3");
                 } 
               }
               /* /Add the width of node |s| to |disc_width| */
@@ -1826,7 +1826,7 @@ ext_do_line_break (boolean d,
                 s = no_break(s);
                 break;
               default: 
-                confusion(maketexstring("disc5"));
+                tconfusion("disc5");
               }
             }
             /* /Add the width of node |s| to |act_width|;*/
@@ -1871,7 +1871,7 @@ ext_do_line_break (boolean d,
                 s = no_break(s);
                 break;
               default: 
-                confusion(maketexstring("disc4"));
+                tconfusion("disc4");
               }
             }
             /* /Add the width of node |s| to |act_width|;*/
@@ -1898,7 +1898,7 @@ ext_do_line_break (boolean d,
         break;
       default: 
         fprintf(stdout, "\ntype=%d",type(cur_p));
-        confusion(maketexstring("paragraph")) ;
+        tconfusion("paragraph") ;
       }
       prev_p=cur_p; 
       cur_p=vlink(cur_p); 
@@ -1979,13 +1979,13 @@ ext_do_line_break (boolean d,
 
     if (!second_pass)  { 
       if (tracing_paragraphs>0) 
-        print_nl(maketexstring("@secondpass"));
+        tprint_nl("@secondpass");
       threshold=tolerance; 
       second_pass=true; 
       final_pass=(emergency_stretch<=0);
     }  else {  /* if at first you do not succeed, \dots */
       if (tracing_paragraphs>0)
-        print_nl(maketexstring("@emergencypass"));
+        tprint_nl("@emergencypass");
       background[2] += emergency_stretch; 
       final_pass=true;
     }
