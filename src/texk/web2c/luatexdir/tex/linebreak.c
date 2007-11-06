@@ -1546,9 +1546,9 @@ ext_do_line_break (boolean d,
   if (dir_ptr!=null) {
 	fprintf(stdout,"-dir_node s %d\n",dir_ptr);
 	flush_node_list(dir_ptr);
+	dir_ptr=null; 
   }
-  dir_ptr=null; 
-  push_dir(paragraph_dir);
+  /*push_dir(paragraph_dir);*/ /* TODO what was the point of this? */
 
   /* @<Find optimal breakpoints@>;*/
   threshold=pretolerance;
@@ -2048,8 +2048,10 @@ ext_do_line_break (boolean d,
   /* /Break the paragraph at the chosen... */
   /* Clean up the memory by removing the break nodes; */
   clean_up_the_memory();
-  flush_node_list(dir_ptr);
-  dir_ptr=null;
+  /*
+	flush_node_list(dir_ptr);
+	dir_ptr=null;
+  */
 }
 
 
