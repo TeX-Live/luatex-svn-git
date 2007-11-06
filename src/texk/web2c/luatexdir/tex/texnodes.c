@@ -19,6 +19,8 @@ halfword free_chain[MAX_CHAIN_SIZE] = {null};
 
 static int prealloc=0;
 
+int fix_node_lists=1;
+
 halfword slow_get_node (integer s) ; /* defined below */
 
 #undef link /* defined by cpascal.h */
@@ -820,6 +822,20 @@ check_node_mem(void ) {
   test_count++;
 }
 
+void 
+fix_node_list (halfword head) {
+  halfword p,q;
+  if (head==null) 
+    return;
+  p = head;
+  q = vlink(p);
+  while (q!=null) {
+    alink(q) = p;
+    p = q;
+    q = vlink(p);
+  }
+}
+
 halfword 
 get_node (integer s) {
   register halfword r;
@@ -1108,7 +1124,7 @@ halfword
 string_to_pseudo(integer l,integer pool_ptr, integer nl) {
   halfword i, r, q = null;
   four_quarters w;
-  int sz ,k;
+  int sz;
   halfword h = new_node(pseudo_file_node,0);
   while (l<pool_ptr) {
     int m = l;
@@ -1191,7 +1207,7 @@ delete_attribute_ref(halfword b) {
   halfword r,q;
   if (b!=null){
     if (type(b)!=attribute_list_node ) {
-      fprintf(stdout,"the type of %d is %d\n",b,type(b));
+      fprintf(stdout,"the type of %d is %d\n",(int)b,type(b));
       check_node_mem();
     }
     assert(type(b)==attribute_list_node);
