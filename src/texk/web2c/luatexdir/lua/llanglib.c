@@ -175,9 +175,8 @@ do_lang_hyphenate (lua_State *L) {
 	  *t = vlink(*t);
   }
   hnj_hyphenation(*h,*t);
-  lua_pushvalue(L,1);
   lua_pushboolean(L,1);
-  return 2;
+  return 1;
 }
 
 
