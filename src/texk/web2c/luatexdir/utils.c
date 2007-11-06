@@ -1766,3 +1766,36 @@ divide_scaled_n (double sd, double md, double n) {
   scaled_out = (int)(d/n*md);
   return d;
 }
+
+
+/* C print interface */
+
+void tprint (char *s) {
+  while (*s) 
+    print_char(*s++); 
+}
+
+void tprint_nl (char *s) {
+  print_nlp();
+  tprint(s);
+}
+
+#define escape_char_code 45 /* escape character for token output */
+#define int_par(a) zeqtb[int_base+(a)].cint /* an integer parameter */
+#define escape_char int_par(escape_char_code)
+
+void tprint_esc(char *s) { /* prints escape character, then |s| */
+  int c=-1; /* the escape character code */
+  if (zeqtb!=NULL) {
+    halfword int_base = get_int_base();
+    c=escape_char;
+    if (c>=0)
+      print_char(c);
+  }
+  tprint(s);
+}
+
+void tconfusion(char *s) {
+  confusion(maketexstring(s));
+}
+
