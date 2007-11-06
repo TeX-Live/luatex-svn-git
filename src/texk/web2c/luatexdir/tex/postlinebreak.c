@@ -22,7 +22,7 @@ point to a glue node, penalty node, explicit kern node, or math node.
 
 */
 
-halfword 
+static halfword 
 do_push_dir_node (halfword p, halfword a ) {
   halfword n;
   n = copy_node(a);
@@ -30,44 +30,13 @@ do_push_dir_node (halfword p, halfword a ) {
   return n;
 }
 
-halfword 
+static halfword 
 do_pop_dir_node ( halfword p ) {
   halfword n = vlink(p); 
   flush_node(p);
   return n;
 }
 
-halfword add_dir_nodes (halfword r, halfword q) {
-  halfword p;
-  for (p=dir_ptr;p!=null;p=vlink(p)) {
-    halfword tmp=new_dir(dir_dir(p)-64);
-    couple_nodes(tmp,q);
-    couple_nodes(r,tmp);
-    r=vlink(r);
-  }
-  return r;
-}
-
-void
-insert_dir_nodes_at_end (halfword *qq, halfword *rr, halfword final_par_glue) {
-  halfword q,r; /* temporary registers for list manipulation */
-  r = *rr;
-  q = *qq;
-  if (dir_ptr!=null) {
-    if (vlink(r)==q) {
-      assert(r!=null);
-      *rr = add_dir_nodes(r,q);
-    } else if (r==final_par_glue) {
-      assert(alink(r)!=null && vlink(alink(r))==r);
-      (void)add_dir_nodes(alink(r), q);
-    } else {
-      assert(q!=null);
-      *qq = add_dir_nodes(q, vlink(q));
-      *rr = *qq;
-    }
-  }
-  return;
-}
 
 /* The total number of lines that will be set by |post_line_break|
 is |best_line-prev_graf-1|. The last breakpoint is specified by
@@ -121,6 +90,7 @@ void ext_post_line_break(boolean d,
 			 scaled first_indent,
 			 halfword best_line ) {
 
+  boolean have_directional = true;
   halfword q,r,s; /* temporary registers for list manipulation */
   halfword  p, k;
   scaled w;
@@ -133,6 +103,7 @@ void ext_post_line_break(boolean d,
   halfword cur_p; /* cur_p, but localized */
   halfword cur_line; /*the current line number being justified*/
 
+  dir_ptr = cur_list.dirs_field;
   /* @<Reverse the links of the relevant passive nodes, setting |cur_p| to 
      the first breakpoint@>; */
   /* The job of reversing links in a list is conveniently regarded as the job
@@ -142,6 +113,8 @@ void ext_post_line_break(boolean d,
      Node |r| is the passive node being moved from stack to stack.
   */
   q=break_node(best_bet); 
+  //used_discs = used_disc(best_bet);
+  //has_direction
   cur_p=null;
   do { 
     r=q; 
@@ -151,10 +124,6 @@ void ext_post_line_break(boolean d,
   } while (q!=null);  
   /* |cur_p| is now the first breakpoint; */
 
-  /* this fixes a leak, but it is not correct. */
-  if (dir_ptr!=null)
-    flush_node_list(dir_ptr);
-  dir_ptr=cur_list.dirs_field;
   cur_line=cur_list.pg_field+1; /* prevgraf+1 */
 
   do {
@@ -171,104 +140,136 @@ void ext_post_line_break(boolean d,
     
     /* DIR: Insert dir nodes at the beginning of the current line;*/
     for (q=dir_ptr;q!=null;q=vlink(q)) {
-      halfword tmp=new_dir(dir_dir(q));
-      couple_nodes(tmp,vlink(temp_head));
+      halfword tmp = new_dir(dir_dir(q));
+      halfword nxt = vlink(temp_head);
       couple_nodes(temp_head,tmp);
+      couple_nodes(tmp,nxt);
     }
-    /* DIR: Adjust the dir stack based on dir nodes in this line; */
     if (dir_ptr!=null) {
       flush_node_list(dir_ptr); dir_ptr=null;
     }
-    q=vlink(temp_head);
-    while (q!=null && q!=cur_break(cur_p)) {
-      if (type(q)==whatsit_node && subtype(q)==dir_node) {
-		if (dir_dir(q)>=0) {
-		  dir_ptr = do_push_dir_node(dir_ptr,q);
-		} else if (dir_ptr!=null) {
-		  if (dir_dir(dir_ptr)==(dir_dir(q)+64)) {
-			dir_ptr = do_pop_dir_node(dir_ptr);
-		  }
-		}
-      }
-      q=vlink(q);
-    }
 
-    /* Modify the end of the line to reflect the nature of the break and to include
-       \.{\\rightskip}; also set the proper value of |disc_break|; */
+    /* Modify the end of the line to reflect the nature of the break and to
+       include \.{\\rightskip}; also set the proper value of |disc_break|; */
     /* At the end of the following code, |q| will point to the final node on the
-       list about to be justified. */
-    assert(q==cur_break(cur_p)); 
+       list about to be justified. In the meanwhile |r| will point to the
+       node we will use to insert end-of-line stuff after. |q==null| means
+       we use the final position of |r| */
+    r = cur_break(cur_p); 
+    q = null;
     disc_break=false; 
     post_disc_break=false;
     glue_break = false;
 
-    if (q!=null && type(q)==glue_node) {
-      r=alink(q);
-      assert(vlink(r)==q);
-      /* @<DIR: Insert dir nodes at the end of the current line@>;*/
-      insert_dir_nodes_at_end(&q,&r,final_par_glue);
-      if (passive_right_box(cur_p)!=null) {
-	s=copy_node_list(passive_right_box(cur_p));
-	vlink(r)=s;
-	vlink(s)=q;
+    if (r==null) {
+      for (r=temp_head; vlink(r)!=null; r=vlink(r));
+      if (r==final_par_glue) {
+        /* This should almost always be true... */
+        /* TODO assert ? */
+        q = r;
+        /* |q| refers to the last node of the line (and paragraph) */
+        r = alink(r);
       }
-      delete_glue_ref(glue_ptr(q));
-      glue_ptr(q)=right_skip;
-      subtype(q)=right_skip_code+1; 
+      /* |r| refers to the node after which the dir nodes should be closed */
+    } else if (type(r)==glue_node) {
+      delete_glue_ref(glue_ptr(r));
+      glue_ptr(r)=right_skip;
+      subtype(r)=right_skip_code+1; 
       incr(glue_ref_count(right_skip));
       glue_break = true;
-    } else {
-      if (q==null) { 
-	q=temp_head;
-	while (vlink(q)!=null)  
-	  q=vlink(q);
-      } else if (type(q)==disc_node) {
-	/* @<Change discretionary to compulsory and set |disc_break:=true|@>*/
-	r = vlink(q);
-	if (vlink(no_break(q))!=null) {
-	  flush_node_list(vlink(no_break(q))); 
-	  vlink(no_break(q))=null;
-	  tlink(no_break(q))=null;
-	}
-	if (vlink(post_break(q))!=null) {
-	  /* @<Transplant the post-break list@>;*/
-	  /* We move the post-break list from inside node |q| to the main list by
-	     re\-attaching it just before the present node |r|, then resetting |r|. */
-	  couple_nodes(q,vlink(post_break(q)));
-	  couple_nodes(tlink(post_break(q)),r);
-	  vlink(post_break(q))=null; 
-	  tlink(post_break(q))=null; 
-	  r=vlink(q);
-	}
-	if (vlink(pre_break(q))!=null) {
-	  /* @<Transplant the pre-break list@>;*/
-	  /* We move the pre-break list from inside node |q| to the main list by
-	     re\-attaching it just after the present node |q|, then resetting |q|. */
-	  couple_nodes(q,vlink(pre_break(q)));
-	  couple_nodes(tlink(pre_break(q)),r);
-	  vlink(pre_break(q))=null; 
-	  tlink(pre_break(q))=null; 
-	  q=alink(r);
-	}
-	disc_break=true;
-      } else if (type(q)==kern_node) {
-		width(q)=0;
-      } else if (type(q)==math_node) {
-		surround(q)=0;
+      /* |q| refers to the last node of the line */
+      q = r;
+      r=alink(r);
+      assert(vlink(r)==q);
+      /* |r| refers to the node after which the dir nodes should be closed */
+    } else if (type(r)==disc_node) {
+      halfword a = alink(r);
+      halfword v = vlink(r);
+      if (v==null) { /* nested disc, let's unfold */
+        do {
+          halfword d;
+          while (alink(a)!=null) a = alink(a);
+          assert(type(a)==nesting_node);
+          assert(subtype(a)=no_break_head(0)); /* No_break */
+          d = a - subtype(a); /* MAGIC subtype is offset of nesting with disc */
+          v = vlink(d);
+          a = alink(d);
+          couple_nodes(a,vlink_no_break(d));
+          vlink_no_break(d)=null; 
+          tlink_no_break(d)=null;
+          flush_node(d);
+        } while (v==null);
+        couple_nodes(r,v);
+        a = alink(r);
       }
-      r=q;
+      if (vlink_no_break(r)!=null) {
+        flush_node_list(vlink_no_break(r));
+        vlink_no_break(r)=null;
+        tlink_no_break(r)=null;
+      }
+      if (vlink_pre_break(r)!=null) {
+        couple_nodes(a,vlink_pre_break(r));
+        couple_nodes(tlink_pre_break(r),r);
+        vlink(pre_break(r))=null; 
+        tlink(pre_break(r))=null; 
+      }
+      if (vlink_post_break(r)!=null) {
+        couple_nodes(r,vlink_pre_break(r));
+        couple_nodes(tlink_post_break(r),v);
+        vlink_post_break(r)=null; 
+        tlink_post_break(r)=null; 
+        post_disc_break = true;
+      }
+      disc_break=true;
+    } else if (type(r)==kern_node) {
+      width(r)=0;
+    } else if (type(r)==math_node) {
+      surround(r)=0;
+    }
+
+    /* DIR: Adjust the dir stack based on dir nodes in this line; */
+    /* TODO what about the previousparagraph ??? */
+    if (have_directional) {
+      halfword e;
+      halfword p;
+      for(e=vlink(temp_head); e!=null && e!=cur_break(cur_p); e=vlink(e)) {
+        if (type(e)!=whatsit_node || subtype(e)!=dir_node)
+          continue;
+        if (dir_dir(e)>=0) {
+          dir_ptr = do_push_dir_node(dir_ptr,e);
+        } else if (dir_ptr!=null && dir_dir(dir_ptr)==(dir_dir(e)+64)) {
+          dir_ptr = do_pop_dir_node(dir_ptr);
+        }
+      }
+      assert(e==cur_break(cur_p)); 
+
       /* @<DIR: Insert dir nodes at the end of the current line@>;*/
-      insert_dir_nodes_at_end(&q,&r,final_par_glue);
-      if (passive_right_box(cur_p)!=null) {
-	r=copy_node_list(passive_right_box(cur_p));
-	vlink(r)=vlink(q);
-	vlink(q)=r;
-	q=r;
+      e = vlink(r);
+      for (p=dir_ptr; p!=null; p=vlink(p)) {
+        halfword s=new_dir(dir_dir(p)-64);
+        couple_nodes(r,s);
+        try_couple_nodes(s,e);
+        r=s;
       }
     }
-    /* at this point |q| is the rightmost breakpoint; the only exception is the case
-       of a discretionary break with non-empty |pre_break|, then |q| has been changed
-       to the last node of the |pre_break| list */
+    if (passive_right_box(cur_p)!=null) {
+      /* TODO: CHECK has |s| below a |alink| ? */
+      halfword s = copy_node_list(passive_right_box(cur_p));
+      halfword e = vlink(r);
+      couple_nodes(r,s);
+      try_couple_nodes(s,e);
+      r=s;
+    }
+    if (q==null) {
+      q = r;
+    }
+    /* Now [q] refers to the last node on the line */
+
+    /* FIXME from this point on we no longer keep alink() valid */
+
+    /* at this point |q| is the rightmost breakpoint; the only exception is
+       the case of a discretionary break with non-empty |pre_break|, then |q|
+       has been changed to the last node of the |pre_break| list */
     if (pdf_protrude_chars > 0) {
       halfword ptmp;
       if (disc_break && (is_char_node(q) || (type(q) != disc_node))) {
@@ -289,18 +290,18 @@ void ext_post_line_break(boolean d,
 	  q = vlink(q);
       }
     }
-    /* if |q| was not a breakpoint at glue and has been reset to |rightskip| then
-       we append |rightskip| after |q| now */
+    /* if |q| was not a breakpoint at glue and has been reset to |rightskip|
+       then we append |rightskip| after |q| now */
     if (!glue_break) {
       /* @<Put the \(r)\.{\\rightskip} glue after node |q|@>;*/
-      r=new_param_glue(right_skip_code); 
+      halfword r=new_param_glue(right_skip_code); 
       vlink(r)=vlink(q); 
       vlink(q)=r; 
       q=r;
     }
 
-    /* /Modify the end of the line to reflect the nature of the break and to include
-       \.{\\rightskip}; also set the proper value of |disc_break|; */
+    /* /Modify the end of the line to reflect the nature of the break and to
+       include \.{\\rightskip}; also set the proper value of |disc_break|; */
 
     /* Put the \(l)\.{\\leftskip} glue at the left and detach this line;*/
     /* The following code begins with |q| at the end of the list to be
@@ -308,6 +309,7 @@ void ext_post_line_break(boolean d,
        |vlink(temp_head)| pointing to the remainder of the paragraph, if any. */
     r=vlink(q); 
     vlink(q)=null; 
+
     q=vlink(temp_head); 
     vlink(temp_head)=r;
     if (passive_left_box(cur_p)!=null && passive_left_box(cur_p)!=0) {
@@ -356,8 +358,8 @@ void ext_post_line_break(boolean d,
       cur_width=first_width; 
       cur_indent=first_indent;
     } else  { 
-      cur_width=varmem[(par_shape_ptr+2*cur_line)+1].cint;
-      cur_indent=varmem[(par_shape_ptr+2*cur_line-1)+1].cint;
+      cur_width=varmem[(par_shape_ptr+2*cur_line)].cint;
+      cur_indent=varmem[(par_shape_ptr+2*cur_line-1)].cint;
     }
     adjust_tail=adjust_head;
     pack_direction=paragraph_dir;
@@ -402,7 +404,6 @@ void ext_post_line_break(boolean d,
     if (cur_line+1!=best_line) {
       q=inter_line_penalties_ptr;
       if (q!=null) {
-	q++; /* skip the first word */
 	r=cur_line;
 	if (r>penalty(q))
 	  r=penalty(q);
@@ -416,7 +417,6 @@ void ext_post_line_break(boolean d,
       }
       q=club_penalties_ptr;
       if (q!=null) {
-	q++; /* skip the first word */
 	r=cur_line-cur_list.pg_field; /* prevgraf */
 	if (r>penalty(q))  
 	  r=penalty(q);
@@ -429,7 +429,6 @@ void ext_post_line_break(boolean d,
       else 
 	q = widow_penalties_ptr;
       if (q!=null) {
-	q++; /* skip the first word */
 	r=best_line-cur_line-1;
 	if (r>penalty(q)) 
 	  r=penalty(q);
@@ -491,7 +490,7 @@ void ext_post_line_break(boolean d,
   if ((cur_line!=best_line)||(vlink(temp_head)!=null)) 
 	confusion(maketexstring("line breaking"));
   cur_list.pg_field=best_line-1;  /* prevgraf */
-  cur_list.dirs_field=dir_ptr;
-  dir_ptr=null;
+  cur_list.dirs_field=dir_ptr; /* dir_save */
+  dir_ptr = null;
 }
 
