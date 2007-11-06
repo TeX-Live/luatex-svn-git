@@ -220,8 +220,8 @@ halfword insert_discretionary ( halfword t,  halfword pre,  halfword post,  half
   /* fprintf(stderr,"disc (%d,%d,%d) after %c\n", pre, post, replace, character(t));*/
 #endif
   g = new_node(disc_node,syllable_disc);
-  vlink(g) = vlink(t);
-  vlink(t) = g;
+  couple_nodes(g,vlink(t));
+  couple_nodes(t,g);
   for (g=pre;g!=null;g =vlink(g)) {
     font(g)=font(t);
     if (node_attr(t)!=null) {
@@ -287,7 +287,7 @@ halfword insert_character ( halfword t,  int c) {
   halfword g;
   g = new_char_node(0,c);
   if (t!=null) {
-    vlink(t)=g;
+    couple_nodes(t,g);
   }
   return g;
 }
@@ -359,7 +359,8 @@ halfword find_exception_part(int *j, int *uword, int len) {
       gg = new_char_node(0,uword[i+1]);
       g = gg;
     } else {
-      vlink(g) = new_char_node(0,uword[i+1]);
+	  halfword s = new_char_node(0,uword[i+1]);
+      couple_nodes(g,s);
       g = vlink(g);
     }
     i++;
@@ -558,12 +559,13 @@ hnj_hyphenation (halfword head, halfword tail) {
   int wordlen = 0;
   char *hy = utf8word;
   char *replacement = NULL;
-  halfword r = head, wordstart = null, save_tail = null, left = null, right = null;
+  halfword s, r = head, wordstart = null, save_tail = null, left = null, right = null;
 
   assert (tail!=null);
 
   save_tail = vlink(tail);
-  vlink(tail) = new_penalty(0);
+  s = new_penalty(0);
+  couple_nodes(tail, s);
 
   /* this first movement assures two things: 
    * a) that we won't waste lots of time on something that has been
@@ -601,6 +603,7 @@ hnj_hyphenation (halfword head, halfword tail) {
 		lchar=get_lc_code(character(r));
 		hy = utf8_idpb(hy,lchar);
       }
+	  /* TODO: this should not be needed */
       if (vlink(r)!=null)
 		alink(vlink(r))=r;
 	  r = vlink(r);
@@ -654,6 +657,7 @@ new_hyphenation (halfword head, halfword tail) {
   lua_State *L = Luas[0];
   if (head==null || vlink(head)==null)
     return;
+  fix_node_list (head); /* TODO: use couple_nodes() in append_tail()!*/
   callback_id = callback_defined(hyphenate_callback);
   if (callback_id>0) {
     /* */
