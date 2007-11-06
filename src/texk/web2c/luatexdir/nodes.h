@@ -593,6 +593,8 @@ extern halfword copy_node_list(halfword);
 extern halfword copy_node(halfword);
 extern void check_node(halfword);
 extern void check_node_mem (void);
+extern void fix_node_list (halfword);
+extern int fix_node_lists;
 
 #define unity 0x10000
 typedef enum {
