@@ -184,6 +184,7 @@ void ext_post_line_break(boolean d,
       /* |r| refers to the node after which the dir nodes should be closed */
     } else if (type(r)==disc_node) {
       halfword a = alink(r);
+      assert(a!=null);
       halfword v = vlink(r);
       if (v==null) { /* nested disc, let's unfold */
         do {
@@ -194,10 +195,11 @@ void ext_post_line_break(boolean d,
           d = a - subtype(a); /* MAGIC subtype is offset of nesting with disc */
           v = vlink(d);
           a = alink(d);
+          assert(a!=null);
           couple_nodes(a,vlink_no_break(d));
           vlink_no_break(d)=null; 
           tlink_no_break(d)=null;
-          flush_node(d);
+          flush_node(d); 
         } while (v==null);
         couple_nodes(r,v);
         a = alink(r);
@@ -210,11 +212,11 @@ void ext_post_line_break(boolean d,
       if (vlink_pre_break(r)!=null) {
         couple_nodes(a,vlink_pre_break(r));
         couple_nodes(tlink_pre_break(r),r);
-        vlink(pre_break(r))=null; 
-        tlink(pre_break(r))=null; 
+        vlink_pre_break(r)=null; 
+        tlink_pre_break(r)=null; 
       }
       if (vlink_post_break(r)!=null) {
-        couple_nodes(r,vlink_pre_break(r));
+        couple_nodes(r,vlink_post_break(r));
         couple_nodes(tlink_post_break(r),v);
         vlink_post_break(r)=null; 
         tlink_post_break(r)=null; 
@@ -311,7 +313,7 @@ void ext_post_line_break(boolean d,
     vlink(q)=null; 
 
     q=vlink(temp_head); 
-    vlink(temp_head)=r;
+    try_couple_nodes(temp_head,r);
     if (passive_left_box(cur_p)!=null && passive_left_box(cur_p)!=0) {
       /* omega bits: */
       r=copy_node_list(passive_left_box(cur_p));
@@ -488,7 +490,7 @@ void ext_post_line_break(boolean d,
     }
   } while (cur_p!=null);
   if ((cur_line!=best_line)||(vlink(temp_head)!=null)) 
-	confusion(maketexstring("line breaking"));
+	tconfusion("line breaking");
   cur_list.pg_field=best_line-1;  /* prevgraf */
   cur_list.dirs_field=dir_ptr; /* dir_save */
   dir_ptr = null;
