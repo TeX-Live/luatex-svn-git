@@ -67,7 +67,7 @@ node_info node_data[] = {
   { left_noad,            noad_size,                 "left"           },
   { right_noad,           noad_size,                 "right"          },
   { margin_kern_node,     margin_kern_node_size,     "margin_kern"    },
-  { glyph_node,           glyph_node_size,           "glyph"          },
+  { glyph_node,           glyph_node_size,           "glyph"          }, /* 33 */
   { align_record_node,    box_node_size,             "align_record"   },
   { pseudo_file_node,     pseudo_file_node_size,     "pseudo_file"    },
   { pseudo_line_node,     variable_node_size,        "pseudo_line"    },
@@ -375,28 +375,104 @@ copy_node(const halfword p) {
   return r;
 }
 
-void 
-flush_node (halfword p) {
-  /*check_node_mem();*/
+int free_error_seen = 0;
+
+int valid_node (halfword p) {
+  if (p>prealloc) {
+    if (p<var_mem_max) {
+      if (varmem_sizes[p]>0)
+	return 1;
+    }
+  } else {
+    return 1;
+  }
+  return 0;
+}
+
+
+int free_error (halfword p, char *context) {
+
+  char errstr[256]= {0};
+  char *errhlp[] = {"When I tried to free the node mentioned in the error message, it turned",
+                    "out it was not (or no longer) actually in use.",
+                    "Errors such as these are often caused by Lua node list alteration,",
+                    "but could also point to a bug in the executable. It should be safe to continue.",
+                    NULL};
+
   assert(p>prealloc);
   assert(p<var_mem_max);
 
   if (varmem_sizes[p]==0) {
     check_node_mem();
+    if (free_error_seen)
+      return 1;
+
     halfword r = null;    
-    fprintf(stdout,"attempt to double-free %s node %d\n", get_node_name(type(p),subtype(p)), (int)p);
+    free_error_seen = 1;
+    if (type(p)==glyph_node) {
+      snprintf(errstr,255,"Attempt to double-free glyph (%c) node %d, ignored", character (p), (int)p);
+    } else {
+      snprintf(errstr,255,"Attempt to double-free %s node %d, ignored", get_node_name(type(p),subtype(p)), (int)p);
+    }
+    tex_error(errstr,errhlp);
     for (r=prealloc+1;r<var_mem_max;r++) {
       if (vlink(r)==p) {
 	halfword s = r;
 	while (s>prealloc && varmem_sizes[s]==0)
 	  s--;
-	if (s!=null && s!=prealloc && s!=var_mem_max) {
-	  fprintf(stdout,"  pointed to from %s node %d\n", get_node_name(type(s),subtype(s)), (int)s);
+	if (s!=null 
+	    && s!=prealloc 
+	    && s!=var_mem_max 
+	    && (r-s)<get_node_size(type(s),subtype(s) )
+	    && alink(s)!=p ) {
+
+	  if (type(s)==disc_node) {
+	    fprintf(stdout,"  pointed to from %s node %d (vlink %d, alink %d): ", 
+		    get_node_name(type(s),subtype(s)), (int)s, (int)vlink(s), (int)alink(s));
+	    fprintf(stdout,"pre_break(%d,%d,%d), ",  vlink_pre_break(s),  tlink(pre_break(s)), alink(pre_break(s)));
+	    fprintf(stdout,"post_break(%d,%d,%d), ", vlink_post_break(s), tlink(post_break(s)), alink(post_break(s)));
+	    fprintf(stdout,"no_break(%d,%d,%d)",     vlink_no_break(s),   tlink(no_break(s)), alink(no_break(s)));
+	    fprintf(stdout,"\n");
+	  } else { 
+	    if (vlink(s)==p 
+		|| (type(s)==glyph_node && lig_ptr(s)==p) 
+		|| (type(s)==vlist_node && list_ptr(s)==p) 
+		|| (type(s)==hlist_node && list_ptr(s)==p) 
+		|| (type(s)==unset_node && list_ptr(s)==p) 
+		|| (type(s)==ins_node && ins_ptr(s)==p) 
+		) {
+	      fprintf(stdout,"  pointed to from %s node %d (vlink %d, alink %d): ", 
+		      get_node_name(type(s),subtype(s)), (int)s, (int)vlink(s), (int)alink(s));
+	      if (type(s)==glyph_node) {
+		fprintf(stdout,"lig_ptr(%d)", lig_ptr(s));
+	      } else if (type(s)==vlist_node || type(s)==hlist_node) {
+		fprintf(stdout,"list_ptr(%d)", list_ptr(s));
+	      }
+	      fprintf(stdout,"\n");
+	    } else {
+	      if ((type(s)!=penalty_node)
+		  && (type(s)!=math_node)
+		  && (type(s)!=kern_node)
+		  ) {
+		fprintf(stdout,"  pointed to from %s node %d\n",get_node_name(type(s),subtype(s)), (int)s); 
+	      }
+	    }
+	  }
 	}
       }
     }
-    return ; /* double free */
+    return 1; /* double free */
   }
+  return 0;
+}
+
+void 
+flush_node (halfword p) {
+  
+  if (p==null) /* legal, but no-op */
+    return;
+  if (free_error(p,"node"))
+    return;
 
   switch(type(p)) {
   case glyph_node:
@@ -580,6 +656,12 @@ void
 flush_node_list(halfword pp) { /* erase list of nodes starting at |p| */
   register halfword q;
   halfword p=pp; /*to prevent trashing of the argument pointer, for debugging*/
+  free_error_seen = 0;
+  if (p==null) /* legal, but no-op */
+    return;
+  if (free_error(p,"list"))
+    return;
+
   while (p!=null) {
     q = vlink(p);
     flush_node(p);
