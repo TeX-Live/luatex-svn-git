@@ -1,5 +1,5 @@
 /*
-Copyright (c) 1996-2006 Han The Thanh, <thanh@pdftex.org>
+  Copyright (c) 1996-2006 Han The Thanh, <thanh@pdftex.org>
 
 This file is part of luatex.
 
@@ -207,6 +207,10 @@ extern char *makeclstring (integer, int *);
 extern void print_string (char *j);
 extern void append_string (char *s);
 extern void getcreationdate (void);
+extern void tconfusion (char *s);
+extern void tprint (char *s);
+extern void tprint_nl (char *s);
+extern void tprint_esc (char *s);
 
 #define overflow_string(a,b) { overflow(maketexstring(a),b); flush_str(last_tex_string); }
 
@@ -394,9 +398,9 @@ extern void set_post_hyphen_char(integer lan, integer val);
 extern integer get_pre_hyphen_char  (integer lan);
 extern integer get_post_hyphen_char (integer lan);
 
-extern halfword new_ligkern(halfword head, halfword tail, int dir);
-extern halfword handle_ligaturing(halfword head, halfword tail, int dir);
-extern halfword handle_kerning(halfword head, halfword tail, int dir);
+extern halfword new_ligkern(halfword head, halfword tail);
+extern halfword handle_ligaturing(halfword head, halfword tail);
+extern halfword handle_kerning(halfword head, halfword tail);
 
 #define push_dir(a)								\
   { dir_tmp=new_dir((a));						\
