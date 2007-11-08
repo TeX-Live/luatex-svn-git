@@ -257,9 +257,8 @@ find_charinfo_id (internal_font_number f, integer c) {
 
 charinfo *
 char_info (internal_font_number f, integer c) {
-  register int glyph ;
   if (proper_char_index(c)) {
-    glyph = find_charinfo_id(f,c);
+    register int glyph = find_charinfo_id(f,c);
     return &(font_tables[f]->charinfo[glyph]);
   } else if (c == left_boundarychar && left_boundary(f)!=NULL) {
     return left_boundary(f);
