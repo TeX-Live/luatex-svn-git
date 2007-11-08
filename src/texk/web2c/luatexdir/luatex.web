@@ -6756,6 +6756,10 @@ function get_scaled_base:halfword;
 begin
   get_scaled_base := scaled_base;
 end;
+function get_int_base:halfword;
+begin
+  get_int_base := int_base;
+end;
 function get_toks_base:halfword;
 begin
   get_toks_base := toks_base;
@@ -21223,8 +21227,7 @@ var q:pointer;
   d:integer; { a direction }
 begin
   new_hyphenation(p,qt);
-  if pack_direction=-1 then d:=text_direction else d:=pack_direction;
-  q:=new_ligkern(p,qt,d); {don't care about the tail in this case}
+  call_func(new_ligkern(p,qt)); {don't care about the tail in this case}
   q:=vlink(p);
   q:=lua_hpack_filter(q,w,m,grp);
   filtered_hpack:=hpack(q,w,m);
@@ -24552,7 +24555,7 @@ if (not is_char_node(vlink(head))) and ((type(vlink(head))=whatsit_node)
 else
   paragraph_dir:=0;
 line_break_dir:=paragraph_dir;
-tail:=new_ligkern(temp_head,tail, paragraph_dir);
+tail:=new_ligkern(temp_head,tail);
 if is_char_node(tail) then tail_append(new_penalty(inf_penalty))
 else if type(tail)<>glue_node then tail_append(new_penalty(inf_penalty))
 else begin 
@@ -25967,25 +25970,23 @@ are inside the individual sections.
 
 @<Append character |cur_chr|...@>=
 adjust_space_factor;@/
-if cur_chr=ex_hyphen_char then begin 
-  if mode>0 then begin
+if (cur_chr=ex_hyphen_char) and (mode>0) then begin
     {soon: |tail:=insert_discretionary(tail,p,q,new_char_node(cur_font,cur_chr));|}
     tail_append(new_disc);
     subtype(tail):=automatic_disc;
     if get_pre_hyphen_char(cur_lang)<>0 then begin
-	  vlink(pre_break(tail)):=new_char_node(cur_font, get_pre_hyphen_char(cur_lang));
+      vlink(pre_break(tail)):=new_char_node(cur_font, get_pre_hyphen_char(cur_lang));
       alink(vlink(pre_break(tail))):=pre_break(tail);
-  	  tlink(pre_break(tail)):=vlink(pre_break(tail));
+      tlink(pre_break(tail)):=vlink(pre_break(tail));
       end;
     if get_post_hyphen_char(cur_lang)<>0 then begin
-	  vlink(post_break(tail)):=new_char_node(cur_font, get_post_hyphen_char(cur_lang));
+      vlink(post_break(tail)):=new_char_node(cur_font, get_post_hyphen_char(cur_lang));
       alink(vlink(post_break(tail))):=post_break(tail);
-	  tlink(post_break(tail)):=vlink(post_break(tail));
-	  end;
+      tlink(post_break(tail)):=vlink(post_break(tail));
+      end;
     vlink(no_break(tail)):=new_char_node(cur_font,cur_chr);
     alink(vlink(no_break(tail))):=no_break(tail);
     tlink(no_break(tail)):=vlink(no_break(tail));
-    end;
   end
 else
   tail_append(new_char_node(cur_font,cur_chr));
