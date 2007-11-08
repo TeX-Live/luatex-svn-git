@@ -655,23 +655,19 @@ getlist (lua_State *L) {
     if (strcmp(str,"page_ins_head")==0) {
       lua_pushnumber(L,page_ins_head);  lua_nodelib_push(L);
     } else if (strcmp(str,"contrib_head")==0) {
-      lua_pushnumber(L,page_ins_head);  lua_nodelib_push(L);
+      lua_pushnumber(L,contrib_head);  lua_nodelib_push(L);
     } else if (strcmp(str,"page_head")==0) {
-      lua_pushnumber(L,page_ins_head);  lua_nodelib_push(L);
+      lua_pushnumber(L,page_head);  lua_nodelib_push(L);
     } else if (strcmp(str,"temp_head")==0) {
-      lua_pushnumber(L,page_ins_head);  lua_nodelib_push(L);
+      lua_pushnumber(L,temp_head);  lua_nodelib_push(L);
     } else if (strcmp(str,"hold_head")==0) {
-      lua_pushnumber(L,page_ins_head);  lua_nodelib_push(L);
+      lua_pushnumber(L,hold_head);  lua_nodelib_push(L);
     } else if (strcmp(str,"adjust_head")==0) {
-      lua_pushnumber(L,page_ins_head);  lua_nodelib_push(L);
+      lua_pushnumber(L,adjust_head);  lua_nodelib_push(L);
     } else if (strcmp(str,"pre_adjust_head")==0) {
-      lua_pushnumber(L,page_ins_head);  lua_nodelib_push(L);
-    } else if (strcmp(str,"active")==0) {
-      lua_pushnumber(L,page_ins_head);  lua_nodelib_push(L);
+      lua_pushnumber(L,pre_adjust_head);  lua_nodelib_push(L);
     } else if (strcmp(str,"align_head")==0) {
-      lua_pushnumber(L,page_ins_head);  lua_nodelib_push(L);
-    } else if (strcmp(str,"end_span")==0) {
-      lua_pushnumber(L,page_ins_head);  lua_nodelib_push(L);
+      lua_pushnumber(L,align_head);  lua_nodelib_push(L);
     } else {
       lua_pushnil(L);
     }
