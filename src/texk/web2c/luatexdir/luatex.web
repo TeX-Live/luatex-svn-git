@@ -4432,7 +4432,8 @@ begin if cur_length>depth_threshold then
 n:=0;
 while p<>null do
   begin print_ln; print_current_string; {display the nesting history}
-  incr(n); if n>breadth_max then {time to stop}
+  if tracing_online>2 then print_int(p); 
+    incr(n); if n>breadth_max then {time to stop}
     begin print("etc."); return;
 @.etc@>
     end;
@@ -12935,7 +12936,7 @@ since the error will be detected in another way when a strange file name
 isn't found.
 @^system dependencies@>
 
-@p procedure pack_buffered_name(@!n:small_number;@!a,@!b:integer);
+@p procedure pack_buffered_name(@!n:integer;@!a,@!b:integer);
 var k:integer; {number of positions filled in |nameoffile|}
 @!c: ASCII_code; {character being packed}
 @!j:integer; {index into |buffer| or |TEX_format_default|}
@@ -21175,15 +21176,18 @@ pack_interrupt:array[0..255] of halfword;
 font_stretch: scaled;
 font_shrink: scaled;
 k: scaled;
-begin last_badness:=0; r:=new_node(hlist_node,0);
+begin last_badness:=0; r:=new_node(hlist_node,min_quarterword);
 if pack_direction=-1 then
   box_dir(r):=text_direction
 else begin
   box_dir(r):=pack_direction; pack_direction:=-1;
   end;
 hpack_dir:=box_dir(r);
-@<DIR: Initialize |dir_ptr| for |hpack|@>;
-subtype(r):=min_quarterword; shift_amount(r):=0;
+dir_ptr:=null;
+{TODO: this initial dir node is possibly (probably?) needed in some 
+cases, but doing it unconditionally seems to be a waste of effort. 
+Commented out for now, until a document generates a bug. }
+@{ push_dir(hpack_dir); @} 
 q:=r+list_offset; vlink(q):=p;@/
 if m = cal_expand_ratio then begin
     prev_char_p := null;
@@ -21218,7 +21222,7 @@ if (m = cal_expand_ratio) and (font_expand_ratio <> 0) then begin
 	list_ptr(r):=null; flush_node(r);
     r:=hpack(q, w, subst_ex_font);
 end;
-@<DIR: Reset |dir_ptr|@>;
+while dir_ptr<>null do pop_dir_node;
 hpack:=r;
 end;
 
@@ -33269,10 +33273,6 @@ end
 begin dir_ptr:=null; push_dir(dvi_direction);
 dir_dvi_ptr(dir_ptr):=dvi_ptr;
 end
-
-@ @<DIR: Initialize |dir_ptr| for |hpack|@>=
-begin {|if dir_ptr<>null then flush_node(dir_ptr);|}
-dir_ptr:=null; push_dir(hpack_dir) end
 
 @ @<Output a reflection instruction if the direction has changed@>=
 begin
