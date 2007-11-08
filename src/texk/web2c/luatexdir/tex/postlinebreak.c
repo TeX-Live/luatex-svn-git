@@ -137,6 +137,14 @@ void ext_post_line_break(boolean d,
        discretionary node, we modify the list so that the discretionary break
        is compulsory, and we set |disc_break| to |true|. We also append
        the |left_skip| glue at the left of the line, unless it is zero. */
+
+#if 0
+	tprint("BEGIN OF LINE ");
+	print_int(cur_break(cur_p));
+	breadth_max=100000;
+	depth_threshold=100000;
+	show_node_list(temp_head);
+#endif
     
     /* DIR: Insert dir nodes at the beginning of the current line;*/
     for (q=dir_ptr;q!=null;q=vlink(q)) {
@@ -187,14 +195,17 @@ void ext_post_line_break(boolean d,
       assert(a!=null);
       halfword v = vlink(r);
       if (v==null) { /* nested disc, let's unfold */
+        fprintf(stderr,"Nested disc [%d]<-[%d]->null\n",(int)a,(int)r);
         do {
           halfword d;
           while (alink(a)!=null) a = alink(a);
           assert(type(a)==nesting_node);
           assert(subtype(a)=no_break_head(0)); /* No_break */
           d = a - subtype(a); /* MAGIC subtype is offset of nesting with disc */
+          assert(type(d)==disc_node);
           v = vlink(d);
           a = alink(d);
+          fprintf(stderr,"Up to disc [%d]<-[%d]->[%d] & link [%d]\n",(int)a,(int)d,(int)v,(int)vlink_no_break(d));
           assert(a!=null);
           couple_nodes(a,vlink_no_break(d));
           vlink_no_break(d)=null; 
@@ -202,6 +213,7 @@ void ext_post_line_break(boolean d,
           flush_node(d); 
         } while (v==null);
         couple_nodes(r,v);
+        fprintf(stderr,"Close list [%d]<->[%d] a=[%d]\n",(int)r,(int)v,(int)alink(r));
         a = alink(r);
       }
       if (vlink_no_break(r)!=null) {
