@@ -582,7 +582,9 @@ extern halfword string_to_pseudo(integer l,integer pool_ptr, integer nl);
 typedef struct _node_info {
   int id;
   int size;
-  char *name; }  node_info;
+  char **fields;
+  char *name; 
+}  node_info;
 
 extern node_info node_data[];
 extern node_info whatsit_node_data[];
