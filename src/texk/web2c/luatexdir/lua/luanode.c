@@ -69,6 +69,8 @@ lua_node_filter_s (int filterid, char *extrainfo, halfword head_node, halfword *
     vlink(head_node)= a;
   }
   lua_pop(L,2); /* result and callback container table */
+  if (fix_node_lists)
+	fix_node_list(head_node);
   ret = vlink(head_node); 
   if (ret!=null) {
     while (vlink(ret)!=null)
@@ -123,6 +125,8 @@ lua_hpack_filter (halfword head_node, scaled size, int pack_type, int extrainfo)
   }
   lua_pop(L,2); /* result and callback container table */
   /*  lua_gc(L,LUA_GCSTEP, LUA_GC_STEP_SIZE);*/
+  if (fix_node_lists)
+	fix_node_list(ret);
   return ret;
 }
 
@@ -169,6 +173,8 @@ lua_vpack_filter (halfword head_node, scaled size, int pack_type, scaled maxd, i
   }
   lua_pop(L,2); /* result and callback container table */
   /*  lua_gc(L,LUA_GCSTEP, LUA_GC_STEP_SIZE);*/
+  if (fix_node_lists)
+	fix_node_list(ret);
   return ret;
 }
 
