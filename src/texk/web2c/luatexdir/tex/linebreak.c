@@ -4,6 +4,8 @@
 #include <ptexlib.h>
 #include "nodes.h"
 
+//#define DEB 1
+
 /* Glue nodes in a horizontal list that is being paragraphed are not supposed to
    include ``infinite'' shrinkability; that is why the algorithm maintains
    four registers for stretching but only one for shrinking. If the user tries to
@@ -1120,7 +1122,7 @@ ext_try_break(integer pi,
       l = (break_node(r) == null) ? first_p : cur_break(break_node(r));
       if (cur_p==null) {
         o = null;
-      } else {
+      } else { // TODO if (is_character_node(alink(cur_p)))
         o = alink(cur_p);
         assert(vlink(o)==cur_p);
       }
@@ -1451,7 +1453,14 @@ ext_do_line_break (boolean d,
                    int broken_penalty,
 		   halfword final_par_glue) {
   /* DONE,DONE1,DONE2,DONE3,DONE4,DONE5,CONTINUE;*/
-  halfword prev_p,cur_p,q,r,s; /* miscellaneous nodes of temporary interest */
+  halfword cur_p,q,r,s; /* miscellaneous nodes of temporary interest */
+
+#ifdef DEB
+  tprint("BEGIN OF LINEBREAK");
+  breadth_max=100000;
+  depth_threshold=100000;
+  show_node_list(temp_head);
+#endif
 
   /* Get ready to start ... */
   minimum_demerits=awful_bad;
@@ -1569,6 +1578,8 @@ ext_do_line_break (boolean d,
     
   while (1)  { 
     halfword first_p;
+    halfword nest_stack[10];
+    int nest_index = 0;
     if (threshold>inf_bad)
       threshold=inf_bad;
     /* Create an active breakpoint representing the beginning of the paragraph */
@@ -1586,9 +1597,9 @@ ext_do_line_break (boolean d,
     pass_number=0;
     font_in_short_display=null_font;
     /* /Create an active breakpoint representing the beginning of the paragraph */
-    cur_p=vlink(temp_head); 
     auto_breaking=true;
-    prev_p=cur_p; /* glue at beginning is not a legal breakpoint */
+    cur_p=vlink(temp_head); 
+    assert(alink(cur_p)==temp_head);
     /* LOCAL: Initialize with first |local_paragraph| node */
     if ((type(cur_p)==whatsit_node)&&(subtype(cur_p)==local_par_node)) {
       internal_pen_inter=local_pen_inter(cur_p);
@@ -1636,16 +1647,22 @@ ext_do_line_break (boolean d,
           add_char_stretch(active_width[8],cur_p);
           add_char_shrink(active_width[9],cur_p);
         }
-        prev_p=cur_p;
         cur_p=vlink(cur_p);
+        while (cur_p==null && nest_index>0) {
+          cur_p = nest_stack[--nest_index];
+#ifdef DEB
+          fprintf(stderr,"Node Pop  %d [%d]\n",nest_index,(int)cur_p);
+#endif
+        }
       }
       if (cur_p==null) { /* TODO */
-		tconfusion("linebreak_tail");
+        tconfusion("linebreak_tail");
       }
-    /* Determine legal breaks: As we move through the hlist, we need to keep the |active_width|
-         array up to date, so that the badness of individual lines is readily calculated by
-         |try_break|. It is convenient to use the short name |act_width| for the component of
-         active width that represents real width as opposed to glue. */
+    /* Determine legal breaks: As we move through the hlist, we need to keep
+       the |active_width| array up to date, so that the badness of individual
+       lines is readily calculated by |try_break|. It is convenient to use the
+       short name |act_width| for the component of active width that represents
+       real width as opposed to glue. */
 
       switch (type(cur_p)) {
 
@@ -1689,13 +1706,15 @@ ext_do_line_break (boolean d,
         /* @<If node |cur_p| is a legal breakpoint, call |try_break|;
            then update the active widths by including the glue in
            |glue_ptr(cur_p)|@>; */
-        /* When node |cur_p| is a glue node, we look at |prev_p| to
+        /* When node |cur_p| is a glue node, we look at the previous to
            see whether or not a breakpoint is legal at |cur_p|, as
            explained above. */
 	if (auto_breaking) {
-          if (is_char_node(prev_p) ||
+          halfword prev_p = alink(cur_p);
+          if (prev_p!=temp_head &&
+             (is_char_node(prev_p) ||
               precedes_break(prev_p)|| 
-              ((type(prev_p)==kern_node)&&(subtype(prev_p)!=explicit))) {
+              ((type(prev_p)==kern_node)&&(subtype(prev_p)!=explicit)))) {
             ext_try_break(0,unhyphenated_node, pdf_adjust_spacing, par_shape_ptr, 
                           adj_demerits, tracing_paragraphs, pdf_protrude_chars,
                           line_penalty, last_line_fit,  double_hyphen_demerits,  
@@ -1786,6 +1805,12 @@ ext_do_line_break (boolean d,
                           double_hyphen_demerits,  final_hyphen_demerits,first_p,cur_p);
             do_one_seven_eight(sub_disc_width_from_active_width);
           }
+#define FOO 0
+#if FOO
+#if 0
+          if (vlink(cur_p)!=null) nest_stack[nest_index++] = vlink(cur_p);
+          cur_p = no_break(cur_p);
+#else
           s=vlink_no_break(cur_p);
           while (s!=null) { 
             /* @<Add the width of node |s| to |act_width|@>;*/
@@ -1832,7 +1857,20 @@ ext_do_line_break (boolean d,
             /* /Add the width of node |s| to |act_width|;*/
             s=vlink(s);
           }
+#endif
         } else { /* first pass, just take the no_break path */
+#else /* FOO */
+        }
+#endif /* FOO */
+#if 1
+        if (vlink_no_break(cur_p)!=0) {
+          if (vlink(cur_p)!=null) nest_stack[nest_index++] = vlink(cur_p);
+#ifdef DEB
+          fprintf(stderr,"Node Push %d [%d]->[%d] / [%d]\n",(nest_index-1),(int)cur_p,(int)vlink(cur_p),(int)vlink_no_break(cur_p));
+#endif
+          cur_p = no_break(cur_p);
+        }
+#else
           s=vlink_no_break(cur_p);
           while (s!=null) { 
             /* @<Add the width of node |s| to |act_width|@>;*/
@@ -1877,7 +1915,10 @@ ext_do_line_break (boolean d,
             /* /Add the width of node |s| to |act_width|;*/
             s=vlink(s);
           }
+#endif
+#if FOO
         }
+#endif /* FOO */
         break;
       case math_node: 
         auto_breaking=(subtype(cur_p)==after); 
@@ -1900,8 +1941,13 @@ ext_do_line_break (boolean d,
         fprintf(stdout, "\ntype=%d",type(cur_p));
         tconfusion("paragraph") ;
       }
-      prev_p=cur_p; 
       cur_p=vlink(cur_p); 
+      while (cur_p==null && nest_index>0) {
+        cur_p = nest_stack[--nest_index];
+#ifdef DEB
+        fprintf(stderr,"Node Pop  %d [%d]\n",nest_index,(int)cur_p);
+#endif
+      }
     }
     if (cur_p==null) {
       /* Try the final line break at the end of the paragraph,
@@ -2017,6 +2063,7 @@ ext_do_line_break (boolean d,
      (By introducing this subprocedure, we are able to keep |line_break|
      from getting extremely long.)
   */
+
   ext_post_line_break(d,
 		      right_skip,
 		      left_skip,
