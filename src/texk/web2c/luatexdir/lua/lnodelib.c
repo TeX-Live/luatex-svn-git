@@ -396,203 +396,6 @@ lua_nodelib_hpack(lua_State *L) {
   return 1;
 }
 
-/* A whole set of static data for field information */
-/* every node is supposed to have at least "next",  "id", and "subtype".  */
-
-/* ordinary nodes */
-
-static char * node_fields_list        [] = { "attr", "width", "depth", "height", "dir", "shift", 
-					     "glue_order", "glue_sign", "glue_set" , "list",  NULL };
-static char * node_fields_rule        [] = { "attr", "width", "depth", "height", "dir", NULL };
-static char * node_fields_insert      [] = { "attr", "cost",  "depth", "height", "top_skip", "list", NULL };
-static char * node_fields_mark        [] = { "attr", "class", "mark", NULL }; 
-static char * node_fields_adjust      [] = { "attr", "list", NULL }; 
-static char * node_fields_disc        [] = { "attr", "pre", "post", "replace", NULL };
-static char * node_fields_math        [] = { "attr", "surround", NULL }; 
-static char * node_fields_glue        [] = { "attr", "spec", "leader", NULL }; 
-static char * node_fields_kern        [] = { "attr", "kern", NULL };
-static char * node_fields_penalty     [] = { "attr", "penalty", NULL };
-static char * node_fields_unset       [] = { "attr", "width", "depth", "height", "dir", "shrink",
-					     "glue_order", "glue_sign", "stretch" , "span",  "list",  NULL };
-static char * node_fields_margin_kern [] = { "attr", "width", "glyph", NULL };
-static char * node_fields_glyph       [] = { "attr", "char", "font", "lang", "left", "right", "uchyph", "components", "xoffset", "yoffset", NULL };
-
-/* math nodes and noads */
-static char * node_fields_style    [] = { NULL };
-static char * node_fields_choice   [] = { NULL };
-static char * node_fields_ord      [] = { NULL };
-static char * node_fields_op       [] = { NULL };
-static char * node_fields_bin      [] = { NULL };
-static char * node_fields_rel      [] = { NULL };
-static char * node_fields_open     [] = { NULL };
-static char * node_fields_close    [] = { NULL };
-static char * node_fields_punct    [] = { NULL };
-static char * node_fields_inner    [] = { NULL };
-static char * node_fields_radical  [] = { NULL };
-static char * node_fields_fraction [] = { NULL };
-static char * node_fields_under    [] = { NULL };
-static char * node_fields_over     [] = { NULL };
-static char * node_fields_accent   [] = { NULL };
-static char * node_fields_vcenter  [] = { NULL };
-static char * node_fields_left     [] = { NULL };
-static char * node_fields_right    [] = { NULL };
-
-/* terminal objects */
-static char * node_fields_action         [] = { "action_type", "named_id", "action_id", 
-						"file", "new_window", "data", "ref_count", NULL };
-static char * node_fields_attribute      []  = { "number", "value", NULL };
-static char * node_fields_glue_spec      []  = { "width", "stretch", "shrink", 
-						 "stretch_order", "shrink_order", "ref_count", NULL };
-static char * node_fields_attribute_list []  = { NULL };
-
-/* there are holes in this list because not all node types are actually in use */
-
-static char ** node_fields[] = { 
-  node_fields_list, 
-  node_fields_list,
-  node_fields_rule,
-  node_fields_insert,
-  node_fields_mark,
-  node_fields_adjust,
-  NULL, /* this was ligatures */
-  node_fields_disc,
-  NULL, /*node_fields_whatsit,*/
-  node_fields_math,
-  node_fields_glue,
-  node_fields_kern,
-  node_fields_penalty,
-  node_fields_unset,
-  node_fields_style,
-  node_fields_choice,
-  node_fields_ord,
-  node_fields_op,
-  node_fields_bin,
-  node_fields_rel,
-  node_fields_open,
-  node_fields_close, 
-  node_fields_punct, 
-  node_fields_inner, 
-  node_fields_radical,
-  node_fields_fraction,
-  node_fields_under,
-  node_fields_over, 
-  node_fields_accent,
-  node_fields_vcenter,
-  node_fields_left,  /* 30 */
-  node_fields_right, 
-  node_fields_margin_kern, 
-  node_fields_glyph,
-  NULL,  /* align_record*/
-  NULL,  /* pseudo_file */
-  NULL,  /* pseudo_line */
-  NULL,  /* inserting */
-  NULL,  /* split_up */
-  NULL,  /* expr */
-  NULL,  /* nesting */
-  NULL,  /* span */
-  node_fields_attribute,
-  node_fields_glue_spec,
-  node_fields_attribute_list,
-  node_fields_action,
-  NULL,  /* temp */
-  NULL,  /* align_stack */
-  NULL,  /* movement */
-  NULL,  /* if */
-  NULL,  /* unhyphenated */
-  NULL,  /* hyphenated */
-  NULL,  /* delta */
-  NULL,  /* passive */
-  NULL,  /* shape */
-  NULL };
-
-
-static char * node_fields_whatsit_open               [] = { "attr", "stream", "name", "area", "ext", NULL };
-static char * node_fields_whatsit_write              [] = { "attr", "stream", "data", NULL };
-static char * node_fields_whatsit_close              [] = { "attr", "stream", NULL };
-static char * node_fields_whatsit_special            [] = { "attr", "data", NULL };
-
-static char * node_fields_whatsit_local_par          [] = { "attr", "pen_inter", "pen_broken", "dir", 
-							    "box_left", "box_left_width", "box_right", "box_right_width", NULL };
-static char * node_fields_whatsit_dir                [] = { "attr", "dir", "level", "dvi_ptr", "dvi_h", NULL };
-
-static char * node_fields_whatsit_pdf_literal        [] = { "attr", "mode", "data", NULL };
-static char * node_fields_whatsit_pdf_refobj         [] = { "attr", "objnum", NULL };
-static char * node_fields_whatsit_pdf_refxform       [] = { "attr", "width", "height", "depth", "objnum", NULL };
-static char * node_fields_whatsit_pdf_refximage      [] = { "attr", "width", "height", "depth", "objnum", NULL };
-static char * node_fields_whatsit_pdf_annot          [] = { "attr", "width", "height", "depth", "objnum", "data", NULL };
-static char * node_fields_whatsit_pdf_start_link     [] = { "attr", "width", "height", "depth", 
-							    "objnum", "link_attr", "action", NULL };
-static char * node_fields_whatsit_pdf_end_link       [] = { "attr", NULL };
-static char * node_fields_whatsit_pdf_dest           [] = { "attr", "width", "height", "depth", 
-							    "named_id", "dest_id", "dest_type", "xyz_zoom", "objnum",  NULL };
-static char * node_fields_whatsit_pdf_thread         [] = { "attr", "width", "height", "depth", 
-							    "named_id", "thread_id", "thread_attr", NULL };
-static char * node_fields_whatsit_pdf_start_thread   [] = { "attr", "width", "height", "depth", 
-							    "named_id", "thread_id", "thread_attr", NULL };
-static char * node_fields_whatsit_pdf_end_thread     [] = { "attr", NULL };
-static char * node_fields_whatsit_pdf_save_pos       [] = { "attr", NULL };
-static char * node_fields_whatsit_late_lua           [] = { "attr", "reg", "data", NULL };
-static char * node_fields_whatsit_close_lua          [] = { "attr", "reg", NULL };
-static char * node_fields_whatsit_pdf_colorstack     [] = { "attr", "stack", "cmd", "data", NULL };
-static char * node_fields_whatsit_pdf_setmatrix      [] = { "attr", "data", NULL };
-static char * node_fields_whatsit_pdf_save           [] = { "attr", NULL };
-static char * node_fields_whatsit_pdf_restore        [] = { "attr", NULL };
-static char * node_fields_whatsit_cancel_boundary    [] = { "attr", NULL };
-static char * node_fields_whatsit_user_defined       [] = { "attr", "user_id", "type", "value", NULL };
-
-/* there are holes in this list because not all extension
-   codes generate nodes */
-
-static char ** node_fields_whatsits [] = { 
-  node_fields_whatsit_open,
-  node_fields_whatsit_write,
-  node_fields_whatsit_close,
-  node_fields_whatsit_special,
-  NULL,
-  NULL,
-  node_fields_whatsit_local_par,
-  node_fields_whatsit_dir,
-  node_fields_whatsit_pdf_literal,
-  NULL,
-  node_fields_whatsit_pdf_refobj,
-  NULL,
-  node_fields_whatsit_pdf_refxform,
-  NULL,
-  node_fields_whatsit_pdf_refximage,
-  node_fields_whatsit_pdf_annot,
-  node_fields_whatsit_pdf_start_link,
-  node_fields_whatsit_pdf_end_link,
-  NULL,
-  node_fields_whatsit_pdf_dest,
-  node_fields_whatsit_pdf_thread,
-  node_fields_whatsit_pdf_start_thread,
-  node_fields_whatsit_pdf_end_thread,
-  node_fields_whatsit_pdf_save_pos,
-  NULL, /* thread_data */
-  NULL, /* link_data */
-  NULL, 
-  NULL,  
-  NULL, 
-  NULL,  
-  NULL,  
-  NULL,  
-  NULL, 
-  NULL,
-  NULL,
-  node_fields_whatsit_late_lua,
-  node_fields_whatsit_close_lua,
-  NULL,  
-  NULL,
-  node_fields_whatsit_pdf_colorstack,
-  node_fields_whatsit_pdf_setmatrix,
-  node_fields_whatsit_pdf_save,
-  node_fields_whatsit_pdf_restore,
-  node_fields_whatsit_cancel_boundary,
-  node_fields_whatsit_user_defined,
-  NULL
-};
-
-
 /* This function is similar to |get_node_type_id|, for field
    identifiers.  It has to do some more work, because not all
    identifiers are valid for all types of nodes.
@@ -611,10 +414,10 @@ static char ** node_fields_whatsits [] = {
 static int
 get_node_field_id (lua_State *L, int n, int node ) {
   int j;
+  char **fields;
   char *s = NULL;
   int i = -2;
   int t = type(node);
-  char *** fields = node_fields;
   if (lua_type(L,n)==LUA_TSTRING) {
     s = (char *)lua_tostring(L,n);
     if      (TEST2('i','d'))                     { i = 1;  }
@@ -637,16 +440,17 @@ get_node_field_id (lua_State *L, int n, int node ) {
     else if (strcmp(s,"subtype") == 0)           { i = 2;  }
     else {
       if (t==whatsit_node) {
-	t = subtype(node);
-	fields = node_fields_whatsits;
+	fields = whatsit_node_data[subtype(node)].fields;
+      } else {
+	fields = node_data[t].fields;
       }
-      for (j=0;fields[t][j]!=NULL;j++) {
-	if (strcmp(s,fields[t][j])==0) {
+      for (j=0;fields[j]!=NULL;j++) {
+	if (strcmp(s,fields[j])==0) {
 	  i=j+3;
 	  break;
 	}
       }
-      if (fields[t][j]==NULL)
+      if (fields[j]==NULL)
 	i=-2;
     }
   } else if (lua_isnumber(L,n)) {
@@ -713,11 +517,13 @@ lua_nodelib_whatsits (lua_State *L) {
 static int
 lua_nodelib_fields (lua_State *L) {
   int i = -1;
+  char ** fields;
   int t = get_valid_node_type_id(L,1);
-  char *** fields = node_fields;
   if (t==whatsit_node ) {
     t = get_valid_node_subtype_id(L,2);
-    fields = node_fields_whatsits;
+    fields = whatsit_node_data[t].fields;
+  } else {
+    fields = node_data[t].fields;
   }
   lua_checkstack(L,2);
   lua_newtable(L);
@@ -729,8 +535,8 @@ lua_nodelib_fields (lua_State *L) {
   lua_rawseti(L,-2,1);
   lua_pushstring(L,"subtype");
   lua_rawseti(L,-2,2);
-  for (i=0;fields[t][i]!=NULL;i++) {
-    lua_pushstring(L,fields[t][i]);
+  for (i=0;fields[i]!=NULL;i++) {
+    lua_pushstring(L,fields[i]);
     lua_rawseti(L,-2,(i+3));
   }
   return 1;
