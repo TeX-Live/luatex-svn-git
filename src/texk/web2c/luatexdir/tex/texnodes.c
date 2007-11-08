@@ -33,113 +33,190 @@ halfword slow_get_node (integer s) ; /* defined below */
 
 #define variable_node_size 2
 
+
+char * node_fields_list                       [] = { "attr", "width", "depth", "height", "dir", "shift", 
+ 						    "glue_order", "glue_sign", "glue_set" , "list",  NULL };
+char * node_fields_rule                       [] = { "attr", "width", "depth", "height", "dir", NULL };
+char * node_fields_insert                     [] = { "attr", "cost",  "depth", "height", "top_skip", "list", NULL };
+char * node_fields_mark                       [] = { "attr", "class", "mark", NULL }; 
+char * node_fields_adjust                     [] = { "attr", "list", NULL }; 
+char * node_fields_disc                       [] = { "attr", "pre", "post", "replace", NULL };
+char * node_fields_math                       [] = { "attr", "surround", NULL }; 
+char * node_fields_glue                       [] = { "attr", "spec", "leader", NULL }; 
+char * node_fields_kern                       [] = { "attr", "kern", NULL };
+char * node_fields_penalty                    [] = { "attr", "penalty", NULL };
+char * node_fields_unset                      [] = { "attr", "width", "depth", "height", "dir", "shrink",
+ 						    "glue_order", "glue_sign", "stretch" , "span",  "list",  NULL };
+char * node_fields_margin_kern                [] = { "attr", "width", "glyph", NULL };
+char * node_fields_glyph                      [] = { "attr", "char", "font", "lang", "left", "right", "uchyph", 
+ 						    "components", "xoffset", "yoffset", NULL };
+char * node_fields_style                      [] = { NULL };
+char * node_fields_choice                     [] = { NULL };
+char * node_fields_ord                        [] = { NULL };
+char * node_fields_op                         [] = { NULL };
+char * node_fields_bin                        [] = { NULL };
+char * node_fields_rel                        [] = { NULL };
+char * node_fields_open                       [] = { NULL };
+char * node_fields_close                      [] = { NULL };
+char * node_fields_punct                      [] = { NULL };
+char * node_fields_inner                      [] = { NULL };
+char * node_fields_radical                    [] = { NULL };
+char * node_fields_fraction                   [] = { NULL };
+char * node_fields_under                      [] = { NULL };
+char * node_fields_over                       [] = { NULL };
+char * node_fields_accent                     [] = { NULL };
+char * node_fields_vcenter                    [] = { NULL };
+char * node_fields_left                       [] = { NULL };
+char * node_fields_right                      [] = { NULL };
+						
+char * node_fields_action                     [] = { "action_type", "named_id", "action_id", 
+ 						    "file", "new_window", "data", "ref_count", NULL };
+char * node_fields_attribute                  []  = { "number", "value", NULL };
+char * node_fields_glue_spec                  []  = { "width", "stretch", "shrink", 
+ 						     "stretch_order", "shrink_order", "ref_count", NULL };
+char * node_fields_attribute_list             []  = { NULL };
+						
+char * node_fields_whatsit_open               [] = { "attr", "stream", "name", "area", "ext", NULL };
+char * node_fields_whatsit_write              [] = { "attr", "stream", "data", NULL };
+char * node_fields_whatsit_close              [] = { "attr", "stream", NULL };
+char * node_fields_whatsit_special            [] = { "attr", "data", NULL };
+						
+char * node_fields_whatsit_local_par          [] = { "attr", "pen_inter", "pen_broken", "dir", 
+ 						    "box_left", "box_left_width", "box_right", "box_right_width", NULL };
+char * node_fields_whatsit_dir                [] = { "attr", "dir", "level", "dvi_ptr", "dvi_h", NULL };
+						
+char * node_fields_whatsit_pdf_literal        [] = { "attr", "mode", "data", NULL };
+char * node_fields_whatsit_pdf_refobj         [] = { "attr", "objnum", NULL };
+char * node_fields_whatsit_pdf_refxform       [] = { "attr", "width", "height", "depth", "objnum", NULL };
+char * node_fields_whatsit_pdf_refximage      [] = { "attr", "width", "height", "depth", "objnum", NULL };
+char * node_fields_whatsit_pdf_annot          [] = { "attr", "width", "height", "depth", "objnum", "data", NULL };
+char * node_fields_whatsit_pdf_start_link     [] = { "attr", "width", "height", "depth", 
+ 						    "objnum", "link_attr", "action", NULL };
+char * node_fields_whatsit_pdf_end_link       [] = { "attr", NULL };
+char * node_fields_whatsit_pdf_dest           [] = { "attr", "width", "height", "depth", 
+ 						    "named_id", "dest_id", "dest_type", "xyz_zoom", "objnum",  NULL };
+char * node_fields_whatsit_pdf_thread         [] = { "attr", "width", "height", "depth", 
+ 						    "named_id", "thread_id", "thread_attr", NULL };
+char * node_fields_whatsit_pdf_start_thread   [] = { "attr", "width", "height", "depth", 
+ 						    "named_id", "thread_id", "thread_attr", NULL };
+char * node_fields_whatsit_pdf_end_thread     [] = { "attr", NULL };
+char * node_fields_whatsit_pdf_save_pos       [] = { "attr", NULL };
+char * node_fields_whatsit_late_lua           [] = { "attr", "reg", "data", NULL };
+char * node_fields_whatsit_close_lua          [] = { "attr", "reg", NULL };
+char * node_fields_whatsit_pdf_colorstack     [] = { "attr", "stack", "cmd", "data", NULL };
+char * node_fields_whatsit_pdf_setmatrix      [] = { "attr", "data", NULL };
+char * node_fields_whatsit_pdf_save           [] = { "attr", NULL };
+char * node_fields_whatsit_pdf_restore        [] = { "attr", NULL };
+char * node_fields_whatsit_cancel_boundary    [] = { "attr", NULL };
+char * node_fields_whatsit_user_defined       [] = { "attr", "user_id", "type", "value", NULL };
+
 node_info node_data[] = {
-  { hlist_node,           box_node_size,             "hlist"          },
-  { vlist_node,           box_node_size,             "vlist"          },
-  { rule_node,            rule_node_size,            "rule"           },
-  { ins_node,             ins_node_size,             "ins"            },
-  { mark_node,            mark_node_size,            "mark"           },
-  { adjust_node,          adjust_node_size,          "adjust"         },
-  { fake_node,            fake_node_size,             fake_node_name  }, /* don't touch this! */
-  { disc_node,            disc_node_size,            "disc"           },
-  { whatsit_node,         -1,                        "whatsit"        },
-  { math_node,            math_node_size,            "math"           },
-  { glue_node,            glue_node_size,            "glue"           },
-  { kern_node,            kern_node_size,            "kern"           },
-  { penalty_node,         penalty_node_size,         "penalty"        },
-  { unset_node,           box_node_size,             "unset"          },
-  { style_node,           style_node_size,           "style"          },
-  { choice_node,          style_node_size,           "choice"         },
-  { ord_noad,             noad_size,                 "ord"            },
-  { op_noad,              noad_size,                 "op"             },
-  { bin_noad,             noad_size,                 "bin"            },
-  { rel_noad,             noad_size,                 "rel"            },
-  { open_noad,            noad_size,                 "open"           },
-  { close_noad,           noad_size,                 "close"          },
-  { punct_noad,           noad_size,                 "punct"          },
-  { inner_noad,           noad_size,                 "inner"          },
-  { radical_noad,         radical_noad_size,         "radical"        },
-  { fraction_noad,        fraction_noad_size,        "fraction"       },
-  { under_noad,           noad_size,                 "under"          },
-  { over_noad,            noad_size,                 "over"           },
-  { accent_noad,          accent_noad_size,          "accent"         },
-  { vcenter_noad,         noad_size,                 "vcenter"        },
-  { left_noad,            noad_size,                 "left"           },
-  { right_noad,           noad_size,                 "right"          },
-  { margin_kern_node,     margin_kern_node_size,     "margin_kern"    },
-  { glyph_node,           glyph_node_size,           "glyph"          }, /* 33 */
-  { align_record_node,    box_node_size,             "align_record"   },
-  { pseudo_file_node,     pseudo_file_node_size,     "pseudo_file"    },
-  { pseudo_line_node,     variable_node_size,        "pseudo_line"    },
-  { inserting_node,       page_ins_node_size,        "insert_head"    },
-  { split_up_node,        page_ins_node_size,        "split_head"     },
-  { expr_node,            expr_node_size,            "expr_stack"     },
-  { nesting_node,         nesting_node_size,         "nested_list"    },
-  { span_node,            span_node_size,            "span"           },
-  { attribute_node,       attribute_node_size,       "attribute"      },
-  { glue_spec_node,       glue_spec_size,            "glue_spec"      },
-  { attribute_list_node,  attribute_list_node_size,  "attribute_list" },
-  { action_node,          pdf_action_size,           "action"         },
-  { temp_node,            temp_node_size,            "temp"           },
-  { align_stack_node,     align_stack_node_size,     "align_stack"    },
-  { movement_node,        movement_node_size,        "movement_stack" },
-  { if_node,              if_node_size,              "if_stack"       },
-  { unhyphenated_node,    active_node_size,          "unhyphenated"   },
-  { hyphenated_node,      active_node_size,          "hyphenated"     },
-  { delta_node,           delta_node_size,           "delta"          },
-  { passive_node,         passive_node_size,         "passive"        },
-  { shape_node,           variable_node_size,        "shape"          },
-  { -1,                   -1,                        NULL             }};
+  { hlist_node,           box_node_size,             node_fields_list,        "hlist"          },
+  { vlist_node,           box_node_size,             node_fields_list,        "vlist"          },
+  { rule_node,            rule_node_size,            node_fields_rule,        "rule"           },
+  { ins_node,             ins_node_size,             node_fields_insert,      "ins"            },
+  { mark_node,            mark_node_size,            node_fields_mark,        "mark"           },
+  { adjust_node,          adjust_node_size,          node_fields_adjust,      "adjust"         },
+  { fake_node,            fake_node_size,            NULL,                    fake_node_name  }, /* don't touch this! */
+  { disc_node,            disc_node_size,            node_fields_disc,        "disc"           },
+  { whatsit_node,         -1,                        NULL,                    "whatsit"        },
+  { math_node,            math_node_size,            node_fields_math,        "math"           },
+  { glue_node,            glue_node_size,            node_fields_glue,        "glue"           },
+  { kern_node,            kern_node_size,            node_fields_kern,        "kern"           },
+  { penalty_node,         penalty_node_size,         node_fields_penalty,     "penalty"        },
+  { unset_node,           box_node_size,             node_fields_unset,       "unset"          },
+  { style_node,           style_node_size,           node_fields_style,       "style"          },
+  { choice_node,          style_node_size,           node_fields_choice,      "choice"         },
+  { ord_noad,             noad_size,                 node_fields_ord,         "ord"            },
+  { op_noad,              noad_size,                 node_fields_op,          "op"             },
+  { bin_noad,             noad_size,                 node_fields_bin,         "bin"            },
+  { rel_noad,             noad_size,                 node_fields_rel,         "rel"            },
+  { open_noad,            noad_size,                 node_fields_open,        "open"           },
+  { close_noad,           noad_size,                 node_fields_close,       "close"          },
+  { punct_noad,           noad_size,                 node_fields_punct,       "punct"          },
+  { inner_noad,           noad_size,                 node_fields_inner,       "inner"          },
+  { radical_noad,         radical_noad_size,         node_fields_radical,     "radical"        },
+  { fraction_noad,        fraction_noad_size,        node_fields_fraction,    "fraction"       },
+  { under_noad,           noad_size,                 node_fields_under,       "under"          },
+  { over_noad,            noad_size,                 node_fields_over,        "over"           },
+  { accent_noad,          accent_noad_size,          node_fields_accent,      "accent"         },
+  { vcenter_noad,         noad_size,                 node_fields_vcenter,     "vcenter"        },
+  { left_noad,            noad_size,                 node_fields_left,        "left"           },
+  { right_noad,           noad_size,                 node_fields_right,       "right"          },
+  { margin_kern_node,     margin_kern_node_size,     node_fields_margin_kern, "margin_kern"    },
+  { glyph_node,           glyph_node_size,           node_fields_glyph,       "glyph"          }, /* 33 */
+  { align_record_node,    box_node_size,             NULL,                    "align_record"   },
+  { pseudo_file_node,     pseudo_file_node_size,     NULL,                    "pseudo_file"    },
+  { pseudo_line_node,     variable_node_size,        NULL,                    "pseudo_line"    },
+  { inserting_node,       page_ins_node_size,        NULL,                    "insert_head"    },
+  { split_up_node,        page_ins_node_size,        NULL,                    "split_head"     },
+  { expr_node,            expr_node_size,            NULL,                    "expr_stack"     },
+  { nesting_node,         nesting_node_size,         NULL,                    "nested_list"    }, /* 40 */
+  { span_node,            span_node_size,            NULL,                    "span"           },
+  { attribute_node,       attribute_node_size,       node_fields_attribute,   "attribute"      },
+  { glue_spec_node,       glue_spec_size,            node_fields_glue_spec,   "glue_spec"      },
+  { attribute_list_node,  attribute_list_node_size,  node_fields_attribute_list,"attribute_list" },
+  { action_node,          pdf_action_size,           node_fields_action,      "action"         },
+  { temp_node,            temp_node_size,            NULL,                    "temp"           },
+  { align_stack_node,     align_stack_node_size,     NULL,                    "align_stack"    },
+  { movement_node,        movement_node_size,        NULL,                    "movement_stack" },
+  { if_node,              if_node_size,              NULL,                    "if_stack"       },
+  { unhyphenated_node,    active_node_size,          NULL,                    "unhyphenated"   }, /* 50 */
+  { hyphenated_node,      active_node_size,          NULL,                    "hyphenated"     },
+  { delta_node,           delta_node_size,           NULL,                    "delta"          },
+  { passive_node,         passive_node_size,         NULL,                    "passive"        },
+  { shape_node,           variable_node_size,        NULL,                    "shape"          },
+    { -1,                   -1,                      NULL,                     NULL            }};
 
 #define last_normal_node shape_node
- 
+
 node_info whatsit_node_data[] = {
-  { open_node,             open_node_size,             "open"            },
-  { write_node,            write_node_size,            "write"           },
-  { close_node,            close_node_size,            "close"           },
-  { special_node,          special_node_size,          "special"         },
-  { fake_node,             fake_node_size,             fake_node_name    },
-  { fake_node,             fake_node_size,             fake_node_name    },
-  { local_par_node,        local_par_size,             "local_par"       },
-  { dir_node,              dir_node_size,              "dir"             },
-  { pdf_literal_node,      write_node_size,            "pdf_literal"     },
-  { fake_node,             fake_node_size,             fake_node_name    },
-  { pdf_refobj_node,       pdf_refobj_node_size,       "pdf_refobj"      },
-  { fake_node,             fake_node_size,             fake_node_name    },
-  { pdf_refxform_node,     pdf_refxform_node_size,     "pdf_refxform"    },
-  { fake_node,             fake_node_size,             fake_node_name    },
-  { pdf_refximage_node,    pdf_refximage_node_size,    "pdf_refximage"   },
-  { pdf_annot_node,        pdf_annot_node_size,        "pdf_annot"       },
-  { pdf_start_link_node,   pdf_annot_node_size,        "pdf_start_link"  },
-  { pdf_end_link_node,     pdf_end_link_node_size,     "pdf_end_link"    },
-  { fake_node,             fake_node_size,             fake_node_name    },
-  { pdf_dest_node,         pdf_dest_node_size,         "pdf_dest"        },
-  { pdf_thread_node,       pdf_thread_node_size,       "pdf_thread"      },
-  { pdf_start_thread_node, pdf_thread_node_size,       "pdf_start_thread"},
-  { pdf_end_thread_node,   pdf_end_thread_node_size,   "pdf_end_thread"  },
-  { pdf_save_pos_node,     pdf_save_pos_node_size,     "pdf_save_pos"    },
-  { pdf_thread_data_node,  pdf_thread_node_size,       "pdf_thread_data" },
-  { pdf_link_data_node,    pdf_annot_node_size,        "pdf_link_data"   },
-  { fake_node,             fake_node_size,             fake_node_name    },
-  { fake_node,             fake_node_size,             fake_node_name    },
-  { fake_node,             fake_node_size,             fake_node_name    },
-  { fake_node,             fake_node_size,             fake_node_name    },
-  { fake_node,             fake_node_size,             fake_node_name    },
-  { fake_node,             fake_node_size,             fake_node_name    },
-  { fake_node,             fake_node_size,             fake_node_name    },
-  { fake_node,             fake_node_size,             fake_node_name    },
-  { fake_node,             fake_node_size,             fake_node_name    },
-  { late_lua_node,         write_node_size,            "late_lua"        },
-  { close_lua_node,        write_node_size,            "close_lua"       },
-  { fake_node,             fake_node_size,             fake_node_name    },
-  { fake_node,             fake_node_size,             fake_node_name    },
-  { pdf_colorstack_node,   pdf_colorstack_node_size,   "pdf_colorstack"  },
-  { pdf_setmatrix_node,    pdf_setmatrix_node_size,    "pdf_setmatrix"   },
-  { pdf_save_node,         pdf_save_node_size,         "pdf_save"        },
-  { pdf_restore_node,      pdf_restore_node_size,      "pdf_restore"     },
-  { cancel_boundary_node,  cancel_boundary_size,       "cancel_boundary" },
-  { user_defined_node,     user_defined_node_size,     "user_defined"    },
-  { -1,                    -1,                         NULL              }};
+  { open_node,             open_node_size,             node_fields_whatsit_open,            "open"            },
+  { write_node,            write_node_size,            node_fields_whatsit_write,           "write"           },
+  { close_node,            close_node_size,            node_fields_whatsit_close,           "close"           },
+  { special_node,          special_node_size,          node_fields_whatsit_special,         "special"         },
+  { fake_node,             fake_node_size,             NULL,                                fake_node_name    },
+  { fake_node,             fake_node_size,             NULL,                                fake_node_name    },
+  { local_par_node,        local_par_size,             node_fields_whatsit_local_par,       "local_par"       },
+  { dir_node,              dir_node_size,              node_fields_whatsit_dir,             "dir"             },
+  { pdf_literal_node,      write_node_size,            node_fields_whatsit_pdf_literal,     "pdf_literal"     },
+  { fake_node,             fake_node_size,             NULL,                                fake_node_name    },
+  { pdf_refobj_node,       pdf_refobj_node_size,       node_fields_whatsit_pdf_refobj,      "pdf_refobj"      },
+  { fake_node,             fake_node_size,             NULL,                                fake_node_name    },
+  { pdf_refxform_node,     pdf_refxform_node_size,     node_fields_whatsit_pdf_refxform,    "pdf_refxform"    },
+  { fake_node,             fake_node_size,             NULL,                                fake_node_name    },
+  { pdf_refximage_node,    pdf_refximage_node_size,    node_fields_whatsit_pdf_refximage,   "pdf_refximage"   },
+  { pdf_annot_node,        pdf_annot_node_size,        node_fields_whatsit_pdf_annot,       "pdf_annot"       },
+  { pdf_start_link_node,   pdf_annot_node_size,        node_fields_whatsit_pdf_start_link,  "pdf_start_link"  },
+  { pdf_end_link_node,     pdf_end_link_node_size,     node_fields_whatsit_pdf_end_link,    "pdf_end_link"    },
+  { fake_node,             fake_node_size,             NULL,                                fake_node_name    },
+  { pdf_dest_node,         pdf_dest_node_size,         node_fields_whatsit_pdf_dest,        "pdf_dest"        },
+  { pdf_thread_node,       pdf_thread_node_size,       node_fields_whatsit_pdf_thread,      "pdf_thread"      },
+  { pdf_start_thread_node, pdf_thread_node_size,       node_fields_whatsit_pdf_start_thread,"pdf_start_thread"},
+  { pdf_end_thread_node,   pdf_end_thread_node_size,   node_fields_whatsit_pdf_end_thread,  "pdf_end_thread"  },
+  { pdf_save_pos_node,     pdf_save_pos_node_size,     node_fields_whatsit_pdf_save_pos,    "pdf_save_pos"    },
+  { pdf_thread_data_node,  pdf_thread_node_size,       NULL,                                "pdf_thread_data" },
+  { pdf_link_data_node,    pdf_annot_node_size,        NULL,                                "pdf_link_data"   },
+  { fake_node,             fake_node_size,             NULL,                                fake_node_name    },
+  { fake_node,             fake_node_size,             NULL,                                fake_node_name    },
+  { fake_node,             fake_node_size,             NULL,                                fake_node_name    },
+  { fake_node,             fake_node_size,             NULL,                                fake_node_name    },
+  { fake_node,             fake_node_size,             NULL,                                fake_node_name    },
+  { fake_node,             fake_node_size,             NULL,                                fake_node_name    },
+  { fake_node,             fake_node_size,             NULL,                                fake_node_name    },
+  { fake_node,             fake_node_size,             NULL,                                fake_node_name    },
+  { fake_node,             fake_node_size,             NULL,                                fake_node_name    },
+  { late_lua_node,         write_node_size,            node_fields_whatsit_late_lua,        "late_lua"        },
+  { close_lua_node,        write_node_size,            node_fields_whatsit_close_lua,       "close_lua"       },
+  { fake_node,             fake_node_size,             NULL,                                fake_node_name    },
+  { fake_node,             fake_node_size,             NULL,                                fake_node_name    },
+  { pdf_colorstack_node,   pdf_colorstack_node_size,   node_fields_whatsit_pdf_colorstack,  "pdf_colorstack"  },
+  { pdf_setmatrix_node,    pdf_setmatrix_node_size,    node_fields_whatsit_pdf_setmatrix,   "pdf_setmatrix"   },
+  { pdf_save_node,         pdf_save_node_size,         node_fields_whatsit_pdf_save,        "pdf_save"        },
+  { pdf_restore_node,      pdf_restore_node_size,      node_fields_whatsit_pdf_restore,     "pdf_restore"     },
+  { cancel_boundary_node,  cancel_boundary_size,       node_fields_whatsit_cancel_boundary, "cancel_boundary" },
+  { user_defined_node,     user_defined_node_size,     node_fields_whatsit_user_defined,    "user_defined"    },
+  { -1,                    -1,                         NULL,                                NULL              }};
 
 #define last_whatsit_node user_defined_node
 
@@ -277,31 +354,31 @@ copy_node(const halfword p) {
     break;
   case disc_node:
     pre_break(r)=pre_break_head(r); 
-    if (vlink(pre_break(p))!=null) {
-      s=copy_node_list(vlink(pre_break(p)));
+    if (vlink_pre_break(p)!=null) {
+      s=copy_node_list(vlink_pre_break(p));
       alink(s)=pre_break(r);
-      tlink(pre_break(r))=tail_of_list(s); 
-      vlink(pre_break(r))=s;
+      tlink_pre_break(r)=tail_of_list(s); 
+      vlink_pre_break(r)=s;
     } else {
       assert(tlink(pre_break(r))==null);
     }
     post_break(r)=post_break_head(r);
-    if (vlink(post_break(p))!=null) {
-      s=copy_node_list(vlink(post_break(p)));
+    if (vlink_post_break(p)!=null) {
+      s=copy_node_list(vlink_post_break(p));
       alink(s)=post_break(r);
-      tlink(post_break(r))=tail_of_list(s); 
-      vlink(post_break(r))=s;
+      tlink_post_break(r)=tail_of_list(s); 
+      vlink_post_break(r)=s;
     } else {
-      assert(tlink(post_break(r))==null);
+      assert(tlink_post_break(r)==null);
     }
     no_break(r)=no_break_head(r);
     if (vlink(no_break(p))!=null) {
-      s=copy_node_list(vlink(no_break(p)));
+      s=copy_node_list(vlink_no_break(p));
       alink(s)=no_break(r);
-      tlink(no_break(r))=tail_of_list(s); 
-      vlink(no_break(r))=s;
+      tlink_no_break(r)=tail_of_list(s); 
+      vlink_no_break(r)=s;
     } else {
-      assert(tlink(no_break(r))==null);
+      assert(tlink_no_break(r)==null);
     }
     break;
   case mark_node: 
@@ -389,78 +466,81 @@ int valid_node (halfword p) {
   return 0;
 }
 
-
-int free_error (halfword p, char *context) {
-
-  char errstr[256]= {0};
+static void 
+do_free_error (halfword p) {
+  char errstr[255]= {0};
   char *errhlp[] = {"When I tried to free the node mentioned in the error message, it turned",
-                    "out it was not (or no longer) actually in use.",
-                    "Errors such as these are often caused by Lua node list alteration,",
-                    "but could also point to a bug in the executable. It should be safe to continue.",
-                    NULL};
+		    "out it was not (or no longer) actually in use.",
+		    "Errors such as these are often caused by Lua node list alteration,",
+		    "but could also point to a bug in the executable. It should be safe to continue.",
+		    NULL};
 
-  assert(p>prealloc);
-  assert(p<var_mem_max);
+  check_node_mem();
+  if (free_error_seen)
+    return;
 
-  if (varmem_sizes[p]==0) {
-    check_node_mem();
-    if (free_error_seen)
-      return 1;
+  halfword r = null;    
+  free_error_seen = 1;
+  if (type(p)==glyph_node) {
+    snprintf(errstr,255,"Attempt to double-free glyph (%c) node %d, ignored", character (p), (int)p);
+  } else {
+    snprintf(errstr,255,"Attempt to double-free %s node %d, ignored", get_node_name(type(p),subtype(p)), (int)p);
+  }
+  tex_error(errstr,errhlp);
+  for (r=prealloc+1;r<var_mem_max;r++) {
+    if (vlink(r)==p) {
+      halfword s = r;
+      while (s>prealloc && varmem_sizes[s]==0)
+        s--;
+      if (s!=null 
+          && s!=prealloc 
+          && s!=var_mem_max 
+          && (r-s)<get_node_size(type(s),subtype(s) )
+          && alink(s)!=p ) {
 
-    halfword r = null;    
-    free_error_seen = 1;
-    if (type(p)==glyph_node) {
-      snprintf(errstr,255,"Attempt to double-free glyph (%c) node %d, ignored", character (p), (int)p);
-    } else {
-      snprintf(errstr,255,"Attempt to double-free %s node %d, ignored", get_node_name(type(p),subtype(p)), (int)p);
-    }
-    tex_error(errstr,errhlp);
-    for (r=prealloc+1;r<var_mem_max;r++) {
-      if (vlink(r)==p) {
-	halfword s = r;
-	while (s>prealloc && varmem_sizes[s]==0)
-	  s--;
-	if (s!=null 
-	    && s!=prealloc 
-	    && s!=var_mem_max 
-	    && (r-s)<get_node_size(type(s),subtype(s) )
-	    && alink(s)!=p ) {
-
-	  if (type(s)==disc_node) {
-	    fprintf(stdout,"  pointed to from %s node %d (vlink %d, alink %d): ", 
-		    get_node_name(type(s),subtype(s)), (int)s, (int)vlink(s), (int)alink(s));
-	    fprintf(stdout,"pre_break(%d,%d,%d), ",  vlink_pre_break(s),  tlink(pre_break(s)), alink(pre_break(s)));
-	    fprintf(stdout,"post_break(%d,%d,%d), ", vlink_post_break(s), tlink(post_break(s)), alink(post_break(s)));
-	    fprintf(stdout,"no_break(%d,%d,%d)",     vlink_no_break(s),   tlink(no_break(s)), alink(no_break(s)));
-	    fprintf(stdout,"\n");
-	  } else { 
-	    if (vlink(s)==p 
-		|| (type(s)==glyph_node && lig_ptr(s)==p) 
-		|| (type(s)==vlist_node && list_ptr(s)==p) 
-		|| (type(s)==hlist_node && list_ptr(s)==p) 
-		|| (type(s)==unset_node && list_ptr(s)==p) 
-		|| (type(s)==ins_node && ins_ptr(s)==p) 
-		) {
-	      fprintf(stdout,"  pointed to from %s node %d (vlink %d, alink %d): ", 
-		      get_node_name(type(s),subtype(s)), (int)s, (int)vlink(s), (int)alink(s));
-	      if (type(s)==glyph_node) {
-		fprintf(stdout,"lig_ptr(%d)", lig_ptr(s));
-	      } else if (type(s)==vlist_node || type(s)==hlist_node) {
-		fprintf(stdout,"list_ptr(%d)", list_ptr(s));
-	      }
-	      fprintf(stdout,"\n");
-	    } else {
-	      if ((type(s)!=penalty_node)
-		  && (type(s)!=math_node)
-		  && (type(s)!=kern_node)
-		  ) {
-		fprintf(stdout,"  pointed to from %s node %d\n",get_node_name(type(s),subtype(s)), (int)s); 
-	      }
-	    }
-	  }
-	}
+        if (type(s)==disc_node) {
+          fprintf(stdout,"  pointed to from %s node %d (vlink %d, alink %d): ", 
+      	    get_node_name(type(s),subtype(s)), (int)s, (int)vlink(s), (int)alink(s));
+          fprintf(stdout,"pre_break(%d,%d,%d), ",  vlink_pre_break(s),  tlink(pre_break(s)), alink(pre_break(s)));
+          fprintf(stdout,"post_break(%d,%d,%d), ", vlink_post_break(s), tlink(post_break(s)), alink(post_break(s)));
+          fprintf(stdout,"no_break(%d,%d,%d)",     vlink_no_break(s),   tlink(no_break(s)), alink(no_break(s)));
+          fprintf(stdout,"\n");
+        } else { 
+          if (vlink(s)==p 
+      	|| (type(s)==glyph_node && lig_ptr(s)==p) 
+      	|| (type(s)==vlist_node && list_ptr(s)==p) 
+      	|| (type(s)==hlist_node && list_ptr(s)==p) 
+      	|| (type(s)==unset_node && list_ptr(s)==p) 
+      	|| (type(s)==ins_node && ins_ptr(s)==p) 
+      	) {
+            fprintf(stdout,"  pointed to from %s node %d (vlink %d, alink %d): ", 
+      	      get_node_name(type(s),subtype(s)), (int)s, (int)vlink(s), (int)alink(s));
+            if (type(s)==glyph_node) {
+      	fprintf(stdout,"lig_ptr(%d)", lig_ptr(s));
+            } else if (type(s)==vlist_node || type(s)==hlist_node) {
+      	fprintf(stdout,"list_ptr(%d)", list_ptr(s));
+            }
+            fprintf(stdout,"\n");
+          } else {
+            if ((type(s)!=penalty_node)
+      	  && (type(s)!=math_node)
+      	  && (type(s)!=kern_node)
+      	  ) {
+	      fprintf(stdout,"  pointed to from %s node %d\n",get_node_name(type(s),subtype(s)), (int)s); 
+            }
+          }
+        }
       }
     }
+  }
+}
+
+int 
+free_error (halfword p) {
+  assert(p>prealloc);
+  assert(p<var_mem_max);
+  if (varmem_sizes[p]==0) {
+    do_free_error(p);
     return 1; /* double free */
   }
   return 0;
@@ -471,7 +551,7 @@ flush_node (halfword p) {
   
   if (p==null) /* legal, but no-op */
     return;
-  if (free_error(p,"node"))
+  if (free_error(p))
     return;
 
   switch(type(p)) {
@@ -565,12 +645,12 @@ flush_node (halfword p) {
       case 'a': delete_attribute_ref(user_node_value(p)); break;
       case 't': delete_token_ref(user_node_value(p));  break;
       case 'n': flush_node_list(user_node_value(p));  break;
-      default:  confusion(maketexstring("extuser")); break;
+      default:  tconfusion("extuser"); break;
       }
       break;
 
     default:
-      confusion(maketexstring("ext3"));
+      tconfusion("ext3");
       return;
 
     }
@@ -654,16 +734,15 @@ flush_node (halfword p) {
 
 void 
 flush_node_list(halfword pp) { /* erase list of nodes starting at |p| */
-  register halfword q;
-  halfword p=pp; /*to prevent trashing of the argument pointer, for debugging*/
+  register halfword p=pp; 
   free_error_seen = 0;
   if (p==null) /* legal, but no-op */
     return;
-  if (free_error(p,"list"))
+  if (free_error(p))
     return;
 
   while (p!=null) {
-    q = vlink(p);
+    register halfword q = vlink(p);
     flush_node(p);
     p=q;
   }
@@ -671,21 +750,19 @@ flush_node_list(halfword pp) { /* erase list of nodes starting at |p| */
 
 static int test_count = 1;
 
-#define dorangetest(a,b,c) {                                            \
+#define dorangetest(a,b,c)  do {					\
     if (!(b>=0 && b<c)) {                                               \
       fprintf(stdout,"For node p:=%d, 0<=%d<%d (l.%d,r.%d)\n",          \
               (int)a, (int)b, (int)c, __LINE__,test_count);             \
-      confusion(maketexstring("dorangetest"));                          \
-    }                                                                   \
-  }
+      tconfusion("dorangetest");					\
+    } } while (0)
 
-#define dotest(a,b,c) {                                                 \
+#define dotest(a,b,c) do {						\
     if (b!=c) {                                                         \
       fprintf(stdout,"For node p:=%d, %d==%d (l.%d,r.%d)\n",            \
               (int)a, (int)b, (int)c, __LINE__,test_count);             \
-      confusion(maketexstring("dotest"));                               \
-    }                                                                   \
-  }
+      tconfusion("dotest");						\
+    } } while (0)
 
 #define check_action_ref(a)     { dorangetest(p,a,var_mem_max); }
 #define check_glue_ref(a)       { dorangetest(p,a,var_mem_max); }
@@ -753,7 +830,7 @@ check_node (halfword p) {
       case 'a': check_attribute_ref(user_node_value(p)); break;
       case 't': check_token_ref(user_node_value(p));  break;
       case 'n': dorangetest(p,user_node_value(p),var_mem_max); break;
-      default:  confusion(maketexstring("extuser")); break;
+      default:  tconfusion("extuser"); break;
       }
       break;
     case dir_node: 
@@ -773,7 +850,7 @@ check_node (halfword p) {
     case local_par_node: 
       break;
     default:
-      confusion(maketexstring("ext3"));
+      tconfusion("ext3");
     }
     break;
   case margin_kern_node:
@@ -945,10 +1022,6 @@ free_node (halfword p, integer s) {
     return;
   }
 #ifndef NDEBUG
-  if (varmem_sizes[p]!=s) {
-    fprintf(stdout,"%c",(type(p)==glyph_node ? (character(p)>31? (int)character(p) : '#'): '*'));
-    return;
-  }
   varmem_sizes[p] = 0;
 #endif
   if (s<MAX_CHAIN_SIZE) {
@@ -976,7 +1049,7 @@ init_node_mem (halfword prealloced, halfword t) {
   if (varmem==NULL) {
     overflow(maketexstring("node memory size"),var_mem_max);
   }
-  /*memset ((void *)varmem,0,sizeof(memory_word)*t);*/
+
 #ifndef NDEBUG
   varmem_sizes = (char *)realloc(varmem_sizes,sizeof(char)*t);
   if (varmem_sizes==NULL) {
@@ -1048,14 +1121,15 @@ void test_rovers (char *s) {
 
 halfword 
 slow_get_node (integer s) {
-  register halfword r;
-  int x, t;
+  register int t;
+
  RETRY:
   t = node_size(rover);
   assert(vlink(rover)<var_mem_max);
   assert(vlink(rover)!=0);
   test_rovers("entry");
   if (t>s) {
+    register halfword r;
     /* allocating from the bottom helps decrease page faults */
     r = rover;
     rover += s;
@@ -1077,7 +1151,7 @@ slow_get_node (integer s) {
     var_used += s; /* maintain usage statistics */
     return r; /* this is the only exit */
   } else {
-
+    int x;
     /* attempt to keep the free list small */
     if (vlink(rover)!=rover) {
       if (t<MAX_CHAIN_SIZE) {
@@ -1090,8 +1164,8 @@ slow_get_node (integer s) {
 	test_rovers("outtake");
 	goto RETRY;
       } else {
-	r = rover;
-	while (vlink(rover)!=r) { 
+	halfword l = rover;
+	while (vlink(rover)!=l) { 
 	  if (node_size(rover)>s) {
 	    goto RETRY;
 	  }
@@ -1131,29 +1205,24 @@ void
 print_node_mem_stats (int num, int online) {
   int i,b;
   halfword j;
+  char msg[256];
   integer free_chain_counts[MAX_CHAIN_SIZE] = {0};
   int node_counts[last_normal_node+last_whatsit_node+2] = {0};
 
-  fprintf(log_file,"\nnode memory in use: %d words out of %d\n", (int)(var_used+prealloc), (int)var_mem_max);
-  if (online)
-    fprintf(stdout,"\nnode memory in use: %d words out of %d\n", (int)(var_used+prealloc), (int)var_mem_max);
-
-  fprintf(log_file,"rapidly available: ");
-  if (online) fprintf(stdout,"rapidly available: ");
+  snprintf(msg,255,"node memory in use: %d words out of %d", (int)(var_used+prealloc), (int)var_mem_max);
+  tprint_nl(msg);
+  tprint_nl("rapidly available: ");
   b=0;
   for (i=1;i<MAX_CHAIN_SIZE;i++) {
     for(j = free_chain[i];j!=null;j = vlink(j)) 
       free_chain_counts[i] ++;
     if (free_chain_counts[i]>0) {
-      fprintf(log_file,"%s%d:%d",(b ? ", " : ""),i, (int)free_chain_counts[i]);
-      if (online) 
-	fprintf(stdout,"%s%d:%d",(b ? ", " : ""),i, (int)free_chain_counts[i]);
+      snprintf(msg,255,"%s%d:%d",(b ? ", " : ""),i, (int)free_chain_counts[i]);
+      tprint(msg);
       b=1;
     }
   }
-  fprintf(log_file," nodes\n");
-  if (online)
-    fprintf(stdout," nodes\n");
+  tprint(" nodes");
   for (i=(var_mem_max-1);i>prealloc;i--) {
     if (varmem_sizes[i]>0) {
       /*fprintf(stdout,"%s at %d\n",get_node_name(type(i),subtype(i)),i);*/
@@ -1166,29 +1235,20 @@ print_node_mem_stats (int num, int online) {
       }
     }
   }
+  tprint_nl("current usage: ");
   b=0;
-  fprintf(log_file,"current usage: ");
-  if (online)
-    fprintf(stdout,"current usage: ");
   for (i=0;i<last_normal_node+last_whatsit_node+2;i++) {
     if (node_counts[i]>0) {
-      fprintf(log_file,"%s%d %s%s",(b ? ", " : ""),
+      snprintf(msg,255,"%s%d %s%s",(b ? ", " : ""),
 	      (int)node_counts[i],
 	      get_node_name((i>last_normal_node ? whatsit_node : i),
 			    (i>last_normal_node ? (i-last_normal_node-1) : 0)),
 	      (node_counts[i]>1 ? "s" : ""));
-      if (online)
-	fprintf(stdout,"%s%d %s%s",(b ? ", " : ""),
-		(int)node_counts[i],
-		get_node_name((i>last_normal_node ? whatsit_node : i),
-			      (i>last_normal_node ? (i-last_normal_node-1) : 0)),
-		(node_counts[i]>1 ? "s" : ""));
+      tprint(msg);
       b=1;
     }
   }
-  fprintf(log_file,"\n");
-  if (online)
-    fprintf(stdout,"\n");
+  print_nlp(); /* newline, if needed */
 }
 
 /* this belongs in the web but i couldn't find the correct syntactic place */
@@ -1243,28 +1303,26 @@ string_to_pseudo(integer l,integer pool_ptr, integer nl) {
 /* attribute stuff */
 
 halfword 
-new_attribute_node(integer i, integer c) {
-  halfword p; /* the new node */
-  p=new_node(attribute_node,0);
+new_attribute_node(integer i, integer v) {
+  register halfword p = get_node(attribute_node_size);
+  type(p)=attribute_node;
+  subtype(p)=0;
   attribute_id(p)=i;  
-  attribute_value(p)=c; 
+  attribute_value(p)=v; 
   return p;
 }
 
 void 
 build_attribute_list(halfword b) {
-  halfword p,q,r;
-  integer i,v;
-  assert(type(b)!=attribute_list_node);
-  node_attr(b)=null;
   if (max_used_attr!=0) {
     if (attr_list_cache==cache_disabled) {
-      q=new_node(attribute_list_node,0); 
-      p=q;
+      integer i;
+      halfword q=new_node(attribute_list_node,0); 
+      halfword p=q;
       for (i=0;i<=max_used_attr;i++) {
-	v=get_attribute(i);
+	integer v=get_attribute(i);
 	if (v>=0) {
-	  r=new_attribute_node(i,v); 
+	  halfword r=new_attribute_node(i,v); 
 	  vlink(p)=r;
 	  p=r;
 	};
@@ -1284,10 +1342,32 @@ build_attribute_list(halfword b) {
   }
 }
 
+
+halfword 
+copy_attribute_list(halfword p) { 
+  halfword q; /* previous position in new list */
+  halfword h; /* head of the list */
+  h = new_node(attribute_list_node,0);
+  attr_list_ref(h)=1;  
+  q=h;  
+  p=vlink(p);
+  while (p!=null) {
+    register halfword s = get_node(attribute_node_size);
+    type(s)=attribute_node; 
+    subtype(s)=0;
+    attribute_id(s)   = attribute_id(p);
+    attribute_value(s)= attribute_value(p);
+    vlink(q)=s;
+    q=s; 
+    p=vlink(p);
+  }
+  return h;
+}
+
 void 
 delete_attribute_ref(halfword b) {
-  halfword r,q;
   if (b!=null){
+    halfword r,q;
     if (type(b)!=attribute_list_node ) {
       fprintf(stdout,"the type of %d is %d\n",(int)b,type(b));
       check_node_mem();
@@ -1313,117 +1393,79 @@ delete_attribute_ref(halfword b) {
 int
 unset_attribute (halfword n, int i, int val) {
   halfword head,t;
-  int seen, ret;
+  int  ret, j = 0;
   if (!nodetype_has_attributes(type(n)))
     return -1;
-
   head=node_attr(n);
-  if (head==null) {
-    return -1; /* done. nothing to erase */
-  } else if (vlink(head)==null) {
+  if (head==null) 
+    return -1;
+  t = vlink(head);
+  while (t!=null) {
+    if (attribute_id(t)==i && (val==-1 || attribute_value(t)==val)) {
+      break;
+    } else if (attribute_id(t)>i) {
+      return -1;
+    }
+    t = vlink(t);
+    j++;
+  }
+  if (t==null)
+    return -1;
+  head = copy_attribute_list(head);
+  delete_attribute_ref(node_attr(n));
+  node_attr(n) = head;
+  t = head;
+  while (j-->0) 
+    t = vlink(t); 
+  ret = attribute_value(vlink(t));
+  vlink(t) = vlink(vlink(t));
+  flush_node(vlink(t));
+
+  if (vlink(head)==null) {
     flush_node(head);
     node_attr(n)=null;
-    return -1; /* done. nothing to erase */
   }
-  /* check if even present */
-  t = vlink(head);
-  seen = 0;
-  while (t!=null) {
-    if (attribute_id(t)==i) {
-      if (val==-1 || attribute_value(t)==val)
-	seen = 1 ;
-      break;
-    }
-    t = vlink(t);
-  }
-  if (!seen) {
-    return -1; /* done. nothing to erase */
-  }
-  head = copy_node_list(head); /* attr_list_ref = 0 */
-  attr_list_ref(head) = 1; /* used once */
-  if (node_attr(n)!=null)
-    delete_attribute_ref(node_attr(n));
-  node_attr(n) = head;
-  /* */
-  t = head;
-  while (vlink(t)!=null) {
-    if (attribute_id(vlink(t))==i) {
-      if (val==-1 || attribute_value(vlink(t))==val) {
-	/* for retval */
-	ret = attribute_value(vlink(t));
-	/* destroy this node, reuse seen */
-	seen = vlink(vlink(t));
-	flush_node(vlink(t));
-	vlink(t) = seen;
-	/* if we just deleted the *only* attribute, kill the list */
-	if (vlink(head)==null) {
-	  flush_node(head);
-	  node_attr(n)=null;
-	}
-	return ret;
-      }
-      break;
-    }
-    t = vlink(t);
-  }
-  return -1; /* not reached */
+  return ret;
 }
 
-/* TODO: check that nodes with type n can have node attributes ! */
+
 void
 set_attribute (halfword n, int i, int val) {
   halfword head,p,t;
+  int j = 0;
   if (!nodetype_has_attributes(type(n)))
     return ;
   head = node_attr(n);
-  if (head==null) {   /* create a new one */
+  if (head==null) { 
     head = new_node(attribute_list_node,0);
-  } else {
-    /* check for duplicate def */
-    t = vlink(head);
-    while (t!=null) {
-      if (attribute_id(t)==i && attribute_value(t)==val) {
-	return;
-      } else if (attribute_id(t)>i) {
-	break;
-      }
-      t = vlink(t);
-    }
-    head = copy_node_list(head);
+    attr_list_ref(head) = 1;
+    t = new_attribute_node(i,val);
+    vlink(head) = t;
+    node_attr(n) = head;
+    return;
   }
-  if (node_attr(n)!=null)
-    delete_attribute_ref(node_attr(n));
-  attr_list_ref(head) = 1; /* used once */
-  node_attr(n) = head;
-  /* */
-  t = head;
-  if (vlink(t)!=null) {
+  t = vlink(head);
+  while (t!=null) {
+    if (attribute_id(t)==i && attribute_value(t)==val) {
+      return;
+    } else if (attribute_id(t)>=i) {
+      break;
+    }
     t = vlink(t);
-    while (1) {
-      if (attribute_id(t)==i) {
-	attribute_value(t)=val;
-	return;
-      } else if (attribute_id(t)>i) {
-	p = new_node(attribute_node,0);
-	vlink(p) = vlink(t);
-	vlink(t) = p;
-	attribute_id(p) = attribute_id(t) ;
-	attribute_value(p) = attribute_value(t) ;
-	attribute_id(t) = i;
-	attribute_value(t) = val;
-	return;
-      }
-      if (vlink(t)==null)
-	break;
-      t = vlink(t);
-    }
-    /* this point is reached if the new id is higher 
-       than the last id in the original list */
+    j++;
   }
-  p = new_node(attribute_node,0);
-  attribute_id(p) = i;
-  attribute_value(p) = val;
-  vlink(t) = p;
+  t = copy_attribute_list(head);
+  delete_attribute_ref(node_attr(n));
+  node_attr(n) = t;
+  while (j-->0) 
+    t = vlink(t); 
+  if (vlink(t)!=null && attribute_id(vlink(t))==i) {
+    attribute_value(vlink(t))=val;
+  } else {
+    p = new_attribute_node(i,val);
+    vlink(p)=vlink(t);
+    vlink(t)=p;
+  }
   return;
 }
 
@@ -1434,7 +1476,7 @@ has_attribute (halfword n,int i, int val) {
     return -1;
   t=node_attr(n);
   if (t!=null)  {
-    t = vlink(t);
+    t = vlink(t); /* skip over head */
     while (t!=null) {
       if (attribute_id(t)==i) {
 	if (val==-1 || attribute_value(t)==val) {
