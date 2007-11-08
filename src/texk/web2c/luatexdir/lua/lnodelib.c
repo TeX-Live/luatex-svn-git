@@ -5,11 +5,6 @@
 
 #include "nodes.h"
 
-/* sometimes I need a temporary node, because a function wants to
-   operate on a static item */
-
-static halfword tmp_head = null;
-
 /* This routine finds the numerical value of a string (or number) at
    lua stack index |n|. If it is not a valid node type, raises a lua
    error. */
@@ -1850,10 +1845,9 @@ lua_nodelib_equal  (lua_State *L) {
 static int 
 font_tex_ligaturing (lua_State *L) {
   /* on the stack are two nodes and a direction */
-
+  halfword tmp_head;
   halfword *h;
   halfword t =null;
-  int d = 0;
   if (lua_gettop(L)<1) {
 	lua_pushnil(L);
     lua_pushboolean(L,0);
@@ -1863,30 +1857,26 @@ font_tex_ligaturing (lua_State *L) {
   if (lua_gettop(L)>1) {
 	t = *(check_isnode(L,2));
   }
-  if (lua_gettop(L)>2) {
-	d = lua_tointeger(L,3);
-  }
-  if (tmp_head==null)
-    tmp_head = new_node(temp_node,0);
+  tmp_head = new_node(nesting_node,1);
   couple_nodes(tmp_head,*h);
-  t = handle_kerning(tmp_head,t,d);
+  tlink(tmp_head)=t;
+  t = handle_ligaturing(tmp_head,t);
   lua_pushnumber(L,vlink(tmp_head));
+  flush_node(tmp_head);
   lua_nodelib_push(L);  
-  /*
-    lua_pushnumber(L,t);
-    lua_nodelib_push(L);  
-  */
+  lua_pushnumber(L,t);
+  lua_nodelib_push(L);  
   lua_pushboolean(L,1);
-  return 2;
+  return 3;
 }
 
 static int 
 font_tex_kerning (lua_State *L) {
   /* on the stack are two nodes and a direction */
 
+  halfword tmp_head;
   halfword *h;
   halfword t =null;
-  int d = 0;
   if (lua_gettop(L)<1) {
     lua_pushnil(L);
     lua_pushboolean(L,0);
@@ -1894,19 +1884,19 @@ font_tex_kerning (lua_State *L) {
   } 
   h = check_isnode(L,1);
   if (lua_gettop(L)>1) {
-	t = *(check_isnode(L,2));
+    t = *(check_isnode(L,2));
   }
-  if (lua_gettop(L)>2) {
-	d = lua_tointeger(L,3);
-  }
-  if (tmp_head==null)
-    tmp_head = new_node(temp_node,0);
+  tmp_head = new_node(nesting_node,1);
   couple_nodes(tmp_head,*h);
-  handle_kerning(tmp_head,t,d);
+  tlink(tmp_head)=t;
+  t = handle_kerning(tmp_head,t);
   lua_pushnumber(L,vlink(tmp_head));
-  lua_nodelib_push(L);  
+  flush_node(tmp_head);
+  lua_nodelib_push(L);    
+  lua_pushnumber(L,t);
+  lua_nodelib_push(L);    
   lua_pushboolean(L,1);
-  return 2;
+  return 3;
 }
 
 
@@ -1952,15 +1942,15 @@ do_ligature_n  (halfword prev, halfword stop, halfword lig) {
 /* node.do_ligature_n(node prev, node last, node lig) */
 static int
 lua_nodelib_do_ligature_n  (lua_State *L) {
-  halfword n, m, o, p;
+  halfword n, m, o, p, tmp_head;
   n = *(check_isnode(L,1));
   m = *(check_isnode(L,2));
   o = *(check_isnode(L,3));
   if (alink(n)==null || vlink(alink(n))!=n) {
-    if (tmp_head==null)
-      tmp_head = new_node(temp_node,0);
+    tmp_head = new_node(temp_node,0);
     couple_nodes(tmp_head,n);
     p = do_ligature_n(tmp_head,m,o);
+    flush_node(tmp_head);
   } else {
     p = do_ligature_n(alink(n),m,o);
   }
