@@ -51,8 +51,8 @@ extern halfword insert_character ( halfword t,  int n);
 #define temp_node_size 2
 
 /* attribute lists */
-#define attribute_node_size 11
-#define attribute_list_node_size 11
+#define attribute_node_size 10
+#define attribute_list_node_size 10
 
 #define attr_list_ref(a)   vinfo((a)+1) /* the reference count */
 
