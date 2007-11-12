@@ -482,7 +482,7 @@ do_free_error (halfword p) {
   halfword r = null;    
   free_error_seen = 1;
   if (type(p)==glyph_node) {
-    snprintf(errstr,255,"Attempt to double-free glyph (%c) node %d, ignored", character (p), (int)p);
+    snprintf(errstr,255,"Attempt to double-free glyph (%c) node %d, ignored", (int)character (p), (int)p);
   } else {
     snprintf(errstr,255,"Attempt to double-free %s node %d, ignored", get_node_name(type(p),subtype(p)), (int)p);
   }
@@ -501,9 +501,9 @@ do_free_error (halfword p) {
         if (type(s)==disc_node) {
           fprintf(stdout,"  pointed to from %s node %d (vlink %d, alink %d): ", 
       	    get_node_name(type(s),subtype(s)), (int)s, (int)vlink(s), (int)alink(s));
-          fprintf(stdout,"pre_break(%d,%d,%d), ",  vlink_pre_break(s),  tlink(pre_break(s)), alink(pre_break(s)));
-          fprintf(stdout,"post_break(%d,%d,%d), ", vlink_post_break(s), tlink(post_break(s)), alink(post_break(s)));
-          fprintf(stdout,"no_break(%d,%d,%d)",     vlink_no_break(s),   tlink(no_break(s)), alink(no_break(s)));
+          fprintf(stdout,"pre_break(%d,%d,%d), ",  (int)vlink_pre_break(s),  (int)tlink(pre_break(s)), (int)alink(pre_break(s)));
+          fprintf(stdout,"post_break(%d,%d,%d), ", (int)vlink_post_break(s), (int)tlink(post_break(s)), (int)alink(post_break(s)));
+          fprintf(stdout,"no_break(%d,%d,%d)",     (int)vlink_no_break(s),   (int)tlink(no_break(s)), (int)alink(no_break(s)));
           fprintf(stdout,"\n");
         } else { 
           if (vlink(s)==p 
@@ -516,9 +516,9 @@ do_free_error (halfword p) {
             fprintf(stdout,"  pointed to from %s node %d (vlink %d, alink %d): ", 
       	      get_node_name(type(s),subtype(s)), (int)s, (int)vlink(s), (int)alink(s));
             if (type(s)==glyph_node) {
-      	fprintf(stdout,"lig_ptr(%d)", lig_ptr(s));
+      	fprintf(stdout,"lig_ptr(%d)", (int)lig_ptr(s));
             } else if (type(s)==vlist_node || type(s)==hlist_node) {
-      	fprintf(stdout,"list_ptr(%d)", list_ptr(s));
+      	fprintf(stdout,"list_ptr(%d)", (int)list_ptr(s));
             }
             fprintf(stdout,"\n");
           } else {
@@ -1302,6 +1302,10 @@ string_to_pseudo(integer l,integer pool_ptr, integer nl) {
 
 /* attribute stuff */
 
+/* attribute values are stored with an offset of 1, this makes it easier
+   to initialize the list 
+ */
+
 #ifndef odd
 #define odd(a) ((a)&1)
 #endif
@@ -1310,44 +1314,62 @@ void
 print_attribute_list(halfword p) {
   int i;
   if (p!=null) {
-    fprintf(stdout,"attribute list starting at %d, refcount=%d:\n  ",p, attr_list_ref(p));
+    fprintf(stdout,"attribute list starting at %d, refcount=%d:\n  ",(int)p, (int)attr_list_ref(p));
     while (p!=null) {
       for (i=0;i<attributes_per_node;i++) {
 	if (odd(i)) {
-	  fprintf(stdout,", %d", vlink(p+(i/2)+attribute_offset));
+	  fprintf(stdout,", %d", (int)vlink(p+(i/2)+attribute_offset));
 	} else {
-	  fprintf(stdout,"%s%d",(i>0 ? ", " : ""), vinfo(p+(i/2)+attribute_offset));
+	  fprintf(stdout,"%s%d",(i>0 ? ", " : ""), (int)vinfo(p+(i/2)+attribute_offset));
 	}
       }
       p =vlink(p);
-      fprintf(stdout,", following is %d  \n",p);
+      fprintf(stdout,", following is %d  \n",(int)p);
     }
   }
 }
 
 
+#define last_of_node(a) (((a)+1)%attributes_per_node==0)
+
 void 
 build_attribute_list(halfword b) {
   if (max_used_attr>=0) {
     if (attr_list_cache==cache_disabled) {
-      int i, j;
-      halfword q=new_node(attribute_list_node,0); 
-      halfword p=q;      
-      /* TODO: this could create an attribute list with nothing set */
-      j = ((max_used_attr+attributes_per_node) / attributes_per_node) * attributes_per_node -1;
+      register int o, j;
+      unsigned int i;
+      halfword p,q;
+      for (j=max_used_attr;j>=0;j--) {
+	integer v=get_attribute(j);
+	if (v>=0)
+	  break;
+      }
+      if (j<0) {
+	attr_list_cache=null;
+	return;
+      }
+
+      q=new_node(attribute_list_node,0); 
+      p=q;      
+
+      j = ((j+attributes_per_node) / attributes_per_node) * attributes_per_node -1;
       for (i=0;i<=j;i++) {
-	integer v=get_attribute(i);
-	int o = ((i%attributes_per_node)/2)+attribute_offset;
-	if (odd(i)) {
-	  vlink(p+o) = (v>=0 ? v : -1);
-	  if (i!=j && (i+1)%attributes_per_node==0) {
-	    halfword r=new_node(attribute_node,0);
-	    vlink(p)=r;
-	    p=r;
+	integer v=get_attribute(i)+1;
+	if (v>0) {
+	  //o = ((i%attributes_per_node)/2)+attribute_offset;
+	  o = ((i&(attributes_per_node-1))>>1)+attribute_offset;
+	  if (odd(i)) {
+	    vlink(p+o) = v;
+	  } else {
+	    vinfo(p+o) = v;
 	  }
-	} else {
-	  vinfo(p+o) = (v>=0 ? v : -1);
 	}
+	if (i!=j && last_of_node(i)) {
+	  halfword r = new_node(attribute_node,0);
+	  vlink(p)=r;
+	  p=r;
+	}
+
       }
       attr_list_cache=q;
       attr_list_ref(attr_list_cache)=1;
@@ -1361,6 +1383,7 @@ build_attribute_list(halfword b) {
 
 int
 do_set_attribute (halfword n, int j, int newval, int testval) {
+  register int o;
   halfword head,p;
   int  ret, i ;
   i = j; /* don't trash |j| */
@@ -1370,59 +1393,44 @@ do_set_attribute (halfword n, int j, int newval, int testval) {
   if (head==null) 
     return -1;
 
-  fprintf(stdout,"BERFORE");
-  print_attribute_list(node_attr(n));
-  head = copy_node_list (p);
+  if (attr_list_ref(head)>0) {
+    head = copy_node_list (head);
+    delete_attribute_ref(node_attr(n));
+    node_attr(n) = head;
+  } else {
+    fprintf(stdout,"this should not happen: %d has an attribute list that is freed already\n",(int)n);
+  }
   attr_list_ref(head)=1;  
-  delete_attribute_ref(node_attr(n));
-  node_attr(n) = head;
-  fprintf(stdout,"ASFTER");
-  print_attribute_list(node_attr(n));
-  fprintf(stdout,"will set %d to %d (test=%d)\n",j,newval,testval);
 
   p = head;
   while (p!=null && i>=attributes_per_node) {
-    i-=attributes_per_node;
-    p=vlink(p);
+    i -= attributes_per_node;
+    p = vlink(p);
   }
   if (p==null)
     return -1; 
  
+  o = (i>>1)+attribute_offset;
   if (odd(i)) {
-    ret = vlink(p+(i/2)+attribute_offset);
+    ret = vlink(p+o)-1;
     if (newval!=-1 || ret==testval)
-      vlink(p+(i/2)+attribute_offset) = newval;
+      vlink(p+o) = newval+1;
   } else {
-    ret = vinfo(p+(i/2)+attribute_offset);
+    ret = vinfo(p+o)-1;
     if (newval!=-1 || ret==testval)
-      vinfo(p+(i/2)+attribute_offset) = newval;
+      vinfo(p+o) = newval+1;
   }
-  print_attribute_list(node_attr(n));
   return ret;
 }
 
 void 
 delete_attribute_ref(halfword b) {
   if (b!=null){
-    halfword r,q;
-    print_attribute_list(b);
-    if (type(b)!=attribute_list_node ) {
-      fprintf(stdout,"the type of %d is %d\n",(int)b,type(b));
-      check_node_mem();
-    }
-    assert(type(b)==attribute_list_node);
-    assert(attr_list_ref(b)>0);
     attr_list_ref(b)--;
     if (attr_list_ref(b)==0) {
       if (b==attr_list_cache) 
 	attr_list_cache=cache_disabled;
-      q=vlink(b);
-      while (q!=null){
-        r=q; 
-	q=vlink(q);
-        flush_node(r);
-      }
-      flush_node(b);
+      flush_node_list(b);
     }
   }
 }
@@ -1452,9 +1460,9 @@ has_attribute (halfword n,int i, int val) {
   if (p==null)
     return -1; 
   if (odd(i)) {
-    ret = vlink(p+(i/2)+attribute_offset);
+    ret = vlink(p+(i/2)+attribute_offset)-1;
   } else {
-    ret = vinfo(p+(i/2)+attribute_offset);
+    ret = vinfo(p+(i/2)+attribute_offset)-1;
   }
   if (val==-1 || ret==val)
     return ret;
