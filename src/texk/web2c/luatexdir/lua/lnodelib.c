@@ -1147,6 +1147,7 @@ lua_nodelib_getfield  (lua_State *L) {
       default: lua_pushnil(L);
       }
       break;
+#if 0
     case attribute_list_node :
       switch (field) {
       case  2: lua_pushnumber(L,0);	               break;
@@ -1161,6 +1162,7 @@ lua_nodelib_getfield  (lua_State *L) {
       default: lua_pushnil(L);
       }
       break;
+#endif
     case whatsit_node:
       lua_nodelib_getfield_whatsit(L,n,field);
       break;
@@ -1595,6 +1597,7 @@ lua_nodelib_setfield  (lua_State *L) {
       default: return nodelib_cantset(L,field,n);
       }
       break;
+#if 0
     case attribute_list_node:
       switch (field) {
       case  2: /* dummy subtype */                      break;
@@ -1609,6 +1612,7 @@ lua_nodelib_setfield  (lua_State *L) {
       default: return nodelib_cantset(L,field,n);
       }
       break;
+#endif
     case whatsit_node:
       lua_nodelib_setfield_whatsit(L,n,field);
       break;

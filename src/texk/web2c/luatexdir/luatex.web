@@ -3592,7 +3592,7 @@ max_used_attr:integer; { maximum assigned attribute id }
 attr_list_cache:pointer;
 
 @ @<Set init...@>=
-max_used_attr:=0; attr_list_cache:=cache_disabled;
+max_used_attr:=-1; attr_list_cache:=cache_disabled;
 
 @ Attribute lists are maintained in C, but they need access to the current
 attributes in eqtb. 

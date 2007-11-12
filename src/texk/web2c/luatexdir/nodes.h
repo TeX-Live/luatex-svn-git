@@ -51,12 +51,14 @@ extern halfword insert_character ( halfword t,  int n);
 #define temp_node_size 2
 
 /* attribute lists */
-#define attribute_node_size 2
-#define attribute_list_node_size 2
+#define attribute_node_size 11
+#define attribute_list_node_size 11
 
-#define attribute_id(a)    vlink((a)+1)
-#define attribute_value(a) vinfo((a)+1)
-#define attr_list_ref(a) vinfo((a)+1) /* the reference count */
+#define attr_list_ref(a)   vinfo((a)+1) /* the reference count */
+
+#define attributes_per_node 16
+#define attribute_offset 2
+
 
 #define cache_disabled max_halfword
 #define add_node_attr_ref(a) { if (a!=null)  attr_list_ref((a))++; }
@@ -559,7 +561,7 @@ typedef enum {
 
 extern void delete_attribute_ref(halfword b) ;
 extern void build_attribute_list(halfword b) ;
-extern halfword new_attribute_node(integer i, integer c) ;
+
 extern int unset_attribute(halfword n, int c, int w);
 extern void set_attribute(halfword n, int c, int w);
 extern int has_attribute(halfword n, int c, int w);
