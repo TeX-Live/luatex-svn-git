@@ -11495,8 +11495,12 @@ while k<pool_ptr do
   if t=" " then t:=space_token
   else
     begin
-    if (t="\") or (t="""") or (t="'") then
-	  fast_store_new_token(other_token+"\");
+     if (t="\") or (t="""") or (t="'") or (t=10) or (t=13) then
+          fast_store_new_token(other_token+"\");
+     if (t=10) then
+       t:="n";
+     if (t=13) then
+       t:="r";
     t:=other_token+t;
     end;
   fast_store_new_token(t);
