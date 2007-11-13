@@ -12,7 +12,8 @@ do_texio_print (lua_State *L, texio_printer printfunction) {
   strnumber texs,u;
   char *s;
   char save_selector;
-  int n,i,k;
+  int n,i;
+  unsigned int k;
   u = 0;
   n = lua_gettop(L);
   if (n==0 || !lua_isstring(L, -1)) {
