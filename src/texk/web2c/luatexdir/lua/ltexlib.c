@@ -226,6 +226,7 @@ int setdimen (lua_State *L) {
   int i,j,k;
   int cur_cs;
   int texstr;
+  char *s;
   i = lua_gettop(L);
   j = 0;
   // find the value
@@ -240,7 +241,8 @@ int setdimen (lua_State *L) {
     j = (int)lua_tonumber(L,i);
   // find the index
   if (lua_type(L,i-1)==LUA_TSTRING) {
-    texstr = maketexstring(lua_tostring(L,i-1));
+    s = (char *)lua_tolstring(L,i-1, &k);
+    texstr = maketexlstring(s,k);
     cur_cs = string_lookup(texstr);
     flush_str(texstr);
     k = zget_equiv(cur_cs)-get_scaled_base();
@@ -259,9 +261,11 @@ int getdimen (lua_State *L) {
   int i,j,  k;
   int cur_cs;
   int texstr;
+  char *s;
   i = lua_gettop(L);
   if (lua_type(L,i)==LUA_TSTRING) {
-    texstr = maketexstring(lua_tostring(L,i));
+    s = (char *)lua_tolstring(L,i, &k);
+    texstr = maketexlstring(s,k);
     cur_cs = string_lookup(texstr);
     flush_str(texstr);
     if (is_undefined_cs(cur_cs)) {
@@ -282,10 +286,12 @@ int setcount (lua_State *L) {
   int i,j,k;
   int cur_cs;
   int texstr;
+  char *s;
   i = lua_gettop(L);
   j = (int)luaL_checkinteger(L,i);
   if (lua_type(L,i-1)==LUA_TSTRING) {
-    texstr = maketexstring(lua_tostring(L,i-1));
+    s = (char *)lua_tolstring(L,i-1,&k);
+    texstr = maketexlstring(s,k);
     cur_cs = string_lookup(texstr);
     flush_str(texstr);
     k = zget_equiv(cur_cs)-get_count_base();
@@ -304,9 +310,11 @@ int getcount (lua_State *L) {
   int i, j, k;
   int cur_cs;
   int texstr;
+  char *s;
   i = lua_gettop(L);
   if (lua_type(L,i)==LUA_TSTRING) {
-    texstr = maketexstring(lua_tostring(L,i));
+    s = (char *)lua_tolstring(L,i, &k);
+    texstr = maketexlstring(s,k);
     cur_cs = string_lookup(texstr);
     flush_str(texstr);
     if (is_undefined_cs(cur_cs)) {
@@ -328,10 +336,12 @@ int setattribute (lua_State *L) {
   int i,j,k;
   int cur_cs;
   int texstr;
+  char *s;
   i = lua_gettop(L);
   j = (int)luaL_checkinteger(L,i);
   if (lua_type(L,i-1)==LUA_TSTRING) {
-    texstr = maketexstring(lua_tostring(L,i-1));
+    s = (char *)lua_tolstring(L,i-1, &k);
+    texstr = maketexlstring(s,k);
     cur_cs = string_lookup(texstr);
     flush_str(texstr);
     k = zget_equiv(cur_cs)-get_attribute_base();
@@ -350,9 +360,11 @@ int getattribute (lua_State *L) {
   int i, j, k;
   int cur_cs;
   int texstr;
+  char *s;
   i = lua_gettop(L);
   if (lua_type(L,i)==LUA_TSTRING) {
-    texstr = maketexstring(lua_tostring(L,i));
+    s = (char *)lua_tolstring(L,i, &k);
+    texstr = maketexlstring(s,k);
     cur_cs = string_lookup(texstr);
     flush_str(texstr);
     if (is_undefined_cs(cur_cs)) {
@@ -373,17 +385,17 @@ int settoks (lua_State *L) {
   int i,j,k,len;
   int cur_cs;
   int texstr;
+  char *s, *st;
   i = lua_gettop(L);
-  char *st;
   if (!lua_isstring(L,i)) {
     lua_pushstring(L, "unsupported value type");
     lua_error(L);
   }
-  st = (char *)lua_tostring(L,i);
-  len = lua_strlen(L, i);
+  st = (char *)lua_tolstring(L,i,&len);
 
   if (lua_type(L,i-1)==LUA_TSTRING) {
-    texstr = maketexstring(lua_tostring(L,i-1));
+    s = (char *)lua_tolstring(L,i-1, &k);
+    texstr = maketexlstring(s,k);
     cur_cs = string_lookup(texstr);
     flush_str(texstr);
     k = zget_equiv(cur_cs)-get_toks_base();
@@ -391,7 +403,8 @@ int settoks (lua_State *L) {
     k = (int)luaL_checkinteger(L,i-1);
   }
   check_index_range(k);
-  j = maketexstring(st);
+  j = maketexlstring(st,len);
+
   if(zset_tex_toks_register(k,j)) {
     flush_str(j);
     lua_pushstring(L, "incorrect value");
@@ -405,9 +418,11 @@ int gettoks (lua_State *L) {
   strnumber t;
   int cur_cs;
   int texstr;
+  char *s;
   i = lua_gettop(L);
   if (lua_type(L,i)==LUA_TSTRING) {
-    texstr = maketexstring(lua_tostring(L,i));
+    s = (char *)lua_tolstring(L,i, &k);
+    texstr = maketexlstring(s,k);
     cur_cs = string_lookup(texstr);
     flush_str(texstr);
     if (is_undefined_cs(cur_cs)) {
@@ -540,13 +555,13 @@ int setboxdp (lua_State *L) {
 
 int settex (lua_State *L) {
   char *st;
-  int i,j,texstr;
+  int i,j,k,texstr;
   int cur_cs, cur_cmd;
   j = 0;
   i = lua_gettop(L);
   if (lua_isstring(L,(i-1))) {
-    st = (char *)lua_tostring(L,(i-1));
-    texstr = maketexstring(st);
+    st = (char *)lua_tolstring(L,(i-1), &k);
+    texstr = maketexlstring(st,k);
     if (zis_primitive(texstr)) {
       cur_cs = string_lookup(texstr);
       flush_str(texstr);
@@ -614,13 +629,13 @@ get_convert (int cur_code) {
 int
 gettex (lua_State *L) {
   char *st;
-  int i,texstr;
+  int i,k,texstr;
   char *str;
   int cur_cs, cur_cmd, cur_code;
   i = lua_gettop(L);
   if (lua_isstring(L,i)) {
-    st = (char *)lua_tostring(L,i);
-    texstr = maketexstring(st);
+    st = (char *)lua_tolstring(L,i, &k);
+    texstr = maketexlstring(st,k);
     cur_cs = zprim_lookup(texstr);
     flush_str(texstr);
     if (cur_cs) {

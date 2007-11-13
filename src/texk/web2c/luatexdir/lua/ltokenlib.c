@@ -142,9 +142,11 @@ run_get_command_id (lua_State *L) {
 static int
 run_get_csname_id (lua_State *L) {
   int texstr;
-  int cs = 0;
+  char *s;
+  int k,cs = 0;
   if (lua_isstring(L,-1)) {
-    texstr = maketexstring(lua_tostring(L,-1));
+    s = (char *)lua_tolstring(L,-1, &k);
+	texstr = maketexlstring(s,k);
     cs = string_lookup(texstr);
     flush_str(texstr);
   }
@@ -194,8 +196,8 @@ run_lookup (lua_State *L) {
     if (l>0) {
       save_nncs = no_new_control_sequence;
       no_new_control_sequence = true;
-      cs = id_lookup((last+1),l);
-      t = maketexstring(s);
+      cs = id_lookup((last+1),l); /* cleans up the lookup buffer */
+      t = maketexlstring(s,l);
       cs = string_lookup(t);
       flush_str(t);
       cmd = zget_eq_type(cs);

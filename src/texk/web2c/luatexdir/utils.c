@@ -182,8 +182,8 @@ strnumber maketexstring (const char *s)
 
 strnumber maketexlstring (const char *s, size_t l) 
 {
-    if (s == NULL || *s == 0)
-        return get_nullstr ();
+    if (s == NULL || l == 0)
+      return get_nullstr ();
     check_pool_overflow (pool_ptr + l);
     while (l-- > 0)
         str_pool[pool_ptr++] = *s++;

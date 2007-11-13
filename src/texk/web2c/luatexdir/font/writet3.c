@@ -250,7 +250,7 @@ void writet3 (int objnum, internalfontnumber f)
         t3_char_procs[i] = 0;
         t3_char_widths[i] = 0;
     }
-    pack_file_name (tex_font_name(f), get_nullstr (), maketexstring (".pgc"));
+    pack_file_name (tex_font_name(f), get_nullstr (), maketexlstring (".pgc",4));
     cur_file_name = makecstring (make_name_string ());
     is_pk_font = false;
 

@@ -505,9 +505,9 @@ luatex_error (lua_State * L, int is_fatal) {
   len = snprintf(err,(len+1),"%s",luaerr);
   if (is_fatal>0) {
     /* Normally a memory error from lua. 
-       The pool may overflow during the maketexstring(), but we 
+       The pool may overflow during the maketexlstring(), but we 
        are crashing anyway so we may as well abort on the pool size */
-    s = maketexstring(err);
+    s = maketexlstring(err, len);
     lua_fatal_error(s);
     /* never reached */
     xfree (err);
@@ -525,7 +525,7 @@ luatex_error (lua_State * L, int is_fatal) {
     if (pool_ptr+len>=pool_size) {
       lua_norm_error(' ');
     } else {
-      s = maketexstring(err);
+      s = maketexlstring(err,len);
       lua_norm_error(s);
       flush_str(s);
     }

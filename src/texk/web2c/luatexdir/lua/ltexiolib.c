@@ -9,10 +9,10 @@ static char *loggable_info = NULL;
 
 static int
 do_texio_print (lua_State *L, texio_printer printfunction) {
-  strnumber s,u;
-  char *outputstr;
+  strnumber texs,u;
+  char *s;
   char save_selector;
-  int n,i;
+  int n,i,k;
   u = 0;
   n = lua_gettop(L);
   if (n==0 || !lua_isstring(L, -1)) {
@@ -22,10 +22,10 @@ do_texio_print (lua_State *L, texio_printer printfunction) {
   save_selector = selector;
   i = 1;
   if (n>1) {
-	outputstr=(char *)lua_tostring(L, 1);
-	if      (strcmp(outputstr,"log") == 0)          { i++; selector = log_only;     }
-	else if (strcmp(outputstr,"term") == 0)         { i++; selector = term_only;    }
-	else if (strcmp(outputstr,"term and log") == 0) { i++; selector = term_and_log; }
+	s=(char *)lua_tostring(L, 1);
+	if      (strcmp(s,"log") == 0)          { i++; selector = log_only;     }
+	else if (strcmp(s,"term") == 0)         { i++; selector = term_only;    }
+	else if (strcmp(s,"term and log") == 0) { i++; selector = term_and_log; }
   }
   if (selector!=log_only &&  selector!=term_only && selector != term_and_log) {
 	normalize_selector(); /* sets selector */
@@ -34,9 +34,10 @@ do_texio_print (lua_State *L, texio_printer printfunction) {
   if (str_start[str_ptr-0x200000]<pool_ptr) 
     u=make_string();
   for (;i<=n;i++) {
-	s = maketexstring(lua_tostring(L, i));
-	printfunction(s);
-	flush_str(s);
+	s = (char *)lua_tolstring(L, i, &k);
+	texs = maketexlstring(s,k);
+	printfunction(texs);
+	flush_str(texs);
   }
   selector = save_selector;
   if (u!=0) str_ptr--;
