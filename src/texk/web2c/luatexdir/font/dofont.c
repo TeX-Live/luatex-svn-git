@@ -33,8 +33,6 @@ $Id$
 
 /* a bit more interfacing is needed for proper error reporting */
 
-#define print_err(s) { do_print_err(maketexstring(s)); flush_str(last_tex_string); }
-
 static char *
 font_error_message (pointer u, char *nom, scaled s) {
   char *str = xmalloc(256);
