@@ -601,6 +601,8 @@ extern void check_node(halfword);
 extern void check_node_mem (void);
 extern void fix_node_list (halfword);
 extern int fix_node_lists;
+extern char *sprint_node_mem_usage (void) ;
+extern halfword raw_glyph_node(void) ;
 
 #define unity 0x10000
 typedef enum {

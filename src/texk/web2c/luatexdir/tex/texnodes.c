@@ -293,6 +293,17 @@ new_node(int i, int j) {
   return n;
 }
 
+halfword
+raw_glyph_node(void) {
+  register halfword n;
+  n = get_node(glyph_node_size);
+  (void)memset((varmem+n+1),0, (sizeof(memory_word)*(glyph_node_size-1)));
+  type(n)=glyph_node;
+  subtype(n)=0;
+  return n;
+}
+
+
 /* makes a duplicate of the node list that starts at |p| and returns a
    pointer to the new list */
 
@@ -1220,13 +1231,50 @@ slow_get_node (integer s) {
   }
 }
 
+char *
+sprint_node_mem_usage (void) {
+  int i,b;
+
+  char *s, *ss;
+  char msg[256];
+  int node_counts[last_normal_node+last_whatsit_node+2] = {0};
+
+  for (i=(var_mem_max-1);i>prealloc;i--) {
+    if (varmem_sizes[i]>0) {
+      if (type(i)>last_normal_node+last_whatsit_node) {
+        node_counts[last_normal_node+last_whatsit_node+1] ++;
+      } else if (type(i)==whatsit_node){
+        node_counts[(subtype(i)+last_normal_node+1)] ++;
+      } else {
+        node_counts[type(i)] ++;
+      }
+    }
+  }
+  s = strdup("");
+  b=0;
+  for (i=0;i<last_normal_node+last_whatsit_node+2;i++) {
+    if (node_counts[i]>0) {
+      snprintf(msg,255,"%s%d %s",(b ? ", " : ""),
+	      (int)node_counts[i],
+	      get_node_name((i>last_normal_node ? whatsit_node : i),
+			    (i>last_normal_node ? (i-last_normal_node-1) : 0)));
+      ss = concat(s,msg);
+      free (s);
+      s = ss;
+      b=1;
+    }
+  }
+  return s;
+}
+
+
 void
 print_node_mem_stats (int num, int online) {
   int i,b;
   halfword j;
   char msg[256];
+  char *s;
   integer free_chain_counts[MAX_CHAIN_SIZE] = {0};
-  int node_counts[last_normal_node+last_whatsit_node+2] = {0};
 
   snprintf(msg,255,"node memory in use: %d words out of %d", (int)(var_used+prealloc), (int)var_mem_max);
   tprint_nl(msg);
@@ -1242,30 +1290,9 @@ print_node_mem_stats (int num, int online) {
     }
   }
   tprint(" nodes");
-  for (i=(var_mem_max-1);i>prealloc;i--) {
-    if (varmem_sizes[i]>0) {
-      /*fprintf(stdout,"%s at %d\n",get_node_name(type(i),subtype(i)),i);*/
-      if (type(i)>last_normal_node+last_whatsit_node) {
-        node_counts[last_normal_node+last_whatsit_node+1] ++;
-      } else if (type(i)==whatsit_node){
-        node_counts[(subtype(i)+last_normal_node+1)] ++;
-      } else {
-        node_counts[type(i)] ++;
-      }
-    }
-  }
+  s = sprint_node_mem_usage();
   tprint_nl("current usage: ");
-  b=0;
-  for (i=0;i<last_normal_node+last_whatsit_node+2;i++) {
-    if (node_counts[i]>0) {
-      snprintf(msg,255,"%s%d %s",(b ? ", " : ""),
-	      (int)node_counts[i],
-	      get_node_name((i>last_normal_node ? whatsit_node : i),
-			    (i>last_normal_node ? (i-last_normal_node-1) : 0)));
-      tprint(msg);
-      b=1;
-    }
-  }
+  tprint_nl(s);  free(s);
   tprint(" nodes");
   print_nlp(); /* newline, if needed */
 }
