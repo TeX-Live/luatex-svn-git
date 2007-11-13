@@ -1147,7 +1147,6 @@ lua_nodelib_getfield  (lua_State *L) {
       default: lua_pushnil(L);
       }
       break;
-#if 0
     case attribute_list_node :
       switch (field) {
       case  2: lua_pushnumber(L,0);	               break;
@@ -1162,7 +1161,6 @@ lua_nodelib_getfield  (lua_State *L) {
       default: lua_pushnil(L);
       }
       break;
-#endif
     case whatsit_node:
       lua_nodelib_getfield_whatsit(L,n,field);
       break;
@@ -1187,7 +1185,15 @@ static int nodelib_getlist(lua_State *L, int n) {
 
 #define nodelib_getspec        nodelib_getlist
 #define nodelib_getaction      nodelib_getlist
-#define nodelib_getstring(L,a) maketexstring(lua_tostring(L,a))
+
+
+static str_number 
+nodelib_getstring(lua_State *L, int a) {
+  int k;
+  char *s=lua_tolstring(L,a, &k);
+  return maketexlstring(s,k);
+}
+
 #define nodelib_gettoks(L,a)   tokenlist_from_lua(L)
 
 static void nodelib_setattr (lua_State *L, int stackindex, halfword n) {
@@ -1597,7 +1603,6 @@ lua_nodelib_setfield  (lua_State *L) {
       default: return nodelib_cantset(L,field,n);
       }
       break;
-#if 0
     case attribute_list_node:
       switch (field) {
       case  2: /* dummy subtype */                      break;
@@ -1612,7 +1617,6 @@ lua_nodelib_setfield  (lua_State *L) {
       default: return nodelib_cantset(L,field,n);
       }
       break;
-#endif
     case whatsit_node:
       lua_nodelib_setfield_whatsit(L,n,field);
       break;
