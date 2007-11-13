@@ -51,14 +51,16 @@ extern halfword insert_character ( halfword t,  int n);
 #define temp_node_size 2
 
 /* attribute lists */
-#define attribute_node_size 10
-#define attribute_list_node_size 10
+
+/* it is convenient to have attribute list nodes and attribute node
+ * be the same size
+ */
+
+#define attribute_node_size 2
 
 #define attr_list_ref(a)   vinfo((a)+1) /* the reference count */
-
-#define attributes_per_node 16
-#define attribute_offset 2
-
+#define attribute_id(a)    vinfo((a)+1)
+#define attribute_value(a) vlink((a)+1)
 
 #define cache_disabled max_halfword
 #define add_node_attr_ref(a) { if (a!=null)  attr_list_ref((a))++; }

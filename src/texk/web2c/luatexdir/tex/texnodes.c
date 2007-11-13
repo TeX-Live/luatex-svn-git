@@ -155,7 +155,7 @@ node_info node_data[] = {
   { span_node,            span_node_size,            NULL,                    "span"           },
   { attribute_node,       attribute_node_size,       node_fields_attribute,   "attribute"      },
   { glue_spec_node,       glue_spec_size,            node_fields_glue_spec,   "glue_spec"      },
-  { attribute_list_node,  attribute_list_node_size,  node_fields_attribute_list,"attribute_list" },
+  { attribute_list_node,  attribute_node_size,       node_fields_attribute_list,"attribute_list" },
   { action_node,          pdf_action_size,           node_fields_action,      "action"         },
   { temp_node,            temp_node_size,            NULL,                    "temp"           },
   { align_stack_node,     align_stack_node_size,     NULL,                    "align_stack"    },
@@ -767,7 +767,7 @@ static int test_count = 1;
 #define check_action_ref(a)     { dorangetest(p,a,var_mem_max); }
 #define check_glue_ref(a)       { dorangetest(p,a,var_mem_max); }
 #define check_attribute_ref(a)  { dorangetest(p,a,var_mem_max); }
-#define check_token_ref(a)      
+#define check_token_ref(a)      assert(1)
 
 void 
 check_node (halfword p) {
@@ -1040,6 +1040,25 @@ free_node (halfword p, integer s) {
 }
 
 void
+free_node_chain (halfword q, integer s) {
+  register halfword p = q;
+  while (vlink(p)!=null) {
+#ifndef NDEBUG
+    varmem_sizes[p] = 0;
+#endif
+    var_used -= s;
+    p = vlink(p);
+  }
+  var_used -= s;
+#ifndef NDEBUG
+  varmem_sizes[p] = 0;
+#endif
+  vlink(p) = free_chain[s];
+  free_chain[s] = q;
+}
+
+
+void
 init_node_mem (halfword prealloced, halfword t) {
   prealloc=prealloced;
   assert(whatsit_node_data[user_defined_node].id==user_defined_node);
@@ -1047,13 +1066,13 @@ init_node_mem (halfword prealloced, halfword t) {
 
   varmem = (memory_word *)realloc(varmem,sizeof(memory_word)*t);
   if (varmem==NULL) {
-    overflow(maketexstring("node memory size"),var_mem_max);
+    overflow_string("node memory size",var_mem_max);
   }
 
 #ifndef NDEBUG
   varmem_sizes = (char *)realloc(varmem_sizes,sizeof(char)*t);
   if (varmem_sizes==NULL) {
-    overflow(maketexstring("node memory size"),var_mem_max);
+    overflow_string("node memory size",var_mem_max);
   }
   memset ((void *)varmem_sizes,0,sizeof(char)*t);
 #endif
@@ -1177,14 +1196,14 @@ slow_get_node (integer s) {
     x = (var_mem_max>>2)+s;
     varmem = (memory_word *)realloc(varmem,sizeof(memory_word)*(var_mem_max+x));
     if (varmem==NULL) {
-      overflow(maketexstring("node memory size"),var_mem_max);
+      overflow_string("node memory size",var_mem_max);
     }
     /*memset ((void *)(varmem+var_mem_max),0,x*sizeof(memory_word));*/
     
 #ifndef NDEBUG
     varmem_sizes = (char *)realloc(varmem_sizes,sizeof(char)*(var_mem_max+x));
     if (varmem_sizes==NULL) {
-      overflow(maketexstring("node memory size"),var_mem_max);
+      overflow_string("node memory size",var_mem_max);
     }
     memset ((void *)(varmem_sizes+var_mem_max),0,x*sizeof(char));
 #endif
@@ -1302,125 +1321,60 @@ string_to_pseudo(integer l,integer pool_ptr, integer nl) {
 
 /* attribute stuff */
 
-/* attribute values are stored with an offset of 1, this makes it easier
-   to initialize the list 
- */
-
-#ifndef odd
-#define odd(a) ((a)&1)
-#endif
-
-void 
-print_attribute_list(halfword p) {
-  int i;
-  if (p!=null) {
-    fprintf(stdout,"attribute list starting at %d, refcount=%d:\n  ",(int)p, (int)attr_list_ref(p));
-    while (p!=null) {
-      for (i=0;i<attributes_per_node;i++) {
-	if (odd(i)) {
-	  fprintf(stdout,", %d", (int)vlink(p+(i/2)+attribute_offset));
-	} else {
-	  fprintf(stdout,"%s%d",(i>0 ? ", " : ""), (int)vinfo(p+(i/2)+attribute_offset));
-	}
-      }
-      p =vlink(p);
-      fprintf(stdout,", following is %d  \n",(int)p);
-    }
-  }
+static halfword 
+new_attribute_node (unsigned int i, int v) {
+  register halfword r = get_node(attribute_node_size);
+  type(r) = attribute_node;
+  attribute_id(r)= i;
+  attribute_value(r)= v;
+  return r;
 }
 
-
-#define last_of_node(a) (((a)+1)%attributes_per_node==0)
+static halfword 
+copy_attribute_list(halfword n) {
+  halfword q = get_node(attribute_node_size); 
+  register halfword p = q;
+  type(p) = attribute_list_node;
+  attr_list_ref(p)=0;
+  n = vlink(n);
+  while (n!=null) {
+    register halfword r = get_node(attribute_node_size);
+    /* the link will be fixed automatically in the next loop */
+    (void)memcpy((varmem+r),(varmem+n),(sizeof(memory_word)*attribute_node_size));
+    vlink(p) = r;
+    p = r;
+    n = vlink(n);
+  }
+  return q;
+}
 
 void 
 build_attribute_list(halfword b) {
   if (max_used_attr>=0) {
     if (attr_list_cache==cache_disabled) {
-      register int o, j;
-      unsigned int i;
-      halfword p,q;
-      for (j=max_used_attr;j>=0;j--) {
-	integer v=get_attribute(j);
-	if (v>=0)
-	  break;
-      }
-      if (j<0) {
-	attr_list_cache=null;
-	return;
-      }
-
-      q=new_node(attribute_list_node,0); 
-      p=q;      
-
-      j = ((j+attributes_per_node) / attributes_per_node) * attributes_per_node -1;
-      for (i=0;i<=j;i++) {
-	integer v=get_attribute(i)+1;
-	if (v>0) {
-	  //o = ((i%attributes_per_node)/2)+attribute_offset;
-	  o = ((i&(attributes_per_node-1))>>1)+attribute_offset;
-	  if (odd(i)) {
-	    vlink(p+o) = v;
-	  } else {
-	    vinfo(p+o) = v;
-	  }
-	}
-	if (i!=j && last_of_node(i)) {
-	  halfword r = new_node(attribute_node,0);
+      int i;
+      halfword p;
+      attr_list_cache=get_node(attribute_node_size); 
+      type(attr_list_cache) = attribute_list_node;
+      attr_list_ref(attr_list_cache)=0;
+      p=attr_list_cache; 
+      for (i=0;i<=max_used_attr;i++) {
+	register int v = get_attribute(i);
+	if (v>=0) {
+	  register halfword r = new_attribute_node(i,v);
 	  vlink(p)=r;
 	  p=r;
 	}
-
       }
-      attr_list_cache=q;
-      attr_list_ref(attr_list_cache)=1;
-      node_attr(b)=attr_list_cache;   
-    } else {
-      attr_list_ref(attr_list_cache)++;
-      node_attr(b)=attr_list_cache;   
+      if (vlink(attr_list_cache)==null) {
+	free_node(attr_list_cache,attribute_node_size);
+	attr_list_cache = null;
+	return;
+      } 
     }
+    attr_list_ref(attr_list_cache)++;
+    node_attr(b)=attr_list_cache;   
   }
-}
-
-int
-do_set_attribute (halfword n, int j, int newval, int testval) {
-  register int o;
-  halfword head,p;
-  int  ret, i ;
-  i = j; /* don't trash |j| */
-  if (!nodetype_has_attributes(type(n)))
-    return -1;
-  head=node_attr(n);
-  if (head==null) 
-    return -1;
-
-  if (attr_list_ref(head)>0) {
-    head = copy_node_list (head);
-    delete_attribute_ref(node_attr(n));
-    node_attr(n) = head;
-  } else {
-    fprintf(stdout,"this should not happen: %d has an attribute list that is freed already\n",(int)n);
-  }
-  attr_list_ref(head)=1;  
-
-  p = head;
-  while (p!=null && i>=attributes_per_node) {
-    i -= attributes_per_node;
-    p = vlink(p);
-  }
-  if (p==null)
-    return -1; 
- 
-  o = (i>>1)+attribute_offset;
-  if (odd(i)) {
-    ret = vlink(p+o)-1;
-    if (newval!=-1 || ret==testval)
-      vlink(p+o) = newval+1;
-  } else {
-    ret = vinfo(p+o)-1;
-    if (newval!=-1 || ret==testval)
-      vinfo(p+o) = newval+1;
-  }
-  return ret;
 }
 
 void 
@@ -1430,42 +1384,121 @@ delete_attribute_ref(halfword b) {
     if (attr_list_ref(b)==0) {
       if (b==attr_list_cache) 
 	attr_list_cache=cache_disabled;
-      flush_node_list(b);
+      free_node_chain(b,attribute_node_size);
     }
   }
 }
 
 void 
 set_attribute (halfword n, int i, int val) {
-  (void)do_set_attribute(n,i,val,val);
-  return ;
+  register halfword p;
+  register int j = 0;
+  if (!nodetype_has_attributes(type(n)))
+    return;
+  p = node_attr(n);
+  if (p==null) {  /* add a new head & node */
+    p = get_node(attribute_node_size); 
+    type(p) = attribute_list_node;
+    attr_list_ref(p)=1;
+    node_attr(n) = p ;
+    p = new_attribute_node(i,val);
+    vlink(node_attr(n))=p;
+    return;
+  }
+  assert(vlink(p)!=null);
+  while (vlink(p)!=null) {
+    int t = attribute_id(vlink(p));
+    if (t==i && attribute_value(vlink(p))==val)
+      return;
+    if (t>=i) 
+      break;
+    j++;
+    p = vlink(p);
+  }
+  p = node_attr(n);
+  if (attr_list_ref(p)!=1) {
+    if (attr_list_ref(p)>1) {
+      p = copy_attribute_list (p);
+      delete_attribute_ref(node_attr(n));
+      node_attr(n) = p;
+    } else {
+      fprintf(stdout,"Node %d has an attribute list that is free already\n",(int)n);
+    }
+    attr_list_ref(p)=1;  
+  }
+  while (j-->0) p = vlink(p);
+
+  if (attribute_id(vlink(p))==i) {
+    attribute_value(vlink(p))=val;
+  } else { /* add a new node */
+    halfword r = new_attribute_node(i,val);
+    vlink(r)=vlink(p);
+    vlink(p)=r;
+  }
+  return;
 }
+
 
 int 
 unset_attribute (halfword n, int i, int val) {
-  return do_set_attribute(n,i,-1,val);
+  register halfword p;
+  register int t;
+  register int j = 0;
+  if (!nodetype_has_attributes(type(n)))
+    return null;
+  p = node_attr(n);
+  if (p==null)
+    return -1;
+  assert (vlink(p)!=null);
+  while (vlink(p)!=null) {
+    t = attribute_id(vlink(p));
+    if (t>i)
+      return -1;
+    if (t==i)
+      break;
+    j++;
+    p = vlink(p);
+  }
+  /* if we are still here, the attribute exists */
+  p = node_attr(n);
+  if (attr_list_ref(p)!=1) {
+    if (attr_list_ref(p)>1) {
+      p = copy_attribute_list (p);
+      delete_attribute_ref(node_attr(n));
+      node_attr(n) = p;
+    } else {
+      fprintf(stdout,"Node %d has an attribute list that is free already\n",(int)n);
+    }
+    attr_list_ref(p)=1;  
+  }
+  p = vlink(p);
+  while (j-->0) p = vlink(p);
+  t = attribute_value(p);
+  if (val==-1 || t==val)
+    attribute_value(p)=-1;
+  return t;
 }
 
 int 
 has_attribute (halfword n,int i, int val) {
   register halfword p;
-  int ret;
   if (!nodetype_has_attributes(type(n)))
     return -1;
   p = node_attr(n);
-  while (p!=null && i>=attributes_per_node) {
-    i-=attributes_per_node;
+  if (p==null || vlink(p)==null)
+    return -1; 
+  p = vlink(p);
+  while (p!=null) {
+    if (attribute_id(p)==i) {
+      int ret = attribute_value(p);
+      if (val==-1 || val==ret)
+	return ret;
+      return -1;
+    } else if (attribute_id(p)>i) {
+      return -1;
+    }
     p=vlink(p);
   }
-  if (p==null)
-    return -1; 
-  if (odd(i)) {
-    ret = vlink(p+(i/2)+attribute_offset)-1;
-  } else {
-    ret = vinfo(p+(i/2)+attribute_offset)-1;
-  }
-  if (val==-1 || ret==val)
-    return ret;
   return -1;
 }
 
