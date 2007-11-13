@@ -213,18 +213,19 @@ load_tex_hyphenation(int curlang, halfword head) {
   load_hyphenation(get_language(curlang),(unsigned char *)s);
 }
 
+/* TODO: check this. The delete_attribute_ref() statements are not very 
+   nice, but needed. Also, in the post-break, it would be nicer to get the 
+   attribute list from vlink(n) */
 
 halfword insert_discretionary ( halfword t,  halfword pre,  halfword post,  halfword replace) {
-  halfword g;
-#ifdef VERBOSE
-  /* fprintf(stderr,"disc (%d,%d,%d) after %c\n", pre, post, replace, character(t));*/
-#endif
-  g = new_node(disc_node,syllable_disc);
-  couple_nodes(g,vlink(t));
-  couple_nodes(t,g);
-  for (g=pre;g!=null;g =vlink(g)) {
+  halfword g, n;
+  n = new_node(disc_node,syllable_disc);
+  couple_nodes(n,vlink(t));
+  couple_nodes(t,n);
+  for (g=pre;g!=null;g=vlink(g)) {
     font(g)=font(t);
     if (node_attr(t)!=null) {
+	  delete_attribute_ref(node_attr(g));
       node_attr(g) = node_attr(t);
       attr_list_ref(node_attr(t)) += 1; 
     }
@@ -232,6 +233,7 @@ halfword insert_discretionary ( halfword t,  halfword pre,  halfword post,  half
   for (g=post;g!=null;g =vlink(g)) {
     font(g)=font(t);
     if (node_attr(t)!=null) {
+	  delete_attribute_ref(node_attr(g));
       node_attr(g) = node_attr(t);
       attr_list_ref(node_attr(t)) += 1; 
     }
@@ -239,11 +241,13 @@ halfword insert_discretionary ( halfword t,  halfword pre,  halfword post,  half
   for (g=replace;g!=null;g =vlink(g)) {
     font(g)=font(t);
     if (node_attr(t)!=null) {
+	  delete_attribute_ref(node_attr(g));
       node_attr(g) = node_attr(t);
       attr_list_ref(node_attr(t)) += 1; 
     }
   }
   if (node_attr(t)!=null) {
+	delete_attribute_ref(node_attr(vlink(t)));
     node_attr(vlink(t)) = node_attr(t);
     attr_list_ref(node_attr(t)) += 1; 
   }
@@ -264,10 +268,44 @@ halfword insert_discretionary ( halfword t,  halfword pre,  halfword post,  half
 }
 
 halfword insert_syllable_discretionary ( halfword t,  lang_variables *lan) {
-  halfword pre = null, pos = null;
-  if (lan->pre_hyphen_char >0) pre = insert_character ( null,  lan->pre_hyphen_char);
-  if (lan->post_hyphen_char>0) pos = insert_character ( null,  lan->post_hyphen_char);
-  return insert_discretionary ( t, pre, pos, null);
+  halfword g, n;
+  n = new_node(disc_node,syllable_disc);
+  couple_nodes(n,vlink(t));
+  couple_nodes(t,n);
+  
+  delete_attribute_ref(node_attr(n));
+  node_attr(n) = node_attr(t);
+  attr_list_ref(node_attr(t))++ ;
+
+  if (lan->pre_hyphen_char >0) {
+	g = raw_glyph_node();
+	set_to_character(g); 
+	character(g)=lan->pre_hyphen_char;
+    font(g)=font(t);
+	lang_data(g)=lang_data(t);
+    if (node_attr(t)!=null) {
+      node_attr(g) = node_attr(t);
+      attr_list_ref(node_attr(t)) ++; 
+    }
+	couple_nodes(pre_break(n),g);
+	tlink(pre_break(n)) = g;
+  }
+
+  if (lan->post_hyphen_char >0) {
+	t = vlink(n);
+	g = raw_glyph_node();
+	set_to_character(g); 
+	character(g)=lan->post_hyphen_char;
+    font(g)=font(t);
+	lang_data(g)=lang_data(t);
+    if (node_attr(t)!=null) {
+      node_attr(g) = node_attr(t);
+      attr_list_ref(node_attr(t)) += 1; 
+    }
+	couple_nodes(post_break(n),g);
+	tlink(post_break(n)) = g;
+  }
+  return n;
 }
 
 halfword insert_word_discretionary ( halfword t,  lang_variables *lan) {
@@ -284,12 +322,14 @@ halfword insert_complex_discretionary ( halfword t, lang_variables *lan,
 
 
 halfword insert_character ( halfword t,  int c) {
-  halfword g;
-  g = new_char_node(0,c);
+  halfword p;
+  p=new_node(glyph_node,0);
+  set_to_character(p); 
+  character(p)=c;
   if (t!=null) {
-    couple_nodes(t,g);
+    couple_nodes(t,p);
   }
-  return g;
+  return p;
 }
 
 
@@ -531,10 +571,10 @@ int valid_wordend( halfword s) {
   int clang = char_lang(s);
   if (r==null)
     return 1;
-  while (r!=null &&
-		 (type(r)==glyph_node && is_simple_character(r) && clang == char_lang(r)) ||
-		 (type(r)==glyph_node && is_ghost(r)) ||
-		 (type(r)==kern_node  && subtype(r)==normal)) {
+  while ((r!=null) &&
+		 ((type(r)==glyph_node && is_simple_character(r) && clang == char_lang(r)) ||
+		  (type(r)==glyph_node && is_ghost(r)) ||
+		  (type(r)==kern_node  && subtype(r)==normal))) {
     r = vlink(r);
   }
   if (r==null ||
