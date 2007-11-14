@@ -303,6 +303,17 @@ raw_glyph_node(void) {
   return n;
 }
 
+halfword
+new_glyph_node(void) {
+  register halfword n;
+  n = get_node(glyph_node_size);
+  (void)memset((varmem+n+1),0, (sizeof(memory_word)*(glyph_node_size-1)));
+  type(n)=glyph_node;
+  subtype(n)=0;
+  build_attribute_list(n); 
+  return n;
+}
+
 
 /* makes a duplicate of the node list that starts at |p| and returns a
    pointer to the new list */
@@ -562,9 +573,10 @@ flush_node (halfword p) {
   
   if (p==null) /* legal, but no-op */
     return;
+  
   if (free_error(p))
     return;
-
+  
   switch(type(p)) {
   case glyph_node:
     flush_node_list(lig_ptr(p));
@@ -933,8 +945,7 @@ check_node (halfword p) {
 }
 
 void 
-check_node_mem(void ) { 
-  int i;
+check_static_node_mem (void) {
   dotest(zero_glue,width(zero_glue),0);
   dotest(zero_glue,type(zero_glue),glue_spec_node);
   dotest(zero_glue,vlink(zero_glue),null);
@@ -982,7 +993,12 @@ check_node_mem(void ) {
   dotest(fil_neg_glue,stretch_order(fil_neg_glue),fil);
   dotest(fil_neg_glue,shrink(fil_neg_glue),0);
   dotest(fil_neg_glue,shrink_order(fil_neg_glue),normal);
-  
+}
+
+void 
+check_node_mem(void ) { 
+  int i;
+  check_static_node_mem();
   
   for (i=(prealloc+1);i<var_mem_max;i++) {
     if (varmem_sizes[i]>0) {
@@ -1009,6 +1025,8 @@ fix_node_list (halfword head) {
 halfword 
 get_node (integer s) {
   register halfword r;
+
+  /*check_static_node_mem();*/
   assert(s<MAX_CHAIN_SIZE);
 
   r = free_chain[s];
@@ -1032,6 +1050,7 @@ free_node (halfword p, integer s) {
     fprintf(stdout,"node %d (type %d) should not be freed!\n",(int)p, type(p));
     return;
   }
+
 #ifndef NDEBUG
   varmem_sizes[p] = 0;
 #endif
@@ -1292,7 +1311,7 @@ print_node_mem_stats (int num, int online) {
   tprint(" nodes");
   s = sprint_node_mem_usage();
   tprint_nl("current usage: ");
-  tprint_nl(s);  free(s);
+  tprint(s);  free(s);
   tprint(" nodes");
   print_nlp(); /* newline, if needed */
 }
