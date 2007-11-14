@@ -3,6 +3,16 @@
 #include "luatex-api.h"
 #include <ptexlib.h>
 
+/* there could be more platforms that don't have these two,
+ *  but win32 and sunos are for sure.
+ * gettimeofday() for win32 is using an alternative definition
+ */
+
+#if (! defined(WIN32)) && (! defined(__SUNOS__))
+#include <sys/time.h>   /* gettimeofday() */
+#include <sys/times.h>  /* times() */
+#endif
+
 lua_State *Luas[65536];
 
 extern char *startup_filename;
@@ -273,6 +283,70 @@ static void find_sleep (lua_State *L)
 }
 
 
+#if (! defined (WIN32))  && (! defined (__SUNOS__))
+static int os_times (lua_State *L) {
+  struct tms r;
+  (void)times(&r);
+  lua_newtable(L);
+  lua_pushnumber(L, ((lua_Number)(r.tms_utime))/(lua_Number)sysconf(_SC_CLK_TCK));
+  lua_setfield(L,-2,"utime");
+  lua_pushnumber(L, ((lua_Number)(r.tms_stime))/(lua_Number)sysconf(_SC_CLK_TCK));
+  lua_setfield(L,-2,"stime");
+  lua_pushnumber(L, ((lua_Number)(r.tms_cutime))/(lua_Number)sysconf(_SC_CLK_TCK));
+  lua_setfield(L,-2,"cutime");
+  lua_pushnumber(L, ((lua_Number)(r.tms_cstime))/(lua_Number)sysconf(_SC_CLK_TCK));
+  lua_setfield(L,-2,"cstime");
+  return 1;
+}
+#endif
+
+#if ! defined (__SUNOS__)
+
+#if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
+  #define DELTA_EPOCH_IN_MICROSECS  11644473600000000Ui64
+#else
+  #define DELTA_EPOCH_IN_MICROSECS  11644473600000000ULL
+#endif
+
+static int os_gettimeofday (lua_State *L) {
+  lua_Number v;
+#ifndef WIN32
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  v = (lua_Number)tv.tv_sec + (lua_Number)tv.tv_usec / 1000000.0;
+#else
+  FILETIME ft;
+  unsigned __int64 tmpres = 0;
+
+  GetSystemTimeAsFileTime(&ft);
+
+  tmpres |= ft.dwHighDateTime;
+  tmpres <<= 32;
+  tmpres |= ft.dwLowDateTime;
+  tmpres /= 10;
+  tmpres -= DELTA_EPOCH_IN_MICROSECS; /*converting file time to unix epoch*/
+  v = (lua_Number)tmpres / 1000000.0; 
+#endif
+  lua_pushnumber(L, v);
+  return 1;
+}
+#endif
+
+static void find_clocks (lua_State *L)
+{
+#if (! defined (WIN32))  && (! defined (__SUNOS__))
+  lua_getglobal(L,"os");
+  lua_pushcfunction(L, os_times);
+  lua_setfield(L,-2,"times");
+#endif
+#if ! defined (__SUNOS__)
+  lua_getglobal(L,"os");
+  lua_pushcfunction(L, os_gettimeofday);
+  lua_setfield(L,-2,"gettimeofday");
+#endif
+}
+
+
 void *my_luaalloc (void *ud, void *ptr, size_t osize, size_t nsize) {
   void *ret = NULL;
   if (nsize == 0)
@@ -305,6 +379,7 @@ luainterpreter (int n) {
   luaL_openlibs(L);
   find_env(L);
   find_sleep(L);
+  find_clocks(L);
 
   lua_getglobal(L,"package");
   lua_pushstring(L,"");
