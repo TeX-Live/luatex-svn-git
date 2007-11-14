@@ -1029,7 +1029,7 @@ try_ligature(halfword *frst, halfword fwd) {
     int move_after = (lig_type(lig) & 0x0C)>>2;
     int keep_right = ((lig_type(lig) & 0x01) != 0);
     int keep_left  = ((lig_type(lig) & 0x02) != 0);
-    halfword newgl = new_glyph_node(font(cur),lig_replacement(lig));
+    halfword newgl = new_glyph(font(cur),lig_replacement(lig));
     set_is_ligature(newgl);
 
     /* below might not be correct in contrived border case.
@@ -1121,13 +1121,13 @@ handle_lig_word(halfword cur) {
     cur = fwd;
   } else if (has_left_boundary(font(cur))) {
     halfword prev= alink(cur);
-    halfword p  = new_glyph_node(font(cur),left_boundarychar);
+    halfword p  = new_glyph(font(cur),left_boundarychar);
     couple_nodes(prev,p);
     couple_nodes(p,cur);
     cur         = p;
   }
   if (has_right_boundary(font(cur))) {
-    right = new_glyph_node(font(cur),right_boundarychar);
+    right = new_glyph(font(cur),right_boundarychar);
   }
 
   while (1) {
