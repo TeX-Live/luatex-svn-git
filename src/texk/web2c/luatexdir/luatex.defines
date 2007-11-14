@@ -23,6 +23,7 @@ $Id $
 { luatex.defines: additions for luaTeX }
 
 @define function new_node();
+@define function new_glyph_node;
 @define procedure flush_node();
 @define function copy_node();
 @define function copy_node_list();
@@ -417,6 +418,12 @@ $Id $
 @define function getlly;
 @define function geturx;
 @define function getury;
+
+{functions from texpdf.c }
+
+@define procedure pdf_print_char();
+@define procedure pdf_print();
+@define procedure pdf_print_int();
 
 
 { functions from vfpacket.c }
