@@ -490,34 +490,9 @@ tokenlist_from_lua(lua_State *L) {
 #define v_template 2
 
 void
-get_token_lua (void) {
-  integer callback_id ; 
-  integer p,q,r,i,j;
-  lua_State *L;
-  L = Luas[0];
+do_get_token_lua (integer callback_id) {
+  lua_State *L = Luas[0];
 
-  while (cur_input.state_field==token_list && 
-		 cur_input.loc_field==null &&
-		 cur_input.index_field!=v_template) {
-	end_token_list();
-  }
-  if (cur_input.state_field==token_list && 
-	  cur_input.nofilter_field==true) {
-    get_next();
-    return;
-  }
-  if (cur_input.state_field==token_list && 
-      cur_input.index_field==backed_up &&
-      cur_input.loc_field!=null) {
-    get_next();
-    return;
-  }
-
-  callback_id = callback_defined(token_filter_callback);
-  if (callback_id==0) {
-    get_next();
-    return;
-  }
   lua_rawgeti(L,LUA_REGISTRYINDEX,callback_callbacks_id);
   while (1) {
     lua_rawgeti(L,-1, callback_id);
@@ -533,44 +508,47 @@ get_token_lua (void) {
       return;
     }
     if (lua_istable(L,-1)) {
-	  lua_rawgeti(L,-1,1);
-	  if (lua_istable(L,-1)) {
-		lua_pop(L,1); 
-		/* build a token list */
-		r = get_avail(); p = r;
-		j = lua_objlen(L,-1);
-		if (j>0) {
-		  for (i=1;i<=j;i++) {
-			lua_rawgeti(L,-1,i);
-			if (get_cur_cmd(L) || get_cur_cs(L)) {
-			  store_new_token(cur_tok);
-			}
-			lua_pop(L,1);
-		  }
-		}
-		if (p!=r) {
-		  p = link(r);
-		  free_avail(r);
-		  begin_token_list(p, inserted);
-		  cur_input.nofilter_field=true;
-		  get_next();
-		  lua_pop(L,1);
-		  break;	
-		} else {
-		  fprintf(stdout,"error: illegal or empty token list returned\n");
-		  lua_pop(L,2);
-		  error();
-		  return;
-		}
-	  } else {
-		lua_pop(L,1);
-		if (get_cur_cmd(L) || get_cur_cs(L)) {
-		  lua_pop(L,1);
-		  break;	
-		} else {
-		  lua_pop(L,2);
-		  continue; 
-		}
+      lua_rawgeti(L,-1,1);
+      if (lua_istable(L,-1)) {
+	integer p,q,r;
+	int i,j;
+	lua_pop(L,1); 
+	/* build a token list */
+	r = get_avail(); 
+	p = r;
+	j = lua_objlen(L,-1);
+	if (j>0) {
+	  for (i=1;i<=j;i++) {
+	    lua_rawgeti(L,-1,i);
+	    if (get_cur_cmd(L) || get_cur_cs(L)) {
+	      store_new_token(cur_tok);
+	    }
+	    lua_pop(L,1);
+	  }
+	}
+	if (p!=r) {
+	  p = link(r);
+	  free_avail(r);
+	  begin_token_list(p, inserted);
+	  cur_input.nofilter_field=true;
+	  get_next();
+	  lua_pop(L,1);
+	  break;	
+	} else {
+	  fprintf(stdout,"error: illegal or empty token list returned\n");
+	  lua_pop(L,2);
+	  error();
+	  return;
+	}
+      } else {
+	lua_pop(L,1);
+	if (get_cur_cmd(L) || get_cur_cs(L)) {
+	  lua_pop(L,1);
+	  break;	
+	} else {
+	  lua_pop(L,2);
+	  continue; 
+	}
       }
     } else {
       lua_pop(L,1);  
@@ -578,4 +556,24 @@ get_token_lua (void) {
     }
   }
   lua_pop(L,1); /* callback container */
+  return; 
+}
+
+void
+get_token_lua (void) {
+  register int callback_id ; 
+  callback_id = callback_defined(token_filter_callback);
+  if (callback_id!=0) {
+    while (cur_input.state_field==token_list && 
+	   cur_input.loc_field==null &&
+	   cur_input.index_field!=v_template)
+      end_token_list();
+    if (!(cur_input.state_field==token_list && 
+	((cur_input.nofilter_field==true) ||
+	 (cur_input.index_field==backed_up && cur_input.loc_field!=null)))) {
+      do_get_token_lua(callback_id);
+      return;
+    }
+  } 
+  get_next();
 }
