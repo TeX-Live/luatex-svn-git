@@ -4,8 +4,6 @@
 #include <ptexlib.h>
 #include "nodes.h"
 
-//#define DEB 1
-
 /* Glue nodes in a horizontal list that is being paragraphed are not supposed to
    include ``infinite'' shrinkability; that is why the algorithm maintains
    four registers for stretching but only one for shrinking. If the user tries to
@@ -398,7 +396,6 @@ macro makes such six-tuples convenient.
 #define restore_active_width(a) active_width[(a)] = prev_active_width[(a)]
 
 static scaled active_width[10] = {0}; /*distance from first active node to~|cur_p|*/
-static scaled cur_active_width[10] = {0}; /*distance from current active node*/
 static scaled background[10] = {0}; /*length of an ``empty'' line*/
 static scaled break_width[10] = {0}; /*length being computed after current break*/
 
@@ -596,7 +593,6 @@ static scaled best_pl_glue[4]; /*corresponding glue stretch or shrink */
 #define reset_disc_width(a) disc_width[(a)] = 0
 
 #define add_disc_width_to_break_width(a)     break_width[(a)] += disc_width[(a)]
-#define add_disc_width_to_active_width(a)    active_width[(a)] += disc_width[(a)]
 #define sub_disc_width_from_active_width(a)  active_width[(a)] -= disc_width[(a)]
 
 #define add_char_shrink(a,b)  a += char_shrink((b))
@@ -873,9 +869,11 @@ print_feasible_break(halfword cur_p, pointer r, halfword b, integer pi,
   else 
     print_int(d);
 }
+
+#define add_disc_width_to_active_width(a)   active_width[a] += disc_width[a]
 #define update_width(a) cur_active_width[a] += varmem[(r+(a))].cint
 
-#define set_break_width_to_background(a) break_width[(a)]=background[(a)]
+#define set_break_width_to_background(a) break_width[a]=background[(a)]
 
 #define convert_to_break_width(a)  \
   varmem[(prev_r+(a))].cint -= (cur_active_width[(a)]+break_width[(a)])
@@ -935,9 +933,9 @@ ext_try_break(integer pi,
   scaled margin_kern_shrink;
   halfword lp, rp, cp;
   halfword prev_r;  /* stays a step behind |r| */
+  halfword prev_prev_r; /*a step behind |prev_r|, if |type(prev_r)=delta_node|*/
   halfword old_l; /* maximum line number in current equivalence class of lines */
   boolean no_break_yet; /* have we found a feasible break at |cur_p|? */
-  halfword prev_prev_r; /*a step behind |prev_r|, if |type(prev_r)=delta_node|*/
   halfword q; /*points to a new node being created*/
   halfword l; /*line number of current active node*/
   boolean node_r_stays_active; /*should node |r| remain in the active list?*/
@@ -949,6 +947,7 @@ ext_try_break(integer pi,
 
   scaled shortfall; /*used in badness calculations*/
   scaled g; /*glue stretch or shrink of test line, adjustment for last line*/
+  scaled cur_active_width[10] = {0}; /*distance from current active node*/
 
   line_width=0;  g=0; prev_prev_r=null;
   /*@<Make sure that |pi| is in the proper range@>;*/
@@ -969,7 +968,7 @@ ext_try_break(integer pi,
        set |prev_r| and |prev_prev_r|, then |goto continue|@>; */
     /* The following code uses the fact that |type(active)<>delta_node| */
     if (type(r)==delta_node) {
-      do_all_eight(update_width);
+      do_all_eight(update_width); /* IMPLICIT ,r */
       prev_prev_r=prev_r; 
       prev_r=r; 
       continue;
@@ -1001,13 +1000,13 @@ ext_try_break(integer pi,
         /* @<Insert a delta node to prepare for breaks at |cur_p|@>;*/
         /* We use the fact that |type(active)<>delta_node|.*/
         if (type(prev_r)==delta_node) {/* modify an existing delta node */
-          do_all_eight(convert_to_break_width);                               
+          do_all_eight(convert_to_break_width);  /* IMPLICIT prev_r */
         } else if (prev_r==active) { /* no delta node needed at the beginning */
           do_all_eight(store_break_width);                                
         } else {                                                        
           q=new_node(delta_node,0); 
           vlink(q)=r; 
-          do_all_eight(new_delta_to_break_width);                        
+          do_all_eight(new_delta_to_break_width); /* IMPLICIT q */
           vlink(prev_r)=q;  
           prev_prev_r=prev_r; 
           prev_r=q;                
@@ -1072,7 +1071,7 @@ ext_try_break(integer pi,
         if (r!=active) {                                                
           q=new_node(delta_node,0); 
           vlink(q)=r; 
-          do_all_eight(new_delta_from_break_width);                                
+          do_all_eight(new_delta_from_break_width);  /* IMPLICIT q */
           vlink(prev_r)=q; 
           prev_prev_r=prev_r; 
           prev_r=q;                        
@@ -1111,12 +1110,12 @@ ext_try_break(integer pi,
        then |goto continue| if a line from |r| to |cur_p| is infeasible,
        otherwise record a new feasible break@>; */
     artificial_demerits=false;
-    shortfall = line_width-cur_active_width[1]; /*we're this much too short*/
-    if (break_node(r)==null)
-      shortfall -= init_internal_left_box_width;
-    else 
-      shortfall -= passive_last_left_box_width(break_node(r));
-    shortfall -= internal_right_box_width;
+    shortfall = line_width
+      - cur_active_width[1]
+      -(( break_node(r)==null)
+        ? init_internal_left_box_width
+        : passive_last_left_box_width(break_node(r)))
+      - internal_right_box_width;
     if (pdf_protrude_chars > 1) {
       halfword l, o;
       l = (break_node(r) == null) ? first_p : cur_break(break_node(r));
@@ -1149,7 +1148,7 @@ ext_try_break(integer pi,
         /* @<Calculate variations of marginal kerns@>;*/
         lp = last_leftmost_char;
         rp = last_rightmost_char;
-        cp = new_char_node(0,0);
+        cp = raw_glyph_node();
         if (lp != null) {
           cal_margin_kern_var(lp);
         }
@@ -1303,12 +1302,12 @@ ext_try_break(integer pi,
       /* @<Prepare to deactivate node~|r|, and |goto deactivate| unless
          there is a reason to consider lines of text from |r| to |cur_p|@> */
       /* During the final pass, we dare not lose all active nodes, lest we lose
-         touch with the line breaks already found. The code shown here makes sure
-         that such a catastrophe does not happen, by permitting overfull boxes as
-         a last resort. This particular part of \TeX\ was a source of several subtle
-         bugs before the correct program logic was finally discovered; readers
-         who seek to ``improve'' \TeX\ should therefore think thrice before daring
-         to make any changes here.
+         touch with the line breaks already found. The code shown here makes
+         sure that such a catastrophe does not happen, by permitting overfull
+         boxes as a last resort. This particular part of \TeX\ was a source of
+         several subtle bugs before the correct program logic was finally
+         discovered; readers who seek to ``improve'' \TeX\ should therefore
+         think thrice before daring to make any changes here.
          @^overfull boxes@>
       */
       if (final_pass && (minimum_demerits==awful_bad) && 
@@ -1326,11 +1325,12 @@ ext_try_break(integer pi,
     }
     /* @<Record a new feasible break@>;*/
     /* When we get to this part of the code, the line from |r| to |cur_p| is
-       feasible, its badness is~|b|, and its fitness classification is |fit_class|.
-       We don't want to make an active node for this break yet, but we will
-       compute the total demerits and record them in the |minimal_demerits| array,
-       if such a break is the current champion among all ways to get to |cur_p|
-       in a given line-number class and fitness class.
+       feasible, its badness is~|b|, and its fitness classification is
+       |fit_class|.  We don't want to make an active node for this break yet,
+       but we will compute the total demerits and record them in the
+       |minimal_demerits| array, if such a break is the current champion among
+       all ways to get to |cur_p| in a given line-number class and fitness
+       class.
     */
     if (artificial_demerits) { 
       d=0;
@@ -1376,38 +1376,39 @@ ext_try_break(integer pi,
       continue; /*|prev_r| has been set to |r| */
   DEACTIVATE: 
     /* @<Deactivate node |r|@>; */
-    /* When an active node disappears, we must delete an adjacent delta node if the
-       active node was at the beginning or the end of the active list, or if it
-       was surrounded by delta nodes. We also must preserve the property that
-       |cur_active_width| represents the length of material from |vlink(prev_r)|
-       to~|cur_p|.*/
+    /* When an active node disappears, we must delete an adjacent delta node if
+       the active node was at the beginning or the end of the active list, or
+       if it was surrounded by delta nodes. We also must preserve the property
+       that |cur_active_width| represents the length of material from
+       |vlink(prev_r)| to~|cur_p|.*/
     
     vlink(prev_r)=vlink(r); 
     flush_node(r);
     if (prev_r==active) {
-      /*@<Update the active widths, since the first active node has been deleted@>*/
-      /* The following code uses the fact that |type(active)<>delta_node|. If the
-         active list has just become empty, we do not need to update the
+      /*@<Update the active widths, since the first active node has been
+        deleted@>*/
+      /* The following code uses the fact that |type(active)<>delta_node|.
+         If the active list has just become empty, we do not need to update the
          |active_width| array, since it will be initialized when an active
          node is next inserted.
       */
       r=vlink(active);
       if (type(r)==delta_node) {
-        do_all_eight(update_active);
+        do_all_eight(update_active); /* IMPLICIT r */
         do_all_eight(copy_to_cur_active);
         vlink(active)=vlink(r); 
         flush_node(r);
-      };
+      }
     } else if (type(prev_r)==delta_node){
       r=vlink(prev_r);
       if (r==active) {
-        do_all_eight(downdate_width);
+        do_all_eight(downdate_width); /* IMPLICIT prev_r */
         vlink(prev_prev_r)=active;
         flush_node(prev_r); 
         prev_r=prev_prev_r;
       } else if (type(r)==delta_node) {
-        do_all_eight(update_width);
-        do_all_eight(combine_two_deltas);
+        do_all_eight(update_width); /* IMPLICIT ,r */
+        do_all_eight(combine_two_deltas); /* IMPLICIT r prev_r */
         vlink(prev_r)=vlink(r); 
         flush_node(r);
       }
@@ -1454,13 +1455,6 @@ ext_do_line_break (boolean d,
 		   halfword final_par_glue) {
   /* DONE,DONE1,DONE2,DONE3,DONE4,DONE5,CONTINUE;*/
   halfword cur_p,q,r,s; /* miscellaneous nodes of temporary interest */
-
-#ifdef DEB
-  tprint("BEGIN OF LINEBREAK");
-  breadth_max=100000;
-  depth_threshold=100000;
-  show_node_list(temp_head);
-#endif
 
   /* Get ready to start ... */
   minimum_demerits=awful_bad;
@@ -1650,9 +1644,7 @@ ext_do_line_break (boolean d,
         cur_p=vlink(cur_p);
         while (cur_p==null && nest_index>0) {
           cur_p = nest_stack[--nest_index];
-#ifdef DEB
-          fprintf(stderr,"Node Pop  %d [%d]\n",nest_index,(int)cur_p);
-#endif
+		  //          fprintf(stderr,"Node Pop  %d [%d]\n",nest_index,(int)cur_p);
         }
       }
       if (cur_p==null) { /* TODO */
@@ -1802,7 +1794,8 @@ ext_do_line_break (boolean d,
             ext_try_break(actual_penalty,hyphenated_node, pdf_adjust_spacing, 
                           par_shape_ptr, adj_demerits, tracing_paragraphs, 
                           pdf_protrude_chars, line_penalty, last_line_fit,  
-                          double_hyphen_demerits,  final_hyphen_demerits,first_p,cur_p);
+                          double_hyphen_demerits, final_hyphen_demerits,
+                          first_p,cur_p);
             do_one_seven_eight(sub_disc_width_from_active_width);
           }
 #define FOO 0
@@ -1863,11 +1856,9 @@ ext_do_line_break (boolean d,
         }
 #endif /* FOO */
 #if 1
-        if (vlink_no_break(cur_p)!=0) {
+        if (vlink_no_break(cur_p)!=null) {
           if (vlink(cur_p)!=null) nest_stack[nest_index++] = vlink(cur_p);
-#ifdef DEB
-          fprintf(stderr,"Node Push %d [%d]->[%d] / [%d]\n",(nest_index-1),(int)cur_p,(int)vlink(cur_p),(int)vlink_no_break(cur_p));
-#endif
+		  //          fprintf(stderr,"Node Push %d [%d]->[%d] / [%d]\n",(nest_index-1),(int)cur_p,(int)vlink(cur_p),(int)vlink_no_break(cur_p));
           cur_p = no_break(cur_p);
         }
 #else
@@ -1944,9 +1935,7 @@ ext_do_line_break (boolean d,
       cur_p=vlink(cur_p); 
       while (cur_p==null && nest_index>0) {
         cur_p = nest_stack[--nest_index];
-#ifdef DEB
-        fprintf(stderr,"Node Pop  %d [%d]\n",nest_index,(int)cur_p);
-#endif
+		//        fprintf(stderr,"Node Pop  %d [%d]\n",nest_index,(int)cur_p);
       }
     }
     if (cur_p==null) {
@@ -2063,7 +2052,6 @@ ext_do_line_break (boolean d,
      (By introducing this subprocedure, we are able to keep |line_break|
      from getting extremely long.)
   */
-
   ext_post_line_break(d,
 		      right_skip,
 		      left_skip,
