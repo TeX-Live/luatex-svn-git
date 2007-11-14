@@ -3756,14 +3756,14 @@ conversion from |mlist| to |hlist|).
 @d x_displace(#)==vinfo(#+4) { horizontal displacement }
 @d y_displace(#)==vlink(#+4) { vertical displacement  }
 
-@p function new_glyph_node(@!f,@!c:integer):pointer;
+@p function new_glyph(@!f,@!c:integer):pointer;
 var p:pointer; {the new node}
 begin p:=null;
 if (f=0) or (char_exists(f,c)) then begin
-  p:=new_node(glyph_node,0);
+  p:=new_glyph_node;
   set_to_glyph(p); font(p):=f;  character(p):=c; 
   end;
-new_glyph_node:=p;
+new_glyph:=p;
 end;
 
 
@@ -3791,12 +3791,12 @@ begin if h<=0 then norm_min:=1@+else if h>=255 then norm_min:=255@+
 else norm_min:=h;
 end;
 @#
-function new_char_node(@!f,@!c:integer):pointer;
+function new_char(@!f,@!c:integer):pointer;
 var p:pointer; {the new node}
-begin p:=new_node(glyph_node,0);
+begin p:=new_glyph_node;
 set_to_character(p); font(p):=f;  character(p):=c;
 lang_data(p):=make_lang_data(uc_hyph,cur_lang,left_hyphen_min,right_hyphen_min);
-new_char_node:=p;
+new_char:=p;
 end;
 
 @ Left and right ghost glyph nodes are the result of \.{\\leftghost}
@@ -16768,77 +16768,6 @@ begin
         decr(pdf_ptr);
 end;
 
-procedure pdf_print_octal(n: integer); {prints an integer in octal form to
-PDF buffer}
-var k:0..23; {index to current digit; we assume that $|n|<10^{23}$}
-begin
-  k:=0;
-  repeat dig[k]:=n mod 8; n:=n div 8; incr(k);
-  until n=0;
-  if k = 1 then begin
-    pdf_out("0");
-    pdf_out("0");
-  end;
-  if k = 2 then
-    pdf_out("0");
-  while k>0 do begin
-    decr(k);
-    pdf_out("0"+dig[k]);
-  end;
-end;
-
-procedure pdf_print_char(f: internal_font_number; cc: integer);
-{ print out a character to PDF buffer; the character will be printed in octal
-  form in the following cases: chars <= 32, backslash (92), left parenthesis
-  (40) and  right parenthesis (41) }
-var c,chari: integer;
-begin
-    pdf_mark_char(f, cc);
-	if font_encodingbytes(f)=2 then begin
-      chari := char_index(f, cc);
-      c := chari div 256;
-	  if (c <= 32) or (c = 92) or (c = 40) or (c = 41) or (c > 127) then begin
-        if c<256 then begin 
-      	  pdf_out(92);           {output a backslash}
-          pdf_print_octal(c);
-          end;
-        end
-      else
-        pdf_out(c);
-      c := chari mod 256;
-    end else begin
-      c := cc;
-      {|c := char_index(f, cc);|}
-    end;
-    begin
-      if (c <= 32) or (c = 92) or (c = 40) or (c = 41) or (c > 127) then begin
-        if c<256 then begin
-          pdf_out(92);           {output a backslash}
-          pdf_print_octal(c);
-          end;
-        end
-      else
-        pdf_out(c);
-    end;
-end;
-
-procedure pdf_print(s: str_number); {print out a string to PDF buffer}
-var j: pool_pointer; {current character code position}
-    c: integer;
-begin
-    if s<number_chars then begin
-      pdf_out(s);
-      end
-    else begin
-      j := str_start_macro(s);
-      while j < str_start_macro(s + 1) do begin
-        c := str_pool[j];
-        pdf_out(c);
-        incr(j);
-      end;
-    end;
-end;
-
 function str_in_str(s, r: str_number; i: integer): boolean;
   {test equality of strings}
 label not_found; {loop exit}
@@ -16856,35 +16785,6 @@ begin
         incr(k);
     end;
     str_in_str := true;
-end;
-
-procedure pdf_print_int(n:integer); {print out a integer to PDF buffer}
-var k:integer; {index to current digit ($0\le k\le23$); we assume that $|n|<10^{23}$}
-m:integer; {used to negate |n| in possibly dangerous cases}
-begin
-  k:=0;
-  if n<0 then
-    begin pdf_out("-");
-    if n>-100000000 then negate(n)
-    else  begin m:=-1-n; n:=m div 10; m:=(m mod 10)+1; k:=1;
-      if m<10 then dig[0]:=m
-      else  begin dig[0]:=0; incr(n);
-        end;
-      end;
-    end;
-  repeat dig[k]:=n mod 10; n:=n div 10; incr(k);
-  until n=0;
-  pdf_room(k);
-  while k>0 do begin
-    decr(k);
-    pdf_quick_out("0"+dig[k]);
-  end;
-end;
-
-procedure pdf_print_two(n:integer); {prints two least significant digits in
-decimal form to PDF buffer}
-begin n:=abs(n) mod 100; pdf_out("0"+(n div 10));
-pdf_out("0"+(n mod 10));
 end;
 
 function tokens_to_string(p: pointer): str_number; {return a string from tokens
@@ -21160,7 +21060,7 @@ begin
     width(k) := w;
     if p = null then
         pdf_error("margin kerning", "invalid pointer to marginal char node");
-    q := new_char_node(font(p), character(p)); margin_char(k):=q;
+    q := new_char(font(p), character(p)); margin_char(k):=q;
     new_margin_kern := k;
 end;
 
@@ -22434,7 +22334,7 @@ begin
 b:=new_null_box; ci:=char_info_short(f,c);
 width(b):=charinfo_width(ci)+char_italic(f,c);
 height(b):=charinfo_height(ci); depth(b):=charinfo_depth(ci);
-p:=new_char_node(f,c); list_ptr(b):=p; char_box:=b;
+p:=new_char(f,c); list_ptr(b):=p; char_box:=b;
 end;
 
 @ When the following code is executed, |char_tag(q)| will be equal to
@@ -23294,7 +23194,7 @@ make_scripts(q,delta)
 @ @<Create a character node |p| for |nucleus(q)|...@>=
 begin fetch(nucleus(q));
 if char_exists(cur_f,cur_c) then
-  begin delta:=char_italic(cur_f,cur_c); p:=new_glyph_node(cur_f,cur_c);
+  begin delta:=char_italic(cur_f,cur_c); p:=new_glyph(cur_f,cur_c);
   if (math_type(nucleus(q))=math_text_char)and(space(cur_f)<>0) then
     delta:=0; {no italic correction in mid-word of text font}
   if (math_type(subscr(q))=empty)and(delta<>0) then
@@ -25919,7 +25819,7 @@ hmode+no_boundary: begin @<Append a |cancel_boundary_node| @>;
 hmode+char_ghost: begin t:=cur_chr; get_x_token;
   if (cur_cmd=letter)or(cur_cmd=other_char)or(cur_cmd=char_given)or
    (cur_cmd=char_num) then begin 
-	p:=new_glyph_node(cur_font,cur_chr);
+	p:=new_glyph(cur_font,cur_chr);
     if t=0 then begin set_is_leftghost(p); end
     else begin set_is_rightghost(p); end;
     tail_append(p);
@@ -25979,25 +25879,25 @@ are inside the individual sections.
 @<Append character |cur_chr|...@>=
 adjust_space_factor;@/
 if (cur_chr=ex_hyphen_char) and (mode>0) then begin
-    {soon: |tail:=insert_discretionary(tail,p,q,new_char_node(cur_font,cur_chr));|}
+    {soon: |tail:=insert_discretionary(tail,p,q,new_char(cur_font,cur_chr));|}
     tail_append(new_disc);
     subtype(tail):=automatic_disc;
     if get_pre_hyphen_char(cur_lang)<>0 then begin
-      vlink(pre_break(tail)):=new_char_node(cur_font, get_pre_hyphen_char(cur_lang));
+      vlink(pre_break(tail)):=new_char(cur_font, get_pre_hyphen_char(cur_lang));
       alink(vlink(pre_break(tail))):=pre_break(tail);
       tlink(pre_break(tail)):=vlink(pre_break(tail));
       end;
     if get_post_hyphen_char(cur_lang)<>0 then begin
-      vlink(post_break(tail)):=new_char_node(cur_font, get_post_hyphen_char(cur_lang));
+      vlink(post_break(tail)):=new_char(cur_font, get_post_hyphen_char(cur_lang));
       alink(vlink(post_break(tail))):=post_break(tail);
       tlink(post_break(tail)):=vlink(post_break(tail));
       end;
-    vlink(no_break(tail)):=new_char_node(cur_font,cur_chr);
+    vlink(no_break(tail)):=new_char(cur_font,cur_chr);
     alink(vlink(no_break(tail))):=no_break(tail);
     tlink(no_break(tail)):=vlink(no_break(tail));
   end
 else
-  tail_append(new_char_node(cur_font,cur_chr));
+  tail_append(new_char(cur_font,cur_chr));
 p := get_auto_kern(cur_font, -1, cur_chr);
 if p <> null then tail_append(p)
 
@@ -27275,13 +27175,13 @@ subtype(tail):=cur_chr;
 if cur_chr=explicit_disc then begin 
     c:=get_pre_hyphen_char(cur_lang);
     if c<>0 then begin 
-   	  vlink(pre_break(tail)):=new_char_node(cur_font,c);
+   	  vlink(pre_break(tail)):=new_char(cur_font,c);
       alink(vlink(pre_break(tail))):=pre_break(tail);
    	  tlink(pre_break(tail)):=vlink(pre_break(tail));
       end;
     c:=get_post_hyphen_char(cur_lang);
     if c<>0 then begin
-       vlink(post_break(tail)):=new_char_node(cur_font,c);
+       vlink(post_break(tail)):=new_char(cur_font,c);
        alink(vlink(post_break(tail))):=post_break(tail);
        tlink(post_break(tail)):=vlink(post_break(tail));
        end;
@@ -27406,7 +27306,7 @@ var s,@!t: real; {amount of slant}
 @!p,@!q,@!r:pointer; {character, box, and kern nodes}
 @!f:internal_font_number; {relevant font}
 @!a,@!h,@!x,@!w,@!delta:scaled; {heights and widths, as explained above}
-begin scan_char_num; f:=cur_font; p:=new_glyph_node(f,cur_val);
+begin scan_char_num; f:=cur_font; p:=new_glyph(f,cur_val);
 if p<>null then
   begin x:=x_height(f); s:=slant(f)/float_constant(65536);
 @^real division@>
@@ -27423,9 +27323,9 @@ end;
 @ @<Create a character node |q| for the next...@>=
 q:=null; f:=cur_font;
 if (cur_cmd=letter)or(cur_cmd=other_char)or(cur_cmd=char_given) then
-  q:=new_glyph_node(f,cur_chr)
+  q:=new_glyph(f,cur_chr)
 else if cur_cmd=char_num then
-  begin scan_char_num; q:=new_glyph_node(f,cur_val);
+  begin scan_char_num; q:=new_glyph(f,cur_val);
   end
 else back_input
 
