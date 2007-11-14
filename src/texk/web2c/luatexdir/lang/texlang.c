@@ -273,11 +273,13 @@ insert_syllable_discretionary ( halfword t,  lang_variables *lan) {
   n = new_node(disc_node,syllable_disc);
   couple_nodes(n,vlink(t));
   couple_nodes(t,n);
-  
   delete_attribute_ref(node_attr(n));
-  node_attr(n) = node_attr(t);
-  attr_list_ref(node_attr(t))++ ;
-
+  if (node_attr(t)!=null) {
+	node_attr(n) = node_attr(t);
+	attr_list_ref(node_attr(t))++ ;
+  } else {
+	node_attr(n) = null;
+  }
   if (lan->pre_hyphen_char >0) {
         g = raw_glyph_node();
         set_to_character(g); 
@@ -397,10 +399,10 @@ halfword find_exception_part(int *j, int *uword, int len) {
   g = null; gg =null;
   while (i<len && uword[i+1] != '}') {
     if (g==null) {
-      gg = new_char_node(0,uword[i+1]);
+      gg = new_char(0,uword[i+1]);
       g = gg;
     } else {
-	  halfword s = new_char_node(0,uword[i+1]);
+	  halfword s = new_char(0,uword[i+1]);
       couple_nodes(g,s);
       g = vlink(g);
     }
@@ -426,7 +428,7 @@ void do_exception (halfword wordstart, halfword r, char *replacement) {
   t=wordstart;
   while (i<len) { /* still stuff to do */
     if (uword[i+1] == '-') { /* a hyphen follows */
-      g = new_char_node(font(t),'-');
+      g = new_char(font(t),'-');
       while (vlink(t)!=r && (type(t)!=glyph_node || !is_simple_character(t)))
 	t = vlink(t);
       if (vlink(t)==r)
