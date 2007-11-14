@@ -131,6 +131,10 @@ typedef enum {
 #define glue_ptr(a)      vinfo((a)+2)
 #define leader_ptr(a)    vlink((a)+2)
 
+/* disc nodes could eventually be smaller, because the indirect 
+   pointers are not really needed (8 instead of 10).
+ */
+
 #define disc_node_size 10
 
 typedef enum {
@@ -532,28 +536,28 @@ typedef enum {
   subst_ex_font  /* substitute fonts */
 } hpack_subtypes;
 
-#define active_node_size 5 /*number of words in extended active nodes*/
+#define active_node_size 4 /*number of words in extended active nodes*/
 #define fitness subtype /*|very_loose_fit..tight_fit| on final line for this break*/
 #define break_node(a) vlink((a)+1) /*pointer to the corresponding passive node */
 #define line_number(a) vinfo((a)+1) /*line that begins at this breakpoint*/
 #define total_demerits(a) varmem[(a)+2].cint /* the quantity that \TeX\ minimizes*/
-#define active_short(a) varmem[(a)+3].cint /* |shortfall| of this line */
-#define active_glue(a) varmem[(a)+4].cint /*corresponding glue stretch or shrink*/
+#define active_short(a) vinfo(a+3) /* |shortfall| of this line */
+#define active_glue(a)  vlink(a+3) /*corresponding glue stretch or shrink*/
 
-#define passive_node_size 8
-#define cur_break                      rlink /*in passive node, points to position of this breakpoint*/
-#define prev_break                     llink /*points to passive node that should precede this one */
-#define passive_pen_inter(a)           varmem[((a)+2)].cint
-#define passive_pen_broken(a)          varmem[((a)+3)].cint
-#define passive_left_box(a)            vlink((a)+4)
-#define passive_left_box_width(a)      vinfo((a)+4)
-#define passive_last_left_box(a)       vlink((a)+5)
-#define passive_last_left_box_width(a) vinfo((a)+5)
-#define passive_right_box(a)           vlink((a)+6)
-#define passive_right_box_width(a)     vinfo((a)+6)
-#define serial(a)                      vlink((a)+7) /* serial number for symbolic identification*/
+#define passive_node_size 7
+#define cur_break(a)                   vlink((a)+1) /*in passive node, points to position of this breakpoint*/
+#define prev_break(a)                  vinfo((a)+1) /*points to passive node that should precede this one */
+#define passive_pen_inter(a)           vinfo((a)+2)
+#define passive_pen_broken(a)          vlink((a)+2)
+#define passive_left_box(a)            vlink((a)+3)
+#define passive_left_box_width(a)      vinfo((a)+3)
+#define passive_last_left_box(a)       vlink((a)+4)
+#define passive_last_left_box_width(a) vinfo((a)+4)
+#define passive_right_box(a)           vlink((a)+5)
+#define passive_right_box_width(a)     vinfo((a)+5)
+#define serial(a)                      vlink((a)+6) /* serial number for symbolic identification*/
 
-#define delta_node_size 11
+#define delta_node_size 10 /* 8 fields, stored in a+1..9 */
 
 #define couple_nodes(a,b) {assert(b!=null);vlink(a)=b;alink(b)=a;}
 #define try_couple_nodes(a,b) if (b==null) vlink(a)=b; else {couple_nodes(a,b);}
@@ -603,6 +607,7 @@ extern void fix_node_list (halfword);
 extern int fix_node_lists;
 extern char *sprint_node_mem_usage (void) ;
 extern halfword raw_glyph_node(void) ;
+extern halfword new_glyph_node(void);
 
 #define unity 0x10000
 typedef enum {
