@@ -213,9 +213,9 @@ load_tex_hyphenation(int curlang, halfword head) {
   load_hyphenation(get_language(curlang),(unsigned char *)s);
 }
 
-/* TODO: check this. The delete_attribute_ref() statements are not very 
+/* TODO: clean this up. The delete_attribute_ref() statements are not very 
    nice, but needed. Also, in the post-break, it would be nicer to get the 
-   attribute list from vlink(n) */
+   attribute list from vlink(n). No rush, as it is currently not used. */
 
 halfword insert_discretionary ( halfword t,  halfword pre,  halfword post,  halfword replace) {
   halfword g, n;
@@ -267,7 +267,8 @@ halfword insert_discretionary ( halfword t,  halfword pre,  halfword post,  half
   return t;
 }
 
-halfword insert_syllable_discretionary ( halfword t,  lang_variables *lan) {
+halfword 
+insert_syllable_discretionary ( halfword t,  lang_variables *lan) {
   halfword g, n;
   n = new_node(disc_node,syllable_disc);
   couple_nodes(n,vlink(t));
@@ -278,32 +279,32 @@ halfword insert_syllable_discretionary ( halfword t,  lang_variables *lan) {
   attr_list_ref(node_attr(t))++ ;
 
   if (lan->pre_hyphen_char >0) {
-	g = raw_glyph_node();
-	set_to_character(g); 
-	character(g)=lan->pre_hyphen_char;
-    font(g)=font(t);
-	lang_data(g)=lang_data(t);
-    if (node_attr(t)!=null) {
-      node_attr(g) = node_attr(t);
-      attr_list_ref(node_attr(t)) ++; 
-    }
-	couple_nodes(pre_break(n),g);
-	tlink(pre_break(n)) = g;
+        g = raw_glyph_node();
+        set_to_character(g); 
+        character(g)=lan->pre_hyphen_char;
+        font(g)=font(t);
+        lang_data(g)=lang_data(t);
+        if (node_attr(t)!=null) {
+          node_attr(g) = node_attr(t);
+          attr_list_ref(node_attr(t)) ++; 
+        }
+        couple_nodes(pre_break(n),g);
+        tlink(pre_break(n)) = g;
   }
 
   if (lan->post_hyphen_char >0) {
-	t = vlink(n);
-	g = raw_glyph_node();
-	set_to_character(g); 
-	character(g)=lan->post_hyphen_char;
-    font(g)=font(t);
-	lang_data(g)=lang_data(t);
-    if (node_attr(t)!=null) {
-      node_attr(g) = node_attr(t);
-      attr_list_ref(node_attr(t)) += 1; 
-    }
-	couple_nodes(post_break(n),g);
-	tlink(post_break(n)) = g;
+        t = vlink(n);
+        g = raw_glyph_node();
+        set_to_character(g); 
+        character(g)=lan->post_hyphen_char;
+        font(g)=font(t);
+        lang_data(g)=lang_data(t);
+        if (node_attr(t)!=null) {
+          node_attr(g) = node_attr(t);
+          attr_list_ref(node_attr(t)) += 1; 
+        }
+        couple_nodes(post_break(n),g);
+        tlink(post_break(n)) = g;
   }
   return n;
 }
