@@ -559,7 +559,7 @@ int luacstring_input (void);
 
 
 /* luatoken.c */
-void get_token_lua (void);
+void do_get_token_lua (integer callback_id);
 
 /* luanode.c */
 int visible_last_node_type (int n) ;
@@ -592,6 +592,12 @@ scaled divide_scaled_n (double s, double m, double d);
 /* texpdf.c */
 void pdf_print_char(internal_font_number f, integer c) ;
 void pdf_print (str_number n) ;
+void pdf_print_str (str_number n) ;
 void pdf_print_int(integer n) ;
+
+/* textoken.c */
+
+void get_next(void);
+void get_token_lua (void);
 
 #endif                          /* PDFTEXLIB */
