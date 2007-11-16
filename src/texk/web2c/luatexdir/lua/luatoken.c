@@ -3,20 +3,7 @@
 #include "luatex-api.h"
 #include <ptexlib.h>
 
-#define cs_token_flag 0x1FFFFFFF
-#define string_offset 2097152
-
-#undef link /* defined by cpascal.h */
-#define info(a)    fixmem[(a)].hhlh
-#define link(a)    fixmem[(a)].hhrh
-
-#define inserted 4
-
-extern void make_token_table (lua_State *L, int cmd, int chr, int cs);
-
-#define store_new_token(a) { q=get_avail(); link(p)=q; info(q)=(a); p=q; }
-#define free_avail(a)      { link((a))=avail; avail=(a); decr(dyn_used); }
-
+#include "tokens.h"
 
 command_item command_names[] = 
   { { "relax", 0, NULL },
@@ -162,11 +149,11 @@ command_item command_names[] =
 int get_command_id (char *s) {
   int i;
   int cmd  = -1;
-  for (i=0;command_names[i].name != NULL;i++) {
-    if (strcmp(s,command_names[i].name) == 0) 
+  for (i=0;command_names[i].cmd_name != NULL;i++) {
+    if (strcmp(s,command_names[i].cmd_name) == 0) 
       break;
   }
-  if (command_names[i].name!=NULL) {
+  if (command_names[i].cmd_name!=NULL) {
     cmd = i;
   }
   return cmd;
@@ -286,8 +273,6 @@ get_cur_cs (lua_State *L) {
 #define Print_esc(b) { if (e>0 && e<string_offset) Print_uchar (e);	\
     { char *v = b; while (*v) { Print_char(*v); v++; } } }
 
-#define length(a) (str_start_macro((a)+1)-str_start_macro(a))
-
 #define single_letter(a) (length(a)==1)||			\
   ((length(a)==4)&&(str_pool[str_start_macro(a)]>=0xF0))||	\
   ((length(a)==3)&&(str_pool[str_start_macro(a)]>=0xE0))||	\
@@ -295,8 +280,6 @@ get_cur_cs (lua_State *L) {
 
 #define is_cat_letter(a)						\
   (get_char_cat_code(pool_to_unichar(str_start_macro(a))) == 11)
-
-#define str_start_macro(a) str_start[(a) - string_offset]
 
 char * 
 tokenlist_to_cstring ( int p , int inhibit_par, int *siz) {
@@ -485,10 +468,6 @@ tokenlist_from_lua(lua_State *L) {
   }
 }
 
-#define token_list 0
-#define backed_up 3
-#define v_template 2
-
 void
 do_get_token_lua (integer callback_id) {
   lua_State *L = Luas[0];
@@ -559,21 +538,3 @@ do_get_token_lua (integer callback_id) {
   return; 
 }
 
-void
-get_token_lua (void) {
-  register int callback_id ; 
-  callback_id = callback_defined(token_filter_callback);
-  if (callback_id!=0) {
-    while (cur_input.state_field==token_list && 
-	   cur_input.loc_field==null &&
-	   cur_input.index_field!=v_template)
-      end_token_list();
-    if (!(cur_input.state_field==token_list && 
-	((cur_input.nofilter_field==true) ||
-	 (cur_input.index_field==backed_up && cur_input.loc_field!=null)))) {
-      do_get_token_lua(callback_id);
-      return;
-    }
-  } 
-  get_next();
-}

@@ -86,7 +86,7 @@ extern void unhide_lua_value(lua_State *lua, char *name, char *item, int r);
 extern int  hide_lua_value  (lua_State *lua, char *name, char *item);
 
 typedef struct command_item_ {
-  char *name;
+  char *cmd_name;
   int command_offset;
   char **commands;
 } command_item;
