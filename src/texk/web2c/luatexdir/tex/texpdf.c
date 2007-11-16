@@ -2,10 +2,14 @@
 
 #include "luatex-api.h"
 #include <ptexlib.h>
+#include <ctype.h>
 
 #define number_chars 1114112
 #define string_offset 2097152
 #define str_start_macro(a) str_start[(a) - string_offset]
+#define str_length(a) (str_start_macro((a)+1)-str_start_macro(a))  /* the number of characters  in string number (a) */
+
+#define is_hex_char isxdigit
 
 /* output a byte to PDF buffer without checking of overflow */
 
@@ -108,3 +112,58 @@ pdf_print_int(integer n) {
   }
 }
 
+
+/* print $m/10^d$ as real */
+void 
+pdf_print_real(integer m, integer d) {
+  if (m < 0) {
+    pdf_out('-');
+    m = -m;
+  };
+  pdf_print_int(m / ten_pow[d]);
+  m = m % ten_pow[d];
+  if (m > 0) {
+    pdf_out('.');
+    d--;
+    while (m < ten_pow[d]) {
+      pdf_out('0');
+      d--;
+    }
+    while (m % 10 == 0) 
+      m = m / 10;
+    pdf_print_int(m);
+  }
+}
+
+/* print out |s| as string in PDF output */
+
+void 
+pdf_print_str(str_number s) { 
+  pool_pointer i, j;
+  i = str_start_macro(s);
+  j = str_start_macro(s+1) - 1;
+  if (i > j) {
+    pdf_room(2);
+    pdf_quick_out('(');
+    pdf_quick_out(')');
+    return;
+  }
+  /* the next is not really safe, the string could be "(a)xx(b)" */
+  if ((str_pool[i] == '(') && (str_pool[j] == ')')) {
+    pdf_print(s);
+    return;
+  }
+  if ((str_pool[i] != '<') || (str_pool[j] != '>') || odd(str_length(s))) {
+    pdf_out('('); pdf_print(s); pdf_out(')');
+    return;
+  }
+  i++;
+  j--;
+  while (i < j) {
+    if (!is_hex_char(str_pool[i++])) {
+      pdf_out('('); pdf_print(s); pdf_out(')');
+      return;
+    }
+  } 
+  pdf_print(s); /* it was a hex string after all  */
+}
