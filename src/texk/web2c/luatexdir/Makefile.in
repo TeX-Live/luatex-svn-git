@@ -92,6 +92,7 @@ lang/texlang.o \
 tex/linebreak.o \
 tex/postlinebreak.o \
 tex/texnodes.o \
+tex/textoken.o \
 tex/texpdf.o \
 managed-sa.o \
 mathcodes.o \

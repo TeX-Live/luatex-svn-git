@@ -424,7 +424,12 @@ $Id $
 @define procedure pdf_print_char();
 @define procedure pdf_print();
 @define procedure pdf_print_int();
+@define procedure pdf_print_real();
+@define procedure pdf_print_str();
 
+{functions from textoken.c }
+
+@define function get_next;
 
 { functions from vfpacket.c }
 @define function new_vf_packet();

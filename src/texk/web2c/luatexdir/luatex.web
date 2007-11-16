@@ -241,9 +241,9 @@ known as `\eTeX'.
 @d pdftex_revision=="0" { \.{\\pdftexrevision} }
 @d pdftex_version_string=='-2.00.0' {current \pdfTeX\ version}
 @#
-@d luatex_version==16 { \.{\\luatexversion} }
+@d luatex_version==17 { \.{\\luatexversion} }
 @d luatex_revision=="0" { \.{\\luatexrevision} }
-@d luatex_version_string=='snapshot-0.16.0' {current \LuaTeX\ version}
+@d luatex_version_string=='snapshot-0.17.0' {current \LuaTeX\ version}
 @d luatex_date_info==-extra_version_info { the compile date is negated }
 @#
 @d luaTeX_banner=='This is LuaTeX, Version ',luatex_version_string,extra_version_info
@@ -2125,9 +2125,12 @@ The input is placed into locations |first| through |last-1| of the
 
 This procedure is never called when |interaction<scroll_mode|.
 
-@d prompt_input(#)==begin wake_up_terminal; print(#); term_input;
-    end {prints a string and gets a line of input}
+@<Basic print...@>=
+procedure prompt_input(s:str_number); 
+begin wake_up_terminal; print(s); term_input;
+end;
 
+@ 
 @p procedure term_input; {gets a line from the terminal}
 var k:0..buf_size; {index into |buffer|}
 begin update_terminal; {now the user sees the prompt for sure}
@@ -2596,15 +2599,19 @@ a way to make |interrupt| nonzero using the \PASCAL\ debugger.
 @^system dependencies@>
 @^debugging@>
 
-@d check_interrupt==begin if interrupt<>0 then pause_for_instructions;
-  end
-
 @<Global...@>=
 @!interrupt:integer; {should \TeX\ pause for instructions?}
 @!OK_to_interrupt:boolean; {should interrupts be observed?}
 @!detokenized_line:boolean; {indicates this is a 'detokenized' input line }
 @!line_catcode_table:integer; {the used catcode table for input lines}
 @!local_catcode_table:boolean; {the used catcode table for input lines}
+@!static_int_base:integer; {C version of int_base}
+
+@ @p procedure check_interrupt;
+begin 
+if interrupt<>0 then pause_for_instructions;
+end;
+
 
 @ @<Set init...@>=
 interrupt:=0; OK_to_interrupt:=true; detokenized_line:=false;
@@ -5692,6 +5699,7 @@ for k:="A" to "Z" do begin
   end;
 
 @ @<Set init...@>=
+static_int_base:=int_base;
 initialize_math_codes;
 initialize_text_codes;
 
@@ -6764,6 +6772,10 @@ end;
 function get_toks_base:halfword;
 begin
   get_toks_base := toks_base;
+end;
+function get_every_eof:halfword;
+begin
+  get_every_eof := every_eof;
 end;
 function get_suppress_fontnotfound_error:boolean;
 begin
@@ -8663,7 +8675,7 @@ by |cur_cs|, which is zero at the end of a file.
 var p:pointer; {points to inserted token list}
 @!q:pointer; {auxiliary pointer}
 begin 
-if false then
+{|if false then
 if scanner_status<>normal then
   begin deletions_allowed:=false;
   @<Back up an outer control sequence so that it can be reread@>;
@@ -8681,7 +8693,7 @@ if scanner_status<>normal then
     cur_tok:=cs_token_flag+frozen_fi; ins_error;
     end;
   deletions_allowed:=true;
-  end;
+  end;|}
 end;
 
 @ An outer control sequence that occurs in a \.{\\read} will not be reread,
@@ -8696,7 +8708,7 @@ if cur_cs<>0 then
   cur_cmd:=spacer; cur_chr:=" "; {replace it by a space}
   end
 
-@ @<Tell the user what has run away...@>=
+@ @<Tell the user what has run away and try to recover@>=
 begin runaway; {print a definition, argument, or preamble}
 if cur_cs=0 then print_err("File ended")
 @.File ended while scanning...@>
@@ -8748,7 +8760,8 @@ this routine are executed more often than any other instructions of \TeX.
 @d switch=25 {a label in |get_next|}
 @d start_cs=26 {another}
 
-@p procedure get_next; {sets |cur_cmd|, |cur_chr|, |cur_cs| to next token}
+@p
+procedure old_get_next; {sets |cur_cmd|, |cur_chr|, |cur_cs| to next token}
 label restart, {go here to get the next input token}
   switch, {go here to eat the next character from a file}
   reswitch, {go here to digest it again}
@@ -8763,13 +8776,14 @@ var k,l:0..buf_size; {an index into |buffer|}
 @!inhibit_eol:boolean; {a way to end a pseudo file without trailing space}
 @!tab:integer; {a category table}
 begin restart: cur_cs:=0; inhibit_eol:=false; d:=1;
-if state<>token_list then
+{|if state<>token_list then
 @<Input from external file, |goto restart| if no input found@>
 else @<Input from token list, |goto restart| if end of list or
   if a parameter needs to be expanded@>;
-@<If an alignment entry has just ended, take appropriate action@>;
+@<If an alignment entry has just ended, take appropriate action@>;|}
 exit:
 end;
+
 
 @ An alignment entry ends when a tab or \.{\\cr} occurs, provided that the
 current level of braces is the same as the level that was present at the
@@ -9205,6 +9219,7 @@ else begin if not terminal_input then {\.{\\read} line has ended}
     never waits for on-line input}
   end
 
+
 @ The global variable |force_eof| is normally |false|; it is set |true|
 by an \.{\\endinput} command.
 
@@ -9290,6 +9305,7 @@ if inhibit_eol or end_line_char_inactive then decr(limit)
 else  buffer[limit]:=end_line_char;
 first:=limit+1; loc:=start; {ready to read}
 end
+
 
 @ If the user has set the |pausing| parameter to some positive value,
 and if nonstop mode has not been selected, each line of input is displayed
@@ -16899,27 +16915,6 @@ begin
         pdf_delta_h := pdf_delta_h + get_pk_char_width(f, w);
 end;
 
-procedure pdf_print_real(m, d: integer); {print $m/10^d$ as real}
-begin
-    if m < 0 then begin
-        pdf_out("-");
-        m := -m;
-    end;
-    pdf_print_int(m div ten_pow[d]);
-    m := m mod ten_pow[d];
-    if m > 0 then begin
-        pdf_out(".");
-        decr(d);
-        while m < ten_pow[d] do begin
-            pdf_out("0");
-            decr(d);
-        end;
-        while m mod 10 = 0 do
-            m := m div 10;
-        pdf_print_int(m);
-    end;
-end;
-
 procedure pdf_print_bp(s: scaled); {print scaled as |bp|}
 begin
     pdf_print_real(divide_scaled(s, one_hundred_bp, fixed_decimal_digits + 2),
@@ -17901,10 +17896,6 @@ end;
 
 @ Subroutines to print out various PDF objects
 
-@d is_hex_char(#) == (((# >= '0') and (# <= '9')) or
-                      ((# >= 'A') and (# <= 'F')) or
-                      ((# >= 'a') and (# <= 'f')))
-
 @p procedure pdf_print_fw_int(n, w: integer); {print out an integer with
 fixed width; used for outputting cross-reference table}
 var k: integer; {$0\le k\le23$}
@@ -17963,44 +17954,6 @@ procedure pdf_indirect_ln(s: str_number; o: integer);
 begin
     pdf_indirect(s, o);
     pdf_print_nl;
-end;
-
-procedure pdf_print_str(s: str_number); {print out |s| as string in PDF
-output}
-label done;
-var i, j: pool_pointer;
-    is_hex_string: boolean;
-begin
-    i := str_start_macro(s);
-    j := i + length(s) - 1;
-    if i > j then begin
-        pdf_print("()"); {null string}
-        return;
-    end;
-    if (str_pool[i] = '(') and (str_pool[j] = ')') then begin
-        pdf_print(s);
-        return;
-    end;
-    is_hex_string := false;
-    if (str_pool[i] <> '<') or (str_pool[j] <> '>') or odd(length(s)) then
-        goto done;
-    incr(i);
-    decr(j);
-    while i < j do begin
-        if is_hex_char(str_pool[i]) and is_hex_char(str_pool[i + 1]) then
-            i := i + 2
-        else
-            goto done;
-    end;
-    is_hex_string := true;
-done:
-    if is_hex_string then
-        pdf_print(s)
-    else begin
-        pdf_out("(");
-        pdf_print(s);
-        pdf_out(")");
-    end;
 end;
 
 procedure pdf_print_str_ln(s: str_number); {print out |s| as string in PDF
@@ -23932,6 +23885,16 @@ if cur_cmd=omit then begin_token_list(omit_template,v_template)
 else begin_token_list(v_part(cur_align),v_template);
 align_state:=1000000; goto restart;
 end
+
+@ @p procedure insert_vj_template;
+begin if (scanner_status=aligning) or (cur_align=null) then
+  fatal_error("(interwoven alignment preambles are not allowed)");
+@.interwoven alignment preambles...@>
+cur_cmd:=extra_info(cur_align); extra_info(cur_align):=cur_chr;
+if cur_cmd=omit then begin_token_list(omit_template,v_template)
+else begin_token_list(v_part(cur_align),v_template);
+align_state:=1000000;
+end;
 
 @ The token list |omit_template| just referred to is a constant token
 list that contains the special control sequence \.{\\endtemplate} only.
