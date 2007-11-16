@@ -581,10 +581,6 @@ extern halfword string_to_pseudo(integer l,integer pool_ptr, integer nl);
 #define precedes_break(a) (type((a))<math_node)
 #define non_discardable(a) (type((a))<math_node)
 
-#define NODE_METATABLE "luatex.node"
-
-#define check_isnode(L,b) (halfword *)luaL_checkudata(L,b,NODE_METATABLE)
-
 /* from luanode.c */
 
 typedef struct _node_info {
@@ -608,6 +604,7 @@ extern int fix_node_lists;
 extern char *sprint_node_mem_usage (void) ;
 extern halfword raw_glyph_node(void) ;
 extern halfword new_glyph_node(void);
+extern int valid_node(halfword);
 
 #define unity 0x10000
 typedef enum {
