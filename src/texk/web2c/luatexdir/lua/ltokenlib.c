@@ -88,7 +88,7 @@ run_get_command_name (lua_State *L) {
     get_token_cmd(L,-1);
     if (lua_isnumber(L,-1)) {
       cs = lua_tointeger(L,-1);
-      lua_pushstring(L,command_names[cs].name);
+      lua_pushstring(L,command_names[cs].cmd_name);
     } else {
       lua_pushstring(L,"");
     }
