@@ -5,6 +5,39 @@
 
 #include "nodes.h"
 
+#define init_luaS_index(a) do {								\
+    lua_pushliteral(L,#a);									\
+    luaS_##a##_ptr = (char *)lua_tostring(L,-1);			\
+    luaS_##a##_index = luaL_ref (L,LUA_REGISTRYINDEX);		\
+  } while (0)
+
+#define make_luaS_index(a)						\
+  static int luaS_##a##_index = 0;				\
+  static char * luaS_##a##_ptr = NULL
+
+#define luaS_index(a)	luaS_##a##_index
+
+#define luaS_ptr_eq(a,b) (a==luaS_##b##_ptr)
+
+#define NODE_METATABLE  "luatex_node"
+make_luaS_index(luatex_node);
+
+halfword *check_isnode (lua_State *L, int ud) {
+  register halfword *p = lua_touserdata(L, ud);
+  if (p != NULL) { 
+    if (lua_getmetatable(L, ud)) {
+	  lua_rawgeti(L,LUA_REGISTRYINDEX,luaS_index(luatex_node));
+	  lua_gettable(L, LUA_REGISTRYINDEX); 
+      if (lua_rawequal(L, -1, -2)) { 
+        lua_pop(L, 2);
+        return p;
+      }
+    }
+  }
+  luaL_typerror(L, ud, NODE_METATABLE); 
+  return NULL; 
+}
+
 /* This routine finds the numerical value of a string (or number) at
    lua stack index |n|. If it is not a valid node type, raises a lua
    error. */
@@ -88,7 +121,8 @@ lua_nodelib_push(lua_State *L) {
   } else {
     a = lua_newuserdata(L, sizeof(halfword));
     *a = n;
-    luaL_getmetatable(L,NODE_METATABLE);
+	lua_rawgeti(L,LUA_REGISTRYINDEX,luaS_index(luatex_node));
+	lua_gettable(L, LUA_REGISTRYINDEX); 
     lua_setmetatable(L,-2);
   }
   return;
@@ -406,6 +440,40 @@ lua_nodelib_hpack(lua_State *L) {
    lot of code reworking that I don't have time for right now.
 */
 
+
+make_luaS_index(id);
+make_luaS_index(next);
+make_luaS_index(char);
+make_luaS_index(font);
+make_luaS_index(attr);
+make_luaS_index(prev);
+make_luaS_index(lang);
+make_luaS_index(subtype);
+make_luaS_index(left);
+make_luaS_index(right);
+make_luaS_index(uchyph);
+make_luaS_index(components);
+make_luaS_index(xoffset);
+make_luaS_index(yoffset);
+
+
+void initialize_luaS_indexes(lua_State *L) {
+  init_luaS_index(id);
+  init_luaS_index(next);
+  init_luaS_index(char);
+  init_luaS_index(font);
+  init_luaS_index(attr);
+  init_luaS_index(prev);
+  init_luaS_index(lang);
+  init_luaS_index(subtype);
+  init_luaS_index(left);
+  init_luaS_index(right);
+  init_luaS_index(uchyph);
+  init_luaS_index(components);
+  init_luaS_index(xoffset);
+  init_luaS_index(yoffset);
+}
+
 #define TEST2(a,b) (*s==a && *(s+1)==b && *(s+2) == 0)
 
 #define TEST4(a,b,c,d)						\
@@ -420,24 +488,24 @@ get_node_field_id (lua_State *L, int n, int node ) {
   int t = type(node);
   if (lua_type(L,n)==LUA_TSTRING) {
     s = (char *)lua_tostring(L,n);
-    if      (TEST2('i','d'))                     { i = 1;  }
-    else if (TEST4('n','e','x','t'))             { i = 0;  } 
+    if      (luaS_ptr_eq(s,id))                  { i = 1;  }
+    else if (luaS_ptr_eq(s,next))                { i = 0;  } 
     else if (t==glyph_node) {
-      if      (TEST4('c','h','a','r'))           { i = 4;  } /* char */
-      else if (TEST4('f','o','n','t'))           { i = 5;  } /* font */
-      else if (TEST4('a','t','t','r'))           { i = 3;  } /* attr */
-      else if (TEST4('p','r','e','v'))           { i = -1; } /* prev */
-      else if (TEST4('l','a','n','g'))           { i = 6; }  /* lang */
-      else if (strcmp(s,"subtype") == 0 )        { i = 2;  } /* subtype */
-      else if (TEST4('l','e','f','t'))           { i = 7; }  /* left */
-      else if (strcmp(s,"right") == 0 )          { i = 8;  } /* right */
-      else if (strcmp(s,"uchyph") == 0 )         { i = 9;  } /* uchyph */
-      else if (strcmp(s,"components") == 0 )     { i = 10;  } /* components */
-      else if (strcmp(s,"xoffset") == 0 )        { i = 11;  } /* yoffset */
-      else if (strcmp(s,"yoffset") == 0 )        { i = 12;  } /* yoffset */
+      if      (luaS_ptr_eq(s,char))           { i = 4;  } /* char */
+      else if (luaS_ptr_eq(s,font))           { i = 5;  } /* font */
+      else if (luaS_ptr_eq(s,attr))           { i = 3;  } /* attr */
+      else if (luaS_ptr_eq(s,prev))           { i = -1; } /* prev */
+      else if (luaS_ptr_eq(s,lang))           { i = 6; }  /* lang */
+      else if (luaS_ptr_eq(s,subtype))        { i = 2;  } /* subtype */
+      else if (luaS_ptr_eq(s,left))           { i = 7; }  /* left */
+      else if (luaS_ptr_eq(s,right))          { i = 8;  } /* right */
+      else if (luaS_ptr_eq(s,uchyph))         { i = 9;  } /* uchyph */
+      else if (luaS_ptr_eq(s,components))     { i = 10;  } /* components */
+      else if (luaS_ptr_eq(s,xoffset))        { i = 11;  } /* yoffset */
+      else if (luaS_ptr_eq(s,yoffset))        { i = 12;  } /* yoffset */
     }
-    else if (TEST4('p','r','e','v'))             { i = -1; }
-    else if (strcmp(s,"subtype") == 0)           { i = 2;  }
+    else if (luaS_ptr_eq(s,prev))               { i = -1; }
+    else if (luaS_ptr_eq(s,subtype))            { i = 2;  }
     else {
       if (t==whatsit_node) {
 	fields = whatsit_node_data[subtype(node)].fields;
@@ -1822,6 +1890,8 @@ luaopen_node (lua_State *L)
   luaL_newmetatable(L,NODE_METATABLE);
   luaL_register(L, NULL, nodelib_m);
   luaL_register(L, "node", nodelib_f);
+  init_luaS_index(luatex_node);
+  initialize_luaS_indexes(L);
   return 1;
 }
 
