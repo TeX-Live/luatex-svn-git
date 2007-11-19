@@ -69,6 +69,7 @@ image/writeimg.o \
 image/writejbig2.o \
 image/writejpg.o \
 image/writepng.o \
+lua/loslibext.o \
 lua/lcallbacklib.o \
 lua/lkpselib.o \
 lua/llualib.o \
