@@ -22,6 +22,7 @@ extern halfword insert_word_discretionary ( halfword t,  lang_variables *lan);
 extern halfword insert_complex_discretionary ( halfword t,   lang_variables *lan, 
 					       halfword pre,  halfword post,  halfword replace);
 extern halfword insert_character ( halfword t,  int n);
+extern void set_disc_field (halfword f, halfword t);
 
 
 #define max_halfword  0x3FFFFFFF
