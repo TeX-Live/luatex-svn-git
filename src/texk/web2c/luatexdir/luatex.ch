@@ -982,33 +982,6 @@ source_filename_stack[0]:=0;full_source_filename_stack[0]:=0;
 @z
 
 @x
-print(" while scanning ");
-@y
-@z
-
-@x
-defining:begin print("definition"); info(p):=right_brace_token+"}";
-  end;
-matching:begin print("use"); info(p):=par_token; long_state:=outer_call;
-  end;
-aligning:begin print("preamble"); info(p):=right_brace_token+"}"; q:=p;
-  p:=get_avail; link(p):=q; info(p):=cs_token_flag+frozen_cr;
-  align_state:=-1000000;
-  end;
-absorbing:begin print("text"); info(p):=right_brace_token+"}";
-@y
-defining:begin print(" while scanning definition"); info(p):=right_brace_token+"}";
-  end;
-matching:begin print(" while scanning use"); info(p):=par_token; long_state:=outer_call;
-  end;
-aligning:begin print(" while scanning preamble"); info(p):=right_brace_token+"}"; q:=p;
-  p:=get_avail; link(p):=q; info(p):=cs_token_flag+frozen_cr;
-  align_state:=-1000000;
-  end;
-absorbing:begin print(" while scanning text"); info(p):=right_brace_token+"}";
-@z
-
-@x
 if_eof_code: begin scan_four_bit_int; b:=(read_open[cur_val]=closed);
   end;
 @y
