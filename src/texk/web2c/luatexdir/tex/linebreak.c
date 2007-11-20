@@ -1798,7 +1798,7 @@ ext_do_line_break (boolean d,
                           first_p,cur_p);
             do_one_seven_eight(sub_disc_width_from_active_width);
           }
-#define FOO 0
+#define FOO 1
 #if FOO
 #if 0
           if (vlink(cur_p)!=null) nest_stack[nest_index++] = vlink(cur_p);
@@ -1855,7 +1855,7 @@ ext_do_line_break (boolean d,
 #else /* FOO */
         }
 #endif /* FOO */
-#if 1
+#if 0
         if (vlink_no_break(cur_p)!=null) {
           if (vlink(cur_p)!=null) nest_stack[nest_index++] = vlink(cur_p);
 		  //          fprintf(stderr,"Node Push %d [%d]->[%d] / [%d]\n",(nest_index-1),(int)cur_p,(int)vlink(cur_p),(int)vlink_no_break(cur_p));
