@@ -1586,13 +1586,13 @@ endifn ('IPC')
 
 @x
 @<Append character |cur_chr|...@>=
-adjust_space_factor;@/
+continue: adjust_space_factor;@/
 @y
 @<Append character |cur_chr|...@>=
 if ((head=tail) and (mode>0)) then begin
   if (insertsrcspecialauto) then append_src_special;
 end;
-adjust_space_factor;@/
+continue: adjust_space_factor;@/
 @z
 
 @x

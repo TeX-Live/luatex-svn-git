@@ -25122,10 +25122,12 @@ consideration of the other cases until later.
 @p @t\4@>@<Declare action procedures for use by |main_control|@>@;
 @t\4@>@<Declare the procedure called |handle_right_brace|@>@;
 procedure main_control; {governs \TeX's activities}
-label big_switch,reswitch,exit;
+label big_switch,reswitch,continue,exit;
 var@!t,k:integer; {general-purpose temporary variables}
 p:pointer; {for whatsit nodes and testing whether an auto kern should be inserted}
+chr_stack:integer; { to temporarily save an |cur_chr| to be appended }
 begin t:=0; {for -Wall}
+chr_stack:=-1; 
 if every_job<>null then begin_token_list(every_job,every_job_text);
 big_switch: get_x_token;@/
 reswitch: @<Give diagnostic information, if requested@>;
@@ -25195,9 +25197,6 @@ set it equal to |sf_code(cur_chr)|, except that it should never change
 from a value less than 1000 to a value exceeding 1000. The most common
 case is |sf_code(cur_chr)=1000|, so we want that case to be fast.
 
-The overall structure of the main loop is presented here. Some program labels
-are inside the individual sections.
-
 @d adjust_space_factor==@t@>@;@/
   main_s:=get_sf_code(cur_chr);
   if main_s=1000 then space_factor:=1000
@@ -25208,29 +25207,29 @@ are inside the individual sections.
   else space_factor:=main_s
 
 @<Append character |cur_chr|...@>=
-adjust_space_factor;@/
-if (cur_chr=ex_hyphen_char) and (mode>0) then begin
-    {soon: |tail:=insert_discretionary(tail,p,q,new_char(cur_font,cur_chr));|}
-    tail_append(new_disc);
-    subtype(tail):=automatic_disc;
-    if get_pre_hyphen_char(cur_lang)<>0 then begin
-      vlink(pre_break(tail)):=new_char(cur_font, get_pre_hyphen_char(cur_lang));
-      alink(vlink(pre_break(tail))):=pre_break(tail);
-      tlink(pre_break(tail)):=vlink(pre_break(tail));
-      end;
-    if get_post_hyphen_char(cur_lang)<>0 then begin
-      vlink(post_break(tail)):=new_char(cur_font, get_post_hyphen_char(cur_lang));
-      alink(vlink(post_break(tail))):=post_break(tail);
-      tlink(post_break(tail)):=vlink(post_break(tail));
-      end;
-    vlink(no_break(tail)):=new_char(cur_font,cur_chr);
-    alink(vlink(no_break(tail))):=no_break(tail);
-    tlink(no_break(tail)):=vlink(no_break(tail));
+continue: adjust_space_factor;@/
+chr_stack:=cur_chr;
+get_x_token;
+tail_append(new_char(cur_font,chr_stack));
+p := get_auto_kern(cur_font, -1, chr_stack);
+if p <> null then tail_append(p);
+if (cur_cmd=letter)or(cur_cmd=other_char)or
+   (cur_cmd=char_given)or(cur_cmd=char_num) then begin 
+  if cur_cmd=char_num then begin 
+    scan_char_num; cur_chr:=cur_val; 
+    end;
+  if (chr_stack=ex_hyphen_char)and(cur_chr<>ex_hyphen_char)and(mode>0) then begin 
+    tail_append(new_disc); subtype(tail):=automatic_disc; 
+    end;
+  goto continue;
+  end 
+else begin
+  if (chr_stack=ex_hyphen_char) and (mode>0) then begin 
+    tail_append(new_disc); subtype(tail):=automatic_disc; 
+    end;
+  chr_stack:=-1;
+  goto reswitch;
   end
-else
-  tail_append(new_char(cur_font,cur_chr));
-p := get_auto_kern(cur_font, -1, cur_chr);
-if p <> null then tail_append(p)
 
 @ The occurrence of blank spaces is almost part of \TeX's inner loop,
 @^inner loop@>
