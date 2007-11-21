@@ -223,7 +223,8 @@ static int dimen_to_number (lua_State *L,char *s){
 }
 
 int setdimen (lua_State *L) {
-  int i,j,k;
+  int i,j;
+  unsigned k;
   int cur_cs;
   int texstr;
   char *s;
@@ -258,7 +259,8 @@ int setdimen (lua_State *L) {
 }
 
 int getdimen (lua_State *L) {
-  int i,j,  k;
+  int i,j;  
+  unsigned k;
   int cur_cs;
   int texstr;
   char *s;
@@ -283,7 +285,8 @@ int getdimen (lua_State *L) {
 }
 
 int setcount (lua_State *L) {
-  int i,j,k;
+  int i,j;
+  unsigned k;
   int cur_cs;
   int texstr;
   char *s;
@@ -307,7 +310,8 @@ int setcount (lua_State *L) {
 }
 
 int getcount (lua_State *L) {
-  int i, j, k;
+  int i, j;
+  unsigned k;
   int cur_cs;
   int texstr;
   char *s;
@@ -333,7 +337,8 @@ int getcount (lua_State *L) {
 
 
 int setattribute (lua_State *L) {
-  int i,j,k;
+  int i,j;
+  unsigned k;
   int cur_cs;
   int texstr;
   char *s;
@@ -357,7 +362,8 @@ int setattribute (lua_State *L) {
 }
 
 int getattribute (lua_State *L) {
-  int i, j, k;
+  int i, j;
+  unsigned k;
   int cur_cs;
   int texstr;
   char *s;
@@ -382,7 +388,8 @@ int getattribute (lua_State *L) {
 }
 
 int settoks (lua_State *L) {
-  int i,j,k,len;
+  int i,j;
+  unsigned k,len;
   int cur_cs;
   int texstr;
   char *s, *st;
@@ -414,7 +421,8 @@ int settoks (lua_State *L) {
 }
 
 int gettoks (lua_State *L) {
-  int i,k;
+  int i;
+  unsigned k;
   strnumber t;
   int cur_cs;
   int texstr;
@@ -555,7 +563,8 @@ int setboxdp (lua_State *L) {
 
 int settex (lua_State *L) {
   char *st;
-  int i,j,k,texstr;
+  int i,j,texstr;
+  unsigned k;
   int cur_cs, cur_cmd;
   j = 0;
   i = lua_gettop(L);
@@ -629,7 +638,8 @@ get_convert (int cur_code) {
 int
 gettex (lua_State *L) {
   char *st;
-  int i,k,texstr;
+  int i,texstr;
+  unsigned k;
   char *str;
   int cur_cs, cur_cmd, cur_code;
   i = lua_gettop(L);
@@ -699,59 +709,56 @@ setlist (lua_State *L) {
 
 #define infinity 2147483647
 
-#define test_integer(m,n)						\
-  if (m>(double)infinity || m<-(double)infinity ) {			\
-    if (m>0.0) n = infinity; else n = -infinity;				\
-    char *help[] = {"I can only go up to 2147483647='17777777777=""7FFFFFFF,", \
-		    "so I'm using that number instead of yours.",   NULL } ; \
-    tex_error("Number too big",help);  } 
+static int 
+do_integer_error(double m) {
+  char *help[] = {"I can only go up to 2147483647='17777777777=""7FFFFFFF,",
+				  "so I'm using that number instead of yours.",   
+				  NULL } ;
+  tex_error("Number too big",help);
+  return (m>0.0 ? infinity : -infinity);
+}
 
 
 static int
 tex_roundnumber (lua_State *L) {
   double m = lua_tonumber(L, 1)+0.5;
-  double n = floor(m);
-  test_integer(m,n);
-  lua_pushnumber(L, (integer)n);
+  if (abs(m)>(double)infinity)
+	lua_pushnumber(L,do_integer_error(m));
+  else
+	lua_pushnumber(L,floor(m));
   return 1;
 }
 
 static int
 tex_scaletable (lua_State *L) {
-  double n, m;
   double delta = luaL_checknumber(L, 2);
-  
   if (lua_istable(L,1)) {
     lua_newtable(L); /* the new table is at index 3 */
     lua_pushnil(L);
-    while (lua_next(L,1)!= 0 ) {
-      /* numeric value */
+    while (lua_next(L,1)!= 0 ) {  /* numeric value */
+	  lua_pushvalue(L,-2);
+	  lua_insert(L,-2);
       if (lua_isnumber(L,-1)) {
-        m = (double)(luaL_checknumber(L,-1)*delta) + 0.5;
-        n = floor(m);
-	test_integer(m,n);
-	lua_pushvalue(L,-2);
-	lua_pushnumber(L,(integer)n);
-      } else {
-	lua_pushvalue(L,-2);
-	lua_pushvalue(L,-2);
-      }
-      lua_rawset(L,3);
-
-      lua_pop(L, 1);
+        double m = lua_tonumber(L,-1)*delta + 0.5;
+		lua_pop(L,1);
+		if (abs(m)>(double)infinity)
+		  lua_pushnumber(L,do_integer_error(m));
+		else
+		  lua_pushnumber(L,floor(m));
+	  }
+	  lua_rawset(L,3);
     }
   } else if (lua_isnumber(L,1)) {
-    m = (double)(luaL_checknumber(L,1)*delta) + 0.5;
-    n = floor(m);
-    test_integer(m,n);
-    lua_pushnumber(L,(integer)n);
+    double m = lua_tonumber(L,1)*delta + 0.5;
+	if (abs(m)>(double)infinity)
+	  lua_pushnumber(L,do_integer_error(m));
+	else
+	  lua_pushnumber(L,floor(m));
   } else {
     lua_pushnil(L);
   }
   return 1;
 }
-
-
 
 static const struct luaL_reg texlib [] = {
   {"write",    luacwrite},
