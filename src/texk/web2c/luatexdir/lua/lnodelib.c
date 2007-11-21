@@ -1785,6 +1785,15 @@ lua_nodelib_do_ligature_n  (lua_State *L) {
   return 1;
 }
 
+extern halfword list_node_mem_usage (void) ;
+
+static int
+lua_nodelib_usedlist (lua_State *L) {
+  lua_pushnumber(L,list_node_mem_usage());
+  lua_nodelib_push(L);
+  return 1;
+}
+
 
 static const struct luaL_reg nodelib_f [] = {
   {"id",            lua_nodelib_id},
@@ -1815,6 +1824,7 @@ static const struct luaL_reg nodelib_f [] = {
   {"ligaturing",      font_tex_ligaturing},
   {"kerning",         font_tex_kerning},
   {"first_character", lua_nodelib_first_character},
+  {"usedlist",        lua_nodelib_usedlist},
   {NULL, NULL}  /* sentinel */
 };
 
