@@ -1138,7 +1138,7 @@ undump_node_mem (void) {
   undump_things(varmem[0],x);
 #ifndef NDEBUG
   varmem_sizes = xmallocarray (char, var_mem_max);
-  memset ((void *)varmem_sizes,0,x*sizeof(char));
+  memset ((void *)varmem_sizes,0,var_mem_max*sizeof(char));
   undump_things(varmem_sizes[0],x);
 #endif
   undump_things(free_chain[0],MAX_CHAIN_SIZE);
@@ -1273,10 +1273,10 @@ sprint_node_mem_usage (void) {
   b=0;
   for (i=0;i<last_normal_node+last_whatsit_node+2;i++) {
     if (node_counts[i]>0) {
+	  int j = (i>(last_normal_node+1) ? (i-last_normal_node-1) : 0);
       snprintf(msg,255,"%s%d %s",(b ? ", " : ""),
-	      (int)node_counts[i],
-	      get_node_name((i>last_normal_node ? whatsit_node : i),
-			    (i>last_normal_node ? (i-last_normal_node-1) : 0)));
+			   (int)node_counts[i],
+			   get_node_name((i>last_normal_node ? whatsit_node : i),j));
       ss = concat(s,msg);
       free (s);
       s = ss;
@@ -1286,6 +1286,23 @@ sprint_node_mem_usage (void) {
   return s;
 }
 
+halfword
+list_node_mem_usage (void) {
+  halfword i, j;
+  halfword p = null,q = null;
+  for (i=prealloc+1;i<var_mem_max;i++) {
+    if (varmem_sizes[i]>0) {
+	  j = copy_node(i);
+	  if (p==null) {
+		q = j;
+	  } else {
+		vlink(p)=j;
+	  }
+	  p = j;	  
+    }
+  }
+  return q;
+}
 
 void
 print_node_mem_stats (int num, int online) {
