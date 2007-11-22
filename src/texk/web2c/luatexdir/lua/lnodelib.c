@@ -572,17 +572,19 @@ lua_nodelib_fields (lua_State *L) {
   }
   lua_checkstack(L,2);
   lua_newtable(L);
-  lua_pushstring(L,"prev");
-  lua_rawseti(L,-2,-1);
   lua_pushstring(L,"next");
   lua_rawseti(L,-2,0);
   lua_pushstring(L,"id");
   lua_rawseti(L,-2,1);
   lua_pushstring(L,"subtype");
   lua_rawseti(L,-2,2);
-  for (i=0;fields[i]!=NULL;i++) {
-    lua_pushstring(L,fields[i]);
-    lua_rawseti(L,-2,(i+3));
+  if (fields!=NULL) {
+    lua_pushstring(L,"prev");
+    lua_rawseti(L,-2,-1);
+    for (i=0;fields[i]!=NULL;i++) {
+      lua_pushstring(L,fields[i]);
+      lua_rawseti(L,-2,(i+3));
+    }
   }
   return 1;
 }
