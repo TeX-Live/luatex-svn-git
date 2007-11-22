@@ -679,82 +679,71 @@ static int nodelib_aux_nil (lua_State *L) {
   return 1;
 }
 
-static int nodelib_aux_next (lua_State *L) {
-  halfword *n;
-  halfword t; /* traverser */
-  halfword m; /* match */
-  int i; /* id */
-  m = lua_tointeger(L,lua_upvalueindex(1));
-  i = lua_tointeger(L,lua_upvalueindex(2));
+static int 
+nodelib_aux_next_filtered (lua_State *L) {
+  register halfword t; /* traverser */
+  register int i = lua_tointeger(L,lua_upvalueindex(1));
   if (lua_isnil(L,2)) { /* first call */
-    n = check_isnode(L,1);
-    t = *n;
+    t = *check_isnode(L,1);
   } else {
-    n = check_isnode(L,2);
-    if (vlink(*n)==m) {
-      lua_pushnil(L);
-      return 1;
-    } 
-    t = vlink(*n);
+    t = *check_isnode(L,2);
+    t = vlink(t);
   }
-  if (i==-1) {
-    lua_pushnumber(L,t);
-    lua_nodelib_push(L);
+  while (t!=null && type(t)!=i) { t = vlink(t); }
+  if (t==null) {
+    lua_pushnil(L);
   } else {
-    while (t!=null && t!=m && type(t)!=i) { t = vlink(t); }
-    if (t==m) {
-      lua_pushnil(L);
-    } else {
-      lua_pushnumber(L,t);
-      lua_nodelib_push(L);    
-    }
+    lua_nodelib_push_fast(L,t);   
   }
   return 1;
 }
 
 
-static int
-do_lua_nodelib_traverse (lua_State *L, halfword match, int i, halfword first) {
-  /* first upvalue: match */
-  lua_pushnumber(L, match);
-  /* second upvalue: filter */
-  lua_pushnumber(L, i); 
-  lua_pushcclosure(L, nodelib_aux_next, 2);
-  lua_pushnumber(L, first);
-  lua_nodelib_push(L);
-  lua_pushnil(L);
-  return 3;
-}
-
-
-static int lua_nodelib_traverse (lua_State *L) {
+static int 
+lua_nodelib_traverse_filtered (lua_State *L) {
   halfword n;
-  halfword m = null;
-  if (lua_isnil(L,1)) {
-    lua_pushcclosure(L, nodelib_aux_nil, 0);
-    return 1;
-  }
-  n = *(check_isnode(L,1));
-  if (lua_gettop(L)==2) {
-    m = *(check_isnode(L,2));
-  } 
-  return do_lua_nodelib_traverse(L,m,-1,n);
-}
-
-
-static int lua_nodelib_traverse_filtered (lua_State *L) {
-  halfword n;
-  halfword m = null;
-  int i = -1;
-  i = lua_tointeger(L,1);
   if (lua_isnil(L,2)) {
     lua_pushcclosure(L, nodelib_aux_nil, 0);
     return 1;
   }
   n = *(check_isnode(L,2));
-  if (lua_gettop(L)==3)
-    m = *(check_isnode(L,3));
-  return do_lua_nodelib_traverse(L,m,i,n);
+  lua_pop(L,1); /* the node, integer remains */
+  lua_pushcclosure(L, nodelib_aux_next_filtered, 1);
+  lua_nodelib_push_fast(L,n);
+  lua_pushnil(L);
+  return 3;
+}
+
+static int 
+nodelib_aux_next (lua_State *L) {
+  register halfword t; /* traverser */
+  if (lua_isnil(L,2)) { /* first call */
+    t = *check_isnode(L,1);
+  } else {
+    t = *check_isnode(L,2);
+    t = vlink(t);
+  }
+  if (t==null) {
+    lua_pushnil(L);
+  } else {
+    lua_nodelib_push_fast(L,t);   
+  }
+  return 1;
+}
+
+static int 
+lua_nodelib_traverse (lua_State *L) {
+  halfword n;
+  if (lua_isnil(L,1)) {
+    lua_pushcclosure(L, nodelib_aux_nil, 0);
+    return 1;
+  }
+  n = *(check_isnode(L,1));
+  lua_pushcclosure(L, nodelib_aux_next, 0);
+  lua_nodelib_push_fast(L,n);
+  lua_pushnil(L);
+  return 3;
+;
 }
 
 
@@ -1727,6 +1716,44 @@ font_tex_kerning (lua_State *L) {
   return 3;
 }
 
+static int
+lua_nodelib_protect_glyphs  (lua_State *L) {
+  int t = 0;
+  halfword head = *(check_isnode(L,1));
+  while (head!=null) {
+    if (type(head)==glyph_node) {
+      register int s = subtype(head);
+      if (s<256) {
+	t = 1;
+	subtype(head) = ((s&0xFE) << 8);
+      }
+    }
+    head = vlink(head);
+  }
+  lua_pushboolean(L,t);
+  lua_pushvalue(L,1);
+  return 2;
+}
+
+static int
+lua_nodelib_unprotect_glyphs  (lua_State *L) {
+  int t = 0;
+  halfword head = *(check_isnode(L,1));
+  while (head!=null) {
+    if (type(head)==glyph_node) {
+      register int s = subtype(head);
+      if (s>=256) {
+	t = 1;
+	subtype(head) = (s >> 8);
+      }
+    }
+    head = vlink(head);
+  }
+  lua_pushboolean(L,t);
+  lua_pushvalue(L,1);
+  return 2;
+}
+
 
 static int 
 lua_nodelib_first_character (lua_State *L) {
@@ -1827,6 +1854,8 @@ static const struct luaL_reg nodelib_f [] = {
   {"kerning",         font_tex_kerning},
   {"first_character", lua_nodelib_first_character},
   {"usedlist",        lua_nodelib_usedlist},
+  {"protect_glyphs",   lua_nodelib_protect_glyphs},
+  {"unprotect_glyphs", lua_nodelib_unprotect_glyphs},
   {NULL, NULL}  /* sentinel */
 };
 
