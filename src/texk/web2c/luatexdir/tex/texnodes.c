@@ -696,13 +696,14 @@ flush_node (halfword p) {
   case adjust_node:
     flush_node_list(adjust_ptr(p)); 
     break;
+  case style_node:  
+    break;
   case choice_node: 
     flush_node_list(display_mlist(p));
     flush_node_list(text_mlist(p));
     flush_node_list(script_mlist(p));
     flush_node_list(script_script_mlist(p));
     break;
-  case style_node:  
   case ord_noad:
   case op_noad:
   case bin_noad:
@@ -716,9 +717,21 @@ flush_node (halfword p) {
   case under_noad:
   case vcenter_noad:
   case accent_noad:
+     
+    //if (math_type(nucleus(p))>=sub_box)
+    //  flush_node_list(vinfo(nucleus(p)));
+    //if (math_type(supscr(p))>=sub_box)
+    //  flush_node_list(vinfo(supscr(p)));
+    //if (math_type(subscr(p))>=sub_box)
+    //  flush_node_list(vinfo(subscr(p)));
+    
+    break;
   case left_noad:
   case right_noad: 
+    break;
   case fraction_noad:  
+    flush_node_list(vinfo(numerator(p)));
+    flush_node_list(vinfo(denominator(p)));
     break;
   case pseudo_file_node:
     flush_node_list(pseudo_lines(p));
@@ -728,7 +741,6 @@ flush_node (halfword p) {
     free_node(p,subtype(p));
     return;
     break;
-
   case align_stack_node:
   case movement_node: 
   case if_node:
