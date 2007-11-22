@@ -631,5 +631,7 @@ typedef enum {
 #define active          pre_adjust_head+temp_node_size
 #define align_head      active+active_node_size
 #define end_span        align_head+temp_node_size
+#define begin_point     end_span+glyph_node_size
+#define end_point       begin_point+glyph_node_size
 
 #endif
