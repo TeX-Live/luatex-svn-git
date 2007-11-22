@@ -22273,8 +22273,10 @@ else @<Adjust \(s)|shift_up| and |shift_down| for the case of a fraction line@>;
 end;
 
 @ @<Create equal-width boxes |x| and |z| for the numerator and denom...@>=
-x:=clean_box(numerator(q),num_style(cur_style));
+x:=clean_box(numerator(q),num_style(cur_style)); 
 z:=clean_box(denominator(q),denom_style(cur_style));
+vinfo(numerator(q)):=null;
+vinfo(denominator(q)):=null;
 if width(x)<width(z) then x:=rebox(x,width(z))
 else z:=rebox(z,width(x));
 if cur_style<text_style then {display style}
