@@ -4164,7 +4164,9 @@ symbolic names to the fixed positions.
 @d active==pre_adjust_head+temp_node_size {head of active list in |line_break|}
 @d align_head==active+active_node_size {head of preamble list for alignments}
 @d end_span==align_head+temp_node_size {tail of spanned-width lists}
-@d var_mem_stat_max==(end_span+span_node_size-1) {largest statically allocated word in the variable-size |mem|}
+@d begin_point==end_span+span_node_size {left-side dot for words in hyphenation}
+@d end_point==begin_point+glyph_node_size {right-side dot for words in hyphenation}
+@d var_mem_stat_max==(end_point+glyph_node_size-1) {largest statically allocated word in the variable-size |mem|}
 
 @<Glob...@>=
 garbage:pointer;         {head of a junk list, write only}
@@ -4218,6 +4220,16 @@ vinfo(pre_adjust_head):=0; vlink(pre_adjust_head):=null; alink(pre_adjust_head):
 vinfo(active):=0; vlink(active):=null; alink(active):=null;
 vinfo(align_head):=0; vlink(align_head):=null; alink(align_head):=null;
 vinfo(end_span):=0; vlink(end_span):=null; alink(end_span):=null;
+type(begin_point):=glyph_node; subtype(begin_point):=0; vlink(begin_point):=null; 
+vinfo(begin_point+1):=null; alink(begin_point):=null; 
+font(begin_point):=0; character(begin_point):='.';
+vinfo(begin_point+3):=0; vlink(begin_point+3):=0; 
+vinfo(begin_point+4):=0; vlink(begin_point+4):=0; 
+type(end_point):=glyph_node; subtype(end_point):=0; vlink(end_point):=null; 
+vinfo(end_point+1):=null; alink(end_point):=null; 
+font(end_point):=0; character(end_point):='.';
+vinfo(end_point+3):=0; vlink(end_point+3):=0; 
+vinfo(end_point+4):=0; vlink(end_point+4):=0; 
 avail:=null; fix_mem_end:=0;
 init_list_heads;
 @<Initialize the special list heads and constant nodes@>;
@@ -29839,6 +29851,10 @@ var a, b, c, i, j, k, l: integer; {all-purpose index}
 	callback_id:integer;
 	res:boolean;
 begin 
+if (text_dir_tmp<> null)and(text_dir_tmp<>text_dir_ptr) then flush_node_list(text_dir_tmp);
+if text_dir_ptr<> null then flush_node_list(text_dir_ptr);
+if (dir_tmp<>null)and(dir_tmp<>dir_ptr) then flush_node_list(dir_tmp);
+if dir_ptr<>null then flush_node_list(dir_ptr);
 callback_id:=callback_defined(stop_run_callback);
 @<Finish the extensions@>;
 @!stat if tracing_stats>0 then
