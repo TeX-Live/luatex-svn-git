@@ -538,18 +538,12 @@ static void clear_dict(
 }
 
 
-// used by hyphnate
-// NB: we 'loose' this memory as it is never freed
-static halfword begin = null;
-static halfword end   = null;
 
 //
 //
 HyphenDict* hnj_hyphen_new() {
   HyphenDict* dict = hnj_malloc (sizeof(HyphenDict));
   init_dict(dict);
-  if (begin==null) begin = insert_character(null,(int)'.');
-  if (end  ==null) end   = insert_character(null,(int)'.');
   return dict;
 }
 
@@ -803,9 +797,9 @@ void hnj_hyphen_hyphenate(
   char *hyphens = hnj_malloc(hyphen_len+1);
 
   // Add a '.' to beginning and end to facilitate matching
-  set_vlink(begin,first);
-  set_vlink(end,get_vlink(last));
-  set_vlink(last,end);
+  set_vlink(begin_point,first);
+  set_vlink(end_point,get_vlink(last));
+  set_vlink(last,end_point);
 
   int char_num;
   for (char_num = 0; char_num < hyphen_len; char_num++) {
@@ -819,7 +813,7 @@ void hnj_hyphen_hyphenate(
   /* now, run the finite state machine */
   int state = 0;
   halfword here;
-  for (char_num=0, here=begin; here!=end; here=get_vlink(here)) {
+  for (char_num=0, here=begin_point; here!=end_point; here=get_vlink(here)) {
 
     int ch = get_character(here);
 
@@ -856,7 +850,7 @@ try_next_letter: ;
   }
 
   // restore the correct pointers
-  set_vlink(last,get_vlink(end));
+  set_vlink(last,get_vlink(end_point));
 
   // pattern is ^.^w^o^r^d^.^   word_len=4, ext_word_len=6, hyphens=7
   // check          ^ ^ ^       so drop first two and stop after word_len-1
