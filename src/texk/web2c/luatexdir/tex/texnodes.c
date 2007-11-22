@@ -702,7 +702,6 @@ flush_node (halfword p) {
     flush_node_list(script_mlist(p));
     flush_node_list(script_script_mlist(p));
     break;
-
   case style_node:  
   case ord_noad:
   case op_noad:
@@ -721,7 +720,6 @@ flush_node (halfword p) {
   case right_noad: 
   case fraction_noad:  
     break;
-
   case pseudo_file_node:
     flush_node_list(pseudo_lines(p));
     break;
@@ -1290,17 +1288,20 @@ halfword
 list_node_mem_usage (void) {
   halfword i, j;
   halfword p = null,q = null;
-  for (i=prealloc+1;i<var_mem_max;i++) {
-    if (varmem_sizes[i]>0) {
-	  j = copy_node(i);
-	  if (p==null) {
-		q = j;
-	  } else {
-		vlink(p)=j;
-	  }
-	  p = j;	  
+  char *saved_varmem_sizes = xmallocarray (char, var_mem_max);
+  memcpy (saved_varmem_sizes,varmem_sizes,var_mem_max);
+  for (i=prealloc+1;i<(var_mem_max-1);i++) {
+    if (saved_varmem_sizes[i]>0) {
+      j = copy_node(i);
+      if (p==null) {
+	q = j;
+      } else {
+	vlink(p)=j;
+      }
+      p = j;	  
     }
   }
+  free(saved_varmem_sizes);
   return q;
 }
 
