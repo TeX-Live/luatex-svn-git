@@ -20434,7 +20434,7 @@ dir_ptr:=null;
 {TODO: this initial dir node is possibly (probably?) needed in some 
 cases, but doing it unconditionally seems to be a waste of effort. 
 Commented out for now, until a document generates a bug. }
-@{ push_dir(hpack_dir); @} 
+push_dir(hpack_dir);
 q:=r+list_offset; vlink(q):=p;@/
 if m = cal_expand_ratio then begin
     prev_char_p := null;
@@ -29853,10 +29853,6 @@ var a, b, c, i, j, k, l: integer; {all-purpose index}
 	callback_id:integer;
 	res:boolean;
 begin 
-if (text_dir_tmp<> null)and(text_dir_tmp<>text_dir_ptr) then flush_node_list(text_dir_tmp);
-if text_dir_ptr<> null then flush_node_list(text_dir_ptr);
-if (dir_tmp<>null)and(dir_tmp<>dir_ptr) then flush_node_list(dir_tmp);
-if dir_ptr<>null then flush_node_list(dir_ptr);
 callback_id:=callback_defined(stop_run_callback);
 @<Finish the extensions@>;
 @!stat if tracing_stats>0 then
