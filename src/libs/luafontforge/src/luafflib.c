@@ -1123,6 +1123,17 @@ handle_kernclass (lua_State *L, struct kernclass *kerns) {
 		lua_rawset(L,-3); }							\
       lua_setfield(L,-2,s); } }
 
+#define DUMP_EXACT_STRING_ARRAY(s,cnt,item) {		\
+    if (cnt>0 && item!=NULL) {						\
+      int kk;										\
+      lua_newtable(L);								\
+      for (kk=0;kk<cnt;kk++) {						\
+		lua_pushnumber(L,(kk));						\
+		lua_pushstring(L,item[kk]);					\
+		lua_rawset(L,-3); }							\
+      lua_setfield(L,-2,s); } }
+
+
 
 static char *fpossub_format_enum [] = { "glyphs", "class","coverage","reversecoverage"};
 
@@ -1197,9 +1208,15 @@ do_handle_generic_fpst(lua_State *L, struct generic_fpst *fpst) {
   }
   dump_enumfield(L,"format", fpst->format, fpossub_format_enum);
 
-  DUMP_STRING_ARRAY("current_class",fpst->nccnt,fpst->nclass);
-  DUMP_STRING_ARRAY("before_class",fpst->bccnt,fpst->bclass);
-  DUMP_STRING_ARRAY("after_class",fpst->fccnt,fpst->fclass);
+  if (fpst->format==pst_class) {
+	DUMP_EXACT_STRING_ARRAY("current_class",fpst->nccnt,fpst->nclass);
+	DUMP_EXACT_STRING_ARRAY("before_class",fpst->bccnt,fpst->bclass);
+	DUMP_EXACT_STRING_ARRAY("after_class",fpst->fccnt,fpst->fclass);
+  } else {
+	DUMP_STRING_ARRAY("current_class",fpst->nccnt,fpst->nclass);
+	DUMP_STRING_ARRAY("before_class",fpst->bccnt,fpst->bclass);
+	DUMP_STRING_ARRAY("after_class",fpst->fccnt,fpst->fclass);
+  }
 
   lua_checkstack(L,4);
   if (fpst->rule_cnt>0) {
