@@ -20108,8 +20108,8 @@ label found;
 var @!s:integer; {temporarily saved value}
 @!spec_code:exactly..additional;
 begin s:=0;
-if three_codes then s:=saved(0);
-if (c<>align_group) and (c<>vcenter_group) then begin
+if three_codes then begin
+  s:=saved(0);
   if scan_keyword("dir") then begin
     scan_direction; spec_direction:=cur_val;
     end;
@@ -20122,23 +20122,25 @@ else  begin spec_code:=additional; cur_val:=0;
   goto found;
   end;
 scan_normal_dimen;
-found: if three_codes then
-  begin saved(0):=s; incr(save_ptr);
-  end;
-saved(0):=spec_code; saved(1):=cur_val;
-if (c<>align_group) and (c<>vcenter_group) then begin
-  saved(2):=spec_direction;
-  @<DIR: Adjust |text_dir_ptr| for |scan_spec|@>;
-  save_ptr:=save_ptr+4;
-  new_save_level(c); scan_left_brace;
-  eq_word_define(dir_base+body_direction_code,spec_direction);
-  eq_word_define(dir_base+par_direction_code,spec_direction);
-  eq_word_define(dir_base+text_direction_code,spec_direction);
-  eq_word_define(int_base+level_local_dir_code,cur_level);
-  end
-else begin
-  save_ptr:=save_ptr+2;
-  new_save_level(c); scan_left_brace;
+found: if three_codes then begin 
+    incr(save_ptr);
+    saved(-1):=s; 
+    saved(0):=spec_code;
+    saved(1):=cur_val;
+    saved(2):=spec_direction;
+    @<DIR: Adjust |text_dir_ptr| for |scan_spec|@>;
+    save_ptr:=save_ptr+4;
+    new_save_level(c); scan_left_brace;
+    eq_word_define(dir_base+body_direction_code,spec_direction);
+    eq_word_define(dir_base+par_direction_code,spec_direction);
+    eq_word_define(dir_base+text_direction_code,spec_direction);
+    eq_word_define(int_base+level_local_dir_code,cur_level);
+    end 
+  else begin
+    saved(0):=spec_code; 
+    saved(1):=cur_val;
+    save_ptr:=save_ptr+2;
+    new_save_level(c); scan_left_brace;
   end;
 spec_direction:=-1;
 end;
