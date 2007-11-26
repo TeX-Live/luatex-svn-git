@@ -584,19 +584,20 @@ read_char_packets  (lua_State *L, integer *l_fonts, charinfo *co) {
           append_packet(cmd);
           lua_rawgeti(L,-2,2);
           n = lua_tointeger(L,-1);
-          /* TODO this multiplier relates to the font size, apparently */
-          do_store_four(((n<<4)/10));
+          /* this (commented) scale factor was needed at one point, in this and the packet_rule 
+			 stores */
+          /* do_store_four(((n<<4)/10));*/
+		  do_store_four(n);
           lua_pop(L,1);
           break;
         case packet_rule_code:
           append_packet(cmd);
           lua_rawgeti(L,-2,2);
           n = lua_tointeger(L,-1);
-          /* here too, twice */
-          do_store_four(((n<<4)/10));
+		  do_store_four(n);
           lua_rawgeti(L,-3,3);
           n = lua_tointeger(L,-1);
-          do_store_four(((n<<4)/10));
+		  do_store_four(n);
           lua_pop(L,2);
           break;
         case packet_special_code:
