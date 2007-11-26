@@ -17386,7 +17386,7 @@ The |has_packet()| C macro checks for this condition.
 
 @p procedure output_one_char(ffi:internal_font_number;c:integer);
 begin
-  if has_packet(ffi,c) then
+  if has_packet(ffi,c) then 
       do_vf_packet(ffi, c)
   else begin
       pdf_begin_string(ffi);
@@ -18084,7 +18084,7 @@ if is_char_node(p) then
   begin
   repeat f:=font(p); c:=character(p);
   ci := char_info_short (f,c);
-  {|writeln('hlist_out: a char node ', c:1 , '');|}
+  {|writeln('hlist_out: a char node ', c:1 , ' in font ',f:1);|}
   if is_valid_char(c) then begin
   if is_rotated(dvi_direction) then begin
     c_ht:=charinfo_width(ci) div 2;
@@ -18788,8 +18788,8 @@ temp_ptr:=p;
 prepare_mag;
 pdf_last_resources := pdf_new_objnum;
 @<Reset resource lists@>;
-@<Calculate PDF page dimensions and margins@>;
 dvi_direction:=page_direction;
+@<Calculate PDF page dimensions and margins@>;
 if not shipping_page then begin
     pdf_begin_dict(pdf_cur_form, 0);
     pdf_last_stream := pdf_cur_form;
