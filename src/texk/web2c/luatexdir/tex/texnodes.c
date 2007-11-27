@@ -458,7 +458,7 @@ copy_node(const halfword p) {
       switch (user_node_type(p)) {
       case 'a': add_node_attr_ref(user_node_value(p));
         break;
-      case 's': case 't': add_token_ref(user_node_value(p));
+      case 't': add_token_ref(user_node_value(p));
         break;
       case 'n':  
         s=copy_node_list(user_node_value(p)); 
@@ -666,7 +666,6 @@ flush_node (halfword p) {
     case user_defined_node: 
       switch( user_node_type(p)) {
       case 'a': delete_attribute_ref(user_node_value(p)); break;
-      case 's':
       case 't': delete_token_ref(user_node_value(p));  break;
       case 'n': flush_node_list(user_node_value(p));  break;
       default:  tconfusion("extuser"); break;
@@ -862,7 +861,7 @@ check_node (halfword p) {
     case user_defined_node: 
       switch( user_node_type(p)) {
       case 'a': check_attribute_ref(user_node_value(p)); break;
-      case 's': case 't': check_token_ref(user_node_value(p));  break;
+      case 't': check_token_ref(user_node_value(p));  break;
       case 'n': dorangetest(p,user_node_value(p),var_mem_max); break;
       default:  tconfusion("extuser"); break;
       }
@@ -1407,7 +1406,7 @@ new_attribute_node (unsigned int i, int v) {
   return r;
 }
 
-static halfword 
+halfword 
 copy_attribute_list(halfword n) {
   halfword q = get_node(attribute_node_size); 
   register halfword p = q;
@@ -1426,33 +1425,35 @@ copy_attribute_list(halfword n) {
 }
 
 void
-update_attribute_cache (void) {
+update_attribute_cache(void) {
+  halfword p;
   register int i;
-  register halfword p;
   attr_list_cache=get_node(attribute_node_size); 
   type(attr_list_cache) = attribute_list_node;
   attr_list_ref(attr_list_cache)=0;
   p=attr_list_cache; 
   for (i=0;i<=max_used_attr;i++) {
-    register int v = get_attribute(i);
-    if (v>=0) {
-      register halfword r = new_attribute_node(i,v);
-      vlink(p)=r;
-      p=r;
-    }
+	register int v = get_attribute(i);
+	if (v>=0) {
+	  register halfword r = new_attribute_node(i,v);
+	  vlink(p)=r;
+	  p=r;
+	}
   }
   if (vlink(attr_list_cache)==null) {
-    free_node(attr_list_cache,attribute_node_size);
-    attr_list_cache = null;
-    return;
+	free_node(attr_list_cache,attribute_node_size);
+	attr_list_cache = null;
   } 
+  return;
 }
 
 void 
 build_attribute_list(halfword b) {
   if (max_used_attr>=0) {
     if (attr_list_cache==cache_disabled) {
-      update_attribute_cache();
+	  update_attribute_cache();
+	  if (attr_list_cache == null)
+		return;
     }
     attr_list_ref(attr_list_cache)++;
     node_attr(b)=attr_list_cache;   
@@ -1471,12 +1472,11 @@ delete_attribute_ref(halfword b) {
   }
 }
 
+/* |p| is an attr list head, or zero */
 
-/* this |p| is an attribute list */
-
-halfword
+halfword 
 do_set_attribute (halfword p, int i, int val) {
-  halfword q = null;
+  register halfword q;
   register int j = 0;
   if (p==null) {  /* add a new head & node */
     q = get_node(attribute_node_size); 
@@ -1486,24 +1486,64 @@ do_set_attribute (halfword p, int i, int val) {
     vlink(q)=p;
     return q;
   }
+
   assert(vlink(p)!=null);
   while (vlink(p)!=null) {
     int t = attribute_id(vlink(p));
     if (t==i && attribute_value(vlink(p))==val)
-      return q;
+      return q; /* no need to do anything */
     if (t>=i) 
       break;
     j++;
     p = vlink(p);
   }
+
   p = q;
+  while (j-->0) p = vlink(p);
+  if (attribute_id(vlink(p))==i) {
+    attribute_value(vlink(p))=val;
+  } else { /* add a new node */
+    halfword r = new_attribute_node(i,val);
+    vlink(r)=vlink(p);
+    vlink(p)=r;
+  }
+  return q;
+}
+
+void 
+set_attribute (halfword n, int i, int val) {
+  register halfword p;
+  register int j = 0;
+  if (!nodetype_has_attributes(type(n)))
+    return;
+  p = node_attr(n);
+  if (p==null) {  /* add a new head & node */
+    p = get_node(attribute_node_size); 
+    type(p) = attribute_list_node;
+    attr_list_ref(p)=1;
+    node_attr(n) = p ;
+    p = new_attribute_node(i,val);
+    vlink(node_attr(n))=p;
+    return;
+  }
+  assert(vlink(p)!=null);
+  while (vlink(p)!=null) {
+    int t = attribute_id(vlink(p));
+    if (t==i && attribute_value(vlink(p))==val)
+      return;
+    if (t>=i) 
+      break;
+    j++;
+    p = vlink(p);
+  }
+  p = node_attr(n);
   if (attr_list_ref(p)!=1) {
     if (attr_list_ref(p)>1) {
       p = copy_attribute_list (p);
-      delete_attribute_ref(q);
-      q = p;
+      delete_attribute_ref(node_attr(n));
+      node_attr(n) = p;
     } else {
-      fprintf(stdout,"Node attribute list is free already\n");
+      fprintf(stdout,"Node %d has an attribute list that is free already\n",(int)n);
     }
     attr_list_ref(p)=1;  
   }
@@ -1516,17 +1556,6 @@ do_set_attribute (halfword p, int i, int val) {
     vlink(r)=vlink(p);
     vlink(p)=r;
   }
-  return q;
-}
-
-/* |n| is a node */
-void 
-set_attribute (halfword n, int i, int val) {
-  register halfword p;
-  if (!nodetype_has_attributes(type(n)))
-    return;
-  p = node_attr(n);
-  node_attr(n) = do_set_attribute(p,i,val);
   return;
 }
 

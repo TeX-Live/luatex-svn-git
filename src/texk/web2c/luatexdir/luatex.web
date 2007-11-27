@@ -20109,8 +20109,8 @@ var @!s:integer; {temporarily saved value}
 i:integer; v:integer;
 @!spec_code:exactly..additional;
 attr_list:halfword; 
-begin s:=0; 
-if attr_list_cache=cache_disabled then update_attribute_cache;
+begin s:=0;
+if attr_list_cache=cache_disabled then update_attribute_cache; 
 attr_list:=attr_list_cache;
 if three_codes then begin
   s:=saved(0);
@@ -20119,6 +20119,10 @@ continue:
     scan_register_num; i:=cur_val;
     scan_optional_equals;
     scan_int; v:=cur_val;
+	if (attr_list<>null) and (attr_list=attr_list_cache) then begin
+      attr_list:=copy_attribute_list(attr_list_cache);
+	  add_node_attr_ref(attr_list); {will be used once}
+      end;
     attr_list:=do_set_attribute(attr_list,i,v);
     goto continue;
   end;
@@ -20127,6 +20131,7 @@ continue:
     goto continue;
     end;
   end;
+if attr_list=attr_list_cache then begin add_node_attr_ref(attr_list); end;
 if scan_keyword("to") then spec_code:=exactly
 @.to@>
 else if scan_keyword("spread") then spec_code:=additional
@@ -26121,7 +26126,7 @@ else  begin cur_box:=filtered_vpackage(vlink(head),saved(2),saved(1),d,grp);
   end;
 if saved(4)<>null then
   @<DIR: Adjust back |text_dir_ptr| for |scan_spec|@>;
-replace_attribute_list(cur_box, saved(5));
+replace_attribute_list(cur_box, saved(5)); 
 pop_nest; box_end(saved(0));
 end;
 
@@ -33987,10 +33992,7 @@ procedure@?pseudo_start; forward;@t\2@>
 procedure pseudo_start;
 var old_setting:0..max_selector; {holds |selector| setting}
 @!s:str_number; {string to be converted into a pseudo file}
-@!l,@!m:pool_pointer; {indices into |str_pool|}
-@!p,@!q,@!r:pointer; {for list construction}
-@!w: four_quarters; {four ASCII codes}
-@!nl,@!sz:integer;
+@!p:pointer; {for list construction}
 begin scan_general_text;
 old_setting:=selector; selector:=new_string;
 token_show(temp_token_head); selector:=old_setting;
@@ -34003,7 +34005,7 @@ end;
 
 procedure pseudo_from_string;
 var @!s:str_number; {string to be converted into a pseudo file}
-@!p,@!q,@!r:pointer; {for list construction}
+@!p:pointer; {for list construction}
 begin 
 s:=make_string;
 @<Convert string |s| into a new pseudo file@>;

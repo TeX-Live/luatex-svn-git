@@ -30,6 +30,8 @@ $Id $
 @define procedure flush_node_list();
 @define function string_to_pseudo();
 @define function do_set_attribute();
+@define function copy_attribute_list();
+@define procedure add_node_attr_ref();
 @define procedure replace_attribute_list();
 @define procedure update_attribute_cache;
 

@@ -66,11 +66,14 @@ extern void set_disc_field (halfword f, halfword t);
 #define cache_disabled max_halfword
 #define add_node_attr_ref(a) { if (a!=null)  attr_list_ref((a))++; }
 
-#define  replace_attribute_list(a,b)  do {	\
-    delete_attribute_ref(node_attr(a));		\
-    node_attr(a)=b;				\
+#define  replace_attribute_list(a,b)  do {		\
+    delete_attribute_ref(node_attr(a));			\
+    node_attr(a)=b;					\
   } while (0)
+
 extern void update_attribute_cache (void) ;
+extern halfword copy_attribute_list(halfword n) ;
+extern halfword do_set_attribute(halfword p, int i, int val);
 
 
 /* a glue spec */
