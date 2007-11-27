@@ -496,8 +496,17 @@ count_char_packet_bytes  (lua_State *L) {
 
 
 
+scaled
+sp_to_dvi (halfword sp, halfword atsize) {
+  double result, mult;
+  mult = (double)(atsize>>16);
+  result = (sp << 4);
+  return floor (result/mult );
+}
+
+
 static void
-read_char_packets  (lua_State *L, integer *l_fonts, charinfo *co) {
+read_char_packets  (lua_State *L, integer *l_fonts, charinfo *co, int atsize) {
   int i, n, m;
   size_t l;
   int cmd;
@@ -584,20 +593,17 @@ read_char_packets  (lua_State *L, integer *l_fonts, charinfo *co) {
           append_packet(cmd);
           lua_rawgeti(L,-2,2);
           n = lua_tointeger(L,-1);
-          /* this (commented) scale factor was needed at one point, in this and the packet_rule 
-			 stores */
-          /* do_store_four(((n<<4)/10));*/
-		  do_store_four(n);
+          do_store_four(sp_to_dvi(n,atsize));
           lua_pop(L,1);
           break;
         case packet_rule_code:
           append_packet(cmd);
           lua_rawgeti(L,-2,2);
           n = lua_tointeger(L,-1);
-		  do_store_four(n);
+          do_store_four(sp_to_dvi(n,atsize));
           lua_rawgeti(L,-3,3);
           n = lua_tointeger(L,-1);
-		  do_store_four(n);
+          do_store_four(sp_to_dvi(n,atsize));
           lua_pop(L,2);
           break;
         case packet_special_code:
@@ -715,6 +721,7 @@ font_char_from_lua (lua_State *L, internal_font_number f, integer i, integer *l_
   int nl = 0; /* number of ligature table items */
   int nk = 0; /* number of kern table items */
   int ctr = 0;
+  int atsize = font_size(f);
   if (lua_istable(L,-1)) {
     co = get_charinfo(f,i); 
     set_charinfo_tag       (co,0);
@@ -795,7 +802,7 @@ font_char_from_lua (lua_State *L, internal_font_number f, integer i, integer *l_
       lua_pushnil(L);  /* first key */
       if (lua_next(L, -2) != 0) {
 	lua_pop(L,2);
-	read_char_packets(L,(integer *)l_fonts,co);
+	read_char_packets(L,(integer *)l_fonts,co,atsize);
       }
     }
     lua_pop(L,1);
@@ -1094,15 +1101,31 @@ try_ligature(halfword *frst, halfword fwd) {
     int move_after = (lig_type(lig) & 0x0C)>>2;
     int keep_right = ((lig_type(lig) & 0x01) != 0);
     int keep_left  = ((lig_type(lig) & 0x02) != 0);
-    halfword newgl = new_glyph(font(cur),lig_replacement(lig));
+    halfword newgl = raw_glyph_node();
+	font(newgl)      = font(cur);
+	character(newgl) = lig_replacement(lig);
     set_is_ligature(newgl);
 
     /* below might not be correct in contrived border case.
      * but we use it only for debugging, so ... */ 
-    if (character(cur)<0)
+    if (character(cur)<0) {
       set_is_leftboundary(newgl);
-    if (character(fwd)<0)
+	} 
+	if (character(fwd)<0) {
       set_is_rightboundary(newgl);
+	} 
+	if (character(cur)<0) {
+	  if (character(fwd)<0) {
+		build_attribute_list(newgl);
+	  } else {
+		add_node_attr_ref(node_attr(fwd));
+		node_attr(newgl) = node_attr(fwd);
+	  }
+	} else {
+		add_node_attr_ref(node_attr(cur));
+      node_attr(newgl) = node_attr(cur);
+	}
+
     /* TODO/FIXME if this ligature is consists of another ligature
      * we should add it's lig_ptr to the new glyphs lig_ptr (and
      * cleanup the no longer needed node) LOW PRIORITY */
