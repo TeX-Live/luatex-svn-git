@@ -969,6 +969,7 @@ lua_nodelib_getfield_whatsit  (lua_State *L, int n, int field) {
     case  5: lua_pushnumber(L,user_node_type(n));            break;
     case  6: 
       switch (user_node_type(n)) {
+      case 'a': nodelib_pushlist(L,user_node_value(n));   break;
       case 'd': lua_pushnumber(L,user_node_value(n));     break;
       case 'n': nodelib_pushlist(L,user_node_value(n));   break;
       case 's': nodelib_pushstring(L,user_node_value(n)); break;
@@ -1417,6 +1418,7 @@ lua_nodelib_setfield_whatsit(lua_State *L, int n, int field) {
     case  5: user_node_type(n) = lua_tointeger(L,3);        break;
     case  6: 
       switch(user_node_type(n)) {
+      case 'a': user_node_value(n) = nodelib_getlist(L,3); break;
       case 'd': user_node_value(n) = lua_tointeger(L,3); break;
       case 'n': user_node_value(n) = nodelib_getlist(L,3); break;
       case 's': user_node_value(n) = nodelib_getstring(L,3); break;

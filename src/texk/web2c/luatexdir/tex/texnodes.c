@@ -458,7 +458,7 @@ copy_node(const halfword p) {
       switch (user_node_type(p)) {
       case 'a': add_node_attr_ref(user_node_value(p));
         break;
-      case 't': add_token_ref(user_node_value(p));
+      case 's': case 't': add_token_ref(user_node_value(p));
         break;
       case 'n':  
         s=copy_node_list(user_node_value(p)); 
@@ -666,6 +666,7 @@ flush_node (halfword p) {
     case user_defined_node: 
       switch( user_node_type(p)) {
       case 'a': delete_attribute_ref(user_node_value(p)); break;
+      case 's':
       case 't': delete_token_ref(user_node_value(p));  break;
       case 'n': flush_node_list(user_node_value(p));  break;
       default:  tconfusion("extuser"); break;
@@ -861,7 +862,7 @@ check_node (halfword p) {
     case user_defined_node: 
       switch( user_node_type(p)) {
       case 'a': check_attribute_ref(user_node_value(p)); break;
-      case 't': check_token_ref(user_node_value(p));  break;
+      case 's': case 't': check_token_ref(user_node_value(p));  break;
       case 'n': dorangetest(p,user_node_value(p),var_mem_max); break;
       default:  tconfusion("extuser"); break;
       }
