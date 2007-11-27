@@ -982,13 +982,13 @@ make_vf_table(lua_State *L, char *cnom, scaled atsize) {
 	switch (cmd) {
 	case set_rule: 
 	  vf_read(4,h); vf_read(4,v);
-	  make_command2("rule",h,v,k);
+	  make_command2("rule",sqxfw(h,atsize),sqxfw(v,atsize),k);
 	  packet_length -= 8;
 	  break;
 	case put_rule: 
 	  vf_read(4,h); vf_read(4,v);
 	  make_command0("push",k);
-	  make_command2("rule",h,v,k);
+	  make_command2("rule",sqxfw(h,atsize),sqxfw(v,atsize),k);
 	  make_command0("pop",k);
 	  packet_length -= 8;
 	  break;
@@ -1023,7 +1023,7 @@ make_vf_table(lua_State *L, char *cnom, scaled atsize) {
 	case right3: 
 	case right4: 
 	  vf_read((cmd - right1 + 1),i);
-	  make_command1("right",i,k);
+	  make_command1("right",sqxfw(i,atsize),k);
 	  packet_length -= (cmd - right1 + 1);
 	  break;
 	case w1: 
@@ -1031,7 +1031,7 @@ make_vf_table(lua_State *L, char *cnom, scaled atsize) {
 	case w3: 
 	case w4:
 	  vf_read((cmd - w1 + 1),w);
-	  make_command1("right",w,k);
+	  make_command1("right",sqxfw(w,atsize),k);
 	  packet_length -= (cmd - w1 + 1);
 	  break;
 	case x1:
@@ -1039,7 +1039,7 @@ make_vf_table(lua_State *L, char *cnom, scaled atsize) {
 	case x3: 
 	case x4:
 	  vf_read((cmd - x1 + 1),x);	  
-	  make_command1("right",x,k);
+	  make_command1("right",sqxfw(x,atsize),k);
 	  packet_length -= (cmd - x1 + 1);
 	  break;
 	case down1:  
@@ -1047,7 +1047,7 @@ make_vf_table(lua_State *L, char *cnom, scaled atsize) {
 	case down3:  
 	case down4:  
 	  vf_read((cmd - down1 + 1),i);
-	  make_command1("down",i,k);
+	  make_command1("down",sqxfw(i,atsize),k);
 	  packet_length -= (cmd - down1 + 1);
 	  break;
 	case y1: 
@@ -1055,7 +1055,7 @@ make_vf_table(lua_State *L, char *cnom, scaled atsize) {
 	case y3: 
 	case y4:
 	  vf_read((cmd - y1 + 1),y);
-	  make_command1("down",y,k);
+	  make_command1("down",sqxfw(y,atsize),k);
 	  packet_length -= (cmd - y1 + 1);
 	  break;
 	case z1: 
@@ -1063,7 +1063,7 @@ make_vf_table(lua_State *L, char *cnom, scaled atsize) {
 	case z3: 
 	case z4:
 	  vf_read((cmd - z1 + 1),z);
-	  make_command1("down",z,k);
+	  make_command1("down",sqxfw(z,atsize),k);
 	  packet_length -= (cmd - z1 + 1);
 	  break;
 	case xxx1: 
@@ -1087,16 +1087,16 @@ make_vf_table(lua_State *L, char *cnom, scaled atsize) {
 	  free(s);
 	  break;
 	case w0: 
-	  make_command1("right",w,k);
+	  make_command1("right",sqxfw(w,atsize),k);
 	  break;
 	case x0: 
-	  make_command1("right",x,k);
+	  make_command1("right",sqxfw(x,atsize),k);
 	  break;
 	case y0: 
-	  make_command1("down",y,k);
+	  make_command1("down",sqxfw(y,atsize),k);
 	  break;
 	case z0: 
-	  make_command1("down",z,k);
+	  make_command1("down",sqxfw(z,atsize),k);
 	  break;
 	case nop:
 	  break;
