@@ -29,6 +29,9 @@ $Id $
 @define function copy_node_list();
 @define procedure flush_node_list();
 @define function string_to_pseudo();
+@define function do_set_attribute();
+@define procedure replace_attribute_list();
+@define procedure update_attribute_cache;
 
 @define function new_span_node();
 
@@ -148,6 +151,7 @@ $Id $
 @define var define_font_callback;
 @define var token_filter_callback;
 @define var pre_linebreak_filter_callback;
+@define var post_linebreak_filter_callback;
 @define var buildpage_filter_callback;
 @define var hyphenate_callback;
 

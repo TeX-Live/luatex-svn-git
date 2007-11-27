@@ -7364,19 +7364,19 @@ undefined control sequences are assumed to be ``defined'' at |level_zero|.
 save_ptr:=0; cur_level:=level_one; cur_group:=bottom_level; cur_boundary:=0;
 max_save_stack:=0;
 
-@ The following macro is used to test if there is room for up to seven more
+@ The following macro is used to test if there is room for up to eight more
 entries on |save_stack|. By making a conservative test like this, we can
 get by with testing for overflow in only a few places.
 
 @d check_full_save_stack==if save_ptr>max_save_stack then
   begin max_save_stack:=save_ptr;
-  if max_save_stack>save_size-7 then overflow("save size",save_size);
+  if max_save_stack>save_size-8 then overflow("save size",save_size);
 @:TeX capacity exceeded save size}{\quad save size@>
   end
 
 @ Procedure |new_save_level| is called when a group begins. The
 argument is a group identification code like `|hbox_group|'. After
-calling this routine, it is safe to put five more entries on |save_stack|.
+calling this routine, it is safe to put six more entries on |save_stack|.
 
 In some cases integer-valued items are placed onto the
 |save_stack| just below a |level_boundary| word, because this is a
@@ -20104,14 +20104,27 @@ are placed just below the new group code, because scanning can change
 
 @p procedure scan_spec(@!c:group_code;@!three_codes:boolean);
   {scans a box specification and left brace}
-label found;
+label found, continue;
 var @!s:integer; {temporarily saved value}
+i:integer; v:integer;
 @!spec_code:exactly..additional;
-begin s:=0;
+attr_list:halfword; 
+begin s:=0; 
+if attr_list_cache=cache_disabled then update_attribute_cache;
+attr_list:=attr_list_cache;
 if three_codes then begin
   s:=saved(0);
+continue:
+  if scan_keyword("attr") then begin
+    scan_register_num; i:=cur_val;
+    scan_optional_equals;
+    scan_int; v:=cur_val;
+    attr_list:=do_set_attribute(attr_list,i,v);
+    goto continue;
+  end;
   if scan_keyword("dir") then begin
     scan_direction; spec_direction:=cur_val;
+    goto continue;
     end;
   end;
 if scan_keyword("to") then spec_code:=exactly
@@ -20123,13 +20136,13 @@ else  begin spec_code:=additional; cur_val:=0;
   end;
 scan_normal_dimen;
 found: if three_codes then begin 
-    incr(save_ptr);
-    saved(-1):=s; 
-    saved(0):=spec_code;
-    saved(1):=cur_val;
-    saved(2):=spec_direction;
+    saved(0):=s; 
+    saved(1):=spec_code;
+    saved(2):=cur_val;
+    saved(3):=spec_direction;
     @<DIR: Adjust |text_dir_ptr| for |scan_spec|@>;
-    save_ptr:=save_ptr+4;
+    saved(5):=attr_list;
+    save_ptr:=save_ptr+6;
     new_save_level(c); scan_left_brace;
     eq_word_define(dir_base+body_direction_code,spec_direction);
     eq_word_define(dir_base+par_direction_code,spec_direction);
@@ -23801,6 +23814,7 @@ Most other processing is delegated to external functions.
 
 @p procedure line_break(@!d:boolean);
 var final_par_glue:pointer;
+start_of_par:pointer;
 begin pack_begin_line:=mode_line; {this is for over/underfull box messages}
 vlink(temp_head):=vlink(head);
 new_hyphenation(temp_head, tail);
@@ -23828,6 +23842,7 @@ if not output_active then
 	line_break_context,temp_head,addressof(tail));
 last_line_fill:=vlink(tail);
 pop_nest;
+start_of_par:=tail;
 ext_do_line_break(d,pretolerance,tracing_paragraphs,tolerance,emergency_stretch,
 		   looseness,hyphen_penalty,ex_hyphen_penalty,
 		   pdf_adjust_spacing, par_shape_ptr, adj_demerits,
@@ -23841,6 +23856,9 @@ ext_do_line_break(d,pretolerance,tracing_paragraphs,tolerance,emergency_stretch,
 		   display_widow_penalties_ptr,widow_penalties_ptr,
 		   display_widow_penalty, widow_penalty,
 		   broken_penalty, final_par_glue);
+if not output_active then 
+  lua_node_filter(post_linebreak_filter_callback,
+	line_break_context,start_of_par,addressof(tail));
 pack_begin_line:=0;
 end;
 @#
@@ -26094,7 +26112,7 @@ var h:scaled; {height of box}
 @!d:scaled; {max depth}
 @!grp:integer;
 begin grp:=cur_group;
-d:=box_max_depth; unsave; save_ptr:=save_ptr-5;
+d:=box_max_depth; unsave; save_ptr:=save_ptr-6;
 pack_direction:=saved(3);
 if mode=-hmode then cur_box:=filtered_hpack(head,tail,saved(2),saved(1),grp)
 else  begin cur_box:=filtered_vpackage(vlink(head),saved(2),saved(1),d,grp);
@@ -26103,6 +26121,7 @@ else  begin cur_box:=filtered_vpackage(vlink(head),saved(2),saved(1),d,grp);
   end;
 if saved(4)<>null then
   @<DIR: Adjust back |text_dir_ptr| for |scan_spec|@>;
+replace_attribute_list(cur_box, saved(5));
 pop_nest; box_end(saved(0));
 end;
 
@@ -32488,10 +32507,10 @@ end
 @ @<DIR: Adjust |text_dir_ptr| for |scan_spec|@>=
 begin
 if spec_direction<>-1 then begin
-  saved(3):=text_dir_ptr;
+  saved(4):=text_dir_ptr;
   text_dir_ptr:=new_dir(spec_direction);
   end
-else saved(3):=null;
+else saved(4):=null;
 end
 
 @ @<DIR: Adjust back |text_dir_ptr| for |scan_spec|@>=
