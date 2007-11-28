@@ -29,7 +29,7 @@ halfword slow_get_node (integer s) ; /* defined below */
 
 #define fake_node 100
 #define fake_node_size 2
-#define fake_node_name ""
+#define fake_node_name "fake"
 
 #define variable_node_size 2
 
