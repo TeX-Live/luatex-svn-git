@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
       data[len-1] = 0;
       len--;
     }
-    if (data[0]=='*') break; /* last if /^\*/; */
+    if (data[0]=='*') break; /* last if !^\*!; */
     if (data[0]>='0' && data[0]<='9' && data[1]>='0' && data[1]<='9') {
       o=2; /* $data =~ s/^\d\d//; */
     }
