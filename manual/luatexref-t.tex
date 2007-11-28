@@ -13,7 +13,7 @@
  
 \setvariables
   [document]
-  [snapshot=2007-10-29]
+  [beta=0.20.0]
 
 \starttext
 
@@ -60,7 +60,7 @@ available sometime in the summer of~2008.
 \startitemize[packed]
 \item \PDFTEX\ version 1.40.3
 \item \ALEPH\ RC4 (from the \TEXLIVE\ repository)
-\item \LUA\ 5.1.2
+\item \LUA\ 5.1.2 ($+$ coco)
 \item Dedicated \LUA\ libraries
 \item Various \TEX\ extensions
 \item Parts of \FONTFORGE\ 2007.06.07
@@ -169,18 +169,18 @@ commands like \type{matcode} and \type{omathcode}. The traditional
 16~bits internally (as in \ALEPH).
 
 \starttabulate[|l|l|l|l|]
-\NC \bf primitive     \NC \bf max index/bits \NC \bf hex              \NC \bf numeric                          \NC\NR
-\NC \tex{mathchardef} \NC 15       \NC \tt ~~~8000 \NC $2^{3}\times2^{8}\times2^{4}$   \NC\NR
-\NC \tex{mathcode}    \NC 15       \NC \tt ~~~8000 \NC $2^{3}\times2^{8}\times2^{4}$   \NC\NR
-\NC \tex{delcode}     \NC 27       \NC \tt 7FFFFFF \NC $2^{3}\times2^{4}\times2^{8}\times2^{4}\times2^{8}$ \NC\NR
-\NC \tex{mathchar}    \NC 15             \NC \tt~~~7FFF           \NC $2^{3}*2^{8}*2^{4}$                  \NC\NR
-\NC \tex{delimiter}   \NC 27             \NC \tt7FFFFFF           \NC $2^{3}*2^{4}*2^{8}*2^{4}*2^{8}$      \NC\NR
-\NC \tex{omathchar}   \NC 27             \NC \tt7FFFFFF           \NC $2^{3}*2^{16}*2^{8}$                 \NC\NR
-\NC \tex{odelimiter}  \NC 27+24          \NC \tt7FFFFFF + ~FFFFFF \NC $2^{3}*2^{8}*2^{16}+2^{8}*2^{16}$    \NC\NR
-\NC \tex{omathchardef}\NC 21=27          \NC \tt~10FFFF = 8000000 \NC $2^{20}+2^{16} = 2^{3}*2^{16}*2^{8}$ \NC\NR
-\NC \tex{omathcode}   \NC 21=27          \NC \tt~10FFFF = 8000000 \NC $2^{20}+2^{16} = 2^{3}*2^{16}*2^{8}$ \NC\NR
-\NC \tex{odelcode}    \NC 21=27+24       \NC \tt~10FFFF = 7FFFFFF \NC $2^{20}+2^{16} = 2^{3}*2^{8}*2^{16}$ \NC\NR
-\NC                            \NC                \NC \tt~~~~~~~ + ~FFFFFF \NC \quad $+ 2^{8}*2^{16}$               \NC\NR
+\NC \bf primitive     \NC \bf max index/bits \NC \bf hex          \NC \bf numeric                       \NC\NR
+\NC \tex{mathchardef} \NC 15             \NC \tt~~~8000           \NC $2^{3}*2^{4}*2^{8}$               \NC\NR
+\NC \tex{mathcode}    \NC 8=15           \NC \tt~~~~~FF = ~~~800  \NC $2^{3}*2^{4}*2^{8}$               \NC\NR
+\NC \tex{delcode}     \NC 8=24           \NC \tt~~~~~FF = ~FFFFF  \NC $2^{4}*2^{8}*2^{4}*2^{8}$         \NC\NR
+\NC \tex{mathchar}    \NC 15             \NC \tt~~~7FFF           \NC $2^{3}*2^{4}*2^{8}$               \NC\NR
+\NC \tex{delimiter}   \NC 27             \NC \tt7FFFFFF           \NC $2^{3}*2^{4}*2^{8}*2^{4}*2^{8}$   \NC\NR
+\NC \tex{omathchar}   \NC 27             \NC \tt7FFFFFF           \NC $2^{3}*2^{8}*2^{18}$              \NC\NR
+\NC \tex{odelimiter}  \NC 27+24          \NC \tt7FFFFFF + ~FFFFFF \NC $2^{3}*2^{8}*2^{16}+2^{8}*2^{16}$ \NC\NR
+\NC \tex{omathchardef}\NC 27             \NC \tt8000000           \NC $2^{3}*2^{8}*2^{16}$              \NC\NR
+\NC \tex{omathcode}   \NC 21=27          \NC \tt~10FFFF = 8000000 \NC $2^{3}*2^{8}*2^{16}$              \NC\NR
+\NC \tex{odelcode}    \NC 21=24+24       \NC \tt~10FFFF = ~FFFFFF \NC $2^{8}*2^{16}$                    \NC\NR
+\NC                   \NC                \NC \tt~~~~~~~ + ~FFFFFF \NC \quad $+ 2^{8}*2^{16}$            \NC\NR
 \stoptabulate
 
 \section{Extended tables}
@@ -244,6 +244,25 @@ processing. Future versions of
 \LUATEX\ will propably be using specific negative attribute ids for
 internal use. Further information about how to use attributes for node
 list processing from lua is given in~\in{chapter}[nodes].
+
+\subsection{Box attributes}
+
+It is possible to fine-tune the list of attributes that are applied
+to a \type{hbox}, \type{vbox} or \type{vtop} by the use of the
+keyword \type{attr}. An example:
+
+\starttyping
+\attribute2=5
+\setbox0=\hbox {Hello}
+\setbox2=\hbox attr1=12 attr2=-1{Hello}
+\stoptyping
+
+This will set the attribute list of the box 2 to $1=12$, and the
+attributes of box 0 will be $2=5$. As you can see, assigning a
+negative value causes an attribute to be ignored.
+
+The \type{attr} keyword(s) should come before a \type{to} or
+\type{spread}, if that is also specified.
 
 \section{\LUA\ related primitives}
 
@@ -314,8 +333,10 @@ statements directly to the \PDF\ file.
 
 This primitive converts a \TEX\ token sequence so that it can be
 safely used as the contents of a \LUA\ string: embedded backslashes,
-double quotes and single quotes are escaped by prepending an extra
-token consisting of a backslash with category code~12. The token
+double and single quotes, and newlines and carriage returns are
+escaped. This is done by prepending an extra token consisting of a
+backslash with category code~12, and for the line endings,
+converting them to \type{n} and \type{r} respectivelu. The token
 sequence is fully expanded.
 
 \startsyntax
@@ -489,13 +510,18 @@ against that without bothering the user.
 This allows for embedded spaces, without the need for double quotes.
 Macro expansion takes place inside the argument.
 
+\section{Debugging}
+
+If \tex{tracingonline} is larger than 2, the node list displau will
+also print the node number of the nodes.
+
 \chapter {\LUA\ general}
 
 \section{Initialization}
 
 \subsection{\LUATEX\ as a \LUA\ interpreter}
 
-There are some situations that make \LUATEX\ behaves like it is a \LUA\
+There are some situations that make \LUATEX\ behave like it is a \LUA\
 interpreter only:
 \startitemize[packed]
 \item If a \type{--luaonly} option is given on the commandline
@@ -556,7 +582,7 @@ the moment, this switch \type{nil}s the following functions:
 
 \starttabulate[|l|l|]
 \NC \bf library \NC \bf functions                         \NC \NR
-\NC \tt os      \NC \tt execute exec setenv rename remove \NC \NR
+\NC \tt os      \NC \tt execute exec setenv rename remove tmpdir \NC \NR
 \NC \tt io      \NC \tt popen output tmpfile              \NC \NR
 \NC \tt lfs     \NC \tt rmdir mkdir chdir lock touch      \NC \NR
 \stoptabulate
@@ -613,6 +639,9 @@ needs to check \type{-progname} (and \type{-ini} and \type{-fmt}, if
 \type{-progname} is missing).
 
 \section{\LUA\ changes}
+
+The C coroutine (COCO) patches from luajit are applied to the Lua core, the used
+version is 1.1.3.  See \hyphenatedurl{http://luajit.org/coco.html} for details.
 
 The \lua{read("*line")} function from the io library has been
 adjusted so that it is line|-|ending neutral: any of \type{LF}, \type
@@ -679,6 +708,23 @@ The \lua{os} library has a few extra functions and variables:
   This is a hash table containing a dump of the variables and values
   in the process environment at the start of the run. It is writeable,
   but the actual environment is {\it not\/} updated automatically.
+
+\item \luatex{os.gettimeofday()}
+Returns the current `unix time', but as a float. This function is
+not available on the SunOS platforms, so do not use this function
+for portable documents.
+
+\item \luatex{os.times()}
+Returns the current process times cf. the unix C library `times'
+call. This function is not available on the Windows and SunOS
+platforms, so do not use this function for portable documents.
+
+\item \luatex{os.tmpdir()} This will create a directory in the `current
+directory' with the name \type{luatex.XXXXXX} where the X-es are
+replaced by a unique string. The function also returns this string,
+so you can \type{lfs.chdir()} into it, or \type{nil} if it failed to
+create the directory.  The user is responsible for cleaning up at
+the end of the run, it does not happen automatically. 
 
 \stopitemize
 
@@ -1608,26 +1654,18 @@ This function also accept string \type{id}'s.
 
 \startfunctioncall
 <node> t = node.traverse(<node> n)
-<node> t = node.traverse(<node> n, <node> m)
 \stopfunctioncall
 
 This is an iterator that loops over the node list that starts at \type{n}.
-If \type{m} is also supplied, the iterator stops at \type{m} instead
-of at the end of the list. The node \type{m} is not processed.
 
 \subsubsection{\luatex{node.traverse_id}}
 
 \startfunctioncall
-<node> t = node.traverse_id(number id, <node> n, <node> m)
 <node> t = node.traverse_id(number id, <node> n)
 \stopfunctioncall
 
 This is an iterator that loops over all the nodes in the list that
-starts at \type{n} that have a matching \type{id} field.  If
-\type{m} is also supplied, the iterator stops at \type{m} instead of
-at the end of the list. The node \type{m} is not processed.
-
-This function also accept string \type{id}'s.
+starts at \type{n} that have a matching \type{id} field. 
 
 \subsubsection{\luatex{node.remove}}
 
@@ -1699,6 +1737,31 @@ node.kerning(<node> n, <node> m)
 \stopfunctioncall
 
 Apply \TEX-style kerning to the specified nodelist.
+
+
+
+\subsubsection{\luatex{node.unprotect_glyphs}}
+
+\startfunctioncall
+node.unprotect_glyphs(<node> n)
+\stopfunctioncall
+
+Substracts 256 from all glyph node subtypes. This and the next
+function are helpers to convert from \type{characters} to
+\type{glyphs} during node processing.
+
+
+\subsubsection{\luatex{node.protect_glyphs}}
+
+\startfunctioncall
+node.protect_glyphs(<node> n)
+\stopfunctioncall
+
+Adds 256 to all glyph node subtypes in the node list starting at
+\type{n}, except that if the value is 1, it adds only 255. The special
+handling of 1 means that \type{characters} will become \type{glyphs}
+after substraction of 256.
+
 
 
 \subsection{Attribute handling}
@@ -2237,6 +2300,17 @@ will be explained in the next two paragraphs.
 \NC \tt fin_row      \NC alignment row                             \NC\NR
 \stoptabulate
 
+\subsubsection{\luatex{post_linebreak_filter}}
+
+This callback is called just after \LUATEX\ has converted a list
+of nodes into a stack of \tex{hbox}es. 
+
+\startfunctioncall
+function(<node> head, string groupcode)
+    return true | false | <node> newhead
+end
+\stopfunctioncall
+
 \subsubsection{\luatex{hpack_filter}}
 
 This callback is called when \TEX\ is ready to start boxing some
@@ -2656,6 +2730,7 @@ The current list is:
 \NC pool_ptr\NC                  string pool index      \NC \NR
 \NC init_pool_ptr\NC             \INITEX\ string pool index      \NC \NR
 \NC pool_size\NC                 current size allocated for string characters \NC \NR
+\NC node_mem_usage\NC            a string giving insight into currently used nodes\NC\NR
 \NC var_mem_max\NC               number of allocated words for nodes\NC \NR
 \NC fix_mem_max\NC               number of allocated words for tokens\NC \NR
 \NC fix_mem_end\NC               maximum number of used tokens\NC \NR
@@ -2663,8 +2738,6 @@ The current list is:
 \NC hash_size\NC                 size of hash       \NC \NR
 \NC hash_extra\NC                extra allowed hash  \NC \NR
 \NC font_ptr\NC                  number of active fonts      \NC \NR
-\NC hyph_count\NC                hyphenation exceptions      \NC \NR
-\NC hyph_size\NC                 max used hyphenation exceptions  \NC \NR
 \NC max_in_stack\NC              max used input stack entries      \NC \NR
 \NC max_nest_stack\NC            max used nesting stack entries     \NC \NR
 \NC max_param_stack\NC           max used parameter stack entries     \NC \NR
@@ -3641,14 +3714,14 @@ Gets or sets the \quote{post-break} hyphen character for this font
 
 
 \startfunctioncall
-<node> head, boolean succes = lang.hyphenate(<node> head)
-<node> head, boolean succes = lang.hyphenate(<node> head, <node> tail)
+boolean success = lang.hyphenate(<node> head)
+boolean success = lang.hyphenate(<node> head, <node> tail)
 \stopfunctioncall
 
 Inserts hyphenation points (discretionary nodes) in a node list. If
 \type{tail} is given as argument, processings stops on that node. 
-Currently, \type{succes} is always true if \type{head} and \type{tail}
-are proper nodes, regardless of possible other errors.
+Currently, \type{succes} is always true if \type{head} (and \type{tail}, if
+specified) are proper nodes, regardless of possible other errors.
 
 \chapter[languages]{Languages and characters, Fonts and glyphs}
 
@@ -3660,17 +3733,18 @@ Later on, it will be easy to deal with the differences that occur in
 horizontal and math modes.
 
 In \TEX82, the characters you type are converted into \type{char_node}
-record when they are encountered by the main control loop. \TEX\
+records when they are encountered by the main control loop. \TEX\
 attaches and processes the font information while creating those
 records, so that the resulting \quote{horizontal list} contains the final
 forms of ligatures and implicit kerning. 
 
 When it becomes necessary to hyphenate words in a paragraph, \TEX\
-converts the \type{char_node} records into a string one word at time
-(by replacing ligatures with their components and ignoring the
-kerning), runs the hyphenation algorithm on this string, and converts
-the hyphenated result back into a \quote{horizontal list} that is then
-spliced back into the main paragraph stream.
+converts (one word at time) the \type{char_node} records into a
+string array by replacing ligatures with their components and
+ignoring the kerning. Then it runs the hyphenation algorithm on this
+string, and converts the hyphenated result back into a
+\quote{horizontal list} that is consecutively spliced back into 
+the paragraph stream.
 
 The \type{char_node} records are somewhat misnamed, as they are glyph
 posisitions in specific fonts, and therefore not really \quote{characters}
@@ -3678,24 +3752,26 @@ in the linguistic sense. There is no language information inside the
 \type{char_node} records. Instead, language information is passed along 
 using \type{language whatsit} records inside the horizontal list.
 
-IN \LUATEX, the situation is quite different. The characters you type
-are always converted into \type{glyph_node} records with a special
-subtype representing the fact that they are intended to be linguistic
+IN \LUATEX, the situation is quite different. The characters you
+type are always converted into \type{glyph_node} records with a
+special subtype to identify them as being intended as linguistic
 characters. \LUATEX\ stores the needed language information in those
-records, but does not do any font-related processing yet.
+records, but does not do any font-related processing at the time of
+node creation.
 
 When it becomes necessary to typeset a paragraph, \LUATEX\ first
-inserts all hyphenation points into the whole horizontal list. Next
-it processes all the font information in the whole list (creating
-ligatures and kerning), and finally it adjusts all the subtype
-identifiers so that the records are \quote{glyph nodes} from now on.
+inserts all hyphenation points right into the whole node list.
+Next, it processes all the font information in the whole list
+(creating ligatures and adjusting kerning), and finally it adjusts
+all the subtype identifiers so that the records are \quote{glyph
+nodes} from now on.
 
 That was the broad overview. The rest of this chapter will deal with the
 minutiae of the new process.
 
 \section[charsandglyphs]{Characters and glyphs}
 
-\TEX82 (including \PDFTEX) differentiates between \type{char_node}s
+\TEX82 (including \PDFTEX) differentiated between \type{char_node}s
 and \type{lig_node}s.  The former are simple items that contained
 nothing but a \quote{character} and a \quote{font} field, and they
 lived in the same memory are as tokens. The latter also contained a
@@ -3783,19 +3859,13 @@ matches the \tex{hyphenchar} in the current font. This test is wrong,
 in our opinion: wether or not hyphenation takes place should not
 depend on the current font, it is a language property.
 
-In \LUATEX, it works like this: if \LUATEX\ senses an input character
-that matches the value of the new integer parameter
-\tex{exhyphenchar}, it will insert an automatic discretionary with the
-current language's \tex{prehyphenchar} in the pre-break text (if it is
-non-zero, otherwise the pre-break text will be empty), the current
-language's \tex{posthyphenchar} in the post-break (also only if it is
-non-zero), and the actual input character in the no-break text.
-
-Initex sets the \type{\exhyphenchar=`\-}, and all languages start out
-with \type{\prehyphenchar=`\-} and \type{\posthyphenchar=0}. When you
-assign the values of \tex{prehyphenchar} and \tex{posthyphenchar}, you
-are actually changing the settings for the current \tex{language},
-this behaviour is compatible with \tex{patterns} and \tex{hyphenation}.
+In \LUATEX, it works like this: if \LUATEX\ senses a string of input
+characters that matches the value of the new integer parameter
+\tex{exhyphenchar}, it will insert an empty discretionary after that
+series of nodes. Initex sets the \type{\exhyphenchar=`\-}. 
+Incidentally, this is a global parameter instead of a
+language-specific one because it may be useful to change the value
+depending on the document structure instead of the text language. 
 
 The exact status and meaning of \tex{hyphenchar} is still under
 consideration, it will probably become used in the character to glyph
@@ -3921,6 +3991,9 @@ Differences between \LUATEX\ and \TEX82 that are a direct result of that:
   reason to preload languages in the format file. In fact, it is 
   usually not a good idea to do so. It is much smarter to load 
   patterns no sooner than the first time they are actually needed.
+\item \LUATEX\ uses the language-specific variables
+\tex{prehyphenchar} and \tex{posthyphenchar} in the creation of 
+discretionaries, instead of \TEX82's \tex{hyphenchar}.
 \stopitemize
 
 Previously, there were problems with changing the node attributes
@@ -3935,6 +4008,12 @@ Word boundaries are no longer implied by font switches, but by
 language switches. One word can have two separate fonts and still be
 hyphenated correctly (but it can not have two different languages,
 the \tex{setlanguage} command forces a word boundary).
+
+All languages start out with \type{\prehyphenchar=`\-} and
+\type{\posthyphenchar=0}. When you assign the values of
+\tex{prehyphenchar} and \tex{posthyphenchar}, you are actually
+changing the settings for the current \tex{language}, this behaviour
+is compatible with \tex{patterns} and \tex{hyphenation}.
 
 \LUATEX\ also hyphenates the first word in a paragraph. 
 
@@ -3951,7 +4030,7 @@ nodes. It will not operate properly in the presence of \quote{glyph},
 kerning.  In the near future, it will be able to skip over \quote{ghost}
 nodes, and we may add a less fuzzy function you can call as well.
 
-The hyphenation exception dictionary is maintained as simole key-value
+The hyphenation exception dictionary is maintained as key-value
 hash, and that is also dynamic, so the \type{hyph_size} setting is not
 used either.
 
@@ -4033,7 +4112,6 @@ when fonts with many ligatures are used.
 %   Implement \glyph
 %
 %   Remove \savinghyphcodes
-%   Change exception syntax for \discretionary
 %   Allow non-UCS characters in \patterns
 
 \chapter[fonts]{Font structure}
@@ -4496,9 +4574,16 @@ set of fields. In the following syntax tables, such the type of such a
 userdata object is represented as \syntax{<node>}.
 
  
-The current return value of \luatex{node.types()} is: \ctxlua {for _,v
-in pairs(node.types()) do tex.print('\\type{' .. v .. '} (' .. _
-.. '), ') end } but as already mentioned, the math and alignment nodes
+The current return value of \luatex{node.types()} is: 
+\ctxlua {
+  local d = node.types()
+  tex.print('\\type{' .. d[0] .. '} (' .. 0 .. '), ') 
+  for _,v in pairs(d) do 
+    if _ > 0 then
+      tex.print('\\type{' .. v .. '} (' .. _ .. '), ') 
+    end
+  end 
+} but as already mentioned, the math and alignment nodes
 in this list are not supported at the moment. The useful list
 is described in the next sections.
 
@@ -4527,35 +4612,33 @@ accessible fields:
 
 These objects are reference counted, so there is actually an extra
 field named \type {ref_count} as well. This item type will likely
-disappear in the near future, and the glue fields themselves will
+disappear in the future, and the glue fields themselves will
 become part of the nodes referencing glue items.
 
-\subsubsection{attribute\_list items}
+\subsubsection{attribute\_list and attribute items}
 
 The newly introduced attribute registers are non|-|trivial, because
 the value that is attached to a node is essentially a sparse array of
 key|-|value pairs.
 
-It is generally easiest to deal with attributes by using the dedicated
-functions in the \luatex{node} library, but for completeness, here is
-the low|-|level interface:
+It is generally easiest to deal with attribute lists and attributes
+by using the dedicated functions in the \luatex{node} library, but
+for completeness, here is the low|-|level interface. 
+
+An \type{attribute\_list} item is used as a head pointer for a list
+of attribute items. It has only one user-visible field:
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
 \NC next          \NC \syntax{<node>}  \NC pointer to the first attribute\NC\NR
 \stoptabulate
 
-There are no extra fields, this kind of item is only used as a head
-pointer for attribute items, making them easier to handle.
-
 A normal node's attribute field will point to an item of type
 \type{attribute_list}, and the \type{next} field in that item will point 
 to the first defined \quote{attribute} item, whose \type {next} will
 point to the second \quote{attribute} item, etc.
 
-\subsubsection{attribute item}
-
-Valid fields:
+Valid fields in \type{attribute} items:
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -4602,7 +4685,7 @@ list traversal. In the following tables \type{next} and \type{id} are
 not explicitly mentioned.
 
 Besides these three fields, almost all nodes also have an \type {attr}
-field, and there is a also field called \type{prev}. That last field
+field, and there is a also a field called \type{prev}. That last field
 is always present, but only initialized on explicit request: when the
 function \type{node.slide()} is called, it will set up the \type{prev}
 fields to be a backwards pointer in the argument node list.
@@ -5110,6 +5193,11 @@ Valid fields: \showfields{whatsit,pdf_restore}
 
 \subsubsection{user_defined nodes}
 
+User-defined whatsit nodes can only be created and handled from Lua
+code. In effect, they are an extension to the extension
+mechanism. The \LUATEX\ engine will simply step over such whatsits
+without ever looking at the contents.
+
 Valid fields: \showfields{whatsit,user_defined}
 
 \starttabulate[|lT|l|p|]
@@ -5123,7 +5211,17 @@ Valid fields: \showfields{whatsit,user_defined}
 \NC          \NC table \NC \NC\NR
 \stoptabulate
 
-% \section{User-defined whatsits}
+The \type{type} can have one of five distinct values:
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf value   \NC  \bf explanation \NC\NR
+\NC  97           \NC  the value is an attribute node list \NC\NR
+\NC  100          \NC  the value is a number \NC\NR
+\NC  110          \NC  the value is a node list \NC\NR
+\NC  115          \NC  the value is a token list in string form\NC\NR
+\NC  116          \NC  the value is a token list in lua table form\NC\NR
+\stoptabulate
+
 
 \chapter{Modifications}
 
@@ -5147,6 +5245,9 @@ simply typeset.
 \item The \tex{endlinechar} can be either added (values 0 or more), or not
 (negative values). If it is added, the character is always decimal 13 a/k/a
 \type{^^M} a/k/a carriage return (This change may be temporary).
+
+\item The banner line and the statistics messages are different, as
+well as many warnings and error texts.
 
 \stopitemize
 
@@ -5352,9 +5453,9 @@ amount of RAM in your system, not a predefined limit.
 Also, the memory (de)allocation routines for nodes are completely
 rewritten. The relevant code now lives in the C file \type{luanode.c},
 and basically uses a dozen or so avail lists instead of a
-doubly|-|linked model. At this moment, speed is still a little
-suboptimal because separate helper structures are maintained for
-debugging checks.
+doubly|-|linked model. An extra function layer is added so that the 
+code can ask for nodes by type instead of directly requisitioning
+a certain amount of memory words.
 
 Because of the split into two arrays and the resulting differences in
 the data structures, some of the Pascal \WEB\ macros have been
@@ -5431,6 +5532,11 @@ be worth the hassle and the limitations will eventually be documented.
 
 \startitemize
 
+\item The current linebreaking implementation does not yet take all 
+possible breakpoints into account where ligatures are involved in
+the process.  This means that line breaks may change in future
+versions.
+
 \item Sometimes font loading via fontforge generates a message like this
 \starttyping
 Bad call to gww_iconv_open, neither arg is UCS4 (EUC-CN->UTF-8)
@@ -5479,6 +5585,8 @@ because the column width is not taken into account during the final
 placement phase (this is a bug inherited from \ALEPH). Also, \ALEPH\
 apparently dislikes having more than one non-grouped \type{\textdir}
 command in a single lined paragraph.
+
+\item Certain constructs in math mode leak memory nodes. 
 
 \stopitemize
 
