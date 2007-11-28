@@ -247,6 +247,26 @@ list processing from lua is given in~\in{chapter}[nodes].
 
 \subsection{Box attributes}
 
+Nodes typically receive the list of attributes that is in effect when
+they are created. This moment can be quite asynchronous. For example: in
+paragraph building, the individual line boxes are created after the
+\tex{par} command has been processed, so they will receive the list of
+attributes that is in effect then, not the attributes that were in
+effect in, say, the first or third line of the paragraph. 
+
+Similar situations happen in \LUATEX\ regularly. A few of the more
+obvious problematic cases are dealt with: the attributes for nodes
+that are created during hyphenation and ligaturing borrow their
+attributes from their surrounding glyphs, and it is possible to
+influence box attributes directly. 
+
+But many other inserted nodes, like the nodes resulting from math mode
+and alignments, are processed `out of order', and will have the
+attributes that are in effect at the precise moment of creation (which
+is often later than expected). This area needs studying, and is in
+fact one of the reasons for a beta at this moment.
+
+
 It is possible to fine-tune the list of attributes that are applied
 to a \type{hbox}, \type{vbox} or \type{vtop} by the use of the
 keyword \type{attr}. An example:
