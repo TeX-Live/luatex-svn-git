@@ -1198,7 +1198,7 @@ handle_lig_word(halfword cur) {
   if (type(cur)==whatsit_node && subtype(cur)==cancel_boundary_node) {
     halfword prev= alink(cur);
     halfword fwd = vlink(cur);
-/*  uncouple_node(cur); // not needed, it is freed */
+/*  uncouple_node(cur); */ /* not needed, it is freed */
     flush_node(cur);
     if (fwd==null) {
       vlink(prev) = fwd;
@@ -1286,7 +1286,7 @@ handle_lig_word(halfword cur) {
         flush_node(fwd);
         if (right!=null) {
           flush_node(right); /* Shame, didn't need it */
-/*        right = null; // no need, we're going to leave the loop anyway */
+	  /*        right = null; */ /* no need, we're going to leave the loop anyway */
         }
         break;
       } else { /* fwd is something unknown */

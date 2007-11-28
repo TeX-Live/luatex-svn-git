@@ -20,22 +20,22 @@ int main(int argc, char *argv[]) {
     "static char *poolfilearr[] = {\n",headername);
   while (fgets(data,1024,fh)) {
     int len = strlen(data);
-    int o = 0; // skip first o characters
+    int o = 0; /* skip first o characters*/
     int i;
-    if (data[len-1]=='\n') { // chomp;
+    if (data[len-1]=='\n') { /* chomp;*/
       data[len-1] = 0;
       len--;
     }
-    if (data[0]=='*') break; // last if /^\*/;
+    if (data[0]=='*') break; /* last if /^\*/; */
     if (data[0]>='0' && data[0]<='9' && data[1]>='0' && data[1]<='9') {
-      o=2; // $data =~ s/^\d\d//;
+      o=2; /* $data =~ s/^\d\d//; */
     }
     printf("  \"");
     for (i=o; i<len; i++) {
       if (data[i]=='"' || data[i]=='\\') putchar('\\');
 	  if (data[i]=='?') printf("\" \""); /* suppress trigraphs */
       putchar(data[i]);
-    } // $data =~ s/(["\\])/\\$1/g;
+    } /* $data =~ s/(["\\])/\\$1/g; */
     printf("\",\n");
   }
   fclose(fh);

@@ -286,7 +286,7 @@ luatex_error (lua_State * L, int is_fatal) {
      * condition, since the lua chunk that caused the error is the current string.
      */
     s = str_ptr-0x200000;
-    //    fprintf(stderr,"poolinfo: %d: %d,%d out of %d\n",s,pool_ptr,str_start[(s-1)],pool_size);
+    /*    fprintf(stderr,"poolinfo: %d: %d,%d out of %d\n",s,pool_ptr,str_start[(s-1)],pool_size);*/
     pool_ptr = str_start[(s-1)];
     str_start[s] = pool_ptr;
     if (pool_ptr+len>=pool_size) {

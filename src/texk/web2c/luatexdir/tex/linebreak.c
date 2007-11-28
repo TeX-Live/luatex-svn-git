@@ -1121,7 +1121,7 @@ ext_try_break(integer pi,
       l = (break_node(r) == null) ? first_p : cur_break(break_node(r));
       if (cur_p==null) {
         o = null;
-      } else { // TODO if (is_character_node(alink(cur_p)))
+      } else { /* TODO if (is_character_node(alink(cur_p))) */
         o = alink(cur_p);
         assert(vlink(o)==cur_p);
       }
@@ -1644,7 +1644,7 @@ ext_do_line_break (boolean d,
         cur_p=vlink(cur_p);
         while (cur_p==null && nest_index>0) {
           cur_p = nest_stack[--nest_index];
-		  //          fprintf(stderr,"Node Pop  %d [%d]\n",nest_index,(int)cur_p);
+		  /*          fprintf(stderr,"Node Pop  %d [%d]\n",nest_index,(int)cur_p); */
         }
       }
       if (cur_p==null) { /* TODO */
@@ -1858,7 +1858,7 @@ ext_do_line_break (boolean d,
 #if 0
         if (vlink_no_break(cur_p)!=null) {
           if (vlink(cur_p)!=null) nest_stack[nest_index++] = vlink(cur_p);
-		  //          fprintf(stderr,"Node Push %d [%d]->[%d] / [%d]\n",(nest_index-1),(int)cur_p,(int)vlink(cur_p),(int)vlink_no_break(cur_p));
+		  /*          fprintf(stderr,"Node Push %d [%d]->[%d] / [%d]\n",(nest_index-1),(int)cur_p,(int)vlink(cur_p),(int)vlink_no_break(cur_p));*/
           cur_p = no_break(cur_p);
         }
 #else
@@ -1935,7 +1935,7 @@ ext_do_line_break (boolean d,
       cur_p=vlink(cur_p); 
       while (cur_p==null && nest_index>0) {
         cur_p = nest_stack[--nest_index];
-		//        fprintf(stderr,"Node Pop  %d [%d]\n",nest_index,(int)cur_p);
+		/*        fprintf(stderr,"Node Pop  %d [%d]\n",nest_index,(int)cur_p);*/
       }
     }
     if (cur_p==null) {

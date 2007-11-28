@@ -31,7 +31,7 @@ $Id: //depot/Build/source.development/TeX/texk/web2c/pdftexdir/writettf.c#16 $
 #define ttf_offset      fb_offset
 #define ttf_seek_outbuf fb_seek
 
-// #define INFILE ttf_file
+					 /* #define INFILE ttf_file*/
 
 unsigned char *ttf_buffer = NULL;
 integer ttf_size = 0;
@@ -232,7 +232,7 @@ dirtab_entry *ttf_name_lookup (const char *s, boolean required)
 dirtab_entry *ttf_seek_tab (const char *name, TTF_LONG offset)
 {
     dirtab_entry *tab = ttf_name_lookup (name, true);
-    //xfseek (INFILE, tab->offset + offset, SEEK_SET, cur_file_name);
+    /*xfseek (INFILE, tab->offset + offset, SEEK_SET, cur_file_name);*/
 	ttf_curbyte = tab->offset + offset;
     return tab;
 }
@@ -493,7 +493,7 @@ void ttf_read_post (void)
         nnames = get_ushort (); /* some fonts have this value different from nglyphs */
         for (glyph = glyph_tab; glyph - glyph_tab < nnames; glyph++)
             glyph->name_index = get_ushort ();
-        //length = tab->length - (xftell (INFILE, cur_file_name) - tab->offset);
+        /*length = tab->length - (xftell (INFILE, cur_file_name) - tab->offset);*/
         length = tab->length - (ttf_curbyte - tab->offset);
         glyph_name_buf = xtalloc (length, char);
         for (p = glyph_name_buf; p - glyph_name_buf < length;) {
@@ -578,7 +578,7 @@ static ttf_cmap_entry *ttf_read_cmap (char *ttf_name, int pid, int eid,
     /* not found, have to read it */
     ttf_seek_tab ("cmap", TTF_USHORT_SIZE);     /* skip the table vesrion number (=0) */
     ncmapsubtabs = get_ushort ();
-	//    cmap_offset = xftell (INFILE, cur_file_name) - 2 * TTF_USHORT_SIZE;
+	/*    cmap_offset = xftell (INFILE, cur_file_name) - 2 * TTF_USHORT_SIZE;*/
 	cmap_offset = ttf_curbyte - 2 * TTF_USHORT_SIZE;
     cmap_tab = xtalloc (ncmapsubtabs, cmap_entry);
     for (i = 0; i < ncmapsubtabs; ++i) {
@@ -1433,7 +1433,7 @@ void do_writeotf(fd_entry * fd)
   for (i = tab->length; i > 0; i--)
     copy_char ();
   xfree (dir_tab);
-  //    ttf_close ();
+  /*    ttf_close ();*/
   if (tracefilenames)
     tex_printf (">>");
 }

@@ -34,7 +34,7 @@ $Id: ptexmac.h,v 1.14 2005/11/29 22:05:23 hahe Exp $
 #  endif
 
 #  ifdef WIN32
-// Why relying on gmalloc() ???
+/* Why relying on gmalloc() ???*/
 #    define gmalloc(n) xmalloc(n)
 #    define gfree(p) free(p)
 #    define inline __inline

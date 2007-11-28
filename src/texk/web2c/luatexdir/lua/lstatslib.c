@@ -72,7 +72,6 @@ static struct statistic stats[] = {
   { "hash_size",                 'G', &get_hash_size     },
   { "hash_extra",                'g', &hash_extra       },
   { "font_ptr",                  'G', &max_font_id      }, 
- //{ "font_base",                 'g', &fontbase        },
   { "max_in_stack",              'g', &max_in_stack      },
   { "max_nest_stack",            'g', &max_nest_stack    },
   { "max_param_stack",           'g', &max_param_stack   },
@@ -86,26 +85,20 @@ static struct statistic stats[] = {
   /* pdf stats */
   { "obj_ptr",                   'g', &obj_ptr          },
   { "obj_tab_size",              'g', &obj_tab_size      },
-  //  { "sup_obj_tab_size",          'g', &supobjtabsize   },
   { "pdf_os_cntr",               'g', &pdf_os_cntr       },
-  //  { "pdf_os_max_objs",           'g', &pdfosmaxobjs    },
   { "pdf_os_objidx",             'g', &pdf_os_objidx     },
   { "pdf_dest_names_ptr",        'g', &pdf_dest_names_ptr },
   { "dest_names_size",           'g', &dest_names_size   },
-  //{ "sup_dest_names_size",       'g', &supdestnamessize},
   { "pdf_mem_ptr",               'g', &pdf_mem_ptr       },
   { "pdf_mem_size",              'g', &pdf_mem_size      },
-  //{ "sup_pdf_mem_size",          'g', &suppdfmemsize   },
   
   { "largest_used_mark",         'g', &biggest_used_mark  },
-  //
 
   { "filename",                  'S', &getfilename     },
   { "inputid",                   'G', &get_current_name  },
   { "linenumber",                'g', &line            },
   { "lasterrorstring",           'S', &getlasterror    },
   
-  // 
   { "luabytecodes",              'g', &luabytecode_max   },
   { "luabytecode_bytes",         'g', &luabytecode_bytes },
   { "luastates",                 'g', &luastate_max      },

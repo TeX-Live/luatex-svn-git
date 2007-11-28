@@ -718,12 +718,14 @@ flush_node (halfword p) {
   case vcenter_noad:
   case accent_noad:
      
-    //if (math_type(nucleus(p))>=sub_box)
-    //  flush_node_list(vinfo(nucleus(p)));
-    //if (math_type(supscr(p))>=sub_box)
-    //  flush_node_list(vinfo(supscr(p)));
-    //if (math_type(subscr(p))>=sub_box)
-    //  flush_node_list(vinfo(subscr(p)));
+    /*
+     * if (math_type(nucleus(p))>=sub_box)
+     *  flush_node_list(vinfo(nucleus(p)));
+     * if (math_type(supscr(p))>=sub_box)
+     *  flush_node_list(vinfo(supscr(p)));
+     * if (math_type(subscr(p))>=sub_box)
+     *  flush_node_list(vinfo(subscr(p)));
+     */
     
     break;
   case left_noad:

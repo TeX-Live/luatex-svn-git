@@ -735,7 +735,7 @@ read_tfm_info(internalfontnumber f, char *cnom, char *caire, scaled s) {
       } else { 
         /* if (b!=bchar) check_existence(b); */
         if (c<128) { 
-          /* check_existence(d); *//* check ligature */
+          /* check_existence(d); */ /* check ligature */
         } else if (256*(c-128)+d>=nk) {
           tfm_abort; /* check kern */
         }

@@ -113,8 +113,8 @@ void ext_post_line_break(boolean d,
      Node |r| is the passive node being moved from stack to stack.
   */
   q=break_node(best_bet); 
-  //used_discs = used_disc(best_bet);
-  //has_direction
+  /*used_discs = used_disc(best_bet);*/
+  /*has_direction*/
   cur_p=null;
   do { 
     r=q; 

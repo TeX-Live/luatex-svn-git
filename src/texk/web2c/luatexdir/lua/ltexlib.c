@@ -56,7 +56,7 @@ do_luacprint (lua_State * L, int partial, int deftable) {
     st = xmalloc((tsize+1)); 
     memcpy(st,sttemp,(tsize+1));
     if (st) {
-      // fprintf(stderr,"W[%d]:=%s\n",spindle_index,st);
+      /* fprintf(stderr,"W[%d]:=%s\n",spindle_index,st);*/
       luacstrings++; 
       rn = (rope *)xmalloc(sizeof(rope)); /* valgrind says we leak here */
       rn->text      = st;
@@ -230,7 +230,7 @@ int setdimen (lua_State *L) {
   char *s;
   i = lua_gettop(L);
   j = 0;
-  // find the value
+  /* find the value*/
   if (!lua_isnumber(L,i))
     if (lua_isstring(L,i)) {
 	j = dimen_to_number(L,(char *)lua_tostring(L,i));
@@ -240,7 +240,7 @@ int setdimen (lua_State *L) {
     }
   else
     j = (int)lua_tonumber(L,i);
-  // find the index
+  /* find the index*/
   if (lua_type(L,i-1)==LUA_TSTRING) {
     s = (char *)lua_tolstring(L,i-1, &k);
     texstr = maketexlstring(s,k);
@@ -668,7 +668,7 @@ gettex (lua_State *L) {
     lua_rawget(L,(i-1));
     return 1;
   }
-  return 0; // not reached
+  return 0; /* not reached */
 }
 
 
