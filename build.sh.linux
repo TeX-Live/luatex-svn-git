@@ -45,7 +45,7 @@ then
   echo '#define BUILD_REVISION "$Revision$"' > src/texk/web2c/luatexdir/svnversion.h
   echo -n '#define BUILD_DATE '             >> src/texk/web2c/luatexdir/svnversion.h
   date -u '+%Y%m%d'                         >> src/texk/web2c/luatexdir/svnversion.h
-  echo -n '#define BUILD_TIME '             >> src/texk/web2c/luatexdir/svnversion.h
+  echo -n '#define BUILD_TIME 1'            >> src/texk/web2c/luatexdir/svnversion.h
   date -u '+%H%M%S'                         >> src/texk/web2c/luatexdir/svnversion.h
   svn commit -m 'building'                     src/texk/web2c/luatexdir/svnversion.h
   exit 0

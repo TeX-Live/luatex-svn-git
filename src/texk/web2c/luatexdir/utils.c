@@ -1119,15 +1119,14 @@ char *stripzeros (char *a)
     return a;
 }
 
-
 void initversionstring(char **versions)
 {
     (void) asprintf(versions,
-					"This is build %d, created on %dT%dZ\n"
+					"This is build %d, created on %dT%06dZ\n"
                     "Compiled with libpng %s; using libpng %s\n"
                     "Compiled with zlib %s; using zlib %s\n"
                     "Compiled with xpdf version %s\n",
-					get_build_revision(), BUILD_DATE, BUILD_TIME,
+					get_build_revision(), BUILD_DATE, (BUILD_TIME-1000000),
                     PNG_LIBPNG_VER_STRING, png_libpng_ver,
                     ZLIB_VERSION, zlib_version, xpdfVersion);
 }
