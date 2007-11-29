@@ -353,7 +353,7 @@ char *hyphenation_exception(int exceptions, char *w) {
 char *exception_strings(struct tex_language *lang) {
   char *value;
   int size = 0, current =0;
-  unsigned l =0;
+  size_t l =0;
   char *ret = NULL;
   lua_State *L = Luas[0];
   if (lang->exceptions==0)

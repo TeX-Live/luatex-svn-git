@@ -1211,7 +1211,7 @@ static int nodelib_getlist(lua_State *L, int n) {
 
 static str_number 
 nodelib_getstring(lua_State *L, int a) {
-  unsigned int k;
+  size_t k;
   char *s=(char *)lua_tolstring(L,a, &k);
   return maketexlstring(s,k);
 }

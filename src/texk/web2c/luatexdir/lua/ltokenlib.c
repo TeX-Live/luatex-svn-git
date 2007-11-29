@@ -143,7 +143,7 @@ static int
 run_get_csname_id (lua_State *L) {
   int texstr;
   char *s;
-  int k,cs = 0;
+  size_t k,cs = 0;
   if (lua_isstring(L,-1)) {
     s = (char *)lua_tolstring(L,-1, &k);
 	texstr = maketexlstring(s,k);
@@ -187,7 +187,7 @@ run_expand (lua_State *L) {
 static int 
 run_lookup (lua_State *L) {
   char *s;
-  unsigned l;
+  size_t l;
   str_number t;
   integer cs,cmd,chr;
   int save_nncs;
