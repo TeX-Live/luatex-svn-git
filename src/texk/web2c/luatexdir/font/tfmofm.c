@@ -36,8 +36,6 @@ $Id$
 #define rem_byte(z)          lig_kerns[z].b3
 #define lig_kern_restart(c)  (256*op_byte(c)+rem_byte(c))
 
-#define unity 65536
-
 /*
 
 The information in a \.{TFM} file appears in a sequence of 8-bit bytes.
