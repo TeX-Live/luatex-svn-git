@@ -35,7 +35,7 @@ static int      spindle_index = 0;
 static int 
 do_luacprint (lua_State * L, int partial, int deftable) {
   int i, n;
-  unsigned int tsize;
+  size_t tsize;
   char *st, *sttemp;
   rope *rn;
   int cattable = deftable;
@@ -224,7 +224,7 @@ static int dimen_to_number (lua_State *L,char *s){
 
 int setdimen (lua_State *L) {
   int i,j;
-  unsigned k;
+  size_t k;
   int cur_cs;
   int texstr;
   char *s;
@@ -260,7 +260,7 @@ int setdimen (lua_State *L) {
 
 int getdimen (lua_State *L) {
   int i,j;  
-  unsigned k;
+  size_t k;
   int cur_cs;
   int texstr;
   char *s;
@@ -286,7 +286,7 @@ int getdimen (lua_State *L) {
 
 int setcount (lua_State *L) {
   int i,j;
-  unsigned k;
+  size_t k;
   int cur_cs;
   int texstr;
   char *s;
@@ -311,7 +311,7 @@ int setcount (lua_State *L) {
 
 int getcount (lua_State *L) {
   int i, j;
-  unsigned k;
+  size_t k;
   int cur_cs;
   int texstr;
   char *s;
@@ -338,7 +338,7 @@ int getcount (lua_State *L) {
 
 int setattribute (lua_State *L) {
   int i,j;
-  unsigned k;
+  size_t k;
   int cur_cs;
   int texstr;
   char *s;
@@ -363,7 +363,7 @@ int setattribute (lua_State *L) {
 
 int getattribute (lua_State *L) {
   int i, j;
-  unsigned k;
+  size_t k;
   int cur_cs;
   int texstr;
   char *s;
@@ -389,7 +389,7 @@ int getattribute (lua_State *L) {
 
 int settoks (lua_State *L) {
   int i,j;
-  unsigned k,len;
+  size_t k,len;
   int cur_cs;
   int texstr;
   char *s, *st;
@@ -422,7 +422,7 @@ int settoks (lua_State *L) {
 
 int gettoks (lua_State *L) {
   int i;
-  unsigned k;
+  size_t k;
   strnumber t;
   int cur_cs;
   int texstr;
@@ -564,7 +564,7 @@ int setboxdp (lua_State *L) {
 int settex (lua_State *L) {
   char *st;
   int i,j,texstr;
-  unsigned k;
+  size_t k;
   int cur_cs, cur_cmd;
   j = 0;
   i = lua_gettop(L);
@@ -639,7 +639,7 @@ int
 gettex (lua_State *L) {
   char *st;
   int i,texstr;
-  unsigned k;
+  size_t k;
   char *str;
   int cur_cs, cur_cmd, cur_code;
   i = lua_gettop(L);
