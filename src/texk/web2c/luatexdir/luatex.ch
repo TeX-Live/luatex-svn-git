@@ -173,10 +173,10 @@ versions of the program.
 @!sup_hash_extra = sup_max_strings;
 @!inf_hash_extra = 0;
 
-@!sup_ocp_list_size = 1000000;
-@!inf_ocp_list_size = 1000;
-@!sup_ocp_buf_size = 1000000;
-@!inf_ocp_buf_size = 1000;
+@!sup_ocp_list_size  = 1000000;
+@!inf_ocp_list_size  = 1000;
+@!sup_ocp_buf_size   = 100000000;
+@!inf_ocp_buf_size   = 1000;
 @!sup_ocp_stack_size = 1000000;
 @!inf_ocp_stack_size = 1000;
 
