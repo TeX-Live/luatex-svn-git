@@ -346,9 +346,9 @@ copy_node(const halfword p) {
 
   if (nodetype_has_attributes(type(p))) {
     add_node_attr_ref(node_attr(p)); 
+	alink(r)=null; /* needs checking */
   }
   vlink(r)=null;
-  alink(r)=null;
   switch (type(p)) {
   case glyph_node:  
     s=copy_node_list(lig_ptr(p));
