@@ -589,7 +589,7 @@ extern halfword string_to_pseudo(integer l,integer pool_ptr, integer nl);
 /* TH: these two defines still need checking. The node ordering in luatex is not 
    quite the same as in tex82 */
 
-#define precedes_break(a) (type((a))<math_node)
+#define precedes_break(a) (type((a))<math_node && (type(a)!=whatsit_node || subtype(a)!=dir_node))
 #define non_discardable(a) (type((a))<math_node)
 
 /* from luanode.c */
