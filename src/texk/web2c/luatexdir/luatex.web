@@ -10036,7 +10036,9 @@ else begin if cur_chr=glue_val then cur_val:=zero_glue@+else cur_val:=0;
     if (tail=head)or(mode=0) then cur_val:=-1;
     end
   else cur_val_level:=cur_chr;
-  if not is_char_node(tail)and(mode<>0) then
+  {TODO: check this thoroughly! The structural change to the 
+   |is_char_node| macro was wreaking havoc here, and possibly elsewhere.}
+  if tail<>contrib_head and not is_char_node(tail)and(mode<>0) then
     case cur_chr of
     int_val: if type(tail)=penalty_node then cur_val:=penalty(tail);
     dimen_val: if type(tail)=kern_node then cur_val:=width(tail);
@@ -20451,9 +20453,6 @@ else begin
   end;
 hpack_dir:=box_dir(r);
 dir_ptr:=null;
-{TODO: this initial dir node is possibly (probably?) needed in some 
-cases, but doing it unconditionally seems to be a waste of effort. 
-Commented out for now, until a document generates a bug. }
 push_dir(hpack_dir);
 q:=r+list_offset; vlink(q):=p;@/
 if m = cal_expand_ratio then begin
@@ -32611,6 +32610,9 @@ viewpont) by that distance.
 
 @<(PDF) Output a reflection instruction if the direction has changed@>=
 begin
+@{
+wterm_ln('found a dir node ' , p , ', with dir ', dir_dir(p), ', dvi_h value ', dir_dvi_h(p), ', cur_h ', cur_h);
+@}
 if dir_dir(p)>=0 then begin
   push_dir_node(p);
   if dir_opposite(dir_secondary[dir_dir(dir_ptr)])(dir_secondary[dvi_direction])
@@ -32635,7 +32637,12 @@ else begin
   end
 end
 
-@ 
+@ This code scans forward to the ending |dir_node| while keeping
+track of the needed width in |w|. When it finds the node that will end
+this segment, it stores the accumulated with in the |dir_dvi_h| field
+of that end node, so that when that node is found later in the
+processing, the correct glue correction can be applied.
+
 @<(PDF) Calculate the needed width to the matching |enddir|...@>=
 begin
   q:=p; w:=0; 
@@ -32676,10 +32683,13 @@ begin
       math_node: w:=w+surround(q);
       whatsit_node: begin
         if subtype(q)=dir_node then begin 
+@{
+          wterm_ln('found a possible end node ', q ,', at level ', dir_nest, ', w value ', w);
+@}
           if dir_dir(q)>=0 then incr(dir_nest) else decr(dir_nest);
           if dir_nest=0 then begin
             dir_dvi_h(q) := w;
-	    q:=null;
+           q:=null;
             end;
           end 
         else if (subtype(q) = pdf_refxform_node) or 
