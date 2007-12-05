@@ -1743,20 +1743,27 @@ it is a character, or \type{nil}.
 \subsubsection{\luatex{node.ligaturing}}
 
 \startfunctioncall
-node.ligaturing(<node> n)
-node.ligaturing(<node> n, <node> m)
+<node> h, <node> t, <boolean> success = node.ligaturing(<node> n)
+<node> h, <node> t, <boolean> success = node.ligaturing(<node> n, <node> m)
 \stopfunctioncall
 
-Apply \TEX-style ligaturing to the specified nodelist.
+Apply \TEX-style ligaturing to the specified nodelist. The tail node
+\type{m} is optional. The two returned nodes \type{h} and \type{t} are
+the new head and tail (both \type{n} and \type{m} can change into 
+a new ligature).
 
 \subsubsection{\luatex{node.kerning}}
 
 \startfunctioncall
-node.kerning(<node> n)
-node.kerning(<node> n, <node> m)
+<node> h, <node> t, <boolean> success = node.kerning(<node> n)
+<node> h, <node> t, <boolean> success = node.kerning(<node> n, <node> m)
 \stopfunctioncall
 
-Apply \TEX-style kerning to the specified nodelist.
+Apply \TEX-style kerning to the specified nodelist. The tail node
+\type{m} is optional. The two returned nodes \type{h} and \type{t} are
+the head and tail (either one of these can be an inserted kern node,
+because special kernings with word boundaries are possible).
+
 
 
 
@@ -2394,15 +2401,30 @@ end
 No return values. This callback has to apply ligaturing to the node
 list it receives.
 
+You don't have to worry about return values because the \type{head}
+node that is passed on to the callback is guaranteed not to be a
+glyph_node (if need be, a temporary node will be prepended), and
+therefore it cannot be affected by the mutations that take place.  
+After the callback, the internal value of the `tail of the list' 
+will be recalculated. 
+
+The \type{next} of \type{head} is guaranteed to be non-nil.
+
+The \type{next} of \type{tail} is guaranteed be nil, and therefore the
+second callback argument can often be ignored. It is provided for
+orthogonality, and because it can sometimes be handy when special
+processing has to take place.
+
 \subsubsection{\luatex{kerning}}
 
 \startfunctioncall
-function(<node> head, <node> tail)
-end
+function(<node> head, <node> tail) end
 \stopfunctioncall
 
 No return values. This callback has to apply kerning between the nodes
-in the node list it receives.
+in the node list it receives. See \type{ligaturing} for calling
+conventions.
+
 
 \subsection{Information reporting callbacks}
 
