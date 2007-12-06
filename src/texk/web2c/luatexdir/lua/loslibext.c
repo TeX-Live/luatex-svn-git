@@ -250,11 +250,11 @@ static int os_times (lua_State *L) {
 #endif
 
 static int os_gettimeofday (lua_State *L) {
-  lua_Number v;
+  double v;
 #ifndef WIN32
   struct timeval tv;
   gettimeofday(&tv, NULL);
-  v = (lua_Number)tv.tv_sec + (lua_Number)tv.tv_usec / 1000000.0;
+  v = (double)tv.tv_sec + (double)tv.tv_usec / 1000000.0;
 #else
   FILETIME ft;
   unsigned __int64 tmpres = 0;
@@ -266,7 +266,7 @@ static int os_gettimeofday (lua_State *L) {
   tmpres |= ft.dwLowDateTime;
   tmpres /= 10;
   tmpres -= DELTA_EPOCH_IN_MICROSECS; /*converting file time to unix epoch*/
-  v = (lua_Number)tmpres / 1000000.0; 
+  v = (double)tmpres / 1000000.0; 
 #endif
   lua_pushnumber(L, v);
   return 1;
@@ -275,16 +275,20 @@ static int os_gettimeofday (lua_State *L) {
 
 static const char repl[] = "0123456789abcdefghijklmnopqrstuvwxyz";
 
+static int dirs_made = 0;
+
 #define MAXTRIES 36*36*36
 
 char *
 do_mkdtemp (char *tmpl)
 {
-  int count;
+  int count ;
   int value ;
   char *xes = &tmpl[strlen (tmpl) - 6];
   /* this is not really all that random, but it will do */
-  srand(time(NULL));
+  if (dirs_made==0) {
+	srand(time(NULL));
+  }
   value = rand();
   for (count = 0; count < MAXTRIES; value += 8413, ++count) {
       int v = value;
@@ -294,7 +298,8 @@ do_mkdtemp (char *tmpl)
       xes[3] = repl[v % 36];  v /= 36;
       xes[4] = repl[v % 36];  v /= 36;
       xes[5] = repl[v % 36];
-      if (mkdir (tmpl, S_IRUSR | S_IWUSR | S_IXUSR) >= 0) {
+	  if (mkdir (tmpl, S_IRUSR | S_IWUSR | S_IXUSR) >= 0) {
+		dirs_made++;
 		return tmpl;
 	  } else if (errno != EEXIST) {
 		return NULL;
@@ -304,8 +309,17 @@ do_mkdtemp (char *tmpl)
 }
 
 static int os_tmpdir (lua_State *L) {
-  char *s; 
-  char tempdir[] = "luatex.XXXXXX";
+  char *s, *tempdir; 
+  char *tmp = (char *)luaL_optstring(L, 1, "luatex.XXXXXX");
+  if (tmp==NULL || 
+	  strlen(tmp)<6 ||
+	  (strcmp(tmp+strlen(tmp)-6,"XXXXXX") != 0)) {
+    lua_pushnil(L);
+    lua_pushstring(L, "Invalid argument to os.tmpdir()");
+    return 2;
+  } else {
+	tempdir = xstrdup(tmp);
+  }
 #ifdef HAVE_MKDTEMP
   s = mkdtemp(tempdir);
 #else
