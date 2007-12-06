@@ -1,7 +1,7 @@
+#include <sys/stat.h>
 
 #include "luatex-api.h"
 #include <ptexlib.h>
-#include <sys/stat.h>
 
 #include <luatexdir/luatexextra.h>
 
