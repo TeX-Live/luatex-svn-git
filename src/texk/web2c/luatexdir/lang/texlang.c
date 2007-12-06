@@ -434,8 +434,6 @@ void do_exception (halfword wordstart, halfword r, char *replacement) {
   langdata.pre_hyphen_char = get_pre_hyphen_char(clang);
   langdata.post_hyphen_char = get_post_hyphen_char(clang);
 
-  fprintf(stdout, "replace %s: len=%d\n", replacement, len);
-
   for (i=0;i<len;i++) {
 	if (uword[i+1] == '-') { /* a hyphen follows */
       while (vlink(t)!=r && (type(t)!=glyph_node || !is_simple_character(t)))
@@ -452,17 +450,14 @@ void do_exception (halfword wordstart, halfword r, char *replacement) {
 	  int repl;
       gg = find_exception_part(&i,uword,len);
       if (i==len || uword[i+1] != '{') {
-		fprintf(stdout, "%s: i=%d,*i+1=%c, len=%d\n", replacement,i,uword[i+1], len);
 		tex_error ("broken pattern 1", PAT_ERROR);
 	  }
       hh = find_exception_part(&i,uword,len);
       if (i==len || uword[i+1] != '{') {
-		fprintf(stdout, "%s: i=%d,*i+1=%c, len=%d\n", replacement,i,uword[i+1], len);
 		tex_error ("broken pattern 2",  PAT_ERROR); 
 	  }
       repl = count_exception_part(&i,uword,len); 
       if (i==len) {
-		fprintf(stdout, replacement);
 		tex_error ("broken pattern 3",  PAT_ERROR);
 	  }
       /*i++;  */ /* jump over the last right brace */
