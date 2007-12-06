@@ -15,6 +15,7 @@
   [document]
   [beta=0.20.0]
 
+
 \starttext
 
 \setups[titlepage]
@@ -537,7 +538,7 @@ also print the node number of the nodes.
 
 \chapter {\LUA\ general}
 
-\section{Initialization}
+\section[init]{Initialization}
 
 \subsection{\LUATEX\ as a \LUA\ interpreter}
 
@@ -2568,9 +2569,31 @@ lua.setbytecode(number n, function f)
 
 \section{The \luatex{kpse} library}
 
+This library provides an interface to the \KPATHSEA\ file search method.
+
+Before the search library can be used at all, its database has to be
+initialized. When \LUATEX\ is used to typeset documents, this happens
+automatically (that is, unless explicitly prohibited by the user's
+startup script. See~\in{section}[init] for more details). In \TEXLUA\
+mode, the initialization has to be done explicitly via the
+\luatex{kpse.set_program_name} function.
+
+\subsection{\luatex{kpse.set_program_name}}
+
+Sets the \KPATHSEA\ executable (and optionally program) name
+
+\startfunctioncall
+kpse.set_program_name(string name)
+kpse.set_program_name(string name, string progname)
+\stopfunctioncall
+
+The second argument controls the use of the \quote{dotted} values in the
+\type{texmf.cnf} configuration file, and defaults to the first argument.
+
+
 \subsection{\luatex{kpse.find_file}}
 
-The most important function in the library is find_file:
+The most often used function in the library is find_file:
 
 \startfunctioncall
 string f = kpse.find_file(string filename)
@@ -2581,8 +2604,7 @@ string f = kpse.find_file(string filename, string ftype, number dpi)
 \stopfunctioncall
 
 Arguments:
-
-\startitemize
+\startitemize[intro]
 
 \sym{filename} 
 
@@ -2594,7 +2616,7 @@ maps to the \type {-format} argument of \KPSEWHICH.  The supported
  \type{ftype} values are the same as the ones supported by the 
 standalone \type{kpsewhich} program:
 
-\startcolumns[n=2]
+\startsimplecolumns
 \starttyping
 'gf'
 'pk'
@@ -2648,7 +2670,7 @@ standalone \type{kpsewhich} program:
 'lig files'
 'texmfscripts'
 \stoptyping
-\stopcolumns
+\stopsimplecolumns
 
 The default type is \type{tex}.
 
@@ -2662,18 +2684,6 @@ will search the disk as well as the \type {ls-R} databases.
 
 This is used for the size argument of the formats \type{pk}, \type{gf}, and \type{bitmap font}.
 \stopitemize
-
-\subsection{\luatex{kpse.set_program_name}}
-
-Sets the \KPATHSEA\ executable (and optionally program) name
-
-\startfunctioncall
-kpse.set_program_name(string name)
-kpse.set_program_name(string name, string progname)
-\stopfunctioncall
-
-The second argument controls the use of the \quote{dotted} values in the
-\type{texmf.cnf} configuration file, and defaults to the first argument.
 
 \subsection{\luatex{kpse.init_prog}}
 
@@ -4517,20 +4527,22 @@ The \luatex{commands} array is a hash here each item is another small array, wit
 entry representing a command and the extra items the parameters to that command. The
 allowed commands and their arguments are:
 
-\starttabulate[|l|l|l|l|p|]
+\starttabulate[|l|l|l|p|]
 \NC \bf command name  \NC \bf arguments \NC \bf arg type \NC \bf description \NC\NR
 \NC font              \NC 1         \NC number    \NC select a new font from the local \luatex{fonts} table\NC\NR
-\NC char              \NC 1         \NC number    \NC typeset this character number from the current \NC\NR
-\NC node              \NC 1         \NC node      \NC output this node (list), and move right\NC\NR
-\NC slot              \NC 2         \NC number    \NC a shortcut for a font, char set\NC\NR
+\NC char              \NC 1         \NC number    \NC typeset this character number from the current font, 
+                                                      and move right by the character's width\NC\NR
+\NC node              \NC 1         \NC node      \NC output this node (list), and move right 
+                                                      by the width of this list\NC\NR
+\NC slot              \NC 2         \NC number    \NC a shortcut for the combination of a font and char command\NC\NR
 \NC push              \NC 0         \NC           \NC save current position\NC\NR
 \NC nop               \NC 0         \NC           \NC do nothing \NC\NR
 \NC pop               \NC 0         \NC           \NC pop position \NC\NR
-\NC rule              \NC 2         \NC 2 numbers \NC output a rule $w*h$, and move right\NC\NR
+\NC rule              \NC 2         \NC 2 numbers \NC output a rule $w*h$, and move right.\NC\NR
 \NC down              \NC 1         \NC number    \NC move down on the page\NC\NR
 \NC right             \NC 1         \NC number    \NC move right on the page\NC\NR
 \NC special           \NC 1         \NC string    \NC output a \tex{special} command\NC\NR
-\NC comment           \NC any       \NC any       \NC the rest of the command is ignored\NC\NR
+\NC comment           \NC any       \NC any       \NC the arguments of this command are ignored\NC\NR
 \stoptabulate
 
 Here is a rather elaborate glyph commands example:
@@ -4539,10 +4551,10 @@ Here is a rather elaborate glyph commands example:
 commands = {
   {'push'},                     -- remember where we are
   {'right', 5000},              -- move right about 0.08pt
-  {'font', 1},                  -- select the fonts[1] entry
-  {'char', 97},                 -- place character 97 (a)
+  {'font', 3},                  -- select the fonts[3] entry
+  {'char', 97},                 -- place character 97 (ASCII 'a')
   {'pop'},                      -- go all the way back
-  {'down', -200000},            -- move *up* about 3pt
+  {'down', -200000},            -- move upwards by about 3pt
   {'special', 'pdf: 1 0 0 rg'}  -- switch to red color
   {'rule', 500000, 20000}       -- draw a bar
   {'special','pdf: 0 g'}        -- back to black
@@ -4550,24 +4562,32 @@ commands = {
 ...
 \stoptyping
 
-The default value for \type {font} is always~1, for each character anew. If
-the virtual font is essentially only a re|-|encoding, then you do usually
-not have create an explicit \quote{font} entry.
+The default value for \type {font} is always~1 at the start of the \type{commands} array. 
+Therefore, if the virtual font is essentially only a re|-|encoding, then you do usually not 
+have create an explicit \quote{font} command in the array.
+
+Rules inside of \type{commands} arrays are built up using only two dimensions: 
+they do not have depth. For correct vertical placement, an extra \type{down} command 
+may be needed.
 
 Regardless of the amount of movement you create within the \type {commands},
-the output pointer will always move by exactly the width as given in
-the \type {width} key of the character hash, after running the \type {commands}.
+the output pointer will always move by exactly the width that was given in
+the \type {width} key of the character hash. Any movements that take place 
+inside the \type{commands} array are ignored on the upper level.
 
 \subsection{Artificial fonts}
 
 Even in a \quote{real} font, there can be virtual characters. When \LUATEX\ encounters a \type {commands}
-field inside a character when it becomes time to typeset the character, it will interpret the
-commands, just like for a true virtual character. In this case, if you have created no \quote{fonts}
-array, then the default and only \quote{base} font is taken to be the current font itself. In
-practise, this means that you can create virtual duplicates of existing characters.
+field inside a character when it becomes time to typeset the character, it will interpret the commands, just
+like for a true virtual character. In this case, if you have created no \quote{fonts} array, then the default
+(and only) \quote{base} font is taken to be the current font itself. In practise, this means that you can
+create virtual duplicates of existing characters which is useful if you want to create composite characters.
 
-Note: this feature does {\it not\/} work the other way around. There can not be \quote{real}
-characters in a virtual font!
+Note: this feature does {\it not\/} work the other way around. There can not be \quote{real} characters in a
+virtual font! You cannot use this technique for font re-encoding either; you need a truly virtual 
+font for that (because characters that are already present cannot be altered).
+
+\subsection{Example virtual font}
 
 Finally, here is a plain \TEX\ input file with a virtual font demonstration:
 
