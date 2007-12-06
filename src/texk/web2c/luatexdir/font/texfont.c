@@ -257,6 +257,8 @@ find_charinfo_id (internal_font_number f, integer c) {
 
 charinfo *
 char_info (internal_font_number f, integer c) {
+  if (f>font_id_maxval)
+	return 0;
   if (proper_char_index(c)) {
     register int glyph = find_charinfo_id(f,c);
     return &(font_tables[f]->charinfo[glyph]);
@@ -281,6 +283,8 @@ char_info_short (internal_font_number f, integer c) {
 
 integer
 char_exists (internal_font_number f, integer c) {
+  if (f>font_id_maxval)
+	return 0;
   if (proper_char_index(c)) {
     return find_charinfo_id(f,c);
   } else if ((c == left_boundarychar) && has_left_boundary(f)) {

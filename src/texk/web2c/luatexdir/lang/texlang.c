@@ -138,16 +138,17 @@ clean_hyphenation (char *buffer, char **cleaned) {
     } else if (*s == '{') {
       s++;
       items=0;
-      while (*s && *s!='}') { STORE_CHAR(*s); s++; }
+      while (*s && *s!='}') { s++; }
       if (*s=='}') { items++; s++; }
-      if (*s=='{') { while (*s && *s!='}') s++; }
+      while (*s && *s!='}') { s++; }
       if (*s=='}') { items++; s++; }
-      if (*s=='{') { while (*s && *s!='}') s++; }
+      if (*s=='{') { s++; }
+	  while (*s && *s!='}') {STORE_CHAR(*s);  s++; }
       if (*s=='}') { items++; } else { s--; }
       if (items!=3) { /* syntax error */
-	*cleaned = NULL;	
-	while (*s && !isspace(*s)) { s++; }
-	return s;
+		*cleaned = NULL;	
+		while (*s && !isspace(*s)) { s++; }
+		return s;
       }
     } else {
       STORE_CHAR(*s); 
@@ -216,10 +217,10 @@ load_tex_hyphenation(int curlang, halfword head) {
 halfword insert_discretionary ( halfword t,  halfword pre,  halfword post,  halfword replace) {
   halfword g, n;
   n = new_node(disc_node,syllable_disc);
-  couple_nodes(n,vlink(t));
+  try_couple_nodes(n,vlink(t));
   couple_nodes(t,n);
   for (g=pre;g!=null;g=vlink(g)) {
-    font(g)=font(t);
+    font(g)=font(replace);
     if (node_attr(t)!=null) {
 	  delete_attribute_ref(node_attr(g));
       node_attr(g) = node_attr(t);
@@ -227,7 +228,7 @@ halfword insert_discretionary ( halfword t,  halfword pre,  halfword post,  half
     }
   }
   for (g=post;g!=null;g =vlink(g)) {
-    font(g)=font(t);
+    font(g)=font(replace);
     if (node_attr(t)!=null) {
 	  delete_attribute_ref(node_attr(g));
       node_attr(g) = node_attr(t);
@@ -235,7 +236,6 @@ halfword insert_discretionary ( halfword t,  halfword pre,  halfword post,  half
     }
   }
   for (g=replace;g!=null;g =vlink(g)) {
-    font(g)=font(t);
     if (node_attr(t)!=null) {
 	  delete_attribute_ref(node_attr(g));
       node_attr(g) = node_attr(t);
@@ -397,9 +397,22 @@ halfword find_exception_part(int *j, int *uword, int len) {
     }
     i++;
   }
-  *j = i;
+  *j = ++i;
   return gg;
 }
+
+int count_exception_part(int *j, int *uword, int len) {
+  int ret=0;
+  register int i = *j;
+  i++; /* this puts uword[i] on the '{' */
+  while (i<len && uword[i+1] != '}') {
+	ret++;
+    i++;
+  }
+  *j = ++i;
+  return ret;
+}
+
 
 static char *PAT_ERROR[] =  { 
   "Exception discretionaries should contain three pairs of braced items.", 
@@ -421,6 +434,8 @@ void do_exception (halfword wordstart, halfword r, char *replacement) {
   langdata.pre_hyphen_char = get_pre_hyphen_char(clang);
   langdata.post_hyphen_char = get_post_hyphen_char(clang);
 
+  fprintf(stdout, "replace %s: len=%d\n", replacement, len);
+
   for (i=0;i<len;i++) {
 	if (uword[i+1] == '-') { /* a hyphen follows */
       while (vlink(t)!=r && (type(t)!=glyph_node || !is_simple_character(t)))
@@ -433,20 +448,39 @@ void do_exception (halfword wordstart, halfword r, char *replacement) {
       /* do nothing ? */
       t = vlink(t);
     } else if (uword[i+1] == '{') {
-      halfword gg, hh, repl;
+      halfword gg, hh, replace = null;
+	  int repl;
       gg = find_exception_part(&i,uword,len);
-      if (i==len || uword[i+1] != '{') 
+      if (i==len || uword[i+1] != '{') {
+		fprintf(stdout, "%s: i=%d,*i+1=%c, len=%d\n", replacement,i,uword[i+1], len);
 		tex_error ("broken pattern 1", PAT_ERROR);
+	  }
       hh = find_exception_part(&i,uword,len);
-      if (i==len || uword[i+1] != '{') 
+      if (i==len || uword[i+1] != '{') {
+		fprintf(stdout, "%s: i=%d,*i+1=%c, len=%d\n", replacement,i,uword[i+1], len);
 		tex_error ("broken pattern 2",  PAT_ERROR); 
-      repl = find_exception_part(&i,uword,len);
-      if (i==len) 
+	  }
+      repl = count_exception_part(&i,uword,len); 
+      if (i==len) {
+		fprintf(stdout, replacement);
 		tex_error ("broken pattern 3",  PAT_ERROR);
-      i++;   /* jump over the last right brace */
+	  }
+      /*i++;  */ /* jump over the last right brace */
       if (vlink(t)==r)
 		break;
-      t = insert_discretionary(t,gg,hh,repl);
+	  if (repl>0) {
+		halfword q = t;
+		replace = vlink(q);
+		while(repl>0 && q!=null) {
+		  q=vlink(q);
+		  if (type(q)==glyph_node) {
+			repl--;
+		  }
+		}
+		try_couple_nodes(t,vlink(q));
+		vlink(q)=null; 
+	  }
+      t = insert_discretionary(t,gg,hh,replace);
     } else {
       t = vlink(t);
     }
@@ -630,7 +664,7 @@ hnj_hyphenation (halfword head, halfword tail) {
 		   clang == char_lang(r) && 
 		   (lchar = get_lc_code(character(r)))>0) {
       wordlen++;
-      hy = utf8_idpb(hy,lchar);
+      hy = utf8_idpb(hy,character(r));
       /* this should not be needed  any more */
       /*if (vlink(r)!=null) alink(vlink(r))=r;*/
       r = vlink(r);
