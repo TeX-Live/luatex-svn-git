@@ -5141,6 +5141,11 @@ procedure tail_append(p:pointer);
 begin 
 vlink(tail):=p; tail:=vlink(tail);
 end;
+@#
+procedure new_tail_append(p:pointer);
+begin 
+couple_nodes(tail,p); tail:=vlink(tail);
+end;
 
 @ We will see later that the vertical list at the bottom semantic level is split
 into two parts; the ``current page'' runs from |page_head| to |page_tail|,
@@ -23841,8 +23846,8 @@ else
   paragraph_dir:=0;
 line_break_dir:=paragraph_dir;
 tail:=new_ligkern(temp_head,tail);
-if is_char_node(tail) then tail_append(new_penalty(inf_penalty))
-else if type(tail)<>glue_node then tail_append(new_penalty(inf_penalty))
+if is_char_node(tail) then new_tail_append(new_penalty(inf_penalty))
+else if type(tail)<>glue_node then new_tail_append(new_penalty(inf_penalty))
 else begin 
   type(tail):=penalty_node; 
   delete_glue_ref(glue_ptr(tail));
@@ -23851,8 +23856,7 @@ else begin
   penalty(tail):=inf_penalty;
   end;
 final_par_glue:=new_param_glue(par_fill_skip_code);
-vlink(tail):=final_par_glue;
-alink(final_par_glue):=tail;
+couple_nodes(tail,final_par_glue);
 if not output_active then 
   lua_node_filter(pre_linebreak_filter_callback,
 	line_break_context,temp_head,addressof(tail));

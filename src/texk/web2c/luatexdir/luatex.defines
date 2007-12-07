@@ -26,6 +26,7 @@ $Id $
 @define function new_glyph_node;
 @define procedure flush_node();
 @define function copy_node();
+@define procedure couple_nodes();
 @define function copy_node_list();
 @define procedure flush_node_list();
 @define function string_to_pseudo();

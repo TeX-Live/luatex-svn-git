@@ -461,9 +461,9 @@ void ext_post_line_break(boolean d,
 	}
       }
       if (pen!=0) {
-	r=new_penalty(pen);
-	vlink(cur_list.tail_field)=r; 
-	cur_list.tail_field=r;
+		r=new_penalty(pen);
+		couple_nodes(cur_list.tail_field,r);
+		cur_list.tail_field=r;
       }
     }
     /* /Append a penalty node, if a nonzero penalty is appropriate */
