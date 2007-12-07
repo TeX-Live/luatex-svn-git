@@ -17442,58 +17442,74 @@ end;
 
 procedure set_lp_code(f: internal_font_number; c: integer; i: integer);
 begin
-    if pdf_font_lp_base[f] = 0 then
+    if c<256 then begin
+      if pdf_font_lp_base[f] = 0 then
         pdf_font_lp_base[f] := init_font_base(0);
-    pdf_mem[pdf_font_lp_base[f] + c] := fix_int(i, -1000, 1000);
+      pdf_mem[pdf_font_lp_base[f] + c] := fix_int(i, -1000, 1000);
+    end;
 end;
 
 procedure set_rp_code(f: internal_font_number; c: integer; i: integer);
 begin
-    if pdf_font_rp_base[f] = 0 then
+    if c<256 then begin
+      if pdf_font_rp_base[f] = 0 then
         pdf_font_rp_base[f] := init_font_base(0);
-    pdf_mem[pdf_font_rp_base[f] + c] := fix_int(i, -1000, 1000);
+      pdf_mem[pdf_font_rp_base[f] + c] := fix_int(i, -1000, 1000);
+    end;
 end;
 
 procedure set_ef_code(f: internal_font_number; c: integer; i: integer);
 begin
-    if pdf_font_ef_base[f] = 0 then
+    if c<256 then begin
+      if pdf_font_ef_base[f] = 0 then
         pdf_font_ef_base[f] := init_font_base(1000);
-    pdf_mem[pdf_font_ef_base[f] + c] := fix_int(i, 0, 1000);
+      pdf_mem[pdf_font_ef_base[f] + c] := fix_int(i, 0, 1000);
+    end;
 end;
 
 procedure set_kn_bs_code(f: internal_font_number; c: integer; i: integer);
 begin
-    if pdf_font_kn_bs_base[f] = 0 then
+    if c<256 then begin
+      if pdf_font_kn_bs_base[f] = 0 then
         pdf_font_kn_bs_base[f] := init_font_base(0);
-    pdf_mem[pdf_font_kn_bs_base[f] + c] := fix_int(i, -1000, 1000);
+      pdf_mem[pdf_font_kn_bs_base[f] + c] := fix_int(i, -1000, 1000);
+    end;
 end;
 
 procedure set_st_bs_code(f: internal_font_number; c: integer; i: integer);
 begin
-    if pdf_font_st_bs_base[f] = 0 then
+    if c<256 then begin
+      if pdf_font_st_bs_base[f] = 0 then
         pdf_font_st_bs_base[f] := init_font_base(0);
-    pdf_mem[pdf_font_st_bs_base[f] + c] := fix_int(i, -1000, 1000);
+      pdf_mem[pdf_font_st_bs_base[f] + c] := fix_int(i, -1000, 1000);
+    end;
 end;
 
 procedure set_sh_bs_code(f: internal_font_number; c: integer; i: integer);
 begin
-    if pdf_font_sh_bs_base[f] = 0 then
+    if c<256 then begin
+      if pdf_font_sh_bs_base[f] = 0 then
         pdf_font_sh_bs_base[f] := init_font_base(0);
-    pdf_mem[pdf_font_sh_bs_base[f] + c] := fix_int(i, -1000, 1000);
+      pdf_mem[pdf_font_sh_bs_base[f] + c] := fix_int(i, -1000, 1000);
+    end;
 end;
 
 procedure set_kn_bc_code(f: internal_font_number; c: integer; i: integer);
 begin
-    if pdf_font_kn_bc_base[f] = 0 then
+    if c<256 then begin
+      if pdf_font_kn_bc_base[f] = 0 then
         pdf_font_kn_bc_base[f] := init_font_base(0);
-    pdf_mem[pdf_font_kn_bc_base[f] + c] := fix_int(i, -1000, 1000);
+      pdf_mem[pdf_font_kn_bc_base[f] + c] := fix_int(i, -1000, 1000);
+    end;
 end;
 
 procedure set_kn_ac_code(f: internal_font_number; c: integer; i: integer);
 begin
-    if pdf_font_kn_ac_base[f] = 0 then
+    if c<256 then begin
+      if pdf_font_kn_ac_base[f] = 0 then
         pdf_font_kn_ac_base[f] := init_font_base(0);
-    pdf_mem[pdf_font_kn_ac_base[f] + c] := fix_int(i, -1000, 1000);
+      pdf_mem[pdf_font_kn_ac_base[f] + c] := fix_int(i, -1000, 1000);
+    end;
 end;
 
 procedure adjust_interword_glue(p, g: pointer); {adjust the interword
@@ -20431,6 +20447,9 @@ begin
     end;
     if c = 0 then
         return;
+    if side = left_side then begin
+   	  wterm_ln('the lp code of ', character(p), ' is ', c); 
+      end;
     char_pw :=
         round_xn_over_d(quad(f), c, 1000);
 end;
