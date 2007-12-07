@@ -20447,9 +20447,6 @@ begin
     end;
     if c = 0 then
         return;
-    if side = left_side then begin
-   	  wterm_ln('the lp code of ', character(p), ' is ', c); 
-      end;
     char_pw :=
         round_xn_over_d(quad(f), c, 1000);
 end;
