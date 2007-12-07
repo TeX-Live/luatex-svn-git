@@ -18058,6 +18058,7 @@ this_box:=temp_ptr; g_order:=glue_order(this_box);
 g_sign:=glue_sign(this_box); p:=list_ptr(this_box);
 save_direction:=dvi_direction;
 dvi_direction:=box_dir(this_box);
+dvi_ptr:=0; lx:=0;
 @<DIR: Initialize |dir_ptr| for |ship_out|@>;
 saving_h:=cur_h; saving_v:=cur_v;
 incr(cur_s);
@@ -23592,7 +23593,7 @@ or follows |r|, according as |link(r)=n| or |link(r)>n| or |link(r)<n|.
 
 @<Merge the widths...@>=
 begin t:=width(q)+width(glue_ptr(vlink(q)));
-r:=vinfo(q); s:=end_span; span_link(s):=p; n:=min_quarterword+1;
+r:=span_ptr(q); s:=end_span; span_link(s):=p; n:=min_quarterword+1;
 repeat width(r):=width(r)-t; u:=span_link(r);
 while span_span(r)>n do
   begin s:=span_link(s); n:=span_span(span_link(s))+1;
