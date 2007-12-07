@@ -18058,7 +18058,7 @@ this_box:=temp_ptr; g_order:=glue_order(this_box);
 g_sign:=glue_sign(this_box); p:=list_ptr(this_box);
 save_direction:=dvi_direction;
 dvi_direction:=box_dir(this_box);
-dvi_ptr:=0; lx:=0;
+dvi_ptr:=0;  lx:=0;
 @<DIR: Initialize |dir_ptr| for |ship_out|@>;
 saving_h:=cur_h; saving_v:=cur_v;
 incr(cur_s);
