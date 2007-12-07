@@ -32609,7 +32609,9 @@ else begin
   pop_dir_node;
   synch_h; synch_v;
   if dir_ptr<>null then
-    dvi_direction:=dir_dir(dir_ptr);
+	 dvi_direction:=dir_dir(dir_ptr)
+  else
+	dvi_direction:=0;
  if dir_opposite(dir_secondary[dir_dir(p)+64])(dir_secondary[dvi_direction])
   then begin
     dvi_temp_ptr:=dvi_ptr;
@@ -32662,7 +32664,9 @@ if dir_dir(p)>=0 then begin
 else begin
   pop_dir_node;
   if dir_ptr<>null then
-    dvi_direction:=dir_dir(dir_ptr);
+    dvi_direction:=dir_dir(dir_ptr)
+  else
+    dvi_direction:=0;
   case box_direction(dvi_direction) of
     dir_TL_,dir_BL_: pdf_dvicmd_right(dir_dvi_h(p));
     dir_TR_,dir_BR_: pdf_dvicmd_left(dir_dvi_h(p));
