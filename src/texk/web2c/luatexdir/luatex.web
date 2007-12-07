@@ -2605,7 +2605,7 @@ a way to make |interrupt| nonzero using the \PASCAL\ debugger.
 @!detokenized_line:boolean; {indicates this is a 'detokenized' input line }
 @!line_catcode_table:integer; {the used catcode table for input lines}
 @!local_catcode_table:boolean; {the used catcode table for input lines}
-@!static_int_base:integer; {C version of int_base}
+@!static_int_base:integer; {C version of |int_base|}
 
 @ @p procedure check_interrupt;
 begin 
@@ -30043,6 +30043,7 @@ if c=1 then
     delete_split_first_mark(i); delete_split_bot_mark(i);
     end;
   for c:=last_box_code to vsplit_code do flush_node_list(disc_ptr[c]);
+  @<Close the pseudo files@>;
   store_fmt_file; return;@+tini@/
   print_nl("(\dump is performed only by INITEX)"); return;
 @:dump_}{\.{\\dump...only by INITEX}@>
@@ -32645,9 +32646,6 @@ viewpont) by that distance.
 
 @<(PDF) Output a reflection instruction if the direction has changed@>=
 begin
-@{
-wterm_ln('found a dir node ' , p , ', with dir ', dir_dir(p), ', dvi_h value ', dir_dvi_h(p), ', cur_h ', cur_h);
-@}
 if dir_dir(p)>=0 then begin
   push_dir_node(p);
   if dir_opposite(dir_secondary[dir_dir(dir_ptr)])(dir_secondary[dvi_direction])
@@ -32720,9 +32718,6 @@ begin
       math_node: w:=w+surround(q);
       whatsit_node: begin
         if subtype(q)=dir_node then begin 
-@{
-          wterm_ln('found a possible end node ', q ,', at level ', dir_nest, ', w value ', w);
-@}
           if dir_dir(q)>=0 then incr(dir_nest) else decr(dir_nest);
           if dir_nest=0 then begin
             dir_dvi_h(q) := w;
@@ -34122,7 +34117,7 @@ flush_node(pseudo_files);
 pseudo_files:=p;
 end;
 
-@ @<Dump the \eTeX\ state@>=
+@ @<Close the pseudo files@>=
 while pseudo_files<>null do pseudo_close; {flush pseudo files}
 
 @ @<Generate all \eTeX...@>=
