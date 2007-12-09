@@ -9,7 +9,7 @@ export PATH
 
 # try to find gnu make; we need it
 MAKE=make;
-if make -v 2>&1| grep -q "GNU Make" 
+if make -v 2>&1| grep "GNU Make" >/dev/null
 then 
   echo "Your make is a GNU-make; I will use that"
 elif gmake -v >/dev/null 2>&1
