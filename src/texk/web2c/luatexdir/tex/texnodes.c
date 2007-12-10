@@ -744,6 +744,7 @@ flush_node (halfword p) {
     return;
     break;
   case align_stack_node:
+  case span_node:
   case movement_node: 
   case if_node:
   case nesting_node:
