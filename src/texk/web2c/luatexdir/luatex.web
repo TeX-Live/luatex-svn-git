@@ -22894,7 +22894,7 @@ nodes have no |depth| field; this is split into |u_part| and |v_part|,
 and they point to token lists for the templates of the alignment. For
 example, the |u_part| field in the first alignrecord points to the
 token list `\.{u1}', i.e., the template preceding the `\.\#' for
-column~1.  Furthermore, They have a |span_ptr| instead of a |height|
+column~1.  Furthermore, They have a |span_ptr| instead of a |node_attr|
 field, and these |span_ptr| fields are initially set to the value
 |end_span|, for reasons explained below.
 
@@ -22949,8 +22949,8 @@ $$\vbox{\halign{\hbox to 325pt{\qquad\.{#}\hfil}\cr
 {}\\unsetbox for 1 column: {\rm(empty)}\cr
 {}\\glue 1pt plus 1fil\cr}}$$
 The natural width of the unset box that spans columns 1~and~2 is stored
-in a ``span node,'' which we will explain later; the |info| field of the
-alignrecord for column~1 now points to the new span node, and the |info|
+in a ``span node,'' which we will explain later; the |span_ptr| field of the
+alignrecord for column~1 now points to the new span node, and the |span_ptr|
 of the span node points to |end_span|.
 
 (8) The final row produces the unset box
@@ -22982,7 +22982,7 @@ This information is called the |extra_info| field.
 @d align_record_node=34
 @d u_part(#)==vlink(#+depth_offset) {pointer to \<u_j> token list}
 @d v_part(#)==vinfo(#+depth_offset) {pointer to \<v_j> token list}
-@d span_ptr(#)==vlink(#+height_offset) {column spanning list}
+@d span_ptr(#)==vinfo(#+1) {column spanning list}
 @d extra_info(#)==vinfo(#+list_offset) {info to remember during template}
 
 @ Alignments can occur within alignments, so a small stack is used to access
@@ -23431,26 +23431,28 @@ glue_sign(u):=o; glue_shrink(u):=total_shrink[o];@/
 pop_nest; vlink(tail):=u; tail:=u;
 end
 
-@ A span node is a 3-word record containing |width|, |vinfo|, and |vlink|
-fields. The |vlink| field is not really a link, it indicates the number of
-spanned columns; the |vinfo| field points to a span node for the same
-starting column, having a greater extent of spanning, or to |end_span|,
-which has the largest possible |vlink| field; the |width| field holds the
-largest natural width corresponding to a particular set of spanned columns.
+@ A span node is a 3-word record containing |width|, |span_span|, and
+|span_ptr| fields. The |span_span| field indicates the number of
+spanned columns; the |span_ptr| field points to a span node for the same
+starting column, having a greater extent of spanning, or to
+|end_span|, which has the largest possible |span_span| field; the |width|
+field holds the largest natural width corresponding to a particular
+set of spanned columns.
 
 A list of the maximum widths so far, for spanned columns starting at a
-given column, begins with the |vinfo| field of the alignrecord for that
-column.
+given column, begins with the |span_ptr| field of the alignrecord for
+that column. The code has to make sure that there is room for
+|span_ptr| in both the alignrecord and the span nodes, which is why
+|span_ptr| replaces |node_attr|.
 
 The |new_span_node| function is defined in |texnodes.c|.
 
 @d span_node==41
 @d span_node_size==3 {number of |mem| words for a span node}
-@d span_span(#)==vlink(#+1)
-@d span_link(#)==vinfo(#+1)
+@d span_span(#)==vlink(#+1) {that is normally |alink| }
 
 @<Initialize the special list heads...@>=
-span_span(end_span):=max_quarterword+1; span_link(end_span):=null;
+span_span(end_span):=max_quarterword+1; span_ptr(end_span):=null;
 
 @ @<Update width entry for spanned columns@>=
 begin q:=cur_span;
@@ -23460,28 +23462,14 @@ if n>max_quarterword then confusion("too many spans"); {this can happen, but won
 @^system dependencies@>
 @:this can't happen too many spans}{\quad too many spans@>
 q:=cur_span;
-if span_ptr(cur_span)=end_span then begin
-  s:=new_span_node(span_ptr(cur_span),n,w); 
-  span_ptr(cur_span):=s; 
-  end 
-else begin { there is at least one ...}
-  if span_span(span_ptr(cur_span))<n then begin
-    q:=span_ptr(cur_span);
-	while span_span(span_link(q))<n do q:=span_link(q);
-    if span_span(span_link(q))>n then begin
-	  s:=new_span_node(span_link(q),n,w); 
-      span_link(q):=s; 
-      end
-    else if width(span_link(q))<w then width(span_link(q)):=w;
-    end
-  else begin 
-    if span_span(span_ptr(cur_span))>n then begin
-      s:=new_span_node(span_ptr(cur_span),n,w); 
-      span_ptr(cur_span):=s; 
-      end
-    else if width(span_ptr(cur_span))<w then width(span_ptr(cur_span)):=w;
-    end
+while span_span(span_ptr(q))<n do begin 
+  q:=span_ptr(q);
   end;
+if span_span(span_ptr(q))>n then begin
+  s:=new_span_node(span_ptr(q),n,w); 
+  span_ptr(q):=s; 
+  end
+else if width(span_ptr(q))<w then width(span_ptr(q)):=w;
 end
 
 @ At the end of a row, we append an unset box to the current vlist (for
@@ -23593,15 +23581,15 @@ or follows |r|, according as |link(r)=n| or |link(r)>n| or |link(r)<n|.
 
 @<Merge the widths...@>=
 begin t:=width(q)+width(glue_ptr(vlink(q)));
-r:=span_ptr(q); s:=end_span; span_link(s):=p; n:=min_quarterword+1;
-repeat width(r):=width(r)-t; u:=span_link(r);
+r:=span_ptr(q); s:=end_span; span_ptr(s):=p; n:=min_quarterword+1;
+repeat width(r):=width(r)-t; u:=span_ptr(r);
 while span_span(r)>n do
-  begin s:=span_link(s); n:=span_span(span_link(s))+1;
+  begin s:=span_ptr(s); n:=span_span(span_ptr(s))+1;
   end;
 if span_span(r)<n then
-  begin span_link(r):=span_link(s); span_link(s):=r; decr(span_span(r)); s:=r;
+  begin span_ptr(r):=span_ptr(s); span_ptr(s):=r; decr(span_span(r)); s:=r;
   end
-else  begin if width(r)>width(span_link(s)) then width(span_link(s)):=width(r);
+else  begin if width(r)>width(span_ptr(s)) then width(span_ptr(s)):=width(r);
   flush_node(r);
   end;
 r:=u;
