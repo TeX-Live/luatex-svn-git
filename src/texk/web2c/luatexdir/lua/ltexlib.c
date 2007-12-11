@@ -675,8 +675,8 @@ gettex (lua_State *L) {
 int
 getlist (lua_State *L) {
   char *str;
-  if (lua_isstring(L,1)) {
-    str = (char *)lua_tostring(L,1);
+  if (lua_isstring(L,2)) {
+    str = (char *)lua_tostring(L,2);
     if (strcmp(str,"page_ins_head")==0) {
       lua_pushnumber(L,page_ins_head);  lua_nodelib_push(L);
     } else if (strcmp(str,"contrib_head")==0) {
