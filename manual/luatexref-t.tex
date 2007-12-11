@@ -622,7 +622,7 @@ are off|-|limits during the execution of the startup file (they are
 nilled). Special care is taken that \luatex{texio.write} and
 \luatex{texio.write_nl} function properly, so that you can at least
 report your actions to the log file when (and if) it eventually
-becomes opened (note that \TEX\ does not even know it's \tex{jobname}
+becomes opened (note that \TEX\ does not even know its \tex{jobname}
 yet at this point). See \in{chapter}[libraries] for more information
 about the \LUATEX-specific \LUA\ extension tables. 
 
@@ -678,7 +678,7 @@ all platforms.
 
 \lua{luafilesystem} has been extended with two extra boolean functions
 (\luatex{isdir(filename)} and \luatex{isfile(filename)}) and one extra
-string field in it's attributes table (\type{permissions}).
+string field in its attributes table (\type{permissions}).
 
 The \lua{string} library has an extra function:
 \luatex{string.explode(s[,m])}. This function returns an array containing
@@ -710,6 +710,12 @@ number as its second return value if the string length was odd.
 
 The \luatex{string.characterpairs()} and \luatex{string.bytepairs()}
 are useful especially in the conversion of UTF-16 encoded data into UTF-8.
+
+
+Note: The \lua{string} library functions \luatex{find} etc. are not
+Unicode-aware. In cases where this is required (i.e. because the
+pattern used for searching contains characters above code point 127),
+the corresponding functions from \lua{unicode.utf8} should be used.
 
 \blank
 
@@ -1516,7 +1522,7 @@ mappings.
 number id = node.id(string type)
 \stopfunctioncall
 
-This converts a single type name to it's internal numeric
+This converts a single type name to its internal numeric
 representation.
 
 \subsubsection{\luatex{node.subtype}}
@@ -1525,7 +1531,7 @@ representation.
 number subtype = node.subtype(string type)
 \stopfunctioncall
 
-This converts a single whatsit name to it's internal numeric
+This converts a single whatsit name to its internal numeric
 representation (\type{subtype}).
 
 \subsubsection{\luatex{node.type}}
@@ -1628,7 +1634,7 @@ Creates a deep copy of the node list that starts at \type{n}.
 
 This function creates a new hlist by packaging the list that begins at  node
 \type{n} into a horizontal box. With only a single argument, this box 
-is created using the natural width of it's components. In the three
+is created using the natural width of its components. In the three
 argument form, \type{info} must be either \type{additional} or
 \type{exactly}, and \type{w} is the additional (\type{\hbox spread})
 or exact (\type{\hbox to}) width to be used.
@@ -1699,7 +1705,7 @@ This function removes the node \type{current} from the list following
 of that list. The return values are the new \type{head} and
 \type{current} nodes. The returned \type{current} is the 
 node in the calling argument, and is only passed back as a convenience
-(it's \type{next} field will be cleared). The returned \type{head} is
+(its \type{next} field will be cleared). The returned \type{head} is
 more important, because if the function is called with \type{current}
 equal to \type{head}, it will be changed.
 
@@ -1842,11 +1848,11 @@ This library takes care of the low|-|level I/O interface.
 \subsubsection{\luatex{texio.write}}
 
 \startfunctioncall
-texio.write(string target, string s)
-texio.write(string s)
+texio.write(string target, string s, ...)
+texio.write(string s, ...)
 \stopfunctioncall
 
-Without the \type{target} argument, writes the string to the same
+Without the \type{target} argument, writes all given strings to the same
 location(s) \TEX\ writes messages to at this moment. If
 \tex{batchmode} is in effect, it writes only to the log,
 otherwise  it writes to the log and the terminal.
@@ -1854,16 +1860,21 @@ otherwise  it writes to the log and the terminal.
 The optional \type{target} can be one of three possibilities:
 \type{term}, \type{log} or \type {term and log}.
 
-\subsubsection{\luatex{tex.write_nl}}
+Note: If several strings are given, and if the first of these strings
+is or might be one of the targets above, the \type{target} must be
+specified explicitely to prevent \LUA\ from interpreting the first
+string as the target.
+
+\subsubsection{\luatex{texio.write_nl}}
 
 \startfunctioncall
-texio.write_nl(string target, string s)
-texio.write_nl(string s)
+texio.write_nl(string target, string s, ...)
+texio.write_nl(string s, ...)
 \stopfunctioncall
 
-Like \luatex{texio.write}, but make sure that the string~\type {s} will
-appear at the beginning of a line. You can use an empty string if you
-only want to move to the next line.
+Like \luatex{texio.write}, but make sure that the given strings will
+appear at the beginning of a line. You can pass a single empty string
+if you only want to move to the next line.
 
 \section{The \luatex{pdf} library}
 
@@ -1908,18 +1919,23 @@ This library has functions that register, find and list callbacks.
 The \luatex{callback} library is only available in \LUA\ state zero (0).
 
 \startfunctioncall
-callback.register(string callback_name,function callback_func)
-callback.register(string callback_name,nil)
+id, error = callback.register(string callback_name,function callback_func)
+id, error = callback.register(string callback_name,nil)
 \stopfunctioncall
 
 where the \syntax{callback_name} is a predefined callback name, see
-below.
+below. The function returns the internal \type{id} of the callback
+or \type{nil}, if the callback could not be registered. In the latter
+case, \type{error} contains an error message, otherwise it is
+\type{nil}.
 
 \LUATEX\ internalizes the callback function in such a way that
 it does not matter if you redefine a function accidentally.
 
 Callback assignments are always global. You can use the special value
 \type {nil} instead of a function for clearing the callback.
+
+Currently, callbacks are not dumped in the format file.
 
 \startfunctioncall
 table info = callback.list()
@@ -2036,7 +2052,7 @@ Like \luatex{find_font_file}, but for subfont definition files.
 \subsubsection{\luatex{find_pk_file}}
 
 Like \luatex{find_font_file}, but for pk bitmap files. The argument
-\type{name} is a bit special in this case. It's form is
+\type{name} is a bit special in this case. Its form is
 
 \starttyping
 <base res>dpi/<fontname>.<actual res>pk
@@ -2243,7 +2259,7 @@ If your function returns a single usable token, then that token will
 be processed by \LUATEX\ immediately. If the function returns a token
 list (a table consisting of a list of consecutive token tables), then
 that list will be pushed to the input stack as completely new token
-list level, with it's token type set to \quote{inserted}. In either case,
+list level, with its token type set to \quote{inserted}. In either case,
 the returned token(s) will not be fed back into the callback function.
 
 \subsection{Node list processing callbacks}
@@ -2550,7 +2566,7 @@ replaced by something more elaborate.
 
 \LUA\ registers can be used to communicate \LUA\ functions across \LUA\
 states. The accepted values for assignments are functions and
-nil. Likewise, the retrieved value is either a function or nil.
+nil. Likewise, the retrieved value is either a function or \type{nil}.
 
 \starttyping
 lua.bytecode[n] = function () .. end
@@ -2558,13 +2574,33 @@ lua.bytecode[n]()
 \stoptyping
 
 The contents of the \luatex{lua.bytecode} array is stored inside the format
-file as actual \LUA\ bytecode, so it can also be used to preload lua code.
+file as actual \LUA\ bytecode, so it can also be used to preload \LUA\ code.
+
+Note: The function must not contain any upvalues. Currently, functions
+containing upvalues can be stored (and their upvalues are set to
+\type{nil}), but this is an artefact of the current \LUA\
+implementation and thus subject to change.
 
 The associated function calls are
 
 \startfunctioncall
 function f = lua.getbytecode(number n)
 lua.setbytecode(number n, function f)
+\stopfunctioncall
+
+Note: Since a \LUA\ file loaded using \luatex{loadfile(filename)} is
+essentially an anonymous function, a complete file can be stored in a
+bytecode register like this:
+
+\startfunctioncall
+lua.bytecode[n] = loadfile(filename)
+\stopfunctioncall
+
+Now all definitions (functions, variables) contained in the file can be
+created by executing this bytecode register:
+
+\startfunctioncall
+lua.bytecode[n]()
 \stopfunctioncall
 
 \section{The \luatex{kpse} library}
@@ -2760,7 +2796,7 @@ metatable at run|-|time whenever they are accessed, so you cannot use
 on \type{info}, of course.
 
 If you do not need the full list, you can also ask for a single item
-by using it's name as an index into \type{status}.
+by using its name as an index into \type{status}.
 
 The current list is:
 
@@ -3892,7 +3928,7 @@ of the current word. Since in \LUATEX\ hyphenation only takes place on
 \quote{character} nodes, it is possible to achieve the same effect.
 
 This change of meaning did happen with \tex{char}, that now generates
-\quote{character} nodes, consistent with it's changed meaning in \XETEX.
+\quote{character} nodes, consistent with its changed meaning in \XETEX.
 The changed status of \tex{char} is not yet finalized, but if it stays
 as it is now, a new primitive \tex{glyph} should be added to directly
 insert a font glyph id.
@@ -4035,7 +4071,7 @@ Differences between \LUATEX\ and \TEX82 that are a direct result of that:
   The trie-related settings in \type{texmf.cnf} are ignored.
 \item Because there is no \quote{trie preparation} stage, language patterns 
   never become frozen. This means that the primitive \tex{patterns}
-  (and it's lua counterpart \luatex{lang.patterns}) can be used at any
+  (and its lua counterpart \luatex{lang.patterns}) can be used at any
   time, not only in initex.
 \item Only the string representation of \tex{patterns} and 
   \tex{hyphenation} is stored in the format file. At format load time,
@@ -4452,7 +4488,7 @@ Values for \type{embedding} are:
 \NC \bf value \NC \bf description \NC\NR
 \NC no        \NC don't embed the font at all \NC\NR
 \NC subset    \NC include and atttempt to subset the font \NC\NR
-\NC full      \NC include this font in it's entirety \NC\NR
+\NC full      \NC include this font in its entirety \NC\NR
 \stoptabulate
 
 It is not possible to artificially modify the transformation matrix
@@ -5561,7 +5597,7 @@ of a sparse array and glyph ids can go up to index $2^{21}-1$.
 
 \section{Simple single-character csnames}
 
-Single|-|character commands are no longer treated aspecially in the
+Single|-|character commands are no longer treated specially in the
 internals, they are stored in the hash just like the multiletter
 csnames.
 
