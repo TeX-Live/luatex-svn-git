@@ -1144,11 +1144,29 @@ lua_nodelib_getfield  (lua_State *L) {
       default: lua_pushnil(L);
       }
       break;
+    case inserting_node:
+      switch (field) {
+      case  2: lua_pushnumber(L,subtype(n));          break;
+      case  3: nodelib_pushlist(L,last_ins_ptr(n));   break;
+      case  4: nodelib_pushlist(L,best_ins_ptr(n));   break;
+      default: lua_pushnil(L);
+      }
+      break;
+    case split_up_node:
+      switch (field) {
+      case  2: lua_pushnumber(L,subtype(n));          break;
+      case  3: nodelib_pushlist(L,last_ins_ptr(n));   break;
+      case  4: nodelib_pushlist(L,best_ins_ptr(n));   break;
+      case  5: nodelib_pushlist(L,broken_ptr(n));     break;
+      case  6: nodelib_pushlist(L,broken_ins(n));     break;
+      default: lua_pushnil(L);
+      }
+      break;
     case margin_kern_node :
       switch (field) {
       case  2: lua_pushnumber(L,subtype(n));	      break;
-      case  4: lua_pushnumber(L,width(n));	      break;
-      case  5: nodelib_pushlist(L,margin_char(n));    break;
+      case  3: lua_pushnumber(L,width(n));	          break;
+      case  4: nodelib_pushlist(L,margin_char(n));    break;
       default: lua_pushnil(L);
       }
       break;
@@ -1603,8 +1621,26 @@ lua_nodelib_setfield  (lua_State *L) {
     case margin_kern_node:
       switch (field) {
       case  2: subtype(n) = lua_tointeger(L,3);	        break;
-      case  4: width(n) = lua_tointeger(L,3);           break;
-      case  5: margin_char(n) = nodelib_getlist(L,3);   break;
+      case  3: width(n) = lua_tointeger(L,3);           break;
+      case  4: margin_char(n) = nodelib_getlist(L,3);   break;
+      default: return nodelib_cantset(L,field,n);
+      }
+      break;
+    case inserting_node:
+      switch (field) {
+      case  2: subtype(n) = lua_tointeger(L,3);         break;
+      case  3: last_ins_ptr(n) = nodelib_getlist(L,3);  break;
+      case  4: best_ins_ptr(n) = nodelib_getlist(L,3);  break;
+      default: return nodelib_cantset(L,field,n);
+      }
+      break;
+    case split_up_node:
+      switch (field) {
+      case  2: subtype(n) = lua_tointeger(L,3);         break;
+      case  3: last_ins_ptr(n) = nodelib_getlist(L,3);  break;
+      case  4: best_ins_ptr(n) = nodelib_getlist(L,3);  break;
+      case  5: broken_ptr(n) = nodelib_getlist(L,3);    break;
+      case  6: broken_ins(n) = nodelib_getlist(L,3);    break;
       default: return nodelib_cantset(L,field,n);
       }
       break;

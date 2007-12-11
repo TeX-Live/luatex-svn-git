@@ -68,6 +68,11 @@ char * node_fields_accent                     [] = { NULL };
 char * node_fields_vcenter                    [] = { NULL };
 char * node_fields_left                       [] = { NULL };
 char * node_fields_right                      [] = { NULL };
+
+char * node_fields_inserting                  [] = { "height", "last_ins_ptr", "best_ins_ptr", NULL};
+
+char * node_fields_splitup                    [] = { "height", "last_ins_ptr", "best_ins_ptr", 
+                                                     "broken_ptr", "broken_ins", NULL};
 						
 char * node_fields_action                     [] = { "action_type", "named_id", "action_id", 
  						    "file", "new_window", "data", "ref_count", NULL };
@@ -148,8 +153,8 @@ node_info node_data[] = {
   { align_record_node,    box_node_size,             NULL,                    "align_record"   },
   { pseudo_file_node,     pseudo_file_node_size,     NULL,                    "pseudo_file"    },
   { pseudo_line_node,     variable_node_size,        NULL,                    "pseudo_line"    },
-  { inserting_node,       page_ins_node_size,        NULL,                    "insert_head"    },
-  { split_up_node,        page_ins_node_size,        NULL,                    "split_head"     },
+  { inserting_node,       page_ins_node_size,        node_fields_inserting,   "page_insert"    },
+  { split_up_node,        page_ins_node_size,        node_fields_splitup,     "split_insert"   },
   { expr_node,            expr_node_size,            NULL,                    "expr_stack"     },
   { nesting_node,         nesting_node_size,         NULL,                    "nested_list"    }, /* 40 */
   { span_node,            span_node_size,            NULL,                    "span"           },

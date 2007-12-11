@@ -23444,6 +23444,7 @@ given column, begins with the |span_ptr| field of the alignrecord for
 that column. The code has to make sure that there is room for
 |span_ptr| in both the alignrecord and the span nodes, which is why
 |span_ptr| replaces |node_attr|.
+@^data structure assumptions@>
 
 The |new_span_node| function is defined in |texnodes.c|.
 
