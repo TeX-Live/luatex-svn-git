@@ -1116,6 +1116,7 @@ init_node_mem (halfword prealloced, halfword t) {
   if (varmem==NULL) {
     overflow_string("node memory size",var_mem_max);
   }
+  memset ((void *)(varmem),0,t*sizeof(memory_word));
 
 #ifndef NDEBUG
   varmem_sizes = (char *)realloc(varmem_sizes,sizeof(char)*t);
@@ -1246,7 +1247,7 @@ slow_get_node (integer s) {
     if (varmem==NULL) {
       overflow_string("node memory size",var_mem_max);
     }
-    /*memset ((void *)(varmem+var_mem_max),0,x*sizeof(memory_word));*/
+    memset ((void *)(varmem+var_mem_max),0,x*sizeof(memory_word));
     
 #ifndef NDEBUG
     varmem_sizes = (char *)realloc(varmem_sizes,sizeof(char)*(var_mem_max+x));
