@@ -691,6 +691,8 @@ sign \type{+} (this special version does not create empty
 substrings). The default value for \type{m} is \quote{\type{ +}} (multiple
 spaces).
 
+Note: \type{m} is not hidden by surrounding braces.
+
 
 The \lua{string} library also has six extra iterators that return strings
 piecemeal:
@@ -743,7 +745,7 @@ for portable documents.
 
 \item \luatex{os.times()}
 Returns the current process times cf. the unix C library `times'
-call. This function is not available on the Windows and SunOS
+call in seconds. This function is not available on the Windows and SunOS
 platforms, so do not use this function for portable documents.
 
 \item \luatex{os.tmpdir()} This will create a directory in the `current
@@ -777,6 +779,19 @@ in with \LUATEX, because they offer useful functionality:
 \item \lua{luafilesystem}, also from the kepler project, \hyphenatedurl{http://www.keplerproject.org/luafilesystem/}.  
   (version 1.2, but patched for compilation with lua 5.1)
 \item \lua{lpeg}, by Roberto Ierusalimschy, \hyphenatedurl{http://www.inf.puc-rio.br/~roberto/lpeg.html}. (version 0.7)
+
+Note: \lua{lpeg} is not Unicode-aware, but interprets strings on a
+byte-per-byte basis. This mainly means that \luatex{lpeg.S} cannot be
+used with characters above code point 127, since those characters are
+encoded using two bytes, and thus \luatex{lpeg.S} will look for one
+of those two bytes when matching, not the combination of the two.
+
+The same is true for \luatex{lpeg.R}, although the latter will display
+an error message if used with characters above code point 127: I.e.
+\luatex{lpeg.R('aä')} results in the message \type{bad argument #1 to
+'R' (range must have two characters)}, since to \lua{lpeg}, \type{ä}
+is two 'characters' (bytes), so \type{aä} totals three.
+
 \item \lua{lzlib}, by Tiago Dionizio, \hyphenatedurl{http://mega.ist.utl.pt/~tngd/lua/}. (version 0.2)
 \item \lua{md5}, by Roberto Ierusalimschy \hyphenatedurl{http://www.inf.puc-rio.br/~roberto/md5/md5-5/md5.html}.
 \stopitemize
