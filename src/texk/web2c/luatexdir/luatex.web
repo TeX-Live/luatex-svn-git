@@ -6841,7 +6841,7 @@ var h:integer; {hash code}
 begin @<Compute the hash code |h|@>;
 p:=h+hash_base; {we start searching here; note that |0<=h<hash_prime|}
 loop@+begin if text(p)>0 then if length(text(p))=l then
-    if str_eq_buf(text(p),j) then goto found;
+  if str_eq_buf(text(p),j) then goto found;
   if next(p)=0 then
     begin if no_new_control_sequence then
       p:=undefined_control_sequence
@@ -15748,6 +15748,11 @@ end;
 function get_hash_size: integer;
 begin
   get_hash_size:= hash_size;
+end;
+
+function get_eqtb_size: integer;
+begin
+  get_eqtb_size:= eqtb_size;
 end;
 
 function get_hash_base: integer;
@@ -29657,7 +29662,9 @@ end
 dump_int(active_min_ptr);
 dump_int(active_max_ptr);
 for k:=0 to active_max_ptr-1 do dump_wd(active_info[k]);
-print_ln; print_int(active_max_ptr); print(" words of active ocps");
+if active_max_ptr>0 then begin
+  print_ln; print_int(active_max_ptr); print(" words of active ocps");
+  end;
 
 @ @<Undump the active ocp information@>=
 undump_size(0)(active_mem_size)('active start point')(active_min_ptr);
@@ -29668,8 +29675,10 @@ for k:=0 to active_max_ptr-1 do undump_wd(active_info[k]);
 dump_int(ocp_ptr);
 for k:=null_ocp to ocp_ptr do
   @<Dump the array info for internal ocp number |k|@>;
-print_ln; print_int(ocp_ptr-ocp_base); print(" preloaded ocp");
-if ocp_ptr<>ocp_base+1 then print_char("s")
+if ocp_ptr-ocp_base>0 then begin
+  print_ln; print_int(ocp_ptr-ocp_base); print(" preloaded ocp");
+  if ocp_ptr<>ocp_base+1 then print_char("s");
+  end
 
 @ @<Undump the ocp information@>=
 undump_size(ocp_base)(ocp_biggest)('ocp max')(ocp_ptr);
@@ -29678,8 +29687,10 @@ for k:=null_ocp to ocp_ptr do
 
 @ @<Dump the array info for internal ocp number |k|@>=
 begin dump_ocp_table(k);
-print_nl("\ocp"); print_esc(ocp_id_text(k)); print_char("=");
-print_file_name(ocp_name(k),ocp_area(k),"");
+if ocp_ptr-ocp_base>0 then begin
+  print_nl("\ocp"); print_esc(ocp_id_text(k)); print_char("=");
+  print_file_name(ocp_name(k),ocp_area(k),"");
+  end;
 end
 
 @ @<Undump the array info for internal ocp number |k|@>=
@@ -29692,10 +29703,12 @@ for k:=0 to ocp_listmem_ptr-1 do dump_wd(ocp_list_info[k]);
 dump_int(ocp_list_ptr);
 for k:=null_ocp_list to ocp_list_ptr do begin
   dump_int(ocp_list_list[k]);
-  print_nl("\ocplist"); 
-  print_esc(ocp_list_id_text(k)); 
-  print_char("=");
-  print_ocp_list(ocp_list_list[k]);
+  if null_ocp_list<>ocp_list_ptr then begin
+    print_nl("\ocplist"); 
+    print_esc(ocp_list_id_text(k)); 
+    print_char("=");
+    print_ocp_list(ocp_list_list[k]);
+    end;
   end;
 dump_int(ocp_lstackmem_ptr);
 for k:=0 to ocp_lstackmem_ptr-1 do dump_wd(ocp_lstack_info[k])

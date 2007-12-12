@@ -1981,7 +1981,9 @@ make_pdftex_banner
 
 @x
 for k:=0 to active_max_ptr-1 do dump_wd(active_info[k]);
-print_ln; print_int(active_max_ptr); print(" words of active ocps");
+if active_max_ptr>0 then begin
+  print_ln; print_int(active_max_ptr); print(" words of active ocps");
+  end;
 
 @ @<Undump the active ocp information@>=
 undump_size(0)(active_mem_size)('active start point')(active_min_ptr);
@@ -1990,7 +1992,9 @@ for k:=0 to active_max_ptr-1 do undump_wd(active_info[k]);
 @y
 if active_max_ptr>0 then
   dump_things(active_info[0], active_max_ptr);
-print_ln; print_int(active_max_ptr); print(" words of active ocps");
+if active_max_ptr>0 then begin
+  print_ln; print_int(active_max_ptr); print(" words of active ocps");
+  end;
 
 @ @<Undump the active ocp information@>=
 undump_size(0)(active_mem_size)('active start point')(active_min_ptr);
@@ -2006,10 +2010,12 @@ for k:=0 to ocp_listmem_ptr-1 do dump_wd(ocp_list_info[k]);
 dump_int(ocp_list_ptr);
 for k:=null_ocp_list to ocp_list_ptr do begin
   dump_int(ocp_list_list[k]);
-  print_nl("\ocplist");
-  print_esc(ocp_list_id_text(k));
-  print_char("=");
-  print_ocp_list(ocp_list_list[k]);
+  if null_ocp_list<>ocp_list_ptr then begin
+    print_nl("\ocplist"); 
+    print_esc(ocp_list_id_text(k)); 
+    print_char("=");
+    print_ocp_list(ocp_list_list[k]);
+    end;
   end;
 dump_int(ocp_lstackmem_ptr);
 for k:=0 to ocp_lstackmem_ptr-1 do dump_wd(ocp_lstack_info[k])
@@ -2020,10 +2026,12 @@ dump_things(ocp_list_info[0], ocp_listmem_ptr);
 dump_int(ocp_list_ptr);
 dump_things(ocp_list_list[null_ocp_list], ocp_list_ptr+1-null_ocp_list);
 for k:=null_ocp_list to ocp_list_ptr do begin
-  print_nl("\ocplist");
-  print_esc(ocp_list_id_text(k));
-  print_char("=");
-  print_ocp_list(ocp_list_list[k]);
+  if null_ocp_list<>ocp_list_ptr then begin
+    print_nl("\ocplist"); 
+    print_esc(ocp_list_id_text(k)); 
+    print_char("=");
+    print_ocp_list(ocp_list_list[k]);
+    end;
   end;
 dump_int(ocp_lstackmem_ptr);
 dump_things(ocp_lstack_info[0], ocp_lstackmem_ptr)
