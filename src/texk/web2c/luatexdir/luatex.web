@@ -18568,7 +18568,13 @@ fin_rule: @<(\pdfTeX) Output a rule in a vlist, |goto next_p|@>;
 move_past: cur_v:=cur_v+rule_ht;
 end
 
-@ @<(\pdfTeX) Output a box in a vlist@>=
+@ TODO: the direct test to switch between |width(p)| and |-width(p)|
+is definately wrong, because it does not nest properly. But at least
+it fixes a very obvious problem that otherwise occured with
+\.{\\pardir TLT} in a document with \.{\\bodydir TRT}, and so it
+will have to do for now.
+
+@<(\pdfTeX) Output a box in a vlist@>=
 begin
 if not (dir_orthogonal(dir_primary[box_dir(p)])(dir_primary[dvi_direction]))
   then begin
@@ -18577,8 +18583,12 @@ if not (dir_orthogonal(dir_primary[box_dir(p)])(dir_primary[dvi_direction]))
     basepoint_vertical:=depth(p)
   else
     basepoint_vertical:=height(p);
-  if dir_opposite(dir_secondary[box_dir(p)])(dir_secondary[dvi_direction]) then
-    basepoint_horizontal:=width(p)
+  if dir_opposite(dir_secondary[box_dir(p)])(dir_secondary[dvi_direction]) then begin
+    if dvi_direction=dir_TL_ then
+      basepoint_horizontal:=width(p) 
+    else
+      basepoint_horizontal:=-width(p);
+    end
   else
     basepoint_horizontal:=0;
   end
