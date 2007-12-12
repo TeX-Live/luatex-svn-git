@@ -270,7 +270,7 @@ get_cur_cs (lua_State *L) {
   } }
 
 
-#define Print_esc(b) { if (e>0 && e<string_offset) Print_uchar (e);	\
+#define Print_esc(b) { if (e>0 && e<string_offset) { Print_uchar (e); Print_uchar (e); }	\
     { char *v = b; while (*v) { Print_char(*v); v++; } } }
 
 #define single_letter(a) (length(a)==1)||			\
@@ -281,12 +281,18 @@ get_cur_cs (lua_State *L) {
 #define is_cat_letter(a)						\
   (get_char_cat_code(pool_to_unichar(str_start_macro(a))) == 11)
 
+static int active_base = 0;
+static int hash_base = 0;
+static int eqtb_size = 0;
+static int null_cs = 0;
+static int undefined_control_sequence;
+
 char * 
 tokenlist_to_cstring ( int p , int inhibit_par, int *siz) {
   integer m, c  ;
   integer q;
   char *s;
-  int active_base,hash_base,null_cs,e,undefined_control_sequence;
+  int e;
   char *ret=NULL;
   int match_chr = '#';
   int n = '0';
@@ -298,11 +304,14 @@ tokenlist_to_cstring ( int p , int inhibit_par, int *siz) {
     return NULL;
   }
   p = link(p); /* skip refcount */
-  active_base = get_active_base();
-  hash_base = get_hash_base();
-  null_cs = get_nullcs();
+  if (active_base==0) {
+	active_base = get_active_base();
+	hash_base = get_hash_base();
+	null_cs = get_nullcs();
+	eqtb_size = get_eqtb_size();
+	undefined_control_sequence = get_undefined_control_sequence();
+  }
   e = get_escape_char();
-  undefined_control_sequence = get_undefined_control_sequence();
   while ( p != null ) {      
     if (p < fix_mem_min || p > fix_mem_end )  {
       Print_esc ("CLOBBERED.") ;
@@ -310,30 +319,29 @@ tokenlist_to_cstring ( int p , int inhibit_par, int *siz) {
     } 
     if (info(p)>=cs_token_flag) {
       if ( ! (inhibit_par && info(p)==par_token) ) {
-	q = info(p) - cs_token_flag;
-	if (q<hash_base) {
-	  if (q==null_cs) {
-	    Print_esc("csname"); Print_esc("endcsname");
-	  } else {
-	    if (q<active_base) {
-	      Print_esc("IMPOSSIBLE.");
- 	    } else {
-	      Print_uchar(q-active_base);
-	    }
-	  }
-	} else if (q>=undefined_control_sequence) {
-	  Print_esc("IMPOSSIBLE.");
-	} else if ((zget_cs_text(q)<0)||(zget_cs_text(q)>=str_ptr)) {
-	  Print_esc("NONEXISTENT.");
-	} else {
-	  Print_esc("");
-	
-	  s = makecstring(zget_cs_text(q));
-	  while (*s) { Print_char(*s); s++; }
-	  if ((! single_letter(zget_cs_text(q))) || is_cat_letter(zget_cs_text(q))) { 
-	    Print_char(' ');
-	  }
-	}
+		q = info(p) - cs_token_flag;
+		if (q<hash_base) {
+		  if (q==null_cs) {
+			/* Print_esc("csname"); Print_esc("endcsname"); */
+		  } else {
+			if (q<active_base) {
+			  Print_esc("IMPOSSIBLE.");
+			} else {
+			  Print_uchar(q-active_base);
+			}
+		  }
+		} else if ((q>=undefined_control_sequence)&&((q<=eqtb_size))||(q>eqtb_size+hash_extra)) {
+		  Print_esc("IMPOSSIBLE.");
+		} else if ((zget_cs_text(q)<0)||(zget_cs_text(q)>=str_ptr)) {
+		  Print_esc("NONEXISTENT.");
+		} else {
+		  Print_uchar (e); 	
+		  s = makecstring(zget_cs_text(q));
+		  while (*s) { Print_char(*s); s++; }
+		  if ((! single_letter(zget_cs_text(q))) || is_cat_letter(zget_cs_text(q))) { 
+			Print_char(' ');
+		  }
+		}
       }
     } else {
       m=info(p) / string_offset; 
@@ -341,47 +349,47 @@ tokenlist_to_cstring ( int p , int inhibit_par, int *siz) {
       if ( info(p) < 0 ) {
 		Print_esc ( "BAD.") ;
       } else { 
-	switch ( m ) {
-	case 6 : /* falls through */
-	  Print_uchar ( c ) ;
-	case 1 : 
-	case 2 : 
-	case 3 : 
-	case 4 : 
-	case 7 : 
-	case 8 : 
-	case 10 : 
-	case 11 : 
-	case 12 : 
-	  Print_uchar ( c ) ;
-	  break ;
-	case 5 : 
-	  Print_uchar ( match_chr ) ;
-	  if ( c <= 9 ) {
-	    Print_char ( c + '0') ;
-	  } else {
-	    Print_char ( '!' ) ;
-	    return NULL;
-	  } 
-	  break ;
-	case 13 : 
-	  match_chr = c ;
-	  Print_uchar ( c ) ;
-	  incr ( n ) ;
-	  Print_char ( n ) ;
-	  if ( n > '9' ) 
-	    return NULL;
-	  break ;
-	case 14 : 
-	  if ( c == 0 ) {
-	    Print_char ('-');
-	    Print_char ('>') ;
-	  }
-	  break ;
-	default: 
-	  Print_esc ( "BAD.") ;
-	  break ;
-	} 
+		switch ( m ) {
+		case 6 : /* falls through */
+		  Print_uchar ( c ) ;
+		case 1 : 
+		case 2 : 
+		case 3 : 
+		case 4 : 
+		case 7 : 
+		case 8 : 
+		case 10 : 
+		case 11 : 
+		case 12 : 
+		  Print_uchar ( c ) ;
+		  break ;
+		case 5 : 
+		  Print_uchar ( match_chr ) ;
+		  if ( c <= 9 ) {
+			Print_char ( c + '0') ;
+		  } else {
+			Print_char ( '!' ) ;
+			return NULL;
+		  } 
+		  break ;
+		case 13 : 
+		  match_chr = c ;
+		  Print_uchar ( c ) ;
+		  incr ( n ) ;
+		  Print_char ( n ) ;
+		  if ( n > '9' ) 
+			return NULL;
+		  break ;
+		case 14 : 
+		  if ( c == 0 ) {
+			Print_char ('-');
+			Print_char ('>') ;
+		  }
+		  break ;
+		default: 
+		  Print_esc ( "BAD.") ;
+		  break ;
+		} 
       } 
     } 
     p = link(p);
