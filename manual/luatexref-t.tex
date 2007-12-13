@@ -15,7 +15,6 @@
   [document]
   [beta=0.20.0]
 
-
 \starttext
 
 \setups[titlepage]
@@ -691,8 +690,8 @@ sign \type{+} (this special version does not create empty
 substrings). The default value for \type{m} is \quote{\type{ +}} (multiple
 spaces).
 
-Note: \type{m} is not hidden by surrounding braces.
-
+Note: \type{m} is not hidden by surrounding braces (as it would be if
+this function was written in \TEX\ macros).
 
 The \lua{string} library also has six extra iterators that return strings
 piecemeal:
@@ -2086,7 +2085,7 @@ Like \luatex{find_font_file}, but for \OPENTYPE\ font files.
 
 \subsubsection{\luatex{find_truetype_file} and \luatex{find_type1_file}}
 
-You callback function should have the following conventions:
+Your callback function should have the following conventions:
 
 \startfunctioncall
 string actual_name = function (string asked_name)
@@ -5503,6 +5502,9 @@ insert characters that do not fit in the BMP.
 
 \item Glues {\it immediately after} direction change commands are not 
 legal breakpoints.
+
+\item The \tex{ocp} and \tex{ocplist} statistics at the end of a run
+are only printed if OCP's are actually used.
 
 \stopitemize
 
