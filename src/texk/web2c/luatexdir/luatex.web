@@ -940,21 +940,26 @@ function w_open_out(var f:word_file):boolean;
 begin rewrite(f,nameoffile,'/O'); w_open_out:=rewrite_OK(f);
 end;
 
-@ Add callback check
+@ When input files are opened via a callback, they will also be read using
+callbacks. for that purpose, the |open_read_file_callback| returns an
+integer to uniquely identify a callback table. This id replaces the file
+point |f| in this case, because the input does not have to be a file
+in the traditional sense.
+
+Signalling this fact is achieved by having two arrays of integers.
 
 @<Glob...@>=
 @!input_file_callback_id : ^integer;
 @!read_file_callback_id : array[0..16] of integer;
 
-@
-
+@ 
 @p function lua_a_open_in(var f:alpha_file; n:quarterword):boolean;
-var test:boolean;
-  k:integer;
-  fnam:str_number;
-  stored_callback_id:integer;
+var k:integer; { a temporary value }
+  fnam:str_number; { string returned by find callback }
   callback_id:integer;
+  file_ok:boolean; { the status so far }
 begin 
+  file_ok:=true;
   if n=0 then begin
     texinputtype := 1; {Tell |open_input| we are \.{\\input}.}
     input_file_callback_id[index] := 0;
@@ -966,51 +971,42 @@ begin
   callback_id:=callback_defined(find_read_file_callback);
   if callback_id>0 then begin
     fnam:=0;
-    test:=run_callback(callback_id,'dS->s',n,stringcast(nameoffile+1),addressof(fnam));
-    if (test)and(fnam<>0)and(length(fnam)>0) then begin
+    file_ok:=run_callback(callback_id,'dS->s',n,stringcast(nameoffile+1),addressof(fnam));
+    if (file_ok)and(fnam<>0)and(length(fnam)>0) then begin
       @<Fixup |nameoffile| after callback@>;
-      callback_id:=callback_defined(open_read_file_callback);
-      if callback_id >0 then begin
-        stored_callback_id := run_and_save_callback(callback_id,'S->',stringcast(nameoffile+1));
-        if stored_callback_id>0 then begin
-          lua_a_open_in := true;
-          if n=0 then
-            input_file_callback_id[index] := stored_callback_id
-          else 
-            read_file_callback_id[n] := stored_callback_id;
-          end
-        else begin {read failed}
-          lua_a_open_in := false;
-	  name_file_pointer := 0;
-          end;
+      end 
+    else 
+      file_ok:=false; {file not found}
+    end;
+  if file_ok then begin
+    callback_id:=callback_defined(open_read_file_callback);
+    if callback_id>0 then begin
+      k := run_and_save_callback(callback_id,'S->',stringcast(nameoffile+1));
+      if k>0 then begin
+        lua_a_open_in := true;
+        if n=0 then
+          input_file_callback_id[index] := k
+        else 
+          read_file_callback_id[n] := k;
         end
-      else begin {no read callback}
-	if openinnameok(stringcast(nameoffile+1)) then begin
-          lua_a_open_in := a_open_in(f,kpsetexformat);
-          name_file_pointer := f;
-          end
-        else begin
-          lua_a_open_in := false;
-          name_file_pointer := 0;
-          end;
-        end;
+      else 
+        file_ok:=false; {read failed}
       end
-    else begin {file not found}
-      lua_a_open_in := false;
-      name_file_pointer := 0;
-      end;
-    end
-  else begin {no find callback}
-    if openinnameok(stringcast(nameoffile+1)) then begin
-      lua_a_open_in := a_open_in(f,kpsetexformat);
-      name_file_pointer := f;
-      end
-    else begin
-      lua_a_open_in := false;
-      name_file_pointer := 0;
+    else begin {no read callback}
+      if openinnameok(stringcast(nameoffile+1)) then begin
+        lua_a_open_in := a_open_in(f,kpsetexformat);
+        name_file_pointer := f;
+        end
+      else 
+        file_ok:=false; {open failed}
       end;
     end;
+  if not file_ok then begin
+    lua_a_open_in := false;
+    name_file_pointer := 0;
+    end;
 end;
+@#
 function lua_a_open_out(var f:alpha_file; n:quarterword):boolean;
 var test:boolean;
   k:integer;
