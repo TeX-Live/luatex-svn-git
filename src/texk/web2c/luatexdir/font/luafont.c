@@ -257,13 +257,15 @@ count_hash_items (lua_State *L, int name_index){
 /*
 */
 
+#define lua_roundnumber(a,b) (int)floor((double)lua_tonumber(L,-1)+0.5)
+
 static int
 numeric_field (lua_State *L, char *name, int dflt) {
   int i = dflt;
   lua_pushstring(L,name);
   lua_rawget(L,-2);
   if (lua_isnumber(L,-1)) {        
-    i = lua_tonumber(L,-1);
+    i = lua_roundnumber(L,-1);
   }
   lua_pop(L,1);
   return i;
@@ -275,7 +277,7 @@ n_numeric_field (lua_State *L, int name_index, int dflt) {
   lua_rawgeti(L,LUA_REGISTRYINDEX, name_index); /* fetch the stringptr */
   lua_rawget(L,-2);
   if (lua_type(L,-1)==LUA_TNUMBER) {        
-    i = lua_tonumber(L,-1);
+    i = lua_roundnumber(L,-1);
   }
   lua_pop(L,1);
   return i;
@@ -679,7 +681,7 @@ read_lua_parameters (lua_State *L, int f) {
     for (i=1;i<=7;i++) {
       lua_rawgeti(L,-1,i);
       if (lua_isnumber(L,-1)) {
-        n = lua_tointeger(L,-1);
+        n = lua_roundnumber(L,-1);
         set_font_param(f,i, n);
       }
       lua_pop(L,1); 
@@ -689,12 +691,12 @@ read_lua_parameters (lua_State *L, int f) {
       if (lua_isnumber(L,-2)) {
         i = lua_tointeger(L,-2);
         if (i>=8) {
-          n = (lua_isnumber(L,-1) ? lua_tointeger(L,-1) : 0);
+          n = (lua_isnumber(L,-1) ? lua_roundnumber(L,-1) : 0);
           set_font_param(f,i, n);
         }
       } else if (lua_isstring(L,-2)) {
         s = (char *)lua_tostring(L,-2);
-        n = (lua_isnumber(L,-1) ? lua_tointeger(L,-1) : 0);
+        n = (lua_isnumber(L,-1) ? lua_roundnumber(L,-1) : 0);
         if       (luaS_ptr_eq(s,slant))         {  set_font_param(f,slant_code,n); }
         else if  (luaS_ptr_eq(s,space))         {  set_font_param(f,space_code,n); }
         else if  (luaS_ptr_eq(s,space_stretch)) {  set_font_param(f,space_stretch_code,n); }
@@ -776,7 +778,7 @@ font_char_from_lua (lua_State *L, internal_font_number f, integer i, integer *l_
                 set_right_boundary(f,get_charinfo(f,right_boundarychar));
             }
           }
-          j = lua_tonumber(L,-1); /* movement */
+          j = lua_roundnumber(L,-1); /* movement */
           if (k!=non_boundarychar) {
             set_kern_item(ckerns[ctr],k,j);
             ctr++;
@@ -934,7 +936,7 @@ font_from_lua (lua_State *L, int f) {
       }
       if (s!= NULL) {
 	lua_getfield(L,-1,"size");
-	t = (lua_isnumber(L,-1) ? lua_tonumber(L,-1) : -1000);
+	t = (lua_isnumber(L,-1) ? lua_roundnumber(L,-1) : -1000);
 	lua_pop(L,1);
         
 	/* TODO: the stack is messed up, otherwise this 
