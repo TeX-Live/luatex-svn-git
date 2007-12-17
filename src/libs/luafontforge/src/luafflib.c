@@ -658,7 +658,7 @@ void
 handle_splinechar (lua_State *L,struct splinechar *glyph, int hasvmetrics) {
   
   dump_stringfield(L,"name",        glyph->name);
-  dump_intfield(L,"unicodeenc",     glyph->unicodeenc);
+  dump_intfield(L,"unicode",     glyph->unicodeenc);
   lua_createtable(L,4,0);
   lua_pushnumber(L,1);  lua_pushnumber(L,glyph->xmin); lua_rawset(L,-3);
   lua_pushnumber(L,2);  lua_pushnumber(L,glyph->ymin); lua_rawset(L,-3);
