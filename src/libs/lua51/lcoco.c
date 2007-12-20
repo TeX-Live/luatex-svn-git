@@ -286,6 +286,9 @@ typedef void *coco_ctx[2];  /* ra, sp */
 #elif defined(__arm__) || defined(__ARM__)
 
 #if __GLIBC__ == 2 || defined(__UCLIBC__)	/* arm-linux-glibc2 */
+#ifndef __JMP_BUF_SP
+#define __JMP_BUF_SP	((sizeof(__jmp_buf)/sizeof(int))-2)
+#endif
 #define COCO_PATCHCTX(coco, buf, func, stack, a0) \
   buf->__jmpbuf[__JMP_BUF_SP+1] = (int)(func); /* pc */ \
   buf->__jmpbuf[__JMP_BUF_SP] = (int)(stack); /* sp */ \
