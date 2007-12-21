@@ -21,7 +21,11 @@ static int prealloc=0;
 
 int fix_node_lists=1;
 
+int free_error_seen = 0;
+int copy_error_seen = 0;
+
 halfword slow_get_node (integer s) ; /* defined below */
+int copy_error (halfword p) ; /* define below */
 
 #undef link /* defined by cpascal.h */
 #define info(a)    fixmem[(a)].hhlh
@@ -327,6 +331,7 @@ halfword
 copy_node_list(halfword p) { 
   halfword q; /* previous position in new list */
   halfword h = null; /* head of the list */
+  copy_error_seen = 0;
   while (p!=null) {
     register halfword s = copy_node(p);
     if (h==null) {
@@ -345,7 +350,12 @@ halfword
 copy_node(const halfword p) {
   halfword r; /* current node being fabricated for new list */
   register halfword s; /* a helper variable for copying into variable mem  */
-  register int i = get_node_size(type(p), subtype(p));
+  register int i;
+  if (copy_error(p)) {
+	r = new_node(temp_node,0);
+	return r;
+  }
+  i = get_node_size(type(p), subtype(p));
   r = get_node(i);
   (void)memcpy((varmem+r),(varmem+p),(sizeof(memory_word)*i));
 
@@ -479,8 +489,6 @@ copy_node(const halfword p) {
   return r;
 }
 
-int free_error_seen = 0;
-
 int valid_node (halfword p) {
   if (p>prealloc) {
     if (p<var_mem_max) {
@@ -572,6 +580,42 @@ free_error (halfword p) {
   }
   return 0;
 }
+
+
+static void 
+do_copy_error (halfword p) {
+  char errstr[255]= {0};
+  char *errhlp[] = {"When I tried to copy the node mentioned in the error message, it turned",
+		    "out it was not (or no longer) actually in use.",
+		    "Errors such as these are often caused by Lua node list alteration,",
+		    "but could also point to a bug in the executable. It should be safe to continue.",
+		    NULL};
+
+  if (copy_error_seen)
+    return;
+
+  copy_error_seen = 1;
+  if (type(p)==glyph_node) {
+    snprintf(errstr,255,"Attempt to copy free glyph (%c) node %d, ignored", (int)character (p), (int)p);
+  } else {
+    snprintf(errstr,255,"Attempt to copy free %s node %d, ignored", get_node_name(type(p),subtype(p)), (int)p);
+  }
+  tex_error(errstr,errhlp);
+}
+
+
+int 
+copy_error (halfword p) {
+  assert(p>=0);
+  assert(p<var_mem_max);
+  if (p>prealloc && varmem_sizes[p]==0) {
+    do_copy_error(p);
+    return 1; /* copy free node */
+  }
+  return 0;
+}
+
+
 
 void 
 flush_node (halfword p) {
