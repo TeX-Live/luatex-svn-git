@@ -405,7 +405,11 @@ main P2C(int, ac,  string *, av)
 #ifdef WIN32
     SetUnhandledExceptionFilter ((LPTOP_LEVEL_EXCEPTION_FILTER) &segv_handler_filter);
 #else
+#if __DARWIN_UNIX03
+    stack_t sigstk;
+#else
     struct sigaltstack sigstk;
+#endif
     struct sigaction segv_act;
     sigstk.ss_sp = xmalloc(SIGSTKSZ);
     sigstk.ss_size = SIGSTKSZ;
