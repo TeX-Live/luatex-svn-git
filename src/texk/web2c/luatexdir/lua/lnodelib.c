@@ -366,7 +366,7 @@ lua_nodelib_insert_after (lua_State *L) {
   } else {
     current = *(check_isnode(L,2));
   }
-  couple_nodes(n,vlink(current));
+  try_couple_nodes(n,vlink(current));
   couple_nodes(current, n);
 
   lua_pop(L,2);
