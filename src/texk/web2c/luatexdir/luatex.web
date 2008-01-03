@@ -16789,7 +16789,7 @@ destination |pdf_left| and |pdf_top| are used for some types of destinations}
 @d pdf_right(#)            == vmem(# + 4).sc
 @d pdf_bottom(#)           == vmem(# + 5).sc
 
-@# {dimesion of destinations/threads/annotations (in whatsit node)}
+@# {dimension of destinations/threads/annotations (in whatsit node)}
 @d pdf_width(#)            == vmem(# + 2).sc
 @d pdf_height(#)           == vmem(# + 3).sc
 @d pdf_depth(#)            == vmem(# + 4).sc
