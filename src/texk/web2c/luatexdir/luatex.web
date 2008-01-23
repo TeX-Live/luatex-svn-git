@@ -23950,12 +23950,12 @@ end;
 defaults are ascii hyphen ("-") and zero (nul).
 
 @p procedure new_pre_hyphen_char;
-begin scan_int;
+begin scan_optional_equals; scan_int;
    set_pre_hyphen_char(cur_font,cur_val);
 end;
 @#
 procedure new_post_hyphen_char;
-begin scan_int;
+begin scan_optional_equals; scan_int;
    set_post_hyphen_char(cur_font,cur_val);
 end;
 
