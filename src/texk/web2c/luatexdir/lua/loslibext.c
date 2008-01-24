@@ -5,7 +5,6 @@
 
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <sys/wait.h>
 #include <time.h>
 
 /* there could be more platforms that don't have these two,
@@ -16,6 +15,7 @@
 #if (! defined(WIN32)) && (! defined(__SUNOS__))
 #include <sys/time.h>   /* gettimeofday() */
 #include <sys/times.h>  /* times() */
+#include <sys/wait.h>
 #endif 
 
 
