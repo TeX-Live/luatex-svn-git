@@ -5,6 +5,7 @@
 
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <time.h>
 
 /* there could be more platforms that don't have these two,
@@ -20,7 +21,8 @@
 
 #ifdef WIN32
 #include <process.h>
-#define exec_command(a,b,c) execvpe(a,(const char* const*)b,(const char* const*)c)
+#define spawn_command(a,b,c) _spawnvpe(_P_WAIT,(const char *)a,(const char* const*)b,(const char* const*)c)
+#define exec_command(a,b,c) _execvpe((const char *)a,(const char* const*)b,(const char* const*)c)
 #else
 #include <unistd.h>
 #define DEFAULT_PATH 	"/bin:/usr/bin:."
@@ -76,22 +78,48 @@ exec_command(const char *file, char *const *argv, char *const *envp)
 
 	return -1;
 }
+
+static int 
+spawn_command(const char *file, char *const *argv, char *const *envp)
+{
+  pid_t pid;
+  int status;
+  pid = fork();
+  if (pid<0) {
+    return errno; /* fork failed */
+  }
+  if (pid>0) {
+    status = 0;
+    (void)waitpid (pid, &status,0);
+    return WEXITSTATUS(status);
+  } else {
+    exit(exec_command(file, argv, envp));
+  }
+}
+
 #endif
 
 extern char **environ;
 
-#define COMMAND_PARTS 20
-
-static int
-do_split_command(char *maincmd, char **cmdline, char target)
+static char **
+do_split_command(char *maincmd, char target)
 {
     char *piece;
     char *cmd;
-    unsigned int i;
+    char **cmdline = NULL;
+    unsigned int i, j;
     int ret = 0;
     int in_string = 0;
     if (strlen(maincmd) == 0)
-	return 0;
+	return NULL;
+    j=2;
+    for (i=0; i < strlen(maincmd); i++) {
+      if (maincmd[i]==' ') j++;
+    }
+    cmdline = malloc(sizeof(char *) * j);
+    for (i = 0; i < j; i++) {
+       cmdline[i] = NULL;
+    }
     cmd = strdup(maincmd);
     i = 0;
     while (cmd[i] == ' ')
@@ -113,9 +141,6 @@ do_split_command(char *maincmd, char **cmdline, char target)
 		in_string = 2;
 	    } else if (cmd[i] == target) {
 		cmd[i] = 0;
-		if (ret == COMMAND_PARTS) {
-		  fprintf(stderr,"os.exec(): Executable command too complex.\n");
-		}
 		cmdline[ret++] = strdup(piece);
 		while (i < strlen(maincmd) && cmd[(i + 1)] == ' ')
 		    i++;
@@ -124,30 +149,90 @@ do_split_command(char *maincmd, char **cmdline, char target)
 	}
     }
     if (*piece) {
-	  if (ret == COMMAND_PARTS) {
-	    fprintf(stderr, "os.exec(): Executable command too complex.\n");
-	  }
-	  cmdline[ret++] = strdup(piece);
+       cmdline[ret++] = strdup(piece);
     }
-    return ret;
+    return cmdline;
 }
+
+static char **
+do_flatten_command(lua_State *L) {
+   unsigned int i, j ;
+   char *s;
+   char **cmdline = NULL;
+
+   for (j = 1;;j++) {
+     lua_rawgeti(L,-1,j);
+     if (lua_isnil(L,-1)) {
+       lua_pop(L,1);
+       break;
+     }
+     lua_pop(L,1);
+   }
+   if (j == 1)
+     return NULL;
+   cmdline = malloc(sizeof(char *) * j);
+   for (i = 1; i <= j; i++) {
+     cmdline[i] = NULL;
+     lua_rawgeti(L,-1,i);
+     if (lua_isnil(L,-1) || (s=(char *)lua_tostring(L,-1))==NULL) {
+       lua_pop(L,1);
+       if (i==1) {
+	 xfree(cmdline) ;
+         return NULL;
+       } else {
+         return cmdline;
+       }
+     } else {
+       lua_pop(L,1);
+       cmdline[(i-1)] = xstrdup(s);
+     }
+   }
+   cmdline[i] = NULL;
+   return cmdline;
+}
+
 
 static int os_exec (lua_State *L) {
   char * maincmd;
-  char ** cmdline;
-  int i;
-  maincmd =  (char *)luaL_optstring(L, 1, NULL);
-  if (maincmd) {
-	cmdline = malloc(sizeof(char *) * COMMAND_PARTS);
-	for (i = 0; i < COMMAND_PARTS; i++) {
-	  cmdline[i] = NULL;
-	}
-	i = do_split_command(maincmd, cmdline,' ');
-	if (i) {
-	  exec_command(cmdline[0], cmdline, environ);
-	}
+  char ** cmdline = NULL;
+
+  if (lua_gettop(L)!=1)
+    return 0;
+  if (lua_type(L,1)==LUA_TSTRING) {
+    maincmd =  (char *)lua_tostring(L, 1);
+    cmdline = do_split_command(maincmd, ' ');
+  } else if (lua_type(L,1)==LUA_TTABLE) {
+    cmdline = do_flatten_command(L);
+  }
+  if (cmdline!=NULL) {
+    exec_command(cmdline[0], cmdline, environ);
   }
   return 0;
+}
+
+
+static int os_spawn (lua_State *L) {
+  char * maincmd;
+  char ** cmdline = NULL;
+  int i;
+
+  if (lua_gettop(L)!=1) {
+    lua_pushnil(L);
+    return 1;
+  }
+  if (lua_type(L,1)==LUA_TSTRING) {
+    maincmd =  (char *)lua_tostring(L, 1);
+    cmdline = do_split_command(maincmd, ' ');
+  } else if (lua_type(L,1)==LUA_TTABLE) {
+    cmdline = do_flatten_command(L);
+  }
+  if (cmdline!=NULL) {
+    i = spawn_command(cmdline[0], cmdline, environ);
+    lua_pushnumber(L, i);
+  } else {
+    lua_pushnil(L);
+  }
+  return 1;
 }
 
 /*  Hans wants to set env values */
@@ -362,7 +447,9 @@ open_oslibext (lua_State *L, int safer_option) {
 	lua_getglobal(L,"os");
 	lua_pushcfunction(L, os_exec);
 	lua_setfield(L,-2,"exec");
-
+	lua_getglobal(L,"os");
+	lua_pushcfunction(L, os_spawn);
+	lua_setfield(L,-2,"spawn");
 	lua_getglobal(L,"os");
 	lua_pushcfunction(L, os_tmpdir);
 	lua_setfield(L,-2,"tmpdir");
