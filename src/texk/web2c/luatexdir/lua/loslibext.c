@@ -18,11 +18,18 @@
 #include <sys/wait.h>
 #endif 
 
+/* set this to one for spawn instead of exec on windows */
+
+#define DONT_REALLY_EXIT 1
 
 #ifdef WIN32
 #include <process.h>
 #define spawn_command(a,b,c) _spawnvpe(_P_WAIT,(const char *)a,(const char* const*)b,(const char* const*)c)
+#if DONT_REALLY_EXIT
+#define exec_command(a,b,c) exit(spawn_command((a),(b),(c)))
+#else
 #define exec_command(a,b,c) _execvpe((const char *)a,(const char* const*)b,(const char* const*)c)
+#endif
 #else
 #include <unistd.h>
 #define DEFAULT_PATH 	"/bin:/usr/bin:."
@@ -141,7 +148,11 @@ do_split_command(char *maincmd, char target)
 		in_string = 2;
 	    } else if (cmd[i] == target) {
 		cmd[i] = 0;
-		cmdline[ret++] = strdup(piece);
+		if ((*piece == '"' && *(piece+strlen(piece)-1) == '"')||
+                    (*piece == '\'' && *(piece+strlen(piece)-1) == '\'')) {
+		  *(piece+strlen(piece)-1)=0; piece++;
+		}
+		cmdline[ret++] = strdup(piece);		
 		while (i < strlen(maincmd) && cmd[(i + 1)] == ' ')
 		    i++;
 		piece = cmd + i + 1;
@@ -149,7 +160,11 @@ do_split_command(char *maincmd, char target)
 	}
     }
     if (*piece) {
-       cmdline[ret++] = strdup(piece);
+      if ((*piece == '"' && *(piece+strlen(piece)-1) == '"')||
+	  (*piece == '\'' && *(piece+strlen(piece)-1) == '\'')) {
+	*(piece+strlen(piece)-1)=0; piece++;
+      }
+      cmdline[ret++] = strdup(piece);
     }
     return cmdline;
 }
