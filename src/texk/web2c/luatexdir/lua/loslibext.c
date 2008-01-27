@@ -86,21 +86,71 @@ exec_command(const char *file, char *const *argv, char *const *envp)
 	return -1;
 }
 
+/* 
+   It is not possible to mimic |spawnve()| completely. The main problem is
+   that the |fork|--|waitpid| combination cannot really do identical error 
+   reporting to the parent process, because it has to pass all the possible
+   error conditions as well as the actual process return status through a 
+   single 8-bit value.
+
+   The current implementation tries to give back meaningful results for |execve()|
+   errors in the child, for the cases that could also be returned by |spawnve()|,
+   and for |ETXTBSY|, because that can be triggered by our path searching routine.
+
+   This implementation does not differentiate abnormal status conditions reported 
+   by |waitpid()|, but will simply return a single error indication value.
+
+   For all this, hyjacking a bunch of numbers in the range 1...255 is needed. 
+   The chance of collisions is hopefully diminished by using a rather random
+   range in the 8-bit section.
+*/
+
+#define INVALID_RET_E2BIG   143 
+#define INVALID_RET_ENOENT  144
+#define INVALID_RET_ENOEXEC 145
+#define INVALID_RET_ENOMEM  146
+#define INVALID_RET_ETXTBSY 147
+#define INVALID_RET_UNKNOWN 148
+#define INVALID_RET_INTR    149
+
 static int 
 spawn_command(const char *file, char *const *argv, char *const *envp)
 {
-  pid_t pid;
+  pid_t pid, wait_pid;
   int status;
   pid = fork();
   if (pid<0) {
-    return errno; /* fork failed */
+    return -1; /* fork failed */
   }
-  if (pid>0) {
+  if (pid>0) { /* parent */
     status = 0;
-    (void)waitpid (pid, &status,0);
-    return WEXITSTATUS(status);
+    wait_pid = waitpid (pid, &status,0);
+    if (wait_pid == pid) {
+      if (WIFEXITED(status))
+	return WEXITSTATUS(status);
+      else
+	return INVALID_RET_INTR;
+    } else {
+      return -1; /* some waitpid error */
+    }
   } else {
-    exit(exec_command(file, argv, envp));
+    int f;
+    /* somewhat random upper limit. ignore errors on purpose */
+    for (f = 0; f<256; f++) 
+      (void)fsync(f);
+
+    if (exec_command(file, argv, envp)) {
+      /* let's hope no-one uses these values  */
+      switch (errno) {
+      case E2BIG:    exit(INVALID_RET_E2BIG);
+      case ETXTBSY:  exit(INVALID_RET_ETXTBSY);
+      case ENOENT:   exit(INVALID_RET_ENOENT);
+      case ENOEXEC:  exit(INVALID_RET_ENOEXEC);
+      case ENOMEM:   exit(INVALID_RET_ENOMEM);
+      default:       exit(INVALID_RET_UNKNOWN);
+      }
+      return -1;
+    }
   }
 }
 
@@ -202,8 +252,11 @@ static int os_exec (lua_State *L) {
   char * maincmd;
   char ** cmdline = NULL;
 
-  if (lua_gettop(L)!=1)
-    return 0;
+  if (lua_gettop(L)!=1) {
+    lua_pushnil(L);
+    lua_pushliteral(L,"invalid arguments passed");
+    return 2;
+  }
   if (lua_type(L,1)==LUA_TSTRING) {
     maincmd =  (char *)lua_tostring(L, 1);
     cmdline = do_split_command(maincmd);
@@ -211,11 +264,28 @@ static int os_exec (lua_State *L) {
     cmdline = do_flatten_command(L);
   }
   if (cmdline!=NULL) {
+#if defined(WIN32) && DONT_REALLY_EXIT
     exec_command(cmdline[0], cmdline, environ);
+#else
+    if (exec_command(cmdline[0], cmdline, environ)==-1) {
+      lua_pushnil(L);
+      lua_pushfstring(L,"%s: %s",cmdline[0],  strerror(errno));
+      lua_pushnumber(L, errno);
+      return 3;
+    }
+#endif
   }
-  return 0;
+  lua_pushnil(L);
+  lua_pushliteral(L,"invalid command line passed");
+  return 2;
 }
 
+#define do_error_return(A,B) do {				\
+    lua_pushnil(L);						\
+    lua_pushfstring(L,"%s: %s",cmdline[0],(A));			\
+    lua_pushnumber(L, B);					\
+    return 3;							\
+  } while (0)
 
 static int os_spawn (lua_State *L) {
   char * maincmd;
@@ -224,7 +294,8 @@ static int os_spawn (lua_State *L) {
 
   if (lua_gettop(L)!=1) {
     lua_pushnil(L);
-    return 1;
+    lua_pushliteral(L,"invalid arguments passed");
+    return 2;
   }
   if (lua_type(L,1)==LUA_TSTRING) {
     maincmd =  (char *)lua_tostring(L, 1);
@@ -234,11 +305,29 @@ static int os_spawn (lua_State *L) {
   }
   if (cmdline!=NULL) {
     i = spawn_command(cmdline[0], cmdline, environ);
-    lua_pushnumber(L, i);
-  } else {
-    lua_pushnil(L);
-  }
-  return 1;
+    if (i==0) {
+      lua_pushnumber(L, i);
+      return 1;
+    } else if (i==-1)                  { 
+      /* this branch covers WIN32 as well as fork() and waitpid() errors */
+      do_error_return(strerror(errno),errno);
+#ifndef WIN32
+    } else if (i==INVALID_RET_E2BIG)   { do_error_return(strerror(E2BIG),i);
+    } else if (i==INVALID_RET_ENOENT)  { do_error_return(strerror(ENOENT),i);
+    } else if (i==INVALID_RET_ENOEXEC) { do_error_return(strerror(ENOEXEC),i);
+    } else if (i==INVALID_RET_ENOMEM)  { do_error_return(strerror(ENOMEM),i);
+    } else if (i==INVALID_RET_ETXTBSY) { do_error_return(strerror(ETXTBSY),i);
+    } else if (i==INVALID_RET_UNKNOWN) { do_error_return("execution failed",i);
+    } else if (i==INVALID_RET_INTR)    { do_error_return("execution interrupted",i);
+#endif
+    } else {
+      lua_pushnumber(L, i);
+      return 1;
+    }
+  } 
+  lua_pushnil(L);
+  lua_pushliteral(L,"invalid command line passed");
+  return 2;
 }
 
 /*  Hans wants to set env values */

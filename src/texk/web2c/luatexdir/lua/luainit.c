@@ -423,10 +423,12 @@ lua_initialize(int ac, char **av)
 	  node_table_id = hide_lua_table(Luas[0], "node");
 	  pdf_table_id = hide_lua_table(Luas[0], "pdf");
 
-	  if (luaL_loadfile(Luas[0], startup_filename)
-		  || lua_pcall(Luas[0], 0, 0, 0)) {
-	    fprintf(stdout, "Error in lua file loading: %s\n",
-				lua_tostring(Luas[0], -1));
+	  if (luaL_loadfile(Luas[0], startup_filename)) {
+	    fprintf(stdout, "%s\n",lua_tostring(Luas[0], -1));
+	    exit(1);
+	  }
+	  if (lua_pcall(Luas[0], 0, 0, 0)) {
+	    fprintf(stdout, "%s\n",lua_tostring(Luas[0], -1));
 	    exit(1);
 	  }
 	  /* no filename? quit now! */
