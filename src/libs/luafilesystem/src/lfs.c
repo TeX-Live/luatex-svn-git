@@ -419,7 +419,7 @@ static const char *perm2string (unsigned short mode) {
    { perms[1] = 'w'; perms[4] = 'w'; perms[7] = 'w'; }
   if (mode  & _S_IEXEC) 
    { perms[2] = 'x'; perms[5] = 'x'; perms[8] = 'x'; }
-  return strdup(perms);
+  return perms;
 }
 #else
 static const char *perm2string (mode_t mode) {
@@ -433,7 +433,7 @@ static const char *perm2string (mode_t mode) {
   if (mode & S_IROTH) perms[6] = 'r';
   if (mode & S_IWOTH) perms[7] = 'w';
   if (mode & S_IXOTH) perms[8] = 'x';
-  return strdup(perms);
+  return perms;
 }
 #endif
 
