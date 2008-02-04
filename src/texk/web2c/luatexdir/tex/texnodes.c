@@ -622,7 +622,7 @@ flush_node (halfword p) {
   
   if (p==null) /* legal, but no-op */
     return;
-  
+
   if (free_error(p))
     return;
   
@@ -1522,6 +1522,9 @@ delete_attribute_ref(halfword b) {
 	attr_list_cache=cache_disabled;
       free_node_chain(b,attribute_node_size);
     }
+    /* maintain sanity */
+    if (attr_list_ref(b)<0)
+      attr_list_ref(b)=0;
   }
 }
 
@@ -1618,6 +1621,7 @@ unset_attribute (halfword n, int i, int val) {
   register halfword p;
   register int t;
   register int j = 0;
+  
   if (!nodetype_has_attributes(type(n)))
     return null;
   p = node_attr(n);
@@ -1648,8 +1652,9 @@ unset_attribute (halfword n, int i, int val) {
   p = vlink(p);
   while (j-->0) p = vlink(p);
   t = attribute_value(p);
-  if (val==-1 || t==val)
+  if (val==-1 || t==val) {
     attribute_value(p)=-1;
+  }
   return t;
 }
 

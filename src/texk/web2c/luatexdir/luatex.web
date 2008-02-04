@@ -4688,7 +4688,10 @@ specification is being withdrawn.
   end
 
 @p procedure delete_glue_ref(@!p:pointer); {|p| points to a glue specification}
-fast_delete_glue_ref(p);
+begin
+  pdfassert(type(p)=glue_spec_node);
+  fast_delete_glue_ref(p);
+end;
 
 @ Now we are ready to delete any node list, recursively.
 In practice, the nodes deleted are usually charnodes (about 2/3 of the time),
