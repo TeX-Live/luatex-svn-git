@@ -370,8 +370,12 @@ static void hnj_add_trans(
   int uni_ch
 ) {
   int num_trans;
-
-  if (uni_ch<32 || (uni_ch>126 && uni_ch<160)) {
+  /* TH: this test was a bit too strict, it is quite normal for old
+     patterns to have chars in the range 0-31 or 127-159 (inclusive). 
+     To ease the transition, let's only disallow NUL for now 
+     (this is probably a requirement of the code anyway).
+  */
+  if (uni_ch==0) {
     fprintf(stderr,"Character out of bounds: u%04x \n",uni_ch);
     exit(1);
   }
