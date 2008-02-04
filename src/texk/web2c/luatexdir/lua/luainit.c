@@ -374,6 +374,7 @@ void
 lua_initialize(int ac, char **av)
 {
 
+    char *given_file = NULL;
     int kpse_init;
     int tex_table_id;
     int pdf_table_id;
@@ -412,9 +413,10 @@ lua_initialize(int ac, char **av)
 	  
 	prepare_cmdline(Luas[0], argv, argc, lua_offset);	/* collect arguments */
 
-    if (startup_filename != NULL)
+    if (startup_filename != NULL) {
+      given_file = xstrdup(startup_filename);
 	  startup_filename = find_filename(startup_filename, "LUATEXDIR");
-
+	}
     /* now run the file */
     if (startup_filename != NULL) {
 	  /* hide the 'tex' and 'pdf' table */
@@ -498,10 +500,11 @@ lua_initialize(int ac, char **av)
 	  fix_dumpname();
     } else {
 	  if (luainit) {
-		if (lua_only)
-		  fprintf(stdout, "Missing script file\n");
-		else
-		  fprintf(stdout, "Missing configuration file\n");
+        if (given_file) {
+          fprintf(stdout, "%s file %s not found\n", (lua_only ? "Script" : "Configuration"), given_file);
+        } else {
+          fprintf(stdout, "No %s file given\n", (lua_only ? "script" : "configuration"));
+  	    }
 		exit(1);
 	  } else {
 		/* init */
