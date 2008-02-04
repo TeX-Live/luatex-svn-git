@@ -161,7 +161,8 @@ static unsigned utf8_deco (const char **pp, const char *end)
 				goto seq;
 		} else if (e != p && 0x80 == (0xC0&*p) /* check 3rd */
 			/* catch 0xF4 < first and other out-of-bounds */
-			&& 0x110000 > (code = (0x0F&first)<<18 | code<<6 | (0x3F&*p++))
+			/* TH: add the 256 out-of-range glyphs in 'plane 18' */
+			&& 0x110100 > (code = (0x0F&first)<<18 | code<<6 | (0x3F&*p++))
 			&& 0xFFFF < code /* not a 16 bitty */
 		)
 			goto seq;
@@ -190,7 +191,8 @@ static unsigned utf8_oced (const char **pp, const char *start)
 		if (0xE0 == (0xF0&*--p)) { /* 3 byte starter */
 			if (0xF800&(code |= (0x0F&*p)<<12)) goto seq;
 		} else if (0x80 == (0xC0&*p) && s<=--p /* valid 4 byte ? */
-			&& 0x110000 > (code |= (0x0F&*p)<<18 | (0x3F&p[1])<<12)
+			/* TH: add the 256 out-of-range glyphs in 'plane 18' */
+			&& 0x110100 > (code |= (0x0F&*p)<<18 | (0x3F&p[1])<<12)
 			&& 0xFFFF < code
 		)
 			goto seq;
@@ -379,7 +381,8 @@ static int unic_byte (lua_State *L) {
 static int unic_char (lua_State *L) {
 	int i, n = lua_gettop(L);	/* number of arguments */
 	int mode = lua_tointeger(L, lua_upvalueindex(1)), mb = MODE_MBYTE(mode);
-	unsigned lim = mb ? 0x110000 : 0x100;
+    /* TH: add the 256 out-of-range glyphs in 'plane 18' */
+	unsigned lim = mb ? 0x110100 : 0x100;
  
 	luaL_Buffer b;
 	luaL_buffinit(L, &b);
