@@ -284,7 +284,9 @@ void ext_post_line_break(boolean d,
     /* at this point |q| is the rightmost breakpoint; the only exception is
        the case of a discretionary break with non-empty |pre_break|, then |q|
        has been changed to the last node of the |pre_break| list */
-    if (pdf_protrude_chars > 0) {
+	/* If the par ends with a \break command, the last line is utterly empty.
+       That is the case of |q==temp_head| */
+    if (q!=temp_head && pdf_protrude_chars > 0) {
       halfword ptmp;
       if (disc_break && (is_char_node(q) || (type(q) != disc_node))) {
         p = q; /* |q| has been reset to the last node of |pre_break| */
