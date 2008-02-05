@@ -374,142 +374,142 @@ void
 lua_initialize(int ac, char **av)
 {
 
-    char *given_file = NULL;
-    int kpse_init;
-    int tex_table_id;
-    int pdf_table_id;
-    int token_table_id;
-    int node_table_id;
-    /* Save to pass along to topenin.  */
-    argc = ac;
-    argv = av;
+  char *given_file = NULL;
+  int kpse_init;
+  int tex_table_id;
+  int pdf_table_id;
+  int token_table_id;
+  int node_table_id;
+  /* Save to pass along to topenin.  */
+  argc = ac;
+  argv = av;
 	
-    ptexbanner = BANNER;
-    program_invocation_name = argv[0];
+  ptexbanner = BANNER;
+  program_invocation_name = argv[0];
 
-	/* be 'luac' */
-	if (argc>1 &&
-		(STREQ(argv[0],"texluac") ||
-		 STREQ(argv[1],"--luaconly") ||
-		 STREQ(argv[1],"--luac"))) {
-	  exit(luac_main(ac,av));
-	}
+  /* be 'luac' */
+  if (argc>1 &&
+      (STREQ(argv[0],"texluac") ||
+       STREQ(argv[1],"--luaconly") ||
+       STREQ(argv[1],"--luac"))) {
+    exit(luac_main(ac,av));
+  }
 
-    /* Must be initialized before options are parsed.  */
-    interactionoption = 4;
-    dump_name = NULL;
-    /* parse commandline */
-    parse_options(ac, av);
+  /* Must be initialized before options are parsed.  */
+  interactionoption = 4;
+  dump_name = NULL;
+  /* parse commandline */
+  parse_options(ac, av);
 
-	/* make sure that the locale is 'sane' (for lua) */
-	putenv("LC_CTYPE=C");
-	putenv("LC_COLLATE=C");
-	putenv("LC_NUMERIC=C");
+  /* make sure that the locale is 'sane' (for lua) */
+  putenv("LC_CTYPE=C");
+  putenv("LC_COLLATE=C");
+  putenv("LC_NUMERIC=C");
 
-	/* this is sometimes needed */
-	putenv("engine=luatex");
+  /* this is sometimes needed */
+  putenv("engine=luatex");
 
-	luainterpreter(0);
+  luainterpreter(0);
 	  
-	prepare_cmdline(Luas[0], argv, argc, lua_offset);	/* collect arguments */
+  prepare_cmdline(Luas[0], argv, argc, lua_offset);	/* collect arguments */
 
-    if (startup_filename != NULL) {
-      given_file = xstrdup(startup_filename);
-	  startup_filename = find_filename(startup_filename, "LUATEXDIR");
-	}
-    /* now run the file */
-    if (startup_filename != NULL) {
-	  /* hide the 'tex' and 'pdf' table */
-	  tex_table_id = hide_lua_table(Luas[0], "tex");
-	  token_table_id = hide_lua_table(Luas[0], "token");
-	  node_table_id = hide_lua_table(Luas[0], "node");
-	  pdf_table_id = hide_lua_table(Luas[0], "pdf");
+  if (startup_filename != NULL) {
+    given_file = xstrdup(startup_filename);
+    startup_filename = find_filename(startup_filename, "LUATEXDIR");
+  }
+  /* now run the file */
+  if (startup_filename != NULL) {
+    /* hide the 'tex' and 'pdf' table */
+    tex_table_id = hide_lua_table(Luas[0], "tex");
+    token_table_id = hide_lua_table(Luas[0], "token");
+    node_table_id = hide_lua_table(Luas[0], "node");
+    pdf_table_id = hide_lua_table(Luas[0], "pdf");
 
-	  if (luaL_loadfile(Luas[0], startup_filename)) {
-	    fprintf(stdout, "%s\n",lua_tostring(Luas[0], -1));
-	    exit(1);
-	  }
-	  if (lua_pcall(Luas[0], 0, 0, 0)) {
-	    fprintf(stdout, "%s\n",lua_tostring(Luas[0], -1));
-	    exit(1);
-	  }
-	  /* no filename? quit now! */
-	  if (!input_name) {
-	    get_lua_string("texconfig", "jobname", &input_name);
-	  }
-	  if (!dump_name) {
-	    get_lua_string("texconfig", "formatname", &dump_name);
-	  }
-	  if ((lua_only) || ((!input_name) && (!dump_name))) {
-		exit(0);
-	  }
-	  /* unhide the 'tex' and 'pdf' table */
-	  unhide_lua_table(Luas[0], "tex", tex_table_id);
-	  unhide_lua_table(Luas[0], "pdf", pdf_table_id);
-	  unhide_lua_table(Luas[0], "token", token_table_id);
-	  unhide_lua_table(Luas[0], "node", node_table_id);
-	  
-	  /* kpse_init */
-	  kpse_init = -1;
-	  get_lua_boolean("texconfig", "kpse_init", &kpse_init);
-
-	  if (kpse_init != 0) {
-		init_kpse();
-	  }
-	  /* prohibit_file_trace (boolean) */
-	  tracefilenames = 1;
-	  get_lua_boolean("texconfig", "trace_file_names", &tracefilenames);
-	  
-	  /* src_special_xx */
-	  insertsrcspecialauto = insertsrcspecialeverypar =
-	    insertsrcspecialeveryparend = insertsrcspecialeverycr =
-	    insertsrcspecialeverymath = insertsrcspecialeveryhbox =
-	    insertsrcspecialeveryvbox = insertsrcspecialeverydisplay =
-	    false;
-	  get_lua_boolean("texconfig", "src_special_auto",
-					&insertsrcspecialauto);
-	  get_lua_boolean("texconfig", "src_special_everypar",
-					&insertsrcspecialeverypar);
-	  get_lua_boolean("texconfig", "src_special_everyparend",
-					&insertsrcspecialeveryparend);
-	  get_lua_boolean("texconfig", "src_special_everycr",
-				  &insertsrcspecialeverycr);
-	  get_lua_boolean("texconfig", "src_special_everymath",
-					&insertsrcspecialeverymath);
-	  get_lua_boolean("texconfig", "src_special_everyhbox",
-					&insertsrcspecialeveryhbox);
-	  get_lua_boolean("texconfig", "src_special_everyvbox",
-		      &insertsrcspecialeveryvbox);
-	  get_lua_boolean("texconfig", "src_special_everydisplay",
-					&insertsrcspecialeverydisplay);
-
-	  srcspecialsp = insertsrcspecialauto | insertsrcspecialeverypar |
-	    insertsrcspecialeveryparend | insertsrcspecialeverycr |
-	    insertsrcspecialeverymath | insertsrcspecialeveryhbox |
-	    insertsrcspecialeveryvbox | insertsrcspecialeverydisplay;
-
-	  /* file_line_error */
-	  filelineerrorstylep = false;
-	  get_lua_boolean("texconfig", "file_line_error",
-					&filelineerrorstylep);
-
-	  /* halt_on_error */
-	  haltonerrorp = false;
-	  get_lua_boolean("texconfig", "halt_on_error", &haltonerrorp);
-	  
-	  fix_dumpname();
-    } else {
-	  if (luainit) {
-        if (given_file) {
-          fprintf(stdout, "%s file %s not found\n", (lua_only ? "Script" : "Configuration"), given_file);
-        } else {
-          fprintf(stdout, "No %s file given\n", (lua_only ? "script" : "configuration"));
-  	    }
-		exit(1);
-	  } else {
-		/* init */
-		init_kpse();
-		fix_dumpname();
-	  }
+    if (luaL_loadfile(Luas[0], startup_filename)) {
+      fprintf(stdout, "%s\n",lua_tostring(Luas[0], -1));
+      exit(1);
     }
+    if (lua_pcall(Luas[0], 0, 0, 0)) {
+      fprintf(stdout, "%s\n",lua_tostring(Luas[0], -1));
+      exit(1);
+    }
+    /* no filename? quit now! */
+    if (!input_name) {
+      get_lua_string("texconfig", "jobname", &input_name);
+    }
+    if (!dump_name) {
+      get_lua_string("texconfig", "formatname", &dump_name);
+    }
+    if ((lua_only) || ((!input_name) && (!dump_name))) {
+      exit(0);
+    }
+    /* unhide the 'tex' and 'pdf' table */
+    unhide_lua_table(Luas[0], "tex", tex_table_id);
+    unhide_lua_table(Luas[0], "pdf", pdf_table_id);
+    unhide_lua_table(Luas[0], "token", token_table_id);
+    unhide_lua_table(Luas[0], "node", node_table_id);
+	  
+    /* kpse_init */
+    kpse_init = -1;
+    get_lua_boolean("texconfig", "kpse_init", &kpse_init);
+
+    if (kpse_init != 0) {
+      init_kpse();
+    }
+    /* prohibit_file_trace (boolean) */
+    tracefilenames = 1;
+    get_lua_boolean("texconfig", "trace_file_names", &tracefilenames);
+	  
+    /* src_special_xx */
+    insertsrcspecialauto = insertsrcspecialeverypar =
+      insertsrcspecialeveryparend = insertsrcspecialeverycr =
+      insertsrcspecialeverymath = insertsrcspecialeveryhbox =
+      insertsrcspecialeveryvbox = insertsrcspecialeverydisplay =
+      false;
+    get_lua_boolean("texconfig", "src_special_auto",
+		    &insertsrcspecialauto);
+    get_lua_boolean("texconfig", "src_special_everypar",
+		    &insertsrcspecialeverypar);
+    get_lua_boolean("texconfig", "src_special_everyparend",
+		    &insertsrcspecialeveryparend);
+    get_lua_boolean("texconfig", "src_special_everycr",
+		    &insertsrcspecialeverycr);
+    get_lua_boolean("texconfig", "src_special_everymath",
+		    &insertsrcspecialeverymath);
+    get_lua_boolean("texconfig", "src_special_everyhbox",
+		    &insertsrcspecialeveryhbox);
+    get_lua_boolean("texconfig", "src_special_everyvbox",
+		    &insertsrcspecialeveryvbox);
+    get_lua_boolean("texconfig", "src_special_everydisplay",
+		    &insertsrcspecialeverydisplay);
+
+    srcspecialsp = insertsrcspecialauto | insertsrcspecialeverypar |
+      insertsrcspecialeveryparend | insertsrcspecialeverycr |
+      insertsrcspecialeverymath | insertsrcspecialeveryhbox |
+      insertsrcspecialeveryvbox | insertsrcspecialeverydisplay;
+
+    /* file_line_error */
+    filelineerrorstylep = false;
+    get_lua_boolean("texconfig", "file_line_error",
+		    &filelineerrorstylep);
+
+    /* halt_on_error */
+    haltonerrorp = false;
+    get_lua_boolean("texconfig", "halt_on_error", &haltonerrorp);
+	  
+    fix_dumpname();
+  } else {
+    if (luainit) {
+      if (given_file) {
+	fprintf(stdout, "%s file %s not found\n", (lua_only ? "Script" : "Configuration"), given_file);
+      } else {
+	fprintf(stdout, "No %s file given\n", (lua_only ? "script" : "configuration"));
+      }
+      exit(1);
+    } else {
+      /* init */
+      init_kpse();
+      fix_dumpname();
+    }
+  }
 }
