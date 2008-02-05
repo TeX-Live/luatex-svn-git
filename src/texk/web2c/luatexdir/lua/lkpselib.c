@@ -114,12 +114,23 @@ static const char *const filetypenames[] = {
   "texmfscripts",
   NULL };
 
+/* set to 1 by the |program_name| function */
+
+static int program_name_set  = 0;
+
+#define TEST_PROGRAM_NAME_SET do {					\
+    if (! program_name_set) {						\
+      lua_pushstring(L, "Please call kpse.set_program_name() before using the library"); \
+      return lua_error(L);						\
+    }									\
+  } while (0)
+
 static int find_file (lua_State *L) {
   int i;
   char *st;
-
   int ftype = kpse_tex_format;
   int mexist = 0;
+  TEST_PROGRAM_NAME_SET;
   if (!lua_isstring(L,1)) {
     lua_pushstring(L, "not a file name");
     lua_error(L);
@@ -153,34 +164,56 @@ static int find_file (lua_State *L) {
   return 1;
 }
 
+static int show_path (lua_State *L) {
+  int op = luaL_checkoption(L, -1, "tex", filetypenames);
+  int user_format = filetypes[op];
+  TEST_PROGRAM_NAME_SET;
+  if (!kpse_format_info[user_format].type) /* needed if arg was numeric */
+    kpse_init_format (user_format);
+  lua_pushstring (L, kpse_format_info[user_format].path);
+  return 1;
+}
+
+
 static int expand_path (lua_State *L) {
   const char *st = luaL_checkstring(L,1);
+  TEST_PROGRAM_NAME_SET;
   lua_pushstring(L, kpse_path_expand(st));
   return 1;
 }
 
 static int expand_braces (lua_State *L) {
   const char *st = luaL_checkstring(L,1);
+  TEST_PROGRAM_NAME_SET;
   lua_pushstring(L, kpse_brace_expand(st));
   return 1;
 }
 
 static int expand_var (lua_State *L) {
   const char *st = luaL_checkstring(L,1);
+  TEST_PROGRAM_NAME_SET;
   lua_pushstring(L, kpse_var_expand(st));
   return 1;
 }
 
 static int var_value (lua_State *L) {
   const char *st = luaL_checkstring(L,1);
+  TEST_PROGRAM_NAME_SET;
   lua_pushstring(L, kpse_var_value(st));
   return 1;
 }
 
+/* Engine support is a bit of a problem, because we do not want
+ * to interfere with the normal format discovery of |luatex|.
+ * Current approach: run |os.setenv()| if you have to.
+ */
 
-static int program_name (lua_State *L) {
+extern int luainit;
+
+static int set_program_name (lua_State *L) {
   const char *exe_name  = luaL_checkstring(L,1);
   const char *prog_name = luaL_optstring(L,2,exe_name);
+  program_name_set  = 1;
   kpse_set_program_name(exe_name, prog_name);
   /* fix up the texconfig entry */
   lua_checkstack(L,3);
@@ -199,19 +232,21 @@ static int init_prog (lua_State *L) {
   unsigned dpi         = luaL_checkinteger(L,2);
   const char *mode     = luaL_checkstring(L,3);
   const char *fallback = luaL_optstring(L,4,NULL);
+  TEST_PROGRAM_NAME_SET;
   kpse_init_prog(prefix,dpi,mode,fallback);
   return 0;
 }
 
 static int readable_file (lua_State *L) {
   const char *name   = luaL_checkstring(L,1);
+  TEST_PROGRAM_NAME_SET;
   lua_pushstring(L,(char *)kpse_readable_file (name));
   return 1;
 }
 
 
 static const struct luaL_reg kpselib [] = {
-  {"set_program_name", program_name},
+  {"set_program_name", set_program_name},
   {"init_prog", init_prog},
   {"readable_file", readable_file},
   {"find_file", find_file},
@@ -219,6 +254,7 @@ static const struct luaL_reg kpselib [] = {
   {"expand_var", expand_var},
   {"expand_braces",expand_braces},
   {"var_value",var_value},
+  {"show_path",show_path},
   {NULL, NULL}  /* sentinel */
 };
 
