@@ -326,7 +326,7 @@ typedef enum {
 #define pseudo_file_node_size 2
 #define pseudo_lines(a) vlink((a)+1)
 
-#define nodetype_has_attributes(t) ((t)<=glyph_node)
+#define nodetype_has_attributes(t) (((t)<=glyph_node) && ((t)!=unset_node))
 
 #define style_node_size 4 /* number of words in a style node*/
 #define radical_noad_size 6 /*number of |mem| words in a radical noad*/

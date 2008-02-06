@@ -1516,6 +1516,7 @@ build_attribute_list(halfword b) {
 void 
 delete_attribute_ref(halfword b) {
   if (b!=null){
+    assert(type(b)==attribute_list_node);
     attr_list_ref(b)--;
     if (attr_list_ref(b)==0) {
       if (b==attr_list_cache) 
