@@ -7,6 +7,60 @@
 #include <sys/types.h>
 #include <time.h>
 
+/* An attempt to figure out the basic platform, does not
+  care about niceties like version numbers yet,
+  and ignores platforms where luatex is unlikely to 
+  successfully compile without major prorting effort 
+  (amiga|mac|os2|vms) */
+
+#if defined(_WIN32) || defined(WIN32) || defined(__NT__)
+#define OS_PLATTYPE "windows"
+#define OS_PLATNAME "windows"
+#elif defined(__GO32__) || defined(__DJGPP__) || defined(__DOS__) 
+#define OS_PLATTYPE "msdos"
+#define OS_PLATNAME "msdos"
+#else  /* assume everything else is unix-y */
+#define OS_PLATTYPE "unix"
+/* this is just a first guess */
+#if defined(__BSD__) 
+  #define OS_PLATNAME "bsd"
+#elif defined(__SYSV__) 
+  #define OS_PLATNAME "sysv"
+#else
+  #define OS_PLATNAME "generic"
+#endif
+/* attempt to be more precise */
+#if defined(__LINUX__) || defined (__linux)
+  #undef OS_PLATNAME
+  #define OS_PLATNAME "linux"
+#elif defined(__FREEBSD__) || defined(__FreeBSD)
+  #undef OS_PLATNAME
+  #define OS_PLATNAME "freebsd"
+#elif defined(__OPENBSD__)  || defined(__OpenBSD)
+  #undef OS_PLATNAME
+  #define OS_PLATNAME "openbsd"
+#elif defined(__SOLARIS__)
+  #undef OS_PLATNAME
+  #define OS_PLATNAME "solaris"
+#elif defined(__SUNOS__) ||  defined(__SUN__) ||  defined(sun)
+  #undef OS_PLATNAME
+  #define OS_PLATNAME "sunos"
+#elif defined(HPUX) || defined(__hpux)
+  #undef OS_PLATNAME
+  #define OS_PLATNAME "hpux"
+#elif defined(__sgi)
+  #undef OS_PLATNAME
+  #define OS_PLATNAME "irix"
+#elif defined(__MACH__) && defined(__APPLE__)
+  #undef OS_PLATNAME
+  #define OS_PLATNAME "macosx"
+#endif 
+#endif
+
+
+
+
+
 /* there could be more platforms that don't have these two,
  *  but win32 and sunos are for sure.
  * gettimeofday() for win32 is using an alternative definition
@@ -525,6 +579,12 @@ open_oslibext (lua_State *L, int safer_option) {
   lua_getglobal(L,"os");
   lua_pushcfunction(L, ex_sleep);
   lua_setfield(L,-2,"sleep");
+  lua_getglobal(L,"os");
+  lua_pushliteral(L, OS_PLATTYPE);
+  lua_setfield(L,-2,"type");
+  lua_getglobal(L,"os");
+  lua_pushliteral(L, OS_PLATNAME);
+  lua_setfield(L,-2,"name");
 #if (! defined (WIN32))  && (! defined (__SUNOS__))
   lua_getglobal(L,"os");
   lua_pushcfunction(L, os_times);
