@@ -4063,11 +4063,6 @@ inserted from \.{\\mkern} specifications in math formulas).
 @d rp_code_base == 3
 @d ef_code_base == 4
 @d tag_code == 5
-@d kn_bs_code_base == 7
-@d st_bs_code_base == 8
-@d sh_bs_code_base == 9
-@d kn_bc_code_base == 10
-@d kn_ac_code_base == 11
 
 @d auto_kern == explicit
 @d no_lig_code == 6
@@ -5921,9 +5916,6 @@ that will be defined later.
 @d pdf_protrude_chars_code   = pdftex_first_integer_code + 18 {protrude chars at left/right edge of paragraphs}
 @d pdf_tracing_fonts_code    = pdftex_first_integer_code + 19 {level of font detail in log}
 @d pdf_objcompresslevel_code = pdftex_first_integer_code + 20 {activate object streams}
-@d pdf_adjust_interword_glue_code    = pdftex_first_integer_code + 21 {adjust interword glue?}
-@d pdf_prepend_kern_code     = pdftex_first_integer_code + 22 {prepend kern before certain characters?}
-@d pdf_append_kern_code      = pdftex_first_integer_code + 23 {append kern before certain characters?}
 @d pdf_gen_tounicode_code    = pdftex_first_integer_code + 24 {generate ToUnicode for fonts?}
 @d pdf_draftmode_code        = pdftex_first_integer_code + 25 {switch on draftmode if positive}
 @d pdf_replace_font_code     = pdftex_first_integer_code + 26 {generate ToUnicode for fonts?}
@@ -6027,10 +6019,7 @@ that will be defined later.
 @d pdf_adjust_spacing   == int_par(pdf_adjust_spacing_code)
 @d pdf_protrude_chars   == int_par(pdf_protrude_chars_code)
 @d pdf_tracing_fonts    == int_par(pdf_tracing_fonts_code)
-@d pdf_adjust_interword_glue == int_par(pdf_adjust_interword_glue_code)
-@d pdf_prepend_kern == int_par(pdf_prepend_kern_code)
-@d pdf_append_kern == int_par(pdf_append_kern_code)
-@d pdf_gen_tounicode == int_par(pdf_gen_tounicode_code)
+@d pdf_gen_tounicode    == int_par(pdf_gen_tounicode_code)
 @d pdf_output           == int_par(pdf_output_code)
 @d pdf_compress_level   == int_par(pdf_compress_level_code)
 @d pdf_objcompresslevel == int_par(pdf_objcompresslevel_code)
@@ -6161,9 +6150,6 @@ pdf_image_apply_gamma_code: print_esc("pdfimageapplygamma");
 pdf_adjust_spacing_code:   print_esc("pdfadjustspacing");
 pdf_protrude_chars_code:   print_esc("pdfprotrudechars");
 pdf_tracing_fonts_code:    print_esc("pdftracingfonts");
-pdf_adjust_interword_glue_code:    print_esc("pdfadjustinterwordglue");
-pdf_prepend_kern_code:    print_esc("pdfprependkern");
-pdf_append_kern_code:    print_esc("pdfappendkern");
 pdf_gen_tounicode_code:    print_esc("pdfgentounicode");
 pdf_draftmode_code:        print_esc("pdfdraftmode");
 pdf_replace_font_code:    print_esc("pdfreplacefont");
@@ -6344,12 +6330,6 @@ primitive("pdfprotrudechars",assign_int,int_base+pdf_protrude_chars_code);@/
 @!@:pdf_protrude_chars_}{\.{\\pdfprotrudechars} primitive@>
 primitive("pdftracingfonts",assign_int,int_base+pdf_tracing_fonts_code);@/
 @!@:pdf_tracing_fonts_}{\.{\\pdftracingfonts} primitive@>
-primitive("pdfadjustinterwordglue",assign_int,int_base+pdf_adjust_interword_glue_code);@/
-@!@:pdf_adjust_interword_glue_}{\.{\\pdfadjustinterwordglue} primitive@>
-primitive("pdfprependkern",assign_int,int_base+pdf_prepend_kern_code);@/
-@!@:pdf_prepend_kern_}{\.{\\pdfprependkern} primitive@>
-primitive("pdfappendkern",assign_int,int_base+pdf_append_kern_code);@/
-@!@:pdf_append_kern_}{\.{\\pdfappendkern} primitive@>
 primitive("pdfgentounicode",assign_int,int_base+pdf_gen_tounicode_code);@/
 @!@:pdf_gen_tounicode_}{\.{\\pdfgentounicode} primitive@>
 primitive("pdfdraftmode",assign_int,int_base+pdf_draftmode_code);@/
@@ -10101,11 +10081,6 @@ else begin
     rp_code_base: scanned_result(get_rp_code(n, k))(int_val);
     ef_code_base: scanned_result(get_ef_code(n, k))(int_val);
     tag_code: scanned_result(get_tag_code(n, k))(int_val);
-    kn_bs_code_base: scanned_result(get_kn_bs_code(n, k))(int_val);
-    st_bs_code_base: scanned_result(get_st_bs_code(n, k))(int_val);
-    sh_bs_code_base: scanned_result(get_sh_bs_code(n, k))(int_val);
-    kn_bc_code_base: scanned_result(get_kn_bc_code(n, k))(int_val);
-    kn_ac_code_base: scanned_result(get_kn_ac_code(n, k))(int_val);
     end;
 end;
 end
@@ -17503,51 +17478,6 @@ begin
     end;
 end;
 
-procedure set_kn_bs_code(f: internal_font_number; c: integer; i: integer);
-begin
-    if c<256 then begin
-      if pdf_font_kn_bs_base[f] = 0 then
-        pdf_font_kn_bs_base[f] := init_font_base(0);
-      pdf_mem[pdf_font_kn_bs_base[f] + c] := fix_int(i, -1000, 1000);
-    end;
-end;
-
-procedure set_st_bs_code(f: internal_font_number; c: integer; i: integer);
-begin
-    if c<256 then begin
-      if pdf_font_st_bs_base[f] = 0 then
-        pdf_font_st_bs_base[f] := init_font_base(0);
-      pdf_mem[pdf_font_st_bs_base[f] + c] := fix_int(i, -1000, 1000);
-    end;
-end;
-
-procedure set_sh_bs_code(f: internal_font_number; c: integer; i: integer);
-begin
-    if c<256 then begin
-      if pdf_font_sh_bs_base[f] = 0 then
-        pdf_font_sh_bs_base[f] := init_font_base(0);
-      pdf_mem[pdf_font_sh_bs_base[f] + c] := fix_int(i, -1000, 1000);
-    end;
-end;
-
-procedure set_kn_bc_code(f: internal_font_number; c: integer; i: integer);
-begin
-    if c<256 then begin
-      if pdf_font_kn_bc_base[f] = 0 then
-        pdf_font_kn_bc_base[f] := init_font_base(0);
-      pdf_mem[pdf_font_kn_bc_base[f] + c] := fix_int(i, -1000, 1000);
-    end;
-end;
-
-procedure set_kn_ac_code(f: internal_font_number; c: integer; i: integer);
-begin
-    if c<256 then begin
-      if pdf_font_kn_ac_base[f] = 0 then
-        pdf_font_kn_ac_base[f] := init_font_base(0);
-      pdf_mem[pdf_font_kn_ac_base[f] + c] := fix_int(i, -1000, 1000);
-    end;
-end;
-
 procedure adjust_interword_glue(p, g: pointer); {adjust the interword
 glue |g| after a character |p|}
 var kn, st, sh: scaled;
@@ -17574,48 +17504,7 @@ begin
     end;
     if (c = non_boundarychar) then
         return;
-
-    kn := get_kn_bs_code(f, c);
-    st := get_st_bs_code(f, c);
-    sh := get_sh_bs_code(f, c);
-    if (kn <> 0) or (st <> 0) or (sh <> 0) then begin
-        q := new_spec(glue_ptr(g));
-        delete_glue_ref(glue_ptr(g));
-        width(q) := width(q) + round_xn_over_d(quad(f), kn, 1000);
-        stretch(q) := stretch(q) + round_xn_over_d(quad(f), st, 1000);
-        shrink(q) := shrink(q) + round_xn_over_d(quad(f), sh, 1000);
-        glue_ptr(g) := q;
-    end;
 end;
-
-function get_auto_kern(f: internal_font_number; l, r: integer): pointer;
-{return a pointer to an auto kern node, or |null|}
-var tmp_w: scaled;
-    k: integer;
-    p: pointer;
-begin
-    {pdfassert((l >= 0) and (r >= 0));}
-    get_auto_kern := null;
-    if (pdf_append_kern <= 0) and (pdf_prepend_kern <= 0) then
-        return;
-    tmp_w := 0;
-    if (pdf_append_kern > 0) and (l >= 0) then begin
-        k := get_kn_ac_code(f, l);
-        if k <> 0 then
-            tmp_w := round_xn_over_d(quad(f), k, 1000);
-    end;
-    if (pdf_prepend_kern > 0) and (r >= 0) then begin
-        k := get_kn_bc_code(f, r);
-        if k <> 0 then
-            tmp_w := tmp_w + round_xn_over_d(quad(f), k, 1000);
-    end;
-    if tmp_w <> 0 then begin
-        p := new_kern(tmp_w);
-        subtype(p) := auto_kern;
-        get_auto_kern := p;
-    end;
-end;
-
 
 procedure copy_expand_params(k, f: internal_font_number; e: integer);
 {set expansion-related parameters for an expanded font |k|, based on the base
@@ -17635,21 +17524,6 @@ begin
     pdf_font_rp_base[k] := pdf_font_rp_base[f];
     pdf_font_ef_base[k] := pdf_font_ef_base[f];
 
-    if pdf_font_kn_bs_base[f] = 0 then
-        pdf_font_kn_bs_base[f] := init_font_base(0);
-    if pdf_font_st_bs_base[f] = 0 then
-        pdf_font_st_bs_base[f] := init_font_base(0);
-    if pdf_font_sh_bs_base[f] = 0 then
-        pdf_font_sh_bs_base[f] := init_font_base(0);
-    if pdf_font_kn_bc_base[f] = 0 then
-        pdf_font_kn_bc_base[f] := init_font_base(0);
-    if pdf_font_kn_ac_base[f] = 0 then
-        pdf_font_kn_ac_base[f] := init_font_base(0);
-    pdf_font_kn_bs_base[k] := pdf_font_kn_bs_base[f];
-    pdf_font_st_bs_base[k] := pdf_font_st_bs_base[f];
-    pdf_font_sh_bs_base[k] := pdf_font_sh_bs_base[f];
-    pdf_font_kn_bc_base[k] := pdf_font_kn_bc_base[f];
-    pdf_font_kn_ac_base[k] := pdf_font_kn_ac_base[f];
 end;
 
 function tfm_lookup(s: str_number; fs: scaled): internal_font_number;
@@ -20288,11 +20162,6 @@ location |adjust_tail|.
 @!pdf_font_lp_base: ^integer; {base of left-protruding factor}
 @!pdf_font_rp_base: ^integer; {base of right-protruding factor}
 @!pdf_font_ef_base: ^integer; {base of font expansion factor}
-@!pdf_font_kn_bs_base: ^integer; {base of kern before space}
-@!pdf_font_st_bs_base: ^integer; {base of stretch before space}
-@!pdf_font_sh_bs_base: ^integer; {base of shrink before space}
-@!pdf_font_kn_bc_base: ^integer; {base of kern before character}
-@!pdf_font_kn_ac_base: ^integer; {base of kern after character}
 @!font_expand_ratio: integer; {current expansion ratio}
 @!last_leftmost_char: pointer;
 @!last_rightmost_char: pointer;
@@ -25266,7 +25135,7 @@ hmode+char_ghost: begin t:=cur_chr; get_x_token;
   end;
 hmode+spacer,hmode+ex_space,mmode+ex_space: 
 if (abs(mode)+cur_cmd=hmode+spacer) and 
-   (not ((space_factor = 1000) or (pdf_adjust_interword_glue > 0))) then
+   (not (space_factor = 1000)) then
   app_space
 else begin
   @<Append a normal inter-word space to the current list@>; 
@@ -25317,8 +25186,6 @@ continue: adjust_space_factor;@/
 chr_stack:=cur_chr;
 tail_append(new_char(cur_font,chr_stack));
 get_x_token;
-p := get_auto_kern(cur_font, -1, chr_stack);
-if p <> null then tail_append(p);
 if (cur_cmd=letter)or(cur_cmd=other_char)or
    (cur_cmd=char_given)or(cur_cmd=char_num) then begin 
   if cur_cmd=char_num then begin 
@@ -25355,8 +25222,6 @@ if space_skip=zero_glue then
   temp_ptr:=new_glue(main_p);
   end
 else temp_ptr:=new_param_glue(space_skip_code);
-if pdf_adjust_interword_glue > 0 then
-    adjust_interword_glue(tail, temp_ptr);
 vlink(tail):=temp_ptr; tail:=temp_ptr
 
 
@@ -28862,11 +28727,6 @@ assign_font_int: begin
     rp_code_base: set_rp_code(f, p, cur_val);
     ef_code_base: set_ef_code(f, p, cur_val);
     tag_code:     set_tag_code(f, p, cur_val);
-    kn_bs_code_base: set_kn_bs_code(f, p, cur_val);
-    st_bs_code_base: set_st_bs_code(f, p, cur_val);
-    sh_bs_code_base: set_sh_bs_code(f, p, cur_val);
-    kn_bc_code_base: set_kn_bc_code(f, p, cur_val);
-    kn_ac_code_base: set_kn_ac_code(f, p, cur_val);
     end;
   end;
 end;
@@ -28884,16 +28744,6 @@ primitive("efcode",assign_font_int,ef_code_base);
 @!@:ef_code_}{\.{\\efcode} primitive@>
 primitive("tagcode",assign_font_int,tag_code);
 @!@:tag_code_}{\.{\\tagcode} primitive@>
-primitive("knbscode",assign_font_int,kn_bs_code_base);
-@!@:kn_bs_code_}{\.{\\knbscode} primitive@>
-primitive("stbscode",assign_font_int,st_bs_code_base);
-@!@:st_bs_code_}{\.{\\stbscode} primitive@>
-primitive("shbscode",assign_font_int,sh_bs_code_base);
-@!@:sh_bs_code_}{\.{\\shbscode} primitive@>
-primitive("knbccode",assign_font_int,kn_bc_code_base);
-@!@:kn_bc_code_}{\.{\\knbccode} primitive@>
-primitive("knaccode",assign_font_int,kn_ac_code_base);
-@!@:kn_ac_code_}{\.{\\knaccode} primitive@>
 primitive("pdfnoligatures",assign_font_int,no_lig_code);
 @!@:no_lig_code_}{\.{\\pdfnoligatures} primitive@>
 
@@ -28905,11 +28755,6 @@ lp_code_base: print_esc("lpcode");
 rp_code_base: print_esc("rpcode");
 ef_code_base: print_esc("efcode");
 tag_code: print_esc("tagcode");
-kn_bs_code_base: print_esc("knbscode");
-st_bs_code_base: print_esc("stbscode");
-sh_bs_code_base: print_esc("shbscode");
-kn_bc_code_base: print_esc("knbccode");
-kn_ac_code_base: print_esc("knaccode");
 no_lig_code: print_esc("pdfnoligatures");
 endcases;
 

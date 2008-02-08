@@ -1950,11 +1950,6 @@ pdf_font_auto_expand:=xmallocarray(boolean, font_max);
 pdf_font_lp_base:=xmallocarray(integer, font_max);
 pdf_font_rp_base:=xmallocarray(integer, font_max);
 pdf_font_ef_base:=xmallocarray(integer, font_max);
-pdf_font_kn_bs_base:=xmallocarray(integer, font_max);
-pdf_font_st_bs_base:=xmallocarray(integer, font_max);
-pdf_font_sh_bs_base:=xmallocarray(integer, font_max);
-pdf_font_kn_bc_base:=xmallocarray(integer, font_max);
-pdf_font_kn_ac_base:=xmallocarray(integer, font_max);
 
 for font_k := font_base to font_max do begin
     pdf_font_size[font_k] := 0;
@@ -1970,11 +1965,6 @@ for font_k := font_base to font_max do begin
     pdf_font_lp_base[font_k] := 0;
     pdf_font_rp_base[font_k] := 0;
     pdf_font_ef_base[font_k] := 0;
-    pdf_font_kn_bs_base[font_k] := 0;
-    pdf_font_st_bs_base[font_k] := 0;
-    pdf_font_sh_bs_base[font_k] := 0;
-    pdf_font_kn_bc_base[font_k] := 0;
-    pdf_font_kn_ac_base[font_k] := 0;
     end;
 make_pdftex_banner
 @z
@@ -2319,11 +2309,6 @@ pdf_font_auto_expand:=xmallocarray(boolean,font_max);
 pdf_font_lp_base:=xmallocarray(integer,font_max);
 pdf_font_rp_base:=xmallocarray(integer,font_max);
 pdf_font_ef_base:=xmallocarray(integer,font_max);
-pdf_font_kn_bs_base:=xmallocarray(integer, font_max);
-pdf_font_st_bs_base:=xmallocarray(integer, font_max);
-pdf_font_sh_bs_base:=xmallocarray(integer, font_max);
-pdf_font_kn_bc_base:=xmallocarray(integer, font_max);
-pdf_font_kn_ac_base:=xmallocarray(integer, font_max);
 
 for font_k := font_base to font_max do begin
     pdf_font_size[font_k] := 0;
@@ -2339,11 +2324,6 @@ for font_k := font_base to font_max do begin
     pdf_font_lp_base[font_k] := 0;
     pdf_font_rp_base[font_k] := 0;
     pdf_font_ef_base[font_k] := 0;
-    pdf_font_kn_bs_base[font_k] := 0;
-    pdf_font_st_bs_base[font_k] := 0;
-    pdf_font_sh_bs_base[font_k] := 0;
-    pdf_font_kn_bc_base[font_k] := 0;
-    pdf_font_kn_ac_base[font_k] := 0;
 end;
 make_pdftex_banner;
 end;
