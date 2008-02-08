@@ -403,6 +403,32 @@ lua_nodelib_copy(lua_State *L) {
   return 1;
 }
 
+/* output (write) a node to tex's processor */
+
+static int
+lua_nodelib_append(lua_State *L) {
+  halfword *n;
+  halfword m;
+  n = check_isnode(L,1);
+  m = copy_node_list(*n);
+  new_tail_append(m);
+  while (vlink(m)!= null) {
+    m = vlink(m);
+    new_tail_append(m);
+  }
+  return 0;
+}
+
+static int
+lua_nodelib_last_node(lua_State *L) {
+  halfword m;
+  m = pop_tail();
+  lua_pushnumber(L,m);
+  lua_nodelib_push(L);
+  return 1;
+}
+
+
 
 /* build a hbox */
 
@@ -1881,6 +1907,8 @@ static const struct luaL_reg nodelib_f [] = {
   {"remove",        lua_nodelib_remove},
   {"insert_before", lua_nodelib_insert_before},
   {"insert_after",  lua_nodelib_insert_after},
+  {"write",         lua_nodelib_append},
+  {"last_node",     lua_nodelib_last_node},
   {"copy",          lua_nodelib_copy},
   {"copy_list",     lua_nodelib_copy_list},
   {"hpack",         lua_nodelib_hpack},

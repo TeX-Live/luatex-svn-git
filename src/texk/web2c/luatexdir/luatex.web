@@ -5145,6 +5145,28 @@ procedure new_tail_append(p:pointer);
 begin 
 couple_nodes(tail,p); tail:=vlink(tail);
 end;
+@#
+function pop_tail:pointer;
+label exit;
+var n,r:pointer;
+begin 
+  if tail<>head then begin
+    r:=tail;
+    if vlink(alink(tail))=tail then 
+      n:=alink(tail)
+    else begin
+      n:=head;
+      while vlink(n)<>tail do n:=vlink(n);
+      end;
+    flush_node(tail);
+    tail:=n;
+    vlink(n):=null;
+    pop_tail:=r;
+    end
+  else 
+    pop_tail:=null;
+exit:end;
+
 
 @ We will see later that the vertical list at the bottom semantic level is split
 into two parts; the ``current page'' runs from |page_head| to |page_tail|,
@@ -25283,8 +25305,8 @@ case is |sf_code(cur_chr)=1000|, so we want that case to be fast.
 @<Append character |cur_chr|...@>=
 continue: adjust_space_factor;@/
 chr_stack:=cur_chr;
-get_x_token;
 tail_append(new_char(cur_font,chr_stack));
+get_x_token;
 p := get_auto_kern(cur_font, -1, chr_stack);
 if p <> null then tail_append(p);
 if (cur_cmd=letter)or(cur_cmd=other_char)or
