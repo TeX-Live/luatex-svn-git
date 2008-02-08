@@ -265,10 +265,11 @@ do_split_command(char *maincmd)
 }
 
 static char **
-do_flatten_command(lua_State *L) {
+do_flatten_command(lua_State *L, char **runcmd) {
    unsigned int i, j ;
    char *s;
    char **cmdline = NULL;
+   *runcmd = NULL;
 
    for (j = 1;;j++) {
      lua_rawgeti(L,-1,j);
@@ -287,10 +288,10 @@ do_flatten_command(lua_State *L) {
      if (lua_isnil(L,-1) || (s=(char *)lua_tostring(L,-1))==NULL) {
        lua_pop(L,1);
        if (i==1) {
-	 xfree(cmdline) ;
+		 xfree(cmdline) ;
          return NULL;
        } else {
-         return cmdline;
+         break;
        }
      } else {
        lua_pop(L,1);
@@ -298,12 +299,21 @@ do_flatten_command(lua_State *L) {
      }
    }
    cmdline[i] = NULL;
+
+   lua_rawgeti(L,-1,0);
+   if (lua_isnil(L,-1) || (s=(char *)lua_tostring(L,-1))==NULL) {
+	 *runcmd = cmdline[0];
+   } else {
+	 *runcmd = xstrdup(s);
+   }
+   lua_pop(L,1);
+
    return cmdline;
 }
 
 
 static int os_exec (lua_State *L) {
-  char * maincmd;
+  char * maincmd, * runcmd;
   char ** cmdline = NULL;
 
   if (lua_gettop(L)!=1) {
@@ -314,16 +324,17 @@ static int os_exec (lua_State *L) {
   if (lua_type(L,1)==LUA_TSTRING) {
     maincmd =  (char *)lua_tostring(L, 1);
     cmdline = do_split_command(maincmd);
+    runcmd = cmdline[0];
   } else if (lua_type(L,1)==LUA_TTABLE) {
-    cmdline = do_flatten_command(L);
+    cmdline = do_flatten_command(L, & runcmd);
   }
   if (cmdline!=NULL) {
 #if defined(WIN32) && DONT_REALLY_EXIT
-    exec_command(cmdline[0], cmdline, environ);
+    exec_command(runcmd, cmdline, environ);
 #else
-    if (exec_command(cmdline[0], cmdline, environ)==-1) {
+    if (exec_command(runcmd, cmdline, environ)==-1) {
       lua_pushnil(L);
-      lua_pushfstring(L,"%s: %s",cmdline[0],  strerror(errno));
+      lua_pushfstring(L,"%s: %s",runcmd,  strerror(errno));
       lua_pushnumber(L, errno);
       return 3;
     }
@@ -334,15 +345,15 @@ static int os_exec (lua_State *L) {
   return 2;
 }
 
-#define do_error_return(A,B) do {				\
-    lua_pushnil(L);						\
-    lua_pushfstring(L,"%s: %s",cmdline[0],(A));			\
-    lua_pushnumber(L, B);					\
-    return 3;							\
+#define do_error_return(A,B) do {					\
+    lua_pushnil(L);									\
+    lua_pushfstring(L,"%s: %s",runcmd,(A));			\
+    lua_pushnumber(L, B);							\
+    return 3;										\
   } while (0)
 
 static int os_spawn (lua_State *L) {
-  char * maincmd;
+  char * maincmd, * runcmd;
   char ** cmdline = NULL;
   int i;
 
@@ -354,11 +365,12 @@ static int os_spawn (lua_State *L) {
   if (lua_type(L,1)==LUA_TSTRING) {
     maincmd =  (char *)lua_tostring(L, 1);
     cmdline = do_split_command(maincmd);
+    runcmd = cmdline[0];
   } else if (lua_type(L,1)==LUA_TTABLE) {
-    cmdline = do_flatten_command(L);
+    cmdline = do_flatten_command(L, &runcmd);
   }
   if (cmdline!=NULL) {
-    i = spawn_command(cmdline[0], cmdline, environ);
+    i = spawn_command(runcmd, cmdline, environ);
     if (i==0) {
       lua_pushnumber(L, i);
       return 1;
