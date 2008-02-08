@@ -9771,7 +9771,7 @@ set_page_int:@<Fetch the |dead_cycles| or the |insert_penalties|@>;
 set_page_dimen: @<Fetch something on the |page_so_far|@>;
 set_shape: @<Fetch the |par_shape| size@>;
 char_given,math_given,omath_given: scanned_result(m)(int_val); {TH: TODO, doesnt work}
-othercases @<Complain that \.{\\the} can't do this; give zero result@>
+othercases @<Complain that |texlib| can't do this; give zero result@>
 endcases;@/
 exit:end;
 
@@ -10131,6 +10131,16 @@ error;
 if level<>tok_val then scanned_result(0)(dimen_val)
 else scanned_result(0)(int_val);
 end
+
+@ @<Complain that |texlib| can't do this; give zero result@>=
+begin print_err("You can't use `"); print_cmd_chr(cmd,m);
+print("' as tex library index");
+help1("I'm forgetting what you said and using zero instead.");
+error;
+if level<>tok_val then scanned_result(0)(dimen_val)
+else scanned_result(0)(int_val);
+end
+
 
 @ When a |glue_val| changes to a |dimen_val|, we use the width component
 of the glue; there is no need to decrease the reference count, since it
