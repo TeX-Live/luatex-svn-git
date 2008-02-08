@@ -1009,7 +1009,7 @@ font_from_lua (lua_State *L, int f) {
       lua_pop(L, 1);
       
     } else { /* jikes, no characters */
-      pdftex_warn("lua-loaded font [%d] has no characters!",f);
+      pdftex_warn("lua-loaded font [%d] (%s) has no characters!",f, font_name(f));
     }
 
 #if SAVE_REF
@@ -1019,7 +1019,7 @@ font_from_lua (lua_State *L, int f) {
     lua_pop(Luas[0],1);
 #endif
   } else { /* jikes, no characters */
-    pdftex_warn("lua-loaded font [%d] has no character table!",f);
+    pdftex_warn("lua-loaded font [%d] (%s) has no character table!",f, font_name(f));
   }
   if (l_fonts!=NULL) 
     free(l_fonts);
