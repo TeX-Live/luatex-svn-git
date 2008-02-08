@@ -41,7 +41,7 @@ int copy_error (halfword p) ; /* define below */
 char * node_fields_list                       [] = { "attr", "width", "depth", "height", "dir", "shift", 
  						    "glue_order", "glue_sign", "glue_set" , "list",  NULL };
 char * node_fields_rule                       [] = { "attr", "width", "depth", "height", "dir", NULL };
-char * node_fields_insert                     [] = { "attr", "cost",  "depth", "height", "top_skip", "list", NULL };
+char * node_fields_insert                     [] = { "attr", "cost",  "depth", "height", "spec", "list", NULL };
 char * node_fields_mark                       [] = { "attr", "class", "mark", NULL }; 
 char * node_fields_adjust                     [] = { "attr", "list", NULL }; 
 char * node_fields_disc                       [] = { "attr", "pre", "post", "replace", NULL };
