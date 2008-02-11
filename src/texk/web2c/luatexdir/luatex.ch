@@ -1319,22 +1319,39 @@ nameoffile[namelength+1]:=0;
 @z
 
 @x
+@p function make_name_string:str_number;
+var k:1..file_name_size; {index into |nameoffile|}
+begin if (pool_ptr+namelength>pool_size)or(str_ptr=max_strings)or
+ (cur_length>0) then
+  make_name_string:="?"
+else  begin for k:=1 to namelength do append_char(nameoffile[k]);
   make_name_string:=make_string;
   end;
 @y
+@p function make_name_string:str_number;
+var k:1..file_name_size; {index into |nameoffile|}
+save_area_delimiter, save_ext_delimiter: pool_pointer;
+save_name_in_progress, save_stop_at_space: boolean;
+begin if (pool_ptr+namelength>pool_size)or(str_ptr=max_strings)or
+ (cur_length>0) then
+  make_name_string:="?"
+else  begin for k:=1 to namelength do append_char(nameoffile[k]);
   make_name_string:=make_string;
   end;
   {At this point we also set |cur_name|, |cur_ext|, and |cur_area| to
    match the contents of |nameoffile|.}
-  k:=1;
+  save_area_delimiter:=area_delimiter; 
+  save_ext_delimiter:=ext_delimiter;
+  save_name_in_progress:=name_in_progress; 
+  save_stop_at_space:=stop_at_space;
   name_in_progress:=true;
-  begin_name;
   stop_at_space:=false;
   while (k<=namelength)and(more_name(nameoffile[k])) do
-    incr(k);
-  stop_at_space:=true;
-  end_name;
-  name_in_progress:=false;
+    begin incr(k); append_char(nameoffile[k]); end;
+  stop_at_space:=save_stop_at_space;
+  name_in_progress:=save_name_in_progress;
+  area_delimiter:=save_area_delimiter; 
+  ext_delimiter:=save_ext_delimiter;
 @z
 
 @x
