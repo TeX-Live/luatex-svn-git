@@ -95,7 +95,7 @@ lua_hpack_filter (halfword head_node, scaled size, int pack_type, int extrainfo)
   halfword ret;  
   lua_State *L = Luas[0];
   int callback_id = callback_defined(hpack_filter_callback);
-  if (head_node==null || vlink(head_node)==null || callback_id == 0)
+  if (head_node==null || callback_id == 0)
     return head_node;
   lua_rawgeti(L,LUA_REGISTRYINDEX,callback_callbacks_id);
   lua_rawgeti(L,-1, callback_id);
@@ -135,7 +135,7 @@ lua_vpack_filter (halfword head_node, scaled size, int pack_type, scaled maxd, i
   halfword ret;  
   integer callback_id ; 
   lua_State *L = Luas[0];
-  if (head_node==null || vlink(head_node)==null)
+  if (head_node==null)
 	return head_node;
   if (strcmp("output",group_code_names[extrainfo])==0) {
     callback_id = callback_defined(pre_output_filter_callback);
