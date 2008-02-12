@@ -1946,43 +1946,9 @@ end;
 begin undump_font(k);@/
 end
 @y
-@ This module should now be named `Undump all the font arrays'.
-
-@d font_max==number_fonts
-
-@<Undump the array info for internal font number |k|@>=
+@ @<Undump the array info for internal font number |k|@>=
 begin undump_font(k);@/
 end;
-{Allocate the font arrays}
-pdf_font_size:=xmallocarray(scaled, font_max);
-pdf_font_num:=xmallocarray(integer, font_max);
-pdf_font_attr:=xmallocarray(str_number, font_max);
-pdf_font_blink:=xmallocarray(internal_font_number, font_max);
-pdf_font_elink:=xmallocarray(internal_font_number, font_max);
-pdf_font_stretch:=xmallocarray(integer, font_max);
-pdf_font_shrink:=xmallocarray(integer, font_max);
-pdf_font_step:=xmallocarray(integer, font_max);
-pdf_font_expand_ratio:=xmallocarray(integer, font_max);
-pdf_font_auto_expand:=xmallocarray(boolean, font_max);
-pdf_font_lp_base:=xmallocarray(integer, font_max);
-pdf_font_rp_base:=xmallocarray(integer, font_max);
-pdf_font_ef_base:=xmallocarray(integer, font_max);
-
-for font_k := font_base to font_max do begin
-    pdf_font_size[font_k] := 0;
-    pdf_font_num[font_k] := 0;
-    pdf_font_attr[font_k] := "";
-    pdf_font_blink[font_k] := null_font;
-    pdf_font_elink[font_k] := null_font;
-    pdf_font_stretch[font_k] := null_font;
-    pdf_font_shrink[font_k] := null_font;
-    pdf_font_step[font_k] := 0;
-    pdf_font_expand_ratio[font_k] := 0;
-    pdf_font_auto_expand[font_k] := false;
-    pdf_font_lp_base[font_k] := 0;
-    pdf_font_rp_base[font_k] := 0;
-    pdf_font_ef_base[font_k] := 0;
-    end;
 make_pdftex_banner
 @z
 
@@ -2310,40 +2276,8 @@ if (format_ident=0)or(buffer[loc]="&")or dump_line then
 fix_date_and_time;@/
 @y
 fix_date_and_time;@/
-
 @!init
-begin 
-pdf_font_size:=xmallocarray(scaled,font_max);
-pdf_font_num:=xmallocarray(integer,font_max);
-pdf_font_attr:=xmallocarray(str_number,font_max);
-pdf_font_blink:=xmallocarray(internal_font_number,font_max);
-pdf_font_elink:=xmallocarray(internal_font_number,font_max);
-pdf_font_stretch:=xmallocarray(integer,font_max);
-pdf_font_shrink:=xmallocarray(integer,font_max);
-pdf_font_step:=xmallocarray(integer,font_max);
-pdf_font_expand_ratio:=xmallocarray(integer,font_max);
-pdf_font_auto_expand:=xmallocarray(boolean,font_max);
-pdf_font_lp_base:=xmallocarray(integer,font_max);
-pdf_font_rp_base:=xmallocarray(integer,font_max);
-pdf_font_ef_base:=xmallocarray(integer,font_max);
-
-for font_k := font_base to font_max do begin
-    pdf_font_size[font_k] := 0;
-    pdf_font_num[font_k] := 0;
-    pdf_font_attr[font_k] := "";
-    pdf_font_blink[font_k] := null_font;
-    pdf_font_elink[font_k] := null_font;
-    pdf_font_stretch[font_k] := null_font;
-    pdf_font_shrink[font_k] := null_font;
-    pdf_font_step[font_k] := 0;
-    pdf_font_expand_ratio[font_k] := 0;
-    pdf_font_auto_expand[font_k] := false;
-    pdf_font_lp_base[font_k] := 0;
-    pdf_font_rp_base[font_k] := 0;
-    pdf_font_ef_base[font_k] := 0;
-end;
 make_pdftex_banner;
-end;
 tini@/
 @z
 

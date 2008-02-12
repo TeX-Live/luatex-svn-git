@@ -121,21 +121,21 @@ static void preset_fontmetrics(fd_entry * fd, internalfontnumber f)
     int i;
     fd->font_dim[ITALIC_ANGLE_CODE].val =
         divide_scaled(-atan(get_slant(f) / 65536.0) * (180 / M_PI),
-                     pdf_font_size[f], 3);
+					  pdf_font_size(f), 3);
     fd->font_dim[ASCENT_CODE].val =
-        divide_scaled(char_height(f, 'h'), pdf_font_size[f], 3);
+	  divide_scaled(char_height(f, 'h'), pdf_font_size(f), 3);
     fd->font_dim[CAPHEIGHT_CODE].val =
-        divide_scaled(char_height(f, 'H'), pdf_font_size[f], 3);
-    i = -divide_scaled(char_depth(f, 'y'), pdf_font_size[f], 3);
+	  divide_scaled(char_height(f, 'H'), pdf_font_size(f), 3);
+    i = -divide_scaled(char_depth(f, 'y'), pdf_font_size(f), 3);
     fd->font_dim[DESCENT_CODE].val = i < 0 ? i : 0;
     fd->font_dim[STEMV_CODE].val =
-        divide_scaled(char_width(f, '.') / 3, pdf_font_size[f], 3);
+	  divide_scaled(char_width(f, '.') / 3, pdf_font_size(f), 3);
     fd->font_dim[XHEIGHT_CODE].val =
-        divide_scaled(get_x_height(f), pdf_font_size[f], 3);
+	  divide_scaled(get_x_height(f), pdf_font_size(f), 3);
     fd->font_dim[FONTBBOX1_CODE].val = 0;
     fd->font_dim[FONTBBOX2_CODE].val = fd->font_dim[DESCENT_CODE].val;
     fd->font_dim[FONTBBOX3_CODE].val =
-        divide_scaled(get_quad(f), pdf_font_size[f], 3);
+	  divide_scaled(get_quad(f), pdf_font_size(f), 3);
     fd->font_dim[FONTBBOX4_CODE].val =
         fd->font_dim[CAPHEIGHT_CODE].val > fd->font_dim[ASCENT_CODE].val ?
         fd->font_dim[CAPHEIGHT_CODE].val : fd->font_dim[ASCENT_CODE].val;
@@ -335,7 +335,7 @@ static void write_charwidth_array(fo_entry * fo, internalfontnumber f)
             j++;
         }
         j = i;
-        width = divide_scaled(char_width(f, i), pdf_font_size[f], 4);
+        width = divide_scaled(char_width(f, i), pdf_font_size(f), 4);
         pdf_printf("%i", (int) width / 10);     /* see adv_char_width() in pdftex.web */
         if ((width = width % 10) != 0)
             pdf_printf(".%i", width);
@@ -517,7 +517,7 @@ void write_fontdictionary(fo_entry * fo)
 {
     assert(fo != NULL);
     assert(fo->fm != NULL);
-    assert(fo->fo_objnum != 0); /* reserved as pdf_font_num[f] in pdftex.web */
+    assert(fo->fo_objnum != 0); /* reserved as pdf_font_num(f) in pdftex.web */
 
     /* write ToUnicode entry if needed */
     if (fixed_gen_tounicode > 0 && fo->fd != NULL) {
@@ -557,8 +557,8 @@ void write_fontdictionary(fo_entry * fo)
         pdf_printf("/Encoding %i 0 R\n", (int) fo->fe->fe_objnum);
     if (fo->tounicode_objnum != 0)
         pdf_printf("/ToUnicode %i 0 R\n", (int) fo->tounicode_objnum);
-    if (pdf_font_attr[fo->tex_font] != get_nullstr()) {
-        pdf_print(pdf_font_attr[fo->tex_font]);
+    if (pdf_font_attr(fo->tex_font) != get_nullstr()) {
+	    pdf_print(pdf_font_attr(fo->tex_font));
         pdf_puts("\n");
     }
     pdf_end_dict();
@@ -748,12 +748,12 @@ static void mark_cid_subset_glyphs(fo_entry *fo, internal_font_number f)
   glw_entry *j;
   void *aa;
   for (k = 1; k <= max_font_id(); k++) {
-    if ( k == f || -f == pdf_font_num[k]) { 
+    if ( k == f || -f == pdf_font_num(k)) { 
       for (i = font_bc(k); i <= font_ec(k); i++) {
 		if (char_exists(k,i) && char_used(k,i)) {
 		  j = xtalloc(1,glw_entry);
 		  j->id = char_index(k,i);
-		  j->wd = divide_scaled_n(char_width(k, i), pdf_font_size[k], 10000.0);
+		  j->wd = divide_scaled_n(char_width(k, i), pdf_font_size(k), 10000.0);
 		  if ((glw_entry *)avl_find(fo->fd->gl_tree,j) == NULL) {
 		    	aa = avl_probe(fo->fd->gl_tree, j);
 			assert(aa != NULL);
@@ -873,8 +873,8 @@ void write_cid_fontdictionary(fo_entry * fo, internalfontnumber f)
 
     /* I doubt there is anything useful that could be written here */
     /*      
-      if (pdf_font_attr[fo->tex_font] != get_nullstr()) {
-      pdf_print(pdf_font_attr[fo->tex_font]);
+      if (pdf_font_attr(fo->tex_font) != get_nullstr()) {
+      pdf_print(pdf_font_attr(fo->tex_font));
       pdf_puts("\n");
       }
     */

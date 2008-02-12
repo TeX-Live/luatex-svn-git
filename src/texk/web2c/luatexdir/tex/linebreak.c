@@ -127,27 +127,27 @@ static integer cur_font_step=0; /*the current step of expanded fonts*/
 boolean check_expand_pars(internal_font_number f) {
   internal_font_number k;
   
-  if ((pdf_font_step[f] == 0) || ((pdf_font_stretch[f] == null_font)  &&
-				  (pdf_font_shrink[f] == null_font)))
+  if ((pdf_font_step(f) == 0) || ((pdf_font_stretch(f) == null_font)  &&
+								  (pdf_font_shrink(f) == null_font)))
     return false;
   if (cur_font_step < 0)
-    cur_font_step = pdf_font_step[f];
-  else if (cur_font_step != pdf_font_step[f]) 
+    cur_font_step = pdf_font_step(f);
+  else if (cur_font_step != pdf_font_step(f)) 
     pdf_error("font expansion", 
 	      "using fonts with different step of expansion in one paragraph is not allowed");
-  k = pdf_font_stretch[f];
+  k = pdf_font_stretch(f);
   if( k != null_font) {
     if (max_stretch_ratio < 0)
-      max_stretch_ratio = pdf_font_expand_ratio[k];
-    else if (max_stretch_ratio != pdf_font_expand_ratio[k]) 
+      max_stretch_ratio = pdf_font_expand_ratio(k);
+    else if (max_stretch_ratio != pdf_font_expand_ratio(k)) 
       pdf_error("font expansion", 
 		"using fonts with different limit of expansion in one paragraph is not allowed");
   }
-  k = pdf_font_shrink[f];
+  k = pdf_font_shrink(f);
   if( k != null_font) {
     if (max_shrink_ratio < 0) 
-      max_shrink_ratio = pdf_font_expand_ratio[k];
-    else if (max_shrink_ratio != pdf_font_expand_ratio[k]) 
+      max_shrink_ratio = pdf_font_expand_ratio(k);
+    else if (max_shrink_ratio != pdf_font_expand_ratio(k)) 
       pdf_error("font expansion", 
 		"using fonts with different limit of expansion in one paragraph is not allowed");
   }

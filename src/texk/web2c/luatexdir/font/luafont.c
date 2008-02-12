@@ -19,7 +19,7 @@ font_char_to_lua (lua_State *L, internalfontnumber f, charinfo *co) {
   liginfo *l;
   kerninfo *ki;
 
-  lua_createtable(L,0,7);
+  lua_createtable(L,0,10);
 
   lua_pushstring(L,"width");
   lua_pushnumber(L,get_charinfo_width(co));
@@ -36,6 +36,25 @@ font_char_to_lua (lua_State *L, internalfontnumber f, charinfo *co) {
   lua_pushstring(L,"italic");
   lua_pushnumber(L,get_charinfo_italic(co));
   lua_rawset(L,-3);
+
+  if (get_charinfo_ef(co)!=0) {
+	lua_pushstring(L,"expansion_factor");
+	lua_pushnumber(L,get_charinfo_ef(co));
+	lua_rawset(L,-3);
+  }
+
+  if (get_charinfo_lp(co)!=0) {
+	lua_pushstring(L,"left_protruding");
+	lua_pushnumber(L,get_charinfo_lp(co));
+	lua_rawset(L,-3);
+  }
+
+  if (get_charinfo_lp(rp)!=0) {
+	lua_pushstring(L,"right_protruding");
+	lua_pushnumber(L,get_charinfo_rp(co));
+	lua_rawset(L,-3);
+  }
+
 
   if (font_encodingbytes(f) == 2 ) {
         lua_pushstring(L,"index");
@@ -194,6 +213,52 @@ font_to_lua (lua_State *L, int f) {
   lua_setfield(L,-2,"encodingbytes");
   lua_pushnumber(L,font_tounicode(f));
   lua_setfield(L,-2,"tounicode");
+
+  /* pdf parameters */
+  /* skip the first four for now, that are very much interal */
+  /*
+  if (pdf_font_size(f) != 0) {
+	lua_pushnumber(L,pdf_font_size(f));
+	lua_setfield(L,-2,"pdf_size");
+  }
+  if (pdf_font_num(f) != 0) {
+	lua_pushnumber(L,pdf_font_num(f));
+	lua_setfield(L,-2,"pdf_num");
+  }
+  if (pdf_font_blink(f) != 0) {
+	lua_pushnumber(L,pdf_font_blink(f));
+	lua_setfield(L,-2,"pdf_blink");
+  }
+  if (pdf_font_elink(f) != 0) {
+	lua_pushnumber(L,pdf_font_elink(f));
+	lua_setfield(L,-2,"pdf_elink");
+  }
+  */
+  /* the next one is read only */
+  if (pdf_font_expand_ratio(f) != 0) {
+	lua_pushnumber(L,pdf_font_expand_ratio(f));
+	lua_setfield(L,-2,"expand_ratio");
+  }
+  if (pdf_font_shrink(f) != 0) {
+	lua_pushnumber(L,pdf_font_shrink(f));
+	lua_setfield(L,-2,"shrink");
+  }
+  if (pdf_font_stretch(f) != 0) {
+	lua_pushnumber(L,pdf_font_stretch(f));
+	lua_setfield(L,-2,"stretch");
+  }
+  if (pdf_font_step(f) != 0) {
+	lua_pushnumber(L,pdf_font_step(f));
+	lua_setfield(L,-2,"step");
+  }
+  if (pdf_font_auto_expand(f) != 0) {
+	lua_pushboolean(L,pdf_font_auto_expand(f));
+	lua_setfield(L,-2,"auto_expand");
+  }
+  if (pdf_font_attr(f) != 0) {
+	lua_pushstring(L,makecstring(pdf_font_attr(f)));
+	lua_setfield(L,-2,"attributes");
+  }
 
   /* params */
   write_lua_parameters(L,f);
@@ -384,6 +449,9 @@ make_luaS_index(height);
 make_luaS_index(depth);
 make_luaS_index(italic);
 make_luaS_index(index);
+make_luaS_index(left_protruding);
+make_luaS_index(right_protruding);
+make_luaS_index(expansion_factor);
 make_luaS_index(top); 
 make_luaS_index(bot); 
 make_luaS_index(rep); 
@@ -422,6 +490,9 @@ void init_font_string_pointers (lua_State *L) {
   init_luaS_index(depth);
   init_luaS_index(italic);
   init_luaS_index(index);
+  init_luaS_index(left_protruding);
+  init_luaS_index(right_protruding);
+  init_luaS_index(expansion_factor);
   init_luaS_index(top); 
   init_luaS_index(bot); 
   init_luaS_index(rep); 
@@ -732,6 +803,9 @@ font_char_from_lua (lua_State *L, internal_font_number f, integer i, integer *l_
     j = n_numeric_field(L,luaS_depth_index,0);        set_charinfo_depth (co,j);
     j = n_numeric_field(L,luaS_italic_index,0);       set_charinfo_italic (co,j);              
     j = n_numeric_field(L,luaS_index_index,0);        set_charinfo_index(co,j);
+    j = n_numeric_field(L,luaS_ef_index,0);           set_charinfo_ef(co,j);
+    j = n_numeric_field(L,luaS_lp_index,0);           set_charinfo_lp(co,j);
+    j = n_numeric_field(L,luaS_rp_index,0);           set_charinfo_rp(co,j);
     k = n_boolean_field(L,luaS_used_index,0);         set_charinfo_used(co,k);
     s = n_string_field (L,luaS_name_index,NULL);      set_charinfo_name(co,s);
     s = n_string_field (L,luaS_tounicode_index,NULL); set_charinfo_tounicode(co,s);
@@ -899,6 +973,16 @@ font_from_lua (lua_State *L, int f) {
   i = numeric_field(L,"hyphenchar",get_default_hyphen_char()); set_hyphen_char(f,i);
   i = numeric_field(L,"skewchar",get_default_skew_char());     set_skew_char(f,i);
   i = boolean_field(L,"used",0);                 set_font_used(f,i);
+
+  i = numeric_field(L,"shrink",0);           set_pdf_font_shrink(f,i);
+  i = numeric_field(L,"stretch",0);          set_pdf_font_stretch(f,i);
+  i = numeric_field(L,"step",0);             set_pdf_font_step(f,i);
+  i = boolean_field(L,"auto_expand",0);      set_pdf_font_auto_expand(f,i);
+  s = string_field (L,"attributes",NULL);          
+  if (s!=NULL && strlen(s)>0) {
+	i = maketexstring(s);
+    set_pdf_font_attr(f,i);
+  }
 
   i = enum_field(L,"type",     unknown_font_type,font_type_strings);      set_font_type(f,i);
   i = enum_field(L,"format",   unknown_format,   font_format_strings);    set_font_format(f,i);

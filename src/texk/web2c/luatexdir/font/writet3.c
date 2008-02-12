@@ -86,21 +86,21 @@ static integer get_pk_font_scale (internalfontnumber f)
 {
     return
         divide_scaled (pk_scale_factor,
-                      divide_scaled (pdf_font_size[f], one_hundred_bp,
+					   divide_scaled (pdf_font_size(f), one_hundred_bp,
                                     fixed_decimal_digits + 2), 0);
 }
 
 static integer pk_char_width (internalfontnumber f, scaled w)
 {
     return
-        divide_scaled (divide_scaled (w, pdf_font_size[f], 7),
+	  divide_scaled (divide_scaled (w, pdf_font_size(f), 7),
                       get_pk_font_scale (f), 0);
 }
 
 scaled get_pk_char_width (internalfontnumber f, scaled w)
 {
     return (get_pk_font_scale (f) / 100000.0) *
-        (pk_char_width (f, w) / 100.0) * pdf_font_size[f];
+	  (pk_char_width (f, w) / 100.0) * pdf_font_size(f);
 }
 
 static boolean writepk (internalfontnumber f)
@@ -128,7 +128,7 @@ static boolean writepk (internalfontnumber f)
 
 	if (callback_id>0) {
       dpi = round (fixed_pk_resolution *
-		   (((float) pdf_font_size[f]) / font_dsize(f)));
+				   (((float) pdf_font_size(f)) / font_dsize(f)));
       /* <base>.dpi/<fontname>.<tdpi>pk */
       cur_file_name = font_name(f);
       mallocsize = strlen(cur_file_name)+24+9;
@@ -145,7 +145,7 @@ static boolean writepk (internalfontnumber f)
       dpi =
         kpse_magstep_fix (round
                           (fixed_pk_resolution *
-                           (((float) pdf_font_size[f]) / font_dsize(f))),
+                           (((float) pdf_font_size(f)) / font_dsize(f))),
                           fixed_pk_resolution, NULL);
       cur_file_name = font_name(f);
       name = kpse_find_pk (cur_file_name, (unsigned) dpi, &font_ret);
@@ -275,8 +275,8 @@ void writet3 (int objnum, internalfontnumber f)
     pdf_begin_dict (objnum, 1);   /* Type 3 font dictionary */
     pdf_puts ("/Type /Font\n/Subtype /Type3\n");
     pdf_printf ("/Name /F%i\n", (int) f);
-    if (pdf_font_attr[f] != get_nullstr ()) {
-        pdf_print (pdf_font_attr[f]);
+    if (pdf_font_attr(f) != get_nullstr ()) {
+   	    pdf_print (pdf_font_attr(f));
         pdf_puts ("\n");
     }
     if (is_pk_font) {

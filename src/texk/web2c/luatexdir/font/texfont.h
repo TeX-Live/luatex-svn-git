@@ -57,6 +57,9 @@ typedef struct charinfo {
   scaled height;             /* height */
   scaled depth;              /* depth */
   scaled italic;             /* italic correction */
+  integer ef;                /* font expansion factor */
+  integer lp;                /* left protruding factor */
+  integer rp;                /* right protruding factor */
   char tag ;                 /* list / ext taginfo */
   char used ;                /* char is typeset ? */
   char *tounicode;           /* unicode equivalent */
@@ -122,6 +125,17 @@ typedef struct texfont {
   charinfo *charinfo;
   int      *charinfo_cache;
   integer  ligatures_disabled;
+
+  integer  _pdf_font_num; /* maps to a PDF resource ID */
+  scaled   _pdf_font_size; /* maps to a PDF font size */
+  internal_font_number _pdf_font_blink; /* link to  base font for expanded fonts */
+  internal_font_number _pdf_font_elink; /* link to expanded fonts for base font */
+  integer  _pdf_font_expand_ratio; /* expansion ratio of a particular font */
+  integer  _pdf_font_shrink; /* limit of shrinking */
+  integer  _pdf_font_stretch; /* limit of stretching */
+  integer  _pdf_font_step;  /* amount of one step of expansion */
+  boolean  _pdf_font_auto_expand; /* this font is auto-expanded? */
+  str_number _pdf_font_attr; /* pointer to additional attributes */
 } texfont;
 
 typedef enum {
@@ -252,6 +266,37 @@ boolean font_shareable(internal_font_number,internal_font_number);
 
 #define font_natural_dir(a)         font_tables[a]->_font_natural_dir
 #define set_font_natural_dir(a,b)   font_natural_dir(a) = b
+
+#define pdf_font_size(a)            font_tables[a]->_pdf_font_size
+#define set_pdf_font_size(a,b)      pdf_font_size(a) = b
+
+#define pdf_font_num(a)             font_tables[a]->_pdf_font_num
+#define set_pdf_font_num(a,b)       pdf_font_num(a) = b
+
+#define pdf_font_blink(a)            font_tables[a]->_pdf_font_blink
+#define set_pdf_font_blink(a,b)      pdf_font_blink(a) = b
+
+#define pdf_font_elink(a)            font_tables[a]->_pdf_font_elink
+#define set_pdf_font_elink(a,b)      pdf_font_elink(a) = b
+
+#define pdf_font_expand_ratio(a)            font_tables[a]->_pdf_font_expand_ratio
+#define set_pdf_font_expand_ratio(a,b)      pdf_font_expand_ratio(a) = b
+
+#define pdf_font_shrink(a)            font_tables[a]->_pdf_font_shrink
+#define set_pdf_font_shrink(a,b)      pdf_font_shrink(a) = b
+
+#define pdf_font_stretch(a)            font_tables[a]->_pdf_font_stretch
+#define set_pdf_font_stretch(a,b)      pdf_font_stretch(a) = b
+
+#define pdf_font_step(a)            font_tables[a]->_pdf_font_step
+#define set_pdf_font_step(a,b)      pdf_font_step(a) = b
+
+#define pdf_font_auto_expand(a)            font_tables[a]->_pdf_font_auto_expand
+#define set_pdf_font_auto_expand(a,b)      pdf_font_auto_expand(a) = b
+
+#define pdf_font_attr(a)            font_tables[a]->_pdf_font_attr
+#define set_pdf_font_attr(a,b)      pdf_font_attr(a) = b
+
 
 #define left_boundarychar  -1
 #define right_boundarychar -2
@@ -429,7 +474,15 @@ void undump_font (int font_number);
 integer test_no_ligatures (internal_font_number f) ;
 void set_no_ligatures (internal_font_number f) ;
 
-integer get_tag_code (internal_font_number f, integer c);
+extern integer get_tag_code (internal_font_number f, integer c);
+extern integer get_lp_code (internal_font_number f, integer c);
+extern integer get_rp_code (internal_font_number f, integer c);
+extern integer get_ef_code (internal_font_number f, integer c);
+
+extern void set_tag_code (internal_font_number f, integer c, integer i) ;
+extern void set_lp_code(internal_font_number f, integer c, integer i) ;
+extern void set_rp_code(internal_font_number f, integer c, integer i) ;
+extern void set_ef_code(internal_font_number f, integer c, integer i) ;
 
 int read_tfm_info(internal_font_number f, char *nom, char *aire, scaled s);
 
@@ -459,7 +512,5 @@ extern scaled sqxfw (scaled sq, integer fw);
 
 extern void do_vf_packet (internal_font_number vf_f, integer c);
 extern int vf_packet_bytes (charinfo *co);
-
-extern void set_tag_code (internal_font_number f, eight_bits c, integer i) ;
 
 #endif

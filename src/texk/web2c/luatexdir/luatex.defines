@@ -82,14 +82,6 @@ $Id $
 
 { macros from luatex.h }
 @define function pdf_char_marked();
-@define function get_lp_code();
-@define function get_rp_code();
-@define function get_ef_code();
-@define function get_kn_bs_code();
-@define function get_st_bs_code();
-@define function get_sh_bs_code();
-@define function get_kn_bc_code();
-@define function get_kn_ac_code();
 @define function tex_b_open_in();
 @define function vf_b_open_in ();
 @define procedure pdf_mark_char();
@@ -258,6 +250,28 @@ $Id $
 @define function tex_font_area();
 @define procedure set_tex_font_name();
 
+@define procedure set_pdf_font_size();
+@define procedure set_pdf_font_num();
+@define procedure set_pdf_font_blink();
+@define procedure set_pdf_font_elink();
+@define procedure set_pdf_font_expand_ratio();
+@define procedure set_pdf_font_shrink();
+@define procedure set_pdf_font_stretch();
+@define procedure set_pdf_font_step();
+@define procedure set_pdf_font_auto_expand();
+@define procedure set_pdf_font_attr();
+
+@define function pdf_font_size();
+@define function pdf_font_num();
+@define function pdf_font_blink();
+@define function pdf_font_elink();
+@define function pdf_font_expand_ratio();
+@define function pdf_font_shrink();
+@define function pdf_font_stretch();
+@define function pdf_font_step();
+@define function pdf_font_auto_expand();
+@define function pdf_font_attr();
+
 @define function cmp_font_area();
 @define function cmp_font_name();
 @define function font_shareable();
@@ -366,13 +380,19 @@ $Id $
 @define function letter_space_font();
 @define function read_font_info();
 
-@define function test_no_ligatures();
 @define function get_tag_code();
-@define procedure set_no_ligatures();
+@define function get_lp_code();
+@define function get_rp_code();
+@define function get_ef_code();
 @define procedure set_tag_code();
+@define procedure set_lp_code();
+@define procedure set_rp_code();
+@define procedure set_ef_code();
+
+@define function test_no_ligatures();
+@define procedure set_no_ligatures();
 
 @define function get_kern();
-
 @define function charkern();
 
 { functions from mapfile.c }

@@ -92,30 +92,6 @@ extern void b_test_in();
   (void) fwrite ((char *) &pdf_buf[a], sizeof (pdf_buf[a]), \
                  (int) ((b) - (a) + 1), pdf_file)
 
-#define get_lp_code(f, c) \
-  (c>255?0 :(pdf_font_lp_base[f] == 0 ? 0 : pdf_mem[pdf_font_lp_base[f] + c]))
-
-#define get_rp_code(f, c) \
-  (c>255?0 :(pdf_font_rp_base[f] == 0 ? 0 : pdf_mem[pdf_font_rp_base[f] + c]))
-
-#define get_ef_code(f, c) \
-  (c>255?0 :(pdf_font_ef_base[f] == 0 ? 1000 : pdf_mem[pdf_font_ef_base[f] + c]))
-
-#define get_kn_bs_code(f, c) \
-  (c>255?0 :(pdf_font_kn_bs_base[f] == 0 ? 0 : pdf_mem[pdf_font_kn_bs_base[f] + c]))
-
-#define get_st_bs_code(f, c) \
-  (c>255?0 :(pdf_font_st_bs_base[f] == 0 ? 0 : pdf_mem[pdf_font_st_bs_base[f] + c]))
-
-#define get_sh_bs_code(f, c) \
-  (c>255?0 :(pdf_font_sh_bs_base[f] == 0 ? 0 : pdf_mem[pdf_font_sh_bs_base[f] + c]))
-
-#define get_kn_bc_code(f, c) \
-  (c>255?0 :(pdf_font_kn_bc_base[f] == 0 ? 0 : pdf_mem[pdf_font_kn_bc_base[f] + c]))
-
-#define get_kn_ac_code(f, c) \
-  (c>255?0 :(pdf_font_kn_ac_base[f] == 0 ? 0 : pdf_mem[pdf_font_kn_ac_base[f] + c]))
-
 #define tex_b_open_in(f) \
     open_input (&(f), kpse_tex_format, FOPEN_RBIN_MODE)
 #define ovf_b_open_in(f) \

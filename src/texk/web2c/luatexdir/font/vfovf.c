@@ -241,11 +241,11 @@ vf_def_font(internal_font_number f,unsigned char *vf_buffer, integer *vf_cr) {
       if (ds != font_dsize(k))
 	vf_local_font_warning(f, k, "design size mismatch",ds,font_dsize(k));
     }
-    if (pdf_font_expand_ratio[f] != 0)
-      set_expand_params(k, pdf_font_auto_expand[f],
-			pdf_font_expand_ratio[pdf_font_stretch[f]],
-			pdf_font_expand_ratio[pdf_font_shrink[f]],
-			pdf_font_step[f], pdf_font_expand_ratio[f]);
+    if (pdf_font_expand_ratio(f) != 0)
+      set_expand_params(k, pdf_font_auto_expand(f),
+						pdf_font_expand_ratio(pdf_font_stretch(f)),
+						pdf_font_expand_ratio(pdf_font_shrink(f)),
+						pdf_font_step(f), pdf_font_expand_ratio(f));
     return k;
 }
 
@@ -1166,14 +1166,14 @@ auto_expand_vf(internal_font_number f) {
   integer *vf_old_fonts, *vf_new_fonts;
   integer num = 0;
 
-  if ((! pdf_font_auto_expand[f]) || (pdf_font_blink[f] == null_font))
+  if ((! pdf_font_auto_expand(f)) || (pdf_font_blink(f) == null_font))
     return false ; /* not an auto-expanded font */
-  bf = pdf_font_blink[f];
+  bf = pdf_font_blink(f);
   
   if (font_type(bf) != virtual_font_type)
     return false; /* not a virtual font */
 
-  e = pdf_font_expand_ratio[f];
+  e = pdf_font_expand_ratio(f);
 
   vf_old_fonts = packet_local_fonts(bf,&num);
   if (num>0) {
@@ -1246,10 +1246,10 @@ vf_expand_local_fonts(internal_font_number f) {
   if (num>0) {
     for (k = 0;k<num;k++) {
       lf = vf_old_fonts[k];
-      set_expand_params(lf, pdf_font_auto_expand[f],
-			pdf_font_expand_ratio[pdf_font_stretch[f]],
-			pdf_font_expand_ratio[pdf_font_shrink[f]],
-			pdf_font_step[f], pdf_font_expand_ratio[f]);
+      set_expand_params(lf, pdf_font_auto_expand(f),
+						pdf_font_expand_ratio(pdf_font_stretch(f)),
+						pdf_font_expand_ratio(pdf_font_shrink(f)),
+						pdf_font_step(f), pdf_font_expand_ratio(f));
       if (font_type(lf) == virtual_font_type)
 	vf_expand_local_fonts(lf);
     }

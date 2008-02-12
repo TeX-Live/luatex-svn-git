@@ -494,7 +494,7 @@ integer write_cid_tounicode(fo_entry * fo, internalfontnumber f) {
         gtab[i].code = UNI_UNDEF;
     }
 	for (k = 1; k <= max_font_id(); k++) {
-	  if (k == f || -f == pdf_font_num[k]) { 
+	  if (k == f || -f == pdf_font_num(k)) { 
 		for (i = font_bc(k); i <= font_ec(k); i++) {
 		  if (char_exists(k,i) && char_used(k,i)) {
 			j = char_index(k,i);
