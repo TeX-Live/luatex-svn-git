@@ -49,7 +49,7 @@ font_char_to_lua (lua_State *L, internalfontnumber f, charinfo *co) {
 	lua_rawset(L,-3);
   }
 
-  if (get_charinfo_lp(rp)!=0) {
+  if (get_charinfo_lp(co)!=0) {
 	lua_pushstring(L,"right_protruding");
 	lua_pushnumber(L,get_charinfo_rp(co));
 	lua_rawset(L,-3);
@@ -803,9 +803,9 @@ font_char_from_lua (lua_State *L, internal_font_number f, integer i, integer *l_
     j = n_numeric_field(L,luaS_depth_index,0);        set_charinfo_depth (co,j);
     j = n_numeric_field(L,luaS_italic_index,0);       set_charinfo_italic (co,j);              
     j = n_numeric_field(L,luaS_index_index,0);        set_charinfo_index(co,j);
-    j = n_numeric_field(L,luaS_ef_index,0);           set_charinfo_ef(co,j);
-    j = n_numeric_field(L,luaS_lp_index,0);           set_charinfo_lp(co,j);
-    j = n_numeric_field(L,luaS_rp_index,0);           set_charinfo_rp(co,j);
+    j = n_numeric_field(L,luaS_expansion_factor_index,0);  set_charinfo_ef(co,j);
+    j = n_numeric_field(L,luaS_left_protruding_index,0);   set_charinfo_lp(co,j);
+    j = n_numeric_field(L,luaS_right_protruding_index,0);  set_charinfo_rp(co,j);
     k = n_boolean_field(L,luaS_used_index,0);         set_charinfo_used(co,k);
     s = n_string_field (L,luaS_name_index,NULL);      set_charinfo_name(co,s);
     s = n_string_field (L,luaS_tounicode_index,NULL); set_charinfo_tounicode(co,s);
