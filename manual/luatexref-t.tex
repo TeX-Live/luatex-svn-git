@@ -13,7 +13,7 @@
  
 \setvariables
   [document]
-  [beta=0.20.2]
+  [beta=0.22.0]
 
 \starttext
 
@@ -60,7 +60,7 @@ available sometime in the summer of~2008.
 \startitemize[packed]
 \item \PDFTEX\ version 1.40.3
 \item \ALEPH\ RC4 (from the \TEXLIVE\ repository)
-\item \LUA\ 5.1.2 ($+$ coco)
+\item \LUA\ 5.1.2 ($+$ coco 1.1.3)
 \item Dedicated \LUA\ libraries
 \item Various \TEX\ extensions
 \item Parts of \FONTFORGE\ 2007.06.07
@@ -174,13 +174,17 @@ commands like \type{matcode} and \type{omathcode}. The traditional
 \NC \tex{mathcode}    \NC 8=15           \NC \tt~~~~~FF = ~~~800  \NC $2^{3}*2^{4}*2^{8}$               \NC\NR
 \NC \tex{delcode}     \NC 8=24           \NC \tt~~~~~FF = ~FFFFF  \NC $2^{4}*2^{8}*2^{4}*2^{8}$         \NC\NR
 \NC \tex{mathchar}    \NC 15             \NC \tt~~~7FFF           \NC $2^{3}*2^{4}*2^{8}$               \NC\NR
+\NC \tex{mathaccent}  \NC 15             \NC \tt~~~7FFF           \NC $2^{3}*2^{4}*2^{8}$               \NC\NR
 \NC \tex{delimiter}   \NC 27             \NC \tt7FFFFFF           \NC $2^{3}*2^{4}*2^{8}*2^{4}*2^{8}$   \NC\NR
-\NC \tex{omathchar}   \NC 27             \NC \tt7FFFFFF           \NC $2^{3}*2^{8}*2^{18}$              \NC\NR
-\NC \tex{odelimiter}  \NC 27+24          \NC \tt7FFFFFF + ~FFFFFF \NC $2^{3}*2^{8}*2^{16}+2^{8}*2^{16}$ \NC\NR
+\NC \tex{radical}     \NC 27             \NC \tt7FFFFFF           \NC $2^{3}*2^{4}*2^{8}*2^{4}*2^{8}$   \NC\NR
 \NC \tex{omathchardef}\NC 27             \NC \tt8000000           \NC $2^{3}*2^{8}*2^{16}$              \NC\NR
 \NC \tex{omathcode}   \NC 21=27          \NC \tt~10FFFF = 8000000 \NC $2^{3}*2^{8}*2^{16}$              \NC\NR
 \NC \tex{odelcode}    \NC 21=24+24       \NC \tt~10FFFF = ~FFFFFF \NC $2^{8}*2^{16}$                    \NC\NR
 \NC                   \NC                \NC \tt~~~~~~~ + ~FFFFFF \NC \quad $+ 2^{8}*2^{16}$            \NC\NR
+\NC \tex{omathchar}   \NC 27             \NC \tt7FFFFFF           \NC $2^{3}*2^{8}*2^{18}$              \NC\NR
+\NC \tex{omathaccent} \NC 27             \NC \tt7FFFFFF           \NC $2^{3}*2^{8}*2^{18}$              \NC\NR
+\NC \tex{odelimiter}  \NC 27+24          \NC \tt7FFFFFF + ~FFFFFF \NC $2^{3}*2^{8}*2^{16}+2^{8}*2^{16}$ \NC\NR
+\NC \tex{oradical}    \NC 27+24          \NC \tt7FFFFFF + ~FFFFFF \NC $2^{3}*2^{8}*2^{16}+2^{8}*2^{16}$ \NC\NR
 \stoptabulate
 
 \section{Extended tables}
@@ -478,7 +482,7 @@ The \tex{initcatcodetable} creates a new table with catcodes
 identical to those defined by \INITEX:
 
 \starttabulate[|l|l|l|l|]
-\NC~0\NC \tt\textbackslash         \NC         \NC \tt escape        \NC\NR
+\NC~0\NC \type{_}                  \NC         \NC \tt escape        \NC\NR
 \NC~5\NC \tt\letterhat\letterhat M \NC return  \NC \tt car\_ret      \NC\NR
 \NC~9\NC \tt\letterhat\letterhat @ \NC null    \NC \tt ignore        \NC\NR
 \NC10\NC \tt <space>               \NC space   \NC \tt spacer        \NC\NR
@@ -723,10 +727,48 @@ the corresponding functions from \lua{unicode.utf8} should be used.
 The \lua{os} library has a few extra functions and variables:
 
 \startitemize
-\item \luatex{os.exec('command')} is a non|-|returning version of \lua{os.execute}.
-  The advantage of this command is that it cleans out the current
+\item \luatex{os.exec(commandline)} is a variation on \lua{os.execute}.
+
+  The \type{commandline} can be either a single string or a single table. 
+
+  If the argument is a table: \LUATEX\ first checks if there is a value at
+  integer index zero. If there is, this is the command to be executed. Otherwise,
+  it will use the value at integer index one. (if neither are present, nothing 
+  at all happens).
+  
+  The set of consecutive values starting at integer 1 in the table are
+  the arguments that are passed on to the command (the value at index 1 
+  becomes \type{argv[0]}).  The command is searched for in the execution path, 
+  so there is normally no need to pass on a fully qualified pathname.
+
+  If the argument is a string, then it is automatically converted into 
+  a table by splitting on whitespace. In this case, it is impossible
+  for the command and first argument to differ from eachother.
+
+  In the string argument format, whitespace can be protected by putting (part
+  of) an argument inside single or double quotes.  One layer of quotes is
+  interpreted by \LUATEX, and all occurences of \type{\"}, \type{\'} or
+  \type{\\} within the quoted text are un-escaped.  In the table format, there
+  is no string handling taking place.
+
+  This function normally does not return control back to the lua script: the
+  command will replace the current process. However, it will return \type{nil,
+  'error'} if there was a problem while attempting to execute the command.
+
+  On windows, the current process is actually kept in memory until after the
+  execution of the command has finished. This prevents crashes in situations
+  where \TEXLUA\ scripts are run inside integrated \TEX\ environments.
+
+
+  (the original reason for this command is that it cleans out the current
   process before starting the new one, making it especially useful for
-  use in \TEXLUA.
+  use in \TEXLUA.)
+
+\item \luatex{os.spawn(commandline)} is a returning version of \lua{os.exec},
+  with otherwise identical calling conventions.
+ 
+  If the command ran ok, then the return value is the exit status of the
+  command. Otherwise, it will return \type{nil, 'error'}.
 
 \item \luatex{os.setenv('key','value')}
   This sets a variable in the environment. Passing \lua{nil} instead of a
@@ -754,17 +796,34 @@ so you can \type{lfs.chdir()} into it, or \type{nil} if it failed to
 create the directory.  The user is responsible for cleaning up at
 the end of the run, it does not happen automatically. 
 
+\item \luatex{os.type}
+This is a string  that gives a global indication of the class of operating
+system. The possible values are currently \type{windows}, \type{unix}, and
+\type{msdos} (you are unlikely to find this value `in the wild'). 
+
+\item \luatex{os.name}
+This is a string that gives a more precise indication of the operating
+system. These possible values are not yet fixed, and for \type{os.type} values
+\type{windows} and \type{msdos}, the \type{os.name} values are simply 
+\type{windows} and \type{msdos}
+
+The list for the type \type{unix} is more precise: \type{linux}, 
+\type{freebsd}, \type{openbsd}, \type{solaris}, \type{sunos} (pre-solaris), 
+\type{hpux}, \type{irix}, \type{macosx}, \type{bsd} (unknown, but BSD-like), 
+\type{sysv} (unknown, but SYSV-like), \type{generic} (unknown).
+
+(\type{os.version} is planned as a future extension)
+
 \stopitemize
 
-In stock Lua, many things depend on the current locale. In \LUATEX, we
-can't do that, because it makes documents unportable.  While \LUATEX\
-is running if forces the following locale settings:
+In stock Lua, many things depend on the current locale. In \LUATEX, we can't do
+that, because it makes documents unportable.  While \LUATEX\ is running if
+forces the following locale settings:
 \starttyping
 	LC_CTYPE=C
 	LC_COLLATE=C
 	LC_NUMERIC=C
 \stoptyping
-
 
 \section {\LUA\ Modules}
 
@@ -773,6 +832,11 @@ in with \LUATEX, because they offer useful functionality:
 
 \startitemize
 \item \lua{slnunicode}, from the Selene libraries, \hyphenatedurl{http://luaforge.net/projects/sln}. (version 1.1)
+
+This library has been slightly extended so that the \type{unicode.utf8.*} 
+functions also accept the first 256 values of Plane~18. This is the range \LUATEX\ 
+uses for raw binary output, as explained above,
+
 \item \lua{luazip}, from the kepler project, \hyphenatedurl{http://www.keplerproject.org/luazip/}.  
   (version 1.2.1, but patched for compilation with lua 5.1)
 \item \lua{luafilesystem}, also from the kepler project, \hyphenatedurl{http://www.keplerproject.org/luafilesystem/}.  
@@ -1810,6 +1874,24 @@ Adds 256 to all glyph node subtypes in the node list starting at
 handling of 1 means that \type{characters} will become \type{glyphs}
 after substraction of 256.
 
+\subsubsection{\luatex{node.last_node}}
+
+\startfunctioncall
+<node> n = node.last_node()
+\stopfunctioncall
+
+This function pops the last node from \TEX's `current list'. 
+It returns that node, or \type{nil} if the current list is empty.
+
+\subsubsection{\luatex{node.write}}
+
+\startfunctioncall
+node.write(<node> n)
+\stopfunctioncall
+
+This is an experimental function that will append a node list to 
+\TEX's `current list'. There is no error checking yet!
+
 
 
 \subsection{Attribute handling}
@@ -2782,6 +2864,15 @@ Like kpsewhich's \type{-expand-braces}:
 \startfunctioncall
 string r = kpse.expand_braces(string s)
 \stopfunctioncall
+
+\subsection{\luatex{kpse.show_path}}
+
+Like kpsewhich's \type{-show-path}:
+
+\startfunctioncall
+string r = kpse.show_path(string ftype)
+\stopfunctioncall
+
 
 \subsection{\luatex{kpse.var_value}}
 
@@ -4256,9 +4347,25 @@ The top|-|level keys in the table are as follows:
 \NC filename           \NC no       \NC no       \NC yes \NC string \NC disk file name\NC\NR
 \NC tounicode          \NC no       \NC yes      \NC yes \NC number \NC if 1, \LUATEX\ assumes per-glyph tounicode entries are
 present in the font\NC\NR
+\NC stretch            \NC no       \NC no       \NC yes \NC number \NC the `stretch' value from \type{\pdffontexpand}\NC\NR
+\NC shrink             \NC no       \NC no       \NC yes \NC number \NC the `shrink' value from \type{\pdffontexpand}\NC\NR
+\NC step               \NC no       \NC no       \NC yes \NC number \NC the `step' value from \type{\pdffontexpand}\NC\NR
+\NC auto_expand        \NC no       \NC no       \NC yes \NC boolean\NC the `autoexpand keyword from \type{\pdffontexpand}\NC\NR
+\NC expansion_factor   \NC no       \NC no       \NC no  \NC number \NC the actual expansion factor of an expanded font\NC\NR
+\NC attributes         \NC no       \NC no       \NC yes \NC string \NC the \type{\pdffontattr}\NC\NR
 \stoptabulate
 
 The key \type{name} is always required.
+
+The keys \type{stretch}, \type{shrink}, \type{step} and optionally \type{auto_expand} 
+only have meaning when used together: they can be used to replace a post-loading
+\type{\pdffontexpand} command. 
+
+The \type{expansion_factor} is value that can be present inside a font in \type{font.fonts}.
+It is the actual expansion factor (a value between \type{-shrink} and \type{stretch}, with
+step \type{step}) of a font that was automatically generated by the font expansion algorithm.
+
+The key \type{attributes} can be used to replace \type{\pdffontattr}.
 
 The key \type{used} is set by the engine when a font is actively in
 use, this makes sure that the font's definition is written to the
@@ -4356,6 +4463,9 @@ The following top|-|level keys can be present inside a character hash:
 \NC height     \NC no          \NC yes          \NC yes      \NC number         \NC character's height, in sp (default 0) \NC\NR
 \NC depth      \NC no          \NC yes          \NC yes      \NC number         \NC character's depth, in sp (default 0) \NC\NR
 \NC italic     \NC no          \NC yes          \NC yes      \NC number         \NC character's italic correction, in sp (default zero) \NC\NR
+\NC left_protruding  \NC no    \NC no           \NC maybe    \NC number         \NC character's \type{\lpcode}\NC\NR
+\NC right_protruding \NC no    \NC no           \NC maybe    \NC number         \NC character's \type{\rpcode}\NC\NR
+\NC expansion_factor \NC no    \NC no           \NC maybe    \NC number         \NC character's \type{\efcode}\NC\NR
 \NC tounicode  \NC no          \NC no           \NC maybe    \NC string         \NC character's Unicode equivalent(s), in
 UTF-16BE hexadecimal format\NC\NR
 \NC next       \NC no          \NC yes          \NC yes      \NC number         \NC the \quote{next larger} character index \NC\NR
@@ -4367,6 +4477,12 @@ UTF-16BE hexadecimal format\NC\NR
 \NC index      \NC no          \NC no           \NC yes      \NC number         \NC the (\OPENTYPE\ or \TRUETYPE) font glyph index \NC\NR
 \NC used       \NC no          \NC yes          \NC yes      \NC boolean        \NC typeset already (default: false)? \NC\NR
 \stoptabulate
+
+The values of \type{left_protruding} and \type{right_protruding} are used only when
+\type{\pdfprotrudechars} is non-zero.
+
+Whether or not \type{expansion_factor} is used depends on the font's global expansion
+settings, as well as on the value of \type{\pdfadjustspacing}.
 
 The usage of \type{tounicode} is this: if this font specifies a \type{tounicode=1} at
 the top level, then \LUATEX\ will construct a \type{/ToUnicode} entry for the PDF
@@ -4737,7 +4853,7 @@ It is generally easiest to deal with attribute lists and attributes
 by using the dedicated functions in the \luatex{node} library, but
 for completeness, here is the low|-|level interface. 
 
-An \type{attribute\_list} item is used as a head pointer for a list
+An \type{attribute_list} item is used as a head pointer for a list
 of attribute items. It has only one user-visible field:
 
 \starttabulate[|lT|l|p|]
@@ -4856,7 +4972,7 @@ Valid fields: \showfields{ins}
 \NC height     \NC number  \NC  \NC\NR
 \NC depth      \NC number  \NC  \NC\NR
 \NC list       \NC \syntax{<node>}    \NC  the body of this insert\NC\NR
-\NC top_skip   \NC \syntax{<node>}    \NC a pointer to the \tex{splittopskip} glue spec\NC\NR
+\NC spec       \NC \syntax{<node>}    \NC a pointer to the \tex{splittopskip} glue spec\NC\NR
 \stoptabulate
 
 \subsubsection{mark nodes}
@@ -5404,6 +5520,14 @@ it is much more natural to build this functionality on top of node
 processing and attributes. The associated primitives that are now gone
 are: \tex{pdfsnaprefpoint}, \tex{pdfsnapy}, and \tex{pdfsnapycomp}.
 
+\item The (experimental) support for specialized spacing around nodes 
+has also been removed. The associated primitives that are now gone are:
+\tex{pdfadjustinterwordglue}, \tex{pdfprependkern}, and \tex{pdfappendkern}, 
+as well as the five supporting primitives \tex{knbscode}, \tex{stbscode}, 
+\tex{shbscode}, \tex{knbccode}, and \tex{knaccode}.
+
+
+
 \item A number of \quote{utility functions} is removed:
 
 \startcolumns[n=3]
@@ -5741,9 +5865,6 @@ the natural width of the included items into account.
 \item Finish the interface from Lua to \TeX's internals, specially the hash and 
 equivalence table (a small subpart is implementing \type{\csname}
 lookups for \type{tex.box} access).
-
-\item Integrate the various \PDFTEX\ extended font codes for hz en protruding into
-the font table.
 
 \item Use of Type1C for embedded PostScript font subsets in
 traditional 8-bit encodings.
