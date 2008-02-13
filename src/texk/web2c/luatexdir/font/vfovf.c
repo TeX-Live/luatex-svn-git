@@ -1210,25 +1210,28 @@ internal_font_number
 auto_expand_font (internal_font_number f, integer e) {
   internal_font_number k;
   kerninfo *krn;
-  charinfo *co;
+  charinfo *co, *ci;
   char *fn;
   integer i;
+  scaled w;
   k = copy_font(f);
   i = strlen(font_name(f))+12;
   fn = xmalloc(i);
   snprintf(fn,i,"%s%s%d",font_name(f),(e>0 ? "+" : ""), (int)e);
   set_font_name(k,fn);
-  for (i = font_bc(k);i<=font_ec(k);i++) {
+  for (i = font_bc(k);i<=font_ec(k);i++) {	
     if (char_exists(k,i)) {
       co = get_charinfo(k,i);
-      set_charinfo_width (co, round_xn_over_d(get_charinfo_width(co),  1000 + e, 1000));
-      set_charinfo_italic(co, round_xn_over_d(get_charinfo_italic(co), 1000 + e, 1000));
+      w = round_xn_over_d(char_width(f,i),  1000 + e, 1000);
+	  set_charinfo_width (co, w);
+      w = round_xn_over_d(char_italic(f,i), 1000 + e, 1000);
+      set_charinfo_italic(co, w);
       krn = get_charinfo_kerns(co);
       if (krn != NULL) {
-	while (!kern_end((*krn))) {
-	  kern_kern(*krn) = round_xn_over_d(kern_kern(*krn), 1000 + e, 1000);
-	  krn++;
-	}
+		while (!kern_end((*krn))) {
+		  kern_kern(*krn) = round_xn_over_d(kern_kern(*krn), 1000 + e, 1000);
+		  krn++;
+		}
       }
     }
   }
@@ -1248,7 +1251,7 @@ vf_expand_local_fonts(internal_font_number f) {
       lf = vf_old_fonts[k];
       set_expand_params(lf, pdf_font_auto_expand(f),
 						pdf_font_expand_ratio(pdf_font_stretch(f)),
-						pdf_font_expand_ratio(pdf_font_shrink(f)),
+						-pdf_font_expand_ratio(pdf_font_shrink(f)),
 						pdf_font_step(f), pdf_font_expand_ratio(f));
       if (font_type(lf) == virtual_font_type)
 	vf_expand_local_fonts(lf);

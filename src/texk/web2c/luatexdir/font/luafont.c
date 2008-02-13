@@ -974,10 +974,6 @@ font_from_lua (lua_State *L, int f) {
   i = numeric_field(L,"skewchar",get_default_skew_char());     set_skew_char(f,i);
   i = boolean_field(L,"used",0);                 set_font_used(f,i);
 
-  i = numeric_field(L,"shrink",0);           set_pdf_font_shrink(f,i);
-  i = numeric_field(L,"stretch",0);          set_pdf_font_stretch(f,i);
-  i = numeric_field(L,"step",0);             set_pdf_font_step(f,i);
-  i = boolean_field(L,"auto_expand",0);      set_pdf_font_auto_expand(f,i);
   s = string_field (L,"attributes",NULL);          
   if (s!=NULL && strlen(s)>0) {
 	i = maketexstring(s);
@@ -991,7 +987,7 @@ font_from_lua (lua_State *L, int f) {
       (font_format(f)==opentype_format || font_format(f)==truetype_format)) {
     set_font_encodingbytes(f,2);
   }
-  
+
   /* now fetch the base fonts, if needed */
   n = count_hash_items(L,luaS_index(fonts));
   if (n>0) {
@@ -1071,6 +1067,7 @@ font_from_lua (lua_State *L, int f) {
     }
 
     if (bc != -1) {
+	  /* fprintf(stdout,"defined a font at %d with %d-%d\n",f,bc,ec); */
       set_font_bc(f,bc);
       set_font_ec(f,ec);
       lua_pushnil(L);  /* first key */
@@ -1092,6 +1089,28 @@ font_from_lua (lua_State *L, int f) {
       }
       lua_pop(L, 1);
       
+	  /* handle font expansion last: the |copy_font| routine is called eventually, 
+		 and that needs to know |bc| and |ec|. */
+	  if (font_type(f)!=virtual_font_type) {
+		int fstep = numeric_field(L,"step",0);
+		if (fstep<0) fstep = 0; 
+		if (fstep>100) fstep = 100;
+		if (fstep!=0) {
+		  int fshrink = numeric_field(L,"shrink",0);
+		  int fstretch = numeric_field(L,"stretch",0);
+		  int fexpand = boolean_field(L,"auto_expand",0);
+		  if (fshrink<0)     fshrink = 0; 
+		  if (fshrink>500)   fshrink = 500;
+		  fshrink -=         (fshrink % fstep);
+		  if (fshrink<0)     fshrink = 0; 
+		  if (fstretch<0)    fstretch = 0; 
+		  if (fstretch>1000) fstretch = 1000;
+		  fstretch -=        (fstretch % fstep);
+		  if (fstretch<0)    fstretch = 0; 
+		  set_expand_params(f, fexpand, fstretch, fshrink, fstep, 0);
+		}
+	  }
+
     } else { /* jikes, no characters */
       pdftex_warn("lua-loaded font [%d] (%s) has no characters!",f, font_name(f));
     }
@@ -1105,6 +1124,7 @@ font_from_lua (lua_State *L, int f) {
   } else { /* jikes, no characters */
     pdftex_warn("lua-loaded font [%d] (%s) has no character table!",f, font_name(f));
   }
+
   if (l_fonts!=NULL) 
     free(l_fonts);
   return true;

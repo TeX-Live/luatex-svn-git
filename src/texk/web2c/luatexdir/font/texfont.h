@@ -131,8 +131,8 @@ typedef struct texfont {
   internal_font_number _pdf_font_blink; /* link to  base font for expanded fonts */
   internal_font_number _pdf_font_elink; /* link to expanded fonts for base font */
   integer  _pdf_font_expand_ratio; /* expansion ratio of a particular font */
-  integer  _pdf_font_shrink; /* limit of shrinking */
-  integer  _pdf_font_stretch; /* limit of stretching */
+  internal_font_number  _pdf_font_shrink; /* font at limit of shrinking */
+  internal_font_number  _pdf_font_stretch; /* font at limit of stretching */
   integer  _pdf_font_step;  /* amount of one step of expansion */
   boolean  _pdf_font_auto_expand; /* this font is auto-expanded? */
   str_number _pdf_font_attr; /* pointer to additional attributes */

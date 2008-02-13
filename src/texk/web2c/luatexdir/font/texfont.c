@@ -112,8 +112,9 @@ new_font (void) {
   for (k=0;k<=7;k++) { 
     set_font_param(id,k,0);
   }
-  /* character info zero is reserved for notdef */
+  /* character info zero is reserved for notdef */  
   font_tables[id]->characters = new_sa_tree(1, 0); /* stack size 1, default item value 0 */
+
   ci = xcalloc(1,sizeof(charinfo));
   set_charinfo_name(ci,xstrdup(".notdef"));
   font_tables[id]->charinfo = ci;
@@ -498,7 +499,7 @@ set_font_params(internal_font_number f, int b) {
 integer
 copy_font (integer f) {
   int i;
-  charinfo *ci;
+  charinfo *ci , *co;
   integer k = new_font();
   memcpy(font_tables[k],font_tables[f],sizeof(texfont));
 
@@ -535,6 +536,15 @@ copy_font (integer f) {
   param_base(k) = xmalloc (i);
   memcpy(param_base(k),param_base(f), i);
 
+  i = sizeof(charinfo)*Charinfo_size(f);  
+  font_bytes += i;
+  font_tables[k]->charinfo = xmalloc(i);
+  memset(font_tables[k]->charinfo,0,i);
+  for(i=0;i<=Charinfo_size(k);i++) {
+	ci = copy_charinfo(&font_tables[f]->charinfo[i]);
+	font_tables[k]->charinfo[i] = *ci;
+  }
+
   if (left_boundary(f)!= NULL ) {
     ci = copy_charinfo(left_boundary(f));
     set_charinfo(k,left_boundarychar,ci);
@@ -543,13 +553,6 @@ copy_font (integer f) {
   if (right_boundary(f)!= NULL ) {
     ci = copy_charinfo(right_boundary(f));
     set_charinfo(k,right_boundarychar,ci);
-  }
-    
-  for(i=font_bc(f); i<=font_ec(f); i++) {
-    if (char_exists(f,i)) {
-      ci = copy_charinfo(char_info(f,i));
-      set_charinfo(k,i,ci);
-    }
   }
   return k;
 }

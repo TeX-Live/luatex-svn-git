@@ -146,8 +146,8 @@ boolean check_expand_pars(internal_font_number f) {
   k = pdf_font_shrink(f);
   if( k != null_font) {
     if (max_shrink_ratio < 0) 
-      max_shrink_ratio = pdf_font_expand_ratio(k);
-    else if (max_shrink_ratio != pdf_font_expand_ratio(k)) 
+      max_shrink_ratio = -pdf_font_expand_ratio(k);
+    else if (max_shrink_ratio != -pdf_font_expand_ratio(k)) 
       pdf_error("font expansion", 
 		"using fonts with different limit of expansion in one paragraph is not allowed");
   }

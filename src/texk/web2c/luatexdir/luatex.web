@@ -16489,7 +16489,8 @@ begin
     {if |f| is auto expanded then ensure the base font is initialized}
     if pdf_font_auto_expand(f) and (pdf_font_blink(f) <> null_font) then begin
         b := pdf_font_blink(f);
-        if not hasfmentry(b) then
+	    {TODO: reinstate this check. disabled because wide fonts font have fmentries}
+        if false and (not hasfmentry(b)) then
             pdf_error("font expansion", "auto expansion is only possible with scalable fonts");
         if not font_used(b) then
             pdf_init_font(b);
@@ -20232,8 +20233,8 @@ begin
                                 pdf_font_expand_ratio(pdf_font_stretch(f))*ef,
                                 1000000, 0))
     else if (pdf_font_shrink(f) <> null_font) and (ex_ratio < 0) then
-        k := expand_font(f, -divide_scaled(ex_ratio*
-                                pdf_font_expand_ratio(pdf_font_shrink(f))*ef,
+        k := expand_font(f, divide_scaled(ex_ratio*
+                                -pdf_font_expand_ratio(pdf_font_shrink(f))*ef,
                                 1000000, 0))
     else
         k := f;
@@ -20491,7 +20492,7 @@ if m >= cal_expand_ratio then begin
     prev_char_p := p;
     case m of
     cal_expand_ratio: begin
-        f := font(p);
+	    f := font(p);
         add_char_stretch(font_stretch)(p);
         add_char_shrink(font_shrink)(p);
     end;
