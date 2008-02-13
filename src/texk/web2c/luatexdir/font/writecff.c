@@ -3034,9 +3034,14 @@ void write_cff(cff_font *cffont, fd_entry *fd, int uglytype1fix) {
   /* */ 
   /*fprintf(stderr,"gid=%i, num_glyphs=%i", gid, num_glyphs);*/
   
-  if (gid != num_glyphs)
-    CFF_ERROR("Unexpected error: %i != %i", gid, num_glyphs);
-  
+  /* TODO reinstate this test */
+  /*
+	if (gid != num_glyphs)
+      CFF_ERROR("Unexpected error: %i != %i", gid, num_glyphs);
+  */
+  if (gid < num_glyphs)
+    num_glyphs = gid;
+
   xfree(data);
   cff_release_index(cs_idx);
   
