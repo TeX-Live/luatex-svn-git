@@ -6799,6 +6799,18 @@ function get_suppress_fontnotfound_error:boolean;
 begin
   get_suppress_fontnotfound_error := suppress_fontnotfound_error;
 end;
+function get_pdf_image_resolution:integer;
+begin
+  get_pdf_image_resolution := pdf_image_resolution;
+end;
+function get_pdf_minor_version:integer;
+begin
+  get_pdf_minor_version := pdf_minor_version;
+end;
+function get_pdf_inclusion_errorlevel:integer;
+begin
+  get_pdf_inclusion_errorlevel := pdf_inclusion_errorlevel;
+end;
 
 
 @ @<Set init...@>=
@@ -11339,7 +11351,7 @@ pdf_insert_ht_code: scan_register_num;
 pdf_ximage_bbox_code: begin
     scan_int;
     pdf_check_obj(obj_type_ximage, cur_val);
-    i := obj_ximage_data(cur_val);
+    i := obj_data_ptr(cur_val);
     scan_int;
     j := cur_val;
     if (j < 1) or (j > 4) then
@@ -16847,8 +16859,7 @@ destination |pdf_left| and |pdf_top| are used for some types of destinations}
 @d pdf_refobj_node_size    == 3 {size of whatsit node representing the raw object}
 @d pdf_obj_objnum(#)       == vinfo(# + 2) {number of the raw object}
 @d obj_data_ptr            == obj_aux {pointer to |pdf_mem|}
-@d pdfmem_obj_size         == 4 {size of memory in |pdf_mem| which
-                              |obj_data_ptr| holds}
+@d pdfmem_obj_size         == 4 {size of memory in |pdf_mem| which |obj_data_ptr| holds}
 @d obj_obj_data(#)         == pdf_mem[obj_data_ptr(#) + 0] {object data}
 @d obj_obj_is_stream(#)    == pdf_mem[obj_data_ptr(#) + 1] {will this object
                               be written as a stream instead of a dictionary?}
@@ -16874,16 +16885,9 @@ destination |pdf_left| and |pdf_top| are used for some types of destinations}
                               Resources}
 
 @# {data structure for \.{\\pdfximage} and \.{\\pdfrefximage}}
-@d pdf_refximage_node_size == 6 {size of whatsit node for ximage; words 1..3
+@d pdf_refximage_node_size == 6 {size of whatsit node for ximage; words 2..4
                                are image dimensions}
-@d pdf_ximage_objnum(#)    == vinfo(# + 5) {object number}
-@d pdfmem_ximage_size      == 6 {size of memory in |pdf_mem| which
-                              |obj_data_ptr| holds}
-@d obj_ximage_width(#)     == pdf_mem[obj_data_ptr(#) + 0]
-@d obj_ximage_height(#)    == pdf_mem[obj_data_ptr(#) + 1]
-@d obj_ximage_depth(#)     == pdf_mem[obj_data_ptr(#) + 2]
-@d obj_ximage_attr(#)      == pdf_mem[obj_data_ptr(#) + 3] {additional ximage attributes}
-@d obj_ximage_data(#)      == pdf_mem[obj_data_ptr(#) + 4] {pointer to image data}
+@d pdf_ximage_ref(#)       == vinfo(# + 5) {index of image dictionary structure in array}
 
 @# {data structure of annotations; words 1..4 represent the coordinates of
     the annotation}
@@ -18864,12 +18868,12 @@ if (pdf_xform_list <> null) or (pdf_ximage_list <> null) then begin
     k := pdf_ximage_list;
     while k <> null do begin
         pdf_print("/Im");
-        pdf_print_int(obj_info(info(k)));
+        pdf_print_int(image_index(info(k)));
         pdf_print_resname_prefix;
         pdf_out(" ");
-        pdf_print_int(info(k));
+        pdf_print_int(image_objnum(info(k)));
         pdf_print(" 0 R ");
-        update_image_procset(obj_ximage_data(info(k)));
+        update_image_procset(info(k));
         k := link(k);
     end;
     pdf_print_ln(">>");
@@ -19057,22 +19061,19 @@ pdf_text_procset := save_text_procset;
 pdf_image_procset := save_image_procset
 
 @ @<Declare procedures needed in |pdf_hlist_out|, |pdf_vlist_out|@>=
-procedure pdf_write_image(n: integer); {write an image}
+procedure pdf_write_image(ref: integer); {write an image}
+var i, k: integer;
 begin
-    pdf_begin_dict(n, 0);
-    if obj_ximage_attr(n) <> null then begin
-        pdf_print_toks_ln(obj_ximage_attr(n));
-        delete_toks(obj_ximage_attr(n));
-    end;
-    if fixed_pdf_draftmode = 0 then write_image(obj_ximage_data(n));
-    delete_image(obj_ximage_data(n));
+    k := image_objnum(ref);
+    pdf_begin_dict(image_objnum(ref), 0);
+    if fixed_pdf_draftmode = 0 then write_image(ref);
 end;
 
 @ @<Write out pending images@>=
 if pdf_ximage_list <> null then begin
     k := pdf_ximage_list;
     while k <> null do begin
-        if not is_obj_written(info(k)) then
+        if not is_obj_written(image_objnum(info(k))) then
             pdf_write_image(info(k));
         k := link(k);
     end;
@@ -30715,91 +30716,6 @@ alt_rule := null;
 warn_pdfpagebox := true;
 
 @ @<Declare procedures needed in |do_ext...@>=
-procedure scale_image(n: integer);
-var x, y, xr, yr: integer; {size and resolution of image}
-    w, h: scaled; {indeed size corresponds to image resolution}
-    default_res: integer;
-begin
-    x := image_width(obj_ximage_data(n));
-    y := image_height(obj_ximage_data(n));
-    xr := image_x_res(obj_ximage_data(n));
-    yr := image_y_res(obj_ximage_data(n));
-    if (xr > 65535) or (yr > 65535) then begin
-        xr := 0;
-        yr := 0;
-        pdf_warning("ext1", "too large image resolution ignored", true,true);
-    end;
-    if (x <= 0) or (y <= 0) or (xr < 0) or (yr < 0) then
-        pdf_error("ext1", "invalid image dimensions");
-    if is_pdf_image(obj_ximage_data(n)) then begin
-        w := x;
-        h := y;
-    end
-    else begin
-        default_res := fix_int(pdf_image_resolution, 0, 65535);
-        if (default_res > 0) and ((xr = 0) or (yr = 0)) then begin
-            xr := default_res;
-            yr := default_res;
-        end;
-        if is_running(obj_ximage_width(n)) and
-           is_running(obj_ximage_height(n)) then
-        begin
-            if (xr > 0) and (yr > 0) then begin
-                w := ext_xn_over_d(one_hundred_inch, x, 100*xr);
-                h := ext_xn_over_d(one_hundred_inch, y, 100*yr);
-            end
-            else begin
-                w := ext_xn_over_d(one_hundred_inch, x, 7200);
-                h := ext_xn_over_d(one_hundred_inch, y, 7200);
-            end;
-        end;
-    end;
-    if is_running(obj_ximage_width(n)) and is_running(obj_ximage_height(n)) and
-        is_running(obj_ximage_depth(n)) then begin
-        obj_ximage_width(n) := w;
-        obj_ximage_height(n) := h;
-        obj_ximage_depth(n) := 0;
-    end
-    else if is_running(obj_ximage_width(n)) then begin
-        {image depth or height is explicitly specified}
-        if is_running(obj_ximage_height(n)) then begin
-            {image depth is explicitly specified}
-            obj_ximage_width(n) := ext_xn_over_d(h, x, y);
-            obj_ximage_height(n) := h - obj_ximage_depth(n);
-        end
-        else if is_running(obj_ximage_depth(n)) then begin
-            {image height is explicitly specified}
-            obj_ximage_width(n) := ext_xn_over_d(obj_ximage_height(n), x, y);
-            obj_ximage_depth(n) := 0;
-        end
-        else begin
-            {both image depth and height are explicitly specified}
-            obj_ximage_width(n) := ext_xn_over_d(obj_ximage_height(n) +
-                                                 obj_ximage_depth(n), x, y);
-        end;
-    end
-    else begin
-        {image width is explicitly specified}
-        if is_running(obj_ximage_height(n)) and
-           is_running(obj_ximage_depth(n)) then begin
-            {both image depth and height are not specified}
-            obj_ximage_height(n) := ext_xn_over_d(obj_ximage_width(n), y, x);
-            obj_ximage_depth(n) := 0;
-        end
-        {image depth is explicitly specified}
-        else if is_running(obj_ximage_height(n)) then begin
-            obj_ximage_height(n) :=
-                ext_xn_over_d(obj_ximage_width(n), y, x) - obj_ximage_depth(n);
-        end
-        {image height is explicitly specified}
-        else if is_running(obj_ximage_depth(n)) then begin
-            obj_ximage_depth(n) := 0;
-        end
-        {both image depth and height are explicitly specified}
-        else
-            do_nothing;
-    end;
-end;
 
 function scan_pdf_box_spec: integer; {scans PDF pagebox specification}
 begin
@@ -30844,44 +30760,41 @@ end;
 
 procedure scan_image;
 label reswitch;
-var k: integer;
-    named: str_number;
+var i, k, img_wd, img_ht, img_dp, ref: integer;
+    named, attrib: str_number;
     s: str_number;
     page, pagebox, colorspace: integer;
 begin
     incr(pdf_ximage_count);
     pdf_create_obj(obj_type_ximage, pdf_ximage_count);
     k := obj_ptr;
-    obj_data_ptr(k) := pdf_get_mem(pdfmem_ximage_size);
     scan_alt_rule; {scans |<rule spec>| to |alt_rule|}
-    obj_ximage_width(k) := width(alt_rule);
-    obj_ximage_height(k) := height(alt_rule);
-    obj_ximage_depth(k) := depth(alt_rule);
+    img_wd := width(alt_rule);
+    img_ht := height(alt_rule);
+    img_dp := depth(alt_rule);
+    attrib := 0;
+    named := 0;
+    page := 1;
+    colorspace := 0;
     if scan_keyword("attr") then begin
         scan_pdf_ext_toks;
-        obj_ximage_attr(k) := def_ref;
-    end
-    else
-        obj_ximage_attr(k) := null;
-    named := 0;
-    page := 0;
+        attrib := tokens_to_string(def_ref);
+        delete_token_ref(def_ref);
+    end;
     if scan_keyword("named") then begin
         scan_pdf_ext_toks;
         named := tokens_to_string(def_ref);
         delete_token_ref(def_ref);
+        page := 0;
     end
     else if scan_keyword("page") then begin
         scan_int;
         page := cur_val;
-    end
-    else
-        page := 1;
+    end;
     if scan_keyword("colorspace") then begin
         scan_int;
         colorspace := cur_val;
-    end
-    else
-        colorspace := 0;
+    end;
     pagebox := scan_pdf_box_spec;
     if pagebox = 0 then
         pagebox := pdf_pagebox;
@@ -30908,15 +30821,17 @@ begin
     end;
     if pagebox = 0 then {no pagebox specification given}
         pagebox := pdf_box_spec_crop;
-    obj_ximage_data(k) := read_image(s, page, named, colorspace, pagebox,
-                                     pdf_minor_version,
-                                     pdf_inclusion_errorlevel);
-    if named <> 0 then flush_str(named);
+    ref := read_image(k, pdf_ximage_count, s, page, named, attrib, colorspace, pagebox,
+                      pdf_minor_version, pdf_inclusion_errorlevel);
     flush_str(s);
-    scale_image(k);
+    obj_data_ptr(k) := ref;
+    if named <> 0 then flush_str(named);
+    set_image_dimensions(ref, img_wd, img_ht, img_dp);
+    if attrib <> 0 then flush_str(attrib);
+    scale_image(ref);
     pdf_last_ximage := k;
-    pdf_last_ximage_pages := image_pages(obj_ximage_data(k));
-    pdf_last_ximage_colordepth := image_colordepth(obj_ximage_data(k));
+    pdf_last_ximage_pages := image_pages(ref);
+    pdf_last_ximage_colordepth := image_colordepth(ref);
 end;
 
 @ @<Implement \.{\\pdfximage}@>=
@@ -30932,11 +30847,33 @@ begin
     scan_int;
     pdf_check_obj(obj_type_ximage, cur_val);
     new_whatsit(pdf_refximage_node);
-    pdf_ximage_objnum(tail) := cur_val;
-    pdf_width(tail) := obj_ximage_width(cur_val);
-    pdf_height(tail) := obj_ximage_height(cur_val);
-    pdf_depth(tail) := obj_ximage_depth(cur_val);
+    j := obj_data_ptr(cur_val);
+    pdf_ximage_ref(tail) := j;
+    pdf_width(tail) := image_wd(j);
+    pdf_height(tail) := image_ht(j);
+    pdf_depth(tail) := image_dp(j);
 end
+
+@ @p
+function lua_refximage(ref: integer): integer;
+var k: integer;
+begin
+    check_pdfoutput("\pdfrefximage", true);
+    k := image_objnum(ref);
+    if k = 0 then begin {not strictly needed here, could be delayed until |out_image()|}
+        incr(pdf_ximage_count);
+        pdf_create_obj(obj_type_ximage, pdf_ximage_count);
+        obj_data_ptr(obj_ptr) := ref;
+	k := obj_ptr;
+	set_image_index(ref, pdf_ximage_count);
+    end;
+    new_whatsit(pdf_refximage_node);
+    pdf_ximage_ref(tail) := ref;
+    pdf_width(tail) := image_wd(ref);
+    pdf_height(tail) := image_ht(ref);
+    pdf_depth(tail) := image_dp(ref);
+    lua_refximage := k;
+end;
 
 @ The following function finds object with identifier |i| and type |t|.
   |i < 0| indicates that |-i| should be treated as a string number. If no
@@ -31812,11 +31749,11 @@ end;
 pdf_refximage_node: begin
     print_esc("pdfrefximage");
     print("(");
-    print_scaled(obj_ximage_height(pdf_ximage_objnum(p)));
+    print_scaled(pdf_height(p));
     print_char("+");
-    print_scaled(obj_ximage_depth(pdf_ximage_objnum(p)));
+    print_scaled(pdf_depth(p));
     print(")x");
-    print_scaled(obj_ximage_width(pdf_ximage_objnum(p)));
+    print_scaled(pdf_width(p));
 end;
 pdf_annot_node: begin
     print_esc("pdfannot");
@@ -32162,7 +32099,7 @@ if cur_cmd=extension then begin
         end;
         pdf_ximage_code: begin
             do_extension; {scan image and set |pdf_last_ximage|}
-            pdf_write_image(pdf_last_ximage);
+            pdf_write_image(obj_data_ptr(pdf_last_ximage));
         end;
         othercases back_input
     endcases;
@@ -33013,47 +32950,6 @@ begin
     pdf_print_ln("Q");
 end;
 
-procedure out_image(p: pointer);
-var image: integer;
-begin
-    image := obj_ximage_data(pdf_ximage_objnum(p));
-    pdf_end_text;
-    pdf_print_ln("q");
-    if pdf_lookup_list(pdf_ximage_list, pdf_ximage_objnum(p)) = null then
-        pdf_append_list(pdf_ximage_objnum(p))(pdf_ximage_list);
-    if not is_pdf_image(image) then begin
-        pdf_print_real(ext_xn_over_d(pdf_width(p),
-                       ten_pow[6], one_hundred_bp), 4);
-        pdf_print(" 0 0 ");
-        pdf_print_real(ext_xn_over_d(pdf_height(p) + pdf_depth(p),
-                       ten_pow[6], one_hundred_bp), 4);
-        pdf_out(" ");
-        pdf_print_bp(cur_h - pdf_origin_h); pdf_out(" ");
-        pdf_print_bp(pdf_origin_v - cur_v);
-    end
-    else begin
-        pdf_print_real(ext_xn_over_d(pdf_width(p),
-                       ten_pow[6], image_width(image)), 6);
-        pdf_print(" 0 0 ");
-        pdf_print_real(ext_xn_over_d(pdf_height(p) + pdf_depth(p),
-                       ten_pow[6], image_height(image)), 6);
-        pdf_out(" ");
-        pdf_print_bp(cur_h - pdf_origin_h -
-                     ext_xn_over_d(pdf_width(p), epdf_orig_x(image),
-                                   image_width(image)));
-        pdf_out(" ");
-        pdf_print_bp(pdf_origin_v - cur_v -
-                     ext_xn_over_d(pdf_height(p), epdf_orig_y(image),
-                                   image_height(image)));
-    end;
-    pdf_print_ln(" cm");
-    pdf_print("/Im");
-    pdf_print_int(obj_info(pdf_ximage_objnum(p)));
-    pdf_print_resname_prefix;
-    pdf_print_ln(" Do");
-    pdf_print_ln("Q");
-end;
-
 @ @<Output the whatsit node |p| in |pdf_vlist_out|@>=
 case subtype(p) of
 pdf_literal_node:
@@ -33108,7 +33004,9 @@ end
 @ @<Output a Image node in a vlist@>=
 begin cur_v:=cur_v+pdf_height(p)+pdf_depth(p);
   cur_h:=left_edge;
-  out_image(p);
+  out_image(pdf_ximage_ref(p), cur_h-pdf_origin_h, pdf_origin_v-cur_v);
+  if pdf_lookup_list(pdf_ximage_list, pdf_ximage_ref(p)) = null then
+      pdf_append_list(pdf_ximage_ref(p))(pdf_ximage_list);
   end
 
 @ @<Output a Form node in a vlist@>=
@@ -33165,7 +33063,9 @@ endcases
 @ @<Output a Image node in a hlist@>=
 begin
   cur_v:=base_line+pdf_depth(p);
-  out_image(p);
+  out_image(pdf_ximage_ref(p), cur_h-pdf_origin_h, pdf_origin_v-cur_v);
+  if pdf_lookup_list(pdf_ximage_list, pdf_ximage_ref(p)) = null then
+      pdf_append_list(pdf_ximage_ref(p))(pdf_ximage_list);
   edge:=cur_h+pdf_width(p); cur_h:=edge; cur_v:=base_line;
   end
 

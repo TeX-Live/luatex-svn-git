@@ -17,409 +17,434 @@ You should have received a copy of the GNU General Public License
 along with pdfTeX; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-$Id: writepng.c,v 1.2 2006/01/06 22:35:43 hahe Exp hahe $
+$Id: writepng.c,v 1.23 2008/02/01 20:51:06 root Exp $
 */
 
+#include <assert.h>
 #include "ptexlib.h"
 #include "image.h"
 
-/*@unused@*/
-static const char perforce_id[] =
-    "$Id: writepng.c,v 1.2 2006/01/06 22:35:43 hahe Exp hahe $";
+void close_and_cleanup_png(image_dict * idict)
+{
+    assert(idict != NULL);
+    assert(img_file(idict) != NULL);
+    assert(img_filepath(idict) != NULL);
+    assert(img_png_ptr(idict) != NULL);
+    xfclose(img_file(idict), img_filepath(idict));
+    img_file(idict) = NULL;
+    png_destroy_read_struct(&(img_png_png_ptr(idict)),
+                            &(img_png_info_ptr(idict)), NULL);
+    xfree(img_png_ptr(idict));
+    img_png_ptr(idict) = NULL;
+}
 
-void read_png_info (integer img)
+void read_png_info(image_dict * idict, boolean cleanup)
 {
     double gamma;
-    FILE *png_file = xfopen (img_name (img), FOPEN_RBIN_MODE);
-
-    if ((png_ptr (img) = png_create_read_struct (PNG_LIBPNG_VER_STRING,
-                                                 NULL, NULL, NULL)) == NULL)
-        pdftex_fail ("libpng: png_create_read_struct() failed");
-    if ((png_info (img) = png_create_info_struct (png_ptr (img))) == NULL)
-        pdftex_fail ("libpng: png_create_info_struct() failed");
-    if (setjmp (png_ptr (img)->jmpbuf))
-        pdftex_fail ("libpng: internal error");
-    png_init_io (png_ptr (img), png_file);
-    png_read_info (png_ptr (img), png_info (img));
+    png_structp png_p;
+    png_infop info_p;
+    assert(idict != NULL);
+    assert(img_type(idict) == IMAGE_TYPE_PNG);
+    img_totalpages(idict) = 1;
+    img_pagenum(idict) = 1;
+    img_xres(idict) = img_yres(idict) = 0;
+    img_file(idict) = xfopen(img_filepath(idict), FOPEN_RBIN_MODE);
+    assert(img_png_ptr(idict) == NULL);
+    img_png_ptr(idict) = xtalloc(1, png_img_struct);
+    if ((png_p = png_create_read_struct(PNG_LIBPNG_VER_STRING,
+                                        NULL, NULL, NULL)) == NULL)
+        pdftex_fail("libpng: png_create_read_struct() failed");
+    img_png_png_ptr(idict) = png_p;
+    if ((info_p = png_create_info_struct(png_p)) == NULL)
+        pdftex_fail("libpng: png_create_info_struct() failed");
+    img_png_info_ptr(idict) = info_p;
+    if (setjmp(png_p->jmpbuf))
+        pdftex_fail("libpng: internal error");
+    png_init_io(png_p, img_file(idict));
+    png_read_info(png_p, info_p);
     /* simple transparency support */
-    if (png_get_valid (png_ptr (img), png_info (img), PNG_INFO_tRNS)) {
-        png_set_tRNS_to_alpha (png_ptr (img));
+    if (png_get_valid(png_p, info_p, PNG_INFO_tRNS)) {
+        png_set_tRNS_to_alpha(png_p);
     }
     /* alpha channel support  */
-    if (fixed_pdf_minor_version < 4
-        && png_ptr (img)->color_type | PNG_COLOR_MASK_ALPHA)
-        png_set_strip_alpha (png_ptr (img));
+    if (fixed_pdf_minor_version < 4 && png_p->color_type | PNG_COLOR_MASK_ALPHA)
+        png_set_strip_alpha(png_p);
     /* 16bit depth support */
     if (fixed_pdf_minor_version < 5)
         fixed_image_hicolor = 0;
-    if (png_info (img)->bit_depth == 16 && !fixed_image_hicolor)
-        png_set_strip_16 (png_ptr (img));
+    if (info_p->bit_depth == 16 && !fixed_image_hicolor)
+        png_set_strip_16(png_p);
     /* gamma support */
     if (fixed_image_apply_gamma) {
-        if (png_get_gAMA (png_ptr (img), png_info (img), &gamma))
-            png_set_gamma (png_ptr (img), (fixed_gamma / 1000.0), gamma);
+        if (png_get_gAMA(png_p, info_p, &gamma))
+            png_set_gamma(png_p, (fixed_gamma / 1000.0), gamma);
         else
-            png_set_gamma (png_ptr (img), (fixed_gamma / 1000.0),
-                           (1000.0 / fixed_image_gamma));
+            png_set_gamma(png_p, (fixed_gamma / 1000.0),
+                          (1000.0 / fixed_image_gamma));
     }
     /* reset structure */
-    png_read_update_info (png_ptr (img), png_info (img));
+    png_read_update_info(png_p, info_p);
     /* resolution support */
-    img_width (img) = png_info (img)->width;
-    img_height (img) = png_info (img)->height;
-    if (png_info (img)->valid & PNG_INFO_pHYs) {
-        img_xres (img) =
-            round (0.0254 *
-                   png_get_x_pixels_per_meter (png_ptr (img), png_info (img)));
-        img_yres (img) =
-            round (0.0254 *
-                   png_get_y_pixels_per_meter (png_ptr (img), png_info (img)));
+    img_width(idict) = info_p->width;
+    img_height(idict) = info_p->height;
+    if (info_p->valid & PNG_INFO_pHYs) {
+        img_xres(idict) =
+            round(0.0254 * png_get_x_pixels_per_meter(png_p, info_p));
+        img_yres(idict) =
+            round(0.0254 * png_get_y_pixels_per_meter(png_p, info_p));
     }
-    switch (png_info (img)->color_type) {
+    switch (info_p->color_type) {
     case PNG_COLOR_TYPE_PALETTE:
-        img_color (img) = IMAGE_COLOR_C | IMAGE_COLOR_I;
+        img_color(idict) = IMAGE_COLOR_C | IMAGE_COLOR_I;
         break;
     case PNG_COLOR_TYPE_GRAY:
     case PNG_COLOR_TYPE_GRAY_ALPHA:
-        img_color (img) = IMAGE_COLOR_B;
+        img_color(idict) = IMAGE_COLOR_B;
         break;
     case PNG_COLOR_TYPE_RGB:
     case PNG_COLOR_TYPE_RGB_ALPHA:
-        img_color (img) = IMAGE_COLOR_C;
+        img_color(idict) = IMAGE_COLOR_C;
         break;
     default:
-        pdftex_fail ("unsupported type of color_type <%i>",
-                     png_info (img)->color_type);
+        pdftex_fail("unsupported type of color_type <%i>", info_p->color_type);
     }
+    img_colordepth(idict) = info_p->bit_depth;
+    if (cleanup)
+        close_and_cleanup_png(idict);
 }
 
-
 #define write_gray_pixel_16(r)                           \
-  if (j % 4 == 0||j % 4 == 1)  pdf_buf[pdf_ptr++]  = *r++; \
+  if (j % 4 == 0||j % 4 == 1) pdf_buf[pdf_ptr++] = *r++; \
   else                        smask[smask_ptr++] = *r++
 
 #define write_gray_pixel_8(r)                   \
-    if (j % 2 == 0)  pdf_buf[pdf_ptr++]   = *r++; \
+    if (j % 2 == 0)  pdf_buf[pdf_ptr++] = *r++; \
     else  	     smask[smask_ptr++] = *r++
 
 
-#define write_rgb_pixel_16(r)                                 \
-    if (!(j % 8 == 6||j % 8 == 7)) pdf_buf[pdf_ptr++]  = *r++;  \
+#define write_rgb_pixel_16(r)                                  \
+    if (!(j % 8 == 6||j % 8 == 7)) pdf_buf[pdf_ptr++]  = *r++; \
     else                           smask[smask_ptr++] = *r++
 
-#define write_rgb_pixel_8(r)                                 \
-    if (j % 4 != 3)      pdf_buf[pdf_ptr++]  = *r++;           \
-    else                 smask[smask_ptr++] = *r++
+#define write_rgb_pixel_8(r)                   \
+    if (j % 4 != 3) pdf_buf[pdf_ptr++] = *r++; \
+    else            smask[smask_ptr++] = *r++
 
 #define write_simple_pixel(r)    pdf_buf[pdf_ptr++] = *r++
 
-
-#define write_noninterlaced(outmac)                    \
-  for (i = 0; (unsigned) i < (int)png_info(img)->height; i++) {   \
-    png_read_row(png_ptr(img), row, NULL);             \
-    r = row;                                           \
-    k = png_info(img)->rowbytes;                       \
-    while(k > 0) {                                     \
-	l = (k > pdf_buf_size)? pdf_buf_size : k;          \
-		pdfroom(l);                            \
-		for (j = 0; j < l; j++) {              \
-		  outmac;	                       \
-		}                                      \
-		k -= l;                                \
-	    }                                          \
+#define write_noninterlaced(outmac)                      \
+  for (i = 0; (unsigned) i < (int)info_p->height; i++) { \
+    png_read_row(png_p, row, NULL);                      \
+    r = row;                                             \
+    k = info_p->rowbytes;                                \
+    while(k > 0) {                                       \
+	l = (k > pdf_buf_size)? pdf_buf_size : k;        \
+		pdfroom(l);                              \
+		for (j = 0; j < l; j++) {                \
+		  outmac;	                         \
+		}                                        \
+		k -= l;                                  \
+	    }                                            \
         }
 
-#define write_interlaced(outmac)                       \
-  for (i = 0; (unsigned) i < (int)png_info(img)->height; i++) {   \
-            row = rows[i];                             \
-	    k = png_info(img)->rowbytes;               \
-	    while(k > 0) {                             \
-		l = (k > pdf_buf_size)? pdf_buf_size : k;  \
-		pdfroom(l);                            \
-		for (j = 0; j < l; j++) {              \
-		  outmac;           	               \
-		}                                      \
-		k -= l;                                \
-	    }                                          \
-            xfree(rows[i]);                            \
+#define write_interlaced(outmac)                         \
+  for (i = 0; (unsigned) i < (int)info_p->height; i++) { \
+            row = rows[i];                               \
+	    k = info_p->rowbytes;                        \
+	    while(k > 0) {                               \
+		l = (k > pdf_buf_size)? pdf_buf_size : k;\
+		pdfroom(l);                              \
+		for (j = 0; j < l; j++) {                \
+		  outmac;           	                 \
+		}                                        \
+		k -= l;                                  \
+	    }                                            \
+            xfree(rows[i]);                              \
         }
 
-
-void write_png_palette (integer img)
+void write_png_palette(image_dict * idict)
 {
     int i, j, k, l;
+    png_structp png_p = img_png_png_ptr(idict);
+    png_infop info_p = img_png_info_ptr(idict);
     png_bytep row, r, *rows;
     integer palette_objnum = 0;
-    pdf_create_obj (0, 0);
+    pdf_create_obj(0, 0);
     palette_objnum = obj_ptr;
-    if (img_colorspace_ref (img) != 0) {
-        pdf_printf ("%i 0 R\n", (int) img_colorspace_ref (img));
+    if (img_colorspace_obj(idict) != 0) {
+        pdf_printf("%i 0 R\n", (int) img_colorspace_obj(idict));
     } else {
-        pdf_printf ("[/Indexed /DeviceRGB %i %i 0 R]\n",
-                    (int) (png_info (img)->num_palette - 1),
-                    (int) palette_objnum);
+        pdf_printf("[/Indexed /DeviceRGB %i %i 0 R]\n",
+                   (int) (info_p->num_palette - 1), (int) palette_objnum);
     }
-    pdf_begin_stream ();
-    if (png_info (img)->interlace_type == PNG_INTERLACE_NONE) {
-        row = xtalloc (png_info (img)->rowbytes, png_byte);
-        write_noninterlaced (write_simple_pixel (r));
-        xfree (row);
+    pdf_begin_stream();
+    if (info_p->interlace_type == PNG_INTERLACE_NONE) {
+        row = xtalloc(info_p->rowbytes, png_byte);
+        write_noninterlaced(write_simple_pixel(r));
+        xfree(row);
     } else {
-        if (png_info (img)->height * png_info (img)->rowbytes >= 10240000L)
+        if (info_p->height * info_p->rowbytes >= 10240000L)
             pdftex_warn
                 ("large interlaced PNG might cause out of memory (use non-interlaced PNG to fix this)");
-        rows = xtalloc (png_info (img)->height, png_bytep);
-        for (i = 0; (unsigned) i < png_info (img)->height; i++)
-            rows[i] = xtalloc (png_info (img)->rowbytes, png_byte);
-        png_read_image (png_ptr (img), rows);
-        write_interlaced (write_simple_pixel (row));
-        xfree (rows);
+        rows = xtalloc(info_p->height, png_bytep);
+        for (i = 0; (unsigned) i < info_p->height; i++)
+            rows[i] = xtalloc(info_p->rowbytes, png_byte);
+        png_read_image(png_p, rows);
+        write_interlaced(write_simple_pixel(row));
+        xfree(rows);
     }
-    pdf_end_stream ();
+    pdf_end_stream();
     if (palette_objnum > 0) {
-        pdf_begin_dict (palette_objnum, 0);
-        pdf_begin_stream ();
-        for (i = 0; (unsigned) i < png_info (img)->num_palette; i++) {
-            pdfroom (3);
-            pdf_buf[pdf_ptr++] = png_info (img)->palette[i].red;
-            pdf_buf[pdf_ptr++] = png_info (img)->palette[i].green;
-            pdf_buf[pdf_ptr++] = png_info (img)->palette[i].blue;
+        pdf_begin_dict(palette_objnum, 0);
+        pdf_begin_stream();
+        for (i = 0; (unsigned) i < info_p->num_palette; i++) {
+            pdfroom(3);
+            pdf_buf[pdf_ptr++] = info_p->palette[i].red;
+            pdf_buf[pdf_ptr++] = info_p->palette[i].green;
+            pdf_buf[pdf_ptr++] = info_p->palette[i].blue;
         }
-        pdf_end_stream ();
+        pdf_end_stream();
     }
 }
 
-void write_png_gray (integer img)
+void write_png_gray(image_dict * idict)
 {
     int i, j, k, l;
+    png_structp png_p = img_png_png_ptr(idict);
+    png_infop info_p = img_png_info_ptr(idict);
     png_bytep row, r, *rows;
-    if (img_colorspace_ref (img) != 0) {
-        pdf_printf ("%i 0 R\n", (int) img_colorspace_ref (img));
+    if (img_colorspace_obj(idict) != 0) {
+        pdf_printf("%i 0 R\n", (int) img_colorspace_obj(idict));
     } else {
-        pdf_puts ("/DeviceGray\n");
+        pdf_puts("/DeviceGray\n");
     }
-    pdf_begin_stream ();
-    if (png_info (img)->interlace_type == PNG_INTERLACE_NONE) {
-        row = xtalloc (png_info (img)->rowbytes, png_byte);
-        write_noninterlaced (write_simple_pixel (r));
-        xfree (row);
+    pdf_begin_stream();
+    if (info_p->interlace_type == PNG_INTERLACE_NONE) {
+        row = xtalloc(info_p->rowbytes, png_byte);
+        write_noninterlaced(write_simple_pixel(r));
+        xfree(row);
     } else {
-        if (png_info (img)->height * png_info (img)->rowbytes >= 10240000L)
+        if (info_p->height * info_p->rowbytes >= 10240000L)
             pdftex_warn
                 ("large interlaced PNG might cause out of memory (use non-interlaced PNG to fix this)");
-        rows = xtalloc (png_info (img)->height, png_bytep);
-        for (i = 0; (unsigned) i < png_info (img)->height; i++)
-            rows[i] = xtalloc (png_info (img)->rowbytes, png_byte);
-        png_read_image (png_ptr (img), rows);
-        write_interlaced (write_simple_pixel (row));
-        xfree (rows);
+        rows = xtalloc(info_p->height, png_bytep);
+        for (i = 0; (unsigned) i < info_p->height; i++)
+            rows[i] = xtalloc(info_p->rowbytes, png_byte);
+        png_read_image(png_p, rows);
+        write_interlaced(write_simple_pixel(row));
+        xfree(rows);
     }
-    pdf_end_stream ();
+    pdf_end_stream();
 }
 
-
-
-void write_png_gray_alpha (integer img)
+void write_png_gray_alpha(image_dict * idict)
 {
     int i, j, k, l;
-    png_bytep row, r, *rows;
-    integer smask_objnum = 0;
-    png_bytep smask;
-    integer smask_ptr = 0;
-    integer smask_size = 0;
-    int bitdepth;
-    if (img_colorspace_ref (img) != 0) {
-        pdf_printf ("%i 0 R\n", (int) img_colorspace_ref (img));
-    } else {
-        pdf_puts ("/DeviceGray\n");
-    }
-    pdf_create_obj (0, 0);
-    smask_objnum = obj_ptr;
-    pdf_printf ("/SMask %i 0 R\n", (int) smask_objnum);
-    smask_size = (png_info (img)->rowbytes / 2) * png_info (img)->height;
-    smask = xtalloc (smask_size, png_byte);
-    pdf_begin_stream ();
-    if (png_info (img)->interlace_type == PNG_INTERLACE_NONE) {
-        row = xtalloc (png_info (img)->rowbytes, png_byte);
-        if ((png_info (img)->bit_depth == 16) && fixed_image_hicolor) {
-            write_noninterlaced (write_gray_pixel_16 (r));
-        } else {
-            write_noninterlaced (write_gray_pixel_8 (r));
-        }
-        xfree (row);
-    } else {
-        if (png_info (img)->height * png_info (img)->rowbytes >= 10240000L)
-            pdftex_warn
-                ("large interlaced PNG might cause out of memory (use non-interlaced PNG to fix this)");
-        rows = xtalloc (png_info (img)->height, png_bytep);
-        for (i = 0; (unsigned) i < png_info (img)->height; i++)
-            rows[i] = xtalloc (png_info (img)->rowbytes, png_byte);
-        png_read_image (png_ptr (img), rows);
-        if ((png_info (img)->bit_depth == 16) && fixed_image_hicolor) {
-            write_interlaced (write_gray_pixel_16 (row));
-        } else {
-            write_interlaced (write_gray_pixel_8 (row));
-        }
-        xfree (rows);
-    }
-    pdf_end_stream ();
-    pdf_flush ();
-    /* now write the Smask object */
-    if (smask_objnum > 0) {
-        bitdepth = (int) png_info (img)->bit_depth;
-        pdf_begin_dict (smask_objnum, 0);
-        pdf_puts ("/Type /XObject\n/Subtype /Image\n");
-        pdf_printf ("/Width %i\n/Height %i\n/BitsPerComponent %i\n",
-                    (int) png_info (img)->width,
-                    (int) png_info (img)->height,
-                    (bitdepth == 16 ? 8 : bitdepth));
-        pdf_puts ("/ColorSpace /DeviceGray\n");
-        pdf_begin_stream ();
-        for (i = 0; i < smask_size; i++) {
-            if (i % 8 == 0)
-                pdfroom (8);
-            pdf_buf[pdf_ptr++] = smask[i];
-            if (bitdepth == 16)
-                i++;
-        }
-        xfree (smask);
-        pdf_end_stream ();
-    }
-}
-
-void write_png_rgb (integer img)
-{
-    int i, j, k, l;
-    png_bytep row, r, *rows;
-    if (img_colorspace_ref (img) != 0) {
-        pdf_printf ("%i 0 R\n", (int) img_colorspace_ref (img));
-    } else {
-        pdf_puts ("/DeviceRGB\n");
-    }
-    pdf_begin_stream ();
-    if (png_info (img)->interlace_type == PNG_INTERLACE_NONE) {
-        row = xtalloc (png_info (img)->rowbytes, png_byte);
-        write_noninterlaced (write_simple_pixel (r));
-        xfree (row);
-    } else {
-        if (png_info (img)->height * png_info (img)->rowbytes >= 10240000L)
-            pdftex_warn
-                ("large interlaced PNG might cause out of memory (use non-interlaced PNG to fix this)");
-        rows = xtalloc (png_info (img)->height, png_bytep);
-        for (i = 0; (unsigned) i < png_info (img)->height; i++)
-            rows[i] = xtalloc (png_info (img)->rowbytes, png_byte);
-        png_read_image (png_ptr (img), rows);
-        write_interlaced (write_simple_pixel (row));
-        xfree (rows);
-    }
-    pdf_end_stream ();
-}
-
-void write_png_rgb_alpha (integer img)
-{
-    int i, j, k, l;
+    png_structp png_p = img_png_png_ptr(idict);
+    png_infop info_p = img_png_info_ptr(idict);
     png_bytep row, r, *rows;
     integer smask_objnum = 0;
     png_bytep smask;
     integer smask_ptr = 0;
     integer smask_size = 0;
     int bitdepth;
-    if (img_colorspace_ref (img) != 0) {
-        pdf_printf ("%i 0 R\n", (int) img_colorspace_ref (img));
+    if (img_colorspace_obj(idict) != 0) {
+        pdf_printf("%i 0 R\n", (int) img_colorspace_obj(idict));
     } else {
-        pdf_puts ("/DeviceRGB\n");
+        pdf_puts("/DeviceGray\n");
     }
-    pdf_create_obj (0, 0);
+    pdf_create_obj(0, 0);
     smask_objnum = obj_ptr;
-    pdf_printf ("/SMask %i 0 R\n", (int) smask_objnum);
-    smask_size = (png_info (img)->rowbytes / 2) * png_info (img)->height;
-    smask = xtalloc (smask_size, png_byte);
-    pdf_begin_stream ();
-    if (png_info (img)->interlace_type == PNG_INTERLACE_NONE) {
-        row = xtalloc (png_info (img)->rowbytes, png_byte);
-        if ((png_info (img)->bit_depth == 16) && fixed_image_hicolor) {
-            write_noninterlaced (write_rgb_pixel_16 (r));
+    pdf_printf("/SMask %i 0 R\n", (int) smask_objnum);
+    smask_size = (info_p->rowbytes / 2) * info_p->height;
+    smask = xtalloc(smask_size, png_byte);
+    pdf_begin_stream();
+    if (info_p->interlace_type == PNG_INTERLACE_NONE) {
+        row = xtalloc(info_p->rowbytes, png_byte);
+        if ((info_p->bit_depth == 16) && fixed_image_hicolor) {
+            write_noninterlaced(write_gray_pixel_16(r));
         } else {
-            write_noninterlaced (write_rgb_pixel_8 (r));
+            write_noninterlaced(write_gray_pixel_8(r));
         }
-        xfree (row);
+        xfree(row);
     } else {
-        if (png_info (img)->height * png_info (img)->rowbytes >= 10240000L)
+        if (info_p->height * info_p->rowbytes >= 10240000L)
             pdftex_warn
                 ("large interlaced PNG might cause out of memory (use non-interlaced PNG to fix this)");
-        rows = xtalloc (png_info (img)->height, png_bytep);
-        for (i = 0; (unsigned) i < png_info (img)->height; i++)
-            rows[i] = xtalloc (png_info (img)->rowbytes, png_byte);
-        png_read_image (png_ptr (img), rows);
-        if ((png_info (img)->bit_depth == 16) && fixed_image_hicolor) {
-            write_interlaced (write_rgb_pixel_16 (row));
+        rows = xtalloc(info_p->height, png_bytep);
+        for (i = 0; (unsigned) i < info_p->height; i++)
+            rows[i] = xtalloc(info_p->rowbytes, png_byte);
+        png_read_image(png_p, rows);
+        if ((info_p->bit_depth == 16) && fixed_image_hicolor) {
+            write_interlaced(write_gray_pixel_16(row));
         } else {
-            write_interlaced (write_rgb_pixel_8 (row));
+            write_interlaced(write_gray_pixel_8(row));
         }
-        xfree (rows);
+        xfree(rows);
     }
-    pdf_end_stream ();
-    pdf_flush ();
+    pdf_end_stream();
+    pdf_flush();
+    /* now write the Smask object */
+    bitdepth = (int) info_p->bit_depth;
+    pdf_begin_dict(smask_objnum, 0);
+    pdf_puts("/Type /XObject\n/Subtype /Image\n");
+    if (img_attrib(idict) != NULL && strlen(img_attrib(idict)) > 0)
+        pdf_printf("%s\n", img_attrib(idict));
+    pdf_printf("/Width %i\n/Height %i\n/BitsPerComponent %i\n",
+               (int) info_p->width,
+               (int) info_p->height, (bitdepth == 16 ? 8 : bitdepth));
+    pdf_puts("/ColorSpace /DeviceGray\n");
+    pdf_begin_stream();
+    for (i = 0; i < smask_size; i++) {
+        if (i % 8 == 0)
+            pdfroom(8);
+        pdf_buf[pdf_ptr++] = smask[i];
+        if (bitdepth == 16)
+            i++;
+    }
+    pdf_end_stream();
+    xfree(smask);
+}
+
+void write_png_rgb(image_dict * idict)
+{
+    int i, j, k, l;
+    png_structp png_p = img_png_png_ptr(idict);
+    png_infop info_p = img_png_info_ptr(idict);
+    png_bytep row, r, *rows;
+    if (img_colorspace_obj(idict) != 0) {
+        pdf_printf("%i 0 R\n", (int) img_colorspace_obj(idict));
+    } else {
+        pdf_puts("/DeviceRGB\n");
+    }
+    pdf_begin_stream();
+    if (info_p->interlace_type == PNG_INTERLACE_NONE) {
+        row = xtalloc(info_p->rowbytes, png_byte);
+        write_noninterlaced(write_simple_pixel(r));
+        xfree(row);
+    } else {
+        if (info_p->height * info_p->rowbytes >= 10240000L)
+            pdftex_warn
+                ("large interlaced PNG might cause out of memory (use non-interlaced PNG to fix this)");
+        rows = xtalloc(info_p->height, png_bytep);
+        for (i = 0; (unsigned) i < info_p->height; i++)
+            rows[i] = xtalloc(info_p->rowbytes, png_byte);
+        png_read_image(png_p, rows);
+        write_interlaced(write_simple_pixel(row));
+        xfree(rows);
+    }
+    pdf_end_stream();
+}
+
+void write_png_rgb_alpha(image_dict * idict)
+{
+    int i, j, k, l;
+    png_structp png_p = img_png_png_ptr(idict);
+    png_infop info_p = img_png_info_ptr(idict);
+    png_bytep row, r, *rows;
+    integer smask_objnum = 0;
+    png_bytep smask;
+    integer smask_ptr = 0;
+    integer smask_size = 0;
+    int bitdepth;
+    if (img_colorspace_obj(idict) != 0) {
+        pdf_printf("%i 0 R\n", (int) img_colorspace_obj(idict));
+    } else {
+        pdf_puts("/DeviceRGB\n");
+    }
+    pdf_create_obj(0, 0);
+    smask_objnum = obj_ptr;
+    pdf_printf("/SMask %i 0 R\n", (int) smask_objnum);
+    smask_size = (info_p->rowbytes / 2) * info_p->height;
+    smask = xtalloc(smask_size, png_byte);
+    pdf_begin_stream();
+    if (info_p->interlace_type == PNG_INTERLACE_NONE) {
+        row = xtalloc(info_p->rowbytes, png_byte);
+        if ((info_p->bit_depth == 16) && fixed_image_hicolor) {
+            write_noninterlaced(write_rgb_pixel_16(r));
+        } else {
+            write_noninterlaced(write_rgb_pixel_8(r));
+        }
+        xfree(row);
+    } else {
+        if (info_p->height * info_p->rowbytes >= 10240000L)
+            pdftex_warn
+                ("large interlaced PNG might cause out of memory (use non-interlaced PNG to fix this)");
+        rows = xtalloc(info_p->height, png_bytep);
+        for (i = 0; (unsigned) i < info_p->height; i++)
+            rows[i] = xtalloc(info_p->rowbytes, png_byte);
+        png_read_image(png_p, rows);
+        if ((info_p->bit_depth == 16) && fixed_image_hicolor) {
+            write_interlaced(write_rgb_pixel_16(row));
+        } else {
+            write_interlaced(write_rgb_pixel_8(row));
+        }
+        xfree(rows);
+    }
+    pdf_end_stream();
+    pdf_flush();
     /* now write the Smask object */
     if (smask_objnum > 0) {
-        bitdepth = (int) png_info (img)->bit_depth;
-        pdf_begin_dict (smask_objnum, 0);
-        pdf_puts ("/Type /XObject\n/Subtype /Image\n");
-        pdf_printf ("/Width %i\n/Height %i\n/BitsPerComponent %i\n",
-                    (int) png_info (img)->width,
-                    (int) png_info (img)->height,
-                    (bitdepth == 16 ? 8 : bitdepth));
-        pdf_puts ("/ColorSpace /DeviceGray\n");
-        pdf_begin_stream ();
+        bitdepth = (int) info_p->bit_depth;
+        pdf_begin_dict(smask_objnum, 0);
+        pdf_puts("/Type /XObject\n/Subtype /Image\n");
+        if (img_attrib(idict) != NULL)
+            pdf_printf("%s\n", img_attrib(idict));
+        pdf_printf("/Width %i\n/Height %i\n/BitsPerComponent %i\n",
+                   (int) info_p->width,
+                   (int) info_p->height, (bitdepth == 16 ? 8 : bitdepth));
+        pdf_puts("/ColorSpace /DeviceGray\n");
+        pdf_begin_stream();
         for (i = 0; i < smask_size; i++) {
             if (i % 8 == 0)
-                pdfroom (8);
+                pdfroom(8);
             pdf_buf[pdf_ptr++] = smask[i];
             if (bitdepth == 16)
                 i++;
         }
-        xfree (smask);
-        pdf_end_stream ();
+        xfree(smask);
+        pdf_end_stream();
     }
 }
-
 
 /**********************************************************************/
 /*
- *
  * The |copy_png| function is from Hartmut Henkel. The goal is to use 
  * pdf's native FlateDecode support if that is possible.
  *
  * Only a subset of the png files allows this, but when possible it
  * greatly improves inclusion speed. 
  *
+ * Code cheerfully gleaned from Thomas Merz' PDFlib,
+ * file p_png.c "SPNG - Simple PNG"
  */
 
-/* Code cheerfully gleaned from Thomas Merz' PDFlib, file p_png.c "SPNG - Simple PNG" */
-
-static int spng_getint (FILE * fp)
+static int spng_getint(FILE * fp)
 {
     unsigned char buf[4];
-    if (fread (buf, 1, 4, fp) != 4)
-        pdftex_fail ("writepng: reading chunk type failed");
+    if (fread(buf, 1, 4, fp) != 4)
+        pdftex_fail("writepng: reading chunk type failed");
     return ((((((int) buf[0] << 8) + buf[1]) << 8) + buf[2]) << 8) + buf[3];
 }
 
 #define SPNG_CHUNK_IDAT 0x49444154
 #define SPNG_CHUNK_IEND 0x49454E44
 
-void copy_png (integer img)
+void copy_png(image_dict * idict)
 {
-    FILE *fp = (FILE *) png_ptr (img)->io_ptr;
+    assert(idict != NULL);
+    png_structp png_p = img_png_png_ptr(idict);
+    png_infop info_p = img_png_info_ptr(idict);
+    FILE *fp = (FILE *) png_p->io_ptr;
     int i, len, type, streamlength = 0;
     boolean endflag = false;
     int idat = 0;               /* flag to check continuous IDAT chunks sequence */
     /* 1st pass to find overall stream /Length */
-    if (fseek (fp, 8, SEEK_SET) != 0)
-        pdftex_fail ("writepng: fseek in PNG file failed");
+    if (fseek(fp, 8, SEEK_SET) != 0)
+        pdftex_fail("writepng: fseek in PNG file failed");
     do {
-        len = spng_getint (fp);
-        type = spng_getint (fp);
+        len = spng_getint(fp);
+        type = spng_getint(fp);
         switch (type) {
         case SPNG_CHUNK_IEND:
             endflag = true;
@@ -427,162 +452,181 @@ void copy_png (integer img)
         case SPNG_CHUNK_IDAT:
             streamlength += len;
         default:
-            if (fseek (fp, len + 4, SEEK_CUR) != 0)
-                pdftex_fail ("writepng: fseek in PNG file failed");
+            if (fseek(fp, len + 4, SEEK_CUR) != 0)
+                pdftex_fail("writepng: fseek in PNG file failed");
         }
     } while (endflag == false);
-    pdf_printf ("/Length %d\n", streamlength);
-    pdf_printf ("/Filter /FlateDecode\n");
-    pdf_printf ("/DecodeParms << ");
-    pdf_printf ("/Colors %d ", png_info (img)->color_type == 2 ? 3 : 1);
-    pdf_printf ("/Columns %d ", (int) png_info (img)->width);
-    pdf_printf ("/BitsPerComponent %i ", (int) png_info (img)->bit_depth);
-    pdf_printf ("/Predictor %d ", 10);  /* actual predictor defined on line basis */
-    pdf_printf (">>\n>>\nstream\n");
+    pdf_printf("/Length %d\n", streamlength);
+    pdf_printf("/Filter /FlateDecode\n");
+    pdf_printf("/DecodeParms << ");
+    pdf_printf("/Colors %d ", info_p->color_type == 2 ? 3 : 1);
+    pdf_printf("/Columns %d ", (int) info_p->width);
+    pdf_printf("/BitsPerComponent %i ", (int) info_p->bit_depth);
+    pdf_printf("/Predictor %d ", 10);   /* actual predictor defined on line basis */
+    pdf_printf(">>\n>>\nstream\n");
     /* 2nd pass to copy data */
     endflag = false;
-    if (fseek (fp, 8, SEEK_SET) != 0)
-        pdftex_fail ("writepng: fseek in PNG file failed");
+    if (fseek(fp, 8, SEEK_SET) != 0)
+        pdftex_fail("writepng: fseek in PNG file failed");
     do {
-        len = spng_getint (fp);
-        type = spng_getint (fp);
+        len = spng_getint(fp);
+        type = spng_getint(fp);
         switch (type) {
         case SPNG_CHUNK_IDAT:  /* do copy */
             if (idat == 2)
-                pdftex_fail ("writepng: IDAT chunk sequence broken");
+                pdftex_fail("writepng: IDAT chunk sequence broken");
             idat = 1;
             while (len > 0) {
                 i = (len > pdf_buf_size) ? pdf_buf_size : len;
-                pdfroom (i);
-                fread (&pdf_buf[pdf_ptr], 1, i, fp);
+                pdfroom(i);
+                fread(&pdf_buf[pdf_ptr], 1, i, fp);
                 pdf_ptr += i;
                 len -= i;
             }
-            if (fseek (fp, 4, SEEK_CUR) != 0)
-                pdftex_fail ("writepng: fseek in PNG file failed");
+            if (fseek(fp, 4, SEEK_CUR) != 0)
+                pdftex_fail("writepng: fseek in PNG file failed");
             break;
         case SPNG_CHUNK_IEND:  /* done */
-            pdf_end_stream ();
+            pdf_end_stream();
             endflag = true;
             break;
         default:
             if (idat == 1)
                 idat = 2;
-            if (fseek (fp, len + 4, SEEK_CUR) != 0)
-                pdftex_fail ("writepng: fseek in PNG file failed");
+            if (fseek(fp, len + 4, SEEK_CUR) != 0)
+                pdftex_fail("writepng: fseek in PNG file failed");
         }
     } while (endflag == false);
 }
 
-void write_png (integer img)
+void reopen_png(image_dict * idict)
 {
+    integer width, height, xres, yres;
+    width = img_width(idict);
+    height = img_height(idict);
+    xres = img_xres(idict);
+    yres = img_yres(idict);
+    read_png_info(idict, false);
+    if (width != img_width(idict) || height != img_height(idict)
+        || xres != img_xres(idict) || yres != img_yres(idict))
+        pdftex_fail("writepng: image dimensions have changed");
+}
 
+void write_png(image_dict * idict)
+{
     double gamma, checked_gamma;
     int i;
     integer palette_objnum = 0;
+    assert(idict != NULL);
+    reopen_png(idict);
+    png_structp png_p = img_png_png_ptr(idict);
+    png_infop info_p = img_png_info_ptr(idict);
     if (fixed_pdf_minor_version < 5)
         fixed_image_hicolor = 0;
-
-    pdf_puts ("/Type /XObject\n/Subtype /Image\n");
-    pdf_printf ("/Width %i\n/Height %i\n/BitsPerComponent %i\n",
-                (int) png_info (img)->width,
-                (int) png_info (img)->height, (int) png_info (img)->bit_depth);
-    pdf_puts ("/ColorSpace ");
+    pdf_puts("/Type /XObject\n/Subtype /Image\n");
+    if (img_attrib(idict) != NULL && strlen(img_attrib(idict)) > 0)
+        pdf_printf("%s\n", img_attrib(idict));
+    pdf_printf("/Width %i\n/Height %i\n/BitsPerComponent %i\n",
+               (int) info_p->width,
+               (int) info_p->height, (int) info_p->bit_depth);
+    pdf_puts("/ColorSpace ");
     checked_gamma = 1.0;
     if (fixed_image_apply_gamma) {
-        if (png_get_gAMA (png_ptr (img), png_info (img), &gamma)) {
+        if (png_get_gAMA(png_p, info_p, &gamma)) {
             checked_gamma = (fixed_gamma / 1000.0) * gamma;
         } else {
-            checked_gamma = (fixed_gamma / 1000.0) * (1000.0 / fixed_image_gamma);
+            checked_gamma =
+                (fixed_gamma / 1000.0) * (1000.0 / fixed_image_gamma);
         }
     }
-    /* the switching between |png_info| and |png_ptr| queries has been trial and error. 
+    /* the switching between |info_p| and |png_p| queries has been trial and error. 
      */
-    if (fixed_pdf_minor_version > 1 && png_info (img)->interlace_type == PNG_INTERLACE_NONE && (png_ptr (img)->transformations == 0 || png_ptr (img)->transformations == 0x2000)   /* gamma */
-        &&!(png_ptr (img)->color_type == PNG_COLOR_TYPE_GRAY_ALPHA ||
-            png_ptr (img)->color_type == PNG_COLOR_TYPE_RGB_ALPHA)
-        && (fixed_image_hicolor || (png_ptr (img)->bit_depth <= 8))
+    if (fixed_pdf_minor_version > 1 && info_p->interlace_type == PNG_INTERLACE_NONE && (png_p->transformations == 0 || png_p->transformations == 0x2000)        /* gamma */
+        &&!(png_p->color_type == PNG_COLOR_TYPE_GRAY_ALPHA ||
+            png_p->color_type == PNG_COLOR_TYPE_RGB_ALPHA)
+        && (fixed_image_hicolor || (png_p->bit_depth <= 8))
         && (checked_gamma <= 1.01 && checked_gamma > 0.99)
         ) {
-        if (img_colorspace_ref (img) != 0) {
-            pdf_printf ("%i 0 R\n", (int) img_colorspace_ref (img));
+        if (img_colorspace_obj(idict) != 0) {
+            pdf_printf("%i 0 R\n", (int) img_colorspace_obj(idict));
         } else {
-            switch (png_info (img)->color_type) {
+            switch (info_p->color_type) {
             case PNG_COLOR_TYPE_PALETTE:
-                pdf_create_obj (0, 0);
+                pdf_create_obj(0, 0);
                 palette_objnum = obj_ptr;
-                pdf_printf ("[/Indexed /DeviceRGB %i %i 0 R]\n",
-                            (int) (png_info (img)->num_palette - 1),
-                            (int) palette_objnum);
+                pdf_printf("[/Indexed /DeviceRGB %i %i 0 R]\n",
+                           (int) (info_p->num_palette - 1),
+                           (int) palette_objnum);
                 break;
             case PNG_COLOR_TYPE_GRAY:
-                pdf_puts ("/DeviceGray\n");
+                pdf_puts("/DeviceGray\n");
                 break;
             default:           /* RGB */
-                pdf_puts ("/DeviceRGB\n");
+                pdf_puts("/DeviceRGB\n");
             };
         }
-		if (tracefilenames)
-		  tex_printf (" (PNG copy)");
-        copy_png (img);
+        if (tracefilenames)
+            tex_printf(" (PNG copy)");
+        copy_png(idict);
         if (palette_objnum > 0) {
-            pdf_begin_dict (palette_objnum, 0);
-            pdf_begin_stream ();
-            for (i = 0; (unsigned) i < png_info (img)->num_palette; i++) {
-                pdfroom (3);
-                pdf_buf[pdf_ptr++] = png_info (img)->palette[i].red;
-                pdf_buf[pdf_ptr++] = png_info (img)->palette[i].green;
-                pdf_buf[pdf_ptr++] = png_info (img)->palette[i].blue;
+            pdf_begin_dict(palette_objnum, 0);
+            pdf_begin_stream();
+            for (i = 0; (unsigned) i < info_p->num_palette; i++) {
+                pdfroom(3);
+                pdf_buf[pdf_ptr++] = info_p->palette[i].red;
+                pdf_buf[pdf_ptr++] = info_p->palette[i].green;
+                pdf_buf[pdf_ptr++] = info_p->palette[i].blue;
             }
-            pdf_end_stream ();
+            pdf_end_stream();
         }
     } else {
         if (0) {
-            tex_printf (" PNG copy skipped because: ");
+            tex_printf(" PNG copy skipped because: ");
             if (fixed_image_apply_gamma &&
                 (checked_gamma > 1.01 || checked_gamma < 0.99))
-                tex_printf ("gamma delta=%lf ", checked_gamma);
-            if (png_ptr (img)->transformations != PNG_TRANSFORM_IDENTITY)
-                tex_printf ("transform=%lu", (long)png_ptr (img)->transformations);
-            if ((png_info (img)->color_type != PNG_COLOR_TYPE_GRAY) &&
-                (png_info (img)->color_type != PNG_COLOR_TYPE_RGB) &&
-                (png_info (img)->color_type != PNG_COLOR_TYPE_PALETTE))
-                tex_printf ("colortype ");
+                tex_printf("gamma delta=%lf ", checked_gamma);
+            if (png_p->transformations != PNG_TRANSFORM_IDENTITY)
+                tex_printf("transform=%lu", (long) png_p->transformations);
+            if ((info_p->color_type != PNG_COLOR_TYPE_GRAY)
+                && (info_p->color_type != PNG_COLOR_TYPE_RGB)
+                && (info_p->color_type != PNG_COLOR_TYPE_PALETTE))
+                tex_printf("colortype ");
             if (fixed_pdf_minor_version <= 1)
-                tex_printf ("version=%d ", (int)fixed_pdf_minor_version);
-            if (png_info (img)->interlace_type != PNG_INTERLACE_NONE)
-                tex_printf ("interlaced ");
-            if (png_info (img)->bit_depth > 8)
-                tex_printf ("bitdepth=%d ", png_info (img)->bit_depth);
-            if (png_get_valid (png_ptr (img), png_info (img), PNG_INFO_tRNS))
-                tex_printf ("simple transparancy ");
+                tex_printf("version=%d ", (int) fixed_pdf_minor_version);
+            if (info_p->interlace_type != PNG_INTERLACE_NONE)
+                tex_printf("interlaced ");
+            if (info_p->bit_depth > 8)
+                tex_printf("bitdepth=%d ", info_p->bit_depth);
+            if (png_get_valid(png_p, info_p, PNG_INFO_tRNS))
+                tex_printf("simple transparancy ");
         }
-        switch (png_info (img)->color_type) {
+        switch (info_p->color_type) {
         case PNG_COLOR_TYPE_PALETTE:
-            write_png_palette (img);
+            write_png_palette(idict);
             break;
         case PNG_COLOR_TYPE_GRAY:
-            write_png_gray (img);
+            write_png_gray(idict);
             break;
         case PNG_COLOR_TYPE_GRAY_ALPHA:
             if (fixed_pdf_minor_version >= 4)
-                write_png_gray_alpha (img);
+                write_png_gray_alpha(idict);
             else
-                write_png_gray (img);
+                write_png_gray(idict);
             break;
         case PNG_COLOR_TYPE_RGB:
-            write_png_rgb (img);
+            write_png_rgb(idict);
             break;
         case PNG_COLOR_TYPE_RGB_ALPHA:
             if (fixed_pdf_minor_version >= 4)
-                write_png_rgb_alpha (img);
+                write_png_rgb_alpha(idict);
             else
-                write_png_rgb (img);
+                write_png_rgb(idict);
             break;
         default:
-            pdftex_fail ("unsupported type of color_type <%i>",
-                         png_info (img)->color_type);
+            pdftex_fail("unsupported type of color_type <%i>",
+                        info_p->color_type);
         }
     }
-    pdf_flush ();
+    pdf_flush();
+    close_and_cleanup_png(idict);
 }

@@ -75,7 +75,7 @@ object exists, reference it. Else create fresh one.
 
 09 Dec. 2002: JBIG2 seg. page numbers > 0 are now set to 1, see PDF Ref.
 
-$Id: writejbig2.c,v 1.347 2006/05/31 19:18:32 hahe Exp hahe $
+$Id: writejbig2.c,v 1.7 2008/02/01 20:42:55 root Exp root $
 ***********************************************************************/
 
 #include "writejbig2.h"
@@ -87,8 +87,8 @@ struct avl_table *file_tree = NULL;
 
 static int comp_file_entry(const void *pa, const void *pb, void *p)
 {
-    return strcmp(((const FILEINFO *) pa)->filename,
-                  ((const FILEINFO *) pb)->filename);
+    return strcmp(((const FILEINFO *) pa)->filepath,
+                  ((const FILEINFO *) pb)->filepath);
 }
 
 static int comp_page_entry(const void *pa, const void *pb, void *p)
@@ -122,7 +122,7 @@ FILEINFO *new_fileinfo()
     FILEINFO *fip;
     fip = xtalloc(1, FILEINFO);
     fip->file = NULL;
-    fip->filename = NULL;
+    fip->filepath = NULL;
     fip->filesize = 0;
     initlinkedlist(&(fip->pages));
     initlinkedlist(&(fip->page0));
@@ -282,7 +282,7 @@ void readfilehdr(FILEINFO * fip)
     /* Annex D.4 File header syntax */
     /* Annex D.4.1 ID string */
     unsigned char jbig2_id[] = { 0x97, 'J', 'B', '2', 0x0d, 0x0a, 0x1a, 0x0a };
-    xfseek(fip->file, 0, SEEK_SET, fip->filename);
+    xfseek(fip->file, 0, SEEK_SET, fip->filepath);
     for (i = 0; i < 8; i++)
         if (ygetc(fip->file) != jbig2_id[i])
             pdftex_fail
@@ -291,9 +291,9 @@ void readfilehdr(FILEINFO * fip)
     fip->filehdrflags = ygetc(fip->file);
     fip->sequentialaccess = (fip->filehdrflags & 0x01) ? true : false;
     if (fip->sequentialaccess) {        /* Annex D.1 vs. Annex D.2 */
-        xfseek(fip->file, 0, SEEK_END, fip->filename);
-        fip->filesize = xftell(fip->file, fip->filename);
-        xfseek(fip->file, 9, SEEK_SET, fip->filename);
+        xfseek(fip->file, 0, SEEK_END, fip->filepath);
+        fip->filesize = xftell(fip->file, fip->filepath);
+        xfseek(fip->file, 9, SEEK_SET, fip->filepath);
     }
     /* Annex D.4.3 Number of pages */
     if (!(fip->filehdrflags >> 1) & 0x01)       /* known number of pages */
@@ -307,7 +307,7 @@ void readfilehdr(FILEINFO * fip)
 boolean readseghdr(FILEINFO * fip, SEGINFO * sip)
 {
     unsigned int i;
-    sip->hdrstart = xftell(fip->file, fip->filename);
+    sip->hdrstart = xftell(fip->file, fip->filepath);
     if (fip->sequentialaccess && sip->hdrstart == fip->filesize)
         return false;           /* no endoffileflag is ok for sequentialaccess */
 #ifdef DEBUG
@@ -334,7 +334,7 @@ boolean readseghdr(FILEINFO * fip, SEGINFO * sip)
         sip->fieldlen = 1;
     else {
         sip->fieldlen = 5 + sip->countofrefered / 8;
-        xfseek(fip->file, sip->fieldlen - 1, SEEK_CUR, fip->filename);
+        xfseek(fip->file, sip->fieldlen - 1, SEEK_CUR, fip->filepath);
     }
     /* 7.2.5 Referred-to segment numbers */
     if (sip->segnum <= 256)
@@ -363,7 +363,7 @@ boolean readseghdr(FILEINFO * fip, SEGINFO * sip)
         sip->segpage = ygetc(fip->file);
     /* 7.2.7 Segment data length */
     sip->segdatalen = read4bytes(fip->file);
-    sip->hdrend = xftell(fip->file, fip->filename);
+    sip->hdrend = xftell(fip->file, fip->filepath);
     /* ---- at end of segment header ---- */
     return true;
 }
@@ -429,7 +429,7 @@ void checkseghdr(FILEINFO * fip, SEGINFO * sip)
     /* 7.2.2 Segment number */
     /* 7.2.3 Segment header flags */
     /* 7.2.4 Referred-to segment count and retention flags */
-    xfseek(fip->file, 5 + sip->fieldlen, SEEK_CUR, fip->filename);
+    xfseek(fip->file, 5 + sip->fieldlen, SEEK_CUR, fip->filepath);
     /* 7.2.5 Referred-to segment numbers */
     for (i = 0; i < sip->countofrefered; i++) {
         switch (sip->segnumwidth) {
@@ -451,9 +451,9 @@ void checkseghdr(FILEINFO * fip, SEGINFO * sip)
     /* 7.2.6 Segment page association */
     /* 7.2.7 Segment data length */
     if (sip->pageassocsizeflag)
-        xfseek(fip->file, 8, SEEK_CUR, fip->filename);
+        xfseek(fip->file, 8, SEEK_CUR, fip->filepath);
     else
-        xfseek(fip->file, 5, SEEK_CUR, fip->filename);
+        xfseek(fip->file, 5, SEEK_CUR, fip->filepath);
     /* ---- at end of segment header ---- */
 }
 
@@ -545,7 +545,7 @@ void rd_jbig2_info(FILEINFO * fip)
     PAGEINFO *pip;
     SEGINFO *sip = NULL;
     LIST *plp, *slp;
-    fip->file = xfopen(fip->filename, FOPEN_RBIN_MODE);
+    fip->file = xfopen(fip->filepath, FOPEN_RBIN_MODE);
     readfilehdr(fip);
     if (!fip->sequentialaccess) /* D.2 Random-access organisation */
         streampos = findstreamstart(fip);
@@ -583,7 +583,7 @@ void rd_jbig2_info(FILEINFO * fip)
         sip->dataend = sip->datastart + sip->segdatalen;
         if (!fip->sequentialaccess
             && (sip->pageinfoflag || sip->endofstripeflag))
-            xfseek(fip->file, sip->datastart, SEEK_SET, fip->filename);
+            xfseek(fip->file, sip->datastart, SEEK_SET, fip->filepath);
         seekdist = sip->segdatalen;
         /* 7.4.8 Page information segment syntax */
         if (sip->pageinfoflag) {
@@ -603,18 +603,18 @@ void rd_jbig2_info(FILEINFO * fip)
         }
         if (!fip->sequentialaccess
             && (sip->pageinfoflag || sip->endofstripeflag))
-            xfseek(fip->file, sip->hdrend, SEEK_SET, fip->filename);
+            xfseek(fip->file, sip->hdrend, SEEK_SET, fip->filepath);
         if (!fip->sequentialaccess)
             streampos += sip->segdatalen;
         if (fip->sequentialaccess)
-            xfseek(fip->file, seekdist, SEEK_CUR, fip->filename);
+            xfseek(fip->file, seekdist, SEEK_CUR, fip->filepath);
         if (sip->endofpageflag && currentpage && (pip->stripinginfo >> 15))
             pip->height = pip->stripedheight;
     }
     fip->phase = HAVEINFO;
     if (sipavail)
         xfree(sip);
-    xfclose(fip->file, fip->filename);
+    xfclose(fip->file, fip->filepath);
 }
 
 /**********************************************************************/
@@ -628,8 +628,7 @@ void wr_jbig2(FILEINFO * fip, unsigned long page)
     if (page > 0) {
         pip = find_pageinfo(&(fip->pages), page);
         assert(pip != NULL);
-        pdf_puts("/Type /XObject\n");
-        pdf_puts("/Subtype /Image\n");
+        pdf_puts("/Type /XObject\n/Subtype /Image\n");
         pdf_printf("/Width %i\n", pip->width);
         pdf_printf("/Height %i\n", pip->height);
         pdf_puts("/ColorSpace /DeviceGray\n");
@@ -652,42 +651,44 @@ void wr_jbig2(FILEINFO * fip, unsigned long page)
     }
     pdf_puts(">>\n");
     pdf_puts("stream\n");
-    fip->file = xfopen(fip->filename, FOPEN_RBIN_MODE);
+    fip->file = xfopen(fip->filepath, FOPEN_RBIN_MODE);
     for (slip = pip->segments.first; slip != NULL; slip = slip->next) { /* loop over page segments */
         sip = slip->d;
         if (sip->isrefered || page > 0) {
-            xfseek(fip->file, sip->hdrstart, SEEK_SET, fip->filename);
+            xfseek(fip->file, sip->hdrstart, SEEK_SET, fip->filepath);
             /* mark refered-to page 0 segments, change segpages > 1 to 1 */
             writeseghdr(fip, sip);
-            xfseek(fip->file, sip->datastart, SEEK_SET, fip->filename);
+            xfseek(fip->file, sip->datastart, SEEK_SET, fip->filepath);
             for (i = sip->datastart; i < sip->dataend; i++)
                 pdfout(ygetc(fip->file));
         }
     }
     pdf_end_stream();
-    xfclose(fip->file, fip->filename);
+    xfclose(fip->file, fip->filepath);
 }
 
 /**********************************************************************/
 
-void read_jbig2_info(integer img)
+void read_jbig2_info(image_dict * idict)
 {
     FILEINFO *fip, tmp;
     PAGEINFO *pip;
     void **aa;
-    if (jbig2_ptr(img)->selected_page < 1)
+    assert(idict != NULL);
+    img_type(idict) = IMAGE_TYPE_JBIG2;
+    if (img_pagenum(idict) < 1)
         pdftex_fail
             ("read_jbig2_info(): page %d not in JBIG2 image file; page must be > 0",
-             (int) jbig2_ptr(img)->selected_page);
+             (int) img_pagenum(idict));
     if (file_tree == NULL) {
         file_tree = avl_create(comp_file_entry, NULL, &avl_xallocator);
         assert(file_tree != NULL);
     }
-    tmp.filename = img_name(img);
+    tmp.filepath = img_filepath(idict);
     fip = (FILEINFO *) avl_find(file_tree, &tmp);
     if (fip == NULL) {
         fip = new_fileinfo();
-        fip->filename = xstrdup(img_name(img));
+        fip->filepath = xstrdup(img_filepath(idict));
         aa = avl_probe(file_tree, fip);
         assert(aa != NULL);
     }
@@ -700,30 +701,33 @@ void read_jbig2_info(integer img)
             segments_maketree(&(pip->segments));
         }
     }
-    pip = find_pageinfo(&(fip->pages), jbig2_ptr(img)->selected_page);
+    pip = find_pageinfo(&(fip->pages), img_pagenum(idict));
     if (pip == NULL)
         pdftex_fail("read_jbig2_info(): page %d not found in JBIG2 image file",
-                    (int) jbig2_ptr(img)->selected_page);
-    img_width(img) = pip->width;
-    img_height(img) = pip->height;
-    img_xres(img) = (int) (pip->xres * 0.0254 + 0.5);
-    img_yres(img) = (int) (pip->yres * 0.0254 + 0.5);
+                    (int) img_pagenum(idict));
+    img_width(idict) = pip->width;
+    img_height(idict) = pip->height;
+    img_xres(idict) = (int) (pip->xres * 0.0254 + 0.5);
+    img_yres(idict) = (int) (pip->yres * 0.0254 + 0.5);
+    img_colordepth(idict) = 1;
 }
 
 /**********************************************************************/
 
-void write_jbig2(integer img)
+void write_jbig2(image_dict * idict)
 {
     FILEINFO *fip, tmp;
     PAGEINFO *pip;
+    assert(idict != NULL);
     assert(file_tree != NULL);
-    tmp.filename = img_name(img);
+    tmp.filepath = img_filepath(idict);
     fip = (FILEINFO *) avl_find(file_tree, &tmp);
     assert(fip != NULL);
     assert(fip->phase == HAVEINFO);     /* don't write before rd_jbig2_info() call */
-    pip = find_pageinfo(&(fip->pages), jbig2_ptr(img)->selected_page);
+    pip = find_pageinfo(&(fip->pages), img_pagenum(idict));
     assert(pip != NULL);
     wr_jbig2(fip, pip->pagenum);
+    img_file(idict) = NULL;
 }
 
 /**********************************************************************/

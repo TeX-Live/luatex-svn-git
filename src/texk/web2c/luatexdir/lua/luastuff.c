@@ -131,6 +131,11 @@ luainterpreter (int n) {
   luaopen_font(L);
   luaopen_lang(L);
 
+  /* luaopen_img(L); */
+  lua_pushcfunction(L, luaopen_img);
+  lua_pushstring(L, "img");
+  lua_call(L, 1, 0);
+
   if (safer_option) {
 	/* disable some stuff if --safer */
 	(void)hide_lua_value(L, "os","execute");

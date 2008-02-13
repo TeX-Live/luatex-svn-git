@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with pdfTeX; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-$Id: epdf.h,v 1.6 2005/11/28 23:29:32 hahe Exp $
+$Id: epdf.h,v 1.5 2008/01/27 16:11:18 root Exp $
 */
 
 extern "C" {
@@ -43,19 +43,12 @@ extern "C" {
 #include <web2c/config.h>       /* define type integer */
 
 #include <web2c/luatexdir/ptexmac.h>
-
 #include "openbsd-compat.h"
+#include "image.h"
 
 /* #-define pdfbufsize      pdfbufmax */
 
-    extern float epdf_width;
-    extern float epdf_height;
-    extern float epdf_orig_x_i;
-    extern float epdf_orig_y_i;
-    extern integer epdf_selected_page;
-    extern integer epdf_num_pages;
     extern integer epdf_page_box;
-    extern void *epdf_doc;
     extern void *epdf_xref;
 
     extern integer pdf_box_spec_media;
@@ -82,11 +75,10 @@ extern "C" {
     extern integer get_fontfile(struct fm_entry *);
     extern integer get_fontname(struct fm_entry *);
     extern integer pdf_new_objnum(void);
-    extern integer read_pdf_info(char *, char *, integer, integer, integer,
-                                 integer);
+    extern void read_pdf_info(image_dict *, integer, char *, integer, integer);
     extern void embed_whole_font(struct fd_entry *);
     extern void epdf_check_mem(void);
-    extern void epdf_delete(void);
+    extern void epdf_delete(image_dict *);
     extern void epdf_free(void);
     __attribute__ ((format(printf, 1, 2)))
     extern void pdf_printf(const char *fmt, ...);
@@ -101,7 +93,7 @@ extern "C" {
     extern void pdftex_warn(const char *fmt, ...);
     __attribute__ ((format(printf, 1, 2)))
     extern void tex_printf(const char *, ...);
-    extern void write_epdf(void);
+    extern void write_epdf(image_dict *);
     extern void zpdf_begin_dict(integer, bool);
     extern void zpdf_begin_obj(integer, bool);
     extern void zpdf_create_obj(integer, integer);
@@ -116,6 +108,9 @@ extern "C" {
 
 /* write_enc.c */
     extern void epdf_write_enc(char **, integer);
+
+/* write_enc.c */
+    extern pdf_img_struct *new_pdf_img_struct(void);
 
 /* utils.c */
     extern char *convertStringToPDFString(char *in, int len);

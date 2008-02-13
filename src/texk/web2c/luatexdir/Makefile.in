@@ -1,5 +1,5 @@
 # Makefile for libpdf - te@dbs.uni-hannover.de
-# $Id: //depot/Build/source.development/TeX/texk/web2c/pdftexdir/Makefile.in#23 $
+# $Id: Makefile.in,v 1.1 2008/02/13 22:36:59 root Exp root $
 
 kpse_include ../make/common.mk
 kpse_include ../make/programs.mk
@@ -87,6 +87,7 @@ lua/luatex.o \
 lua/luatoken.o \
 lua/luanode.o \
 lua/llanglib.o \
+lua/limglib.o \
 lang/hnjalloc.o \
 lang/hyphen.o \
 lang/texlang.o \

@@ -476,14 +476,27 @@ $Id $
 @define function image_height();
 @define function image_pages();
 @define function image_colordepth();
+@define function image_index();
+@define function image_wd();
+@define function image_ht();
+@define function image_dp();
+@define function image_objnum();
+@define function image_imgnum();
 @define function image_width();
 @define function image_x_res();
 @define function image_y_res();
 @define function is_pdf_image();
 @define function read_image();
-@define procedure delete_image();
+@define function new_image_entry;
 @define procedure update_image_procset();
 @define procedure write_image();
+@define procedure scale_image();
+@define procedure set_image_dimensions();
+@define procedure set_image_index();
+@define procedure out_image();
+
+{ functions from limglib.c }
+@define procedure lua_setximage();
 
 { functions from writet3.c }
 @define function get_pk_char_width();

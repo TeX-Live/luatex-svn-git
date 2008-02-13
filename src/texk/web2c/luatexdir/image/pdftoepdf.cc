@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with pdfTeX; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-$Id: pdftoepdf.cc,v 1.9 2006/09/01 18:06:52 hahe Exp hahe $
+$Id: pdftoepdf.cc,v 1.13 2008/02/09 10:53:21 root Exp root $
 */
 
 #include <stdlib.h>
@@ -46,6 +46,8 @@ $Id: pdftoepdf.cc,v 1.9 2006/09/01 18:06:52 hahe Exp hahe $
 #include "Error.h"
 
 #include "epdf.h"
+
+#define one_hundred_bp  6578176 /* 7227 * 65536 / 72 */
 
 // This file is mostly C and not very much C++; it's just used to interface
 // the functions of xpdf, which happens to be written in C++.
@@ -77,7 +79,8 @@ $Id: pdftoepdf.cc,v 1.9 2006/09/01 18:06:52 hahe Exp hahe $
 class PdfObject {
   public:
     PdfObject() {               // nothing
-    } ~PdfObject() {
+    }
+    ~PdfObject() {
         iObject.free();
     }
     Object *operator->() {
@@ -381,8 +384,7 @@ static void copyFont(char *tag, Object * fontRef)
     }
     // Only handle included Type1 (and Type1C) fonts; anything else will be copied.
     // Type1C fonts are replaced by Type1 fonts, if REPLACE_TYPE1C is true.
-    if (fixed_replace_font
-		&& fontRef->fetch(xref, &fontdict)->isDict()
+    if (fixed_replace_font && fontRef->fetch(xref, &fontdict)->isDict()
         && fontdict->dictLookup("Subtype", &subtype)->isName()
         && !strcmp(subtype->getName(), "Type1")
         && fontdict->dictLookup("BaseFont", &basefont)->isName()
@@ -597,7 +599,7 @@ static void writeRefs()
             xref->fetch(r->ref.num, r->ref.gen, &obj1);
             if (r->type == objFont) {
                 assert(!obj1.isStream());
-                zpdf_begin_obj(r->num, 2);        // \pdfobjcompresslevel = 2 is for this
+                zpdf_begin_obj(r->num, 2);      // \pdfobjcompresslevel = 2 is for this
                 copyFontDict(&obj1, r);
                 pdf_puts("\n");
                 pdf_end_obj();
@@ -605,7 +607,7 @@ static void writeRefs()
                 if (obj1.isStream())
                     zpdf_begin_obj(r->num, 0);
                 else
-                    zpdf_begin_obj(r->num, 2);    // \pdfobjcompresslevel = 2 is for this
+                    zpdf_begin_obj(r->num, 2);  // \pdfobjcompresslevel = 2 is for this
                 copyObject(&obj1);
                 pdf_puts("\n");
                 pdf_end_obj();
@@ -641,6 +643,7 @@ static void writeEncodings()
 }
 
 // get the pagebox according to the pagebox_spec
+
 static PDFRectangle *get_pagebox(Page * page, integer pagebox_spec)
 {
     if (pagebox_spec == pdf_box_spec_media)
@@ -666,9 +669,9 @@ static PDFRectangle *get_pagebox(Page * page, integer pagebox_spec)
 // It makes no sense to give page_name _and_ page_num.
 // Returns the page number.
 
-integer
-read_pdf_info(char *image_name, char *page_name, integer page_num,
-              integer pagebox_spec, integer minor_pdf_version_wanted,
+void
+read_pdf_info(image_dict * idict, integer page_box, char *page_name,
+              integer minor_pdf_version_wanted,
               integer pdf_inclusion_errorlevel)
 {
     PdfDocument *pdf_doc;
@@ -676,6 +679,12 @@ read_pdf_info(char *image_name, char *page_name, integer page_num,
     int rotate;
     PDFRectangle *pagebox;
     float pdf_version_found, pdf_version_wanted;
+    assert(idict != NULL);
+    assert(img_type(idict) == IMAGE_TYPE_PDF);
+    assert(img_pdf_ptr(idict) == NULL);
+    img_pdf_ptr(idict) = new_pdf_img_struct();
+    img_pdf_page_name(idict) = page_name;
+    img_pdf_page_box(idict) = page_box;
     // initialize
     if (!isInit) {
         globalParams = new GlobalParams();
@@ -683,8 +692,8 @@ read_pdf_info(char *image_name, char *page_name, integer page_num,
         isInit = gTrue;
     }
     // open PDF file
-    pdf_doc = find_add_document(image_name);
-    epdf_doc = (void *) pdf_doc;
+    pdf_doc = find_add_document(img_filepath(idict));
+    img_pdf_doc(idict) = pdf_doc;
 
     // check PDF version
     // this works only for PDF 1.x -- but since any versions of PDF newer
@@ -701,43 +710,46 @@ read_pdf_info(char *image_name, char *page_name, integer page_num,
             pdftex_warn(msg, pdf_version_found, pdf_version_wanted);
         }
     }
-    epdf_num_pages = pdf_doc->doc->getCatalog()->getNumPages();
-    if (page_name) {
+    img_totalpages(idict) = pdf_doc->doc->getCatalog()->getNumPages();
+    if (img_pdf_page_name(idict)) {
         // get page by name
-        GString name(page_name);
+        GString name(img_pdf_page_name(idict));
         LinkDest *link = pdf_doc->doc->findDest(&name);
         if (link == 0 || !link->isOk())
-            pdftex_fail("PDF inclusion: invalid destination <%s>", page_name);
+            pdftex_fail("PDF inclusion: invalid destination <%s>",
+                        img_pdf_page_name(idict));
         Ref ref = link->getPageRef();
-        page_num = pdf_doc->doc->getCatalog()->findPage(ref.num, ref.gen);
-        if (page_num == 0)
+        img_pagenum(idict) =
+            pdf_doc->doc->getCatalog()->findPage(ref.num, ref.gen);
+        if (img_pagenum(idict) == 0)
             pdftex_fail("PDF inclusion: destination is not a page <%s>",
-                        page_name);
+                        img_pdf_page_name(idict));
         delete link;
     } else {
         // get page by number
-        if (page_num <= 0 || page_num > epdf_num_pages)
-            pdftex_fail("PDF inclusion: required page does not exist <%i>",
-                        (int) epdf_num_pages);
+        if (img_pagenum(idict) <= 0
+            || img_pagenum(idict) > img_totalpages(idict))
+            pdftex_fail("PDF inclusion: required page <%i> does not exist",
+                        (int) img_pagenum(idict));
     }
     // get the required page
-    page = pdf_doc->doc->getCatalog()->getPage(page_num);
+    page = pdf_doc->doc->getCatalog()->getPage(img_pagenum(idict));
 
     // get the pagebox (media, crop...) to use.
-    pagebox = get_pagebox(page, pagebox_spec);
+    pagebox = get_pagebox(page, img_pdf_page_box(idict));
     if (pagebox->x2 > pagebox->x1) {
-        epdf_orig_x_i = pagebox->x1;
-        epdf_width = pagebox->x2 - pagebox->x1;
+        img_pdf_orig_x(idict) = pagebox->x1;
+        img_pdf_width(idict) = pagebox->x2 - pagebox->x1;
     } else {
-        epdf_orig_x_i = pagebox->x2;
-        epdf_width = pagebox->x1 - pagebox->x2;
+        img_pdf_orig_x(idict) = pagebox->x2;
+        img_pdf_width(idict) = pagebox->x1 - pagebox->x2;
     }
     if (pagebox->y2 > pagebox->y1) {
-        epdf_orig_y_i = pagebox->y1;
-        epdf_height = pagebox->y2 - pagebox->y1;
+        img_pdf_orig_y(idict) = pagebox->y1;
+        img_pdf_height(idict) = pagebox->y2 - pagebox->y1;
     } else {
-        epdf_orig_y_i = pagebox->y2;
-        epdf_height = pagebox->y1 - pagebox->y2;
+        img_pdf_orig_y(idict) = pagebox->y2;
+        img_pdf_height(idict) = pagebox->y1 - pagebox->y2;
     }
 
     rotate = page->getRotate();
@@ -751,27 +763,28 @@ read_pdf_info(char *image_name, char *page_name, integer page_num,
             register float f;
             switch (rotate) {
             case 90:
-                f = epdf_height;
-                epdf_height = epdf_width;
-                epdf_width = f;
+                f = img_pdf_height(idict);
+                img_pdf_height(idict) = img_pdf_width(idict);
+                img_pdf_width(idict) = f;
                 break;
             case 270:
-                f = epdf_height;
-                epdf_height = epdf_width;
-                epdf_width = f;
+                f = img_pdf_height(idict);
+                img_pdf_height(idict) = img_pdf_width(idict);
+                img_pdf_width(idict) = f;
                 break;
             }
         }
     }
     pdf_doc->xref = pdf_doc->doc->getXRef();
-    return page_num;
+    img_width(idict) = bp2int(img_pdf_width(idict));
+    img_height(idict) = bp2int(img_pdf_height(idict));
 }
 
 // writes the current epf_doc.
 // Here the included PDF is copied, so most errors that can happen during PDF
 // inclusion will arise here.
 
-void write_epdf(void)
+void write_epdf(image_dict * idict)
 {
     Page *page;
     PdfObject contents, obj1, obj2;
@@ -783,7 +796,7 @@ void write_epdf(void)
     int rotate;
     double scale[6] = { 0, 0, 0, 0, 0, 0 };
     bool writematrix = false;
-    PdfDocument *pdf_doc = (PdfDocument *) epdf_doc;
+    PdfDocument *pdf_doc = (PdfDocument *) img_pdf_doc(idict);
     (pdf_doc->occurences)--;
 #ifdef DEBUG
     fprintf(stderr, "\npdfTeX Debug: Decrementing %s (%d)\n",
@@ -792,19 +805,20 @@ void write_epdf(void)
     xref = pdf_doc->xref;
     inObjList = pdf_doc->inObjList;
     encodingList = 0;
-    page = pdf_doc->doc->getCatalog()->getPage(epdf_selected_page);
+    page = pdf_doc->doc->getCatalog()->getPage(img_pagenum(idict));
     rotate = page->getRotate();
     PDFRectangle *pagebox;
     // write the Page header
-    pdf_puts("/Type /XObject\n");
-    pdf_puts("/Subtype /Form\n");
+    pdf_puts("/Type /XObject\n/Subtype /Form\n");
+    if (img_attrib(idict) != NULL && strlen(img_attrib(idict)) > 0)
+        pdf_printf("%s\n", img_attrib(idict));
     pdf_puts("/FormType 1\n");
 
     // write additional information
     pdf_printf("/%s.FileName (%s)\n", pdfkeyprefix,
                convertStringToPDFString(pdf_doc->file_name,
                                         strlen(pdf_doc->file_name)));
-    pdf_printf("/%s.PageNumber %i\n", pdfkeyprefix, (int) epdf_selected_page);
+    pdf_printf("/%s.PageNumber %i\n", pdfkeyprefix, (int) img_pagenum(idict));
     pdf_doc->doc->getDocInfoNF(&info);
     if (info.isRef()) {
         // the info dict must be indirect (PDF Ref p. 61)
@@ -812,7 +826,7 @@ void write_epdf(void)
         pdf_printf("%d 0 R\n", addOther(info.getRef()));
     }
     // get the pagebox (media, crop...) to use.
-    pagebox = get_pagebox(page, epdf_page_box);
+    pagebox = get_pagebox(page, img_pdf_page_box(idict));
 
     // handle page rotation
     if (rotate != 0) {
@@ -968,9 +982,9 @@ void write_epdf(void)
 // Called when an image has been written and it's resources in image_tab are
 // freed and it's not referenced anymore.
 
-void epdf_delete()
+void epdf_delete(image_dict * idict)
 {
-    PdfDocument *pdf_doc = (PdfDocument *) epdf_doc;
+    PdfDocument *pdf_doc = (PdfDocument *) img_pdf_doc(idict);
     xref = pdf_doc->xref;
     if (pdf_doc->occurences < 0) {
 #ifdef DEBUG
@@ -978,6 +992,7 @@ void epdf_delete()
 #endif
         delete_document(pdf_doc);
     }
+    img_pdf_doc(idict) = NULL;
 }
 
 // Called when PDF embedding system is finalized.

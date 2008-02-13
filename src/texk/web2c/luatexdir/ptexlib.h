@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with luatex; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-$Id: //depot/Build/source.development/TeX/texk/web2c/luatexdir/ptexlib.h#26 $
+$Id: ptexlib.h,v 1.1 2008/02/13 22:28:22 root Exp root $
 */
 
 #ifndef LUATEXLIB
@@ -35,8 +35,8 @@ $Id: //depot/Build/source.development/TeX/texk/web2c/luatexdir/ptexlib.h#26 $
 /* pdftexlib macros */
 #  include "ptexmac.h"
 
-/* avl */
 #  include "avlstuff.h"
+#  include "image/image.h"
 
 #  include "openbsd-compat.h"
 
@@ -94,9 +94,9 @@ typedef struct {
     boolean in_use;             /* true if this structure has been referenced already */
 } fm_entry;
 
-typedef struct glw_entry_ { /* subset glyphs for inclusion in CID-based fonts */
-  unsigned short id;        /* glyph CID */
-  unsigned short wd;        /* glyph width in 1/1000 em parts */
+typedef struct glw_entry_ {     /* subset glyphs for inclusion in CID-based fonts */
+    unsigned short id;          /* glyph CID */
+    unsigned short wd;          /* glyph width in 1/1000 em parts */
 } glw_entry;
 
 
@@ -162,7 +162,7 @@ extern size_t last_ptr_index;
 
 /* loadpool.c */
 
-int loadpoolstrings (integer spare_size) ;
+int loadpoolstrings(integer spare_size);
 
 /* pdftexlib function prototypes */
 
@@ -203,16 +203,16 @@ extern integer write_tounicode(char **, char *);
 /* utils.c */
 extern boolean str_eq_cstr(strnumber, char *);
 extern char *makecstring(integer);
-extern char *makeclstring (integer, int *);
-extern void print_string (char *j);
-extern void append_string (char *s);
-extern void getcreationdate (void);
-extern void tconfusion (char *s);
-extern void tprint (char *s);
-extern void tprint_nl (char *s);
-extern void tprint_esc (char *s);
+extern char *makeclstring(integer, int *);
+extern void print_string(char *j);
+extern void append_string(char *s);
+extern void getcreationdate(void);
+extern void tconfusion(char *s);
+extern void tprint(char *s);
+extern void tprint_nl(char *s);
+extern void tprint_esc(char *s);
 
-#define overflow_string(a,b) { overflow(maketexstring(a),b); flush_str(last_tex_string); }
+#  define overflow_string(a,b) { overflow(maketexstring(a),b); flush_str(last_tex_string); }
 
 extern int xfflush(FILE *);
 extern int xgetc(FILE *);
@@ -221,7 +221,7 @@ extern scaled ext_xn_over_d(scaled, scaled, scaled);
 extern size_t xfwrite(void *, size_t size, size_t nmemb, FILE *);
 extern strnumber get_resname_prefix(void);
 extern strnumber maketexstring(const char *);
-extern strnumber maketexlstring (const char *, size_t);
+extern strnumber maketexlstring(const char *, size_t);
 extern integer fb_offset(void);
 extern void fb_flush(void);
 extern void fb_putchar(eight_bits b);
@@ -292,18 +292,28 @@ extern boolean check_image_i(integer);
 extern boolean is_pdf_image(integer);
 extern integer epdforigx(integer);
 extern integer epdforigy(integer);
-extern integer image_height(integer);
 extern integer image_pages(integer);
+extern integer image_index(integer);
+extern integer image_wd(integer);
+extern integer image_ht(integer);
+extern integer image_dp(integer);
+extern integer image_objnum(integer);
+extern integer image_imgnum(integer);
 extern integer image_width(integer);
+extern integer image_height(integer);
 extern integer image_x_res(integer);
 extern integer image_y_res(integer);
-extern integer read_image(strnumber, integer, strnumber, integer, integer,
-                         integer, integer);
-extern void delete_image(integer);
+extern integer new_image_entry(void);
+extern integer read_image(integer, integer, strnumber, integer, strnumber,
+                          strnumber, integer, integer, integer, integer);
 extern void img_free(void);
 extern void update_image_procset(integer);
 extern void write_image(integer);
 extern integer image_colordepth(integer img);
+extern void scale_image(integer);
+extern void set_image_dimensions(integer, integer, integer, integer);
+extern void set_image_index(integer, integer);
+extern void out_image(integer, scaled, scaled);
 
 /* writejbig2.c */
 extern void flush_jbig2_page0_objects();
@@ -335,7 +345,7 @@ extern integer avl_find_obj(integer, integer, integer);
 
 /**********************************************************************/
 static const key_entry font_key[FONT_KEYS_NUM] = {
-      {"Ascent", "Ascender", 1}
+    {"Ascent", "Ascender", 1}
     , {"CapHeight", "CapHeight", 1}
     , {"Descent", "Descender", 1}
     , {"ItalicAngle", "ItalicAngle", 1}
@@ -351,64 +361,65 @@ static const key_entry font_key[FONT_KEYS_NUM] = {
 /**********************************************************************/
 
 typedef enum {
-  no_print=16,
-  term_only=17,
-  log_only=18,
-  term_and_log=19,
-  pseudo=20,
-  new_string=21 } selector_settings;
+    no_print = 16,
+    term_only = 17,
+    log_only = 18,
+    term_and_log = 19,
+    pseudo = 20,
+    new_string = 21
+} selector_settings;
 
 
-#include "font/texfont.h"
+#  include "font/texfont.h"
 
 /* language stuff */
 
 typedef struct _lang_variables {
-  int pre_hyphen_char;
-  int post_hyphen_char;
+    int pre_hyphen_char;
+    int post_hyphen_char;
 } lang_variables;
 
 
-#include "hyphen.h"
+#  include "hyphen.h"
 
 struct tex_language {
-  HyphenDict *patterns;
-  int exceptions; /* lua registry pointer, should be replaced */
-  int id;
-  int pre_hyphen_char;
-  int post_hyphen_char;
+    HyphenDict *patterns;
+    int exceptions;             /* lua registry pointer, should be replaced */
+    int id;
+    int pre_hyphen_char;
+    int post_hyphen_char;
 };
 
-#define MAX_WORD_LEN 256 /* in chars */
+#  define MAX_WORD_LEN 256      /* in chars */
 
-extern struct tex_language *new_language (void) ;
-extern struct tex_language *get_language (int n) ;
-extern void load_patterns (struct tex_language *lang, unsigned char *buf) ;
-extern void load_hyphenation (struct tex_language *lang, unsigned char *buf);
+extern struct tex_language *new_language(void);
+extern struct tex_language *get_language(int n);
+extern void load_patterns(struct tex_language *lang, unsigned char *buf);
+extern void load_hyphenation(struct tex_language *lang, unsigned char *buf);
 extern int hyphenate_string(struct tex_language *lang, char *w, char **ret);
 
-extern void new_hyphenation (halfword h, halfword t);
-extern void clear_patterns (struct tex_language *lang) ;
-extern void clear_hyphenation (struct tex_language *lang) ;
-extern char *clean_hyphenation (char *buffer, char **cleaned) ;
-extern void hnj_hyphenation (halfword head, halfword tail) ;
+extern void new_hyphenation(halfword h, halfword t);
+extern void clear_patterns(struct tex_language *lang);
+extern void clear_hyphenation(struct tex_language *lang);
+extern char *clean_hyphenation(char *buffer, char **cleaned);
+extern void hnj_hyphenation(halfword head, halfword tail);
 
-extern void set_pre_hyphen_char (integer lan, integer val);
+extern void set_pre_hyphen_char(integer lan, integer val);
 extern void set_post_hyphen_char(integer lan, integer val);
-extern integer get_pre_hyphen_char  (integer lan);
-extern integer get_post_hyphen_char (integer lan);
+extern integer get_pre_hyphen_char(integer lan);
+extern integer get_post_hyphen_char(integer lan);
 
 extern halfword new_ligkern(halfword head, halfword tail);
 extern halfword handle_ligaturing(halfword head, halfword tail);
 extern halfword handle_kerning(halfword head, halfword tail);
 
-#define push_dir(a)								\
+#  define push_dir(a)								\
   { dir_tmp=new_dir((a));						\
 	vlink(dir_tmp)=dir_ptr; dir_ptr=dir_tmp;	\
 	dir_ptr=dir_tmp;							\
   }
 
-#define push_dir_node(a)						\
+#  define push_dir_node(a)						\
   { dir_tmp=new_node(whatsit_node,dir_node);	\
     dir_dir(dir_tmp)=dir_dir((a));				\
     dir_level(dir_tmp)=dir_level((a));			\
@@ -417,7 +428,7 @@ extern halfword handle_kerning(halfword head, halfword tail);
     vlink(dir_tmp)=dir_ptr; dir_ptr=dir_tmp;	\
   }
 
-#define pop_dir_node()					\
+#  define pop_dir_node()					\
   { dir_tmp=dir_ptr;					\
     dir_ptr=vlink(dir_tmp);				\
     flush_node(dir_tmp);				\
@@ -425,179 +436,184 @@ extern halfword handle_kerning(halfword head, halfword tail);
 
 
 
-#define dir_parallel(a,b) (((a) % 2)==((b) % 2))
-#define dir_orthogonal(a,b) (((a) % 2)!=((b) % 2))
+#  define dir_parallel(a,b) (((a) % 2)==((b) % 2))
+#  define dir_orthogonal(a,b) (((a) % 2)!=((b) % 2))
 
-#define is_rotated(a) dir_parallel(dir_secondary[(a)],dir_tertiary[(a)])
+#  define is_rotated(a) dir_parallel(dir_secondary[(a)],dir_tertiary[(a)])
 
-void initialize_active (void) ;
+void initialize_active(void);
 
-halfword find_protchar_left(halfword l, boolean d) ;
-halfword find_protchar_right(halfword l, halfword r) ;
+halfword find_protchar_left(halfword l, boolean d);
+halfword find_protchar_right(halfword l, halfword r);
 
-void ext_do_line_break (boolean d, 
-			int pretolerance, 
-			int tracing_paragraphs, 
-			int tolerance, 
-			scaled emergency_stretch, 
-			int looseness, 
-			int hyphen_penalty, 
-			int ex_hyphen_penalty,
-			int pdf_adjust_spacing, 
-			halfword par_shape_ptr, 
-			int adj_demerits,
-			int pdf_protrude_chars,  
-			int line_penalty, 
-			int last_line_fit,  
-			int double_hyphen_demerits,  
-			int final_hyphen_demerits,
-			int hang_indent, 
-			int hsize, 
-			int hang_after,
-			halfword left_skip, 
-			halfword right_skip,
-			int pdf_each_line_height,
-			int pdf_each_line_depth,
-			int pdf_first_line_height,
-			int pdf_last_line_depth,
-			halfword inter_line_penalties_ptr,
-			int inter_line_penalty,
-			int club_penalty,
-			halfword club_penalties_ptr,
-			halfword display_widow_penalties_ptr,
-			halfword widow_penalties_ptr,
-			int display_widow_penalty,
-			int widow_penalty,
-	 		int broken_penalty,
-			halfword final_par_glue
-			);
+void ext_do_line_break(boolean d,
+                       int pretolerance,
+                       int tracing_paragraphs,
+                       int tolerance,
+                       scaled emergency_stretch,
+                       int looseness,
+                       int hyphen_penalty,
+                       int ex_hyphen_penalty,
+                       int pdf_adjust_spacing,
+                       halfword par_shape_ptr,
+                       int adj_demerits,
+                       int pdf_protrude_chars,
+                       int line_penalty,
+                       int last_line_fit,
+                       int double_hyphen_demerits,
+                       int final_hyphen_demerits,
+                       int hang_indent,
+                       int hsize,
+                       int hang_after,
+                       halfword left_skip,
+                       halfword right_skip,
+                       int pdf_each_line_height,
+                       int pdf_each_line_depth,
+                       int pdf_first_line_height,
+                       int pdf_last_line_depth,
+                       halfword inter_line_penalties_ptr,
+                       int inter_line_penalty,
+                       int club_penalty,
+                       halfword club_penalties_ptr,
+                       halfword display_widow_penalties_ptr,
+                       halfword widow_penalties_ptr,
+                       int display_widow_penalty,
+                       int widow_penalty,
+                       int broken_penalty, halfword final_par_glue);
 
-void ext_post_line_break(boolean d, 
-			 int right_skip,
-			 int left_skip,
-			 int pdf_protrude_chars,
-			 halfword par_shape_ptr,
-			 int pdf_adjust_spacing,
-			 int pdf_each_line_height,
-			 int pdf_each_line_depth,
-			 int pdf_first_line_height,
-			 int pdf_last_line_depth,
-			 halfword inter_line_penalties_ptr,
-			 int inter_line_penalty,
-			 int club_penalty,
-			 halfword club_penalties_ptr,
-			 halfword display_widow_penalties_ptr,
-			 halfword widow_penalties_ptr,
-			 int display_widow_penalty,
-			 int widow_penalty,
-			 int broken_penalty,
-			 halfword final_par_glue,
-			 halfword best_bet,
-			 halfword last_special_line,
-			 scaled second_width,
-			 scaled second_indent,
-			 scaled first_width,
-			 scaled first_indent,
-			 halfword best_line );
+void ext_post_line_break(boolean d,
+                         int right_skip,
+                         int left_skip,
+                         int pdf_protrude_chars,
+                         halfword par_shape_ptr,
+                         int pdf_adjust_spacing,
+                         int pdf_each_line_height,
+                         int pdf_each_line_depth,
+                         int pdf_first_line_height,
+                         int pdf_last_line_depth,
+                         halfword inter_line_penalties_ptr,
+                         int inter_line_penalty,
+                         int club_penalty,
+                         halfword club_penalties_ptr,
+                         halfword display_widow_penalties_ptr,
+                         halfword widow_penalties_ptr,
+                         int display_widow_penalty,
+                         int widow_penalty,
+                         int broken_penalty,
+                         halfword final_par_glue,
+                         halfword best_bet,
+                         halfword last_special_line,
+                         scaled second_width,
+                         scaled second_indent,
+                         scaled first_width,
+                         scaled first_indent, halfword best_line);
 
-halfword lua_hpack_filter (halfword head_node, scaled size, int pack_type, int extrainfo);
-void lua_node_filter (int filterid, int extrainfo, halfword head_node, halfword *tail_node);
-halfword lua_vpack_filter (halfword head_node, scaled size, int pack_type, scaled maxd, int extrainfo);
-void lua_node_filter_s (int filterid, char *extrainfo, halfword head_node, halfword *tail_node) ;
+halfword lua_hpack_filter(halfword head_node, scaled size, int pack_type,
+                          int extrainfo);
+void lua_node_filter(int filterid, int extrainfo, halfword head_node,
+                     halfword * tail_node);
+halfword lua_vpack_filter(halfword head_node, scaled size, int pack_type,
+                          scaled maxd, int extrainfo);
+void lua_node_filter_s(int filterid, char *extrainfo, halfword head_node,
+                       halfword * tail_node);
 
 void load_tex_patterns(int curlang, halfword head);
 void load_tex_hyphenation(int curlang, halfword head);
 
 /* textcodes.c */
-void     set_lc_code (integer n, halfword v, quarterword gl);
-halfword get_lc_code (integer n) ;
-void     set_uc_code (integer n, halfword v, quarterword gl);
-halfword get_uc_code (integer n) ;
-void     set_sf_code (integer n, halfword v, quarterword gl);
-halfword get_sf_code (integer n) ;
-void     set_cat_code (integer h, integer n, halfword v, quarterword gl) ;
-halfword get_cat_code (integer h, integer n) ;
-void     unsave_cat_codes (integer h, quarterword gl) ;
-int      valid_catcode_table (int h) ;
-void     unsave_text_codes (quarterword grouplevel) ;
-void     initialize_text_codes (void) ;
-void     dump_text_codes (void) ;
-void     undump_text_codes (void) ;
+void set_lc_code(integer n, halfword v, quarterword gl);
+halfword get_lc_code(integer n);
+void set_uc_code(integer n, halfword v, quarterword gl);
+halfword get_uc_code(integer n);
+void set_sf_code(integer n, halfword v, quarterword gl);
+halfword get_sf_code(integer n);
+void set_cat_code(integer h, integer n, halfword v, quarterword gl);
+halfword get_cat_code(integer h, integer n);
+void unsave_cat_codes(integer h, quarterword gl);
+int valid_catcode_table(int h);
+void unsave_text_codes(quarterword grouplevel);
+void initialize_text_codes(void);
+void dump_text_codes(void);
+void undump_text_codes(void);
 
 /* mathcodes.c */
 
-void     set_math_code (integer n, halfword v, quarterword gl) ;
-halfword get_math_code (integer n) ;
-void     set_del_code (integer n, halfword v, halfword w, quarterword gl) ;
-halfword get_del_code_a (integer n) ;
-halfword get_del_code_b (integer n) ;
-void     unsave_math_codes (quarterword grouplevel) ;
-void     initialize_math_codes (void) ;
-void     dump_math_codes(void) ;
-void     undump_math_codes(void) ;
+void set_math_code(integer n, halfword v, quarterword gl);
+halfword get_math_code(integer n);
+void set_del_code(integer n, halfword v, halfword w, quarterword gl);
+halfword get_del_code_a(integer n);
+halfword get_del_code_b(integer n);
+void unsave_math_codes(quarterword grouplevel);
+void initialize_math_codes(void);
+void dump_math_codes(void);
+void undump_math_codes(void);
 
 /* texlang.c */
 
-void dump_language_data (void) ;
-void undump_language_data (void) ;
-char *exception_strings(struct tex_language *lang) ;
+void dump_language_data(void);
+void undump_language_data(void);
+char *exception_strings(struct tex_language *lang);
 
 /* llualib.c */
 
-void dump_luac_registers (void) ;
-void undump_luac_registers (void) ;
+void dump_luac_registers(void);
+void undump_luac_registers(void);
 
 /* ltexlib.c */
-void luacstring_start (int n) ;
-void luacstring_close (int n) ;
-int luacstring_detokenized (void) ;
-int luacstring_defaultcattable (void) ;
-integer luacstring_cattable (void);
-int luacstring_simple (void);
-int luacstring_penultimate (void);
-int luacstring_input (void);
+void luacstring_start(int n);
+void luacstring_close(int n);
+int luacstring_detokenized(void);
+int luacstring_defaultcattable(void);
+integer luacstring_cattable(void);
+int luacstring_simple(void);
+int luacstring_penultimate(void);
+int luacstring_input(void);
 
 
 /* luatoken.c */
-void do_get_token_lua (integer callback_id);
+void do_get_token_lua(integer callback_id);
 
 /* luanode.c */
-int visible_last_node_type (int n) ;
-void print_node_mem_stats (int n, int o);
+int visible_last_node_type(int n);
+void print_node_mem_stats(int n, int o);
 
 /* writeimg.c */
-integer epdf_orig_y (integer i);
-integer epdf_orig_x (integer i);
+integer epdf_orig_y(integer i);
+integer epdf_orig_x(integer i);
+
+/* limglib.c */
+void lua_setximage(integer i);
 
 /* vfovf.c */
-void  vf_expand_local_fonts(internal_font_number f) ;
-internal_font_number  letter_space_font (halfword u, internal_font_number f, integer e) ;
-internal_font_number auto_expand_font (internal_font_number f, integer e) ;
-str_number  expand_font_name (internal_font_number f, integer e) ;
-void pdf_check_vf_cur_val (void) ;
+void vf_expand_local_fonts(internal_font_number f);
+internal_font_number letter_space_font(halfword u, internal_font_number f,
+                                       integer e);
+internal_font_number auto_expand_font(internal_font_number f, integer e);
+str_number expand_font_name(internal_font_number f, integer e);
+void pdf_check_vf_cur_val(void);
 
 /* ltexiolib.c */
-void flush_loggable_info (void);
+void flush_loggable_info(void);
 
 /* luastuff.c */
-void  closelua(int n) ;
-void  luacall(int n, int s) ;
-void  luatokencall(int n, int p) ;
+void closelua(int n);
+void luacall(int n, int s);
+void luatokencall(int n, int p);
 
 void tex_error(char *msg, char **hlp);
 
-scaled divide_scaled (scaled s, scaled m, integer dd);
-scaled divide_scaled_n (double s, double m, double d);
+scaled divide_scaled(scaled s, scaled m, integer dd);
+scaled divide_scaled_n(double s, double m, double d);
 
 /* texpdf.c */
-void pdf_print_char(internal_font_number f, integer c) ;
-void pdf_print (str_number n) ;
-void pdf_print_str (str_number n) ;
-void pdf_print_int(integer n) ;
+void pdf_print_char(internal_font_number f, integer c);
+void pdf_print(str_number n);
+void pdf_print_str(str_number n);
+void pdf_print_int(integer n);
 
 /* textoken.c */
 
 void get_next(void);
-void get_token_lua (void);
+void get_token_lua(void);
 
 #endif                          /* PDFTEXLIB */

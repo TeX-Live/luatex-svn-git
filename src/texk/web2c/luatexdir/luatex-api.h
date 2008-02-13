@@ -42,6 +42,8 @@ extern int luaopen_zlib (lua_State *L);
 extern int luaopen_gzip (lua_State *L);
 extern int luaopen_ff  (lua_State *L);
 
+extern int luaopen_img  (lua_State *L);
+
 extern void open_oslibext (lua_State *L, int safer_option);
 
 extern void initfilecallbackids    (int max);
