@@ -536,7 +536,7 @@ copy_font (integer f) {
   param_base(k) = xmalloc (i);
   memcpy(param_base(k),param_base(f), i);
 
-  i = sizeof(charinfo)*Charinfo_size(f);  
+  i = sizeof(charinfo)*(Charinfo_size(f)+1);  
   font_bytes += i;
   font_tables[k]->charinfo = xmalloc(i);
   memset(font_tables[k]->charinfo,0,i);
