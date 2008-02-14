@@ -2162,6 +2162,15 @@ img.write{filename="foo.png"}
 The \type{<image>} variable is returned in case you want it for later
 processing.
 
+\subsubsubject{\luatex{img.supportedtypes}}
+
+\startfunctioncall
+<table> supportedtypes = img.supportedtypes()
+\stopfunctioncall
+
+This function returns a list with the supported image file type names,
+currently these are `pdf', `png', `jpg', and `jbig2'.
+
 
 \section{The \luatex{callback} library}
 
