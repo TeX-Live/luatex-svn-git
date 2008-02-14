@@ -208,7 +208,7 @@ long
 cff_pack_index (cff_index *idx, card8 *dest, long destlen)
 {
   long    len = 0;
-  long    datalen;
+  unsigned long    datalen;
   card16  i;
 
   if (idx->count < 1) {
@@ -3031,17 +3031,12 @@ void write_cff(cff_font *cffont, fd_entry *fd, int uglytype1fix) {
     }
   }
   
-  /* */ 
-  /*fprintf(stderr,"gid=%i, num_glyphs=%i", gid, num_glyphs);*/
-  
-  /* TODO reinstate this test */
-  /*
-	if (gid != num_glyphs)
-      CFF_ERROR("Unexpected error: %i != %i", gid, num_glyphs);
-  */
-  if (gid < num_glyphs)
+  /* this happens if the internal metrics do not agree with the actual disk font */
+  if (gid < num_glyphs) {
+    WARN("embedded subset is smaller than expected: %d instead of %d glyphs.", gid, num_glyphs);
     num_glyphs = gid;
-
+  }
+  
   xfree(data);
   cff_release_index(cs_idx);
   
@@ -3324,11 +3319,6 @@ void write_cid_cff(cff_font *cffont, fd_entry *fd, int uglytype1fix) {
 
 }
 
-
-/* not finished yet */
-
-void writet1c (fd_entry *fd) {
-}
 
 /* here is a sneaky trick: fontforge knows how to convert Type1 to CFF, so 
  * I have defined a utility function in luafflib.c that does exactly that.
