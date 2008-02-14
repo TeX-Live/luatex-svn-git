@@ -509,7 +509,7 @@ static int m_img_get(lua_State * L)
 static int m_img_set(lua_State * L)
 {
     image *a, **aa;
-    aa = (image *) luaL_checkudata(L, 1, TYPE_IMG);     /* value key user */
+    aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);     /* value key user */
     a = *aa;
     lua_to_image(L, a);         /* v k u */
     return 0;
