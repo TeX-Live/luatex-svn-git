@@ -1337,7 +1337,6 @@ begin if (pool_ptr+namelength>pool_size)or(str_ptr=max_strings)or
   make_name_string:="?"
 else  begin for k:=1 to namelength do append_char(nameoffile[k]);
   make_name_string:=make_string;
-  end;
   {At this point we also set |cur_name|, |cur_ext|, and |cur_area| to
    match the contents of |nameoffile|.}
   save_area_delimiter:=area_delimiter; 
@@ -1345,13 +1344,17 @@ else  begin for k:=1 to namelength do append_char(nameoffile[k]);
   save_name_in_progress:=name_in_progress; 
   save_stop_at_space:=stop_at_space;
   name_in_progress:=true;
+  begin_name;
   stop_at_space:=false;
+  k:=1;
   while (k<=namelength)and(more_name(nameoffile[k])) do
-    begin incr(k); append_char(nameoffile[k]); end;
+    incr(k);
   stop_at_space:=save_stop_at_space;
+  end_name;
   name_in_progress:=save_name_in_progress;
   area_delimiter:=save_area_delimiter; 
   ext_delimiter:=save_ext_delimiter;
+  end;
 @z
 
 @x
