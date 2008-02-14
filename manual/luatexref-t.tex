@@ -2008,6 +2008,160 @@ pdf.print(string type, string s)
 The optional parameter can be used to mimic the behaviour of
 \tex{pdfliteral}: the \type{type} is \type{direct} or \type{page}.
 
+\section{The \luatex{img} library}
+
+The \type{img} library can be used as an alternative to
+\tex{pdfximage} and \tex{pdfrefximage}, and the associated `satellite'
+commands like \tex{pdfximagebbox}.
+
+\subsubsubject{\luatex{img.new}}
+
+\startfunctioncall
+<image> var = img.new()
+<image> var = img.new(image_spec) 
+\stopfunctioncall
+
+This function creates a userdata opject with the right type. The 
+\type{image_spec} argument is a optional. If it is given, it must be
+a table, and that table must have a \type{filename} key.  A number of
+other keys can also be useful, these are enumerated explained below.
+
+You can either say
+\starttyping
+a=img.new()
+\stoptyping 
+followed by 
+\starttyping
+a.filename="foo.png"
+\stoptyping 
+or you can put the file name (and some or all of the other keys)
+into a table directly, like so:
+\starttyping
+a=img.new{filename='foo.pdf',page=1}
+\stoptyping
+
+The generated \type{<image>} userdata object allows access to a set of
+user-specified values as well as a set of values that are normally
+filled in and updated automatically by \LUATEX\ itself. Some of those
+are derived from the actual image file, other are updated to reflect 
+tyhe PDF output status of the object.
+
+There is one required user-specified field: the file name
+(\type{filename}).  It can optionally be augmented by the requested
+image dimensions (\type{width}, \type{depth}, \type{height}),
+user-specified image attributes (\type{attr}), the requested PDF page
+identifier (\type{page}), the requested boundingbox (\type{pagebox})
+for PDF inclusion, the requested color space (\type{colorspace}).
+
+The function \type{img.new} does not access the actual image file, it
+just creates the \type{<image>} userdata object and initializes some
+memory structures. The \type{<image>} object and it's internal
+structures are automatically garbage collected.
+
+Once the image is written to the PDF, all the values in the 
+\type{<image>} become frozen, and you cannot change them any more.
+
+\subsubsubject{\luatex{img.keys}}
+
+\startfunctioncall
+<table> keys = img.keys()
+\stopfunctioncall
+
+This function returns a list of all the possible \type{image_spec}
+keys, both user-supplied and automatic ones. 
+
+\starttabulate[|l|l|p|] 
+\NC Field name    \NC Type     \NC Description \NC \NR
+\NC depth         \NC number   \NC Image depth for \LUATEX\ (in scaled points)\NC \NR
+\NC height        \NC number   \NC Image height for \LUATEX\ (in scaled points)\NC \NR
+\NC width         \NC number   \NC Image width for \LUATEX\  (in scaled points)\NC \NR
+\NC attr          \NC string   \NC Image attributes for \LUATEX \NC \NR
+\NC filename      \NC string   \NC Image file name \NC \NR
+\NC page          \NC ??       \NC Identifier for the requested image
+                                   page (type is number or string,
+                                   default is the number 1)\NC \NR
+\NC colorspace    \NC number   \NC Requested color space\NC \NR 
+\NC pagebox       \NC string   \NC Requested bounding box. 
+                                   One of "none", "media", "crop", "bleed", "trim", "art" \NC \NR
+\NC filepath      \NC string   \NC Full (discovered) file name of the image \NC \NR
+\NC colordepth    \NC number   \NC Number of bits used by the color space \NC \NR
+\NC colorspaceobj \NC number   \NC PDF color space object number   \NC \NR
+\NC imagetype     \NC string   \NC One of "none", "pdf", "png", "jpg", "jbig2" \NC \NR
+\NC objnum        \NC number   \NC PDF image object number  \NC \NR
+\NC index         \NC number   \NC PDF image name suffix \NC \NR
+\NC pages         \NC number   \NC Total number of available pages \NC \NR
+\NC xsize         \NC number   \NC Natural image width \NC \NR
+\NC ysize         \NC number   \NC Natural image height  \NC \NR
+\NC xres          \NC number   \NC Horizontal natural image resolution (dpi) \NC \NR
+\NC yres          \NC number   \NC Vertical natural image resolution (dpi) \NC \NR
+\stoptabulate
+
+A running (undefined) dimension in \type{width}, \type{height}, or \type{depth} is
+represented as \type{nil} in Lua, so if you want to load an image at
+it's `natural' size, you do not have to specify any of those three fields.
+
+\subsubsubject{\luatex{img.scan}}
+
+\startfunctioncall
+<image> var = img.scan(<image> var) 
+<image> var = img.scan(image_spec)
+\stopfunctioncall
+
+When you say \type{img.scan(a)}, the file is scanned, and variables
+such as \type{xsize}, \type{ysize}, image \type{type}, number of
+\type{pages}, and the resolution are extracted. Each of the \type{width},
+\type{height}, \type{depth} fields are set up if they were not
+given an explicit value already.
+
+For ease of use, you can do right-away a 
+\starttyping
+a=img.scan{filename="foo.png"} 
+\stoptyping
+without a prior \type{img.new}.
+
+Nothing is written yet at this point, so you can do \type{a=img.scan},
+retrieve the available info like image width and height, and then
+throw away \type{a} again by saying \type{a=nil}.  In that case, no
+image object will be reserved in the PDF, and the used memory will be
+cleaned up automatically.
+
+
+\subsubsubject{\luatex{img.copy}}
+
+\startfunctioncall
+<image> var = img.copy(<image> var) 
+<image> var = img.copy(image_spec)
+\stopfunctioncall
+
+If you say \type{a = b}, then both variables point to the same
+\type{<image>} object. if you want to write out an image with
+different sizes, you can do a \type{b=img.copy(a)}. 
+
+Afterwards, \type{a} and \type{b} still reference the same actual
+image dictionary, but the dimensions for \type{b} can now be changed
+from their initial values that were just copies from \type{a}.
+
+% Hartmut, I don't know if this makes sense. An example of what
+% can, and what cannot be changed would be helpful.
+
+\subsubsubject{\luatex{img.write}}
+
+\startfunctioncall
+<image> var = img.write(<image> var) 
+<image> var = img.write(image_spec)
+\stopfunctioncall
+
+The image is written out by \type{img.write(a)}. 
+
+Again you can do a terse call like
+\starttyping
+img.write{filename="foo.png"}
+\stoptyping
+
+The \type{<image>} variable is returned in case you want it for later
+processing.
+
+
 \section{The \luatex{callback} library}
 
 This library has functions that register, find and list callbacks.
