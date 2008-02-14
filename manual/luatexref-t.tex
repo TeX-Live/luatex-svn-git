@@ -2021,10 +2021,10 @@ commands like \tex{pdfximagebbox}.
 <image> var = img.new(image_spec) 
 \stopfunctioncall
 
-This function creates a userdata opject with the right type. The 
-\type{image_spec} argument is a optional. If it is given, it must be
+This function creates a userdata object of type `image'. The 
+\type{image_spec} argument is optional. If it is given, it must be
 a table, and that table must have a \type{filename} key.  A number of
-other keys can also be useful, these are enumerated explained below.
+other keys can also be useful, these are explained below.
 
 You can either say
 \starttyping
@@ -2044,18 +2044,18 @@ The generated \type{<image>} userdata object allows access to a set of
 user-specified values as well as a set of values that are normally
 filled in and updated automatically by \LUATEX\ itself. Some of those
 are derived from the actual image file, other are updated to reflect 
-tyhe PDF output status of the object.
+the PDF output status of the object.
 
 There is one required user-specified field: the file name
 (\type{filename}).  It can optionally be augmented by the requested
 image dimensions (\type{width}, \type{depth}, \type{height}),
 user-specified image attributes (\type{attr}), the requested PDF page
 identifier (\type{page}), the requested boundingbox (\type{pagebox})
-for PDF inclusion, the requested color space (\type{colorspace}).
+for PDF inclusion, the requested color space object (\type{colorspaceobj}).
 
 The function \type{img.new} does not access the actual image file, it
 just creates the \type{<image>} userdata object and initializes some
-memory structures. The \type{<image>} object and it's internal
+memory structures. The \type{<image>} object and its internal
 structures are automatically garbage collected.
 
 Once the image is written to the PDF, all the values in the 
@@ -2080,13 +2080,12 @@ keys, both user-supplied and automatic ones.
 \NC page          \NC ??       \NC Identifier for the requested image
                                    page (type is number or string,
                                    default is the number 1)\NC \NR
-\NC colorspace    \NC number   \NC Requested color space\NC \NR 
 \NC pagebox       \NC string   \NC Requested bounding box. 
                                    One of "none", "media", "crop", "bleed", "trim", "art" \NC \NR
-\NC filepath      \NC string   \NC Full (discovered) file name of the image \NC \NR
+\NC filepath      \NC string   \NC Full (expanded) file name of the image \NC \NR
 \NC colordepth    \NC number   \NC Number of bits used by the color space \NC \NR
-\NC colorspaceobj \NC number   \NC PDF color space object number   \NC \NR
-\NC imagetype     \NC string   \NC One of "none", "pdf", "png", "jpg", "jbig2" \NC \NR
+\NC colorspaceobj \NC number   \NC PDF color space object number \NC \NR
+\NC imagetype     \NC string   \NC One of "pdf", "png", "jpg", "jbig2", or \type{nil} \NC \NR
 \NC objnum        \NC number   \NC PDF image object number  \NC \NR
 \NC index         \NC number   \NC PDF image name suffix \NC \NR
 \NC pages         \NC number   \NC Total number of available pages \NC \NR
@@ -2098,7 +2097,7 @@ keys, both user-supplied and automatic ones.
 
 A running (undefined) dimension in \type{width}, \type{height}, or \type{depth} is
 represented as \type{nil} in Lua, so if you want to load an image at
-it's `natural' size, you do not have to specify any of those three fields.
+its `natural' size, you do not have to specify any of those three fields.
 
 \subsubsubject{\luatex{img.scan}}
 
@@ -2110,8 +2109,8 @@ it's `natural' size, you do not have to specify any of those three fields.
 When you say \type{img.scan(a)}, the file is scanned, and variables
 such as \type{xsize}, \type{ysize}, image \type{type}, number of
 \type{pages}, and the resolution are extracted. Each of the \type{width},
-\type{height}, \type{depth} fields are set up if they were not
-given an explicit value already.
+\type{height}, \type{depth} fields are set up according to the image dimensions
+if they were not given an explicit value already.
 
 For ease of use, you can do right-away a 
 \starttyping
@@ -2124,7 +2123,6 @@ retrieve the available info like image width and height, and then
 throw away \type{a} again by saying \type{a=nil}.  In that case, no
 image object will be reserved in the PDF, and the used memory will be
 cleaned up automatically.
-
 
 \subsubsubject{\luatex{img.copy}}
 
