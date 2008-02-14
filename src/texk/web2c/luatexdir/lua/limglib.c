@@ -484,12 +484,28 @@ static int l_image_keys(lua_State * L)
     return 1;
 }
 
+static int l_supported_types(lua_State * L)
+{
+    int i;
+    char **p;
+    if (lua_gettop(L) != 0)
+        luaL_error(L, "img.supportedtypes goes without argument");
+    lua_newtable(L);            /* t */
+    for (i = 1, p = imgtype_s + 1; *p != NULL; p++, i++) {
+        lua_pushinteger(L, (int) i);    /* k t */
+        lua_pushstring(L, *p);  /* v k t */
+        lua_settable(L, -3);    /* t */
+    }
+    return 1;
+}
+
 static const struct luaL_Reg imglib[] = {
     {"new", l_new_image},
     {"copy", l_copy_image},
     {"scan", l_scan_image},
     {"write", l_write_image},
     {"keys", l_image_keys},
+    {"supportedtypes", l_supported_types},
     {NULL, NULL}                /* sentinel */
 };
 
