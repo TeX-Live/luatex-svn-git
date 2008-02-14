@@ -75,7 +75,7 @@ object exists, reference it. Else create fresh one.
 
 09 Dec. 2002: JBIG2 seg. page numbers > 0 are now set to 1, see PDF Ref.
 
-$Id: writejbig2.c,v 1.7 2008/02/01 20:42:55 root Exp root $
+$Id$
 ***********************************************************************/
 
 #include "writejbig2.h"

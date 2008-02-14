@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with pdfTeX; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-$Id: epdf.c,v 1.45 2006/08/20 10:56:04 hahe Exp hahe $
+$Id$
 */
 
 #include "ptexlib.h"
