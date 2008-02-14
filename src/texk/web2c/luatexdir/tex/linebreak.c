@@ -906,11 +906,11 @@ print_feasible_break(halfword cur_p, pointer r, halfword b, integer pi,
   font(cp) = font((a));  \
   do_subst_font(cp, 1000);  \
   if (font(cp) != font((a)))  \
-    margin_kern_stretch += left_pw((a)) - left_pw(cp);  \
+    margin_kern_stretch += (left_pw((a)) - left_pw(cp));	\
   font(cp) = font((a));  \
   do_subst_font(cp, -1000);  \
   if (font(cp) != font((a)))  \
-    margin_kern_shrink += left_pw(cp) - left_pw((a));  \
+    margin_kern_shrink += (left_pw(cp) - left_pw((a)));	\
   }
 
 static void 
