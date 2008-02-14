@@ -22,7 +22,7 @@ $Id$
 #ifndef IMAGE_H
 #  define IMAGE_H
 
-#  include <png.h>
+#  include <../libpng/png.h>
 
 #  define JPG_UINT16      unsigned int
 #  define JPG_UINT32      unsigned long
