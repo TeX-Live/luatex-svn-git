@@ -288,8 +288,8 @@ void write_png_gray_alpha(image_dict * idict)
     bitdepth = (int) info_p->bit_depth;
     pdf_begin_dict(smask_objnum, 0);
     pdf_puts("/Type /XObject\n/Subtype /Image\n");
-    if (img_attrib(idict) != NULL && strlen(img_attrib(idict)) > 0)
-        pdf_printf("%s\n", img_attrib(idict));
+    if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
+        pdf_printf("%s\n", img_attr(idict));
     pdf_printf("/Width %i\n/Height %i\n/BitsPerComponent %i\n",
                (int) info_p->width,
                (int) info_p->height, (bitdepth == 16 ? 8 : bitdepth));
@@ -388,8 +388,8 @@ void write_png_rgb_alpha(image_dict * idict)
         bitdepth = (int) info_p->bit_depth;
         pdf_begin_dict(smask_objnum, 0);
         pdf_puts("/Type /XObject\n/Subtype /Image\n");
-        if (img_attrib(idict) != NULL)
-            pdf_printf("%s\n", img_attrib(idict));
+        if (img_attr(idict) != NULL)
+            pdf_printf("%s\n", img_attr(idict));
         pdf_printf("/Width %i\n/Height %i\n/BitsPerComponent %i\n",
                    (int) info_p->width,
                    (int) info_p->height, (bitdepth == 16 ? 8 : bitdepth));
@@ -524,8 +524,8 @@ void write_png(image_dict * idict)
     if (fixed_pdf_minor_version < 5)
         fixed_image_hicolor = 0;
     pdf_puts("/Type /XObject\n/Subtype /Image\n");
-    if (img_attrib(idict) != NULL && strlen(img_attrib(idict)) > 0)
-        pdf_printf("%s\n", img_attrib(idict));
+    if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
+        pdf_printf("%s\n", img_attr(idict));
     pdf_printf("/Width %i\n/Height %i\n/BitsPerComponent %i\n",
                (int) info_p->width,
                (int) info_p->height, (int) info_p->bit_depth);

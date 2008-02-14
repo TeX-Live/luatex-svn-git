@@ -96,7 +96,7 @@ typedef struct {
     char *pagename;             /* requested raw file name */
     char *filename;             /* requested raw file name */
     char *filepath;             /* full file path after kpathsea */
-    char *attrib;               /* image attributes */
+    char *attr;                 /* additional image dict entries */
     FILE *file;
     imgtype_e image_type;
     int color_space;            /* used color space. See JPG_ constants */
@@ -123,12 +123,12 @@ typedef struct {
 #  define img_pagename(N)       ((N)->pagename)
 #  define img_filename(N)       ((N)->filename)
 #  define img_filepath(N)       ((N)->filepath)
-#  define img_attrib(N)         ((N)->attrib)
+#  define img_attr(N)           ((N)->attr)
 #  define img_file(N)           ((N)->file)
 #  define img_type(N)           ((N)->image_type)
 #  define img_color(N)          ((N)->color_space)
 #  define img_colordepth(N)     ((N)->color_depth)
-#  define img_pageboxspec(N)    ((N)->page_box_spec)
+#  define img_pagebox(N)        ((N)->page_box_spec)
 #  define img_state(N)          ((N)->state)
 
 #  define img_pdf_ptr(N)        ((N)->img_struct.pdf)
@@ -198,7 +198,7 @@ void scale_img(image *);
 integer img_to_array(image *);
 void delete_image(image *);
 void free_image_dict(image_dict * p);
-void read_img(image_dict *, integer, char *, integer, integer);
+void read_img(image_dict *, integer, integer);
 
 /* writepng.c */
 
@@ -209,7 +209,7 @@ void read_img(image_dict *, integer, char *, integer, integer);
 void read_png_info(image_dict *, boolean);
 void read_jpg_info(image_dict *, boolean);
 void read_jbig2_info(image_dict *);
-void read_pdf_info(image_dict *, integer, char *, integer, integer);
+void read_pdf_info(image_dict *, integer, integer);
 void write_png(image_dict *);
 void write_jpg(image_dict *);
 void write_jbig2(image_dict *);

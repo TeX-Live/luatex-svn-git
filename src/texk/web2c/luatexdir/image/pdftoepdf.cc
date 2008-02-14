@@ -79,8 +79,7 @@ $Id$
 class PdfObject {
   public:
     PdfObject() {               // nothing
-    }
-    ~PdfObject() {
+    } ~PdfObject() {
         iObject.free();
     }
     Object *operator->() {
@@ -670,9 +669,7 @@ static PDFRectangle *get_pagebox(Page * page, integer pagebox_spec)
 // Returns the page number.
 
 void
-read_pdf_info(image_dict * idict, integer page_box, char *page_name,
-              integer minor_pdf_version_wanted,
-              integer pdf_inclusion_errorlevel)
+read_pdf_info(image_dict * idict, integer minor_pdf_version_wanted, integer pdf_inclusion_errorlevel)
 {
     PdfDocument *pdf_doc;
     Page *page;
@@ -683,8 +680,8 @@ read_pdf_info(image_dict * idict, integer page_box, char *page_name,
     assert(img_type(idict) == IMAGE_TYPE_PDF);
     assert(img_pdf_ptr(idict) == NULL);
     img_pdf_ptr(idict) = new_pdf_img_struct();
-    img_pdf_page_name(idict) = page_name;
-    img_pdf_page_box(idict) = page_box;
+    img_pdf_page_name(idict) = img_pagename(idict);
+    img_pdf_page_box(idict) = img_pagebox(idict);
     // initialize
     if (!isInit) {
         globalParams = new GlobalParams();
@@ -810,8 +807,8 @@ void write_epdf(image_dict * idict)
     PDFRectangle *pagebox;
     // write the Page header
     pdf_puts("/Type /XObject\n/Subtype /Form\n");
-    if (img_attrib(idict) != NULL && strlen(img_attrib(idict)) > 0)
-        pdf_printf("%s\n", img_attrib(idict));
+    if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
+        pdf_printf("%s\n", img_attr(idict));
     pdf_puts("/FormType 1\n");
 
     // write additional information

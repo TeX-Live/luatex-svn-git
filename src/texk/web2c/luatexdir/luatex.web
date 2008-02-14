@@ -30768,7 +30768,7 @@ end;
 procedure scan_image;
 label reswitch;
 var i, k, img_wd, img_ht, img_dp, ref: integer;
-    named, attrib: str_number;
+    named, attr: str_number;
     s: str_number;
     page, pagebox, colorspace: integer;
 begin
@@ -30779,13 +30779,13 @@ begin
     img_wd := width(alt_rule);
     img_ht := height(alt_rule);
     img_dp := depth(alt_rule);
-    attrib := 0;
+    attr := 0;
     named := 0;
     page := 1;
     colorspace := 0;
     if scan_keyword("attr") then begin
         scan_pdf_ext_toks;
-        attrib := tokens_to_string(def_ref);
+        attr := tokens_to_string(def_ref);
         delete_token_ref(def_ref);
     end;
     if scan_keyword("named") then begin
@@ -30828,13 +30828,13 @@ begin
     end;
     if pagebox = 0 then {no pagebox specification given}
         pagebox := pdf_box_spec_crop;
-    ref := read_image(k, pdf_ximage_count, s, page, named, attrib, colorspace, pagebox,
+    ref := read_image(k, pdf_ximage_count, s, page, named, attr, colorspace, pagebox,
                       pdf_minor_version, pdf_inclusion_errorlevel);
     flush_str(s);
     obj_data_ptr(k) := ref;
     if named <> 0 then flush_str(named);
     set_image_dimensions(ref, img_wd, img_ht, img_dp);
-    if attrib <> 0 then flush_str(attrib);
+    if attr <> 0 then flush_str(attr);
     scale_image(ref);
     pdf_last_ximage := k;
     pdf_last_ximage_pages := image_pages(ref);

@@ -75,7 +75,7 @@ extern "C" {
     extern integer get_fontfile(struct fm_entry *);
     extern integer get_fontname(struct fm_entry *);
     extern integer pdf_new_objnum(void);
-    extern void read_pdf_info(image_dict *, integer, char *, integer, integer);
+    extern void read_pdf_info(image_dict *, integer, integer);
     extern void embed_whole_font(struct fd_entry *);
     extern void epdf_check_mem(void);
     extern void epdf_delete(image_dict *);

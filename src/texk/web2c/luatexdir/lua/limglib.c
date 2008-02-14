@@ -41,10 +41,10 @@ static void stackDump(lua_State * L, char *s)
 
 /**********************************************************************/
 
-typedef enum { P__ZERO, P_ATTRIB, P_COLORDEPTH, P_COLORSPACE_OBJ, P_DEPTH,
+typedef enum { P__ZERO, P_ATTR, P_COLORDEPTH, P_COLORSPACE_OBJ, P_DEPTH,
     P_FILENAME, P_FILEPATH, P_HEIGHT, P_IMAGETYPE, P_INDEX, P_OBJNUM,
-    P_PAGEBOX, P_PAGENAME, P_PAGENUM, P_TOTALPAGES, P_WIDTH, P_XRES,
-    P_XSIZE, P_YRES, P_YSIZE, P__SENTINEL
+    P_PAGE, P_PAGEBOX, P_TOTALPAGES, P_WIDTH, P_XRES, P_XSIZE, P_YRES,
+    P_YSIZE, P__SENTINEL
 } parm_idx;
 
 typedef struct {
@@ -54,7 +54,7 @@ typedef struct {
 
 parm_struct img_parms[] = {
     {NULL, P__ZERO},            /* dummy; lua indices run from 1 */
-    {"attrib", P_ATTRIB},
+    {"attr", P_ATTR},
     {"colordepth", P_COLORDEPTH},
     {"colorspaceobj", P_COLORSPACE_OBJ},
     {"depth", P_DEPTH},
@@ -64,9 +64,8 @@ parm_struct img_parms[] = {
     {"imagetype", P_IMAGETYPE},
     {"index", P_INDEX},
     {"objnum", P_OBJNUM},
+    {"page", P_PAGE},
     {"pagebox", P_PAGEBOX},
-    {"pagename", P_PAGENAME},
-    {"page", P_PAGENUM},
     {"pages", P_TOTALPAGES},
     {"width", P_WIDTH},
     {"xres", P_XRES},
@@ -79,7 +78,7 @@ parm_struct img_parms[] = {
 #define imgtype_max 4
 const char *imgtype_s[] = { "none", "pdf", "png", "jpg", "jbig2", NULL };
 
-#define pdfboxspec_max 5
+#define pagebox_max 5
 const char *pdfboxspec_s[] =
     { "none", "media", "crop", "bleed", "trim", "art", NULL };
 
@@ -110,20 +109,17 @@ static void image_to_lua(lua_State * L, image * a)
         else
             lua_pushstring(L, img_filepath(d));
         break;
-    case P_ATTRIB:
-        if (img_attrib(d) == NULL || strlen(img_attrib(d)) == 0)
+    case P_ATTR:
+        if (img_attr(d) == NULL || strlen(img_attr(d)) == 0)
             lua_pushnil(L);
         else
-            lua_pushstring(L, img_attrib(d));
+            lua_pushstring(L, img_attr(d));
         break;
-    case P_PAGENUM:
-        lua_pushinteger(L, img_pagenum(d));
-        break;
-    case P_PAGENAME:
-        if (img_pagename(d) == NULL || strlen(img_pagename(d)) == 0)
-            lua_pushnil(L);
-        else
+    case P_PAGE:
+        if (img_pagename(d) != NULL && strlen(img_pagename(d)) != 0)
             lua_pushstring(L, img_pagename(d));
+        else
+            lua_pushinteger(L, img_pagenum(d));
         break;
     case P_TOTALPAGES:
         lua_pushinteger(L, img_totalpages(d));
@@ -181,8 +177,8 @@ static void image_to_lua(lua_State * L, image * a)
             assert(0);
         break;
     case P_PAGEBOX:
-        j = img_pageboxspec(d);
-        if (j >= 0 && j <= pdfboxspec_max) {
+        j = img_pagebox(d);
+        if (j >= 0 && j <= pagebox_max) {
             if (j == PDF_BOX_SPEC_NONE)
                 lua_pushnil(L);
             else
@@ -264,38 +260,32 @@ static void lua_to_image(lua_State * L, image * a)
         } else
             luaL_error(L, "image.filename needs string or nil value");
         break;
-    case P_FILEPATH:
+    case P_ATTR:
         if (img_state(d) >= DICT_FILESCANNED)
-            luaL_error(L, "image.filepath is now read-only");
+            luaL_error(L, "image.attr is now read-only");
         if (lua_isstring(L, -1) || lua_isnil(L, -1)) {
-            if (img_filepath(d) != NULL)
-                xfree(img_filepath(d));
+            if (img_attr(d) != NULL)
+                xfree(img_attr(d));
             if (lua_isstring(L, -1))
-                img_filepath(d) = xstrdup(lua_tostring(L, -1));
+                img_attr(d) = xstrdup(lua_tostring(L, -1));
         } else
-            luaL_error(L, "image.filepath needs string or nil value");
+            luaL_error(L, "image.attr needs string or nil value");
         break;
-    case P_ATTRIB:
+    case P_PAGE:
         if (img_state(d) >= DICT_FILESCANNED)
-            luaL_error(L, "image.attrib is now read-only");
-        if (lua_isstring(L, -1) || lua_isnil(L, -1)) {
-            if (img_attrib(d) != NULL)
-                xfree(img_attrib(d));
-            if (lua_isstring(L, -1))
-                img_attrib(d) = xstrdup(lua_tostring(L, -1));
-        } else
-            luaL_error(L, "image.attrib needs string or nil value");
-        break;
-    case P_PAGENAME:
-        if (img_state(d) >= DICT_FILESCANNED)
-            luaL_error(L, "image.pagename is now read-only");
-        if (lua_isstring(L, -1) || lua_isnil(L, -1)) {
-            if (img_pagename(d) != 0)
+            luaL_error(L, "image.page is now read-only");
+        if (lua_isstring(L, -1) && !lua_isnumber(L, -1)) {
+            if (img_pagename(d) != NULL)
                 xfree(img_pagename(d));
-            if (lua_isstring(L, -1))
-                img_pagename(d) = xstrdup(lua_tostring(L, -1));
+            img_pagename(d) = xstrdup(lua_tostring(L, -1));
+            img_pagenum(d) = 0;
+        } else if (lua_isnumber(L, -1)) {
+            img_pagenum(d) = lua_tointeger(L, -1);
+            if (img_pagename(d) != NULL)
+                xfree(img_pagename(d));
+            img_pagename(d) = NULL;
         } else
-            luaL_error(L, "image.pagename needs string or nil value");
+            luaL_error(L, "image.pagename needs integer or string value");
         break;
     case P_COLORSPACE_OBJ:
         if (img_state(d) >= DICT_FILESCANNED)
@@ -305,29 +295,19 @@ static void lua_to_image(lua_State * L, image * a)
         else if (lua_isnumber(L, -1)) {
             img_colorspace_obj(d) = lua_tointeger(L, -1);
         } else
-            luaL_error(L,
-                       "image.colorspaceobj needs pos. integer or nil value");
-        break;
-    case P_PAGENUM:
-        if (img_state(d) >= DICT_FILESCANNED)
-            luaL_error(L, "image.page is now read-only");
-        if (lua_isnil(L, -1))
-            img_pagenum(d) = 1;
-        else if (lua_isnumber(L, -1)) {
-            img_pagenum(d) = lua_tointeger(L, -1);
-        } else
-            luaL_error(L, "image.page needs integer or nil value");
+            luaL_error(L, "image.colorspaceobj needs integer or nil value");
         break;
     case P_PAGEBOX:
         if (img_state(d) >= DICT_FILESCANNED)
             luaL_error(L, "image.pagebox is now read-only");
         if (lua_isnil(L, -1))
-            img_pageboxspec(d) = PDF_BOX_SPEC_NONE;
+            img_pagebox(d) = PDF_BOX_SPEC_NONE;
         else if (lua_isstring(L, -1)) {
-            img_pageboxspec(d) = luaL_checkoption(L, -1, "none", pdfboxspec_s);
+            img_pagebox(d) = luaL_checkoption(L, -1, "none", pdfboxspec_s);
         } else
             luaL_error(L, "image.pagebox needs string or nil value");
         break;
+    case P_FILEPATH:
     case P_TOTALPAGES:
     case P_XSIZE:
     case P_YSIZE:
@@ -436,8 +416,7 @@ static int l_scan_image(lua_State * L)
     a = *aa;
     image_dict *ad = img_dict(a);
     if (img_state(ad) == DICT_NEW) {
-        read_img(ad, 1, NULL, get_pdf_minor_version(),
-                 get_pdf_inclusion_errorlevel());
+        read_img(ad, get_pdf_minor_version(), get_pdf_inclusion_errorlevel());
         img_unset_scaled(a);
     }
     fix_image_size(L, a);
@@ -456,8 +435,7 @@ static int l_write_image(lua_State * L)
     a = *aa;
     image_dict *ad = img_dict(a);
     if (img_state(ad) == DICT_NEW) {
-        read_img(ad, 1, NULL, get_pdf_minor_version(),
-                 get_pdf_inclusion_errorlevel());
+        read_img(ad, get_pdf_minor_version(), get_pdf_inclusion_errorlevel());
         img_unset_scaled(a);
     }
     fix_image_size(L, a);

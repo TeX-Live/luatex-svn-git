@@ -241,8 +241,8 @@ void write_jpg(image_dict * idict)
     assert(idict != NULL);
     reopen_jpg(idict);
     pdf_puts("/Type /XObject\n/Subtype /Image\n");
-    if (img_attrib(idict) != NULL && strlen(img_attrib(idict)) > 0)
-        pdf_printf("%s\n", img_attrib(idict));
+    if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
+        pdf_printf("%s\n", img_attr(idict));
     pdf_printf("/Width %i\n/Height %i\n/BitsPerComponent %i\n/Length %i\n",
                (int) img_xsize(idict),
                (int) img_ysize(idict),

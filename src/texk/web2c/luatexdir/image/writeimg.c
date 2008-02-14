@@ -250,12 +250,12 @@ void init_image_dict(image_dict * p)
     img_pagename(p) = NULL;
     img_filename(p) = NULL;
     img_filepath(p) = NULL;
-    img_attrib(p) = NULL;
+    img_attr(p) = NULL;
     img_file(p) = NULL;
     img_type(p) = IMAGE_TYPE_NONE;
     img_color(p) = 0;
     img_colordepth(p) = 0;
-    img_pageboxspec(p) = PDF_BOX_SPEC_NONE;
+    img_pagebox(p) = PDF_BOX_SPEC_MEDIA;
     img_state(p) = DICT_NEW;
     img_pdf_ptr(p) = NULL;      /* union */
 }
@@ -275,9 +275,9 @@ void clear_dict_strings(image_dict * p)
     if (img_filepath(p) != NULL)
         xfree(img_filepath(p));
     img_filepath(p) = NULL;
-    if (img_attrib(p) != NULL)
-        xfree(img_attrib(p));
-    img_attrib(p) = NULL;
+    if (img_attr(p) != NULL)
+        xfree(img_attr(p));
+    img_attr(p) = NULL;
     if (img_pagename(p) != NULL)
         xfree(img_pagename(p));
     img_pagename(p) = NULL;
@@ -300,8 +300,8 @@ void pdf_print_resname_prefix()
         pdf_printf(makecstring(pdf_resname_prefix));
 }
 
-void read_img(image_dict * idict, integer page_box, char *page_name,
-              integer pdf_minor_version, integer pdf_inclusion_errorlevel)
+void read_img(image_dict * idict, integer pdf_minor_version,
+              integer pdf_inclusion_errorlevel)
 {
     char *filepath;
     int callback_id;
@@ -325,8 +325,7 @@ void read_img(image_dict * idict, integer page_box, char *page_name,
     /* read image */
     switch (img_type(idict)) {
     case IMAGE_TYPE_PDF:
-        read_pdf_info(idict, page_box, page_name, pdf_minor_version,
-                      pdf_inclusion_errorlevel);
+        read_pdf_info(idict, pdf_minor_version, pdf_inclusion_errorlevel);
         break;
     case IMAGE_TYPE_PNG:
         read_png_info(idict, true);
@@ -515,7 +514,7 @@ integer img_to_array(image * img)
 
 integer read_image(integer objnum, integer index, strnumber filename,
                    integer page_num,
-                   strnumber attrib,
+                   strnumber attr,
                    strnumber page_name,
                    integer colorspace_obj, integer page_box,
                    integer pdf_minor_version, integer pdf_inclusion_errorlevel)
@@ -533,14 +532,14 @@ integer read_image(integer objnum, integer index, strnumber filename,
     img_pagenum(idict) = page_num;
     /* img_totalpages set by read_img() */
     if (page_name != 0)
-        dest = xstrdup(makecstring(page_name));
+        img_pagename(idict) = xstrdup(makecstring(page_name));
     cur_file_name = makecfilename(filename);
     assert(cur_file_name != NULL);
     img_filename(idict) = xstrdup(cur_file_name);
-    if (attrib != 0)
-        img_attrib(idict) = xstrdup(makecstring(attrib));
-    read_img(idict, page_box, dest, pdf_minor_version,
-             pdf_inclusion_errorlevel);
+    if (attr != 0)
+        img_attr(idict) = xstrdup(makecstring(attr));
+    img_pagebox(idict) = page_box;
+    read_img(idict, pdf_minor_version, pdf_inclusion_errorlevel);
     img_unset_scaled(a);
     img_set_refered(a);
     return ref;
