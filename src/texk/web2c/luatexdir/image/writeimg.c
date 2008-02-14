@@ -255,6 +255,7 @@ void init_image_dict(image_dict * p)
     img_type(p) = IMAGE_TYPE_NONE;
     img_color(p) = 0;
     img_colordepth(p) = 0;
+    img_pageboxspec(p) = PDF_BOX_SPEC_NONE;
     img_state(p) = DICT_NEW;
     img_pdf_ptr(p) = NULL;      /* union */
 }
