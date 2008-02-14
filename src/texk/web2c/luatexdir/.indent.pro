@@ -1,4 +1,4 @@
-/* $Id: .indent.pro,v 1.1 2008/01/03 15:04:54 root Exp root $ */
+/* $Id$ */
 --k-and-r-style
 --blank-lines-after-procedures
 --line-length 80

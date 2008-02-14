@@ -1,4 +1,4 @@
-/* $Id: limglib.c,v 1.247 2008/02/13 21:09:42 root Exp root $ */
+/* $Id$ */
 
 #include <stdio.h>
 #include <string.h>

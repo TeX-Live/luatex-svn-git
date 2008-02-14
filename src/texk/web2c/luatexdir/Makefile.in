@@ -1,5 +1,5 @@
 # Makefile for libpdf - te@dbs.uni-hannover.de
-# $Id: Makefile.in,v 1.1 2008/02/13 22:36:59 root Exp root $
+# $Id$
 
 kpse_include ../make/common.mk
 kpse_include ../make/programs.mk
