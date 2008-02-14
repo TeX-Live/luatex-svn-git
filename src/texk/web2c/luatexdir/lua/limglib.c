@@ -533,7 +533,7 @@ static int m_img_set(lua_State * L)
 
 static int m_img_mul(lua_State * L)
 {
-    image *a, **aa;
+    image **aa;
     lua_Number scale;
     if (lua_isnumber(L, 1)) {   /* u? n */
         aa = (image **) luaL_checkudata(L, 2, TYPE_IMG);        /* u n */
@@ -544,6 +544,16 @@ static int m_img_mul(lua_State * L)
     scale = lua_tonumber(L, 2); /* n a */
     lua_pop(L, 1);              /* a */
     copy_image(L, scale);       /* b */
+    return 1;
+}
+
+static int m_img_print(lua_State * L)
+{
+    image **aa;
+    image_dict *d;
+    aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);
+    d = img_dict(*aa);
+    lua_pushfstring(L, "<img name=%s>", img_filename(d));
     return 1;
 }
 
@@ -565,6 +575,7 @@ static const struct luaL_Reg img_m[] = {
     {"__index", m_img_get},
     {"__newindex", m_img_set},
     {"__mul", m_img_mul},
+    {"__tostring", m_img_print},
     {"__gc", m_img_gc},         /* finalizer */
     {NULL, NULL}                /* sentinel */
 };
