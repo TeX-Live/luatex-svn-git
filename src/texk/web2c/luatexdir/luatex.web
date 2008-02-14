@@ -17547,6 +17547,7 @@ begin
     k := load_expand_font(f, e);
     set_pdf_font_elink(k,pdf_font_elink(f));
     set_pdf_font_elink(f,k);
+    {|wterm_ln('get_expand_font ', e:1, ': ',f:1, ' became ', k:1);|}
     get_expand_font := k;
 end;
 
@@ -20230,13 +20231,13 @@ begin
     if ef = 0 then
         return;
     if (pdf_font_stretch(f) <> null_font) and (ex_ratio > 0) then
-        k := expand_font(f, divide_scaled(ex_ratio*
-                                pdf_font_expand_ratio(pdf_font_stretch(f))*ef,
-                                1000000, 0))
+        k := expand_font(f, ext_xn_over_d(ex_ratio*ef,
+                                          pdf_font_expand_ratio(pdf_font_stretch(f)),
+                                          1000000))
     else if (pdf_font_shrink(f) <> null_font) and (ex_ratio < 0) then
-        k := expand_font(f, divide_scaled(ex_ratio*
-                                -pdf_font_expand_ratio(pdf_font_shrink(f))*ef,
-                                1000000, 0))
+        k := expand_font(f, ext_xn_over_d(ex_ratio*ef,
+                                          -pdf_font_expand_ratio(pdf_font_shrink(f)),
+                                          1000000))
     else
         k := f;
     if k <> f then begin
@@ -20322,6 +20323,11 @@ if m = cal_expand_ratio then begin
     font_shrink := 0;
     font_expand_ratio := 0;
 end;
+@{
+if m = subst_ex_font then begin
+  wterm_ln('replacing ', font_expand_ratio:1);
+end;
+@}
 h:=0; @<Clear dimensions to zero@>;
 disc_level:=0;
 reswitch:
@@ -20407,22 +20413,24 @@ if p<>null then
     x := x + width(p);
     end;
   kern_node: begin
-    if (m = cal_expand_ratio) and (subtype(p) = normal) then begin
-        k := kern_stretch(p);
-        if k <> 0 then begin
-            subtype(p) := substituted;
-            font_stretch := font_stretch + k;
+    if subtype(p) = normal then begin
+        if m = cal_expand_ratio then begin
+            font_stretch := font_stretch + kern_stretch(p);
+            font_shrink := font_shrink + kern_shrink(p);
+        end
+        else if m = subst_ex_font then begin
+            if font_expand_ratio > 0 then
+                k := kern_stretch(p)
+            else if font_expand_ratio < 0 then
+                k := kern_shrink(p)
+            else
+                pdfassert(0);
+            if k <> 0 then
+               width(p) := get_kern(font(prev_char_p),
+                                    character(prev_char_p),
+                                    character(vlink(p)))
         end;
-        k := kern_shrink(p);
-        if k <> 0 then begin
-            subtype(p) := substituted;
-            font_shrink := font_shrink + k;
-        end;
-      end
-    else if (m = subst_ex_font) and (subtype(p) = substituted) then 
-         width(p) := get_kern(font(prev_char_p),
-                              character(prev_char_p),
-                              character(vlink(p)));
+      end;
     x := x + width(p);
     end;
   math_node: x:=x+surround(p);
@@ -20493,7 +20501,6 @@ if m >= cal_expand_ratio then begin
     prev_char_p := p;
     case m of
     cal_expand_ratio: begin
-	    f := font(p);
         add_char_stretch(font_stretch)(p);
         add_char_shrink(font_shrink)(p);
     end;
