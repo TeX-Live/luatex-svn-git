@@ -41,10 +41,10 @@ static void stackDump(lua_State * L, char *s)
 
 /**********************************************************************/
 
-typedef enum { P__ZERO, P_ATTRIB, P_COLORDEPTH, P_COLORSPACE_OBJ, P_DP,
-    P_FILENAME, P_FILEPATH, P_HEIGHT, P_HT, P_IMAGETYPE, P_INDEX, P_OBJNUM,
-    P_PAGEBOX, P_PAGENAME, P_PAGENUM, P_TOTALPAGES, P_WD, P_WIDTH, P_XRES,
-    P_YRES, P__SENTINEL
+typedef enum { P__ZERO, P_ATTRIB, P_COLORDEPTH, P_COLORSPACE_OBJ, P_DEPTH,
+    P_FILENAME, P_FILEPATH, P_HEIGHT, P_IMAGETYPE, P_INDEX, P_OBJNUM,
+    P_PAGEBOX, P_PAGENAME, P_PAGENUM, P_TOTALPAGES, P_WIDTH, P_XRES,
+    P_XSIZE, P_YRES, P_YSIZE, P__SENTINEL
 } parm_idx;
 
 typedef struct {
@@ -57,11 +57,10 @@ parm_struct img_parms[] = {
     {"attrib", P_ATTRIB},
     {"colordepth", P_COLORDEPTH},
     {"colorspaceobj", P_COLORSPACE_OBJ},
-    {"dp", P_DP},
+    {"depth", P_DEPTH},
     {"filename", P_FILENAME},
     {"filepath", P_FILEPATH},
     {"height", P_HEIGHT},
-    {"ht", P_HT},
     {"imagetype", P_IMAGETYPE},
     {"index", P_INDEX},
     {"objnum", P_OBJNUM},
@@ -69,10 +68,11 @@ parm_struct img_parms[] = {
     {"pagename", P_PAGENAME},
     {"page", P_PAGENUM},
     {"pages", P_TOTALPAGES},
-    {"wd", P_WD},
     {"width", P_WIDTH},
     {"xres", P_XRES},
+    {"xsize", P_XSIZE},
     {"yres", P_YRES},
+    {"ysize", P_YSIZE},
     {NULL, P__SENTINEL}
 };
 
@@ -128,29 +128,29 @@ static void image_to_lua(lua_State * L, image * a)
     case P_TOTALPAGES:
         lua_pushinteger(L, img_totalpages(d));
         break;
-    case P_WD:
+    case P_WIDTH:
         if (is_wd_running(a))
             lua_pushnil(L);
         else
-            lua_pushinteger(L, img_wd(a));
+            lua_pushinteger(L, img_width(a));
         break;
-    case P_HT:
+    case P_HEIGHT:
         if (is_ht_running(a))
             lua_pushnil(L);
         else
-            lua_pushinteger(L, img_ht(a));
+            lua_pushinteger(L, img_height(a));
         break;
-    case P_DP:
+    case P_DEPTH:
         if (is_dp_running(a))
             lua_pushnil(L);
         else
-            lua_pushinteger(L, img_dp(a));
+            lua_pushinteger(L, img_depth(a));
         break;
-    case P_WIDTH:
-        lua_pushinteger(L, img_width(d));
+    case P_XSIZE:
+        lua_pushinteger(L, img_xsize(d));
         break;
-    case P_HEIGHT:
-        lua_pushinteger(L, img_height(d));
+    case P_YSIZE:
+        lua_pushinteger(L, img_ysize(d));
         break;
     case P_XRES:
         lua_pushinteger(L, img_xres(d));
@@ -220,37 +220,37 @@ static void lua_to_image(lua_State * L, image * a)
     i = lua_tointeger(L, -1);   /* i v k t ... */
     lua_pop(L, 1);              /* v k t ... */
     switch (i) {
-    case P_WD:
+    case P_WIDTH:
         if (img_is_refered(a))
-            luaL_error(L, "image.wd is now read-only");
+            luaL_error(L, "image.width is now read-only");
         if (lua_isnil(L, -1))
             set_wd_running(a);
         else if (lua_isnumber(L, -1)) {
-            img_wd(a) = lua_tointeger(L, -1);
+            img_width(a) = lua_tointeger(L, -1);
         } else
-            luaL_error(L, "image.wd needs integer or nil value");
+            luaL_error(L, "image.width needs integer or nil value");
         img_unset_scaled(a);
         break;
-    case P_HT:
+    case P_HEIGHT:
         if (img_is_refered(a))
-            luaL_error(L, "image.ht is now read-only");
+            luaL_error(L, "image.height is now read-only");
         if (lua_isnil(L, -1)) {
             set_ht_running(a);
         } else if (lua_isnumber(L, -1)) {
-            img_ht(a) = lua_tointeger(L, -1);
+            img_height(a) = lua_tointeger(L, -1);
         } else
-            luaL_error(L, "image.ht needs integer or nil value");
+            luaL_error(L, "image.height needs integer or nil value");
         img_unset_scaled(a);
         break;
-    case P_DP:
+    case P_DEPTH:
         if (img_is_refered(a))
-            luaL_error(L, "image.dp is now read-only");
+            luaL_error(L, "image.depth is now read-only");
         if (lua_isnil(L, -1))
             set_dp_running(a);
         else if (lua_isnumber(L, -1)) {
-            img_dp(a) = lua_tointeger(L, -1);
+            img_depth(a) = lua_tointeger(L, -1);
         } else
-            luaL_error(L, "image.dp needs integer or nil value");
+            luaL_error(L, "image.depth needs integer or nil value");
         img_unset_scaled(a);
         break;
     case P_FILENAME:
@@ -329,8 +329,8 @@ static void lua_to_image(lua_State * L, image * a)
             luaL_error(L, "image.pagebox needs string or nil value");
         break;
     case P_TOTALPAGES:
-    case P_WIDTH:
-    case P_HEIGHT:
+    case P_XSIZE:
+    case P_YSIZE:
     case P_XRES:
     case P_YRES:
     case P_IMAGETYPE:
@@ -369,11 +369,11 @@ void copy_image(lua_State * L, lua_Number scale)
     lua_setmetatable(L, -2);    /* b */
     b = *bb = new_image();
     if (!is_wd_running(a))
-        img_wd(b) = img_wd(a) * scale;
+        img_width(b) = img_width(a) * scale;
     if (!is_ht_running(a))
-        img_ht(b) = img_ht(a) * scale;
+        img_height(b) = img_height(a) * scale;
     if (!is_dp_running(a))
-        img_dp(b) = img_dp(a) * scale;
+        img_depth(b) = img_depth(a) * scale;
     img_dict(b) = img_dict(a);
     if (img_dictref(a) != LUA_NOREF) {
         lua_rawgeti(L, LUA_GLOBALSINDEX, img_dictref(a));       /* ad b */
@@ -509,7 +509,7 @@ static int m_img_get(lua_State * L)
 static int m_img_set(lua_State * L)
 {
     image *a, **aa;
-    aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);     /* value key user */
+    aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);    /* value key user */
     a = *aa;
     lua_to_image(L, a);         /* v k u */
     return 0;

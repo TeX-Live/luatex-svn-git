@@ -32,7 +32,6 @@ $Id$
 
 /**********************************************************************/
 
-#define DEBUG
 #ifdef DEBUG
 static void stackDump(lua_State * L, char *s)
 {
@@ -241,8 +240,8 @@ void init_image_dict(image_dict * p)
     assert(p != NULL);
     img_objnum(p) = 0;
     img_index(p) = 0;
-    img_width(p) = 0;
-    img_height(p) = 0;
+    img_xsize(p) = 0;
+    img_ysize(p) = 0;
     img_xres(p) = 0;
     img_yres(p) = 0;
     img_colorspace_obj(p) = 0;
@@ -358,8 +357,8 @@ void scale_img(image * img)
     assert(img != NULL);
     image_dict *idict = img_dict(img);
     assert(idict != NULL);
-    x = img_width(idict);       /* dimensions, resolutions from image file */
-    y = img_height(idict);
+    x = img_xsize(idict);       /* dimensions, resolutions from image file */
+    y = img_ysize(idict);
     xr = img_xres(idict);
     yr = img_yres(idict);
     if (xr > 65535 || yr > 65535) {
@@ -389,37 +388,39 @@ void scale_img(image * img)
         }
     }
     if (is_wd_running(img) && is_ht_running(img) && is_dp_running(img)) {
-        img_wd(img) = w;
-        img_ht(img) = h;
-        img_dp(img) = 0;
+        img_width(img) = w;
+        img_height(img) = h;
+        img_depth(img) = 0;
     } else if (is_wd_running(img)) {
         /* image depth or height is explicitly specified */
         if (is_ht_running(img)) {
             /* image depth is explicitly specified */
-            img_wd(img) = ext_xn_over_d(h, x, y);
-            img_ht(img) = h - img_dp(img);
+            img_width(img) = ext_xn_over_d(h, x, y);
+            img_height(img) = h - img_depth(img);
         } else if (is_dp_running(img)) {
             /* image height is explicitly specified */
-            img_wd(img) = ext_xn_over_d(img_ht(img), x, y);
-            img_dp(img) = 0;
+            img_width(img) = ext_xn_over_d(img_height(img), x, y);
+            img_depth(img) = 0;
         } else {
             /* both image depth and height are explicitly specified */
-            img_wd(img) = ext_xn_over_d(img_ht(img) + img_dp(img), x, y);
+            img_width(img) =
+                ext_xn_over_d(img_height(img) + img_depth(img), x, y);
         }
     } else {
         /* image width is explicitly specified */
         if (is_ht_running(img) && is_dp_running(img)) {
             /* both image depth and height are not specified */
-            img_ht(img) = ext_xn_over_d(img_wd(img), y, x);
-            img_dp(img) = 0;
+            img_height(img) = ext_xn_over_d(img_width(img), y, x);
+            img_depth(img) = 0;
         }
         /* image depth is explicitly specified */
         else if (is_ht_running(img)) {
-            img_ht(img) = ext_xn_over_d(img_wd(img), y, x) - img_dp(img);
+            img_height(img) =
+                ext_xn_over_d(img_width(img), y, x) - img_depth(img);
         }
         /* image height is explicitly specified */
         else if (is_dp_running(img)) {
-            img_dp(img) = 0;
+            img_depth(img) = 0;
         }
         /* else both image depth and height are explicitly specified */
     }
@@ -431,23 +432,23 @@ void out_img(image * img, scaled hpos, scaled vpos)
     assert(img != 0);
     image_dict *idict = img_dict(img);
     assert(idict != 0);
-    integer wd = img_wd(img);
-    integer ht = img_ht(img);
-    integer dp = img_dp(img);
+    integer wd = img_width(img);
+    integer ht = img_height(img);
+    integer dp = img_depth(img);
     pdf_end_text();
     pdf_printf("q\n");
     if (img_type(idict) == IMAGE_TYPE_PDF) {
-        pdf_print_real((integer) (wd * 1.0e6 / img_width(idict)), 6);
+        pdf_print_real((integer) (wd * 1.0e6 / img_xsize(idict)), 6);
         pdf_printf(" 0 0 ");
-        pdf_print_real((integer) ((ht + dp) * 1.0e6 / img_height(idict)), 6);
+        pdf_print_real((integer) ((ht + dp) * 1.0e6 / img_ysize(idict)), 6);
         pdfout(' ');
         pdf_print_bp(hpos -
                      (integer) (wd * (float) bp2int(img_pdf_orig_x(idict)) /
-                                img_width(idict)));
+                                img_xsize(idict)));
         pdfout(' ');
         pdf_print_bp(vpos -
                      (integer) (ht * (float) bp2int(img_pdf_orig_y(idict)) /
-                                img_height(idict)));
+                                img_ysize(idict)));
     } else {
         pdf_print_real((integer) (wd * 1.0e6 / one_hundred_bp), 4);
         pdf_printf(" 0 0 ");
@@ -526,7 +527,7 @@ integer read_image(integer objnum, integer index, strnumber filename,
     assert(idict != NULL);
     img_objnum(idict) = objnum;
     img_index(idict) = index;
-    /* img_width, img_height, img_xres, img_yres set by read_img() */
+    /* img_xsize, img_ysize, img_xres, img_yres set by read_img() */
     img_colorspace_obj(idict) = colorspace_obj;
     img_pagenum(idict) = page_num;
     /* img_totalpages set by read_img() */
@@ -547,9 +548,9 @@ integer read_image(integer objnum, integer index, strnumber filename,
 void set_image_dimensions(integer ref, integer wd, integer ht, integer dp)
 {
     image *a = img_array[ref];
-    img_wd(a) = wd;
-    img_ht(a) = ht;
-    img_dp(a) = dp;
+    img_width(a) = wd;
+    img_height(a) = ht;
+    img_depth(a) = dp;
 }
 
 void set_image_index(integer ref, integer index)
@@ -584,25 +585,25 @@ integer image_color(integer ref)
     return img_color(img_dict(a));
 }
 
-integer image_width(integer ref)
+integer image_xsize(integer ref)
 {
     image *a = img_array[ref];
-    return img_width(img_dict(a));
+    return img_xsize(img_dict(a));
 }
 
-integer image_height(integer ref)
+integer image_ysize(integer ref)
 {
     image *a = img_array[ref];
-    return img_height(img_dict(a));
+    return img_ysize(img_dict(a));
 }
 
-integer image_x_res(integer ref)
+integer image_xres(integer ref)
 {
     image *a = img_array[ref];
     return img_xres(img_dict(a));
 }
 
-integer image_y_res(integer ref)
+integer image_yres(integer ref)
 {
     image *a = img_array[ref];
     return img_yres(img_dict(a));
@@ -650,22 +651,22 @@ integer image_index(integer ref)
     return img_index(img_dict(a));
 }
 
-integer image_wd(integer ref)
+integer image_width(integer ref)
 {
     image *a = img_array[ref];
-    return img_wd(a);
+    return img_width(a);
 }
 
-integer image_ht(integer ref)
+integer image_height(integer ref)
 {
     image *a = img_array[ref];
-    return img_ht(a);
+    return img_height(a);
 }
 
-integer image_dp(integer ref)
+integer image_depth(integer ref)
 {
     image *a = img_array[ref];
-    return img_dp(a);
+    return img_depth(a);
 }
 
 void update_image_procset(integer ref)

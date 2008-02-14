@@ -30856,9 +30856,9 @@ begin
     new_whatsit(pdf_refximage_node);
     j := obj_data_ptr(cur_val);
     pdf_ximage_ref(tail) := j;
-    pdf_width(tail) := image_wd(j);
-    pdf_height(tail) := image_ht(j);
-    pdf_depth(tail) := image_dp(j);
+    pdf_width(tail) := image_width(j);
+    pdf_height(tail) := image_height(j);
+    pdf_depth(tail) := image_depth(j);
 end
 
 @ @p
@@ -30876,9 +30876,9 @@ begin
     end;
     new_whatsit(pdf_refximage_node);
     pdf_ximage_ref(tail) := ref;
-    pdf_width(tail) := image_wd(ref);
-    pdf_height(tail) := image_ht(ref);
-    pdf_depth(tail) := image_dp(ref);
+    pdf_width(tail) := image_width(ref);
+    pdf_height(tail) := image_height(ref);
+    pdf_depth(tail) := image_depth(ref);
     lua_refximage := k;
 end;
 

@@ -179,8 +179,8 @@ void read_jpg_info(image_dict * idict, boolean cleanup)
         case M_SOF3:
             (void) read2bytes(img_file(idict)); /* read segment length  */
             img_colordepth(idict) = xgetc(img_file(idict));
-            img_height(idict) = read2bytes(img_file(idict));
-            img_width(idict) = read2bytes(img_file(idict));
+            img_ysize(idict) = read2bytes(img_file(idict));
+            img_xsize(idict) = read2bytes(img_file(idict));
             img_jpg_color(idict) = xgetc(img_file(idict));
             xfseek(img_file(idict), 0, SEEK_SET, img_filepath(idict));
             switch (img_jpg_color(idict)) {
@@ -224,12 +224,12 @@ void read_jpg_info(image_dict * idict, boolean cleanup)
 reopen_jpg(image_dict * idict)
 {
     integer width, height, xres, yres;
-    width = img_width(idict);
-    height = img_height(idict);
+    width = img_xsize(idict);
+    height = img_ysize(idict);
     xres = img_xres(idict);
     yres = img_yres(idict);
     read_jpg_info(idict, false);
-    if (width != img_width(idict) || height != img_height(idict)
+    if (width != img_xsize(idict) || height != img_ysize(idict)
         || xres != img_xres(idict) || yres != img_yres(idict))
         pdftex_fail("writejpg: image dimensions have changed");
 }
@@ -244,8 +244,8 @@ void write_jpg(image_dict * idict)
     if (img_attrib(idict) != NULL && strlen(img_attrib(idict)) > 0)
         pdf_printf("%s\n", img_attrib(idict));
     pdf_printf("/Width %i\n/Height %i\n/BitsPerComponent %i\n/Length %i\n",
-               (int) img_width(idict),
-               (int) img_height(idict),
+               (int) img_xsize(idict),
+               (int) img_ysize(idict),
                (int) img_colordepth(idict), (int) img_jpg_ptr(idict)->length);
     pdf_puts("/ColorSpace ");
     if (img_colorspace_obj(idict) != 0) {

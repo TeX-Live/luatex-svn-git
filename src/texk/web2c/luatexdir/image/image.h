@@ -86,8 +86,8 @@ typedef enum { PDF_BOX_SPEC_NONE, PDF_BOX_SPEC_MEDIA, PDF_BOX_SPEC_CROP,
 typedef struct {
     integer objnum;
     integer index;              /* /Im1, /Im2, ... */
-    integer width;              /* dimensions in pixel counts as in JPG/PNG/JBIG2 file */
-    integer height;
+    integer x_size;             /* dimensions in pixel counts as in JPG/PNG/JBIG2 file */
+    integer y_size;
     integer x_res;              /* pixel resolution as in JPG/PNG/JBIG2 file */
     integer y_res;
     integer colorspace_obj;
@@ -113,8 +113,8 @@ typedef struct {
 
 #  define img_objnum(N)         ((N)->objnum)
 #  define img_index(N)          ((N)->index)
-#  define img_width(N)          ((N)->width)
-#  define img_height(N)         ((N)->height)
+#  define img_xsize(N)          ((N)->x_size)
+#  define img_ysize(N)          ((N)->y_size)
 #  define img_xres(N)           ((N)->x_res)
 #  define img_yres(N)           ((N)->y_res)
 #  define img_colorspace_obj(N) ((N)->colorspace_obj)
@@ -152,17 +152,17 @@ typedef struct {
 /**********************************************************************/
 
 typedef struct {
-    integer wd;                 /* requested/actual TeX dimensions */
-    integer ht;
-    integer dp;
+    integer width;              /* requested/actual TeX dimensions */
+    integer height;
+    integer depth;
     integer flags;
     image_dict *dict;
     int dict_ref;               /* luaL_ref() reference */
 } image;
 
-#  define img_wd(N)             ((N)->wd)
-#  define img_ht(N)             ((N)->ht)
-#  define img_dp(N)             ((N)->dp)
+#  define img_width(N)          ((N)->width)
+#  define img_height(N)         ((N)->height)
+#  define img_depth(N)          ((N)->depth)
 #  define img_flags(N)          ((N)->flags)
 #  define img_dict(N)           ((N)->dict)
 #  define img_dictref(N)        ((N)->dict_ref)
@@ -178,12 +178,12 @@ typedef struct {
 #  define img_is_scaled(N)      ((img_flags(N) & F_FLAG_SCALED) != 0)
 #  define img_is_refered(N)     ((img_flags(N) & F_FLAG_REFERED) != 0)
 
-#  define set_wd_running(N)     (img_wd(N) = null_flag)
-#  define set_ht_running(N)     (img_ht(N) = null_flag)
-#  define set_dp_running(N)     (img_dp(N) = null_flag)
-#  define is_wd_running(N)      (img_wd(N) == null_flag)
-#  define is_ht_running(N)      (img_ht(N) == null_flag)
-#  define is_dp_running(N)      (img_dp(N) == null_flag)
+#  define set_wd_running(N)     (img_width(N) = null_flag)
+#  define set_ht_running(N)     (img_height(N) = null_flag)
+#  define set_dp_running(N)     (img_depth(N) = null_flag)
+#  define is_wd_running(N)      (img_width(N) == null_flag)
+#  define is_ht_running(N)      (img_height(N) == null_flag)
+#  define is_dp_running(N)      (img_depth(N) == null_flag)
 
 /**********************************************************************/
 

@@ -85,8 +85,8 @@ void read_png_info(image_dict * idict, boolean cleanup)
     /* reset structure */
     png_read_update_info(png_p, info_p);
     /* resolution support */
-    img_width(idict) = info_p->width;
-    img_height(idict) = info_p->height;
+    img_xsize(idict) = info_p->width;
+    img_ysize(idict) = info_p->height;
     if (info_p->valid & PNG_INFO_pHYs) {
         img_xres(idict) =
             round(0.0254 * png_get_x_pixels_per_meter(png_p, info_p));
@@ -502,12 +502,12 @@ void copy_png(image_dict * idict)
 void reopen_png(image_dict * idict)
 {
     integer width, height, xres, yres;
-    width = img_width(idict);
-    height = img_height(idict);
+    width = img_xsize(idict);
+    height = img_ysize(idict);
     xres = img_xres(idict);
     yres = img_yres(idict);
     read_png_info(idict, false);
-    if (width != img_width(idict) || height != img_height(idict)
+    if (width != img_xsize(idict) || height != img_ysize(idict)
         || xres != img_xres(idict) || yres != img_yres(idict))
         pdftex_fail("writepng: image dimensions have changed");
 }

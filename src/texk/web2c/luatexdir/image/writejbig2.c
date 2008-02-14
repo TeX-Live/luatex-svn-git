@@ -705,8 +705,8 @@ void read_jbig2_info(image_dict * idict)
     if (pip == NULL)
         pdftex_fail("read_jbig2_info(): page %d not found in JBIG2 image file",
                     (int) img_pagenum(idict));
-    img_width(idict) = pip->width;
-    img_height(idict) = pip->height;
+    img_xsize(idict) = pip->width;
+    img_ysize(idict) = pip->height;
     img_xres(idict) = (int) (pip->xres * 0.0254 + 0.5);
     img_yres(idict) = (int) (pip->yres * 0.0254 + 0.5);
     img_colordepth(idict) = 1;

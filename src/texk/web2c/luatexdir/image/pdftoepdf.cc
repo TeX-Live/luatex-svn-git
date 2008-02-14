@@ -776,8 +776,8 @@ read_pdf_info(image_dict * idict, integer page_box, char *page_name,
         }
     }
     pdf_doc->xref = pdf_doc->doc->getXRef();
-    img_width(idict) = bp2int(img_pdf_width(idict));
-    img_height(idict) = bp2int(img_pdf_height(idict));
+    img_xsize(idict) = bp2int(img_pdf_width(idict));
+    img_ysize(idict) = bp2int(img_pdf_height(idict));
 }
 
 // writes the current epf_doc.
