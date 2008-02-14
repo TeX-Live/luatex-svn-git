@@ -27,9 +27,8 @@ $Id$
 
 #include "image.h"
 
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
+#include <../lua51/lua.h>
+#include <../lua51/lauxlib.h>
 
 /**********************************************************************/
 

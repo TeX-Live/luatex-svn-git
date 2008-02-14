@@ -3,9 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
+#include <../lua51/lua.h>
+#include <../lua51/lauxlib.h>
 #include <ptexlib.h>
 #include "../image/image.h"
 
