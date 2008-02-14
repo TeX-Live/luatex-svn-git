@@ -2106,11 +2106,14 @@ its `natural' size, you do not have to specify any of those three fields.
 <image> var = img.scan(image_spec)
 \stopfunctioncall
 
-When you say \type{img.scan(a)}, the file is scanned, and variables
-such as \type{xsize}, \type{ysize}, image \type{type}, number of
+When you say \type{img.scan(a)} for a new image, the file is scanned,
+and variables such as \type{xsize}, \type{ysize}, image \type{type}, number of
 \type{pages}, and the resolution are extracted. Each of the \type{width},
-\type{height}, \type{depth} fields are set up according to the image dimensions
+\type{height}, \type{depth} fields are set up according to the image dimensions,
 if they were not given an explicit value already.
+An image file will never be scanned more than once for a given image variable.
+With all subsequent \type{img.scan(a)} calls only the dimensions are again
+set up (if they have been changed by the user in the meantime).
 
 For ease of use, you can do right-away a 
 \starttyping
@@ -2120,7 +2123,7 @@ without a prior \type{img.new}.
 
 Nothing is written yet at this point, so you can do \type{a=img.scan},
 retrieve the available info like image width and height, and then
-throw away \type{a} again by saying \type{a=nil}.  In that case, no
+throw away \type{a} again by saying \type{a=nil}.  In that case no
 image object will be reserved in the PDF, and the used memory will be
 cleaned up automatically.
 
