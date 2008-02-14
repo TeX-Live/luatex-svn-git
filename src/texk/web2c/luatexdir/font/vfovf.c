@@ -244,7 +244,7 @@ vf_def_font(internal_font_number f,unsigned char *vf_buffer, integer *vf_cr) {
     if (pdf_font_expand_ratio(f) != 0)
       set_expand_params(k, pdf_font_auto_expand(f),
 						pdf_font_expand_ratio(pdf_font_stretch(f)),
-						pdf_font_expand_ratio(pdf_font_shrink(f)),
+						-pdf_font_expand_ratio(pdf_font_shrink(f)),
 						pdf_font_step(f), pdf_font_expand_ratio(f));
     return k;
 }
