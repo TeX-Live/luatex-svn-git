@@ -8,7 +8,7 @@ kpse_include ../make/library.mk
 kpathsea_srcdir_parent = $(srcdir)/../..
 kpathsea_dir_parent = ../..
 
-ALL_CXXFLAGS = @CXXFLAGS@ @DEFS@ $(XXCFLAGS) -I. -I$(srcdir) -I$(kpathsea_dir_parent) -I$(kpathsea_srcdir_parent) @LIBXPDFCPPFLAGS@ -I$(LIBOBSDCOMPATDIR) -I$(LIBOBSDCOMPATDIR)/.. -I$(LIBOBSDCOMPATFSRCDIR) -I$(LIBOBSDCOMPATFSRCDIR)/..
+ALL_CXXFLAGS = @CXXFLAGS@ @DEFS@ $(XXCFLAGS) -I. -I$(srcdir) -I$(kpathsea_dir_parent) -I$(kpathsea_srcdir_parent) @LIBXPDFCPPFLAGS@ -I$(LIBOBSDCOMPATDIR) -I$(LIBOBSDCOMPATDIR)/.. -I$(LIBOBSDCOMPATFSRCDIR) -I$(LIBOBSDCOMPATFSRCDIR)/.. -I$(LIBPNGSRCDIR) -I$(ZLIBSRCDIR)
 CXX = @CXX@
 
 .SUFFIXES: .cc .o
