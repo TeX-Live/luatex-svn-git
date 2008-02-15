@@ -4442,7 +4442,7 @@ begin if cur_length>depth_threshold then
 n:=0;
 while p<>null do
   begin print_ln; print_current_string; {display the nesting history}
-  if tracing_online>2 then print_int(p); 
+  if tracing_online<-2 then print_int(p); 
     incr(n); if n>breadth_max then {time to stop}
     begin print("etc."); return;
 @.etc@>
