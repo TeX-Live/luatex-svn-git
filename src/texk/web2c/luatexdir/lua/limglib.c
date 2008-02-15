@@ -272,12 +272,12 @@ static void lua_to_image(lua_State * L, image * a)
     case P_PAGE:
         if (img_state(d) >= DICT_FILESCANNED)
             luaL_error(L, "image.page is now read-only");
-        if (lua_isstring(L, -1) && !lua_isnumber(L, -1)) {
+        if (lua_type(L, -1) == LUA_TSTRING) {
             if (img_pagename(d) != NULL)
                 xfree(img_pagename(d));
             img_pagename(d) = xstrdup(lua_tostring(L, -1));
             img_pagenum(d) = 0;
-        } else if (lua_isnumber(L, -1)) {
+        } else if (lua_type(L, -1) == LUA_TNUMBER) {
             img_pagenum(d) = lua_tointeger(L, -1);
             if (img_pagename(d) != NULL)
                 xfree(img_pagename(d));
