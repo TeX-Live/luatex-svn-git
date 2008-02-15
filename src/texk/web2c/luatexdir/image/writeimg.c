@@ -306,6 +306,8 @@ void read_img(image_dict * idict, integer pdf_minor_version,
     char *filepath;
     int callback_id;
     assert(idict != NULL);
+    if (img_filename(idict) == NULL)
+        pdftex_fail("image file name missing");
     callback_id = callback_defined(find_image_file_callback);
     if (img_filepath(idict) == NULL) {
         if (callback_id > 0
