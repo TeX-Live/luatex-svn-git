@@ -213,7 +213,7 @@ void init_image_dict(image_dict * p)
     img_ysize(p) = 0;
     img_xres(p) = 0;
     img_yres(p) = 0;
-    img_colorspace_obj(p) = 0;
+    img_colorspace(p) = 0;
     img_pagenum(p) = 1;
     img_totalpages(p) = 0;
     img_pagename(p) = NULL;
@@ -487,7 +487,7 @@ integer read_image(integer objnum, integer index, strnumber filename,
                    integer page_num,
                    strnumber attr,
                    strnumber page_name,
-                   integer colorspace_obj, integer page_box,
+                   integer colorspace, integer page_box,
                    integer pdf_minor_version, integer pdf_inclusion_errorlevel)
 {
     integer ref;
@@ -499,7 +499,7 @@ integer read_image(integer objnum, integer index, strnumber filename,
     img_objnum(idict) = objnum;
     img_index(idict) = index;
     /* img_xsize, img_ysize, img_xres, img_yres set by read_img() */
-    img_colorspace_obj(idict) = colorspace_obj;
+    img_colorspace(idict) = colorspace;
     img_pagenum(idict) = page_num;
     /* img_totalpages set by read_img() */
     if (page_name != 0)

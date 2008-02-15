@@ -2051,7 +2051,7 @@ There is one required user-specified field: the file name
 image dimensions (\type{width}, \type{depth}, \type{height}),
 user-specified image attributes (\type{attr}), the requested PDF page
 identifier (\type{page}), the requested boundingbox (\type{pagebox})
-for PDF inclusion, the requested color space object (\type{colorspaceobj}).
+for PDF inclusion, the requested color space object (\type{colorspace}).
 
 The function \type{img.new} does not access the actual image file, it
 just creates the \type{<image>} userdata object and initializes some
@@ -2084,13 +2084,13 @@ keys, both user-supplied and automatic ones.
                                    One of "none", "media", "crop", "bleed", "trim", "art" \NC \NR
 \NC filepath      \NC string   \NC Full (expanded) file name of the image \NC \NR
 \NC colordepth    \NC number   \NC Number of bits used by the color space \NC \NR
-\NC colorspaceobj \NC number   \NC PDF color space object number \NC \NR
+\NC colorspace    \NC number   \NC Color space object number \NC \NR
 \NC imagetype     \NC string   \NC One of "pdf", "png", "jpg", "jbig2", or \type{nil} \NC \NR
-\NC objnum        \NC number   \NC PDF image object number  \NC \NR
+\NC objnum        \NC number   \NC PDF image object number \NC \NR
 \NC index         \NC number   \NC PDF image name suffix \NC \NR
 \NC pages         \NC number   \NC Total number of available pages \NC \NR
 \NC xsize         \NC number   \NC Natural image width \NC \NR
-\NC ysize         \NC number   \NC Natural image height  \NC \NR
+\NC ysize         \NC number   \NC Natural image height \NC \NR
 \NC xres          \NC number   \NC Horizontal natural image resolution (dpi) \NC \NR
 \NC yres          \NC number   \NC Vertical natural image resolution (dpi) \NC \NR
 \stoptabulate

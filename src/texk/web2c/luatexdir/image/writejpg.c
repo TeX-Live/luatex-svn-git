@@ -248,8 +248,8 @@ void write_jpg(image_dict * idict)
                (int) img_ysize(idict),
                (int) img_colordepth(idict), (int) img_jpg_ptr(idict)->length);
     pdf_puts("/ColorSpace ");
-    if (img_colorspace_obj(idict) != 0) {
-        pdf_printf("%i 0 R\n", (int) img_colorspace_obj(idict));
+    if (img_colorspace(idict) != 0) {
+        pdf_printf("%i 0 R\n", (int) img_colorspace(idict));
     } else {
         switch (img_jpg_color(idict)) {
         case JPG_GRAY:

@@ -90,7 +90,7 @@ typedef struct {
     integer y_size;
     integer x_res;              /* pixel resolution as in JPG/PNG/JBIG2 file */
     integer y_res;
-    integer colorspace_obj;
+    integer colorspace;         /* number of /ColorSpace object */
     integer page_num;           /* requested page (by number) */
     integer total_pages;
     char *pagename;             /* requested raw file name */
@@ -117,7 +117,7 @@ typedef struct {
 #  define img_ysize(N)          ((N)->y_size)
 #  define img_xres(N)           ((N)->x_res)
 #  define img_yres(N)           ((N)->y_res)
-#  define img_colorspace_obj(N) ((N)->colorspace_obj)
+#  define img_colorspace(N)     ((N)->colorspace)
 #  define img_pagenum(N)        ((N)->page_num)
 #  define img_totalpages(N)     ((N)->total_pages)
 #  define img_pagename(N)       ((N)->pagename)

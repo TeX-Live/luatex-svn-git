@@ -171,8 +171,8 @@ void write_png_palette(image_dict * idict)
     integer palette_objnum = 0;
     pdf_create_obj(0, 0);
     palette_objnum = obj_ptr;
-    if (img_colorspace_obj(idict) != 0) {
-        pdf_printf("%i 0 R\n", (int) img_colorspace_obj(idict));
+    if (img_colorspace(idict) != 0) {
+        pdf_printf("%i 0 R\n", (int) img_colorspace(idict));
     } else {
         pdf_printf("[/Indexed /DeviceRGB %i %i 0 R]\n",
                    (int) (info_p->num_palette - 1), (int) palette_objnum);
@@ -213,8 +213,8 @@ void write_png_gray(image_dict * idict)
     png_structp png_p = img_png_png_ptr(idict);
     png_infop info_p = img_png_info_ptr(idict);
     png_bytep row, r, *rows;
-    if (img_colorspace_obj(idict) != 0) {
-        pdf_printf("%i 0 R\n", (int) img_colorspace_obj(idict));
+    if (img_colorspace(idict) != 0) {
+        pdf_printf("%i 0 R\n", (int) img_colorspace(idict));
     } else {
         pdf_puts("/DeviceGray\n");
     }
@@ -248,8 +248,8 @@ void write_png_gray_alpha(image_dict * idict)
     integer smask_ptr = 0;
     integer smask_size = 0;
     int bitdepth;
-    if (img_colorspace_obj(idict) != 0) {
-        pdf_printf("%i 0 R\n", (int) img_colorspace_obj(idict));
+    if (img_colorspace(idict) != 0) {
+        pdf_printf("%i 0 R\n", (int) img_colorspace(idict));
     } else {
         pdf_puts("/DeviceGray\n");
     }
@@ -312,8 +312,8 @@ void write_png_rgb(image_dict * idict)
     png_structp png_p = img_png_png_ptr(idict);
     png_infop info_p = img_png_info_ptr(idict);
     png_bytep row, r, *rows;
-    if (img_colorspace_obj(idict) != 0) {
-        pdf_printf("%i 0 R\n", (int) img_colorspace_obj(idict));
+    if (img_colorspace(idict) != 0) {
+        pdf_printf("%i 0 R\n", (int) img_colorspace(idict));
     } else {
         pdf_puts("/DeviceRGB\n");
     }
@@ -347,8 +347,8 @@ void write_png_rgb_alpha(image_dict * idict)
     integer smask_ptr = 0;
     integer smask_size = 0;
     int bitdepth;
-    if (img_colorspace_obj(idict) != 0) {
-        pdf_printf("%i 0 R\n", (int) img_colorspace_obj(idict));
+    if (img_colorspace(idict) != 0) {
+        pdf_printf("%i 0 R\n", (int) img_colorspace(idict));
     } else {
         pdf_puts("/DeviceRGB\n");
     }
@@ -547,8 +547,8 @@ void write_png(image_dict * idict)
         && (fixed_image_hicolor || (png_p->bit_depth <= 8))
         && (checked_gamma <= 1.01 && checked_gamma > 0.99)
         ) {
-        if (img_colorspace_obj(idict) != 0) {
-            pdf_printf("%i 0 R\n", (int) img_colorspace_obj(idict));
+        if (img_colorspace(idict) != 0) {
+            pdf_printf("%i 0 R\n", (int) img_colorspace(idict));
         } else {
             switch (info_p->color_type) {
             case PNG_COLOR_TYPE_PALETTE:

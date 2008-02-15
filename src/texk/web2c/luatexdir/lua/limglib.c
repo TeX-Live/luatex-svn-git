@@ -41,10 +41,9 @@ static void stackDump(lua_State * L, char *s)
 
 /**********************************************************************/
 
-typedef enum { P__ZERO, P_ATTR, P_COLORDEPTH, P_COLORSPACE_OBJ, P_DEPTH,
-    P_FILENAME, P_FILEPATH, P_HEIGHT, P_IMAGETYPE, P_INDEX, P_OBJNUM,
-    P_PAGE, P_PAGEBOX, P_TOTALPAGES, P_WIDTH, P_XRES, P_XSIZE, P_YRES,
-    P_YSIZE, P__SENTINEL
+typedef enum { P__ZERO, P_ATTR, P_COLORDEPTH, P_COLORSPACE, P_DEPTH, P_FILENAME,
+    P_FILEPATH, P_HEIGHT, P_IMAGETYPE, P_INDEX, P_OBJNUM, P_PAGE, P_PAGEBOX,
+    P_TOTALPAGES, P_WIDTH, P_XRES, P_XSIZE, P_YRES, P_YSIZE, P__SENTINEL
 } parm_idx;
 
 typedef struct {
@@ -56,7 +55,7 @@ parm_struct img_parms[] = {
     {NULL, P__ZERO},            /* dummy; lua indices run from 1 */
     {"attr", P_ATTR},
     {"colordepth", P_COLORDEPTH},
-    {"colorspaceobj", P_COLORSPACE_OBJ},
+    {"colorspace", P_COLORSPACE},
     {"depth", P_DEPTH},
     {"filename", P_FILENAME},
     {"filepath", P_FILEPATH},
@@ -154,11 +153,11 @@ static void image_to_lua(lua_State * L, image * a)
     case P_YRES:
         lua_pushinteger(L, img_yres(d));
         break;
-    case P_COLORSPACE_OBJ:
-        if (img_colorspace_obj(d) == 0)
+    case P_COLORSPACE:
+        if (img_colorspace(d) == 0)
             lua_pushnil(L);
         else
-            lua_pushinteger(L, img_colorspace_obj(d));
+            lua_pushinteger(L, img_colorspace(d));
         break;
     case P_COLORDEPTH:
         if (img_colordepth(d) == 0)
@@ -286,15 +285,15 @@ static void lua_to_image(lua_State * L, image * a)
         } else
             luaL_error(L, "image.pagename needs integer or string value");
         break;
-    case P_COLORSPACE_OBJ:
+    case P_COLORSPACE:
         if (img_state(d) >= DICT_FILESCANNED)
-            luaL_error(L, "image.colorspaceobj is now read-only");
+            luaL_error(L, "image.colorspace is now read-only");
         if (lua_isnil(L, -1))
-            img_colorspace_obj(d) = 0;
+            img_colorspace(d) = 0;
         else if (lua_isnumber(L, -1)) {
-            img_colorspace_obj(d) = lua_tointeger(L, -1);
+            img_colorspace(d) = lua_tointeger(L, -1);
         } else
-            luaL_error(L, "image.colorspaceobj needs integer or nil value");
+            luaL_error(L, "image.colorspace needs integer or nil value");
         break;
     case P_PAGEBOX:
         if (img_state(d) >= DICT_FILESCANNED)
