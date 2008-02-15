@@ -252,13 +252,12 @@ static void lua_to_image(lua_State * L, image * a)
     case P_FILENAME:
         if (img_state(d) >= DICT_FILESCANNED)
             luaL_error(L, "image.filename is now read-only");
-        if (lua_isstring(L, -1) || lua_isnil(L, -1)) {
+        if (lua_isstring(L, -1)) {
             if (img_filename(d) != NULL)
                 xfree(img_filename(d));
-            if (lua_isstring(L, -1))
-                img_filename(d) = xstrdup(lua_tostring(L, -1));
+            img_filename(d) = xstrdup(lua_tostring(L, -1));
         } else
-            luaL_error(L, "image.filename needs string or nil value");
+            luaL_error(L, "image.filename needs string value");
         break;
     case P_ATTR:
         if (img_state(d) >= DICT_FILESCANNED)
