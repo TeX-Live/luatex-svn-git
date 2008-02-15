@@ -253,7 +253,7 @@ parse_options(int argc, char **argv)
 "the terms of the GNU General Public License, version 2. For more\n"
 "information about these matters, see the file named COPYING and\n"
 "the LuaTeX source.\n\n"
-"Copyright 2007 Taco Hoekwater, the LuaTeX Team.\n");
+"Copyright 2008 Taco Hoekwater, the LuaTeX Team.\n");
 
 	  puts(versions);
           uexit(0);	  

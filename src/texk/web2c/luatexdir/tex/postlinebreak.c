@@ -499,7 +499,7 @@ void ext_post_line_break(boolean d,
       if (r!=temp_head) { 
 	vlink(r)=null; 
 	flush_node_list(vlink(temp_head));
-	vlink(temp_head)=q;
+    couple_nodes(temp_head,q);
       }
     }
   } while (cur_p!=null);

@@ -6,9 +6,20 @@
 luatex = @LTEX@ luatex
 luatexdir = luatexdir
 
+# libz
+ZLIBDIR=../../libs/zlib
+ZLIBSRCDIR=$(srcdir)/$(ZLIBDIR)
+# libpng
+LIBPNGDIR=../../libs/libpng
+LIBPNGSRCDIR=$(srcdir)/$(LIBPNGDIR)
+# libxpdf
+LIBXPDFDIR=../../libs/xpdf
+LIBXPDFSRCDIR=$(srcdir)/$(LIBXPDFDIR)
+# libobsdcompa
 LIBOBSDCOMPATDIR=../../libs/obsdcompat
 LIBOBSDCOMPATFSRCDIR=$(srcdir)/$(LIBOBSDCOMPATDIR)
-XCPPFLAGS=-I$(LIBOBSDCOMPATDIR) -I$(LIBOBSDCOMPATDIR)/.. -I$(LIBOBSDCOMPATFSRCDIR) -I$(LIBOBSDCOMPATFSRCDIR)/..  -Dextra_version_info=`date +-%Y%m%d%H`
+
+XCPPFLAGS=-I$(LIBOBSDCOMPATDIR) -I$(LIBOBSDCOMPATDIR)/.. -I$(LIBOBSDCOMPATFSRCDIR) -I$(LIBOBSDCOMPATFSRCDIR)/..  -I$(ZLIBSRCDIR) -I$(LIBPNGSRCDIR) -I$(LIBXPDFSRCDIR) -Dextra_version_info=`date +-%Y%m%d%H`
 
 Makefile: $(srcdir)/$(luatexdir)/luatex.mk
 

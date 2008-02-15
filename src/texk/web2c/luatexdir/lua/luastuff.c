@@ -1,4 +1,4 @@
-/* $Id: luastuff.c,v 1.16 2005/08/10 22:21:53 hahe Exp hahe $ */
+/* $Id$ */
 
 #include "luatex-api.h"
 #include <ptexlib.h>
@@ -130,6 +130,11 @@ luainterpreter (int n) {
   luaopen_stats(L);
   luaopen_font(L);
   luaopen_lang(L);
+
+  /* luaopen_img(L); */
+  lua_pushcfunction(L, luaopen_img);
+  lua_pushstring(L, "img");
+  lua_call(L, 1, 0);
 
   if (safer_option) {
 	/* disable some stuff if --safer */

@@ -146,8 +146,8 @@ boolean check_expand_pars(internal_font_number f) {
   k = pdf_font_shrink(f);
   if( k != null_font) {
     if (max_shrink_ratio < 0) 
-      max_shrink_ratio = pdf_font_expand_ratio(k);
-    else if (max_shrink_ratio != pdf_font_expand_ratio(k)) 
+      max_shrink_ratio = -pdf_font_expand_ratio(k);
+    else if (max_shrink_ratio != -pdf_font_expand_ratio(k)) 
       pdf_error("font expansion", 
 		"using fonts with different limit of expansion in one paragraph is not allowed");
   }
@@ -906,11 +906,11 @@ print_feasible_break(halfword cur_p, pointer r, halfword b, integer pi,
   font(cp) = font((a));  \
   do_subst_font(cp, 1000);  \
   if (font(cp) != font((a)))  \
-    margin_kern_stretch += left_pw((a)) - left_pw(cp);  \
+    margin_kern_stretch += (left_pw((a)) - left_pw(cp));	\
   font(cp) = font((a));  \
   do_subst_font(cp, -1000);  \
   if (font(cp) != font((a)))  \
-    margin_kern_shrink += left_pw(cp) - left_pw((a));  \
+    margin_kern_shrink += (left_pw(cp) - left_pw((a)));	\
   }
 
 static void 

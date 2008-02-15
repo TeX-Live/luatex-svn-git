@@ -1105,6 +1105,16 @@ get_node (integer s) {
   return slow_get_node(s);
 }
 
+void print_free_chain (int c) {
+  halfword p = free_chain[c];
+  fprintf(stdout, "\nfree chain[%d] =\n  ",c);
+  while (p!=null) {
+    fprintf(stdout, "%d,",p);
+    p = vlink(p);
+  }
+  fprintf(stdout, "null;\n");
+}
+
 void
 free_node (halfword p, integer s) {
 

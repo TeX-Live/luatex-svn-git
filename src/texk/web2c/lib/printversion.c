@@ -40,7 +40,7 @@ printversionandexit P4C(const_string, banner,
   puts (kpathsea_version_string);
 
   if (copyright_holder) {
-    printf ("Copyright 2007 %s.\n", copyright_holder);
+    printf ("Copyright 2008 %s.\n", copyright_holder);
     if (!author)
       author = copyright_holder;
   }

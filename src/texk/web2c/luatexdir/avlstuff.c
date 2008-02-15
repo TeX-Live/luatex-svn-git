@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License along
 with this file; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-$Id: avlstuff.c,v 1.12 2005/07/11 20:27:39 hahe Exp hahe $
+$Id$
 
 */
 

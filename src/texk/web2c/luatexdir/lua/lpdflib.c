@@ -1,4 +1,4 @@
-/* $Id: lpdflib.c,v 1.12 2006/12/04 21:20:09 hahe Exp $ */
+/* $Id$ */
 
 #include "luatex-api.h"
 #include <ptexlib.h>
