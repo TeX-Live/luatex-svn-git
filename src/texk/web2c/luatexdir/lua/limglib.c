@@ -283,7 +283,7 @@ static void lua_to_image(lua_State * L, image * a)
                 xfree(img_pagename(d));
             img_pagename(d) = NULL;
         } else
-            luaL_error(L, "image.pagename needs integer or string value");
+            luaL_error(L, "image.page needs integer or string value");
         break;
     case P_COLORSPACE:
         if (img_state(d) >= DICT_FILESCANNED)
