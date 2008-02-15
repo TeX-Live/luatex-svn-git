@@ -215,4 +215,8 @@ void write_jpg(image_dict *);
 void write_jbig2(image_dict *);
 void write_epdf(image_dict *);
 
+/* pdftoepdf.cc */
+
+void epdf_delete(image_dict * idict);
+
 #endif

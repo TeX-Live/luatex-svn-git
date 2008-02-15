@@ -30,6 +30,8 @@ $Id$
 #include <../lua51/lua.h>
 #include <../lua51/lauxlib.h>
 
+extern void pdf_print_real(integer m, integer d);
+
 /**********************************************************************/
 /*
   Patch ImageTypeDetection 2003/02/08 by Heiko Oberdiek.
@@ -335,10 +337,10 @@ void scale_img(image * img)
     if (xr > 65535 || yr > 65535) {
         xr = 0;
         yr = 0;
-        pdftex_warn("ext1", "too large image resolution ignored", true, true);
+        pdftex_warn("ext1: too large image resolution ignored");
     }
     if (x <= 0 || y <= 0 || xr < 0 || yr < 0)
-        pdftex_fail("ext1", "invalid image dimensions");
+        pdftex_fail("ext1: invalid image dimensions");
     if (img_type(idict) == IMAGE_TYPE_PDF) {
         w = x;
         h = y;
@@ -491,7 +493,7 @@ integer read_image(integer objnum, integer index, strnumber filename,
                    integer pdf_minor_version, integer pdf_inclusion_errorlevel)
 {
     integer ref;
-    char *dest = NULL;
+    /*char *dest = NULL;*/
     image *a = new_image();
     ref = img_to_array(a);
     image_dict *idict = img_dict(a) = new_image_dict();
