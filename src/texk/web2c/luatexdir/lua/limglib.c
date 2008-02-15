@@ -365,7 +365,6 @@ void copy_image(lua_State * L, lua_Number scale)
 static int l_new_image(lua_State * L)
 {
     image *a, **aa;
-    /*int i;*/
     if (lua_gettop(L) > 1)
         luaL_error(L, "img.new needs maximum 1 argument");
     if (lua_gettop(L) == 1 && !lua_istable(L, 1))
@@ -405,7 +404,6 @@ static int l_copy_image(lua_State * L)
 static int l_scan_image(lua_State * L)
 {
     image *a, **aa;
-    /*char *s;*/
     if (lua_gettop(L) != 1)
         luaL_error(L, "img.scan needs exactly 1 argument");
     if (lua_istable(L, 1))
@@ -467,7 +465,7 @@ static int l_supported_types(lua_State * L)
     if (lua_gettop(L) != 0)
         luaL_error(L, "img.supportedtypes goes without argument");
     lua_newtable(L);            /* t */
-    for (i = 1, p = (char **)(imgtype_s + 1); p != NULL; p++, i++) {
+    for (i = 1, p = (char **) (imgtype_s + 1); *p != NULL; p++, i++) {
         lua_pushinteger(L, (int) i);    /* k t */
         lua_pushstring(L, *p);  /* v k t */
         lua_settable(L, -3);    /* t */
@@ -493,7 +491,7 @@ static int m_img_get(lua_State * L)
     image *a, **aa;
     aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);    /* k u */
     a = *aa;
-    /* image_dict *ad = img_dict(a);*/
+    /* image_dict *ad = img_dict(a); */
     image_to_lua(L, a);         /* v u */
     return 1;
 }
