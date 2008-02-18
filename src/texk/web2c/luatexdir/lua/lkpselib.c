@@ -213,8 +213,12 @@ extern int luainit;
 static int set_program_name (lua_State *L) {
   const char *exe_name  = luaL_checkstring(L,1);
   const char *prog_name = luaL_optstring(L,2,exe_name);
-  program_name_set  = 1;
-  kpse_set_program_name(exe_name, prog_name);
+  if (! program_name_set) {
+    kpse_set_program_name(exe_name, prog_name);
+    program_name_set  = 1;
+  } else {
+    kpse_reset_program_name(prog_name);
+  }
   /* fix up the texconfig entry */
   lua_checkstack(L,3);
   lua_getglobal(L,"texconfig");
