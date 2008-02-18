@@ -2162,14 +2162,23 @@ img.write{filename="foo.png"}
 The \type{<image>} variable is returned in case you want it for later
 processing.
 
-\subsubsubject{\luatex{img.supportedtypes}}
+\subsubsubject{\luatex{img.types}}
 
 \startfunctioncall
-<table> supportedtypes = img.supportedtypes()
+<table> types = img.types()
 \stopfunctioncall
 
 This function returns a list with the supported image file type names,
 currently these are `pdf', `png', `jpg', and `jbig2'.
+
+\subsubsubject{\luatex{img.boxes}}
+
+\startfunctioncall
+<table> boxes = img.boxes()
+\stopfunctioncall
+
+This function returns a list with the supported \PDF\ page box names,
+currently these are `media', `crop', `bleed', `trim', and `art'.
 
 
 \section{The \luatex{callback} library}

@@ -338,7 +338,7 @@ void copy_image(lua_State * L, lua_Number scale)
 {
     image *a, **aa, *b, **bb;
     if (lua_gettop(L) != 1)
-        luaL_error(L, "img.copy needs exactly 1 argument");
+        luaL_error(L, "img.copy() needs exactly 1 argument");
     aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);    /* a */
     lua_pop(L, 1);              /* - */
     a = *aa;
@@ -366,9 +366,9 @@ static int l_new_image(lua_State * L)
 {
     image *a, **aa;
     if (lua_gettop(L) > 1)
-        luaL_error(L, "img.new needs maximum 1 argument");
+        luaL_error(L, "img.new() needs maximum 1 argument");
     if (lua_gettop(L) == 1 && !lua_istable(L, 1))
-        luaL_error(L, "img.new needs table as optional argument");      /* (t) */
+        luaL_error(L, "img.new() needs table as optional argument");    /* (t) */
     aa = (image **) lua_newuserdata(L, sizeof(image *));        /* i (t) */
     luaL_getmetatable(L, TYPE_IMG);     /* m i (t) */
     lua_setmetatable(L, -2);    /* i (t) */
@@ -393,7 +393,7 @@ static int l_new_image(lua_State * L)
 static int l_copy_image(lua_State * L)
 {
     if (lua_gettop(L) != 1)
-        luaL_error(L, "img.copy needs exactly 1 argument");
+        luaL_error(L, "img.copy() needs exactly 1 argument");
     if (lua_istable(L, 1))
         l_new_image(L);         /* image --- if everything worked well */
     else
@@ -405,7 +405,7 @@ static int l_scan_image(lua_State * L)
 {
     image *a, **aa;
     if (lua_gettop(L) != 1)
-        luaL_error(L, "img.scan needs exactly 1 argument");
+        luaL_error(L, "img.scan() needs exactly 1 argument");
     if (lua_istable(L, 1))
         l_new_image(L);         /* image --- if everything worked well */
     aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);    /* image */
@@ -424,7 +424,7 @@ static int l_write_image(lua_State * L)
     image *a, **aa;
     integer ref, k;
     if (lua_gettop(L) != 1)
-        luaL_error(L, "img.write needs exactly 1 argument");
+        luaL_error(L, "img.write() needs exactly 1 argument");
     if (lua_istable(L, 1))
         l_new_image(L);         /* image --- if everything worked well */
     aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);    /* image */
@@ -448,7 +448,7 @@ static int l_image_keys(lua_State * L)
 {
     parm_struct *p = img_parms + 1;
     if (lua_gettop(L) != 0)
-        luaL_error(L, "img.keys goes without argument");
+        luaL_error(L, "img.keys() goes without argument");
     lua_newtable(L);            /* t */
     for (; p->name != NULL; p++) {
         lua_pushinteger(L, (int) p->idx);       /* k t */
@@ -458,14 +458,29 @@ static int l_image_keys(lua_State * L)
     return 1;
 }
 
-static int l_supported_types(lua_State * L)
+static int l_image_types(lua_State * L)
 {
     int i;
     char **p;
     if (lua_gettop(L) != 0)
-        luaL_error(L, "img.supportedtypes goes without argument");
+        luaL_error(L, "img.types() goes without argument");
     lua_newtable(L);            /* t */
     for (i = 1, p = (char **) (imgtype_s + 1); *p != NULL; p++, i++) {
+        lua_pushinteger(L, (int) i);    /* k t */
+        lua_pushstring(L, *p);  /* v k t */
+        lua_settable(L, -3);    /* t */
+    }
+    return 1;
+}
+
+static int l_image_boxes(lua_State * L)
+{
+    int i;
+    char **p;
+    if (lua_gettop(L) != 0)
+        luaL_error(L, "img.boxes() goes without argument");
+    lua_newtable(L);            /* t */
+    for (i = 1, p = (char **) (pdfboxspec_s + 1); *p != NULL; p++, i++) {
         lua_pushinteger(L, (int) i);    /* k t */
         lua_pushstring(L, *p);  /* v k t */
         lua_settable(L, -3);    /* t */
@@ -479,7 +494,8 @@ static const struct luaL_Reg imglib[] = {
     {"scan", l_scan_image},
     {"write", l_write_image},
     {"keys", l_image_keys},
-    {"supportedtypes", l_supported_types},
+    {"types", l_image_types},
+    {"boxes", l_image_boxes},
     {NULL, NULL}                /* sentinel */
 };
 
