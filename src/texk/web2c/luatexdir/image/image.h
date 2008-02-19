@@ -46,8 +46,6 @@ typedef struct {
     float height;
     float orig_x;
     float orig_y;
-    integer page_box;
-    char *page_name;
     void *doc;
 } pdf_img_struct;
 

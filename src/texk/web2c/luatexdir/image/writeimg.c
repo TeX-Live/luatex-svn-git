@@ -176,8 +176,6 @@ pdf_img_struct *new_pdf_img_struct()
     p->height = 0;
     p->orig_x = 0;
     p->orig_y = 0;
-    p->page_box = 0;
-    p->page_name = NULL;
     p->doc = NULL;
     return p;
 }

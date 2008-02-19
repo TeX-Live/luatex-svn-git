@@ -528,20 +528,15 @@ static const struct luaL_Reg imglib[] = {
 
 static int m_img_get(lua_State * L)
 {
-    image *a, **aa;
-    aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);    /* k u */
-    a = *aa;
-    /* image_dict *ad = img_dict(a); */
-    image_to_lua(L, a);         /* v u */
+    image **aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);    /* k u */
+    image_to_lua(L, *aa);       /* v u */
     return 1;
 }
 
 static int m_img_set(lua_State * L)
 {
-    image *a, **aa;
-    aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);    /* value key user */
-    a = *aa;
-    lua_to_image(L, a);         /* v k u */
+    image **aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);    /* value key user */
+    lua_to_image(L, *aa);       /* v k u */
     return 0;
 }
 
@@ -563,10 +558,8 @@ static int m_img_mul(lua_State * L)
 
 static int m_img_print(lua_State * L)
 {
-    image **aa;
-    image_dict *d;
-    aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);
-    d = img_dict(*aa);
+    image **aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);
+    image_dict *d = img_dict(*aa);
     lua_pushfstring(L, "<img name=%s>", img_filename(d));
     return 1;
 }

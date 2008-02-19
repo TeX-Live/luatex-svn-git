@@ -669,7 +669,8 @@ static PDFRectangle *get_pagebox(Page * page, integer pagebox_spec)
 // Returns the page number.
 
 void
-read_pdf_info(image_dict * idict, integer minor_pdf_version_wanted, integer pdf_inclusion_errorlevel)
+read_pdf_info(image_dict * idict, integer minor_pdf_version_wanted,
+              integer pdf_inclusion_errorlevel)
 {
     PdfDocument *pdf_doc;
     Page *page;
@@ -680,8 +681,6 @@ read_pdf_info(image_dict * idict, integer minor_pdf_version_wanted, integer pdf_
     assert(img_type(idict) == IMAGE_TYPE_PDF);
     assert(img_pdf_ptr(idict) == NULL);
     img_pdf_ptr(idict) = new_pdf_img_struct();
-    img_pdf_page_name(idict) = img_pagename(idict);
-    img_pdf_page_box(idict) = img_pagebox(idict);
     // initialize
     if (!isInit) {
         globalParams = new GlobalParams();
@@ -708,19 +707,19 @@ read_pdf_info(image_dict * idict, integer minor_pdf_version_wanted, integer pdf_
         }
     }
     img_totalpages(idict) = pdf_doc->doc->getCatalog()->getNumPages();
-    if (img_pdf_page_name(idict)) {
+    if (img_pagename(idict)) {
         // get page by name
-        GString name(img_pdf_page_name(idict));
+        GString name(img_pagename(idict));
         LinkDest *link = pdf_doc->doc->findDest(&name);
         if (link == 0 || !link->isOk())
             pdftex_fail("PDF inclusion: invalid destination <%s>",
-                        img_pdf_page_name(idict));
+                        img_pagename(idict));
         Ref ref = link->getPageRef();
         img_pagenum(idict) =
             pdf_doc->doc->getCatalog()->findPage(ref.num, ref.gen);
         if (img_pagenum(idict) == 0)
             pdftex_fail("PDF inclusion: destination is not a page <%s>",
-                        img_pdf_page_name(idict));
+                        img_pagename(idict));
         delete link;
     } else {
         // get page by number
@@ -733,7 +732,7 @@ read_pdf_info(image_dict * idict, integer minor_pdf_version_wanted, integer pdf_
     page = pdf_doc->doc->getCatalog()->getPage(img_pagenum(idict));
 
     // get the pagebox (media, crop...) to use.
-    pagebox = get_pagebox(page, img_pdf_page_box(idict));
+    pagebox = get_pagebox(page, img_pagebox(idict));
     if (pagebox->x2 > pagebox->x1) {
         img_pdf_orig_x(idict) = pagebox->x1;
         img_pdf_width(idict) = pagebox->x2 - pagebox->x1;
@@ -823,7 +822,7 @@ void write_epdf(image_dict * idict)
         pdf_printf("%d 0 R\n", addOther(info.getRef()));
     }
     // get the pagebox (media, crop...) to use.
-    pagebox = get_pagebox(page, img_pdf_page_box(idict));
+    pagebox = get_pagebox(page, img_pagebox(idict));
 
     // handle page rotation
     if (rotate != 0) {
