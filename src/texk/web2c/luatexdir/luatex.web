@@ -32105,7 +32105,7 @@ if cur_cmd=extension then begin
         end;
         pdf_ximage_code: begin
             do_extension; {scan image and set |pdf_last_ximage|}
-            pdf_write_image(obj_data_ptr(pdf_last_ximage));
+            pdf_write_image(pdf_last_ximage);
         end;
         othercases back_input
     endcases;
