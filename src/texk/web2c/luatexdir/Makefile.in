@@ -104,18 +104,6 @@ writezip.o
 
 all: libpdf.a makecpool
 
-pdftosrc.o: $(srcdir)/pdftosrc.cc
-
-font/texfont.o: font/texfont.h
-
-font/tfmofm.o: font/texfont.h
-
-lua/luanode.o: nodes.h
-
-lua/luawhatsits.o: nodes.h
-
-utils.o: svnversion.h
-
 libpdf.a: $(OBJS)
 	rm -f $@
 	$(AR) $(ARFLAGS) $@  $(OBJS)
@@ -130,9 +118,13 @@ clean::
 	rm -f libpdf.a ttf2afm pdftosrc
 
 depend:
-	rm -f $(OBJS) ttf2afm.o pdftosrc.o
-	XXCFLAGS=-MM XCFLAGS=-MM $(MAKE) -k $(OBJS) ttf2afm.o pdftosrc.o | \
-	    grep -v "^$(CC)\|$(CXX)\|$(AR)\|make\|klibtool" | \
-	    sed 's: [^ ]*/\.\./libs/[^ ]*::g' > $(srcdir)/depend.mk
+	rm -f $(OBJS) $(srcdir)/depend.mk
+	for a in $(OBJS);  do 	                                       \
+		env XXCFLAGS="-MM -MT \$$@" XCFLAGS="-MM -MT \$$@" $(MAKE) -k $$a;                 \
+		touch $$a;                                                 \
+		grep -a -v "^$(CC)\|$(CXX)\|$(AR)\|make\|klibtool" $$a |   \
+		sed 's: [^ ]*/\.\./libs/[^ ]*::g' >> $(srcdir)/depend.mk;  \
+	done;                                                          \
+	rm -f $(OBJS)
 
-# kpse_include luatexdir/depend.mk
+kpse_include luatexdir/depend.mk
