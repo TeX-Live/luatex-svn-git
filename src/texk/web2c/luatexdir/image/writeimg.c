@@ -32,6 +32,8 @@ $Id$
 
 extern void pdf_print_real(integer m, integer d);
 
+#define obj_aux(A) obj_tab[(A)].int4
+
 /**********************************************************************/
 /*
   Patch ImageTypeDetection 2003/02/08 by Heiko Oberdiek.
@@ -400,14 +402,10 @@ void scale_img(image * img)
     img_set_scaled(img);
 }
 
-void out_img(image * img, scaled hpos, scaled vpos)
+void out_img(image_dict * idict, scaled wd, scaled ht, scaled dp, scaled hpos,
+             scaled vpos)
 {
-    assert(img != 0);
-    image_dict *idict = img_dict(img);
     assert(idict != 0);
-    integer wd = img_width(img);
-    integer ht = img_height(img);
-    integer dp = img_depth(img);
     pdf_end_text();
     pdf_printf("q\n");
     if (img_type(idict) == IMAGE_TYPE_PDF) {
@@ -493,7 +491,7 @@ integer read_image(integer objnum, integer index, strnumber filename,
                    integer pdf_minor_version, integer pdf_inclusion_errorlevel)
 {
     integer ref;
-    /*char *dest = NULL;*/
+    /*char *dest = NULL; */
     image *a = new_image();
     ref = img_to_array(a);
     image_dict *idict = img_dict(a) = new_image_dict();
@@ -528,124 +526,76 @@ void set_image_dimensions(integer ref, integer wd, integer ht, integer dp)
 
 void set_image_index(integer ref, integer index)
 {
-    image *a = img_array[ref];
-    image_dict *idict = img_dict(a);
+    image_dict *idict = img_dict(img_array[ref]);
     assert(idict != NULL);
     img_index(idict) = index;
 }
 
 void scale_image(integer ref)
 {
-    image *a = img_array[ref];
-    scale_img(a);
+    scale_img(img_array[ref]);
 }
 
-void out_image(integer ref, scaled hpos, scaled vpos)
+void out_image(integer objnum, scaled wd, scaled ht, scaled dp, scaled hpos,
+               scaled vpos)
 {
-    image *a = img_array[ref];
-    out_img(a, hpos, vpos);
+    image *a = img_array[obj_aux(objnum)];
+    out_img(img_dict(a), wd, ht, dp, hpos, vpos);
 }
 
-void write_image(integer ref)
+void write_image(integer objnum)
 {
-    image *a = img_array[ref];
-    write_img(img_dict(a));
+    write_img(img_dict(img_array[obj_aux(objnum)]));
 }
 
-integer image_color(integer ref)
+integer image_pages(integer objnum)
 {
-    image *a = img_array[ref];
-    return img_color(img_dict(a));
+    return img_totalpages(img_dict(img_array[obj_aux(objnum)]));
 }
 
-integer image_xsize(integer ref)
+integer image_colordepth(integer objnum)
 {
-    image *a = img_array[ref];
-    return img_xsize(img_dict(a));
-}
-
-integer image_ysize(integer ref)
-{
-    image *a = img_array[ref];
-    return img_ysize(img_dict(a));
-}
-
-integer image_xres(integer ref)
-{
-    image *a = img_array[ref];
-    return img_xres(img_dict(a));
-}
-
-integer image_yres(integer ref)
-{
-    image *a = img_array[ref];
-    return img_yres(img_dict(a));
-}
-
-boolean is_pdf_image(integer ref)
-{
-    image *a = img_array[ref];
-    return img_type(img_dict(a)) == IMAGE_TYPE_PDF;
-}
-
-integer image_pages(integer ref)
-{
-    image *a = img_array[ref];
-    return img_totalpages(img_dict(a));
-}
-
-integer image_colordepth(integer ref)
-{
-    image *a = img_array[ref];
-    return img_colordepth(img_dict(a));
+    return img_colordepth(img_dict(img_array[obj_aux(objnum)]));
 }
 
 integer epdf_orig_x(integer ref)
 {
-    image *a = img_array[ref];
-    return bp2int(img_pdf_orig_x(img_dict(a)));
+    return bp2int(img_pdf_orig_x(img_dict(img_array[ref])));
 }
 
 integer epdf_orig_y(integer ref)
 {
-    image *a = img_array[ref];
-    return bp2int(img_pdf_orig_y(img_dict(a)));
+    return bp2int(img_pdf_orig_y(img_dict(img_array[ref])));
 }
 
 integer image_objnum(integer ref)
 {
-    image *a = img_array[ref];
-    return img_objnum(img_dict(a));
+    return img_objnum(img_dict(img_array[ref]));
 }
 
-integer image_index(integer ref)
+integer image_index(integer objnum)
 {
-    image *a = img_array[ref];
-    return img_index(img_dict(a));
+    return img_index(img_dict(img_array[obj_aux(objnum)]));
 }
 
 integer image_width(integer ref)
 {
-    image *a = img_array[ref];
-    return img_width(a);
+    return img_width(img_array[ref]);
 }
 
 integer image_height(integer ref)
 {
-    image *a = img_array[ref];
-    return img_height(a);
+    return img_height(img_array[ref]);
 }
 
 integer image_depth(integer ref)
 {
-    image *a = img_array[ref];
-    return img_depth(a);
+    return img_depth(img_array[ref]);
 }
 
-void update_image_procset(integer ref)
+void update_image_procset(integer objnum)
 {
-    image *a = img_array[ref];
-    pdf_image_procset |= img_color(img_dict(a));
+    pdf_image_procset |= img_color(img_dict(img_array[obj_aux(objnum)]));
 }
 
 /**********************************************************************/

@@ -419,12 +419,13 @@ static int l_scan_image(lua_State * L)
     return 1;                   /* image */
 }
 
-static int l_write_image(lua_State * L)
+void write_image_or_node(lua_State * L, boolean writeimg)
 {
     image *a, **aa;
     integer ref, k;
     if (lua_gettop(L) != 1)
-        luaL_error(L, "img.write() needs exactly 1 argument");
+        luaL_error(L, "img.%s() needs exactly 1 argument",
+                   writeimg ? "write" : "node");
     if (lua_istable(L, 1))
         l_new_image(L);         /* image --- if everything worked well */
     aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);    /* image */
@@ -436,12 +437,34 @@ static int l_write_image(lua_State * L)
     }
     fix_image_size(L, a);
     ref = img_to_array(a);
-    k = lua_refximage(ref);
+    if (writeimg)
+        k = lua_refximage(ref, true);   /* image */
+    else {
+        lua_pop(L, 1);          /* - */
+        k = lua_refximage(ref, false);
+        halfword n = new_node(whatsit_node, pdf_refximage_node);
+        pdf_width(n) = img_width(a);
+        pdf_height(n) = img_height(a);
+        pdf_depth(n) = img_depth(a);
+        pdf_ximage_objnum(n) = k;
+        lua_nodelib_push_fast(L, n);    /* node */
+    }
     img_objnum(ad) = k;
     if (img_state(ad) < DICT_REFERED)
         img_state(ad) = DICT_REFERED;
     img_set_refered(a);         /* now image may not be freed by gc */
+}
+
+static int l_write_image(lua_State * L)
+{
+    write_image_or_node(L, true);
     return 1;                   /* image */
+}
+
+static int l_image_node(lua_State * L)
+{
+    write_image_or_node(L, false);
+    return 1;                   /* node */
 }
 
 static int l_image_keys(lua_State * L)
@@ -493,6 +516,7 @@ static const struct luaL_Reg imglib[] = {
     {"copy", l_copy_image},
     {"scan", l_scan_image},
     {"write", l_write_image},
+    {"node", l_image_node},
     {"keys", l_image_keys},
     {"types", l_image_types},
     {"boxes", l_image_boxes},

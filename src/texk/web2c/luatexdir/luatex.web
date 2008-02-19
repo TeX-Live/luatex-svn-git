@@ -6812,7 +6812,6 @@ begin
   get_pdf_inclusion_errorlevel := pdf_inclusion_errorlevel;
 end;
 
-
 @ @<Set init...@>=
 no_new_control_sequence:=true; {new identifiers are usually forbidden}
 prim_next(0):=0; prim_text(0):=0;
@@ -16887,7 +16886,7 @@ destination |pdf_left| and |pdf_top| are used for some types of destinations}
 @# {data structure for \.{\\pdfximage} and \.{\\pdfrefximage}}
 @d pdf_refximage_node_size == 6 {size of whatsit node for ximage; words 2..4
                                are image dimensions}
-@d pdf_ximage_ref(#)       == vinfo(# + 5) {index of image dictionary structure in array}
+@d pdf_ximage_objnum(#)    == vinfo(# + 5) {object number}
 
 @# {data structure of annotations; words 1..4 represent the coordinates of
     the annotation}
@@ -18872,7 +18871,7 @@ if (pdf_xform_list <> null) or (pdf_ximage_list <> null) then begin
         pdf_print_int(image_index(info(k)));
         pdf_print_resname_prefix;
         pdf_out(" ");
-        pdf_print_int(image_objnum(info(k)));
+        pdf_print_int(info(k));
         pdf_print(" 0 R ");
         update_image_procset(info(k));
         k := link(k);
@@ -19062,19 +19061,17 @@ pdf_text_procset := save_text_procset;
 pdf_image_procset := save_image_procset
 
 @ @<Declare procedures needed in |pdf_hlist_out|, |pdf_vlist_out|@>=
-procedure pdf_write_image(ref: integer); {write an image}
-var i, k: integer;
+procedure pdf_write_image(n: integer); {write an image}
 begin
-    k := image_objnum(ref);
-    pdf_begin_dict(image_objnum(ref), 0);
-    if fixed_pdf_draftmode = 0 then write_image(ref);
+    pdf_begin_dict(n, 0);
+    if fixed_pdf_draftmode = 0 then write_image(n);
 end;
 
 @ @<Write out pending images@>=
 if pdf_ximage_list <> null then begin
     k := pdf_ximage_list;
     while k <> null do begin
-        if not is_obj_written(image_objnum(info(k))) then
+        if not is_obj_written(info(k)) then
             pdf_write_image(info(k));
         k := link(k);
     end;
@@ -30837,8 +30834,8 @@ begin
     if attr <> 0 then flush_str(attr);
     scale_image(ref);
     pdf_last_ximage := k;
-    pdf_last_ximage_pages := image_pages(ref);
-    pdf_last_ximage_colordepth := image_colordepth(ref);
+    pdf_last_ximage_pages := image_pages(k);
+    pdf_last_ximage_colordepth := image_colordepth(k);
 end;
 
 @ @<Implement \.{\\pdfximage}@>=
@@ -30855,14 +30852,14 @@ begin
     pdf_check_obj(obj_type_ximage, cur_val);
     new_whatsit(pdf_refximage_node);
     j := obj_data_ptr(cur_val);
-    pdf_ximage_ref(tail) := j;
+    pdf_ximage_objnum(tail) := cur_val;
     pdf_width(tail) := image_width(j);
     pdf_height(tail) := image_height(j);
     pdf_depth(tail) := image_depth(j);
 end
 
 @ @p
-function lua_refximage(ref: integer): integer;
+function lua_refximage(ref: integer; make_whatsit: boolean): integer;
 var k: integer;
 begin
     check_pdfoutput("\pdfrefximage", true);
@@ -30874,11 +30871,13 @@ begin
 	k := obj_ptr;
 	set_image_index(ref, pdf_ximage_count);
     end;
-    new_whatsit(pdf_refximage_node);
-    pdf_ximage_ref(tail) := ref;
-    pdf_width(tail) := image_width(ref);
-    pdf_height(tail) := image_height(ref);
-    pdf_depth(tail) := image_depth(ref);
+    if make_whatsit = true then begin
+        new_whatsit(pdf_refximage_node);
+        pdf_ximage_objnum(tail) := k;
+        pdf_width(tail) := image_width(ref);
+        pdf_height(tail) := image_height(ref);
+        pdf_depth(tail) := image_depth(ref);
+    end;
     lua_refximage := k;
 end;
 
@@ -33011,17 +33010,18 @@ end
 @ @<Output a Image node in a vlist@>=
 begin cur_v:=cur_v+pdf_height(p)+pdf_depth(p);
   cur_h:=left_edge;
-  out_image(pdf_ximage_ref(p), cur_h-pdf_origin_h, pdf_origin_v-cur_v);
-  if pdf_lookup_list(pdf_ximage_list, pdf_ximage_ref(p)) = null then
-      pdf_append_list(pdf_ximage_ref(p))(pdf_ximage_list);
-  end
+  out_image(pdf_ximage_objnum(p), pdf_width(p), pdf_height(p), pdf_depth(p),
+            cur_h-pdf_origin_h, pdf_origin_v-cur_v);
+  if pdf_lookup_list(pdf_ximage_list, pdf_ximage_objnum(p)) = null then
+      pdf_append_list(pdf_ximage_objnum(p))(pdf_ximage_list);
+end
 
 @ @<Output a Form node in a vlist@>=
 begin cur_v:=cur_v+pdf_height(p);
   cur_h:=left_edge;
   out_form(p);
   cur_v:=cur_v+pdf_depth(p);
-  end
+end
 
 @ @<Output the whatsit node |p| in |pdf_hlist_out|@>=
 case subtype(p) of
@@ -33070,18 +33070,19 @@ endcases
 @ @<Output a Image node in a hlist@>=
 begin
   cur_v:=base_line+pdf_depth(p);
-  out_image(pdf_ximage_ref(p), cur_h-pdf_origin_h, pdf_origin_v-cur_v);
-  if pdf_lookup_list(pdf_ximage_list, pdf_ximage_ref(p)) = null then
-      pdf_append_list(pdf_ximage_ref(p))(pdf_ximage_list);
+  out_image(pdf_ximage_objnum(p), pdf_width(p), pdf_height(p), pdf_depth(p),
+            cur_h-pdf_origin_h, pdf_origin_v-cur_v);
+  if pdf_lookup_list(pdf_ximage_list, pdf_ximage_objnum(p)) = null then
+      pdf_append_list(pdf_ximage_objnum(p))(pdf_ximage_list);
   edge:=cur_h+pdf_width(p); cur_h:=edge; cur_v:=base_line;
-  end
+end
 
 @ @<Output a Form node in a hlist@>=
 begin
   cur_v:=base_line;
   out_form(p);
   edge:=cur_h+pdf_width(p); cur_h:=edge;
-  end
+end
 
 @* \[53a] The extended features of \eTeX.
 The program has two modes of operation:  (1)~In \TeX\ compatibility mode

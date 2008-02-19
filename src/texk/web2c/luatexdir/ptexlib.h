@@ -299,10 +299,6 @@ extern integer image_height(integer);
 extern integer image_depth(integer);
 extern integer image_objnum(integer);
 extern integer image_imgnum(integer);
-extern integer image_xsize(integer);
-extern integer image_ysize(integer);
-extern integer image_xres(integer);
-extern integer image_yres(integer);
 extern integer new_image_entry(void);
 extern integer read_image(integer, integer, strnumber, integer, strnumber,
                           strnumber, integer, integer, integer, integer);
@@ -313,7 +309,7 @@ extern integer image_colordepth(integer img);
 extern void scale_image(integer);
 extern void set_image_dimensions(integer, integer, integer, integer);
 extern void set_image_index(integer, integer);
-extern void out_image(integer, scaled, scaled);
+extern void out_image(integer, scaled, scaled, scaled, scaled, scaled);
 
 /* writejbig2.c */
 extern void flush_jbig2_page0_objects();
