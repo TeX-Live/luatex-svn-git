@@ -2144,23 +2144,49 @@ from their initial values that were just copies from \type{a}.
 
 % Hartmut, I don't know if this makes sense. An example of what
 % can, and what cannot be changed would be helpful.
+% -- will think about it...
 
 \subsubsubject{\luatex{img.write}}
 
 \startfunctioncall
-<image> var = img.write(<image> var) 
+<image> var = img.write(<image> var)
 <image> var = img.write(image_spec)
 \stopfunctioncall
 
-The image is written out by \type{img.write(a)}. 
+By \type{img.write(a)} a \PDF\ object number is allocated,
+and the image \type{a} is written out.
 
 Again you can do a terse call like
+
 \starttyping
 img.write{filename="foo.png"}
 \stoptyping
 
 The \type{<image>} variable is returned in case you want it for later
 processing.
+
+\subsubsubject{\luatex{img.node}}
+
+\startfunctioncall
+<node> n = img.node(<image> var)
+<node> n = img.node(image_spec)
+\stopfunctioncall
+
+This function allocates a \PDF\ object number
+and returns a whatsit node of subtype \type{pdf_refximage},
+filled with the image parameters \type{width}, \type{height},
+\type{depth}, and \type{objnum}.
+Also here you can do a terse call like:
+
+\starttyping
+n = img.node{filename="foo.png"}
+\stoptyping
+
+This example outputs an image:
+
+\starttyping
+node.write(img.node{filename="foo.png"})
+\stoptyping
 
 \subsubsubject{\luatex{img.types}}
 
