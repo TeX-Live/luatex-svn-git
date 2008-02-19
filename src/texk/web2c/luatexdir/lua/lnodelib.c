@@ -409,12 +409,16 @@ static int
 lua_nodelib_append(lua_State *L) {
   halfword *n;
   halfword m;
-  n = check_isnode(L,1);
-  m = copy_node_list(*n);
-  new_tail_append(m);
-  while (vlink(m)!= null) {
-    m = vlink(m);
-    new_tail_append(m);
+  int i, j;
+  j = lua_gettop(L);
+  for (i=1;i<=j;i++) {
+	n = check_isnode(L,i);
+	m = copy_node_list(*n);
+	new_tail_append(m);
+	while (vlink(m)!= null) {
+	  m = vlink(m);
+	  new_tail_append(m);
+	}
   }
   return 0;
 }
