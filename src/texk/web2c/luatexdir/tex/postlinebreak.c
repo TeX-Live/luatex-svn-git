@@ -486,20 +486,20 @@ void ext_post_line_break(boolean d,
 	 breakpoints. */	  
       r=temp_head;
       while(1) {
-	q=vlink(r);
-	if (q==cur_break(cur_p) || is_char_node(q))
-	  break;
-	if (!((type(q)==whatsit_node)&&(subtype(q)==local_par_node))) {
-	  if (non_discardable(q) 
-	      || (type(q)==kern_node && subtype(q)!=explicit ))
-	    break;
-	}
-	r=q; 
+		q=vlink(r);
+		if (q==cur_break(cur_p) || is_char_node(q))
+		  break;
+		if (!((type(q)==whatsit_node)&&(subtype(q)==local_par_node))) {
+		  if (non_discardable(q) 
+			  || (type(q)==kern_node && subtype(q)!=explicit ))
+			break;
+		}
+		r=q; 
       };
       if (r!=temp_head) { 
-	vlink(r)=null; 
-	flush_node_list(vlink(temp_head));
-    couple_nodes(temp_head,q);
+		vlink(r)=null; 
+		flush_node_list(vlink(temp_head));
+		try_couple_nodes(temp_head,q);
       }
     }
   } while (cur_p!=null);
