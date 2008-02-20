@@ -20227,11 +20227,14 @@ begin
     ef := get_ef_code(f, character(r));
     if ef = 0 then
         return;
-    if (pdf_font_stretch(f) <> null_font) and (ex_ratio > 0) then
+    if (pdf_font_expand_ratio(f)=0) and 
+       (pdf_font_stretch(f) <> null_font) and 
+       (ex_ratio > 0) then
         k := expand_font(f, ext_xn_over_d(ex_ratio*ef,
                                           pdf_font_expand_ratio(pdf_font_stretch(f)),
                                           1000000))
-    else if (pdf_font_shrink(f) <> null_font) and (ex_ratio < 0) then
+    else if (pdf_font_expand_ratio(f)=0) and 
+            (pdf_font_shrink(f) <> null_font) and (ex_ratio < 0) then
         k := expand_font(f, ext_xn_over_d(ex_ratio*ef,
                                           -pdf_font_expand_ratio(pdf_font_shrink(f)),
                                           1000000))
