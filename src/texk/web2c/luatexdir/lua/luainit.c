@@ -331,8 +331,11 @@ find_filename(char *name, char *envkey)
 void 
 init_kpse (void) {
 
-  if (!user_progname) 
-	user_progname = (string) dump_name;
+  if (!user_progname) {
+	user_progname = dump_name;
+  } else if (!dump_name) {
+	dump_name = user_progname;
+  }
   if (!user_progname) {
 	if (ini_version) {
 	  user_progname = input_name;
@@ -340,7 +343,7 @@ init_kpse (void) {
 	  if(!startup_filename) {
 		if (!dump_name) {
 		  dump_name = strdup(argv[0]);
-		  user_progname = (string) dump_name;
+		  user_progname = dump_name;
 		}
 	  }
 	}
