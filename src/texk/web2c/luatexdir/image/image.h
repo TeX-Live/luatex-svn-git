@@ -32,7 +32,8 @@ $Id$
 #  define IMAGE_COLOR_C   2
 #  define IMAGE_COLOR_I   4
 
-#  define bp2int(p)       round(p * (one_hundred_bp / 100.0))
+extern integer zround(double); /* from zround.c */
+#  define bp2int(p)       zround(p * (one_hundred_bp / 100.0))
 
 #  define TYPE_IMG        "image"
 #  define TYPE_IMG_DICT   "image-dict"
