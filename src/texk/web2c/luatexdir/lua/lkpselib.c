@@ -116,7 +116,7 @@ static const char *const filetypenames[] = {
 
 /* set to 1 by the |program_name| function */
 
-static int program_name_set  = 0;
+int program_name_set  = 0;
 
 #define TEST_PROGRAM_NAME_SET do {					\
     if (! program_name_set) {						\

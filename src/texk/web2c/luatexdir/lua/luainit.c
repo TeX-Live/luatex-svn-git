@@ -66,6 +66,7 @@ string input_name = NULL;
 static string user_progname = NULL;
 
 extern char *ptexbanner;
+extern int program_name_set; /* in lkpselib.c */
 
 /* for topenin() */
 extern char **argv;
@@ -350,6 +351,7 @@ init_kpse (void) {
 	  exit(1);
   } 
   kpse_set_program_name(argv[0], user_progname);
+  program_name_set=1;
 }
 
 void
