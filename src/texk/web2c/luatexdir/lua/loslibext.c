@@ -281,7 +281,7 @@ do_flatten_command(lua_State *L, char **runcmd) {
    }
    if (j == 1)
      return NULL;
-   cmdline = malloc(sizeof(char *) * j);
+   cmdline = malloc(sizeof(char *) * (j+1));
    for (i = 1; i <= j; i++) {
      cmdline[i] = NULL;
      lua_rawgeti(L,-1,i);
