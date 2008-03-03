@@ -220,20 +220,20 @@ static void lua_to_image(lua_State * L, image * a)
             luaL_error(L, "image.width is now read-only");
         if (lua_isnil(L, -1))
             set_wd_running(a);
-        else if (lua_isnumber(L, -1)) {
+        else if (lua_isnumber(L, -1))
             img_width(a) = lua_tointeger(L, -1);
-        } else
+        else
             luaL_error(L, "image.width needs integer or nil value");
         img_unset_scaled(a);
         break;
     case P_HEIGHT:
         if (img_is_refered(a))
             luaL_error(L, "image.height is now read-only");
-        if (lua_isnil(L, -1)) {
+        if (lua_isnil(L, -1))
             set_ht_running(a);
-        } else if (lua_isnumber(L, -1)) {
+        else if (lua_isnumber(L, -1))
             img_height(a) = lua_tointeger(L, -1);
-        } else
+        else
             luaL_error(L, "image.height needs integer or nil value");
         img_unset_scaled(a);
         break;
@@ -242,9 +242,9 @@ static void lua_to_image(lua_State * L, image * a)
             luaL_error(L, "image.depth is now read-only");
         if (lua_isnil(L, -1))
             set_dp_running(a);
-        else if (lua_isnumber(L, -1)) {
+        else if (lua_isnumber(L, -1))
             img_depth(a) = lua_tointeger(L, -1);
-        } else
+        else
             luaL_error(L, "image.depth needs integer or nil value");
         img_unset_scaled(a);
         break;
@@ -290,9 +290,9 @@ static void lua_to_image(lua_State * L, image * a)
             luaL_error(L, "image.colorspace is now read-only");
         if (lua_isnil(L, -1))
             img_colorspace(d) = 0;
-        else if (lua_isnumber(L, -1)) {
+        else if (lua_isnumber(L, -1))
             img_colorspace(d) = lua_tointeger(L, -1);
-        } else
+        else
             luaL_error(L, "image.colorspace needs integer or nil value");
         break;
     case P_PAGEBOX:
@@ -300,9 +300,9 @@ static void lua_to_image(lua_State * L, image * a)
             luaL_error(L, "image.pagebox is now read-only");
         if (lua_isnil(L, -1))
             img_pagebox(d) = PDF_BOX_SPEC_NONE;
-        else if (lua_isstring(L, -1)) {
+        else if (lua_isstring(L, -1))
             img_pagebox(d) = luaL_checkoption(L, -1, "none", pdfboxspec_s);
-        } else
+        else
             luaL_error(L, "image.pagebox needs string or nil value");
         break;
     case P_FILEPATH:
@@ -419,13 +419,15 @@ static int l_scan_image(lua_State * L)
     return 1;                   /* image */
 }
 
-void write_image_or_node(lua_State * L, boolean writeimg)
+typedef enum { WR_WRITE, WR_IMMEDIATEWRITE, WR_NODE } wrtype_e;
+
+void write_image_or_node(lua_State * L, wrtype_e writetype)
 {
     image *a, **aa;
-    integer ref, k;
+    integer ref;
+    const char *wrtype_s[] = { "write", "immediatewrite", "node" };
     if (lua_gettop(L) != 1)
-        luaL_error(L, "img.%s() needs exactly 1 argument",
-                   writeimg ? "write" : "node");
+        luaL_error(L, "img.%s() needs exactly 1 argument", wrtype_s[writetype]);
     if (lua_istable(L, 1))
         l_new_image(L);         /* image --- if everything worked well */
     aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);    /* image */
@@ -437,19 +439,29 @@ void write_image_or_node(lua_State * L, boolean writeimg)
     }
     fix_image_size(L, a);
     ref = img_to_array(a);
-    if (writeimg)
-        k = lua_refximage(ref, true);   /* image */
-    else {
+    switch (writetype) {
+    case WR_WRITE:
+        img_objnum(ad) = lua_refximage(ref, true);      /* image */
+        break;
+    case WR_IMMEDIATEWRITE:
+        check_pdfminorversion();        /* does initialization stuff */
+        img_objnum(ad) = lua_refximage(ref, false);     /* image */
+        pdf_begin_dict(img_objnum(ad), 0);
+        write_img(ad);
+        break;
+    case WR_NODE:
         lua_pop(L, 1);          /* - */
-        k = lua_refximage(ref, false);
+        img_objnum(ad) = lua_refximage(ref, false);
         halfword n = new_node(whatsit_node, pdf_refximage_node);
         pdf_width(n) = img_width(a);
         pdf_height(n) = img_height(a);
         pdf_depth(n) = img_depth(a);
-        pdf_ximage_objnum(n) = k;
+        pdf_ximage_objnum(n) = img_objnum(ad);
         lua_nodelib_push_fast(L, n);    /* node */
+        break;
+    default:
+        assert(0);
     }
-    img_objnum(ad) = k;
     if (img_state(ad) < DICT_REFERED)
         img_state(ad) = DICT_REFERED;
     img_set_refered(a);         /* now image may not be freed by gc */
@@ -457,13 +469,19 @@ void write_image_or_node(lua_State * L, boolean writeimg)
 
 static int l_write_image(lua_State * L)
 {
-    write_image_or_node(L, true);
+    write_image_or_node(L, WR_WRITE);
+    return 1;                   /* image */
+}
+
+static int l_immediatewrite_image(lua_State * L)
+{
+    write_image_or_node(L, WR_IMMEDIATEWRITE);
     return 1;                   /* image */
 }
 
 static int l_image_node(lua_State * L)
 {
-    write_image_or_node(L, false);
+    write_image_or_node(L, WR_NODE);
     return 1;                   /* node */
 }
 
@@ -516,6 +534,7 @@ static const struct luaL_Reg imglib[] = {
     {"copy", l_copy_image},
     {"scan", l_scan_image},
     {"write", l_write_image},
+    {"immediatewrite", l_immediatewrite_image},
     {"node", l_image_node},
     {"keys", l_image_keys},
     {"types", l_image_types},
