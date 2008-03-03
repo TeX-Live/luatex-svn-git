@@ -186,6 +186,7 @@ void init_image_size(image * p)
     set_wd_running(p);
     set_ht_running(p);
     set_dp_running(p);
+    img_transform(p) = 0;
     img_flags(p) = 0;
     img_unset_refered(p);       /* wd/ht/dp may be modified */
     img_unset_scaled(p);
@@ -334,6 +335,14 @@ void scale_img(image * img)
     y = img_ysize(idict);
     xr = img_xres(idict);
     yr = img_yres(idict);
+    if ((img_transform(img) & 1) == 1) {
+        int tmp = x;
+        x = y;
+        y = tmp;
+        tmp = xr;
+        xr = yr;
+        yr = tmp;
+    }
     if (xr > 65535 || yr > 65535) {
         xr = 0;
         yr = 0;
@@ -400,33 +409,96 @@ void scale_img(image * img)
     img_set_scaled(img);
 }
 
-void out_img(image_dict * idict, scaled wd, scaled ht, scaled dp, scaled hpos,
-             scaled vpos)
+void out_img(image * img, scaled hpos, scaled vpos)
 {
+    float a[6];                 /* transformation matrix */
+    int r;                      /* number of digits after the decimal point */
+    assert(img != 0);
+    image_dict *idict = img_dict(img);
     assert(idict != 0);
+    scaled wd = img_width(img);
+    scaled ht = img_height(img);
+    scaled dp = img_depth(img);
+    if (img_type(idict) == IMAGE_TYPE_PDF) {
+        a[1] = wd * 1.0e6 / img_xsize(idict);
+        a[2] = 0;
+        a[3] = 0;
+        a[4] = (ht + dp) * 1.0e6 / img_ysize(idict);
+        a[5] = hpos -
+            (float) wd *bp2int(img_pdf_orig_x(idict)) / img_xsize(idict);
+        a[6] = vpos -
+            (float) ht *bp2int(img_pdf_orig_y(idict)) / img_ysize(idict);
+        r = 6;
+    } else {
+        a[1] = wd * 1.0e6 / one_hundred_bp;
+        a[2] = 0;
+        a[3] = 0;
+        a[4] = (ht + dp) * 1.0e6 / one_hundred_bp;
+        a[5] = hpos;
+        a[6] = vpos;
+        r = 4;
+    }
+    switch (img_transform(img) & 7) {
+    case 0:                    /* unrotated */
+        break;
+    case 1:                    /* rot. 90 deg. (counterclockwise) */
+        a[2] = a[1] * (ht + dp) / wd;
+        a[1] = 0;
+        a[3] = -a[4] * wd / (ht + dp);
+        a[4] = 0;
+        a[5] += wd;
+        break;
+    case 2:                    /* rot. 180 deg. */
+        a[1] = -a[1];
+        a[4] = -a[4];
+        a[5] += wd;
+        a[6] += ht + dp;
+        break;
+    case 3:                    /* rot. 270 deg. */
+        a[2] = -a[1] * (ht + dp) / wd;
+        a[1] = 0;
+        a[3] = a[4] * wd / (ht + dp);
+        a[4] = 0;
+        a[6] += ht + dp;
+        break;
+    case 4:                    /* mirrored, unrotated */
+        a[1] = -a[1];
+        a[5] += wd;
+        break;
+    case 5:                    /* mirrored, then rot. 90 deg. */
+        a[2] = -a[1] * (ht + dp) / wd;
+        a[1] = 0;
+        a[3] = -a[4] * wd / (ht + dp);
+        a[4] = 0;
+        a[5] += wd;
+        a[6] += ht + dp;
+        break;
+    case 6:                    /* mirrored, then rot. 180 deg. */
+        a[4] = -a[4];
+        a[6] += ht + dp;
+        break;
+    case 7:                    /* mirrored, then rot. 270 deg. */
+        a[2] = a[1] * (ht + dp) / wd;
+        a[1] = 0;
+        a[3] = a[4] * wd / (ht + dp);
+        a[4] = 0;
+        break;
+    default:
+        assert(0);
+    }
     pdf_end_text();
     pdf_printf("q\n");
-    if (img_type(idict) == IMAGE_TYPE_PDF) {
-        pdf_print_real((integer) (wd * 1.0e6 / img_xsize(idict)), 6);
-        pdf_printf(" 0 0 ");
-        pdf_print_real((integer) ((ht + dp) * 1.0e6 / img_ysize(idict)), 6);
-        pdfout(' ');
-        pdf_print_bp(hpos -
-                     (integer) (wd * (float) bp2int(img_pdf_orig_x(idict)) /
-                                img_xsize(idict)));
-        pdfout(' ');
-        pdf_print_bp(vpos -
-                     (integer) (ht * (float) bp2int(img_pdf_orig_y(idict)) /
-                                img_ysize(idict)));
-    } else {
-        pdf_print_real((integer) (wd * 1.0e6 / one_hundred_bp), 4);
-        pdf_printf(" 0 0 ");
-        pdf_print_real((integer) ((ht + dp) * 1.0e6 / one_hundred_bp), 4);
-        pdfout(' ');
-        pdf_print_bp(hpos);
-        pdfout(' ');
-        pdf_print_bp(vpos);
-    }
+    pdf_print_real((integer) a[1], r);
+    pdfout(' ');
+    pdf_print_real((integer) a[2], r);
+    pdfout(' ');
+    pdf_print_real((integer) a[3], r);
+    pdfout(' ');
+    pdf_print_real((integer) a[4], r);
+    pdfout(' ');
+    pdf_print_bp((integer) a[5]);
+    pdfout(' ');
+    pdf_print_bp((integer) a[6]);
     pdf_printf(" cm\n/Im");
     pdf_print_int(img_index(idict));
     pdf_print_resname_prefix();
@@ -534,26 +606,25 @@ void scale_image(integer ref)
     scale_img(img_array[ref]);
 }
 
-void out_image(integer objnum, scaled wd, scaled ht, scaled dp, scaled hpos,
-               scaled vpos)
+void out_image(integer ref, scaled hpos, scaled vpos)
 {
-    image *a = img_array[obj_aux(objnum)];
-    out_img(img_dict(a), wd, ht, dp, hpos, vpos);
+    image *a = img_array[ref];
+    out_img(a, hpos, vpos);
 }
 
-void write_image(integer objnum)
+void write_image(integer ref)
 {
-    write_img(img_dict(img_array[obj_aux(objnum)]));
+    write_img(img_dict(img_array[ref]));
 }
 
-integer image_pages(integer objnum)
+integer image_pages(integer ref)
 {
-    return img_totalpages(img_dict(img_array[obj_aux(objnum)]));
+    return img_totalpages(img_dict(img_array[ref]));
 }
 
-integer image_colordepth(integer objnum)
+integer image_colordepth(integer ref)
 {
-    return img_colordepth(img_dict(img_array[obj_aux(objnum)]));
+    return img_colordepth(img_dict(img_array[ref]));
 }
 
 integer epdf_orig_x(integer ref)
@@ -571,9 +642,9 @@ integer image_objnum(integer ref)
     return img_objnum(img_dict(img_array[ref]));
 }
 
-integer image_index(integer objnum)
+integer image_index(integer ref)
 {
-    return img_index(img_dict(img_array[obj_aux(objnum)]));
+    return img_index(img_dict(img_array[ref]));
 }
 
 integer image_width(integer ref)
@@ -591,9 +662,9 @@ integer image_depth(integer ref)
     return img_depth(img_array[ref]);
 }
 
-void update_image_procset(integer objnum)
+void update_image_procset(integer ref)
 {
-    pdf_image_procset |= img_color(img_dict(img_array[obj_aux(objnum)]));
+    pdf_image_procset |= img_color(img_dict(img_array[ref]));
 }
 
 /**********************************************************************/

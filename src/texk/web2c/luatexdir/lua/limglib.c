@@ -43,7 +43,8 @@ static void stackDump(lua_State * L, char *s)
 
 typedef enum { P__ZERO, P_ATTR, P_COLORDEPTH, P_COLORSPACE, P_DEPTH, P_FILENAME,
     P_FILEPATH, P_HEIGHT, P_IMAGETYPE, P_INDEX, P_OBJNUM, P_PAGE, P_PAGEBOX,
-    P_TOTALPAGES, P_WIDTH, P_XRES, P_XSIZE, P_YRES, P_YSIZE, P__SENTINEL
+    P_TOTALPAGES, P_TRANSFORM, P_WIDTH, P_XRES, P_XSIZE, P_YRES, P_YSIZE,
+    P__SENTINEL
 } parm_idx;
 
 typedef struct {
@@ -66,6 +67,7 @@ parm_struct img_parms[] = {
     {"page", P_PAGE},
     {"pagebox", P_PAGEBOX},
     {"pages", P_TOTALPAGES},
+    {"transform", P_TRANSFORM},
     {"width", P_WIDTH},
     {"xres", P_XRES},
     {"xsize", P_XSIZE},
@@ -96,6 +98,28 @@ static void image_to_lua(lua_State * L, image * a)
     i = lua_tointeger(L, -1);   /* i k u ... */
     lua_pop(L, 2);              /* u ... */
     switch (i) {
+    case P_WIDTH:
+        if (is_wd_running(a))
+            lua_pushnil(L);
+        else
+            lua_pushinteger(L, img_width(a));
+        break;
+    case P_HEIGHT:
+        if (is_ht_running(a))
+            lua_pushnil(L);
+        else
+            lua_pushinteger(L, img_height(a));
+        break;
+    case P_DEPTH:
+        if (is_dp_running(a))
+            lua_pushnil(L);
+        else
+            lua_pushinteger(L, img_depth(a));
+        break;
+    case P_TRANSFORM:
+        lua_pushinteger(L, img_transform(a));
+        break;
+        /* now follow all image_dict entries */
     case P_FILENAME:
         if (img_filename(d) == NULL || strlen(img_filename(d)) == 0)
             lua_pushnil(L);
@@ -122,24 +146,6 @@ static void image_to_lua(lua_State * L, image * a)
         break;
     case P_TOTALPAGES:
         lua_pushinteger(L, img_totalpages(d));
-        break;
-    case P_WIDTH:
-        if (is_wd_running(a))
-            lua_pushnil(L);
-        else
-            lua_pushinteger(L, img_width(a));
-        break;
-    case P_HEIGHT:
-        if (is_ht_running(a))
-            lua_pushnil(L);
-        else
-            lua_pushinteger(L, img_height(a));
-        break;
-    case P_DEPTH:
-        if (is_dp_running(a))
-            lua_pushnil(L);
-        else
-            lua_pushinteger(L, img_depth(a));
         break;
     case P_XSIZE:
         lua_pushinteger(L, img_xsize(d));
@@ -248,6 +254,16 @@ static void lua_to_image(lua_State * L, image * a)
             luaL_error(L, "image.depth needs integer or nil value");
         img_unset_scaled(a);
         break;
+    case P_TRANSFORM:
+        if (img_is_refered(a))
+            luaL_error(L, "image.transform is now read-only");
+        if (lua_isnumber(L, -1))
+            img_transform(a) = lua_tointeger(L, -1);
+        else
+            luaL_error(L, "image.transform needs integer value");
+        img_unset_scaled(a);
+        break;
+        /* now follow all image_dict entries */
     case P_FILENAME:
         if (img_state(d) >= DICT_FILESCANNED)
             luaL_error(L, "image.filename is now read-only");
@@ -441,15 +457,15 @@ void write_image_or_node(lua_State * L, wrtype_e writetype)
     ref = img_to_array(a);
     switch (writetype) {
     case WR_WRITE:
-        img_objnum(ad) = lua_refximage(ref, true);      /* image */
-        break;
+        img_objnum(ad) = lua_refximage(ref, true);
+        break;                  /* image */
     case WR_IMMEDIATEWRITE:
         check_pdfminorversion();        /* does initialization stuff */
-        img_objnum(ad) = lua_refximage(ref, false);     /* image */
+        img_objnum(ad) = lua_refximage(ref, false);
         pdf_begin_dict(img_objnum(ad), 0);
         write_img(ad);
-        break;
-    case WR_NODE:
+        break;                  /* image */
+    case WR_NODE:              /* image */
         lua_pop(L, 1);          /* - */
         img_objnum(ad) = lua_refximage(ref, false);
         halfword n = new_node(whatsit_node, pdf_refximage_node);
@@ -457,8 +473,8 @@ void write_image_or_node(lua_State * L, wrtype_e writetype)
         pdf_height(n) = img_height(a);
         pdf_depth(n) = img_depth(a);
         pdf_ximage_objnum(n) = img_objnum(ad);
-        lua_nodelib_push_fast(L, n);    /* node */
-        break;
+        lua_nodelib_push_fast(L, n);
+        break;                  /* node */
     default:
         assert(0);
     }

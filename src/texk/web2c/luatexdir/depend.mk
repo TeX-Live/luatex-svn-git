@@ -96,8 +96,6 @@ font/mapfile.o: ../../../../src/texk/web2c/luatexdir/font/mapfile.c \
   ../../../../src/texk/web2c/luatexdir/luatex-api.h \
   \
   \
-  \
-  \
  
 font/pkin.o: ../../../../src/texk/web2c/luatexdir/font/pkin.c \
   ../../../../src/texk/web2c/luatexdir/ptexlib.h ../luatexd.h \
@@ -429,8 +427,6 @@ font/writet1.o: ../../../../src/texk/web2c/luatexdir/font/writet1.c \
   ../../../../src/texk/web2c/luatexdir/ptexlib.h \
   ../../../../src/texk/web2c/luatexdir/nodes.h \
   ../../../../src/texk/web2c/luatexdir/luatex-api.h \
-  \
-  \
   \
   \
  
@@ -823,8 +819,6 @@ font/texfont.o: ../../../../src/texk/web2c/luatexdir/font/texfont.c \
   ../../../../src/texk/web2c/luatexdir/luatex-api.h \
   \
   \
-  \
-  \
  
 font/tfmofm.o: ../../../../src/texk/web2c/luatexdir/font/tfmofm.c \
   ../../../../src/texk/web2c/luatexdir/ptexlib.h ../luatexd.h \
@@ -874,8 +868,6 @@ font/tfmofm.o: ../../../../src/texk/web2c/luatexdir/font/tfmofm.c \
   ../../../../src/texk/web2c/luatexdir/ptexlib.h \
   ../../../../src/texk/web2c/luatexdir/nodes.h \
   ../../../../src/texk/web2c/luatexdir/luatex-api.h \
-  \
-  \
   \
   \
  
@@ -929,13 +921,9 @@ font/vfovf.o: ../../../../src/texk/web2c/luatexdir/font/vfovf.c \
   ../../../../src/texk/web2c/luatexdir/luatex-api.h \
   \
   \
-  \
-  \
  
 font/luafont.o: ../../../../src/texk/web2c/luatexdir/font/luafont.c \
   ../../../../src/texk/web2c/luatexdir/luatex-api.h \
-  \
-  \
   \
   \
   \
@@ -1034,8 +1022,6 @@ font/dofont.o: ../../../../src/texk/web2c/luatexdir/font/dofont.c \
   ../../../../src/texk/web2c/luatexdir/ptexlib.h \
   ../../../../src/texk/web2c/luatexdir/nodes.h \
   ../../../../src/texk/web2c/luatexdir/luatex-api.h \
-  \
-  \
   \
   \
  
@@ -1180,8 +1166,6 @@ image/writeimg.o: ../../../../src/texk/web2c/luatexdir/image/writeimg.c \
   ../../../../src/texk/web2c/luatexdir/ptexlib.h \
   ../../../../src/texk/web2c/luatexdir/nodes.h \
   ../../../../src/texk/web2c/luatexdir/image/image.h \
-  \
-  \
   \
  
 image/writejbig2.o:  \
@@ -1336,8 +1320,6 @@ lua/loslibext.o: ../../../../src/texk/web2c/luatexdir/lua/loslibext.c \
   \
   \
   \
-  \
-  \
   ../../../../src/texk/web2c/luatexdir/ptexlib.h ../luatexd.h \
   ../../../../src/texk/web2c/luatexdir/../texmfmp.h \
   ../../../../src/texk/web2c/luatexdir/../cpascal.h \
@@ -1390,8 +1372,6 @@ lua/lcallbacklib.o:  \
   \
   \
   \
-  \
-  \
   ../../../../src/texk/web2c/luatexdir/ptexlib.h ../luatexd.h \
   ../../../../src/texk/web2c/luatexdir/../texmfmp.h \
   ../../../../src/texk/web2c/luatexdir/../cpascal.h \
@@ -1440,8 +1420,6 @@ lua/lcallbacklib.o:  \
   ../../../../src/texk/web2c/luatexdir/nodes.h
 lua/lkpselib.o: ../../../../src/texk/web2c/luatexdir/lua/lkpselib.c \
   ../../../../src/texk/web2c/luatexdir/luatex-api.h \
-  \
-  \
   \
   \
   \
@@ -1499,8 +1477,6 @@ lua/llualib.o: ../../../../src/texk/web2c/luatexdir/lua/llualib.c \
   \
   \
   \
-  \
-  \
   ../../../../src/texk/web2c/luatexdir/ptexlib.h ../luatexd.h \
   ../../../../src/texk/web2c/luatexdir/../texmfmp.h \
   ../../../../src/texk/web2c/luatexdir/../cpascal.h \
@@ -1549,8 +1525,6 @@ lua/llualib.o: ../../../../src/texk/web2c/luatexdir/lua/llualib.c \
   ../../../../src/texk/web2c/luatexdir/nodes.h
 lua/lnodelib.o: ../../../../src/texk/web2c/luatexdir/lua/lnodelib.c \
   ../../../../src/texk/web2c/luatexdir/luatex-api.h \
-  \
-  \
   \
   \
   \
@@ -1606,8 +1580,6 @@ lua/lpdflib.o: ../../../../src/texk/web2c/luatexdir/lua/lpdflib.c \
   \
   \
   \
-  \
-  \
   ../../../../src/texk/web2c/luatexdir/ptexlib.h ../luatexd.h \
   ../../../../src/texk/web2c/luatexdir/../texmfmp.h \
   ../../../../src/texk/web2c/luatexdir/../cpascal.h \
@@ -1656,8 +1628,6 @@ lua/lpdflib.o: ../../../../src/texk/web2c/luatexdir/lua/lpdflib.c \
   ../../../../src/texk/web2c/luatexdir/nodes.h
 lua/lstatslib.o: ../../../../src/texk/web2c/luatexdir/lua/lstatslib.c \
   ../../../../src/texk/web2c/luatexdir/luatex-api.h \
-  \
-  \
   \
   \
   \
@@ -1712,8 +1682,6 @@ lua/ltexiolib.o: ../../../../src/texk/web2c/luatexdir/lua/ltexiolib.c \
   \
   \
   \
-  \
-  \
   ../../../../src/texk/web2c/luatexdir/ptexlib.h ../luatexd.h \
   ../../../../src/texk/web2c/luatexdir/../texmfmp.h \
   ../../../../src/texk/web2c/luatexdir/../cpascal.h \
@@ -1762,8 +1730,6 @@ lua/ltexiolib.o: ../../../../src/texk/web2c/luatexdir/lua/ltexiolib.c \
   ../../../../src/texk/web2c/luatexdir/nodes.h
 lua/ltexlib.o: ../../../../src/texk/web2c/luatexdir/lua/ltexlib.c \
   ../../../../src/texk/web2c/luatexdir/luatex-api.h \
-  \
-  \
   \
   \
   \
@@ -1819,8 +1785,6 @@ lua/ltokenlib.o: ../../../../src/texk/web2c/luatexdir/lua/ltokenlib.c \
   \
   \
   \
-  \
-  \
   ../../../../src/texk/web2c/luatexdir/ptexlib.h ../luatexd.h \
   ../../../../src/texk/web2c/luatexdir/../texmfmp.h \
   ../../../../src/texk/web2c/luatexdir/../cpascal.h \
@@ -1869,8 +1833,6 @@ lua/ltokenlib.o: ../../../../src/texk/web2c/luatexdir/lua/ltokenlib.c \
   ../../../../src/texk/web2c/luatexdir/nodes.h
 lua/lfontlib.o: ../../../../src/texk/web2c/luatexdir/lua/lfontlib.c \
   ../../../../src/texk/web2c/luatexdir/luatex-api.h \
-  \
-  \
   \
   \
   \
@@ -1932,19 +1894,9 @@ lua/texluac.o: ../../../../src/texk/web2c/luatexdir/lua/texluac.c \
   \
   \
   \
-  \
-  \
-  \
-  \
-  \
-  \
-  \
-  \
  
 lua/luainit.o: ../../../../src/texk/web2c/luatexdir/lua/luainit.c \
   ../../../../src/texk/web2c/luatexdir/luatex-api.h \
-  \
-  \
   \
   \
   \
@@ -1999,8 +1951,6 @@ lua/luastuff.o: ../../../../src/texk/web2c/luatexdir/lua/luastuff.c \
   \
   \
   \
-  \
-  \
   ../../../../src/texk/web2c/luatexdir/ptexlib.h ../luatexd.h \
   ../../../../src/texk/web2c/luatexdir/../texmfmp.h \
   ../../../../src/texk/web2c/luatexdir/../cpascal.h \
@@ -2049,8 +1999,6 @@ lua/luastuff.o: ../../../../src/texk/web2c/luatexdir/lua/luastuff.c \
   ../../../../src/texk/web2c/luatexdir/nodes.h
 lua/luatex.o: ../../../../src/texk/web2c/luatexdir/lua/luatex.c \
   ../../../../src/texk/web2c/luatexdir/luatex-api.h \
-  \
-  \
   \
   \
   \
@@ -2106,8 +2054,6 @@ lua/luatoken.o: ../../../../src/texk/web2c/luatexdir/lua/luatoken.c \
   \
   \
   \
-  \
-  \
   ../../../../src/texk/web2c/luatexdir/ptexlib.h ../luatexd.h \
   ../../../../src/texk/web2c/luatexdir/../texmfmp.h \
   ../../../../src/texk/web2c/luatexdir/../cpascal.h \
@@ -2157,8 +2103,6 @@ lua/luatoken.o: ../../../../src/texk/web2c/luatexdir/lua/luatoken.c \
   ../../../../src/texk/web2c/luatexdir/tokens.h
 lua/luanode.o: ../../../../src/texk/web2c/luatexdir/lua/luanode.c \
   ../../../../src/texk/web2c/luatexdir/luatex-api.h \
-  \
-  \
   \
   \
   \
@@ -2214,8 +2158,6 @@ lua/llanglib.o: ../../../../src/texk/web2c/luatexdir/lua/llanglib.c \
   \
   \
   \
-  \
-  \
   ../../../../src/texk/web2c/luatexdir/ptexlib.h ../luatexd.h \
   ../../../../src/texk/web2c/luatexdir/../texmfmp.h \
   ../../../../src/texk/web2c/luatexdir/../cpascal.h \
@@ -2266,8 +2208,6 @@ lua/llanglib.o: ../../../../src/texk/web2c/luatexdir/lua/llanglib.c \
 lua/limglib.o: ../../../../src/texk/web2c/luatexdir/lua/limglib.c \
   \
   \
-  \
-  \
   ../../../../src/texk/web2c/luatexdir/ptexlib.h ../luatexd.h \
   ../../../../src/texk/web2c/luatexdir/../texmfmp.h \
   ../../../../src/texk/web2c/luatexdir/../cpascal.h \
@@ -2315,6 +2255,7 @@ lua/limglib.o: ../../../../src/texk/web2c/luatexdir/lua/limglib.c \
   ../../../../src/texk/web2c/luatexdir/ptexlib.h \
   ../../../../src/texk/web2c/luatexdir/nodes.h \
   ../../../../src/texk/web2c/luatexdir/lua/../image/image.h
+lang/hnjalloc.o: ../../../../src/texk/web2c/luatexdir/lang/hnjalloc.c
 lang/hyphen.o: ../../../../src/texk/web2c/luatexdir/lang/hyphen.c \
   ../../../../src/texk/web2c/luatexdir/lang/hnjalloc.h \
   ../../../../src/texk/web2c/luatexdir/hyphen.h \
@@ -2365,8 +2306,6 @@ lang/hyphen.o: ../../../../src/texk/web2c/luatexdir/lang/hyphen.c \
   ../../../../src/texk/web2c/luatexdir/nodes.h
 lang/texlang.o: ../../../../src/texk/web2c/luatexdir/lang/texlang.c \
   ../../../../src/texk/web2c/luatexdir/luatex-api.h \
-  \
-  \
   \
   \
   \
@@ -2423,8 +2362,6 @@ tex/linebreak.o: ../../../../src/texk/web2c/luatexdir/tex/linebreak.c \
   \
   \
   \
-  \
-  \
   ../../../../src/texk/web2c/luatexdir/ptexlib.h ../luatexd.h \
   ../../../../src/texk/web2c/luatexdir/../texmfmp.h \
   ../../../../src/texk/web2c/luatexdir/../cpascal.h \
@@ -2475,8 +2412,6 @@ tex/linebreak.o: ../../../../src/texk/web2c/luatexdir/tex/linebreak.c \
 tex/postlinebreak.o:  \
  ../../../../src/texk/web2c/luatexdir/tex/postlinebreak.c \
   ../../../../src/texk/web2c/luatexdir/luatex-api.h \
-  \
-  \
   \
   \
   \
@@ -2532,8 +2467,6 @@ tex/texnodes.o: ../../../../src/texk/web2c/luatexdir/tex/texnodes.c \
   \
   \
   \
-  \
-  \
   ../../../../src/texk/web2c/luatexdir/ptexlib.h ../luatexd.h \
   ../../../../src/texk/web2c/luatexdir/../texmfmp.h \
   ../../../../src/texk/web2c/luatexdir/../cpascal.h \
@@ -2583,8 +2516,6 @@ tex/texnodes.o: ../../../../src/texk/web2c/luatexdir/tex/texnodes.c \
   ../../../../src/texk/web2c/luatexdir/nodes.h
 tex/textoken.o: ../../../../src/texk/web2c/luatexdir/tex/textoken.c \
   ../../../../src/texk/web2c/luatexdir/luatex-api.h \
-  \
-  \
   \
   \
   \
@@ -2640,8 +2571,6 @@ tex/texpdf.o: ../../../../src/texk/web2c/luatexdir/tex/texpdf.c \
   \
   \
   \
-  \
-  \
   ../../../../src/texk/web2c/luatexdir/ptexlib.h ../luatexd.h \
   ../../../../src/texk/web2c/luatexdir/../texmfmp.h \
   ../../../../src/texk/web2c/luatexdir/../cpascal.h \
@@ -2690,8 +2619,6 @@ tex/texpdf.o: ../../../../src/texk/web2c/luatexdir/tex/texpdf.c \
   ../../../../src/texk/web2c/luatexdir/nodes.h
 managed-sa.o: ../../../../src/texk/web2c/luatexdir/managed-sa.c \
   ../../../../src/texk/web2c/luatexdir/luatex-api.h \
-  \
-  \
   \
   \
   \
@@ -2747,8 +2674,6 @@ mathcodes.o: ../../../../src/texk/web2c/luatexdir/mathcodes.c \
   \
   \
   \
-  \
-  \
   ../../../../src/texk/web2c/luatexdir/ptexlib.h ../luatexd.h \
   ../../../../src/texk/web2c/luatexdir/../texmfmp.h \
   ../../../../src/texk/web2c/luatexdir/../cpascal.h \
@@ -2798,8 +2723,6 @@ mathcodes.o: ../../../../src/texk/web2c/luatexdir/mathcodes.c \
   ../../../../src/texk/web2c/luatexdir/managed-sa.h
 textcodes.o: ../../../../src/texk/web2c/luatexdir/textcodes.c \
   ../../../../src/texk/web2c/luatexdir/luatex-api.h \
-  \
-  \
   \
   \
   \

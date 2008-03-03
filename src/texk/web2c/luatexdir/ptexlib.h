@@ -309,7 +309,7 @@ extern integer image_colordepth(integer img);
 extern void scale_image(integer);
 extern void set_image_dimensions(integer, integer, integer, integer);
 extern void set_image_index(integer, integer);
-extern void out_image(integer, scaled, scaled, scaled, scaled, scaled);
+extern void out_image(integer, scaled, scaled);
 
 /* writejbig2.c */
 extern void flush_jbig2_page0_objects();

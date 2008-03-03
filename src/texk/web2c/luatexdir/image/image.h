@@ -135,8 +135,6 @@ typedef struct {
 #  define img_pdf_height(N)     ((N)->img_struct.pdf->height)
 #  define img_pdf_orig_x(N)     ((N)->img_struct.pdf->orig_x)
 #  define img_pdf_orig_y(N)     ((N)->img_struct.pdf->orig_y)
-#  define img_pdf_page_box(N)   ((N)->img_struct.pdf->page_box)
-#  define img_pdf_page_name(N)  ((N)->img_struct.pdf->page_name)
 #  define img_pdf_doc(N)        ((N)->img_struct.pdf->doc)
 
 #  define img_png_ptr(N)        ((N)->img_struct.png)
@@ -154,6 +152,7 @@ typedef struct {
     integer width;              /* requested/actual TeX dimensions */
     integer height;
     integer depth;
+    integer transform;
     integer flags;
     image_dict *dict;
     int dict_ref;               /* luaL_ref() reference */
@@ -162,6 +161,7 @@ typedef struct {
 #  define img_width(N)          ((N)->width)
 #  define img_height(N)         ((N)->height)
 #  define img_depth(N)          ((N)->depth)
+#  define img_transform(N)      ((N)->transform)
 #  define img_flags(N)          ((N)->flags)
 #  define img_dict(N)           ((N)->dict)
 #  define img_dictref(N)        ((N)->dict_ref)
