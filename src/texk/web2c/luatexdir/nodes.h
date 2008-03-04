@@ -490,7 +490,8 @@ typedef enum {
 #define pdf_height(a)        varmem[(a) + 3].cint
 #define pdf_depth(a)         varmem[(a) + 4].cint
 
-#define pdf_ximage_objnum(a) vinfo((a) + 5)
+#define pdf_ximage_objnum(a) vinfo((a) + 5) /* this will be removed soon */
+#define pdf_ximage_ref(a)    vinfo((a) + 5)
 #define pdf_xform_objnum(a)  vinfo((a) + 5)
 
 #define pdf_annot_data(a)       vinfo((a) + 6)
