@@ -472,7 +472,7 @@ void write_image_or_node(lua_State * L, wrtype_e writetype)
         pdf_width(n) = img_width(a);
         pdf_height(n) = img_height(a);
         pdf_depth(n) = img_depth(a);
-        pdf_ximage_objnum(n) = img_objnum(ad);
+        pdf_ximage_ref(n) = ref;
         lua_nodelib_push_fast(L, n);
         break;                  /* node */
     default:
