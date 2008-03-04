@@ -2079,6 +2079,7 @@ keys, both user-supplied and automatic ones.
 \NC depth         \NC number   \NC Image depth for \LUATEX\ (in scaled points)\NC \NR
 \NC height        \NC number   \NC Image height for \LUATEX\ (in scaled points)\NC \NR
 \NC width         \NC number   \NC Image width for \LUATEX\  (in scaled points)\NC \NR
+\NC transform     \NC number   \NC Image transform, integer number 0..7\NC \NR
 \NC attr          \NC string   \NC Image attributes for \LUATEX \NC \NR
 \NC filename      \NC string   \NC Image file name \NC \NR
 \NC page          \NC ??       \NC Identifier for the requested image
@@ -2102,6 +2103,15 @@ keys, both user-supplied and automatic ones.
 A running (undefined) dimension in \type{width}, \type{height}, or \type{depth} is
 represented as \type{nil} in Lua, so if you want to load an image at
 its `natural' size, you do not have to specify any of those three fields.
+
+The \type{transform} allows to mirror and rotate the image in steps of 90~deg.
+The default value~0 gives an unmirrored, unrotated image.
+Values 1..3 give counterclockwise rotation by 90, 180, or 270~deg.,
+whereas with values 4..7 the image is first mirrored
+and then rotated counterclockwise by 90, 180, or 270~deg.
+The \type{transform} operation gives the same visual result
+as if you would externally preprocess the image by a graphics tool
+and then use it by \LUATEX.
 
 \subsubsubject{\luatex{img.scan}}
 
@@ -2158,7 +2168,11 @@ from their initial values that were just copies from \type{a}.
 \stopfunctioncall
 
 By \type{img.write(a)} a \PDF\ object number is allocated,
-and the image \type{a} is written out.
+and a whatsit node of subtype \type{pdf_refximage} is generated
+and put into the output list.
+By this the image \type{a} is placed into the \PDF\ page stream,
+and the image file is written out into an image stream object
+after the shipping of the current page is finished.
 
 Again you can do a terse call like
 
@@ -2168,6 +2182,33 @@ img.write{filename="foo.png"}
 
 The \type{<image>} variable is returned in case you want it for later
 processing.
+
+\subsubsubject{\luatex{img.immediatewrite}}
+
+\startfunctioncall
+<image> var = img.immediatewrite(<image> var)
+<image> var = img.immediatewrite(image_spec)
+\stopfunctioncall
+
+By \type{img.immediatewrite(a)} a \PDF\ object number is allocated,
+and the image file for image \type{a} is written out immediately
+into the \PDF\ file as an image stream object
+(like with \type{\immediate\pdfximage}).
+The object number of the image stream dictionary is then available
+by the \type{objnum} key.
+No \type{pdf_refximage} whatsit node is generated.
+You will need a \luatex{img.write(a)} call
+to let the image appear on the page,
+or reference it by another trick;
+else you will have a dangling image object in the \PDF\ file.
+
+Also here you can do a terse call like
+
+\starttyping
+a = img.immediatewrite{filename="foo.png"}
+\stoptyping
+
+The \type{<image>} variable is returned; you will most likely need it.
 
 \subsubsubject{\luatex{img.node}}
 
