@@ -88,6 +88,9 @@ lua/luatoken.o \
 lua/luanode.o \
 lua/llanglib.o \
 lua/limglib.o \
+lua/mp.o \
+lua/psout.o \
+lua/lmplib.o \
 lang/hnjalloc.o \
 lang/hyphen.o \
 lang/texlang.o \
@@ -104,10 +107,16 @@ writezip.o
 
 all: libpdf.a makecpool
 
-libpdf.a: $(OBJS)
+libpdf.a: lua/mp.c lua/psout.c $(OBJS)
 	rm -f $@
 	$(AR) $(ARFLAGS) $@  $(OBJS)
 	$(RANLIB) $@
+
+lua/mp.c: lua/mp.w
+	ctangle $(srcdir)/lua/mp.w - lua/mp.c
+
+lua/psout.c: lua/psout.w
+	ctangle $(srcdir)/lua/psout.w - lua/psout.c
 
 makecpool: makecpool.o
 	$(link_command) makecpool.o

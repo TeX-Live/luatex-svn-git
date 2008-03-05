@@ -1,0 +1,1 @@
+/opt/tex/metapost/svn/mplib/trunk/src/texk/web2c/mpdir/lib/psout.w
