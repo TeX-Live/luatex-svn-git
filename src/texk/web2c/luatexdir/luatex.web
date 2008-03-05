@@ -16886,7 +16886,7 @@ destination |pdf_left| and |pdf_top| are used for some types of destinations}
 @# {data structure for \.{\\pdfximage} and \.{\\pdfrefximage}}
 @d pdf_refximage_node_size == 6 {size of whatsit node for ximage; words 2..4
                                are image dimensions}
-@d pdf_ximage_ref(#)       == vinfo(# + 5) {image reference number}
+@d pdf_ximage_ref(#)       == vmem(# + 5).int {image reference number}
 
 @# {data structure of annotations; words 1..4 represent the coordinates of
     the annotation}
