@@ -374,8 +374,8 @@ void ext_post_line_break(boolean d,
       cur_width=first_width; 
       cur_indent=first_indent;
     } else  { 
-      cur_width=varmem[(par_shape_ptr+2*cur_line)].cint;
-      cur_indent=varmem[(par_shape_ptr+2*cur_line-1)].cint;
+      cur_indent=varmem[(par_shape_ptr+2*cur_line)].cint;
+      cur_width=varmem[(par_shape_ptr+2*cur_line+1)].cint;
     }
     adjust_tail=adjust_head;
     pack_direction=paragraph_dir;

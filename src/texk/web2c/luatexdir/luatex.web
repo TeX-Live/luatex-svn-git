@@ -84,6 +84,7 @@
 \def\Aleph{Aleph}
 \def\eTeX{e\TeX}
 \def\LuaTeX{Lua\TeX}
+\def\THANH{H\`an Th\^e\llap{\raise 0.5ex\hbox{\'{}}} Th\`anh}
 \def\ph{\hbox{Pascal-H}}
 \def\pct!{{\char`\%}} % percent sign in ordinary text
 \def\grp{\.{\char'173...\char'175}}
@@ -241,9 +242,9 @@ known as `\eTeX'.
 @d pdftex_revision=="0" { \.{\\pdftexrevision} }
 @d pdftex_version_string=='-2.00.0' {current \pdfTeX\ version}
 @#
-@d luatex_version==22 { \.{\\luatexversion} }
-@d luatex_revision=="1" { \.{\\luatexrevision} }
-@d luatex_version_string=='snapshot-0.22.1' {current \LuaTeX\ version}
+@d luatex_version==23 { \.{\\luatexversion} }
+@d luatex_revision=="0" { \.{\\luatexrevision} }
+@d luatex_version_string=='snapshot-0.23.0' {current \LuaTeX\ version}
 @d luatex_date_info==-extra_version_info { the compile date is negated }
 @#
 @d luaTeX_banner=='This is LuaTeX, Version ',luatex_version_string,extra_version_info
@@ -28584,10 +28585,10 @@ set_shape: begin q:=cur_chr; scan_optional_equals; scan_int; n:=cur_val;
       end;
     if not odd(n) then vmem(p+n+3).int:=0; {unused}
     end
-  else  begin p:=new_node(shape_node,2*n+1); vinfo(p+1):=n;
+  else  begin p:=new_node(shape_node,2*(n+1)+1); vinfo(p+1):=n;
     for j:=1 to n do
       begin scan_normal_dimen;
-      vmem(p+2*j-1+1).sc:=cur_val; {indentation}
+      vmem(p+2*j).sc:=cur_val; {indentation}
       scan_normal_dimen;
       vmem(p+2*j+1).sc:=cur_val; {width}
       end;

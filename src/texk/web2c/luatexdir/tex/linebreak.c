@@ -1097,7 +1097,7 @@ ext_try_break(integer pi,
         } else if (par_shape_ptr==null) {
           line_width=first_width;                                
         } else {
-          line_width=varmem[(par_shape_ptr+2*l)].cint;        
+          line_width=varmem[(par_shape_ptr+2*l+1)].cint;        
         }
       }
     }
@@ -1494,9 +1494,9 @@ ext_do_line_break (boolean d,
       }
     }
   } else {
-    last_special_line=vinfo(par_shape_ptr)-1;
-    second_width=varmem[(par_shape_ptr+2*(last_special_line+1))].cint;
-    second_indent=varmem[(par_shape_ptr+2*last_special_line+1)].cint;
+    last_special_line=vinfo(par_shape_ptr+1)-1;
+    second_indent=varmem[(par_shape_ptr+(2*last_special_line))].cint;
+    second_width=varmem[(par_shape_ptr+2*(last_special_line+1)+1)].cint;
   }
   if (looseness==0) 
     easy_line=last_special_line;
