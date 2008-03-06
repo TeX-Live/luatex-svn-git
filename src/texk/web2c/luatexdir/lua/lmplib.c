@@ -158,15 +158,19 @@ typedef struct _FILE_ITEM {
 
 typedef struct _FILE_ITEM File;
 
+#define make_stream_buf(A) char *A; size_t A##_size; size_t A##_used
+
+#define free_stream_buf(A) xfree(mplib_data->A); mplib_data->A##_size = 0; mplib_data->A##_used = 0
+
 typedef struct _MPLIB_INSTANCE_DATA {
   void *term_file_ptr;
   void *err_file_ptr;
   void *log_file_ptr;
   void *ps_file_ptr;
-  char *term_out;
-  char *error_out;
-  char *log_out;
-  char *ps_out;
+  make_stream_buf(term_out);
+  make_stream_buf(error_out);
+  make_stream_buf(log_out);
+  make_stream_buf(ps_out);
   char *input_data;
   char *input_data_ptr;
   size_t input_data_len;
@@ -344,13 +348,13 @@ char *mplib_read_ascii_file (MP mp, void *ff, size_t *size) {
   return s;
 }
 
-#define APPEND_STRING(a,b) do {			\
-    if (a==NULL) {				\
-      a = strdup(b);				\
-    } else {					\
-      a = realloc(a, strlen(a)+strlen(b)+1);	\
-      strcpy(a+strlen(a),b);			\
-    }						\
+#define APPEND_STRING(a,b) do {						\
+    if ((mplib_data->a##_used+strlen(b))>=mplib_data->a##_size) {	\
+      mplib_data->a##_size += 256+(mplib_data->a##_size)/5+strlen(b);	\
+      mplib_data->a = realloc(mplib_data->a,mplib_data->a##_size);	\
+    }									\
+    (void)strcpy(mplib_data->a+mplib_data->a##_used,b);			\
+    mplib_data->a##_used += strlen(b);					\
   } while (0)
 
 void mplib_write_ascii_file (MP mp, void *ff, char *s) {
@@ -359,13 +363,13 @@ void mplib_write_ascii_file (MP mp, void *ff, char *s) {
     void *f = ((File *)ff)->f;
     if (f!=NULL) {
       if (f==mplib_data->term_file_ptr) {
-	APPEND_STRING(mplib_data->term_out,s);
+	APPEND_STRING(term_out,s);
       } else if (f==mplib_data->err_file_ptr) {
-	APPEND_STRING(mplib_data->error_out,s);
+	APPEND_STRING(error_out,s);
       } else if (f==mplib_data->log_file_ptr) {
-	APPEND_STRING(mplib_data->log_out,s);
+	APPEND_STRING(log_out,s);
       } else if (f==mplib_data->ps_file_ptr) {
-        APPEND_STRING(mplib_data->ps_out,s);
+        APPEND_STRING(ps_out,s);
       } else {
 	fprintf((FILE *)f,s);
       }
@@ -583,17 +587,17 @@ mplib_wrapresults(lua_State *L, mplib_instance *mplib_data, int h) {
    if (mplib_data->term_out != NULL) {
      lua_pushstring(L,mplib_data->term_out);
      lua_setfield(L,-2,"term");
-     xfree(mplib_data->term_out);
+     free_stream_buf(term_out);
    }
    if (mplib_data->error_out != NULL) {
      lua_pushstring(L,mplib_data->error_out);
      lua_setfield(L,-2,"error");
-     xfree(mplib_data->error_out);
+     free_stream_buf(error_out);
    } 
    if (mplib_data->log_out != NULL ) {
      lua_pushstring(L,mplib_data->log_out);
      lua_setfield(L,-2,"log");
-     xfree(mplib_data->log_out);
+     free_stream_buf(log_out);
    }
    if (mplib_data->edges != NULL ) {
      struct mp_edge_object **v;
@@ -734,7 +738,7 @@ mplib_fig_postscript (lua_State *L) {
     if (mp_wrapped_shipout(*hh,prologues, procset)) {
       if (mplib_data->ps_out!=NULL ) {
 	lua_pushstring(L, mplib_data->ps_out);
-	xfree(mplib_data->ps_out);
+	free_stream_buf(ps_out);
       } else {
 	lua_pushnil(L);
       }
