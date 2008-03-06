@@ -22,6 +22,41 @@
 #define MPLIB_FIG_METATABLE "MPlib.fig"
 #define MPLIB_GR_METATABLE  "MPlib.gr"
 
+#define mplib_init_S(a) do {						\
+    lua_pushliteral(L,#a);                                              \
+    mplib_##a##_index = luaL_ref (L,LUA_REGISTRYINDEX);			\
+  } while (0)
+
+#define mplib_push_S(a) do {						\
+    lua_rawgeti(L,LUA_REGISTRYINDEX,mplib_##a##_index);			\
+  } while (0)
+
+#define mplib_make_S(a)	static int mplib_##a##_index = 0;
+
+mplib_make_S(left_type);
+mplib_make_S(right_type);
+mplib_make_S(x_coord);
+mplib_make_S(y_coord);
+mplib_make_S(left_x);
+mplib_make_S(left_y);
+mplib_make_S(right_x);
+mplib_make_S(right_y);
+mplib_make_S(originator);
+
+void mplib_init_Ses(lua_State *L) {
+  mplib_init_S(left_type);
+  mplib_init_S(right_type);
+  mplib_init_S(x_coord);
+  mplib_init_S(y_coord);
+  mplib_init_S(left_x);
+  mplib_init_S(left_y);
+  mplib_init_S(right_x);
+  mplib_init_S(right_y);
+  mplib_init_S(originator);
+}
+
+
+
 #define xfree(A) if ((A)!=NULL) { free((A)); A = NULL; }
 
 #define is_mp(L,b) (MP *)luaL_checkudata(L,b,MPLIB_METATABLE)
@@ -340,6 +375,7 @@ void mplib_write_ascii_file (MP mp, void *ff, char *s) {
 
 void mplib_read_binary_file (MP mp, void *ff, void **data, size_t *size) {
   size_t len = 0;
+  (void)mp;
   if (ff!=NULL) {
     FILE *f = ((File *)ff)->f;
     if (f!=NULL) 
@@ -349,6 +385,7 @@ void mplib_read_binary_file (MP mp, void *ff, void **data, size_t *size) {
 }
 
 void mplib_write_binary_file (MP mp, void *ff, void *s, size_t size) {
+  (void)mp;
   if (ff!=NULL) {
     FILE *f = ((File *)ff)->f;
     if (f!=NULL)
@@ -384,6 +421,8 @@ int mplib_eof_file (MP mp, void *ff) {
 }
 
 void mplib_flush_file (MP mp, void *ff) {
+  (void)mp;
+  (void)ff;
   return ;
 }
 
@@ -646,6 +685,25 @@ mplib_fig_body (lua_State *L) {
   return 1;
 }
 
+static int
+mplib_fig_copy_body (lua_State *L) {
+  int i = 1;
+  struct mp_graphic_object **v;
+  struct mp_graphic_object *p;
+  struct mp_edge_object **hh = is_fig(L,1);
+  lua_newtable(L);
+  p = (*hh)->body;
+  while (p!=NULL) {
+    v = lua_newuserdata (L, sizeof(struct mp_graphic_object *));
+    *v = mp_gr_copy_object((*hh)->_parent,p);
+    luaL_getmetatable(L,MPLIB_GR_METATABLE);
+    lua_setmetatable(L,-2);
+    lua_rawseti(L,-2,i); i++;
+    p = p->_link_field;
+  }
+  return 1;
+}
+
 
 static int
 mplib_fig_tostring (lua_State *L) {
@@ -754,25 +812,34 @@ mplib_push_path (lua_State *L, struct mp_knot *h ) {
   if (p!=NULL) {
     lua_newtable(L);
     do {  
-      lua_newtable(L);
+      lua_createtable(L,0,9);
+      mplib_push_S(originator);
       lua_pushstring(L,knot_originator_enum[p->originator_field]);
-      lua_setfield(L,-2,"originator");
+      lua_rawset(L,-3);
+      mplib_push_S(left_type);
       lua_pushstring(L,knot_type_enum[p->left_type_field]);
-      lua_setfield(L,-2,"left_type");
+      lua_rawset(L,-3);
+      mplib_push_S(right_type);
       lua_pushstring(L,knot_type_enum[p->right_type_field]);
-      lua_setfield(L,-2,"right_type");
+      lua_rawset(L,-3);
+      mplib_push_S(x_coord);
       mplib_push_number(L,p->x_coord_field);
-      lua_setfield(L,-2,"x_coord");
+      lua_rawset(L,-3);
+      mplib_push_S(y_coord);
       mplib_push_number(L,p->y_coord_field);
-      lua_setfield(L,-2,"y_coord");
+      lua_rawset(L,-3);
+      mplib_push_S(left_x);
       mplib_push_number(L,p->left_x_field);
-      lua_setfield(L,-2,"left_x");
+      lua_rawset(L,-3);
+      mplib_push_S(left_y);
       mplib_push_number(L,p->left_y_field);
-      lua_setfield(L,-2,"left_y");
+      lua_rawset(L,-3);
+      mplib_push_S(right_x);
       mplib_push_number(L,p->right_x_field);
-      lua_setfield(L,-2,"right_x");
+      lua_rawset(L,-3);
+      mplib_push_S(right_y);
       mplib_push_number(L,p->right_y_field);
-      lua_setfield(L,-2,"right_y");
+      lua_rawset(L,-3);
       lua_rawseti(L,-2,i); i++;
       if ( p->right_type_field==mp_endpoint ) { 
 	return;
@@ -829,17 +896,25 @@ mplib_push_color (lua_State *L, struct mp_graphic_object *h ) {
   }
 }
 
-/* dashes are complicated, perhaps it would be better if the
-  object had a PS-compatible representation */
+/* the dash scale is not exported, the field has no external value */
 static void 
 mplib_push_dash (lua_State *L, struct mp_graphic_object *h ) {
-  if (h!=NULL) {
+  mp_dash_object *d;
+  if (h!=NULL && h->dash_p_field != NULL) {
+    d  = h->dash_p_field;
     lua_newtable(L);
-    mplib_push_number(L,h->dash_scale_field);
-    lua_setfield(L,-2,"scale");
-    /* todo */
-    lua_pushnumber(L,(int)h->dash_p_field);
-    lua_setfield(L,-2,"dashes");
+    mplib_push_number(L,d->offset_field);
+    lua_setfield(L,-2,"offset");
+    if (d->array_field!=NULL ) {
+      int i = 0;
+      lua_newtable(L);
+      while (*(d->array_field+i) != -1) {
+	mplib_push_number(L, *(d->array_field+1));
+	i++;
+	lua_rawseti(L,-2,i);
+      }
+      lua_setfield(L,-2,"dashes");
+    }
   } else {
     lua_pushnil(L);
   }
@@ -1063,6 +1138,7 @@ static const struct luaL_reg mplib_fig_meta[] = {
   {"__gc",               mplib_fig_collect    },
   {"__tostring",         mplib_fig_tostring   },
   {"objects",            mplib_fig_body       },
+  {"copy_objects",       mplib_fig_copy_body  },
   {"filename",           mplib_fig_filename   },
   {"postscript",         mplib_fig_postscript },
   {"boundingbox",        mplib_fig_bb         },
@@ -1093,6 +1169,7 @@ static const struct luaL_reg mplib_m[] = {
 
 int 
 luaopen_mp (lua_State *L) {
+  mplib_init_Ses(L);
   luaL_newmetatable(L,MPLIB_GR_METATABLE);
   lua_pushvalue(L, -1); /* push metatable */
   lua_setfield(L, -2, "__index"); /* metatable.__index = metatable */

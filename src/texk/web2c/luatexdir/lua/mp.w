@@ -521,6 +521,7 @@ used for the default font map file.
 
 @c
 char *mp_find_file (MP mp, char *fname, char *fmode, int ftype)  {
+  (void) mp;
   if (fmode[0] != 'r' || (! access (fname,R_OK)) || ftype) {  
      return strdup(fname);
   }
@@ -563,6 +564,7 @@ void mp_write_binary_file (MP mp, void *f, void *s, size_t t) ;
 
 @c
 void *mp_open_file(MP mp, char *fname, char *fmode, int ftype)  {
+  (void) mp;
 #if NOTTESTING
   if (ftype==mp_filetype_terminal) {
     return (fmode[0] == 'r' ? stdin : stdout);
@@ -650,6 +652,7 @@ char *mp_read_ascii_file (MP mp, void *ff, size_t *size) {
   char *s = NULL;
   FILE *f = (FILE *)ff;
   *size = 0;
+  (void) mp; /* for -Wunused */
 #if NOTTESTING
   c = fgetc(f);
   if (c==EOF)
@@ -678,6 +681,7 @@ char *mp_read_ascii_file (MP mp, void *ff, size_t *size) {
 
 @ @c
 void mp_write_ascii_file (MP mp, void *f, char *s) {
+  (void) mp;
 #if NOTTESTING
   if (f!=NULL) {
     fputs(s,(FILE *)f);
@@ -688,6 +692,7 @@ void mp_write_ascii_file (MP mp, void *f, char *s) {
 @ @c
 void mp_read_binary_file (MP mp, void *f, void **data, size_t *size) {
   size_t len = 0;
+  (void) mp;
 #if NOTTESTING
   len = fread(*data,1,*size,(FILE *)f);
 #endif
@@ -696,6 +701,7 @@ void mp_read_binary_file (MP mp, void *f, void **data, size_t *size) {
 
 @ @c
 void mp_write_binary_file (MP mp, void *f, void *s, size_t size) {
+  (void) mp;
 #if NOTTESTING
   if (f!=NULL)
     fwrite(s,size,1,(FILE *)f);
@@ -705,6 +711,7 @@ void mp_write_binary_file (MP mp, void *f, void *s, size_t size) {
 
 @ @c
 void mp_close_file (MP mp, void *f) {
+  (void) mp;
 #if NOTTESTING
   fclose((FILE *)f);
 #endif
@@ -712,6 +719,7 @@ void mp_close_file (MP mp, void *f) {
 
 @ @c
 int mp_eof_file (MP mp, void *f) {
+  (void) mp;
 #if NOTTESTING
   return feof((FILE *)f);
 #else
@@ -721,6 +729,7 @@ int mp_eof_file (MP mp, void *f) {
 
 @ @c
 void mp_flush_file (MP mp, void *f) {
+  (void) mp;
 #if NOTTESTING
   fflush((FILE *)f);
 #endif
@@ -9503,40 +9512,31 @@ dash_y(hh)=dash_y(h)
 
 @ |h| is an edge structure
 
-@d gr_start_x(A)    (A)->start_x_field
-@d gr_stop_x(A)     (A)->stop_x_field
-@d gr_dash_link(A)  (A)->next_field
-
-@d gr_dash_list(A)  (A)->list_field
-@d gr_dash_y(A)     (A)->y_field
-
 @c
-struct mp_dash_list *mp_export_dashes (MP mp, pointer h) {
-  struct mp_dash_list *dl;
-  struct mp_dash_item *dh, *di;
+struct mp_dash_object *mp_export_dashes (MP mp, pointer h) {
+  struct mp_dash_object *d;
   pointer p;
+  scaled *dashes = NULL;
+  int num_dashes = 1;
   if (h==null ||  dash_list(h)==null_dash) 
 	return NULL;
   p = dash_list(h);
-  dl = mp_xmalloc(mp,1,sizeof(struct mp_dash_list));
-  gr_dash_list(dl) = NULL;
-  gr_dash_y(dl) = dash_y(h);
-  dh = NULL;
+  d = mp_xmalloc(mp,1,sizeof(struct mp_dash_object));
+  start_x(null_dash)=start_x(p)+dash_y(h);
   while (p != null_dash) { 
-    di=mp_xmalloc(mp,1,sizeof(struct mp_dash_item));
-    gr_dash_link(di) = NULL;
-    gr_start_x(di) = start_x(p);
-    gr_stop_x(di) = stop_x(p);
-    if (dh==NULL) {
-      gr_dash_list(dl) = di;
-    } else {
-      gr_dash_link(dh) = di;
-    }
-    dh = di;
+	dashes = mp_xrealloc(mp, dashes, num_dashes+2, sizeof(scaled));
+	dashes[(num_dashes-1)] = (stop_x(p)-start_x(p));
+	dashes[(num_dashes)]   = (start_x(link(p))-stop_x(p));
+	dashes[(num_dashes+1)] = -1; /* terminus */
+	num_dashes+=2;
     p=link(p);
   }
-  return dl;
+  d->array_field  = dashes;
+  d->offset_field = mp_dash_offset(mp, h);
+  d->scale_field  = dash_scale(h);
+  return d;
 }
+
 
 
 @ @<Copy the bounding box information from |h| to |hh|...@>=
@@ -16320,8 +16320,9 @@ int mp_run_make_mpx (MP mp, char *origname, char *mtxname);
 @ The default does nothing.
 @c 
 int mp_run_make_mpx (MP mp, char *origname, char *mtxname) {
-  if (mp && origname && mtxname) /* for -W */
-    return false;
+  (void)mp;
+  (void)origname;
+  (void)mtxname;
   return false;
 }
 
@@ -21798,11 +21799,11 @@ mp_finish (MP mp) {
   return mp->history;
 }
 char * mp_mplib_version (MP mp) {
-  assert(mp);
+  (void)mp;
   return mplib_version;
 }
 char * mp_metapost_version (MP mp) {
-  assert(mp);
+  (void)mp;
   return metapost_version;
 }
 
@@ -25187,7 +25188,6 @@ struct mp_edge_object *mp_gr_export(MP mp, pointer h) {
       gr_ljoin_val(hq)    = ljoin_val(p);
       gr_miterlim_val(hq) = miterlim_val(p);
       gr_lcap_val(hq)     = lcap_val(p);
-      gr_dash_scale(hq)   = dash_scale(p);
       gr_dash_p(hq)       = mp_export_dashes(mp,dash_p(p));
       break;
     case mp_text_code:
