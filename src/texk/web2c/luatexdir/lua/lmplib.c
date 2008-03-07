@@ -808,8 +808,11 @@ mplib_push_number (lua_State *L, integer x ) {
   lua_pushnumber(L, y);
 }
 
+#define MPLIB_PATH 0
+#define MPLIB_PEN 1
+
 static void 
-mplib_push_path (lua_State *L, struct mp_knot *h ) {
+mplib_push_path (lua_State *L, struct mp_knot *h, int is_pen) {
   struct mp_knot *p; /* for scanning the path */
   int i=1;
   p=h;
@@ -821,10 +824,10 @@ mplib_push_path (lua_State *L, struct mp_knot *h ) {
       lua_pushstring(L,knot_originator_enum[p->originator_field]);
       lua_rawset(L,-3);
       mplib_push_S(left_type);
-      lua_pushstring(L,knot_type_enum[p->left_type_field]);
+      lua_pushstring(L,(is_pen ? "explicit" : knot_type_enum[p->left_type_field]));
       lua_rawset(L,-3);
       mplib_push_S(right_type);
-      lua_pushstring(L,knot_type_enum[p->right_type_field]);
+      lua_pushstring(L,(is_pen ? "explicit" : knot_type_enum[p->right_type_field]));
       lua_rawset(L,-3);
       mplib_push_S(x_coord);
       mplib_push_number(L,p->x_coord_field);
@@ -952,11 +955,11 @@ mplib_fill_field (lua_State *L, struct mp_graphic_object *h, char *field) {
   if (FIELD(type)) {
     lua_pushstring(L,"fill");
   } else if (FIELD(path)) {
-    mplib_push_path(L, h->path_p_field);
+    mplib_push_path(L, h->path_p_field, MPLIB_PATH);
   } else if (FIELD(htap)) {
-    mplib_push_path(L, h->htap_p_field);
+    mplib_push_path(L, h->htap_p_field, MPLIB_PATH);
   } else if (FIELD(pen)) {
-    mplib_push_path(L, h->pen_p_field);
+    mplib_push_path(L, h->pen_p_field, MPLIB_PEN);
   } else if (FIELD(color)) {
     mplib_push_color(L, h);
   } else if (FIELD(linejoin)) {
@@ -977,9 +980,9 @@ mplib_stroked_field (lua_State *L, struct mp_graphic_object *h, char *field) {
   if (FIELD(type)) {
     lua_pushstring(L,"outline");
   } else if (FIELD(path)) {
-    mplib_push_path(L, h->path_p_field);
+    mplib_push_path(L, h->path_p_field, MPLIB_PATH);
   } else if (FIELD(pen)) {
-    mplib_push_path(L, h->pen_p_field);
+    mplib_push_path(L, h->pen_p_field, MPLIB_PEN);
   } else if (FIELD(color)) {
     mplib_push_color(L, h);
   } else if (FIELD(dash)) {
@@ -1045,7 +1048,7 @@ mplib_start_bounds_field (lua_State *L, struct mp_graphic_object *h, char *field
   if (FIELD(type)) {
     lua_pushstring(L,"start_bounds");
   } else if (FIELD(path)) {
-    mplib_push_path(L,h->path_p_field);
+    mplib_push_path(L,h->path_p_field, MPLIB_PATH);
   } else {
     lua_pushnil(L);
   }
@@ -1056,7 +1059,7 @@ mplib_start_clip_field (lua_State *L, struct mp_graphic_object *h, char *field) 
   if (FIELD(type)) {
     lua_pushstring(L,"start_clip");
   } else if (FIELD(path)) {
-    mplib_push_path(L,h->path_p_field);
+    mplib_push_path(L,h->path_p_field,  MPLIB_PATH);
   } else {
     lua_pushnil(L);
   }
