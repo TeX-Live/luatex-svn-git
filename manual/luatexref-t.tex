@@ -2197,7 +2197,7 @@ into the \PDF\ file as an image stream object
 The object number of the image stream dictionary is then available
 by the \type{objnum} key.
 No \type{pdf_refximage} whatsit node is generated.
-You will need a \luatex{img.write(a)} call
+You will need a \luatex{img.write(a)} or \luatex{img.node(a)} call
 to let the image appear on the page,
 or reference it by another trick;
 else you will have a dangling image object in the \PDF\ file.

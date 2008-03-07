@@ -217,8 +217,8 @@ void init_image_dict(image_dict * p)
     img_xres(p) = 0;
     img_yres(p) = 0;
     img_colorspace(p) = 0;
-    img_pagenum(p) = 1;
     img_totalpages(p) = 0;
+    img_pagenum(p) = 1;
     img_pagename(p) = NULL;
     img_filename(p) = NULL;
     img_filepath(p) = NULL;

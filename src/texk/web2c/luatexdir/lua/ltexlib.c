@@ -198,7 +198,7 @@ luacstring_close (int n) {
 	lua_error(L);  }
 
 
-static int dimen_to_number (lua_State *L,char *s){
+int dimen_to_number (lua_State *L,char *s){
   double v;
   char *d;
   int j;

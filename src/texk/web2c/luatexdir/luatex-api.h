@@ -78,6 +78,7 @@ extern int   luaopen_node (lua_State *L);
 extern void  nodelist_to_lua (lua_State *L, int n) ;
 extern int   nodelist_from_lua (lua_State *L); 
 
+extern int dimen_to_number (lua_State *L, char *s);
 
 extern void dump_luac_registers (void);
 

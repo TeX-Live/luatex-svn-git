@@ -32,7 +32,7 @@ $Id$
 #  define IMAGE_COLOR_C   2
 #  define IMAGE_COLOR_I   4
 
-extern integer zround(double); /* from zround.c */
+extern integer zround(double);  /* from zround.c */
 #  define bp2int(p)       zround(p * (one_hundred_bp / 100.0))
 
 #  define TYPE_IMG        "image"
@@ -90,9 +90,9 @@ typedef struct {
     integer x_res;              /* pixel resolution as in JPG/PNG/JBIG2 file */
     integer y_res;
     integer colorspace;         /* number of /ColorSpace object */
-    integer page_num;           /* requested page (by number) */
     integer total_pages;
-    char *pagename;             /* requested raw file name */
+    integer page_num;           /* requested page (by number) */
+    char *pagename;             /* requested page (by name) */
     char *filename;             /* requested raw file name */
     char *filepath;             /* full file path after kpathsea */
     char *attr;                 /* additional image dict entries */
@@ -117,8 +117,8 @@ typedef struct {
 #  define img_xres(N)           ((N)->x_res)
 #  define img_yres(N)           ((N)->y_res)
 #  define img_colorspace(N)     ((N)->colorspace)
-#  define img_pagenum(N)        ((N)->page_num)
 #  define img_totalpages(N)     ((N)->total_pages)
+#  define img_pagenum(N)        ((N)->page_num)
 #  define img_pagename(N)       ((N)->pagename)
 #  define img_filename(N)       ((N)->filename)
 #  define img_filepath(N)       ((N)->filepath)

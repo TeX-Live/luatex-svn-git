@@ -226,10 +226,13 @@ static void lua_to_image(lua_State * L, image * a)
             luaL_error(L, "image.width is now read-only");
         if (lua_isnil(L, -1))
             set_wd_running(a);
-        else if (lua_isnumber(L, -1))
+        else if (lua_type(L, -1) == LUA_TNUMBER)
             img_width(a) = lua_tointeger(L, -1);
+        else if (lua_type(L, -1) == LUA_TSTRING)
+            img_width(a) = dimen_to_number(L, (char *) lua_tostring(L, -1));
         else
-            luaL_error(L, "image.width needs integer or nil value");
+            luaL_error(L,
+                       "image.width needs integer or nil value or dimension string");
         img_unset_scaled(a);
         break;
     case P_HEIGHT:
@@ -237,10 +240,13 @@ static void lua_to_image(lua_State * L, image * a)
             luaL_error(L, "image.height is now read-only");
         if (lua_isnil(L, -1))
             set_ht_running(a);
-        else if (lua_isnumber(L, -1))
+        else if (lua_type(L, -1) == LUA_TNUMBER)
             img_height(a) = lua_tointeger(L, -1);
+        else if (lua_type(L, -1) == LUA_TSTRING)
+            img_height(a) = dimen_to_number(L, (char *) lua_tostring(L, -1));
         else
-            luaL_error(L, "image.height needs integer or nil value");
+            luaL_error(L,
+                       "image.height needs integer or nil value or dimension string");
         img_unset_scaled(a);
         break;
     case P_DEPTH:
@@ -248,10 +254,13 @@ static void lua_to_image(lua_State * L, image * a)
             luaL_error(L, "image.depth is now read-only");
         if (lua_isnil(L, -1))
             set_dp_running(a);
-        else if (lua_isnumber(L, -1))
+        else if (lua_type(L, -1) == LUA_TNUMBER)
             img_depth(a) = lua_tointeger(L, -1);
+        else if (lua_type(L, -1) == LUA_TSTRING)
+            img_depth(a) = dimen_to_number(L, (char *) lua_tostring(L, -1));
         else
-            luaL_error(L, "image.depth needs integer or nil value");
+            luaL_error(L,
+                       "image.depth needs integer or nil value or dimension string");
         img_unset_scaled(a);
         break;
     case P_TRANSFORM:
