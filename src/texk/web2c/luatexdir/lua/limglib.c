@@ -453,7 +453,7 @@ static halfword img_to_node(image * a)
 {
     image_dict *ad = img_dict(a);
     assert(ad != NULL);
-    assert(img_objnum(ad) != NULL);
+    assert(img_objnum(ad) != 0);
     integer ref = obj_data_ptr(img_objnum(ad));
     halfword n = new_node(whatsit_node, pdf_refximage_node);
     pdf_ximage_ref(n) = ref;
