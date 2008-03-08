@@ -108,7 +108,7 @@ extern int open_outfile(FILE **f, char *name, char *mode);
 #define voidcast(a) (void *)(a)
 #define varmemcast(a) (memory_word *)(a)
 #define fixmemcast(a) (smemory_word *)(a)
-extern memory_word *varmem;
+extern volatile memory_word *varmem;
 extern halfword var_mem_min;
 extern halfword var_mem_max;
 extern halfword  get_node (integer s);

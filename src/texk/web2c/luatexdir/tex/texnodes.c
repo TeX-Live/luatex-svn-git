@@ -6,7 +6,7 @@
 
 #define MAX_CHAIN_SIZE 12
 
-memory_word *varmem = NULL;
+volatile memory_word *varmem = NULL;
 
 #ifndef NDEBUG
 char *varmem_sizes = NULL;
