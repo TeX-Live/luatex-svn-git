@@ -180,7 +180,7 @@ pdf_img_struct *new_pdf_img_struct()
     return p;
 }
 
-void init_image_size(image * p)
+void init_image(image * p)
 {
     assert(p != NULL);
     set_wd_running(p);
@@ -190,14 +190,8 @@ void init_image_size(image * p)
     img_flags(p) = 0;
     img_unset_refered(p);       /* wd/ht/dp may be modified */
     img_unset_scaled(p);
-}
-
-void init_image(image * p)
-{
-    assert(p != NULL);
     img_dict(p) = NULL;
     img_dictref(p) = LUA_NOREF;
-    init_image_size(p);
 }
 
 image *new_image()
@@ -567,7 +561,6 @@ integer read_image(integer objnum, integer index, strnumber filename,
                    integer pdf_minor_version, integer pdf_inclusion_errorlevel)
 {
     integer ref;
-    /*char *dest = NULL; */
     image *a = new_image();
     ref = img_to_array(a);
     image_dict *idict = img_dict(a) = new_image_dict();

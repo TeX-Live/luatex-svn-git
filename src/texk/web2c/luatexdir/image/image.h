@@ -191,7 +191,6 @@ typedef struct {
 image *new_image();
 image_dict *new_image_dict();
 void init_image(image *);
-void init_image_size(image *);
 void init_image_dict(image_dict *);
 void scale_img(image *);
 integer img_to_array(image *);
