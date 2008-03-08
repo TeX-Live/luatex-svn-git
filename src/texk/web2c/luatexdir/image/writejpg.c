@@ -221,7 +221,7 @@ void read_jpg_info(image_dict * idict, boolean cleanup)
     assert(0);
 }
 
-reopen_jpg(image_dict * idict)
+static void reopen_jpg(image_dict * idict)
 {
     integer width, height, xres, yres;
     width = img_xsize(idict);

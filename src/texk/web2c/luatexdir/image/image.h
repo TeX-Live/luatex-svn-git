@@ -208,6 +208,7 @@ void read_png_info(image_dict *, boolean);
 void read_jpg_info(image_dict *, boolean);
 void read_jbig2_info(image_dict *);
 void read_pdf_info(image_dict *, integer, integer);
+void write_img(image_dict *);
 void write_png(image_dict *);
 void write_jpg(image_dict *);
 void write_jbig2(image_dict *);

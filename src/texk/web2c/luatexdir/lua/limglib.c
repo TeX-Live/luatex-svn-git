@@ -7,6 +7,7 @@
 #include <../lua51/lauxlib.h>
 #include <ptexlib.h>
 #include "../image/image.h"
+#include "../luatex-api.h"
 
 /**********************************************************************/
 
@@ -466,6 +467,8 @@ static halfword img_to_node(image * a)
 typedef enum { WR_WRITE, WR_IMMEDIATEWRITE, WR_NODE } wrtype_e;
 const char *wrtype_s[] =
     { "img.write()", "img.immediatewrite()", "img.node()" };
+
+extern void lua_nodelib_push_fast(lua_State * L, halfword n);
 
 static void write_image_or_node(lua_State * L, wrtype_e writetype)
 {
