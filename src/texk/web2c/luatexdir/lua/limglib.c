@@ -485,6 +485,7 @@ static void write_image_or_node(lua_State * L, wrtype_e writetype)
     }
     fix_image_size(L, a);
     check_pdfoutput(maketexstring(wrtype_s[writetype]), true);
+    flush_str(last_tex_string);
     if (img_objnum(ad) == 0) {  /* not strictly needed here, could be delayed until out_image() */
         pdf_ximage_count++;
         pdf_create_obj(obj_type_ximage, pdf_ximage_count);
