@@ -378,6 +378,7 @@ void copy_image(lua_State * L, lua_Number scale)
         img_height(b) = zround(img_height(a) * scale);
     if (!is_dp_running(a))
         img_depth(b) = zround(img_depth(a) * scale);
+    img_transform(b) = img_transform(a);
     img_dict(b) = img_dict(a);
     if (img_dictref(a) != LUA_NOREF) {
         lua_rawgeti(L, LUA_GLOBALSINDEX, img_dictref(a));       /* ad b */
