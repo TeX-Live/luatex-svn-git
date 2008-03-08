@@ -239,7 +239,7 @@ image_dict *new_image_dict()
     return p;
 }
 
-void clear_dict_strings(image_dict * p)
+void free_dict_strings(image_dict * p)
 {
     if (img_filename(p) != NULL)
         xfree(img_filename(p));
@@ -257,7 +257,7 @@ void clear_dict_strings(image_dict * p)
 
 void free_image_dict(image_dict * p)
 {
-    clear_dict_strings(p);
+    free_dict_strings(p);
     if (img_type(p) == IMAGE_TYPE_PDF)
         epdf_delete(p);
     assert(img_file(p) == NULL);
@@ -437,6 +437,12 @@ void out_img(image * img, scaled hpos, scaled vpos)
         a[5] = hpos;
         a[6] = vpos;
         r = 4;
+    }
+    if ((img_transform(img) & 1) == 1) {
+        if (ht == -dp)
+            pdftex_fail("image transform: division by zero (height == -depth)");
+        if (wd == 0)
+            pdftex_fail("image transform: division by zero (width == 0)");
     }
     switch (img_transform(img) & 7) {
     case 0:                    /* unrotated */
