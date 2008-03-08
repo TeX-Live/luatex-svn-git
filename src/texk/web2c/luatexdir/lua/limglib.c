@@ -373,11 +373,11 @@ void copy_image(lua_State * L, lua_Number scale)
     lua_setmetatable(L, -2);    /* b */
     b = *bb = new_image();
     if (!is_wd_running(a))
-        img_width(b) = img_width(a) * scale;
+        img_width(b) = zround(img_width(a) * scale);
     if (!is_ht_running(a))
-        img_height(b) = img_height(a) * scale;
+        img_height(b) = zround(img_height(a) * scale);
     if (!is_dp_running(a))
-        img_depth(b) = img_depth(a) * scale;
+        img_depth(b) = zround(img_depth(a) * scale);
     img_dict(b) = img_dict(a);
     if (img_dictref(a) != LUA_NOREF) {
         lua_rawgeti(L, LUA_GLOBALSINDEX, img_dictref(a));       /* ad b */
@@ -450,12 +450,11 @@ static int l_scan_image(lua_State * L)
 #define obj_aux(a)      obj_tab[a].int4 /* auxiliary pointer */
 #define obj_data_ptr    obj_aux /* pointer to |pdf_mem| */
 
-static halfword img_to_node(image * a)
+static halfword img_to_node(image * a, integer ref)
 {
     image_dict *ad = img_dict(a);
     assert(ad != NULL);
     assert(img_objnum(ad) != 0);
-    integer ref = obj_data_ptr(img_objnum(ad));
     halfword n = new_node(whatsit_node, pdf_refximage_node);
     pdf_ximage_ref(n) = ref;
     pdf_width(n) = img_width(a);
@@ -489,16 +488,17 @@ static void write_image_or_node(lua_State * L, wrtype_e writetype)
     fix_image_size(L, a);
     check_pdfoutput(maketexstring(wrtype_s[writetype]), true);
     flush_str(last_tex_string);
+    integer ref = img_to_array(a);
     if (img_objnum(ad) == 0) {  /* not strictly needed here, could be delayed until out_image() */
         pdf_ximage_count++;
         pdf_create_obj(obj_type_ximage, pdf_ximage_count);
         img_objnum(ad) = obj_ptr;
         img_index(ad) = pdf_ximage_count;
-        obj_data_ptr(obj_ptr) = img_to_array(a);
+        obj_data_ptr(obj_ptr) = ref;
     }
     switch (writetype) {
     case WR_WRITE:
-        n = img_to_node(a);
+        n = img_to_node(a, ref);
         new_tail_append(n);
         break;                  /* image */
     case WR_IMMEDIATEWRITE:
@@ -508,7 +508,7 @@ static void write_image_or_node(lua_State * L, wrtype_e writetype)
         break;                  /* image */
     case WR_NODE:              /* image */
         lua_pop(L, 1);          /* - */
-        n = img_to_node(a);
+        n = img_to_node(a, ref);
         lua_nodelib_push_fast(L, n);
         break;                  /* node */
     default:
