@@ -30838,8 +30838,8 @@ begin
     if attr <> 0 then flush_str(attr);
     scale_image(ref);
     pdf_last_ximage := k;
-    pdf_last_ximage_pages := image_pages(k);
-    pdf_last_ximage_colordepth := image_colordepth(k);
+    pdf_last_ximage_pages := image_pages(ref);
+    pdf_last_ximage_colordepth := image_colordepth(ref);
 end;
 
 @ @<Implement \.{\\pdfximage}@>=
@@ -30861,29 +30861,6 @@ begin
     pdf_height(tail) := image_height(j);
     pdf_depth(tail) := image_depth(j);
 end
-
-@ @p
-function lua_refximage(ref: integer; make_whatsit: boolean): integer;
-var k: integer;
-begin
-    check_pdfoutput("\pdfrefximage", true);
-    k := image_objnum(ref);
-    if k = 0 then begin {not strictly needed here, could be delayed until |out_image()|}
-        incr(pdf_ximage_count);
-        pdf_create_obj(obj_type_ximage, pdf_ximage_count);
-        obj_data_ptr(obj_ptr) := ref;
-	k := obj_ptr;
-	set_image_index(ref, pdf_ximage_count);
-    end;
-    if make_whatsit = true then begin
-        new_whatsit(pdf_refximage_node);
-        pdf_ximage_ref(tail) := ref;
-        pdf_width(tail) := image_width(ref);
-        pdf_height(tail) := image_height(ref);
-        pdf_depth(tail) := image_depth(ref);
-    end;
-    lua_refximage := k;
-end;
 
 @ The following function finds object with identifier |i| and type |t|.
   |i < 0| indicates that |-i| should be treated as a string number. If no

@@ -444,44 +444,67 @@ static int l_scan_image(lua_State * L)
     return 1;                   /* image */
 }
 
-typedef enum { WR_WRITE, WR_IMMEDIATEWRITE, WR_NODE } wrtype_e;
+/* these should go into some header file... */
+#define obj_type_ximage 8
+#define obj_aux(a)      obj_tab[a].int4 /* auxiliary pointer */
+#define obj_data_ptr    obj_aux /* pointer to |pdf_mem| */
 
-void write_image_or_node(lua_State * L, wrtype_e writetype)
+static halfword img_to_node(image * a)
+{
+    image_dict *ad = img_dict(a);
+    assert(ad != NULL);
+    assert(img_objnum(ad) != NULL);
+    integer ref = obj_data_ptr(img_objnum(ad));
+    halfword n = new_node(whatsit_node, pdf_refximage_node);
+    pdf_ximage_ref(n) = ref;
+    pdf_width(n) = img_width(a);
+    pdf_height(n) = img_height(a);
+    pdf_depth(n) = img_depth(a);
+    return n;
+}
+
+typedef enum { WR_WRITE, WR_IMMEDIATEWRITE, WR_NODE } wrtype_e;
+const char *wrtype_s[] =
+    { "img.write()", "img.immediatewrite()", "img.node()" };
+
+static void write_image_or_node(lua_State * L, wrtype_e writetype)
 {
     image *a, **aa;
-    integer ref;
-    const char *wrtype_s[] = { "write", "immediatewrite", "node" };
+    halfword n;
     if (lua_gettop(L) != 1)
-        luaL_error(L, "img.%s() needs exactly 1 argument", wrtype_s[writetype]);
+        luaL_error(L, "%s needs exactly 1 argument", wrtype_s[writetype]);
     if (lua_istable(L, 1))
         l_new_image(L);         /* image --- if everything worked well */
     aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);    /* image */
     a = *aa;
     image_dict *ad = img_dict(a);
+    assert(ad != NULL);
     if (img_state(ad) == DICT_NEW) {
         read_img(ad, get_pdf_minor_version(), get_pdf_inclusion_errorlevel());
         img_unset_scaled(a);
     }
     fix_image_size(L, a);
-    ref = img_to_array(a);
+    check_pdfoutput(maketexstring(wrtype_s[writetype]), true);
+    if (img_objnum(ad) == 0) {  /* not strictly needed here, could be delayed until out_image() */
+        pdf_ximage_count++;
+        pdf_create_obj(obj_type_ximage, pdf_ximage_count);
+        img_objnum(ad) = obj_ptr;
+        img_index(ad) = pdf_ximage_count;
+        obj_data_ptr(obj_ptr) = img_to_array(a);
+    }
     switch (writetype) {
     case WR_WRITE:
-        img_objnum(ad) = lua_refximage(ref, true);
+        n = img_to_node(a);
+        new_tail_append(n);
         break;                  /* image */
     case WR_IMMEDIATEWRITE:
         check_pdfminorversion();        /* does initialization stuff */
-        img_objnum(ad) = lua_refximage(ref, false);
         pdf_begin_dict(img_objnum(ad), 0);
         write_img(ad);
         break;                  /* image */
     case WR_NODE:              /* image */
         lua_pop(L, 1);          /* - */
-        img_objnum(ad) = lua_refximage(ref, false);
-        halfword n = new_node(whatsit_node, pdf_refximage_node);
-        pdf_width(n) = img_width(a);
-        pdf_height(n) = img_height(a);
-        pdf_depth(n) = img_depth(a);
-        pdf_ximage_ref(n) = ref;
+        n = img_to_node(a);
         lua_nodelib_push_fast(L, n);
         break;                  /* node */
     default:

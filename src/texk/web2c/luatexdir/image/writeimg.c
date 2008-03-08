@@ -593,13 +593,6 @@ void set_image_dimensions(integer ref, integer wd, integer ht, integer dp)
     img_depth(a) = dp;
 }
 
-void set_image_index(integer ref, integer index)
-{
-    image_dict *idict = img_dict(img_array[ref]);
-    assert(idict != NULL);
-    img_index(idict) = index;
-}
-
 void scale_image(integer ref)
 {
     scale_img(img_array[ref]);
