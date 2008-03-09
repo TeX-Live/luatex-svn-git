@@ -632,7 +632,12 @@ static int m_img_print(lua_State * L)
 {
     image **aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);
     image_dict *d = img_dict(*aa);
-    lua_pushfstring(L, "<img name=%s>", img_filename(d));
+    if (img_pagename(d) != NULL && strlen(img_pagename(d)) != 0)
+        lua_pushfstring(L, "<img{filename=\"%s\", page=\"%s\"}>",
+                        img_filename(d), img_pagename(d));
+    else
+        lua_pushfstring(L, "<img{filename=\"%s\", page=%d}>", img_filename(d),
+                        img_pagenum(d));
     return 1;
 }
 
