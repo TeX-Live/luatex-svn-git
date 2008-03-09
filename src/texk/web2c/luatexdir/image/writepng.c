@@ -29,9 +29,9 @@ void close_and_cleanup_png(image_dict * idict)
     assert(idict != NULL);
     assert(img_file(idict) != NULL);
     assert(img_filepath(idict) != NULL);
-    assert(img_png_ptr(idict) != NULL);
     xfclose(img_file(idict), img_filepath(idict));
     img_file(idict) = NULL;
+    assert(img_png_ptr(idict) != NULL);
     png_destroy_read_struct(&(img_png_png_ptr(idict)),
                             &(img_png_info_ptr(idict)), NULL);
     xfree(img_png_ptr(idict));
@@ -48,6 +48,7 @@ void read_png_info(image_dict * idict, boolean cleanup)
     img_totalpages(idict) = 1;
     img_pagenum(idict) = 1;
     img_xres(idict) = img_yres(idict) = 0;
+    assert(img_file(idict) == NULL);
     img_file(idict) = xfopen(img_filepath(idict), FOPEN_RBIN_MODE);
     assert(img_png_ptr(idict) == NULL);
     img_png_ptr(idict) = xtalloc(1, png_img_struct);
@@ -502,7 +503,7 @@ void copy_png(image_dict * idict)
 void reopen_png(image_dict * idict)
 {
     integer width, height, xres, yres;
-    width = img_xsize(idict);
+    width = img_xsize(idict);   /* do consistency check */
     height = img_ysize(idict);
     xres = img_xres(idict);
     yres = img_yres(idict);
@@ -518,7 +519,9 @@ void write_png(image_dict * idict)
     int i;
     integer palette_objnum = 0;
     assert(idict != NULL);
-    reopen_png(idict);
+    if (img_file(idict) == NULL)
+        reopen_png(idict);
+    assert(img_png_ptr(idict) != NULL);
     png_structp png_p = img_png_png_ptr(idict);
     png_infop info_p = img_png_info_ptr(idict);
     if (fixed_pdf_minor_version < 5)
