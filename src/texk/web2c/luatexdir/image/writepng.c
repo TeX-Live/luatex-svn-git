@@ -170,11 +170,11 @@ void write_png_palette(image_dict * idict)
     png_infop info_p = img_png_info_ptr(idict);
     png_bytep row, r, *rows;
     integer palette_objnum = 0;
-    pdf_create_obj(0, 0);
-    palette_objnum = obj_ptr;
     if (img_colorspace(idict) != 0) {
         pdf_printf("%i 0 R\n", (int) img_colorspace(idict));
     } else {
+        pdf_create_obj(0, 0);
+        palette_objnum = obj_ptr;
         pdf_printf("[/Indexed /DeviceRGB %i %i 0 R]\n",
                    (int) (info_p->num_palette - 1), (int) palette_objnum);
     }
