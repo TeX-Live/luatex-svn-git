@@ -75,6 +75,8 @@ typedef enum { IMAGE_TYPE_NONE, IMAGE_TYPE_PDF, IMAGE_TYPE_PNG, IMAGE_TYPE_JPG,
     IMAGE_TYPE_JBIG2, IMAGE_TYPE_SENTINEL
 } imgtype_e;
 
+typedef enum { IMG_KEEPOPEN, IMG_CLOSEINBETWEEN } img_readtype_e;
+
 typedef enum { PDF_BOX_SPEC_NONE, PDF_BOX_SPEC_MEDIA, PDF_BOX_SPEC_CROP,
     PDF_BOX_SPEC_BLEED, PDF_BOX_SPEC_TRIM, PDF_BOX_SPEC_ART,
     PDF_BOX_SPEC_SENTINEL
@@ -204,8 +206,8 @@ void read_img(image_dict *, integer, integer);
 #    define boolean int
 #  endif
 
-void read_png_info(image_dict *, boolean);
-void read_jpg_info(image_dict *, boolean);
+void read_png_info(image_dict *, img_readtype_e);
+void read_jpg_info(image_dict *, img_readtype_e);
 void read_jbig2_info(image_dict *);
 void read_pdf_info(image_dict *, integer, integer);
 void write_img(image_dict *);

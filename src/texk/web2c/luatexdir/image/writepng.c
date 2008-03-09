@@ -38,7 +38,7 @@ void close_and_cleanup_png(image_dict * idict)
     img_png_ptr(idict) = NULL;
 }
 
-void read_png_info(image_dict * idict, boolean cleanup)
+void read_png_info(image_dict * idict, img_readtype_e readtype)
 {
     double gamma;
     png_structp png_p;
@@ -110,7 +110,7 @@ void read_png_info(image_dict * idict, boolean cleanup)
         pdftex_fail("unsupported type of color_type <%i>", info_p->color_type);
     }
     img_colordepth(idict) = info_p->bit_depth;
-    if (cleanup)
+    if (readtype == IMG_CLOSEINBETWEEN)
         close_and_cleanup_png(idict);
 }
 
@@ -507,7 +507,7 @@ void reopen_png(image_dict * idict)
     height = img_ysize(idict);
     xres = img_xres(idict);
     yres = img_yres(idict);
-    read_png_info(idict, false);
+    read_png_info(idict, IMG_KEEPOPEN);
     if (width != img_xsize(idict) || height != img_ysize(idict)
         || xres != img_xres(idict) || yres != img_yres(idict))
         pdftex_fail("writepng: image dimensions have changed");

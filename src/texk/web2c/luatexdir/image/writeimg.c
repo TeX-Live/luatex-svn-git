@@ -296,10 +296,10 @@ void read_img(image_dict * idict, integer pdf_minor_version,
         read_pdf_info(idict, pdf_minor_version, pdf_inclusion_errorlevel);
         break;
     case IMAGE_TYPE_PNG:
-        read_png_info(idict, true);
+        read_png_info(idict, IMG_CLOSEINBETWEEN);
         break;
     case IMAGE_TYPE_JPG:
-        read_jpg_info(idict, true);
+        read_jpg_info(idict, IMG_CLOSEINBETWEEN);
         break;
     case IMAGE_TYPE_JBIG2:
         if (pdf_minor_version < 4) {

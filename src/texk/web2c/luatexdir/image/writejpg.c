@@ -105,14 +105,14 @@ void close_and_cleanup_jpg(image_dict * idict)
     assert(idict != NULL);
     assert(img_file(idict) != NULL);
     assert(img_filepath(idict) != NULL);
-    assert(img_jpg_ptr(idict) != NULL);
     xfclose(img_file(idict), img_filepath(idict));
     img_file(idict) = NULL;
+    assert(img_jpg_ptr(idict) != NULL);
     xfree(img_jpg_ptr(idict));
     img_jpg_ptr(idict) = NULL;
 }
 
-void read_jpg_info(image_dict * idict, boolean cleanup)
+void read_jpg_info(image_dict * idict, img_readtype_e readtype)
 {
     int i, units = 0;
     unsigned char jpg_id[] = "JFIF";
@@ -121,6 +121,7 @@ void read_jpg_info(image_dict * idict, boolean cleanup)
     img_totalpages(idict) = 1;
     img_pagenum(idict) = 1;
     img_xres(idict) = img_yres(idict) = 0;
+    assert(img_file(idict) == NULL);
     img_file(idict) = xfopen(img_filepath(idict), FOPEN_RBIN_MODE);
     assert(img_jpg_ptr(idict) == NULL);
     img_jpg_ptr(idict) = xtalloc(1, jpg_img_struct);
@@ -197,7 +198,7 @@ void read_jpg_info(image_dict * idict, boolean cleanup)
                 pdftex_fail("Unsupported color space %i",
                             (int) img_jpg_color(idict));
             }
-            if (cleanup)
+            if (readtype == IMG_CLOSEINBETWEEN)
                 close_and_cleanup_jpg(idict);
             return;
         case M_SOI:            /* ignore markers without parameters */
@@ -228,7 +229,7 @@ static void reopen_jpg(image_dict * idict)
     height = img_ysize(idict);
     xres = img_xres(idict);
     yres = img_yres(idict);
-    read_jpg_info(idict, false);
+    read_jpg_info(idict, IMG_KEEPOPEN);
     if (width != img_xsize(idict) || height != img_ysize(idict)
         || xres != img_xres(idict) || yres != img_yres(idict))
         pdftex_fail("writejpg: image dimensions have changed");
@@ -239,7 +240,9 @@ void write_jpg(image_dict * idict)
     long unsigned l;
     FILE *f;
     assert(idict != NULL);
-    reopen_jpg(idict);
+    if (img_file(idict) == NULL)
+        reopen_jpg(idict);
+    assert(img_jpg_ptr(idict) != NULL);
     pdf_puts("/Type /XObject\n/Subtype /Image\n");
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
         pdf_printf("%s\n", img_attr(idict));
