@@ -242,9 +242,9 @@ known as `\eTeX'.
 @d pdftex_revision=="0" { \.{\\pdftexrevision} }
 @d pdftex_version_string=='-2.00.0' {current \pdfTeX\ version}
 @#
-@d luatex_version==23 { \.{\\luatexversion} }
+@d luatex_version==25 { \.{\\luatexversion} }
 @d luatex_revision=="0" { \.{\\luatexrevision} }
-@d luatex_version_string=='snapshot-0.23.0' {current \LuaTeX\ version}
+@d luatex_version_string=='snapshot-0.25.0' {current \LuaTeX\ version}
 @d luatex_date_info==-extra_version_info { the compile date is negated }
 @#
 @d luaTeX_banner=='This is LuaTeX, Version ',luatex_version_string,extra_version_info

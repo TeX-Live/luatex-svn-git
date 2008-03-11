@@ -6,6 +6,7 @@
 
 \def\CFF{\kap{cff}}
 \def\PATGEN{\kap{patgen}}
+\def\MP{MetaPost}
 
 \dontcomplain
 
@@ -13,7 +14,7 @@
  
 \setvariables
   [document]
-  [beta=0.22.1]
+  [beta=0.25.0]
 
 \starttext
 
@@ -2251,6 +2252,248 @@ currently these are `pdf', `png', `jpg', and `jbig2'.
 This function returns a list with the supported \PDF\ page box names,
 currently these are `media', `crop', `bleed', `trim', and `art'
 (all in lowercase letters).
+
+
+\section{The \luatex{mplib} library}
+
+
+The \MP\ library interface registers itself in the table \type{mplib}. It
+is based on the MPlib beta version 0.20 (based on \MP\ 1.002).
+
+\subsection{\luatex{mplib.new}}
+
+To create a new metapost instance, call 
+
+\startfunctioncall
+   mp = mplib.new({...})
+\stopfunctioncall
+
+This creates the \type{mp} instance object. The argument hash can have a number of
+different fields,  as follows:
+
+\starttabulate[|l|l|p|p|]
+\NC name       \NC         type   \NC description \NC default \NC\NR
+\NC error_line \NC         number \NC line width for terminal and log \NC 79 \NC\NR 
+\NC half_error_line \NC    number \NC ``half'' of line width \NC 50 \NC\NR 
+\NC max_print_line \NC     number \NC line length in ps output\NC 100\NC\NR 
+\NC main_memory \NC        number \NC total memory size \NC 5000\NC\NR 
+\NC hash_size \NC          number \NC hash size\NC 9500 \NC\NR 
+\NC hash_prime \NC         number \NC prime number for hashing\NC 7919\NC\NR 
+\NC param_size \NC         number \NC max. simultaneous macro parameters\NC 150\NC\NR 
+\NC max_in_open \NC        number \NC max. input file nestings \NC 10\NC\NR 
+\NC random_seed \NC        number \NC the initial random seed \NC variable\NC\NR 
+\NC interaction \NC        string \NC the interaction mode, one of
+"batch", "nonstop", "scroll", "errorstop"\NC "errorstop"\NC\NR
+\NC ini_version \NC        boolean \NC the --ini switch\NC false \NC\NR 
+\NC troff_mode \NC         boolean \NC the -T switch \NC false \NC\NR 
+\NC print_found_names \NC  boolean \NC whether long file names 
+                 should be printed to the log and terminal streams\NC false \NC\NR 
+\NC mem_name \NC           string \NC --mem\NC plain.mem\NC\NR 
+\NC job_name \NC           string \NC --jobname\NC mpout \NC\NR 
+\NC find_file \NC          function \NC a function to find files \NC only local files\NC\NR 
+\stoptabulate
+
+The \type{find_file} function should be of this form:
+
+\starttyping
+   string found = finder (string name, string mode, string type)
+\stoptyping
+
+\starttabulate[|l|l|p|]
+\NC name       \NC   the requested file \NC   \NR
+\NC mode       \NC   the file mode: 'r', 'rb', 'w', or 'wb' \NC \NR
+\NC type       \NC   the kind of file, one of: 
+                    "mp", "mem", "tfm", "map", "pfb", "enc" \NC \NR
+\stoptabulate
+
+Return either the full pathname of the found file, or \type{nil} if
+the file cannot be found.
+
+\subsection{\luatex{mp:execute}}
+
+You can ask the MP interpreter to run a bit of code by calling
+
+\startfunctioncall
+   local rettable = mp:execute('metapost language chunk')
+\stopfunctioncall
+
+for various bits of metapost language input. 
+
+The chunk has to obey proper nesting as if it was a file (so
+begingroup and endgroups have to be balanced).
+
+\subsection{\luatex{mp:finish}}
+
+\startfunctioncall
+   local rettable = mp:finish()
+\stopfunctioncall
+
+If for some reason you want to stop using an MPlib instance
+while processing is not yet actually done, you can call
+\type{mp:finish}.  Memory and files can be closed by the 
+Lua garbage collector, but an explicit \type{mp:finish} is
+the only way to capture the final part of the output streams.
+
+\subsection{Result table}
+
+The return value of \type{mp:execute} and \type{mp:finish} is a table
+with a few possible keys (only `state' is always guaranteed to be present).
+
+\starttabulate[|l|l|p|]
+\NC log    \NC string \NC output to the 'log' stream \NC \NR
+\NC term   \NC string \NC output to the 'term' stream \NC \NR
+\NC error  \NC string \NC output to the 'error' stream \NC \NR
+\NC state  \NC number \NC the return value. 0 = good, 1 = warning, 2 = errors, 
+                         3 = fatal error \NC \NR
+\NC fig    \NC table \NC An array of generated figures (if any)\NC \NR
+\stoptabulate
+
+When \type{state} equals 3, you should stop using this MPlib instance
+immediately, it is no longer capable of processing input. 
+
+If it is present, each of the entries in the \type{fig} array is a
+userdata representing a figure object, and each of those has a number of
+object methods you can call:
+
+\starttabulate[|l|l|p|]
+\NC boundingbox  \NC function \NC returns the bounding box, as an array of 4 values\NC \NR
+\NC postscript   \NC function \NC return a string that is the ps output of the \type{fig} \NC \NR
+\NC objects      \NC function \NC returns the actual array of graphic objects in this \type{fig} \NC \NR
+\NC copy_objects \NC function \NC returns a deep copy of the array of graphic objects in this \type{fig} \NC \NR
+\NC filename     \NC function \NC the filename this \type{fig}'s PostScript output
+                                  would have written to in standalone mode\NC \NR
+\stoptabulate
+
+{\bf NOTE:} you can call \type{fig:objects()} only once for any one \type{fig} object!
+
+Graphical objects come in various types that each have a different list of
+accessible values. The types are: 'fill', 'outline', 'text',
+'start_clip', 'stop_clip', 'start_bounds', 'stop_bounds', 'special'.
+
+There is an \type{obj:fields()} command to get the list of accessible
+values for a particular object (but you can just as easily use the
+tables given below). 
+
+All graphical objects have a field \type{type} that gives the object
+type as a string value, that not explicit mentioned in the tables.  In
+the following, \type{number}s are PostScript points represented as
+a floating point number, unless stated otherwise. Field values that
+are of \type{table} are explained in the next section.
+
+\subsubsection{fill}
+
+\starttabulate[|l|l|p|]
+\NC path       \NC table \NC the list of knots \NC \NR
+\NC htap       \NC table \NC the list of knots for the reversed trajectory \NC \NR
+\NC pen        \NC table \NC knots of the pen \NC \NR
+\NC color      \NC table \NC the object's color \NC \NR
+\NC linejoin   \NC number \NC line join style (bare number)\NC \NR
+\NC miterlimit \NC number \NC miterlimit\NC \NR
+\NC prescript  \NC string \NC the prescript text \NC \NR
+\NC postscript \NC string \NC the postscript text \NC \NR
+\stoptabulate
+
+\subsubsection{outline}
+
+\starttabulate[|l|l|p|]
+\NC path \NC table \NC the list of knots \NC \NR
+\NC pen \NC table \NC knots of the pen \NC \NR
+\NC color \NC table \NC the object's color \NC \NR
+\NC linejoin \NC number \NC line join style (bare number)\NC \NR
+\NC miterlimit \NC number \NC miterlimit \NC \NR
+\NC linecap \NC number \NC line cap style (bare number)\NC \NR
+\NC dash \NC table \NC representation of a dash list\NC \NR
+\NC prescript \NC string \NC the prescript text \NC \NR
+\NC postscript \NC string \NC the postscript text \NC \NR
+\stoptabulate
+ 
+\subsubsection{text}
+
+\starttabulate[|l|l|p|]
+\NC text \NC string \NC the text \NC \NR
+\NC font \NC string \NC font tfm name \NC \NR
+\NC dsize \NC number \NC font design size (in big points times 65536)\NC \NR
+\NC color \NC table \NC the object's color \NC \NR
+\NC width \NC number \NC  \NC \NR
+\NC height \NC number \NC  \NC \NR
+\NC depth \NC number \NC  \NC \NR
+\NC transform \NC table \NC a text transformation \NC \NR
+\NC prescript \NC string \NC the prescript text \NC \NR
+\NC postscript \NC string \NC the postscript text \NC \NR
+\stoptabulate
+
+\subsubsection{special}
+
+\starttabulate[|l|l|p|]
+\NC prescript \NC string \NC special text \NC \NR
+\stoptabulate
+
+
+\subsubsection{start_bounds, start_clip}
+
+\starttabulate[|l|l|p|]
+\NC path \NC table \NC the list of knots \NC \NR
+\stoptabulate
+
+\subsubsection{stop_bounds, stop_clip}
+
+No fields available.
+
+\subsection{Subsidiary table formats}
+
+\subsubsection{Knot lists}
+
+Paths and pens (that are really just a special type of paths as far as
+MPlib is concerned) are represented
+
+\starttabulate[|l|l|p|]
+\NC originator	\NC string \NC One of 'program', 'user'\NC \NR
+\NC left_type	\NC string \NC One of 'endpoint', 'explicit'
+                               (normal knots are 'explicit')\NC \NR
+\NC right_type	\NC string \NC like \type{left_type}\NC \NR
+\NC x_coord		\NC number \NC X coordinate of this knot\NC \NR
+\NC y_coord		\NC number \NC Y coordinate of this knot\NC \NR
+\NC left_x		\NC number \NC X coordinate of the precontrol point of this knot\NC \NR
+\NC left_y		\NC number \NC Y coordinate of the precontrol point of this knot\NC \NR
+\NC right_x		\NC number \NC X coordinate of the postcontrol point of this knot\NC \NR
+\NC right_y		\NC number \NC Y coordinate of the postcontrol point of this knot\NC \NR
+\stoptabulate
+
+\subsubsection{Colors}
+
+A color is a hash table with keys:
+
+\starttabulate[|l|l|p|]
+\NC model \NC string \NC one of 'none', 'grey', 'rgb', 'cmyk', 'uninitialized' \NC\NR
+\NC rgb   \NC table  \NC A 3-item array with values in the range 0 .. 1 \NC\NR
+\NC cmyk  \NC table  \NC A 4-item array with values in the range 0 .. 1 \NC\NR
+\NC grey  \NC number \NC A number with value in the range 0 .. 1 \NC\NR
+\stoptabulate
+
+If the color model is \type{unitialized}, then all three value sets are present,
+otherwise only the applicable one (none at all for color model \type{none}).
+
+\subsubsection{Transforms}
+
+Each transform is a six-item array.
+
+\starttabulate[|l|l|p|]
+\NC 1 \NC number \NC represents x \NC\NR
+\NC 2 \NC number \NC represents y \NC\NR
+\NC 3 \NC number \NC represents xx \NC\NR
+\NC 4 \NC number \NC represents xy \NC\NR
+\NC 5 \NC number \NC represents yx \NC\NR
+\NC 6 \NC number \NC represents yy \NC\NR
+\stoptabulate
+
+\subsubsection{Dashes}
+
+Each dashlist is two-item hash.
+
+\starttabulate[|l|l|p|]
+\NC dashes \NC hash   \NC an array of on-off numbers \NC\NR
+\NC offset \NC number \NC the starting offset value \NC\NR
+\stoptabulate
 
 
 \section{The \luatex{callback} library}

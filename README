@@ -4,8 +4,8 @@ README for LuaTeX Snapshots
 
 This directory contains a snapshot release of LuaTeX, 
 an experimental pdfTeX extension that is to eventually 
-become its successor, under the new name MetaTeX. It is
-developed by a subset of the current pdfTeX team.
+become its successor. It is developed by a subset of the 
+current pdfTeX team.
 
 =========================================================
 The snapshot code is NOT stable, it may not even compile
@@ -37,6 +37,8 @@ interpreter for graphics (hence the expected name change).
 
 Further documentation about LuaTeX can be found at 
 http://www.luatex.org 
+
+We have a tracker running at http://tracker.luatex.org 
 
 A mailing list for the development of LuaTeX can be found 
 at http://www.ntg.nl/mailman/listinfo/dev-luatex
