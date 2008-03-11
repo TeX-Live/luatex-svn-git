@@ -242,7 +242,7 @@ new_node(int i, int j) {
   /* type() and subtype() will be set below, and vlink() is 
      set to null by get_node(), so we can do we clearing one 
      word less than |s| */
-  (void)memset((varmem+n+1),0, (sizeof(memory_word)*(s-1)));
+  (void)memset((void *)(varmem+n+1),0, (sizeof(memory_word)*(s-1)));
   switch (i) {
   case glyph_node:
     init_lang_data(n);
@@ -289,7 +289,7 @@ new_node(int i, int j) {
      */
     free_node(n,variable_node_size);
     n = slow_get_node(j);
-    (void)memset((varmem+n+1),0, (sizeof(memory_word)*(j-1)));
+    (void)memset((void *)(varmem+n+1),0, (sizeof(memory_word)*(j-1)));
     break;
   default: 
     break;
@@ -306,7 +306,7 @@ halfword
 raw_glyph_node(void) {
   register halfword n;
   n = get_node(glyph_node_size);
-  (void)memset((varmem+n+1),0, (sizeof(memory_word)*(glyph_node_size-1)));
+  (void)memset((void *)(varmem+n+1),0, (sizeof(memory_word)*(glyph_node_size-1)));
   type(n)=glyph_node;
   subtype(n)=0;
   return n;
@@ -316,7 +316,7 @@ halfword
 new_glyph_node(void) {
   register halfword n;
   n = get_node(glyph_node_size);
-  (void)memset((varmem+n+1),0, (sizeof(memory_word)*(glyph_node_size-1)));
+  (void)memset((void *)(varmem+n+1),0, (sizeof(memory_word)*(glyph_node_size-1)));
   type(n)=glyph_node;
   subtype(n)=0;
   build_attribute_list(n); 
@@ -357,7 +357,7 @@ copy_node(const halfword p) {
   }
   i = get_node_size(type(p), subtype(p));
   r = get_node(i);
-  (void)memcpy((varmem+r),(varmem+p),(sizeof(memory_word)*i));
+  (void)memcpy((void *)(varmem+r),(void *)(varmem+p),(sizeof(memory_word)*i));
 
   if (nodetype_has_attributes(type(p))) {
     add_node_attr_ref(node_attr(p)); 
@@ -1166,7 +1166,7 @@ init_node_mem (halfword prealloced, halfword t) {
   assert(whatsit_node_data[user_defined_node].id==user_defined_node);
   assert(node_data[passive_node].id==passive_node);
 
-  varmem = (memory_word *)realloc(varmem,sizeof(memory_word)*t);
+  varmem = (memory_word *)realloc((void *)varmem,sizeof(memory_word)*t);
   if (varmem==NULL) {
     overflow_string("node memory size",var_mem_max);
   }
@@ -1297,7 +1297,7 @@ slow_get_node (integer s) {
     }
     /* if we are still here, it was apparently impossible to get a match */
     x = (var_mem_max>>2)+s;
-    varmem = (memory_word *)realloc(varmem,sizeof(memory_word)*(var_mem_max+x));
+    varmem = (memory_word *)realloc((void *)varmem,sizeof(memory_word)*(var_mem_max+x));
     if (varmem==NULL) {
       overflow_string("node memory size",var_mem_max);
     }
@@ -1479,7 +1479,7 @@ copy_attribute_list(halfword n) {
   while (n!=null) {
     register halfword r = get_node(attribute_node_size);
     /* the link will be fixed automatically in the next loop */
-    (void)memcpy((varmem+r),(varmem+n),(sizeof(memory_word)*attribute_node_size));
+    (void)memcpy((void *)(varmem+r),(void *)(varmem+n),(sizeof(memory_word)*attribute_node_size));
     vlink(p) = r;
     p = r;
     n = vlink(n);
