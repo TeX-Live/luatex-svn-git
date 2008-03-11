@@ -203,19 +203,22 @@ boolean check_expand_pars(internal_font_number f) {
       push_node(r);
       l = list_ptr(r);
       r = l;
-      while (vlink(r) != null) 
-	r = vlink(r);
+      while (vlink(r) != null) {
+        halfword s = r;
+        r = vlink(r);
+        alink(r) = s;
+      }
     }
     while (run && cp_skipable(r)) {
       while ((r == l) && (hlist_stack_level > 0)) {
-	r = pop_node(); /* don't visit this node again */
-	l = pop_node();
+		r = pop_node(); /* don't visit this node again */
+		l = pop_node();
       }
       if ((r != l) && (r != null) ) {
         assert(vlink(alink(r))==r);
         r = alink(r);
       } else if ((r == l) && (hlist_stack_level == 0)) 
-	run = false;
+		run = false;
     }
   } while (t != r);
   return r;
