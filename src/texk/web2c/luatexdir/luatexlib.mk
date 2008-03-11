@@ -1,4 +1,5 @@
 ## luatexlib.mk - Makefile fragment for libraries used by pdf[ex]tex.
+# $Id$
 # Public domain.
 
 # The pdf*tex programs depend on a number of libraries.
@@ -73,7 +74,7 @@ pdflib = luatexdir/libpdf.a
 pdflib_sources = $(srcdir)/luatexdir/*.c $(srcdir)/luatexdir/*.cc \
 	$(srcdir)/luatexdir/*.h
 
-luatexdir/libpdf.a: $(pdflib_sources) luatexdir/luatexextra.h
+luatexdir/libpdf.a: $(pdflib_sources) luatexdir/luatexextra.h ctangle
 	cd luatexdir && mkdir -p font image lua lang tex && $(MAKE) $(common_makeargs) libpdf.a
 
 # makecpool:

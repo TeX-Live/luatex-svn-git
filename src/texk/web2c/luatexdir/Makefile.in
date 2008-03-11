@@ -11,6 +11,8 @@ kpathsea_dir_parent = ../..
 ALL_CXXFLAGS = @CXXFLAGS@ @DEFS@ $(XXCFLAGS) -I. -I$(srcdir) -I$(kpathsea_dir_parent) -I$(kpathsea_srcdir_parent) @LIBXPDFCPPFLAGS@ -I$(LIBOBSDCOMPATDIR) -I$(LIBOBSDCOMPATDIR)/.. -I$(LIBOBSDCOMPATFSRCDIR) -I$(LIBOBSDCOMPATFSRCDIR)/.. -I$(LIBPNGSRCDIR) -I$(ZLIBSRCDIR)
 CXX = @CXX@
 
+CTANGLE = ../ctangle
+
 .SUFFIXES: .cc .o
 .cc.o:
 	$(CXX) $(ALL_CXXFLAGS) -c $< -o $@
@@ -113,10 +115,10 @@ libpdf.a: lua/mp.c lua/psout.c $(OBJS)
 	$(RANLIB) $@
 
 lua/mp.c: lua/mp.w
-	ctangle $(srcdir)/lua/mp.w - lua/mp.c
+	$(CTANGLE) $(srcdir)/lua/mp.w - lua/mp.c
 
 lua/psout.c: lua/psout.w
-	ctangle $(srcdir)/lua/psout.w - lua/psout.c
+	$(CTANGLE) $(srcdir)/lua/psout.w - lua/psout.c
 
 makecpool: makecpool.o
 	$(link_command) makecpool.o
