@@ -97,7 +97,7 @@ TIE = @TIE@
 
 # Calling tangle
 tangle = WEBINPUTS=$(srcdir) $(native)/$(TANGLE)
-ctangle = $(native)/$(CTANGLE)
+ctangle = $(CTANGLE)
 tie = $(native)/$(TIE)
 
 # The environment for making dumps.
@@ -645,9 +645,9 @@ ctangle: ctangle.o cweb.o
 	$(MAKE) $(common_makeargs) ctangleboot.c cwebboot.c
 # ctangle.c is a special case, since it is needed to compile itself.
 ctangle.c: ctangleboot cwebdir/ctangle.w cwebdir/ctang-w2c.ch
-	CWEBINPUTS=$(srcdir)/cwebdir $(native)/$(CTANGLEBOOT) ctangle ctang-w2c
+	CWEBINPUTS=$(srcdir)/cwebdir $(CTANGLEBOOT) ctangle ctang-w2c
 cweb.c: ctangleboot cwebdir/common.w cwebdir/comm-w2c.ch
-	CWEBINPUTS=$(srcdir)/cwebdir $(native)/$(CTANGLEBOOT) common comm-w2c cweb.c
+	CWEBINPUTS=$(srcdir)/cwebdir $(CTANGLEBOOT) common comm-w2c cweb.c
 clean:: ctangle-clean
 clean:: cweb-clean
 ctangle-clean:
