@@ -73,10 +73,10 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d banner "This is MetaPost, Version 1.002" /* printed when \MP\ starts */
-@d metapost_version "1.002"
-@d mplib_version "0.20"
-@d version_string " (Cweb version 0.20)"
+@d banner "This is MetaPost, Version 1.003" /* printed when \MP\ starts */
+@d metapost_version "1.003"
+@d mplib_version "0.25"
+@d version_string " (Cweb version 0.25)"
 
 @d true 1
 @d false 0
@@ -4048,7 +4048,7 @@ pointer mp_get_node (MP mp,integer s) { /* variable-size node allocation */
   do {  
     @<Try to allocate within node |p| and its physical successors,
      and |goto found| if allocation was possible@>;
-    if (rlink(p)==null || rlink(p)==p) {
+    if (rlink(p)==null || (rlink(p)==p && p!=mp->rover)) {
       print_err("Free list garbled");
       help3("I found an entry in the list of free nodes that links")
        ("badly. I will try to ignore the broken link, but something")
@@ -18871,7 +18871,12 @@ void mp_pair_to_path (MP mp) {
   mp->cur_type=mp_path_type;
 };
 
-@ @<Additional cases of unary operators@>=
+@ 
+@d pict_color_type(A) ((link(dummy_loc(mp->cur_exp))!=null) &&
+                       (has_color(link(dummy_loc(mp->cur_exp)))) &&
+                       (color_model(link(dummy_loc(mp->cur_exp)))==A))
+
+@<Additional cases of unary operators@>=
 case x_part:
 case y_part:
   if ( (mp->cur_type==mp_pair_type)||(mp->cur_type==mp_transform_type) )
@@ -18891,7 +18896,10 @@ case red_part:
 case green_part:
 case blue_part: 
   if ( mp->cur_type==mp_color_type ) mp_take_part(mp, c);
-  else if ( mp->cur_type==mp_picture_type ) mp_take_pict_part(mp, c);
+  else if ( mp->cur_type==mp_picture_type ) {
+    if pict_color_type(mp_rgb_model) mp_take_pict_part(mp, c);
+    else mp_bad_color_part(mp, c);
+  }
   else mp_bad_unary(mp, c);
   break;
 case cyan_part:
@@ -18899,18 +18907,53 @@ case magenta_part:
 case yellow_part:
 case black_part: 
   if ( mp->cur_type==mp_cmykcolor_type) mp_take_part(mp, c); 
-  else if ( mp->cur_type==mp_picture_type ) mp_take_pict_part(mp, c);
+  else if ( mp->cur_type==mp_picture_type ) {
+    if pict_color_type(mp_cmyk_model) mp_take_pict_part(mp, c);
+    else mp_bad_color_part(mp, c);
+  }
   else mp_bad_unary(mp, c);
   break;
 case grey_part: 
   if ( mp->cur_type==mp_known ) mp->cur_exp=value(c);
-  else if ( mp->cur_type==mp_picture_type ) mp_take_pict_part(mp, c);
+  else if ( mp->cur_type==mp_picture_type ) {
+    if pict_color_type(mp_grey_model) mp_take_pict_part(mp, c);
+    else mp_bad_color_part(mp, c);
+  }
   else mp_bad_unary(mp, c);
   break;
 case color_model_part: 
   if ( mp->cur_type==mp_picture_type ) mp_take_pict_part(mp, c);
   else mp_bad_unary(mp, c);
   break;
+
+@ @<Declarations@>=
+void mp_bad_color_part(MP mp, quarterword c);
+
+@ @c
+void mp_bad_color_part(MP mp, quarterword c) {
+  pointer p; /* the big node */
+  p=link(dummy_loc(mp->cur_exp));
+  exp_err("Wrong picture color model: "); mp_print_op(mp, c);
+@.Wrong picture color model...@>
+  if (color_model(p)==mp_grey_model)
+    mp_print(mp, " of grey object");
+  else if (color_model(p)==mp_cmyk_model)
+    mp_print(mp, " of cmyk object");
+  else if (color_model(p)==mp_rgb_model)
+    mp_print(mp, " of rgb object");
+  else if (color_model(p)==mp_no_model) 
+    mp_print(mp, " of marking object");
+  else 
+    mp_print(mp," of defaulted object");
+  help3("You can only ask for the redpart, greenpart, bluepart of a rgb object,")
+    ("the cyanpart, magentapart, yellowpart or blackpart of a cmyk object, ")
+    ("or the greypart of a grey object. No mixing and matching, please.");
+  mp_error(mp);
+  if ((c==black_part) || (c==grey_part))
+    mp_flush_cur_exp(mp,unity);
+  else
+    mp_flush_cur_exp(mp,0);
+}
 
 @ In the following procedure, |cur_exp| points to a capsule, which points to
 a big node. We want to delete all but one part of the big node.
@@ -21785,7 +21828,9 @@ mp_execute (MP mp) {
       mp->first=limit+1; 
       loc=start;
     }
-    mp_main_control(mp); /* come to life */ 
+	do {  
+      mp_do_statement(mp);
+    } while (mp->cur_cmd!=stop);
   }
   return mp->history;
 }

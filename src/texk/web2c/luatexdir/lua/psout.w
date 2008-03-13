@@ -4101,7 +4101,7 @@ void mp_print_prologue (MP mp, struct mp_edge_object *h, int prologues, int proc
     if (procset>0 ) {
       mp_ps_print_nl(mp, "%%BeginResource: procset mpost");
       if ( (prologues>0)&&(ldf!=null_font) )
-        mp_ps_print(mp, 
+        mp_ps_print_nl(mp, 
         "/bd{bind def}bind def/fshow {exch findfont exch scalefont setfont show}bd");
       else
         mp_ps_print_nl(mp, "/bd{bind def}bind def");
@@ -5025,8 +5025,8 @@ boolean mp_gr_same_dashes (struct mp_dash_object *h, struct mp_dash_object *hh) 
 
 @c
 boolean mp_gr_same_dashes (struct mp_dash_object *h, struct mp_dash_object *hh) {
-  if ( h==hh ) return true;
-  else if ( (h==NULL)||(hh==NULL) ) return false;
+  if ( (h==NULL)||(hh==NULL) ) return false;
+  else if ( h==hh ) return true;
   else if ( h->scale_field!=hh->scale_field ) return false;
   else if ( h->offset_field!=hh->offset_field ) return false;
   else if ( h->array_field == hh->array_field) return true;

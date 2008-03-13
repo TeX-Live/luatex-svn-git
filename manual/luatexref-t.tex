@@ -2317,10 +2317,16 @@ You can ask the MP interpreter to run a bit of code by calling
    local rettable = mp:execute('metapost language chunk')
 \stopfunctioncall
 
-for various bits of metapost language input. 
+for various bits of Metapost language input. 
 
-The chunk has to obey proper nesting as if it was a file (so
-begingroup and endgroups have to be balanced).
+Be sure to check the \type{rettable.status} (see below) because when a
+fatal Metapost error occurs the MPlib instance will become unusable
+thereafter.
+
+Generally speaking, it is best to keep your chunks small, but beware
+that all chunks have to obey proper syntax, like each of them is a
+small file. For instance, you cannot split a single statement over
+multiple chunks.
 
 \subsection{\luatex{mp:finish}}
 
@@ -2337,18 +2343,19 @@ the only way to capture the final part of the output streams.
 \subsection{Result table}
 
 The return value of \type{mp:execute} and \type{mp:finish} is a table
-with a few possible keys (only `state' is always guaranteed to be present).
+with a few possible keys (only `status' is always guaranteed to be present).
 
 \starttabulate[|l|l|p|]
 \NC log    \NC string \NC output to the 'log' stream \NC \NR
 \NC term   \NC string \NC output to the 'term' stream \NC \NR
-\NC error  \NC string \NC output to the 'error' stream \NC \NR
-\NC state  \NC number \NC the return value. 0 = good, 1 = warning, 2 = errors, 
+\NC error  \NC string \NC output to the 'error' stream (only used for
+`Out Of Memory')\NC \NR
+\NC status \NC number \NC the return value. 0 = good, 1 = warning, 2 = errors, 
                          3 = fatal error \NC \NR
 \NC fig    \NC table \NC An array of generated figures (if any)\NC \NR
 \stoptabulate
 
-When \type{state} equals 3, you should stop using this MPlib instance
+When \type{status} equals 3, you should stop using this MPlib instance
 immediately, it is no longer capable of processing input. 
 
 If it is present, each of the entries in the \type{fig} array is a
@@ -2365,6 +2372,9 @@ object methods you can call:
 \stoptabulate
 
 {\bf NOTE:} you can call \type{fig:objects()} only once for any one \type{fig} object!
+
+When the boundingbox represents a `negated rectangle' (i.w. the first set
+of coordinates is larger than the second set), the picture is empty.
 
 Graphical objects come in various types that each have a different list of
 accessible values. The types are: 'fill', 'outline', 'text',
@@ -2412,7 +2422,7 @@ are of \type{table} are explained in the next section.
 \starttabulate[|l|l|p|]
 \NC text \NC string \NC the text \NC \NR
 \NC font \NC string \NC font tfm name \NC \NR
-\NC dsize \NC number \NC font design size (in big points times 65536)\NC \NR
+\NC dsize \NC number \NC font size\NC \NR
 \NC color \NC table \NC the object's color \NC \NR
 \NC width \NC number \NC  \NC \NR
 \NC height \NC number \NC  \NC \NR
@@ -2481,14 +2491,19 @@ Each transform is a six-item array.
 \NC 1 \NC number \NC represents x \NC\NR
 \NC 2 \NC number \NC represents y \NC\NR
 \NC 3 \NC number \NC represents xx \NC\NR
-\NC 4 \NC number \NC represents xy \NC\NR
-\NC 5 \NC number \NC represents yx \NC\NR
+\NC 4 \NC number \NC represents yx \NC\NR
+\NC 5 \NC number \NC represents xy \NC\NR
 \NC 6 \NC number \NC represents yy \NC\NR
 \stoptabulate
 
+Note that the translation (index 1 and 2) comes first. This differs
+from the ordering in  PostScript, where the translation comes last.
+
 \subsubsection{Dashes}
 
-Each dashlist is two-item hash.
+Each \type{dash} is two-item hash, using the same model as PostScript
+for the representation of the dashlist. \type{dashes} is an array of
+`on' and `off', values, and \type{offset} is the phase of the pattern.
 
 \starttabulate[|l|l|p|]
 \NC dashes \NC hash   \NC an array of on-off numbers \NC\NR
