@@ -2258,7 +2258,7 @@ currently these are `media', `crop', `bleed', `trim', and `art'
 
 
 The \MP\ library interface registers itself in the table \type{mplib}. It
-is based on the MPlib beta version 0.20 (based on \MP\ 1.002).
+is based on the MPlib beta version 0.25 (based on \MP\ 1.003).
 
 \subsection{\luatex{mplib.new}}
 
@@ -2301,13 +2301,30 @@ The \type{find_file} function should be of this form:
 
 \starttabulate[|l|l|p|]
 \NC name       \NC   the requested file \NC   \NR
-\NC mode       \NC   the file mode: 'r', 'rb', 'w', or 'wb' \NC \NR
+\NC mode       \NC   the file mode: 'r' or 'w' \NC \NR
 \NC type       \NC   the kind of file, one of: 
                     "mp", "mem", "tfm", "map", "pfb", "enc" \NC \NR
 \stoptabulate
 
 Return either the full pathname of the found file, or \type{nil} if
 the file cannot be found.
+
+\subsection{\luatex{mp:statistics}}
+
+\startfunctioncall
+   table stats = mp:statistics()
+\stopfunctioncall
+
+Returns the vital statistics for an MPlib instance. There are four
+fields, giving the maximum number of used items in each of the four
+statically allocated object classes:
+
+\starttabulate[|l|l|p|]
+\NC main_memory \NC        number \NC memory size \NC\NR 
+\NC hash_size   \NC        number \NC hash size\NC\NR 
+\NC param_size  \NC        number \NC simultaneous macro parameters\NC\NR 
+\NC max_in_open \NC        number \NC input file nesting levels\NC\NR 
+\stoptabulate
 
 \subsection{\luatex{mp:execute}}
 
@@ -2457,9 +2474,7 @@ Paths and pens (that are really just a special type of paths as far as
 MPlib is concerned) are represented
 
 \starttabulate[|l|l|p|]
-\NC originator	\NC string \NC One of 'program', 'user'\NC \NR
-\NC left_type	\NC string \NC One of 'endpoint', 'explicit'
-                               (normal knots are 'explicit')\NC \NR
+\NC left_type	\NC string \NC when present: 'endpoint', but ususally absent \NC \NR
 \NC right_type	\NC string \NC like \type{left_type}\NC \NR
 \NC x_coord		\NC number \NC X coordinate of this knot\NC \NR
 \NC y_coord		\NC number \NC Y coordinate of this knot\NC \NR
@@ -2471,17 +2486,18 @@ MPlib is concerned) are represented
 
 \subsubsection{Colors}
 
-A color is a hash table with keys:
+A color is an integer array with 0, 1, 3 or 4 values:
 
 \starttabulate[|l|l|p|]
-\NC model \NC string \NC one of 'none', 'grey', 'rgb', 'cmyk', 'uninitialized' \NC\NR
-\NC rgb   \NC table  \NC A 3-item array with values in the range 0 .. 1 \NC\NR
-\NC cmyk  \NC table  \NC A 4-item array with values in the range 0 .. 1 \NC\NR
-\NC grey  \NC number \NC A number with value in the range 0 .. 1 \NC\NR
+\NC 0  \NC Marking only \NC No values. \NC\NR
+\NC 1  \NC Greyscale    \NC 0ne value in the range 0 .. 1, `black' is 0 \NC\NR
+\NC 3  \NC RGB          \NC 3 values in the range 0 .. 1, `black' is 0,0,0  \NC\NR
+\NC 4  \NC CMYK         \NC 4 values in the range 0 .. 1, `black' is 0,0,0,1  \NC\NR
 \stoptabulate
 
-If the color model is \type{unitialized}, then all three value sets are present,
-otherwise only the applicable one (none at all for color model \type{none}).
+If the color model of the internal object was \type{unitialized}, then
+it was initialized to the values representing `black' in the colorspace
+\type{defaultcolormodel} that was in effect at the time of the \type{shipout}.
 
 \subsubsection{Transforms}
 

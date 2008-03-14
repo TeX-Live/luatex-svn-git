@@ -339,7 +339,7 @@ int enc_getchar(MP mp) {
 
 @ @c 
 static boolean mp_enc_open (MP mp, char *n) {
-  mp->ps->enc_file=(mp->open_file)(mp,n, "rb", mp_filetype_encoding);
+  mp->ps->enc_file=(mp->open_file)(mp,n, "r", mp_filetype_encoding);
   if (mp->ps->enc_file!=NULL)
     return true;
   else
@@ -1434,7 +1434,7 @@ void mp_map_line (MP mp, str_number t) {
     mp->ps->mitem->mode = FM_DUPIGNORE;
     mp->ps->mitem->type = MAPFILE;
     mp->ps->mitem->map_line = NULL;
-    r = (mp->find_file)(mp,"mpost.map", "rb", mp_filetype_fontmap);
+    r = (mp->find_file)(mp,"mpost.map", "r", mp_filetype_fontmap);
     if (r != NULL) {
       mp_xfree(r);
       mp->ps->mitem->map_line = mp_xstrdup (mp,"mpost.map");
@@ -2489,7 +2489,7 @@ static boolean t1_open_fontfile (MP mp, fm_entry *fm_cur,const char *open_name_p
     ff_entry *ff;
     ff = check_ff_exist (mp, fm_cur);
     if (ff->ff_path != NULL) {
-        mp->ps->t1_file = (mp->open_file)(mp,ff->ff_path, "rb", mp_filetype_font);
+        mp->ps->t1_file = (mp->open_file)(mp,ff->ff_path, "r", mp_filetype_font);
     } else {
         mp_warn (mp, "cannot open Type 1 font file for reading");
         return false;
@@ -3800,10 +3800,10 @@ void mp_unmark_font (MP mp,font_number f) {
 
 
 @ @<Exported...@>=
-void mp_print_improved_prologue (MP mp, struct mp_edge_object *h, int prologues, int procset) ;
+void mp_print_improved_prologue (MP mp, mp_edge_object *h, int prologues, int procset) ;
 
 @ @c
-void mp_print_improved_prologue (MP mp, struct mp_edge_object *h, int prologues, int procset) {
+void mp_print_improved_prologue (MP mp, mp_edge_object *h, int prologues, int procset) {
   quarterword next_size; /* the size index for fonts being listed */
   pointer *cur_fsize; /* current positions in |font_sizes| */
   boolean done_fonts; /* have we finished listing the fonts in the header? */
@@ -3861,12 +3861,12 @@ void mp_print_improved_prologue (MP mp, struct mp_edge_object *h, int prologues,
 }
 
 @ @<Declarations@>=
-static font_number mp_print_font_comments (MP mp , struct mp_edge_object *h, int prologues);
+static font_number mp_print_font_comments (MP mp , mp_edge_object *h, int prologues);
 
 
 @ 
 @c 
-static font_number mp_print_font_comments (MP mp , struct mp_edge_object *h, int prologues) {
+static font_number mp_print_font_comments (MP mp , mp_edge_object *h, int prologues) {
   quarterword next_size; /* the size index for fonts being listed */
   pointer *cur_fsize; /* current positions in |font_sizes| */
   int ff; /* a loop counter */
@@ -4070,10 +4070,10 @@ trouble.
 @:prologues_}{\&{prologues} primitive@>
 
 @<Exported...@>=
-void mp_print_prologue (MP mp, struct mp_edge_object *h, int prologues, int procset);
+void mp_print_prologue (MP mp, mp_edge_object *h, int prologues, int procset);
 
 @ @c 
-void mp_print_prologue (MP mp, struct mp_edge_object *h, int prologues, int procset) {
+void mp_print_prologue (MP mp, mp_edge_object *h, int prologues, int procset) {
   font_number f;
   font_number ldf ;
   ldf = mp_print_font_comments (mp, h, prologues);
@@ -4219,10 +4219,10 @@ accurately. (Overfull boxes are avoided if an illustration is made to
 match a given \.{\char`\\hsize}.)
 
 @<Exported...@>=
-void mp_print_initial_comment(MP mp,struct mp_edge_object *hh, int prologues);
+void mp_print_initial_comment(MP mp,mp_edge_object *hh, int prologues);
 
 @ @c
-void mp_print_initial_comment(MP mp,struct mp_edge_object *hh, int prologues) {
+void mp_print_initial_comment(MP mp,mp_edge_object *hh, int prologues) {
   scaled t;
   mp_ps_print(mp, "%!PS");
   if ( prologues>0 ) 
@@ -4287,10 +4287,10 @@ typedef struct mp_knot {
 } mp_knot;
 
 @ @c
-struct mp_knot * mp_gr_insert_knot (MP mp, struct mp_knot *q, scaled x, scaled y) {
+mp_knot * mp_gr_insert_knot (MP mp, mp_knot *q, scaled x, scaled y) {
   /* returns the inserted knot */
-  struct mp_knot *r; /* the new knot */
-  r= mp_xmalloc(mp, 1, sizeof (struct mp_knot));
+  mp_knot *r; /* the new knot */
+  r= mp_xmalloc(mp, 1, sizeof (mp_knot));
   gr_next_knot(r)=gr_next_knot(q); gr_next_knot(q)=r;
   gr_right_x(r)=gr_right_x(q);
   gr_right_y(r)=gr_right_y(q);
@@ -4310,10 +4310,10 @@ struct mp_knot * mp_gr_insert_knot (MP mp, struct mp_knot *q, scaled x, scaled y
 @ If we want to duplicate a knot node, we can say |copy_knot|:
 
 @c 
-struct mp_knot *mp_gr_copy_knot (MP mp,  struct mp_knot *p) {
-  struct mp_knot *q; /* the copy */
-  q = mp_xmalloc(mp, 1, sizeof (struct mp_knot));
-  memcpy(q,p,sizeof (struct mp_knot));
+mp_knot *mp_gr_copy_knot (MP mp,  mp_knot *p) {
+  mp_knot *q; /* the copy */
+  q = mp_xmalloc(mp, 1, sizeof (mp_knot));
+  memcpy(q,p,sizeof (mp_knot));
   gr_next_knot(q)=NULL;
   return q;
 }
@@ -4321,8 +4321,8 @@ struct mp_knot *mp_gr_copy_knot (MP mp,  struct mp_knot *p) {
 @ The |copy_path| routine makes a clone of a given path.
 
 @c 
-struct mp_knot *mp_gr_copy_path (MP mp,  struct mp_knot *p) {
-  struct mp_knot *q, *pp, *qq; /* for list manipulation */
+mp_knot *mp_gr_copy_path (MP mp,  mp_knot *p) {
+  mp_knot *q, *pp, *qq; /* for list manipulation */
   if (p==NULL) 
     return NULL;
   q=mp_gr_copy_knot(mp, p);
@@ -4348,9 +4348,9 @@ All node types are assumed to be |endpoint| or |explicit| only.
 This function is currenly unused.
 
 @c 
-struct mp_knot * mp_gr_htap_ypoc (MP mp,  struct mp_knot *p) {
-  struct mp_knot *q, *pp, *qq, *rr; /* for list manipulation */
-  q=mp_xmalloc(mp, 1, sizeof (struct mp_knot)); /* this will correspond to |p| */
+mp_knot * mp_gr_htap_ypoc (MP mp,  mp_knot *p) {
+  mp_knot *q, *pp, *qq, *rr; /* for list manipulation */
+  q=mp_xmalloc(mp, 1, sizeof (mp_knot)); /* this will correspond to |p| */
   qq=q; pp=p;
   while (1) { 
     gr_right_type(qq)=gr_left_type(pp); 
@@ -4367,7 +4367,7 @@ struct mp_knot * mp_gr_htap_ypoc (MP mp,  struct mp_knot *p) {
       /* mp->path_tail=pp; */ /* ? */
       return q;
     }
-    rr=mp_xmalloc(mp, 1, sizeof (struct mp_knot));
+    rr=mp_xmalloc(mp, 1, sizeof (mp_knot));
     gr_next_knot(rr)=qq; 
     qq=rr; 
     pp=gr_next_knot(pp);
@@ -4378,15 +4378,15 @@ struct mp_knot * mp_gr_htap_ypoc (MP mp,  struct mp_knot *p) {
 calling the following subroutine.
 
 @<Declarations@>=
-void mp_do_gr_toss_knot_list (struct mp_knot *p) ;
+void mp_do_gr_toss_knot_list (mp_knot *p) ;
 
 @ 
 @d mp_gr_toss_knot_list(B,A) mp_do_gr_toss_knot_list(A)
 
 @c
-void mp_do_gr_toss_knot_list (struct mp_knot * p) {
-  struct mp_knot *q; /* the node being freed */
-  struct mp_knot *r; /* the next node */
+void mp_do_gr_toss_knot_list (mp_knot * p) {
+  mp_knot *q; /* the node being freed */
+  mp_knot *r; /* the next node */
   if (p==NULL)
     return;
   q=p;
@@ -4399,8 +4399,8 @@ void mp_do_gr_toss_knot_list (struct mp_knot * p) {
 
 
 @ @c
-void mp_gr_ps_path_out (MP mp, struct mp_knot *h) {
-  struct mp_knot *p, *q; /* for scanning the path */
+void mp_gr_ps_path_out (MP mp, mp_knot *h) {
+  mp_knot *p, *q; /* for scanning the path */
   scaled d; /* a temporary value */
   boolean curved; /* |true| unless the cubic is almost straight */
   ps_room(40);
@@ -4455,19 +4455,11 @@ if ( abs(gr_right_x(p)-gr_x_coord(p)-d)<=bend_tolerance )
       if ( abs(gr_y_coord(q)-gr_left_y(q)-d)<=bend_tolerance ) curved=false;
     }
 
-@ The colored objects use a union to express the color parts:
+@ The colored objects use a struct with anonymous fields to express the color parts:
 
 @<Types...@>=
-typedef union {
-  struct {
-    scaled _red_val, _green_val, _blue_val;
-  } rgb;
-  struct {
-    scaled _cyan_val, _magenta_val, _yellow_val, _black_val;
-  } cmyk;
-  struct {
-    scaled _grey_val;
-  } grey ;
+typedef struct {
+   scaled _a_val, _b_val, _c_val, _d_val;
 } mp_color;
 
 @ The exported form of a dash pattern is simpler than the internal
@@ -4478,7 +4470,7 @@ allowed in PostScript.
 @d gr_dash_scale(A) (gr_dash_p(A))->scale_field
 
 @<Types...@>=
-typedef struct mp_dash_object {
+typedef struct {
   scaled offset_field;
   scaled scale_field;
   scaled *array_field;
@@ -4489,10 +4481,10 @@ typedef struct mp_dash_object {
 @d mp_gr_toss_dashes(A,B) mp_do_gr_toss_dashes(B) 
 
 @<Declarations@>=
-void mp_do_gr_toss_dashes(struct mp_dash_object *dl);
+void mp_do_gr_toss_dashes(mp_dash_object *dl);
 
 @ @c
-void mp_do_gr_toss_dashes(struct mp_dash_object *dl) {
+void mp_do_gr_toss_dashes(mp_dash_object *dl) {
   if (dl==NULL)   
     return;
   mp_xfree(dl->array_field);  
@@ -4501,8 +4493,8 @@ void mp_do_gr_toss_dashes(struct mp_dash_object *dl) {
 
 
 @ @c
-struct mp_dash_object *mp_gr_copy_dashes(MP mp, struct mp_dash_object *dl) {
-	struct mp_dash_object *q = NULL;
+mp_dash_object *mp_gr_copy_dashes(MP mp, mp_dash_object *dl) {
+	mp_dash_object *q = NULL;
     (void)mp;
 	if (dl==NULL)
       return NULL;
@@ -4526,57 +4518,58 @@ structures and access macros.
 @<Types...@>=
 #define gr_type(A)         (A)->_type_field
 #define gr_link(A)         (A)->_link_field
-#define gr_name_type(A)    (A)->name_type_field
 #define gr_color_model(A)  (A)->color_model_field
-#define gr_red_val(A)      (A)->color_field.rgb._red_val
-#define gr_green_val(A)    (A)->color_field.rgb._green_val
-#define gr_blue_val(A)     (A)->color_field.rgb._blue_val
-#define gr_cyan_val(A)     (A)->color_field.cmyk._cyan_val
-#define gr_magenta_val(A)  (A)->color_field.cmyk._magenta_val
-#define gr_yellow_val(A)   (A)->color_field.cmyk._yellow_val
-#define gr_black_val(A)    (A)->color_field.cmyk._black_val
-#define gr_grey_val(A)     (A)->color_field.grey._grey_val
+#define gr_red_val(A)      (A)->color_field._a_val
+#define gr_green_val(A)    (A)->color_field._b_val
+#define gr_blue_val(A)     (A)->color_field._c_val
+#define gr_cyan_val(A)     (A)->color_field._a_val
+#define gr_magenta_val(A)  (A)->color_field._b_val
+#define gr_yellow_val(A)   (A)->color_field._c_val
+#define gr_black_val(A)    (A)->color_field._d_val
+#define gr_grey_val(A)     (A)->color_field._a_val
 #define gr_path_p(A)       (A)->path_p_field 
-#define gr_htap_p(A)       (A)->htap_p_field 
+#define gr_htap_p(A)       ((mp_fill_object *)A)->htap_p_field 
 #define gr_pen_p(A)        (A)->pen_p_field 
 #define gr_ljoin_val(A)    (A)->ljoin_field
-#define gr_lcap_val(A)     (A)->lcap_field
+#define gr_lcap_val(A)     ((mp_stroked_object *)A)->lcap_field
 #define gr_miterlim_val(A) (A)->miterlim_field
 #define gr_pre_script(A)   (A)->pre_script_field
 #define gr_post_script(A)  (A)->post_script_field
-#define gr_dash_p(A)       (A)->dash_p_field
-#define gr_text_p(A)       (A)->text_p_field 
-#define gr_font_n(A)       (A)->font_n_field 
-#define gr_font_name(A)    (A)->font_name_field 
-#define gr_font_dsize(A)   (A)->font_dsize_field 
-#define gr_width_val(A)    (A)->width_field
-#define gr_height_val(A)   (A)->height_field
-#define gr_depth_val(A)    (A)->depth_field
-#define gr_tx_val(A)       (A)->tx_field
-#define gr_ty_val(A)       (A)->ty_field
-#define gr_txx_val(A)      (A)->txx_field
-#define gr_txy_val(A)      (A)->txy_field
-#define gr_tyx_val(A)      (A)->tyx_field
-#define gr_tyy_val(A)      (A)->tyy_field
+#define gr_dash_p(A)       ((mp_stroked_object *)A)->dash_p_field
+#define gr_name_type(A)    ((mp_text_object *)A)->name_type_field
+#define gr_text_p(A)       ((mp_text_object *)A)->text_p_field 
+#define gr_font_n(A)       ((mp_text_object *)A)->font_n_field 
+#define gr_font_name(A)    ((mp_text_object *)A)->font_name_field 
+#define gr_font_dsize(A)   ((mp_text_object *)A)->font_dsize_field 
+#define gr_width_val(A)    ((mp_text_object *)A)->width_field
+#define gr_height_val(A)   ((mp_text_object *)A)->height_field
+#define gr_depth_val(A)    ((mp_text_object *)A)->depth_field
+#define gr_tx_val(A)       ((mp_text_object *)A)->tx_field
+#define gr_ty_val(A)       ((mp_text_object *)A)->ty_field
+#define gr_txx_val(A)      ((mp_text_object *)A)->txx_field
+#define gr_txy_val(A)      ((mp_text_object *)A)->txy_field
+#define gr_tyx_val(A)      ((mp_text_object *)A)->tyx_field
+#define gr_tyy_val(A)      ((mp_text_object *)A)->tyy_field
+
+#define GRAPHIC_BODY                      \
+  halfword _type_field;                   \
+  struct mp_graphic_object * _link_field
+
 typedef struct mp_graphic_object {
-  halfword _type_field;
-  quarterword name_type_field;
-  struct mp_graphic_object * _link_field;
-  struct mp_knot * path_p_field;
-  struct mp_knot * htap_p_field;
-  struct mp_knot * pen_p_field;
-  quarterword color_model_field;
-  mp_color color_field;
-  quarterword ljoin_field ;   
-  quarterword lcap_field ;   
-  scaled miterlim_field ;
+  GRAPHIC_BODY;
+} mp_graphic_object;
+
+typedef struct mp_text_object {
+  GRAPHIC_BODY;
   char *pre_script_field;
   char *post_script_field;
-  struct mp_dash_object *dash_p_field;
+  mp_color color_field;
+  quarterword color_model_field;
+  quarterword name_type_field;
   char *text_p_field;
-  font_number font_n_field ;   
   char *font_name_field ;   
   scaled font_dsize_field ;
+  font_number font_n_field ;   
   scaled width_field ;
   scaled height_field ;
   scaled depth_field ;
@@ -4586,7 +4579,50 @@ typedef struct mp_graphic_object {
   scaled txy_field ;
   scaled tyx_field ;
   scaled tyy_field ;
-} mp_graphic_object;
+} mp_text_object;
+
+typedef struct mp_fill_object {
+  GRAPHIC_BODY;
+  char *pre_script_field;
+  char *post_script_field;
+  mp_color color_field;
+  quarterword color_model_field;
+  quarterword ljoin_field ;   
+  mp_knot * path_p_field;
+  mp_knot * htap_p_field;
+  mp_knot * pen_p_field;
+  scaled miterlim_field ;
+} mp_fill_object;
+
+typedef struct mp_stroked_object {
+  GRAPHIC_BODY;
+  char *pre_script_field;
+  char *post_script_field;
+  mp_color color_field;
+  quarterword color_model_field;
+  quarterword ljoin_field ;   
+  quarterword lcap_field ;   
+  mp_knot * path_p_field;
+  mp_knot * pen_p_field;
+  scaled miterlim_field ;
+  mp_dash_object *dash_p_field;
+} mp_stroked_object;
+
+typedef struct mp_clip_object {
+  GRAPHIC_BODY;
+  mp_knot * path_p_field;
+} mp_clip_object;
+
+typedef struct mp_bounds_object {
+  GRAPHIC_BODY;
+  mp_knot * path_p_field;
+} mp_bounds_object;
+
+typedef struct mp_special_object {
+  GRAPHIC_BODY;
+  char *pre_script_field;
+} mp_special_object ;
+
 typedef struct mp_edge_object {
   struct mp_graphic_object * body;
   struct mp_edge_object * _next;
@@ -4596,13 +4632,23 @@ typedef struct mp_edge_object {
 } mp_edge_object;
 
 @ @<Exported function headers@>=
-struct mp_graphic_object *mp_new_graphic_object(MP mp, int type);
+mp_graphic_object *mp_new_graphic_object(MP mp, int type);
 
 @ @c
-struct mp_graphic_object *mp_new_graphic_object (MP mp, int type) {
+mp_graphic_object *mp_new_graphic_object (MP mp, int type) {
   mp_graphic_object *p;
-  p = mp_xmalloc(mp,1,sizeof(struct mp_graphic_object));
-  memset(p,0,sizeof(struct mp_graphic_object));
+  int size ;
+  switch (type) {
+  case mp_fill_code:         size = sizeof(mp_fill_object);    break;
+  case mp_stroked_code:      size = sizeof(mp_stroked_object); break;
+  case mp_text_code:         size = sizeof(mp_text_object);    break;
+  case mp_start_clip_code:   size = sizeof(mp_clip_object);    break;
+  case mp_start_bounds_code: size = sizeof(mp_bounds_object);  break;
+  case mp_special_code:      size = sizeof(mp_special_object); break;
+  default:                   size = sizeof(mp_graphic_object); break;
+  }  
+  p = (mp_graphic_object *)mp_xmalloc(mp,1,size);
+  memset(p,0,size);
   gr_type(p) = type;
   return p;
 }
@@ -4641,7 +4687,7 @@ typedef struct _gs_state {
    /* what resolution-dependent adjustment applies to the width */
   scaled miterlim_field ;
    /* the value from the last \&{setmiterlimit} command */
-  struct mp_dash_object * dash_p_field ;
+  mp_dash_object * dash_p_field ;
    /* edge structure for last \&{setdash} command */
   struct _gs_state * previous_field ;
    /* backlink to the previous |_gs_state| structure */
@@ -4710,69 +4756,108 @@ void mp_gs_unknown_graphics_state (MP mp,scaled c) ;
 that \ps's idea of the graphics state agrees with what is stored in the object.
 
 @<Declarations@>=
-void mp_gr_fix_graphics_state (MP mp, struct mp_graphic_object *p) ;
+void mp_gr_fix_graphics_state (MP mp, mp_graphic_object *p) ;
 
 @ @c 
-void mp_gr_fix_graphics_state (MP mp, struct mp_graphic_object *p) {
+void mp_gr_fix_graphics_state (MP mp, mp_graphic_object *p) {
   /* get ready to output graphical object |p| */
-  struct mp_knot *pp; /* for list manipulation */
-  struct mp_dash_object *hh;
+  mp_knot *pp, *path_p; /* for list manipulation */
+  mp_dash_object *hh;
   scaled wx,wy,ww; /* dimensions of pen bounding box */
   boolean adj_wx; /* whether pixel rounding should be based on |wx| or |wy| */
   integer tx,ty; /* temporaries for computing |adj_wx| */
   scaled scf; /* a scale factor for the dash pattern */
   if ( gr_has_color(p) )
     @<Make sure \ps\ will use the right color for object~|p|@>;
-  if ( (gr_type(p)==mp_fill_code)||(gr_type(p)==mp_stroked_code) )
-    if ( gr_pen_p(p)!=NULL )
-      if ( pen_is_elliptical(gr_pen_p(p)) ) {
+  if ( (gr_type(p)==mp_fill_code)||(gr_type(p)==mp_stroked_code) ) {
+    if (gr_type(p)==mp_fill_code) {
+      pp = gr_pen_p((mp_fill_object *)p);
+      path_p = gr_path_p((mp_fill_object *)p);
+    } else {
+      pp = gr_pen_p((mp_stroked_object *)p);
+      path_p = gr_path_p((mp_stroked_object *)p);
+    }
+    if ( pp!=NULL )
+      if ( pen_is_elliptical(pp) ) {
         @<Generate \ps\ code that sets the stroke width to the
           appropriate rounded value@>;
         @<Make sure \ps\ will use the right dash pattern for |dash_p(p)|@>;
         @<Decide whether the line cap parameter matters and set it if necessary@>;
         @<Set the other numeric parameters as needed for object~|p|@>;
       }
+  }
   if ( mp->ps->ps_offset>0 ) mp_ps_print_ln(mp);
 }
 
 @ @<Decide whether the line cap parameter matters and set it if necessary@>=
-if ( gr_type(p)==mp_stroked_code )
-  if ( (gr_left_type(gr_path_p(p))==mp_endpoint)||(gr_dash_p(p)!=NULL) )
-    if ( gs_lcap!=gr_lcap_val(p) ) {
+if ( gr_type(p)==mp_stroked_code ) {
+  mp_stroked_object *ts = (mp_stroked_object *)p;
+  if ( (gr_left_type(gr_path_p(ts))==mp_endpoint)||(gr_dash_p(ts)!=NULL) )
+    if ( gs_lcap!=gr_lcap_val(ts) ) {
       ps_room(13);
       mp_ps_print_char(mp, ' ');
-      mp_ps_print_char(mp, '0'+gr_lcap_val(p)); 
+      mp_ps_print_char(mp, '0'+gr_lcap_val(ts)); 
       mp_ps_print_cmd(mp, " setlinecap"," lc");
-      gs_lcap=gr_lcap_val(p);
+      gs_lcap=gr_lcap_val(ts);
     }
-
-@ @<Set the other numeric parameters as needed for object~|p|@>=
-if ( gs_ljoin!=gr_ljoin_val(p) ) {
-  ps_room(14);
-  mp_ps_print_char(mp, ' ');
-  mp_ps_print_char(mp, '0'+gr_ljoin_val(p)); 
-  mp_ps_print_cmd(mp, " setlinejoin"," lj");
-  gs_ljoin=gr_ljoin_val(p);
-}
-if ( gs_miterlim!=gr_miterlim_val(p) ) {
-  ps_room(27);
-  mp_ps_print_char(mp, ' ');
-  mp_ps_print_scaled(mp, gr_miterlim_val(p)); 
-  mp_ps_print_cmd(mp, " setmiterlimit"," ml");
-  gs_miterlim=gr_miterlim_val(p);
 }
 
-@ @<Make sure \ps\ will use the right color for object~|p|@>=
-{
-  if ( (gr_color_model(p)==mp_rgb_model)||
-     ((gr_color_model(p)==mp_uninitialized_model)&&
-     ((mp->internal[mp_default_color_model]>>16)==mp_rgb_model)) ) {
-  if ( (gs_colormodel!=mp_rgb_model)||(gs_red!=gr_red_val(p))||
-      (gs_green!=gr_green_val(p))||(gs_blue!=gr_blue_val(p)) ) {
-      gs_red=gr_red_val(p);
-      gs_green=gr_green_val(p);
-      gs_blue=gr_blue_val(p);
-      gs_black= -1;
+@ 
+@d set_ljoin_miterlim(p) 
+  if ( gs_ljoin!=gr_ljoin_val(p) ) {
+    ps_room(14);
+    mp_ps_print_char(mp, ' ');
+    mp_ps_print_char(mp, '0'+gr_ljoin_val(p)); 
+    mp_ps_print_cmd(mp, " setlinejoin"," lj");
+    gs_ljoin=gr_ljoin_val(p);
+  }
+  if ( gs_miterlim!=gr_miterlim_val(p) ) {
+    ps_room(27);
+    mp_ps_print_char(mp, ' ');
+    mp_ps_print_scaled(mp, gr_miterlim_val(p)); 
+    mp_ps_print_cmd(mp, " setmiterlimit"," ml");
+    gs_miterlim=gr_miterlim_val(p);
+  }
+
+@<Set the other numeric parameters as needed for object~|p|@>=
+if ( gr_type(p)==mp_stroked_code ) {
+  mp_stroked_object *ts = (mp_stroked_object *)p;
+  set_ljoin_miterlim(ts);
+} else {
+  mp_fill_object *ts = (mp_fill_object *)p;
+  set_ljoin_miterlim(ts);
+}
+
+@ 
+@d set_color_objects(pq)
+  object_color_model = pq->color_model_field;
+  object_color_a = pq->color_field._a_val;
+  object_color_b = pq->color_field._b_val;
+  object_color_c = pq->color_field._c_val;
+  object_color_d = pq->color_field._d_val; 
+
+@<Make sure \ps\ will use the right color for object~|p|@>=
+{  
+  int object_color_model;
+  int object_color_a, object_color_b, object_color_c, object_color_d ; 
+  if (gr_type(p) == mp_fill_code) {
+    mp_fill_object *pq = (mp_fill_object *)p;
+    set_color_objects(pq);
+  } else if (gr_type(p) == mp_stroked_code) {
+    mp_stroked_object *pq = (mp_stroked_object *)p;
+    set_color_objects(pq);
+  } else {
+    mp_text_object *pq = (mp_text_object *)p;
+    set_color_objects(pq);
+  }
+
+  if ( object_color_model==mp_rgb_model) {
+  	if ( (gs_colormodel!=mp_rgb_model)||(gs_red!=object_color_a)||
+      (gs_green!=object_color_b)||(gs_blue!=object_color_c) ) {
+      gs_red   = object_color_a;
+      gs_green = object_color_b;
+      gs_blue  = object_color_c;
+      gs_black = -1;
       gs_colormodel=mp_rgb_model;
       { ps_room(36);
         mp_ps_print_char(mp, ' ');
@@ -4782,23 +4867,14 @@ if ( gs_miterlim!=gr_miterlim_val(p) ) {
         mp_ps_print_cmd(mp, " setrgbcolor", " R");
       }
     }
-  } else if ( (gr_color_model(p)==mp_cmyk_model)||
-     ((gr_color_model(p)==mp_uninitialized_model)&&
-     ((mp->internal[mp_default_color_model]>>16)==mp_cmyk_model)) ) {
-   if ( (gs_red!=gr_cyan_val(p))||(gs_green!=gr_magenta_val(p))||
-      (gs_blue!=gr_yellow_val(p))||(gs_black!=gr_black_val(p))||
+  } else if ( object_color_model==mp_cmyk_model) {
+   if ( (gs_red!=object_color_a)||(gs_green!=object_color_b)||
+      (gs_blue!=object_color_c)||(gs_black!=object_color_d)||
       (gs_colormodel!=mp_cmyk_model) ) {
-      if ( gr_color_model(p)==mp_uninitialized_model ) {
-        gs_red=0;
-        gs_green=0;
-        gs_blue=0;
-        gs_black=unity;
-      } else {
-        gs_red=gr_cyan_val(p);
-        gs_green=gr_magenta_val(p);
-        gs_blue=gr_yellow_val(p);
-        gs_black=gr_black_val(p);
-      }
+      gs_red   = object_color_a;
+      gs_green = object_color_b;
+      gs_blue  = object_color_c;
+      gs_black = object_color_d;
       gs_colormodel=mp_cmyk_model;
       { ps_room(45);
         mp_ps_print_char(mp, ' ');
@@ -4812,14 +4888,12 @@ if ( gs_miterlim!=gr_miterlim_val(p) ) {
         mp_ps_print_cmd(mp, " setcmykcolor"," C");
       }
     }
-  } else if ( (gr_color_model(p)==mp_grey_model)||
-    ((gr_color_model(p)==mp_uninitialized_model)&&
-     ((mp->internal[mp_default_color_model]>>16)==mp_grey_model)) ) {
-   if ( (gs_red!=gr_grey_val(p))||(gs_colormodel!=mp_grey_model) ) {
-      gs_red = gr_grey_val(p);
-      gs_green= -1;
-      gs_blue= -1;
-      gs_black= -1;
+  } else if ( object_color_model==mp_grey_model ) {
+   if ( (gs_red!=object_color_a)||(gs_colormodel!=mp_grey_model) ) {
+      gs_red   = object_color_a;
+      gs_green = -1;
+      gs_blue  = -1;
+      gs_black = -1;
       gs_colormodel=mp_grey_model;
       { ps_room(16);
         mp_ps_print_char(mp, ' ');
@@ -4827,9 +4901,9 @@ if ( gs_miterlim!=gr_miterlim_val(p) ) {
         mp_ps_print_cmd(mp, " setgray"," G");
       }
     }
-  }
-  if ( gr_color_model(p)==mp_no_model )
+  } else if ( object_color_model==mp_no_model ) {
     gs_colormodel=mp_no_model;
+  }
 }
 
 @ In order to get consistent widths for horizontal and vertical pen strokes, we
@@ -4877,7 +4951,6 @@ if ( (ww!=gs_width) || (adj_wx!=gs_adj_wx) ) {
 }
 
 @ @<Set |wx| and |wy| to the width and height of the bounding box for...@>=
-pp=gr_pen_p(p);
 if ( (gr_right_x(pp)==gr_x_coord(pp)) && (gr_left_y(pp)==gr_y_coord(pp)) ) {
   wx = abs(gr_left_x(pp) - gr_x_coord(pp));
   wy = abs(gr_right_y(pp) - gr_y_coord(pp));
@@ -4899,8 +4972,8 @@ of the pen transformation is more that |aspect_bound*(ww+1)|.
 
 @<Use |pen_p(p)| and |path_p(p)| to decide whether |wx| or |wy| is more...@>=
 tx=1; ty=1;
-if ( mp_gr_coord_rangeOK(gr_path_p(p), do_y_loc, wy) ) tx=aspect_bound;
-else if ( mp_gr_coord_rangeOK(gr_path_p(p), do_x_loc, wx) ) ty=aspect_bound;
+if ( mp_gr_coord_rangeOK(path_p, do_y_loc, wy) ) tx=aspect_bound;
+else if ( mp_gr_coord_rangeOK(path_p, do_x_loc, wx) ) ty=aspect_bound;
 if ( wy / ty>=wx / tx ) { ww=wy; adj_wx=false; }
 else { ww=wx; adj_wx=true;  }
 
@@ -4910,13 +4983,13 @@ allowable range for $x$ or~$y$.  We do not need and cannot afford a full
 bounding-box computation.
 
 @<Declarations@>=
-boolean mp_gr_coord_rangeOK (struct mp_knot *h, 
+boolean mp_gr_coord_rangeOK (mp_knot *h, 
                           small_number  zoff, scaled dz);
 
 @ @c
-boolean mp_gr_coord_rangeOK (struct mp_knot *h, 
+boolean mp_gr_coord_rangeOK (mp_knot *h, 
                           small_number  zoff, scaled dz) {
-  struct mp_knot *p; /* for scanning the path form |h| */
+  mp_knot *p; /* for scanning the path form |h| */
   scaled zlo,zhi; /* coordinate range so far */
   scaled z; /* coordinate currently being tested */
   if (zoff==do_x_loc) {
@@ -4966,7 +5039,7 @@ if ( gr_type(p)==mp_fill_code ) {
   hh=NULL;
 } else { 
   hh=gr_dash_p(p);
-  scf=mp_gr_get_pen_scale(mp, gr_pen_p(p));
+  scf=mp_gr_get_pen_scale(mp, gr_pen_p((mp_fill_object *)p));
   if ( scf==0 ) {
     if ( gs_width==0 ) scf=hh->scale_field;  else hh=NULL;
   } else { 
@@ -4984,11 +5057,11 @@ if ( hh==NULL ) {
 }
 
 @ @<Declarations@>=
-scaled mp_gr_get_pen_scale (MP mp, struct mp_knot *p) ;
+scaled mp_gr_get_pen_scale (MP mp, mp_knot *p) ;
 
 
 @ @c
-scaled mp_gr_get_pen_scale (MP mp, struct mp_knot *p) { 
+scaled mp_gr_get_pen_scale (MP mp, mp_knot *p) { 
   return mp_sqrt_det(mp, 
     gr_left_x(p)-gr_x_coord(p), gr_right_x(p)-gr_x_coord(p),
     gr_left_y(p)-gr_y_coord(p), gr_right_y(p)-gr_y_coord(p));
@@ -5019,12 +5092,12 @@ scaled mp_gr_get_pen_scale (MP mp, struct mp_knot *p) {
 }
 
 @ @<Declarations@>=
-boolean mp_gr_same_dashes (struct mp_dash_object *h, struct mp_dash_object *hh) ;
+boolean mp_gr_same_dashes (mp_dash_object *h, mp_dash_object *hh) ;
 
 @ This function test if |h| and |hh| represent the same dash pattern.
 
 @c
-boolean mp_gr_same_dashes (struct mp_dash_object *h, struct mp_dash_object *hh) {
+boolean mp_gr_same_dashes (mp_dash_object *h, mp_dash_object *hh) {
   if ( (h==NULL)||(hh==NULL) ) return false;
   else if ( h==hh ) return true;
   else if ( h->scale_field!=hh->scale_field ) return false;
@@ -5053,13 +5126,13 @@ If |fill_also=true|, the path is to be filled as well as stroked so we must
 insert commands to do this after giving the path.
 
 @<Declarations@>=
-void mp_gr_stroke_ellipse (MP mp, struct mp_graphic_object *h, boolean fill_also) ;
+void mp_gr_stroke_ellipse (MP mp,  mp_graphic_object *h, boolean fill_also) ;
 
 @ 
-@c void mp_gr_stroke_ellipse (MP mp, struct mp_graphic_object *h, boolean fill_also) {
+@c void mp_gr_stroke_ellipse (MP mp,  mp_graphic_object *h, boolean fill_also) {
   /* generate an elliptical pen stroke from object |h| */
   scaled txx,txy,tyx,tyy; /* transformation parameters */
-  struct mp_knot *p; /* the pen to stroke with */
+  mp_knot *p; /* the pen to stroke with */
   scaled d1,det; /* for tweaking transformation parameters */
   integer s; /* also for tweaking transformation paramters */
   boolean transformed; /* keeps track of whether gsave/grestore are needed */
@@ -5067,7 +5140,11 @@ void mp_gr_stroke_ellipse (MP mp, struct mp_graphic_object *h, boolean fill_also
   @<Use |pen_p(h)| to set the transformation parameters and give the initial
     translation@>;
   @<Tweak the transformation parameters so the transformation is nonsingular@>;
-  mp_gr_ps_path_out(mp, gr_path_p(h));
+  if (gr_type(h)==mp_fill_code) {
+    mp_gr_ps_path_out(mp, gr_path_p((mp_fill_object *)h));
+  } else {
+    mp_gr_ps_path_out(mp, gr_path_p((mp_stroked_object *)h));
+  }
   if ( mp->internal[mp_procset]==0 ) {
     if ( fill_also ) mp_ps_print_nl(mp, "gsave fill grestore");
     @<Issue \ps\ commands to transform the coordinate system@>;
@@ -5091,7 +5168,11 @@ void mp_gr_stroke_ellipse (MP mp, struct mp_graphic_object *h, boolean fill_also
 }
 
 @ @<Use |pen_p(h)| to set the transformation parameters and give the...@>=
-p=gr_pen_p(h);
+if (gr_type(h)==mp_fill_code) {
+  p=gr_pen_p((mp_fill_object *)h);
+} else {
+  p=gr_pen_p((mp_stroked_object *)h);
+}
 txx=gr_left_x(p);
 tyx=gr_left_y(p);
 txy=gr_right_x(p);
@@ -5172,10 +5253,10 @@ if ( abs(det)<d1 ) {
 @ Here is a simple routine that just fills a cycle.
 
 @<Declarations@>=
-void mp_gr_ps_fill_out (MP mp, struct mp_knot *p);
+void mp_gr_ps_fill_out (MP mp, mp_knot *p);
 
 @ @c
-void mp_gr_ps_fill_out (MP mp, struct mp_knot *p) { /* fill cyclic path~|p| */
+void mp_gr_ps_fill_out (MP mp, mp_knot *p) { /* fill cyclic path~|p| */
   mp_gr_ps_path_out(mp, p);
   mp_ps_print_cmd(mp, " fill"," F");
   mp_ps_print_ln(mp);
@@ -5192,9 +5273,9 @@ non-shifting part of the transformation matrix.  It is careful to avoid
 additions that might cause undetected overflow.
 
 @<Declarations@>=
-scaled mp_gr_choose_scale (MP mp, struct mp_graphic_object *p) ;
+scaled mp_gr_choose_scale (MP mp, mp_graphic_object *p) ;
 
-@ @c scaled mp_gr_choose_scale (MP mp, struct mp_graphic_object *p) {
+@ @c scaled mp_gr_choose_scale (MP mp, mp_graphic_object *p) {
   /* |p| should point to a text node */
   scaled a,b,c,d,ad,bc; /* temporary values */
   a=gr_txx_val(p);
@@ -5309,11 +5390,11 @@ position in the size list for its font.
 
 
 @ @<Declarations@>=
-void mp_apply_mark_string_chars(MP mp, struct mp_edge_object *h, int next_size);
+void mp_apply_mark_string_chars(MP mp, mp_edge_object *h, int next_size);
 
 @ @c
-void mp_apply_mark_string_chars(MP mp, struct mp_edge_object *h, int next_size) {
-  struct mp_graphic_object * p;
+void mp_apply_mark_string_chars(MP mp, mp_edge_object *h, int next_size) {
+  mp_graphic_object * p;
   p=h->body;
   while ( p!= NULL ) {
     if ( gr_type(p)==mp_text_code ) {
@@ -5369,11 +5450,11 @@ while ( p!=null ) {
 @d pen_is_elliptical(A) ((A)==gr_next_knot((A)))
 
 @<Exported function headers@>=
-void mp_gr_ship_out (struct mp_edge_object *hh, int prologues, int procset) ;
+void mp_gr_ship_out (mp_edge_object *hh, int prologues, int procset) ;
 
 @ @c 
-void mp_gr_ship_out (struct mp_edge_object *hh, int prologues, int procset) {
-  struct mp_graphic_object *p;
+void mp_gr_ship_out (mp_edge_object *hh, int prologues, int procset) {
+  mp_graphic_object *p;
   scaled ds,scf; /* design size and scale factor for a text node */
   font_number f; /* for loops over fonts while (un)marking characters */
   boolean transformed; /* is the coordinate system being transformed? */
@@ -5400,34 +5481,33 @@ void mp_gr_ship_out (struct mp_edge_object *hh, int prologues, int procset) {
   p = hh->body;
   while ( p!=NULL ) { 
     if ( gr_has_color(p) ) {
-      if ( (gr_pre_script(p))!=NULL ) {
-        mp_ps_print_nl (mp, gr_pre_script(p)); 
-	    mp_ps_print_ln(mp);
-      }
+      @<Write |pre_script| of |p|@>;
     }
     mp_gr_fix_graphics_state(mp, p);
     switch (gr_type(p)) {
     case mp_fill_code: 
-      if ( gr_pen_p(p)==NULL ) {
-        mp_gr_ps_fill_out(mp, gr_path_p(p));
-      } else if ( pen_is_elliptical(gr_pen_p(p)) )  {
+      if ( gr_pen_p((mp_fill_object *)p)==NULL ) {
+        mp_gr_ps_fill_out(mp, gr_path_p((mp_fill_object *)p));
+      } else if ( pen_is_elliptical(gr_pen_p((mp_fill_object *)p)) )  {
         mp_gr_stroke_ellipse(mp, p,true);
       } else { 
-        mp_gr_ps_fill_out(mp, gr_path_p(p));
+        mp_gr_ps_fill_out(mp, gr_path_p((mp_fill_object *)p));
         mp_gr_ps_fill_out(mp, gr_htap_p(p));
       }
-      if ( gr_post_script(p)!=NULL ) {
-         mp_ps_print_nl (mp, gr_post_script(p)); 
+      if ( gr_post_script((mp_fill_object *)p)!=NULL ) {
+         mp_ps_print_nl (mp, gr_post_script((mp_fill_object *)p)); 
 	     mp_ps_print_ln(mp);
       }
       break;
     case mp_stroked_code:
-      if ( pen_is_elliptical(gr_pen_p(p)) ) mp_gr_stroke_ellipse(mp, p,false);
+      if ( pen_is_elliptical(gr_pen_p((mp_stroked_object *)p)) ) 
+	    mp_gr_stroke_ellipse(mp, p,false);
       else { 
-        mp_gr_ps_fill_out(mp, gr_path_p(p));
+        mp_gr_ps_fill_out(mp, gr_path_p((mp_stroked_object *)p));
       }
-      if ( gr_post_script(p)!=NULL ) {
-        mp_ps_print_nl (mp, gr_post_script(p)); mp_ps_print_ln(mp);
+      if ( gr_post_script((mp_stroked_object *)p)!=NULL ) {
+        mp_ps_print_nl (mp, gr_post_script((mp_stroked_object *)p)); 
+        mp_ps_print_ln(mp);
       }
       break;
     case mp_text_code: 
@@ -5444,13 +5524,13 @@ void mp_gr_ship_out (struct mp_edge_object *hh, int prologues, int procset) {
         @<Print the size information and \ps\ commands for text node~|p|@>;
         mp_ps_print_ln(mp);
       }
-      if ( gr_post_script(p)!=NULL ) {
-        mp_ps_print_nl (mp, gr_post_script(p)); mp_ps_print_ln(mp);
+      if ( gr_post_script((mp_text_object *)p)!=NULL ) {
+        mp_ps_print_nl (mp, gr_post_script((mp_text_object *)p)); mp_ps_print_ln(mp);
       }
       break;
     case mp_start_clip_code: 
       mp_ps_print_nl(mp, ""); mp_ps_print_cmd(mp, "gsave ","q ");
-      mp_gr_ps_path_out(mp, gr_path_p(p));
+      mp_gr_ps_path_out(mp, gr_path_p((mp_clip_object *)p));
       mp_ps_print_cmd(mp, " clip"," W");
       mp_ps_print_ln(mp);
       if ( mp->internal[mp_restore_clip_color]>0 )
@@ -5468,7 +5548,7 @@ void mp_gr_ship_out (struct mp_edge_object *hh, int prologues, int procset) {
     case mp_stop_bounds_code:
 	  break;
     case mp_special_code: 
-      mp_ps_print_nl (mp, gr_pre_script(p)); 
+      mp_ps_print_nl (mp, gr_pre_script((mp_special_object *)p)); 
  	  mp_ps_print_ln (mp);
       break;
     } /* all cases are enumerated */
@@ -5479,6 +5559,21 @@ void mp_gr_ship_out (struct mp_edge_object *hh, int prologues, int procset) {
   (mp->close_file)(mp,mp->ps_file);
   if ( prologues<=0 ) 
     mp_clear_sizes(mp);
+}
+
+@ 
+@d do_write_prescript(a,b) {
+  if ( (gr_pre_script((b *)a))!=NULL ) {
+    mp_ps_print_nl (mp, gr_pre_script((b *)a)); 
+    mp_ps_print_ln(mp);
+  }
+}
+
+@<Write |pre_script| of |p|@>=
+{
+  if (gr_type(p)==mp_fill_code) { do_write_prescript(p,mp_fill_object); }
+  else if (gr_type(p)==mp_stroked_code) { do_write_prescript(p,mp_stroked_object); }
+  else if (gr_type(p)==mp_text_code) { do_write_prescript(p,mp_text_object); }
 }
 
 @ The envelope of a cyclic path~|q| could be computed by calling
@@ -5524,42 +5619,50 @@ mp_ps_print_ln(mp)
 
 
 @ @<Exported function headers@>=
-void mp_gr_toss_objects ( struct mp_edge_object *hh) ;
-void mp_gr_toss_object (struct mp_graphic_object *p) ;
+void mp_gr_toss_objects ( mp_edge_object *hh) ;
+void mp_gr_toss_object (mp_graphic_object *p) ;
 
 @ @c
-void mp_gr_toss_object (struct mp_graphic_object *p) {
+void mp_gr_toss_object (mp_graphic_object *p) {
+    mp_fill_object *tf;
+    mp_stroked_object *ts;
+    mp_text_object *tt;
     switch (gr_type(p)) {	
     case mp_fill_code: 
-      mp_xfree(gr_pre_script(p));
-      mp_xfree(gr_post_script(p));
-      mp_gr_toss_knot_list(mp,gr_pen_p(p));
-      mp_gr_toss_knot_list(mp,gr_path_p(p));
+      tf = (mp_fill_object *)p;
+      mp_xfree(gr_pre_script(tf));
+      mp_xfree(gr_post_script(tf));
+      mp_gr_toss_knot_list(mp,gr_pen_p(tf));
+      mp_gr_toss_knot_list(mp,gr_path_p(tf));
       mp_gr_toss_knot_list(mp,gr_htap_p(p));
 	  break;
     case mp_stroked_code:
-      mp_xfree(gr_pre_script(p));
-      mp_xfree(gr_post_script(p));
-      mp_gr_toss_knot_list(mp,gr_pen_p(p));
-      mp_gr_toss_knot_list(mp,gr_path_p(p));
+      ts = (mp_stroked_object *)p;
+      mp_xfree(gr_pre_script(ts));
+      mp_xfree(gr_post_script(ts));
+      mp_gr_toss_knot_list(mp,gr_pen_p(ts));
+      mp_gr_toss_knot_list(mp,gr_path_p(ts));
       if (gr_dash_p(p)!=NULL) 
         mp_gr_toss_dashes   (mp,gr_dash_p(p));
       break;
     case mp_text_code: 
-      mp_xfree(gr_pre_script(p));
-      mp_xfree(gr_post_script(p));
+      tt = (mp_text_object *)p;
+      mp_xfree(gr_pre_script(tt));
+      mp_xfree(gr_post_script(tt));
       mp_xfree(gr_text_p(p));
       mp_xfree(gr_font_name(p));
       break;
     case mp_start_clip_code: 
+      mp_gr_toss_knot_list(mp,gr_path_p((mp_clip_object *)p));
+      break;
     case mp_start_bounds_code:
-      mp_gr_toss_knot_list(mp,gr_path_p(p));
+      mp_gr_toss_knot_list(mp,gr_path_p((mp_bounds_object *)p));
       break;
     case mp_stop_clip_code: 
     case mp_stop_bounds_code:
 	  break;
     case mp_special_code: 
-      mp_xfree(gr_pre_script(p));
+      mp_xfree(gr_pre_script((mp_special_object *)p));
 	  break;
     } /* all cases are enumerated */
     mp_xfree(p);
@@ -5567,8 +5670,8 @@ void mp_gr_toss_object (struct mp_graphic_object *p) {
 
 
 @ @c
-void mp_gr_toss_objects (struct mp_edge_object *hh) {
-  struct mp_graphic_object *p, *q;
+void mp_gr_toss_objects (mp_edge_object *hh) {
+  mp_graphic_object *p, *q;
   p = hh->body;
   while ( p!=NULL ) { 
     q = gr_link(p);
@@ -5579,45 +5682,65 @@ void mp_gr_toss_objects (struct mp_edge_object *hh) {
 }
 
 @ @<Exported function headers@>=
-struct mp_graphic_object *mp_gr_copy_object (MP mp, struct mp_graphic_object *p) ;
+mp_graphic_object *mp_gr_copy_object (MP mp, mp_graphic_object *p) ;
 
 @ @c
-struct mp_graphic_object * 
-mp_gr_copy_object (MP mp, struct mp_graphic_object *p) {
-  struct mp_graphic_object *q;
-  q = mp_xmalloc(mp,1,sizeof(mp_graphic_object));
-  memcpy(q,p,sizeof(mp_graphic_object));
-  gr_link(q) = NULL;
+mp_graphic_object * 
+mp_gr_copy_object (MP mp, mp_graphic_object *p) {
+  mp_graphic_object *q;
+  mp_fill_object *tf;
+  mp_stroked_object *ts;
+  mp_text_object *tt;
+  mp_clip_object *tc;
+  mp_bounds_object *tb;
+  mp_special_object *tp;
   switch (gr_type(p)) {	
   case mp_fill_code: 
-    gr_pre_script(q)  = mp_xstrdup(mp, gr_pre_script(p));
-    gr_post_script(q) = mp_xstrdup(mp, gr_post_script(p));
-    gr_path_p(q)      = mp_gr_copy_path(mp,gr_path_p(p));
-    gr_htap_p(q)      = mp_gr_copy_path(mp,gr_htap_p(p));
-    gr_pen_p(q)       = mp_gr_copy_path(mp,gr_pen_p(p));
+    tf = (mp_fill_object *)mp_new_graphic_object(mp, mp_fill_code);
+    gr_pre_script(tf)  = mp_xstrdup(mp, gr_pre_script((mp_fill_object *)p));
+    gr_post_script(tf) = mp_xstrdup(mp, gr_post_script((mp_fill_object *)p));
+    gr_path_p(tf)      = mp_gr_copy_path(mp,gr_path_p((mp_fill_object *)p));
+    gr_htap_p(tf)      = mp_gr_copy_path(mp,gr_htap_p(p));
+    gr_pen_p(tf)       = mp_gr_copy_path(mp,gr_pen_p((mp_fill_object *)p));
+    q = (mp_graphic_object *)tf;
     break;
   case mp_stroked_code:
-    gr_pre_script(q)  = mp_xstrdup(mp, gr_pre_script(p));
-    gr_post_script(q) = mp_xstrdup(mp, gr_post_script(p));
-    gr_path_p(q)      = mp_gr_copy_path(mp,gr_path_p(p));
-    gr_pen_p(q)       = mp_gr_copy_path(mp,gr_pen_p(p));
-    gr_dash_p(q)      = mp_gr_copy_dashes(mp,gr_dash_p(p));
+    ts = (mp_stroked_object *)mp_new_graphic_object(mp, mp_stroked_code);
+    gr_pre_script(ts)  = mp_xstrdup(mp, gr_pre_script((mp_stroked_object *)p));
+    gr_post_script(ts) = mp_xstrdup(mp, gr_post_script((mp_stroked_object *)p));
+    gr_path_p(ts)      = mp_gr_copy_path(mp,gr_path_p((mp_stroked_object *)p));
+    gr_pen_p(ts)       = mp_gr_copy_path(mp,gr_pen_p((mp_stroked_object *)p));
+    gr_dash_p(ts)      = mp_gr_copy_dashes(mp,gr_dash_p(p));
+    q = (mp_graphic_object *)ts;
     break;
   case mp_text_code: 
-    gr_pre_script(q)  = mp_xstrdup(mp, gr_pre_script(p));
-    gr_post_script(q) = mp_xstrdup(mp, gr_post_script(p));
-    gr_text_p(q)      = mp_xstrdup(mp, gr_text_p(p));
-    gr_font_name(q)   = mp_xstrdup(mp, gr_font_name(p));
+    tt = (mp_text_object *)mp_new_graphic_object(mp, mp_text_code);
+    gr_pre_script(tt)  = mp_xstrdup(mp, gr_pre_script((mp_text_object *)p));
+    gr_post_script(tt) = mp_xstrdup(mp, gr_post_script((mp_text_object *)p));
+    gr_text_p(tt)      = mp_xstrdup(mp, gr_text_p(p));
+    gr_font_name(tt)   = mp_xstrdup(mp, gr_font_name(p));
+    q = (mp_graphic_object *)tt;
     break;
   case mp_start_clip_code: 
+    tc = (mp_clip_object *)mp_new_graphic_object(mp, mp_start_clip_code);
+    gr_path_p(tc)      = mp_gr_copy_path(mp,gr_path_p((mp_clip_object *)p));
+    q = (mp_graphic_object *)tc;
+    break;
   case mp_start_bounds_code:
-    gr_path_p(q)      = mp_gr_copy_path(mp,gr_path_p(p));
+    tb = (mp_bounds_object *)mp_new_graphic_object(mp, mp_start_bounds_code);
+    gr_path_p(tb)      = mp_gr_copy_path(mp,gr_path_p((mp_bounds_object *)p));
+    q = (mp_graphic_object *)tb;
     break;
   case mp_special_code: 
-    gr_pre_script(q)  = mp_xstrdup(mp, gr_pre_script(p));
+    tp = (mp_special_object *)mp_new_graphic_object(mp, mp_special_code);
+    gr_pre_script(tp)  = mp_xstrdup(mp, gr_pre_script((mp_special_object *)p));
+    q = (mp_graphic_object *)tp;
     break;
   case mp_stop_clip_code: 
+    q = mp_new_graphic_object(mp, mp_stop_clip_code);
+    break;
   case mp_stop_bounds_code:
+    q = mp_new_graphic_object(mp, mp_stop_bounds_code);
     break;
   } /* all cases are enumerated */
   return q;

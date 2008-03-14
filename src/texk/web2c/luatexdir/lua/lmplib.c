@@ -46,7 +46,6 @@ mplib_make_S(left_x);
 mplib_make_S(left_y);
 mplib_make_S(right_x);
 mplib_make_S(right_y);
-mplib_make_S(originator);
 
 mplib_make_S(color);
 mplib_make_S(dash);
@@ -76,7 +75,6 @@ void mplib_init_Ses(lua_State *L) {
   mplib_init_S(left_y);
   mplib_init_S(right_x);
   mplib_init_S(right_y);
-  mplib_init_S(originator);
 
   mplib_init_S(color);
   mplib_init_S(dash);
@@ -120,15 +118,6 @@ static const char *mplib_filetype_names[] =
 
 static const char *knot_type_enum[]  = 
   { "endpoint", "explicit", "given", "curl", "open", "end_cycle"  };
-
-static const char *knot_originator_enum[]  = 
-  { "program" ,"user" };
-
-
-/* this looks a bit funny because of the holes */
-
-static const char *color_model_enum[] = 
-  { NULL, "none",  NULL, "grey", NULL, "rgb", NULL, "cmyk", NULL, "uninitialized" };
 
 /* object fields */
 
@@ -261,8 +250,8 @@ char *mplib_find_file (MP mp, char *fname, char *fmode, int ftype)  {
     x = (char *)lua_tostring(L,-1);
     if (x!=NULL)
       s = strdup(x);
-      lua_pop(L,1); /* pop the string */
-      return s;
+	lua_pop(L,1); /* pop the string */
+	return s;
   } else {
     lua_pop(L,1);
   }
@@ -284,17 +273,17 @@ mplib_find_file_function (lua_State *L) {
 }
 
 void *mplib_open_file(MP mp, char *fname, char *fmode, int ftype)  {
-  mplib_instance *mplib_data = mplib_get_data(mp);
   File *ff = malloc(sizeof (File));
   if (ff) {
+    mplib_instance *mplib_data = mplib_get_data(mp);
     ff->f = NULL;
     if (ftype==mp_filetype_terminal) {
       if (fmode[0] == 'r') {
-	ff->f = stdin;
+		ff->f = stdin;
       } else {
-	xfree(mplib_data->term_file_ptr); 
-	ff->f = malloc(1);
-	mplib_data->term_file_ptr = ff->f;
+		xfree(mplib_data->term_file_ptr); 
+		ff->f = malloc(1);
+		mplib_data->term_file_ptr = ff->f;
       }
     } else if (ftype==mp_filetype_error) {
       xfree(mplib_data->err_file_ptr); 
@@ -309,16 +298,18 @@ void *mplib_open_file(MP mp, char *fname, char *fmode, int ftype)  {
       ff->f = malloc(1);
       mplib_data->ps_file_ptr = ff->f;
     } else { 
+      char realmode[3];
       char *f = fname;
-      if (fmode[0] == 'r') {
-	f = mplib_find_file(mp, fname,fmode,ftype);
-	if (f==NULL)
-	  return NULL;
-      }
-      ff->f = fopen(f, fmode);
+	  f = mplib_find_file(mp, fname,fmode,ftype);
+	  if (f==NULL)
+		return NULL;
+	  realmode[0] = *fmode;
+	  realmode[1] = 'b';
+	  realmode[2] = 0;
+      ff->f = fopen(f, realmode);
       if ((fmode[0] == 'r') && (ff->f == NULL)) {
-	free(ff);
-	return NULL;  
+		free(ff);
+		return NULL;  
       }
     }
     return ff;
@@ -358,11 +349,11 @@ mplib_unget_char (void *f, mplib_instance *mplib_data, int c) {
 
 
 char *mplib_read_ascii_file (MP mp, void *ff, size_t *size) {
-  int c;
-  size_t len = 0, lim = 128;
   char *s = NULL;
-  mplib_instance *mplib_data = mplib_get_data(mp);
   if (ff!=NULL) {
+	int c;
+	size_t len = 0, lim = 128;
+    mplib_instance *mplib_data = mplib_get_data(mp);
     FILE *f = ((File *)ff)->f;
     if (f==NULL)
       return NULL;
@@ -402,9 +393,9 @@ char *mplib_read_ascii_file (MP mp, void *ff, size_t *size) {
   } while (0)
 
 void mplib_write_ascii_file (MP mp, void *ff, char *s) {
-  mplib_instance *mplib_data = mplib_get_data(mp);
   if (ff!=NULL) {
     void *f = ((File *)ff)->f;
+    mplib_instance *mplib_data = mplib_get_data(mp);
     if (f!=NULL) {
       if (f==mplib_data->term_file_ptr) {
 	APPEND_STRING(term_out,s);
@@ -422,9 +413,9 @@ void mplib_write_ascii_file (MP mp, void *ff, char *s) {
 }
 
 void mplib_read_binary_file (MP mp, void *ff, void **data, size_t *size) {
-  size_t len = 0;
   (void)mp;
   if (ff!=NULL) {
+    size_t len = 0;
     FILE *f = ((File *)ff)->f;
     if (f!=NULL) 
       len = fread(*data,1,*size,f);
@@ -443,8 +434,8 @@ void mplib_write_binary_file (MP mp, void *ff, void *s, size_t size) {
 
 
 void mplib_close_file (MP mp, void *ff) {
-  mplib_instance *mplib_data = mplib_get_data(mp);
   if (ff!=NULL) {
+    mplib_instance *mplib_data = mplib_get_data(mp);
     void *f = ((File *)ff)->f;
     if (f != NULL && f != mplib_data->term_file_ptr && f != mplib_data->err_file_ptr
 	&& f != mplib_data->log_file_ptr && f != mplib_data->ps_file_ptr) {
@@ -455,8 +446,8 @@ void mplib_close_file (MP mp, void *ff) {
 }
 
 int mplib_eof_file (MP mp, void *ff) {
-  mplib_instance *mplib_data = mplib_get_data(mp);
   if (ff!=NULL) {
+    mplib_instance *mplib_data = mplib_get_data(mp);
     FILE *f = ((File *)ff)->f;
     if (f==NULL)
       return 1;
@@ -474,21 +465,20 @@ void mplib_flush_file (MP mp, void *ff) {
   return ;
 }
 
-#define APPEND_TO_EDGES(a) do {			\
-    if (mplib_data->edges==NULL) {				\
-      mplib_data->edges = hh;				\
-    } else {					\
+#define APPEND_TO_EDGES(a) do {							\
+    if (mplib_data->edges==NULL) {						\
+      mplib_data->edges = hh;							\
+    } else {											\
       struct mp_edge_object *p = mplib_data->edges;		\
-      while (p->_next!=NULL) { p = p->_next; }	\
-      p->_next = hh;				\
-    }						\
+      while (p->_next!=NULL) { p = p->_next; }			\
+      p->_next = hh;									\
+    }													\
 } while (0)
 
 void mplib_shipout_backend (MP mp, int h) {
-  struct mp_edge_object *hh; 
-  mplib_instance *mplib_data = mplib_get_data(mp);
-  hh = mp_gr_export(mp, h);
+  struct mp_edge_object *hh = mp_gr_export(mp, h);
   if (hh) {
+    mplib_instance *mplib_data = mplib_get_data(mp);
     APPEND_TO_EDGES(hh); 
   }
 }
@@ -511,11 +501,11 @@ mplib_setup_file_ops(struct MP_options * options) {
 static int 
 mplib_new (lua_State *L) {
   MP *mp_ptr;
-  int i;
-  mplib_instance *mplib_data;
-  struct MP_options * options; /* instance options */
   mp_ptr = lua_newuserdata(L, sizeof(MP *));
   if (mp_ptr) {
+	int i;
+	mplib_instance *mplib_data;
+	struct MP_options * options; /* instance options */
     options = mp_options();
     mplib_setup_file_ops(options);
     mplib_data = mplib_make_data();
@@ -666,9 +656,9 @@ mplib_wrapresults(lua_State *L, mplib_instance *mplib_data, int h) {
 
 static int
 mplib_execute (lua_State *L) {
-  int h;
   MP *mp_ptr = is_mp(L,1);
   if (*mp_ptr!=NULL && lua_isstring(L,2)) {
+    int h;
     mplib_instance *mplib_data = mplib_get_data(*mp_ptr);
     mplib_data->input_data = (char *)lua_tolstring(L,2, &(mplib_data->input_data_len));
     mplib_data->input_data_ptr = mplib_data->input_data;
@@ -700,6 +690,26 @@ mplib_finish (lua_State *L) {
   }
   return 1;
 }
+
+static int 
+mplib_statistics (lua_State *L) {
+  MP *mp_ptr = is_mp(L,1);
+  if (*mp_ptr!=NULL) {
+	lua_newtable(L);
+	lua_pushnumber(L, mp_memory_usage (*mp_ptr));
+	lua_setfield(L,-2,"main_memory");
+	lua_pushnumber(L, mp_hash_usage (*mp_ptr));
+	lua_setfield(L,-2,"hash_size");
+	lua_pushnumber(L, mp_param_usage (*mp_ptr));
+	lua_setfield(L,-2,"param_size");
+	lua_pushnumber(L, mp_open_usage (*mp_ptr));
+	lua_setfield(L,-2,"max_in_open");
+  } else {
+    lua_pushnil(L);
+  }
+  return 1;
+}
+
 
 /* figure methods */
 
@@ -858,16 +868,19 @@ mplib_push_path (lua_State *L, struct mp_knot *h, int is_pen) {
   if (p!=NULL) {
     lua_newtable(L);
     do {  
-      lua_createtable(L,0,9);
-      mplib_push_S(originator);
-      lua_pushstring(L,knot_originator_enum[p->originator_field]);
-      lua_rawset(L,-3);
-      mplib_push_S(left_type);
-      lua_pushstring(L,(is_pen ? "explicit" : knot_type_enum[p->left_type_field]));
-      lua_rawset(L,-3);
-      mplib_push_S(right_type);
-      lua_pushstring(L,(is_pen ? "explicit" : knot_type_enum[p->right_type_field]));
-      lua_rawset(L,-3);
+      lua_createtable(L,0,6);
+	  if (!is_pen) {
+        if (p->left_type_field != mp_explicit) {
+		  mplib_push_S(left_type);
+		  lua_pushstring(L,knot_type_enum[p->left_type_field]);
+		  lua_rawset(L,-3);
+		}
+		if (p->right_type_field != mp_explicit) {
+		  mplib_push_S(right_type);
+		  lua_pushstring(L,knot_type_enum[p->right_type_field]);
+		  lua_rawset(L,-3);
+		}
+	  }
       mplib_push_S(x_coord);
       mplib_push_number(L,p->x_coord_field);
       lua_rawset(L,-3);
@@ -897,46 +910,44 @@ mplib_push_path (lua_State *L, struct mp_knot *h, int is_pen) {
   }
 }
 
+#define set_color_objects(pq)					\
+  object_color_model = pq->color_model_field;	\
+  object_color_a = pq->color_field._a_val;		\
+  object_color_b = pq->color_field._b_val;		\
+  object_color_c = pq->color_field._c_val;		\
+  object_color_d = pq->color_field._d_val; 
+
+
 static void 
-mplib_push_color (lua_State *L, struct mp_graphic_object *h ) {
-  if (h!=NULL) {
+mplib_push_color (lua_State *L, struct mp_graphic_object *p ) {
+  int object_color_model;
+  int object_color_a, object_color_b, object_color_c, object_color_d ; 
+  if (p!=NULL) {
+	if (p->_type_field == mp_fill_code) {
+	  mp_fill_object *h = (mp_fill_object *)p;
+	  set_color_objects(h);
+	} else if (p->_type_field == mp_stroked_code) {
+	  mp_stroked_object *h = (mp_stroked_object *)p;
+	  set_color_objects(h);
+	} else {
+	  mp_text_object *h = (mp_text_object *)p;
+	  set_color_objects(h);
+	}
     lua_newtable(L);
-    lua_pushstring(L,color_model_enum[h->color_model_field]);
-    lua_setfield(L,-2,"model");
-
-    if (h->color_model_field == mp_rgb_model ||
-	h->color_model_field == mp_uninitialized_model) {
-      lua_newtable(L);
-      mplib_push_number(L,h->color_field.rgb._red_val);
+	if (object_color_model >= mp_grey_model) {
+      mplib_push_number(L,object_color_a);
       lua_rawseti(L,-2,1);
-      mplib_push_number(L,h->color_field.rgb._green_val);
-      lua_rawseti(L,-2,2);
-      mplib_push_number(L,h->color_field.rgb._blue_val);
-      lua_rawseti(L,-2,3);
-      lua_setfield(L,-2,"rgb");
-    }
-
-    if (h->color_model_field == mp_cmyk_model ||
-	h->color_model_field == mp_uninitialized_model) {
-      lua_newtable(L);
-      mplib_push_number(L,h->color_field.cmyk._cyan_val);
-      lua_rawseti(L,-2,1);
-      mplib_push_number(L,h->color_field.cmyk._magenta_val);
-      lua_rawseti(L,-2,2);
-      mplib_push_number(L,h->color_field.cmyk._yellow_val);
-      lua_rawseti(L,-2,3);
-      mplib_push_number(L,h->color_field.cmyk._black_val);
-      lua_rawseti(L,-2,4);
-      lua_setfield(L,-2,"cmyk");
-    }
-    if (h->color_model_field == mp_grey_model ||
-	h->color_model_field == mp_uninitialized_model) {
-      lua_newtable(L);
-      mplib_push_number(L,h->color_field.grey._grey_val);
-      lua_rawseti(L,-2,1);
-      lua_setfield(L,-2,"grey");
-    }
-    
+	}
+	if (object_color_model >= mp_rgb_model) {
+	  mplib_push_number(L,object_color_b);
+	  lua_rawseti(L,-2,2);
+	  mplib_push_number(L,object_color_c);
+	  lua_rawseti(L,-2,3);
+	}
+	if (object_color_model == mp_cmyk_model) {	
+	  mplib_push_number(L,object_color_d);
+	  lua_rawseti(L,-2,4);
+	}
   } else {
     lua_pushnil(L);
   }
@@ -944,7 +955,7 @@ mplib_push_color (lua_State *L, struct mp_graphic_object *h ) {
 
 /* the dash scale is not exported, the field has no external value */
 static void 
-mplib_push_dash (lua_State *L, struct mp_graphic_object *h ) {
+mplib_push_dash (lua_State *L, struct mp_stroked_object *h ) {
   mp_dash_object *d;
   if (h!=NULL && h->dash_p_field != NULL) {
     d  = h->dash_p_field;
@@ -967,7 +978,7 @@ mplib_push_dash (lua_State *L, struct mp_graphic_object *h ) {
 }
 
 static void 
-mplib_push_transform (lua_State *L, struct mp_graphic_object *h ) {
+mplib_push_transform (lua_State *L, struct mp_text_object *h ) {
   int i = 1;
   if (h!=NULL) {
     lua_createtable(L,6,0);
@@ -990,7 +1001,7 @@ mplib_push_transform (lua_State *L, struct mp_graphic_object *h ) {
 
 
 static void 
-mplib_fill_field (lua_State *L, struct mp_graphic_object *h, int field) {
+mplib_fill_field (lua_State *L, struct mp_fill_object *h, int field) {
   if (FIELD(type)) {
     lua_pushstring(L,"fill");
   } else if (FIELD(path)) {
@@ -1000,7 +1011,7 @@ mplib_fill_field (lua_State *L, struct mp_graphic_object *h, int field) {
   } else if (FIELD(pen)) {
     mplib_push_path(L, h->pen_p_field, MPLIB_PEN);
   } else if (FIELD(color)) {
-    mplib_push_color(L, h);
+    mplib_push_color(L,(mp_graphic_object *)h);
   } else if (FIELD(linejoin)) {
     lua_pushnumber(L,h->ljoin_field);
   } else if (FIELD(miterlimit)) {
@@ -1015,7 +1026,7 @@ mplib_fill_field (lua_State *L, struct mp_graphic_object *h, int field) {
 }
 
 static void 
-mplib_stroked_field (lua_State *L, struct mp_graphic_object *h, int field) {
+mplib_stroked_field (lua_State *L, struct mp_stroked_object *h, int field) {
   if (FIELD(type)) {
     lua_pushstring(L,"outline");
   } else if (FIELD(path)) {
@@ -1023,9 +1034,9 @@ mplib_stroked_field (lua_State *L, struct mp_graphic_object *h, int field) {
   } else if (FIELD(pen)) {
     mplib_push_path(L, h->pen_p_field, MPLIB_PEN);
   } else if (FIELD(color)) {
-    mplib_push_color(L, h);
+    mplib_push_color(L, (mp_graphic_object *)h);
   } else if (FIELD(dash)) {
-    mplib_push_dash(L, h);
+    mplib_push_dash(L,h);
   } else if (FIELD(linecap)) {
     lua_pushnumber(L,h->lcap_field);
   } else if (FIELD(linejoin)) {
@@ -1042,7 +1053,7 @@ mplib_stroked_field (lua_State *L, struct mp_graphic_object *h, int field) {
 }
 
 static void 
-mplib_text_field (lua_State *L, struct mp_graphic_object *h, int field) {
+mplib_text_field (lua_State *L, struct mp_text_object *h, int field) {
   
   if (FIELD(type)) {
     lua_pushstring(L,"text");
@@ -1053,7 +1064,7 @@ mplib_text_field (lua_State *L, struct mp_graphic_object *h, int field) {
   } else if (FIELD(font)) {
     lua_pushstring(L,h->font_name_field);
   } else if (FIELD(color)) {
-    mplib_push_color(L, h);
+    mplib_push_color(L,(mp_graphic_object *)h);
   } else if (FIELD(width)) {
     mplib_push_number(L,h->width_field);
   } else if (FIELD(height)) {
@@ -1072,7 +1083,7 @@ mplib_text_field (lua_State *L, struct mp_graphic_object *h, int field) {
 }
 
 static void 
-mplib_special_field (lua_State *L, struct mp_graphic_object *h, int field) {
+mplib_special_field (lua_State *L, struct mp_special_object *h, int field) {
   if (FIELD(type)) {
     lua_pushstring(L,"special");
   } else if (FIELD(prescript)) {
@@ -1083,7 +1094,7 @@ mplib_special_field (lua_State *L, struct mp_graphic_object *h, int field) {
 }
 
 static void 
-mplib_start_bounds_field (lua_State *L, struct mp_graphic_object *h, int field) {
+mplib_start_bounds_field (lua_State *L, struct mp_bounds_object *h, int field) {
   if (FIELD(type)) {
     lua_pushstring(L,"start_bounds");
   } else if (FIELD(path)) {
@@ -1094,7 +1105,7 @@ mplib_start_bounds_field (lua_State *L, struct mp_graphic_object *h, int field) 
 }
 
 static void 
-mplib_start_clip_field (lua_State *L, struct mp_graphic_object *h, int field) {
+mplib_start_clip_field (lua_State *L, struct mp_clip_object *h, int field) {
   if (FIELD(type)) {
     lua_pushstring(L,"start_clip");
   } else if (FIELD(path)) {
@@ -1155,15 +1166,16 @@ static int
 mplib_gr_index (lua_State *L) {
   struct mp_graphic_object **hh = is_gr_object(L,1);
   if (*hh) {
-    switch ((*hh)->_type_field) {
-    case mp_fill_code:         mplib_fill_field(L,*hh,2);         break;
-    case mp_stroked_code:      mplib_stroked_field(L,*hh,2);      break;
-    case mp_text_code:         mplib_text_field(L,*hh,2);         break;
-    case mp_special_code:      mplib_special_field(L,*hh,2);      break;
-    case mp_start_clip_code:   mplib_start_clip_field(L,*hh,2);   break;
-    case mp_start_bounds_code: mplib_start_bounds_field(L,*hh,2); break;
-    case mp_stop_clip_code:    mplib_stop_clip_field(L,*hh,2);    break;
-    case mp_stop_bounds_code:  mplib_stop_bounds_field(L,*hh,2);  break;
+    struct mp_graphic_object *h = *hh;
+    switch (h->_type_field) {
+    case mp_fill_code:         mplib_fill_field(L,(mp_fill_object *)h,2);           break;
+    case mp_stroked_code:      mplib_stroked_field(L,(mp_stroked_object *)h,2);     break;
+    case mp_text_code:         mplib_text_field(L,(mp_text_object *)h,2);           break;
+    case mp_special_code:      mplib_special_field(L,(mp_special_object *)h,2);     break;
+    case mp_start_clip_code:   mplib_start_clip_field(L,(mp_clip_object *)h,2);     break;
+    case mp_start_bounds_code: mplib_start_bounds_field(L,(mp_bounds_object *)h,2); break;
+    case mp_stop_clip_code:    mplib_stop_clip_field(L,h,2);                        break;
+    case mp_stop_bounds_code:  mplib_stop_bounds_field(L,h,2);                      break;
     default:                   lua_pushnil(L);
     }    
   } else {
@@ -1202,6 +1214,7 @@ static const struct luaL_reg mplib_gr_meta[] = {
 static const struct luaL_reg mplib_d [] = {
   {"execute",            mplib_execute },
   {"finish",             mplib_finish },
+  {"statistics",         mplib_statistics },
   {NULL, NULL}  /* sentinel */
 };
 

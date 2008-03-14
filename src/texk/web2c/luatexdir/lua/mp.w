@@ -565,13 +565,17 @@ void mp_write_binary_file (MP mp, void *f, void *s, size_t t) ;
 @c
 void *mp_open_file(MP mp, char *fname, char *fmode, int ftype)  {
   (void) mp;
+  char realmode[3];
+  realmode[0] = *fmode;
+  realmode[1] = 'b';
+  realmode[2] = 0;
 #if NOTTESTING
   if (ftype==mp_filetype_terminal) {
     return (fmode[0] == 'r' ? stdin : stdout);
   } else if (ftype==mp_filetype_error) {
     return stderr;
   } else if (fname != NULL && (fmode[0] != 'r' || (! access (fname,R_OK)))) {
-    return (void *)fopen(fname, fmode);
+    return (void *)fopen(fname, realmode);
   }
 #endif
   return NULL;
@@ -625,7 +629,7 @@ boolean mp_a_open_in (MP mp, void **f, int ftype) {
 @#
 boolean mp_w_open_in (MP mp, void **f) {
   /* open a word file for input */
-  *f = (mp->open_file)(mp,mp->name_of_file,"rb",mp_filetype_memfile); 
+  *f = (mp->open_file)(mp,mp->name_of_file,"r",mp_filetype_memfile); 
   return (*f ? true : false);
 }
 @#
@@ -636,13 +640,13 @@ boolean mp_a_open_out (MP mp, void **f, int ftype) {
 @#
 boolean mp_b_open_out (MP mp, void **f, int ftype) {
   /* open a binary file for output */
-  OPEN_FILE("wb");
+  OPEN_FILE("w");
 }
 @#
 boolean mp_w_open_out (MP mp, void **f) {
   /* open a word file for output */
   int ftype = mp_filetype_memfile;
-  OPEN_FILE("wb");
+  OPEN_FILE("w");
 }
 
 @ @c
@@ -7055,12 +7059,12 @@ pointer mp_copy_path (MP mp, pointer p) {
 The |gr_XXXX| macros are defined in |mppsout.h|.
 
 @c 
-struct mp_knot *mp_export_knot (MP mp,pointer p) {
-  struct mp_knot *q; /* the copy */
+mp_knot *mp_export_knot (MP mp,pointer p) {
+  mp_knot *q; /* the copy */
   if (p==null)
      return NULL;
-  q = mp_xmalloc(mp, 1, sizeof (struct mp_knot));
-  memset(q,0,sizeof (struct mp_knot));
+  q = mp_xmalloc(mp, 1, sizeof (mp_knot));
+  memset(q,0,sizeof (mp_knot));
   gr_left_type(q)  = left_type(p);
   gr_right_type(q) = right_type(p);
   gr_x_coord(q)    = x_coord(p);
@@ -7077,8 +7081,8 @@ struct mp_knot *mp_export_knot (MP mp,pointer p) {
 of a given path.
 
 @c 
-struct mp_knot *mp_export_knot_list (MP mp, pointer p) {
-  struct mp_knot *q, *qq; /* for list manipulation */
+mp_knot *mp_export_knot_list (MP mp, pointer p) {
+  mp_knot *q, *qq; /* for list manipulation */
   pointer pp; /* for list manipulation */
   if (p==null)
      return NULL;
@@ -9513,15 +9517,15 @@ dash_y(hh)=dash_y(h)
 @ |h| is an edge structure
 
 @c
-struct mp_dash_object *mp_export_dashes (MP mp, pointer h) {
-  struct mp_dash_object *d;
+mp_dash_object *mp_export_dashes (MP mp, pointer h) {
+  mp_dash_object *d;
   pointer p;
   scaled *dashes = NULL;
   int num_dashes = 1;
   if (h==null ||  dash_list(h)==null_dash) 
 	return NULL;
   p = dash_list(h);
-  d = mp_xmalloc(mp,1,sizeof(struct mp_dash_object));
+  d = mp_xmalloc(mp,1,sizeof(mp_dash_object));
   start_x(null_dash)=start_x(p)+dash_y(h);
   while (p != null_dash) { 
 	dashes = mp_xrealloc(mp, dashes, num_dashes+2, sizeof(scaled));
@@ -15916,7 +15920,7 @@ boolean mp_open_mem_file (MP mp) ;
 boolean mp_open_mem_file (MP mp) {
   int j; /* the first space after the file name */
   if (mp->mem_name!=NULL) {
-    mp->mem_file = (mp->open_file)(mp,mp->mem_name, "rb", mp_filetype_memfile);
+    mp->mem_file = (mp->open_file)(mp,mp->mem_name, "r", mp_filetype_memfile);
     if ( mp->mem_file ) return true;
   }
   j=loc;
@@ -16038,7 +16042,7 @@ We have |job_name=NULL| if and only if the `\.{log}' file has not been opened,
 except of course for a short time just after |job_name| has become nonzero.
 
 @<Allocate or ...@>=
-mp->job_name=opt->job_name; 
+mp->job_name=mp_xstrdup(mp, opt->job_name); 
 mp->log_opened=false;
 
 @ @<Dealloc variables@>=
@@ -18949,7 +18953,7 @@ void mp_bad_color_part(MP mp, quarterword c) {
     ("the cyanpart, magentapart, yellowpart or blackpart of a cmyk object, ")
     ("or the greypart of a grey object. No mixing and matching, please.");
   mp_error(mp);
-  if ((c==black_part) || (c==grey_part))
+  if (c==black_part)
     mp_flush_cur_exp(mp,unity);
   else
     mp_flush_cur_exp(mp,0);
@@ -24735,7 +24739,7 @@ mp_ptr_scan_file(mp, fname);
 if ( strlen(mp->cur_area)==0 ) { xfree(mp->cur_area); }
 if ( strlen(mp->cur_ext)==0 )  { xfree(mp->cur_ext); mp->cur_ext=xstrdup(".tfm"); }
 pack_cur_name;
-mp->tfm_infile = (mp->open_file)(mp, mp->name_of_file, "rb",mp_filetype_metrics);
+mp->tfm_infile = (mp->open_file)(mp, mp->name_of_file, "r",mp_filetype_metrics);
 if ( !mp->tfm_infile  ) goto BAD_TFM;
 file_opened=true
 
@@ -25150,10 +25154,12 @@ mp_special_code=8,
 @ @<Export pending specials@>=
 p=link(spec_head);
 while ( p!=null ) {
-  hq = mp_new_graphic_object(mp,mp_special_code);
-  gr_pre_script(hq)  = str(value(p));
-  if (hh->body==NULL) hh->body=hq; else gr_link(hp) = hq;
-  hp = hq;
+  mp_special_object *tt;
+  tt = (mp_special_object *)mp_new_graphic_object(mp,mp_special_code);  
+  gr_pre_script(tt)  = str(value(p));
+  if (hh->body==NULL) hh->body = (mp_graphic_object *)tt; 
+  else gr_link(hp) = (mp_graphic_object *)tt;
+  hp = (mp_graphic_object *)tt;
   p=link(p);
 }
 mp_flush_token_list(mp, link(spec_head));
@@ -25168,15 +25174,39 @@ void mp_ship_out (MP mp, pointer h) ;
 
 @ Once again, the |gr_XXXX| macros are defined in |mppsout.h|
 
+@d export_color(q,p) 
+  if ( color_model(p)==mp_uninitialized_model ) {
+    gr_color_model(q)  = (mp->internal[mp_default_color_model]>>16);
+    gr_cyan_val(q)     = 0;
+	gr_magenta_val(q)  = 0;
+	gr_yellow_val(q)   = 0;
+	gr_black_val(q)    = (gr_color_model(q)==mp_cmyk_model ? unity : 0);
+  } else {
+    gr_color_model(q)  = color_model(p);
+    gr_cyan_val(q)     = cyan_val(p);
+    gr_magenta_val(q)  = magenta_val(p);
+    gr_yellow_val(q)   = yellow_val(p);
+    gr_black_val(q)    = black_val(p);
+  }
+
+@d export_scripts(q,p)
+  if (pre_script(p)!=null)  gr_pre_script(q)   = str(pre_script(p));
+  if (post_script(p)!=null) gr_post_script(q)  = str(post_script(p));
+
 @c
 struct mp_edge_object *mp_gr_export(MP mp, pointer h) {
   pointer p; /* the current graphical object */
   integer t; /* a temporary value */
-  struct mp_edge_object *hh; /* the first graphical object */
+  mp_edge_object *hh; /* the first graphical object */
   struct mp_graphic_object *hp; /* the current graphical object */
   struct mp_graphic_object *hq; /* something |hp| points to  */
+  struct mp_text_object    *tt;
+  struct mp_fill_object    *tf;
+  struct mp_stroked_object *ts;
+  struct mp_clip_object    *tc;
+  struct mp_bounds_object  *tb;
   mp_set_bbox(mp, h, true);
-  hh = mp_xmalloc(mp,1,sizeof(struct mp_edge_object));
+  hh = mp_xmalloc(mp,1,sizeof(mp_edge_object));
   hh->body = NULL;
   hh->_next = NULL;
   hh->_parent = mp;
@@ -25191,29 +25221,31 @@ struct mp_edge_object *mp_gr_export(MP mp, pointer h) {
     hq = mp_new_graphic_object(mp,type(p));
     switch (type(p)) {
     case mp_fill_code:
-      gr_pen_p(hq)        = mp_export_knot_list(mp,pen_p(p));
+      tf = (mp_fill_object *)hq;
+      gr_pen_p(tf)        = mp_export_knot_list(mp,pen_p(p));
       if ((pen_p(p)==null) || pen_is_elliptical(pen_p(p)))  {
-  	  gr_path_p(hq)       = mp_export_knot_list(mp,path_p(p));
+  	    gr_path_p(tf)       = mp_export_knot_list(mp,path_p(p));
       } else {
         pointer pc, pp;
         pc = mp_copy_path(mp, path_p(p));
         pp = mp_make_envelope(mp, pc, pen_p(p),ljoin_val(p),0,miterlim_val(p));
-        gr_path_p(hq)       = mp_export_knot_list(mp,pp);
+        gr_path_p(tf)       = mp_export_knot_list(mp,pp);
         mp_toss_knot_list(mp, pp);
         pc = mp_htap_ypoc(mp, path_p(p));
         pp = mp_make_envelope(mp, pc, pen_p(p),ljoin_val(p),0,miterlim_val(p));
-        gr_htap_p(hq)       = mp_export_knot_list(mp,pp);
+        gr_htap_p(tf)       = mp_export_knot_list(mp,pp);
         mp_toss_knot_list(mp, pp);
       }
-      @<Export object color@>;
-      @<Export object scripts@>;
-      gr_ljoin_val(hq)    = ljoin_val(p);
-      gr_miterlim_val(hq) = miterlim_val(p);
+      export_color(tf,p) ;
+      export_scripts(tf,p);
+      gr_ljoin_val(tf)    = ljoin_val(p);
+      gr_miterlim_val(tf) = miterlim_val(p);
       break;
     case mp_stroked_code:
-      gr_pen_p(hq)        = mp_export_knot_list(mp,pen_p(p));
+      ts = (mp_stroked_object *)hq;
+      gr_pen_p(ts)        = mp_export_knot_list(mp,pen_p(p));
       if (pen_is_elliptical(pen_p(p)))  {
-	      gr_path_p(hq)       = mp_export_knot_list(mp,path_p(p));
+	      gr_path_p(ts)       = mp_export_knot_list(mp,path_p(p));
       } else {
         pointer pc;
         pc=mp_copy_path(mp, path_p(p));
@@ -25225,36 +25257,41 @@ struct mp_edge_object *mp_gr_export(MP mp, pointer h) {
           t=1;
         }
         pc=mp_make_envelope(mp,pc,pen_p(p),ljoin_val(p),t,miterlim_val(p));
-        gr_path_p(hq)       = mp_export_knot_list(mp,pc);
+        gr_path_p(ts)       = mp_export_knot_list(mp,pc);
         mp_toss_knot_list(mp, pc);
       }
-      @<Export object color@>;
-      @<Export object scripts@>;
-      gr_ljoin_val(hq)    = ljoin_val(p);
-      gr_miterlim_val(hq) = miterlim_val(p);
-      gr_lcap_val(hq)     = lcap_val(p);
-      gr_dash_p(hq)       = mp_export_dashes(mp,dash_p(p));
+      export_color(ts,p) ;
+      export_scripts(ts,p);
+      gr_ljoin_val(ts)    = ljoin_val(p);
+      gr_miterlim_val(ts) = miterlim_val(p);
+      gr_lcap_val(ts)     = lcap_val(p);
+      gr_dash_p(ts)       = mp_export_dashes(mp,dash_p(p));
       break;
     case mp_text_code:
-      gr_text_p(hq)       = str(text_p(p));
-      gr_font_n(hq)       = font_n(p);
-      gr_font_name(hq)    = mp_xstrdup(mp,mp->font_name[font_n(p)]);
-      gr_font_dsize(hq)   = mp->font_dsize[font_n(p)];
-      @<Export object color@>;
-      @<Export object scripts@>;
-      gr_width_val(hq)    = width_val(p);
-      gr_height_val(hq)   = height_val(p);
-      gr_depth_val(hq)    = depth_val(p);
-      gr_tx_val(hq)       = tx_val(p);
-      gr_ty_val(hq)       = ty_val(p);
-      gr_txx_val(hq)      = txx_val(p);
-      gr_txy_val(hq)      = txy_val(p);
-      gr_tyx_val(hq)      = tyx_val(p);
-      gr_tyy_val(hq)      = tyy_val(p);
+      tt = (mp_text_object *)hq;
+      gr_text_p(tt)       = str(text_p(p));
+      gr_font_n(tt)       = font_n(p);
+      gr_font_name(tt)    = mp_xstrdup(mp,mp->font_name[font_n(p)]);
+      gr_font_dsize(tt)   = mp->font_dsize[font_n(p)];
+      export_color(tt,p) ;
+      export_scripts(tt,p);
+      gr_width_val(tt)    = width_val(p);
+      gr_height_val(tt)   = height_val(p);
+      gr_depth_val(tt)    = depth_val(p);
+      gr_tx_val(tt)       = tx_val(p);
+      gr_ty_val(tt)       = ty_val(p);
+      gr_txx_val(tt)      = txx_val(p);
+      gr_txy_val(tt)      = txy_val(p);
+      gr_tyx_val(tt)      = tyx_val(p);
+      gr_tyy_val(tt)      = tyy_val(p);
       break;
     case mp_start_clip_code: 
+      tc = (mp_clip_object *)hq;
+      gr_path_p(tc) = mp_export_knot_list(mp,path_p(p));
+      break;
     case mp_start_bounds_code:
-      gr_path_p(hq) = mp_export_knot_list(mp,path_p(p));
+      tb = (mp_bounds_object *)hq;
+      gr_path_p(tb) = mp_export_knot_list(mp,path_p(p));
       break;
     case mp_stop_clip_code: 
     case mp_stop_bounds_code:
@@ -25289,7 +25326,7 @@ void mp_shipout_backend (MP mp, pointer h);
 
 @ @c
 void mp_shipout_backend (MP mp, pointer h) {
-  struct mp_edge_object *hh; /* the first graphical object */
+  mp_edge_object *hh; /* the first graphical object */
   hh = mp_gr_export(mp,h);
   mp_gr_ship_out (hh,
                  (mp->internal[mp_prologues]>>16),
@@ -25305,28 +25342,6 @@ mp_backend_writer shipout_backend;
 
 @ @<Allocate or initialize ...@>=
 set_callback_option(shipout_backend);
-
-
-@ 
-@ Once again, the |gr_XXXX| macros are defined in |mppsout.h|
-
-@<Export object color@>=
-gr_color_model(hq)  = color_model(p);
-gr_cyan_val(hq)     = cyan_val(p);
-gr_magenta_val(hq)  = magenta_val(p);
-gr_yellow_val(hq)   = yellow_val(p);
-gr_black_val(hq)    = black_val(p);
-gr_red_val(hq)      = red_val(p);
-gr_green_val(hq)    = green_val(p);
-gr_blue_val(hq)     = blue_val(p);
-gr_grey_val(hq)     = grey_val(p)
-
-
-@ @<Export object scripts@>=
-if (pre_script(p)!=null)
-  gr_pre_script(hq)   = str(pre_script(p));
-if (post_script(p)!=null)
-  gr_post_script(hq)  = str(post_script(p));
 
 @ Now that we've finished |ship_out|, let's look at the other commands
 by which a user can send things to the \.{GF} file.
@@ -25888,6 +25903,28 @@ if ( mp->log_opened ) {
   snprintf(s,128," %i string compactions (moved %i characters, %i strings)",
           (int)mp->pact_count,(int)mp->pact_chars,(int)mp->pact_strs);
   wlog_ln(s);
+}
+
+@ It is nice to have have some of the stats available from the API.
+
+@<Exported function ...@>=
+int mp_memory_usage (MP mp );
+int mp_hash_usage (MP mp );
+int mp_param_usage (MP mp );
+int mp_open_usage (MP mp );
+
+@ @c
+int mp_memory_usage (MP mp ) {
+	return (int)mp->lo_mem_max+mp->mem_end-mp->hi_mem_min+2;
+}
+int mp_hash_usage (MP mp ) {
+  return (int)mp->st_count;
+}
+int mp_param_usage (MP mp ) {
+	return (int)mp->max_param_stack;
+}
+int mp_open_usage (MP mp ) {
+	return (int)mp->max_in_stack;
 }
 
 @ We get to the |final_cleanup| routine when \&{end} or \&{dump} has
