@@ -68,8 +68,8 @@
 #include "mpmp.h" /* internal header */
 #include "mppsout.h" /* internal header */
 @h
-@<Declarations@>;
-@<Static variables in the outer block@>;
+@<Declarations@>
+@<Static variables in the outer block@>
 
 @ There is a small bit of code from the backend that bleads through
 to the frontend because I do not know how to set up the includes
@@ -81,9 +81,9 @@ do not need |avl.h|, and the |psout_data| is needed for the backend
 data structure.
 
 @ @(mppsout.h@>=
-@<Types...@>;
+@<Types...@>
 typedef struct psout_data_struct {
-  @<Globals@>;
+  @<Globals@>
 } psout_data_struct ;
 @<Exported function headers@>
 
@@ -141,7 +141,7 @@ void mp_ps_print_char (MP mp, ASCII_code s) { /* prints a single character */
 }
 
 @ @c
-void mp_ps_do_print (MP mp, char *ss, unsigned int len) { /* prints string |s| */
+void mp_ps_do_print (MP mp, const char *ss, unsigned int len) { /* prints string |s| */
   unsigned int j = 0;
   while ( j<len ){ 
     mp_ps_print_char(mp, ss[j]); incr(j);
@@ -155,7 +155,7 @@ void mp_ps_do_print (MP mp, char *ss, unsigned int len) { /* prints string |s| *
 }
 
 @c
-void mp_ps_print (MP mp, char *ss) {
+void mp_ps_print (MP mp, const char *ss) {
   ps_room(strlen(ss));
   mp_ps_do_print(mp, ss, strlen(ss));
 }
@@ -164,7 +164,7 @@ void mp_ps_print (MP mp, char *ss) {
 string appears at the beginning of a new line.
 
 @c
-void mp_ps_print_nl (MP mp, char *s) { /* prints string |s| at beginning of line */
+void mp_ps_print_nl (MP mp, const char *s) { /* prints string |s| at beginning of line */
   if ( mp->ps->ps_offset>0 ) mp_ps_print_ln(mp);
   mp_ps_print(mp, s);
 }
@@ -206,7 +206,7 @@ void mp_ps_print_int (MP mp,integer n) { /* prints an integer in decimal form */
     mp->dig[k]=n % 10; n=n / 10; incr(k);
   } while (n!=0);
   mp_ps_print_the_digs(mp, k);
-};
+}
 
 @ @<Internal ...@>=
 void mp_ps_print_int (MP mp,integer n);
@@ -264,10 +264,10 @@ First, here are a few helpers for parsing files
 
 @d check_buf(size, buf_size)
     if ((unsigned)(size) > (unsigned)(buf_size)) {
-      char s[128];
-      snprintf(s,128,"buffer overflow: (%d,%d) at file %s, line %d",
+      char S[128];
+      snprintf(S,128,"buffer overflow: (%d,%d) at file %s, line %d",
                size,buf_size, __FILE__,  __LINE__ );
-      mp_fatal_error(mp,s);
+      mp_fatal_error(mp,S);
     }
 
 @d append_char_to_buf(c, p, buf, buf_size) do {
@@ -331,10 +331,10 @@ void * enc_file;
 @c
 int enc_getchar(MP mp) {
   size_t len = 1;
-  unsigned char byte=0;
-  void *byte_ptr = &byte;  
+  unsigned char abyte=0;
+  void *byte_ptr = &abyte;  
   (mp->read_binary_file)(mp,mp->ps->enc_file,&byte_ptr,&len);
-  return byte;
+  return abyte;
 }
 
 @ @c 
@@ -435,24 +435,19 @@ static void mp_read_enc (MP mp, enc_entry * e) {
 }
 
 @ |write_enc| is used to write either external encoding (given in map file) or
- internal encoding (read from the font file); when |glyph_names| is NULL
- the 2nd argument is a pointer to the encoding entry; otherwise the 3rd is 
- the object number of the Encoding object
+ internal encoding (read from the font file); 
+ the 2nd argument is a pointer to the encoding entry; 
  
 @c
-static void mp_write_enc (MP mp, char **glyph_names, enc_entry * e) {
+static void mp_write_enc (MP mp, enc_entry * e) {
     int i;
     int s;
     int foffset;
     char **g;
-    if (glyph_names == NULL) {
-        if (e->objnum != 0)     /* the encoding has been written already */
-            return;
-        e->objnum = 1;
-        g = e->glyph_names;
-    } else {
-        g = glyph_names;
-    }
+    if (e->objnum != 0)     /* the encoding has been written already */
+       return;
+     e->objnum = 1;
+     g = e->glyph_names;
 
     mp_ps_print(mp,"\n%%%%BeginResource: encoding ");
     mp_ps_print(mp, e->enc_name);
@@ -598,7 +593,7 @@ static void mp_font_encodings (MP mp, int lastfnum, int encodings_only) {
 	if (is_reencoded (fm)) {
 	  if (encodings_only || (!is_subsetted (fm))) {
 	    e = fm->encoding;
-	    mp_write_enc (mp,NULL, e);
+	    mp_write_enc (mp, e);
             /* clear for next run */
             e->objnum = 0;
 	  }
@@ -622,12 +617,12 @@ void * fm_file;
 @c
 int fm_getchar(MP mp) {
   size_t len = 1;
-  unsigned char byte=0;
-  void *byte_ptr = &byte;  
+  unsigned char abyte=0;
+  void *byte_ptr = &abyte;  
   (mp->read_binary_file)(mp,mp->ps->fm_file,&byte_ptr,&len);
   if (len==0)
     return EOF;
-  return byte;
+  return abyte;
 }
 
 
@@ -776,9 +771,10 @@ static int comp_fm_entry_tfm (const void *pa, const void *pb, void *p) {
 @ AVL sort |fm_entry| into |ps_tree| by |ps_name|, |slant|, and |extend|
 
 @c static int comp_fm_entry_ps (const void *pa, const void *pb, void *p) {
-    (void)p;
-    const fm_entry *p1 = (const fm_entry *) pa, *p2 = (const fm_entry *) pb;
     int i;
+    const fm_entry *p1 = (const fm_entry *) pa;
+    const fm_entry *p2 = (const fm_entry *) pb;
+    (void)p;
     assert (p1->ps_name != NULL && p2->ps_name != NULL);
     if ((i = strcmp (p1->ps_name, p2->ps_name)))
         return i;
@@ -1038,7 +1034,7 @@ static int check_fm_entry (MP mp, fm_entry * fm, boolean warn) {
     if (k > -1 && !strcmp (basefont_names[k], s))
         return true;
     return false;
-};
+}
 
 @ 
 @d is_cfg_comment(c) (c == 10 || c == '*' || c == '#' || c == ';' || c == '%')
@@ -1232,51 +1228,6 @@ static int check_fm_entry (MP mp, fm_entry * fm, boolean warn) {
     return;
 }
 
-@ @c 
-static scaled mp_round_xn_over_d (MP mp, scaled x, integer  n, integer d) {
-  boolean positive; /* was |x>=0|? */
-  unsigned int t,u; /* intermediate quantities */
-  integer v; /* intermediate quantities */
-  if ( x>=0 ) {
-    positive=true;
-  } else { 
-    negate(x); positive=false;
-  };
-  t=(x % 0100000)*n;
-  u=(x / 0100000)*n+(t / 0100000);
-  v=(u % d)*0100000 + (t % 0100000);
-  if ( u / d>=0100000 ) mp->arith_error=true;
-  else u=0100000*(u / d) + (v / d);
-  v = v % d;
-  if ( 2*v >= d )
-    u++;
-  return ( positive ? u : -u );
-}
-static fm_entry *mk_ex_fm (MP mp, font_number f, fm_entry * basefm, int ex) {
-    fm_entry *fm;
-    integer e = basefm->extend;
-    if (e == 0)
-        e = 1000;
-    fm = new_fm_entry (mp);
-    fm->flags = basefm->flags;
-    fm->encoding = basefm->encoding;
-    fm->type = basefm->type;
-    fm->slant = basefm->slant;
-    fm->extend = mp_round_xn_over_d (mp, e, 1000 + ex, 1000); 
-        /* modify ExtentFont to simulate expansion */
-    if (fm->extend == 1000)
-        fm->extend = 0;
-    fm->tfm_name = mp_xstrdup (mp,mp->font_name[f]);
-    if (basefm->ps_name != NULL)
-        fm->ps_name = mp_xstrdup (mp,basefm->ps_name);
-    fm->ff_name = mp_xstrdup (mp,basefm->ff_name);
-    fm->ff_objnum = 0;
-    fm->tfm_num = f;
-    fm->tfm_avail = TFM_FOUND;
-    assert (strcmp (fm->tfm_name, nontfm));
-    return fm;
-}
-
 @ @c static void init_fm (fm_entry * fm, font_number f) {
     if (fm->tfm_num == null_font ) {
         fm->tfm_num = f;
@@ -1290,9 +1241,9 @@ static fm_entry * mp_fm_lookup (MP mp, font_number f);
 @ @c 
 static fm_entry * mp_fm_lookup (MP mp, font_number f) {
     char *tfm;
-    fm_entry *fm, *exfm;
+    fm_entry *fm;
     fm_entry tmp;
-    int ai, e;
+    int e;
     if (mp->ps->tfm_tree == NULL)
         fm_read_info (mp);        /* only to read default map file */
     tfm = mp->font_name[f];
@@ -1311,20 +1262,7 @@ static fm_entry * mp_fm_lookup (MP mp, font_number f) {
     tmp.tfm_name = tfm;
     fm = (fm_entry *) avl_find (mp->ps->tfm_tree, &tmp);
     if (fm != NULL) {           /* found an entry with the base tfm name, e.g. cmr10 */
-        return (fm_entry *) fm; /* font expansion uses the base font */
-        /* the following code would be obsolete, as would be |mk_ex_fm| */
-        if (!is_t1fontfile (fm) || !is_included (fm)) {
-            char s[128];
-            snprintf(s,128,
-                "font %s cannot be expanded (not an included Type1 font)", tfm);
-            mp_warn(mp,s);
-            return NULL;
-        }
-        exfm = mk_ex_fm (mp, f, fm, e);     /* copies all fields from fm except tfm name */
-        init_fm (exfm, f);
-        ai = avl_do_entry (mp, exfm, FM_DUPIGNORE);
-        assert (ai == 0);
-        return (fm_entry *) exfm;
+      return (fm_entry *) fm; /* font expansion uses the base font */
     }
     return NULL;
 }
@@ -1706,15 +1644,15 @@ mp->ps->t1_byte_waiting=0;
 @c
 int t1_getchar (MP mp) {
   size_t len = 1;
-  unsigned char byte=0;
-  void *byte_ptr = &byte;  
+  unsigned char abyte=0;
+  void *byte_ptr = &abyte;  
   if (mp->ps->t1_byte_waiting) {
-    byte = mp->ps->t1_byte_waiting;
+    abyte = mp->ps->t1_byte_waiting;
     mp->ps->t1_byte_waiting = 0;
   } else {
     (mp->read_binary_file)(mp,mp->ps->t1_file,&byte_ptr,&len);
   }
-  return byte;
+  return abyte;
 }
 
 @ @<Static variables in the outer block@>=
@@ -1873,7 +1811,7 @@ int hexline_length;
 @d HEXLINE_WIDTH 64
 
 @<Set initial ...@>=
-mp->ps->hexline_length = HEXLINE_WIDTH;
+mp->ps->hexline_length = 0;
 
 @ 
 @d t1_prefix(s)        str_prefix(mp->ps->t1_line_array, s)
@@ -1889,7 +1827,7 @@ mp->ps->hexline_length = HEXLINE_WIDTH;
 
 @c
 static void end_hexline (MP mp) {
-  if (mp->ps->hexline_length == HEXLINE_WIDTH) {
+  if (mp->ps->hexline_length >= HEXLINE_WIDTH) {
     wps_cr; 
     mp->ps->hexline_length = 0;
   }
@@ -2028,7 +1966,7 @@ static boolean str_suffix (const char *begin_buf, const char *end_buf,
 @c
 static void t1_outhex (MP mp, byte b)
 {
-    static char *hexdigits = "0123456789ABCDEF";
+    static const char *hexdigits = "0123456789ABCDEF";
     t1_putchar (hexdigits[b / 16]);
     t1_putchar (hexdigits[b % 16]);
     mp->ps->hexline_length += 2;
@@ -3087,9 +3025,9 @@ static void t1_mark_glyphs (MP mp, int tex_font)
     for (i = 0; i < 256; i++)
         if (is_used_char (i)) {
             if (mp->ps->t1_glyph_names[i] == notdef) {
-                char s[128];
-                snprintf(s,128, "character %i is mapped to %s", i, notdef);
-                mp_warn(mp,s);
+                char S[128];
+                snprintf(S,128, "character %i is mapped to %s", i, notdef);
+                mp_warn(mp,S);
             } else
                 mark_cs (mp,mp->ps->t1_glyph_names[i]);
         }
@@ -4139,16 +4077,16 @@ void mp_ps_pair_out (MP mp,scaled x, scaled y) {
 void mp_ps_pair_out (MP mp,scaled x, scaled y) ;
 
 @ @c
-void mp_ps_print_cmd (MP mp, char *l, char *s) {
+void mp_ps_print_cmd (MP mp, const char *l, const char *s) {
   if ( mp->internal[mp_procset]>0 ) { ps_room(strlen(s)); mp_ps_print(mp,s); }
   else { ps_room(strlen(l)); mp_ps_print(mp, l); };
 }
 
 @ @<Exported...@>=
-void mp_ps_print_cmd (MP mp, char *l, char *s) ;
+void mp_ps_print_cmd (MP mp, const char *l, const char *s) ;
 
 @ @c
-void mp_ps_string_out (MP mp, char *s) {
+void mp_ps_string_out (MP mp, const char *s) {
   ASCII_code k; /* bits to be converted to octal */
   mp_ps_print(mp, "(");
   while ((k=*s++)) {
@@ -4171,7 +4109,7 @@ void mp_ps_string_out (MP mp, char *s) {
 }
 
 @ @<Exported...@>=
-void mp_ps_string_out (MP mp, char *s) ;
+void mp_ps_string_out (MP mp, const char *s) ;
 
 @ This is a define because the function does not use its |mp| argument.
 
@@ -4668,6 +4606,7 @@ needed without wasting time and space setting them unnecessarily.
 @d gs_adj_wx     mp->ps->gs_state->adj_wx_field	     
 @d gs_miterlim   mp->ps->gs_state->miterlim_field    
 @d gs_dash_p     mp->ps->gs_state->dash_p_field	     
+@d gs_dash_init_done mp->ps->gs_state->dash_done_field
 @d gs_previous   mp->ps->gs_state->previous_field    
 @d gs_width      mp->ps->gs_state->width_field	     
 
@@ -4689,6 +4628,7 @@ typedef struct _gs_state {
    /* the value from the last \&{setmiterlimit} command */
   mp_dash_object * dash_p_field ;
    /* edge structure for last \&{setdash} command */
+  boolean dash_done_field ; /* to test for initial \&{setdash} */
   struct _gs_state * previous_field ;
    /* backlink to the previous |_gs_state| structure */
   scaled width_field ;
@@ -4738,6 +4678,7 @@ void mp_gs_unknown_graphics_state (MP mp,scaled c) ;
     gs_lcap=3;
     gs_miterlim=0;
     gs_dash_p=NULL;
+    gs_dash_init_done=false;
     gs_width=-1;
   } else if ( c==1 ) {
     p= mp->ps->gs_state;
@@ -5035,7 +4976,7 @@ Note that we don't use |delete_edge_ref| because |gs_dash_p| is not counted as
 a reference.
 
 @<Make sure \ps\ will use the right dash pattern for |dash_p(p)|@>=
-if ( gr_type(p)==mp_fill_code ) {
+if ( gr_type(p)==mp_fill_code || gr_dash_p(p) == NULL) {
   hh=NULL;
 } else { 
   hh=gr_dash_p(p);
@@ -5048,9 +4989,10 @@ if ( gr_type(p)==mp_fill_code ) {
   }
 }
 if ( hh==NULL ) {
-  if ( gs_dash_p!=NULL ) {
+  if ( gs_dash_p!=NULL || gs_dash_init_done == false) {
     mp_ps_print_cmd(mp, " [] 0 setdash"," rd");
     gs_dash_p=NULL;
+	gs_dash_init_done=true;
   }
 } else if ( ! mp_gr_same_dashes(gs_dash_p,hh) ) {
   @<Set the dash pattern from |dash_list(hh)| scaled by |scf|@>;
@@ -5096,24 +5038,31 @@ boolean mp_gr_same_dashes (mp_dash_object *h, mp_dash_object *hh) ;
 
 @ This function test if |h| and |hh| represent the same dash pattern.
 
+The |scale_field| is ignored in this test because it is not really
+a property of the PostScript format of a dash pattern.
+
 @c
 boolean mp_gr_same_dashes (mp_dash_object *h, mp_dash_object *hh) {
-  if ( (h==NULL)||(hh==NULL) ) return false;
-  else if ( h==hh ) return true;
-  else if ( h->scale_field!=hh->scale_field ) return false;
-  else if ( h->offset_field!=hh->offset_field ) return false;
-  else if ( h->array_field == hh->array_field) return true;
-  else if ( h->array_field == NULL || hh->array_field == NULL) return false;
+  boolean ret=false;
+  int i = 0; 
+  if ( h==hh ) ret=true;
+  else if ( (h==NULL)||(hh==NULL) ) ret=false;
+  else if ( h->offset_field!=hh->offset_field ) ret=false;
+  else if ( h->array_field == hh->array_field) ret=true;
+  else if ( h->array_field == NULL || hh->array_field == NULL) ret=false;
   else { @<Compare |dash_list(h)| and |dash_list(hh)|@>; }
-  return false;
+  return ret;
 }
 
 @ @<Compare |dash_list(h)| and |dash_list(hh)|@>=
 {
-  int i = 0; 
-  while ((h->array_field+i) == (hh->array_field+i)) i++;
-  if (*(h->array_field+i-1)==-1 && *(hh->array_field+i-1) == -1) 
-     return true;
+  while (*(h->array_field+i)!=-1 && 
+	     *(hh->array_field+i)!=-1 &&
+	     *(h->array_field+i) == *(hh->array_field+i)) i++;
+  if (i>0) {
+    if (*(h->array_field+(i))==-1 && *(hh->array_field+(i)) == -1) 
+      ret=true;
+  }
 }
 
 @ When stroking a path with an elliptical pen, it is necessary to transform
@@ -5282,10 +5231,10 @@ scaled mp_gr_choose_scale (MP mp, mp_graphic_object *p) ;
   b=gr_txy_val(p);
   c=gr_tyx_val(p);
   d=gr_tyy_val(p);
-  if ( (a<0) ) negate(a);
-  if ( (b<0) ) negate(b);
-  if ( (c<0) ) negate(c);
-  if ( (d<0) ) negate(d);
+  if ( a<0 ) negate(a);
+  if ( b<0 ) negate(b);
+  if ( c<0 ) negate(c);
+  if ( d<0 ) negate(d);
   ad=half(a-d);
   bc=half(b-c);
   return mp_pyth_add(mp, mp_pyth_add(mp, d+ad,ad), mp_pyth_add(mp, c+bc,bc));
@@ -5687,13 +5636,13 @@ mp_graphic_object *mp_gr_copy_object (MP mp, mp_graphic_object *p) ;
 @ @c
 mp_graphic_object * 
 mp_gr_copy_object (MP mp, mp_graphic_object *p) {
-  mp_graphic_object *q;
   mp_fill_object *tf;
   mp_stroked_object *ts;
   mp_text_object *tt;
   mp_clip_object *tc;
   mp_bounds_object *tb;
   mp_special_object *tp;
+  mp_graphic_object *q = NULL;
   switch (gr_type(p)) {	
   case mp_fill_code: 
     tf = (mp_fill_object *)mp_new_graphic_object(mp, mp_fill_code);

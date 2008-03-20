@@ -36,7 +36,7 @@
 
 #define mplib_make_S(a)													\
   static int mplib_##a##_index = 0;										\
-  static char *mplib_##a##_ptr = NULL;
+  static char *mplib_##a##_ptr = NULL
 
 static int mplib_type_Ses[mp_special_code+1] = {0}; /* [0] is not used */
 
@@ -182,7 +182,7 @@ typedef enum {
   P_ERROR_LINE,  P_HALF_LINE,   P_MAX_LINE,    P_MAIN_MEMORY, 
   P_HASH_SIZE,   P_HASH_PRIME,  P_PARAM_SIZE,  P_IN_OPEN,     P_RANDOM_SEED, 
   P_INTERACTION, P_INI_VERSION, P_TROFF_MODE,  P_PRINT_NAMES, P_MEM_NAME, 
-  P_JOB_NAME,    P_FIND_FILE,   P__SENTINEL,
+  P_JOB_NAME,    P_FIND_FILE,   P__SENTINEL
 } mplib_parm_idx;
 
 typedef struct {
@@ -254,7 +254,7 @@ static mplib_instance *mplib_make_data (void) {
  */
 
 
-char *mplib_find_file (MP mp, char *fname, char *fmode, int ftype)  {
+char *mplib_find_file (MP mp, const char *fname, const char *fmode, int ftype)  {
   mplib_instance *mplib_data = mplib_get_data(mp);
   lua_State *L = mplib_data->LL;
   lua_checkstack(L,4);
@@ -297,7 +297,7 @@ mplib_find_file_function (lua_State *L) {
   return 0;
 }
 
-void *mplib_open_file(MP mp, char *fname, char *fmode, int ftype)  {
+void *mplib_open_file(MP mp, const char *fname, const char *fmode, int ftype)  {
   File *ff = malloc(sizeof (File));
   if (ff) {
     mplib_instance *mplib_data = mplib_get_data(mp);
@@ -324,8 +324,7 @@ void *mplib_open_file(MP mp, char *fname, char *fmode, int ftype)  {
       mplib_data->ps_file_ptr = ff->f;
     } else { 
       char realmode[3];
-      char *f = fname;
-	  f = mplib_find_file(mp, fname,fmode,ftype);
+      char *f = mplib_find_file(mp, fname,fmode,ftype);
 	  if (f==NULL)
 		return NULL;
 	  realmode[0] = *fmode;
@@ -417,7 +416,7 @@ char *mplib_read_ascii_file (MP mp, void *ff, size_t *size) {
     mplib_data->a##_used += strlen(b);					\
   } while (0)
 
-void mplib_write_ascii_file (MP mp, void *ff, char *s) {
+void mplib_write_ascii_file (MP mp, void *ff, const char *s) {
   if (ff!=NULL) {
     void *f = ((File *)ff)->f;
     mplib_instance *mplib_data = mplib_get_data(mp);
