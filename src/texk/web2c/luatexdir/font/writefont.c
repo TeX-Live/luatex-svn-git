@@ -664,12 +664,13 @@ void do_pdf_font(integer font_objnum, internalfontnumber f)
       /* Create a virtual font map entry, as this is needed by the
 	   * rest of the font inclusion mechanism.
        */
-      /* TODO: take slant and extend from the texfont struct */
       fm = new_fm_entry();
       fm->tfm_name = font_name(f);          /* or whatever, not a real tfm */
       fm->ff_name = font_filename(f);       /* the actual file */
       fm->encname = font_encodingname(f);   /* for the CIDSystemInfo */
       fm->ps_name = font_fullname(f);       /* the true name */
+      fm->slant = font_slant(f);            /* slant factor */
+      fm->extend = font_extend(f);          /* extension factor */
       fm->fd_flags = 4;                     /* can perhaps be done better */
       fm->in_use = true;
 

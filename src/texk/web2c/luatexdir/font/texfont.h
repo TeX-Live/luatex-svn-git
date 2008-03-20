@@ -103,6 +103,8 @@ typedef struct texfont {
   char    _font_touched ;    /* internal information */
   integer _font_cache_id ;   /* internal information */
   char    _font_encodingbytes ; /* 1 or 2 bytes */
+  char    _font_slant ; /* a slant in ppt */
+  char    _font_extend ; /* an extension in ppt, or 0 */
   char    _font_tounicode ; /* 1 if info is present */
   fm_entry_ptr _font_map;
   integer _font_type;
@@ -254,6 +256,12 @@ boolean font_shareable(internal_font_number,internal_font_number);
 
 #define font_encodingbytes(a)       font_tables[a]->_font_encodingbytes
 #define set_font_encodingbytes(a,b) font_encodingbytes(a) = b
+
+#define font_slant(a)               font_tables[a]->_font_slant
+#define set_font_slant(a,b)         font_slant(a) = b
+
+#define font_extend(a)              font_tables[a]->_font_extend
+#define set_font_extend(a,b)        font_extend(a) = b
 
 #define font_tounicode(a)           font_tables[a]->_font_tounicode
 #define set_font_tounicode(a,b)     font_tounicode(a) = b

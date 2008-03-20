@@ -207,6 +207,10 @@ font_to_lua (lua_State *L, int f) {
   lua_setfield(L,-2,"designsize");
   lua_pushnumber(L,font_checksum(f));
   lua_setfield(L,-2,"checksum");
+  lua_pushnumber(L,font_slant(f));
+  lua_setfield(L,-2,"slant");
+  lua_pushnumber(L,font_extend(f));
+  lua_setfield(L,-2,"extend");
   lua_pushnumber(L,font_natural_dir(f));
   lua_setfield(L,-2,"direction");
   lua_pushnumber(L,font_encodingbytes(f));
@@ -970,6 +974,14 @@ font_from_lua (lua_State *L, int f) {
   i = numeric_field(L,"direction",0);            set_font_natural_dir(f,i);
   i = numeric_field(L,"encodingbytes",0);        set_font_encodingbytes(f,i);
   i = numeric_field(L,"tounicode",0);            set_font_tounicode(f,i);
+
+  i = numeric_field(L,"extend",0);
+  if (i<-2000) i = -2000; if (i>2000) i = 2000; if (i==1000) i = 0;
+  set_font_extend(f,i);
+  i = numeric_field(L,"slant",0);
+  if (i<-1000) i = -1000; if (i>1000) i = 1000;
+  set_font_slant(f,i);
+
   i = numeric_field(L,"hyphenchar",get_default_hyphen_char()); set_hyphen_char(f,i);
   i = numeric_field(L,"skewchar",get_default_skew_char());     set_skew_char(f,i);
   i = boolean_field(L,"used",0);                 set_font_used(f,i);
