@@ -11,10 +11,6 @@ program for ANYTHING except testing!
 This distribution is essentially a stripped-down version of 
 the TeXlive distribution with some additional libraries.
 
-On top of all the "normal" build tools required for building
-TeXlive, you need to have a "ctangle" command in the path for
-compilation to succeed.
-
 All source code is in the directory src; the build.sh.xxx 
 scripts will generate and populate a directory build.
  
