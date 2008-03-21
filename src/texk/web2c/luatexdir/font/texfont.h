@@ -103,8 +103,8 @@ typedef struct texfont {
   char    _font_touched ;    /* internal information */
   integer _font_cache_id ;   /* internal information */
   char    _font_encodingbytes ; /* 1 or 2 bytes */
-  char    _font_slant ; /* a slant in ppt */
-  char    _font_extend ; /* an extension in ppt, or 0 */
+  integer _font_slant ;      /* a slant in ppt */
+  integer _font_extend ;     /* an extension in ppt, or 0 */
   char    _font_tounicode ; /* 1 if info is present */
   fm_entry_ptr _font_map;
   integer _font_type;
