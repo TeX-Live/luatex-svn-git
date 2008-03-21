@@ -9590,6 +9590,8 @@ pointer mp_copy_objects (MP mp, pointer p, pointer q) {
 }
 
 @ @<Fix anything in graphical object |pp| that should differ from the...@>=
+if ( pre_script(p)!=null )  add_str_ref(pre_script(p));
+if ( post_script(p)!=null ) add_str_ref(post_script(p));
 switch (type(p)) {
 case mp_start_clip_code:
 case mp_start_bounds_code: 
