@@ -285,6 +285,8 @@ $Id $
 @define function font_check_3();
 
 @define function font_size();
+@define function font_slant();
+@define function font_extend();
 @define function font_used();
 @define procedure set_font_used();
 @define function font_touched();
