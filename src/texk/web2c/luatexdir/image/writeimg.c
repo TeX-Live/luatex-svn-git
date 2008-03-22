@@ -405,7 +405,7 @@ void scale_img(image * img)
 
 void out_img(image * img, scaled hpos, scaled vpos)
 {
-    float a[6];                 /* transformation matrix */
+    float a[7];                 /* transformation matrix (todo: indices should be reduced!) */
     int r;                      /* number of digits after the decimal point */
     assert(img != 0);
     image_dict *idict = img_dict(img);
