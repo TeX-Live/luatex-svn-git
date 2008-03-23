@@ -405,7 +405,7 @@ void scale_img(image * img)
 
 void out_img(image * img, scaled hpos, scaled vpos)
 {
-    float a[7];                 /* transformation matrix (todo: indices should be reduced!) */
+    float a[6];                 /* transformation matrix */
     int r;                      /* number of digits after the decimal point */
     assert(img != 0);
     image_dict *idict = img_dict(img);
@@ -414,22 +414,22 @@ void out_img(image * img, scaled hpos, scaled vpos)
     scaled ht = img_height(img);
     scaled dp = img_depth(img);
     if (img_type(idict) == IMAGE_TYPE_PDF) {
-        a[1] = wd * 1.0e6 / img_xsize(idict);
+        a[0] = wd * 1.0e6 / img_xsize(idict);
+        a[1] = 0;
         a[2] = 0;
-        a[3] = 0;
-        a[4] = (ht + dp) * 1.0e6 / img_ysize(idict);
-        a[5] = hpos -
+        a[3] = (ht + dp) * 1.0e6 / img_ysize(idict);
+        a[4] = hpos -
             (float) wd *bp2int(img_pdf_orig_x(idict)) / img_xsize(idict);
-        a[6] = vpos -
+        a[5] = vpos -
             (float) ht *bp2int(img_pdf_orig_y(idict)) / img_ysize(idict);
         r = 6;
     } else {
-        a[1] = wd * 1.0e6 / one_hundred_bp;
+        a[0] = wd * 1.0e6 / one_hundred_bp;
+        a[1] = 0;
         a[2] = 0;
-        a[3] = 0;
-        a[4] = (ht + dp) * 1.0e6 / one_hundred_bp;
-        a[5] = hpos;
-        a[6] = vpos;
+        a[3] = (ht + dp) * 1.0e6 / one_hundred_bp;
+        a[4] = hpos;
+        a[5] = vpos;
         r = 4;
     }
     if ((img_transform(img) & 1) == 1) {
@@ -442,63 +442,63 @@ void out_img(image * img, scaled hpos, scaled vpos)
     case 0:                    /* unrotated */
         break;
     case 1:                    /* rot. 90 deg. (counterclockwise) */
-        a[2] = a[1] * (ht + dp) / wd;
-        a[1] = 0;
-        a[3] = -a[4] * wd / (ht + dp);
-        a[4] = 0;
-        a[5] += wd;
+        a[1] = a[0] * (ht + dp) / wd;
+        a[0] = 0;
+        a[2] = -a[3] * wd / (ht + dp);
+        a[3] = 0;
+        a[4] += wd;
         break;
     case 2:                    /* rot. 180 deg. */
-        a[1] = -a[1];
-        a[4] = -a[4];
-        a[5] += wd;
-        a[6] += ht + dp;
+        a[0] = -a[0];
+        a[3] = -a[3];
+        a[4] += wd;
+        a[5] += ht + dp;
         break;
     case 3:                    /* rot. 270 deg. */
-        a[2] = -a[1] * (ht + dp) / wd;
-        a[1] = 0;
-        a[3] = a[4] * wd / (ht + dp);
-        a[4] = 0;
-        a[6] += ht + dp;
+        a[1] = -a[0] * (ht + dp) / wd;
+        a[0] = 0;
+        a[2] = a[3] * wd / (ht + dp);
+        a[3] = 0;
+        a[5] += ht + dp;
         break;
     case 4:                    /* mirrored, unrotated */
-        a[1] = -a[1];
-        a[5] += wd;
+        a[0] = -a[0];
+        a[4] += wd;
         break;
     case 5:                    /* mirrored, then rot. 90 deg. */
-        a[2] = -a[1] * (ht + dp) / wd;
-        a[1] = 0;
-        a[3] = -a[4] * wd / (ht + dp);
-        a[4] = 0;
-        a[5] += wd;
-        a[6] += ht + dp;
+        a[1] = -a[0] * (ht + dp) / wd;
+        a[0] = 0;
+        a[2] = -a[3] * wd / (ht + dp);
+        a[3] = 0;
+        a[4] += wd;
+        a[5] += ht + dp;
         break;
     case 6:                    /* mirrored, then rot. 180 deg. */
-        a[4] = -a[4];
-        a[6] += ht + dp;
+        a[3] = -a[3];
+        a[5] += ht + dp;
         break;
     case 7:                    /* mirrored, then rot. 270 deg. */
-        a[2] = a[1] * (ht + dp) / wd;
-        a[1] = 0;
-        a[3] = a[4] * wd / (ht + dp);
-        a[4] = 0;
+        a[1] = a[0] * (ht + dp) / wd;
+        a[0] = 0;
+        a[2] = a[3] * wd / (ht + dp);
+        a[3] = 0;
         break;
     default:
         assert(0);
     }
     pdf_end_text();
     pdf_printf("q\n");
+    pdf_print_real((integer) a[0], r);
+    pdfout(' ');
     pdf_print_real((integer) a[1], r);
     pdfout(' ');
     pdf_print_real((integer) a[2], r);
     pdfout(' ');
     pdf_print_real((integer) a[3], r);
     pdfout(' ');
-    pdf_print_real((integer) a[4], r);
+    pdf_print_bp((integer) a[4]);
     pdfout(' ');
     pdf_print_bp((integer) a[5]);
-    pdfout(' ');
-    pdf_print_bp((integer) a[6]);
     pdf_printf(" cm\n/Im");
     pdf_print_int(img_index(idict));
     pdf_print_resname_prefix();
