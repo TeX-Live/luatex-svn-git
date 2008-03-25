@@ -265,6 +265,8 @@ void free_image_dict(image_dict * p)
         break;
     case IMAGE_TYPE_JBIG2:     /* todo: writejbig2.c cleanup */
         break;
+    case IMAGE_TYPE_NONE:
+        break;
     default:
         assert(0);
     }
