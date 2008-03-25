@@ -45,6 +45,7 @@ extern "C" {
 #include <web2c/luatexdir/ptexmac.h>
 #include "openbsd-compat.h"
 #include "image.h"
+#include "../avlstuff.h"
 
 /* #-define pdfbufsize      pdfbufmax */
 
@@ -78,7 +79,6 @@ extern "C" {
     extern void read_pdf_info(image_dict *, integer, integer);
     extern void embed_whole_font(struct fd_entry *);
     extern void epdf_check_mem(void);
-    extern void epdf_delete(image_dict *);
     extern void epdf_free(void);
     __attribute__ ((format(printf, 1, 2)))
     extern void pdf_printf(const char *fmt, ...);
@@ -109,7 +109,7 @@ extern "C" {
 /* write_enc.c */
     extern void epdf_write_enc(char **, integer);
 
-/* write_enc.c */
+/* writeimg.c */
     extern pdf_img_struct *new_pdf_img_struct(void);
 
 /* utils.c */

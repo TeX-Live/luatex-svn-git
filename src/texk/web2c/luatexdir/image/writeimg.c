@@ -250,10 +250,25 @@ void free_dict_strings(image_dict * p)
 }
 
 void free_image_dict(image_dict * p)
-{
+{                               /* called from limglib.c */
+    assert(img_state(p) < DICT_REFERED);
+    switch (img_type(p)) {
+    case IMAGE_TYPE_PDF:
+        unrefPdfDocument(img_filepath(p));
+        xfree(img_pdf_ptr(p));
+        break;
+    case IMAGE_TYPE_PNG:       /* assuming IMG_CLOSEINBETWEEN */
+        assert(img_png_ptr(p) == NULL);
+        break;
+    case IMAGE_TYPE_JPG:       /* assuming IMG_CLOSEINBETWEEN */
+        assert(img_jpg_ptr(p) == NULL);
+        break;
+    case IMAGE_TYPE_JBIG2:     /* todo: writejbig2.c cleanup */
+        break;
+    default:
+        assert(0);
+    }
     free_dict_strings(p);
-    if (img_type(p) == IMAGE_TYPE_PDF)
-        epdf_delete(p);
     assert(img_file(p) == NULL);
     xfree(p);
 }
@@ -439,7 +454,7 @@ void out_img(image * img, scaled hpos, scaled vpos)
             pdftex_fail("image transform: division by zero (width == 0)");
     }
     switch (img_transform(img) & 7) {
-    case 0:                    /* unrotated */
+    case 0:                    /* no transform */
         break;
     case 1:                    /* rot. 90 deg. (counterclockwise) */
         a[1] = a[0] * (ht + dp) / wd;
@@ -658,8 +673,6 @@ void update_image_procset(integer ref)
 {
     pdf_image_procset |= img_color(img_dict(img_array[ref]));
 }
-
-/**********************************************************************/
 
 boolean check_image_b(integer procset)
 {

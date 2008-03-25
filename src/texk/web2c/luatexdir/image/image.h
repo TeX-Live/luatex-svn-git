@@ -218,6 +218,6 @@ void write_epdf(image_dict *);
 
 /* pdftoepdf.cc */
 
-void epdf_delete(image_dict * idict);
+void unrefPdfDocument(char *);
 
 #endif
