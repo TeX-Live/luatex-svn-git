@@ -80,6 +80,21 @@ int luapdfprint(lua_State * L)
     return 0;
 }
 
+#define obj_type_others 0
+
+static int l_immediateobj(lua_State * L)
+{
+    if (!lua_isstring(L, -1))
+        luaL_error(L, "pdf.immediateobj needs string value");
+    pdf_create_obj(obj_type_others, 0);
+    pdf_begin_obj(obj_ptr, 1);
+    pdf_printf("%s\n", lua_tostring(L, -1));
+    pdf_end_obj();
+    lua_pop(L, 1);
+    lua_pushinteger(L, obj_ptr);
+    return 1;
+}
+
 static int 
 getpdf (lua_State *L) {
   char *st;
@@ -103,6 +118,7 @@ setpdf (lua_State *L) {
 
 static const struct luaL_reg pdflib[] = {
     {"print", luapdfprint},
+    {"immediateobj", l_immediateobj},
     {NULL, NULL}                /* sentinel */
 };
 
