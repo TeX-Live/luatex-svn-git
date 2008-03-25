@@ -79,8 +79,7 @@ $Id$
 class PdfObject {
   public:
     PdfObject() {               // nothing
-    }
-    ~PdfObject() {
+    } ~PdfObject() {
         iObject.free();
     }
     Object *operator->() {
@@ -698,9 +697,6 @@ read_pdf_info(image_dict * idict, integer minor_pdf_version_wanted,
     }
     // open PDF file
     pdf_doc = refPdfDocument(img_filepath(idict));
-    xref = pdf_doc->xref;
-    assert(img_pdf_doc(idict) == NULL);
-    img_pdf_doc(idict) = pdf_doc;
     // check PDF version
     // this works only for PDF 1.x -- but since any versions of PDF newer
     // than 1.x will not be backwards compatible to PDF 1.x, pdfTeX will
@@ -802,7 +798,7 @@ static void write_epdf1(image_dict * idict)
     int rotate;
     double scale[6] = { 0, 0, 0, 0, 0, 0 };
     bool writematrix = false;
-    PdfDocument *pdf_doc = (PdfDocument *) img_pdf_doc(idict);
+    PdfDocument *pdf_doc = (PdfDocument *) findPdfDocument(img_filepath(idict));
     assert(pdf_doc != NULL);
     xref = pdf_doc->xref;
     inObjList = pdf_doc->inObjList;
@@ -986,7 +982,6 @@ void write_epdf(image_dict * idict)
     assert(idict != NULL);
     write_epdf1(idict);
     unrefPdfDocument(img_filepath(idict));
-    img_pdf_doc(idict) = NULL;
 }
 
 //**********************************************************************

@@ -47,7 +47,6 @@ typedef struct {
     float height;
     float orig_x;
     float orig_y;
-    void *doc;
 } pdf_img_struct;
 
 typedef struct {
@@ -137,7 +136,6 @@ typedef struct {
 #  define img_pdf_height(N)     ((N)->img_struct.pdf->height)
 #  define img_pdf_orig_x(N)     ((N)->img_struct.pdf->orig_x)
 #  define img_pdf_orig_y(N)     ((N)->img_struct.pdf->orig_y)
-#  define img_pdf_doc(N)        ((N)->img_struct.pdf->doc)
 
 #  define img_png_ptr(N)        ((N)->img_struct.png)
 #  define img_png_png_ptr(N)    ((N)->img_struct.png->png_ptr)
