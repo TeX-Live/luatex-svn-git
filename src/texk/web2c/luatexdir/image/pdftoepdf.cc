@@ -79,7 +79,8 @@ $Id$
 class PdfObject {
   public:
     PdfObject() {               // nothing
-    } ~PdfObject() {
+    }
+    ~PdfObject() {
         iObject.free();
     }
     Object *operator->() {
@@ -684,11 +685,10 @@ read_pdf_info(image_dict * idict, integer minor_pdf_version_wanted,
     Page *page;
     int rotate;
     PDFRectangle *pagebox;
-    float pdf_version_found, pdf_version_wanted;
+    float pdf_version_found, pdf_version_wanted, pdf_width, pdf_height,
+        pdf_xorig, pdf_yorig;
     assert(idict != NULL);
     assert(img_type(idict) == IMAGE_TYPE_PDF);
-    assert(img_pdf_ptr(idict) == NULL);
-    img_pdf_ptr(idict) = new_pdf_img_struct();
     // initialize
     if (isInit == gFalse) {
         globalParams = new GlobalParams();
@@ -740,18 +740,18 @@ read_pdf_info(image_dict * idict, integer minor_pdf_version_wanted,
     // get the pagebox (media, crop...) to use.
     pagebox = get_pagebox(page, img_pagebox(idict));
     if (pagebox->x2 > pagebox->x1) {
-        img_pdf_orig_x(idict) = pagebox->x1;
-        img_pdf_width(idict) = pagebox->x2 - pagebox->x1;
+        pdf_xorig = pagebox->x1;
+        pdf_width = pagebox->x2 - pagebox->x1;
     } else {
-        img_pdf_orig_x(idict) = pagebox->x2;
-        img_pdf_width(idict) = pagebox->x1 - pagebox->x2;
+        pdf_xorig = pagebox->x2;
+        pdf_width = pagebox->x1 - pagebox->x2;
     }
     if (pagebox->y2 > pagebox->y1) {
-        img_pdf_orig_y(idict) = pagebox->y1;
-        img_pdf_height(idict) = pagebox->y2 - pagebox->y1;
+        pdf_yorig = pagebox->y1;
+        pdf_height = pagebox->y2 - pagebox->y1;
     } else {
-        img_pdf_orig_y(idict) = pagebox->y2;
-        img_pdf_height(idict) = pagebox->y1 - pagebox->y2;
+        pdf_yorig = pagebox->y2;
+        pdf_height = pagebox->y1 - pagebox->y2;
     }
 
     rotate = page->getRotate();
@@ -765,21 +765,23 @@ read_pdf_info(image_dict * idict, integer minor_pdf_version_wanted,
             register float f;
             switch (rotate) {
             case 90:
-                f = img_pdf_height(idict);
-                img_pdf_height(idict) = img_pdf_width(idict);
-                img_pdf_width(idict) = f;
+                f = pdf_height;
+                pdf_height = pdf_width;
+                pdf_width = f;
                 break;
             case 270:
-                f = img_pdf_height(idict);
-                img_pdf_height(idict) = img_pdf_width(idict);
-                img_pdf_width(idict) = f;
+                f = pdf_height;
+                pdf_height = pdf_width;
+                pdf_width = f;
                 break;
             }
         }
     }
     pdf_doc->xref = pdf_doc->doc->getXRef();
-    img_xsize(idict) = bp2int(img_pdf_width(idict));
-    img_ysize(idict) = bp2int(img_pdf_height(idict));
+    img_xsize(idict) = bp2int(pdf_width);
+    img_ysize(idict) = bp2int(pdf_height);
+    img_xorig(idict) = bp2int(pdf_xorig);
+    img_yorig(idict) = bp2int(pdf_yorig);
 }
 
 // Writes the current epf_doc.

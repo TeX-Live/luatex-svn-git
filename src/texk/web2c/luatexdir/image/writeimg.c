@@ -168,17 +168,6 @@ static void check_type_by_extension(image_dict * idict)
 
 /**********************************************************************/
 
-pdf_img_struct *new_pdf_img_struct()
-{
-    pdf_img_struct *p;
-    p = xtalloc(1, pdf_img_struct);
-    p->width = 0;
-    p->height = 0;
-    p->orig_x = 0;
-    p->orig_y = 0;
-    return p;
-}
-
 void init_image(image * p)
 {
     assert(p != NULL);
@@ -207,6 +196,8 @@ void init_image_dict(image_dict * p)
     img_index(p) = 0;
     img_xsize(p) = 0;
     img_ysize(p) = 0;
+    img_xorig(p) = 0;
+    img_yorig(p) = 0;
     img_xres(p) = 0;
     img_yres(p) = 0;
     img_colorspace(p) = 0;
@@ -222,7 +213,7 @@ void init_image_dict(image_dict * p)
     img_colordepth(p) = 0;
     img_pagebox(p) = PDF_BOX_SPEC_MEDIA;
     img_state(p) = DICT_NEW;
-    img_pdf_ptr(p) = NULL;      /* union */
+    img_png_ptr(p) = NULL;      /* union */
 }
 
 image_dict *new_image_dict()
@@ -254,7 +245,6 @@ void free_image_dict(image_dict * p)
     switch (img_type(p)) {
     case IMAGE_TYPE_PDF:
         unrefPdfDocument(img_filepath(p));
-        xfree(img_pdf_ptr(p));
         break;
     case IMAGE_TYPE_PNG:       /* assuming IMG_CLOSEINBETWEEN */
         assert(img_png_ptr(p) == NULL);
@@ -434,10 +424,8 @@ void out_img(image * img, scaled hpos, scaled vpos)
         a[1] = 0;
         a[2] = 0;
         a[3] = (ht + dp) * 1.0e6 / img_ysize(idict);
-        a[4] = hpos -
-            (float) wd *bp2int(img_pdf_orig_x(idict)) / img_xsize(idict);
-        a[5] = vpos -
-            (float) ht *bp2int(img_pdf_orig_y(idict)) / img_ysize(idict);
+        a[4] = hpos - (float) wd *img_xorig(idict) / img_xsize(idict);
+        a[5] = vpos - (float) ht *img_yorig(idict) / img_ysize(idict);
         r = 6;
     } else {
         a[0] = wd * 1.0e6 / one_hundred_bp;
@@ -637,12 +625,12 @@ integer image_colordepth(integer ref)
 
 integer epdf_orig_x(integer ref)
 {
-    return bp2int(img_pdf_orig_x(img_dict(img_array[ref])));
+    return img_xorig(img_dict(img_array[ref]));
 }
 
 integer epdf_orig_y(integer ref)
 {
-    return bp2int(img_pdf_orig_y(img_dict(img_array[ref])));
+    return img_yorig(img_dict(img_array[ref]));
 }
 
 integer image_objnum(integer ref)

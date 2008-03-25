@@ -109,9 +109,6 @@ extern "C" {
 /* write_enc.c */
     extern void epdf_write_enc(char **, integer);
 
-/* writeimg.c */
-    extern pdf_img_struct *new_pdf_img_struct(void);
-
 /* utils.c */
     extern char *convertStringToPDFString(char *in, int len);
     extern char *stripzeros(char *a);
