@@ -757,24 +757,19 @@ read_pdf_info(image_dict * idict, integer minor_pdf_version_wanted,
     rotate = page->getRotate();
     // handle page rotation and adjust dimens as needed
     if (rotate != 0) {
-        if (rotate % 90 == 0) {
-            // handle only the simple case: multiple of 90s.
-            // these are the only values allowed according to the
-            // reference (v1.3, p. 78).
-            // 180 needs no special treatment here
-            register float f;
-            switch (rotate) {
-            case 90:
-                f = pdf_height;
-                pdf_height = pdf_width;
-                pdf_width = f;
-                break;
-            case 270:
-                f = pdf_height;
-                pdf_height = pdf_width;
-                pdf_width = f;
-                break;
-            }
+        // handle only the simple case: multiple of 90s.
+        // these are the only values allowed according to the
+        // reference (v1.3, p. 78).
+        // 180 needs no special treatment here
+        register float f;
+        switch (rotate % 360) {
+        case 90:
+        case 270:
+            f = pdf_height;
+            pdf_height = pdf_width;
+            pdf_width = f;
+            break;
+        default:;
         }
     }
     pdf_doc->xref = pdf_doc->doc->getXRef();
