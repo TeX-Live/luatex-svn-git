@@ -79,8 +79,7 @@ $Id$
 class PdfObject {
   public:
     PdfObject() {               // nothing
-    }
-    ~PdfObject() {
+    } ~PdfObject() {
         iObject.free();
     }
     Object *operator->() {
@@ -825,42 +824,40 @@ static void write_epdf1(image_dict * idict)
 
     // handle page rotation
     if (rotate != 0) {
-        if (rotate % 90 == 0) {
-            // this handles only the simple case: multiple of 90s but these
-            // are the only values allowed according to the reference
-            // (v1.3, p. 78).
-            // the image is rotated around its center.
-            // the /Rotate key is clockwise while the matrix is
-            // counterclockwise :-%
-            tex_printf(", page is rotated %d degrees", rotate);
-            switch (rotate) {
-            case 90:
-                scale[1] = -1;
-                scale[2] = 1;
-                scale[4] = pagebox->x1 - pagebox->y1;
-                scale[5] = pagebox->y1 + pagebox->x2;
-                writematrix = true;
-                break;
-            case 180:
-                scale[0] = scale[3] = -1;
-                scale[4] = pagebox->x1 + pagebox->x2;
-                scale[5] = pagebox->y1 + pagebox->y2;
-                writematrix = true;
-                break;          // width and height are exchanged
-            case 270:
-                scale[1] = 1;
-                scale[2] = -1;
-                scale[4] = pagebox->x1 + pagebox->y2;
-                scale[5] = pagebox->y1 - pagebox->x1;
-                writematrix = true;
-                break;
-            }
-            if (writematrix) {  // The matrix is only written if the image is rotated.
-                sprintf(s, "/Matrix [%.8f %.8f %.8f %.8f %.8f %.8f]\n",
-                        scale[0],
-                        scale[1], scale[2], scale[3], scale[4], scale[5]);
-                pdf_printf(stripzeros(s));
-            }
+        // this handles only the simple case: multiple of 90s but these
+        // are the only values allowed according to the reference
+        // (v1.3, p. 78).
+        // the image is rotated around its center.
+        // the /Rotate key is clockwise while the matrix is
+        // counterclockwise :-%
+        tex_printf(", page is rotated %d degrees", rotate);
+        switch (rotate % 360) {
+        case 90:
+            scale[1] = -1;
+            scale[2] = 1;
+            scale[4] = pagebox->x1 - pagebox->y1;
+            scale[5] = pagebox->y1 + pagebox->x2;
+            writematrix = true;
+            break;
+        case 180:
+            scale[0] = scale[3] = -1;
+            scale[4] = pagebox->x1 + pagebox->x2;
+            scale[5] = pagebox->y1 + pagebox->y2;
+            writematrix = true;
+            break;              // width and height are exchanged
+        case 270:
+            scale[1] = 1;
+            scale[2] = -1;
+            scale[4] = pagebox->x1 + pagebox->y2;
+            scale[5] = pagebox->y1 - pagebox->x1;
+            writematrix = true;
+            break;
+        default:;
+        }
+        if (writematrix) {      // The matrix is only written if the image is rotated.
+            sprintf(s, "/Matrix [%.8f %.8f %.8f %.8f %.8f %.8f]\n",
+                    scale[0], scale[1], scale[2], scale[3], scale[4], scale[5]);
+            pdf_printf(stripzeros(s));
         }
     }
 
