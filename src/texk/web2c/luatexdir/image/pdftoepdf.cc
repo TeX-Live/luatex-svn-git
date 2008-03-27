@@ -79,7 +79,8 @@ $Id$
 class PdfObject {
   public:
     PdfObject() {               // nothing
-    } ~PdfObject() {
+    }
+    ~PdfObject() {
         iObject.free();
     }
     Object *operator->() {
@@ -101,26 +102,26 @@ class PdfObject {
 // appended into a linked list. Duplicates are checked and removed from the
 // list of indirect objects during appending.
 
-typedef enum { objFont, objFontDesc, objOther } InObjType;
+enum InObjType { objFont, objFontDesc, objOther };
 
-typedef struct InObj_ {
+struct InObj {
     Ref ref;                    // ref in original PDF
     InObjType type;             // object type
     integer num;                // new object number in output PDF
     fd_entry *fd;               // pointer to /FontDescriptor object structure
     integer enc_objnum;         // Encoding for objFont
     int written;                // has it been written to output PDF?
-    struct InObj_ *next;        // next entry in list of indirect objects
-} InObj;
+    InObj *next;                // next entry in list of indirect objects
+};
 
-typedef struct UsedEncoding_ {
+struct UsedEncoding {
     integer enc_objnum;
     GfxFont *font;
-    struct UsedEncoding_ *next;
-} UsedEncoding;
+    UsedEncoding *next;
+};
 
 static XRef *xref = NULL;
-static InObj *inObjList;
+static InObj *inObjList = NULL;
 static UsedEncoding *encodingList;
 static GBool isInit = gFalse;
 
@@ -129,13 +130,13 @@ static GBool isInit = gFalse;
 
 static avl_table *PdfDocumentTree = NULL;
 
-typedef struct {
+struct PdfDocument {
     char *file_path;            // full file name including path
     PDFDoc *doc;
     XRef *xref;
     InObj *inObjList;
     int occurences;             // number of references to the PdfDocument; it can be deleted when occurences == 0
-} PdfDocument;
+};
 
 /* AVL sort PdfDocument into PdfDocumentTree by file_path */
 
