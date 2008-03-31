@@ -659,6 +659,8 @@ char *mp_read_ascii_file (MP mp, void *ff, size_t *size) {
   FILE *f = (FILE *)ff;
   *size = 0;
   (void) mp; /* for -Wunused */
+  if (f==NULL)
+    return NULL;
 #if NOTTESTING
   c = fgetc(f);
   if (c==EOF)
@@ -700,7 +702,8 @@ void mp_read_binary_file (MP mp, void *f, void **data, size_t *size) {
   size_t len = 0;
   (void) mp;
 #if NOTTESTING
-  len = fread(*data,1,*size,(FILE *)f);
+  if (f!=NULL)
+    len = fread(*data,1,*size,(FILE *)f);
 #endif
   *size = len;
 }
@@ -719,7 +722,8 @@ void mp_write_binary_file (MP mp, void *f, void *s, size_t size) {
 void mp_close_file (MP mp, void *f) {
   (void) mp;
 #if NOTTESTING
-  fclose((FILE *)f);
+  if (f!=NULL)
+    fclose((FILE *)f);
 #endif
 }
 
@@ -727,7 +731,10 @@ void mp_close_file (MP mp, void *f) {
 int mp_eof_file (MP mp, void *f) {
   (void) mp;
 #if NOTTESTING
-  return feof((FILE *)f);
+  if (f!=NULL)
+    return feof((FILE *)f);
+   else 
+    return 1;
 #else
   return 0;
 #endif
@@ -737,7 +744,8 @@ int mp_eof_file (MP mp, void *f) {
 void mp_flush_file (MP mp, void *f) {
   (void) mp;
 #if NOTTESTING
-  fflush((FILE *)f);
+  if (f!=NULL)
+    fflush((FILE *)f);
 #endif
 }
 
@@ -9590,8 +9598,6 @@ pointer mp_copy_objects (MP mp, pointer p, pointer q) {
 }
 
 @ @<Fix anything in graphical object |pp| that should differ from the...@>=
-if ( pre_script(p)!=null )  add_str_ref(pre_script(p));
-if ( post_script(p)!=null ) add_str_ref(post_script(p));
 switch (type(p)) {
 case mp_start_clip_code:
 case mp_start_bounds_code: 
@@ -9599,14 +9605,20 @@ case mp_start_bounds_code:
   break;
 case mp_fill_code: 
   path_p(pp)=mp_copy_path(mp, path_p(p));
+  if ( pre_script(p)!=null )  add_str_ref(pre_script(p));
+  if ( post_script(p)!=null ) add_str_ref(post_script(p));
   if ( pen_p(p)!=null ) pen_p(pp)=copy_pen(pen_p(p));
   break;
 case mp_stroked_code: 
+  if ( pre_script(p)!=null )  add_str_ref(pre_script(p));
+  if ( post_script(p)!=null ) add_str_ref(post_script(p));
   path_p(pp)=mp_copy_path(mp, path_p(p));
   pen_p(pp)=copy_pen(pen_p(p));
   if ( dash_p(p)!=null ) add_edge_ref(dash_p(pp));
   break;
 case mp_text_code: 
+  if ( pre_script(p)!=null )  add_str_ref(pre_script(p));
+  if ( post_script(p)!=null ) add_str_ref(post_script(p));
   add_str_ref(text_p(pp));
   break;
 case mp_stop_clip_code:
@@ -23247,7 +23259,6 @@ void mp_do_write (MP mp) ;
 @ @<Record the end of file on |wr_file[n]|@>=
 { (mp->close_file)(mp,mp->wr_file[n]);
   xfree(mp->wr_fname[n]);
-  mp->wr_fname[n]=NULL;
   if ( n==mp->write_files-1 ) mp->write_files=n;
 }
 
@@ -25666,6 +25677,7 @@ for (k=p;k<=mp->lo_mem_max;k++ )
   undump_wd(mp->mem[k]);
 undump(mp->lo_mem_max+1,hi_mem_stat_min,mp->hi_mem_min);
 undump(null,mp->mem_top,mp->avail); mp->mem_end=mp->mem_top;
+mp->last_pending=spec_head;
 for (k=mp->hi_mem_min;k<= mp->mem_end;k++) 
   undump_wd(mp->mem[k]);
 undump_int(mp->var_used); undump_int(mp->dyn_used)
@@ -25841,6 +25853,7 @@ if (mp->rd_fname!=NULL) {
   for (k=0;k<=(int)mp->read_files-1;k++ ) {
     if ( mp->rd_fname[k]!=NULL ) {
       (mp->close_file)(mp,mp->rd_file[k]);
+      xfree(mp->rd_fname[k]);      
    }
  }
 }
@@ -25848,6 +25861,7 @@ if (mp->wr_fname!=NULL) {
   for (k=0;k<=(int)mp->write_files-1;k++) {
     if ( mp->wr_fname[k]!=NULL ) {
      (mp->close_file)(mp,mp->wr_file[k]);
+      xfree(mp->wr_fname[k]); 
     }
   }
 }
@@ -25856,19 +25870,19 @@ if (mp->wr_fname!=NULL) {
 for (k=0;k<(int)mp->max_read_files;k++ ) {
   if ( mp->rd_fname[k]!=NULL ) {
     (mp->close_file)(mp,mp->rd_file[k]);
-    mp_xfree(mp->rd_fname[k]); 
+    xfree(mp->rd_fname[k]); 
   }
 }
-mp_xfree(mp->rd_file);
-mp_xfree(mp->rd_fname);
+xfree(mp->rd_file);
+xfree(mp->rd_fname);
 for (k=0;k<(int)mp->max_write_files;k++) {
   if ( mp->wr_fname[k]!=NULL ) {
     (mp->close_file)(mp,mp->wr_file[k]);
-    mp_xfree(mp->wr_fname[k]); 
+    xfree(mp->wr_fname[k]); 
   }
 }
-mp_xfree(mp->wr_file);
-mp_xfree(mp->wr_fname);
+xfree(mp->wr_file);
+xfree(mp->wr_fname);
 
 
 @ We want to produce a \.{TFM} file if and only if |mp_fontmaking| is positive.

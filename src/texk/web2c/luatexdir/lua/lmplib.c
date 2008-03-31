@@ -430,7 +430,7 @@ void mplib_write_ascii_file (MP mp, void *ff, const char *s) {
       } else if (f==mplib_data->ps_file_ptr) {
         APPEND_STRING(ps_out,s);
       } else {
-	fprintf((FILE *)f,s);
+		fprintf((FILE *)f,"%s",s);
       }
     }
   }

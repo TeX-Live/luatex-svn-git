@@ -5496,9 +5496,12 @@ void mp_gr_ship_out (mp_edge_object *hh, int prologues, int procset) {
     case mp_start_bounds_code:
     case mp_stop_bounds_code:
 	  break;
-    case mp_special_code: 
-      mp_ps_print_nl (mp, gr_pre_script((mp_special_object *)p)); 
- 	  mp_ps_print_ln (mp);
+    case mp_special_code:  
+      {
+        mp_special_object *ps = (mp_special_object *)p;
+        mp_ps_print_nl (mp, gr_pre_script(ps)); 
+ 	    mp_ps_print_ln (mp);
+      }
       break;
     } /* all cases are enumerated */
     p=gr_link(p);
