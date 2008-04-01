@@ -135,6 +135,8 @@ luacstring_input (void) {
     last = first;
     ret = last;
     check_buffer_overflow (last + t->tsize);
+	/* make sure it fits in the pool as well (for show_token_list c.s) */
+    check_pool_overflow(pool_ptr + t->tsize);
     while (t->tsize-->0)
       buffer[last++] = *st++;
     if (!t->partial) {
