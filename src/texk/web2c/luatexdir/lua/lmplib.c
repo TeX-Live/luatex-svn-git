@@ -883,8 +883,7 @@ mplib_gr_tostring (lua_State *L) {
 static int
 mplib_gr_fields (lua_State *L) {
   const char **fields;
-  const char *f;
-  int i = 1;
+  int i ;
   struct mp_graphic_object **hh = is_gr_object(L,1);
   if (*hh) {
     switch ((*hh)->_type_field) {
@@ -899,9 +898,9 @@ mplib_gr_fields (lua_State *L) {
     default:                   fields = no_fields;
     }
     lua_newtable(L);
-    for (f = *fields; f != NULL; f++) {
-      lua_pushstring(L,f);
-      lua_rawseti(L,-2,i); i++;
+    for (i=0;fields[i]!=NULL;i++) {
+      lua_pushstring(L,fields[i]);
+      lua_rawseti(L,-2,(i+1));
     }
   } else {
     lua_pushnil(L);
@@ -1012,6 +1011,7 @@ mplib_push_color (lua_State *L, struct mp_graphic_object *p ) {
 static void 
 mplib_push_dash (lua_State *L, struct mp_stroked_object *h ) {
   mp_dash_object *d;
+  double ds;
   if (h!=NULL && h->dash_p_field != NULL) {
     d  = h->dash_p_field;
     lua_newtable(L);
@@ -1021,7 +1021,8 @@ mplib_push_dash (lua_State *L, struct mp_stroked_object *h ) {
       int i = 0;
       lua_newtable(L);
       while (*(d->array_field+i) != -1) {
-	mplib_push_number(L, *(d->array_field+1));
+        ds = *(d->array_field+1) / 65536.0;
+	lua_pushnumber(L, ds);
 	i++;
 	lua_rawseti(L,-2,i);
       }
@@ -1163,6 +1164,7 @@ mplib_gr_index (lua_State *L) {
   struct mp_graphic_object **hh = is_gr_object(L,1);
   if (*hh) {
     struct mp_graphic_object *h = *hh;
+
     if (mplib_is_S(type,2)) {
       lua_rawgeti(L,LUA_REGISTRYINDEX,mplib_type_Ses[h->_type_field]);
     } else {
@@ -1206,7 +1208,6 @@ static const struct luaL_reg mplib_gr_meta[] = {
   {"__gc",               mplib_gr_collect  },
   {"__tostring",         mplib_gr_tostring },
   {"__index",            mplib_gr_index    },
-  {"fields",             mplib_gr_fields   },
   {NULL, NULL}                /* sentinel */
 };
 
@@ -1220,7 +1221,8 @@ static const struct luaL_reg mplib_d [] = {
 
 
 static const struct luaL_reg mplib_m[] = {
-  {"new",                 mplib_new},
+  {"new",                 mplib_new            },
+  {"fields",              mplib_gr_fields      },
   {NULL, NULL}                /* sentinel */
 };
 
@@ -1228,6 +1230,7 @@ static const struct luaL_reg mplib_m[] = {
 int 
 luaopen_mp (lua_State *L) {
   mplib_init_Ses(L);
+
   luaL_newmetatable(L,MPLIB_GR_METATABLE);
   lua_pushvalue(L, -1); /* push metatable */
   lua_setfield(L, -2, "__index"); /* metatable.__index = metatable */

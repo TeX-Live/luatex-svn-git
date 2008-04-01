@@ -75,8 +75,8 @@ undergoes any modifications, so that it will be clear which version of
 
 @d banner "This is MetaPost, Version 1.003" /* printed when \MP\ starts */
 @d metapost_version "1.003"
-@d mplib_version "0.30"
-@d version_string " (Cweb version 0.30)"
+@d mplib_version "0.40"
+@d version_string " (Cweb version 0.40)"
 
 @d true 1
 @d false 0
@@ -9525,27 +9525,39 @@ dash_y(hh)=dash_y(h)
 @ |h| is an edge structure
 
 @c
-mp_dash_object *mp_export_dashes (MP mp, pointer h) {
+mp_dash_object *mp_export_dashes (MP mp, pointer q, scaled *w) {
   mp_dash_object *d;
-  pointer p;
+  pointer p, h;
+  scaled scf; /* scale factor */
   scaled *dashes = NULL;
   int num_dashes = 1;
+  h = dash_p(q);
   if (h==null ||  dash_list(h)==null_dash) 
 	return NULL;
   p = dash_list(h);
+  scf=mp_get_pen_scale(mp, pen_p(q));
+  if (scf==0) {
+    if (*w==0) scf = dash_scale(q); else return NULL;
+  } else {
+    scf=mp_make_scaled(mp, *w,scf);
+    scf=mp_take_scaled(mp, scf,dash_scale(q));
+  }
+  *w = scf;
   d = mp_xmalloc(mp,1,sizeof(mp_dash_object));
   start_x(null_dash)=start_x(p)+dash_y(h);
   while (p != null_dash) { 
 	dashes = mp_xrealloc(mp, dashes, num_dashes+2, sizeof(scaled));
-	dashes[(num_dashes-1)] = (stop_x(p)-start_x(p));
-	dashes[(num_dashes)]   = (start_x(link(p))-stop_x(p));
+	dashes[(num_dashes-1)] = 
+      mp_take_scaled(mp,(stop_x(p)-start_x(p)),scf);
+	dashes[(num_dashes)]   = 
+      mp_take_scaled(mp,(start_x(link(p))-stop_x(p)),scf);
 	dashes[(num_dashes+1)] = -1; /* terminus */
 	num_dashes+=2;
     p=link(p);
   }
   d->array_field  = dashes;
-  d->offset_field = mp_dash_offset(mp, h);
-  d->scale_field  = dash_scale(h);
+  d->offset_field = 
+    mp_take_scaled(mp,mp_dash_offset(mp, h),scf);
   return d;
 }
 
@@ -25229,6 +25241,7 @@ void mp_ship_out (MP mp, pointer h) ;
 struct mp_edge_object *mp_gr_export(MP mp, pointer h) {
   pointer p; /* the current graphical object */
   integer t; /* a temporary value */
+  scaled d_width; /* the current pen width */
   mp_edge_object *hh; /* the first graphical object */
   struct mp_graphic_object *hq; /* something |hp| points to  */
   struct mp_text_object    *tt;
@@ -25255,6 +25268,7 @@ struct mp_edge_object *mp_gr_export(MP mp, pointer h) {
     case mp_fill_code:
       tf = (mp_fill_object *)hq;
       gr_pen_p(tf)        = mp_export_knot_list(mp,pen_p(p));
+      d_width = mp_get_pen_scale(mp, pen_p(p));
       if ((pen_p(p)==null) || pen_is_elliptical(pen_p(p)))  {
   	    gr_path_p(tf)       = mp_export_knot_list(mp,path_p(p));
       } else {
@@ -25276,6 +25290,7 @@ struct mp_edge_object *mp_gr_export(MP mp, pointer h) {
     case mp_stroked_code:
       ts = (mp_stroked_object *)hq;
       gr_pen_p(ts)        = mp_export_knot_list(mp,pen_p(p));
+      d_width = mp_get_pen_scale(mp, pen_p(p));
       if (pen_is_elliptical(pen_p(p)))  {
 	      gr_path_p(ts)       = mp_export_knot_list(mp,path_p(p));
       } else {
@@ -25297,7 +25312,7 @@ struct mp_edge_object *mp_gr_export(MP mp, pointer h) {
       gr_ljoin_val(ts)    = ljoin_val(p);
       gr_miterlim_val(ts) = miterlim_val(p);
       gr_lcap_val(ts)     = lcap_val(p);
-      gr_dash_p(ts)       = mp_export_dashes(mp,dash_p(p));
+      gr_dash_p(ts)       = mp_export_dashes(mp,p,&d_width);
       break;
     case mp_text_code:
       tt = (mp_text_object *)hq;
