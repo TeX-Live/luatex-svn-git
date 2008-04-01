@@ -16318,15 +16318,15 @@ var w, s_out: scaled;
 begin
     w := char_width(f,c);
     if hasfmentry(f) then begin
-        if pdf_cur_Tm_a = 0 then begin
-            call_func(divide_scaled_n(w, pdf_font_size(f),10000.0));
+        if pdf_cur_Tm_a = 1000 then begin
+            call_func(divide_scaled_n(w, pdf_font_size(f), 10000.0));
             pdf_delta_h := pdf_delta_h + scaled_out;
         end
         else begin
-            s := divide_scaled_n(round_xn_over_d(w, 1000, 1000 + pdf_cur_Tm_a),
-                               pdf_font_size(f),10000.0);
+            s := divide_scaled_n(round_xn_over_d(w, 1000, pdf_cur_Tm_a),
+                                 pdf_font_size(f), 10000.0);
             s_out := round_xn_over_d(round_xn_over_d(pdf_font_size(f), abs(s), 10000),
-                                     1000 + pdf_cur_Tm_a, 1000);
+                                     pdf_cur_Tm_a, 1000);
             if s < 0 then
                 s_out := -s_out;
             pdf_delta_h := pdf_delta_h + s_out;
@@ -16378,11 +16378,11 @@ end;
 @!pdf_output_value: integer;
 @!pdf_draftmode_option: integer;
 @!pdf_draftmode_value: integer;
-@!pdf_cur_Tm_a: integer; {|a| value of the current text matrix, ie the current
-                          horizontal scaling factor}
+@!pdf_cur_Tm_a: integer; {value |a| of the current text matrix, i.e.,
+                          the current horizontal scaling factor}
+@!pdf_cur_Tm_c: integer; {value |c| of the current text matrix, i.e., slant (skew, obliqueness)}
 @!pdf_last_f: internal_font_number; {last font in PDF output page}
 @!pdf_last_fs: internal_font_number; {last font size in PDF output page}
-
 
 @ Following procedures implement low-level subroutines to convert \TeX{}
 internal structures to PDF page description.
@@ -16434,19 +16434,26 @@ end;
 
 procedure pdf_set_textmatrix(v, v_out: scaled; f: internal_font_number);
 {set the next starting point to |cur_h|, |cur_v|}
-var pdf_new_Tm_a: integer; {|a| value of the new text matrix}
+var pdf_new_Tm_a, pdf_new_Tm_c: integer; {values |a| and |c| of the new text matrix}
 begin
     pdf_out(" ");
-    if f = pdf_f then
-        pdf_new_Tm_a := pdf_cur_Tm_a
-    else if not pdf_font_auto_expand(f) then
-        pdf_new_Tm_a := 0
-    else
-        pdf_new_Tm_a := pdf_font_expand_ratio(f);
-    if (pdf_new_Tm_a <> 0) or
-        ((pdf_new_Tm_a = 0) and (pdf_cur_Tm_a <> 0)) then begin
-        pdf_print_real(1000 + pdf_new_Tm_a, 3);
-        pdf_print(" 0 0 1 ");
+    if f = pdf_f then begin
+        pdf_new_Tm_a := pdf_cur_Tm_a;
+        pdf_new_Tm_c := pdf_cur_Tm_c;
+    end else begin
+        if pdf_font_auto_expand(f) then
+            pdf_new_Tm_a := 1000 + pdf_font_expand_ratio(f)
+        else
+            pdf_new_Tm_a := 1000;
+        pdf_new_Tm_c := 0 * font_slant(f); {don't activate it yet, needs fixing writefont.c etc.}
+    end;
+    if (pdf_new_Tm_a <> 1000) or (pdf_cur_Tm_a <> 1000)
+    or (pdf_new_Tm_c <> 0) or (pdf_cur_Tm_c <> 0)
+    then begin
+        pdf_print_real(pdf_new_Tm_a, 3);
+        pdf_print(" 0 ");
+        pdf_print_real(pdf_new_Tm_c, 3);
+        pdf_print(" 1 ");
         pdf_print_bp(cur_h - pdf_origin_h);
         pdf_h := pdf_origin_h + scaled_out;
         pdf_out(" ");
@@ -16454,7 +16461,8 @@ begin
         pdf_v := pdf_origin_v - scaled_out;
         pdf_print(" Tm");
         pdf_cur_Tm_a := pdf_new_Tm_a;
-        pdfassert(pdf_cur_Tm_a > -1000);
+        pdf_cur_Tm_c := pdf_new_Tm_c;
+        pdfassert(pdf_cur_Tm_a > 0);
     end else begin
         pdf_print_bp(cur_h - pdf_tj_start_h); {works only for unexpanded fonts}
         pdf_h := pdf_tj_start_h + scaled_out;
@@ -16582,7 +16590,8 @@ begin
     pdf_last_f := null_font;
     pdf_last_fs := 0;
     pdf_doing_string := false;
-    pdf_cur_Tm_a := 0;
+    pdf_cur_Tm_a := 1000;
+    pdf_cur_Tm_c := 0;
 end;
 
 @ @p
@@ -16596,18 +16605,16 @@ begin s_out:=0;
         pdf_end_string;
         pdf_set_font(f);
     end;
-    if pdf_cur_Tm_a = 0 then begin
-        s := divide_scaled_n(cur_h - (pdf_tj_start_h + pdf_delta_h), pdf_font_size(f),1000.0);
+    if pdf_cur_Tm_a = 1000 then begin
+        s := divide_scaled_n(cur_h - (pdf_tj_start_h + pdf_delta_h), pdf_font_size(f), 1000.0);
         s_out := scaled_out;
     end
     else begin
         s := divide_scaled_n(round_xn_over_d(cur_h - (pdf_tj_start_h + pdf_delta_h), 1000,
-                                           1000 + pdf_cur_Tm_a),
-                           pdf_font_size(f),
-	                   1000.0);
+                                             pdf_cur_Tm_a), pdf_font_size(f), 1000.0);
         if abs(s) < @'100000 then begin
             s_out := round_xn_over_d(round_xn_over_d(pdf_font_size(f), abs(s), 1000),
-                                     1000 + pdf_cur_Tm_a, 1000);
+                                     pdf_cur_Tm_a, 1000);
             if s < 0 then
                 s_out := -s_out;
         end;
