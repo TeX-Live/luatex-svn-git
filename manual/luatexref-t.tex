@@ -2257,7 +2257,7 @@ currently these are `media', `crop', `bleed', `trim', and `art'
 \section{The \luatex{mplib} library}
 
 The \MP\ library interface registers itself in the table \type{mplib}. It
-is based on the MPlib beta version 0.30 (based on \MP\ 1.003).
+is based on the MPlib beta version 0.40 (based on \MP\ 1.003).
 
 \subsection{\luatex{mplib.new}}
 
@@ -2396,9 +2396,9 @@ Graphical objects come in various types that each have a different list of
 accessible values. The types are: 'fill', 'outline', 'text',
 'start_clip', 'stop_clip', 'start_bounds', 'stop_bounds', 'special'.
 
-There is an \type{obj:fields()} command to get the list of accessible
-values for a particular object (but you can just as easily use the
-tables given below). 
+There is helper function (\type{mplib.fields(obj)}) to get the list of
+accessible values for a particular object, but you can just as easily
+use the tables given below.
 
 All graphical objects have a field \type{type} that gives the object
 type as a string value, that not explicit mentioned in the tables.  In
