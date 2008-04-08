@@ -10908,8 +10908,8 @@ at the value |p| that is returned. (If |p=temp_token_head|, the list is empty.)
 |lua_str_toks| is almost identical, but it also escapes the three
 symbols that |lua| considers special while scanning a literal string
 
-@d unicode_incr(#)==if str_pool[#]>@"F0 then #:=#+4 else if str_pool[#]>@"E0 
-     then #:=#+3 else if str_pool[#]>@"C0 then #:=#+2 else incr(#)
+@d unicode_incr(#)==if str_pool[#]>=@"F0 then #:=#+4 else if str_pool[#]>=@"E0 
+     then #:=#+3 else if str_pool[#]>=@"C0 then #:=#+2 else incr(#)
 
 
 @p @t\4@>@<Declare \eTeX\ procedures for token lists@>@;@/
