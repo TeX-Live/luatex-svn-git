@@ -596,6 +596,7 @@ void create_fontdictionary(fm_entry * fm, integer font_objnum,
 {
     fo_entry *fo = new_fo_entry();
     get_char_range(fo, f);      /* set fo->first_char and fo->last_char from f */
+    if (fo->last_char>255) fo->last_char=255; /* added 9-4-2008, mantis #25 */
     assert(fo->last_char >= fo->first_char);
     fo->fm = fm;
     fo->fo_objnum = font_objnum;
