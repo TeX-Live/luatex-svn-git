@@ -419,18 +419,15 @@ void out_img(image * img, scaled hpos, scaled vpos)
     scaled wd = img_width(img);
     scaled ht = img_height(img);
     scaled dp = img_depth(img);
+    a[1] = a[2] = 0;
     if (img_type(idict) == IMAGE_TYPE_PDF) {
         a[0] = wd * 1.0e6 / img_xsize(idict);
-        a[1] = 0;
-        a[2] = 0;
         a[3] = (ht + dp) * 1.0e6 / img_ysize(idict);
         a[4] = hpos - (float) wd *img_xorig(idict) / img_xsize(idict);
-        a[5] = vpos - (float) ht *img_yorig(idict) / img_ysize(idict);
+        a[5] = vpos - (float) (ht + dp) * img_yorig(idict) / img_ysize(idict);
         r = 6;
     } else {
         a[0] = wd * 1.0e6 / one_hundred_bp;
-        a[1] = 0;
-        a[2] = 0;
         a[3] = (ht + dp) * 1.0e6 / one_hundred_bp;
         a[4] = hpos;
         a[5] = vpos;
@@ -447,45 +444,41 @@ void out_img(image * img, scaled hpos, scaled vpos)
         break;
     case 1:                    /* rot. 90 deg. (counterclockwise) */
         a[1] = a[0] * (ht + dp) / wd;
-        a[0] = 0;
         a[2] = -a[3] * wd / (ht + dp);
-        a[3] = 0;
+        a[3] = a[0] = 0;
         a[4] += wd;
         break;
     case 2:                    /* rot. 180 deg. */
-        a[0] = -a[0];
-        a[3] = -a[3];
+        a[0] *= -1;
+        a[3] *= -1;
         a[4] += wd;
         a[5] += ht + dp;
         break;
     case 3:                    /* rot. 270 deg. */
         a[1] = -a[0] * (ht + dp) / wd;
-        a[0] = 0;
         a[2] = a[3] * wd / (ht + dp);
-        a[3] = 0;
+        a[3] = a[0] = 0;
         a[5] += ht + dp;
         break;
     case 4:                    /* mirrored, unrotated */
-        a[0] = -a[0];
+        a[0] *= -1;
         a[4] += wd;
         break;
     case 5:                    /* mirrored, then rot. 90 deg. */
         a[1] = -a[0] * (ht + dp) / wd;
-        a[0] = 0;
         a[2] = -a[3] * wd / (ht + dp);
-        a[3] = 0;
+        a[3] = a[0] = 0;
         a[4] += wd;
         a[5] += ht + dp;
         break;
     case 6:                    /* mirrored, then rot. 180 deg. */
-        a[3] = -a[3];
+        a[3] *= -1;
         a[5] += ht + dp;
         break;
     case 7:                    /* mirrored, then rot. 270 deg. */
         a[1] = a[0] * (ht + dp) / wd;
-        a[0] = 0;
         a[2] = a[3] * wd / (ht + dp);
-        a[3] = 0;
+        a[3] = a[0] = 0;
         break;
     default:
         assert(0);
