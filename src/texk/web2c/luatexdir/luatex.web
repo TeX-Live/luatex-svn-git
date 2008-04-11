@@ -34789,7 +34789,7 @@ var q:pointer;
 begin
  q := box(j);
  get_tex_box_width := 0;
- if q <> min_halfword then
+ if q <> null then
     get_tex_box_width := width(q);
 end;
 
@@ -34798,7 +34798,7 @@ var q:pointer;
 begin
   q := box(j);
   set_tex_box_width := 0;
-  if q <> min_halfword then
+  if q <> null then
     width(q) := v
   else
     set_tex_box_width := 1;
@@ -34809,7 +34809,7 @@ var q:pointer;
 begin
  q := box(j);
  get_tex_box_height := 0;
- if q <> min_halfword then
+ if q <> null then
     get_tex_box_height := height(q);
 end;
 
@@ -34818,7 +34818,7 @@ var q:pointer;
 begin
   q := box(j);
   set_tex_box_height := 0;
-  if q <> min_halfword then
+  if q <> null then
     height(q) := v
   else
     set_tex_box_height := 1;
@@ -34829,7 +34829,7 @@ var q:pointer;
 begin
  q := box(j);
  get_tex_box_depth := 0;
- if q <> min_halfword then
+ if q <> null then
     get_tex_box_depth := depth(q);
 end;
 
@@ -34838,7 +34838,7 @@ var q:pointer;
 begin
   q := box(j);
   set_tex_box_depth := 0;
-  if q <> min_halfword then
+  if q <> null then
     depth(q) := v
   else
     set_tex_box_depth := 1;
