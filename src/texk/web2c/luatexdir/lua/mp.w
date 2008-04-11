@@ -10400,7 +10400,7 @@ integer spec_offset; /* number of pen edges between |h| and the initial offset *
 @ @c @<Declare subroutines needed by |offset_prep|@>
 pointer mp_offset_prep (MP mp,pointer c, pointer h) {
   halfword n; /* the number of vertices in the pen polygon */
-  pointer p,q,q0,r,w, ww; /* for list manipulation */
+  pointer c0,p,q,q0,r,w, ww; /* for list manipulation */
   integer k_needed; /* amount to be added to |info(p)| when it is computed */
   pointer w0; /* a pointer to pen offset to use just before |p| */
   scaled dxin,dyin; /* the direction into knot |p| */
@@ -10409,7 +10409,7 @@ pointer mp_offset_prep (MP mp,pointer c, pointer h) {
   dx0=0; dy0=0;
   @<Initialize the pen size~|n|@>;
   @<Initialize the incoming direction and pen offset at |c|@>;
-  p=c; k_needed=0;
+  p=c; c0=c; k_needed=0;
   do {  
     q=link(p);
     @<Split the cubic between |p| and |q|, if necessary, into cubics
@@ -10480,7 +10480,7 @@ do {
   p=r;
 } while (p!=q);
 /* Check if we removed too much */
-if(q!=q0)
+if ((q!=q0)&&(q!=c||c==c0))
   q = link(q)
 
 @ @<Remove the cubic following |p| and update the data structures...@>=
