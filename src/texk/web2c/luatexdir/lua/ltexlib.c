@@ -451,9 +451,38 @@ int gettoks (lua_State *L) {
   return 1;
 }
 
+/* UGLY hack */
+
+#define char_given 70
+#define math_given 71
+#define omath_given 72
+
+static int get_box_id (lua_State *L, int i) {
+  const char *s;
+  integer cur_cs, cur_cmd;
+  str_number texstr;
+  size_t k = 0;
+  int j = -1;
+  if (lua_type(L,i)==LUA_TSTRING) {
+    s = (char *)lua_tolstring(L,i, &k);
+    texstr = maketexlstring(s,k);
+    cur_cs = string_lookup(texstr);
+    cur_cmd = zget_eq_type(cur_cs); 
+    flush_str(texstr);
+    if (cur_cmd==char_given || 
+        cur_cmd==math_given || 
+        cur_cmd==omath_given) {
+	  j = zget_equiv(cur_cs);
+	}
+  } else {
+    j = (int)lua_tonumber(L,(i));
+  }
+  return j;
+}
+ 
 int getbox (lua_State *L) {
   int k, t;
-  k = (int)luaL_checkinteger(L,-1);
+  k = get_box_id(L,-1);
   check_index_range(k);
   t = get_tex_box_register(k);
   nodelist_to_lua(L,t);
@@ -462,10 +491,7 @@ int getbox (lua_State *L) {
 
 int setbox (lua_State *L) {
   int i,j,k;
-
-
-
-  k = (int)luaL_checkinteger(L,-2);
+  k = get_box_id(L,-2);
   check_index_range(k);
   i = get_tex_box_register(k);
   if (lua_isboolean(L,-1)) {
@@ -484,11 +510,10 @@ int setbox (lua_State *L) {
   return 0;
 }
 
-
 static int getboxdim (lua_State *L, int whichdim) {
   int i, j;
   i = lua_gettop(L);
-  j = (int)lua_tonumber(L,(i));
+  j = get_box_id(L,i);
   lua_settop(L,(i-2)); /* table at -1 */
   if (j<0 || j > 65535) {
 	lua_pushstring(L, "incorrect index");
@@ -527,7 +552,7 @@ static int setboxdim (lua_State *L, int whichdim) {
   } else {
     j = (int)lua_tonumber(L,i);
   }
-  k = (int)lua_tonumber(L,(i-1));
+  k = get_box_id(L,(i-1));
   lua_settop(L,(i-3)); /* table at -2 */
   if (k<0 || k > 65535) {
 	lua_pushstring(L, "incorrect index");
