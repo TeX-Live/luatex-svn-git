@@ -779,7 +779,7 @@ void hnj_hyphen_hyphenate(
   halfword here;
   for (char_num=0, here=begin_point; here!=end_point; here=get_vlink(here)) {
 
-    int ch = get_character(here);
+    int ch = get_lc_code(get_character(here));
 
     while (state!=-1) {
 	  /*   printf("%*s%s%c",char_num-strlen(get_state_str(state)),"",get_state_str(state),(char)ch);*/
