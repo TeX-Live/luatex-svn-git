@@ -4,20 +4,20 @@
 #include <ptexlib.h>
 
 
-static int 
-findcurv (lua_State *L) {
-  int j;
-  j = get_cur_v();
-  lua_pushnumber(L, j);
-  return 1;
+static int findcurv(lua_State * L)
+{
+    int j;
+    j = get_cur_v();
+    lua_pushnumber(L, j);
+    return 1;
 }
 
-static int 
-findcurh (lua_State *L) {
-  int j;
-  j = get_cur_h();
-  lua_pushnumber(L, j);
-  return 1;
+static int findcurh(lua_State * L)
+{
+    int j;
+    j = get_cur_h();
+    lua_pushnumber(L, j);
+    return 1;
 }
 
 
@@ -26,7 +26,7 @@ typedef enum { set_origin, direct_page, direct_always } pdf_lit_mode;
 int luapdfprint(lua_State * L)
 {
     int n;
-	unsigned i;
+    unsigned i;
     size_t len;
     const char *outputstr, *st;
     pdf_lit_mode literal_mode;
@@ -47,13 +47,12 @@ int luapdfprint(lua_State * L)
             else if (strcmp(outputstr, "page") == 0)
                 literal_mode = direct_page;
             else {
-                lua_pushstring(L,
-                               "invalid argument for print literal mode");
+                lua_pushstring(L, "invalid argument for print literal mode");
                 lua_error(L);
             }
         }
     } else {
-	    if (n != 1) {
+        if (n != 1) {
             lua_pushstring(L, "invalid number of arguments");
             lua_error(L);
         }
@@ -72,11 +71,11 @@ int luapdfprint(lua_State * L)
     default:
         assert(0);
     }
-    st = lua_tolstring(L, n,&len);
+    st = lua_tolstring(L, n, &len);
     for (i = 0; i < len; i++) {
-	  if (i%16 == 0) 
-        pdfroom(16);
-	  pdf_buf[pdf_ptr++] = st[i];
+        if (i % 16 == 0)
+            pdfroom(16);
+        pdf_buf[pdf_ptr++] = st[i];
     }
     return 0;
 }
@@ -96,25 +95,25 @@ static int l_immediateobj(lua_State * L)
     return 1;
 }
 
-static int 
-getpdf (lua_State *L) {
-  char *st;
-  if (lua_isstring(L,2)) {
-    st = (char *)lua_tostring(L,2);
-    if (st && *st) {
-       if (*st == 'h')
-	 return findcurh(L);
-       else if (*st == 'v')
-	 return findcurv(L);
+static int getpdf(lua_State * L)
+{
+    char *st;
+    if (lua_isstring(L, 2)) {
+        st = (char *) lua_tostring(L, 2);
+        if (st && *st) {
+            if (*st == 'h')
+                return findcurh(L);
+            else if (*st == 'v')
+                return findcurv(L);
+        }
     }
-  }
-  lua_pushnil(L);
-  return 1;
+    lua_pushnil(L);
+    return 1;
 }
 
-static int 
-setpdf (lua_State *L) {
-  return (L==NULL ? 0 : 0); /* for -Wall */
+static int setpdf(lua_State * L)
+{
+    return (L == NULL ? 0 : 0); /* for -Wall */
 }
 
 static const struct luaL_reg pdflib[] = {
@@ -124,21 +123,20 @@ static const struct luaL_reg pdflib[] = {
 };
 
 
-int 
-luaopen_pdf (lua_State *L) {
-  luaL_register(L, "pdf", pdflib);
-  /* build meta table */
-  luaL_newmetatable(L,"pdf_meta"); 
-  lua_pushstring(L, "__index");
-  lua_pushcfunction(L, getpdf); 
-  /* do these later, NYI */
-  if (0) {
+int luaopen_pdf(lua_State * L)
+{
+    luaL_register(L, "pdf", pdflib);
+    /* build meta table */
+    luaL_newmetatable(L, "pdf_meta");
+    lua_pushstring(L, "__index");
+    lua_pushcfunction(L, getpdf);
+    /* do these later, NYI */
+    if (0) {
+        lua_settable(L, -3);
+        lua_pushstring(L, "__newindex");
+        lua_pushcfunction(L, setpdf);
+    }
     lua_settable(L, -3);
-    lua_pushstring(L, "__newindex");
-    lua_pushcfunction(L, setpdf); 
-  }
-  lua_settable(L, -3);
-  lua_setmetatable(L,-2); /* meta to itself */
-  return 1;
+    lua_setmetatable(L, -2);    /* meta to itself */
+    return 1;
 }
-
