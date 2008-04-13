@@ -412,76 +412,87 @@ void scale_img(image * img)
 void out_img(image * img, scaled hpos, scaled vpos)
 {
     float a[6];                 /* transformation matrix */
+    float ox, oy, xy, tmp;
     int r;                      /* number of digits after the decimal point */
+    scaled x, y;
     assert(img != 0);
     image_dict *idict = img_dict(img);
     assert(idict != 0);
     scaled wd = img_width(img);
     scaled ht = img_height(img);
     scaled dp = img_depth(img);
-    a[1] = a[2] = 0;
     if (img_type(idict) == IMAGE_TYPE_PDF) {
-        a[0] = wd * 1.0e6 / img_xsize(idict);
-        a[3] = (ht + dp) * 1.0e6 / img_ysize(idict);
-        a[4] = hpos - (float) wd *img_xorig(idict) / img_xsize(idict);
-        a[5] = vpos - (float) (ht + dp) * img_yorig(idict) / img_ysize(idict);
+        x = img_xsize(idict);
+        y = img_ysize(idict);
         r = 6;
     } else {
-        a[0] = wd * 1.0e6 / one_hundred_bp;
-        a[3] = (ht + dp) * 1.0e6 / one_hundred_bp;
-        a[4] = hpos;
-        a[5] = vpos;
+        x = one_hundred_bp;
+        y = one_hundred_bp;
         r = 4;
     }
-    if ((img_transform(img) & 1) == 1) {
+    ox = (float) img_xorig(idict) / img_xsize(idict) * wd;
+    oy = (float) img_yorig(idict) / img_ysize(idict) * (ht + dp);
+    a[1] = a[2] = 0;
+    a[0] = 1.0e6 / x * wd;
+    a[3] = 1.0e6 / y * (ht + dp);
+    if ((img_transform(img) & 7) > 3) { /* mirrored */
+        a[0] *= -1;
+        ox *= -1;
+    }
+    if ((img_transform(img) & 1) == 1) {        /* 90 deg. or 270 deg. rotated */
         if (ht == -dp)
             pdftex_fail("image transform: division by zero (height == -depth)");
         if (wd == 0)
             pdftex_fail("image transform: division by zero (width == 0)");
+        xy = (float) (ht + dp) / wd;
     }
-    switch (img_transform(img) & 7) {
+    switch (img_transform(img) & 3) {
     case 0:                    /* no transform */
         break;
     case 1:                    /* rot. 90 deg. (counterclockwise) */
-        a[1] = a[0] * (ht + dp) / wd;
-        a[2] = -a[3] * wd / (ht + dp);
+        a[1] = a[0] * xy;
+        a[2] = -a[3] / xy;
         a[3] = a[0] = 0;
+        tmp = oy;
+        oy = ox * xy;
+        ox = -tmp / xy;
+        break;
+    case 2:                    /* rot. 180 deg. (counterclockwise) */
+        a[0] *= -1;
+        a[3] *= -1;
+        ox *= -1;
+        oy *= -1;
+        break;
+    case 3:                    /* rot. 270 deg. (counterclockwise) */
+        a[1] = -a[0] * xy;
+        a[2] = a[3] / xy;
+        a[3] = a[0] = 0;
+        tmp = oy;
+        oy = -ox * xy;
+        ox = tmp / xy;
+        break;
+    default:;
+    }
+    a[4] = hpos - ox;
+    a[5] = vpos - oy;
+    switch (img_transform(img) & 7) {
+    case 0:                    /* no transform */
+    case 7:                    /* mirrored, then rot. 270 deg. */
+        break;
+    case 1:                    /* rot. 90 deg. (counterclockwise) */
+    case 4:                    /* mirrored, unrotated */
         a[4] += wd;
         break;
     case 2:                    /* rot. 180 deg. */
-        a[0] *= -1;
-        a[3] *= -1;
+    case 5:                    /* mirrored, then rot. 90 deg. */
         a[4] += wd;
-        a[5] += ht + dp;
+        a[5] += (ht + dp);
         break;
     case 3:                    /* rot. 270 deg. */
-        a[1] = -a[0] * (ht + dp) / wd;
-        a[2] = a[3] * wd / (ht + dp);
-        a[3] = a[0] = 0;
-        a[5] += ht + dp;
-        break;
-    case 4:                    /* mirrored, unrotated */
-        a[0] *= -1;
-        a[4] += wd;
-        break;
-    case 5:                    /* mirrored, then rot. 90 deg. */
-        a[1] = -a[0] * (ht + dp) / wd;
-        a[2] = -a[3] * wd / (ht + dp);
-        a[3] = a[0] = 0;
-        a[4] += wd;
-        a[5] += ht + dp;
-        break;
     case 6:                    /* mirrored, then rot. 180 deg. */
-        a[3] *= -1;
-        a[5] += ht + dp;
+        a[5] += (ht + dp);
         break;
-    case 7:                    /* mirrored, then rot. 270 deg. */
-        a[1] = a[0] * (ht + dp) / wd;
-        a[2] = a[3] * wd / (ht + dp);
-        a[3] = a[0] = 0;
-        break;
-    default:
-        assert(0);
+    default:;
     }
     pdf_end_text();
     pdf_printf("q\n");
