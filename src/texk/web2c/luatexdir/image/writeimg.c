@@ -432,8 +432,7 @@ void out_img(image * img, scaled hpos, scaled vpos)
         a[3] = 1.0e6 / img_ysize(idict);
         r = 6;
     } else {
-        a[0] = 1.0e6 / one_hundred_bp;
-        a[3] = 1.0e6 / one_hundred_bp;
+        a[3] = a[0] = 1.0e6 / one_hundred_bp;
         r = 4;
     }
     xoff = (float) img_xorig(idict) / img_xsize(idict);
@@ -488,11 +487,11 @@ void out_img(image * img, scaled hpos, scaled vpos)
     case 2:                    /* rot. 180 deg. */
     case 5:                    /* mirrored, then rot. 90 deg. */
         a[4] += wd;
-        a[5] += (ht + dp);
+        a[5] += ht + dp;
         break;
     case 3:                    /* rot. 270 deg. */
     case 6:                    /* mirrored, then rot. 180 deg. */
-        a[5] += (ht + dp);
+        a[5] += ht + dp;
         break;
     default:;
     }
