@@ -412,69 +412,71 @@ void scale_img(image * img)
 void out_img(image * img, scaled hpos, scaled vpos)
 {
     float a[6];                 /* transformation matrix */
-    float ox, oy, xy, tmp;
+    float xoff, yoff, tmp;
     int r;                      /* number of digits after the decimal point */
-    scaled x, y;
     assert(img != 0);
     image_dict *idict = img_dict(img);
     assert(idict != 0);
     scaled wd = img_width(img);
     scaled ht = img_height(img);
     scaled dp = img_depth(img);
-    if (img_type(idict) == IMAGE_TYPE_PDF) {
-        x = img_xsize(idict);
-        y = img_ysize(idict);
-        r = 6;
-    } else {
-        x = one_hundred_bp;
-        y = one_hundred_bp;
-        r = 4;
-    }
-    ox = (float) img_xorig(idict) / img_xsize(idict) * wd;
-    oy = (float) img_yorig(idict) / img_ysize(idict) * (ht + dp);
-    a[1] = a[2] = 0;
-    a[0] = 1.0e6 / x * wd;
-    a[3] = 1.0e6 / y * (ht + dp);
-    if ((img_transform(img) & 7) > 3) { /* mirrored */
-        a[0] *= -1;
-        ox *= -1;
-    }
     if ((img_transform(img) & 1) == 1) {        /* 90 deg. or 270 deg. rotated */
         if (ht == -dp)
             pdftex_fail("image transform: division by zero (height == -depth)");
         if (wd == 0)
             pdftex_fail("image transform: division by zero (width == 0)");
-        xy = (float) (ht + dp) / wd;
+    }
+    a[1] = a[2] = 0;
+    if (img_type(idict) == IMAGE_TYPE_PDF) {
+        a[0] = 1.0e6 / img_xsize(idict);
+        a[3] = 1.0e6 / img_ysize(idict);
+        r = 6;
+    } else {
+        a[0] = 1.0e6 / one_hundred_bp;
+        a[3] = 1.0e6 / one_hundred_bp;
+        r = 4;
+    }
+    xoff = (float) img_xorig(idict) / img_xsize(idict);
+    yoff = (float) img_yorig(idict) / img_ysize(idict);
+    if ((img_transform(img) & 7) > 3) { /* mirrored */
+        a[0] *= -1;
+        xoff *= -1;
     }
     switch (img_transform(img) & 3) {
     case 0:                    /* no transform */
         break;
     case 1:                    /* rot. 90 deg. (counterclockwise) */
-        a[1] = a[0] * xy;
-        a[2] = -a[3] / xy;
+        a[1] = a[0];
+        a[2] = -a[3];
         a[3] = a[0] = 0;
-        tmp = oy;
-        oy = ox * xy;
-        ox = -tmp / xy;
+        tmp = yoff;
+        yoff = xoff;
+        xoff = -tmp;
         break;
     case 2:                    /* rot. 180 deg. (counterclockwise) */
         a[0] *= -1;
         a[3] *= -1;
-        ox *= -1;
-        oy *= -1;
+        xoff *= -1;
+        yoff *= -1;
         break;
     case 3:                    /* rot. 270 deg. (counterclockwise) */
-        a[1] = -a[0] * xy;
-        a[2] = a[3] / xy;
+        a[1] = -a[0];
+        a[2] = a[3];
         a[3] = a[0] = 0;
-        tmp = oy;
-        oy = -ox * xy;
-        ox = tmp / xy;
+        tmp = yoff;
+        yoff = -xoff;
+        xoff = tmp;
         break;
     default:;
     }
-    a[4] = hpos - ox;
-    a[5] = vpos - oy;
+    xoff *= wd;
+    yoff *= ht + dp;
+    a[0] *= wd;
+    a[1] *= ht + dp;
+    a[2] *= wd;
+    a[3] *= ht + dp;
+    a[4] = hpos - xoff;
+    a[5] = vpos - yoff;
     switch (img_transform(img) & 7) {
     case 0:                    /* no transform */
     case 7:                    /* mirrored, then rot. 270 deg. */
