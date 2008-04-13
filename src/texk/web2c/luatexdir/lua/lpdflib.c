@@ -26,7 +26,8 @@ typedef enum { set_origin, direct_page, direct_always } pdf_lit_mode;
 int luapdfprint(lua_State * L)
 {
     int n;
-	unsigned i, len;
+	unsigned i;
+    size_t len;
     const char *outputstr, *st;
     pdf_lit_mode literal_mode;
     n = lua_gettop(L);
