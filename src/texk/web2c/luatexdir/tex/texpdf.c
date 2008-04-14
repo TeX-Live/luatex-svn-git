@@ -21,7 +21,7 @@
 	if ((pdf_os_mode) && ((a) + pdf_ptr > pdf_buf_size))		\
 	  pdf_os_get_os_buf(a);										\
 	else if ((!pdf_os_mode) && ((a) > pdf_buf_size) )			\
-	  overflow("PDF output buffer", pdf_op_buf_size);			\
+	  overflow(maketexstring("PDF output buffer"), pdf_op_buf_size);			\
 	else if ((!pdf_os_mode) && ((a) + pdf_ptr > pdf_buf_size))	\
 	  pdf_flush();												\
   } while (0)
