@@ -1045,7 +1045,9 @@ font_from_lua (lua_State *L, int f) {
     lua_pop(L,1); /* pop list entry */
   } else {
     if(font_type(f) == virtual_font_type) {
-      pdftex_fail("Invalid local fonts in font %s!\n", font_name(f));
+	  /* this test is not always useful, there can be virtual fonts
+		 that consist solely of specials */
+      /* pdftex_fail("Invalid local fonts in font %s!\n", font_name(f));*/
     } else {
       l_fonts = xmalloc(3*sizeof(integer));
       l_fonts[0] = 0;
