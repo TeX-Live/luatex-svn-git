@@ -17,20 +17,20 @@
 
 /* make sure that there are at least |n| bytes free in PDF buffer */
 
-#define pdf_room(a) do {										\
-	if ((pdf_os_mode) && ((a) + pdf_ptr > pdf_buf_size))		\
-	  pdf_os_get_os_buf(a);										\
-	else if ((!pdf_os_mode) && ((a) > pdf_buf_size) )			\
-	  overflow(maketexstring("PDF output buffer"), pdf_op_buf_size);			\
-	else if ((!pdf_os_mode) && ((a) + pdf_ptr > pdf_buf_size))	\
-	  pdf_flush();												\
+#define pdf_room(a) do {                                        \
+    if ((pdf_os_mode) && ((a) + pdf_ptr > pdf_buf_size))        \
+      pdf_os_get_os_buf(a);                                     \
+    else if ((!pdf_os_mode) && ((a) > pdf_buf_size) )           \
+      overflow(maketexstring("PDF output buffer"), pdf_op_buf_size);            \
+    else if ((!pdf_os_mode) && ((a) + pdf_ptr > pdf_buf_size))  \
+      pdf_flush();                                              \
   } while (0)
 
 /* do the same as |pdf_quick_out| and flush the PDF buffer if necessary  */
 
 #define pdf_out(a) do {   \
-	pdf_room(1);		  \
-    pdf_quick_out(a);	  \
+    pdf_room(1);          \
+    pdf_quick_out(a);     \
   } while (0)
 
 
@@ -39,15 +39,15 @@
  * (40) and  right parenthesis (41) 
  */
 
-#define pdf_print_escaped(c)											\
-  if ((c)<=32||(c)=='\\'||(c)=='('||(c)==')'||(c)>127) {				\
-	pdf_room(4);														\
-	pdf_quick_out('\\');												\
-	pdf_quick_out('0' + (((c)>>6) & 0x3));								\
-	pdf_quick_out('0' + (((c)>>3) & 0x7));								\
-	pdf_quick_out('0' + ( (c)     & 0x7));								\
-  } else {																\
-	pdf_out((c));														\
+#define pdf_print_escaped(c)                                            \
+  if ((c)<=32||(c)=='\\'||(c)=='('||(c)==')'||(c)>127) {                \
+    pdf_room(4);                                                        \
+    pdf_quick_out('\\');                                                \
+    pdf_quick_out('0' + (((c)>>6) & 0x3));                              \
+    pdf_quick_out('0' + (((c)>>3) & 0x7));                              \
+    pdf_quick_out('0' + ( (c)     & 0x7));                              \
+  } else {                                                              \
+    pdf_out((c));                                                       \
   }
 
 void pdf_print_char(internal_font_number f, integer cc)
