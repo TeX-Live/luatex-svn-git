@@ -110,14 +110,15 @@ static short hlist_stack_level = 0;
 void push_node(halfword p)
 {
     if (hlist_stack_level >= max_hlist_stack)
-        pdf_error("push_node", "stack overflow");
+        pdf_error(maketexstring("push_node"), maketexstring("stack overflow"));
     hlist_stack[hlist_stack_level++] = p;
 }
 
 halfword pop_node(void)
 {
     if (hlist_stack_level <= 0) /* would point to some bug */
-        pdf_error("pop_node", "stack underflow (internal error)");
+        pdf_error(maketexstring("pop_node"),
+                  maketexstring("stack underflow (internal error)"));
     return hlist_stack[--hlist_stack_level];
 }
 
@@ -138,23 +139,26 @@ boolean check_expand_pars(internal_font_number f)
     if (cur_font_step < 0)
         cur_font_step = pdf_font_step(f);
     else if (cur_font_step != pdf_font_step(f))
-        pdf_error("font expansion",
-                  "using fonts with different step of expansion in one paragraph is not allowed");
+        pdf_error(maketexstring("font expansion"),
+                  maketexstring
+                  ("using fonts with different step of expansion in one paragraph is not allowed"));
     k = pdf_font_stretch(f);
     if (k != null_font) {
         if (max_stretch_ratio < 0)
             max_stretch_ratio = pdf_font_expand_ratio(k);
         else if (max_stretch_ratio != pdf_font_expand_ratio(k))
-            pdf_error("font expansion",
-                      "using fonts with different limit of expansion in one paragraph is not allowed");
+            pdf_error(maketexstring("font expansion"),
+                      maketexstring
+                      ("using fonts with different limit of expansion in one paragraph is not allowed"));
     }
     k = pdf_font_shrink(f);
     if (k != null_font) {
         if (max_shrink_ratio < 0)
             max_shrink_ratio = -pdf_font_expand_ratio(k);
         else if (max_shrink_ratio != -pdf_font_expand_ratio(k))
-            pdf_error("font expansion",
-                      "using fonts with different limit of expansion in one paragraph is not allowed");
+            pdf_error(maketexstring("font expansion"),
+                      maketexstring
+                      ("using fonts with different limit of expansion in one paragraph is not allowed"));
     }
     return true;
 }
@@ -1754,11 +1758,12 @@ ext_do_line_break(boolean d,
                 /* When node |cur_p| is a glue node, we look at the previous to
                    see whether or not a breakpoint is legal at |cur_p|, as
                    explained above. */
+                /* *INDENT-OFF* */
                 if (auto_breaking) {
                     halfword prev_p = alink(cur_p);
                     if (prev_p != temp_head &&
                         (is_char_node(prev_p) ||
-                         precedes_break(prev_p) ||
+                         precedes_break(prev_p) || 
                          ((type(prev_p) == kern_node)
                           && (subtype(prev_p) != explicit)))) {
                         ext_try_break(0, unhyphenated_node, pdf_adjust_spacing,
@@ -1769,6 +1774,7 @@ ext_do_line_break(boolean d,
                                       final_hyphen_demerits, first_p, cur_p);
                     }
                 }
+                /* *INDENT-ON* */
                 check_shrinkage(glue_ptr(cur_p));
                 q = glue_ptr(cur_p);
                 act_width += width(q);
