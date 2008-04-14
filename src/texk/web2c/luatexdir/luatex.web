@@ -27637,7 +27637,7 @@ by causing its width to be zero.
 begin if (e<>0)and((w-total_shrink[normal]+q<=z)or@|
    (total_shrink[sfi]<>0)or(total_shrink[fil]<>0)or
    (total_shrink[fill]<>0)or(total_shrink[filll]<>0)) then
-  begin flush_node(b);
+  begin list_ptr(b):=null; flush_node(b);
   b:=hpack(p,z-q,exactly);
   end
 else  begin e:=0;
