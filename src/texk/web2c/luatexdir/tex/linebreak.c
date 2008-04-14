@@ -12,8 +12,8 @@
    prevents this error message from appearing more than once per paragraph.
 */
 
-#define check_shrinkage(a)				\
-  if ((shrink_order((a))!=normal)&&(shrink((a))!=0))	\
+#define check_shrinkage(a)                              \
+  if ((shrink_order((a))!=normal)&&(shrink((a))!=0))    \
     a=finite_shrink((a))
 
 static boolean no_shrink_error_yet;     /*have we complained about infinite shrinkage? */
@@ -68,33 +68,33 @@ static integer threshold;       /* maximum badness on feasible lines */
 
 /* skipable nodes at the margins during character protrusion */
 
-#define cp_skipable(a) ((! is_char_node((a))) &&			\
-			((type((a)) == ins_node)			\
-			 || (type((a)) == mark_node)			\
-			 || (type((a)) == adjust_node)			\
-			 || (type((a)) == penalty_node)			\
-			 || ((type((a)) == whatsit_node) &&		\
-			     (subtype((a)) != pdf_refximage_node) &&	\
-			     (subtype((a)) != pdf_refxform_node))	\
-			 /* reference to an image or XObject form */	\
-			 || ((type((a)) == disc_node) &&		\
-			     (vlink_pre_break(a) == null) &&		\
-			     (vlink_post_break(a) == null) &&		\
-			     (vlink_no_break(a) == null))		\
-			 /* an empty |disc_node| */			\
-			 || ((type((a)) == math_node) &&		\
-			     (surround((a)) == 0))			\
-			 || ((type((a)) == kern_node) &&		\
-			     ((width((a)) == 0) ||			\
-			      (subtype((a)) == normal)))		\
-			 || ((type((a)) == glue_node) &&		\
-			     (glue_ptr((a)) == zero_glue))		\
-			 || ((type((a)) == hlist_node) &&		\
-			     (width((a)) == 0) &&			\
-			     (height((a)) == 0) &&			\
-			     (depth((a)) == 0) &&			\
-			     (list_ptr((a)) == null))			\
-			 ))
+#define cp_skipable(a) ((! is_char_node((a))) &&                        \
+                        ((type((a)) == ins_node)                        \
+                         || (type((a)) == mark_node)                    \
+                         || (type((a)) == adjust_node)                  \
+                         || (type((a)) == penalty_node)                 \
+                         || ((type((a)) == whatsit_node) &&             \
+                             (subtype((a)) != pdf_refximage_node) &&    \
+                             (subtype((a)) != pdf_refxform_node))       \
+                         /* reference to an image or XObject form */    \
+                         || ((type((a)) == disc_node) &&                \
+                             (vlink_pre_break(a) == null) &&            \
+                             (vlink_post_break(a) == null) &&           \
+                             (vlink_no_break(a) == null))               \
+                         /* an empty |disc_node| */                     \
+                         || ((type((a)) == math_node) &&                \
+                             (surround((a)) == 0))                      \
+                         || ((type((a)) == kern_node) &&                \
+                             ((width((a)) == 0) ||                      \
+                              (subtype((a)) == normal)))                \
+                         || ((type((a)) == glue_node) &&                \
+                             (glue_ptr((a)) == zero_glue))              \
+                         || ((type((a)) == hlist_node) &&               \
+                             (width((a)) == 0) &&                       \
+                             (height((a)) == 0) &&                      \
+                             (depth((a)) == 0) &&                       \
+                             (list_ptr((a)) == null))                   \
+                         ))
 
 /* maximum fill level for |hlist_stack|*/
 #define max_hlist_stack 512     /* maybe good if larger than |2 *
@@ -930,11 +930,11 @@ print_feasible_break(halfword cur_p, pointer r, halfword b, integer pi,
   font(cp) = font((a));  \
   do_subst_font(cp, 1000);  \
   if (font(cp) != font((a)))  \
-    margin_kern_stretch += (left_pw((a)) - left_pw(cp));	\
+    margin_kern_stretch += (left_pw((a)) - left_pw(cp));        \
   font(cp) = font((a));  \
   do_subst_font(cp, -1000);  \
   if (font(cp) != font((a)))  \
-    margin_kern_shrink += (left_pw(cp) - left_pw((a)));	\
+    margin_kern_shrink += (left_pw(cp) - left_pw((a))); \
   }
 
 static void
