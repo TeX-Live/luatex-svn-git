@@ -925,16 +925,16 @@ mplib_push_path (lua_State *L, struct mp_knot *h, int is_pen) {
       lua_createtable(L,0,6);
       if (!is_pen) {
         if (p->left_type_field != mp_explicit) {
-	  mplib_push_S(left_type);
-	  lua_pushstring(L,knot_type_enum[p->left_type_field]);
-	  lua_rawset(L,-3);
-	}
-	if (p->right_type_field != mp_explicit) {
-	  mplib_push_S(right_type);
-	  lua_pushstring(L,knot_type_enum[p->right_type_field]);
-	  lua_rawset(L,-3);
-	}
-      }
+		  mplib_push_S(left_type);
+		  lua_pushstring(L,knot_type_enum[p->left_type_field]);
+		  lua_rawset(L,-3);
+		}
+		if (p->right_type_field != mp_explicit) {
+		  mplib_push_S(right_type);
+		  lua_pushstring(L,knot_type_enum[p->right_type_field]);
+		  lua_rawset(L,-3);
+		}
+	  }
       mplib_push_S(x_coord);
       mplib_push_number(L,p->x_coord_field);
       lua_rawset(L,-3);
@@ -961,6 +961,23 @@ mplib_push_path (lua_State *L, struct mp_knot *h, int is_pen) {
     } while (p!=h) ;
   } else {
     lua_pushnil(L);
+  }
+}
+
+/* this assumes that the top of the stack is a table 
+   or nil already in the case
+ */
+static void 
+mplib_push_pentype (lua_State *L, struct mp_knot *h) {
+  struct mp_knot *p; /* for scanning the path */
+  p=h;
+  if (p==NULL) {
+	/* do nothing */
+  } else if (p==p->next_field) {
+	mplib_push_S(type);
+	lua_pushstring(L,"elliptical");
+	lua_rawset(L,-3);
+  } else {
   }
 }
 
@@ -1065,6 +1082,7 @@ mplib_fill_field (lua_State *L, struct mp_fill_object *h) {
     mplib_push_path(L, h->htap_p_field, MPLIB_PATH);
   } else if (FIELD(pen)) {
     mplib_push_path(L, h->pen_p_field, MPLIB_PEN);
+	mplib_push_pentype(L, h->pen_p_field);
   } else if (FIELD(color)) {
     mplib_push_color(L,(mp_graphic_object *)h);
   } else if (FIELD(linejoin)) {
@@ -1086,6 +1104,7 @@ mplib_stroked_field (lua_State *L, struct mp_stroked_object *h) {
     mplib_push_path(L, h->path_p_field, MPLIB_PATH);
   } else if (FIELD(pen)) {
     mplib_push_path(L, h->pen_p_field, MPLIB_PEN);
+	mplib_push_pentype(L, h->pen_p_field);
   } else if (FIELD(color)) {
     mplib_push_color(L, (mp_graphic_object *)h);
   } else if (FIELD(dash)) {
