@@ -195,7 +195,7 @@ luacstring_close (int n) {
 #define height_offset 3
 
 #define check_index_range(j)                            \
-   if (j<0 || j > 65535) {                                \
+   if (j > 65535) {                                \
 	lua_pushstring(L, "incorrect index value");	\
 	lua_error(L);  }
 
@@ -731,6 +731,7 @@ getlist (lua_State *L) {
 
 int
 setlist (lua_State *L) {
+  assert(L);
   return 0;
 }
 

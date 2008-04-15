@@ -1213,7 +1213,7 @@ void print_free_chain(int c)
     halfword p = free_chain[c];
     fprintf(stdout, "\nfree chain[%d] =\n  ", c);
     while (p != null) {
-        fprintf(stdout, "%d,", p);
+	  fprintf(stdout, "%d,", (int)p);
         p = vlink(p);
     }
     fprintf(stdout, "null;\n");

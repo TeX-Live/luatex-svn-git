@@ -356,7 +356,7 @@ char *hyphenation_exception(int exceptions, char *w) {
 
 char *exception_strings(struct tex_language *lang) {
   char *value;
-  int size = 0, current =0;
+  size_t size = 0, current =0;
   size_t l =0;
   char *ret = NULL;
   lua_State *L = Luas[0];
@@ -386,7 +386,7 @@ char *exception_strings(struct tex_language *lang) {
 /* the sequence from |wordstart| to |r| can contain only normal characters */
 /* it could be faster to modify a halfword pointer and return an integer */
 
-halfword find_exception_part(int *j, int *uword, int len) {
+halfword find_exception_part(unsigned int *j, int *uword, int len) {
   halfword g = null, gg = null;
   register int i = *j;
   i++; /* this puts uword[i] on the '{' */
@@ -405,7 +405,7 @@ halfword find_exception_part(int *j, int *uword, int len) {
   return gg;
 }
 
-int count_exception_part(int *j, int *uword, int len) {
+int count_exception_part(unsigned int *j, int *uword, int len) {
   int ret=0;
   register int i = *j;
   i++; /* this puts uword[i] on the '{' */
@@ -424,7 +424,7 @@ static char *PAT_ERROR[] =  {
   NULL };
 
 void do_exception (halfword wordstart, halfword r, char *replacement) {
-  int i;
+  unsigned i;
   halfword t;
   unsigned len;
   int clang;
@@ -816,8 +816,7 @@ void undump_one_language (int i) {
 }
 
 void undump_language_data (void) {
-  int i;
-  unsigned x, numlangs;
+  unsigned i, x, numlangs;
   undump_int(numlangs);
   for (i=0;i<numlangs;i++) {
     undump_int(x);

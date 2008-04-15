@@ -1602,7 +1602,6 @@ ext_do_line_break(boolean d,
     }
     /* @<DIR: Initialize |dir_ptr| for |line_break|@> */
     if (dir_ptr != null) {
-        fprintf(stdout, "-dir_node s %d\n", dir_ptr);
         flush_node_list(dir_ptr);
         dir_ptr = null;
     }
