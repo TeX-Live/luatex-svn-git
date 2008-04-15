@@ -102,7 +102,7 @@ vf_packet_bytes (charinfo *co) {
     case packet_nop_code:
       break;
     default: 
-      pdf_error("vf", "invalid DVI command");     
+      pdf_error(maketexstring("vf"), maketexstring("invalid DVI command"));     
     }
   };
   return (cur_packet_byte +1);
@@ -211,7 +211,7 @@ do_vf_packet (internal_font_number vf_f, integer c) {
     case packet_nop_code:
       break;
     default: 
-      pdf_error("vf", "invalid DVI command");     
+      pdf_error(maketexstring("vf"), maketexstring("invalid DVI command"));     
     }
   };
   cur_h = save_cur_h;
@@ -268,7 +268,7 @@ integer *packet_local_fonts(internal_font_number f, integer *num) {
 	    (void)do_packet_byte();
 	  break;
 	default: 
-	  pdf_error("vf", "invalid DVI command");     
+	  pdf_error(maketexstring("vf"), maketexstring("invalid DVI command"));     
 	}
       }
     }
@@ -334,7 +334,7 @@ replace_packet_fonts(internal_font_number f, integer *old_fontid, integer *new_f
 	    (void)do_packet_byte();
 	  break;
 	default: 
-	  pdf_error("vf", "invalid DVI command");     
+	  pdf_error(maketexstring("vf"), maketexstring("invalid DVI command"));     
 	}
       }
     }

@@ -167,7 +167,7 @@ pdf_check_vf_cur_val (void) {
  internal_font_number f;
  f = cur_val;
  if (font_type(f) == virtual_font_type)
-   pdf_error("font", "command cannot be used with virtual font");
+   pdf_error(maketexstring("font"), maketexstring("command cannot be used with virtual font"));
 }
 
 static void
