@@ -60,7 +60,7 @@ new_language (void) {
 
 struct tex_language *
 get_language (int n) {
-  if (n>=0 && n<=MAX_TEX_LANGUAGES )  {
+  if (n>=0 && n<MAX_TEX_LANGUAGES )  {
     if (tex_languages[n]!=NULL) {
       return tex_languages[n];
     } else {
@@ -74,24 +74,28 @@ get_language (int n) {
 void
 set_pre_hyphen_char (integer n, integer v) {
   struct tex_language *l = get_language((int)n);
-  l->pre_hyphen_char = (int)v;
+  if (l!=NULL)
+    l->pre_hyphen_char = (int)v;
 }
 
 void
 set_post_hyphen_char (integer n, integer v) {
   struct tex_language *l = get_language((int)n);
-  l->post_hyphen_char = (int)v;
+  if (l!=NULL)
+    l->post_hyphen_char = (int)v;
 }
 
 integer
 get_pre_hyphen_char (integer n) {
   struct tex_language *l = get_language((int)n);
+  if (l==NULL) return -1;
   return (integer)l->pre_hyphen_char;
 }
 
 integer
 get_post_hyphen_char (integer n) {
   struct tex_language *l = get_language((int)n);
+  if (l==NULL) return -1;
   return (integer)l->post_hyphen_char;
 }
 
