@@ -14,7 +14,7 @@
  
 \setvariables
   [document]
-  [beta=0.25.1]
+  [beta=0.25.3]
 
 \starttext
 
@@ -2471,10 +2471,11 @@ No fields available.
 
 \subsection{Subsidiary table formats}
 
-\subsubsection{Knot lists}
+\subsubsection{Paths and pens}
 
 Paths and pens (that are really just a special type of paths as far as
-MPlib is concerned) are represented
+MPlib is concerned) are represented by an array where each entry
+is a table that represents a knot. 
 
 \starttabulate[|l|l|p|]
 \NC left_type	\NC string \NC when present: 'endpoint', but ususally absent \NC \NR
@@ -2486,6 +2487,10 @@ MPlib is concerned) are represented
 \NC right_x		\NC number \NC X coordinate of the postcontrol point of this knot\NC \NR
 \NC right_y		\NC number \NC Y coordinate of the postcontrol point of this knot\NC \NR
 \stoptabulate
+
+There is one special case: pens that are (possibly transformed)
+ellipses have an extra string-valued key \type{type} with value
+\type{elliptical} besides the array part containing the knot list.
 
 \subsubsection{Colors}
 
@@ -3617,6 +3622,19 @@ The return value is the internal id number of the defined font (the
 index into \luatex{font.fonts}). If the font creation fails, an error is
 raised. The table is a font structure, as explained in
 \in{chapter}[fonts].
+
+\subsection{Projected next font id}
+
+\startfunctioncall
+number i = font.nextid();
+\stopfunctioncall
+
+This returns the font id number that would be used by a
+\type{font.define} call if it was executed at this spot in the code
+flow. This is useful for virtual fonts that need to reference
+themselves.
+
+
 
 \subsection{Currently active font}
 
