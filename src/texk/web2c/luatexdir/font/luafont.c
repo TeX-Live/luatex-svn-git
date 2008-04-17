@@ -595,6 +595,10 @@ read_char_packets  (lua_State *L, integer *l_fonts, charinfo *co, int atsize) {
   int pc = count_char_packet_bytes  (L);
   if (pc<=0)
     return;
+  assert(l_fonts != NULL);
+  assert(l_fonts[1] != 0);
+  while (l_fonts[(max_f+1)]!=0) 
+    max_f++;
 
   cpackets = xmalloc(pc+1);
   for (i=1;i<=lua_objlen(L,-1);i++) {
@@ -611,14 +615,12 @@ read_char_packets  (lua_State *L, integer *l_fonts, charinfo *co, int atsize) {
 	  cmd = packet_char_code;     
 	  if (ff==0) {
 	    append_packet(packet_font_code);
-        assert(l_fonts != NULL);
 	    ff = l_fonts[1];
 	    do_store_four(ff);
 	  }
 	} else if (luaS_ptr_eq(s,slot)) { 
 	  cmd = packet_nop_code;
 	  lua_rawgeti(L,-2,2);  n = lua_tointeger(L,-1);
-      assert(l_fonts != NULL);
 	  ff = (n>max_f ? l_fonts[1] : l_fonts[n]);
 	  lua_rawgeti(L,-3,3);  n = lua_tointeger(L,-1);
 	  lua_pop(L,2);
@@ -645,7 +647,6 @@ read_char_packets  (lua_State *L, integer *l_fonts, charinfo *co, int atsize) {
           append_packet(cmd);
           lua_rawgeti(L,-2,2);
           n = lua_tointeger(L,-1);
-          assert(l_fonts != NULL);
           ff = (n>max_f ? l_fonts[1] : l_fonts[n]);
           do_store_four(ff);
           lua_pop(L,1);
@@ -1044,9 +1045,7 @@ font_from_lua (lua_State *L, int f) {
     lua_pop(L,1); /* pop list entry */
   } else {
     if(font_type(f) == virtual_font_type) {
-	  /* this test is not always useful, there can be virtual fonts
-		 that consist solely of specials */
-      /* pdftex_fail("Invalid local fonts in font %s!\n", font_name(f));*/
+      pdftex_fail("Invalid local fonts in font %s!\n", font_name(f));
     } else {
       l_fonts = xmalloc(3*sizeof(integer));
       l_fonts[0] = 0;
