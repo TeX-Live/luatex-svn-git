@@ -26,7 +26,6 @@
 #endif
 #endif
 
-#ifndef luaTeX
 #ifdef XeTeX
 /* added typedefs for unicodefile and voidpointer */
 #define XETEX_UNICODE_FILE_DEFINED	1
@@ -41,6 +40,8 @@ typedef UFILE* unicodefile;
 
 typedef void* voidpointer;
 #endif
+
+#ifndef luaTeX
 
 /* Some things are the same except for the name.  */
 #ifdef TeX
@@ -273,7 +274,7 @@ extern void do_undump P4H(char *, int, int, FILE *);
       if ((&(base))[i] < (low) || (&(base))[i] > (high)) {              \
         FATAL5 ("Item %u (=%ld) of .fmt array at %lx <%ld or >%ld",     \
                 i, (unsigned long) (&(base))[i], (unsigned long) &(base),     \
-                (unsigned long) low, (integer) high);                         \
+                (unsigned long) low, (unsigned long) high);             \
       }                                                                 \
     }																	\
   } while (0)
@@ -467,7 +468,7 @@ extern void zwclose P1H(FILE *);
       if ((&(base))[i] < (low) || (&(base))[i] > (high)) {              \
         FATAL5 ("Item %u (=%ld) of .fmt array at %lx <%ld or >%ld",     \
                 i, (unsigned long) (&(base))[i], (unsigned long) &(base),     \
-                (unsigned long) low, (integer) high);                         \
+                (unsigned long) low, (unsigned long) high);             \
       }                                                                 \
     }																	\
   } while (0)

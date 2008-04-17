@@ -112,6 +112,9 @@
 #if defined(luaTeX)
 extern void lua_initialize(int ac, char **av);
 int etexp;
+#define MAYBE_STATIC  /* symbols needed in luainit.c */
+#else
+#define MAYBE_STATIC static
 #endif
 
 /* What we were invoked as and with.  */
@@ -122,10 +125,10 @@ int argc;
 static string user_progname;
 
 /* The C version of what might wind up in DUMP_VAR.  */
-const_string dump_name;
+MAYBE_STATIC const_string dump_name;
 
 /* The C version of the jobname, if given. */
-const_string c_job_name;
+MAYBE_STATIC const_string c_job_name;
 
 /* Full source file name. */
 extern string fullnameoffile;
@@ -135,10 +138,10 @@ string translate_filename;
 string default_translate_filename;
 
 /* Needed for --src-specials option. */
-char *last_source_name;
+MAYBE_STATIC char *last_source_name;
 int last_lineno;
-boolean srcspecialsoption = false;
-void parse_src_specials_option P1H(const_string);
+MAYBE_STATIC boolean srcspecialsoption = false;
+MAYBE_STATIC void parse_src_specials_option P1H(const_string);
 
 /* The main body of the WEB is transformed into this procedure.  */
 extern TEXDLL void mainbody P1H(void);

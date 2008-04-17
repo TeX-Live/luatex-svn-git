@@ -557,7 +557,8 @@ trip-clean:
 	rm -f trip.fot trip.log trip.dvi trip.typ tripos.tex 8terminal.tex
 	rm -rf tfm
 # 
-# Helper makefile fragment for lua*tex.
+# Helper makefile fragments for pdf*tex and luatex.
+kpse_include libsluapdf.mk
 kpse_include luatexdir/luatexlib.mk
 # 
 # Makefile fragments:
