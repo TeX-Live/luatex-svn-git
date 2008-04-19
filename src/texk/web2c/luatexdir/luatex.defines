@@ -471,6 +471,8 @@ $Id$
 @define function check_image_b();
 @define function check_image_c();
 @define function check_image_i();
+@define function epdf_xsize();
+@define function epdf_ysize();
 @define function epdf_orig_x();
 @define function epdf_orig_y();
 @define function image_pages();

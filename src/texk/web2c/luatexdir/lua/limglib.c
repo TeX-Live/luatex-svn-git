@@ -42,10 +42,10 @@ static void stackDump(lua_State * L, char *s)
 
 /**********************************************************************/
 
-typedef enum { P__ZERO, P_ATTR, P_COLORDEPTH, P_COLORSPACE, P_DEPTH, P_FILENAME,
-    P_FILEPATH, P_HEIGHT, P_IMAGETYPE, P_INDEX, P_OBJNUM, P_PAGE, P_PAGEBOX,
-    P_TOTALPAGES, P_TRANSFORM, P_WIDTH, P_XRES, P_XSIZE, P_YRES, P_YSIZE,
-    P__SENTINEL
+typedef enum { P__ZERO, P_ATTR, P_BBOX, P_COLORDEPTH, P_COLORSPACE, P_DEPTH,
+    P_FILENAME, P_FILEPATH, P_HEIGHT, P_IMAGETYPE, P_INDEX, P_OBJNUM,
+    P_PAGE, P_PAGEBOX, P_TOTALPAGES, P_ROTATION, P_TRANSFORM, P_WIDTH,
+    P_XRES, P_XSIZE, P_YRES, P_YSIZE, P__SENTINEL
 } parm_idx;
 
 typedef struct {
@@ -56,6 +56,7 @@ typedef struct {
 parm_struct img_parms[] = {
     {NULL, P__ZERO},            /* dummy; lua indices run from 1 */
     {"attr", P_ATTR},
+    {"bbox", P_BBOX},
     {"colordepth", P_COLORDEPTH},
     {"colorspace", P_COLORSPACE},
     {"depth", P_DEPTH},
@@ -68,6 +69,7 @@ parm_struct img_parms[] = {
     {"page", P_PAGE},
     {"pagebox", P_PAGEBOX},
     {"pages", P_TOTALPAGES},
+    {"rotation", P_ROTATION},
     {"transform", P_TRANSFORM},
     {"width", P_WIDTH},
     {"xres", P_XRES},
@@ -148,17 +150,26 @@ static void image_to_lua(lua_State * L, image * a)
     case P_TOTALPAGES:
         lua_pushinteger(L, img_totalpages(d));
         break;
-    case P_XSIZE:
-        lua_pushinteger(L, img_xsize(d));
+    case P_XSIZE:              /* Modify by /Rotate only for output */
+        if ((img_rotation(d) & 1) == 0)
+            lua_pushinteger(L, img_xsize(d));
+        else
+            lua_pushinteger(L, img_ysize(d));
         break;
-    case P_YSIZE:
-        lua_pushinteger(L, img_ysize(d));
+    case P_YSIZE:              /* Modify by /Rotate only for output */
+        if ((img_rotation(d) & 1) == 0)
+            lua_pushinteger(L, img_ysize(d));
+        else
+            lua_pushinteger(L, img_xsize(d));
         break;
     case P_XRES:
         lua_pushinteger(L, img_xres(d));
         break;
     case P_YRES:
         lua_pushinteger(L, img_yres(d));
+        break;
+    case P_ROTATION:
+        lua_pushinteger(L, img_rotation(d));
         break;
     case P_COLORSPACE:
         if (img_colorspace(d) == 0)
@@ -191,6 +202,27 @@ static void image_to_lua(lua_State * L, image * a)
                 lua_pushstring(L, pdfboxspec_s[j]);
         } else
             assert(0);
+        break;
+    case P_BBOX:
+        if (!img_is_bbox(d)) {
+            img_bbox(d)[0] = img_xorig(d);
+            img_bbox(d)[1] = img_yorig(d);
+            img_bbox(d)[2] = img_xorig(d) + img_xsize(d);
+            img_bbox(d)[3] = img_yorig(d) + img_ysize(d);
+        }
+        lua_newtable(L);
+        lua_pushinteger(L, 1);
+        lua_pushinteger(L, img_bbox(d)[0]);
+        lua_settable(L, -3);
+        lua_pushinteger(L, 2);
+        lua_pushinteger(L, img_bbox(d)[1]);
+        lua_settable(L, -3);
+        lua_pushinteger(L, 3);
+        lua_pushinteger(L, img_bbox(d)[2]);
+        lua_settable(L, -3);
+        lua_pushinteger(L, 4);
+        lua_pushinteger(L, img_bbox(d)[3]);
+        lua_settable(L, -3);
         break;
     case P_OBJNUM:
         if (img_objnum(d) == 0)
@@ -331,12 +363,36 @@ static void lua_to_image(lua_State * L, image * a)
         else
             luaL_error(L, "image.pagebox needs string or nil value");
         break;
+    case P_BBOX:
+        if (img_state(d) >= DICT_FILESCANNED)
+            luaL_error(L, "image.bbox is now read-only");
+        if (!lua_istable(L, -1))
+            luaL_error(L, "image.bbox needs table value");
+        if (lua_objlen(L, -1) != 4)
+            luaL_error(L, "image.bbox table must have exactly 4 elements");
+        for (i = 1; i <= 4; i++) {      /* v k t ... */
+            lua_pushinteger(L, i);      /* idx v k t ... */
+            lua_gettable(L, -2);        /* int v k t ... */
+            if (lua_type(L, -1) == LUA_TNUMBER)
+                img_bbox(d)[i - 1] = lua_tointeger(L, -1);
+            else if (lua_type(L, -1) == LUA_TSTRING)
+                img_bbox(d)[i - 1] =
+                    dimen_to_number(L, (char *) lua_tostring(L, -1));
+            else
+                luaL_error(L,
+                           "image.bbox table needs integer value or dimension string elements");
+            lua_pop(L, 1);      /* v k t ... */
+        }
+        img_set_bbox(d);
+        img_unset_scaled(a);
+        break;
     case P_FILEPATH:
     case P_TOTALPAGES:
     case P_XSIZE:
     case P_YSIZE:
     case P_XRES:
     case P_YRES:
+    case P_ROTATION:
     case P_IMAGETYPE:
     case P_OBJNUM:
     case P_INDEX:

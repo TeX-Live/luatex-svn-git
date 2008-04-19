@@ -290,8 +290,6 @@ extern boolean check_image_b(integer);
 extern boolean check_image_c(integer);
 extern boolean check_image_i(integer);
 extern boolean is_pdf_image(integer);
-extern integer epdforigx(integer);
-extern integer epdforigy(integer);
 extern integer image_pages(integer);
 extern integer image_index(integer);
 extern integer image_width(integer);
@@ -574,6 +572,8 @@ int visible_last_node_type(int n);
 void print_node_mem_stats(int n, int o);
 
 /* writeimg.c */
+integer epdf_xsize(integer i);
+integer epdf_ysize(integer i);
 integer epdf_orig_y(integer i);
 integer epdf_orig_x(integer i);
 

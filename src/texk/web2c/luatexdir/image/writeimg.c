@@ -200,6 +200,7 @@ void init_image_dict(image_dict * p)
     img_yorig(p) = 0;
     img_xres(p) = 0;
     img_yres(p) = 0;
+    img_rotation(p) = 0;
     img_colorspace(p) = 0;
     img_totalpages(p) = 0;
     img_pagenum(p) = 1;
@@ -212,6 +213,11 @@ void init_image_dict(image_dict * p)
     img_color(p) = 0;
     img_colordepth(p) = 0;
     img_pagebox(p) = PDF_BOX_SPEC_MEDIA;
+    img_bbox(p)[0] = 0;
+    img_bbox(p)[1] = 0;
+    img_bbox(p)[2] = 0;
+    img_bbox(p)[3] = 0;
+    img_unset_bbox(p);
     img_state(p) = DICT_NEW;
     img_png_ptr(p) = NULL;      /* union */
 }
@@ -323,6 +329,11 @@ void read_img(image_dict * idict, integer pdf_minor_version,
         img_state(idict) = DICT_FILESCANNED;
 }
 
+// Within scale_img() only image width and height matter;
+// the offsets and positioning are not interesting here.
+// But one needs rotation info to swap width and height.
+// img_rotation() comes from the optional /Rotate key in the PDF file.
+
 void scale_img(image * img)
 {
     integer x, y, xr, yr;       /* size and resolution of image */
@@ -331,11 +342,25 @@ void scale_img(image * img)
     assert(img != NULL);
     image_dict *idict = img_dict(img);
     assert(idict != NULL);
-    x = img_xsize(idict);       /* dimensions, resolutions from image file */
-    y = img_ysize(idict);
+    if (img_type(idict) == IMAGE_TYPE_PDF && img_is_bbox(idict)) {
+        x = img_xsize(idict) = img_bbox(idict)[2] - img_bbox(idict)[0]; /* dimensions from image.bbox */
+        y = img_ysize(idict) = img_bbox(idict)[3] - img_bbox(idict)[1];
+        img_xorig(idict) = img_bbox(idict)[0];
+        img_yorig(idict) = img_bbox(idict)[1];
+    } else {
+        x = img_xsize(idict);   /* dimensions, resolutions from image file */
+        y = img_ysize(idict);
+    }
     xr = img_xres(idict);
     yr = img_yres(idict);
-    if ((img_transform(img) & 1) == 1) {
+    if (x <= 0 || y <= 0 || xr < 0 || yr < 0)
+        pdftex_fail("ext1: invalid image dimensions");
+    if (xr > 65535 || yr > 65535) {
+        xr = 0;
+        yr = 0;
+        pdftex_warn("ext1: too large image resolution ignored");
+    }
+    if (((img_transform(img) - img_rotation(idict)) & 1) == 1) {
         int tmp = x;
         x = y;
         y = tmp;
@@ -343,13 +368,6 @@ void scale_img(image * img)
         xr = yr;
         yr = tmp;
     }
-    if (xr > 65535 || yr > 65535) {
-        xr = 0;
-        yr = 0;
-        pdftex_warn("ext1: too large image resolution ignored");
-    }
-    if (x <= 0 || y <= 0 || xr < 0 || yr < 0)
-        pdftex_fail("ext1: invalid image dimensions");
     if (img_type(idict) == IMAGE_TYPE_PDF) {
         w = x;
         h = y;
@@ -414,34 +432,32 @@ void out_img(image * img, scaled hpos, scaled vpos)
     float a[6];                 /* transformation matrix */
     float xoff, yoff, tmp;
     int r;                      /* number of digits after the decimal point */
+    int k;
     assert(img != 0);
     image_dict *idict = img_dict(img);
     assert(idict != 0);
     scaled wd = img_width(img);
     scaled ht = img_height(img);
     scaled dp = img_depth(img);
-    if ((img_transform(img) & 1) == 1) {        /* 90 deg. or 270 deg. rotated */
-        if (ht == -dp)
-            pdftex_fail("image transform: division by zero (height == -depth)");
-        if (wd == 0)
-            pdftex_fail("image transform: division by zero (width == 0)");
-    }
+    a[0] = a[3] = 1.0e6;
     a[1] = a[2] = 0;
     if (img_type(idict) == IMAGE_TYPE_PDF) {
-        a[0] = 1.0e6 / img_xsize(idict);
-        a[3] = 1.0e6 / img_ysize(idict);
+        a[0] /= img_xsize(idict);
+        a[3] /= img_ysize(idict);
+        xoff = (float) img_xorig(idict) / img_xsize(idict);
+        yoff = (float) img_yorig(idict) / img_ysize(idict);
         r = 6;
     } else {
-        a[3] = a[0] = 1.0e6 / one_hundred_bp;
+        a[0] /= one_hundred_bp;
+        a[3] = a[0];
+        xoff = yoff = 0;
         r = 4;
     }
-    xoff = (float) img_xorig(idict) / img_xsize(idict);
-    yoff = (float) img_yorig(idict) / img_ysize(idict);
-    if ((img_transform(img) & 7) > 3) { /* mirrored */
+    if ((img_transform(img) & 7) > 3) { // mirror cases
         a[0] *= -1;
         xoff *= -1;
     }
-    switch (img_transform(img) & 3) {
+    switch ((img_transform(img) + img_rotation(idict)) & 3) {
     case 0:                    /* no transform */
         break;
     case 1:                    /* rot. 90 deg. (counterclockwise) */
@@ -476,21 +492,20 @@ void out_img(image * img, scaled hpos, scaled vpos)
     a[3] *= ht + dp;
     a[4] = hpos - xoff;
     a[5] = vpos - yoff;
-    switch (img_transform(img) & 7) {
+    k = img_transform(img) + img_rotation(idict);
+    if ((img_transform(img) & 7) > 3)
+        k++;
+    switch (k & 3) {
     case 0:                    /* no transform */
-    case 7:                    /* mirrored, then rot. 270 deg. */
         break;
     case 1:                    /* rot. 90 deg. (counterclockwise) */
-    case 4:                    /* mirrored, unrotated */
         a[4] += wd;
         break;
     case 2:                    /* rot. 180 deg. */
-    case 5:                    /* mirrored, then rot. 90 deg. */
         a[4] += wd;
         a[5] += ht + dp;
         break;
     case 3:                    /* rot. 270 deg. */
-    case 6:                    /* mirrored, then rot. 180 deg. */
         a[5] += ht + dp;
         break;
     default:;
@@ -563,9 +578,7 @@ integer img_to_array(image * img)
 /* stuff to be accessible from TeX */
 
 integer read_image(integer objnum, integer index, strnumber filename,
-                   integer page_num,
-                   strnumber attr,
-                   strnumber page_name,
+                   integer page_num, strnumber attr, strnumber page_name,
                    integer colorspace, integer page_box,
                    integer pdf_minor_version, integer pdf_inclusion_errorlevel)
 {
@@ -628,6 +641,18 @@ integer image_colordepth(integer ref)
     return img_colordepth(img_dict(img_array[ref]));
 }
 
+/* The following five functions are for \pdfximagebbox */
+
+integer epdf_xsize(integer ref)
+{
+    return img_xsize(img_dict(img_array[ref]));
+}
+
+integer epdf_ysize(integer ref)
+{
+    return img_ysize(img_dict(img_array[ref]));
+}
+
 integer epdf_orig_x(integer ref)
 {
     return img_xorig(img_dict(img_array[ref]));
@@ -636,6 +661,11 @@ integer epdf_orig_x(integer ref)
 integer epdf_orig_y(integer ref)
 {
     return img_yorig(img_dict(img_array[ref]));
+}
+
+boolean is_pdf_image(integer ref)
+{
+    return img_type(img_dict(img_array[ref])) == IMAGE_TYPE_PDF;
 }
 
 integer image_objnum(integer ref)

@@ -685,8 +685,7 @@ read_pdf_info(image_dict * idict, integer minor_pdf_version_wanted,
     Page *page;
     int rotate;
     PDFRectangle *pagebox;
-    float pdf_version_found, pdf_version_wanted, pdf_width, pdf_height,
-        pdf_xorig, pdf_yorig;
+    float pdf_version_found, pdf_version_wanted, xsize, ysize, xorig, yorig;
     assert(idict != NULL);
     assert(img_type(idict) == IMAGE_TYPE_PDF);
     // initialize
@@ -734,49 +733,53 @@ read_pdf_info(image_dict * idict, integer minor_pdf_version_wanted,
             pdftex_fail("PDF inclusion: required page <%i> does not exist",
                         (int) img_pagenum(idict));
     }
+    pdf_doc->xref = pdf_doc->doc->getXRef();
     // get the required page
     page = pdf_doc->doc->getCatalog()->getPage(img_pagenum(idict));
 
     // get the pagebox (media, crop...) to use.
     pagebox = get_pagebox(page, img_pagebox(idict));
     if (pagebox->x2 > pagebox->x1) {
-        pdf_xorig = pagebox->x1;
-        pdf_width = pagebox->x2 - pagebox->x1;
+        xorig = pagebox->x1;
+        xsize = pagebox->x2 - pagebox->x1;
     } else {
-        pdf_xorig = pagebox->x2;
-        pdf_width = pagebox->x1 - pagebox->x2;
+        xorig = pagebox->x2;
+        xsize = pagebox->x1 - pagebox->x2;
     }
     if (pagebox->y2 > pagebox->y1) {
-        pdf_yorig = pagebox->y1;
-        pdf_height = pagebox->y2 - pagebox->y1;
+        yorig = pagebox->y1;
+        ysize = pagebox->y2 - pagebox->y1;
     } else {
-        pdf_yorig = pagebox->y2;
-        pdf_height = pagebox->y1 - pagebox->y2;
+        yorig = pagebox->y2;
+        ysize = pagebox->y1 - pagebox->y2;
     }
+    // The following 4 parameters are raw. Do _not_ modify by /Rotate!
+    img_xsize(idict) = bp2int(xsize);
+    img_ysize(idict) = bp2int(ysize);
+    img_xorig(idict) = bp2int(xorig);
+    img_yorig(idict) = bp2int(yorig);
 
+    // Handle /Rotate parameter. Only multiples of 90 deg. are allowed
+    // (PDF Ref. v1.3, p. 78).
     rotate = page->getRotate();
-    // handle page rotation and adjust dimens as needed
-    if (rotate != 0) {
-        // handle only the simple case: multiple of 90s.
-        // these are the only values allowed according to the
-        // reference (v1.3, p. 78).
-        // 180 needs no special treatment here
-        register float f;
-        switch (rotate % 360) {
-        case 90:
-        case 270:
-            f = pdf_height;
-            pdf_height = pdf_width;
-            pdf_width = f;
-            break;
-        default:;
-        }
+    switch (((rotate % 360) + 360) % 360) {     // handles also neg. angles
+    case 0:
+        img_rotation(idict) = 0;
+        break;
+    case 90:
+        img_rotation(idict) = 3;        // PDF counts clockwise!
+        break;
+    case 180:
+        img_rotation(idict) = 2;
+        break;
+    case 270:
+        img_rotation(idict) = 1;
+        break;
+    default:
+        pdftex_warn
+            ("PDF inclusion: "
+             "/Rotate parameter in PDF file not multiple of 90 degrees.");
     }
-    pdf_doc->xref = pdf_doc->doc->getXRef();
-    img_xsize(idict) = bp2int(pdf_width);
-    img_ysize(idict) = bp2int(pdf_height);
-    img_xorig(idict) = bp2int(pdf_xorig);
-    img_yorig(idict) = bp2int(pdf_yorig);
 }
 
 // Writes the current epf_doc.
@@ -792,17 +795,15 @@ static void write_epdf1(image_dict * idict)
     char *key;
     char s[256];
     int i, l;
-    int rotate;
     double scale[6] = { 0, 0, 0, 0, 0, 0 };
-    bool writematrix = false;
     PdfDocument *pdf_doc = (PdfDocument *) findPdfDocument(img_filepath(idict));
     assert(pdf_doc != NULL);
     xref = pdf_doc->xref;
     inObjList = pdf_doc->inObjList;
     encodingList = NULL;
     page = pdf_doc->doc->getCatalog()->getPage(img_pagenum(idict));
-    rotate = page->getRotate();
     PDFRectangle *pagebox;
+    float bbox[4];
     // write the Page header
     pdf_puts("/Type /XObject\n/Subtype /Form\n");
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
@@ -820,51 +821,23 @@ static void write_epdf1(image_dict * idict)
         pdf_printf("/%s.InfoDict ", pdfkeyprefix);
         pdf_printf("%d 0 R\n", addOther(info.getRef()));
     }
-    // get the pagebox (media, crop...) to use.
-    pagebox = get_pagebox(page, img_pagebox(idict));
-
-    // handle page rotation
-    if (rotate != 0) {
-        // this handles only the simple case: multiple of 90s but these
-        // are the only values allowed according to the reference
-        // (v1.3, p. 78).
-        // the image is rotated around its center.
-        // the /Rotate key is clockwise while the matrix is
-        // counterclockwise :-%
-        tex_printf(", page is rotated %d degrees", rotate);
-        switch (rotate % 360) {
-        case 90:
-            scale[1] = -1;
-            scale[2] = 1;
-            scale[4] = pagebox->x1 - pagebox->y1;
-            scale[5] = pagebox->y1 + pagebox->x2;
-            writematrix = true;
-            break;
-        case 180:
-            scale[0] = scale[3] = -1;
-            scale[4] = pagebox->x1 + pagebox->x2;
-            scale[5] = pagebox->y1 + pagebox->y2;
-            writematrix = true;
-            break;              // width and height are exchanged
-        case 270:
-            scale[1] = 1;
-            scale[2] = -1;
-            scale[4] = pagebox->x1 + pagebox->y2;
-            scale[5] = pagebox->y1 - pagebox->x1;
-            writematrix = true;
-            break;
-        default:;
-        }
-        if (writematrix) {      // The matrix is only written if the image is rotated.
-            sprintf(s, "/Matrix [%.8f %.8f %.8f %.8f %.8f %.8f]\n",
-                    scale[0], scale[1], scale[2], scale[3], scale[4], scale[5]);
-            pdf_printf(stripzeros(s));
-        }
+    if (img_is_bbox(idict)) {
+        bbox[0] = int2bp(img_bbox(idict)[0]);
+        bbox[1] = int2bp(img_bbox(idict)[1]);
+        bbox[2] = int2bp(img_bbox(idict)[2]);
+        bbox[3] = int2bp(img_bbox(idict)[3]);
+    } else {
+        // get the pagebox (media, crop...) to use.
+        pagebox = get_pagebox(page, img_pagebox(idict));
+        bbox[0] = pagebox->x1;
+        bbox[1] = pagebox->y1;
+        bbox[2] = pagebox->x2;
+        bbox[3] = pagebox->y2;
     }
-
-    sprintf(s, "/BBox [%.8f %.8f %.8f %.8f]\n",
-            pagebox->x1, pagebox->y1, pagebox->x2, pagebox->y2);
+    sprintf(s, "/BBox [%.8f %.8f %.8f %.8f]\n", bbox[0], bbox[1], bbox[2],
+            bbox[3]);
     pdf_printf(stripzeros(s));
+    // The /Matrix calculation is replaced by transforms in out_img().
 
     // write the page Group if it's there
     if (page->getGroup() != NULL) {

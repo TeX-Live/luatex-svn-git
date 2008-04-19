@@ -11437,12 +11437,15 @@ pdf_insert_ht_code: begin
     print("pt");
 end;
 pdf_ximage_bbox_code: begin
-    case j of
-    1: print_scaled(epdf_orig_x(i));
-    2: print_scaled(epdf_orig_y(i));
-    3: print_scaled(epdf_orig_x(i) + image_width(i));
-    4: print_scaled(epdf_orig_y(i) + image_height(i));
-    endcases;
+    if is_pdf_image(i) then begin
+        case j of
+        1: print_scaled(epdf_orig_x(i));
+        2: print_scaled(epdf_orig_y(i));
+        3: print_scaled(epdf_orig_x(i) + epdf_xsize(i));
+        4: print_scaled(epdf_orig_y(i) + epdf_ysize(i));
+        endcases;
+    end else
+        print_scaled(0);
     print("pt");
 end;
 format_name_code: print(format_name);

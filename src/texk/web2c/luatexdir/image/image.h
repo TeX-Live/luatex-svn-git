@@ -34,6 +34,7 @@ $Id$
 
 extern integer zround(double);  /* from zround.c */
 #  define bp2int(p)       zround(p * (one_hundred_bp / 100.0))
+#  define int2bp(i)       (i * 100.0 / one_hundred_bp)
 
 #  define TYPE_IMG        "image"
 #  define TYPE_IMG_DICT   "image-dict"
@@ -85,6 +86,7 @@ typedef struct {
     integer y_orig;
     integer x_res;              /* pixel resolution as in JPG/PNG/JBIG2 file */
     integer y_res;
+    integer rotation;           /* rotation (multiples of 90 deg.) for PDF files */
     integer colorspace;         /* number of /ColorSpace object */
     integer total_pages;
     integer page_num;           /* requested page (by number) */
@@ -97,7 +99,9 @@ typedef struct {
     int color_space;            /* used color space. See JPG_ constants */
     int color_depth;            /* color depth */
     pdfboxspec_e page_box_spec; /* PDF page box spec.: media/crop/bleed/trim/art */
+    integer bbox[4];
     dict_state state;
+    integer flags;
     union {
         png_img_struct *png;
         jpg_img_struct *jpg;
@@ -113,6 +117,7 @@ typedef struct {
 #  define img_yorig(N)          ((N)->y_orig)
 #  define img_xres(N)           ((N)->x_res)
 #  define img_yres(N)           ((N)->y_res)
+#  define img_rotation(N)       ((N)->rotation)
 #  define img_colorspace(N)     ((N)->colorspace)
 #  define img_totalpages(N)     ((N)->total_pages)
 #  define img_pagenum(N)        ((N)->page_num)
@@ -125,6 +130,7 @@ typedef struct {
 #  define img_color(N)          ((N)->color_space)
 #  define img_colordepth(N)     ((N)->color_depth)
 #  define img_pagebox(N)        ((N)->page_box_spec)
+#  define img_bbox(N)           ((N)->bbox)
 #  define img_state(N)          ((N)->state)
 
 #  define img_png_ptr(N)        ((N)->img_struct.png)
@@ -135,6 +141,12 @@ typedef struct {
 #  define img_jpg_color(N)      ((N)->img_struct.jpg->color_space)
 
 #  define img_jb2_ptr(N)        ((N)->img_struct.jb2)
+
+#  define F_FLAG_BBOX           (1 << 0)
+
+#  define img_set_bbox(N)       (img_flags(N) |= F_FLAG_BBOX)
+#  define img_unset_bbox(N)     (img_flags(N) &= ~F_FLAG_BBOX)
+#  define img_is_bbox(N)        ((img_flags(N) & F_FLAG_BBOX) != 0)
 
 /**********************************************************************/
 
@@ -156,8 +168,8 @@ typedef struct {
 #  define img_dict(N)           ((N)->dict)
 #  define img_dictref(N)        ((N)->dict_ref)
 
-#  define F_FLAG_SCALED         0x01
-#  define F_FLAG_REFERED        0x02
+#  define F_FLAG_SCALED         (1 << 0)
+#  define F_FLAG_REFERED        (1 << 1)
 
 #  define img_flags(N)          ((N)->flags)
 #  define img_set_scaled(N)     (img_flags(N) |= F_FLAG_SCALED)
