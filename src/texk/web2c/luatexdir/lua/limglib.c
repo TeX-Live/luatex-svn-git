@@ -408,6 +408,7 @@ static void lua_to_image(lua_State * L, image * a)
             xfree(img_pdfstream_stream(d));
         img_pdfstream_stream(d) = xstrdup(lua_tostring(L, -1));
         img_type(d) = IMG_TYPE_PDFSTREAM;
+        img_unset_scaled(a);
         break;
     case P_FILEPATH:
     case P_TOTALPAGES:
