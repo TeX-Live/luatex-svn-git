@@ -44,8 +44,8 @@ static void stackDump(lua_State * L, char *s)
 
 typedef enum { P__ZERO, P_ATTR, P_BBOX, P_COLORDEPTH, P_COLORSPACE, P_DEPTH,
     P_FILENAME, P_FILEPATH, P_HEIGHT, P_IMAGETYPE, P_INDEX, P_OBJNUM,
-    P_PAGE, P_PAGEBOX, P_TOTALPAGES, P_ROTATION, P_TRANSFORM, P_WIDTH,
-    P_XRES, P_XSIZE, P_YRES, P_YSIZE, P__SENTINEL
+    P_PAGE, P_PAGEBOX, P_TOTALPAGES, P_ROTATION, P_STREAM, P_TRANSFORM,
+    P_WIDTH, P_XRES, P_XSIZE, P_YRES, P_YSIZE, P__SENTINEL
 } parm_idx;
 
 typedef struct {
@@ -70,6 +70,7 @@ parm_struct img_parms[] = {
     {"pagebox", P_PAGEBOX},
     {"pages", P_TOTALPAGES},
     {"rotation", P_ROTATION},
+    {"stream", P_STREAM},
     {"transform", P_TRANSFORM},
     {"width", P_WIDTH},
     {"xres", P_XRES},
@@ -186,7 +187,7 @@ static void image_to_lua(lua_State * L, image * a)
     case P_IMAGETYPE:
         j = img_type(d);
         if (j >= 0 && j <= imgtype_max) {
-            if (j == IMAGE_TYPE_NONE)
+            if (j == IMG_TYPE_NONE)
                 lua_pushnil(L);
             else
                 lua_pushstring(L, imgtype_s[j]);
@@ -235,6 +236,14 @@ static void image_to_lua(lua_State * L, image * a)
             lua_pushnil(L);
         else
             lua_pushinteger(L, img_index(d));
+        break;
+    case P_STREAM:
+        if (img_type(d) != IMG_TYPE_PDFSTREAM || img_pdfstream_ptr(d) == NULL
+            || img_pdfstream_stream(d) == NULL
+            || strlen(img_pdfstream_stream(d)) == 0)
+            lua_pushnil(L);
+        else
+            lua_pushstring(L, img_pdfstream_stream(d));
         break;
     default:
         assert(0);
@@ -309,6 +318,8 @@ static void lua_to_image(lua_State * L, image * a)
     case P_FILENAME:
         if (img_state(d) >= DICT_FILESCANNED)
             luaL_error(L, "image.filename is now read-only");
+        if (img_type(d) == IMG_TYPE_PDFSTREAM)
+            luaL_error(L, "image.filename can't be used with image.stream");
         if (lua_isstring(L, -1)) {
             if (img_filename(d) != NULL)
                 xfree(img_filename(d));
@@ -385,6 +396,18 @@ static void lua_to_image(lua_State * L, image * a)
         }
         img_set_bbox(d);
         img_unset_scaled(a);
+        break;
+    case P_STREAM:
+        if (img_filename(d) != NULL)
+            luaL_error(L, "image.stream can't be used with image.filename");
+        if (img_state(d) >= DICT_FILESCANNED)
+            luaL_error(L, "image.stream is now read-only");
+        if (img_pdfstream_ptr(d) == NULL)
+            new_img_pdfstream_struct(d);
+        if (img_pdfstream_stream(d) != NULL)
+            xfree(img_pdfstream_stream(d));
+        img_pdfstream_stream(d) = xstrdup(lua_tostring(L, -1));
+        img_type(d) = IMG_TYPE_PDFSTREAM;
         break;
     case P_FILEPATH:
     case P_TOTALPAGES:
@@ -495,7 +518,11 @@ static int l_scan_image(lua_State * L)
     a = *aa;
     image_dict *ad = img_dict(a);
     if (img_state(ad) == DICT_NEW) {
-        read_img(ad, get_pdf_minor_version(), get_pdf_inclusion_errorlevel());
+        if (img_type(ad) == IMG_TYPE_PDFSTREAM)
+            check_pdfstream_dict(ad);
+        else
+            read_img(ad, get_pdf_minor_version(),
+                     get_pdf_inclusion_errorlevel());
         img_unset_scaled(a);
     }
     fix_image_size(L, a);
@@ -539,7 +566,11 @@ static void write_image_or_node(lua_State * L, wrtype_e writetype)
     image_dict *ad = img_dict(a);
     assert(ad != NULL);
     if (img_state(ad) == DICT_NEW) {
-        read_img(ad, get_pdf_minor_version(), get_pdf_inclusion_errorlevel());
+        if (img_type(ad) == IMG_TYPE_PDFSTREAM)
+            check_pdfstream_dict(ad);
+        else
+            read_img(ad, get_pdf_minor_version(),
+                     get_pdf_inclusion_errorlevel());
         img_unset_scaled(a);
     }
     fix_image_size(L, a);

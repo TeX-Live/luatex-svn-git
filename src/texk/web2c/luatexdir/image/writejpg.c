@@ -117,7 +117,7 @@ void read_jpg_info(image_dict * idict, img_readtype_e readtype)
     int i, units = 0;
     unsigned char jpg_id[] = "JFIF";
     assert(idict != NULL);
-    assert(img_type(idict) == IMAGE_TYPE_JPG);
+    assert(img_type(idict) == IMG_TYPE_JPG);
     img_totalpages(idict) = 1;
     img_pagenum(idict) = 1;
     img_xres(idict) = img_yres(idict) = 0;

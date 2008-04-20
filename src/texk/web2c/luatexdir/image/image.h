@@ -44,6 +44,10 @@ extern integer zround(double);  /* from zround.c */
 /**********************************************************************/
 
 typedef struct {
+    char *stream;
+} pdf_stream_struct;
+
+typedef struct {
     png_structp png_ptr;
     png_infop info_ptr;
 } png_img_struct;
@@ -64,8 +68,8 @@ typedef enum { DICT_NEW,        /* fresh dictionary */
     DICT_WRITTEN                /* image dict written to file */
 } dict_state;
 
-typedef enum { IMAGE_TYPE_NONE, IMAGE_TYPE_PDF, IMAGE_TYPE_PNG, IMAGE_TYPE_JPG,
-    IMAGE_TYPE_JBIG2, IMAGE_TYPE_SENTINEL
+typedef enum { IMG_TYPE_NONE, IMG_TYPE_PDF, IMG_TYPE_PNG, IMG_TYPE_JPG,
+    IMG_TYPE_JBIG2, IMG_TYPE_PDFSTREAM, IMG_TYPE_SENTINEL
 } imgtype_e;
 
 typedef enum { IMG_KEEPOPEN, IMG_CLOSEINBETWEEN } img_readtype_e;
@@ -103,6 +107,7 @@ typedef struct {
     dict_state state;
     integer flags;
     union {
+        pdf_stream_struct *pdfstream;
         png_img_struct *png;
         jpg_img_struct *jpg;
         jb2_img_struct *jb2;
@@ -132,6 +137,9 @@ typedef struct {
 #  define img_pagebox(N)        ((N)->page_box_spec)
 #  define img_bbox(N)           ((N)->bbox)
 #  define img_state(N)          ((N)->state)
+
+#  define img_pdfstream_ptr(N)  ((N)->img_struct.pdfstream)
+#  define img_pdfstream_stream(N) ((N)->img_struct.pdfstream->stream)
 
 #  define img_png_ptr(N)        ((N)->img_struct.png)
 #  define img_png_png_ptr(N)    ((N)->img_struct.png->png_ptr)
@@ -190,6 +198,9 @@ typedef struct {
 
 /* writeimg.c */
 
+void new_img_pdfstream_struct(image_dict *);
+void check_pdfstream_dict(image_dict *);
+void write_pdfstream(image_dict *);
 image *new_image();
 image_dict *new_image_dict();
 void init_image(image *);

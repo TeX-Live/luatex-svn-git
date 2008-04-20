@@ -44,7 +44,7 @@ void read_png_info(image_dict * idict, img_readtype_e readtype)
     png_structp png_p;
     png_infop info_p;
     assert(idict != NULL);
-    assert(img_type(idict) == IMAGE_TYPE_PNG);
+    assert(img_type(idict) == IMG_TYPE_PNG);
     img_totalpages(idict) = 1;
     img_pagenum(idict) = 1;
     img_xres(idict) = img_yres(idict) = 0;

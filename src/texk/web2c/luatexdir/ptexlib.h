@@ -211,6 +211,7 @@ extern void tconfusion(char *s);
 extern void tprint(char *s);
 extern void tprint_nl(char *s);
 extern void tprint_esc(char *s);
+extern char *stripzeros(char *);
 
 #  define overflow_string(a,b) { overflow(maketexstring(a),b); flush_str(last_tex_string); }
 

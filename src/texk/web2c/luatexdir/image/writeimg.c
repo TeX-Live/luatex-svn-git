@@ -104,9 +104,9 @@ extern void pdf_print_real(integer m, integer d);
     standard extension.
 
     Functions "check_type_by_header" and "check_type_by_extension":
-    img_type(img) is set to IMAGE_TYPE_NONE by new_image_dict().
+    img_type(img) is set to IMG_TYPE_NONE by new_image_dict().
     Both functions try to detect a type and set img_type(img).
-    Thus a value other than IMAGE_TYPE_NONE indicates that a
+    Thus a value other than IMG_TYPE_NONE indicates that a
     type has been found.
 */
 
@@ -123,7 +123,7 @@ static void check_type_by_header(image_dict * idict)
     char header[MAX_HEADER];
 
     assert(idict != NULL);
-    if (img_type(idict) != IMAGE_TYPE_NONE)     /* nothing to do */
+    if (img_type(idict) != IMG_TYPE_NONE)       /* nothing to do */
         return;
     /* read the header */
     file = xfopen(img_filepath(idict), FOPEN_RBIN_MODE);
@@ -135,13 +135,13 @@ static void check_type_by_header(image_dict * idict)
     xfclose(file, img_filepath(idict));
     /* tests */
     if (strncmp(header, HEADER_JPG, sizeof(HEADER_JPG) - 1) == 0)
-        img_type(idict) = IMAGE_TYPE_JPG;
+        img_type(idict) = IMG_TYPE_JPG;
     else if (strncmp(header, HEADER_PNG, sizeof(HEADER_PNG) - 1) == 0)
-        img_type(idict) = IMAGE_TYPE_PNG;
+        img_type(idict) = IMG_TYPE_PNG;
     else if (strncmp(header, HEADER_JBIG2, sizeof(HEADER_JBIG2) - 1) == 0)
-        img_type(idict) = IMAGE_TYPE_JBIG2;
+        img_type(idict) = IMG_TYPE_JBIG2;
     else if (strncmp(header, HEADER_PDF, sizeof(HEADER_PDF) - 1) == 0)
-        img_type(idict) = IMAGE_TYPE_PDF;
+        img_type(idict) = IMG_TYPE_PDF;
 }
 
 static void check_type_by_extension(image_dict * idict)
@@ -149,21 +149,31 @@ static void check_type_by_extension(image_dict * idict)
     char *image_suffix;
 
     assert(idict != NULL);
-    if (img_type(idict) != IMAGE_TYPE_NONE)     /* nothing to do */
+    if (img_type(idict) != IMG_TYPE_NONE)       /* nothing to do */
         return;
     /* tests */
     if ((image_suffix = strrchr(img_filename(idict), '.')) == 0)
-        img_type(idict) = IMAGE_TYPE_NONE;
+        img_type(idict) = IMG_TYPE_NONE;
     else if (strcasecmp(image_suffix, ".png") == 0)
-        img_type(idict) = IMAGE_TYPE_PNG;
+        img_type(idict) = IMG_TYPE_PNG;
     else if (strcasecmp(image_suffix, ".jpg") == 0 ||
              strcasecmp(image_suffix, ".jpeg") == 0)
-        img_type(idict) = IMAGE_TYPE_JPG;
+        img_type(idict) = IMG_TYPE_JPG;
     else if (strcasecmp(image_suffix, ".jbig2") == 0 ||
              strcasecmp(image_suffix, ".jb2") == 0)
-        img_type(idict) = IMAGE_TYPE_JBIG2;
+        img_type(idict) = IMG_TYPE_JBIG2;
     else if (strcasecmp(image_suffix, ".pdf") == 0)
-        img_type(idict) = IMAGE_TYPE_PDF;
+        img_type(idict) = IMG_TYPE_PDF;
+}
+
+/**********************************************************************/
+
+void new_img_pdfstream_struct(image_dict * p)
+{
+    assert(p != NULL);
+    assert(img_pdfstream_ptr(p) == NULL);
+    img_pdfstream_ptr(p) = xtalloc(1, pdf_stream_struct);
+    img_pdfstream_stream(p) = NULL;
 }
 
 /**********************************************************************/
@@ -209,7 +219,7 @@ void init_image_dict(image_dict * p)
     img_filepath(p) = NULL;
     img_attr(p) = NULL;
     img_file(p) = NULL;
-    img_type(p) = IMAGE_TYPE_NONE;
+    img_type(p) = IMG_TYPE_NONE;
     img_color(p) = 0;
     img_colordepth(p) = 0;
     img_pagebox(p) = PDF_BOX_SPEC_MEDIA;
@@ -249,18 +259,25 @@ void free_image_dict(image_dict * p)
 {                               /* called from limglib.c */
     assert(img_state(p) < DICT_REFERED);
     switch (img_type(p)) {
-    case IMAGE_TYPE_PDF:
+    case IMG_TYPE_PDF:
         unrefPdfDocument(img_filepath(p));
         break;
-    case IMAGE_TYPE_PNG:       /* assuming IMG_CLOSEINBETWEEN */
+    case IMG_TYPE_PNG:         /* assuming IMG_CLOSEINBETWEEN */
         assert(img_png_ptr(p) == NULL);
         break;
-    case IMAGE_TYPE_JPG:       /* assuming IMG_CLOSEINBETWEEN */
+    case IMG_TYPE_JPG:         /* assuming IMG_CLOSEINBETWEEN */
         assert(img_jpg_ptr(p) == NULL);
         break;
-    case IMAGE_TYPE_JBIG2:     /* todo: writejbig2.c cleanup */
+    case IMG_TYPE_JBIG2:       /* todo: writejbig2.c cleanup */
         break;
-    case IMAGE_TYPE_NONE:
+    case IMG_TYPE_PDFSTREAM:
+        if (img_pdfstream_ptr(p) != NULL) {
+            if (img_pdfstream_stream(p) != NULL)
+                xfree(img_pdfstream_stream(p));
+            xfree(img_pdfstream_ptr(p));
+        }
+        break;
+    case IMG_TYPE_NONE:
         break;
     default:
         assert(0);
@@ -304,16 +321,16 @@ void read_img(image_dict * idict, integer pdf_minor_version,
     check_type_by_extension(idict);
     /* read image */
     switch (img_type(idict)) {
-    case IMAGE_TYPE_PDF:
+    case IMG_TYPE_PDF:
         read_pdf_info(idict, pdf_minor_version, pdf_inclusion_errorlevel);
         break;
-    case IMAGE_TYPE_PNG:
+    case IMG_TYPE_PNG:
         read_png_info(idict, IMG_CLOSEINBETWEEN);
         break;
-    case IMAGE_TYPE_JPG:
+    case IMG_TYPE_JPG:
         read_jpg_info(idict, IMG_CLOSEINBETWEEN);
         break;
-    case IMAGE_TYPE_JBIG2:
+    case IMG_TYPE_JBIG2:
         if (pdf_minor_version < 4) {
             pdftex_fail
                 ("JBIG2 images only possible with at least PDF 1.4; you are generating PDF 1.%i",
@@ -322,7 +339,7 @@ void read_img(image_dict * idict, integer pdf_minor_version,
         read_jbig2_info(idict);
         break;
     default:
-        pdftex_fail("internal error: unknown image type");
+        pdftex_fail("internal error: unknown image type (2)");
     }
     cur_file_name = NULL;
     if (img_state(idict) < DICT_FILESCANNED)
@@ -342,7 +359,8 @@ void scale_img(image * img)
     assert(img != NULL);
     image_dict *idict = img_dict(img);
     assert(idict != NULL);
-    if (img_type(idict) == IMAGE_TYPE_PDF && img_is_bbox(idict)) {
+    if ((img_type(idict) == IMG_TYPE_PDF
+         || img_type(idict) == IMG_TYPE_PDFSTREAM) && img_is_bbox(idict)) {
         x = img_xsize(idict) = img_bbox(idict)[2] - img_bbox(idict)[0]; /* dimensions from image.bbox */
         y = img_ysize(idict) = img_bbox(idict)[3] - img_bbox(idict)[1];
         img_xorig(idict) = img_bbox(idict)[0];
@@ -368,7 +386,8 @@ void scale_img(image * img)
         xr = yr;
         yr = tmp;
     }
-    if (img_type(idict) == IMAGE_TYPE_PDF) {
+    if (img_type(idict) == IMG_TYPE_PDF
+        || img_type(idict) == IMG_TYPE_PDFSTREAM) {
         w = x;
         h = y;
     } else {
@@ -441,7 +460,8 @@ void out_img(image * img, scaled hpos, scaled vpos)
     scaled dp = img_depth(img);
     a[0] = a[3] = 1.0e6;
     a[1] = a[2] = 0;
-    if (img_type(idict) == IMAGE_TYPE_PDF) {
+    if (img_type(idict) == IMG_TYPE_PDF
+        || img_type(idict) == IMG_TYPE_PDFSTREAM) {
         a[0] /= img_xsize(idict);
         a[3] /= img_ysize(idict);
         xoff = (float) img_xorig(idict) / img_xsize(idict);
@@ -538,26 +558,57 @@ void write_img(image_dict * idict)
         if (tracefilenames)
             tex_printf(" <%s", img_filepath(idict));
         switch (img_type(idict)) {
-        case IMAGE_TYPE_PNG:
+        case IMG_TYPE_PNG:
             write_png(idict);
             break;
-        case IMAGE_TYPE_JPG:
+        case IMG_TYPE_JPG:
             write_jpg(idict);
             break;
-        case IMAGE_TYPE_JBIG2:
+        case IMG_TYPE_JBIG2:
             write_jbig2(idict);
             break;
-        case IMAGE_TYPE_PDF:
+        case IMG_TYPE_PDF:
             write_epdf(idict);
             break;
+        case IMG_TYPE_PDFSTREAM:
+            write_pdfstream(idict);
+            break;
         default:
-            pdftex_fail("internal error: unknown image type");
+            pdftex_fail("internal error: unknown image type (1)");
         }
         if (tracefilenames)
             tex_printf(">");
     }
     if (img_state(idict) < DICT_WRITTEN)
         img_state(idict) = DICT_WRITTEN;
+}
+
+/**********************************************************************/
+
+void check_pdfstream_dict(image_dict * idict)
+{
+    if (!img_is_bbox(idict))
+        pdftex_fail("image.stream: no bbox given");
+}
+
+void write_pdfstream(image_dict * idict)
+{
+    char s[256];
+    assert(img_pdfstream_ptr(idict) != NULL);
+    assert(img_is_bbox(idict));
+    pdf_puts("/Type /XObject\n/Subtype /Form\n");
+    if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
+        pdf_printf("%s\n", img_attr(idict));
+    pdf_puts("/FormType 1\n");
+    sprintf(s, "/BBox [%.8f %.8f %.8f %.8f]\n", int2bp(img_bbox(idict)[0]),
+            int2bp(img_bbox(idict)[1]), int2bp(img_bbox(idict)[2]),
+            int2bp(img_bbox(idict)[3]));
+    pdf_printf(stripzeros(s));
+    pdf_begin_stream();
+    if (img_pdfstream_stream(idict) != NULL)
+        pdf_puts(img_pdfstream_stream(idict));
+    pdf_end_stream();
+
 }
 
 /**********************************************************************/
@@ -665,7 +716,7 @@ integer epdf_orig_y(integer ref)
 
 boolean is_pdf_image(integer ref)
 {
-    return img_type(img_dict(img_array[ref])) == IMAGE_TYPE_PDF;
+    return img_type(img_dict(img_array[ref])) == IMG_TYPE_PDF;
 }
 
 integer image_objnum(integer ref)

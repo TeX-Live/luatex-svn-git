@@ -675,7 +675,7 @@ void read_jbig2_info(image_dict * idict)
     PAGEINFO *pip;
     void **aa;
     assert(idict != NULL);
-    img_type(idict) = IMAGE_TYPE_JBIG2;
+    img_type(idict) = IMG_TYPE_JBIG2;
     if (img_pagenum(idict) < 1)
         pdftex_fail
             ("read_jbig2_info(): page %d not in JBIG2 image file; page must be > 0",

@@ -687,7 +687,7 @@ read_pdf_info(image_dict * idict, integer minor_pdf_version_wanted,
     PDFRectangle *pagebox;
     float pdf_version_found, pdf_version_wanted, xsize, ysize, xorig, yorig;
     assert(idict != NULL);
-    assert(img_type(idict) == IMAGE_TYPE_PDF);
+    assert(img_type(idict) == IMG_TYPE_PDF);
     // initialize
     if (isInit == gFalse) {
         globalParams = new GlobalParams();
