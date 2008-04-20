@@ -589,6 +589,8 @@ void check_pdfstream_dict(image_dict * idict)
 {
     if (!img_is_bbox(idict))
         pdftex_fail("image.stream: no bbox given");
+    if (img_state(idict) < DICT_FILESCANNED)
+        img_state(idict) = DICT_FILESCANNED;
 }
 
 void write_pdfstream(image_dict * idict)
