@@ -4,9 +4,14 @@
 #pragma warning( disable : 4007 4096 4018 4244 )
 
 #include <stdlib.h>
+/* The embedded rndnpc.h defines boolean as 'unsigned char',
+   and we do not want that. 
+   This should be safe as long as we don't use npc ourselves. */
+#define boolean saved_boolean
 #include <windows.h>
 #include <winerror.h>
 #include <winnt.h>
+#undef boolean
 #include <dirent.h>
 #include <direct.h>
 
