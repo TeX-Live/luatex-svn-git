@@ -2865,8 +2865,32 @@ write_fontfile (cff_font *cffont, char *fullname)
 }
 
 
-/* if the CFF data was converted from an old type1 font, then the .notdef 
+/* this block is used a few times */
+
+#define DO_COPY_CHARSTRING()                                                   \
+  if ((avl_find(fd->gl_tree,glyph) != NULL)) {                                 \
+    size = cs_idx->offset[code+1] - cs_idx->offset[code];                      \
+    if (size > CS_STR_LEN_MAX) {                                               \
+      pdftex_fail("Charstring too long: gid=%u, %ld bytes", code, size);       \
+    }                                                                          \
+    if (charstring_len + CS_STR_LEN_MAX >= max_len) {                          \
+      max_len = charstring_len + 2 * CS_STR_LEN_MAX;                           \
+      charstrings->data = xrealloc(charstrings->data, max_len*sizeof(card8));  \
+    }                                                                          \
+    (charstrings->offset)[gid] = charstring_len + 1;                           \
+    cffont->offset= offset + (cs_idx->offset)[code] - 1;                       \
+    memcpy(data,&cffont->stream[cffont->offset],size);                         \
+    charstring_len += cs_copy_charstring(charstrings->data + charstring_len,   \
+                                         max_len - charstring_len,             \
+                                         data, size,                           \
+                                         cffont->gsubr, (cffont->subrs)[0],    \
+                                         default_width, nominal_width, NULL);  \
+    gid++;                                                                     \
+  }
+
+/* If the CFF data was converted from an old type1 font, then the .notdef 
    glyph may not be at id 0, so in that case |uglytype1fix| is nonzero */
+
 
 void write_cff(cff_font *cffont, fd_entry *fd, int uglytype1fix) {
   cff_index    *charstrings, *cs_idx;
@@ -2883,13 +2907,10 @@ void write_cff(cff_font *cffont, fd_entry *fd, int uglytype1fix) {
 
   glw_entry *glyph, *found;
   struct avl_traverser t;
-
-
-
   
   fullname = xcalloc(8+strlen(fd->fontname),1);
   sprintf(fullname,"%s+%s",fd->subset_tag,fd->fontname);
-
+  
   /* finish parsing the CFF */
   cff_read_private(cffont);
   cff_read_subrs  (cffont); 
@@ -2921,7 +2942,6 @@ void write_cff(cff_font *cffont, fd_entry *fd, int uglytype1fix) {
     avl_insert(fd->gl_tree, glyph);
     glyph = xtalloc(1,glw_entry);
   }
-
 
   avl_t_init(&t, fd->gl_tree);
   for (found = (glw_entry *) avl_t_first(&t, fd->gl_tree); 
@@ -3007,28 +3027,57 @@ void write_cff(cff_font *cffont, fd_entry *fd, int uglytype1fix) {
   gid = 0;
   data = xcalloc(CS_STR_LEN_MAX, sizeof(card8));
 
-  for (code=0; code < cs_count; code++) {
-	glyph->id = code;
-    if ((avl_find(fd->gl_tree,glyph) != NULL)) {
-      size = cs_idx->offset[code+1] - cs_idx->offset[code];
-      
-      if (size > CS_STR_LEN_MAX) {
-		pdftex_fail("Charstring too long: gid=%u, %ld bytes", code, size);
-      }
-      if (charstring_len + CS_STR_LEN_MAX >= max_len) {
-		max_len = charstring_len + 2 * CS_STR_LEN_MAX;
-		charstrings->data = xrealloc(charstrings->data, max_len*sizeof(card8));
-      }
-      (charstrings->offset)[gid] = charstring_len + 1;
-      cffont->offset= offset + (cs_idx->offset)[code] - 1;
-      memcpy(data,&cffont->stream[cffont->offset],size);
-      charstring_len += cs_copy_charstring(charstrings->data + charstring_len,
-					   max_len - charstring_len,
-					   data, size,
-					   cffont->gsubr, (cffont->subrs)[0],
-					   default_width, nominal_width, NULL);
-      gid++;
-    }
+  {
+	int i;
+/* 
+
+When PFB fonts are used in a wide format, the backend has to convert
+the PFB font into CFF format. For older PFB files, there is a potential
+problem.
+
+In CFF, the /.notdef glyph has to come first, at index 0. But at this
+point, many glyph indices are already written out to the PDF, so it is
+not possible to simply recompose the CFF. The only option left is to
+kick out whatever was at the old index 0 and replace it by ./notdef. 
+If we are lucky, in such fonts that is a /space, and no harm done. 
+
+Otherwise, a warning is given, and when the actual /.notdef in the CFF
+is encountered, it is skipped.
+
+A proper solution to this problem is not possible unless the font 
+conversion takes place before any indices are written to the PDF 
+file. That should be doable, but requires tricky code in FF.openfont()
+instead of here.
+
+*/
+
+
+
+	if (uglytype1fix!=0) {
+	  code = uglytype1fix;
+	  glyph->id = code;	  
+	  DO_COPY_CHARSTRING();
+	  glyph->id = 0;	  
+      if ((avl_find(fd->gl_tree,glyph) != NULL)) {
+        WARN("I had to force a .notdef glyph into slot 0, expelling the old charstring.");
+	  }
+	  for (i=1; i < cs_count; i++) {
+		code = i;
+		glyph->id = code;	  
+		if (i==uglytype1fix) {
+		  gid++;
+		  continue;
+		}
+		if (i<uglytype1fix) code++;
+		DO_COPY_CHARSTRING();
+	  }
+	} else {
+	  for (i=0; i < cs_count; i++) {
+		code = i;
+		glyph->id = code;	  
+		DO_COPY_CHARSTRING();
+	  }
+	}
   }
   
   /* this happens if the internal metrics do not agree with the actual disk font */
