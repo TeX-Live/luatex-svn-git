@@ -186,9 +186,9 @@ void init_image(image * p)
     set_dp_running(p);
     img_transform(p) = 0;
     img_flags(p) = 0;
-    img_unset_refered(p);       /* wd/ht/dp may be modified */
     img_unset_scaled(p);
     img_dict(p) = NULL;
+    img_arrayidx(p) = -1;       /* -1 = unused, used count from 0 */
     img_dictref(p) = LUA_NOREF;
 }
 
@@ -635,9 +635,9 @@ integer read_image(integer objnum, integer index, strnumber filename,
                    integer colorspace, integer page_box,
                    integer pdf_minor_version, integer pdf_inclusion_errorlevel)
 {
-    integer ref;
     image *a = new_image();
-    ref = img_to_array(a);
+    assert(img_arrayidx(a) == -1);
+    img_arrayidx(a) = img_to_array(a);
     image_dict *idict = img_dict(a) = new_image_dict();
     assert(idict != NULL);
     img_objnum(idict) = objnum;
@@ -656,8 +656,7 @@ integer read_image(integer objnum, integer index, strnumber filename,
     img_pagebox(idict) = page_box;
     read_img(idict, pdf_minor_version, pdf_inclusion_errorlevel);
     img_unset_scaled(a);
-    img_set_refered(a);
-    return ref;
+    return img_arrayidx(a);
 }
 
 void set_image_dimensions(integer ref, integer wd, integer ht, integer dp)

@@ -165,6 +165,7 @@ typedef struct {
     integer transform;
     integer flags;
     image_dict *dict;
+    int array_idx;              /* index within img_array */
     int dict_ref;               /* luaL_ref() reference */
 } image;
 
@@ -174,18 +175,17 @@ typedef struct {
 #  define img_transform(N)      ((N)->transform)
 #  define img_flags(N)          ((N)->flags)
 #  define img_dict(N)           ((N)->dict)
+#  define img_arrayidx(N)       ((N)->array_idx)
 #  define img_dictref(N)        ((N)->dict_ref)
 
+#  define img_is_refered(N)     (img_arrayidx(N) != -1)
+
 #  define F_FLAG_SCALED         (1 << 0)
-#  define F_FLAG_REFERED        (1 << 1)
 
 #  define img_flags(N)          ((N)->flags)
 #  define img_set_scaled(N)     (img_flags(N) |= F_FLAG_SCALED)
-#  define img_set_refered(N)    (img_flags(N) |= F_FLAG_REFERED)
 #  define img_unset_scaled(N)   (img_flags(N) &= ~F_FLAG_SCALED)
-#  define img_unset_refered(N)  (img_flags(N) &= ~F_FLAG_REFERED)
 #  define img_is_scaled(N)      ((img_flags(N) & F_FLAG_SCALED) != 0)
-#  define img_is_refered(N)     ((img_flags(N) & F_FLAG_REFERED) != 0)
 
 #  define set_wd_running(N)     (img_width(N) = null_flag)
 #  define set_ht_running(N)     (img_height(N) = null_flag)

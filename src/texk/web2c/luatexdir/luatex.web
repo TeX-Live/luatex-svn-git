@@ -32947,6 +32947,13 @@ begin
     pdf_print_ln("Q");
 end;
 
+procedure output_image(p: pointer);
+begin
+  out_image(pdf_ximage_ref(p), cur_h-pdf_origin_h, pdf_origin_v-cur_v);
+  if pdf_lookup_list(pdf_ximage_list, image_objnum(pdf_ximage_ref(p))) = null then
+      pdf_append_list(image_objnum(pdf_ximage_ref(p)))(pdf_ximage_list);
+end;
+
 @ @<Output the whatsit node |p| in |pdf_vlist_out|@>=
 case subtype(p) of
 pdf_literal_node:
@@ -33001,9 +33008,7 @@ end
 @ @<Output a Image node in a vlist@>=
 begin cur_v:=cur_v+pdf_height(p)+pdf_depth(p);
   cur_h:=left_edge;
-  out_image(pdf_ximage_ref(p), cur_h-pdf_origin_h, pdf_origin_v-cur_v);
-  if pdf_lookup_list(pdf_ximage_list, image_objnum(pdf_ximage_ref(p))) = null then
-      pdf_append_list(image_objnum(pdf_ximage_ref(p)))(pdf_ximage_list);
+  output_image(p);
 end
 
 @ @<Output a Form node in a vlist@>=
@@ -33060,9 +33065,7 @@ endcases
 @ @<Output a Image node in a hlist@>=
 begin
   cur_v:=base_line+pdf_depth(p);
-  out_image(pdf_ximage_ref(p), cur_h-pdf_origin_h, pdf_origin_v-cur_v);
-  if pdf_lookup_list(pdf_ximage_list, image_objnum(pdf_ximage_ref(p))) = null then
-      pdf_append_list(image_objnum(pdf_ximage_ref(p)))(pdf_ximage_list);
+  output_image(p);
   edge:=cur_h+pdf_width(p); cur_h:=edge; cur_v:=base_line;
 end
 

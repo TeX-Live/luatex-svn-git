@@ -578,17 +578,18 @@ static void write_image_or_node(lua_State * L, wrtype_e writetype)
     fix_image_size(L, a);
     check_pdfoutput(maketexstring(wrtype_s[writetype]), true);
     flush_str(last_tex_string);
-    integer ref = img_to_array(a);
+    if (img_arrayidx(a) == -1)
+        img_arrayidx(a) = img_to_array(a);      /* now a is read-only */
     if (img_objnum(ad) == 0) {  /* not strictly needed here, could be delayed until out_image() */
         pdf_ximage_count++;
         pdf_create_obj(obj_type_ximage, pdf_ximage_count);
         img_objnum(ad) = obj_ptr;
         img_index(ad) = pdf_ximage_count;
-        obj_data_ptr(obj_ptr) = ref;
+        obj_data_ptr(obj_ptr) = img_arrayidx(a);
     }
     switch (writetype) {
     case WR_WRITE:
-        n = img_to_node(a, ref);
+        n = img_to_node(a, img_arrayidx(a));
         new_tail_append(n);
         break;                  /* image */
     case WR_IMMEDIATEWRITE:
@@ -598,7 +599,7 @@ static void write_image_or_node(lua_State * L, wrtype_e writetype)
         break;                  /* image */
     case WR_NODE:              /* image */
         lua_pop(L, 1);          /* - */
-        n = img_to_node(a, ref);
+        n = img_to_node(a, img_arrayidx(a));
         lua_nodelib_push_fast(L, n);
         break;                  /* node */
     default:
@@ -606,7 +607,6 @@ static void write_image_or_node(lua_State * L, wrtype_e writetype)
     }
     if (img_state(ad) < DICT_REFERED)
         img_state(ad) = DICT_REFERED;
-    img_set_refered(a);         /* now image may not be freed by gc */
 }
 
 static int l_write_image(lua_State * L)
