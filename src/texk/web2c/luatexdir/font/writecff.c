@@ -3062,13 +3062,8 @@ instead of here.
         WARN("I had to force a .notdef glyph into slot 0, expelling the old charstring.");
 	  }
 	  for (i=1; i < cs_count; i++) {
-		code = i;
-		glyph->id = code;	  
-		if (i==uglytype1fix) {
-		  gid++;
-		  continue;
-		}
-		if (i<uglytype1fix) code++;
+		glyph->id = i;	  
+		code = i+1;
 		DO_COPY_CHARSTRING();
 	  }
 	} else {
