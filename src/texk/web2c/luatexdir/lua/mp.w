@@ -15769,6 +15769,12 @@ integer ext_delimiter; /* the relevant `\..', if any */
 @ Here now is the first of the system-dependent routines for file name scanning.
 @^system dependencies@>
 
+The file name length is limited to |file_name_size|. That is good, because
+in the current configuration we cannot call |mp_do_compaction| while a name 
+is being scanned, |mp->area_delimiter| and |mp->ext_delimiter| are direct
+offsets into |mp->str_pool|. I am not in a great hurry to fix this, because 
+calling |str_room()| just once is more efficient anyway. TODO.
+
 @<Declare subroutines for parsing file names@>=
 void mp_begin_name (MP mp) { 
   xfree(mp->cur_name); 
@@ -15776,13 +15782,14 @@ void mp_begin_name (MP mp) {
   xfree(mp->cur_ext);
   mp->area_delimiter=-1; 
   mp->ext_delimiter=-1;
+  str_room(file_name_size); 
 }
 
 @ And here's the second.
 @^system dependencies@>
 
 @<Declare subroutines for parsing file names@>=
-boolean mp_more_name (MP mp, ASCII_code c) { 
+boolean mp_more_name (MP mp, ASCII_code c) {
   if (c==' ') {
     return false;
   } else { 
@@ -15792,7 +15799,7 @@ boolean mp_more_name (MP mp, ASCII_code c) {
     } else if ( (c=='.')&&(mp->ext_delimiter<0) ) {
       mp->ext_delimiter=mp->pool_ptr;
     }
-    str_room(1); append_char(c); /* contribute |c| to the current string */
+    append_char(c); /* contribute |c| to the current string */
     return true;
   }
 }
