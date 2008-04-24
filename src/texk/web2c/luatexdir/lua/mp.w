@@ -73,10 +73,10 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d banner "This is MetaPost, Version 1.003" /* printed when \MP\ starts */
-@d metapost_version "1.003"
-@d mplib_version "0.40"
-@d version_string " (Cweb version 0.40)"
+@d banner "This is MetaPost, Version 1.004" /* printed when \MP\ starts */
+@d metapost_version "1.004"
+@d mplib_version "0.45"
+@d version_string " (Cweb version 0.45)"
 
 @d true 1
 @d false 0
@@ -18923,7 +18923,10 @@ void mp_pair_to_path (MP mp) {
 @ 
 @d pict_color_type(A) ((link(dummy_loc(mp->cur_exp))!=null) &&
                        (has_color(link(dummy_loc(mp->cur_exp)))) &&
-                       (color_model(link(dummy_loc(mp->cur_exp)))==A))
+                       ((color_model(link(dummy_loc(mp->cur_exp)))==A)
+                        ||
+                        (color_model(link(dummy_loc(mp->cur_exp)))==mp_uninitialized_model) &&
+                        (mp->internal[mp_default_color_model]/unity)==(A)))
 
 @<Additional cases of unary operators@>=
 case x_part:
@@ -19050,7 +19053,7 @@ void mp_take_pict_part (MP mp,quarterword c) {
     case cyan_part: case magenta_part: case yellow_part:
     case black_part:
       if ( has_color(p) ) {
-        if ( color_model(p)==mp_uninitialized_model )
+        if ( color_model(p)==mp_uninitialized_model && c==black_part)
           mp_flush_cur_exp(mp, unity);
         else
           mp_flush_cur_exp(mp, obj_color_part(p+c+(red_part-cyan_part)));

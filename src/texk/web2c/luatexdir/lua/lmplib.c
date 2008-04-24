@@ -28,7 +28,7 @@
     mplib_##a##_index = luaL_ref (L,LUA_REGISTRYINDEX);					\
   } while (0)
 
-#define mplib_push_S(a) do {									\
+#define mplib_push_S(a) do {					\
     lua_rawgeti(L,LUA_REGISTRYINDEX,mplib_##a##_index);			\
   } while (0)
 
