@@ -558,7 +558,7 @@ do_vf(internal_font_number f) {
       }
     }
     k  = count_packet_bytes(vf_buffer,vf_cur,packet_length);
-    vpackets = xmalloc(k+1+1);  /* need one extra extra for packet_end */
+    vpackets = xmalloc(k+1);  /* need one extra extra for packet_end */
     co = get_charinfo(f,cc);
     k = 0; 
     w = 0; x = 0; y = 0; z = 0;
@@ -713,7 +713,6 @@ do_vf(internal_font_number f) {
 			vf_byte(i);
 			append_packet(i);
 		  }
-		  append_packet(0);
 		  break;
 		case w0: 
 		  append_packet(packet_right_code);
