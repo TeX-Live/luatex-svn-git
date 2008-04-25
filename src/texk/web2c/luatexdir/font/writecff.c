@@ -3052,7 +3052,6 @@ instead of here.
 */
 
 
-
 	if (uglytype1fix!=0) {
 	  code = uglytype1fix;
 	  glyph->id = code;	  
@@ -3064,7 +3063,9 @@ instead of here.
 	  for (i=1; i < cs_count; i++) {
 		glyph->id = i;	  
 		code = i+1;
-		DO_COPY_CHARSTRING();
+		if (code<cs_count) {
+		  DO_COPY_CHARSTRING();
+		}
 	  }
 	} else {
 	  for (i=0; i < cs_count; i++) {
