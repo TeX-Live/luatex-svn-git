@@ -635,7 +635,7 @@ static int l_image_node(lua_State * L)
 
 static int l_image_keys(lua_State * L)
 {
-    parm_struct *p = img_parms + 1;
+    const parm_struct *p = img_parms + 1;
     if (lua_gettop(L) != 0)
         luaL_error(L, "img.keys() goes without argument");
     lua_newtable(L);            /* t */
@@ -796,7 +796,7 @@ static const struct luaL_Reg img_dict_m[] = {
 
 /**********************************************************************/
 
-void preset_environment(lua_State * L, parm_struct * p)
+void preset_environment(lua_State * L, const parm_struct * p)
 {
     int i;
     lua_newtable(L);            /* t */
