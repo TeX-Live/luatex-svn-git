@@ -298,8 +298,6 @@ extern integer image_height(integer);
 extern integer image_depth(integer);
 extern integer image_objnum(integer);
 extern integer image_imgnum(integer);
-extern boolean image_is_scheduled(integer);
-extern void image_set_scheduled(integer);
 extern integer new_image_entry(void);
 extern integer read_image(integer, integer, strnumber, integer, strnumber,
                           strnumber, integer, integer, integer, integer);

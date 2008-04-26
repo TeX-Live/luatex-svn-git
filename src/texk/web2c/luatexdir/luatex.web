@@ -32950,11 +32950,8 @@ end;
 procedure output_image(idx: integer);
 begin
     out_image(idx, cur_h-pdf_origin_h, pdf_origin_v-cur_v);
-    if not image_is_scheduled(idx) then begin
-        if pdf_lookup_list(pdf_ximage_list, image_objnum(idx)) = null then
-            pdf_append_list(image_objnum(idx))(pdf_ximage_list);
-        image_set_scheduled(idx);
-    end;
+    if pdf_lookup_list(pdf_ximage_list, image_objnum(idx)) = null then
+        pdf_append_list(image_objnum(idx))(pdf_ximage_list);
 end;
 
 @ @<Output the whatsit node |p| in |pdf_vlist_out|@>=

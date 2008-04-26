@@ -720,17 +720,6 @@ boolean is_pdf_image(integer ref)
     return img_type(img_dict(img_array[ref])) == IMG_TYPE_PDF;
 }
 
-boolean image_is_scheduled(integer ref)
-{
-    return (img_state(img_dict(img_array[ref])) >= DICT_SCHEDULED);
-}
-
-void image_set_scheduled(integer ref)
-{
-    if (img_state(img_dict(img_array[ref])) < DICT_SCHEDULED)
-        img_state(img_dict(img_array[ref])) = DICT_SCHEDULED;
-}
-
 integer image_objnum(integer ref)
 {
     return img_objnum(img_dict(img_array[ref]));
