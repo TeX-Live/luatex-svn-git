@@ -64,7 +64,7 @@ typedef enum { DICT_NEW,        /* fresh dictionary */
     DICT_FILESCANNED,           /* image file scanned */
     DICT_REFERED,               /* pdf_refximage_node in node list --> read-only dict */
     DICT_OUTIMG,                /* /Im* appears in pagestream */
-    DICT_SCHEDULED,             /* image dict scheduled for writing */
+    DICT_SCHEDULED,             /* image dict scheduled for writing (PONR) */
     DICT_WRITTEN                /* image dict written to file */
 } dict_state;
 

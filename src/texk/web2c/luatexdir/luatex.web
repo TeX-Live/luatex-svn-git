@@ -16897,7 +16897,7 @@ destination |pdf_left| and |pdf_top| are used for some types of destinations}
 @# {data structure for \.{\\pdfximage} and \.{\\pdfrefximage}}
 @d pdf_refximage_node_size == 6 {size of whatsit node for ximage; words 2..4
                                are image dimensions}
-@d pdf_ximage_ref(#)       == vinfo(# + 5) {image reference number}
+@d pdf_ximage_idx(#)       == vinfo(# + 5) {image index in array}
 
 @# {data structure of annotations; words 1..4 represent the coordinates of
     the annotation}
@@ -30866,7 +30866,7 @@ begin
     pdf_check_obj(obj_type_ximage, cur_val);
     new_whatsit(pdf_refximage_node);
     j := obj_data_ptr(cur_val);
-    pdf_ximage_ref(tail) := j;
+    pdf_ximage_idx(tail) := j;
     pdf_width(tail) := image_width(j);
     pdf_height(tail) := image_height(j);
     pdf_depth(tail) := image_depth(j);
@@ -32947,11 +32947,14 @@ begin
     pdf_print_ln("Q");
 end;
 
-procedure output_image(p: pointer);
+procedure output_image(idx: integer);
 begin
-  out_image(pdf_ximage_ref(p), cur_h-pdf_origin_h, pdf_origin_v-cur_v);
-  if pdf_lookup_list(pdf_ximage_list, image_objnum(pdf_ximage_ref(p))) = null then
-      pdf_append_list(image_objnum(pdf_ximage_ref(p)))(pdf_ximage_list);
+    out_image(idx, cur_h-pdf_origin_h, pdf_origin_v-cur_v);
+    if not image_is_scheduled(idx) then begin
+        if pdf_lookup_list(pdf_ximage_list, image_objnum(idx)) = null then
+            pdf_append_list(image_objnum(idx))(pdf_ximage_list);
+        image_set_scheduled(idx);
+    end;
 end;
 
 @ @<Output the whatsit node |p| in |pdf_vlist_out|@>=
@@ -33008,7 +33011,7 @@ end
 @ @<Output a Image node in a vlist@>=
 begin cur_v:=cur_v+pdf_height(p)+pdf_depth(p);
   cur_h:=left_edge;
-  output_image(p);
+  output_image(pdf_ximage_idx(p));
 end
 
 @ @<Output a Form node in a vlist@>=
@@ -33065,7 +33068,7 @@ endcases
 @ @<Output a Image node in a hlist@>=
 begin
   cur_v:=base_line+pdf_depth(p);
-  output_image(p);
+  output_image(pdf_ximage_idx(p));
   edge:=cur_h+pdf_width(p); cur_h:=edge; cur_v:=base_line;
 end
 

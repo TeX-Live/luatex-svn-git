@@ -135,7 +135,7 @@ luainterpreter (int n) {
   lua_pushcfunction(L, luaopen_img);
   lua_pushstring(L, "img");
   lua_call(L, 1, 0);
-  
+
   luaopen_mp(L);
 
   if (safer_option) {

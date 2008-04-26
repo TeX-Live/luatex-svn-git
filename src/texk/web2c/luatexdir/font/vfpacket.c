@@ -99,10 +99,13 @@ vf_packet_bytes (charinfo *co) {
       packet_number(k); /* +4 */
 	  cur_packet_byte += k;
       break;
+    case packet_image_code:
+	  cur_packet_byte += 4;
+      break;
     case packet_nop_code:
       break;
     default: 
-      pdf_error(maketexstring("vf"), maketexstring("invalid DVI command"));     
+      pdf_error(maketexstring("vf"), maketexstring("invalid DVI command (1)"));     
     }
   };
   return (cur_packet_byte +1);
@@ -113,7 +116,7 @@ vf_packet_bytes (charinfo *co) {
    character packet for character |c| in current font |f| */
 
 char *packet_command_names[] = {  
-  "char", "font","pop",	"push",	"special",
+  "char", "font","pop",	"push",	"special", "image",
   "right","down","rule","node", "nop","end", NULL};
 
 
@@ -203,15 +206,19 @@ do_vf_packet (internal_font_number vf_f, integer c) {
       literal(s, scan_special, false);
       flush_str(s);
       break;
-	case packet_node_code:
-	  packet_number(k);
-	  temp_ptr = k; 
-	  pdf_hlist_out();
-	  break;
+    case packet_image_code:
+      packet_number(k);
+      vf_out_image(k);
+      break;
+    case packet_node_code:
+      packet_number(k);
+      temp_ptr = k; 
+      pdf_hlist_out();
+      break;
     case packet_nop_code:
       break;
     default: 
-      pdf_error(maketexstring("vf"), maketexstring("invalid DVI command"));     
+      pdf_error(maketexstring("vf"), maketexstring("invalid DVI command (2)"));     
     }
   };
   cur_h = save_cur_h;
@@ -267,8 +274,11 @@ integer *packet_local_fonts(internal_font_number f, integer *num) {
 	  while (i-- > 0) 
 	    (void)do_packet_byte();
 	  break;
+	case packet_image_code:
+	  cur_packet_byte+=4;
+	  break;
 	default: 
-	  pdf_error(maketexstring("vf"), maketexstring("invalid DVI command"));     
+	  pdf_error(maketexstring("vf"), maketexstring("invalid DVI command (3)"));     
 	}
       }
     }
@@ -333,8 +343,11 @@ replace_packet_fonts(internal_font_number f, integer *old_fontid, integer *new_f
 	  while (k-- > 0) 
 	    (void)do_packet_byte();
 	  break;
+	case packet_image_code:
+	  cur_packet_byte+=4;
+	  break;
 	default: 
-	  pdf_error(maketexstring("vf"), maketexstring("invalid DVI command"));     
+	  pdf_error(maketexstring("vf"), maketexstring("invalid DVI command (4)"));     
 	}
       }
     }

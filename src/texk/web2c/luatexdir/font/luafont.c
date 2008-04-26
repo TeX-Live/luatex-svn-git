@@ -475,6 +475,7 @@ make_luaS_index(right);
 make_luaS_index(node);
 make_luaS_index(down);
 make_luaS_index(special);
+make_luaS_index(image);
 make_luaS_index(slant);
 make_luaS_index(space);
 make_luaS_index(space_stretch);
@@ -516,6 +517,7 @@ void init_font_string_pointers (lua_State *L) {
   init_luaS_index(node);
   init_luaS_index(down);
   init_luaS_index(special);
+  init_luaS_index(image);
 
   init_luaS_index(slant);
   init_luaS_index(space);
@@ -559,7 +561,7 @@ count_char_packet_bytes  (lua_State *L) {
           (void)lua_tolstring(L,-1,&len); 
           lua_pop(L,1);
           if (len>0) { l = l + 5 + len;  } 
-        }
+      } else if (luaS_ptr_eq(s, image)) { l += 5; }
         else { fprintf(stdout,"unknown packet command %s!\n",s); }
       } else {
         fprintf(stdout,"no packet command!\n");
@@ -637,6 +639,7 @@ read_char_packets  (lua_State *L, integer *l_fonts, charinfo *co, int atsize) {
 	else if (luaS_ptr_eq(s,right))   {  cmd = packet_right_code;   }
 	else if (luaS_ptr_eq(s,down))    {  cmd = packet_down_code;    }
 	else if (luaS_ptr_eq(s,special)) {  cmd = packet_special_code; } 
+	else if (luaS_ptr_eq(s,image))   {  cmd = packet_image_code;   } 
 	
         switch(cmd) {
         case packet_push_code:
@@ -698,6 +701,21 @@ read_char_packets  (lua_State *L, integer *l_fonts, charinfo *co, int atsize) {
           }
           lua_pop(L,1);
           break;
+        case packet_image_code:
+            append_packet(cmd);
+            lua_rawgeti(L, -2, 2);      /* img/imgtable? ... */
+            if (lua_istable(L, -1)) {   /* imgtable ... */
+                lua_getglobal(L, "img");        /* imglib imgtable ... */
+                lua_pushstring(L, "new");       /* `new' imglib imgtable ... */
+                lua_gettable(L, -2);    /* f imglib imgtable ... */
+                lua_insert(L, -3);      /* imglib imgtable f ... */
+                lua_pop(L, 1);  /* imgtable f ... */
+                lua_call(L, 1, 1);
+            }           /* img ... */
+            luaL_checkudata(L, -1, TYPE_IMG);   /* img ... --- just typecheck */
+            n = luaL_ref(L, LUA_GLOBALSINDEX);  /* ... */
+            do_store_four(n);
+            break;
         case packet_nop_code:
           break;
         default:

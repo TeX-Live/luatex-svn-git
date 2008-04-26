@@ -298,6 +298,8 @@ extern integer image_height(integer);
 extern integer image_depth(integer);
 extern integer image_objnum(integer);
 extern integer image_imgnum(integer);
+extern boolean image_is_scheduled(integer);
+extern void image_set_scheduled(integer);
 extern integer new_image_entry(void);
 extern integer read_image(integer, integer, strnumber, integer, strnumber,
                           strnumber, integer, integer, integer, integer);
@@ -579,7 +581,7 @@ integer epdf_orig_y(integer i);
 integer epdf_orig_x(integer i);
 
 /* limglib.c */
-void lua_setximage(integer i);
+void vf_out_image(integer i);
 
 /* vfovf.c */
 void vf_expand_local_fonts(internal_font_number f);
