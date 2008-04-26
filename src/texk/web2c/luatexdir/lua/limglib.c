@@ -53,7 +53,7 @@ typedef struct {
     parm_idx idx;               /* index within img_parms array */
 } parm_struct;
 
-parm_struct img_parms[] = {
+const parm_struct img_parms[] = {
     {NULL, P__ZERO},            /* dummy; lua indices run from 1 */
     {"attr", P_ATTR},
     {"bbox", P_BBOX},
@@ -503,9 +503,9 @@ static int l_copy_image(lua_State * L)
     if (lua_gettop(L) != 1)
         luaL_error(L, "img.copy() needs exactly 1 argument");
     if (lua_istable(L, 1))
-        l_new_image(L);         /* image --- if everything worked well */
+        (void) l_new_image(L);  /* image --- if everything worked well */
     else
-        copy_image(L, 1.0);     /* image */
+        (void) copy_image(L, 1.0);      /* image */
     return 1;                   /* image */
 }
 
