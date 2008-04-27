@@ -579,7 +579,7 @@ integer epdf_orig_y(integer i);
 integer epdf_orig_x(integer i);
 
 /* limglib.c */
-void vf_out_image(integer i);
+void vf_out_image(unsigned i);
 
 /* vfovf.c */
 void vf_expand_local_fonts(internal_font_number f);

@@ -697,7 +697,7 @@ static const struct luaL_Reg imglib[] = {
 
 /**********************************************************************/
 
-void vf_out_image(int i)
+void vf_out_image(unsigned i)
 {
     image *a, **aa;
     lua_State *L = Luas[0];     /* ... */

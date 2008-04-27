@@ -613,7 +613,6 @@ void write_pdfstream(image_dict * idict)
     if (img_pdfstream_stream(idict) != NULL)
         pdf_puts(img_pdfstream_stream(idict));
     pdf_end_stream();
-
 }
 
 /**********************************************************************/
