@@ -353,11 +353,12 @@ void read_img(image_dict * idict, integer pdf_minor_version,
 
 void scale_img(image * img)
 {
-    integer x, y, xr, yr;       /* size and resolution of image */
+    integer x, y, xr, yr, tmp;  /* size and resolution of image */
     scaled w, h;                /* indeed size corresponds to image resolution */
     integer default_res;
+    image_dict *idict;
     assert(img != NULL);
-    image_dict *idict = img_dict(img);
+    idict = img_dict(img);
     assert(idict != NULL);
     if ((img_type(idict) == IMG_TYPE_PDF
          || img_type(idict) == IMG_TYPE_PDFSTREAM) && img_is_bbox(idict)) {
@@ -379,7 +380,7 @@ void scale_img(image * img)
         pdftex_warn("ext1: too large image resolution ignored");
     }
     if (((img_transform(img) - img_rotation(idict)) & 1) == 1) {
-        int tmp = x;
+        tmp = x;
         x = y;
         y = tmp;
         tmp = xr;
@@ -452,12 +453,14 @@ void out_img(image * img, scaled hpos, scaled vpos)
     float xoff, yoff, tmp;
     int r;                      /* number of digits after the decimal point */
     int k;
+    scaled wd, ht, dp;
+    image_dict *idict;
     assert(img != 0);
-    image_dict *idict = img_dict(img);
+    idict = img_dict(img);
     assert(idict != 0);
-    scaled wd = img_width(img);
-    scaled ht = img_height(img);
-    scaled dp = img_depth(img);
+    wd = img_width(img);
+    ht = img_height(img);
+    dp = img_depth(img);
     a[0] = a[3] = 1.0e6;
     a[1] = a[2] = 0;
     if (img_type(idict) == IMG_TYPE_PDF
@@ -635,10 +638,11 @@ integer read_image(integer objnum, integer index, strnumber filename,
                    integer colorspace, integer page_box,
                    integer pdf_minor_version, integer pdf_inclusion_errorlevel)
 {
+    image_dict *idict;
     image *a = new_image();
     assert(img_arrayidx(a) == -1);
     img_arrayidx(a) = img_to_array(a);
-    image_dict *idict = img_dict(a) = new_image_dict();
+    idict = img_dict(a) = new_image_dict();
     assert(idict != NULL);
     img_objnum(idict) = objnum;
     img_index(idict) = index;

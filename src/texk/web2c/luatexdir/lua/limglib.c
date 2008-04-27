@@ -14,11 +14,10 @@
 #ifdef DEBUG
 void stackDump(lua_State * L, char *s)
 {
-    int i;
-    int top = lua_gettop(L);
+    int i, t, top = lua_gettop(L);
     printf("\n=== stackDump <%s>: ", s);
     for (i = top; i >= 1; i--) {        /* repeat for each level */
-        int t = lua_type(L, i);
+        t = lua_type(L, i);
         printf("%d: ", i);
         switch (t) {
         case LUA_TSTRING:      /* strings */
@@ -473,6 +472,7 @@ void copy_image(lua_State * L, lua_Number scale)
 int l_new_image(lua_State * L)
 {
     image *a, **aa;
+    image_dict **add;
     if (lua_gettop(L) > 1)
         luaL_error(L, "img.new() needs maximum 1 argument");
     if (lua_gettop(L) == 1 && !lua_istable(L, -1))
@@ -481,7 +481,7 @@ int l_new_image(lua_State * L)
     luaL_getmetatable(L, TYPE_IMG);     /* m i (t) */
     lua_setmetatable(L, -2);    /* i (t) */
     a = *aa = new_image();
-    image_dict **add = (image_dict **) lua_newuserdata(L, sizeof(image_dict *));        /* ad i (t) */
+    add = (image_dict **) lua_newuserdata(L, sizeof(image_dict *));     /* ad i (t) */
     luaL_getmetatable(L, TYPE_IMG_DICT);        /* m ad i (t) */
     lua_setmetatable(L, -2);    /* ad i (t) */
     img_dict(a) = *add = new_image_dict();
@@ -511,8 +511,9 @@ static int l_copy_image(lua_State * L)
 
 static void read_scale_img(lua_State * L, image * a)
 {
+    image_dict *ad;
     assert(a != NULL);
-    image_dict *ad = img_dict(a);
+    ad = img_dict(a);
     assert(ad != NULL);
     if (img_state(ad) == DICT_NEW) {
         if (img_type(ad) == IMG_TYPE_PDFSTREAM)
@@ -545,11 +546,13 @@ static int l_scan_image(lua_State * L)
 
 static halfword img_to_node(image * a, integer ref)
 {
+    image_dict *ad;
+    halfword n;
     assert(a != NULL);
-    image_dict *ad = img_dict(a);
+    ad = img_dict(a);
     assert(ad != NULL);
     assert(img_objnum(ad) != 0);
-    halfword n = new_node(whatsit_node, pdf_refximage_node);
+    n = new_node(whatsit_node, pdf_refximage_node);
     pdf_ximage_ref(n) = ref;
     pdf_width(n) = img_width(a);
     pdf_height(n) = img_height(a);
@@ -565,8 +568,9 @@ extern void lua_nodelib_push_fast(lua_State * L, halfword n);
 
 static void setup_image(lua_State * L, image * a, wrtype_e writetype)
 {
+    image_dict *ad;
     assert(a != NULL);
-    image_dict *ad = img_dict(a);
+    ad = img_dict(a);
     read_scale_img(L, a);
     check_pdfoutput(maketexstring(wrtype_s[writetype]), true);
     flush_str(last_tex_string);
@@ -584,6 +588,7 @@ static void setup_image(lua_State * L, image * a, wrtype_e writetype)
 static void write_image_or_node(lua_State * L, wrtype_e writetype)
 {
     image *a, **aa;
+    image_dict *ad;
     halfword n;
     if (lua_gettop(L) != 1)
         luaL_error(L, "%s needs exactly 1 argument", wrtype_s[writetype]);
@@ -591,7 +596,7 @@ static void write_image_or_node(lua_State * L, wrtype_e writetype)
         (void) l_new_image(L);  /* image --- if everything worked well */
     aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);    /* image */
     a = *aa;
-    image_dict *ad = img_dict(a);
+    ad = img_dict(a);
     setup_image(L, a, writetype);
     switch (writetype) {
     case WR_WRITE:
@@ -694,10 +699,11 @@ static const struct luaL_Reg imglib[] = {
 
 void vf_out_image(int i)
 {
+    image *a, **aa;
     lua_State *L = Luas[0];     /* ... */
     lua_rawgeti(L, LUA_GLOBALSINDEX, i);        /* image ... */
-    image **aa = (image **) luaL_checkudata(L, -1, TYPE_IMG);
-    image *a = *aa;
+    aa = (image **) luaL_checkudata(L, -1, TYPE_IMG);
+    a = *aa;
     setup_image(L, a, WR_VF_IMG);       /* image ... */
     assert(img_is_refered(a));
     output_image(img_arrayidx(a));
@@ -739,8 +745,10 @@ static int m_img_mul(lua_State * L)
 
 static int m_img_print(lua_State * L)
 {
-    image **aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);
-    image_dict *d = img_dict(*aa);
+    image **aa;
+    image_dict *d;
+    aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);
+    d = img_dict(*aa);
     if (img_pagename(d) != NULL && strlen(img_pagename(d)) != 0)
         lua_pushfstring(L, "<img{filename=\"%s\", page=\"%s\"}>",
                         img_filename(d), img_pagename(d));

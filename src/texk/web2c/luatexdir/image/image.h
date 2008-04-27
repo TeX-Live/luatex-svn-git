@@ -57,8 +57,10 @@ typedef struct {
     JPG_UINT32 length;          /* length of file/data */
 } jpg_img_struct;
 
+#  if 0
 typedef struct {                /* currently unused */
 } jb2_img_struct;
+#  endif
 
 typedef enum { DICT_NEW,        /* fresh dictionary */
     DICT_FILESCANNED,           /* image file scanned */
@@ -110,7 +112,7 @@ typedef struct {
         pdf_stream_struct *pdfstream;
         png_img_struct *png;
         jpg_img_struct *jpg;
-        jb2_img_struct *jb2;
+        /* jb2_img_struct *jb2; */
     } img_struct;
 } image_dict;
 
