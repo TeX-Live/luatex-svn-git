@@ -231,10 +231,10 @@ luacall(int n, int s) {
 	if (i != 0) {
 	  Luas[n] = luatex_error(Luas[n],(i == LUA_ERRSYNTAX ? 0 : 1));
 	} else {
+	  int base = lua_gettop(Luas[n]);  /* function index */
 	  lua_pushcfunction(Luas[n], lua_traceback);  /* push traceback function */
-	  int b = lua_gettop(Luas[n]);  /* put it under chunk and args */
-	  fprintf (stdout,"TRACE head = %d\n",b);
-	  i = lua_pcall(Luas[n], 0, 0, 1);
+	  lua_insert(Luas[n], base);  /* put it under chunk and args */
+	  i = lua_pcall(Luas[n], 0, 0, base);
 	  lua_remove(Luas[n], 1);  /* remove traceback function */
 	  if (i != 0) {
 		lua_gc(Luas[n], LUA_GCCOLLECT, 0);
