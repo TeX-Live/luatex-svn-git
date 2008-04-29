@@ -193,8 +193,8 @@ void ext_post_line_break(boolean d,
             /* |r| refers to the node after which the dir nodes should be closed */
         } else if (type(r) == disc_node) {
             halfword a = alink(r);
-            assert(a != null);
             halfword v = vlink(r);
+            assert(a != null);
             if (v == null) {    /* nested disc, let's unfold */
                 fprintf(stderr, "Nested disc [%d]<-[%d]->null\n", (int) a,
                         (int) r);

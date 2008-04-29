@@ -1373,7 +1373,8 @@ handle_lig_word(halfword cur) {
         /* if  a{bx}{}{y} and a+b=>B convert to {Bx}{}{ay} */
         halfword pre = vlink_pre_break(fwd);
         halfword nob = vlink_no_break(fwd);
-        liginfo lig;
+        halfword next, tail;
+		liginfo lig;
         assert_disc(fwd);
         /* Check on: a{b?}{?}{?} and a+b=>B : {B?}{?}{a?}*/
         /* Check on: a{?}{?}{b?} and a+b=>B : {a?}{?}{B?} */
@@ -1391,7 +1392,7 @@ handle_lig_word(halfword cur) {
           cur = prev;
         } 
         /* Check on: a{?}{?}{}b and a+b=>B : {a?}{?b}{B}*/
-        halfword next = vlink(fwd);
+        next = vlink(fwd);
         if (nob==null && next != null && type(next)==glyph_node
           && test_ligature(&lig,cur,next)) {
           /* move cur from before disc to no_break part */
@@ -1404,7 +1405,7 @@ handle_lig_word(halfword cur) {
           /* now copy cur the pre_break */
           nesting_prepend(pre_break(fwd),copy_node(cur));
           /* move next from after disc to no_break part */
-          halfword tail = vlink(next);
+          tail = vlink(next);
           uncouple_node(next);
           try_couple_nodes(fwd,tail);
           couple_nodes(cur,next); /* we _know_ this works */
@@ -1446,6 +1447,7 @@ handle_lig_word(halfword cur) {
         while (1) {
           if ((fwd = vlink(cur))==null) return cur;
           if ( type(fwd)==glyph_node) {
+			halfword next;
             for (i=0; i<max_depth; i++) {
               liginfo lig;
               halfword tail = tlink(lists[i]);
@@ -1462,11 +1464,12 @@ add_glyph_to_all:
               if (tail==null) continue; /* first character - never a ligature */
               handle_lig_nest(lists[i],tail);
             }
-            halfword next = vlink(fwd);
-            uncouple_node(fwd);
-            try_couple_nodes(cur,next);
-            flush_node(fwd);
+			next = vlink(fwd);
+			uncouple_node(fwd);
+			try_couple_nodes(cur,next);
+			flush_node(fwd);
           } else if ( type(fwd)==disc_node) {
+			halfword next;
             /* MAGIC WARNING
              * A disc followed by a disc can have different kernings
              * depending on which path is choosen, and it is impossible to
@@ -1495,7 +1498,7 @@ add_glyph_to_all:
               lists[max_depth++] = handle_lig_nest(no_break(copy),vlink_no_break(copy));
               lists[i]           = handle_lig_nest(post_break(copy),vlink_post_break(copy));
             }
-            halfword next = vlink(fwd);
+            next = vlink(fwd);
             uncouple_node(fwd);
             try_couple_nodes(cur,next);
             flush_node(fwd);

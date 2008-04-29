@@ -560,6 +560,7 @@ int valid_node(halfword p)
 
 static void do_free_error(halfword p)
 {
+    halfword r;
     char errstr[255] = { 0 };
     char *errhlp[] =
         {
@@ -574,7 +575,7 @@ static void do_free_error(halfword p)
     if (free_error_seen)
         return;
 
-    halfword r = null;
+    r = null;
     free_error_seen = 1;
     if (type(p) == glyph_node) {
         snprintf(errstr, 255,
