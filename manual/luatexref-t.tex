@@ -1723,6 +1723,11 @@ or exact (\type{\hbox to}) width to be used.
 
 Caveat: at this moment, there can be unexpected side|-|effects to this
 function, like updating some of the \type{\marks} and \type{\inserts}.
+Also note that the content of \type{h} is the original node list
+\type{n}: if you call \type{node.free(h)} you will also free the 
+node list itself, unless you explicitly set it's \type{list} to
+\type{nil} beforehand. And in a similar way, calling
+\type{node.free(n)} will invalidate \type{h} as well!
 
 \subsubsection{\luatex{node.slide}}
 
