@@ -2982,7 +2982,8 @@ end
 \subsubsection{\luatex{hpack_filter}}
 
 This callback is called when \TEX\ is ready to start boxing some
-horizontal mode material. Math items are ignored at the moment.
+horizontal mode material. Math items and line boxes are ignored 
+at the moment.
 
 \startfunctioncall
 function(<node> head, string groupcode, number size, string packtype)
