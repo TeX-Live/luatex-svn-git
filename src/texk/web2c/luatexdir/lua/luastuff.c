@@ -199,6 +199,23 @@ void unhide_lua_value(lua_State *L, char *name, char *item, int r) {
 }
 
 
+static int lua_traceback (lua_State *L) {
+  lua_getfield(L, LUA_GLOBALSINDEX, "debug");
+  if (!lua_istable(L, -1)) {
+    lua_pop(L, 1);
+    return 1;
+  }
+  lua_getfield(L, -1, "traceback");
+  if (!lua_isfunction(L, -1)) {
+    lua_pop(L, 2);
+    return 1;
+  }
+  lua_pushvalue(L, 1);  /* pass error message */
+  lua_pushinteger(L, 2);  /* skip this function and traceback */
+  lua_call(L, 2, 1);  /* call debug.traceback */
+  return 1;
+}
+
 void 
 luacall(int n, int s) {
   LoadS ls;
@@ -214,8 +231,13 @@ luacall(int n, int s) {
 	if (i != 0) {
 	  Luas[n] = luatex_error(Luas[n],(i == LUA_ERRSYNTAX ? 0 : 1));
 	} else {
-	  i = lua_pcall(Luas[n], 0, 0, 0);
+	  lua_pushcfunction(Luas[n], lua_traceback);  /* push traceback function */
+	  int b = lua_gettop(Luas[n]);  /* put it under chunk and args */
+	  fprintf (stdout,"TRACE head = %d\n",b);
+	  i = lua_pcall(Luas[n], 0, 0, 1);
+	  lua_remove(Luas[n], 1);  /* remove traceback function */
 	  if (i != 0) {
+		lua_gc(Luas[n], LUA_GCCOLLECT, 0);
 		Luas[n] = luatex_error(Luas[n],(i == LUA_ERRRUN ? 0 : 1));
 	  }	 
 	}
@@ -242,8 +264,13 @@ luatokencall(int n, int p) {
 	if (i != 0) {
 	  Luas[n] = luatex_error(Luas[n],(i == LUA_ERRSYNTAX ? 0 : 1));
 	} else {
-	  i = lua_pcall(Luas[n], 0, 0, 0);
+	  int base = lua_gettop(Luas[n]);  /* function index */
+	  lua_pushcfunction(Luas[n], lua_traceback);  /* push traceback function */
+	  lua_insert(Luas[n], base);  /* put it under chunk and args */
+	  i = lua_pcall(Luas[n], 0, 0, base);
+	  lua_remove(Luas[n], base);  /* remove traceback function */
 	  if (i != 0) {
+		lua_gc(Luas[n], LUA_GCCOLLECT, 0);
 		Luas[n] = luatex_error(Luas[n],(i == LUA_ERRRUN ? 0 : 1));
 	  }	 
 	}
@@ -268,15 +295,19 @@ luatex_load_init (int s, LoadS *ls) {
   ls->size = str_start[s + 1] - str_start[s];
 }
 
+
 lua_State *
 luatex_error (lua_State * L, int is_fatal) {
 
-  size_t len;
-  char *err;
   strnumber s;
-  const char *luaerr = lua_tolstring(L, -1,&len);
-  err = (char *)xmalloc(len+1);
-  len = snprintf(err,(len+1),"%s",luaerr);
+  const char *luaerr;
+  size_t len = 0;
+  char *err = NULL;
+  if (lua_isstring(L,-1)) {
+	luaerr = lua_tolstring(L, -1,&len);
+	err = (char *)xmalloc(len+1);
+	len = snprintf(err,(len+1),"%s",luaerr);
+  }
   if (is_fatal>0) {
     /* Normally a memory error from lua. 
        The pool may overflow during the maketexlstring(), but we 
