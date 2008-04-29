@@ -220,13 +220,13 @@ void
 luacall(int n, int s) {
   LoadS ls;
   int i ;
-  char lua_id[12];
+  char lua_id[20];
   if (Luas[n] == NULL) {
     luainterpreter(n);
   }
   luatex_load_init(s,&ls);
   if (ls.size>0) {
-	snprintf((char *)lua_id,12,"luas[%d]",n);
+	snprintf((char *)lua_id,20,"\\latelua%d",n);
 	i = lua_load(Luas[n], getS, &ls, lua_id);
 	if (i != 0) {
 	  Luas[n] = luatex_error(Luas[n],(i == LUA_ERRSYNTAX ? 0 : 1));
@@ -245,11 +245,11 @@ luacall(int n, int s) {
 }
 
 void 
-luatokencall(int n, int p) {
+luatokencall(int n, int p, int nameptr) {
   LoadS ls;
   int i, l;
   char *s=NULL;
-  char lua_id[12];
+  char *lua_id;
   if (Luas[n] == NULL) {
     luainterpreter(n);
   }
@@ -258,7 +258,12 @@ luatokencall(int n, int p) {
   ls.s = s;
   ls.size = l;
   if (ls.size>0) {
-	snprintf((char *)lua_id,12,"luas[%d]",n);
+	if (nameptr>0) {
+	  lua_id = tokenlist_to_cstring(nameptr,1,&l);
+	} else {
+	  lua_id = xmalloc(20);
+	  snprintf((char *)lua_id,20,"\\directlua%d",n);
+	}
 	i = lua_load(Luas[n], getS, &ls, lua_id);
 	xfree(s);
 	if (i != 0) {
@@ -274,6 +279,7 @@ luatokencall(int n, int p) {
 		Luas[n] = luatex_error(Luas[n],(i == LUA_ERRRUN ? 0 : 1));
 	  }	 
 	}
+	xfree(lua_id);
   }
 }
 

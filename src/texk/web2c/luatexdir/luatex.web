@@ -11200,6 +11200,7 @@ p, q: pointer;
 @!j: integer; {second temp integer}
 @!b:pool_pointer; {base of temporary string}
 @!s: str_number; {first temp string}
+@!sn: str_number; {lua chunk name}
 @!u: str_number; {third temp string}
 @!junk: pointer;
 begin
@@ -11323,6 +11324,11 @@ lua_code:
     save_scanner_status := scanner_status;
     save_def_ref := def_ref;
     save_warning_index := warning_index;
+    sn:=null;
+	if scan_keyword("name") then begin
+	   scan_pdf_ext_toks;
+       sn := def_ref;
+	end;
 	scan_register_num;
 	i := cur_val;
     scan_pdf_ext_toks;
@@ -11331,7 +11337,7 @@ lua_code:
     def_ref := save_def_ref;
     scanner_status := save_scanner_status;
     luacstrings:=0;
-    luatokencall(i,s);
+    luatokencall(i,s,sn);
     delete_token_ref(s);
 	if u<>0 then begin
       if str_ptr=u+1 then 

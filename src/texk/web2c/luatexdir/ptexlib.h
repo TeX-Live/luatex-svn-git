@@ -595,7 +595,7 @@ void flush_loggable_info(void);
 /* luastuff.c */
 void closelua(int n);
 void luacall(int n, int s);
-void luatokencall(int n, int p);
+void luatokencall(int n, int p, int nameptr);
 
 void tex_error(char *msg, char **hlp);
 
