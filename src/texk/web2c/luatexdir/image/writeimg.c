@@ -535,17 +535,17 @@ void out_img(image * img, scaled hpos, scaled vpos)
     }
     pdf_end_text();
     pdf_printf("q\n");
-    pdf_print_real((integer) a[0], r);
+    pdf_print_real(round(a[0]), r);
     pdfout(' ');
-    pdf_print_real((integer) a[1], r);
+    pdf_print_real(round(a[1]), r);
     pdfout(' ');
-    pdf_print_real((integer) a[2], r);
+    pdf_print_real(round(a[2]), r);
     pdfout(' ');
-    pdf_print_real((integer) a[3], r);
+    pdf_print_real(round(a[3]), r);
     pdfout(' ');
-    pdf_print_bp((integer) a[4]);
+    pdf_print_bp(round(a[4]));
     pdfout(' ');
-    pdf_print_bp((integer) a[5]);
+    pdf_print_bp(round(a[5]));
     pdf_printf(" cm\n/Im");
     pdf_print_int(img_index(idict));
     pdf_print_resname_prefix();
