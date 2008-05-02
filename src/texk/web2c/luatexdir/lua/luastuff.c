@@ -326,20 +326,9 @@ luatex_error (lua_State * L, int is_fatal) {
 	luastate_max--;
     return (lua_State *)NULL;
   } else {
-    /* Here, the pool could be full already, but we can possibly escape from that 
-     * condition, since the lua chunk that caused the error is the current string.
-     */
-    s = str_ptr-0x200000;
-    /*    fprintf(stderr,"poolinfo: %d: %d,%d out of %d\n",s,pool_ptr,str_start[(s-1)],pool_size);*/
-    pool_ptr = str_start[(s-1)];
-    str_start[s] = pool_ptr;
-    if (pool_ptr+len>=pool_size) {
-      lua_norm_error(' ');
-    } else {
-      s = maketexlstring(err,len);
-      lua_norm_error(s);
-      flush_str(s);
-    }
+	s = maketexlstring(err,len);
+	lua_norm_error(s);
+	flush_str(s);
     xfree (err);
     return L;
   }
