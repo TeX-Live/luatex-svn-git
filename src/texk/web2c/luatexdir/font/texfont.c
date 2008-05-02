@@ -499,7 +499,7 @@ set_font_params(internal_font_number f, int b) {
 integer
 copy_font (integer f) {
   int i;
-  charinfo *ci , *co;
+  charinfo *ci;
   integer k = new_font();
   memcpy(font_tables[k],font_tables[f],sizeof(texfont));
 
