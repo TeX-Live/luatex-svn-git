@@ -2529,15 +2529,19 @@ end;
 
 @<Error hand...@>=
 procedure lua_norm_error(@!s:str_number); {lua found a problem}
+var saved_new_line_char: integer;
 begin
+saved_new_line_char:=new_line_char;
+new_line_char:=10;
 print_err("LuaTeX error "); print(s);
 help2("The lua interpreter ran into a problem, so the")@/
   ("remainder of this lua chunk will be ignored.");
 error;
+new_line_char:=saved_new_line_char;
 end;
 
 procedure lua_fatal_error(@!s:str_number); {lua found a problem}
-begin normalize_selector;
+begin new_line_char:=10; normalize_selector;
 print_err("LuaTeX fatal error "); print(s);
 succumb;
 end;
