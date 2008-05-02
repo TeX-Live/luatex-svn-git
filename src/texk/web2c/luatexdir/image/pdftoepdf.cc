@@ -795,7 +795,6 @@ static void write_epdf1(image_dict * idict)
     char *key;
     char s[256];
     int i, l;
-    double scale[6] = { 0, 0, 0, 0, 0, 0 };
     PdfDocument *pdf_doc = (PdfDocument *) findPdfDocument(img_filepath(idict));
     assert(pdf_doc != NULL);
     xref = pdf_doc->xref;
