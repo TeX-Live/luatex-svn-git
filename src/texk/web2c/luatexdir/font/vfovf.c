@@ -1209,7 +1209,7 @@ internal_font_number
 auto_expand_font (internal_font_number f, integer e) {
   internal_font_number k;
   kerninfo *krn;
-  charinfo *co, *ci;
+  charinfo *co;
   char *fn;
   integer i;
   scaled w;
