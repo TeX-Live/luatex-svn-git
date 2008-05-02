@@ -206,6 +206,7 @@ spawn_command(const char *file, char *const *argv, char *const *envp)
       return -1;
     }
   }
+  return 0;
 }
 
 #endif
