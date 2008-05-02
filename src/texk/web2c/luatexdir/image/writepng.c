@@ -1,28 +1,29 @@
-/*
-Copyright (c) 1996-2004 Han The Thanh, <thanh@pdftex.org>
+/* writepng.c
+   
+   Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
+   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
 
-This file is part of pdfTeX.
+   This file is part of LuaTeX.
 
-pdfTeX is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
+   LuaTeX is free software; you can redistribute it and/or modify it under
+   the terms of the GNU General Public License as published by the Free
+   Software Foundation; either version 2 of the License, or (at your
+   option) any later version.
 
-pdfTeX is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+   License for more details.
 
-You should have received a copy of the GNU General Public License
-along with pdfTeX; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-$Id$
-*/
+   You should have received a copy of the GNU General Public License along
+   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 #include <assert.h>
 #include "ptexlib.h"
 #include "image.h"
+
+static const char _svn_version[] =
+    "$Id$ $URL$";
 
 void close_and_cleanup_png(image_dict * idict)
 {
@@ -120,7 +121,7 @@ void read_png_info(image_dict * idict, img_readtype_e readtype)
 
 #define write_gray_pixel_8(r)                   \
     if (j % 2 == 0)  pdf_buf[pdf_ptr++] = *r++; \
-    else  	     smask[smask_ptr++] = *r++
+    else             smask[smask_ptr++] = *r++
 
 
 #define write_rgb_pixel_16(r)                                  \
@@ -139,27 +140,27 @@ void read_png_info(image_dict * idict, img_readtype_e readtype)
     r = row;                                             \
     k = info_p->rowbytes;                                \
     while(k > 0) {                                       \
-	l = (k > pdf_buf_size)? pdf_buf_size : k;        \
-		pdfroom(l);                              \
-		for (j = 0; j < l; j++) {                \
-		  outmac;	                         \
-		}                                        \
-		k -= l;                                  \
-	    }                                            \
+        l = (k > pdf_buf_size)? pdf_buf_size : k;        \
+                pdfroom(l);                              \
+                for (j = 0; j < l; j++) {                \
+                  outmac;                                \
+                }                                        \
+                k -= l;                                  \
+            }                                            \
         }
 
 #define write_interlaced(outmac)                         \
   for (i = 0; (unsigned) i < (int)info_p->height; i++) { \
             row = rows[i];                               \
-	    k = info_p->rowbytes;                        \
-	    while(k > 0) {                               \
-		l = (k > pdf_buf_size)? pdf_buf_size : k;\
-		pdfroom(l);                              \
-		for (j = 0; j < l; j++) {                \
-		  outmac;           	                 \
-		}                                        \
-		k -= l;                                  \
-	    }                                            \
+            k = info_p->rowbytes;                        \
+            while(k > 0) {                               \
+                l = (k > pdf_buf_size)? pdf_buf_size : k;\
+                pdfroom(l);                              \
+                for (j = 0; j < l; j++) {                \
+                  outmac;                                \
+                }                                        \
+                k -= l;                                  \
+            }                                            \
             xfree(rows[i]);                              \
         }
 
