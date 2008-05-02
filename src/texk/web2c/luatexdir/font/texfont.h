@@ -392,8 +392,9 @@ extern liginfo * get_charinfo_ligatures      (charinfo *ci);
 extern kerninfo *get_charinfo_kerns          (charinfo *ci);
 extern real_eight_bits *get_charinfo_packets (charinfo *ci);
 extern integer get_charinfo_ef               (charinfo *ci);
-extern integer get_charinfo_extensible       (charinfo *ci, int which);
+extern integer get_charinfo_rp               (charinfo *ci);
 extern integer get_charinfo_lp               (charinfo *ci);
+extern integer get_charinfo_extensible       (charinfo *ci, int which);
 
 extern integer ext_top                       (internal_font_number f, integer c);
 extern integer ext_bot                       (internal_font_number f, integer c);
