@@ -1,24 +1,24 @@
-/*
-Copyright (c) 1996-2006 Han The Thanh, <thanh@pdftex.org>
+/* writettf.h
+   
+   Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
+   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
 
-This file is part of pdfTeX.
+   This file is part of LuaTeX.
 
-pdfTeX is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
+   LuaTeX is free software; you can redistribute it and/or modify it under
+   the terms of the GNU General Public License as published by the Free
+   Software Foundation; either version 2 of the License, or (at your
+   option) any later version.
 
-pdfTeX is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+   License for more details.
 
-You should have received a copy of the GNU General Public License
-along with pdfTeX; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+   You should have received a copy of the GNU General Public License along
+   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-$Id$
-*/
+/* $Id$ */
 
 typedef signed char TTF_CHAR;
 typedef unsigned char TTF_BYTE;
@@ -145,14 +145,14 @@ extern integer ttf_size;
 extern integer ttf_curbyte;
 extern glyph_entry *glyph_tab;
 extern dirtab_entry *dir_tab;
-extern dirtab_entry *ttf_name_lookup (const char *s, boolean required);
-extern dirtab_entry *ttf_seek_tab (const char *name, TTF_LONG offset);
+extern dirtab_entry *ttf_name_lookup(const char *s, boolean required);
+extern dirtab_entry *ttf_seek_tab(const char *name, TTF_LONG offset);
 
-extern void ttf_read_tabdir (void);
-extern void ttf_read_head (void);
-extern void ttf_read_hhea (void);
-extern void ttf_read_pclt (void);
-extern void ttf_read_post (void);
+extern void ttf_read_tabdir(void);
+extern void ttf_read_head(void);
+extern void ttf_read_hhea(void);
+extern void ttf_read_pclt(void);
+extern void ttf_read_post(void);
 
 extern FILE *ttf_file;
 
@@ -166,7 +166,5 @@ extern FILE *ttf_file;
 #define ttf_getchar()    ttf_buffer[ttf_curbyte++]
 #define ttf_eof()        (ttf_curbyte>ttf_size)
 
-extern long ttf_putnum (int s, long n);
-extern long ttf_getnum (int s);
-
-
+extern long ttf_putnum(int s, long n);
+extern long ttf_getnum(int s);
