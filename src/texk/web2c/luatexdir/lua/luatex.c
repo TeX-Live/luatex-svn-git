@@ -287,7 +287,7 @@ boolean
 zopen_w_output (FILE **f, const_string fopen_mode) {
   int res = 1;
   if (luainit) {
-    *f = fopen((nameoffile+1),fopen_mode);
+    *f = fopen((const_string)(nameoffile+1),fopen_mode);
     if (*f == NULL) {
       return 0;
     }
