@@ -938,7 +938,6 @@ void print_ID (strnumber filename)
 static time_t start_time = 0;
 #define TIME_STR_SIZE 30
 static char start_time_str[TIME_STR_SIZE];
-static char time_str[TIME_STR_SIZE];
     /* minimum size for time_str is 24: "D:YYYYmmddHHMMSS+HH'MM'" */
 
 static void makepdftime (time_t t, char *time_str)
