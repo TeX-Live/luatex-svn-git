@@ -451,7 +451,7 @@ void set_job_id(int year, int month, int day, int time)
 int get_build_revision(void)
 {
     int revision;
-    if (sscanf(BUILD_REVISION, "$Revision$", &revision)) {
+    if (sscanf(BUILD_REVISION, "$Revision: %d $", &revision)) {
         return revision;
     }
     return 0;
