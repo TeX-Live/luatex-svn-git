@@ -1,4 +1,4 @@
-% $Id: mp.web,v 1.8 2005/08/24 10:54:02 taco Exp $
+% $Id$
 % MetaPost, by John Hobby.  Public domain.
 
 % Much of this program was copied with permission from MF.web Version 1.9
