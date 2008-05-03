@@ -1,19 +1,24 @@
-% Copyright (c) 2007 Hartmut Henkel, Taco Hoekwater
-
-% This file is part of luaTeX.
-
-% luaTeX is free software; you can redistribute it and/or modify it under the
-% terms of the GNU General Public License as published by the Free Software
-% Foundation; either version 2 of the License, or (at your option) any later
-% version.
-
-% luaTeX is distributed in the hope that it will be useful, but WITHOUT ANY
-% WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-% A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-% You should have received a copy of the GNU General Public License
-% along with luaTeX; if not, write to the Free Software Foundation, Inc.,
-% 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+%  luatex.web
+%  
+%  Copyright 2006-2008 Taco Hoekwater <taco@@luatex.org>
+%  Copyright 2006-2008 Hartmut Henkel <hartmut@@luatex.org>
+%
+%  This file is part of LuaTeX.
+%
+%  LuaTeX is free software; you can redistribute it and/or modify it under
+%  the terms of the GNU General Public License as published by the Free
+%  Software Foundation; either version 2 of the License, or (at your
+%  option) any later version.
+%
+%  LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+%  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+%  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+%  License for more details.
+%
+%  You should have received a copy of the GNU General Public License along
+%  with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+%
+% $Id$
 
 % pdfTeX is copyright (C) 1996-2006 Han The Thanh, <thanh@@pdftex.org>.
 % e-TeX is copyright (C) 1994,98 by Peter Breitenlohner.
@@ -1022,13 +1027,13 @@ begin
     if (test)and(fnam<>0)and(length(fnam)>0) then begin
       @<Fixup |nameoffile| after callback@>;
       lua_a_open_out := do_a_open_out(f);
-	  name_file_pointer := f;
+          name_file_pointer := f;
       end
     else 
       lua_a_open_out := false;
     end 
   else begin
-	if openoutnameok(stringcast(nameoffile+1)) then begin
+        if openoutnameok(stringcast(nameoffile+1)) then begin
       lua_a_open_out := a_open_out(f);
       name_file_pointer := f;
       end
@@ -1050,13 +1055,13 @@ begin
     if (test)and(fnam<>0)and(length(fnam)>0) then begin
       @<Fixup |nameoffile| after callback@>;
       lua_b_open_out := do_b_open_out(f);
-	  name_file_pointer := f;
+          name_file_pointer := f;
       end
     else 
       lua_b_open_out := false;
     end 
   else begin
-	if openoutnameok(stringcast(nameoffile+1)) then begin
+        if openoutnameok(stringcast(nameoffile+1)) then begin
       lua_b_open_out := b_open_out(f);
       name_file_pointer := f;
       end
@@ -1210,9 +1215,9 @@ end;
 
 function lua_input_ln(var f:alpha_file;n:quarterword;@!bypass_eoln:boolean):boolean;
 var lua_result:boolean;
-	last_ptr:integer;
+        last_ptr:integer;
     callback_id:integer;
-	bypass_p:boolean;
+        bypass_p:boolean;
 begin
 if n=0 then
   callback_id:=input_file_callback_id[index]
@@ -1220,12 +1225,12 @@ else
   callback_id:=read_file_callback_id[n];
 if callback_id>0 then begin
     last:=first;
-	last_ptr := first;
+        last_ptr := first;
     lua_result := run_saved_callback(callback_id,'reader','->l', addressof(last_ptr));
-	if (lua_result=true)and(last_ptr<>0) then begin
-	  last := last_ptr;
-	  if last>max_buf_stack then max_buf_stack:=last; 
-	  lua_input_ln := true;
+        if (lua_result=true)and(last_ptr<>0) then begin
+          last := last_ptr;
+          if last>max_buf_stack then max_buf_stack:=last; 
+          lua_input_ln := true;
       @<Fix up the input buffer using callbacks@>; 
       end
     else 
@@ -1234,7 +1239,7 @@ if callback_id>0 then begin
   else begin
     bypass_p := bypass_eoln; {this is for -Wextra}
     lua_result := input_ln(f,bypass_p);
-	if lua_result=true then begin
+        if lua_result=true then begin
       lua_input_ln := true;
       @<Fix up the input buffer using callbacks@>; 
       end
@@ -1251,8 +1256,8 @@ if last>=first then begin
     last_ptr := first;
     lua_result := run_callback(callback_id, 'l->l', (last-first), addressof(last_ptr)); 
     if (lua_result=true)and(last_ptr<>0) then begin
-	  last := last_ptr;
-	  if last>max_buf_stack then max_buf_stack:=last; 
+          last := last_ptr;
+          if last>max_buf_stack then max_buf_stack:=last; 
       end;
     end;
   end
@@ -1466,12 +1471,12 @@ end
 
 @p procedure string_room(t:integer);
 begin
-	str_room(t);
+        str_room(t);
 end;
 @#
 procedure append_pool_char(c:ASCII_code);
 begin
-	append_char(c);
+        append_char(c);
 end;
 
 
@@ -1514,37 +1519,37 @@ begin
     if b<@"80 then
       a := b
     else if b>=@"F0 then begin
-	  a := (b-@"F0) * 64;
-	  b := buffer[k+1];
-	  test_sequence_byte(b);
-	  a := (a + (b-128)) * 64;
-	  b := buffer[k+2];
-	  test_sequence_byte(b);
-	  a := (a + (b-128)) * 64;
-	  b := buffer[k+3];
-	  test_sequence_byte(b);
-	  a := a + (b-128);
+          a := (b-@"F0) * 64;
+          b := buffer[k+1];
+          test_sequence_byte(b);
+          a := (a + (b-128)) * 64;
+          b := buffer[k+2];
+          test_sequence_byte(b);
+          a := (a + (b-128)) * 64;
+          b := buffer[k+3];
+          test_sequence_byte(b);
+          a := a + (b-128);
       end 
     else if b>=@"E0 then begin
-	  a := (b-@"E0) * 64;
-	  b := buffer[k+1];
-	  test_sequence_byte(b);
-	  a := (a + (b-128)) * 64;
-	  b := buffer[k+2];
-	  test_sequence_byte(b);
-	  a := a + (b-128);
+          a := (b-@"E0) * 64;
+          b := buffer[k+1];
+          test_sequence_byte(b);
+          a := (a + (b-128)) * 64;
+          b := buffer[k+2];
+          test_sequence_byte(b);
+          a := a + (b-128);
       end 
     else if b>=@"C0 then begin
-	  a := (b-@"C0) * 64;
-	  b := buffer[k+1];
-	  test_sequence_byte(b);
-	  a := a + (b-128);
+          a := (b-@"C0) * 64;
+          b := buffer[k+1];
+          test_sequence_byte(b);
+          a := a + (b-128);
       end
     else begin { NI: this is an encoding error }
-	  print_err("Buffer contains an invalid utf-8 sequence");
+          print_err("Buffer contains an invalid utf-8 sequence");
 @.Text line contains...@>
-	  help2("A funny symbol somehow ended up in the input buffer.")@/
-    	   ("Just continue, I'll change it to 0xFFFD.");@/
+          help2("A funny symbol somehow ended up in the input buffer.")@/
+           ("Just continue, I'll change it to 0xFFFD.");@/
       deletions_allowed:=false; error; deletions_allowed:=true;
       a:=@"FFFD;
       end;
@@ -1601,7 +1606,7 @@ if s<string_offset then begin
      if length(t)=1 then
        if str_pool[str_start_macro(t)]=s then
           goto found;
-	a := pool_to_unichar(str_start_macro(t));
+        a := pool_to_unichar(str_start_macro(t));
     if a<>s then goto not_found;
     end 
   else
@@ -1878,32 +1883,32 @@ begin
     if b<=@"7F then
       a := b
     else if b>=@"F0 then begin
-	  a := (b-@"F0) * 64;
-	  b := str_pool[t+1];
-	  a := (a + (b-128)) * 64;
-	  b := str_pool[t+2];
-	  a := (a + (b-128)) * 64;
-	  b := str_pool[t+3];
-	  a := a + (b-128);
+          a := (b-@"F0) * 64;
+          b := str_pool[t+1];
+          a := (a + (b-128)) * 64;
+          b := str_pool[t+2];
+          a := (a + (b-128)) * 64;
+          b := str_pool[t+3];
+          a := a + (b-128);
       end
     else if b>=@"E0 then begin
-	  a := (b-@"E0) * 64;
-	  b := str_pool[t+1];
-	  a := (a + (b-128)) * 64;
-	  b := str_pool[t+2];
-	  a := a + (b-128);
+          a := (b-@"E0) * 64;
+          b := str_pool[t+1];
+          a := (a + (b-128)) * 64;
+          b := str_pool[t+2];
+          a := a + (b-128);
       end 
     else if b>=@"C0 then begin
-	  a := (b-@"C0) * 64;
-	  b := str_pool[t+1];
-	  a := a + (b-128);
+          a := (b-@"C0) * 64;
+          b := str_pool[t+1];
+          a := a + (b-128);
       end
     else begin  { NI: this is an encoding error }
-	  wlog_ln('! Pool contains an invalid utf-8 sequence');
-	  wterm_ln('! Pool contains an invalid utf-8 sequence');
+          wlog_ln('! Pool contains an invalid utf-8 sequence');
+          wterm_ln('! Pool contains an invalid utf-8 sequence');
 @.Text line contains...@>
-	  help2("A funny symbol somehow ended up in the string pool.")@/
-    	   ("Just continue, I'll change it to 0xFFFD.");@/
+          help2("A funny symbol somehow ended up in the string pool.")@/
+           ("Just continue, I'll change it to 0xFFFD.");@/
       deletions_allowed:=false; error; deletions_allowed:=true;
       a:=@"FFFD;
       end;
@@ -1941,7 +1946,7 @@ else if s<string_offset then
       end 
     else begin 
       if s>=@"110000 then 
-	    print_char(s-@"110000)
+            print_char(s-@"110000)
       else begin
         print_char(@"F0 + (s div @"40000));
         print_char(@"80 + ((s mod @"40000) div @"1000));
@@ -1955,8 +1960,8 @@ j:=str_start_macro(s);
 while j<str_start_macro(s+1) do
   begin { 0x110000 in utf=8: 0xF4 0x90 0x80 0x80 }
     if (str_pool[j]=@"F4)and(j<str_start_macro(s+4))and(str_pool[j+1]=@"90) then begin
-	  v := (((7*64+63)*64)+ (str_pool[j+2]-128))*64 +(str_pool[j+3]-128);
-	  print_char(v-@"110000); j := j+4;
+          v := (((7*64+63)*64)+ (str_pool[j+2]-128))*64 +(str_pool[j+3]-128);
+          print_char(v-@"110000); j := j+4;
       end
     else begin
       print_char(str_pool[j]); incr(j);
@@ -6960,7 +6965,7 @@ else begin
     if str_eq_str(text(p),s) then goto found;
     if next(p)=0 then
       begin 
-     	p:=undefined_cs ;
+        p:=undefined_cs ;
         goto found;
       end;
     p:=next(p);
@@ -7029,7 +7034,7 @@ else if (text(p)<0)or(text(p)>=str_ptr) then print_esc("NONEXISTENT.")
 else  begin 
   print_esc(text(p));
   if single_letter(text(p)) then begin
-   	if get_cat_code(cat_code_table,pool_to_unichar(str_start_macro(text(p))))=letter then
+        if get_cat_code(cat_code_table,pool_to_unichar(str_start_macro(text(p))))=letter then
       print_char(" ")
     else
       do_nothing;
@@ -7778,7 +7783,7 @@ if (p<fix_mem_min) or (p>fix_mem_end) then
   end;
 if info(p)>=cs_token_flag then begin
   if not ((inhibit_par_tokens) and (info(p)=par_token)) then
-	  print_cs(info(p)-cs_token_flag);
+          print_cs(info(p)-cs_token_flag);
   end
 else  begin m:=info(p) div string_offset; c:=info(p) mod string_offset;
   if info(p)<0 then print_esc("BAD.")
@@ -9567,7 +9572,7 @@ var p:pointer; {tail of the backup list}
 @!k:pool_pointer; {index into |str_pool|}
 begin 
 if s<number_chars then begin 
-	@<Get the next non-blank non-call token@>;
+        @<Get the next non-blank non-call token@>;
     if (cur_cs=0)and((cur_chr=s)or(cur_chr=s-"a"+"A")) then
       scan_keyword:=true
     else 
@@ -9591,7 +9596,7 @@ else begin
          q:=get_avail; info(q):=cur_tok; link(q):=null;
          link(p) := q;
          back_list(link(backup_head));
-	     end
+             end
       else
          back_input;
       scan_keyword:=false; return;
@@ -11302,7 +11307,7 @@ uniform_deviate_code:     scan_int;
 normal_deviate_code:      do_nothing;
 lua_escape_string_code:
   begin
-	u:=0;
+        u:=0;
     { check if a string is already being built}
     if str_start_macro(str_ptr)<pool_ptr then u:=make_string;
     save_scanner_status := scanner_status;
@@ -11315,26 +11320,26 @@ lua_escape_string_code:
     warning_index := save_warning_index;
     scanner_status := save_scanner_status;
     junk := lua_str_toks(str_start_macro(s));
-	ins_list(link(temp_token_head));
+        ins_list(link(temp_token_head));
     flush_str(s);
-	if u<>0 then begin decr(str_ptr); u:=0; end; 
+        if u<>0 then begin decr(str_ptr); u:=0; end; 
     return;
   end;
 lua_code:
   begin
-	u:=0;
+        u:=0;
     { check if a string is already being built}
     if str_start_macro(str_ptr)<pool_ptr then u:=make_string;
     save_scanner_status := scanner_status;
     save_def_ref := def_ref;
     save_warning_index := warning_index;
     sn:=null;
-	if scan_keyword("name") then begin
-	   scan_pdf_ext_toks;
+        if scan_keyword("name") then begin
+           scan_pdf_ext_toks;
        sn := def_ref;
-	end;
-	scan_register_num;
-	i := cur_val;
+        end;
+        scan_register_num;
+        i := cur_val;
     scan_pdf_ext_toks;
     s := def_ref;
     warning_index := save_warning_index;
@@ -11343,18 +11348,18 @@ lua_code:
     luacstrings:=0;
     luatokencall(i,s,sn);
     delete_token_ref(s);
-	if u<>0 then begin
+        if u<>0 then begin
       if str_ptr=u+1 then 
         decr(str_ptr)
       else begin {copy old string to the top location}
          i:=0;
-	     str_room(length(u));
+             str_room(length(u));
          while i<length(u) do
            str_pool[pool_ptr+i]:=str_pool[str_start_macro(u)+i];
         end;
     end; 
-	if luacstrings>0 then
-	  lua_string_start;
+        if luacstrings>0 then
+          lua_string_start;
     return;
   end;
 pdf_insert_ht_code: scan_register_num;
@@ -11471,7 +11476,7 @@ end;
 
 function the_convert_string (c:halfword):str_number;
 var old_setting:0..max_selector; {saved |selector| setting}
-	is_known:boolean;
+        is_known:boolean;
 begin
   old_setting:=selector; 
   selector:=new_string;
@@ -12559,7 +12564,7 @@ ship out a box of stuff, we shall use the macro |ensure_dvi_open|.
   pack_job_name(".dvi");
   while not lua_b_open_out(dvi_file) do
     prompt_file_name("file name for output",".dvi");
-  dvi_file:=name_file_pointer	;
+  dvi_file:=name_file_pointer   ;
   output_file_name:=b_make_name_string(dvi_file);
   end
 
@@ -12890,7 +12895,7 @@ procedure add_ocp_stack(min_index:integer; min_value:scaled);
 var p:ocp_lstack_index;
     llstack_no:scaled;
     counter:integer;
-	m:scaled;
+        m:scaled;
 begin
 m:=min_value; { TH: whatever this is ..}
 p:=ocp_list_lstack(holding[min_index]);
@@ -15461,8 +15466,8 @@ pre_callback_id:integer;
 post_callback_id:integer;
 ret:boolean;
 begin 
-pre_callback_id:=callback_defined(start_page_number_callback);	
-post_callback_id:=callback_defined(stop_page_number_callback);	
+pre_callback_id:=callback_defined(start_page_number_callback);  
+post_callback_id:=callback_defined(stop_page_number_callback);  
 if (tracing_output>0)and(pre_callback_id=0) then
   begin print_nl(""); print_ln;
   print("Completed box being shipped out");
@@ -16031,7 +16036,7 @@ begin
         fixed_image_apply_gamma := fix_int(pdf_image_apply_gamma, 0, 1);
         fixed_pdf_objcompresslevel := fix_int(pdf_objcompresslevel, 0, 3);
         fixed_pdf_draftmode     := fix_int(pdf_draftmode, 0, 1);
-		fixed_replace_font      := fix_int(pdf_replace_font, 0, 1);
+                fixed_replace_font      := fix_int(pdf_replace_font, 0, 1);
         if (fixed_pdf_minor_version >= 5) and (fixed_pdf_objcompresslevel > 0) then
             pdf_os_enable := true
         else begin
@@ -16068,7 +16073,7 @@ begin
     if job_name = 0 then
         open_log_file;
     pack_job_name(".pdf");
-	if fixed_pdf_draftmode = 0 then
+        if fixed_pdf_draftmode = 0 then
     while not lua_b_open_out(pdf_file) do
         prompt_file_name("file name for output",".pdf");
     pdf_file:=name_file_pointer;
@@ -16188,7 +16193,7 @@ begin
     print(": "); print(p);
     if append_nl then
         print_ln;
-	if history=spotless then history:=warning_issued;
+        if history=spotless then history:=warning_issued;
 end;
 
 procedure pdf_os_get_os_buf(s: integer); {check that |s| bytes more
@@ -16522,7 +16527,7 @@ begin
     {if |f| is auto expanded then ensure the base font is initialized}
     if pdf_font_auto_expand(f) and (pdf_font_blink(f) <> null_font) then begin
         b := pdf_font_blink(f);
-	    {TODO: reinstate this check. disabled because wide fonts font have fmentries}
+            {TODO: reinstate this check. disabled because wide fonts font have fmentries}
         if false and (not hasfmentry(b)) then
             pdf_error("font expansion", "auto expansion is only possible with scalable fonts");
         if not font_used(b) then
@@ -17455,12 +17460,12 @@ end
 @p
 function get_default_hyphen_char:integer;
 begin
-	get_default_hyphen_char:=default_hyphen_char; 
+        get_default_hyphen_char:=default_hyphen_char; 
 end;
 @#
 function get_default_skew_char:integer;
 begin
-	get_default_skew_char:=default_skew_char; 
+        get_default_skew_char:=default_skew_char; 
 end;
 @#
 
@@ -17490,7 +17495,7 @@ begin
     else begin
         for k := 1 to max_font_id do
             if cmp_font_name(k, s) then begin
-	            flush_string; {|font_name|}
+                    flush_string; {|font_name|}
                 flush_str(s);
                 tfm_lookup := k;
                 return;
@@ -17512,7 +17517,7 @@ begin
     if k = null_font then begin
         if pdf_font_auto_expand(f) then begin
             k := auto_expand_font(f, e);
-	        font_id_text(k) := font_id_text(f);
+                font_id_text(k) := font_id_text(f);
             end
         else
            k := read_font_info(null_cs, s, "", font_size(f), font_natural_dir(f)); 
@@ -18021,11 +18026,11 @@ if is_char_node(p) then
   else
     case font_direction(dvi_direction) of
     dir__LT: begin
-	  if x_displace(p)<>0 then pdf_dvicmd_right(x_displace(p));
-	  if y_displace(p)<>0 then pdf_dvicmd_up(-y_displace(p));
+          if x_displace(p)<>0 then pdf_dvicmd_right(x_displace(p));
+          if y_displace(p)<>0 then pdf_dvicmd_up(-y_displace(p));
       pdf_dvicmd_set(c);
-	  if x_displace(p)<>0 then pdf_dvicmd_left(x_displace(p));
-	  if y_displace(p)<>0 then pdf_dvicmd_down(-y_displace(p));
+          if x_displace(p)<>0 then pdf_dvicmd_left(x_displace(p));
+          if y_displace(p)<>0 then pdf_dvicmd_down(-y_displace(p));
       end;
     dir__LB: begin
       pdf_dvicmd_down(c_ht);
@@ -18033,12 +18038,12 @@ if is_char_node(p) then
       pdf_dvicmd_up(c_ht);
       end;
     dir__RT: begin
-	  if x_displace(p)<>0 then pdf_dvicmd_left(x_displace(p));
-	  if y_displace(p)<>0 then pdf_dvicmd_up(-y_displace(p));
+          if x_displace(p)<>0 then pdf_dvicmd_left(x_displace(p));
+          if y_displace(p)<>0 then pdf_dvicmd_up(-y_displace(p));
       pdf_dvicmd_left(c_wd);
       pdf_dvicmd_put(c);
-	  if x_displace(p)<>0 then pdf_dvicmd_right(x_displace(p));
-	  if y_displace(p)<>0 then pdf_dvicmd_down(-y_displace(p));
+          if x_displace(p)<>0 then pdf_dvicmd_right(x_displace(p));
+          if y_displace(p)<>0 then pdf_dvicmd_down(-y_displace(p));
       end;
     dir__RB: begin
       pdf_dvicmd_left(c_wd);
@@ -18194,23 +18199,23 @@ if (rule_ht>0)and(rule_wd>0) then {we don't output empty rules}
   begin cur_v:=base_line+rule_dp;
   case font_direction(dvi_direction) of
   dir__LT: begin
- 	pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
+        pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
     end;
   dir__LB: begin
     pdf_dvicmd_down(rule_ht);
-	pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
+        pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
     pdf_dvicmd_up(rule_ht);
     end;
   dir__RT: begin
     pdf_dvicmd_left(rule_wd);
-  	pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
-	pdf_dvicmd_right(rule_wd);
+        pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
+        pdf_dvicmd_right(rule_wd);
     end;
   dir__RB: begin
     pdf_dvicmd_left(rule_wd);
     pdf_dvicmd_down(rule_ht);
     pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
-	pdf_dvicmd_left(rule_wd);
+        pdf_dvicmd_left(rule_wd);
     pdf_dvicmd_up(rule_ht);
     end;
   dir__TL: begin
@@ -18225,12 +18230,12 @@ if (rule_ht>0)and(rule_wd>0) then {we don't output empty rules}
     end;
   dir__BL: begin
     pdf_dvicmd_left(rule_ht);
-	pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
+        pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
     pdf_dvicmd_up(rule_wd);
     end;
   dir__BR: begin
     pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
-	pdf_dvicmd_left(rule_ht);
+        pdf_dvicmd_left(rule_ht);
     pdf_dvicmd_up(rule_wd);
     end;
   end;
@@ -18488,7 +18493,7 @@ if (rule_ht>0)and(rule_wd>0) then {we don't output empty rules}
   dir__LB: begin
     pdf_dvicmd_down(rule_ht);
     pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
-	pdf_dvicmd_left(rule_wd);
+        pdf_dvicmd_left(rule_wd);
     pdf_dvicmd_up(rule_ht);
     end;
   dir__RT: begin
@@ -18632,8 +18637,8 @@ pre_callback_id:integer;
 post_callback_id:integer;
 ret:boolean;
 begin 
-pre_callback_id:=callback_defined(start_page_number_callback);	
-post_callback_id:=callback_defined(stop_page_number_callback);	
+pre_callback_id:=callback_defined(start_page_number_callback);  
+post_callback_id:=callback_defined(stop_page_number_callback);  
 if (tracing_output>0)and(pre_callback_id=0) then
   begin print_nl(""); print_ln;
   print("Completed box being shipped out");
@@ -18972,7 +18977,7 @@ var s: str_number;
     file_opened:boolean;
     k:integer;
     res:boolean;
-	fnam: str_number;
+        fnam: str_number;
     callback_id:integer;
 begin
     s := tokens_to_string(obj_obj_data(n));
@@ -18990,14 +18995,14 @@ begin
     if obj_obj_is_file(n) > 0 then begin
         data_size:=0; data_cur:=0; data_buffer:=0;
         pack_file_name(s,"","");
-	    callback_id:=callback_defined(find_data_file_callback);
-	    if callback_id>0 then begin
-    	  res := run_callback(callback_id,'S->s',stringcast(nameoffile+1),addressof(fnam));
-	      if (res)and(fnam<>0)and(length(fnam)>0) then begin
-	        @<Fixup |nameoffile| after callback@>;
-		 	end;
+            callback_id:=callback_defined(find_data_file_callback);
+            if callback_id>0 then begin
+          res := run_callback(callback_id,'S->s',stringcast(nameoffile+1),addressof(fnam));
+              if (res)and(fnam<>0)and(length(fnam)>0) then begin
+                @<Fixup |nameoffile| after callback@>;
+                        end;
           end;
-		callback_id:=callback_defined(read_data_file_callback);
+                callback_id:=callback_defined(read_data_file_callback);
         if callback_id>0 then begin
           file_opened := false;
           res := run_callback(callback_id,'S->bSd',stringcast(nameoffile+1),
@@ -19018,7 +19023,7 @@ begin
             pdf_out(data_buffer[data_cur]);
             incr(data_cur);
             end;
-	    if data_buffer<>0 then libcfree(data_buffer);
+            if data_buffer<>0 then libcfree(data_buffer);
         print(">>");
     end
     else if obj_obj_is_stream(n) > 0 then
@@ -19421,7 +19426,7 @@ are already written completely to PDF output file.
 
 @<Finish the PDF file@>=
 if total_pages=0 then begin
-	if callback_id=0 then
+        if callback_id=0 then
       print_nl("No pages of output.")
     else
       res:=run_callback(callback_id,'->');
@@ -19459,7 +19464,7 @@ else begin
     end;
     @<Output the trailer@>;
     pdf_flush;
-	if callback_id=0 then begin
+        if callback_id=0 then begin
       print_nl("Output written on "); print_file_name(0, output_file_name, 0);
   @.Output written on x@>
       print(" ("); print_int(total_pages); print(" page");
@@ -20016,9 +20021,9 @@ continue:
     scan_register_num; i:=cur_val;
     scan_optional_equals;
     scan_int; v:=cur_val;
-	if (attr_list<>null) and (attr_list=attr_list_cache) then begin
+        if (attr_list<>null) and (attr_list=attr_list_cache) then begin
       attr_list:=copy_attribute_list(attr_list_cache);
-	  add_node_attr_ref(attr_list); {will be used once}
+          add_node_attr_ref(attr_list); {will be used once}
       end;
     attr_list:=do_set_attribute(attr_list,i,v);
     goto continue;
@@ -20242,7 +20247,7 @@ begin
     else begin
         {|short_display_n(p, 5);|}
         pdf_error("font expansion", "invalid node type");
-	    return;
+            return;
     end;
     f := font(r);
     ef := get_ef_code(f, character(r));
@@ -20373,7 +20378,7 @@ exit:
 if (m = cal_expand_ratio) and (font_expand_ratio <> 0) then begin
     font_expand_ratio := fix_int(font_expand_ratio, -1000, 1000);
     q := list_ptr(r);
-	list_ptr(r):=null; flush_node(r);
+        list_ptr(r):=null; flush_node(r);
     r:=hpack(q, w, subst_ex_font);
 end;
 while dir_ptr<>null do pop_dir_node;
@@ -22034,7 +22039,7 @@ simple ones.
 procedure make_over(@!q:pointer);
 var p:pointer;
 begin p:=overbar(clean_box(nucleus(q),cramped_style(cur_style)),@|
-  	  3*default_rule_thickness,default_rule_thickness);
+          3*default_rule_thickness,default_rule_thickness);
 vinfo(nucleus(q)):=p;
 math_type(nucleus(q)):=sub_box;
 end;
@@ -22381,7 +22386,7 @@ begin
 if disable_lig=0 and has_lig(cur_f,a) then begin
   lig:=get_ligature(cur_f,a,cur_c);
   if is_valid_ligature(lig) then begin
-	check_interrupt; {allow a way out of infinite ligature loop}
+        check_interrupt; {allow a way out of infinite ligature loop}
     case lig_type(lig) of
     qi(1),qi(5): mcharacter(nucleus(q)):=lig_replacement(lig); {\.{=:\?}, \.{=:\?>}}
     qi(2),qi(6): mcharacter(nucleus(p)):=lig_replacement(lig); {\.{\?=:}, \.{\?=:>}}
@@ -22406,7 +22411,7 @@ if disable_kern=0 and has_kern(cur_f,a) then begin
   k:=get_kern(cur_f,a,cur_c);
   if k<>0 then begin 
     p:=new_kern(k); vlink(p):=vlink(q); vlink(q):=p; return;
-	end;
+        end;
   end;
 end
 
@@ -23720,26 +23725,26 @@ final_par_glue:=new_param_glue(par_fill_skip_code);
 couple_nodes(tail,final_par_glue);
 if not output_active then 
   lua_node_filter(pre_linebreak_filter_callback,
-	line_break_context,temp_head,addressof(tail));
+        line_break_context,temp_head,addressof(tail));
 last_line_fill:=vlink(tail);
 pop_nest;
 start_of_par:=tail;
 ext_do_line_break(d,pretolerance,tracing_paragraphs,tolerance,emergency_stretch,
-		   looseness,hyphen_penalty,ex_hyphen_penalty,
-		   pdf_adjust_spacing, par_shape_ptr, adj_demerits,
-		   pdf_protrude_chars, line_penalty, last_line_fit, 
-		   double_hyphen_demerits, final_hyphen_demerits,
-		   hang_indent, hsize, hang_after, left_skip, right_skip,
-		   pdf_each_line_height,pdf_each_line_depth,
-		   pdf_first_line_height, pdf_last_line_depth,
-		   inter_line_penalties_ptr, inter_line_penalty,
-		   club_penalty, club_penalties_ptr,
-		   display_widow_penalties_ptr,widow_penalties_ptr,
-		   display_widow_penalty, widow_penalty,
-		   broken_penalty, final_par_glue);
+                   looseness,hyphen_penalty,ex_hyphen_penalty,
+                   pdf_adjust_spacing, par_shape_ptr, adj_demerits,
+                   pdf_protrude_chars, line_penalty, last_line_fit, 
+                   double_hyphen_demerits, final_hyphen_demerits,
+                   hang_indent, hsize, hang_after, left_skip, right_skip,
+                   pdf_each_line_height,pdf_each_line_depth,
+                   pdf_first_line_height, pdf_last_line_depth,
+                   inter_line_penalties_ptr, inter_line_penalty,
+                   club_penalty, club_penalties_ptr,
+                   display_widow_penalties_ptr,widow_penalties_ptr,
+                   display_widow_penalty, widow_penalty,
+                   broken_penalty, final_par_glue);
 if not output_active then 
   lua_node_filter(post_linebreak_filter_callback,
-	line_break_context,start_of_par,addressof(tail));
+        line_break_context,start_of_par,addressof(tail));
 pack_begin_line:=0;
 end;
 @#
@@ -25067,7 +25072,7 @@ hmode+no_boundary: begin @<Append a |cancel_boundary_node| @>;
 hmode+char_ghost: begin t:=cur_chr; get_x_token;
   if (cur_cmd=letter)or(cur_cmd=other_char)or(cur_cmd=char_given)or
    (cur_cmd=char_num) then begin 
-	p:=new_glyph(cur_font,cur_chr);
+        p:=new_glyph(cur_font,cur_chr);
     if t=0 then begin set_is_leftghost(p); end
     else begin set_is_rightghost(p); end;
     tail_append(p);
@@ -26106,7 +26111,7 @@ vmode+par_end: begin normal_paragraph;
 hmode+par_end: begin if align_state<0 then off_save; {this tries to
     recover from an alignment that didn't end properly}
   if (mode>0) and (nest[(nest_ptr-1)].mode_field=vmode) then
-	  line_break_context:=bottom_level;
+          line_break_context:=bottom_level;
   end_graf; {this takes us to the enclosing mode, if |mode>0|}
   if mode=vmode then begin check_filter('hmode_par');  build_page; end;
   end;
@@ -26417,9 +26422,9 @@ subtype(tail):=cur_chr;
 if cur_chr=explicit_disc then begin 
     c:=get_pre_hyphen_char(cur_lang);
     if c<>0 then begin 
-   	  vlink(pre_break(tail)):=new_char(cur_font,c);
+          vlink(pre_break(tail)):=new_char(cur_font,c);
       alink(vlink(pre_break(tail))):=pre_break(tail);
-   	  tlink(pre_break(tail)):=vlink(pre_break(tail));
+          tlink(pre_break(tail)):=vlink(pre_break(tail));
       end;
     c:=get_post_hyphen_char(cur_lang);
     if c<>0 then begin
@@ -29015,7 +29020,7 @@ if t<cs_token_flag+null_cs then
   c:=t mod string_offset;
   if b=uc_code_base then begin 
      i:=get_uc_code(c);
-	 if i<>0 then info(p):=t-c+i; 
+         if i<>0 then info(p):=t-c+i; 
      end
   else 
      begin if get_lc_code(c)<>0 then info(p):=t-c+get_lc_code(c); end;
@@ -29736,8 +29741,8 @@ var a, b, c, i, j, k, l: integer; {all-purpose index}
     is_names: boolean; {flag for name tree output: is it Names or Kids?}
     root, outlines, threads, names_tree, dests: integer;
     xref_offset_width, names_head, names_tail: integer;
-	callback_id:integer;
-	res:boolean;
+        callback_id:integer;
+        res:boolean;
 begin 
 callback_id:=callback_defined(stop_run_callback);
 @<Finish the extensions@>;
@@ -29753,7 +29758,7 @@ if fixed_pdfoutput > 0 then begin
         end
     else begin
         @<Finish the PDF file@>;
-	    if callback_id=0 then begin
+            if callback_id=0 then begin
         if log_opened then
             begin wlog_cr;
             wlog_ln('PDF statistics:');
@@ -29835,8 +29840,8 @@ while input_ptr>0 do
   if state=token_list then end_token_list@+else end_file_reading;
 while open_parens>0 do
   begin 
-	if tracefilenames then print(" )"); 
-	decr(open_parens);
+        if tracefilenames then print(" )"); 
+        decr(open_parens);
   end;
 if cur_level>level_one then
   begin print_nl("("); print_esc("end occurred ");
@@ -30528,7 +30533,7 @@ begin
         new_whatsit(pdf_colorstack_node);
         pdf_colorstack_stack(tail) := cur_val;
         pdf_colorstack_cmd(tail)   := i;
-	    pdf_colorstack_data(tail)  := null;
+            pdf_colorstack_data(tail)  := null;
         if i <= colorstack_data then begin
             scan_pdf_ext_toks;
             pdf_colorstack_data(tail) := def_ref;
@@ -30579,8 +30584,8 @@ end
 begin
     check_pdfoutput("\closelua", true);
     new_whatsit(close_lua_node);
-	scan_register_num;
-	late_lua_reg(tail) := cur_val;
+        scan_register_num;
+        late_lua_reg(tail) := cur_val;
 end
 
 @ The \.{\\pdfobj} primitive is used to create a ``raw'' object in the PDF
@@ -30705,14 +30710,14 @@ begin
     else
         obj_xform_resources(k) := null;
     scan_int;
-	p:=box(cur_val);
+        p:=box(cur_val);
     if p = null then
         pdf_error("ext1", "\pdfxform cannot be used with a void box");
     obj_xform_width(k) := width(p);
     obj_xform_height(k) := height(p);
     obj_xform_depth(k) := depth(p);
     obj_xform_box(k) := p; {save pointer to the box}
-	box(cur_val):=null;
+        box(cur_val):=null;
     pdf_last_xform := k;
 end
 
@@ -31067,7 +31072,7 @@ begin
         pdf_error("ext1", "\pdfstartlink cannot be used in vertical mode");
     k := pdf_new_objnum;
     new_annot_whatsit(pdf_start_link_node);
-	    pdf_link_attr(tail) := null;
+            pdf_link_attr(tail) := null;
         if scan_keyword("attr") then begin
             scan_pdf_ext_toks;
             pdf_link_attr(tail) := def_ref;
@@ -31407,13 +31412,13 @@ end
 begin
   scan_int;
   if (cur_val<0)or(cur_val>@"FFFFFFF) then begin
-	print_err("Invalid \catcode table");
-	help1("All \catcode table ids must be between 0 and 0xFFFFFFF");
-	error;
+        print_err("Invalid \catcode table");
+        help1("All \catcode table ids must be between 0 and 0xFFFFFFF");
+        error;
     end 
   else begin if cur_val=cat_code_table then begin
       print_err("Invalid \catcode table");
-  	  help1("You cannot overwrite the current \catcode table");
+          help1("You cannot overwrite the current \catcode table");
       error;
       end
     else
@@ -31425,14 +31430,14 @@ end
 begin
   scan_int;
   if (cur_val<0)or(cur_val>@"FFFFFFF) then begin
-	print_err("Invalid \catcode table");
-	help1("All \catcode table ids must be between 0 and 0xFFFFFFF");
-	error;
+        print_err("Invalid \catcode table");
+        help1("All \catcode table ids must be between 0 and 0xFFFFFFF");
+        error;
     end 
   else begin if cur_val=cat_code_table then begin
     print_err("Invalid \catcode table");
-  	help1("You cannot overwrite the current \catcode table");
-	error;
+        help1("You cannot overwrite the current \catcode table");
+        error;
     end
   else
     initex_cat_codes(cur_val);
@@ -31729,7 +31734,7 @@ late_lua_node: begin
 end;
 close_lua_node: begin
     print_esc("closelua");
-	print_int(late_lua_reg(p));
+        print_int(late_lua_reg(p));
 end;
 pdf_refobj_node: begin
     print_esc("pdfrefobj");
@@ -31872,7 +31877,7 @@ pdf_end_thread_node: print_esc("pdfendthread");
 pdf_save_pos_node: print_esc("pdfsavepos");
 user_defined_node: begin
     print_esc("whatsit");
-	print_int(user_node_id(p));
+        print_int(user_node_id(p));
     print_char("=");
     case user_node_type(p) of 
     "a": print("<>");
@@ -31882,7 +31887,7 @@ user_defined_node: begin
     othercases  { only d }
       print_int(user_node_value(p));
     endcases;
-	end;
+        end;
 othercases print("whatsit?")
 endcases
 
@@ -32091,7 +32096,7 @@ if cur_cmd=extension then begin
     else case cur_chr of
       close_lua_node: begin
         scan_register_num;
-	    closelua(cur_val);
+            closelua(cur_val);
       end;
         pdf_obj_code: begin
             do_extension; {scan object and set |pdf_last_obj|}
@@ -32363,9 +32368,9 @@ else begin
   pop_dir_node;
   synch_h; synch_v;
   if dir_ptr<>null then
-	 dvi_direction:=dir_dir(dir_ptr)
+         dvi_direction:=dir_dir(dir_ptr)
   else
-	dvi_direction:=0;
+        dvi_direction:=0;
  if dir_opposite(dir_secondary[dir_dir(p)+64])(dir_secondary[dvi_direction])
   then begin
     dvi_temp_ptr:=dvi_ptr;
@@ -32403,7 +32408,7 @@ if dir_dir(p)>=0 then begin
   push_dir_node(p);
   if dir_opposite(dir_secondary[dir_dir(dir_ptr)])(dir_secondary[dvi_direction])
   then begin
-	@<(PDF) Calculate the needed width to the matching |enddir|, and store it in |w|, as
+        @<(PDF) Calculate the needed width to the matching |enddir|, and store it in |w|, as
       well as in the enddir's |dir_dvi_h|@>;
     case box_direction(dvi_direction) of
     dir_TL_,dir_BL_: pdf_dvicmd_right(w);
@@ -32441,7 +32446,7 @@ begin
   {|w:=w-cur_g; cur_glue:=0;|}
   dir_nest:=1;
   while (q<>null) and (vlink(q)<>null) do begin
-	q:=vlink(q);
+        q:=vlink(q);
     if is_char_node(q) then begin
       w:=w+glyph_width(q); {TODO no vertical support for now}
       end 
@@ -32449,7 +32454,7 @@ begin
       case type(q) of
       hlist_node,vlist_node,rule_node,
       margin_kern_node,kern_node:w:=w+width(q);
-	  glue_node: begin 
+          glue_node: begin 
         g:=glue_ptr(q);
         w:=w+width(g)-cur_g; 
         if g_sign<>normal then
@@ -33043,7 +33048,7 @@ pdf_restore_node:
 late_lua_node:
     do_late_lua(p);
 close_lua_node:
-	closelua(late_lua_reg(p));
+        closelua(late_lua_reg(p));
 pdf_refobj_node:
     pdf_append_list(pdf_obj_objnum(p))(pdf_obj_list);
 pdf_refxform_node:
@@ -34762,7 +34767,7 @@ var s:str_number;
 begin
   s:="";
   if toks(j) <> min_halfword then begin
-	s := tokens_to_string(toks(j));
+        s := tokens_to_string(toks(j));
   end;
   get_tex_toks_register := s;
 end;
@@ -35080,19 +35085,19 @@ last:=start;
 loc:=start;
 for otp_counter:=1 to otp_output_end do begin
     { convert back to utf-8 }
-	t := otp_output_buf[otp_counter];
-	if otp_counter < otp_output_end then
+        t := otp_output_buf[otp_counter];
+        if otp_counter < otp_output_end then
        if ((t>=@"D800) and (t<@"DC00)) then 
-	     if (otp_output_buf[otp_counter+1]>=@"DC00)
+             if (otp_output_buf[otp_counter+1]>=@"DC00)
           and (otp_output_buf[otp_counter+1]<@"E000) then begin
              incr(otp_counter);
-	         t := (t-@"D800) * @"400 + (otp_output_buf[otp_counter]-@"DC00) + @"10000;
+                 t := (t-@"D800) * @"400 + (otp_output_buf[otp_counter]-@"DC00) + @"10000;
            end
        else if ((t>=@"DC00) and (t<@"E000)) then 
-	     if (otp_output_buf[otp_counter+1]>=@"D800)
+             if (otp_output_buf[otp_counter+1]>=@"D800)
            and (otp_output_buf[otp_counter+1]<@"DC00) then begin
              incr(otp_counter);
-	         t := (otp_output_buf[otp_counter]-@"D800) * @"400 + (t-@"DC00) + @"10000;
+                 t := (otp_output_buf[otp_counter]-@"D800) * @"400 + (t-@"DC00) + @"10000;
            end;
     if t <= @"7F then
       buffer[last]:= t
@@ -35103,7 +35108,7 @@ for otp_counter:=1 to otp_output_end do begin
         @<Report overflow of the input buffer, and abort@>;
       buffer[last]:=@"80 + t mod @"40;
       end
-    else if t<=@"FFFF then	begin
+    else if t<=@"FFFF then      begin
       buffer[last]:=@"E0 + t div @"1000;
       incr(last);
       if last=buf_size-2 then

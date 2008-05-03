@@ -1,24 +1,24 @@
-/*
-  Copyright (c) 1996-2006 Han The Thanh, <thanh@pdftex.org>
+/* ptexlib.h
+   
+   Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
+   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
 
-This file is part of luatex.
+   This file is part of LuaTeX.
 
-luatex is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
+   LuaTeX is free software; you can redistribute it and/or modify it under
+   the terms of the GNU General Public License as published by the Free
+   Software Foundation; either version 2 of the License, or (at your
+   option) any later version.
 
-luatex is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+   License for more details.
 
-You should have received a copy of the GNU General Public License
-along with luatex; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+   You should have received a copy of the GNU General Public License along
+   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-$Id$
-*/
+/* $Id$ */
 
 #ifndef LUATEXLIB
 #  define LUATEXLIB
@@ -408,25 +408,25 @@ extern halfword new_ligkern(halfword head, halfword tail);
 extern halfword handle_ligaturing(halfword head, halfword tail);
 extern halfword handle_kerning(halfword head, halfword tail);
 
-#  define push_dir(a)								\
-  { dir_tmp=new_dir((a));						\
-	vlink(dir_tmp)=dir_ptr; dir_ptr=dir_tmp;	\
-	dir_ptr=dir_tmp;							\
+#  define push_dir(a)                               \
+  { dir_tmp=new_dir((a));                       \
+    vlink(dir_tmp)=dir_ptr; dir_ptr=dir_tmp;    \
+    dir_ptr=dir_tmp;                            \
   }
 
-#  define push_dir_node(a)						\
-  { dir_tmp=new_node(whatsit_node,dir_node);	\
-    dir_dir(dir_tmp)=dir_dir((a));				\
-    dir_level(dir_tmp)=dir_level((a));			\
-    dir_dvi_h(dir_tmp)=dir_dvi_h((a));			\
-    dir_dvi_ptr(dir_tmp)=dir_dvi_ptr((a));		\
-    vlink(dir_tmp)=dir_ptr; dir_ptr=dir_tmp;	\
+#  define push_dir_node(a)                      \
+  { dir_tmp=new_node(whatsit_node,dir_node);    \
+    dir_dir(dir_tmp)=dir_dir((a));              \
+    dir_level(dir_tmp)=dir_level((a));          \
+    dir_dvi_h(dir_tmp)=dir_dvi_h((a));          \
+    dir_dvi_ptr(dir_tmp)=dir_dvi_ptr((a));      \
+    vlink(dir_tmp)=dir_ptr; dir_ptr=dir_tmp;    \
   }
 
-#  define pop_dir_node()					\
-  { dir_tmp=dir_ptr;					\
-    dir_ptr=vlink(dir_tmp);				\
-    flush_node(dir_tmp);				\
+#  define pop_dir_node()                    \
+  { dir_tmp=dir_ptr;                    \
+    dir_ptr=vlink(dir_tmp);             \
+    flush_node(dir_tmp);                \
   }
 
 

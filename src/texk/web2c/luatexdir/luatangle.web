@@ -1,9 +1,10 @@
-% otangle.web: Omega version of file tangle.web
+% luatangle.web: LuaTeX version of file tangle.web
+% $Id$
 % 
-% This file is part of the Omega project, which
-% is based in the web2c distribution of TeX.
+% This file is part of LuaTeX.
 %
 % Copyright (c) 1994--1998 John Plaice and Yannis Haralambous
+% Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
 % applies only to the changes to the original tangle.web.
 %
 % This program by D. E. Knuth is not copyrighted and can be used freely.

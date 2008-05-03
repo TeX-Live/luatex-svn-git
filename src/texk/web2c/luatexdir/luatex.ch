@@ -1,3 +1,24 @@
+%  luatex.ch
+%  
+%  Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+%
+%  This file is part of LuaTeX.
+%
+%  LuaTeX is free software; you can redistribute it and/or modify it under
+%  the terms of the GNU General Public License as published by the Free
+%  Software Foundation; either version 2 of the License, or (at your
+%  option) any later version.
+%
+%  LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+%  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+%  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+%  License for more details.
+%
+%  You should have received a copy of the GNU General Public License along
+%  with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+%
+% $Id$
+%
 @x
   \def\?##1]{\hbox to 1in{\hfil##1.\ }}
   }
@@ -2061,8 +2082,8 @@ print(" (format="); print(job_name); print_char(" ");
 @d setup_bound_var(#)==bound_default:=#; setup_bound_var_end
 @d setup_bound_var_end(#)==bound_name:=#; setup_bound_var_end_end
 @d setup_bound_var_end_end(#)==if luainit>0 then begin
-	get_lua_number('texconfig',bound_name,addressof(#));
-	if #=0 then #:=bound_default;
+        get_lua_number('texconfig',bound_name,addressof(#));
+        if #=0 then #:=bound_default;
     end
   else
     setupboundvariable(addressof(#), bound_name, bound_default);

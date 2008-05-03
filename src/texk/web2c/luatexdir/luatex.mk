@@ -1,6 +1,7 @@
 # Makefile fragment for pdfeTeX and web2c. --infovore@xs4all.nl. Public domain.
 # This fragment contains the parts of the makefile that are most likely to
 # differ between releases of pdfeTeX.
+# $Id$
 
 # We build luatex
 luatex = @LTEX@ luatex

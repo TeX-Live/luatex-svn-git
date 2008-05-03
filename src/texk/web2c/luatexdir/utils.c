@@ -1,30 +1,28 @@
-/*
-Copyright (c) 1996-2006 Han The Thanh, <thanh@pdftex.org>
+/* utils.c
+   
+   Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
+   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
 
-This file is part of pdfTeX.
+   This file is part of LuaTeX.
 
-pdfTeX is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
+   LuaTeX is free software; you can redistribute it and/or modify it under
+   the terms of the GNU General Public License as published by the Free
+   Software Foundation; either version 2 of the License, or (at your
+   option) any later version.
 
-pdfTeX is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+   License for more details.
 
-You should have received a copy of the GNU General Public License
-along with pdfTeX; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-$Id$
-*/
+   You should have received a copy of the GNU General Public License along
+   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 #include "sys/types.h"
 #ifndef __MINGW32__
-#include "sysexits.h"
+#  include "sysexits.h"
 #else
-#define EX_SOFTWARE 70
+#  define EX_SOFTWARE 70
 #endif
 #include "md5.h"
 #include <kpathsea/c-proto.h>
@@ -41,6 +39,9 @@ $Id$
 #include "openbsd-compat.h"
 #include "png.h"
 #include "xpdf/config.h"        /* just to get the xpdf version */
+
+static const char __svn_version[] =
+    "$Id$ $URL$";
 
 #define check_nprintf(size_get, size_want) \
     if ((unsigned)(size_get) >= (unsigned)(size_want)) \
@@ -59,29 +60,29 @@ size_t last_ptr_index;          /* for use with alloc_array */
 
 /* define fb_ptr, fb_array & fb_limit */
 typedef char fb_entry;
-define_array (fb);
+define_array(fb);
 
 /* define char_ptr, char_array & char_limit */
 typedef char char_entry;
-define_array (char);
+define_array(char);
 
-integer fb_offset (void)
+integer fb_offset(void)
 {
     return fb_ptr - fb_array;
 }
 
-void fb_seek (integer offset)
+void fb_seek(integer offset)
 {
     fb_ptr = fb_array + offset;
 }
 
-void fb_putchar (eight_bits b)
+void fb_putchar(eight_bits b)
 {
-    alloc_array (fb, 1, SMALL_ARRAY_SIZE);
+    alloc_array(fb, 1, SMALL_ARRAY_SIZE);
     *fb_ptr++ = b;
 }
 
-void fb_flush (void)
+void fb_flush(void)
 {
     fb_entry *p;
     integer n;
@@ -89,10 +90,10 @@ void fb_flush (void)
         n = pdf_buf_size - pdf_ptr;
         if (fb_ptr - p < n)
             n = fb_ptr - p;
-        memcpy (pdf_buf + pdf_ptr, p, (unsigned) n);
+        memcpy(pdf_buf + pdf_ptr, p, (unsigned) n);
         pdf_ptr += n;
         if (pdf_ptr == pdf_buf_size)
-            pdf_flush ();
+            pdf_flush();
         p += n;
     }
     fb_ptr = fb_array;
@@ -104,7 +105,7 @@ void make_subset_tag(fd_entry * fd)
     int i, j = 0, a[SUBSET_TAG_LENGTH];
     md5_state_t pms;
     char *glyph;
-	glw_entry *glw_glyph;
+    glw_entry *glw_glyph;
     struct avl_traverser t;
     md5_byte_t digest[16];
     void **aa;
@@ -119,21 +120,21 @@ void make_subset_tag(fd_entry * fd)
     do {
         md5_init(&pms);
         avl_t_init(&t, fd->gl_tree);
-		if (is_cidkeyed(fd->fm)) { /* glw_entry items */
-		  for (glw_glyph = (glw_entry *) avl_t_first(&t, fd->gl_tree); glw_glyph != NULL;
-			   glw_glyph = (glw_entry *) avl_t_next(&t)) {
-			glyph = malloc(12);
-			sprintf(glyph,"%05u%05u ",glw_glyph->id,glw_glyph->wd);
-            md5_append(&pms, (md5_byte_t *) glyph, strlen(glyph));
-			free(glyph);
-		  }
-		} else {
-		  for (glyph = (char *) avl_t_first(&t, fd->gl_tree); glyph != NULL;
-			   glyph = (char *) avl_t_next(&t)) {
-            md5_append(&pms, (md5_byte_t *) glyph, strlen(glyph));
-            md5_append(&pms, (md5_byte_t *) " ", 1);
-		  }
-		}
+        if (is_cidkeyed(fd->fm)) {      /* glw_entry items */
+            for (glw_glyph = (glw_entry *) avl_t_first(&t, fd->gl_tree);
+                 glw_glyph != NULL; glw_glyph = (glw_entry *) avl_t_next(&t)) {
+                glyph = malloc(12);
+                sprintf(glyph, "%05u%05u ", glw_glyph->id, glw_glyph->wd);
+                md5_append(&pms, (md5_byte_t *) glyph, strlen(glyph));
+                free(glyph);
+            }
+        } else {
+            for (glyph = (char *) avl_t_first(&t, fd->gl_tree); glyph != NULL;
+                 glyph = (char *) avl_t_next(&t)) {
+                md5_append(&pms, (md5_byte_t *) glyph, strlen(glyph));
+                md5_append(&pms, (md5_byte_t *) " ", 1);
+            }
+        }
         md5_append(&pms, (md5_byte_t *) fd->fontname, strlen(fd->fontname));
         md5_append(&pms, (md5_byte_t *) & j, sizeof(int));      /* to resolve collision */
         md5_finish(&pms, digest);
@@ -156,86 +157,86 @@ void make_subset_tag(fd_entry * fd)
              j);
 }
 
-void pdf_puts (const char *s)
+void pdf_puts(const char *s)
 {
-    pdfroom (strlen (s) + 1);
+    pdfroom(strlen(s) + 1);
     while (*s)
         pdf_buf[pdf_ptr++] = *s++;
 }
 
-__attribute__ ((format (printf, 1, 2))) 
-void pdf_printf (const char *fmt, ...)
+__attribute__ ((format(printf, 1, 2)))
+void pdf_printf(const char *fmt, ...)
 {
     va_list args;
-    va_start (args, fmt);
-    vsnprintf (print_buf, PRINTF_BUF_SIZE, fmt, args);
-    pdf_puts (print_buf);
-    va_end (args);
+    va_start(args, fmt);
+    vsnprintf(print_buf, PRINTF_BUF_SIZE, fmt, args);
+    pdf_puts(print_buf);
+    va_end(args);
 }
 
-strnumber maketexstring (const char *s)
+strnumber maketexstring(const char *s)
 {
-  if (s == NULL || *s == 0)
-    return get_nullstr ();
-  return maketexlstring(s,strlen(s));
+    if (s == NULL || *s == 0)
+        return get_nullstr();
+    return maketexlstring(s, strlen(s));
 }
 
-strnumber maketexlstring (const char *s, size_t l) 
+strnumber maketexlstring(const char *s, size_t l)
 {
     if (s == NULL || l == 0)
-      return get_nullstr ();
-    check_pool_overflow (pool_ptr + l);
+        return get_nullstr();
+    check_pool_overflow(pool_ptr + l);
     while (l-- > 0)
         str_pool[pool_ptr++] = *s++;
-    last_tex_string = make_string ();
+    last_tex_string = make_string();
     return last_tex_string;
 }
 
 
 /* print a C string through TeX */
-void 
-print_string (char *j) {
-  while (*j) {
-    print_char(*j);
-	j++;
-  }
+void print_string(char *j)
+{
+    while (*j) {
+        print_char(*j);
+        j++;
+    }
 }
 
 /* append a C string to a TeX string */
-void 
-append_string (char *s) {
-  if (s == NULL || *s == 0)
-	return;
-  check_buf (pool_ptr + strlen(s), pool_size);
-  while (*s)
-	str_pool[pool_ptr++] = *s++;
-  return;
+void append_string(char *s)
+{
+    if (s == NULL || *s == 0)
+        return;
+    check_buf(pool_ptr + strlen(s), pool_size);
+    while (*s)
+        str_pool[pool_ptr++] = *s++;
+    return;
 }
 
-__attribute__ ((format (printf, 1, 2)))
-void tex_printf (const char *fmt, ...) 
+__attribute__ ((format(printf, 1, 2)))
+void tex_printf(const char *fmt, ...)
 {
     va_list args;
-    va_start (args, fmt);
-    vsnprintf (print_buf, PRINTF_BUF_SIZE, fmt, args);
-    print_string (print_buf);
-    xfflush (stdout);
-    va_end (args);
+    va_start(args, fmt);
+    vsnprintf(print_buf, PRINTF_BUF_SIZE, fmt, args);
+    print_string(print_buf);
+    xfflush(stdout);
+    va_end(args);
 }
 
 /* Helper for pdftex_fail. */
-static void safe_print (const char *str)
+static void safe_print(const char *str)
 {
     const char *c;
     for (c = str; *c; ++c)
-        print (*c);
+        print(*c);
 }
 
-void remove_pdffile (void)
+void remove_pdffile(void)
 {
     if (!kpathsea_debug && output_file_name && !fixed_pdf_draftmode) {
-        xfclose (pdf_file, makecstring (output_file_name));
-        remove (makecstring (output_file_name));
+        xfclose(pdf_file, makecstring(output_file_name));
+        remove(makecstring(output_file_name));
     }
 }
 
@@ -247,224 +248,239 @@ void remove_pdffile (void)
    The output format of this fuction must be the same as pdf_error in
    pdftex.web! */
 
-__attribute__ ((noreturn, format (printf, 1, 2)))
-void pdftex_fail (const char *fmt, ...)
+__attribute__ ((noreturn, format(printf, 1, 2)))
+void pdftex_fail(const char *fmt, ...)
 {
     va_list args;
-    va_start (args, fmt);
-    print_ln ();
-    safe_print ("!luaTeX error");
+    va_start(args, fmt);
+    print_ln();
+    safe_print("!luaTeX error");
     if (cur_file_name) {
-        safe_print (" (file ");
-        safe_print (cur_file_name);
-        safe_print (")");
+        safe_print(" (file ");
+        safe_print(cur_file_name);
+        safe_print(")");
     }
-    safe_print (": ");
-    vsnprintf (print_buf, PRINTF_BUF_SIZE, fmt, args);
-    safe_print (print_buf);
-    va_end (args);
-    print_ln ();
+    safe_print(": ");
+    vsnprintf(print_buf, PRINTF_BUF_SIZE, fmt, args);
+    safe_print(print_buf);
+    va_end(args);
+    print_ln();
     remove_pdffile();
-    safe_print (" ==> Fatal error occurred, no output PDF file produced!");
-    print_ln ();
+    safe_print(" ==> Fatal error occurred, no output PDF file produced!");
+    print_ln();
     if (kpathsea_debug) {
-        abort ();
+        abort();
     } else {
-        exit (EX_SOFTWARE);
+        exit(EX_SOFTWARE);
     }
 }
 
 /* The output format of this fuction must be the same as pdf_warn in
    pdftex.web! */
 
-__attribute__ ((format (printf, 1, 2)))
-void pdftex_warn (const char *fmt, ...) 
+__attribute__ ((format(printf, 1, 2)))
+void pdftex_warn(const char *fmt, ...)
 {
     va_list args;
-    va_start (args, fmt);
-    print_ln ();
-    tex_printf ("luaTeX warning");
+    va_start(args, fmt);
+    print_ln();
+    tex_printf("luaTeX warning");
     if (cur_file_name)
-        tex_printf (" (file %s)", cur_file_name);
-    tex_printf (": ");
-    vsnprintf (print_buf, PRINTF_BUF_SIZE, fmt, args);
-    print_string (print_buf);
-    va_end (args);
-    print_ln ();
+        tex_printf(" (file %s)", cur_file_name);
+    tex_printf(": ");
+    vsnprintf(print_buf, PRINTF_BUF_SIZE, fmt, args);
+    print_string(print_buf);
+    va_end(args);
+    print_ln();
 }
 
 
-void tex_error(char *msg, char **hlp) {
-  strnumber aa = 0,bb = 0,cc = 0,dd = 0,ee = 0;
-  int k = 0;
-  while (hlp[k]!=NULL)
-    k++;
-  if (k>0)    aa =maketexstring(hlp[0]);
-  if (k>1)    bb =maketexstring(hlp[1]);
-  if (k>2)    cc =maketexstring(hlp[2]);
-  if (k>3)    dd =maketexstring(hlp[3]);
-  if (k>4)    ee =maketexstring(hlp[4]);
-
-  do_print_err(maketexstring(msg)); 
-  flush_str(last_tex_string);
-
-  switch (k) {
-  case 1:   dohelp1(aa); break;
-  case 2:   dohelp2(aa,bb); break;
-  case 3:   dohelp3(aa,bb,cc); break;
-  case 4:   dohelp4(aa,bb,cc,dd); break;
-  case 5:   dohelp5(aa,bb,cc,dd,ee); break;
-  }
-  error();
-
-  if (ee)    flush_str(ee);
-  if (dd)    flush_str(dd);
-  if (cc)    flush_str(cc);
-  if (bb)    flush_str(bb);
-  if (aa)    flush_str(aa);
-}
-
-
-void garbage_warning (void)
+void tex_error(char *msg, char **hlp)
 {
-    pdftex_warn ("dangling objects discarded, no output file produced.");
-    remove_pdffile ();
+    strnumber aa = 0, bb = 0, cc = 0, dd = 0, ee = 0;
+    int k = 0;
+    while (hlp[k] != NULL)
+        k++;
+    if (k > 0)
+        aa = maketexstring(hlp[0]);
+    if (k > 1)
+        bb = maketexstring(hlp[1]);
+    if (k > 2)
+        cc = maketexstring(hlp[2]);
+    if (k > 3)
+        dd = maketexstring(hlp[3]);
+    if (k > 4)
+        ee = maketexstring(hlp[4]);
+
+    do_print_err(maketexstring(msg));
+    flush_str(last_tex_string);
+
+/* *INDENT-OFF* */
+    switch (k) {
+    case 1: dohelp1(aa); break;
+    case 2: dohelp2(aa, bb); break;
+    case 3: dohelp3(aa, bb, cc); break;
+    case 4: dohelp4(aa, bb, cc, dd); break;
+    case 5: dohelp5(aa, bb, cc, dd, ee); break;
+    }
+/* *INDENT-ON* */
+    error();
+
+    if (ee)
+        flush_str(ee);
+    if (dd)
+        flush_str(dd);
+    if (cc)
+        flush_str(cc);
+    if (bb)
+        flush_str(bb);
+    if (aa)
+        flush_str(aa);
 }
 
-char *makecstring (integer s) {
-  int l;
-  return makeclstring(s,&l);
+
+void garbage_warning(void)
+{
+    pdftex_warn("dangling objects discarded, no output file produced.");
+    remove_pdffile();
+}
+
+char *makecstring(integer s)
+{
+    int l;
+    return makeclstring(s, &l);
 }
 
 
-char *makeclstring (integer s, int *len)
+char *makeclstring(integer s, int *len)
 {
     static char *cstrbuf = NULL;
     char *p;
     static int allocsize;
     int allocgrow, i, l;
-    if (s >=2097152) {
-      s -= 2097152;
-      l = str_start[s + 1] - str_start[s];
-      *len = l;
-      check_buf (l + 1, MAX_CSTRING_LEN);
-      if (cstrbuf == NULL) {
-	allocsize = l + 1;
-	cstrbuf = xmallocarray (char, allocsize);
-      } else if (l + 1 > allocsize) {
-	allocgrow = allocsize * 0.2;
-        if (l + 1 - allocgrow > allocsize)
-	  allocsize = l + 1;
-        else if (allocsize < MAX_CSTRING_LEN - allocgrow)
-	  allocsize += allocgrow;
-        else
-	  allocsize = MAX_CSTRING_LEN;
-        cstrbuf = xreallocarray (cstrbuf, char, allocsize);
-      }
-      p = cstrbuf;
-      for (i = 0; i < l; i++)
-	*p++ = str_pool[i + str_start[s]];
-      *p = 0;
+    if (s >= 2097152) {
+        s -= 2097152;
+        l = str_start[s + 1] - str_start[s];
+        *len = l;
+        check_buf(l + 1, MAX_CSTRING_LEN);
+        if (cstrbuf == NULL) {
+            allocsize = l + 1;
+            cstrbuf = xmallocarray(char, allocsize);
+        } else if (l + 1 > allocsize) {
+            allocgrow = allocsize * 0.2;
+            if (l + 1 - allocgrow > allocsize)
+                allocsize = l + 1;
+            else if (allocsize < MAX_CSTRING_LEN - allocgrow)
+                allocsize += allocgrow;
+            else
+                allocsize = MAX_CSTRING_LEN;
+            cstrbuf = xreallocarray(cstrbuf, char, allocsize);
+        }
+        p = cstrbuf;
+        for (i = 0; i < l; i++)
+            *p++ = str_pool[i + str_start[s]];
+        *p = 0;
     } else {
-      if (cstrbuf == NULL) {
-	allocsize = 5;
-	cstrbuf = xmallocarray (char, allocsize);
-      }
-	  if (s <= 0x7F) {
-		cstrbuf[0] = s;
-		cstrbuf[1] = 0;
-		*len = 1;
-	  } else if (s <= 0x7FF ) {
-		cstrbuf[0] = 0xC0 + (s / 0x40);
-		cstrbuf[1] = 0x80 + (s % 0x40);
-		cstrbuf[2] = 0;
-		*len = 2;
-	  } else if (s <= 0xFFFF ) {
-		cstrbuf[0] = 0xE0 + (s / 0x1000);
-		cstrbuf[1] = 0x80 + ((s % 0x1000) / 0x40);
-		cstrbuf[2] = 0x80 + ((s % 0x1000) % 0x40);
-		cstrbuf[3] = 0;
-		*len = 3;
-	  } else {
-	    if (s >= 0x10FF00) {
-		  cstrbuf[0] = s-0x10FF00;
-		  cstrbuf[1] = 0;
-		  *len = 1;
-		} else {
-		  cstrbuf[0] = 0xF0 + (s / 0x40000);
-		  cstrbuf[1] = 0x80 + ((s % 0x40000) / 0x1000);
-		  cstrbuf[2] = 0x80 + (((s % 0x40000) % 0x1000) / 0x40);
-		  cstrbuf[3] = 0x80 + (((s % 0x40000) % 0x1000) % 0x40);
-		  cstrbuf[4] = 0;
-		  *len = 4;
-		}
-	  }
+        if (cstrbuf == NULL) {
+            allocsize = 5;
+            cstrbuf = xmallocarray(char, allocsize);
+        }
+        if (s <= 0x7F) {
+            cstrbuf[0] = s;
+            cstrbuf[1] = 0;
+            *len = 1;
+        } else if (s <= 0x7FF) {
+            cstrbuf[0] = 0xC0 + (s / 0x40);
+            cstrbuf[1] = 0x80 + (s % 0x40);
+            cstrbuf[2] = 0;
+            *len = 2;
+        } else if (s <= 0xFFFF) {
+            cstrbuf[0] = 0xE0 + (s / 0x1000);
+            cstrbuf[1] = 0x80 + ((s % 0x1000) / 0x40);
+            cstrbuf[2] = 0x80 + ((s % 0x1000) % 0x40);
+            cstrbuf[3] = 0;
+            *len = 3;
+        } else {
+            if (s >= 0x10FF00) {
+                cstrbuf[0] = s - 0x10FF00;
+                cstrbuf[1] = 0;
+                *len = 1;
+            } else {
+                cstrbuf[0] = 0xF0 + (s / 0x40000);
+                cstrbuf[1] = 0x80 + ((s % 0x40000) / 0x1000);
+                cstrbuf[2] = 0x80 + (((s % 0x40000) % 0x1000) / 0x40);
+                cstrbuf[3] = 0x80 + (((s % 0x40000) % 0x1000) % 0x40);
+                cstrbuf[4] = 0;
+                *len = 4;
+            }
+        }
     }
     return cstrbuf;
 }
 
-void set_job_id (int year, int month, int day, int time)
+void set_job_id(int year, int month, int day, int time)
 {
     char *name_string, *format_string, *s;
     size_t slen;
-	int i;
+    int i;
 
     if (job_id_string != NULL)
         return;
 
-    name_string = xstrdup (makecstring (job_name));
-    format_string = xstrdup (makecstring (format_ident));
+    name_string = xstrdup(makecstring(job_name));
+    format_string = xstrdup(makecstring(format_ident));
     slen = SMALL_BUF_SIZE +
-        strlen (name_string) +
-        strlen (format_string) +
-        strlen (ptexbanner) +
-        strlen (versionstring) + strlen (kpathsea_version_string);
-    s = xtalloc (slen, char);
+        strlen(name_string) +
+        strlen(format_string) +
+        strlen(ptexbanner) +
+        strlen(versionstring) + strlen(kpathsea_version_string);
+    s = xtalloc(slen, char);
     /* The Web2c version string starts with a space.  */
-    i = snprintf (s, slen,
-             "%.4d/%.2d/%.2d %.2d:%.2d %s %s %s%s %s",
-             year, month, day, time / 60, time % 60,
-             name_string, format_string, ptexbanner,
-             versionstring, kpathsea_version_string);
-	check_nprintf(i,slen);
-    job_id_string = xstrdup (s);
-    xfree (s);
-    xfree (name_string);
-    xfree (format_string);
+    i = snprintf(s, slen,
+                 "%.4d/%.2d/%.2d %.2d:%.2d %s %s %s%s %s",
+                 year, month, day, time / 60, time % 60,
+                 name_string, format_string, ptexbanner,
+                 versionstring, kpathsea_version_string);
+    check_nprintf(i, slen);
+    job_id_string = xstrdup(s);
+    xfree(s);
+    xfree(name_string);
+    xfree(format_string);
 }
 
-int get_build_revision (void) {
-  int revision;
-  if(sscanf (BUILD_REVISION,"$Revision: %d $", &revision)) {
-	return revision;
-  }
-  return 0;
+int get_build_revision(void)
+{
+    int revision;
+    if (sscanf(BUILD_REVISION, "$Revision$", &revision)) {
+        return revision;
+    }
+    return 0;
 }
 
-void make_pdftex_banner (void)
+void make_pdftex_banner(void)
 {
     static boolean pdftexbanner_init = false;
     char *s;
     size_t slen;
-	int i;
+    int i;
 
     if (pdftexbanner_init)
         return;
 
     slen = SMALL_BUF_SIZE +
-        strlen (ptexbanner) +
-        strlen (versionstring) + strlen (kpathsea_version_string);
-    s = xtalloc (slen, char);
+        strlen(ptexbanner) +
+        strlen(versionstring) + strlen(kpathsea_version_string);
+    s = xtalloc(slen, char);
     /* The Web2c version string starts with a space.  */
-    i = snprintf (s, slen,
-             "%s%s %s", ptexbanner, versionstring, kpathsea_version_string);
-	check_nprintf (i, slen);
-    pdftex_banner = maketexstring (s);
-    xfree (s);
+    i = snprintf(s, slen,
+                 "%s%s %s", ptexbanner, versionstring, kpathsea_version_string);
+    check_nprintf(i, slen);
+    pdftex_banner = maketexstring(s);
+    xfree(s);
     pdftexbanner_init = true;
 }
 
-strnumber get_resname_prefix (void)
+strnumber get_resname_prefix(void)
 {
 /*     static char name_str[] = */
 /* "!\"$&'*+,-.0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\\" */
@@ -474,59 +490,59 @@ strnumber get_resname_prefix (void)
     char prefix[7];             /* make a tag of 6 chars long */
     unsigned long crc;
     short i;
-    size_t base = strlen (name_str);
-    crc = crc32 (0L, Z_NULL, 0);
-    crc = crc32 (crc, (Bytef *) job_id_string, strlen (job_id_string));
+    size_t base = strlen(name_str);
+    crc = crc32(0L, Z_NULL, 0);
+    crc = crc32(crc, (Bytef *) job_id_string, strlen(job_id_string));
     for (i = 0; i < 6; i++) {
         prefix[i] = name_str[crc % base];
         crc /= base;
     }
     prefix[6] = 0;
-    return maketexstring (prefix);
+    return maketexstring(prefix);
 }
 
-size_t xfwrite (void *ptr, size_t size, size_t nmemb, FILE * stream)
+size_t xfwrite(void *ptr, size_t size, size_t nmemb, FILE * stream)
 {
-    if (fwrite (ptr, size, nmemb, stream) != nmemb)
-        pdftex_fail ("fwrite() failed");
+    if (fwrite(ptr, size, nmemb, stream) != nmemb)
+        pdftex_fail("fwrite() failed");
     return nmemb;
 }
 
-int xfflush (FILE * stream)
+int xfflush(FILE * stream)
 {
-    if (fflush (stream) != 0)
-        pdftex_fail ("fflush() failed");
+    if (fflush(stream) != 0)
+        pdftex_fail("fflush() failed");
     return 0;
 }
 
-int xgetc (FILE * stream)
+int xgetc(FILE * stream)
 {
-    int c = getc (stream);
+    int c = getc(stream);
     if (c < 0 && c != EOF)
-        pdftex_fail ("getc() failed");
+        pdftex_fail("getc() failed");
     return c;
 }
 
-int xputc (int c, FILE * stream)
+int xputc(int c, FILE * stream)
 {
-    int i = putc (c, stream);
+    int i = putc(c, stream);
     if (i < 0)
-        pdftex_fail ("putc() failed");
+        pdftex_fail("putc() failed");
     return i;
 }
 
-void write_stream_length (integer length, integer offset)
+void write_stream_length(integer length, integer offset)
 {
     if (jobname_cstr == NULL)
-        jobname_cstr = xstrdup (makecstring (job_name));
-	if (fixed_pdf_draftmode == 0) {
-	xfseek (pdf_file, offset, SEEK_SET, jobname_cstr);
-    fprintf (pdf_file, "%li", (long int) length);
-    xfseek (pdf_file, pdfoffset (), SEEK_SET, jobname_cstr);
-	}
+        jobname_cstr = xstrdup(makecstring(job_name));
+    if (fixed_pdf_draftmode == 0) {
+        xfseek(pdf_file, offset, SEEK_SET, jobname_cstr);
+        fprintf(pdf_file, "%li", (long int) length);
+        xfseek(pdf_file, pdfoffset(), SEEK_SET, jobname_cstr);
+    }
 }
 
-scaled ext_xn_over_d (scaled x, scaled n, scaled d)
+scaled ext_xn_over_d(scaled x, scaled n, scaled d)
 {
     double r = (((double) x) * ((double) n)) / ((double) d);
     if (r > DBL_EPSILON)
@@ -534,23 +550,23 @@ scaled ext_xn_over_d (scaled x, scaled n, scaled d)
     else
         r -= 0.5;
     if (r >= (double) maxinteger || r <= -(double) maxinteger)
-        pdftex_warn ("arithmetic: number too big");
+        pdftex_warn("arithmetic: number too big");
     return (scaled) r;
 }
 
-void libpdffinish ()
+void libpdffinish()
 {
-    xfree (fb_array);
-    xfree (char_array);
-    xfree (job_id_string);
-    fm_free ();
-    t1_free ();
-    enc_free ();
-    epdf_free ();
-    ttf_free ();
-    sfd_free ();
-    glyph_unicode_free ();
-	zip_free ();
+    xfree(fb_array);
+    xfree(char_array);
+    xfree(job_id_string);
+    fm_free();
+    t1_free();
+    enc_free();
+    epdf_free();
+    ttf_free();
+    sfd_free();
+    glyph_unicode_free();
+    zip_free();
 }
 
 /* Converts any string given in in in an allowed PDF string which can be
@@ -559,7 +575,7 @@ void libpdffinish ()
  * This assumes that the string does not contain any already escaped
  * characters!
  */
-char *convertStringToPDFString (const char *in, int len)
+char *convertStringToPDFString(const char *in, int len)
 {
     static char pstrbuf[MAX_PSTRING_LEN];
     char *out = pstrbuf;
@@ -567,12 +583,12 @@ char *convertStringToPDFString (const char *in, int len)
     char buf[5];
     j = 0;
     for (i = 0; i < len; i++) {
-        check_buf (j + sizeof (buf), MAX_PSTRING_LEN);
+        check_buf(j + sizeof(buf), MAX_PSTRING_LEN);
         if (((unsigned char) in[i] < '!') || ((unsigned char) in[i] > '~')) {
             /* convert control characters into oct */
-            k = snprintf (buf, sizeof (buf),
-                     "\\%03o", (unsigned int) (unsigned char) in[i]);
-			check_nprintf (k, sizeof (buf));
+            k = snprintf(buf, sizeof(buf),
+                         "\\%03o", (unsigned int) (unsigned char) in[i]);
+            check_nprintf(k, sizeof(buf));
             out[j++] = buf[0];
             out[j++] = buf[1];
             out[j++] = buf[2];
@@ -603,11 +619,11 @@ char *convertStringToPDFString (const char *in, int len)
  *
  * See escapename for parameter description.
  */
-void escapestring (poolpointer in)
+void escapestring(poolpointer in)
 {
     const poolpointer out = pool_ptr;
     unsigned char ch;
-	int i;
+    int i;
     while (in < out) {
         if (pool_ptr + 4 >= pool_size) {
             pool_ptr = pool_size;
@@ -619,9 +635,9 @@ void escapestring (poolpointer in)
 
         if ((ch < '!') || (ch > '~')) {
             /* convert control characters into oct */
-            i = snprintf ((char *) &str_pool[pool_ptr], 5,
-                     "\\%.3o", (unsigned int) ch);
-			check_nprintf (i, 5);
+            i = snprintf((char *) &str_pool[pool_ptr], 5,
+                         "\\%.3o", (unsigned int) ch);
+            check_nprintf(i, 5);
             pool_ptr += i;
             continue;
         }
@@ -676,11 +692,11 @@ void escapestring (poolpointer in)
    "pool_ptr" points to the start of the output string and
    after the end when the procedure returns.
 */
-void escapename (poolpointer in)
+void escapename(poolpointer in)
 {
     const poolpointer out = pool_ptr;
     unsigned char ch;
-	int i;
+    int i;
 
     while (in < out) {
         if (pool_ptr + 3 >= pool_size) {
@@ -693,9 +709,9 @@ void escapename (poolpointer in)
 
         if ((ch >= 1 && ch <= 32) || ch >= 127) {
             /* escape */
-            i = snprintf ((char *) &str_pool[pool_ptr], 4,
-                     "#%.2X", (unsigned int) ch);
-			check_nprintf (i, 4);
+            i = snprintf((char *) &str_pool[pool_ptr], 4,
+                         "#%.2X", (unsigned int) ch);
+            check_nprintf(i, 4);
             pool_ptr += i;
             continue;
         }
@@ -715,9 +731,9 @@ void escapename (poolpointer in)
         case 123:
         case 125:
             /* escape */
-            i = snprintf ((char *) &str_pool[pool_ptr], 4,
-                     "#%.2X", (unsigned int) ch);
-			check_nprintf (i, 4);
+            i = snprintf((char *) &str_pool[pool_ptr], 4,
+                         "#%.2X", (unsigned int) ch);
+            check_nprintf(i, 4);
             pool_ptr += i;
             break;
         default:
@@ -734,12 +750,12 @@ void escapename (poolpointer in)
    
    See escapename for description of parameters.
 */
-void escapehex (poolpointer in)
+void escapehex(poolpointer in)
 {
     const poolpointer out = pool_ptr;
     unsigned char ch;
-	int i;
-	
+    int i;
+
     while (in < out) {
         if (pool_ptr + 2 >= pool_size) {
             pool_ptr = pool_size;
@@ -749,8 +765,9 @@ void escapehex (poolpointer in)
 
         ch = (unsigned char) str_pool[in++];
 
-        i = snprintf ((char *) &str_pool[pool_ptr], 3,"%.2X", (unsigned int) ch);
-		check_nprintf (i, 3);
+        i = snprintf((char *) &str_pool[pool_ptr], 3, "%.2X",
+                     (unsigned int) ch);
+        check_nprintf(i, 3);
         pool_ptr += 2;
     }
 }
@@ -764,12 +781,12 @@ void escapehex (poolpointer in)
 
    See escapename for description of parameters.
 */
-void unescapehex (poolpointer in)
+void unescapehex(poolpointer in)
 {
     const poolpointer out = pool_ptr;
     unsigned char ch;
     boolean first = true;
-	unsigned char a = 0;        /* to avoid warning about uninitialized use of a */
+    unsigned char a = 0;        /* to avoid warning about uninitialized use of a */
     while (in < out) {
         if (pool_ptr + 1 >= pool_size) {
             pool_ptr = pool_size;
@@ -808,15 +825,15 @@ void unescapehex (poolpointer in)
  * hexadecimal encoded;
  * sizeof(out) should be at least lin*2+1.
  */
-static void convertStringToHexString (const char *in, char *out, int lin)
+static void convertStringToHexString(const char *in, char *out, int lin)
 {
-  int i, j, k;
+    int i, j, k;
     char buf[3];
     j = 0;
     for (i = 0; i < lin; i++) {
-        k = snprintf (buf, sizeof (buf),
-                 "%02X", (unsigned int) (unsigned char) in[i]);
-		check_nprintf (k, sizeof (buf));
+        k = snprintf(buf, sizeof(buf),
+                     "%02X", (unsigned int) (unsigned char) in[i]);
+        check_nprintf(k, sizeof(buf));
         out[j++] = buf[0];
         out[j++] = buf[1];
     }
@@ -854,7 +871,7 @@ static void convertStringToHexString (const char *in, char *out, int lin)
   scanning the info dict is also difficult, we start with a simpler
   implementation using just the first two items.
  */
-void print_ID (strnumber filename)
+void print_ID(strnumber filename)
 {
     time_t t;
     size_t size;
@@ -865,24 +882,23 @@ void print_ID (strnumber filename)
     char *file_name;
     char pwd[4096];
     /* start md5 */
-    md5_init (&state);
+    md5_init(&state);
     /* get the time */
-    t = time (NULL);
-    size =
-        strftime (time_str, sizeof (time_str), "%Y%m%dT%H%M%SZ", gmtime (&t));
-    md5_append (&state, (const md5_byte_t *) time_str, size);
+    t = time(NULL);
+    size = strftime(time_str, sizeof(time_str), "%Y%m%dT%H%M%SZ", gmtime(&t));
+    md5_append(&state, (const md5_byte_t *) time_str, size);
     /* get the file name */
-    if (getcwd (pwd, sizeof (pwd)) == NULL)
-        pdftex_fail ("getcwd() failed (path too long?)");
-    file_name = makecstring (filename);
-    md5_append (&state, (const md5_byte_t *) pwd, strlen (pwd));
-    md5_append (&state, (const md5_byte_t *) "/", 1);
-    md5_append (&state, (const md5_byte_t *) file_name, strlen (file_name));
+    if (getcwd(pwd, sizeof(pwd)) == NULL)
+        pdftex_fail("getcwd() failed (path too long?)");
+    file_name = makecstring(filename);
+    md5_append(&state, (const md5_byte_t *) pwd, strlen(pwd));
+    md5_append(&state, (const md5_byte_t *) "/", 1);
+    md5_append(&state, (const md5_byte_t *) file_name, strlen(file_name));
     /* finish md5 */
-    md5_finish (&state, digest);
+    md5_finish(&state, digest);
     /* write the IDs */
-    convertStringToHexString ((char *) digest, id, 16);
-    pdf_printf ("/ID [<%s> <%s>]", id, id);
+    convertStringToHexString((char *) digest, id, 16);
+    pdf_printf("/ID [<%s> <%s>]", id, id);
 }
 
 /* Print the /CreationDate entry.
@@ -940,7 +956,7 @@ static time_t start_time = 0;
 static char start_time_str[TIME_STR_SIZE];
     /* minimum size for time_str is 24: "D:YYYYmmddHHMMSS+HH'MM'" */
 
-static void makepdftime (time_t t, char *time_str)
+static void makepdftime(time_t t, char *time_str)
 {
 
     struct tm lt, gmt;
@@ -948,8 +964,8 @@ static void makepdftime (time_t t, char *time_str)
     int i, off, off_hours, off_mins;
 
     /* get the time */
-    lt = *localtime (&t);
-    size = strftime (time_str, TIME_STR_SIZE, "D:%Y%m%d%H%M%S", &lt);
+    lt = *localtime(&t);
+    size = strftime(time_str, TIME_STR_SIZE, "D:%Y%m%d%H%M%S", &lt);
     /* expected format: "YYYYmmddHHMMSS" */
     if (size == 0) {
         /* unexpected, contents of time_str is undefined */
@@ -967,7 +983,7 @@ static void makepdftime (time_t t, char *time_str)
     }
 
     /* get the time zone offset */
-    gmt = *gmtime (&t);
+    gmt = *gmtime(&t);
 
     /* this calculation method was found in exim's tod.c */
     off = 60 * (lt.tm_hour - gmt.tm_hour) + lt.tm_min - gmt.tm_min;
@@ -982,47 +998,46 @@ static void makepdftime (time_t t, char *time_str)
         time_str[size] = 0;
     } else {
         off_hours = off / 60;
-        off_mins = abs (off - off_hours * 60);
-        i = snprintf (&time_str[size], 9,
-                 "%+03d'%02d'", off_hours, off_mins);
-		check_nprintf (i, 9);
+        off_mins = abs(off - off_hours * 60);
+        i = snprintf(&time_str[size], 9, "%+03d'%02d'", off_hours, off_mins);
+        check_nprintf(i, 9);
     }
 }
 
-void init_start_time ()
+void init_start_time()
 {
     if (start_time == 0) {
-        start_time = time ((time_t *) NULL);
-        makepdftime (start_time, start_time_str);
+        start_time = time((time_t *) NULL);
+        makepdftime(start_time, start_time_str);
     }
 }
 
-void print_creation_date ()
+void print_creation_date()
 {
-    init_start_time ();
-    pdf_printf ("/CreationDate (%s)\n", start_time_str);
+    init_start_time();
+    pdf_printf("/CreationDate (%s)\n", start_time_str);
 }
 
-void print_mod_date ()
+void print_mod_date()
 {
-    init_start_time ();
-    pdf_printf ("/ModDate (%s)\n", start_time_str);
+    init_start_time();
+    pdf_printf("/ModDate (%s)\n", start_time_str);
 }
 
-void getcreationdate ()
+void getcreationdate()
 {
     /* put creation date on top of string pool and update pool_ptr */
-    size_t len = strlen (start_time_str);
+    size_t len = strlen(start_time_str);
 
-    init_start_time ();
+    init_start_time();
 
-    if ((unsigned)(pool_ptr + len) >= (unsigned)pool_size) {
+    if ((unsigned) (pool_ptr + len) >= (unsigned) pool_size) {
         pool_ptr = pool_size;
         /* error by str_toks that calls str_room(1) */
         return;
     }
 
-    memcpy (&str_pool[pool_ptr], start_time_str, len);
+    memcpy(&str_pool[pool_ptr], start_time_str, len);
     pool_ptr += len;
 }
 
@@ -1033,9 +1048,9 @@ void getcreationdate ()
     That means, file names that are legal on some operation systems
     cannot any more be used since pdfTeX version 1.30.4.
 */
-char *makecfilename (strnumber s)
+char *makecfilename(strnumber s)
 {
-    char *name = makecstring (s);
+    char *name = makecstring(s);
     char *p = name;
     char *q = name;
 
@@ -1050,7 +1065,7 @@ char *makecfilename (strnumber s)
 
 /* function strips trailing zeros in string with numbers; */
 /* leading zeros are not stripped (as in real life) */
-char *stripzeros (char *a)
+char *stripzeros(char *a)
 {
     enum { NONUM, DOTNONUM, INT, DOT, LEADDOT, FRAC } s = NONUM, t = NONUM;
     char *p, *q, *r;
@@ -1113,18 +1128,18 @@ char *stripzeros (char *a)
         *q++ = *p++;
         t = s;
     }
-	*q = '\0';
+    *q = '\0';
     return a;
 }
 
 void initversionstring(char **versions)
 {
     (void) asprintf(versions,
-					"This is build %d, created on %dT%06dZ\n"
+                    "This is build %d, created on %dT%06dZ\n"
                     "Compiled with libpng %s; using libpng %s\n"
                     "Compiled with zlib %s; using zlib %s\n"
                     "Compiled with xpdf version %s\n",
-					get_build_revision(), BUILD_DATE, (BUILD_TIME-1000000),
+                    get_build_revision(), BUILD_DATE, (BUILD_TIME - 1000000),
                     PNG_LIBPNG_VER_STRING, png_libpng_ver,
                     ZLIB_VERSION, zlib_version, xpdfVersion);
 }
@@ -1672,32 +1687,32 @@ void matrixrecalculate(scaled urx)
     matrixtransformrect(last_llx, last_lly, urx, last_ury);
 }
 
-void 
-check_buffer_overflow (int wsize) {
-  int nsize;
-  if (wsize>buf_size) {
-	nsize = buf_size + buf_size/5+5;
-	if (nsize<wsize) {
-	  nsize = wsize+5;
-	}
-	buffer = (unsigned char *)xreallocarray (buffer, char, nsize);
-	buf_size = nsize;
-  }
+void check_buffer_overflow(int wsize)
+{
+    int nsize;
+    if (wsize > buf_size) {
+        nsize = buf_size + buf_size / 5 + 5;
+        if (nsize < wsize) {
+            nsize = wsize + 5;
+        }
+        buffer = (unsigned char *) xreallocarray(buffer, char, nsize);
+        buf_size = nsize;
+    }
 }
 
 #define EXTRA_STRING 500
 
-void 
-check_pool_overflow (int wsize) {
-  int nsize ;
-  if ((wsize-1)>pool_size) {
-	nsize = pool_size + pool_size/5+EXTRA_STRING;
-	if (nsize<wsize) {
-	  nsize = wsize+EXTRA_STRING;
-	}
-	str_pool = (unsigned char *)xreallocarray (str_pool, char, nsize);	
-	pool_size = nsize;
-  }
+void check_pool_overflow(int wsize)
+{
+    int nsize;
+    if ((wsize - 1) > pool_size) {
+        nsize = pool_size + pool_size / 5 + EXTRA_STRING;
+        if (nsize < wsize) {
+            nsize = wsize + EXTRA_STRING;
+        }
+        str_pool = (unsigned char *) xreallocarray(str_pool, char, nsize);
+        pool_size = nsize;
+    }
 }
 
 #define max_integer 0x7FFFFFFF
@@ -1706,49 +1721,53 @@ check_pool_overflow (int wsize) {
    |scaled_out| is the number of scaled points corresponding to that.
 */
 
-scaled divide_scaled (scaled s, scaled m, integer dd) {
-  register scaled q;
-  register scaled r;
-  int i;
-  int sign = 1;
-  if (s < 0) {
-    sign = -sign;
-    s = -s;
-  }
-  if (m < 0) {
-    sign = -sign;
-    m = -m;
-  }
-  if (m == 0) {
-    pdf_error(maketexstring("arithmetic"), maketexstring("divided by zero"));
-  } else if (m >= (max_integer / 10)) {
-    pdf_error(maketexstring("arithmetic"), maketexstring("number too big"));
-  }
-  q = s / m;
-  r = s % m;
-  for (i = 1;i<=(int)dd;i++) {
-	q = 10*q + (10*r) / m;
-	r = (10*r) % m;
-  }
-  /* rounding */
-  if (2*r >= m) {
-    q++;
-    r -= m;
-  }
-  /* set up the value of q, in scaled points */
-  switch(dd) {
-  case 0: scaled_out = sign*(s - r); break;
-  case 1: scaled_out = sign*(s - (r/10)); break;
-  case 2: scaled_out = sign*(s - (r/100)); break;
-  case 3: scaled_out = sign*(s - (r/1000)); break;
-  case 4: scaled_out = sign*(s - (r/10000)); break;
-  case 5: scaled_out = sign*(s - (r/100000)); break;
-  case 6: scaled_out = sign*(s - (r/1000000)); break;
-  case 7: scaled_out = sign*(s - (r/10000000)); break;
-  case 8: scaled_out = sign*(s - (r/100000000)); break;
-  case 9: scaled_out = sign*(s - (r/1000000000)); break;
-  }
-  return sign*q;
+scaled divide_scaled(scaled s, scaled m, integer dd)
+{
+    register scaled q;
+    register scaled r;
+    int i;
+    int sign = 1;
+    if (s < 0) {
+        sign = -sign;
+        s = -s;
+    }
+    if (m < 0) {
+        sign = -sign;
+        m = -m;
+    }
+    if (m == 0) {
+        pdf_error(maketexstring("arithmetic"),
+                  maketexstring("divided by zero"));
+    } else if (m >= (max_integer / 10)) {
+        pdf_error(maketexstring("arithmetic"), maketexstring("number too big"));
+    }
+    q = s / m;
+    r = s % m;
+    for (i = 1; i <= (int) dd; i++) {
+        q = 10 * q + (10 * r) / m;
+        r = (10 * r) % m;
+    }
+    /* rounding */
+    if (2 * r >= m) {
+        q++;
+        r -= m;
+    }
+    /* set up the value of q, in scaled points */
+/* *INDENT-OFF* */
+    switch (dd) {
+    case 0: scaled_out = sign * (s - r); break;
+    case 1: scaled_out = sign * (s - (r / 10)); break;
+    case 2: scaled_out = sign * (s - (r / 100)); break;
+    case 3: scaled_out = sign * (s - (r / 1000)); break;
+    case 4: scaled_out = sign * (s - (r / 10000)); break;
+    case 5: scaled_out = sign * (s - (r / 100000)); break;
+    case 6: scaled_out = sign * (s - (r / 1000000)); break;
+    case 7: scaled_out = sign * (s - (r / 10000000)); break;
+    case 8: scaled_out = sign * (s - (r / 100000000)); break;
+    case 9: scaled_out = sign * (s - (r / 1000000000)); break;
+    }
+/* *INDENT-ON* */
+    return sign * q;
 }
 
 
@@ -1757,41 +1776,44 @@ scaled divide_scaled (scaled s, scaled m, integer dd) {
  * routine is only used by the pdf backend, not for typesetting.
  */
 
-scaled 
-divide_scaled_n (double sd, double md, double n) {
-  int d = (int)(sd/md*n+0.5);
-  scaled_out = (int)(d/n*md);
-  return d;
+scaled divide_scaled_n(double sd, double md, double n)
+{
+    int d = (int) (sd / md * n + 0.5);
+    scaled_out = (int) (d / n * md);
+    return d;
 }
 
 
 /* C print interface */
 
-void tprint (char *s) {
-  while (*s) 
-    print_char(*s++); 
+void tprint(char *s)
+{
+    while (*s)
+        print_char(*s++);
 }
 
-void tprint_nl (char *s) {
-  print_nlp();
-  tprint(s);
+void tprint_nl(char *s)
+{
+    print_nlp();
+    tprint(s);
 }
 
-#define escape_char_code 45 /* escape character for token output */
-#define int_par(a) zeqtb[static_int_base+(a)].cint /* an integer parameter */
+#define escape_char_code 45     /* escape character for token output */
+#define int_par(a) zeqtb[static_int_base+(a)].cint      /* an integer parameter */
 #define escape_char int_par(escape_char_code)
 
-void tprint_esc(char *s) { /* prints escape character, then |s| */
-  int c=-1; /* the escape character code */
-  if (zeqtb!=NULL) {
-    c=escape_char;
-    if (c>=0)
-      print_char(c);
-  }
-  tprint(s);
+void tprint_esc(char *s)
+{                               /* prints escape character, then |s| */
+    int c = -1;                 /* the escape character code */
+    if (zeqtb != NULL) {
+        c = escape_char;
+        if (c >= 0)
+            print_char(c);
+    }
+    tprint(s);
 }
 
-void tconfusion(char *s) {
-  confusion(maketexstring(s));
+void tconfusion(char *s)
+{
+    confusion(maketexstring(s));
 }
-

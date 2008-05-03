@@ -1,33 +1,34 @@
-/*
-Copyright (c) 1996-2007 Han The Thanh, <thanh@pdftex.org>
+/* writezip.c
+   
+   Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
+   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
 
-This file is part of pdfTeX.
+   This file is part of LuaTeX.
 
-pdfTeX is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
+   LuaTeX is free software; you can redistribute it and/or modify it under
+   the terms of the GNU General Public License as published by the Free
+   Software Foundation; either version 2 of the License, or (at your
+   option) any later version.
 
-pdfTeX is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+   License for more details.
 
-You should have received a copy of the GNU General Public License
-along with pdfTeX; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-$Id$
-*/
+   You should have received a copy of the GNU General Public License along
+   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 #include "ptexlib.h"
 #include "zlib.h"
 #include <assert.h>
 
+static const char __svn_version[] =
+    "$Id$ $URL$";
+
 #define ZIP_BUF_SIZE  32768
 
-#define check_err(f, fn)						\
-  if (f != Z_OK)								\
+#define check_err(f, fn)                        \
+  if (f != Z_OK)                                \
     pdftex_fail("zlib: %s() failed (error code %d)", fn, f)
 
 static char *zipbuf = NULL;
@@ -67,7 +68,7 @@ void write_zip(boolean finish)
     for (;;) {
         if (c_stream.avail_out == 0) {
             pdf_gone += xfwrite(zipbuf, 1, ZIP_BUF_SIZE, pdf_file);
-            pdf_last_byte = zipbuf[ZIP_BUF_SIZE - 1];     /* not needed */
+            pdf_last_byte = zipbuf[ZIP_BUF_SIZE - 1];   /* not needed */
             c_stream.next_out = (Bytef *) zipbuf;
             c_stream.avail_out = ZIP_BUF_SIZE;
         }
