@@ -1,8 +1,28 @@
-/* $Id$ */
+/* texnodes.c
+   
+   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+
+   This file is part of LuaTeX.
+
+   LuaTeX is free software; you can redistribute it and/or modify it under
+   the terms of the GNU General Public License as published by the Free
+   Software Foundation; either version 2 of the License, or (at your
+   option) any later version.
+
+   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+   License for more details.
+
+   You should have received a copy of the GNU General Public License along
+   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 #include "luatex-api.h"
 #include <ptexlib.h>
 #include "nodes.h"
+
+static const char _svn_version[] =
+    "$Id$ $URL$";
 
 #define MAX_CHAIN_SIZE 12
 
@@ -562,9 +582,8 @@ static void do_free_error(halfword p)
 {
     halfword r;
     char errstr[255] = { 0 };
-    char *errhlp[] =
-        {
-"When I tried to free the node mentioned in the error message, it turned",
+    char *errhlp[] = {
+        "When I tried to free the node mentioned in the error message, it turned",
         "out it was not (or no longer) actually in use.",
         "Errors such as these are often caused by Lua node list alteration,",
         "but could also point to a bug in the executable. It should be safe to continue.",
@@ -663,9 +682,8 @@ int free_error(halfword p)
 static void do_copy_error(halfword p)
 {
     char errstr[255] = { 0 };
-    char *errhlp[] =
-        {
-"When I tried to copy the node mentioned in the error message, it turned",
+    char *errhlp[] = {
+        "When I tried to copy the node mentioned in the error message, it turned",
         "out it was not (or no longer) actually in use.",
         "Errors such as these are often caused by Lua node list alteration,",
         "but could also point to a bug in the executable. It should be safe to continue.",
@@ -929,18 +947,18 @@ void flush_node_list(halfword pp)
 
 static int test_count = 1;
 
-#define dorangetest(a,b,c)  do {					\
+#define dorangetest(a,b,c)  do {                                        \
     if (!(b>=0 && b<c)) {                                               \
       fprintf(stdout,"For node p:=%d, 0<=%d<%d (l.%d,r.%d)\n",          \
               (int)a, (int)b, (int)c, __LINE__,test_count);             \
-      tconfusion("dorangetest");					\
+      tconfusion("dorangetest");                                        \
     } } while (0)
 
-#define dotest(a,b,c) do {						\
+#define dotest(a,b,c) do {                                              \
     if (b!=c) {                                                         \
       fprintf(stdout,"For node p:=%d, %d==%d (l.%d,r.%d)\n",            \
               (int)a, (int)b, (int)c, __LINE__,test_count);             \
-      tconfusion("dotest");						\
+      tconfusion("dotest");                                             \
     } } while (0)
 
 #define check_action_ref(a)     { dorangetest(p,a,var_mem_max); }
@@ -1214,7 +1232,7 @@ void print_free_chain(int c)
     halfword p = free_chain[c];
     fprintf(stdout, "\nfree chain[%d] =\n  ", c);
     while (p != null) {
-	  fprintf(stdout, "%d,", (int)p);
+        fprintf(stdout, "%d,", (int) p);
         p = vlink(p);
     }
     fprintf(stdout, "null;\n");
