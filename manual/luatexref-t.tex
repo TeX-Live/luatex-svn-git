@@ -305,23 +305,49 @@ The primitive \tex{directlua} is used to execute \LUA\ code immediately.
 The syntax is
 
 \startsyntax
-\directlua <16-bit number> <general text>
+\directlua <16-bit number> <general text>!crlf
+\directlua name <general text> <16-bit number> <general text>
 \stopsyntax
 
-The \syntax{<general text>} is expanded fully, and then fed into the
-\LUA\ interpreter state indicated by the \syntax{<16-bit number>}. 
-If the state does not exist yet, it will be initialized
+The second \syntax{<general text>} is expanded fully, and then fed
+into the \LUA\ interpreter state indicated by the \syntax{<16-bit
+number>}. If the state does not exist yet, it will be initialized
 automatically. After reading and expansion has been applied to the
 \syntax{<general text>}, the resulting token list is converted to a
 string as if it was displayed using \type{\the\toks}. On the \LUA\
-side, each \type{\directlua} block is treated as a separate chunk. 
+side, each \type{\directlua} block is treated as a separate chunk.
 
 The conversion from and to a token list means that you normally can
 not use \LUA\ line comments (starting with \type{--}) within the
 argument, as there typically will be only one \quote{line}, so that comment
 will then run on until the end of the input. You will either need to
 use \TEX-style line comments (starting with \%), or change the \TEX\
-category codes locally.
+category codes locally. Another possibility is to say:
+
+\starttyping
+\begingroup
+\endlinechar=10
+\directlua ...
+\endgroup
+\stoptyping
+
+Then \LUA\ line comments can be used, since \TEX\ does not replace
+line endings with spaces.
+
+\syntax{name <general text>} specifies the name of the \LUA\ chunk,
+mainly shown in the stack backtrace of error messages created by \LUA\
+code. The \syntax{<general text>} is expanded fully, thus macros can
+be used to generate the chunk name, i.e.
+
+\starttyping
+\directlua name{\jobname:\the\inputlineno} ...
+\stoptyping
+
+to include the name of the input file as well as the input line into
+the chunk name.
+
+The chunk name should not start with a \type{@}, or it will be displayed
+as a file name (this is a quirk in the current \LUA\ implementation).
 
 \startbuffer
 $\pi = \directlua0{tex.print(math.pi)}$
@@ -3232,6 +3258,13 @@ created by executing this bytecode register:
 \startfunctioncall
 lua.bytecode[n]()
 \stopfunctioncall
+
+Note that the path of the file is stored in the \LUA\ bytecode to be
+used in stack backtraces and therefore dumped into the format file if
+above code is used in \INITEX. If it contains private information, i.e.
+the user name, this information is then contained in the format file as
+well. This should be kept in mind when preloading files into a bytecode
+register in \INITEX.
 
 \section{The \luatex{kpse} library}
 
@@ -6333,10 +6366,6 @@ Bad call to gww_iconv_open, neither arg is UCS4 (EUC-CN->UTF-8)
 \stoptyping
 during font loading. This is a limitation of the internal iconv
 implementation.
-
-\item Font expansion does not work quite as it should. On the mailing
-list (sep 21), Jonathan Sauer posted a very nice test file along with
-an explanation. 
 
 \item \luatex{tex.print()} and \luatex{tex.sprint()} do not work if
 \tex{directlua} is used in an \OTP\ file (in the output of an
