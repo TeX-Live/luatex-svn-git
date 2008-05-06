@@ -1253,6 +1253,7 @@ end;
 if last>=first then begin
   callback_id := callback_defined(process_input_buffer_callback);
   if callback_id>0 then begin
+    luacstrings:=0;
     last_ptr := first;
     lua_result := run_callback(callback_id, 'l->l', (last-first), addressof(last_ptr)); 
     if (lua_result=true)and(last_ptr<>0) then begin
@@ -1260,6 +1261,8 @@ if last>=first then begin
           if last>max_buf_stack then max_buf_stack:=last; 
       end;
     end;
+    if luacstrings>0 then
+      lua_string_start;
   end
 
 
