@@ -1339,6 +1339,9 @@ The total amount of returnable text from a \tex{directlua} command
 is only limited by available system \RAM. However, each separate
 printed string has to fit completely in \TEX's input buffer.
 
+The result of using these functions from inside callbacks is undefined
+at the moment. 
+
 \subsubsection{\luatex{tex.print}}
 
 \startfunctioncall
