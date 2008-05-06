@@ -1516,7 +1516,8 @@ static halfword handle_lig_word(halfword cur)
             if (fwd == null) {  /* last character of paragraph */
                 if (right == null)
                     break;
-                couple_nodes(cur, right);
+                /* --\par prohibits use of couple_nodes here */
+                try_couple_nodes(cur, right); 
                 right = null;
                 continue;
             }
@@ -1687,10 +1688,11 @@ static halfword handle_lig_word(halfword cur)
         /* step-to-next-node */
         {
             halfword prev = cur;
+            /* --\par allows vlink(cur) to be null */
             cur = vlink(cur);
-            assert(cur != null);
-            assert(alink(cur) == prev);
-            /*  alink(cur) = prev; */
+            if (cur!=null) {
+              assert(alink(cur) == prev);
+            }
         }
     }
 
