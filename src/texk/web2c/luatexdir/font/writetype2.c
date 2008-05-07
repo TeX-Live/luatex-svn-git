@@ -232,6 +232,7 @@ static struct {
 } required_table[] = {
     {
     "OS/2", 0}, {
+    "cmap", 0}, {
     "head", 1}, {
     "hhea", 1}, {
     "loca", 1}, {
