@@ -186,6 +186,8 @@ static int glyf_cmp(const void *v1, const void *v2)
 #define WE_HAVE_INSTRUCTIONS      (1 << 8)
 #define USE_MY_METRICS            (1 << 9)
 
+extern fd_entry * fd_cur;
+
 int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
 {
     char *hmtx_table_data = NULL, *loca_table_data = NULL;
@@ -234,6 +236,10 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
     if (os2) {
         g->default_advh = os2->sTypoAscender - os2->sTypoDescender;
         g->default_tsb = g->default_advh - os2->sTypoAscender;
+
+        /* dvipdfmx does this elsewhere! */
+        fd_cur->font_dim[STEMV_CODE].val =
+          (os2->usWeightClass/65)*(os2->usWeightClass/65)+50 ;
     }
 
     if (sfnt_find_table_pos(sfont, "vmtx") > 0) {
