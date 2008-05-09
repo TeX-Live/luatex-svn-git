@@ -76,6 +76,7 @@ int luapdfprint(lua_State * L)
             lua_error(L);
         }
     }
+    check_pdfminorversion();
     switch (literal_mode) {
     case (set_origin):
         pdf_end_text();
