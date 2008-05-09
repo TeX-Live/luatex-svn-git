@@ -15971,8 +15971,8 @@ end
 @!pdf_save_offset: integer; {to save |pdf_offset|}
 @!zip_write_state: integer; {which state of compression we are in}
 @!fixed_pdf_minor_version: integer; {fixed minor part of the PDF version}
+@!fixed_pdf_minor_version_set: boolean; {flag if the PDF version has been set}
 @!fixed_pdf_objcompresslevel: integer; {fixed level for activating PDF object streams}
-@!pdf_minor_version_written: boolean; {flag if the PDF version has been written}
 @!fixed_pdfoutput: integer; {fixed output format}
 @!fixed_pdfoutput_set: boolean; {|fixed_pdfoutput| has been set?}
 @!fixed_gamma: integer;
@@ -15998,7 +15998,7 @@ pdf_os_buf_size := inf_pdf_os_buf_size;
 pdf_buf := pdf_op_buf;
 pdf_seek_write_length := false;
 zip_write_state := no_zip;
-pdf_minor_version_written := false;
+fixed_pdf_minor_version_set := false;
 fixed_pdfoutput_set := false;
 fixed_pdf_draftmode_set := false;
 
@@ -16014,40 +16014,15 @@ begin
 end;
 
 @ This ensures that |pdfminorversion| is set only before any bytes have
-been written to the generated PDF file. Here also the PDF file is opened
-by |ensure_pdf_open| and the PDF header is written.
+been written to the generated \.{PDF} file. Here also all variables for
+\.{PDF} output are initialized, the \.{PDF} file is opened by |ensure_pdf_open|,
+and the \.{PDF} header is written.
 
 @p procedure check_pdfminorversion;
 begin
-    if not pdf_minor_version_written then begin
-        pdf_minor_version_written := true;
-        if (pdf_minor_version < 0) or (pdf_minor_version > 9) then begin
-            print_err("pdfTeX error (illegal pdfminorversion)");
-            print_ln;
-            help2 ("The pdfminorversion must be between 0 and 9.")@/
-                ("I changed this to 4.");
-            int_error (pdf_minor_version);
-            pdf_minor_version := 4;
-        end;
-        fixed_pdf_minor_version := pdf_minor_version;
-        fixed_gamma             := fix_int(pdf_gamma, 0, 1000000);
-        fixed_image_gamma       := fix_int(pdf_image_gamma, 0, 1000000);
-        fixed_image_hicolor     := fix_int(pdf_image_hicolor, 0, 1);
-        fixed_image_apply_gamma := fix_int(pdf_image_apply_gamma, 0, 1);
-        fixed_pdf_objcompresslevel := fix_int(pdf_objcompresslevel, 0, 3);
-        fixed_pdf_draftmode     := fix_int(pdf_draftmode, 0, 1);
-                fixed_replace_font      := fix_int(pdf_replace_font, 0, 1);
-        if (fixed_pdf_minor_version >= 5) and (fixed_pdf_objcompresslevel > 0) then
-            pdf_os_enable := true
-        else begin
-            if fixed_pdf_objcompresslevel > 0 then begin
-                pdf_warning("Object streams", "\pdfobjcompresslevel > 0 requires \pdfminorversion > 4. Object streams disabled now.", true, true);
-                fixed_pdf_objcompresslevel := 0;
-            end;
-            pdf_os_enable := false;
-        end;
+    if not fixed_pdf_minor_version_set then begin
+        @<Initialize variables for \.{PDF} output@>;
         ensure_pdf_open;
-        fix_pdfoutput;
         pdf_print("%PDF-1.");
         pdf_print_int_ln(fixed_pdf_minor_version);
         pdf_print("%");
@@ -16063,6 +16038,57 @@ begin
                "\pdfminorversion cannot be changed after data is written to the PDF file");
     end;
 end;
+
+@ @<Initialize variables for \.{PDF} output@>=
+fix_pdfoutput;
+prepare_mag;
+if (pdf_minor_version < 0) or (pdf_minor_version > 9) then begin
+    print_err("pdfTeX error (illegal pdfminorversion)");
+    print_ln;
+    help2 ("The pdfminorversion must be between 0 and 9.")@/
+        ("I changed this to 4.");
+    int_error (pdf_minor_version);
+    pdf_minor_version := 4;
+end;
+fixed_pdf_minor_version := pdf_minor_version;
+fixed_pdf_minor_version_set := true;
+fixed_decimal_digits    := fix_int(pdf_decimal_digits, 0, 4);
+fixed_gamma             := fix_int(pdf_gamma, 0, 1000000);
+fixed_image_gamma       := fix_int(pdf_image_gamma, 0, 1000000);
+fixed_image_hicolor     := fix_int(pdf_image_hicolor, 0, 1);
+fixed_image_apply_gamma := fix_int(pdf_image_apply_gamma, 0, 1);
+fixed_pdf_objcompresslevel := fix_int(pdf_objcompresslevel, 0, 3);
+fixed_pdf_draftmode     := fix_int(pdf_draftmode, 0, 1);
+fixed_replace_font      := fix_int(pdf_replace_font, 0, 1);
+if (fixed_pdf_minor_version >= 5) and (fixed_pdf_objcompresslevel > 0) then
+    pdf_os_enable := true
+else begin
+    if fixed_pdf_objcompresslevel > 0 then begin
+        pdf_warning("Object streams", "\pdfobjcompresslevel > 0 requires \pdfminorversion > 4. Object streams disabled now.", true, true);
+        fixed_pdf_objcompresslevel := 0;
+    end;
+    pdf_os_enable := false;
+end;
+min_bp_val :=
+    divide_scaled(one_hundred_bp, ten_pow[fixed_decimal_digits + 2], 0);
+if pdf_pk_resolution = 0 then {if not set from format file or by user}
+    pdf_pk_resolution := pk_dpi; {take it from \.{texmf.cnf}}
+fixed_pk_resolution := fix_int(pdf_pk_resolution, 72, 8000);
+pk_scale_factor :=
+    divide_scaled(72, fixed_pk_resolution, 5 + fixed_decimal_digits);
+if not callback_defined(read_pk_file_callback) then begin
+    if pdf_pk_mode <> null then begin
+        kpseinitprog('PDFTEX', fixed_pk_resolution,
+                     makecstring(tokens_to_string(pdf_pk_mode)), nil);
+        flush_string;
+    end else
+        kpseinitprog('PDFTEX', fixed_pk_resolution, nil, nil);
+    if not kpsevarvalue('MKTEXPK') then
+         kpsesetprogramenabled (kpsepkformat, 1, kpsesrccmdline);
+    end;
+set_job_id(year, month, day, time);
+if (pdf_unique_resname > 0) and (pdf_resname_prefix = 0) then
+    pdf_resname_prefix := get_resname_prefix
 
 @ Checks that we have a name for the generated PDF file and that it's open.
 
@@ -16270,7 +16296,6 @@ accurary.
 @!ten_pow: array[0..9] of integer; {$10^0..10^9$}
 @!scaled_out: integer; {amount of |scaled| that was taken out in
 |divide_scaled|}
-@!init_pdf_output: boolean;
 
 @ @<Set init...@>=
 one_hundred_inch := 7227 * 65536; {exact, 473628672}
@@ -16280,8 +16305,6 @@ one_bp := (one_hundred_bp + 50) div 100; {rounded to 65782}
 ten_pow[0] := 1;
 for i := 1 to 9 do
     ten_pow[i] := 10*ten_pow[i - 1];
-init_pdf_output := false;
-
 
 @ The function |divide_scaled| divides |s| by |m| using |dd| decimal
 digits of precision. It is defined in C because it is a good candidate
@@ -18585,8 +18608,8 @@ cur_h:=left_edge;
 cur_v:=save_v-height(leader_box)+leader_ht+lx;
 end
 
-@ |fix_pdfoutput| freezes |pdfoutput| when something has been written to
-the output.
+@ |fix_pdfoutput| freezes |fixed_pdfoutput| as soon as anything has been written
+to the output file, be it \.{PDF} or \.{DVI}.
 
 @p procedure fix_pdfoutput;
 begin
@@ -18644,10 +18667,7 @@ if (tracing_output>0)and(pre_callback_id=0) then
   print("Completed box being shipped out");
 @.Completed box...@>
   end;
-if not init_pdf_output then begin
-    @<Initialize variables for \.{PDF} output@>;
-    init_pdf_output := true;
-end;
+check_pdfminorversion;
 is_shipping_page := shipping_page;
 if shipping_page then begin
   if pre_callback_id>0 then 
@@ -18690,9 +18710,9 @@ cur_s:=-1;
 done:
 
 @ @<Initialize variables as |pdf_ship_out| begins@>=
-fix_pdfoutput;
-temp_ptr:=p;
+fix_pdfoutput; {re-check if |pdf_output| has changed}
 prepare_mag;
+temp_ptr:=p;
 pdf_last_resources := pdf_new_objnum;
 @<Reset resource lists@>;
 dvi_direction:=page_direction;
@@ -19345,31 +19365,6 @@ begin
     else
         dvi_ship_out(p);
 end;
-
-@ @<Initialize variables for \.{PDF} output@>=
-check_pdfminorversion;
-prepare_mag;
-fixed_decimal_digits := fix_int(pdf_decimal_digits, 0, 4);
-min_bp_val :=
-    divide_scaled(one_hundred_bp, ten_pow[fixed_decimal_digits + 2], 0);
-if pdf_pk_resolution = 0 then {if not set from format file or by user}
-    pdf_pk_resolution := pk_dpi; {take it from \.{texmf.cnf}}
-fixed_pk_resolution := fix_int(pdf_pk_resolution, 72, 8000);
-pk_scale_factor :=
-    divide_scaled(72, fixed_pk_resolution, 5 + fixed_decimal_digits);
-if not callback_defined(read_pk_file_callback) then begin
-  if pdf_pk_mode <> null then begin
-    kpseinitprog('PDFTEX', fixed_pk_resolution,
-                   makecstring(tokens_to_string(pdf_pk_mode)), nil);
-    flush_string;
-  end else
-    kpseinitprog('PDFTEX', fixed_pk_resolution, nil, nil);
-  if not kpsevarvalue('MKTEXPK') then
-     kpsesetprogramenabled (kpsepkformat, 1, kpsesrccmdline);
-  end;
-set_job_id(year, month, day, time);
-if (pdf_unique_resname > 0) and (pdf_resname_prefix = 0) then
-    pdf_resname_prefix := get_resname_prefix
 
 @ Finishing the PDF output file.
 
@@ -29749,8 +29744,7 @@ callback_id:=callback_defined(stop_run_callback);
 @!stat if tracing_stats>0 then
   if callback_id=0 then @<Output statistics about this job@>;@;@+tats@/
 wake_up_terminal;
-if not fixed_pdfoutput_set then
-    fix_pdfoutput;
+fix_pdfoutput;
 if fixed_pdfoutput > 0 then begin
     if history = fatal_error_stop then begin
         remove_pdffile;
