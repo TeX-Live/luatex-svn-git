@@ -538,10 +538,17 @@ static void read_scale_img(lua_State * L, image * a)
     if (img_state(ad) == DICT_NEW) {
         if (img_type(ad) == IMG_TYPE_PDFSTREAM)
             check_pdfstream_dict(ad);
-        else
+        else {
+            /* check_pdfminorversion() should not be here, as it belongs 
+             * to the output functions, and it is too early here to start
+             * already the PDF file only for image file scanning; but 
+             * it's needed as several fixed_* parameters are used early,
+             * e. g. by read_png_info(). */
+            check_pdfminorversion();
             read_img(ad, get_pdf_minor_version(),
                      get_pdf_inclusion_errorlevel());
-        img_unset_scaled(a);
+            img_unset_scaled(a);
+        }
     }
     fix_image_size(L, a);
 }

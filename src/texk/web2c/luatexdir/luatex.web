@@ -16021,6 +16021,7 @@ begin
     fix_pdfoutput;
     pdfassert(fixed_pdfoutput > 0);
     if not fixed_pdf_minor_version_set then begin
+        fixed_pdf_minor_version_set := true;
         @<Initialize variables for \.{PDF} output@>;
         @<Write \.{PDF} header@>;
     end
@@ -16044,7 +16045,6 @@ if (pdf_minor_version < 0) or (pdf_minor_version > 9) then begin
     pdf_minor_version := 4;
 end;
 fixed_pdf_minor_version := pdf_minor_version;
-fixed_pdf_minor_version_set := true;
 fixed_decimal_digits    := fix_int(pdf_decimal_digits, 0, 4);
 fixed_gamma             := fix_int(pdf_gamma, 0, 1000000);
 fixed_image_gamma       := fix_int(pdf_image_gamma, 0, 1000000);
@@ -29737,33 +29737,33 @@ callback_id:=callback_defined(stop_run_callback);
 @!stat if tracing_stats>0 then
   if callback_id=0 then @<Output statistics about this job@>;@;@+tats@/
 wake_up_terminal;
-fix_pdfoutput;
+if not fixed_pdfoutput_set then {else there will be an infinite loop in error case}
+    fix_pdfoutput;
 if fixed_pdfoutput > 0 then begin
     if history = fatal_error_stop then begin
         remove_pdffile;
         print_err(" ==> Fatal error occurred, no output PDF file produced!")
-        end
+    end
     else begin
-        check_pdfminorversion;
         @<Finish the PDF file@>;
-            if callback_id=0 then begin
-        if log_opened then
-            begin wlog_cr;
-            wlog_ln('PDF statistics:');
-            wlog_ln(' ',obj_ptr:1,' PDF objects out of ',obj_tab_size:1,
-                ' (max. ',sup_obj_tab_size:1,')');
-            if pdf_os_cntr > 0 then begin
-                wlog(' ',((pdf_os_cntr - 1) * pdf_os_max_objs + pdf_os_objidx + 1):1,
-                    ' compressed objects within ',pdf_os_cntr:1,' object stream');
-                if pdf_os_cntr > 1 then
-                    wlog('s');
-                wlog_cr;
+        if callback_id=0 then begin
+            if log_opened then
+                begin wlog_cr;
+                wlog_ln('PDF statistics:');
+                wlog_ln(' ',obj_ptr:1,' PDF objects out of ',obj_tab_size:1,
+                    ' (max. ',sup_obj_tab_size:1,')');
+                if pdf_os_cntr > 0 then begin
+                    wlog(' ',((pdf_os_cntr - 1) * pdf_os_max_objs + pdf_os_objidx + 1):1,
+                        ' compressed objects within ',pdf_os_cntr:1,' object stream');
+                    if pdf_os_cntr > 1 then
+                        wlog('s');
+                    wlog_cr;
+                end;
+                wlog_ln(' ',pdf_dest_names_ptr:1,' named destinations out of ',dest_names_size:1,
+                    ' (max. ',sup_dest_names_size:1,')');
+                wlog_ln(' ',pdf_mem_ptr:1,' words of extra memory for PDF output out of ',pdf_mem_size:1,
+                    ' (max. ',sup_pdf_mem_size:1,')');
             end;
-            wlog_ln(' ',pdf_dest_names_ptr:1,' named destinations out of ',dest_names_size:1,
-                ' (max. ',sup_dest_names_size:1,')');
-            wlog_ln(' ',pdf_mem_ptr:1,' words of extra memory for PDF output out of ',pdf_mem_size:1,
-                ' (max. ',sup_pdf_mem_size:1,')');
-        end;
         end;
     end;
 end
