@@ -182,58 +182,43 @@ run_external_ocp P1C(string, external_ocp_name)
     while ((c_in = fgetc(out_file)) != -1) {
         if (c_in >= 0xfc) {
             c = (c_in & 0x1) << 30;
-            {
-            advance_cin}
+            advance_cin;
             c |= (c_in & 0x3f) << 24;
-            {
-            advance_cin}
+            advance_cin;
             c |= (c_in & 0x3f) << 18;
-            {
-            advance_cin}
+            advance_cin;
             c |= (c_in & 0x3f) << 12;
-            {
-            advance_cin}
+            advance_cin;
             c |= (c_in & 0x3f) << 6;
-            {
-            advance_cin}
+            advance_cin;
             c |= c_in & 0x3f;
         } else if (c_in >= 0xf8) {
             c = (c_in & 0x3) << 24;
-            {
-            advance_cin}
+            advance_cin;
             c |= (c_in & 0x3f) << 18;
-            {
-            advance_cin}
+            advance_cin;
             c |= (c_in & 0x3f) << 12;
-            {
-            advance_cin}
+            advance_cin;
             c |= (c_in & 0x3f) << 6;
-            {
-            advance_cin}
+            advance_cin;
             c |= c_in & 0x3f;
         } else if (c_in >= 0xf0) {
             c = (c_in & 0x7) << 18;
-            {
-            advance_cin}
+            advance_cin;
             c |= (c_in & 0x3f) << 12;
-            {
-            advance_cin}
+            advance_cin;
             c |= (c_in & 0x3f) << 6;
-            {
-            advance_cin}
+            advance_cin;
             c |= c_in & 0x3f;
         } else if (c_in >= 0xe0) {
             c = (c_in & 0xf) << 12;
-            {
-            advance_cin}
+            advance_cin;
             c |= (c_in & 0x3f) << 6;
-            {
-            advance_cin}
+            advance_cin;
             c |= c_in & 0x3f;
         } else if (c_in >= 0x80) {
             c = (c_in & 0x1f) << 6;
-            {
-            advance_cin}
+            advance_cin;
             c |= c_in & 0x3f;
         } else {
             c = c_in & 0x7f;
