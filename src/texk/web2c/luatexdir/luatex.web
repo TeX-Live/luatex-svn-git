@@ -15979,10 +15979,9 @@ end
 @!fixed_image_gamma: integer;
 @!fixed_image_hicolor: boolean;
 @!fixed_image_apply_gamma: integer;
+@!fixed_pdf_draftmode: integer; {fixed \\pdfdraftmode}
 @!epochseconds: integer;
 @!microseconds: integer;
-@!fixed_pdf_draftmode: integer; {fixed \\pdfdraftmode}
-@!fixed_pdf_draftmode_set: boolean; {|fixed_pdf_draftmode| has been set?}
 
 
 @ @<Set init...@>=
@@ -16000,7 +15999,6 @@ pdf_seek_write_length := false;
 zip_write_state := no_zip;
 fixed_pdf_minor_version_set := false;
 fixed_pdfoutput_set := false;
-fixed_pdf_draftmode_set := false;
 
 @ @p
 function fix_int(val, min, max: integer): integer;
@@ -16020,27 +16018,22 @@ and the \.{PDF} header is written.
 
 @p procedure check_pdfminorversion;
 begin
+    fix_pdfoutput;
+    pdfassert(fixed_pdfoutput > 0);
     if not fixed_pdf_minor_version_set then begin
         @<Initialize variables for \.{PDF} output@>;
-        ensure_pdf_open;
-        pdf_print("%PDF-1.");
-        pdf_print_int_ln(fixed_pdf_minor_version);
-        pdf_print("%");
-        pdf_out(208); {'P' + 128}
-        pdf_out(212); {'T' + 128}
-        pdf_out(197); {'E' + 128}
-        pdf_out(216); {'X' + 128}
-        pdf_print_nl;
+        @<Write \.{PDF} header@>;
     end
     else begin
-        if fixed_pdf_minor_version <> pdf_minor_version then
-            pdf_error("setup",
-               "\pdfminorversion cannot be changed after data is written to the PDF file");
+        @<Check that variables for \.{PDF} output are unchanged@>;
+    end;
+    if fixed_pdf_draftmode <> 0 then begin
+        pdf_compress_level := 0; {re-fix it, might have been changed inbetween}
+        fixed_pdf_objcompresslevel := 0;
     end;
 end;
 
 @ @<Initialize variables for \.{PDF} output@>=
-fix_pdfoutput;
 prepare_mag;
 if (pdf_minor_version < 0) or (pdf_minor_version > 9) then begin
     print_err("pdfTeX error (illegal pdfminorversion)");
@@ -16060,11 +16053,13 @@ fixed_image_apply_gamma := fix_int(pdf_image_apply_gamma, 0, 1);
 fixed_pdf_objcompresslevel := fix_int(pdf_objcompresslevel, 0, 3);
 fixed_pdf_draftmode     := fix_int(pdf_draftmode, 0, 1);
 fixed_replace_font      := fix_int(pdf_replace_font, 0, 1);
+fixed_pk_resolution     := fix_int(pdf_pk_resolution, 72, 8000);
 if (fixed_pdf_minor_version >= 5) and (fixed_pdf_objcompresslevel > 0) then
     pdf_os_enable := true
 else begin
     if fixed_pdf_objcompresslevel > 0 then begin
-        pdf_warning("Object streams", "\pdfobjcompresslevel > 0 requires \pdfminorversion > 4. Object streams disabled now.", true, true);
+        pdf_warning("Object streams",
+                    "\pdfobjcompresslevel > 0 requires \pdfminorversion > 4. Object streams disabled now.", true, true);
         fixed_pdf_objcompresslevel := 0;
     end;
     pdf_os_enable := false;
@@ -16073,7 +16068,6 @@ min_bp_val :=
     divide_scaled(one_hundred_bp, ten_pow[fixed_decimal_digits + 2], 0);
 if pdf_pk_resolution = 0 then {if not set from format file or by user}
     pdf_pk_resolution := pk_dpi; {take it from \.{texmf.cnf}}
-fixed_pk_resolution := fix_int(pdf_pk_resolution, 72, 8000);
 pk_scale_factor :=
     divide_scaled(72, fixed_pk_resolution, 5 + fixed_decimal_digits);
 if not callback_defined(read_pk_file_callback) then begin
@@ -16090,6 +16084,25 @@ set_job_id(year, month, day, time);
 if (pdf_unique_resname > 0) and (pdf_resname_prefix = 0) then
     pdf_resname_prefix := get_resname_prefix
 
+@ @<Check that variables for \.{PDF} output are unchanged@>=
+if fixed_pdf_minor_version <> pdf_minor_version then
+    pdf_error("setup",
+              "\pdfminorversion cannot be changed after data is written to the PDF file");
+if fixed_pdf_draftmode <> pdf_draftmode then
+    pdf_error("setup",
+              "\pdfdraftmode cannot be changed after data is written to the PDF file");
+
+@ @<Write \.{PDF} header@>=
+ensure_pdf_open;
+pdf_print("%PDF-1.");
+pdf_print_int_ln(fixed_pdf_minor_version);
+pdf_print("%");
+pdf_out(208); {'P' + 128}
+pdf_out(212); {'T' + 128}
+pdf_out(197); {'E' + 128}
+pdf_out(216); {'X' + 128}
+pdf_print_nl;
+
 @ Checks that we have a name for the generated PDF file and that it's open.
 
 @p procedure ensure_pdf_open;
@@ -16099,9 +16112,9 @@ begin
     if job_name = 0 then
         open_log_file;
     pack_job_name(".pdf");
-        if fixed_pdf_draftmode = 0 then
-    while not lua_b_open_out(pdf_file) do
-        prompt_file_name("file name for output",".pdf");
+    if fixed_pdf_draftmode = 0 then
+        while not lua_b_open_out(pdf_file) do
+            prompt_file_name("file name for output",".pdf");
     pdf_file:=name_file_pointer;
     output_file_name := b_make_name_string(pdf_file);
 end;
@@ -18620,25 +18633,6 @@ begin
     else if fixed_pdfoutput <> pdf_output then
         pdf_error("setup",
             "\pdfoutput can only be changed before anything is written to the output");
-    if fixed_pdfoutput_set then fix_pdf_draftmode;
-end;
-
-@ |fix_pdf_draftmode| freezes |pdfdraftmode| when something has been written to
-the output and also switches somes things off when draftmode is on.
-@p procedure fix_pdf_draftmode;
-begin
-    if not fixed_pdf_draftmode_set then begin
-        fixed_pdf_draftmode := pdf_draftmode;
-        fixed_pdf_draftmode_set := true;
-    end
-    else if fixed_pdf_draftmode <> pdf_draftmode then
-        pdf_error("setup",
-            "\pdfdraftmode can only be changed before anything is written to the output");
-    if fixed_pdf_draftmode_set and fixed_pdf_draftmode > 0 then begin
-        fixed_pdf_draftmode_set := true;
-        pdf_compress_level := 0;
-        fixed_pdf_objcompresslevel := 0;
-    end;
 end;
 
 @ |pdf_ship_out| is used instead of |ship_out| to shipout a box to PDF
@@ -18710,7 +18704,6 @@ cur_s:=-1;
 done:
 
 @ @<Initialize variables as |pdf_ship_out| begins@>=
-fix_pdfoutput; {re-check if |pdf_output| has changed}
 prepare_mag;
 temp_ptr:=p;
 pdf_last_resources := pdf_new_objnum;
@@ -29751,6 +29744,7 @@ if fixed_pdfoutput > 0 then begin
         print_err(" ==> Fatal error occurred, no output PDF file produced!")
         end
     else begin
+        check_pdfminorversion;
         @<Finish the PDF file@>;
             if callback_id=0 then begin
         if log_opened then
