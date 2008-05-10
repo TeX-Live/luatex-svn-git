@@ -356,6 +356,10 @@ void init_kpse(void)
         fprintf(stdout, "kpathsea mode needs a --progname or --fmt switch\n");
         exit(1);
     }
+
+    kpse_set_program_enabled (kpse_fmt_format, MAKE_TEX_FMT_BY_DEFAULT,
+                              kpse_src_compile);
+
     kpse_set_program_name(argv[0], user_progname);
     program_name_set = 1;
 }
