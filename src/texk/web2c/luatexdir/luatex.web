@@ -16858,7 +16858,6 @@ well.
 @d head_tab_max                 == obj_type_thread {max index of |head_tab|}
 
 @# {max number of kids for balanced trees}
-@d pages_tree_kids_max     == 6 {max number of kids of Pages tree node}
 @d name_tree_kids_max      == 6 {max number of kids of node of name tree for
 name destinations}
 
@@ -19418,42 +19417,38 @@ if total_pages=0 then begin
 end
 else begin
     if fixed_pdf_draftmode = 0 then begin
-    pdf_flush; {to make sure that the output file name has been already
-    created}
-    if total_pages mod pages_tree_kids_max <> 0 then
-        obj_info(pdf_last_pages) := total_pages mod pages_tree_kids_max;
-    {last pages object may have less than |pages_tree_kids_max| children}
-    flush_jbig2_page0_objects; {flush page 0 objects from JBIG2 images, if any}
-    @<Check for non-existing pages@>;
-    @<Check for non-existing destinations@>;
-    @<Output fonts definition@>;
-    pdf_last_pages := output_pages_tree;
-    @<Output outlines@>;
-    @<Output name tree@>;
-    @<Output article threads@>;
-    @<Output the catalog object@>;
-    pdf_print_info; {last candidate for object stream}
-    if pdf_os_enable then begin
-        pdf_os_switch(true);
-        pdf_os_write_objstream;
+        pdf_flush; {to make sure that the output file name has been already created}
+        flush_jbig2_page0_objects; {flush page 0 objects from JBIG2 images, if any}
+        @<Check for non-existing pages@>;
+        @<Check for non-existing destinations@>;
+        @<Output fonts definition@>;
+        pdf_last_pages := output_pages_tree;
+        @<Output outlines@>;
+        @<Output name tree@>;
+        @<Output article threads@>;
+        @<Output the catalog object@>;
+        pdf_print_info; {last candidate for object stream}
+        if pdf_os_enable then begin
+            pdf_os_switch(true);
+            pdf_os_write_objstream;
+            pdf_flush;
+            pdf_os_switch(false);
+            @<Output the cross-reference stream dictionary@>;
+            pdf_flush;
+        end else begin
+            @<Output the |obj_tab|@>;
+        end;
+        @<Output the trailer@>;
         pdf_flush;
-        pdf_os_switch(false);
-        @<Output the cross-reference stream dictionary@>;
-        pdf_flush;
-    end else begin
-        @<Output the |obj_tab|@>;
-    end;
-    @<Output the trailer@>;
-    pdf_flush;
-    if callback_id=0 then begin
-        print_nl("Output written on "); print_file_name(0, output_file_name, 0);
-        @.Output written on x@>
-        print(" ("); print_int(total_pages); print(" page");
-        if total_pages<>1 then print_char("s");
-        print(", "); print_int(pdf_offset); print(" bytes).");
-    end
-    else
-        res:=run_callback(callback_id,'->');
+        if callback_id=0 then begin
+            print_nl("Output written on "); print_file_name(0, output_file_name, 0);
+            @.Output written on x@>
+            print(" ("); print_int(total_pages); print(" page");
+            if total_pages<>1 then print_char("s");
+            print(", "); print_int(pdf_offset); print(" bytes).");
+        end
+        else
+            res:=run_callback(callback_id,'->');
     end;
     libpdffinish;
     if fixed_pdf_draftmode = 0 then b_close(pdf_file)
@@ -29632,7 +29627,6 @@ This program doesn't bother to close the input files that may still be open.
 procedure close_files_and_terminate;
 label done, done1;
 var a, b, c, i, j, k, l: integer; {all-purpose index}
-    is_root: boolean; {|pdf_last_pages| is root of Pages tree?}
     is_names: boolean; {flag for name tree output: is it Names or Kids?}
     root, outlines, threads, names_tree, dests: integer;
     xref_offset_width, names_head, names_tail: integer;
