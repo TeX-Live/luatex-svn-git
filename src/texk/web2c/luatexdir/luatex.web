@@ -19407,11 +19407,11 @@ are already written completely to PDF output file.
 
 @<Finish the PDF file@>=
 if total_pages=0 then begin
-        if callback_id=0 then
-      print_nl("No pages of output.")
+    if callback_id=0 then
+        print_nl("No pages of output.")
     else
-      res:=run_callback(callback_id,'->');
-  @.No pages of output@>
+        res:=run_callback(callback_id,'->');
+    @.No pages of output@>
     if pdf_gone > 0 then
         garbage_warning;
 end
