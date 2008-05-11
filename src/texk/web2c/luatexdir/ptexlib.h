@@ -274,6 +274,9 @@ extern scaled getllx();
 extern scaled getlly();
 extern scaled geturx();
 extern scaled getury();
+extern integer pdf_do_page_divert(integer, integer);
+extern void pdf_do_page_undivert(integer, integer);
+extern integer output_pages_tree();
 
 /* writeenc.c */
 extern fe_entry *get_fe_entry(char *);

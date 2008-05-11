@@ -445,6 +445,9 @@
 @define function getlly;
 @define function geturx;
 @define function getury;
+@define function pdf_do_page_divert();
+@define procedure pdf_do_page_undivert();
+@define function output_pages_tree;
 
 {functions from texpdf.c }
 
