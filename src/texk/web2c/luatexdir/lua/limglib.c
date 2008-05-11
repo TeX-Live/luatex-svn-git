@@ -568,8 +568,8 @@ static int l_scan_image(lua_State * L)
     return 1;                   /* image */
 }
 
-/* these should go into some header file... */
-#define obj_type_ximage 8
+/* DANGER! these should go into some header file... */
+#define obj_type_ximage 7
 #define obj_aux(a)      obj_tab[a].int4 /* auxiliary pointer */
 #define obj_data_ptr    obj_aux /* pointer to |pdf_mem| */
 
