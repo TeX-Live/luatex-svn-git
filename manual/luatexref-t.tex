@@ -2158,8 +2158,13 @@ The \type{stream} key requires that also the \type{bbox} table is given.
 The \type{stream} key conflicts with the \type{filename} key.
 The \type{transform} key works as usual also with \type{stream}.
 
-The \type{bbox} key needs a table like \type{{"30bp", "0bp", "225bp", "200bp"}}.
-It replaces and overrules any given \type{pagebox} value;
+The \type{bbox} key needs a table with four boundingbox values, e.\,g.:
+
+\startfunctioncall
+a.bbox = {"30bp", 0, "225bp", "200bp"}
+\stopfunctioncall
+
+This replaces and overrules any given \type{pagebox} value;
 with given \type{bbox} the box dimensions coming with an embedded \PDF\ file
 are ignored.
 The \type{xsize} and \type{ysize} dimensions are set accordingly,
