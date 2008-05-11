@@ -2084,14 +2084,14 @@ The generated \type{<image>} userdata object allows access to a set of
 user-specified values as well as a set of values that are normally
 filled in and updated automatically by \LUATEX\ itself. Some of those
 are derived from the actual image file, others are updated to reflect 
-the PDF output status of the object.
+the \PDF\ output status of the object.
 
 There is one required user-specified field: the file name
 (\type{filename}).  It can optionally be augmented by the requested
 image dimensions (\type{width}, \type{depth}, \type{height}),
-user-specified image attributes (\type{attr}), the requested PDF page
+user-specified image attributes (\type{attr}), the requested \PDF\ page
 identifier (\type{page}), the requested boundingbox (\type{pagebox})
-for PDF inclusion, the requested color space object (\type{colorspace}).
+for \PDF\ inclusion, the requested color space object (\type{colorspace}).
 
 The function \type{img.new} does not access the actual image file, it
 just creates the \type{<image>} userdata object and initializes some
@@ -2119,17 +2119,20 @@ keys, both user-supplied and automatic ones.
 \NC transform     \NC number   \NC Image transform, integer number 0..7\NC \NR
 \NC attr          \NC string   \NC Image attributes for \LUATEX \NC \NR
 \NC filename      \NC string   \NC Image file name \NC \NR
+\NC stream        \NC string   \NC raw stream data for an \type{/Xobject} \type{/Form} object\NC \NR
 \NC page          \NC ??       \NC Identifier for the requested image
                                    page (type is number or string,
                                    default is the number 1)\NC \NR
-\NC pagebox       \NC string   \NC Requested bounding box. 
+\NC pagebox       \NC string   \NC Requested bounding box.
                                    One of "none", "media", "crop", "bleed", "trim", "art" \NC \NR
+\NC bbox          \NC table    \NC table with 4 boundingbox dimensions \type{llx}, \type{lly},
+                                   \type{urx}, and \type{ury} overruling the \type{pagebox} entry\NC \NR
 \NC filepath      \NC string   \NC Full (expanded) file name of the image \NC \NR
 \NC colordepth    \NC number   \NC Number of bits used by the color space \NC \NR
 \NC colorspace    \NC number   \NC Color space object number \NC \NR
 \NC imagetype     \NC string   \NC One of "pdf", "png", "jpg", "jbig2", or \type{nil} \NC \NR
-\NC objnum        \NC number   \NC PDF image object number \NC \NR
-\NC index         \NC number   \NC PDF image name suffix \NC \NR
+\NC objnum        \NC number   \NC \PDF\ image object number \NC \NR
+\NC index         \NC number   \NC \PDF\ image name suffix \NC \NR
 \NC pages         \NC number   \NC Total number of available pages \NC \NR
 \NC xsize         \NC number   \NC Natural image width \NC \NR
 \NC ysize         \NC number   \NC Natural image height \NC \NR
@@ -2141,6 +2144,28 @@ A running (undefined) dimension in \type{width}, \type{height}, or \type{depth} 
 represented as \type{nil} in Lua, so if you want to load an image at
 its `natural' size, you do not have to specify any of those three fields.
 
+The \type{stream} parameter allows to fabricate an \type{/XObject} \type{/Form}
+object from a string giving the stream contents,
+e.\,g., for a filled rectangle:
+
+\startfunctioncall
+a.stream = "0 0 20 10 re f"
+\stopfunctioncall
+
+When writing the image, an \type{/Xobject} \type{/Form} object is created,
+like with embedded \PDF\ file writing. The object is written out only once.
+The \type{stream} key requires that also the \type{bbox} table is given.
+The \type{stream} key conflicts with the \type{filename} key.
+The \type{transform} key works as usual also with \type{stream}.
+
+The \type{bbox} key needs a table like \type{{"30bp", "0bp", "225bp", "200bp"}}.
+It replaces and overrules any given \type{pagebox} value;
+with given \type{bbox} the box dimensions coming with an embedded \PDF\ file
+are ignored.
+The \type{xsize} and \type{ysize} dimensions are set accordingly,
+when the image is scaled.
+The \type{bbox} parameter is ignored for non-\PDF\ images.
+
 The \type{transform} allows to mirror and rotate the image in steps of 90~deg.
 The default value~0 gives an unmirrored, unrotated image.
 Values 1..3 give counterclockwise rotation by 90, 180, or 270~deg.,
@@ -2149,6 +2174,9 @@ and then rotated counterclockwise by 90, 180, or 270~deg.
 The \type{transform} operation gives the same visual result
 as if you would externally preprocess the image by a graphics tool
 and then use it by \LUATEX.
+If a \PDF\ file to be embedded already contains a \type{/Rotate} specification,
+the rotation result is the combination of the \type{/Rotate} rotation
+followed by the \type{transform} operation.
 
 \subsubsubject{\luatex{img.scan}}
 
