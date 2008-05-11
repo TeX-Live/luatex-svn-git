@@ -2051,6 +2051,8 @@ The optional parameter can be used to mimic the behavior of
 The \type{img} library can be used as an alternative to
 \tex{pdfximage} and \tex{pdfrefximage}, and the associated `satellite'
 commands like \tex{pdfximagebbox}.
+Image objects can also be used within virtual fonts
+via the \type{image} command listed in~\in{section}[virtualfonts].
 
 \subsubsubject{\luatex{img.new}}
 
@@ -5234,7 +5236,7 @@ This type of reencoding means that there is no longer a clear
 connection between the text in your input file and the strings in the
 output \PDF\ file. Dealing with this is high on the agenda.
 
-\section {Virtual fonts}
+\section[virtualfonts]{Virtual fonts}
 
 You have to take the following steps if you want \LUATEX\ to treat the
 returned table from \luatex{define_font} as a virtual font:
@@ -5292,6 +5294,8 @@ allowed commands and their arguments are:
 \NC down              \NC 1         \NC number    \NC move down on the page\NC\NR
 \NC right             \NC 1         \NC number    \NC move right on the page\NC\NR
 \NC special           \NC 1         \NC string    \NC output a \tex{special} command\NC\NR
+\NC image             \NC 1         \NC image     \NC output an image (the argument can be either an \type{<image>}
+                                                      variable or an \type{image_spec} table)\NC\NR
 \NC comment           \NC any       \NC any       \NC the arguments of this command are ignored\NC\NR
 \stoptabulate
 
