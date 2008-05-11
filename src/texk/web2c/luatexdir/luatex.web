@@ -16848,14 +16848,13 @@ well.
 @# {types of objects}
 @d obj_type_others              == 0 {objects which are not linked in any list}
 @d obj_type_page                == 1 {index of linked list of Page objects}
-@d obj_type_pages               == 2 {obsolete: index of linked list of Pages objects}
-@d obj_type_font                == 3 {index of linked list of Fonts objects}
-@d obj_type_outline             == 4 {index of linked list of outline objects}
-@d obj_type_dest                == 5 {index of linked list of destination objects}
-@d obj_type_obj                 == 6 {index of linked list of raw objects}
-@d obj_type_xform               == 7 {index of linked list of XObject forms}
-@d obj_type_ximage              == 8 {index of linked list of XObject image}
-@d obj_type_thread              == 9 {index of linked list of num article threads}
+@d obj_type_font                == 2 {index of linked list of Fonts objects}
+@d obj_type_outline             == 3 {index of linked list of outline objects}
+@d obj_type_dest                == 4 {index of linked list of destination objects}
+@d obj_type_obj                 == 5 {index of linked list of raw objects}
+@d obj_type_xform               == 6 {index of linked list of XObject forms}
+@d obj_type_ximage              == 7 {index of linked list of XObject image}
+@d obj_type_thread              == 8 {index of linked list of num article threads}
 @d head_tab_max                 == obj_type_thread {max index of |head_tab|}
 
 @# {max number of kids for balanced trees}
