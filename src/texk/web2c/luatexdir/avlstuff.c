@@ -27,7 +27,7 @@ static const char __svn_version[] =
     "$Id$ $URL$";
 
 static struct avl_table *PdfObjTree[pdf_objtype_max + 1] =
-    { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
+    { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 
 /**********************************************************************/
 /* memory management functions for AVL */
