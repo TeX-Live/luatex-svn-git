@@ -26,8 +26,7 @@
 static const char __svn_version[] =
     "$Id$ $URL$";
 
-static struct avl_table *PdfObjTree[pdf_objtype_max + 1] =
-    { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
+static struct avl_table **PdfObjTree = NULL;
 
 /**********************************************************************/
 /* memory management functions for AVL */
@@ -118,7 +117,13 @@ void avl_put_obj(integer objptr, integer t)
 {
     static void **pp;
     static oentry *oe;
+    int i;
 
+    if (PdfObjTree == NULL) {
+        PdfObjTree = xtalloc(pdf_objtype_max + 1, struct avl_table *);
+        for (i = 0; i <= pdf_objtype_max; i++)
+            PdfObjTree[i] = NULL;
+    }
     if (PdfObjTree[t] == NULL) {
         PdfObjTree[t] = avl_create(compare_info, NULL, &avl_xallocator);
         if (PdfObjTree[t] == NULL)
@@ -144,7 +149,7 @@ integer avl_find_obj(integer t, integer i, integer byname)
         tmp.int0 = -i;
     else
         tmp.int0 = i;
-    if (PdfObjTree[t] == NULL)
+    if (PdfObjTree == NULL || PdfObjTree[t] == NULL)
         return 0;
     p = (oentry *) avl_find(PdfObjTree[t], &tmp);
     if (p == NULL)
@@ -174,10 +179,14 @@ void PdfObjTree_free()
 {
     int i;
 
+    if (PdfObjTree == NULL)
+        return;
     for (i = 0; i <= pdf_objtype_max; i++) {
         if (PdfObjTree[i] != NULL)
             avl_destroy(PdfObjTree[i], destroy_oentry);
     }
+    xfree(PdfObjTree);
+    PdfObjTree = NULL;
 }
 
 /**********************************************************************/
