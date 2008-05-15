@@ -80,6 +80,8 @@
 @define function get_pre_hyphen_char();
 @define function get_post_hyphen_char();
 
+@define procedure print_pdf_pages_attr;
+
 { macros from luatex.h }
 @define function pdf_char_marked();
 @define function tex_b_open_in();
