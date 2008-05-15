@@ -259,11 +259,7 @@ void luacall(int n, int s)
         if (i != 0) {
             Luas[n] = luatex_error(Luas[n], (i == LUA_ERRSYNTAX ? 0 : 1));
         } else {
-            int base = lua_gettop(Luas[n]);     /* function index */
-            lua_pushcfunction(Luas[n], lua_traceback);  /* push traceback function */
-            lua_insert(Luas[n], base);  /* put it under chunk and args */
-            i = lua_pcall(Luas[n], 0, 0, base);
-            lua_remove(Luas[n], 1);     /* remove traceback function */
+            i = lua_pcall(Luas[n], 0, 0, 0);
             if (i != 0) {
                 lua_gc(Luas[n], LUA_GCCOLLECT, 0);
                 Luas[n] = luatex_error(Luas[n], (i == LUA_ERRRUN ? 0 : 1));
@@ -297,11 +293,19 @@ void luatokencall(int n, int p, int nameptr)
         if (i != 0) {
             Luas[n] = luatex_error(Luas[n], (i == LUA_ERRSYNTAX ? 0 : 1));
         } else {
-            int base = lua_gettop(Luas[n]);     /* function index */
-            lua_pushcfunction(Luas[n], lua_traceback);  /* push traceback function */
-            lua_insert(Luas[n], base);  /* put it under chunk and args */
-            i = lua_pcall(Luas[n], 0, 0, base);
-            lua_remove(Luas[n], base);  /* remove traceback function */
+          int base = lua_gettop(Luas[n]);     /* function index */
+          fprintf(stdout, "BASE=%d\n", base);
+#if 0
+          /*  this does not seem to work. I don't get how that is possible,
+              but apparently |base| is sometimes zero */
+          lua_checkstack(Luas[n],1);
+          lua_pushcfunction(Luas[n], lua_traceback);  /* push traceback function */
+          lua_insert(Luas[n], base);  /* put it under chunk  */
+          i = lua_pcall(Luas[n], 0, 0, base);
+          lua_remove(Luas[n], base);  /* remove traceback function */
+#else
+          i = lua_pcall(Luas[n], 0, 0, 0);
+#endif
             if (i != 0) {
                 lua_gc(Luas[n], LUA_GCCOLLECT, 0);
                 Luas[n] = luatex_error(Luas[n], (i == LUA_ERRRUN ? 0 : 1));
