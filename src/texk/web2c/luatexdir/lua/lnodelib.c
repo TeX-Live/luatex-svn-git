@@ -75,8 +75,6 @@ int do_get_node_type_id(lua_State * L, int n, node_info * data)
         }
     } else if (lua_type(L, n) == LUA_TNUMBER) {
         register int i = lua_tointeger(L, n);
-        if (data[i].id == i)
-            return i;
         for (j = 0; data[j].id != -1; j++) {
             if (data[j].id == i)
                 return j;
