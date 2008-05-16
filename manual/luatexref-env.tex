@@ -2,13 +2,37 @@
 
 \startenvironment luatexref-env
 
+% something rests this, but i hav eno time not to see where
+
+\unprotect \bgroup
+
+    \ifx\normalsuber\undefined \def\normalsuber{_} \fi
+    \ifx\normalsuper\undefined \def\normalsuper{^} \fi
+
+    \catcode`_=\active
+    \catcode`^=\active
+
+    \gdef\nonknuthmode
+      {\appendtoks\let_\normalsuber\let^\normalsuper\to\everymathematics
+       \mathcode`_="8000
+       \mathcode`^="8000
+       \catcode`_=\@@other
+       \catcode`^=\@@other
+       }% \let\nonknuthmode\relax}
+
+    \gdef\donknuthmode
+      {\catcode`_=\@@subscript
+       \catcode`^=\@@superscript}
+
+\egroup \protect
+
 \usemodule[abr-02]
 
 % \tex    : tex command
 % \lua    : native lua code
 % \luatex : lua lib, function, value defined in luatex
 
-\catcode`\_=12 % we will make a nice attribute for this kind of break stuff
+\nonknuthmode
 
 \setuptolerance[stretch,tolerant]
 
@@ -302,8 +326,17 @@
 
 \fi
 
-\setupinteraction[state=start]
-\placebookmarks[chapter,section,subsection]
+\setupinteraction
+  [state=start,
+   color=,
+   contrastcolor=]
+
+\placebookmarks
+  [chapter,section,subsection]
+
+\setuplist
+  [chapter,section,subsection]
+   [interaction=all]
 
 % Hans doesn't like the bookmarks opening by default
 % \setupinteractionscreen[option=bookmark]
