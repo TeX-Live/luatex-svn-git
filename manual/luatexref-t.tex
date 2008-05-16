@@ -179,7 +179,7 @@ at maximum. The extension from 8-bit to 16-bit was already present in
 
 Therefore, the math primitives from \TEX\ and \ALEPH\ are kept mostly
 as they are, except for the ones that convert from input to math
-commands like \type{matcode} and \type{omathcode}. The traditional
+commands like \type{mathcode} and \type{omathcode}. The traditional
 \TEX\ primitives are unchanged, their arguments are upscaled from 8~to
 16~bits internally (as in \ALEPH).
 
@@ -606,8 +606,8 @@ also print the node number of the nodes.
 
 \subsection{\LUATEX\ as a \LUA\ interpreter}
 
-There are some situations that make \LUATEX\ behave like it is a \LUA\
-interpreter only:
+There are some situations that make \LUATEX\ behave like a standalone \LUA\
+interpreter:
 
 \startitemize[packed]
 \item if a \type{--luaonly} option is given on the commandline, or
@@ -627,7 +627,7 @@ interpreter with a bunch of extra preloaded libraries.
 
 \subsection{\LUATEX\ as a \LUA\ byte compiler}
 
-There are two situations that make \LUATEX\ behaves like the \LUA\
+There are two situations that make \LUATEX\ behave like the \LUA\
 byte compiler:
 
 \startitemize[packed]
