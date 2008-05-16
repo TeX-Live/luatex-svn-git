@@ -108,7 +108,7 @@ do_define_font(integer f, char *cnom, char *caire, scaled s,
                 fprintf(stdout, "font_from_lua(%s,%i): %f seconds\n",
                         font_name(f), f, tvdiff);
 #endif
-                lua_pop(Luas[0], 1);
+                /* lua_pop(Luas[0], 1); */ /* done by font_from_lua */
             } else if (lua_isnumber(Luas[0], -1)) {
                 r = lua_tonumber(Luas[0], -1);
                 destroy_saved_callback(callback_id);
