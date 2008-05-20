@@ -53,7 +53,7 @@ static const char _svn_version[] =
 #  if defined(__LINUX__) || defined (__linux)
 #    undef OS_PLATNAME
 #    define OS_PLATNAME "linux"
-#  elif defined(__FREEBSD__) || defined(__FreeBSD)
+#  elif defined(__FREEBSD__) || defined(__FreeBSD__) || defined(__FreeBSD)
 #    undef OS_PLATNAME
 #    define OS_PLATNAME "freebsd"
 #  elif defined(__OPENBSD__)  || defined(__OpenBSD)
