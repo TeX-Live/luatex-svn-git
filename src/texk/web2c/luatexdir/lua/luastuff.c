@@ -116,6 +116,32 @@ void luainterpreter(int n)
     lua_pushstring(L, "zip");
     lua_call(L, 1, 0);
 
+    /* luasockets */
+    /* socket and mime are a bit tricky to open because
+     * they use a load-time  dependency that has to be 
+     * worked around for luatex, where the C module is 
+     * loaded way before the lua module.
+     */
+    lua_getglobal(L, "package");
+    lua_getfield(L, -1, "loaded");
+    if (!lua_istable(L,-1)) {
+      lua_newtable(L);
+      lua_setfield(L, -2, "loaded");
+      lua_getfield(L, -1, "loaded");
+    }
+    luaopen_socket_core(L);
+    lua_setfield(L, -2, "socket.core");
+    lua_pushnil(L);
+    lua_setfield(L, -2, "socket"); /* package.loaded.socket = nil */
+
+    luaopen_mime_core(L);
+    lua_setfield(L, -2, "mime.core");
+    lua_pushnil(L);
+    lua_setfield(L, -2, "mime"); /* package.loaded.mime = nil */
+    lua_pop(L, 2); /* pop the tables */
+
+    luatex_socketlua_open(L); /* preload the pure lua modules */
+    
     /*luaopen_lpeg(L); */
     lua_pushcfunction(L, luaopen_lpeg);
     lua_pushstring(L, "lpeg");
