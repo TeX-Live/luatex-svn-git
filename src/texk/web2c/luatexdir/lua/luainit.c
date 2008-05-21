@@ -51,6 +51,7 @@ const_string LUATEX_IHELP[] = {
     "",
     "  --lua=FILE               the lua initialization file",
     "  --safer                  disable some easily exploitable lua commands",
+    "  --nosocket               disable the luasocket (network) library",
     "  --fmt=FORMAT             load the format file FORMAT",
     "  --ini                    be initex, for dumping formats",
     "  --help                   display this help and exit",
@@ -99,6 +100,7 @@ int lua_only = 0;
 int lua_offset = 0;
 
 int safer_option = 0;
+int nosocket_option = 0;
 
 /* Reading the options.  */
 
@@ -113,6 +115,7 @@ static struct option long_options[]
 {"lua", 1, 0, 0},
 {"luaonly", 0, 0, 0},
 {"safer", 0, &safer_option, 1},
+{"nosocket", 0, &nosocket_option, 1},
 {"help", 0, 0, 0},
 {"ini", 0, &ini_version, 1},
 {"interaction", 1, 0, 0},
