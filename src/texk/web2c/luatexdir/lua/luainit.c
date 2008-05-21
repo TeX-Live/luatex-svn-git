@@ -41,7 +41,7 @@ const_string LUATEX_IHELP[] = {
     "  Any remaining COMMANDS are processed as luatex input, after TEXNAME is read.",
     "",
     "  Alternatively, if the first non-option argument begins with a backslash,",
-    "  interpret all non-option arguments as a line of luatex input.",
+    "  luatex interprets all non-option arguments as an input line.",
     "",
     "  Alternatively, if the first non-option argument begins with a &, the",
     "  next word is taken as the FMT to read, overriding all else.  Any",
@@ -50,8 +50,8 @@ const_string LUATEX_IHELP[] = {
     "  If no arguments or options are specified, prompt for input.",
     "",
     "  --lua=FILE               the lua initialization file",
-    "  --safer                  disable some easily exploitable lua commands",
     "  --nosocket               disable the luasocket (network) library",
+    "  --safer                  disable easily exploitable lua commands",
     "  --fmt=FORMAT             load the format file FORMAT",
     "  --ini                    be initex, for dumping formats",
     "  --help                   display this help and exit",
@@ -301,6 +301,8 @@ static void parse_options(int argc, char **argv)
             luainit = 1;
         }
     }
+    if (safer_option) /* --safer implies --nosocket */
+      nosocket_option = 1;
 }
 
 /* test for readability */
