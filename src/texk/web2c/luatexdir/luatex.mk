@@ -92,7 +92,7 @@ luatex.p luatex.pool: luatangle $(srcdir)/$(luatexdir)/luatex.web $(srcdir)/$(lu
 #luatex-all.pdf: luatex-all.tex
 #	$(luatex) luatex-all.tex
 
-check: @PETEX@ luatex-check
+check: @LTEX@ luatex-check
 luatex-check: luatex luatex.fmt
 
 clean:: luatex-clean
@@ -123,16 +123,16 @@ install-luatex: install-luatex-exec
 install-luatex-exec: install-luatex-links
 
 # The actual binary executables and pool files.
-install-programs: @PETEX@ install-luatex-programs
+install-programs: @LTEX@ install-luatex-programs
 install-luatex-programs: $(luatex) $(bindir)
 	for p in luatex; do $(INSTALL_LIBTOOL_PROG) $$p $(bindir); done
 
-install-links: @PETEX@ install-luatex-links
+install-links: @LTEX@ install-luatex-links
 install-luatex-links: install-luatex-programs
 	#cd $(bindir) && (rm -f luainitex luavirtex; \
 	#  $(LN) luatex luainitex; $(LN) luatex luavirtex)
 
-install-fmts: @PETEX@ install-luatex-fmts
+install-fmts: @LTEX@ install-luatex-fmts
 install-luatex-fmts: luafmts $(luafmtdir)
 	luafmts="$(all_luafmts)"; \
 	  for f in $$luafmts; do $(INSTALL_DATA) $$f $(luafmtdir)/$$f; done
