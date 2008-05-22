@@ -176,7 +176,7 @@ static int do_lang_hyphenate(lua_State * L)
         t = check_isnode(L, 2);
         lua_pop(L, 1);
     } else {
-        t = h;
+        *t = *h;
         while (vlink(*t) != null)
             *t = vlink(*t);
     }
