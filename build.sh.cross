@@ -5,7 +5,12 @@
 # fix path
 OLDPATH=$PATH
 PATH=/usr/mingw32/mingw32/bin:$PATH
-export PATH
+
+# this is an awful hack, but I don't know how to do this
+# properly.
+SOCKETHACK=-lwsock32
+
+export PATH SOCKETHACK
 
 # try to find gnu make; we need it
 MAKE=make;
