@@ -337,6 +337,17 @@ char *find_filename(char *name, char *envkey)
 }
 
 
+char *cleaned_invocation_name (char *arg) {
+  char *ret, *dot;
+  const char *start = xbasename(arg);
+  ret = xstrdup(start);
+  dot = index(ret, '.');
+  if (dot != NULL) {
+    *dot = 0; /* chop */
+  }
+  return ret;
+}
+
 void init_kpse(void)
 {
 
@@ -351,7 +362,7 @@ void init_kpse(void)
         } else {
             if (!startup_filename) {
                 if (!dump_name) {
-                    dump_name = strdup(argv[0]);
+                    dump_name = cleaned_invocation_name(argv[0]);
                     user_progname = dump_name;
                 }
             }
