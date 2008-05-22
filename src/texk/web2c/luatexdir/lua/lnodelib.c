@@ -349,16 +349,18 @@ static int lua_nodelib_insert_before(lua_State * L)
     } else {
         current = *(check_isnode(L, 2));
     }
-    t = alink(current);
-    if (t == null || vlink(t) != current) {
+    if (head != current ) {
+      t = alink(current);
+      if (t == null || vlink(t) != current) {
         set_t_to_prev(head, current);
         if (t == null) {        /* error! */
             lua_pushstring(L,
                            "Attempt to node.insert_before() a non-existing node");
             lua_error(L);
         }
+      }
+      couple_nodes(t, n);
     }
-    couple_nodes(t, n);
     couple_nodes(n, current);
     if (head == current) {
         lua_nodelib_push_fast(L, n);
