@@ -1727,6 +1727,8 @@ halfword handle_ligaturing(halfword head, halfword tail)
         cur = vlink(cur);
         assert(cur == null || alink(cur) == prev);
     }
+    if (prev==null) prev=tail;
+
     if (valid_node(save_tail)) {
         try_couple_nodes(prev, save_tail);
     }
