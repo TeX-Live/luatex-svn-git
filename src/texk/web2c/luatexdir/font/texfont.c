@@ -1232,6 +1232,14 @@ void undump_font(int f)
     font_bytes += sizeof(texfont);
     tt = xmalloc(sizeof(texfont));
     undump_things(*tt, 1);
+    /* these |char *| need resetting */
+    tt->_font_name = NULL;
+    tt->_font_area = NULL;
+    tt->_font_filename = NULL;
+    tt->_font_fullname = NULL;
+    tt->_font_encodingname = NULL;
+    tt->_font_cidregistry = NULL;
+    tt->_font_cidordering = NULL;
     font_tables[f] = tt;
 
     undump_font_string(set_font_name);
