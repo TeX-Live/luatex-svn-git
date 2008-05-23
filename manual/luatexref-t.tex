@@ -4568,6 +4568,11 @@ Inserts hyphenation points (discretionary nodes) in a node list. If
 Currently, \type{succes} is always true if \type{head} (and \type{tail}, if
 specified) are proper nodes, regardless of possible other errors.
 
+Hyphenation works only on \quote{characters}, a special subtype of all
+the glyph nodes with the node subtype having the value \type{1}. Glyph
+modes with different subtypes are not processed. See
+\in{section~}[charsandglyphs] for more details.
+
 \chapter[languages]{Languages and characters, fonts and glyphs}
 
 \LUATEX's internal handling of the characters and glyphs that eventually
@@ -4637,13 +4642,15 @@ character, font, and component fields, and the new special fields like
 \item A subtype, split into four main types:
 
    \startitemize
-   \item \type{character}, for characters to be hyphenated
-   \item \type{glyph}, for specific font glyphs
-   \item \type{ligature}, for ligatures
-   \item \type{ghost}, for \quote{ghost objects}
+   \item \type{character}, for characters to be hyphenated: the lowest
+       bit (bit 0) is set to 1.
+   \item \type{glyph}, for specific font glyphs: the lowest bit 
+      (bit 0) is not set.
+   \item \type{ligature}, for ligatures (bit 1 is set)
+   \item \type{ghost}, for \quote{ghost objects} (bit 2 is set)
    \stopitemize
 
-   The latter two make further use of two extra fields:
+   The latter two make further use of two extra fields (bits 3 and 4):
 
    \startitemize
    \item \type{left}, for ligatures created from a left word boundary and
