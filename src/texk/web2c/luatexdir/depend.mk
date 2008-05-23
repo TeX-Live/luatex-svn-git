@@ -1117,7 +1117,9 @@ image/pdftoepdf.o:  \
   \
   \
   \
- 
+  \
+  ../../../../src/texk/web2c/luatexdir/image/../avlstuff.h \
+  ../../../../src/texk/web2c/luatexdir/image/../avl.h
 image/writeimg.o: ../../../../src/texk/web2c/luatexdir/image/writeimg.c \
   ../../../../src/texk/web2c/luatexdir/ptexlib.h ../luatexd.h \
   ../../../../src/texk/web2c/luatexdir/../texmfmp.h \
@@ -2254,7 +2256,16 @@ lua/limglib.o: ../../../../src/texk/web2c/luatexdir/lua/limglib.c \
   ../../../../src/texk/web2c/luatexdir/hyphen.h \
   ../../../../src/texk/web2c/luatexdir/ptexlib.h \
   ../../../../src/texk/web2c/luatexdir/nodes.h \
-  ../../../../src/texk/web2c/luatexdir/lua/../image/image.h
+  ../../../../src/texk/web2c/luatexdir/lua/../image/image.h \
+  ../../../../src/texk/web2c/luatexdir/lua/../luatex-api.h \
+ 
+lua/mp.o: lua/mp.c mplib.h mpmp.h mppsout.h
+lua/psout.o: lua/psout.c ../../../../src/texk/web2c/luatexdir/avl.h \
+  mplib.h mpmp.h mppsout.h
+lua/lmplib.o: ../../../../src/texk/web2c/luatexdir/lua/lmplib.c \
+  \
+  \
+  mplib.h mpmp.h mppsout.h
 lang/hnjalloc.o: ../../../../src/texk/web2c/luatexdir/lang/hnjalloc.c
 lang/hyphen.o: ../../../../src/texk/web2c/luatexdir/lang/hyphen.c \
   ../../../../src/texk/web2c/luatexdir/lang/hnjalloc.h \
