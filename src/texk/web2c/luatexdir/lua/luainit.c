@@ -27,9 +27,23 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-#ifndef program_invocation_name
-/*  char *program_invocation_name = NULL; */
-#endif
+
+/* TH: TODO
+ *
+ * This file is getting a bit messy, but it is not simple to fix unilaterally.
+ *
+ * Better to wait until Karl has some time (after texlive 2008) so we can
+ * synchronize with kpathsea. One problem, for instance, is that I would
+ * like to resolve the full executable path.  kpse_set_program_name() does
+ * that, indirectly (by setting SELFAUTOLOC in the environment), but it
+ * does much more, making it hard to use for our purpose. 
+ *
+ * In fact, it sets three global C variables:
+ *   program_invocation_name  program_invocation_short_name  kpse_program_name
+ * and four environment variables:
+ *   SELFAUTOLOC  SELFAUTODIR  SELFAUTOPARENT  progname
+ *
+ */
 
 extern void parse_src_specials_option(char *n);
 
@@ -64,6 +78,28 @@ const_string LUATEX_IHELP[] = {
     NULL
 };
 
+extern char * selfdir (char *); /* from kpathsea */
+
+char *ex_selfdir (char *argv0) {
+#if defined(WIN32)
+    char short_path[PATH_MAX], path[PATH_MAX], *fp;
+  
+    /* SearchPath() always gives back an absolute directory */
+    if (SearchPath(NULL, argv0, ".exe", PATH_MAX, short_path, &fp) == 0)
+        FATAL1("Can't determine where the executable %s is.\n", argv0);
+    if (!win32_get_long_filename(short_path, path, sizeof(path))) {
+        FATAL1("This path points to an invalid file : %s\n", short_path);
+    }
+    /* slashify the dirname */
+    for (fp = path; fp && *fp; fp++)
+        if (IS_DIR_SEP(*fp)) *fp = DIR_SEP;
+    /* sdir will be the directory of the executable, ie: c:/TeX/bin */
+    return xdirname(path);
+#else
+    return selfdir(argv0);
+#endif
+}
+
 static void
 prepare_cmdline(lua_State * L, char **argv, int argc, int zero_offset)
 {
@@ -75,6 +111,9 @@ prepare_cmdline(lua_State * L, char **argv, int argc, int zero_offset)
         lua_rawseti(L, -2, (i - zero_offset));
     }
     lua_setglobal(L, "arg");
+    lua_getglobal(L,"os");
+    lua_pushstring(L,ex_selfdir(argv[0]));
+    lua_setfield(L,-2,"selfdir");
     return;
 }
 
@@ -412,6 +451,7 @@ void lua_initialize(int ac, char **av)
     argv = av;
 
     ptexbanner = BANNER;
+
     program_invocation_name = argv[0];
 
     /* be 'luac' */
