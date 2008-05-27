@@ -1327,6 +1327,7 @@ void mp_do_compaction (MP mp, pool_pointer needed) {
     @<Move string |r| back so that |str_start[r]=p|; make |p| the location
      after the end of the string@>;
   }
+DONE:   
   @<Move the current string back so that it starts at |p|@>;
   if ( needed<mp->pool_size ) {
     @<Make sure that there is room for another string with |needed| characters@>;
@@ -1356,7 +1357,7 @@ s=mp->next_str[s];
 mp->next_str[r]=s;
 mp->next_str[t]=mp->next_str[mp->str_ptr];
 mp->next_str[mp->str_ptr]=t;
-if ( s==mp->str_ptr ) break;
+if ( s==mp->str_ptr ) goto DONE;
 }
 
 @ The string currently starts at |str_start[r]| and ends just before
