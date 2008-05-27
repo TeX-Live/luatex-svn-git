@@ -452,11 +452,11 @@ void lua_initialize(int ac, char **av)
 
     ptexbanner = BANNER;
 
-    program_invocation_name = argv[0];
+    program_invocation_name = cleaned_invocation_name(argv[0]);
 
     /* be 'luac' */
     if (argc > 1 &&
-        (STREQ(argv[0], "texluac") ||
+        (STREQ(program_invocation_name, "texluac") ||
          STREQ(argv[1], "--luaconly") || STREQ(argv[1], "--luac"))) {
         exit(luac_main(ac, av));
     }
