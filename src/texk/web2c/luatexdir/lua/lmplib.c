@@ -664,7 +664,7 @@ static int mplib_new(lua_State * L)
 static int mplib_collect(lua_State * L)
 {
     MP *mp_ptr = is_mp(L, 1);
-    xfree(*mp_ptr);
+    mp_free(*mp_ptr);
     return 0;
 }
 
