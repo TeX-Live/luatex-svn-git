@@ -16826,10 +16826,9 @@ The second field of |obj_entry| contains link to the next
 object in |obj_tab| if this object is linked in a list.
 
 The third field holds the byte offset of the object in the output PDF file,
-or its byte offset within an object stream.
-Objects that have been not written yet have this field set to zero. However
-sometimes we have to use this field to store some info before the object is
-written out.
+or the object number of the object stream to which the object belongs. As long
+as the object is not written, this field is used for flags about the write status
+of the object; then it has a negative value.
 
 The fourth field holds the object number of the object stream, into which
 the object is included.
@@ -16840,10 +16839,14 @@ well.
 
 @d obj_info(#) == obj_tab[#].int0 {information representing identifier of this object}
 @d obj_link(#) == obj_tab[#].int1 {link to the next entry in linked list}
-@d obj_offset(#) == obj_tab[#].int2 {byte offset for this object in PDF output file, or object stream number for this object}
+@d obj_offset(#) == obj_tab[#].int2 {negative (flags), or byte offset for this object in PDF output file, or object stream number for this object}
 @d obj_os_idx(#) == obj_tab[#].int3 {index of this object in object stream}
 @d obj_aux(#) == obj_tab[#].int4 {auxiliary pointer}
-@d is_obj_written(#) == (obj_offset(#) <> 0)
+
+@d set_obj_fresh(#) == obj_offset(#) := -2
+@d set_obj_scheduled(#) == if obj_offset(#) = -2 then obj_offset(#) := -1
+@d is_obj_scheduled(#) == (obj_offset(#) > -2)
+@d is_obj_written(#) == (obj_offset(#) > -1)
 
 @# {types of objects}
 @d obj_type_others              == 0 {objects which are not linked in any list}
@@ -17133,7 +17136,7 @@ begin
     incr(sys_obj_ptr);
     obj_ptr := sys_obj_ptr;
     obj_info(obj_ptr) := i;
-    obj_offset(obj_ptr) := 0;
+    set_obj_fresh(obj_ptr);
     obj_aux(obj_ptr) := 0;
     avl_put_obj(obj_ptr, t);
     if t = obj_type_page then begin
@@ -19138,14 +19141,13 @@ while k <> null do begin
     i := obj_annot_ptr(info(k));
     pdf_begin_dict(info(k), 1);
     pdf_print_ln("/Type /Annot");
+    if pdf_action_type(pdf_link_action(i)) <> pdf_action_user then
+        pdf_print_ln("/Subtype /Link");
     if pdf_link_attr(i) <> null then
         pdf_print_toks_ln(pdf_link_attr(i));
     pdf_rectangle(pdf_left(i), pdf_top(i), pdf_right(i), pdf_bottom(i));
-    if pdf_action_type(pdf_link_action(i)) <> pdf_action_user
-    then begin
-        pdf_print_ln("/Subtype /Link");
+    if pdf_action_type(pdf_link_action(i)) <> pdf_action_user then
         pdf_print("/A ");
-    end;
     write_action(pdf_link_action(i));
     pdf_end_dict;
     k := link(k);
@@ -19749,7 +19751,7 @@ print_mod_date;
 @ @<Output the |obj_tab|@>=
 l := 0;
 for k := 1 to sys_obj_ptr do
-    if obj_offset(k) = 0 then begin
+    if not is_obj_written(k) then begin
         obj_link(l) := k;
         l := k;
     end;
@@ -19760,7 +19762,7 @@ pdf_print("0 "); pdf_print_int_ln(obj_ptr + 1);
 pdf_print_fw_int(obj_link(0), 10);
 pdf_print_ln(" 65535 f ");
 for k := 1 to obj_ptr do begin
-    if obj_offset(k) = 0 then begin
+    if not is_obj_written(k) then begin
         pdf_print_fw_int(obj_link(k), 10);
         pdf_print_ln(" 00000 f ");
     end
@@ -19782,7 +19784,7 @@ else
     xref_offset_width := 1;
 l := 0;
 for k := 1 to sys_obj_ptr do
-    if obj_offset(k) = 0 then begin
+    if not is_obj_written(k) then begin
         obj_link(l) := k;
         l := k;
     end;
@@ -19805,7 +19807,7 @@ print_ID(output_file_name);
 pdf_print_nl;
 pdf_begin_stream;
 for k := 0 to sys_obj_ptr do begin
-    if obj_offset(k) = 0 then begin {a free object}
+    if not is_obj_written(k) then begin {a free object}
         pdf_out(0);
         pdf_out_bytes(obj_link(k), xref_offset_width);
         pdf_out(255);
@@ -32558,13 +32560,16 @@ begin
         pdf_error("ext4", "annotations cannot be inside an XForm");
     if doing_leaders then
         return;
+    if is_obj_scheduled(pdf_annot_objnum(p)) then
+        pdf_annot_objnum(p) := pdf_new_objnum;
     set_rect_dimens(p, parent_box, x, y,
                     pdf_width(p), pdf_height(p), pdf_depth(p), 0);
     obj_annot_ptr(pdf_annot_objnum(p)) := p;
     pdf_append_list(pdf_annot_objnum(p))(pdf_annot_list);
+    set_obj_scheduled(pdf_annot_objnum(p));
 end;
 
-@ To implement nesting link annotations, we need a stack to hold copy of
+@ To implement nested link annotations, we need a stack to hold copy of
 |pdf_start_link_node|'s that are being written out, together with their box
 nesting level.
 
@@ -32613,6 +32618,8 @@ begin
     if not is_shipping_page then
         pdf_error("ext4", "link annotations cannot be inside an XForm");
     pdfassert(type(parent_box) = hlist_node);
+    if is_obj_scheduled(pdf_link_objnum(p)) then
+        pdf_link_objnum(p) := pdf_new_objnum;
     push_link_level(p);
     set_rect_dimens(p, parent_box, x, y,
                     pdf_width(p), pdf_height(p), pdf_depth(p),
@@ -32620,6 +32627,7 @@ begin
     obj_annot_ptr(pdf_link_objnum(p)) := p; {the reference for the pdf annot object
                                              must be set here}
     pdf_append_list(pdf_link_objnum(p))(pdf_link_list);
+    set_obj_scheduled(pdf_link_objnum(p));
 end;
 
 procedure end_link;
@@ -32875,7 +32883,10 @@ late_lua_node:
 close_lua_node:
     closelua(late_lua_reg(p));
 pdf_refobj_node:
-    pdf_append_list(pdf_obj_objnum(p))(pdf_obj_list);
+    if not is_obj_scheduled(pdf_obj_objnum(p)) then begin
+        pdf_append_list(pdf_obj_objnum(p))(pdf_obj_list);
+        set_obj_scheduled(pdf_obj_objnum(p));
+    end;
 pdf_refxform_node:
     @<Output a Form node in a vlist@>;
 pdf_refximage_node:
@@ -32939,7 +32950,10 @@ late_lua_node:
 close_lua_node:
         closelua(late_lua_reg(p));
 pdf_refobj_node:
-    pdf_append_list(pdf_obj_objnum(p))(pdf_obj_list);
+    if not is_obj_scheduled(pdf_obj_objnum(p)) then begin
+        pdf_append_list(pdf_obj_objnum(p))(pdf_obj_list);
+        set_obj_scheduled(pdf_obj_objnum(p));
+    end;
 pdf_refxform_node:
     @<Output a Form node in a hlist@>;
 pdf_refximage_node:
