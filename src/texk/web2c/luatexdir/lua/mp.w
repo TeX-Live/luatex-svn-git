@@ -859,12 +859,12 @@ initialization.
 } while (0)
 
 @d t_close_out do { /* close the terminal */
-  (mp->close_file)(mp,mp->term_out);
-  (mp->close_file)(mp,mp->err_out);
+  /* (mp->close_file)(mp,mp->term_out); */
+  /* (mp->close_file)(mp,mp->err_out); */
 } while (0)
 
 @d t_close_in do { /* close the terminal */
-  (mp->close_file)(mp,mp->term_in);
+  /* (mp->close_file)(mp,mp->term_in); */
 } while (0)
 
 @<Option variables@>=
@@ -2034,7 +2034,8 @@ enum mp_history_states {
   mp_spotless=0, /* |history| value when nothing has been amiss yet */
   mp_warning_issued, /* |history| value when |begin_diagnostic| has been called */
   mp_error_message_issued, /* |history| value when |error| has been called */
-  mp_fatal_error_stop /* |history| value when termination was premature */
+  mp_fatal_error_stop, /* |history| value when termination was premature */
+  mp_system_error_stop /* |history| value when termination was due to disaster */
 };
 
 @ @<Glob...@>=
@@ -2126,7 +2127,7 @@ cleanup routine.
 
 @<Error hand...@>=
 void mp_jump_out (MP mp) { 
-  if(mp->internal!=NULL)
+  if (mp->internal!=NULL && mp->history < mp_system_error_stop) 
     mp_close_files_and_terminate(mp);
   longjmp(mp->jump_buf,1);
 }
@@ -3903,7 +3904,7 @@ void  *mp_xrealloc (MP mp, void *p, size_t nmem, size_t size) {
   w = realloc (p,(nmem*size));
   if (w==NULL) {
     do_fprintf(mp->err_out,"Out of memory!\n");
-    mp->history =mp_fatal_error_stop;    mp_jump_out(mp);
+    mp->history =mp_system_error_stop;    mp_jump_out(mp);
   }
   return w;
 }
@@ -3916,7 +3917,7 @@ void  *mp_xmalloc (MP mp, size_t nmem, size_t size) {
   w = malloc (nmem*size);
   if (w==NULL) {
     do_fprintf(mp->err_out,"Out of memory!\n");
-    mp->history =mp_fatal_error_stop;    mp_jump_out(mp);
+    mp->history =mp_system_error_stop;    mp_jump_out(mp);
   }
   return w;
 }
@@ -3927,7 +3928,7 @@ char *mp_xstrdup(MP mp, const char *s) {
   w = strdup(s);
   if (w==NULL) {
     do_fprintf(mp->err_out,"Out of memory!\n");
-    mp->history =mp_fatal_error_stop;    mp_jump_out(mp);
+    mp->history =mp_system_error_stop;    mp_jump_out(mp);
   }
   return w;
 }
