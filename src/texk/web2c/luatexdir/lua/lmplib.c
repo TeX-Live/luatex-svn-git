@@ -664,7 +664,10 @@ static int mplib_new(lua_State * L)
 static int mplib_collect(lua_State * L)
 {
     MP *mp_ptr = is_mp(L, 1);
-    mp_free(*mp_ptr);
+    if (*mp_ptr != NULL) {
+      mp_free(*mp_ptr);
+      *mp_ptr = NULL;
+    }
     return 0;
 }
 
@@ -750,6 +753,8 @@ static int mplib_finish(lua_State * L)
     if (*mp_ptr != NULL) {
         mplib_instance *mplib_data = mplib_get_data(*mp_ptr);
         int h = mp_finish(*mp_ptr);
+        mp_free(*mp_ptr);
+        *mp_ptr = NULL;
         return mplib_wrapresults(L, mplib_data, h);
     } else {
         lua_pushnil(L);
