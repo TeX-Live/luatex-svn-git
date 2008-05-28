@@ -424,10 +424,12 @@ main P2C(int, ac,  string *, av)
     segv_act.sa_handler = segv_handler;
     segv_act.sa_flags = SA_ONSTACK | SA_RESETHAND;
     sigemptyset(&segv_act.sa_mask);
+#if !defined(luaTeX)
     if (sigaction(SIGSEGV, &segv_act, NULL) != 0) {
       perror("sigaction");
       uexit(3);
     }
+#endif
 #endif
   }
 
