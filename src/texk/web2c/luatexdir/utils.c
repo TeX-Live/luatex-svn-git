@@ -18,6 +18,12 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
+#include "openbsd-compat.h"
+#ifdef HAVE_ASPRINTF            /* asprintf is not defined in openbsd-compat.h, but in stdio.h */
+#  include <stdio.h>
+#endif
+
+
 #include "sys/types.h"
 #ifndef __MINGW32__
 #  include "sysexits.h"
@@ -36,7 +42,6 @@
 
 #include "svnversion.h"
 
-#include "openbsd-compat.h"
 #include "png.h"
 #include "xpdf/config.h"        /* just to get the xpdf version */
 
@@ -1132,33 +1137,16 @@ char *stripzeros(char *a)
     return a;
 }
 
-/* for Martin: 
- * I switched to a 'normal' printf() function because obsdcompat 
- * bodges the discovery of asprintf() on glibc systems. It want to 
- * use the 'system' version because configure's test code compiles, 
- * but the C declaration is never seen because _GNU_SOURCE is
- * undefined when stdio.h is read. The result is a compiler warning.
- */
-
 void initversionstring(char **versions)
 {
-    int len ;
-    char *sbuf = NULL;
-    char msg[] = "This is build %d, created on %dT%06dZ\n"
-                 "Compiled with libpng %s; using libpng %s\n"
-                 "Compiled with zlib %s; using zlib %s\n"
-                 "Compiled with xpdf version %s\n";
-    len = strlen((char *)msg) + 
-          strlen(PNG_LIBPNG_VER_STRING) + strlen(png_libpng_ver) +
-          strlen(ZLIB_VERSION) + strlen (zlib_version) + 
-          strlen (xpdfVersion) + 30; /* last item for the three %d's */
-    sbuf = xmalloc(len);
-    (void) snprintf(sbuf,len,
-                    msg,
+    (void) asprintf(versions,
+                    "This is build %d, created on %dT%06dZ\n"
+                    "Compiled with libpng %s; using libpng %s\n"
+                    "Compiled with zlib %s; using zlib %s\n"
+                    "Compiled with xpdf version %s\n",
                     get_build_revision(), BUILD_DATE, (BUILD_TIME - 1000000),
                     PNG_LIBPNG_VER_STRING, png_libpng_ver,
                     ZLIB_VERSION, zlib_version, xpdfVersion);
-    *versions = sbuf;
 }
 
 
