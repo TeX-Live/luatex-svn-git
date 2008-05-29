@@ -61,6 +61,11 @@ extern int luaopen_zlib(lua_State * L);
 extern int luaopen_gzip(lua_State * L);
 extern int luaopen_ff(lua_State * L);
 
+
+extern int luaopen_socket_core (lua_State * L);
+extern int luaopen_mime_core (lua_State * L);
+extern void luatex_socketlua_open (lua_State * L);
+
 extern int luaopen_img(lua_State * L);
 extern int l_new_image(lua_State * L);
 extern int luaopen_mp(lua_State * L);
