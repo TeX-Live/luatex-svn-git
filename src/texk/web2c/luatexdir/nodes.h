@@ -488,8 +488,10 @@ typedef enum {
 #  define open_area(a)   vinfo((a)+3)
 #  define open_ext(a)    vlink((a)+3)
 
+#  define late_lua_node_size 4
 #  define late_lua_data(a)        vlink((a)+2)
 #  define late_lua_reg(a)         vinfo((a)+2)
+#  define late_lua_name(a)        vlink((a)+3)
 
 #  define local_par_size 6
 

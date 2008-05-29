@@ -1158,6 +1158,9 @@ static void lua_nodelib_getfield_whatsit(lua_State * L, int n, int field)
             case 5:
                 tokenlist_to_luastring(L, late_lua_data(n));
                 break;
+            case 6:
+                tokenlist_to_luastring(L, late_lua_name(n));
+                break;
             default:
                 lua_pushnil(L);
             }
@@ -1982,6 +1985,9 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
             break;
         case 5:
             late_lua_data(n) = nodelib_gettoks(L, 3);
+            break;
+        case 6:
+            late_lua_name(n) = nodelib_gettoks(L, 3);
             break;
         default:
             return nodelib_cantset(L, field, n);

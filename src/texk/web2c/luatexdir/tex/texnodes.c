@@ -153,7 +153,7 @@ char *node_fields_whatsit_pdf_start_thread[] =
 };
 char *node_fields_whatsit_pdf_end_thread[] = { "attr", NULL };
 char *node_fields_whatsit_pdf_save_pos[] = { "attr", NULL };
-char *node_fields_whatsit_late_lua[] = { "attr", "reg", "data", NULL };
+char *node_fields_whatsit_late_lua[] = { "attr", "reg", "data", "name", NULL };
 char *node_fields_whatsit_close_lua[] = { "attr", "reg", NULL };
 char *node_fields_whatsit_pdf_colorstack[] =
     { "attr", "stack", "cmd", "data", NULL };
@@ -276,7 +276,7 @@ node_info whatsit_node_data[] = {
     {fake_node, fake_node_size, NULL, fake_node_name},
     {fake_node, fake_node_size, NULL, fake_node_name},
     {fake_node, fake_node_size, NULL, fake_node_name},
-    {late_lua_node, write_node_size, node_fields_whatsit_late_lua, "late_lua"},
+    {late_lua_node, late_lua_node_size, node_fields_whatsit_late_lua, "late_lua"},
     {close_lua_node, write_node_size, node_fields_whatsit_close_lua,
      "close_lua"},
     {fake_node, fake_node_size, NULL, fake_node_name},
@@ -522,6 +522,8 @@ halfword copy_node(const halfword p)
             add_token_ref(pdf_setmatrix_data(p));
             break;
         case late_lua_node:
+            if (late_lua_name(p)>0) 
+              add_token_ref(late_lua_name(p));
             add_token_ref(late_lua_data(p));
             break;
         case pdf_annot_node:
@@ -787,6 +789,8 @@ void flush_node(halfword p)
             delete_token_ref(pdf_setmatrix_data(p));
             break;
         case late_lua_node:
+            if (late_lua_name(p)>0) 
+              delete_token_ref(late_lua_name(p));
             delete_token_ref(late_lua_data(p));
             break;
         case pdf_annot_node:
@@ -1003,6 +1007,8 @@ void check_node(halfword p)
             check_token_ref(pdf_setmatrix_data(p));
             break;
         case late_lua_node:
+            if (late_lua_name(p)>0) 
+              check_token_ref(late_lua_name(p));
             check_token_ref(late_lua_data(p));
             break;
         case pdf_annot_node:

@@ -120,4 +120,6 @@ typedef struct command_item_ {
 extern command_item command_names[];
 extern int callback_callbacks_id;
 
-void luainterpreter(int n);
+void  luainterpreter(int n);
+char *lua_get_instancename(int n);
+void  lua_set_instancename(int n, char *s);

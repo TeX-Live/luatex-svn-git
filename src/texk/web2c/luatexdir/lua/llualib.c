@@ -229,9 +229,40 @@ int set_bytecode(lua_State * L)
     return 0;
 }
 
+
+int set_instancename(lua_State * L)
+{
+    char *s;
+    int n;
+    n = (int) luaL_checkinteger(L, -2);
+    s = (char *) luaL_checkstring(L, -1);
+    lua_set_instancename(n,s);
+    return 0;
+}
+
+int get_instancename(lua_State * L)
+{
+    char *s;
+    int n;
+    n = (int) luaL_checkinteger(L, -1);
+    s = lua_get_instancename(n);
+    if (s!= NULL) {
+      lua_pushstring(L, s);
+    } else {
+      lua_pushnil(L);
+    }
+    return 1;
+}
+
+
+
+
+
 static const struct luaL_reg lualib[] = {
-    {"getbytecode", get_bytecode},
-    {"setbytecode", set_bytecode},
+    {"getinstancename", get_instancename},
+    {"setinstancename", set_instancename},
+    {"getbytecode",     get_bytecode},
+    {"setbytecode",     set_bytecode},
     {NULL, NULL}                /* sentinel */
 };
 
@@ -239,6 +270,7 @@ int luaopen_lua(lua_State * L, int n, char *fname)
 {
     luaL_register(L, "lua", lualib);
     make_table(L, "bytecode", "getbytecode", "setbytecode");
+    make_table(L, "instancename", "getinstancename", "setinstancename");
     lua_newtable(L);
     lua_setfield(L, LUA_REGISTRYINDEX, "bytecode_shadow");
     lua_pushinteger(L, n);

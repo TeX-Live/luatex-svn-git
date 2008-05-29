@@ -16792,12 +16792,12 @@ begin
     pdf_print_nl;
 end;
 
-procedure latelua(lua_id: quarterword; s: str_number);
+procedure latelua(lua_id: quarterword; s: str_number; r: str_number);
 var b, j: pool_pointer; {current character code position}
 begin
     j:=str_start_macro(s);
     b := pool_ptr;
-    luacall(lua_id,(s-string_offset));
+    luacall(lua_id,(s-string_offset),r);
     while b<pool_ptr do begin
        pdf_out(str_pool[b]);
        incr(b);
@@ -16917,6 +16917,7 @@ destination |pdf_left| and |pdf_top| are used for some types of destinations}
 @# {data structure for \.{\\latelua}}
 @d late_lua_data(#)        == vlink(#+2) {data}
 @d late_lua_reg(#)         == vinfo(#+2) {register id}
+@d late_lua_name(#)        == vlink(#+3) {name}
 
 @# {data structure for \.{\\pdfobj} and \.{\\pdfrefobj}}
 @d pdf_refobj_node_size    == 3 {size of whatsit node representing the raw object}
@@ -17881,14 +17882,20 @@ end;
 
 procedure do_late_lua(p: pointer);
 var old_setting:0..max_selector; {holds print |selector|}
-    s: str_number;
+    r,s: str_number;
 begin
     old_setting:=selector; selector:=new_string;
+    r := 0;
+    if late_lua_name(p) > 0 then begin
+      show_token_list(link(late_lua_name(p)),null,pool_size-pool_ptr);
+      r := make_string;
+    end;
     show_token_list(link(late_lua_data(p)),null,pool_size-pool_ptr);
-    selector:=old_setting;
     s := make_string;
-    latelua(late_lua_reg(p), s);
+    selector:=old_setting;
+    latelua(late_lua_reg(p), s, r);
     flush_str(s);
+    if r>0 then flush_str(r);
 end;
 
 procedure pdf_print_toks(p: pointer); {print tokens list |p|}
@@ -30465,6 +30472,10 @@ end
 begin
     check_pdfoutput("\latelua", true);
     new_whatsit(late_lua_node);
+    if scan_keyword("name") then begin
+       scan_pdf_ext_toks;
+       late_lua_name(tail) := def_ref;
+    end;
     scan_register_num;
     late_lua_reg(tail) := cur_val;
     scan_pdf_ext_toks;

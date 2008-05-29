@@ -24,6 +24,7 @@ static const char _svn_version[] =
     "$Id$ $URL$";
 
 lua_State *Luas[65536];
+char *     Luan[65536] = {NULL};
 
 extern char *startup_filename;
 extern int safer_option;
@@ -273,17 +274,25 @@ static int lua_traceback(lua_State * L)
     return 1;
 }
 
-void luacall(int n, int s)
+void luacall(int n, int s, int nameptr)
 {
     LoadS ls;
     int i;
-    char lua_id[20];
+    char *lua_id;
     if (Luas[n] == NULL) {
         luainterpreter(n);
     }
     luatex_load_init(s, &ls);
     if (ls.size > 0) {
-        snprintf((char *) lua_id, 20, "\\latelua%d", n);
+        if (nameptr > 0) {
+            lua_id = makecstring(nameptr);
+        } else if (Luan[n]!= NULL) {
+            lua_id = xstrdup(Luan[n]);
+        } else {
+            lua_id = xmalloc(20);
+            snprintf((char *) lua_id, 20, "\\latelua%d", n);
+        }
+
         i = lua_load(Luas[n], getS, &ls, lua_id);
         if (i != 0) {
             Luas[n] = luatex_error(Luas[n], (i == LUA_ERRSYNTAX ? 0 : 1));
@@ -299,6 +308,7 @@ void luacall(int n, int s)
                 Luas[n] = luatex_error(Luas[n], (i == LUA_ERRRUN ? 0 : 1));
             }
         }
+        xfree(lua_id);
     }
 }
 
@@ -318,6 +328,8 @@ void luatokencall(int n, int p, int nameptr)
     if (ls.size > 0) {
         if (nameptr > 0) {
             lua_id = tokenlist_to_cstring(nameptr, 1, &l);
+        } else if (Luan[n]!= NULL) {
+            lua_id = xstrdup(Luan[n]);
         } else {
             lua_id = xmalloc(20);
             snprintf((char *) lua_id, 20, "\\directlua%d", n);
@@ -390,5 +402,22 @@ lua_State *luatex_error(lua_State * L, int is_fatal)
         flush_str(s);
         xfree(err);
         return L;
+    }
+}
+
+char *lua_get_instancename (int n) 
+{
+    if (n>=0 && n<=65535) {
+        return Luan[n];
+    }
+    return NULL;
+}
+
+
+void lua_set_instancename (int n, char *s)
+{
+    if (n>=0 && n<=65535) {
+        if (Luan[n]) xfree(Luan[n]);
+        Luan[n] = xstrdup(s);
     }
 }
