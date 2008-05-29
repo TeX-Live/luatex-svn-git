@@ -1132,16 +1132,33 @@ char *stripzeros(char *a)
     return a;
 }
 
+/* for Martin: 
+ * I switched to a 'normal' printf() function because obsdcompat 
+ * bodges the discovery of asprintf() on glibc systems. It want to 
+ * use the 'system' version because configure's test code compiles, 
+ * but the C declaration is never seen because _GNU_SOURCE is
+ * undefined when stdio.h is read. The result is a compiler warning.
+ */
+
 void initversionstring(char **versions)
 {
-    (void) asprintf(versions,
-                    "This is build %d, created on %dT%06dZ\n"
-                    "Compiled with libpng %s; using libpng %s\n"
-                    "Compiled with zlib %s; using zlib %s\n"
-                    "Compiled with xpdf version %s\n",
+    int len ;
+    char *sbuf = NULL;
+    char msg[] = "This is build %d, created on %dT%06dZ\n"
+                 "Compiled with libpng %s; using libpng %s\n"
+                 "Compiled with zlib %s; using zlib %s\n"
+                 "Compiled with xpdf version %s\n";
+    len = strlen((char *)msg) + 
+          strlen(PNG_LIBPNG_VER_STRING) + strlen(png_libpng_ver) +
+          strlen(ZLIB_VERSION) + strlen (zlib_version) + 
+          strlen (xpdfVersion) + 30; /* last item for the three %d's */
+    sbuf = xmalloc(len);
+    (void) snprintf(sbuf,len,
+                    msg,
                     get_build_revision(), BUILD_DATE, (BUILD_TIME - 1000000),
                     PNG_LIBPNG_VER_STRING, png_libpng_ver,
                     ZLIB_VERSION, zlib_version, xpdfVersion);
+    *versions = sbuf;
 }
 
 
@@ -2010,9 +2027,9 @@ static void write_pages(pages_entry * p, int parent)
         print_pdf_pages_attr();
     else
         pdf_printf("/Parent %d 0 R\n", parent);
-    pdf_printf("/Count %d\n/Kids [", p->number_of_pages);
+    pdf_printf("/Count %d\n/Kids [", (int)p->number_of_pages);
     for (i = 0; i < p->number_of_kids; i++)
-        pdf_printf("%d 0 R ", p->kids[i]);
+      pdf_printf("%d 0 R ", (int)p->kids[i]);
     remove_last_space();
     pdf_printf("]\n");
     pdf_end_dict();
