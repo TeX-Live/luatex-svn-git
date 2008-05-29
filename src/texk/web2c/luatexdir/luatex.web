@@ -16792,12 +16792,11 @@ begin
     pdf_print_nl;
 end;
 
-procedure latelua(lua_id: quarterword; s: str_number; r: str_number);
-var b, j: pool_pointer; {current character code position}
+procedure latelua(lua_id: quarterword; s: pointer; r: pointer);
+var b: pool_pointer; {current character code position}
 begin
-    j:=str_start_macro(s);
     b := pool_ptr;
-    luacall(lua_id,(s-string_offset),r);
+    luacall(lua_id,s,r);
     while b<pool_ptr do begin
        pdf_out(str_pool[b]);
        incr(b);
@@ -17881,21 +17880,8 @@ begin
 end;
 
 procedure do_late_lua(p: pointer);
-var old_setting:0..max_selector; {holds print |selector|}
-    r,s: str_number;
 begin
-    old_setting:=selector; selector:=new_string;
-    r := 0;
-    if late_lua_name(p) > 0 then begin
-      show_token_list(link(late_lua_name(p)),null,pool_size-pool_ptr);
-      r := make_string;
-    end;
-    show_token_list(link(late_lua_data(p)),null,pool_size-pool_ptr);
-    s := make_string;
-    selector:=old_setting;
-    latelua(late_lua_reg(p), s, r);
-    flush_str(s);
-    if r>0 then flush_str(r);
+    latelua(late_lua_reg(p), late_lua_data(p), late_lua_name(p));
 end;
 
 procedure pdf_print_toks(p: pointer); {print tokens list |p|}

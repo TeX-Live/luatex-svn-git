@@ -274,18 +274,24 @@ static int lua_traceback(lua_State * L)
     return 1;
 }
 
-void luacall(int n, int s, int nameptr)
+void luacall(int n, int p, int nameptr)
 {
     LoadS ls;
-    int i;
+    int i, l;
     char *lua_id;
+    char *s = NULL;
+
     if (Luas[n] == NULL) {
         luainterpreter(n);
     }
-    luatex_load_init(s, &ls);
+    l = 0;
+    s = tokenlist_to_cstring(p, 1, &l);
+    ls.s = s;
+    ls.size = l;
+    
     if (ls.size > 0) {
         if (nameptr > 0) {
-            lua_id = makecstring(nameptr);
+            lua_id = tokenlist_to_cstring(nameptr, 1, &l);
         } else if (Luan[n]!= NULL) {
             lua_id = xstrdup(Luan[n]);
         } else {
@@ -327,7 +333,7 @@ void luatokencall(int n, int p, int nameptr)
     ls.size = l;
     if (ls.size > 0) {
         if (nameptr > 0) {
-            lua_id = tokenlist_to_cstring(nameptr, 1, &l);
+          lua_id = tokenlist_to_cstring(nameptr, 1, &l);
         } else if (Luan[n]!= NULL) {
             lua_id = xstrdup(Luan[n]);
         } else {
