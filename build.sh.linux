@@ -58,6 +58,14 @@ NATIVE=`pwd`
 export NATIVE
 
 # ----------
+# -g -O2 is the default, but we also need -Wno-write-strings to squash a 
+#       multitude of warnings in XPDF
+CFLAGS="-g -O2 -Wno-write-strings"
+CXXFLAGS=$CFLAGS
+export CFLAGS
+export CXXFLAGS
+
+# ----------
 # clean up, if needed
 if [ -e "$B"/Makefile -a $ONLY_MAKE = "FALSE" ]
 then
