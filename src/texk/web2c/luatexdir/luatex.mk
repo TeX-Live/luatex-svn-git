@@ -3,6 +3,9 @@
 # differ between releases of pdfeTeX.
 # $Id$
 
+# This is temporary
+makecpool=$(native)/$(luatexdir)/makecpool
+
 # We build luatex
 luatex = @LTEX@ luatex
 luatexdir = luatexdir
@@ -54,8 +57,8 @@ $(luatexdir)/luatexextra.h: $(luatexdir)/luatexextra.in $(luatexdir)/luatex.vers
 	test -d $(luatexdir) || mkdir $(luatexdir)
 	sed -e s/LUATEX-VERSION/`cat $(luatexdir)/luatex.version`/ \
 	  $(srcdir)/$(luatexdir)/luatexextra.in >$@
-loadpool.c: luatex.pool $(luatexdir)/makecpool
-	$(native)/$(luatexdir)/makecpool luatex.pool luatexdir/ptexlib.h > loadpool.c
+loadpool.c: luatex.pool $(makecpool)
+	$(makecpool) luatex.pool luatexdir/ptexlib.h >$@ || rm -f $@
 
 # luatangle we need a private version of tangle
 
@@ -120,25 +123,10 @@ luatex.fmt: luatex
 # 
 # Installation.
 install-luatex: install-luatex-exec
-install-luatex-exec: install-luatex-links
 
-# The actual binary executables and pool files.
-install-programs: @LTEX@ install-luatex-programs
-install-luatex-programs: $(luatex) $(bindir)
+install-programs: @LTEX@ install-luatex-exec
+install-luatex-exec: $(luatex) $(bindir)
 	for p in luatex; do $(INSTALL_LIBTOOL_PROG) $$p $(bindir); done
-
-install-links: @LTEX@ install-luatex-links
-install-luatex-links: install-luatex-programs
-	#cd $(bindir) && (rm -f luainitex luavirtex; \
-	#  $(LN) luatex luainitex; $(LN) luatex luavirtex)
-
-install-fmts: @LTEX@ install-luatex-fmts
-install-luatex-fmts: luafmts $(luafmtdir)
-	luafmts="$(all_luafmts)"; \
-	  for f in $$luafmts; do $(INSTALL_DATA) $$f $(luafmtdir)/$$f; done
-	luafmts="$(luafmts)"; \
-	  for f in $$luafmts; do base=`basename $$f .fmt`; \
-	    (cd $(bindir) && (rm -f $$base; $(LN) luatex $$base)); done
 
 # 
 # luatex binaries archive
