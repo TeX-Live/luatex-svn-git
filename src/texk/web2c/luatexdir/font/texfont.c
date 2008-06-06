@@ -635,8 +635,8 @@ void set_font_params(internal_font_number f, int b)
     int i;
     i = font_params(f);
     if (i != b) {
-        font_bytes += (b - font_params(f)) * sizeof(scaled);
-        do_realloc(param_base(f), (b + 1), integer);
+        font_bytes += (b - font_params(f) + 1) * sizeof(scaled);
+        do_realloc(param_base(f), (b + 2), integer);
         font_params(f) = b;
         if (b > i) {
             while (i < b) {
