@@ -116,10 +116,13 @@ static int run_get_command_name(lua_State * L)
     return 1;
 }
 
+#define is_active_string(s) (strlen(s)>3 && *s==0xEF && *(s+1)==0xBF && *(s+2)==0xBF)
+
+
 static int run_get_csname_name(lua_State * L)
 {
     int cs, cmd, n;
-    char *s;
+    unsigned char *s;
 
     if (is_valid_token(L, -1)) {
         get_token_cmd(L, -1);
@@ -136,7 +139,10 @@ static int run_get_csname_name(lua_State * L)
 
         if (cs != 0 && (n = zget_cs_text(cs)) && n >= 0) {
             s = makecstring(n);
-            lua_pushstring(L, s);
+            if (is_active_string(s))
+              lua_pushstring(L, (s+3));
+            else
+              lua_pushstring(L, s);
         } else {
             lua_pushstring(L, "");
         }
