@@ -27,7 +27,6 @@ extern int get_command_id(char *);
 
 static int max_command = 0;
 static int hash_base = 0;
-static int active_base = 0;
 static int null_cs = 0;
 
 #define  protected_token 0x1C00001
@@ -245,7 +244,7 @@ static int run_build(lua_State * L)
             cmd = 12;
         }
         if (cmd == 13) {
-            cs = chr + active_base;
+          cs = active_to_cs(chr,false);
             cmd = zget_eq_type(cs);
             chr = zget_equiv(cs);
         }
@@ -277,7 +276,6 @@ int luaopen_token(lua_State * L)
     luaL_register(L, "token", tokenlib);
     max_command = get_max_command();
     hash_base = get_hash_base();
-    active_base = get_active_base();
     null_cs = get_nullcs();
     return 1;
 }

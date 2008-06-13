@@ -152,6 +152,66 @@ static integer qbuffer_to_unichar(integer * k)
     return (val);
 }
 
+/* This is a very basic helper */
+
+char *u2s(unsigned unic)
+{
+    char *buf = xmalloc(5);
+    char *pt = buf;
+	if ( unic<0x80 )
+	    *pt++ = unic;
+	else if ( unic<0x800 ) {
+	    *pt++ = 0xc0 | (unic>>6);
+	    *pt++ = 0x80 | (unic&0x3f);
+	} else if ( unic >= 0x110000 ) {
+        *pt++ = unic - 0x110000;
+	} else if ( unic < 0x10000 ) {
+	    *pt++ = 0xe0 | (unic>>12);
+	    *pt++ = 0x80 | ((unic>>6)&0x3f);
+	    *pt++ = 0x80 | (unic&0x3f);
+	} else {
+        int u,z,y,x;
+	    unsigned val = unic-0x10000;
+	    u = ((val&0xf0000)>>16)+1;
+        z = (val&0x0f000)>>12;
+        y = (val&0x00fc0)>>6;
+        x = val&0x0003f;
+	    *pt++ = 0xf0 | (u>>2);
+	    *pt++ = 0x80 | ((u&3)<<4) | z;
+	    *pt++ = 0x80 | y;
+	    *pt++ = 0x80 | x;
+	}
+    *pt = '\0';
+    return buf;
+}
+
+/* We can not return |undefined_control_sequence| under some conditions
+ * (inside |shift_case|, for example). This needs thinking.
+ */
+
+halfword active_to_cs (int curchr, int force) 
+{
+    int nncs = no_new_control_sequence;
+    str_number activetext;
+    halfword curcs;
+    char *a, *b;
+    char *utfbytes = xmalloc(10);
+    a = u2s (0xFFFF);
+    b = u2s (curchr);
+    utfbytes = strcpy(utfbytes,a);
+    utfbytes = strcat(utfbytes,b);
+    activetext = maketexstring(utfbytes);
+    if (force) 
+      no_new_control_sequence = false;
+    curcs = string_lookup(activetext);
+    no_new_control_sequence = nncs;
+    flush_str(activetext);
+    free (a); 
+    free (b);
+    free (utfbytes);
+    return curcs;
+}
+
 static boolean get_next_file(void)
 {
   SWITCH:
@@ -190,7 +250,7 @@ static boolean get_next_file(void)
         case mid_line + active_char:
         case new_line + active_char:
         case skip_blanks + active_char:        /* @<Process an active-character  */
-            cur_cs = cur_chr + active_base;
+          cur_cs = active_to_cs(cur_chr, false);
             cur_cmd = eq_type(cur_cs);
             cur_chr = equiv(cur_cs);
             state = mid_line;

@@ -461,6 +461,7 @@
 {functions from textoken.c }
 
 @define function get_next;
+@define function active_to_cs();
 
 { functions from vfpacket.c }
 @define function new_vf_packet();

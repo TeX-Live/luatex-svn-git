@@ -281,8 +281,8 @@ static int get_cur_cs(lua_State * L)
     Print_char(0xE0 + (s / 0x1000));                            \
     Print_char(0x80 + ((s % 0x1000) / 0x40));                   \
     Print_char(0x80 + ((s % 0x1000) % 0x40));                   \
-  } else if (s>=0x10FF00) {                                     \
-    Print_char(s-0x10FF00);                                     \
+  } else if (s>=0x110000) {                                     \
+    Print_char(s-0x11000);                                      \
   } else {                                                      \
     Print_char(0xF0 + (s / 0x40000));                           \
     Print_char(0x80 + ((s % 0x40000) / 0x1000));                \
@@ -299,14 +299,19 @@ static int get_cur_cs(lua_State * L)
   ((length(a)==3)&&(str_pool[str_start_macro(a)]>=0xE0))||      \
   ((length(a)==2)&&(str_pool[str_start_macro(a)]>=0xC0))
 
+#define is_active_cs(a) (length(a)>3 &&                               \
+                         (str_pool[str_start_macro(a)]   == 0xEF) &&  \
+                         (str_pool[str_start_macro(a)+1] == 0xBF) &&  \
+                         (str_pool[str_start_macro(a)+2] == 0xBF))
+
 #define is_cat_letter(a)                                                \
   (get_char_cat_code(pool_to_unichar(str_start_macro(a))) == 11)
 
-static int active_base = 0;
 static int hash_base = 0;
 static int eqtb_size = 0;
 static int null_cs = 0;
 static int undefined_control_sequence;
+
 
 char *tokenlist_to_cstring(int p, int inhibit_par, int *siz)
 {
@@ -325,8 +330,7 @@ char *tokenlist_to_cstring(int p, int inhibit_par, int *siz)
         return NULL;
     }
     p = link(p);                /* skip refcount */
-    if (active_base == 0) {
-        active_base = get_active_base();
+    if (hash_base == 0) {
         hash_base = get_hash_base();
         null_cs = get_nullcs();
         eqtb_size = get_eqtb_size();
@@ -344,12 +348,6 @@ char *tokenlist_to_cstring(int p, int inhibit_par, int *siz)
                 if (q < hash_base) {
                     if (q == null_cs) {
                         /* Print_esc("csname"); Print_esc("endcsname"); */
-                    } else {
-                        if (q < active_base) {
-                            Print_esc("IMPOSSIBLE.");
-                        } else {
-                            Print_uchar(q - active_base);
-                        }
                     }
                 } else if ((q >= undefined_control_sequence)
                            && ((q <= eqtb_size)
@@ -359,8 +357,16 @@ char *tokenlist_to_cstring(int p, int inhibit_par, int *siz)
                            || (zget_cs_text(q) >= str_ptr)) {
                     Print_esc("NONEXISTENT.");
                 } else {
+                  str_number txt = zget_cs_text(q);
+                  s = makecstring(txt);
+                  if (is_active_cs(txt)) {
+                    s = s+3;
+                    while (*s) {
+                        Print_char(*s);
+                        s++;
+                    }
+                  } else {
                     Print_uchar(e);
-                    s = makecstring(zget_cs_text(q));
                     while (*s) {
                         Print_char(*s);
                         s++;
@@ -369,6 +375,7 @@ char *tokenlist_to_cstring(int p, int inhibit_par, int *siz)
                         || is_cat_letter(zget_cs_text(q))) {
                         Print_char(' ');
                     }
+                  }
                 }
             }
         } else {

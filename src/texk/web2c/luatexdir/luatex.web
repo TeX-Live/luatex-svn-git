@@ -247,9 +247,9 @@ known as `\eTeX'.
 @d pdftex_revision=="0" { \.{\\pdftexrevision} }
 @d pdftex_version_string=='-2.00.0' {current \pdfTeX\ version}
 @#
-@d luatex_version==25 { \.{\\luatexversion} }
-@d luatex_revision=="3" { \.{\\luatexrevision} }
-@d luatex_version_string=='snapshot-0.25.3' {current \LuaTeX\ version}
+@d luatex_version==26 { \.{\\luatexversion} }
+@d luatex_revision=="0" { \.{\\luatexrevision} }
+@d luatex_version_string=='snapshot-0.26.0' {current \LuaTeX\ version}
 @d luatex_date_info==-extra_version_info { the compile date is negated }
 @#
 @d luaTeX_banner=='This is LuaTeX, Version ',luatex_version_string,extra_version_info
@@ -520,7 +520,6 @@ emphasize this distinction.
 @d too_big_char=1114112 {2097152} {|biggest_char+1|}
 @d special_char=1114113 {2097153} {|biggest_char+2|}
 @d number_chars=1114112 {2097152} {|biggest_char+1|}
-@d number_active_chars=65536+65536 {to reduce the memory req. only two planes }
 @d string_offset=2097152
 @d font_biggest=5535 {the real biggest font}
 @d number_fonts=font_biggest-font_base+1
@@ -5292,11 +5291,11 @@ or what their current values are, for all quantities that are subject to
 the nesting structure provided by \TeX's grouping mechanism. There are six
 parts to |eqtb|:
 
-\yskip\hangg 1) |eqtb[active_base..(hash_base-1)]| holds the current
-equivalents of single-character control sequences.
+\yskip\hangg 1) |eqtb[null_cs]| holds the current equivalent of the 
+zero-length control sequence.
 
 \yskip\hangg 2) |eqtb[hash_base..(glue_base-1)]| holds the current
-equivalents of multiletter control sequences.
+equivalents of single- and multiletter control sequences.
 
 \yskip\hangg 3) |eqtb[glue_base..(local_base-1)]| holds the current
 equivalents of glue parameters like the current baselineskip.
@@ -5352,8 +5351,9 @@ things.
 paragraphs is to define these names, and to set up the initial values of the
 equivalents.
 
-In the first region we have |number_active_chars| equivalents for ``active
-characters'' that act as control sequences.
+In the first region we have a single entry for the `null csname' of
+length zero. In luatex, the active characters and and single-letter
+control sequence names are part of the next region.
 
 Then comes region~2, which corresponds to the hash table that we will
 define later.  The maximum address in this region is used for a dummy
@@ -5361,8 +5361,7 @@ control sequence that is perpetually undefined. There also are several
 locations for control sequences that are perpetually defined
 (since they are used in error recovery).
 
-@d active_base=1 {beginning of region 1, for active character equivalents}
-@d null_cs=active_base+number_active_chars {equivalent of \.{\\csname\\endcsname}}
+@d null_cs=1 {equivalent of \.{\\csname\\endcsname}}
 @d hash_base=null_cs+1 {beginning of region 2, for the hash table}
 @d frozen_control_sequence=hash_base+hash_size {for error recovery}
 @d frozen_protection=frozen_control_sequence {inaccessible but definable}
@@ -5397,7 +5396,7 @@ locations for control sequences that are perpetually defined
 eq_type(undefined_control_sequence):=undefined_cs;
 equiv(undefined_control_sequence):=null;
 eq_level(undefined_control_sequence):=level_zero;
-for k:=active_base to undefined_control_sequence-1 do
+for k:=null_cs to undefined_control_sequence-1 do
   eqtb[k]:=eqtb[undefined_control_sequence];
 
 @ Here is a routine that displays the current meaning of an |eqtb| entry
@@ -6648,7 +6647,7 @@ symbolically.
 
 @p@t\4@>@<Declare the procedure called |print_cmd_chr|@>@;@/
 @!stat procedure show_eqtb(@!n:pointer);
-begin if n<active_base then print_char("?") {this can't happen}
+begin if n<null_cs then print_char("?") {this can't happen}
 else if n<glue_base then @<Show equivalent |n|, in region 1 or 2@>
 else if n<local_base then @<Show equivalent |n|, in region 3@>
 else if n<int_base then @<Show equivalent |n|, in region 4@>
@@ -6664,8 +6663,8 @@ but \TeX\ needs to store the |eq_level| information in another array
 called |xeq_level|.
 
 @<Glob...@>=
-@!eqtb:array[active_base..eqtb_size] of memory_word;
-@!xeq_level:array[int_base..eqtb_size] of quarterword;
+@!eqtb:array[null_cs..eqtb_size] of memory_word;
+@!xeq_level:array[null_cs..eqtb_size] of quarterword;
 
 @ @<Set init...@>=
 for k:=int_base to eqtb_size do xeq_level[k]:=level_one;
@@ -6771,9 +6770,7 @@ begin
   get_equiv := equiv(p);
 end;
 function get_cs_text(cs:integer):str_number;
-begin if cs<hash_base then
-    if cs<null_cs then get_cs_text := cs-active_base
-      else  get_cs_text := "\csname\endcsname"
+begin if cs=null_cs then get_cs_text := "\csname\endcsname"
   else if (text(cs)<0)or(text(cs)>=str_ptr) then get_cs_text := ""
   else get_cs_text := text(cs);
 end;
@@ -6945,6 +6942,7 @@ end;
 function string_lookup(@!s:str_number):pointer; {search the primitives table}
 label found; {go here if you found it}
 var h:integer; {hash code}
+@!d:integer; {number of characters in incomplete current string}
 @!p:pointer; {index in |hash| array}
 @!k:pointer; {index in string pool}
 @!the_hash_prime: halfword;
@@ -6954,7 +6952,10 @@ the_hash_prime := hash_prime;
 if s<string_offset then begin
   p := s;
   if (p<0) or (eq_level(p)<>level_one) then
-    p := undefined_cs;
+    if no_new_control_sequence then
+       p:=undefined_control_sequence
+    else 
+       @<Insert a control sequence after |p|, |p| point to it@>;
 end
 else begin
   j:=str_start_macro(s);
@@ -6965,7 +6966,10 @@ else begin
     if str_eq_str(text(p),s) then goto found;
     if next(p)=0 then
       begin 
-        p:=undefined_cs ;
+        if no_new_control_sequence then
+           p:=undefined_control_sequence
+        else 
+           @<Insert a control sequence after |p|, |p| point to it@>;
         goto found;
       end;
     p:=next(p);
@@ -6984,6 +6988,24 @@ begin
        (eq_type(n)=get_prim_eq_type(m)) and
        (equiv(n)=get_prim_equiv(m)));
 end;
+
+@ @<Insert a control...@>=
+begin if text(p)>0 then
+  begin repeat if hash_is_full then overflow("hash size",hash_size);
+@:TeX capacity exceeded hash size}{\quad hash size@>
+  decr(hash_used);
+  until text(hash_used)=0; {search for an empty location in |hash|}
+  next(p):=hash_used; p:=hash_used;
+  end;
+str_room(l); d:=cur_length; j:=str_start_macro(s);
+while pool_ptr>str_start_macro(str_ptr) do
+  begin decr(pool_ptr); str_pool[pool_ptr+l]:=str_pool[pool_ptr];
+  end; {move current string up to make room for another}
+for k:=j to j+l-1 do append_char(str_pool[k]);
+text(p):=make_string; pool_ptr:=pool_ptr+d; 
+@!stat incr(cs_count);@+tats@;@/
+end
+
 
 @ @<Insert a new primitive...@>=
 begin if prim_text(p)>0 then
@@ -7019,28 +7041,38 @@ they may be unprintable.
    ((length(#)=3)and(str_pool[str_start_macro(#)]>=@"E0))or
    ((length(#)=2)and(str_pool[str_start_macro(#)]>=@"C0))
 
+@d is_active_csname(#)==((length(text(#))>3)and
+  (str_pool[str_start_macro(text(#))]=@"EF)and
+  (str_pool[str_start_macro(text(#))+1]=@"BF)and
+  (str_pool[str_start_macro(text(#))+2]=@"BF))
+
+@d active_csname_value(#)==pool_to_unichar(str_start_macro(text(#))+3)
+
 @<Basic printing...@>=
 procedure print_cs(@!p:integer); {prints a purported control sequence}
-begin if p<hash_base then {single character}
+begin if p<hash_base then { nullcs}
   if p=null_cs then
     begin print_esc("csname"); print_esc("endcsname");
     end
-  else if p<active_base then print_esc("IMPOSSIBLE.")
+  else print_esc("IMPOSSIBLE.")
 @.IMPOSSIBLE@>
-  else print(p-active_base)
 else if p>=undefined_control_sequence then print_esc("IMPOSSIBLE.")
 else if (text(p)<0)or(text(p)>=str_ptr) then print_esc("NONEXISTENT.")
 @.NONEXISTENT@>
-else  begin 
-  print_esc(text(p));
-  if single_letter(text(p)) then begin
-        if get_cat_code(cat_code_table,pool_to_unichar(str_start_macro(text(p))))=letter then
-      print_char(" ")
+else begin 
+  if is_active_csname(p) then
+    print(active_csname_value(p))
+  else begin
+    print_esc(text(p));
+    if single_letter(text(p)) then begin
+       if get_cat_code(cat_code_table,pool_to_unichar(str_start_macro(text(p))))=letter then
+         print_char(" ")
+       else
+         do_nothing;
+       end
     else
-      do_nothing;
+      print_char(" ");
     end
-  else
-    print_char(" ");
   end;
 end;
 
@@ -7049,11 +7081,15 @@ prints a space after the control sequence.
 
 @<Basic printing procedures@>=
 procedure sprint_cs(@!p:pointer); {prints a control sequence}
-begin if p<hash_base then
-  if p<null_cs then print(p-active_base)
-  else  begin print_esc("csname"); print_esc("endcsname");
-    end
-else print_esc(text(p));
+begin if p=null_cs then begin
+  print_esc("csname"); print_esc("endcsname");
+  end
+else begin
+  if is_active_csname(p) then
+    print(active_csname_value(p))
+  else
+    print_esc(text(p));
+  end;
 end;
 
 @ We need to put \TeX's ``primitive'' control sequences into the hash
@@ -10482,10 +10518,10 @@ if cur_tok<cs_token_flag then
     if cur_cmd=right_brace then incr(align_state)
     else decr(align_state);
   end
-else if cur_tok<cs_token_flag+null_cs then
-  cur_val:=cur_tok-cs_token_flag-active_base
 else begin {the value of a csname in this context is its name}
-  if single_letter(text(cur_tok-cs_token_flag)) then
+  if is_active_csname(cur_tok-cs_token_flag) then
+    cur_val:=active_csname_value(cur_tok-cs_token_flag)
+  else if single_letter(text(cur_tok-cs_token_flag)) then
     cur_val:=pool_to_unichar(str_start_macro(text(cur_tok-cs_token_flag)))
   else
     cur_val:=too_big_char;
@@ -12075,17 +12111,13 @@ else b:=(type(p)=vlist_node);
 end
 
 @ An active character will be treated as category 13 following
-\.{\\if\\noexpand} or following \.{\\ifcat\\noexpand}. We use the fact that
-active characters have the smallest tokens, among all control sequences.
-
-The |(biggest_char-number_active_chars)| part is needed because only the
-bottom two planes are present as active characters in |eqtb|.
+\.{\\if\\noexpand} or following \.{\\ifcat\\noexpand}. 
 
 @d get_x_token_or_active_char==@t@>@;
   begin get_x_token;
   if cur_cmd=relax then if cur_chr=no_expand_flag then
     begin cur_cmd:=active_char;
-    cur_chr:=cur_tok-cs_token_flag-active_base+(biggest_char-number_active_chars);
+    cur_chr:=active_csname_value(cur_tok-cs_token_flag);
     end;
   end
 
@@ -15796,11 +15828,6 @@ begin
   get_hash_base:= hash_base;
 end;
 
-function get_active_base: integer;
-begin
-  get_active_base:= active_base;
-end;
-
 function get_cur_font: internal_font_number;
 begin
   get_cur_font:= cur_font;
@@ -17714,12 +17741,7 @@ var u:pointer; {user's font identifier}
 begin
     get_r_token; u:=cur_cs;
     if u>=hash_base then t:=text(u)
-    else if u=null_cs then t:="FONT"
-    else  begin old_setting:=selector; selector:=new_string;
-      print("FONT"); print(u-active_base); selector:=old_setting;
-    @.FONTx@>
-      str_room(1); t:=make_string;
-      end;
+    else if u=null_cs then t:="FONT";
     define(u,set_font,null_font); scan_optional_equals; scan_font_ident;
     k := cur_val;
     scan_int;
@@ -26867,7 +26889,7 @@ exit:end;
 @ An active character that is an |outer_call| is allowed here.
 
 @<Treat |cur_chr|...@>=
-begin cur_cs:=(cur_chr mod number_active_chars)+active_base;
+begin cur_cs:=active_to_cs(cur_chr,true);
 cur_cmd:=eq_type(cur_cs); cur_chr:=equiv(cur_cs);
 x_token; back_input;
 end
@@ -28609,13 +28631,7 @@ begin if job_name=0 then open_log_file;
   {avoid confusing \.{texput} with the font name}
 @.texput@>
 get_r_token; u:=cur_cs;
-if u>=hash_base then t:=text(u)
-else if u=null_cs then t:="FONT"
-else  begin old_setting:=selector; selector:=new_string;
-  print("FONT"); print(u-active_base); selector:=old_setting;
-@.FONTx@>
-  str_room(1); t:=make_string;
-  end;
+if u>=null_cs then t:=text(u) else t:="FONT";
 define(u,set_font,null_font); scan_optional_equals; 
 @<Get the next non-blank non-call token@>;
 if cur_cmd<>left_brace then begin
@@ -28894,22 +28910,26 @@ back_list(link(def_ref)); free_avail(def_ref); {omit reference count}
 end;
 
 @ When the case of a |chr_code| changes, we don't change the |cmd|.
-We also change active characters, using the fact that
-|cs_token_flag+active_base| is a multiple of~|string_offset|.
-@^data structure assumptions@>
+We also change active characters.
 
 @<Change the case of the token in |p|, if a change is appropriate@>=
 t:=info(p);
-if t<cs_token_flag+null_cs then
-  begin 
+if t<cs_token_flag then begin 
   c:=t mod string_offset;
-  if b=uc_code_base then begin 
-     i:=get_uc_code(c);
-         if i<>0 then info(p):=t-c+i; 
-     end
-  else 
-     begin if get_lc_code(c)<>0 then info(p):=t-c+get_lc_code(c); end;
+  if b=uc_code_base then 
+    i:=get_uc_code(c)
+  else
+    i:=get_lc_code(c);
+  if i<>0 then info(p):=t-c+i; 
   end
+else if is_active_csname(t-cs_token_flag) then begin 
+  c:=active_csname_value(t-cs_token_flag);
+  if b=uc_code_base then
+     i:=get_uc_code(c)
+  else
+     i:= get_lc_code(c);
+  if i<>0 then info(p):=active_to_cs(i,true)+cs_token_flag; 
+end
 
 @ We come finally to the last pieces missing from |main_control|, namely the
 `\.{\\show}' commands that are useful when debugging.
@@ -29269,7 +29289,7 @@ format file represents $n+m$ consecutive entries of |eqtb|, with |m| extra
 copies of $x_n$, namely $(x_1,\ldots,x_n,x_n,\ldots,x_n)$.
 
 @<Dump regions 1 to 4 of |eqtb|@>=
-k:=active_base;
+k:=null_cs;
 repeat j:=k;
 while j<int_base-1 do
   begin if (equiv(j)=equiv(j+1))and(eq_type(j)=eq_type(j+1))and@|
@@ -29311,7 +29331,7 @@ k:=j+1; dump_int(k-l);
 until k>eqtb_size
 
 @ @<Undump regions 1 to 6 of |eqtb|@>=
-k:=active_base;
+k:=null_cs;
 repeat undump_int(x);
 if (x<1)or(k+x>eqtb_size+1) then goto bad_fmt;
 for j:=k to k+x-1 do undump_wd(eqtb[j]);
@@ -35538,13 +35558,7 @@ begin if job_name=0 then open_log_file;
 if cur_chr=1 then external_ocp:=true
 else external_ocp:=false;
 get_r_token; u:=cur_cs;
-if u>=hash_base then t:=text(u)
-else if u=null_cs then t:="OCP"
-else  begin old_setting:=selector; selector:=new_string;
-  print("OCP"); print(u-active_base); selector:=old_setting;
-@.OCPx@>
-  str_room(1); t:=make_string;
-  end;
+if u>=hash_base then t:=text(u) else t:="OCP";
 define(u,set_ocp,null_ocp); scan_optional_equals; scan_file_name;
 @<If this ocp has already been loaded, set |f| to the internal
   ocp number and |goto common_ending|@>;
@@ -35582,13 +35596,7 @@ begin if job_name=0 then open_log_file;
   {avoid confusing \.{texput} with the ocp list name}
 @.texput@>
 get_r_token; u:=cur_cs;
-if u>=hash_base then t:=text(u)
-else if u=null_cs then t:="OCPLIST"
-else  begin old_setting:=selector; selector:=new_string;
-  print("OCPLIST"); print(u-active_base); selector:=old_setting;
-@.OCPx@>
-  str_room(1); t:=make_string;
-  end;
+if u>=hash_base then t:=text(u) else t:="OCPLIST";
 define(u,set_ocp_list,null_ocp_list); scan_optional_equals; 
 f:=read_ocp_list;
     equiv(u) := f; eqtb[ocp_list_id_base+f] := eqtb[u];

@@ -615,6 +615,7 @@ void pdf_print_real(integer m, integer d);
 /* textoken.c */
 
 void get_next(void);
+halfword active_to_cs (int, int);
 void get_token_lua(void);
 
 #endif                          /* PDFTEXLIB */

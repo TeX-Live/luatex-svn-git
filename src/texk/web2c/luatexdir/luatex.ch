@@ -150,7 +150,7 @@ versions of the program.
 {Larger values than 65536 cause the arrays consume much more memory.}
 
 @<Constants...@>=
-@!hash_offset=514; {smallest index in hash array, i.e., |hash_base| }
+@!hash_offset=0; {smallest index in hash array, i.e., |hash_base| }
   {Use |hash_offset=0| for compilers which cannot decrement pointers.}
 @!engine_name='luatex'; {the name of this engine}
 @#
@@ -802,10 +802,10 @@ page_depth:=0; page_max_depth:=0;
 @z
 
 @x
-for k:=active_base to undefined_control_sequence-1 do
+for k:=null_cs to undefined_control_sequence-1 do
   eqtb[k]:=eqtb[undefined_control_sequence];
 @y
-for k:=active_base to eqtb_top do
+for k:=null_cs to eqtb_top do
   eqtb[k]:=eqtb[undefined_control_sequence];
 @z
 
@@ -844,7 +844,7 @@ else if (n<glue_base) or ((n>eqtb_size)and(n<=eqtb_top)) then
 @z
 
 @x
-@!eqtb:array[active_base..eqtb_size] of memory_word;
+@!eqtb:array[null_cs..eqtb_size] of memory_word;
 @y
 @!zeqtb:^memory_word;
 @z
@@ -899,6 +899,33 @@ begin if text(p)>0 then
       until text(hash_used)=0; {search for an empty location in |hash|}
     next(p):=hash_used; p:=hash_used;
     end;
+  end;
+@z
+
+
+@x
+@ @<Insert a control...@>=
+begin if text(p)>0 then
+  begin repeat if hash_is_full then overflow("hash size",hash_size);
+@:TeX capacity exceeded hash size}{\quad hash size@>
+  decr(hash_used);
+  until text(hash_used)=0; {search for an empty location in |hash|}
+  next(p):=hash_used; p:=hash_used;
+  end;
+@y
+@ @<Insert a control...@>=
+begin if text(p)>0 then
+  begin if hash_high<hash_extra then
+      begin incr(hash_high);
+      next(p):=hash_high+eqtb_size; p:=hash_high+eqtb_size;
+      end
+    else begin
+      repeat if hash_is_full then overflow("hash size",hash_size);
+@:TeX capacity exceeded hash size}{\quad hash size@>
+      decr(hash_used);
+      until text(hash_used)=0; {search for an empty location in |hash|}
+      next(p):=hash_used; p:=hash_used;
+      end;
   end;
 @z
 
