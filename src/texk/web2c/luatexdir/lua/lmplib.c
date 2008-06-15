@@ -762,6 +762,25 @@ static int mplib_finish(lua_State * L)
     return 1;
 }
 
+static int mplib_charwidth(lua_State * L)
+{
+    MP *mp_ptr = is_mp(L, 1);
+    if (*mp_ptr != NULL) {
+        mplib_instance *mplib_data = mplib_get_data(*mp_ptr);
+        char *fname = luaL_checkstring(L,2);
+        int charnum = luaL_checkinteger(L,3);
+	if (charnum<0 || charnum>255) {
+	  lua_pushnumber(L, 0);
+	} else {
+	  lua_pushnumber(L,mp_get_char_width(*mp_ptr,fname,charnum));
+	}
+    } else {
+      lua_pushnumber(L, 0);
+    }
+    return 1;
+}
+
+
 static int mplib_statistics(lua_State * L)
 {
     MP *mp_ptr = is_mp(L, 1);
@@ -849,7 +868,7 @@ static int
 mp_wrapped_shipout(struct mp_edge_object *hh, int prologues, int procset)
 {
     MP mp = hh->_parent;
-    if (setjmp(mp->jump_buf)) {
+    if (setjmp(*(mp->jump_buf))) {
         return 0;
     }
     mp_gr_ship_out(hh, prologues, procset);
@@ -1321,6 +1340,7 @@ static const struct luaL_reg mplib_gr_meta[] = {
 static const struct luaL_reg mplib_d[] = {
     {"execute", mplib_execute},
     {"finish", mplib_finish},
+    {"charwidth", mplib_charwidth},
     {"statistics", mplib_statistics},
     {NULL, NULL}                /* sentinel */
 };
@@ -1333,7 +1353,7 @@ static const struct luaL_reg mplib_m[] = {
 };
 
 
-int luaopen_mp(lua_State * L)
+int luaopen_mplib(lua_State * L)
 {
     mplib_init_Ses(L);
 

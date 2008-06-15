@@ -189,7 +189,7 @@ void luainterpreter(int n)
     lua_pushstring(L, "img");
     lua_call(L, 1, 0);
 
-    luaopen_mp(L);
+    luaopen_mplib(L);
 
     if (safer_option) {
         /* disable some stuff if --safer */

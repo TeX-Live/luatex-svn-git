@@ -73,10 +73,10 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d banner "This is MetaPost, Version 1.004" /* printed when \MP\ starts */
-@d metapost_version "1.004"
-@d mplib_version "0.45"
-@d version_string " (Cweb version 0.45)"
+@d banner "This is MetaPost, Version 1.060" /* printed when \MP\ starts */
+@d metapost_version "1.060"
+@d mplib_version "0.60"
+@d version_string " (Cweb version)"
 
 @d true 1
 @d false 0
@@ -107,8 +107,12 @@ wholesale.
 @(mpmp.h@>=
 #include <setjmp.h>
 typedef struct psout_data_struct * psout_data;
+#ifndef HAVE_BOOLEAN
 typedef int boolean;
-typedef signed int integer;
+#endif
+#ifndef INTEGER_TYPE
+typedef int integer;
+#endif
 @<Declare helpers@>
 @<Types in the outer block@>
 @<Constants in the outer block@>
@@ -126,6 +130,7 @@ typedef struct MP_instance {
 @<Internal library declarations@>
 
 @ @c 
+#include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -167,13 +172,12 @@ struct MP_options *mp_options (void) {
 
 @ @c
 MP __attribute__ ((noinline))
-mp_new (struct MP_options *opt) {
-  MP mp;
-  mp = malloc(1*sizeof(MP_instance));
+mp_do_new (struct MP_options *opt, jmp_buf *buf) {
+  MP mp = malloc(sizeof(MP_instance));
   if (mp==NULL)
-	return mp;
+	return NULL;
+  mp->jump_buf = buf;
   @<Set |ini_version|@>;
-  @<Setup the non-local jump buffer in |mp_new|@>;
   @<Allocate or initialize variables@>
   if (opt->main_memory>mp->mem_max)
     mp_reallocate_memory(mp,opt->main_memory);
@@ -181,6 +185,13 @@ mp_new (struct MP_options *opt) {
   mp_reallocate_fonts(mp,8);
   return mp;
 }
+MP __attribute__ ((noinline))
+mp_new (struct MP_options *opt) {
+  jmp_buf buf;
+  @<Setup the non-local jump buffer in |mp_new|@>;
+  return mp_do_new(opt, &buf);
+}
+
 
 @ @c
 void mp_free (MP mp) {
@@ -197,12 +208,13 @@ mp_do_initialize ( MP mp) {
 }
 int mp_initialize (MP mp) { /* this procedure gets things started properly */
   mp->history=mp_fatal_error_stop; /* in case we quit during initialization */
+  jmp_buf buf;
   @<Install and test the non-local jump buffer@>;
   t_open_out; /* open the terminal for output */
   @<Check the ``constant'' values...@>;
   if ( mp->bad>0 ) {
 	char ss[256];
-    snprintf(ss,256,"Ouch---my internal constants have been clobbered!\n"
+    mp_snprintf(ss,256,"Ouch---my internal constants have been clobbered!\n"
                    "---case %i",(int)mp->bad);
     do_fprintf(mp->err_out,(char *)ss);
 @.Ouch...clobbered@>
@@ -1916,7 +1928,7 @@ void mp_term_input (MP mp) { /* gets a line from the terminal */
 	  mp_fatal_error(mp, "End of file on the terminal!");
 @.End of file on the terminal@>
     } else { /* we are done with this input chunk */
-	  longjmp(mp->jump_buf,1);      
+	  longjmp(*(mp->jump_buf),1);      
     }
   }
   if (!mp->noninteractive) {
@@ -2112,13 +2124,14 @@ of |mp_run|. Those are the only library enty points.
 @^system dependencies@>
 
 @<Glob...@>=
-jmp_buf jump_buf;
+jmp_buf *jump_buf;
 
 @ @<Install and test the non-local jump buffer@>=
-if (setjmp(mp->jump_buf) != 0) { return mp->history; }
+mp->jump_buf = &buf;
+if (setjmp(*(mp->jump_buf)) != 0) { return mp->history; }
 
 @ @<Setup the non-local jump buffer in |mp_new|@>=
-if (setjmp(mp->jump_buf) != 0) return NULL;
+if (setjmp(buf) != 0) { return NULL; }
 
 
 @ If the array of internals is still |NULL| when |jump_out| is called, a
@@ -2129,7 +2142,7 @@ cleanup routine.
 void mp_jump_out (MP mp) { 
   if (mp->internal!=NULL && mp->history < mp_system_error_stop) 
     mp_close_files_and_terminate(mp);
-  longjmp(mp->jump_buf,1);
+  longjmp(*(mp->jump_buf),1);
 }
 
 @ Here now is the general |error| routine.
@@ -3885,6 +3898,7 @@ void mp_xfree (void *x);
 void *mp_xrealloc (MP mp, void *p, size_t nmem, size_t size) ;
 void *mp_xmalloc (MP mp, size_t nmem, size_t size) ;
 char *mp_xstrdup(MP mp, const char *s);
+void mp_do_snprintf(char *str, int size, const char *fmt, ...);
 
 @ The |max_size_test| guards against overflow, on the assumption that
 |size_t| is at least 31bits wide.
@@ -3933,6 +3947,72 @@ char *mp_xstrdup(MP mp, const char *s) {
   return w;
 }
 
+@ @<Internal library declarations@>=
+#ifdef HAVE_SNPRINTF
+#define mp_snprintf (void)snprintf
+#else
+#define mp_snprintf mp_do_snprintf
+#endif
+
+@ This internal version is rather stupid, but good enough for its purpose.
+
+@c
+void mp_do_snprintf (char *str, int size, const char *format, ...) {
+  const char *fmt;
+  char *res, *work;
+  char workbuf[32];
+  va_list ap;
+  work = (char *)workbuf;
+  va_start(ap, format);
+  res = str;
+  for (fmt=format;*fmt!='\0';fmt++) {
+     if (*fmt=='%') {
+       fmt++;
+       switch(*fmt) {
+       case 's':
+         {
+           char *s = va_arg(ap, char *);
+           while (*s) {
+             *res = *s++;
+             if (size-->0) res++;
+           }
+         }
+         break;
+       case 'i':
+       case 'd':
+         {
+           sprintf(work,"%i",va_arg(ap, int));
+           while (*work) {
+             *res = *work++;
+             if (size-->0) res++;
+           }
+         }
+         break;
+       case 'g':
+         {
+           sprintf(work,"%g",va_arg(ap, double));
+           while (*work) {
+             *res = *work++;
+             if (size-->0) res++;
+           }
+         }
+         break;
+       case '%':
+         *res = '%';
+         if (size-->0) res++;
+         break;
+       default:
+         /* hm .. */
+         break;
+       }
+     } else {
+       *res = *fmt;
+       if (size-->0) res++;
+     }
+  }
+  *res = '\0';
+  va_end(ap);
+}
 
 @ 
 @<Allocate or initialize ...@>=
@@ -16333,6 +16413,7 @@ with the current input file.
   name=mp_a_make_name_string(mp, cur_file);
   mp->mpx_name[index]=name; add_str_ref(name);
   @<Read the first line of the new file@>;
+  xfree(origname);
   return;
 NOT_FOUND: 
     @<Explain that the \.{MPX} file can't be read and |succumb|@>;
@@ -18927,8 +19008,8 @@ void mp_pair_to_path (MP mp) {
                        (has_color(link(dummy_loc(mp->cur_exp)))) &&
                        ((color_model(link(dummy_loc(mp->cur_exp)))==A)
                         ||
-                        (color_model(link(dummy_loc(mp->cur_exp)))==mp_uninitialized_model) &&
-                        (mp->internal[mp_default_color_model]/unity)==(A)))
+                        ((color_model(link(dummy_loc(mp->cur_exp)))==mp_uninitialized_model) &&
+                        (mp->internal[mp_default_color_model]/unity)==(A))))
 
 @<Additional cases of unary operators@>=
 case x_part:
@@ -21866,6 +21947,7 @@ Each execution of |do_statement| concludes with
 }
 int __attribute__((noinline)) 
 mp_run (MP mp) {
+  jmp_buf buf;
   if (mp->history < mp_fatal_error_stop ) {
     @<Install and test the non-local jump buffer@>;
     mp_main_control(mp); /* come to life */
@@ -21876,6 +21958,7 @@ mp_run (MP mp) {
 }
 int __attribute__((noinline)) 
 mp_execute (MP mp) {
+  jmp_buf buf;
   if (mp->history < mp_fatal_error_stop ) {
     mp->history = mp_spotless;
     mp->file_offset = 0;
@@ -21899,6 +21982,7 @@ mp_execute (MP mp) {
 }
 int __attribute__((noinline)) 
 mp_finish (MP mp) {
+  jmp_buf buf;
   if (mp->history < mp_fatal_error_stop ) {
     @<Install and test the non-local jump buffer@>;
     mp_final_cleanup(mp); /* prepare for death */
@@ -24461,7 +24545,7 @@ if ( mp->tfm_changed>0 )  {
   char s[200];
   wlog_ln(" ");
   if ( mp->bch_label<undefined_label ) decr(mp->nl);
-  snprintf(s,128,"(You used %iw,%ih,%id,%ii,%il,%ik,%ie,%ip metric file positions)",
+  mp_snprintf(s,128,"(You used %iw,%ih,%id,%ii,%il,%ik,%ie,%ip metric file positions)",
                  mp->nw, mp->nh, mp->nd, mp->ni, mp->nl, mp->nk, mp->ne,mp->np);
   wlog_ln(s);
 }
@@ -24816,6 +24900,33 @@ font_number mp_find_font (MP mp, char *f) {
   return n;
 }
 
+@ This is an interface function for getting the width of character,
+as a double in ps units
+
+@c double mp_get_char_width (MP mp, char *fname, int c) {
+  int n;
+  four_quarters cc;
+  font_number f = 0;
+  double w = -1.0;
+  for (n=0;n<=mp->last_fnum;n++) {
+    if (mp_xstrcmp(fname,mp->font_name[n])==0 ) {
+      f = n;
+      break;
+    }
+  }
+  if (f==0)
+    return 0;
+  cc = char_info(f)(c);
+  if (! ichar_exists(cc) )
+    return 0;
+  w = char_width(f)(cc);
+  return w/655.35*(72.27/72);
+}
+
+@ @<Exported function ...@>=
+double mp_get_char_width (MP mp, char *fname, int n);
+
+
 @ One simple application of |find_font| is the implementation of the |font_size|
 operator that gets the design size for a given font name.
 
@@ -24986,6 +25097,7 @@ void mp_open_output_file (MP mp) ;
 @ @c 
 char *mp_set_output_file_name (MP mp, integer c) {
   char *ss = NULL; /* filename extension proposal */  
+  char *nn = NULL; /* temp string  for str() */
   int old_setting; /* previous |selector| setting */
   pool_pointer i; /*  indexes into |filename_template|  */
   integer cc; /* a temporary integer for template building  */
@@ -25054,22 +25166,25 @@ char *mp_set_output_file_name (MP mp, integer c) {
        n=s;
        s=rts("");
     };
-    mp_pack_file_name(mp, str(n),"",str(s));
+    ss = str(s);
+    nn = str(n);
+    mp_pack_file_name(mp, nn,"",ss);
+    free(nn);
     delete_str_ref(n);
-	ss = str(s);
     delete_str_ref(s);
   }
   return ss;
 }
 
 char * mp_get_output_file_name (MP mp) {
-  char *fname; /* return value */
+  char *junk;
   char *saved_name;  /* saved |name_of_file| */
   saved_name = mp_xstrdup(mp, mp->name_of_file);
-  (void)mp_set_output_file_name(mp, mp_round_unscaled(mp, mp->internal[mp_char_code]));
-  fname = mp_xstrdup(mp, mp->name_of_file);
+  junk = mp_set_output_file_name(mp, mp_round_unscaled(mp, mp->internal[mp_char_code]));
+  free(junk);
   mp_pack_file_name(mp, saved_name,NULL,NULL);
-  return fname;
+  free(saved_name);
+  return mp->name_of_file;
 }
 
 void mp_open_output_file (MP mp) {
@@ -25090,7 +25205,7 @@ extreme cases so it may have to be shortened on some systems.
 @<Use |c| to compute the file extension |s|@>=
 { 
   s = xmalloc(7,1);
-  snprintf(s,7,".%i",(int)c);
+  mp_snprintf(s,7,".%i",(int)c);
 }
 
 @ The user won't want to see all the output file names so we only save the
@@ -25781,7 +25896,7 @@ if (x!=69073) goto OFF_BASE
 { 
   xfree(mp->mem_ident);
   mp->mem_ident = xmalloc(256,1);
-  snprintf(mp->mem_ident,256," (mem=%s %i.%i.%i)", 
+  mp_snprintf(mp->mem_ident,256," (mem=%s %i.%i.%i)", 
            mp->job_name,
            (int)(mp_round_unscaled(mp, mp->internal[mp_year]) % 100),
            (int)mp_round_unscaled(mp, mp->internal[mp_month]),
@@ -25945,26 +26060,26 @@ if ( mp->log_opened ) {
   wlog_ln(" ");
   wlog_ln("Here is how much of MetaPost's memory you used:");
 @.Here is how much...@>
-  snprintf(s,128," %i string%s out of %i",(int)mp->max_strs_used-mp->init_str_use,
+  mp_snprintf(s,128," %i string%s out of %i",(int)mp->max_strs_used-mp->init_str_use,
           (mp->max_strs_used!=mp->init_str_use+1 ? "s" : ""),
           (int)(mp->max_strings-1-mp->init_str_use));
   wlog_ln(s);
-  snprintf(s,128," %i string characters out of %i",
+  mp_snprintf(s,128," %i string characters out of %i",
            (int)mp->max_pl_used-mp->init_pool_ptr,
            (int)mp->pool_size-mp->init_pool_ptr);
   wlog_ln(s);
-  snprintf(s,128," %i words of memory out of %i",
+  mp_snprintf(s,128," %i words of memory out of %i",
            (int)mp->lo_mem_max+mp->mem_end-mp->hi_mem_min+2,
            (int)mp->mem_end);
   wlog_ln(s);
-  snprintf(s,128," %i symbolic tokens out of %i", (int)mp->st_count, (int)mp->hash_size);
+  mp_snprintf(s,128," %i symbolic tokens out of %i", (int)mp->st_count, (int)mp->hash_size);
   wlog_ln(s);
-  snprintf(s,128," %ii,%in,%ip,%ib stack positions out of %ii,%in,%ip,%ib",
+  mp_snprintf(s,128," %ii,%in,%ip,%ib stack positions out of %ii,%in,%ip,%ib",
            (int)mp->max_in_stack,(int)mp->int_ptr,
            (int)mp->max_param_stack,(int)mp->max_buf_stack+1,
            (int)mp->stack_size,(int)mp->max_internal,(int)mp->param_size,(int)mp->buf_size);
   wlog_ln(s);
-  snprintf(s,128," %i string compactions (moved %i characters, %i strings)",
+  mp_snprintf(s,128," %i string compactions (moved %i characters, %i strings)",
           (int)mp->pact_count,(int)mp->pact_chars,(int)mp->pact_strs);
   wlog_ln(s);
 }
