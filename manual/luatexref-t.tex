@@ -6530,12 +6530,6 @@ so this will take some extra effort to implement correctly.
 \item When used inside  \tex{directlua}, \type{pdf.print()} should create a
 literal node instead of flushing immediately.
 
-\item At the moment, only characters in plane~0 and plane~1 can be
-assigned catcode~13 (i.\,e.\ turned into active characters). This is a
-temporary measure to reduce the memory requirements of \LUATEX.  In
-general, \LUATEX's memory footprint is a bit larger that we would
-like (with \type{plain.fmt} preloaded it needs about 55MB).
-
 \item Not all of \ALEPH's direction commands are handled properly in
 \PDF\ mode, and especially the vertical scripts support is missing
 almost completely (only \type {TRT} and \type {TLT} are routinely tested).
