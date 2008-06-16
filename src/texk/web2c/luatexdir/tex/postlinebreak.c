@@ -171,7 +171,7 @@ void ext_post_line_break(boolean d,
             halfword tmp = new_dir(dir_dir(q));
             halfword nxt = vlink(temp_head);
             couple_nodes(temp_head, tmp);
-            couple_nodes(tmp, nxt);
+            try_couple_nodes(tmp, nxt); /* \break\par */
         }
         if (dir_ptr != null) {
             flush_node_list(dir_ptr);
