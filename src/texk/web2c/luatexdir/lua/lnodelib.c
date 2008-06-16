@@ -894,6 +894,7 @@ static void nodelib_pushdir (lua_State * L, int n, boolean dirnode) {
   if (dirnode) {
     dirstring[f++]= (n<0?'-':'+');
   }
+  if (n<0) n+=64;
   dirstring[f++] = dir_names[dir_primary[n]];
   dirstring[f++] = dir_names[dir_secondary[n]];
   dirstring[f++] = dir_names[dir_tertiary[n]];
