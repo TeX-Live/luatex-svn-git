@@ -595,47 +595,6 @@ end;
 @z
 
 @x
-line ready to be edited. But such an extension requires some system
-wizardry, so the present implementation simply types out the name of the
-file that should be
-edited and the relevant line number.
-@^system dependencies@>
-
-There is a secret `\.D' option available when the debugging routines haven't
-been commented~out.
-@^debugging@>
-@y
-line ready to be edited.
-We do this by calling the external procedure |calledit| with a pointer to
-the filename, its length, and the line number.
-However, here we just set up the variables that will be used as arguments,
-since we don't want to do the switch-to-editor until after TeX has closed
-its files.
-@^system dependencies@>
-
-There is a secret `\.D' option available when the debugging routines haven't
-been commented~out.
-@^debugging@>
-@d edit_file==input_stack[base_ptr]
-@z
-
-@x
-"E": if base_ptr>0 then
-  begin print_nl("You want to edit file ");
-@.You want to edit file x@>
-  slow_print(input_stack[base_ptr].name_field);
-  print(" at line "); print_int(line);
-  interaction:=scroll_mode; jump_out;
-@y
-"E": if base_ptr>0 then
-    begin edit_name_start:=str_start_macro(edit_file.name_field);
-    edit_name_length:=str_start_macro(edit_file.name_field+1) -
-                      str_start_macro(edit_file.name_field);
-    edit_line:=line;
-    jump_out;
-@z
-
-@x
 |remainder|, holds the remainder after a division.
 
 @<Glob...@>=
