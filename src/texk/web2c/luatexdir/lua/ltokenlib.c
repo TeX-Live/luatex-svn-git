@@ -35,6 +35,8 @@ static int null_cs = 0;
 #define  get_token_cmd(L,i)  lua_rawgeti(L,i,1)
 #define  get_token_chr(L,i)  lua_rawgeti(L,i,2)
 #define  get_token_cs(L,i)   lua_rawgeti(L,i,3)
+#define  is_active_string(s) (strlen(s)>3 && *s==0xEF && *(s+1)==0xBF && *(s+2)==0xBF)
+
 
 static int test_expandable(lua_State * L)
 {
@@ -81,20 +83,25 @@ static int test_protected(lua_State * L)
 
 static int test_activechar(lua_State * L)
 {
-    integer cmd = -1;
     if (is_valid_token(L, -1)) {
-        get_token_chr(L, -1);
+        str_number n;
+        integer cs = 0;
+        get_token_cs(L, -1);
         if (lua_isnumber(L, -1)) {
-            cmd = lua_tointeger(L, -1);
+            cs = lua_tointeger(L, -1);
         }
-        if (cmd > 0 && cmd == protected_token) {
-            lua_pushboolean(L, 1);
-        } else {
-            lua_pushboolean(L, 0);
+        lua_pop(L, 1);
+        if (cs != 0 && (n = zget_cs_text(cs)) && n > 0) {
+            unsigned char *s = makecstring(n);
+            if (is_active_string(s)) {
+              free(s);
+              lua_pushboolean(L,1);
+              return 1;
+            }
+            free(s);
         }
-    } else {
-        lua_pushnil(L);
     }
+    lua_pushboolean(L,0);
     return 1;
 }
 
@@ -115,8 +122,6 @@ static int run_get_command_name(lua_State * L)
     }
     return 1;
 }
-
-#define is_active_string(s) (strlen(s)>3 && *s==0xEF && *(s+1)==0xBF && *(s+2)==0xBF)
 
 
 static int run_get_csname_name(lua_State * L)
@@ -143,6 +148,7 @@ static int run_get_csname_name(lua_State * L)
               lua_pushstring(L, (s+3));
             else
               lua_pushstring(L, s);
+            free(s);
         } else {
             lua_pushstring(L, "");
         }
