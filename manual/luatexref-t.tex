@@ -19,7 +19,7 @@
 
 \setvariables
   [document]
-  [beta=0.25.3]
+  [beta=0.26.0]
 
 \starttext
 
@@ -5629,7 +5629,7 @@ Valid fields: \showfields{hlist}
 \NC glue_set   \NC number  \NC  the calculated glue ratio\NC\NR
 \NC glue_sign  \NC number  \NC  \NC\NR
 \NC list       \NC \syntax{<node>}    \NC  the body of this list\NC\NR
-\NC dir        \NC number  \NC  the direction of this box\NC\NR
+\NC dir        \NC string  \NC  the direction of this box. see~\in{}[dirnodes]\NC\NR
 \stoptabulate
 
 \subsubsection{vlist nodes}
@@ -5649,7 +5649,7 @@ Valid fields: \showfields{rule}
                                 is used for \quote{running} glue dimensions\NC\NR
 \NC height     \NC number  \NC  the height of the rule (can be negative)\NC\NR
 \NC depth      \NC number  \NC  the depth of the rule (can be negative)\NC\NR
-\NC dir        \NC number  \NC  the direction of this rule\NC\NR
+\NC dir        \NC string  \NC  the direction of this rule. see~\in{}[dirnodes]\NC\NR
 \stoptabulate
 
 \subsubsection{ins nodes}
@@ -5876,25 +5876,65 @@ Valid fields: \showfields{whatsit,local_par}
 \NC attr      \NC \syntax{<node>}    \NC  \NC\NR
 \NC pen_inter \NC number  \NC interline penalty\NC\NR
 \NC pen_broken\NC number  \NC broken penalty\NC\NR
-\NC dir       \NC number  \NC the direction of this par\NC\NR
+\NC dir       \NC string  \NC the direction of this par. see~\in{}[dirnodes]\NC\NR
 \NC box_left  \NC \syntax{<node>}      \NC the \tex{localleftbox}\NC\NR
 \NC box_left_width\NC number\NC width of the \tex{localleftbox}\NC\NR
 \NC box_right  \NC \syntax{<node>}      \NC the \tex{localrightbox}\NC\NR
 \NC box_right_width\NC number\NC width of the \tex{localrightbox}\NC\NR
 \stoptabulate
 
-\subsubsection{dir nodes}
+\subsubsection[dirnodes]{dir nodes}
 
 Valid fields: \showfields{whatsit,dir}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
 \NC attr      \NC \syntax{<node>}    \NC  \NC\NR
-\NC dir       \NC number  \NC the direction\NC\NR
+\NC dir       \NC string  \NC the direction (but see below)\NC\NR
 \NC level     \NC number  \NC nesting level of this direction whatsit\NC\NR
 \NC dvi_ptr   \NC number  \NC a saved dvi buffer byte offset\NC\NR
 \NC dir_h     \NC number  \NC a saved dvi position\NC\NR
 \stoptabulate
+
+A note on \type{dir} strings. There is a grand total of 32 different
+possible direction strings, as follows:
+
+\starttabulate[|Tc|c|c|c|]
+\NC \ssbf number \NC \bf meaning \NC \bf number \NC \bf meaning \NC\NR
+\NC 0            \NC TLT         \NC 16         \NC BLT     \NC\NR
+\NC 1            \NC TLL         \NC 17         \NC BLL     \NC\NR
+\NC 2            \NC TLB         \NC 18         \NC BLB     \NC\NR
+\NC 3            \NC TLR         \NC 19         \NC BLR     \NC\NR
+\NC 4            \NC TRT         \NC 20         \NC BRT     \NC\NR
+\NC 5            \NC TRL         \NC 21         \NC BRL     \NC\NR
+\NC 6            \NC TRB         \NC 22         \NC BRB     \NC\NR
+\NC 7            \NC TRR         \NC 23         \NC BRR     \NC\NR
+\NC 8            \NC LTT         \NC 24         \NC RTT     \NC\NR
+\NC 9            \NC LTL         \NC 25         \NC RTL     \NC\NR
+\NC 10           \NC LTB         \NC 26         \NC RTB     \NC\NR
+\NC 11           \NC LTR         \NC 27         \NC RTR     \NC\NR
+\NC 12           \NC LBT         \NC 28         \NC RBT     \NC\NR
+\NC 13           \NC LBL         \NC 29         \NC RBL     \NC\NR
+\NC 14           \NC LBB         \NC 30         \NC RBB     \NC\NR
+\NC 15           \NC LBR         \NC 31         \NC RBR     \NC\NR
+\stoptabulate
+
+These are built up out of three separate items:
+\startitemize
+\item the first is the direction of the \quote{top} of paragraphs.
+\item the second is the direction of the \quote{start} of lines.
+\item the third is the direction of the \quote{top} of glyphs.
+\stopitemize
+
+Each of the three items can have 4 separate values, but the directions
+of the first and second items always have to be perpendicular to
+each other, which limits the total to 32.
+
+Inside actual \type{dir} whatsit nodes, the representation of
+\type{dir} is not a three-letter but a four-letter combination. The
+first character in this case is always either \type{+} or \type{-},
+indicating whether the value is pushed or popped from the direction
+stack.
 
 \subsubsection{pdf_literal nodes}
 
