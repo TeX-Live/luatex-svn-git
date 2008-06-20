@@ -22,6 +22,8 @@
 
 { luatex.defines: additions for luaTeX }
 
+@define function simple_advance_width(); 
+
 @define function new_node();
 @define function new_glyph_node;
 @define procedure flush_node();

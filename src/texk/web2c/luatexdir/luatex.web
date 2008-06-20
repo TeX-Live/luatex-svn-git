@@ -32344,7 +32344,34 @@ this segment, it stores the accumulated with in the |dir_dvi_h| field
 of that end node, so that when that node is found later in the
 processing, the correct glue correction can be applied.
 
-@<(PDF) Calculate the needed width to the matching |enddir|...@>=
+@p
+function simple_advance_width(p:halfword):scaled;
+var q:halfword;
+@!w:scaled;
+begin
+  q:=p; w:=0; 
+  while (q<>null) and (vlink(q)<>null) do begin
+    q:=vlink(q);
+    if is_char_node(q) then begin
+      w:=w+glyph_width(q);
+      end
+    else begin
+      case type(q) of
+      hlist_node,vlist_node,rule_node,
+      margin_kern_node,kern_node:
+        w:=w+width(q);
+      disc_node: if vlink(no_break(q))<>null then begin
+        w:=w+simple_advance_width(no_break(q));
+        end;
+      othercases do_nothing;
+      endcases;
+    end;
+  end; 
+  simple_advance_width:=w; 
+end;
+
+
+@ @<(PDF) Calculate the needed width to the matching |enddir|...@>=
 begin
   q:=p; w:=0; 
   save_cur_g:=cur_g;
@@ -32362,7 +32389,7 @@ begin
       case type(q) of
       hlist_node,vlist_node,rule_node,
       margin_kern_node,kern_node:w:=w+width(q);
-          glue_node: begin 
+      glue_node: begin 
         g:=glue_ptr(q);
         w:=w+width(g)-cur_g; 
         if g_sign<>normal then
@@ -32380,6 +32407,9 @@ begin
              end;
           end;
         w:=w+cur_g; 
+        end;
+      disc_node: if vlink(no_break(q))<>null then begin
+        w:=w+simple_advance_width(no_break(q));
         end;
       math_node: w:=w+surround(q);
       whatsit_node: begin
