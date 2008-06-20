@@ -104,6 +104,7 @@ static void
 prepare_cmdline(lua_State * L, char **argv, int argc, int zero_offset)
 {
     int i;
+    char *s;
     luaL_checkstack(L, argc + 3, "too many arguments to script");
     lua_createtable(L, 0, 0);
     for (i = 0; i < argc; i++) {
@@ -112,7 +113,9 @@ prepare_cmdline(lua_State * L, char **argv, int argc, int zero_offset)
     }
     lua_setglobal(L, "arg");
     lua_getglobal(L,"os");
-    lua_pushstring(L,ex_selfdir(argv[0]));
+    s = ex_selfdir(argv[0]);
+    lua_pushstring(L,s);
+    xfree(s);
     lua_setfield(L,-2,"selfdir");
     return;
 }
@@ -507,7 +510,10 @@ void lua_initialize(int ac, char **av)
             get_lua_string("texconfig", "formatname", &dump_name);
         }
         if ((lua_only) || ((!input_name) && (!dump_name))) {
-            exit(0);
+          if (given_file) free(given_file);
+           /* this is not strictly needed but it pleases valgrind */
+          lua_close(Luas[0]);
+          exit(0);
         }
         /* unhide the 'tex' and 'pdf' table */
         unhide_lua_table(Luas[0], "tex", tex_table_id);
@@ -566,6 +572,7 @@ void lua_initialize(int ac, char **av)
             if (given_file) {
                 fprintf(stdout, "%s file %s not found\n",
                         (lua_only ? "Script" : "Configuration"), given_file);
+                free(given_file);
             } else {
                 fprintf(stdout, "No %s file given\n",
                         (lua_only ? "script" : "configuration"));
