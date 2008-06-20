@@ -73,10 +73,8 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d banner "This is MetaPost, Version 1.060" /* printed when \MP\ starts */
-@d metapost_version "1.060"
-@d mplib_version "0.60"
-@d version_string " (Cweb version)"
+@d banner "This is MetaPost, Version 1.070 (Cweb version)" /* printed when \MP\ starts */
+@d metapost_version "1.070"
 
 @d true 1
 @d false 0
@@ -139,6 +137,7 @@ typedef struct MP_instance {
 #include <unistd.h> /* for access() */
 #include <time.h> /* for struct tm \& co */
 #include "mplib.h"
+#include "psout.h" /* external header */
 #include "mpmp.h" /* internal header */
 #include "mppsout.h" /* internal header */
 @h
@@ -151,7 +150,7 @@ typedef struct MP_instance {
 @<Declarations@> =
 @<Declare |mp_reallocate| functions@>
 struct MP_options *mp_options (void);
-MP mp_new (struct MP_options *opt);
+MP mp_initialize (struct MP_options *opt);
 
 @ @c
 struct MP_options *mp_options (void) {
@@ -160,6 +159,7 @@ struct MP_options *mp_options (void) {
   if (opt!=NULL) {
     memset (opt,0,sizeof(MP_options));
   }
+  opt->ini_version = true;
   return opt;
 } 
 
@@ -185,18 +185,14 @@ mp_do_new (struct MP_options *opt, jmp_buf *buf) {
   mp_reallocate_fonts(mp,8);
   return mp;
 }
-MP __attribute__ ((noinline))
-mp_new (struct MP_options *opt) {
-  jmp_buf buf;
-  @<Setup the non-local jump buffer in |mp_new|@>;
-  return mp_do_new(opt, &buf);
-}
-
 
 @ @c
-void mp_free (MP mp) {
+static void mp_free (MP mp) {
   int k; /* loop variable */
   @<Dealloc variables@>
+  if (mp->noninteractive) {
+    @<Finish non-interactive use@>;
+  }
   xfree(mp);
 }
 
@@ -206,11 +202,23 @@ mp_do_initialize ( MP mp) {
   @<Local variables for initialization@>
   @<Set initial values of key variables@>
 }
-int mp_initialize (MP mp) { /* this procedure gets things started properly */
-  mp->history=mp_fatal_error_stop; /* in case we quit during initialization */
+
+@ This procedure gets things started properly.
+@c
+MP __attribute__ ((noinline))
+mp_initialize (struct MP_options *opt) { 
   jmp_buf buf;
-  @<Install and test the non-local jump buffer@>;
-  t_open_out; /* open the terminal for output */
+  MP mp;
+  mp = mp_do_new(opt, &buf);
+  if (mp == NULL)
+    return NULL;
+  mp->history=mp_fatal_error_stop; /* in case we quit during initialization */
+  @<Setup the non-local jump buffer in |mp_new|@>;
+  if (mp->noninteractive) {
+    @<Prepare for non-interactive use@>;
+  } else {
+    t_open_out; /* open the terminal for output */
+  }
   @<Check the ``constant'' values...@>;
   if ( mp->bad>0 ) {
 	char ss[256];
@@ -218,33 +226,47 @@ int mp_initialize (MP mp) { /* this procedure gets things started properly */
                    "---case %i",(int)mp->bad);
     do_fprintf(mp->err_out,(char *)ss);
 @.Ouch...clobbered@>
-    return mp->history;
+    return mp;
   }
   mp_do_initialize(mp); /* erase preloaded mem */
   if (mp->ini_version) {
     @<Run inimpost commands@>;
   }
-  @<Initialize the output routines@>;
-  @<Get the first line of input and prepare to start@>;
-  mp_set_job_id(mp);
-  mp_init_map_file(mp, mp->troff_mode);
-  mp->history=mp_spotless; /* ready to go! */
-  if (mp->troff_mode) {
-    mp->internal[mp_gtroffmode]=unity; 
-    mp->internal[mp_prologues]=unity; 
+  if (!mp->noninteractive) {
+    @<Initialize the output routines@>;
+    @<Get the first line of input and prepare to start@>;
+    @<Initializations after first line is read@>;
+  } else {
+    mp->history=mp_spotless;
   }
+  return mp;
+}
+
+@ @<Initializations after first line is read@>=
+mp_set_job_id(mp);
+mp_init_map_file(mp, mp->troff_mode);
+mp->history=mp_spotless; /* ready to go! */
+if (mp->troff_mode) {
+  mp->internal[mp_gtroffmode]=unity; 
+  mp->internal[mp_prologues]=unity; 
+}
+if (!mp->noninteractive) {
   if ( mp->start_sym>0 ) { /* insert the `\&{everyjob}' symbol */
     mp->cur_sym=mp->start_sym; mp_back_input(mp);
   }
-  return mp->history;
 }
 
-@ 
-@<Exported function headers@>=
+@ @<Exported function headers@>=
 extern struct MP_options *mp_options (void);
-extern MP mp_new (struct MP_options *opt) ;
-extern void mp_free (MP mp);
-extern int mp_initialize (MP mp);
+extern MP mp_initialize (struct MP_options *opt) ;
+extern int mp_status(MP mp);
+extern void *mp_userdata(MP mp);
+
+@ @c
+int mp_status(MP mp) { return mp->history; }
+
+@ @c
+void *mp_userdata(MP mp) { return mp->userdata; }
 
 @ The overall \MP\ program begins with the heading just shown, after which
 comes a bunch of procedure declarations and function declarations.
@@ -283,7 +305,7 @@ in production versions of \MP.
   should probably be left at this value */
 
 @ Like the preceding parameters, the following quantities can be changed
-at compile time to extend or reduce \MP's capacity. But if they are changed,
+to extend or reduce \MP's capacity. But if they are changed,
 it is necessary to rerun the initialization program \.{INIMP}
 @.INIMP@>
 to generate new tables for the production \MP\ program.
@@ -300,6 +322,7 @@ int mem_max; /* greatest index in \MP's internal |mem| array;
   must be equal to |mem_top| in \.{INIMP}, otherwise |>=mem_top| */
 int mem_top; /* largest index in the |mem| array dumped by \.{INIMP};
   must not be greater than |mem_max| */
+int hash_prime; /* a prime number equal to about 85\pct! of |hash_size| */
 
 @ @<Option variables@>=
 int error_line; /* width of context lines on terminal error messages */
@@ -308,12 +331,28 @@ int half_error_line; /* width of first lines of contexts in terminal
 int max_print_line; /* width of longest text lines output; should be at least 60 */
 int hash_size; /* maximum number of symbolic tokens,
   must be less than |max_halfword-3*param_size| */
-int hash_prime; /* a prime number equal to about 85\pct! of |hash_size| */
 int param_size; /* maximum number of simultaneous macro parameters */
 int max_in_open; /* maximum number of input files and error insertions that
   can be going on simultaneously */
 int main_memory; /* only for options, to set up |mem_max| and |mem_top| */
 void *userdata; /* this allows the calling application to setup local */
+
+
+@ The code below make the final chosen hash size the next larger
+multiple of 2 from the requested size, and this array is a list of
+suitable prime numbers to go with such values. 
+
+The top limit is chosen such that it is definately lower than
+|max_halfword-3*param_size|, because |param_size| cannot be larger
+than |max_halfword/sizeof(pointer)|.
+
+@<Declarations@>=
+static int mp_prime_choices[] = 
+  { 12289,        24593,    49157,    98317,
+    196613,      393241,   786433,  1572869,
+    3145739,    6291469, 12582917, 25165843,
+    50331653, 100663319  };
+
 
 @ 
 @d set_value(a,b,c) do { a=c; if (b>c) a=b; } while (0)
@@ -323,12 +362,25 @@ mp->max_strings=500;
 mp->pool_size=10000;
 set_value(mp->error_line,opt->error_line,79);
 set_value(mp->half_error_line,opt->half_error_line,50);
+if (mp->half_error_line>mp->error_line-15 ) 
+  mp->half_error_line = mp->error_line-15;
 set_value(mp->max_print_line,opt->max_print_line,100);
 mp->main_memory=5000;
 mp->mem_max=5000;
 mp->mem_top=5000;
-set_value(mp->hash_size,opt->hash_size,9500);
-set_value(mp->hash_prime,opt->hash_prime,7919);
+if (opt->hash_size>0x8000000) opt->hash_size=0x8000000;
+set_value(mp->hash_size,(2*opt->hash_size-1),16384);
+{ 
+  int i = 14;
+  mp->hash_size = mp->hash_size>>i;
+  while (mp->hash_size>=2) {
+    mp->hash_size /= 2;
+    i++;
+  }
+  mp->hash_size = mp->hash_size << i;
+  if (mp->hash_size>0x8000000) mp->hash_size=0x8000000;
+  mp->hash_prime=mp_prime_choices[(i-14)];
+}
 set_value(mp->param_size,opt->param_size,150);
 set_value(mp->max_in_open,opt->max_in_open,10);
 mp->userdata=opt->userdata;
@@ -336,7 +388,7 @@ mp->userdata=opt->userdata;
 @ In case somebody has inadvertently made bad settings of the ``constants,''
 \MP\ checks them using a global variable called |bad|.
 
-This is the first of many sections of \MP\ where global variables are
+This is the second of many sections of \MP\ where global variables are
 defined.
 
 @<Glob...@>=
@@ -345,12 +397,13 @@ integer bad; /* is some ``constant'' wrong? */
 @ Later on we will say `\ignorespaces|if (mem_max>=max_halfword) bad=10;|',
 or something similar. (We can't do that until |max_halfword| has been defined.)
 
+In case you are wondering about the non-consequtive values of |bad|: some
+of the things that used to be WEB constants are now runtime variables
+with checking at assignment time.
+
 @<Check the ``constant'' values for consistency@>=
 mp->bad=0;
-if ( (mp->half_error_line<30)||(mp->half_error_line>mp->error_line-15) ) mp->bad=1;
-if ( mp->max_print_line<60 ) mp->bad=2;
 if ( mp->mem_top<=1100 ) mp->bad=4;
-if (mp->hash_prime>mp->hash_size ) mp->bad=5;
 
 @ Some |goto| labels are used by the following definitions. The label
 `|restart|' is occasionally used at the very beginning of a procedure; and
@@ -514,7 +567,6 @@ typedef int (*mp_file_eoftest)(MP, void *);
 typedef void (*mp_file_flush)(MP, void *);
 typedef void (*mp_file_writer)(MP, void *, const char *);
 typedef void (*mp_binfile_writer)(MP, void *, void *, size_t);
-#define NOTTESTING 1
 
 @ @<Option variables@>=
 mp_file_finder find_file;
@@ -583,7 +635,6 @@ void *mp_open_file(MP mp, const char *fname, const char *fmode, int ftype)  {
   realmode[0] = *fmode;
   realmode[1] = 'b';
   realmode[2] = 0;
-#if NOTTESTING
   if (ftype==mp_filetype_terminal) {
     return (fmode[0] == 'r' ? stdin : stdout);
   } else if (ftype==mp_filetype_error) {
@@ -591,7 +642,6 @@ void *mp_open_file(MP mp, const char *fname, const char *fmode, int ftype)  {
   } else if (fname != NULL && (fmode[0] != 'r' || (! access (fname,R_OK)))) {
     return (void *)fopen(fname, realmode);
   }
-#endif
   return NULL;
 }
 
@@ -673,7 +723,6 @@ char *mp_read_ascii_file (MP mp, void *ff, size_t *size) {
   (void) mp; /* for -Wunused */
   if (f==NULL)
     return NULL;
-#if NOTTESTING
   c = fgetc(f);
   if (c==EOF)
     return NULL;
@@ -695,70 +744,55 @@ char *mp_read_ascii_file (MP mp, void *ff, size_t *size) {
   }
   s[len] = 0;
   *size = len;
-#endif
   return s;
 }
 
 @ @c
 void mp_write_ascii_file (MP mp, void *f, const char *s) {
   (void) mp;
-#if NOTTESTING
   if (f!=NULL) {
     fputs(s,(FILE *)f);
   }
-#endif
 }
 
 @ @c
 void mp_read_binary_file (MP mp, void *f, void **data, size_t *size) {
   size_t len = 0;
   (void) mp;
-#if NOTTESTING
   if (f!=NULL)
     len = fread(*data,1,*size,(FILE *)f);
-#endif
   *size = len;
 }
 
 @ @c
 void mp_write_binary_file (MP mp, void *f, void *s, size_t size) {
   (void) mp;
-#if NOTTESTING
   if (f!=NULL)
     fwrite(s,size,1,(FILE *)f);
-#endif
 }
 
 
 @ @c
 void mp_close_file (MP mp, void *f) {
   (void) mp;
-#if NOTTESTING
   if (f!=NULL)
     fclose((FILE *)f);
-#endif
 }
 
 @ @c
 int mp_eof_file (MP mp, void *f) {
   (void) mp;
-#if NOTTESTING
   if (f!=NULL)
     return feof((FILE *)f);
    else 
     return 1;
-#else
-  return 0;
-#endif
 }
 
 @ @c
 void mp_flush_file (MP mp, void *f) {
   (void) mp;
-#if NOTTESTING
   if (f!=NULL)
     fflush((FILE *)f);
-#endif
 }
 
 @ Input from text files is read one line at a time, using a routine called
@@ -870,15 +904,6 @@ initialization.
     }
 } while (0)
 
-@d t_close_out do { /* close the terminal */
-  /* (mp->close_file)(mp,mp->term_out); */
-  /* (mp->close_file)(mp,mp->err_out); */
-} while (0)
-
-@d t_close_in do { /* close the terminal */
-  /* (mp->close_file)(mp,mp->term_in); */
-} while (0)
-
 @<Option variables@>=
 char *command_line;
 
@@ -948,12 +973,6 @@ later `\.*' because the meaning is slightly different: `\.{input}' need
 not be typed immediately after~`\.{**}'.)
 
 @d loc mp->cur_input.loc_field /* location of first unread character in |buffer| */
-
-@ The following program does the required initialization
-without retrieving a possible command line.
-It should be clear how to modify this routine to deal with command lines,
-if the system permits them.
-@^system dependencies@>
 
 @c 
 boolean mp_init_terminal (MP mp) { /* gets the terminal input started */
@@ -1799,6 +1818,7 @@ void mp_do_print (MP mp, const char *ss, unsigned int len) { /* prints string |s
 @ 
 @<Basic print...@>=
 void mp_print (MP mp, const char *ss) {
+  if (ss==NULL) return;
   mp_do_print(mp, ss, strlen(ss));
 }
 void mp_print_str (MP mp, str_number s) {
@@ -1820,7 +1840,6 @@ character positions.
 
 @<Initialize the output...@>=
 wterm (banner);
-wterm (version_string);
 if (mp->mem_ident!=NULL) 
   mp_print(mp,mp->mem_ident); 
 mp_print_ln(mp);
@@ -2079,7 +2098,6 @@ void mp_show_context (MP mp);
 void mp_begin_file_reading (MP mp);
 void mp_open_log_file (MP mp);
 void mp_clear_for_error_prompt (MP mp);
-void mp_debug_help (MP mp);
 @<Declare the procedure called |flush_string|@>
 
 @ @<Internal ...@>=
@@ -2234,11 +2252,6 @@ case '5': case '6': case '7': case '8': case '9':
     @<Delete |c-"0"| tokens and |continue|@>;
   }
   break;
-#ifdef DEBUG
-case 'D': 
-  mp_debug_help(mp); continue; 
-  break;
-#endif
 case 'E': 
   if ( mp->file_ptr>0 ){ 
     (mp->run_editor)(mp, 
@@ -2384,7 +2397,7 @@ running a bit longer.
 void mp_normalize_selector (MP mp) { 
   if ( mp->log_opened ) mp->selector=term_and_log;
   else mp->selector=term_only;
-  if ( mp->job_name==NULL ) mp_open_log_file(mp);
+  if ( mp->job_name==NULL) mp_open_log_file(mp);
   if ( mp->interaction==mp_batch_mode ) decr(mp->selector);
 }
 
@@ -2393,7 +2406,6 @@ void mp_normalize_selector (MP mp) {
 @d succumb { if ( mp->interaction==mp_error_stop_mode )
     mp->interaction=mp_scroll_mode; /* no more interaction */
   if ( mp->log_opened ) mp_error(mp);
-  /*| if ( mp->interaction>mp_batch_mode ) mp_debug_help(mp); |*/
   mp->history=mp_fatal_error_stop; mp_jump_out(mp); /* irrecoverable error */
   }
 
@@ -3768,9 +3780,6 @@ if (mp->ini_version) {
 } else {
   if ( mp->mem_max<mp->mem_top ) mp->bad=8;
 }
-if ( max_quarterword<255 ) mp->bad=9;
-if ( max_halfword<65535 ) mp->bad=10;
-if ( max_quarterword>max_halfword ) mp->bad=11;
 if ( mp->mem_max>=max_halfword ) mp->bad=12;
 if ( mp->max_strings>max_halfword ) mp->bad=13;
 
@@ -5205,7 +5214,7 @@ There is a first state, that is only used for |gs_colormodel|. It flags
 the fact that there has not been any kind of color specification by
 the user so far in the game.
 
-@<Types...@>=
+@(mplib.h@>=
 enum mp_color_model {
   mp_no_model=1,
   mp_grey_model=3,
@@ -6886,7 +6895,7 @@ to knot~0, and the control points $z_0^-$ and $z_n^+$ are not used.
   /* coordinate of next control point given |x_loc| or |y_loc| */
 @d knot_node_size 8 /* number of words in a knot node */
 
-@<Types...@>=
+@(mplib.h@>=
 enum mp_knot_type {
  mp_endpoint=0, /* |left_type| at path beginning and |right_type| at path end */
  mp_explicit, /* |left_type| or |right_type| when control points are known */
@@ -9143,7 +9152,7 @@ lists of graphical objects.  \MP\ has no easy way to determine whether
 two such objects overlap, but it suffices to draw the first one first and
 let the second one overwrite it if necessary.
 
-@<Types...@>=
+@(mplib.h@>=
 enum mp_graphical_object_code {
   @<Graphical object codes@>
   mp_final_graphic
@@ -9611,7 +9620,7 @@ mp_dash_object *mp_export_dashes (MP mp, pointer q, scaled *w) {
   mp_dash_object *d;
   pointer p, h;
   scaled scf; /* scale factor */
-  scaled *dashes = NULL;
+  int *dashes = NULL;
   int num_dashes = 1;
   h = dash_p(q);
   if (h==null ||  dash_list(h)==null_dash) 
@@ -12955,7 +12964,7 @@ by analogy with |line_stack|.
 @d absent 1 /* |name_field| value for unused |mpx_in_stack| entries */
 @d mpx_reading (mp->mpx_name[index]>absent)
   /* when reading a file, is it an \.{MPX} file? */
-@d finished 0
+@d mpx_finished 0
   /* |name_field| value when the corresponding \.{MPX} file is finished */
 
 @<Glob...@>=
@@ -14019,7 +14028,8 @@ if ( name>max_spec_src ) {
      /* text was inserted during error recovery or by \&{scantokens} */
     mp_end_file_reading(mp); goto RESTART; /* resume previous level */
   }
-  if ( mp->selector<log_only || mp->selector>=write_file) mp_open_log_file(mp);
+  if (mp->job_name == NULL && ( mp->selector<log_only || mp->selector>=write_file))  
+     mp_open_log_file(mp);
   if ( mp->interaction>mp_nonstop_mode ) {
     if ( limit==start ) /* previous line was empty */
       mp_print_nl(mp, "(Please type a command or say `end')");
@@ -14080,7 +14090,7 @@ files should have an \&{mpxbreak} after the translation of the last
 
 @<Complain that the \.{MPX} file ended unexpectly; then set...@>=
 { 
-  mp->mpx_name[index]=finished;
+  mp->mpx_name[index]=mpx_finished;
   print_err("mpx file ended unexpectedly");
   help4("The file had too few picture expressions for btex...etex")
     ("blocks.  Such files are normally generated automatically")
@@ -14186,7 +14196,7 @@ void mp_t_next (MP mp) {
       } else if ( mpx_reading ) {
         @<Complain that \.{MPX} files cannot contain \TeX\ material@>;
       } else if ( (mp->cur_mod!=verbatim_code)&&
-                  (mp->mpx_name[index]!=finished) ) {
+                  (mp->mpx_name[index]!=mpx_finished) ) {
         if ( ! mp_begin_mpx_reading(mp) ) mp_start_mpx_input(mp);
       } else {
         goto TEX_FLUSH;
@@ -15980,9 +15990,18 @@ char *mem_name; /* for commandline */
 
 @ @<Allocate or initialize ...@>=
 mp->MP_mem_default = xstrdup("plain.mem");
-mp->mem_name = xstrdup(opt->mem_name);
 @.plain@>
-@^system dependencies@>
+mp->mem_name = xstrdup(opt->mem_name);
+if (mp->mem_name) {
+  int l = strlen(mp->mem_name);
+  if (l>4) {
+    char *test = strstr(mp->mem_name,".mem");
+    if (test == mp->mem_name+l-4) {
+      *test = 0;
+    }
+  }
+}
+
 
 @ @<Dealloc variables@>=
 xfree(mp->MP_mem_default);
@@ -16038,7 +16057,20 @@ boolean mp_open_mem_file (MP mp) ;
 boolean mp_open_mem_file (MP mp) {
   int j; /* the first space after the file name */
   if (mp->mem_name!=NULL) {
-    mp->mem_file = (mp->open_file)(mp,mp->mem_name, "r", mp_filetype_memfile);
+    int l = strlen(mp->mem_name);
+    char *s = xstrdup (mp->mem_name);
+    if (l>4) {
+      char *test = strstr(s,".mem");
+      if (test == NULL || test != s+l-4) {
+        s = xrealloc (s, l+5, 1);       
+        strcat (s, ".mem");
+      }
+    } else {
+      s = xrealloc (s, l+5, 1);
+      strcat (s, ".mem");
+    }
+    mp->mem_file = (mp->open_file)(mp,s, "r", mp_filetype_memfile);
+    xfree(s);
     if ( mp->mem_file ) return true;
   }
   j=loc;
@@ -16161,6 +16193,17 @@ except of course for a short time just after |job_name| has become nonzero.
 
 @<Allocate or ...@>=
 mp->job_name=mp_xstrdup(mp, opt->job_name); 
+if (opt->noninteractive && opt->ini_version) {
+  if (mp->job_name == NULL)
+    mp->job_name=mp_xstrdup(mp,mp->mem_name); 
+  int l = strlen(mp->job_name);
+  if (l>4) {
+    char *test = strstr(mp->job_name,".mem");
+    if (test == mp->job_name+l-4) {
+      *test = 0;
+    }
+  }
+}
 mp->log_opened=false;
 
 @ @<Dealloc variables@>=
@@ -16261,9 +16304,9 @@ it catch up to what has previously been printed on the terminal.
   @<Print the banner line, including the date and time@>;
   mp->input_stack[mp->input_ptr]=mp->cur_input; 
     /* make sure bottom level is in memory */
-@.**@>
   if (!mp->noninteractive) {
     mp_print_nl(mp, "**");
+@.**@>
     l=mp->input_stack[0].limit_field-1; /* last position of first line */
     for (k=0;k<=l;k++) mp_print_str(mp, mp->buffer[k]);
     mp_print_ln(mp); /* now the transcript file contains the first line of input */
@@ -21956,55 +21999,488 @@ mp_run (MP mp) {
   }
   return mp->history;
 }
-int __attribute__((noinline)) 
-mp_execute (MP mp) {
-  jmp_buf buf;
-  if (mp->history < mp_fatal_error_stop ) {
-    mp->history = mp_spotless;
-    mp->file_offset = 0;
-    mp->term_offset = 0;
-    mp->tally = 0; 
-    @<Install and test the non-local jump buffer@>;
-	if (mp->run_state==0) {
-      mp->run_state = 1;
+
+@ For |mp_execute|, we need to define a structure to store the
+redirected input and output. This structure holds the five relevant
+streams: the three informational output streams, the PostScript
+generation stream, and the input stream. These streams have many
+things in common, so it makes sense to give them their own structure
+definition. 
+
+\item{fptr} is a virtual file pointer
+\item{data} is the data this stream holds
+\item{cur}  is a cursor pointing into |data| 
+\item{size} is the allocated length of the data stream
+\item{used} is the actual length of the data stream
+
+There are small differences between input and output: |term_in| never
+uses |used|, whereas the other four never use |cur|.
+
+@<Exported types@>= 
+typedef struct mp_stream {
+   void * fptr;
+   char * data;
+   char * cur;
+   size_t size;
+   size_t used;
+} mp_stream;
+
+typedef struct mp_run_data {
+    mp_stream term_out;
+    mp_stream error_out;
+    mp_stream log_out;
+    mp_stream ps_out;
+    mp_stream term_in;
+    struct mp_edge_object *edges;
+} mp_run_data;
+
+@ We need a function to clear an output stream, this is called at the
+beginning of |mp_execute|. We also need one for destroying an output
+stream, this is called just before a stream is (re)opened.
+
+@c
+static void mp_reset_stream(mp_stream *str) {
+   xfree(str->data); 
+   str->cur = NULL;
+   str->size = 0; 
+   str->used = 0;
+}
+static void mp_free_stream(mp_stream *str) {
+   xfree(str->fptr); 
+   mp_reset_stream(str);
+}
+
+@ @<Declarations@>=
+static void mp_reset_stream(mp_stream *str);
+static void mp_free_stream(mp_stream *str);
+
+@ The global instance contains a pointer instead of the actual structure
+even though it is essentially static, because that makes it is easier to move 
+the object around.
+
+@<Global ...@>=
+mp_run_data *run_data;
+
+@ Another type is needed: the indirection will overload some of the
+file pointer objects in the instance (but not all). For clarity, an
+indirect object is used that wraps a |FILE *|.
+
+@<Types ... @>=
+typedef struct File {
+    FILE *f;
+} File;
+
+@ Here are all of the functions that need to be overloaded for |mp_execute|.
+
+@<Declarations@>=
+static void *mplib_open_file(MP mp, const char *fname, const char *fmode, int ftype);
+static int mplib_get_char(void *f, mp_run_data * mplib_data);
+static void mplib_unget_char(void *f, mp_run_data * mplib_data, int c);
+static char *mplib_read_ascii_file(MP mp, void *ff, size_t * size);
+static void mplib_write_ascii_file(MP mp, void *ff, const char *s);
+static void mplib_read_binary_file(MP mp, void *ff, void **data, size_t * size);
+static void mplib_write_binary_file(MP mp, void *ff, void *s, size_t size);
+static void mplib_close_file(MP mp, void *ff);
+static int mplib_eof_file(MP mp, void *ff);
+static void mplib_flush_file(MP mp, void *ff);
+static void mplib_shipout_backend(MP mp, int h);
+
+@ The |xmalloc(1,1)| calls make sure the stored indirection values are unique.
+
+@d reset_stream(a)  do { 
+        mp_reset_stream(&(a));
+        if (!ff->f) {
+          ff->f = xmalloc(1,1);
+          (a).fptr = ff->f;
+        } } while (0)
+
+@c
+
+static void *mplib_open_file(MP mp, const char *fname, const char *fmode, int ftype)
+{
+    File *ff = xmalloc(1, sizeof(File));
+    mp_run_data *run = mp_rundata(mp);
+    ff->f = NULL;
+    if (ftype == mp_filetype_terminal) {
+        if (fmode[0] == 'r') {
+            if (!ff->f) {
+              ff->f = xmalloc(1,1);
+              run->term_in.fptr = ff->f;
+            }
+        } else {
+            reset_stream(run->term_out);
+        }
+    } else if (ftype == mp_filetype_error) {
+        reset_stream(run->error_out);
+    } else if (ftype == mp_filetype_log) {
+        reset_stream(run->log_out);
+    } else if (ftype == mp_filetype_postscript) {
+        mp_free_stream(&(run->ps_out));
+        ff->f = xmalloc(1,1);
+        run->ps_out.fptr = ff->f;
     } else {
-      mp_input_ln(mp,mp->term_in);
-      mp_firm_up_the_line(mp);	
-      mp->buffer[limit]='%';
-      mp->first=limit+1; 
-      loc=start;
+        char realmode[3];
+        char *f = (mp->find_file)(mp, fname, fmode, ftype);
+        if (f == NULL)
+            return NULL;
+        realmode[0] = *fmode;
+        realmode[1] = 'b';
+        realmode[2] = 0;
+        ff->f = fopen(f, realmode);
+        free(f);
+        if ((fmode[0] == 'r') && (ff->f == NULL)) {
+            free(ff);
+            return NULL;
+        }
     }
+    return ff;
+}
+
+static int mplib_get_char(void *f, mp_run_data * run)
+{
+    int c;
+    if (f == run->term_in.fptr && run->term_in.data != NULL) {
+        if (run->term_in.size == 0) {
+            if (run->term_in.cur  != NULL) {
+                run->term_in.cur = NULL;
+            } else {
+                xfree(run->term_in.data);
+            }
+            c = EOF;
+        } else {
+            run->term_in.size--;
+            c = *(run->term_in.cur)++;
+        }
+    } else {
+        c = fgetc(f);
+    }
+    return c;
+}
+
+static void mplib_unget_char(void *f, mp_run_data * run, int c)
+{
+    if (f == run->term_in.fptr && run->term_in.cur != NULL) {
+        run->term_in.size++;
+        run->term_in.cur--;
+    } else {
+        ungetc(c, f);
+    }
+}
+
+
+static char *mplib_read_ascii_file(MP mp, void *ff, size_t * size)
+{
+    char *s = NULL;
+    if (ff != NULL) {
+        int c;
+        size_t len = 0, lim = 128;
+        mp_run_data *run = mp_rundata(mp);
+        FILE *f = ((File *) ff)->f;
+        if (f == NULL)
+            return NULL;
+        *size = 0;
+        c = mplib_get_char(f, run);
+        if (c == EOF)
+            return NULL;
+        s = malloc(lim);
+        if (s == NULL)
+            return NULL;
+        while (c != EOF && c != '\n' && c != '\r') {
+            if (len == lim) {
+                s = xrealloc(s, (lim + (lim >> 2)),1);
+                if (s == NULL)
+                    return NULL;
+                lim += (lim >> 2);
+            }
+            s[len++] = c;
+            c = mplib_get_char(f, run);
+        }
+        if (c == '\r') {
+            c = mplib_get_char(f, run);
+            if (c != EOF && c != '\n')
+                mplib_unget_char(f, run, c);
+        }
+        s[len] = 0;
+        *size = len;
+    }
+    return s;
+}
+
+static void mp_append_string (MP mp, mp_stream *a,const char *b) {
+    int l = strlen(b);
+    if ((a->used+l)>=a->size) {
+        a->size += 256+(a->size)/5+l;
+        a->data = xrealloc(a->data,a->size,1);
+    }
+    (void)strcpy(a->data+a->used,b);
+    a->used += l;
+}
+
+
+static void mplib_write_ascii_file(MP mp, void *ff, const char *s)
+{
+    if (ff != NULL) {
+        void *f = ((File *) ff)->f;
+        mp_run_data *run = mp_rundata(mp);
+        if (f != NULL) {
+            if (f == run->term_out.fptr) {
+                mp_append_string(mp,&(run->term_out), s);
+            } else if (f == run->error_out.fptr) {
+                mp_append_string(mp,&(run->error_out), s);
+            } else if (f == run->log_out.fptr) {
+                mp_append_string(mp,&(run->log_out), s);
+            } else if (f == run->ps_out.fptr) {
+                mp_append_string(mp,&(run->ps_out), s);
+            } else {
+                fprintf((FILE *) f, "%s", s);
+            }
+        }
+    }
+}
+
+static void mplib_read_binary_file(MP mp, void *ff, void **data, size_t * size)
+{
+    (void) mp;
+    if (ff != NULL) {
+        size_t len = 0;
+        FILE *f = ((File *) ff)->f;
+        if (f != NULL)
+            len = fread(*data, 1, *size, f);
+        *size = len;
+    }
+}
+
+static void mplib_write_binary_file(MP mp, void *ff, void *s, size_t size)
+{
+    (void) mp;
+    if (ff != NULL) {
+        FILE *f = ((File *) ff)->f;
+        if (f != NULL)
+            fwrite(s, size, 1, f);
+    }
+}
+
+static void mplib_close_file(MP mp, void *ff)
+{
+    if (ff != NULL) {
+        mp_run_data *run = mp_rundata(mp);
+        void *f = ((File *) ff)->f;
+        if (f != NULL) {
+          if (f != run->term_out.fptr
+            && f != run->error_out.fptr
+            && f != run->log_out.fptr
+            && f != run->ps_out.fptr
+            && f != run->term_in.fptr) {
+            fclose(f);
+          }
+        }
+        free(ff);
+    }
+}
+
+static int mplib_eof_file(MP mp, void *ff)
+{
+    if (ff != NULL) {
+        mp_run_data *run = mp_rundata(mp);
+        FILE *f = ((File *) ff)->f;
+        if (f == NULL)
+            return 1;
+        if (f == run->term_in.fptr && run->term_in.data != NULL) {
+            return (run->term_in.size == 0);
+        }
+        return feof(f);
+    }
+    return 1;
+}
+
+static void mplib_flush_file(MP mp, void *ff)
+{
+    (void) mp;
+    (void) ff;
+    return;
+}
+
+static void mplib_shipout_backend(MP mp, int h)
+{
+    struct mp_edge_object *hh = mp_gr_export(mp, h);
+    if (hh) {
+        mp_run_data *run = mp_rundata(mp);
+        if (run->edges==NULL) {
+           run->edges = hh;
+        } else {
+           struct mp_edge_object *p = run->edges; 
+           while (p->_next!=NULL) { p = p->_next; }
+            p->_next = hh;
+        } 
+    }
+}
+
+
+@ This is where we fill them all in.
+@<Prepare for non-interactive use@>=
+{
+    mp_run_data *f = mp_xmalloc(mp,1, sizeof(mp_run_data));
+    memset(f, 0, sizeof(mp_run_data));
+    mp->run_data          = f;
+    mp->open_file         = mplib_open_file;
+    mp->close_file        = mplib_close_file;
+    mp->eof_file          = mplib_eof_file;
+    mp->flush_file        = mplib_flush_file;
+    mp->write_ascii_file  = mplib_write_ascii_file;
+    mp->read_ascii_file   = mplib_read_ascii_file;
+    mp->write_binary_file = mplib_write_binary_file;
+    mp->read_binary_file  = mplib_read_binary_file;
+    mp->shipout_backend   = mplib_shipout_backend;
+}
+
+@ Perhaps this is the most important API function in the library.
+
+@<Exported function ...@>=
+mp_run_data *mp_rundata (MP mp) ;
+
+@ @c
+mp_run_data *mp_rundata (MP mp)  {
+  return mp->run_data;
+}
+
+@ @<Dealloc ...@>=
+mp_free_stream(&(mp->run_data->term_in));
+mp_free_stream(&(mp->run_data->term_out));
+mp_free_stream(&(mp->run_data->log_out));
+mp_free_stream(&(mp->run_data->error_out));
+mp_free_stream(&(mp->run_data->ps_out));
+xfree(mp->run_data);
+
+@ @<Finish non-interactive use@>=
+xfree(mp->term_out);
+xfree(mp->term_in);
+xfree(mp->err_out);
+
+@ @<Start non-interactive work@>=
+t_open_out; 
+@<Initialize the output routines@>;
+mp->input_ptr=0; mp->max_in_stack=0;
+mp->in_open=0; mp->open_parens=0; mp->max_buf_stack=0;
+mp->param_ptr=0; mp->max_param_stack=0;
+start = index = loc = mp->first = 0;
+line=0; name=is_term;
+mp->mpx_name[0]=absent;
+mp->force_eof=false;
+t_open_in; 
+mp->scanner_status=normal;
+if (mp->mem_ident==NULL) {
+  if ( ! mp_open_mem_file(mp) ) {
+     mp->history = mp_fatal_error_stop;
+     return mp->history;
+  }
+  if ( ! mp_load_mem_file(mp) ) {
+    (mp->close_file)(mp, mp->mem_file); 
+     mp->history  = mp_fatal_error_stop;
+     return mp->history;
+  }
+  (mp->close_file)(mp, mp->mem_file);
+}
+mp_fix_date_and_time(mp);
+if (mp->random_seed==0)
+  mp->random_seed = (mp->internal[mp_time] / unity)+mp->internal[mp_day];
+mp_init_randoms(mp, mp->random_seed);
+@<Initialize the print |selector|...@>;
+mp_open_log_file(mp);
+mp_set_job_id(mp);
+mp_init_map_file(mp, mp->troff_mode);
+mp->history=mp_spotless; /* ready to go! */
+if (mp->troff_mode) {
+  mp->internal[mp_gtroffmode]=unity; 
+  mp->internal[mp_prologues]=unity; 
+}
+
+@ @c
+int __attribute__((noinline)) 
+mp_execute (MP mp, char *s, size_t l) {
+  jmp_buf buf;
+  mp_reset_stream(&(mp->run_data->term_out));
+  mp_reset_stream(&(mp->run_data->log_out));
+  mp_reset_stream(&(mp->run_data->error_out));
+  mp_reset_stream(&(mp->run_data->ps_out));
+  if (mp->finished) {
+      return mp->history;
+  } else if ((!mp->noninteractive) || (!mp->run_data)) {
+      mp->history = mp_fatal_error_stop ;
+      return mp->history;
+  }
+  if (mp->history < mp_fatal_error_stop ) {
+    mp->jump_buf = &buf;
+    if (setjmp(*(mp->jump_buf)) != 0) {   
+       return mp->history; 
+    }
+    if (s==NULL) { /* this signals EOF */
+      mp_final_cleanup(mp); /* prepare for death */
+      mp_close_files_and_terminate(mp);
+      return mp->history;
+    } 
+    mp->tally=0; 
+    mp->term_offset=0; mp->file_offset=0; 
+    /* Perhaps some sort of warning here when |data| is not 
+     * yet exhausted would be nice ...  this happens after errors
+     */
+    if (mp->run_data->term_in.data)
+      xfree(mp->run_data->term_in.data);
+    mp->run_data->term_in.data = xstrdup(s);
+    mp->run_data->term_in.cur = mp->run_data->term_in.data;
+    mp->run_data->term_in.size = l;
+    if (mp->run_state == 0) {
+      mp->selector=term_only; 
+      @<Start non-interactive work@>; 
+    }
+    mp->run_state =1;    
+    mp_input_ln(mp,mp->term_in);
+    mp_firm_up_the_line(mp);	
+    mp->buffer[limit]='%';
+    mp->first=limit+1; 
+    loc=start;
 	do {  
       mp_do_statement(mp);
     } while (mp->cur_cmd!=stop);
-  }
-  return mp->history;
-}
-int __attribute__((noinline)) 
-mp_finish (MP mp) {
-  jmp_buf buf;
-  if (mp->history < mp_fatal_error_stop ) {
-    @<Install and test the non-local jump buffer@>;
-    mp_final_cleanup(mp); /* prepare for death */
+    mp_final_cleanup(mp); 
     mp_close_files_and_terminate(mp);
   }
   return mp->history;
 }
-const char * mp_mplib_version (MP mp) {
-  (void)mp;
-  return mplib_version;
+
+@ This function cleans up
+@c
+int __attribute__((noinline)) 
+mp_finish (MP mp) {
+  int history = mp->history;
+  if (!mp->finished) {
+    if (mp->history < mp_fatal_error_stop ) {
+      jmp_buf buf;
+      mp->jump_buf = &buf;
+      if (setjmp(*(mp->jump_buf)) != 0) { 
+        history = mp->history;
+        mp_close_files_and_terminate(mp);
+        goto RET;
+      }
+      mp_final_cleanup(mp); /* prepare for death */
+      mp_close_files_and_terminate(mp);
+    }
+  }
+ RET:
+  mp_free(mp);
+  return history;
 }
-const char * mp_metapost_version (MP mp) {
-  (void)mp;
+
+@ People may want to know the library version
+@c 
+const char * mp_metapost_version (void) {
   return metapost_version;
 }
 
 @ @<Exported function headers@>=
 int mp_run (MP mp);
-int mp_execute (MP mp);
+int mp_execute (MP mp, char *s, size_t l);
 int mp_finish (MP mp);
-const char * mp_mplib_version (MP mp);
-const char * mp_metapost_version (MP mp);
+const char * mp_metapost_version (void);
 
 @ @<Put each...@>=
 mp_primitive(mp, "end",stop,0);
@@ -24903,8 +25379,8 @@ font_number mp_find_font (MP mp, char *f) {
 @ This is an interface function for getting the width of character,
 as a double in ps units
 
-@c double mp_get_char_width (MP mp, char *fname, int c) {
-  int n;
+@c double mp_get_char_dimension (MP mp, char *fname, int c, int t) {
+  unsigned n;
   four_quarters cc;
   font_number f = 0;
   double w = -1.0;
@@ -24915,16 +25391,21 @@ as a double in ps units
     }
   }
   if (f==0)
-    return 0;
+    return 0.0;
   cc = char_info(f)(c);
   if (! ichar_exists(cc) )
-    return 0;
-  w = char_width(f)(cc);
+    return 0.0;
+  if (t=='w')
+    w = char_width(f)(cc);
+  else if (t=='h')
+    w = char_height(f)(cc);
+  else if (t=='d')
+    w = char_depth(f)(cc);
   return w/655.35*(72.27/72);
 }
 
 @ @<Exported function ...@>=
-double mp_get_char_width (MP mp, char *fname, int n);
+double mp_get_char_dimension (MP mp, char *fname, int n, int t);
 
 
 @ One simple application of |find_font| is the implementation of the |font_size|
@@ -25259,16 +25740,22 @@ incr(mp->total_shipped)
 if ( mp->total_shipped>0 ) { 
   mp_print_nl(mp, "");
   mp_print_int(mp, mp->total_shipped);
-  mp_print(mp, " output file");
-  if ( mp->total_shipped>1 ) mp_print_char(mp, 's');
-  mp_print(mp, " written: ");
-  mp_print(mp, mp->first_file_name);
-  if ( mp->total_shipped>1 ) {
-    if ( 31+strlen(mp->first_file_name)+
+  if (mp->noninteractive) {
+    mp_print(mp, " figure");
+    if ( mp->total_shipped>1 ) mp_print_char(mp, 's');
+    mp_print(mp, " created.");
+  } else {
+    mp_print(mp, " output file");
+    if ( mp->total_shipped>1 ) mp_print_char(mp, 's');
+    mp_print(mp, " written: ");
+    mp_print(mp, mp->first_file_name);
+    if ( mp->total_shipped>1 ) {
+      if ( 31+strlen(mp->first_file_name)+
          strlen(mp->last_file_name)> (unsigned)mp->max_print_line) 
-      mp_print_ln(mp);
-    mp_print(mp, " .. ");
-    mp_print(mp, mp->last_file_name);
+        mp_print_ln(mp);
+      mp_print(mp, " .. ");
+      mp_print(mp, mp->last_file_name);
+    }
   }
 }
 
@@ -25502,9 +25989,10 @@ void mp_shipout_backend (MP mp, pointer h);
 void mp_shipout_backend (MP mp, pointer h) {
   mp_edge_object *hh; /* the first graphical object */
   hh = mp_gr_export(mp,h);
-  mp_gr_ship_out (hh,
+  (void)mp_gr_ship_out (hh,
                  (mp->internal[mp_prologues]>>16),
-                 (mp->internal[mp_procset]>>16));
+                 (mp->internal[mp_procset]>>16), 
+                 false);
   mp_gr_toss_objects(hh);
 }
 
@@ -25896,11 +26384,13 @@ if (x!=69073) goto OFF_BASE
 { 
   xfree(mp->mem_ident);
   mp->mem_ident = xmalloc(256,1);
-  mp_snprintf(mp->mem_ident,256," (mem=%s %i.%i.%i)", 
-           mp->job_name,
-           (int)(mp_round_unscaled(mp, mp->internal[mp_year]) % 100),
-           (int)mp_round_unscaled(mp, mp->internal[mp_month]),
-           (int)mp_round_unscaled(mp, mp->internal[mp_day]));
+  char *tmp = xmalloc(11,1);
+  sprintf(tmp,"%04d.%02d.%02d",
+          (int)mp_round_unscaled(mp, mp->internal[mp_year]),
+          (int)mp_round_unscaled(mp, mp->internal[mp_month]),
+          (int)mp_round_unscaled(mp, mp->internal[mp_day]));
+  mp_snprintf(mp->mem_ident,256," (mem=%s %s)",mp->job_name, tmp);
+  xfree(tmp);
   mp_pack_job_name(mp, mem_extension);
   while (! mp_w_open_out(mp, &mp->mem_file) )
     mp_prompt_file_name(mp, "mem file name", mem_extension);
@@ -25960,7 +26450,13 @@ might lead to an infinite loop.
 
 This program doesn't bother to close the input files that may still be open.
 
-@<Last-minute...@>=
+@<Global ...@>=
+boolean finished; /* set true by |close_files_and_terminate| */
+
+@ @<Set initial ...@>=
+mp->finished=false;
+
+@ @<Last-minute...@>=
 void mp_close_files_and_terminate (MP mp) {
   integer k; /* all-purpose index */
   integer LH; /* the length of the \.{TFM} header, in words */
@@ -25972,7 +26468,7 @@ void mp_close_files_and_terminate (MP mp) {
   wake_up_terminal; 
   @<Do all the finishing work on the \.{TFM} file@>;
   @<Explain what output files were written@>;
-  if ( mp->log_opened ){ 
+  if ( mp->log_opened  && ! mp->noninteractive ){ 
     wlog_cr;
     (mp->close_file)(mp,mp->log_file); 
     mp->selector=mp->selector-2;
@@ -25983,8 +26479,7 @@ void mp_close_files_and_terminate (MP mp) {
     }
   }
   mp_print_ln(mp);
-  t_close_out;
-  t_close_in;
+  mp->finished = true;
 }
 
 @ @<Declarations@>=
@@ -26168,8 +26663,7 @@ void mp_init_tab (MP mp) { /* initialize other tables */
 
 
 @ When we begin the following code, \MP's tables may still contain garbage;
-the strings might not even be present. Thus we must proceed cautiously to get
-bootstrapped in.
+thus we must proceed cautiously to get bootstrapped in.
 
 But when we finish this part of the program, \MP\ is ready to call on the
 |main_control| routine to do its work.
@@ -26181,14 +26675,22 @@ But when we finish this part of the program, \MP\ is ready to call on the
     if ( mp->mem_ident!=NULL ) {
       mp_do_initialize(mp); /* erase preloaded mem */
     }
-    if ( ! mp_open_mem_file(mp) ) return mp_fatal_error_stop;
+    if ( ! mp_open_mem_file(mp) ) {
+       mp->history = mp_fatal_error_stop;
+       return mp;
+    }
     if ( ! mp_load_mem_file(mp) ) {
       (mp->close_file)(mp, mp->mem_file); 
-      return mp_fatal_error_stop;
+       mp->history = mp_fatal_error_stop;
+       return mp;
     }
     (mp->close_file)(mp, mp->mem_file);
     while ( (loc<limit)&&(mp->buffer[loc]==' ') ) incr(loc);
   }
+  @<Initializations following first line@>;
+}
+
+@ @<Initializations following first line@>=
   mp->buffer[limit]='%';
   mp_fix_date_and_time(mp);
   if (mp->random_seed==0)
@@ -26197,7 +26699,6 @@ But when we finish this part of the program, \MP\ is ready to call on the
   @<Initialize the print |selector|...@>;
   if ( loc<limit ) if ( mp->buffer[loc]!='\\' ) 
     mp_start_input(mp); /* \&{input} assumed */
-}
 
 @ @<Run inimpost commands@>=
 {
@@ -26209,87 +26710,6 @@ But when we finish this part of the program, \MP\ is ready to call on the
   mp_fix_date_and_time(mp);
 }
 
-
-@* \[47] Debugging.
-Once \MP\ is working, you should be able to diagnose most errors with
-the \.{show} commands and other diagnostic features. But for the initial
-stages of debugging, and for the revelation of really deep mysteries, you
-can compile \MP\ with a few more aids. An additional routine called |debug_help|
-will also come into play when you type `\.D' after an error message;
-|debug_help| also occurs just before a fatal error causes \MP\ to succumb.
-@^debugging@>
-@^system dependencies@>
-
-The interface to |debug_help| is primitive, but it is good enough when used
-with a debugger that allows you to set breakpoints and to read
-variables and change their values. After getting the prompt `\.{debug \#}', you
-type either a negative number (this exits |debug_help|), or zero (this
-goes to a location where you can set a breakpoint, thereby entering into
-dialog with the debugger), or a positive number |m| followed by
-an argument |n|. The meaning of |m| and |n| will be clear from the
-program below. (If |m=13|, there is an additional argument, |l|.)
-@.debug \#@>
-
-@<Last-minute...@>=
-void mp_debug_help (MP mp) { /* routine to display various things */
-  integer k;
-  int l,m,n;
-  char *aline;
-  size_t len;
-  while (1) { 
-    wake_up_terminal;
-    mp_print_nl(mp, "debug # (-1 to exit):"); update_terminal;
-@.debug \#@>
-    m = 0;
-    aline = (mp->read_ascii_file)(mp,mp->term_in, &len);
-    if (len) { sscanf(aline,"%i",&m); xfree(aline); }
-    if ( m<=0 )
-      return;
-    n = 0 ;
-    aline = (mp->read_ascii_file)(mp,mp->term_in, &len);
-    if (len) { sscanf(aline,"%i",&n); xfree(aline); }
-    switch (m) {
-    @<Numbered cases for |debug_help|@>;
-    default: mp_print(mp, "?"); break;
-    }
-  }
-}
-
-@ @<Numbered cases...@>=
-case 1: mp_print_word(mp, mp->mem[n]); /* display |mem[n]| in all forms */
-  break;
-case 2: mp_print_int(mp, info(n));
-  break;
-case 3: mp_print_int(mp, link(n));
-  break;
-case 4: mp_print_int(mp, eq_type(n)); mp_print_char(mp, ':'); mp_print_int(mp, equiv(n));
-  break;
-case 5: mp_print_variable_name(mp, n);
-  break;
-case 6: mp_print_int(mp, mp->internal[n]);
-  break;
-case 7: mp_do_show_dependencies(mp);
-  break;
-case 9: mp_show_token_list(mp, n,null,100000,0);
-  break;
-case 10: mp_print_str(mp, n);
-  break;
-case 11: mp_check_mem(mp, n>0); /* check wellformedness; print new busy locations if |n>0| */
-  break;
-case 12: mp_search_mem(mp, n); /* look for pointers to |n| */
-  break;
-case 13: 
-  l = 0;  
-  aline = (mp->read_ascii_file)(mp,mp->term_in, &len);
-  if (len) { sscanf(aline,"%i",&l); xfree(aline); }
-  mp_print_cmd_mod(mp, n,l); 
-  break;
-case 14: for (k=0;k<=n;k++) mp_print_str(mp, mp->buffer[k]);
-  break;
-case 15: mp->panicking=! mp->panicking;
-  break;
-
-
 @ Saving the filename template
 
 @<Save the filename template@>=
@@ -26300,6 +26720,9 @@ case 15: mp->panicking=! mp->panicking;
     mp->filename_template=mp->cur_exp; add_str_ref(mp->filename_template);
   }
 }
+
+@* \[47] Debugging.
+
 
 @* \[48] System-dependent changes.
 This section should be replaced, if necessary, by any special

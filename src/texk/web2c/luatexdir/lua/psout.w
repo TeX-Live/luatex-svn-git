@@ -65,6 +65,7 @@
 #include <assert.h>
 #include "avl.h"
 #include "mplib.h"
+#include "psout.h" /* external header */
 #include "mpmp.h" /* internal header */
 #include "mppsout.h" /* internal header */
 @h
@@ -4181,7 +4182,7 @@ void mp_print_initial_comment(MP mp,mp_edge_object *hh, int prologues) {
     mp_ps_pair_out(mp, hh->_maxx,hh->_maxy);
   }
   mp_ps_print_nl(mp, "%%Creator: MetaPost ");
-  mp_ps_print(mp, mp_metapost_version(mp));
+  mp_ps_print(mp, mp_metapost_version());
   mp_ps_print_nl(mp, "%%CreationDate: ");
   mp_ps_print_int(mp, mp_round_unscaled(mp, mp->internal[mp_year])); 
   mp_ps_print_char(mp, '.');
@@ -4198,7 +4199,21 @@ void mp_print_initial_comment(MP mp,mp_edge_object *hh, int prologues) {
 @ The most important output procedure is the one that gives the \ps\ version of
 a \MP\ path.
 
-@<Types...@>=
+@(psout.h@>=
+typedef struct mp_knot {
+  unsigned short left_type_field;
+  unsigned short right_type_field;
+  signed int x_coord_field;
+  signed int y_coord_field;
+  signed int left_x_field;
+  signed int left_y_field;
+  signed int right_x_field;
+  signed int right_y_field;
+  struct mp_knot * next_field;
+  unsigned char originator_field;
+} mp_knot;
+
+@ @<Types...@>=
 #define gr_left_type(A)  (A)->left_type_field 
 #define gr_right_type(A) (A)->right_type_field
 #define gr_x_coord(A)    (A)->x_coord_field   
@@ -4209,18 +4224,6 @@ a \MP\ path.
 #define gr_right_y(A)    (A)->right_y_field   
 #define gr_next_knot(A)  (A)->next_field
 #define gr_originator(A) (A)->originator_field
-typedef struct mp_knot {
-  unsigned short left_type_field;
-  unsigned short right_type_field;
-  scaled x_coord_field;
-  scaled y_coord_field;
-  scaled left_x_field;
-  scaled left_y_field;
-  scaled right_x_field;
-  scaled right_y_field;
-  struct mp_knot * next_field;
-  quarterword originator_field;
-} mp_knot;
 
 @ @c
 mp_knot * mp_gr_insert_knot (MP mp, mp_knot *q, scaled x, scaled y) {
@@ -4393,9 +4396,9 @@ if ( abs(gr_right_x(p)-gr_x_coord(p)-d)<=bend_tolerance )
 
 @ The colored objects use a struct with anonymous fields to express the color parts:
 
-@<Types...@>=
+@(psout.h@>=
 typedef struct {
-   scaled _a_val, _b_val, _c_val, _d_val;
+   int _a_val, _b_val, _c_val, _d_val;
 } mp_color;
 
 @ The exported form of a dash pattern is simpler than the internal
@@ -4403,10 +4406,10 @@ format, it is closely modelled to the PostScript model. The array of
 dashes is ended by a single negative value, because this is not
 allowed in PostScript.
 
-@<Types...@>=
+@(psout.h@>=
 typedef struct {
-  scaled offset_field;
-  scaled *array_field;
+  int offset_field;
+  int *array_field;
 } mp_dash_object ;
 
 
@@ -4484,8 +4487,9 @@ structures and access macros.
 #define gr_tyx_val(A)      ((mp_text_object *)A)->tyx_field
 #define gr_tyy_val(A)      ((mp_text_object *)A)->tyy_field
 
+@ @(psout.h@>=
 #define GRAPHIC_BODY                      \
-  halfword _type_field;                   \
+  int _type_field;                   \
   struct mp_graphic_object * _link_field
 
 typedef struct mp_graphic_object {
@@ -4497,21 +4501,21 @@ typedef struct mp_text_object {
   char *pre_script_field;
   char *post_script_field;
   mp_color color_field;
-  quarterword color_model_field;
-  quarterword name_type_field;
+  unsigned char color_model_field;
+  unsigned char name_type_field;
   char *text_p_field;
   char *font_name_field ;   
-  scaled font_dsize_field ;
-  font_number font_n_field ;   
-  scaled width_field ;
-  scaled height_field ;
-  scaled depth_field ;
-  scaled tx_field ;
-  scaled ty_field ;
-  scaled txx_field ;
-  scaled txy_field ;
-  scaled tyx_field ;
-  scaled tyy_field ;
+  unsigned int font_dsize_field ;
+  unsigned int font_n_field ;   
+  int width_field ;
+  int height_field ;
+  int depth_field ;
+  int tx_field ;
+  int ty_field ;
+  int txx_field ;
+  int txy_field ;
+  int tyx_field ;
+  int tyy_field ;
 } mp_text_object;
 
 typedef struct mp_fill_object {
@@ -4519,12 +4523,12 @@ typedef struct mp_fill_object {
   char *pre_script_field;
   char *post_script_field;
   mp_color color_field;
-  quarterword color_model_field;
-  quarterword ljoin_field ;   
+  unsigned char color_model_field;
+  unsigned char ljoin_field ;   
   mp_knot * path_p_field;
   mp_knot * htap_p_field;
   mp_knot * pen_p_field;
-  scaled miterlim_field ;
+  int miterlim_field ;
 } mp_fill_object;
 
 typedef struct mp_stroked_object {
@@ -4532,12 +4536,12 @@ typedef struct mp_stroked_object {
   char *pre_script_field;
   char *post_script_field;
   mp_color color_field;
-  quarterword color_model_field;
-  quarterword ljoin_field ;   
-  quarterword lcap_field ;   
+  unsigned char color_model_field;
+  unsigned char ljoin_field ;   
+  unsigned char lcap_field ;   
   mp_knot * path_p_field;
   mp_knot * pen_p_field;
-  scaled miterlim_field ;
+  int miterlim_field ;
   mp_dash_object *dash_p_field;
 } mp_stroked_object;
 
@@ -4561,7 +4565,7 @@ typedef struct mp_edge_object {
   struct mp_edge_object * _next;
   char * _filename;
   MP _parent;
-  scaled _minx, _miny, _maxx, _maxy;
+  int _minx, _miny, _maxx, _maxy;
 } mp_edge_object;
 
 @ @<Exported function headers@>=
@@ -5382,17 +5386,23 @@ while ( p!=null ) {
 @ 
 @d pen_is_elliptical(A) ((A)==gr_next_knot((A)))
 
-@<Exported function headers@>=
-void mp_gr_ship_out (mp_edge_object *hh, int prologues, int procset) ;
+@<Exported function ...@>=
+int mp_gr_ship_out (mp_edge_object *hh, int prologues, int procset, int standalone) ;
 
 @ @c 
-void mp_gr_ship_out (mp_edge_object *hh, int prologues, int procset) {
+int mp_gr_ship_out (mp_edge_object *hh, int prologues, int procset, int standalone) {
   mp_graphic_object *p;
   scaled ds,scf; /* design size and scale factor for a text node */
   font_number f; /* for loops over fonts while (un)marking characters */
   boolean transformed; /* is the coordinate system being transformed? */
   MP mp = hh->_parent;
-  if (mp->history >= mp_fatal_error_stop ) return;
+  if (standalone) {
+     jmp_buf buf;
+     mp->jump_buf = &buf;
+     if (setjmp(*(mp->jump_buf)))
+       return 0;
+  }
+  if (mp->history >= mp_fatal_error_stop ) return 1;
   if (prologues<0) 
 	prologues = (mp->internal[mp_prologues]>>16);
   if (procset<0) 
@@ -5495,7 +5505,20 @@ void mp_gr_ship_out (mp_edge_object *hh, int prologues, int procset) {
   (mp->close_file)(mp,mp->ps_file);
   if ( prologues<=0 ) 
     mp_clear_sizes(mp);
+  return 1;
 }
+
+@ @(psout.h@>=
+int mp_ps_ship_out (mp_edge_object *hh, int prologues, int procset) ;
+
+@ @c
+int mp_ps_ship_out (mp_edge_object *hh, int prologues, int procset) {
+  return mp_gr_ship_out (hh, prologues, procset, true);
+}
+
+
+
+
 
 @ 
 @d do_write_prescript(a,b) {
@@ -5553,8 +5576,7 @@ if ( transformed ) {
 }
 mp_ps_print_ln(mp)
 
-
-@ @<Exported function headers@>=
+@ @(psout.h@>=
 void mp_gr_toss_objects ( mp_edge_object *hh) ;
 void mp_gr_toss_object (mp_graphic_object *p) ;
 
@@ -5617,7 +5639,7 @@ void mp_gr_toss_objects (mp_edge_object *hh) {
   mp_xfree(hh);
 }
 
-@ @<Exported function headers@>=
+@ @(psout.h@>=
 mp_graphic_object *mp_gr_copy_object (MP mp, mp_graphic_object *p) ;
 
 @ @c
