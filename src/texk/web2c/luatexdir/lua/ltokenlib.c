@@ -148,7 +148,6 @@ static int run_get_csname_name(lua_State * L)
               lua_pushstring(L, (s+3));
             else
               lua_pushstring(L, s);
-            free(s);
         } else {
             lua_pushstring(L, "");
         }
