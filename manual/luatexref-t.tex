@@ -1526,8 +1526,8 @@ by \luatex{tex.get_next()}.
 \stopfunctioncall
 
 This is a special test that is sometimes handy. Discovering whether
-some token is the result of an active character turned out to be very
-hard otherwise.
+some control sequence is the result of an active character turned out
+to be very hard otherwise.
 
 \subsection{\luatex{token.create}}
 
@@ -1583,7 +1583,11 @@ command, to be used as the first item in a token table.
 This returns the name associated with the \quote{equivalence table} value of
 the token in \LUATEX. It returns the string value of the command used
 to create the current token, or an empty string if there is no
-associated control sequence.
+associated control sequence. 
+
+Keep in mind that there are potentially two control sequences that
+return the same csname string: single character control sequences
+and active characters have the same \quote{name}.
 
 \subsection{\luatex{token.csname_id}}
 
@@ -2368,7 +2372,7 @@ currently these are \type {media}, \type {crop}, \type {bleed}, \type {trim}, an
 \section{The \luatex{mplib} library}
 
 The \MP\ library interface registers itself in the table \type{mplib}. It
-is based on the \MPLIB\ beta version 0.45 (based on \MP\ 1.004).
+is based on the \MPLIB\ beta version 1.070.
 
 \subsection{\luatex{mplib.new}}
 
@@ -2382,25 +2386,20 @@ This creates the \type{mp} instance object. The argument hash can have a number 
 different fields,  as follows:
 
 \starttabulate[|lT|l|p|p|]
-\NC \ssbf name  \NC \bf type   \NC \bf description \NC \bf default \NC\NR
-\NC error_line \NC         number \NC line width for terminal and log \NC 79 \NC\NR
-\NC half_error_line \NC    number \NC \quote {half} of line width \NC 50 \NC\NR
-\NC max_print_line \NC     number \NC line length in ps output\NC 100\NC\NR
-\NC main_memory \NC        number \NC total memory size \NC 5000\NC\NR
-\NC hash_size \NC          number \NC hash size\NC 9500 \NC\NR
-\NC hash_prime \NC         number \NC prime number for hashing\NC 7919\NC\NR
-\NC param_size \NC         number \NC max. simultaneous macro parameters\NC 150\NC\NR
-\NC max_in_open \NC        number \NC max. input file nestings \NC 10\NC\NR
-\NC random_seed \NC        number \NC the initial random seed \NC variable\NC\NR
+\NC \ssbf name  \NC \bf type   \NC \bf description                \NC \bf default \NC\NR
+\NC error_line \NC         number \NC error line width            \NC 79 \NC\NR
+\NC print_line \NC         number \NC line length in ps output    \NC 100\NC\NR
+\NC main_memory \NC        number \NC total memory size           \NC 5000\NC\NR
+\NC hash_size \NC          number \NC hash size                   \NC 16384 \NC\NR
+\NC param_size \NC         number \NC max. active macro parameters\NC 150\NC\NR
+\NC max_in_open \NC        number \NC max. input file nestings    \NC 10\NC\NR
+\NC random_seed \NC        number \NC the initial random seed     \NC variable\NC\NR
 \NC interaction \NC        string \NC the interaction mode, one of
-\type {batch}, \type {nonstop}, \type {scroll}, \type {errorstop}\NC \type {errorstop}\NC\NR
-\NC ini_version \NC        boolean \NC the --ini switch\NC false \NC\NR
-\NC troff_mode \NC         boolean \NC the -T switch \NC false \NC\NR
-\NC print_found_names \NC  boolean \NC whether long file names
-                 should be printed to the log and terminal streams\NC false \NC\NR
-\NC mem_name \NC           string \NC \type {--mem}\NC \type {plain.mem}\NC\NR
-\NC job_name \NC           string \NC \type {--jobname}\NC \type {mpout} \NC\NR
-\NC find_file \NC          function \NC a function to find files \NC only local files\NC\NR
+\type {batch}, \type {nonstop}, \type {scroll}, \type {errorstop} \NC \type {errorstop}\NC\NR
+\NC ini_version \NC        boolean \NC the --ini switch           \NC true \NC\NR
+\NC mem_name \NC           string \NC \type {--mem}               \NC \type {plain} \NC\NR
+\NC job_name \NC           string \NC \type {--jobname}           \NC \type {mpout} \NC\NR
+\NC find_file \NC          function \NC a function to find files  \NC only local files\NC\NR
 \stoptabulate
 
 The \type{find_file} function should be of this form:
@@ -2441,7 +2440,7 @@ statically allocated object classes:
 
 \subsection{\luatex{mp:execute}}
 
-You can ask the \METAPOST\ interpreter to run a bit of code by calling
+You can ask the \METAPOST\ interpreter to run a chunk of code by calling
 
 \startfunctioncall
 local rettable = mp:execute('metapost language chunk')
@@ -2456,17 +2455,20 @@ that all chunks have to obey proper syntax, like each of them is a
 small file. For instance, you cannot split a single statement over
 multiple chunks.
 
+In contrast with the normal standalone \type{mpost} command, there is
+{\em no\/} implied \quote{input} at the start of the first chunk.
+
 \subsection{\luatex{mp:finish}}
 
 \startfunctioncall
 local rettable = mp:finish()
 \stopfunctioncall
 
-If for some reason you want to stop using an \MPLIB\ instance
-while processing is not yet actually done, you can call
-\type{mp:finish}.  Memory and files can be closed by the
-\LUA\ garbage collector, but an explicit \type{mp:finish} is
-the only way to capture the final part of the output streams.
+If for some reason you want to stop using an \MPLIB\ instance while
+processing is not yet actually done, you can call \type{mp:finish}.
+Eventually, used memory will be freed and open files will be closed by
+the \LUA\ garbage collector, but an explicit \type{mp:finish} is the
+only way to capture the final part of the output streams.
 
 \subsection{Result table}
 
@@ -2530,6 +2532,20 @@ are of \type{table} are explained in the next section.
 \stoptabulate
 
 The entries \type{htap} and \type{pen} are optional.
+
+There is helper function (\type{mplib.pen_info(obj)}) that returns
+a table containing a bunch of vital characteristics of the used pen
+(all values are floats):
+
+\starttabulate[|l|l|p|]
+\NC width       \NC number \NC width of the pen\NC \NR
+\NC rx          \NC number \NC $x$ scale       \NC \NR
+\NC sx          \NC number \NC $xy$ multiplier \NC \NR
+\NC sy          \NC number \NC $yx$ multiplier \NC \NR
+\NC ry          \NC number \NC $y$ scale       \NC \NR
+\NC tx          \NC number \NC $x$ offset      \NC \NR
+\NC ty          \NC number \NC $y$ offset      \NC \NR
+\stoptabulate
 
 \subsubsection{outline}
 
@@ -2642,6 +2658,31 @@ for the representation of the dashlist. \type{dashes} is an array of
 \NC dashes \NC hash   \NC an array of on-off numbers \NC\NR
 \NC offset \NC number \NC the starting offset value \NC\NR
 \stoptabulate
+
+\subsection{Character size information}
+
+These functions find the size of a glyph in a defined font. The
+\type{fontname} is the same name as the argument to \type{infont};
+the \type{char} is a glyph id in the range 0 to 255; the returned
+\type{w} is in AFM units.
+
+\subsubsection{\luatex{mp.char_width}}
+
+\startfunctioncall
+<number> w = mp.char_width(<string> fontname, <number> char)
+\stopfunctioncall
+
+\subsubsection{\luatex{mp.char_height}}
+
+\startfunctioncall
+<number> w = mp.char_height(<string> fontname, <number> char)
+\stopfunctioncall
+
+\subsubsection{\luatex{mp.char_depth}}
+
+\startfunctioncall
+<number> w = mp.char_depth(<string> fontname, <number> char)
+\stopfunctioncall
 
 
 \section{The \luatex{callback} library}
