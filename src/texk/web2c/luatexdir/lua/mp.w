@@ -273,10 +273,8 @@ if (mp->troff_mode) {
   mp->internal[mp_gtroffmode]=unity; 
   mp->internal[mp_prologues]=unity; 
 }
-if (!mp->noninteractive) {
-  if ( mp->start_sym>0 ) { /* insert the `\&{everyjob}' symbol */
-    mp->cur_sym=mp->start_sym; mp_back_input(mp);
-  }
+if ( mp->start_sym>0 ) { /* insert the `\&{everyjob}' symbol */
+  mp->cur_sym=mp->start_sym; mp_back_input(mp);
 }
 
 @ @<Exported function headers@>=
@@ -22224,6 +22222,9 @@ if (mp->troff_mode) {
   mp->internal[mp_gtroffmode]=unity; 
   mp->internal[mp_prologues]=unity; 
 }
+if ( mp->start_sym>0 ) { /* insert the `\&{everyjob}' symbol */
+  mp->cur_sym=mp->start_sym; mp_back_input(mp);
+}
 
 @ @c
 int __attribute__((noinline)) 
@@ -24034,7 +24035,7 @@ scaled mp_tfm_check (MP mp,small_number m) {
 if ( c<mp->bc ) mp->bc=c;
 if ( c>mp->ec ) mp->ec=c;
 mp->char_exists[c]=true;
-mp->tfm_width[c]=mp_tfm_check(mp, mp_char_wd);
+mp->tfm_width[c]=mp_tfm_check(mp,mp_char_wd);
 mp->tfm_height[c]=mp_tfm_check(mp, mp_char_ht);
 mp->tfm_depth[c]=mp_tfm_check(mp, mp_char_dp);
 mp->tfm_ital_corr[c]=mp_tfm_check(mp, mp_char_ic)
@@ -25403,7 +25404,7 @@ char *mp_set_output_file_name (MP mp, integer c) {
     else 
       @<Use |c| to compute the file extension |s|@>;
     mp_pack_job_name(mp, s);
-    ss = s ;
+    ss = mp->name_of_file ;
   } else { /* initializations */
     str_number s, n; /* a file extension derived from |c| */
     old_setting=mp->selector; 
@@ -25470,14 +25471,13 @@ char *mp_set_output_file_name (MP mp, integer c) {
 }
 
 char * mp_get_output_file_name (MP mp) {
-  char *junk;
+  char *f;
   char *saved_name;  /* saved |name_of_file| */
-  saved_name = mp_xstrdup(mp, mp->name_of_file);
-  junk = mp_set_output_file_name(mp, mp_round_unscaled(mp, mp->internal[mp_char_code]));
-  free(junk);
+  saved_name = xstrdup(mp->name_of_file);
+  f = xstrdup(mp_set_output_file_name(mp, mp_round_unscaled(mp, mp->internal[mp_char_code])));
   mp_pack_file_name(mp, saved_name,NULL,NULL);
   free(saved_name);
-  return mp->name_of_file;
+  return f;
 }
 
 void mp_open_output_file (MP mp) {
@@ -25689,10 +25689,10 @@ struct mp_edge_object *mp_gr_export(MP mp, pointer h) {
   hh->_filename = mp_get_output_file_name(mp);
   c = mp_round_unscaled(mp,mp->internal[mp_char_code]);
   hh->_charcode = c;
-  hh->_width= mp->tfm_width[c];
-  hh->_height= mp->tfm_height[c];
-  hh->_depth= mp->tfm_depth[c];
-  hh->_ital_corr= mp->tfm_ital_corr[c];
+  hh->_width = mp->internal[mp_char_wd];
+  hh->_height = mp->internal[mp_char_ht];
+  hh->_depth = mp->internal[mp_char_dp];
+  hh->_ital_corr = mp->internal[mp_char_ic];
   @<Export pending specials@>;
   p=link(dummy_loc(h));
   while ( p!=null ) { 
