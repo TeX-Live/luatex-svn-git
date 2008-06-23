@@ -1753,15 +1753,14 @@ typedef struct {
     boolean valid;
 } cs_entry;
 
-@ @<Glob...@>=
+@ 
+@d t1_c1 52845
+@d t1_c2 22719
+
+@<Glob...@>=
 unsigned short t1_dr, t1_er;
-unsigned short t1_c1, t1_c2;
 unsigned short t1_cslen;
 short t1_lenIV;
-
-@ @<Set initial...@>=
-mp->ps->t1_c1 = 52845; 
-mp->ps->t1_c2 = 22719;
 
 @ @<Types...@>=
 typedef char t1_line_entry;
@@ -1877,26 +1876,26 @@ static byte edecrypt (MP mp, byte cipher) {
         mp->ps->last_hexbyte = cipher = (hexval (cipher) << 4) + hexval (t1_getbyte (mp));
     }
     plain = (cipher ^ (mp->ps->t1_dr >> 8));
-    mp->ps->t1_dr = (cipher + mp->ps->t1_dr) * mp->ps->t1_c1 + mp->ps->t1_c2;
+    mp->ps->t1_dr = (cipher + mp->ps->t1_dr) * t1_c1 + t1_c2;
     return plain;
 }
-static byte cdecrypt (MP mp, byte cipher, unsigned short *cr)
+static byte cdecrypt (byte cipher, unsigned short *cr)
 {
     const byte plain = (cipher ^ (*cr >> 8));
-    *cr = (cipher + *cr) * mp->ps->t1_c1 + mp->ps->t1_c2;
+    *cr = (cipher + *cr) * t1_c1 + t1_c2;
     return plain;
 }
 static byte eencrypt (MP mp, byte plain)
 {
     const byte cipher = (plain ^ (mp->ps->t1_er >> 8));
-    mp->ps->t1_er = (cipher + mp->ps->t1_er) * mp->ps->t1_c1 + mp->ps->t1_c2;
+    mp->ps->t1_er = (cipher + mp->ps->t1_er) * t1_c1 + t1_c2;
     return cipher;
 }
 
-static byte cencrypt (MP mp, byte plain, unsigned short *cr)
+static byte cencrypt (byte plain, unsigned short *cr)
 {
     const byte cipher = (plain ^ (*cr >> 8));
-    *cr = (cipher + *cr) * mp->ps->t1_c1 + mp->ps->t1_c2;
+    *cr = (cipher + *cr) * t1_c1 + t1_c2;
     return cipher;
 }
 
@@ -2610,7 +2609,7 @@ static void cc_init (void) {
 
 @
 
-@d cs_getchar(mp)    cdecrypt(mp,*data++, &cr)
+@d cs_getchar(mp)    cdecrypt(*data++, &cr)
 
 @d mark_subr(mp,n)    cs_mark(mp,0, n)
 @d mark_cs(mp,s)      cs_mark(mp,s, 0)
@@ -2954,8 +2953,8 @@ static void t1_flush_cs (MP mp, boolean is_subr)
         return_cs = mp_xmalloc (mp, (mp->ps->t1_lenIV + 1) , sizeof(byte));
         if ( mp->ps->t1_lenIV > 0) {
             for (cs_len = 0, r = return_cs; cs_len <  mp->ps->t1_lenIV; cs_len++, r++)
-                *r = cencrypt (mp,0x00, &cr);
-            *r = cencrypt (mp,CS_RETURN, &cr);
+                *r = cencrypt (0x00, &cr);
+            *r = cencrypt (CS_RETURN, &cr);
         } else {
             *return_cs = CS_RETURN;
         }
@@ -4566,6 +4565,8 @@ typedef struct mp_edge_object {
   char * _filename;
   MP _parent;
   int _minx, _miny, _maxx, _maxy;
+  int _width, _height, _depth, _ital_corr;
+  int _charcode;
 } mp_edge_object;
 
 @ @<Exported function headers@>=

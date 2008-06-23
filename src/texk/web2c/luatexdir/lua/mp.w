@@ -73,8 +73,8 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d banner "This is MetaPost, Version 1.070 (Cweb version)" /* printed when \MP\ starts */
-@d metapost_version "1.070"
+@d banner "This is MetaPost, Version 1.071 (Cweb version)" /* printed when \MP\ starts */
+@d metapost_version "1.071"
 
 @d true 1
 @d false 0
@@ -170,19 +170,22 @@ struct MP_options *mp_options (void) {
 # define __attribute__(x)
 #endif /* !defined(__GNUC__) || (__GNUC__ < 2) */
 
-@ @c
+@ The whole instance structure is initialized with zeroes,
+this greatly reduces the number of statements needed in 
+the |Allocate or initialize variables| block.
+
+@d set_callback_option(A) do { mp->A = mp_##A;
+  if (opt->A!=NULL) mp->A = opt->A;
+} while (0)
+
+@c
 MP __attribute__ ((noinline))
-mp_do_new (struct MP_options *opt, jmp_buf *buf) {
+mp_do_new (jmp_buf *buf) {
   MP mp = malloc(sizeof(MP_instance));
   if (mp==NULL)
 	return NULL;
+  memset(mp,0,sizeof(MP_instance));
   mp->jump_buf = buf;
-  @<Set |ini_version|@>;
-  @<Allocate or initialize variables@>
-  if (opt->main_memory>mp->mem_max)
-    mp_reallocate_memory(mp,opt->main_memory);
-  mp_reallocate_paths(mp,1000);
-  mp_reallocate_fonts(mp,8);
   return mp;
 }
 
@@ -207,18 +210,38 @@ mp_do_initialize ( MP mp) {
 @c
 MP __attribute__ ((noinline))
 mp_initialize (struct MP_options *opt) { 
-  jmp_buf buf;
   MP mp;
-  mp = mp_do_new(opt, &buf);
+  jmp_buf buf;
+  @<Setup the non-local jump buffer in |mp_new|@>;
+  mp = mp_do_new(&buf);
   if (mp == NULL)
     return NULL;
-  mp->history=mp_fatal_error_stop; /* in case we quit during initialization */
-  @<Setup the non-local jump buffer in |mp_new|@>;
+  mp->userdata=opt->userdata;
+  @<Set |ini_version|@>;
+  mp->noninteractive=opt->noninteractive;
+  set_callback_option(find_file);
+  set_callback_option(open_file);
+  set_callback_option(read_ascii_file);
+  set_callback_option(read_binary_file);
+  set_callback_option(close_file);
+  set_callback_option(eof_file);
+  set_callback_option(flush_file);
+  set_callback_option(write_ascii_file);
+  set_callback_option(write_binary_file);
+  set_callback_option(shipout_backend);
+  if (opt->command_line && *(opt->command_line))
+    mp->command_line = xstrdup(opt->command_line);
   if (mp->noninteractive) {
-    @<Prepare for non-interactive use@>;
-  } else {
-    t_open_out; /* open the terminal for output */
-  }
+    @<Prepare function pointers for non-interactive use@>;
+  } 
+  /* open the terminal for output */
+  t_open_out; 
+  @<Find constant sizes@>;
+  @<Allocate or initialize variables@>
+  mp_reallocate_memory(mp,mp->mem_max);
+  mp_reallocate_paths(mp,1000);
+  mp_reallocate_fonts(mp,8);
+  mp->history=mp_fatal_error_stop; /* in case we quit during initialization */
   @<Check the ``constant'' values...@>;
   if ( mp->bad>0 ) {
 	char ss[256];
@@ -338,22 +361,6 @@ int main_memory; /* only for options, to set up |mem_max| and |mem_top| */
 void *userdata; /* this allows the calling application to setup local */
 
 
-@ The code below make the final chosen hash size the next larger
-multiple of 2 from the requested size, and this array is a list of
-suitable prime numbers to go with such values. 
-
-The top limit is chosen such that it is definately lower than
-|max_halfword-3*param_size|, because |param_size| cannot be larger
-than |max_halfword/sizeof(pointer)|.
-
-@<Declarations@>=
-static int mp_prime_choices[] = 
-  { 12289,        24593,    49157,    98317,
-    196613,      393241,   786433,  1572869,
-    3145739,    6291469, 12582917, 25165843,
-    50331653, 100663319  };
-
-
 @ 
 @d set_value(a,b,c) do { a=c; if (b>c) a=b; } while (0)
 
@@ -365,25 +372,6 @@ set_value(mp->half_error_line,opt->half_error_line,50);
 if (mp->half_error_line>mp->error_line-15 ) 
   mp->half_error_line = mp->error_line-15;
 set_value(mp->max_print_line,opt->max_print_line,100);
-mp->main_memory=5000;
-mp->mem_max=5000;
-mp->mem_top=5000;
-if (opt->hash_size>0x8000000) opt->hash_size=0x8000000;
-set_value(mp->hash_size,(2*opt->hash_size-1),16384);
-{ 
-  int i = 14;
-  mp->hash_size = mp->hash_size>>i;
-  while (mp->hash_size>=2) {
-    mp->hash_size /= 2;
-    i++;
-  }
-  mp->hash_size = mp->hash_size << i;
-  if (mp->hash_size>0x8000000) mp->hash_size=0x8000000;
-  mp->hash_prime=mp_prime_choices[(i-14)];
-}
-set_value(mp->param_size,opt->param_size,150);
-set_value(mp->max_in_open,opt->max_in_open,10);
-mp->userdata=opt->userdata;
 
 @ In case somebody has inadvertently made bad settings of the ``constants,''
 \MP\ checks them using a global variable called |bad|.
@@ -423,10 +411,7 @@ end up the same, the shared code may be gathered together at
 @d negate(A) (A)=-(A) /* change the sign of a variable */
 @d double(A) (A)=(A)+(A)
 @d odd(A)   ((A)%2==1)
-@d chr(A)   (A)
 @d do_nothing   /* empty statement */
-@d Return   goto exit /* terminate a procedure call */
-@f return   nil /* \.{WEB} will henceforth say |return| instead of \\{return} */
 
 @* \[2] The character set.
 In order to make \MP\ readily portable to a wide variety of
@@ -451,16 +436,6 @@ typedef unsigned char ASCII_code; /* eight-bit numbers */
 that the character set contains at least the letters and symbols associated
 with ASCII codes 040 through 0176; all of these characters are now
 available on most computer terminals.
-
-We shall use the name |text_char| to stand for the data type of the characters 
-that are converted to and from |ASCII_code| when they are input and output. 
-We shall also assume that |text_char| consists of the elements 
-|chr(first_text_char)| through |chr(last_text_char)|, inclusive. 
-The following definitions should be adjusted if necessary.
-@^system dependencies@>
-
-@d first_text_char 0 /* ordinal number of the smallest element of |text_char| */
-@d last_text_char 255 /* ordinal number of the largest element of |text_char| */
 
 @<Types...@>=
 typedef unsigned char text_char; /* the data type of characters in text files */
@@ -503,8 +478,8 @@ where |i<j<0177|, the value of |xord[xchr[i]]| will turn out to be
 codes below 040 in case there is a coincidence.
 
 @<Set initial ...@>=
-for (i=first_text_char;i<=last_text_char;i++) { 
-   xord(chr(i))=0177;
+for (i=0;i<=255;i++) { 
+   xord(xchr(i))=0177;
 }
 for (i=0200;i<=0377;i++) { xord(xchr(i))=i;}
 for (i=0;i<=0176;i++) { xord(xchr(i))=i;}
@@ -593,24 +568,6 @@ char *mp_find_file (MP mp, const char *fname, const char *fmode, int ftype)  {
   }
   return NULL;
 }
-
-@ This has to be done very early on, so it is best to put it in with
-the |mp_new| allocations
-
-@d set_callback_option(A) do { mp->A = mp_##A;
-  if (opt->A!=NULL) mp->A = opt->A;
-} while (0)
-
-@<Allocate or initialize ...@>=
-set_callback_option(find_file);
-set_callback_option(open_file);
-set_callback_option(read_ascii_file);
-set_callback_option(read_binary_file);
-set_callback_option(close_file);
-set_callback_option(eof_file);
-set_callback_option(flush_file);
-set_callback_option(write_ascii_file);
-set_callback_option(write_binary_file);
 
 @ Because |mp_find_file| is used so early, it has to be in the helpers
 section.
@@ -887,8 +844,6 @@ to the input buffer.  The variable |command_line| will be filled by the
 logic because in the |INI| version, the |buffer| is also used for primitive 
 initialization.
 
-@^system dependencies@>
-
 @d t_open_out  do {/* open the terminal for text output */
     mp->term_out = (mp->open_file)(mp,"terminal", "w", mp_filetype_terminal);
     mp->err_out = (mp->open_file)(mp,"error", "w", mp_filetype_error);
@@ -906,9 +861,6 @@ initialization.
 
 @<Option variables@>=
 char *command_line;
-
-@ @<Allocate or initialize ...@>=
-mp->command_line = xstrdup(opt->command_line);
 
 @ Sometimes it is necessary to synchronize the input/output mixture that
 happens on the user's terminal, and three system-dependent
@@ -1081,10 +1033,7 @@ char * mp_str (MP mp, str_number s);
 str_number mp_rts (MP mp, const char *s);
 str_number mp_make_string (MP mp);
 
-@ The attempt to catch interrupted strings that is in |mp_rts|, is not 
-very good: it does not handle nesting over more than one level.
-
-@c 
+@ @c 
 int mp_xstrcmp (const char *a, const char *b) {
 	if (a==NULL && b==NULL) 
 	  return 0;
@@ -1095,7 +1044,10 @@ int mp_xstrcmp (const char *a, const char *b) {
     return strcmp(a,b);
 }
 
-@ @c
+@ The attempt to catch interrupted strings that is in |mp_rts|, is not 
+very good: it does not handle nesting over more than one level.
+
+@c
 char * mp_str (MP mp, str_number ss) {
   char *s;
   int len;
@@ -1156,8 +1108,7 @@ overhead of procedure calls. For example, here is
 a simple macro that computes the length of a string.
 @.WEB@>
 
-@d str_stop(A) mp->str_start[mp->next_str[(A)]] /* one cell past the end of string
-  number \# */
+@d str_stop(A) mp->str_start[mp->next_str[(A)]] /* one cell past the end of string \# */
 @d length(A) (str_stop((A))-mp->str_start[(A)]) /* the number of characters in string \# */
 
 @ The length of the current string is called |cur_length|.  If we decide that
@@ -1212,8 +1163,7 @@ a string is ever referred to more than 126 times, simultaneously, we
 put it in this category. Hence a single byte suffices to store each |str_ref|.
 
 @d max_str_ref 127 /* ``infinite'' number of references */
-@d add_str_ref(A) { if ( mp->str_ref[(A)]<max_str_ref ) incr(mp->str_ref[(A)]);
-  }
+@d add_str_ref(A) { if ( mp->str_ref[(A)]<max_str_ref ) incr(mp->str_ref[(A)]); }
 
 @<Glob...@>=
 int *str_ref;
@@ -1301,10 +1251,6 @@ RESTART:
       mp_do_compaction(mp, 0);
       goto RESTART;
     } else {
-#ifdef DEBUG 
-      if ( mp->strs_used_up!=mp->max_str_ptr ) mp_confusion(mp, "s");
-@:this can't happen s}{\quad \.s@>
-#endif
       mp->max_str_ptr=mp->str_ptr;
       mp->next_str[mp->str_ptr]=mp->max_str_ptr+1;
     }
@@ -1454,14 +1400,6 @@ if ( (mp->str_start[mp->str_ptr]!=mp->pool_in_use)||(str_use!=mp->strs_in_use) )
 incr(mp->pact_count);
 mp->pact_chars=mp->pact_chars+mp->pool_ptr-str_stop(mp->last_fixed_str);
 mp->pact_strs=mp->pact_strs+str_use-mp->fixed_str_use;
-#ifdef DEBUG
-s=mp->str_ptr; t=str_use;
-while ( s<=mp->max_str_ptr ){
-  if ( t>mp->max_str_ptr ) mp_confusion(mp, "\"");
-  incr(t); s=mp->next_str[s];
-};
-if ( t<=mp->max_str_ptr ) mp_confusion(mp, "\"");
-#endif
 
 @ A few more global variables are needed to keep track of statistics when
 |stat| $\ldots$ |tats| blocks are not commented out.
@@ -1565,9 +1503,6 @@ even people with an extended character set will want to represent string
 to produce visible strings instead of tabs or line-feeds or carriage-returns
 or bell-rings or characters that are treated anomalously in text files.
 
-Unprintable characters of codes 128--255 are, similarly, rendered
-\.{\^\^80}--\.{\^\^ff}.
-
 The boolean expression defined here should be |true| unless \MP\ internal
 code number~|k| corresponds to a non-troublesome visible symbol in the
 local character set.
@@ -1578,7 +1513,7 @@ must be printable.
 @^system dependencies@>
 
 @<Character |k| cannot be printed@>=
-  (k<' ')||(k>'~')
+  (k<' ')||(k==127)
 
 @* \[5] On-line and off-line printing.
 Messages that are sent to a user's terminal and to the transcript-log file
@@ -1636,7 +1571,7 @@ to the terminal, the transcript file, or the \ps\ output file, respectively.
 void * log_file; /* transcript of \MP\ session */
 void * ps_file; /* the generic font output goes here */
 unsigned int selector; /* where to print a message */
-unsigned char dig[23]; /* digits in a number being output */
+unsigned char dig[23]; /* digits in a number, for rounding */
 integer tally; /* the number of characters recently printed */
 unsigned int term_offset;
   /* the number of characters on the current terminal line */
@@ -1647,7 +1582,6 @@ integer trick_count; /* threshold for pseudoprinting, explained later */
 integer first_count; /* another variable for pseudoprinting */
 
 @ @<Allocate or initialize ...@>=
-memset(mp->dig,0,23);
 mp->trick_buf = xmalloc((mp->error_line+1),sizeof(ASCII_code));
 
 @ @<Dealloc variables@>=
@@ -1775,13 +1709,8 @@ printed in three- or four-symbol form like `\.{\^\^A}' or `\.{\^\^e4}'.
 characters when |selector| is in the range |0..max_write_files-1|.
 The user might want to write unprintable characters.
 
-@d print_lc_hex(A) do { l=(A);
-    mp_print_visible_char(mp, (l<10 ? l+'0' : l-10+'a'));
-  } while (0)
-
 @<Basic printing...@>=
 void mp_print_char (MP mp, ASCII_code k) { /* prints a single character */
-  int l; /* small index or counter */
   if ( mp->selector<pseudo || mp->selector>=write_file) {
     mp_print_visible_char(mp, k);
   } else if ( @<Character |k| cannot be printed@> ) { 
@@ -1790,9 +1719,12 @@ void mp_print_char (MP mp, ASCII_code k) { /* prints a single character */
       mp_print_visible_char(mp, k+0100); 
     } else if ( k<0200 ) { 
       mp_print_visible_char(mp, k-0100); 
-    } else { 
-      print_lc_hex(k / 16);  
-      print_lc_hex(k % 16); 
+    } else {
+      int l; /* small index or counter */
+      l = (k / 16);
+      mp_print_visible_char(mp, (l<10 ? l+'0' : l-10+'a'));
+      l = (k % 16);
+      mp_print_visible_char(mp, (l<10 ? l+'0' : l-10+'a'));
     }
   } else {
     mp_print_visible_char(mp, k);
@@ -1868,43 +1800,15 @@ void mp_print_nl (MP mp, const char *s) { /* prints string |s| at beginning of l
   mp_print(mp, s);
 }
 
-@ An array of digits in the range |0..9| is printed by |print_the_digs|.
-
-@<Basic print...@>=
-void mp_print_the_digs (MP mp, eight_bits k) {
-  /* prints |dig[k-1]|$\,\ldots\,$|dig[0]| */
-  while ( k>0 ){ 
-    decr(k); mp_print_char(mp, '0'+mp->dig[k]);
-  }
-}
-
 @ The following procedure, which prints out the decimal representation of a
-given integer |n|, has been written carefully so that it works properly
-if |n=0| or if |(-n)| would cause overflow. It does not apply |%| or |/|
-to negative arguments, since such operations are not implemented consistently
-on all platforms.
+given integer |n|, assumes that all integers fit nicely into a |int|.
+@^system dependencies@>
 
 @<Basic print...@>=
 void mp_print_int (MP mp,integer n) { /* prints an integer in decimal form */
-  integer m; /* used to negate |n| in possibly dangerous cases */
-  int k = 0; /* index to current digit; we assume that $|n|<10^{23}$ */
-  if ( n<0 ) { 
-    mp_print_char(mp, '-');
-    if ( n>-100000000 ) {
-	  negate(n);
-    } else  { 
-	  m=-1-n; n=m / 10; m=(m % 10)+1; k=1;
-      if ( m<10 ) {
-        mp->dig[0]=m;
-      } else { 
-        mp->dig[0]=0; incr(n);
-      }
-    }
-  }
-  do {  
-    mp->dig[k]=n % 10; n=n / 10; incr(k);
-  } while (n!=0);
-  mp_print_the_digs(mp, k);
+  char s[12];
+  mp_snprintf(s,12,"%d", (int)n);
+  mp_print(mp,s);
 }
 
 @ @<Internal ...@>=
@@ -1941,16 +1845,16 @@ This procedure is never called when |interaction<mp_scroll_mode|.
 @c 
 void mp_term_input (MP mp) { /* gets a line from the terminal */
   size_t k; /* index into |buffer| */
-  update_terminal; /* Now the user sees the prompt for sure */
-  if (!mp_input_ln(mp, mp->term_in )) {
-    if (!mp->noninteractive) {
+  if (mp->noninteractive) {
+    if (!mp_input_ln(mp, mp->term_in ))
+	  longjmp(*(mp->jump_buf),1);  /* chunk finished */
+    mp->buffer[mp->last]='%'; 
+  } else {
+    update_terminal; /* Now the user sees the prompt for sure */
+    if (!mp_input_ln(mp, mp->term_in )) {
 	  mp_fatal_error(mp, "End of file on the terminal!");
 @.End of file on the terminal@>
-    } else { /* we are done with this input chunk */
-	  longjmp(*(mp->jump_buf),1);      
     }
-  }
-  if (!mp->noninteractive) {
     mp->term_offset=0; /* the user's line ended with \<\rm return> */
     decr(mp->selector); /* prepare to echo the input */
     if ( mp->last!=mp->first ) {
@@ -2011,7 +1915,6 @@ if (mp->interaction==mp_unspecified_mode || mp->interaction>mp_error_stop_mode)
   mp->interaction=mp_error_stop_mode;
 if (mp->interaction<mp_unspecified_mode) 
   mp->interaction=mp_batch_mode;
-mp->noninteractive=opt->noninteractive;
 
 @ 
 
@@ -2078,7 +1981,7 @@ int error_count; /* the number of scrolled errors since the last statement ended
 be changed to |spotless| if \MP\ survives the initialization process.
 
 @<Allocate or ...@>=
-mp->deletions_allowed=true; mp->error_count=0; /* |history| is initialized elsewhere */
+mp->deletions_allowed=true; /* |history| is initialized elsewhere */
 
 @ Since errors can be detected almost anywhere in \MP, we want to declare the
 error procedures near the beginning of the program. But the error procedures
@@ -2129,7 +2032,7 @@ str_number err_help; /* a string set up by \&{errhelp} */
 str_number filename_template; /* a string set up by \&{filenametemplate} */
 
 @ @<Allocate or ...@>=
-mp->help_ptr=0; mp->use_err_help=false; mp->err_help=0; mp->filename_template=0;
+mp->use_err_help=false;
 
 @ The |jump_out| procedure just cuts across all active procedure levels and
 goes to |end_of_MP|. This is the only nonlocal |goto| statement in the
@@ -2424,10 +2327,11 @@ void mp_fatal_error (MP mp, const char *s);
 
 @<Error hand...@>=
 void mp_overflow (MP mp, const char *s, integer n) { /* stop due to finiteness */
+  char msg[256];
   mp_normalize_selector(mp);
-  print_err("MetaPost capacity exceeded, sorry [");
+  mp_snprintf(msg, 256, "MetaPost capacity exceeded, sorry [%s=%d]",s,(int)n);
 @.MetaPost capacity exceeded ...@>
-  mp_print(mp, s); mp_print_char(mp, '='); mp_print_int(mp, n); mp_print_char(mp, ']');
+  print_err(msg);
   help2("If you really absolutely need more capacity,")
        ("you can ask a wizard to enlarge me.");
   succumb;
@@ -2447,13 +2351,15 @@ help to pinpoint the problem.
 @<Internal library ...@>=
 void mp_confusion (MP mp, const char *s);
 
-@ @<Error hand...@>=
+@ Consistency check violated; |s| tells where.
+@<Error hand...@>=
 void mp_confusion (MP mp, const char *s) {
-  /* consistency check violated; |s| tells where */
+  char msg[256];
   mp_normalize_selector(mp);
   if ( mp->history<mp_error_message_issued ) { 
-    print_err("This can't happen ("); mp_print(mp, s); mp_print_char(mp, ')');
+    mp_snprintf(msg, 256, "This can't happen (%s)",s);
 @.This can't happen@>
+    print_err(msg);
     help1("I'm broken. Please show this to someone who can fix can fix");
   } else { 
     print_err("I can\'t go on meeting you like this");
@@ -2479,9 +2385,11 @@ a way to make |interrupt| nonzero using the C debugger.
 integer interrupt; /* should \MP\ pause for instructions? */
 boolean OK_to_interrupt; /* should interrupts be observed? */
 integer run_state; /* are we processing input ?*/
+boolean finished; /* set true by |close_files_and_terminate| */
 
 @ @<Allocate or ...@>=
-mp->interrupt=0; mp->OK_to_interrupt=true; mp->run_state=0; 
+mp->OK_to_interrupt=true;
+mp->finished=false;
 
 @ When an interrupt has been detected, the program goes into its
 highest interaction level and lets the user have the full flexibility of
@@ -2510,8 +2418,10 @@ by putting this common code into a subroutine.
 
 @c 
 void mp_missing_err (MP mp, const char *s) { 
-  print_err("Missing `"); mp_print(mp, s); mp_print(mp, "' has been inserted");
+  char msg[256];
+  mp_snprintf(msg, 256, "Missing `%s' has been inserted", s);
 @.Missing...inserted@>
+  print_err(msg);
 }
 
 @* \[7] Arithmetic with scaled numbers.
@@ -2532,7 +2442,8 @@ language is being used properly.  The \TeX\ processor has been defined
 carefully so that both varieties of arithmetic will produce identical
 output, but it would be too inefficient to constrain \MP\ in a similar way.
 
-@d el_gordo   017777777777 /* $2^{31}-1$, the largest value that \MP\ likes */
+@d el_gordo   0x7fffffff /* $2^{31}-1$, the largest value that \MP\ likes */
+
 
 @ One of \MP's most common operations is the calculation of
 $\lfloor{a+b\over2}\rfloor$,
@@ -2748,7 +2659,6 @@ integer mp_take_scaled (MP mp,integer q, scaled f) ;
 
 @ If FIXPT is not defined, we need these preprocessor values
 
-@d ELGORDO  0x7fffffff
 @d TWEXP31  2147483648.0
 @d TWEXP28  268435456.0
 @d TWEXP16 65536.0
@@ -2758,52 +2668,50 @@ integer mp_take_scaled (MP mp,integer q, scaled f) ;
 
 @c 
 fraction mp_make_fraction (MP mp,integer p, integer q) {
+  fraction i;
+  if ( q==0 ) mp_confusion(mp, "/");
+@:this can't happen /}{\quad \./@>
 #ifdef FIXPT
+{
   integer f; /* the fraction bits, with a leading 1 bit */
   integer n; /* the integer part of $\vert p/q\vert$ */
-  integer be_careful; /* disables certain compiler optimizations */
   boolean negative = false; /* should the result be negated? */
   if ( p<0 ) {
     negate(p); negative=true;
   }
-  if ( q<=0 ) { 
-#ifdef DEBUG
-    if ( q==0 ) mp_confusion(mp, '/');
-#endif
-@:this can't happen /}{\quad \./@>
+  if ( q<0 ) { 
     negate(q); negative = ! negative;
-  };
+  }
   n=p / q; p=p % q;
   if ( n>=8 ){ 
     mp->arith_error=true;
-    return ( negative ? -el_gordo : el_gordo);
+    i= ( negative ? -el_gordo : el_gordo);
   } else { 
     n=(n-1)*fraction_one;
     @<Compute $f=\lfloor 2^{28}(1+p/q)+{1\over2}\rfloor$@>;
-    return (negative ? (-(f+n)) : (f+n));
+    i = (negative ? (-(f+n)) : (f+n));
   }
+}
 #else /* FIXPT */
+  {
     register double d;
-	register integer i;
-#ifdef DEBUG
-	if (q==0) mp_confusion(mp,'/'); 
-#endif /* DEBUG */
 	d = TWEXP28 * (double)p /(double)q;
 	if ((p^q) >= 0) {
 		d += 0.5;
-		if (d>=TWEXP31) {mp->arith_error=true; return ELGORDO;}
+		if (d>=TWEXP31) {mp->arith_error=true; return el_gordo;}
 		i = (integer) d;
 		if (d==i && ( ((q>0 ? -q : q)&077777)
 				* (((i&037777)<<1)-1) & 04000)!=0) --i;
 	} else {
 		d -= 0.5;
-		if (d<= -TWEXP31) {mp->arith_error=true; return -ELGORDO;}
+		if (d<= -TWEXP31) {mp->arith_error=true; return -el_gordo;}
 		i = (integer) d;
 		if (d==i && ( ((q>0 ? q : -q)&077777)
 				* (((i&037777)<<1)+1) & 04000)!=0) ++i;
 	}
-	return i;
+  }
 #endif /* FIXPT */
+  return i;
 }
 
 @ The |repeat| loop here preserves the following invariant relations
@@ -2821,6 +2729,7 @@ in a register, not store it in memory.
 
 @<Compute $f=\lfloor 2^{28}(1+p/q)+{1\over2}\rfloor$@>=
 {
+  integer be_careful; /* disables certain compiler optimizations */
   f=1;
   do {  
     be_careful=p-q; p=be_careful+p;
@@ -2885,7 +2794,7 @@ integer mp_take_fraction (MP mp,integer p, fraction q) {
 		if (d>=TWEXP31) {
 			if (d!=TWEXP31 || (((p&077777)*(q&077777))&040000)==0)
 				mp->arith_error = true;
-			return ELGORDO;
+			return el_gordo;
 		}
 		i = (integer) d;
 		if (d==i && (((p&077777)*(q&077777))&040000)!=0) --i;
@@ -2894,7 +2803,7 @@ integer mp_take_fraction (MP mp,integer p, fraction q) {
 		if (d<= -TWEXP31) {
 			if (d!= -TWEXP31 || ((-(p&077777)*(q&077777))&040000)==0)
 				mp->arith_error = true;
-			return -ELGORDO;
+			return -el_gordo;
 		}
 		i = (integer) d;
 		if (d==i && ((-(p&077777)*(q&077777))&040000)!=0) ++i;
@@ -2978,7 +2887,7 @@ integer mp_take_scaled (MP mp,integer p, scaled q) {
 		if (d>=TWEXP31) {
 			if (d!=TWEXP31 || (((p&077777)*(q&077777))&040000)==0)
 				mp->arith_error = true;
-			return ELGORDO;
+			return el_gordo;
 		}
 		i = (integer) d;
 		if (d==i && (((p&077777)*(q&077777))&040000)!=0) --i;
@@ -2987,7 +2896,7 @@ integer mp_take_scaled (MP mp,integer p, scaled q) {
 		if (d<= -TWEXP31) {
 			if (d!= -TWEXP31 || ((-(p&077777)*(q&077777))&040000)==0)
 				mp->arith_error = true;
-			return -ELGORDO;
+			return -el_gordo;
 		}
 		i = (integer) d;
 		if (d==i && ((-(p&077777)*(q&077777))&040000)!=0) ++i;
@@ -3022,51 +2931,48 @@ scaled mp_make_scaled (MP mp,integer p, integer q) ;
 
 @ @c 
 scaled mp_make_scaled (MP mp,integer p, integer q) {
-#ifdef FIXPT 
-  integer f; /* the fraction bits, with a leading 1 bit */
-  integer n; /* the integer part of $\vert p/q\vert$ */
-  boolean negative; /* should the result be negated? */
-  integer be_careful; /* disables certain compiler optimizations */
-  if ( p>=0 ) negative=false;
-  else  { negate(p); negative=true; };
-  if ( q<=0 ) { 
-#ifdef DEBUG 
-    if ( q==0 ) mp_confusion(mp, "/");
+  register integer i;
+  if ( q==0 ) mp_confusion(mp, "/");
 @:this can't happen /}{\quad \./@>
-#endif
-    negate(q); negative=! negative;
-  }
-  n=p / q; p=p % q;
-  if ( n>=0100000 ) { 
-    mp->arith_error=true;
-    return (negative ? (-el_gordo) : el_gordo);
-  } else  { 
-    n=(n-1)*unity;
-    @<Compute $f=\lfloor 2^{16}(1+p/q)+{1\over2}\rfloor$@>;
-    return ( negative ? (-(f+n)) :(f+n));
-  }
+  {
+#ifdef FIXPT 
+    integer f; /* the fraction bits, with a leading 1 bit */
+    integer n; /* the integer part of $\vert p/q\vert$ */
+    boolean negative; /* should the result be negated? */
+    integer be_careful; /* disables certain compiler optimizations */
+    if ( p>=0 ) negative=false;
+    else  { negate(p); negative=true; };
+    if ( q<0 ) { 
+      negate(q); negative=! negative;
+    }
+    n=p / q; p=p % q;
+    if ( n>=0100000 ) { 
+      mp->arith_error=true;
+      return (negative ? (-el_gordo) : el_gordo);
+    } else  { 
+      n=(n-1)*unity;
+      @<Compute $f=\lfloor 2^{16}(1+p/q)+{1\over2}\rfloor$@>;
+      i = (negative ? (-(f+n)) :(f+n));
+    }
 #else /* FIXPT */
     register double d;
-	register integer i;
-#ifdef DEBUG
-	if (q==0) mp_confusion(mp,"/"); 
-#endif /* DEBUG */
 	d = TWEXP16 * (double)p /(double)q;
 	if ((p^q) >= 0) {
 		d += 0.5;
-		if (d>=TWEXP31) {mp->arith_error=true; return ELGORDO;}
+		if (d>=TWEXP31) {mp->arith_error=true; return el_gordo;}
 		i = (integer) d;
 		if (d==i && ( ((q>0 ? -q : q)&077777)
 				* (((i&037777)<<1)-1) & 04000)!=0) --i;
 	} else {
 		d -= 0.5;
-		if (d<= -TWEXP31) {mp->arith_error=true; return -ELGORDO;}
+		if (d<= -TWEXP31) {mp->arith_error=true; return -el_gordo;}
 		i = (integer) d;
 		if (d==i && ( ((q>0 ? q : -q)&077777)
 				* (((i&037777)<<1)+1) & 04000)!=0) ++i;
 	}
-	return i;
 #endif /* FIXPT */
+  }
+  return i;
 }
 
 @ @<Compute $f=\lfloor 2^{16}(1+p/q)+{1\over2}\rfloor$@>=
@@ -4406,8 +4312,7 @@ xfree(mp->free);
 xfree(mp->was_free);
 
 @ @<Allocate or ...@>=
-mp->was_mem_end=0; /* indicate that everything was previously free */
-mp->was_lo_max=0; mp->was_hi_min=mp->mem_max;
+mp->was_hi_min=mp->mem_max;
 mp->panicking=false;
 
 @ @<Declare |mp_reallocate| functions@>=
@@ -5105,7 +5010,9 @@ int troff_mode;
 @ @<Allocate or initialize ...@>=
 mp->max_internal=2*max_given_internal;
 mp->internal = xmalloc ((mp->max_internal+1), sizeof(scaled));
+memset(mp->internal,0,(mp->max_internal+1)* sizeof(scaled));
 mp->int_name = xmalloc ((mp->max_internal+1), sizeof(char *));
+memset(mp->int_name,0,(mp->max_internal+1) * sizeof(char *));
 mp->troff_mode=(opt->troff_mode>0 ? true : false);
 
 @ @<Exported function ...@>=
@@ -5115,10 +5022,6 @@ int mp_troff_mode(MP mp);
 int mp_troff_mode(MP mp) { return mp->troff_mode; }
 
 @ @<Set initial ...@>=
-for (k=0;k<= mp->max_internal; k++ ) { 
-   mp->internal[k]=0; 
-   mp->int_name[k]=NULL; 
-}
 mp->int_ptr=max_given_internal;
 
 @ The symbolic names for internal quantities are put into \MP's hash table
@@ -7482,12 +7385,6 @@ scaled *delta_y;
 scaled *delta; /* knot differences */
 angle  *psi; /* turning angles */
 
-@ @<Allocate or initialize ...@>=
-mp->delta_x = NULL;
-mp->delta_y = NULL;
-mp->delta = NULL;
-mp->psi = NULL;
-
 @ @<Dealloc variables@>=
 xfree(mp->delta_x);
 xfree(mp->delta_y);
@@ -7594,12 +7491,6 @@ angle *theta; /* values of $\theta_k$ */
 fraction *uu; /* values of $u_k$ */
 angle *vv; /* values of $v_k$ */
 fraction *ww; /* values of $w_k$ */
-
-@ @<Allocate or initialize ...@>=
-mp->theta = NULL;
-mp->uu = NULL;
-mp->vv = NULL;
-mp->ww = NULL;
 
 @ @<Dealloc variables@>=
 xfree(mp->theta);
@@ -12879,7 +12770,7 @@ xfree(mp->input_stack);
 in our discussion of basic input-output routines. The other components of
 |cur_input| are defined in the same way:
 
-@d index mp->cur_input.index_field /* reference for buffer information */
+@d iindex mp->cur_input.index_field /* reference for buffer information */
 @d start mp->cur_input.start_field /* starting position in |buffer| */
 @d limit mp->cur_input.limit_field /* end of current line in |buffer| */
 @d name mp->cur_input.name_field /* name of the current file */
@@ -12957,12 +12848,12 @@ by analogy with |line_stack|.
 @^system dependencies@>
 
 @d terminal_input (name==is_term) /* are we reading from the terminal? */
-@d cur_file mp->input_file[index] /* the current |void *| variable */
-@d line mp->line_stack[index] /* current line number in the current source file */
-@d in_name mp->iname_stack[index] /* a string used to construct \.{MPX} file names */
-@d in_area mp->iarea_stack[index] /* another string for naming \.{MPX} files */
+@d cur_file mp->input_file[iindex] /* the current |void *| variable */
+@d line mp->line_stack[iindex] /* current line number in the current source file */
+@d in_name mp->iname_stack[iindex] /* a string used to construct \.{MPX} file names */
+@d in_area mp->iarea_stack[iindex] /* another string for naming \.{MPX} files */
 @d absent 1 /* |name_field| value for unused |mpx_in_stack| entries */
-@d mpx_reading (mp->mpx_name[index]>absent)
+@d mpx_reading (mp->mpx_name[iindex]>absent)
   /* when reading a file, is it an \.{MPX} file? */
 @d mpx_finished 0
   /* |name_field| value when the corresponding \.{MPX} file is finished */
@@ -13008,7 +12899,7 @@ xfree(mp->mpx_name);
 @ However, all this discussion about input state really applies only to the
 case that we are inputting from a file. There is another important case,
 namely when we are currently getting input from a token list. In this case
-|index>max_in_open|, and the conventions about the other state variables
+|iindex>max_in_open|, and the conventions about the other state variables
 are different:
 
 \yskip\hang|loc| is a pointer to the current node in the token list, i.e.,
@@ -13019,7 +12910,7 @@ fully read.
 may or may not contain a reference count, depending on the type of token
 list involved.
 
-\yskip\hang|token_type|, which takes the place of |index| in the
+\yskip\hang|token_type|, which takes the place of |iindex| in the
 discussion above, is a code number that explains what kind of token list
 is being scanned.
 
@@ -13057,9 +12948,9 @@ The token list begins with a reference count if and only if |token_type=
 macro|.
 @^reference counts@>
 
-@d token_type index /* type of current token list */
-@d token_state (index>(int)mp->max_in_open) /* are we scanning a token list? */
-@d file_state (index<=(int)mp->max_in_open) /* are we scanning a file line? */
+@d token_type iindex /* type of current token list */
+@d token_state (iindex>(int)mp->max_in_open) /* are we scanning a token list? */
+@d file_state (iindex<=(int)mp->max_in_open) /* are we scanning a file line? */
 @d param_start limit /* base of macro parameters in |param_stack| */
 @d forever_text (mp->max_in_open+1) /* |token_type| code for loop texts */
 @d loop_text (mp->max_in_open+2) /* |token_type| code for loop texts */
@@ -13084,8 +12975,8 @@ mp->param_stack = xmalloc((mp->param_size+1),sizeof(pointer));
 xfree(mp->param_stack);
 
 @ Notice that the |line| isn't valid when |token_state| is true because it
-depends on |index|.  If we really need to know the line number for the
-topmost file in the index stack we use the following function.  If a page
+depends on |iindex|.  If we really need to know the line number for the
+topmost file in the iindex stack we use the following function.  If a page
 number or other information is needed, this routine should be modified to
 compute it as well.
 @^system dependencies@>
@@ -13471,8 +13362,8 @@ or |limit| or |line|.
 @:MetaPost capacity exceeded text input levels}{\quad text input levels@>
   if ( mp->first==mp->buf_size ) 
     mp_reallocate_buffer(mp,(mp->buf_size+(mp->buf_size>>2)));
-  incr(mp->in_open); push_input; index=mp->in_open;
-  mp->mpx_name[index]=absent;
+  incr(mp->in_open); push_input; iindex=mp->in_open;
+  mp->mpx_name[iindex]=absent;
   start=mp->first;
   name=is_term; /* |terminal_input| is now |true| */
 }
@@ -13482,7 +13373,7 @@ is finished.  Any associated \.{MPX} file must also be closed and popped
 off the file stack.
 
 @c void mp_end_file_reading (MP mp) { 
-  if ( mp->in_open>index ) {
+  if ( mp->in_open>iindex ) {
     if ( (mp->mpx_name[mp->in_open]==absent)||(name<=max_spec_src) ) {
       mp_confusion(mp, "endinput");
 @:this can't happen endinput}{\quad endinput@>
@@ -13493,7 +13384,7 @@ off the file stack.
     }
   }
   mp->first=start;
-  if ( index!=mp->in_open ) mp_confusion(mp, "endinput");
+  if ( iindex!=mp->in_open ) mp_confusion(mp, "endinput");
   if ( name>max_spec_src ) {
     (mp->close_file)(mp,cur_file);
     delete_str_ref(name);
@@ -13508,14 +13399,14 @@ associated with the current input file.  It returns |false| if this doesn't
 work.
 
 @c boolean mp_begin_mpx_reading (MP mp) { 
-  if ( mp->in_open!=index+1 ) {
+  if ( mp->in_open!=iindex+1 ) {
      return false;
   } else { 
     if ( mp->mpx_name[mp->in_open]<=absent ) mp_confusion(mp, "mpx");
 @:this can't happen mpx}{\quad mpx@>
     if ( mp->first==mp->buf_size ) 
       mp_reallocate_buffer(mp,(mp->buf_size+(mp->buf_size>>2)));
-    push_input; index=mp->in_open;
+    push_input; iindex=mp->in_open;
     start=mp->first;
     name=mp->mpx_name[mp->in_open]; add_str_ref(name);
     @<Put an empty line in the input buffer@>;
@@ -13526,7 +13417,7 @@ work.
 @ This procedure temporarily stops reading an \.{MPX} file.
 
 @c void mp_end_mpx_reading (MP mp) { 
-  if ( mp->in_open!=index ) mp_confusion(mp, "mpx");
+  if ( mp->in_open!=iindex ) mp_confusion(mp, "mpx");
 @:this can't happen mpx}{\quad mpx@>
   if ( loc<limit ) {
     @<Complain that we are not at the end of a line in the \.{MPX} file@>;
@@ -13567,7 +13458,7 @@ actions.
   mp->in_open=0; mp->open_parens=0; mp->max_buf_stack=0;
   mp->param_ptr=0; mp->max_param_stack=0;
   mp->first=1;
-  start=1; index=0; line=0; name=is_term;
+  start=1; iindex=0; line=0; name=is_term;
   mp->mpx_name[0]=absent;
   mp->force_eof=false;
   if ( ! mp_init_terminal(mp) ) mp_jump_out(mp);
@@ -14020,7 +13911,7 @@ if ( loc>=mp->hi_mem_min ) { /* one-word token */
 There is one more branch.
 
 @<Move to next line of file, or |goto restart|...@>=
-if ( name>max_spec_src ) {
+if ( name>max_spec_src) {
   @<Read next line of file into |buffer|, or
     |goto restart| if the file has ended@>;
 } else { 
@@ -14029,7 +13920,7 @@ if ( name>max_spec_src ) {
     mp_end_file_reading(mp); goto RESTART; /* resume previous level */
   }
   if (mp->job_name == NULL && ( mp->selector<log_only || mp->selector>=write_file))  
-     mp_open_log_file(mp);
+    mp_open_log_file(mp);
   if ( mp->interaction>mp_nonstop_mode ) {
     if ( limit==start ) /* previous line was empty */
       mp_print_nl(mp, "(Please type a command or say `end')");
@@ -14043,7 +13934,7 @@ if ( name>max_spec_src ) {
     mp_fatal_error(mp, "*** (job aborted, no legal end found)");
 @.job aborted@>
     /* nonstop mode, which is intended for overnight batch processing,
-    never waits for on-line input */
+       never waits for on-line input */
   }
 }
 
@@ -14090,7 +13981,7 @@ files should have an \&{mpxbreak} after the translation of the last
 
 @<Complain that the \.{MPX} file ended unexpectly; then set...@>=
 { 
-  mp->mpx_name[index]=mpx_finished;
+  mp->mpx_name[iindex]=mpx_finished;
   print_err("mpx file ended unexpectedly");
   help4("The file had too few picture expressions for btex...etex")
     ("blocks.  Such files are normally generated automatically")
@@ -14118,7 +14009,9 @@ used instead of the line in the file.
 @c void mp_firm_up_the_line (MP mp) {
   size_t k; /* an index into |buffer| */
   limit=mp->last;
-  if ( mp->internal[mp_pausing]>0) if ( mp->interaction>mp_nonstop_mode ) {
+  if ((!mp->noninteractive)   
+      && (mp->internal[mp_pausing]>0 )
+      && (mp->interaction>mp_nonstop_mode )) {
     wake_up_terminal; mp_print_ln(mp);
     if ( start<limit ) {
       for (k=(size_t)start;k<=(size_t)(limit-1);k++) {
@@ -14184,7 +14077,7 @@ void mp_t_next (MP mp) {
   integer old_info; /* saves the |warning_info| */
   while ( mp->cur_cmd<=max_pre_command ) {
     if ( mp->cur_cmd==mpx_break ) {
-      if ( ! file_state || (mp->mpx_name[index]==absent) ) {
+      if ( ! file_state || (mp->mpx_name[iindex]==absent) ) {
         @<Complain about a misplaced \&{mpxbreak}@>;
       } else { 
         mp_end_mpx_reading(mp); 
@@ -14196,7 +14089,7 @@ void mp_t_next (MP mp) {
       } else if ( mpx_reading ) {
         @<Complain that \.{MPX} files cannot contain \TeX\ material@>;
       } else if ( (mp->cur_mod!=verbatim_code)&&
-                  (mp->mpx_name[index]!=mpx_finished) ) {
+                  (mp->mpx_name[iindex]!=mpx_finished) ) {
         if ( ! mp_begin_mpx_reading(mp) ) mp_start_mpx_input(mp);
       } else {
         goto TEX_FLUSH;
@@ -15972,25 +15865,10 @@ void mp_pack_file_name (MP mp, const char *n, const char *a, const char *e) {
 @ @<Internal library declarations@>=
 void mp_pack_file_name (MP mp, const char *n, const char *a, const char *e) ;
 
-@ A messier routine is also needed, since mem file names must be scanned
-before \MP's string mechanism has been initialized. We shall use the
-global variable |MP_mem_default| to supply the text for default system areas
-and extensions related to mem files.
-@^system dependencies@>
-
-@d mem_default_length 9 /* length of the |MP_mem_default| string */
-@d mem_ext_length 4 /* length of its `\.{.mem}' part */
-@d mem_extension ".mem" /* the extension, as a \.{WEB} constant */
-
-@<Glob...@>=
-char *MP_mem_default;
-
 @ @<Option variables@>=
 char *mem_name; /* for commandline */
 
-@ @<Allocate or initialize ...@>=
-mp->MP_mem_default = xstrdup("plain.mem");
-@.plain@>
+@ @<Find constant sizes@>=
 mp->mem_name = xstrdup(opt->mem_name);
 if (mp->mem_name) {
   int l = strlen(mp->mem_name);
@@ -16004,58 +15882,20 @@ if (mp->mem_name) {
 
 
 @ @<Dealloc variables@>=
-xfree(mp->MP_mem_default);
 xfree(mp->mem_name);
 
-@ @<Check the ``constant'' values for consistency@>=
-if ( mem_default_length>file_name_size ) mp->bad=20;
-
-@ Here is the messy routine that was just mentioned. It sets |name_of_file|
-from the first |n| characters of |MP_mem_default|, followed by
-|buffer[a..b-1]|, followed by the last |mem_ext_length| characters of
-|MP_mem_default|.
-
-We dare not give error messages here, since \MP\ calls this routine before
-the |error| routine is ready to roll. Instead, we simply drop excess characters,
-since the error will be detected in another way when a strange file name
-isn't found.
-@^system dependencies@>
-
-@c void mp_pack_buffered_name (MP mp,small_number n, integer a,
-                               integer b) {
-  integer k; /* number of positions filled in |name_of_file| */
-  ASCII_code c; /* character being packed */
-  integer j; /* index into |buffer| or |MP_mem_default| */
-  if ( n+b-a+1+mem_ext_length>file_name_size )
-    b=a+file_name_size-n-1-mem_ext_length;
-  k=0;
-  for (j=0;j<n;j++) {
-    append_to_name(xord((int)mp->MP_mem_default[j]));
-  }
-  for (j=a;j<b;j++) {
-    append_to_name(mp->buffer[j]);
-  }
-  for (j=mem_default_length-mem_ext_length;
-      j<mem_default_length;j++) {
-    append_to_name(xord((int)mp->MP_mem_default[j]));
-  } 
-  mp->name_of_file[k]=0;
-  mp->name_length=k; 
-}
-
-@ Here is the only place we use |pack_buffered_name|. This part of the program
-becomes active when a ``virgin'' \MP\ is trying to get going, just after
-the preliminary initialization, or when the user is substituting another
-mem file by typing `\.\&' after the initial `\.{**}' prompt.  The buffer
-contains the first line of input in |buffer[loc..(last-1)]|, where
-|loc<last| and |buffer[loc]<>" "|.
+@ This part of the program becomes active when a ``virgin'' \MP\ is
+trying to get going, just after the preliminary initialization, or
+when the user is substituting another mem file by typing `\.\&' after
+the initial `\.{**}' prompt.  The buffer contains the first line of
+input in |buffer[loc..(last-1)]|, where |loc<last| and |buffer[loc]<>""|.
 
 @<Declarations@>=
+boolean mp_open_mem_name (MP mp) ;
 boolean mp_open_mem_file (MP mp) ;
 
 @ @c
-boolean mp_open_mem_file (MP mp) {
-  int j; /* the first space after the file name */
+boolean mp_open_mem_name (MP mp) {
   if (mp->mem_name!=NULL) {
     int l = strlen(mp->mem_name);
     char *s = xstrdup (mp->mem_name);
@@ -16073,28 +15913,29 @@ boolean mp_open_mem_file (MP mp) {
     xfree(s);
     if ( mp->mem_file ) return true;
   }
-  j=loc;
-  if ( mp->buffer[loc]=='&' ) {
-    incr(loc); j=loc; mp->buffer[mp->last]=' ';
-    while ( mp->buffer[j]!=' ' ) incr(j);
-    mp_pack_buffered_name(mp, 0,loc,j); /* try first without the system file area */
-    if ( mp_w_open_in(mp, &mp->mem_file) ) goto FOUND;
+  return false;
+}
+boolean mp_open_mem_file (MP mp) {
+  if (mp->mem_file != NULL)
+    return true;
+  if (mp_open_mem_name(mp)) 
+    return true;
+  if (mp_xstrcmp(mp->mem_name, "plain")) {
     wake_up_terminal;
     wterm_ln("Sorry, I can\'t find that mem file; will try PLAIN.");
 @.Sorry, I can't find...@>
     update_terminal;
+    /* now pull out all the stops: try for the system \.{plain} file */
+    xfree(mp->mem_name);
+    mp->mem_name = xstrdup("plain");
+    if (mp_open_mem_name(mp))
+      return true;
   }
-  /* now pull out all the stops: try for the system \.{plain} file */
-  mp_pack_buffered_name(mp, mem_default_length-mem_ext_length,0,0);
-  if ( ! mp_w_open_in(mp, &mp->mem_file) ) {
-    wake_up_terminal;
-    wterm_ln("I can\'t find the PLAIN mem file!\n");
+  wake_up_terminal;
+  wterm_ln("I can\'t find the PLAIN mem file!");
 @.I can't find PLAIN...@>
 @.plain@>
-    return false;
-  }
-FOUND:
-  loc=j; return true;
+  return false;
 }
 
 @ Operating systems often make it possible to determine the exact name (and
@@ -16196,11 +16037,12 @@ mp->job_name=mp_xstrdup(mp, opt->job_name);
 if (opt->noninteractive && opt->ini_version) {
   if (mp->job_name == NULL)
     mp->job_name=mp_xstrdup(mp,mp->mem_name); 
-  int l = strlen(mp->job_name);
-  if (l>4) {
-    char *test = strstr(mp->job_name,".mem");
-    if (test == mp->job_name+l-4) {
-      *test = 0;
+  if (mp->job_name != NULL) {
+    int l = strlen(mp->job_name);
+    if (l>4) {
+      char *test = strstr(mp->job_name,".mem");
+      if (test == mp->job_name+l-4)
+        *test = 0;
     }
   }
 }
@@ -16246,15 +16088,15 @@ void mp_prompt_file_name (MP mp, const char * s, const char * e) ;
 @.I can't find file x@>
   } else {
 	print_err("I can\'t write on file `");
-  }
 @.I can't write on file x@>
+  }
   mp_print_file_name(mp, mp->cur_name,mp->cur_area,mp->cur_ext); 
   mp_print(mp, "'.");
   if (strcmp(e,"")==0) 
 	mp_show_context(mp);
   mp_print_nl(mp, "Please type another "); mp_print(mp, s);
 @.Please type...@>
-  if ( mp->interaction<mp_scroll_mode )
+  if (mp->noninteractive || mp->interaction<mp_scroll_mode )
     mp_fatal_error(mp, "*** (job aborted, file error in nonstop mode)");
 @.job aborted, file error...@>
   saved_cur_name = xstrdup(mp->cur_name);
@@ -16454,7 +16296,7 @@ with the current input file.
     goto NOT_FOUND;
   }
   name=mp_a_make_name_string(mp, cur_file);
-  mp->mpx_name[index]=name; add_str_ref(name);
+  mp->mpx_name[iindex]=name; add_str_ref(name);
   @<Read the first line of the new file@>;
   xfree(origname);
   return;
@@ -16536,12 +16378,10 @@ mp->max_read_files=8;
 mp->rd_file = xmalloc((mp->max_read_files+1),sizeof(void *));
 mp->rd_fname = xmalloc((mp->max_read_files+1),sizeof(char *));
 memset(mp->rd_fname, 0, sizeof(char *)*(mp->max_read_files+1));
-mp->read_files=0;
 mp->max_write_files=8;
 mp->wr_file = xmalloc((mp->max_write_files+1),sizeof(void *));
 mp->wr_fname = xmalloc((mp->max_write_files+1),sizeof(char *));
 memset(mp->wr_fname, 0, sizeof(char *)*(mp->max_write_files+1));
-mp->write_files=0;
 
 
 @ This routine starts reading the file named by string~|s| without setting
@@ -18822,7 +18662,7 @@ void mp_do_nullary (MP mp,quarterword c) {
 
 @ @<Read a string...@>=
 { 
-  if ( mp->interaction<=mp_nonstop_mode )
+  if (mp->noninteractive || mp->interaction<=mp_nonstop_mode )
     mp_fatal_error(mp, "*** (cannot readstring in nonstop modes)");
   mp_begin_file_reading(mp); name=is_read;
   limit=start; prompt_input("");
@@ -22059,7 +21899,7 @@ even though it is essentially static, because that makes it is easier to move
 the object around.
 
 @<Global ...@>=
-mp_run_data *run_data;
+mp_run_data run_data;
 
 @ Another type is needed: the indirection will overload some of the
 file pointer objects in the instance (but not all). For clarity, an
@@ -22317,11 +22157,8 @@ static void mplib_shipout_backend(MP mp, int h)
 
 
 @ This is where we fill them all in.
-@<Prepare for non-interactive use@>=
+@<Prepare function pointers for non-interactive use@>=
 {
-    mp_run_data *f = mp_xmalloc(mp,1, sizeof(mp_run_data));
-    memset(f, 0, sizeof(mp_run_data));
-    mp->run_data          = f;
     mp->open_file         = mplib_open_file;
     mp->close_file        = mplib_close_file;
     mp->eof_file          = mplib_eof_file;
@@ -22340,16 +22177,15 @@ mp_run_data *mp_rundata (MP mp) ;
 
 @ @c
 mp_run_data *mp_rundata (MP mp)  {
-  return mp->run_data;
+  return &(mp->run_data);
 }
 
 @ @<Dealloc ...@>=
-mp_free_stream(&(mp->run_data->term_in));
-mp_free_stream(&(mp->run_data->term_out));
-mp_free_stream(&(mp->run_data->log_out));
-mp_free_stream(&(mp->run_data->error_out));
-mp_free_stream(&(mp->run_data->ps_out));
-xfree(mp->run_data);
+mp_free_stream(&(mp->run_data.term_in));
+mp_free_stream(&(mp->run_data.term_out));
+mp_free_stream(&(mp->run_data.log_out));
+mp_free_stream(&(mp->run_data.error_out));
+mp_free_stream(&(mp->run_data.ps_out));
 
 @ @<Finish non-interactive use@>=
 xfree(mp->term_out);
@@ -22357,22 +22193,17 @@ xfree(mp->term_in);
 xfree(mp->err_out);
 
 @ @<Start non-interactive work@>=
-t_open_out; 
 @<Initialize the output routines@>;
 mp->input_ptr=0; mp->max_in_stack=0;
 mp->in_open=0; mp->open_parens=0; mp->max_buf_stack=0;
 mp->param_ptr=0; mp->max_param_stack=0;
-start = index = loc = mp->first = 0;
+start = iindex = loc = mp->first = 0;
 line=0; name=is_term;
 mp->mpx_name[0]=absent;
 mp->force_eof=false;
 t_open_in; 
 mp->scanner_status=normal;
 if (mp->mem_ident==NULL) {
-  if ( ! mp_open_mem_file(mp) ) {
-     mp->history = mp_fatal_error_stop;
-     return mp->history;
-  }
   if ( ! mp_load_mem_file(mp) ) {
     (mp->close_file)(mp, mp->mem_file); 
      mp->history  = mp_fatal_error_stop;
@@ -22398,13 +22229,13 @@ if (mp->troff_mode) {
 int __attribute__((noinline)) 
 mp_execute (MP mp, char *s, size_t l) {
   jmp_buf buf;
-  mp_reset_stream(&(mp->run_data->term_out));
-  mp_reset_stream(&(mp->run_data->log_out));
-  mp_reset_stream(&(mp->run_data->error_out));
-  mp_reset_stream(&(mp->run_data->ps_out));
+  mp_reset_stream(&(mp->run_data.term_out));
+  mp_reset_stream(&(mp->run_data.log_out));
+  mp_reset_stream(&(mp->run_data.error_out));
+  mp_reset_stream(&(mp->run_data.ps_out));
   if (mp->finished) {
       return mp->history;
-  } else if ((!mp->noninteractive) || (!mp->run_data)) {
+  } else if (!mp->noninteractive) {
       mp->history = mp_fatal_error_stop ;
       return mp->history;
   }
@@ -22423,11 +22254,11 @@ mp_execute (MP mp, char *s, size_t l) {
     /* Perhaps some sort of warning here when |data| is not 
      * yet exhausted would be nice ...  this happens after errors
      */
-    if (mp->run_data->term_in.data)
-      xfree(mp->run_data->term_in.data);
-    mp->run_data->term_in.data = xstrdup(s);
-    mp->run_data->term_in.cur = mp->run_data->term_in.data;
-    mp->run_data->term_in.size = l;
+    if (mp->run_data.term_in.data)
+      xfree(mp->run_data.term_in.data);
+    mp->run_data.term_in.data = xstrdup(s);
+    mp->run_data.term_in.cur = mp->run_data.term_in.data;
+    mp->run_data.term_in.size = l;
     if (mp->run_state == 0) {
       mp->selector=term_only; 
       @<Start non-interactive work@>; 
@@ -24156,11 +23987,8 @@ eight_bits label_char[257]; /* characters for |label_loc| */
 short label_ptr; /* highest position occupied in |label_loc| */
 
 @ @<Allocate or initialize ...@>=
-mp->header_last = 0; mp->header_size = 128; /* just for init */
+mp->header_size = 128; /* just for init */
 mp->header_byte = xmalloc(mp->header_size, sizeof(char));
-mp->lig_kern = NULL; /* allocated when needed */
-mp->kern = NULL; /* allocated when needed */ 
-mp->param = NULL; /* allocated when needed */
 
 @ @<Dealloc variables@>=
 xfree(mp->header_byte);
@@ -25072,19 +24900,7 @@ pointer     *font_sizes;
 mp->font_mem_size = 10000; 
 mp->font_info = xmalloc ((mp->font_mem_size+1),sizeof(memory_word));
 memset (mp->font_info,0,sizeof(memory_word)*(mp->font_mem_size+1));
-mp->font_enc_name = NULL;
-mp->font_ps_name_fixed = NULL;
-mp->font_dsize = NULL;
-mp->font_name = NULL;
-mp->font_ps_name = NULL;
-mp->font_bc = NULL;
-mp->font_ec = NULL;
 mp->last_fnum = null_font;
-mp->char_base = NULL;
-mp->width_base = NULL;
-mp->height_base = NULL;
-mp->depth_base = NULL;
-mp->font_sizes = null;
 
 @ @<Dealloc variables@>=
 for (k=1;k<=(int)mp->last_fnum;k++) {
@@ -25169,17 +24985,13 @@ The corresponding words in the width, height, and depth tables are stored as
 |scaled| values in units of \ps\ points.
 
 With the macros below, the |char_info| word for character~|c| in font~|f| is
-|char_info(f)(c)| and the width is
-$$\hbox{|char_width(f)(char_info(f)(c)).sc|.}$$
+|char_info(f,c)| and the width is
+$$\hbox{|char_width(f,char_info(f,c)).sc|.}$$
 
-@d char_info_end(A) (A)].qqqq
-@d char_info(A) mp->font_info[mp->char_base[(A)]+char_info_end
-@d char_width_end(A) (A).b0].sc
-@d char_width(A) mp->font_info[mp->width_base[(A)]+char_width_end
-@d char_height_end(A) (A).b1].sc
-@d char_height(A) mp->font_info[mp->height_base[(A)]+char_height_end
-@d char_depth_end(A) (A).b2].sc
-@d char_depth(A) mp->font_info[mp->depth_base[(A)]+char_depth_end
+@d char_info(A,B) mp->font_info[mp->char_base[(A)]+(B)].qqqq
+@d char_width(A,B) mp->font_info[mp->width_base[(A)]+(B).b0].sc
+@d char_height(A,B) mp->font_info[mp->height_base[(A)]+(B).b1].sc
+@d char_depth(A,B) mp->font_info[mp->depth_base[(A)]+(B).b2].sc
 @d ichar_exists(A) ((A).b0>0)
 
 @ The |font_ps_name| for a built-in font should be what PostScript expects.
@@ -25392,15 +25204,15 @@ as a double in ps units
   }
   if (f==0)
     return 0.0;
-  cc = char_info(f)(c);
+  cc = char_info(f,c);
   if (! ichar_exists(cc) )
     return 0.0;
   if (t=='w')
-    w = char_width(f)(cc);
+    w = char_width(f,cc);
   else if (t=='h')
-    w = char_height(f)(cc);
+    w = char_height(f,cc);
   else if (t=='d')
-    w = char_depth(f)(cc);
+    w = char_depth(f,cc);
   return w/655.35*(72.27/72);
 }
 
@@ -25462,13 +25274,13 @@ void mp_set_text_box (MP mp,pointer p) {
   if ( (mp->str_pool[k]<bc)||(mp->str_pool[k]>ec) ) {
     mp_lost_warning(mp, f,k);
   } else { 
-    cc=char_info(f)(mp->str_pool[k]);
+    cc=char_info(f,mp->str_pool[k]);
     if ( ! ichar_exists(cc) ) {
       mp_lost_warning(mp, f,k);
     } else { 
-      width_val(p)=width_val(p)+char_width(f)(cc);
-      h=char_height(f)(cc);
-      d=char_depth(f)(cc);
+      width_val(p)=width_val(p)+char_width(f,cc);
+      h=char_height(f,cc);
+      d=char_depth(f,cc);
       if ( h>height_val(p) ) height_val(p)=h;
       if ( d>depth_val(p) ) depth_val(p)=d;
     }
@@ -25855,6 +25667,7 @@ void mp_ship_out (MP mp, pointer h) ;
 struct mp_edge_object *mp_gr_export(MP mp, pointer h) {
   pointer p; /* the current graphical object */
   integer t; /* a temporary value */
+  integer c; /* a rounded charcode */
   scaled d_width; /* the current pen width */
   mp_edge_object *hh; /* the first graphical object */
   struct mp_graphic_object *hq; /* something |hp| points to  */
@@ -25874,6 +25687,12 @@ struct mp_edge_object *mp_gr_export(MP mp, pointer h) {
   hh->_maxx = maxx_val(h);
   hh->_maxy = maxy_val(h);
   hh->_filename = mp_get_output_file_name(mp);
+  c = mp_round_unscaled(mp,mp->internal[mp_char_code]);
+  hh->_charcode = c;
+  hh->_width= mp->tfm_width[c];
+  hh->_height= mp->tfm_height[c];
+  hh->_depth= mp->tfm_depth[c];
+  hh->_ital_corr= mp->tfm_ital_corr[c];
   @<Export pending specials@>;
   p=link(dummy_loc(h));
   while ( p!=null ) { 
@@ -26002,9 +25821,6 @@ typedef void (*mp_backend_writer)(MP, int);
 @ @<Option variables@>=
 mp_backend_writer shipout_backend;
 
-@ @<Allocate or initialize ...@>=
-set_callback_option(shipout_backend);
-
 @ Now that we've finished |ship_out|, let's look at the other commands
 by which a user can send things to the \.{GF} file.
 
@@ -26075,7 +25891,6 @@ void mp_store_mem_file (MP mp) ;
 that reads~one~in. The function returns |false| if the dumped mem is
 incompatible with the present \MP\ table sizes, etc.
 
-@d off_base 6666 /* go here if the mem file is unacceptable */
 @d too_small(A) { wake_up_terminal;
   wterm_ln("---! Must increase the "); wterm((A));
 @.Must increase the x@>
@@ -26090,7 +25905,7 @@ boolean mp_load_mem_file (MP mp) {
   str_number s; /* some temporary string */
   four_quarters w; /* four ASCII codes */
   memory_word WW;
-  @<Undump constants for consistency check@>;
+  /* |@<Undump constants for consistency check@>;|  read earlier */
   @<Undump the string pool@>;
   @<Undump the dynamic memory@>;
   @<Undump the table of equivalents and the hash table@>;
@@ -26177,10 +25992,10 @@ the same strings. (And it is, of course, a good thing that they do.)
 
 @<Undump constants for consistency check@>=
 undump_int(x); mp->mem_top = x;
-undump_int(x); if (mp->hash_size != x) goto OFF_BASE;
-undump_int(x); if (mp->hash_prime != x) goto OFF_BASE;
-undump_int(x); if (mp->param_size != x) goto OFF_BASE;
-undump_int(x); if (mp->max_in_open != x) goto OFF_BASE
+undump_int(x); mp->hash_size = x;
+undump_int(x); mp->hash_prime = x;
+undump_int(x); mp->param_size = x;
+undump_int(x); mp->max_in_open = x;
 
 @ We do string pool compaction to avoid dumping unused strings.
 
@@ -26391,9 +26206,9 @@ if (x!=69073) goto OFF_BASE
           (int)mp_round_unscaled(mp, mp->internal[mp_day]));
   mp_snprintf(mp->mem_ident,256," (mem=%s %s)",mp->job_name, tmp);
   xfree(tmp);
-  mp_pack_job_name(mp, mem_extension);
+  mp_pack_job_name(mp, ".mem");
   while (! mp_w_open_out(mp, &mp->mem_file) )
-    mp_prompt_file_name(mp, "mem file name", mem_extension);
+    mp_prompt_file_name(mp, "mem file name", ".mem");
   mp_print_nl(mp, "Beginning to dump on file ");
 @.Beginning to dump...@>
   mp_print(mp, mp->name_of_file); 
@@ -26440,6 +26255,71 @@ int ini_version; /* are we iniMP? */
 @ @<Set |ini_version|@>=
 mp->ini_version = (opt->ini_version ? true : false);
 
+@ The code below make the final chosen hash size the next larger
+multiple of 2 from the requested size, and this array is a list of
+suitable prime numbers to go with such values. 
+
+The top limit is chosen such that it is definately lower than
+|max_halfword-3*param_size|, because |param_size| cannot be larger
+than |max_halfword/sizeof(pointer)|.
+
+@<Declarations@>=
+static int mp_prime_choices[] = 
+  { 12289,        24593,    49157,    98317,
+    196613,      393241,   786433,  1572869,
+    3145739,    6291469, 12582917, 25165843,
+    50331653, 100663319  };
+
+@ @<Find constant sizes@>=
+if (mp->ini_version) {
+  int i = 14;
+  set_value(mp->mem_top,opt->main_memory,5000);
+  mp->mem_max = mp->mem_top;
+  set_value(mp->param_size,opt->param_size,150);
+  set_value(mp->max_in_open,opt->max_in_open,10);
+  if (opt->hash_size>0x8000000) 
+    opt->hash_size=0x8000000;
+  set_value(mp->hash_size,(2*opt->hash_size-1),16384);
+  mp->hash_size = mp->hash_size>>i;
+  while (mp->hash_size>=2) {
+    mp->hash_size /= 2;
+    i++;
+  }
+  mp->hash_size = mp->hash_size << i;
+  if (mp->hash_size>0x8000000) 
+    mp->hash_size=0x8000000;
+  mp->hash_prime=mp_prime_choices[(i-14)];
+} else {
+  int x;
+  if (mp->command_line != NULL && *(mp->command_line) == '&') {
+    char *s = NULL;
+    char *cmd = mp->command_line+1;
+    xfree(mp->mem_name); /* just in case */
+    mp->mem_name = mp_xstrdup(mp,cmd);
+    while (*cmd && *cmd!=' ')  cmd++;
+    if (*cmd==' ') *cmd++ = '\0';
+    if (*cmd) {
+      s = mp_xstrdup(mp,cmd);
+    }
+    xfree(mp->command_line);
+    mp->command_line = s;
+  }
+  if (mp->mem_name == NULL) {
+    mp->mem_name = mp_xstrdup(mp,"plain");
+  }
+  if (mp_open_mem_file(mp)) {
+    @<Undump constants for consistency check@>;
+    set_value(mp->mem_max,opt->main_memory,mp->mem_top);
+    goto DONE;
+  } 
+OFF_BASE:
+  wterm_ln("(Fatal mem file error; I'm stymied)\n");
+  mp->history = mp_fatal_error_stop;
+  mp_jump_out(mp);
+}
+DONE:
+
+
 @ Here we do whatever is needed to complete \MP's job gracefully on the
 local operating system. The code here might come into play after a fatal
 error; it must therefore consist entirely of ``safe'' operations that
@@ -26449,12 +26329,6 @@ might lead to an infinite loop.
 @^system dependencies@>
 
 This program doesn't bother to close the input files that may still be open.
-
-@<Global ...@>=
-boolean finished; /* set true by |close_files_and_terminate| */
-
-@ @<Set initial ...@>=
-mp->finished=false;
 
 @ @<Last-minute...@>=
 void mp_close_files_and_terminate (MP mp) {
@@ -26671,21 +26545,13 @@ But when we finish this part of the program, \MP\ is ready to call on the
 @<Get the first line...@>=
 { 
   @<Initialize the input routines@>;
-  if ( (mp->mem_ident==NULL)||(mp->buffer[loc]=='&') ) {
-    if ( mp->mem_ident!=NULL ) {
-      mp_do_initialize(mp); /* erase preloaded mem */
-    }
-    if ( ! mp_open_mem_file(mp) ) {
-       mp->history = mp_fatal_error_stop;
-       return mp;
-    }
+  if (mp->mem_ident==NULL) {
     if ( ! mp_load_mem_file(mp) ) {
       (mp->close_file)(mp, mp->mem_file); 
        mp->history = mp_fatal_error_stop;
        return mp;
     }
     (mp->close_file)(mp, mp->mem_file);
-    while ( (loc<limit)&&(mp->buffer[loc]==' ') ) incr(loc);
   }
   @<Initializations following first line@>;
 }

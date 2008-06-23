@@ -589,6 +589,62 @@ static int mplib_fig_filename(lua_State * L)
     return 1;
 }
 
+static int mplib_fig_width(lua_State * L)
+{
+    struct mp_edge_object **hh = is_fig(L, 1);
+    if (*hh != NULL) {
+      lua_pushnumber(L, (double) (*hh)->_width / 65536.0);
+    } else {
+      lua_pushnil(L);
+    }
+    return 1;
+}
+
+static int mplib_fig_height(lua_State * L)
+{
+    struct mp_edge_object **hh = is_fig(L, 1);
+    if (*hh != NULL) {
+      lua_pushnumber(L, (double) (*hh)->_height / 65536.0);
+    } else {
+      lua_pushnil(L);
+    }
+    return 1;
+}
+
+static int mplib_fig_depth(lua_State * L)
+{
+    struct mp_edge_object **hh = is_fig(L, 1);
+    if (*hh != NULL) {
+      lua_pushnumber(L, (double) (*hh)->_depth / 65536.0);
+    } else {
+      lua_pushnil(L);
+    }
+    return 1;
+}
+
+static int mplib_fig_italcorr(lua_State * L)
+{
+    struct mp_edge_object **hh = is_fig(L, 1);
+    if (*hh != NULL) {
+      lua_pushnumber(L, (double) (*hh)->_ital_corr / 65536.0);
+    } else {
+      lua_pushnil(L);
+    }
+    return 1;
+}
+
+static int mplib_fig_charcode(lua_State * L)
+{
+    struct mp_edge_object **hh = is_fig(L, 1);
+    if (*hh != NULL) {
+      lua_pushnumber(L, (*hh)->_charcode);
+    } else {
+      lua_pushnil(L);
+    }
+    return 1;
+}
+
+
 
 static int mplib_fig_bb(lua_State * L)
 {
@@ -1107,13 +1163,18 @@ static const struct luaL_reg mplib_meta[] = {
 };
 
 static const struct luaL_reg mplib_fig_meta[] = {
-    {"__gc", mplib_fig_collect},
-    {"__tostring", mplib_fig_tostring},
-    {"objects", mplib_fig_body},
+    {"__gc",         mplib_fig_collect},
+    {"__tostring",   mplib_fig_tostring},
+    {"objects",      mplib_fig_body},
     {"copy_objects", mplib_fig_copy_body},
-    {"filename", mplib_fig_filename},
-    {"postscript", mplib_fig_postscript},
-    {"boundingbox", mplib_fig_bb},
+    {"filename",     mplib_fig_filename},
+    {"postscript",   mplib_fig_postscript},
+    {"boundingbox",  mplib_fig_bb},
+    {"width",        mplib_fig_width},
+    {"height",       mplib_fig_height},
+    {"depth",        mplib_fig_depth},
+    {"italcorr",     mplib_fig_italcorr},
+    {"charcode",     mplib_fig_charcode},
     {NULL, NULL}                /* sentinel */
 };
 
