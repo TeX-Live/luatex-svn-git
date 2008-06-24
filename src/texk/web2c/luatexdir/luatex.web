@@ -12115,7 +12115,7 @@ end
 
 @d get_x_token_or_active_char==@t@>@;
   begin get_x_token;
-  if cur_cmd=relax then if cur_chr=no_expand_flag then
+  if cur_cmd=relax then if cur_chr=no_expand_flag then if is_active_csname(cur_cs) then
     begin cur_cmd:=active_char;
     cur_chr:=active_csname_value(cur_tok-cs_token_flag);
     end;
