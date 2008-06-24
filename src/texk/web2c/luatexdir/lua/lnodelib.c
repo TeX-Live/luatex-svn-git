@@ -1696,7 +1696,7 @@ static int nodelib_getdir(lua_State * L, int n)
     int a=-1,b=-1,c=-1;
     if (lua_type(L, n) == LUA_TSTRING) {
       s = (char *)lua_tostring(L,n);
-      if (strlen(s)==2) {
+      if (strlen(s)==3) {
          d=0;
       }
       if (strlen(s)==4) {
