@@ -1696,9 +1696,13 @@ static int nodelib_getdir(lua_State * L, int n)
     int a=-1,b=-1,c=-1;
     if (lua_type(L, n) == LUA_TSTRING) {
       s = (char *)lua_tostring(L,n);
+      if (strlen(s)==2) {
+         d=0;
+      }
       if (strlen(s)==4) {
         if (*s=='-') d = -64;
         else if (*s=='+') d = 0;
+        s++;
       }
       if (strlen(s)==3) {
         switch (*s) {
@@ -1708,10 +1712,10 @@ static int nodelib_getdir(lua_State * L, int n)
         case 'R': a=3; break;
         }
         switch (*(s+1)) {
-        case 'L': b=0; break;
-        case 'R': b=0; break;
-        case 'T': b=1; break;
-        case 'B': b=1; break;
+        case 'T': b=0; break;
+        case 'L': b=1; break;
+        case 'B': b=2; break;
+        case 'R': b=3; break;
         }
         switch (*(s+2)) {
         case 'T': c=0; break;
@@ -1720,8 +1724,8 @@ static int nodelib_getdir(lua_State * L, int n)
         case 'R': c=3; break;
         }
       }
-      if (a != -1 && b != -1 && c != -1 && (a%2)==b) {
-        d += (a*8+b*4+c);
+      if (a != -1 && b != -1 && c != -1 && ! dir_parallel(a,b)) {
+        d += (a*8+dir_rearrange[b]*4+c);
       }
     } else if (lua_isnumber(L, n)) { 
       d = lua_tonumber(L,n);
