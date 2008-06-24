@@ -627,7 +627,7 @@ halfword find_next_wordstart(halfword r)
                 (l = get_lc_code(character(r))) > 0 &&
                 (char_uchyph(r) || l == character(r)))
                 return r;
-            /* fall through */
+            break;
         default:
             start_ok = 0;
             break;
@@ -679,8 +679,9 @@ void hnj_hyphenation(halfword head, halfword tail)
      * list would make find_next_wordstart() look too far ahead.
      */
 
-    while (r != null && (type(r) != glyph_node || !is_simple_character(r)))
+    while (r != null && (type(r) != glyph_node || !is_simple_character(r))) {
         r = vlink(r);
+    }
     /* this will make |r| a glyph node with subtype_character */
     r = find_next_wordstart(r);
     if (r == null)
