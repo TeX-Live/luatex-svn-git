@@ -150,6 +150,11 @@ static void write_fontmetrics(fd_entry * fd)
     int i;
     if (fd->font_dim[FONTBBOX1_CODE].set && fd->font_dim[FONTBBOX2_CODE].set
         && fd->font_dim[FONTBBOX3_CODE].set && fd->font_dim[FONTBBOX4_CODE].set)
+      /* make sure there is a rectangle */
+       if (fd->font_dim[FONTBBOX3_CODE].val <= fd->font_dim[FONTBBOX1_CODE].val)
+         fd->font_dim[FONTBBOX3_CODE].val = fd->font_dim[FONTBBOX1_CODE].val + 1;
+       if (fd->font_dim[FONTBBOX4_CODE].val <= fd->font_dim[FONTBBOX2_CODE].val)
+         fd->font_dim[FONTBBOX4_CODE].val = fd->font_dim[FONTBBOX2_CODE].val + 1;
         pdf_printf("/%s [%i %i %i %i]\n", font_key[FONTBBOX1_CODE].pdfname,
                    (int) fd->font_dim[FONTBBOX1_CODE].val,
                    (int) fd->font_dim[FONTBBOX2_CODE].val,
