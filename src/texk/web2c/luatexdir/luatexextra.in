@@ -25,7 +25,7 @@
    (generated from ../lib/texmfmp.c).
 */
 
-#define BANNER "This is luaTeX, Version 3.141592-LUATEX-VERSION-ETEX-VERSION"
+#define BANNER "This is luaTeX, Version LUATEX-VERSION"
 #define COPYRIGHT_HOLDER "Taco Hoekwater"
 #define AUTHOR NULL
 #define PROGRAM_HELP LUATEXHELP
