@@ -19,7 +19,6 @@ fi
 # ----------
 # Options:
 #       --make      : only make, no make distclean; configure
-#       --version   : only update and commit svnversion.h
 #       --parallel  : make -j 2 -l 3.0
 ONLY_MAKE=FALSE
 UPDATE_VERSION=FALSE
@@ -35,18 +34,6 @@ while [ "$1" != "" ] ; do
   fi ;
   shift ;
 done
-# ----------
-# update the version info
-if [ "$UPDATE_VERSION" = "TRUE" ] 
-then
-  echo '#define BUILD_REVISION "$Revision$"' > src/texk/web2c/luatexdir/svnversion.h
-  echo -n '#define BUILD_DATE '             >> src/texk/web2c/luatexdir/svnversion.h
-  date -u '+%Y%m%d'                         >> src/texk/web2c/luatexdir/svnversion.h
-  echo -n '#define BUILD_TIME 1'            >> src/texk/web2c/luatexdir/svnversion.h
-  date -u '+%H%M%S'                         >> src/texk/web2c/luatexdir/svnversion.h
-  svn commit -m 'building'                     src/texk/web2c/luatexdir/svnversion.h
-  exit 0
-fi
 
 #
 STRIP=strip

@@ -1,3 +1,0 @@
-#define BUILD_REVISION "$Revision$"
-#define BUILD_DATE 20080410
-#define BUILD_TIME 1143312

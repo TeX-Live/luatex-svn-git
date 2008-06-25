@@ -40,8 +40,6 @@
 #include "zlib.h"
 #include "ptexlib.h"
 
-#include "svnversion.h"
-
 #include "png.h"
 #include "xpdf/config.h"        /* just to get the xpdf version */
 
@@ -451,15 +449,6 @@ void set_job_id(int year, int month, int day, int time)
     xfree(s);
     xfree(name_string);
     xfree(format_string);
-}
-
-int get_build_revision(void)
-{
-    int revision;
-    if (sscanf(BUILD_REVISION, "$Revision: %d $", &revision)) {
-        return revision;
-    }
-    return 0;
 }
 
 void make_pdftex_banner(void)
@@ -1140,11 +1129,9 @@ char *stripzeros(char *a)
 void initversionstring(char **versions)
 {
     (void) asprintf(versions,
-                    "This is build %d, created on %dT%06dZ\n"
                     "Compiled with libpng %s; using libpng %s\n"
                     "Compiled with zlib %s; using zlib %s\n"
                     "Compiled with xpdf version %s\n",
-                    get_build_revision(), BUILD_DATE, (BUILD_TIME - 1000000),
                     PNG_LIBPNG_VER_STRING, png_libpng_ver,
                     ZLIB_VERSION, zlib_version, xpdfVersion);
 }
