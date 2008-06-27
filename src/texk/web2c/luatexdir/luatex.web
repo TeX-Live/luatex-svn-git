@@ -17960,6 +17960,7 @@ dvi_ptr,dir_ptr,dir_tmp:pointer;
 @!lx:scaled; {extra space between leader boxes}
 @!outer_doing_leaders:boolean; {were we doing leaders?}
 @!edge:scaled; {right edge of sub-box or leader space}
+@!border:scaled; {right edge of sub-box or leader space}
 @!prev_p:pointer; {one step behind |p|}
 @!glue_temp:real; {glue value before rounding}
 @!cur_glue:real; {glue seen so far}
@@ -18332,23 +18333,27 @@ else
   leader_wd:=height(leader_box)+depth(leader_box);
 if (leader_wd>0)and(rule_wd>0) then
   begin
-  edge:=cur_h+rule_wd;
   {TODO this double |case| is a hack, and not quite the proper
    solution, but it produces the correct output for |xleaders|
    in TRT mode, which is important for KASHIDAH fills.}
   case box_direction(dvi_direction) of
   dir_TR_,dir_RT_: begin
-    edge:=cur_h;
-    cur_h:=cur_h-rule_wd;
+    border:=cur_h+leader_wd;
+    cur_h:=cur_h-rule_wd+leader_wd;
+    edge:=cur_h-leader_wd;
+    end;
+  dir_TL_,dir_LT_: begin
+    edge:=cur_h+rule_wd;
+    border:=edge;
     end;
   end;
   @<Let |cur_h| be the position of the first box, and set |leader_wd+lx|
     to the spacing between corresponding parts of boxes@>;
-  while cur_h+leader_wd<=edge do
+  while cur_h+leader_wd<=border do
     @<(\pdfTeX) Output a leader box at |cur_h|,
       then advance |cur_h| by |leader_wd+lx|@>;
   case box_direction(dvi_direction) of
-  dir_TR_,dir_RT_: cur_h:=cur_h-rule_wd;
+  dir_TR_,dir_RT_: cur_h:=edge;
   dir_TL_,dir_LT_: cur_h:=edge;
   end;
   goto next_p;
