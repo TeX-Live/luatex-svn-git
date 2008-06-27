@@ -18349,6 +18349,7 @@ if (leader_wd>0)and(rule_wd>0) then
       then advance |cur_h| by |leader_wd+lx|@>;
   case box_direction(dvi_direction) of
   dir_TR_,dir_RT_: cur_h:=cur_h-rule_wd;
+  dir_TL_,dir_LT_: cur_h:=edge;
   end;
   goto next_p;
   end;
