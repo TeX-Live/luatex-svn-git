@@ -938,6 +938,7 @@ void undump_language_data(void)
 {
     unsigned i, x, numlangs;
     undump_int(numlangs);
+    next_lang_id=numlangs;
     for (i = 0; i < numlangs; i++) {
         undump_int(x);
         if (x == 1) {
