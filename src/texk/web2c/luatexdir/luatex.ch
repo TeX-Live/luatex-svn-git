@@ -1777,7 +1777,7 @@ if x<>@$ then goto bad_fmt; {check that strings are the same}
 @y
 @+Init
 libcfree(str_pool); libcfree(str_start);
-libcfree(yhash); libcfree(zeqtb); libcfree(fixmem); libcfree(varmem);
+libcfree(yhash); libcfree(zeqtb); libcfree(fixmem); libcfree(varmemcast(varmem));
 @+Tini
 undump_int(x);
 format_debug('format magic number')(x);
