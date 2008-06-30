@@ -35,7 +35,7 @@ static int null_cs = 0;
 #define  get_token_cmd(L,i)  lua_rawgeti(L,i,1)
 #define  get_token_chr(L,i)  lua_rawgeti(L,i,2)
 #define  get_token_cs(L,i)   lua_rawgeti(L,i,3)
-#define  is_active_string(s) (strlen(s)>3 && *s==0xEF && *(s+1)==0xBF && *(s+2)==0xBF)
+#define  is_active_string(s) (strlen((char *)s)>3 && *s==0xEF && *(s+1)==0xBF && *(s+2)==0xBF)
 
 
 static int test_expandable(lua_State * L)
@@ -92,7 +92,7 @@ static int test_activechar(lua_State * L)
         }
         lua_pop(L, 1);
         if (cs != 0 && (n = zget_cs_text(cs)) && n > 0) {
-            unsigned char *s = makecstring(n);
+          unsigned char *s = (unsigned char *)makecstring(n);
             if (is_active_string(s)) {
               free(s);
               lua_pushboolean(L,1);
@@ -127,7 +127,6 @@ static int run_get_command_name(lua_State * L)
 static int run_get_csname_name(lua_State * L)
 {
     int cs, cmd, n;
-    unsigned char *s;
 
     if (is_valid_token(L, -1)) {
         get_token_cmd(L, -1);
@@ -143,11 +142,11 @@ static int run_get_csname_name(lua_State * L)
         lua_pop(L, 1);
 
         if (cs != 0 && (n = zget_cs_text(cs)) && n >= 0) {
-            s = makecstring(n);
+            unsigned char *s = (unsigned char *)makecstring(n);
             if (is_active_string(s))
-              lua_pushstring(L, (s+3));
+              lua_pushstring(L, (char *)(s+3));
             else
-              lua_pushstring(L, s);
+              lua_pushstring(L, (char *)s);
         } else {
             lua_pushstring(L, "");
         }

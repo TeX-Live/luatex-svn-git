@@ -1,10 +1,20 @@
 % $Id$
-% MetaPost, by John Hobby.  Public domain.
-
-% Much of this program was copied with permission from MF.web Version 1.9
-% It interprets a language very similar to D.E. Knuth's METAFONT, but with
-% changes designed to make it more suitable for PostScript output.
-
+%
+% Copyright 2008 Taco Hoekwater.
+%
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 2 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+%
 % TeX is a trademark of the American Mathematical Society.
 % METAFONT is a trademark of Addison-Wesley Publishing Company.
 % PostScript is a trademark of Adobe Systems Incorporated.
@@ -35,7 +45,12 @@
 
 @* \[1] Introduction.
 
-This is \MP, a graphics-language processor based on D. E. Knuth's \MF.
+This is \MP\ by John Hobby, a graphics-language processor based on D. E. Knuth's \MF.
+
+Much of the original Pascal version of this program was copied with
+permission from MF.web Version 1.9. It interprets a language very
+similar to D.E. Knuth's METAFONT, but with changes designed to make it
+more suitable for PostScript output.
 
 The main purpose of the following program is to explain the algorithms of \MP\
 as clearly as possible. However, the program has been written so that it
@@ -56,7 +71,7 @@ features of the implementation, but they rarely attempt to explain the
 \MP\ language itself, since the reader is supposed to be familiar with
 {\sl The {\logos METAFONT\/}book} as well as the manual
 @.WEB@>
-@:METAFONTbook}{\sl The {\logos METAFONT\/}book@>
+@:METAFONTbook}{\sl The {\logos METAFONT\/}book}@>
 {\sl A User's Manual for MetaPost}, Computing Science Technical Report 162,
 AT\AM T Bell Laboratories.
 
