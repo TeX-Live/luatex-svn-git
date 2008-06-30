@@ -383,7 +383,7 @@ int count_packet_bytes(real_eight_bits * vf_buf, int cur_bute, int count)
     while (k < count) {
         cmd = vf_buf[cur_bute + k];
         k++;
-        if ((cmd >= set_char_0) && (cmd < set1)) {
+        if (cmd < set1) {
             if (ff == 0) {
                 ff = 1;
                 acc += 5;
@@ -646,8 +646,8 @@ int count_packet_bytes(real_eight_bits * vf_buf, int cur_bute, int count)
 
 void do_vf(internal_font_number f)
 {
-    integer k, n, i;
-    unsigned cmd;
+    integer k, i;
+    unsigned cmd, n;
     scaled x, y, w, z, h, v;
     integer cc, cmd_length, packet_length;
     charinfo *co;
@@ -778,7 +778,7 @@ void do_vf(internal_font_number f)
             vf_byte(cmd);
             decr(packet_length);
 
-            if ((cmd >= set_char_0) && (cmd < set1)) {
+            if (cmd < set1) {
                 if (k == 0) {
                     k = vf_real_fnts[0];
                     append_fnt_set(k);
