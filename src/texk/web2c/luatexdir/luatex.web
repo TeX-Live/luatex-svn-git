@@ -23636,9 +23636,8 @@ else begin
   end;
 final_par_glue:=new_param_glue(par_fill_skip_code);
 couple_nodes(tail,final_par_glue);
-if not output_active then 
-  lua_node_filter(pre_linebreak_filter_callback,
-        line_break_context,temp_head,addressof(tail));
+lua_node_filter(pre_linebreak_filter_callback,
+      line_break_context,temp_head,addressof(tail));
 last_line_fill:=vlink(tail);
 pop_nest;
 start_of_par:=tail;
@@ -23655,9 +23654,8 @@ ext_do_line_break(d,pretolerance,tracing_paragraphs,tolerance,emergency_stretch,
                    display_widow_penalties_ptr,widow_penalties_ptr,
                    display_widow_penalty, widow_penalty,
                    broken_penalty, final_par_glue);
-if not output_active then 
-  lua_node_filter(post_linebreak_filter_callback,
-        line_break_context,start_of_par,addressof(tail));
+lua_node_filter(post_linebreak_filter_callback,
+      line_break_context,start_of_par,addressof(tail));
 pack_begin_line:=0;
 end;
 @#
