@@ -1704,7 +1704,7 @@ halfword do_set_attribute(halfword p, int i, int val)
         vlink(q) = p;
         return q;
     }
-
+    q=p;
     assert(vlink(p) != null);
     while (vlink(p) != null) {
         int t = attribute_id(vlink(p));
