@@ -1667,9 +1667,9 @@ ext_do_line_break(boolean d,
         /* /Create an active breakpoint representing the beginning of the paragraph */
         auto_breaking = true;
         cur_p = vlink(temp_head);
-        assert(alink(cur_p) == temp_head);
         /* LOCAL: Initialize with first |local_paragraph| node */
-        if ((type(cur_p) == whatsit_node) && (subtype(cur_p) == local_par_node)) {
+        if ((cur_p != null) && (type(cur_p) == whatsit_node) && (subtype(cur_p) == local_par_node)) {
+            assert(alink(cur_p) == temp_head);
             internal_pen_inter = local_pen_inter(cur_p);
             internal_pen_broken = local_pen_broken(cur_p);
             init_internal_left_box = local_box_left(cur_p);
