@@ -283,6 +283,10 @@ static void hyppat_insert(
   i = hnj_string_hash (key) % HASH_SIZE;
   for (e = hashtab->entries[i]; e; e=e->next) {
     if (strcmp((char*)e->key,(char*)key)==0) {
+      int s = maketexstring("Conflicting pattern ignored");
+      do_print_err(s);
+      error();
+      flush_str(s);
       if (e->u.hyppat) hnj_free(e->u.hyppat);
       e->u.hyppat = hyppat;
       hnj_free(key);
