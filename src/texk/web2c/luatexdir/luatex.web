@@ -247,9 +247,9 @@ known as `\eTeX'.
 @d pdftex_revision=="0" { \.{\\pdftexrevision} }
 @d pdftex_version_string=='-2.00.0' {current \pdfTeX\ version}
 @#
-@d luatex_version==27 { \.{\\luatexversion} }
+@d luatex_version==28 { \.{\\luatexversion} }
 @d luatex_revision=="0" { \.{\\luatexrevision} }
-@d luatex_version_string=='snapshot-0.27.0' {current \LuaTeX\ version}
+@d luatex_version_string=='snapshot-0.28.0' {current \LuaTeX\ version}
 @d luatex_date_info==-extra_version_info { the compile date is negated }
 @#
 @d luaTeX_banner=='This is LuaTeX, Version ',luatex_version_string,extra_version_info
@@ -6954,8 +6954,11 @@ if s<string_offset then begin
   if (p<0) or (eq_level(p)<>level_one) then
     if no_new_control_sequence then
        p:=undefined_control_sequence
-    else 
+    else begin
+       if s<=@"7F        then l:=1 else if s<=@"7FF then l:=2
+       else if s<=@"FFFF then l:=3 else l:=4;
        @<Insert a control sequence after |p|, |p| point to it@>;
+    end;
 end
 else begin
   j:=str_start_macro(s);
@@ -17732,16 +17735,14 @@ begin
     end;
 end;
 
-procedure new_letterspaced_font(a: small_number);
+procedure new_letterspaced_font(a: small_number); 
 {letter-space a font by creating a virtual font}
 var u:pointer; {user's font identifier}
 @!t:str_number; {name for the frozen font identifier}
-@!old_setting:0..max_selector; {holds |selector| setting}
 @!f, k:internal_font_number;
 begin
     get_r_token; u:=cur_cs;
-    if u>=hash_base then t:=text(u)
-    else if u=null_cs then t:="FONT";
+    if u>=hash_base then t:=text(u) else t:="FONT";
     define(u,set_font,null_font); scan_optional_equals; scan_font_ident;
     k := cur_val;
     scan_int;
@@ -18342,7 +18343,7 @@ if (leader_wd>0)and(rule_wd>0) then
     cur_h:=cur_h-rule_wd+leader_wd;
     edge:=cur_h-leader_wd;
     end;
-  dir_TL_,dir_LT_: begin
+  othercases begin { |dir_TL_,dir_LT_| }
     edge:=cur_h+rule_wd;
     border:=edge;
     end;
@@ -20300,7 +20301,6 @@ end;
 
 function filtered_hpack(@!p:pointer;@!qt:pointer;@!w:scaled;@!m:small_number;@!grp:integer):pointer;
 var q:pointer;
-  d:integer; { a direction }
 begin
   new_hyphenation(p,qt);
   call_func(new_ligkern(p,qt)); {don't care about the tail in this case}
@@ -29670,7 +29670,7 @@ This program doesn't bother to close the input files that may still be open.
 @<Last-minute...@>=
 procedure close_files_and_terminate;
 label done, done1;
-var a, b, c, i, j, k, l: integer; {all-purpose index}
+var a, b, i, j, k, l: integer; {all-purpose index}
     is_names: boolean; {flag for name tree output: is it Names or Kids?}
     root, outlines, threads, names_tree, dests: integer;
     xref_offset_width, names_head, names_tail: integer;
@@ -30730,7 +30730,7 @@ end;
 
 procedure scan_image;
 label reswitch;
-var i, k, img_wd, img_ht, img_dp, ref: integer;
+var k, img_wd, img_ht, img_dp, ref: integer;
     named, attr: str_number;
     s: str_number;
     page, pagebox, colorspace: integer;
@@ -33814,7 +33814,7 @@ end;
 
 @<Declare \eTeX\ procedures for tr...@>=
 procedure pseudo_close; {close the top level pseudo file}
-var p,@!q: pointer;
+var p: pointer;
 begin p:=vlink(pseudo_files);
 flush_node(pseudo_files); 
 pseudo_files:=p;
@@ -35608,7 +35608,6 @@ label common_ending;
 var u:pointer; {user's ocp identifier}
 @!f:internal_ocp_number; {runs through existing ocps}
 @!t:str_number; {name for the frozen ocp identifier}
-@!old_setting:0..max_selector; {holds |selector| setting}
 @!flushable_string:str_number; {string not yet referenced}
 @!external_ocp:boolean; {external binary file}
 begin if job_name=0 then open_log_file;
@@ -35650,7 +35649,6 @@ procedure new_ocp_list(@!a:small_number);
 var u:pointer; {user's ocp list identifier}
 @!f:internal_ocp_list_number; {runs through existing ocp lists}
 @!t:str_number; {name for the frozen ocp list identifier}
-@!old_setting:0..max_selector; {holds |selector| setting}
 begin if job_name=0 then open_log_file;
   {avoid confusing \.{texput} with the ocp list name}
 @.texput@>
