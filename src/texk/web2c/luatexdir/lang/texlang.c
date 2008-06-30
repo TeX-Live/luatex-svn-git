@@ -39,22 +39,28 @@ extern char *utf8_idpb(char *w, unsigned int i);
 #define MAX_TEX_LANGUAGES  32767
 
 static struct tex_language *tex_languages[MAX_TEX_LANGUAGES] = { NULL };
-static int next_lang_id = 0;
+static unsigned next_lang_id = 0;
 
-struct tex_language *new_language(void)
+struct tex_language *new_language(int n)
 {
     struct tex_language *lang;
-    if (next_lang_id < MAX_TEX_LANGUAGES) {
-        lang = xmalloc(sizeof(struct tex_language));
-        tex_languages[next_lang_id] = lang;
-        lang->id = next_lang_id++;
-        lang->exceptions = 0;
-        lang->patterns = NULL;
-        lang->pre_hyphen_char = '-';
-        lang->post_hyphen_char = 0;
-        return lang;
+    unsigned l;
+    if (n>=0) {
+      l = (unsigned)n;
     } else {
-        return NULL;
+      l = next_lang_id++;
+    }
+    if (l < MAX_TEX_LANGUAGES && tex_languages[l] == NULL) {
+      lang = xmalloc(sizeof(struct tex_language));
+      tex_languages[l] = lang;
+      lang->id = l;
+      lang->exceptions = 0;
+      lang->patterns = NULL;
+      lang->pre_hyphen_char = '-';
+      lang->post_hyphen_char = 0;
+      return lang;
+    } else {
+      return NULL;
     }
 }
 
@@ -64,7 +70,7 @@ struct tex_language *get_language(int n)
         if (tex_languages[n] != NULL) {
             return tex_languages[n];
         } else {
-            return new_language();
+            return new_language(n);
         }
     } else {
         return NULL;
@@ -341,6 +347,7 @@ halfword insert_complex_discretionary(halfword t, lang_variables * lan,
                                       halfword pre, halfword pos,
                                       halfword replace)
 {
+  (void)lan;
     return insert_discretionary(t, pre, pos, replace);
 }
 
@@ -827,7 +834,7 @@ void dump_one_language(int i)
 
 void dump_language_data(void)
 {
-    int i;
+    unsigned i;
     dump_int(next_lang_id);
     for (i = 0; i < next_lang_id; i++) {
         if (tex_languages[i]) {

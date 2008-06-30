@@ -390,7 +390,7 @@ struct tex_language {
 
 #  define MAX_WORD_LEN 256      /* in chars */
 
-extern struct tex_language *new_language(void);
+extern struct tex_language *new_language(int n);
 extern struct tex_language *get_language(int n);
 extern void load_patterns(struct tex_language *lang, unsigned char *buf);
 extern void load_hyphenation(struct tex_language *lang, unsigned char *buf);

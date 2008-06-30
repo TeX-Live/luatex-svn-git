@@ -37,7 +37,7 @@ static int lang_new(lua_State * L)
     struct tex_language **lang;
     if (lua_gettop(L) == 0) {
         lang = lua_newuserdata(L, sizeof(struct tex_language *));
-        *lang = new_language();
+        *lang = new_language(-1);
         if (!*lang) {
             lua_pushstring(L, "lang.new(): no room for a new language");
             return lua_error(L);
@@ -45,6 +45,10 @@ static int lang_new(lua_State * L)
     } else {
         lang = lua_newuserdata(L, sizeof(struct tex_language *));
         *lang = get_language(lua_tonumber(L, 1));
+        if (!*lang) {
+            lua_pushfstring(L, "lang.new(%d): undefined language", lua_tonumber(L, 1));
+            return lua_error(L);
+        }
     }
     luaL_getmetatable(L, LANG_METATABLE);
     lua_setmetatable(L, -2);
