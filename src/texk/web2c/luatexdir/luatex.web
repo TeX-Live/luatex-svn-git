@@ -23719,6 +23719,21 @@ begin scan_optional_equals; scan_int;
    set_post_hyphen_char(language,cur_val);
 end;
 
+@ `\.{\\preexhyphenchar}', sets the |pre_break| character, and
+`\.{\\postexhyphenchar}' the |post_break| character. Their 
+defaults are both zero (nul).
+
+@p procedure new_pre_exhyphen_char;
+begin scan_optional_equals; scan_int;
+   set_pre_exhyphen_char(language,cur_val);
+end;
+@#
+procedure new_post_exhyphen_char;
+begin scan_optional_equals; scan_int;
+   set_post_exhyphen_char(language,cur_val);
+end;
+
+
 @* \[43] Initializing the hyphenation tables.
 
 None of the trie-related stuff is applicable any more in luatex.
@@ -25048,13 +25063,15 @@ if (cur_cmd=letter)or(cur_cmd=other_char)or
     scan_char_num; cur_chr:=cur_val; 
     end;
   if (chr_stack=ex_hyphen_char)and(cur_chr<>ex_hyphen_char)and(mode>0) then begin 
-    tail_append(new_disc); subtype(tail):=automatic_disc; 
+    tail:=compound_word_break(tail,cur_lang);
+    subtype(tail):=automatic_disc;
     end;
   goto continue;
   end 
 else begin
   if (chr_stack=ex_hyphen_char) and (mode>0) then begin 
-    tail_append(new_disc); subtype(tail):=automatic_disc; 
+    tail:=compound_word_break(tail,cur_lang);
+    subtype(tail):=automatic_disc;
     end;
   chr_stack:=-1;
   goto reswitch;
@@ -28543,6 +28560,10 @@ primitive("prehyphenchar",hyph_data,2);
 @!@:prehyphenchar_}{\.{\\prehyphenchar} primitive@>
 primitive("posthyphenchar",hyph_data,3);
 @!@:posthyphenchar_}{\.{\\posthyphenchar} primitive@>
+primitive("preexhyphenchar",hyph_data,4);
+@!@:preexhyphenchar_}{\.{\\preexhyphenchar} primitive@>
+primitive("postexhyphenchar",hyph_data,5);
+@!@:postexhyphenchar_}{\.{\\postexhyphenchar} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
 hyph_data: case cur_chr of 
@@ -28550,6 +28571,8 @@ hyph_data: case cur_chr of
     1: print_esc("patterns"); 
     2: print_esc("prehyphenchar"); 
     3: print_esc("posthyphenchar");
+    4: print_esc("preexhyphenchar"); 
+    5: print_esc("postexhyphenchar");
     endcases;
 
 @ @<Assignments@>=
@@ -28559,6 +28582,8 @@ hyph_data: begin
     1: new_patterns; 
     2: new_pre_hyphen_char; 
     3: new_post_hyphen_char;
+    4: new_pre_exhyphen_char; 
+    5: new_post_exhyphen_char;
     endcases;
   goto done;
   end;

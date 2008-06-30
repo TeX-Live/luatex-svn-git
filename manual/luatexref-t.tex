@@ -4593,17 +4593,36 @@ Clears the pattern dictionary for this language.
 lang.prehyphenchar(<language> l, <number> n)
 \stopfunctioncall
 
-Gets or sets the \quote{pre|-|break} hyphen character for this font
-(initially the hyphen, decimal 45).
+Gets or sets the \quote{pre|-|break} hyphen character for implicit
+hyphenation in this language (initially the hyphen, decimal 45).
 
 \startfunctioncall
 <number> n = lang.posthyphenchar(<language> l)
 lang.posthyphenchar(<language> l, <number> n)
 \stopfunctioncall
 
-Gets or sets the \quote{post|-|break} hyphen character for this font
-(initially null, decimal~0).
+Gets or sets the \quote{post|-|break} hyphen character for implicit
+hyphenation in this language (initially null, decimal~0, indicating
+emptyness).
 
+
+\startfunctioncall
+<number> n = lang.preexhyphenchar(<language> l)
+lang.preexhyphenchar(<language> l, <number> n)
+\stopfunctioncall
+
+Gets or sets the \quote{pre|-|break} hyphen character for explicit
+hyphenation in this language (initially null, decimal~0, indicating
+emptyness).
+
+\startfunctioncall
+<number> n = lang.postexhyphenchar(<language> l)
+lang.postexhyphenchar(<language> l, <number> n)
+\stopfunctioncall
+
+Gets or sets the \quote{post|-|break} hyphen character for explicit
+hyphenation in this language (initially null, decimal~0, indicating
+emptyness).
 
 \startfunctioncall
 <boolean> success = lang.hyphenate(<node> head)
@@ -4769,7 +4788,7 @@ depend on the current font, it is a language property.
 
 In \LUATEX, it works like this: if \LUATEX\ senses a string of input
 characters that matches the value of the new integer parameter
-\tex{exhyphenchar}, it will insert an empty discretionary after that
+\tex{exhyphenchar}, it will insert an explicit discretionary after that
 series of nodes. Initex sets the \tex{exhyphenchar=`\-}.
 Incidentally, this is a global parameter instead of a
 language-specific one because it may be useful to change the value
@@ -4902,7 +4921,10 @@ Differences between \LUATEX\ and \TEX82 that are a direct result of that:
   patterns no sooner than the first time they are actually needed.
 \item \LUATEX\ uses the language-specific variables
 \tex{prehyphenchar} and \tex{posthyphenchar} in the creation of
-discretionaries, instead of \TEX82's \tex{hyphenchar}.
+implicit discretionaries, instead of \TEX82's \tex{hyphenchar}, and
+the values of the language-specific variables \tex{preexhyphenchar} and
+\tex{postexhyphenchar} for explicit discretionaries (instead of
+\TEX82's empty discretionary).
 \stopitemize
 
 Previously, there were problems with changing the node attributes
@@ -4918,11 +4940,12 @@ language switches. One word can have two separate fonts and still be
 hyphenated correctly (but it can not have two different languages,
 the \tex{setlanguage} command forces a word boundary).
 
-All languages start out with \tex{prehyphenchar=`\-} and
-\tex{posthyphenchar=0}. When you assign the values of
-\tex{prehyphenchar} and \tex{posthyphenchar}, you are actually
-changing the settings for the current \tex{language}, this behavior
-is compatible with \tex{patterns} and \tex{hyphenation}.
+All languages start out with \tex{prehyphenchar=`\-},
+\tex{posthyphenchar=0}, \tex{preexhyphenchar=0} and
+\tex{postexhyphenchar=0}. 
+When you assign the values of one of these four parameters, you are
+actually changing the settings for the current \tex{language}, this
+behavior is compatible with \tex{patterns} and \tex{hyphenation}.
 
 \LUATEX\ also hyphenates the first word in a paragraph.
 

@@ -151,6 +151,44 @@ static int lang_post_hyphen_char(lua_State * L)
     }
 }
 
+
+static int lang_pre_exhyphen_char(lua_State * L)
+{
+    struct tex_language **lang_ptr;
+    lang_ptr = check_islang(L, 1);
+    if (lua_gettop(L) != 1) {
+        if (!lua_isnumber(L, 2)) {
+            lua_pushstring(L,
+                           "lang.preexhyphenchar(): argument should be a character number");
+            return lua_error(L);
+        }
+        (*lang_ptr)->pre_exhyphen_char = lua_tonumber(L, 2);
+        return 0;
+    } else {
+        lua_pushnumber(L, (*lang_ptr)->pre_exhyphen_char);
+        return 1;
+    }
+}
+
+static int lang_post_exhyphen_char(lua_State * L)
+{
+    struct tex_language **lang_ptr;
+    lang_ptr = check_islang(L, 1);
+    if (lua_gettop(L) != 1) {
+        if (!lua_isnumber(L, 2)) {
+            lua_pushstring(L,
+                           "lang.postexhyphenchar(): argument should be a character number");
+            return lua_error(L);
+        }
+        (*lang_ptr)->post_exhyphen_char = lua_tonumber(L, 2);
+        return 0;
+    } else {
+        lua_pushnumber(L, (*lang_ptr)->post_exhyphen_char);
+        return 1;
+    }
+}
+
+
 static int lang_clear_hyphenation(lua_State * L)
 {
     struct tex_language **lang_ptr;
@@ -191,28 +229,32 @@ static int do_lang_hyphenate(lua_State * L)
 
 
 static const struct luaL_reg langlib_d[] = {
-    {"clear_patterns", lang_clear_patterns},
+    {"clear_patterns",    lang_clear_patterns},
     {"clear_hyphenation", lang_clear_hyphenation},
-    {"patterns", lang_patterns},
-    {"hyphenation", lang_hyphenation},
-    {"prehyphenchar", lang_pre_hyphen_char},
-    {"posthyphenchar", lang_post_hyphen_char},
-    {"id", lang_id},
+    {"patterns",          lang_patterns},
+    {"hyphenation",       lang_hyphenation},
+    {"prehyphenchar",     lang_pre_hyphen_char},
+    {"posthyphenchar",    lang_post_hyphen_char},
+    {"preexhyphenchar",   lang_pre_exhyphen_char},
+    {"postexhyphenchar",  lang_post_exhyphen_char},
+    {"id",                lang_id},
     {NULL, NULL}                /* sentinel */
 };
 
 
 static const struct luaL_reg langlib[] = {
-    {"clear_patterns", lang_clear_patterns},
+    {"clear_patterns",    lang_clear_patterns},
     {"clear_hyphenation", lang_clear_hyphenation},
-    {"patterns", lang_patterns},
-    {"hyphenation", lang_hyphenation},
-    {"prehyphenchar", lang_pre_hyphen_char},
-    {"posthyphenchar", lang_post_hyphen_char},
-    {"id", lang_id},
-    {"clean", do_lang_clean},
-    {"hyphenate", do_lang_hyphenate},
-    {"new", lang_new},
+    {"patterns",          lang_patterns},
+    {"hyphenation",       lang_hyphenation},
+    {"prehyphenchar",     lang_pre_hyphen_char},
+    {"posthyphenchar",    lang_post_hyphen_char},
+    {"preexhyphenchar",   lang_pre_exhyphen_char},
+    {"postexhyphenchar",  lang_post_exhyphen_char},
+    {"id",                lang_id},
+    {"clean",             do_lang_clean},
+    {"hyphenate",         do_lang_hyphenate},
+    {"new",               lang_new},
     {NULL, NULL}                /* sentinel */
 };
 

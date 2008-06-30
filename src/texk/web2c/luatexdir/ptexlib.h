@@ -375,6 +375,8 @@ typedef enum {
 typedef struct _lang_variables {
     int pre_hyphen_char;
     int post_hyphen_char;
+    int pre_exhyphen_char;
+    int post_exhyphen_char;
 } lang_variables;
 
 
@@ -386,6 +388,8 @@ struct tex_language {
     int id;
     int pre_hyphen_char;
     int post_hyphen_char;
+    int pre_exhyphen_char;
+    int post_exhyphen_char;
 };
 
 #  define MAX_WORD_LEN 256      /* in chars */
@@ -406,6 +410,12 @@ extern void set_pre_hyphen_char(integer lan, integer val);
 extern void set_post_hyphen_char(integer lan, integer val);
 extern integer get_pre_hyphen_char(integer lan);
 extern integer get_post_hyphen_char(integer lan);
+
+extern void set_pre_exhyphen_char(integer lan, integer val);
+extern void set_post_exhyphen_char(integer lan, integer val);
+extern integer get_pre_exhyphen_char(integer lan);
+extern integer get_post_exhyphen_char(integer lan);
+extern halfword compound_word_break (halfword t, int clang);
 
 extern halfword new_ligkern(halfword head, halfword tail);
 extern halfword handle_ligaturing(halfword head, halfword tail);

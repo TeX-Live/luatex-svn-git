@@ -58,6 +58,8 @@ struct tex_language *new_language(int n)
       lang->patterns = NULL;
       lang->pre_hyphen_char = '-';
       lang->post_hyphen_char = 0;
+      lang->pre_exhyphen_char = 0;
+      lang->post_exhyphen_char = 0;
       return lang;
     } else {
       return NULL;
@@ -91,6 +93,23 @@ void set_post_hyphen_char(integer n, integer v)
         l->post_hyphen_char = (int) v;
 }
 
+
+void set_pre_exhyphen_char(integer n, integer v)
+{
+    struct tex_language *l = get_language((int) n);
+    if (l != NULL)
+        l->pre_exhyphen_char = (int) v;
+}
+
+void set_post_exhyphen_char(integer n, integer v)
+{
+    struct tex_language *l = get_language((int) n);
+    if (l != NULL)
+        l->post_exhyphen_char = (int) v;
+}
+
+
+
 integer get_pre_hyphen_char(integer n)
 {
     struct tex_language *l = get_language((int) n);
@@ -105,6 +124,23 @@ integer get_post_hyphen_char(integer n)
     if (l == NULL)
         return -1;
     return (integer) l->post_hyphen_char;
+}
+
+
+integer get_pre_exhyphen_char(integer n)
+{
+    struct tex_language *l = get_language((int) n);
+    if (l == NULL)
+        return -1;
+    return (integer) l->pre_exhyphen_char;
+}
+
+integer get_post_exhyphen_char(integer n)
+{
+    struct tex_language *l = get_language((int) n);
+    if (l == NULL)
+        return -1;
+    return (integer) l->post_exhyphen_char;
 }
 
 void load_patterns(struct tex_language *lang, unsigned char *buffer)
@@ -253,11 +289,16 @@ halfword insert_discretionary(halfword t, halfword pre, halfword post,
                               halfword replace)
 {
     halfword g, n;
+    int f;
     n = new_node(disc_node, syllable_disc);
     try_couple_nodes(n, vlink(t));
     couple_nodes(t, n);
+    if (replace != null)
+      f = font(replace);
+    else
+      f = get_cur_font(); /* for compound words following explicit hyphens */
     for (g = pre; g != null; g = vlink(g)) {
-        font(g) = font(replace);
+        font(g) = f;
         if (node_attr(t) != null) {
             delete_attribute_ref(node_attr(g));
             node_attr(g) = node_attr(t);
@@ -265,7 +306,7 @@ halfword insert_discretionary(halfword t, halfword pre, halfword post,
         }
     }
     for (g = post; g != null; g = vlink(g)) {
-        font(g) = font(replace);
+        font(g) = f;
         if (node_attr(t) != null) {
             delete_attribute_ref(node_attr(g));
             node_attr(g) = node_attr(t);
@@ -336,12 +377,23 @@ halfword insert_syllable_discretionary(halfword t, lang_variables * lan)
 halfword insert_word_discretionary(halfword t, lang_variables * lan)
 {
     halfword pre = null, pos = null;
-    if (lan->pre_hyphen_char > 0)
-        pre = insert_character(null, lan->pre_hyphen_char);
-    if (lan->post_hyphen_char > 0)
-        pos = insert_character(null, lan->post_hyphen_char);
+    if (lan->pre_exhyphen_char > 0)
+        pre = insert_character(null, lan->pre_exhyphen_char);
+    if (lan->post_exhyphen_char > 0)
+        pos = insert_character(null, lan->post_exhyphen_char);
     return insert_discretionary(t, pre, pos, null);
 }
+
+halfword compound_word_break (halfword t, int clang)
+{
+    int disc;
+    lang_variables langdata;
+    langdata.pre_exhyphen_char = get_pre_exhyphen_char(clang);
+    langdata.post_exhyphen_char = get_post_exhyphen_char(clang);
+    disc = insert_word_discretionary(t, &langdata);
+    return disc;
+}
+
 
 halfword insert_complex_discretionary(halfword t, lang_variables * lan,
                                       halfword pre, halfword pos,
@@ -601,7 +653,7 @@ using an algorithm due to Frank~M. Liang.
 /* 
  * This is incompatible with TEX because the first word of a paragraph
  * can be hyphenated, but most european users seem to agree that
- * prohibiting hyphenation there was not a the best idea ever.
+ * prohibiting hyphenation there was not the best idea ever.
  */
 
 halfword find_next_wordstart(halfword r)
@@ -815,6 +867,8 @@ void dump_one_language(int i)
     dump_int(lang->id);
     dump_int(lang->pre_hyphen_char);
     dump_int(lang->post_hyphen_char);
+    dump_int(lang->pre_exhyphen_char);
+    dump_int(lang->post_exhyphen_char);
     if (lang->patterns != NULL) {
         s = (char *) hnj_serialize(lang->patterns);
     }
@@ -858,6 +912,10 @@ void undump_one_language(int i)
     lang->pre_hyphen_char = x;
     undump_int(x);
     lang->post_hyphen_char = x;
+    undump_int(x);
+    lang->pre_exhyphen_char = x;
+    undump_int(x);
+    lang->post_exhyphen_char = x;
     /* patterns */
     undump_int(x);
     if (x > 0) {
