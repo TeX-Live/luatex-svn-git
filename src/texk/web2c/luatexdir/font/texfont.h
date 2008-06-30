@@ -98,7 +98,7 @@ typedef struct texfont {
     integer _font_cidsupplement;
 
     integer _font_ec;
-    integer _font_checksum;     /* internal information */
+    unsigned _font_checksum;     /* internal information */
     char _font_used;            /* internal information */
     char _font_touched;         /* internal information */
     integer _font_cache_id;     /* internal information */
