@@ -237,7 +237,7 @@ char *mplib_find_file(MP mp, const char *fname, const char *fmode, int ftype)
         lua_pushstring(L, fname);
         lua_pushstring(L, fmode);
         if (ftype >= mp_filetype_text) {
-            lua_pushnumber(L, ftype - mp_filetype_text);
+          lua_pushnumber(L, (lua_Number)(ftype - mp_filetype_text));
         } else {
             lua_pushstring(L, mplib_filetype_names[ftype]);
         }
@@ -293,29 +293,29 @@ static int mplib_new(lua_State * L)
                 }
                 switch (mplib_parms[i].idx) {
                 case P_ERROR_LINE:
-                    options->error_line = lua_tointeger(L, -1);
+                  options->error_line = (int)lua_tointeger(L, -1);
                     if (options->error_line<60) options->error_line =60;
                     if (options->error_line>250) options->error_line = 250;
                     options->half_error_line = (options->error_line/2)+10;
                     break;
                 case P_MAX_LINE:
-                    options->max_print_line = lua_tointeger(L, -1);
+                    options->max_print_line = (int)lua_tointeger(L, -1);
                     if (options->max_print_line<60) options->max_print_line = 60;
                     break;
                 case P_MAIN_MEMORY:
-                    options->main_memory = lua_tointeger(L, -1);
+                    options->main_memory = (int)lua_tointeger(L, -1);
                     break;
                 case P_HASH_SIZE:
-                    options->hash_size = lua_tointeger(L, -1);
+                    options->hash_size = (int)lua_tointeger(L, -1);
                     break;
                 case P_PARAM_SIZE:
-                    options->param_size = lua_tointeger(L, -1);
+                    options->param_size = (int)lua_tointeger(L, -1);
                     break;
                 case P_IN_OPEN:
-                    options->max_in_open = lua_tointeger(L, -1);
+                    options->max_in_open = (int)lua_tointeger(L, -1);
                     break;
                 case P_RANDOM_SEED:
-                    options->random_seed = lua_tointeger(L, -1);
+                  options->random_seed = (int)lua_tointeger(L, -1);
                     break;
                 case P_INTERACTION:
                     options->interaction =
@@ -371,7 +371,7 @@ static int mplib_tostring(lua_State * L)
 {
     MP *mp_ptr = is_mp(L, 1);
     if (*mp_ptr != NULL) {
-        lua_pushfstring(L, "<MP %p>", *mp_ptr);
+      (void)lua_pushfstring(L, "<MP %p>", *mp_ptr);
         return 1;
     }
     return 0;
@@ -410,7 +410,7 @@ static int mplib_wrapresults(lua_State * L, mp_run_data *res, int status)
         lua_setfield(L, -2, "fig");
         res->edges = NULL;
     }
-    lua_pushnumber(L, status);
+    lua_pushnumber(L, (lua_Number)status);
     lua_setfield(L, -2, "status");
     return 1;
 }
@@ -452,14 +452,14 @@ static int mplib_char_dimension(lua_State * L, int t)
   MP *mp_ptr = is_mp(L, 1);
   if (*mp_ptr != NULL) {
     char *fname = (char *)luaL_checkstring(L,2);
-    int charnum = luaL_checkinteger(L,3);
+    int charnum = (int)luaL_checkinteger(L,3);
     if (charnum<0 || charnum>255) {
-      lua_pushnumber(L, 0);
+      lua_pushnumber(L, (lua_Number)0);
     } else {
-      lua_pushnumber(L,mp_get_char_dimension(*mp_ptr,fname,charnum,t));
+      lua_pushnumber(L,(lua_Number)mp_get_char_dimension(*mp_ptr,fname,charnum,t));
     }
   } else {
-    lua_pushnumber(L, 0);
+    lua_pushnumber(L, (lua_Number)0);
   }
   return 1;
 }
@@ -485,13 +485,13 @@ static int mplib_statistics(lua_State * L)
     MP *mp_ptr = is_mp(L, 1);
     if (*mp_ptr != NULL) {
         lua_newtable(L);
-        lua_pushnumber(L, mp_memory_usage(*mp_ptr));
+        lua_pushnumber(L, (lua_Number)mp_memory_usage(*mp_ptr));
         lua_setfield(L, -2, "main_memory");
-        lua_pushnumber(L, mp_hash_usage(*mp_ptr));
+        lua_pushnumber(L, (lua_Number)mp_hash_usage(*mp_ptr));
         lua_setfield(L, -2, "hash_size");
-        lua_pushnumber(L, mp_param_usage(*mp_ptr));
+        lua_pushnumber(L, (lua_Number)mp_param_usage(*mp_ptr));
         lua_setfield(L, -2, "param_size");
-        lua_pushnumber(L, mp_open_usage(*mp_ptr));
+        lua_pushnumber(L, (lua_Number)mp_open_usage(*mp_ptr));
         lua_setfield(L, -2, "max_in_open");
     } else {
         lua_pushnil(L);
@@ -557,7 +557,7 @@ static int mplib_fig_copy_body(lua_State * L)
 static int mplib_fig_tostring(lua_State * L)
 {
     struct mp_edge_object **hh = is_fig(L, 1);
-    lua_pushfstring(L, "<figure %p>", *hh);
+    (void)lua_pushfstring(L, "<figure %p>", *hh);
     return 1;
 }
 
@@ -565,8 +565,8 @@ static int mplib_fig_postscript(lua_State * L)
 {
     mp_run_data *res;
     struct mp_edge_object **hh = is_fig(L, 1);
-    int prologues = luaL_optnumber(L, 2, -1);
-    int procset = luaL_optnumber(L, 3, -1);
+    int prologues = (int)luaL_optnumber(L, 2, (lua_Number)-1);
+    int procset = (int)luaL_optnumber(L, 3, (lua_Number)-1);
     if (mp_ps_ship_out(*hh, prologues, procset) 
         && (res = mp_rundata((*hh)->_parent))
         && (res->ps_out.size != 0)) {
@@ -637,7 +637,7 @@ static int mplib_fig_charcode(lua_State * L)
 {
     struct mp_edge_object **hh = is_fig(L, 1);
     if (*hh != NULL) {
-      lua_pushnumber(L, (*hh)->_charcode);
+      lua_pushnumber(L, (lua_Number)(*hh)->_charcode);
     } else {
       lua_pushnil(L);
     }
@@ -676,7 +676,7 @@ static int mplib_gr_collect(lua_State * L)
 static int mplib_gr_tostring(lua_State * L)
 {
     struct mp_graphic_object **hh = is_gr_object(L, 1);
-    lua_pushfstring(L, "<object %p>", *hh);
+    (void)lua_pushfstring(L, "<object %p>", *hh);
     return 1;
 }
 
@@ -692,11 +692,11 @@ static double coord_range_x (mp_knot *h, double dz) {
   double zlo = 0.0, zhi = 0.0;
   mp_knot *f = h; 
   while (h != NULL) {
-    z = h->x_coord_field;
+    z = (double)h->x_coord_field;
     if (z < zlo) zlo = z; else if (z > zhi) zhi = z;
-    z = h->right_x_field;
+    z = (double)h->right_x_field;
     if (z < zlo) zlo = z; else if (z > zhi) zhi = z;
-    z = h->left_x_field;
+    z = (double)h->left_x_field;
     if (z < zlo) zlo = z; else if (z > zhi) zhi = z;
     h = h->next_field;
     if (h==f)
@@ -710,11 +710,11 @@ static double coord_range_y (mp_knot *h, double dz) {
   double zlo = 0.0, zhi = 0.0;
   mp_knot *f = h; 
   while (h != NULL) {
-    z = h->y_coord_field;
+    z = (double)h->y_coord_field;
     if (z < zlo) zlo = z; else if (z > zhi) zhi = z;
-    z = h->right_y_field;
+    z = (double)h->right_y_field;
     if (z < zlo) zlo = z; else if (z > zhi) zhi = z;
-    z = h->left_y_field;
+    z = (double)h->left_y_field;
     if (z < zlo) zlo = z; else if (z > zhi) zhi = z;
     h = h->next_field;
     if (h==f)
@@ -729,7 +729,6 @@ static int mplib_gr_peninfo(lua_State * L) {
     double wx, wy;
     double rx = 1.0, sx = 0.0, sy = 0.0, ry = 1.0, tx = 0.0, ty = 0.0;
     double divider = 1.0;
-    int transformed = 0;
     double width = 1.0;
     mp_knot *p = NULL, *path = NULL;
     struct mp_graphic_object **hh = is_gr_object(L, -1);
@@ -1023,7 +1022,7 @@ static void mplib_fill_field(lua_State * L, struct mp_fill_object *h)
     } else if (FIELD(color)) {
         mplib_push_color(L, (mp_graphic_object *) h);
     } else if (FIELD(linejoin)) {
-        lua_pushnumber(L, h->ljoin_field);
+      lua_pushnumber(L, (lua_Number)h->ljoin_field);
     } else if (FIELD(miterlimit)) {
         mplib_push_number(L, h->miterlim_field);
     } else if (FIELD(prescript)) {
@@ -1047,9 +1046,9 @@ static void mplib_stroked_field(lua_State * L, struct mp_stroked_object *h)
     } else if (FIELD(dash)) {
         mplib_push_dash(L, h);
     } else if (FIELD(linecap)) {
-        lua_pushnumber(L, h->lcap_field);
+        lua_pushnumber(L, (lua_Number)h->lcap_field);
     } else if (FIELD(linejoin)) {
-        lua_pushnumber(L, h->ljoin_field);
+      lua_pushnumber(L, (lua_Number)h->ljoin_field);
     } else if (FIELD(miterlimit)) {
         mplib_push_number(L, h->miterlim_field);
     } else if (FIELD(prescript)) {
