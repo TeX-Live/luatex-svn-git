@@ -47,6 +47,8 @@ struct tex_language *new_language(int n)
     unsigned l;
     if (n>=0) {
       l = (unsigned)n;
+      if (next_lang_id<=n)
+         next_lang_id = n+1;
     } else {
       l = next_lang_id++;
     }
