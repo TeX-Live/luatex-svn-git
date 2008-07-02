@@ -50,6 +50,8 @@ struct tex_language *new_language(int n)
       if (next_lang_id<=n)
          next_lang_id = n+1;
     } else {
+      while (tex_languages[next_lang_id] != NULL)
+        next_lang_id++;
       l = next_lang_id++;
     }
     if (l < MAX_TEX_LANGUAGES && tex_languages[l] == NULL) {
