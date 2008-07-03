@@ -1512,7 +1512,7 @@ void mp_set_job_id (MP mp) {
         strlen (name_string) +
         strlen (format_string);
     s = mp_xmalloc (mp,slen, sizeof (char));
-    mp_snprintf (s,(int)slen,"%.4d/%.2d/%.2d %.2d:%.2d %s %s",
+    sprintf (s,"%.4d/%.2d/%.2d %.2d:%.2d %s %s",
                (mp->internal[mp_year]>>16),
                (mp->internal[mp_month]>>16), 
                (mp->internal[mp_day]>>16), 
@@ -5402,11 +5402,12 @@ while ( p!=null ) {
 int mp_gr_ship_out (mp_edge_object *hh, int prologues, int procset, int standalone) ;
 
 @ @c 
-int mp_gr_ship_out (mp_edge_object *hh, int prologues, int procset, int standalone) {
+int mp_gr_ship_out (mp_edge_object *hh, int qprologues, int qprocset, int standalone) {
   mp_graphic_object *p;
   scaled ds,scf; /* design size and scale factor for a text node */
   font_number f; /* for loops over fonts while (un)marking characters */
   boolean transformed; /* is the coordinate system being transformed? */
+  int prologues, procset;
   MP mp = hh->_parent;
   if (standalone) {
      jmp_buf buf;
@@ -5415,10 +5416,14 @@ int mp_gr_ship_out (mp_edge_object *hh, int prologues, int procset, int standalo
        return 0;
   }
   if (mp->history >= mp_fatal_error_stop ) return 1;
-  if (prologues<0) 
+  if (qprologues<0) 
 	prologues = (mp->internal[mp_prologues]>>16);
-  if (procset<0) 
+  else
+   prologues=qprologues;
+  if (qprocset<0) 
 	procset = (mp->internal[mp_procset]>>16);
+  else
+    procset=qprocset;
   mp_open_output_file(mp);
   mp_print_initial_comment(mp, hh, prologues);
   p = hh->body;
