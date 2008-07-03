@@ -23666,13 +23666,7 @@ end;
 The choice between |check_head_filter| and |check_contrib_filter| is not
 quite clear to me yet, but it seems that the latter is the better choice.
 
-@d check_head_filter(#)==if (not output_active) and (vlink(head)<>null) then
-lua_node_filter_s(buildpage_filter_callback,#,head,addressof(tail))
-
-@d check_contrib_filter(#)==if (not output_active) and (vlink(contrib_head)<>null) then
-lua_node_filter_s(buildpage_filter_callback,#,contrib_head,addressof(garbage))
-
-@d check_filter==check_head_filter
+@d check_filter(#)==if not output_active then lua_node_filter_s(buildpage_filter_callback,#)
 
 @* \[39] Breaking paragraphs into lines, continued.
 
@@ -24894,7 +24888,7 @@ if vlink(page_head)<>null then {and both go before heldover contributions}
   vlink(page_head):=null; page_tail:=page_head;
   end;
 flush_node_list(page_disc); page_disc:=null;
-pop_nest; build_page;
+pop_nest; check_filter('after_output'); build_page;
 end
 
 @ @<Recover from an unbalanced output routine@>=
@@ -25286,7 +25280,7 @@ begin if privileged then
   width(tail):=hsize;
   tail_append(new_glue(fill_glue));
   tail_append(new_penalty(-@'10000000000));@/
-  build_page; {append \.{\\hbox to \\hsize\{\}\\vfill\\penalty-'10000000000}}
+  check_filter('end'); build_page; {append \.{\\hbox to \\hsize\{\}\\vfill\\penalty-'10000000000}}
   end;
 its_all_over:=false;
 exit:end;
@@ -25982,8 +25976,6 @@ var p,q,dir_graf_tmp:pointer;
 begin prev_graf:=0;
 if (mode=vmode)or(head<>tail) then begin
   tail_append(new_param_glue(par_skip_code));
-  if nest_ptr=0 then
-    check_filter('begin_of_par'); 
   end;
 push_nest; mode:=hmode; space_factor:=1000; 
 @<LOCAL: Add local paragraph node@>;
@@ -26008,7 +26000,7 @@ while vlink(q)<>null do q:=vlink(q);
 tail:=q;
 if every_par<>null then begin_token_list(every_par,every_par_text);
 if nest_ptr=1 then begin 
-  build_page; {put |par_skip| glue on current page}
+  check_filter('new_graf'); build_page; {put |par_skip| glue on current page}
   end;
 end;
 
@@ -26760,7 +26752,7 @@ eq_word_define(dimen_base+pre_display_size_code,w);
 eq_word_define(dimen_base+display_width_code,l);
 eq_word_define(dimen_base+display_indent_code,s);
 if every_display<>null then begin_token_list(every_display,every_display_text);
-if nest_ptr=1 then begin check_contrib_filter('before_display'); build_page; end;
+if nest_ptr=1 then begin check_filter('before_display'); build_page; end;
 end
 
 @ @<Calculate the natural width, |w|, by which...@>=

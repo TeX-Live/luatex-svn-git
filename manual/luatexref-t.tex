@@ -1369,6 +1369,24 @@ assigning to a temporary variable:
 tex.box[0] = node.copy_list(tex.box[2])
 \stoptyping
 
+\subsection{Special list heads}
+
+The virtual table  \luatex{tex.lists} contains the set of internal
+registers that keep track of building page lists.
+
+
+\starttabulate[|lT|p|]
+\NC \bf field          \NC \bf description \NC \NR
+\NC page_ins_head      \NC  circular list of pending insertions \NC \NR
+\NC contrib_head       \NC  the recent contributions \NC \NR
+\NC page_head          \NC  the page-so-far \NC \NR
+%\NC temp_head          \NC  \NC \NR
+\NC hold_head          \NC used for heldover items for next page\NC \NR
+\NC adjust_head        \NC head of the current \tex{adjust} list \NC \NR
+\NC pre_adjust_head    \NC head of the current \tex{adjust pre} list\NC \NR
+% \NC align_head         \NC  \NC \NR
+\stoptabulate
+
 \subsection{Print functions}
 
 The \luatex{tex} table also contains the three print functions that
@@ -3054,37 +3072,27 @@ manipulation of the page building stage like imposition or column
 balancing.
 
 \startfunctioncall
-function(<node> head, <string> extrainfo)
-    return true | false | <node> newhead
+function(<string> extrainfo)
 end
 \stopfunctioncall
-
-As for all the callbacks that deal with nodes, the return value can be
-one of three things:
-
-\startitemize[packed]
-\item \type{boolean true} signals succesful processing
-\item \type{node} signals that the \quote{head} node should be
-replaced by this node
-\item \type{boolean false} signals that the \quote{head} node list should be
-ignored and flushed from memory
-\stopitemize
 
 The string \type{extrainfo} gives some additional information about
 what \TEX's state is with respect to the \quote{current page}. The possible
 values are:
 
 \starttabulate[|lT|p|]
-\NC \ssbf value           \NC \bf explanation                        \NC\NR
+\NC \ssbf value     \NC \bf explanation                        \NC\NR
 \NC alignment       \NC a (partial) alignment is being added   \NC\NR
+\NC after_output    \NC an output routine has just finished    \NC\NR
 \NC box             \NC a typeset box is being added           \NC\NR
-\NC begin_of_par    \NC the beginning of a new paragraph       \NC\NR
+\NC new_graf        \NC the beginning of a new paragraph       \NC\NR
 \NC vmode_par       \NC \tex{par} was found in vertical mode   \NC\NR
 \NC hmode_par       \NC \tex{par} was found in horizontal mode \NC\NR
 \NC insert          \NC an insert is added                     \NC\NR
 \NC penalty         \NC a penalty (in vertical mode)           \NC\NR
 \NC before_display  \NC immediately before a display starts    \NC\NR
 \NC after_display   \NC a display is finished                  \NC\NR
+\NC end             \NC \LUATEX\ is terminating (it's all over)\NC\NR
 \stoptabulate
 
 \subsubsection{\luatex{pre_linebreak_filter}}

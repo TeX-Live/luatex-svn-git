@@ -519,11 +519,10 @@ void ext_post_line_break(boolean d,
 halfword lua_hpack_filter(halfword head_node, scaled size, int pack_type,
                           int extrainfo);
 void lua_node_filter(int filterid, int extrainfo, halfword head_node,
-                     halfword * tail_node);
+                       halfword * tail_node);
 halfword lua_vpack_filter(halfword head_node, scaled size, int pack_type,
                           scaled maxd, int extrainfo);
-void lua_node_filter_s(int filterid, char *extrainfo, halfword head_node,
-                       halfword * tail_node);
+void lua_node_filter_s(int filterid, char *extrainfo);
 
 void load_tex_patterns(int curlang, halfword head);
 void load_tex_hyphenation(int curlang, halfword head);

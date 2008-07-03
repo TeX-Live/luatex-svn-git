@@ -59,12 +59,38 @@ char *pack_type_name[] = { "exactly", "additional" };
 
 
 void
-lua_node_filter_s(int filterid, char *extrainfo, halfword head_node,
+lua_node_filter_s(int filterid, char *extrainfo)
+{
+    halfword ret;
+    int a;
+    lua_State *L = Luas[0];
+    int s_top = lua_gettop(L);
+    int callback_id = callback_defined(filterid);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, callback_callbacks_id);
+    lua_rawgeti(L, -1, callback_id);
+    if (!lua_isfunction(L, -1)) {
+      lua_settop(L, s_top);
+      return;
+    }
+    lua_pushstring(L, extrainfo);       /* arg 1 */
+    if (lua_pcall(L, 1, 0, 0) != 0) {
+        fprintf(stdout, "error: %s\n", lua_tostring(L, -1));
+        lua_settop(L, s_top);
+        error();
+        return;
+    }
+    lua_settop(L, s_top);
+    return;
+}
+
+void
+lua_node_filter(int filterid, int xextrainfo, halfword head_node,
                   halfword * tail_node)
 {
     halfword ret;
     int a;
     lua_State *L = Luas[0];
+    int extrainfo = group_code_names[xextrainfo];
     int callback_id = callback_defined(filterid);
     if (head_node == null || vlink(head_node) == null || callback_id == 0)
         return;
@@ -102,15 +128,6 @@ lua_node_filter_s(int filterid, char *extrainfo, halfword head_node,
     } else {
         *tail_node = head_node;
     }
-    return;
-}
-
-void
-lua_node_filter(int filterid, int extrainfo, halfword head_node,
-                halfword * tail_node)
-{
-    lua_node_filter_s(filterid, group_code_names[extrainfo], head_node,
-                      tail_node);
     return;
 }
 
