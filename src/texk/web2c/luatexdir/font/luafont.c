@@ -1812,7 +1812,11 @@ do_handle_kerning(halfword root, halfword init_left, halfword init_right)
                     type(vlink(cur)) == glyph_node ? vlink(cur) : null;
                 do_handle_kerning(pre_break(cur), left, null);
                 do_handle_kerning(post_break(cur), null, right);
+                if (vlink_post_break(cur)!=null)
+                  tlink_post_break(cur) = tail_of_list(vlink_post_break(cur));
                 do_handle_kerning(no_break(cur), left, right);
+                if (vlink_no_break(cur)!=null)
+                  tlink_no_break(cur) = tail_of_list(vlink_no_break(cur)); /* needed? */
             }
             if (left != null) {
                 if (character(left) < 0 || is_ghost(left)) {
