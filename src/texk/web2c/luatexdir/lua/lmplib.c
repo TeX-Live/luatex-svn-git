@@ -35,7 +35,7 @@
 #include "mplib.h"
 #include "psout.h"
 
-static const char _svn_version[] =
+   /*@unused@*/ static const char _svn_version[] =
     "$Id$ $URL$";
 
 /* metatable identifiers and tests */
@@ -104,7 +104,7 @@ mplib_make_S(transform);
 mplib_make_S(type);
 mplib_make_S(width);
 
-void mplib_init_Ses(lua_State * L)
+static void mplib_init_Ses(lua_State * L)
 {
     mplib_init_S(fill);
     mplib_init_S(outline);
@@ -227,7 +227,7 @@ static mplib_parm_struct mplib_parms[] = {
 
 /* Start by defining the needed callback routines for the library  */
 
-char *mplib_find_file(MP mp, const char *fname, const char *fmode, int ftype)
+static char *mplib_find_file(MP mp, const char *fname, const char *fmode, int ftype)
 {
     lua_State *L = (lua_State *)mp_userdata(mp);
     lua_checkstack(L, 4);
@@ -306,7 +306,7 @@ static int mplib_new(lua_State * L)
                     options->main_memory = (int)lua_tointeger(L, -1);
                     break;
                 case P_HASH_SIZE:
-                    options->hash_size = (int)lua_tointeger(L, -1);
+                    options->hash_size = (unsigned)lua_tointeger(L, -1);
                     break;
                 case P_PARAM_SIZE:
                     options->param_size = (int)lua_tointeger(L, -1);
@@ -685,7 +685,7 @@ static int mplib_gr_tostring(lua_State * L)
 #define aspect_bound   (10.0/65536.0)
 #define aspect_default (1.0/65536.0)
 
-double eps  = 0.0001;
+static double eps  = 0.0001;
 
 static double coord_range_x (mp_knot *h, double dz) {
   double z;
