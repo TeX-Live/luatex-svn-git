@@ -61,8 +61,6 @@ char *pack_type_name[] = { "exactly", "additional" };
 void
 lua_node_filter_s(int filterid, char *extrainfo)
 {
-    halfword ret;
-    int a;
     lua_State *L = Luas[0];
     int s_top = lua_gettop(L);
     int callback_id = callback_defined(filterid);
@@ -90,7 +88,7 @@ lua_node_filter(int filterid, int xextrainfo, halfword head_node,
     halfword ret;
     int a;
     lua_State *L = Luas[0];
-    int extrainfo = group_code_names[xextrainfo];
+    char* extrainfo = group_code_names[xextrainfo];
     int callback_id = callback_defined(filterid);
     if (head_node == null || vlink(head_node) == null || callback_id == 0)
         return;
