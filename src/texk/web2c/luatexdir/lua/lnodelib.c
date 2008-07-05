@@ -349,17 +349,17 @@ static int lua_nodelib_insert_before(lua_State * L)
     } else {
         current = *(check_isnode(L, 2));
     }
-    if (head != current ) {
-      t = alink(current);
-      if (t == null || vlink(t) != current) {
-        set_t_to_prev(head, current);
-        if (t == null) {        /* error! */
-            lua_pushstring(L,
-                           "Attempt to node.insert_before() a non-existing node");
-            lua_error(L);
+    if (head != current) {
+        t = alink(current);
+        if (t == null || vlink(t) != current) {
+            set_t_to_prev(head, current);
+            if (t == null) {    /* error! */
+                lua_pushstring(L,
+                               "Attempt to node.insert_before() a non-existing node");
+                lua_error(L);
+            }
         }
-      }
-      couple_nodes(t, n);
+        couple_nodes(t, n);
     }
     couple_nodes(n, current);
     if (head == current) {
@@ -888,17 +888,19 @@ static int lua_nodelib_count(lua_State * L)
 #define nodelib_pushaction(L,n) { lua_pushnumber(L,n); lua_nodelib_push(L); }
 #define nodelib_pushstring(L,n) { lua_pushstring(L,makecstring(n)); }
 
-static void nodelib_pushdir (lua_State * L, int n, boolean dirnode) {
-  int f = 0;
-  char dirstring[5] = {0};
-  if (dirnode) {
-    dirstring[f++]= (n<0?'-':'+');
-  }
-  if (n<0) n+=64;
-  dirstring[f++] = dir_names[(int)dir_primary[n]];
-  dirstring[f++] = dir_names[(int)dir_secondary[n]];
-  dirstring[f++] = dir_names[(int)dir_tertiary[n]];
-  lua_pushstring(L,dirstring);
+static void nodelib_pushdir(lua_State * L, int n, boolean dirnode)
+{
+    int f = 0;
+    char dirstring[5] = { 0 };
+    if (dirnode) {
+        dirstring[f++] = (n < 0 ? '-' : '+');
+    }
+    if (n < 0)
+        n += 64;
+    dirstring[f++] = dir_names[(int) dir_primary[n]];
+    dirstring[f++] = dir_names[(int) dir_secondary[n]];
+    dirstring[f++] = dir_names[(int) dir_tertiary[n]];
+    lua_pushstring(L, dirstring);
 }
 
 static void lua_nodelib_getfield_whatsit(lua_State * L, int n, int field)
@@ -985,7 +987,7 @@ static void lua_nodelib_getfield_whatsit(lua_State * L, int n, int field)
         case dir_node:
             switch (field) {
             case 4:
-              nodelib_pushdir(L, dir_dir(n), true);
+                nodelib_pushdir(L, dir_dir(n), true);
                 break;
             case 5:
                 lua_pushnumber(L, dir_level(n));
@@ -1293,7 +1295,7 @@ static int lua_nodelib_getfield(lua_State * L)
                 lua_pushnumber(L, height(n));
                 break;
             case 7:
-              nodelib_pushdir(L, box_dir(n), false);
+                nodelib_pushdir(L, box_dir(n), false);
                 break;
             case 8:
                 lua_pushnumber(L, shift_amount(n));
@@ -1329,7 +1331,7 @@ static int lua_nodelib_getfield(lua_State * L)
                 lua_pushnumber(L, height(n));
                 break;
             case 7:
-              nodelib_pushdir(L, box_dir(n), false);
+                nodelib_pushdir(L, box_dir(n), false);
                 break;
             case 8:
                 lua_pushnumber(L, glue_shrink(n));
@@ -1368,7 +1370,7 @@ static int lua_nodelib_getfield(lua_State * L)
                 lua_pushnumber(L, height(n));
                 break;
             case 7:
-              nodelib_pushdir(L, rule_dir(n), false);
+                nodelib_pushdir(L, rule_dir(n), false);
                 break;
             default:
                 lua_pushnil(L);
@@ -1692,48 +1694,57 @@ static int nodelib_getlist(lua_State * L, int n)
 static int nodelib_getdir(lua_State * L, int n)
 {
     char *s = NULL;
-    int d=32; /* invalid number */
-    int a=-1,b=-1,c=-1;
+    int d = 32;                 /* invalid number */
+    int a = -1, b = -1, c = -1;
     if (lua_type(L, n) == LUA_TSTRING) {
-      s = (char *)lua_tostring(L,n);
-      if (strlen(s)==3) {
-         d=0;
-      }
-      if (strlen(s)==4) {
-        if (*s=='-') d = -64;
-        else if (*s=='+') d = 0;
-        s++;
-      }
-      if (strlen(s)==3) {
-        switch (*s) {
-        case 'T': a=0; break;
-        case 'L': a=1; break;
-        case 'B': a=2; break;
-        case 'R': a=3; break;
+        s = (char *) lua_tostring(L, n);
+        if (strlen(s) == 3) {
+            d = 0;
         }
-        switch (*(s+1)) {
-        case 'T': b=0; break;
-        case 'L': b=1; break;
-        case 'B': b=2; break;
-        case 'R': b=3; break;
+        if (strlen(s) == 4) {
+            if (*s == '-')
+                d = -64;
+            else if (*s == '+')
+                d = 0;
+            s++;
         }
-        switch (*(s+2)) {
-        case 'T': c=0; break;
-        case 'L': c=1; break;
-        case 'B': c=2; break;
-        case 'R': c=3; break;
+        if (strlen(s) == 3) {
+            switch (*s) {
+                /*  *INDENT-OFF* */
+                case 'T': a=0; break;
+                case 'L': a=1; break;
+                case 'B': a=2; break;
+                case 'R': a=3; break;
+                /* *INDENT-ON* */
+            }
+            switch (*(s + 1)) {
+                /*  *INDENT-OFF* */
+                case 'T': b=0; break;
+                case 'L': b=1; break;
+                case 'B': b=2; break;
+                case 'R': b=3; break;
+                /* *INDENT-ON* */
+            }
+            switch (*(s + 2)) {
+                /*  *INDENT-OFF* */
+                case 'T': c=0; break;
+                case 'L': c=1; break;
+                case 'B': c=2; break;
+                case 'R': c=3; break;
+                /* *INDENT-ON* */
+            }
         }
-      }
-      if (a != -1 && b != -1 && c != -1 && ! dir_parallel(a,b)) {
-        d += (a*8+dir_rearrange[b]*4+c);
-      }
-    } else if (lua_isnumber(L, n)) { 
-      d = lua_tonumber(L,n);
+        if (a != -1 && b != -1 && c != -1 && !dir_parallel(a, b)) {
+            d += (a * 8 + dir_rearrange[b] * 4 + c);
+        }
+    } else if (lua_isnumber(L, n)) {
+        d = lua_tonumber(L, n);
     }
-    if ((d>31) || (d<-64) || (d<0 && (d+64)>31)) {
-      d = 0;
-      lua_pushfstring(L, "Bad direction specifier %s", (char *)lua_tostring(L,n));
-      lua_error(L);
+    if ((d > 31) || (d < -64) || (d < 0 && (d + 64) > 31)) {
+        d = 0;
+        lua_pushfstring(L, "Bad direction specifier %s",
+                        (char *) lua_tostring(L, n));
+        lua_error(L);
     }
     return d;
 }
@@ -2202,7 +2213,7 @@ static int lua_nodelib_setfield(lua_State * L)
                 height(n) = lua_tointeger(L, 3);
                 break;
             case 7:
-              box_dir(n) = nodelib_getdir(L, 3);
+                box_dir(n) = nodelib_getdir(L, 3);
                 break;
             case 8:
                 shift_amount(n) = lua_tointeger(L, 3);
