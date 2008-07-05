@@ -237,9 +237,10 @@ int run_callback(int i, char *values, ...)
 
 int do_run_callback(int special, char *values, va_list vl)
 {
-    int ret, len;
+    int ret;
+    size_t len;
     int narg, nres;
-    char *s;
+    const char *s;
     char cs;
     int *bufloc;
     char *ss = NULL;
@@ -330,7 +331,7 @@ int do_run_callback(int special, char *values, va_list vl)
                             lua_typename(L, lua_type(L, nres)));
                 goto EXIT;
             }
-            s = (char *) lua_tolstring(L, nres, (size_t *) & len);
+            s = lua_tolstring(L, nres, &len);
             if (s != NULL) {    /* |len| can be zero */
                 bufloc = va_arg(vl, int *);
                 ret = *bufloc;
@@ -352,7 +353,7 @@ int do_run_callback(int special, char *values, va_list vl)
                     goto EXIT;
                 }
             }
-            s = (char *) lua_tolstring(L, nres, (size_t *) & len);
+            s = lua_tolstring(L, nres, &len);
             if (s == NULL)      /* |len| can be zero */
                 *va_arg(vl, int *) = 0;
             else {
@@ -367,7 +368,7 @@ int do_run_callback(int special, char *values, va_list vl)
                     goto EXIT;
                 }
             }
-            s = (char *) lua_tolstring(L, nres, (size_t *) & len);
+            s = lua_tolstring(L, nres, &len);
 
             if (s == NULL)      /* |len| can be zero */
                 *va_arg(vl, int *) = 0;

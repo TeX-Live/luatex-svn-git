@@ -350,12 +350,12 @@ void garbage_warning(void)
 
 char *makecstring(integer s)
 {
-    int l;
+    size_t l;
     return makeclstring(s, &l);
 }
 
 
-char *makeclstring(integer s, int *len)
+char *makeclstring(integer s, size_t *len)
 {
     static char *cstrbuf = NULL;
     char *p;

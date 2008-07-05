@@ -203,7 +203,7 @@ extern integer write_tounicode(char **, char *);
 /* utils.c */
 extern boolean str_eq_cstr(strnumber, char *);
 extern char *makecstring(integer);
-extern char *makeclstring(integer, int *);
+extern char *makeclstring(integer, size_t *);
 extern void print_string(char *j);
 extern void append_string(char *s);
 extern void getcreationdate(void);
