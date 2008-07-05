@@ -355,7 +355,7 @@ void read_img(image_dict * idict, integer pdf_minor_version,
 void scale_img(image * img)
 {
     integer x, y, xr, yr, tmp;  /* size and resolution of image */
-    scaled w, h;                /* indeed size corresponds to image resolution */
+    scaled w = 0, h = 0;        /* indeed size corresponds to image resolution */
     integer default_res;
     image_dict *idict;
     assert(img != NULL);
