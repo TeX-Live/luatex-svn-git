@@ -355,7 +355,7 @@ char *makecstring(integer s)
 }
 
 
-char *makeclstring(integer s, size_t *len)
+char *makeclstring(integer s, size_t * len)
 {
     static char *cstrbuf = NULL;
     char *p;
@@ -2002,9 +2002,9 @@ static void write_pages(pages_entry * p, int parent)
         print_pdf_pages_attr();
     else
         pdf_printf("/Parent %d 0 R\n", parent);
-    pdf_printf("/Count %d\n/Kids [", (int)p->number_of_pages);
+    pdf_printf("/Count %d\n/Kids [", (int) p->number_of_pages);
     for (i = 0; i < p->number_of_kids; i++)
-      pdf_printf("%d 0 R ", (int)p->kids[i]);
+        pdf_printf("%d 0 R ", (int) p->kids[i]);
     remove_last_space();
     pdf_printf("]\n");
     pdf_end_dict();

@@ -415,7 +415,7 @@ extern void set_pre_exhyphen_char(integer lan, integer val);
 extern void set_post_exhyphen_char(integer lan, integer val);
 extern integer get_pre_exhyphen_char(integer lan);
 extern integer get_post_exhyphen_char(integer lan);
-extern halfword compound_word_break (halfword t, int clang);
+extern halfword compound_word_break(halfword t, int clang);
 
 extern halfword new_ligkern(halfword head, halfword tail);
 extern halfword handle_ligaturing(halfword head, halfword tail);
@@ -519,7 +519,7 @@ void ext_post_line_break(boolean d,
 halfword lua_hpack_filter(halfword head_node, scaled size, int pack_type,
                           int extrainfo);
 void lua_node_filter(int filterid, int extrainfo, halfword head_node,
-                       halfword * tail_node);
+                     halfword * tail_node);
 halfword lua_vpack_filter(halfword head_node, scaled size, int pack_type,
                           scaled maxd, int extrainfo);
 void lua_node_filter_s(int filterid, char *extrainfo);
@@ -624,7 +624,7 @@ void pdf_print_real(integer m, integer d);
 /* textoken.c */
 
 void get_next(void);
-halfword active_to_cs (int, int);
+halfword active_to_cs(int, int);
 void get_token_lua(void);
 
 #endif                          /* PDFTEXLIB */
