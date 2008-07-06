@@ -831,6 +831,8 @@ void flush_node(halfword p)
             case 'n':
                 flush_node_list(user_node_value(p));
                 break;
+            case 'd':
+                break;
             default:
                 tconfusion("extuser");
                 break;
@@ -1040,6 +1042,8 @@ void check_node(halfword p)
                 break;
             case 'n':
                 dorangetest(p, user_node_value(p), var_mem_max);
+                break;
+            case 'd':
                 break;
             default:
                 tconfusion("extuser");
