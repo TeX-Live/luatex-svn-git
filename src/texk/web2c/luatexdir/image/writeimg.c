@@ -355,7 +355,7 @@ void read_img(image_dict * idict, integer pdf_minor_version,
 void scale_img(image * img)
 {
     integer x, y, xr, yr, tmp;  /* size and resolution of image */
-    scaled w = 0, h = 0;        /* indeed size corresponds to image resolution */
+    scaled w, h = 0 /* to make compiler happy */ ;      /* indeed size corresponds to image resolution */
     integer default_res;
     image_dict *idict;
     assert(img != NULL);
@@ -376,8 +376,7 @@ void scale_img(image * img)
     if (x <= 0 || y <= 0 || xr < 0 || yr < 0)
         pdftex_fail("ext1: invalid image dimensions");
     if (xr > 65535 || yr > 65535) {
-        xr = 0;
-        yr = 0;
+        xr = yr = 0;
         pdftex_warn("ext1: too large image resolution ignored");
     }
     if (((img_transform(img) - img_rotation(idict)) & 1) == 1) {
