@@ -553,6 +553,9 @@ halfword copy_node(const halfword p)
             case 't':
                 add_token_ref(user_node_value(p));
                 break;
+            case 's':
+              /* |add_string_ref(user_node_value(p));| */ /* if this was mpost .. */
+                break;
             case 'n':
                 s = copy_node_list(user_node_value(p));
                 user_node_value(r) = s;
@@ -831,6 +834,9 @@ void flush_node(halfword p)
             case 'n':
                 flush_node_list(user_node_value(p));
                 break;
+            case 's':
+                /* |delete_string_ref(user_node_value(p));| */ /* if this was mpost .. */
+                break;
             case 'd':
                 break;
             default:
@@ -1043,6 +1049,7 @@ void check_node(halfword p)
             case 'n':
                 dorangetest(p, user_node_value(p), var_mem_max);
                 break;
+            case 's':
             case 'd':
                 break;
             default:
