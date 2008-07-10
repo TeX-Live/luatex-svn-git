@@ -8,7 +8,7 @@ LUAINC = -I../../lua51
 CC = gcc
 
 DEF = -DLUASOCKET_DEBUG 
-CFLAGS = $(LUAINC) $(DEF) -pedantic -Wall -O2
+CFLAGS = $(LUAINC) $(DEF) -pedantic -Wall -O2 $(XCFLAGS)
 AR=ar
 ARFLAGS=rc
 
