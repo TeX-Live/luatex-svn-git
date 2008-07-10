@@ -26600,9 +26600,10 @@ Let's take a look at what happens when they are used correctly.
 
 @<Cases of |main_control| that build...@>=
 vmode+halign,hmode+valign:init_align;
-mmode+halign: if privileged then
+mmode+halign: if privileged then begin
   if cur_group=math_shift_group then init_align
-  else off_save;
+  else off_save
+  end;
 vmode+endv,hmode+endv: do_endv;
 
 @ An |align_group| code is supposed to remain on the |save_stack|
@@ -26708,10 +26709,10 @@ end
 the value of |cur_chr| is placed onto |save_stack| for safe keeping.
 
 @<Cases of |main_control| that build...@>=
-mmode+eq_no: if privileged then
+mmode+eq_no: if privileged then begin
   if cur_group=math_shift_group then start_eq_no
-  else off_save;
-
+  else off_save
+  end;
 @ @<Put each...@>=
 primitive("eqno",eq_no,0);
 @!@:eq_no_}{\.{\\eqno} primitive@>
@@ -35064,19 +35065,23 @@ loc:=start;
 for otp_counter:=1 to otp_output_end do begin
     { convert back to utf-8 }
         t := otp_output_buf[otp_counter];
-        if otp_counter < otp_output_end then
-       if ((t>=@"D800) and (t<@"DC00)) then 
-             if (otp_output_buf[otp_counter+1]>=@"DC00)
-          and (otp_output_buf[otp_counter+1]<@"E000) then begin
-             incr(otp_counter);
-                 t := (t-@"D800) * @"400 + (otp_output_buf[otp_counter]-@"DC00) + @"10000;
-           end
-       else if ((t>=@"DC00) and (t<@"E000)) then 
-             if (otp_output_buf[otp_counter+1]>=@"D800)
-           and (otp_output_buf[otp_counter+1]<@"DC00) then begin
-             incr(otp_counter);
-                 t := (otp_output_buf[otp_counter]-@"D800) * @"400 + (t-@"DC00) + @"10000;
-           end;
+        if otp_counter < otp_output_end then begin
+          if ((t>=@"D800) and (t<@"DC00)) then begin
+            if (otp_output_buf[otp_counter+1]>=@"DC00)
+              and (otp_output_buf[otp_counter+1]<@"E000) then begin
+              incr(otp_counter);
+              t := (t-@"D800) * @"400 + (otp_output_buf[otp_counter]-@"DC00) + @"10000;
+            end
+          end
+          else begin
+            if ((t>=@"DC00) and (t<@"E000)) then 
+              if (otp_output_buf[otp_counter+1]>=@"D800)
+                and (otp_output_buf[otp_counter+1]<@"DC00) then begin
+                incr(otp_counter);
+                t := (otp_output_buf[otp_counter]-@"D800) * @"400 + (t-@"DC00) + @"10000;
+            end
+          end;
+        end;
     if t <= @"7F then
       buffer[last]:= t
     else if t<=@"7FF then begin
