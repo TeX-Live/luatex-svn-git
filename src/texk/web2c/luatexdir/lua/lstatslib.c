@@ -20,6 +20,7 @@
 #include "luatex-api.h"
 #include <ptexlib.h>
 
+
 static const char _svn_version[] =
     "$Id$ $URL$";
 
@@ -30,7 +31,7 @@ typedef struct statistic {
 } statistic;
 
 extern char *ptexbanner;
-/* extern string getcurrentfilenamestring; */
+extern void lua_nodelib_push_fast(lua_State * L, halfword n);
 
 typedef char *(*charfunc) (void);
 typedef integer(*intfunc) (void);
@@ -128,7 +129,7 @@ static struct statistic stats[] = {
     {"luastate_bytes", 'g', &luastate_bytes},
 
     {"output_active", 'b', &output_active},
-
+    {"best_page_break", 'n', &best_page_break},
     {NULL, 0, 0}
 };
 
@@ -175,6 +176,9 @@ static int do_getstat(lua_State * L, int i)
     case 'B':
         g = stats[i].value;
         lua_pushboolean(L, g());
+        break;
+    case 'n':
+        lua_nodelib_push_fast(L, *(halfword *) (stats[i].value));
         break;
     case 'b':
         lua_pushboolean(L, *(integer *) (stats[i].value));
