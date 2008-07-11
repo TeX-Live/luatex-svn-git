@@ -151,12 +151,16 @@ LUAZLIBINC=-I$(ZLIBSRCDIR) -I$(LIBLUASRCDIR)
 $(LUAZLIBDEP): $(LUAZLIBDIR)/lgzip.c $(LUAZLIBDIR)/lzlib.c
 	mkdir -p $(LUAZLIBDIR) && cd $(LUAZLIBDIR) && cp -f $(LUAZLIBSRCDIR)/* . && $(CC) $(CFLAGS) $(LUAZLIBINC) -g -o lgzip.o -c lgzip.c && $(CC) $(CFLAGS) $(LUAZLIBINC) -g -o lzlib.o -c lzlib.c
 
+# mplib (temporary)
+
+LIBMPDIR=mpdir
+LIBMPLIBDEP=$(LIBMPDIR)/lmplib.o $(LIBMPDIR)/.libs/libmplib.a
 
 # Convenience variables.
 
 luatexlibs = $(luapdflib) $(LDLIBPNG) $(LDZLIB) $(LDLIBXPDF) $(LIBMD5DEP) $(LDLIBOBSD) \
              $(LIBLUADEP) $(SLNUNICODEDEP)  $(LUAZIPDEP) $(ZZIPLIBDEP) $(LUAFSDEP) $(LUASOCKETDEP) \
-             $(LUAPEGDEP) $(LUAMDVDEP)  $(LUAZLIBDEP) $(LUAFFDEP)
+             $(LUAPEGDEP) $(LUAMDVDEP)  $(LUAZLIBDEP) $(LUAFFDEP) $(LIBMPLIBDEP)
 
 luatexlibsdep = $(luapdflib) $(LIBPNGDEP) $(ZLIBDEP) $(LIBXPDFDEP) $(LIBMD5DEP) $(LIBOBSDDEP) \
                 $(LIBLUADEP) $(SLNUNICODEDEP) $(ZZIPLIBDEP) $(LUAZIPDEP)  $(LUAFSDEP) $(LUASOCKETDEP) \

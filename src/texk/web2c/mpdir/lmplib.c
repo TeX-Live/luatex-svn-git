@@ -33,10 +33,10 @@
 #endif
 
 #include "mplib.h"
-#include "psout.h"
+#include "mplibps.h"
 
    /*@unused@*/ static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id: lmplib.c 1364 2008-07-04 16:09:46Z taco $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/lua/lmplib.c $";
 
 /* metatable identifiers and tests */
 
@@ -405,7 +405,7 @@ static int mplib_wrapresults(lua_State * L, mp_run_data *res, int status)
             lua_setmetatable(L, -2);
             lua_rawseti(L, -2, i);
             i++;
-            p = p->_next;
+            p = p->next;
         }
         lua_setfield(L, -2, "fig");
         res->edges = NULL;
@@ -479,6 +479,13 @@ static int mplib_charheight(lua_State * L)
   return mplib_char_dimension(L, 'h');
 }
 
+static int mplib_version(lua_State * L)
+{
+  char *s = mp_metapost_version();
+  lua_pushstring(L, s);
+  free(s);
+  return 1;
+}
 
 static int mplib_statistics(lua_State * L)
 {
@@ -527,7 +534,7 @@ static int mplib_fig_body(lua_State * L)
         lua_setmetatable(L, -2);
         lua_rawseti(L, -2, i);
         i++;
-        p = p->_link_field;
+        p = p->next;
     }
     (*hh)->body = NULL;         /* prevent double free */
     return 1;
@@ -543,12 +550,12 @@ static int mplib_fig_copy_body(lua_State * L)
     p = (*hh)->body;
     while (p != NULL) {
         v = lua_newuserdata(L, sizeof(struct mp_graphic_object *));
-        *v = mp_gr_copy_object((*hh)->_parent, p);
+        *v = mp_gr_copy_object((*hh)->parent, p);
         luaL_getmetatable(L, MPLIB_GR_METATABLE);
         lua_setmetatable(L, -2);
         lua_rawseti(L, -2, i);
         i++;
-        p = p->_link_field;
+        p = p->next;
     }
     return 1;
 }
@@ -568,7 +575,7 @@ static int mplib_fig_postscript(lua_State * L)
     int prologues = (int)luaL_optnumber(L, 2, (lua_Number)-1);
     int procset = (int)luaL_optnumber(L, 3, (lua_Number)-1);
     if (mp_ps_ship_out(*hh, prologues, procset) 
-        && (res = mp_rundata((*hh)->_parent))
+        && (res = mp_rundata((*hh)->parent))
         && (res->ps_out.size != 0)) {
         lua_pushstring(L, res->ps_out.data);
     } else {
@@ -581,7 +588,7 @@ static int mplib_fig_filename(lua_State * L)
 {
     struct mp_edge_object **hh = is_fig(L, 1);
     if (*hh != NULL) {
-        char *s = (*hh)->_filename;
+        char *s = (*hh)->filename;
         lua_pushstring(L, s);
     } else {
         lua_pushnil(L);
@@ -593,7 +600,7 @@ static int mplib_fig_width(lua_State * L)
 {
     struct mp_edge_object **hh = is_fig(L, 1);
     if (*hh != NULL) {
-      lua_pushnumber(L, (double) (*hh)->_width / 65536.0);
+      lua_pushnumber(L, (double) (*hh)->width / 65536.0);
     } else {
       lua_pushnil(L);
     }
@@ -604,7 +611,7 @@ static int mplib_fig_height(lua_State * L)
 {
     struct mp_edge_object **hh = is_fig(L, 1);
     if (*hh != NULL) {
-      lua_pushnumber(L, (double) (*hh)->_height / 65536.0);
+      lua_pushnumber(L, (double) (*hh)->height / 65536.0);
     } else {
       lua_pushnil(L);
     }
@@ -615,7 +622,7 @@ static int mplib_fig_depth(lua_State * L)
 {
     struct mp_edge_object **hh = is_fig(L, 1);
     if (*hh != NULL) {
-      lua_pushnumber(L, (double) (*hh)->_depth / 65536.0);
+      lua_pushnumber(L, (double) (*hh)->depth / 65536.0);
     } else {
       lua_pushnil(L);
     }
@@ -626,7 +633,7 @@ static int mplib_fig_italcorr(lua_State * L)
 {
     struct mp_edge_object **hh = is_fig(L, 1);
     if (*hh != NULL) {
-      lua_pushnumber(L, (double) (*hh)->_ital_corr / 65536.0);
+      lua_pushnumber(L, (double) (*hh)->ital_corr / 65536.0);
     } else {
       lua_pushnil(L);
     }
@@ -637,7 +644,7 @@ static int mplib_fig_charcode(lua_State * L)
 {
     struct mp_edge_object **hh = is_fig(L, 1);
     if (*hh != NULL) {
-      lua_pushnumber(L, (lua_Number)(*hh)->_charcode);
+      lua_pushnumber(L, (lua_Number)(*hh)->charcode);
     } else {
       lua_pushnil(L);
     }
@@ -650,13 +657,13 @@ static int mplib_fig_bb(lua_State * L)
 {
     struct mp_edge_object **hh = is_fig(L, 1);
     lua_newtable(L);
-    lua_pushnumber(L, (double) (*hh)->_minx / 65536.0);
+    lua_pushnumber(L, (double) (*hh)->minx / 65536.0);
     lua_rawseti(L, -2, 1);
-    lua_pushnumber(L, (double) (*hh)->_miny / 65536.0);
+    lua_pushnumber(L, (double) (*hh)->miny / 65536.0);
     lua_rawseti(L, -2, 2);
-    lua_pushnumber(L, (double) (*hh)->_maxx / 65536.0);
+    lua_pushnumber(L, (double) (*hh)->maxx / 65536.0);
     lua_rawseti(L, -2, 3);
-    lua_pushnumber(L, (double) (*hh)->_maxy / 65536.0);
+    lua_pushnumber(L, (double) (*hh)->maxy / 65536.0);
     lua_rawseti(L, -2, 4);
     return 1;
 }
@@ -692,13 +699,13 @@ static double coord_range_x (mp_knot *h, double dz) {
   double zlo = 0.0, zhi = 0.0;
   mp_knot *f = h; 
   while (h != NULL) {
-    z = (double)h->x_coord_field;
+    z = (double)h->x_coord;
     if (z < zlo) zlo = z; else if (z > zhi) zhi = z;
-    z = (double)h->right_x_field;
+    z = (double)h->right_x;
     if (z < zlo) zlo = z; else if (z > zhi) zhi = z;
-    z = (double)h->left_x_field;
+    z = (double)h->left_x;
     if (z < zlo) zlo = z; else if (z > zhi) zhi = z;
-    h = h->next_field;
+    h = h->next;
     if (h==f)
       break;
   }
@@ -710,13 +717,13 @@ static double coord_range_y (mp_knot *h, double dz) {
   double zlo = 0.0, zhi = 0.0;
   mp_knot *f = h; 
   while (h != NULL) {
-    z = (double)h->y_coord_field;
+    z = (double)h->y_coord;
     if (z < zlo) zlo = z; else if (z > zhi) zhi = z;
-    z = (double)h->right_y_field;
+    z = (double)h->right_y;
     if (z < zlo) zlo = z; else if (z > zhi) zhi = z;
-    z = (double)h->left_y_field;
+    z = (double)h->left_y;
     if (z < zlo) zlo = z; else if (z > zhi) zhi = z;
-    h = h->next_field;
+    h = h->next;
     if (h==f)
       break;
   }
@@ -736,23 +743,23 @@ static int mplib_gr_peninfo(lua_State * L) {
       lua_pushnil(L);
       return 1;
     }
-    if ((*hh)->_type_field == mp_fill_code) {
-      p    = ((mp_fill_object *)(*hh))->pen_p_field;
-      path = ((mp_fill_object *)(*hh))->path_p_field;
-    } else if ((*hh)->_type_field == mp_stroked_code) {
-      p    = ((mp_stroked_object *)(*hh))->pen_p_field;
-      path = ((mp_stroked_object *)(*hh))->path_p_field;
+    if ((*hh)->type == mp_fill_code) {
+      p    = ((mp_fill_object *)(*hh))->pen_p;
+      path = ((mp_fill_object *)(*hh))->path_p;
+    } else if ((*hh)->type == mp_stroked_code) {
+      p    = ((mp_stroked_object *)(*hh))->pen_p;
+      path = ((mp_stroked_object *)(*hh))->path_p;
     }
     if (p==NULL || path == NULL) {
       lua_pushnil(L);
       return 1;
     }
-    x_coord = p->x_coord_field/65536.0;
-    y_coord = p->y_coord_field/65536.0;
-    left_x = p->left_x_field/65536.0;
-    left_y = p->left_y_field/65536.0;
-    right_x = p->right_x_field/65536.0;
-    right_y = p->right_y_field/65536.0;
+    x_coord = p->x_coord/65536.0;
+    y_coord = p->y_coord/65536.0;
+    left_x = p->left_x/65536.0;
+    left_y = p->left_y/65536.0;
+    right_x = p->right_x/65536.0;
+    right_y = p->right_y/65536.0;
     if ((right_x == x_coord) && (left_y == y_coord)) {
       wx = fabs(left_x  - x_coord);
       wy = fabs(right_y - y_coord);
@@ -798,7 +805,7 @@ static int mplib_gr_fields(lua_State * L)
     int i;
     struct mp_graphic_object **hh = is_gr_object(L, 1);
     if (*hh) {
-        switch ((*hh)->_type_field) {
+        switch ((*hh)->type) {
         case mp_fill_code:
             fields = fill_fields;
             break;
@@ -853,41 +860,41 @@ static void mplib_push_path(lua_State * L, struct mp_knot *h, int is_pen)
         do {
             lua_createtable(L, 0, 6);
             if (!is_pen) {
-                if (p->left_type_field != mp_explicit) {
+                if (p->left_type != mp_explicit) {
                     mplib_push_S(left_type);
-                    lua_pushstring(L, knot_type_enum[p->left_type_field]);
+                    lua_pushstring(L, knot_type_enum[p->left_type]);
                     lua_rawset(L, -3);
                 }
-                if (p->right_type_field != mp_explicit) {
+                if (p->right_type != mp_explicit) {
                     mplib_push_S(right_type);
-                    lua_pushstring(L, knot_type_enum[p->right_type_field]);
+                    lua_pushstring(L, knot_type_enum[p->right_type]);
                     lua_rawset(L, -3);
                 }
             }
             mplib_push_S(x_coord);
-            mplib_push_number(L, p->x_coord_field);
+            mplib_push_number(L, p->x_coord);
             lua_rawset(L, -3);
             mplib_push_S(y_coord);
-            mplib_push_number(L, p->y_coord_field);
+            mplib_push_number(L, p->y_coord);
             lua_rawset(L, -3);
             mplib_push_S(left_x);
-            mplib_push_number(L, p->left_x_field);
+            mplib_push_number(L, p->left_x);
             lua_rawset(L, -3);
             mplib_push_S(left_y);
-            mplib_push_number(L, p->left_y_field);
+            mplib_push_number(L, p->left_y);
             lua_rawset(L, -3);
             mplib_push_S(right_x);
-            mplib_push_number(L, p->right_x_field);
+            mplib_push_number(L, p->right_x);
             lua_rawset(L, -3);
             mplib_push_S(right_y);
-            mplib_push_number(L, p->right_y_field);
+            mplib_push_number(L, p->right_y);
             lua_rawset(L, -3);
             lua_rawseti(L, -2, i);
             i++;
-            if (p->right_type_field == mp_endpoint) {
+            if (p->right_type == mp_endpoint) {
                 return;
             }
-            p = p->next_field;
+            p = p->next;
         } while (p != h);
     } else {
         lua_pushnil(L);
@@ -903,7 +910,7 @@ static void mplib_push_pentype(lua_State * L, struct mp_knot *h)
     p = h;
     if (p == NULL) {
         /* do nothing */
-    } else if (p == p->next_field) {
+    } else if (p == p->next) {
         mplib_push_S(type);
         lua_pushstring(L, "elliptical");
         lua_rawset(L, -3);
@@ -912,11 +919,11 @@ static void mplib_push_pentype(lua_State * L, struct mp_knot *h)
 }
 
 #define set_color_objects(pq)                           \
-  object_color_model = pq->color_model_field;           \
-  object_color_a = pq->color_field._a_val;              \
-  object_color_b = pq->color_field._b_val;              \
-  object_color_c = pq->color_field._c_val;              \
-  object_color_d = pq->color_field._d_val;
+  object_color_model = pq->color_model;           \
+  object_color_a = pq->color.a_val;              \
+  object_color_b = pq->color.b_val;              \
+  object_color_c = pq->color.c_val;              \
+  object_color_d = pq->color.d_val;
 
 
 static void mplib_push_color(lua_State * L, struct mp_graphic_object *p)
@@ -924,10 +931,10 @@ static void mplib_push_color(lua_State * L, struct mp_graphic_object *p)
     int object_color_model;
     int object_color_a, object_color_b, object_color_c, object_color_d;
     if (p != NULL) {
-        if (p->_type_field == mp_fill_code) {
+        if (p->type == mp_fill_code) {
             mp_fill_object *h = (mp_fill_object *) p;
             set_color_objects(h);
-        } else if (p->_type_field == mp_stroked_code) {
+        } else if (p->type == mp_stroked_code) {
             mp_stroked_object *h = (mp_stroked_object *) p;
             set_color_objects(h);
         } else {
@@ -959,16 +966,16 @@ static void mplib_push_dash(lua_State * L, struct mp_stroked_object *h)
 {
     mp_dash_object *d;
     double ds;
-    if (h != NULL && h->dash_p_field != NULL) {
-        d = h->dash_p_field;
+    if (h != NULL && h->dash_p != NULL) {
+        d = h->dash_p;
         lua_newtable(L);
-        mplib_push_number(L, d->offset_field);
+        mplib_push_number(L, d->offset);
         lua_setfield(L, -2, "offset");
-        if (d->array_field != NULL) {
+        if (d->array != NULL) {
             int i = 0;
             lua_newtable(L);
-            while (*(d->array_field + i) != -1) {
-                ds = *(d->array_field + 1) / 65536.0;
+            while (*(d->array + i) != -1) {
+                ds = *(d->array + 1) / 65536.0;
                 lua_pushnumber(L, ds);
                 i++;
                 lua_rawseti(L, -2, i);
@@ -985,22 +992,22 @@ static void mplib_push_transform(lua_State * L, struct mp_text_object *h)
     int i = 1;
     if (h != NULL) {
         lua_createtable(L, 6, 0);
-        mplib_push_number(L, h->tx_field);
+        mplib_push_number(L, h->tx);
         lua_rawseti(L, -2, i);
         i++;
-        mplib_push_number(L, h->ty_field);
+        mplib_push_number(L, h->ty);
         lua_rawseti(L, -2, i);
         i++;
-        mplib_push_number(L, h->txx_field);
+        mplib_push_number(L, h->txx);
         lua_rawseti(L, -2, i);
         i++;
-        mplib_push_number(L, h->tyx_field);
+        mplib_push_number(L, h->tyx);
         lua_rawseti(L, -2, i);
         i++;
-        mplib_push_number(L, h->txy_field);
+        mplib_push_number(L, h->txy);
         lua_rawseti(L, -2, i);
         i++;
-        mplib_push_number(L, h->tyy_field);
+        mplib_push_number(L, h->tyy);
         lua_rawseti(L, -2, i);
         i++;
     } else {
@@ -1010,105 +1017,105 @@ static void mplib_push_transform(lua_State * L, struct mp_text_object *h)
 
 #define FIELD(A) (mplib_is_S(A,2))
 
-static void mplib_fill_field(lua_State * L, struct mp_fill_object *h)
+static void mplib_fill(lua_State * L, struct mp_fill_object *h)
 {
     if (FIELD(path)) {
-        mplib_push_path(L, h->path_p_field, MPLIB_PATH);
+        mplib_push_path(L, h->path_p, MPLIB_PATH);
     } else if (FIELD(htap)) {
-        mplib_push_path(L, h->htap_p_field, MPLIB_PATH);
+        mplib_push_path(L, h->htap_p, MPLIB_PATH);
     } else if (FIELD(pen)) {
-        mplib_push_path(L, h->pen_p_field, MPLIB_PEN);
-        mplib_push_pentype(L, h->pen_p_field);
+        mplib_push_path(L, h->pen_p, MPLIB_PEN);
+        mplib_push_pentype(L, h->pen_p);
     } else if (FIELD(color)) {
         mplib_push_color(L, (mp_graphic_object *) h);
     } else if (FIELD(linejoin)) {
-      lua_pushnumber(L, (lua_Number)h->ljoin_field);
+      lua_pushnumber(L, (lua_Number)h->ljoin);
     } else if (FIELD(miterlimit)) {
-        mplib_push_number(L, h->miterlim_field);
+        mplib_push_number(L, h->miterlim);
     } else if (FIELD(prescript)) {
-        lua_pushstring(L, h->pre_script_field);
+        lua_pushstring(L, h->pre_script);
     } else if (FIELD(postscript)) {
-        lua_pushstring(L, h->post_script_field);
+        lua_pushstring(L, h->post_script);
     } else {
         lua_pushnil(L);
     }
 }
 
-static void mplib_stroked_field(lua_State * L, struct mp_stroked_object *h)
+static void mplib_stroked(lua_State * L, struct mp_stroked_object *h)
 {
     if (FIELD(path)) {
-        mplib_push_path(L, h->path_p_field, MPLIB_PATH);
+        mplib_push_path(L, h->path_p, MPLIB_PATH);
     } else if (FIELD(pen)) {
-        mplib_push_path(L, h->pen_p_field, MPLIB_PEN);
-        mplib_push_pentype(L, h->pen_p_field);
+        mplib_push_path(L, h->pen_p, MPLIB_PEN);
+        mplib_push_pentype(L, h->pen_p);
     } else if (FIELD(color)) {
         mplib_push_color(L, (mp_graphic_object *) h);
     } else if (FIELD(dash)) {
         mplib_push_dash(L, h);
     } else if (FIELD(linecap)) {
-        lua_pushnumber(L, (lua_Number)h->lcap_field);
+        lua_pushnumber(L, (lua_Number)h->lcap);
     } else if (FIELD(linejoin)) {
-      lua_pushnumber(L, (lua_Number)h->ljoin_field);
+      lua_pushnumber(L, (lua_Number)h->ljoin);
     } else if (FIELD(miterlimit)) {
-        mplib_push_number(L, h->miterlim_field);
+        mplib_push_number(L, h->miterlim);
     } else if (FIELD(prescript)) {
-        lua_pushstring(L, h->pre_script_field);
+        lua_pushstring(L, h->pre_script);
     } else if (FIELD(postscript)) {
-        lua_pushstring(L, h->post_script_field);
+        lua_pushstring(L, h->post_script);
     } else {
         lua_pushnil(L);
     }
 }
 
-static void mplib_text_field(lua_State * L, struct mp_text_object *h)
+static void mplib_text(lua_State * L, struct mp_text_object *h)
 {
     if (FIELD(text)) {
-        lua_pushstring(L, h->text_p_field);
+        lua_pushstring(L, h->text_p);
     } else if (FIELD(dsize)) {
-        mplib_push_number(L, (h->font_dsize_field / 16));
+        mplib_push_number(L, (h->font_dsize / 16));
     } else if (FIELD(font)) {
-        lua_pushstring(L, h->font_name_field);
+        lua_pushstring(L, h->font_name);
     } else if (FIELD(color)) {
         mplib_push_color(L, (mp_graphic_object *) h);
     } else if (FIELD(width)) {
-        mplib_push_number(L, h->width_field);
+        mplib_push_number(L, h->width);
     } else if (FIELD(height)) {
-        mplib_push_number(L, h->height_field);
+        mplib_push_number(L, h->height);
     } else if (FIELD(depth)) {
-        mplib_push_number(L, h->depth_field);
+        mplib_push_number(L, h->depth);
     } else if (FIELD(transform)) {
         mplib_push_transform(L, h);
     } else if (FIELD(prescript)) {
-        lua_pushstring(L, h->pre_script_field);
+        lua_pushstring(L, h->pre_script);
     } else if (FIELD(postscript)) {
-        lua_pushstring(L, h->post_script_field);
+        lua_pushstring(L, h->post_script);
     } else {
         lua_pushnil(L);
     }
 }
 
-static void mplib_special_field(lua_State * L, struct mp_special_object *h)
+static void mplib_special(lua_State * L, struct mp_special_object *h)
 {
     if (FIELD(prescript)) {
-        lua_pushstring(L, h->pre_script_field);
+        lua_pushstring(L, h->pre_script);
     } else {
         lua_pushnil(L);
     }
 }
 
-static void mplib_start_bounds_field(lua_State * L, struct mp_bounds_object *h)
+static void mplib_start_bounds(lua_State * L, struct mp_bounds_object *h)
 {
     if (FIELD(path)) {
-        mplib_push_path(L, h->path_p_field, MPLIB_PATH);
+        mplib_push_path(L, h->path_p, MPLIB_PATH);
     } else {
         lua_pushnil(L);
     }
 }
 
-static void mplib_start_clip_field(lua_State * L, struct mp_clip_object *h)
+static void mplib_start_clip(lua_State * L, struct mp_clip_object *h)
 {
     if (FIELD(path)) {
-        mplib_push_path(L, h->path_p_field, MPLIB_PATH);
+        mplib_push_path(L, h->path_p, MPLIB_PATH);
     } else {
         lua_pushnil(L);
     }
@@ -1121,26 +1128,26 @@ static int mplib_gr_index(lua_State * L)
         struct mp_graphic_object *h = *hh;
 
         if (mplib_is_S(type, 2)) {
-            lua_rawgeti(L, LUA_REGISTRYINDEX, mplib_type_Ses[h->_type_field]);
+            lua_rawgeti(L, LUA_REGISTRYINDEX, mplib_type_Ses[h->type]);
         } else {
-            switch (h->_type_field) {
+            switch (h->type) {
             case mp_fill_code:
-                mplib_fill_field(L, (mp_fill_object *) h);
+                mplib_fill(L, (mp_fill_object *) h);
                 break;
             case mp_stroked_code:
-                mplib_stroked_field(L, (mp_stroked_object *) h);
+                mplib_stroked(L, (mp_stroked_object *) h);
                 break;
             case mp_text_code:
-                mplib_text_field(L, (mp_text_object *) h);
+                mplib_text(L, (mp_text_object *) h);
                 break;
             case mp_special_code:
-                mplib_special_field(L, (mp_special_object *) h);
+                mplib_special(L, (mp_special_object *) h);
                 break;
             case mp_start_clip_code:
-                mplib_start_clip_field(L, (mp_clip_object *) h);
+                mplib_start_clip(L, (mp_clip_object *) h);
                 break;
             case mp_start_bounds_code:
-                mplib_start_bounds_field(L, (mp_bounds_object *) h);
+                mplib_start_bounds(L, (mp_bounds_object *) h);
                 break;
             case mp_stop_clip_code:
             case mp_stop_bounds_code:
@@ -1197,6 +1204,7 @@ static const struct luaL_reg mplib_d[] = {
 
 static const struct luaL_reg mplib_m[] = {
     {"new", mplib_new},
+    {"version",    mplib_version},
     {"fields", mplib_gr_fields},
     {"pen_info", mplib_gr_peninfo},
     {NULL, NULL}                /* sentinel */
