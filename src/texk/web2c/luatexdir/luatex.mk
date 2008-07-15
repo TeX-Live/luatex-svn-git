@@ -3,9 +3,6 @@
 # differ between releases of pdfeTeX.
 # $Id$
 
-# This is temporary
-makecpool=$(native)/$(luatexdir)/makecpool
-
 # We build luatex
 luatex = @LTEX@ luatex
 luatexdir = luatexdir
@@ -41,7 +38,7 @@ $(luatexdir)/luatex.version: $(srcdir)/$(luatexdir)/luatex.web
 
 # The C sources.
 luatex_c = luatexini.c luatex0.c luatex1.c luatex2.c luatex3.c
-luatex_o = luatexini.o luatex0.o luatex1.o luatex2.o luatex3.o luatexextra.o loadpool.o
+luatex_o = luatexini.o luatex0.o luatex1.o luatex2.o luatex3.o luatexextra.o luatex-pool.o $(luatex_o-with_synctex)
 
 # Making luatex
 luatex: luatexd.h $(luatex_o) $(luatexextra_o) $(luatexlibsdep)
@@ -50,14 +47,15 @@ luatex: luatexd.h $(luatex_o) $(luatexextra_o) $(luatexlibsdep)
 # C file dependencies.
 $(luatex_c) luatexcoerce.h luatexd.h: luatex.p $(web2c_texmf) $(srcdir)/$(luatexdir)/luatex.defines $(srcdir)/$(luatexdir)/luatex.h
 	$(web2c) luatex
-luatexextra.c: $(luatexdir)/luatexextra.h lib/texmfmp.c
+    $(luatexd.h-with_synctex)
+luatexextra.c: luatexd.h $(luatexdir)/luatexextra.h lib/texmfmp.c
 	test -d $(luatexdir) || mkdir $(luatexdir)
 	sed s/TEX-OR-MF-OR-MP/luatex/ $(srcdir)/lib/texmfmp.c >$@
 $(luatexdir)/luatexextra.h: $(luatexdir)/luatexextra.in $(luatexdir)/luatex.version
 	test -d $(luatexdir) || mkdir $(luatexdir)
 	sed -e s/LUATEX-VERSION/`cat $(luatexdir)/luatex.version`/ \
 	  $(srcdir)/$(luatexdir)/luatexextra.in >$@
-loadpool.c: luatex.pool $(makecpool)
+luatex-pool.c: luatex.pool
 	$(makecpool) luatex.pool luatexdir/ptexlib.h >$@ || rm -f $@
 
 # luatangle we need a private version of tangle

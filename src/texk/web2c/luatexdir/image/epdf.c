@@ -37,7 +37,7 @@ int is_subsetable(fm_entry * fm)
     return is_subsetted(fm);
 }
 
-fd_entry *epdf_create_fontdescriptor(fm_entry * fm)
+fd_entry *epdf_create_fontdescriptor(fm_entry * fm, int stemV)
 {
     fd_entry *fd;
     if ((fd = lookup_fd_entry(fm->ff_name, fm->slant, fm->extend)) == NULL) {
@@ -48,7 +48,9 @@ fd_entry *epdf_create_fontdescriptor(fm_entry * fm)
         fd->fd_objnum = pdf_new_objnum();
         assert(fm->ps_name != NULL);
         fd->fontname = xstrdup(fm->ps_name);    /* just fallback */
-        /* preset_fontmetrics (fo->fd, f); */
+        // stemV must be copied
+        fd->font_dim[STEMV_CODE].val = stemV;
+        fd->font_dim[STEMV_CODE].set = true;
         fd->gl_tree = avl_create(comp_string_entry, NULL, &avl_xallocator);
         assert(fd->gl_tree != NULL);
     }

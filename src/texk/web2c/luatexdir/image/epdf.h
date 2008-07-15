@@ -43,7 +43,7 @@ extern "C" {
 #include <web2c/config.h>       /* define type integer */
 
 #include <web2c/luatexdir/ptexmac.h>
-#include "openbsd-compat.h"
+  /*#include "openbsd-compat.h"*/ 
 #include "image.h"
 #include "../avlstuff.h"
 
@@ -51,21 +51,23 @@ extern "C" {
 
     extern integer epdf_page_box;
     extern void *epdf_xref;
-
+    extern integer epdf_lastGroupObjectNum;
+ 
     extern integer pdf_box_spec_media;
     extern integer pdf_box_spec_crop;
     extern integer pdf_box_spec_bleed;
     extern integer pdf_box_spec_trim;
     extern integer pdf_box_spec_art;
 
-    extern integer pdf_stream_length;
-    extern integer pdf_ptr;
+    extern longinteger pdf_stream_length;
+    extern longinteger pdf_ptr;
     extern integer pool_ptr;
     typedef unsigned char eight_bits;
     extern eight_bits *pdf_buf;
     extern integer pdf_buf_size;
     extern integer pdf_os_mode;
     extern eight_bits pdf_last_byte;
+    extern integer fixed_inclusion_copy_font;
 
     extern char notdef[];
 
@@ -94,6 +96,7 @@ extern "C" {
     __attribute__ ((format(printf, 1, 2)))
     extern void tex_printf(const char *, ...);
     extern void write_epdf(image_dict *);
+    extern void write_additional_epdf_objects(void);
     extern void zpdf_begin_dict(integer, bool);
     extern void zpdf_begin_obj(integer, bool);
     extern void zpdf_create_obj(integer, integer);
@@ -102,7 +105,7 @@ extern "C" {
 
 /* epdf.c */
     extern void epdf_mark_glyphs(struct fd_entry *, char *);
-    extern struct fd_entry *epdf_create_fontdescriptor(struct fm_entry *);
+  extern struct fd_entry *epdf_create_fontdescriptor(struct fm_entry *, int);
     extern int get_fd_objnum(struct fd_entry *);
     extern int get_fn_objnum(struct fd_entry *);
 

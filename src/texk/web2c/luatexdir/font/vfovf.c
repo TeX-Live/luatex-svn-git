@@ -1588,3 +1588,32 @@ letter_space_font(halfword u, internal_font_number f, integer e)
      */
     return k;
 }
+
+/* the fontname has [+-]\d+ls at the end */ 
+
+boolean  is_letterspaced_font(internal_font_number f) {
+    char *i, *j;
+    if (font_type(f) != virtual_font_type)
+        return false;
+    j = font_name(f);
+    i = j + strlen(j);
+    if ((*(i-1) != 'l') || (*i != 's'))
+        return false;
+    i = i - 2;
+    while (i >= j) { 
+      if ((*i < '0') || (*i > '9'))
+            break;
+        i--;
+    }
+    if (i < j) 
+        return false;
+    if ((*i != '+') && (*i != '-'))
+        return false;
+    return true;
+}
+
+/* TODO */
+
+internal_font_number copy_font_info(internal_font_number f) {
+  return copy_font(f);
+}

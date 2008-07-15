@@ -41,7 +41,7 @@ integer ttf_curbyte = 0;
 typedef struct {
     char *name;                 /* name of glyph */
     long code;                  /* charcode in case of subfonts */
-    short newindex;             /* new index of glyph in output file */
+    long newindex;             /* new index of glyph in output file */
 
 } ttfenc_entry;
 
@@ -60,7 +60,7 @@ typedef struct {
     char *ttf_name;
     TTF_USHORT pid;
     TTF_USHORT eid;
-    short *table;
+    long *table;
 } ttf_cmap_entry;
 
 static TTF_USHORT ntabs;
@@ -295,7 +295,9 @@ static void ttf_copy_encoding(void)
             e = ttfenc_tab + *q;
             e->code = charcodes[*q];
             if (e->code == -1)
-                pdftex_warn("character %i is not mapped to any charcode", *q);
+                pdftex_warn
+                    ("character %i in subfont %s is not mapped to any charcode",
+                     *q, fd_cur->fm->tfm_name);
             else {
                 assert(e->code < 0x10000);
                 sprintf(buf, "/c%4.4X", (int) e->code);
@@ -338,7 +340,7 @@ static void ttf_read_name(void)
 {
     int i, j;
     dirtab_entry *tab = ttf_seek_tab("name", TTF_USHORT_SIZE);
-    char *p;
+    char *p, buf[SMALL_BUF_SIZE];
     name_record_num = get_ushort();
     name_tab = xtalloc(name_record_num, name_record);
     name_buf_size = tab->length -
@@ -370,12 +372,14 @@ static void ttf_read_name(void)
     if (!fd_cur->font_dim[FONTNAME_CODE].set) {
         for (i = 0; i < name_record_num; i++) {
             if (name_tab[i].platform_id == 3 &&
-                (name_tab[i].encoding_id == 0 ||
-                 name_tab[i].encoding_id == 1) && name_tab[i].name_id == 6) {
-                for (j = 0, p = fd_cur->fontname; j < name_tab[i].length;
-                     j += 2)
+               (name_tab[i].encoding_id == 0 || name_tab[i].encoding_id == 1) && 
+                name_tab[i].name_id == 6) {
+                xfree(fd_cur->fontname);
+                assert(name_tab[i].length < sizeof(buf));
+                for (j = 0, p = buf; j < name_tab[i].length; j += 2)
                     *p++ = name_buf[name_tab[i].offset + j + 1];
                 *p = 0;
+                fd_cur->fontname = xstrdup(strip_spaces_and_delims(buf, strlen(buf)));
                 fd_cur->font_dim[FONTNAME_CODE].set = true;
                 break;
             }
@@ -608,7 +612,7 @@ static ttf_cmap_entry *ttf_read_cmap(char *ttf_name, int pid, int eid,
     p->ttf_name = xstrdup(ttf_name);
     p->pid = pid;
     p->eid = eid;
-    p->table = xtalloc(0x10000, short);
+    p->table = xtalloc(0x10000, long);
     for (i = 0; i < 0x10000; ++i)
         p->table[i] = -1;       /* unassigned yet */
 
@@ -655,7 +659,7 @@ static ttf_cmap_entry *ttf_read_cmap(char *ttf_name, int pid, int eid,
                 if (p->table[i] != -1)
                     pdftex_warn
                         ("cmap: multiple glyphs are mapped to unicode %.4lX, "
-                         "only %i will be used (glyph %li being ignored)", i,
+                         "only %li will be used (glyph %li being ignored)", i,
                          p->table[i], index);
                 else
                     p->table[i] = index;
@@ -838,9 +842,10 @@ static void ttf_write_cmap(void)
 
 static int prepend_subset_tags(int index, char *p)
 {
-    const boolean is_unicode = (name_tab[index].platform_id == 3);
+    boolean is_unicode;
     int i;
-    assert(index > 0 && index < name_record_num && fd_cur->subset_tag != NULL);
+    assert(index >= 0 && index < name_record_num && fd_cur->subset_tag != NULL);
+    is_unicode = (name_tab[index].platform_id == 3);
     if (is_unicode) {
         for (i = 0; i < 6; ++i) {
             *p++ = 0;
@@ -1017,7 +1022,7 @@ static void ttf_reindex_glyphs(void)
     ttfenc_entry *e;
     glyph_entry *glyph;
     int index;
-    short *t;
+    long *t;
     ttf_cmap_entry *cmap = NULL;
     boolean cmap_not_found = false;
 
@@ -1090,7 +1095,7 @@ static void ttf_reindex_glyphs(void)
             if (t[index] != -1) {
                 if (t[index] >= glyphs_count) {
                     pdftex_warn
-                        ("`%s' is mapped to index %i which is out of valid range [0..%i)",
+                        ("`%s' is mapped to index %li which is out of valid range [0..%i)",
                          e->name, t[index], glyphs_count);
                     continue;
                 }
@@ -1334,9 +1339,7 @@ void writettf(fd_entry * fd)
 
     if (is_subsetted(fd_cur->fm) && (fd_cur->fe == NULL)
         && !is_subfont(fd_cur->fm)) {
-        pdftex_warn("Subset TrueType must be a reencoded or a subfont");
-        cur_file_name = NULL;
-        return;
+        pdftex_fail("Subset TrueType must be a reencoded or a subfont");
     }
     ttf_curbyte = 0;
     ttf_size = 0;

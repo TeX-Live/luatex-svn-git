@@ -663,7 +663,7 @@ int read_tfm_info(internalfontnumber f, char *cnom, char *caire, scaled s)
     if (lf !=
         (header_length + lh + ncw + nw + nh + nd + ni + nlw + nk + neew + np))
         tfm_abort;
-
+    if ((nw==0)||(nh==0)||(nd==0)||(ni==0)) tfm_abort;
     /* @<Use size fields to allocate font information@>; */
 
     set_font_natural_dir(f, font_dir);

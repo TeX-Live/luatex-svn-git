@@ -1,3 +1,41 @@
+2008-05-28  Karl Berry  <karl@tug.org>
+
+	* Makefile.in (default all): always make all, rather than $@.
+
+2008-04-25  Karl Berry  <karl@tug.org>
+
+	* xdvik/Makefile.in (xdvizilla): skip (un)installing this.  debian
+	477160, tex-live 24 Apr 2008 02:03:57.
+
+2008-02-21  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* withenable.ac (kpse_texk_pkglist): m4_defined list of all
+	optional packages, used to generate --without-PKG options.
+	* configure.in: use kpse_texk_pkglist to select subdirs.
+
+2008-02-02  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Convert from autoconf-2.13 to autoconf-2.59+:
+	* configure.in: Use KPSE_CONFIG_SUBDIRS.
+	* Makefile.in: Add @configure_input@ line.
+	* aclocal.m4 (new): Generated (aclocal -I m4).
+	* configure: Regenerated (autoconf).
+
+2008-02-01  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.in: Removed configure kludge for dvipos.
+	* configure: Regenerated (autoconf2.13).
+
+2008-01-13  Karl Berry  <karl@tug.org>
+
+	* withenable.ac (afm2pl, dtl): more --without options.
+	Found by Patrice.
+
+2007-01-10  Karl Berry  <karl@tug.org>
+
+	* dvipos/Makefile (DEFS): add -I../../../texk for
+	kpathsea/kpathsea.h
+
 2006-12-05  Karl Berry  <karl@tug.org>
 
 	* configure: trying dvipng again.

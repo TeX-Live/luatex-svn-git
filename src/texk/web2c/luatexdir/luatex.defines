@@ -235,6 +235,8 @@
 @define procedure undump_ocp_table ();
 @define procedure run_external_ocp ();
 
+@define function  copy_font_info();
+
 { 'texfont' library definitions }
 
 @define procedure dump_font ();
@@ -489,6 +491,7 @@
 @define function epdf_orig_y();
 @define function image_pages();
 @define function image_colordepth();
+@define function image_groupref();
 @define function image_index();
 @define function image_width();
 @define function image_height();
@@ -496,6 +499,7 @@
 @define function image_objnum();
 @define function image_imgnum();
 @define function is_pdf_image();
+@define function is_png_image();
 @define function read_image();
 @define function new_image_entry;
 @define procedure update_image_procset();
@@ -504,6 +508,9 @@
 @define procedure set_image_dimensions();
 @define procedure set_image_index();
 @define procedure out_image();
+
+@define procedure dumpimagemeta;
+@define procedure undumpimagemeta();
 
 { functions from limglib.c }
 
@@ -519,6 +526,9 @@
 
 { functions from tounicode.c }
 @define procedure def_tounicode();
+
+{ functions from luatex.web }
+@define function auto_expand_vf();
 
 { end of luatex.defines }
 

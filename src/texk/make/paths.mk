@@ -1,8 +1,5 @@
 # paths.mk -- installation directories.
-#
-# The compile-time paths are defined in kpathsea/paths.h, which is built
-# from kpathsea/texmf.in and these definitions.  See kpathsea/INSTALL
-# for how the various path-related files are used and created.
+# $Id: paths.mk 8409 2008-05-29 20:59:08Z karl $
 
 # Do not change prefix and exec_prefix in Makefile.in!
 # configure doesn't propagate the change to the other Makefiles.
@@ -22,6 +19,7 @@ scriptdir = $(bindir)
 libdir = @libdir@
 
 # Architecture-independent files.
+datarootdir = @datarootdir@
 datadir = @datadir@
 
 # Header files.
@@ -35,13 +33,23 @@ manext = 1
 mandir = @mandir@
 man1dir = $(mandir)/man$(manext)
 
+# modifiable single-machine data.
+localstatedir = @localstatedir@
+
+# read-only single-machine data (configuration).
+sysconfdir = @sysconfdir@
+
+# executables that other programs run.
+libexecdir = @libexecdir@
+
+
 # TeX system-specific directories. Not all of the following are relevant
 # for all programs, but it seems cleaner to collect everything in one place.
 
-# The default paths are now in kpathsea/texmf.in. Passing all the
-# paths to sub-makes can make the arg list too long on system V.
-# Note that if you make changes below, you will have to make the
-# corresponding changes to texmf.in or texmf.cnf yourself.
+# The default paths are in kpathsea/texmf.cnf. Passing all the paths to
+# sub-makes can make the arg list too long.  If you make
+# changes below, you will have to make the corresponding changes to
+# texmf.cnf yourself.
 
 # The root of the main tree.
 texmf = @texmfmain@
@@ -90,6 +98,6 @@ psheaderdir = $(dvipsdir)
 # overridden by the envvar TEXSIZES, and by a program-specific variable
 # (e.g., XDVISIZES), and perhaps by a config file (e.g., in dvips).
 # This list must be sorted in ascending order.
-default_texsizes = 300:600
+default_texsizes = 600
 
 # End of paths.mk.

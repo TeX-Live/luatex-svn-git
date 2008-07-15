@@ -1,3 +1,4 @@
+# @configure_input@
 # Top-level Makefile for kpathsea-using programs.
 
 # Package subdirectories, the library, and all subdirectories.
@@ -14,8 +15,7 @@ kpse_include make/makevars.mk
 # if we are to propagate changes at the top level.
 # XMAKEARGS is for the user to override.
 makeargs = $(MFLAGS) CC='$(CC)' CFLAGS='$(CFLAGS)' LDFLAGS='$(LDFLAGS)' $(makevars) $(XMAKEARGS)
-installargs = INSTALL_DATA='$(INSTALL_DATA)' \
-  INSTALL_PROGRAM='$(INSTALL_PROGRAM)' $(makeargs)
+installargs = $(makeargs)
 
 # Not everything from common.mk is relevant to this top-level
 # Makefile, but most of it is, and it doesn't seem worth separating the
@@ -29,11 +29,13 @@ kpse_include make/programs.mk
 kpathsea_parent = .
 
 # Make the library before the programs.
+# Always make all, rather than $@, because automake-generated Makefiles,
+# among others, do not have a default target.
 # Use if ... rather than || or && because Ultrix sh exits for
 # no good reason with the latter.
 default all: do-kpathsea
 	for d in $(programs); do if test -f $$d/Makefile; then \
-	  (cd $$d && $(MAKE) $(makeargs) $@) || exit 1; else true; fi; done
+	  (cd $$d && $(MAKE) $(makeargs) all) || exit 1; else true; fi; done
 
 install install-data install-exec:
 	for d in kpathsea $(programs); do if test -f $$d/Makefile; then \
@@ -54,7 +56,7 @@ distclean::
 	  (cd $$d && $(MAKE) $(makeargs) $@) || exit 1; else true; fi; done
 
 distclean realclean::
-	rm -f Makefile Makefile.aux config.status config.cache config.log libtool kpse_empty
+	rm -f Makefile Makefile.aux config.status config.cache config.log libtool
 
 # Unconditionally remake the library, since we don't want to write out
 # the dependencies here.

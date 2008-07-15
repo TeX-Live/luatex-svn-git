@@ -107,7 +107,7 @@ void ext_post_line_break(boolean d,
                          scaled second_width,
                          scaled second_indent,
                          scaled first_width,
-                         scaled first_indent, halfword best_line)
+                         scaled first_indent, halfword best_line, halfword pdf_ignored_dimen)
 {
 
     boolean have_directional = true;
@@ -417,13 +417,13 @@ void ext_post_line_break(boolean d,
 
         /* Append the new box to the current vertical list, followed by the list of
            special nodes taken out of the box by the packager; */
-        if (pdf_each_line_height != 0)
+        if (pdf_each_line_height != pdf_ignored_dimen )
             height(just_box) = pdf_each_line_height;
-        if (pdf_each_line_depth != 0)
+        if (pdf_each_line_depth != pdf_ignored_dimen )
             depth(just_box) = pdf_each_line_depth;
-        if ((pdf_first_line_height != 0) && (cur_line == cur_list.pg_field + 1))
+        if ((pdf_first_line_height != pdf_ignored_dimen ) && (cur_line == cur_list.pg_field + 1))
             height(just_box) = pdf_first_line_height;
-        if ((pdf_last_line_depth != 0) && (cur_line + 1 == best_line))
+        if ((pdf_last_line_depth != pdf_ignored_dimen ) && (cur_line + 1 == best_line))
             depth(just_box) = pdf_last_line_depth;
 
         if (pre_adjust_head != pre_adjust_tail)

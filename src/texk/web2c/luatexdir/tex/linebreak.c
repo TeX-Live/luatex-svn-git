@@ -1525,7 +1525,9 @@ ext_do_line_break(boolean d,
                   halfword widow_penalties_ptr,
                   int display_widow_penalty,
                   int widow_penalty,
-                  int broken_penalty, halfword final_par_glue)
+                  int broken_penalty, 
+                  halfword final_par_glue, 
+                  halfword pdf_ignored_dimen)
 {
     /* DONE,DONE1,DONE2,DONE3,DONE4,DONE5,CONTINUE; */
     halfword cur_p, q, r, s;    /* miscellaneous nodes of temporary interest */
@@ -2176,7 +2178,7 @@ ext_post_line_break(d,
                     best_bet,
                     last_special_line,
                     second_width,
-                    second_indent, first_width, first_indent, best_line);
+                    second_indent, first_width, first_indent, best_line, pdf_ignored_dimen);
   /* /Break the paragraph at the chosen... */
   /* Clean up the memory by removing the break nodes; */
 clean_up_the_memory();

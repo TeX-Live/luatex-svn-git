@@ -75,6 +75,11 @@ typedef struct {
     char *unicode_seq;          /* multiple unicode sequence */
 } glyph_unicode_entry;
 
+#  define FD_FLAGS_NOT_SET_IN_MAPLINE -1
+#  define FD_FLAGS_DEFAULT_EMBED  4     /* a symbol font */
+#  define FD_FLAGS_DEFAULT_NON_EMBED 0x22
+                                        /* a nonsymbolic serif font */
+
 typedef struct {
     /* parameters scanned from the map file: */
     char *tfm_name;             /* TFM file name (1st field in map line) */
@@ -183,6 +188,7 @@ extern void pdf_init_map_file(string map_name);
 extern fm_entry *new_fm_entry(void);
 extern void delete_fm_entry(fm_entry *);
 extern int avl_do_entry(fm_entry *, int);
+extern int check_std_t1font(char *s);
 
 /* papersiz.c */
 extern integer myatodim(char **);
@@ -240,7 +246,7 @@ extern void pdftex_warn(const char *, ...);
 extern void set_job_id(int, int, int, int);
 __attribute__ ((format(printf, 1, 2)))
 extern void tex_printf(const char *, ...);
-extern void write_stream_length(integer, integer);
+extern void write_stream_length(integer, longinteger);
 extern char *convertStringToPDFString(const char *in, int len);
 extern void print_ID(strnumber);
 extern void print_creation_date();
@@ -294,6 +300,7 @@ extern boolean check_image_b(integer);
 extern boolean check_image_c(integer);
 extern boolean check_image_i(integer);
 extern boolean is_pdf_image(integer);
+extern boolean is_png_image(integer);
 extern integer image_pages(integer);
 extern integer image_index(integer);
 extern integer image_width(integer);
@@ -308,10 +315,13 @@ extern void img_free(void);
 extern void update_image_procset(integer);
 extern void write_image(integer);
 extern integer image_colordepth(integer img);
+extern integer image_groupref(integer img);
 extern void scale_image(integer);
 extern void set_image_dimensions(integer, integer, integer, integer);
 extern void set_image_index(integer, integer);
 extern void out_image(integer, scaled, scaled);
+extern void dumpimagemeta(void);
+extern void undumpimagemeta(integer, integer);
 
 /* writejbig2.c */
 extern void flush_jbig2_page0_objects();
@@ -487,7 +497,8 @@ void ext_do_line_break(boolean d,
                        halfword widow_penalties_ptr,
                        int display_widow_penalty,
                        int widow_penalty,
-                       int broken_penalty, halfword final_par_glue);
+                       int broken_penalty, halfword final_par_glue,
+                       halfword pdf_ignored_dimen);
 
 void ext_post_line_break(boolean d,
                          int right_skip,
@@ -514,7 +525,8 @@ void ext_post_line_break(boolean d,
                          scaled second_width,
                          scaled second_indent,
                          scaled first_width,
-                         scaled first_indent, halfword best_line);
+                         scaled first_indent, halfword best_line,
+                         halfword pdf_ignored_dimen);
 
 halfword lua_hpack_filter(halfword head_node, scaled size, int pack_type,
                           int extrainfo);

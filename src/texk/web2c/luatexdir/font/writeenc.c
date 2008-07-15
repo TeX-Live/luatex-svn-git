@@ -94,7 +94,7 @@ void epdf_write_enc(char **glyph_names, integer fe_objnum)
     assert(fe_objnum != 0);
     pdf_begin_dict(fe_objnum, 1);
     pdf_puts("/Type /Encoding\n");
-    pdf_printf("/Differences [");
+    pdf_puts("/Differences [");
     for (i = 0, i_old = -2; i < 256; i++)
         if (glyph_names[i] != notdef) {
             if (i == i_old + 1) /* no gap */
@@ -120,7 +120,7 @@ void write_enc(char **glyph_names, struct avl_table *tx_tree, integer fe_objnum)
     assert(fe_objnum != 0);
     pdf_begin_dict(fe_objnum, 1);
     pdf_puts("/Type /Encoding\n");
-    pdf_printf("/Differences [");
+    pdf_puts("/Differences [");
     avl_t_init(&t, tx_tree);
     for (i_old = -2, p = (int *) avl_t_first(&t, tx_tree); p != NULL;
          p = (int *) avl_t_next(&t)) {

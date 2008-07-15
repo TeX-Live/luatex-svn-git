@@ -154,9 +154,7 @@ static boolean writepk(internalfontnumber f)
         if (name == NULL ||
             !FILESTRCASEEQ(cur_file_name, font_ret.name) ||
             !kpse_bitmap_tolerance((float) font_ret.dpi, (float) dpi)) {
-            pdftex_warn("Font %s at %i not found", cur_file_name, (int) dpi);
-            cur_file_name = NULL;
-            return false;
+            pdftex_fail("Font %s at %i not found", cur_file_name, (int) dpi);
         }
     }
     callback_id = callback_defined(read_pk_file_callback);
@@ -171,6 +169,7 @@ static boolean writepk(internalfontnumber f)
         }
     } else {
         t3_file = xfopen(name, FOPEN_RBIN_MODE);
+        recorder_record_input(name);
         t3_read_file();
         t3_close();
     }

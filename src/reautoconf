@@ -1,16 +1,16 @@
 #! /bin/sh
 
-# A "reautoconf" script found at the root of the
-# web2c/teTeX/TeX-Live tree Used to run autoconf Versions 2.13 (old)
-# resp. 2.59 (new) in various directories.  Adapted from Peter
-# Breitenlohner's original version.
+# $Id: reautoconf 6851 2008-03-04 16:37:41Z peter $
+# This "reautoconf" script found at the root of the TeX Live source tree 
+# runs aclocal and autoconf (from PATH) in all relevant directories.
 #
+# Copyright 2008 Karl Berry.
 # Copyright 2005 Olaf Weber.
-# Copyright 2004 Peter Breitenlohner.
+# Copyright 2004 - 2008 Peter Breitenlohner.
 #
-# This program is free software; you can redistribute it and/or modify
+# This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -19,96 +19,138 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+unset CDPATH
+
+usage="Usage: $0 [OPTION]... [DIR]...
+  Run \`aclocal' (if applicable) and \`autoconf' in a selection
+  of the directories DIR... (default all) in TeX Live source tree.
+
+Options:
+  -h, --help      display this help and exit successfully
+  -f, --force     include some optional packages
+  -n, --dry-run   don't run any commands; just print them
+  -q, --quiet     don't echo commands
+  -v, --verbose   verbosely report processing (default)
+
+Selection:
+  packages using KPSE macros are included
+  packages using automake are excluded
+  packages using GNU autoconf 2.60 or later:
+    with \`--force' included, otherwise excluded
+  packages using old autoconf versions are excluded
+
+Environment variables:
+  TL_ACLOCAL:    program to use instead of aclocal from PATH
+  TL_AUTOCONF:   program to use instead of autoconf from PATH
+  TL_AUTOHEADER: program to use instead of autoheader from PATH"
+
+force=no
+do_cmd=eval
+do_say=echo
+
+list=
+
+for option
+do
+  case $option in
+    -h | --help) echo "$usage"; exit 0
+      ;;
+    -f | --force) force=yes
+      ;;
+    -n | --dry-run) do_cmd=:
+      ;;
+    -q | --quiet) do_say=:
+      ;;
+    -v | --verbose) do_say=echo
+      ;;
+    -*) echo "$0: *** unrecognized option \`$option'"
+      echo "$usage"; exit 1
+      ;;
+    *) list="$list $option"
+      ;;
+  esac
+done
+
+[ "$do_cmd" = : ] && do_say=echo	# -n implies -v
 
 [ -f ./texk/make/common.mk ] || {
-	echo "*** can't find ./texk/make/common.mk"
+	echo "$0: *** can't find ./texk/make/common.mk (from `pwd`)" >&2
 	exit 1
 }
 
-# Remember the topdir.
-topdir=`pwd`
+: ${TL_ACLOCAL=aclocal}
+echo "$0: using \"$TL_ACLOCAL\" = `$TL_ACLOCAL --version | sed 1q`"
+echo "$0: if you want to use a different aclocal, set TL_ACLOCAL."
+: ${TL_AUTOCONF=autoconf}
+echo "$0: using \"$TL_AUTOCONF\" = `$TL_AUTOCONF --version | sed 1q`"
+echo "$0: if you want to use a different autoconf, set TL_AUTOCONF."
+: ${TL_AUTOHEADER=autoheader}
+echo "$0: using \"$TL_AUTOHEADER\" = `$TL_AUTOHEADER --version | sed 1q`"
+echo "$0: if you want to use a different autoheader, set TL_AUTOHEADER."
 
-# "acold" runs autoconf-2.13
-# "acnew" runs autoconf-2.59
+# Give users a chance to quit here
+# and set TL_ACLOCAL, TL_AUTOCONF and/or TL_AUTOHEADER
+$do_cmd sleep 5
 
-acold () {	# $dir=current
-	echo "    Running autoconf-2.13 in \`$dir'"
-	$topdir/texk/autoconf2.13 -m "$topdir/texk/etc/autoconf"
+do_it () {
+  $do_say "$0: running \"$@\""
+  $do_cmd "$@"
 }
 
-# For new autoconf (2.59 and later) two things have to be done:
-#
-# 1. Rebuild aclocal.m4, using a patched version of aclocal-1.9.5.
-#
-# The patches (as obtained from one of the automake maintainers)
-# can be found in
-#	ftp://ftpth.mppmu.mpg.de/pub/peb/web2c/autoconf/aclocal.patch
-# and should be part of the next release, i.e., automake-1.9.6.
-#
-# Obviously directories that come with a prebuilt aclocal.m4, but without
-# the ingredients to rebuild it, need special treatment.
-#
-# 2. Run /usr/local/bin/autoconf
-
-###################################
-# The patch quoted above fixes only part of the sinclude problems.
-# The generated aclocal.m4 still contains erroneous m4_include's
-# that have to be removed before running autoconf.
-###################################
-
-acnew () {	# $dir=current, $dir/$rdir->./texk/m4 with the KPSE macros.
-	#arg="-I $rdir"
-	#[ -n "$1" ] && {
-	#	# Move existing aclocal.m4 into subdir and build new one
-	#	mkdir m4
-	#	mv aclocal.m4 m4/oldlocal.m4
-	#	arg="-I m4 $arg"
-	#}
-	#echo "Running aclocal-1.9 (patched) in \`$dir'"
-	#$topdir/config/aclocal-1.9peb --force $arg || return
-	echo "    Running /usr/bin/autoconf in \`$dir'"
-	/usr/bin/autoconf --force || return
-	#rm -rf autom4te.cache
+# process one directory
+do_one () {	# $base=configure.{in,ac}, $dir=current, $dir/$rdir->./texk/m4 with the KPSE macros
+  if grep 'AM_INIT_AUTOMAKE' $base >/dev/null 2>&1; then
+    $do_say "$0: $dir/$base ... uses automake, skipped."
+  elif grep 'm4_include(\['$rdir'/kpse_.*\.m4])' aclocal.m4 >/dev/null 2>&1; then
+    $do_say "$0: $dir/$base ... uses KPSE macros"
+    do_it "$TL_ACLOCAL -I $rdir && date >stamp-aclocal"
+    if grep '^kpse_include \.\./make/config.mk$' Makefile.in >/dev/null 2>&1; then
+      do_it "$TL_AUTOHEADER && date >stamp-auto.in"
+    fi
+    do_it "$TL_AUTOCONF && date >stamp-configure"
+  elif grep '# Generated by GNU Autoconf 2.6' configure >/dev/null 2>&1; then
+    if test "$force" = yes; then
+      $do_say "$0: $dir/$base ... uses modern autoconf, forced"
+      do_it $TL_AUTOCONF
+    else
+      $do_say "$0: $dir/$base ... uses modern autoconf, skipped"
+    fi
+  else
+    $do_say "$0: $dir/$base ... uses older autoconf, skipped."
+  fi
 }
 
-# Autoconf in .
-dir=. rdir=texk/m4
-acold
+if test "x$list" = x; then
+  list=". `find libs utils texk -name configure.in -o -name configure.ac |
+    sed 's,/configure\...\$,,'`"
+fi
 
-# Autoconf in all other directories
-for dir in `find utils libs texk -name configure.in | sed 's,/configure.in$,,'`; do
-	case $dir in
-		*/texi*)	# texinfo and texi2html are automade
-		;;
-		*/ncurses)	# ncurses has it's own special configure
-		;;
-		*/icu*)		# ICU needs new autoconf
-			(cd $dir; acnew)
-		;;
-		*/libgnuw32)	# only for windows
-		;;
-		utils/*)	# Skip everything in utils for now.
-		;;
-		*/curl)		# Is automade.
-		;;
-		texk)	rdir=m4
-			(cd $dir; acold)
-		;;
-		texk/*)	rdir=`echo $dir | sed -e 's,^texk/,,' -e 's,[^/]*,..,g'`/m4
-			case $dir in
-				*/devnag|*/dvipdfmx|*/xdvipdfmx)
-					(cd $dir; acnew);;
-				*)	(cd $dir; acold);;
-			esac
-		;;
-		*)	rdir=`echo $dir | sed 's,[^/]*,..,g'`/texk/m4
-			case $dir in
-			*/t1utils|*/lcdf-typetools|*/curl|*/expat)
-				(cd $dir; acnew) ;;
-			*)	(cd $dir; acold) ;;
-			esac
-		;;
-	esac
+# Autoconf in all directories
+for dir in $list; do
+  if test -f "$dir/configure.in"; then
+    base=configure.in
+  elif test -f "$dir/configure.ac"; then
+    base=configure.ac
+  else
+    continue
+  fi
+  case $dir in
+    .)
+      rdir=texk/m4
+    ;;
+    texk)
+      rdir=m4
+    ;;
+    texk/*)
+      rdir=`echo $dir | sed -e 's,^texk/,,' -e 's,[^/]*,..,g'`/m4
+    ;;
+    *)
+      rdir=`echo $dir | sed 's,[^/]*,..,g'`/texk/m4
+    ;;
+  esac
+  (cd $dir; do_one)
 done
+
+echo "$0: done."

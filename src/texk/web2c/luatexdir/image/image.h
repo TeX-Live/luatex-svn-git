@@ -95,6 +95,7 @@ typedef struct {
     integer y_res;
     integer rotation;           /* rotation (multiples of 90 deg.) for PDF files */
     integer colorspace;         /* number of /ColorSpace object */
+    integer group_ref;          /* if it's <=0, the page has no group */
     integer total_pages;
     integer page_num;           /* requested page (by number) */
     char *pagename;             /* requested page (by name) */
@@ -127,6 +128,7 @@ typedef struct {
 #  define img_yres(N)           ((N)->y_res)
 #  define img_rotation(N)       ((N)->rotation)
 #  define img_colorspace(N)     ((N)->colorspace)
+#  define img_group_ref(N)      ((N)->group_ref)
 #  define img_totalpages(N)     ((N)->total_pages)
 #  define img_pagenum(N)        ((N)->page_num)
 #  define img_pagename(N)       ((N)->pagename)
@@ -229,6 +231,9 @@ void write_png(image_dict *);
 void write_jpg(image_dict *);
 void write_jbig2(image_dict *);
 void write_epdf(image_dict *);
+
+extern void write_additional_epdf_objects(void);
+extern void write_additional_png_objects(void);
 
 /* pdftoepdf.cc */
 

@@ -3,7 +3,7 @@ dnl Top-level configure for TeX Live build.  Public domain.
 AC_INIT(texk/make/common.mk)
 
 AC_CONFIG_AUX_DIR(config)
-AC_SET_MAKE
+AC_PROG_MAKE_SET
 AC_PROG_CC
 AC_PROG_CXX
 
@@ -46,7 +46,6 @@ fi
 AC_CANONICAL_SYSTEM
 
 dnl Various compiler directives
-dnl Various compiler directives
 AC_MSG_CHECKING(whether to define additional compiler specific flags)
 case "$target" in
     alpha*-dec*)
@@ -64,6 +63,7 @@ case "$target" in
     *-darwin*)
         : ${INSTALL='/usr/bin/install -c -p'}; export INSTALL
         : ${NCURSES_CPP_FIX=true}; export NCURSES_CPP_FIX
+        AC_MSG_RESULT([no, but using other fixes for Darwin])
         ;;
     *)
         AC_MSG_RESULT(no)
@@ -95,14 +95,15 @@ sinclude(texk/web2c/withenable.ac)
 sinclude(texk/web2c/xetexdir/withenable.ac)
 sinclude(texk/xdvik/withenable.ac)
 sinclude(libs/ncurses/withenable.ac)
+sinclude(libs/zlib/withenable.ac)
 sinclude(libs/libpng/withenable.ac)
 sinclude(libs/t1lib/withenable.ac)
-sinclude(libs/zlib/withenable.ac)
-sinclude(libs/gd/withenable.ac)
 sinclude(libs/freetype/withenable.ac)
 sinclude(libs/freetype2/withenable.ac)
+sinclude(libs/gd/withenable.ac)
 sinclude(libs/icu-xetex/withenable.ac)
 sinclude(libs/teckit/withenable.ac)
+sinclude(libs/graphite-engine/withenable.ac)
 
 NCURSESDIR=libs/ncurses
 LIBT1DIR=libs/t1lib
@@ -113,6 +114,7 @@ LIBXPDFDIR=libs/xpdf
 FREETYPEDIR=libs/freetype
 FREETYPE2DIR=libs/freetype2
 ICUDIR=libs/icu-xetex
+GRAPHITEDIR=libs/graphite-engine
 TECKITDIR=libs/teckit
 GDDIR=libs/gd
 LIBOBSDCOMPATDIR=libs/obsdcompat
@@ -134,22 +136,26 @@ test "$with_dialog"  != no    && : ${needs_ncurses=yes}
 : ${needs_ncurses=no}
 export needs_ncurses
 
-# we need pnglib for dvipng, pdf[ex]tex, xetex, xdvipdfmx
+# we need pnglib for dvipng, pdf[ex]tex, xetex, dvipdfm, dvipdfmx, xdvipdfmx
 test ! -d $srcdir/$LIBPNGDIR  && : ${needs_pnglib=no}
 test "$with_dvipng"  != no    && : ${needs_pnglib=yes}
 test "$with_pdftex"  != no    && : ${needs_pnglib=yes}
 test "$with_pdfetex" != no    && : ${needs_pnglib=yes}
 test "$with_xetex"   != no    && : ${needs_pnglib=yes}
+test "$with_dvipdfm" != no    && : ${needs_pnglib=yes}
+test "$with_dvipdfmx" != no   && : ${needs_pnglib=yes}
 test "$with_xdvipdfmx" != no  && : ${needs_pnglib=yes}
 : ${needs_pnglib=no}
 export needs_pnglib
 
-# we need zlib for dvipng, texinfo, pdf[ex]tex, xetex, xdvipdfmx
+# we need zlib for dvipng, texinfo, pdf[ex]tex, xetex, dvipdfm, dvipdfmx, xdvipdfmx
 test ! -d $srcdir/$ZLIBDIR    && : ${needs_zlib=no}
 test "$with_dvipng"  != no    && : ${needs_zlib=yes}
 test "$with_pdftex"  != no    && : ${needs_zlib=yes}
 test "$with_pdfetex" != no    && : ${needs_zlib=yes}
 test "$with_xetex"   != no    && : ${needs_zlib=yes}
+test "$with_dvipdfm" != no    && : ${needs_zlib=yes}
+test "$with_dvipdfmx" != no   && : ${needs_zlib=yes}
 test "$with_xdvipdfmx" != no  && : ${needs_zlib=yes}
 test "$with_texinfo" != no    && : ${needs_zlib=yes}
 : ${needs_zlib=no}
@@ -197,6 +203,13 @@ test "$with_xetex" != no  && : ${needs_icu=yes}
 : ${needs_icu=no}
 export needs_icu
 
+# we need graphite for xetex, unless specifically disabled
+test ! -d $srcdir/$GRAPHITEDIR && : ${needs_graphite=no}
+test "$with_graphite" = no     && : ${needs_graphite=no}
+test "$with_xetex"   != no     && : ${needs_graphite=yes}
+: ${needs_graphite=no}
+export needs_graphite
+
 # we need teckit for xetex
 test ! -d $srcdir/$TECKITDIR && : ${needs_teckit=no}
 test "$with_xetex" != no     && : ${needs_teckit=yes}
@@ -204,71 +217,53 @@ test "$with_xetex" != no     && : ${needs_teckit=yes}
 export needs_teckit
 
 dnl We cannot use variables (e.g. $LIBPNGDIR) for sinclude, so...
-sinclude(libs/libpng/libpng.ac)
-sinclude(libs/zlib/zlib.ac)
 sinclude(libs/ncurses/ncurses.ac)
+sinclude(libs/zlib/zlib.ac)
+sinclude(libs/libpng/libpng.ac)
 sinclude(libs/xpdf/libxpdf.ac)
 sinclude(libs/t1lib/t1lib.ac)
-sinclude(libs/gd/gd.ac)
 sinclude(libs/freetype/freetype.ac)
 sinclude(libs/freetype2/freetype2.ac)
+sinclude(libs/gd/gd.ac)
 sinclude(libs/icu-xetex/icu-xetex.ac)
+sinclude(libs/graphite-engine/graphite-engine.ac)
 sinclude(libs/teckit/teckit.ac)
 sinclude(libs/obsdcompat/libobsd-compat.ac)
 
-LIBSDEP="$CURSESDEP $ZLIBDEP $LIBPNGDEP $LIBXPDFDEP $LIBT1DEP $GDDEP $FREETYPEDEP $FREETYPE2DEP $ICUDEP $TECKITDEP $LIBOBSDDEP"
+LIBSDEP="$CURSESDEP $ZLIBDEP $LIBPNGDEP $LIBXPDFDEP $LIBT1DEP $GDDEP $FREETYPEDEP $FREETYPE2DEP $ICUDEP $GRAPHITEDEP $TECKITDEP $LIBOBSDDEP"
 
 LIBSDIRS=
 test "$needs_ncurses" = yes && test "$using_system_ncurses" != yes \
-  && LIBSDIRS="$NCURSESDIR $LIBSDIRS"
-test "$needs_pnglib" = yes && test "$using_system_pnglib" != yes \
-  && LIBSDIRS="$LIBPNGDIR $LIBSDIRS"
+  && LIBSDIRS="$LIBSDIRS $NCURSESDIR"
 test "$needs_zlib" = yes && test "$using_system_zlib" != yes \
-  && LIBSDIRS="$ZLIBDIR $LIBSDIRS"
+  && LIBSDIRS="$LIBSDIRS $ZLIBDIR"
+test "$needs_pnglib" = yes && test "$using_system_pnglib" != yes \
+  && LIBSDIRS="$LIBSDIRS $LIBPNGDIR"
 test "$needs_libxpdf" = yes \
-  && LIBSDIRS="$LIBXPDFDIR $LIBSDIRS"
+  && LIBSDIRS="$LIBSDIRS $LIBXPDFDIR"
 test "$needs_libt1" = yes && test "$using_system_t1lib" != yes \
-  && LIBSDIRS="$LIBT1DIR $LIBTYPE1DIR $LIBSDIRS"
-test "$needs_gd" = yes && test "$using_system_gd" != yes \
-  && LIBSDIRS="$GDDIR $LIBSDIRS"
+  && LIBSDIRS="$LIBSDIRS $LIBT1DIR $LIBTYPE1DIR"
 test "$needs_freetype" = yes && test "$using_system_freetype" != yes \
-  && LIBSDIRS="$FREETYPEDIR $LIBSDIRS"
+  && LIBSDIRS="$LIBSDIRS $FREETYPEDIR"
 test "$needs_freetype2" = yes && test "$using_system_freetype2" != yes \
-  && LIBSDIRS="$FREETYPE2DIR $LIBSDIRS"
+  && LIBSDIRS="$LIBSDIRS $FREETYPE2DIR"
+test "$needs_gd" = yes && test "$using_system_gd" != yes \
+  && LIBSDIRS="$LIBSDIRS $GDDIR"
 test "$needs_icu" = yes && test "$using_system_icu" != yes \
-  && LIBSDIRS="$ICUDIR $LIBSDIRS"
+  && LIBSDIRS="$LIBSDIRS $ICUDIR"
 test "$needs_teckit" = yes \
-  && LIBSDIRS="$TECKITDIR $LIBSDIRS"
+  && LIBSDIRS="$LIBSDIRS $TECKITDIR"
+test "$needs_graphite" = yes \
+  && LIBSDIRS="$LIBSDIRS $GRAPHITEDIR"
 test "$needs_obsdcompat" = yes \
-  && LIBSDIRS="$LIBOBSDCOMPATDIR $LIBSDIRS"
+  && LIBSDIRS="$LIBSDIRS $LIBOBSDCOMPATDIR"
 
+dnl required subdir
 AC_CONFIG_SUBDIRS([libs])
 
-PKGS='dialog lcdf-typetools pdfopen ps2eps psutils t1utils texi2html texinfo'
-ESUBDIRS=
-test -d utils || mkdir utils
-for pkg in $PKGS; do
-  if test -d $srcdir/utils/$pkg; then
-    if eval "test \"`echo '$with_'${pkg}|sed 's/-/_/g'`\" != no"; then
-      ESUBDIRS="$ESUBDIRS utils/$pkg"
-      if test $pkg = sam2p; then
-        # attempt to discover if srcdir = builddir.
-        dir1=`cd $srcdir/utils/sam2p && /bin/pwd`
-        dir2=`cd utils/sam2p 2>/dev/null && /bin/pwd`
-        if test "$dir1" != "$dir2"; then
-          # this is a terrible kludge, but sam2p configure actively
-          # defeats srcdir!=objdir support, and Peter S. doesn't want to
-          # fix it.  So copy the entire sam2p srcdir into objdir.
-          rm -rf utils/sam2p
-          cp -pr $srcdir/utils/sam2p utils
-        fi
-      fi
-      AC_CONFIG_SUBDIRS([utils/$pkg])
-    fi
-  fi
-done
+dnl optional subdirs in utils/ => ESUBDIRS
+KPSE_CONFIG_SUBDIRS(kpse_utils_pkglist, [utils])
 
-AC_SUBST(ESUBDIRS)
 AC_SUBST(LIBSDEP)
 AC_SUBST(LIBSDIRS)
 

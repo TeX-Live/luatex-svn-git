@@ -1,6 +1,17 @@
 #! /usr/bin/env bash
+# Public Domain
 # $Id$
-# builds new pdftex binaries
+#
+# builds new luatex binaries
+
+# ----------------------
+# LFS support:
+# If you want to build binaries with LFS support, you may have to add the
+# right compiler & linker flags yourself, as this is not done automatically
+# by configure (see the section "Using LFS" at
+# http://www.suse.de/~aj/linux_lfs.html). You should also remove the
+# --disable-largefile switch for configure.
+# ----------------------
 
 # try to find gnu make; we need it
 MAKE=make;
@@ -35,14 +46,14 @@ STRIP=strip
 B=build
 # ----------
 # clean up, if needed
-if [ -e "$B"/Makefile -a $ONLY_MAKE = "FALSE" ]
+if [ -r "$B"/Makefile -a $ONLY_MAKE = "FALSE" ]
 then
   rm -rf "$B"
-elif [ ! -e "$B"/Makefile ]
+elif [ ! -r "$B"/Makefile ]
 then
     ONLY_MAKE=FALSE
 fi
-if [ ! -e "$B" ]
+if [ ! -r "$B" ]
 then
   mkdir "$B"
 fi
@@ -98,6 +109,7 @@ then
               --without-xdvik     \
               --without-xdvipdfmx \
               --without-xetex     \
+              --disable-largefile \
               || exit 1 
 fi
 

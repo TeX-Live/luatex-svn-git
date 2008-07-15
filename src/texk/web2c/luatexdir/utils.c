@@ -505,7 +505,7 @@ size_t xfwrite(void *ptr, size_t size, size_t nmemb, FILE * stream)
 int xfflush(FILE * stream)
 {
     if (fflush(stream) != 0)
-        pdftex_fail("fflush() failed");
+      pdftex_fail("fflush() failed (%s)", strerror(errno));
     return 0;
 }
 
@@ -513,7 +513,7 @@ int xgetc(FILE * stream)
 {
     int c = getc(stream);
     if (c < 0 && c != EOF)
-        pdftex_fail("getc() failed");
+      pdftex_fail("getc() failed (%s)", strerror(errno));
     return c;
 }
 
@@ -521,18 +521,18 @@ int xputc(int c, FILE * stream)
 {
     int i = putc(c, stream);
     if (i < 0)
-        pdftex_fail("putc() failed");
+      pdftex_fail("putc() failed (%s)", strerror(errno));
     return i;
 }
 
-void write_stream_length(integer length, integer offset)
+void write_stream_length(integer length, longinteger offset)
 {
     if (jobname_cstr == NULL)
         jobname_cstr = xstrdup(makecstring(job_name));
     if (fixed_pdf_draftmode == 0) {
-        xfseek(pdf_file, offset, SEEK_SET, jobname_cstr);
+      xfseeko(pdf_file, (off_t)offset, SEEK_SET, jobname_cstr);
         fprintf(pdf_file, "%li", (long int) length);
-        xfseek(pdf_file, pdfoffset(), SEEK_SET, jobname_cstr);
+        xfseeko(pdf_file, (off_t) pdfoffset(), SEEK_SET, jobname_cstr);
     }
 }
 
@@ -810,7 +810,7 @@ void unescapehex(poolpointer in)
         first = true;
     }
     if (!first) {               /* last hex digit is omitted */
-        str_pool[pool_ptr++] = ch << 4;
+        str_pool[pool_ptr++] = a;
     }
 }
 
@@ -883,7 +883,7 @@ void print_ID(strnumber filename)
     md5_append(&state, (const md5_byte_t *) time_str, size);
     /* get the file name */
     if (getcwd(pwd, sizeof(pwd)) == NULL)
-        pdftex_fail("getcwd() failed (path too long?)");
+      pdftex_fail("getcwd() failed (%s), (path too long?)", strerror(errno));
     file_name = makecstring(filename);
     md5_append(&state, (const md5_byte_t *) pwd, strlen(pwd));
     md5_append(&state, (const md5_byte_t *) "/", 1);
@@ -1408,6 +1408,9 @@ integer colorstackskippagestart(int colstack_no)
     if (!colstack->page_start) {
         return 1;
     }
+    if (colstack->page_current == NULL) {
+        return 0;
+    }
     if (strcmp(COLOR_DEFAULT, colstack->page_current) == 0) {
         return 2;
     }
@@ -1509,7 +1512,7 @@ void pdfshipoutbegin(boolean shipping_page)
 void pdfshipoutend(boolean shipping_page)
 {
     if (pos_stack_used > 0) {
-        pdftex_warn("%u unmatched \\pdfsave after %s shipout",
+        pdftex_fail("%u unmatched \\pdfsave after %s shipout",
                     (unsigned int) pos_stack_used,
                     ((shipping_page) ? "page" : "form"));
     }
