@@ -8,9 +8,47 @@
 //
 //========================================================================
 
+/* ------------------------------------------------------------------------
+* Changed by Martin Schröder <martin@pdftex.org>
+* $Id: gfile.cc 421 2008-04-26 21:59:55Z oneiros $
+* Changelog:
+* ------------------------------------------------------------------------
+* r151 | ms | 2007-06-25 18:53:17 +0200 (Mo, 25 Jun 2007) | 3 lines
+* 
+* Merging xpdf 3.02 from HEAD into stable
+* svn merge -r149:150 --dry-run svn+ssh://svn/srv/svn/repos/pdftex/trunk/source/src/libs/xpdf .
+* 
+* ------------------------------------------------------------------------
+* r50 | ms | 2006-02-16 13:00:00 +0100 (Do, 16 Feb 2006) | 2 lines
+* 
+* 1.30.6
+* 
+* ------------------------------------------------------------------------
+* r11 | ms | 2004-09-06 14:01:00 +0200 (Mo, 06 Sep 2004) | 2 lines
+* 
+* 1.20a
+* 
+* ------------------------------------------------------------------------
+* r6 | ms | 2003-10-06 14:01:00 +0200 (Mo, 06 Okt 2003) | 2 lines
+* 
+* released v1.11b
+* 
+* ------------------------------------------------------------------------
+* r4 | ms | 2003-10-05 14:00:00 +0200 (So, 05 Okt 2003) | 2 lines
+* 
+* Moved sources to src
+* 
+* ------------------------------------------------------------------------
+* r1 | ms | 2003-08-02 14:00:00 +0200 (Sa, 02 Aug 2003) | 1 line
+* 
+* 1.11a
+* ------------------------------------------------------------------------ */
+
 #include <aconf.h>
 
-#ifndef WIN32
+#ifdef WIN32
+#  include <time.h>
+#else
 #  if defined(MACOS)
 #    include <sys/stat.h>
 #  elif !defined(ACORN)
@@ -26,16 +64,7 @@
 #  if defined(VMS) && (__DECCXX_VER < 50200000)
 #    include <unixlib.h>
 #  endif
-#else // WIN32
-#  ifdef __MINGW32__
-extern "C" {
-#  include <c-proto.h>
-#  include <win32lib.h>
-}
-#  endif
 #endif // WIN32
-
-
 #include "GString.h"
 #include "gfile.h"
 
@@ -450,21 +479,45 @@ time_t getModTime(char *fileName) {
 GBool openTempFile(GString **name, FILE **f, char *mode, char *ext) {
 #if defined(WIN32)
   //---------- Win32 ----------
-  char *s;
+  char *tempDir;
+  GString *s, *s2;
+  char buf[32];
+  FILE *f2;
+  int t, i;
 
-  if (!(s = _tempnam(getenv("TEMP"), NULL))) {
-    return gFalse;
+  // this has the standard race condition problem, but I haven't found
+  // a better way to generate temp file names with extensions on
+  // Windows
+  if ((tempDir = getenv("TEMP"))) {
+    s = new GString(tempDir);
+    s->append('\\');
+  } else {
+    s = new GString();
   }
-  *name = new GString(s);
-  free(s);
-  if (ext) {
-    (*name)->append(ext);
+  s->append("x");
+  t = (int)time(NULL);
+  for (i = 0; i < 1000; ++i) {
+    sprintf(buf, "%d", t + i);
+    s2 = s->copy()->append(buf);
+    if (ext) {
+      s2->append(ext);
+    }
+    if (!(f2 = fopen(s2->getCString(), "r"))) {
+      if (!(f2 = fopen(s2->getCString(), mode))) {
+	delete s2;
+	delete s;
+	return gFalse;
+      }
+      *name = s2;
+      *f = f2;
+      delete s;
+      return gTrue;
+    }
+    fclose(f2);
+    delete s2;
   }
-  if (!(*f = fopen((*name)->getCString(), mode))) {
-    delete (*name);
-    return gFalse;
-  }
-  return gTrue;
+  delete s;
+  return gFalse;
 #elif defined(VMS) || defined(__EMX__) || defined(ACORN) || defined(MACOS)
   //---------- non-Unix ----------
   char *s;
@@ -681,9 +734,9 @@ GDirEntry *GDir::getNextEntry() {
   struct dirent *ent;
   e = NULL;
   if (dir) {
-    ent = readdir(dir);
+    ent = (struct dirent *)readdir(dir);
     if (ent && !strcmp(ent->d_name, ".")) {
-      ent = readdir(dir);
+      ent = (struct dirent *)readdir(dir);
     }
     if (ent) {
       e = new GDirEntry(path->getCString(), ent->d_name, doStat);

@@ -6,6 +6,42 @@
 //
 //========================================================================
 
+/* ------------------------------------------------------------------------
+* Changed by Martin Schröder <martin@pdftex.org>
+* $Id: GlobalParams.h 421 2008-04-26 21:59:55Z oneiros $
+* Changelog:
+* ------------------------------------------------------------------------
+* r151 | ms | 2007-06-25 18:53:17 +0200 (Mo, 25 Jun 2007) | 3 lines
+* 
+* Merging xpdf 3.02 from HEAD into stable
+* svn merge -r149:150 --dry-run svn+ssh://svn/srv/svn/repos/pdftex/trunk/source/src/libs/xpdf .
+* 
+* ------------------------------------------------------------------------
+* r38 | ms | 2005-08-21 14:00:00 +0200 (So, 21 Aug 2005) | 2 lines
+* 
+* 1.30.1
+* 
+* ------------------------------------------------------------------------
+* r11 | ms | 2004-09-06 14:01:00 +0200 (Mo, 06 Sep 2004) | 2 lines
+* 
+* 1.20a
+* 
+* ------------------------------------------------------------------------
+* r6 | ms | 2003-10-06 14:01:00 +0200 (Mo, 06 Okt 2003) | 2 lines
+* 
+* released v1.11b
+* 
+* ------------------------------------------------------------------------
+* r4 | ms | 2003-10-05 14:00:00 +0200 (So, 05 Okt 2003) | 2 lines
+* 
+* Moved sources to src
+* 
+* ------------------------------------------------------------------------
+* r1 | ms | 2003-08-02 14:00:00 +0200 (Sa, 02 Aug 2003) | 1 line
+* 
+* 1.11a
+* ------------------------------------------------------------------------ */
+
 #ifndef GLOBALPARAMS_H
 #define GLOBALPARAMS_H
 
@@ -35,6 +71,9 @@ class CMap;
 class CMapCache;
 struct XpdfSecurityHandler;
 class GlobalParams;
+#ifdef WIN32
+class WinFontList;
+#endif
 
 //------------------------------------------------------------------------
 
@@ -69,7 +108,7 @@ public:
   };
 
   DisplayFontParam(GString *nameA, DisplayFontParamKind kindA);
-  ~DisplayFontParam();
+  virtual ~DisplayFontParam();
 };
 
 //------------------------------------------------------------------------
@@ -111,6 +150,83 @@ enum EndOfLineKind {
 
 //------------------------------------------------------------------------
 
+enum ScreenType {
+  screenUnset,
+  screenDispersed,
+  screenClustered,
+  screenStochasticClustered
+};
+
+//------------------------------------------------------------------------
+
+#ifndef PDF_PARSER_ONLY
+class KeyBinding {
+public:
+
+  int code;			// 0x20 .. 0xfe = ASCII,
+				//   >=0x10000 = special keys, mouse buttons,
+				//   etc. (xpdfKeyCode* symbols)
+  int mods;			// modifiers (xpdfKeyMod* symbols, or-ed
+				//   together)
+  int context;			// context (xpdfKeyContext* symbols, or-ed
+				//   together)
+  GList *cmds;			// list of commands [GString]
+
+  KeyBinding(int codeA, int modsA, int contextA, char *cmd0);
+  KeyBinding(int codeA, int modsA, int contextA, char *cmd0, char *cmd1);
+  KeyBinding(int codeA, int modsA, int contextA, GList *cmdsA);
+  ~KeyBinding();
+};
+
+#define xpdfKeyCodeTab            0x1000
+#define xpdfKeyCodeReturn         0x1001
+#define xpdfKeyCodeEnter          0x1002
+#define xpdfKeyCodeBackspace      0x1003
+#define xpdfKeyCodeInsert         0x1004
+#define xpdfKeyCodeDelete         0x1005
+#define xpdfKeyCodeHome           0x1006
+#define xpdfKeyCodeEnd            0x1007
+#define xpdfKeyCodePgUp           0x1008
+#define xpdfKeyCodePgDn           0x1009
+#define xpdfKeyCodeLeft           0x100a
+#define xpdfKeyCodeRight          0x100b
+#define xpdfKeyCodeUp             0x100c
+#define xpdfKeyCodeDown           0x100d
+#define xpdfKeyCodeF1             0x1100
+#define xpdfKeyCodeF35            0x1122
+#define xpdfKeyCodeMousePress1    0x2001
+#define xpdfKeyCodeMousePress2    0x2002
+#define xpdfKeyCodeMousePress3    0x2003
+#define xpdfKeyCodeMousePress4    0x2004
+#define xpdfKeyCodeMousePress5    0x2005
+#define xpdfKeyCodeMousePress6    0x2006
+#define xpdfKeyCodeMousePress7    0x2007
+#define xpdfKeyCodeMouseRelease1  0x2101
+#define xpdfKeyCodeMouseRelease2  0x2102
+#define xpdfKeyCodeMouseRelease3  0x2103
+#define xpdfKeyCodeMouseRelease4  0x2104
+#define xpdfKeyCodeMouseRelease5  0x2105
+#define xpdfKeyCodeMouseRelease6  0x2106
+#define xpdfKeyCodeMouseRelease7  0x2107
+#define xpdfKeyModNone            0
+#define xpdfKeyModShift           (1 << 0)
+#define xpdfKeyModCtrl            (1 << 1)
+#define xpdfKeyModAlt             (1 << 2)
+#define xpdfKeyContextAny         0
+#define xpdfKeyContextFullScreen  (1 << 0)
+#define xpdfKeyContextWindow      (2 << 0)
+#define xpdfKeyContextContinuous  (1 << 2)
+#define xpdfKeyContextSinglePage  (2 << 2)
+#define xpdfKeyContextOverLink    (1 << 4)
+#define xpdfKeyContextOffLink     (2 << 4)
+#define xpdfKeyContextOutline     (1 << 6)
+#define xpdfKeyContextMainWin     (2 << 6)
+#define xpdfKeyContextScrLockOn   (1 << 8)
+#define xpdfKeyContextScrLockOff  (2 << 8)
+#endif
+
+//------------------------------------------------------------------------
+
 class GlobalParams {
 public:
 
@@ -125,6 +241,10 @@ public:
 
   void setBaseDir(char *dir);
   void setupBaseFonts(char *dir);
+
+#ifndef PDF_PARSER_ONLY
+  void parseLine(char *buf, GString *fileName, int line);
+#endif
 
   //----- accessors
 
@@ -154,6 +274,7 @@ public:
   GBool getPSEmbedTrueType();
   GBool getPSEmbedCIDPostScript();
   GBool getPSEmbedCIDTrueType();
+  GBool getPSPreload();
   GBool getPSOPI();
   GBool getPSASCIIHex();
   GString *getTextEncodingName();
@@ -166,9 +287,21 @@ public:
   GBool getEnableT1lib();
   GBool getEnableFreeType();
   GBool getAntialias();
+  GBool getVectorAntialias();
+  GBool getStrokeAdjust();
+  ScreenType getScreenType();
+  int getScreenSize();
+  int getScreenDotRadius();
+  double getScreenGamma();
+  double getScreenBlackThreshold();
+  double getScreenWhiteThreshold();
   GString *getURLCommand() { return urlCommand; }
   GString *getMovieCommand() { return movieCommand; }
   GBool getMapNumericCharNames();
+  GBool getMapUnknownCharNames();
+#ifndef PDF_PARSER_ONLY
+  GList *getKeyBinding(int code, int mods, int context);
+#endif
   GBool getPrintCommands();
   GBool getErrQuiet();
 
@@ -196,6 +329,7 @@ public:
   void setPSEmbedTrueType(GBool embed);
   void setPSEmbedCIDPostScript(GBool embed);
   void setPSEmbedCIDTrueType(GBool embed);
+  void setPSPreload(GBool preload);
   void setPSOPI(GBool opi);
   void setPSASCIIHex(GBool hex);
   void setTextEncoding(char *encodingName);
@@ -207,7 +341,15 @@ public:
   GBool setEnableT1lib(char *s);
   GBool setEnableFreeType(char *s);
   GBool setAntialias(char *s);
+  GBool setVectorAntialias(char *s);
+  void setScreenType(ScreenType t);
+  void setScreenSize(int size);
+  void setScreenDotRadius(int r);
+  void setScreenGamma(double gamma);
+  void setScreenBlackThreshold(double thresh);
+  void setScreenWhiteThreshold(double thresh);
   void setMapNumericCharNames(GBool map);
+  void setMapUnknownCharNames(GBool map);
   void setPrintCommands(GBool printCommandsA);
   void setErrQuiet(GBool errQuietA);
 
@@ -218,6 +360,9 @@ public:
 
 private:
 
+#ifndef PDF_PARSER_ONLY
+  void createDefaultKeyBindings();
+#endif
   void parseFile(GString *fileName, FILE *f);
   void parseNameToUnicode(GList *tokens, GString *fileName, int line);
   void parseCIDToUnicode(GList *tokens, GString *fileName, int line);
@@ -239,11 +384,24 @@ private:
   void parseTextEOL(GList *tokens, GString *fileName, int line);
   void parseFontDir(GList *tokens, GString *fileName, int line);
   void parseInitialZoom(GList *tokens, GString *fileName, int line);
+  void parseScreenType(GList *tokens, GString *fileName, int line);
+#ifndef PDF_PARSER_ONLY
+  void parseBind(GList *tokens, GString *fileName, int line);
+  void parseUnbind(GList *tokens, GString *fileName, int line);
+  GBool parseKey(GString *modKeyStr, GString *contextStr,
+		 int *code, int *mods, int *context,
+		 char *cmdName,
+		 GList *tokens, GString *fileName, int line);
+#endif
   void parseCommand(char *cmdName, GString **val,
 		    GList *tokens, GString *fileName, int line);
   void parseYesNo(char *cmdName, GBool *flag,
 		  GList *tokens, GString *fileName, int line);
   GBool parseYesNo2(char *token, GBool *flag);
+  void parseInteger(char *cmdName, int *val,
+		    GList *tokens, GString *fileName, int line);
+  void parseFloat(char *cmdName, double *val,
+		  GList *tokens, GString *fileName, int line);
   UnicodeMap *getUnicodeMap2(GString *encodingName);
 #ifdef ENABLE_PLUGINS
   GBool loadPlugin(char *type, char *name);
@@ -273,6 +431,9 @@ private:
   GList *toUnicodeDirs;		// list of ToUnicode CMap dirs [GString]
   GHash *displayFonts;		// display font info, indexed by font name
 				//   [DisplayFontParam]
+#ifdef WIN32
+  WinFontList *winFontList;	// system TrueType fonts
+#endif
   GHash *displayCIDFonts;	// display CID font info, indexed by
 				//   collection [DisplayFontParam]
   GHash *displayNamedCIDFonts;	// display CID font info, indexed by
@@ -298,6 +459,8 @@ private:
   GBool psEmbedTrueType;	// embed TrueType fonts?
   GBool psEmbedCIDPostScript;	// embed CID PostScript fonts?
   GBool psEmbedCIDTrueType;	// embed CID TrueType fonts?
+  GBool psPreload;		// preload PostScript images and forms into
+				//   memory
   GBool psOPI;			// generate PostScript OPI comments?
   GBool psASCIIHex;		// use ASCIIHex instead of ASCII85?
   GString *textEncoding;	// encoding (unicodeMap) to use for text
@@ -311,10 +474,22 @@ private:
   GBool continuousView;		// continuous view mode
   GBool enableT1lib;		// t1lib enable flag
   GBool enableFreeType;		// FreeType enable flag
-  GBool antialias;		// anti-aliasing enable flag
+  GBool antialias;		// font anti-aliasing enable flag
+  GBool vectorAntialias;	// vector anti-aliasing enable flag
+  GBool strokeAdjust;		// stroke adjustment enable flag
+  ScreenType screenType;	// halftone screen type
+  int screenSize;		// screen matrix size
+  int screenDotRadius;		// screen dot radius
+  double screenGamma;		// screen gamma correction
+  double screenBlackThreshold;	// screen black clamping threshold
+  double screenWhiteThreshold;	// screen white clamping threshold
   GString *urlCommand;		// command executed for URL links
   GString *movieCommand;	// command executed for movie annotations
   GBool mapNumericCharNames;	// map numeric char names (from font subsets)?
+  GBool mapUnknownCharNames;	// map unknown char names?
+#ifndef PDF_PARSER_ONLY
+  GList *keyBindings;		// key & mouse button bindings [KeyBinding]
+#endif
   GBool printCommands;		// print the drawing commands
   GBool errQuiet;		// suppress error messages?
 

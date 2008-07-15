@@ -2,9 +2,45 @@
 //
 // Page.cc
 //
-// Copyright 1996-2003 Glyph & Cog, LLC
+// Copyright 1996-2007 Glyph & Cog, LLC
 //
 //========================================================================
+
+/* ------------------------------------------------------------------------
+* Changed by Martin Schröder <martin@pdftex.org>
+* $Id: Page.cc 421 2008-04-26 21:59:55Z oneiros $
+* Changelog:
+* ------------------------------------------------------------------------
+* r151 | ms | 2007-06-25 18:53:17 +0200 (Mo, 25 Jun 2007) | 3 lines
+* 
+* Merging xpdf 3.02 from HEAD into stable
+* svn merge -r149:150 --dry-run svn+ssh://svn/srv/svn/repos/pdftex/trunk/source/src/libs/xpdf .
+* 
+* ------------------------------------------------------------------------
+* r38 | ms | 2005-08-21 14:00:00 +0200 (So, 21 Aug 2005) | 2 lines
+* 
+* 1.30.1
+* 
+* ------------------------------------------------------------------------
+* r11 | ms | 2004-09-06 14:01:00 +0200 (Mo, 06 Sep 2004) | 2 lines
+* 
+* 1.20a
+* 
+* ------------------------------------------------------------------------
+* r6 | ms | 2003-10-06 14:01:00 +0200 (Mo, 06 Okt 2003) | 2 lines
+* 
+* released v1.11b
+* 
+* ------------------------------------------------------------------------
+* r4 | ms | 2003-10-05 14:00:00 +0200 (So, 05 Okt 2003) | 2 lines
+* 
+* Moved sources to src
+* 
+* ------------------------------------------------------------------------
+* r1 | ms | 2003-08-02 14:00:00 +0200 (Sa, 02 Aug 2003) | 1 line
+* 
+* 1.11a
+* ------------------------------------------------------------------------ */
 
 #include <aconf.h>
 
@@ -26,7 +62,35 @@
 #include "Annot.h"
 #endif
 #include "Error.h"
+#include "Catalog.h"
 #include "Page.h"
+
+//------------------------------------------------------------------------
+// PDFRectangle
+//------------------------------------------------------------------------
+
+void PDFRectangle::clipTo(PDFRectangle *rect) {
+  if (x1 < rect->x1) {
+    x1 = rect->x1;
+  } else if (x1 > rect->x2) {
+    x1 = rect->x2;
+  }
+  if (x2 < rect->x1) {
+    x2 = rect->x1;
+  } else if (x2 > rect->x2) {
+    x2 = rect->x2;
+  }
+  if (y1 < rect->y1) {
+    y1 = rect->y1;
+  } else if (y1 > rect->y2) {
+    y1 = rect->y2;
+  }
+  if (y2 < rect->y1) {
+    y2 = rect->y1;
+  } else if (y2 > rect->y2) {
+    y2 = rect->y2;
+  }
+}
 
 //------------------------------------------------------------------------
 // PageAttrs
@@ -73,6 +137,12 @@ PageAttrs::PageAttrs(PageAttrs *attrs, Dict *dict) {
   readBox(dict, "TrimBox", &trimBox);
   artBox = cropBox;
   readBox(dict, "ArtBox", &artBox);
+
+  // clip all other boxes to the media box
+  cropBox.clipTo(&mediaBox);
+  bleedBox.clipTo(&mediaBox);
+  trimBox.clipTo(&mediaBox);
+  artBox.clipTo(&mediaBox);
 
   // rotate
   dict->lookup("Rotate", &obj1);
@@ -213,31 +283,46 @@ Page::~Page() {
   contents.free();
 }
 
+Links *Page::getLinks(Catalog *catalog) {
+  Links *links;
+  Object obj;
+
+  links = new Links(getAnnots(&obj), catalog->getBaseURI());
+  obj.free();
+  return links;
+}
+
 void Page::display(OutputDev *out, double hDPI, double vDPI,
 		   int rotate, GBool useMediaBox, GBool crop,
-		   Links *links, Catalog *catalog,
+		   GBool printing, Catalog *catalog,
 		   GBool (*abortCheckCbk)(void *data),
 		   void *abortCheckCbkData) {
   displaySlice(out, hDPI, vDPI, rotate, useMediaBox, crop,
-	       -1, -1, -1, -1, links, catalog,
+	       -1, -1, -1, -1, printing, catalog,
 	       abortCheckCbk, abortCheckCbkData);
 }
 
 void Page::displaySlice(OutputDev *out, double hDPI, double vDPI,
 			int rotate, GBool useMediaBox, GBool crop,
 			int sliceX, int sliceY, int sliceW, int sliceH,
-			Links *links, Catalog *catalog,
+			GBool printing, Catalog *catalog,
 			GBool (*abortCheckCbk)(void *data),
 			void *abortCheckCbkData) {
 #ifndef PDF_PARSER_ONLY
-  PDFRectangle *mediaBox, *cropBox, *baseBox;
+  PDFRectangle *mediaBox, *cropBox;
   PDFRectangle box;
   Gfx *gfx;
   Object obj;
-  Link *link;
   Annots *annotList;
-  double kx, ky;
+  Dict *acroForm;
   int i;
+
+  if (!out->checkPageSlice(this, hDPI, vDPI, rotate, useMediaBox, crop,
+			   sliceX, sliceY, sliceW, sliceH,
+			   printing, catalog,
+			   abortCheckCbk, abortCheckCbkData)) {
+    return;
+  }
 
   rotate += getRotate();
   if (rotate >= 360) {
@@ -246,61 +331,12 @@ void Page::displaySlice(OutputDev *out, double hDPI, double vDPI,
     rotate += 360;
   }
 
-  mediaBox = getMediaBox();
+  makeBox(hDPI, vDPI, rotate, useMediaBox, out->upsideDown(),
+	  sliceX, sliceY, sliceW, sliceH, &box, &crop);
   cropBox = getCropBox();
-  if (sliceW >= 0 && sliceH >= 0) {
-    baseBox = useMediaBox ? mediaBox : cropBox;
-    kx = 72.0 / hDPI;
-    ky = 72.0 / vDPI;
-    if (rotate == 90) {
-      if (out->upsideDown()) {
-	box.x1 = baseBox->x1 + ky * sliceY;
-	box.x2 = baseBox->x1 + ky * (sliceY + sliceH);
-      } else {
-	box.x1 = baseBox->x2 - ky * (sliceY + sliceH);
-	box.x2 = baseBox->x2 - ky * sliceY;
-      }
-      box.y1 = baseBox->y1 + kx * sliceX;
-      box.y2 = baseBox->y1 + kx * (sliceX + sliceW);
-    } else if (rotate == 180) {
-      box.x1 = baseBox->x2 - kx * (sliceX + sliceW);
-      box.x2 = baseBox->x2 - kx * sliceX;
-      if (out->upsideDown()) {
-	box.y1 = baseBox->y1 + ky * sliceY;
-	box.y2 = baseBox->y1 + ky * (sliceY + sliceH);
-      } else {
-	box.y1 = baseBox->y2 - ky * (sliceY + sliceH);
-	box.y2 = baseBox->y2 - ky * sliceY;
-      }
-    } else if (rotate == 270) {
-      if (out->upsideDown()) {
-	box.x1 = baseBox->x2 - ky * (sliceY + sliceH);
-	box.x2 = baseBox->x2 - ky * sliceY;
-      } else {
-	box.x1 = baseBox->x1 + ky * sliceY;
-	box.x2 = baseBox->x1 + ky * (sliceY + sliceH);
-      }
-      box.y1 = baseBox->y2 - kx * (sliceX + sliceW);
-      box.y2 = baseBox->y2 - kx * sliceX;
-    } else {
-      box.x1 = baseBox->x1 + kx * sliceX;
-      box.x2 = baseBox->x1 + kx * (sliceX + sliceW);
-      if (out->upsideDown()) {
-	box.y1 = baseBox->y2 - ky * (sliceY + sliceH);
-	box.y2 = baseBox->y2 - ky * sliceY;
-      } else {
-	box.y1 = baseBox->y1 + ky * sliceY;
-	box.y2 = baseBox->y1 + ky * (sliceY + sliceH);
-      }
-    }
-  } else if (useMediaBox) {
-    box = *mediaBox;
-  } else {
-    box = *cropBox;
-    crop = gFalse;
-  }
 
   if (globalParams->getPrintCommands()) {
+    mediaBox = getMediaBox();
     printf("***** MediaBox = ll:%g,%g ur:%g,%g\n",
 	   mediaBox->x1, mediaBox->y1, mediaBox->x2, mediaBox->y2);
     printf("***** CropBox = ll:%g,%g ur:%g,%g\n",
@@ -319,26 +355,25 @@ void Page::displaySlice(OutputDev *out, double hDPI, double vDPI,
   }
   obj.free();
 
-  // draw links
-  if (links) {
-    gfx->saveState();
-    for (i = 0; i < links->getNumLinks(); ++i) {
-      link = links->getLink(i);
-      out->drawLink(link, catalog);
-    }
-    gfx->restoreState();
-    out->dump();
-  }
-
-  // draw non-link annotations
-  annotList = new Annots(xref, catalog, annots.fetch(xref, &obj));
+  // draw annotations
+  annotList = new Annots(xref, catalog, getAnnots(&obj));
   obj.free();
+  acroForm = catalog->getAcroForm()->isDict() ?
+               catalog->getAcroForm()->getDict() : NULL;
+  if (acroForm) {
+    if (acroForm->lookup("NeedAppearances", &obj)) {
+      if (obj.isBool() && obj.getBool()) {
+	annotList->generateAppearances(acroForm);
+      }
+    }
+    obj.free();
+  }
   if (annotList->getNumAnnots() > 0) {
     if (globalParams->getPrintCommands()) {
       printf("***** Annotations\n");
     }
     for (i = 0; i < annotList->getNumAnnots(); ++i) {
-      annotList->getAnnot(i)->draw(gfx);
+      annotList->getAnnot(i)->draw(gfx, printing);
     }
     out->dump();
   }
@@ -348,9 +383,82 @@ void Page::displaySlice(OutputDev *out, double hDPI, double vDPI,
 #endif
 }
 
-void Page::getDefaultCTM(double *ctm, double hDPI, double vDPI,
-			 int rotate, GBool upsideDown) {
+void Page::makeBox(double hDPI, double vDPI, int rotate,
+		   GBool useMediaBox, GBool upsideDown,
+		   double sliceX, double sliceY, double sliceW, double sliceH,
+		   PDFRectangle *box, GBool *crop) {
+  PDFRectangle *mediaBox, *cropBox, *baseBox;
+  double kx, ky;
+
+  mediaBox = getMediaBox();
+  cropBox = getCropBox();
+  if (sliceW >= 0 && sliceH >= 0) {
+    baseBox = useMediaBox ? mediaBox : cropBox;
+    kx = 72.0 / hDPI;
+    ky = 72.0 / vDPI;
+    if (rotate == 90) {
+      if (upsideDown) {
+	box->x1 = baseBox->x1 + ky * sliceY;
+	box->x2 = baseBox->x1 + ky * (sliceY + sliceH);
+      } else {
+	box->x1 = baseBox->x2 - ky * (sliceY + sliceH);
+	box->x2 = baseBox->x2 - ky * sliceY;
+      }
+      box->y1 = baseBox->y1 + kx * sliceX;
+      box->y2 = baseBox->y1 + kx * (sliceX + sliceW);
+    } else if (rotate == 180) {
+      box->x1 = baseBox->x2 - kx * (sliceX + sliceW);
+      box->x2 = baseBox->x2 - kx * sliceX;
+      if (upsideDown) {
+	box->y1 = baseBox->y1 + ky * sliceY;
+	box->y2 = baseBox->y1 + ky * (sliceY + sliceH);
+      } else {
+	box->y1 = baseBox->y2 - ky * (sliceY + sliceH);
+	box->y2 = baseBox->y2 - ky * sliceY;
+      }
+    } else if (rotate == 270) {
+      if (upsideDown) {
+	box->x1 = baseBox->x2 - ky * (sliceY + sliceH);
+	box->x2 = baseBox->x2 - ky * sliceY;
+      } else {
+	box->x1 = baseBox->x1 + ky * sliceY;
+	box->x2 = baseBox->x1 + ky * (sliceY + sliceH);
+      }
+      box->y1 = baseBox->y2 - kx * (sliceX + sliceW);
+      box->y2 = baseBox->y2 - kx * sliceX;
+    } else {
+      box->x1 = baseBox->x1 + kx * sliceX;
+      box->x2 = baseBox->x1 + kx * (sliceX + sliceW);
+      if (upsideDown) {
+	box->y1 = baseBox->y2 - ky * (sliceY + sliceH);
+	box->y2 = baseBox->y2 - ky * sliceY;
+      } else {
+	box->y1 = baseBox->y1 + ky * sliceY;
+	box->y2 = baseBox->y1 + ky * (sliceY + sliceH);
+      }
+    }
+  } else if (useMediaBox) {
+    *box = *mediaBox;
+  } else {
+    *box = *cropBox;
+    *crop = gFalse;
+  }
+}
+
+void Page::processLinks(OutputDev *out, Catalog *catalog) {
+  Links *links;
+  int i;
+
+  links = getLinks(catalog);
+  for (i = 0; i < links->getNumLinks(); ++i) {
+    out->processLink(links->getLink(i), catalog);
+  }
+  delete links;
+}
+
 #ifndef PDF_PARSER_ONLY
+void Page::getDefaultCTM(double *ctm, double hDPI, double vDPI,
+			 int rotate, GBool useMediaBox, GBool upsideDown) {
   GfxState *state;
   int i;
 
@@ -360,10 +468,12 @@ void Page::getDefaultCTM(double *ctm, double hDPI, double vDPI,
   } else if (rotate < 0) {
     rotate += 360;
   }
-  state = new GfxState(hDPI, vDPI, getMediaBox(), rotate, upsideDown);
+  state = new GfxState(hDPI, vDPI,
+		       useMediaBox ? getMediaBox() : getCropBox(),
+		       rotate, upsideDown);
   for (i = 0; i < 6; ++i) {
     ctm[i] = state->getCTM()[i];
   }
   delete state;
-#endif
 }
+#endif

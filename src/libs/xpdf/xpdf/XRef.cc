@@ -6,6 +6,57 @@
 //
 //========================================================================
 
+/* ------------------------------------------------------------------------
+* Changed by Martin Schröder <martin@pdftex.org>
+* $Id: XRef.cc 421 2008-04-26 21:59:55Z oneiros $
+* Changelog:
+* ------------------------------------------------------------------------
+* r151 | ms | 2007-06-25 18:53:17 +0200 (Mo, 25 Jun 2007) | 3 lines
+* 
+* Merging xpdf 3.02 from HEAD into stable
+* svn merge -r149:150 --dry-run svn+ssh://svn/srv/svn/repos/pdftex/trunk/source/src/libs/xpdf .
+* 
+* ------------------------------------------------------------------------
+* r77 | ms | 2007-01-01 13:01:00 +0100 (Mo, 01 Jan 2007) | 2 lines
+* 
+* 1.40.0
+* 
+* ------------------------------------------------------------------------
+* r38 | ms | 2005-08-21 14:00:00 +0200 (So, 21 Aug 2005) | 2 lines
+* 
+* 1.30.1
+* 
+* ------------------------------------------------------------------------
+* r24 | ms | 2005-02-04 13:01:00 +0100 (Fr, 04 Feb 2005) | 2 lines
+* 
+* 1.21a
+* 
+* ------------------------------------------------------------------------
+* r21 | ms | 2004-12-22 13:01:00 +0100 (Mi, 22 Dez 2004) | 2 lines
+* 
+* 1.20b
+* 
+* ------------------------------------------------------------------------
+* r11 | ms | 2004-09-06 14:01:00 +0200 (Mo, 06 Sep 2004) | 2 lines
+* 
+* 1.20a
+* 
+* ------------------------------------------------------------------------
+* r6 | ms | 2003-10-06 14:01:00 +0200 (Mo, 06 Okt 2003) | 2 lines
+* 
+* released v1.11b
+* 
+* ------------------------------------------------------------------------
+* r4 | ms | 2003-10-05 14:00:00 +0200 (So, 05 Okt 2003) | 2 lines
+* 
+* Moved sources to src
+* 
+* ------------------------------------------------------------------------
+* r1 | ms | 2003-08-02 14:00:00 +0200 (Sa, 02 Aug 2003) | 1 line
+* 
+* 1.11a
+* ------------------------------------------------------------------------ */
+
 #include <aconf.h>
 
 #ifdef USE_GCC_PRAGMAS
@@ -90,7 +141,7 @@ ObjectStream::ObjectStream(XRef *xref, int objStrNumA) {
   objStr.streamReset();
   obj1.initNull();
   str = new EmbedStream(objStr.getStream(), &obj1, gTrue, first);
-  parser = new Parser(xref, new Lexer(xref, str));
+  parser = new Parser(xref, new Lexer(xref, str), gFalse);
   for (i = 0; i < nObjects; ++i) {
     parser->getObj(&obj1);
     parser->getObj(&obj2);
@@ -131,7 +182,7 @@ ObjectStream::ObjectStream(XRef *xref, int objStrNumA) {
       str = new EmbedStream(objStr.getStream(), &obj1, gTrue,
 			    offsets[i+1] - offsets[i]);
     }
-    parser = new Parser(xref, new Lexer(xref, str));
+    parser = new Parser(xref, new Lexer(xref, str), gFalse);
     parser->getObj(&objs[i]);
     while (str->getChar() != EOF) ;
     delete parser;
@@ -283,7 +334,8 @@ GBool XRef::readXRef(Guint *pos) {
   obj.initNull();
   parser = new Parser(NULL,
 	     new Lexer(NULL,
-	       str->makeSubStream(start + *pos, gFalse, 0, &obj)));
+	       str->makeSubStream(start + *pos, gFalse, 0, &obj)),
+	     gTrue);
   parser->getObj(&obj);
 
   // parse an old-style xref table
@@ -624,7 +676,7 @@ GBool XRef::constructXRef() {
   size = 0;
   entries = NULL;
 
-  error(0, "PDF file is damaged - attempting to reconstruct xref table...");
+  error(-1, "PDF file is damaged - attempting to reconstruct xref table...");
   gotRoot = gFalse;
   streamEndsLen = streamEndsSize = 0;
 
@@ -636,12 +688,16 @@ GBool XRef::constructXRef() {
     }
     p = buf;
 
+    // skip whitespace
+    while (*p && Lexer::isSpace(*p & 0xff)) ++p;
+
     // got trailer dictionary
     if (!strncmp(p, "trailer", 7)) {
       obj.initNull();
       parser = new Parser(NULL,
 		 new Lexer(NULL,
-		   str->makeSubStream(pos + 7, gFalse, 0, &obj)));
+		   str->makeSubStream(pos + 7, gFalse, 0, &obj)),
+		 gFalse);
       parser->getObj(&newTrailerDict);
       if (newTrailerDict.isDict()) {
 	newTrailerDict.dictLookupNF("Root", &obj);
@@ -724,7 +780,8 @@ GBool XRef::constructXRef() {
 }
 
 void XRef::setEncryption(int permFlagsA, GBool ownerPasswordOkA,
-			 Guchar *fileKeyA, int keyLengthA, int encVersionA) {
+			 Guchar *fileKeyA, int keyLengthA, int encVersionA,
+			 CryptAlgorithm encAlgorithmA) {
   int i;
 
   encrypted = gTrue;
@@ -739,6 +796,7 @@ void XRef::setEncryption(int permFlagsA, GBool ownerPasswordOkA,
     fileKey[i] = fileKeyA[i];
   }
   encVersion = encVersionA;
+  encAlgorithm = encAlgorithmA;
 }
 
 GBool XRef::okToPrint(GBool ignoreOwnerPW) {
@@ -777,7 +835,8 @@ Object *XRef::fetch(int num, int gen, Object *obj) {
     obj1.initNull();
     parser = new Parser(this,
 	       new Lexer(this,
-		 str->makeSubStream(start + e->offset, gFalse, 0, &obj1)));
+		 str->makeSubStream(start + e->offset, gFalse, 0, &obj1)),
+	       gTrue);
     parser->getObj(&obj1);
     parser->getObj(&obj2);
     parser->getObj(&obj3);
@@ -790,8 +849,8 @@ Object *XRef::fetch(int num, int gen, Object *obj) {
       delete parser;
       goto err;
     }
-    parser->getObj(obj, encrypted ? fileKey : (Guchar *)NULL, keyLength,
-		   num, gen);
+    parser->getObj(obj, encrypted ? fileKey : (Guchar *)NULL,
+		   encAlgorithm, keyLength, num, gen);
     obj1.free();
     obj2.free();
     obj3.free();
