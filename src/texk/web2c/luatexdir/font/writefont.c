@@ -172,7 +172,7 @@ static void fix_fontmetrics(fd_entry * fd)
 static void write_fontmetrics(fd_entry * fd)
 {
     int i;
-    fix_fontmetrics(i);
+    fix_fontmetrics(fd);
     if (fd->font_dim[FONTBBOX1_CODE].set && fd->font_dim[FONTBBOX2_CODE].set
         && fd->font_dim[FONTBBOX3_CODE].set && fd->font_dim[FONTBBOX4_CODE].set) {
       /* make sure there is a rectangle */
