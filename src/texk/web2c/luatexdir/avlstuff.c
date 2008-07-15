@@ -1,31 +1,32 @@
-/*
-Copyright (c) 2004-2007 Han The Thanh, <thanh@pdftex.org>
+/* avlstuff.c
 
-This file is free software; you can redistribute it and/or modify it
-under the terms of the GNU General Public License as published by Free
-Software Foundation; either version 2 of the License, or (at your option)
-any later version.
+   Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
+   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
 
-This file is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
-for more details.
+   This file is part of LuaTeX.
 
-You should have received a copy of the GNU General Public License along
-with pdfTeX; if not, write to the Free Software Foundation, Inc., 51
-Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+   LuaTeX is free software; you can redistribute it and/or modify it under
+   the terms of the GNU General Public License as published by the Free
+   Software Foundation; either version 2 of the License, or (at your
+   option) any later version.
 
-$Id$
+   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+   License for more details.
 
-*/
+   You should have received a copy of the GNU General Public License along
+   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 #include "ptexlib.h"
 #include <kpathsea/c-vararg.h>
 #include <kpathsea/c-proto.h>
 #include "avl.h"
 
-static struct avl_table *PdfObjTree[pdf_objtype_max + 1] = 
-    { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
+static const char __svn_version[] =
+    "$Id$ $URL$";
+
+static struct avl_table **PdfObjTree = NULL;
 
 /**********************************************************************/
 /* memory management functions for AVL */
@@ -64,7 +65,6 @@ int comp_string_entry(const void *pa, const void *pb, void *p)
 /**********************************************************************/
 /* One AVL tree for each obj_type 0...pdf_objtype_max */
 
-
 typedef struct oentry_ {
     integer int0;
     integer objptr;
@@ -89,21 +89,20 @@ int compare_info(const void *pa, const void *pb, void *param)
             be = str_start[-b + 1];
             al = ae - as;
             bl = be - bs;
-            if (al < bl)   
-            return -1;
-        if (al > bl)
-            return 1;
-        for (; as < ae; as++, bs++) {
-            if (str_pool[as] < str_pool[bs])
+            if (al < bl)        /* compare first by string length */
                 return -1;
-            if (str_pool[as] > str_pool[bs])
+            if (al > bl)
                 return 1;
+            for (; as < ae; as++, bs++) {
+                if (str_pool[as] < str_pool[bs])
+                    return -1;
+                if (str_pool[as] > str_pool[bs])
+                    return 1;
+            }
+        } else {
+            pdftex_fail
+                ("avlstuff.c: compare_items() for single characters: NI");
         }
-       } else {
-           pdftex_fail
-               ("avlstuff.c: compare_items() for single characters: NI");
-        }
-
     } else {                    /* integer comparison */
         if (a < b)
             return -1;
@@ -117,7 +116,13 @@ void avl_put_obj(integer objptr, integer t)
 {
     static void **pp;
     static oentry *oe;
+    int i;
 
+    if (PdfObjTree == NULL) {
+        PdfObjTree = xtalloc(pdf_objtype_max + 1, struct avl_table *);
+        for (i = 0; i <= pdf_objtype_max; i++)
+            PdfObjTree[i] = NULL;
+    }
     if (PdfObjTree[t] == NULL) {
         PdfObjTree[t] = avl_create(compare_info, NULL, &avl_xallocator);
         if (PdfObjTree[t] == NULL)
@@ -130,7 +135,6 @@ void avl_put_obj(integer objptr, integer t)
     if (pp == NULL)
         pdftex_fail("avlstuff.c: avl_probe() out of memory in insertion");
 }
-
 
 /* replacement for linear search pascal function "find_obj()" */
 
@@ -173,10 +177,14 @@ void PdfObjTree_free()
 {
     int i;
 
+    if (PdfObjTree == NULL)
+        return;
     for (i = 0; i <= pdf_objtype_max; i++) {
         if (PdfObjTree[i] != NULL)
             avl_destroy(PdfObjTree[i], destroy_oentry);
     }
+    xfree(PdfObjTree);
+    PdfObjTree = NULL;
 }
 
 /**********************************************************************/
