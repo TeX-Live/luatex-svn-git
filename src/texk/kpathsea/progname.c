@@ -351,7 +351,7 @@ remove_dots P1C(string, dir)
 /* Return directory ARGV0 comes from.  Check PATH if ARGV0 is not
    absolute.  */
 
-static string
+string
 selfdir P1C(const_string, argv0)
 {
   string ret = NULL;
