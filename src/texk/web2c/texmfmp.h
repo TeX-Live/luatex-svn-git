@@ -6,6 +6,25 @@
 #include <kpathsea/c-pathch.h> /* for IS_DIR_SEP, used in the change files */
 #include <kpathsea/tex-make.h> /* for kpse_make_tex_discard_errors */
 
+#ifdef XeTeX
+#include <zlib.h>
+#endif
+
+#ifdef XeTeX
+/* added typedefs for unicodefile and voidpointer */
+#define XETEX_UNICODE_FILE_DEFINED	1
+typedef struct {
+  FILE *f;
+  long  savedChar;
+  short skipNextLF;
+  short encodingMode;
+  void *conversionData;
+} UFILE;
+typedef UFILE* unicodefile;
+
+typedef void* voidpointer;
+#endif
+
 /* If we have these macros, use them, as they provide a better guide to
    the endianess when cross-compiling. */
 #if defined (BYTE_ORDER) && defined (BIG_ENDIAN) && defined (LITTLE_ENDIAN)
@@ -26,22 +45,7 @@
 #endif
 #endif
 
-#ifdef XeTeX
-/* added typedefs for unicodefile and voidpointer */
-#define XETEX_UNICODE_FILE_DEFINED	1
-typedef struct {
-  FILE *f;
-  long  savedChar;
-  short skipNextLF;
-  short encodingMode;
-  void *conversionData;
-} UFILE;
-typedef UFILE* unicodefile;
-
-typedef void* voidpointer;
-#endif
-
-#ifndef luaTeX
+#ifndef luaTeX /* everything */
 
 /* Some things are the same except for the name.  */
 #ifdef TeX
@@ -150,10 +154,10 @@ extern void ipcpage P1H(int);
 #endif /* TeX */
 
 /* How to output to the GF or DVI file.  */
-#define	WRITE_OUT(a, b)							\
-  if ((size_t)fwrite ((char *) &OUT_BUF[a], sizeof (OUT_BUF[a]),		\
-					  (size_t) ((size_t)(b) - (size_t)(a) + 1), OUT_FILE) \
-      != (size_t) ((size_t)(b) - (size_t)(a) + 1))						\
+#define WRITE_OUT(a, b)							\
+  if ((size_t) fwrite ((char *) &OUT_BUF[a], sizeof (OUT_BUF[a]),       \
+                    (size_t) ((size_t)(b) - (size_t)(a) + 1), OUT_FILE) \
+      != (size_t) ((size_t) (b) - (size_t) (a) + 1))                    \
     FATAL_PERROR ("fwrite");
 
 #define flush_out() fflush (OUT_FILE)
@@ -220,9 +224,21 @@ extern void setupboundvariable P3H(integer *, const_string, integer);
 
 #define bopenout(f)	open_output (&(f), FOPEN_WBIN_MODE)
 #define bclose		aclose
+#ifdef XeTeX
+/* f is declared as gzFile (typedef'd as void *), but we temporarily
+   use it for a FILE * so that we can use the standard open calls */
+#define wopenin(f)	(open_input ((FILE**)&(f), DUMP_FORMAT, FOPEN_RBIN_MODE) \
+						&& (f = gzdopen(fileno((FILE*)f), FOPEN_RBIN_MODE)))
+#define wopenout(f)	(open_output ((FILE**)&(f), FOPEN_WBIN_MODE) \
+						&& (f = gzdopen(fileno((FILE*)f), FOPEN_WBIN_MODE)) \
+						&& (gzsetparams(f, 1, Z_DEFAULT_STRATEGY) == Z_OK))
+#define wclose(f)	gzclose(f)
+#define weof(f)		gzeof(f)
+#else
 #define wopenin(f)	open_input (&(f), DUMP_FORMAT, FOPEN_RBIN_MODE)
 #define wopenout	bopenout
 #define wclose		aclose
+#endif
 
 #ifdef XeTeX
 #define uopenin(f,p,m,d) u_open_in(&(f), p, FOPEN_RBIN_MODE, m, d)
@@ -248,52 +264,56 @@ extern void blankrectangle (/*screencol, screencol, screenrow, screenrow*/);
 extern void paintrow (/*screenrow, pixelcolor, transspec, screencol*/);
 #endif
 #endif /* MF */
-
 
-#define        dumpthings(base, len) \
+
+/* (Un)dumping.  These are called from the change file.  */
+#define	dumpthings(base, len) \
   do_dump ((char *) &(base), sizeof (base), (int) (len), DUMP_FILE)
 #define	undumpthings(base, len) \
   do_undump ((char *) &(base), sizeof (base), (int) (len), DUMP_FILE)
-/* We define the routines to do the actual work in texmf.c.  */
-extern void do_dump P4H(char *, int, int, FILE *);
-extern void do_undump P4H(char *, int, int, FILE *);
-#define wopenin(f)     open_input (&(f), DUMP_FORMAT, FOPEN_RBIN_MODE)
-#define wopenout       bopenout
-#define wclose         aclose
 
 /* Like do_undump, but check each value against LOW and HIGH.  The
    slowdown isn't significant, and this improves the chances of
    detecting incompatible format files.  In fact, Knuth himself noted
    this problem with Web2c some years ago, so it seems worth fixing.  We
    can't make this a subroutine because then we lose the type of BASE.  */
-#define undumpcheckedthings(low, high, base, len)						\
+#define undumpcheckedthings(low, high, base, len)			\
   do {                                                                  \
     unsigned i;                                                         \
     undumpthings (base, len);                                           \
     for (i = 0; i < (len); i++) {                                       \
       if ((&(base))[i] < (low) || (&(base))[i] > (high)) {              \
         FATAL5 ("Item %u (=%ld) of .fmt array at %lx <%ld or >%ld",     \
-                i, (unsigned long) (&(base))[i], (unsigned long) &(base),     \
-                (unsigned long) low, (unsigned long) high);             \
+                i, (unsigned long) (&(base))[i], (unsigned long) &(base),\
+                (unsigned long) low, (integer) high);                   \
       }                                                                 \
-    }																	\
+    }									\
   } while (0)
 
 /* Like undump_checked_things, but only check the upper value. We use
    this when the base type is unsigned, and thus all the values will be
    greater than zero by definition.  */
-#define undumpuppercheckthings(high, base, len)							\
+#define undumpuppercheckthings(high, base, len)				\
   do {                                                                  \
     unsigned i;                                                         \
     undumpthings (base, len);                                           \
     for (i = 0; i < (len); i++) {                                       \
-      if ((&(base))[i] > (high)) {										\
-        FATAL4 ("Item %u (=%ld) of .fmt array at %lx >%ld",				\
-                i, (unsigned long) (&(base))[i], (unsigned long) &(base),		\
-                (unsigned long) high);										\
+      if ((&(base))[i] > (high)) {              			\
+        FATAL4 ("Item %u (=%ld) of .fmt array at %lx >%ld",     	\
+                i, (unsigned long) (&(base))[i], (unsigned long) &(base),\
+                (integer) high);                         		\
       }                                                                 \
-    }																	\
+    }									\
   } while (0)
+
+/* We define the routines to do the actual work in texmf.c.  */
+#ifdef XeTeX
+extern void do_dump P4H(char *, int, int, gzFile);
+extern void do_undump P4H(char *, int, int, gzFile);
+#else
+extern void do_dump P4H(char *, int, int, FILE *);
+extern void do_undump P4H(char *, int, int, FILE *);
+#endif
 
 /* Use the above for all the other dumping and undumping.  */
 #define generic_dump(x) dumpthings (x, 1)
@@ -331,6 +351,8 @@ extern void do_undump P4H(char *, int, int, FILE *);
 #else
 #define	undumpint generic_undump
 #endif
+
+
 #else  /* this is for luaTeX */
 
 /* Some things are the same except for the name.  */
@@ -468,7 +490,7 @@ extern void zwclose P1H(FILE *);
       if ((&(base))[i] < (low) || (&(base))[i] > (high)) {              \
         FATAL5 ("Item %u (=%ld) of .fmt array at %lx <%ld or >%ld",     \
                 i, (unsigned long) (&(base))[i], (unsigned long) &(base),     \
-                (unsigned long) low, (unsigned long) high);             \
+                (unsigned long) low, (integer) high);                         \
       }                                                                 \
     }																	\
   } while (0)
@@ -524,6 +546,6 @@ extern void zwclose P1H(FILE *);
   while (0)
 #else
 #define	undump_int generic_undump
-#endif
+#endif /* not (REGFIX || WIN32) */
 
 #endif /* luaTeX */
