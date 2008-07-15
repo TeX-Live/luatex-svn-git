@@ -1,1 +1,0 @@
-../../../texk/kpathsea/c-proto.h
