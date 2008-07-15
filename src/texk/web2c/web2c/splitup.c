@@ -2,6 +2,8 @@
    and it produces several .c and .h files in the current directory
    as its output.
 
+   $Id: splitup.c 7124 2008-03-24 15:47:15Z martin $
+
    Tim Morgan  September 19, 1987.  */
 
 #include "config.h"

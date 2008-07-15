@@ -1,5 +1,6 @@
 /* Some definitions that get appended to the `coerce.h' file that web2c
    outputs.  */
+/* $Id: coerce.h 7719 2008-04-29 08:03:54Z thoekwater $ */
 
 /* The C compiler ignores most unnecessary casts (i.e., casts of
    something to its own type).  However, for structures, it doesn't.
@@ -38,7 +39,7 @@
 #define	eqdestroy(x)	zeqdestroy(x)
 #endif
 
-#endif /* luaTeX */
+#endif
 
 /* And we use the opportunity to declare a few functions that could not be
    declared in texmfmp.h, because they need typedefs not yet known at that
@@ -70,12 +71,19 @@ extern void remembersourceinfo P2H(strnumber, int);
 
 #ifdef luaTeX
 #include <luatexdir/luatex.h>
-#else /* luaTeX */
-#ifdef pdfTeX
-#include <pdftexdir/pdftex.h>
-#endif /* pdfTeX */
 #endif /* luaTeX */
+
+/* When compiling the lib in luatexdir, we -DpdfTeX so code can be more
+   easily shared.  But we can't have both pdftexd.h and luatexd.h, etc.  */
+#if defined (pdfTeX) && !defined (luaTeX)
+#include <pdftexdir/pdftex.h>
+#endif /* pdfTeX and not luaTeX */
 
 #ifdef XeTeX
 #include <xetexdir/xetex.h>
 #endif /* XeTeX */
+
+#ifdef MP
+#define MPOSTCOERCE
+#include <mpdir/mplib.h>
+#endif /* MP */

@@ -1,25 +1,29 @@
 #!/bin/sh
 # Convert WEB programs not needing special treatment to C.
-# 
-# One parameter for the root of a tree is prepended to the
-# parameter list. The just-generated versions of splitup, web2c and
-# fixwrites are useless when cross-compiling; therefore versions
-# from a native tree are used in that case, otherwise it should
-# expand to something meaning "the current directory"
-#
-# $1 is that directory
-# $2 is the Pascal file to be converted.
-# $3 is the C file to be created.
-# $4, if present, is extended with .h, and #included in the C file, and
-# extended with .defines, and prepended along with the common
-# definitions.
 
 : ${srcdir=.}
 
+usage="Usage: $0 TOOLDIR BASEFILE
+
+TOOLDIR is the root of a tree for native tools; when not cross-compiling,
+this is just the present web2c directory.
+
+BASEFILE is the root part of the file to be converted; it is extended
 native=$1
 shift
 
-usage="Usage: $0 <basefile>."
+with .p to make the name of the (input) Pascal file, and extended with
+.c and .h to make the name of the main (output) C files.  Additional
+files BASEini.c, BASEd.h, BASEcoerce.h are created for the larger program.
+"
+
+native=$1
+shift
+if test ! -d "$native"; then
+  echo "$0: native argument not a directory: $native" >&2
+  exit 1
+fi
+
 basefile=
 while test $# -gt 0; do
   case $1 in
@@ -31,7 +35,7 @@ while test $# -gt 0; do
   shift
 done
 if test -z "$basefile"; then
-  echo "Missing basefile argument." >&2
+  echo "$0: missing base (Pascal) file argument." >&2
   echo "$usage" >&2
   exit 1
 fi
@@ -59,7 +63,9 @@ output_files="$cfile $basefile.h"
 
 case $basefile in
   bibtex)
-    midcmd="| sed -f $srcdir/web2c/cvtbib.sed";;
+    midcmd="| sed -f $srcdir/web2c/cvtbib.sed"
+    ;;
+
   mf) # MF and MP are almost the same.
     more_defines="$srcdir/web2c/texmf.defines $srcdir/web2c/mfmp.defines"
     precmd="| sed -f $srcdir/web2c/cvtmf1.sed"
@@ -72,6 +78,7 @@ case $basefile in
     output_files="$basefile[0-9].c ${basefile}ini.c ${basefile}d.h \
 ${basefile}coerce.h"
     ;;
+
   mp) # MP now needs mp.defines for font inclusion library
     more_defines="$srcdir/web2c/texmf.defines $srcdir/web2c/mfmp.defines"
     prog_defines="$srcdir/${basefile}dir/$basefile.defines"
@@ -90,7 +97,7 @@ ${basefile}coerce.h"
     ;;
 
   tex|eomega|etex|pdftex|pdfetex|omega|aleph|xetex)
-    more_defines="$srcdir/web2c/texmf.defines"
+    more_defines="$srcdir/web2c/texmf.defines $srcdir/synctexdir/synctex.defines"
     prog_defines="$srcdir/${basefile}dir/$basefile.defines"
     if test -f $prog_defines; then
       more_defines="$more_defines $prog_defines"
@@ -102,8 +109,9 @@ ${basefile}coerce.h"
     cfile=${basefile}2.c # last output file, or thereabouts
     output=
     output_files="$basefile[0-9].c ${basefile}ini.c ${basefile}d.h \
-${basefile}coerce.h"
+                  ${basefile}coerce.h"
     ;;
+
   luatex)
     more_defines="$srcdir/web2c/texmf.defines"
     prog_defines="$srcdir/${basefile}dir/$basefile.defines"
@@ -118,11 +126,12 @@ ${basefile}coerce.h"
     cfile=${basefile}2.c # last output file, or thereabouts
     output=
     output_files="$basefile[0-9].c ${basefile}ini.c ${basefile}d.h \
-${basefile}coerce.h"
+                 ${basefile}coerce.h"
     ;;
 esac
 
 # Do it.
+#set -x
 eval "cat $srcdir/web2c/common.defines $more_defines $pascalfile \
   $precmd \
   | $native/web2c/web2c -h$hfile $web2c_options \

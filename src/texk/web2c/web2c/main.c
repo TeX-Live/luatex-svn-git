@@ -158,9 +158,9 @@ search_table P1C(const_string, id)
   while (ptr != -1)
     {
       if (strcmp (id, sym_table[ptr].id) == 0)
-		return (ptr);
+	return (ptr);
       else
-		ptr = sym_table[ptr].next;
+	ptr = sym_table[ptr].next;
     }
   return -1;
 }
@@ -195,7 +195,7 @@ remove_locals P1H(void)
       next_string_free = mark_string_free;
       ptr = hash_list[h];
       while (ptr > next_sym_free)
-		ptr = sym_table[ptr].next;
+	ptr = sym_table[ptr].next;
       hash_list[h] = ptr;
     }
   global = 1;
@@ -267,7 +267,10 @@ main P2C(int, argc, string *, argv)
   xfclose (coerce, coerce_name);
 
   if (debug)
-    fprintf (stderr, "%d symbols.\n", next_sym_free);
+    {
+      fprintf (stderr, "%d symbols.\n", next_sym_free);
+      fprintf (stderr, "%d strings.\n", next_string_free);
+    }
 
   return EXIT_SUCCESS;
 }

@@ -1,4 +1,6 @@
-{This file is concatenated by ./convert to the beginning of the Pascal
+{common.defines.  Public domain.
+
+ This file is concatenated by ./convert to the beginning of the Pascal
  code that tangle outputs.  The idea is to put all these symbols, which
  can be defined as macros or functions, or as part of standard C, into
  web2c's symbol table, so that we can access them from a change file.
@@ -67,6 +69,8 @@
 @define const GFTODVIHELP;
 @define const GFTOPKHELP;
 @define const GFTYPEHELP;
+@define const LUATANGLEHELP;
+@define const LUATEXHELP;
 @define const MFTHELP;
 @define const ODVICOPYHELP;
 @define const ODVITYPEHELP;
@@ -77,8 +81,6 @@
 @define const OVP2OVFHELP;
 @define const OVF2OVPHELP;
 @define const PATGENHELP;
-@define const LUATANGLEHELP;
-@define const LUATEXHELP;
 @define const PDFTEXHELP;
 @define const PDFETEXHELP;
 @define const PKTOGFHELP;
@@ -137,6 +139,7 @@
 @define function round ();
 @define function strcmp ();
 @define function stringcast ();
+@define function conststringcast ();
 @define function strlen ();
 @define function strtol ();
 @define function trunc ();
@@ -164,6 +167,7 @@
 @define procedure kpseresetprogramname ();
 @define procedure kpsesetprogramenabled ();
 @define procedure libcfree ();
+@define procedure printcstring ();
 @define procedure printreal ();
 @define procedure printversionandexit ();
 @define procedure putbyte ();
@@ -190,9 +194,11 @@
 @define type boolean = 0..1;
 @define type cinttype;
 @define type cstring;
+@define type constcstring;
 @define type char = 0..255;
 @define type getoptstruct;
 @define type integer;
+@define type longinteger;
 @define type memoryword; {for gftodvi, TeX, and Metafont}
 @define type pointertobyte;
 @define type real;
@@ -201,8 +207,9 @@
 @define var argc;
 @define var argv;
 @define var kpathseaversionstring;
-@define var versionstring;
+@define var promptfilenamehelpmsg;
 @define var recorderenabled;
+@define var versionstring;
 
 {These are all set by getopt.  optiontable is really _getopt_long_options.}
 @define var optarg;

@@ -1,5 +1,5 @@
 %{
-/* web2c.l -- lexical analysis for Tangle output.  Public domain.  */
+/* web2c.l -- lexical analysis for Tangle output.  Public domain. */
 
 #include "web2c.h"
 #include "y_tab.h"

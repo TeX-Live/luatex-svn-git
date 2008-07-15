@@ -1,9 +1,38 @@
+2008-05-25  Karl Berry  <karl@tug.org>
+
+	* texmf.defines (loadpoolstrings): formatting.
+
+2008-03-24  Karl Berry  <karl@tug.org>
+
+	* common.defines (printcstring): new procedure.
+	(promptfilenamehelpmsg): new var.
+	
+2008-03-09  Karl Berry  <karl@tug.org>
+
+	* coerce.h [MP]: #include <mpdir/mplib.h> to get declarations,
+	with MPOSTCOERCE defined to avoid re-including mpd.h.
+
+2008-01-29  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.in: Add @configure_input@ line.
+
+2008-01-12  Karl Berry  <karl@tug.org>
+
+	* web2c/main.c (main): output next_string_free if debugging.
+	From Martin, 10 Jan 2008 15:42:42.
+
+	* web2c/main.c (max_strings, hash_prime, sym_table_size, unused):
+	increase substantially, per luatex.
+	ntg-pdftex mail from Akira, 10 Jan 2008 23:49:02.
+
+2007-10-23  Karl Berry  <karl@tug.org>
+
+	* common.defines (longinteger): make accessible to web sources.
+
 2006-05-26  Jonathan Kew <jonathan_kew@sil.org>
 
 	* coerce.h: add support for xetex
-
 	* convert: add support for xetex
-
 	* splitup.c: add support for xetex
 
 2005-07-27  Olaf Weber  <olaf@infovore.xs4all.nl>
