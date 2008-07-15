@@ -630,7 +630,7 @@ scaled divide_scaled_n(double s, double m, double d);
 void pdf_print_char(internal_font_number f, integer c);
 void pdf_print(str_number n);
 void pdf_print_str(str_number n);
-void pdf_print_int(integer n);
+void pdf_print_int(longinteger n);
 void pdf_print_real(integer m, integer d);
 
 /* textoken.c */
