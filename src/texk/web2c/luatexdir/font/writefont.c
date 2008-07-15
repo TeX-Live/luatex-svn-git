@@ -147,12 +147,23 @@ static void preset_fontmetrics(fd_entry * fd, internalfontnumber f)
 
 static void fix_fontmetrics(fd_entry * fd)
 {
+    int i;
     intparm *p = (intparm *) fd->font_dim;
-    if (!p[FONTBBOX1_CODE].set || !p[FONTBBOX2_CODE].set ||
-        !p[FONTBBOX3_CODE].set || !p[FONTBBOX4_CODE].set) {
-        pdftex_warn("font `%s' doesn't have a BoundingBox", fd->fm->ff_name);
-        return;
-    }
+    assert(p[FONTBBOX1_CODE].set && p[FONTBBOX2_CODE].set
+           && p[FONTBBOX3_CODE].set && p[FONTBBOX4_CODE].set);
+    /* make sure there is a rectangle */
+    if (p[FONTBBOX3_CODE].val < p[FONTBBOX1_CODE].val) {
+        i = p[FONTBBOX3_CODE].val;
+        p[FONTBBOX3_CODE].val = p[FONTBBOX1_CODE].val;
+        p[FONTBBOX1_CODE].val = i;
+    } else if (p[FONTBBOX3_CODE].val == p[FONTBBOX1_CODE].val)
+        p[FONTBBOX3_CODE].val = p[FONTBBOX1_CODE].val + 1;
+    if (p[FONTBBOX4_CODE].val < p[FONTBBOX2_CODE].val) {
+        i = p[FONTBBOX4_CODE].val;
+        p[FONTBBOX4_CODE].val = p[FONTBBOX2_CODE].val;
+        p[FONTBBOX2_CODE].val = i;
+    } else if (p[FONTBBOX4_CODE].val == p[FONTBBOX2_CODE].val)
+        p[FONTBBOX4_CODE].val = p[FONTBBOX2_CODE].val + 1;
     if (!p[ASCENT_CODE].set) {
         p[ASCENT_CODE].val = p[FONTBBOX4_CODE].val;
         p[ASCENT_CODE].set = true;
@@ -167,25 +178,15 @@ static void fix_fontmetrics(fd_entry * fd)
     }
 }
 
-
-
 static void write_fontmetrics(fd_entry * fd)
 {
     int i;
     fix_fontmetrics(fd);
-    if (fd->font_dim[FONTBBOX1_CODE].set && fd->font_dim[FONTBBOX2_CODE].set
-        && fd->font_dim[FONTBBOX3_CODE].set && fd->font_dim[FONTBBOX4_CODE].set) {
-      /* make sure there is a rectangle */
-       if (fd->font_dim[FONTBBOX3_CODE].val <= fd->font_dim[FONTBBOX1_CODE].val)
-         fd->font_dim[FONTBBOX3_CODE].val = fd->font_dim[FONTBBOX1_CODE].val + 1;
-       if (fd->font_dim[FONTBBOX4_CODE].val <= fd->font_dim[FONTBBOX2_CODE].val)
-         fd->font_dim[FONTBBOX4_CODE].val = fd->font_dim[FONTBBOX2_CODE].val + 1;
-        pdf_printf("/%s [%i %i %i %i]\n", font_key[FONTBBOX1_CODE].pdfname,
-                   (int) fd->font_dim[FONTBBOX1_CODE].val,
-                   (int) fd->font_dim[FONTBBOX2_CODE].val,
-                   (int) fd->font_dim[FONTBBOX3_CODE].val,
-                   (int) fd->font_dim[FONTBBOX4_CODE].val);
-    }
+    pdf_printf("/%s [%i %i %i %i]\n", font_key[FONTBBOX1_CODE].pdfname,
+               (int) fd->font_dim[FONTBBOX1_CODE].val,
+               (int) fd->font_dim[FONTBBOX2_CODE].val,
+               (int) fd->font_dim[FONTBBOX3_CODE].val,
+               (int) fd->font_dim[FONTBBOX4_CODE].val);
     for (i = 0; i < GEN_KEY_NUM; i++)
         if (fd->font_dim[i].set)
             pdf_printf("/%s %i\n", font_key[i].pdfname, fd->font_dim[i].val);
