@@ -41,7 +41,7 @@ done
 #
 STRIP=strip
 B=build
-NATIVE=`pwd`
+NATIVE='.'
 export NATIVE
 
 # ----------

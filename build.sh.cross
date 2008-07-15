@@ -45,7 +45,7 @@ done
 STRIP=strip
 B=build-windows
 NATIVE=`pwd`
-NATIVE=$NATIVE/linux
+NATIVE=$NATIVE/linux/texk/web2c
 export NATIVE
 
 # ----------
@@ -126,12 +126,16 @@ fi
 (cd texk/web2c/web2c; $MAKE) || exit 1
 (cd texk/web2c; $MAKE ../kpathsea/libkpathsea.la) || exit 1
 (cd texk/web2c/lib; $MAKE) || exit 1
-(cd texk/web2c/mpdir; ../../../../src/texk/web2c/mpdir/configure --enable-shared=no \
+(cd texk/web2c/mpdir; 
+  if [ "$ONLY_MAKE" = "FALSE" ] 
+  then
+    ../../../../src/texk/web2c/mpdir/configure --enable-shared=no \
             --target=i386-mingw32 \
             --build=i386-mingw32  \
-            --host=i386-linux ; $MAKE; $MAKE lmplib.o ) || exit 1
-(cd texk/web2c/; $MAKE ctangle) || exit 1
-cp /usr/bin/ctangle texk/web2c/
+            --host=i386-linux ;
+  fi; 
+  $MAKE; 
+  $MAKE lmplib.o ) || exit 1
 if [ ! "$ONLY_MAKE" = "FALSE" ]
 then
   (cd texk/web2c/luatexdir; $MAKE libpdf.a) || exit 1

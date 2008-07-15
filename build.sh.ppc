@@ -38,6 +38,8 @@ done
 #
 STRIP=strip
 B=build-ppc
+NATIVE='.'
+export NATIVE
 
 SDK=/Developer/SDKs/MacOSX10.4u.sdk
 SDKROOT=/Developer/SDKs/MacOSX10.4u.sdk

@@ -44,6 +44,8 @@ done
 #
 STRIP=strip
 B=build
+NATIVE='.'
+export NATIVE
 # ----------
 # clean up, if needed
 if [ -r "$B"/Makefile -a $ONLY_MAKE = "FALSE" ]

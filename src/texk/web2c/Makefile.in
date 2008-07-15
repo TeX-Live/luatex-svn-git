@@ -78,7 +78,7 @@ windowlib = window/window.a
 # The sh script that does the conversion.  The "." is the directory with
 # native tools; we don't attempt cross-compiling a la luatex.  The
 # $(native) variable is used in luatex.mk.
-native = .
+native = $(NATIVE)
 web2c = srcdir=$(srcdir) $(SHELL) $(srcdir)/web2c/convert $(native)
 
 # We put this in the web2c directory for lack of a better place, but it
