@@ -359,7 +359,7 @@ begin
       usage_help (WEAVE_HELP, nil);
 
     end else if argument_is ('version') then begin
-      print_version_and_exit (banner, nil, 'D.E. Knuth');
+      print_version_and_exit (banner, nil, 'D.E. Knuth', nil);
 
     end; {Else it was a flag; |getopt| has already done the assignment.}
   until getopt_return_val = -1;

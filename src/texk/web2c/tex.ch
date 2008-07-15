@@ -70,10 +70,10 @@ a modified \TeX{} version.
 @z
 
 @x [1.2] l.188
-@d banner=='This is TeX, Version 3.141592' {printed when \TeX\ starts}
+@d banner=='This is TeX, Version 3.1415926' {printed when \TeX\ starts}
 @y
-@d TeX_banner_k=='This is TeXk, Version 3.141592' {printed when \TeX\ starts}
-@d TeX_banner=='This is TeX, Version 3.141592' {printed when \TeX\ starts}
+@d TeX_banner_k=='This is TeXk, Version 3.1415926' {printed when \TeX\ starts}
+@d TeX_banner=='This is TeX, Version 3.1415926' {printed when \TeX\ starts}
 @#
 @d banner==TeX_banner
 @d banner_k==TeX_banner_k
@@ -83,6 +83,7 @@ a modified \TeX{} version.
 Actually the heading shown here is not quite normal: The |program| line
 does not mention any |output| file, because \ph\ would ask the \TeX\ user
 to specify a file name if |output| were specified here.
+@:PASCAL H}{\ph@>
 @^system dependencies@>
 @y
 @z
@@ -200,7 +201,7 @@ versions of the program.
 @y
 @d file_name_size == maxint
 @d ssup_error_line = 255
-@d ssup_max_strings == 262143
+@d ssup_max_strings == 2097151
 {Larger values than 65536 cause the arrays consume much more memory.}
 @d ssup_trie_opcode == 65535
 @d ssup_trie_size == @"3FFFFF
@@ -208,7 +209,7 @@ versions of the program.
 @d ssup_hyph_size == 65535 {Changing this requires changing (un)dumping!}
 @d iinf_hyphen_size == 610 {Must be not less than |hyph_prime|!}
 
-@d max_font_max=2000 {maximum number of internal fonts; this can be
+@d max_font_max=5000 {maximum number of internal fonts; this can be
                       increased, but |hash_size+max_font_max|
                       should not exceed 29000.}
 @d font_base=0 {smallest internal font number; must be
@@ -233,7 +234,7 @@ versions of the program.
 @!sup_mem_bot = 1;
 
 @!inf_main_memory = 3000;
-@!sup_main_memory = 32000000;
+@!sup_main_memory = 256000000;
 
 @!inf_trie_size = 8000;
 @!sup_trie_size = ssup_trie_size;
@@ -244,7 +245,7 @@ versions of the program.
 @!sup_strings_free = sup_max_strings;
 
 @!inf_buf_size = 500;
-@!sup_buf_size = 300000;
+@!sup_buf_size = 30000000;
 
 @!inf_nest_size = 40;
 @!sup_nest_size = 4000;
@@ -253,7 +254,7 @@ versions of the program.
 @!sup_max_in_open = 127;
 
 @!inf_param_size = 60;
-@!sup_param_size = 6000;
+@!sup_param_size = 32767;
 
 @!inf_save_size = 600;
 @!sup_save_size = 80000;
@@ -282,6 +283,9 @@ versions of the program.
 
 @!sup_hyph_size = ssup_hyph_size;
 @!inf_hyph_size = iinf_hyphen_size; {Must be not less than |hyph_prime|!}
+
+@!inf_expand_depth = 10;
+@!sup_expand_depth = 10000000;
 @z
 
 @x [1.12] l.427 - Constants that are WEB numeric macros.
@@ -467,6 +471,7 @@ end;
 
 @x [3.28] l.850 - Do file closing in C.
 @ Files can be closed with the \ph\ routine `|close(f)|', which
+@:PASCAL H}{\ph@>
 @^system dependencies@>
 should be used when all input or output with respect to |f| has been completed.
 This makes |f| available to be opened again, if desired; and if |f| was used for
@@ -544,7 +549,7 @@ We define |input_ln| in C, for efficiency. Nevertheless we quote the module
 tini@/
 @#
 @!bound_default:integer; {temporary for setup}
-@!bound_name:^char; {temporary for setup}
+@!bound_name:const_cstring; {temporary for setup}
 @#
 @!mem_bot:integer;{smallest index in the |mem| array dumped by \.{INITEX};
   must not be less than |mem_min|}
@@ -594,6 +599,7 @@ tini@/
 @!save_size:integer; {space for saving values outside of current group; must be
   at most |max_halfword|}
 @!dvi_buf_size:integer; {size of the output buffer; must be a multiple of 8}
+@!expand_depth:integer; {limits recursive calls to the |expand| procedure}
 @!parse_first_line_p:c_int_type; {parse the first line for options}
 @!file_line_error_style_p:c_int_type; {format messages as file:line:error}
 @!eight_bit_p:c_int_type; {make all characters printable by default}
@@ -614,6 +620,7 @@ tini@/
 @x [3.33] l.964 - We don't need to open terminal files.
 @ Here is how to open the terminal files
 in \ph. The `\.{/I}' switch suppresses the first |get|.
+@:PASCAL H}{\ph@>
 @^system dependencies@>
 
 @d t_open_in==reset(term_in,'TTY:','/O/I') {open the terminal for text input}
@@ -628,6 +635,7 @@ any command line arguments the user has provided.  It's defined in C.
 
 @x [3.34] l.982 - Flushing output to terminal files.
 these operations can be specified in \ph:
+@:PASCAL H}{\ph@>
 @^system dependencies@>
 
 @d update_terminal == break(term_out) {empty the terminal output buffer}
@@ -1814,6 +1822,46 @@ end
   while k < limit do begin print_buffer(k) end;
 @z
 
+@x [25.366] expansion depth check
+The |expand| subroutine is used when |cur_cmd>max_command|. It removes a
+@y
+@ Sometimes, recursive calls to the following |expand| routine may
+cause exhaustion of the run-time calling stack, resulting in
+forced execution stops by the operating system. To diminish the chance
+of this happening, a counter is used to keep track of the recursion
+depth, in conjunction with a constant called |expand_depth|.
+
+This does not catch all possible infinite recursion loops, just the ones
+that exhaust the application calling stack. The actual maximum value of
+|expand_depth| is outside of our control, but the initial setting of
+|10000| should be enough to prevent problems.
+@^system dependencies@>
+
+@<Global...@>=
+expand_depth_count:integer;
+
+@ @<Set init...@>=
+expand_depth_count:=0;
+
+@ The |expand| subroutine is used when |cur_cmd>max_command|. It removes a
+@z
+
+@x [25.366]
+begin cv_backup:=cur_val; cvl_backup:=cur_val_level; radix_backup:=radix;
+@y
+begin
+incr(expand_depth_count);
+if expand_depth_count>=expand_depth then overflow("expansion depth",expand_depth);
+cv_backup:=cur_val; cvl_backup:=cur_val_level; radix_backup:=radix;
+@z
+
+@x [25.366]
+cur_order:=co_backup; link(backup_head):=backup_backup;
+@y
+cur_order:=co_backup; link(backup_head):=backup_backup;
+decr(expand_depth_count);
+@z
+
 @x [25.372] - encTeX: we need to distinguish \endcsname and \endmubyte
 if cur_cmd<>end_cs_name then @<Complain about missing \.{\\endcsname}@>;
 @y
@@ -1934,7 +1982,7 @@ if area_delimiter<>0 then begin
   s:=str_start[str_ptr];
   t:=str_start[str_ptr]+area_delimiter;
   j:=s;
-  while (not must_quote) and (j<>t) do begin
+  while (not must_quote) and (j<t) do begin
     must_quote:=str_pool[j]=" "; incr(j);
     end;
   if must_quote then begin
@@ -1952,7 +2000,7 @@ s:=str_start[str_ptr]+area_delimiter;
 if ext_delimiter=0 then t:=pool_ptr else t:=str_start[str_ptr]+ext_delimiter-1;
 must_quote:=false;
 j:=s;
-while (not must_quote) and (j<>t) do begin
+while (not must_quote) and (j<t) do begin
   must_quote:=str_pool[j]=" "; incr(j);
   end;
 if must_quote then begin
@@ -1969,7 +2017,7 @@ if ext_delimiter<>0 then begin
   t:=pool_ptr;
   must_quote:=false;
   j:=s;
-  while (not must_quote) and (j<>t) do begin
+  while (not must_quote) and (j<t) do begin
     must_quote:=str_pool[j]=" "; incr(j);
     end;
   if must_quote then begin
@@ -2032,19 +2080,19 @@ begin
 must_quote:=false;
 if a<>0 then begin
   j:=str_start[a];
-  while (not must_quote) and (j<>str_start[a+1]) do begin
+  while (not must_quote) and (j<str_start[a+1]) do begin
     must_quote:=str_pool[j]=" "; incr(j);
   end;
 end;
 if n<>0 then begin
   j:=str_start[n];
-  while (not must_quote) and (j<>str_start[n+1]) do begin
+  while (not must_quote) and (j<str_start[n+1]) do begin
     must_quote:=str_pool[j]=" "; incr(j);
   end;
 end;
 if e<>0 then begin
   j:=str_start[e];
-  while (not must_quote) and (j<>str_start[e+1]) do begin
+  while (not must_quote) and (j<str_start[e+1]) do begin
     must_quote:=str_pool[j]=" "; incr(j);
   end;
 end;
@@ -2177,22 +2225,39 @@ name_of_file[name_length+1]:=0;
 @z
 
 @x [29.525] l.10163 - make_name_string
+@p function make_name_string:str_number;
+var k:1..file_name_size; {index into |name_of_file|}
+begin if (pool_ptr+name_length>pool_size)or(str_ptr=max_strings)or
+ (cur_length>0) then
+  make_name_string:="?"
+else  begin for k:=1 to name_length do append_char(xord[name_of_file[k]]);
   make_name_string:=make_string;
   end;
 @y
+@p function make_name_string:str_number;
+var k:1..file_name_size; {index into |name_of_file|}
+save_area_delimiter, save_ext_delimiter: pool_pointer;
+save_name_in_progress, save_stop_at_space: boolean;
+begin if (pool_ptr+name_length>pool_size)or(str_ptr=max_strings)or
+ (cur_length>0) then
+  make_name_string:="?"
+else  begin for k:=1 to name_length do append_char(xord[name_of_file[k]]);
   make_name_string:=make_string;
-  end;
   {At this point we also set |cur_name|, |cur_ext|, and |cur_area| to
    match the contents of |name_of_file|.}
-  k:=1;
+  save_area_delimiter:=area_delimiter; save_ext_delimiter:=ext_delimiter;
+  save_name_in_progress:=name_in_progress; save_stop_at_space:=stop_at_space;
   name_in_progress:=true;
   begin_name;
   stop_at_space:=false;
+  k:=1;
   while (k<=name_length)and(more_name(name_of_file[k])) do
     incr(k);
-  stop_at_space:=true;
+  stop_at_space:=save_stop_at_space;
   end_name;
-  name_in_progress:=false;
+  name_in_progress:=save_name_in_progress;
+  area_delimiter:=save_area_delimiter; ext_delimiter:=save_ext_delimiter;
+  end;
 @z
 
 @x [29.526] l.10194 - stop scanning file name if we're at end-of-line.
@@ -2210,12 +2275,20 @@ var k:0..buf_size; {index into |buffer|}
 @y
 var k:0..buf_size; {index into |buffer|}
 @!saved_cur_name:str_number; {to catch empty terminal input}
+@!saved_cur_ext:str_number; {to catch empty terminal input}
+@!saved_cur_area:str_number; {to catch empty terminal input}
 @z
 
 @x [29.530] l.10252 - prompt_file_name: No default extension is TeX input file.
 if e=".tex" then show_context;
 @y
 if (e=".tex") or (e="") then show_context;
+print_ln; print_c_string(prompt_file_name_help_msg);
+if (e<>"") then
+  begin
+    print("; default file extension is `"); print(e); print("'");
+  end;
+print(")"); print_ln;
 @z
 
 @x [29.530] l.10258 - prompt_file_name: prevent empty filenames.
@@ -2223,9 +2296,17 @@ clear_terminal; prompt_input(": "); @<Scan file name in the buffer@>;
 if cur_ext="" then cur_ext:=e;
 @y
 saved_cur_name:=cur_name;
+saved_cur_ext:=cur_ext;
+saved_cur_area:=cur_area;
 clear_terminal; prompt_input(": "); @<Scan file name in the buffer@>;
-if cur_ext="" then cur_ext:=e;
-if length(cur_name)=0 then cur_name:=saved_cur_name;
+if (length(cur_name)=0) and (cur_ext="") and (cur_area="") then
+  begin
+    cur_name:=saved_cur_name;
+    cur_ext:=saved_cur_ext;
+    cur_area:=saved_cur_area;
+  end
+else
+  if cur_ext="" then cur_ext:=e;
 @z
 
 @x [29.532] l.10263 - avoid conflict, `logname' in <unistd.h> on some systems.
@@ -2238,7 +2319,7 @@ if length(cur_name)=0 then cur_name:=saved_cur_name;
 @x [29.534] l.10285 - Adjust for C string conventions.
 @!months:packed array [1..36] of char; {abbreviations of month names}
 @y
-@!months:^char;
+@!months:const_cstring;
 @z
 
 @x [29.534] l.10300 - Filename change for the recorder.
@@ -3007,11 +3088,11 @@ arrays start at |0|.
 %%%%%%%% dynamic hyph_size
 @x 18137 m.926
 @!hyph_word:array[hyph_pointer] of str_number; {exception words}
-@!hyph_list:array[hyph_pointer] of pointer; {list of hyphen positions}
+@!hyph_list:array[hyph_pointer] of pointer; {lists of hyphen positions}
 @!hyph_count:hyph_pointer; {the number of words in the exception dictionary}
 @y  18139
 @!hyph_word: ^str_number; {exception words}
-@!hyph_list: ^pointer; {list of hyphen positions}
+@!hyph_list: ^pointer; {lists of hyphen positions}
 @!hyph_link: ^hyph_pointer; {link array for hyphen exceptions hash table}
 @!hyph_count:integer; {the number of words in the exception dictionary}
 @!hyph_next:integer; {next free slot in hyphen exceptions hash table}
@@ -4555,6 +4636,7 @@ begin @!{|start_here|}
   setup_bound_var (50)('half_error_line')(half_error_line);
   setup_bound_var (79)('max_print_line')(max_print_line);
   setup_bound_var (0)('hash_extra')(hash_extra);
+  setup_bound_var (10000)('expand_depth')(expand_depth);
 
   const_chk (mem_bot);
   const_chk (main_memory);
@@ -4966,7 +5048,7 @@ if j=18 then
     if clobbered then print("clobbered")
     else begin {We have the string; run system(3). We don't have anything
             reasonable to do with the return status, unfortunately discard it.}
-      system(stringcast(address_of(str_pool[str_start[str_ptr]])));
+      system(conststringcast(address_of(str_pool[str_start[str_ptr]])));
       print("executed");
       end;
     end

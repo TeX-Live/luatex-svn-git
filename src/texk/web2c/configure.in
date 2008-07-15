@@ -16,12 +16,14 @@ dnl to build part of the distribution may not have any given program.
 dnl Even main.c isn't guaranteed, but then nothing is, really ...
 AC_INIT(web2c/main.c)
 
-WEB2CVERSION=7.5.6
+WEB2CVERSION=7.5.7
 AC_SUBST(WEB2CVERSION)
 AC_DEFINE_UNQUOTED(WEB2CVERSION," (Web2C $WEB2CVERSION)")
 
 dnl Write output here, instead of putting a zillion -D's on the command line.
-AC_CONFIG_HEADERS([c-auto.h:c-auto.in], [date >stamp-auto])
+AC_CONFIG_HEADERS([c-auto.h:c-auto.in],
+ [sed 's/^#define PACKAGE_/#define WEB2C_PACKAGE_/' c-auto.h >c-auto.tmp && mv -f c-auto.tmp c-auto.h
+  date >stamp-auto])
 
 AC_PROG_CC
 AC_PROG_INSTALL
@@ -38,13 +40,11 @@ case $LEX in
   *flex) $LEX --version >/dev/null 2>&1 && LEX="$LEX -l" ;;
 esac
 AC_PROG_RANLIB
-AC_CHECK_HEADERS(sys/time.h sys/timeb.h)
-AC_CHECK_FUNCS(strerror gettimeofday ftime mkstemp mktemp)
+AC_CHECK_HEADERS(sys/time.h sys/timeb.h locale.h)
+AC_CHECK_FUNCS(strerror gettimeofday ftime mkstemp mktemp setlocale strlcat strlcpy fmax)
 
 AC_TYPE_SIGNAL
 
-# AC_DECL_YYTEXT is just used to set LEX_OUTPUT_ROOT.
-AC_DECL_YYTEXT
 pb_AC_ASM_UNDERSCORE
 
 dnl pdfTeX likes inline functions in C code.
@@ -74,45 +74,11 @@ dnl These tests prevent reliable cross-compilation.  Sigh.
 dnl Some special hacks are used to make cross-compilation
 dnl succeed in one special case.
 
-dnl this assumes these are set in the top-level configure
-
-TARGET=$target
-AC_SUBST(TARGET)
-
-HOST=$host
-AC_SUBST(HOST)
-
-dnl TH: Well, for the moment I am only interested in cross-compiling
-dnl from one simple 32 bit operating system to another on the same
-dnl (intel) machine, so just do a simple test 
-
-dnl AC_UNSET_CC
-case "$ac_cv_prog_cc_cross" in
-  "yes")
-    AC_DEFINE(SIZEOF_LONG, 4)
-  ;;
-  *)
-    AC_C_CHAR_UNSIGNED
-    AC_C_BIGENDIAN
-    AC_CHECK_SIZEOF(long)
-  ;;
-esac
-dnl AC_RESET_CC
-
-dnl Nevertheless, we do make some allowances for cross-compilation.
-dnl NATIVE should be defined as the root of the native build tree
-dnl when calling configure for a cross-compilation
-
-case "$ac_cv_prog_cc_cross" in
-  "yes")
-    NATIVEWEB=$NATIVE/texk/web2c
-    ;;
-  *)
-    NATIVEWEB="."
-    ;;
-esac
-export NATIVEWEB
-AC_SUBST(NATIVEWEB)
+AC_UNSET_CC
+AC_C_CHAR_UNSIGNED
+AC_C_BIGENDIAN
+AC_CHECK_SIZEOF(long)
+AC_RESET_CC
 
 # --with and --enable options.
 test "x$with_x_toolkit" = xyes && with_x=yes
@@ -136,6 +102,8 @@ sinclude(../../libs/teckit/withenable.ac)
 sinclude(../../libs/teckit/teckit.ac)
 sinclude(../../libs/icu-xetex/withenable.ac)
 sinclude(../../libs/icu-xetex/icu-xetex.ac)
+sinclude(../../libs/graphite-engine/withenable.ac)
+sinclude(../../libs/graphite-engine/graphite-engine.ac)
 
 # Whether to build mf-nowin.
 : ${with_mf_nowin=no} # Default.
@@ -191,6 +159,16 @@ else
   with_pdftex=no
 fi
 
+# For pdfeTeX
+if test -d $srcdir/pdftexdir; then
+  test "${with_pdfetex+set}" = set || with_pdfetex=yes
+else
+  if test "x$with_pdfetex" = xyes; then
+    AC_MSG_WARN(Not all sources of pdfeTeX are available.)
+  fi
+  with_pdfetex=no
+fi
+
 # For luaTeX.
 if test -d $srcdir/luatexdir; then
   # Create build dir, if necessary.
@@ -201,16 +179,6 @@ else
     AC_MSG_WARN(The luaTeX sources are not available.)
   fi
   with_luatex=no
-fi
-
-# For pdfeTeX
-if test -d $srcdir/pdftexdir; then
-  test "${with_pdfetex+set}" = set || with_pdfetex=yes
-else
-  if test "x$with_pdfetex" = xyes; then
-    AC_MSG_WARN(Not all sources of pdfeTeX are available.)
-  fi
-  with_pdfetex=no
 fi
 
 # For XeTeX
@@ -227,8 +195,8 @@ fi
 # Check whether C++ compiler works.  Prevent exit if it doesn't.
 if test "x$with_pdftex"  = xyes ||
    test "x$with_luatex"  = xyes ||
-   test "x$with_xetex"  = xyes ||
-   test "x$with_pdfetex" = xyes
+   test "x$with_pdfetex" = xyes ||
+   test "x$with_xetex"   = xyes
 then
   # First test whether the compiler works in a subshell, and if so,
   # do it again in the main shell so we see the result.
@@ -266,8 +234,8 @@ CXXHACKLDLIBS='$(LOADLIBES)'
 if test "x$with_cxx_runtime_hack" = xyes &&
    { test "x$with_pdftex"  = xyes ||
      test "x$with_luatex"  = xyes ||
-     test "x$with_xetex"   = xyes ||
-     test "x$with_pdfetex" = xyes; }
+     test "x$with_pdfetex" = xyes ||
+     test "x$with_xetex"   = xyes; }
 then
   AC_MSG_CHECKING(for statically linking C++ runtime library)
 
@@ -384,6 +352,13 @@ fontconfig is installed.
   fi
   AC_SUBST(XETEX_MACOSX)
   AC_SUBST(XETEX_GENERIC)
+
+  if test "x$with_graphite" = xno; then
+    XETEX_GRAPHITE='#! '
+  else
+    XETEX_GRAPHITE=
+  fi
+  AC_SUBST(XETEX_GRAPHITE)
 fi
 
 
@@ -437,7 +412,7 @@ if test "x$with_x" = xyes; then
     *)  wfile=../$srcdir/window/$wfile;;
   esac
   (cd window && (rm -f x11.c; $LN_S $wfile x11.c))
-  AC_DEFINE(X11WIN)
+  AC_DEFINE([X11WIN], 1, [Define to include X11 window in Metafont.])
 fi
 AC_SUBST(x_ext_lib)
 AC_SUBST(x_tool_libs)
@@ -457,7 +432,7 @@ then
   KPSE_CONFIG_FILES([pdftexdir/Makefile])
 fi
 
-# Don't bother with pdflib unless luaTeX is requested.
+# Ditto luatex.
 if test "$with_luatex" = yes; then
   KPSE_CONFIG_FILES([luatexdir/Makefile])
 fi
@@ -490,8 +465,33 @@ if test "x$with_omega" = xyes || test "x$with_aleph" = xyes || test "x$with_xete
 KPSE_CROSS_PATH_PROG(OTANGLE, otangle, ./otangle)
 fi
 
+AH_TOP([/* c-auto.h: defines for web2c, as determined by configure.
+
+   Copyright 1994-97, 2008 Karl Berry.
+   Copyright 1997-99, 2002, 2005 Olaf Weber.
+
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+
+/* Guard against double inclusion. */
+#ifndef WEB2C_C_AUTO_H
+#define WEB2C_C_AUTO_H
+
+/* web2c: the version string. */
+#define WEB2CVERSION "REPLACE-WITH-WEB2CVERSION"])
+AH_BOTTOM([#endif /* !WEB2C_C_AUTO_H */])
+
 dnl Generate `Makefile's, `config.status', and our header file.
 KPSE_CONFIG_FILES([Makefile doc/Makefile lib/Makefile man/Makefile mpware/Makefile 
           mpdir/Makefile web2c/Makefile window/Makefile])
-AC_CONFIG_FILES([fmtutil.cnf:fmtutil.in])
 AC_OUTPUT
