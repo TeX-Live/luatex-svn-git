@@ -485,7 +485,7 @@ void copy_png(image_dict * idict)
                "/BitsPerComponent %i"
                "/Predictor 10>>\n>>\nstream\n", streamlength,
                info_p->color_type == 2 ? 3 : 1,
-               info_p->width, info_p->bit_depth);
+               (int)info_p->width, info_p->bit_depth);
     /* 2nd pass to copy data */
     endflag = false;
     if (fseek(fp, 8, SEEK_SET) != 0)
