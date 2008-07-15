@@ -25,9 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef WIN32
 #include <string.h>
-#endif
 
 
 /* MetaPost itself has a configurable max line length, but we can afford to
@@ -49,10 +47,10 @@ char *tex_pretex1 = "\\gdef\\mpxshipout{\\shipout\\hbox\\bgroup%\n"
     "  \\ht0=0pt \\dp0=0pt \\box0 \\egroup}\n"
     "\\mpxshipout%% line %d %s\n";
 char *tex_pretex = "\\mpxshipout%% line %d %s\n";
-char *tex_posttex = "\\stopmpxshipout\n";
+char *tex_posttex = "\n\\stopmpxshipout\n";
 char *tex_preverb1 = "";	/* if very first instance */
 char *tex_preverb = "%% line %d %s\n";	/* all other instances */
-char *tex_postverb = "%\n";
+char *tex_postverb = "\n";
 
 /* According to CSTR #54 the ".lf" directive should be ".lf %d %s",
  * not ".lf line %d %s" as used in the original code.  This affects
@@ -122,7 +120,7 @@ getline(void)
 
 
 /* Return nonzero if a prefix of string s matches the null-terminated string t
- * and the next character is not a letter of an underscore.
+ * and the next character is not a letter or an underscore.
  */
 int
 match_str(char *s, char *t)
@@ -299,24 +297,16 @@ void
 copytex(void)
 {
     char *s;			/* where a string to print stops */
+    char *t;			/* for finding start of last line */
     char c;
-
-    while (*aa == ' ' || *aa == '\t')
-	aa++;
-    if (*aa == 0)
-	if ((aa = getline()) == NULL)
-	    err("btex section does not end");
+    char *res = NULL;
     do {
 	if (*aa == 0)
-	    if ((aa = getline()) == NULL)
-		err("btex section does not end");
-	    else
-		printf("\n");
+	  if ((aa = getline()) == NULL)
+	    err("btex section does not end");
+
 	if (getbta(aa) && *tt == 'e') {
-	    s = tt - 1;
-	    while (s >= bb && (*s == ' ' || *s == '\t'))
-		s--;
-	    s++;
+     	    s = tt;
 	} else {
 	    if (*tt == 'b')
 		err("btex in TeX mode");
@@ -326,9 +316,37 @@ copytex(void)
 	}
 	c = *s;
 	*s = 0;
-	printf("%s", bb);
+	if (res==NULL) {
+	  res = malloc(strlen(bb)+2);
+	  if (res==NULL)
+	    err("memory allocation failure");
+	  res = strncpy(res,bb,(strlen(bb)+1));
+	} else {
+	  res = realloc(res,strlen(res)+strlen(bb)+2);
+	  if (res==NULL)
+	    err("memory allocation failure");
+	  res = strncat(res,bb, strlen(bb));
+	}
+	if (c == '\0')
+	    res = strncat(res, "\n", 1);
 	*s = c;
     } while (*tt != 'e');
+    /* whitespace at the end */
+    for (s = res + strlen(res) - 1;
+	 s >= res && (*s == ' ' || *s == '\t' || *s == '\r' || *s == '\n'); s--);
+    t = s;
+    *(++s) = '\0';
+    /* whitespace at the start */
+    for (s = res;
+	 s < (res + strlen(res)) && (*s == ' ' || *s == '\t' || *s == '\r'
+				     || *s == '\n'); s++);
+    for (; *t != '\n' && t > s; t--);
+    printf("%s", s);
+    /* put no '%' at end if it's only 1 line total, starting with '%';
+     * this covers the special case "%&format" in a single line. */
+    if (t != s || *t != '%')
+	printf("%%");
+    free(res);
 }
 
 
@@ -386,7 +404,7 @@ main(int argc, char **argv)
 	exit(0);
     } else if (argc > 1 && (strcmp(argv[1], "--version") == 0
 			    || strcmp(argv[1], "-version") == 0)) {
-	printf("mpto 0.992\n\
+	printf("mpto 1.003\n\
 This program is in the public domain.\n\
 Primary author of mpto: John Hobby.\n\
 Current maintainer: Taco Hoekwater.\n");

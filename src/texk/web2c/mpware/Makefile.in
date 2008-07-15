@@ -1,3 +1,4 @@
+# @configure_input@
 # Makefile for the MetaPost support programs.
 
 kpse_include ../make/paths.mk
@@ -49,7 +50,7 @@ install-exec: $(programs)
 	$(INSTALL_PROGRAM) newer $(bindir)/newer
 	$(INSTALL_LIBTOOL_PROG) dmp $(bindir)
 	$(INSTALL_LIBTOOL_PROG) mpto $(bindir)
-	$(INSTALL_SCRIPT) makempx $(scriptdir)/makempx
+	$(INSTALL_LIBTOOL_PROG) makempx $(bindir)
 install-data:
 
 kpse_include ../make/tkpathsea.mk
