@@ -151,9 +151,8 @@ if [ ! -d linux/texk/web2c/luatexdir ]
 then mkdir -p linux/texk/web2c/luatexdir;
 fi
 
-cp "$B"/texk/web2c/web2c/makecpool linux/texk/web2c/luatexdir
-cp "$B"/texk/web2c/web2c/{web2c,fixwrites,splitup} linux/texk/web2c/web2c
-cp "$B"/texk/web2c/{luatex,tangle,tangleboot,luatangle} linux/texk/web2c
+cp "$B"/texk/web2c/web2c/{makecpool,web2c,fixwrites,splitup} linux/texk/web2c/web2c
+cp "$B"/texk/web2c/{ctangle,luatex,tangle,tangleboot,luatangle} linux/texk/web2c
 $STRIP linux/texk/web2c/luatex
 
 # show the results
