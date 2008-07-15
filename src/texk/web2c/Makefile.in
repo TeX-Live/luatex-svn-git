@@ -1,5 +1,6 @@
+# $Id: Makefile.in 8587 2008-06-06 02:11:01Z vvv $
+# @configure_input@
 # Makefile for web2c --kb@mail.tug.org. Public domain.
-# $Id: //depot/Build/source.development/TeX/texk/web2c/Makefile.in#66 $
 version = @WEB2CVERSION@
 
 # This makefile uses static rules with many targets (to be compatible to
@@ -8,9 +9,8 @@ version = @WEB2CVERSION@
 .NOTPARALLEL:
 
 # These lines define the memory dumps that fmts/bases/mems will make and
-# install-fmts/install-bases/install-mems will install. plain.* is
-# created automatically (as a link).  See the Formats node in
-# doc/web2c.texi for details on the fmts.
+# install-fmts/install-bases/install-mems will install.
+# See the Formats node in doc/web2c.texi for more details.
 fmts = olatex.fmt # amstex.fmt eplain.fmt texinfo.fmt
 efmts = latex.fmt
 pdffmts = pdfolatex.fmt
@@ -18,7 +18,7 @@ pdfefmts = pdflatex.fmt
 afmts = lamed.fmt
 ofmts = lambda.fmt
 eofmts = elambda.fmt
-bases = # I do not recommend building cmmf.base.
+bases = # no good reason to build cmmf.base.
 mems =  # mfplain.mem is probably not generally useful.
 
 # The name of the file that defines your local devices for Metafont.
@@ -69,24 +69,27 @@ socketlibs = @socketlibs@
 
 common_makeargs = $(MFLAGS) CC='$(CC)' CFLAGS='$(CFLAGS)' LDFLAGS='$(LDFLAGS)' $(XMAKEARGS)
 window_makeargs = x_cppflags='$(x_cppflags)' $(common_makeargs)
-install_makeargs = INSTALL='$(INSTALL)' INSTALL_DATA='$(INSTALL_DATA)' \
-  INSTALL_PROGRAM='$(INSTALL_PROGRAM)' \
-  $(makevars) $(common_makeargs)  
+install_makeargs = $(makevars) $(common_makeargs)
 
 proglib = lib/lib.a
 windowlib = window/window.a
 
-native = @NATIVEWEB@
-target = @TARGET@
-host  = @HOST@
-
-
-# The sh script that does the conversion:
+# 
+# The sh script that does the conversion.  The "." is the directory with
+# native tools; we don't attempt cross-compiling a la luatex.  The
+# $(native) variable is used in luatex.mk.
+native = .
 web2c = srcdir=$(srcdir) $(SHELL) $(srcdir)/web2c/convert $(native)
+
+# We put this in the web2c directory for lack of a better place, but it
+# is separate from (and simpler than) the actual web-to-C conversion programs.
+makecpool = $(native)/web2c/makecpool
+
 # Additional dependencies:
 web2c_common = web2c/convert web2c/common.defines
-web2c_programs = web2c/fixwrites web2c/splitup web2c/web2c
-web2c_texmf = $(web2c_common) $(web2c_programs) web2c/texmf.defines web2c/coerce.h
+web2c_programs = web2c/fixwrites web2c/splitup web2c/web2c $(makecpool)
+web2c_texmf = $(web2c_common) $(web2c_programs) \
+              web2c/texmf.defines web2c/coerce.h
 
 # The helper programs:
 TANGLEBOOT = @TANGLEBOOT@
@@ -96,9 +99,9 @@ CTANGLE = @CTANGLE@
 TIE = @TIE@
 
 # Calling tangle
-tangle = WEBINPUTS=$(srcdir) $(native)/$(TANGLE)
+tangle = WEBINPUTS=.:$(srcdir) $(TANGLE)
 ctangle = $(CTANGLE)
-tie = $(native)/$(TIE)
+tie = $(TIE)
 
 # The environment for making dumps.
 # No need to specify TEXMF, as ../kpathsea/texmf.cnf should contain
@@ -125,7 +128,7 @@ tex = tex
 mf = mf
 @MFN@mfn = mf-nowin
 #  
-default all: programs manpages doc/web2c.info @FMU@ dumps
+default all: programs manpages doc/web2c.info @FMU@
 check: dumps
 
 bibtex: bibtex.o
@@ -431,9 +434,9 @@ dvitype_args = -output-level=2 -dpi=72.27 -page-start='*.*.*.*.*.*.*.*.*.*'
 
 # 
 # Metafont
-mf_c = mfini.c mf0.c mf1.c
-mf_o = mfini.o mf0.o mf1.o mfextra.o
-mfn_o = mfini.o mf0.o mf1.o mfnowin.o
+mf_c  = mfini.c mf0.c mf1.c
+mf_o  = mfini.o mf0.o mf1.o mf-pool.o mfextra.o
+mfn_o = mfini.o mf0.o mf1.o mf-pool.o mfnowin.o
 mf: $(mf_o) $(windowlib)
 	$(kpathsea_link) $(mf_o) $(windowlink) $(LOADLIBES)
 mf-nowin: $(mfn_o) window/trap.o
@@ -446,8 +449,10 @@ mfextra.c: lib/texmfmp.c
 	sed s/TEX-OR-MF-OR-MP/mf/ $(srcdir)/lib/texmfmp.c >$@
 mfnowin.c: lib/texmfmp.c
 	sed s/TEX-OR-MF-OR-MP/mf/ $(srcdir)/lib/texmfmp.c >$@
-mf.p mf.pool: tangle mf.web mf.ch
-	$(tangle) mf.web mf.ch
+mf.p mf.pool: tangle mf.web mf-final.ch
+	$(tangle) $(srcdir)/mf.web mf-final.ch
+mf-final.ch: $(TIE) mf.web mf.ch mf-binpool.ch
+	$(TIE) -c $@ $(srcdir)/mf.web $(srcdir)/mf.ch $(srcdir)/mf-binpool.ch
 check: mf-check
 mf-check: trap mf.base
 	./mf --progname=mf '&./mf \tracingstats:=1; end.'
@@ -488,20 +493,33 @@ trap-clean:
 	rm -f mftrap.pl trap.72270gf trap.typ
 # 
 # MetaPost
-kpse_include metapost.mk
 kpse_include mpdir/mpostlib.mk
+kpse_include metapost.mk
 # 
 # TeX
 tex_c = texini.c tex0.c tex1.c tex2.c
-tex_o = texini.o tex0.o tex1.o tex2.o texextra.o
+tex_o = texini.o tex0.o tex1.o tex2.o tex-pool.o texextra.o
 tex: $(tex_o)
 	$(kpathsea_link) $(tex_o) $(socketlibs) $(LOADLIBES)
 $(tex_c) texcoerce.h texd.h: tex.p $(web2c_texmf)
 	$(web2c) tex
 texextra.c: lib/texmfmp.c
 	sed s/TEX-OR-MF-OR-MP/tex/ $(srcdir)/lib/texmfmp.c >$@
-tex.p tex.pool: tangle tex.web tex.ch
-	$(tangle) tex.web tex.ch
+tex.p tex.pool: tangle tex.web tex-final.ch
+	$(tangle) $(srcdir)/tex.web tex-final.ch
+tex-final.ch: $(TIE) tex.web tex.ch tex-binpool.ch
+	$(TIE) -c $@ $(srcdir)/tex.web $(srcdir)/tex.ch $(srcdir)/tex-binpool.ch
+
+# tools to load pool for tex and mf.
+#
+tex-pool.c: tex.pool $(makecpool) tmf-pool.h
+	$(makecpool) tex.pool $(srcdir)/tmf-pool.h >$@ || rm -f $@
+mf-pool.c: mf.pool $(makecpool) tmf-pool.h
+	$(makecpool) mf.pool $(srcdir)/tmf-pool.h >$@ || rm -f $@
+mf-pool.o: mf-pool.c tmf-pool.h mfd.h
+# we include mfd.h, so need lots more includes.
+	$(CC) $(CFLAGS) -I. -I.. -I$(srcdir) -I$(srcdir)/.. -DMETA_FONT -c -o $@ mf-pool.c
+
 check: tex-check
 tex-check: trip tex.fmt
 # Test truncation (but don't bother showing the warning msg).
@@ -559,29 +577,42 @@ trip-clean:
 # 
 # Helper makefile fragments for pdf*tex and luatex.
 kpse_include libsluapdf.mk
+kpse_include pdftexdir/pdftexlib.mk
 kpse_include luatexdir/luatexlib.mk
 # 
 # Makefile fragments:
-kpse_include xetexdir/xetex.mk
+kpse_include synctexdir/synctex.mk
 kpse_include etexdir/etex.mk
 kpse_include omegadir/omega.mk
 kpse_include alephdir/aleph.mk
+kpse_include pdftexdir/pdftex.mk
+kpse_include xetexdir/xetex.mk
 kpse_include luatexdir/luatex.mk
+
 # 
-# Common
+# non-engine programs.
 programs = bibtex ctangle ctie cweave dvicopy dvitomp dvitype gftodvi gftopk \
-gftype mft $(odvicopy) $(odvitype) $(otangle) patgen $(pdftosrc) \
-pktogf pktype pltotf pooltype tangle tftopl tie $(ttf2afm) \
-vftovp vptovf weave
-engines = $(tex) $(etex) $(mf) $(mfn) $(mpost) \
+ gftype mft $(odvicopy) $(odvitype) $(otangle) patgen $(pdftosrc) \
+ pktogf pktype pltotf pooltype synctex tangle tftopl tie $(ttf2afm) \
+ vftovp vptovf weave
+
+# basic_engines are the binaries we build and install directly here in
+# the webdir/ directory.
+# include $(metapost) from metapost.mk even though it also includes
+# dvitomp.  Hopefully that doesn't hurt.
+basic_engines = $(tex) $(mf) $(mfn) $(metapost)
+
+# engines includes the ones built in subdirectories.
+engines = $(basic_engines) $(etex) \
           $(omega) $(aleph) \
-          $(pdftex) $(pdfetex) $(luatex) $(xetex)
+          $(pdftex) $(pdfetex) \
+          $(xetex) $(luatex)
 
 programs: $(programs) $(engines) $(mpware_programs) \
           $(omegafonts_programs) $(otps_programs) $(pdftosrc)
 
 # Additional dependencies for relinking.
-# Note that each program and engine already depends on $(web2c_programs).
+# Each program and engine already depends on $(web2c_programs).
 $(web2c_programs) tangleboot ctangleboot: $(kpathsea) $(proglib)
 
 # 
@@ -597,7 +628,7 @@ tangle.c tangle.h: tangle.p
 # which we use to make the other programs.  We depend on tangleboot, even
 # though we might not use it.
 tangle.p: tangleboot tangle.web tangle.ch
-	WEBINPUTS=$(srcdir) $(TANGLEBOOT) tangle tangle
+	WEBINPUTS=.:$(srcdir) $(TANGLEBOOT) tangle tangle
 tangle.web:
 	@echo "You seem to be missing tangle.web, perhaps because you" >&2
 	@echo "didn't retrieve web.tar.gz, only web2c.tar.gz." >&2
@@ -625,7 +656,7 @@ stamp-tangle: tangleboot.p
 # just touch tangleboot.p and build tangle.
 tangleboot.p: tangle.web tangle.ch
 	if [ -r $(TANGLE) ] || [ -r $(TANGLE).exe ]; then \
-	  WEBINPUTS=$(srcdir) $(TANGLE) tangle tangle; \
+	  $(tangle) tangle tangle; \
 	  mv tangle.p tangleboot.p; \
 	elif [ -r tangleboot.p ]; then \
 	  touch tangleboot.p; \
@@ -692,8 +723,6 @@ cwebboot-clean:
 	rm -f cwebboot.o
 
 # Even web2c itself uses the library.
-# It's annoying to have to give all the filenames here, 
-# but texmfmp.c is an exception.
 lib_sources = lib/alloca.c lib/basechsuffix.c lib/chartostring.c \
   lib/eofeoln.c lib/fprintreal.c lib/input2int.c lib/inputint.c lib/main.c \
   lib/openclose.c lib/printversion.c lib/uexit.c lib/usage.c lib/version.c \
@@ -715,6 +744,8 @@ web2c/splitup: web2c/splitup.c web2c/kps.c
 	cd web2c && $(MAKE) $(common_makeargs) splitup
 web2c/web2c: web2c/main.c web2c/web2c.h web2c/web2c.l web2c/web2c.y web2c/kps.c
 	cd web2c && $(MAKE) $(common_makeargs) web2c
+$(makecpool): web2c/makecpool.c
+	cd web2c && $(MAKE) $(common_makeargs) makecpool
 
 kpse_include ../make/tkpathsea.mk
 
@@ -724,6 +755,9 @@ all_fmts = tex.fmt $(fmts)
 all_bases = mf.base $(bases)
 all_mems = mpost.mem $(mems)
 
+# We used to build these by default, but nowadays the dumps are created
+# completely separately, e.g., at runtime by mktexfmt.  So just leave it
+# as an optional extra target.
 dumps: fmts bases mems
 fmts: $(all_fmts)
 bases: $(all_bases)
@@ -733,10 +767,6 @@ tex.fmt: tex
 	$(dumpenv) $(MAKE) progname=tex files="plain.tex cmr10.tfm" prereq-check
 	$(dumpenv) ./tex --progname=tex --jobname=tex --ini \\input plain \\dump </dev/null
 
-#latex.fmt: tex
-#	$(dumpenv) $(MAKE) progname=latex files="latex.ltx" prereq-check
-#	$(dumpenv) ./tex --progname=latex --jobname=latex --ini \\input latex.ltx </dev/null
-
 olatex.fmt: tex
 	$(dumpenv) $(MAKE) progname=olatex files="latex.ltx" prereq-check
 	$(dumpenv) ./tex --progname=olatex --jobname=olatex --ini \\input latex.ltx </dev/null
@@ -744,10 +774,6 @@ olatex.fmt: tex
 mltex.fmt: tex
 	$(dumpenv) $(MAKE) progname=mltex files="plain.tex cmr10.tfm" prereq-check
 	$(dumpenv) ./tex --mltex --progname=mltex --jobname=mltex --ini \\input plain \\dump </dev/null
-
-#mllatex.fmt: tex
-#	$(dumpenv) $(MAKE) progname=mllatex files="latex.ltx" prereq-check
-#	$(dumpenv) ./tex --mltex --progname=mllatex --jobname=mllatex --ini \\input latex.ltx </dev/null
 
 mf.base: mf
 	$(dumpenv) $(MAKE) progname=mf files="plain.mf cmr10.mf $(localmodes).mf" prereq-check
@@ -787,9 +813,7 @@ eplain.fmt: tex.fmt
 
 # 
 install: install-exec install-data
-install-exec:: install-programs @FMU@ install-links
-install-data:: install-tex-data install-mf-data install-mpost-data
-install-dumps: install-tex-dumps install-mf-dumps install-mpost-dumps
+install-exec:: install-programs
 
 # Installation directories.
 $(bindir)::
@@ -809,59 +833,19 @@ $(memdir)::
 $(web2cdir)::
 	$(SHELL) $(top_srcdir)/../mkinstalldirs $(web2cdir)
 
-# Installing the programs.
-install-programs: $(programs) $(bindir)
-	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(bindir); done
+# Installing the binaries.  Each of the *dir/*.mk files (except etex)
+# add to this target via a dependency-only rule, to install their
+# respective engines.
+install-programs: $(programs) $(basic_engines) $(bindir)
+	for p in $(programs) $(basic_engines); do \
+	  $(INSTALL_LIBTOOL_PROG) $$p $(bindir); done
 
-# Installation of each of the three main engines.
-install-tex: install-tex-exec install-tex-data
-install-mf: install-mf-exec install-mf-data
-install-mpost: install-mpost-exec install-mpost-data
-
-install-tex-exec: @FMU@ install-tex-links
-install-mf-exec: @FMU@ install-mf-links
-install-mpost-exec: @FMU@ install-mpost-links
-
-install-tex-data: install-tex-pool @FMU@ install-tex-dumps
-install-mf-data: install-mf-pool @FMU@ install-mf-dumps
-install-mpost-data: install-mpost-pool @FMU@ install-mpost-dumps
-
-install-tex-dumps: install-tex-fmts
-install-mf-dumps: install-mf-bases
-install-mpost-dumps: install-mpost-mems
-
-# Actual binaries.
-install-programs: install-tex-programs
-install-tex-programs: tex $(bindir)
-	tex="tex"; \
-	  for p in $$tex; do $(INSTALL_LIBTOOL_PROG) $$p $(bindir); done
-install-programs: install-mf-programs
-install-mf-programs: mf $(mfn) $(bindir)
-	mf="mf $(mfn)"; \
-	  for p in $$mf; do $(INSTALL_LIBTOOL_PROG) $$p $(bindir); done
-install-programs: install-mpost-programs
-install-mpost-programs: mpost $(bindir)
-	mpost="mpost"; \
-	  for p in $$mpost; do $(INSTALL_LIBTOOL_PROG) $$p $(bindir); done
-
-# The links to {mf,mp,tex} for each format and for {ini,vir}{mf,mp,tex},
-# plus the equivalents for e-TeX, Omega, and pdf[ex]TeX.
-install-links: install-tex-links
-install-tex-links: install-tex-programs
-	#cd $(bindir) && (rm -f initex virtex; \
-	#  $(LN) tex initex; $(LN) tex virtex)
-
-install-links: install-mf-links
-install-mf-links: install-mf-programs
-	#cd $(bindir) && (rm -f inimf virmf; \
-	#  $(LN) mf inimf; $(LN) mf virmf)
-
-install-links: install-mpost-links
-install-mpost-links: install-mpost-programs
-	#cd $(bindir) && (rm -f inimpost virmpost; \
-	#  $(LN) mpost inimpost; $(LN) mpost virmpost)
+# We do not attempt to install any of the per-format symlinks, leaving
+# that to a separate run of texlinks.
 
 # Always do plain.*, so examples from the TeXbook (etc.) will work.
+# This target is not called, since it depends on the whole texmf tree,
+# but we leave it for posterity.
 install-fmts: install-tex-fmts
 install-tex-fmts: fmts $(fmtdir)
 	fmts="$(all_fmts)"; \
@@ -889,21 +873,12 @@ install-mpost-mems: mems $(memdir)
 	  for f in $$mems; do base=`basename $$f .mem`; \
             (cd $(bindir) && (rm -f $$base; $(LN) mpost $$base)); done
 
-install-tex-pool: tex.pool $(texpooldir)
-	$(INSTALL_DATA) tex.pool $(texpooldir)/tex.pool
-install-mf-pool: mf.pool $(mfpooldir)
-	$(INSTALL_DATA) mf.pool $(mfpooldir)/mf.pool
-install-mpost-pool: 
-# mp.pool $(mppooldir)
-#	$(INSTALL_DATA) mp.pool $(mppooldir)/mp.pool
-
 # Auxiliary files.
 install-data:: $(web2cdir)
 	cd doc && $(MAKE) $(install_makeargs) install-data
 	cd man && $(MAKE) $(install_makeargs) install-data
 	$(INSTALL_DATA) $(srcdir)/tiedir/tie.1 $(man1dir)/tie.$(manext)
 	$(INSTALL_DATA) $(srcdir)/ctiedir/ctie.1 $(man1dir)/ctie.$(manext)
-	$(INSTALL_DATA) fmtutil.cnf $(web2cdir)/fmtutil.cnf
 
 # Dummy target.
 uninstall uninstall-exec uninstall-data:
@@ -1124,7 +1099,8 @@ installcheck:
 
 # 
 # Cleaning.
-all_subdirs = doc lib man $(mpware) web2c window $(omegafonts) $(otps) $(pdftexdir) $(luatexdir) $(mpostdir)
+all_subdirs = doc lib man $(mpware) web2c window $(omegafonts) $(otps) \
+              $(pdftexdir) $(mpostdir) $(luatexdir) 
 
 # Having a multiple-target rule with the subdir loop fails because of
 # the dependencies introduced by clean.mk.  Yet, we want the
@@ -1143,7 +1119,6 @@ clean::
 distclean::
 	test ! -r lib/Makefile \
 	  || for d in $(all_subdirs); do (cd $$d && $(MAKE) $@); done
-	rm -f fmtutil.cnf
 extraclean::
 	test ! -r lib/Makefile \
 	  || for d in $(all_subdirs); do (cd $$d && $(MAKE) $@); done

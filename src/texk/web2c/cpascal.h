@@ -48,6 +48,7 @@
 #define odd(x)		((x) & 1)
 #define round(x)	zround ((double) (x))
 #define trunc(x)	((integer) (x))
+#undef floor /* MacOSX */
 #define floor(x)	((integer)floor((double)(x)))
 #define input stdin
 #define output stdout
@@ -123,6 +124,7 @@ typedef FILE *text;
 /* To work around casting problems.  */
 #define intcast(x) ((integer) (x))
 #define stringcast(x) ((string) (x))
+#define conststringcast(x) ((const_string) (x))
 
 /* For throwing away input from the file F.  */
 #define vgetc(f) (void) getc (f)
@@ -176,12 +178,38 @@ typedef unsigned char *pointertobyte;
    -- var2 lacks the *.  */
 #define cstring string
 
+#define constcstring const_string
+
 /* Not all C libraries have fabs, so we'll roll our own.  */
 #undef fabs
 #define fabs(x) ((x) >= 0.0 ? (x) : -(x))
 
 /* TeX et al. have a variable free, but we also need the C routine.  */
 #define libcfree free
+
+/* We have a system-dependent prompt in tex.ch.  We don't want it in the
+   string pool, since (now that the pools are compiled into the
+   binaries), that would make the .fmt unsharable.  So go through this
+   circumlotion to print a C string.  The lack of the closing ) is
+   intentional, since the code adds more text sometimes.  Although the
+   eof character can be changed with stty or whatever, we're certainly
+   not going to try to extract the actual value from a terminal struct.
+   Anyone who is savvy enough to change it will not be confused.  */
+#ifdef WIN32
+#define promptfilenamehelpmsg "(Press Enter to retry, or Control-Z to exit"
+#else
+#define promptfilenamehelpmsg "(Press Enter to retry, or Control-D to exit"
+#endif
+
+/* We use this rather than a simple fputs so that the string will end up
+   in the .log file, too.  */
+#define printcstring(STR)        \
+  do {                           \
+    const_string ch_ptr = (STR); \
+    while (*ch_ptr)              \
+      printchar(*(ch_ptr++));    \
+  } while (0)
+
 
 /* Tangle removes underscores from names.  Put them back for things that
    are defined in C with _'s.  */
@@ -254,6 +282,7 @@ extern boolean eoln P1H(FILE *);
 extern void readln P1H(FILE *);
 extern void fprintreal P4H(FILE *, double, int, int);
 extern integer inputint P1H(FILE *);
+extern int loadpoolstrings P1H(integer);
 extern void printversionandexit P4H(const_string, const_string, const_string, char*);
 extern void zinput2ints P2H(integer *, integer *);
 extern void zinput3ints P3H(integer *, integer *, integer *);
@@ -272,6 +301,8 @@ extern void close_file P1H(FILE *);
 extern void recorder_change_filename P1H(string);
 extern boolean recorder_enabled;
 extern string output_directory;
+extern void recorder_record_input P1H(const_string);
+extern void recorder_record_output P1H(const_string);
 
 /* version.c */
 extern string versionstring;
