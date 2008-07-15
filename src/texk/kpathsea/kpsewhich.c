@@ -1,7 +1,7 @@
 /* kpsewhich -- standalone path lookup and variable expansion for Kpathsea.
-   Ideas from Thomas Esser and Pierre MacKay.
+   Ideas from Thomas Esser, Pierre MacKay, and many others.
 
-   Copyright (C) 1995 - 2005 Karl Berry & Olaf Weber.
+   Copyright 1995-2008 Karl Berry & Olaf Weber.
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -13,11 +13,8 @@
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Lesser General Public
-   License along with this library; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-*/
+   You should have received a copy of the GNU Lesser General Public License
+   along with this library; if not, see <http://www.gnu.org/licenses/>.  */
 
 #include <kpathsea/config.h>
 #include <kpathsea/c-ctype.h>
@@ -27,6 +24,7 @@
 #include <kpathsea/line.h>
 #include <kpathsea/pathsearch.h>
 #include <kpathsea/proginit.h>
+#include <kpathsea/str-list.h>
 #include <kpathsea/tex-file.h>
 #include <kpathsea/tex-glyph.h>
 #include <kpathsea/variable.h>
@@ -43,6 +41,9 @@ string braces_to_expand = NULL;
 string path_to_expand = NULL;
 string path_to_show = NULL;
 string var_to_value = NULL;
+
+/* Only match files in given subdirs.  (-subdir) */
+str_list_type subdir_paths;
 
 /* The file type and path for lookups.  (-format, -path) */
 kpse_file_format_type user_format = kpse_last_format;
@@ -97,8 +98,24 @@ find_format P2C(string, name, boolean, is_filename)
   
   if (is_filename && user_format != kpse_last_format) {
     ret = user_format;
+  } else if (FILESTRCASEEQ (name, "config.ps")) {
+    ret = kpse_dvips_config_format;
+  } else if (FILESTRCASEEQ (name, "dvipdfmx.cfg")) {
+    ret = kpse_program_text_format;
+  } else if (FILESTRCASEEQ (name, "fmtutil.cnf")) {
+    ret = kpse_web2c_format;
+  } else if (FILESTRCASEEQ (name, "glyphlist.txt")) {
+    ret = kpse_fontmap_format;
+  } else if (FILESTRCASEEQ (name, "mktex.cnf")) {
+    ret = kpse_web2c_format;
+  } else if (FILESTRCASEEQ (name, "pdfglyphlist.txt")) {
+    ret = kpse_fontmap_format;
   } else if (FILESTRCASEEQ (name, "pdftex.cfg")) {
     ret = kpse_pdftex_config_format;
+  } else if (FILESTRCASEEQ (name, "texmf.cnf")) {
+    ret = kpse_cnf_format;
+  } else if (FILESTRCASEEQ (name, "updmap.cfg")) {
+    ret = kpse_web2c_format;
   } else {
     int f;  /* kpse_file_format_type */
     unsigned name_len = strlen (name);
@@ -118,7 +135,7 @@ find_format P2C(string, name, boolean, is_filename)
       boolean found = false;
       
       if (!kpse_format_info[f].type)
-        kpse_init_format ((kpse_file_format_type)f);
+        kpse_init_format ((kpse_file_format_type) f);
 
       if (!is_filename) {
         /* Allow the long name, but only in the -format option.  We don't
@@ -158,17 +175,66 @@ find_format P2C(string, name, boolean, is_filename)
   
   return ret;
 }
+
+
+
+/* Return newly-allocated NULL-terminated list of strings from MATCHES
+   that are prefixed with any of the subdirectories in SUBDIRS.  That
+   is, for a string S in MATCHES, its dirname must end with one of the
+   elements in SUBDIRS.  For instance, if subdir=foo/bar, that will
+   match a string foo/bar/baz or /some/texmf/foo/bar/baz.
+   
+   We don't reallocate the actual strings, just the list elements.
+   Perhaps later we will implement wildcards or // or something.  */
+
+static string *
+subdir_match P2C(str_list_type, subdirs,  string *, matches)
+{
+  string *ret = XTALLOC1 (string);
+  unsigned len = 1;
+  unsigned m;
+  
+  for (m = 0; matches[m]; m++) {
+    unsigned loc;
+    unsigned e;
+    string s = xstrdup (matches[m]);
+    for (loc = strlen (s); loc > 0 && !IS_DIR_SEP (s[loc-1]); loc--)
+      ;
+    while (loc > 0 && IS_DIR_SEP (s[loc-1])) {
+      loc--;
+    }
+    s[loc] = 0;  /* wipe out basename */
+    
+    for (e = 0; e < STR_LIST_LENGTH (subdirs); e++) {
+      string subdir = STR_LIST_ELT (subdirs, e);
+      unsigned subdir_len = strlen (subdir);
+      while (subdir_len > 0 && IS_DIR_SEP (subdir[subdir_len-1])) {
+        subdir_len--;
+        subdir[subdir_len] = 0; /* remove trailing slashes from subdir spec */
+      }
+      if (FILESTRCASEEQ (subdir, s + loc - subdir_len)) {
+        /* matched, save this one.  */
+        XRETALLOC (ret, len + 1, string);
+        ret[len-1] = matches[m];
+        len++;
+      }
+    }
+    free (s);
+  }
+  ret[len-1] = NULL;
+  return ret;
+}
+
+
 
 /* Look up a single filename NAME.  Return 0 if success, 1 if failure.  */
 
 static unsigned
 lookup P1C(string, name)
 {
+  int i;
   string ret = NULL;
   string *ret_list = NULL;
-  int i;
-  unsigned local_dpi;
-  kpse_glyph_file_type glyph_ret;
   
   if (user_path) {
     if (show_all) {
@@ -185,11 +251,15 @@ lookup P1C(string, name)
       case kpse_pk_format:
       case kpse_gf_format:
       case kpse_any_glyph_format:
-        /* Try to extract the resolution from the name.  */
-        local_dpi = find_dpi (name);
-        if (!local_dpi)
-          local_dpi = dpi;
-        ret = kpse_find_glyph (remove_suffix (name), local_dpi, fmt, &glyph_ret);
+        {
+          kpse_glyph_file_type glyph_ret;
+          /* Try to extract the resolution from the name.  */
+          unsigned local_dpi = find_dpi (name);
+          if (!local_dpi)
+            local_dpi = dpi;
+          ret = kpse_find_glyph (remove_suffix (name), local_dpi, fmt,
+                                 &glyph_ret);
+        }
         break;
 
       case kpse_last_format:
@@ -198,12 +268,29 @@ lookup P1C(string, name)
         /* fall through */
 
       default:
-        ret = kpse_find_file (name, fmt, must_exist);
+        if (show_all) {
+          ret_list = kpse_find_file_generic (name, fmt, must_exist, true);
+        } else {
+          ret = kpse_find_file (name, fmt, must_exist);
+        }
     }
   }
   
-  if (ret)
-    puts (ret);
+  /* Turn single return into a null-terminated list for uniform treatment.  */
+  if (ret) {
+    ret_list = XTALLOC (2, string);
+    ret_list[0] = ret;
+    ret_list[1] = NULL;
+  }
+
+  /* Filter by subdirectories, if specified.  */
+  if (STR_LIST_LENGTH (subdir_paths) > 0) {
+    string *new_list = subdir_match (subdir_paths, ret_list);
+    free (ret_list);
+    ret_list = new_list;
+  }
+
+  /* Print output.  */
   if (ret_list) {
     for (i = 0; ret_list[i]; i++)
       puts (ret_list[i]);
@@ -217,9 +304,10 @@ lookup P1C(string, name)
 
 /* Reading the options.  */
 
-#define USAGE "\
-  Standalone path lookup and expansion for Kpathsea.\n\
+#define USAGE "\n\
+Standalone path lookup and expansion for Kpathsea.\n\
 \n\
+-all                   output all matches (one per line), not just the first.\n\
 -debug=NUM             set debugging flags.\n\
 -D, -dpi=NUM           use a base resolution of NUM; default 600.\n\
 -engine=STRING         set engine name to STRING.\n\
@@ -230,12 +318,12 @@ lookup P1C(string, name)
 -help                  print this message and exit.\n\
 -interactive           ask for additional filenames to look up.\n\
 [-no]-mktex=FMT        disable/enable mktexFMT generation (FMT=pk/mf/tex/tfm).\n\
--mode=STRING           set device name for $MAKETEX_MODE to STRING;\n\
-                       no default.\n\
--must-exist            search the disk as well as ls-R if necessary\n\
+-mode=STRING           set device name for $MAKETEX_MODE to STRING; no default.\n\
+-must-exist            search the disk as well as ls-R if necessary.\n\
 -path=STRING           search in the path STRING.\n\
 -progname=STRING       set program name to STRING.\n\
 -show-path=NAME        output search path for file type NAME (see list below).\n\
+-subdir=STRING         only output matches whose directory part ends with STRING.\n\
 -var-value=STRING      output the value of variable $STRING.\n\
 -version               print version number and exit.\n \
 "
@@ -265,6 +353,7 @@ static struct option long_options[]
       { "no-mktex",		1, 0, 0 },
       { "progname",		1, 0, 0 },
       { "separator",		1, 0, 0 },
+      { "subdir",		1, 0, 0 },
       { "show-path",		1, 0, 0 },
       { "var-value",		1, 0, 0 },
       { "version",              0, 0, 0 },
@@ -329,6 +418,10 @@ read_command_line P2C(int, argc,  string *, argv)
           putchar (' ');
           fputs (*ext, stdout);
         }
+        if (kpse_format_info[f].alt_suffix) {
+          /* leave extra space between default and alt suffixes */
+          putchar (' ');
+        }
         for (ext = kpse_format_info[f].alt_suffix; ext && *ext; ext++) {
           putchar (' ');
           fputs (*ext, stdout);
@@ -357,16 +450,19 @@ read_command_line P2C(int, argc,  string *, argv)
       path_to_show = optarg;
       user_format_string = optarg;
 
+    } else if (ARGUMENT_IS ("subdir")) {
+      str_list_add (&subdir_paths, optarg);
+
     } else if (ARGUMENT_IS ("var-value")) {
       var_to_value = optarg;
 
     } else if (ARGUMENT_IS ("version")) {
       extern KPSEDLL char *kpathsea_version_string; /* from version.c */
       puts (kpathsea_version_string);
-      puts ("Copyright 2005 Karl Berry & Olaf Weber.\n\
-There is NO warranty.  You may redistribute this software\n\
-under the terms of the GNU General Public License.\n\
-For more information about these matters, see the files named GPL and LGPL.");
+      puts ("Copyright 2008 Karl Berry & Olaf Weber.\n\
+License LGPLv2.1+: GNU Lesser GPL version 2.1 or later <http://gnu.org/licenses/lgpl.html>\n\
+This is free software: you are free to change and redistribute it.\n\
+There is NO WARRANTY, to the extent permitted by law.\n");
       exit (0);
     }
 
@@ -398,7 +494,7 @@ main P2C(int, argc,  string *, argv)
   kpse_set_program_name (argv[0], progname);
 
   if (engine)
-    xputenv("engine", engine);
+    xputenv ("engine", engine);
   
   /* NULL for no fallback font.  */
   kpse_init_prog (uppercasify (kpse_program_name), dpi, mode, NULL);
@@ -432,12 +528,18 @@ main P2C(int, argc,  string *, argv)
 
   /* Var to value. */
   if (var_to_value) {
-    string value = kpse_var_value (var_to_value);
+    const_string value = kpse_var_value (var_to_value);
     if (!value) {
       unfound++;
       value="";
     }
     puts (value);
+  }
+  
+  /* --subdir must imply --all, since we filter here after doing the
+     search, rather than inside the search itself.  */
+  if (STR_LIST_LENGTH (subdir_paths) > 0) {
+    show_all = 1;
   }
   
   for (; optind < argc; optind++) {

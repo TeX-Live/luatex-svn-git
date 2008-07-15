@@ -1,7 +1,7 @@
 /* str-list.c: define routines for string lists.
 
-    Copyright 2001, 2005 Olaf Weber
-    Copyright 1993 Karl Berry.
+    Copyright 1993, 2008 Karl Berry.
+    Copyright 2001, 2005 Olaf Weber.
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -13,11 +13,8 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
     Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-*/
+   You should have received a copy of the GNU Lesser General Public License
+   along with this library; if not, see <http://www.gnu.org/licenses/>.  */
 
 #include <kpathsea/config.h>
 
@@ -117,4 +114,39 @@ str_list_free P1C(str_list_type *, l)
       free (STR_LIST (*l));
       STR_LIST (*l) = NULL;
     }
+}
+
+
+
+/* Remove duplicate elements from L, freeing their space.  Since our
+   lists are so short, we do a maximally inefficient bubble search.  */
+
+void
+str_list_uniqify P1C(str_list_type *, l)
+{
+  unsigned e;
+  str_list_type ret = str_list_init ();
+  
+  for (e = 0; e < STR_LIST_LENGTH (*l); e++) {
+    string elt1 = STR_LIST_ELT (*l, e);
+    unsigned f;
+    for (f = e + 1; f < STR_LIST_LENGTH (*l); f++) {
+      string elt2 = STR_LIST_ELT (*l, f);
+      /* I don't think our list should ever contain NULL's, but if
+         it does, let it stay and don't bother collapsing multiple
+         NULL's into one.  */
+      if (FILESTRCASEEQ (elt1, elt2)) {
+        break;
+      }
+    }
+    
+    if (f == STR_LIST_LENGTH (*l)) {
+      str_list_add (&ret, elt1); /* not found */
+    } else {
+      free (elt1);  /* duplicate, forget this one */
+    }
+  }
+  
+  /* Replace the passed list with what we constructed.  */
+  *l = ret;
 }

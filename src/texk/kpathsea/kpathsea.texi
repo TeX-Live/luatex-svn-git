@@ -2,40 +2,14 @@
 @setfilename kpathsea.info
 @settitle Kpathsea: A library for path searching
 
-@set version 3.5.6
-@set month-year January 2007
-
-@c Define new indices for commands, filenames, and options.
-@defcodeindex cm
-@defcodeindex fl
-@defcodeindex op
-
-@c Put everything in one index (arbitrarily chosen to be the concept index).
-@syncodeindex cm cp
-@syncodeindex fl cp
-@syncodeindex fn cp
-@syncodeindex ky cp
-@syncodeindex op cp
-@syncodeindex pg cp
-@syncodeindex tp cp
-@syncodeindex vr cp
-
-@dircategory TeX
-@direntry
-* Kpathsea: (kpathsea).                       File lookup along search paths.
-* kpsewhich: (kpathsea)Invoking kpsewhich.    TeX file searching.
-* mktexmf: (kpathsea)mktex scripts.           MF source generation.
-* mktexpk: (kpathsea)mktex scripts.           PK bitmap generation.
-* mktextex: (kpathsea)mktex scripts.          TeX source generation.
-* mktextfm: (kpathsea)mktex scripts.          TeX font metric generation.
-* mktexlsr: (kpathsea)Filename database.      Update ls-R.
-@end direntry
+@set version 3.5.7
+@set month-year July 2008
 
 @copying
 This file documents the Kpathsea library for path searching.
 
 Copyright @copyright{} 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003,
-2004, 2005, 2007 Karl Berry & Olaf Weber.
+2004, 2005, 2007, 2008 Karl Berry & Olaf Weber.
 
 Permission is granted to make and distribute verbatim copies of this
 manual provided the copyright notice and this permission notice are
@@ -59,9 +33,35 @@ except that this permission notice may be stated in a translation
 approved by the Free Software Foundation.
 @end copying
 
+@c Define new indices for commands, filenames, and options.
+@defcodeindex cm
+@defcodeindex fl
+@defcodeindex op
+
+@c Put everything in one index (arbitrarily chosen to be the concept index).
+@syncodeindex cm cp
+@syncodeindex fl cp
+@syncodeindex fn cp
+@syncodeindex ky cp
+@syncodeindex op cp
+@syncodeindex pg cp
+@syncodeindex tp cp
+@syncodeindex vr cp
+
+@dircategory TeX
+@direntry
+* Kpathsea: (kpathsea).                       File lookup along search paths.
+* kpsewhich: (kpathsea)Invoking kpsewhich.    TeX file searching.
+* mktexfmt: (kpathsea)mktex scripts.          Format (fmt/base/mem) generation.
+* mktexlsr: (kpathsea)Filename database.      Update ls-R.
+* mktexmf: (kpathsea)mktex scripts.           MF source generation.
+* mktexpk: (kpathsea)mktex scripts.           PK bitmap generation.
+* mktextex: (kpathsea)mktex scripts.          TeX source generation.
+* mktextfm: (kpathsea)mktex scripts.          TeX font metric generation.
+@end direntry
+
 
 @titlepage
-
 @title Kpathsea library
 @subtitle for version @value{version}
 @subtitle @value{month-year}
@@ -72,6 +72,9 @@ approved by the Free Software Foundation.
 @vskip 0pt plus 1filll
 @insertcopying
 @end titlepage
+
+
+@contents
 
 
 @ifnottex
@@ -329,10 +332,11 @@ top of the directory list.)
 @flindex cmr10.vf
 @findex \openin
 The ``file must exist'' condition comes into play with VF files and
-input files read by the @TeX{} @samp{\openin} command.  These files may
-not exist (consider @file{cmr10.vf}), and so it would be wrong to search
-the disk for them.  Therefore, if you fail to update @file{ls-R} when
-you install a new VF file, it will never be found.
+input files read by the @TeX{} @samp{\openin} command.  These files
+might very well not exist (consider @file{cmr10.vf}), and so it would
+be wrong to search the disk for them.  Therefore, if you fail to
+update @file{ls-R} when you install a new VF file, it will not be
+found.
 
 Each path element is checked in turn: first the database, then the disk.
 If a match is found, the search stops and the result is returned.  This
@@ -364,12 +368,12 @@ or @samp{../}, Kpathsea simply checks if that file exists.
 @cindex warnings, file access
 @flindex lost+found @r{directory}
 @vindex TEX_HUSH
-Ordinarily, if Kpathsea tries to access a file or directory that cannot
-be read, it gives a warning.  This is so you will be alerted to
-directories or files that accidentally lack read permission (for
-example, a @file{lost+found}).  If you prefer not to see these warnings,
-include the value @samp{readable} in the @code{TEX_HUSH} environment
-variable or config file value.
+Ordinarily, if Kpathsea tries to access a file or directory that
+cannot be read, it gives a warning.  This is so you will be alerted to
+directories or files that accidentally lack any read permission (for
+example, a @file{lost+found} directory).  If you prefer not to see
+these warnings, include the value @samp{readable} in the
+@code{TEX_HUSH} environment variable or config file value.
 
 This generic path searching algorithm is implemented in
 @file{kpathsea/pathsearch.c}.  It is employed by a higher-level
@@ -441,6 +445,15 @@ Kpathsea reads @emph{all} @file{texmf.cnf} files in the search path, not
 just the first one found; definitions in earlier files override those in
 later files.  Thus, if the search path is @samp{.:$TEXMF}, values from
 @file{./texmf.cnf} override those from @file{$TEXMF/texmf.cnf}.
+
+@vindex KPATHSEA_WARNING
+@cindex warning, about missing @file{texmf.cnf}
+@cindex @file{texmf.cnf} missing, warning about
+If Kpathsea cannot find any @file{texmf.cnf} file, it reports a
+warning including all the directories it checked.  If you don't want
+to see this warning, set the environment variable
+@env{KPATHSEA_WARNING} to the single character @samp{0} (zero, not
+oh).
 
 While (or instead of) reading this description, you may find it helpful
 to look at the distributed @file{texmf.cnf}, which uses or at least
@@ -675,8 +688,11 @@ Variable expansion is implemented in the source file
 @cindex expansion, tilde
 
 @vindex HOME@r{, as ~ expansion}
+@vindex USERPROFILE@r{, as ~ expansion}
 A leading @samp{~} in a path element is replaced by the value of the
-environment variable @code{HOME}, or @file{.} if @code{HOME} is not set.
+environment variable @code{HOME}, or @file{.} if @code{HOME} is not
+set.  On Windows, the environment variable @code{USERPROFILE} is
+checked instead of @code{HOME}.
 
 A leading @samp{~@var{user}} in a path element is replaced by
 @var{user}'s home directory from the system @file{passwd} database.
@@ -825,15 +841,12 @@ Subdirectory expansion is implemented in the source file
 @cindex externally-built filename database
 
 Kpathsea goes to some lengths to minimize disk accesses for searches
-(@pxref{Subdirectory expansion}).  Nevertheless, at installations with
-enough directories, searching each possible directory for a given file
-can take an excessively long time (depending on the speed of the disk,
-whether it's NFS-mounted, how patient you are, etc.).
+(@pxref{Subdirectory expansion}).  Nevertheless, in practice searching
+each possible directory in typical @TeX{} installations takes an
+excessively long time.
 
-In practice, a font tree containing the standard PostScript and PCL
-fonts is large enough for searching to be noticeably slow on typical
-systems these days.  Therefore, Kpathsea can use an externally-built
-``database'' file named @file{ls-R} that maps files to directories, thus
+Therefore, Kpathsea can use an externally-built @dfn{filename
+database} file named @file{ls-R} that maps files to directories, thus
 avoiding the need to exhaustively search the disk.
 
 A second database file @file{aliases} allows you to give additional
@@ -1044,6 +1057,7 @@ abbreviation is accepted.
 
 @menu
 * Path searching options::      Changing the mode, resolution, etc.
+* Specially-recognized files::  Default formats for texmf.cnf, etc.
 * Auxiliary tasks::             Path and variable expansion.
 * Standard options::            --help and --version.
 @end menu
@@ -1055,14 +1069,17 @@ abbreviation is accepted.
 @cindex path searching options
 
 Kpsewhich looks up each non-option argument on the command line as a
-filename, and returns the first file found.  There is no option to
-return all the files with a particular name (you can run the Unix
-@samp{find} utility for that, @pxref{Invoking find,,, findutils, GNU
-find utilities}).
+filename, and returns the first file found.
 
 Various options alter the path searching behavior:
 
 @table @samp
+@item --all
+@opindex --all
+@cindex all matches, finding
+Report all matches found, one per line.  By default, if there is more
+than one match, just one will be reported (chosen effectively at random).
+
 @item --dpi=@var{num}
 @opindex --dpi=@var{num}
 @opindex -D @var{num}
@@ -1077,6 +1094,18 @@ Dvips.  Default is 600.
 Set the engine name to @var{name}.  By default it is not set.  The
 engine name is used in some search paths to allow files with the same
 name but used by different engines to coexist.
+
+In particular, since the memory dump files
+(@file{.fmt}/@file{.base}/@file{.mem}) are now stored in
+subdirectories named for the engine (@file{tex}, @file{pdftex},
+@file{xetex}, etc.), you must specify an engine name in order to find
+them.  For example, @file{cont-en.fmt} typically exists for both
+@file{pdftex} and @file{xetex}.  With the default path settings, you
+can use @samp{--engine=/} to look for any dump file, regardless of
+engine; if a dump file exists for more than one engine, it's
+indeterminate which one is returned.  (The @samp{/} ends up specifying
+a normal recursive search along the path where the dumps are stored,
+namely @samp{$TEXMF/web2c@{/$engine,@}}.)
 
 @item --format=@var{name}
 @opindex --format=@var{name}
@@ -1182,14 +1211,158 @@ of guessing the search path from the filename.  @samp{//} and all the
 usual expansions are supported (@pxref{Path expansion}).  This option
 and @samp{--format} are mutually exclusive.  To output the complete
 directory expansion of a path, instead of doing a one-shot lookup, see
-@samp{--expand-path} in the following section.
+@samp{--expand-path} and @samp{--show-path} in the following section.
 
 @item --progname=@var{name}
 @opindex --progname=@var{name}
 Set the program name to @var{name}; default is @samp{kpsewhich}.  This
 can affect the search paths via the @samp{.@var{prognam}} feature in
 configuration files (@pxref{Config files}).
+
+@item --subdir=@var{string}
+@opindex --subdir=@var{string}
+Report only those matches whose directory part @emph{ends} with
+@var{string} (compared literally, except case is ignored on a
+case-insensitive operating system).  For example, suppose there are
+two matches for a given name:
+
+@example
+kpsewhich foo.sty
+@result{} /some/where/foo.sty
+/another/place/foo.sty
+@end example
+
+@noindent
+Then we can narrow the result to what we are interested in with
+@option{--subdir}:
+
+@example
+kpsewhich --subdir=where foo.sty
+@result{} /some/where/foo.sty
+
+kpsewhich --subdir=place foo.sty
+@result{} /another/place/foo.sty
+@end example
+
+@noindent
+The string to match must be at the end of the directory part of the
+match, and it is taken literally, with no pattern matching:
+
+@example
+kpsewhich --subdir=another foo.sty
+@result{}
+@end example
+
+@noindent
+The string to match may cross directory components:
+
+@example
+kpsewhich --subdir=some/where foo.sty
+@result{} /some/where/foo.sty
+@end example
+
+@noindent
+@option{--subdir} implies @option{--all}; if there is more than one
+match, they will all be reported (in our example, both @samp{where}
+and @samp{place} end in @samp{e}):
+
+@example
+kpsewhich --subdir=e
+@result{} /some/where/foo.sty
+/another/place/foo.sty
+@end example
+
+@noindent
+Because of the above rules, the presence of a leading @samp{/} is
+important, since it ``anchors'' the match to a full component name:
+
+@example
+kpsewhich --subdir=/lace foo.sty
+@result{} 
+@end example
+
+@noindent
+However, a trailing @samp{/} is immaterial (and ignored), since the
+match always takes place at the end of the directory part:
+
+@example
+kpsewhich --subdir=lace/ foo.sty
+@result{} /another/place/foo.sty
+@end example
+
+@noindent
+The purpose of these rules is to make it convenient to find results
+only within a particular area of the tree.  For instance, a given
+script named @file{foo.lua} might exist within both
+@file{texmf-dist/scripts/pkg1/} and @file{texmf-dist/scripts/pkg2/}.
+By specifying, say, @samp{--subdir=/pkg1}, you can be sure of getting
+the one you are interested in.
+
+We only match at the end because a site might happen to install @TeX{}
+in @file{/some/coincidental/pkg1/path/}, and we wouldn't want
+@file{texmf-dist/scripts/pkg2/} to match that when searching for
+@samp{/pkg1}.
+
 @end table
+
+
+@node Specially-recognized files
+@subsection Specially-recognized files for @command{kpsewhich}
+
+@command{kpsewhich} recognizes a few special filenames on the command
+line and defaults to using the `known' file formats for them, merely
+to save the time and trouble of specifying the format.  This is only a
+feature of @command{kpsewhich}; when using the Kpathsea library
+itself, none of these special filenames are recognized, and it's still
+up to the caller to specify the desired format.
+
+Here is the list of special filenames to @command{kpsewhich}, along
+with their corresponding format:
+
+@table @file
+
+@flindex config.ps
+@item config.ps
+@code{dvips config}
+
+@flindex dvipdfmx.cfg
+@item dvipdfmx.cfg
+@samp{other text files}
+
+@flindex fmtutil.cnf
+@item fmtutil.cnf
+@samp{web2c files}
+
+@flindex glyphlist.txt
+@item glyphlist.txt
+@samp{map}
+
+@flindex mktex.cnf
+@item mktex.cnf
+@samp{web2c files}
+
+@flindex pdfglyphlist.txt
+@item pdfglyphlist.txt
+@samp{map}
+
+@flindex pdftex.cfg
+@flindex pdftexconfig.tex
+@item pdftex.cfg
+@samp{pdftex config} (although @file{pdftex.cfg} is not used any more;
+look for the file @file{pdftexconfig.tex} instead.)
+
+@flindex texmf.cnf
+@item texmf.cnf
+@samp{cnf}
+
+@end table
+
+A user-specified format will override the above defaults.
+
+@flindex tcfmgr.map
+Another useful configuration file in this regard is @file{tcfmgr.map},
+found in @file{texmf/texconfig/tcfmgr.map}, which records various
+information about the above configuration files (among others).
 
 
 @node Auxiliary tasks
@@ -1208,7 +1381,9 @@ lookup:
 
 @item
 @opindex --var-value=@var{variable}
-@samp{--var-value=@var{variable}} output the value of @var{variable}.
+@samp{--var-value=@var{variable}} outputs the value of @var{variable},
+expanding @samp{$} (@pxref{Variable expansion} and @samp{~} (@pxref{Tilde
+expansion}) constructs, but not performing other expansions.
 
 @item
 @opindex --expand-braces=@var{string}
@@ -1217,17 +1392,21 @@ expansion of @var{string}.  @xref{Path expansion}.
 
 @item
 @opindex --expand-var=@var{string}
-@samp{--expand-var=@var{string}} outputs the variable expansion of
-@var{string}.  For example, the @samp{mktex@dots{}} scripts run
-@samp{kpsewhich --expand-var='$TEXMF'} to find the root of the @TeX{} system
-hierarchy.  @xref{Path expansion}.
+@samp{--expand-var=@var{string}} outputs the variable and tilde
+expansion of @var{string}.  For example, the @samp{mktex@dots{}}
+scripts run @samp{kpsewhich --expand-var='$TEXMF'} to find the root of
+the @TeX{} system hierarchy.  @xref{Path expansion}.
 
 @item
 @opindex --expand-path=@var{string}
 @samp{--expand-path=@var{string}} outputs the complete expansion of
-@var{string} as a colon-separated path.  This is useful to construct a
-search path for a program that doesn't accept recursive subdirectory
-specifications.  Nonexistent directories are culled from the output:
+@var{string}, with each element separated by the usual path separator
+on the current system (@samp{;} on Windows, @samp{:} otherwise).
+This may be useful to construct a custom search path for a format not
+otherwise supported.  To retrieve the search path for a format that is
+already supported, see @samp{--show-path}, next.
+
+Nonexistent directories are culled from the output:
 
 @example
 $ kpsewhich --expand-path '/tmp'
@@ -1245,6 +1424,7 @@ For one-shot uses of an arbitrary (not built in to Kpathsea) path, see
 lookups of file type @var{name}.  Either a filename extension
 (@samp{pk}, @samp{.vf}, etc.) or an integer can be used, just as with
 @samp{--format}, described in the previous section.
+
 @end itemize
 
 
@@ -1722,30 +1902,45 @@ This section describes how Kpathsea searches for most files (bitmap font
 searches are the exception, as described in the next section).
 
 Here is the search strategy for a file @var{name}:
+
 @enumerate
 @item
 If the file format defines default suffixes, and the suffix of
 @var{name} name is not already a known suffix for that format, try the
-name with each default appended, and use alternative names found in the
-fontmaps if necessary.  We postpone searching the disk as long as
-possible.  Example: given @samp{foo.sty}, look for @samp{foo.sty.tex}
-before @samp{foo.sty}.  This is unfortunate, but allows us to find
-@samp{foo.bar.tex} before @samp{foo.bar} if both exist and we were given
-@samp{foo.bar}.
+name with each default appended, and use alternative names found in
+the fontmaps if necessary.  Example: given @samp{foo.bar}, look for
+@samp{foo.bar.tex}.
 
 @item
 Search for @var{name}, and if necessary for alternative names found in
-the fontmaps.  Again we avoid searching the disk if possible.  Example:
-given @samp{foo}, we look for @samp{foo}.
+the fontmaps.  Example: given @samp{foo.bar}, we also look for
+@samp{foo.bar}.
 
 @item
 If the file format defines a program to invoke to create missing files,
 run it (@pxref{mktex scripts}).
 @end enumerate
 
+@cindex extensions, filename
+@cindex suffixes, filename
+@vindex try_std_extension_first
+The order in which we search for ``suffixed'' name (item@tie{}1) or
+the ``as-is'' name (item@tie{}2) is controlled by the
+@file{try_std_extension_first} configuration value.  The default set
+in @file{texmf.cnf} is true, since common suffixes are already
+recognized: @samp{babel.sty} will only look for @samp{babel.sty}, not
+@samp{babel.sty.tex}, regardless of this setting.
+
+When the suffix is unknown (e.g., @samp{foo.bar}), both names are
+always tried; the difference is the order in which they are tried.
+
+@file{try_std_extension_first} only affects names being looked up
+which *already* have an extension.  A name without an extension (e.g.,
+@samp{tex story}) will always have an extension added first.
+
 @flindex tex-file.c
 @findex kpse_find_file
-This is implemented in the routine @code{kpse_find_file} in
+This algorithm is implemented in the routine @code{kpse_find_file} in
 @file{kpathsea/tex-file.c}.  You can watch it in action with the
 debugging options (@pxref{Debugging}).
 
@@ -2071,26 +2266,29 @@ Kpathsea library.
 @vindex program_invocation_name
 @vindex program_invocation_short_name
 @vindex kpse_program_name
-@vindex KPATHSEA_DEBUG
-@cindex SELFAUTOLOC
-@cindex SELFAUTODIR
-@cindex SELFAUTOPARENT
 @cindex error message macros
-@cindex symlinks, resolving
-@cindex expanding symlinks
-If necessary, @code{kpse_set_program_name} sets the global variables
+@code{kpse_set_program_name} always sets the global variables
 @code{program_invocation_name} and @code{program_invocation_short_name}.
 These variables are used in the error message macros defined in
 @file{kpathsea/lib.h}.  It sets the global variable
-@code{kpse_program_name} to the program name it uses.  It also
-initializes debugging options based on the environment variable
-@code{KPATHSEA_DEBUG} (if that is set).  Finally, it sets the variables
-@code{SELFAUTOLOC}, @code{SELFAUTODIR} and @code{SELFAUTOPARENT} to the
-location, parent and grandparent directory of the executable, removing
-@file{.} and @file{..} path elements and resolving symbolic links.
-These are used in the default configuration file to allow people to
-invoke TeX from anywhere, specifically from a mounted CD-ROM.  (You can
-use @samp{--expand-var=\$SELFAUTOLOC}, etc., to see the values finds.)
+@code{kpse_program_name} to the program name it uses.
+
+@vindex KPATHSEA_DEBUG
+It also initializes debugging options based on the environment
+variable @code{KPATHSEA_DEBUG} (if that is set).
+
+@cindex SELFAUTOLOC
+@cindex SELFAUTODIR
+@cindex SELFAUTOPARENT
+@cindex symlinks, resolving
+@cindex expanding symlinks
+Finally, it sets the variables @code{SELFAUTOLOC}, @code{SELFAUTODIR}
+and @code{SELFAUTOPARENT} to the location, parent and grandparent
+directory of the executable, removing @file{.} and @file{..} path
+elements and resolving symbolic links.  These are used in the default
+configuration file to allow people to invoke TeX from anywhere.  You
+can use @samp{kpsewhich --expand-var=\$SELFAUTOLOC}, etc., to see the
+values.
 
 @item
 @findex kpse_set_progname
@@ -2249,7 +2447,5 @@ No initialization calls are needed.
 @unnumbered Index
 
 @printindex cp
-
-@contents
 
 @bye

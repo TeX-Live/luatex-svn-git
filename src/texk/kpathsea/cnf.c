@@ -1,7 +1,7 @@
 /* cnf.c: read config files.
 
+   Copyright 1994, 1995, 1996, 1997, 2008 Karl Berry.
    Copyright 1997-2005 Olaf Weber.
-   Copyright 1994, 95, 96, 97 Karl Berry.
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -13,11 +13,8 @@
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Lesser General Public
-   License along with this library; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-*/
+   You should have received a copy of the GNU Lesser General Public License
+   along with this library; if not, see <http://www.gnu.org/licenses/>.  */
 
 #include <kpathsea/config.h>
 #include <kpathsea/c-fopen.h>
@@ -30,8 +27,13 @@
 #include <kpathsea/paths.h>
 #include <kpathsea/pathsearch.h>
 #include <kpathsea/progname.h>
+#include <kpathsea/recorder.h>
 #include <kpathsea/tex-file.h>
 #include <kpathsea/variable.h>
+
+/* Declared in recorder.h, used in fontmap.c, web2c/lib/texmfmp.c.  */
+void (*kpse_record_input) (const_string);
+void (*kpse_record_output) (const_string);
 
 /* By using our own hash table, instead of the environment, we
    complicate variable expansion (because we have to look in two
@@ -166,6 +168,8 @@ read_all_cnf P1H(void)
     for (cnf = cnf_files; *cnf; cnf++) {
       string line;
       FILE *cnf_file = xfopen (*cnf, FOPEN_R_MODE);
+      if (kpse_record_input)
+        kpse_record_input (*cnf);
 
       while ((line = read_line (cnf_file)) != NULL) {
         unsigned len = strlen (line);
@@ -197,8 +201,13 @@ read_all_cnf P1H(void)
       free (*cnf);
     }
     free (cnf_files);
-  } else
-    WARNING1 ("Configuration file texmf.cnf not found! Searched these directories:\n%s\nTrying to proceed..", cnf_path);
+  } else {
+    string warn = getenv ("KPATHSEA_WARNING");
+    if (!(warn && STREQ (warn, "0"))) {
+      WARNING1 ("kpathsea: configuration file texmf.cnf not found in these directories: %s", 
+        cnf_path);
+    }
+  }
 }
 
 /* Read the cnf files on the first call.  Return the first value in the
@@ -213,19 +222,22 @@ kpse_cnf_get P1C(const_string, name)
 
   /* When we expand the compile-time value for DEFAULT_TEXMFCNF,
      we end up needing the value for TETEXDIR and other variables,
-     so kpse_var_expand ends up calling us again.  No good.  */
+     so kpse_var_expand ends up calling us again.  No good.  Except this
+     code is not sufficient, somehow the ls-R path needs to be
+     computed when initializing the cnf path.  Better to ensure that the
+     compile-time path does not contain variable references.  */
   if (doing_cnf_init)
     return NULL;
     
   if (cnf_hash.size == 0) {
+    /* Read configuration files and initialize databases.  */
     doing_cnf_init = true;
     read_all_cnf ();
     doing_cnf_init = false;
     
-    /* Here's a pleasant kludge: Since `kpse_init_dbs' recursively calls
-       us, we must call it from outside a `kpse_path_element' loop
-       (namely, the one in `read_all_cnf' above): `kpse_path_element' is
-       not reentrant.  */
+    /* Since `kpse_init_db' recursively calls us, we must call it from
+       outside a `kpse_path_element' loop (namely, the one in
+       `read_all_cnf' above): `kpse_path_element' is not reentrant.  */
     kpse_init_db ();
   }
   
@@ -248,5 +260,4 @@ kpse_cnf_get P1C(const_string, name)
   }
   
   return ret;
-
 }

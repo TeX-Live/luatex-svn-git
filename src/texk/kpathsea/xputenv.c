@@ -1,23 +1,21 @@
 /* xputenv.c: set an environment variable without return. */
 
-/*
- *  Copyright 2003-05 Olaf Weber.
- *  Copyright 1993-98 Karl Berry.
- *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation; either
- *  version 2.1 of the License, or (at your option) any later version.
- *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
- */
+/* Copyright 1993-98, 2008 Karl Berry.
+   Copyright 2003-05 Olaf Weber.
+
+   This library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   This library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public License
+   along with this library; if not, see <http://www.gnu.org/licenses/>.  */
+
 
 #include <kpathsea/config.h>
 
@@ -33,8 +31,8 @@ extern int putenv ();
  * This function can be called many times during a run, and this
  * allows us to reclaim memory we allocated.
  */
-static const char **saved_env;
-static int          saved_count;
+static char **saved_env;
+static int    saved_count;
 
 /*
  * We have different arguments from the "standard" function.  A separate
@@ -95,7 +93,7 @@ xputenv(const char *var, const char *value)
     if (cur_loc == saved_count) {
         /* No old string. */
         saved_count++;
-        saved_env = XRETALLOC(saved_env, saved_count, const char *);
+        saved_env = XRETALLOC(saved_env, saved_count, char *);
     } else {
         /* We owned the old string. */
         free(saved_env[cur_loc]);

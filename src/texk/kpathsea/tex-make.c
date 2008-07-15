@@ -1,39 +1,32 @@
-/* tex-make.c: Run external programs to make TeX-related files.
+/* tex-make.c: run external programs to make TeX-related files.
 
+   Copyright 1993, 1994, 1995, 1996, 1997, 2008 Karl Berry.
+   Copyright 1997, 1998, 2001-05 Olaf Weber.
 
-    Copyright 1997, 98, 2001-05 Olaf Weber.
-    Copyright 1993, 94, 95, 96, 97 Karl Berry.
+   This library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
-    This library is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Lesser General Public
-    License as published by the Free Software Foundation; either
-    version 2.1 of the License, or (at your option) any later version.
+   This library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
 
-    This library is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-*/
+   You should have received a copy of the GNU Lesser General Public License
+   along with this library; if not, see <http://www.gnu.org/licenses/>.  */
 
 #include <kpathsea/config.h>
 
 #include <kpathsea/c-fopen.h>
 #include <kpathsea/c-pathch.h>
-#include <kpathsea/concatn.h>
 #include <kpathsea/db.h>
 #include <kpathsea/fn.h>
 #include <kpathsea/magstep.h>
 #include <kpathsea/readable.h>
 #include <kpathsea/tex-make.h>
 #include <kpathsea/variable.h>
-#ifndef  WIN32
-#  include <sys/wait.h>
-#endif
+
 
 /* We never throw away stdout, since that is supposed to be the filename
    found, if all is successful.  This variable controls whether stderr
@@ -162,7 +155,7 @@ maketex P2C(kpse_file_format_type, format, string*, args)
   string fn;
   
   if (!kpse_make_tex_discard_errors) {
-    fprintf (stderr, "kpathsea: Running");
+    fprintf (stderr, "\nkpathsea: Running");
     for (s = &args[0]; *s != NULL; s++)
       fprintf (stderr, " %s", *s);
     fputc('\n', stderr);
@@ -504,7 +497,7 @@ kpse_make_tex P2C(kpse_file_format_type, format,  const_string, base)
      * No doubt some possibilities were overlooked.
      */
     if (base[0] == '-' /* || IS_DIR_SEP(base[0])  */) {
-      fprintf(stderr, "kpathsea: Illegal fontname `%s': starts with '%c'\n",
+      fprintf(stderr, "kpathsea: Invalid fontname `%s', starts with '%c'\n",
               base, base[0]);
       return NULL;
     }
@@ -516,7 +509,7 @@ kpse_make_tex P2C(kpse_file_format_type, format,  const_string, base)
           && base[i] != '.'
           && !IS_DIR_SEP(base[i]))
       {
-        fprintf(stderr, "kpathsea: Illegal fontname `%s': contains '%c'\n",
+        fprintf(stderr, "kpathsea: Invalid fontname `%s', contains '%c'\n",
                 base, base[i]);
         return NULL;
       }

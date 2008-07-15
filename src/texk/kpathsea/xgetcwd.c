@@ -1,9 +1,7 @@
-/* xgetcwd.c: a from-scratch version of getwd.  Ideas from the tcsh 5.20
-   source, apparently uncopyrighted.
+/* xgetcwd.c: a from-scratch version of getwd.  Ideas from tcsh 5.20 source.
 
-
-   Copyright 2005         Olaf Weber.
-   Copyright 1992, 94, 96 Karl Berry.
+   Copyright 1992, 1994, 1996, 2008 Karl Berry.
+   Copyright 2005 Olaf Weber.
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -15,10 +13,8 @@
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Lesser General Public
-   License along with this library; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+   You should have received a copy of the GNU Lesser General Public License
+   along with this library; if not, see <http://www.gnu.org/licenses/>.  */
 
 #include <kpathsea/config.h>
 
@@ -51,8 +47,7 @@ xgetcwd P1H(void)
        large programs like tex.  If your system needs this define and it
        is not detected by configure, let me know.
                                        -- Olaf Weber <infovore@xs4all.nl */
-  /*  && !defined (GETCWD_FORKS) */
-#if defined (HAVE_GETCWD)
+#if defined (HAVE_GETCWD) && !defined (GETCWD_FORKS)
     string path = (string)xmalloc(PATH_MAX + 1);
   
     if (getcwd (path, PATH_MAX + 1) == 0) {

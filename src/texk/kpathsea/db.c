@@ -1,7 +1,7 @@
 /* db.c: an external database to avoid filesystem lookups.
 
+   Copyright 1994, 1995, 1996, 1997, 2008 Karl Berry.
    Copyright 1997-2005 Olaf Weber.
-   Copyright 1994, 95, 96, 97 Karl Berry.
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -13,11 +13,8 @@
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Lesser General Public
-   License along with this library; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-*/
+   You should have received a copy of the GNU Lesser General Public License
+   along with this library; if not, see <http://www.gnu.org/licenses/>.  */
 
 #include <kpathsea/config.h>
 #include <kpathsea/absolute.h>
@@ -34,11 +31,11 @@
 #include <kpathsea/variable.h>
 
 static hash_table_type db; /* The hash table for all the ls-R's.  */
-/* SMALL: The old size of the hash table was 7603, with the assumption
-   that a minimal ls-R bas about 3500 entries.  But a typical ls-R will
-   be more like double that size.  */
 #ifndef DB_HASH_SIZE
-#define DB_HASH_SIZE 15991
+/* Based on the size of 2008 texmf-dist/ls-R, about 62000 entries.  But
+   we don't want to make it too big, since texmf/ls-R only has about
+   1300 entries.  We should dynamically adapt the size.  */
+#define DB_HASH_SIZE 32003
 #endif
 #ifndef DB_NAME
 #define DB_NAME "ls-R"
@@ -352,7 +349,7 @@ kpse_init_db P1H(void)
   string *db_files;
   string *orig_db_files;
 
-  assert(sizeof(DB_NAME) == sizeof(DB_NAME_LC));
+  assert (sizeof(DB_NAME) == sizeof(DB_NAME_LC));
 
   db_path = kpse_init_format (kpse_db_format);
   db_files = kpse_all_path_search_list (db_path, db_names);

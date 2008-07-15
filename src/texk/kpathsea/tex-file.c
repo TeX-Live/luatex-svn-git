@@ -1,23 +1,20 @@
 /* tex-file.c: high-level file searching by format.
 
-    Copyright 1998-2005 Olaf Weber.
-    Copyright 1993, 94, 95, 96, 97 Karl Berry.
+   Copyright 1993, 1994, 1995, 1996, 1997, 2007, 2008 Karl Berry.
+   Copyright 1998-2005 Olaf Weber.
 
-    This library is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Lesser General Public
-    License as published by the Free Software Foundation; either
-    version 2.1 of the License, or (at your option) any later version.
+   This library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
-    This library is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Lesser General Public License for more details.
+   This library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-*/
+   You should have received a copy of the GNU Lesser General Public License
+   along with this library; if not, see <http://www.gnu.org/licenses/>.  */
 
 #include <kpathsea/config.h>
 
@@ -93,6 +90,7 @@ kpse_format_info_type kpse_format_info[kpse_last_format];
 #define PDFTEXCONFIG_ENVS "PDFTEXCONFIG"
 #define LIG_ENVS "LIGFONTS", "TEXFONTS"
 #define TEXMFSCRIPTS_ENVS "TEXMFSCRIPTS"
+#define LUA_ENVS "LUAINPUTS"
 
 /* The compiled-in default list, DEFAULT_FONT_SIZES, is intended to be
    set from the command line (presumably via the Makefile).  */
@@ -177,6 +175,8 @@ kpse_maketex_option P2C(const_string, fmtname,  boolean, value)
     fmt = kpse_tex_format;
   } else if (FILESTRCASEEQ (fmtname, "tfm")) {
     fmt = kpse_tfm_format;
+  } else if (FILESTRCASEEQ (fmtname, "fmt")) {
+    fmt = kpse_fmt_format;
   } else if (FILESTRCASEEQ (fmtname, "ofm")) {
     fmt = kpse_ofm_format;
   } else if (FILESTRCASEEQ (fmtname, "ocp")) {
@@ -197,9 +197,9 @@ kpse_maketex_option P2C(const_string, fmtname,  boolean, value)
    present info->path.  */
 #define EXPAND_DEFAULT(try_path, source_string)			\
   if (try_path) {						\
-      info->raw_path = try_path;				\
-      info->path = kpse_expand_default (try_path, info->path);	\
-      info->path_source = source_string;			\
+    info->raw_path = try_path;					\
+    info->path = kpse_expand_default (try_path, info->path);	\
+    info->path_source = source_string;				\
   }
 
 /* Find the final search path to use for the format entry INFO, given
@@ -225,22 +225,19 @@ init_path PVAR2C(kpse_format_info_type *, info, const_string, default_path, ap)
   while ((env_name = va_arg (ap, string)) != NULL) {
     /* Since sh doesn't like envvar names with `.', check PATH_prog
        as well as PATH.prog.  */
-    if (!var) {
-      /* Try PATH.prog. */
+    if (!var) { /* Try PATH.prog. */
       string evar = concat3 (env_name, ".", kpse_program_name);
       env_value = getenv (evar);
       if (env_value && *env_value) {
         var = evar;
-      } else {
+      } else { /* Try PATH_prog. */
         free (evar);
-        /* Try PATH_prog. */
         evar = concat3 (env_name, "_", kpse_program_name);
         env_value = getenv (evar);
         if (env_value && *env_value) {
           var = evar;
-        } else {
+        } else { /* Try simply PATH.  */
           free (evar);
-          /* Try simply PATH.  */
           env_value = getenv (env_name);
           if (env_value && *env_value) {
             var = env_name;        
@@ -269,33 +266,32 @@ init_path PVAR2C(kpse_format_info_type *, info, const_string, default_path, ap)
   info->path = info->raw_path = info->default_path;
   info->path_source = "compile-time paths.h";
 
-  /* Translate ';' in the envvar into ':' if that's our ENV_SEP. */
-  if (IS_ENV_SEP(':') && env_value) {
-      string loc;
-      env_value = xstrdup(env_value);  /* Freed below. */
-      for (loc = env_value; *loc; loc++) {
-          if (*loc == ';')
-              *loc = ':';
-      }
-  }
-  
   EXPAND_DEFAULT (info->cnf_path, "texmf.cnf");
   EXPAND_DEFAULT (info->client_path, "program config file");
-  if (var)
+
+  if (var) {
+    /* Translate `;' in the envvar into `:' if that's our ENV_SEP. */
+    if (IS_ENV_SEP (':')) {
+      string loc;
+      env_value = xstrdup (env_value);  /* Freed below. */
+      for (loc = env_value; *loc; loc++) {
+        if (*loc == ';')
+          *loc = ':';
+      }
+    }
     EXPAND_DEFAULT (env_value, concat (var, " environment variable"));
+    /* Do not free the copied env_value, because EXPAND_DEFAULT set
+       raw_path to point to it.  If it gets overwritten again, tough.  */
+  }
+
   EXPAND_DEFAULT (info->override_path, "application override variable");
   info->path = kpse_brace_expand (info->path);
-
-  /* Free the copied env_value. */
-  if (IS_ENV_SEP(':') && env_value)
-      free(env_value);
 }}
 
 
-/* Some file types have more than one suffix.  */
-/* Some times it is convenient to modify the list of searched suffixes.
-   *** Don't complain if this function goes away. ***
- */
+/* Some file types have more than one suffix, and sometimes it is
+   convenient to modify the list of searched suffixes.  */ 
+
 void
 kpse_set_suffixes PVAR2C(kpse_file_format_type, format,
   boolean, alternate,  ap)
@@ -306,8 +302,7 @@ kpse_set_suffixes PVAR2C(kpse_file_format_type, format,
 
   if (alternate) {
     list = &kpse_format_info[format].alt_suffix;
-  } 
-  else {
+  } else {
     list = &kpse_format_info[format].suffix;
   }
 
@@ -318,7 +313,6 @@ kpse_set_suffixes PVAR2C(kpse_file_format_type, format,
   }
   va_end (ap);
   (*list)[count] = NULL;
-
 }}
 
 /* The path spec we are defining, one element of the global array.  */
@@ -331,7 +325,8 @@ kpse_set_suffixes PVAR2C(kpse_file_format_type, format,
    list. Also initialize the fields not needed in setting the path.  */
 #define INIT_FORMAT(text, default_path, envs) \
   FMT_INFO.type = text; \
-  init_path (&FMT_INFO, default_path, envs, NULL)
+  init_path (&FMT_INFO, default_path, envs, NULL); \
+  envvar_list = concatn_with_spaces (envs, NULL);
 
 
 /* A few file types allow for runtime generation by an external program.
@@ -399,11 +394,39 @@ remove_dbonly P1C(const_string, path)
   return(ret);
 }
 
+/* Same as concatn but puts a space between each element.  All this just
+   for nice debugging output.  But it's useful.  */
+
+static string
+concatn_with_spaces PVAR1C(const_string, str1,  ap)
+{
+  string arg;
+  string ret;
+
+  if (!str1)
+    return NULL;
+  
+  ret = xstrdup (str1);
+  
+  while ((arg = va_arg (ap, string)) != NULL)
+    {
+      string temp = concat3 (ret, " ", arg);
+      free (ret);
+      ret = temp;
+    }
+  va_end (ap);
+  
+  return ret;
+}}
+
+
 /* Initialize everything for FORMAT.  */
 
 const_string
 kpse_init_format P1C(kpse_file_format_type, format)
 {
+  string envvar_list;  /* only for debug output, set in INIT_FORMAT */
+
   /* If we get called twice, don't redo all the work.  */
   if (FMT_INFO.path)
     return FMT_INFO.path;
@@ -471,8 +494,6 @@ kpse_init_format P1C(kpse_file_format_type, format)
       init_maketex (format, "mktexfmt", NULL);
       INIT_FORMAT ("fmt", DEFAULT_TEXFORMATS, FMT_ENVS);
       SUFFIXES (".fmt");
-#define FMT_SUFFIXES ".efmt",".efm",".ofmt",".ofm",".oft",".eofmt",".eoft",".eof",".pfmt",".pfm",".epfmt",".epf",".xpfmt",".xpf",".afmt",".afm"
-      ALT_SUFFIXES (FMT_SUFFIXES);
       FMT_INFO.binmode = true;
       break;
     case kpse_fontmap_format:
@@ -547,23 +568,25 @@ kpse_init_format P1C(kpse_file_format_type, format)
       break;
     case kpse_pict_format:
       INIT_FORMAT ("graphic/figure", DEFAULT_TEXINPUTS, PICT_ENVS);
-#define PICT_SUFFIXES ".eps", ".epsi"
-      ALT_SUFFIXES (PICT_SUFFIXES);
+#define ALT_PICT_SUFFIXES ".eps", ".epsi"
+      ALT_SUFFIXES (ALT_PICT_SUFFIXES);
       FMT_INFO.binmode = true;
       break;
     case kpse_tex_format:
       init_maketex (format, "mktextex", NULL);
       INIT_FORMAT ("tex", DEFAULT_TEXINPUTS, TEX_ENVS);
       SUFFIXES (".tex");
-      /* We don't maintain a list of alternate TeX suffixes.  Such a list
-         could never be complete.  */
+      /* TeX files can have any obscure suffix in the world (or none at
+         all).  Only check for the most common ones.  */
+#define ALT_TEX_SUFFIXES ".sty", ".cls", ".fd", ".aux", ".bbl", ".def", ".clo", ".ldf"
+      ALT_SUFFIXES (ALT_TEX_SUFFIXES);
       break;
     case kpse_tex_ps_header_format:
       INIT_FORMAT ("PostScript header", DEFAULT_TEXPSHEADERS,
                    TEX_PS_HEADER_ENVS);
-/* Unfortunately, dvipsk uses this format for type1 fonts.  */
-#define TEXPSHEADER_SUFFIXES ".pro"
-      ALT_SUFFIXES (TEXPSHEADER_SUFFIXES);
+/* Unfortunately, at one time dvips used this format for type1 fonts.  */
+#define ALT_TEXPSHEADER_SUFFIXES ".pro"
+      ALT_SUFFIXES (ALT_TEXPSHEADER_SUFFIXES);
       FMT_INFO.binmode = true;
       break;
     case kpse_texdoc_format:
@@ -575,6 +598,8 @@ kpse_init_format P1C(kpse_file_format_type, format)
       break;
     case kpse_texsource_format:
       INIT_FORMAT ("TeX system sources", DEFAULT_TEXSOURCES, TEXSOURCE_ENVS);
+#define ALT_SOURCES_SUFFIXES ".dtx", ".ins"
+      ALT_SUFFIXES (ALT_SOURCES_SUFFIXES);
       break;
     case kpse_troff_font_format:
       INIT_FORMAT ("Troff fonts", DEFAULT_TRFONTS, TROFF_FONT_ENVS);
@@ -608,6 +633,8 @@ kpse_init_format P1C(kpse_file_format_type, format)
       break;
     case kpse_type42_format:
       INIT_FORMAT ("type42 fonts", DEFAULT_T42FONTS, TYPE42_ENVS);
+#define TYPE42_SUFFIXES ".t42", ".T42"
+      SUFFIXES (TYPE42_SUFFIXES);
       FMT_INFO.binmode = true;
       break;
     case kpse_web2c_format:
@@ -647,7 +674,6 @@ kpse_init_format P1C(kpse_file_format_type, format)
       break;
     case kpse_cmap_format:
       INIT_FORMAT ("cmap files", DEFAULT_CMAPFONTS, CMAP_ENVS);
-      SUFFIXES (".cmap");      
       break;
     case kpse_sfd_format:
       INIT_FORMAT ("subfont definition files", DEFAULT_SFDFONTS, SFD_ENVS);
@@ -668,6 +694,12 @@ kpse_init_format P1C(kpse_file_format_type, format)
     case kpse_texmfscripts_format:
       INIT_FORMAT ("texmfscripts", DEFAULT_TEXMFSCRIPTS, TEXMFSCRIPTS_ENVS);
       break;
+    case kpse_lua_format:
+      INIT_FORMAT ("lua", DEFAULT_LUAINPUTS, LUA_ENVS);
+#define LUA_SUFFIXES ".luc", ".luctex", ".texluc", ".lua", ".luatex", ".texlua"
+      SUFFIXES (LUA_SUFFIXES);
+      FMT_INFO.suffix_search_only = true;
+      break;
     default:
       FATAL1 ("kpse_init_format: Unknown format %d", format);
     }
@@ -686,6 +718,7 @@ kpse_init_format P1C(kpse_file_format_type, format)
       DEBUGF1 ("  application config file path = %s\n", MAYBE (client_path));
       DEBUGF1 ("  texmf.cnf path = %s\n", MAYBE (cnf_path));
       DEBUGF1 ("  compile-time path = %s\n", MAYBE (default_path));
+      DEBUGF1 ("  environment variables = %s\n", envvar_list);
       DEBUGF  ("  default suffixes =");
       if (FMT_INFO.suffix) {
         const_string *ext;
@@ -727,6 +760,79 @@ kpse_init_format P1C(kpse_file_format_type, format)
   return FMT_INFO.path;
 }
 
+/* These are subroutines called twice when finding file, to construct
+   the list of names to search for.  */
+   
+/* We don't even use fontmaps any more in practice, they were for things
+   like the lcircle10/lcirc10 name change many years ago, but let's keep
+   the support working nonetheless.  */
+
+static void
+target_fontmaps (const_string **target, unsigned *count, const_string name)
+{
+  string *mapped_names = kpse_fontmap_lookup (name);
+  
+  if (mapped_names != NULL) {
+    string mapped_name;
+    /* We leak mapped_names and its elements, some of the time.  */
+    while ((mapped_name = *mapped_names++) != NULL) {
+      (*target)[(*count)] = xstrdup (mapped_name);
+      (*count)++;
+      XRETALLOC ((*target), (*count)+1, const_string);
+    }
+  }
+}
+
+
+/* Possibly add NAME (and any fontmap equivalents) to the string list
+   in TARGET, depending on the various other parameters.  */
+
+static void
+target_asis_name (const_string **target, unsigned *count,
+    kpse_file_format_type format,
+    const_string name, boolean use_fontmaps, boolean has_potential_suffix,
+    string has_any_suffix)
+{
+  /* Look for the name we've been given, provided non-suffix
+     searches are allowed or the name already includes a suffix. */
+  if (has_potential_suffix || !FMT_INFO.suffix_search_only) {
+    (*target)[(*count)] = xstrdup (name);
+    (*count)++;
+    XRETALLOC ((*target), (*count)+1, const_string);
+
+    if (use_fontmaps) {
+      target_fontmaps (target, count, name);
+    }
+  }
+}
+
+
+/* Possibly add NAME (and any fontmap equivalents), with any suffixes
+   for this FORMAT appended, to TARGET -- if it doesn't already have one
+   of the potential suffixes for FORMAT.  */
+
+static void
+target_suffixed_names (const_string **target, unsigned *count,
+    kpse_file_format_type format,
+    const_string name, boolean use_fontmaps, boolean has_potential_suffix)
+{
+  const_string *ext;
+  if (has_potential_suffix || !FMT_INFO.suffix) {
+    return;
+  }
+  
+  for (ext = FMT_INFO.suffix; *ext; ext++) {
+    string name_with_suffix = concat (name, *ext);
+    (*target)[(*count)] = name_with_suffix;
+    (*count)++;
+    XRETALLOC ((*target), (*count)+1, const_string);
+    
+    if (use_fontmaps) {
+      target_fontmaps (target, count, name_with_suffix);
+    }    
+  }
+}
+
 /* Look up a file NAME of type FORMAT, and the given MUST_EXIST.  This
    initializes the path spec for FORMAT if it's the first lookup of that
    type.  Return the filename found, or NULL.  This is the most likely
@@ -736,18 +842,31 @@ string
 kpse_find_file P3C(const_string, name,  kpse_file_format_type, format,
                    boolean, must_exist)
 {
-  const_string *ext;
-  unsigned name_len = 0;
-  boolean name_has_suffix_already = false;
-  string mapped_name;
-  string *mapped_names;
+  string *ret_list = kpse_find_file_generic (name, format, must_exist, false);
+  string ret = *ret_list;
+  free (ret_list);
+  return ret;
+}
+
+/* As with `kpse_find_file', but also allow passing ALL for the search,
+   hence we always return a NULL-terminated list.  */
+
+string *
+kpse_find_file_generic P4C(const_string, name,  kpse_file_format_type, format,
+                           boolean, must_exist,  boolean, all)
+{
   const_string *target;
+  const_string *ext;
   unsigned count;
+  unsigned name_len = 0;
+  boolean has_potential_suffix = false;
+  string has_any_suffix = NULL;
+  string try_std_extension_first = NULL;
   boolean use_fontmaps = (format == kpse_tfm_format
                           || format == kpse_gf_format
                           || format == kpse_pk_format
                           || format == kpse_ofm_format);
-  string ret = NULL;
+  string *ret = NULL;
 
   /* NAME being NULL is a programming bug somewhere.  NAME can be empty,
      though; this happens with constructs like `\input\relax'.  */
@@ -756,125 +875,107 @@ kpse_find_file P3C(const_string, name,  kpse_file_format_type, format,
   if (FMT_INFO.path == NULL)
     kpse_init_format (format);
 
-  if (KPSE_DEBUG_P(KPSE_DEBUG_SEARCH))
+  if (KPSE_DEBUG_P (KPSE_DEBUG_SEARCH))
     DEBUGF3 ("kpse_find_file: searching for %s of type %s (from %s)\n",
              name, FMT_INFO.type, FMT_INFO.path_source);
 
   /* Do variable and tilde expansion. */
-  name = kpse_expand(name);
-  
+  name = kpse_expand (name);
+   
+  try_std_extension_first = kpse_var_value ("try_std_extension_first");
+  has_any_suffix = strrchr (name, '.');
+  if (has_any_suffix) {
+    string p = strchr (has_any_suffix, DIR_SEP);
+    if (p) {
+      has_any_suffix = NULL;
+    }
+  }
+
   /* Does NAME already end in a possible suffix?  */
   name_len = strlen (name);
   if (FMT_INFO.suffix) {
-    for (ext = FMT_INFO.suffix; !name_has_suffix_already && *ext; ext++) {
+    for (ext = FMT_INFO.suffix; !has_potential_suffix && *ext; ext++) {
       unsigned suffix_len = strlen (*ext);
-      name_has_suffix_already = (name_len >= suffix_len
+      has_potential_suffix = (name_len >= suffix_len
           && FILESTRCASEEQ (*ext, name + name_len - suffix_len));
     }
   }
-  if (!name_has_suffix_already && FMT_INFO.alt_suffix) {
-    for (ext = FMT_INFO.alt_suffix; !name_has_suffix_already && *ext; ext++) {
+  if (!has_potential_suffix && FMT_INFO.alt_suffix) {
+    for (ext = FMT_INFO.alt_suffix; !has_potential_suffix && *ext; ext++) {
       unsigned suffix_len = strlen (*ext);
-      name_has_suffix_already = (name_len >= suffix_len
+      has_potential_suffix = (name_len >= suffix_len
           && FILESTRCASEEQ (*ext, name + name_len - suffix_len));
     }
   }
 
-  /* Set up target list. */
+  /* Set up list of target names to search for, the order depending on
+     try_std_extension_first.  */
   count = 0;
   target = XTALLOC1 (const_string);
-  /* Case #1: NAME doesn't have a suffix which is equal to a "standard"
-     suffix.  For example, foo.bar, but not foo.tex.  We look for the
-     name with the standard suffixes appended. */
-  if (!name_has_suffix_already && FMT_INFO.suffix) {
-    for (ext = FMT_INFO.suffix; *ext; ext++) {
-      string name_with_suffix = concat (name, *ext);
-      target[count++] = name_with_suffix;
-      XRETALLOC(target, count+1, const_string);
-      if (use_fontmaps
-          && (mapped_names = kpse_fontmap_lookup (name_with_suffix)) != NULL)
-      {
-        /* FIXME: we leak mapped_names and its elements, some of the time */
-        while ((mapped_name = *mapped_names++) != NULL) {
-          target[count++] = xstrdup (mapped_name);
-          XRETALLOC(target, count+1, const_string);
-        }
-      }
-    }
+
+  if (has_any_suffix
+      && (try_std_extension_first == NULL || *try_std_extension_first == 'f'
+          || *try_std_extension_first == '0')) {
+    target_asis_name (&target, &count, format, name, use_fontmaps,
+                           has_potential_suffix, has_any_suffix);
+    target_suffixed_names (&target, &count, format, name, use_fontmaps,
+                           has_potential_suffix);
+  } else {
+    target_suffixed_names (&target, &count, format, name, use_fontmaps,
+                           has_potential_suffix);
+    target_asis_name (&target, &count, format, name, use_fontmaps,
+                           has_potential_suffix, has_any_suffix );
   }
-  /* Case #2: Just look for the name we've been given, provided non-suffix
-     searches are allowed or the name already includes a suffix. */
-  if (name_has_suffix_already || !FMT_INFO.suffix_search_only) {
-    target[count++] = xstrdup (name);
-    XRETALLOC(target, count+1, const_string);
-    if (use_fontmaps && (mapped_names = kpse_fontmap_lookup (name)) != NULL) {
-      /* FIXME: we leak mapped_names and its elements, some of the time */
-      while ((mapped_name = *mapped_names++) != NULL) {
-        target[count++] = xstrdup (mapped_name);
-        XRETALLOC(target, count+1, const_string);
-      }
-    }
-  }
+
   /* Terminate list. */
   target[count] = NULL;
 
-  /* Search. */
-#if 0
-  /* Simple version, just do the search for the list, and pound disk
-   * then and there if appropriate.
-   */
-  ret = kpse_path_search_list (FMT_INFO.path, target, must_exist);
-#elif 0
-  /* Variant where we delay disk-pounding. */
-  ret = kpse_path_search_list (FMT_INFO.path, target, false);
-  if (!ret && must_exist)
-      ret = kpse_path_search_list (FMT_INFO.path, target, true);
-#else
-  /* Variant that tries the match the original behaviour more closely.
-   * The distinction is that we pound the disk for a far shorter list
-   * of names.
-   *
-   * This is the fastest variant, because it does fewer disk accesses
-   * than the two variants above -- for example some 750 calls of
-   * access(2) compared to 1500.
-   */
-  ret = kpse_path_search_list (FMT_INFO.path, target, false);
+  if (try_std_extension_first) {
+    free (try_std_extension_first);
+  }
+
+  /* Search, trying to minimize disk-pounding.  */
+  ret = kpse_path_search_list_generic (FMT_INFO.path, target, false, all);
   /* Do we need to pound the disk? */
-  if (!ret && must_exist) {
+  if (! *ret && must_exist) {
     for (count = 0; target[count]; count++)
-      free((void*)target[count]);
+      free ((void *) target[count]);
     count = 0;
     /* We look for a subset of the previous set of names, so the
-     * target array is large enough.  In particular, we don't pound
-     * the disk for alternate names from the fontmaps.  Perhaps we
-     * should?
-     */
-    if (!name_has_suffix_already && FMT_INFO.suffix_search_only) {
-      for (ext = FMT_INFO.suffix; !ret && *ext; ext++)
+       target array is large enough.  In particular, we don't pound
+       the disk for alternate names from the fontmaps.  */
+    if (!has_potential_suffix && FMT_INFO.suffix_search_only) {
+      for (ext = FMT_INFO.suffix; *ext; ext++)
         target[count++] = concat (name, *ext);
     }
-    if (name_has_suffix_already || !FMT_INFO.suffix_search_only) {
+    if (has_potential_suffix || !FMT_INFO.suffix_search_only) {
       target[count++] = xstrdup (name);
     }
     target[count] = NULL;
-    ret = kpse_path_search_list (FMT_INFO.path, target, true);
+    ret = kpse_path_search_list_generic (FMT_INFO.path, target, true, all);
   }
-#endif  
   
   /* Free the list we created. */
   for (count = 0; target[count]; count++)
-    free((void*)target[count]);
-  free(target);
+    free ((void *) target[count]);
+  free (target);
   
-  /* If nothing was found, call mktex* to create a missing file.  */
-  if (!ret && must_exist) {
-    ret = kpse_make_tex (format, name);
+  /* If nothing was found, call mktex* to create a missing file.  Since
+     this returns a single string, morph it into a list.  */
+  if (! *ret && must_exist) {
+    ret = XTALLOC (2, string);
+    ret[0] = kpse_make_tex (format, name);
+    if (ret[0]) {
+      ret[1] = NULL;
+    }
   }
 
-  free((void*)name);
+  free ((void *) name);
 
   return ret;
 }
+
+
 
 /* Open NAME along the search path for TYPE for reading and return the
    resulting file, or exit with an error message.  */

@@ -1,7 +1,7 @@
-/* elt-dirs.c: Translate a path element to its corresponding director{y,ies}.
+/* elt-dirs.C: Translate a path element to its corresponding director{y,ies}.
 
-   Copyright 1997, 1998, 99, 2000, 2005, Olaf Weber.
-   Copyright 1993, 94, 95, 96, 97 Karl Berry.
+   Copyright 1993, 1994, 1995, 1996, 1997, 2008 Karl Berry.
+   Copyright 1997, 1998, 1999, 2000, 2005 Olaf Weber.
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -13,11 +13,8 @@
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Lesser General Public
-   License along with this library; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-*/
+   You should have received a copy of the GNU Lesser General Public License
+   along with this library; if not, see <http://www.gnu.org/licenses/>.  */
 
 #include <kpathsea/config.h>
 
@@ -348,8 +345,8 @@ expand_elt P3C(str_llist_type *, str_list_ptr,  const_string, elt,
 /* The first bits of a path element can be problematic because they
    look like a request to expand a whole disk, rather than a subtree.
    - It can contain a drive specification.
-   - It can be a UNC path (win32, but they are part of the single
-     UNIX specification as well).
+   - It can be a UNC path (w32, but they are part of the single
+     Unix specification as well).
    The argument is a string as the function can diddle into the argument
    to canonicalize it, which tends to matter on windows platforms.
    - Always lower-case drive letters a-z, even those filesystem that
@@ -360,8 +357,8 @@ expand_elt P3C(str_llist_type *, str_list_ptr,  const_string, elt,
      The resulting name will always be shorter than the one passed, so no
      problem.
    - If possible, we merely skip multiple leading slashes to prevent
-     expanding from the root of a UNIX filesystem tree.
-*/
+     expanding from the root of a UNIX filesystem tree.  */
+
 unsigned
 kpse_normalize_path P1C(string, elt)
 {
@@ -369,27 +366,29 @@ kpse_normalize_path P1C(string, elt)
   unsigned i;
 
   if (NAME_BEGINS_WITH_DEVICE(elt)) {
-      if (*elt >= 'A' && *elt <= 'Z')
-          *elt += 'a' - 'A';
-      for (i = 2; IS_DIR_SEP(elt[i]); ++i)
-          ;
-      if (i > 3)
-          memmove(elt+3, elt+i, strlen(elt+i) + 1);
-      ret = 2;
+    if (*elt >= 'A' && *elt <= 'Z')
+      *elt += 'a' - 'A';
+    for (i = 2; IS_DIR_SEP(elt[i]); ++i)
+      ;
+    if (i > 3)
+      memmove (elt+3, elt+i, strlen(elt+i) + 1);
+    ret = 2;
+
   } else if (IS_UNC_NAME(elt)) {
-      for (ret = 2; elt[ret] && !IS_DIR_SEP(elt[ret]); ++ret)
-          ;
-      for (i = ret; elt[i] && IS_DIR_SEP(elt[i]); ++i)
-          ;
-      if (i > ret+1)
-          memmove(elt+ret+1, elt+i, strlen(elt+i) + 1);
+    for (ret = 2; elt[ret] && !IS_DIR_SEP(elt[ret]); ++ret)
+      ;
+    for (i = ret; elt[i] && IS_DIR_SEP(elt[i]); ++i)
+      ;
+    if (i > ret+1)
+      memmove (elt+ret+1, elt+i, strlen(elt+i) + 1);
+
   } else {
-      for (ret = 0; IS_DIR_SEP(elt[ret]); ++ret)
-          ;
+    for (ret = 0; IS_DIR_SEP(elt[ret]); ++ret)
+      ;
   }
   
-  if (KPSE_DEBUG_P (KPSE_DEBUG_STAT))
-	DEBUGF2 ("kpse_normalize_path (%s) => %u\n", elt, ret);
+  if (KPSE_DEBUG_P (KPSE_DEBUG_STAT) && ret != 1)
+    DEBUGF2 ("kpse_normalize_path (%s) => %u\n", elt, ret);
 
   return ret;
 }

@@ -1,7 +1,7 @@
 /* c-memstr.h: memcpy, strchr, etc.
 
    Copyright 1992, 1993, 1994, 1995, 1997 1998, 1999, 2000, 2004, 2005,
-   2006 Karl Berry and Olaf Weber.
+   2006, 2008 Karl Berry and Olaf Weber.
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -13,11 +13,8 @@
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Lesser General Public
-   License along with this library; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-*/
+   You should have received a copy of the GNU Lesser General Public License
+   along with this library; if not, see <http://www.gnu.org/licenses/>.  */
 
 #ifndef KPATHSEA_C_MEMSTR_H
 #define KPATHSEA_C_MEMSTR_H
@@ -57,7 +54,6 @@
 #define memcpy(to, from, len) bcopy ((from), (to), (len))
 #endif
 
-#if !defined(__sun__)
 /* Note that these functions should not be used. */
 #if !defined(HAVE_BCMP) && !defined(bcmp)
 #define bcmp(s1, s2, len) memcmp ((s1), (s2), (len))
@@ -77,7 +73,6 @@
 
 #if !defined(HAVE_RINDEX) && !defined(rindex)
 #define rindex(s, c) strrchr ((s), (c))
-#endif
 #endif
 
 #if !defined(HAVE_STRING_H)

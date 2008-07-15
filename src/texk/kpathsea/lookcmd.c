@@ -36,6 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
 #include <kpathsea/c-proto.h>
 #include <kpathsea/win32lib.h>
 #include <kpathsea/lib.h>
+#include <kpathsea/concatn.h>
 #include <errno.h>
 
 BOOL 

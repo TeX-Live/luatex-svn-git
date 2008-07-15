@@ -1,8 +1,7 @@
 /* progname.c: the executable name we were invoked as; general initialization.
 
-
+   Copyright 1994, 1996, 1997, 2008 Karl Berry.
    Copyright 1998-2005 Olaf Weber.
-   Copyright 1994, 96, 97 Karl Berry.
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -14,11 +13,8 @@
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Lesser General Public
-   License along with this library; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-*/
+   You should have received a copy of the GNU Lesser General Public License
+   along with this library; if not, see <http://www.gnu.org/licenses/>.  */
 
 #include <kpathsea/config.h>
 #include <kpathsea/absolute.h>
@@ -73,10 +69,21 @@
 #endif
 
 #ifndef HAVE_PROGRAM_INVOCATION_NAME
-/* Don't redefine the variables if glibc already has.  */
+/* Don't redefine the variables if glibc already has.  However, we do
+   not check for HAVE_PROGRAM_INVOCATION_NAME anywhere else in this
+   file; rather, we always use our own code to compute them, overwriting
+   anything that glibc may have provided.  This avoids
+   difficult-to-debug system-dependent behavior, and also universally
+   supports the second (`progname') argument for dotted texmf.cnf values.
+
+   It would have been better to simply use our own variable names (and
+   computations) in the first place, but it's not worth losing backward
+   compatibility to rename them now.  */
+
 string program_invocation_name = NULL;
 string program_invocation_short_name = NULL;
 #endif
+
 /* And the variable for the program we pretend to be. */
 string kpse_program_name = NULL;
 
@@ -344,7 +351,7 @@ remove_dots P1C(string, dir)
 /* Return directory ARGV0 comes from.  Check PATH if ARGV0 is not
    absolute.  */
 
-string
+static string
 selfdir P1C(const_string, argv0)
 {
   string ret = NULL;
@@ -375,7 +382,7 @@ selfdir P1C(const_string, argv0)
     }
     CloseLibrary((struct Library *) DOSBase);
 #else /* not AMIGA */
-    string elt;
+    const_string elt;
     struct stat s;
 
     /* Have to check PATH.  But don't call kpse_path_search since we don't
@@ -560,9 +567,7 @@ kpse_set_program_name P2C(const_string, argv0, const_string, progname)
     program_invocation_name = xstrdup (argv0);
 
 #else /* !WIN32 && !__DJGPP__ */
-
   program_invocation_name = xstrdup (argv0);
-
 #endif
 #endif /* not HAVE_PROGRAM_INVOCATION_NAME */
 
@@ -603,7 +608,7 @@ kpse_set_program_name P2C(const_string, argv0, const_string, progname)
     }
   }
 
-  xputenv("progname", kpse_program_name);
+  xputenv ("progname", kpse_program_name);
 }
 
 /* This function is deprecated, because when we pretend to have a different

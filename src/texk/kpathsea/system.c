@@ -30,6 +30,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
 #include <kpathsea/lib.h>
 #include <errno.h>
 
+/* from lookcmd.c */
+extern void *parse_cmdline(char *line, char **input, char **output);
+extern char *build_cmdline(char ***cmd, char *input, char *output);
+
 /*
   It has been proven that system() fails to retrieve exit codes
   under Win9x. This is a workaround for this bug.

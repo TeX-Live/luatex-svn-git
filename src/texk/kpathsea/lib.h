@@ -1,7 +1,7 @@
 /* lib.h: declarations for common, low-level routines in kpathsea.
 
    Copyright 1999, 2000, 2003, 2005 Olaf Weber.
-   Copyright 1992, 93, 94, 95, 96 Karl Berry.
+   Copyright 1992, 1993, 1994, 1995, 1996, 2008 Karl Berry.
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -13,16 +13,14 @@
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Lesser General Public
-   License along with this library; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-*/
+   You should have received a copy of the GNU Lesser General Public License
+   along with this library; if not, see <http://www.gnu.org/licenses/>.  */
 
 #ifndef KPATHSEA_LIB_H
 #define KPATHSEA_LIB_H
 
 #include <kpathsea/c-proto.h>
+#include <kpathsea/systypes.h>
 #include <kpathsea/types.h>
 
 /* Define common sorts of messages.  */
@@ -122,7 +120,7 @@ extern KPSEDLL const_string xbasename P1H(const_string name);
 /* Return directory part of NAME. This returns a new string. */
 extern KPSEDLL string xdirname P1H(const_string name);
 
-#ifndef HAVE_STRSTR
+#if !HAVE_DECL_STRSTR
 extern string strstr P2H(const_string haystack, const_string needle);
 #endif
 
@@ -167,7 +165,9 @@ extern KPSEDLL int dir_links P2H(const_string fn, long nlinks);
 extern KPSEDLL FILE *xfopen P2H(const_string filename, const_string mode);
 extern KPSEDLL void xfclose P2H(FILE *, const_string filename);
 extern KPSEDLL void xfseek P4H(FILE *, long, int, string filename);
+extern KPSEDLL void xfseeko P4H(FILE *, off_t, int, string filename);
 extern KPSEDLL unsigned long xftell P2H(FILE *, string filename);
+extern KPSEDLL off_t xftello P2H(FILE *, string filename);
 
 /* These call the corresponding function in the standard library, and
    abort if those routines fail.  Also, `xrealloc' calls `xmalloc' if
