@@ -1,6 +1,6 @@
-% This is etex.ch in text format, as of October 12, 2004.
+% This is etex.ch, a
 % WEB change file containing code for various features extending TeX;
-% to be applied to tex.web (Version 3.141592) in order to define the
+% to be applied to tex.web in order to define the
 % e-TeX program.
  
 % Note: This file defines etex.web in terms of changes to be applied to
@@ -29,7 +29,7 @@
 % (pdftexdir/pdftex.ch). Consequently, changes in these files have to be
 % coordinated.
 
-% e-TeX is copyright (C) 1999-2004 by P. Breitenlohner (1994,98 by the NTS
+% e-TeX is copyright (C) 1999-2008 by P. Breitenlohner (1994,98 by the NTS
 % team); all rights are reserved. Copying of this file is authorized only if
 % (1) you are P. Breitenlohner, or if (2) you make absolutely no changes to
 % your copy. (Programs such as TIE allow the application of several change
@@ -116,6 +116,9 @@
 %                 direction typesetting;
 %             fixed a bug in the revised glue rounding code, detected by
 %                 Tigran Aivazian <tigran@@aivazian.fsnet.co.uk>, Oct 2004.
+% Version 2.3 development was started in Feb 2008; released in Mon Year.
+%             fixed a bug in hyph_code handling (\savinghyphcodes)
+%                 reported by Vladimir Volovich <vvv@@vsu.ru>, Feb 2008.
 
 % Although considerable effort has been expended to make the e-TeX program
 % correct and reliable, no warranty is implied; the author disclaims any
@@ -198,16 +201,16 @@ known as `\eTeX'.
 @z
 %---------------------------------------
 @x [1] m.2 l.188 - e-TeX basic
-@d banner=='This is TeX, Version 3.141592' {printed when \TeX\ starts}
+@d banner=='This is TeX, Version 3.1415926' {printed when \TeX\ starts}
 @y
 @d eTeX_version=2 { \.{\\eTeXversion} }
 @d eTeX_revision==".2" { \.{\\eTeXrevision} }
 @d eTeX_version_string=='-2.2' {current \eTeX\ version}
 @#
-@d eTeX_banner=='This is e-TeX, Version 3.141592',eTeX_version_string
+@d eTeX_banner=='This is e-TeX, Version 3.1415926',eTeX_version_string
   {printed when \eTeX\ starts}
 @#
-@d TeX_banner=='This is TeX, Version 3.141592' {printed when \TeX\ starts}
+@d TeX_banner=='This is TeX, Version 3.1415926' {printed when \TeX\ starts}
 @#
 @d banner==eTeX_banner
 @#
@@ -1706,7 +1709,7 @@ The |nucleus| of such noads is
 @z
 %---------------------------------------
 @x [34] m.696 l.13697 - e-TeX middle
-right_noad: begin print_esc("right"); print_delimiter(nucleus(p));
+right_noad: begin print_esc("right"); print_delimiter(delimiter(p));
   end;
 end;
 if subtype(p)<>normal then
@@ -1716,7 +1719,7 @@ if type(p)<left_noad then print_subsidiary_data(nucleus(p),".");
 @y
 right_noad: begin if subtype(p)=normal then print_esc("right")
   else print_esc("middle");
-  print_delimiter(nucleus(p));
+  print_delimiter(delimiter(p));
   end;
 end;
 if type(p)<left_noad then
@@ -3020,13 +3023,12 @@ if (format_ident=0)or(buffer[loc]="&") then
 if eTeX_ex then wterm_ln('entering extended mode');
 @z
 %---------------------------------------
-@x [53] m.1363 l.24757 - e-TeX hyph_codes
-adv_past(s)
+@x [53] m.1362 l.24751 adv_past - e-TeX hyph_codes
+    begin cur_lang:=what_lang(#); l_hyf:=what_lhm(#); r_hyf:=what_rhm(#);@+end
 @y
-if subtype(s)=language_node then
-  begin cur_lang:=what_lang(s); l_hyf:=what_lhm(s); r_hyf:=what_rhm(s);
-  set_hyph_index;
-  end
+    begin cur_lang:=what_lang(#); l_hyf:=what_lhm(#); r_hyf:=what_rhm(#);
+    set_hyph_index;
+    end
 @z
 %---------------------------------------
 @x [54] m.1379 l.24945 - e-TeX additions
@@ -5915,7 +5917,7 @@ fields in the active nodes.
 @!best_pl_glue:array[very_loose_fit..tight_fit] of scaled; {corresponding
   glue stretch or shrink}
 
-@ The new algorithm for the last line requires that the stretchability
+@ The new algorithm for the last line requires that the stretchability of
 |par_fill_skip| is infinite and the stretchability of |left_skip| plus
 |right_skip| is finite.
 
@@ -5966,10 +5968,10 @@ if arith_error then
   if active_short(r)>0 then g:=max_dimen@+else g:=-max_dimen;
 if g>0 then
   @<Set the value of |b| to the badness of the last line for stretching,
-    compute the corresponding |fit_class, and |goto found||@>
+    compute the corresponding |fit_class|, and |goto found|@>
 else if g<0 then
   @<Set the value of |b| to the badness of the last line for shrinking,
-    compute the corresponding |fit_class, and |goto found||@>;
+    compute the corresponding |fit_class|, and |goto found|@>;
 not_found:end
 
 @ These badness computations are rather similar to those of the standard

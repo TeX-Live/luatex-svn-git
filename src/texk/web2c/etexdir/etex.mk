@@ -14,7 +14,7 @@ etexdir/etex.version: etexdir/etex.ch
 
 # The C sources.
 etex_c = etexini.c etex0.c etex1.c etex2.c
-etex_o = etexini.o etex0.o etex1.o etex2.o etexextra.o
+etex_o = etexini.o etex0.o etex1.o etex2.o etex-pool.o etexextra.o
 
 # Making etex.
 etex: $(etex_o)
@@ -44,12 +44,16 @@ etex_ch_srcs = etex.web \
   $(srcdir)/etexdir/tex.ch0 \
   $(srcdir)/tex.ch \
   $(srcdir)/etexdir/tex.ch1 \
-  $(srcdir)/etexdir/tex.ech
+  $(srcdir)/etexdir/tex.ech \
+  $(srcdir)/etexdir/etex-binpool.ch
 #   Rules:
 etex.web: tie etexdir/etex.mk $(etex_web_srcs)
 	$(TIE) -m etex.web $(etex_web_srcs)
 etex.ch: $(etex_ch_srcs)
 	$(TIE) -c etex.ch $(etex_ch_srcs)
+
+etex-pool.c: etex.pool $(makecpool) tmf-pool.h
+	$(makecpool) etex.pool $(srcdir)/tmf-pool.h >$@ || rm -f $@
 
 # Tests...
 check: @ETEX@ etex-check
@@ -183,31 +187,14 @@ latex.fmt: etex
 #	$(dumpenv) $(MAKE) progname=olatex files="latex.ltx" prereq-check
 #	$(dumpenv) ./etex --progname=olatex --progname=olatex --ini \\input latex.ltx </dev/null
 
-# Install
-install-etex: install-etex-exec install-etex-data
-install-etex-exec: install-etex-programs install-etex-links
-install-etex-data: install-etex-pool @FMU@ install-etex-dumps
-install-etex-dumps: install-etex-fmts
+# 
+# Installation -- nothing by default, that is, we omit the
+# install-programs target.  We want to make etex a symlink to pdftex,
+# via texlinks.  Leave this unused install-etex* targets just to show
+# that the real binary does get built and can be used if desired.
 
-install-programs: @ETEX@ install-etex-programs
-install-etex-programs: etex $(bindir)
+install-etex: install-etex-exec
+install-etex-exec: etex $(bindir)
 	for p in etex; do $(INSTALL_LIBTOOL_PROG) $$p $(bindir); done
-
-install-links: @ETEX@ install-etex-links
-install-etex-links: install-etex-programs
-	#cd $(bindir) && (rm -f einitex evirtex; \
-	#  $(LN) etex einitex; $(LN) etex evirtex)
-
-install-fmts: @ETEX@ install-etex-fmts
-install-etex-fmts: efmts $(efmtdir)
-	efmts="$(all_efmts)"; \
-	  for f in $$efmts; do $(INSTALL_DATA) $$f $(efmtdir)/$$f; done
-	efmts="$(efmts)"; \
-	  for f in $$efmts; do base=`basename $$f .fmt`; \
-	    (cd $(bindir) && (rm -f $$base; $(LN) etex $$base)); done
-
-install-data:: @ETEX@ install-etex-data
-install-etex-pool: etex.pool $(texpooldir)
-	$(INSTALL_DATA) etex.pool $(texpooldir)/etex.pool
 
 # end of etex.mk
