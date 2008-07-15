@@ -695,7 +695,7 @@ integer img_to_array(image * img)
     integer x;					\
     if (a!=NULL) {				\
       x = strlen(a)+1;				\
-      dumpinteger(x);  dumpthings(*a, x);	\
+      dumpinteger(x);  dump_things(*a, x);	\
     } else {					\
       x = 0; dumpinteger(x);			\
     }						\
@@ -708,7 +708,7 @@ integer img_to_array(image * img)
     undumpinteger (x);				\
     if (x>0) {					\
       a = malloc(x);				\
-      undumpthings(*a,x);			\
+      undump_things(*a,x);			\
       s = a ;					\
     } else { s = NULL; }			\
   } while (0)
