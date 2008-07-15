@@ -1,6 +1,6 @@
 /* config.h: All .c files include this first.
 
-Copyright (C) 1995, 96, 2006 Karl Berry.
+Copyright (C) 1995, 1996, 2006, 2007 Karl Berry.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -13,22 +13,10 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
+along with this program; if not, see <http://www.gnu.org/licenses/.  */
 
 #ifndef WEB2C_CONFIG_H
 #define WEB2C_CONFIG_H
-
-/* MINGW: prevent inclusion io.h and dirent.h */
-#ifdef __MINGW32__
-#  ifndef _IO_H_
-#    define _IO_H_
-#  endif
-#  ifndef _DIRENT_H_
-#    define _DIRENT_H_
-#  endif
-#endif
-
 
 #if defined (TEX_DLL) && (defined (WIN32) || defined (__CYGWIN__))
 #ifdef MAKE_TEX_DLL
@@ -101,6 +89,10 @@ typedef SCHAR_TYPE schar;
 #endif /* not INTEGER_TYPE */
 
 typedef INTEGER_TYPE integer;
+
+/* We need a type that's at least off_t wide */
+typedef off_t longinteger;
+
 
 /* I don't want to write a configure test for remove when all Unix
    machines have unlink.  But, for the sake of non-Unix machines that
