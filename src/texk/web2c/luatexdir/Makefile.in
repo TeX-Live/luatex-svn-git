@@ -9,7 +9,14 @@ kpse_include ../make/library.mk
 kpathsea_srcdir_parent = $(srcdir)/../..
 kpathsea_dir_parent = ../..
 
-ALL_CXXFLAGS = @CXXFLAGS@ @DEFS@ $(XXCFLAGS) -I. -I$(srcdir) -I$(kpathsea_dir_parent) -I$(kpathsea_srcdir_parent) @LIBXPDFCPPFLAGS@ -I$(LIBOBSDCOMPATDIR) -I$(LIBOBSDCOMPATDIR)/.. -I$(LIBOBSDCOMPATFSRCDIR) -I$(LIBOBSDCOMPATFSRCDIR)/.. -I$(LIBPNGSRCDIR) -I$(ZLIBSRCDIR)
+ALL_CXXFLAGS = @CXXFLAGS@ @DEFS@ $(XXCFLAGS) \
+  -I. -I$(srcdir) \
+  -I$(kpathsea_dir_parent) -I$(kpathsea_srcdir_parent) \
+  @LIBXPDFCPPFLAGS@ \
+  -I$(LIBOBSDCOMPATDIR) -I$(LIBOBSDCOMPATDIR)/.. \
+  -I$(LIBOBSDCOMPATFSRCDIR) -I$(LIBOBSDCOMPATFSRCDIR)/.. \
+  -I$(LIBPNGSRCDIR) -I$(ZLIBSRCDIR) \
+  -DPDF_PARSER_ONLY -DDISABLE_OUTLINE
 CXX = @CXX@
 
 CTANGLE = ../ctangle
@@ -33,13 +40,13 @@ LIBMD5DIR=../../../libs/md5
 LIBMD5SRCDIR=$(srcdir)/$(LIBMD5DIR)
 
 LIBOBSDCOMPATDIR=../../../libs/obsdcompat
-LIBOBSDCOMPATFSRCDIR=$(srcdir)/$(LIBOBSDCOMPATDIR)
+LIBOBSDCOMPATSRCDIR=$(srcdir)/$(LIBOBSDCOMPATDIR)
 
 XCPPFLAGS=-I.. -I$(srcdir)/.. -I../.. -I$(srcdir)/../.. -I$(LIBMD5DIR) \
   -I$(LIBMD5SRCDIR) @LIBPNGCPPFLAGS@ @ZLIBCPPFLAGS@ \
   -I$(LIBXPDFDIR) -I$(LIBXPDFDIR)/.. -I$(LIBXPDFSRCDIR) -I$(LIBXPDFSRCDIR)/.. \
-  -I$(LIBOBSDCOMPATDIR) -I$(LIBOBSDCOMPATDIR)/.. -I$(LIBOBSDCOMPATFSRCDIR) \
-  -I$(LIBOBSDCOMPATFSRCDIR)/.. -DpdfTeX
+  -I$(LIBOBSDCOMPATDIR) -I$(LIBOBSDCOMPATDIR)/.. -I$(LIBOBSDCOMPATSRCDIR) \
+  -I$(LIBOBSDCOMPATSRCDIR)/.. -DpdfTeX
 
 
 OBJS = \
@@ -125,7 +132,7 @@ depend:
 	for a in $(OBJS);  do 	                                       \
 		env XXCFLAGS="-MM -MT \$$@" XCFLAGS="-MM -MT \$$@" $(MAKE) -k $$a;                 \
 		touch $$a;                                                 \
-		grep -a -v "^$(CC)\|$(CXX)\|$(AR)\|make\|klibtool" $$a |   \
+		grep -a -v "^$(CC)\|$(CXX)\|$(AR)\|make" $$a |   \
 		sed 's: [^ ]*/\.\./libs/[^ ]*::g' >> $(srcdir)/depend.mk;  \
 	done;                                                          \
 	rm -f $(OBJS)
