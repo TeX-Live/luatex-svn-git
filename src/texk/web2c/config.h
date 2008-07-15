@@ -28,6 +28,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/.  */
 #define TEXDLL
 #endif
 
+#ifdef __MINGW32__
+#define _IO_H_
+#define _DIRENT_H_
+#endif
+
 /* The stuff from the path searching library.  */
 #include <kpathsea/config.h>
 #include <web2c/c-auto.h>
