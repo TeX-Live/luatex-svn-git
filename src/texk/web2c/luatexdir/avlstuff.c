@@ -24,7 +24,7 @@ $Id$
 #include <kpathsea/c-proto.h>
 #include "avl.h"
 
-static struct avl_table *PdfObjTree[pdf_objtype_max + 1] =
+static struct avl_table *PdfObjTree[pdf_objtype_max + 1] = 
     { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 
 /**********************************************************************/
