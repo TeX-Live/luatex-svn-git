@@ -715,113 +715,95 @@ integer img_to_array(image * img)
 
 
 
-void dumpimagemeta()
+void dumpimagemeta(void)
 {
-#if EXPERIMENTAL
-    int cur_image, img;
+    int cur_image, i;
+    image *img;
+    image_dict *idict;
 
     dumpinteger(img_limit);
     cur_image = (img_ptr - img_array);
-    dumpinteger(cur_img);
+    dumpinteger(cur_image);
 
-    for (img = 0; img < cur_image; img++) {
-
-        dumpcharptr(img_name(img));
-        dumpinteger(img_type(img));
-        dumpinteger(img_color(img));
+    for (i = 0; i < cur_image; i++) {
+        img = img_array[i];
+        assert(img != NULL);
+        idict = img_dict(img);
+        dumpcharptr(img_filename(idict));
+        dumpinteger(img_type(idict));
+        dumpinteger(img_color(idict));
         dumpinteger(img_width(img));
         dumpinteger(img_height(img));
-        dumpinteger(img_xres(img));
-        dumpinteger(img_yres(img));
-        dumpinteger(img_pages(img));
-        dumpinteger(img_colorspace_ref(img));
-        dumpinteger(img_group_ref(img));
+        dumpinteger(img_xres(idict));
+        dumpinteger(img_yres(idict));
+        dumpinteger(img_totalpages(idict));
+        dumpinteger(img_colorspace(idict));
+        dumpinteger(img_group_ref(idict));
 
         /* the image_struct is not dumped at all, except for a few
            variables that are needed to restore the contents */
 
-        if (img_type(img) == IMAGE_TYPE_PDF) {
-            dumpinteger(pdf_ptr(img)->page_box);
-            dumpinteger(pdf_ptr(img)->selected_page);
-        } else if (img_type(img) == IMAGE_TYPE_JBIG2) {
-            dumpinteger(jbig2_ptr(img)->selected_page);
+        if (img_type(idict) == IMG_TYPE_PDF) {
+            dumpinteger(img_pagebox(idict));
+            dumpinteger(img_pagenum(idict));
+        } else if (img_type(idict) == IMG_TYPE_JBIG2) {
+            dumpinteger(img_pagenum(idict));
         }
 
     }
-#endif
 }
 
 void undumpimagemeta(integer pdfversion, integer pdfinclusionerrorlevel)
 {
-#if EXPERIMENTAL
-    int cur_image, img;
+    int cur_image, i;
+    image *img;
+    image_dict *idict;
 
     undumpinteger(img_limit);
 
-    image_array = xtalloc(img_limit, img_entry);
+    img_array = xtalloc(img_limit, img_entry);
     undumpinteger(cur_image);
     img_ptr = img_array + cur_image;
 
-    for (img = 0; img < cur_image; img++) {
-        undumpcharptr(img_name(img));
-        undumpinteger(img_type(img));
-        undumpinteger(img_color(img));
+    for (i = 0; i < cur_image; i++) {
+        img = new_image();
+        assert(img_arrayidx(img) == -1);
+        img_arrayidx(img) = img_to_array(img);
+        idict = img_dict(img) = new_image_dict();
+        assert(idict != NULL);
+        undumpcharptr(img_filename(idict));
+        undumpinteger(img_type(idict));
+        undumpinteger(img_color(idict));
         undumpinteger(img_width(img));
         undumpinteger(img_height(img));
-        undumpinteger(img_xres(img));
-        undumpinteger(img_yres(img));
-        undumpinteger(img_pages(img));
-        undumpinteger(img_colorspace_ref(img));
-        undumpinteger(img_group_ref(img));
+        undumpinteger(img_xres(idict));
+        undumpinteger(img_yres(idict));
+        undumpinteger(img_totalpages(idict));
+        undumpinteger(img_colorspace(idict));
+        undumpinteger(img_group_ref(idict));
 
-        /* if img_name(img)==NULL -- which it shouldn't be -- the next line
-           will trigger an assertion failure. */
-        if (kpse_find_file(img_name(img), kpse_tex_format, true) == NULL)
-            pdftex_fail("cannot find image file %s", img_name(img));
-
-        switch (img_type(img)) {
-        case IMAGE_TYPE_PDF:
-            pdf_ptr(img) = xtalloc(1, pdf_image_struct);
-
-            undumpinteger(pdf_ptr(img)->page_box);
-            undumpinteger(pdf_ptr(img)->selected_page);
-
-            read_pdf_info(img_name(img), NULL, pdf_ptr(img)->selected_page,
-                          pdf_ptr(img)->page_box, pdfversion,
-                          pdfinclusionerrorlevel);
-
-            img_width(img) = bp2int(epdf_width);
-            img_height(img) = bp2int(epdf_height);
-            img_pages(img) = epdf_num_pages;
-            pdf_ptr(img)->orig_x = bp2int(epdf_orig_x);
-            pdf_ptr(img)->orig_y = bp2int(epdf_orig_y);
-            pdf_ptr(img)->doc = epdf_doc;
+        switch (img_type(idict)) {
+        case IMG_TYPE_PDF:
+            undumpinteger(img_pagebox(idict));
+            undumpinteger(img_pagenum(idict));
             break;
-        case IMAGE_TYPE_PNG:
-            img_pages(img) = 1;
-            read_png_info(img);
+        case IMG_TYPE_PNG:
             break;
-        case IMAGE_TYPE_JPG:
-            jpg_ptr(img) = xtalloc(1, JPG_IMAGE_INFO);
-            img_pages(img) = 1;
-            read_jpg_info(img);
+        case IMG_TYPE_JPG:
             break;
-        case IMAGE_TYPE_JBIG2:
+        case IMG_TYPE_JBIG2:
             if (pdfversion < 4) {
                 pdftex_fail
                     ("JBIG2 images only possible with at least PDF 1.4; you are generating PDF 1.%i",
                      (int) pdfversion);
             }
-            jbig2_ptr(img) = xtalloc(1, JBIG2_IMAGE_INFO);
-            img_type(img) = IMAGE_TYPE_JBIG2;
-            undumpinteger(jbig2_ptr(img)->selected_page);
-            read_jbig2_info(img);
+            undumpinteger(img_pagenum(idict));
             break;
         default:
             pdftex_fail("unknown type of image");
         }
+        read_img(idict,pdfversion, pdfinclusionerrorlevel);
     }
-#endif
 }
 
 
