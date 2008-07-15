@@ -1,6 +1,6 @@
 /* printversion.c: Output for the standard GNU option --version.
 
-   Written in 1996 by K. Berry.  Public domain.  */
+   Written in 1996 by Karl Berry.  Public domain.  */
 
 #include "config.h"
 
@@ -45,7 +45,7 @@ printversionandexit P4C(const_string, banner,
       author = copyright_holder;
   }
 
-  puts ("Kpathsea is copyright 2007 Karl Berry and Olaf Weber.");
+  puts ("Kpathsea is copyright 2008 Karl Berry and Olaf Weber.");
 
   puts ("There is NO warranty.  Redistribution of this software is");
   fputs ("covered by the terms of ", stdout);

@@ -18,12 +18,13 @@
 #include <kpathsea/readable.h>
 #include <kpathsea/variable.h>
 #include <kpathsea/absolute.h>
+#include <kpathsea/recorder.h>
 
 #include <time.h> /* For `struct tm'.  */
-#if defined (HAVE_SYS_TIMEB_H)
-#include <sys/timeb.h>
-#elif defined (HAVE_SYS_TIME_H)
+#if defined (HAVE_SYS_TIME_H)
 #include <sys/time.h>
+#elif defined (HAVE_SYS_TIMEB_H)
+#include <sys/timeb.h>
 #endif
 
 #if defined(__STDC__)
@@ -44,6 +45,7 @@
 #include <etexdir/etexextra.h>
 #elif defined (pdfTeX)
 #include <pdftexdir/pdftexextra.h>
+#include <pdftexdir/ptexlib.h>
 #elif defined (luaTeX)
 #include <luatexdir/luatexextra.h>
 #elif defined (Omega)
@@ -53,7 +55,7 @@
 #elif defined (Aleph)
 #include <alephdir/alephextra.h>
 #else
-#define BANNER "This is TeX, Version 3.141592"
+#define BANNER "This is TeX, Version 3.1415926"
 #define COPYRIGHT_HOLDER "D.E. Knuth"
 #define AUTHOR NULL
 #define PROGRAM_HELP TEXHELP
@@ -69,7 +71,7 @@
 #define edit_var "TEXEDIT"
 #endif /* TeX */
 #ifdef MF
-#define BANNER "This is Metafont, Version 2.71828"
+#define BANNER "This is Metafont, Version 2.718281"
 #define COPYRIGHT_HOLDER "D.E. Knuth"
 #define AUTHOR NULL
 #define PROGRAM_HELP MFHELP
@@ -88,9 +90,9 @@
 #define edit_var "MFEDIT"
 #endif /* MF */
 #ifdef MP
-#define BANNER "This is MetaPost, Version 0.993"
+#define BANNER "This is MetaPost, Version 1.005"
 #define COPYRIGHT_HOLDER "AT&T Bell Laboratories"
-#define AUTHOR "John Hobby"
+#define AUTHOR "John Hobby.\nCurrent maintainer of MetaPost: Taco Hoekwater"
 #define PROGRAM_HELP MPHELP
 #define BUG_ADDRESS "tex-k@mail.tug.org"
 #define DUMP_VAR MPmemdefault
@@ -122,7 +124,7 @@ char **argv;
 int argc;
 
 /* If the user overrides argv[0] with -progname.  */
-static string user_progname;
+static const_string user_progname;
 
 /* The C version of what might wind up in DUMP_VAR.  */
 MAYBE_STATIC const_string dump_name;
@@ -139,7 +141,7 @@ string default_translate_filename;
 
 /* Needed for --src-specials option. */
 MAYBE_STATIC char *last_source_name;
-int last_lineno;
+static int last_lineno;
 MAYBE_STATIC boolean srcspecialsoption = false;
 MAYBE_STATIC void parse_src_specials_option P1H(const_string);
 
@@ -203,32 +205,6 @@ texmf_yesno(const_string var)
 #define poolsize pool_size
 #endif
 
-#ifndef WIN32
-
-static void segv_handler P1C(int, sig)
-{
-  sigset_t set;
-  assert(sig); /* for -Wunused */
-  sigaddset(&set, SIGSEGV);
-  sigprocmask(SIG_UNBLOCK, &set, NULL);
-  fatal_error(maketexstring("segmentation fault, probably due to infinite macro recursion"));
-}
-
-#else
-
-#include <winerror.h>
-
-static LONG WINAPI
-segv_handler_filter (EXCEPTION_POINTERS *ExceptionInfo) {
-  if (ExceptionInfo->ExceptionRecord->ExceptionCode == STATUS_STACK_OVERFLOW) {
-    fatal_error(maketexstring("stack overflow, probably due to infinite macro recursion"));
-  } else if (ExceptionInfo->ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION) {
-    fatal_error(maketexstring("access violation"));
-  }
-  return EXCEPTION_CONTINUE_SEARCH;
-}
-#endif
-
 /* The entry point: set up for reading the command line, which will
    happen in `topenin', then call the main body.  */
 
@@ -244,6 +220,23 @@ maininit P2C(int, ac, string *, av)
   /* Must be initialized before options are parsed.  */
   interactionoption = 4;
 
+  /* Have things to record as we go along.  */
+  kpse_record_input = recorder_record_input;
+  kpse_record_output = recorder_record_output;
+
+#if defined(__SyncTeX__)
+# warning SyncTeX: -synctex command line option available
+  /* 0 means "disable Synchronize TeXnology".
+   * synctexoption is a *.web variable.
+   * We initialize it to a weird value to catch the -synctex command line flag
+   * At runtime, if synctexoption is not INT_MAX, then it contains the command line option provided,
+   * otherwise no such option was given by the user. */
+# define SYNCTEX_NO_OPTION INT_MAX
+  synctexoption = SYNCTEX_NO_OPTION;
+#else
+# warning SyncTeX: -synctex command line option NOT available
+#endif
+
 #if defined(pdfTeX) || defined(luaTeX)
   ptexbanner = BANNER;
 #endif
@@ -252,16 +245,18 @@ maininit P2C(int, ac, string *, av)
      since we want the --ini option, have to do it before getting into
      the web (which would read the base file, etc.).  */
   parse_options (ac, av);
-
-  if (!user_progname) user_progname = (string)dump_name;
-
+  
+  /* If -progname was not specified, default to the dump name.  */
+  if (!user_progname)
+    user_progname = dump_name;
+  
   /* Do this early so we can inspect program_invocation_name and
      kpse_program_name below, and because we have to do this before
      any path searching.  */
   kpse_set_program_name (argv[0], user_progname);
 
   /* FIXME: gather engine names in a single spot. */
-  xputenv("engine", TEXMFENGINENAME);
+  xputenv ("engine", TEXMFENGINENAME);
   
   /* Were we given a simple filename? */
   main_input_file = get_input_file_name();
@@ -308,7 +303,7 @@ maininit P2C(int, ac, string *, av)
 #if !defined(Omega) && !defined(eOmega) && !defined(Aleph) && !defined(luaTeX)
     } else if (FILESTRCASEEQ (kpse_program_name, "mltex")) {
       mltexp = true;
-#endif /* !Omega && !eOmega && !Aleph */
+#endif /* !Omega && !eOmega && !Aleph && !luaTeX */
 #endif /* TeX */
     }
 
@@ -332,7 +327,7 @@ maininit P2C(int, ac, string *, av)
     }
 #endif
 #endif
-#if defined(eTeX) || defined(Aleph) || defined(XeTeX) 
+#if defined(eTeX) || defined(Aleph) || defined(XeTeX)
     if (etexp) {
       fprintf(stderr, "-etex only works with -ini\n");
     }
@@ -343,8 +338,18 @@ maininit P2C(int, ac, string *, av)
   /* If we've set up the fmt/base default in any of the various ways
      above, also set its length.  */
   if (dump_name) {
-    /* adjust array for Pascal and provide extension */
-    DUMP_VAR = concat3 (" ", dump_name, DUMP_EXT);
+    const_string with_ext = NULL;
+    unsigned name_len = strlen (dump_name);
+    unsigned ext_len = strlen (DUMP_EXT);
+    
+    /* Provide extension if not there already.  */
+    if (name_len > ext_len
+        && FILESTRCASEEQ (dump_name + name_len - ext_len, DUMP_EXT)) {
+      with_ext = dump_name;
+    } else {
+      with_ext = concat (dump_name, DUMP_EXT);
+    }
+    DUMP_VAR = concat (" ", with_ext); /* adjust array for Pascal */
     DUMP_LENGTH_VAR = strlen (DUMP_VAR + 1);
   } else {
     /* For dump_name to be NULL is a bug.  */
@@ -403,47 +408,21 @@ main P2C(int, ac,  string *, av)
   _response (&ac, &av);
 #endif
 
-  /*  set up signal stack */
-  {
 #ifdef WIN32
-    SetUnhandledExceptionFilter ((LPTOP_LEVEL_EXCEPTION_FILTER) &segv_handler_filter);
-#else
-#if __DARWIN_UNIX03
-    stack_t sigstk;
-#else
-    struct sigaltstack sigstk;
+  _setmaxstdio(2048);
 #endif
-    struct sigaction segv_act;
-    sigstk.ss_sp = xmalloc(SIGSTKSZ);
-    sigstk.ss_size = SIGSTKSZ;
-    sigstk.ss_flags = 0;
-    if (sigaltstack(&sigstk,0) < 0) {
-      perror("sigaltstack");
-      uexit(3);
-    }
-    segv_act.sa_handler = segv_handler;
-    segv_act.sa_flags = SA_ONSTACK | SA_RESETHAND;
-    sigemptyset(&segv_act.sa_mask);
-#if !defined(luaTeX)
-    if (sigaction(SIGSEGV, &segv_act, NULL) != 0) {
-      perror("sigaction");
-      uexit(3);
-    }
-#endif
-#endif
-  }
 
 #if defined(luaTeX)
-  lua_initialize(ac, av);
+  lua_initialize (ac, av);
 #else
-  maininit(ac, av);
+  maininit (ac, av);
 #endif
 
   /* Call the real main program.  */
   mainbody ();
   return EXIT_SUCCESS;
 } 
-#endif /* ! WIN32 */
+#endif /* !(WIN32 || __MINGW32__) */
 
 /* This is supposed to ``open the terminal for input'', but what we
    really do is copy command line arguments into TeX's or Metafont's
@@ -478,7 +457,7 @@ topenin P1H(void)
       unsigned char *ptr = (unsigned char *)&(argv[i][0]);
       /* need to interpret UTF8 from the command line */
       UInt32 rval;
-      while (rval = *(ptr++)) {
+      while ((rval = *(ptr++)) != 0) {
         UInt16 extraBytes = bytesFromUTF8[rval];
         switch (extraBytes) { /* note: code falls through cases! */
           case 5: rval <<= 6; if (*ptr) rval += *(ptr++);
@@ -489,14 +468,7 @@ topenin P1H(void)
           case 0: ;
         };
         rval -= offsetsFromUTF8[extraBytes];
-        /* now rval is a USV; if it's >=64K, we need to put surrogates in the buffer */
-        if (rval > 0xFFFF) {
-          rval -= 0x10000;
-          buffer[k++] = 0xd800 + rval / 0x0400;
-          buffer[k++] = 0xdc00 + rval % 0x0400;
-        }
-        else
-          buffer[k++] = rval;
+        buffer[k++] = rval;
       }
 #else
       char *ptr = &(argv[i][0]);
@@ -684,7 +656,7 @@ ipcpage P1C(int, is_eof)
 {
   static boolean begun = false;
   unsigned len = 0;
-  string p = "";
+  string p = (string)"";
 
   if (!begun) {
     string name; /* Just the filename.  */
@@ -977,7 +949,6 @@ static struct option long_options[]
       { "etex",                      0, &etexp, 1 },
 #endif /* eTeX || pdfTeX || Aleph */
       { "output-comment",            1, 0, 0 },
-      { "output-directory",          1, 0, 0 },
 #if defined(pdfTeX) || defined(luaTeX)
       { "draftmode",                 0, 0, 0 },
       { "output-format",             1, 0, 0 },
@@ -986,6 +957,10 @@ static struct option long_options[]
       { "no-shell-escape",           0, &shellenabledp, -1 },
       { "debug-format",              0, &debugformatfile, 1 },
       { "src-specials",              2, 0, 0 },
+#if defined(__SyncTeX__)
+      /* Synchronization: just like "interaction" above */
+      { "synctex",                   1, 0, 0 },
+#endif
 #endif /* TeX */
 #if defined (TeX) || defined (MF) || defined (MP)
       { "file-line-error-style",     0, &filelineerrorstylep, 1 },
@@ -994,6 +969,7 @@ static struct option long_options[]
       { "file-line-error",           0, &filelineerrorstylep, 1 },
       { "no-file-line-error",        0, &filelineerrorstylep, -1 },
       { "jobname",                   1, 0, 0 },
+      { "output-directory",          1, 0, 0 },
       { "parse-first-line",          0, &parsefirstlinep, 1 },
       { "no-parse-first-line",       0, &parsefirstlinep, -1 },
       { "translate-file",            1, 0, 0 },
@@ -1022,19 +998,19 @@ static struct option long_options[]
 
 
 static void
-parse_options P2C(int, ac,  string *, av)
+parse_options P2C(int, argc,  string *, argv)
 {
   int g;   /* `getopt' return code.  */
   int option_index;
 
   for (;;) {
-    g = getopt_long_only (ac, av, "+", long_options, &option_index);
+    g = getopt_long_only (argc, argv, "+", long_options, &option_index);
 
     if (g == -1) /* End of arguments, exit the loop.  */
       break;
 
     if (g == '?') { /* Unknown option.  */
-      /* FIXME: usage (av[0]); replaced by continue. */
+      /* FIXME: usage (argv[0]); replaced by continue. */
       continue;
     }
 
@@ -1045,8 +1021,10 @@ parse_options P2C(int, ac,  string *, av)
 
 #ifdef XeTeX
     } else if (ARGUMENT_IS ("papersize")) {
+      extern const_string papersize;
       papersize = optarg;
     } else if (ARGUMENT_IS ("output-driver")) {
+      extern const_string outputdriver;
       outputdriver = optarg;
 #endif
 
@@ -1057,19 +1035,17 @@ parse_options P2C(int, ac,  string *, av)
 #ifdef XeTeX
       c_job_name = optarg;
 #else
-      c_job_name = normalize_quotes(optarg, "jobname");
+      c_job_name = normalize_quotes (optarg, "jobname");
 #endif
-      
+
     } else if (ARGUMENT_IS (DUMP_OPTION)) {
       dump_name = optarg;
-      if (!user_progname) user_progname = optarg;
       dumpoption = true;
 
 #ifdef TeX
     /* FIXME: Obsolete -- for backward compatibility only. */
     } else if (ARGUMENT_IS ("efmt")) {
       dump_name = optarg;
-      if (!user_progname) user_progname = optarg;
       dumpoption = true;
 #endif
 
@@ -1168,6 +1144,12 @@ parse_options P2C(int, ac,  string *, av)
       
     } else if (ARGUMENT_IS ("help")) {
         usagehelp (PROGRAM_HELP, BUG_ADDRESS);
+
+#if defined(__SyncTeX__)
+    } else if (ARGUMENT_IS ("synctex")) {
+		/* Synchronize TeXnology: catching the command line option as a long  */
+		synctexoption = (int) strtol(optarg, NULL, 0);
+#endif
 
     } else if (ARGUMENT_IS ("version")) {
         char *versions;
@@ -1455,6 +1437,7 @@ open_in_or_pipe P3C(FILE **, f_ptr,  int, filefmt,  const_string, fopen_mode)
          free (fullnameoffile);
       fullnameoffile = xstrdup (fname);
 #endif
+      recorder_record_input (fname + 1);
       *f_ptr = popen(fname+1,"r");
       free(fname);
       for (i=0; i<=15; i++) {
@@ -1499,6 +1482,7 @@ open_out_or_pipe P2C(FILE **, f_ptr,  const_string, fopen_mode)
       } else {
         *f_ptr = popen(fname+1,"w");
       }
+      recorder_record_output (fname + 1);
       free(fname);
 
       for (i=0; i<=15; i++) {
@@ -1558,7 +1542,6 @@ catch_interrupt (DWORD arg)
 static RETSIGTYPE
 catch_interrupt P1C (int, arg)
 {
-  assert(arg); /* for -Wunused */
   interrupt = 1;
 #ifdef OS2
   (void) signal (SIGINT, SIG_ACK);
@@ -1620,11 +1603,6 @@ get_date_and_time P4C(integer *, minutes,  integer *, day,
 /*
  Getting a high resolution time.
  */
-
-#if defined (HAVE_GETTIMEOFDAY)
-#include <sys/time.h>
-#endif
-
 void
 get_seconds_and_micros P2C(integer *, seconds,  integer *, micros)
 {
@@ -1721,7 +1699,7 @@ input_line P1C(FILE *, f)
 
 /* This string specifies what the `e' option does in response to an
    error message.  */ 
-static char *edit_value = EDITOR;
+static const_string edit_value = EDITOR;
 
 /* This procedure originally due to sjc@s1-c.  TeX & Metafont call it when
    the user types `e' in response to an error, invoking a text editor on
@@ -1906,13 +1884,21 @@ swap_items P3C(char *, p,  int, nitems,  int, size)
    OUT_FILE.  */
 
 void
+#ifdef XeTeX
+do_dump P4C(char *, p,  int, item_size,  int, nitems,  gzFile, out_file)
+#else
 do_dump P4C(char *, p,  int, item_size,  int, nitems,  FILE *, out_file)
+#endif
 {
 #if !defined (WORDS_BIGENDIAN) && !defined (NO_DUMP_SHARE)
   swap_items (p, nitems, item_size);
 #endif
 
-  if (fwrite (p, item_size, nitems, out_file) != (size_t)nitems)
+#ifdef XeTeX
+  if (gzwrite (out_file, p, item_size * nitems) != item_size * nitems)
+#else
+  if (fwrite (p, item_size, nitems, out_file) != nitems)
+#endif
     {
       fprintf (stderr, "! Could not write %d %d-byte item(s).\n",
                nitems, item_size);
@@ -1930,9 +1916,17 @@ do_dump P4C(char *, p,  int, item_size,  int, nitems,  FILE *, out_file)
 /* Here is the dual of the writing routine.  */
 
 void
+#ifdef XeTeX
+do_undump P4C(char *, p,  int, item_size,  int, nitems,  gzFile, in_file)
+#else
 do_undump P4C(char *, p,  int, item_size,  int, nitems,  FILE *, in_file)
+#endif
 {
-  if (fread (p, item_size, nitems, in_file) != (size_t)nitems)
+#ifdef XeTeX
+  if (gzread (in_file, p, item_size * nitems) != item_size * nitems)
+#else
+  if (fread (p, item_size, nitems, in_file) != (size_t) nitems)
+#endif
     FATAL2 ("Could not undump %d %d-byte item(s)", nitems, item_size);
 
 #if !defined (WORDS_BIGENDIAN) && !defined (NO_DUMP_SHARE)
@@ -1978,6 +1972,8 @@ checkpoolpointer (poolpointer poolptr, size_t len)
   }
 }
 
+#ifndef MP  /* MP has its own in mpdir/utils.c */
+
 #ifndef XeTeX	/* XeTeX uses this from XeTeX_mac.c */
 static
 #endif
@@ -1993,7 +1989,7 @@ maketexstring(const_string s)
   len = strlen(s);
   checkpoolpointer (poolptr, len); /* in the XeTeX case, this may be more than enough */
 #ifdef XeTeX
-  while (rval = *(cp++)) {
+  while ((rval = *(cp++)) != 0) {
   UInt16 extraBytes = bytesFromUTF8[rval];
   switch (extraBytes) { /* note: code falls through cases! */
     case 5: rval <<= 6; if (*cp) rval += *(cp++);
@@ -2012,14 +2008,15 @@ maketexstring(const_string s)
   else
     strpool[poolptr++] = rval;
   }
-#else
+#else /* ! XeTeX */
   while (len-- > 0)
     strpool[poolptr++] = *s++;
-#endif
+#endif /* ! XeTeX */
 
   return (makestring());
 }
-#endif
+#endif /* !MP */
+#endif /* !pdfTeX */
 
 strnumber
 makefullnamestring()
@@ -2057,22 +2054,65 @@ compare_paths P2C(const_string, p1, const_string, p2)
   return ret;
 }
 
-#ifdef XeTeX
-#define strstartar strstart
-#endif
+#ifdef XeTeX /* the string pool is UTF-16 but we want a UTF-8 string */
+
+string
+gettexstring P1C(strnumber, s)
+{
+  unsigned bytesToWrite = 0;
+  poolpointer len, i, j;
+  string name;
+  len = strstart[s + 1 - 65536L] - strstart[s - 65536L];
+  name = (string)xmalloc(len * 3 + 1); /* max UTF16->UTF8 expansion (code units, not bytes) */
+  for (i = 0, j = 0; i < len; i++) {
+    unsigned c = strpool[i + strstart[s - 65536L]];
+    if (c >= 0xD800 && c <= 0xDBFF) {
+      unsigned lo = strpool[++i + strstart[s - 65536L]];
+      if (lo >= 0xDC00 && lo <= 0xDFFF)
+        c = (c - 0xD800) * 0x0400 + lo - 0xDC00;
+      else
+        c = 0xFFFD;
+    }
+    if (c < 0x80)
+      bytesToWrite = 1;
+    else if (c < 0x800)
+      bytesToWrite = 2;
+    else if (c < 0x10000)
+      bytesToWrite = 3;
+    else if (c < 0x110000)
+      bytesToWrite = 4;
+    else {
+      bytesToWrite = 3;
+      c = 0xFFFD;
+    }
+
+    j += bytesToWrite;
+    switch (bytesToWrite) { /* note: everything falls through. */
+      case 4: name[--j] = ((c | 0x80) & 0xBF); c >>= 6;
+      case 3: name[--j] = ((c | 0x80) & 0xBF); c >>= 6;
+      case 2: name[--j] = ((c | 0x80) & 0xBF); c >>= 6;
+      case 1: name[--j] =  (c | firstByteMark[bytesToWrite]);
+    }
+    j += bytesToWrite;
+  }
+  name[j] = 0;
+  return name;
+}
+
+#else
 
 string
 gettexstring P1C(strnumber, s)
 {
   poolpointer len;
   string name;
-#if !defined(Omega) && !defined(eOmega) && !defined(Aleph) && !defined(XeTeX)
+#if !defined(Omega) && !defined(eOmega) && !defined(Aleph)
   len = strstart[s + 1] - strstart[s];
 #else
   len = strstartar[s + 1 - 65536L] - strstartar[s - 65536L];
 #endif
   name = (string)xmalloc (len + 1);
-#if !defined(Omega) && !defined(eOmega) && !defined(Aleph) && !defined(XeTeX)
+#if !defined(Omega) && !defined(eOmega) && !defined(Aleph)
   strncpy (name, (string)&strpool[strstart[s]], len);
 #else
   {
@@ -2085,9 +2125,7 @@ gettexstring P1C(strnumber, s)
   return name;
 }
 
-#ifdef XeTeX
-#undef strstartar
-#endif
+#endif /* not XeTeX */
 
 boolean
 isnewsource P2C(strnumber, srcfilename, int, lineno)

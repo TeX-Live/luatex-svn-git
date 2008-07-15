@@ -1,4 +1,45 @@
+2008-03-24  Karl Berry  <karl@tug.org>
+
+	* printversion.c: it's 2008.
+
+2008-03-16  Karl Berry  <karl@tug.org>
+
+	* texmfmp.c (maininit): don't append DUMP_EXT if it's already
+	there.  Report from Hans.
+
+2008-03-09  Karl Berry  <karl@tug.org>
+
+	* texmfmp.c (maketexstring) [!MP]: only define this fn if !MP,
+	since MetaPost has its own in mpdir/utils.c.
+	(input_line): initialize i = EOF.  From Taco.
+
+2008-01-29  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.in: Add @configure_input@ line.
+
+2007-12-28  Karl Berry  <karl@tug.org>
+
+	* texmfmp.c (parse_options): do not set user_progname at
+	DUMP_OPTION or efmt.
+	(maininit): instead, do it here, after options are read.
+
+2007-09-05  Karl Berry  <karl@tug.org>
+
+	* texmfmp.c (long_options): move output-directory output to be
+	enabled for MF and MP too.  From Akira.
+
+2007-08-20  Karl Berry  <karl@tug.org>
+
+	* texmfmp.c (main) [WIN32]: _setmaxstdio(2048), to increase
+	open files limit.  From Akira, 19 Aug 2007 09:30:30 +0900.
+
+2007-07-26  Karl Berry  <karl@tug.org>
+
+	* openclose.c (recorder_record_name): fflush the recorder file,
+	since this is for debugging.  Suggested by George White.
+
 2006-12-28  Martin Schröder <martin@oneiros.de>
+
 	* texmfmp.c: fixed some warnings raised by gcc for unused variables
 	and different signedness of arguments
 
