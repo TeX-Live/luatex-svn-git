@@ -127,7 +127,13 @@ fi
 (cd texk/web2c/web2c; $MAKE) || exit 1
 (cd texk/web2c; $MAKE ../kpathsea/libkpathsea.la) || exit 1
 (cd texk/web2c/lib; $MAKE) || exit 1
-(cd texk/web2c/mpdir; ../../../../src/texk/web2c/mpdir/configure --enable-shared=no; $MAKE; $MAKE lmplib.o ) || exit 1
+(cd texk/web2c/mpdir; 
+  if [ "$ONLY_MAKE" = "FALSE" ] 
+  then
+    ../../../../src/texk/web2c/mpdir/configure --enable-shared=no; 
+  fi; 
+  $MAKE; 
+  $MAKE lmplib.o ) || exit 1
 if [ ! "$ONLY_MAKE" = "FALSE" ] 
 then
   (cd texk/web2c/luatexdir; $MAKE libpdf.a) || exit 1
