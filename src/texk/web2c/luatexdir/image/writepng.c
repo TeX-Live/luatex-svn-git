@@ -485,7 +485,7 @@ void copy_png(image_dict * idict)
                "/BitsPerComponent %i"
                "/Predictor 10>>\n>>\nstream\n", streamlength,
                info_p->color_type == 2 ? 3 : 1,
-               (int)info_p->width, info_p->bit_depth);
+               (int) info_p->width, info_p->bit_depth);
     /* 2nd pass to copy data */
     endflag = false;
     if (fseek(fp, 8, SEEK_SET) != 0)
@@ -544,7 +544,7 @@ void write_png(image_dict * idict)
     png_structp png_p;
     png_infop info_p;
     assert(idict != NULL);
-    last_png_needs_page_group=false;
+    last_png_needs_page_group = false;
     if (img_file(idict) == NULL)
         reopen_png(idict);
     assert(img_png_ptr(idict) != NULL);
@@ -570,10 +570,7 @@ void write_png(image_dict * idict)
     }
     /* the switching between |info_p| and |png_p| queries has been trial and error. 
      */
-    if (fixed_pdf_minor_version > 1 
-        && info_p->interlace_type == PNG_INTERLACE_NONE 
-        && (png_p->transformations == 0 
-            || png_p->transformations == 0x2000) /* gamma */
+    if (fixed_pdf_minor_version > 1 && info_p->interlace_type == PNG_INTERLACE_NONE && (png_p->transformations == 0 || png_p->transformations == 0x2000)        /* gamma */
         &&!(png_p->color_type == PNG_COLOR_TYPE_GRAY_ALPHA ||
             png_p->color_type == PNG_COLOR_TYPE_RGB_ALPHA)
         && (fixed_image_hicolor || (png_p->bit_depth <= 8))
@@ -640,20 +637,20 @@ void write_png(image_dict * idict)
             write_png_gray(idict);
             break;
         case PNG_COLOR_TYPE_GRAY_ALPHA:
-          if (fixed_pdf_minor_version >= 4) {
+            if (fixed_pdf_minor_version >= 4) {
                 write_png_gray_alpha(idict);
                 last_png_needs_page_group = true;
-          }  else
+            } else
                 write_png_gray(idict);
             break;
         case PNG_COLOR_TYPE_RGB:
             write_png_rgb(idict);
             break;
         case PNG_COLOR_TYPE_RGB_ALPHA:
-          if (fixed_pdf_minor_version >= 4) {
+            if (fixed_pdf_minor_version >= 4) {
                 write_png_rgb_alpha(idict);
                 last_png_needs_page_group = true;
-          } else
+            } else
                 write_png_rgb(idict);
             break;
         default:
@@ -675,7 +672,7 @@ void write_additional_png_objects(void)
 {
     if (last_png_needs_page_group) {
         if (!transparent_page_group_was_written && transparent_page_group > 1) {
-          /* create new group object */
+            /* create new group object */
             transparent_page_group_was_written = true;
             pdf_begin_obj(transparent_page_group, 2);
             if (get_pdf_compress_level() == 0) {
