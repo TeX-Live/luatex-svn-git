@@ -67,6 +67,7 @@
 % Version 3.1415 preserved nonexplicit kerns, tidied up (February 1993).
 % Version 3.14159 allowed fontmemsize to change; bulletproofing (March 1995).
 % Version 3.141592 fixed \xleaders, glueset, weird alignments (December 2002).
+% Version 3.1415926 was a general cleanup with minor fixes (February 2008).
 
 
 % Although considerable effort has been expended to make the luaTeX program
@@ -182,6 +183,7 @@ complete version of \TeX\ was designed and coded by the author in late
 {\mc SAIL} language, for which an excellent debugging system was
 available. Preliminary plans to convert the {\mc SAIL} code into a form
 somewhat like the present ``web'' were developed by Luis Trabb~Pardo and
+@^Trabb Pardo, Luis Isidoro@>
 the author at the beginning of 1979, and a complete implementation was
 created by Ignacio~A. Zabala in 1979 and 1980. The \TeX82 program, which
 @^Zabala Salelles, Ignacio Andr\'es@>
@@ -247,9 +249,9 @@ known as `\eTeX'.
 @d pdftex_revision=="0" { \.{\\pdftexrevision} }
 @d pdftex_version_string=='-2.00.0' {current \pdfTeX\ version}
 @#
-@d luatex_version==28 { \.{\\luatexversion} }
+@d luatex_version==29 { \.{\\luatexversion} }
 @d luatex_revision=="0" { \.{\\luatexrevision} }
-@d luatex_version_string=='snapshot-0.28.0' {current \LuaTeX\ version}
+@d luatex_version_string=='snapshot-0.29.0' {current \LuaTeX\ version}
 @d luatex_date_info==-extra_version_info { the compile date is negated }
 @#
 @d luaTeX_banner=='This is LuaTeX, Version ',luatex_version_string,extra_version_info
@@ -312,6 +314,7 @@ portions of the program heading.
 Actually the heading shown here is not quite normal: The |program| line
 does not mention any |output| file, because \ph\ would ask the \TeX\ user
 to specify a file name if |output| were specified here.
+@:PASCAL H}{\ph@>
 @^system dependencies@>
 
 @d mtype==t@&y@&p@&e {this is a \.{WEB} coding trick:}
@@ -404,8 +407,9 @@ directives shown below specify full checking and inclusion of the \PASCAL\
 debugger when \TeX\ is being debugged, but they cause range checking and other
 redundant code to be eliminated when the production system is being generated.
 Arithmetic overflow will be detected in all cases.
++@:PASCAL H}{\ph@>
 @^system dependencies@>
-@^Overflow in arithmetic@>
+@^overflow in arithmetic@>
 
 @<Compiler directives@>=
 @{@&$C-,A+,D-@} {no range check, catch arithmetic overflow, no debug overhead}
@@ -439,6 +443,7 @@ if the compiler wants one. (Of course, if no default mechanism is
 available, the |case| statements of \TeX\ will have to be laboriously
 extended by listing all remaining cases. People who are stuck with such
 \PASCAL s have, in fact, done this, successfully but not happily!)
+@:PASCAL H}{\ph@>
 
 @d othercases == others: {default for cases not listed explicitly}
 @d endcases == @+end {follows the default case in an extended |case| statement}
@@ -1080,6 +1085,7 @@ namelength := length(fnam);
 flush_string
 
 @ Files can be closed with the \ph\ routine `|close(f)|', which
+@:PASCAL H}{\ph@>
 @^system dependencies@>
 should be used when all input or output with respect to |f| has been completed.
 This makes |f| available to be opened again, if desired; and if |f| was used for
@@ -1275,6 +1281,7 @@ is considered an output file the file variable is |term_out|.
 
 @ Here is how to open the terminal files
 in \ph. The `\.{/I}' switch suppresses the first |get|.
+@:PASCAL H}{\ph@>
 @^system dependencies@>
 
 @d t_open_in==reset(term_in,'TTY:','/O/I') {open the terminal for text input}
@@ -1292,6 +1299,7 @@ issue an unexpected error message). The third, |wake_up_terminal|,
 is supposed to revive the terminal if the user has disabled it by
 some instruction to the operating system.  The following macros show how
 these operations can be specified in \ph:
+@:PASCAL H}{\ph@>
 @^system dependencies@>
 
 @d update_terminal == break(term_out) {empty the terminal output buffer}
@@ -1420,6 +1428,7 @@ into some integer greater than~|biggest_char|.
 Some \PASCAL\ compilers won't pack integers into a single byte unless the
 integers lie in the range |-128..127|. To accommodate such systems
 we access the string pool only via macros that can easily be redefined.
+@^system dependencies@>
 
 @d si(#) == # {convert from |ASCII_code| to |packed_ASCII_code|}
 @d so(#) == # {convert from |packed_ASCII_code| to |ASCII_code|}
@@ -1679,8 +1688,8 @@ extended character set recommended in {\sl The \TeX book\/} would, for
 example, be `|k in [0,@'10..@'12,@'14,@'15,@'33,@'177..@'377]|'.
 If character |k| cannot be printed, and |k<@'200|, then character |k+@'100| or
 |k-@'100| must be printable; moreover, ASCII codes |[@'41..@'46,
-@'60..@'71, @'141..@'146, @'160..@'171]| must be printable.
-Thus, at least 80 printable characters are needed.
+@'60..@'71, @'136, @'141..@'146, @'160..@'171]| must be printable.
+Thus, at least 81 printable characters are needed.
 @:TeXbook}{\sl The \TeX book@>
 @^character set dependencies@>
 @^system dependencies@>
@@ -2038,9 +2047,9 @@ to negative arguments, since such operations are not implemented consistently
 by all \PASCAL\ compilers.
 
 @<Basic print...@>=
-procedure print_int(@!n:integer); {prints an integer in decimal form}
+procedure print_int(@!n:longinteger); {prints an integer in decimal form}
 var k:0..23; {index to current digit; we assume that $|n|<10^{23}$}
-@!m:integer; {used to negate |n| in possibly dangerous cases}
+@!m:longinteger; {used to negate |n| in possibly dangerous cases}
 begin k:=0;
 if n<0 then
   begin print_char("-");
@@ -2734,7 +2743,7 @@ meters); two such quantities can be added without overflow on a 32-bit
 computer.
 
 The present implementation of \TeX\ does not check for overflow when
-@^Overflow in arithmetic@>
+@^overflow in arithmetic@>
 dimensions are added or subtracted. This could be done by inserting a
 few dozen tests of the form `\ignorespaces|if x>=@'10000000000 then
 @t\\{report\_overflow}@>|', but the chance of overflow is so remote that
@@ -4026,7 +4035,7 @@ glue_ptr(p):=q; incr(glue_ref_count(q));
 new_glue:=p;
 end;
 
-@ Still another subroutine is needed: this one is sort of a combination
+@ Still another subroutine is needed: This one is sort of a combination
 of |new_param_glue| and |new_glue|. It creates a glue node for one of
 the current glue parameters, but it makes a fresh copy of the glue
 specification, since that specification will probably be subject to change,
@@ -4924,7 +4933,9 @@ break down otherwise.
    {define level of interaction ( \.{\\batchmode}, etc.~)}
 @d letterspace_font=set_interaction+1
    {letterspace a font ( \.{\\letterspacefont} )}
-@d set_ocp=letterspace_font+1
+@d pdf_copy_font=letterspace_font+1
+   {create a new font instance ( \.{\\pdfcopyfont} )}
+@d set_ocp=pdf_copy_font+1
    {Place a translation process in the stream}
 @d def_ocp=set_ocp+1
    {Define and load a translation process}
@@ -5095,7 +5106,7 @@ level is kept in the global quantities |mode|, |head|, |tail|, |prev_graf|,
 |aux|, and |mode_line|, which live in a \PASCAL\ record that is ready to
 be pushed onto |nest| if necessary.
 
-@d ignore_depth==-65536000 {|prev_depth| value that is ignored}
+@d ignore_depth==-65536000 {magic dimension value to mean `ignore me'}
 
 @<Types...@>=
 @!list_state_record=record@!mode_field:-mmode..mmode;@+
@@ -5260,7 +5271,7 @@ end;
 @ @<Show the auxiliary...@>=
 case abs(m) div (max_command+1) of
 0: begin print_nl("prevdepth ");
-  if a.sc<=ignore_depth then print("ignored")
+  if a.sc<=pdf_ignored_dimen then print("ignored")
   else print_scaled(a.sc);
   if nest[p].pg_field<>0 then
     begin print(", prevgraf ");
@@ -5928,7 +5939,8 @@ that will be defined later.
 @d pdf_gen_tounicode_code    = pdftex_first_integer_code + 24 {generate ToUnicode for fonts?}
 @d pdf_draftmode_code        = pdftex_first_integer_code + 25 {switch on draftmode if positive}
 @d pdf_replace_font_code     = pdftex_first_integer_code + 26 {generate ToUnicode for fonts?}
-@d pdf_int_pars=pdftex_first_integer_code + 27 {total number of \pdfTeX's integer parameters}
+@d pdf_inclusion_copy_font_code = pdftex_first_integer_code + 27 {generate ToUnicode for fonts?}
+@d pdf_int_pars=pdftex_first_integer_code + 28 {total number of \pdfTeX's integer parameters}
 @#
 @d etex_int_base=pdf_int_pars {base for \eTeX's integer parameters}
 @d tracing_assigns_code=etex_int_base {show assignments}
@@ -6048,6 +6060,7 @@ that will be defined later.
 @d pdf_image_hicolor    == int_par(pdf_image_hicolor_code)
 @d pdf_image_apply_gamma == int_par(pdf_image_apply_gamma_code)
 @d pdf_draftmode        == int_par(pdf_draftmode_code)
+@d pdf_inclusion_copy_font == int_par(pdf_inclusion_copy_font_code)
 @d pdf_replace_font == int_par(pdf_replace_font_code)
 @#
 @d tracing_assigns==int_par(tracing_assigns_code)
@@ -6161,6 +6174,7 @@ pdf_protrude_chars_code:   print_esc("pdfprotrudechars");
 pdf_tracing_fonts_code:    print_esc("pdftracingfonts");
 pdf_gen_tounicode_code:    print_esc("pdfgentounicode");
 pdf_draftmode_code:        print_esc("pdfdraftmode");
+pdf_inclusion_copy_font_code:    print_esc("pdfinclusioncopyfonts");
 pdf_replace_font_code:    print_esc("pdfreplacefont");
 @/@<Cases for |print_param|@>@/
 othercases begin print("[unknown integer parameter!]"); end
@@ -6343,6 +6357,8 @@ primitive("pdfgentounicode",assign_int,int_base+pdf_gen_tounicode_code);@/
 @!@:pdf_gen_tounicode_}{\.{\\pdfgentounicode} primitive@>
 primitive("pdfdraftmode",assign_int,int_base+pdf_draftmode_code);@/
 @!@:pdf_draftmode_}{\.{\\pdfdraftmode} primitive@>
+primitive("pdfinclusioncopyfonts",assign_int,int_base+pdf_inclusion_copy_font_code);@/
+@!@:pdf_inclusion_copy_font_}{\.{\\pdfinclusioncopyfonts} primitive@>
 primitive("pdfreplacefont",assign_int,int_base+pdf_replace_font_code);@/
 @!@:pdf_replace_font_}{\.{\\pdfreplacefont} primitive@>
 
@@ -6466,8 +6482,9 @@ here, and the |number_regs| \.{\\dimen} registers.
 @d pdf_last_line_depth_code   = pdftex_first_dimen_code + 8
 @d pdf_each_line_height_code  = pdftex_first_dimen_code + 9
 @d pdf_each_line_depth_code   = pdftex_first_dimen_code + 10
-@d pdf_px_dimen_code       = pdftex_first_dimen_code + 11
-@d pdftex_last_dimen_code  = pdftex_first_dimen_code + 11 {last number defined in this section}
+@d pdf_ignored_dimen_code   = pdftex_first_dimen_code + 11
+@d pdf_px_dimen_code       = pdftex_first_dimen_code + 12
+@d pdftex_last_dimen_code  = pdftex_first_dimen_code + 12 {last number defined in this section}
 @d dimen_pars = pdftex_last_dimen_code + 1 {total number of dimension parameters}
 @d scaled_base=dimen_base+dimen_pars
   {table of |number_regs| user-defined \.{\\dimen} registers}
@@ -6509,6 +6526,7 @@ here, and the |number_regs| \.{\\dimen} registers.
 @d pdf_last_line_depth   == dimen_par(pdf_last_line_depth_code)
 @d pdf_each_line_height  == dimen_par(pdf_each_line_height_code)
 @d pdf_each_line_depth   == dimen_par(pdf_each_line_depth_code)
+@d pdf_ignored_dimen     == dimen_par(pdf_ignored_dimen_code)
 @d pdf_px_dimen      == dimen_par(pdf_px_dimen_code)
 
 @p procedure print_length_param(@!n:integer);
@@ -6547,10 +6565,18 @@ pdf_first_line_height_code: print_esc("pdffirstlineheight");
 pdf_last_line_depth_code: print_esc("pdflastlinedepth");
 pdf_each_line_height_code: print_esc("pdfeachlineheight");
 pdf_each_line_depth_code: print_esc("pdfeachlinedepth");
+pdf_ignored_dimen_code: print_esc("pdfignoreddimen");
 pdf_px_dimen_code:      print_esc("pdfpxdimen");
 othercases print("[unknown dimen parameter!]")
 endcases;
 end;
+
+@ @<Initialize table entries...@>=
+pdf_ignored_dimen := ignore_depth;
+pdf_each_line_height := pdf_ignored_dimen;
+pdf_each_line_depth := pdf_ignored_dimen;
+pdf_first_line_height := pdf_ignored_dimen;
+pdf_last_line_depth := pdf_ignored_dimen;
 
 @ @<Put each...@>=
 primitive("parindent",assign_dimen,dimen_base+par_indent_code);@/
@@ -6623,6 +6649,8 @@ primitive("pdfeachlineheight",assign_dimen,dimen_base+pdf_each_line_height_code)
 @!@:pdf_each_line_height_}{\.{\\pdfeachlineheight} primitive@>
 primitive("pdfeachlinedepth",assign_dimen,dimen_base+pdf_each_line_depth_code);@/
 @!@:pdf_each_line_depth_}{\.{\\pdfeachlinedepth} primitive@>
+primitive("pdfignoreddimen",assign_dimen,dimen_base+pdf_ignored_dimen_code);@/
+@!@:pdf_ignored_dimen_}{\.{\\pdfignoreddimen} primitive@>
 primitive("pdfpxdimen",assign_dimen,dimen_base+pdf_px_dimen_code);@/
 @!@:pdf_px_dimen_}{\.{\\pdfpxdimen} primitive@>
 
@@ -7170,6 +7198,8 @@ primitive("font",def_font,0);@/
 @!@:font_}{\.{\\font} primitive@>
 primitive("letterspacefont",letterspace_font,0);@/
 @!@:letterspace_font_}{\.{\\letterspacefont} primitive@>
+primitive("pdfcopyfont",pdf_copy_font,0);@/
+@!@:pdf_copy_font_}{\.{\\pdfcopyfont} primitive@>
 primitive("fontdimen",assign_font_dimen,0);@/
 @!@:font_dimen_}{\.{\\fontdimen} primitive@>
 primitive("halign",halign,0);@/
@@ -7262,6 +7292,7 @@ char_ghost: if cur_chr=0 then print_esc("leftghost")
 cs_name: print_esc("csname");
 def_font: print_esc("font");
 letterspace_font: print_esc("letterspacefont");
+pdf_copy_font: print_esc("pdfcopyfont");
 delim_num: if chr_code=0 then print_esc("delimiter") else print_esc("odelimiter") ;
 divide: print_esc("divide");
 end_cs_name: print_esc("endcsname");
@@ -7360,7 +7391,7 @@ source line number at which the current level of grouping was entered.
 @d save_level(#)==save_stack[#].hh.b1
   {saved level for regions 5 and 6, or group code}
 @d save_index(#)==save_stack[#].hh.rh
-  {|eqtb| location or |save_stack| location}
+  {|eqtb| location or token or |save_stack| location}
 @d restore_old_value=0 {|save_type| when a value should be restored later}
 @d restore_zero=1 {|save_type| when an undefined entry should be restored}
 @d insert_token=2 {|save_type| when a token is being saved for later use}
@@ -7388,7 +7419,7 @@ one that starts with \.{\\begingroup} should end with \.{\\endgroup}.
 @d align_group=6 {code for `\.{\\halign}\grp', `\.{\\valign}\grp'}
 @d no_align_group=7 {code for `\.{\\noalign}\grp'}
 @d output_group=8 {code for output routine}
-@d math_group=9 {code for, e.g, `\.{\char'136}\grp'}
+@d math_group=9 {code for, e.g., `\.{\char'136}\grp'}
 @d disc_group=10 {code for `\.{\\discretionary}\grp\grp\grp'}
 @d insert_group=11 {code for `\.{\\insert}\grp', `\.{\\vadjust}\grp'}
 @d vcenter_group=12 {code for `\.{\\vcenter}\grp'}
@@ -8737,7 +8768,7 @@ when detecting a blank line.
 @!par_token:halfword; {token representing `\.{\\par}'}
 
 @ @<Put each...@>=
-primitive("par",par_end,too_big_char); {cf. |scan_file_name|}
+primitive("par",par_end,too_big_char); {cf.\ |scan_file_name|}
 @!@:par_}{\.{\\par} primitive@>
 par_loc:=cur_val; par_token:=cs_token_flag+par_loc;
 
@@ -8803,9 +8834,7 @@ or the evaluation of the conditional.
 |get_next| has already been called.
 
 \yskip\noindent
-In fact, these three procedures account for {\sl all\/} uses of |get_next|,
-except for two places in the ``inner loop'' when |cur_tok| need not be set,
-and except when the arguments to \.{\\ifx} are being scanned.
+In fact, these three procedures account for almost every use of |get_next|.
 
 @ No new control sequences will be defined except during a call of
 |get_token|, or when \.{\\csname} compresses a token list, because
@@ -9427,6 +9456,7 @@ help6("I've run across a `}' that doesn't seem to match anything.")@/
   ("argument that might be the root of the problem. But if")@/
   ("your `}' was spurious, just type `2' and it will go away.");
 incr(align_state); long_state:=call; cur_tok:=par_token; ins_error;
+goto continue;
 end {a white lie; the \.{\\par} won't always trigger a runaway}
 
 @ If |long_state=outer_call|, a runaway argument has already been reported.
@@ -9758,7 +9788,7 @@ begin m:=cur_chr;
 case cur_cmd of
 def_code: @<Fetch a character code from some table@>;
 extdef_code: @<Fetch an ext character code from some table@>;
-toks_register,assign_toks,def_family,set_font,def_font,letterspace_font: @<Fetch a token list or
+toks_register,assign_toks,def_family,set_font,def_font,letterspace_font,pdf_copy_font: @<Fetch a token list or
   font identifier, provided that |level=tok_val|@>;
 assign_int: scanned_result(eqtb[m].int)(int_val);
 assign_attr: scanned_result(eqtb[m].int)(int_val);
@@ -10016,11 +10046,8 @@ if abs(mode)<>m then
   if level<>tok_val then scanned_result(0)(dimen_val)
   else scanned_result(0)(int_val);
   end
-else if m=vmode then
-  begin cur_val:=prev_depth; cur_val_level:=dimen_val;
-  end
-else begin cur_val:=space_factor; cur_val_level:=int_val;
-  end
+else if m=vmode then scanned_result(prev_depth)(dimen_val)
+else scanned_result(space_factor)(int_val)
 
 @ @<Fetch the |dead_cycles| or the |insert_penalties|@>=
 begin if m=0 then cur_val:=dead_cycles
@@ -10478,7 +10505,7 @@ comes into action before any of the basic scanning routines has assigned
 them a value.
 
 @<Set init...@>=
-cur_val:=0; cur_val_level:=int_val; radix:=0; cur_order:=0;
+cur_val:=0; cur_val_level:=int_val; radix:=0; cur_order:=normal;
 
 @ The |scan_int| routine is used also to scan the integer part of a
 fraction; for example, the `\.3' in `\.{3.14159}' will be found by
@@ -10797,12 +10824,13 @@ in {\sl Technische Grundlagen zur Satzherstellung\/} (Bern, 1980).
 The Didot point has been newly standardized in 1978;
 it's now exactly $\rm 1\,nd=0.375\,mm$.
 Conversion uses the equation $0.375=21681/20320/72.27\cdot25.4$.
-The new Cicero follows the new Didot point; $\rm 1\,nc=12\,nd$.  These
-would lead to the ratios $21681/20320$ and $65043/5080$, respectively.
+The new Cicero follows the new Didot point; $\rm 1\,nc=12\,nd$.
+These would lead to the ratios $21681/20320$ and $65043/5080$,
+respectively.
 The closest approximations supported by the algorithm would be
 $11183/10481$ and $1370/107$.  In order to maintain the
-relation $\rm 1\,nc=12\,nd$, we pick the ratio $685/642$ for $\rm nd$,
-however.
+relation $\rm 1\,nc=12\,nd$, we pick the ratio $685/642$ for
+$\rm nd$, however.
 
 @d set_conversion_end(#)== denom:=#; end
 @d set_conversion(#)==@+begin num:=#; set_conversion_end
@@ -12259,7 +12287,7 @@ of three system-dependent
 procedures called |begin_name|, |more_name|, and |end_name|. In
 essence, if the user-specified characters of the file name are $c_1\ldots c_n$,
 the system-independent driver program does the operations
-$$|begin_name|;\,|more_name|(c_1);\,\ldots\,;|more_name|(c_n);
+$$|begin_name|;\,|more_name|(c_1);\,\ldots\,;\,|more_name|(c_n);
 \,|end_name|.$$
 These three procedures communicate with each other via global variables.
 Afterwards the file name will appear in the string pool as three strings
@@ -12765,7 +12793,7 @@ procedure scan_font_ident;
 var f:internal_font_number;
 @!m:halfword;
 begin @<Get the next non-blank non-call...@>;
-if (cur_cmd=def_font) or (cur_cmd=letterspace_font) then f:=cur_font
+if (cur_cmd=def_font) or (cur_cmd=letterspace_font) or (cur_cmd=pdf_copy_font) then f:=cur_font
 else if cur_cmd=set_font then begin 
   f:=cur_chr; 
   set_font_touched(f,1);
@@ -15648,7 +15676,8 @@ if width(p)+h_offset>max_h then max_h:=width(p)+h_offset
 
 @ At the end of the program, we must finish things off by writing the
 post\-amble. If |total_pages=0|, the \.{DVI} file was never opened.
-If |total_pages>=65536|, the \.{DVI} file will lie.
+If |total_pages>=65536|, the \.{DVI} file will lie. And if
+|max_push>=65536|, the user deserves whatever chaos might ensue.
 
 An integer variable |k| will be declared for use by this routine.
 
@@ -15984,7 +16013,7 @@ end
 @!pdf_file: byte_file; {the PDF output file}
 @!pdf_buf: ^real_eight_bits; {pointer to the PDF output buffer or PDF object stream buffer}
 @!pdf_buf_size: integer; {end of PDF output buffer or PDF object stream buffer}
-@!pdf_ptr: integer; {pointer to the first unused byte in the PDF buffer or object stream buffer}
+@!pdf_ptr: longinteger; {pointer to the first unused byte in the PDF buffer or object stream buffer}
 @!pdf_op_buf: ^real_eight_bits; {the PDF output buffer}
 @!pdf_os_buf: ^real_eight_bits; {the PDF object stream buffer}
 @!pdf_os_buf_size: integer; {current size of the PDF object stream buffer, grows dynamically}
@@ -15997,8 +16026,8 @@ end
 @!pdf_os_mode: boolean; {true if producing object stream}
 @!pdf_os_enable: boolean; {true if object streams are globally enabled}
 @!pdf_os_cur_objnum: integer; {number of current object stream object}
-@!pdf_gone: integer; {number of bytes that were flushed to output}
-@!pdf_save_offset: integer; {to save |pdf_offset|}
+@!pdf_gone: longinteger; {number of bytes that were flushed to output}
+@!pdf_save_offset: longinteger; {to save |pdf_offset|}
 @!zip_write_state: integer; {which state of compression we are in}
 @!fixed_pdf_minor_version: integer; {fixed minor part of the PDF version}
 @!fixed_pdf_minor_version_set: boolean; {flag if the PDF version has been set}
@@ -16010,6 +16039,7 @@ end
 @!fixed_image_hicolor: boolean;
 @!fixed_image_apply_gamma: integer;
 @!fixed_pdf_draftmode: integer; {fixed \\pdfdraftmode}
+@!pdf_page_group_val: integer;
 @!epochseconds: integer;
 @!microseconds: integer;
 @!page_divert_val: integer;
@@ -16029,6 +16059,7 @@ pdf_seek_write_length := false;
 zip_write_state := no_zip;
 fixed_pdf_minor_version_set := false;
 fixed_pdfoutput_set := false;
+pdf_page_group_val := -1;
 page_divert_val := 0;
 
 @ @p
@@ -16083,6 +16114,7 @@ fixed_image_hicolor     := fix_int(pdf_image_hicolor, 0, 1);
 fixed_image_apply_gamma := fix_int(pdf_image_apply_gamma, 0, 1);
 fixed_pdf_objcompresslevel := fix_int(pdf_objcompresslevel, 0, 3);
 fixed_pdf_draftmode     := fix_int(pdf_draftmode, 0, 1);
+fixed_inclusion_copy_font:= fix_int(pdf_inclusion_copy_font, 0, 1);
 fixed_replace_font      := fix_int(pdf_replace_font, 0, 1);
 fixed_pk_resolution     := fix_int(pdf_pk_resolution, 72, 8000);
 if (fixed_pdf_minor_version >= 5) and (fixed_pdf_objcompresslevel > 0) then
@@ -16156,6 +16188,7 @@ neccesary. We call |pdf_begin_stream| to begin a stream  and |pdf_end_stream|
 to finish it. The stream contents will be compressed if compression is turn on.
 
 @p procedure pdf_flush; {flush out the |pdf_buf|}
+var saved_pdf_gone : longinteger;
 begin
     if not pdf_os_mode then begin
         case zip_write_state of
@@ -16172,6 +16205,8 @@ begin
             end;
         end;
         pdf_ptr := 0;
+        if saved_pdf_gone > pdf_gone then
+            pdf_error("file size", "File size exceeds architectural limits (pdf_gone wraps around)");
     end;
 end;
 
@@ -16263,7 +16298,7 @@ begin
     print(": "); print(p);
     if append_nl then
         print_ln;
-        if history=spotless then history:=warning_issued;
+    if history=spotless then history:=warning_issued;
 end;
 
 procedure pdf_os_get_os_buf(s: integer); {check that |s| bytes more
@@ -16457,6 +16492,7 @@ end;
 @!fixed_pk_resolution: integer;
 @!fixed_decimal_digits: integer;
 @!fixed_gen_tounicode: integer;
+@!fixed_inclusion_copy_font: integer;
 @!fixed_replace_font: integer;
 @!pk_scale_factor: integer;
 @!pdf_output_option: integer;
@@ -16842,14 +16878,16 @@ end;
 @* \[32d] The cross-reference table.
 
 The cross-reference table |obj_tab| is an array of |obj_tab_size| of
-|tab_entry|. Each entry contains five integer fields and represents an object
+|obj_entry|. Each entry contains five integer fields and represents an object
 in PDF file whose object number is the index of this entry in |obj_tab|.
 Objects in |obj_tab| maybe linked into list; objects in such a linked list have
 the same type.
 
 @<Types...@>=
 @!obj_entry = record@;@/
-    int0, int1, int2, int3, int4: integer;
+    int0, int1: integer;
+    int2: longinteger;
+    int3, int4: integer;
 end;
 
 @ The first field contains information representing identifier of this object.
@@ -16860,9 +16898,9 @@ The second field of |obj_entry| contains link to the next
 object in |obj_tab| if this object is linked in a list.
 
 The third field holds the byte offset of the object in the output PDF file,
-or the object number of the object stream to which the object belongs. As long
-as the object is not written, this field is used for flags about the write status
-of the object; then it has a negative value.
+or its byte offset within an object stream. As long as the object is not
+written, this field is used for flags about the write status of the object;
+then it has a negative value.
 
 The fourth field holds the object number of the object stream, into which
 the object is included.
@@ -16941,7 +16979,7 @@ destination |pdf_left| and |pdf_top| are used for some types of destinations}
 @d pdf_setmatrix_node_size == 3
 @d pdf_setmatrix_data(#)   == vlink(#+2) {data}
 
-@# {data structure for \.{\\pdsave}}
+@# {data structure for \.{\\pdfsave}}
 @d pdf_save_node_size      == 3
 
 @# {data structure for \.{\\pdfrestore}}
@@ -17096,8 +17134,8 @@ so we can use this field for both}
 @!pdf_last_pages: integer; {pointer to most recently generated pages object}
 @!pdf_last_page: integer; {pointer to most recently generated page object}
 @!pdf_last_stream: integer; {pointer to most recently generated stream}
-@!pdf_stream_length: integer; {length of most recently generated stream}
-@!pdf_stream_length_offset: integer; {file offset of the last stream length}
+@!pdf_stream_length: longinteger; {length of most recently generated stream}
+@!pdf_stream_length_offset: longinteger; {file offset of the last stream length}
 @!pdf_seek_write_length: boolean; {flag whether to seek back and write \.{/Length}}
 @!pdf_last_byte: integer; {byte most recently written to PDF file; for \.{endstream} in new line}
 @!pdf_append_list_arg: integer; {for use with |pdf_append_list|}
@@ -17407,7 +17445,7 @@ end;
 
 @ Subroutines to print out various PDF objects
 
-@p procedure pdf_print_fw_int(n, w: integer); {print out an integer with
+@p procedure pdf_print_fw_int(n: longinteger; w: integer); {print out an integer with
 fixed width; used for outputting cross-reference table}
 var k: integer; {$0\le k\le23$}
 begin
@@ -17421,10 +17459,10 @@ begin
     end;
 end;
 
-procedure pdf_out_bytes(n, w: integer); {print out an integer as
+procedure pdf_out_bytes(n: longinteger; w: integer); {print out an integer as
 a number of bytes; used for outputting \.{/XRef} cross-reference stream}
 var k: integer;
-byte: array[0..3] of integer; {digits in a number being output}
+byte: array[0..7] of integer; {digits in a number being output}
 begin
     k := 0;
     repeat byte[k] := n mod 256; n := n div 256; incr(k);
@@ -17530,6 +17568,8 @@ if is_char_node(#) then begin
     f := font(#);
 end
 
+@d non_existent_path == "///..."
+
 @p
 function get_default_hyphen_char:integer;
 begin
@@ -17541,7 +17581,6 @@ begin
         get_default_skew_char:=default_skew_char; 
 end;
 @#
-
 procedure copy_expand_params(k, f: internal_font_number; e: integer);
 {set expansion-related parameters for an expanded font |k|, based on the base
 font |f| and the expansion amount |e|}
@@ -17559,7 +17598,9 @@ var k: internal_font_number;
 begin
     if fs <> 0 then begin
         for k := 1 to max_font_id do
-            if cmp_font_name(k, s) and (font_size(k) = fs) then begin
+            if (tex_font_area(k) <> non_existent_path) and
+               cmp_font_name(k, s) and
+               (font_size(k) = fs) then begin
                 flush_str(s);
                 tfm_lookup := k;
                 return;
@@ -17567,7 +17608,8 @@ begin
     end
     else begin
         for k := 1 to max_font_id do
-            if cmp_font_name(k, s) then begin
+            if (tex_font_area(k) <> non_existent_path) and
+               cmp_font_name(k, s) then begin
                     flush_string; {|font_name|}
                 flush_str(s);
                 tfm_lookup := k;
@@ -17665,21 +17707,21 @@ begin
 end;
 
 procedure set_expand_params(f: internal_font_number; auto_expand: boolean;
-                            font_stretch, font_shrink, font_step, expand_ratio: integer);
+                            stretch_limit, shrink_limit, font_step, expand_ratio: integer);
 {expand a font with given parameters}
 begin
     set_pdf_font_step(f, font_step);
     set_pdf_font_auto_expand(f, auto_expand);
-    if font_stretch > 0 then
-        set_pdf_font_stretch(f,get_expand_font(f, font_stretch));
-    if font_shrink > 0 then
-        set_pdf_font_shrink(f, get_expand_font(f, -font_shrink));
+    if stretch_limit > 0 then
+        set_pdf_font_stretch(f,get_expand_font(f, stretch_limit));
+    if shrink_limit > 0 then
+        set_pdf_font_shrink(f, get_expand_font(f, -shrink_limit));
     if expand_ratio <> 0 then
         set_pdf_font_expand_ratio(f,expand_ratio);
 end;
 
 procedure read_expand_font; {read font expansion spec and load expanded font}
-var font_shrink, font_stretch, font_step: integer;
+var shrink_limit, stretch_limit, font_step: integer;
     f: internal_font_number;
     auto_expand: boolean;
 begin
@@ -17689,23 +17731,23 @@ begin
     if f = null_font then
         pdf_error("font expansion", "invalid font identifier");
     if pdf_font_blink(f) <> null_font then
-        pdf_error("font expansion", "\pdffontexpand cannot be used this way (the base font has been expanded or letter-spaced)");
+        pdf_error("font expansion", "\pdffontexpand cannot be used this way (the base font has been expanded)");
     scan_optional_equals;
     scan_int;
-    font_stretch := fix_int(cur_val, 0, 1000);
+    stretch_limit := fix_int(cur_val, 0, 1000);
     scan_int;
-    font_shrink := fix_int(cur_val, 0, 500);
+    shrink_limit := fix_int(cur_val, 0, 500);
     scan_int;
     font_step := fix_int(cur_val, 0, 100);
     if font_step = 0 then
         pdf_error("font expansion", "invalid step");
-    font_stretch := font_stretch - font_stretch mod font_step;
-    if font_stretch < 0 then
-        font_stretch := 0;
-    font_shrink := font_shrink - font_shrink mod font_step;
-    if font_shrink < 0 then
-        font_shrink := 0;
-    if (font_stretch = 0) and (font_shrink = 0) then
+    stretch_limit := stretch_limit - stretch_limit mod font_step;
+    if stretch_limit < 0 then
+        stretch_limit := 0;
+    shrink_limit := shrink_limit - shrink_limit mod font_step;
+    if shrink_limit < 0 then
+        shrink_limit := 0;
+    if (stretch_limit = 0) and (shrink_limit = 0) then
         pdf_error("font expansion", "invalid limit(s)");
     auto_expand := false;
     if scan_keyword("autoexpand") then begin
@@ -17719,22 +17761,27 @@ begin
     if (pdf_font_step(f) <> 0) then
     {this font has been expanded, ensure the expansion parameters are identical}
     begin
-        if (pdf_font_step(f) <> font_step) or
-           ((pdf_font_stretch(f) = null_font) and (font_stretch <> 0)) or
+        if pdf_font_step(f) <> font_step then
+            pdf_error("font expansion", "font has been expanded with different expansion step");
+            
+        if ((pdf_font_stretch(f) = null_font) and (stretch_limit <> 0)) or
            ((pdf_font_stretch(f) <> null_font) and
-            (pdf_font_expand_ratio(pdf_font_stretch(f)) <> font_stretch)) or
-           ((pdf_font_shrink(f) = null_font) and (font_shrink <> 0)) or
+            (pdf_font_expand_ratio(pdf_font_stretch(f)) <> stretch_limit)) then
+            pdf_error("font expansion", "font has been expanded with different stretch limit");
+             
+        if ((pdf_font_shrink(f) = null_font) and (shrink_limit <> 0)) or
            ((pdf_font_shrink(f) <> null_font) and
-            (pdf_font_expand_ratio(pdf_font_shrink(f)) <> -font_shrink)) or
-           (pdf_font_auto_expand(f) <> auto_expand)
-        then
-            pdf_error("font expansion", "font has been expanded with different parameters");
+            (-pdf_font_expand_ratio(pdf_font_shrink(f)) <> shrink_limit)) then
+            pdf_error("font expansion", "font has been expanded with different shrink limit");
+
+        if pdf_font_auto_expand(f) <> auto_expand then
+            pdf_error("font expansion", "font has been expanded with different auto expansion value");
     end
     else begin
         if font_used(f) then
             pdf_warning("font expansion", "font should be expanded before its first use",
                         true, true);
-        set_expand_params(f, auto_expand, font_stretch, font_shrink, font_step, 0);
+        set_expand_params(f, auto_expand, stretch_limit, shrink_limit, font_step, 0);
         if font_type(f) = virtual_font_type then
             vf_expand_local_fonts(f);
     end;
@@ -17748,12 +17795,30 @@ var u:pointer; {user's font identifier}
 begin
     get_r_token; u:=cur_cs;
     if u>=hash_base then t:=text(u) else t:="FONT";
+@.FONTx@>
     define(u,set_font,null_font); scan_optional_equals; scan_font_ident;
     k := cur_val;
     scan_int;
     f := letter_space_font(u, k, fix_int(cur_val, -1000, 1000));
     equiv(u):=f; eqtb[font_id_base+f]:=eqtb[u]; font_id_text(f):=t;
 end;
+
+procedure make_font_copy(a: small_number);
+{make a font copy for further use with font expansion}
+var u:pointer; {user's font identifier}
+@!t:str_number; {name for the frozen font identifier}
+@!old_setting:0..max_selector; {holds |selector| setting}
+@!f, k:internal_font_number;
+begin
+    get_r_token; u:=cur_cs;
+    if u>=hash_base then t:=text(u) else t:="FONT";
+@.FONTx@>
+    define(u,set_font,null_font); scan_optional_equals; scan_font_ident;
+    k := cur_val;
+    f := copy_font_info(k);
+    equiv(u):=f; eqtb[font_id_base+f]:=eqtb[u]; font_id_text(f):=t;
+end;
+
 
 @ We need to hold information about used characters in each font for partial
 downloading.
@@ -18746,7 +18811,7 @@ if not shipping_page then begin
 end
 else begin
     pdf_last_page := get_obj(obj_type_page, total_pages + 1, 0);
-    obj_aux(pdf_last_page) := 1; {mark that this page has beed created}
+    obj_aux(pdf_last_page) := 1; {mark that this page has been created}
     pdf_new_dict(obj_type_others, 0, 0);
     pdf_last_stream := obj_ptr;
     @<Reset PDF mark lists@>;
@@ -18972,6 +19037,12 @@ pdf_print_ln("]");
 if pdf_page_attr <> null then
     pdf_print_toks_ln(pdf_page_attr);
 pdf_indirect_ln("Parent", pdf_last_pages);
+if pdf_page_group_val > 0 then begin
+    pdf_print("/Group ");
+    pdf_print_int(pdf_page_group_val);
+    pdf_print_ln(" 0 R");
+    pdf_page_group_val := -1;
+end;
 @<Generate array of annotations or beads in page@>;
 pdf_end_dict
 
@@ -19547,7 +19618,9 @@ for k := 1 to max_font_id do
            print_font_identifier(i);
            print(" and ");
            print_font_identifier(k);
-           print(" has conflicting attributes"); print_ln; print_ln;
+           print(" have conflicting attributes; I will ignore the attributes assigned to ");
+           print_font_identifier(i);
+           print_ln; print_ln;
         end;
     end;
 fixed_gen_tounicode := pdf_gen_tounicode;
@@ -19775,14 +19848,18 @@ print_mod_date;
 @ @<Glob...@>=
 @!pdftex_banner: str_number;   {the complete banner}
 
-@ @<Output the |obj_tab|@>=
+@ @<Build a linked list of free objects@>=
 l := 0;
+set_obj_fresh(l); {null object at begin of list of free objects}
 for k := 1 to sys_obj_ptr do
     if not is_obj_written(k) then begin
         obj_link(l) := k;
         l := k;
     end;
-obj_link(l) := 0;
+obj_link(l) := 0
+
+@ @<Output the |obj_tab|@>=
+@<Build a linked list of free objects@>;
 pdf_save_offset := pdf_offset;
 pdf_print_ln("xref");
 pdf_print("0 "); pdf_print_int_ln(obj_ptr + 1);
@@ -19801,21 +19878,15 @@ end
 
 @ @<Output the cross-reference stream dictionary@>=
 pdf_new_dict(obj_type_others, 0, 0);
-if obj_offset(sys_obj_ptr) > 16777215 then
+if ((obj_offset(sys_obj_ptr)/256) > 16777215) then
+    xref_offset_width := 5
+else if obj_offset(sys_obj_ptr) > 16777215 then
     xref_offset_width := 4
 else if obj_offset(sys_obj_ptr) > 65535 then
     xref_offset_width := 3
-else if obj_offset(sys_obj_ptr) > 255 then
-    xref_offset_width := 2
 else
-    xref_offset_width := 1;
-l := 0;
-for k := 1 to sys_obj_ptr do
-    if not is_obj_written(k) then begin
-        obj_link(l) := k;
-        l := k;
-    end;
-obj_link(l) := 0;
+    xref_offset_width := 2;
+@<Build a linked list of free objects@>;
 pdf_print_ln("/Type /XRef");
 pdf_print("/Index [0 ");
 pdf_print_int(obj_ptr);
@@ -20855,8 +20926,8 @@ baselineskip calculation is handled by the |append_to_vlist| routine.
 
 @p procedure append_to_vlist(@!b:pointer);
 var d:scaled; {deficiency of space between baselines}
-@!p:pointer; {a new glue specification}
-begin if prev_depth>ignore_depth then
+@!p:pointer; {a new glue node}
+begin if prev_depth>pdf_ignored_dimen then
   begin
   if (type(b)=hlist_node) and (is_mirrored(box_dir(b))) then
     d:=width(baseline_skip)-prev_depth-depth(b)
@@ -21271,11 +21342,11 @@ radical_noad: begin
   end;
 accent_noad: begin print_esc("accent"); print_fam_and_char(accent_chr(p));
   end;
-left_noad: begin print_esc("left"); print_delimiter(nucleus(p));
+left_noad: begin print_esc("left"); print_delimiter(delimiter(p));
   end;
 right_noad: begin if subtype(p)=normal then print_esc("right")
   else print_esc("middle");
-  print_delimiter(nucleus(p));
+  print_delimiter(delimiter(p));
   end;
 end;
 if type(p)<left_noad then
@@ -21320,7 +21391,7 @@ larger as the type gets smaller.)
 
 @<Basic printing procedures@>=
 procedure print_size(@!s:integer);
-begin if s=0 then print_esc("textfont")
+begin if s=text_size then print_esc("textfont")
 else if s=script_size then print_esc("scriptfont")
 else print_esc("scriptscriptfont");
 end;
@@ -23071,7 +23142,7 @@ entered, so that the columns will generate a list for subsequent packaging.
 procedure init_span(@!p:pointer);
 begin push_nest;
 if mode=-hmode then space_factor:=1000
-else  begin prev_depth:=ignore_depth; normal_paragraph;
+else  begin prev_depth:=pdf_ignored_dimen; normal_paragraph;
   end;
 cur_span:=p;
 end;
@@ -23311,7 +23382,7 @@ widths. Let $w_{ij}$ be the maximum of the natural widths of all entries
 that span columns $i$ through $j$, inclusive. The alignrecord for column~$i$
 contains $w_{ii}$ in its |width| field, and there is also a linked list of
 the nonzero $w_{ij}$ for increasing $j$, accessible via the |info| field;
-these span nodes contain the value $j-i-1+|min_quarterword|$ in their
+these span nodes contain the value $j-i+|min_quarterword|$ in their
 |link| fields. The values of $w_{ii}$ were initialized to |null_flag|, which
 we regard as $-\infty$.
 
@@ -23554,7 +23625,7 @@ line-breaking problem can be regarded as a special case of the problem of
 computing the shortest path in an acyclic network. The cited paper includes
 numerous examples and describes the history of line breaking as it has been
 practiced by printers through the ages. The present implementation adds two
-new ideas to the algorithm of 1980: memory space requirements are considerably
+new ideas to the algorithm of 1980: Memory space requirements are considerably
 reduced by using smaller records for inactive nodes than for active ones,
 and arithmetic overflow is avoided by using ``delta distances'' instead of
 keeping track of the total distance from the beginning of the paragraph to the
@@ -23658,7 +23729,7 @@ ext_do_line_break(d,pretolerance,tracing_paragraphs,tolerance,emergency_stretch,
                    club_penalty, club_penalties_ptr,
                    display_widow_penalties_ptr,widow_penalties_ptr,
                    display_widow_penalty, widow_penalty,
-                   broken_penalty, final_par_glue);
+                   broken_penalty, final_par_glue, pdf_ignored_dimen);
 lua_node_filter(post_linebreak_filter_callback,
       line_break_context,start_of_par,addressof(tail));
 pack_begin_line:=0;
@@ -24204,7 +24275,9 @@ if page_head<>page_tail then
     while r<>page_ins_head do
       begin print_ln; print_esc("insert"); t:=qo(subtype(r));
       print_int(t); print(" adds ");
-      t:=x_over_n(height(r),1000)*count(t); print_scaled(t);
+      if count(t)=1000 then t:=height(r)
+      else t:=x_over_n(height(r),1000)*count(t);
+      print_scaled(t);
       if type(r)=split_up_node then
         begin q:=page_head; t:=0;
         repeat q:=vlink(q);
@@ -24865,7 +24938,7 @@ end
 @ @<Fire up the user's output routine and |return|@>=
 begin output_active:=true;
 incr(dead_cycles);
-push_nest; mode:=-vmode; prev_depth:=ignore_depth; mode_line:=-line;
+push_nest; mode:=-vmode; prev_depth:=pdf_ignored_dimen; mode_line:=-line;
 begin_token_list(output_routine,output_text);
 new_save_level(output_group); normal_paragraph;
 scan_left_brace;
@@ -25304,11 +25377,11 @@ is short, since the |scan_rule_spec| routine already does most of what is
 required; thus, there is no need for a special action procedure.
 
 Note that baselineskip calculations are disabled after a rule in vertical
-mode, by setting |prev_depth:=ignore_depth|.
+mode, by setting |prev_depth:=pdf_ignored_dimen|.
 
 @<Cases of |main_control| that build...@>=
 vmode+hrule,hmode+vrule,mmode+vrule: begin tail_append(scan_rule_spec);
-  if abs(mode)=vmode then prev_depth:=ignore_depth
+  if abs(mode)=vmode then prev_depth:=pdf_ignored_dimen
   else if abs(mode)=hmode then space_factor:=1000;
   end;
 
@@ -25767,8 +25840,7 @@ else geq_define(box_base+box_context-global_box_flag,box_ref,cur_box)
 @ @<Append a new leader node ...@>=
 begin @<Get the next non-blank non-relax...@>;
 if ((cur_cmd=hskip)and(abs(mode)<>vmode))or@|
-   ((cur_cmd=vskip)and(abs(mode)=vmode))or@|
-   ((cur_cmd=mskip)and(abs(mode)=mmode)) then
+   ((cur_cmd=vskip)and(abs(mode)=vmode)) then
   begin append_glue; subtype(tail):=box_context-(leader_flag-a_leaders);
   leader_ptr(tail):=cur_box;
   end
@@ -25874,7 +25946,7 @@ else  begin if k=vmode then scan_spec(vbox_group,true)
   end;
 push_nest; mode:=-k;
 if k=vmode then
-  begin prev_depth:=ignore_depth;
+  begin prev_depth:=pdf_ignored_dimen;
   if every_vbox<>null then begin_token_list(every_vbox,every_vbox_text);
   end
 else  begin space_factor:=1000;
@@ -26104,7 +26176,7 @@ else
     saved(1) := 0;
 save_ptr := save_ptr + 2;
 new_save_level(insert_group); scan_left_brace; normal_paragraph;
-push_nest; mode:=-vmode; prev_depth:=ignore_depth;
+push_nest; mode:=-vmode; prev_depth:=pdf_ignored_dimen;
 end;
 
 @ @<Cases of |handle...@>=
@@ -26600,10 +26672,9 @@ Let's take a look at what happens when they are used correctly.
 
 @<Cases of |main_control| that build...@>=
 vmode+halign,hmode+valign:init_align;
-mmode+halign: if privileged then begin
+mmode+halign: if privileged then
   if cur_group=math_shift_group then init_align
-  else off_save
-  end;
+  else off_save;
 vmode+endv,hmode+endv: do_endv;
 
 @ An |align_group| code is supposed to remain on the |save_stack|
@@ -26709,10 +26780,10 @@ end
 the value of |cur_chr| is placed onto |save_stack| for safe keeping.
 
 @<Cases of |main_control| that build...@>=
-mmode+eq_no: if privileged then begin
+mmode+eq_no: if privileged then
   if cur_group=math_shift_group then start_eq_no
-  else off_save
-  end;
+  else off_save;
+
 @ @<Put each...@>=
 primitive("eqno",eq_no,0);
 @!@:eq_no_}{\.{\\eqno} primitive@>
@@ -27125,7 +27196,7 @@ end
 
 @ @<Cases of |main_control| that build...@>=
 mmode+vcenter: begin scan_spec(vcenter_group,false); normal_paragraph;
-  push_nest; mode:=-vmode; prev_depth:=ignore_depth;
+  push_nest; mode:=-vmode; prev_depth:=pdf_ignored_dimen;
   if every_vbox<>null then begin_token_list(every_vbox,every_vbox_text);
   end;
 
@@ -27753,6 +27824,7 @@ any_mode(def_family),
 any_mode(set_font),
 any_mode(def_font),
 any_mode(letterspace_font),
+any_mode(pdf_copy_font),
 any_mode(register),
 any_mode(advance),
 any_mode(multiply),
@@ -28044,6 +28116,7 @@ shorthand_def: begin n:=cur_chr; get_r_token; p:=cur_cs;
 @ @<Assignments@>=
 read_to_cs: begin j:=cur_chr; scan_int; n:=cur_val;
   if not scan_keyword("to") then
+@.to@>
     begin print_err("Missing `to' inserted");
 @.Missing `to'...@>
     help2("You should have said `\read<number> to \cs'.")@/
@@ -28329,6 +28402,7 @@ begin q:=cur_cmd;
 @<Compute the register location |l| and its type |p|; but |return| if invalid@>;
 if q=register then scan_optional_equals
 else if scan_keyword("by") then do_nothing; {optional `\.{by}'}
+@.by@>
 arith_error:=false;
 if q<multiply then @<Compute result of |register| or
     |advance|, put it in |cur_val|@>
@@ -28338,6 +28412,7 @@ if arith_error then
 @.Arithmetic overflow@>
   help2("I can't carry out that multiplication or division,")@/
     ("since the result is out of range.");
+  if p>=glue_val then delete_glue_ref(cur_val);
   error; return;
   end;
 if p<glue_val then begin
@@ -28351,7 +28426,7 @@ else  begin trap_zero_glue; define(l,glue_ref,cur_val);
   end;
 exit: end;
 
-@ Here we use the fact that the consecutive codes |int_val...mu_val| and
+@ Here we use the fact that the consecutive codes |int_val..mu_val| and
 |assign_int..assign_mu_glue| correspond to each other nicely.
 
 @<Compute the register location |l| and its type |p|...@>=
@@ -28642,6 +28717,8 @@ endcases;
 @<Assignments@>=
 def_font: def_new_font(a);
 letterspace_font: new_letterspaced_font(a);
+pdf_copy_font: make_font_copy(a);
+
 
 @ @<Declare subprocedures for |prefixed_command|@>=
 procedure def_new_font(@!a:small_number);
@@ -29082,7 +29159,7 @@ so that the inverse relation between them is clear.
 The global variable |format_ident| is a string that is printed right
 after the |banner| line when \TeX\ is ready to start. For \.{INITEX} this
 string says simply `\.{(INITEX)}'; for other versions of \TeX\ it says,
-for example, `\.{(preloaded format=plain 82.11.19)}', showing the year,
+for example, `\.{(preloaded format=plain 1982.11.19)}', showing the year,
 month, and day that the format file was created. We have |format_ident=0|
 before \TeX's tables are loaded.
 
@@ -29116,6 +29193,7 @@ begin @<If dumping is not allowed, abort@>;
 @<Dump the ocp information@>;
 @<Dump the ocp list information@>;
 @<Dump the hyphenation tables@>;
+@<Dump pdftex data@>;
 @<Dump a couple more things and the closing check word@>;
 @<Dump the lua bytecodes@>;
 @<Close the format file@>;
@@ -29149,8 +29227,10 @@ begin @<Undump constants for consistency check@>;
 @<Undump the ocp information@>;
 @<Undump the ocp list information@>;
 @<Undump the hyphenation tables@>;
+@<Undump pdftex data@>;
 @<Undump a couple more things and the closing check word@>;
 @<Undump the lua bytecodes@>;
+prev_depth := pdf_ignored_dimen;
 load_fmt_file:=true; return; {it worked!}
 bad_fmt: wake_up_terminal;
   wterm_ln('(Fatal format file error; I''m stymied)');
@@ -29493,6 +29573,79 @@ dump_language_data
 @ @<Undump the hyphenation tables@>=
 undump_language_data
 
+@ Store some of the pdftex data structures in the format. The idea here is
+to ensure that any data structures referenced from pdftex-specific whatsit
+nodes are retained. For the sake of simplicity and speed, all the filled parts
+of |pdf_mem| and |obj_tab| are retained, in the present implementation. We also
+retain three of the linked lists that start from |head_tab|, so that it is
+possible to, say, load an image in the \.{INITEX} run and then reference it in a
+\.{VIRTEX} run that uses the dumped format.
+
+@<Dump pdftex data@>=
+begin
+dumpimagemeta; {the image information array }
+dump_int(pdf_mem_size);
+dump_int(pdf_mem_ptr);
+for k:=1 to pdf_mem_ptr-1 do begin 
+  dump_int(pdf_mem[k]);
+  end;
+print_ln; print_int(pdf_mem_ptr-1); print(" words of pdfTeX memory");
+dump_int(obj_tab_size);
+dump_int(obj_ptr);
+dump_int(sys_obj_ptr);
+for k:=1 to sys_obj_ptr do begin
+  dump_int(obj_tab[k].int0);
+  dump_int(obj_tab[k].int1);
+  dump_int(obj_tab[k].int3);
+  dump_int(obj_tab[k].int4);
+  end;
+print_ln; print_int(sys_obj_ptr); print(" indirect objects");
+dump_int(pdf_obj_count);
+dump_int(pdf_xform_count);
+dump_int(pdf_ximage_count);
+dump_int(head_tab[obj_type_obj]);
+dump_int(head_tab[obj_type_xform]);
+dump_int(head_tab[obj_type_ximage]);
+dump_int(pdf_last_obj);
+dump_int(pdf_last_xform);
+dump_int(pdf_last_ximage);
+end
+
+@ And restoring the pdftex data structures from the format. The
+two function arguments to |undumpimagemeta| have been restored
+already in an earlier module.
+
+@<Undump pdftex data@>=
+begin
+undumpimagemeta(pdf_minor_version,pdf_inclusion_errorlevel);  {the image information array }
+undump_int(pdf_mem_size); 
+pdf_mem := xreallocarray(pdf_mem, integer, pdf_mem_size);
+undump_int(pdf_mem_ptr);
+for k:=1 to pdf_mem_ptr-1 do begin
+  undump_int(pdf_mem[k]);
+  end;
+undump_int(obj_tab_size);
+undump_int(obj_ptr);
+undump_int(sys_obj_ptr);
+for k:=1 to sys_obj_ptr do begin
+  undump_int(obj_tab[k].int0);
+  undump_int(obj_tab[k].int1);
+  obj_tab[k].int2 := -1; 
+  undump_int(obj_tab[k].int3);
+  undump_int(obj_tab[k].int4);
+  end;
+undump_int(pdf_obj_count);
+undump_int(pdf_xform_count);
+undump_int(pdf_ximage_count);
+undump_int(head_tab[obj_type_obj]);
+undump_int(head_tab[obj_type_xform]);
+undump_int(head_tab[obj_type_ximage]);
+undump_int(pdf_last_obj);
+undump_int(pdf_last_xform);
+undump_int(pdf_last_ximage);
+end
+
+
 @ This is also done in C
 
 @<Dump the lua bytecodes@>=
@@ -29807,6 +29960,7 @@ if c=1 then
     delete_split_first_mark(i); delete_split_bot_mark(i);
     end;
   for c:=last_box_code to vsplit_code do flush_node_list(disc_ptr[c]);
+  if last_glue<>max_halfword then delete_glue_ref(last_glue);
   @<Close the pseudo files@>;
   store_fmt_file; return;@+tini@/
   print_nl("(\dump is performed only by INITEX)"); return;
@@ -35065,23 +35219,19 @@ loc:=start;
 for otp_counter:=1 to otp_output_end do begin
     { convert back to utf-8 }
         t := otp_output_buf[otp_counter];
-        if otp_counter < otp_output_end then begin
-          if ((t>=@"D800) and (t<@"DC00)) then begin
-            if (otp_output_buf[otp_counter+1]>=@"DC00)
-              and (otp_output_buf[otp_counter+1]<@"E000) then begin
-              incr(otp_counter);
-              t := (t-@"D800) * @"400 + (otp_output_buf[otp_counter]-@"DC00) + @"10000;
-            end
-          end
-          else begin
-            if ((t>=@"DC00) and (t<@"E000)) then 
-              if (otp_output_buf[otp_counter+1]>=@"D800)
-                and (otp_output_buf[otp_counter+1]<@"DC00) then begin
-                incr(otp_counter);
-                t := (otp_output_buf[otp_counter]-@"D800) * @"400 + (t-@"DC00) + @"10000;
-            end
-          end;
-        end;
+        if otp_counter < otp_output_end then
+       if ((t>=@"D800) and (t<@"DC00)) then 
+             if (otp_output_buf[otp_counter+1]>=@"DC00)
+          and (otp_output_buf[otp_counter+1]<@"E000) then begin
+             incr(otp_counter);
+                 t := (t-@"D800) * @"400 + (otp_output_buf[otp_counter]-@"DC00) + @"10000;
+           end
+       else if ((t>=@"DC00) and (t<@"E000)) then 
+             if (otp_output_buf[otp_counter+1]>=@"D800)
+           and (otp_output_buf[otp_counter+1]<@"DC00) then begin
+             incr(otp_counter);
+                 t := (otp_output_buf[otp_counter]-@"D800) * @"400 + (t-@"DC00) + @"10000;
+           end;
     if t <= @"7F then
       buffer[last]:= t
     else if t<=@"7FF then begin
