@@ -1,3 +1,262 @@
+2008-07-08  Karl Berry  <karl@tug.org>
+
+	* configure.in (WEB2CVERSION): 7.5.7.
+
+2008-07-01  Karl Berry  <karl@tug.org>
+
+	* texmfmp-help.h [MP] (MPHELP): mpost is usually named mpost,
+	not mp.
+
+2008-06-25  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* help.h (CTANGLEHELP): Correct syntax for ctangle usage.
+	* (CWEAVEHELP): Correct syntax for cweave usage.
+
+2008-06-12  Karl Berry  <karl@tug.org>
+
+	* luatexdir/tex/texnodes.c: avoid identifier `prealloc', (wrongly)
+	defined in HP-UX <unistd.h>.
+
+2008-06-03  Karl Berry  <karl@tug.org>
+
+	* tex.ch (sup_param_size): increase to 32767.
+	ntg-pdftex mail from martin, 2 Jun 2008 14:15:42.
+
+2008-06-01  Karl Berry  <karl@tug.org>
+
+	* luatexdir/luatex.mk (install-exec): install texlua symlink.
+
+x2008-05-31  Karl Berry  <karl@tug.org>
+
+	* Makefile.in (install-programs): stupidly forgot to install
+	$(basic_engines).
+
+2008-05-28  Karl Berry  <karl@tug.org>
+
+	* Makefile.in (basic_engines): split off tex/mf[n]/mpost.
+	(install-programs): handle basic_engines here.
+	(install-tex, install-mf, install-mpost; -exec, -data, -dumps):
+	remove all these.  Never try to make the dumps.
+	* luatexdir/luatex.mk,
+	* omegadir/omega.mk,
+	* xetexdir/xetex.mk,
+	* alephdir/aleph.mk,
+	* pdftexdir/pdftex.mk,
+	* etex/etex.mk: omit installation of pool files and dumps,
+	with consequent simplifications.  For etex.mk, also omit
+	installation of the binary.
+
+2008-05-25  Karl Berry  <karl@tug.org>
+
+	* cpascal.h (loadpoolstrings): declare.
+
+2008-05-23  Karl Berry  <karl@tug.org>
+
+	* configure.in (fmtutil.cnf): no longer generate from fmtutil.in.
+	* Makefile.in (install, distclean): remove lines about fmtutil.cnf.
+	* fmtutil.in: note that this file is no longer used, the real
+	fmtutil.cnf is now generated at install time.
+
+2008-05-20  Karl Berry  <karl@tug.org>
+
+	(Found by peb.)
+	* luatexdir/luatangle.web: OTANGLE -> LUATANGLE.
+	* luatexdir/Makefile.in (check): PETEX -> LTEX.
+	* web2c/makecpool.c: update from luatex repo; cosmetic changes only.
+
+2008-04-29  Karl Berry  <karl@tug.org>
+
+	* doc/Makefile.in (install-data): do not cd $(srcdir) in any rule,
+	that fails when the install program is specified by a relative path.
+
+2008-04-28  Karl Berry  <karl@tug.org>
+
+	* fmtutil.in: disable cont-en, texexec et al. create it.
+
+2008-04-18  Karl Berry  <karl@tug.org>
+
+	* Makefile.in (tie): no need for $(native).
+
+2008-04-16  Karl Berry  <karl@tug.org>
+
+	* Makefile.in,
+	* web2c/makecpool.c,
+	* ...: use the one makecpool provided by Taco for all programs.
+
+2008-04-11  Karl Berry  <karl@tug.org>
+
+	* xetexdir/xetex.h (Byte): #define to my_Byte and then #undef to avoid typedef
+	conflict between TECkit_Common.h and zlib; sigh.
+
+2008-03-30  Karl Berry  <karl@tug.org>
+
+	* Makefile.in (web2c): pass . for native tooldir argument.
+	* web2c/convert: accept tooldir argument a la luatex.
+	* web2c/texmf.defines (loadpoolstrings): define here.
+	* web2c/loadpool.defines: remove.
+	* luatexdir/luatex.defines,
+	* mpdir/mp.defines,
+	* omegadir/omega.defines,
+	* alephdir/aleph.defines (loadpoolstrings): rm.
+
+2008-03-25  Karl Berry  <karl@tug.org>
+
+	 * Makefile.in,
+	 * tmf-pool.h,
+	 * mf-binpool.ch,
+	 * tex-mkcpool.c,
+	 * mf-mkcpool.c,
+	 * etexdir/etex.mk,
+	 * etexdir/etex-binpool.ch,
+	 * tex-binpool.ch,
+	 * web2c/convert,
+	 * web2c/loadpool.defines: integrate pool file in binary for
+	 tex, mf, and etex.  From Akira.
+
+	* tftopl.web: revised version 3.2 from Knuth.
+
+2008-03-24  Karl Berry  <karl@tug.org>
+
+	* tex.ch: use print_c_string to print the new prompt_file_name
+	help message, so it ends up in the log.
+	* cpascal.h (printcstring): #define it.
+
+2008-03-23  Karl Berry  <karl@tug.org>
+
+	* tex.web,
+	* tex.ch: update for Knuth version 3.1415926.
+
+	* tex.ch (prompt_file_name): output prompt_file_name_help_msg
+	instead of a string pool string.
+	* cpascal.h: define it (conditionally for Windows).
+
+2008-03-22  Karl Berry  <karl@tug.org>
+
+	* tftopl.web: initial tftopl.web update from knuth
+
+2008-03-02  Karl Berry  <karl@tug.org>
+
+	* Makefile.in (engines): include mpost literally.  Bug report from
+	Alexis Ballier, 29 Feb 2008 19:27:23, via
+	https://bugs.gentoo.org/show_bug.cgi?id=201187.
+
+	(default all): remove dumps, it's just troublemaking these days?
+
+2008-02-29  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.in: replace PACKAGE_... by WEB2C_PACKAGE_... in
+	c-auto.h, to avoid conflicts with other packages.
+
+	* configure.in: use AH_TOP, AH_BOTTOM, and AC_DEFINE's third
+	argument to provide autoheader templates ...
+	* withenable.ac: use AC_DEFINE's third argument to provide
+	autoheader templates ...
+	* acconfig.h: ... removed.
+
+2008-02-22  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.in: remove AC_DECL_YYTEXT to avoid autoconf warning.
+
+2008-02-14  Karl Berry  <karl@tug.org>
+
+	* tex.ch (max_font_max): increase to 5000.
+	Taco mail to tex-live, 13 Feb 2008 10:00:35.
+	
+	* tex.ch (make_name_string): further change from
+	Jonathan, tex-implementors  12 Feb 2008 14:33:56.
+
+2008-02-11  Karl Berry  <karl@tug.org>
+
+	* tex.ch (make_name_string): avoid clobbering globals via
+	    This is TeX ...
+	    **abc%
+	    *de
+	From Akira and Jonathan Kew, tex-implementors 02 Feb 2008 20:42:18
+	et al.
+
+2008-01-29  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Convert from autoconf-2.13 to autoconf-2.59+:
+	* Makefile.in, doc/Makefile.in, mpdir/Makefile.in:
+	Add @configure_input@ lines.
+	* aclocal.m4 (new): Generated (aclocal -I ../m4).
+	* configure: Regenerated (autoconf).
+
+2008-01-18  Karl Berry  <karl@tug.org>
+
+	* cpascal.h (recorder_record_input, recorder_record_output): need
+	const_string as arg to avoid warnings compiling *extra.c.
+	* texmfmp.c (user_progname): make const_string a la dump_name,
+	since we assign them.
+
+2008-01-02  Jonathan Kew  <jonathan_kew@sil.org>
+
+	* tex.ch (expand_depth, et al.): when calling expand, don't
+	recurse enough to clobber the os stack.  Default value 10000.
+
+2007-12-24  Karl Berry  <karl@tug.org>
+
+	* doc/web2c.texi (gftodvi invocation): talk a bit more about slant
+	fonts, pursuant to DEK's message to tex-k of 10 Jul 2005 18:38:11.
+
+2007-12-19  Martin Schröder <martin@oneiros.de>
+
+	* tex.ch (ssup_max_strings): increase to 2097151
+		 (sup_main_memory): increase to 256000000
+
+2007-12-19  Karl Berry  <karl@tug.org>
+
+	* tangle.ch (max_bytes): increase to 65535.
+
+	* config.h (LONGINTEGER_TYPE): switch to off_t.
+	
+	(Both of these from Martin S.)
+
+2007-10-23  Karl Berry  <karl@tug.org>
+
+	* config.h (LONGINTEGER_TYPE): #define, depending on the C version.
+	(longinteger): typedef.
+
+2007-10-01  Karl Berry  <karl@tug.org>
+
+	* cpascal.h (floor): #undef, since MaxOSX #defines it.
+	From Peter Dyballa, metapost list, 27 Sep 2007 15:25:03.
+
+2007-09-18  Karl Berry  <karl@tug.org>
+
+	* tex.ch (29.530): Wording of "Type <return>" msg.
+
+2007-09-16  Karl Berry  <karl@tug.org>
+
+	* c-auto.in (EDITOR): doc fix.
+
+2007-09-12  Karl Berry  <karl@tug.org>
+
+	* c-auto.in (EDITOR) [WIN32]: need "", and emacs preferred.
+	From Akira.
+
+2007-09-09  Karl Berry  <karl@tug.org>
+
+	* c-auto.in (EDITOR): 'quote' the filename.
+	Reported by Frank K, 17 Jul 2007 17:00:41, debian bug 433455.
+
+2007-08-24  Karl Berry  <karl@tug.org>
+
+	* doc/web2c.texi (Initial MetaPost): change pragma link.
+
+2007-07-15  Karl Berry  <karl@tug.org>
+
+	* tex.ch,
+	* alephdir/com16bit-rc2.ch,
+	* omegadir/com16bit.ch: fixes from Akira so "tex %" followed
+	by RET is stable.  Also sync aleph/omega constants with tex.
+	Mail of 14 Jul 2007 09:35:02.
+
+2007-03-30  Karl Berry  <karl@tug.org>
+
+	* tex.ch (sup_buf_size): increase to 30,000,000 per Hans mail to
+	tex-live, 30 Mar 2007 16:52:09.
+
 2007-01-10  Karl Berry  <karl@tug.org>
 
 	* Makefile.in (programs): include $(pdftosrc), which has always

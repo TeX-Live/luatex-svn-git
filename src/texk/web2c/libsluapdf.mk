@@ -1,9 +1,8 @@
-# $Id$
+# $Id: libsluapdf.mk 8302 2008-05-23 14:32:37Z thoekwater $
 # Libraries common to luatex and pdftex.
 # Public domain.
 
 # libz
-
 ZLIBDIR=../../libs/zlib
 ZLIBSRCDIR=$(srcdir)/$(ZLIBDIR)
 ZLIBDEP = @ZLIBDEP@
@@ -13,7 +12,6 @@ $(ZLIBDIR)/libz.a: $(ZLIBSRCDIR)
 	cd $(ZLIBDIR) && $(MAKE) $(common_makeargs) libz.a
 
 # libpng
-
 LIBPNGDIR=../../libs/libpng
 LIBPNGSRCDIR=$(srcdir)/$(LIBPNGDIR)
 LIBPNGDEP = @LIBPNGDEP@
@@ -22,9 +20,7 @@ LDLIBPNG = @LDLIBPNG@
 $(LIBPNGDIR)/libpng.a: $(LIBPNGSRCDIR)/*.c
 	cd $(LIBPNGDIR) && $(MAKE) $(common_makeargs) libpng.a
 
-
 # libxpdf
-
 LIBXPDFDIR=../../libs/xpdf
 LIBXPDFSRCDIR=$(srcdir)/$(LIBXPDFDIR)
 LIBXPDFDEP = @LIBXPDFDEP@
@@ -40,9 +36,7 @@ $(LIBXPDFDIR)/xpdf/libxpdf.a: $(LIBXPDFSRCDIR)/xpdf/*.cc \
 	$(LIBXPDFSRCDIR)/xpdf/*.h
 	cd $(LIBXPDFDIR)/xpdf; $(MAKE) $(common_makeargs) libxpdf.a
 
-
 # md5
-
 LIBMD5DIR=../../libs/md5
 LIBMD5SRCDIR=$(srcdir)/$(LIBMD5DIR)
 LIBMD5DEP=$(LIBMD5DIR)/md5.o
