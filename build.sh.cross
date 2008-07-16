@@ -140,7 +140,7 @@ if [ ! "$ONLY_MAKE" = "FALSE" ]
 then
   (cd texk/web2c/luatexdir; $MAKE libpdf.a) || exit 1
 fi;
-(cd texk/web2c; $MAKE luatex) || exit 1
+(cd texk/web2c; env target=i386-mingw32 build=i386-mingw32 host=i386-linux $MAKE luatex) || exit 1
 # go back
 cd ..
 

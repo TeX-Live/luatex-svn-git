@@ -1,6 +1,17 @@
 #! /usr/bin/env bash
-# $Id$
-# builds new luatex binaries
+# Public Domain
+# build.sh.ppc
+#
+# For cross-compiling Mac OS X PPC binaries on Mac OS X Intel
+
+# ----------------------
+# LFS support:
+# If you want to build binaries with LFS support, you may have to add the
+# right compiler & linker flags yourself, as this is not done automatically
+# by configure (see the section "Using LFS" at
+# http://www.suse.de/~aj/linux_lfs.html). You should also remove the
+# --disable-largefile switch for configure.
+# ----------------------
 
 # try to find gnu make; we need it
 MAKE=make;
@@ -15,54 +26,43 @@ else
   echo "I can't find a GNU-make; I'll try to use make and hope that works." 
   echo "If it doesn't, please install GNU-make."
 fi
-
 # ----------
 # Options:
 #       --make      : only make, no make distclean; configure
 #       --parallel  : make -j 2 -l 3.0
 ONLY_MAKE=FALSE
-UPDATE_VERSION=FALSE
 JOBS_IF_PARALLEL=2
 MAX_LOAD_IF_PARALLEL=3.0
 while [ "$1" != "" ] ; do
   if [ "$1" = "--make" ] ;
   then ONLY_MAKE=TRUE ;
-  elif [ "$1" = "--version" ] ; 
-  then UPDATE_VERSION=TRUE ;
   elif [ "$1" = "--parallel" ] ;
   then MAKE="$MAKE -j $JOBS_IF_PARALLEL -l $MAX_LOAD_IF_PARALLEL" ;
   fi ;
   shift ;
 done
-
 #
 STRIP=strip
-B=build-ppc
+B=ppc
 NATIVE='.'
 export NATIVE
 
-SDK=/Developer/SDKs/MacOSX10.4u.sdk
-SDKROOT=/Developer/SDKs/MacOSX10.4u.sdk
-
-CFLAGS="-isysroot ${SDK} -arch ppc"
-XCFLAGS="-isysroot ${SDK} -arch ppc"
-CXXFLAGS="-isysroot ${SDK} -arch ppc"
-
+CFLAGS="-arch ppc"
+XCFLAGS="-arch ppc"
+CXXFLAGS="-arch ppc"
 LDFLAGS="-arch ppc"
 export CFLAGS CXXFLAGS LDFLAGS XCFLAGS
-ENVP= MACOSX_DEPLOYMENT_TARGET=10.4
-export ENVP
 
 # ----------
 # clean up, if needed
-if [ -e "$B"/Makefile -a $ONLY_MAKE = "FALSE" ]
+if [ -r "$B"/Makefile -a $ONLY_MAKE = "FALSE" ]
 then
   rm -rf "$B"
-elif [ ! -e "$B"/Makefile ]
+elif [ ! -r "$B"/Makefile ]
 then
     ONLY_MAKE=FALSE
 fi
-if [ ! -e "$B" ]
+if [ ! -r "$B" ]
 then
   mkdir "$B"
 fi
@@ -118,6 +118,7 @@ then
               --without-xdvik     \
               --without-xdvipdfmx \
               --without-xetex     \
+              --disable-largefile \
               || exit 1 
 fi
 
@@ -125,26 +126,12 @@ fi
 (cd texk/web2c/web2c; $MAKE) || exit 1
 (cd texk/web2c; $MAKE ../kpathsea/libkpathsea.la) || exit 1
 (cd texk/web2c/lib; $MAKE) || exit 1
-if [ ! "$ONLY_MAKE" = "FALSE" ] 
-then
-  (cd texk/web2c/luatexdir; $MAKE libpdf.a) || exit 1
-fi;
+(cd texk/web2c/mpdir; ../../../../src/texk/web2c/mpdir/configure --enable-shared=no; $MAKE; $MAKE lmplib.o ) || exit 1
 (cd texk/web2c; $MAKE luatex) || exit 1
 # go back
 cd ..
 
-if [ ! -d ppc/texk/web2c/web2c ]
-then mkdir -p ppc/texk/web2c/web2c;
-fi;
-
-if [ ! -d ppc/texk/web2c/luatexdir ]  
-then mkdir -p ppc/texk/web2c/luatexdir;
-fi
-
-cp "$B"/texk/web2c/luatexdir/makecpool ppc/texk/web2c/luatexdir
-cp "$B"/texk/web2c/web2c/{web2c,fixwrites,splitup} ppc/texk/web2c/web2c
-cp "$B"/texk/web2c/{luatex,tangle,tangleboot,luatangle} ppc/texk/web2c
-$STRIP ppc/texk/web2c/luatex
+$STRIP "$B"/texk/web2c/luatex
 
 # show the results
-ls -l ppc/texk/web2c/luatex
+ls -l "$B"/texk/web2c/luatex

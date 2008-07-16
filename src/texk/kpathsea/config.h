@@ -131,4 +131,10 @@
 #define unlink ln_unlink
 #endif /* OS2 */
 
+#ifdef __MINGW32__
+#define ftello ftello64
+#define fseeko fseeko64
+#endif
+
+
 #endif /* not KPATHSEA_CONFIG_H */

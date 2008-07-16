@@ -7,7 +7,8 @@
 //========================================================================
 
 /* ------------------------------------------------------------------------
-* Changed by Martin Schröder <martin@pdftex.org>
+* Changed by Martin Schröder <martin@pdftex.org> 
+* and Taco Hoekwater <taco@metatex.org>
 * $Id: GlobalParams.cc 421 2008-04-26 21:59:55Z oneiros $
 * Changelog:
 * ------------------------------------------------------------------------
@@ -43,6 +44,15 @@
 * ------------------------------------------------------------------------ */
 
 #include <aconf.h>
+
+/* Taco Hoekwater: when building the PDF_PARSER_ONLY, there is no need
+ * for WindowList c.s. The quickest way to achieve that is to disable WIN32
+ * processing. Not nice, but it works.
+ */
+
+#ifdef PDF_PARSER_ONLY
+#undef WIN32
+#endif
 
 #ifdef USE_GCC_PRAGMAS
 #pragma implementation
