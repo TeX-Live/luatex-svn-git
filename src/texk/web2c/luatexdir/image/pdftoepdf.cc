@@ -353,11 +353,13 @@ static void copyFontDict(Object * obj, InObj * r)
 
 static void copyStream(Stream * str)
 {
-    int c;
+    int c, c2;
     str->reset();
-    while ((c = str->getChar()) != EOF)
+    while ((c = str->getChar()) != EOF) {
         pdfout(c);
-    pdf_last_byte = pdf_buf[pdf_ptr - 1];
+        c2 = c;
+    }
+    pdf_last_byte = c2;
 }
 
 static void copyProcSet(Object * obj)
