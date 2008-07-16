@@ -16916,9 +16916,9 @@ well.
 @d obj_aux(#) == obj_tab[#].int4 {auxiliary pointer}
 
 @d set_obj_fresh(#) == obj_offset(#) := -2
-@d set_obj_scheduled(#) == if obj_offset(#) = -2 then obj_offset(#) := -1
-@d is_obj_scheduled(#) == (obj_offset(#) > -2)
-@d is_obj_written(#) == (obj_offset(#) > -1)
+@d set_obj_scheduled(#) == if intcast(obj_offset(#)) = -2 then obj_offset(#) := -1
+@d is_obj_scheduled(#) == (intcast(obj_offset(#)) > -2)
+@d is_obj_written(#) == (intcast(obj_offset(#)) > -1)
 
 @# {types of objects}
 @d obj_type_others              == 0 {objects which are not linked in any list}
