@@ -34,7 +34,7 @@ static const char _svn_version[] =
 #define dir_base tex_int_pars
 #define dir_pars 5
 #define pdftex_first_integer_code dir_base+dir_pars     /* base for \pdfTeX's integer parameters */
-#define pdf_int_pars pdftex_first_integer_code+27       /*total number of \pdfTeX's integer parameters */
+#define pdf_int_pars pdftex_first_integer_code+28      /*total number of \pdfTeX's integer parameters */
 #define etex_int_base pdf_int_pars      /*base for \eTeX's integer parameters */
 #define tracing_nesting_code etex_int_base+4    /*show incomplete groups and ifs within files */
 
@@ -62,8 +62,8 @@ static const char _svn_version[] =
 /* command codes */
 #define relax 0
 #define out_param 5
-#define max_command 117         /* fetched from C output */
-#define dont_expand 133         /* fetched from C output */
+#define max_command 118         /* fetched from C output */
+#define dont_expand 134         /* fetched from C output */
 
 #define terminal_input (name==0)        /* are we reading from the terminal? */
 #define special_char 1114113    /* |biggest_char+2| */
