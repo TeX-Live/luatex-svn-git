@@ -407,7 +407,7 @@ directives shown below specify full checking and inclusion of the \PASCAL\
 debugger when \TeX\ is being debugged, but they cause range checking and other
 redundant code to be eliminated when the production system is being generated.
 Arithmetic overflow will be detected in all cases.
-+@:PASCAL H}{\ph@>
+@:PASCAL H}{\ph@>
 @^system dependencies@>
 @^overflow in arithmetic@>
 
