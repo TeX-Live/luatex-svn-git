@@ -678,7 +678,7 @@ void write_additional_png_objects(void)
             if (get_pdf_compress_level() == 0) {
                 pdf_puts("%PTEX Group needed for transparent pngs\n");
             }
-            pdf_puts("<</Type/Group /S/Transparency /CS/DeviceRGB /I true>>\n");
+            pdf_puts("<</Type/Group /S/Transparency /CS/DeviceRGB /I true /K true>>\n");
             pdf_end_obj();
         }
     }
