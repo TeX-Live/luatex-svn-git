@@ -2047,9 +2047,9 @@ to negative arguments, since such operations are not implemented consistently
 by all \PASCAL\ compilers.
 
 @<Basic print...@>=
-procedure print_int(@!n:integer); {prints an integer in decimal form}
+procedure print_int(@!n:longinteger); {prints an integer in decimal form}
 var k:0..23; {index to current digit; we assume that $|n|<10^{23}$}
-@!m:integer; {used to negate |n| in possibly dangerous cases}
+@!m:longinteger; {used to negate |n| in possibly dangerous cases}
 begin k:=0;
 if n<0 then
   begin print_char("-");
@@ -16013,7 +16013,7 @@ end
 @!pdf_file: byte_file; {the PDF output file}
 @!pdf_buf: ^real_eight_bits; {pointer to the PDF output buffer or PDF object stream buffer}
 @!pdf_buf_size: integer; {end of PDF output buffer or PDF object stream buffer}
-@!pdf_ptr: integer; {pointer to the first unused byte in the PDF buffer or object stream buffer}
+@!pdf_ptr: longinteger; {pointer to the first unused byte in the PDF buffer or object stream buffer}
 @!pdf_op_buf: ^real_eight_bits; {the PDF output buffer}
 @!pdf_os_buf: ^real_eight_bits; {the PDF object stream buffer}
 @!pdf_os_buf_size: integer; {current size of the PDF object stream buffer, grows dynamically}
@@ -16026,8 +16026,8 @@ end
 @!pdf_os_mode: boolean; {true if producing object stream}
 @!pdf_os_enable: boolean; {true if object streams are globally enabled}
 @!pdf_os_cur_objnum: integer; {number of current object stream object}
-@!pdf_gone: integer; {number of bytes that were flushed to output}
-@!pdf_save_offset: integer; {to save |pdf_offset|}
+@!pdf_gone: longinteger; {number of bytes that were flushed to output}
+@!pdf_save_offset: longinteger; {to save |pdf_offset|}
 @!zip_write_state: integer; {which state of compression we are in}
 @!fixed_pdf_minor_version: integer; {fixed minor part of the PDF version}
 @!fixed_pdf_minor_version_set: boolean; {flag if the PDF version has been set}
@@ -16188,10 +16188,9 @@ neccesary. We call |pdf_begin_stream| to begin a stream  and |pdf_end_stream|
 to finish it. The stream contents will be compressed if compression is turn on.
 
 @p procedure pdf_flush; {flush out the |pdf_buf|}
-var saved_pdf_gone : integer;
+var saved_pdf_gone : longinteger;
 begin
     if not pdf_os_mode then begin
-        saved_pdf_gone := pdf_gone;
         case zip_write_state of
             no_zip: if pdf_ptr > 0 then begin
                 if fixed_pdf_draftmode = 0 then write_pdf(0, pdf_ptr - 1);
@@ -16888,7 +16887,7 @@ the same type.
 @<Types...@>=
 @!obj_entry = record@;@/
     int0, int1: integer;
-    int2: integer;
+    int2: longinteger;
     int3, int4: integer;
 end;
 
@@ -16918,9 +16917,9 @@ well.
 @d obj_aux(#) == obj_tab[#].int4 {auxiliary pointer}
 
 @d set_obj_fresh(#) == obj_offset(#) := -2
-@d set_obj_scheduled(#) == if obj_offset(#) = -2 then obj_offset(#) := -1
-@d is_obj_scheduled(#) == (obj_offset(#) > -2)
-@d is_obj_written(#) == (obj_offset(#) > -1)
+@d set_obj_scheduled(#) == if intcast(obj_offset(#)) = -2 then obj_offset(#) := -1
+@d is_obj_scheduled(#) == (intcast(obj_offset(#)) > -2)
+@d is_obj_written(#) == (intcast(obj_offset(#)) > -1)
 
 @# {types of objects}
 @d obj_type_others              == 0 {objects which are not linked in any list}
@@ -17136,8 +17135,8 @@ so we can use this field for both}
 @!pdf_last_pages: integer; {pointer to most recently generated pages object}
 @!pdf_last_page: integer; {pointer to most recently generated page object}
 @!pdf_last_stream: integer; {pointer to most recently generated stream}
-@!pdf_stream_length: integer; {length of most recently generated stream}
-@!pdf_stream_length_offset: integer; {file offset of the last stream length}
+@!pdf_stream_length: longinteger; {length of most recently generated stream}
+@!pdf_stream_length_offset: longinteger; {file offset of the last stream length}
 @!pdf_seek_write_length: boolean; {flag whether to seek back and write \.{/Length}}
 @!pdf_last_byte: integer; {byte most recently written to PDF file; for \.{endstream} in new line}
 @!pdf_append_list_arg: integer; {for use with |pdf_append_list|}
@@ -17447,7 +17446,7 @@ end;
 
 @ Subroutines to print out various PDF objects
 
-@p procedure pdf_print_fw_int(n: integer; w: integer); {print out an integer with
+@p procedure pdf_print_fw_int(n: longinteger; w: integer); {print out an integer with
 fixed width; used for outputting cross-reference table}
 var k: integer; {$0\le k\le23$}
 begin
@@ -17461,7 +17460,7 @@ begin
     end;
 end;
 
-procedure pdf_out_bytes(n: integer; w: integer); {print out an integer as
+procedure pdf_out_bytes(n: longinteger; w: integer); {print out an integer as
 a number of bytes; used for outputting \.{/XRef} cross-reference stream}
 var k: integer;
 byte: array[0..7] of integer; {digits in a number being output}

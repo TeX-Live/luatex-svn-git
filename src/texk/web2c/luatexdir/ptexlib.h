@@ -246,7 +246,7 @@ extern void pdftex_warn(const char *, ...);
 extern void set_job_id(int, int, int, int);
 __attribute__ ((format(printf, 1, 2)))
 extern void tex_printf(const char *, ...);
-extern void write_stream_length(integer, integer);
+extern void write_stream_length(integer, longinteger);
 extern char *convertStringToPDFString(const char *in, int len);
 extern void print_ID(strnumber);
 extern void print_creation_date();
@@ -630,7 +630,7 @@ scaled divide_scaled_n(double s, double m, double d);
 void pdf_print_char(internal_font_number f, integer c);
 void pdf_print(str_number n);
 void pdf_print_str(str_number n);
-void pdf_print_int(integer n);
+void pdf_print_int(longinteger n);
 void pdf_print_real(integer m, integer d);
 
 /* textoken.c */

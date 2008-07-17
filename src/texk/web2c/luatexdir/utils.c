@@ -525,14 +525,14 @@ int xputc(int c, FILE * stream)
     return i;
 }
 
-void write_stream_length(integer length, integer offset)
+void write_stream_length(integer length, longinteger offset)
 {
     if (jobname_cstr == NULL)
         jobname_cstr = xstrdup(makecstring(job_name));
     if (fixed_pdf_draftmode == 0) {
-      xfseek(pdf_file, offset, SEEK_SET, jobname_cstr);
+      xfseeko(pdf_file, (off_t)offset, SEEK_SET, jobname_cstr);
         fprintf(pdf_file, "%li", (long int) length);
-        xfseek(pdf_file, pdfoffset(), SEEK_SET, jobname_cstr);
+        xfseeko(pdf_file, (off_t) pdfoffset(), SEEK_SET, jobname_cstr);
     }
 }
 

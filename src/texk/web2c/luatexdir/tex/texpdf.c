@@ -105,13 +105,13 @@ void pdf_print(str_number s)
 
 /* print out a integer to PDF buffer */
 
-void pdf_print_int(integer n)
+void pdf_print_int(longinteger n)
 {
     register integer k = 0;     /*  current digit; we assume that $|n|<10^{23}$ */
     if (n < 0) {
         pdf_out('-');
         if (n < -0x7FFFFFFF) {  /* need to negate |n| more carefully */
-            register integer m;
+            register longinteger m;
             k++;
             m = -1 - n;
             n = m / 10;
