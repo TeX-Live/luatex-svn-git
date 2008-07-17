@@ -59,8 +59,8 @@ extern "C" {
     extern integer pdf_box_spec_trim;
     extern integer pdf_box_spec_art;
 
-    extern longinteger pdf_stream_length;
-    extern longinteger pdf_ptr;
+    extern integer pdf_stream_length;
+    extern integer pdf_ptr;
     extern integer pool_ptr;
     typedef unsigned char eight_bits;
     extern eight_bits *pdf_buf;

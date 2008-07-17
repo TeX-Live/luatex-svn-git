@@ -499,6 +499,7 @@ void copy_png(image_dict * idict)
                 pdftex_fail("writepng: IDAT chunk sequence broken");
             idat = 1;
             while (len > 0) {
+              
                 i = (len > pdf_buf_size) ? pdf_buf_size : len;
                 pdfroom(i);
                 fread(&pdf_buf[pdf_ptr], 1, i, fp);
