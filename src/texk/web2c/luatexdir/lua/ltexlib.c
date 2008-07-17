@@ -24,6 +24,8 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
+extern halfword *check_isnode(lua_State * L, int ud);
+
 typedef struct {
     char *text;
     unsigned int tsize;
@@ -757,28 +759,38 @@ int getlist(lua_State * L)
     if (lua_isstring(L, 2)) {
         str = (char *) lua_tostring(L, 2);
         if (strcmp(str, "page_ins_head") == 0) {
-            lua_pushnumber(L, page_ins_head);
+	    if (vlink(page_ins_head)==page_ins_head)
+	       lua_pushnumber(L, null);
+            else
+	       lua_pushnumber(L, vlink(page_ins_head));
             lua_nodelib_push(L);
         } else if (strcmp(str, "contrib_head") == 0) {
-            lua_pushnumber(L, contrib_head);
+	    lua_pushnumber(L, vlink(contrib_head));
             lua_nodelib_push(L);
         } else if (strcmp(str, "page_head") == 0) {
-            lua_pushnumber(L, page_head);
+	    lua_pushnumber(L, vlink(page_head));
             lua_nodelib_push(L);
         } else if (strcmp(str, "temp_head") == 0) {
-            lua_pushnumber(L, temp_head);
+	    lua_pushnumber(L, vlink(temp_head));
             lua_nodelib_push(L);
         } else if (strcmp(str, "hold_head") == 0) {
-            lua_pushnumber(L, hold_head);
+	    lua_pushnumber(L, vlink(hold_head));
             lua_nodelib_push(L);
         } else if (strcmp(str, "adjust_head") == 0) {
-            lua_pushnumber(L, adjust_head);
+  	    lua_pushnumber(L, vlink(adjust_head));
             lua_nodelib_push(L);
+        } else if (strcmp(str, "best_page_break") == 0) {
+  	    lua_pushnumber(L, best_page_break);
+            lua_nodelib_push(L);
+        } else if (strcmp(str, "least_page_cost") == 0) {
+  	    lua_pushnumber(L, least_page_cost);
+        } else if (strcmp(str, "best_size") == 0) {
+  	    lua_pushnumber(L, best_size);
         } else if (strcmp(str, "pre_adjust_head") == 0) {
-            lua_pushnumber(L, pre_adjust_head);
+	    lua_pushnumber(L, vlink(pre_adjust_head));
             lua_nodelib_push(L);
         } else if (strcmp(str, "align_head") == 0) {
-            lua_pushnumber(L, align_head);
+    	    lua_pushnumber(L, vlink(align_head));
             lua_nodelib_push(L);
         } else {
             lua_pushnil(L);
@@ -791,8 +803,58 @@ int getlist(lua_State * L)
 
 int setlist(lua_State * L)
 {
-    assert(L);
-    return 0;
+  halfword *n_ptr;
+  char *str;
+  halfword n = 0;
+  if (lua_isstring(L, 2)) {
+    str = (char *) lua_tostring(L, 2);
+    if (strcmp(str, "best_size") == 0) {
+      best_size = lua_tointeger(L,3);
+    } else if (strcmp(str, "least_page_cost") == 0) {
+      least_page_cost = lua_tointeger(L,3);
+    } else {
+      if (! lua_isnil(L, 3)) {
+	n_ptr = check_isnode(L,3);
+	n = *n_ptr; 
+      }
+      if (strcmp(str, "page_ins_head") == 0) {
+	if (n==0) {
+	  vlink(page_ins_head) = page_ins_head;
+	} else {
+	  halfword m;
+	  vlink(page_ins_head) = n;
+	  m = tail_of_list(n);
+	  vlink(m) = page_ins_head;
+	}
+      } else if (strcmp(str, "contrib_head") == 0) {
+	vlink(contrib_head) = n;
+        if (n==0) {
+	  if (nest_ptr==0) 
+	    cur_list.tail_field=contrib_head; /* vertical mode */
+	  else 
+	    nest[0].tail_field=contrib_head; /* other modes */
+	}
+      } else if (strcmp(str, "best_page_break") == 0) {
+	best_page_break = n;
+      } else if (strcmp(str, "page_head") == 0) {
+	vlink(page_head) = n;
+	page_tail = (n==0 ? page_head : tail_of_list(n));
+      } else if (strcmp(str, "temp_head") == 0) {
+	vlink(temp_head) = n;
+      } else if (strcmp(str, "hold_head") == 0) {
+	vlink(hold_head) = n;
+      } else if (strcmp(str, "adjust_head") == 0) {
+	vlink(adjust_head) = n;
+	adjust_tail = (n==0 ? adjust_head : tail_of_list(n));
+      } else if (strcmp(str, "pre_adjust_head") == 0) {
+	vlink(pre_adjust_head) = n;
+	pre_adjust_tail = (n==0 ? pre_adjust_head : tail_of_list(n));
+      } else if (strcmp(str, "align_head") == 0) {
+	vlink(align_head) = n;
+      }
+    }
+  }
+  return 0;
 }
 
 #define infinity 2147483647
