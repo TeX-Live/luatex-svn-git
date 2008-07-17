@@ -16191,6 +16191,7 @@ to finish it. The stream contents will be compressed if compression is turn on.
 var saved_pdf_gone : longinteger;
 begin
     if not pdf_os_mode then begin
+        saved_pdf_gone := pdf_gone;
         case zip_write_state of
             no_zip: if pdf_ptr > 0 then begin
                 if fixed_pdf_draftmode = 0 then write_pdf(0, pdf_ptr - 1);
