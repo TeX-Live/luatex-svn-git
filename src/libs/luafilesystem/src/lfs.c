@@ -413,7 +413,7 @@ static const char *mode2string (mode_t mode) {
 
 #ifdef _WIN32
 static const char *perm2string (unsigned short mode) {
-  char perms[10] = "---------\0";
+  static char perms[10] = "---------\0";
   if (mode  & _S_IREAD) 
    { perms[0] = 'r'; perms[3] = 'r'; perms[6] = 'r'; }
   if (mode  & _S_IWRITE) 
@@ -424,7 +424,7 @@ static const char *perm2string (unsigned short mode) {
 }
 #else
 static const char *perm2string (mode_t mode) {
-  char perms[10] = "---------\0";
+  static char perms[10] = "---------\0";
   if (mode & S_IRUSR) perms[0] = 'r';
   if (mode & S_IWUSR) perms[1] = 'w';
   if (mode & S_IXUSR) perms[2] = 'x';
