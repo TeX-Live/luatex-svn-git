@@ -1603,6 +1603,9 @@ get_date_and_time P4C(integer *, minutes,  integer *, day,
 /*
  Getting a high resolution time.
  */
+#if defined (HAVE_FTIME)
+#include <sys/timeb.h>
+#endif
 void
 get_seconds_and_micros P2C(integer *, seconds,  integer *, micros)
 {
