@@ -975,7 +975,7 @@ static void mplib_push_dash(lua_State * L, struct mp_stroked_object *h)
             int i = 0;
             lua_newtable(L);
             while (*(d->array + i) != -1) {
-                ds = *(d->array + 1) / 65536.0;
+                ds = *(d->array + i) / 65536.0;
                 lua_pushnumber(L, ds);
                 i++;
                 lua_rawseti(L, -2, i);
