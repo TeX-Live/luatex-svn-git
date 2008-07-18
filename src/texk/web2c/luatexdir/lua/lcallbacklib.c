@@ -24,6 +24,7 @@ static const char _svn_version[] =
     "$Id$ $URL$";
 
 extern int do_run_callback(int special, char *values, va_list vl);
+extern int lua_traceback(lua_State * L);
 
 int callback_set[total_callbacks] = { 0 };
 
@@ -291,14 +292,23 @@ int do_run_callback(int special, char *values, va_list vl)
     if (special == 2) {
         narg++;
     }
-    if (lua_pcall(L, narg, nres, 0) != 0) {
+    {
+      int i = lua_pcall(L, narg, nres, 0);
+      /* lua_remove(L, base); */ /* remove traceback function */
+      if (i != 0) {
         /* Can't be more precise here, could be called before 
          * TeX initialization is complete 
          */
-        fprintf(stderr, "This went wrong: %s\n", lua_tostring(L, -1));
-        error();
+        if (!log_opened) {
+          fprintf(stderr, "This went wrong: %s\n", lua_tostring(L, -1));
+          error();
+        } else {
+           lua_gc(L, LUA_GCCOLLECT, 0);
+           luatex_error(L, (i == LUA_ERRRUN ? 0 : 1));
+        }
         return 0;
-    };
+      }
+    }
     if (nres == 0) {
         return 1;
     }
