@@ -256,7 +256,7 @@ void unhide_lua_value(lua_State * L, char *name, char *item, int r)
 }
 
 
-static int lua_traceback(lua_State * L)
+int lua_traceback(lua_State * L)
 {
     lua_getfield(L, LUA_GLOBALSINDEX, "debug");
     if (!lua_istable(L, -1)) {
