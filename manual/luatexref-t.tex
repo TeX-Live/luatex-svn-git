@@ -19,7 +19,7 @@
 
 \setvariables
   [document]
-  [beta=0.28.0]
+  [beta=0.29.0]
 
 \starttext
 
@@ -57,7 +57,9 @@ notice.
 
 \bf If you are not willing to deal with this situation, you should
 wait for the stable version. Currently we expect the first release
-to be available sometime in the summer of~2008.
+with (some) fixed interfaces to be available sometime in the autumn 
+of~2008. Full stabilization will not happen soon, the TODO list is
+still very large.
 
 \stopframedtext
 
@@ -67,7 +69,7 @@ to be available sometime in the summer of~2008.
 distinguishable parts:
 
 \startitemize[packed]
-\item \PDFTEX\ version 1.40.3 % hahe: still 1.40.3?
+\item \PDFTEX\ version 1.40.9 
 \item \ALEPH\ RC4 (from the \TEXLIVE\ repository)
 \item \LUA\ 5.1.2 ($+$ coco 1.1.3) % hahe: still 5.1.2?
 \item dedicated \LUA\ libraries
@@ -2390,7 +2392,7 @@ currently these are \type {media}, \type {crop}, \type {bleed}, \type {trim}, an
 \section{The \luatex{mplib} library}
 
 The \MP\ library interface registers itself in the table \type{mplib}. It
-is based on the \MPLIB\ beta version 1.071.
+is based on  \MPLIB\ version \ctxlua{tex.sprint(mplib.version())}.
 
 \subsection{\luatex{mplib.new}}
 
@@ -6337,8 +6339,6 @@ has also been removed. The associated primitives that are now gone are:
 as well as the five supporting primitives \tex{knbscode}, \tex{stbscode},
 \tex{shbscode}, \tex{knbccode}, and \tex{knaccode}.
 
-
-
 \item A number of \quote{utility functions} is removed:
 
 \startcolumns[n=3]
@@ -6377,6 +6377,14 @@ as well as the five supporting primitives \tex{knbscode}, \tex{stbscode},
 \item The \tex{pdfprimitive} is bugfixed.
 
 \item The \tex{pdftexversion} is set to 200.
+
+\item The PNG transparency fix from 1.40.6 is not applied 
+(high-level support is pending)
+
+\item There is no synctex support yet (planned for 0.30)
+
+\item LFS (\PDF\ Files larger than 2GiB) support is not working
+properly yet.
 
 \stopitemize
 
