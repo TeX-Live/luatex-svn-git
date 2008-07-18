@@ -1,4 +1,4 @@
-% $Id: mp.w 629 2008-07-11 14:25:53Z taco $
+% $Id: mp.w 633 2008-07-18 12:40:20Z taco $
 %
 % Copyright 2008 Taco Hoekwater.
 %
@@ -89,13 +89,13 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d default_banner "This is MetaPost, Version 1.086" /* printed when \MP\ starts */
+@d default_banner "This is MetaPost, Version 1.090" /* printed when \MP\ starts */
 @d true 1
 @d false 0
 
 @(mpmp.h@>=
-#define metapost_version "1.086"
-#define metapost_magic (('M'*256) + 'P')*65536 + 1086
+#define metapost_version "1.090"
+#define metapost_magic (('M'*256) + 'P')*65536 + 1090
 
 @ The external library header for \MP\ is |mplib.h|. It contains a
 few typedefs and the header defintions for the externally used

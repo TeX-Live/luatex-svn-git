@@ -18,7 +18,7 @@ AUTOMAKE_OPTIONS = foreign
 KPSEBUILDDIR = ../../../texk/kpathsea/.libs
 KPSESRCDIR = ../../../../src/texk/kpathsea
 KPSELIB=$(KPSEBUILDDIR)/libkpathsea.a
-AM_CFLAGS=-I. -I../.. -I$(KPSESRCDIR)/.. -I$(KPSESRCDIR) -I../../../../src/libs/lua51
+AM_CFLAGS=-I. -I../.. -I$(KPSESRCDIR)/.. -I$(KPSESRCDIR)
 CORE_MP_SOURCES=mp.c psout.c tfmin.c memio.c
 
 noinst_LTLIBRARIES    = libmplib.la

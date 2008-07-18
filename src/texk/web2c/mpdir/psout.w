@@ -1,4 +1,4 @@
-% $Id: psout.w 629 2008-07-11 14:25:53Z taco $
+% $Id: psout.w 632 2008-07-17 12:31:32Z taco $
 %
 % Copyright 2008 Taco Hoekwater.
 %
@@ -242,7 +242,7 @@ static void mp_ps_print_int (MP mp,integer n) { /* prints an integer in decimal 
     }
   }
   do {  
-    mp->dig[k]=(unsigned char)n % 10; n=n / 10; incr(k);
+    mp->dig[k]=(unsigned char)(n % 10); n=n / 10; incr(k);
   } while (n!=0);
   mp_ps_print_the_digs(mp, k);
 }
