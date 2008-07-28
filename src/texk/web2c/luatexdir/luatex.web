@@ -6571,13 +6571,6 @@ othercases print("[unknown dimen parameter!]")
 endcases;
 end;
 
-@ @<Initialize table entries...@>=
-pdf_ignored_dimen := ignore_depth;
-pdf_each_line_height := pdf_ignored_dimen;
-pdf_each_line_depth := pdf_ignored_dimen;
-pdf_first_line_height := pdf_ignored_dimen;
-pdf_last_line_depth := pdf_ignored_dimen;
-
 @ @<Put each...@>=
 primitive("parindent",assign_dimen,dimen_base+par_indent_code);@/
 @!@:par_indent_}{\.{\\parindent} primitive@>
@@ -6662,6 +6655,14 @@ assign_dimen: if chr_code<scaled_base then
 
 @ @<Initialize table entries...@>=
 for k:=dimen_base to eqtb_size do eqtb[k].sc:=0;
+
+@ @<Initialize table entries...@>=
+pdf_ignored_dimen := ignore_depth;
+pdf_each_line_height := pdf_ignored_dimen;
+pdf_each_line_depth := pdf_ignored_dimen;
+pdf_first_line_height := pdf_ignored_dimen;
+pdf_last_line_depth := pdf_ignored_dimen;
+
 
 @ @<Show equivalent |n|, in region 6@>=
 begin if n<scaled_base then print_length_param(n-dimen_base)
