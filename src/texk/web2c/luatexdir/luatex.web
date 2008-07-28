@@ -26528,7 +26528,7 @@ while p<>null do
       end_diagnostic(true);
       flush_node_list(p); vlink(q):=null; goto done;
       end;
-  q:=p; p:=vlink(q); incr(n);
+  alink(p):=q; q:=p; p:=vlink(q); incr(n);
   end;
 done:
 
