@@ -664,6 +664,13 @@ int read_tfm_info(internalfontnumber f, char *cnom, char *caire, scaled s)
         (header_length + lh + ncw + nw + nh + nd + ni + nlw + nk + neew + np))
         tfm_abort;
     if ((nw==0)||(nh==0)||(nd==0)||(ni==0)) tfm_abort;
+
+    /* 
+       We check to see that the \.{TFM} file doesn't end prematurely; but
+       no error message is given for files having more than |lf| words.
+     */
+    if (lf*4 > tfm_size) tfm_abort;
+
     /* @<Use size fields to allocate font information@>; */
 
     set_font_natural_dir(f, font_dir);
@@ -816,14 +823,6 @@ int read_tfm_info(internalfontnumber f, char *cnom, char *caire, scaled s)
             store_scaled(font_param(f, k));
         }
     }
-
-    /* 
-       We check to see that the \.{TFM} file doesn't end prematurely; but
-       no error message is given for files having more than |lf| words.
-     */
-
-    if (tfm_byte < tfm_size - 1)
-        tfm_abort;
 
     tfm_byte = saved_tfm_byte;
 
