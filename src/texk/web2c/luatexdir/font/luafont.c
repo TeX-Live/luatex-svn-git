@@ -1187,7 +1187,10 @@ int font_from_lua(lua_State * L, int f)
                  * explicit resizing would not be needed 
                  */
                 s_top = lua_gettop(L);
-                l_fonts[i] = find_font_id(s, "", t);
+                if (strcmp(font_name(f),s)==0)
+                  l_fonts[i] = f;
+                else
+                  l_fonts[i] = find_font_id(s, "", t);
                 lua_settop(L, s_top);
             } else {
                 pdftex_fail("Invalid local font in font %s!\n", font_name(f));
