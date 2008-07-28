@@ -129,8 +129,10 @@ do_define_font(integer f, char *cnom, char *caire, scaled s,
         }
     }
     if (res) {
-        do_vf(f);
-        set_font_natural_dir(f, natural_dir);
+      if (font_type(f)!=virtual_font_type) { /* implies lua */
+            do_vf(f);
+            set_font_natural_dir(f, natural_dir);
+        }
         return f;
     } else {
         delete_font(f);
