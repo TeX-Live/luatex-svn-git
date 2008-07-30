@@ -385,7 +385,7 @@ static void copyProcSet(Object * obj)
 static void copyFont(char *tag, Object * fontRef)
 {
     PdfObject fontdict, subtype, basefont, fontdescRef, fontdesc, charset,
-      fontfile, ffsubtype, stemV;
+        fontfile, ffsubtype, stemV;
     GfxFont *gfont;
     fd_entry *fd;
     fm_entry *fontmap;
@@ -1047,4 +1047,3 @@ void write_additional_epdf_objects(void)
         pdf_end_obj();
     }
 }
-
