@@ -105,11 +105,19 @@ int luapdfprint(lua_State * L)
 
 static int l_immediateobj(lua_State * L)
 {
+    unsigned i;
+    size_t len;
+    const char *st;
     if (!lua_isstring(L, -1))
         luaL_error(L, "pdf.immediateobj needs string value");
     pdf_create_obj(obj_type_others, 0);
     pdf_begin_obj(obj_ptr, 1);
-    pdf_puts(lua_tostring(L, -1));
+    st = lua_tolstring(L, -1, &len);
+    for (i = 0; i < len; i++) {
+        if (i % 16 == 0)
+            pdfroom(16);
+        pdf_buf[pdf_ptr++] = st[i];
+    }
     pdf_puts("\n");
     pdf_end_obj();
     lua_pop(L, 1);
