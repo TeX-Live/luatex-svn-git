@@ -109,7 +109,8 @@ static int l_immediateobj(lua_State * L)
         luaL_error(L, "pdf.immediateobj needs string value");
     pdf_create_obj(obj_type_others, 0);
     pdf_begin_obj(obj_ptr, 1);
-    pdf_printf("%s\n", lua_tostring(L, -1));
+    pdf_puts(lua_tostring(L, -1));
+    pdf_puts("\n");
     pdf_end_obj();
     lua_pop(L, 1);
     lua_pushinteger(L, obj_ptr);
