@@ -283,9 +283,9 @@ extern void paintrow (/*screenrow, pixelcolor, transspec, screencol*/);
     undumpthings (base, len);                                           \
     for (i = 0; i < (len); i++) {                                       \
       if ((&(base))[i] < (low) || (&(base))[i] > (high)) {              \
-        FATAL5 ("Item %u (=%ld) of .fmt array at %lx <%ld or >%ld",     \
+        FATAL5 ("Item %u (=%lu) of .fmt array at %lx <%lu or >%lu",     \
                 i, (unsigned long) (&(base))[i], (unsigned long) &(base),\
-                (unsigned long) low, (integer) high);                   \
+                (unsigned long) low, (unsigned long)((integer) high));                   \
       }                                                                 \
     }									\
   } while (0)
@@ -488,9 +488,9 @@ extern void zwclose P1H(FILE *);
     undump_things (base, len);                                           \
     for (i = 0; i < (len); i++) {                                       \
       if ((&(base))[i] < (low) || (&(base))[i] > (high)) {              \
-        FATAL5 ("Item %u (=%ld) of .fmt array at %lx <%ld or >%ld",     \
+        FATAL5 ("Item %u (=%lu) of .fmt array at %lx <%lu or >%lu",     \
                 i, (unsigned long) (&(base))[i], (unsigned long) &(base),     \
-                (unsigned long) low, (integer) high);                         \
+                (unsigned long) low, (unsigned long) high);             \
       }                                                                 \
     }																	\
   } while (0)
