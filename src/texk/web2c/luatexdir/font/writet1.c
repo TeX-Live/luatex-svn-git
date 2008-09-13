@@ -27,7 +27,7 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-#define t1_log(s)        if(tracefilenames) tex_printf(s)
+#define t1_log(str)      if(tracefilenames) tex_printf("%s", str)
 #define get_length1()    t1_length1 = t1_offset() - t1_save_offset
 #define get_length2()    t1_length2 = t1_offset() - t1_save_offset
 #define get_length3()    t1_length3 = fixedcontent? t1_offset() - t1_save_offset : 0

@@ -164,7 +164,7 @@ static sfd_entry *read_sfd(char *sfd_name)
         sfd_close();
     }
     tex_printf("{");
-    tex_printf(cur_file_name);
+    tex_printf("%s", cur_file_name);
     sfd = new_sfd_entry();
     sfd->name = xstrdup(sfd_name);
     while (!sfd_eof()) {
