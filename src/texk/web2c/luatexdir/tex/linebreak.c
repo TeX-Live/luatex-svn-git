@@ -427,18 +427,11 @@ want to do this without the overhead of |for| loops. The |do_all_six|
 macro makes such six-tuples convenient.
 */
 
-#define save_active_width(a) prev_active_width[(a)] = active_width[(a)]
-#define restore_active_width(a) active_width[(a)] = prev_active_width[(a)]
-
 static scaled active_width[10] = { 0 }; /*distance from first active node to~|cur_p| */
 static scaled background[10] = { 0 };   /*length of an ``empty'' line */
 static scaled break_width[10] = { 0 };  /*length being computed after current break */
 
 static boolean auto_breaking;   /*make |auto_breaking| accessible out of |line_break| */
-static boolean try_prev_break;  /*force break at the previous legal breakpoint? */
-static halfword prev_legal;     /*the previous legal breakpoint */
-static halfword rejected_cur_p; /*the last |cur_p| that has been rejected */
-static boolean before_rejected_cur_p;   /*|cur_p| is still before |rejected_cur_p|? */
 
 /* Let's state the principles of the delta nodes more precisely and concisely,
    so that the following programs will be less obscure. For each legal
@@ -1161,11 +1154,12 @@ ext_try_break(integer pi,
            then |goto continue| if a line from |r| to |cur_p| is infeasible,
            otherwise record a new feasible break@>; */
         artificial_demerits = false;
-        shortfall = line_width - cur_active_width[1]
-            - ((break_node(r) == null)
-               ? init_internal_left_box_width
-               : passive_last_left_box_width(break_node(r)))
-            - internal_right_box_width;
+        shortfall = line_width - cur_active_width[1];
+        if (break_node(r) == null)
+          shortfall -= init_internal_left_box_width;
+        else
+          shortfall -= passive_last_left_box_width(break_node(r));
+        shortfall -= internal_right_box_width;
         if (pdf_protrude_chars > 1) {
             halfword l, o;
             l = (break_node(r) == null) ? first_p : cur_break(break_node(r));
@@ -1692,10 +1686,6 @@ ext_do_line_break(boolean d,
         }
         /* /LOCAL: Initialize with first |local_paragraph| node */
         set_prev_char_p(null);
-        prev_legal = null;
-        rejected_cur_p = null;
-        try_prev_break = false;
-        before_rejected_cur_p = false;
         first_p = cur_p;
         /* to access the first node of paragraph as the first active node
            has |break_node=null| */
