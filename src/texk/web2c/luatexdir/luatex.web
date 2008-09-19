@@ -250,8 +250,8 @@ known as `\eTeX'.
 @d pdftex_version_string=='-2.00.0' {current \pdfTeX\ version}
 @#
 @d luatex_version==29 { \.{\\luatexversion} }
-@d luatex_revision=="0" { \.{\\luatexrevision} }
-@d luatex_version_string=='snapshot-0.29.0' {current \LuaTeX\ version}
+@d luatex_revision=="1" { \.{\\luatexrevision} }
+@d luatex_version_string=='snapshot-0.29.1' {current \LuaTeX\ version}
 @d luatex_date_info==-extra_version_info { the compile date is negated }
 @#
 @d luaTeX_banner=='This is LuaTeX, Version ',luatex_version_string,extra_version_info
@@ -15801,6 +15801,7 @@ function get_tex_dimen(code: integer): scaled;
 begin
     get_tex_dimen := dimen_par(code);
 end;
+
 
 function get_x_height(f: internal_font_number): scaled;
 begin
@@ -34865,9 +34866,26 @@ end;
 function set_tex_dimen_register (j:integer;v:scaled):integer;
 var a:small_number;
 begin  {return non-nil for error}
-a:=0;
+if global_defs>0 then  a:=4 else a:=0;  
 word_define(j+scaled_base,v);
 set_tex_dimen_register := 0;
+end;
+
+function get_tex_skip_register (j:integer):halfword;
+begin
+  get_tex_skip_register := skip(j);
+end;
+
+function set_tex_skip_register (j:integer;v:halfword):integer;
+var a:small_number;
+begin  {return non-nil for error}
+  if global_defs>0 then  a:=4 else a:=0;  
+  if type(v) <> glue_spec_node then
+    set_tex_skip_register := 1
+  else begin
+    word_define(j+skip_base,v);
+    set_tex_skip_register := 0;
+  end;
 end;
 
 function get_tex_count_register (j:integer):scaled;
@@ -34878,9 +34896,9 @@ end;
 function set_tex_count_register (j:integer;v:scaled):integer;
 var a:small_number;
 begin  {return non-nil for error}
-a:=0;
-word_define(j+count_base,v);
-set_tex_count_register := 0;
+  if global_defs>0 then  a:=4 else a:=0;  
+  word_define(j+count_base,v);
+  set_tex_count_register := 0;
 end;
 
 function get_tex_attribute_register (j:integer):scaled;
@@ -34891,7 +34909,7 @@ end;
 function set_tex_attribute_register (j:integer;v:scaled):integer;
 var a:small_number;
 begin  {return non-nil for error}
-a:=0;
+if global_defs>0 then  a:=4 else a:=0;  
 if (j)>max_used_attr then max_used_attr:=(j);
 attr_list_cache:=cache_disabled;
 word_define(j+attribute_base,v);
@@ -34922,7 +34940,7 @@ begin
   pool_ptr := s_pool_ptr;
   token_ref_count(ref) := 0;
   link(ref) := link(temp_token_head);
-  a:=0;
+  if global_defs>0 then  a:=4 else a:=0;  
   define(j+toks_base,call,ref);
   flush_str(s);
 end;
@@ -34935,8 +34953,8 @@ end;
 function set_tex_box_register (j:integer;v:scaled):integer;
 var a:small_number;
 begin  {return non-nil for error}
-a:=0;
-eq_define(j+box_base,box_ref,v);
+if global_defs>0 then  a:=4 else a:=0;  
+define(j+box_base,box_ref,v);
 set_tex_box_register := 0;
 end;
 
