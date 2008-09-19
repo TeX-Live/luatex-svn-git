@@ -23676,7 +23676,7 @@ line_break_context := bottom_level;
 
 @ In it's complete form, |line_break| is a rather lengthy
 procedure---sort of a small world unto itself---we must build it up
-little by little. Below you see only te general outline.
+little by little. Below you see only the general outline.
 
 The main task performed here is to move the list from |head| to
 |temp_head| and go into the enclosing semantic level. We also append
@@ -23695,6 +23695,7 @@ Most other processing is delegated to external functions.
 @p procedure line_break(@!d:boolean);
 var final_par_glue:pointer;
 start_of_par:pointer;
+callback_id:integer;
 begin pack_begin_line:=mode_line; {this is for over/underfull box messages}
 vlink(temp_head):=vlink(head);
 new_hyphenation(temp_head, tail);
@@ -23721,7 +23722,9 @@ lua_node_filter(pre_linebreak_filter_callback,
 last_line_fill:=vlink(tail);
 pop_nest;
 start_of_par:=tail;
-ext_do_line_break(d,pretolerance,tracing_paragraphs,tolerance,emergency_stretch,
+callback_id:=callback_defined(linebreak_filter_callback);
+if callback_id=0 then 
+  ext_do_line_break(d,pretolerance,tracing_paragraphs,tolerance,emergency_stretch,
                    looseness,hyphen_penalty,ex_hyphen_penalty,
                    pdf_adjust_spacing, par_shape_ptr, adj_demerits,
                    pdf_protrude_chars, line_penalty, last_line_fit, 
@@ -23733,7 +23736,15 @@ ext_do_line_break(d,pretolerance,tracing_paragraphs,tolerance,emergency_stretch,
                    club_penalty, club_penalties_ptr,
                    display_widow_penalties_ptr,widow_penalties_ptr,
                    display_widow_penalty, widow_penalty,
-                   broken_penalty, final_par_glue, pdf_ignored_dimen);
+                   broken_penalty, final_par_glue, pdf_ignored_dimen)
+else begin
+  { appends to tail }
+  lua_linebreak_callback(d, temp_head, addressof(tail));
+  just_box := tail;
+  while vlink(just_box)<>null do 
+     just_box := vlink(just_box); 
+  pdfassert(type(just_box)=hlist_node);
+end;
 lua_node_filter(post_linebreak_filter_callback,
       line_break_context,start_of_par,addressof(tail));
 pack_begin_line:=0;

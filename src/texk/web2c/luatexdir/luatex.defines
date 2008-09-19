@@ -154,11 +154,13 @@
 @define var define_font_callback;
 @define var token_filter_callback;
 @define var pre_linebreak_filter_callback;
+@define var linebreak_filter_callback;
 @define var post_linebreak_filter_callback;
 @define var buildpage_filter_callback;
 @define var hyphenate_callback;
 
 @define function lua_hyphenate_callback();
+@define procedure lua_linebreak_callback();
 
 @define procedure get_saved_lua_boolean();
 @define procedure get_saved_lua_number();
