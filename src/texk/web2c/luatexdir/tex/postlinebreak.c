@@ -223,7 +223,7 @@ void ext_post_line_break(boolean d,
                     while (alink(a) != null)
                         a = alink(a);
                     assert(type(a) == nesting_node);
-                    assert(subtype(a) = no_break_head(0));      /* No_break */
+                    assert(subtype(a) == no_break_head(0));      /* No_break */
                     d = a - subtype(a); /* MAGIC subtype is offset of nesting with disc */
                     assert(type(d) == disc_node);
                     v = vlink(d);
