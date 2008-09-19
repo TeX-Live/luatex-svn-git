@@ -21,6 +21,18 @@
 #include <ptexlib.h>
 #include "nodes.h"
 
+typedef enum {
+  int_val=0,  /* integer values */
+  attr_val=1, /* integer values */
+  dimen_val=2, /* dimension values */
+  glue_val=3, /* glue specifications */
+  mu_val=4, /* math glue specifications */
+  dir_val=5, /* directions */
+  ident_val=6, /* font identifier */
+  tok_val=7, /* token lists */
+} value_level_code;
+
+
 static const char _svn_version[] =
     "$Id$ $URL$";
 
@@ -323,6 +335,65 @@ int getdimen(lua_State * L)
     lua_pushnumber(L, j);
     return 1;
 }
+
+
+int setskip(lua_State * L)
+{
+    int i;
+    halfword *j;
+    size_t k;
+    int cur_cs;
+    int texstr;
+    char *s;
+    i = lua_gettop(L);
+    j = check_isnode (L, i);  /* the value */
+
+    if (lua_type(L, i - 1) == LUA_TSTRING) { 
+        s = (char *) lua_tolstring(L, i - 1, &k);
+        texstr = maketexlstring(s, k);
+        cur_cs = string_lookup(texstr);
+        flush_str(texstr);
+        k = zget_equiv(cur_cs) - get_scaled_base();
+    } else {
+        k = (int) luaL_checkinteger(L, i - 1);
+    }
+    check_index_range(k); /* the index */
+    if (set_tex_skip_register(k, *j)) {
+        lua_pushstring(L, "incorrect value");
+        lua_error(L);
+    }
+    return 0;
+}
+
+int getskip(lua_State * L)
+{
+    int i;
+    halfword j;
+    size_t k;
+    int cur_cs;
+    int texstr;
+    char *s;
+    i = lua_gettop(L);
+    if (lua_type(L, i) == LUA_TSTRING) {
+        s = (char *) lua_tolstring(L, i, &k);
+        texstr = maketexlstring(s, k);
+        cur_cs = string_lookup(texstr);
+        flush_str(texstr);
+        if (is_undefined_cs(cur_cs)) {
+            lua_pushnil(L);
+            return 1;
+        }
+        k = zget_equiv(cur_cs) - get_scaled_base();
+    } else {
+        k = (int) luaL_checkinteger(L, i);
+    }
+    check_index_range(k);
+    j = get_tex_skip_register(k);
+    lua_nodelib_push_fast(L, j);
+    return 1;
+}
+
+
 
 int setcount(lua_State * L)
 {
@@ -730,17 +801,41 @@ int gettex(lua_State * L)
         cur_cs = zprim_lookup(texstr);
         flush_str(texstr);
         if (cur_cs) {
-            cur_cmd = zget_prim_eq_type(cur_cs);
-            cur_code = zget_prim_equiv(cur_cs);
-            if (is_convert(cur_cmd))
-                str = get_convert(cur_code);
-            else
-                str = get_something_internal(cur_cmd, cur_code);
+          char *str;
+          cur_cmd = zget_prim_eq_type(cur_cs);
+          cur_code = zget_prim_equiv(cur_cs);
+          if (is_convert(cur_cmd)) {
+            str = get_convert(cur_code);
             if (str)
-                lua_pushstring(L, str);
+              lua_pushstring(L, str);
             else
+              lua_pushnil(L);
+          } else {
+            int texstr;
+            int save_cur_val, save_cur_val_level;
+            save_cur_val = cur_val;
+            save_cur_val_level = cur_val_level;
+            zscan_something_simple(cur_cmd, cur_code);
+
+            if (cur_val_level == int_val ||
+                cur_val_level == dimen_val ||
+                cur_val_level == attr_val) {
+              lua_pushnumber(L, cur_val);
+            } else if (cur_val_level ==  glue_val) {
+              lua_nodelib_push_fast(L, cur_val);
+            } else { /* dir_val, mu_val, tok_val */
+              texstr = the_scanned_result();
+              str = makecstring(texstr);
+              if (str)
+                lua_pushstring(L, str);
+              else
                 lua_pushnil(L);
-            return 1;
+              flush_str(texstr);
+            }
+            cur_val = save_cur_val;
+            cur_val_level = save_cur_val_level;
+          }
+          return 1;
         } else {
             lua_rawget(L, (i - 1));
             return 1;
@@ -912,21 +1007,23 @@ static int tex_scaletable(lua_State * L)
 }
 
 static const struct luaL_reg texlib[] = {
-    {"write", luacwrite},
-    {"print", luacprint},
-    {"sprint", luacsprint},
+    {"write",    luacwrite},
+    {"print",    luacprint},
+    {"sprint",   luacsprint},
     {"setdimen", setdimen},
     {"getdimen", getdimen},
+    {"setskip",  setskip},
+    {"getskip",  getskip},
     {"setattribute", setattribute},
     {"getattribute", getattribute},
     {"setcount", setcount},
     {"getcount", getcount},
-    {"settoks", settoks},
-    {"gettoks", gettoks},
-    {"setbox", setbox},
-    {"getbox", getbox},
-    {"setlist", setlist},
-    {"getlist", getlist},
+    {"settoks",  settoks},
+    {"gettoks",  gettoks},
+    {"setbox",   setbox},
+    {"getbox",   getbox},
+    {"setlist",  setlist},
+    {"getlist",  getlist},
     {"setboxwd", setboxwd},
     {"getboxwd", getboxwd},
     {"setboxht", setboxht},
@@ -942,14 +1039,15 @@ int luaopen_tex(lua_State * L)
 {
     luaL_register(L, "tex", texlib);
     make_table(L, "attribute", "getattribute", "setattribute");
+    make_table(L, "skip",  "getskip",  "setskip");
     make_table(L, "dimen", "getdimen", "setdimen");
     make_table(L, "count", "getcount", "setcount");
-    make_table(L, "toks", "gettoks", "settoks");
-    make_table(L, "box", "getbox", "setbox");
-    make_table(L, "lists", "getlist", "setlist");
-    make_table(L, "wd", "getboxwd", "setboxwd");
-    make_table(L, "ht", "getboxht", "setboxht");
-    make_table(L, "dp", "getboxdp", "setboxdp");
+    make_table(L, "toks",  "gettoks",  "settoks");
+    make_table(L, "box",   "getbox",   "setbox");
+    make_table(L, "lists", "getlist",  "setlist");
+    make_table(L, "wd",    "getboxwd", "setboxwd");
+    make_table(L, "ht",    "getboxht", "setboxht");
+    make_table(L, "dp",    "getboxdp", "setboxdp");
     /* make the meta entries */
     /* fetch it back */
     luaL_newmetatable(L, "tex_meta");
