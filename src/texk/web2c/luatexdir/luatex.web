@@ -17841,7 +17841,6 @@ procedure make_font_copy(a: small_number);
 {make a font copy for further use with font expansion}
 var u:pointer; {user's font identifier}
 @!t:str_number; {name for the frozen font identifier}
-@!old_setting:0..max_selector; {holds |selector| setting}
 @!f, k:internal_font_number;
 begin
     get_r_token; u:=cur_cs;
