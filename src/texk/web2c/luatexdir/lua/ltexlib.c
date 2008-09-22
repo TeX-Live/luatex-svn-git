@@ -757,20 +757,103 @@ char *get_something_internal(int cur_cmd, int cur_code)
     return str;
 }
 
-int do_convert(lua_State *L, int cur_code) {
+int do_convert (lua_State *L, int cur_code) {
     int texstr;
+    integer i = -1;
     char *str = NULL;
-    texstr = the_convert_string(cur_code);
-    if (texstr) {
+    switch (cur_code) {
+    case convert_pdf_creation_date_code:    /* ? */
+    case convert_pdf_insert_ht_code:        /* arg <register int> */
+    case convert_pdf_ximage_bbox_code:      /* arg 2 ints */
+    case convert_lua_code:                  /* arg complex */
+    case convert_lua_escape_string_code:    /* arg token list */
+    case convert_pdf_colorstack_init_code:  /* arg complex */
+    case convert_left_margin_kern_code:     /* arg box */
+    case convert_right_margin_kern_code:    /* arg box */
+      break;
+    case convert_string_code:               /* arg token */ 
+    case convert_meaning_code:              /* arg token */ 
+      break;
+
+    /* the next fall through, and come from 'official' indices! */
+    case convert_font_name_code:            /* arg fontid */ 
+    case convert_font_identifier_code:      /* arg fontid */ 
+    case convert_pdf_font_name_code:        /* arg fontid */ 
+    case convert_pdf_font_objnum_code:      /* arg fontid */ 
+    case convert_pdf_font_size_code:        /* arg fontid */ 
+    case convert_uniform_deviate_code:      /* arg int */
+    case convert_number_code:               /* arg int */ 
+    case convert_roman_numeral_code:        /* arg int */ 
+    case convert_pdf_page_ref_code:         /* arg int */
+    case convert_pdf_xform_name_code:       /* arg int */
+      if (lua_gettop(L)<1) {
+        /* error */
+      }
+      i = lua_tonumber(L,1); /* these fall through! */
+    default:
+      texstr = the_convert_string(cur_code,i);
+      if (texstr) {
         str = makecstring(texstr);
         flush_str(texstr);
+      }
     }
     if (str)
       lua_pushstring(L, str);
     else
       lua_pushnil(L);
-    return;
+    return 1;
 }
+
+static int getfontname (lua_State *L) 
+{ 
+  return do_convert(L,convert_font_name_code);
+}
+
+static int getfontidentifier (lua_State *L) 
+{ 
+  return do_convert(L,convert_font_identifier_code);
+}
+
+static int getpdffontname (lua_State *L) 
+{  
+  return do_convert(L,convert_pdf_font_name_code);
+}
+
+static int getpdffontobjnum (lua_State *L) 
+{ 
+  return do_convert(L,convert_pdf_font_objnum_code);
+}
+
+static int getpdffontsize (lua_State *L) 
+{ 
+  return do_convert(L,convert_pdf_font_size_code);
+}
+
+static int getuniformdeviate (lua_State *L) 
+{ 
+  return do_convert(L,convert_uniform_deviate_code);
+}
+
+static int getnumber (lua_State *L) 
+{ 
+  return do_convert(L,convert_number_code);
+}
+
+static int getromannumeral (lua_State *L) 
+{ 
+  return do_convert(L,convert_roman_numeral_code);
+}
+
+static int getpdfpageref (lua_State *L) 
+{ 
+  return do_convert(L,convert_pdf_page_ref_code);
+}
+
+static int getpdfxformname (lua_State *L) 
+{ 
+  return do_convert(L,convert_pdf_xform_name_code);
+}
+
 
 int do_scan_internal (lua_State *L, int cur_cmd, int cur_code)
 {
@@ -818,6 +901,8 @@ int get_parshape (lua_State *L)
       lua_rawseti(L,-2,m);
       m++;
     }
+  } else {
+    lua_pushnil(L);
   }
   return 1;
 }
@@ -827,6 +912,7 @@ int gettex(lua_State * L)
 {
     int cur_cs = -1;
     int retval = 1; /* default is to return nil  */
+
     if (lua_isstring(L, 2)) { /* 1 == 'tex' */
       int texstr;
       size_t k;
@@ -1051,8 +1137,18 @@ static const struct luaL_reg texlib[] = {
     {"getboxht", getboxht},
     {"setboxdp", setboxdp},
     {"getboxdp", getboxdp},
-    {"round", tex_roundnumber},
-    {"scale", tex_scaletable},
+    {"round",    tex_roundnumber},
+    {"scale",    tex_scaletable},
+    {"fontname", getfontname},
+    {"fontidentifier", getfontidentifier},
+    {"pdffontname", getpdffontname }, 
+    {"pdffontobjnum", getpdffontobjnum }, 
+    {"pdffontsize", getpdffontsize }, 
+    {"uniformdeviate", getuniformdeviate }, 
+    {"number", getnumber }, 
+    {"romannumeral", getromannumeral }, 
+    {"pdfpageref", getpdfpageref }, 
+    {"pdfxformname", getpdfxformname }, 
     {NULL, NULL}                /* sentinel */
 };
 

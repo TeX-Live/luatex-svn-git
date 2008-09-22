@@ -11542,7 +11542,7 @@ begin
   is_convert:=(c=convert);
 end;
 
-function the_convert_string (c:halfword):str_number;
+function the_convert_string (c:halfword;i:integer):str_number;
 var old_setting:0..max_selector; {saved |selector| setting}
         is_known:boolean;
 begin
@@ -11550,16 +11550,41 @@ begin
   selector:=new_string;
   is_known:=true;
   case c of
-  etex_code:            print(eTeX_version_string);
-  omega_code:           print(Omega_version_string);
-  aleph_code:           print(Aleph_version_string);
-  pdftex_revision_code: print(pdftex_revision);
-  luatex_revision_code: print(luatex_revision);
-  luatex_date_code:     print_int(luatex_date_info);
-  pdftex_banner_code:   print(pdftex_banner);
-  normal_deviate_code:  print_int(norm_rand);
-  format_name_code:     print(format_name);
-  job_name_code:        print(job_name);
+  number_code:            print_int(i);
+  roman_numeral_code:     print_roman_int(i);
+  etex_code:              print(eTeX_version_string);
+  omega_code:             print(Omega_version_string);
+  aleph_code:             print(Aleph_version_string);
+  pdftex_revision_code:   print(pdftex_revision);
+  luatex_revision_code:   print(luatex_revision);
+  luatex_date_code:       print_int(luatex_date_info);
+  pdftex_banner_code:     print(pdftex_banner);
+  normal_deviate_code:    print_int(norm_rand);
+  uniform_deviate_code:   print_int(unif_rand(i));
+  format_name_code:       print(format_name);
+  job_name_code:          print(job_name);
+  font_name_code: begin
+    append_string(font_name(i));
+    if font_size(i)<>font_dsize(i) then
+      begin print(" at "); print_scaled(font_size(i));
+      print("pt");
+      end;
+    end;
+  font_identifier_code:   print_font_identifier(i);
+  pdf_page_ref_code:      print_int(get_obj(obj_type_page, i, false));
+  pdf_xform_name_code:    print_int(obj_info(i));
+  pdf_font_name_code, pdf_font_objnum_code: begin
+    set_ff(i);
+    if c = pdf_font_name_code then
+        print_int(obj_info(pdf_font_num(ff)))
+    else
+        print_int(pdf_font_num(ff));
+    end;
+  pdf_font_size_code: begin
+    print_scaled(font_size(i));
+    print("pt");
+  end;
+
 @/@<Cases of `Print the result of command |c|'@>@/
   othercases            is_known:=false
   end;
@@ -33289,6 +33314,7 @@ that integer.
 @d Aleph_revision_code=job_name_code+1 {command code for \.{\\Alephrevision}}
 @d Omega_revision_code=job_name_code+2 {command code for \.{\\Omegarevision}}
 @d eTeX_revision_code=job_name_code+3 {command code for \.{\\eTeXrevision}}
+@d font_identifier_code==job_name_code+4 {command code for \.{tex.fontidentifer} (lua)}
 
 @<Generate all \eTeX...@>=
 primitive("lastnodetype",last_item,last_node_type_code);
