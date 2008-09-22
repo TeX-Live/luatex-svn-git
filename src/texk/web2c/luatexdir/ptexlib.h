@@ -535,6 +535,7 @@ void lua_node_filter(int filterid, int extrainfo, halfword head_node,
 halfword lua_vpack_filter(halfword head_node, scaled size, int pack_type,
                           scaled maxd, int extrainfo);
 void lua_node_filter_s(int filterid, char *extrainfo);
+void lua_linebreak_callback (int is_broken, halfword head_node, halfword *new_head);
 
 void load_tex_patterns(int curlang, halfword head);
 void load_tex_hyphenation(int curlang, halfword head);
