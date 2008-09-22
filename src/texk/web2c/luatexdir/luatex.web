@@ -5765,7 +5765,7 @@ if (n=par_shape_loc) or ((n>=etex_pen_base) and (n<etex_pens)) then
     print_int(penalty(equiv(n)+1));
     if penalty(equiv(n))>1 then print_esc("ETC.");
     end
-  else print_int(vinfo(par_shape_ptr));
+  else print_int(vinfo(par_shape_ptr+1));
   end
 else if n<toks_base then
   {TH TODO make extra cases for ocps here! }
@@ -10085,7 +10085,7 @@ else begin nest[nest_ptr]:=cur_list; p:=nest_ptr;
 @ @<Fetch the |par_shape| size@>=
 begin if m>par_shape_loc then @<Fetch a penalties array element@>
 else if par_shape_ptr=null then cur_val:=0
-else cur_val:=vinfo(par_shape_ptr);
+else cur_val:=vinfo(par_shape_ptr+1);
 cur_val_level:=int_val;
 end
 
@@ -15765,6 +15765,11 @@ end;
 function get_nullfont: internal_font_number;
 begin
     get_nullfont := null_font;
+end;
+
+function get_par_shape_ptr: halfword;
+begin
+    get_par_shape_ptr := par_shape_ptr;
 end;
 
 function get_escape_char: integer;
@@ -26916,9 +26921,9 @@ if par_shape_ptr=null then
     end
   else  begin l:=hsize; s:=0;
     end
-else  begin n:=vinfo(par_shape_ptr);
-  if prev_graf+2>=n then p:=par_shape_ptr+2*n
-  else p:=par_shape_ptr+2*(prev_graf+2);
+else  begin n:=vinfo(par_shape_ptr+1);
+  if prev_graf+2>=n then p:=par_shape_ptr+2*n+1
+  else p:=par_shape_ptr+2*(prev_graf+2)+1;
   s:=vmem(p-1).sc; l:=vmem(p).sc;
   end
 
@@ -33575,8 +33580,8 @@ par_shape_dimen_code: begin q:=cur_chr-par_shape_length_code; scan_int;
   else  begin if q=2 then
       begin q:=cur_val mod 2; cur_val:=(cur_val+q)div 2;
       end;
-    if cur_val>vinfo(par_shape_ptr) then cur_val:=vinfo(par_shape_ptr);
-    cur_val:=vmem(par_shape_ptr+2*cur_val-q).sc;
+    if cur_val>vinfo(par_shape_ptr+1) then cur_val:=vinfo(par_shape_ptr+1);
+    cur_val:=vmem(par_shape_ptr+2*cur_val-q+1).sc;
     end;
   cur_val_level:=dimen_val;
   end;
