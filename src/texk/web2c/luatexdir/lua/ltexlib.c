@@ -20,18 +20,7 @@
 #include "luatex-api.h"
 #include <ptexlib.h>
 #include "nodes.h"
-
-typedef enum {
-  int_val=0,  /* integer values */
-  attr_val=1, /* integer values */
-  dimen_val=2, /* dimension values */
-  glue_val=3, /* glue specifications */
-  mu_val=4, /* math glue specifications */
-  dir_val=5, /* directions */
-  ident_val=6, /* font identifier */
-  tok_val=7, /* token lists */
-} value_level_code;
-
+#include "commands.h"
 
 static const char _svn_version[] =
     "$Id$ $URL$";
@@ -566,12 +555,6 @@ int gettoks(lua_State * L)
     return 1;
 }
 
-/* UGLY hack */
-
-#define char_given 70
-#define math_given 71
-#define omath_given 72
-
 static int get_box_id(lua_State * L, int i)
 {
     const char *s;
@@ -585,8 +568,8 @@ static int get_box_id(lua_State * L, int i)
         cur_cs = string_lookup(texstr);
         cur_cmd = zget_eq_type(cur_cs);
         flush_str(texstr);
-        if (cur_cmd == char_given ||
-            cur_cmd == math_given || cur_cmd == omath_given) {
+        if (cur_cmd == char_given_cmd ||
+            cur_cmd == math_given_cmd || cur_cmd == omath_given_cmd ) {
             j = zget_equiv(cur_cs);
         }
     } else {
@@ -774,8 +757,7 @@ char *get_something_internal(int cur_cmd, int cur_code)
     return str;
 }
 
-char *get_convert(int cur_code)
-{
+int do_convert(lua_State *L, int cur_code) {
     int texstr;
     char *str = NULL;
     texstr = the_convert_string(cur_code);
@@ -783,68 +765,107 @@ char *get_convert(int cur_code)
         str = makecstring(texstr);
         flush_str(texstr);
     }
-    return str;
+    if (str)
+      lua_pushstring(L, str);
+    else
+      lua_pushnil(L);
+    return;
+}
+
+int do_scan_internal (lua_State *L, int cur_cmd, int cur_code)
+{
+  int texstr;
+  char *str = NULL;
+  int save_cur_val, save_cur_val_level;
+  save_cur_val = cur_val;
+  save_cur_val_level = cur_val_level;
+  zscan_something_simple(cur_cmd, cur_code);
+  
+  if (cur_val_level == int_val_level ||
+      cur_val_level == dimen_val_level ||
+      cur_val_level == attr_val_level) {
+    lua_pushnumber(L, cur_val);
+  } else if (cur_val_level ==  glue_val_level) {
+    lua_nodelib_push_fast(L, cur_val);
+  } else { /* dir_val_level, mu_val_level, tok_val_level */
+    texstr = the_scanned_result();
+    str = makecstring(texstr);
+    if (str)
+      lua_pushstring(L, str);
+    else
+      lua_pushnil(L);
+    flush_str(texstr);
+  }
+  cur_val = save_cur_val;
+  cur_val_level = save_cur_val_level;
+  return 1;
+}
+
+int get_parshape (lua_State *L)
+{
+  int n;
+  halfword par_shape_ptr = get_par_shape_ptr();
+  if (par_shape_ptr!=0) {
+    int m =1;
+    n = vinfo(par_shape_ptr+1);
+    lua_createtable (L,n,0);
+    while (m<=n) {
+      lua_createtable (L,2,0);
+      lua_pushnumber (L, vlink((par_shape_ptr)+(2*(m-1))+2));
+      lua_rawseti(L,-2,1);
+      lua_pushnumber (L, vlink((par_shape_ptr)+(2*(m-1))+3));
+      lua_rawseti(L,-2,2);
+      lua_rawseti(L,-2,m);
+      m++;
+    }
+  }
+  return 1;
 }
 
 
 int gettex(lua_State * L)
 {
-    char *st;
-    int i, texstr;
-    size_t k;
-    char *str;
-    int cur_cs, cur_cmd, cur_code;
-    i = lua_gettop(L);
-    if (lua_isstring(L, i)) {
-        st = (char *) lua_tolstring(L, i, &k);
-        texstr = maketexlstring(st, k);
-        cur_cs = zprim_lookup(texstr);
-        flush_str(texstr);
-        if (cur_cs) {
-          char *str;
-          cur_cmd = zget_prim_eq_type(cur_cs);
-          cur_code = zget_prim_equiv(cur_cs);
-          if (is_convert(cur_cmd)) {
-            str = get_convert(cur_code);
-            if (str)
-              lua_pushstring(L, str);
-            else
-              lua_pushnil(L);
-          } else {
-            int texstr;
-            int save_cur_val, save_cur_val_level;
-            save_cur_val = cur_val;
-            save_cur_val_level = cur_val_level;
-            zscan_something_simple(cur_cmd, cur_code);
-
-            if (cur_val_level == int_val ||
-                cur_val_level == dimen_val ||
-                cur_val_level == attr_val) {
-              lua_pushnumber(L, cur_val);
-            } else if (cur_val_level ==  glue_val) {
-              lua_nodelib_push_fast(L, cur_val);
-            } else { /* dir_val, mu_val, tok_val */
-              texstr = the_scanned_result();
-              str = makecstring(texstr);
-              if (str)
-                lua_pushstring(L, str);
-              else
-                lua_pushnil(L);
-              flush_str(texstr);
-            }
-            cur_val = save_cur_val;
-            cur_val_level = save_cur_val_level;
-          }
-          return 1;
-        } else {
-            lua_rawget(L, (i - 1));
-            return 1;
-        }
-    } else {
-        lua_rawget(L, (i - 1));
-        return 1;
+    int cur_cs = -1;
+    int retval = 1; /* default is to return nil  */
+    if (lua_isstring(L, 2)) { /* 1 == 'tex' */
+      int texstr;
+      size_t k;
+      char *st = (char *) lua_tolstring(L, 2, &k);
+      texstr = maketexlstring(st, k);
+      cur_cs = zprim_lookup(texstr); /* not found == relax == 0 */
+      flush_str(texstr);
     }
-    return 0;                   /* not reached */
+    if (cur_cs>0) {
+      int cur_cmd, cur_code;
+      cur_cmd = zget_prim_eq_type(cur_cs);
+      cur_code = zget_prim_equiv(cur_cs);
+      switch (cur_cmd) {
+      case convert_cmd : 
+        retval = do_convert(L, cur_code); break;
+      case assign_toks_cmd : 
+      case assign_int_cmd : 
+      case assign_attr_cmd : 
+      case assign_dir_cmd : 
+      case assign_dimen_cmd : 
+      case assign_glue_cmd : 
+      case assign_mu_glue_cmd : 
+      case set_aux_cmd: 
+      case set_prev_graf_cmd:
+      case set_page_int_cmd:
+      case set_page_dimen_cmd:
+      case char_given_cmd: 
+      case math_given_cmd:
+      case omath_given_cmd:
+        retval = do_scan_internal (L, cur_cmd, cur_code); break;
+      case set_shape_cmd:
+        retval = get_parshape (L); break;
+      default:           
+        lua_pushnil(L);  break;
+      }
+    } else {
+      lua_rawget(L, 1); /* fetch other index from table */
+    }
+    return retval;
 }
 
 
