@@ -189,3 +189,40 @@ typedef enum {
   tok_val_level=7, /* token lists */
 } value_level_code;
 
+typedef enum {
+  convert_number_code = 0          , /* command code for \.{\\number} */
+  convert_roman_numeral_code       , /* command code for \.{\\romannumeral} */
+  convert_string_code              , /* command code for \.{\\string} */
+  convert_meaning_code             , /* command code for \.{\\meaning} */
+  convert_font_name_code           , /* command code for \.{\\fontname} */
+  convert_etex_code                , /* command code for \.{\\eTeXVersion} */
+  convert_omega_code               , /* command code for \.{\\OmegaVersion} */
+  convert_aleph_code               , /* command code for \.{\\AlephVersion} */
+  convert_format_name_code         , /* command code for \.{\\AlephVersion} */
+  convert_pdftex_revision_code     , /* command code for \.{\\pdftexrevision} */
+#define convert_pdftex_first_expand_code convert_pdftex_revision_code /* base for \pdfTeX's command codes */
+  convert_pdftex_banner_code       , /* command code for \.{\\pdftexbanner} */
+  convert_pdf_font_name_code       , /* command code for \.{\\pdffontname} */
+  convert_pdf_font_objnum_code     , /* command code for \.{\\pdffontobjnum} */
+  convert_pdf_font_size_code       , /* command code for \.{\\pdffontsize} */
+  convert_pdf_page_ref_code        , /* command code for \.{\\pdfpageref} */
+  convert_pdf_xform_name_code      , /* command code for \.{\\pdfxformname} */
+  convert_left_margin_kern_code    , /* command code for \.{\\leftmarginkern} */
+  convert_right_margin_kern_code   , /* command code for \.{\\rightmarginkern} */
+  convert_pdf_creation_date_code   , /* command code for \.{\\pdfcreationdate} */
+  convert_uniform_deviate_code     , /* command code for \.{\\uniformdeviate} */
+  convert_normal_deviate_code      , /* command code for \.{\\normaldeviate} */
+  convert_pdf_insert_ht_code       , /* command code for \.{\\pdfinsertht} */
+  convert_pdf_ximage_bbox_code     , /* command code for \.{\\pdfximagebbox} */
+  convert_lua_code                 , /* command code for \.{\\directlua} */
+  convert_lua_escape_string_code   , /* command code for \.{\\luaescapestring} */
+  convert_pdf_colorstack_init_code , /* command code for \.{\\pdfcolorstackinit} */
+  convert_luatex_revision_code     , /* command code for \.{\\luatexrevision} */
+  convert_luatex_date_code         , /* command code for \.{\\luatexdate} */
+  convert_job_name_code            , /* command code for \.{\\jobname} */
+#define  convert_pdftex_convert_codes convert_job_name_code /* end of \pdfTeX's command codes */
+  convert_Aleph_revision_code      , /* command code for \.{\\Alephrevision} */
+  convert_Omega_revision_code      , /* command code for \.{\\Omegarevision} */
+  convert_eTeX_revision_code       , /* command code for \.{\\eTeXrevision} */
+  convert_font_identifier_code     , /* command code for \.{tex.fontidentifier} (virtual) */
+} convert_codes;
