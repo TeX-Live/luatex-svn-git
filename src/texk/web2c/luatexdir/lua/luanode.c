@@ -131,7 +131,6 @@ lua_node_filter(int filterid, int xextrainfo, halfword head_node,
 void
 lua_linebreak_callback (int is_broken, halfword head_node, halfword *new_head)
 {
-    halfword ret;
     int a;
     lua_State *L = Luas[0];
     int callback_id = callback_defined(linebreak_filter_callback);
