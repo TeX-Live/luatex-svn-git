@@ -42,7 +42,7 @@ static integer fm_curbyte = 0;
     readbinfile(fm_file,&fm_buffer,&fm_size)
 #define fm_close()      xfclose(fm_file, cur_file_name)
 #define fm_getchar()    fm_buffer[fm_curbyte++]
-#define fm_eof()        (fm_curbyte>=fm_size)
+#define fm_eof()        (fm_curbyte>fm_size)
 
 typedef enum { FM_DUPIGNORE, FM_REPLACE, FM_DELETE } updatemode;
 typedef enum { MAPFILE, MAPLINE } maptype;
