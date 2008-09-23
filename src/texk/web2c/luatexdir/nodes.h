@@ -244,7 +244,7 @@ typedef enum {
 #  define char_uchyph(a)   ((const int)(((unsigned)lang_data(a) & 0x80000000)>>31))
 
 #  define make_lang_data(a,b,c,d) (a>0 ? (1<<31): 0)+                     \
-  (b<<16)+ (((c>0 && c<256) ? c : 1)<<8)+(((d>0 && d<256) ? d : 1))
+  (b<<16)+ (((c>0 && c<256) ? c : 255)<<8)+(((d>0 && d<256) ? d : 255))
 
 #  define init_lang_data(a)      lang_data(a)=256+1
 
