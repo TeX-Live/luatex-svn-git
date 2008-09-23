@@ -1,6 +1,6 @@
 # Makefile fragment for pdfeTeX and web2c. --infovore@xs4all.nl. Public domain.
 # This fragment contains the parts of the makefile that are most likely to
-# differ between releases of pdfeTeX.
+# differ between releases of luatex
 # $Id$
 
 # We build luatex
@@ -20,7 +20,9 @@ LIBXPDFSRCDIR=$(srcdir)/$(LIBXPDFDIR)
 LIBOBSDCOMPATDIR=../../libs/obsdcompat
 LIBOBSDCOMPATFSRCDIR=$(srcdir)/$(LIBOBSDCOMPATDIR)
 
-XCPPFLAGS=-I$(LIBOBSDCOMPATDIR) -I$(LIBOBSDCOMPATDIR)/.. -I$(LIBOBSDCOMPATFSRCDIR) -I$(LIBOBSDCOMPATFSRCDIR)/..  -I$(ZLIBSRCDIR) -I$(LIBPNGSRCDIR) -I$(LIBXPDFSRCDIR) -Dextra_version_info=`date +-%Y%m%d%H`
+SVN_REV := $(shell $(srcdir)/$(luatexdir)/get_svnversion.sh $(srcdir))
+
+XCPPFLAGS=-I$(LIBOBSDCOMPATDIR) -I$(LIBOBSDCOMPATDIR)/.. -I$(LIBOBSDCOMPATFSRCDIR) -I$(LIBOBSDCOMPATFSRCDIR)/..  -I$(ZLIBSRCDIR) -I$(LIBPNGSRCDIR) -I$(LIBXPDFSRCDIR) -Dextra_version_info=`date +-%Y%m%d%H` -DSVN_REV=\"$(SVN_REV)\"
 
 Makefile: $(srcdir)/$(luatexdir)/luatex.mk
 

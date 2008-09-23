@@ -169,6 +169,9 @@ extern size_t last_ptr_index;
 
 int loadpoolstrings(integer spare_size);
 
+/* A hack to counter fixwrites */
+#define do_write_wterm(a) fprintf(stdout, "%s",  a) 
+
 /* pdftexlib function prototypes */
 
 /* epdf.c */

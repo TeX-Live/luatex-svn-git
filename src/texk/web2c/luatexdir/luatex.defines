@@ -219,6 +219,8 @@
 @define procedure flush_loggable_info;
 
 @define var extra_version_info;
+@define var SVN_REV;
+@define procedure do_write_wterm();
 
 { bits and pieces from aleph }
 
