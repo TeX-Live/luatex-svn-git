@@ -1182,5 +1182,7 @@ int luaopen_tex(lua_State * L)
     spindles[0].head = NULL;
     spindles[0].tail = NULL;
     spindle_size = 1;
+    /* a somewhat odd place for this assert, maybe */
+    assert (command_names[data_cmd].command_offset == data_cmd);
     return 1;
 }
