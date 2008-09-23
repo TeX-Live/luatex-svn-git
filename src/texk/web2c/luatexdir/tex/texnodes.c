@@ -1814,6 +1814,8 @@ int unset_attribute(halfword n, int i, int val)
         j++;
         p = vlink(p);
     }
+    if (attribute_id(p) != i)
+        return -1;
     /* if we are still here, the attribute exists */
     p = node_attr(n);
     if (attr_list_ref(p) != 1) {
