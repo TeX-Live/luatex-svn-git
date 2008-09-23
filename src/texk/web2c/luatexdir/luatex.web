@@ -4285,11 +4285,21 @@ sort of ``complicated'' are indicated only by printing `\.{[]}'.
 
 @p
 procedure print_font_identifier(f: internal_font_number);
+var fonttext:str_number;
 begin
     if pdf_font_blink(f) = null_font then
-        print_esc(font_id_text(f))
+        fonttext := font_id_text(f)
     else
-        print_esc(font_id_text(pdf_font_blink(f)));
+        fonttext := font_id_text(pdf_font_blink(f));
+    if fonttext>0 then
+        print_esc(fonttext)
+    else begin
+        print_esc("FONT");
+        if pdf_font_blink(f) = null_font then
+            print_int(f)
+        else    
+            print_int(pdf_font_blink(f));
+        end;
     if pdf_tracing_fonts > 0 then begin
         print(" (");
         print_font_name(f);
