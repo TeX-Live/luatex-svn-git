@@ -165,6 +165,7 @@ static struct option long_options[]
 {"kpathsea-debug", 1, 0, 0},
 {"progname", 1, 0, 0},
 {"version", 0, 0, 0},
+{"credits", 0, 0, 0},
 {"recorder", 0, &recorder_enabled, 1},
 {"etex", 0, 0, 0},
 {"output-comment", 1, 0, 0},
@@ -296,12 +297,35 @@ static void parse_options(int argc, char **argv)
             usagehelp(LUATEX_IHELP, BUG_ADDRESS);
 
         } else if (ARGUMENT_IS("version")) {
+            print_version_banner();
+            puts("\n\nExecute  'luatex --credits'  for credits and version details.\n\n"
+"There is NO warranty. Redistribution of this software is covered by\n" 
+"the terms of the GNU General Public License, version 2. For more\n" 
+"information about these matters, see the file named COPYING and\n" 
+"the LuaTeX source.\n\n" 
+"Copyright 2008 Taco Hoekwater, the LuaTeX Team.\n");
+            uexit(0);
+        } else if (ARGUMENT_IS("credits")) {
             char *versions;
             initversionstring(&versions);
             print_version_banner();
-
-            puts("\n\nLuaTeX merges and builds upon (parts of) the code from these projects:\n\n" "tex       by Donald Knuth\n" "etex      by Peter Breitenlohner, Phil Taylor and friends\n" "omega     by John Plaice and Yannis Haralambous\n" "aleph     by Giuseppe Bilotta\n" "pdftex    by Han The Thanh and friends\n" "kpathsea  by Karl Berry, Olaf Weber and others\n" "lua       by Roberto Ierusalimschy, Waldemar Celes,\n" "             Luiz Henrique de Figueiredo\n" "metapost  by John Hobby, Taco Hoekwater and friends.\n" "xpdf      by Derek Noonberg (partial)\n" "fontforge by George Williams (partial)\n\n" "Some extensions to lua and additional lua libraries are used, as well as\n" "libraries for graphic inclusion. More details can be found in the source.\n" "Code development was sponsored by a grant from Colorado State University\n" "via the 'oriental tex' project, the TeX User Groups, and donations.\n\n" "The LuaTeX team is Hans Hagen, Hartmut Henkel, Taco Hoekwater.\n\n" "There is NO warranty. Redistribution of this software is covered by\n" "the terms of the GNU General Public License, version 2. For more\n" "information about these matters, see the file named COPYING and\n" "the LuaTeX source.\n\n" "Copyright 2008 Taco Hoekwater, the LuaTeX Team.\n");
-
+            puts("\n\nThe LuaTeX team is Hans Hagen, Hartmut Henkel, Taco Hoekwater.\n" 
+"LuaTeX merges and builds upon (parts of) the code from these projects:\n\n" 
+"tex       by Donald Knuth\n" 
+"etex      by Peter Breitenlohner, Phil Taylor and friends\n" 
+"omega     by John Plaice and Yannis Haralambous\n" 
+"aleph     by Giuseppe Bilotta\n" 
+"pdftex    by Han The Thanh and friends\n" 
+"kpathsea  by Karl Berry, Olaf Weber and others\n" 
+"lua       by Roberto Ierusalimschy, Waldemar Celes,\n" 
+"             Luiz Henrique de Figueiredo\n" 
+"metapost  by John Hobby, Taco Hoekwater and friends.\n" 
+"xpdf      by Derek Noonberg (partial)\n" 
+"fontforge by George Williams (partial)\n\n" 
+"Some extensions to lua and additional lua libraries are used, as well as\n" 
+"libraries for graphic inclusion. More details can be found in the source.\n" 
+"Code development was sponsored by a grant from Colorado State University\n" 
+"via the 'oriental tex' project, the TeX User Groups, and donations.\n" );
             puts(versions);
             uexit(0);
         }
