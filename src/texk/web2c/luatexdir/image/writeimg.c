@@ -813,7 +813,7 @@ void undumpimagemeta(integer pdfversion, integer pdfinclusionerrorlevel)
 /* stuff to be accessible from TeX */
 
 integer read_image(integer objnum, integer index, strnumber filename,
-                   integer page_num, strnumber attr, strnumber page_name,
+                   integer page_num, strnumber page_name, strnumber attr,
                    integer colorspace, integer page_box,
                    integer pdf_minor_version, integer pdf_inclusion_errorlevel)
 {
