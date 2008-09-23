@@ -426,6 +426,9 @@ void set_disc_field(halfword f, halfword t)
     if (t != null) {
         couple_nodes(f, t);
         tlink(f) = tail_of_list(t);
+    } else {
+      vlink(f) = null;
+      tlink(f) = null;
     }
 }
 
