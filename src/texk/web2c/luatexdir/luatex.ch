@@ -414,16 +414,6 @@ tini@/
 @!filelineerrorstylep:cinttype; {format messages as file:line:error}
 @!haltonerrorp:cinttype; {stop at first error}
 @!quoted_filename:boolean; {current filename is quoted}
-{Variables for source specials}
-@!srcspecialsp : boolean;{Whether |src_specials| are enabled at all}
-@!insertsrcspecialauto : boolean;
-@!insertsrcspecialeverypar : boolean;
-@!insertsrcspecialeveryparend : boolean;
-@!insertsrcspecialeverycr : boolean;
-@!insertsrcspecialeverymath : boolean;
-@!insertsrcspecialeveryhbox : boolean;
-@!insertsrcspecialeveryvbox : boolean;
-@!insertsrcspecialeverydisplay : boolean;
 @z
 
 @x
@@ -1427,7 +1417,7 @@ recorder_change_filename(stringcast(nameoffile+1));
 @x
 begin wlog(banner);
 @y
-begin if srcspecialsp or filelineerrorstylep or parsefirstlinep
+begin if filelineerrorstylep or parsefirstlinep
 then
   wlog(banner_k)
 else
@@ -1453,10 +1443,6 @@ end
 if shellenabledp then begin
   wlog_cr;
   wlog('\write18 enabled.')
-  end;
-if srcspecialsp then begin
-  wlog_cr;
-  wlog(' Source specials enabled.')
   end;
 if filelineerrorstylep then begin
   wlog_cr;
@@ -1620,9 +1606,6 @@ endifn ('IPC')
 continue: adjust_space_factor;@/
 @y
 @<Append character |cur_chr|...@>=
-if ((head=tail) and (mode>0)) then begin
-  if (insertsrcspecialauto) then append_src_special;
-end;
 continue: adjust_space_factor;@/
 @z
 
@@ -1642,7 +1625,6 @@ if indented then begin
   p:=new_null_box; box_dir(p):=par_direction;
   width(p):=par_indent;@+
   tail_append(p);
-  if (insertsrcspecialeverypar) then insert_src_special;@+
 @z
 
 @x
@@ -1661,20 +1643,6 @@ end else begin
 @.Extra \\endcsname@>
   help1("I'm ignoring this, since I wasn't doing a \csname.");
 end;
-@z
-
-@x
-if every_math<>null then begin_token_list(every_math,every_math_text);
-@y
-if (insertsrcspecialeverymath) then insert_src_special;
-if every_math<>null then begin_token_list(every_math,every_math_text);
-@z
-
-@x
-  if every_vbox<>null then begin_token_list(every_vbox,every_vbox_text);
-@y
-  if (insertsrcspecialeveryvbox) then insert_src_special;
-  if every_vbox<>null then begin_token_list(every_vbox,every_vbox_text);
 @z
 
 @x
@@ -2208,7 +2176,7 @@ end {|main_body|};
 @x
   wterm(banner);
 @y
-  if srcspecialsp or filelineerrorstylep or parsefirstlinep then
+  if filelineerrorstylep or parsefirstlinep then
     wterm(banner_k)
   else
     wterm(banner);
@@ -2224,9 +2192,6 @@ end {|main_body|};
   print_ln;
   if shellenabledp then begin
     wterm_ln(' \write18 enabled.')
-  end;
-  if srcspecialsp then begin
-    wterm_ln(' Source specials enabled.')
   end;
   if filelineerrorstylep then begin
     wterm_ln(' file:line:error style messages enabled.')
@@ -2583,44 +2548,6 @@ exit:end;
 @x
 @* \[55] Index.
 @y
-
-@ @<Declare action procedures for use by |main_control|@>=
-
-procedure insert_src_special;
-var toklist, p, q,r : pointer;
-begin
-  if (source_filename_stack[in_open] > 0 and isnewsource (source_filename_stack[in_open]
-, line)) then begin
-    toklist := get_avail;
-    p := toklist;
-    info(p) := cs_token_flag+frozen_special;
-    r := get_avail; link(p):=r; p := link(p);
-    info(p) := left_brace_token+"{";
-    q := str_toks (makesrcspecial (source_filename_stack[in_open], line));
-    link(p) := link(temp_token_head);
-    p := q;
-    r := get_avail; link(p):=r; p := link(p);
-    info(p) := right_brace_token+"}";
-    ins_list (toklist);
-    remembersourceinfo (source_filename_stack[in_open], line);
-  end;
-end;
-
-procedure append_src_special;
-var q : pointer;
-begin
-  if (source_filename_stack[in_open] > 0 and isnewsource (source_filename_stack[in_open]
-, line)) then begin
-    new_whatsit (special_node);
-    write_stream(tail) := 0;
-    q:=get_avail; def_ref := q;
-    token_ref_count(def_ref) := null;
-    q := str_toks (makesrcspecial (source_filename_stack[in_open], line));
-    link(def_ref) := link(temp_head);
-    write_tokens(tail) := def_ref;
-    remembersourceinfo (source_filename_stack[in_open], line);
-  end;
-end;
 
 @ This function used to be in pdftex, but is useful in tex too.
 

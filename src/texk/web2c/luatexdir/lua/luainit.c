@@ -45,7 +45,6 @@ static const char _svn_version[] =
  *
  */
 
-extern void parse_src_specials_option(char *n);
 extern string normalize_quotes (const_string name, const_string mesg);
 
 const_string LUATEX_IHELP[] = {
@@ -123,7 +122,6 @@ prepare_cmdline(lua_State * L, char **argv, int argc, int zero_offset)
 
 extern string dump_name;
 extern const_string c_job_name;
-extern boolean srcspecialsoption;
 extern char *last_source_name;
 extern int last_lineno;
 
@@ -176,7 +174,6 @@ static struct option long_options[]
 {"shell-escape", 0, &shellenabledp, 1},
 {"no-shell-escape", 0, &shellenabledp, -1},
 {"debug-format", 0, &debug_format_file, 1},
-{"src-specials", 2, 0, 0},
 {"file-line-error-style", 0, &filelineerrorstylep, 1},
 {"no-file-line-error-style", 0, &filelineerrorstylep, -1},
       /* Shorter option names for the above. */
@@ -243,18 +240,6 @@ static void parse_options(int argc, char **argv)
                 output_comment = (string) xmalloc(256);
                 strncpy(output_comment, optarg, 255);
                 output_comment[255] = 0;
-            }
-
-        } else if (ARGUMENT_IS("src-specials")) {
-            last_source_name = xstrdup("");
-            /* Option `--src" without any value means `auto' mode. */
-            if (optarg == NULL) {
-                insertsrcspecialeverypar = true;
-                insertsrcspecialauto = true;
-                srcspecialsoption = true;
-                srcspecialsp = true;
-            } else {
-                parse_src_specials_option(optarg);
             }
 
         } else if (ARGUMENT_IS("output-format")) {
@@ -561,32 +546,6 @@ void lua_initialize(int ac, char **av)
         /* prohibit_file_trace (boolean) */
         tracefilenames = 1;
         get_lua_boolean("texconfig", "trace_file_names", &tracefilenames);
-
-        /* src_special_xx */
-        insertsrcspecialauto = insertsrcspecialeverypar =
-            insertsrcspecialeveryparend = insertsrcspecialeverycr =
-            insertsrcspecialeverymath = insertsrcspecialeveryhbox =
-            insertsrcspecialeveryvbox = insertsrcspecialeverydisplay = false;
-        get_lua_boolean("texconfig", "src_special_auto", &insertsrcspecialauto);
-        get_lua_boolean("texconfig", "src_special_everypar",
-                        &insertsrcspecialeverypar);
-        get_lua_boolean("texconfig", "src_special_everyparend",
-                        &insertsrcspecialeveryparend);
-        get_lua_boolean("texconfig", "src_special_everycr",
-                        &insertsrcspecialeverycr);
-        get_lua_boolean("texconfig", "src_special_everymath",
-                        &insertsrcspecialeverymath);
-        get_lua_boolean("texconfig", "src_special_everyhbox",
-                        &insertsrcspecialeveryhbox);
-        get_lua_boolean("texconfig", "src_special_everyvbox",
-                        &insertsrcspecialeveryvbox);
-        get_lua_boolean("texconfig", "src_special_everydisplay",
-                        &insertsrcspecialeverydisplay);
-
-        srcspecialsp = insertsrcspecialauto | insertsrcspecialeverypar |
-            insertsrcspecialeveryparend | insertsrcspecialeverycr |
-            insertsrcspecialeverymath | insertsrcspecialeveryhbox |
-            insertsrcspecialeveryvbox | insertsrcspecialeverydisplay;
 
         /* file_line_error */
         filelineerrorstylep = false;

@@ -1079,6 +1079,7 @@ parse_options P2C(int, argc,  string *, argv)
         }
       }
 #endif /* IPC */
+#if ! defined(luaTeX)
     } else if (ARGUMENT_IS ("src-specials")) {
        last_source_name = xstrdup("");
        /* Option `--src" without any value means `auto' mode. */
@@ -1090,6 +1091,7 @@ parse_options P2C(int, argc,  string *, argv)
        } else {
           parse_src_specials_option(optarg);
        }
+#endif
 #endif /* TeX */
 #if defined(pdfTeX) || defined(luaTeX)
     } else if (ARGUMENT_IS ("output-format")) {
@@ -1165,6 +1167,7 @@ parse_options P2C(int, argc,  string *, argv)
 }
 
 #if defined(TeX)
+#if ! defined(luaTeX)
 void 
 parse_src_specials_option P1C(const_string, opt_list)
 {
@@ -1214,6 +1217,7 @@ parse_src_specials_option P1C(const_string, opt_list)
     insertsrcspecialeveryvbox | insertsrcspecialeverydisplay;
   srcspecialsoption = true;
 }
+#endif
 #endif
 
 /* If the first thing on the command line (we use the globals `argv' and
