@@ -817,7 +817,11 @@ static boolean same_font_name(integer id, integer t)
 boolean font_shareable(internal_font_number f, internal_font_number k)
 {
     int ret = 0;
-    if (font_cidregistry(f) == NULL) {
+    /* For some lua-loaded (for instance AFM) fonts, it is normal to have 
+       a zero cidregistry,  and such fonts do not have a fontmap entry yet
+       at this point, so the test shoulh use the other branch  */
+    if (font_cidregistry(f) == NULL && font_cidregistry(k) == NULL &&
+        font_encodingbytes(f) != 2 && font_encodingbytes(k) != 2) {
         if (hasfmentry(k)
             && (font_map(k) == font_map(f))
             && (same_font_name(k, f)
