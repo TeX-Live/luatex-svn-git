@@ -112,20 +112,6 @@ void read_png_info(image_dict * idict, img_readtype_e readtype)
     default:
         pdftex_fail("unsupported type of color_type <%i>", info_p->color_type);
     }
-    if (fixed_pdf_minor_version >= 4
-        && (info_p->color_type == PNG_COLOR_TYPE_GRAY_ALPHA
-            || info_p->color_type == PNG_COLOR_TYPE_RGB_ALPHA)) {
-        /* png with alpha channel in device colours; we have to add a Page
-         * Group to make Adobe happy, so we have to create a dummy group object
-         */
-        if (transparent_page_group < 1) {
-            transparent_page_group = pdf_new_objnum();
-        }
-        if (pdf_page_group_val < 1) {
-            pdf_page_group_val = transparent_page_group;
-        }
-        img_group_ref(idict) = pdf_page_group_val;
-    }
     img_colordepth(idict) = info_p->bit_depth;
     if (readtype == IMG_CLOSEINBETWEEN)
         close_and_cleanup_png(idict);
