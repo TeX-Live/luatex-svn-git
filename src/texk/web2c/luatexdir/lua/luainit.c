@@ -46,6 +46,7 @@ static const char _svn_version[] =
  */
 
 extern void parse_src_specials_option(char *n);
+extern string normalize_quotes (const_string name, const_string mesg);
 
 const_string LUATEX_IHELP[] = {
     "Usage: luatex --lua=FILE [OPTION]... [TEXNAME[.tex]] [COMMANDS]",
@@ -369,6 +370,11 @@ static void parse_options(int argc, char **argv)
     }
     if (safer_option) /* --safer implies --nosocket */
       nosocket_option = 1;
+
+    /* Finalize the input filename. */
+    if (input_name != NULL) {
+      argv[optind] = normalize_quotes(input_name, "argument");
+    }
 }
 
 /* test for readability */
