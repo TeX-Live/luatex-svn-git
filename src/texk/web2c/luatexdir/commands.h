@@ -220,6 +220,7 @@ typedef enum {
   convert_pdf_colorstack_init_code , /* command code for \.{\\pdfcolorstackinit} */
   convert_luatex_revision_code     , /* command code for \.{\\luatexrevision} */
   convert_luatex_date_code         , /* command code for \.{\\luatexdate} */
+  convert_expanded_code            , /* command code for \.{\\expanded} */
   convert_job_name_code            , /* command code for \.{\\jobname} */
 #define  convert_pdftex_convert_codes convert_job_name_code /* end of \pdfTeX's command codes */
   convert_Aleph_revision_code      , /* command code for \.{\\Alephrevision} */

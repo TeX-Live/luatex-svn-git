@@ -11166,7 +11166,8 @@ such that |job_name_code| remains last.
 @d pdf_colorstack_init_code = pdftex_first_expand_code + 16 {command code for \.{\\pdfcolorstackinit}}
 @d luatex_revision_code     = pdftex_first_expand_code + 17 {command code for \.{\\luatexrevision}}
 @d luatex_date_code         = pdftex_first_expand_code + 18 {command code for \.{\\luatexdate}}
-@d pdftex_convert_codes     = pdftex_first_expand_code + 19 {end of \pdfTeX's command codes}
+@d expanded_code           =  pdftex_first_expand_code + 19 {command code for \.{\\luatexdate}}
+@d pdftex_convert_codes     = pdftex_first_expand_code + 20 {end of \pdfTeX's command codes}
 @d job_name_code=pdftex_convert_codes {command code for \.{\\jobname}}
 
 
@@ -11221,6 +11222,8 @@ primitive("directlua",convert,lua_code);@/
 @!@:lua_}{\.{\\directlua} primitive@>
 primitive("luaescapestring",convert,lua_escape_string_code);@/
 @!@:lua_}{\.{\\luaescapestring} primitive@>
+primitive("expanded",convert,expanded_code);@/
+@!@:expanded_}{\.{\\expanded} primitive@>
 @#
 primitive("jobname",convert,job_name_code);@/
 @!@:job_name_}{\.{\\jobname} primitive@>
@@ -11260,6 +11263,7 @@ convert: case chr_code of
   pdf_ximage_bbox_code:    print_esc("pdfximagebbox");
   lua_code:                print_esc("directlua");
   lua_escape_string_code:  print_esc("luaescapestring");
+  expanded_code:          print_esc("expanded");
   @/@<Cases of |convert| for |print_cmd_chr|@>@/
   othercases print_esc("jobname")
   endcases;
@@ -11402,6 +11406,20 @@ lua_escape_string_code:
         ins_list(link(temp_token_head));
     flush_str(s);
         if u<>0 then begin decr(str_ptr); u:=0; end; 
+    return;
+  end;
+expanded_code:
+  begin
+    save_scanner_status := scanner_status;
+    save_warning_index := warning_index;
+    save_def_ref := def_ref;
+    save_cur_string;
+    scan_pdf_ext_toks;
+    warning_index := save_warning_index;
+    scanner_status := save_scanner_status;
+    ins_list(link(def_ref));
+    def_ref := save_def_ref;
+    restore_cur_string;
     return;
   end;
 lua_code:
