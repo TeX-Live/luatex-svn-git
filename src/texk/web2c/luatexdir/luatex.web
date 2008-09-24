@@ -9836,9 +9836,14 @@ procedure scan_something_simple(@!cmd:halfword;@!subitem:halfword);
   {fetch an internal parameter}
 label exit;
 var m:halfword; {|chr_code| part of the operand token}
+    n, k: integer; {accumulators}
+@!q:halfword; {general purpose index}
 @!p:0..nest_size; {index into |nest|}
 @!level:small_number; { allowed level}
-begin m:=subitem; level:=tok_val;
+@!negative:boolean;
+@!save_cur_chr:integer;
+begin m:=subitem; level:=tok_val; 
+negative:=false; {never actually used, added for etexs |last_item| cases}
 case cmd of
 assign_toks: scanned_result(equiv(m))(tok_val);
 assign_int: scanned_result(eqtb[m].int)(int_val);
@@ -9852,6 +9857,12 @@ set_prev_graf: @<Fetch the |prev_graf|@>;
 set_page_int:@<Fetch the |dead_cycles| or the |insert_penalties|@>;
 set_page_dimen: @<Fetch something on the |page_so_far|@>;
 set_shape: @<Fetch the |par_shape| size@>;
+last_item: begin
+  save_cur_chr:=cur_chr;
+  cur_chr:=subitem;
+  @<Fetch an item in the current node, if appropriate@>;
+  cur_chr:=save_cur_chr;
+  end;
 char_given,math_given,omath_given: scanned_result(m)(int_val); {TH: TODO, doesnt work}
 othercases @<Complain that |texlib| can't do this; give zero result@>
 endcases;@/

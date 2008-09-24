@@ -228,3 +228,63 @@ typedef enum {
   convert_eTeX_revision_code       , /* command code for \.{\\eTeXrevision} */
   convert_font_identifier_code     , /* command code for \.{tex.fontidentifier} (virtual) */
 } convert_codes;
+
+typedef enum {
+  last_item_lastpenalty_code=0,              /* code for \.{\\lastpenalty} */
+  last_item_lastattr_code,                   /* not used */
+  last_item_lastkern_code,                   /* code for \.{\\lastkern} */
+  last_item_lastskip_code,                   /* code for \.{\\lastskip} */
+  last_item_last_node_type_code,             /* code for \.{\\lastnodetype} */
+  last_item_input_line_no_code,              /* code for \.{\\inputlineno} */
+  last_item_badness_code,                    /* code for \.{\\badness} */
+  last_item_pdftex_version_code,             /* code for \.{\\pdftexversion} */
+#define last_item_pdftex_first_rint_code   last_item_pdftex_version_code /* base for \pdfTeX's command codes */
+  last_item_pdf_last_obj_code,               /* code for \.{\\pdflastobj} */
+  last_item_pdf_last_xform_code,             /* code for \.{\\pdflastxform} */
+  last_item_pdf_last_ximage_code,            /* code for \.{\\pdflastximage} */
+  last_item_pdf_last_ximage_pages_code,      /* code for \.{\\pdflastximagepages} */
+  last_item_pdf_last_annot_code,             /* code for \.{\\pdflastannot} */
+  last_item_pdf_last_x_pos_code,             /* code for \.{\\pdflastxpos} */
+  last_item_pdf_last_y_pos_code,             /* code for \.{\\pdflastypos} */
+  last_item_pdf_retval_code,                 /* global multi-purpose return value */
+  last_item_pdf_last_ximage_colordepth_code, /* code for \.{\\pdflastximagecolordepth} */
+  last_item_random_seed_code,                /* code for \.{\\pdfrandomseed} */
+  last_item_pdf_last_link_code,              /* code for \.{\\pdflastlink} */
+  last_item_luatex_version_code,             /* code for \.{\\luatexversion} */
+#define last_item_pdftex_last_item_codes last_item_luatex_version_code    /* end of \pdfTeX's command codes */
+  last_item_Aleph_version_code,              /* code for \.{\\Alephversion} */
+#define last_item_Aleph_int last_item_Aleph_version_code
+  last_item_Omega_version_code,              /* code for \.{\\Omegaversion} */
+  last_item_Aleph_minor_version_code,        /* code for \.{\\Alephminorversion} */
+  last_item_Omega_minor_version_code,        /* code for \.{\\Omegaminorversion} */
+  last_item_eTeX_minor_version_code,         /* code for \.{\\eTeXminorversion} */
+  last_item_eTeX_version_code,               /* code for \.{\\eTeXversion} */
+#define last_item_eTeX_int last_item_eTeX_version_code /* first of \eTeX\ codes for integers */
+  last_item_current_group_level_code,        /* code for \.{\\currentgrouplevel} */
+  last_item_current_group_type_code,         /* code for \.{\\currentgrouptype} */
+  last_item_current_if_level_code,           /* code for \.{\\currentiflevel} */
+  last_item_current_if_type_code,            /* code for \.{\\currentiftype} */
+  last_item_current_if_branch_code,          /* code for \.{\\currentifbranch} */
+  last_item_glue_stretch_order_code,         /* code for \.{\\gluestretchorder} */
+  last_item_glue_shrink_order_code,          /* code for \.{\\glueshrinkorder} */
+  last_item_font_char_wd_code,               /* code for \.{\\fontcharwd} */
+#define last_item_eTeX_dim last_item_font_char_wd_code /* first of \eTeX\ codes for dimensions */
+  last_item_font_char_ht_code,               /* code for \.{\\fontcharht} */
+  last_item_font_char_dp_code,               /* code for \.{\\fontchardp} */
+  last_item_font_char_ic_code,               /* code for \.{\\fontcharic} */
+  last_item_par_shape_length_code,           /* code for \.{\\parshapelength} */
+  last_item_par_shape_indent_code,           /* code for \.{\\parshapeindent} */
+  last_item_par_shape_dimen_code,            /* code for \.{\\parshapedimen} */
+  last_item_glue_stretch_code,               /* code for \.{\\gluestretch} */
+  last_item_glue_shrink_code,                /* code for \.{\\glueshrink} */
+  last_item_mu_to_glue_code,                 /* code for \.{\\mutoglue} */
+#define last_item_eTeX_glue last_item_mu_to_glue_code /* first of \eTeX\ codes for glue */
+  last_item_glue_to_mu_code,                 /* code for \.{\\gluetomu} */
+#define last_item_eTeX_mu last_item_glue_to_mu_code /* first of \eTeX\ codes for muglue */
+  last_item_numexpr_code,                    /* code for \.{\\numexpr} */
+#define last_item_eTeX_expr last_item_numexpr_code /* first of \eTeX\ codes for expressions */
+  last_item_attrexpr_code,                   /* not used */
+  last_item_dimexpr_code,                    /* code for \.{\\dimexpr} */
+  last_item_glueexpr_code,                   /* code for \.{\\glueexpr} */
+  last_item_muexpr_code,                     /* code for \.{\\muexpr} */
+} last_item_codes;

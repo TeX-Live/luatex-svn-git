@@ -805,6 +805,84 @@ int do_convert (lua_State *L, int cur_code) {
     return 1;
 }
 
+
+int do_lastitem (lua_State *L, int cur_code) {
+    int retval = 1;
+    switch (cur_code) {
+      /* the next two do not actually exist */
+    case last_item_lastattr_code:
+    case last_item_attrexpr_code:
+      lua_pushnil(L);
+      break;
+      /* the expressions do something complicated with arguments, yuck */
+    case last_item_numexpr_code:
+    case last_item_dimexpr_code:
+    case last_item_glueexpr_code:
+    case last_item_muexpr_code:
+      lua_pushnil(L);
+      break;
+      /* these read a glue or muglue, todo */
+    case last_item_mu_to_glue_code:
+    case last_item_glue_to_mu_code:
+    case last_item_glue_stretch_order_code:
+    case last_item_glue_shrink_order_code:
+    case last_item_glue_stretch_code:
+    case last_item_glue_shrink_code:
+      lua_pushnil(L);
+      break;
+      /* these read a fontid and a char, todo */
+    case last_item_font_char_wd_code:
+    case last_item_font_char_ht_code:
+    case last_item_font_char_dp_code:
+    case last_item_font_char_ic_code:
+      lua_pushnil(L);
+      break;
+      /* these read an integer, todo */
+    case last_item_par_shape_length_code:
+    case last_item_par_shape_indent_code:
+    case last_item_par_shape_dimen_code:
+      lua_pushnil(L);
+      break;
+    case last_item_lastpenalty_code:
+    case last_item_lastkern_code:
+    case last_item_lastskip_code:
+    case last_item_last_node_type_code:
+    case last_item_input_line_no_code:
+    case last_item_badness_code:
+    case last_item_pdftex_version_code:
+    case last_item_pdf_last_obj_code:
+    case last_item_pdf_last_xform_code:
+    case last_item_pdf_last_ximage_code:
+    case last_item_pdf_last_ximage_pages_code:
+    case last_item_pdf_last_annot_code:
+    case last_item_pdf_last_x_pos_code:
+    case last_item_pdf_last_y_pos_code:
+    case last_item_pdf_retval_code:
+    case last_item_pdf_last_ximage_colordepth_code:
+    case last_item_random_seed_code:
+    case last_item_pdf_last_link_code:
+    case last_item_luatex_version_code:
+    case last_item_Aleph_version_code:
+    case last_item_Omega_version_code:
+    case last_item_Aleph_minor_version_code:
+    case last_item_Omega_minor_version_code:
+    case last_item_eTeX_minor_version_code:
+    case last_item_eTeX_version_code:
+    case last_item_current_group_level_code:
+    case last_item_current_group_type_code:
+    case last_item_current_if_level_code:
+    case last_item_current_if_type_code:
+    case last_item_current_if_branch_code:
+      retval = do_scan_internal (L, last_item_cmd, cur_code);
+      break;
+    default:
+      lua_pushnil(L);
+      break;
+    }
+    return retval;
+}
+
+
 static int getfontname (lua_State *L) 
 { 
   return do_convert(L,convert_font_name_code);
@@ -927,6 +1005,8 @@ int gettex(lua_State * L)
       cur_cmd = zget_prim_eq_type(cur_cs);
       cur_code = zget_prim_equiv(cur_cs);
       switch (cur_cmd) {
+      case last_item_cmd : 
+        retval = do_lastitem(L, cur_code); break;
       case convert_cmd : 
         retval = do_convert(L, cur_code); break;
       case assign_toks_cmd : 
