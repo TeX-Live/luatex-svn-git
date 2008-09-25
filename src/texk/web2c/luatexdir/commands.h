@@ -288,3 +288,119 @@ typedef enum {
   last_item_glueexpr_code,                   /* code for \.{\\glueexpr} */
   last_item_muexpr_code,                     /* code for \.{\\muexpr} */
 } last_item_codes;
+
+
+typedef enum {
+  param_pretolerance_code=0, /* badness tolerance before hyphenation */
+  param_tolerance_code, /* badness tolerance after hyphenation */
+  param_line_penalty_code, /* added to the badness of every line */
+  param_hyphen_penalty_code, /* penalty for break after discretionary hyphen */
+  param_ex_hyphen_penalty_code, /* penalty for break after explicit hyphen */
+  param_club_penalty_code, /* penalty for creating a club line */
+  param_widow_penalty_code, /* penalty for creating a widow line */
+  param_display_widow_penalty_code, /* ditto, just before a display */
+  param_broken_penalty_code, /* penalty for breaking a page at a broken line */
+  param_bin_op_penalty_code, /* penalty for breaking after a binary operation */
+  param_rel_penalty_code, /* penalty for breaking after a relation */
+  param_pre_display_penalty_code, /* penalty for breaking just before a displayed formula */
+  param_post_display_penalty_code, /* penalty for breaking just after a displayed formula */
+  param_inter_line_penalty_code, /* additional penalty between lines */
+  param_double_hyphen_demerits_code, /* demerits for double hyphen break */
+  param_final_hyphen_demerits_code, /* demerits for final hyphen break */
+  param_adj_demerits_code, /* demerits for adjacent incompatible lines */
+  param_mag_code, /* magnification ratio */
+  param_delimiter_factor_code, /* ratio for variable-size delimiters */
+  param_looseness_code, /* change in number of lines for a paragraph */
+  param_time_code, /* current time of day */
+  param_day_code, /* current day of the month */
+  param_month_code, /* current month of the year */
+  param_year_code, /* current year of our Lord */
+  param_show_box_breadth_code, /* nodes per level in |show_box| */
+  param_show_box_depth_code, /* maximum level in |show_box| */
+  param_hbadness_code, /* hboxes exceeding this badness will be shown by |hpack| */
+  param_vbadness_code, /* vboxes exceeding this badness will be shown by |vpack| */
+  param_pausing_code, /* pause after each line is read from a file */
+  param_tracing_online_code, /* show diagnostic output on terminal */
+  param_tracing_macros_code, /* show macros as they are being expanded */
+  param_tracing_stats_code, /* show memory usage if \TeX\ knows it */
+  param_tracing_paragraphs_code, /* show line-break calculations */
+  param_tracing_pages_code, /* show page-break calculations */
+  param_tracing_output_code, /* show boxes when they are shipped out */
+  param_tracing_lost_chars_code, /* show characters that aren't in the font */
+  param_tracing_commands_code, /* show command codes at |big_switch| */
+  param_tracing_restores_code, /* show equivalents when they are restored */
+  param_uc_hyph_code, /* hyphenate words beginning with a capital letter */
+  param_output_penalty_code, /* penalty found at current page break */
+  param_max_dead_cycles_code, /* bound on consecutive dead cycles of output */
+  param_hang_after_code, /* hanging indentation changes after this many lines */
+  param_floating_penalty_code, /* penalty for insertions heldover after a split */
+  param_global_defs_code, /* override \.{\\global} specifications */
+  param_cur_fam_code, /* current family */
+  param_escape_char_code, /* escape character for token output */
+  param_default_hyphen_char_code, /* value of \.{\\hyphenchar} when a font is loaded */
+  param_default_skew_char_code, /* value of \.{\\skewchar} when a font is loaded */
+  param_end_line_char_code, /* character placed at the right end of the buffer */
+  param_new_line_char_code, /* character that prints as |print_ln| */
+  param_language_code, /* current hyphenation table */
+  param_left_hyphen_min_code, /* minimum left hyphenation fragment size */
+  param_right_hyphen_min_code, /* minimum right hyphenation fragment size */
+  param_holding_inserts_code, /* do not remove insertion nodes from \.{\\box255} */
+  param_error_context_lines_code, /* maximum intermediate line pairs shown */
+  param_local_inter_line_penalty_code, /* local \.{\\interlinepenalty} */
+  param_local_broken_penalty_code, /* local \.{\\brokenpenalty} */
+  param_no_local_whatsits_code, /* counts local whatsits */
+  param_no_local_dirs_code,
+  param_level_local_dir_code,
+  param_luastartup_id_code, 
+  param_disable_lig_code,
+  param_disable_kern_code,
+  param_cat_code_table_code,
+  param_cur_lang_code, /* current language id */
+  param_ex_hyphen_char_code,
+  param_page_direction_code, /* the five direction params do not exist in web */ 
+  param_body_direction_code,
+  param_par_direction_code,
+  param_text_direction_code,
+  param_math_direction_code,
+  param_pdf_output_code, /* switch on PDF output if positive */
+  param_pdf_compress_level_code, /* compress level of streams */
+  param_pdf_decimal_digits_code,    /* digits after the decimal point of numbers */
+  param_pdf_move_chars_code,        /* move chars 0..31 to higher area if possible */
+  param_pdf_image_resolution_code,  /* default image resolution */
+  param_pdf_pk_resolution_code,     /* default resolution of PK font */
+  param_pdf_unique_resname_code,    /* generate unique names for resouces */
+  param_pdf_option_always_use_pdfpagebox_code, /* if the PDF inclusion should always use a specific PDF page box */
+  param_pdf_option_pdf_inclusion_errorlevel_code, /* if the PDF inclusion should treat pdfs newer than |pdf_minor_version| as an error */
+  param_pdf_minor_version_code, /* fractional part of the PDF version produced */
+  param_pdf_force_pagebox_code, /* if the PDF inclusion should always use a specific PDF page box */
+  param_pdf_pagebox_code, /* default pagebox to use for PDF inclusion */
+  param_pdf_inclusion_errorlevel_code, /* if the PDF inclusion should treat pdfs newer than |pdf_minor_version| as an error */
+  param_pdf_gamma_code,            
+  param_pdf_image_gamma_code,
+  param_pdf_image_hicolor_code,    
+  param_pdf_image_apply_gamma_code,
+  param_pdf_adjust_spacing_code,    /* level of spacing adjusting */
+  param_pdf_protrude_chars_code,    /* protrude chars at left/right edge of paragraphs */
+  param_pdf_tracing_fonts_code,     /* level of font detail in log */
+  param_pdf_objcompresslevel_code,  /* activate object streams */
+  param_unused_one_code,            /* deleted param (pdftex integer 21) */
+  param_unused_two_code,            /* deleted param (pdftex integer 22) */
+  param_unused_three_code,          /* deleted param (pdftex integer 23) */
+  param_pdf_gen_tounicode_code,     /* generate ToUnicode for fonts? */
+  param_pdf_draftmode_code,         /* switch on draftmode if positive */
+  param_pdf_replace_font_code,      /* generate ToUnicode for fonts? */
+  param_pdf_inclusion_copy_font_code, /* generate ToUnicode for fonts? */
+  param_tracing_assigns_code,        /* show assignments */
+  param_tracing_groups_code, /* show save/restore groups */
+  param_tracing_ifs_code, /* show conditionals */
+  param_tracing_scan_tokens_code, /* show pseudo file open and close */
+  param_tracing_nesting_code, /* show incomplete groups and ifs within files */
+  param_pre_display_direction_code, /* text direction preceding a display */
+  param_last_line_fit_code, /* adjustment for last line of paragraph */
+  param_saving_vdiscards_code, /* save items discarded from vlists */
+  param_saving_hyph_codes_code,/* save hyphenation codes for languages */
+  param_suppress_fontnotfound_error_code, /* surpress errors for missing fonts */
+  param_synctex_code, /*  is synctex file generation enabled ?  */
+} param_codes;
+#define param_int_pars param_synctex_code+1 /* total number of integer parameters */
+
