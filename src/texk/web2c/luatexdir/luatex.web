@@ -9849,7 +9849,6 @@ procedure scan_something_simple(@!cmd:halfword;@!subitem:halfword);
   {fetch an internal parameter}
 label exit;
 var m:halfword; {|chr_code| part of the operand token}
-    n, k: integer; {accumulators}
 @!q:halfword; {general purpose index}
 @!p:0..nest_size; {index into |nest|}
 @!level:small_number; { allowed level}
