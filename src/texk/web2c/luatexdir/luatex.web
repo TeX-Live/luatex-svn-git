@@ -5866,10 +5866,8 @@ that will be defined later.
 @d broken_penalty_code=8 {penalty for breaking a page at a broken line}
 @d bin_op_penalty_code=9 {penalty for breaking after a binary operation}
 @d rel_penalty_code=10 {penalty for breaking after a relation}
-@d pre_display_penalty_code=11
-  {penalty for breaking just before a displayed formula}
-@d post_display_penalty_code=12
-  {penalty for breaking just after a displayed formula}
+@d pre_display_penalty_code=11 {penalty for breaking just before a displayed formula}
+@d post_display_penalty_code=12 {penalty for breaking just after a displayed formula}
 @d inter_line_penalty_code=13 {additional penalty between lines}
 @d double_hyphen_demerits_code=14 {demerits for double hyphen break}
 @d final_hyphen_demerits_code=15 {demerits for final hyphen break}
@@ -5933,7 +5931,7 @@ that will be defined later.
 @d math_direction_code=4
 @d dir_pars=5
 @#
-@d pdftex_first_integer_code = dir_base+dir_pars {base for \pdfTeX's integer parameters}
+@d pdftex_first_integer_code = tex_int_pars+dir_pars {base for \pdfTeX's integer parameters}
 @d pdf_output_code           = pdftex_first_integer_code + 0 {switch on PDF output if positive}
 @d pdf_compress_level_code   = pdftex_first_integer_code + 1 {compress level of streams}
 @d pdf_decimal_digits_code   = pdftex_first_integer_code + 2 {digits after the decimal point of numbers}
