@@ -30420,8 +30420,8 @@ primitive("special",extension,special_node);@/
 @!@:special_}{\.{\\special} primitive@>
 primitive("immediate",extension,immediate_code);@/
 @!@:immediate_}{\.{\\immediate} primitive@>
-primitive("localinterlinepenalty",assign_int,local_inter_line_penalty_code);@/
-primitive("localbrokenpenalty",assign_int,local_broken_penalty_code);@/
+primitive("localinterlinepenalty",assign_int,int_base+local_inter_line_penalty_code);@/
+primitive("localbrokenpenalty",assign_int,int_base+local_broken_penalty_code);@/
 primitive("pagedir",assign_dir,dir_base+page_direction_code);@/
 primitive("bodydir",assign_dir,dir_base+body_direction_code);@/
 primitive("pardir",assign_dir,dir_base+par_direction_code);@/
