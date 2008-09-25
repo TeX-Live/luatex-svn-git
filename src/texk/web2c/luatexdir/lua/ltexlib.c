@@ -806,6 +806,35 @@ int do_convert (lua_State *L, int cur_code) {
 }
 
 
+int do_scan_internal (lua_State *L, int cur_cmd, int cur_code)
+{
+  int texstr;
+  char *str = NULL;
+  int save_cur_val, save_cur_val_level;
+  save_cur_val = cur_val;
+  save_cur_val_level = cur_val_level;
+  zscan_something_simple(cur_cmd, cur_code);
+  
+  if (cur_val_level == int_val_level ||
+      cur_val_level == dimen_val_level ||
+      cur_val_level == attr_val_level) {
+    lua_pushnumber(L, cur_val);
+  } else if (cur_val_level ==  glue_val_level) {
+    lua_nodelib_push_fast(L, cur_val);
+  } else { /* dir_val_level, mu_val_level, tok_val_level */
+    texstr = the_scanned_result();
+    str = makecstring(texstr);
+    if (str)
+      lua_pushstring(L, str);
+    else
+      lua_pushnil(L);
+    flush_str(texstr);
+  }
+  cur_val = save_cur_val;
+  cur_val_level = save_cur_val_level;
+  return 1;
+}
+
 int do_lastitem (lua_State *L, int cur_code) {
     int retval = 1;
     switch (cur_code) {
@@ -933,35 +962,6 @@ static int getpdfxformname (lua_State *L)
   return do_convert(L,convert_pdf_xform_name_code);
 }
 
-
-int do_scan_internal (lua_State *L, int cur_cmd, int cur_code)
-{
-  int texstr;
-  char *str = NULL;
-  int save_cur_val, save_cur_val_level;
-  save_cur_val = cur_val;
-  save_cur_val_level = cur_val_level;
-  zscan_something_simple(cur_cmd, cur_code);
-  
-  if (cur_val_level == int_val_level ||
-      cur_val_level == dimen_val_level ||
-      cur_val_level == attr_val_level) {
-    lua_pushnumber(L, cur_val);
-  } else if (cur_val_level ==  glue_val_level) {
-    lua_nodelib_push_fast(L, cur_val);
-  } else { /* dir_val_level, mu_val_level, tok_val_level */
-    texstr = the_scanned_result();
-    str = makecstring(texstr);
-    if (str)
-      lua_pushstring(L, str);
-    else
-      lua_pushnil(L);
-    flush_str(texstr);
-  }
-  cur_val = save_cur_val;
-  cur_val_level = save_cur_val_level;
-  return 1;
-}
 
 int get_parshape (lua_State *L)
 {
