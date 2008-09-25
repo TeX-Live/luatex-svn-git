@@ -583,3 +583,23 @@
 @define procedure write_ln ();
 
 @define procedure recorder_change_filename ();
+
+{ functions from the synctex controller in synctex.c }
+
+@define procedure synctex_init_command;
+@define procedure synctex_start_input;
+@define procedure synctex_terminate();
+@define procedure synctex_sheet();
+@define procedure synctex_teehs;
+@define procedure synctex_vlist();
+@define procedure synctex_tsilv();
+@define procedure synctex_void_vlist();
+@define procedure synctex_hlist();
+@define procedure synctex_tsilh();
+@define procedure synctex_void_hlist();
+@define procedure synctex_math();
+@define procedure synctex_kern();
+@define procedure synctex_char();
+@define procedure synctex_node();
+@define procedure synctex_current;
+@define procedure synctex_horizontal_rule_or_glue();

@@ -164,9 +164,11 @@ typedef enum {
 #  define penalty_node_size 3
 #  define penalty(a)       vlink((a)+2)
 
-#  define glue_node_size 3
+#  define glue_node_size 4
 #  define glue_ptr(a)      vinfo((a)+2)
 #  define leader_ptr(a)    vlink((a)+2)
+#  define synctex_tag_glue(a)  vinfo((a)+3)
+#  define synctex_line_glue(a) vlink((a)+3)
 
 /* disc nodes could eventually be smaller, because the indirect 
    pointers are not really needed (8 instead of 10).
@@ -198,28 +200,35 @@ typedef enum {
 #  define tlink_post_break(a) tlink(post_break_head(a))
 #  define tlink_no_break(a)   tlink(no_break_head(a))
 
-#  define kern_node_size 3
+#  define kern_node_size 4
 #  define explicit 1            /*|subtype| of kern nodes from \.{\\kern} and \.{\\/} */
 #  define acc_kern 2            /*|subtype| of kern nodes from accents */
+#  define synctex_tag_kern(a)  vinfo((a)+3)
+#  define synctex_line_kern(a) vlink((a)+3)
 
-#  define box_node_size 8
-#  define width(a)         varmem[(a+2)].cint
-#  define depth(a)         varmem[(a+3)].cint
-#  define height(a)        varmem[(a+4)].cint
-#  define shift_amount(a)  vlink((a)+5)
-#  define box_dir(a)       vinfo((a)+5)
-#  define list_ptr(a)      vlink((a)+6)
-#  define glue_order(a)    subtype((a)+6)
-#  define glue_sign(a)     type((a)+6)
-#  define glue_set(a)      varmem[(a+7)].gr
+#  define box_node_size 9
+#  define width(a)            varmem[(a+2)].cint
+#  define depth(a)            varmem[(a+3)].cint
+#  define height(a)           varmem[(a+4)].cint
+#  define shift_amount(a)     vlink((a)+5)
+#  define box_dir(a)          vinfo((a)+5)
+#  define list_ptr(a)         vlink((a)+6)
+#  define glue_order(a)       subtype((a)+6)
+#  define glue_sign(a)        type((a)+6)
+#  define glue_set(a)         varmem[(a+7)].gr
+#  define synctex_tag_box(a)  vinfo((a)+8)
+#  define synctex_line_box(a) vlink((a)+8)
+
 
 /* unset nodes */
 #  define glue_stretch(a)  varmem[(a)+7].cint
 #  define glue_shrink      shift_amount
 #  define span_count       subtype
 
-#  define rule_node_size 6
+#  define rule_node_size 7
 #  define rule_dir(a)      vlink((a)+5)
+#  define synctex_tag_rule(a)  vinfo((a)+6)
+#  define synctex_line_rule(a) vlink((a)+6)
 
 #  define mark_node_size 3
 #  define mark_ptr(a)      vlink((a)+2)
@@ -260,10 +269,12 @@ typedef enum {
 #  define left_side 0
 #  define right_side 1
 
-#  define math_node_size 3
+#  define math_node_size 4
 #  define surround(a)      vlink((a)+2)
 #  define before 0              /*|subtype| for math node that introduces a formula */
 #  define after 1               /*|subtype| for math node that winds up a formula */
+#  define synctex_tag_math(a)  vinfo((a)+3)
+#  define synctex_line_math(a) vlink((a)+3)
 
 
 

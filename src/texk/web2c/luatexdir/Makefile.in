@@ -110,7 +110,8 @@ managed-sa.o \
 mathcodes.o \
 textcodes.o \
 utils.o \
-writezip.o
+writezip.o \
+synctex.o
 
 all: libpdf.a makecpool
 

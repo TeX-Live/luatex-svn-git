@@ -35,6 +35,9 @@
 /* pdftexlib macros */
 #  include "ptexmac.h"
 
+/* synctex */
+#  include "synctex.h"
+
 #  include "avlstuff.h"
 #  include "image/image.h"
 

@@ -3644,7 +3644,7 @@ specifies the order of infinity to which glue setting applies (|normal|,
 |sfi|, |fil|, |fill|, or |filll|). The |subtype| field is not used.
 
 @d hlist_node=0 {|type| of hlist nodes}
-@d box_node_size=8 {number of words to allocate for a box node}
+@d box_node_size=9 {number of words to allocate for a box node}
 @d width_offset=2 {position of |width| field in a box node}
 @d depth_offset=3 {position of |depth| field in a box node}
 @d height_offset=4 {position of |height| field in a box node}
@@ -3663,6 +3663,8 @@ specifies the order of infinity to which glue setting applies (|normal|,
 @d glue_offset = 7 {position of |glue_set| in a box node}
 @d glue_set(#) == vmem(#+glue_offset).gr
   {a word of type |glue_ratio| for glue setting}
+@d synctex_tag_box(#)==vinfo(#+8)
+@d synctex_line_box(#)==vlink(#+8)
 
 @ The |new_null_box| function returns a pointer to an |hlist_node| in
 which all subfields have the values corresponding to `\.{\\hbox\{\}}'.
@@ -3689,10 +3691,12 @@ This is called a ``running dimension.'' The |width| is never running in
 an hlist; the |height| and |depth| are never running in a~vlist.
 
 @d rule_node=2 {|type| of rule nodes}
-@d rule_node_size=6 {number of words to allocate for a rule node}
+@d rule_node_size=7 {number of words to allocate for a rule node}
 @d null_flag==-@'10000000000 {$-2^{30}$, signifies a missing item}
 @d is_running(#) == (#=null_flag) {tests for a running dimension}
 @d rule_dir(#)==vlink(#+5)
+@d synctex_tag_rule(#)==vinfo(#+6)
+@d synctex_line_rule(#)==vlink(#+6)
 
 @ A new rule node is delivered by the |new_rule| function. It
 makes all the dimensions ``running,'' so you have to change the
@@ -3915,7 +3919,7 @@ formula and |after| after it. There is a |surround| field, which represents
 the amount of surrounding space inserted by \.{\\mathsurround}.
 
 @d math_node=9 {|type| of a math node}
-@d math_node_size=3
+@d math_node_size=4
 @d surround(#)==vlink(#+2)
 @d before=0 {|subtype| for math node that introduces a formula}
 @d after=1 {|subtype| for math node that winds up a formula}
@@ -3963,7 +3967,7 @@ feature that cancels the glue node immediately following if it appears
 in a subscript.
 
 @d glue_node=10 {|type| of node that points to a glue specification}
-@d glue_node_size=3
+@d glue_node_size=4
 @d cond_math_glue=98 {special |subtype| to suppress glue in the next node}
 @d mu_glue=99 {|subtype| for math glue}
 @d a_leaders=100 {|subtype| for aligned leaders}
@@ -3971,6 +3975,8 @@ in a subscript.
 @d x_leaders=102 {|subtype| for expanded leaders}
 @d glue_ptr(#)==vinfo(#+2) {pointer to a glue specification}
 @d leader_ptr(#)==vlink(#+2) {pointer to box or rule node for leaders}
+@d synctex_tag_glue(#)==vinfo(#+3)
+@d synctex_line_glue(#)==vlink(#+3)
 
 @ A glue specification has a halfword reference count in its first word,
 @^reference counts@>
@@ -4062,9 +4068,11 @@ kerns inserted from font information or math mode calculations) or |explicit|
 inserted from \.{\\mkern} specifications in math formulas).
 
 @d kern_node=11 {|type| of a kern node}
-@d kern_node_size=3
+@d kern_node_size=4
 @d explicit=1 {|subtype| of kern nodes from \.{\\kern} and \.{\\/}}
 @d acc_kern=2 {|subtype| of kern nodes from accents}
+@d synctex_tag_kern(#)==vinfo(#+3)
+@d synctex_line_kern(#)==vlink(#+3)
 
 @# {memory structure for marginal kerns}
 @d margin_kern_node = 32
@@ -5966,7 +5974,8 @@ that will be defined later.
 @d suppress_fontnotfound_error_code=etex_int_base+9 {surpress errors for missing fonts}
 @d etex_int_pars=etex_int_base+10 {total number of \eTeX's integer parameters}
 @#
-@d int_pars=etex_int_pars {total number of integer parameters}
+@d synctex_code=etex_int_pars { is synctex file generation enabled ? }
+@d int_pars=synctex_code+1 {total number of integer parameters}
 @d count_base=int_base+int_pars {|number_regs| user \.{\\count} registers}
 @d attribute_base=count_base+number_regs {|number_attrs| user \.{\\attribute} registers}
 @d del_code_base=attribute_base+number_attrs {|number_chars| delimiter code mappings}
@@ -6084,6 +6093,7 @@ that will be defined later.
 @d saving_vdiscards==int_par(saving_vdiscards_code)
 @d saving_hyph_codes==int_par(saving_hyph_codes_code)
 @d suppress_fontnotfound_error==int_par(suppress_fontnotfound_error_code)
+@d synctex==int_par(synctex_code)
 
 @<Assign the values |depth_threshold:=show_box_depth|...@>=
 depth_threshold:=show_box_depth;
@@ -8060,6 +8070,7 @@ convention~(1), so it is declared in the following way:
   @!ocp_lstack_field: halfword; {used for omega translation processes}
   @!ocp_no_field: halfword; {used for omega translation processes} 
   @!nofilter_field: boolean; {used by token filtering}
+  @!synctex_tag_field: integer; {stack the tag of the current file}
   end;
 
 @ @<Glob...@>=
@@ -8079,6 +8090,7 @@ in our discussion of basic input-output routines. The other components of
 @d limit==cur_input.limit_field {end of current line in |buffer|}
 @d nofilter==cur_input.nofilter_field {is token filtering explicitly disallowed?}
 @d name==cur_input.name_field {name of the current file}
+@d synctex_tag==cur_input.synctex_tag_field {{\sl Sync\TeX} tag of the current file}
 @d current_ocp_lstack==cur_input.ocp_lstack_field {name of the current ocp}
 @d current_ocp_no==cur_input.ocp_no_field {name of the current ocp}
 
@@ -8706,6 +8718,7 @@ eof_seen[index]:=false;
 grp_stack[index]:=cur_boundary; if_stack[index]:=cond_ptr;
 line_stack[index]:=line; start:=first; state:=mid_line;
 name:=0; {|terminal_input| is now |true|}
+@<Prepare terminal input {\sl Sync\TeX} information@>;
 end;
 
 @ Conversely, the variables must be downdated when such a level of input
@@ -12798,6 +12811,7 @@ state:=new_line;
 if name=str_ptr-1 then {we can conserve string pool space now}
   begin flush_string; name:=cur_name;
   end;
+@<Prepare new file {\sl Sync\TeX} information@>;
 @<Read the first line of the new file@>;
 end;
 
@@ -14870,8 +14884,10 @@ incr(cur_s);
 if cur_s>0 then dvi_out(push);
 if cur_s>max_push then max_push:=cur_s;
 save_loc:=dvi_offset+dvi_ptr; base_line:=cur_v; left_edge:=cur_h;
+@<Start hlist {\sl Sync\TeX} information record@>;
 while p<>null do @<Output node |p| for |hlist_out| and move to the next node,
   maintaining the condition |cur_v=base_line|@>;
+@<Finish hlist {\sl Sync\TeX} information record@>;
 cur_h:=saving_h; cur_v:=saving_v;
 synch_h; synch_v;
 prune_movements(save_loc);
@@ -15027,6 +15043,7 @@ if is_char_node(p) then
   p:=vlink(p);
   until not is_char_node(p);
   dvi_h:=cur_h;
+  @<Record current point {\sl Sync\TeX} information@>;
   end
 else @<Output the non-|char_node| |p| for |hlist_out|
     and move to the next node@>
@@ -15062,13 +15079,23 @@ disc_node: if vlink(no_break(p))<>null then begin
   vlink(no_break(p)):=null;
   vlink(p):=q; 
   end;
-margin_kern_node,kern_node:cur_h:=cur_h+width(p);
-math_node:cur_h:=cur_h+surround(p);
+margin_kern_node:cur_h:=cur_h+width(p);
+kern_node: begin
+  @<Record |kern_node| {\sl Sync\TeX} information@>;
+  cur_h:=cur_h+width(p);
+end;
+math_node: begin
+  @<Record |math_node| {\sl Sync\TeX} information@>;
+  cur_h:=cur_h+surround(p);
+end;
 othercases do_nothing
 endcases;@/
 goto next_p;
 fin_rule: @<Output a rule in an hlist@>;
-move_past: cur_h:=cur_h+rule_wd;
+move_past: begin
+  cur_h:=cur_h+rule_wd;
+  @<Record horizontal |rule_node| or |glue_node| {\sl Sync\TeX} information@>;
+end;
 next_p:p:=vlink(p);
 end
 
@@ -15106,7 +15133,10 @@ if not (is_mirrored(dvi_direction)) then
 else
   basepoint_vertical := basepoint_vertical - shift_amount(p);
     {shift the box `up'}
-if list_ptr(p)=null then cur_h:=cur_h + effective_horizontal
+if list_ptr(p)=null then begin
+  @<Record void list {\sl Sync\TeX} information@>;
+  cur_h:=cur_h + effective_horizontal;
+  end
 else begin
   temp_ptr:=p; edge:=cur_h; cur_h:=cur_h + basepoint_horizontal;
   edge_v:=cur_v; cur_v:=base_line + basepoint_vertical;
@@ -15331,10 +15361,13 @@ dvi_direction:=box_dir(this_box);
 incr(cur_s);
 if cur_s>0 then dvi_out(push);
 if cur_s>max_push then max_push:=cur_s;
-save_loc:=dvi_offset+dvi_ptr; left_edge:=cur_h; cur_v:=cur_v-height(this_box);
+save_loc:=dvi_offset+dvi_ptr; left_edge:=cur_h; 
+@<Start vlist {\sl Sync\TeX} information record@>;
+cur_v:=cur_v-height(this_box);
 top_edge:=cur_v;
 while p<>null do @<Output node |p| for |vlist_out| and move to the next node,
   maintaining the condition |cur_h=left_edge|@>;
+@<Finish vlist {\sl Sync\TeX} information record@>;
 cur_v:=saving_v; cur_h:=saving_h;
 synch_v; synch_h;
 prune_movements(save_loc);
@@ -15414,6 +15447,7 @@ basepoint_horizontal := basepoint_horizontal + shift_amount(p);
   {shift the box `right'}
 if list_ptr(p)=null then begin
   cur_v:=cur_v+effective_vertical;
+  @<Record void list {\sl Sync\TeX} information@>;
   end
 else  begin
   synch_h; synch_v; edge_v:=cur_v;
@@ -15594,6 +15628,7 @@ var page_loc:integer; {location of the current |bop|}
 pre_callback_id:integer;
 post_callback_id:integer;
 ret:boolean;
+begin @<Start sheet {\sl Sync\TeX} information record@>;
 begin 
 pre_callback_id:=callback_defined(start_page_number_callback);  
 post_callback_id:=callback_defined(stop_page_number_callback);  
@@ -15627,6 +15662,8 @@ update_terminal; {progress report}
 @<Flush the box from memory, showing statistics if requested@>;
 if post_callback_id>0 then 
   ret:=run_callback(post_callback_id,'->');
+end;
+@<Finish sheet {\sl Sync\TeX} information record@>;
 end;
 
 @ @<Flush the box from memory, showing statistics if requested@>=
@@ -18125,9 +18162,11 @@ base_line:=cur_v;
 left_edge:=cur_h;
 prev_p:=this_box+list_offset;
 @<Create link annotations for the current hbox if needed@>;
+@<Start hlist {\sl Sync\TeX} information record@>;
 while p<>null do
     @<Output node |p| for |pdf_hlist_out| and move to the next node,
     maintaining the condition |cur_v=base_line|@>;
+@<Finish hlist {\sl Sync\TeX} information record@>;
 cur_h:=saving_h; cur_v:=saving_v;
 decr(cur_s);
 dvi_direction:=save_direction;
@@ -18305,6 +18344,7 @@ if is_char_node(p) then
   prev_p:=p;
   p:=vlink(p);
   until not is_char_node(p);
+  @<Record current point {\sl Sync\TeX} information@>;
   end
 else @<Output the non-|char_node| |p| for |pdf_hlist_out|
     and move to the next node@>;
@@ -18334,13 +18374,23 @@ rule_node: begin
   end;
 whatsit_node: @<Output the whatsit node |p| in |pdf_hlist_out|@>;
 glue_node: @<(\pdfTeX) Move right or output leaders@>;
-margin_kern_node,kern_node: pdf_dvicmd_h(width(p));
-math_node: pdf_dvicmd_h(surround(p));
+margin_kern_node: pdf_dvicmd_h(width(p));
+kern_node: begin
+  @<Record |kern_node| {\sl Sync\TeX} information@>;
+  pdf_dvicmd_h(width(p));
+  end;
+math_node: begin 
+  @<Record |math_node| {\sl Sync\TeX} information@>;
+  pdf_dvicmd_h(surround(p));
+  end;
 othercases do_nothing
 endcases;@/
 goto next_p;
 fin_rule: @<(\pdfTeX) Output a rule in an hlist@>;
-move_past: pdf_dvicmd_h(rule_wd);
+move_past: begin
+  pdf_dvicmd_h(rule_wd);
+  @<Record horizontal |rule_node| or |glue_node| {\sl Sync\TeX} information@>;
+  end;
 next_p:prev_p:=p; p:=vlink(p);
 end
 
@@ -18378,7 +18428,10 @@ if not (is_mirrored(dvi_direction)) then
 else
   basepoint_vertical := basepoint_vertical - shift_amount(p);
     {shift the box `up'}
-if list_ptr(p)=null then begin pdf_dvicmd_h(effective_horizontal); end
+if list_ptr(p)=null then begin 
+  @<Record void list {\sl Sync\TeX} information@>;
+  pdf_dvicmd_h(effective_horizontal); 
+  end
 else begin
   temp_ptr:=p; 
   edge:=cur_h; pdf_dvicmd_h(basepoint_horizontal);
@@ -18580,11 +18633,14 @@ saving_v:=cur_v; saving_h:=cur_h;
 save_direction:=dvi_direction;
 dvi_direction:=box_dir(this_box);
 incr(cur_s);
-left_edge:=cur_h; cur_v:=cur_v-height(this_box); top_edge:=cur_v;
+left_edge:=cur_h;
+@<Start vlist {\sl Sync\TeX} information record@>;
+cur_v:=cur_v-height(this_box); top_edge:=cur_v;
 @<Create thread for the current vbox if needed@>;
 while p<>null do
     @<Output node |p| for |pdf_vlist_out| and move to the next node,
     maintaining the condition |cur_h=left_edge|@>;
+@<Finish vlist {\sl Sync\TeX} information record@>;
 cur_v:=saving_v; cur_h:=saving_h;
 decr(cur_s);
 dvi_direction:=save_direction;
@@ -18671,6 +18727,7 @@ else begin
 basepoint_horizontal := basepoint_horizontal + shift_amount(p);
 if list_ptr(p)=null then begin
   cur_v:=cur_v+effective_vertical;
+  @<Record void list {\sl Sync\TeX} information@>;
   end
 else  begin 
   edge_v:=cur_v;
@@ -18820,6 +18877,7 @@ pdf_last_resources: integer; {pointer to most recently generated Resources objec
 pre_callback_id:integer;
 post_callback_id:integer;
 ret:boolean;
+begin @<Start sheet {\sl Sync\TeX} information record@>;
 begin 
 pre_callback_id:=callback_defined(start_page_number_callback);  
 post_callback_id:=callback_defined(stop_page_number_callback);  
@@ -18857,6 +18915,8 @@ update_terminal; {progress report}
 @<Flush the box from memory, showing statistics if requested@>;
 if post_callback_id>0 then 
   ret:=run_callback(post_callback_id,'->');
+end;
+@<Finish sheet {\sl Sync\TeX} information record@>;
 end;
 
 @ @<(\pdfTeX) Ship box |p| out@>=
@@ -29855,6 +29915,7 @@ ready_already:=314159;
 start_of_TEX: @<Initialize the output routines@>;
 @<Get the first line of input and prepare to start@>;
 history:=spotless; {ready to go!}
+@<Initialize synctex primitive@>
 main_control; {come to life}
 final_cleanup; {prepare for death}
 end_of_TEX: close_files_and_terminate;
@@ -29952,6 +30013,7 @@ end
 else begin
     @<Finish the \.{DVI} file@>;
 end;
+@<Close {\sl Sync\TeX} file and write status@>;
 if log_opened then
   begin wlog_cr; selector:=selector-2;
   if (selector=term_only)and(callback_id=0) then begin
@@ -33439,6 +33501,8 @@ primitive("savinghyphcodes",assign_int,int_base+saving_hyph_codes_code);@/
 @!@:saving_hyph_codes_}{\.{\\savinghyphcodes} primitive@>
 primitive("suppressfontnotfounderror",assign_int,int_base+suppress_fontnotfound_error_code);@/
 @!@:suppress_fontnotfound_error_codes_}{\.{\\suppressfontnotfounderror} primitive@>
+primitive("synctex",assign_int,int_base+synctex_code);@/
+@!@:synctex_}{\.{\\synctex} primitive@>
 
 @ @d every_eof==equiv(every_eof_loc)
 
@@ -33456,6 +33520,7 @@ last_line_fit_code:print_esc("lastlinefit");
 saving_vdiscards_code:print_esc("savingvdiscards");
 saving_hyph_codes_code:print_esc("savinghyphcodes");
 suppress_fontnotfound_error_code:print_esc("suppressfontnotfounderror");
+synctex_code:print_esc("synctex");
 
 @ In order to handle \.{\\everyeof} we need an array |eof_seen| of
 boolean variables.
@@ -34017,7 +34082,10 @@ if tracing_scan_tokens>0 then
   else if (term_offset>0)or(file_offset>0) then print_char(" ");
   name:=20; print("( "); incr(open_parens); update_terminal;
   end
-else name:=18
+else begin 
+  name:=18;
+  @<Prepare pseudo file {\sl Sync\TeX} information@>;
+end
 
 @ Here we read a line from the current pseudo file into |buffer|.
 
@@ -35982,6 +36050,220 @@ define(ocp_active_min_ptr_base, data, active_min_ptr);
 define(ocp_active_max_ptr_base, data, active_max_ptr);
 end;
 
+
+@* \[54/SyncTeX] The {\sl Synchronize \TeX nology}.
+This section is devoted to the {\sl Synchronize \TeX nology}
+- or simply {\sl Sync\TeX} - used to synchronize between input and output.
+This section explains how synchronization basics are implemented.
+Before we enter into more technical details,
+let us recall in a few words what is synchronization.
+
+\TeX\ typesetting system clearly separates the input and the output material,
+and synchronization will provide a new link between both that can help
+text editors and viewers to work together.
+More precisely, forwards synchronization is the ability,
+given a location in the input source file,
+to find what is the corresponding place in the output.
+Backwards synchronization just performs the opposite:
+given a location in the output,
+retrieve the corresponding material in the input source file.
+
+For better code management and maintainance, we adopt a naming convention.
+Throughout this program, code related to the {\sl Synchronize \TeX nology} is tagged
+with the ``{\sl synctex}'' key word. Any code extract where {\sl Sync\TeX} plays
+its part, either explicitly or implicitly, (should) contain the string ``{\sl synctex}''.
+This naming convention also holds for external files.
+Moreover, all the code related to {\sl Sync\TeX} is gathered in this section,
+except the definitions.
+
+@ Enabling synchronization should be performed from the command line,
+|synctexoption| is used for that purpose.
+This global integer variable is declared here but it is not used here.
+This is just a placeholder where the command line controller will put
+the {\sl Sync\TeX} related options, and the {\sl Sync\TeX} controller will read them.
+
+@ @<Glob...@>=
+@!synctexoption:integer;
+
+@ A convenient primitive is provided:
+\.{\\synctex=1} in the input source file enables synchronization whereas
+\.{\\synctex=0} disables it.
+Its memory address is |synctex_code|.
+It is initialized by the {\sl Sync\TeX} controller to the command-line option if given.
+The controller may filter some reserved bits.
+
+@ In order to give the {\sl Sync\TeX} controller read and write access to
+the contents of the \.{\\synctex} primitive, we declare |synctexoffset|,
+such that |mem[synctexoffset]| and \.{\\synctex} correspond to
+the same memory storage. |synctexoffset| is initialized to
+the correct value when quite everything is initialized.
+
+@ @<Glob...@>=
+@!synctexoffset:integer; {holds the true value of |synctex_code|}
+
+@ @<Initialize whatever...@>=
+synctexoffset:=int_base+synctex_code;
+
+@ @<Initialize synctex primitive@>=
+synctex_init_command;
+
+@ Synchronization is achieved with the help of an auxiliary file named
+`\.{{\sl jobname}.synctex}' ({\sl jobname} is the contents of the
+\.{\\jobname} macro), where a {\sl Sync\TeX} controller implemented
+in the external |synctex.c| file will store geometrical information.
+This {\sl Sync\TeX} controller will take care of every technical details
+concerning the {\sl Sync\TeX} file, we will only focus on the messages
+the controller will receive from the \TeX\ program.
+
+The most accurate synchronization information should allow to map
+any character of the input source file to the corresponding location
+in the output, if relevant.
+Ideally, the synchronization information of the input material consists of
+the file name, the line and column numbers of every character.
+The synchronization information in the output is simply the page number and
+either point coordinates, or box dimensions and position.
+The problem is that the mapping between these informations is only known at
+ship out time, which means that we must keep track of the input
+synchronization information until the pages ship out.
+
+As \TeX\ only knows about file names and line numbers,
+but forgets the column numbers, we only consider a
+restricted input synchronization information called {\sl Sync\TeX\ information}.
+It consists of a unique file name identifier, the {\sl Sync\TeX\ file tag},
+and the line number.
+
+Keeping track of such information,
+should be different whether characters or nodes are involved.
+Actually, only certain nodes are involved in {\sl Sync\TeX},
+we call them {\sl synchronized nodes}.
+Synchronized nodes store the {\sl Sync\TeX} information in their last two words:
+the first one contains a {\sl Sync\TeX\ file tag} uniquely identifying
+the input file, and the second one contains the current line number,
+as returned by the \.{\\inputlineno} primitive.
+The |synctex_field_size| macro contains the necessary size to store
+the {\sl Sync\TeX} information in a node.
+
+When declaring the size of a new node, it is recommanded to use the following
+convention: if the node is synchronized, use a definition similar to
+|my_synchronized_node_size|={\sl xxx}+|synctex_field_size|.
+Moreover, one should expect that the {\sl Sync\TeX} information is always stored
+in the last two words of a synchronized node.
+
+@ By default, every node with a sufficiently big size is initialized
+at creation time in the |get_node| routine with the current
+{\sl Sync\TeX} information, whether or not the node is synchronized.
+One purpose is to set this information very early in order to minimize code
+dependencies, including forthcoming extensions.
+Another purpose is to avoid the assumption that every node type has a dedicated getter,
+where initialization should take place. Actually, it appears that some nodes are created
+using directly the |get_node| routine and not the dedicated constructor.
+And finally, initializing the node at only one place is less error prone.
+
+@ Instead of storing the input file name, it is better to store just an identifier.
+Each time \TeX\ opens a new file, it notifies the {\sl Sync\TeX} controller with
+a |synctex_start_input| message.
+This controller will create a new {\sl Sync\TeX} file tag and
+will update the current input state record accordingly.
+If the input comes from the terminal or a pseudo file, the |synctex_tag| is set to 0.
+It results in automatically disabling synchronization for material
+input from the terminal or pseudo files.
+
+@ @<Prepare new file {\sl Sync\TeX} information@>=
+synctex_start_input; {Give control to the {\sl Sync\TeX} controller}
+
+@ @<Prepare terminal input {\sl Sync\TeX} information@>=
+synctex_tag:=0;
+
+@ @<Prepare pseudo file {\sl Sync\TeX} information@>=
+synctex_tag:=0;
+
+@ @<Close {\sl Sync\TeX} file and write status@>=
+synctex_terminate(log_opened); {Let the {\sl Sync\TeX} controller close its files.}
+
+@ Synchronized nodes are boxes, math, kern and glue nodes.
+Other nodes should be synchronized too, in particular math noads.
+\TeX\ assumes that math, kern and glue nodes have the same size,
+this is why both are synchronized.
+{\sl In fine}, only horizontal lists are really used in {\sl Sync\TeX},
+but all box nodes are considered the same with respect to synchronization,
+because a box node type is allowed to change at execution time.
+
+The next sections are the various messages sent to the {\sl Sync\TeX} controller.
+The argument is either the box or the node currently shipped out.
+The vertical boxes are not recorded, but the code is available for clients.
+
+@ @<Start sheet {\sl Sync\TeX} information record@>=
+pdf_output_value:=pdf_output; {{\sl Sync\TeX}: we assume that |pdf_output| is properly set up}
+synctex_sheet(mag);
+
+@ @<Finish sheet {\sl Sync\TeX} information record@>=
+synctex_teehs;
+
+@ @<Start vlist {\sl Sync\TeX} information record@>=
+synctex_vlist(this_box);
+
+@ @<Finish vlist {\sl Sync\TeX} information record@>=
+synctex_tsilv(this_box);
+
+@ @<Start hlist {\sl Sync\TeX} information record@>=
+synctex_hlist(this_box);
+
+@ @<Finish hlist {\sl Sync\TeX} information record@>=
+synctex_tsilh(this_box);
+
+@ @<Record void list {\sl Sync\TeX} information@>=
+  if type(p)=vlist_node then begin
+      synctex_void_vlist(p,this_box);
+    end
+  else begin
+      synctex_void_hlist(p,this_box);
+    end;
+
+@ @<Record current point {\sl Sync\TeX} information@>=
+synctex_current;
+
+@ @<Record horizontal |rule_node| or |glue_node| {\sl Sync\TeX} information@>=
+synctex_horizontal_rule_or_glue(p,this_box);
+
+@ @<Record |kern_node| {\sl Sync\TeX} information@>=
+synctex_kern(p,this_box);
+
+@ @<Record |math_node| {\sl Sync\TeX} information@>=
+synctex_math(p,this_box);
+
+@ When making a copy of a synchronized node, we might also have to duplicate
+the {\sl Sync\TeX} information by copying the two last words.
+This is the case for a |box_node| and for a |glue_node|,
+but not for a |math_node| nor a |kern_node|. These last two nodes always keep
+the {\sl Sync\TeX} information they received at creation time.
+
+@ @<Copy the box {\sl Sync\TeX} information@>=
+mem[r+box_node_size-synctex_field_size].int:=mem[p+box_node_size-synctex_field_size].int;
+mem[r+box_node_size-synctex_field_size+1].int:=mem[p+box_node_size-synctex_field_size+1].int;
+
+@ @<Copy the rule {\sl Sync\TeX} information@>=
+{mem[r+rule_node_size-synctex_field_size].int:=mem[p+rule_node_size-synctex_field_size].int;
+mem[r+rule_node_size-synctex_field_size+1].int:=mem[p+rule_node_size-synctex_field_size+1].int;}
+
+@ @<Copy the glue {\sl Sync\TeX} information@>=
+mem[r+medium_node_size-synctex_field_size].int:=mem[p+medium_node_size-synctex_field_size].int;
+mem[r+medium_node_size-synctex_field_size+1].int:=mem[p+medium_node_size-synctex_field_size+1].int;
+
+@ {\sl Nota Bene:}
+The {\sl Sync\TeX} code is very close to the memory model.
+It is not connected to any other part of the code,
+except for memory management. It is possible to neutralize the {\sl Sync\TeX} code
+rather simply. The first step is to define a null |synctex_field_size|.
+The second step is to comment out the code in ``Initialize bigger nodes...'' and every
+``Copy ... {\sl Sync\TeX} information''.
+The last step will be to comment out the |synctex_tag_field| related code in the
+definition of |synctex_tag| and the various ``Prepare ... {\sl Sync\TeX} information''.
+Then all the remaining code should be just harmless.
+The resulting program would behave exactly the same as if absolutely no {\sl Sync\TeX}
+related code was there, including memory management.
+Of course, all this assumes that {\sl Sync\TeX} is turned off from the command line.
+@^synctex@>
+@^synchronization@>
 
 @* \[54] System-dependent changes.
 This section should be replaced, if necessary, by any special

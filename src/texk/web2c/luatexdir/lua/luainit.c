@@ -187,6 +187,8 @@ static struct option long_options[]
 {"8bit", 0, 0, 0},
 {"mktex", 1, 0, 0},
 {"no-mktex", 1, 0, 0},
+/* Synchronization: just like "interaction" above */
+{ "synctex",                   1, 0, 0 },
 {0, 0, 0, 0}
 };
 
@@ -278,6 +280,10 @@ static void parse_options(int argc, char **argv)
                 WARNING1("Ignoring unknown argument `%s' to --interaction",
                          optarg);
             }
+
+        } else if (ARGUMENT_IS ("synctex")) {
+	   	   /* Synchronize TeXnology: catching the command line option as a long  */
+		   synctexoption = (int) strtol(optarg, NULL, 0);
 
         } else if (ARGUMENT_IS("help")) {
             usagehelp(LUATEX_IHELP, BUG_ADDRESS);
@@ -482,6 +488,16 @@ void lua_initialize(int ac, char **av)
     /* Must be initialized before options are parsed.  */
     interactionoption = 4;
     dump_name = NULL;
+
+# warning SyncTeX: -synctex command line option available
+  /* 0 means "disable Synchronize TeXnology".
+   * synctexoption is a *.web variable.
+   * We initialize it to a weird value to catch the -synctex command line flag
+   * At runtime, if synctexoption is not INT_MAX, then it contains the command line option provided,
+   * otherwise no such option was given by the user. */
+# define SYNCTEX_NO_OPTION INT_MAX
+  synctexoption = SYNCTEX_NO_OPTION;
+
     /* parse commandline */
     parse_options(ac, av);
 
