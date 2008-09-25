@@ -22,6 +22,7 @@
 #include <stdarg.h>
 
 #include "managed-sa.h"
+#include "commands.h"
 
 static const char __svn_version[] =
     "$Id$ $URL$";
@@ -259,15 +260,15 @@ void initex_cat_codes(int h)
     check_catcode_sizes(h);
     destroy_sa_tree(catcode_heads[h]);
     catcode_heads[h] = NULL;
-    set_cat_code(h, '\r', car_ret, 1);
-    set_cat_code(h, ' ', spacer, 1);
-    set_cat_code(h, '\\', escape, 1);
-    set_cat_code(h, '%', comment, 1);
-    set_cat_code(h, 127, invalid_char, 1);
-    set_cat_code(h, 0, ignore, 1);
+    set_cat_code(h, '\r', car_ret_cmd, 1);
+    set_cat_code(h, ' ', spacer_cmd, 1);
+    set_cat_code(h, '\\', escape_cmd, 1);
+    set_cat_code(h, '%', comment_cmd, 1);
+    set_cat_code(h, 127, invalid_char_cmd, 1);
+    set_cat_code(h, 0, ignore_cmd, 1);
     for (k = 'A'; k <= 'Z'; k++) {
-        set_cat_code(h, k, letter, 1);
-        set_cat_code(h, k + 'a' - 'A', letter, 1);
+        set_cat_code(h, k, letter_cmd, 1);
+        set_cat_code(h, k + 'a' - 'A', letter_cmd, 1);
     }
     catcode_valid[h] = 1;
 }

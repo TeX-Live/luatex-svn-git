@@ -56,14 +56,6 @@ extern void initializetextcodes();
 extern void dumptextcodes();
 extern void undumptextcodes();
 
-typedef enum {
-    escape, left_brace, right_brace, math_shift,
-    tab_mark, car_ret, mac_param, sup_mark,
-    sub_mark, ignore, spacer, letter,
-    other_char, active_char, comment, invalid_char
-} cat_codes;
-
-
 extern void do_vf(internal_font_number tmp_f);
 
 extern int readbinfile(FILE * f, unsigned char **b, integer * s);

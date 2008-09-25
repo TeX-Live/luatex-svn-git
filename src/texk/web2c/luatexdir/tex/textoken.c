@@ -21,34 +21,20 @@
 #include <ptexlib.h>
 
 #include "tokens.h"
+#include "commands.h"
 
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-/* Integer parameters and other command-related defines. This needs it's own header file! */
-
-#define end_line_char_code 48   /* character placed at the right end of the buffer */
-#define cat_code_table_code 63
-#define tex_int_pars 66         /* total number of \.{\\TeX} + Aleph integer parameters */
-/* this is not what happens in the pascal code! there the values shift from bare numbers to offsets ! */
-#define dir_base tex_int_pars
-#define dir_pars 5
-#define pdftex_first_integer_code dir_base+dir_pars     /* base for \pdfTeX's integer parameters */
-#define pdf_int_pars pdftex_first_integer_code+28      /*total number of \pdfTeX's integer parameters */
-#define etex_int_base pdf_int_pars      /*base for \eTeX's integer parameters */
-#define tracing_nesting_code etex_int_base+4    /*show incomplete groups and ifs within files */
 
 #define int_par(a) zeqtb[static_int_base+a].cint        /* an integer parameter */
-#define cat_code_table int_par(cat_code_table_code)
-#define tracing_nesting int_par(tracing_nesting_code)
-#define end_line_char int_par(end_line_char_code)
+#define cat_code_table int_par(param_cat_code_table_code)
+#define tracing_nesting int_par(param_tracing_nesting_code)
+#define end_line_char int_par(param_end_line_char_code)
 
 #define every_eof get_every_eof()
 
-#define number_active_chars 65536+65536
-#define active_base 1           /* beginning of region 1, for active character equivalents */
-#define null_cs active_base+number_active_chars /* equivalent of \.{\\csname\\endcsname} */
-
+#define null_cs 1 /* equivalent of \.{\\csname\\endcsname} */
 
 #define eq_level(a) zeqtb[a].hh.u.B1
 #define eq_type(a)  zeqtb[a].hh.u.B0
@@ -58,12 +44,6 @@ static const char _svn_version[] =
 #define pop_input() cur_input=input_stack[--input_ptr]
 
 #define nonstop_mode 1
-
-/* command codes */
-#define relax 0
-#define out_param 5
-#define max_command 118         /* fetched from C output */
-#define dont_expand 134         /* fetched from C output */
 
 #define terminal_input (name==0)        /* are we reading from the terminal? */
 #define special_char 1114113    /* |biggest_char+2| */
@@ -235,45 +215,45 @@ static boolean get_next_file(void)
            command code to the state to get a single number that characterizes both.
          */
         switch (state + cur_cmd) {
-        case mid_line + ignore:
-        case skip_blanks + ignore:
-        case new_line + ignore:
-        case skip_blanks + spacer:
-        case new_line + spacer:        /* @<Cases where character is ignored@> */
+        case mid_line + ignore_cmd:
+        case skip_blanks + ignore_cmd:
+        case new_line + ignore_cmd:
+        case skip_blanks + spacer_cmd:
+        case new_line + spacer_cmd:        /* @<Cases where character is ignored@> */
             goto SWITCH;
             break;
-        case mid_line + escape:
-        case new_line + escape:
-        case skip_blanks + escape:     /* @<Scan a control sequence ...@>; */
+        case mid_line + escape_cmd:
+        case new_line + escape_cmd:
+        case skip_blanks + escape_cmd:     /* @<Scan a control sequence ...@>; */
             state = scan_control_sequence();
             break;
-        case mid_line + active_char:
-        case new_line + active_char:
-        case skip_blanks + active_char:        /* @<Process an active-character  */
+        case mid_line + active_char_cmd:
+        case new_line + active_char_cmd:
+        case skip_blanks + active_char_cmd:        /* @<Process an active-character  */
           cur_cs = active_to_cs(cur_chr, false);
             cur_cmd = eq_type(cur_cs);
             cur_chr = equiv(cur_cs);
             state = mid_line;
             break;
-        case mid_line + sup_mark:
-        case new_line + sup_mark:
-        case skip_blanks + sup_mark:   /* @<If this |sup_mark| starts */
+        case mid_line + sup_mark_cmd:
+        case new_line + sup_mark_cmd:
+        case skip_blanks + sup_mark_cmd:   /* @<If this |sup_mark| starts */
             if (process_sup_mark())
                 goto RESWITCH;
             else
                 state = mid_line;
             break;
-        case mid_line + invalid_char:
-        case new_line + invalid_char:
-        case skip_blanks + invalid_char:       /* @<Decry the invalid character and |goto restart|@>; */
+        case mid_line + invalid_char_cmd:
+        case new_line + invalid_char_cmd:
+        case skip_blanks + invalid_char_cmd:       /* @<Decry the invalid character and |goto restart|@>; */
             invalid_character_error();
             return false;       /* because state may be token_list now */
             break;
-        case mid_line + spacer:        /* @<Enter |skip_blanks| state, emit a space@>; */
+        case mid_line + spacer_cmd:        /* @<Enter |skip_blanks| state, emit a space@>; */
             state = skip_blanks;
             cur_chr = ' ';
             break;
-        case mid_line + car_ret:       /* @<Finish line, emit a space@>; */
+        case mid_line + car_ret_cmd:       /* @<Finish line, emit a space@>; */
             /* When a character of type |spacer| gets through, its character code is
                changed to $\.{"\ "}=@'40$. This means that the ASCII codes for tab and space,
                and for the space inserted at the end of a line, will
@@ -281,40 +261,40 @@ static boolean get_next_file(void)
                since such characters are indistinguishable on most computer terminal displays.
              */
             loc = limit + 1;
-            cur_cmd = spacer;
+            cur_cmd = spacer_cmd;
             cur_chr = ' ';
             break;
-        case skip_blanks + car_ret:
-        case mid_line + comment:
-        case new_line + comment:
-        case skip_blanks + comment:    /* @<Finish line, |goto switch|@>; */
+        case skip_blanks + car_ret_cmd:
+        case mid_line + comment_cmd:
+        case new_line + comment_cmd:
+        case skip_blanks + comment_cmd:    /* @<Finish line, |goto switch|@>; */
             loc = limit + 1;
             goto SWITCH;
             break;
-        case new_line + car_ret:       /* @<Finish line, emit a \.{\\par}@>; */
+        case new_line + car_ret_cmd:       /* @<Finish line, emit a \.{\\par}@>; */
             loc = limit + 1;
             cur_cs = par_loc;
             cur_cmd = eq_type(cur_cs);
             cur_chr = equiv(cur_cs);
             break;
-        case skip_blanks + left_brace:
-        case new_line + left_brace:
+        case skip_blanks + left_brace_cmd:
+        case new_line + left_brace_cmd:
             state = mid_line;   /* fall through */
-        case mid_line + left_brace:
+        case mid_line + left_brace_cmd:
             align_state++;
             break;
-        case skip_blanks + right_brace:
-        case new_line + right_brace:
+        case skip_blanks + right_brace_cmd:
+        case new_line + right_brace_cmd:
             state = mid_line;   /* fall through */
-        case mid_line + right_brace:
+        case mid_line + right_brace_cmd:
             align_state--;
             break;
-        case mid_line + math_shift:
-        case mid_line + tab_mark:
-        case mid_line + mac_param:
-        case mid_line + sub_mark:
-        case mid_line + letter:
-        case mid_line + other_char:
+        case mid_line + math_shift_cmd:
+        case mid_line + tab_mark_cmd:
+        case mid_line + mac_param_cmd:
+        case mid_line + sub_mark_cmd:
+        case mid_line + letter_cmd:
+        case mid_line + other_char_cmd:
             break;
         default:
             /*
@@ -492,20 +472,20 @@ static int scan_control_sequence(void)
             integer k = loc;
             cur_chr = qbuffer_to_unichar(&k);
             do_get_cat_code(cat);
-            if (cat != letter || k > limit) {
-                retval = (cat == spacer ? skip_blanks : mid_line);
-                if (cat == sup_mark && check_expanded_code(&k)) /* @<If an expanded...@>; */
+            if (cat != letter_cmd || k > limit) {
+                retval = (cat == spacer_cmd ? skip_blanks : mid_line);
+                if (cat == sup_mark_cmd && check_expanded_code(&k)) /* @<If an expanded...@>; */
                     continue;
             } else {
                 retval = skip_blanks;
                 do {
                     cur_chr = qbuffer_to_unichar(&k);
                     do_get_cat_code(cat);
-                } while (cat == letter && k <= limit);
+                } while (cat == letter_cmd && k <= limit);
 
-                if (cat == sup_mark && check_expanded_code(&k)) /* @<If an expanded...@>; */
+                if (cat == sup_mark_cmd && check_expanded_code(&k)) /* @<If an expanded...@>; */
                     continue;
-                if (cat != letter) {
+                if (cat != letter_cmd) {
                     decr(k);
                     if (cur_chr > 0xFFFF)
                         decr(k);
@@ -776,7 +756,7 @@ static boolean get_next_tokenlist(void)
     if (t >= cs_token_flag) {   /* a control sequence token */
         cur_cs = t - cs_token_flag;
         cur_cmd = eq_type(cur_cs);
-        if (cur_cmd == dont_expand) {   /* @<Get the next token, suppressing expansion@> */
+        if (cur_cmd == dont_expand_cmd) {   /* @<Get the next token, suppressing expansion@> */
             /* The present point in the program is reached only when the |expand|
                routine has inserted a special marker into the input. In this special
                case, |info(loc)| is known to be a control sequence token, and |link(loc)=null|.
@@ -784,8 +764,8 @@ static boolean get_next_tokenlist(void)
             cur_cs = info(loc) - cs_token_flag;
             loc = null;
             cur_cmd = eq_type(cur_cs);
-            if (cur_cmd > max_command) {
-                cur_cmd = relax;
+            if (cur_cmd > max_command_cmd) {
+                cur_cmd = relax_cmd;
                 cur_chr = no_expand_flag;
                 return true;
             }
@@ -795,13 +775,13 @@ static boolean get_next_tokenlist(void)
         cur_cmd = t >> string_offset_bits;      /* cur_cmd=t / string_offset; */
         cur_chr = t & (string_offset - 1);      /* cur_chr=t % string_offset; */
         switch (cur_cmd) {
-        case left_brace:
+        case left_brace_cmd:
             align_state++;
             break;
-        case right_brace:
+        case right_brace_cmd:
             align_state--;
             break;
-        case out_param:        /* @<Insert macro parameter and |goto restart|@>; */
+        case out_param_cmd:        /* @<Insert macro parameter and |goto restart|@>; */
             begin_token_list(param_stack[param_start + cur_chr - 1], parameter);
             return false;
             break;
@@ -834,7 +814,7 @@ void get_next(void)
         }
     }
     /* @<If an alignment entry has just ended, take appropriate action@> */
-    if ((cur_cmd == tab_mark || cur_cmd == car_ret) && align_state == 0) {
+    if ((cur_cmd == tab_mark_cmd || cur_cmd == car_ret_cmd) && align_state == 0) {
         insert_vj_template();
         goto RESTART;
     }
