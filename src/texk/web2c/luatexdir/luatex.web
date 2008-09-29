@@ -2617,9 +2617,6 @@ a way to make |interrupt| nonzero using the \PASCAL\ debugger.
 @<Global...@>=
 @!interrupt:integer; {should \TeX\ pause for instructions?}
 @!OK_to_interrupt:boolean; {should interrupts be observed?}
-@!detokenized_line:boolean; {indicates this is a 'detokenized' input line }
-@!line_catcode_table:integer; {the used catcode table for input lines}
-@!local_catcode_table:boolean; {the used catcode table for input lines}
 @!static_int_base:integer; {C version of |int_base|}
 
 @ @p procedure check_interrupt;
@@ -2629,8 +2626,7 @@ end;
 
 
 @ @<Set init...@>=
-interrupt:=0; OK_to_interrupt:=true; detokenized_line:=false;
-line_catcode_table:=0; local_catcode_table:=false;
+interrupt:=0; OK_to_interrupt:=true;
 
 @ When an interrupt has been detected, the program goes into its
 highest interaction level and lets the user have nearly the full flexibility of
@@ -6782,13 +6778,6 @@ A global boolean variable called |no_new_control_sequence| is set to
 primitive meanings of thing s from C code
 
 @p 
-function get_char_cat_code(c:integer):quarterword;
-begin
-  if local_catcode_table then 
-     get_char_cat_code:=get_cat_code(line_catcode_table,c) 
-  else 
-     get_char_cat_code:=get_cat_code(cat_code_table,c)
-end;
 function get_prim_eq_level(p:integer):quarterword;
 begin
   get_prim_eq_level := prim_eq_level(p);
@@ -8067,8 +8056,10 @@ convention~(1), so it is declared in the following way:
   @!start_field,@!loc_field, @!limit_field, @!name_field,
   @!ocp_lstack_field: halfword; {used for omega translation processes}
   @!ocp_no_field: halfword; {used for omega translation processes} 
-  @!nofilter_field: boolean; {used by token filtering}
   @!synctex_tag_field: integer; {stack the tag of the current file}
+  @!cattable_field: integer; {category table used by the current line (see textoken.c)}
+  @!partial_field: boolean; {is the current line partial? (see textoken.c)}
+  @!nofilter_field: boolean; {used by token filtering}
   end;
 
 @ @<Glob...@>=
@@ -8091,6 +8082,8 @@ in our discussion of basic input-output routines. The other components of
 @d synctex_tag==cur_input.synctex_tag_field {{\sl Sync\TeX} tag of the current file}
 @d current_ocp_lstack==cur_input.ocp_lstack_field {name of the current ocp}
 @d current_ocp_no==cur_input.ocp_no_field {name of the current ocp}
+@d line_catcode_table==cur_input.cattable_field
+@d line_partial==cur_input.partial_field
 
 @ Let's look more closely now at the control variables
 (|state|,~|index|,~|start|,~|loc|,~|limit|,~|name|),
@@ -8716,6 +8709,7 @@ eof_seen[index]:=false;
 grp_stack[index]:=cur_boundary; if_stack[index]:=cond_ptr;
 line_stack[index]:=line; start:=first; state:=mid_line;
 name:=0; {|terminal_input| is now |true|}
+line_catcode_table:=DEFAULT_CAT_TABLE; line_partial:=false;
 @<Prepare terminal input {\sl Sync\TeX} information@>;
 end;
 
@@ -8753,6 +8747,7 @@ scanner_status:=normal; warning_index:=null; first:=1;
 state:=new_line; start:=1; index:=0; line:=0; name:=0;
 current_ocp_lstack:=0; current_ocp_no:=0; nofilter:=false;
 force_eof:=false; luacstrings :=0;
+line_catcode_table:=DEFAULT_CAT_TABLE; line_partial:=false;
 align_state:=1000000;@/
 if not init_terminal then goto final_end;
 limit:=last; first:=last+1; {|init_terminal| has set |loc| and |last|}
@@ -35392,6 +35387,7 @@ state:=mid_line;
 start:=first;
 last:=start;
 loc:=start;
+line_catcode_table:=DEFAULT_CAT_TABLE; line_partial:=false;
 for otp_counter:=1 to otp_output_end do begin
     { convert back to utf-8 }
         t := otp_output_buf[otp_counter];

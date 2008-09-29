@@ -71,6 +71,8 @@ typedef enum {
 #define name     cur_input.name_field   /* name of the current file */
 #define current_ocp_lstack cur_input.ocp_lstack_field   /* name of the current ocp */
 #define current_ocp_no cur_input.ocp_no_field   /* name of the current ocp */
+#define line_catcode_table cur_input.cattable_field /* catcode table to use for this line */
+#define line_partial cur_input.partial_field
 
 #define max_char_code 15        /* largest catcode for individual characters */
 

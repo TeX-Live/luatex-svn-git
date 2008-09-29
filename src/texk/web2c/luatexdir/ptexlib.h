@@ -588,13 +588,10 @@ void undump_luac_registers(void);
 /* ltexlib.c */
 void luacstring_start(int n);
 void luacstring_close(int n);
-int luacstring_detokenized(void);
-int luacstring_defaultcattable(void);
 integer luacstring_cattable(void);
-int luacstring_simple(void);
-int luacstring_penultimate(void);
 int luacstring_input(void);
-
+int luacstring_partial(void);
+int luacstring_final_line(void);
 
 /* luatoken.c */
 void do_get_token_lua(integer callback_id);
@@ -643,8 +640,12 @@ void pdf_print_real(integer m, integer d);
 
 /* textoken.c */
 
+#define  NO_CAT_TABLE      -2
+#define  DEFAULT_CAT_TABLE -1
+
 void get_next(void);
 halfword active_to_cs(int, int);
 void get_token_lua(void);
+int get_char_cat_code(int);
 
 #endif                          /* PDFTEXLIB */

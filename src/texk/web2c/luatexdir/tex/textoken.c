@@ -51,15 +51,23 @@ static const char _svn_version[] =
 
 #define no_expand_flag special_char     /*this characterizes a special variant of |relax| */
 
+#define detokenized_line() (line_catcode_table==NO_CAT_TABLE)
+
 extern void insert_vj_template(void);
 
 #define do_get_cat_code(a) do {                                         \
-    if (local_catcode_table)                                            \
+    if (line_catcode_table!=DEFAULT_CAT_TABLE)                          \
       a=get_cat_code(line_catcode_table,cur_chr);                       \
     else                                                                \
       a=get_cat_code(cat_code_table,cur_chr);                           \
   } while (0)
 
+
+int get_char_cat_code (int cur_chr) {
+  int a; 
+  do_get_cat_code(a);
+  return a;
+}
 
 static void invalid_character_error(void)
 {
@@ -198,7 +206,7 @@ static boolean get_next_file(void)
     if (loc <= limit) {         /* current line not yet finished */
         cur_chr = qbuffer_to_unichar(&loc);
       RESWITCH:
-        if (detokenized_line) {
+        if (detokenized_line()) {
             cur_cmd = (cur_chr == ' ' ? 10 : 12);
         } else {
             do_get_cat_code(cur_cmd);
@@ -623,10 +631,7 @@ static boolean check_expanded_code(integer * kk)
 
 static next_line_retval next_line(void)
 {
-    integer tab;                /* a category table */
     boolean inhibit_eol = false;        /* a way to end a pseudo file without trailing space */
-    detokenized_line = false;
-    local_catcode_table = false;
     if (name > 17) {
         /* @<Read next line of file into |buffer|, or |goto restart| if the file has ended@> */
         incr(line);
@@ -635,6 +640,7 @@ static next_line_retval next_line(void)
             if (name <= 20) {
                 if (pseudo_input()) {   /* not end of file */
                     firm_up_the_line(); /* this sets |limit| */
+                    line_catcode_table = DEFAULT_CAT_TABLE;
                     if ((name == 19) && (pseudo_lines(pseudo_files) == null))
                         inhibit_eol = true;
                 } else if ((every_eof != null) && !eof_seen[index]) {
@@ -650,28 +656,19 @@ static next_line_retval next_line(void)
                 if (name == 21) {
                     if (luacstring_input()) {   /* not end of strings  */
                         firm_up_the_line();
-                        if ((luacstring_penultimate()) || (luacstring_simple()))
+                        line_catcode_table = luacstring_cattable();
+                        line_partial = luacstring_partial();
+                        if (luacstring_final_line() || line_partial || line_catcode_table==NO_CAT_TABLE)
                             inhibit_eol = true;
-                        if (!luacstring_simple())
+                        if (!line_partial)
                             state = new_line;
-                        if (luacstring_detokenized()) {
-                            inhibit_eol = true;
-                            detokenized_line = true;
-                        } else {
-                            if (!luacstring_defaultcattable()) {
-                                tab = luacstring_cattable();
-                                if (valid_catcode_table(tab)) {
-                                    local_catcode_table = true;
-                                    line_catcode_table = tab;
-                                }
-                            }
-                        }
                     } else {
                         force_eof = true;
                     }
                 } else {
                     if (lua_input_ln(cur_file, 0, true)) {      /* not end of file */
                         firm_up_the_line();     /* this sets |limit| */
+                        line_catcode_table = DEFAULT_CAT_TABLE;
                     } else if ((every_eof != null) && (!eof_seen[index])) {
                         limit = first - 1;
                         eof_seen[index] = true; /* fake one empty line */

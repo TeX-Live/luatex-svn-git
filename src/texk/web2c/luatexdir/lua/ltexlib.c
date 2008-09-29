@@ -32,8 +32,8 @@ typedef struct {
     char *text;
     unsigned int tsize;
     void *next;
-    unsigned char partial;
-    int cattable;
+    boolean partial;
+    integer cattable;
 } rope;
 
 typedef struct {
@@ -44,9 +44,6 @@ typedef struct {
 
 #define  PARTIAL_LINE       1
 #define  FULL_LINE          0
-
-#define  NO_CAT_TABLE      -2
-#define  DEFAULT_CAT_TABLE -1
 
 #define  write_spindle spindles[spindle_index]
 #define  read_spindle  spindles[(spindle_index-1)]
@@ -62,7 +59,7 @@ static int do_luacprint(lua_State * L, int partial, int deftable)
     size_t tsize;
     char *st, *sttemp;
     rope *rn;
-    int cattable = deftable;
+    integer cattable = (integer)deftable;
     int startstrings = 1;
     n = lua_gettop(L);
     if (cattable != NO_CAT_TABLE) {
@@ -101,42 +98,27 @@ static int do_luacprint(lua_State * L, int partial, int deftable)
     return 0;
 }
 
-int luacwrite(lua_State * L)
-{
+int luacwrite(lua_State * L) {
     return do_luacprint(L, FULL_LINE, NO_CAT_TABLE);
 }
 
-int luacprint(lua_State * L)
-{
+int luacprint(lua_State * L) {
     return do_luacprint(L, FULL_LINE, DEFAULT_CAT_TABLE);
 }
 
-int luacsprint(lua_State * L)
-{
+int luacsprint(lua_State * L) {
     return do_luacprint(L, PARTIAL_LINE, DEFAULT_CAT_TABLE);
 }
 
-int luacstring_detokenized(void)
-{
-    return (read_spindle.tail->cattable == NO_CAT_TABLE);
-}
-
-int luacstring_defaultcattable(void)
-{
-    return (read_spindle.tail->cattable == DEFAULT_CAT_TABLE);
-}
-
-integer luacstring_cattable(void)
-{
+integer luacstring_cattable(void) {
     return (integer) read_spindle.tail->cattable;
 }
 
-int luacstring_simple(void)
-{
-    return (read_spindle.tail->partial == PARTIAL_LINE);
+int luacstring_partial(void) {
+    return read_spindle.tail->partial;
 }
 
-int luacstring_penultimate(void)
+int luacstring_final_line(void)
 {
     return (read_spindle.tail->next == NULL);
 }

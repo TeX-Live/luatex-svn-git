@@ -100,14 +100,11 @@
 @define procedure luatokencall();
 @define procedure closelua();
 
-@define function  luacstring_input;
-@define function  luacstring_penultimate;
-@define function  luacstring_detokenized;
-@define function  luacstring_cattable;
-@define function  luacstring_defaultcattable;
-@define function  luacstring_simple;
+{ for virtual file input }
+
 @define procedure luacstring_close();
 @define procedure luacstring_start();
+@define var DEFAULT_CAT_TABLE;
 
 { for callbacks }
 
