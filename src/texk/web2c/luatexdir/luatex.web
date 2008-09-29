@@ -15966,6 +15966,12 @@ begin
   get_hash_base:= hash_base;
 end;
 
+function get_font_id_base: integer;
+begin
+  get_font_id_base:= font_id_base;
+end;
+
+
 function get_cur_font: internal_font_number;
 begin
   get_cur_font:= cur_font;

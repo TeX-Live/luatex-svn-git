@@ -1200,6 +1200,42 @@ static int tex_scaletable(lua_State * L)
     return 1;
 }
 
+#define hash_text(A) hash[(A)].rh
+
+static int tex_definefont(lua_State * L)
+{
+  char *csname;
+  int f, u;
+  str_number t;
+  int i = 1;
+  int a = 0;
+  if (!no_new_control_sequence) {
+    char *help[] = { "You can't create a new font inside a \\csname\\endcsname pair",
+        NULL
+    };
+    tex_error("Definition active", help);
+  }
+  if ((lua_gettop(L)==3) && lua_isboolean(L,1)) {
+    a = lua_toboolean(L,1);
+    i = 2;
+  }
+  csname = (char *)luaL_checkstring(L, i);
+  f = luaL_checkinteger(L, (i+1));
+  t = maketexlstring(csname, strlen(csname));
+  no_new_control_sequence = 0;
+  u = string_lookup(t);
+  no_new_control_sequence = 1;
+  if (a)
+    geq_define(u, set_font_cmd, f);
+  else
+    eq_define(u, set_font_cmd, f);
+  zeqtb[get_font_id_base()+f]=zeqtb[u]; 
+  hash_text(get_font_id_base()+f)=t;
+  return 0;
+}
+
+
+
 static const struct luaL_reg texlib[] = {
     {"write", luacwrite},
     {"print", luacprint},
@@ -1236,6 +1272,7 @@ static const struct luaL_reg texlib[] = {
     {"romannumeral", getromannumeral},
     {"pdfpageref", getpdfpageref},
     {"pdfxformname", getpdfxformname},
+    {"definefont", tex_definefont},
     {NULL, NULL}                /* sentinel */
 };
 
