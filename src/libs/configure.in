@@ -1,6 +1,6 @@
 dnl configure.in for TeX Live source/libs.
 dnl Public domain.
-AC_INIT(zlib/zlib.h)
+AC_INIT(lua51/lapi.h)
 
 AC_CONFIG_AUX_DIR(../config)
 AC_PROG_MAKE_SET
