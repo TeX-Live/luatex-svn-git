@@ -586,6 +586,7 @@ void do_exception(halfword wordstart, halfword r, char *replacement)
                 vlink(q) = null;
             }
             t = insert_discretionary(t, gg, hh, replace);
+            t = vlink(t);       /* skip the new disc */
         } else {
             t = vlink(t);
         }
