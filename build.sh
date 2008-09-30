@@ -119,7 +119,11 @@ fi
 (cd texk/web2c/web2c; $MAKE) || exit 1
 (cd texk/web2c; $MAKE ../kpathsea/libkpathsea.la) || exit 1
 (cd texk/web2c/lib; $MAKE) || exit 1
-(cd texk/web2c/mpdir; ../../../../src/texk/web2c/mpdir/configure --enable-shared=no; $MAKE; $MAKE lmplib.o ) || exit 1
+(cd texk/web2c/; $MAKE ctangle) || exit 1
+(cd texk/web2c/mpdir; 
+  ../../../../src/texk/web2c/mpdir/configure --enable-shared=no; 
+  env CTANGLE=../ctangle $MAKE; 
+  $MAKE lmplib.o ) || exit 1
 (cd texk/web2c; $MAKE luatex) || exit 1
 # go back
 cd ..
