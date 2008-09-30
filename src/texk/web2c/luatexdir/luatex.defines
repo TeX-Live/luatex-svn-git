@@ -157,7 +157,7 @@
 @define var hyphenate_callback;
 
 @define function lua_hyphenate_callback();
-@define procedure lua_linebreak_callback();
+@define function lua_linebreak_callback();
 
 @define procedure get_saved_lua_boolean();
 @define procedure get_saved_lua_number();

@@ -28,7 +28,6 @@ static const char _svn_version[] =
 #define info(a)    fixmem[(a)].hhlh
 #define link(a)    fixmem[(a)].hhrh
 
-
 static char *group_code_names[] = {
     "",
     "simple",
@@ -128,19 +127,22 @@ lua_node_filter(int filterid, int xextrainfo, halfword head_node,
     return;
 }
 
-void
+
+int
 lua_linebreak_callback (int is_broken, halfword head_node, halfword *new_head)
 {
     int a;
+    register halfword *p;
+    int ret = 0; /* failure */
     lua_State *L = Luas[0];
     int callback_id = callback_defined(linebreak_filter_callback);
     if (head_node == null || vlink(head_node) == null || callback_id == 0)
-        return;
+        return ret;
     lua_rawgeti(L, LUA_REGISTRYINDEX, callback_callbacks_id);
     lua_rawgeti(L, -1, callback_id);
     if (!lua_isfunction(L, -1)) {
         lua_pop(L, 2);
-        return;
+        return ret;
     }
     nodelist_to_lua(L, vlink(head_node));       /* arg 1 */
     lua_pushboolean(L, is_broken);       /* arg 2 */
@@ -148,22 +150,17 @@ lua_linebreak_callback (int is_broken, halfword head_node, halfword *new_head)
         fprintf(stdout, "error: %s\n", lua_tostring(L, -1));
         lua_pop(L, 2);
         error();
-        return;
+        return ret;
     }
-    if (lua_isboolean(L, -1)) {
-        if (lua_toboolean(L, -1) != 1) {
-            flush_node_list(vlink(head_node));
-            vlink(*new_head) = null;
-        } else {
-          vlink(*new_head) = vlink(head_node);
-          vlink(head_node) = null;
-        }
-    } else {
+    
+    p = lua_touserdata(L, -1);
+    if (p != NULL) {
         a = nodelist_from_lua(L);
         vlink(*new_head) = a;
+        ret = 1;
     }
     lua_pop(L, 2);              /* result and callback container table */
-    return;
+    return ret;
 }
 
 

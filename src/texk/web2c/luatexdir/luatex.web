@@ -23850,7 +23850,30 @@ last_line_fill:=vlink(tail);
 pop_nest;
 start_of_par:=tail;
 callback_id:=callback_defined(linebreak_filter_callback);
-if callback_id=0 then 
+if callback_id<>0 then begin
+  callback_id := lua_linebreak_callback(d, temp_head, addressof(tail));
+  if callback_id>0 then begin
+    just_box := tail;
+    if just_box<>null then
+      while vlink(just_box)<>null do 
+         just_box := vlink(just_box);  
+    if (just_box=null)or(type(just_box) <> hlist_node) then begin
+      help3("A linebreaking routine should return a non-empty list of nodes")
+           ("and the last one of those has to be a \\hbox.")
+           ("Sorry, I cannot recover from this.");
+      print_err("Invalid linebreak_filter");
+      succumb;
+      end
+    end
+  else begin
+    if tracing_paragraphs>0 then begin
+      begin_diagnostic; 
+      print_nl("Lua linebreak_filter failed, reverting to default on line "); print_int(line);
+      end_diagnostic(true);
+    end;
+  end;
+end;
+if callback_id=0 then begin
   ext_do_line_break(d,pretolerance,tracing_paragraphs,tolerance,emergency_stretch,
                    looseness,hyphen_penalty,ex_hyphen_penalty,
                    pdf_adjust_spacing, par_shape_ptr, adj_demerits,
@@ -23863,14 +23886,7 @@ if callback_id=0 then
                    club_penalty, club_penalties_ptr,
                    display_widow_penalties_ptr,widow_penalties_ptr,
                    display_widow_penalty, widow_penalty,
-                   broken_penalty, final_par_glue, pdf_ignored_dimen)
-else begin
-  { appends to tail }
-  lua_linebreak_callback(d, temp_head, addressof(tail));
-  just_box := tail;
-  while vlink(just_box)<>null do 
-     just_box := vlink(just_box); 
-  pdfassert(type(just_box)=hlist_node);
+                   broken_penalty, final_par_glue, pdf_ignored_dimen);
 end;
 lua_node_filter(post_linebreak_filter_callback,
       line_break_context,start_of_par,addressof(tail));
