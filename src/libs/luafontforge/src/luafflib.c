@@ -957,7 +957,7 @@ handle_enc (lua_State *L, struct enc *enc) {
 }
 
 void 
-handle_encmap (lua_State *L, struct encmap *map) {
+handle_encmap (lua_State *L, struct encmap *map, int notdef_loc) {
   int i;
   dump_intfield(L,"enccount", map->enccount) ;
   dump_intfield(L,"encmax",   map->encmax) ;
@@ -975,8 +975,12 @@ handle_encmap (lua_State *L, struct encmap *map) {
     lua_createtable(L,map->encmax,1);
     for (i=0;i<map->encmax;i++) {
       if (map->map[i]!=-1) {
-		lua_pushnumber(L,i);
-		lua_pushnumber(L,map->map[i]);
+        int l = map->map[i];
+        lua_pushnumber(L,i);
+        if (l<notdef_loc)
+          lua_pushnumber(L,(l+1));
+        else
+          lua_pushnumber(L,l);
 		lua_rawset(L,-3);
       }
     }
@@ -987,7 +991,10 @@ handle_encmap (lua_State *L, struct encmap *map) {
     lua_newtable(L);
     for (i=0;i<map->backmax;i++) {
       if (map->backmap[i]!=-1) {
-		lua_pushnumber(L,i);
+        if (i<notdef_loc)
+          lua_pushnumber(L,(i+1));
+        else
+          lua_pushnumber(L,i);
 		lua_pushnumber(L,map->backmap[i]);
 		lua_rawset(L,-3);
       }
@@ -1394,24 +1401,45 @@ handle_splinefont(lua_State *L, struct splinefont *sf) {
 
   lua_checkstack(L,4);
   lua_createtable(L,sf->glyphcnt,0);
-  /* here is a bit of hackery for .notdef's that appear in the middle
-  of a type1 font. This situation should be handled nicer, because the
-  trick assumes a specific way of handling cff fonts, and that will
-  fail. The current code will at least make sure that the intended use
-  works, for now. */
-  l = 0;
-  for (k=0;k<sf->glyphcnt;k++,l++) {
-    lua_pushnumber(L,l);
+
+  /* some code to ensure that the .notdef ends up in slot 0 
+     (this will actually be enforced by the CFF writer) */
+  l = -1;
+  for (k=0;k<sf->glyphcnt;k++) {
+	if (sf->glyphs[k]) {
+	  if (strcmp(sf->glyphs[k]->name,".notdef") == 0) {
+		l = k;
+      }
+    }
+  }
+  if (l==-1) { /* fake a .notdef at the end */
+    l = sf->glyphcnt;
+  }
+  for (k=0;k<l;k++) {
+    lua_pushnumber(L,(k+1));
     lua_createtable(L,0,12);
 	if (sf->glyphs[k]) {
-	  if (k>0 && strcmp(sf->glyphs[k]->name,".notdef") == 0) {
-		l--;
-	  } else {
-		handle_splinechar(L,sf->glyphs[k], sf->hasvmetrics);
-	  }
+      handle_splinechar(L,sf->glyphs[k], sf->hasvmetrics);
 	}
     lua_rawset(L,-3);
   }
+  lua_pushnumber(L,0);
+  lua_createtable(L,0,12);
+  if (sf->glyphs[l]) {
+    handle_splinechar(L,sf->glyphs[l], sf->hasvmetrics);
+  }
+  lua_rawset(L,-3);
+  if ((l+1)<sf->glyphcnt) {
+    for (k=(l+1);k<sf->glyphcnt;k++) {
+      lua_pushnumber(L,k);
+      lua_createtable(L,0,12);
+      if (sf->glyphs[k]) {
+        handle_splinechar(L,sf->glyphs[k], sf->hasvmetrics);
+      }
+      lua_rawset(L,-3);
+    }
+  }
+
   lua_setfield(L,-2,"glyphs");
 
   dump_intfield(L,"changed",                   sf->changed);
@@ -1424,7 +1452,7 @@ handle_splinefont(lua_State *L, struct splinefont *sf) {
   
   if (sf->map != NULL ) {
     lua_newtable(L);
-    handle_encmap(L,sf->map);
+    handle_encmap(L,sf->map, l);
     lua_setfield(L,-2,"map");
   }
 

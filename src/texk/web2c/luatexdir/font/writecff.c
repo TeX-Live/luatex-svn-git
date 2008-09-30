@@ -2936,11 +2936,7 @@ static void write_fontfile(cff_font * cffont, char *fullname)
     gid++;                                                                     \
   }
 
-/* If the CFF data was converted from an old type1 font, then the .notdef 
-   glyph may not be at id 0, so in that case |uglytype1fix| is nonzero */
-
-
-void write_cff(cff_font * cffont, fd_entry * fd, int uglytype1fix)
+void write_cff(cff_font * cffont, fd_entry * fd)
 {
     cff_index *charstrings, *cs_idx;
 
@@ -2987,9 +2983,8 @@ void write_cff(cff_font * cffont, fd_entry * fd, int uglytype1fix)
     glyph = xtalloc(1, glw_entry);
 
     /* insert notdef */
-    glyph->id = uglytype1fix;
+    glyph->id = 0;
     if (avl_find(fd->gl_tree, glyph) == NULL) {
-        /*fprintf(stderr,"seeding .notdef at %i\n",uglytype1fix); */
         avl_insert(fd->gl_tree, glyph);
         glyph = xtalloc(1, glw_entry);
     }
@@ -3077,50 +3072,10 @@ void write_cff(cff_font * cffont, fd_entry * fd, int uglytype1fix)
 
     {
         int i;
-/* 
-
-When PFB fonts are used in a wide format, the backend has to convert
-the PFB font into CFF format. For older PFB files, there is a potential
-problem.
-
-In CFF, the /.notdef glyph has to come first, at index 0. But at this
-point, many glyph indices are already written out to the PDF, so it is
-not possible to simply recompose the CFF. The only option left is to
-kick out whatever was at the old index 0 and replace it by ./notdef. 
-If we are lucky, in such fonts that is a /space, and no harm done. 
-
-Otherwise, a warning is given, and when the actual /.notdef in the CFF
-is encountered, it is skipped.
-
-A proper solution to this problem is not possible unless the font 
-conversion takes place before any indices are written to the PDF 
-file. That should be doable, but requires tricky code in FF.openfont()
-instead of here.
-
-*/
-
-
-        if (uglytype1fix != 0) {
-            code = uglytype1fix;
-            glyph->id = code;
-            DO_COPY_CHARSTRING();
-            glyph->id = 0;
-            if ((avl_find(fd->gl_tree, glyph) != NULL)) {
-                WARN("I had to force a .notdef glyph into slot 0, expelling the old charstring.");
-            }
-            for (i = 1; i < cs_count; i++) {
-                glyph->id = i;
-                code = i + 1;
-                if (code < cs_count) {
-                    DO_COPY_CHARSTRING();
-                }
-            }
-        } else {
-            for (i = 0; i < cs_count; i++) {
-                code = i;
-                glyph->id = code;
-                DO_COPY_CHARSTRING();
-            }
+        for (i = 0; i < cs_count; i++) {
+          code = i;
+          glyph->id = code;
+          DO_COPY_CHARSTRING();
         }
     }
 
@@ -3242,7 +3197,7 @@ card16 cff_charsets_lookup(cff_font * cff, card16 cid)
 #define is_cidfont(a) ((a)->flag & FONTTYPE_CIDFONT)
 #define CID_MAX 65535
 
-void write_cid_cff(cff_font * cffont, fd_entry * fd, int uglytype1fix)
+void write_cid_cff(cff_font * cffont, fd_entry * fd)
 {
     cff_index *charstrings, *cs_idx;
 
@@ -3286,7 +3241,7 @@ void write_cid_cff(cff_font * cffont, fd_entry * fd, int uglytype1fix)
 
     glyph = xtalloc(1, glw_entry);
     /* insert notdef */
-    glyph->id = uglytype1fix;
+    glyph->id = 0;
     if (avl_find(fd->gl_tree, glyph) == NULL) {
         avl_insert(fd->gl_tree, glyph);
         glyph = xtalloc(1, glw_entry);
@@ -3437,7 +3392,6 @@ void writetype1w(fd_entry * fd)
     ff_entry *ff;
     unsigned char *tfm_buffer = NULL;
     integer tfm_size = 0;
-    int notdefpos = 0;
 
     ff = check_ff_exist(fd->fm->ff_name, 0);
 
@@ -3457,12 +3411,12 @@ void writetype1w(fd_entry * fd)
             tex_printf("<<%s", cur_file_name);
     }
 
-    notdefpos = ff_createcff(ff->ff_path, &tfm_buffer, &tfm_size);
+    (void)ff_createcff(ff->ff_path, &tfm_buffer, &tfm_size);
 
     if (tfm_size > 0) {
         cff = read_cff(tfm_buffer, tfm_size, 0);
         if (cff != NULL) {
-            write_cff(cff, fd, notdefpos);
+            write_cff(cff, fd);
         } else {
             for (i = 0; i < tfm_size; i++)
                 fb_putchar(tfm_buffer[i]);
