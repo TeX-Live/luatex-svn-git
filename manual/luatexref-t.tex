@@ -19,7 +19,7 @@
 
 \setvariables
   [document]
-  [beta=0.29.0]
+  [beta=0.30.0]
 
 \starttext
 
@@ -958,6 +958,7 @@ that has these characteristics:
 \startitemize[packed]
 \item You can use it after \tex{the}
 \item It is a single token.
+\item Some special others, see the list below
 \stopitemize
 
 This excludes parameters that need extra arguments, like
@@ -1081,7 +1082,8 @@ tex.spacefactor
 \subsection{Dimension parameters}
 
 The dimension parameters accept \LUA\ numbers (signifying scaled points)
-or strings (with included dimension). The result is always a string.
+or strings (with included dimension). The result is always a number in
+scaled points.
 
 Read|-|write:
 
@@ -1159,7 +1161,8 @@ tex.textdir
 
 \subsection{Glue parameters}
 
-All glue parameters are read|-|only and return a \LUA\ string.
+All glue parameters are read|-|only and return a userdata object that
+represents a \type{glue_spec} node.
 
 \startcolumns[n=3]
 \starttyping
@@ -1221,7 +1224,7 @@ tex.pdfpkmode
 All \quote{convert} commands are read|-|only and return a \LUA\ string.
 The supported commands at this moment are:
 
-\startcolumns[n=3]
+\startcolumns[n=2]
 \starttyping
 tex.AlephVersion
 tex.Alephrevision
@@ -1236,18 +1239,73 @@ tex.luatexdatestamp
 tex.pdfnormaldeviate
 tex.pdftexbanner
 tex.pdftexrevision
+tex.fontname(number)
+tex.pdffontname(number)
+tex.pdffontobjnum(number)
+tex.pdffontsize(number)
+tex.uniformdeviate(number)
+tex.number(number)
+tex.romannumeral(number)
+tex.pdfpageref(number)
+tex.pdfxformname(number)
+tex.fontidentifier(number)
 \stoptyping
 \stopcolumns
 
 If you are wondering why this list looks haphazard; these are all the
 cases of the \quote{convert} internal command that do not require an
-argument.
+argument, as well as the ones that require only a simple numeric
+value.
 
-\subsection{Attribute, count, dimension and token registers}
+The special (lua-only) case of \type{tex.fontidentifier} returns the
+\type{csname} string that matches a font id number (if there is one).
+
+\subsection{Last item commands}
+
+All \quote{last item} commands are read|-|only and return a number.
+
+The supported commands at this moment are:
+
+\startcolumns[n=3]
+\starttyping
+tex.lastpenalty
+tex.lastkern
+tex.lastskip
+tex.lastnodetype
+tex.inputlineno
+tex.badness
+tex.pdftexversion
+tex.pdflastobj
+tex.pdflastxform
+tex.pdflastximage
+tex.pdflastximagepages
+tex.pdflastannot
+tex.pdflastxpos
+tex.pdflastypos
+tex.pdfrandomseed,
+tex.pdflastlink
+tex.luatexversion
+tex.Alephversion
+tex.Omegaversion
+tex.Alephminorversion
+tex.Omegaminorversion
+tex.eTeXminorversion
+tex.eTeXversion
+tex.currentgrouplevel
+tex.currentgrouptype
+tex.currentiflevel
+tex.currentiftype
+tex.currentifbranch
+tex.pdflastximagecolordepth
+\stoptyping
+\stopcolumns
+
+\subsection{Attribute, count, dimension, skip and token registers}
 
 \TEX's attributes (\tex{attribute}), counters (\tex{count}),
-dimensions (\tex{dimen}) and token (\tex{toks}) registers can be
-accessed and written to using four virtual sub|-|tables of the
+dimensions (\tex{dimen}), skips (\tex{skip}) and token (\tex{toks})
+registers can be accessed and written to using five virtual
+sub|-|tables of the
 \luatex{tex} table:
 
 \startcolumns[n=3]
@@ -1255,12 +1313,13 @@ accessed and written to using four virtual sub|-|tables of the
 tex.attribute
 tex.count
 tex.dimen
+tex.skip
 tex.toks
 \stoptyping
 \stopcolumns
 
 It is possible to use the names of relevant \tex{attributedef}, \tex{countdef},
-\tex{dimendef}, or \tex{toksdef} control sequences as indices
+\tex{dimendef}, \tex{skipdef},  or \tex{toksdef} control sequences as indices
 to these tables:
 
 \starttyping
@@ -1270,9 +1329,9 @@ enormous = tex.dimen['maxdimen']
 
 In this case, \LUATEX\ looks up the value for you on the fly. You have
 to use a valid \tex{countdef} (or \tex{attributedef}, or
-\tex{dimendef}, or \tex{toksdef}), anything else will generate an error
-(the intent is to eventually also allow \type{<chardef tokens>} and even
-macros that expand into a number).
+\tex{dimendef}, or \tex{skipdef}, or \tex{toksdef}), anything else
+will generate an error (the intent is to eventually also allow
+\type{<chardef tokens>} and even macros that expand into a number).
 
 The attribute and count registers accept and return \LUA\ numbers.
 
@@ -1283,6 +1342,10 @@ are forbidden). The result is always a number in scaled points.
 The token registers accept and return \LUA\ strings. \LUA\ strings are
 converted to and from token lists using \tex{the}\tex{toks} style
 expansion: all category codes are either space (10) or other (12).
+
+The skip registers accept and return \type{glue_spec} userdata node
+objects (see the description of the node interface elsewhere in this
+manual).
 
 As an alternative to array addressing, there are also accessor
 functions defined:
@@ -1304,6 +1367,11 @@ tex.settoks (<number> n, <string> s)
 tex.settoks (<string> s, <string> s)
 <string> s = tex.gettoks (<number> n)
 <string> s = tex.gettoks (<string> s)
+
+tex.setskip (<number> n, <node> s)
+tex.setskip (<string> s, <node> s)
+<node> s = tex.getskip (<number> n)
+<node> s = tex.getskip (<string> s)
 \stopfunctioncall
 
 \subsection{Box registers}
@@ -1492,12 +1560,24 @@ In the table version, it creates a copy of the table with all numeric
 top||level values scaled in that manner. If the multiplied number(s) are
 of range, it generates \quote{number to big} error(s) as well.
 
+\subsubsection{\luatex{tex.definefont}}
+
+\startfunctioncall
+tex.definefont(<string> csname, <number> fontid)
+tex.definefont(<boolean> global, <string> csname, <number> fontid)
+\stopfunctioncall
+
+Associates \type{csname} with the internal font number \type{fontid}.
+The definition is global if (and only if) \type{global} is specified
+and true (the setting of \type{globaldefs} is not taken into account).
+
+
 \section{The \luatex{token} library}
 
 The \luatex{token} table contains interface functions to \TEX's
 handling of tokens. These functions are most useful when combined with
-the \luatex{token_filter} callback, but they could be used standalone as
-well.
+the \luatex{token_filter} callback, but they could be used standalone
+as well.
 
 A token is represented in \LUA\ as a small table. For the moment, this
 table consists of three numeric entries:
@@ -3135,6 +3215,20 @@ will be explained in the next two paragraphs.
 \NC fin_row      \NC alignment row                             \NC\NR
 \stoptabulate
 
+\subsubsection{\luatex{linebreak_filter}}
+
+This callback replaces \LUATEX's line breaking algorithm.
+
+\startfunctioncall
+function(<node> head, <boolean> is_display)
+    return <node> newhead
+end
+\stopfunctioncall
+
+The returned node is the head of the list that will be added to the
+main vertical list, the boolean argument is true if this paragraph is
+interrupted by a following math display.
+
 \subsubsection{\luatex{post_linebreak_filter}}
 
 This callback is called just after \LUATEX\ has converted a list
@@ -3693,14 +3787,6 @@ the executable after loading and executing the startup file.
 \NC trace_file_names \NC boolean \NC true \NC \type{false} disables \TEX's normal file open|-|close
                                               feedback (the assumption is that callbacks will take care of
 	                                      that) \NC \NR
-\NC src_special_auto  \NC boolean \NC false \NC source specials sub|-|item \NC \NR
-\NC src_special_everypar  \NC boolean \NC false \NC source specials sub|-|item \NC \NR
-\NC src_special_everyparend  \NC boolean \NC false \NC source specials sub|-|item \NC \NR
-\NC src_special_everycr  \NC boolean \NC false \NC source specials sub|-|item \NC \NR
-\NC src_special_everymath  \NC boolean \NC false \NC source specials sub|-|item \NC \NR
-\NC src_special_everyhbox  \NC boolean \NC false \NC source specials sub|-|item \NC \NR
-\NC src_special_everyvbox  \NC boolean \NC false \NC source specials sub|-|item \NC \NR
-\NC src_special_everydisplay  \NC boolean \NC false \NC source specials sub|-|item \NC \NR
 \NC file_line_error  \NC boolean \NC false \NC do \type{file:line} style error messages\NC \NR
 \NC halt_on_error    \NC boolean \NC false \NC abort run on the first encountered error\NC \NR
 \NC formatname       \NC string \NC \NC if no format name was given
@@ -6655,15 +6741,10 @@ this is not the roadmap, which is somewhat more ambitious.
 
 \item Implement the \TEX\ primitive \tex{dimension}, cf.\ \tex{number}.
 
-\item Change the \LUA\ table \type{tex.dimen} to accept and return float
-values instead of strings.
-
 \item Do something about \tex{withoutpt} and/or a new register type \tex{real}?
 
 \item Create callback for the automatic creation of missing
 characters in fonts.
-
-\item Implement the \TEX\ primitive \tex{htdp}?
 
 \item Do boxes with dual baselines.
 
