@@ -1412,6 +1412,7 @@ void writettf(fd_entry * fd)
         else
             tex_printf(">>");
     }
+    xfree(ttf_buffer);
     cur_file_name = NULL;
 }
 
@@ -1490,6 +1491,7 @@ void writeotf(fd_entry * fd)
     cur_file_name = (char *) nameoffile + 1;
     fd_cur->ff_found = true;
     do_writeotf(fd);
+    xfree(ttf_buffer);
     cur_file_name = NULL;
 }
 

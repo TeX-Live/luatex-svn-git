@@ -114,6 +114,7 @@ void writetype0(fd_entry * fd)
             fb_putchar(ttf_getnum(1));
     }
     xfree(dir_tab);
+    xfree(ttf_buffer);
     if (tracefilenames) {
         if (is_subsetted(fd_cur->fm))
             tex_printf(">");
