@@ -276,7 +276,7 @@ void make_tt_subset(fd_entry * fd, unsigned char *buffer, integer buflen)
 
     long i, cid;
     unsigned int last_cid;
-    glw_entry *glyph, *found;
+    glw_entry *found;
     struct avl_traverser t;
     unsigned char *cidtogidmap;
     unsigned short num_glyphs, gid;
@@ -305,9 +305,6 @@ void make_tt_subset(fd_entry * fd, unsigned char *buffer, integer buflen)
     glyphs = tt_build_init();
 
     last_cid = 0;
-    num_glyphs = 1;             /* .notdef */
-
-    glyph = xtalloc(1, glw_entry);
 
     avl_t_init(&t, fd->gl_tree);
     for (found = (glw_entry *) avl_t_first(&t, fd->gl_tree);
@@ -406,6 +403,7 @@ void make_tt_subset(fd_entry * fd, unsigned char *buffer, integer buflen)
     for (i = 0; i < fontfile->length; i++)
         fb_putchar(fontfile->data[i]);
 
+    pdf_release_obj(fontfile);
 
     /* other stuff that needs fixing: */
 
@@ -438,6 +436,7 @@ void make_tt_subset(fd_entry * fd, unsigned char *buffer, integer buflen)
        pdf_release_obj(cidset);
        }
      */
-    xfree(sfont);
+    xfree(used_chars);
+    sfnt_close(sfont);    
     return;
 }

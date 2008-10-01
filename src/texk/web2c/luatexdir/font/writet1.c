@@ -357,6 +357,7 @@ char **load_enc_file(char *enc_name)
   done:
     t1_log("}");
     cur_file_name = NULL;
+    xfree(enc_buffer);
     return glyph_names;
 }
 
@@ -1741,6 +1742,7 @@ void writet1(fd_entry * fd)
             return;
         t1_include();
         t1_close_font_file(">>");
+        xfree(t1_buffer);
         return;
     }
     /* partial downloading */
@@ -1754,6 +1756,7 @@ void writet1(fd_entry * fd)
     t1_subset_charstrings();
     t1_subset_end();
     t1_close_font_file(">");
+    xfree(t1_buffer);
 }
 
 void t1_free()
