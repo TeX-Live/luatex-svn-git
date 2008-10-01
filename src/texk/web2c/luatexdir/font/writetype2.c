@@ -195,6 +195,7 @@ void writetype2(fd_entry * fd)
     make_tt_subset(fd, ttf_buffer, ttf_size);
 
     /*xfree (dir_tab); */
+    xfree(ttf_buffer);
     if (tracefilenames) {
         if (is_subsetted(fd_cur->fm))
             tex_printf(">");
@@ -437,6 +438,6 @@ void make_tt_subset(fd_entry * fd, unsigned char *buffer, integer buflen)
        pdf_release_obj(cidset);
        }
      */
-
+    xfree(sfont);
     return;
 }
