@@ -1423,12 +1423,14 @@ handle_splinefont(lua_State *L, struct splinefont *sf) {
 	}
     lua_rawset(L,-3);
   }
+  if (sf->glyphs != NULL && l<sf->glyphcnt) {
   lua_pushnumber(L,0);
   lua_createtable(L,0,12);
   if (sf->glyphs[l]) {
     handle_splinechar(L,sf->glyphs[l], sf->hasvmetrics);
   }
   lua_rawset(L,-3);
+  }
   if ((l+1)<sf->glyphcnt) {
     for (k=(l+1);k<sf->glyphcnt;k++) {
       lua_pushnumber(L,k);
