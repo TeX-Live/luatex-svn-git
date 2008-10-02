@@ -27571,16 +27571,21 @@ surround an accent that is the nucleus of an Ord atom.
 @<Cases of |handle...@>=
 math_group: begin @<DIR: |unsave| math@>; decr(save_ptr);@/
   math_type(saved(0)):=sub_mlist; p:=fin_mlist(null); vinfo(saved(0)):=p;
-  if p<>null then if vlink(p)=null then
-   if type(p)=ord_noad then
-    begin if math_type(subscr(p))=empty then
-     if math_type(supscr(p))=empty then
-      begin vmem(saved(0)).hh:=vmem(nucleus(p)).hh;
-      flush_node(p);
-      end;
+  if p<>null then begin
+    if vlink(p)=null then begin
+      if type(p)=ord_noad then begin 
+        if math_type(subscr(p))=empty then
+          if math_type(supscr(p))=empty then begin 
+            vmem(saved(0)).hh:=vmem(nucleus(p)).hh;
+            flush_node(p);
+            end;
+        end
     end
-  else if type(p)=accent_noad then if saved(0)=nucleus(tail) then
-   if type(tail)=ord_noad then @<Replace the tail of the list by |p|@>;
+    else 
+      if type(p)=accent_noad then 
+        if saved(0)=nucleus(tail) then
+          if type(tail)=ord_noad then @<Replace the tail of the list by |p|@>;
+    end
   end;
 
 @ @<Replace the tail...@>=
