@@ -251,9 +251,9 @@ int do_run_callback(int special, char *values, va_list vl)
         luaL_checkstack(L, 1, "out of stack space");
         lua_pushvalue(L, -2);
     }
-    ss = index(values,'>');
+    ss = index(values, '>');
     assert(ss);
-    luaL_checkstack(L, (ss-values+1), "out of stack space");
+    luaL_checkstack(L, (ss - values + 1), "out of stack space");
     ss = NULL;
     for (narg = 0; *values; narg++) {
         switch (*values++) {
@@ -296,21 +296,21 @@ int do_run_callback(int special, char *values, va_list vl)
         narg++;
     }
     {
-      int i = lua_pcall(L, narg, nres, 0);
-      /* lua_remove(L, base); */ /* remove traceback function */
-      if (i != 0) {
-        /* Can't be more precise here, could be called before 
-         * TeX initialization is complete 
-         */
-        if (!log_opened) {
-          fprintf(stderr, "This went wrong: %s\n", lua_tostring(L, -1));
-          error();
-        } else {
-           lua_gc(L, LUA_GCCOLLECT, 0);
-           luatex_error(L, (i == LUA_ERRRUN ? 0 : 1));
+        int i = lua_pcall(L, narg, nres, 0);
+        /* lua_remove(L, base); *//* remove traceback function */
+        if (i != 0) {
+            /* Can't be more precise here, could be called before 
+             * TeX initialization is complete 
+             */
+            if (!log_opened) {
+                fprintf(stderr, "This went wrong: %s\n", lua_tostring(L, -1));
+                error();
+            } else {
+                lua_gc(L, LUA_GCCOLLECT, 0);
+                luatex_error(L, (i == LUA_ERRRUN ? 0 : 1));
+            }
+            return 0;
         }
-        return 0;
-      }
     }
     if (nres == 0) {
         return 1;
@@ -347,14 +347,14 @@ int do_run_callback(int special, char *values, va_list vl)
             s = lua_tolstring(L, nres, &len);
             if (s != NULL) {    /* |len| can be zero */
                 bufloc = va_arg(vl, int *);
-                if (len!=0) {
-                  ret = *bufloc;
-                  check_buffer_overflow(ret + len);
-                  strncpy((char*)(buffer+ret),s,len);
-                  *bufloc += len;
-                  /* while (len--) {  buffer[(*bufloc)++] = *s++; } */
-                  while ((*bufloc) - 1 > ret && buffer[(*bufloc) - 1] == ' ')
-                    (*bufloc)--;
+                if (len != 0) {
+                    ret = *bufloc;
+                    check_buffer_overflow(ret + len);
+                    strncpy((char *) (buffer + ret), s, len);
+                    *bufloc += len;
+                    /* while (len--) {  buffer[(*bufloc)++] = *s++; } */
+                    while ((*bufloc) - 1 > ret && buffer[(*bufloc) - 1] == ' ')
+                        (*bufloc)--;
                 }
             } else {
                 bufloc = 0;
