@@ -350,7 +350,7 @@ int do_run_callback(int special, char *values, va_list vl)
                 if (len!=0) {
                   ret = *bufloc;
                   check_buffer_overflow(ret + len);
-                  strncpy((buffer+ret),s,len);
+                  strncpy((char*)(buffer+ret),s,len);
                   *bufloc += len;
                   /* while (len--) {  buffer[(*bufloc)++] = *s++; } */
                   while ((*bufloc) - 1 > ret && buffer[(*bufloc) - 1] == ' ')
