@@ -267,36 +267,45 @@ static int get_cur_cs(lua_State * L)
 }
 
 
-#define append_i_byte(a) {                              \
-    if ((i+2)>alloci) {                                 \
-      ret = xrealloc(ret,alloci+64);                    \
-      alloci = alloci + 64; }                           \
-    ret[i++] = a; }
-
-#define Print_char(a) append_i_byte(a)
-
-#define Print_uchar(s) {                                        \
-  if (s<=0x7F) {                                                \
-    Print_char(s);                                              \
-  } else if (s<=0x7FF) {                                        \
-    Print_char(0xC0 + (s / 0x40));                              \
-    Print_char(0x80 + (s % 0x40));                              \
-  } else if (s<=0xFFFF) {                                       \
-    Print_char(0xE0 + (s / 0x1000));                            \
-    Print_char(0x80 + ((s % 0x1000) / 0x40));                   \
-    Print_char(0x80 + ((s % 0x1000) % 0x40));                   \
-  } else if (s>=0x110000) {                                     \
-    Print_char(s-0x11000);                                      \
-  } else {                                                      \
-    Print_char(0xF0 + (s / 0x40000));                           \
-    Print_char(0x80 + ((s % 0x40000) / 0x1000));                \
-    Print_char(0x80 + (((s % 0x40000) % 0x1000) / 0x40));       \
-    Print_char(0x80 + (((s % 0x40000) % 0x1000) % 0x40));       \
-  } }
+#define make_room(a)                                    \
+  if ((i+a+1)>alloci) {                                 \
+    ret = xrealloc(ret,alloci+64);                      \
+    alloci = alloci + 64;                               \
+  }
 
 
-#define Print_esc(b) { if (e>0 && e<string_offset) { Print_uchar (e); Print_uchar (e); }        \
-    { char *v = b; while (*v) { Print_char(*v); v++; } } }
+#define append_i_byte(a) ret[i++] = a
+
+#define Print_char(a) make_room(1); append_i_byte(a)
+
+#define Print_uchar(s) {                                           \
+    make_room(4);                                                  \
+    if (s<=0x7F) {                                                 \
+      append_i_byte(s);                                            \
+    } else if (s<=0x7FF) {                                         \
+      append_i_byte(0xC0 + (s / 0x40));                            \
+      append_i_byte(0x80 + (s % 0x40));                            \
+    } else if (s<=0xFFFF) {                                        \
+      append_i_byte(0xE0 + (s / 0x1000));                          \
+      append_i_byte(0x80 + ((s % 0x1000) / 0x40));                 \
+      append_i_byte(0x80 + ((s % 0x1000) % 0x40));                 \
+    } else if (s>=0x110000) {                                      \
+      append_i_byte(s-0x11000);                                    \
+    } else {                                                       \
+      append_i_byte(0xF0 + (s / 0x40000));                         \
+      append_i_byte(0x80 + ((s % 0x40000) / 0x1000));              \
+      append_i_byte(0x80 + (((s % 0x40000) % 0x1000) / 0x40));     \
+      append_i_byte(0x80 + (((s % 0x40000) % 0x1000) % 0x40));     \
+    } }
+
+
+#define Print_esc(b) {                                          \
+    char *v = b;                                                \
+    if (e>0 && e<string_offset) {                               \
+      Print_uchar (e); Print_uchar (e);                         \
+    }                                                           \
+    while (*v) { Print_char(*v); v++; }                         \
+  }
 
 #define single_letter(a) (length(a)==1)||                       \
   ((length(a)==4)&&(str_pool[str_start_macro(a)]>=0xF0))||      \
@@ -316,23 +325,26 @@ static int eqtb_size = 0;
 static int null_cs = 0;
 static int undefined_control_sequence;
 
-
-char *tokenlist_to_cstring(int p, int inhibit_par, int *siz)
+/* 2,720,652 */
+char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
 {
-    integer m, c;
+    register integer p, c, m;
     integer q;
+    integer infop;
     char *s;
     int e;
-    char *ret = NULL;
+    char *ret;
     int match_chr = '#';
     int n = '0';
-    int alloci = 0;
+    int alloci = 1024;
     int i = 0;
+    p = pp;
     if (p == null || link(p) == null) {
         if (siz != NULL)
             *siz = 0;
         return NULL;
     }
+    ret = xmalloc(alloci);
     p = link(p);                /* skip refcount */
     if (hash_base == 0) {
         hash_base = get_hash_base();
@@ -346,9 +358,10 @@ char *tokenlist_to_cstring(int p, int inhibit_par, int *siz)
             Print_esc("CLOBBERED.");
             break;
         }
-        if (info(p) >= cs_token_flag) {
-            if (!(inhibit_par && info(p) == par_token)) {
-                q = info(p) - cs_token_flag;
+        infop = info(p);
+        if (infop >= cs_token_flag) {
+            if (!(inhibit_par && infop == par_token)) {
+                q = infop - cs_token_flag;
                 if (q < hash_base) {
                     if (q == null_cs) {
                         /* Print_esc("csname"); Print_esc("endcsname"); */
@@ -383,23 +396,25 @@ char *tokenlist_to_cstring(int p, int inhibit_par, int *siz)
                 }
             }
         } else {
-            m = info(p) / string_offset;
-            c = info(p) % string_offset;
-            if (info(p) < 0) {
+            if (infop < 0) {
                 Print_esc("BAD.");
             } else {
+                m = infop >> string_offset_bits;
+                c = infop & (string_offset-1);
                 switch (m) {
-                case 6:        /* falls through */
-                    Print_uchar(c);
+                case 10:
+                case 11:
+                case 12:
                 case 1:
                 case 2:
                 case 3:
                 case 4:
                 case 7:
                 case 8:
-                case 10:
-                case 11:
-                case 12:
+                    Print_uchar(c);
+                    break;
+                case 6: 
+                    Print_uchar(c);
                     Print_uchar(c);
                     break;
                 case 5:
@@ -408,16 +423,19 @@ char *tokenlist_to_cstring(int p, int inhibit_par, int *siz)
                         Print_char(c + '0');
                     } else {
                         Print_char('!');
+                        xfree(ret);
                         return NULL;
                     }
                     break;
                 case 13:
                     match_chr = c;
                     Print_uchar(c);
-                    incr(n);
+                    n++;
                     Print_char(n);
-                    if (n > '9')
-                        return NULL;
+                    if (n > '9') {
+                      xfree(ret);
+                      return NULL;
+                    }
                     break;
                 case 14:
                     if (c == 0) {

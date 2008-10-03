@@ -251,8 +251,11 @@ int do_run_callback(int special, char *values, va_list vl)
         luaL_checkstack(L, 1, "out of stack space");
         lua_pushvalue(L, -2);
     }
+    ss = index(values,'>');
+    assert(ss);
+    luaL_checkstack(L, (ss-values+1), "out of stack space");
+    ss = NULL;
     for (narg = 0; *values; narg++) {
-        luaL_checkstack(L, 1, "out of stack space");
         switch (*values++) {
         case CALLBACK_CHARNUM: /* an ascii char! */
             cs = (char) va_arg(vl, int);
@@ -344,13 +347,15 @@ int do_run_callback(int special, char *values, va_list vl)
             s = lua_tolstring(L, nres, &len);
             if (s != NULL) {    /* |len| can be zero */
                 bufloc = va_arg(vl, int *);
-                ret = *bufloc;
-                check_buffer_overflow(ret + len);
-                while (len--) {
-                    buffer[(*bufloc)++] = *s++;
-                }
-                while ((*bufloc) - 1 > ret && buffer[(*bufloc) - 1] == ' ')
+                if (len!=0) {
+                  ret = *bufloc;
+                  check_buffer_overflow(ret + len);
+                  strncpy((buffer+ret),s,len);
+                  *bufloc += len;
+                  /* while (len--) {  buffer[(*bufloc)++] = *s++; } */
+                  while ((*bufloc) - 1 > ret && buffer[(*bufloc) - 1] == ' ')
                     (*bufloc)--;
+                }
             } else {
                 bufloc = 0;
             }

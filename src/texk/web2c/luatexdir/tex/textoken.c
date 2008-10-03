@@ -105,6 +105,8 @@ static void utf_error(void)
     deletions_allowed = true;
 }
 
+#define do_buffer_to_unichar(a,b)  a = buffer[b] < 0x80 ? buffer[b++] : qbuffer_to_unichar(&b) 
+
 static integer qbuffer_to_unichar(integer * k)
 {
     register int ch;
@@ -204,7 +206,8 @@ static boolean get_next_file(void)
 {
   SWITCH:
     if (loc <= limit) {         /* current line not yet finished */
-        cur_chr = qbuffer_to_unichar(&loc);
+        do_buffer_to_unichar(cur_chr,loc);
+        
       RESWITCH:
         if (detokenized_line()) {
             cur_cmd = (cur_chr == ' ' ? 10 : 12);
@@ -478,7 +481,7 @@ static int scan_control_sequence(void)
         register int cat;       /* |cat_code(cur_chr)|, usually */
         while (1) {
             integer k = loc;
-            cur_chr = qbuffer_to_unichar(&k);
+            do_buffer_to_unichar(cur_chr,k);
             do_get_cat_code(cat);
             if (cat != letter_cmd || k > limit) {
                 retval = (cat == spacer_cmd ? skip_blanks : mid_line);
@@ -487,7 +490,7 @@ static int scan_control_sequence(void)
             } else {
                 retval = skip_blanks;
                 do {
-                    cur_chr = qbuffer_to_unichar(&k);
+                  do_buffer_to_unichar(cur_chr,k);
                     do_get_cat_code(cat);
                 } while (cat == letter_cmd && k <= limit);
 

@@ -1107,6 +1107,7 @@ static void cs_store(boolean is_subr)
         cs_token_pair = check_cs_token_pair();
     ptr->len = t1_buf_ptr - t1_buf_array;
     ptr->cslen = t1_cslen;
+    xfree(ptr->data); /* mem leak? */
     ptr->data = xtalloc(ptr->len, byte);
     memcpy(ptr->data, t1_buf_array, ptr->len);
     ptr->valid = true;

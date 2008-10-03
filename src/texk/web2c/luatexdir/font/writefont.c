@@ -835,6 +835,8 @@ static void mark_cid_subset_glyphs(fo_entry * fo, internal_font_number f)
                     if ((glw_entry *) avl_find(fo->fd->gl_tree, j) == NULL) {
                         aa = avl_probe(fo->fd->gl_tree, j);
                         assert(aa != NULL);
+                    } else {
+                      xfree(j);
                     }
                 }
             }
@@ -911,6 +913,7 @@ void create_cid_fontdictionary(fm_entry * fm, integer font_objnum,
     write_fontdescriptor(fo->fd);
 
     write_cid_fontdictionary(fo, f);
+    xfree(fo);
 }
 
 void write_cid_fontdictionary(fo_entry * fo, internalfontnumber f)
