@@ -140,44 +140,36 @@ static sa_tree *catcode_heads = NULL;
 static int catcode_max = 0;
 static unsigned char *catcode_valid = NULL;
 
-void check_catcode_sizes(int h)
-{
-    int k;
-    if (h < 0)
-        uexit(1);
-    if (h > catcode_max) {
-        catcode_heads = Mxrealloc_array(catcode_heads, sa_tree, (h + 1));
-        catcode_valid = Mxrealloc_array(catcode_valid, unsigned char, (h + 1));
-        for (k = (catcode_max + 1); k <= h; k++) {
-            catcode_heads[k] = NULL;
-            catcode_valid[k] = 0;
-        }
-        catcode_max = h;
-    }
-}
+#define CATCODE_MAX 65535
+
+#define update_catcode_max(h)  if (h > catcode_max)  catcode_max = h
 
 void set_cat_code(integer h, integer n, halfword v, quarterword gl)
 {
-    check_catcode_sizes(h);
-    if (catcode_heads[h] == NULL) {
-        catcode_heads[h] = new_sa_tree(CATCODESTACK, CATCODEDEFAULT);
+    sa_tree s = catcode_heads[h];
+    update_catcode_max(h);
+    if (s == NULL) {
+        s = new_sa_tree(CATCODESTACK, CATCODEDEFAULT);
+        catcode_heads[h] = s;
     }
-    set_sa_item(catcode_heads[h], n, v, gl);
+    set_sa_item(s, n, v, gl);
 }
 
 halfword get_cat_code(integer h, integer n)
 {
-    check_catcode_sizes(h);
-    if (catcode_heads[h] == NULL) {
-        catcode_heads[h] = new_sa_tree(CATCODESTACK, CATCODEDEFAULT);
+    sa_tree s = catcode_heads[h];
+    update_catcode_max(h);
+    if (s == NULL) {
+        s = new_sa_tree(CATCODESTACK, CATCODEDEFAULT);
+        catcode_heads[h] = s;
     }
-    return (halfword) get_sa_item(catcode_heads[h], n);
+    return (halfword) get_sa_item(s, n);
 }
 
 void unsave_cat_codes(integer h, quarterword gl)
 {
     int k;
-    check_catcode_sizes(h);
+    update_catcode_max(h);
     for (k = 0; k <= catcode_max; k++) {
         if (catcode_heads[k] != NULL)
             restore_sa_stack(catcode_heads[k], gl);
@@ -192,8 +184,10 @@ void clearcatcodestack(integer h)
 static void initializecatcodes(void)
 {
     catcode_max = 0;
-    catcode_heads = Mxmalloc_array(sa_tree, (catcode_max + 1));
-    catcode_valid = Mxmalloc_array(unsigned char, (catcode_max + 1));
+    catcode_heads = Mxmalloc_array(sa_tree, (CATCODE_MAX + 1));
+    catcode_valid = Mxmalloc_array(unsigned char, (CATCODE_MAX + 1));
+    memset(catcode_heads, 0, sizeof(sa_tree) * (CATCODE_MAX + 1));
+    memset(catcode_valid, 0, sizeof(unsigned char) * (CATCODE_MAX + 1));
     catcode_valid[0] = 1;
     catcode_heads[0] = new_sa_tree(CATCODESTACK, CATCODEDEFAULT);
 }
@@ -220,13 +214,11 @@ static void dumpcatcodes(void)
 static void undumpcatcodes(void)
 {
     int total, h, k;
+    catcode_heads = Mxmalloc_array(sa_tree, (CATCODE_MAX + 1));
+    catcode_valid = Mxmalloc_array(unsigned char, (CATCODE_MAX + 1));
+    memset(catcode_heads, 0, sizeof(sa_tree) * (CATCODE_MAX + 1));
+    memset(catcode_valid, 0, sizeof(unsigned char) * (CATCODE_MAX + 1));
     undump_int(catcode_max);
-    catcode_heads = Mxmalloc_array(sa_tree, (catcode_max + 1));
-    catcode_valid = Mxmalloc_array(unsigned char, (catcode_max + 1));
-    for (k = 0; k <= catcode_max; k++) {
-        catcode_heads[k] = NULL;
-        catcode_valid[k] = 0;
-    }
     undump_int(total);
     for (k = 0; k < total; k++) {
         undump_int(h);
@@ -237,7 +229,7 @@ static void undumpcatcodes(void)
 
 int valid_catcode_table(int h)
 {
-    if (h <= catcode_max && h >= 0 && catcode_valid[h]) {
+    if (h <= CATCODE_MAX && h >= 0 && catcode_valid[h]) {
         return 1;
     }
     return 0;
@@ -245,10 +237,10 @@ int valid_catcode_table(int h)
 
 void copy_cat_codes(int from, int to)
 {
-    if (from < 0 || from > catcode_max || catcode_valid[from] == 0) {
+    if (from < 0 || from > CATCODE_MAX || catcode_valid[from] == 0) {
         uexit(1);
     }
-    check_catcode_sizes(to);
+    update_catcode_max(to);
     destroy_sa_tree(catcode_heads[to]);
     catcode_heads[to] = copy_sa_tree(catcode_heads[from]);
     catcode_valid[to] = 1;
@@ -257,7 +249,7 @@ void copy_cat_codes(int from, int to)
 void initex_cat_codes(int h)
 {
     int k;
-    check_catcode_sizes(h);
+    update_catcode_max(h);
     destroy_sa_tree(catcode_heads[h]);
     catcode_heads[h] = NULL;
     set_cat_code(h, '\r', car_ret_cmd, 1);

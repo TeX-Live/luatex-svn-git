@@ -31668,9 +31668,9 @@ end
 @ @<Implement \.{\\savecatcodetable}@>=
 begin
   scan_int;
-  if (cur_val<0)or(cur_val>@"FFFFFFF) then begin
+  if (cur_val<0)or(cur_val>@"FFFF) then begin
         print_err("Invalid \catcode table");
-        help1("All \catcode table ids must be between 0 and 0xFFFFFFF");
+        help1("All \catcode table ids must be between 0 and 0xFFFF");
         error;
     end 
   else begin if cur_val=cat_code_table then begin
@@ -31686,9 +31686,9 @@ end
 @ @<Implement \.{\\initcatcodetable}@>=
 begin
   scan_int;
-  if (cur_val<0)or(cur_val>@"FFFFFFF) then begin
+  if (cur_val<0)or(cur_val>@"FFFF) then begin
         print_err("Invalid \catcode table");
-        help1("All \catcode table ids must be between 0 and 0xFFFFFFF");
+        help1("All \catcode table ids must be between 0 and 0xFFFF");
         error;
     end 
   else begin if cur_val=cat_code_table then begin
