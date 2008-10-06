@@ -10,6 +10,7 @@
 #include <lauxlib.h>
 
 #include "pfaedit.h"
+#include "ustring.h"
 
 extern void  LoadPrefs(void);
 
@@ -1371,7 +1372,9 @@ char *uni_interp_enum[9] = {
 
 void
 handle_splinefont(lua_State *L, struct splinefont *sf) {
-  int k,l;
+  int k;
+  int fix_notdef = 0;
+  int l = -1;
 
   dump_stringfield(L,"table_version",   LUA_OTF_VERSION);
   dump_stringfield(L,"fontname",        sf->fontname);
@@ -1402,34 +1405,43 @@ handle_splinefont(lua_State *L, struct splinefont *sf) {
   lua_checkstack(L,4);
   lua_createtable(L,sf->glyphcnt,0);
 
-  /* some code to ensure that the .notdef ends up in slot 0 
-     (this will actually be enforced by the CFF writer) */
-  l = -1;
-  for (k=0;k<sf->glyphcnt;k++) {
-	if (sf->glyphs[k]) {
-	  if (strcmp(sf->glyphs[k]->name,".notdef") == 0) {
-		l = k;
+  /* TODO: this after-the-fact type discovery is not brilliant,
+     I should add a 'format' key in the structure */
+     
+  if (strmatch(sf->origname+strlen(sf->origname)-4, ".pfa")==0 ||
+      strmatch(sf->origname+strlen(sf->origname)-4, ".pfb")==0) {
+    fix_notdef = 1;
+  }
+
+  if (fix_notdef) {
+    /* some code to ensure that the .notdef ends up in slot 0 
+       (this will actually be enforced by the CFF writer) */
+    for (k=0;k<sf->glyphcnt;k++) {
+      if (sf->glyphs[k]) {
+        if (strcmp(sf->glyphs[k]->name,".notdef") == 0) {
+          l = k;
+        }
       }
     }
-  }
-  if (l==-1) { /* fake a .notdef at the end */
-    l = sf->glyphcnt;
-  }
-  for (k=0;k<l;k++) {
-    lua_pushnumber(L,(k+1));
-    lua_createtable(L,0,12);
-	if (sf->glyphs[k]) {
-      handle_splinechar(L,sf->glyphs[k], sf->hasvmetrics);
-	}
-    lua_rawset(L,-3);
-  }
-  if (sf->glyphs != NULL && l<sf->glyphcnt) {
-  lua_pushnumber(L,0);
-  lua_createtable(L,0,12);
-  if (sf->glyphs[l]) {
-    handle_splinechar(L,sf->glyphs[l], sf->hasvmetrics);
-  }
-  lua_rawset(L,-3);
+    if (l==-1) { /* fake a .notdef at the end */
+      l = sf->glyphcnt;
+    }
+    for (k=0;k<l;k++) {
+      lua_pushnumber(L,(k+1));
+      lua_createtable(L,0,12);
+      if (sf->glyphs[k]) {
+        handle_splinechar(L,sf->glyphs[k], sf->hasvmetrics);
+      }
+      lua_rawset(L,-3);
+    }
+    if (sf->glyphs != NULL && l<sf->glyphcnt) {
+      lua_pushnumber(L,0);
+      lua_createtable(L,0,12);
+      if (sf->glyphs[l]) {
+        handle_splinechar(L,sf->glyphs[l], sf->hasvmetrics);
+      }
+      lua_rawset(L,-3);
+    }
   }
   if ((l+1)<sf->glyphcnt) {
     for (k=(l+1);k<sf->glyphcnt;k++) {
@@ -1441,7 +1453,6 @@ handle_splinefont(lua_State *L, struct splinefont *sf) {
       lua_rawset(L,-3);
     }
   }
-
   lua_setfield(L,-2,"glyphs");
 
   dump_intfield(L,"changed",                   sf->changed);
