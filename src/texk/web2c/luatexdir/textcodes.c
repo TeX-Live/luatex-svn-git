@@ -184,6 +184,8 @@ void clearcatcodestack(integer h)
 static void initializecatcodes(void)
 {
     catcode_max = 0;
+    /* xfree(catcode_heads); *//* not needed */
+    /* xfree(catcode_valid); */
     catcode_heads = Mxmalloc_array(sa_tree, (CATCODE_MAX + 1));
     catcode_valid = Mxmalloc_array(unsigned char, (CATCODE_MAX + 1));
     memset(catcode_heads, 0, sizeof(sa_tree) * (CATCODE_MAX + 1));
@@ -214,6 +216,8 @@ static void dumpcatcodes(void)
 static void undumpcatcodes(void)
 {
     int total, h, k;
+    xfree(catcode_heads);
+    xfree(catcode_valid);
     catcode_heads = Mxmalloc_array(sa_tree, (CATCODE_MAX + 1));
     catcode_valid = Mxmalloc_array(unsigned char, (CATCODE_MAX + 1));
     memset(catcode_heads, 0, sizeof(sa_tree) * (CATCODE_MAX + 1));
