@@ -47,6 +47,7 @@
 
 
 @c
+#include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -168,18 +169,18 @@ the same strings. (And it is, of course, a good thing that they do.)
 @^string pool@>
 
 @ @c
-boolean mp_undump_constants (MP mp) {
+int mp_undump_constants (MP mp) {
   integer x;
   undump_int(x); 
-  if (x!=metapost_magic) return false;
+  if (x!=metapost_magic) return x;
   undump_int(x); mp->mem_top = x;
   undump_int(x); mp->hash_size = (unsigned)x;
   undump_int(x); mp->hash_prime = x;
   undump_int(x); mp->param_size = x;
   undump_int(x); mp->max_in_open = x;
-  return true;
+  return metapost_magic;
   OFF_BASE:
-    return false;
+    return -1;
 }
 
 @ We do string pool compaction to avoid dumping unused strings.

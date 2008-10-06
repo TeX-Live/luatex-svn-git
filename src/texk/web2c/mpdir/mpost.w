@@ -1,4 +1,4 @@
-% $Id: mpost.w 619 2008-07-09 15:53:44Z taco $
+% $Id: mpost.w 640 2008-07-19 09:15:50Z taco $
 %
 % Copyright 2008 Taco Hoekwater.
 %
@@ -34,10 +34,16 @@ have our customary command-line interface.
 @d false 0
  
 @c
+#include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#if defined (HAVE_SYS_TIME_H)
+#include <sys/time.h>
+#elif defined (HAVE_SYS_TIMEB_H)
+#include <sys/timeb.h>
+#endif
 #include <mplib.h>
 #include <mpxout.h>
 #ifdef WIN32
@@ -494,9 +500,9 @@ fprintf(stdout,
 "  -interaction=STRING       set interaction mode (STRING=batchmode/nonstopmode/\n"
 "                            scrollmode/errorstopmode)\n"
 "  -jobname=STRING           set the job name to STRING\n"
-"  -progname=STRING          set program (and mem) name to STRING\n");
+"  -progname=STRING          set program (and mem) name to STRING\n"
+"  -tex=TEXPROGRAM           use TEXPROGRAM for text labels\n");
 fprintf(stdout,
-"  -tex=TEXPROGRAM           use TEXPROGRAM for text labels\n"
 "  -kpathsea-debug=NUMBER    set path searching debugging flags according to\n"
 "                            the bits of NUMBER\n"
 "  -mem=MEMNAME or &MEMNAME  use MEMNAME instead of program name or a %%& line\n"

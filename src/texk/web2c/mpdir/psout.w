@@ -1,4 +1,4 @@
-% $Id: psout.w 632 2008-07-17 12:31:32Z taco $
+% $Id: psout.w 640 2008-07-19 09:15:50Z taco $
 %
 % Copyright 2008 Taco Hoekwater.
 %
@@ -69,6 +69,7 @@
 @d max_quarterword 0x3FFF /* largest allowable value in a |quarterword| */
 
 @c
+#include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
