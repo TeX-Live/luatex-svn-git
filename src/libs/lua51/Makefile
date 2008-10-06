@@ -8,7 +8,7 @@
 PLAT= none
 
 CC= gcc
-CFLAGS= -g -O2 -Wall $(XCFLAGS) $(MYCFLAGS) $(COCOFLAGS)
+CFLAGS= -g -O2 -Wall $(XCFLAGS) $(MYCFLAGS) $(COCOCFLAGS)
 AR= ar rcu
 RANLIB= ranlib
 RM= rm -f
@@ -20,9 +20,9 @@ MYLIBS=
 
 # ++ Coco =========
 # Default: autodetect gccasm/setjmp/ucontext/fibers context switch method.
-COCOCFLAGS=
+# COCOCFLAGS=
 # Force use of setjmp (instead of gccasm).
-#COCOCFLAGS= -DCOCO_USE_SETJMP
+COCOCFLAGS= -DCOCO_USE_SETJMP
 # Force use of ucontext (instead of gccasm or setjmp).
 #COCOCFLAGS= -DCOCO_USE_UCONTEXT
 # Uncomment this if you want to disable support for Coco.
