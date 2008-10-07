@@ -7878,7 +7878,7 @@ parameters by seeing one in a |match| command before it runs into any
 case m of
 left_brace,right_brace,math_shift,tab_mark,sup_mark,sub_mark,spacer,
   letter,other_char: print(c);
-mac_param: begin print(c); print(c);
+mac_param: begin if not in_lua_escape then print(c); print(c);
   end;
 out_param: begin print(match_chr);
   if c<=9 then print_char(c+"0")
@@ -11322,6 +11322,12 @@ selector:=old_setting; junk:=str_toks(b); ins_list(link(temp_token_head));
 exit:
 end;
 
+@ @<Glob...@>=
+in_lua_escape:boolean;
+
+@ @<Set init...@>=
+in_lua_escape:=false;
+
 @ @<Scan the argument for command |c|@>=
 case c of
 number_code,roman_numeral_code: scan_int;
@@ -11413,7 +11419,10 @@ lua_escape_string_code:
     save_def_ref := def_ref;
     save_warning_index := warning_index;
     scan_pdf_ext_toks;
+    bool := in_lua_escape;
+    in_lua_escape:=true;
     s := tokens_to_string(def_ref);
+    in_lua_escape:=bool;
     delete_token_ref(def_ref);
     def_ref := save_def_ref;
     warning_index := save_warning_index;
