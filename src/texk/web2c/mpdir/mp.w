@@ -1,4 +1,4 @@
-% $Id: mp.w 654 2008-10-06 14:58:58Z taco $
+% $Id: mp.w 655 2008-10-07 16:13:31Z taco $
 %
 % Copyright 2008 Taco Hoekwater.
 %
@@ -362,6 +362,7 @@ numbers are computed from them.
 int max_strings; /* maximum number of strings; must not exceed |max_halfword| */
 int pool_size; /* maximum number of characters in strings, including all
   error messages and help texts, and the names of all identifiers */
+int old_pool_size; /* a helper used by |mp_cat| */
 int mem_max; /* greatest index in \MP's internal |mem| array;
   must be strictly less than |max_halfword|;
   must be equal to |mem_top| in \.{INIMP}, otherwise |>=mem_top| */
@@ -392,6 +393,7 @@ xfree(mp->banner);
 @<Allocate or ...@>=
 mp->max_strings=500;
 mp->pool_size=10000;
+mp->old_pool_size=10000;
 set_value(mp->error_line,opt->error_line,79);
 set_value(mp->half_error_line,opt->half_error_line,50);
 if (mp->half_error_line>mp->error_line-15 ) 
@@ -21109,14 +21111,26 @@ case subpath_of:
 @ @<Declare binary action...@>=
 static void mp_cat (MP mp,pointer p) {
   str_number a,b; /* the strings being concatenated */
-  pool_pointer k; /* index into |str_pool| */
-  a=value(p); b=mp->cur_exp; str_room(length(a)+length(b));
-  for (k=mp->str_start[a];k<=str_stop(a)-1;k++) {
-    append_char(mp->str_pool[k]);
+  integer k; /* run length */
+  integer needed;
+  a=value(p); b=mp->cur_exp; k=length(a);
+  needed=mp->pool_ptr+k+length(b);
+  /* this will free some memory, hopefully */
+  if (mp->pool_ptr>1.1*mp->old_pool_size) {
+      mp->old_pool_size = mp->pool_ptr;
+      mp_do_compaction(mp, mp->pool_size);
   }
-  for (k=mp->str_start[b];k<=str_stop(b)-1;k++) {
-    append_char(mp->str_pool[k]);
+  if ( needed > mp->max_pool_ptr ) {
+    if ( needed > mp->pool_size ) {
+      mp_reallocate_pool(mp,needed);
+    }
+    mp->max_pool_ptr=needed; 
   }
+  memcpy(mp->str_pool+mp->pool_ptr, mp->str_pool+mp->str_start[a],k);
+  mp->pool_ptr+=k; 
+  k=length(b);
+  memcpy(mp->str_pool+mp->pool_ptr, mp->str_pool+mp->str_start[b],k);
+  mp->pool_ptr+=k;
   mp->cur_exp=mp_make_string(mp); delete_str_ref(b);
 }
 
