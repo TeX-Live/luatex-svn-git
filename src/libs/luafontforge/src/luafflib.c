@@ -1408,8 +1408,9 @@ handle_splinefont(lua_State *L, struct splinefont *sf) {
   /* TODO: this after-the-fact type discovery is not brilliant,
      I should add a 'format' key in the structure */
      
-  if (strmatch(sf->origname+strlen(sf->origname)-4, ".pfa")==0 ||
-      strmatch(sf->origname+strlen(sf->origname)-4, ".pfb")==0) {
+  if ((sf->origname != NULL) &&
+      (strmatch(sf->origname+strlen(sf->origname)-4, ".pfa")==0 ||
+       strmatch(sf->origname+strlen(sf->origname)-4, ".pfb")==0)) {
     fix_notdef = 1;
   }
 
