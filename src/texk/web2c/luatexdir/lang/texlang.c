@@ -36,7 +36,7 @@ extern char *utf8_idpb(char *w, unsigned int i);
 
 #define noVERBOSE
 
-#define MAX_TEX_LANGUAGES  32767
+#define MAX_TEX_LANGUAGES  32768
 
 static struct tex_language *tex_languages[MAX_TEX_LANGUAGES] = { NULL };
 static unsigned next_lang_id = 0;
