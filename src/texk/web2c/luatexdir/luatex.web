@@ -250,8 +250,8 @@ known as `\eTeX'.
 @d pdftex_version_string=='-2.00.0' {current \pdfTeX\ version}
 @#
 @d luatex_version==30 { \.{\\luatexversion} }
-@d luatex_revision=="0" { \.{\\luatexrevision} }
-@d luatex_version_string=='snapshot-0.30.0' {current \LuaTeX\ version}
+@d luatex_revision=="1" { \.{\\luatexrevision} }
+@d luatex_version_string=='snapshot-0.30.1' {current \LuaTeX\ version}
 @d luatex_date_info==-extra_version_info { the compile date is negated }
 @d luatex_svnversion==SVN_REV { as proposed by PM }
 @#
