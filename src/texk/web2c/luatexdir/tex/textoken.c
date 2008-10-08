@@ -187,17 +187,22 @@ halfword active_to_cs (int curchr, int force)
     char *a, *b;
     char *utfbytes = xmalloc(10);
     a = u2s (0xFFFF);
-    b = u2s (curchr);
     utfbytes = strcpy(utfbytes,a);
-    utfbytes = strcat(utfbytes,b);
-    activetext = maketexstring(utfbytes);
+    if (curchr>0) {
+      b = u2s (curchr);
+      utfbytes = strcat(utfbytes,b);
+      free (b);
+      activetext = maketexlstring(utfbytes,strlen(utfbytes));
+    } else {
+      utfbytes[3] = '\0';
+      activetext = maketexlstring(utfbytes,4);
+    }
     if (force) 
       no_new_control_sequence = false;
     curcs = string_lookup(activetext);
     no_new_control_sequence = nncs;
     flush_str(activetext);
     free (a); 
-    free (b);
     free (utfbytes);
     return curcs;
 }
