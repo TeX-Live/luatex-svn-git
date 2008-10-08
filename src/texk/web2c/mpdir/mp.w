@@ -25951,7 +25951,11 @@ if (mp->ini_version) {
   set_value(mp->max_in_open,opt->max_in_open,10);
   if (opt->hash_size>0x8000000) 
     opt->hash_size=0x8000000;
-  set_value(mp->hash_size,(2*opt->hash_size-1),16384);
+  if (opt->hash_size>0) {
+    set_value(mp->hash_size,(2*opt->hash_size-1),16384);
+  } else {
+    mp->hash_size = 16384;
+  }
   mp->hash_size = mp->hash_size>>i;
   while (mp->hash_size>=2) {
     mp->hash_size /= 2;

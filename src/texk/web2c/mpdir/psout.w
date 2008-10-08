@@ -4195,6 +4195,7 @@ static void mp_print_initial_comment(MP mp,mp_edge_object *hh, int prologues);
 @ @c
 void mp_print_initial_comment(MP mp,mp_edge_object *hh, int prologues) {
   scaled t;
+  char *s;   
   mp_ps_print(mp, "%!PS");
   if ( prologues>0 ) 
     mp_ps_print(mp, "-Adobe-3.0 EPSF-3.0");
@@ -4216,7 +4217,9 @@ void mp_print_initial_comment(MP mp,mp_edge_object *hh, int prologues) {
     mp_ps_pair_out(mp, hh->maxx,hh->maxy);
   }
   mp_ps_print_nl(mp, "%%Creator: MetaPost ");
-  mp_ps_print(mp, mp_metapost_version());
+  s = mp_metapost_version();
+  mp_ps_print(mp, s);
+  mp_xfree(s);
   mp_ps_print_nl(mp, "%%CreationDate: ");
   mp_ps_print_int(mp, mp_round_unscaled(mp, mp->internal[mp_year])); 
   mp_ps_print_char(mp, '.');
@@ -5624,6 +5627,7 @@ void mp_gr_toss_objects (mp_edge_object *hh) {
     mp_gr_toss_object(p);
     p=q;
   }
+  mp_xfree(hh->filename);
   mp_xfree(hh);
 }
 
