@@ -414,7 +414,7 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
                     Print_uchar(c);
                     break;
                 case 6: 
-                    Print_uchar(c);
+                  /* Print_uchar(c); */ 
                     Print_uchar(c);
                     break;
                 case 5:
