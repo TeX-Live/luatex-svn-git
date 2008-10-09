@@ -648,4 +648,64 @@ halfword active_to_cs(int, int);
 void get_token_lua(void);
 int get_char_cat_code(int);
 
+/* lcallbacklib.c */
+
+#include "lua.h"
+
+
+typedef enum {
+    find_write_file_callback = 1,
+    find_output_file_callback,
+    find_image_file_callback,
+    find_format_file_callback,
+    find_read_file_callback, open_read_file_callback,
+    find_ocp_file_callback, read_ocp_file_callback,
+    find_vf_file_callback, read_vf_file_callback,
+    find_data_file_callback, read_data_file_callback,
+    find_font_file_callback, read_font_file_callback,
+    find_map_file_callback, read_map_file_callback,
+    find_enc_file_callback, read_enc_file_callback,
+    find_type1_file_callback, read_type1_file_callback,
+    find_truetype_file_callback, read_truetype_file_callback,
+    find_opentype_file_callback, read_opentype_file_callback,
+    find_sfd_file_callback, read_sfd_file_callback,
+    find_pk_file_callback, read_pk_file_callback,
+    show_error_hook_callback,
+    process_input_buffer_callback,
+    start_page_number_callback, stop_page_number_callback,
+    start_run_callback, stop_run_callback,
+    define_font_callback,
+    token_filter_callback,
+    pre_output_filter_callback,
+    buildpage_filter_callback,
+    hpack_filter_callback, vpack_filter_callback,
+    char_exists_callback,
+    hyphenate_callback,
+    ligaturing_callback,
+    kerning_callback,
+    pre_linebreak_filter_callback,
+    linebreak_filter_callback,
+    post_linebreak_filter_callback,
+    total_callbacks
+} callback_callback_types;
+
+extern int callback_set[];
+
+#define callback_defined(a) callback_set[a]
+
+extern int run_callback(int i, char *values, ...);
+extern int run_saved_callback(int i, char *name, char *values, ...);
+extern int run_and_save_callback(int i, char *values, ...);
+extern void destroy_saved_callback(int i);
+extern boolean get_callback(lua_State *L, int i);
+
+extern void get_saved_lua_boolean(int i, char *name, boolean * target);
+extern void get_saved_lua_number(int i, char *name, integer * target);
+extern void get_saved_lua_string(int i, char *name, char **target);
+
+extern void get_lua_boolean(char *table, char *name, boolean * target);
+extern void get_lua_number(char *table, char *name, integer * target);
+extern void get_lua_string(char *table, char *name, char **target);
+
+
 #endif                          /* PDFTEXLIB */

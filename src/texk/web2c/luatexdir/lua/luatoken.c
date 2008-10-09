@@ -539,27 +539,23 @@ int tokenlist_from_lua(lua_State * L)
 void do_get_token_lua(integer callback_id)
 {
     lua_State *L = Luas[0];
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, callback_callbacks_id);
     while (1) {
-        lua_rawgeti(L, -1, callback_id);
-        if (!lua_isfunction(L, -1)) {
-            lua_pop(L, 2);      /* the not-a-function callback and the container */
+        if (!get_callback(L,callback_id)) {
             get_next();
-            return;
+            lua_pop(L, 2);      /* the not-a-function callback and the container */
+            break;
         }
         if (lua_pcall(L, 0, 1, 0) != 0) {       /* no arg, 1 result */
-            fprintf(stdout, "error: %s\n", lua_tostring(L, -1));
-            lua_pop(L, 2);
-            error();
-            return;
+          tex_error((char *)lua_tostring(L, -1), NULL);
+            lua_pop(L, 2); /* container and result */
+            break;
         }
         if (lua_istable(L, -1)) {
             lua_rawgeti(L, -1, 1);
-            if (lua_istable(L, -1)) {
+            if (lua_istable(L, -1)) { /* container, result, result[1] */
                 integer p, q, r;
                 int i, j;
-                lua_pop(L, 1);
+                lua_pop(L, 1); /* container, result */
                 /* build a token list */
                 r = get_avail();
                 p = r;
@@ -579,19 +575,15 @@ void do_get_token_lua(integer callback_id)
                     begin_token_list(p, inserted);
                     cur_input.nofilter_field = true;
                     get_next();
-                    lua_pop(L, 1);
-                    break;
                 } else {
-                    fprintf(stdout,
-                            "error: illegal or empty token list returned\n");
-                    lua_pop(L, 2);
-                    error();
-                    return;
+                    tex_error("error: illegal or empty token list returned", NULL);
                 }
-            } else {
-                lua_pop(L, 1);
+                lua_pop(L, 2);
+                break;
+            } else {  /* container, result, whatever */
+                lua_pop(L, 1); /* container, result */
                 if (get_cur_cmd(L) || get_cur_cs(L)) {
-                    lua_pop(L, 1);
+                    lua_pop(L, 2);
                     break;
                 } else {
                     lua_pop(L, 2);
@@ -599,10 +591,8 @@ void do_get_token_lua(integer callback_id)
                 }
             }
         } else {
-            lua_pop(L, 1);
-            continue;
+            lua_pop(L, 2); /* container, result */
         }
     }
-    lua_pop(L, 1);              /* callback container */
     return;
 }

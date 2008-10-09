@@ -1879,9 +1879,7 @@ static halfword
 run_lua_ligkern_callback(halfword head, halfword tail, int callback_id)
 {
     lua_State *L = Luas[0];
-    lua_rawgeti(L, LUA_REGISTRYINDEX, callback_callbacks_id);
-    lua_rawgeti(L, -1, callback_id);
-    if (!lua_isfunction(L, -1)) {
+    if (!get_callback(L,callback_id)) {
         lua_pop(L, 2);
         return tail;
     }

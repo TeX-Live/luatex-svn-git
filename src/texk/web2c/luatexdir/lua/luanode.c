@@ -61,10 +61,7 @@ void lua_node_filter_s(int filterid, char *extrainfo)
 {
     lua_State *L = Luas[0];
     int s_top = lua_gettop(L);
-    int callback_id = callback_defined(filterid);
-    lua_rawgeti(L, LUA_REGISTRYINDEX, callback_callbacks_id);
-    lua_rawgeti(L, -1, callback_id);
-    if (!lua_isfunction(L, -1)) {
+    if (!get_callback(L, callback_defined(filterid))) {
         lua_settop(L, s_top);
         return;
     }
@@ -90,9 +87,7 @@ lua_node_filter(int filterid, int xextrainfo, halfword head_node,
     int callback_id = callback_defined(filterid);
     if (head_node == null || vlink(head_node) == null || callback_id == 0)
         return;
-    lua_rawgeti(L, LUA_REGISTRYINDEX, callback_callbacks_id);
-    lua_rawgeti(L, -1, callback_id);
-    if (!lua_isfunction(L, -1)) {
+    if (!get_callback(L, callback_id)) {
         lua_pop(L, 2);
         return;
     }
@@ -138,9 +133,7 @@ lua_linebreak_callback (int is_broken, halfword head_node, halfword *new_head)
     int callback_id = callback_defined(linebreak_filter_callback);
     if (head_node == null || vlink(head_node) == null || callback_id == 0)
         return ret;
-    lua_rawgeti(L, LUA_REGISTRYINDEX, callback_callbacks_id);
-    lua_rawgeti(L, -1, callback_id);
-    if (!lua_isfunction(L, -1)) {
+    if (!get_callback(L, callback_id)) {
         lua_pop(L, 2);
         return ret;
     }
@@ -173,13 +166,10 @@ lua_hpack_filter(halfword head_node, scaled size, int pack_type, int extrainfo)
     int callback_id = callback_defined(hpack_filter_callback);
     if (head_node == null || callback_id == 0)
         return head_node;
-    lua_rawgeti(L, LUA_REGISTRYINDEX, callback_callbacks_id);
-    lua_rawgeti(L, -1, callback_id);
-    if (!lua_isfunction(L, -1)) {
+    if (!get_callback(L, callback_id)) {
         lua_pop(L, 2);
         return head_node;
     }
-
     nodelist_to_lua(L, head_node);
     lua_pushstring(L, group_code_names[extrainfo]);
     lua_pushnumber(L, size);
@@ -223,9 +213,7 @@ lua_vpack_filter(halfword head_node, scaled size, int pack_type, scaled maxd,
     if (callback_id == 0) {
         return head_node;
     }
-    lua_rawgeti(L, LUA_REGISTRYINDEX, callback_callbacks_id);
-    lua_rawgeti(L, -1, callback_id);
-    if (!lua_isfunction(L, -1)) {
+    if (!get_callback(L, callback_id)) {
         lua_pop(L, 2);
         return head_node;
     }

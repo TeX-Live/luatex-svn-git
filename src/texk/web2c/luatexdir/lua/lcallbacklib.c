@@ -179,6 +179,7 @@ void get_saved_lua_string(int r, char *name, char **target)
 #define CALLBACK_STRING         'S'
 #define CALLBACK_CHARNUM        'c'
 
+
 int run_saved_callback(int r, char *name, char *values, ...)
 {
     va_list args;
@@ -191,7 +192,8 @@ int run_saved_callback(int r, char *name, char *values, ...)
     lua_pushstring(L, name);
     lua_rawget(L, -2);
     if (lua_isfunction(L, -1)) {
-      saved_callback_count ++;
+        saved_callback_count ++;
+        callback_count ++;
         ret = do_run_callback(2, values, args);
     }
     va_end(args);
@@ -200,6 +202,18 @@ int run_saved_callback(int r, char *name, char *values, ...)
 }
 
 
+boolean get_callback(lua_State *L, int i) {
+  luaL_checkstack(L, 2, "out of stack space");
+  lua_rawgeti(L, LUA_REGISTRYINDEX, callback_callbacks_id);
+  lua_rawgeti(L, -1, i);
+  if (lua_isfunction(L, -1)) {
+    callback_count ++;
+    return true;
+  } else {
+    return false;
+  }
+}
+
 int run_and_save_callback(int i, char *values, ...)
 {
     va_list args;
@@ -207,10 +221,7 @@ int run_and_save_callback(int i, char *values, ...)
     lua_State *L = Luas[0];
     int stacktop = lua_gettop(L);
     va_start(args, values);
-    luaL_checkstack(L, 2, "out of stack space");
-    lua_rawgeti(L, LUA_REGISTRYINDEX, callback_callbacks_id);
-    lua_rawgeti(L, -1, i);
-    if (lua_isfunction(L, -1)) {
+    if (get_callback(L, i)) {
         ret = do_run_callback(1, values, args);
     }
     va_end(args);
@@ -229,10 +240,7 @@ int run_callback(int i, char *values, ...)
     lua_State *L = Luas[0];
     int stacktop = lua_gettop(L);
     va_start(args, values);
-    luaL_checkstack(L, 2, "out of stack space");
-    lua_rawgeti(L, LUA_REGISTRYINDEX, callback_callbacks_id);
-    lua_rawgeti(L, -1, i);
-    if (lua_isfunction(L, -1)) {
+    if (get_callback(L, i)) {
         ret = do_run_callback(0, values, args);
     }
     va_end(args);
@@ -300,7 +308,6 @@ int do_run_callback(int special, char *values, va_list vl)
         narg++;
     }
     {
-        callback_count ++;
         int i = lua_pcall(L, narg, nres, 0);
         /* lua_remove(L, base); *//* remove traceback function */
         if (i != 0) {

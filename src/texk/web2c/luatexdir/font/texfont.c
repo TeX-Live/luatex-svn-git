@@ -313,9 +313,7 @@ int lua_char_exists_callback(internal_font_number f, integer c)
     int ret = 0;
     callback_id = callback_defined(char_exists_callback);
     if (callback_id != 0) {
-        lua_rawgeti(L, LUA_REGISTRYINDEX, callback_callbacks_id);
-        lua_rawgeti(L, -1, callback_id);
-        if (!lua_isfunction(L, -1)) {
+      if (!get_callback(L, callback_id)) {
             lua_pop(L, 2);
             return 0;
         }
