@@ -19,7 +19,7 @@
 
 \setvariables
   [document]
-  [beta=0.30.0]
+  [beta=0.30.1]
 
 \starttext
 
@@ -527,7 +527,7 @@ format file.
 \subsubsection{\tex{catcodetable}}
 
 \startsyntax
-\catcodetable <28-bit number>
+\catcodetable <16-bit number>
 \stopsyntax
 
 The \tex{catcodetable} switches to a different catcode table.
@@ -538,7 +538,7 @@ primitives below, or it has to be zero. Table zero is initialized by
 \subsubsection{\tex{initcatcodetable}}
 
 \startsyntax
-\initcatcodetable <28-bit number>
+\initcatcodetable <16-bit number>
 \stopsyntax
 
 The \tex{initcatcodetable} creates a new table with catcodes
@@ -563,7 +563,7 @@ the currently active table, an error is raised.
 \subsubsection{\tex{savecatcodetable}}
 
 \startsyntax
-\savecatcodetable <28-bit number>
+\savecatcodetable <16-bit number>
 \stopsyntax
 
 \tex{savecatcodetable} copies the current set of catcodes to a
@@ -3227,7 +3227,11 @@ end
 
 The returned node is the head of the list that will be added to the
 main vertical list, the boolean argument is true if this paragraph is
-interrupted by a following math display.
+interrupted by a following math display. 
+
+If you return something that is not a \type{<node>}, \LUATEX\ will
+apply the internal linebreak algorithm on the list that starts at
+\type{<head>}.
 
 \subsubsection{\luatex{post_linebreak_filter}}
 

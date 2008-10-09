@@ -215,7 +215,7 @@
     \startstandardmakeup
 
         \switchtobodyfont[mainfacemedium]
-        \definedfont[Bold at .08\paperheight] \setupinterlinespace
+        \definedfont[Bold at \the\dimexpr.08\paperheight\relax] \setupinterlinespace
 
         \setlayer[page]{\useMPgraphic{luapage}}
 
