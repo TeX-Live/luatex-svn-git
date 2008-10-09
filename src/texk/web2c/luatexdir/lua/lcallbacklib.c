@@ -26,6 +26,9 @@ static const char _svn_version[] =
 extern int do_run_callback(int special, char *values, va_list vl);
 extern int lua_traceback(lua_State * L);
 
+int callback_count = 0;
+int saved_callback_count = 0;
+
 int callback_set[total_callbacks] = { 0 };
 
 static const char *const callbacknames[] = {
@@ -188,6 +191,7 @@ int run_saved_callback(int r, char *name, char *values, ...)
     lua_pushstring(L, name);
     lua_rawget(L, -2);
     if (lua_isfunction(L, -1)) {
+      saved_callback_count ++;
         ret = do_run_callback(2, values, args);
     }
     va_end(args);
@@ -296,6 +300,7 @@ int do_run_callback(int special, char *values, va_list vl)
         narg++;
     }
     {
+        callback_count ++;
         int i = lua_pcall(L, narg, nres, 0);
         /* lua_remove(L, base); *//* remove traceback function */
         if (i != 0) {

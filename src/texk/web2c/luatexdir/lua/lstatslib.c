@@ -62,6 +62,8 @@ extern int luabytecode_max;
 extern int luabytecode_bytes;
 extern int luastate_max;
 extern int luastate_bytes;
+extern int callback_count;
+extern int saved_callback_count;
 
 static struct statistic stats[] = {
     {"pdf_gone", 'g', &pdf_gone},
@@ -127,6 +129,8 @@ static struct statistic stats[] = {
     {"luabytecode_bytes", 'g', &luabytecode_bytes},
     {"luastates", 'g', &luastate_max},
     {"luastate_bytes", 'g', &luastate_bytes},
+    {"callbacks", 'g', &callback_count},
+    {"indirect_callbacks", 'g', &saved_callback_count},
 
     {"output_active", 'b', &output_active},
     {"best_page_break", 'n', &best_page_break},
