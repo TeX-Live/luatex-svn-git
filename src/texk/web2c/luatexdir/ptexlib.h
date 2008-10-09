@@ -650,7 +650,7 @@ int get_char_cat_code(int);
 
 /* lcallbacklib.c */
 
-#include "lua.h"
+#include <../lua51/lua.h>
 
 
 typedef enum {
