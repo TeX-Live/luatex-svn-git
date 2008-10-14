@@ -17108,7 +17108,7 @@ destination |pdf_left| and |pdf_top| are used for some types of destinations}
 
 
 @# {data structure for \.{\\latelua}}
-@d late_lua_data(#)        == vlink(#+2) {data}
+@d late_lua_data           == write_tokens {data}
 @d late_lua_reg(#)         == vinfo(#+2) {register id}
 @d late_lua_name(#)        == vlink(#+3) {name}
 
@@ -18094,7 +18094,11 @@ end;
 
 procedure do_late_lua(p: pointer);
 begin
-    latelua(late_lua_reg(p), late_lua_data(p), late_lua_name(p));
+   if not doing_leaders then begin
+      expand_late_lua(p);
+      latelua(late_lua_reg(p), def_ref, late_lua_name(p));
+      flush_list(def_ref); 
+    end;
 end;
 
 procedure pdf_print_toks(p: pointer); {print tokens list |p|}
@@ -30845,7 +30849,7 @@ begin
     end;
     scan_register_num;
     late_lua_reg(tail) := cur_val;
-    scan_pdf_ext_toks;
+    call_func(scan_toks(false, false));
     late_lua_data(tail) := def_ref;
 end
 
@@ -32265,6 +32269,13 @@ else  begin {write to the terminal if file isn't open}
 token_show(def_ref); print_ln;
 flush_list(def_ref); selector:=old_setting;
 end;
+procedure expand_late_lua(@!p:pointer);
+var @!old_mode:integer; {saved |mode|}
+@!q,@!r:pointer; {temporary variables for list manipulation}
+begin @<Expand macros in the token list
+  and make |link(def_ref)| point to the result@>;
+end;
+
 
 @ The final line of this routine is slightly subtle; at least, the author
 didn't think about it until getting burnt! There is a used-up token list
