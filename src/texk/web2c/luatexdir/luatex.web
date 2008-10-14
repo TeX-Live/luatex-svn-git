@@ -16986,11 +16986,14 @@ var b: pool_pointer; {current character code position}
 begin
     b := pool_ptr;
     luacall(lua_id,s,r);
-    while b<pool_ptr do begin
-       pdf_out(str_pool[b]);
-       incr(b);
+    if b<pool_ptr then begin
+      pdf_end_text;
+      while b<pool_ptr do begin
+         pdf_out(str_pool[b]);
+         incr(b);
+      end;
+      pdf_print_nl;
     end;
-    pdf_print_nl;
 end;
 
 @* \[32d] The cross-reference table.
