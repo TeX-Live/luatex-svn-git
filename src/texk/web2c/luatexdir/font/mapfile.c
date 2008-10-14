@@ -418,11 +418,16 @@ static void fm_scan_line()
     switch (mitem->type) {
     case MAPFILE:
         p = fm_line;
-        do {
+        while (!fm_eof()) {
+          if (fm_curbyte==fm_size) {
+            fm_curbyte++;
+            c = 10;
+          } else {
             c = fm_getchar();
-            append_char_to_buf(c, p, fm_line, FM_BUF_SIZE);
+          }
+          append_char_to_buf(c, p, fm_line, FM_BUF_SIZE);
+          if (c == 10) break;
         }
-        while (c != 10 && !fm_eof());
         *(--p) = '\0';
         r = fm_line;
         break;
