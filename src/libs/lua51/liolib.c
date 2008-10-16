@@ -361,8 +361,8 @@ static int read_all (lua_State *L, FILE *f) {
   size_t old;   /* old file location */
   char *p;
   old = ftell(f);
-  if((fseek(f,0,SEEK_END)>=0) && 
-     old >= 0 && 
+  if(old >= 0 && 
+     (fseek(f,0,SEEK_END)>=0) && 
      ((rlen = ftell(f)) >=0 ) &&
      rlen < 1000*1000*100 ) { /* 100 MB */
     fseek(f,old,SEEK_SET);
@@ -374,6 +374,8 @@ static int read_all (lua_State *L, FILE *f) {
       return 1;
     }
   } 
+  if (old>=0)
+    fseek(f,old,SEEK_SET);
   return read_chars(L,f, ~((size_t)0));
 }
 
