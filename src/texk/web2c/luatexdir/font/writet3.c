@@ -46,8 +46,6 @@ static integer t3_size = 0;
 static integer t3_curbyte = 0;
 
 
-#define t3_open()       \
-    open_input(&t3_file, kpse_miscfonts_format, FOPEN_RBIN_MODE)
 #define t3_read_file() readbinfile(t3_file,&t3_buffer,&t3_size)
 #define t3_close()     xfclose(t3_file, cur_file_name)
 #define t3_getchar()   t3_buffer[t3_curbyte++]

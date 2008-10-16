@@ -33,7 +33,7 @@ static integer sfd_curbyte = 0;
 #define SFD_BUF_SIZE    SMALL_BUF_SIZE
 
 #define sfd_close()     xfclose(sfd_file, cur_file_name)
-#define sfd_open()      open_input(&sfd_file, kpse_sfd_format, FOPEN_RBIN_MODE)
+#define sfd_open()      (sfd_file = fopen((char *) nameoffile + 1, FOPEN_RBIN_MODE))
 
 #define sfd_read_file() readbinfile(sfd_file,&sfd_buffer,&sfd_size)
 #define sfd_getchar()   sfd_buffer[sfd_curbyte++]
@@ -150,6 +150,8 @@ static sfd_entry *read_sfd(char *sfd_name)
                 free(ftemp);
             }
         }
+    } else {
+      cur_file_name = kpse_find_file(cur_file_name, kpse_sfd_format, 0);
     }
     callback_id = callback_defined(read_sfd_file_callback);
     if (callback_id > 0) {
@@ -160,8 +162,14 @@ static sfd_entry *read_sfd(char *sfd_name)
             cur_file_name = NULL;
             return NULL;
         }
-        sfd_read_file();
-        sfd_close();
+    } else {
+      if (!sfd_open()) {
+        pdftex_warn("cannot open SFD file for reading");
+        cur_file_name = NULL;
+        return NULL;
+      }
+      sfd_read_file();
+      sfd_close();
     }
     tex_printf("{");
     tex_printf("%s", cur_file_name);

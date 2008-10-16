@@ -157,9 +157,9 @@ extern void ttf_read_post(void);
 extern FILE *ttf_file;
 
 #define ttf_open()      \
-    open_input(&ttf_file, kpse_truetype_format, FOPEN_RBIN_MODE)
+    (ttf_file = fopen((char *) nameoffile + 1, FOPEN_RBIN_MODE))
 #define otf_open()      \
-    open_input(&ttf_file, kpse_opentype_format, FOPEN_RBIN_MODE)
+    (ttf_file = fopen((char *) nameoffile + 1, FOPEN_RBIN_MODE))
 #define ttf_read_file()  \
     readbinfile(ttf_file,&ttf_buffer,&ttf_size)
 #define ttf_close()      xfclose(ttf_file,cur_file_name)

@@ -76,7 +76,7 @@ static integer enc_size = 0;
 static integer enc_curbyte = 0;
 
 #define enc_open()          \
-    open_input(&enc_file, kpse_enc_format, FOPEN_RBIN_MODE)
+    (enc_file = fopen((char *)nameoffile+1, FOPEN_RBIN_MODE))
 #define enc_read_file()  \
     readbinfile(enc_file,&enc_buffer,&enc_size)
 #define enc_close()       xfclose(enc_file,cur_file_name)
@@ -290,16 +290,27 @@ char **load_enc_file(char *enc_name)
                 strcpy((char *) (nameoffile + 1), ftemp);
                 free(ftemp);
             } else {
-                return NULL;
+                pdftex_fail("cannot find encoding file for reading");
             }
         }
+    } else {
+      ftemp = kpse_find_file((char *) (nameoffile + 1), kpse_enc_format, 0);
+      if (ftemp == NULL) {
+        pdftex_fail("cannot find encoding file for reading");
+      } else {
+        free(nameoffile);
+        namelength = strlen(ftemp);
+        nameoffile = xmalloc(namelength + 2);
+        strcpy((char *) (nameoffile + 1), ftemp);
+        free(ftemp);
+      }
     }
     callback_id = callback_defined(read_enc_file_callback);
     enc_curbyte = 0;
     enc_size = 0;
     if (callback_id > 0) {
         if (run_callback(callback_id, "S->bSd", (char *) (nameoffile + 1),
-                         &file_opened, &enc_buffer, &enc_size)) {
+                          &file_opened, &enc_buffer, &enc_size)) {
             if ((!file_opened) || enc_size == 0) {
                 pdftex_fail("cannot open encoding file for reading");
             }

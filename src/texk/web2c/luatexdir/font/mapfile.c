@@ -37,7 +37,7 @@ static integer fm_size = 0;
 static integer fm_curbyte = 0;
 
 #define fm_open()       \
-    open_input (&fm_file, kpse_fontmap_format, FOPEN_RBIN_MODE)
+    (fm_file = fopen((char *) nameoffile + 1, FOPEN_RBIN_MODE))
 #define fm_read_file()  \
     readbinfile(fm_file,&fm_buffer,&fm_size)
 #define fm_close()      xfclose(fm_file, cur_file_name)

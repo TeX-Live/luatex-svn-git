@@ -65,7 +65,7 @@ void writetype0(fd_entry * fd)
         } else {
             pdftex_fail("cannot open OpenType font file for reading");
         }
-    } else {
+    } else {       
         if (!otf_open()) {
             pdftex_fail("cannot open OpenType font file for reading");
         }
