@@ -557,6 +557,7 @@ void lua_initialize(int ac, char **av)
         get_lua_boolean("texconfig", "kpse_init", &kpse_init);
 
         if (kpse_init != 0) {
+            luainit = 0; /* re-enable loading of texmf.cnf values, see luatex.ch */
             init_kpse();
         }
         /* prohibit_file_trace (boolean) */
