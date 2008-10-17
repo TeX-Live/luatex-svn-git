@@ -126,7 +126,7 @@ void make_subset_tag(fd_entry * fd)
         if (is_cidkeyed(fd->fm)) {      /* glw_entry items */
             for (glw_glyph = (glw_entry *) avl_t_first(&t, fd->gl_tree);
                  glw_glyph != NULL; glw_glyph = (glw_entry *) avl_t_next(&t)) {
-                glyph = malloc(12);
+                glyph = malloc(24);
                 sprintf(glyph, "%05u%05u ", glw_glyph->id, glw_glyph->wd);
                 md5_append(&pms, (md5_byte_t *) glyph, strlen(glyph));
                 free(glyph);

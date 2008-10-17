@@ -103,8 +103,8 @@ typedef struct {
 } fm_entry;
 
 typedef struct glw_entry_ {     /* subset glyphs for inclusion in CID-based fonts */
-    unsigned short id;          /* glyph CID */
-    unsigned short wd;          /* glyph width in 1/1000 em parts */
+    unsigned int id;          /* glyph CID */
+    signed int wd;          /* glyph width in 1/1000 em parts */
 } glw_entry;
 
 
