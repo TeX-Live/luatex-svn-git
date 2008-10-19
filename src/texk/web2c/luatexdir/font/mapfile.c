@@ -599,7 +599,16 @@ void fm_read_info()
                     free(ftemp);
                 }
             }
-        }
+        } else {
+	  ftemp = kpse_find_file((char *) (nameoffile + 1), kpse_fontmap_format, 0);
+	  if (ftemp != NULL) {
+	    free(nameoffile);
+	    namelength = strlen(ftemp);
+	    nameoffile = xmalloc(namelength + 2);
+	    strcpy((char *) (nameoffile + 1), ftemp);
+	    free(ftemp);
+	  }
+	}
         callback_id = callback_defined(read_map_file_callback);
         if (callback_id > 0) {
             if (run_callback(callback_id, "S->bSd", (char *) (nameoffile + 1),
