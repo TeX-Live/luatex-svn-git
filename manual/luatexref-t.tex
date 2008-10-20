@@ -19,7 +19,7 @@
 
 \setvariables
   [document]
-  [beta=0.30.1]
+  [beta=0.30.2]
 
 \starttext
 
@@ -409,13 +409,21 @@ assertion errors from within the \TEX\ portion of the executable.
 \subsection{\tex{latelua}}
 
 \tex{latelua} stores \LUA\ code in a whatsit that will be processed
-inside the output routine. Its intended use is very similar to
-\tex{pdfliteral}. Within the \LUA\ code, you can print \PDF\
-statements directly to the \PDF\ file.
+inside the output routine. Its intended use is a cross between
+\tex{pdfliteral} and \tex{write}. 
+Within the \LUA\ code, you can print \PDF\ 
+statements directly to the \PDF\ file via \type{tex.print},
+or you can write to other output streams via \type{texio.write}
+or simply using lua's I/O routines.
 
 \startsyntax
 \latelua <16-bit number> <general text>
 \stopsyntax
+
+Expansion of macros etcetera in the \type{<general text>} is delayed
+until just before the whatsit is executed (like in \tex{write}). With
+regard to PDF output stream \tex{latelua} behaves as \tex{pdfliteral page}.
+
 
 \subsection{\tex{luaescapestring}}
 
@@ -687,7 +695,8 @@ script, the entire commandline is available in the \LUA\ table
 Commandline processing happens very early on. So early, in fact, that
 none of \TEX's initializations have taken place yet. For that reason,
 the tables that deal with typesetting, like \luatex{tex}, \luatex{token},
-\luatex{node} and \luatex{pdf}, are off|-|limits during the execution of the startup file (they are
+\luatex{node} and \luatex{pdf}, are off|-|limits during the execution 
+of the startup file (they are
 nilled). Special care is taken that \luatex{texio.write} and
 \luatex{texio.write_nl} function properly, so that you can at least
 report your actions to the log file when (and if) it eventually
@@ -3757,6 +3766,9 @@ The current list is:
 \NC luastates\NC                 number of active \LUA\ interpreters\NC \NR
 \NC luastate_bytes\NC            number of bytes in use by \LUA\ interpreters\NC \NR
 \NC output_active\NC             \type{true} if the \tex{output} routine is active\NC \NR
+\NC callbacks\NC                 total number of executed callbacks so far\NC \NR
+\NC indirect_callbacks\NC        number of those that were themselves
+                                 a result of other callbacks (e.g. file readers)\NC \NR
 \stoptabulate
 
 \section{The \luatex{texconfig} table}
@@ -3767,6 +3779,10 @@ the executable after loading and executing the startup file.
 
 \starttabulate[|lT|l|l|p|]
 \NC \ssbf key      \NC \bf type     \NC \bf default \NC \bf explanation \NC\NR
+\NC kpse_init \NC boolean \NC true    \NC \type{false} totally disables \KPATHSEA\ initialisation,
+                                           and enables interpretation of the following numeric key--value pairs. 
+                                          (only ever unset this if you implement {\it all\/} file
+                                          find callbacks!)\NC \NR
 \NC string_vacancies \NC   number\NC  75000\NC cf.\ web2c docs \NC \NR
 \NC pool_free \NC 	        number\NC  5000\NC cf.\ web2c docs \NC \NR
 \NC max_strings \NC        number\NC  15000\NC cf.\ web2c docs \NC \NR
@@ -3785,9 +3801,6 @@ the executable after loading and executing the startup file.
 \NC ocp_stack_size \NC     number\NC 1000\NC cf.\ web2c docs \NC \NR
 \NC hash_extra \NC         number\NC  0\NC cf.\ web2c docs \NC \NR
 \NC pk_dpi \NC             number\NC  72\NC cf.\ web2c docs \NC \NR
-\NC kpse_init \NC boolean \NC true    \NC \type{false} totally disables \KPATHSEA\ initialisation
-                                          (only ever unset this if you implement {\it all\/} file
-                                          find callbacks!)\NC \NR
 \NC trace_file_names \NC boolean \NC true \NC \type{false} disables \TEX's normal file open|-|close
                                               feedback (the assumption is that callbacks will take care of
 	                                      that) \NC \NR
@@ -3800,6 +3813,10 @@ the executable after loading and executing the startup file.
                                            on the commandline, this key will be tested first
                                            instead of simply giving up\NC \NR
 \stoptabulate
+
+{\bf Note:} the numeric values that match web2c parameters are only used if 
+\type{kpse_init} is explicitly set to \type{false}. In all other cases, the normal values from
+\type{texmf.cnf} are used.
 
 \section{The \luatex{font} library}
 
