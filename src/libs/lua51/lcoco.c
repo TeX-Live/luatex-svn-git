@@ -28,6 +28,7 @@
 #if defined(__OpenBSD__)
 #if defined(__i386) || defined(__i386__)
 #else
+#undef COCO_DISABLE
 #define COCO_DISABLE
 # warning COCO: not supported on this platform (non-intel OpenBSD)
 #endif
