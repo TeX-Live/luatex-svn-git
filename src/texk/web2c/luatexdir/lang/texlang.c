@@ -47,14 +47,15 @@ struct tex_language *new_language(int n)
     unsigned l;
     if (n>=0) {
       l = (unsigned)n;
-      if (next_lang_id<=n)
-         next_lang_id = n+1;
+      if (l != (MAX_TEX_LANGUAGES-1)) 
+        if (next_lang_id<=n)
+          next_lang_id = n+1;
     } else {
       while (tex_languages[next_lang_id] != NULL)
         next_lang_id++;
       l = next_lang_id++;
     }
-    if (l < MAX_TEX_LANGUAGES && tex_languages[l] == NULL) {
+    if (l < (MAX_TEX_LANGUAGES-1) && tex_languages[l] == NULL) {
       lang = xmalloc(sizeof(struct tex_language));
       tex_languages[l] = lang;
       lang->id = l;
