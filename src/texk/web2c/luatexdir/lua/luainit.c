@@ -47,7 +47,7 @@ static const char _svn_version[] =
  *
  */
 
-extern string normalize_quotes (const_string name, const_string mesg);
+extern string normalize_quotes(const_string name, const_string mesg);
 
 const_string LUATEX_IHELP[] = {
     "Usage: luatex --lua=FILE [OPTION]... [TEXNAME[.tex]] [COMMANDS]",
@@ -80,12 +80,13 @@ const_string LUATEX_IHELP[] = {
     NULL
 };
 
-extern char * selfdir (char *); /* from kpathsea */
+extern char *selfdir(char *);   /* from kpathsea */
 
-char *ex_selfdir (char *argv0) {
+char *ex_selfdir(char *argv0)
+{
 #if defined(WIN32)
     char short_path[PATH_MAX], path[PATH_MAX], *fp;
-  
+
     /* SearchPath() always gives back an absolute directory */
     if (SearchPath(NULL, argv0, ".exe", PATH_MAX, short_path, &fp) == 0)
         FATAL1("Can't determine where the executable %s is.\n", argv0);
@@ -94,7 +95,8 @@ char *ex_selfdir (char *argv0) {
     }
     /* slashify the dirname */
     for (fp = path; fp && *fp; fp++)
-        if (IS_DIR_SEP(*fp)) *fp = DIR_SEP;
+        if (IS_DIR_SEP(*fp))
+            *fp = DIR_SEP;
     /* sdir will be the directory of the executable, ie: c:/TeX/bin */
     return xdirname(path);
 #else
@@ -114,11 +116,11 @@ prepare_cmdline(lua_State * L, char **argv, int argc, int zero_offset)
         lua_rawseti(L, -2, (i - zero_offset));
     }
     lua_setglobal(L, "arg");
-    lua_getglobal(L,"os");
+    lua_getglobal(L, "os");
     s = ex_selfdir(argv[0]);
-    lua_pushstring(L,s);
+    lua_pushstring(L, s);
     xfree(s);
-    lua_setfield(L,-2,"selfdir");
+    lua_setfield(L, -2, "selfdir");
     return;
 }
 
@@ -190,7 +192,7 @@ static struct option long_options[]
 {"mktex", 1, 0, 0},
 {"no-mktex", 1, 0, 0},
 /* Synchronization: just like "interaction" above */
-{ "synctex",                   1, 0, 0 },
+{"synctex", 1, 0, 0},
 {0, 0, 0, 0}
 };
 
@@ -283,43 +285,22 @@ static void parse_options(int argc, char **argv)
                          optarg);
             }
 
-        } else if (ARGUMENT_IS ("synctex")) {
-	   	   /* Synchronize TeXnology: catching the command line option as a long  */
-		   synctexoption = (int) strtol(optarg, NULL, 0);
+        } else if (ARGUMENT_IS("synctex")) {
+            /* Synchronize TeXnology: catching the command line option as a long  */
+            synctexoption = (int) strtol(optarg, NULL, 0);
 
         } else if (ARGUMENT_IS("help")) {
             usagehelp(LUATEX_IHELP, BUG_ADDRESS);
 
         } else if (ARGUMENT_IS("version")) {
             print_version_banner();
-            puts("\n\nExecute  'luatex --credits'  for credits and version details.\n\n"
-"There is NO warranty. Redistribution of this software is covered by\n" 
-"the terms of the GNU General Public License, version 2. For more\n" 
-"information about these matters, see the file named COPYING and\n" 
-"the LuaTeX source.\n\n" 
-"Copyright 2008 Taco Hoekwater, the LuaTeX Team.\n");
+            puts("\n\nExecute  'luatex --credits'  for credits and version details.\n\n" "There is NO warranty. Redistribution of this software is covered by\n" "the terms of the GNU General Public License, version 2. For more\n" "information about these matters, see the file named COPYING and\n" "the LuaTeX source.\n\n" "Copyright 2008 Taco Hoekwater, the LuaTeX Team.\n");
             uexit(0);
         } else if (ARGUMENT_IS("credits")) {
             char *versions;
             initversionstring(&versions);
             print_version_banner();
-            puts("\n\nThe LuaTeX team is Hans Hagen, Hartmut Henkel, Taco Hoekwater.\n" 
-"LuaTeX merges and builds upon (parts of) the code from these projects:\n\n" 
-"tex       by Donald Knuth\n" 
-"etex      by Peter Breitenlohner, Phil Taylor and friends\n" 
-"omega     by John Plaice and Yannis Haralambous\n" 
-"aleph     by Giuseppe Bilotta\n" 
-"pdftex    by Han The Thanh and friends\n" 
-"kpathsea  by Karl Berry, Olaf Weber and others\n" 
-"lua       by Roberto Ierusalimschy, Waldemar Celes,\n" 
-"             Luiz Henrique de Figueiredo\n" 
-"metapost  by John Hobby, Taco Hoekwater and friends.\n" 
-"xpdf      by Derek Noonberg (partial)\n" 
-"fontforge by George Williams (partial)\n\n" 
-"Some extensions to lua and additional lua libraries are used, as well as\n" 
-"libraries for graphic inclusion. More details can be found in the source.\n" 
-"Code development was sponsored by a grant from Colorado State University\n" 
-"via the 'oriental tex' project, the TeX User Groups, and donations.\n" );
+            puts("\n\nThe LuaTeX team is Hans Hagen, Hartmut Henkel, Taco Hoekwater.\n" "LuaTeX merges and builds upon (parts of) the code from these projects:\n\n" "tex       by Donald Knuth\n" "etex      by Peter Breitenlohner, Phil Taylor and friends\n" "omega     by John Plaice and Yannis Haralambous\n" "aleph     by Giuseppe Bilotta\n" "pdftex    by Han The Thanh and friends\n" "kpathsea  by Karl Berry, Olaf Weber and others\n" "lua       by Roberto Ierusalimschy, Waldemar Celes,\n" "             Luiz Henrique de Figueiredo\n" "metapost  by John Hobby, Taco Hoekwater and friends.\n" "xpdf      by Derek Noonberg (partial)\n" "fontforge by George Williams (partial)\n\n" "Some extensions to lua and additional lua libraries are used, as well as\n" "libraries for graphic inclusion. More details can be found in the source.\n" "Code development was sponsored by a grant from Colorado State University\n" "via the 'oriental tex' project, the TeX User Groups, and donations.\n");
             puts(versions);
             uexit(0);
         }
@@ -361,12 +342,12 @@ static void parse_options(int argc, char **argv)
             luainit = 1;
         }
     }
-    if (safer_option) /* --safer implies --nosocket */
-      nosocket_option = 1;
+    if (safer_option)           /* --safer implies --nosocket */
+        nosocket_option = 1;
 
     /* Finalize the input filename. */
     if (input_name != NULL) {
-      argv[optind] = normalize_quotes(input_name, "argument");
+        argv[optind] = normalize_quotes(input_name, "argument");
     }
 }
 
@@ -402,15 +383,16 @@ char *find_filename(char *name, char *envkey)
 }
 
 
-char *cleaned_invocation_name (char *arg) {
-  char *ret, *dot;
-  const char *start = xbasename(arg);
-  ret = xstrdup(start);
-  dot = index(ret, '.');
-  if (dot != NULL) {
-    *dot = 0; /* chop */
-  }
-  return ret;
+char *cleaned_invocation_name(char *arg)
+{
+    char *ret, *dot;
+    const char *start = xbasename(arg);
+    ret = xstrdup(start);
+    dot = index(ret, '.');
+    if (dot != NULL) {
+        *dot = 0;               /* chop */
+    }
+    return ret;
 }
 
 void init_kpse(void)
@@ -438,8 +420,8 @@ void init_kpse(void)
         exit(1);
     }
 
-    kpse_set_program_enabled (kpse_fmt_format, MAKE_TEX_FMT_BY_DEFAULT,
-                              kpse_src_compile);
+    kpse_set_program_enabled(kpse_fmt_format, MAKE_TEX_FMT_BY_DEFAULT,
+                             kpse_src_compile);
 
     kpse_set_program_name(argv[0], user_progname);
     program_name_set = 1;
@@ -491,14 +473,14 @@ void lua_initialize(int ac, char **av)
     interactionoption = 4;
     dump_name = NULL;
 
-# warning SyncTeX: -synctex command line option available
-  /* 0 means "disable Synchronize TeXnology".
-   * synctexoption is a *.web variable.
-   * We initialize it to a weird value to catch the -synctex command line flag
-   * At runtime, if synctexoption is not INT_MAX, then it contains the command line option provided,
-   * otherwise no such option was given by the user. */
-# define SYNCTEX_NO_OPTION INT_MAX
-  synctexoption = SYNCTEX_NO_OPTION;
+#warning SyncTeX: -synctex command line option available
+    /* 0 means "disable Synchronize TeXnology".
+     * synctexoption is a *.web variable.
+     * We initialize it to a weird value to catch the -synctex command line flag
+     * At runtime, if synctexoption is not INT_MAX, then it contains the command line option provided,
+     * otherwise no such option was given by the user. */
+#define SYNCTEX_NO_OPTION INT_MAX
+    synctexoption = SYNCTEX_NO_OPTION;
 
     /* parse commandline */
     parse_options(ac, av);
@@ -543,10 +525,11 @@ void lua_initialize(int ac, char **av)
             get_lua_string("texconfig", "formatname", &dump_name);
         }
         if ((lua_only) || ((!input_name) && (!dump_name))) {
-          if (given_file) free(given_file);
-           /* this is not strictly needed but it pleases valgrind */
-          lua_close(Luas[0]);
-          exit(0);
+            if (given_file)
+                free(given_file);
+            /* this is not strictly needed but it pleases valgrind */
+            lua_close(Luas[0]);
+            exit(0);
         }
         /* unhide the 'tex' and 'pdf' table */
         unhide_lua_table(Luas[0], "tex", tex_table_id);
@@ -559,7 +542,7 @@ void lua_initialize(int ac, char **av)
         get_lua_boolean("texconfig", "kpse_init", &kpse_init);
 
         if (kpse_init != 0) {
-            luainit = 0; /* re-enable loading of texmf.cnf values, see luatex.ch */
+            luainit = 0;        /* re-enable loading of texmf.cnf values, see luatex.ch */
             init_kpse();
         }
         /* prohibit_file_trace (boolean) */
