@@ -638,6 +638,7 @@ void hnj_hyphen_load(
       if (is_utf8_follow(format[i])) e++;
     }
     /* l-e   => number of _characters_ not _bytes_*/
+    /* l-j   => number of pattern bytes */
     /* l-e-j => number of pattern characters*/
     pat = (unsigned char*) malloc(1+l-j);
     org = (         char*) malloc(2+l-e-j);
@@ -789,10 +790,13 @@ void hnj_hyphen_hyphenate(
   hyphens[hyphen_len] = 0;
 
   /* now, run the finite state machine */
-  for (char_num=0, here=begin_point; here!=end_point; here=get_vlink(here)) {
+  for (char_num=0, here=begin_point; here!=get_vlink(end_point); here=get_vlink(here)) {
 
-    int ch = get_lc_code(get_character(here));
-
+    int ch;
+    if (here == begin_point || here == end_point)
+      ch='.';
+    else
+      ch = get_lc_code(get_character(here));
     while (state!=-1) {
 	  /*   printf("%*s%s%c",char_num-strlen(get_state_str(state)),"",get_state_str(state),(char)ch);*/
       HyphenState *hstate = &dict->states[state];
