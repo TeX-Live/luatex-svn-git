@@ -24,6 +24,8 @@
 
 #include <luatexdir/luatexextra.h>
 
+extern void make_token_table(lua_State * L, int cmd, int chr, int cs);
+
 static const char _svn_version[] =
     "$Id$ $URL$";
 
