@@ -24,11 +24,9 @@
 
 #include <luatexdir/luatexextra.h>
 
-extern void make_token_table(lua_State * L, int cmd, int chr, int cs);
 
 static const char _svn_version[] =
     "$Id$ $URL$";
-
 
 /* TH: TODO
  *
@@ -48,6 +46,7 @@ static const char _svn_version[] =
  */
 
 extern string normalize_quotes(const_string name, const_string mesg);
+extern void make_token_table(lua_State * L, int cmd, int chr, int cs);
 
 const_string LUATEX_IHELP[] = {
     "Usage: luatex --lua=FILE [OPTION]... [TEXNAME[.tex]] [COMMANDS]",
