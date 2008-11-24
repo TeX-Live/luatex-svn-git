@@ -1216,6 +1216,28 @@ static int tex_definefont(lua_State * L)
   return 0;
 }
 
+static int tex_hashpairs(lua_State * L)
+{
+  int cmd, chr;
+  str_number s=0;
+  int cs=1;
+  int eqtb_size = eqtb_top;
+  lua_newtable(L);
+  while (cs<eqtb_size) {
+    s = hash_text(cs);
+    if (s>0) {
+      lua_pushstring(L, makecstring(s));
+      cmd = zget_eq_type(cs);
+      chr = zget_equiv(cs);
+      make_token_table(L, cmd, chr, cs);
+      lua_rawset(L,-3);
+    }
+    cs++;
+  }  
+  return 1;
+}
+
+
 
 
 static const struct luaL_reg texlib[] = {
@@ -1255,6 +1277,7 @@ static const struct luaL_reg texlib[] = {
     {"pdfpageref", getpdfpageref},
     {"pdfxformname", getpdfxformname},
     {"definefont", tex_definefont},
+    {"hashtokens", tex_hashpairs},
     {NULL, NULL}                /* sentinel */
 };
 
