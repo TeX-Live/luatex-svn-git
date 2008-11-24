@@ -737,7 +737,7 @@ void hnj_hyphenation(halfword head, halfword tail)
     char *hy = utf8word;
     char *replacement = NULL;
     halfword s, r = head, wordstart = null, save_tail = null, left =
-        null, right = null;
+      null, right = null;
 
     /* this first movement assures two things: 
      * a) that we won't waste lots of time on something that has been
@@ -762,6 +762,7 @@ void hnj_hyphenation(halfword head, halfword tail)
 
     while (r != null) {         /* could be while(1), but let's be paranoid */
         int clang, lhmin, rhmin;
+        halfword end_word = r;
         wordstart = r;
         assert(is_simple_character(wordstart));
         clang = char_lang(wordstart);
@@ -778,6 +779,7 @@ void hnj_hyphenation(halfword head, halfword tail)
             hy = utf8_idpb(hy, character(r));
             /* this should not be needed  any more */
             /*if (vlink(r)!=null) alink(vlink(r))=r; */
+            end_word = r;
             r = vlink(r);
         }
         if (valid_wordend(r) && wordlen >= lhmin + rhmin
@@ -812,7 +814,7 @@ void hnj_hyphenation(halfword head, halfword tail)
                         utf8word, clang, lhmin, rhmin, character(left),
                         character(right));
 #endif
-                (void) hnj_hyphen_hyphenate(lang->patterns, wordstart, r,
+                (void) hnj_hyphen_hyphenate(lang->patterns, wordstart, end_word,
                                             wordlen, left, right, &langdata);
             }
         }
