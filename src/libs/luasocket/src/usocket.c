@@ -13,6 +13,13 @@
 
 #include "socket.h"
 
+#if defined(__SOLARIS__)
+#define HSTRERROR(A) "unknown host error"
+#else
+#define HSTRERROR(A) hstrerror(A)
+#endif
+
+
 /*-------------------------------------------------------------------------*\
 * Wait for readable/writable/connected socket with timeout
 \*-------------------------------------------------------------------------*/
@@ -346,7 +353,7 @@ const char *socket_hoststrerror(int err) {
     if (err <= 0) return io_strerror(err);
     switch (err) {
         case HOST_NOT_FOUND: return "host not found";
-        default: return hstrerror(err);
+        default: return HSTRERROR(err);
     }
 }
 
