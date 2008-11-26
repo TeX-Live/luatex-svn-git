@@ -1,4 +1,4 @@
-% $Id: mp.w 655 2008-10-07 16:13:31Z taco $
+% $Id: mp.w 690 2008-11-17 11:04:45Z taco $
 %
 % Copyright 2008 Taco Hoekwater.
 %
@@ -89,13 +89,13 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d default_banner "This is MetaPost, Version 1.091" /* printed when \MP\ starts */
+@d default_banner "This is MetaPost, Version 1.100" /* printed when \MP\ starts */
 @d true 1
 @d false 0
 
 @(mpmp.h@>=
-#define metapost_version "1.091"
-#define metapost_magic (('M'*256) + 'P')*65536 + 1091
+#define metapost_version "1.100"
+#define metapost_magic (('M'*256) + 'P')*65536 + 1100
 #define metapost_old_magic (('M'*256) + 'P')*65536 + 1080
 
 @ The external library header for \MP\ is |mplib.h|. It contains a
@@ -398,7 +398,8 @@ set_value(mp->error_line,opt->error_line,79);
 set_value(mp->half_error_line,opt->half_error_line,50);
 if (mp->half_error_line>mp->error_line-15 ) 
   mp->half_error_line = mp->error_line-15;
-set_value(mp->max_print_line,opt->max_print_line,100);
+mp->max_print_line=100;
+set_value(mp->max_print_line,opt->max_print_line,79);
 
 @ In case somebody has inadvertently made bad settings of the ``constants,''
 \MP\ checks them using a global variable called |bad|.
@@ -637,15 +638,31 @@ char name_of_file[file_name_size+1]; /* the name of a system file */
 int name_length;/* this many characters are actually
   relevant in |name_of_file| (the rest are blank) */
 
-@ @<Option variables@>=
-int print_found_names; /* configuration parameter */
-
 @ If this parameter is true, the terminal and log will report the found
 file names for input files instead of the requested ones. 
 It is off by default because it creates an extra filename lookup.
 
-@<Allocate or initialize ...@>=
+@<Option variables@>=
+int print_found_names; /* configuration parameter */
+
+@ @<Allocate or initialize ...@>=
 mp->print_found_names = (opt->print_found_names>0 ? true : false);
+
+@ The |file_line_error_style| parameter makes \MP\ use a more
+standard compiler error message format instead of the Knuthian 
+exclamation mark. It needs the actual version of the current input 
+file name, that will be saved by |a_open_in| in the global 
+|mp->long_name|.
+
+@<Glob...@>=
+char *long_name;
+
+@ @<Option variables@>=
+int file_line_error_style; /* configuration parameter */
+
+@ @<Allocate or initialize ...@>=
+mp->file_line_error_style = (opt->file_line_error_style>0 ? true : false);
+mp->long_name = NULL;
 
 @ \MP's file-opening procedures return |false| if no file identified by
 |name_of_file| could be opened.
@@ -655,11 +672,17 @@ It is not used for opening a mem file for read, because that file name
 is never printed.
 
 @d OPEN_FILE(A) do {
-  if (mp->print_found_names) {
+  if (mp->print_found_names || mp->file_line_error_style) {
     char *s = (mp->find_file)(mp,mp->name_of_file,A,ftype);
     if (s!=NULL) {
       *f = (mp->open_file)(mp,mp->name_of_file,A, ftype); 
-      strncpy(mp->name_of_file,s,file_name_size);
+      if (mp->print_found_names) {
+        strncpy(mp->name_of_file,s,file_name_size);
+      }
+      if ((*(A) == 'r') && (ftype == mp_filetype_program)) {
+        xfree(mp->long_name);
+        mp->long_name = xstrdup(s);
+      }
       xfree(s);
     } else {
       *f = NULL;
@@ -717,7 +740,7 @@ static char *mp_read_ascii_file (MP mp, void *ff, size_t *size) {
   s = malloc(lim); 
   if (s==NULL) return NULL;
   while (c!=EOF && c!='\n' && c!='\r') { 
-    if (len==lim) {
+    if ((len+1)==lim) {
       s =realloc(s, (lim+(lim>>2)));
       if (s==NULL) return NULL;
       lim+=(lim>>2);
@@ -1774,7 +1797,7 @@ assumes that it is always safe to print a visible ASCII character.)
 static void mp_do_print (MP mp, const char *ss, size_t len) { /* prints string |s| */
   size_t j = 0;
   if (mp->selector == new_string) {
-    str_room(len*4);
+    str_room((integer)(len*4));
   }
   while ( j<len ){ 
     mp_print_char(mp, xord((int)ss[j])); j++;
@@ -1961,7 +1984,19 @@ void mp_print_err(MP mp, const char * A);
 void mp_print_err(MP mp, const char * A) { 
   if ( mp->interaction==mp_error_stop_mode ) 
     wake_up_terminal;
-  mp_print_nl(mp, "! "); 
+  if (mp->file_line_error_style && file_state && !terminal_input) {
+    mp_print_nl(mp, ""); 
+    if (mp->long_name != NULL) {
+      mp_print(mp, mp->long_name);      
+    } else {
+      mp_print(mp, mp_str(mp,name));
+    }
+    mp_print(mp, ":");
+    mp_print_int(mp, line);
+    mp_print(mp, ": ");
+  } else{
+    mp_print_nl(mp, "! "); 
+  }
   mp_print(mp, A);
 @.!\relax@>
 }
@@ -15898,6 +15933,7 @@ while scanning a file name.
 integer area_delimiter;
   /* most recent `\.>' or `\.:' relative to |str_start[str_ptr]| */
 integer ext_delimiter; /* the relevant `\..', if any */
+boolean quoted_filename; /* whether the filename is wrapped in " markers */
 
 @ Here now is the first of the system-dependent routines for file name scanning.
 @^system dependencies@>
@@ -15920,26 +15956,31 @@ void mp_begin_name (MP mp) {
   xfree(mp->cur_ext);
   mp->area_delimiter=-1; 
   mp->ext_delimiter=-1;
+  mp->quoted_filename=false;
   str_room(file_name_size); 
 }
 
 @ And here's the second.
 @^system dependencies@>
 
+@d IS_DIR_SEP(c) (c=='/' || c=='\\')
+
 @c 
 boolean mp_more_name (MP mp, ASCII_code c) {
-  if (c==' ') {
+  if (c=='"') {
+    mp->quoted_filename= ! mp->quoted_filename;
+  } else if ((c==' '|| c=='\t') && (mp->quoted_filename==false)) {
     return false;
-  } else { 
-    if ( (c=='>')||(c==':') ) { 
+  } else {
+    if (IS_DIR_SEP (c)) {
       mp->area_delimiter=mp->pool_ptr; 
       mp->ext_delimiter=-1;
-    } else if ( (c=='.')&&(mp->ext_delimiter<0) ) {
+    } else if ( c=='.' ) {
       mp->ext_delimiter=mp->pool_ptr;
     }
     append_char(c); /* contribute |c| to the current string */
-    return true;
   }
+  return true;
 }
 
 @ The third.
@@ -15959,9 +16000,9 @@ void mp_end_name (MP mp) {
   if ( mp->area_delimiter<0 ) {    
     mp->cur_area=xstrdup("");
   } else {
-    len = (unsigned)(mp->area_delimiter-s); 
+    len = (unsigned)(mp->area_delimiter-s+1); 
     copy_pool_segment(mp->cur_area,s,len);
-    s += len+1;
+    s += len;
   }
   if ( mp->ext_delimiter<0 ) {
     mp->cur_ext=xstrdup("");
@@ -15981,7 +16022,14 @@ some operating systems put the file area last instead of first.)
 
 @<Basic printing...@>=
 static void mp_print_file_name (MP mp, char * n, char * a, char * e) { 
+  boolean must_quote = false;
+  if (((a != NULL) && (strchr(a,' ') != NULL)) || 
+      ((n != NULL) && (strchr(n,' ') != NULL)) ||
+      ((e != NULL) && (strchr(e,' ') != NULL)))
+    must_quote = true;
+  if (must_quote) mp_print_char(mp, '"');
   mp_print(mp, a); mp_print(mp, n); mp_print(mp, e);
+  if (must_quote) mp_print_char(mp, '"');
 }
 
 @ Another system-dependent routine is needed to convert three internal
@@ -16085,7 +16133,7 @@ boolean mp_open_mem_file (MP mp) {
       return true;
   }
   wake_up_terminal;
-  wterm_ln("I can\'t find the PLAIN mem file!");
+  wterm_ln("I can\'t find the PLAIN mem file!\n");
 @.I can't find PLAIN...@>
 @.plain@>
   return false;
@@ -16954,8 +17002,7 @@ void mp_disp_err (MP mp,pointer p, const char *s) {
 @.>>@>
   mp_print_exp(mp, p,1); /* ``medium verbose'' printing of the expression */
   if (strlen(s)>0) { 
-    mp_print_nl(mp, "! "); mp_print(mp, s);
-@.!\relax@>
+    print_err(s);
   }
 }
 
@@ -20216,17 +20263,18 @@ if ( mp_type(p)==mp_known ) {
   s=mp_type(p); r=dep_list(p);
   if ( t==mp_dependent ) {
     if ( s==mp_dependent ) {
-      if ( mp_max_coef(mp, r)+mp_max_coef(mp, v)<coef_bound )
-        v=mp_p_plus_q(mp, v,r,mp_dependent); goto DONE;
+      if ( mp_max_coef(mp, r)+mp_max_coef(mp, v)<coef_bound ) {
+          v=mp_p_plus_q(mp, v,r,mp_dependent); goto DONE;
+        } 
       } /* |fix_needed| will necessarily be false */
-      t=mp_proto_dependent; 
-      v=mp_p_over_v(mp, v,unity,mp_dependent,mp_proto_dependent);
-    }
-    if ( s==mp_proto_dependent ) v=mp_p_plus_q(mp, v,r,mp_proto_dependent);
-    else v=mp_p_plus_fq(mp, v,unity,r,mp_proto_dependent,mp_dependent);
- DONE:  
-    @<Output the answer, |v| (which might have become |known|)@>;
+    t=mp_proto_dependent; 
+    v=mp_p_over_v(mp, v,unity,mp_dependent,mp_proto_dependent);
   }
+  if ( s==mp_proto_dependent ) v=mp_p_plus_q(mp, v,r,mp_proto_dependent);
+  else v=mp_p_plus_fq(mp, v,unity,r,mp_proto_dependent,mp_dependent);
+ DONE:  
+  @<Output the answer, |v| (which might have become |known|)@>;
+}
 
 @ @<Add the known |value(p)| to the constant term of |v|@>=
 { 
@@ -24846,6 +24894,7 @@ for (k=mp->bc;k<=mp->ec;k++) {
     B3=(eight_bits)((B3+B3+x) % 251);
     B4=(eight_bits)((B4+B4+x) % 247);
   }
+  if (k==mp->ec) break;
 }
 
 @ Finally we're ready to actually write the \.{TFM} information.
@@ -25976,15 +26025,15 @@ if (mp->ini_version) {
       goto OFF_BASE;    
     set_value(mp->mem_max,opt->main_memory,mp->mem_top);
     goto DONE;
-  } 
 OFF_BASE:
-  wterm_ln("(Fatal mem file error; ");
-  wterm((mp->find_file)(mp, mp->mem_name, "r", mp_filetype_memfile));
-  if (i>metapost_old_magic && i<metapost_magic) {
-    wterm(" was written by an older version)\n");
-  } else {
-    wterm(" appears not to be a mem file)\n");
-  }
+    wterm_ln("(Fatal mem file error; ");
+    wterm((mp->find_file)(mp, mp->mem_name, "r", mp_filetype_memfile));
+    if (i>metapost_old_magic && i<metapost_magic) {
+      wterm(" was written by an older version)\n");
+    } else {
+      wterm(" appears not to be a mem file)\n");
+    }
+  } 
   mp->history = mp_fatal_error_stop;
   mp_jump_out(mp);
 }

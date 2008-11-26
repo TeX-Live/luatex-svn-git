@@ -1,4 +1,4 @@
-% $Id: psout.w 640 2008-07-19 09:15:50Z taco $
+% $Id: psout.w 704 2008-11-24 14:59:24Z taco $
 %
 % Copyright 2008 Taco Hoekwater.
 %
@@ -190,7 +190,7 @@ static void mp_ps_do_print (MP mp, const char *ss, size_t len) { /* prints strin
 
 @ Deciding where to break the ps output line. 
 
-@d ps_room(A) if ( (mp->ps->ps_offset+(int)(A))>mp->max_print_line ) {
+@d ps_room(A) if (mp->ps->ps_offset>0 && (mp->ps->ps_offset+(int)(A))>mp->max_print_line ) {
   mp_ps_print_ln(mp); /* optional line break */
 }
 
@@ -490,6 +490,7 @@ static void mp_write_enc (MP mp, enc_entry * e) {
     mp_ps_print_nl(mp, "/");
     mp_ps_print(mp, e->enc_name);
     mp_ps_print(mp, " [ ");
+    mp_ps_print_ln (mp);
     foffset = strlen(e->file_name)+3;
     for (i = 0; i < 256; i++) {
       s = strlen(g[i]);
@@ -1391,12 +1392,10 @@ void mp_init_map_file (MP mp, int is_troff);
 void mp_map_file (MP mp, str_number t) {
   char *s = mp_xstrdup(mp,mp_str (mp,t));
   mp_process_map_item (mp, s, MAPFILE);
-  mp_xfree (s);
 }
 void mp_map_line (MP mp, str_number t) {
   char *s = mp_xstrdup(mp,mp_str (mp,t));
   mp_process_map_item (mp, s, MAPLINE);
-  mp_xfree (s);
 }
 
 @ 
@@ -2452,9 +2451,11 @@ typedef struct {
 static boolean t1_open_fontfile (MP mp, fm_entry *fm_cur,const char *open_name_prefix) {
     ff_entry *ff;
     ff = check_ff_exist (mp, fm_cur);
+    mp->ps->t1_file = NULL;
     if (ff->ff_path != NULL) {
         mp->ps->t1_file = (mp->open_file)(mp,ff->ff_path, "r", mp_filetype_font);
-    } else {
+    }
+    if (mp->ps->t1_file == NULL) {
         mp_warn (mp, "cannot open Type 1 font file for reading");
         return false;
     }
@@ -3749,7 +3750,7 @@ void mp_mark_string_chars (MP mp,font_number f, char *s) {
   ec=mp->font_ec[f];
   k=s;
   while (*k){ 
-    if ( (*k>=(char)bc)&&(*k<=(char)ec) )
+    if ( (*k>=bc)&&(*k<=ec) )
       mp->font_info[b+*k].qqqq.b3=mp_used;
     k++;
   }
