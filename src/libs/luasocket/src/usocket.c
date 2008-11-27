@@ -13,7 +13,7 @@
 
 #include "socket.h"
 
-#if defined(__SOLARIS__)
+#if defined(__sun__)
 #define HSTRERROR(A) "unknown host error"
 #else
 #define HSTRERROR(A) hstrerror(A)
