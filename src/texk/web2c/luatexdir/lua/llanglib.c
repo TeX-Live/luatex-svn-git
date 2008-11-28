@@ -46,7 +46,8 @@ static int lang_new(lua_State * L)
         lang = lua_newuserdata(L, sizeof(struct tex_language *));
         *lang = get_language(lua_tonumber(L, 1));
         if (!*lang) {
-            lua_pushfstring(L, "lang.new(%d): undefined language", lua_tonumber(L, 1));
+            lua_pushfstring(L, "lang.new(%d): undefined language",
+                            lua_tonumber(L, 1));
             return lua_error(L);
         }
     }
@@ -229,6 +230,7 @@ static int do_lang_hyphenate(lua_State * L)
 
 
 static const struct luaL_reg langlib_d[] = {
+    /* *INDENT-OFF* */
     {"clear_patterns",    lang_clear_patterns},
     {"clear_hyphenation", lang_clear_hyphenation},
     {"patterns",          lang_patterns},
@@ -238,11 +240,13 @@ static const struct luaL_reg langlib_d[] = {
     {"preexhyphenchar",   lang_pre_exhyphen_char},
     {"postexhyphenchar",  lang_post_exhyphen_char},
     {"id",                lang_id},
+    /* *INDENT-ON* */
     {NULL, NULL}                /* sentinel */
 };
 
 
 static const struct luaL_reg langlib[] = {
+    /* *INDENT-OFF* */
     {"clear_patterns",    lang_clear_patterns},
     {"clear_hyphenation", lang_clear_hyphenation},
     {"patterns",          lang_patterns},
@@ -255,6 +259,7 @@ static const struct luaL_reg langlib[] = {
     {"clean",             do_lang_clean},
     {"hyphenate",         do_lang_hyphenate},
     {"new",               lang_new},
+    /* *INDENT-ON* */
     {NULL, NULL}                /* sentinel */
 };
 

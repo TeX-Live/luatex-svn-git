@@ -93,16 +93,16 @@ static int test_activechar(lua_State * L)
         }
         lua_pop(L, 1);
         if (cs != 0 && (n = zget_cs_text(cs)) && n > 0) {
-          unsigned char *s = (unsigned char *)makecstring(n);
+            unsigned char *s = (unsigned char *) makecstring(n);
             if (is_active_string(s)) {
-              free(s);
-              lua_pushboolean(L,1);
-              return 1;
+                free(s);
+                lua_pushboolean(L, 1);
+                return 1;
             }
             free(s);
         }
     }
-    lua_pushboolean(L,0);
+    lua_pushboolean(L, 0);
     return 1;
 }
 
@@ -143,11 +143,11 @@ static int run_get_csname_name(lua_State * L)
         lua_pop(L, 1);
 
         if (cs != 0 && (n = zget_cs_text(cs)) && n >= 0) {
-            unsigned char *s = (unsigned char *)makecstring(n);
+            unsigned char *s = (unsigned char *) makecstring(n);
             if (is_active_string(s))
-              lua_pushstring(L, (char *)(s+3));
+                lua_pushstring(L, (char *) (s + 3));
             else
-              lua_pushstring(L, (char *)s);
+                lua_pushstring(L, (char *) s);
         } else {
             lua_pushstring(L, "");
         }
@@ -255,7 +255,7 @@ static int run_build(lua_State * L)
             cmd = 12;
         }
         if (cmd == 13) {
-          cs = active_to_cs(chr,false);
+            cs = active_to_cs(chr, false);
             cmd = zget_eq_type(cs);
             chr = zget_equiv(cs);
         }

@@ -124,11 +124,11 @@ lua_node_filter(int filterid, int xextrainfo, halfword head_node,
 
 
 int
-lua_linebreak_callback (int is_broken, halfword head_node, halfword *new_head)
+lua_linebreak_callback(int is_broken, halfword head_node, halfword * new_head)
 {
     int a;
     register halfword *p;
-    int ret = 0; /* failure */
+    int ret = 0;                /* failure */
     lua_State *L = Luas[0];
     int callback_id = callback_defined(linebreak_filter_callback);
     if (head_node == null || vlink(head_node) == null || callback_id == 0)
@@ -138,14 +138,14 @@ lua_linebreak_callback (int is_broken, halfword head_node, halfword *new_head)
         return ret;
     }
     nodelist_to_lua(L, vlink(head_node));       /* arg 1 */
-    lua_pushboolean(L, is_broken);       /* arg 2 */
+    lua_pushboolean(L, is_broken);      /* arg 2 */
     if (lua_pcall(L, 2, 1, 0) != 0) {   /* no arg, 1 result */
         fprintf(stdout, "error: %s\n", lua_tostring(L, -1));
         lua_pop(L, 2);
         error();
         return ret;
     }
-    
+
     p = lua_touserdata(L, -1);
     if (p != NULL) {
         a = nodelist_from_lua(L);

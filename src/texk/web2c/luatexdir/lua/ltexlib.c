@@ -59,7 +59,7 @@ static int do_luacprint(lua_State * L, int partial, int deftable)
     size_t tsize;
     char *st, *sttemp;
     rope *rn;
-    integer cattable = (integer)deftable;
+    integer cattable = (integer) deftable;
     int startstrings = 1;
     n = lua_gettop(L);
     if (cattable != NO_CAT_TABLE) {
@@ -98,23 +98,28 @@ static int do_luacprint(lua_State * L, int partial, int deftable)
     return 0;
 }
 
-int luacwrite(lua_State * L) {
+int luacwrite(lua_State * L)
+{
     return do_luacprint(L, FULL_LINE, NO_CAT_TABLE);
 }
 
-int luacprint(lua_State * L) {
+int luacprint(lua_State * L)
+{
     return do_luacprint(L, FULL_LINE, DEFAULT_CAT_TABLE);
 }
 
-int luacsprint(lua_State * L) {
+int luacsprint(lua_State * L)
+{
     return do_luacprint(L, PARTIAL_LINE, DEFAULT_CAT_TABLE);
 }
 
-integer luacstring_cattable(void) {
+integer luacstring_cattable(void)
+{
     return (integer) read_spindle.tail->cattable;
 }
 
-int luacstring_partial(void) {
+int luacstring_partial(void)
+{
     return read_spindle.tail->partial;
 }
 
@@ -1186,55 +1191,56 @@ static int tex_scaletable(lua_State * L)
 
 static int tex_definefont(lua_State * L)
 {
-  char *csname;
-  int f, u;
-  str_number t;
-  int i = 1;
-  int a = 0;
-  if (!no_new_control_sequence) {
-    char *help[] = { "You can't create a new font inside a \\csname\\endcsname pair",
-        NULL
-    };
-    tex_error("Definition active", help);
-  }
-  if ((lua_gettop(L)==3) && lua_isboolean(L,1)) {
-    a = lua_toboolean(L,1);
-    i = 2;
-  }
-  csname = (char *)luaL_checkstring(L, i);
-  f = luaL_checkinteger(L, (i+1));
-  t = maketexlstring(csname, strlen(csname));
-  no_new_control_sequence = 0;
-  u = string_lookup(t);
-  no_new_control_sequence = 1;
-  if (a)
-    geq_define(u, set_font_cmd, f);
-  else
-    eq_define(u, set_font_cmd, f);
-  zeqtb[get_font_id_base()+f]=zeqtb[u]; 
-  hash_text(get_font_id_base()+f)=t;
-  return 0;
+    char *csname;
+    int f, u;
+    str_number t;
+    int i = 1;
+    int a = 0;
+    if (!no_new_control_sequence) {
+        char *help[] =
+            { "You can't create a new font inside a \\csname\\endcsname pair",
+            NULL
+        };
+        tex_error("Definition active", help);
+    }
+    if ((lua_gettop(L) == 3) && lua_isboolean(L, 1)) {
+        a = lua_toboolean(L, 1);
+        i = 2;
+    }
+    csname = (char *) luaL_checkstring(L, i);
+    f = luaL_checkinteger(L, (i + 1));
+    t = maketexlstring(csname, strlen(csname));
+    no_new_control_sequence = 0;
+    u = string_lookup(t);
+    no_new_control_sequence = 1;
+    if (a)
+        geq_define(u, set_font_cmd, f);
+    else
+        eq_define(u, set_font_cmd, f);
+    zeqtb[get_font_id_base() + f] = zeqtb[u];
+    hash_text(get_font_id_base() + f) = t;
+    return 0;
 }
 
 static int tex_hashpairs(lua_State * L)
 {
-  int cmd, chr;
-  str_number s=0;
-  int cs=1;
-  int eqtb_size = eqtb_top;
-  lua_newtable(L);
-  while (cs<eqtb_size) {
-    s = hash_text(cs);
-    if (s>0) {
-      lua_pushstring(L, makecstring(s));
-      cmd = zget_eq_type(cs);
-      chr = zget_equiv(cs);
-      make_token_table(L, cmd, chr, cs);
-      lua_rawset(L,-3);
+    int cmd, chr;
+    str_number s = 0;
+    int cs = 1;
+    int eqtb_size = eqtb_top;
+    lua_newtable(L);
+    while (cs < eqtb_size) {
+        s = hash_text(cs);
+        if (s > 0) {
+            lua_pushstring(L, makecstring(s));
+            cmd = zget_eq_type(cs);
+            chr = zget_equiv(cs);
+            make_token_table(L, cmd, chr, cs);
+            lua_rawset(L, -3);
+        }
+        cs++;
     }
-    cs++;
-  }  
-  return 1;
+    return 1;
 }
 
 
@@ -1312,6 +1318,6 @@ int luaopen_tex(lua_State * L)
     spindle_size = 1;
     /* a somewhat odd place for this assert, maybe */
     assert(command_names[data_cmd].command_offset == data_cmd);
-    assert(param_int_pars == (get_count_base()-get_int_base()));
+    assert(param_int_pars == (get_count_base() - get_int_base()));
     return 1;
 }

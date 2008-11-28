@@ -192,8 +192,8 @@ int run_saved_callback(int r, char *name, char *values, ...)
     lua_pushstring(L, name);
     lua_rawget(L, -2);
     if (lua_isfunction(L, -1)) {
-        saved_callback_count ++;
-        callback_count ++;
+        saved_callback_count++;
+        callback_count++;
         ret = do_run_callback(2, values, args);
     }
     va_end(args);
@@ -202,16 +202,17 @@ int run_saved_callback(int r, char *name, char *values, ...)
 }
 
 
-boolean get_callback(lua_State *L, int i) {
-  luaL_checkstack(L, 2, "out of stack space");
-  lua_rawgeti(L, LUA_REGISTRYINDEX, callback_callbacks_id);
-  lua_rawgeti(L, -1, i);
-  if (lua_isfunction(L, -1)) {
-    callback_count ++;
-    return true;
-  } else {
-    return false;
-  }
+boolean get_callback(lua_State * L, int i)
+{
+    luaL_checkstack(L, 2, "out of stack space");
+    lua_rawgeti(L, LUA_REGISTRYINDEX, callback_callbacks_id);
+    lua_rawgeti(L, -1, i);
+    if (lua_isfunction(L, -1)) {
+        callback_count++;
+        return true;
+    } else {
+        return false;
+    }
 }
 
 int run_and_save_callback(int i, char *values, ...)

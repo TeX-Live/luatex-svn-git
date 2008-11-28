@@ -236,7 +236,7 @@ int set_instancename(lua_State * L)
     int n;
     n = (int) luaL_checkinteger(L, -2);
     s = (char *) luaL_checkstring(L, -1);
-    lua_set_instancename(n,s);
+    lua_set_instancename(n, s);
     return 0;
 }
 
@@ -246,10 +246,10 @@ int get_instancename(lua_State * L)
     int n;
     n = (int) luaL_checkinteger(L, -1);
     s = lua_get_instancename(n);
-    if (s!= NULL) {
-      lua_pushstring(L, s);
+    if (s != NULL) {
+        lua_pushstring(L, s);
     } else {
-      lua_pushnil(L);
+        lua_pushnil(L);
     }
     return 1;
 }
@@ -259,10 +259,12 @@ int get_instancename(lua_State * L)
 
 
 static const struct luaL_reg lualib[] = {
+    /* *INDENT-OFF* */
     {"getinstancename", get_instancename},
     {"setinstancename", set_instancename},
     {"getbytecode",     get_bytecode},
     {"setbytecode",     set_bytecode},
+    /* *INDENT-ON* */
     {NULL, NULL}                /* sentinel */
 };
 

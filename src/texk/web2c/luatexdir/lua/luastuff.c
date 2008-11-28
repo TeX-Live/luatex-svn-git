@@ -24,7 +24,7 @@ static const char _svn_version[] =
     "$Id$ $URL$";
 
 lua_State *Luas[65536];
-char *     Luan[65536] = {NULL};
+char *Luan[65536] = { NULL };
 
 extern char *startup_filename;
 extern int safer_option;
@@ -127,7 +127,7 @@ void luainterpreter(int n)
     if (!nosocket_option) {
         lua_getglobal(L, "package");
         lua_getfield(L, -1, "loaded");
-        if (!lua_istable(L,-1)) {
+        if (!lua_istable(L, -1)) {
             lua_newtable(L);
             lua_setfield(L, -2, "loaded");
             lua_getfield(L, -1, "loaded");
@@ -135,17 +135,17 @@ void luainterpreter(int n)
         luaopen_socket_core(L);
         lua_setfield(L, -2, "socket.core");
         lua_pushnil(L);
-        lua_setfield(L, -2, "socket"); /* package.loaded.socket = nil */
+        lua_setfield(L, -2, "socket");  /* package.loaded.socket = nil */
 
         luaopen_mime_core(L);
         lua_setfield(L, -2, "mime.core");
         lua_pushnil(L);
-        lua_setfield(L, -2, "mime"); /* package.loaded.mime = nil */
-        lua_pop(L, 2); /* pop the tables */
-      
-        luatex_socketlua_open(L); /* preload the pure lua modules */
+        lua_setfield(L, -2, "mime");    /* package.loaded.mime = nil */
+        lua_pop(L, 2);          /* pop the tables */
+
+        luatex_socketlua_open(L);       /* preload the pure lua modules */
     }
-    
+
     /*luaopen_lpeg(L); */
     lua_pushcfunction(L, luaopen_lpeg);
     lua_pushstring(L, "lpeg");
@@ -288,11 +288,11 @@ void luacall(int n, int p, int nameptr)
     s = tokenlist_to_cstring(p, 1, &l);
     ls.s = s;
     ls.size = l;
-    
+
     if (ls.size > 0) {
         if (nameptr > 0) {
             lua_id = tokenlist_to_cstring(nameptr, 1, &l);
-        } else if (Luan[n]!= NULL) {
+        } else if (Luan[n] != NULL) {
             lua_id = xstrdup(Luan[n]);
         } else {
             lua_id = xmalloc(20);
@@ -304,7 +304,7 @@ void luacall(int n, int p, int nameptr)
             Luas[n] = luatex_error(Luas[n], (i == LUA_ERRSYNTAX ? 0 : 1));
         } else {
             int base = lua_gettop(Luas[n]);     /* function index */
-            lua_checkstack(Luas[n],1);
+            lua_checkstack(Luas[n], 1);
             lua_pushcfunction(Luas[n], lua_traceback);  /* push traceback function */
             lua_insert(Luas[n], base);  /* put it under chunk  */
             i = lua_pcall(Luas[n], 0, 0, base);
@@ -333,8 +333,8 @@ void luatokencall(int n, int p, int nameptr)
     ls.size = l;
     if (ls.size > 0) {
         if (nameptr > 0) {
-          lua_id = tokenlist_to_cstring(nameptr, 1, &l);
-        } else if (Luan[n]!= NULL) {
+            lua_id = tokenlist_to_cstring(nameptr, 1, &l);
+        } else if (Luan[n] != NULL) {
             lua_id = xstrdup(Luan[n]);
         } else {
             lua_id = xmalloc(20);
@@ -346,7 +346,7 @@ void luatokencall(int n, int p, int nameptr)
             Luas[n] = luatex_error(Luas[n], (i == LUA_ERRSYNTAX ? 0 : 1));
         } else {
             int base = lua_gettop(Luas[n]);     /* function index */
-            lua_checkstack(Luas[n],1);
+            lua_checkstack(Luas[n], 1);
             lua_pushcfunction(Luas[n], lua_traceback);  /* push traceback function */
             lua_insert(Luas[n], base);  /* put it under chunk  */
             i = lua_pcall(Luas[n], 0, 0, base);
@@ -411,19 +411,20 @@ lua_State *luatex_error(lua_State * L, int is_fatal)
     }
 }
 
-char *lua_get_instancename (int n) 
+char *lua_get_instancename(int n)
 {
-    if (n>=0 && n<=65535) {
+    if (n >= 0 && n <= 65535) {
         return Luan[n];
     }
     return NULL;
 }
 
 
-void lua_set_instancename (int n, char *s)
+void lua_set_instancename(int n, char *s)
 {
-    if (n>=0 && n<=65535) {
-        if (Luan[n]) xfree(Luan[n]);
+    if (n >= 0 && n <= 65535) {
+        if (Luan[n])
+            xfree(Luan[n]);
         Luan[n] = xstrdup(s);
     }
 }
