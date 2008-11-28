@@ -22,8 +22,8 @@
 #ifndef LUATEXFONT_H
 #  define LUATEXFONT_H 1
 
-#include "ptexlib.h"
-#include "sfnt.h"
+#  include "ptexlib.h"
+#  include "sfnt.h"
 
 /* texfont.c */
 extern charinfo *copy_charinfo(charinfo * ci);

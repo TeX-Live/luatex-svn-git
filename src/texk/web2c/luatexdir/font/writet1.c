@@ -49,7 +49,7 @@ static const char _svn_version[] =
 integer t1_length1, t1_length2, t1_length3;
 static integer t1_save_offset;
 static integer t1_fontname_offset;
-extern char *fb_array; /* from luatexdir/utils.c */
+extern char *fb_array;          /* from luatexdir/utils.c */
 
 static unsigned char *t1_buffer = NULL;
 static integer t1_size = 0;
@@ -289,23 +289,23 @@ char **load_enc_file(char *enc_name)
             }
         }
     } else {
-      ftemp = kpse_find_file((char *) (nameoffile + 1), kpse_enc_format, 0);
-      if (ftemp == NULL) {
-        pdftex_fail("cannot find encoding file for reading");
-      } else {
-        free(nameoffile);
-        namelength = strlen(ftemp);
-        nameoffile = xmalloc(namelength + 2);
-        strcpy((char *) (nameoffile + 1), ftemp);
-        free(ftemp);
-      }
+        ftemp = kpse_find_file((char *) (nameoffile + 1), kpse_enc_format, 0);
+        if (ftemp == NULL) {
+            pdftex_fail("cannot find encoding file for reading");
+        } else {
+            free(nameoffile);
+            namelength = strlen(ftemp);
+            nameoffile = xmalloc(namelength + 2);
+            strcpy((char *) (nameoffile + 1), ftemp);
+            free(ftemp);
+        }
     }
     callback_id = callback_defined(read_enc_file_callback);
     enc_curbyte = 0;
     enc_size = 0;
     if (callback_id > 0) {
         if (run_callback(callback_id, "S->bSd", (char *) (nameoffile + 1),
-                          &file_opened, &enc_buffer, &enc_size)) {
+                         &file_opened, &enc_buffer, &enc_size)) {
             if ((!file_opened) || enc_size == 0) {
                 pdftex_fail("cannot open encoding file for reading");
             }
@@ -1113,7 +1113,7 @@ static void cs_store(boolean is_subr)
         cs_token_pair = check_cs_token_pair();
     ptr->len = t1_buf_ptr - t1_buf_array;
     ptr->cslen = t1_cslen;
-    xfree(ptr->data); /* mem leak? */
+    xfree(ptr->data);           /* mem leak? */
     ptr->data = xtalloc(ptr->len, byte);
     memcpy(ptr->data, t1_buf_array, ptr->len);
     ptr->valid = true;

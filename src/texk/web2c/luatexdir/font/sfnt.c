@@ -507,7 +507,7 @@ int sfnt_require_table(sfnt * sfont, const char *tag, int must_exist)
  */
 
 #ifdef pdfTeX
-#include "luatexfont.h"
+#  include "luatexfont.h"
 #  undef MIN
 #  define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #  define STREAM_COMPRESS

@@ -97,20 +97,20 @@ const char *const cff_stdstr[CFF_STDSTR_MAX] = {
     "otilde", "scaron", "uacute", "ucircumflex", "udieresis",
     "ugrave", "yacute", "ydieresis", "zcaron", "exclamsmall",
     "Hungarumlautsmall", "dollaroldstyle", "dollarsuperior", "ampersandsmall",
-        "Acutesmall",
+    "Acutesmall",
     "parenleftsuperior", "parenrightsuperior", "twodotenleader",
-        "onedotenleader", "zerooldstyle",
+    "onedotenleader", "zerooldstyle",
     "oneoldstyle", "twooldstyle", "threeoldstyle", "fouroldstyle",
-        "fiveoldstyle",
+    "fiveoldstyle",
     "sixoldstyle", "sevenoldstyle", "eightoldstyle", "nineoldstyle",
-        "commasuperior",
+    "commasuperior",
     "threequartersemdash", "periodsuperior", "questionsmall", "asuperior",
-        "bsuperior",
+    "bsuperior",
     "centsuperior", "dsuperior", "esuperior", "isuperior", "lsuperior",
     "msuperior", "nsuperior", "osuperior", "rsuperior", "ssuperior",
     "tsuperior", "ff", "ffi", "ffl", "parenleftinferior",
     "parenrightinferior", "Circumflexsmall", "hyphensuperior", "Gravesmall",
-        "Asmall",
+    "Asmall",
     "Bsmall", "Csmall", "Dsmall", "Esmall", "Fsmall",
     "Gsmall", "Hsmall", "Ismall", "Jsmall", "Ksmall",
     "Lsmall", "Msmall", "Nsmall", "Osmall", "Psmall",
@@ -118,27 +118,27 @@ const char *const cff_stdstr[CFF_STDSTR_MAX] = {
     "Vsmall", "Wsmall", "Xsmall", "Ysmall", "Zsmall",
     "colonmonetary", "onefitted", "rupiah", "Tildesmall", "exclamdownsmall",
     "centoldstyle", "Lslashsmall", "Scaronsmall", "Zcaronsmall",
-        "Dieresissmall",
+    "Dieresissmall",
     "Brevesmall", "Caronsmall", "Dotaccentsmall", "Macronsmall", "figuredash",
     "hypheninferior", "Ogoneksmall", "Ringsmall", "Cedillasmall",
-        "questiondownsmall",
+    "questiondownsmall",
     "oneeighth", "threeeighths", "fiveeighths", "seveneighths", "onethird",
     "twothirds", "zerosuperior", "foursuperior", "fivesuperior", "sixsuperior",
     "sevensuperior", "eightsuperior", "ninesuperior", "zeroinferior",
-        "oneinferior",
+    "oneinferior",
     "twoinferior", "threeinferior", "fourinferior", "fiveinferior",
-        "sixinferior",
+    "sixinferior",
     "seveninferior", "eightinferior", "nineinferior", "centinferior",
-        "dollarinferior",
+    "dollarinferior",
     "periodinferior", "commainferior", "Agravesmall", "Aacutesmall",
-        "Acircumflexsmall",
+    "Acircumflexsmall",
     "Atildesmall", "Adieresissmall", "Aringsmall", "AEsmall", "Ccedillasmall",
     "Egravesmall", "Eacutesmall", "Ecircumflexsmall", "Edieresissmall",
-        "Igravesmall",
+    "Igravesmall",
     "Iacutesmall", "Icircumflexsmall", "Idieresissmall", "Ethsmall",
-        "Ntildesmall",
+    "Ntildesmall",
     "Ogravesmall", "Oacutesmall", "Ocircumflexsmall", "Otildesmall",
-        "Odieresissmall",
+    "Odieresissmall",
     "OEsmall", "Oslashsmall", "Ugravesmall", "Uacutesmall", "Ucircumflexsmall",
     "Udieresissmall", "Yacutesmall", "Thornsmall", "Ydieresissmall",
     "001.000", "001.001", "001.002", "001.003",
@@ -3073,9 +3073,9 @@ void write_cff(cff_font * cffont, fd_entry * fd)
     {
         int i;
         for (i = 0; i < cs_count; i++) {
-          code = i;
-          glyph->id = code;
-          DO_COPY_CHARSTRING();
+            code = i;
+            glyph->id = code;
+            DO_COPY_CHARSTRING();
         }
     }
 
@@ -3381,7 +3381,7 @@ void write_cid_cff(cff_font * cffont, fd_entry * fd)
  * I have defined a utility function in luafflib.c that does exactly that.
  * If it works out ok, I will clean up this code.
  */
-extern int ff_createcff(char *, unsigned char **, integer *); /* libs/luafontforge/src/luafflib.c */
+extern int ff_createcff(char *, unsigned char **, integer *);   /* libs/luafontforge/src/luafflib.c */
 
 void writetype1w(fd_entry * fd)
 {
@@ -3410,7 +3410,7 @@ void writetype1w(fd_entry * fd)
             tex_printf("<<%s", cur_file_name);
     }
 
-    (void)ff_createcff(ff->ff_path, &tfm_buffer, &tfm_size);
+    (void) ff_createcff(ff->ff_path, &tfm_buffer, &tfm_size);
 
     if (tfm_size > 0) {
         cff = read_cff(tfm_buffer, tfm_size, 0);

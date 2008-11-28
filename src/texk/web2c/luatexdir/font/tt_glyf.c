@@ -224,7 +224,7 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
 
         /* dvipdfmx does this elsewhere! */
         fd_cur->font_dim[STEMV_CODE].val =
-          (os2->usWeightClass/65)*(os2->usWeightClass/65)+50 ;
+            (os2->usWeightClass / 65) * (os2->usWeightClass / 65) + 50;
     }
 
     if (sfnt_find_table_pos(sfont, "vmtx") > 0) {

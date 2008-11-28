@@ -41,7 +41,7 @@ integer ttf_curbyte = 0;
 typedef struct {
     char *name;                 /* name of glyph */
     long code;                  /* charcode in case of subfonts */
-    long newindex;             /* new index of glyph in output file */
+    long newindex;              /* new index of glyph in output file */
 
 } ttfenc_entry;
 
@@ -98,8 +98,8 @@ integer ttf_length;
 
 #include "macnames.c"
 
-extern char *fb_array; /* from luatexdir/utils.c */
-extern char charsetstr[]; /* from mpdir/psout.w */
+extern char *fb_array;          /* from luatexdir/utils.c */
+extern char charsetstr[];       /* from mpdir/psout.w */
 
 static const char *newtabnames[] = {
     "OS/2",
@@ -372,14 +372,15 @@ static void ttf_read_name(void)
     if (!fd_cur->font_dim[FONTNAME_CODE].set) {
         for (i = 0; i < name_record_num; i++) {
             if (name_tab[i].platform_id == 3 &&
-               (name_tab[i].encoding_id == 0 || name_tab[i].encoding_id == 1) && 
-                name_tab[i].name_id == 6) {
+                (name_tab[i].encoding_id == 0 || name_tab[i].encoding_id == 1)
+                && name_tab[i].name_id == 6) {
                 xfree(fd_cur->fontname);
                 assert(name_tab[i].length < sizeof(buf));
                 for (j = 0, p = buf; j < name_tab[i].length; j += 2)
                     *p++ = name_buf[name_tab[i].offset + j + 1];
                 *p = 0;
-                fd_cur->fontname = xstrdup(strip_spaces_and_delims(buf, strlen(buf)));
+                fd_cur->fontname =
+                    xstrdup(strip_spaces_and_delims(buf, strlen(buf)));
                 fd_cur->font_dim[FONTNAME_CODE].set = true;
                 break;
             }

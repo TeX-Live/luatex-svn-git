@@ -800,7 +800,7 @@ void create_cid_fontdescriptor(fo_entry * fo, internalfontnumber f)
 
 static void mark_cid_subset_glyphs(fo_entry * fo, internal_font_number f)
 {
-  int i, k, l;
+    int i, k, l;
     glw_entry *j;
     void *aa;
     for (k = 1; k <= max_font_id(); k++) {
@@ -810,12 +810,12 @@ static void mark_cid_subset_glyphs(fo_entry * fo, internal_font_number f)
                 if (char_exists(k, i) && char_used(k, i)) {
                     j = xtalloc(1, glw_entry);
                     j->id = char_index(k, i);
-                    j->wd = divide_scaled_n(char_width(k, i), l,10000.0);
+                    j->wd = divide_scaled_n(char_width(k, i), l, 10000.0);
                     if ((glw_entry *) avl_find(fo->fd->gl_tree, j) == NULL) {
                         aa = avl_probe(fo->fd->gl_tree, j);
                         assert(aa != NULL);
                     } else {
-                      xfree(j);
+                        xfree(j);
                     }
                 }
             }
@@ -859,8 +859,9 @@ static void write_cid_charwidth_array(fo_entry * fo)
         }
         if (glyph->id == (i + 1))
             pdf_puts(" ");
-        if (j<0) {
-          pdf_puts("-"); j = -j;
+        if (j < 0) {
+            pdf_puts("-");
+            j = -j;
         }
         pdf_printf("%i", (j / 10));
         if ((j % 10) != 0)

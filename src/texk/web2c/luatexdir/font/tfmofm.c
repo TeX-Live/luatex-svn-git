@@ -662,13 +662,15 @@ int read_tfm_info(internalfontnumber f, char *cnom, char *caire, scaled s)
     if (lf !=
         (header_length + lh + ncw + nw + nh + nd + ni + nlw + nk + neew + np))
         tfm_abort;
-    if ((nw==0)||(nh==0)||(nd==0)||(ni==0)) tfm_abort;
+    if ((nw == 0) || (nh == 0) || (nd == 0) || (ni == 0))
+        tfm_abort;
 
     /* 
        We check to see that the \.{TFM} file doesn't end prematurely; but
        no error message is given for files having more than |lf| words.
      */
-    if (lf*4 > tfm_size) tfm_abort;
+    if (lf * 4 > tfm_size)
+        tfm_abort;
 
     /* @<Use size fields to allocate font information@>; */
 
