@@ -19,8 +19,8 @@
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 #include "ptexlib.h"
-
 #include "luatex-api.h"
+#include "luatexfont.h"
 
 static const char _svn_version[] =
     "$Id$ $URL$";
@@ -1387,12 +1387,6 @@ int make_vf_table(lua_State * L, char *cnom, scaled atsize)
     xfree(vf_buffer);
     return 1;
 }
-
-
-extern void replace_packet_fonts(internal_font_number f, integer * old_fontid,
-                                 integer * new_fontid, int count);
-extern integer *packet_local_fonts(internal_font_number f, integer * num);
-extern internal_font_number auto_expand_font(internal_font_number f, integer e);
 
 
 /* This function is called from |do_vf|, and fixes up the virtual data 

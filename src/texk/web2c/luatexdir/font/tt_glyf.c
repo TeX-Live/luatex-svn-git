@@ -29,6 +29,7 @@
 #include "sfnt.h"
 #include "tt_table.h"
 #include "tt_glyf.h"
+#include "writettf.h"
 
 static const char _svn_version[] =
     "$Id$ $URL$";
@@ -171,22 +172,6 @@ static int glyf_cmp(const void *v1, const void *v2)
 
     return cmp;
 }
-
-/*
- * TrueType outline data.
- */
-#define ARG_1_AND_2_ARE_WORDS     (1 << 0)
-#define ARGS_ARE_XY_VALUES        (1 << 1)
-#define ROUND_XY_TO_GRID          (1 << 2)
-#define WE_HAVE_A_SCALE           (1 << 3)
-#define RESERVED                  (1 << 4)
-#define MORE_COMPONENT            (1 << 5)
-#define WE_HAVE_AN_X_AND_Y_SCALE  (1 << 6)
-#define WE_HAVE_A_TWO_BY_TWO      (1 << 7)
-#define WE_HAVE_INSTRUCTIONS      (1 << 8)
-#define USE_MY_METRICS            (1 << 9)
-
-extern fd_entry * fd_cur;
 
 int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
 {
@@ -375,7 +360,7 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
                     p += 4;
                 else if (flags & WE_HAVE_A_TWO_BY_TWO)  /* F2Dot14 x 4 */
                     p += 8;
-            } while (flags & MORE_COMPONENT);
+            } while (flags & MORE_COMPONENTS);
             /*
              * TrueType instructions comes here:
              *  length_of_instruction (ushort)

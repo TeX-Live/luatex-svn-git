@@ -34,7 +34,7 @@
 #  include "mem.h"
 #  include "mfileio.h"
 #else
-extern void pdftex_fail(const char *fmt, ...);  /* utils.c */
+#  include "ptexlib.h"
 #endif
 
 #include "sfnt.h"
@@ -507,9 +507,7 @@ int sfnt_require_table(sfnt * sfont, const char *tag, int must_exist)
  */
 
 #ifdef pdfTeX
-extern pdf_obj *pdf_new_stream(void);
-extern void pdf_add_stream(pdf_obj *, unsigned char *, long);
-extern void pdf_release_obj(pdf_obj *);
+#include "luatexfont.h"
 #  undef MIN
 #  define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #  define STREAM_COMPRESS

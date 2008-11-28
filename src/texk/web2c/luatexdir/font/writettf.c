@@ -98,8 +98,8 @@ integer ttf_length;
 
 #include "macnames.c"
 
-extern char *fb_array;
-extern char charsetstr[];
+extern char *fb_array; /* from luatexdir/utils.c */
+extern char charsetstr[]; /* from mpdir/psout.w */
 
 static const char *newtabnames[] = {
     "OS/2",

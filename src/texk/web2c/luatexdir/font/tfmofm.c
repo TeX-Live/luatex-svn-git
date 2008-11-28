@@ -19,6 +19,7 @@
 
 #include "ptexlib.h"
 #include "luatex-api.h"
+#include "luatexfont.h"
 
 static const char _svn_version[] =
     "$Id$ $URL$";
@@ -529,8 +530,6 @@ typedef struct tfmcharacterinfo {
     integer _remainder;
     unsigned char _tag;
 } tfmcharacterinfo;
-
-extern charinfo *copy_charinfo(charinfo * ci);
 
 int read_tfm_info(internalfontnumber f, char *cnom, char *caire, scaled s)
 {

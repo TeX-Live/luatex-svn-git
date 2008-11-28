@@ -3381,8 +3381,7 @@ void write_cid_cff(cff_font * cffont, fd_entry * fd)
  * I have defined a utility function in luafflib.c that does exactly that.
  * If it works out ok, I will clean up this code.
  */
-
-extern int ff_createcff(char *, unsigned char **, integer *);
+extern int ff_createcff(char *, unsigned char **, integer *); /* libs/luafontforge/src/luafflib.c */
 
 void writetype1w(fd_entry * fd)
 {

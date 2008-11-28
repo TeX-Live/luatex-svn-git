@@ -49,7 +49,7 @@ static const char _svn_version[] =
 integer t1_length1, t1_length2, t1_length3;
 static integer t1_save_offset;
 static integer t1_fontname_offset;
-extern char *fb_array;
+extern char *fb_array; /* from luatexdir/utils.c */
 
 static unsigned char *t1_buffer = NULL;
 static integer t1_size = 0;
@@ -143,11 +143,6 @@ static const char *standard_glyph_names[256] = {
     "oslash", "oe", "germandbls", notdef, notdef, notdef, notdef
 };
 
-
-integer t1_length1, t1_length2, t1_length3;
-static integer t1_save_offset;
-static integer t1_fontname_offset;
-extern char *fb_array;
 static fd_entry *fd_cur;
 
 static char charstringname[] = "/CharStrings";

@@ -20,6 +20,8 @@
 
 /* $Id$ */
 
+#ifndef WRITETTF_H
+#  define WRITETTF_H 1
 typedef signed char TTF_CHAR;
 typedef unsigned char TTF_BYTE;
 typedef signed short TTF_SHORT;
@@ -43,6 +45,9 @@ typedef unsigned short TTF_F2DOT14;
 #define TTF_UFWORD_SIZE  2
 #define TTF_F2DOT14_SIZE 2
 
+/*
+ * TrueType outline data.
+ */
 #define ARG_1_AND_2_ARE_WORDS       (1<<0)
 #define ARGS_ARE_XY_VALUES          (1<<1)
 #define ROUND_XY_TO_GRID            (1<<2)
@@ -168,3 +173,4 @@ extern FILE *ttf_file;
 
 extern long ttf_putnum(int s, long n);
 extern long ttf_getnum(int s);
+#endif

@@ -42,6 +42,7 @@
  */
 
 #include "ptexlib.h"
+#include "luatexfont.h"
 
 static const char _svn_version[] =
     "$Id$ $URL$";
@@ -56,7 +57,6 @@ static const char _svn_version[] =
 static FILE *pkfile ;
 */
 
-extern FILE *t3_file;
 #define pkfile t3_file
 
 static shalfword pkbyte(void)
