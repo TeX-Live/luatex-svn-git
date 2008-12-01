@@ -1,6 +1,6 @@
 
 /* some dummy functions and variables so that a few ff source files can be ignored */
-
+#if 0
 #define FONTFORGE_CONFIG_NO_WINDOWING_UI 1
 
 #include "pfaeditui.h"
@@ -5550,3 +5550,4 @@ return( tab );
 
 void initforinstrs(SplineChar *sc) {
 }
+#endif

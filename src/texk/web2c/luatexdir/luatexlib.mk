@@ -133,10 +133,11 @@ LUAFFSRCDIR=$(srcdir)/$(LUAFFDIR)
 LUAFFDEP=$(LUAFFDIR)/libff.a
 $(LUAFFDEP): always
 	mkdir -p $(LUAFFDIR) && cp -f $(LUAFFSRCDIR)/Makefile $(LUAFFDIR)
-	mkdir -p $(LUAFFDIR)/fontforge && cp -f $(LUAFFSRCDIR)/fontforge/fontforge/Makefile $(LUAFFDIR)/fontforge
-	mkdir -p $(LUAFFDIR)/Unicode && cp -f $(LUAFFSRCDIR)/fontforge/Unicode/Makefile $(LUAFFDIR)/Unicode
+	mkdir -p $(LUAFFDIR)/fontforge && (cd $(LUAFFDIR)/fontforge && ../$(LUAFFSRCDIR)/fontforge/configure \
+      --enable-static --disable-shared --disable-freetype \
+      --without-freetype-src --without-cairo --without-python --with-regular-link \
+      --without-pango --without-iconv --without-x)
 	cd $(LUAFFDIR) && $(MAKE)
-
 
 # luazlib
 LUAZLIBDIR=../../libs/luazlib

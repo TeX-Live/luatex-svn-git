@@ -12,11 +12,19 @@
 #include "pfaedit.h"
 #include "ustring.h"
 
+#ifdef OLD_FF
 extern void  LoadPrefs(void);
+#endif
 
+#ifdef OLD_FF
 extern char **gww_errors;
 extern int gww_error_count;
 extern void gwwv_errors_free (void);
+#else
+char **gww_errors;
+int gww_error_count;
+#define gwwv_errors_free()
+#endif
 
 #define FONT_METATABLE "fontforge.splinefont"
 
@@ -141,7 +149,7 @@ ff_open (lua_State *L) {
 	  lua_error(L);
 	} else {
 	  lua_ff_pushfont(L,sf);
-	  if (gww_error_count>0) {
+	  if (gww_error_count>0) { /* can't happen */
 		lua_newtable(L);
 		for (i=0;i<gww_error_count;i++) {
 		  lua_pushstring(L,gww_errors[i]);
@@ -681,13 +689,14 @@ handle_splinechar (lua_State *L,struct splinechar *glyph, int hasvmetrics) {
   
   dump_stringfield(L,"name",        glyph->name);
   dump_intfield(L,"unicode",     glyph->unicodeenc);
+#ifdef OLD_FF
   lua_createtable(L,4,0);
   lua_pushnumber(L,1);  lua_pushnumber(L,glyph->xmin); lua_rawset(L,-3);
   lua_pushnumber(L,2);  lua_pushnumber(L,glyph->ymin); lua_rawset(L,-3);
   lua_pushnumber(L,3);  lua_pushnumber(L,glyph->xmax); lua_rawset(L,-3);
   lua_pushnumber(L,4);  lua_pushnumber(L,glyph->ymax); lua_rawset(L,-3);
   lua_setfield(L,-2,"boundingbox");
-
+#endif
   /*dump_intfield(L,"orig_pos",       glyph->orig_pos);*/
   if (hasvmetrics)
     dump_intfield(L,"vwidth",         glyph->vwidth);
@@ -784,11 +793,12 @@ handle_splinechar (lua_State *L,struct splinechar *glyph, int hasvmetrics) {
     dump_intfield(L,"tex_height",              glyph->tex_height);  
   if (glyph->tex_depth != TEX_UNDEF)
     dump_intfield(L,"tex_depth",               glyph->tex_depth);  
+#ifdef OLD_FF
   if (glyph->tex_sub_pos != TEX_UNDEF)
     dump_intfield(L,"tex_sub_pos",             glyph->tex_sub_pos);  
   if (glyph->tex_super_pos != TEX_UNDEF)
     dump_intfield(L,"tex_super_pos",           glyph->tex_super_pos);  
-    
+#endif   
   /*  struct altuni { struct altuni *next; int unienc; } *altuni; */
 }
 
@@ -844,9 +854,11 @@ handle_pfminfo (lua_State *L, struct pfminfo pfm) {
   dump_intfield (L, "pfmfamily",         pfm.pfmfamily);
   dump_intfield (L, "weight",            pfm.weight);
   dump_intfield (L, "width",             pfm.width);
+#ifdef OLD_FF
   dump_intfield (L, "avgwidth",          pfm.avgwidth);
   dump_intfield (L, "firstchar",         pfm.firstchar);
   dump_intfield (L, "lastchar",          pfm.lastchar);
+#endif
   lua_createtable(L,0,10);
   dump_enumfield(L,"familytype",      pfm.panose[0], panose_values_0);
   dump_enumfield(L,"serifstyle",      pfm.panose[1], panose_values_1);
@@ -883,10 +895,12 @@ handle_pfminfo (lua_State *L, struct pfminfo pfm) {
   dump_intfield (L, "os2_strikeypos",     pfm.os2_strikeypos  );
   dump_lstringfield (L, "os2_vendor",    pfm.os2_vendor, 4);
   dump_intfield (L, "os2_family_class",   pfm.os2_family_class);
+#ifdef OLD_FF
   dump_intfield (L, "os2_xheight",        pfm.os2_xheight);
   dump_intfield (L, "os2_capheight",      pfm.os2_capheight);
   dump_intfield (L, "os2_defaultchar",    pfm.os2_defaultchar);
   dump_intfield (L, "os2_breakchar",      pfm.os2_breakchar);
+#endif
 }
 
 
@@ -1388,13 +1402,15 @@ handle_splinefont(lua_State *L, struct splinefont *sf) {
   dump_floatfield (L,"italicangle",     sf->italicangle);
   dump_floatfield (L,"upos",            sf->upos);
   dump_floatfield (L,"uwidth",          sf->uwidth);
-  dump_intfield   (L,"units_per_em",    sf->units_per_em);
   dump_intfield   (L,"ascent",          sf->ascent);
   dump_intfield   (L,"descent",         sf->descent);
-  dump_intfield   (L,"vertical_origin", sf->vertical_origin);
   dump_intfield   (L,"uniqueid",        sf->uniqueid);
   dump_intfield   (L,"glyphcnt",        sf->glyphcnt);
   dump_intfield   (L,"glyphmax",        sf->glyphmax);
+#ifdef OLD_FF
+  dump_intfield   (L,"units_per_em",    sf->units_per_em);
+  dump_intfield   (L,"vertical_origin", sf->vertical_origin);
+#endif
 
   if (sf->possub != NULL) {
     lua_newtable(L);
@@ -1458,7 +1474,9 @@ handle_splinefont(lua_State *L, struct splinefont *sf) {
 
   dump_intfield(L,"changed",                   sf->changed);
   dump_intfield(L,"hasvmetrics",               sf->hasvmetrics);
+#ifdef OLD_FF
   dump_intfield(L,"order2",                    sf->order2);
+#endif
   dump_intfield(L,"strokedfont",               sf->strokedfont);
   dump_intfield(L,"weight_width_slope_only",   sf->weight_width_slope_only);
   dump_intfield(L,"head_optimized_for_cleartype",sf->head_optimized_for_cleartype);
@@ -1670,11 +1688,16 @@ ff_info (lua_State *L) {
 	lua_pushfstring(L,"font loading failed for %s (read error)\n", fontname);
 	lua_error(L);
   }
+#ifdef OLD_FF
   sf = ReadSplineFontInfo((char *)fontname,openflags);
+#else
+  sf = ReadSplineFont((char *)fontname,openflags);
+#endif
   if (sf==NULL) {
     lua_pushfstring(L,"font loading failed for %s\n", fontname);
     lua_error(L);
   } else {
+#ifdef OLD_FF
 	if (sf->next != NULL) {
 	  i = 1;
 	  lua_newtable(L);
@@ -1686,9 +1709,12 @@ ff_info (lua_State *L) {
 		sf = sf->next;
 	  }
 	} else {
+#endif
 	  do_ff_info(L, sf);
 	  SplineFontFree(sf);
+#ifdef OLD_FF
 	}	  
+#endif
   }
   return 1;
 }
@@ -1733,7 +1759,7 @@ static void ff_do_cff (SplineFont *sf, char *filename, unsigned char **buf, int 
 
   map = EncMap1to1(sf->glyphcnt);
 
-  if(WriteTTFFont(filename, sf, ff_cff, bsizes, bf_none, flags, map)) {
+  if(WriteTTFFont(filename, sf, ff_cff, bsizes, bf_none, flags, map, ly_fore)) {
     /* success */
     f = fopen(filename,"rb");
     readbinfile(f , buf, bufsiz);
@@ -1776,11 +1802,16 @@ int ff_get_ttc_index(char *ffname, char*psname) {
   int openflags = 1;
   int index = 0;
 
+#ifdef OLD_FF
   sf = ReadSplineFontInfo((char *)ffname,openflags);
+#else
+  sf = ReadSplineFont((char *)ffname,openflags);
+#endif
   if (sf==NULL) {
     perror("font loading failed unexpectedly\n");
     exit(EXIT_FAILURE);
   } 
+#ifdef OLD_FF
   while (sf != NULL) {
 	if (strcmp(sf->fontname,psname)==0) {
 	  index = i;
@@ -1789,6 +1820,7 @@ int ff_get_ttc_index(char *ffname, char*psname) {
 	i++;
 	sf = sf->next;
   }
+#endif
   return index;
 }
 
