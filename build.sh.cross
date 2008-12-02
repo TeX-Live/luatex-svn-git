@@ -121,6 +121,17 @@ then
               --without-xetex     \
               --disable-largefile \
               || exit 1 
+	( mkdir -p libs/luafontforge/fontforge ;
+      cd libs/luafontforge/fontforge ;
+      ../../../../src/libs/luafontforge/fontforge/configure \
+            --target=i386-mingw32 \
+            --build=i386-mingw32  \
+            --host=i386-linux     \
+        --enable-static        \
+        --disable-shared       \
+        --with-regular-link    \
+        --without-x            \
+        --without-iconv  )          || exit 1
 fi
 
 # make the binaries

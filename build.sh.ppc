@@ -120,6 +120,14 @@ then
               --without-xetex     \
               --disable-largefile \
               || exit 1 
+	( mkdir -p libs/luafontforge/fontforge ;
+      cd libs/luafontforge/fontforge ;
+      ../../../../src/libs/luafontforge/fontforge/configure \
+        --enable-static        \
+        --disable-shared       \
+        --with-regular-link    \
+        --without-x            \
+        --without-iconv  )          || exit 1
 fi
 
 # make the binaries

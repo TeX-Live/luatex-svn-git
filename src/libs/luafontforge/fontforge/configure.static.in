@@ -203,30 +203,6 @@ dnl linux has integer types in stdint.h, solaris, vms in inttypes.h
 
 AC_CHECK_HEADERS([stdint.h])
 
-dnl Is there a better way to add a directory to the include path?
-
-FreeType2_IncRoot=
-if sh -c "freetype-config --prefix" >/dev/null 2>&1 ; then
- FreeType2_IncRoot=`freetype-config --prefix`
- AC_CHECK_FILE($FreeType2_IncRoot/include/freetype2,CFLAGS="$CFLAGS -I$FreeType2_IncRoot/include/freetype2/",FreeType2_IncRoot=)
-fi
-
-if test "FreeType2_IncRoot" = "" >/dev/null 2>&1 ; then
- AC_CHECK_FILE(/usr/include/freetype2,[CFLAGS="$CFLAGS -I/usr/include/freetype2/"
-     FreeType2_IncRoot="/usr"
- ],[
- AC_CHECK_FILE(/usr/local/include/freetype2,[CFLAGS="$CFLAGS -I/usr/local/include -I/usr/local/include/freetype2/"
-     FreeType2_IncRoot="/usr/local/"
- ],[
- AC_CHECK_FILE(/usr/X11R6/include/freetype2,[CFLAGS="$CFLAGS -I/usr/X11R6/include -I/usr/X11R6/include/freetype2/"
-     FreeType2_IncRoot="/usr/X11R6/"
- ],AC_DEFINE(_NO_FREETYPE))])])
-fi
-
-AC_CHECK_FILE(/usr/include/libxml2/libxml,[CFLAGS="$CFLAGS -I/usr/include/libxml2/"],[
- AC_CHECK_FILE(/usr/local/include/libxml2/libxml,[CFLAGS="$CFLAGS -I/usr/local/include -I/usr/local/include/libxml2/"],
-  AC_DEFINE(_NO_LIBXML))])
-
 dnl Some old versions of lib(un)gif don't work for us, they've got the
 dnl Function argument in the wrong place. So check the header files.
 dnl check for both libgif and libungif, I think they use the same args.

@@ -2,7 +2,7 @@
 # define _FF_CONFIG_H	1
 #define LUA_FF_LIB 1
 #undef HAVE_DLFCN_H
-#undef _NO_PYTHON
+#define _NO_PYTHON 1
 #undef HAVE_ICONV_H
 #undef HAVE_STDINT_H
 #undef HAVE_LANGINFO_H
@@ -24,7 +24,7 @@
 #undef _STATIC_LIBFREETYPE
 #undef _STATIC_LIBUNINAMESLIST
 #undef _STATIC_LIBCAIRO
-#undef _NO_LIBUNINAMESLIST
+#define _NO_LIBUNINAMESLIST 1
 #undef SHAREDIR
 #undef LIBDIR
 #undef PREFIX
@@ -34,7 +34,7 @@
 #undef _BrokenBitmapImages
 #undef _ModKeysAutoRepeat
 #undef __CygWin
-#undef _NO_XINPUT
+#define _NO_XINPUT 1
 #undef FONTFORGE_CONFIG_CAPSLOCK_FOR_ALT
 #undef FONTFORGE_CONFIG_SHOW_RAW_POINTS
 #undef FONTFORGE_CONFIG_TYPE3
@@ -46,7 +46,7 @@
 #undef FONTFORGE_CONFIG_TILEPATH
 #undef _NO_FFSCRIPT
 #undef _NO_TZSET
-#undef _NO_FREETYPE
+#define _NO_FREETYPE 1
 #define _NO_LIBXML 1
 #define _NO_LIBUNGIF 1
 #define _NO_LIBPNG 1
@@ -58,11 +58,11 @@
 #define NOPLUGIN 1
 #undef FREETYPE_HAS_DEBUGGER
 #undef _NO_SNPRINTF
-#undef _NO_XKB
-#undef X_DISPLAY_MISSING
+#define _NO_XKB 1
+#define X_DISPLAY_MISSING 1
 #undef PYTHON_LIB_NAME
-#undef _NO_LIBCAIRO
-#undef _NO_LIBPANGO
+#define _NO_LIBCAIRO 1
+#define _NO_LIBPANGO 1
 #undef WORDS_BIGENDIAN
 
 #endif
