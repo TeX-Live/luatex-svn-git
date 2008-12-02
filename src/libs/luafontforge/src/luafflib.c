@@ -12,36 +12,27 @@
 #include "pfaedit.h"
 #include "ustring.h"
 
-#ifdef OLD_FF
-extern void  LoadPrefs(void);
-#endif
-
-#ifdef OLD_FF
 extern char **gww_errors;
 extern int gww_error_count;
 extern void gwwv_errors_free (void);
-#else
-char **gww_errors;
-int gww_error_count;
-#define gwwv_errors_free()
-#endif
+extern struct ui_interface luaui_interface;
 
 #define FONT_METATABLE "fontforge.splinefont"
 
-#define LUA_OTF_VERSION "0.2"
+#define LUA_OTF_VERSION "0.3"
 
-char *possub_type_enum[] = { 
+static char *possub_type_enum[] = { 
   "null", "position", "pair",  "substitution", 
   "alternate", "multiple", "ligature", "lcaret",  
   "kerning", "vkerning", "anchors", "contextpos", 
   "contextsub", "chainpos", "chainsub","reversesub", 
-   "max", "kernback", "vkernback"};
+  "max", "kernback", "vkernback", NULL };
 
 #define LAST_POSSUB_TYPE_ENUM 18
 
 #define eight_nulls() NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 
-char *otf_lookup_type_enum[] = { 
+static char *otf_lookup_type_enum[] = { 
   "gsub_start", "gsub_single", "gsub_multiple", "gsub_alternate", 
   "gsub_ligature", "gsub_context",  "gsub_contextchain", NULL, 
   "gsub_reversecontextchain", NULL, NULL, NULL,  NULL, NULL, NULL, NULL, /*0x00F */
@@ -81,10 +72,36 @@ char *otf_lookup_type_enum[] = {
 };
 
 
-char *anchor_type_enum[] = { "mark", "basechar", "baselig", "basemark", "centry", "cexit", "max", NULL };
+static char *anchor_type_enum[] = { 
+   "mark", "basechar", "baselig", "basemark", "centry", "cexit", "max", NULL };
+
 #define MAX_ANCHOR_TYPE 7
-char *anchorclass_type_enum[] = { "mark", "mkmk", "curs", "mklg", NULL };
-char *glyph_class_enum[] = { "automatic", "none" ,"base", "ligature","mark", "component", NULL };
+
+static char *anchorclass_type_enum[] = { 
+  "mark", "mkmk", "curs", "mklg", NULL };
+
+static char *glyph_class_enum[] = { 
+  "automatic", "none" ,"base", "ligature","mark", "component", NULL };
+
+static char *ttfnames_enum[ttf_namemax] = { 
+    "copyright", "family", "subfamily", "uniqueid",
+    "fullname", "version", "postscriptname", "trademark",
+    "manufacturer", "designer", "descriptor", "venderurl",
+    "designerurl", "license", "licenseurl", "idontknow",
+    "preffamilyname", "prefmodifiers", "compatfull", "sampletext",
+    "cidfindfontname", "wwsfamily", "wwssubfamily" };
+
+static char *fpossub_format_enum [] = { 
+   "glyphs", "class","coverage","reversecoverage" , NULL};
+
+static char *tex_type_enum[4] = { "unset", "text", "math", "mathext"};
+
+/* has an offset of 1, ui_none = 0. */
+static char *uni_interp_enum[9] = {
+  "unset", "none", "adobe", "greek", "japanese",
+  "trad_chinese", "simp_chinese", "korean", "ams" };
+	
+
 
 
 #define check_isfont(L,b) (SplineFont **)luaL_checkudata(L,b,FONT_METATABLE)
@@ -143,13 +160,13 @@ ff_open (lua_State *L) {
   }
   if (strlen(s)>0) {
     gww_error_count=0;
-	sf = ReadSplineFont((char *)s,openflags);
+	sf = LoadSplineFont((char *)s,openflags);
 	if (sf==NULL) {
 	  lua_pushfstring(L,"font loading failed for %s\n", fontname);
 	  lua_error(L);
 	} else {
 	  lua_ff_pushfont(L,sf);
-	  if (gww_error_count>0) { /* can't happen */
+	  if (gww_error_count>0) {
 		lua_newtable(L);
 		for (i=0;i<gww_error_count;i++) {
 		  lua_pushstring(L,gww_errors[i]);
@@ -689,14 +706,12 @@ handle_splinechar (lua_State *L,struct splinechar *glyph, int hasvmetrics) {
   
   dump_stringfield(L,"name",        glyph->name);
   dump_intfield(L,"unicode",     glyph->unicodeenc);
-#ifdef OLD_FF
   lua_createtable(L,4,0);
   lua_pushnumber(L,1);  lua_pushnumber(L,glyph->xmin); lua_rawset(L,-3);
   lua_pushnumber(L,2);  lua_pushnumber(L,glyph->ymin); lua_rawset(L,-3);
   lua_pushnumber(L,3);  lua_pushnumber(L,glyph->xmax); lua_rawset(L,-3);
   lua_pushnumber(L,4);  lua_pushnumber(L,glyph->ymax); lua_rawset(L,-3);
   lua_setfield(L,-2,"boundingbox");
-#endif
   /*dump_intfield(L,"orig_pos",       glyph->orig_pos);*/
   if (hasvmetrics)
     dump_intfield(L,"vwidth",         glyph->vwidth);
@@ -794,6 +809,7 @@ handle_splinechar (lua_State *L,struct splinechar *glyph, int hasvmetrics) {
   if (glyph->tex_depth != TEX_UNDEF)
     dump_intfield(L,"tex_depth",               glyph->tex_depth);  
 #ifdef OLD_FF
+  /* these have gone, we now have italic_correction */
   if (glyph->tex_sub_pos != TEX_UNDEF)
     dump_intfield(L,"tex_sub_pos",             glyph->tex_sub_pos);  
   if (glyph->tex_super_pos != TEX_UNDEF)
@@ -854,11 +870,9 @@ handle_pfminfo (lua_State *L, struct pfminfo pfm) {
   dump_intfield (L, "pfmfamily",         pfm.pfmfamily);
   dump_intfield (L, "weight",            pfm.weight);
   dump_intfield (L, "width",             pfm.width);
-#ifdef OLD_FF
   dump_intfield (L, "avgwidth",          pfm.avgwidth);
   dump_intfield (L, "firstchar",         pfm.firstchar);
   dump_intfield (L, "lastchar",          pfm.lastchar);
-#endif
   lua_createtable(L,0,10);
   dump_enumfield(L,"familytype",      pfm.panose[0], panose_values_0);
   dump_enumfield(L,"serifstyle",      pfm.panose[1], panose_values_1);
@@ -895,12 +909,10 @@ handle_pfminfo (lua_State *L, struct pfminfo pfm) {
   dump_intfield (L, "os2_strikeypos",     pfm.os2_strikeypos  );
   dump_lstringfield (L, "os2_vendor",    pfm.os2_vendor, 4);
   dump_intfield (L, "os2_family_class",   pfm.os2_family_class);
-#ifdef OLD_FF
   dump_intfield (L, "os2_xheight",        pfm.os2_xheight);
   dump_intfield (L, "os2_capheight",      pfm.os2_capheight);
   dump_intfield (L, "os2_defaultchar",    pfm.os2_defaultchar);
   dump_intfield (L, "os2_breakchar",      pfm.os2_breakchar);
-#endif
 }
 
 
@@ -1036,13 +1048,6 @@ handle_psdict (lua_State *L, struct psdict *private) {
   }
 }
 
-char *ttfnames_enum[ttf_namemax] = { "copyright", "family", "subfamily", "uniqueid",
-    "fullname", "version", "postscriptname", "trademark",
-    "manufacturer", "designer", "descriptor", "venderurl",
-    "designerurl", "license", "licenseurl", "idontknow",
-    "preffamilyname", "prefmodifiers", "compatfull", "sampletext",
-    "cidfindfontname"};
-
 void 
 do_handle_ttflangname (lua_State *L, struct ttflangname *names) {
   int k;
@@ -1176,9 +1181,6 @@ handle_kernclass (lua_State *L, struct kernclass *kerns) {
 		lua_rawset(L,-3); }							\
       lua_setfield(L,-2,s); } }
 
-
-
-static char *fpossub_format_enum [] = { "glyphs", "class","coverage","reversecoverage"};
 
 void handle_fpst_rule (lua_State *L, struct fpst_rule *rule, int format) {
   int k;
@@ -1376,14 +1378,6 @@ handle_macfeat (lua_State *L, struct macfeat *features) {
   NESTED_TABLE(do_handle_macfeat,features,6);
 }
 
-char *tex_type_enum[4] = { "unset", "text", "math", "mathext"};
-
-/* has an offset of 1, ui_none = 0. */
-char *uni_interp_enum[9] = {
-  "unset", "none", "adobe", "greek", "japanese",
-  "trad_chinese", "simp_chinese", "korean", "ams" };
-	
-
 void
 handle_splinefont(lua_State *L, struct splinefont *sf) {
   int k;
@@ -1407,8 +1401,9 @@ handle_splinefont(lua_State *L, struct splinefont *sf) {
   dump_intfield   (L,"uniqueid",        sf->uniqueid);
   dump_intfield   (L,"glyphcnt",        sf->glyphcnt);
   dump_intfield   (L,"glyphmax",        sf->glyphmax);
-#ifdef OLD_FF
   dump_intfield   (L,"units_per_em",    sf->units_per_em);
+#ifdef OLD_FF
+  /* field is gone */
   dump_intfield   (L,"vertical_origin", sf->vertical_origin);
 #endif
 
@@ -1475,6 +1470,7 @@ handle_splinefont(lua_State *L, struct splinefont *sf) {
   dump_intfield(L,"changed",                   sf->changed);
   dump_intfield(L,"hasvmetrics",               sf->hasvmetrics);
 #ifdef OLD_FF
+  /* field is gone */
   dump_intfield(L,"order2",                    sf->order2);
 #endif
   dump_intfield(L,"strokedfont",               sf->strokedfont);
@@ -1688,16 +1684,11 @@ ff_info (lua_State *L) {
 	lua_pushfstring(L,"font loading failed for %s (read error)\n", fontname);
 	lua_error(L);
   }
-#ifdef OLD_FF
   sf = ReadSplineFontInfo((char *)fontname,openflags);
-#else
-  sf = ReadSplineFont((char *)fontname,openflags);
-#endif
   if (sf==NULL) {
     lua_pushfstring(L,"font loading failed for %s\n", fontname);
     lua_error(L);
   } else {
-#ifdef OLD_FF
 	if (sf->next != NULL) {
 	  i = 1;
 	  lua_newtable(L);
@@ -1709,12 +1700,9 @@ ff_info (lua_State *L) {
 		sf = sf->next;
 	  }
 	} else {
-#endif
 	  do_ff_info(L, sf);
 	  SplineFontFree(sf);
-#ifdef OLD_FF
 	}	  
-#endif
   }
   return 1;
 }
@@ -1768,7 +1756,7 @@ static void ff_do_cff (SplineFont *sf, char *filename, unsigned char **buf, int 
     return;
   } 
   /* errors */
-  /*fprintf(stdout,"\n%s => CFF, failed\n", sf->filename);*/
+  fprintf(stdout,"\n%s => CFF, failed\n", sf->filename);
 
 }
 
@@ -1780,7 +1768,7 @@ int ff_createcff (char *file, unsigned char **buf, int *bufsiz) {
   char s[] = "tempfile.cff";
   int openflags = 1;
   int notdefpos = 0;
-  sf =  ReadSplineFont(file,openflags);
+  sf =  LoadSplineFont(file,openflags);
   if (sf) {
     /* this is not the best way. nicer to have no temp file at all */
     ff_do_cff(sf, s, buf,bufsiz);
@@ -1802,16 +1790,11 @@ int ff_get_ttc_index(char *ffname, char*psname) {
   int openflags = 1;
   int index = 0;
 
-#ifdef OLD_FF
   sf = ReadSplineFontInfo((char *)ffname,openflags);
-#else
-  sf = ReadSplineFont((char *)ffname,openflags);
-#endif
   if (sf==NULL) {
     perror("font loading failed unexpectedly\n");
     exit(EXIT_FAILURE);
   } 
-#ifdef OLD_FF
   while (sf != NULL) {
 	if (strcmp(sf->fontname,psname)==0) {
 	  index = i;
@@ -1820,7 +1803,6 @@ int ff_get_ttc_index(char *ffname, char*psname) {
 	i++;
 	sf = sf->next;
   }
-#endif
   return index;
 }
 
@@ -1855,7 +1837,9 @@ static const struct luaL_reg fflib_m [] = {
 
 
 int luaopen_ff (lua_State *L) {
-  LoadPrefs();
+  InitSimpleStuff();
+  FF_SetUiInterface(&luaui_interface);
+  default_encoding = FindOrMakeEncoding("ISO8859-1");
   luaL_newmetatable(L,FONT_METATABLE);
   luaL_register(L, NULL, fflib_m);
   luaL_openlib(L, "fontforge", fflib, 0);

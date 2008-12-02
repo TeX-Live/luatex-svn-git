@@ -1,6 +1,6 @@
 #ifndef _FF_CONFIG_H
 # define _FF_CONFIG_H	1
-
+#define LUA_FF_LIB 1
 #undef HAVE_DLFCN_H
 #undef _NO_PYTHON
 #undef HAVE_ICONV_H

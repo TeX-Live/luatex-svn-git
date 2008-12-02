@@ -1224,6 +1224,65 @@ SplineFont *ReadSplineFont(char *filename,enum openflags openflags) {
 return( _ReadSplineFont(NULL,filename,openflags));
 }
 
+
+#ifdef LUA_FF_LIB
+SplineFont *ReadSplineFontInfo(char *filename,enum openflags openflags) {
+  SplineFont *sf, *sf_ptr;
+	char **fontlist;
+    char *pt =NULL, *strippedname=filename, *paren=NULL, *fullname=filename;
+    FILE *foo = NULL;
+    int checked = 0;
+	char s[512] = {0};
+
+    if ( filename==NULL )
+return( NULL );
+
+    pt = strrchr(filename,'/');
+    if ( pt==NULL ) pt = filename;
+    if ( (paren=strchr(pt,'('))!=NULL && strchr(paren,')')!=NULL ) {
+	    strippedname = copy(filename);
+        strippedname[paren-filename] = '\0';
+    }
+
+    sf = NULL;
+    foo = fopen(strippedname,"rb");
+    checked = false;
+    if ( foo!=NULL ) {
+	/* Try to guess the file type from the first few characters... */
+	int ch1 = getc(foo);
+	int ch2 = getc(foo);
+	int ch3 = getc(foo);
+	int ch4 = getc(foo);
+	fclose(foo);
+	if (( ch1==0 && ch2==1 && ch3==0 && ch4==0 ) ||
+		(ch1=='O' && ch2=='T' && ch3=='T' && ch4=='O') ||
+		(ch1=='t' && ch2=='r' && ch3=='u' && ch4=='e') ) {
+	    sf = SFReadTTFInfo(fullname,0,openflags);
+	    checked = 't';
+	} else if ((ch1=='t' && ch2=='t' && ch3=='c' && ch4=='f')) {
+	  /* read all fonts in a collection */
+	  fontlist = NamesReadTTF(fullname);
+	  if (fontlist) {
+		while (*fontlist != NULL) {
+		  snprintf(s,511, "%s(%s)", fullname,*fontlist);
+		  sf_ptr = SFReadTTFInfo(s,0,openflags);
+		  if (sf != NULL)
+			sf_ptr->next = sf;	  
+		  sf = sf_ptr;
+		  fontlist++;
+		}
+	  }
+	} else {
+      sf = ReadSplineFont (fullname, openflags);
+    }
+    }
+    if ( strippedname!=filename )
+      free(strippedname);
+return( sf );
+}
+#endif
+
+
 char *ToAbsolute(char *filename) {
     char buffer[1025];
 

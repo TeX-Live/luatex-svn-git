@@ -630,7 +630,7 @@ typedef struct generic_asm {		/* Apple State Machine */
 	    } kern;
 	} u;
     } *state;
-    /*uint32 opentype_tag;		/* If converted from opentype */
+  /*uint32 opentype_tag;		*/ /* If converted from opentype */
 } ASM;
 /* State Flags:
  Indic:
@@ -1258,6 +1258,9 @@ typedef struct splinechar {
     int unicodeenc;
     int orig_pos;		/* Original position in the glyph list */
     int16 width, vwidth;
+#ifdef LUA_FF_LIB
+    int16 xmin, ymin, xmax, ymax;
+#endif
     int16 lsidebearing;		/* only used when reading in a type1 font */
 				/*  Or an otf font where it is the subr number of a refered character */
 			        /*  or a ttf font without bit 1 of head.flags set */
@@ -1607,6 +1610,10 @@ typedef struct splinefont {
     char *defbasefilename;
     char *version;
     real italicangle, upos, uwidth;		/* In font info */
+#ifdef LUA_FF_LIB
+    int units_per_em;
+    struct splinefont *next;
+#endif
     int ascent, descent;
     int uniqueid;				/* Not copied when reading in!!!! */
     int glyphcnt, glyphmax;			/* allocated size of glyphs array */
@@ -1687,6 +1694,15 @@ typedef struct splinefont {
 	int16 os2_family_class;
 	uint32 codepages[2];
 	uint32 unicoderanges[4];
+#ifdef LUA_FF_LIB
+        uint16 avgwidth;
+        uint16 firstchar;
+        uint16 lastchar;
+        int16 os2_xheight;
+        int16 os2_capheight;
+        uint16 os2_defaultchar;
+        uint16 os2_breakchar;
+#endif
     } pfminfo;
     struct ttflangname *names;
     char *cidregistry, *ordering;
@@ -3066,5 +3082,12 @@ extern char *SFDefaultImage(SplineFont *sf,char *filename);
 extern void SCClearInstrsOrMark(SplineChar *sc, int layer, int complain);
 extern void instrcheck(SplineChar *sc,int layer);
 extern void TTFPointMatches(SplineChar *sc,int layer,int top);
+
+#ifdef LUA_FF_LIB
+extern SplineFont *ReadSplineFontInfo(char *filename,enum openflags openflags); /* splinefont.c */ 
+extern SplineFont *SFReadTTFInfo(char *filename, int flags, enum openflags openflags);  /* parsettf.c */ 
+#endif
+
+
 
 #endif

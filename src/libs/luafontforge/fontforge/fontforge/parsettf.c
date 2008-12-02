@@ -33,6 +33,10 @@
 #include <gwidget.h>
 #include "ttf.h"
 
+#ifdef LUA_FF_LIB
+SplineFont *_SFReadTTFInfo(FILE *ttf, int flags,enum openflags openflags, char *filename,struct fontdict *fd);
+#endif
+
 char *SaveTablesPref;
 int ask_user_for_cmap = false;
 
@@ -2191,10 +2195,19 @@ return( sc );
     }
     fseek(ttf,info->glyph_start+start,SEEK_SET);
     path_cnt = (short) getushort(ttf);
+
+#ifdef LUA_FF_LIB
+    sc->xmin = getushort(ttf);
+    sc->ymin = getushort(ttf);
+    sc->xmax = getushort(ttf);
+    sc->ymax = getushort(ttf);
+    sc->lsidebearing = sc->xmin;
+#else
     /* xmin = */ sc->lsidebearing = getushort(ttf);
     /* ymin = */ getushort(ttf);
     /* xmax = */ getushort(ttf);
     /* ymax = */ /* sc->lsidebearing = */ getushort(ttf);	/* what was this for? */
+#endif
     if ( path_cnt>=0 )
 	readttfsimpleglyph(ttf,info,sc,path_cnt);
     else
@@ -3701,7 +3714,9 @@ static void cfffigure(struct ttfinfo *info, struct topdicts *dict,
     int i, cstype;
     struct pschars *subrs;
     struct pscontext pscontext;
-
+#ifdef LUA_FF_LIB
+    DBounds bb;
+#endif
     memset(&pscontext,0,sizeof(pscontext));
 
     cffinfofillup(info, dict, strings, scnt );
@@ -3726,6 +3741,13 @@ static void cfffigure(struct ttfinfo *info, struct topdicts *dict,
 	info->chars[i] = PSCharStringToSplines(
 		dict->glyphs.values[i], dict->glyphs.lens[i],&pscontext,
 		subrs,gsubrs,getsid(dict->charset[i],strings,scnt,info));
+#ifdef LUA_FF_LIB
+          SplineCharFindBounds(info->chars[i],&bb);
+          info->chars[i]->xmin = bb.minx;
+          info->chars[i]->ymin = bb.miny;
+          info->chars[i]->xmax = bb.maxx;
+          info->chars[i]->ymax = bb.maxy;
+#endif
 	info->chars[i]->vwidth = info->emsize;
 	if ( cstype==2 ) {
 	    if ( info->chars[i]->width == (int16) 0x8000 )
@@ -3748,6 +3770,9 @@ static void cidfigure(struct ttfinfo *info, struct topdicts *dict,
     struct cidmap *map;
     char buffer[100];
     struct pscontext pscontext;
+#ifdef LUA_FF_LIB
+    DBounds bb;
+#endif
     EncMap *encmap = NULL;
 
     memset(&pscontext,0,sizeof(pscontext));
@@ -3809,6 +3834,15 @@ static void cidfigure(struct ttfinfo *info, struct topdicts *dict,
 	info->chars[i] = PSCharStringToSplines(
 		dict->glyphs.values[i], dict->glyphs.lens[i],&pscontext,
 		subrs,gsubrs,buffer);
+
+#ifdef LUA_FF_LIB
+          SplineCharFindBounds(info->chars[i],&bb);
+          info->chars[i]->xmin = bb.minx;
+          info->chars[i]->ymin = bb.miny;
+          info->chars[i]->xmax = bb.maxx;
+          info->chars[i]->ymax = bb.maxy;
+#endif
+
 	info->chars[i]->vwidth = sf->ascent+sf->descent;
 	info->chars[i]->unicodeenc = uni;
 	sf->glyphs[cid] = info->chars[i];
@@ -4965,7 +4999,11 @@ static void readttfos2metrics(FILE *ttf,struct ttfinfo *info) {
 
     fseek(ttf,info->os2_start,SEEK_SET);
     info->os2_version = getushort(ttf);
-    /* avgWidth */ getushort(ttf);
+#ifdef LUA_FF_LIB
+    info->pfminfo.avgwidth = getushort(ttf);
+#else
+    /* avgwidth */ getushort(ttf);
+#endif
     info->pfminfo.weight = getushort(ttf);
     info->pfminfo.width = getushort(ttf);
     info->pfminfo.fstype = getushort(ttf);
@@ -5000,8 +5038,13 @@ static void readttfos2metrics(FILE *ttf,struct ttfinfo *info) {
 	info->use_typo_metrics = (sel&128)?1:0;
 	info->weight_width_slope_only = (sel&256)?1:0;
     }
+#ifdef LUA_FF_LIB
+    info->pfminfo.firstchar = getushort(ttf);
+    info->pfminfo.lastchar = getushort(ttf);
+#else
     /* firstchar */ getushort(ttf);
     /* lastchar */ getushort(ttf);
+#endif
     info->pfminfo.os2_typoascent = getushort(ttf);
     info->pfminfo.os2_typodescent = (short) getushort(ttf);
     if ( info->pfminfo.os2_typoascent-info->pfminfo.os2_typodescent == info->emsize ) {
@@ -5011,6 +5054,16 @@ static void readttfos2metrics(FILE *ttf,struct ttfinfo *info) {
     info->pfminfo.os2_typolinegap = getushort(ttf);
     info->pfminfo.os2_winascent = getushort(ttf);
     info->pfminfo.os2_windescent = getushort(ttf);
+#ifdef LUA_FF_LIB
+    if ( info->os2_version>=3 ) { /* TH just in case */
+      /* unicoderange[] */ getlong(ttf);
+      /* unicoderange[] */ getlong(ttf);
+      info->pfminfo.os2_xheight     = getushort(ttf); /* four new fields */
+      info->pfminfo.os2_capheight   = getushort(ttf);
+      info->pfminfo.os2_defaultchar = getushort(ttf);
+      info->pfminfo.os2_breakchar   = getushort(ttf);
+    }
+#endif
     info->pfminfo.winascent_add = info->pfminfo.windescent_add = false;
     info->pfminfo.typoascent_add = info->pfminfo.typodescent_add = false;
     info->pfminfo.pfmset = true;
@@ -5976,6 +6029,9 @@ static SplineFont *SFFillFromTTF(struct ttfinfo *info) {
     
     sf = SplineFontEmpty();
     sf->display_size = -default_fv_font_size;
+#ifdef LUA_FF_LIB
+    sf->units_per_em = info->emsize;
+#endif
     sf->display_antialias = default_fv_antialias;
     sf->fontname = info->fontname;
     sf->fullname = info->fullname;
@@ -6249,6 +6305,112 @@ return( NULL );
     fclose(ttf);
 return( sf );
 }
+
+#ifdef LUA_FF_LIB
+
+static int readttfinfo(FILE *ttf, struct ttfinfo *info, char *filename) {
+
+    if ( !readttfheader(ttf,info,filename,&info->chosenname)) {
+return( 0 );
+    }
+    readttfpreglyph(ttf,info);
+    if ( info->os2_start!=0 )
+	readttfos2metrics(ttf,info);
+    if ( info->postscript_start!=0 ) {
+      fseek(ttf,info->postscript_start,SEEK_SET);
+      (void)getlong(ttf);
+      info->italicAngle = getfixed(ttf);
+    }
+return( true );
+}
+
+/* I am not sure what happens to the ttinfo struct's members. 
+   perhaps some need free()-ing
+*/
+
+static SplineFont *SFFillFromTTFInfo(struct ttfinfo *info) {
+    SplineFont *sf ;
+
+    sf = SplineFontEmpty();
+
+    sf->fontname = info->fontname;
+    sf->fullname = info->fullname;
+    sf->familyname = info->familyname;
+
+    if ( info->fd!=NULL ) {		/* Special hack for type42 fonts */
+	sf->fontname = copy(info->fd->fontname);
+	if ( info->fd->fontinfo!=NULL ) {
+	    sf->familyname = utf8_verify_copy(info->fd->fontinfo->familyname);
+	    sf->fullname = utf8_verify_copy(info->fd->fontinfo->fullname);
+	    sf->weight = utf8_verify_copy(info->fd->fontinfo->weight);
+	}
+    }
+    if ( sf->fontname==NULL )   sf->fontname   = EnforcePostScriptName(sf->fullname);
+    if ( sf->fontname==NULL )   sf->fontname   = EnforcePostScriptName(sf->familyname);
+    if ( sf->fontname==NULL )   sf->fontname   = EnforcePostScriptName("UntitledTTF");
+
+    if ( sf->fullname==NULL )   sf->fullname   = copy( sf->fontname );
+    if ( sf->familyname==NULL ) sf->familyname = copy( sf->fontname );
+    if ( sf->weight==NULL ) {
+      if ( info->weight != NULL )
+	sf->weight = info->weight;
+      else if ( info->pfminfo.pfmset )
+	sf->weight = copy( info->pfminfo.weight <= 100 ? "Thin" :
+			   info->pfminfo.weight <= 200 ? "Extra-Light" :
+			   info->pfminfo.weight <= 300 ? "Light" :
+			   info->pfminfo.weight <= 400 ? "Book" :
+			   info->pfminfo.weight <= 500 ? "Medium" :
+			   info->pfminfo.weight <= 600 ? "Demi" :
+			   info->pfminfo.weight <= 700 ? "Bold" :
+			   info->pfminfo.weight <= 800 ? "Heavy" :
+			   "Black" );
+      else
+	sf->weight = copy("");
+    } else
+	free( info->weight );
+    sf->version = info->version;
+    sf->italicangle = info->italicAngle;
+
+return( sf );
+}
+
+SplineFont *_SFReadTTFInfo(FILE *ttf, int flags,enum openflags openflags, char *filename,struct fontdict *fd) {
+    struct ttfinfo info;
+    int ret;
+
+    memset(&info,'\0',sizeof(struct ttfinfo));
+    info.onlystrikes = (flags&ttf_onlystrikes)?1:0;
+    info.onlyonestrike = (flags&ttf_onlyonestrike)?1:0;
+    info.use_typo_metrics = true;
+    info.fd = fd;
+    ret = readttfinfo(ttf,&info,filename);
+    if ( !ret )
+return( NULL );
+return( SFFillFromTTFInfo(&info));
+}
+
+SplineFont *SFReadTTFInfo(char *filename, int flags, enum openflags openflags) {
+    FILE *ttf;
+    SplineFont *sf;
+    char *temp=filename, *pt, *lparen;
+
+    pt = strrchr(filename,'/');
+    if ( pt==NULL ) pt = filename;
+    if ( (lparen=strchr(pt,'('))!=NULL && strchr(lparen,')')!=NULL ) {
+	temp = copy(filename);
+	pt = temp + (lparen-filename);
+	*pt = '\0';
+    }
+    ttf = fopen(temp,"rb");
+    if ( temp!=filename ) free(temp);
+    if ( ttf==NULL )
+return( NULL );
+
+    sf = _SFReadTTFInfo(ttf,flags,openflags,filename,NULL);
+    fclose(ttf);
+return( sf );
+}
+#endif
 
 SplineFont *_CFFParse(FILE *temp,int len, char *fontsetname) {
     struct ttfinfo info;
