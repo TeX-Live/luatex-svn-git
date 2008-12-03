@@ -59,7 +59,7 @@ fontforge_SCRIPTOBJ = startnoui.o stamp.o
 DIFFOBJS = sfddiff.o stamp.o
 ACORNOBJS = acorn2sfd.o stamp.o
 
-_CFLAGS = -I$(top_srcdir)/inc -I$(srcdir) -I. @WFLAGS@ $(X_CFLAGS) \
+_CFLAGS = -I$(top_builddir)/inc -I$(top_srcdir)/inc -I$(srcdir) -I. @WFLAGS@ $(X_CFLAGS) \
     @DEFS@ '-DSHAREDIR="$(sharedir)"' -DLIBDIR='"$(libdir)"' \
     @CPPFLAGS@ '-DPREFIX="@prefix@"'
 CFLAGS = @CFLAGS@ @CPPFLAGS@ $(_CFLAGS)
@@ -89,10 +89,6 @@ fontforge: $(@exeOBJECTS@) $(fontforge_LIBOBJECTS) exelibstamp.pre libstamp.pre
 	$(LIBTOOL) --mode=link $(CC) -no-undefined $(CFLAGS) @LDFLAGS@ \
 	    -o ../libfontforge.la $(fontforge_LIBOBJECTS) libstamp.lo $(LIBLIBS) \
 	    -rpath $(libdir) -version-info $(FF_VERSION):$(FF_REVISION):$(FF_AGE)
-	sed -e '1,$$ s/REPLACE_ME_WITH_MAJOR_VERSION/$(FF_VERSION)/' -e '1,$$ s/REPLACE_ME_WITH_MINOR_VERSION/$(FF_REVISION)/' < $(srcdir)/exelibstamp.pre > exelibstamp.c
-	$(LIBTOOL) --mode=compile $(CC) $(CFLAGS) -c exelibstamp.c
-	$(LIBTOOL) --mode=link $(CC) $(LDFLAGS) -o fontforge \
-	    $(@exeOBJECTS@) exelibstamp.lo ../libfontforge.la $(LIBS)
 
 FontForge.app/Contents/Info.plist: MacFontForgeApp.zip stamp.c
 	-rm -rf FontForge.app __MACOSX
