@@ -5054,16 +5054,6 @@ static void readttfos2metrics(FILE *ttf,struct ttfinfo *info) {
     info->pfminfo.os2_typolinegap = getushort(ttf);
     info->pfminfo.os2_winascent = getushort(ttf);
     info->pfminfo.os2_windescent = getushort(ttf);
-#ifdef LUA_FF_LIB
-    if ( info->os2_version>=3 ) { /* TH just in case */
-      /* unicoderange[] */ getlong(ttf);
-      /* unicoderange[] */ getlong(ttf);
-      info->pfminfo.os2_xheight     = getushort(ttf); /* four new fields */
-      info->pfminfo.os2_capheight   = getushort(ttf);
-      info->pfminfo.os2_defaultchar = getushort(ttf);
-      info->pfminfo.os2_breakchar   = getushort(ttf);
-    }
-#endif
     info->pfminfo.winascent_add = info->pfminfo.windescent_add = false;
     info->pfminfo.typoascent_add = info->pfminfo.typodescent_add = false;
     info->pfminfo.pfmset = true;
@@ -5074,7 +5064,14 @@ static void readttfos2metrics(FILE *ttf,struct ttfinfo *info) {
 	info->pfminfo.codepages[1] = getlong(ttf);
 	info->pfminfo.hascodepages = true;
     }
-
+#ifdef LUA_FF_LIB
+    if ( info->os2_version>=3 ) { /* TH just in case */
+      info->pfminfo.os2_xheight     = getushort(ttf); /* four new fields */
+      info->pfminfo.os2_capheight   = getushort(ttf);
+      info->pfminfo.os2_defaultchar = getushort(ttf);
+      info->pfminfo.os2_breakchar   = getushort(ttf);
+    }
+#endif
     if ( info->os2_version==0 ) {
 	LogError("Windows will reject fonts with an OS/2 version number of 0\n");
 	info->bad_os2_version = true;
