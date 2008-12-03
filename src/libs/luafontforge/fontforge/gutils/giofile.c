@@ -1,3 +1,4 @@
+#if 0
 /* Copyright (C) 2000-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
@@ -304,3 +305,4 @@ void *_GIO_fileDispatch(GIOControl *gc) {
     free(path);
 return( NULL );
 }
+#endif

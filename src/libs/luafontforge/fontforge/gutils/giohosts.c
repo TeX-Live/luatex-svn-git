@@ -1,3 +1,4 @@
+#if 0
 /* Copyright (C) 2000-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
@@ -200,3 +201,4 @@ return( NULL );
 #endif
 return( cur );
 }
+#endif

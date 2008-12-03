@@ -1,3 +1,4 @@
+
 /* Copyright (C) 2007,2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
@@ -25,6 +26,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "fontforgevw.h"
+#ifndef LUA_FF_LIB
 #include <ustring.h>
 #include <utype.h>
 #include <gio.h>
@@ -1493,3 +1495,4 @@ return( FtpURLAndTempFile(url,NULL,from));
 return( false );
     }
 }
+#endif

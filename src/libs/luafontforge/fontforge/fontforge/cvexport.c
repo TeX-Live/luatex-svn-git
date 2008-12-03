@@ -30,7 +30,9 @@
 #include <string.h>
 #include "gfile.h"
 #include <time.h>
+#ifndef _WIN32
 #include <pwd.h>
+#endif
 #include "ustring.h"
 #include "gio.h"
 #include "gicons.h"

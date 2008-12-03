@@ -25,6 +25,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "fontforgevw.h"
+#ifndef LUA_FF_LIB
 #include <math.h>
 #include <ustring.h>
 #include <utype.h>
@@ -721,3 +722,4 @@ return( NULL );
     cleantempdir(tempdir);
 return( sf );
 }
+#endif

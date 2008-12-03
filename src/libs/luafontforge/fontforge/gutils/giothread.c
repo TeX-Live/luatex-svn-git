@@ -1,3 +1,4 @@
+#if 0
 /* Copyright (C) 2000-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
@@ -114,4 +115,5 @@ return;
     pthread_cond_wait(&gc->threaddata->cond,&gc->threaddata->mutex);
     pthread_mutex_unlock(&gc->threaddata->mutex);
 }
+#endif
 #endif

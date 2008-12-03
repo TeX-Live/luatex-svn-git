@@ -33,7 +33,9 @@
 #include <utype.h>
 #include <unistd.h>
 #include <locale.h>
+#ifndef _WIN32
 # include <pwd.h>
+#endif
 #include <stdarg.h>
 #include <time.h>
 #include "psfont.h"
@@ -1774,6 +1776,7 @@ const char *GetAuthor(void) {
 return( author );
 
 /* Can all be commented out if no pwd routines */
+#ifndef _WIN32
     pwd = getpwuid(getuid());
 #ifndef __VMS
     if ( pwd!=NULL && pwd->pw_gecos!=NULL && *pwd->pw_gecos!='\0' ) {
@@ -1793,6 +1796,7 @@ return( author );
 	ret = author;
     }
     endpwent();
+#endif
 /* End comment */
 return( ret );
 }

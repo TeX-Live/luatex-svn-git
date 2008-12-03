@@ -37,6 +37,13 @@
 #include "unicoderange.h"
 #include "psfont.h"
 
+#ifdef _WIN32
+#define MKDIR(A,B) mkdir(A)
+#else
+#define MKDIR(A,B) mkdir(A,B)
+#endif
+
+
 void SFUntickAll(SplineFont *sf) {
     int i;
 
@@ -783,7 +790,7 @@ return( NULL );
     if ( dir==NULL ) dir = P_tmpdir;
     archivedir = galloc(strlen(dir)+100);
     sprintf( archivedir, "%s/ffarchive-%d-%d", dir, getpid(), ++cnt );
-    if ( mkdir(archivedir,0700)!=0 ) {
+    if ( MKDIR(archivedir,0700)!=0 ) {
 	free(archivedir);
 return( NULL );
     }

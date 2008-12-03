@@ -35,9 +35,15 @@
 #include <dirent.h>
 #include <ustring.h>
 
+#ifndef _WIN32
 # include <pwd.h>
+#define MKDIR(A,B) mkdir(A,B)
+#else
+#define MKDIR(A,B) mkdir(A)
+#endif
 
 static char *gethomedir(void) {
+#ifndef _WIN32
     static char *dir;
     int uid;
     struct passwd *pw;
@@ -55,7 +61,7 @@ return( dir );
 	}
     }
     endpwent();
-
+#endif
 return( NULL );
 }
 
@@ -81,7 +87,7 @@ return( NULL );
     free(dir);
     /* If we still can't find it, create it */
     if ( access(buffer,F_OK)==-1 )
-	if ( mkdir(buffer,0700)==-1 )
+	if ( MKDIR(buffer,0700)==-1 )
 return( NULL );
     editdir = copy(buffer);
 return( editdir );
@@ -94,7 +100,7 @@ static char *getAutoDirName(char *buffer) {
 return( NULL );
     sprintf(buffer,"%s/autosave", dir);
     if ( access(buffer,F_OK)==-1 )
-	if ( mkdir(buffer,0700)==-1 )
+	if ( MKDIR(buffer,0700)==-1 )
 return( NULL );
     dir = copy(buffer);
 return( dir );

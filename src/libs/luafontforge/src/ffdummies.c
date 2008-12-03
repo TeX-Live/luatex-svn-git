@@ -2,6 +2,7 @@
 /* some dummy functions and variables so that a few ff source files can be ignored */
 
 #include "uiinterface.h"
+#include "fontforgevw.h"
 #include "splinefont.h"
 #include <stdarg.h>
 #include <stdio.h>
@@ -160,4 +161,46 @@ struct ui_interface luaui_interface = {
     LUAUI_DefaultStrokeFlags
 };
 
+/* some bits and pieces */
 
+int URLFromFile(char *url,FILE *from) { return false; }
+
+/* print.c */
+int pagewidth = 0, pageheight=0;	/* In points */
+char *printlazyprinter=NULL;
+char *printcommand=NULL;
+int printtype = 0;
+
+void ScriptPrint(FontViewBase *fv,int type,int32 *pointsizes,char *samplefile,
+	unichar_t *sample, char *outputfile) {
+}
+
+int PdfDumpGlyphResources(void *pi, SplineChar *sc) {
+  return 0;
+}
+
+/* autotrace.c */
+int autotrace_ask=0, mf_ask=0, mf_clearbackgrounds=0, mf_showerrors=0;
+char *mf_args = NULL;
+int preferpotrace=0;
+
+void *GetAutoTraceArgs(void) {
+return NULL;
+}
+
+void SetAutoTraceArgs(void *a) {
+}
+
+void FVAutoTrace(FontViewBase *fv,int ask) {
+}
+
+SplineFont *SFFromMF(char *filename) {
+return NULL;
+}
+
+/* http.c */
+
+FILE *URLToTempFile(char *url,void *_lock) {
+   ff_post_error(_("Could not parse URL"),_("FontForge only handles ftp and http URLs at the moment"));
+return( NULL );
+}

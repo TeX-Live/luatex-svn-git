@@ -25,6 +25,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "basics.h"
 #if !defined(NOPLUGIN)
 
 #include "plugins.h"

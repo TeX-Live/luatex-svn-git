@@ -1,3 +1,4 @@
+#if 0
 /* Copyright (C) 2000-2003 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
@@ -311,3 +312,4 @@ void GIOSetUserAgent(unichar_t *agent) {
 void GIO_SetThreadCallback(void (*callback)(void *,void *,void *)) {
     _GIO_stdfuncs.gdraw_sync_thread = callback;
 }
+#endif

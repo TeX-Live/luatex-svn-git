@@ -25,6 +25,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "fontforgevw.h"
+#ifndef LUA_FF_LIB
 #include "sflayoutP.h"
 #include <stdlib.h>
 #include <math.h>
@@ -3018,3 +3019,4 @@ return;
 	free(pi.sample);
     }
 }
+#endif

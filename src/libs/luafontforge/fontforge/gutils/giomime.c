@@ -1,3 +1,4 @@
+#ifndef LUA_FF_LIB
 /* Copyright (C) 2000-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
@@ -180,3 +181,4 @@ return( fontsnf );
 
 return( unknown );
 }
+#endif

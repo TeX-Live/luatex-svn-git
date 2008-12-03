@@ -36,6 +36,12 @@
 # include <utype.h>
 #endif
 
+#ifdef _WIN32
+#define MKDIR(A,B) mkdir(A)
+#else
+#define MKDIR(A,B) mkdir(A,B)
+#endif
+
 #include "fontforgevw.h"
 #include <unistd.h>
 #include <math.h>
@@ -479,7 +485,7 @@ int WriteUFOFont(char *basedir,SplineFont *sf,enum fontformat ff,int flags,
     free( foo );
 
     /* Create it */
-    mkdir( basedir, 0755 );
+    MKDIR( basedir, 0755 );
 
     err  = !UFOOutputMetaInfo(basedir,sf);
     err |= !UFOOutputFontInfo(basedir,sf,layer);
@@ -492,7 +498,7 @@ int WriteUFOFont(char *basedir,SplineFont *sf,enum fontformat ff,int flags,
 return( false );
 
     glyphdir = buildname(basedir,"glyphs");
-    mkdir( glyphdir, 0755 );
+    MKDIR( glyphdir, 0755 );
 
     plist = PListCreate(glyphdir,"contents.plist");
     if ( plist==NULL ) {

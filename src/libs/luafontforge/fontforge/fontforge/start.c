@@ -30,7 +30,9 @@
 #include <sys/time.h>
 #include <locale.h>
 #include <unistd.h>
+#ifndef NODYNAMIC
 #include <dynamic.h>
+#endif
 #ifdef __Mac
 # include <stdlib.h>		/* getenv,setenv */
 #endif
@@ -115,7 +117,9 @@ static void initrand(void) {
 
     gettimeofday(&tv,NULL);
     srand(tv.tv_usec);
+#ifndef LUA_FF_LIB
     srandom(tv.tv_usec);
+#endif
 }
 
 static void initlibrarysearchpath(void) {

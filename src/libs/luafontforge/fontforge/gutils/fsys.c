@@ -24,6 +24,7 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 #include <stdio.h>
 #include "ustring.h"
 #include "fileutil.h"
@@ -31,6 +32,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>		/* for mkdir */
 #include <unistd.h>
+
+#ifdef _WIN32
+#define MKDIR(A,B) mkdir(A)
+#else
+#define MKDIR(A,B) mkdir(A,B)
+#endif
 
 static char dirname_[1024];
 
@@ -213,7 +220,7 @@ return( access(file,04)==0 );
 }
 
 int GFileMkDir(char *name) {
-return( mkdir(name,0755));
+return( MKDIR(name,0755));
 }
 
 int GFileRmDir(char *name) {
@@ -456,7 +463,7 @@ return( access(buffer,04)==0 );
 int u_GFileMkDir(unichar_t *name) {
     char buffer[1024];
     cu_strcpy(buffer,name);
-return( mkdir(buffer,0755));
+return( MKDIR(buffer,0755));
 }
 
 int u_GFileRmDir(unichar_t *name) {
