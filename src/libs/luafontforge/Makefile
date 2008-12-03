@@ -5,7 +5,7 @@ srcdir=../../../src/libs/luafontforge
 FF_LIB=ffdummies.o luafflib.o
 
 _CFLAGS=-Wall -D_NO_LIBSPIRO -DFONTFORGE_CONFIG_NO_WINDOWING_UI=1 -DLUA_FF_LIB=1 $(XCFLAGS)
-CFLAGS = -g -O2
+CFLAGS = -g -O0
 
 .PHONY: newfile
 

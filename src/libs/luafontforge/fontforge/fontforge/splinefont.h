@@ -1258,9 +1258,7 @@ typedef struct splinechar {
     int unicodeenc;
     int orig_pos;		/* Original position in the glyph list */
     int16 width, vwidth;
-#ifdef LUA_FF_LIB
     int16 xmin, ymin, xmax, ymax;
-#endif
     int16 lsidebearing;		/* only used when reading in a type1 font */
 				/*  Or an otf font where it is the subr number of a refered character */
 			        /*  or a ttf font without bit 1 of head.flags set */
@@ -1610,10 +1608,8 @@ typedef struct splinefont {
     char *defbasefilename;
     char *version;
     real italicangle, upos, uwidth;		/* In font info */
-#ifdef LUA_FF_LIB
     int units_per_em;
     struct splinefont *next;
-#endif
     int ascent, descent;
     int uniqueid;				/* Not copied when reading in!!!! */
     int glyphcnt, glyphmax;			/* allocated size of glyphs array */
@@ -1694,7 +1690,6 @@ typedef struct splinefont {
 	int16 os2_family_class;
 	uint32 codepages[2];
 	uint32 unicoderanges[4];
-#ifdef LUA_FF_LIB
         uint16 avgwidth;
         uint16 firstchar;
         uint16 lastchar;
@@ -1702,7 +1697,6 @@ typedef struct splinefont {
         int16 os2_capheight;
         uint16 os2_defaultchar;
         uint16 os2_breakchar;
-#endif
     } pfminfo;
     struct ttflangname *names;
     char *cidregistry, *ordering;
@@ -1785,9 +1779,7 @@ typedef struct splinefont {
     float sfd_version;			/* Used only when reading in an sfd file */
     struct gfi_data *fontinfo;
     struct val_data *valwin;
-#if !defined(_NO_PYTHON)
     void *python_temporary;
-#endif
     void *python_persistent;		/* If python this will hold a python object, if not python this will hold a string containing a pickled object. We do nothing with it (if not python) except save it back out unchanged */
     enum loadvalidation_state loadvalidation_state;
     LayerInfo *layers;
