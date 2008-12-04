@@ -3078,6 +3078,7 @@ extern void TTFPointMatches(SplineChar *sc,int layer,int top);
 #ifdef LUA_FF_LIB
 extern SplineFont *ReadSplineFontInfo(char *filename,enum openflags openflags); /* splinefont.c */ 
 extern SplineFont *SFReadTTFInfo(char *filename, int flags, enum openflags openflags);  /* parsettf.c */ 
+extern SplineFont *SFReadMacBinaryInfo(char *filename,int flags,enum openflags openflags); /* macbinary.c */
 #endif
 
 

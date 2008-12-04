@@ -1279,6 +1279,20 @@ return( NULL );
 		  fontlist++;
 		}
 	  }
+    } else if ( strmatch(fullname+strlen(strippedname)-4, ".bin")==0 ||
+                strmatch(fullname+strlen(strippedname)-4, ".hqx")==0 ||
+                strmatch(fullname+strlen(strippedname)-6, ".dfont")==0 ) {
+	  fontlist = NamesReadMacBinary(fullname);
+	  if (fontlist) {
+		while (*fontlist != NULL) {
+		  snprintf(s,511, "%s(%s)", fullname,*fontlist);
+		  sf_ptr = SFReadMacBinaryInfo(s,0,openflags);
+		  if (sf != NULL)
+			sf_ptr->next = sf;	  
+		  sf = sf_ptr;
+		  fontlist++;
+		}
+	  }
 	} else {
       sf = ReadSplineFont (fullname, openflags);
     }

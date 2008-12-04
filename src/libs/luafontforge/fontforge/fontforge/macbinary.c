@@ -3171,3 +3171,21 @@ return( true );
 char **NamesReadMacBinary(char *filename) {
 return( (char **) FindResourceFile(filename,ttf_onlynames,0,NULL,NULL));
 }
+
+
+#ifdef LUA_FF_LIB
+
+/* should try to optimize this */
+SplineFont *SFReadMacBinaryInfo(char *filename,int flags,enum openflags openflags) {
+    SplineFont *sf = FindResourceFile(filename,flags,openflags,NULL,NULL);
+
+    if ( sf==NULL )
+	LogError( _("Couldn't find a font file named %s\n"), filename );
+    else if ( sf==(SplineFont *) (-1) ) {
+	LogError( _("%s is a mac resource file but contains no postscript or truetype fonts\n"), filename );
+	sf = NULL;
+    }
+return( sf );
+}
+
+#endif
