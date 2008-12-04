@@ -1473,7 +1473,7 @@ static int dumpprivatestuff(void (*dumpchar)(int ch,void *data), void *data,
     int hasblue=0, hash=0, hasv=0, hasshift/*, hasxuid*/, hasbold, haslg;
     int isbold=false;
     int iscjk;
-    struct pschars *subrs, *chars;
+    struct pschars *subrs = NULL, *chars = NULL;
     char *ND="def";
     MMSet *mm = (format==ff_mma || format==ff_mmb)? sf->mm : NULL;
     double bluescale;

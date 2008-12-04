@@ -1198,7 +1198,7 @@ static struct cmap *ParseCMap(char *filename) {
     FILE *file;
     struct cmap *cmap;
     char *end, *pt;
-    int val, pos;
+    int val, pos = 0;
     enum cmaptype in;
     static const char *bcsr = "begincodespacerange", *bndr = "beginnotdefrange", *bcr = "begincidrange";
     static const char *reg = "/Registry", *ord = "/Ordering", *sup="/Supplement";

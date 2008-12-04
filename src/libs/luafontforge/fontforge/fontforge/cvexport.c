@@ -156,7 +156,7 @@ int _ExportPDF(FILE *pdf,SplineChar *sc,int layer) {
     struct tm *tm;
     int ret;
     char *oldloc;
-    int _objlocs[8], xrefloc, streamstart, streamlength, resid, nextobj;
+    int _objlocs[8], xrefloc, streamstart, streamlength, resid = 0, nextobj;
     int *objlocs = _objlocs;
     const char *author = GetAuthor();
     int i;

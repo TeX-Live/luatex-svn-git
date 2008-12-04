@@ -823,7 +823,7 @@ void ELOrder(EIList *el, int major ) {
 }
 
 static HintInstance *HIMerge(HintInstance *into, HintInstance *hi) {
-    HintInstance *n, *first = NULL, *last;
+    HintInstance *n, *first = NULL, *last = NULL;
 
     while ( into!=NULL && hi!=NULL ) {
 	if ( into->begin<hi->begin ) {
@@ -1256,7 +1256,7 @@ return( any );
 }
 
 HintInstance *HICopyTrans(HintInstance *hi, real mul, real offset) {
-    HintInstance *first=NULL, *last, *cur, *p;
+    HintInstance *first=NULL, *last = NULL, *cur, *p;
 
     while ( hi!=NULL ) {
 	cur = chunkalloc(sizeof(HintInstance));
@@ -1339,7 +1339,7 @@ return( head );
 
 static HintInstance *StemAddHIFromActive(struct stemdata *stem,int major) {
     int i;
-    HintInstance *head = NULL, *cur, *t;
+    HintInstance *head = NULL, *cur, *t = NULL;
     double mino, maxo;
     double dir = ((real *) &stem->unit.x)[major]<0 ? -1 : 1;
 
@@ -1367,7 +1367,7 @@ return( head );
 
 static HintInstance *DStemAddHIFromActive( struct stemdata *stem ) {
     int i;
-    HintInstance *head = NULL, *cur, *t;
+    HintInstance *head = NULL, *cur, *t = NULL;
 
     for ( i=0; i<stem->activecnt; ++i ) {
         cur = chunkalloc( sizeof( HintInstance ));
@@ -1588,8 +1588,8 @@ void SCGuessHintInstancesList( SplineChar *sc,int layer,StemInfo *hstem,StemInfo
     if ( hstem == NULL && vstem == NULL && dstem == NULL )
 return;
     /* If all stems already have active zones assigned (actual for .sfd
-    /* files), then there is no need to wast time generating glyph data for
-    /* this glyph */
+     files), then there is no need to wast time generating glyph data for
+     this glyph */
     test = hstem;
     while ( !hneeds_gd && test != NULL ) {
         if ( test->where == NULL || hvforce ) hneeds_gd = true;
@@ -1747,10 +1747,10 @@ return( true );
         prev = cur; cur = dn;
 
         /* Compare the given stem with each of the existing diagonal stem
-        /* hints. First ensure that it is not an exact duplicate of an already
-        /* added stem. Then test if unit vectors are parallel and edges colinear.
-        /* In this case we should either preserve the existing stem or replace
-        /* it with the new one, but not keep them both */
+         hints. First ensure that it is not an exact duplicate of an already
+         added stem. Then test if unit vectors are parallel and edges colinear.
+         In this case we should either preserve the existing stem or replace
+         it with the new one, but not keep them both */
         if (test->unit.x == dn->unit.x && test->unit.y == dn->unit.y &&
             test->left.x == dn->left.x && test->left.y == dn->left.y &&
             test->right.x == dn->right.x && test->right.y == dn->right.y ) {
@@ -1786,7 +1786,7 @@ return( false );
         } else
             overlap = true;
         /* It's probably a colinear dstem, as in older SFD files. Treat
-        /* it as one more instance for the already added stem */
+         it as one more instance for the already added stem */
         if ( !overlap ) {
             for ( hi=dn->where; hi->next != NULL; hi = hi->next ) ;
             hi->next = chunkalloc( sizeof( HintInstance ));
@@ -1794,8 +1794,8 @@ return( false );
             DStemInfoFree( test );
 return( false );
         /* The found stem is close but not identical to the stem we
-        /* are going to add. So just replace the older stem with the
-        /* new one */
+         are going to add. So just replace the older stem with the
+         new one */
         } else {
             test->next = dn->next;
             if ( prev == NULL )
@@ -1808,10 +1808,10 @@ return( true );
     }
     
     /* Insert the given stem to the list by such a way that diagonal 
-    /* stems are ordered by the X coordinate of the left edge key point, and 
-    /* by Y if X is the same. The order is arbitrary, but may be essential for
-    /* things like "W". So we should be sure that the autoinstructor will 
-    /* process diagonals from left to right. */
+     stems are ordered by the X coordinate of the left edge key point, and 
+     by Y if X is the same. The order is arbitrary, but may be essential for
+     things like "W". So we should be sure that the autoinstructor will 
+     process diagonals from left to right. */
     base = ( test->unit.y < 0 ) ? &test->right : &test->left;
     nbase = ( (*ds)->unit.y < 0 ) ? &(*ds)->right : &(*ds)->left;
 
@@ -2882,12 +2882,12 @@ static DStemInfo *GDFindDStems(struct glyphdata *gd) {
     for ( i=0; i<gd->stemcnt; ++i ) {
 	stem = &gd->stems[i];
         /* A real diagonal stem should consist of one or more continuous
-        /* ranges. Thus the number of active zones should be less then the
-        /* number of stem chunks (i. e. pairs of the opposite points). If
-        /* each chunk has its own active zone, then we probably have got
-        /* not a real stem, but rather two (or more) separate point pairs,
-        /* which occasionally happened to have nearly the same vectors and 
-        /* to be positioned on the same lines */
+         ranges. Thus the number of active zones should be less then the
+         number of stem chunks (i. e. pairs of the opposite points). If
+         each chunk has its own active zone, then we probably have got
+         not a real stem, but rather two (or more) separate point pairs,
+         which occasionally happened to have nearly the same vectors and 
+         to be positioned on the same lines */
 	if ( stem->toobig )
     continue;
 	

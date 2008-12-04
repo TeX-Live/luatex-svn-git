@@ -126,7 +126,7 @@ static void dump_fpst_everythingelse(FILE *out, SplineFont *sf,char **classes,
     SplineFont *sub;
     SplineChar *sc;
     PST *pst;
-    int len;
+    int len = 0;
 
     if ( sf->subfontcnt==0 ) {
 	for ( gid=0; gid<sf->glyphcnt; ++gid ) if ( (sc=sf->glyphs[gid])!=NULL)
@@ -456,7 +456,7 @@ return( entry );
 
 static void dump_contextpstglyphs(FILE *out,SplineFont *sf,
 	struct lookup_subtable *sub, struct fpst_rule *r, int in_ignore) {
-    int i, j, pos, index;
+    int i = 0, j, pos, index;
     OTLookup *otl;
     struct vr pairvr[2];
     PST *pst, space;
@@ -512,7 +512,7 @@ static void dump_contextpstglyphs(FILE *out,SplineFont *sf,
 		if ( pst!=NULL )
 		    dump_valuerecord(out,&pst->u.pair.vr[pos]);
 	    } else if ( otl->lookup_type==gpos_cursive ) {
-		AnchorPoint *entry, *exit;
+		AnchorPoint *entry, *exit = NULL;
 		entry = apfind_entry_exit(sf,otl,start,&exit);
 		dump_anchorpoint(out,entry);
 		putc(' ',out);
@@ -1307,7 +1307,7 @@ static void dump_gdef(FILE *out,SplineFont *sf) {
     PST *pst;
     int i,gid,j,k,l, lcnt, needsclass;
     SplineChar *sc;
-    SplineFont *_sf;
+    SplineFont *_sf = NULL;
     struct lglyphs { SplineChar *sc; PST *pst; } *glyphs;
     static char *clsnames[] = { "@GDEF_Simple", "@GDEF_Ligature", "@GDEF_Mark", "@GDEF_Component" };
 
@@ -1871,7 +1871,7 @@ static struct keywords {
     { "pos", tk_position },
     { "enum", tk_enumerate },
     { "anon", tk_anonymous },
-    NULL
+    { NULL }
 };
 
 static struct tablekeywords hhead_keys[] = {
@@ -1879,14 +1879,14 @@ static struct tablekeywords hhead_keys[] = {
     { "Ascender", sizeof(short), 1, offsetof(struct pfminfo,hhead_ascent)+offsetof(SplineFont,pfminfo) },
     { "Descender", sizeof(short), 1, offsetof(struct pfminfo,hhead_descent)+offsetof(SplineFont,pfminfo) },
     { "LineGap", sizeof(short), 1, offsetof(struct pfminfo,linegap)+offsetof(SplineFont,pfminfo) },
-    NULL
+    { NULL }
 };
 
 static struct tablekeywords vhead_keys[] = {
     { "VertTypoAscender", sizeof(short), 1, -1 },
     { "VertTypoDescender", sizeof(short), 1, -1 },
     { "VertTypoLineGap", sizeof(short), 1, offsetof(struct pfminfo,vlinegap)+offsetof(SplineFont,pfminfo) },
-    NULL
+    { NULL }
 };
 
 static struct tablekeywords os2_keys[] = {
@@ -1904,7 +1904,7 @@ static struct tablekeywords os2_keys[] = {
     { "WeightClass", sizeof(short), 1, offsetof(struct pfminfo,weight)+offsetof(SplineFont,pfminfo) },
     { "WidthClass", sizeof(short), 1, offsetof(struct pfminfo,width)+offsetof(SplineFont,pfminfo) },
     { "Vendor", sizeof(short), 1, offsetof(struct pfminfo,os2_vendor)+offsetof(SplineFont,pfminfo) },
-    NULL
+    { NULL }
 };
 
 
@@ -1987,7 +1987,7 @@ return;
 
 static void fea_ParseTok(struct parseState *tok) {
     FILE *in = tok->inlist[tok->inc_depth];
-    int ch, peekch;
+    int ch, peekch = 0;
     char *pt, *start;
 
     if ( tok->backedup ) {
@@ -2416,11 +2416,11 @@ static char *fea_ParseGlyphClass(struct parseState *tok) {
 	++tok->err_count;
 return( NULL );
     } else {
-	char *contents;
+	char *contents = NULL;
 	int cnt=0, max=0;
-	int last_val, range_type, range_len;
+	int last_val = 0, range_type, range_len = 0;
 	char last_glyph[MAXT+1];
-	char *pt1, *start1, *pt2, *start2;
+	char *pt1, *start1, *pt2, *start2 = NULL;
 	int v1, v2;
 
 	forever {

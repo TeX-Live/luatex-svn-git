@@ -99,7 +99,7 @@ struct std_bdf_props StandardProps[] = {
 	{ "AXIS_NAMES", prt_string|prt_property, false },
 	{ "AXIS_LIMITS", prt_string|prt_property, false },
 	{ "AXIS_TYPES", prt_string|prt_property, false },
-	NULL
+        { NULL }
 };
 
 int IsUnsignedBDFKey(char *key) {

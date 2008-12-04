@@ -2521,7 +2521,7 @@ return( false );
 
 static OTLookup **GetLookupsToCopy(SplineFont *sf,OTLookup ***backpairlist, int is_same) {
     int cnt, bcnt, ftot=0, doit, isgpos, i, ret;
-    char **choices = NULL, *sel;
+    char **choices = NULL, *sel = NULL;
     OTLookup *otl, **list1=NULL, **list2=NULL, **list, **blist;
     char *buttons[3];
     buttons[0] = _("_OK");
