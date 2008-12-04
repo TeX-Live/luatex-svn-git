@@ -90,7 +90,7 @@ static void padvalue(struct state *state,int arg,unichar_t *txt,int fieldwidth) 
 }
 
 static void padstr(struct state *state,int arg,const unichar_t *txt,int fieldwidth, int precision) {
-    int len=0, padc,i;
+    int len=0, padc=' ',i;
 
     if ( fieldwidth>0 ) {
 	len = precision>0?precision:u_strlen(txt);
@@ -214,7 +214,7 @@ int u_vsnprintf(unichar_t *str, int len, const unichar_t *format, va_list ap ) {
     struct state state;
     struct args args[20], temp;
     const unichar_t *pt;
-    int argmax = 0, arg, ac, val, hadarg;
+    int argmax = 0, arg = 0, ac, val, hadarg;
 
     memset(&state,'\0',sizeof(state));
     memset(args,'\0',sizeof(args));
