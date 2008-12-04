@@ -482,13 +482,18 @@ return( head );
 }
 
 SplineChar *SplineCharCopy(SplineChar *sc,SplineFont *into,struct sfmergecontext *mc) {
-    SplineChar *nsc = SFSplineCharCreate(into);
-    Layer *layers = nsc->layers;
+    SplineChar *nsc;
+    Layer *layers;
     int layer;
-
+    if (into==NULL) {
+      nsc = SplineCharCreate(2);
+    } else {
+      nsc = SFSplineCharCreate(into);
+    }
+    layers = nsc->layers;
     *nsc = *sc;		/* We copy the layers just below */
-    if ( sc->layer_cnt!=into->layer_cnt )
-	layers = grealloc(layers,sc->layer_cnt*sizeof(Layer));
+    if (into==NULL || sc->layer_cnt!=into->layer_cnt )
+	  layers = grealloc(layers,sc->layer_cnt*sizeof(Layer));
     memcpy(layers,sc->layers,sc->layer_cnt*sizeof(Layer));
     nsc->layers = layers;
     for ( layer = ly_back; layer<sc->layer_cnt; ++layer ) {
@@ -516,7 +521,7 @@ SplineChar *SplineCharCopy(SplineChar *sc,SplineFont *into,struct sfmergecontext
     nsc->kerns = NULL;
     nsc->possub = PSTCopy(nsc->possub,nsc,mc);
     nsc->altuni = AltUniCopy(nsc->altuni,into);
-    if ( into->layers[ly_fore].order2!=sc->layers[ly_fore].order2 )
+    if (into != NULL && into->layers[ly_fore].order2!=sc->layers[ly_fore].order2 )
 	SCConvertOrder(nsc,into->layers[ly_fore].order2);
 return(nsc);
 }
