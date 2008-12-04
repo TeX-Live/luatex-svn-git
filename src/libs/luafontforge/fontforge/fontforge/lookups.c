@@ -1397,6 +1397,7 @@ void NameOTLookup(OTLookup *otl,SplineFont *sf) {
 
     if ( otl->lookup_name==NULL ) {
 	for ( k=0; k<2; ++k ) {
+#ifndef LUA_FF_LIB
 	    for ( fl=otl->features; fl!=NULL ; fl=fl->next ) {
 		/* look first for a feature attached to a default language */
 		if ( k==1 || DefaultLangTagInScriptList(fl->scripts,false)!=NULL ) {
@@ -1407,6 +1408,7 @@ void NameOTLookup(OTLookup *otl,SplineFont *sf) {
 	    }
 	    if ( userfriendly!=NULL )
 	break;
+#endif
 	}
 	if ( userfriendly==NULL ) {
 	    if ( (otl->lookup_type&0xff)>= 0xf0 )
