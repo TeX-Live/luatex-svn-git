@@ -3093,7 +3093,11 @@ return( subs[nest_index] );
 /* GT: a statemachine. The %s is the name of the statemachine('s lookup) */
 /* GT: and the %d is n, where this lookup is the n'th defined for this state */
 /* GT: machine */
+#ifdef LUA_FF_LIB
+    format = _("%s_ns_%d");
+#else
     format = _("%s nested-substitutions %d");
+#endif
     name = galloc(strlen(parent->lookup_name)+strlen(format)+10);
     sprintf( name, format, parent->lookup_name, nest_index );
     otl->lookup_name = name;

@@ -1469,16 +1469,17 @@ void NameOTLookup(OTLookup *otl,SplineFont *sf) {
 	    if ( found!=NULL ) {
 		script_tag = found->script;
 		for ( j=0; localscripts[j].text!=NULL && script_tag!=localscripts[j].tag; ++j );
-		if ( localscripts[j].text!=NULL )
-		    script = copy( S_((char *) localscripts[j].text) );
-		else {
 #ifdef LUA_FF_LIB
             buf[0] = fl->scripts->script>>24;
             buf[1] = (fl->scripts->script>>16)&0xff;
             buf[2] = (fl->scripts->script>>8)&0xff;
             buf[3] = fl->scripts->script&0xff;
             buf[4] = 0;
+		    script = copy(buf);
 #else
+		if ( localscripts[j].text!=NULL )
+		    script = copy( S_((char *) localscripts[j].text) );
+		else {
 		    buf[0] = '\'';
 		    buf[1] = fl->scripts->script>>24;
 		    buf[2] = (fl->scripts->script>>16)&0xff;
@@ -1486,9 +1487,9 @@ void NameOTLookup(OTLookup *otl,SplineFont *sf) {
 		    buf[4] = fl->scripts->script&0xff;
 		    buf[5] = '\'';
 		    buf[6] = 0;
-#endif
 		    script = copy(buf);
 		}
+#endif
 	    }
 	}
 	if ( script!=NULL ) {
