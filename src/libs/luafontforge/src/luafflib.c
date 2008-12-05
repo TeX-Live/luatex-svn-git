@@ -807,7 +807,14 @@ void handle_mathkern (lua_State *L, struct mathkern *mk) {
 
 void 
 handle_splinechar (lua_State *L,struct splinechar *glyph, int hasvmetrics) {
-  
+  DBounds bb;
+  if (glyph->xmax==0 && glyph->ymax==0 && glyph->xmin==0 && glyph->ymin==0) {
+    SplineCharFindBounds(glyph,&bb);
+    glyph->xmin = bb.minx;
+    glyph->ymin = bb.miny;
+    glyph->xmax = bb.maxx;
+    glyph->ymax = bb.maxy;
+  }
   dump_stringfield(L,"name",        glyph->name);
   dump_intfield(L,"unicode",     glyph->unicodeenc);
   lua_createtable(L,4,0);
