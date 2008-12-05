@@ -553,8 +553,9 @@ handle_altuni (lua_State *L, struct altuni *au) {
   lua_checkstack(L,3);
   while( next != NULL) {
     lua_newtable(L);
-    dump_intfield(L, "unienc", next->unienc);
-    dump_intfield(L, "vs", next->vs);
+    dump_intfield(L, "unicode", next->unienc);
+    if (next->vs != -1)
+      dump_intfield(L, "variant", next->vs);
     /* dump_intfield(L, "fid", next->fid); */
     lua_rawseti(L, -2, k++);
     next = next->next;
