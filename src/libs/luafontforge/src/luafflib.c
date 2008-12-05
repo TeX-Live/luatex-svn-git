@@ -1582,6 +1582,7 @@ do_handle_generic_asm (lua_State *L, struct generic_asm *sm) {
     lua_setfield(L,-2,"classes");
   }
   if (sm->state_cnt >0) {
+    lua_newtable(L);
     for (i=0; i<(sm->class_cnt * sm->state_cnt); i++) {
        struct asm_state as = sm->state[i];
        dump_intfield(L,"next", as.next_state);
@@ -1609,6 +1610,7 @@ do_handle_generic_asm (lua_State *L, struct generic_asm *sm) {
          lua_setfield(L,-2,"kerns");
        }
     }
+    lua_setfield(L,-2,"states");
   }
 }
 
@@ -1715,7 +1717,7 @@ void handle_base  (lua_State *L, struct Base *Base) {
     while (next != NULL) {
       lua_pushstring(L,make_tag_string(next->script));
       lua_newtable(L);
-      dump_intfield(L, "baseline", (next->def_baseline+1)) ;
+      dump_intfield(L, "default_baseline", (next->def_baseline+1)) ;
       lua_newtable(L);
       for ( i=0; i<Base->baseline_cnt; i++ ) {
         lua_pushnumber(L, next->baseline_pos[i]) ;
@@ -1859,7 +1861,7 @@ handle_splinefont(lua_State *L, struct splinefont *sf) {
   dump_stringfield(L,"weight",          sf->weight);
   dump_stringfield(L,"copyright",       sf->copyright);
   dump_stringfield(L,"filename",        sf->filename);
-  dump_stringfield(L,"defbasefilename", sf->defbasefilename);
+  /* dump_stringfield(L,"defbasefilename", sf->defbasefilename); */
   dump_stringfield(L,"version",         sf->version);
   dump_floatfield (L,"italicangle",     sf->italicangle);
   dump_floatfield (L,"upos",            sf->upos);
@@ -1870,10 +1872,6 @@ handle_splinefont(lua_State *L, struct splinefont *sf) {
   dump_intfield   (L,"glyphcnt",        sf->glyphcnt);
   dump_intfield   (L,"glyphmax",        sf->glyphmax);
   dump_intfield   (L,"units_per_em",    sf->units_per_em);
-#ifdef OLD_FF
-  /* field is gone */
-  dump_intfield   (L,"vertical_origin", sf->vertical_origin);
-#endif
 
   if (sf->possub != NULL) {
     lua_newtable(L);
@@ -1934,7 +1932,7 @@ handle_splinefont(lua_State *L, struct splinefont *sf) {
   }
   lua_setfield(L,-2,"glyphs");
 
-  dump_intfield(L,"changed",                   sf->changed);
+  /* dump_intfield(L,"changed",                   sf->changed); */
   dump_intfield(L,"hasvmetrics",               sf->hasvmetrics);
   dump_intfield(L,"onlybitmaps",               sf->onlybitmaps);
   dump_intfield(L,"serifcheck",                sf->serifcheck);
@@ -1981,6 +1979,7 @@ handle_splinefont(lua_State *L, struct splinefont *sf) {
   dump_intfield   (L,"supplement",  sf->supplement);
   lua_setfield(L,-2,"cidinfo");
   
+  /* SplineFont *cidmaster */ /* parent in a subfont */
   if (sf->subfontcnt>0) {
     lua_createtable(L,sf->subfontcnt,0);
     for (k=0;k<sf->subfontcnt;k++) {
