@@ -927,7 +927,7 @@ handle_splinechar (lua_State *L,struct splinechar *glyph, int hasvmetrics) {
   if (glyph->tex_depth != TEX_UNDEF)
     dump_intfield(L,"tex_depth",               glyph->tex_depth);  
   
-  dump_intfield(L, "is_extended_shape", glyph->is_extended_shape);
+  dump_cond_intfield(L, "is_extended_shape", glyph->is_extended_shape);
   if (glyph->italic_correction != TEX_UNDEF)
      dump_intfield(L, "italic_correction", glyph->italic_correction);
   if (glyph->top_accent_horiz != TEX_UNDEF)
