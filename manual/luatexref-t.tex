@@ -19,7 +19,7 @@
 
 \setvariables
   [document]
-  [beta=0.30.2]
+  [beta=0.31.0]
 
 \starttext
 
@@ -4078,6 +4078,10 @@ there is no need for an explicit call to \type{apply_afmfile()}.
 
 \section{Fontforge font tables}
 
+\subsection{Table types}
+
+\subsubsection{Top-level}
+
 The top|-|level keys in the returned table are (the explanations in
 this part of the documentation are not yet finished):
 
@@ -4216,7 +4220,7 @@ the value of each key inside that a linear array of small hashes:
 For the first seven values of \type{type}, there can be additional
 sub|-|information, stored in the sub-table \type{specification}:
 
-\starttabulate[|lT|l|l|p|]
+\starttabulate[|lT|l|p|]
 \NC \ssbf value    \NC \bf type \NC \bf explanation \NC\NR
 \NC position     \NC table    \NC a table of the \type {offset_specs} type\NC\NR
 \NC pair         \NC table    \NC one string: \type {paired}, and an array of one or
@@ -4248,12 +4252,12 @@ anchor type, which is one of
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
-\NC mark              \NC table   \NC placement mark\NR
-\NC basechar          \NC table   \NC mark for attaching combining items to a base char\NR
-\NC baselig           \NC table   \NC mark for attaching combining items to a ligature\NR
-\NC basemark          \NC table   \NC generic mark for attaching combining items to connect to\NR
-\NC centry            \NC table   \NC cursive entry point\NR
-\NC cexit             \NC table   \NC cursive exit point\NR
+\NC mark              \NC table   \NC placement mark\NC\NR
+\NC basechar          \NC table   \NC mark for attaching combining items to a base char\NC\NR
+\NC baselig           \NC table   \NC mark for attaching combining items to a ligature\NC\NR
+\NC basemark          \NC table   \NC generic mark for attaching combining items to connect to\NC\NR
+\NC centry            \NC table   \NC cursive entry point\NC\NR
+\NC cexit             \NC table   \NC cursive exit point\NC\NR
 \stoptabulate
 
 The content of these is an short array of defined anchors, with the
@@ -4635,11 +4639,106 @@ macnames are like otfnames except that they also have an 'enc' field \NC \NR
 
 \subsubsection{mm table}
 
-% handle_mmset TODO
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC axes                 \NC table   \NC array of axis names \NC \NR
+\NC instance_count       \NC number   \NC \NC \NR
+\NC positions            \NC table   \NC array of instance positions
+                                         (\#axes * instances )\NC \NR
+\NC defweights           \NC table   \NC array of default weights for instances \NC \NR
+\NC cdv                  \NC string  \NC \NC \NR
+\NC ndv                  \NC string  \NC \NC \NR
+\NC axismaps             \NC table   \NC  \NC \NR
+\NC named_instance_count \NC number   \NC \NC \NR
+\NC named_instances      \NC table   \NC \NC \NR
+\NC apple                \NC number   \NC \NC \NR
+\stoptabulate
+
+The \type{axismaps}: 
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC blends               \NC table     \NC an array of blend points \NC \NR
+\NC designs              \NC table     \NC an array of design values \NC \NR
+\NC min                  \NC number   \NC \NC \NR
+\NC def                  \NC number   \NC \NC \NR
+\NC max                  \NC number   \NC \NC \NR
+\NC axisnames            \NC table     \NC a set of mac names \NC \NR
+\stoptabulate
+
+
+The \type{named_instances} is an array of instances: 
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC names                \NC table  \NC a set of mac names  \NC \NR
+\NC coords               \NC table  \NC an array of coordinates \NC \NR
+\stoptabulate
+
 
 \subsubsection{math table}
 
-% handle_MATH TODO
+\starttabulate[|lT|p|]
+\NC ScriptPercentScaleDown \NC \NC \NR
+\NC ScriptScriptPercentScaleDown \NC \NC \NR
+\NC DelimitedSubFormulaMinHeight \NC \NC \NR
+\NC DisplayOperatorMinHeight \NC \NC \NR
+\NC MathLeading \NC \NC \NR
+\NC AxisHeight \NC \NC \NR
+\NC AccentBaseHeight \NC \NC \NR
+\NC FlattenedAccentBaseHeight \NC \NC \NR
+\NC SubscriptShiftDown \NC \NC \NR
+\NC SubscriptTopMax \NC \NC \NR
+\NC SubscriptBaselineDropMin \NC \NC \NR
+\NC SuperscriptShiftUp \NC \NC \NR
+\NC SuperscriptShiftUpCramped \NC \NC \NR
+\NC SuperscriptBottomMin \NC \NC \NR
+\NC SuperscriptBaselineDropMax \NC \NC \NR
+\NC SubSuperscriptGapMin \NC \NC \NR
+\NC SuperscriptBottomMaxWithSubscript \NC \NC \NR
+\NC SpaceAfterScript \NC \NC \NR
+\NC UpperLimitGapMin \NC \NC \NR
+\NC UpperLimitBaselineRiseMin \NC \NC \NR
+\NC LowerLimitGapMin \NC \NC \NR
+\NC LowerLimitBaselineDropMin \NC \NC \NR
+\NC StackTopShiftUp \NC \NC \NR
+\NC StackTopDisplayStyleShiftUp \NC \NC \NR
+\NC StackBottomShiftDown \NC \NC \NR
+\NC StackBottomDisplayStyleShiftDown \NC \NC \NR
+\NC StackGapMin \NC \NC \NR
+\NC StackDisplayStyleGapMin \NC \NC \NR
+\NC StretchStackTopShiftUp \NC \NC \NR
+\NC StretchStackBottomShiftDown \NC \NC \NR
+\NC StretchStackGapAboveMin \NC \NC \NR
+\NC StretchStackGapBelowMin \NC \NC \NR
+\NC FractionNumeratorShiftUp \NC \NC \NR
+\NC FractionNumeratorDisplayStyleShiftUp \NC \NC \NR
+\NC FractionDenominatorShiftDown \NC \NC \NR
+\NC FractionDenominatorDisplayStyleShiftDown \NC \NC \NR
+\NC FractionNumeratorGapMin \NC \NC \NR
+\NC FractionNumeratorDisplayStyleGapMin \NC \NC \NR
+\NC FractionRuleThickness \NC \NC \NR
+\NC FractionDenominatorGapMin \NC \NC \NR
+\NC FractionDenominatorDisplayStyleGapMin \NC \NC \NR
+\NC SkewedFractionHorizontalGap \NC \NC \NR
+\NC SkewedFractionVerticalGap \NC \NC \NR
+\NC OverbarVerticalGap \NC \NC \NR
+\NC OverbarRuleThickness \NC \NC \NR
+\NC OverbarExtraAscender \NC \NC \NR
+\NC UnderbarVerticalGap \NC \NC \NR
+\NC UnderbarRuleThickness \NC \NC \NR
+\NC UnderbarExtraDescender \NC \NC \NR
+\NC RadicalVerticalGap \NC \NC \NR
+\NC RadicalDisplayStyleVerticalGap \NC \NC \NR
+\NC RadicalRuleThickness \NC \NC \NR
+\NC RadicalExtraAscender \NC \NC \NR
+\NC RadicalKernBeforeDegree \NC \NC \NR
+\NC RadicalKernAfterDegree \NC \NC \NR
+\NC RadicalDegreeBottomRaisePercent \NC \NC \NR
+\NC MinConnectorOverlap \NC \NC \NR
+\stoptabulate
+
+\subsubsection{validation_state table}
 
 \starttabulate[|lT|p|]
 \NC \ssbf key           \NC \bf explanation \NC\NR
@@ -4700,12 +4799,42 @@ are hashes with:
 
 \subsubsection{vert_variants and horiz_variants table}
 
-% handle_glyphvariants TODO
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC variants             \NC string     \NC \NC \NR
+\NC italic_correction    \NC number     \NC \NC \NR
+\NC parts                \NC table     \NC \NC \NR
+\stoptabulate
+
+The \type{parts} table is an array of smaller tables:
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC component             \NC string     \NC \NC \NR
+\NC is_extender           \NC number     \NC \NC \NR
+\NC startConnectorLength  \NC number     \NC \NC \NR
+\NC endConnectorLength    \NC number     \NC \NC \NR
+\NC fullAdvance           \NC number     \NC \NC \NR
+\stoptabulate
+
 
 \subsubsection{mathkern table}
 
-% handle_mathkern TODO
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC top_right            \NC table     \NC \NC \NR
+\NC bottom_right         \NC table     \NC \NC \NR
+\NC top_left             \NC table     \NC \NC \NR
+\NC bottom_left          \NC table     \NC \NC \NR
+\stoptabulate
 
+Each of the subtables is an array of small hashes with two keys:
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC height           \NC number     \NC \NC \NR
+\NC kern             \NC number     \NC \NC \NR
+\stoptabulate
 
 \subsubsection{kerns table}
 
