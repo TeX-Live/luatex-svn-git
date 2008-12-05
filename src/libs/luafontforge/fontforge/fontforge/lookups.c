@@ -1429,16 +1429,25 @@ void NameOTLookup(OTLookup *otl,SplineFont *sf) {
 	    if ( fl==NULL )
 		userfriendly = copy(lookuptype);
 	    else {
-		userfriendly = galloc( strlen(lookuptype) + 10);
+		userfriendly = galloc( strlen(lookuptype) + 16);
 #ifdef LUA_FF_LIB
-        sprintf( userfriendly, "%s_%c%c%c%c", lookuptype,
-#else
-		sprintf( userfriendly, "%s '%c%c%c%c'", lookuptype,
-#endif
+        if ( (otl->lookup_type&0xff)>= 0xf0 ) {
+          sprintf( userfriendly, "%s_<%d,%d>", lookuptype,
+                 (fl->featuretag>>16), (fl->featuretag&0xffff));
+        } else {
+          sprintf( userfriendly, "%s_%c%c%c%c", lookuptype,
 		    fl->featuretag>>24,
 		    fl->featuretag>>16,
 		    fl->featuretag>>8 ,
 		    fl->featuretag );
+        }
+#else
+		sprintf( userfriendly, "%s '%c%c%c%c'", lookuptype,
+		    fl->featuretag>>24,
+		    fl->featuretag>>16,
+		    fl->featuretag>>8 ,
+		    fl->featuretag );
+#endif
 	    }
 	}
 	script = NULL;
