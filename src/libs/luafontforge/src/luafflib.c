@@ -829,7 +829,9 @@ handle_splinechar (lua_State *L,struct splinechar *glyph, int hasvmetrics) {
     dump_intfield(L,"vwidth",         glyph->vwidth);
   dump_intfield(L,"width",          glyph->width);
 
-  dump_cond_intfield(L,"lsidebearing",   glyph->lsidebearing); 
+  if (glyph->lsidebearing != glyph->xmin) {
+    dump_cond_intfield(L,"lsidebearing",   glyph->lsidebearing); 
+  }
   /* dump_intfield(L,"ttf_glyph",   glyph->ttf_glyph);  */
   
   /* Layer layers[2];	*/	/* TH Not used */
