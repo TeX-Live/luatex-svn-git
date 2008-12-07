@@ -79,7 +79,7 @@ static void PfEd_GlyphComments(SplineFont *sf, struct PfEd_subtabs *pfed,
 	struct glyphinfo *gi ) {
     int i, j, k, any, cnt, last, skipped;
     uint32 offset;
-    SplineChar *sc, *sc2;
+    SplineChar *sc, *sc2 = NULL;
     FILE *cmnt;
 
     any = 0;
@@ -1125,7 +1125,7 @@ static void pfed_read_normal_contour(FILE *ttf,SplineSet *ss,
 	uint32 base, int type) {
     SplinePoint *sp, *current;
     int verb, v, m;
-    float offx, offy, offx1, offy1, offx2, offy2;
+    float offx, offy, offx1 = 0, offy1 = 0, offx2, offy2;
     int was_implicit=false;
 
     fseek(ttf,base,SEEK_SET);
