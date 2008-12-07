@@ -645,7 +645,7 @@ static void ttfdumpmetrics(SplineChar *sc,struct glyphinfo *gi,DBounds *b) {
 }
 
 static SplineSet *SCttfApprox(SplineChar *sc,int layer) {
-    SplineSet *head=NULL, *last, *ss, *tss;
+    SplineSet *head=NULL, *last = NULL, *ss, *tss;
     RefChar *ref;
 
     for ( ss=sc->layers[layer].splines; ss!=NULL; ss=ss->next ) {
@@ -2462,7 +2462,7 @@ static void dumpcffcidhmtx(struct alltabs *at,SplineFont *_sf) {
     DBounds b;
     SplineChar *sc;
     int cid,i,cnt=0,max;
-    SplineFont *sf;
+    SplineFont *sf = NULL;
     int dovmetrics = _sf->hasvmetrics;
 
     at->gi.hmtx = tmpfile();
@@ -5191,7 +5191,7 @@ return( 0 );
 
 static int initTables(struct alltabs *at, SplineFont *sf,enum fontformat format,
 	int32 *bsizes, enum bitmapformat bf,int flags) {
-    int i, j, aborted, ebdtpos, eblcpos, offset;
+    int i, j, aborted, ebdtpos = 0, eblcpos = 0, offset;
     BDFFont *bdf;
     struct ttf_table *tab;
 
