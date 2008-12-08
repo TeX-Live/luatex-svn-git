@@ -8165,6 +8165,11 @@ fi
 
 
 if test "x$with_luatex" = xyes; then
+  case "$target" in
+  i386-mingw32)
+    SOCKETHACK="-lwsock32"
+   ;;
+  *)
   SAVE_LIBS="$LIBS"
   LIBS=""
   { $as_echo "$as_me:$LINENO: checking for library containing gethostbyname" >&5
@@ -8431,6 +8436,17 @@ fi
   SOCKETHACK="$LIBS"
 
   LIBS="$SAVE_LIBS"
+  ;;
+  esac
+
+
+  case "$host" in
+  *-apple-darwin*)
+   LIBS="-Wl,/System/Library/Frameworks/Carbon.framework/Carbon $LIBS"
+   LIBS="-Wl,/System/Library/Frameworks/CoreServices.framework/CoreServices $LIBS"
+   ;;
+  esac
+
 fi
 
 if test "x$with_pdftex" = xyes; then
