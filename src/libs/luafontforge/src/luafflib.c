@@ -2336,7 +2336,7 @@ int luaopen_ff (lua_State *L) {
   InitSimpleStuff();
   FF_SetUiInterface(&luaui_interface);
   default_encoding = FindOrMakeEncoding("ISO8859-1");
-  SaveTablesPref = "VORG,JUST,acnt,bsln,fdsc,fmtx,hsty,just,trak,Zapf";
+  SaveTablesPref = "VORG,JSTF,acnt,bsln,fdsc,fmtx,hsty,just,trak,Zapf,LINO";
   luaL_newmetatable(L,FONT_METATABLE);
   luaL_register(L, NULL, fflib_m);
   luaL_openlib(L, "fontforge", fflib, 0);
