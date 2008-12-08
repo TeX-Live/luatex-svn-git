@@ -285,6 +285,18 @@ AC_SUBST(CXXLDEXTRA)
 AC_SUBST(CXXHACKLINK)
 AC_SUBST(CXXHACKLDLIBS)
 
+if test "x$with_luatex" = xyes; then
+  SAVE_LIBS="$LIBS"
+  LIBS=""
+  AC_SEARCH_LIBS([gethostbyname], [nsl dns resolv])
+  AC_SEARCH_LIBS([nanosleep], [rt posix4])
+  AC_SEARCH_LIBS([inet_aton], [resolv])
+dnl AC_CHECK_FUNCS([nanosleep gethostbyaddr gethostbyname inet_aton inet_ntoa], true, AC_MSG_ERROR([One of the functions required for luatex were not found.]))
+  SOCKETHACK="$LIBS"
+  AC_SUBST(SOCKETHACK)
+  LIBS="$SAVE_LIBS"
+fi
+
 if test "x$with_pdftex" = xyes; then
   PTEX=
 else

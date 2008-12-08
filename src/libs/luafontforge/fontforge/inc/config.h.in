@@ -7,12 +7,11 @@
 #undef HAVE_STDINT_H
 #undef HAVE_LANGINFO_H
 #undef HAVE_PTHREAD_H
-#undef HAVE_LIBINTL_H
+/* #undef HAVE_LIBINTL_H */
 #undef HAVE_IEEEFP_H
 #undef FREETYPE_HAS_DEBUGGER
 /* #undef HAVE_LONG_DOUBLE */ /* don't do this */
 /* #undef _HAS_LONGLONG */  /* don't do this */
-#undef HAVE_LIBINTL_H
 #undef _STATIC_LIBINTL
 #undef _STATIC_LIBUNGIF
 #undef _STATIC_LIBPNG

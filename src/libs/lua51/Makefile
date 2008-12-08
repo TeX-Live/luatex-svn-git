@@ -7,8 +7,7 @@
 # Your platform. See PLATS for possible values.
 PLAT= none
 
-CC= gcc
-LOCALCFLAGS= -g -O2 -Wall $(MYCFLAGS) $(COCOCFLAGS)
+LOCALCFLAGS= $(MYCFLAGS) $(COCOCFLAGS)
 AR= ar rcu
 RANLIB= ranlib
 RM= rm -f

@@ -5,10 +5,9 @@ INSTALL_TOP_SHARE=/usr/local/share/lua/5.1
 INSTALL_TOP_LIB=/usr/local/lib/lua/5.1
 
 LUAINC = -I../../lua51
-CC = gcc
 
 DEF = -DLUASOCKET_DEBUG 
-CFLAGS = $(LUAINC) $(DEF) -pedantic -Wall -O2 $(XCFLAGS)
+CFLAGS = $(LUAINC) $(DEF) $(XCFLAGS)
 AR=ar
 ARFLAGS=rc
 
