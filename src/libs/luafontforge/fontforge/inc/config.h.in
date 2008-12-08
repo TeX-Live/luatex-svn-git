@@ -43,7 +43,7 @@
 /* #undef FONTFORGE_CONFIG_PASTEAFTER */
 /* #undef FONTFORGE_CONFIG_GB12345 */
 /* #undef FONTFORGE_CONFIG_TILEPATH */
-#undef _NO_FFSCRIPT
+#define _NO_FFSCRIPT 1
 #undef _NO_TZSET
 #define _NO_FREETYPE 1
 #define _NO_LIBXML 1
