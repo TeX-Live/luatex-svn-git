@@ -1,0 +1,16 @@
+***************
+*** 1,6 ****
+- # SOME DESCRIPTIVE TITLE.
+- # Copyright (C) YEAR Free Software Foundation, Inc.
+- # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+  #
+  #, fuzzy
+  msgid ""
+--- 1,7 ----
++ # Menu shortcuts for FontForge.
++ # Copyright (C) 2000-2007 by George Williams
++ # This file is distributed under the same license as the FontForge package.
++ # George Williams, <pfaedit@users.sourceforge.net>, 2007.
+  #
+  #, fuzzy
+  msgid ""

@@ -132,11 +132,7 @@ LUAFFDIR=../../libs/luafontforge
 LUAFFSRCDIR=$(srcdir)/$(LUAFFDIR)
 LUAFFDEP=$(LUAFFDIR)/libff.a
 $(LUAFFDEP): always
-	mkdir -p $(LUAFFDIR) && cp -f $(LUAFFSRCDIR)/Makefile $(LUAFFDIR)
-	mkdir -p $(LUAFFDIR)/fontforge && cp -f $(LUAFFSRCDIR)/fontforge/fontforge/Makefile $(LUAFFDIR)/fontforge
-	mkdir -p $(LUAFFDIR)/Unicode && cp -f $(LUAFFSRCDIR)/fontforge/Unicode/Makefile $(LUAFFDIR)/Unicode
-	cd $(LUAFFDIR) && $(MAKE)
-
+	mkdir -p $(LUAFFDIR) && cd $(LUAFFDIR) && cp -f $(LUAFFSRCDIR)/Makefile . && $(MAKE)
 
 # luazlib
 LUAZLIBDIR=../../libs/luazlib

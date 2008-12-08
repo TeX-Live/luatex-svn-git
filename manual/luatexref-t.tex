@@ -19,7 +19,7 @@
 
 \setvariables
   [document]
-  [beta=0.30.2]
+  [beta=0.31.0]
 
 \starttext
 
@@ -74,7 +74,7 @@ distinguishable parts:
 \item \LUA\ 5.1.2 ($+$ coco 1.1.3) % hahe: still 5.1.2?
 \item dedicated \LUA\ libraries
 \item various \TEX\ extensions
-\item parts of \FONTFORGE\ 2007.06.07
+\item parts of \FONTFORGE\ 2008.11.17
 \item a still experimental version of the \METAPOST\ library
 \item newly written compiled source code to glue it all together
 \stopitemize
@@ -1626,7 +1626,7 @@ token.expand()
 
 If a token is expandable, this will expand one level of it, so that
 the first token of the expansion will now be the next token to be read
-by \luatex{tex.get_next()}.
+by \luatex{token.get_next()}.
 
 \subsection{\luatex{token.is_activechar}}
 
@@ -4078,19 +4078,22 @@ there is no need for an explicit call to \type{apply_afmfile()}.
 
 \section{Fontforge font tables}
 
+\subsection{Table types}
+
+\subsubsection{Top-level}
+
 The top|-|level keys in the returned table are (the explanations in
 this part of the documentation are not yet finished):
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf key                      \NC \bf type \NC \bf explanation \NC\NR
-\NC table_version                \NC number   \NC indicates the metrics version\NC\NR
+\NC table_version                \NC number   \NC indicates the metrics version (currently~0.3)\NC\NR
 \NC fontname                     \NC string   \NC \POSTSCRIPT\ font name\NC\NR
 \NC fullname                     \NC string   \NC official font name\NC\NR
 \NC familyname                   \NC string   \NC family name\NC\NR
 \NC weight                       \NC string   \NC weight indicator\NC\NR
 \NC copyright                    \NC string   \NC copyright information\NC\NR
 \NC filename                     \NC string   \NC the file name\NC\NR
-%\NC defbasefilename              \NC string   \NC \NC\NR
 \NC version                      \NC string   \NC font version\NC\NR
 \NC italicangle                  \NC float    \NC slant angle\NC\NR
 \NC units_per_em                 \NC number   \NC 1000 for \POSTSCRIPT-based fonts, usually 2048 for \TRUETYPE\NC\NR
@@ -4098,15 +4101,18 @@ this part of the documentation are not yet finished):
 \NC descent                      \NC number   \NC depth of descender in \type{units_per_em}\NC\NR
 \NC upos                         \NC float    \NC \NC\NR
 \NC uwidth                       \NC float    \NC \NC\NR
-\NC vertical_origin              \NC number   \NC \NC\NR
 \NC uniqueid                     \NC number   \NC \NC\NR
 \NC glyphcnt                     \NC number   \NC number of included glyphs\NC\NR
 \NC glyphs                       \NC array    \NC \NC\NR
 \NC glyphmax                     \NC number   \NC maximum used index the glyphs array\NC\NR
-%\NC changed                      \NC number   \NC \NC\NR
 \NC hasvmetrics                  \NC number   \NC \NC\NR
-\NC order2                       \NC number   \NC set to 1 for \TRUETYPE\ splines, 0 otherwise\NC\NR
+\NC onlybitmaps                  \NC number   \NC \NC\NR
+\NC serifcheck                   \NC number   \NC \NC\NR
+\NC isserif                      \NC number   \NC \NC\NR
+\NC issans                       \NC number   \NC \NC\NR
+\NC encodingchanged              \NC number   \NC \NC\NR
 \NC strokedfont                  \NC number   \NC \NC\NR
+\NC use_typo_metrics             \NC number   \NC \NC\NR
 \NC weight_width_slope_only      \NC number   \NC \NC\NR
 \NC head_optimized_for_cleartype \NC number   \NC \NC\NR
 \NC uni_interp                   \NC enum     \NC \type {unset}, \type {none}, \type {adobe},
@@ -4120,16 +4126,21 @@ this part of the documentation are not yet finished):
 \NC names                        \NC table    \NC \NC\NR
 \NC cidinfo                      \NC table    \NC \NC\NR
 \NC subfonts                     \NC array    \NC \NC\NR
-\NC cidmaster                    \NC array    \NC \NC\NR
 \NC commments                    \NC string   \NC \NC\NR
+\NC fontlog                      \NC string   \NC \NC\NR
+\NC cvt_names                    \NC string   \NC \NC\NR
 \NC anchor_classes               \NC table    \NC \NC\NR
 \NC ttf_tables                   \NC table    \NC \NC\NR
+\NC ttf_tab_saved                \NC table    \NC \NC\NR
 \NC kerns                        \NC table    \NC \NC\NR
 \NC vkerns                       \NC table    \NC \NC\NR
 \NC texdata                      \NC table    \NC \NC\NR
 \NC lookups                       \NC table    \NC \NC\NR
 \NC gpos                          \NC table    \NC \NC\NR
 \NC gsub                          \NC table    \NC \NC\NR
+\NC sm                            \NC table    \NC \NC\NR
+\NC features                      \NC table    \NC \NC\NR
+\NC mm                            \NC table    \NC \NC\NR
 \NC chosenname                   \NC string   \NC \NC\NR
 \NC macstyle                     \NC number   \NC \NC\NR
 \NC fondname                     \NC string   \NC \NC\NR
@@ -4144,6 +4155,12 @@ this part of the documentation are not yet finished):
 \NC creationtime                 \NC number   \NC \NC\NR
 \NC modificationtime             \NC number   \NC \NC\NR
 \NC os2_version                  \NC number   \NC \NC\NR
+\NC sfd_version                  \NC number   \NC \NC\NR
+\NC math                         \NC table    \NC \NC\NR
+\NC validation_state             \NC table    \NC \NC\NR
+\NC horiz_base                   \NC table    \NC \NC\NR
+\NC vert_base                    \NC table    \NC \NC\NR
+\NC extrema_bound                \NC number   \NC \NC\NR
 \stoptabulate
 
 \subsubsection{Glyph items}
@@ -4158,19 +4175,24 @@ information (quite a few of these are only present if nonzero).
 \NC boundingbox                  \NC array    \NC array of four numbers\NC\NR
 \NC width                        \NC number   \NC only for horizontal fonts\NC\NR
 \NC vwidth                       \NC number   \NC only for vertical fonts\NC\NR
-\NC lsidebearing                 \NC number   \NC only if nonzero\NC\NR
-\NC glyph_class                  \NC number   \NC only if nonzero\NC\NR
+\NC lsidebearing                 \NC number   \NC only if nonzero and not equal to boundingbox[1]\NC\NR
+\NC class                        \NC string   \NC one of "automatic", "none" ,"base", "ligature","mark", "component"\NC\NR
 \NC kerns                        \NC array    \NC only for horizontal fonts, if set\NC\NR
 \NC vkerns                       \NC array    \NC only for vertical fonts, if set\NC\NR
 \NC dependents                   \NC array    \NC linear array of glyph name strings, only if nonempty\NC\NR
 \NC lookups                      \NC table    \NC only if nonempty\NC\NR
 \NC ligatures                    \NC table    \NC only if nonempty\NC\NR
 \NC anchors                      \NC table    \NC only if set\NC\NR
+\NC comment                      \NC string   \NC only if set\NC\NR
 \NC tex_height                   \NC number   \NC only if set\NC\NR
 \NC tex_depth                    \NC number   \NC only if set\NC\NR
-\NC tex_sub_pos                  \NC number   \NC only if set\NC\NR
-\NC tex_super_pos                \NC number   \NC only if set\NC\NR
-\NC comment                      \NC string   \NC only if set\NC\NR
+\NC italic_correction            \NC number   \NC only if set\NC\NR
+\NC top_accent_horiz             \NC number   \NC only if set\NC\NR
+\NC is_extended_shape            \NC number   \NC only if this character is part of a math extension list\NC\NR
+\NC altuni                       \NC table    \NC alternate unicode items \NC\NR
+\NC vert_variants                \NC table    \NC \NC \NR
+\NC horiz_variants               \NC table    \NC \NC \NR
+\NC mathkern                     \NC table    \NC \NC \NR
 \stoptabulate
 
 The \type{kerns} and \type{vkerns} are linear arrays of small hashes:
@@ -4198,7 +4220,7 @@ the value of each key inside that a linear array of small hashes:
 For the first seven values of \type{type}, there can be additional
 sub|-|information, stored in the sub-table \type{specification}:
 
-\starttabulate[|lT|l|l|p|]
+\starttabulate[|lT|l|p|]
 \NC \ssbf value    \NC \bf type \NC \bf explanation \NC\NR
 \NC position     \NC table    \NC a table of the \type {offset_specs} type\NC\NR
 \NC pair         \NC table    \NC one string: \type {paired}, and an array of one or
@@ -4230,12 +4252,12 @@ anchor type, which is one of
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
-\NC mark              \NC table   \NC placement mark\NR
-\NC basechar          \NC table   \NC mark for attaching combining items to a base char\NR
-\NC baselig           \NC table   \NC mark for attaching combining items to a ligature\NR
-\NC basemark          \NC table   \NC generic mark for attaching combining items to connect to\NR
-\NC centry            \NC table   \NC cursive entry point\NR
-\NC cexit             \NC table   \NC cursive exit point\NR
+\NC mark              \NC table   \NC placement mark\NC\NR
+\NC basechar          \NC table   \NC mark for attaching combining items to a base char\NC\NR
+\NC baselig           \NC table   \NC mark for attaching combining items to a ligature\NC\NR
+\NC basemark          \NC table   \NC generic mark for attaching combining items to connect to\NC\NR
+\NC centry            \NC table   \NC cursive entry point\NC\NR
+\NC cexit             \NC table   \NC cursive exit point\NC\NR
 \stoptabulate
 
 The content of these is an short array of defined anchors, with the
@@ -4388,6 +4410,8 @@ The \type{pfminfo} table contains most of the OS/2 information:
 \NC os2_defaultchar    \NC number  \NC \NC\NR
 \NC os2_breakchar      \NC number  \NC \NC\NR
 \NC os2_vendor         \NC string  \NC \NC\NR
+\NC codepages          \NC table  \NC A two-number array of encoded code pages\NC\NR
+\NC unicoderages       \NC table  \NC A four-number array of encoded unicode ranges\NC\NR
 \NC panose             \NC table  \NC \NC\NR
 \stoptabulate
 
@@ -4445,6 +4469,8 @@ possible keys are:
 \NC compatfull   \NC \NC\NR
 \NC sampletext   \NC \NC\NR
 \NC cidfindfontname   \NC \NC\NR
+\NC wwsfamily   \NC \NC\NR
+\NC wwssubfamily   \NC \NC\NR
 \stoptabulate
 
 \subsubsection{anchor_classes table}
@@ -4489,14 +4515,13 @@ actually set:
 \stoptabulate
 
 
-
-The features table has:
+The features subtable of gpos has:
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
 \NC tag                    \NC string   \NC \NC\NR
 \NC scripts                \NC table    \NC \NC\NR
-\NC ismax                  \NC number   \NC (only if true)\NC\NR
+\NC ismac                  \NC number   \NC (only if true)\NC\NR
 \stoptabulate
 
 The scripts table within features has:
@@ -4506,7 +4531,6 @@ The scripts table within features has:
 \NC script	               \NC string          \NC \NC\NR
 \NC langs                  \NC array of strings \NC \NC\NR
 \stoptabulate
-
 
 
 The subtables table has:
@@ -4548,7 +4572,7 @@ type:
 
 
 
-\subsubsection{ttf_tables table}
+\subsubsection{ttf_tables and ttf_tab_saved tables}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
@@ -4556,6 +4580,260 @@ type:
 \NC len                    \NC number   \NC \NC\NR
 \NC maxlen                 \NC number   \NC \NC\NR
 \NC data                   \NC number   \NC \NC\NR
+\stoptabulate
+
+\subsubsection{sm table}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC type                 \NC string   \NC one of "indic", "context", "lig", "simple", "insert", "kern"\NC\NR
+\NC lookup               \NC string   \NC \NC\NR
+\NC flags                \NC table    \NC a set of boolean values with
+                                          the keys : "vert", "descending", "always"\NC\NR
+\NC classes              \NC table    \NC an array of named classes \NC\NR
+\NC state                \NC table    \NC \NC\NR
+\stoptabulate
+
+The \type{state} table has:
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC next                 \NC number   \NC \NC \NR
+\NC flags                \NC number   \NC \NC \NR
+\NC context              \NC table    \NC A small table that has 'mark' and
+'cur' as possible keys, with the values being lookup names. Only
+applies if the \type{sm.type} = \type{context}.\NC\NR
+\NC insert               \NC table    \NC A small table that has 'mark' and
+'cur' as possible keys, with the values strings. Only
+applies if the \type{sm.type} = \type{insert}.\NC\NR
+\NC kern               \NC table    \NC A small array with kern data. Only
+applies if the \type{sm.type} = \type{kern}.\NC\NR
+\stoptabulate
+
+
+\subsubsection{features table}
+
+% handle_macfeat
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC feature                 \NC number   \NC \NC \NR
+\NC ismutex                 \NC number   \NC \NC \NR
+\NC default_setting         \NC number   \NC \NC \NR
+\NC strid                   \NC number   \NC \NC \NR
+\NC featname                \NC table    \NC A set of mac names. 
+macnames are like otfnames except that they also have an 'enc' field \NC \NR
+\NC settings                \NC table    \NC \NC \NR
+\stoptabulate
+
+The \type{settings} are:
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC setting                 \NC number   \NC \NC \NR
+\NC strid                   \NC number   \NC \NC \NR
+\NC initially_enabled       \NC number   \NC \NC \NR
+\NC setname                 \NC table    \NC A set of mac names.
+macnames are like otfnames except that they also have an 'enc' field \NC \NR
+\stoptabulate
+
+\subsubsection{mm table}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC axes                 \NC table   \NC array of axis names \NC \NR
+\NC instance_count       \NC number   \NC \NC \NR
+\NC positions            \NC table   \NC array of instance positions
+                                         (\#axes * instances )\NC \NR
+\NC defweights           \NC table   \NC array of default weights for instances \NC \NR
+\NC cdv                  \NC string  \NC \NC \NR
+\NC ndv                  \NC string  \NC \NC \NR
+\NC axismaps             \NC table   \NC  \NC \NR
+\NC named_instance_count \NC number   \NC \NC \NR
+\NC named_instances      \NC table   \NC \NC \NR
+\NC apple                \NC number   \NC \NC \NR
+\stoptabulate
+
+The \type{axismaps}: 
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC blends               \NC table     \NC an array of blend points \NC \NR
+\NC designs              \NC table     \NC an array of design values \NC \NR
+\NC min                  \NC number   \NC \NC \NR
+\NC def                  \NC number   \NC \NC \NR
+\NC max                  \NC number   \NC \NC \NR
+\NC axisnames            \NC table     \NC a set of mac names \NC \NR
+\stoptabulate
+
+
+The \type{named_instances} is an array of instances: 
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC names                \NC table  \NC a set of mac names  \NC \NR
+\NC coords               \NC table  \NC an array of coordinates \NC \NR
+\stoptabulate
+
+
+\subsubsection{math table}
+
+\starttabulate[|lT|p|]
+\NC ScriptPercentScaleDown \NC \NC \NR
+\NC ScriptScriptPercentScaleDown \NC \NC \NR
+\NC DelimitedSubFormulaMinHeight \NC \NC \NR
+\NC DisplayOperatorMinHeight \NC \NC \NR
+\NC MathLeading \NC \NC \NR
+\NC AxisHeight \NC \NC \NR
+\NC AccentBaseHeight \NC \NC \NR
+\NC FlattenedAccentBaseHeight \NC \NC \NR
+\NC SubscriptShiftDown \NC \NC \NR
+\NC SubscriptTopMax \NC \NC \NR
+\NC SubscriptBaselineDropMin \NC \NC \NR
+\NC SuperscriptShiftUp \NC \NC \NR
+\NC SuperscriptShiftUpCramped \NC \NC \NR
+\NC SuperscriptBottomMin \NC \NC \NR
+\NC SuperscriptBaselineDropMax \NC \NC \NR
+\NC SubSuperscriptGapMin \NC \NC \NR
+\NC SuperscriptBottomMaxWithSubscript \NC \NC \NR
+\NC SpaceAfterScript \NC \NC \NR
+\NC UpperLimitGapMin \NC \NC \NR
+\NC UpperLimitBaselineRiseMin \NC \NC \NR
+\NC LowerLimitGapMin \NC \NC \NR
+\NC LowerLimitBaselineDropMin \NC \NC \NR
+\NC StackTopShiftUp \NC \NC \NR
+\NC StackTopDisplayStyleShiftUp \NC \NC \NR
+\NC StackBottomShiftDown \NC \NC \NR
+\NC StackBottomDisplayStyleShiftDown \NC \NC \NR
+\NC StackGapMin \NC \NC \NR
+\NC StackDisplayStyleGapMin \NC \NC \NR
+\NC StretchStackTopShiftUp \NC \NC \NR
+\NC StretchStackBottomShiftDown \NC \NC \NR
+\NC StretchStackGapAboveMin \NC \NC \NR
+\NC StretchStackGapBelowMin \NC \NC \NR
+\NC FractionNumeratorShiftUp \NC \NC \NR
+\NC FractionNumeratorDisplayStyleShiftUp \NC \NC \NR
+\NC FractionDenominatorShiftDown \NC \NC \NR
+\NC FractionDenominatorDisplayStyleShiftDown \NC \NC \NR
+\NC FractionNumeratorGapMin \NC \NC \NR
+\NC FractionNumeratorDisplayStyleGapMin \NC \NC \NR
+\NC FractionRuleThickness \NC \NC \NR
+\NC FractionDenominatorGapMin \NC \NC \NR
+\NC FractionDenominatorDisplayStyleGapMin \NC \NC \NR
+\NC SkewedFractionHorizontalGap \NC \NC \NR
+\NC SkewedFractionVerticalGap \NC \NC \NR
+\NC OverbarVerticalGap \NC \NC \NR
+\NC OverbarRuleThickness \NC \NC \NR
+\NC OverbarExtraAscender \NC \NC \NR
+\NC UnderbarVerticalGap \NC \NC \NR
+\NC UnderbarRuleThickness \NC \NC \NR
+\NC UnderbarExtraDescender \NC \NC \NR
+\NC RadicalVerticalGap \NC \NC \NR
+\NC RadicalDisplayStyleVerticalGap \NC \NC \NR
+\NC RadicalRuleThickness \NC \NC \NR
+\NC RadicalExtraAscender \NC \NC \NR
+\NC RadicalKernBeforeDegree \NC \NC \NR
+\NC RadicalKernAfterDegree \NC \NC \NR
+\NC RadicalDegreeBottomRaisePercent \NC \NC \NR
+\NC MinConnectorOverlap \NC \NC \NR
+\stoptabulate
+
+\subsubsection{validation_state table}
+
+\starttabulate[|lT|p|]
+\NC \ssbf key           \NC \bf explanation \NC\NR
+\NC bad_ps_fontname \NC \NC \NR
+\NC bad_glyph_table \NC \NC \NR
+\NC bad_cff_table \NC \NC \NR
+\NC bad_metrics_table \NC \NC \NR
+\NC bad_cmap_table \NC \NC \NR
+\NC bad_bitmaps_table  \NC \NC \NR
+\NC bad_gx_table      \NC \NC \NR
+\NC bad_ot_table     \NC \NC \NR
+\NC bad_os2_version \NC \NC \NR
+\NC bad_sfnt_header \NC \NC \NR
+\stoptabulate
+
+\subsubsection{horiz_base and vert_base table}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC tags                 \NC table    \NC an array of script list tags\NC \NR
+\NC scripts              \NC table    \NC \NC \NR
+\stoptabulate
+
+
+The \type{scripts} subtable:
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC baseline             \NC table   \NC \NC \NR
+\NC default_baseline     \NC number  \NC \NC \NR
+\NC lang                 \NC table   \NC \NC \NR
+\stoptabulate
+
+
+The \type{lang} subtable:
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC tag                  \NC string   \NC a script tag \NC \NR
+\NC ascent               \NC number   \NC \NC \NR
+\NC descent              \NC number   \NC \NC \NR
+\NC features             \NC table   \NC \NC \NR
+\stoptabulate
+
+The \type{features} points to an array of tables with the same layout
+except that in those nested tables, the tag represents a language.
+
+\subsubsection{altuni table}
+
+An array of alternate unicode values. Inside that array 
+are hashes with:
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC unicode             \NC number     \NC \NC \NR
+\NC variant             \NC number     \NC \NC \NR
+\stoptabulate
+
+\subsubsection{vert_variants and horiz_variants table}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC variants             \NC string     \NC \NC \NR
+\NC italic_correction    \NC number     \NC \NC \NR
+\NC parts                \NC table     \NC \NC \NR
+\stoptabulate
+
+The \type{parts} table is an array of smaller tables:
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC component             \NC string     \NC \NC \NR
+\NC is_extender           \NC number     \NC \NC \NR
+\NC startConnectorLength  \NC number     \NC \NC \NR
+\NC endConnectorLength    \NC number     \NC \NC \NR
+\NC fullAdvance           \NC number     \NC \NC \NR
+\stoptabulate
+
+
+\subsubsection{mathkern table}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC top_right            \NC table     \NC \NC \NR
+\NC bottom_right         \NC table     \NC \NC \NR
+\NC top_left             \NC table     \NC \NC \NR
+\NC bottom_left          \NC table     \NC \NC \NR
+\stoptabulate
+
+Each of the subtables is an array of small hashes with two keys:
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC height           \NC number     \NC \NC \NR
+\NC kern             \NC number     \NC \NC \NR
 \stoptabulate
 
 \subsubsection{kerns table}

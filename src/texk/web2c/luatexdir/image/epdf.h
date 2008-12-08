@@ -43,7 +43,7 @@ extern "C" {
 #include <web2c/config.h>       /* define type integer */
 
 #include <web2c/luatexdir/ptexmac.h>
-  /*#include "openbsd-compat.h"*/ 
+#include "openbsd-compat.h"
 #include "image.h"
 #include "../avlstuff.h"
 

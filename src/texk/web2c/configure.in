@@ -285,6 +285,34 @@ AC_SUBST(CXXLDEXTRA)
 AC_SUBST(CXXHACKLINK)
 AC_SUBST(CXXHACKLDLIBS)
 
+if test "x$with_luatex" = xyes; then
+  case "$target" in
+  i386-mingw32)
+    SOCKETHACK="-lwsock32"
+   ;;
+  *)
+    SAVE_LIBS="$LIBS"
+    LIBS=""
+    AC_SEARCH_LIBS([gethostbyname], [nsl dns resolv])
+    AC_SEARCH_LIBS([nanosleep], [rt posix4])
+    AC_SEARCH_LIBS([inet_aton], [resolv])
+dnl AC_CHECK_FUNCS([nanosleep gethostbyaddr gethostbyname inet_aton inet_ntoa], true, AC_MSG_ERROR([One of the functions required for luatex were not found.]))
+    SOCKETHACK="$LIBS"
+    LIBS="$SAVE_LIBS"
+   ;;
+  esac
+
+  AC_SUBST(SOCKETHACK)
+
+  case "$host" in
+  *-apple-darwin*)
+   LIBS="-Wl,/System/Library/Frameworks/Carbon.framework/Carbon $LIBS"
+   LIBS="-Wl,/System/Library/Frameworks/CoreServices.framework/CoreServices $LIBS"
+   ;;
+  esac
+
+fi
+
 if test "x$with_pdftex" = xyes; then
   PTEX=
 else
