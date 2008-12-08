@@ -8442,8 +8442,8 @@ fi
 
   case "$host" in
   *-apple-darwin*)
-   LIBS="-Wl,/System/Library/Frameworks/Carbon.framework/Carbon $LIBS"
-   LIBS="-Wl,/System/Library/Frameworks/CoreServices.framework/CoreServices $LIBS"
+   SOCKETHACK="-Wl,/System/Library/Frameworks/Carbon.framework/Carbon $SOCKETHACK"
+   SOCKETHACK="-Wl,/System/Library/Frameworks/CoreServices.framework/CoreServices $SOCKETHACK"
    ;;
   esac
 
