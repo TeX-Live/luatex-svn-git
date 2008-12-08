@@ -1430,7 +1430,8 @@ handle_generic_fpst(lua_State *L, struct generic_fpst *fpst) {
   }
   lua_createtable(L,0,10);          
   do_handle_generic_fpst(L,fpst);   
-  lua_rawset(L,-3);                 
+  lua_rawset(L,-3); 
+  return; /* change of internal ff structure ! */
   next = fpst->next;                
   while (next != NULL) {            
     lua_checkstack(L,3); 
