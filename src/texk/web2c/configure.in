@@ -304,12 +304,6 @@ dnl AC_CHECK_FUNCS([nanosleep gethostbyaddr gethostbyname inet_aton inet_ntoa], 
 
   AC_SUBST(SOCKETHACK)
 
-  case "$host" in
-  *-apple-darwin*)
-   LIBS="-Wl,/System/Library/Frameworks/Carbon.framework/Carbon $LIBS"
-   LIBS="-Wl,/System/Library/Frameworks/CoreServices.framework/CoreServices $LIBS"
-   ;;
-  esac
 
 fi
 
