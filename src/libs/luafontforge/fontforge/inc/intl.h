@@ -32,6 +32,9 @@
 # define P_(str1,str_non1,n)	((n)==1?str1:str_non1)
 # define U_(str)		(str)
 
+/* the next if statement is because Solaris includes its libintl.h 
+  (that we dont need) from locale.h (that we do need) */
+#if ! defined(__sun__) && ! defined(__sun)
 # ifdef bindtextdomain
 #  undef bindtextdomain
 # endif
@@ -47,6 +50,7 @@
 # define textdomain(domain)
 
 # define dgettext(domain,str)	(str)
+#endif
 
 #elif defined( NODYNAMIC ) || defined ( _STATIC_LIBINTL )
 
