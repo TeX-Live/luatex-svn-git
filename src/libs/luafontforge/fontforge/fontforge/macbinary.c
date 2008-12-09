@@ -35,6 +35,9 @@
 #include <ustring.h>
 #include "ttf.h"
 #include "psfont.h"
+#ifdef LUA_FF_LIB
+#undef __Mac
+#endif
 #if __Mac
 # include <ctype.h>
 # include </Developer/Headers/FlatCarbon/Files.h>

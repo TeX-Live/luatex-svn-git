@@ -8439,14 +8439,6 @@ fi
   ;;
   esac
 
-
-  case "$host" in
-  *-apple-darwin*)
-   SOCKETHACK="-Wl,/System/Library/Frameworks/Carbon.framework/Carbon $SOCKETHACK"
-   SOCKETHACK="-Wl,/System/Library/Frameworks/CoreServices.framework/CoreServices $SOCKETHACK"
-   ;;
-  esac
-
 fi
 
 if test "x$with_pdftex" = xyes; then
