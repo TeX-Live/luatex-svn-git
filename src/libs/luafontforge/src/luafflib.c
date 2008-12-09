@@ -428,11 +428,14 @@ do_handle_lookup_subtable (lua_State *L, struct lookup_subtable *subtable) {
     lua_setfield(L,-2, "kernclass");
   }
 
+#if 0
   if (subtable->fpst != NULL) {
-    lua_newtable(L);
+    /* lua_newtable(L); */
     handle_generic_fpst(L, subtable->fpst);
-    lua_setfield(L,-2, "fpst");
+    /* lua_setfield(L,-2, "fpst"); */
   }
+#endif
+
   if (subtable->sm != NULL) {
     lua_newtable(L);
     handle_generic_asm(L, subtable->sm);
@@ -1431,21 +1434,20 @@ handle_generic_fpst(lua_State *L, struct generic_fpst *fpst) {
   lua_createtable(L,0,10);          
   do_handle_generic_fpst(L,fpst);   
   lua_rawset(L,-3); 
-  return; /* change of internal ff structure ! */
-  next = fpst->next;                
-  while (next != NULL) {            
-    lua_checkstack(L,3); 
-  if (next->subtable != NULL && 
-      next->subtable->subtable_name != NULL) {
-    lua_pushstring(L,next->subtable->subtable_name);
-  } else {
-    lua_pushnumber(L,k); k++;
-  }
-    lua_createtable(L,0,10);        
-    do_handle_generic_fpst(L, next);
-    lua_rawset(L,-3);               
-    next = next->next;              
-  }
+  next = fpst->next;                                                       
+  while (next != NULL) {                                                   
+    lua_checkstack(L,3);                                                   
+  if (next->subtable != NULL &&                                            
+      next->subtable->subtable_name != NULL) {                             
+    lua_pushstring(L,next->subtable->subtable_name);                       
+  } else {                                                                 
+    lua_pushnumber(L,k); k++;                                              
+  }                                                                        
+    lua_createtable(L,0,10);                                               
+    do_handle_generic_fpst(L, next);                                       
+    lua_rawset(L,-3);                                                      
+    next = next->next;                                                     
+  } 
 }
 
 void
