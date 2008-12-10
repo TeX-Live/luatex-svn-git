@@ -1,0 +1,16 @@
+prefix = @prefix@
+localedir = $(prefix)/share/locale
+INSTALL = @INSTALL@
+INSTALL_DATA = @INSTALL_DATA@
+
+MOFILES =
+
+.SUFFIXES:
+.SUFFIXES: .po .mo
+
+all: $(MOFILES)
+
+.po.mo:
+	msgfmt -o $@ $<
+
+install:
