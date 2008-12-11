@@ -9796,71 +9796,6 @@ fi
 test -d libs || mkdir libs
 
 
-MACKEYS=
-if test "$gww_has_gettext" = "yes" >/dev/null 2>&1 ; then
- if test "$gww_ismac" = "yes" >/dev/null 2>&1 ; then
-  mofiles="$(cd $ac_confdir/po/mackeys && ls *.po | sed -e 's#\.po#\.mo#g')"
-
-  cat </dev/null >$ac_confdir/po/mackeys/Makefile.in
-  echo 'prefix = @prefix@' >> $ac_confdir/po/mackeys/Makefile.in
-  echo 'localedir = $(prefix)/share/locale' >> $ac_confdir/po/mackeys/Makefile.in
-  echo 'INSTALL = @INSTALL@' >> $ac_confdir/po/mackeys/Makefile.in
-  echo 'INSTALL_DATA = @INSTALL_DATA@' >> $ac_confdir/po/mackeys/Makefile.in
-  echo '' >> $ac_confdir/po/mackeys/Makefile.in
-  echo "MOFILES =" $mofiles >> $ac_confdir/po/mackeys/Makefile.in
-  echo '' >> $ac_confdir/po/mackeys/Makefile.in
-  echo '.SUFFIXES:' >> $ac_confdir/po/mackeys/Makefile.in
-  echo '.SUFFIXES: .po .mo' >> $ac_confdir/po/mackeys/Makefile.in
-  echo '' >> $ac_confdir/po/mackeys/Makefile.in
-  echo 'all: $(MOFILES)' >> $ac_confdir/po/mackeys/Makefile.in
-  echo '' >> $ac_confdir/po/mackeys/Makefile.in
-  echo '.po.mo:' >> $ac_confdir/po/mackeys/Makefile.in
-  echo '	msgfmt -o $@ $<' >> $ac_confdir/po/mackeys/Makefile.in
-  echo '' >> $ac_confdir/po/mackeys/Makefile.in
-  echo 'install:' >> $ac_confdir/po/mackeys/Makefile.in
-
-  for localefile in $mofiles; do
-    locale="${localefile%%.mo}"
-    echo '	mkdir -p $(DESTDIR)$(localedir)/'$locale'/LC_MESSAGES'       >> $ac_confdir/po/mackeys/Makefile.in
-    echo '	$(INSTALL_DATA)' $localefile '$(DESTDIR)$(localedir)/'$locale'/LC_MESSAGES/Mac-FontForge-MenuShortCuts.mo'       >> $ac_confdir/po/mackeys/Makefile.in
-  done
-  MACKEYS=po/mackeys/Makefile
- fi
- mofiles="$(cd $ac_confdir/po && ls *.po | sed -e 's#\.po#\.mo#g')"
-
- cat </dev/null >$ac_confdir/po/Makefile.in
- echo 'prefix = @prefix@' >> $ac_confdir/po/Makefile.in
- echo 'localedir = $(prefix)/share/locale' >> $ac_confdir/po/Makefile.in
- echo 'INSTALL = @INSTALL@' >> $ac_confdir/po/Makefile.in
- echo 'INSTALL_DATA = @INSTALL_DATA@' >> $ac_confdir/po/Makefile.in
- echo '' >> $ac_confdir/po/Makefile.in
- echo "MOFILES =" $mofiles >> $ac_confdir/po/Makefile.in
- echo '' >> $ac_confdir/po/Makefile.in
- echo '.SUFFIXES:' >> $ac_confdir/po/Makefile.in
- echo '.SUFFIXES: .po .mo' >> $ac_confdir/po/Makefile.in
- echo '' >> $ac_confdir/po/Makefile.in
- echo 'all: $(MOFILES)' >> $ac_confdir/po/Makefile.in
- echo '' >> $ac_confdir/po/Makefile.in
- echo '.po.mo:' >> $ac_confdir/po/Makefile.in
- echo '	msgfmt -o $@ $<' >> $ac_confdir/po/Makefile.in
- echo '' >> $ac_confdir/po/Makefile.in
- echo 'install:' >> $ac_confdir/po/Makefile.in
-
-  for localefile in $mofiles; do
-    locale="${localefile%%.mo}"
-    echo '	mkdir -p $(DESTDIR)$(localedir)/'$locale'/LC_MESSAGES'       >> $ac_confdir/po/Makefile.in
-    echo '	$(INSTALL_DATA)' $localefile '$(DESTDIR)$(localedir)/'$locale'/LC_MESSAGES/FontForge.mo'       >> $ac_confdir/po/Makefile.in
-  done
-else
- cat </dev/null >$ac_confdir/po/Makefile.in
- echo 'all:' >> $ac_confdir/po/Makefile.in
- echo '	' >> $ac_confdir/po/Makefile.in
- echo '' >> $ac_confdir/po/Makefile.in
- echo 'install:' >> $ac_confdir/po/Makefile.in
- echo '	' >> $ac_confdir/po/Makefile.in
- echo '' >> $ac_confdir/po/Makefile.in
-fi
-
 
 
 VERSION=`cat $ac_confdir/VERSION`
@@ -9882,7 +9817,7 @@ if test -e umap >/dev/null 2>&1 ; then
   cp $ac_confdir/umap/Makefile.static.in $ac_confdir/umap/Makefile.in
   UMAP=umap/Makefile
 fi
-ac_config_files="$ac_config_files Makefile Unicode/Makefile gutils/Makefile gdraw/Makefile fontforge/Makefile po/Makefile systemspecific fontforge.pc $MACKEYS $UMAP"
+ac_config_files="$ac_config_files Makefile Unicode/Makefile gutils/Makefile gdraw/Makefile fontforge/Makefile systemspecific fontforge.pc $MACKEYS $UMAP"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -10457,7 +10392,6 @@ do
     "gutils/Makefile") CONFIG_FILES="$CONFIG_FILES gutils/Makefile" ;;
     "gdraw/Makefile") CONFIG_FILES="$CONFIG_FILES gdraw/Makefile" ;;
     "fontforge/Makefile") CONFIG_FILES="$CONFIG_FILES fontforge/Makefile" ;;
-    "po/Makefile") CONFIG_FILES="$CONFIG_FILES po/Makefile" ;;
     "systemspecific") CONFIG_FILES="$CONFIG_FILES systemspecific" ;;
     "fontforge.pc") CONFIG_FILES="$CONFIG_FILES fontforge.pc" ;;
     "$MACKEYS") CONFIG_FILES="$CONFIG_FILES $MACKEYS" ;;
