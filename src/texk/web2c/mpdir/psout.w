@@ -1,4 +1,4 @@
-% $Id: psout.w 704 2008-11-24 14:59:24Z taco $
+% $Id: psout.w 747 2008-11-29 12:17:03Z taco $
 %
 % Copyright 2008 Taco Hoekwater.
 %
@@ -3738,10 +3738,10 @@ that use the left-over |b3| field in the |char_info| words; i.e.,
 enum mp_char_mark_state {mp_unused=0, mp_used};
 
 @ @<Declarations@>=
-static void mp_mark_string_chars (MP mp,font_number f, char *s) ;
+static void mp_mark_string_chars (MP mp,font_number f, char *s, int l) ;
 
 @ @c
-void mp_mark_string_chars (MP mp,font_number f, char *s) {
+void mp_mark_string_chars (MP mp,font_number f, char *s, int l) {
   integer b; /* |char_base[f]| */
   ASCII_code bc,ec; /* only characters between these bounds are marked */
   char *k; /* an index into string |s| */
@@ -3749,7 +3749,7 @@ void mp_mark_string_chars (MP mp,font_number f, char *s) {
   bc=mp->font_bc[f];
   ec=mp->font_ec[f];
   k=s;
-  while (*k){ 
+  while (l-->0){ 
     if ( (*k>=bc)&&(*k<=ec) )
       mp->font_info[b+*k].qqqq.b3=mp_used;
     k++;
@@ -4120,10 +4120,11 @@ void mp_ps_print_cmd (MP mp, const char *l, const char *s) {
 static void mp_ps_print_cmd (MP mp, const char *l, const char *s) ;
 
 @ @c
-void mp_ps_string_out (MP mp, const char *s) {
+void mp_ps_string_out (MP mp, const char *s, int l) {
   ASCII_code k; /* bits to be converted to octal */
   mp_ps_print(mp, "(");
-  while ((k=(ASCII_code)*s++)) {
+  while (l-->0) {
+    k=(ASCII_code)*s++;
     if ( mp->ps->ps_offset+5>mp->max_print_line ) {
       mp_ps_print_char(mp, '\\');
       mp_ps_print_ln(mp);
@@ -4143,7 +4144,7 @@ void mp_ps_string_out (MP mp, const char *s) {
 }
 
 @ @<Declarations@>=
-static void mp_ps_string_out (MP mp, const char *s) ;
+static void mp_ps_string_out (MP mp, const char *s, int l) ;
 
 @ This is a define because the function does not use its |mp| argument.
 
@@ -4171,7 +4172,7 @@ void mp_ps_name_out (MP mp, char *s, boolean lit) {
     if ( lit ) mp_ps_print_char(mp, '/');
       mp_ps_print(mp, s);
   } else { 
-    mp_ps_string_out(mp, s);
+    mp_ps_string_out(mp, s, strlen(s));
     if ( ! lit ) mp_ps_print(mp, "cvx ");
       mp_ps_print(mp, "cvn");
   }
@@ -4491,6 +4492,7 @@ structures and access macros.
 #define gr_dash_p(A)       ((mp_stroked_object *)A)->dash_p
 #define gr_size_index(A)    ((mp_text_object *)A)->size_index
 #define gr_text_p(A)       ((mp_text_object *)A)->text_p 
+#define gr_text_l(A)       ((mp_text_object *)A)->text_l 
 #define gr_font_n(A)       ((mp_text_object *)A)->font_n 
 #define gr_font_name(A)    ((mp_text_object *)A)->font_name 
 #define gr_font_dsize(A)   ((mp_text_object *)A)->font_dsize 
@@ -4521,6 +4523,7 @@ typedef struct mp_text_object {
   unsigned char color_model;
   unsigned char size_index;
   char *text_p;
+  int text_l;
   char *font_name ;   
   unsigned int font_dsize ;
   unsigned int font_n ;   
@@ -5338,7 +5341,7 @@ void mp_apply_mark_string_chars(MP mp, mp_edge_object *h, int next_size) {
     if ( gr_type(p)==mp_text_code ) {
       if ( gr_font_n(p)!=null_font ) { 
         if ( gr_size_index(p)==(unsigned char)next_size )
-          mp_mark_string_chars(mp, gr_font_n(p),gr_text_p(p));
+          mp_mark_string_chars(mp, gr_font_n(p),gr_text_p(p),gr_text_l(p));
       }
     }
     p=gr_link(p);
@@ -5363,7 +5366,7 @@ while ( p!=null ) {
       case 2:
       case 3:
         mp->font_sizes[f] = mp_void;
-        mp_mark_string_chars(mp, f, gr_text_p(p));
+        mp_mark_string_chars(mp, f, gr_text_p(p),gr_text_l(p));
    	    if (mp_has_fm_entry(mp,f,NULL) ) {
           if (mp->font_enc_name[f]==NULL )
             mp->font_enc_name[f] = mp_fm_encoding_name(mp,f);
@@ -5376,7 +5379,7 @@ while ( p!=null ) {
       default: 
         gr_size_index(p)=(unsigned char)mp_size_index(mp, f,mp_choose_scale(mp, p));
         if ( gr_size_index(p)==0 )
-          mp_mark_string_chars(mp, f, gr_text_p(p));
+          mp_mark_string_chars(mp, f, gr_text_p(p),gr_text_l(p));
       }
     }
   }
@@ -5459,7 +5462,7 @@ int mp_gr_ship_out (mp_edge_object *hh, int qprologues, int qprocset,int standal
       }
       break;
     case mp_text_code: 
-      if ( (gr_font_n(p)!=null_font) && (strlen(gr_text_p(p))>0) ) {
+      if ( (gr_font_n(p)!=null_font) && (gr_text_l(p)>0) ) {
         if ( prologues>0 )
           scf=mp_gr_choose_scale(mp, p);
         else 
@@ -5467,7 +5470,7 @@ int mp_gr_ship_out (mp_edge_object *hh, int qprologues, int qprocset,int standal
         @<Shift or transform as necessary before outputting text node~|p| at scale
           factor~|scf|; set |transformed:=true| if the original transformation must
           be restored@>;
-        mp_ps_string_out(mp, gr_text_p(p));
+        mp_ps_string_out(mp, gr_text_p(p),gr_text_l(p));
         mp_ps_name_out(mp, mp->font_name[gr_font_n(p)],false);
         @<Print the size information and \ps\ commands for text node~|p|@>;
         mp_ps_print_ln(mp);
@@ -5668,7 +5671,8 @@ mp_gr_copy_object (MP mp, mp_graphic_object *p) {
     tt = (mp_text_object *)mp_new_graphic_object(mp, mp_text_code);
     gr_pre_script(tt)  = mp_xstrdup(mp, gr_pre_script((mp_text_object *)p));
     gr_post_script(tt) = mp_xstrdup(mp, gr_post_script((mp_text_object *)p));
-    gr_text_p(tt)      = mp_xstrdup(mp, gr_text_p(p));
+    gr_text_p(tt)      = mp_xstrldup(mp, gr_text_p(p), gr_text_l(p));
+    gr_text_l(tt)      = gr_text_l(p);
     gr_font_name(tt)   = mp_xstrdup(mp, gr_font_name(p));
     q = (mp_graphic_object *)tt;
     break;
