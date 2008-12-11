@@ -30779,7 +30779,7 @@ begin
         print_err("Invalid negative color stack number");
 @.Invalid negative color stack number@>
         help2("I'll use default color stack 0 here.")@/
-        ("Proceed, with fingers corssed.");
+        ("Proceed, with fingers crossed.");
         error;
         cur_val := 0;
     end;
