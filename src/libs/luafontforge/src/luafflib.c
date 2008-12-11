@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <lua.h>
 #include <lauxlib.h>
+#include <locale.h>
 
 #include "pfaedit.h"
 #include "ustring.h"
@@ -2333,9 +2334,12 @@ static const struct luaL_reg fflib_m [] = {
 };
 
 extern char *SaveTablesPref;
+extern char *coord_sep ;
 
 int luaopen_ff (lua_State *L) {
   InitSimpleStuff();
+  setlocale(LC_ALL,"C"); /* undo whatever InitSimpleStuff has caused */
+  coord_sep = ",";
   FF_SetUiInterface(&luaui_interface);
   default_encoding = FindOrMakeEncoding("ISO8859-1");
   SaveTablesPref = "VORG,JSTF,acnt,bsln,fdsc,fmtx,hsty,just,trak,Zapf,LINO";
