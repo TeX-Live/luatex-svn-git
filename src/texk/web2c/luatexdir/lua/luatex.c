@@ -228,6 +228,7 @@ run_external_ocp P1C(string, external_ocp_name)
         }
         otp_output_buf[++otp_output_end] = c;
     }
+    fclose(out_file);
 
   end_of_while:
     remove(in_file_name);
