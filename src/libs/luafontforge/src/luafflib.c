@@ -169,7 +169,14 @@ ff_open (lua_State *L) {
     gww_error_count=0;
 	sf = ReadSplineFont((char *)s,openflags);
 	if (sf==NULL) {
-	  lua_pushfstring(L,"font loading failed for %s\n", fontname);
+	  lua_pushfstring(L,"font loading failed for %s\n", s);
+	  if (gww_error_count>0) {
+		for (i=0;i<gww_error_count;i++) {
+		  lua_pushstring(L,gww_errors[i]);
+          lua_concat(L,2);
+		}
+		gwwv_errors_free();
+      }
 	  lua_error(L);
 	} else {
 	  lua_ff_pushfont(L,sf);
