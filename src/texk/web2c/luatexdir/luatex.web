@@ -18773,7 +18773,7 @@ if (rule_ht>0)and(rule_wd>0) then {we don't output empty rules}
   dir__RT: begin
     pdf_dvicmd_left(rule_wd);
     pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
-    pdf_dvicmd_left(rule_wd);
+    pdf_dvicmd_right(rule_wd);
     end;
   dir__RB: begin
     pdf_dvicmd_down(rule_ht);
