@@ -427,7 +427,7 @@ halfword new_glyph_node(void)
 
 halfword copy_node_list(halfword p)
 {
-    halfword q;                 /* previous position in new list */
+    halfword q = null;          /* previous position in new list */
     halfword h = null;          /* head of the list */
     copy_error_seen = 0;
     while (p != null) {
