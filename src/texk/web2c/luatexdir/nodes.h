@@ -395,6 +395,7 @@ typedef enum {
     math_text_char              /* |math_type| when italic correction is dubious */
 } math_types;
 
+#define middle_noad 1
 
 typedef enum {
     open_node = 0,
