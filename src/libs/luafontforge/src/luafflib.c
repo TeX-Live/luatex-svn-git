@@ -152,16 +152,14 @@ ff_open (lua_State *L) {
 	lua_error(L);
   }
   args = lua_gettop(L);
-  if (args>=2) {
-	if (lua_isstring(L,2)) {
-	  if (*(fontname+strlen(fontname))!=')') {
-		/* possibly fails for embedded parens in the font name */
-		snprintf(s,511,"%s(%s)", fontname, lua_tolstring(L,2,&len));
-		if (len==0) {
-		  snprintf(s,511,"%s", fontname);
-		}
-	  }
-	}
+  if (args>=2 && lua_isstring(L,2)) {
+    if (*(fontname+strlen(fontname))!=')') {
+      /* possibly fails for embedded parens in the font name */
+      snprintf(s,511,"%s(%s)", fontname, lua_tolstring(L,2,&len));
+      if (len==0) {
+        snprintf(s,511,"%s", fontname);
+      }
+    }
   } else {
 	snprintf(s,511,"%s", fontname);
   }
