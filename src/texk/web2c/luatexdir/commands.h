@@ -189,6 +189,13 @@ typedef enum {
   tok_val_level,     /* token lists */
 } value_level_code;
 
+typedef enum {
+  above_code=0,
+  over_code=1,
+  atop_code=2,
+  delimited_code=3
+} fraction_codes;
+
 
 typedef enum {
   convert_number_code = 0          , /* command code for \.{\\number} */
@@ -288,6 +295,29 @@ typedef enum {
   last_item_glueexpr_code,                   /* code for \.{\\glueexpr} */
   last_item_muexpr_code,                     /* code for \.{\\muexpr} */
 } last_item_codes;
+
+typedef enum {
+  param_par_shape_code=0, /* specifies paragraph shape */
+  param_output_routine_code, /* points to token list for \.{\\output} */
+  param_every_par_code, /* points to token list for \.{\\everypar} */
+  param_every_math_code, /* points to token list for \.{\\everymath} */
+  param_every_display_code, /* points to token list for \.{\\everydisplay} */
+  param_every_hbox_code, /* points to token list for \.{\\everyhbox} */
+  param_every_vbox_code, /* points to token list for \.{\\everyvbox} */
+  param_every_job_code, /* points to token list for \.{\\everyjob} */
+  param_every_cr_code, /* points to token list for \.{\\everycr} */
+  param_err_help_code, /* points to token list for \.{\\errhelp} */
+  param_pdf_pages_attr_code,      /* points to token list for \.{\\pdfpagesattr} */
+  param_pdf_page_attr_code,       /* points to token list for \.{\\pdfpageattr} */
+  param_pdf_page_resources_code,  /* points to token list for \.{\\pdfpageresources} */
+  param_pdf_pk_mode_code,         /* points to token list for \.{\\pdfpkmode} */
+  param_every_eof_code, /* points to token list for \.{\\everyeof} */
+  param_ocp_trace_level_code,
+  param_ocp_active_number_code,
+  param_ocp_active_min_ptr_code,
+  param_ocp_active_max_ptr_code,
+  param_ocp_active_code
+} param_local_pars;
 
 
 typedef enum {
@@ -401,6 +431,109 @@ typedef enum {
   param_saving_hyph_codes_code,/* save hyphenation codes for languages */
   param_suppress_fontnotfound_error_code, /* surpress errors for missing fonts */
   param_synctex_code, /*  is synctex file generation enabled ?  */
-} param_codes;
+} int_param_codes;
+
 #define param_int_pars param_synctex_code+1 /* total number of integer parameters */
 
+typedef enum {
+  param_par_indent_code=0, /* indentation of paragraphs */
+  param_math_surround_code, /* space around math in text */
+  param_line_skip_limit_code, /* threshold for |line_skip| instead of |baseline_skip| */
+  param_hsize_code, /* line width in horizontal mode */
+  param_vsize_code, /* page height in vertical mode */
+  param_max_depth_code, /* maximum depth of boxes on main pages */
+  param_split_max_depth_code, /* maximum depth of boxes on split pages */
+  param_box_max_depth_code, /* maximum depth of explicit vboxes */
+  param_hfuzz_code, /* tolerance for overfull hbox messages */
+  param_vfuzz_code, /* tolerance for overfull vbox messages */
+  param_delimiter_shortfall_code, /* maximum amount uncovered by variable delimiters */
+  param_null_delimiter_space_code, /* blank space in null delimiters */
+  param_script_space_code, /* extra space after subscript or superscript */
+  param_pre_display_size_code, /* length of text preceding a display */
+  param_display_width_code, /* length of line for displayed equation */
+  param_display_indent_code, /* indentation of line for displayed equation */
+  param_overfull_rule_code, /* width of rule that identifies overfull hboxes */
+  param_hang_indent_code, /* amount of hanging indentation */
+  param_h_offset_code, /* amount of horizontal offset when shipping pages out */
+  param_v_offset_code, /* amount of vertical offset when shipping pages out */
+  param_emergency_stretch_code, /* reduces badnesses on final pass of line-breaking */
+  param_page_right_offset_code,
+  param_page_bottom_offset_code,
+  param_pdf_h_origin_code, /* horigin of the PDF output */
+#define  param_pdftex_first_dimen_code param_pdf_horigin_code /* first number defined in this section */
+  param_pdf_v_origin_code,         /* vorigin of the PDF output */
+  param_page_width_code,           /* page width of the PDF output */
+  param_page_height_code,          /* page height of the PDF output */
+  param_pdf_link_margin_code,      /* link margin in the PDF output */
+  param_pdf_dest_margin_code,      /* dest margin in the PDF output */
+  param_pdf_thread_margin_code,    /* thread margin in the PDF output */
+  param_pdf_first_line_height_code,
+  param_pdf_last_line_depth_code,  
+  param_pdf_each_line_height_code, 
+  param_pdf_each_line_depth_code,  
+  param_pdf_ignored_dimen_code,    
+  param_pdf_px_dimen_code          
+}  dimen_param_codes;
+
+#define param_pdftex_last_dimen_code  param_pdftex_px_dimen_code /* last number defined in this section */
+#define param_dimen_pars param_pdftex_last_dimen_code+1 /* total number of dimension parameters */
+
+typedef enum {
+  param_line_skip_code=0, /* interline glue if |baseline_skip| is infeasible */
+  param_baseline_skip_code, /* desired glue between baselines */
+  param_par_skip_code, /* extra glue just above a paragraph */
+  param_above_display_skip_code, /* extra glue just above displayed math */
+  param_below_display_skip_code, /* extra glue just below displayed math */
+  param_above_display_short_skip_code, /* glue above displayed math following short lines */
+  param_below_display_short_skip_code, /* glue below displayed math following short lines */
+  param_left_skip_code, /* glue at left of justified lines */
+  param_right_skip_code, /* glue at right of justified lines */
+  param_top_skip_code, /* glue at top of main pages */
+  param_split_top_skip_code, /* glue at top of split pages */
+  param_tab_skip_code, /* glue between aligned entries */
+  param_space_skip_code, /* glue between words (if not |zero_glue|) */
+  param_xspace_skip_code, /* glue after sentences (if not |zero_glue|) */
+  param_par_fill_skip_code, /* glue on last line of paragraph */
+  param_thin_mu_skip_code, /* thin space in math formula */
+  param_med_mu_skip_code, /* medium space in math formula */
+  param_thick_mu_skip_code, /* thick space in math formula */
+} param_skip_codes;
+
+#define glue_pars thick_mu_skip_code+1 /* total number of glue parameters */
+
+#define eq_type(a)   zeqtb[a].hh.u.B0
+#define equiv(a)     zeqtb[a].hh.v.RH
+
+#define int_par(A)   zeqtb[static_int_base+(A)].cint
+#define dimen_par(A) zeqtb[static_dimen_base+(A)].cint
+#define local_par(A) equiv(static_local_base+(A))
+#define glue_par(A)  equiv(static_glue_base+(A))
+#define fam_fnt(A)   equiv(static_math_font_base+(A))
+
+
+typedef enum {
+  bottom_level=0, /* group code for the outside world */
+  simple_group, /* group code for local structure only */
+  hbox_group, /* code for `\.{\\hbox}\grp' */
+  adjusted_hbox_group, /* code for `\.{\\hbox}\grp' in vertical mode */
+  vbox_group, /* code for `\.{\\vbox}\grp' */
+  vtop_group, /* code for `\.{\\vtop}\grp' */
+  align_group, /* code for `\.{\\halign}\grp', `\.{\\valign}\grp' */
+  no_align_group, /* code for `\.{\\noalign}\grp' */
+  output_group, /* code for output routine */
+  math_group, /* code for, e.g., `\.{\char'136}\grp' */
+  disc_group, /* code for `\.{\\discretionary}\grp\grp\grp' */
+  insert_group, /* code for `\.{\\insert}\grp', `\.{\\vadjust}\grp' */
+  vcenter_group, /* code for `\.{\\vcenter}\grp' */
+  math_choice_group, /* code for `\.{\\mathchoice}\grp\grp\grp\grp' */
+  semi_simple_group, /* code for `\.{\\begingroup...\\endgroup}' */
+  math_shift_group, /* code for `\.{\$...\$}' */
+  math_left_group, /* code for `\.{\\left...\\right}' */
+  local_box_group, /* code for `\.{\\localleftbox...\\localrightbox}' */
+  max_group_code,
+  split_off_group, /* box code for the top part of a \.{\\vsplit} */
+  split_keep_group, /* box code for the bottom part of a \.{\\vsplit} */
+  preamble_group, /* box code for the preamble processing  in an alignment */
+  align_set_group, /* box code for the final item pass in an alignment */
+  fin_row_group /* box code for a provisory line in an alignment */
+} tex_group_codes;
