@@ -600,3 +600,39 @@
 @define procedure synctex_node();
 @define procedure synctex_current;
 @define procedure synctex_horizontal_rule_or_glue();
+
+{math stuff}
+
+@define procedure initialize_math;
+@define procedure show_math_node();
+@define procedure print_math_comp();
+@define procedure print_limit_switch();
+@define procedure print_style();
+@define const left_noad;
+@define const middle_noad;
+@define const right_noad;
+@define const ord_noad;
+@define const op_noad;
+@define const bin_noad;
+@define const rel_noad;
+@define const open_noad;
+@define const close_noad;
+@define const punct_noad;
+@define const inner_noad;
+@define const limits;
+@define const no_limits;
+@define const under_noad;
+@define const over_noad;
+@define const accent_noad;
+@define const vcenter_noad;
+@define procedure print_size();
+@define procedure finish_display_alignment();
+@define function new_sub_box();
+@define function math_vcenter_group();
+@define procedure close_math_group();
+@define procedure set_math_char();
+@define function new_style();
+@define const display_style;
+@define const text_style;
+@define const script_style;
+@define const script_script_style;

@@ -707,5 +707,6 @@ extern void get_lua_boolean(char *table, char *name, boolean * target);
 extern void get_lua_number(char *table, char *name, integer * target);
 extern void get_lua_string(char *table, char *name, char **target);
 
+#  include "texmath.h"
 
 #endif                          /* PDFTEXLIB */
