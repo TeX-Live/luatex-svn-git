@@ -110,6 +110,14 @@ extern halfword do_set_attribute(halfword p, int i, int val);
 #  define shrink_order(a)   subtype((a)+3)
 #  define glue_ref_count(a) vlink((a)+3)
 
+typedef enum {
+  cond_math_glue=98, /* special |subtype| to suppress glue in the next node */
+  mu_glue,   /* |subtype| for math glue */
+  a_leaders, /* |subtype| for aligned leaders */
+  c_leaders, /* |subtype| for centered leaders */
+  x_leaders /* |subtype| for expanded leaders */
+} glue_subtype_codes;
+
 /* pdf action spec */
 
 #  define pdf_action_size 4
