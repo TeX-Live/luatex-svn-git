@@ -579,7 +579,7 @@ static int count_char_packet_bytes(lua_State * L)
     register int i;
     register int l = 0;
     int ff = 0;
-    for (i = 1; i <= lua_objlen(L, -1); i++) {
+    for (i = 1; i <= (int)lua_objlen(L, -1); i++) {
         lua_rawgeti(L, -1, i);
         if (lua_istable(L, -1)) {
             lua_rawgeti(L, -1, 1);
@@ -659,7 +659,7 @@ read_char_packets(lua_State * L, integer * l_fonts, charinfo * co, int atsize)
         max_f++;
 
     cpackets = xmalloc(pc + 1);
-    for (i = 1; i <= lua_objlen(L, -1); i++) {
+    for (i = 1; i <= (int)lua_objlen(L, -1); i++) {
         lua_rawgeti(L, -1, i);
         if (lua_istable(L, -1)) {
             /* fetch the command code */

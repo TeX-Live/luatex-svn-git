@@ -27,7 +27,6 @@ static const char _svn_version[] =
     "$Id$ $URL$";
 
 
-#define int_par(a) zeqtb[static_int_base+a].cint        /* an integer parameter */
 #define cat_code_table int_par(param_cat_code_table_code)
 #define tracing_nesting int_par(param_tracing_nesting_code)
 #define end_line_char int_par(param_end_line_char_code)

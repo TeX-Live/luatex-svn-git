@@ -110,7 +110,7 @@ void set_del_code(integer n, halfword v, halfword w, quarterword gl)
 
 halfword get_del_code_a(integer n)
 {
-    int ret;
+    unsigned ret;
     ret = get_sa_item(delcode_head, n);
     if (ret == DELCODEDEFAULT) {
         return (halfword) - 1;

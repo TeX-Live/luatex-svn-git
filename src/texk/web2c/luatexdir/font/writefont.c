@@ -853,11 +853,11 @@ static void write_cid_charwidth_array(fo_entry * fo)
     pdf_printf("[ %i [", i);
     for (; glyph != NULL; glyph = (glw_entry *) avl_t_next(&t)) {
         j = glyph->wd;
-        if (glyph->id > (i + 1)) {
+        if (glyph->id > (unsigned)(i + 1)) {
             pdf_printf("] %i [", glyph->id);
             j = glyph->wd;
         }
-        if (glyph->id == (i + 1))
+        if (glyph->id == (unsigned)(i + 1))
             pdf_puts(" ");
         if (j < 0) {
             pdf_puts("-");

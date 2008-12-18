@@ -235,7 +235,7 @@ boolean handle_subfont_fm(fm_entry * fm, int mode)
     if (r == NULL)
         return false;
     if (q <= p || r <= q + 1    /* prefix or sfd name is empty */
-        || r - p != strlen(p) - 1)      /* or the second '@' is not the last char yet */
+        || r - p != (int)strlen(p) - 1)      /* or the second '@' is not the last char yet */
         return false;
     l = r - (q + 1);            /* length of sfd name */
     strncpy(buf, q + 1, l);

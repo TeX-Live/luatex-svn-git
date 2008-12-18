@@ -39,7 +39,7 @@ extern char *utf8_idpb(char *w, unsigned int i);
 #define MAX_TEX_LANGUAGES  32768
 
 static struct tex_language *tex_languages[MAX_TEX_LANGUAGES] = { NULL };
-static unsigned next_lang_id = 0;
+static int next_lang_id = 0;
 
 struct tex_language *new_language(int n)
 {
@@ -897,7 +897,7 @@ void dump_one_language(int i)
 
 void dump_language_data(void)
 {
-    unsigned i;
+    int i;
     dump_int(next_lang_id);
     for (i = 0; i < next_lang_id; i++) {
         if (tex_languages[i]) {

@@ -258,7 +258,7 @@ unsigned long ttc_read_offset(sfnt * sfont, int ttc_idx)
 
     version = sfnt_get_ulong(sfont);
     num_dirs = sfnt_get_ulong(sfont);
-    if (ttc_idx < 0 || ttc_idx > num_dirs - 1) {
+    if (ttc_idx < 0 || ttc_idx > (int)(num_dirs - 1)) {
         fprintf(stderr, "Invalid TTC index number\n");
         uexit(1);
     }
@@ -334,7 +334,7 @@ void make_tt_subset(fd_entry * fd, unsigned char *buffer, integer buflen)
      */
 
     num_glyphs = 1;             /* .notdef */
-    for (cid = 1; cid <= last_cid; cid++) {
+    for (cid = 1; cid <= (long)last_cid; cid++) {
         if (used_chars[cid] == 0)
             continue;
         gid = cid;
@@ -393,14 +393,14 @@ void make_tt_subset(fd_entry * fd, unsigned char *buffer, integer buflen)
         pdf_end_dict();
         pdf_printf("stream\n");
         pdfroom((last_cid + 1) * 2);
-        for (i = 0; i < ((last_cid + 1) * 2); i++) {
+        for (i = 0; i < ((int)(last_cid + 1) * 2); i++) {
             pdf_buf[pdf_ptr++] = cidtogidmap[i];
         }
         pdf_printf("\nendstream\n");
     }
 
     /* the tff subset */
-    for (i = 0; i < fontfile->length; i++)
+    for (i = 0; i < (int)(fontfile->length); i++)
         fb_putchar(fontfile->data[i]);
 
     pdf_release_obj(fontfile);

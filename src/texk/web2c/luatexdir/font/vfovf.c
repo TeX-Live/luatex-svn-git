@@ -149,7 +149,7 @@ boolean auto_expand_vf(internal_font_number f); /* forward */
 #define vf_read(k,l) {  integer itmp = 0, dtmp = k, jtmp = 0;   \
     while (dtmp > 0) {              \
       vf_byte(jtmp);              \
-      if ((dtmp==k) && jtmp>127)          \
+      if ((dtmp==(integer)k) && jtmp>127)              \
   jtmp = jtmp - 256;            \
       itmp  = itmp*256 + jtmp;            \
       decr(dtmp);             \
