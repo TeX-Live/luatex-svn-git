@@ -698,16 +698,16 @@ static int lua_nodelib_has_attribute(lua_State * L)
 {
     halfword *n;
     int i, val;
-    if (lua_isnil(L, 1))
-        return 1;               /* the nil itself */
     n = check_isnode(L, 1);
-    i = lua_tointeger(L, 2);
-    val = luaL_optinteger(L, 3, -1);
-    if ((val = has_attribute(*n, i, val)) >= 0) {
+    if (n != NULL) {
+      i = lua_tointeger(L, 2);
+      val = luaL_optinteger(L, 3, -1);
+      if ((val = has_attribute(*n, i, val)) >= 0) {
         lua_pushnumber(L, val);
-    } else {
-        lua_pushnil(L);
+        return 1;
+      } 
     }
+    lua_pushnil(L);
     return 1;
 }
 
