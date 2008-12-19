@@ -134,6 +134,14 @@ LUAFFDEP=$(LUAFFDIR)/libff.a
 $(LUAFFDEP): always
 	mkdir -p $(LUAFFDIR) && cd $(LUAFFDIR) && cp -f $(LUAFFSRCDIR)/Makefile . && $(MAKE)
 
+# luaprof
+LUAPROFDIR=../../libs/luaprofiler
+LUAPROFSRCDIR=$(srcdir)/$(LUAPROFDIR)
+LUAPROFDEP=$(LUAPROFDIR)/libprofiler.a
+$(LUAPROFDEP): always
+	mkdir -p $(LUAPROFDIR) && cd $(LUAPROFDIR) && cp -f $(LUAPROFSRCDIR)/Makefile . && $(MAKE)
+
+
 # luazlib
 LUAZLIBDIR=../../libs/luazlib
 LUAZLIBSRCDIR=$(srcdir)/$(LUAZLIBDIR)
@@ -151,11 +159,11 @@ LIBMPLIBDEP=$(LIBMPDIR)/lmplib.o $(LIBMPDIR)/.libs/libmplib.a
 
 luatexlibs = $(luapdflib) $(LDLIBPNG) $(LDZLIB) $(LDLIBXPDF) $(LIBMD5DEP) $(LDLIBOBSD) \
              $(LIBLUADEP) $(SLNUNICODEDEP)  $(LUAZIPDEP) $(ZZIPLIBDEP) $(LUAFSDEP) $(LUASOCKETDEP) \
-             $(LUAPEGDEP) $(LUAMDVDEP)  $(LUAZLIBDEP) $(LUAFFDEP) $(LIBMPLIBDEP)
+             $(LUAPEGDEP) $(LUAMDVDEP)  $(LUAZLIBDEP) $(LUAFFDEP) $(LUAPROFDEP) $(LIBMPLIBDEP)
 
 luatexlibsdep = $(luapdflib) $(LIBPNGDEP) $(ZLIBDEP) $(LIBXPDFDEP) $(LIBMD5DEP) $(LIBOBSDDEP) \
                 $(LIBLUADEP) $(SLNUNICODEDEP) $(ZZIPLIBDEP) $(LUAZIPDEP)  $(LUAFSDEP) $(LUASOCKETDEP) \
-                $(LUAPEGDEP) $(LUAMDVDEP)  $(LUAZLIBDEP) $(LUAFFDEP) $(makecpool)
+                $(LUAPEGDEP) $(LUAMDVDEP)  $(LUAZLIBDEP) $(LUAFFDEP) $(LUAPROFDEP) $(makecpool)
 
 ## end of luatexlib.mk - Makefile fragment for libraries used by pdf[ex]tex.
 

@@ -167,6 +167,8 @@ void luainterpreter(int n)
     luaopen_gzip(L);
     /* fontforge */
     luaopen_ff(L);
+    /* profiler, from kepler */
+    luaopen_profiler(L);
 
     luaopen_pdf(L);
     luaopen_tex(L);
