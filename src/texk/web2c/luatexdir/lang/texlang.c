@@ -30,9 +30,77 @@ static const char _svn_version[] =
 
 /* functions from the fontforge unicode library */
 
+#if 0
 extern unsigned int *utf82u_strcpy(unsigned int *ubuf, const char *utf8buf);
 extern unsigned int u_strlen(unsigned int *ubuf);
 extern char *utf8_idpb(char *w, unsigned int i);
+#else
+
+typedef unsigned int unichar_t;
+typedef unsigned char uint8;
+typedef unsigned int uint32;
+
+static unichar_t *utf82u_strcpy(unichar_t *ubuf,const char *utf8buf) {
+    int len = strlen(utf8buf)+1;
+    unichar_t *upt=ubuf, *uend=ubuf+len-1;
+    const uint8 *pt = (const uint8 *) utf8buf, *end = pt+strlen(utf8buf);
+    int w, w2;
+
+    while ( pt<end && *pt!='\0' && upt<uend ) {
+	if ( *pt<=127 )
+	    *upt = *pt++;
+	else if ( *pt<=0xdf ) {
+	    *upt = ((*pt&0x1f)<<6) | (pt[1]&0x3f);
+	    pt += 2;
+	} else if ( *pt<=0xef ) {
+	    *upt = ((*pt&0xf)<<12) | ((pt[1]&0x3f)<<6) | (pt[2]&0x3f);
+	    pt += 3;
+	} else {
+	    w = ( ((*pt&0x7)<<2) | ((pt[1]&0x30)>>4) )-1;
+	    w = (w<<6) | ((pt[1]&0xf)<<2) | ((pt[2]&0x30)>>4);
+	    w2 = ((pt[2]&0xf)<<6) | (pt[3]&0x3f);
+	    *upt = w*0x400 + w2 + 0x10000;
+	    pt += 4;
+	}
+	++upt;
+    }
+    *upt = '\0';
+return( ubuf );
+}
+
+static char *utf8_idpb(char *utf8_text,uint32 ch) {
+    /* Increment and deposit character */
+    if ( ch<0 || ch>=17*65536 )
+return( utf8_text );
+
+    if ( ch<=127 )
+	*utf8_text++ = ch;
+    else if ( ch<=0x7ff ) {
+	*utf8_text++ = 0xc0 | (ch>>6);
+	*utf8_text++ = 0x80 | (ch&0x3f);
+    } else if ( ch<=0xffff ) {
+	*utf8_text++ = 0xe0 | (ch>>12);
+	*utf8_text++ = 0x80 | ((ch>>6)&0x3f);
+	*utf8_text++ = 0x80 | (ch&0x3f);
+    } else {
+	uint32 val = ch-0x10000;
+	int u = ((val&0xf0000)>>16)+1, z=(val&0x0f000)>>12, y=(val&0x00fc0)>>6, x=val&0x0003f;
+	*utf8_text++ = 0xf0 | (u>>2);
+	*utf8_text++ = 0x80 | ((u&3)<<4) | z;
+	*utf8_text++ = 0x80 | y;
+	*utf8_text++ = 0x80 | x;
+    }
+return( utf8_text );
+}
+
+static int u_strlen(register unichar_t *str) {
+    register int len = 0;
+    while ( *str++!='\0' )
+	++len;
+return( len );
+}
+
+#endif
 
 #define noVERBOSE
 
