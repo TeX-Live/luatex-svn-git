@@ -87,8 +87,8 @@ luatex.p luatex.pool: luatangle $(srcdir)/$(luatexdir)/luatex.web $(srcdir)/$(lu
 # for developing only
 #luatex-org.web: $(TIE) $(luatex_ch_srcs_org)
 #	$(TIE) -m $@ $(luatex_ch_srcs_org)
-#luatex-all.web: $(TIE) $(srcdir)/$(luatexdir)/luatex.web luatex.ch
-#	$(TIE) -m $@ $(srcdir)/$(luatexdir)/luatex.web luatex.ch
+luatex-all.web: $(TIE) $(srcdir)/$(luatexdir)/luatex.web $(srcdir)/$(luatexdir)/luatex.ch
+	$(TIE) -m $@ $(srcdir)/$(luatexdir)/luatex.web $(srcdir)/$(luatexdir)/luatex.ch
 #luatex-all.tex: luatex-all.web
 #	$(WEAVE) luatex-all.web
 #	echo -e '1s/ webmac/ pdfwebmac/\nw\nq' | ed $@ >/dev/null 2>&1
