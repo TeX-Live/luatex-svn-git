@@ -1,4 +1,4 @@
-% $Id: psout.w 763 2008-12-11 15:56:28Z taco $
+% $Id: psout.w 804 2008-12-23 15:22:15Z taco $
 %
 % Copyright 2008 Taco Hoekwater.
 %
@@ -1669,7 +1669,7 @@ mp->ps->dvips_extra_charset=NULL;
 mp->ps->t1_byte_waiting=0;
 
 @
-@d t1_ungetchar(A) mp->ps->t1_byte_waiting=A
+@d t1_ungetchar(A) mp->ps->t1_byte_waiting=(int)(A)
 @d t1_eof()        (mp->eof_file)(mp,mp->ps->t1_file)
 @d t1_close()      (mp->close_file)(mp,mp->ps->t1_file)
 @d valid_code(c)   (c >= 0 && c < 256)
@@ -1677,7 +1677,7 @@ mp->ps->t1_byte_waiting=0;
 @c
 static int t1_getchar (MP mp) {
   size_t len = 1;
-  int abyte=0;
+  unsigned char abyte=0;
   void *byte_ptr = &abyte;  
   if (mp->ps->t1_byte_waiting) {
     abyte = mp->ps->t1_byte_waiting;
@@ -1685,7 +1685,7 @@ static int t1_getchar (MP mp) {
   } else {
     (mp->read_binary_file)(mp,mp->ps->t1_file,&byte_ptr,&len);
   }
-  return abyte;
+  return (int)abyte;
 }
 
 @ @<Static variables in the outer block@>=
@@ -3738,16 +3738,16 @@ that use the left-over |b3| field in the |char_info| words; i.e.,
 enum mp_char_mark_state {mp_unused=0, mp_used};
 
 @ @<Declarations@>=
-static void mp_mark_string_chars (MP mp,font_number f, char *s, int l) ;
+static void mp_mark_string_chars (MP mp,font_number f, char *s, size_t l) ;
 
 @ @c
-void mp_mark_string_chars (MP mp,font_number f, char *s, int l) {
+void mp_mark_string_chars (MP mp,font_number f, char *s, size_t l) {
   integer b; /* |char_base[f]| */
-  ASCII_code bc,ec; /* only characters between these bounds are marked */
+  int bc,ec; /* only characters between these bounds are marked */
   char *k; /* an index into string |s| */
   b=mp->char_base[f];
-  bc=mp->font_bc[f];
-  ec=mp->font_ec[f];
+  bc=(int)mp->font_bc[f];
+  ec=(int)mp->font_ec[f];
   k=s;
   while (l-->0){ 
     if ( (*k>=bc)&&(*k<=ec) )
@@ -4120,7 +4120,7 @@ void mp_ps_print_cmd (MP mp, const char *l, const char *s) {
 static void mp_ps_print_cmd (MP mp, const char *l, const char *s) ;
 
 @ @c
-void mp_ps_string_out (MP mp, const char *s, int l) {
+void mp_ps_string_out (MP mp, const char *s, size_t l) {
   ASCII_code k; /* bits to be converted to octal */
   mp_ps_print(mp, "(");
   while (l-->0) {
@@ -4144,7 +4144,7 @@ void mp_ps_string_out (MP mp, const char *s, int l) {
 }
 
 @ @<Declarations@>=
-static void mp_ps_string_out (MP mp, const char *s, int l) ;
+static void mp_ps_string_out (MP mp, const char *s, size_t l) ;
 
 @ This is a define because the function does not use its |mp| argument.
 
@@ -4523,7 +4523,7 @@ typedef struct mp_text_object {
   unsigned char color_model;
   unsigned char size_index;
   char *text_p;
-  int text_l;
+  size_t text_l;
   char *font_name ;   
   unsigned int font_dsize ;
   unsigned int font_n ;   
