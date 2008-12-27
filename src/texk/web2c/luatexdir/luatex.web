@@ -18214,23 +18214,35 @@ end
 
 @ 
 
+@d pdf_dvicmd_right(#) == cur_h := cur_h + #
+@d pdf_dvicmd_left(#)  == cur_h := cur_h - #
+@d pdf_dvicmd_down(#)  == cur_v := cur_v + # {changed this for convenience (hahe)}
+@d pdf_dvicmd_up(#)    == cur_v := cur_v - #
+
 @d pdf_dvicmd_set(#)==output_one_char(f,#)
 @d pdf_dvicmd_put(#)==output_one_char(f,#); cur_h:=cur_h-c_wd
-@d pdf_dvicmd_right(#)==cur_h := cur_h + #
-@d pdf_dvicmd_left(#)== cur_h := cur_h - #
-@d pdf_dvicmd_down(#)== cur_v := cur_v - #
-@d pdf_dvicmd_up(#)==   cur_v := cur_v + #
-@d pdf_dvicmd_h(#)==case box_direction(dvi_direction) of
-  dir_TL_: begin cur_h := cur_h + #;  end;
-  dir_TR_: begin cur_h := cur_h - #;  end;
-  dir_LT_: begin do_nothing; {if o=right1 then o:=down1 else o:=right1;}  end;
-  dir_LB_: begin do_nothing; {if o=right1 then begin o:=down1; negate(w); end else o:=right1;} end;
-  dir_BL_: begin do_nothing; {if o=down1 then negate(w); } end;
-  dir_BR_: begin do_nothing; {  negate(w);} end;
-  dir_RT_: begin do_nothing; {if o=right1 then o:=down1 else begin o:=right1; negate(w); end;} end;
-  dir_RB_: begin do_nothing; {if o=right1 then o:=down1 else o:=right1;  negate(w);} end;
-  end
 
+@d pdf_dvicmd_h(#)==case box_direction(dvi_direction) of
+  dir_TL_: cur_h := cur_h + #;
+  dir_BL_: cur_h := cur_h + #;
+  dir_TR_: cur_h := cur_h - #;
+  dir_BR_: cur_h := cur_h - #;
+  dir_LT_: cur_v := cur_v + #;
+  dir_RT_: cur_v := cur_v + #;
+  dir_LB_: cur_v := cur_v - #;
+  dir_RB_: cur_v := cur_v - #;
+  endcases
+
+@d pdf_dvicmd_v(#)==case box_direction(dvi_direction) of
+  dir_TL_: cur_v := cur_v + #;
+  dir_TR_: cur_v := cur_v + #;
+  dir_BL_: cur_v := cur_v - #;
+  dir_BR_: cur_v := cur_v - #;
+  dir_LT_: cur_h := cur_h + #;
+  dir_LB_: cur_h := cur_h + #;
+  dir_RT_: cur_h := cur_h - #;
+  dir_RB_: cur_h := cur_h - #;
+  endcases
 
 @<Output node |p| for |pdf_hlist_out|...@>=
 begin
@@ -18254,26 +18266,26 @@ if is_char_node(p) then
     case font_direction(dvi_direction) of
     dir__LT,dir__LB: begin
       if x_displace(p)<>0 then pdf_dvicmd_right(x_displace(p));
-      if y_displace(p)<>0 then pdf_dvicmd_up(-y_displace(p));
+      if y_displace(p)<>0 then pdf_dvicmd_up(y_displace(p));
       pdf_dvicmd_set(c);
       if x_displace(p)<>0 then pdf_dvicmd_left(x_displace(p)); 
-      if y_displace(p)<>0 then pdf_dvicmd_down(-y_displace(p));
+      if y_displace(p)<>0 then pdf_dvicmd_down(y_displace(p));
       end;
     dir__RT,dir__RB: begin
       if x_displace(p)<>0 then pdf_dvicmd_left(x_displace(p));
-      if y_displace(p)<>0 then pdf_dvicmd_up(-y_displace(p));
+      if y_displace(p)<>0 then pdf_dvicmd_up(y_displace(p));
       pdf_dvicmd_left(c_wd);
       pdf_dvicmd_put(c);
       if x_displace(p)<>0 then pdf_dvicmd_right(x_displace(p));
-      if y_displace(p)<>0 then pdf_dvicmd_down(-y_displace(p));
+      if y_displace(p)<>0 then pdf_dvicmd_down(y_displace(p));
       end;
     dir__TL,dir__TR: begin
       pdf_dvicmd_put(c);
-      pdf_dvicmd_down(c_wd);
+      pdf_dvicmd_down(-c_wd);
       end;
     dir__BL,dir__BR: begin
       pdf_dvicmd_put(c);
-      pdf_dvicmd_up(c_wd);
+      pdf_dvicmd_up(-c_wd);
       end;
     dir__LL,dir__LR: begin
       pdf_dvicmd_put(c);
@@ -18285,49 +18297,49 @@ if is_char_node(p) then
       end;
     dir__TT,dir__TB: begin
       pdf_dvicmd_put(c);
-      pdf_dvicmd_down(c_wd);
+      pdf_dvicmd_down(-c_wd);
       end;
     dir__BT,dir__BB: begin
       pdf_dvicmd_put(c);
-      pdf_dvicmd_up(c_wd);
+      pdf_dvicmd_up(-c_wd);
       end;
     end
   else
     case font_direction(dvi_direction) of
     dir__LT: begin
           if x_displace(p)<>0 then pdf_dvicmd_right(x_displace(p));
-          if y_displace(p)<>0 then pdf_dvicmd_up(-y_displace(p));
+          if y_displace(p)<>0 then pdf_dvicmd_up(y_displace(p));
       pdf_dvicmd_set(c);
           if x_displace(p)<>0 then pdf_dvicmd_left(x_displace(p));
-          if y_displace(p)<>0 then pdf_dvicmd_down(-y_displace(p));
+          if y_displace(p)<>0 then pdf_dvicmd_down(y_displace(p));
       end;
     dir__LB: begin
-      pdf_dvicmd_down(c_ht);
+      pdf_dvicmd_down(-c_ht);
       pdf_dvicmd_set(c);
-      pdf_dvicmd_up(c_ht);
+      pdf_dvicmd_up(-c_ht);
       end;
     dir__RT: begin
           if x_displace(p)<>0 then pdf_dvicmd_left(x_displace(p));
-          if y_displace(p)<>0 then pdf_dvicmd_up(-y_displace(p));
+          if y_displace(p)<>0 then pdf_dvicmd_up(y_displace(p));
       pdf_dvicmd_left(c_wd);
       pdf_dvicmd_put(c);
           if x_displace(p)<>0 then pdf_dvicmd_right(x_displace(p));
-          if y_displace(p)<>0 then pdf_dvicmd_down(-y_displace(p));
+          if y_displace(p)<>0 then pdf_dvicmd_down(y_displace(p));
       end;
     dir__RB: begin
       pdf_dvicmd_left(c_wd);
-      pdf_dvicmd_down(c_ht);
+      pdf_dvicmd_down(-c_ht);
       pdf_dvicmd_put(c);
-      pdf_dvicmd_up(c_ht);
+      pdf_dvicmd_up(-c_ht);
       end;
     dir__TL: begin
-      pdf_dvicmd_down(c_wd);
+      pdf_dvicmd_down(-c_wd);
       pdf_dvicmd_left(c_ht);
       pdf_dvicmd_put(c);
       pdf_dvicmd_right(c_ht);
       end;
     dir__TR: begin
-      pdf_dvicmd_down(c_wd);
+      pdf_dvicmd_down(-c_wd);
       pdf_dvicmd_left(c_dp);
       pdf_dvicmd_put(c);
       pdf_dvicmd_right(c_dp);
@@ -18336,28 +18348,28 @@ if is_char_node(p) then
       pdf_dvicmd_left(c_ht);
       pdf_dvicmd_put(c);
       pdf_dvicmd_right(c_ht);
-      pdf_dvicmd_up(c_wd);
+      pdf_dvicmd_up(-c_wd);
       end;
     dir__BR: begin
       pdf_dvicmd_left(c_dp);
       pdf_dvicmd_put(c);
       pdf_dvicmd_right(c_dp);
-      pdf_dvicmd_up(c_wd);
+      pdf_dvicmd_up(-c_wd);
       end;
     dir__LL,dir__LR: begin
-      pdf_dvicmd_down(c_ht);
+      pdf_dvicmd_down(-c_ht);
       pdf_dvicmd_put(c);
-      pdf_dvicmd_up(c_ht);
+      pdf_dvicmd_up(-c_ht);
       pdf_dvicmd_right(c_wd);
       end;
     dir__RL,dir__RR: begin
       pdf_dvicmd_left(c_wd);
-      pdf_dvicmd_down(c_ht);
+      pdf_dvicmd_down(-c_ht);
       pdf_dvicmd_put(c);
-      pdf_dvicmd_up(c_ht);
+      pdf_dvicmd_up(-c_ht);
       end;
     dir__TT,dir__TB: begin
-      pdf_dvicmd_down(c_wd);
+      pdf_dvicmd_down(-c_wd);
       pdf_dvicmd_left(c_ht);
       pdf_dvicmd_put(c);
       pdf_dvicmd_right(c_ht);
@@ -18366,7 +18378,7 @@ if is_char_node(p) then
       pdf_dvicmd_left(c_ht);
       pdf_dvicmd_put(c);
       pdf_dvicmd_right(c_ht);
-      pdf_dvicmd_up(c_wd);
+      pdf_dvicmd_up(-c_wd);
       end;
     end;
     cur_h:=cur_h+c_wd;
@@ -18477,54 +18489,17 @@ end
 @ @<(\pdfTeX) Output a rule in an hlist@>=
 if is_running(rule_ht) then rule_ht:=height(this_box);
 if is_running(rule_dp) then rule_dp:=depth(this_box);
-rule_ht:=rule_ht+rule_dp; {this is the rule thickness}
-if (rule_ht>0)and(rule_wd>0) then {we don't output empty rules}
-  begin cur_v:=base_line+rule_dp;
+if ((rule_ht+rule_dp)>0)and(rule_wd>0) then {we don't output empty rules}
   case font_direction(dvi_direction) of
-  dir__LT: begin
-        pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
-    end;
-  dir__LB: begin
-    pdf_dvicmd_down(rule_ht);
-        pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
-    pdf_dvicmd_up(rule_ht);
-    end;
-  dir__RT: begin
-    pdf_dvicmd_left(rule_wd);
-        pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
-        pdf_dvicmd_right(rule_wd);
-    end;
-  dir__RB: begin
-    pdf_dvicmd_left(rule_wd);
-    pdf_dvicmd_down(rule_ht);
-    pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
-        pdf_dvicmd_left(rule_wd);
-    pdf_dvicmd_up(rule_ht);
-    end;
-  dir__TL: begin
-    pdf_dvicmd_down(rule_wd);
-    pdf_dvicmd_left(rule_ht);
-    pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
-    end;
-  dir__TR: begin
-    pdf_dvicmd_down(rule_wd);
-    pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
-    pdf_dvicmd_left(rule_ht);
-    end;
-  dir__BL: begin
-    pdf_dvicmd_left(rule_ht);
-        pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
-    pdf_dvicmd_up(rule_wd);
-    end;
-  dir__BR: begin
-    pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
-        pdf_dvicmd_left(rule_ht);
-    pdf_dvicmd_up(rule_wd);
-    end;
+  dir__LT: pdf_set_rule(cur_h,           cur_v + rule_dp, rule_wd,           rule_ht + rule_dp);
+  dir__LB: pdf_set_rule(cur_h,           cur_v + rule_ht, rule_wd,           rule_ht + rule_dp);
+  dir__RT: pdf_set_rule(cur_h - rule_wd, cur_v + rule_dp, rule_wd,           rule_ht + rule_dp);
+  dir__RB: pdf_set_rule(cur_h - rule_wd, cur_v + rule_ht, rule_wd,           rule_ht + rule_dp);
+  dir__TL: pdf_set_rule(cur_h - rule_ht, cur_v + rule_wd, rule_ht + rule_dp, rule_wd);
+  dir__TR: pdf_set_rule(cur_h - rule_dp, cur_v + rule_wd, rule_ht + rule_dp, rule_wd);
+  dir__BL: pdf_set_rule(cur_h - rule_ht, cur_v,           rule_ht + rule_dp, rule_wd);
+  dir__BR: pdf_set_rule(cur_h - rule_dp, cur_v,           rule_ht + rule_dp, rule_wd);
   end;
-  {|cur_h:=cur_h+rule_wd;|}{|dir__RT| is corrected elsewhere}
-  cur_v:=base_line;
-  end
 
 @ @<(\pdfTeX) Move right or output leaders@>=
 begin g:=glue_ptr(p); rule_wd:=width(g)-cur_g;
@@ -18707,12 +18682,12 @@ rule_node: begin
   end;
 whatsit_node: @<Output the whatsit node |p| in |pdf_vlist_out|@>;
 glue_node: @<(\pdfTeX) Move down or output leaders@>;
-kern_node:cur_v:=cur_v+width(p);
+kern_node:pdf_dvicmd_v(width(p));
 othercases do_nothing
 endcases;@/
 goto next_p;
 fin_rule: @<(\pdfTeX) Output a rule in a vlist, |goto next_p|@>;
-move_past: cur_v:=cur_v+rule_ht;
+move_past: pdf_dvicmd_v(rule_ht);
 end
 
 @ TODO: the direct test to switch between |width(p)| and |-width(p)|
@@ -18774,53 +18749,18 @@ end
 @ @<(\pdfTeX) Output a rule in a vlist...@>=
 if is_running(rule_wd) then rule_wd:=width(this_box);
 rule_ht:=rule_ht+rule_dp; {this is the rule thickness}
-cur_v:=cur_v+rule_ht;
 if (rule_ht>0)and(rule_wd>0) then {we don't output empty rules}
-  begin
   case font_direction(dvi_direction) of
-  dir__LT: begin
-    pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
-    {|pdf_dvicmd_left(rule_wd);|}
-    end;
-  dir__LB: begin
-    pdf_dvicmd_down(rule_ht);
-    pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
-        pdf_dvicmd_left(rule_wd);
-    pdf_dvicmd_up(rule_ht);
-    end;
-  dir__RT: begin
-    pdf_dvicmd_left(rule_wd);
-    pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
-    pdf_dvicmd_right(rule_wd);
-    end;
-  dir__RB: begin
-    pdf_dvicmd_down(rule_ht);
-    pdf_dvicmd_left(rule_wd);
-    pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
-    pdf_dvicmd_up(rule_ht);
-    end;
-  dir__TL: begin
-    pdf_dvicmd_down(rule_wd);
-    pdf_dvicmd_left(rule_ht);
-    pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
-    pdf_dvicmd_up(rule_wd);
-    end;
-  dir__TR: begin
-    pdf_dvicmd_down(rule_wd);
-    pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
-    pdf_dvicmd_left(rule_wd);
-    pdf_dvicmd_up(rule_wd);
-    end;
-  dir__BL: begin
-    pdf_dvicmd_left(rule_ht);
-    pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
-    end;
-  dir__BR: begin
-    pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
-    pdf_dvicmd_left(rule_wd);
-    end;
+  dir__LT: pdf_set_rule(cur_h,           cur_v + rule_ht, rule_wd, rule_ht);
+  dir__LB: pdf_set_rule(cur_h,           cur_v,           rule_wd, rule_ht);
+  dir__RT: pdf_set_rule(cur_h - rule_wd, cur_v + rule_ht, rule_wd, rule_ht);
+  dir__RB: pdf_set_rule(cur_h - rule_wd, cur_v,           rule_wd, rule_ht);
+  dir__TL: pdf_set_rule(cur_h,           cur_v + rule_wd, rule_ht, rule_wd);
+  dir__TR: pdf_set_rule(cur_h - rule_ht, cur_v + rule_wd, rule_ht, rule_wd);
+  dir__BL: pdf_set_rule(cur_h,           cur_v,           rule_ht, rule_wd);
+  dir__BR: pdf_set_rule(cur_h - rule_ht, cur_v,           rule_ht, rule_wd);
   end;
-  end;
+  pdf_dvicmd_v(rule_ht);
 goto next_p
 
 @ @<(\pdfTeX) Move down or output leaders@>=
