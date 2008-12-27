@@ -121,6 +121,7 @@ then
               --without-xdvipdfmx \
               --without-xetex     \
               --disable-largefile \
+              2>&1 | tee ../build/configure.log \
               || exit 1 
 	( mkdir -p libs/luafontforge/fontforge ;
       cd libs/luafontforge/fontforge ;
@@ -129,27 +130,30 @@ then
         --disable-shared       \
         --with-regular-link    \
         --without-x            \
-        --without-iconv  )          || exit 1
+        --without-iconv        \
+        ) \
+        2>&1 | tee -a ../build/configure.log \
+        || exit 1
 
 fi
 
 # make the binaries
-(cd texk/web2c/web2c; $MAKE) || exit 1
-(cd texk/web2c; $MAKE ../kpathsea/libkpathsea.la) || exit 1
-(cd texk/web2c/lib; $MAKE) || exit 1
-(cd texk/web2c/; $MAKE ctangle) || exit 1
+(cd texk/web2c/web2c; $MAKE) 2>&1 | tee ../build/make.log || exit 1
+(cd texk/web2c; $MAKE ../kpathsea/libkpathsea.la) 2>&1 | tee -a ../build/make.log || exit 1
+(cd texk/web2c/lib; $MAKE) 2>&1 | tee -a ../build/make.log || exit 1
+(cd texk/web2c/; $MAKE ctangle) 2>&1 | tee -a ../build/make.log || exit 1
 (cd texk/web2c/mpdir; 
   if [ "$ONLY_MAKE" = "FALSE" ] 
   then
-    ../../../../src/texk/web2c/mpdir/configure --enable-shared=no; 
+    ../../../../src/texk/web2c/mpdir/configure --enable-shared=no 2>&1 | tee -a ../build/configure.log;
   fi; 
   env CTANGLE=../ctangle $MAKE; 
-  $MAKE lmplib.o ) || exit 1
+  $MAKE lmplib.o ) 2>&1 | tee -a ../build/make.log || exit 1
 if [ ! "$ONLY_MAKE" = "FALSE" ] 
 then
-  (cd texk/web2c/luatexdir; $MAKE libpdf.a) || exit 1
+  (cd texk/web2c/luatexdir; $MAKE libpdf.a) 2>&1 | tee -a ../build/make.log || exit 1
 fi;
-(cd texk/web2c; $MAKE luatex) || exit 1
+(cd texk/web2c; $MAKE luatex) 2>&1 | tee -a ../build/make.log || exit 1
 # go back
 cd ..
 unset NATIVE
