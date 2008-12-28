@@ -1,6 +1,6 @@
 /* math.c
 
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2008 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -24,6 +24,9 @@
 #include "commands.h"
 
 #include "tokens.h"
+
+static const char _svn_version[] =
+    "$Id$ $URL$";
 
 #define mode          cur_list.mode_field
 #define head          cur_list.head_field
@@ -409,7 +412,8 @@ void print_subsidiary_data(pointer p, ASCII_code c) {  /* display a noad field *
     case sub_mlist: 
       if (vinfo(p)==null) {
         print_ln();
-        print_current_string(); print("{}");
+        print_current_string(); 
+        print(maketexstring("{}"));
       } else {
         show_node_list(vinfo(p));
       }
@@ -1102,7 +1106,7 @@ pointer fin_mlist(pointer p) {
     } else {
       q=vinfo(numerator(incompleat_noad));
       if ((type(q)!=left_noad)||(delim_ptr==null)) 
-        confusion("right");   /* this can't happen */
+        confusion(maketexstring("right"));   /* this can't happen */
       vinfo(numerator(incompleat_noad))=vlink(delim_ptr);
       vlink(delim_ptr)=incompleat_noad; 
       vlink(incompleat_noad)=p;
@@ -1316,7 +1320,7 @@ void after_math (void) {
 
 void resume_after_display (void) {
   if (cur_group!=math_shift_group) 
-    confusion("display");
+    confusion(maketexstring("display"));
   unsave_math();
   prev_graf=prev_graf+3;
   push_nest(); mode=hmode; space_factor=1000;
