@@ -6684,6 +6684,8 @@ assign_dimen: if chr_code<scaled_base then
 
 @ @<Initialize table entries...@>=
 for k:=dimen_base to eqtb_size do eqtb[k].sc:=0;
+page_right_offset := one_inch;
+page_bottom_offset := one_inch;
 
 @ @<Initialize table entries...@>=
 pdf_ignored_dimen := ignore_depth;
@@ -14810,15 +14812,8 @@ if page_height > 0 then
     cur_page_height := page_height
 else
     cur_page_height := height(p) + depth(p) + 2*(v_offset + one_inch);
-if page_bottom_offset <> 0 then
-    cur_bottom_offset := page_bottom_offset
-else
-    cur_bottom_offset := 2*one_inch;
-if page_right_offset <> 0 then
-    cur_right_offset := page_right_offset
-else
-    cur_right_offset :=  2*one_inch
-
+cur_right_offset := page_right_offset;
+cur_bottom_offset := page_bottom_offset;
 
 @ @<Initialize variables as |ship_out| begins@>=
 dvi_h:=0; dvi_v:=0; cur_h:=0; cur_v:=0; dvi_f:=null_font;
@@ -15714,18 +15709,14 @@ case box_direction(dvi_direction) of
 dir_TL_,dir_LT_: begin
   end;
 dir_TR_,dir_RT_: begin
-  dvi_right(cur_page_width-cur_right_offset);
-  dvi_h:=-cur_right_offset;
+  dvi_right(cur_page_width-cur_right_offset-one_inch);
   end;
 dir_RB_,dir_BR_: begin
-  dvi_right(cur_page_width-cur_right_offset);
-  dvi_down(cur_page_height-cur_bottom_offset);
-  dvi_h:=-cur_right_offset;
-  dvi_v:=-cur_bottom_offset;
+  dvi_right(cur_page_width-cur_right_offset-one_inch);
+  dvi_down(cur_page_height-cur_bottom_offset-one_inch);
   end;
 dir_BL_,dir_LB_: begin
-  dvi_down(cur_page_height-cur_bottom_offset);
-  dvi_v:=-cur_bottom_offset;
+  dvi_down(cur_page_height-cur_bottom_offset-one_inch);
   end;
 end;
 cur_h:=h_offset;
@@ -18948,14 +18939,8 @@ if is_shipping_page then begin
         cur_page_height := page_height
     else
         cur_page_height := height(p) + depth(p) + 2 * pdf_v_offset;
-    if page_bottom_offset <> 0 then
-        cur_bottom_offset := page_bottom_offset
-    else
-        cur_bottom_offset := one_inch;
-    if page_right_offset <> 0 then
-        cur_right_offset := page_right_offset
-    else
-        cur_right_offset :=  one_inch;
+    cur_right_offset := page_right_offset;
+    cur_bottom_offset := page_bottom_offset;
     cur_h := pdf_h_offset;
     cur_v := height(p) + pdf_v_offset;
     case box_direction(dvi_direction) of
