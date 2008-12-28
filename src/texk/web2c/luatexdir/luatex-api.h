@@ -60,11 +60,11 @@ extern int luaopen_md5(lua_State * L);
 extern int luaopen_zlib(lua_State * L);
 extern int luaopen_gzip(lua_State * L);
 extern int luaopen_ff(lua_State * L);
-extern int luaopen_profiler(lua_State *L);
+extern int luaopen_profiler(lua_State * L);
 
-extern int luaopen_socket_core (lua_State * L);
-extern int luaopen_mime_core (lua_State * L);
-extern void luatex_socketlua_open (lua_State * L);
+extern int luaopen_socket_core(lua_State * L);
+extern int luaopen_mime_core(lua_State * L);
+extern void luatex_socketlua_open(lua_State * L);
 
 extern int luaopen_img(lua_State * L);
 extern int l_new_image(lua_State * L);
@@ -125,6 +125,6 @@ typedef struct command_item_ {
 extern command_item command_names[];
 extern int callback_callbacks_id;
 
-void  luainterpreter(int n);
+void luainterpreter(int n);
 char *lua_get_instancename(int n);
-void  lua_set_instancename(int n, char *s);
+void lua_set_instancename(int n, char *s);

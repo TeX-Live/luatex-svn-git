@@ -21,11 +21,11 @@
 /* $Id$ */
 
 #ifndef TEXMATH_H
-#define TEXMATH_H 1
+#  define TEXMATH_H 1
 
-#define empty 0
+#  define empty 0
 
-extern pointer new_noad (void) ;
+extern pointer new_noad(void);
 
 extern void show_math_node(halfword);
 extern void print_math_comp(halfword);
@@ -37,27 +37,28 @@ extern void math_left_brace(void);
 extern void finish_display_alignment(halfword, halfword, memory_word);
 extern halfword new_sub_box(halfword);
 
-#define display_style 0 /* |subtype| for \.{\\displaystyle} */
-#define text_style 2 /* |subtype| for \.{\\textstyle} */
-#define script_style 4 /* |subtype| for \.{\\scriptstyle} */
-#define script_script_style 6 /* |subtype| for \.{\\scriptscriptstyle} */
-#define cramped 1 /* add this to an uncramped style if you want to cramp it */
+#  define display_style 0       /* |subtype| for \.{\\displaystyle} */
+#  define text_style 2          /* |subtype| for \.{\\textstyle} */
+#  define script_style 4        /* |subtype| for \.{\\scriptstyle} */
+#  define script_script_style 6 /* |subtype| for \.{\\scriptscriptstyle} */
+#  define cramped 1             /* add this to an uncramped style if you want to cramp it */
 
-#define accent_chr(A) (A)+5 /* the |accent_chr| field of an accent noad */
-#define delimiter nucleus /* |delimiter| field in left and right noads */
-#define scripts_allowed(A) (type((A))>=ord_noad)&&(type((A))<left_noad)
+#  define accent_chr(A) (A)+5   /* the |accent_chr| field of an accent noad */
+#  define delimiter nucleus     /* |delimiter| field in left and right noads */
+#  define scripts_allowed(A) (type((A))>=ord_noad)&&(type((A))<left_noad)
 
-#define left_delimiter(A) (A)+5 /* first delimiter field of a noad */
-#define right_delimiter(A) (A)+6 /* second delimiter field of a fraction noad */
-#define thickness(A) vmem((A)+2).cint /* |thickness| field in a fraction noad */
-#define default_code 010000000000 /* denotes |default_rule_thickness| */
-#define numerator supscr /* |numerator| field in a fraction noad */
-#define denominator subscr /* |denominator| field in a fraction noad */
+#  define left_delimiter(A) (A)+5
+                                /* first delimiter field of a noad */
+#  define right_delimiter(A) (A)+6      /* second delimiter field of a fraction noad */
+#  define thickness(A) vmem((A)+2).cint /* |thickness| field in a fraction noad */
+#  define default_code 010000000000     /* denotes |default_rule_thickness| */
+#  define numerator supscr      /* |numerator| field in a fraction noad */
+#  define denominator subscr    /* |denominator| field in a fraction noad */
 
 extern two_halves empty_field;
 
-#define limits 1 /* |subtype| of |op_noad| whose scripts are to be above, below */
-#define no_limits 2 /* |subtype| of |op_noad| whose scripts are to be normal */
+#  define limits 1              /* |subtype| of |op_noad| whose scripts are to be above, below */
+#  define no_limits 2           /* |subtype| of |op_noad| whose scripts are to be normal */
 
 extern void initialize_math(void);
 extern halfword math_vcenter_group(halfword);
@@ -77,15 +78,15 @@ extern void math_fraction(void);
 extern void math_left_right(void);
 extern void after_math(void);
 
-#define total_mathsy_params 22
-#define total_mathex_params 13
+#  define total_mathsy_params 22
+#  define total_mathex_params 13
 
 extern pointer cur_mlist;
 extern integer cur_style;
 extern boolean mlist_penalties;
 extern integer cur_size;
 
-#define mcharacter(A) subtype((A))
+#  define mcharacter(A) subtype((A))
 
 /*
 @ Before an mlist is converted to an hlist, \TeX\ makes sure that
@@ -99,25 +100,26 @@ following macros, which take a size code as their parameter; for example,
 */
 
 
-#define mathsy_end(A)
-#define mathsy(A) font_param(fam_fnt(2+cur_size),A) mathsy_end
-#define math_x_height mathsy(5) /* height of `\.x' */
-#define math_quad mathsy(6) /* \.{18mu} */
-#define num1 mathsy(8) /* numerator shift-up in display styles */
-#define num2 mathsy(9) /* numerator shift-up in non-display, non-\.{\\atop} */
-#define num3 mathsy(10) /* numerator shift-up in non-display \.{\\atop} */
-#define denom1 mathsy(11) /* denominator shift-down in display styles */
-#define denom2 mathsy(12) /* denominator shift-down in non-display styles */
-#define sup1 mathsy(13) /* superscript shift-up in uncramped display style */
-#define sup2 mathsy(14) /* superscript shift-up in uncramped non-display */
-#define sup3 mathsy(15) /* superscript shift-up in cramped styles */
-#define sub1 mathsy(16) /* subscript shift-down if superscript is absent */
-#define sub2 mathsy(17) /* subscript shift-down if superscript is present */
-#define sup_drop mathsy(18) /* superscript baseline below top of large box */
-#define sub_drop mathsy(19) /* subscript baseline below bottom of large box */
-#define delim1 mathsy(20) /* size of \.{\\atopwithdelims} delimiters in display styles */
-#define delim2 mathsy(21) /* size of \.{\\atopwithdelims} delimiters in non-displays */
-#define axis_height mathsy(22) /* height of fraction lines above the baseline */
+#  define mathsy_end(A)
+#  define mathsy(A) font_param(fam_fnt(2+cur_size),A) mathsy_end
+#  define math_x_height mathsy(5)
+                                /* height of `\.x' */
+#  define math_quad mathsy(6)   /* \.{18mu} */
+#  define num1 mathsy(8)        /* numerator shift-up in display styles */
+#  define num2 mathsy(9)        /* numerator shift-up in non-display, non-\.{\\atop} */
+#  define num3 mathsy(10)       /* numerator shift-up in non-display \.{\\atop} */
+#  define denom1 mathsy(11)     /* denominator shift-down in display styles */
+#  define denom2 mathsy(12)     /* denominator shift-down in non-display styles */
+#  define sup1 mathsy(13)       /* superscript shift-up in uncramped display style */
+#  define sup2 mathsy(14)       /* superscript shift-up in uncramped non-display */
+#  define sup3 mathsy(15)       /* superscript shift-up in cramped styles */
+#  define sub1 mathsy(16)       /* subscript shift-down if superscript is absent */
+#  define sub2 mathsy(17)       /* subscript shift-down if superscript is present */
+#  define sup_drop mathsy(18)   /* superscript baseline below top of large box */
+#  define sub_drop mathsy(19)   /* subscript baseline below bottom of large box */
+#  define delim1 mathsy(20)     /* size of \.{\\atopwithdelims} delimiters in display styles */
+#  define delim2 mathsy(21)     /* size of \.{\\atopwithdelims} delimiters in non-displays */
+#  define axis_height mathsy(22)/* height of fraction lines above the baseline */
 
 /*
 The math-extension parameters have similar macros, but the size code is
@@ -126,13 +128,13 @@ omitted (since it is always |cur_size| when we refer to such parameters).
 @^font parameters@>
 */
 
-#define mathex(A) font_param(fam_fnt(3+cur_size),A)
-#define default_rule_thickness mathex(8) /* thickness of \.{\\over} bars */
-#define big_op_spacing1 mathex(9) /* minimum clearance above a displayed op */
-#define big_op_spacing2 mathex(10) /* minimum clearance below a displayed op */
-#define big_op_spacing3 mathex(11) /* minimum baselineskip above displayed op */
-#define big_op_spacing4 mathex(12) /* minimum baselineskip below displayed op */
-#define big_op_spacing5 mathex(13) /* padding above and below displayed limits */
+#  define mathex(A) font_param(fam_fnt(3+cur_size),A)
+#  define default_rule_thickness mathex(8)      /* thickness of \.{\\over} bars */
+#  define big_op_spacing1 mathex(9)     /* minimum clearance above a displayed op */
+#  define big_op_spacing2 mathex(10)    /* minimum clearance below a displayed op */
+#  define big_op_spacing3 mathex(11)    /* minimum baselineskip above displayed op */
+#  define big_op_spacing4 mathex(12)    /* minimum baselineskip below displayed op */
+#  define big_op_spacing5 mathex(13)    /* padding above and below displayed limits */
 
 /*
   @ We also need to compute the change in style between mlists and their
@@ -142,32 +144,33 @@ omitted (since it is always |cur_size| when we refer to such parameters).
   or |denom_style|).
 */
 
-#define cramped_style(A) 2*((A)/2)+cramped /* cramp the style */
-#define sub_style(A) 2*((A)/4)+script_style+cramped /* smaller and cramped */
-#define sup_style(A) 2*((A)/4)+script_style+((A)%2) /* smaller */
-#define num_style(A) (A)+2-2*((A)/6) /* smaller unless already script-script */
-#define denom_style(A) 2*((A)/2)+cramped+2-2*((A)/6) /* smaller, cramped */
+#  define cramped_style(A) 2*((A)/2)+cramped    /* cramp the style */
+#  define sub_style(A) 2*((A)/4)+script_style+cramped   /* smaller and cramped */
+#  define sup_style(A) 2*((A)/4)+script_style+((A)%2)   /* smaller */
+#  define num_style(A) (A)+2-2*((A)/6)  /* smaller unless already script-script */
+#  define denom_style(A) 2*((A)/2)+cramped+2-2*((A)/6)  /* smaller, cramped */
 
 
 void mlist_to_hlist(void);
 
-#define text_size 0
-#define script_size 256
-#define script_script_size 512
+#  define text_size 0
+#  define script_size 256
+#  define script_script_size 512
 
-#define math_direction int_par(param_math_direction_code)
+#  define math_direction int_par(param_math_direction_code)
 
-#define dir_math_save cur_list.math_field
+#  define dir_math_save cur_list.math_field
 
-#define null_font 0
-#define min_quarterword 0
+#  define null_font 0
+#  define min_quarterword 0
 
-#define vmem(A) varmem[(A)]
+#  define vmem(A) varmem[(A)]
 
-#define small_fam(A) vmem((A)).qqqq.b0 /* |fam| for ``small'' delimiter */
-#define small_char(A) vmem((A)).qqqq.b1 /* |character| for ``small'' delimiter */
-#define large_fam(A) vmem((A)).qqqq.b2 /* |fam| for ``large'' delimiter */
-#define large_char(A) vmem((A)).qqqq.b3 /* |character| for ``large'' delimiter */
+#  define small_fam(A) vmem((A)).qqqq.b0/* |fam| for ``small'' delimiter */
+#  define small_char(A) vmem((A)).qqqq.b1
+                                        /* |character| for ``small'' delimiter */
+#  define large_fam(A) vmem((A)).qqqq.b2/* |fam| for ``large'' delimiter */
+#  define large_char(A) vmem((A)).qqqq.b3
+                                        /* |character| for ``large'' delimiter */
 
 #endif
-

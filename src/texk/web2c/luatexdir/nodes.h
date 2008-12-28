@@ -111,11 +111,11 @@ extern halfword do_set_attribute(halfword p, int i, int val);
 #  define glue_ref_count(a) vlink((a)+3)
 
 typedef enum {
-  cond_math_glue=98, /* special |subtype| to suppress glue in the next node */
-  mu_glue,   /* |subtype| for math glue */
-  a_leaders, /* |subtype| for aligned leaders */
-  c_leaders, /* |subtype| for centered leaders */
-  x_leaders /* |subtype| for expanded leaders */
+    cond_math_glue = 98,        /* special |subtype| to suppress glue in the next node */
+    mu_glue,                    /* |subtype| for math glue */
+    a_leaders,                  /* |subtype| for aligned leaders */
+    c_leaders,                  /* |subtype| for centered leaders */
+    x_leaders                   /* |subtype| for expanded leaders */
 } glue_subtype_codes;
 
 /* pdf action spec */
@@ -403,7 +403,7 @@ typedef enum {
     math_text_char              /* |math_type| when italic correction is dubious */
 } math_types;
 
-#define middle_noad 1
+#  define middle_noad 1
 
 typedef enum {
     open_node = 0,
@@ -450,7 +450,7 @@ typedef enum {
     pdf_save_node,
     pdf_restore_node,
     cancel_boundary_node,
-    user_defined_node /* 44 */
+    user_defined_node           /* 44 */
 } whatsit_types;
 
 #  define pdf_info_code pdf_thread_data_node

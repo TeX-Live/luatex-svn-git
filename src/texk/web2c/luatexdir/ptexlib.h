@@ -103,8 +103,8 @@ typedef struct {
 } fm_entry;
 
 typedef struct glw_entry_ {     /* subset glyphs for inclusion in CID-based fonts */
-    unsigned int id;          /* glyph CID */
-    signed int wd;          /* glyph width in 1/1000 em parts */
+    unsigned int id;            /* glyph CID */
+    signed int wd;              /* glyph width in 1/1000 em parts */
 } glw_entry;
 
 
@@ -173,7 +173,7 @@ extern size_t last_ptr_index;
 int loadpoolstrings(integer spare_size);
 
 /* A hack to counter fixwrites */
-#define do_write_wterm(a) fprintf(stdout, "%s",  a) 
+#  define do_write_wterm(a) fprintf(stdout, "%s",  a)
 
 /* pdftexlib function prototypes */
 
@@ -541,7 +541,8 @@ void lua_node_filter(int filterid, int extrainfo, halfword head_node,
 halfword lua_vpack_filter(halfword head_node, scaled size, int pack_type,
                           scaled maxd, int extrainfo);
 void lua_node_filter_s(int filterid, char *extrainfo);
-int lua_linebreak_callback (int is_broken, halfword head_node, halfword *new_head);
+int lua_linebreak_callback(int is_broken, halfword head_node,
+                           halfword * new_head);
 
 void load_tex_patterns(int curlang, halfword head);
 void load_tex_hyphenation(int curlang, halfword head);
@@ -640,8 +641,8 @@ void pdf_print_real(integer m, integer d);
 
 /* textoken.c */
 
-#define  NO_CAT_TABLE      -2
-#define  DEFAULT_CAT_TABLE -1
+#  define  NO_CAT_TABLE      -2
+#  define  DEFAULT_CAT_TABLE -1
 
 void get_next(void);
 halfword active_to_cs(int, int);
@@ -650,7 +651,7 @@ int get_char_cat_code(int);
 
 /* lcallbacklib.c */
 
-#include <../lua51/lua.h>
+#  include <../lua51/lua.h>
 
 
 typedef enum {
@@ -691,13 +692,13 @@ typedef enum {
 
 extern int callback_set[];
 
-#define callback_defined(a) callback_set[a]
+#  define callback_defined(a) callback_set[a]
 
 extern int run_callback(int i, char *values, ...);
 extern int run_saved_callback(int i, char *name, char *values, ...);
 extern int run_and_save_callback(int i, char *values, ...);
 extern void destroy_saved_callback(int i);
-extern boolean get_callback(lua_State *L, int i);
+extern boolean get_callback(lua_State * L, int i);
 
 extern void get_saved_lua_boolean(int i, char *name, boolean * target);
 extern void get_saved_lua_number(int i, char *name, integer * target);
