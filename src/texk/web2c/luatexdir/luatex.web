@@ -15705,18 +15705,22 @@ dvi_out(bop);
 for k:=0 to 9 do dvi_four(count(k));
 dvi_four(last_bop); last_bop:=page_loc;
 dvi_direction:=page_direction;
+if mag<>1000 then
+  one_true_inch:=xn_over_d(one_hundred_inch,10,mag)
+else
+  one_true_inch:=one_inch;
 case box_direction(dvi_direction) of
 dir_TL_,dir_LT_: begin
   end;
 dir_TR_,dir_RT_: begin
-  dvi_right(cur_page_width-cur_right_offset-one_inch);
+  dvi_right(cur_page_width - cur_right_offset - one_true_inch);
   end;
 dir_RB_,dir_BR_: begin
-  dvi_right(cur_page_width-cur_right_offset-one_inch);
-  dvi_down(cur_page_height-cur_bottom_offset-one_inch);
+  dvi_right(cur_page_width - cur_right_offset - one_true_inch);
+  dvi_down(cur_page_height - cur_bottom_offset - one_true_inch);
   end;
 dir_BL_,dir_LB_: begin
-  dvi_down(cur_page_height-cur_bottom_offset-one_inch);
+  dvi_down(cur_page_height - cur_bottom_offset - one_true_inch);
   end;
 end;
 cur_h:=h_offset;
@@ -16497,6 +16501,7 @@ accurary.
 @<Glob...@>=
 @!one_hundred_inch: scaled; {scaled value corresponds to 100in}
 @!one_inch: scaled; {scaled value corresponds to 1in (rounded!)}
+@!one_true_inch: scaled; {scaled value corresponds to 1truein (rounded!)}
 @!one_hundred_bp: scaled; {scaled value corresponds to 100bp}
 @!one_bp: scaled; {scaled value corresponds to 1bp (rounded!)}
 @!ten_pow: array[0..9] of integer; {$10^0..10^9$}
