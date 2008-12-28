@@ -15723,42 +15723,7 @@ dir_BL_,dir_LB_: begin
 end;
 cur_h:=h_offset;
 cur_v:=height(p)+v_offset;
-case box_direction(dvi_direction) of
-dir_TL_: begin
-  dvi_down(cur_v);
-  dvi_right(cur_h);
-  end;
-dir_TR_: begin
-  dvi_down(cur_v);
-  dvi_right(-cur_h);
-  end;
-dir_LT_: begin
-  dvi_right(cur_v);
-  dvi_down(cur_h);
-  end;
-dir_LB_: begin
-  dvi_right(cur_v);
-  dvi_down(-cur_h);
-  end;
-dir_BL_: begin
-  dvi_down(-cur_v);
-  dvi_right(cur_h);
-  end;
-dir_BR_: begin
-  dvi_down(-cur_v);
-  dvi_right(-cur_h);
-  end;
-dir_RT_: begin
-  dvi_right(-cur_v);
-  dvi_down(cur_h);
-  end;
-dir_RB_: begin
-  dvi_right(-cur_v);
-  dvi_down(-cur_h);
-  end;
-end;
-dvi_h:=cur_h;
-dvi_v:=cur_v;
+synch_h; synch_v;
 temp_ptr:=p;
 if type(p)=vlist_node then vlist_out@+else hlist_out;
 dvi_out(eop); incr(total_pages); cur_s:=-1;
