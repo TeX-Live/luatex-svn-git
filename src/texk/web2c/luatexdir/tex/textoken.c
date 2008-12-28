@@ -33,7 +33,7 @@ static const char _svn_version[] =
 
 #define every_eof get_every_eof()
 
-#define null_cs 1 /* equivalent of \.{\\csname\\endcsname} */
+#define null_cs 1               /* equivalent of \.{\\csname\\endcsname} */
 
 #define eq_level(a) zeqtb[a].hh.u.B1
 #define eq_type(a)  zeqtb[a].hh.u.B0
@@ -62,10 +62,11 @@ extern void insert_vj_template(void);
   } while (0)
 
 
-int get_char_cat_code (int cur_chr) {
-  int a; 
-  do_get_cat_code(a);
-  return a;
+int get_char_cat_code(int cur_chr)
+{
+    int a;
+    do_get_cat_code(a);
+    return a;
 }
 
 static void invalid_character_error(void)
@@ -104,7 +105,7 @@ static void utf_error(void)
     deletions_allowed = true;
 }
 
-#define do_buffer_to_unichar(a,b)  a = buffer[b] < 0x80 ? buffer[b++] : qbuffer_to_unichar(&b) 
+#define do_buffer_to_unichar(a,b)  a = buffer[b] < 0x80 ? buffer[b++] : qbuffer_to_unichar(&b)
 
 static integer qbuffer_to_unichar(integer * k)
 {
@@ -147,29 +148,29 @@ char *u2s(unsigned unic)
 {
     char *buf = xmalloc(5);
     char *pt = buf;
-	if ( unic<0x80 )
-	    *pt++ = unic;
-	else if ( unic<0x800 ) {
-	    *pt++ = 0xc0 | (unic>>6);
-	    *pt++ = 0x80 | (unic&0x3f);
-	} else if ( unic >= 0x110000 ) {
+    if (unic < 0x80)
+        *pt++ = unic;
+    else if (unic < 0x800) {
+        *pt++ = 0xc0 | (unic >> 6);
+        *pt++ = 0x80 | (unic & 0x3f);
+    } else if (unic >= 0x110000) {
         *pt++ = unic - 0x110000;
-	} else if ( unic < 0x10000 ) {
-	    *pt++ = 0xe0 | (unic>>12);
-	    *pt++ = 0x80 | ((unic>>6)&0x3f);
-	    *pt++ = 0x80 | (unic&0x3f);
-	} else {
-        int u,z,y,x;
-	    unsigned val = unic-0x10000;
-	    u = ((val&0xf0000)>>16)+1;
-        z = (val&0x0f000)>>12;
-        y = (val&0x00fc0)>>6;
-        x = val&0x0003f;
-	    *pt++ = 0xf0 | (u>>2);
-	    *pt++ = 0x80 | ((u&3)<<4) | z;
-	    *pt++ = 0x80 | y;
-	    *pt++ = 0x80 | x;
-	}
+    } else if (unic < 0x10000) {
+        *pt++ = 0xe0 | (unic >> 12);
+        *pt++ = 0x80 | ((unic >> 6) & 0x3f);
+        *pt++ = 0x80 | (unic & 0x3f);
+    } else {
+        int u, z, y, x;
+        unsigned val = unic - 0x10000;
+        u = ((val & 0xf0000) >> 16) + 1;
+        z = (val & 0x0f000) >> 12;
+        y = (val & 0x00fc0) >> 6;
+        x = val & 0x0003f;
+        *pt++ = 0xf0 | (u >> 2);
+        *pt++ = 0x80 | ((u & 3) << 4) | z;
+        *pt++ = 0x80 | y;
+        *pt++ = 0x80 | x;
+    }
     *pt = '\0';
     return buf;
 }
@@ -178,31 +179,31 @@ char *u2s(unsigned unic)
  * (inside |shift_case|, for example). This needs thinking.
  */
 
-halfword active_to_cs (int curchr, int force) 
+halfword active_to_cs(int curchr, int force)
 {
     int nncs = no_new_control_sequence;
     str_number activetext;
     halfword curcs;
     char *a, *b;
     char *utfbytes = xmalloc(10);
-    a = u2s (0xFFFF);
-    utfbytes = strcpy(utfbytes,a);
-    if (curchr>0) {
-      b = u2s (curchr);
-      utfbytes = strcat(utfbytes,b);
-      free (b);
-      activetext = maketexlstring(utfbytes,strlen(utfbytes));
+    a = u2s(0xFFFF);
+    utfbytes = strcpy(utfbytes, a);
+    if (curchr > 0) {
+        b = u2s(curchr);
+        utfbytes = strcat(utfbytes, b);
+        free(b);
+        activetext = maketexlstring(utfbytes, strlen(utfbytes));
     } else {
-      utfbytes[3] = '\0';
-      activetext = maketexlstring(utfbytes,4);
+        utfbytes[3] = '\0';
+        activetext = maketexlstring(utfbytes, 4);
     }
-    if (force) 
-      no_new_control_sequence = false;
+    if (force)
+        no_new_control_sequence = false;
     curcs = string_lookup(activetext);
     no_new_control_sequence = nncs;
     flush_str(activetext);
-    free (a); 
-    free (utfbytes);
+    free(a);
+    free(utfbytes);
     return curcs;
 }
 
@@ -210,8 +211,8 @@ static boolean get_next_file(void)
 {
   SWITCH:
     if (loc <= limit) {         /* current line not yet finished */
-        do_buffer_to_unichar(cur_chr,loc);
-        
+        do_buffer_to_unichar(cur_chr, loc);
+
       RESWITCH:
         if (detokenized_line()) {
             cur_cmd = (cur_chr == ' ' ? 10 : 12);
@@ -234,25 +235,25 @@ static boolean get_next_file(void)
         case skip_blanks + ignore_cmd:
         case new_line + ignore_cmd:
         case skip_blanks + spacer_cmd:
-        case new_line + spacer_cmd:        /* @<Cases where character is ignored@> */
+        case new_line + spacer_cmd:    /* @<Cases where character is ignored@> */
             goto SWITCH;
             break;
         case mid_line + escape_cmd:
         case new_line + escape_cmd:
-        case skip_blanks + escape_cmd:     /* @<Scan a control sequence ...@>; */
+        case skip_blanks + escape_cmd: /* @<Scan a control sequence ...@>; */
             state = scan_control_sequence();
             break;
         case mid_line + active_char_cmd:
         case new_line + active_char_cmd:
-        case skip_blanks + active_char_cmd:        /* @<Process an active-character  */
-          cur_cs = active_to_cs(cur_chr, false);
+        case skip_blanks + active_char_cmd:    /* @<Process an active-character  */
+            cur_cs = active_to_cs(cur_chr, false);
             cur_cmd = eq_type(cur_cs);
             cur_chr = equiv(cur_cs);
             state = mid_line;
             break;
         case mid_line + sup_mark_cmd:
         case new_line + sup_mark_cmd:
-        case skip_blanks + sup_mark_cmd:   /* @<If this |sup_mark| starts */
+        case skip_blanks + sup_mark_cmd:       /* @<If this |sup_mark| starts */
             if (process_sup_mark())
                 goto RESWITCH;
             else
@@ -260,15 +261,15 @@ static boolean get_next_file(void)
             break;
         case mid_line + invalid_char_cmd:
         case new_line + invalid_char_cmd:
-        case skip_blanks + invalid_char_cmd:       /* @<Decry the invalid character and |goto restart|@>; */
+        case skip_blanks + invalid_char_cmd:   /* @<Decry the invalid character and |goto restart|@>; */
             invalid_character_error();
             return false;       /* because state may be token_list now */
             break;
-        case mid_line + spacer_cmd:        /* @<Enter |skip_blanks| state, emit a space@>; */
+        case mid_line + spacer_cmd:    /* @<Enter |skip_blanks| state, emit a space@>; */
             state = skip_blanks;
             cur_chr = ' ';
             break;
-        case mid_line + car_ret_cmd:       /* @<Finish line, emit a space@>; */
+        case mid_line + car_ret_cmd:   /* @<Finish line, emit a space@>; */
             /* When a character of type |spacer| gets through, its character code is
                changed to $\.{"\ "}=@'40$. This means that the ASCII codes for tab and space,
                and for the space inserted at the end of a line, will
@@ -282,11 +283,11 @@ static boolean get_next_file(void)
         case skip_blanks + car_ret_cmd:
         case mid_line + comment_cmd:
         case new_line + comment_cmd:
-        case skip_blanks + comment_cmd:    /* @<Finish line, |goto switch|@>; */
+        case skip_blanks + comment_cmd:        /* @<Finish line, |goto switch|@>; */
             loc = limit + 1;
             goto SWITCH;
             break;
-        case new_line + car_ret_cmd:       /* @<Finish line, emit a \.{\\par}@>; */
+        case new_line + car_ret_cmd:   /* @<Finish line, emit a \.{\\par}@>; */
             loc = limit + 1;
             cur_cs = par_loc;
             cur_cmd = eq_type(cur_cs);
@@ -485,20 +486,20 @@ static int scan_control_sequence(void)
         register int cat;       /* |cat_code(cur_chr)|, usually */
         while (1) {
             integer k = loc;
-            do_buffer_to_unichar(cur_chr,k);
+            do_buffer_to_unichar(cur_chr, k);
             do_get_cat_code(cat);
             if (cat != letter_cmd || k > limit) {
                 retval = (cat == spacer_cmd ? skip_blanks : mid_line);
-                if (cat == sup_mark_cmd && check_expanded_code(&k)) /* @<If an expanded...@>; */
+                if (cat == sup_mark_cmd && check_expanded_code(&k))     /* @<If an expanded...@>; */
                     continue;
             } else {
                 retval = skip_blanks;
                 do {
-                  do_buffer_to_unichar(cur_chr,k);
+                    do_buffer_to_unichar(cur_chr, k);
                     do_get_cat_code(cat);
                 } while (cat == letter_cmd && k <= limit);
 
-                if (cat == sup_mark_cmd && check_expanded_code(&k)) /* @<If an expanded...@>; */
+                if (cat == sup_mark_cmd && check_expanded_code(&k))     /* @<If an expanded...@>; */
                     continue;
                 if (cat != letter_cmd) {
                     decr(k);
@@ -665,7 +666,8 @@ static next_line_retval next_line(void)
                         firm_up_the_line();
                         line_catcode_table = luacstring_cattable();
                         line_partial = luacstring_partial();
-                        if (luacstring_final_line() || line_partial || line_catcode_table==NO_CAT_TABLE)
+                        if (luacstring_final_line() || line_partial
+                            || line_catcode_table == NO_CAT_TABLE)
                             inhibit_eol = true;
                         if (!line_partial)
                             state = new_line;
@@ -760,7 +762,7 @@ static boolean get_next_tokenlist(void)
     if (t >= cs_token_flag) {   /* a control sequence token */
         cur_cs = t - cs_token_flag;
         cur_cmd = eq_type(cur_cs);
-        if (cur_cmd == dont_expand_cmd) {   /* @<Get the next token, suppressing expansion@> */
+        if (cur_cmd == dont_expand_cmd) {       /* @<Get the next token, suppressing expansion@> */
             /* The present point in the program is reached only when the |expand|
                routine has inserted a special marker into the input. In this special
                case, |info(loc)| is known to be a control sequence token, and |link(loc)=null|.
@@ -785,7 +787,7 @@ static boolean get_next_tokenlist(void)
         case right_brace_cmd:
             align_state--;
             break;
-        case out_param_cmd:        /* @<Insert macro parameter and |goto restart|@>; */
+        case out_param_cmd:    /* @<Insert macro parameter and |goto restart|@>; */
             begin_token_list(param_stack[param_start + cur_chr - 1], parameter);
             return false;
             break;

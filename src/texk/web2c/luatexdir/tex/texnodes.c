@@ -276,7 +276,8 @@ node_info whatsit_node_data[] = {
     {fake_node, fake_node_size, NULL, fake_node_name},
     {fake_node, fake_node_size, NULL, fake_node_name},
     {fake_node, fake_node_size, NULL, fake_node_name},
-    {late_lua_node, late_lua_node_size, node_fields_whatsit_late_lua, "late_lua"},
+    {late_lua_node, late_lua_node_size, node_fields_whatsit_late_lua,
+     "late_lua"},
     {close_lua_node, write_node_size, node_fields_whatsit_close_lua,
      "close_lua"},
     {fake_node, fake_node_size, NULL, fake_node_name},
@@ -364,20 +365,20 @@ halfword new_node(int i, int j)
     /* handle synctex extension */
     switch (i) {
     case math_node:
-      synctex_tag_math(n) = cur_input.synctex_tag_field;
-      synctex_line_math(n) = line;
-      break;
+        synctex_tag_math(n) = cur_input.synctex_tag_field;
+        synctex_line_math(n) = line;
+        break;
     case glue_node:
-      synctex_tag_glue(n) = cur_input.synctex_tag_field;
-      synctex_line_glue(n) = line;
-      break;
+        synctex_tag_glue(n) = cur_input.synctex_tag_field;
+        synctex_line_glue(n) = line;
+        break;
     case kern_node:
-      /* synctex ignores implicit kerns */
-      if (j!=0) {
-        synctex_tag_kern(n) = cur_input.synctex_tag_field;
-        synctex_line_kern(n) = line;
-      }
-      break;
+        /* synctex ignores implicit kerns */
+        if (j != 0) {
+            synctex_tag_kern(n) = cur_input.synctex_tag_field;
+            synctex_line_kern(n) = line;
+        }
+        break;
     case hlist_node:
     case vlist_node:
     case unset_node:
@@ -562,8 +563,8 @@ halfword copy_node(const halfword p)
             add_token_ref(pdf_setmatrix_data(p));
             break;
         case late_lua_node:
-            if (late_lua_name(p)>0) 
-              add_token_ref(late_lua_name(p));
+            if (late_lua_name(p) > 0)
+                add_token_ref(late_lua_name(p));
             add_token_ref(late_lua_data(p));
             break;
         case pdf_annot_node:
@@ -594,7 +595,7 @@ halfword copy_node(const halfword p)
                 add_token_ref(user_node_value(p));
                 break;
             case 's':
-              /* |add_string_ref(user_node_value(p));| */ /* if this was mpost .. */
+                /* |add_string_ref(user_node_value(p));| *//* if this was mpost .. */
                 break;
             case 'n':
                 s = copy_node_list(user_node_value(p));
@@ -832,8 +833,8 @@ void flush_node(halfword p)
             delete_token_ref(pdf_setmatrix_data(p));
             break;
         case late_lua_node:
-            if (late_lua_name(p)>0) 
-              delete_token_ref(late_lua_name(p));
+            if (late_lua_name(p) > 0)
+                delete_token_ref(late_lua_name(p));
             delete_token_ref(late_lua_data(p));
             break;
         case pdf_annot_node:
@@ -875,7 +876,7 @@ void flush_node(halfword p)
                 flush_node_list(user_node_value(p));
                 break;
             case 's':
-                /* |delete_string_ref(user_node_value(p));| */ /* if this was mpost .. */
+                /* |delete_string_ref(user_node_value(p));| *//* if this was mpost .. */
                 break;
             case 'd':
                 break;
@@ -1055,8 +1056,8 @@ void check_node(halfword p)
             check_token_ref(pdf_setmatrix_data(p));
             break;
         case late_lua_node:
-            if (late_lua_name(p)>0) 
-              check_token_ref(late_lua_name(p));
+            if (late_lua_name(p) > 0)
+                check_token_ref(late_lua_name(p));
             check_token_ref(late_lua_data(p));
             break;
         case pdf_annot_node:
@@ -1546,9 +1547,9 @@ char *sprint_node_mem_usage(void)
             snprintf(msg, 255, "%s%d %s", (b ? ", " : ""), (int) node_counts[i],
                      get_node_name((i > last_normal_node ? whatsit_node : i),
                                    j));
-            ss = xmalloc(strlen(s)+strlen(msg)+1);
-            strcpy(ss,s);
-            strcat(ss,msg);
+            ss = xmalloc(strlen(s) + strlen(msg) + 1);
+            strcpy(ss, s);
+            strcat(ss, msg);
             free(s);
             s = ss;
             b = 1;
@@ -1757,7 +1758,7 @@ halfword do_set_attribute(halfword p, int i, int val)
         vlink(q) = p;
         return q;
     }
-    q=p;
+    q = p;
     assert(vlink(p) != null);
     while (vlink(p) != null) {
         int t = attribute_id(vlink(p));

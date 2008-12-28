@@ -107,7 +107,8 @@ void ext_post_line_break(boolean d,
                          scaled second_width,
                          scaled second_indent,
                          scaled first_width,
-                         scaled first_indent, halfword best_line, halfword pdf_ignored_dimen)
+                         scaled first_indent, halfword best_line,
+                         halfword pdf_ignored_dimen)
 {
 
     boolean have_directional = true;
@@ -223,7 +224,7 @@ void ext_post_line_break(boolean d,
                     while (alink(a) != null)
                         a = alink(a);
                     assert(type(a) == nesting_node);
-                    assert(subtype(a) == no_break_head(0));      /* No_break */
+                    assert(subtype(a) == no_break_head(0));     /* No_break */
                     d = a - subtype(a); /* MAGIC subtype is offset of nesting with disc */
                     assert(type(d) == disc_node);
                     v = vlink(d);
@@ -417,13 +418,15 @@ void ext_post_line_break(boolean d,
 
         /* Append the new box to the current vertical list, followed by the list of
            special nodes taken out of the box by the packager; */
-        if (pdf_each_line_height != pdf_ignored_dimen )
+        if (pdf_each_line_height != pdf_ignored_dimen)
             height(just_box) = pdf_each_line_height;
-        if (pdf_each_line_depth != pdf_ignored_dimen )
+        if (pdf_each_line_depth != pdf_ignored_dimen)
             depth(just_box) = pdf_each_line_depth;
-        if ((pdf_first_line_height != pdf_ignored_dimen ) && (cur_line == cur_list.pg_field + 1))
+        if ((pdf_first_line_height != pdf_ignored_dimen)
+            && (cur_line == cur_list.pg_field + 1))
             height(just_box) = pdf_first_line_height;
-        if ((pdf_last_line_depth != pdf_ignored_dimen ) && (cur_line + 1 == best_line))
+        if ((pdf_last_line_depth != pdf_ignored_dimen)
+            && (cur_line + 1 == best_line))
             depth(just_box) = pdf_last_line_depth;
 
         if (pre_adjust_head != pre_adjust_tail)
