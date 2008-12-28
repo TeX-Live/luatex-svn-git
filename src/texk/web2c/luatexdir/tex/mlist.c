@@ -23,6 +23,9 @@
 #include "nodes.h"
 #include "commands.h"
 
+static const char _svn_version[] =
+    "$Id$ $URL$";
+
 #define mode          cur_list.mode_field
 #define head          cur_list.head_field
 #define tail          cur_list.tail_field
