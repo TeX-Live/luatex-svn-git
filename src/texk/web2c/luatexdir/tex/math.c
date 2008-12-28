@@ -1257,7 +1257,7 @@ pointer fin_mlist(pointer p)
         } else {
             q = vinfo(numerator(incompleat_noad));
             if ((type(q) != left_noad) || (delim_ptr == null))
-                confusion(maketexstring("right"));      /* this can't happen */
+                tconfusion("right");      /* this can't happen */
             vinfo(numerator(incompleat_noad)) = vlink(delim_ptr);
             vlink(delim_ptr) = incompleat_noad;
             vlink(incompleat_noad) = p;
@@ -1490,7 +1490,7 @@ void after_math(void)
 void resume_after_display(void)
 {
     if (cur_group != math_shift_group)
-        confusion(maketexstring("display"));
+        tconfusion("display");
     unsave_math();
     prev_graf = prev_graf + 3;
     push_nest();
