@@ -14812,8 +14812,6 @@ if page_height > 0 then
     cur_page_height := page_height
 else
     cur_page_height := height(p) + depth(p) + 2*(v_offset + one_inch);
-cur_right_offset := page_right_offset;
-cur_bottom_offset := page_bottom_offset;
 
 @ @<Initialize variables as |ship_out| begins@>=
 dvi_h:=0; dvi_v:=0; cur_h:=0; cur_v:=0; dvi_f:=null_font;
@@ -15713,14 +15711,14 @@ case box_direction(dvi_direction) of
 dir_TL_,dir_LT_: begin
   end;
 dir_TR_,dir_RT_: begin
-  dvi_right(cur_page_width - cur_right_offset - one_true_inch);
+  dvi_right(cur_page_width - page_right_offset - one_true_inch);
   end;
 dir_RB_,dir_BR_: begin
-  dvi_right(cur_page_width - cur_right_offset - one_true_inch);
-  dvi_down(cur_page_height - cur_bottom_offset - one_true_inch);
+  dvi_right(cur_page_width - page_right_offset - one_true_inch);
+  dvi_down(cur_page_height - page_bottom_offset - one_true_inch);
   end;
 dir_BL_,dir_LB_: begin
-  dvi_down(cur_page_height - cur_bottom_offset - one_true_inch);
+  dvi_down(cur_page_height - page_bottom_offset - one_true_inch);
   end;
 end;
 cur_h:=h_offset;
@@ -18944,15 +18942,13 @@ if is_shipping_page then begin
         cur_page_height := page_height
     else
         cur_page_height := height(p) + depth(p) + 2 * pdf_v_offset;
-    cur_right_offset := page_right_offset;
-    cur_bottom_offset := page_bottom_offset;
     cur_h := pdf_h_offset;
     cur_v := height(p) + pdf_v_offset;
     case box_direction(dvi_direction) of
         dir_TL_,dir_LT_: begin end;
-        dir_TR_,dir_RT_: begin cur_h:=cur_page_width-cur_right_offset; end;
-        dir_RB_,dir_BR_: begin cur_h:=cur_page_width-cur_right_offset; cur_v:=-cur_bottom_offset; end;
-        dir_BL_,dir_LB_: begin cur_v:=-cur_bottom_offset; end; 
+        dir_TR_,dir_RT_: begin cur_h := cur_page_width - page_right_offset; end;
+        dir_RB_,dir_BR_: begin cur_h := cur_page_width - page_right_offset; cur_v := -page_bottom_offset; end;
+        dir_BL_,dir_LB_: begin cur_v := -page_bottom_offset; end; 
     end;
 end
 else begin
@@ -30149,8 +30145,6 @@ end;
 @ @<Glob...@>=
 @!cur_page_width: scaled; {width of page being shipped}
 @!cur_page_height: scaled; {height of page being shipped}
-@!cur_right_offset: scaled; {horizontal inverted offset of page being shipped}
-@!cur_bottom_offset: scaled; {vertical inverted offset of page being shipped}
 @!pdf_obj_list: pointer; {list of objects in the current page}
 @!pdf_xform_list: pointer; {list of forms in the current page}
 @!pdf_ximage_list: pointer; {list of images in the current page}
