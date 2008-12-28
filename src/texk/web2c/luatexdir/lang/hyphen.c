@@ -53,6 +53,9 @@
 #include "hnjalloc.h"
 #include "hyphen.h"
 
+static const char _svn_version[] =
+    "$Id$ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/lang/texlang.c $";
+
 /* SHOULD BE MOVED TO SEPARATE LIBRARY */
 static unsigned char * hnj_strdup(
   const unsigned char *s
