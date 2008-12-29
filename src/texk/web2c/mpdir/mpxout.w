@@ -1,4 +1,4 @@
-% $Id: mpxout.w 753 2008-12-02 15:17:33Z taco $
+% $Id: mpxout.w 789 2008-12-22 14:37:37Z taco $
 %
 % Copyright 2008 Taco Hoekwater.
 %
@@ -49,6 +49,7 @@ in order to prevent name clashes.
 #include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
+extern int mkstemp(char *template);
 #include <string.h>
 #include <stdarg.h>
 #include <assert.h>
@@ -1040,7 +1041,7 @@ first argument has already been parsed and is given by the parameter~|e|.
 
 @c @<Declare a function called |match_font|@>@;
 static void mpx_define_font (MPX mpx, integer e) { /* |e| is an external font number */
-  integer i; /* index into |font_num| and |internal_num| */
+  unsigned i; /* index into |font_num| and |internal_num| */
   integer n; /* length of the font name and area */
   integer k; /* general purpose loop counter */
   integer x;  /* a temporary value for scaled size computation */
@@ -1072,7 +1073,7 @@ mpx->font_check_sum[mpx->nfonts]=mpx_signed_quad(mpx);
 @<Read |font_scaled_size[nf]| and |font_design_size[nf]|@>;
 n=mpx_get_byte(mpx);  /* that is the area */
 n=n+mpx_get_byte(mpx);
-mpx->font_name[mpx->nfonts]=xmalloc(n+1,1);
+mpx->font_name[mpx->nfonts]=xmalloc((size_t)(n+1),1);
 for (k=0;k<n;k++)
    mpx->font_name[mpx->nfonts][k]=mpx_get_byte(mpx);
 mpx->font_name[mpx->nfonts][k]=0
@@ -1128,7 +1129,7 @@ static integer mpx_match_font (MPX mpx, unsigned ff, boolean  exact) {
   if ( f<mpx->nfonts ) {
     @<Make sure fonts |f| and |ff| have matching design sizes and checksums@>;
   }
-  return f;
+  return (integer)f;
 }
 
 @ @<Compare the names of fonts |f| and |ff|; |continue| if they differ@>=
@@ -1207,7 +1208,7 @@ for (k=1;k<=3+lh;k++) {
 
 @ @<Store character-width indices...@>=
 if ( wp>0 ) {
-  for (k=mpx->info_ptr;k<=(int)wp-1;k++ ) {
+  for (k=(int)mpx->info_ptr;k<=(int)wp-1;k++ ) {
     mpx_read_tfm_word(mpx);
     if ( mpx->b0>nw ) 
       font_abort("Bad TFM file for ",f);
@@ -1248,9 +1249,9 @@ floor(mpx->dvi_scale*mpx->font_scaled_size[cur_font]*char_width(cur_font,p))
 if ( mpx->in_width[0]!=0 )
   font_abort("Bad TFM file for ",f);  /* the first width should be zero */
 @.Bad TFM file@>
-mpx->info_base[f]=mpx->info_ptr-mpx->font_bc[f];
+mpx->info_base[f]=(int)(mpx->info_ptr-mpx->font_bc[f]);
 if ( wp>0 ) {
-  for (k=mpx->info_ptr;k<=(int)wp-1;k++) {
+  for (k=(int)mpx->info_ptr;k<=(int)wp-1;k++) {
     mpx->width[k]=mpx->in_width[mpx->width[k]];
   }
 }
@@ -1280,7 +1281,7 @@ static void mpx_in_VF (MPX mpx, integer f) {
   while ( p>=fnt_def1 ) { 
     if ( p>fnt_def1+3 ) 
       font_abort("Bad VF file for ",f);
-    mpx_define_font(mpx, mpx_first_par(mpx, p));
+    mpx_define_font(mpx, mpx_first_par(mpx, (unsigned int)p));
     p=mpx_get_byte(mpx);
   }
   while ( p<=242 ) { 
@@ -1311,12 +1312,12 @@ mpx->tfm_check_sum=mpx_signed_quad(mpx);
 (void)mpx_signed_quad(mpx); /* skip over the design size */
 
 @ @<Initialize the data structures for the virtual font@>=
-mpx->ftop[f]=mpx->vf_ptr;
+mpx->ftop[f]=(integer)mpx->vf_ptr;
 if ( mpx->vf_ptr==mpx->nfonts ) 
   mpx_abort(mpx,"DVItoMP capacity exceeded (max font numbers=%d)", max_fnums);
 @.DVItoMP capacity exceeded...@>
 decr(mpx->vf_ptr);
-mpx->info_base[f]=mpx->info_ptr;
+mpx->info_base[f]=(integer)mpx->info_ptr;
 limit=max_widths-mpx->info_base[f];@/
 mpx->font_bc[f]=limit; mpx->font_ec[f]=0
 
@@ -1339,9 +1340,9 @@ char_width(f,c)=w
 if ( mpx->n_cmds+p>=virtual_space )
   mpx_abort(mpx,"DVItoMP capacity exceeded (virtual font space=%d)",virtual_space);
 @.DVItoMP capacity exceeded...@>
-start_cmd(f,c)=mpx->n_cmds;
+start_cmd(f,c)=(integer)mpx->n_cmds;
 while ( p>0 ) { 
-  mpx->cmd_buf[mpx->n_cmds]=mpx_get_byte(mpx);
+  mpx->cmd_buf[mpx->n_cmds]=(unsigned char)mpx_get_byte(mpx);
   incr(mpx->n_cmds); decr(p);
 }
 mpx->cmd_buf[mpx->n_cmds]=eop; /* add the end-of-packet marker */
@@ -1351,8 +1352,8 @@ incr(mpx->n_cmds)
 worthwhile to slide everything down just to save a little space.
 
 @<Finish setting up the data structures for the new virtual font@>=
-mpx->fbase[f]=mpx->vf_ptr+1;
-mpx->info_ptr=mpx->info_base[f]+mpx->font_ec[f]+1
+mpx->fbase[f]=(integer)(mpx->vf_ptr+1);
+mpx->info_ptr=(unsigned int)(mpx->info_base[f]+mpx->font_ec[f]+1)
 
 
 @* Loading fonts.
@@ -1397,7 +1398,7 @@ static integer mpx_select_font (MPX mpx, integer e) {
 if ( mpx->cur_ftop<=mpx->nfonts ) 
   mpx->cur_ftop=mpx->nfonts;
 mpx->font_num[mpx->cur_ftop]=e;
-k=mpx->cur_fbase;
+k=(integer)mpx->cur_fbase;
 while ((mpx->font_num[k]!=e)|| mpx->local_only[k] ) incr(k);
 if ( k==(int)mpx->cur_ftop ) 
   mpx_abort(mpx,"Undefined font selected");
@@ -1562,8 +1563,8 @@ static void mpx_do_set_char (MPX mpx,integer f, integer c) {
     mpx->str_scale=mpx->dvi_scale; mpx->str_f=f; 
     mpx->str_v=mpx->v; mpx->str_h1=mpx->h;
   }
-  mpx_print_char(mpx, c);
-  mpx->str_h2=mpx->h+@<Width of character |c| in font |f|@>;
+  mpx_print_char(mpx, (unsigned char)c);
+  mpx->str_h2=(integer)(mpx->h+@<Width of character |c| in font |f|@>);
 }
 
 @ @<Glob...@>=
@@ -1837,12 +1838,12 @@ static void mpx_set_virtual_char (MPX mpx,integer f, integer c) {
     mpx_do_set_char(mpx, f,c);
   else { 
     old_fbase=mpx->cur_fbase; old_ftop=mpx->cur_ftop;
-    mpx->cur_fbase=mpx->fbase[f];
-    mpx->cur_ftop=mpx->ftop[f];
+    mpx->cur_fbase=(unsigned int)mpx->fbase[f];
+    mpx->cur_ftop=(unsigned int)mpx->ftop[f];
     old_scale=mpx->dvi_scale;
     mpx->dvi_scale=mpx->dvi_scale*mpx->font_scaled_size[f];
     old_buf_ptr=mpx->buf_ptr;
-    mpx->buf_ptr=start_cmd(f,c);
+    mpx->buf_ptr=(unsigned int)start_cmd(f,c);
     mpx_do_push(mpx);
     mpx_do_dvi_commands(mpx);
     mpx_do_pop(mpx);@/
@@ -1868,7 +1869,7 @@ static integer mpx_first_par (MPX mpx, unsigned int o) {
   switch (o) {
   case sixty_four_cases(set_char_0):
   case sixty_four_cases(set_char_0+64):
-    return (o-set_char_0);
+    return (integer)(o-set_char_0);
     break;
   case set1: case put1: case fnt1: case xxx1: case fnt_def1: 
     return mpx_get_byte(mpx);
@@ -1902,7 +1903,7 @@ static integer mpx_first_par (MPX mpx, unsigned int o) {
   case y0: return mpx->y; break;
   case z0: return mpx->z; break;
   case sixty_four_cases(fnt_num_0): 
-    return (o-fnt_num_0);
+    return (integer)(o-fnt_num_0);
     break;
   }
   return 0; /* compiler warning */
@@ -1930,7 +1931,7 @@ of each command; the one in |do_dvi_commands| is organized by the semantics.
 
 @ @<Translate the next command...@>=
 { 
-  o=mpx_get_byte(mpx); 
+  o=(unsigned int)mpx_get_byte(mpx); 
   p=mpx_first_par(mpx, o);
   if ( feof(mpx->dvi_file) ) 
     bad_dvi("the DVI file ended prematurely");
@@ -1951,13 +1952,13 @@ of each command; the one in |do_dvi_commands| is organized by the semantics.
       mpx_set_virtual_char(mpx, cur_font, p);
       break;
     case set_rule: 
-      q=trunc(mpx_signed_quad(mpx)*mpx->dvi_scale);
-      mpx_do_set_rule(mpx, trunc(p*mpx->dvi_scale),q);
+      q=(integer)trunc(mpx_signed_quad(mpx)*mpx->dvi_scale);
+      mpx_do_set_rule(mpx, (integer)trunc(p*mpx->dvi_scale),q);
       mpx->h += q;
       break;
     case put_rule: 
-      q=trunc(mpx_signed_quad(mpx)*mpx->dvi_scale);
-      mpx_do_set_rule(mpx, trunc(p*mpx->dvi_scale),q);
+      q=(integer)trunc(mpx_signed_quad(mpx)*mpx->dvi_scale);
+      mpx_do_set_rule(mpx, (integer)trunc(p*mpx->dvi_scale),q);
       break;
     @<Additional cases for translating \.{DVI} command |o| with
        first parameter |p|@>@;
@@ -2000,19 +2001,19 @@ case four_cases(right1):
   mpx->h += trunc(p*mpx->dvi_scale);
   break;
 case w0: case four_cases(w1): 
-  mpx->w = trunc(p*mpx->dvi_scale); mpx->h += mpx->w;
+  mpx->w = (integer)trunc(p*mpx->dvi_scale); mpx->h += mpx->w;
   break;
 case x0: case four_cases(x1): 
-  mpx->x = trunc(p*mpx->dvi_scale); mpx->h += mpx->x;
+  mpx->x = (integer)trunc(p*mpx->dvi_scale); mpx->h += mpx->x;
   break;
 case four_cases(down1):
   mpx->v += trunc(p*mpx->dvi_scale);
   break;
 case y0: case four_cases(y1): 
-  mpx->y = trunc(p*mpx->dvi_scale); mpx->v += mpx->y;
+  mpx->y = (integer)trunc(p*mpx->dvi_scale); mpx->v += mpx->y;
   break;
 case z0: case four_cases(z1): 
-  mpx->z = trunc(p*mpx->dvi_scale); mpx->v += mpx->z;
+  mpx->z = (integer)trunc(p*mpx->dvi_scale); mpx->v += mpx->z;
   break;
 
 @ @<Additional cases for translating \.{DVI} command |o|...@>=
@@ -2255,7 +2256,7 @@ static void mpx_do_xxx (MPX mpx, integer p)
   int bufsiz = XXX_BUF;
   len = 0;
   while ( ( p > 0) && (len < bufsiz) ) {
-    buf[len] = mpx_get_byte(mpx);
+    buf[len] = (unsigned char)mpx_get_byte(mpx);
     decr(p); incr(len);
   }
   @<Check whether |buf| contains a color command; if not, |goto XXXX|@>
@@ -2360,7 +2361,7 @@ if ( @<|buf[l]| contains an rgb command@> ) {
 l = l + 4;
 while ( (l < len) && (buf[l] == ' ') ) incr(l); /*  Remove spaces at end of buf  */
 while ( (len > l) && (buf[len - 1] == ' ') ) decr(len);
-mpx->color_stack[mpx->color_stack_depth]=xmalloc(len-l+3,1);
+mpx->color_stack[mpx->color_stack_depth]=xmalloc((size_t)(len-l+3),1);
 k = 0;
 @<Copy |buf[l]| to |color_stack[color_stack_depth][k]| in tuple form@>
 
@@ -2376,7 +2377,7 @@ k = 0;
 l = l + 5;
 while ( (l < len) && (buf[l] == ' ') ) incr(l); /*  Remove spaces at end of buf  */
 while ( (len > l) && (buf[len - 1] == ' ') ) decr(len);
-mpx->color_stack[mpx->color_stack_depth]=xmalloc(len-l+9,1);
+mpx->color_stack[mpx->color_stack_depth]=xmalloc((size_t)(len-l+9),1);
 strcpy(mpx->color_stack[mpx->color_stack_depth],"white*");
 k = 6;
 @<Copy |buf[l]| to |color_stack[color_stack_depth][k]| in tuple form@>
@@ -2394,7 +2395,7 @@ l = l + 5;
 while ( (l < len) && (buf[l] == ' ') ) incr(l);
 /*  Remove spaces at end of buf  */
 while ( (len > l) && (buf[len - 1] == ' ') ) decr(len);
-mpx->color_stack[mpx->color_stack_depth]=xmalloc(len-l+7,1);
+mpx->color_stack[mpx->color_stack_depth]=xmalloc((size_t)(len-l+7),1);
 strcpy(mpx->color_stack[mpx->color_stack_depth],"cmyk");
 k = 4;
 @<Copy |buf[l]| to |color_stack[color_stack_depth][k]| in tuple form@>
@@ -3001,8 +3002,8 @@ static void mpx_set_num_char(MPX mpx, int f, int c) {
     float hh, vv;		/* corrected versions of h, v */
     int i;
 
-    hh = mpx->h;
-    vv = mpx->v;
+    hh = (float)mpx->h;
+    vv = (float)mpx->v;
     for (i = mpx->shiftbase[f]; mpx->shiftchar[i] >= 0; i++)
 	if (mpx->shiftchar[i] == c) {
 	    hh += (mpx->cursize / mpx->unit) * mpx->shifth[i];
@@ -3037,14 +3038,14 @@ static void mpx_set_string(MPX mpx, char *cname) {
 
     if (!*cname)
 	  return;
-    hh = mpx->h;
+    hh = (float)mpx->h;
     mpx_set_num_char(mpx,(int)mpx->curfont, *cname);
     hh +=  char_width(mpx->curfont,(int)*cname);
     while (*++cname) {
 	  mpx_print_char(mpx,(unsigned char)*cname);
 	  hh += char_width(mpx->curfont,(int)*cname);
     }
-    mpx->h = (double)floor(hh+0.5);
+    mpx->h = (integer)floor(hh+0.5);
     mpx_finish_last_char(mpx);
 }
 
@@ -3172,7 +3173,8 @@ OUT:
 	fprintf(mpx->mpxfile, "_s(%s(n%d)", sp->mac, mpx->font_num[f]);
 	mpx_slant_and_ht(mpx);
 	fprintf(mpx->mpxfile, ",%.5f,%.4f,%.4f);\n",
-		(mpx->cursize/mpx->font_design_size[f])*1.00375, mpx->h*mpx->unit, YCORR-mpx->v*mpx->unit);
+		(mpx->cursize/mpx->font_design_size[f])*1.00375, 
+         (double)(mpx->h*mpx->unit), YCORR-mpx->v*mpx->unit);
   }
 }
 
@@ -4208,8 +4210,10 @@ if (mpx_newer(mpxopt->mpname, mpxopt->mpxname))
    return 0
 
 
-@ 
+@  The splint comment is here because this use of |sprintf()| is definately safe
+
 @<Initialize the |tmpname| variable@>=
+@= /*@@-bufferoverflowhigh@@*/ @> 
 #ifdef HAVE_MKSTEMP
     i = mkstemp(tmpname);
     if (i == -1) {
@@ -4238,3 +4242,4 @@ if (mpx_newer(mpxopt->mpname, mpxopt->mpxname))
     sprintf(tmpname, "mp%06d", (int)(time(NULL) % 1000000));
 #endif
 #endif
+@= /*@@+bufferoverflowhigh@@*/ @> 

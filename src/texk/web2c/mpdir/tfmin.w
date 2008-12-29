@@ -115,10 +115,12 @@ of |tfget| could be changed to
 ``|begin get(tfm_infile); if eof(tfm_infile) then goto bad_tfm; end|.''
 
 @d tfget do { 
-  size_t wanted=1; 
-  void *tfbyte_ptr = &tfbyte;
+  size_t wanted=1;
+  unsigned char abyte=0;
+  void *tfbyte_ptr = &abyte;
   (mp->read_binary_file)(mp,mp->tfm_infile, &tfbyte_ptr,&wanted); 
   if (wanted==0) goto BAD_TFM; 
+  tfbyte = (int)abyte;
 } while (0)
 @d read_two(A) { (A)=tfbyte;
   if ( (A)>127 ) goto BAD_TFM;
