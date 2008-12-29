@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <lua.h>
 #include <lauxlib.h>
+#include <locale.h>
 
 #include "pfaedit.h"
 #include "ustring.h"
@@ -151,16 +152,14 @@ ff_open (lua_State *L) {
 	lua_error(L);
   }
   args = lua_gettop(L);
-  if (args>=2) {
-	if (lua_isstring(L,2)) {
-	  if (*(fontname+strlen(fontname))!=')') {
-		/* possibly fails for embedded parens in the font name */
-		snprintf(s,511,"%s(%s)", fontname, lua_tolstring(L,2,&len));
-		if (len==0) {
-		  snprintf(s,511,"%s", fontname);
-		}
-	  }
-	}
+  if (args>=2 && lua_isstring(L,2)) {
+    if (*(fontname+strlen(fontname))!=')') {
+      /* possibly fails for embedded parens in the font name */
+      snprintf(s,511,"%s(%s)", fontname, lua_tolstring(L,2,&len));
+      if (len==0) {
+        snprintf(s,511,"%s", fontname);
+      }
+    }
   } else {
 	snprintf(s,511,"%s", fontname);
   }
@@ -168,7 +167,14 @@ ff_open (lua_State *L) {
     gww_error_count=0;
 	sf = ReadSplineFont((char *)s,openflags);
 	if (sf==NULL) {
-	  lua_pushfstring(L,"font loading failed for %s\n", fontname);
+	  lua_pushfstring(L,"font loading failed for %s\n", s);
+	  if (gww_error_count>0) {
+		for (i=0;i<gww_error_count;i++) {
+		  lua_pushstring(L,gww_errors[i]);
+          lua_concat(L,2);
+		}
+		gwwv_errors_free();
+      }
 	  lua_error(L);
 	} else {
 	  lua_ff_pushfont(L,sf);
@@ -2333,9 +2339,12 @@ static const struct luaL_reg fflib_m [] = {
 };
 
 extern char *SaveTablesPref;
+extern char *coord_sep ;
 
 int luaopen_ff (lua_State *L) {
   InitSimpleStuff();
+  setlocale(LC_ALL,"C"); /* undo whatever InitSimpleStuff has caused */
+  coord_sep = ",";
   FF_SetUiInterface(&luaui_interface);
   default_encoding = FindOrMakeEncoding("ISO8859-1");
   SaveTablesPref = "VORG,JSTF,acnt,bsln,fdsc,fmtx,hsty,just,trak,Zapf,LINO";

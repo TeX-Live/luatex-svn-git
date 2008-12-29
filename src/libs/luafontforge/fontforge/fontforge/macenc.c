@@ -1134,7 +1134,11 @@ return( NULL );
 	size_t inlen, outlen;
 	if ( enc==NULL )
 return( NULL );
-	toutf8 = iconv_open("UTF-8",enc->iconv_name!=NULL?enc->iconv_name:enc->enc_name);
+#ifdef UNICHAR_16
+	toutf8 = iconv_open("UCS2",enc->iconv_name!=NULL?enc->iconv_name:enc->enc_name);
+#else
+	toutf8 = iconv_open("UCS4",enc->iconv_name!=NULL?enc->iconv_name:enc->enc_name);
+#endif
 	if ( toutf8==(iconv_t) -1 || toutf8==NULL )
 return( NULL );
 	in = (char *) str;
@@ -1144,6 +1148,21 @@ return( NULL );
 	iconv(toutf8,&in,&inlen,&out,&outlen);
 	out[0] = '\0';
 	iconv_close(toutf8);
+#ifdef UNICHAR_16
+	toutf8 = iconv_open("UTF-8","UCS2");
+#else
+	toutf8 = iconv_open("UTF-8","UCS4");
+#endif
+	if ( toutf8==(iconv_t) -1 || toutf8==NULL )
+return( NULL );
+	in = (char *) strdup(ret);
+	inlen = strlen(in);
+	outlen = (inlen+1)*4;
+	out = (char *) (ret = galloc(outlen+2));
+	iconv(toutf8,&in,&inlen,&out,&outlen);
+	out[0] = '\0';
+	iconv_close(toutf8);
+    free(in);
 return( ret );
     }
 

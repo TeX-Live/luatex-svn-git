@@ -48,7 +48,9 @@ static void LUAUI__LogError(const char *format,va_list ap) {
     gww_errors[gww_error_count ] = NULL;
 }
 
-static void LUAUI_LogError(const char *format,...) {
+/* this is not static because it is used by gwwiconv.c */
+
+void LUAUI_LogError(const char *format,...) {
     va_list ap;
 
     va_start(ap,format);

@@ -1,4 +1,4 @@
-% $Id: mpxout.w 651 2008-07-27 13:18:11Z taco $
+% $Id: mpxout.w 753 2008-12-02 15:17:33Z taco $
 %
 % Copyright 2008 Taco Hoekwater.
 %
@@ -2049,6 +2049,8 @@ static int mpx_dvitomp (MPX mpx, char *dviname) {
     mpx_stop_picture(mpx);
     fprintf(mpx->mpxfile,"mpxbreak\n");
   }
+  if(mpx->dvi_file)
+    mpx_fclose(mpx,mpx->dvi_file);
   if ( mpx->history<=mpx_cksum_trouble )
     return 0;
   else 

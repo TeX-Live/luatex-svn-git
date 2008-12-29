@@ -20,7 +20,7 @@ all: fontforge
 
 libs: libgunicode @GDRAW_LIB@
 
-fontforge: libgunicode libgutils @GDRAW_LIB@ pos
+fontforge: libgunicode libgutils @GDRAW_LIB@
 	( cd fontforge ; $(MAKE) )
 
 libgunicode:
@@ -31,9 +31,6 @@ libgutils: libgunicode
 
 libgdraw: libgutils libgunicode
 	( cd gdraw ; $(MAKE) )
-
-pos:
-	( cd po ; $(MAKE) )
 
 clean:
 	( cd fontforge ; $(MAKE) clean )
@@ -59,14 +56,11 @@ install_docs:
 	-$(INSTALL_DATA) $(srcdir)/htdocs/flags/* $(DESTDIR)$(docdir)/flags
 	-$(INSTALL_DATA) $(srcdir)/htdocs/ja/* $(DESTDIR)$(docdir)/ja
 
-install_po:
-	( cd po ; $(MAKE) install )
-
 install_pycontrib:
 	mkdir -p $(DESTDIR)$(pythondir)
 	( cd pycontrib ; $(INSTALL_DATA) *.py $(DESTDIR)$(pythondir) )
 
-install: $(sharedir) all install_libs install_po install_pycontrib
+install: $(sharedir) all install_libs install_pycontrib
 # You may need to be root to do the install
 	mkdir -p $(DESTDIR)$(bindir)
 	mkdir -p $(DESTDIR)$(mandir)/man1

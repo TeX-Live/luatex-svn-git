@@ -22,7 +22,7 @@ all: fontforge
 
 libs: libgunicode libgutils @GDRAW_LIB@
 
-fontforge: libgunicode libgutils @GDRAW_LIB@ pos
+fontforge: libgunicode libgutils @GDRAW_LIB@
 	( cd fontforge ; $(MAKE) )
 
 libgunicode:
@@ -34,10 +34,6 @@ libgutils: libgunicode
 libgdraw: libgutils libgunicode
 	( cd gdraw ; $(MAKE) )
 
-pos:
-	-ln -s $(srcdir)/po/*.po po
-	( cd po ; $(MAKE) )
-
 fontforgegtk: fontforge
 	( cd gtkui ; $(MAKE) )
 
@@ -48,7 +44,6 @@ clean:
 	( cd gdraw ; $(MAKE) clean )
 	( cd plugins ; $(MAKE) clean )
 	if test -d gtkui; then cd gtkui ; $(MAKE) clean ; fi
-	-( cd po ; rm *.mo )
 	-( cd pyhook ; for dir in * ; do if test -d $$dir -a "$$dir" != "CVS" ; then  rm -rf $$dir ; fi; done )
 	-rm -rf .libs
 
@@ -59,7 +54,6 @@ distclean cleaner:
 	( cd gdraw ; $(MAKE) distclean )
 	( cd plugins ; $(MAKE) distclean )
 	if test -d gtkui; then cd gtkui ; $(MAKE) distclean ; fi
-	-( cd po ; rm *.mo Makefile* )
 	-( cd pyhook ; rm setup.py ; for dir in * ; do if test -d $$dir -a "$$dir" != "CVS" ; then  rm -rf $$dir ; fi; done)
 	-rm -rf .libs
 	-rm Makefile config.cache config.log config.status libtool fontforge.pc systemspecific inc/config.h
@@ -94,9 +88,6 @@ install_docs:
 	-$(INSTALL_DATA) $(srcdir)/htdocs/flags/* $(DESTDIR)$(docdir)/flags
 	-$(INSTALL_DATA) $(srcdir)/htdocs/ja/* $(DESTDIR)$(docdir)/ja
 
-install_po:
-	( cd po ; $(MAKE) install )
-
 install_pycontrib:
 	mkdir -p $(DESTDIR)$(pythondir)
 	( cd pycontrib ; $(INSTALL_DATA) *.py $(DESTDIR)$(pythondir) )
@@ -123,7 +114,7 @@ install_prog:
 	$(INSTALL_DATA) $(srcdir)/fontforge/fontimage.1 $(DESTDIR)$(mandir)/man1
 	$(INSTALL_DATA) $(srcdir)/fontforge/fontlint.1 $(DESTDIR)$(mandir)/man1
 
-install: $(DESTDIR)$(sharedir) all install_libs install_incs install_po install_prog install_pycontrib
+install: $(DESTDIR)$(sharedir) all install_libs install_incs install_prog install_pycontrib
 # You may need to be root to do the install
 #explicit use of sh to make sure we don't invoke csh with different "if" syntax
 	sh -c "if test -d $(srcdir)/htdocs >/dev/null ; then $(MAKE) install_docs ; fi"
@@ -132,7 +123,7 @@ install: $(DESTDIR)$(sharedir) all install_libs install_incs install_po install_
 #we don't always create a setup.py
 	-(cd pyhook ; if test -r setup.py ; then python setup.py install --prefix=$(prefix) --root=$(DESTDIR); for dir in * ; do if test -d $$dir -a "$$dir" != "CVS" ; then  rm -rf $$dir ; fi; done ; fi )
 
-install_py: $(DESTDIR)$(sharedir) all install_libs install_incs install_po install_prog install_pycontrib
+install_py: $(DESTDIR)$(sharedir) all install_libs install_incs install_prog install_pycontrib
 # You may need to be root to do the install
 #explicit use of sh to make sure we don't invoke csh with different "if" syntax
 	sh -c "if test -d $(srcdir)/htdocs >/dev/null ; then $(MAKE) install_docs ; for dir in * ; do if test -d $$dir ; then  rm -rf $$dir ; fi; done ; fi"
