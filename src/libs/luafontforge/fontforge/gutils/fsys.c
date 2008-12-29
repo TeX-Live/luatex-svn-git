@@ -190,9 +190,17 @@ return( false );
 }
 
 int GFileIsDir(const char *file) {
+#ifdef _WIN32
+  struct stat info;
+  if (stat(file, &info))
+return 0;     
+  else
+return ((info.st_mode&_S_IFDIR));
+#else
     char buffer[1000];
     sprintf(buffer,"%s/.",file);
 return( access(buffer,0)==0 );
+#endif
 }
 
 int GFileExists(const char *file) {
