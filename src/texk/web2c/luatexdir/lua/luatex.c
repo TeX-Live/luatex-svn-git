@@ -101,6 +101,8 @@ run_external_ocp P1C(string, external_ocp_name)
     char *out_file_name;
     FILE *in_file;
     FILE *out_file;
+    int in_file_fd;
+    int out_file_fd;
     char command_line[400];
     int i;
     unsigned c;
@@ -119,12 +121,13 @@ run_external_ocp P1C(string, external_ocp_name)
         tempenv = "c:/tmp";     /* "/tmp" is not good if we are on a CD-ROM */
     in_file_name = concat(tempenv, "/__aleph__in__XXXXXX");
     mktemp(in_file_name);
+    in_file = fopen(in_file_name, FOPEN_WBIN_MODE);
 #else
     in_file_name = strdup("/tmp/__aleph__in__XXXXXX");
-    mkstemp(in_file_name);
+    in_file_fd = mkstemp(in_file_name);
+    in_file = fdopen(in_file_fd, FOPEN_WBIN_MODE);
 #endif                          /* WIN32 */
 
-    in_file = fopen(in_file_name, FOPEN_WBIN_MODE);
 
     for (i = 1; i <= otp_input_end; i++) {
         c = otp_input_buf[i];
@@ -171,15 +174,16 @@ run_external_ocp P1C(string, external_ocp_name)
 #ifdef WIN32
     out_file_name = concat(tempenv, "/__aleph__out__XXXXXX");
     mktemp(out_file_name);
+    out_file = fopen(out_file_name, FOPEN_RBIN_MODE);
 #else
     out_file_name = strdup("/tmp/__aleph__out__XXXXXX");
-    mkstemp(out_file_name);
+    out_file_fd = mkstemp(out_file_name);
+    out_file = fdopen(out_file_fd, FOPEN_RBIN_MODE);
 #endif
 
     sprintf(command_line, "%s <%s >%s\n",
             external_ocp_name + 1, in_file_name, out_file_name);
     system(command_line);
-    out_file = fopen(out_file_name, FOPEN_RBIN_MODE);
     otp_output_end = 0;
     otp_output_buf[otp_output_end] = 0;
     while ((c_in = fgetc(out_file)) != -1) {
@@ -228,6 +232,7 @@ run_external_ocp P1C(string, external_ocp_name)
         }
         otp_output_buf[++otp_output_end] = c;
     }
+    fclose(out_file);
 
   end_of_while:
     remove(in_file_name);
