@@ -225,6 +225,10 @@ extern void tprint_nl(char *s);
 extern void tprint_esc(char *s);
 extern char *stripzeros(char *);
 
+#ifdef MSVC
+extern double rint(double);
+#endif
+
 #  define overflow_string(a,b) { overflow(maketexstring(a),b); flush_str(last_tex_string); }
 
 extern int xfflush(FILE *);
