@@ -17037,13 +17037,13 @@ name destinations}
 @# {when a whatsit node representing annotation is created, words |1..3| are
 width, height and depth of this annotation; after shipping out words |1..4|
 are rectangle specification of annotation. For whatsit node representing
-destination |pdf_left| and |pdf_top| are used for some types of destinations}
+destination |pdf_ann_left| and |pdf_ann_top| are used for some types of destinations}
 
 @# {coordinates of destinations/threads/annotations (in whatsit node)}
-@d pdf_left(#)             == vmem(# + 2).sc
-@d pdf_top(#)              == vmem(# + 3).sc
-@d pdf_right(#)            == vmem(# + 4).sc
-@d pdf_bottom(#)           == vmem(# + 5).sc
+@d pdf_ann_left(#)         == vmem(# + 2).sc
+@d pdf_ann_top(#)          == vmem(# + 3).sc
+@d pdf_ann_right(#)        == vmem(# + 4).sc
+@d pdf_ann_bottom(#)       == vmem(# + 5).sc
 
 @# {dimension of destinations/threads/annotations (in whatsit node)}
 @d pdf_width(#)            == vmem(# + 2).sc
@@ -19282,7 +19282,7 @@ if pdf_annot_list <> null then begin
         pdf_begin_dict(info(k), 1);
         pdf_print_ln("/Type /Annot");
         pdf_print_toks_ln(pdf_annot_data(i));
-        pdf_rectangle(pdf_left(i), pdf_top(i), pdf_right(i), pdf_bottom(i));
+        pdf_rectangle(pdf_ann_left(i), pdf_ann_top(i), pdf_ann_right(i), pdf_ann_bottom(i));
         pdf_end_dict;
         k := link(k);
     end;
@@ -19299,7 +19299,7 @@ while k <> null do begin
         pdf_print_ln("/Subtype /Link");
     if pdf_link_attr(i) <> null then
         pdf_print_toks_ln(pdf_link_attr(i));
-    pdf_rectangle(pdf_left(i), pdf_top(i), pdf_right(i), pdf_bottom(i));
+    pdf_rectangle(pdf_ann_left(i), pdf_ann_top(i), pdf_ann_right(i), pdf_ann_bottom(i));
     if pdf_action_type(pdf_link_action(i)) <> pdf_action_user then
         pdf_print("/A ");
     write_action(pdf_link_action(i));
@@ -19339,8 +19339,8 @@ if pdf_dest_list <> null then begin
             case pdf_dest_type(i) of
             pdf_dest_xyz: begin
                 pdf_print("/XYZ ");
-                pdf_print_mag_bp(pdf_x(pdf_left(i))); pdf_out(" ");
-                pdf_print_mag_bp(pdf_y(pdf_top(i))); pdf_out(" ");
+                pdf_print_mag_bp(pdf_x(pdf_ann_left(i))); pdf_out(" ");
+                pdf_print_mag_bp(pdf_y(pdf_ann_top(i))); pdf_out(" ");
                 if pdf_dest_xyz_zoom(i) = null then
                     pdf_print("null")
                 else begin
@@ -19353,21 +19353,21 @@ if pdf_dest_list <> null then begin
                 pdf_print("/Fit");
             pdf_dest_fith: begin
                 pdf_print("/FitH ");
-                pdf_print_mag_bp(pdf_y(pdf_top(i)));
+                pdf_print_mag_bp(pdf_y(pdf_ann_top(i)));
             end;
             pdf_dest_fitv: begin
                 pdf_print("/FitV ");
-                pdf_print_mag_bp(pdf_x(pdf_left(i)));
+                pdf_print_mag_bp(pdf_x(pdf_ann_left(i)));
             end;
             pdf_dest_fitb:
                 pdf_print("/FitB");
             pdf_dest_fitbh: begin
                 pdf_print("/FitBH ");
-                pdf_print_mag_bp(pdf_y(pdf_top(i)));
+                pdf_print_mag_bp(pdf_y(pdf_ann_top(i)));
             end;
             pdf_dest_fitbv: begin
                 pdf_print("/FitBV ");
-                pdf_print_mag_bp(pdf_x(pdf_left(i)));
+                pdf_print_mag_bp(pdf_x(pdf_ann_left(i)));
             end;
             pdf_dest_fitr: begin
                 pdf_print("/FitR ");
@@ -19388,13 +19388,13 @@ end
 @ @<Declare procedures needed in |pdf_hlist_out|, |pdf_vlist_out|@>=
 procedure pdf_print_rect_spec(r: pointer); {prints a rect spec}
 begin
-    pdf_print_mag_bp(pdf_x(pdf_left(r)));
+    pdf_print_mag_bp(pdf_x(pdf_ann_left(r)));
     pdf_out(" ");
-    pdf_print_mag_bp(pdf_y(pdf_bottom(r)));
+    pdf_print_mag_bp(pdf_y(pdf_ann_bottom(r)));
     pdf_out(" ");
-    pdf_print_mag_bp(pdf_x(pdf_right(r)));
+    pdf_print_mag_bp(pdf_x(pdf_ann_right(r)));
     pdf_out(" ");
-    pdf_print_mag_bp(pdf_y(pdf_top(r)));
+    pdf_print_mag_bp(pdf_y(pdf_ann_top(r)));
 end;
 
 @ @<Write out PDF bead rectangle specifications@>=
@@ -30238,31 +30238,31 @@ end;
 
 procedure set_rect_dimens(p, parent_box: pointer; x, y, w, h, d, margin: scaled);
 begin
-    pdf_left(p) := cur_h;
+    pdf_ann_left(p) := cur_h;
     if is_running(w) then
-        pdf_right(p) := x + width(parent_box)
+        pdf_ann_right(p) := x + width(parent_box)
     else
-        pdf_right(p) := cur_h + w;
+        pdf_ann_right(p) := cur_h + w;
     if is_running(h) then
-        pdf_top(p) := y - height(parent_box)
+        pdf_ann_top(p) := y - height(parent_box)
     else
-        pdf_top(p) := cur_v - h;
+        pdf_ann_top(p) := cur_v - h;
     if is_running(d) then
-        pdf_bottom(p) := y  + depth(parent_box)
+        pdf_ann_bottom(p) := y  + depth(parent_box)
     else
-        pdf_bottom(p) := cur_v + d;
+        pdf_ann_bottom(p) := cur_v + d;
     if is_shipping_page and matrixused then begin
-        matrixtransformrect(pdf_left(p), cur_page_height - pdf_bottom(p),
-                            pdf_right(p), cur_page_height - pdf_top(p));
-        pdf_left(p)   := getllx;
-        pdf_bottom(p) := cur_page_height - getlly;
-        pdf_right(p)  := geturx;
-        pdf_top(p)    := cur_page_height - getury;
+        matrixtransformrect(pdf_ann_left(p), cur_page_height - pdf_ann_bottom(p),
+                            pdf_ann_right(p), cur_page_height - pdf_ann_top(p));
+        pdf_ann_left(p)   := getllx;
+        pdf_ann_bottom(p) := cur_page_height - getlly;
+        pdf_ann_right(p)  := geturx;
+        pdf_ann_top(p)    := cur_page_height - getury;
     end;
-    pdf_left(p)   := pdf_left(p)   - margin;
-    pdf_top(p)    := pdf_top(p)    - margin;
-    pdf_right(p)  := pdf_right(p)  + margin;
-    pdf_bottom(p) := pdf_bottom(p) + margin;
+    pdf_ann_left(p)   := pdf_ann_left(p)   - margin;
+    pdf_ann_top(p)    := pdf_ann_top(p)    - margin;
+    pdf_ann_right(p)  := pdf_ann_right(p)  + margin;
+    pdf_ann_bottom(p) := pdf_ann_bottom(p) + margin;
 end;
 
 procedure do_annot(p, parent_box: pointer; x, y: scaled);
@@ -30356,13 +30356,13 @@ begin
         p := pdf_link_stack_top.ref_link_node;
         if is_shipping_page and matrixused then begin
             matrixrecalculate(cur_h + pdf_link_margin);
-            pdf_left(p)   := getllx - pdf_link_margin;
-            pdf_top(p)    := cur_page_height - getury - pdf_link_margin;
-            pdf_right(p)  := geturx + pdf_link_margin;
-            pdf_bottom(p) := cur_page_height - getlly + pdf_link_margin;
+            pdf_ann_left(p)   := getllx - pdf_link_margin;
+            pdf_ann_top(p)    := cur_page_height - getury - pdf_link_margin;
+            pdf_ann_right(p)  := geturx + pdf_link_margin;
+            pdf_ann_bottom(p) := cur_page_height - getlly + pdf_link_margin;
          end
          else
-            pdf_right(p) := cur_h + pdf_link_margin;
+            pdf_ann_right(p) := cur_h + pdf_link_margin;
     end;
     pop_link_level;
 end;
@@ -30471,7 +30471,7 @@ begin
     if pdf_thread_level <> cur_s then
         pdf_error("ext4", "\pdfendthread ended up in different nesting level than \pdfstartthread");
     if is_running(pdf_thread_dp) and (last_thread <> null) then
-        pdf_bottom(last_thread) := cur_v + pdf_thread_margin;
+        pdf_ann_bottom(last_thread) := cur_v + pdf_thread_margin;
     if pdf_last_thread_named_id then
         delete_token_ref(pdf_last_thread_id);
     last_thread := null;
@@ -30525,8 +30525,8 @@ begin
                             pdf_width(p), pdf_height(p), pdf_depth(p),
                             pdf_dest_margin)
         else begin
-        pdf_left(p) := cur_h;
-        pdf_top(p) := cur_v;
+        pdf_ann_left(p) := cur_h;
+        pdf_ann_top(p) := cur_v;
     end;
     pdf_dest_fith,
     pdf_dest_fitbh:
@@ -30535,7 +30535,7 @@ begin
                             pdf_width(p), pdf_height(p), pdf_depth(p),
                             pdf_dest_margin)
         else
-        pdf_top(p) := cur_v;
+        pdf_ann_top(p) := cur_v;
     pdf_dest_fitv,
     pdf_dest_fitbv:
        if matrixused then
@@ -30543,7 +30543,7 @@ begin
                             pdf_width(p), pdf_height(p), pdf_depth(p),
                             pdf_dest_margin)
        else
-       pdf_left(p) := cur_h;
+       pdf_ann_left(p) := cur_h;
     pdf_dest_fit,
     pdf_dest_fitb:
         do_nothing;
