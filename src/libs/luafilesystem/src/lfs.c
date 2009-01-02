@@ -468,6 +468,36 @@ static const char *mode2string (mode_t mode) {
 	return "other";
 }
 
+ /*
+** Convert the inode protection mode to a permission list.
+*/
+
+#ifdef _WIN32
+static const char *perm2string (unsigned short mode) {
+  static char perms[10] = "---------\0";
+  if (mode  & _S_IREAD) 
+   { perms[0] = 'r'; perms[3] = 'r'; perms[6] = 'r'; }
+  if (mode  & _S_IWRITE) 
+   { perms[1] = 'w'; perms[4] = 'w'; perms[7] = 'w'; }
+  if (mode  & _S_IEXEC) 
+   { perms[2] = 'x'; perms[5] = 'x'; perms[8] = 'x'; }
+  return perms;
+}
+#else
+static const char *perm2string (mode_t mode) {
+  static char perms[10] = "---------\0";
+  if (mode & S_IRUSR) perms[0] = 'r';
+  if (mode & S_IWUSR) perms[1] = 'w';
+  if (mode & S_IXUSR) perms[2] = 'x';
+  if (mode & S_IRGRP) perms[3] = 'r';
+  if (mode & S_IWGRP) perms[4] = 'w';
+  if (mode & S_IXGRP) perms[5] = 'x';
+  if (mode & S_IROTH) perms[6] = 'r';
+  if (mode & S_IWOTH) perms[7] = 'w';
+  if (mode & S_IXOTH) perms[8] = 'x';
+  return perms;
+}
+#endif
 
 /*
 ** Set access time and modification values for file
@@ -537,6 +567,10 @@ static void push_st_ctime (lua_State *L, STAT_STRUCT *info) {
 static void push_st_size (lua_State *L, STAT_STRUCT *info) {
 	lua_pushnumber (L, (lua_Number)info->st_size);
 }
+/* permssions string */
+static void push_st_perm (lua_State *L, struct stat *info) {
+	lua_pushstring (L, perm2string (info->st_mode));
+}
 #ifndef _WIN32
 /* blocks allocated for file */
 static void push_st_blocks (lua_State *L, STAT_STRUCT *info) {
@@ -563,6 +597,7 @@ struct _stat_members {
 
 struct _stat_members members[] = {
 	{ "mode",         push_st_mode },
+	{ "permissions",  push_st_perm },
 	{ "dev",          push_st_dev },
 	{ "ino",          push_st_ino },
 	{ "nlink",        push_st_nlink },
@@ -644,6 +679,45 @@ static int link_info (lua_State *L) {
 }
 #endif
 
+ 
+/*
+** Get file information
+*/
+static int file_is_directory (lua_State *L) {
+	struct stat info;
+	const char *file = luaL_checkstring (L, 1);
+
+	if (stat(file, &info)) {
+		lua_pushnil (L);
+		lua_pushfstring (L, "cannot obtain information from file `%s'", file);
+		return 2;
+	}
+	if ( S_ISDIR(info.st_mode) ) 
+	  lua_pushboolean (L, 1);
+	else
+	  lua_pushboolean (L, 0);
+	  
+	return 1;
+}
+
+static int file_is_file (lua_State *L) {
+	struct stat info;
+	const char *file = luaL_checkstring (L, 1);
+
+	if (stat(file, &info)) {
+		lua_pushnil (L);
+		lua_pushfstring (L, "cannot obtain information from file `%s'", file);
+		return 2;
+	}
+	if ( S_ISREG(info.st_mode) ) 
+	  lua_pushboolean (L, 1);
+	else
+	  lua_pushboolean (L, 0);
+	  
+	return 1;
+}
+
+
 
 /*
 ** Assumes the table is on top of the stack.
@@ -663,6 +737,8 @@ static void set_info (lua_State *L) {
 
 static const struct luaL_reg fslib[] = {
 	{"attributes", file_info},
+	{"isdir", file_is_directory },
+	{"isfile", file_is_file },
 	{"chdir", change_dir},
 	{"currentdir", get_dir},
 	{"dir", dir_iter_factory},
