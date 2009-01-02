@@ -25,3 +25,4 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "pfaedit.h"
+int a_file_must_define_something_utils=0; /* ANSI says so */

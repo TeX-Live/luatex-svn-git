@@ -25,7 +25,9 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "fontforgevw.h"
-#ifndef LUA_FF_LIB
+#ifdef LUA_FF_LIB
+int a_file_must_define_something_print=0; /* ANSI says so */
+#else
 #include "sflayoutP.h"
 #include <stdlib.h>
 #include <math.h>

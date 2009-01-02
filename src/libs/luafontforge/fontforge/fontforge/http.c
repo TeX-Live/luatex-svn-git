@@ -26,7 +26,9 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "fontforgevw.h"
-#ifndef LUA_FF_LIB
+#ifdef LUA_FF_LIB
+int a_file_must_define_something_http=0; /* ANSI says so */
+#else
 #include <ustring.h>
 #include <utype.h>
 #include <gio.h>

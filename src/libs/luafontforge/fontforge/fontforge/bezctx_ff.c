@@ -3,7 +3,9 @@
 #include <basics.h>
 #include <stdio.h>
 
-#ifndef _NO_LIBSPIRO
+#ifdef _NO_LIBSPIRO
+int a_file_must_define_something_bezctx_ff=0; /* ANSI says so */
+#else
 #include "bezctx_ff.h"
 #include "fontforgevw.h"		/* For LogError, else splinefont.h */
 #ifdef HAVE_IEEEFP_H

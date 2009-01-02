@@ -29,7 +29,7 @@
 #endif
 
 #ifdef _NO_LIBTIFF
-static int a_file_must_define_something=0;	/* ANSI says so */
+int a_file_must_define_something_gimagereadtiff=0;	/* ANSI says so */
 #elif !defined(_STATIC_LIBTIFF) && !defined(NODYNAMIC)	/* I don't know how to deal with dynamic libs on mac OS/X, hence this */
 #include <dynamic.h>
 #include <tiffio.h>

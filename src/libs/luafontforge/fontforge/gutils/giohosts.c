@@ -1,4 +1,4 @@
-#if 0
+
 /* Copyright (C) 2000-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
@@ -25,6 +25,10 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+int a_file_must_define_something_giohosts=0; /* ANSI says so */
+
+#if 0
 #include "giofuncP.h"
 #include "gfile.h"
 #include "ustring.h"

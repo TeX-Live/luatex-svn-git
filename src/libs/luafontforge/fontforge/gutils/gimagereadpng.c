@@ -30,8 +30,7 @@
 
 
 #ifdef _NO_LIBPNG
-static void *a_file_must_define_something=(void *) &a_file_must_define_something;
-		/* ANSI says so */
+int a_file_must_define_something_gimagereadpng = 0; /* ANSI says so */
 #else
 # if !defined(_STATIC_LIBPNG) && !defined(NODYNAMIC)	/* I don't know how to deal with dynamic libs on mac OS/X, hence this */
 #  include <dynamic.h>

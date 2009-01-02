@@ -26,8 +26,9 @@
  */
 
 #include "basics.h"
-#if !defined(NOPLUGIN)
-
+#if defined(NOPLUGIN)
+int a_file_must_define_something_plugins=0; /* ANSI says so */
+#else
 #include "plugins.h"
 #include "dynamic.h"
 #include <utype.h>

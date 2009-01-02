@@ -25,7 +25,9 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "fontforgevw.h"
-#ifndef LUA_FF_LIB
+#ifdef LUA_FF_LIB
+int a_file_must_define_something_autotrace=0; /* ANSI says so */
+#else
 #include <math.h>
 #include <ustring.h>
 #include <utype.h>

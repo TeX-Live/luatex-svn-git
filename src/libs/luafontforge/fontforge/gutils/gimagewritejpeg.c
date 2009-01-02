@@ -29,7 +29,7 @@
 #endif
 
 #ifdef _NO_LIBJPEG
-static int a_file_must_define_something=0;	/* ANSI says so */
+int a_file_must_define_something_gimagewritejpeg=0;	/* ANSI says so */
 #elif !defined(_STATIC_LIBJPEG) && !defined(NODYNAMIC)	/* I don't know how to deal with dynamic libs on mac OS/X, hence this */
 #include <dynamic.h>
 
