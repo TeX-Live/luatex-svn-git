@@ -615,7 +615,9 @@ int valid_node(halfword p)
 {
     if (p > my_prealloc) {
         if (p < var_mem_max) {
+#ifndef NDEBUG
             if (varmem_sizes[p] > 0)
+#endif
                 return 1;
         }
     } else {
@@ -651,6 +653,7 @@ static void do_free_error(halfword p)
                  get_node_name(type(p), subtype(p)), (int) p);
     }
     tex_error(errstr, errhlp);
+#ifndef NDEBUG
     for (r = my_prealloc + 1; r < var_mem_max; r++) {
         if (vlink(r) == p) {
             halfword s = r;
@@ -711,16 +714,19 @@ static void do_free_error(halfword p)
             }
         }
     }
+#endif
 }
 
 int free_error(halfword p)
 {
     assert(p > my_prealloc);
     assert(p < var_mem_max);
+#ifndef NDEBUG
     if (varmem_sizes[p] == 0) {
         do_free_error(p);
         return 1;               /* double free */
     }
+#endif
     return 0;
 }
 
@@ -756,10 +762,12 @@ int copy_error(halfword p)
 {
     assert(p >= 0);
     assert(p < var_mem_max);
+#ifndef NDEBUG
     if (p > my_prealloc && varmem_sizes[p] == 0) {
         do_copy_error(p);
         return 1;               /* copy free node */
     }
+#endif
     return 0;
 }
 
@@ -1241,12 +1249,13 @@ void check_node_mem(void)
 {
     int i;
     check_static_node_mem();
-
+#ifndef NDEBUG
     for (i = (my_prealloc + 1); i < var_mem_max; i++) {
         if (varmem_sizes[i] > 0) {
             check_node(i);
         }
     }
+#endif
     test_count++;
 }
 
@@ -1524,6 +1533,7 @@ char *sprint_node_mem_usage(void)
     int i, b;
 
     char *s, *ss;
+#ifndef NDEBUG
     char msg[256];
     int node_counts[last_normal_node + last_whatsit_node + 2] = { 0 };
 
@@ -1555,6 +1565,9 @@ char *sprint_node_mem_usage(void)
             b = 1;
         }
     }
+#else
+    s = strdup("");
+#endif
     return s;
 }
 
@@ -1562,6 +1575,7 @@ halfword list_node_mem_usage(void)
 {
     halfword i, j;
     halfword p = null, q = null;
+#ifndef NDEBUG
     char *saved_varmem_sizes = xmallocarray(char, var_mem_max);
     memcpy(saved_varmem_sizes, varmem_sizes, var_mem_max);
     for (i = my_prealloc + 1; i < (var_mem_max - 1); i++) {
@@ -1576,6 +1590,7 @@ halfword list_node_mem_usage(void)
         }
     }
     free(saved_varmem_sizes);
+#endif
     return q;
 }
 
