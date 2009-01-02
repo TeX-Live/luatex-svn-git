@@ -22,6 +22,7 @@
 #include <kpathsea/tex-glyph.h>
 #include <kpathsea/magstep.h>
 #include <string.h>
+#include "luatexfont.h"
 
 static const char _svn_version[] =
     "$Id$ $URL$";
@@ -41,20 +42,10 @@ static float t3_font_scale;
 static integer t3_b0, t3_b1, t3_b2, t3_b3;
 static boolean is_pk_font;
 
-static unsigned char *t3_buffer = NULL;
-static integer t3_size = 0;
-static integer t3_curbyte = 0;
-
-
-#define t3_read_file() readbinfile(t3_file,&t3_buffer,&t3_size)
-#define t3_close()     xfclose(t3_file, cur_file_name)
-#define t3_getchar()   t3_buffer[t3_curbyte++]
-#define t3_eof()      (t3_curbyte>t3_size)
-
-#define t3_prefix(s)    (!strncmp(t3_line_array, s, strlen(s)))
-#define t3_putchar(c)   pdfout(c)
-
-
+/* not static because used by pkin.c  */
+unsigned char *t3_buffer = NULL;
+integer t3_size = 0;
+integer t3_curbyte = 0;
 
 #define t3_check_eof()                                     \
     if (t3_eof())                                          \

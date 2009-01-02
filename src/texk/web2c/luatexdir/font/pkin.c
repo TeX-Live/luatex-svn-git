@@ -52,18 +52,11 @@ static const char _svn_version[] =
  *   the next byte from the pk file.
  */
 
-
-/*
-static FILE *pkfile ;
-*/
-
-#define pkfile t3_file
-
 static shalfword pkbyte(void)
 {
     register shalfword i;
-
-    if ((i = xgetc(pkfile)) == EOF)
+    i = t3_getchar();
+    if (t3_eof())
         pdftex_fail("unexpected eof in pk file");
     return (i);
 }

@@ -52,4 +52,16 @@ extern void pdf_release_obj(pdf_obj * stream);
 /* writet3.c */
 extern FILE *t3_file;
 
+extern unsigned char *t3_buffer;
+extern integer t3_size ;
+extern integer t3_curbyte;
+
+#define t3_read_file() readbinfile(t3_file,&t3_buffer,&t3_size)
+#define t3_close()     xfclose(t3_file, cur_file_name)
+#define t3_getchar()   t3_buffer[t3_curbyte++]
+#define t3_eof()      (t3_curbyte>t3_size)
+
+#define t3_prefix(s)    (!strncmp(t3_line_array, s, strlen(s)))
+#define t3_putchar(c)   pdfout(c)
+
 #endif
