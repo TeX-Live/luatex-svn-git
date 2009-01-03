@@ -457,6 +457,8 @@ typedef enum {
     param_h_offset_code,        /* amount of horizontal offset when shipping pages out */
     param_v_offset_code,        /* amount of vertical offset when shipping pages out */
     param_emergency_stretch_code,       /* reduces badnesses on final pass of line-breaking */
+    param_page_left_offset_code,
+    param_page_top_offset_code,
     param_page_right_offset_code,
     param_page_bottom_offset_code,
     param_pdf_h_origin_code,    /* horigin of the PDF output */

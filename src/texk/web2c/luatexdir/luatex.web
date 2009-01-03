@@ -6497,9 +6497,11 @@ here, and the |number_regs| \.{\\dimen} registers.
 @d h_offset_code=18 {amount of horizontal offset when shipping pages out}
 @d v_offset_code=19 {amount of vertical offset when shipping pages out}
 @d emergency_stretch_code=20 {reduces badnesses on final pass of line-breaking}
-@d page_right_offset_code=21
-@d page_bottom_offset_code=22
-@d pdftex_first_dimen_code = 23 {first number defined in this section}
+@d page_left_offset_code=21
+@d page_top_offset_code=22
+@d page_right_offset_code=23
+@d page_bottom_offset_code=24
+@d pdftex_first_dimen_code = 25 {first number defined in this section}
 @d pdf_h_origin_code       = pdftex_first_dimen_code + 0 {horigin of the PDF output}
 @d pdf_v_origin_code       = pdftex_first_dimen_code + 1 {vorigin of the PDF output}
 @d page_width_code         = pdftex_first_dimen_code + 2 {page width of the PDF output}
@@ -6542,6 +6544,8 @@ here, and the |number_regs| \.{\\dimen} registers.
 @d h_offset==dimen_par(h_offset_code)
 @d v_offset==dimen_par(v_offset_code)
 @d emergency_stretch==dimen_par(emergency_stretch_code)
+@d page_left_offset==dimen_par(page_left_offset_code)
+@d page_top_offset==dimen_par(page_top_offset_code)
 @d page_right_offset==dimen_par(page_right_offset_code)
 @d page_bottom_offset==dimen_par(page_bottom_offset_code)
 @d pdf_h_origin      == dimen_par(pdf_h_origin_code)
@@ -6581,7 +6585,9 @@ hang_indent_code:print_esc("hangindent");
 h_offset_code:print_esc("hoffset");
 v_offset_code:print_esc("voffset");
 emergency_stretch_code:print_esc("emergencystretch");
-page_right_offset_code:print_esc("pagerightoffset");
+page_left_offset_code:  print_esc("pageleftoffset");
+page_top_offset_code:   print_esc("pagetopoffset");
+page_right_offset_code: print_esc("pagerightoffset");
 page_bottom_offset_code:print_esc("pagebottomoffset");
 pdf_h_origin_code:      print_esc("pdfhorigin");
 pdf_v_origin_code:      print_esc("pdfvorigin");
@@ -6684,6 +6690,8 @@ assign_dimen: if chr_code<scaled_base then
 
 @ @<Initialize table entries...@>=
 for k:=dimen_base to eqtb_size do eqtb[k].sc:=0;
+page_left_offset := one_inch;
+page_top_offset := one_inch;
 page_right_offset := one_inch;
 page_bottom_offset := one_inch;
 
@@ -25770,7 +25778,24 @@ assign_dir: begin
   @<DIR: Assign direction codes@>
   end;
 assign_dimen: begin p:=cur_chr; scan_optional_equals;
-  scan_normal_dimen; word_define(p,cur_val);
+  scan_normal_dimen;
+  if p=(dimen_base+page_left_offset_code) then begin
+    n:=h_offset + cur_val - page_left_offset;
+    word_define(dimen_base+h_offset_code, n);
+    end 
+  else if p=(dimen_base+h_offset_code) then begin
+    n:=page_left_offset + cur_val - h_offset;
+    word_define(dimen_base+page_left_offset_code, n);
+    end
+  else if p=(dimen_base+page_top_offset_code) then begin
+    n:=v_offset + cur_val - page_top_offset;
+    word_define(dimen_base+v_offset_code, n);
+    end
+  else if p=(dimen_base+v_offset_code) then begin
+    n:=page_top_offset + cur_val - v_offset;
+    word_define(dimen_base+page_top_offset_code, n);
+    end;
+  word_define(p,cur_val);
   end;
 assign_glue,assign_mu_glue: begin p:=cur_chr; n:=cur_cmd; scan_optional_equals;
   if n=assign_mu_glue then scan_glue(mu_val)@+else scan_glue(glue_val);
@@ -27835,6 +27860,8 @@ primitive("bodydir",assign_dir,dir_base+body_direction_code);@/
 primitive("pardir",assign_dir,dir_base+par_direction_code);@/
 primitive("textdir",assign_dir,dir_base+text_direction_code);@/
 primitive("mathdir",assign_dir,dir_base+math_direction_code);@/
+primitive("pageleftoffset",assign_dimen,dimen_base+page_left_offset_code);
+primitive("pagetopoffset",assign_dimen,dimen_base+page_top_offset_code);
 primitive("pagerightoffset",assign_dimen,dimen_base+page_right_offset_code);
 primitive("pagebottomoffset",assign_dimen,dimen_base+page_bottom_offset_code);
 primitive("pdfliteral",extension,pdf_literal_node);@/
