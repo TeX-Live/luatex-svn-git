@@ -25528,11 +25528,28 @@ begin
    a:=0;
    word_define(cmd,value);
 end;
-procedure assign_internal_dim(cmd:halfword;value:integer);
+procedure assign_internal_dim(p:halfword;value:integer);
 var  a:small_number;
+     n:halfword;
 begin
    a:=0;
-  word_define(cmd,value);
+  if p=(dimen_base+page_left_offset_code) then begin
+    n:=h_offset + value - page_left_offset;
+    word_define(dimen_base+h_offset_code, n);
+    end 
+  else if p=(dimen_base+h_offset_code) then begin
+    n:=page_left_offset + value - h_offset;
+    word_define(dimen_base+page_left_offset_code, n);
+    end
+  else if p=(dimen_base+page_top_offset_code) then begin
+    n:=v_offset + value - page_top_offset;
+    word_define(dimen_base+v_offset_code, n);
+    end
+  else if p=(dimen_base+v_offset_code) then begin
+    n:=page_top_offset + value - v_offset;
+    word_define(dimen_base+page_top_offset_code, n);
+    end;
+  word_define(p,value);
 end;
 
 
