@@ -1,5 +1,33 @@
 
 ==============================================================
+Luatex beta-0.31.3 was released 20081229
+==============================================================
+
+This release has a bunch of updates from the development trunk
+(#1657-1670,1677,1678,1680,1685,1687).
+
+  * Closing of files opened by \externalocp.
+
+  * Fix for a locale-related bug that make PDF generation fail
+    with a "Parsing CFF Dict failed" message when including 
+    opentype fonts.
+ 
+  * The included metapost is now version 1.102.
+
+  * PDF rules in vertical modes in RL direction where output
+    in the wrong direction
+
+  * Fix for a crash on Apple fonts that contain a 'bsln' table.
+
+  * The handling of the second argument to fontforge.open() was
+    broken
+
+  * The included libpng is now 1.2.34
+
+  * Handling of ttc files on Windows was broken
+
+
+==============================================================
 Luatex beta-0.31.2 was released 20081209
 ==============================================================
 
