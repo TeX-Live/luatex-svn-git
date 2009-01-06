@@ -14830,11 +14830,21 @@ this is essentially the depth of |push| commands in the \.{DVI} output.
 if page_width > 0 then
     cur_page_width := page_width
 else
-    cur_page_width := width(p) + 2*(h_offset + one_inch);
+    case box_direction(dvi_direction) of
+    dir_TL_, dir_BL_: cur_page_width := width(p) + 2 * page_left_offset;
+    dir_TR_, dir_BR_: cur_page_width := width(p) + 2 * page_right_offset;
+    dir_LT_, dir_LB_: cur_page_width := height(p) + depth(p) + 2 * page_left_offset;
+    dir_RT_, dir_RB_: cur_page_width := height(p) + depth(p) + 2 * page_right_offset;
+    end;
 if page_height > 0 then
     cur_page_height := page_height
 else
-    cur_page_height := height(p) + depth(p) + 2*(v_offset + one_inch);
+    case box_direction(dvi_direction) of
+    dir_TL_, dir_TR_: cur_page_height := height(p) + depth(p) + 2 * page_top_offset;
+    dir_BL_, dir_BR_: cur_page_height := height(p) + depth(p) + 2 * page_bottom_offset;
+    dir_LT_, dir_RT_: cur_page_height := width(p) + 2 * page_top_offset;
+    dir_LB_, dir_RB_: cur_page_height := width(p) + 2 * page_bottom_offset;
+    end;
 
 @ @<Initialize variables as |ship_out| begins@>=
 dvi_h:=0; dvi_v:=0; cur_h:=0; cur_v:=0; dvi_f:=null_font;
