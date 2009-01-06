@@ -15194,40 +15194,40 @@ if is_running(rule_dp) then rule_dp:=depth(this_box);
 rule_ht:=rule_ht+rule_dp; {this is the rule thickness}
 if (rule_ht>0)and(rule_wd>0) then {we don't output empty rules}
   begin synch_h; cur_v:=base_line+rule_dp; synch_v;
-  case font_direction(dvi_direction) of
-  dir__LT: begin
+  case box_direction(dvi_direction) of
+  dir_TL_: begin
     dvi_set_rule(rule_ht)(rule_wd);
     end;
-  dir__LB: begin
+  dir_BL_: begin
     dvi_down(rule_ht);
     dvi_set_rule(rule_ht)(rule_wd);
     dvi_up(rule_ht);
     end;
-  dir__RT: begin
+  dir_TR_: begin
     dvi_left(rule_wd);
     dvi_put_rule(rule_ht)(rule_wd);
     end;
-  dir__RB: begin
+  dir_BR_: begin
     dvi_left(rule_wd);
     dvi_down(rule_ht);
     dvi_put_rule(rule_ht)(rule_wd);
     dvi_up(rule_ht);
     end;
-  dir__TL: begin
+  dir_LT_: begin
     dvi_down(rule_wd);
     dvi_left(rule_ht);
     dvi_set_rule(rule_wd)(rule_ht);
     end;
-  dir__TR: begin
+  dir_RT_: begin
     dvi_down(rule_wd);
     dvi_put_rule(rule_wd)(rule_ht);
     end;
-  dir__BL: begin
+  dir_LB_: begin
     dvi_left(rule_ht);
     dvi_set_rule(rule_wd)(rule_ht);
     dvi_up(rule_wd);
     end;
-  dir__BR: begin
+  dir_RB_: begin
     dvi_put_rule(rule_wd)(rule_ht);
     dvi_up(rule_wd);
     end;
@@ -15513,41 +15513,41 @@ rule_ht:=rule_ht+rule_dp; {this is the rule thickness}
 cur_v:=cur_v+rule_ht;
 if (rule_ht>0)and(rule_wd>0) then {we don't output empty rules}
   begin synch_h; synch_v;
-  case font_direction(dvi_direction) of
-  dir__LT: begin
+  case box_direction(dvi_direction) of
+  dir_TL_: begin
     dvi_put_rule(rule_ht)(rule_wd);
     end;
-  dir__LB: begin
+  dir_BL_: begin
     dvi_down(rule_ht);
     dvi_put_rule(rule_ht)(rule_wd);
     dvi_up(rule_ht);
     end;
-  dir__RT: begin
+  dir_TR_: begin
     dvi_left(rule_wd);
     dvi_set_rule(rule_ht)(rule_wd);
     end;
-  dir__RB: begin
+  dir_BR_: begin
     dvi_down(rule_ht);
     dvi_left(rule_wd);
     dvi_set_rule(rule_ht)(rule_wd);
     dvi_up(rule_ht);
     end;
-  dir__TL: begin
+  dir_LT_: begin
     dvi_down(rule_wd);
     dvi_left(rule_ht);
     dvi_set_rule(rule_wd)(rule_ht);
     dvi_up(rule_wd);
     end;
-  dir__TR: begin
+  dir_RT_: begin
     dvi_down(rule_wd);
     dvi_put_rule(rule_wd)(rule_ht);
     dvi_up(rule_wd);
     end;
-  dir__BL: begin
+  dir_LB_: begin
     dvi_left(rule_ht);
     dvi_set_rule(rule_wd)(rule_ht);
     end;
-  dir__BR: begin
+  dir_RB_: begin
     dvi_put_rule(rule_wd)(rule_ht);
     end;
   end;
@@ -18508,15 +18508,15 @@ end
 if is_running(rule_ht) then rule_ht:=height(this_box);
 if is_running(rule_dp) then rule_dp:=depth(this_box);
 if ((rule_ht+rule_dp)>0)and(rule_wd>0) then {we don't output empty rules}
-  case font_direction(dvi_direction) of
-  dir__LT: pdf_set_rule(cur_h,           cur_v + rule_dp, rule_wd,           rule_ht + rule_dp);
-  dir__LB: pdf_set_rule(cur_h,           cur_v + rule_ht, rule_wd,           rule_ht + rule_dp);
-  dir__RT: pdf_set_rule(cur_h - rule_wd, cur_v + rule_dp, rule_wd,           rule_ht + rule_dp);
-  dir__RB: pdf_set_rule(cur_h - rule_wd, cur_v + rule_ht, rule_wd,           rule_ht + rule_dp);
-  dir__TL: pdf_set_rule(cur_h - rule_ht, cur_v + rule_wd, rule_ht + rule_dp, rule_wd);
-  dir__TR: pdf_set_rule(cur_h - rule_dp, cur_v + rule_wd, rule_ht + rule_dp, rule_wd);
-  dir__BL: pdf_set_rule(cur_h - rule_ht, cur_v,           rule_ht + rule_dp, rule_wd);
-  dir__BR: pdf_set_rule(cur_h - rule_dp, cur_v,           rule_ht + rule_dp, rule_wd);
+  case box_direction(dvi_direction) of
+  dir_TL_: pdf_set_rule(cur_h,           cur_v + rule_dp, rule_wd,           rule_ht + rule_dp);
+  dir_BL_: pdf_set_rule(cur_h,           cur_v + rule_ht, rule_wd,           rule_ht + rule_dp);
+  dir_TR_: pdf_set_rule(cur_h - rule_wd, cur_v + rule_dp, rule_wd,           rule_ht + rule_dp);
+  dir_BR_: pdf_set_rule(cur_h - rule_wd, cur_v + rule_ht, rule_wd,           rule_ht + rule_dp);
+  dir_LT_: pdf_set_rule(cur_h - rule_ht, cur_v + rule_wd, rule_ht + rule_dp, rule_wd);
+  dir_RT_: pdf_set_rule(cur_h - rule_dp, cur_v + rule_wd, rule_ht + rule_dp, rule_wd);
+  dir_LB_: pdf_set_rule(cur_h - rule_ht, cur_v,           rule_ht + rule_dp, rule_wd);
+  dir_RB_: pdf_set_rule(cur_h - rule_dp, cur_v,           rule_ht + rule_dp, rule_wd);
   end;
 
 @ @<(\pdfTeX) Move right or output leaders@>=
@@ -18768,15 +18768,15 @@ end
 if is_running(rule_wd) then rule_wd:=width(this_box);
 rule_ht:=rule_ht+rule_dp; {this is the rule thickness}
 if (rule_ht>0)and(rule_wd>0) then {we don't output empty rules}
-  case font_direction(dvi_direction) of
-  dir__LT: pdf_set_rule(cur_h,           cur_v + rule_ht, rule_wd, rule_ht);
-  dir__LB: pdf_set_rule(cur_h,           cur_v,           rule_wd, rule_ht);
-  dir__RT: pdf_set_rule(cur_h - rule_wd, cur_v + rule_ht, rule_wd, rule_ht);
-  dir__RB: pdf_set_rule(cur_h - rule_wd, cur_v,           rule_wd, rule_ht);
-  dir__TL: pdf_set_rule(cur_h,           cur_v + rule_wd, rule_ht, rule_wd);
-  dir__TR: pdf_set_rule(cur_h - rule_ht, cur_v + rule_wd, rule_ht, rule_wd);
-  dir__BL: pdf_set_rule(cur_h,           cur_v,           rule_ht, rule_wd);
-  dir__BR: pdf_set_rule(cur_h - rule_ht, cur_v,           rule_ht, rule_wd);
+  case box_direction(dvi_direction) of
+  dir_TL_: pdf_set_rule(cur_h,           cur_v + rule_ht, rule_wd, rule_ht);
+  dir_BL_: pdf_set_rule(cur_h,           cur_v,           rule_wd, rule_ht);
+  dir_TR_: pdf_set_rule(cur_h - rule_wd, cur_v + rule_ht, rule_wd, rule_ht);
+  dir_BR_: pdf_set_rule(cur_h - rule_wd, cur_v,           rule_wd, rule_ht);
+  dir_LT_: pdf_set_rule(cur_h,           cur_v + rule_wd, rule_ht, rule_wd);
+  dir_RT_: pdf_set_rule(cur_h - rule_ht, cur_v + rule_wd, rule_ht, rule_wd);
+  dir_LB_: pdf_set_rule(cur_h,           cur_v,           rule_ht, rule_wd);
+  dir_RB_: pdf_set_rule(cur_h - rule_ht, cur_v,           rule_ht, rule_wd);
   end;
   pdf_dvicmd_v(rule_ht);
 goto next_p
