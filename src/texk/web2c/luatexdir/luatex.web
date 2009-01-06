@@ -14845,6 +14845,10 @@ if total_pages=0 then
 @^preamble of \.{DVI} file@>
   dvi_four(25400000); dvi_four(473628672); {conversion ratio for sp}
   prepare_mag; dvi_four(mag); {magnification factor is frozen}
+  if mag<>1000 then
+    one_true_inch:=xn_over_d(one_hundred_inch,10,mag)
+  else
+    one_true_inch:=one_inch;
   old_setting:=selector; selector:=new_string;
   print(" LuaTeX output "); print_int(year); print_char(".");
   print_two(month); print_char("."); print_two(day);
@@ -15735,43 +15739,45 @@ page_loc:=dvi_offset+dvi_ptr;
 dvi_out(bop);
 for k:=0 to 9 do dvi_four(count(k));
 dvi_four(last_bop); last_bop:=page_loc;
-if mag<>1000 then
-  one_true_inch:=xn_over_d(one_hundred_inch,10,mag)
-else
-  one_true_inch:=one_inch;
 {Think in upright page/paper coordinates): First preset |page_h| and |page_v| to the DVI origin.}
 page_h := one_true_inch;
 page_v := cur_page_height - one_true_inch;
 set_box_pg_origin;
 {Then calculate |cur_h| and |cur_v| within the upright coordinate system
-for the 3 other DVI origins depending on the |page_direction|, if needed.}
+for the DVI origin depending on the |page_direction|.}
 dvi_direction:=page_direction;
 case box_direction(dvi_direction) of
 dir_TL_,dir_LT_: begin
+  cur_h := page_left_offset;
+  cur_v := page_top_offset;
   end;
 dir_TR_,dir_RT_: begin
-  cur_h := cur_page_width - page_right_offset - one_true_inch;
-  end;
-dir_RB_,dir_BR_: begin
-  cur_h := cur_page_width - page_right_offset - one_true_inch;
-  cur_v := cur_page_height - page_bottom_offset - one_true_inch;
+  cur_h := cur_page_width - page_right_offset;
+  cur_v := page_top_offset;
   end;
 dir_BL_,dir_LB_: begin
-  cur_v := cur_page_height - page_bottom_offset - one_true_inch;
+  cur_h := page_left_offset;
+  cur_v := cur_page_height - page_bottom_offset;
+  end;
+dir_RB_,dir_BR_: begin
+  cur_h := cur_page_width - page_right_offset;
+  cur_v := cur_page_height - page_bottom_offset;
   end;
 end;
+cur_h := cur_h - one_true_inch; {correct for DVI origin}
+cur_v := cur_v - one_true_inch;
 {The movement is actually done within the upright page coordinate system.}
 dvi_direction := dir_TL_; {only temporarily for this adjustment}
 synch_page_coordinates; set_box_pg_origin; {keep track on page}
 synch_h; synch_v;
-{Then do |h_offset| and |v_offset| movement within the coordiate system of the page box.}
+{Then switch to page box coordinate system; do |height(p)| movement.}
 dvi_direction := page_direction;
 dvi_h := 0; dvi_v := 0;
-cur_h := h_offset;
-cur_v := height(p) + v_offset;
+cur_h := 0;
+cur_v := height(p);
 synch_page_coordinates; set_box_pg_origin;
 synch_h; synch_v;
-{Now we are on the page where the origin of the page box should go.}
+{Now we are at the point on the page where the origin of the page box should go.}
 temp_ptr:=p;
 if type(p)=vlist_node then vlist_out@+else hlist_out;
 dvi_out(eop); incr(total_pages); cur_s:=-1;
