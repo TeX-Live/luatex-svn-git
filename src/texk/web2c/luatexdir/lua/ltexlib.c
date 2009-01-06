@@ -702,7 +702,7 @@ int settex(lua_State * L)
             cur_cmd = zget_eq_type(cur_cs);
             if (is_int_assign(cur_cmd)) {
                 if (lua_isnumber(L, i)) {
-                    assign_internal_int(zget_equiv(cur_cs), lua_tonumber(L, i));
+                  assign_internal_value(0,zget_equiv(cur_cs), lua_tonumber(L, i));
                 } else {
                     lua_pushstring(L, "unsupported value type");
                     lua_error(L);
@@ -716,7 +716,7 @@ int settex(lua_State * L)
                         lua_error(L);
                 } else
                     j = (int) lua_tonumber(L, i);
-                assign_internal_dim(zget_equiv(cur_cs), j);
+                assign_internal_value(0, zget_equiv(cur_cs), j);
             } else {
                 lua_pushstring(L, "unsupported tex internal assignment");
                 lua_error(L);

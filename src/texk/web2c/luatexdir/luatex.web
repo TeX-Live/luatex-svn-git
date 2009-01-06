@@ -25522,34 +25522,72 @@ function is_dim_assign(cmd:halfword):boolean;
 begin
   is_dim_assign := (cmd=assign_dimen);
 end;
-procedure assign_internal_int(cmd:halfword;value:integer);
-var  a:small_number;
+
+@ @<Declare subprocedures for |prefixed_command|@>=
+procedure assign_internal_value(a:small_number;p:halfword;cur_val:integer);
+var  n:halfword;
 begin
-   a:=0;
-   word_define(cmd,value);
-end;
-procedure assign_internal_dim(p:halfword;value:integer);
-var  a:small_number;
-     n:halfword;
-begin
-   a:=0;
+if (p>=int_base)and(p<attribute_base) then begin
+  if p=(int_base+cat_code_table_code) then begin
+    if valid_catcode_table(cur_val) then begin
+      if cur_val<>cat_code_table then
+        word_define(p,cur_val);
+      end
+    else begin
+      print_err("Invalid \catcode table");
+      help2("You can only switch to a \catcode table that is initialized")
+           ("using \savecatcodetable or \initcatcodetable, or to table 0");
+      error;
+      end;
+    end
+  else if (p=new_line_char)and(cur_val>127) then begin
+    print_err("Invalid \newlinechar");
+    help1("The value for \newlinechar has to be between 0 and 127.");
+    error;
+    end
+  else if p=end_line_char then begin
+    if (cur_val<0)or(cur_val>biggest_char) then
+      word_define(p,-1)
+    else
+      word_define(p,13);
+    end
+  else 
+   word_define(p,cur_val);
+{If we are defining subparagraph penalty levels while we are
+in hmode, then we put out a whatsit immediately, otherwise
+we leave it alone.  This mechanism might not be sufficiently
+powerful, and some other algorithm, searching down the stack,
+might be necessary.  Good first step.}
+  if (abs(mode)=hmode) and
+     ((p=(int_base+local_inter_line_penalty_code)) or
+      (p=(int_base+local_broken_penalty_code))) then begin
+    @<LOCAL: Add local paragraph node@>;
+    eq_word_define(int_base+no_local_whatsits_code,no_local_whatsits+1);
+    local_par_bool:=true;
+    end;
+  if p=int_base+language_code then word_define(int_base+cur_lang_code,cur_val);
+  end
+else if (p>=dimen_base)and(p<eqtb_size) then begin
   if p=(dimen_base+page_left_offset_code) then begin
-    n:=h_offset + value - page_left_offset;
+    n:=h_offset + cur_val - page_left_offset;
     word_define(dimen_base+h_offset_code, n);
     end 
   else if p=(dimen_base+h_offset_code) then begin
-    n:=page_left_offset + value - h_offset;
+    n:=page_left_offset + cur_val - h_offset;
     word_define(dimen_base+page_left_offset_code, n);
     end
   else if p=(dimen_base+page_top_offset_code) then begin
-    n:=v_offset + value - page_top_offset;
+    n:=v_offset + cur_val - page_top_offset;
     word_define(dimen_base+v_offset_code, n);
     end
   else if p=(dimen_base+v_offset_code) then begin
-    n:=page_top_offset + value - v_offset;
+    n:=page_top_offset + cur_val - v_offset;
     word_define(dimen_base+page_top_offset_code, n);
     end;
-  word_define(p,value);
+  word_define(p,cur_val);
+  end 
+else
+  confusion("assign internal value");
 end;
 
 
@@ -25748,45 +25786,8 @@ end
 
 @<Assignments@>=
 assign_int: begin p:=cur_chr; scan_optional_equals; scan_int;
-  if p=(int_base+cat_code_table_code) then begin
-    if valid_catcode_table(cur_val) then begin
-      if cur_val<>cat_code_table then
-        word_define(p,cur_val);
-      end
-    else begin
-      print_err("Invalid \catcode table");
-      help2("You can only switch to a \catcode table that is initialized")
-           ("using \savecatcodetable or \initcatcodetable, or to table 0");
-      error;
-      end;
-    end
-  else if (p=new_line_char)and(cur_val>127) then begin
-    print_err("Invalid \newlinechar");
-    help1("The value for \newlinechar has to be between 0 and 127.");
-    error;
-    end
-  else if p=end_line_char then begin
-    if (cur_val<0)or(cur_val>biggest_char) then
-      word_define(p,-1)
-    else
-      word_define(p,13);
-    end
-  else 
-   word_define(p,cur_val);
-{If we are defining subparagraph penalty levels while we are
-in hmode, then we put out a whatsit immediately, otherwise
-we leave it alone.  This mechanism might not be sufficiently
-powerful, and some other algorithm, searching down the stack,
-might be necessary.  Good first step.}
-  if (abs(mode)=hmode) and
-     ((p=(int_base+local_inter_line_penalty_code)) or
-      (p=(int_base+local_broken_penalty_code))) then begin
-    @<LOCAL: Add local paragraph node@>;
-    eq_word_define(int_base+no_local_whatsits_code,no_local_whatsits+1);
-    local_par_bool:=true;
-    end;
-  if p=int_base+language_code then word_define(int_base+cur_lang_code,cur_val);
-  end;
+   assign_internal_value(a,p,cur_val);
+   end;
 assign_attr: begin p:=cur_chr; scan_optional_equals; scan_int;
   if (p-attribute_base)>max_used_attr then max_used_attr:=(p-attribute_base);
   attr_list_cache:=cache_disabled;
@@ -25795,24 +25796,7 @@ assign_dir: begin
   @<DIR: Assign direction codes@>
   end;
 assign_dimen: begin p:=cur_chr; scan_optional_equals;
-  scan_normal_dimen;
-  if p=(dimen_base+page_left_offset_code) then begin
-    n:=h_offset + cur_val - page_left_offset;
-    word_define(dimen_base+h_offset_code, n);
-    end 
-  else if p=(dimen_base+h_offset_code) then begin
-    n:=page_left_offset + cur_val - h_offset;
-    word_define(dimen_base+page_left_offset_code, n);
-    end
-  else if p=(dimen_base+page_top_offset_code) then begin
-    n:=v_offset + cur_val - page_top_offset;
-    word_define(dimen_base+v_offset_code, n);
-    end
-  else if p=(dimen_base+v_offset_code) then begin
-    n:=page_top_offset + cur_val - v_offset;
-    word_define(dimen_base+page_top_offset_code, n);
-    end;
-  word_define(p,cur_val);
+  scan_normal_dimen; assign_internal_value(a,p,cur_val);
   end;
 assign_glue,assign_mu_glue: begin p:=cur_chr; n:=cur_cmd; scan_optional_equals;
   if n=assign_mu_glue then scan_glue(mu_val)@+else scan_glue(glue_val);
@@ -26013,7 +25997,10 @@ if p<glue_val then begin
      if (l-attribute_base)>max_used_attr then max_used_attr:=(l-attribute_base);
      attr_list_cache:=cache_disabled;
      end;
-  word_define(l,cur_val);
+  if (p=int_val) or (p=dimen_val) then
+    assign_internal_value(a,l,cur_val)
+  else
+    word_define(l,cur_val);
   end
 else  begin trap_zero_glue; define(l,glue_ref,cur_val);
   end;
