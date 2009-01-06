@@ -512,7 +512,10 @@ font/writet3.o: ../../../../src/texk/web2c/luatexdir/font/writet3.c \
   \
   ../../../../src/texk/web2c/luatexdir/texmath.h \
   ../../../../src/texk/web2c/luatexdir/../../kpathsea/tex-glyph.h \
-  ../../../../src/texk/web2c/luatexdir/../../kpathsea/magstep.h
+  ../../../../src/texk/web2c/luatexdir/../../kpathsea/magstep.h \
+  ../../../../src/texk/web2c/luatexdir/font/luatexfont.h \
+  ../../../../src/texk/web2c/luatexdir/font/sfnt.h \
+  ../../../../src/texk/web2c/luatexdir/../config.h
 font/writettf.o: ../../../../src/texk/web2c/luatexdir/font/writettf.c \
   ../../../../src/texk/web2c/luatexdir/ptexlib.h ../luatexd.h \
   ../../../../src/texk/web2c/luatexdir/../texmfmp.h \
@@ -2228,7 +2231,8 @@ lua/luatex.o: ../../../../src/texk/web2c/luatexdir/lua/luatex.c \
   ../../../../src/texk/web2c/luatexdir/hyphen.h \
   ../../../../src/texk/web2c/luatexdir/ptexlib.h \
   ../../../../src/texk/web2c/luatexdir/nodes.h \
-  ../../../../src/texk/web2c/luatexdir/texmath.h
+  ../../../../src/texk/web2c/luatexdir/texmath.h \
+ 
 lua/luatoken.o: ../../../../src/texk/web2c/luatexdir/lua/luatoken.c \
   ../../../../src/texk/web2c/luatexdir/luatex-api.h \
   \
@@ -3143,6 +3147,7 @@ utils.o: ../../../../src/texk/web2c/luatexdir/utils.c \
   ../../../../src/texk/web2c/luatexdir/image/image.h \
   \
   \
+  \
   ../../../../src/texk/web2c/luatexdir/font/texfont.h \
   ../../../../src/texk/web2c/luatexdir/../luatexdir/managed-sa.h \
   ../../../../src/texk/web2c/luatexdir/hyphen.h \
@@ -3199,7 +3204,8 @@ writezip.o: ../../../../src/texk/web2c/luatexdir/writezip.c \
   ../../../../src/texk/web2c/luatexdir/hyphen.h \
   ../../../../src/texk/web2c/luatexdir/nodes.h \
   \
-  ../../../../src/texk/web2c/luatexdir/texmath.h
+  ../../../../src/texk/web2c/luatexdir/texmath.h \
+ 
 synctex.o: ../../../../src/texk/web2c/luatexdir/synctex.c ../luatexd.h \
   ../../../../src/texk/web2c/luatexdir/../texmfmp.h \
   ../../../../src/texk/web2c/luatexdir/../cpascal.h \
@@ -3248,4 +3254,5 @@ synctex.o: ../../../../src/texk/web2c/luatexdir/synctex.c ../luatexd.h \
   ../../../../src/texk/web2c/luatexdir/../luatexdir/ptexlib.h \
   ../../../../src/texk/web2c/luatexdir/../luatexdir/nodes.h \
   \
-  ../../../../src/texk/web2c/luatexdir/../luatexdir/texmath.h
+  ../../../../src/texk/web2c/luatexdir/../luatexdir/texmath.h \
+ 
