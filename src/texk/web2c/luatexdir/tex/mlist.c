@@ -469,14 +469,14 @@ pointer clean_box(pointer p, integer s)
     switch (math_type(p)) {
     case math_char:
         cur_mlist = new_noad();
-        vmem(nucleus(cur_mlist)) = vmem(p);
+        math_clone(nucleus(cur_mlist),p);
         break;
     case sub_box:
-        q = vinfo(p);
+        q = math_list(p);
         goto FOUND;
         break;
     case sub_mlist:
-        cur_mlist = vinfo(p);
+        cur_mlist = math_list(p);
         break;
     default:
         q = new_null_box();
@@ -531,8 +531,8 @@ quarterword cur_c;              /* the |character| field of a |math_char| */
 
 void fetch(pointer a)
 {                               /* unpack the |math_char| field |a| */
-    cur_c = mcharacter(a);
-    cur_f = fam_fnt(fam(a) + cur_size);
+    cur_c = math_character(a);
+    cur_f = fam_fnt(math_fam(a) + cur_size);
     if (cur_f == null_font) {
         int saved_selector;
         str_number s;
@@ -548,7 +548,7 @@ void fetch(pointer a)
         selector = new_string;
         print_size(cur_size);
         print_char(' ');
-        print_int(fam(a));
+        print_int(math_fam(a));
         tprint(" is undefined (character ");
         print_char(cur_c);
         print_char(')');
@@ -585,7 +585,7 @@ The second pass eliminates all noads and inserts the correct glue and
 penalties between nodes.
 */
 
-#define new_hlist(A) vmem(nucleus((A))).cint    /* the translation of an mlist */
+#define new_hlist(A) vlink(nucleus((A)))   /* the translation of an mlist */
 #define choose_mlist(A) do { p=A(q); A(q)=null; } while (0)
 
 /*
@@ -601,7 +601,7 @@ void make_over(pointer q)
     pointer p;
     p = overbar(clean_box(nucleus(q), cramped_style(cur_style)),
                 3 * default_rule_thickness, default_rule_thickness);
-    vinfo(nucleus(q)) = p;
+    math_list(nucleus(q)) = p;
     math_type(nucleus(q)) = sub_box;
 }
 
@@ -619,7 +619,7 @@ void make_under(pointer q)
     delta = height(y) + depth(y) + default_rule_thickness;
     height(y) = height(x);
     depth(y) = delta - height(y);
-    vinfo(nucleus(q)) = y;
+    math_list(nucleus(q)) = y;
     math_type(nucleus(q)) = sub_box;
 }
 
@@ -627,7 +627,7 @@ void make_vcenter(pointer q)
 {
     pointer v;                  /* the box that should be centered vertically */
     scaled delta;               /* its height plus depth */
-    v = vinfo(nucleus(q));
+    v = math_list(nucleus(q));
     if (type(v) != vlist_node)
         confusion(maketexstring("vcenter"));    /* this can't happen vcenter */
     delta = height(v) + depth(v);
@@ -666,7 +666,7 @@ void make_radical(pointer q)
     p = overbar(x, clr, height(y));
     vlink(y) = p;
     p = hpack(y, 0, additional);
-    vinfo(nucleus(q)) = p;
+    math_list(nucleus(q)) = p;
     math_type(nucleus(q)) = sub_box;
 }
 
@@ -718,13 +718,13 @@ void make_math_accent(pointer q)
                 /* Swap the subscript and superscript into box |x| */
                 flush_node_list(x);
                 x = new_noad();
-                vmem(nucleus(x)) = vmem(nucleus(q));
-                vmem(supscr(x)) = vmem(supscr(q));
-                vmem(subscr(x)) = vmem(subscr(q));
-                vmem(supscr(q)).hh = empty_field;
-                vmem(subscr(q)).hh = empty_field;
+                math_clone(nucleus(x),nucleus(q));
+                math_clone(supscr(x),supscr(q));
+                math_clone(subscr(x),subscr(q));
+                math_reset(supscr(q));
+                math_reset(subscr(q));
                 math_type(nucleus(q)) = sub_mlist;
-                vinfo(nucleus(q)) = x;
+                math_list(nucleus(q)) = x;
                 x = clean_box(nucleus(q), cur_style);
                 delta = delta + height(x) - h;
                 h = height(x);
@@ -746,7 +746,7 @@ void make_math_accent(pointer q)
             list_ptr(y) = p;
             height(y) = h;
         }
-        vinfo(nucleus(q)) = y;
+        math_list(nucleus(q)) = y;
         math_type(nucleus(q)) = sub_box;
     }
 }
@@ -768,8 +768,8 @@ void make_fraction(pointer q)
        are displaced from the baseline */
     x = clean_box(numerator(q), num_style(cur_style));
     z = clean_box(denominator(q), denom_style(cur_style));
-    vinfo(numerator(q)) = null;
-    vinfo(denominator(q)) = null;
+    math_list(numerator(q)) = null;
+    math_list(denominator(q)) = null;
     if (width(x) < width(z))
         x = rebox(x, width(z));
     else
@@ -880,7 +880,7 @@ scaled make_op(pointer q)
             c = char_remainder(cur_f, cur_c);
             if (char_exists(cur_f, c)) {
                 cur_c = c;
-                mcharacter(nucleus(q)) = c;
+                math_character(nucleus(q)) = c;
             }
         }
         delta = char_italic(cur_f, cur_c);
@@ -890,7 +890,7 @@ scaled make_op(pointer q)
         shift_amount(x) = half(height(x) - depth(x)) - axis_height(cur_size);
         /* center vertically */
         math_type(nucleus(q)) = sub_box;
-        vinfo(nucleus(q)) = x;
+        math_list(nucleus(q)) = x;
     } else {
         delta = 0;
     }
@@ -983,12 +983,12 @@ void make_ord(pointer q)
                 if (p != null)
                     if ((type(p) >= ord_noad) && (type(p) <= punct_noad))
                         if (math_type(nucleus(p)) == math_char)
-                            if (fam(nucleus(p)) == fam(nucleus(q))) {
+                            if (math_fam(nucleus(p)) == math_fam(nucleus(q))) {
                                 math_type(nucleus(q)) = math_text_char;
                                 fetch(nucleus(q));
                                 a = cur_c;
                                 if ((has_kern(cur_f, a)) || (has_lig(cur_f, a))) {
-                                    cur_c = mcharacter(nucleus(p));
+                                    cur_c = math_character(nucleus(p));
                                     /* If character |a| has a kern with |cur_c|, attach
                                        the kern after~|q|; or if it has a ligature with |cur_c|, combine
                                        noads |q| and~|p| appropriately; then |return| if the cursor has
@@ -1007,35 +1007,30 @@ void make_ord(pointer q)
                                             switch (lig_type(lig)) {
                                             case 1:
                                             case 5:
-                                                mcharacter(nucleus(q)) = lig_replacement(lig);  /* \.{=:|}, \.{=:|>} */
+                                                math_character(nucleus(q)) = lig_replacement(lig);  /* \.{=:|}, \.{=:|>} */
                                                 break;
                                             case 2:
                                             case 6:
-                                                mcharacter(nucleus(p)) = lig_replacement(lig);  /* \.{|=:}, \.{|=:>} */
+                                                math_character(nucleus(p)) = lig_replacement(lig);  /* \.{|=:}, \.{|=:>} */
                                                 break;
                                             case 3:
                                             case 7:
                                             case 11:
                                                 r = new_noad(); /* \.{|=:|}, \.{|=:|>}, \.{|=:|>>} */
-                                                mcharacter(nucleus(r)) =
-                                                    lig_replacement(lig);
-                                                fam(nucleus(r)) =
-                                                    fam(nucleus(q));
+                                                math_character(nucleus(r)) = lig_replacement(lig);
+                                                math_fam(nucleus(r)) = math_fam(nucleus(q));
                                                 vlink(q) = r;
                                                 vlink(r) = p;
                                                 if (lig_type(lig) < 11)
-                                                    math_type(nucleus(r)) =
-                                                        math_char;
+                                                    math_type(nucleus(r)) = math_char;
                                                 else
                                                     math_type(nucleus(r)) = math_text_char;     /* prevent combination */
                                                 break;
                                             default:
                                                 vlink(q) = vlink(p);
-                                                mcharacter(nucleus(q)) = lig_replacement(lig);  /* \.{=:} */
-                                                vmem(subscr(q)) =
-                                                    vmem(subscr(p));
-                                                vmem(supscr(q)) =
-                                                    vmem(supscr(p));
+                                                math_character(nucleus(q)) = lig_replacement(lig);  /* \.{=:} */
+                                                math_clone(subscr(q),subscr(p));
+                                                math_clone(supscr(q),subscr(p));
                                                 flush_node(p);
                                                 break;
                                             }
@@ -1340,8 +1335,6 @@ void mlist_to_hlist(void)
             flush_node_list(script_script_mlist(q));
             type(q) = style_node;
             subtype(q) = cur_style;
-            width(q) = 0;
-            depth(q) = 0;
             if (p != null) {
                 z = vlink(q);
                 vlink(q) = p;
@@ -1436,10 +1429,10 @@ void mlist_to_hlist(void)
             p = null;
             break;
         case sub_box:
-            p = vinfo(nucleus(q));
+            p = math_list(nucleus(q));
             break;
         case sub_mlist:
-            cur_mlist = vinfo(nucleus(q));
+            cur_mlist = math_list(nucleus(q));
             save_style = cur_style;
             mlist_penalties = false;
             mlist_to_hlist();   /* recursive call */

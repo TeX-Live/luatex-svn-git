@@ -134,7 +134,7 @@ subfields. If |p| points to a noad, and if |q| is one of its principal
 fields (e.g., |q=subscr(p)|), there are several possibilities for the
 subfields, depending on the |math_type| of |q|.
 
-\yskip\hang|math_type(q)=math_char| means that |fam(q)| refers to one of
+\yskip\hang|math_type(q)=math_char| means that |math_fam(q)| refers to one of
 the sixteen font families, and |character(q)| is the number of a character
 within a font of that family, as in a character node.
 
@@ -147,16 +147,16 @@ corrections.)
 \yskip\hang|math_type(q)=empty| indicates a field with no value (the
 corresponding attribute of noad |p| is not present).
 
-\yskip\hang|math_type(q)=sub_box| means that |vinfo(q)| points to a box
+\yskip\hang|math_type(q)=sub_box| means that |math_list(q)| points to a box
 node (either an |hlist_node| or a |vlist_node|) that should be used as the
 value of the field.  The |shift_amount| in the subsidiary box node is the
 amount by which that box will be shifted downward.
 
-\yskip\hang|math_type(q)=sub_mlist| means that |vinfo(q)| points to
+\yskip\hang|math_type(q)=sub_mlist| means that |math_list(q)| points to
 an mlist; the mlist must be converted to an hlist in order to obtain
 the value of this field.
 
-\yskip\noindent In the latter case, we might have |vinfo(q)=null|. This
+\yskip\noindent In the latter case, we might have |math_list(q)=null|. This
 is not the same as |math_type(q)=empty|; for example, `\.{\$P\_\{\}\$}'
 and `\.{\$P\$}' produce different results (the former will not have the
 ``italic correction'' added to the width of |P|, but the ``script skip''
@@ -230,25 +230,39 @@ be placed at the left and right of the fraction. In this way, a
  \.{\\abovewithdelims}.
 */
 
-   /*  
-      @ The global variable |empty_field| is set up for initialization of empty
-      fields in new noads. Similarly, |null_delimiter| is for the initialization
-      of delimiter fields.
-    */
 
-two_halves empty_field;
-four_quarters null_delimiter;
-
+/* used to initialize a few static variables, not needed anymore */
 void initialize_math(void)
 {
-    empty_field.rh = empty;
-    empty_field.lhfield = null;
-    null_delimiter.b0 = 0;
-    null_delimiter.b1 = min_quarterword;
-    null_delimiter.b2 = 0;
-    null_delimiter.b3 = min_quarterword;
+  return;
 }
 
+/* this is called with a |nucleus|, |subscr|, or |supscr| as argument */
+void math_reset (pointer p)
+{
+  math_list(p) = null;
+  math_type(p) = empty;
+}
+
+void math_clone (pointer x, pointer q) 
+{
+  math_type(x)  = math_type(q);
+  if (math_type(q) == math_char) {
+    math_fam(x) = math_fam(q);
+    math_character(x) = math_character(q);
+  } else {
+    math_list(x) = math_list(q);
+  }
+}
+
+
+/* this is called with a |left_delimiter|  or |right_delimiter| as argument */
+void delimiter_reset (pointer p) {
+  small_fam(p) = 0;
+  small_char(p) = 0;
+  large_fam(p) = 0;
+  large_char(p) = 0;
+}
 
 /* The |new_noad| function creates an |ord_noad| that is completely null */
 
@@ -256,9 +270,7 @@ pointer new_noad(void)
 {
     pointer p;
     p = new_node(ord_noad, normal);
-    vmem(nucleus(p)).hh = empty_field;
-    vmem(subscr(p)).hh = empty_field;
-    vmem(supscr(p)).hh = empty_field;
+    /* all noad fields are zero after this */
     return p;
 }
 
@@ -267,7 +279,7 @@ pointer new_sub_box(pointer cur_box)
     pointer p;
     p = new_noad();
     math_type(nucleus(p)) = sub_box;
-    vinfo(nucleus(p)) = cur_box;
+    math_list(nucleus(p)) = cur_box;
     return p;
 }
 
@@ -275,7 +287,7 @@ pointer new_sub_box(pointer cur_box)
 @ A few more kinds of noads will complete the set: An |under_noad| has its
 nucleus underlined; an |over_noad| has it overlined. An |accent_noad| places
 an accent over its nucleus; the accent character appears as
-|fam(accent_chr(p))| and |mcharacter(accent_chr(p))|. A |vcenter_noad|
+|math_fam(accent_chr(p))| and |math_character(accent_chr(p))|. A |vcenter_noad|
 centers its nucleus vertically with respect to the axis of the formula;
 in such noads we always have |math_type(nucleus(p))=sub_box|.
 
@@ -398,9 +410,9 @@ void show_math_node(pointer p)
 void print_fam_and_char(pointer p)
 {                               /* prints family and character */
     tprint_esc("fam");
-    print_int(fam(p));
+    print_int(math_fam(p));
     print_char(' ');
-    print(mcharacter(p));
+    print(math_character(p));
 }
 
 /* TODO FIX : print 48-bit integer where needed! */
@@ -439,15 +451,15 @@ void print_subsidiary_data(pointer p, ASCII_code c)
             print_fam_and_char(p);
             break;
         case sub_box:
-            show_node_list(vinfo(p));
+            show_node_list(math_list(p));
             break;
         case sub_mlist:
-            if (vinfo(p) == null) {
+            if (math_list(p) == null) {
                 print_ln();
                 print_current_string();
                 print(maketexstring("{}"));
             } else {
-                show_node_list(vinfo(p));
+                show_node_list(math_list(p));
             }
             break;
         default:
@@ -556,16 +568,16 @@ void display_fraction_noad(pointer p)
     else
         print_scaled(thickness(p));
     if ((small_fam(left_delimiter(p)) != 0) ||
-        (small_char(left_delimiter(p)) != min_quarterword) ||
+        (small_char(left_delimiter(p)) != 0) ||
         (large_fam(left_delimiter(p)) != 0) ||
-        (large_char(left_delimiter(p)) != min_quarterword)) {
+        (large_char(left_delimiter(p)) != 0)) {
         tprint(", left-delimiter ");
         print_delimiter(left_delimiter(p));
     }
     if ((small_fam(right_delimiter(p)) != 0) ||
-        (small_char(right_delimiter(p)) != min_quarterword) ||
+        (small_char(right_delimiter(p)) != 0) ||
         (large_fam(right_delimiter(p)) != 0) ||
-        (large_char(right_delimiter(p)) != min_quarterword)) {
+        (large_char(right_delimiter(p)) != 0)) {
         tprint(", right-delimiter ");
         print_delimiter(right_delimiter(p));
     }
@@ -842,8 +854,8 @@ void enter_display_math(void)
             p = par_shape_ptr + 2 * n + 1;
         else
             p = par_shape_ptr + 2 * (prev_graf + 2) + 1;
-        s = vmem(p - 1).cint;
-        l = vmem(p).cint;
+        s = varmem[(p - 1)].cint;
+        l = varmem[p].cint;
     }
 
     push_math(math_shift_group);
@@ -934,11 +946,11 @@ void scan_math(pointer p)
         return;
     }
     math_type(p) = math_char;
-    mcharacter(p) = (c % 0x10000);
+    math_character(p) = (c % 0x10000);
     if ((c >= var_code) && fam_in_range)
-        fam(p) = cur_fam;
+        math_fam(p) = cur_fam;
     else
-        fam(p) = (c / 0x10000) % 0x100;
+        math_fam(p) = (c / 0x10000) % 0x100;
 }
 
 
@@ -962,11 +974,11 @@ void set_math_char(integer c)
     } else {
         p = new_noad();
         math_type(nucleus(p)) = math_char;
-        mcharacter(nucleus(p)) = (c % 0x10000);
-        fam(nucleus(p)) = (c / 0x10000) % 0x100;
+        math_character(nucleus(p)) = (c % 0x10000);
+        math_fam(nucleus(p)) = (c / 0x10000) % 0x100;
         if (c >= var_code) {
             if (fam_in_range)
-                fam(nucleus(p)) = cur_fam;
+                math_fam(nucleus(p)) = cur_fam;
             type(p) = ord_noad;
         } else {
             type(p) = ord_noad + (c / 0x1000000);
@@ -1057,9 +1069,9 @@ void scan_delimiter(pointer p, integer r)
 void math_radical(void)
 {
     tail_append(new_node(radical_noad, normal));
-    vmem(nucleus(tail)).hh = empty_field;
-    vmem(subscr(tail)).hh = empty_field;
-    vmem(supscr(tail)).hh = empty_field;
+    math_reset(nucleus(tail));
+    math_reset(subscr(tail));
+    math_reset(supscr(tail));
     scan_delimiter(left_delimiter(tail), cur_chr + 1);
     scan_math(nucleus(tail));
 }
@@ -1075,19 +1087,19 @@ void math_ac(void)
         tex_error("Please use \\mathaccent for accents in math mode", hlp);
     }
     tail_append(new_node(accent_noad, normal));
-    vmem(nucleus(tail)).hh = empty_field;
-    vmem(subscr(tail)).hh = empty_field;
-    vmem(supscr(tail)).hh = empty_field;
+    math_reset(nucleus(tail));
+    math_reset(subscr(tail));
+    math_reset(supscr(tail));
     math_type(accent_chr(tail)) = math_char;
     if (cur_chr == 0)
         scan_fifteen_bit_int();
     else
         scan_big_fifteen_bit_int();
-    mcharacter(accent_chr(tail)) = (cur_val % 0x1000);
+    math_character(accent_chr(tail)) = (cur_val % 0x1000);
     if ((cur_val >= var_code) && fam_in_range)
-        fam(accent_chr(tail)) = cur_fam;
+        math_fam(accent_chr(tail)) = cur_fam;
     else
-        fam(accent_chr(tail)) = (cur_val / 0x10000) % 0x100;
+        math_fam(accent_chr(tail)) = (cur_val / 0x10000) % 0x100;
     scan_math(nucleus(tail));
 }
 
@@ -1097,7 +1109,7 @@ pointer math_vcenter_group(pointer p)
     q = new_noad();
     type(q) = vcenter_noad;
     math_type(nucleus(q)) = sub_box;
-    vinfo(nucleus(q)) = p;
+    math_list(nucleus(q)) = p;
     return q;
 }
 
@@ -1210,10 +1222,11 @@ void math_fraction(void)
     } else {
         incompleat_noad = new_node(fraction_noad, normal);
         math_type(numerator(incompleat_noad)) = sub_mlist;
-        vinfo(numerator(incompleat_noad)) = vlink(head);
-        vmem(denominator(incompleat_noad)).hh = empty_field;
-        vmem(left_delimiter(incompleat_noad)).qqqq = null_delimiter;
-        vmem(right_delimiter(incompleat_noad)).qqqq = null_delimiter;
+        math_list(numerator(incompleat_noad)) = vlink(head);
+        math_type(denominator(incompleat_noad))= empty;
+        math_list(denominator(incompleat_noad))= null;
+        delimiter_reset(left_delimiter(incompleat_noad));
+        delimiter_reset(right_delimiter(incompleat_noad));
         vlink(head) = null;
         tail = head;
 
@@ -1251,14 +1264,14 @@ pointer fin_mlist(pointer p)
     pointer q;                  /* the mlist to return */
     if (incompleat_noad != null) {
         math_type(denominator(incompleat_noad)) = sub_mlist;
-        vinfo(denominator(incompleat_noad)) = vlink(head);
+        math_list(denominator(incompleat_noad)) = vlink(head);
         if (p == null) {
             q = incompleat_noad;
         } else {
-            q = vinfo(numerator(incompleat_noad));
+            q = math_list(numerator(incompleat_noad));
             if ((type(q) != left_noad) || (delim_ptr == null))
                 tconfusion("right");    /* this can't happen */
-            vinfo(numerator(incompleat_noad)) = vlink(delim_ptr);
+            math_list(numerator(incompleat_noad)) = vlink(delim_ptr);
             vlink(delim_ptr) = incompleat_noad;
             vlink(incompleat_noad) = p;
         }
@@ -1285,31 +1298,32 @@ void close_math_group(pointer p)
     decr(save_ptr);
     math_type(saved(0)) = sub_mlist;
     p = fin_mlist(null);
-    vinfo(saved(0)) = p;
+    math_list(saved(0)) = p;
     if (p != null) {
-        if (vlink(p) == null) {
-            if (type(p) == ord_noad) {
-                if (math_type(subscr(p)) == empty) {
-                    if (math_type(supscr(p)) == empty) {
-                        vmem(saved(0)).hh = vmem(nucleus(p)).hh;
-                        flush_node(p);
-                    }
-                }
-            }
-        } else {
-            if (type(p) == accent_noad) {
-                if (saved(0) == nucleus(tail)) {
-                    if (type(tail) == ord_noad) {
-                        q = head;
-                        while (vlink(q) != tail)
-                            q = vlink(q);
-                        vlink(q) = p;
-                        flush_node(tail);
-                        tail = p;
-                    }
-                }
-            }
+      if (vlink(p) == null) {
+        if (type(p) == ord_noad) {
+          if (math_type(subscr(p)) == empty &&
+              math_type(supscr(p)) == empty) {
+            math_type(saved(0))      = math_type(nucleus(p));
+            math_fam(saved(0))       = math_fam(nucleus(p));
+            math_character(saved(0)) = math_character(nucleus(p));
+            flush_node(p);
+          }
         }
+      } else {
+        if (type(p) == accent_noad) {
+          if (saved(0) == nucleus(tail)) {
+            if (type(tail) == ord_noad) {
+              q = head;
+              while (vlink(q) != tail)
+                q = vlink(q);
+              vlink(q) = p;
+              flush_node(tail);
+              tail = p;
+            }
+          }
+        }
+      }
     }
 }
 
@@ -1368,7 +1382,7 @@ void math_left_right(void)
             tail_append(new_noad());
             type(tail) = inner_noad;
             math_type(nucleus(tail)) = sub_mlist;
-            vinfo(nucleus(tail)) = q;
+            math_list(nucleus(tail)) = q;
         }
     }
 }

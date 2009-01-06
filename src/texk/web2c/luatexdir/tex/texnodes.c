@@ -24,7 +24,7 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-#define MAX_CHAIN_SIZE 12
+#define MAX_CHAIN_SIZE 13
 
 volatile memory_word *varmem = NULL;
 
@@ -918,7 +918,7 @@ void flush_node(halfword p)
     case adjust_node:
         flush_node_list(adjust_ptr(p));
         break;
-    case style_node:
+    case style_node: /* nothing to do */
         break;
     case choice_node:
         flush_node_list(display_mlist(p));
@@ -939,23 +939,22 @@ void flush_node(halfword p)
     case under_noad:
     case vcenter_noad:
     case accent_noad:
-
-        /*
-         * if (math_type(nucleus(p))>=sub_box)
-         *  flush_node_list(vinfo(nucleus(p)));
-         * if (math_type(supscr(p))>=sub_box)
-         *  flush_node_list(vinfo(supscr(p)));
-         * if (math_type(subscr(p))>=sub_box)
-         *  flush_node_list(vinfo(subscr(p)));
-         */
-
-        break;
-    case left_noad:
+      /* TODO still leaks, but uncommenting crashes */
+      /*
+       * if (math_type(nucleus(p))==sub_mlist)
+       *   flush_node_list(math_list(nucleus(p)));
+       * if (math_type(subscr(p))==sub_mlist)
+       *   flush_node_list(math_list(subscr(p)));
+       * if (math_type(supscr(p))==sub_mlist)
+       *   flush_node_list(math_list(supscr(p)));
+       */
+      break;
+    case left_noad:  /* nothing to do */
     case right_noad:
         break;
     case fraction_noad:
-        flush_node_list(vinfo(numerator(p)));
-        flush_node_list(vinfo(denominator(p)));
+        flush_node_list(math_list(numerator(p)));
+        flush_node_list(math_list(denominator(p)));
         break;
     case pseudo_file_node:
         flush_node_list(pseudo_lines(p));
@@ -1594,7 +1593,7 @@ halfword list_node_mem_usage(void)
     return q;
 }
 
-void print_node_mem_stats(int num, int online)
+void print_node_mem_stats(int tracingstats, int tracingonline)
 {
     int i, b;
     halfword j;

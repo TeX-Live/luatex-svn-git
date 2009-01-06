@@ -37,25 +37,12 @@ extern void math_left_brace(void);
 extern void finish_display_alignment(halfword, halfword, memory_word);
 extern halfword new_sub_box(halfword);
 
-#  define display_style 0       /* |subtype| for \.{\\displaystyle} */
-#  define text_style 2          /* |subtype| for \.{\\textstyle} */
-#  define script_style 4        /* |subtype| for \.{\\scriptstyle} */
-#  define script_script_style 6 /* |subtype| for \.{\\scriptscriptstyle} */
-#  define cramped 1             /* add this to an uncramped style if you want to cramp it */
+extern void math_reset (pointer);
+extern void math_clone (pointer, pointer);
 
-#  define accent_chr(A) (A)+5   /* the |accent_chr| field of an accent noad */
-#  define delimiter nucleus     /* |delimiter| field in left and right noads */
 #  define scripts_allowed(A) (type((A))>=ord_noad)&&(type((A))<left_noad)
 
-#  define left_delimiter(A) (A)+5
-                                /* first delimiter field of a noad */
-#  define right_delimiter(A) (A)+6      /* second delimiter field of a fraction noad */
-#  define thickness(A) vmem((A)+2).cint /* |thickness| field in a fraction noad */
 #  define default_code 010000000000     /* denotes |default_rule_thickness| */
-#  define numerator supscr      /* |numerator| field in a fraction noad */
-#  define denominator subscr    /* |denominator| field in a fraction noad */
-
-extern two_halves empty_field;
 
 #  define limits 1              /* |subtype| of |op_noad| whose scripts are to be above, below */
 #  define no_limits 2           /* |subtype| of |op_noad| whose scripts are to be normal */
@@ -85,8 +72,6 @@ extern pointer cur_mlist;
 extern integer cur_style;
 extern boolean mlist_penalties;
 extern integer cur_size;
-
-#  define mcharacter(A) subtype((A))
 
 /*
 @ Before an mlist is converted to an hlist, \TeX\ makes sure that
@@ -136,6 +121,7 @@ omitted (since it is always |cur_size| when we refer to such parameters).
 #  define big_op_spacing4 mathex(12)    /* minimum baselineskip below displayed op */
 #  define big_op_spacing5 mathex(13)    /* padding above and below displayed limits */
 
+
 /*
   @ We also need to compute the change in style between mlists and their
   subsidiaries. The following macros define the subsidiary style for
@@ -143,6 +129,16 @@ omitted (since it is always |cur_size| when we refer to such parameters).
   (|sub_style| or |sup_style|), or for a numerator or denominator (|num_style|
   or |denom_style|).
 */
+
+typedef enum {
+  display_style = 0,       /* |subtype| for \.{\\displaystyle} */
+  text_style = 2,          /* |subtype| for \.{\\textstyle} */
+  script_style = 4,        /* |subtype| for \.{\\scriptstyle} */
+  script_script_style = 6, /* |subtype| for \.{\\scriptscriptstyle} */
+} math_style_subtypes;
+
+#  define cramped 1             /* add this to an uncramped style if you want to cramp it */
+
 
 #  define cramped_style(A) 2*((A)/2)+cramped    /* cramp the style */
 #  define sub_style(A) 2*((A)/4)+script_style+cramped   /* smaller and cramped */
@@ -163,14 +159,5 @@ void mlist_to_hlist(void);
 
 #  define null_font 0
 #  define min_quarterword 0
-
-#  define vmem(A) varmem[(A)]
-
-#  define small_fam(A) vmem((A)).qqqq.b0/* |fam| for ``small'' delimiter */
-#  define small_char(A) vmem((A)).qqqq.b1
-                                        /* |character| for ``small'' delimiter */
-#  define large_fam(A) vmem((A)).qqqq.b2/* |fam| for ``large'' delimiter */
-#  define large_char(A) vmem((A)).qqqq.b3
-                                        /* |character| for ``large'' delimiter */
 
 #endif
