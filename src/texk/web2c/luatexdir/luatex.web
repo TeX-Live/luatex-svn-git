@@ -14555,10 +14555,10 @@ and |z1-down1=x1-right1|.
 @d dvi_set_rule(#)==dvi_out(set_rule); dvi_four(#); dvi_set_rule_end
 @d dvi_put_rule_end(#)==dvi_four(#)
 @d dvi_put_rule(#)==dvi_out(put_rule); dvi_four(#); dvi_put_rule_end
-@d dvi_right(#)==dvi_out(right4); dvi_four(#);
-@d dvi_left(#)==dvi_out(right4); dvi_four(-#);
-@d dvi_down(#)==dvi_out(down4); dvi_four(#);
-@d dvi_up(#)==dvi_out(down4); dvi_four(-#);
+@d dvi_right(#)==begin dvi_out(right4); dvi_four(#); end
+@d dvi_left(#)==begin dvi_out(right4); dvi_four(-(#)); end
+@d dvi_down(#)==begin dvi_out(down4); dvi_four(#); end
+@d dvi_up(#)==begin dvi_out(down4); dvi_four(-(#)); end
 
 @p procedure movement(@!w:scaled;@!o:eight_bits);
 label exit,found,not_found,2,1;
