@@ -2044,3 +2044,22 @@ integer output_pages_tree()
     d = get_divert_list(0);     /* get diversion 0 */
     return output_pages_list(d->first);
 }
+
+
+#ifdef MSVC
+
+#include <math.h>
+double rint(double x)
+{
+  double c, f, d1, d2;
+
+  c = ceil(x);
+  f = floor(x);
+  d1 = fabs(c-x);
+  d2 = fabs(x-f);
+  if(d1 > d2) return f;
+  else return c;
+}
+
+#endif
+
