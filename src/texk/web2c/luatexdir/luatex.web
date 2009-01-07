@@ -16944,7 +16944,6 @@ procedure pdf_set_rule(x, y, w, h: scaled); {draw a rule}
 begin
     pdf_end_text;
     pdf_print_ln("q");
-    {
     if h <= one_bp then begin
         pdf_set_origin_temp(x, y - (h + 1)/2);
         pdf_print("[]0 d 0 J ");
@@ -16952,13 +16951,12 @@ begin
         pdf_print_bp(w); pdf_print_ln(" 0 l S");
     end
     else if w <= one_bp then begin
-        pdf_set_origin_temp(x + (w + 1)/2, cur_v);
+        pdf_set_origin_temp(x + (w + 1)/2, y);
         pdf_print("[]0 d 0 J ");
         pdf_print_bp(w); pdf_print(" w 0 0 m 0 ");
         pdf_print_bp(h); pdf_print_ln(" l S");
     end
-    else
-    } begin
+    else begin
         pdf_set_origin_temp(x, y);
         pdf_print("0 0 ");
         pdf_print_bp(w); pdf_out(" ");
