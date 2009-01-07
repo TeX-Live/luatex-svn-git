@@ -36,8 +36,6 @@ static const char _svn_version[] =
 #define space_factor  aux.hh.lhfield
 #define incompleat_noad aux.cint
 
-#define max_dimen 07777777777
-
 #define delimiter_factor     int_par(param_delimiter_factor_code)
 #define delimiter_shortfall  dimen_par(param_delimiter_shortfall_code)
 #define bin_op_penalty       int_par(param_bin_op_penalty_code)
@@ -52,7 +50,7 @@ In order to convert mlists to hlists, i.e., noads to nodes, we need several
 subroutines that are conveniently dealt with now.
 
 Let us first introduce the macros that make it easy to get at the parameters and
-other font information. A size code, which is a multiple of 16, is added to a
+other font information. A size code, which is a multiple of 256, is added to a
 family number to get an index into the table of internal font numbers
 for each combination of family and size.  (Be alert: Size codes get
 larger as the type gets smaller.)
@@ -217,7 +215,7 @@ pointer var_delimiter(pointer d, integer s, scaled v)
                                 c = y;
                                 goto FOUND;
                             }
-                            u = char_height(g, y) + char_depth(g, y);
+                            u = height_plus_depth(g, y);
                             if (u > w) {
                                 f = g;
                                 c = y;
@@ -360,20 +358,18 @@ pointer rebox(pointer b, scaled w)
 one that is expressed in `\.{mu}', given the value of the math unit.
 */
 
-#define nx_plus_y(A,B,C) mult_and_add((A),(B),(C),07777777777)
-
-#define mu_mult(A) nx_plus_y(n,A,xn_over_d(A,f,0200000))
+#define mu_mult(A) mult_and_add(n,(A),xn_over_d((A),f,unity),max_dimen)
 
 pointer math_glue(pointer g, scaled m)
 {
     pointer p;                  /* the new glue specification */
     integer n;                  /* integer part of |m| */
     scaled f;                   /* fraction part of |m| */
-    n = x_over_n(m, 0200000);
+    n = x_over_n(m, unity);
     f = tex_remainder;
     if (f < 0) {
         decr(n);
-        f = f + 0200000;
+        f = f + unity;
     }
     p = new_node(glue_spec_node, 0);
     width(p) = mu_mult(width(g));       /* convert \.{mu} to \.{pt} */
@@ -400,11 +396,11 @@ void math_kern(pointer p, scaled m)
     integer n;                  /* integer part of |m| */
     scaled f;                   /* fraction part of |m| */
     if (subtype(p) == mu_glue) {
-        n = x_over_n(m, 0200000);
+        n = x_over_n(m, unity);
         f = tex_remainder;
         if (f < 0) {
             decr(n);
-            f = f + 0200000;
+            f = f + unity;
         }
         width(p) = mu_mult(width(p));
         subtype(p) = explicit;
@@ -977,84 +973,84 @@ void make_ord(pointer q)
     scaled k;                   /* a kern */
     liginfo lig;                /* a ligature */
   RESTART:
-    if (math_type(subscr(q)) == empty)
-        if (math_type(supscr(q)) == empty)
-            if (math_type(nucleus(q)) == math_char) {
-                p = vlink(q);
-                if (p != null)
-                    if ((type(p) >= ord_noad) && (type(p) <= punct_noad))
-                        if (math_type(nucleus(p)) == math_char)
-                            if (math_fam(nucleus(p)) == math_fam(nucleus(q))) {
-                                math_type(nucleus(q)) = math_text_char;
-                                fetch(nucleus(q));
-                                a = cur_c;
-                                if ((has_kern(cur_f, a)) || (has_lig(cur_f, a))) {
-                                    cur_c = math_character(nucleus(p));
-                                    /* If character |a| has a kern with |cur_c|, attach
-                                       the kern after~|q|; or if it has a ligature with |cur_c|, combine
-                                       noads |q| and~|p| appropriately; then |return| if the cursor has
-                                       moved past a noad, or |goto restart| */
+    if (math_type(subscr(q)) == empty &&
+        math_type(supscr(q)) == empty &&
+        math_type(nucleus(q)) == math_char) {
+      p = vlink(q);
+      if ((p != null) &&
+          (type(p) >= ord_noad) && (type(p) <= punct_noad) &&
+          (math_type(nucleus(p)) == math_char) &&
+          (math_fam(nucleus(p)) == math_fam(nucleus(q)))) {
+        math_type(nucleus(q)) = math_text_char;
+        fetch(nucleus(q));
+        a = cur_c;
+        if ((has_kern(cur_f, a)) || (has_lig(cur_f, a))) {
+          cur_c = math_character(nucleus(p));
+          /* If character |a| has a kern with |cur_c|, attach
+             the kern after~|q|; or if it has a ligature with |cur_c|, combine
+             noads |q| and~|p| appropriately; then |return| if the cursor has
+             moved past a noad, or |goto restart| */
 
-                                    /* Note that a ligature between an |ord_noad| and another kind of noad
-                                       is replaced by an |ord_noad|, when the two noads collapse into one.
-                                       But we could make a parenthesis (say) change shape when it follows
-                                       certain letters. Presumably a font designer will define such
-                                       ligatures only when this convention makes sense. */
+          /* Note that a ligature between an |ord_noad| and another kind of noad
+             is replaced by an |ord_noad|, when the two noads collapse into one.
+             But we could make a parenthesis (say) change shape when it follows
+             certain letters. Presumably a font designer will define such
+             ligatures only when this convention makes sense. */
 
-                                    if (disable_lig == 0 && has_lig(cur_f, a)) {
-                                        lig = get_ligature(cur_f, a, cur_c);
-                                        if (is_valid_ligature(lig)) {
-                                            check_interrupt();  /* allow a way out of infinite ligature loop */
-                                            switch (lig_type(lig)) {
-                                            case 1:
-                                            case 5:
-                                                math_character(nucleus(q)) = lig_replacement(lig);  /* \.{=:|}, \.{=:|>} */
-                                                break;
-                                            case 2:
-                                            case 6:
-                                                math_character(nucleus(p)) = lig_replacement(lig);  /* \.{|=:}, \.{|=:>} */
-                                                break;
-                                            case 3:
-                                            case 7:
-                                            case 11:
-                                                r = new_noad(); /* \.{|=:|}, \.{|=:|>}, \.{|=:|>>} */
-                                                math_character(nucleus(r)) = lig_replacement(lig);
-                                                math_fam(nucleus(r)) = math_fam(nucleus(q));
-                                                vlink(q) = r;
-                                                vlink(r) = p;
-                                                if (lig_type(lig) < 11)
-                                                    math_type(nucleus(r)) = math_char;
-                                                else
-                                                    math_type(nucleus(r)) = math_text_char;     /* prevent combination */
-                                                break;
-                                            default:
-                                                vlink(q) = vlink(p);
-                                                math_character(nucleus(q)) = lig_replacement(lig);  /* \.{=:} */
-                                                math_clone(subscr(q),subscr(p));
-                                                math_clone(supscr(q),subscr(p));
-                                                math_reset(subscr(p)); /* just in case */
-                                                math_reset(supscr(p));
-                                                flush_node(p);
-                                                break;
-                                            }
-                                            if (lig_type(lig) > 3)
-                                                return;
-                                            math_type(nucleus(q)) = math_char;
-                                            goto RESTART;
-                                        }
-                                    }
-                                    if (disable_kern == 0 && has_kern(cur_f, a)) {
-                                        k = get_kern(cur_f, a, cur_c);
-                                        if (k != 0) {
-                                            p = new_kern(k);
-                                            vlink(p) = vlink(q);
-                                            vlink(q) = p;
-                                            return;
-                                        }
-                                    }
-                                }
-                            }
+          if (disable_lig == 0 && has_lig(cur_f, a)) {
+            lig = get_ligature(cur_f, a, cur_c);
+            if (is_valid_ligature(lig)) {
+              check_interrupt();  /* allow a way out of infinite ligature loop */
+              switch (lig_type(lig)) {
+              case 1:
+              case 5:
+                math_character(nucleus(q)) = lig_replacement(lig);  /* \.{=:|}, \.{=:|>} */
+                break;
+              case 2:
+              case 6:
+                math_character(nucleus(p)) = lig_replacement(lig);  /* \.{|=:}, \.{|=:>} */
+                break;
+              case 3:
+              case 7:
+              case 11:
+                r = new_noad(); /* \.{|=:|}, \.{|=:|>}, \.{|=:|>>} */
+                math_character(nucleus(r)) = lig_replacement(lig);
+                math_fam(nucleus(r)) = math_fam(nucleus(q));
+                vlink(q) = r;
+                vlink(r) = p;
+                if (lig_type(lig) < 11)
+                  math_type(nucleus(r)) = math_char;
+                else
+                  math_type(nucleus(r)) = math_text_char;     /* prevent combination */
+                break;
+              default:
+                vlink(q) = vlink(p);
+                math_character(nucleus(q)) = lig_replacement(lig);  /* \.{=:} */
+                math_clone(subscr(q),subscr(p));
+                math_clone(supscr(q),subscr(p));
+                math_reset(subscr(p)); /* just in case */
+                math_reset(supscr(p));
+                flush_node(p);
+                break;
+              }
+              if (lig_type(lig) > 3)
+                return;
+              math_type(nucleus(q)) = math_char;
+              goto RESTART;
             }
+          }
+          if (disable_kern == 0 && has_kern(cur_f, a)) {
+            k = get_kern(cur_f, a, cur_c);
+            if (k != 0) {
+              p = new_kern(k);
+              vlink(p) = vlink(q);
+              vlink(q) = p;
+              return;
+            }
+          }
+        }
+      }
+    }
 }
 
 
@@ -1566,25 +1562,16 @@ void mlist_to_hlist(void)
                 x = 0;
                 break;
             case '1':
-                if (cur_style < script_style)
-                    x = param_thin_mu_skip_code;
-                else
-                    x = 0;
+                x = (cur_style < script_style ? param_thin_mu_skip_code : 0 );
                 break;
             case '2':
                 x = param_thin_mu_skip_code;
                 break;
             case '3':
-                if (cur_style < script_style)
-                    x = param_med_mu_skip_code;
-                else
-                    x = 0;
+                x = (cur_style < script_style ? param_med_mu_skip_code : 0 );
                 break;
             case '4':
-                if (cur_style < script_style)
-                    x = param_thick_mu_skip_code;
-                else
-                    x = 0;
+                x = (cur_style < script_style ? param_thick_mu_skip_code : 0);
                 break;
             default:
                 confusion(maketexstring("mlist4"));     /* this can't happen mlist4 */
@@ -1611,17 +1598,17 @@ void mlist_to_hlist(void)
                 p = vlink(p);
             } while (vlink(p) != null);
         }
-        if (penalties)
-            if (vlink(q) != null)
-                if (pen < inf_penalty) {
-                    r_type = type(vlink(q));
-                    if (r_type != penalty_node)
-                        if (r_type != rel_noad) {
-                            z = new_penalty(pen);
-                            vlink(p) = z;
-                            p = z;
-                        }
-                }
+        if (penalties && 
+            vlink(q) != null && 
+            pen < inf_penalty) {
+          r_type = type(vlink(q));
+          if (r_type != penalty_node &&
+              r_type != rel_noad) {
+            z = new_penalty(pen);
+            vlink(p) = z;
+            p = z;
+          }
+        }
         if (type(q) == right_noad)
             t = open_noad;
         r_type = t;
@@ -1636,7 +1623,7 @@ void mlist_to_hlist(void)
            node and noad types.
          */
         if (nodetype_has_attributes(type(r)))
-           delete_attribute_ref(node_attr(r));
+          delete_attribute_ref(node_attr(r));
         free_node(r, get_node_size(type(r), subtype(r)));
     }
 }

@@ -48,6 +48,7 @@ extern void set_disc_field(halfword f, halfword t);
 
 
 #  define max_halfword  0x3FFFFFFF
+#  define max_dimen     0x3FFFFFFF
 #  ifndef null
 #    define null         0
 #  endif

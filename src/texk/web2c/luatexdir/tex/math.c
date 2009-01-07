@@ -39,7 +39,6 @@ static const char _svn_version[] =
 #define space_factor  aux.hh.lhfield
 #define incompleat_noad aux.cint
 
-#define max_dimen 07777777777
 #define stretching 1
 #define shrinking 2
 
