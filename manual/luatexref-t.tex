@@ -6361,28 +6361,8 @@ Valid fields: \showfields{whatsit,dir}
 \NC dir_h     \NC number  \NC a saved dvi position\NC\NR
 \stoptabulate
 
-A note on \type{dir} strings. There is a grand total of 32 different
-possible direction strings, as follows:
-
-\starttabulate[|Tc|c|c|c|]
-\NC \ssbf number \NC \bf meaning \NC \bf number \NC \bf meaning \NC\NR
-\NC 0            \NC TLT         \NC 16         \NC BLT     \NC\NR
-\NC 1            \NC TLL         \NC 17         \NC BLL     \NC\NR
-\NC 2            \NC TLB         \NC 18         \NC BLB     \NC\NR
-\NC 3            \NC TLR         \NC 19         \NC BLR     \NC\NR
-\NC 4            \NC TRT         \NC 20         \NC BRT     \NC\NR
-\NC 5            \NC TRL         \NC 21         \NC BRL     \NC\NR
-\NC 6            \NC TRB         \NC 22         \NC BRB     \NC\NR
-\NC 7            \NC TRR         \NC 23         \NC BRR     \NC\NR
-\NC 8            \NC LTT         \NC 24         \NC RTT     \NC\NR
-\NC 9            \NC LTL         \NC 25         \NC RTL     \NC\NR
-\NC 10           \NC LTB         \NC 26         \NC RTB     \NC\NR
-\NC 11           \NC LTR         \NC 27         \NC RTR     \NC\NR
-\NC 12           \NC LBT         \NC 28         \NC RBT     \NC\NR
-\NC 13           \NC LBL         \NC 29         \NC RBL     \NC\NR
-\NC 14           \NC LBB         \NC 30         \NC RBB     \NC\NR
-\NC 15           \NC LBR         \NC 31         \NC RBR     \NC\NR
-\stoptabulate
+A note on \type{dir} strings. Direction specifiers are three-letter
+combinations of  \type{T}, \type{B},  \type{R}, and \type{L}.
 
 These are built up out of three separate items:
 \startitemize
@@ -6393,7 +6373,7 @@ These are built up out of three separate items:
 
 Each of the three items can have 4 separate values, but the directions
 of the first and second items always have to be perpendicular to
-each other, which limits the total to 32.
+each other, which limits the total to 16.
 
 Inside actual \type{dir} whatsit nodes, the representation of
 \type{dir} is not a three-letter but a four-letter combination. The
