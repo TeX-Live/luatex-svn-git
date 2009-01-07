@@ -932,8 +932,6 @@ print_feasible_break(halfword cur_p, pointer r, halfword b, integer pi,
 #define total_font_stretch cur_active_width[8]
 #define total_font_shrink cur_active_width[9]
 
-#define max_dimen 07777777777   /* $2^{30}-1$ */
-
 #define left_side 0
 #define right_side 1
 
