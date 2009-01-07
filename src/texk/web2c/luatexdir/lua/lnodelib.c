@@ -2651,9 +2651,9 @@ static int lua_nodelib_protect_glyphs(lua_State * L)
     while (head != null) {
         if (type(head) == glyph_node) {
             register int s = subtype(head);
-            if (s < 256) {
+            if (s <= 256) {
                 t = 1;
-                subtype(head) = ((s & 0xFE) << 8);
+                subtype(head) = (s==1 ? 256 : 256+s);
             }
         }
         head = vlink(head);
@@ -2670,9 +2670,9 @@ static int lua_nodelib_unprotect_glyphs(lua_State * L)
     while (head != null) {
         if (type(head) == glyph_node) {
             register int s = subtype(head);
-            if (s >= 256) {
+            if (s > 256) {
                 t = 1;
-                subtype(head) = (s >> 8);
+                subtype(head) = s - 256;
             }
         }
         head = vlink(head);
