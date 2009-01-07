@@ -10378,6 +10378,7 @@ if dir_parallel(d1)(d2) then begin
   goto exit;
   end;
 scan_single_dir(d3);
+@<Scan an optional space@>;
 cur_val:=d1*8+dir_rearrange[d2]*4+d3;
 exit:
 end;
