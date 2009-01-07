@@ -33,6 +33,8 @@ extern int nosocket_option;
 int luastate_max = 0;
 int luastate_bytes = 0;
 
+int lua_active = 0;
+
 void make_table(lua_State * L, char *tab, char *getfunc, char *setfunc)
 {
     /* make the table *//* [{<tex>}] */
@@ -287,6 +289,7 @@ void luacall(int n, int p, int nameptr)
         luainterpreter(n);
     }
     l = 0;
+    lua_active ++;
     s = tokenlist_to_cstring(p, 1, &l);
     ls.s = s;
     ls.size = l;
@@ -318,6 +321,7 @@ void luacall(int n, int p, int nameptr)
         }
         xfree(lua_id);
     }
+    lua_active --;
 }
 
 void luatokencall(int n, int p, int nameptr)
@@ -330,6 +334,7 @@ void luatokencall(int n, int p, int nameptr)
         luainterpreter(n);
     }
     l = 0;
+    lua_active ++;
     s = tokenlist_to_cstring(p, 1, &l);
     ls.s = s;
     ls.size = l;
@@ -360,6 +365,7 @@ void luatokencall(int n, int p, int nameptr)
         }
         xfree(lua_id);
     }
+    lua_active --;
 }
 
 

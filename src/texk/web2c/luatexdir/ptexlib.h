@@ -691,6 +691,7 @@ typedef enum {
 } callback_callback_types;
 
 extern int callback_set[];
+extern int lua_active;
 
 #  define callback_defined(a) callback_set[a]
 
