@@ -585,7 +585,8 @@ The second pass eliminates all noads and inserts the correct glue and
 penalties between nodes.
 */
 
-#define new_hlist(A) vlink(nucleus((A)))   /* the translation of an mlist */
+#define new_hlist(A) vinfo(nucleus((A)))   /* the translation of an mlist. has to be a different node 
+                                              location than |math_list|! */
 #define choose_mlist(A) do { p=A(q); A(q)=null; } while (0)
 
 /*
@@ -1031,6 +1032,8 @@ void make_ord(pointer q)
                                                 math_character(nucleus(q)) = lig_replacement(lig);  /* \.{=:} */
                                                 math_clone(subscr(q),subscr(p));
                                                 math_clone(supscr(q),subscr(p));
+                                                math_reset(subscr(p)); /* just in case */
+                                                math_reset(supscr(p));
                                                 flush_node(p);
                                                 break;
                                             }
@@ -1245,6 +1248,7 @@ void mlist_to_hlist(void)
     x = null;
     p = null;
     setup_cur_size_and_mu();
+ NEXT_NODE:
     while (q != null) {
         /* We use the fact that no character nodes appear in an mlist, hence
            the field |type(q)| is always present. */
@@ -1550,7 +1554,7 @@ void mlist_to_hlist(void)
             p = q;
             q = vlink(q);
             vlink(p) = null;
-            goto DONE;
+            goto NEXT_NODE;
             break;
         default:
             confusion(maketexstring("mlist3")); /* this can't happen mlist3 */
@@ -1624,8 +1628,15 @@ void mlist_to_hlist(void)
       DELETE_Q:
         r = q;
         q = vlink(q);
-        flush_node(r);          /* |r| had better be a noad-like thing */
-      DONE:
-        assert(1);              /* silly, but warning otherwise */
+        /* The m-to-hlist conversion takes place in-place, 
+           so the various dependant fields may not be freed 
+           (as would happen if |flush_node| was called).
+           A low-level |free_node| is easier than attempting
+           to nullify such dependant fields for all possible
+           node and noad types.
+         */
+        if (nodetype_has_attributes(type(r)))
+           delete_attribute_ref(node_attr(r));
+        free_node(r, get_node_size(type(r), subtype(r)));
     }
 }

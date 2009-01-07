@@ -1304,9 +1304,8 @@ void close_math_group(pointer p)
         if (type(p) == ord_noad) {
           if (math_type(subscr(p)) == empty &&
               math_type(supscr(p)) == empty) {
-            math_type(saved(0))      = math_type(nucleus(p));
-            math_fam(saved(0))       = math_fam(nucleus(p));
-            math_character(saved(0)) = math_character(nucleus(p));
+            math_clone(saved(0),nucleus(p));
+            math_reset(nucleus(tail)); /* just in case */
             flush_node(p);
           }
         }
@@ -1318,6 +1317,9 @@ void close_math_group(pointer p)
               while (vlink(q) != tail)
                 q = vlink(q);
               vlink(q) = p;
+              math_reset(nucleus(tail)); /* just in case */
+              math_reset(subscr(tail));
+              math_reset(supscr(tail));
               flush_node(tail);
               tail = p;
             }

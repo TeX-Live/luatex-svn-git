@@ -490,6 +490,11 @@ typedef enum {
     user_defined_node           /* 44 */
 } whatsit_types;
 
+
+#define  get_node_size(i,j) (i!=whatsit_node ? node_data[i].size : whatsit_node_data[j].size)
+#define  get_node_name(i,j) (i!=whatsit_node ? node_data[i].name : whatsit_node_data[j].name)
+
+
 #  define pdf_info_code pdf_thread_data_node
 #  define pdf_catalog_code  pdf_link_data_node
 

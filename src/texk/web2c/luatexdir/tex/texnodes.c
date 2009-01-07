@@ -299,9 +299,6 @@ node_info whatsit_node_data[] = {
 
 #define last_whatsit_node user_defined_node
 
-#define  get_node_size(i,j) (i!=whatsit_node ? node_data[i].size : whatsit_node_data[j].size)
-#define  get_node_name(i,j) (i!=whatsit_node ? node_data[i].name : whatsit_node_data[j].name)
-
 halfword new_node(int i, int j)
 {
     register int s;
@@ -396,6 +393,9 @@ halfword new_node(int i, int j)
     }
     type(n) = i;
     subtype(n) = j;
+#ifdef DEBUG
+    fprintf(stderr, "Alloc-ing %s node %d\n", get_node_name(type(n), subtype(n)), (int) n);
+#endif
     return n;
 }
 
@@ -779,6 +779,9 @@ void flush_node(halfword p)
     if (p == null)              /* legal, but no-op */
         return;
 
+#ifdef DEBUG
+    fprintf(stderr, "Free-ing %s node %d\n", get_node_name(type(p), subtype(p)), (int) p);
+#endif
     if (free_error(p))
         return;
 
@@ -939,15 +942,12 @@ void flush_node(halfword p)
     case under_noad:
     case vcenter_noad:
     case accent_noad:
-      /* TODO still leaks, but uncommenting crashes */
-      /*
-       * if (math_type(nucleus(p))==sub_mlist)
-       *   flush_node_list(math_list(nucleus(p)));
-       * if (math_type(subscr(p))==sub_mlist)
-       *   flush_node_list(math_list(subscr(p)));
-       * if (math_type(supscr(p))==sub_mlist)
-       *   flush_node_list(math_list(supscr(p)));
-       */
+      if (math_type(nucleus(p))==sub_mlist)
+        flush_node_list(math_list(nucleus(p)));
+      if (math_type(subscr(p))==sub_mlist)
+        flush_node_list(math_list(subscr(p)));
+      if (math_type(supscr(p))==sub_mlist)
+        flush_node_list(math_list(supscr(p)));
       break;
     case left_noad:  /* nothing to do */
     case right_noad:
