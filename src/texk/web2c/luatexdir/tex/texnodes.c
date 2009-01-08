@@ -2019,16 +2019,16 @@ void show_pdftex_whatsit_rule_spec (integer p) {
 void show_whatsit_node (integer p) {
   switch (subtype(p)) {
   case open_node: 
-    print_write_whatsit("openout",p);
+    print_write_whatsit(maketexstring("openout"),p);
     print_char('='); 
     print_file_name(open_name(p),open_area(p),open_ext(p));
     break;
   case write_node:
-    print_write_whatsit("write",p);
+    print_write_whatsit(maketexstring("write"),p);
     print_mark(write_tokens(p));
     break;
   case close_node:
-    print_write_whatsit("closeout",p);
+    print_write_whatsit(maketexstring("closeout"),p);
     break;
   case special_node:
     tprint_esc("special");
@@ -2209,7 +2209,7 @@ void show_whatsit_node (integer p) {
       }
       break;
     default:
-      pdf_error("displaying", "unknown action type");
+      pdf_error(maketexstring("displaying"), maketexstring("unknown action type"));
       break;
     }
     break;
@@ -2467,7 +2467,7 @@ void show_node_list(integer p) { /* prints a node list symbolically */
              if (subtype(p)<cond_math_glue) 
                print_spec(glue_ptr(p),0);
              else 
-               print_spec(glue_ptr(p),"mu");
+               print_spec(glue_ptr(p),maketexstring("mu"));
           }
         }
         break;
