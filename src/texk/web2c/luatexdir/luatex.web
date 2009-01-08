@@ -16030,7 +16030,7 @@ end;
 @ @<Initialize variables for \.{PDF} output@>=
 prepare_mag;
 if (pdf_minor_version < 0) or (pdf_minor_version > 9) then begin
-    print_err("pdfTeX error (illegal pdfminorversion)");
+    print_err("luaTeX error (illegal pdfminorversion)");
     print_ln;
     help2 ("The pdfminorversion must be between 0 and 9.")@/
         ("I changed this to 4.");
@@ -16206,7 +16206,7 @@ end
 procedure pdf_error(t, p: str_number);
 begin
     normalize_selector;
-    print_err("pdfTeX error");
+    print_err("luaTeX error");
     if t <> 0 then begin
         print(" (");
         print(t);
@@ -16222,7 +16222,7 @@ begin
         wake_up_terminal;
     if prepend_nl then
         print_ln;
-    print("pdfTeX warning");
+    print("luaTeX warning");
     if t <> 0 then begin
         print(" (");
         print(t);
