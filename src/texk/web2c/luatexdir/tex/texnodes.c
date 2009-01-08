@@ -20,9 +20,53 @@
 #include "luatex-api.h"
 #include <ptexlib.h>
 #include "nodes.h"
+#include "commands.h"
+
+#include "tokens.h"
+#undef name
+
 
 static const char _svn_version[] =
     "$Id$ $URL$";
+
+#define append_char(A) str_pool[pool_ptr++]=(A)
+#define cur_length (pool_ptr - str_start_macro(str_ptr))
+#define flush_char() pool_ptr--
+
+#define stretching 1
+#define shrinking 2
+
+#define adjust_pre subtype
+
+typedef enum {
+  pdf_dest_xyz=0,
+  pdf_dest_fit  ,
+  pdf_dest_fith ,
+  pdf_dest_fitv ,
+  pdf_dest_fitb ,
+  pdf_dest_fitbh,
+  pdf_dest_fitbv,
+  pdf_dest_fitr ,
+} pdf_destination_types;
+
+
+typedef enum {
+  set_origin=0,
+  direct_page,
+  direct_always,
+} ctm_transform_modes ;
+
+
+#define obj_aux(A)              obj_tab[(A)].int4
+#define obj_data_ptr            obj_aux
+#define obj_obj_data(A)         pdf_mem[obj_data_ptr((A)) + 0]
+#define obj_obj_is_stream(A)    pdf_mem[obj_data_ptr((A)) + 1]
+#define obj_obj_stream_attr(A)  pdf_mem[obj_data_ptr((A)) + 2]
+#define obj_obj_is_file(A)      pdf_mem[obj_data_ptr((A)) + 3]
+#define obj_xform_width(A)      pdf_mem[obj_data_ptr((A)) + 0]
+#define obj_xform_height(A)     pdf_mem[obj_data_ptr((A)) + 1]
+#define obj_xform_depth(A)      pdf_mem[obj_data_ptr((A)) + 2]
+
 
 #define MAX_CHAIN_SIZE 13
 
@@ -98,6 +142,11 @@ char *node_fields_accent[] = { NULL };
 char *node_fields_vcenter[] = { NULL };
 char *node_fields_left[] = { NULL };
 char *node_fields_right[] = { NULL };
+char *node_fields_math_char[] = { NULL };
+char *node_fields_sub_box[] = { NULL };
+char *node_fields_sub_mlist[] = { NULL };
+char *node_fields_math_text_char[] = { NULL };
+char *node_fields_delim[] = { NULL };
 
 char *node_fields_inserting[] =
     { "height", "last_ins_ptr", "best_ins_ptr", NULL };
@@ -197,16 +246,20 @@ node_info node_data[] = {
     {vcenter_noad, noad_size, node_fields_vcenter, "vcenter"},
     {left_noad, noad_size, node_fields_left, "left"},
     {right_noad, noad_size, node_fields_right, "right"},
-    {margin_kern_node, margin_kern_node_size, node_fields_margin_kern,
-     "margin_kern"},
-    {glyph_node, glyph_node_size, node_fields_glyph, "glyph"},  /* 33 */
+    {math_char_node,      math_kernel_node_size, node_fields_math_char, "math_char"},
+    {sub_box_node,        math_kernel_node_size, node_fields_sub_box, "sub_box"},
+    {sub_mlist_node,      math_kernel_node_size, node_fields_sub_mlist, "sub_mlist"},
+    {math_text_char_node, math_kernel_node_size, node_fields_math_text_char, "math_text_char"},
+    {delim_node,          math_shield_node_size, node_fields_delim, "delim"},
+    {margin_kern_node,    margin_kern_node_size, node_fields_margin_kern,  "margin_kern"},
+    {glyph_node, glyph_node_size, node_fields_glyph, "glyph"},
     {align_record_node, box_node_size, NULL, "align_record"},
     {pseudo_file_node, pseudo_file_node_size, NULL, "pseudo_file"},
     {pseudo_line_node, variable_node_size, NULL, "pseudo_line"},
     {inserting_node, page_ins_node_size, node_fields_inserting, "page_insert"},
     {split_up_node, page_ins_node_size, node_fields_splitup, "split_insert"},
     {expr_node, expr_node_size, NULL, "expr_stack"},
-    {nesting_node, nesting_node_size, NULL, "nested_list"},     /* 40 */
+    {nesting_node, nesting_node_size, NULL, "nested_list"}, 
     {span_node, span_node_size, NULL, "span"},
     {attribute_node, attribute_node_size, node_fields_attribute, "attribute"},
     {glue_spec_node, glue_spec_size, node_fields_glue_spec, "glue_spec"},
@@ -217,7 +270,7 @@ node_info node_data[] = {
     {align_stack_node, align_stack_node_size, NULL, "align_stack"},
     {movement_node, movement_node_size, NULL, "movement_stack"},
     {if_node, if_node_size, NULL, "if_stack"},
-    {unhyphenated_node, active_node_size, NULL, "unhyphenated"},        /* 50 */
+    {unhyphenated_node, active_node_size, NULL, "unhyphenated"},
     {hyphenated_node, active_node_size, NULL, "hyphenated"},
     {delta_node, delta_node_size, NULL, "delta"},
     {passive_node, passive_node_size, NULL, "passive"},
@@ -1919,3 +1972,571 @@ int has_attribute(halfword n, int i, int val)
     }
     return -1;
 }
+
+void print_short_node_contents (halfword p) {
+  switch (type(p)) {
+  case hlist_node:
+  case vlist_node:
+  case ins_node:
+  case whatsit_node:
+  case mark_node:
+  case adjust_node:
+  case unset_node: 
+    print_char('[');
+    print_char(']');
+    break;
+  case rule_node: 
+    print_char('|');
+    break;
+  case glue_node: 
+    if (glue_ptr(p)!=zero_glue) 
+      print_char(' ');
+    break;
+  case math_node: 
+    print_char('$');
+    break;
+  case disc_node: 
+    short_display(vlink(pre_break(p)));
+    short_display(vlink(post_break(p)));
+    break;
+  default: 
+    assert(1);
+    break;
+  }
+}
+
+
+void show_pdftex_whatsit_rule_spec (integer p) {
+  tprint("(");
+  print_rule_dimen(pdf_height(p));
+  print_char('+');
+  print_rule_dimen(pdf_depth(p));
+  tprint(")x");
+  print_rule_dimen(pdf_width(p));
+}
+
+
+void show_whatsit_node (integer p) {
+  switch (subtype(p)) {
+  case open_node: 
+    print_write_whatsit("openout",p);
+    print_char('='); 
+    print_file_name(open_name(p),open_area(p),open_ext(p));
+    break;
+  case write_node:
+    print_write_whatsit("write",p);
+    print_mark(write_tokens(p));
+    break;
+  case close_node:
+    print_write_whatsit("closeout",p);
+    break;
+  case special_node:
+    tprint_esc("special");
+    print_mark(write_tokens(p));
+    break;
+  case dir_node:
+    if (dir_dir(p)<0) {
+      tprint_esc("enddir"); print_char(' '); print_dir(dir_dir(p)+64);
+    } else {
+      tprint_esc("begindir"); print_char(' '); print_dir(dir_dir(p));
+    }
+  case local_par_node:
+    tprint_esc("whatsit");
+    append_char('.');
+    print_ln(); print_current_string();
+    tprint_esc("localinterlinepenalty"); print_char('=');
+    print_int(local_pen_inter(p));
+    print_ln(); print_current_string();
+    tprint_esc("localbrokenpenalty"); print_char('=');
+    print_int(local_pen_broken(p));
+    print_ln(); print_current_string();
+    tprint_esc("localleftbox");
+    if (local_box_left(p)==null) {
+      tprint("=null");
+    } else {
+      append_char('.');
+      show_node_list(local_box_left(p));
+      decr(pool_ptr);
+    }
+    print_ln(); print_current_string();
+    tprint_esc("localrightbox");
+    if (local_box_right(p)==null) {
+      tprint("=null");
+    } else {
+      append_char('.');
+      show_node_list(local_box_right(p));
+      decr(pool_ptr);
+    }
+    decr(pool_ptr);
+    break;
+  case pdf_literal_node:
+    tprint_esc("pdfliteral");
+    switch (pdf_literal_mode(p)) {
+    case set_origin:
+      break;
+    case direct_page:
+        tprint(" page");
+        break;
+    case direct_always:
+        tprint(" direct");
+        break;
+    default:
+      tconfusion("literal2");
+      break;
+    }
+    print_mark(pdf_literal_data(p));
+    break;
+  case pdf_colorstack_node:
+    tprint_esc("pdfcolorstack ");
+    print_int(pdf_colorstack_stack(p));
+    switch (pdf_colorstack_cmd(p)) {
+    case colorstack_set:
+      tprint(" set ");
+      break;
+    case colorstack_push:
+      tprint(" push ");
+      break;
+    case colorstack_pop:
+      tprint(" pop");
+      break;
+    case colorstack_current:
+      tprint(" current"); 
+      break;
+    default: 
+      tconfusion("pdfcolorstack"); 
+      break;
+    }
+    if (pdf_colorstack_cmd(p) <= colorstack_data)
+      print_mark(pdf_colorstack_data(p));
+    break;
+  case pdf_setmatrix_node: 
+    tprint_esc("pdfsetmatrix");
+    print_mark(pdf_setmatrix_data(p));
+    break;
+  case pdf_save_node:
+    tprint_esc("pdfsave");
+    break;
+  case pdf_restore_node:
+    tprint_esc("pdfrestore");
+    break;
+  case cancel_boundary_node: 
+    tprint_esc("noboundary");
+    break;
+  case late_lua_node: 
+    tprint_esc("latelua");
+    print_int(late_lua_reg(p));
+    print_mark(late_lua_data(p));
+    break;
+  case close_lua_node:
+    tprint_esc("closelua");
+    print_int(late_lua_reg(p));
+    break;
+  case pdf_refobj_node: 
+    tprint_esc("pdfrefobj");
+    if (obj_obj_is_stream(pdf_obj_objnum(p)) > 0) {
+      if (obj_obj_stream_attr(pdf_obj_objnum(p)) != null) {
+        tprint(" attr");
+        print_mark(obj_obj_stream_attr(pdf_obj_objnum(p)));
+      }
+      tprint(" stream");
+    }
+    if (obj_obj_is_file(pdf_obj_objnum(p)) > 0)
+      tprint(" file");
+    print_mark(obj_obj_data(pdf_obj_objnum(p)));
+    break;
+  case pdf_refxform_node:
+    tprint_esc("pdfrefxform");
+    print_char('(');
+    print_scaled(obj_xform_height(pdf_xform_objnum(p)));
+    print_char('+');
+    print_scaled(obj_xform_depth(pdf_xform_objnum(p)));
+    tprint(")x");
+    print_scaled(obj_xform_width(pdf_xform_objnum(p)));
+    break;
+  case pdf_refximage_node: 
+    tprint_esc("pdfrefximage");
+    tprint("(");
+    print_scaled(pdf_height(p));
+    print_char('+');
+    print_scaled(pdf_depth(p));
+    tprint(")x");
+    print_scaled(pdf_width(p));
+    break;
+  case pdf_annot_node:
+    tprint_esc("pdfannot");
+    show_pdftex_whatsit_rule_spec(p);
+    print_mark(pdf_annot_data(p));
+    break;
+  case pdf_start_link_node: 
+    tprint_esc("pdflink");
+    show_pdftex_whatsit_rule_spec(p);
+    if (pdf_link_attr(p) != null) {
+      tprint(" attr");
+      print_mark(pdf_link_attr(p));
+    }
+    tprint(" action");
+    if (pdf_action_type(pdf_link_action(p)) == pdf_action_user) {
+      tprint(" user");
+      print_mark(pdf_action_tokens(pdf_link_action(p)));
+      return;
+    }
+    if (pdf_action_file(pdf_link_action(p)) != null ) {
+      tprint(" file");
+      print_mark(pdf_action_file(pdf_link_action(p)));
+    }
+    switch (pdf_action_type(pdf_link_action(p))) {
+    case pdf_action_goto:
+      if (pdf_action_named_id(pdf_link_action(p)) > 0 ) {
+        tprint(" goto name");
+        print_mark(pdf_action_id(pdf_link_action(p)));
+      } else {
+        tprint(" goto num");
+        print_int(pdf_action_id(pdf_link_action(p)));
+      }
+      break;
+    case pdf_action_page: 
+      tprint(" page");
+      print_int(pdf_action_id(pdf_link_action(p)));
+      print_mark(pdf_action_tokens(pdf_link_action(p)));
+      break;
+    case pdf_action_thread:
+      if (pdf_action_named_id(pdf_link_action(p)) > 0) {
+        tprint(" thread name");
+        print_mark(pdf_action_id(pdf_link_action(p)));
+      } else {
+        tprint(" thread num");
+        print_int(pdf_action_id(pdf_link_action(p)));
+      }
+      break;
+    default:
+      pdf_error("displaying", "unknown action type");
+      break;
+    }
+    break;
+  case pdf_end_link_node: 
+    tprint_esc("pdfendlink");
+    break;
+  case pdf_dest_node: 
+    tprint_esc("pdfdest");
+    if (pdf_dest_named_id(p) > 0){
+      tprint(" name");
+      print_mark(pdf_dest_id(p));
+    } else {
+      tprint(" num");
+      print_int(pdf_dest_id(p));
+    }
+    print_char(' ');
+    switch (pdf_dest_type(p)) {
+    case pdf_dest_xyz: 
+      tprint("xyz");
+      if (pdf_dest_xyz_zoom(p) != null) {
+        tprint(" zoom");
+        print_int(pdf_dest_xyz_zoom(p));
+      }
+      break;
+    case pdf_dest_fitbh: 
+      tprint("fitbh");
+      break;
+    case pdf_dest_fitbv:
+      tprint("fitbv");
+      break;
+    case pdf_dest_fitb: 
+      tprint("fitb");
+      break;
+    case pdf_dest_fith: 
+      tprint("fith");
+      break;
+    case pdf_dest_fitv: 
+      tprint("fitv");
+      break;
+    case pdf_dest_fitr:
+      tprint("fitr");
+      show_pdftex_whatsit_rule_spec(p);
+      break;
+    case pdf_dest_fit: 
+      tprint("fit");
+      break;
+    default: 
+      tprint("unknown!");
+      break;
+    }
+    break;
+  case pdf_thread_node:
+  case pdf_start_thread_node: 
+    if (subtype(p) == pdf_thread_node)
+      tprint_esc("pdfthread");
+    else
+      tprint_esc("pdfstartthread");
+    tprint("("); print_rule_dimen(pdf_height(p)); print_char('+');
+    print_rule_dimen(pdf_depth(p)); tprint(")x");
+    print_rule_dimen(pdf_width(p));
+    if (pdf_thread_attr(p) != null) {
+      tprint(" attr");
+      print_mark(pdf_thread_attr(p));
+    }
+    if (pdf_thread_named_id(p) > 0 ) {
+      tprint(" name");
+      print_mark(pdf_thread_id(p));
+    } else {
+      tprint(" num");
+      print_int(pdf_thread_id(p));
+    }
+    break;
+  case pdf_end_thread_node: 
+    tprint_esc("pdfendthread");
+    break;
+  case pdf_save_pos_node: 
+    tprint_esc("pdfsavepos");
+    break;
+  case user_defined_node:
+    tprint_esc("whatsit");
+    print_int(user_node_id(p));
+    print_char('=');
+    switch (user_node_type(p)) {
+    case 'a': 
+      tprint("<>"); 
+      break;
+    case 'n':  
+      tprint("["); show_node_list(user_node_value(p)); tprint("]"); 
+      break;
+    case 's':  
+      print_char('"'); print(user_node_value(p)); print_char('"'); 
+      break;
+    case 't':
+      print_mark(user_node_value(p));
+      break;
+    default:  /* only 'd' */
+      print_int(user_node_value(p));
+      break;
+    }
+    break;
+  default: 
+    tprint("whatsit?");
+    break;
+  }
+}
+
+
+/*
+  Now we are ready for |show_node_list| itself. This procedure has been
+  written to be ``extra robust'' in the sense that it should not crash or get
+  into a loop even if the data structures have been messed up by bugs in
+  the rest of the program. You can safely call its parent routine
+  |show_box(p)| for arbitrary values of |p| when you are debugging \TeX.
+  However, in the presence of bad data, the procedure may
+  fetch a |memory_word| whose variant is different from the way it was stored;
+  for example, it might try to read |mem[p].hh| when |mem[p]|
+  contains a scaled integer, if |p| is a pointer that has been
+  clobbered or chosen at random.
+*/
+
+/* |str_room| need not be checked; see |show_box|  */
+
+#define node_list_display(A) do {               \
+    append_char('.');                           \
+    show_node_list(A);                          \
+    flush_char();                               \
+} while (0) 
+
+void show_node_list(integer p) { /* prints a node list symbolically */
+  integer n; /* the number of items already printed at this level */
+  real g; /* a glue ratio, as a floating point number */
+  if (cur_length>depth_threshold) {
+    if (p>null) 
+      tprint(" []"); /* indicate that there's been some truncation */
+    return;
+  }
+  n=0;
+  while (p!=null) {
+    print_ln(); 
+    print_current_string(); /* display the nesting history */
+    if (int_par(param_tracing_online_code)<-2) 
+      print_int(p); 
+    incr(n); 
+    if (n>breadth_max)  { /* time to stop */
+      tprint("etc."); 
+      return;
+    } 
+    /* @<Display node |p|@> */
+    if (is_char_node(p)) {
+      print_font_and_char(p);
+      if (is_ligature(p)) {
+        /* @<Display ligature |p|@>; */
+        tprint(" (ligature ");
+        if (is_leftboundary(p)) print_char('|');
+        font_in_short_display=font(p); short_display(lig_ptr(p));
+        if (is_rightboundary(p)) print_char('|');
+        print_char(')');
+      }
+    } else {
+      switch (type(p)) {
+      case hlist_node:
+      case vlist_node:
+      case unset_node: 
+        /* @<Display box |p|@>; */
+        if (type(p)==hlist_node) tprint_esc("h");
+        else if (type(p)==vlist_node)  tprint_esc("v");
+        else tprint_esc("unset");
+        tprint("box("); print_scaled(height(p)); print_char('+');
+        print_scaled(depth(p)); tprint(")x"); print_scaled(width(p));
+        if (type(p)==unset_node) {
+          /* @<Display special fields of the unset node |p|@>; */
+          if (span_count(p)!=min_quarterword) {
+            tprint(" ("); print_int(span_count(p)+1);
+            tprint(" columns)");
+          }
+          if (glue_stretch(p)!=0) {
+            tprint(", stretch "); print_glue(glue_stretch(p),glue_order(p),0);
+          }
+          if (glue_shrink(p)!=0) {
+            tprint(", shrink "); print_glue(glue_shrink(p),glue_sign(p),0);
+          }
+        } else {
+          /*<Display the value of |glue_set(p)|@> */
+          /* The code will have to change in this place if |glue_ratio| is
+             a structured type instead of an ordinary |real|. Note that this routine
+             should avoid arithmetic errors even if the |glue_set| field holds an
+             arbitrary random value. The following code assumes that a properly
+             formed nonzero |real| number has absolute value $2^{20}$ or more when
+             it is regarded as an integer; this precaution was adequate to prevent
+             floating point underflow on the author's computer.
+          */
+
+          g=(real)(glue_set(p));
+          if ((g!=0.0)&&(glue_sign(p)!=normal)) {
+            tprint(", glue set ");
+            if (glue_sign(p)==shrinking) tprint("- ");
+            if (g>20000.0 ||g<-20000.0) {
+              if (g>0.0) 
+                print_char('>');
+              else 
+                tprint("< -");
+              print_glue(20000*unity,glue_order(p),0);
+            } else {
+              print_glue(round(unity*g),glue_order(p),0);
+            }
+          }
+
+          if (shift_amount(p)!=0) {
+            tprint(", shifted "); print_scaled(shift_amount(p));
+          }
+          tprint(", direction "); print_dir(box_dir(p));
+        }
+        node_list_display(list_ptr(p)); /* recursive call */
+        break;
+      case rule_node: 
+        /* @<Display rule |p|@>; */
+        tprint_esc("rule("); print_rule_dimen(height(p)); print_char('+');
+        print_rule_dimen(depth(p)); tprint(")x"); print_rule_dimen(width(p));
+        break;
+      case ins_node: 
+        /* @<Display insertion |p|@>; */
+        tprint_esc("insert"); print_int(subtype(p));
+        tprint(", natural size "); print_scaled(height(p));
+        tprint("; split("); print_spec(split_top_ptr(p),0);
+        print_char(','); print_scaled(depth(p));
+        tprint("); float cost "); print_int(float_cost(p));
+        node_list_display(ins_ptr(p)); /* recursive call */
+        break;
+      case whatsit_node: 
+        show_whatsit_node(p);
+        break;
+      case glue_node: 
+        /* @<Display glue |p|@>; */
+        if (subtype(p)>=a_leaders) {
+          /* @<Display leaders |p|@>; */
+          tprint_esc("");
+          if (subtype(p)==c_leaders)  print_char('c');
+          else if (subtype(p)==x_leaders) print_char('x');
+          tprint("leaders "); print_spec(glue_ptr(p),0);
+          node_list_display(leader_ptr(p)); /* recursive call */
+        } else  { 
+          tprint_esc("glue");
+          if (subtype(p)!=normal) {
+            print_char('(');
+            if (subtype(p)<cond_math_glue)
+              print_skip_param(subtype(p)-1);
+            else if (subtype(p)==cond_math_glue) 
+              tprint_esc("nonscript");
+            else 
+              tprint_esc("mskip");
+            print_char(')');
+          }
+          if (subtype(p)!=cond_math_glue) {
+             print_char(' ');
+             if (subtype(p)<cond_math_glue) 
+               print_spec(glue_ptr(p),0);
+             else 
+               print_spec(glue_ptr(p),"mu");
+          }
+        }
+        break;
+      case margin_kern_node: 
+        tprint_esc("kern");
+        print_scaled(width(p));
+        if (subtype(p) == left_side)
+          tprint(" (left margin)");
+        else
+          tprint(" (right margin)");
+        break;
+      case kern_node: 
+        /* @<Display kern |p|@>; */
+        /*  An ``explicit'' kern value is indicated implicitly by an explicit space. */
+        if (subtype(p)!=mu_glue) {
+          tprint_esc("kern");
+          if (subtype(p)!=normal)  print_char(' ');
+          print_scaled(width(p));
+          if (subtype(p)==acc_kern) tprint(" (for accent)");
+        } else  {
+          tprint_esc("mkern"); print_scaled(width(p)); tprint("mu");
+        }
+        break;
+      case math_node: 
+        /* @<Display math node |p|@>; */
+        tprint_esc("math");
+        if (subtype(p)==before) tprint("on");
+        else tprint("off");
+        if (width(p)!=0) {
+          tprint(", surrounded "); print_scaled(width(p));
+        }
+        break;
+      case penalty_node: 
+        /* @<Display penalty |p|@>; */
+        tprint_esc("penalty "); print_int(penalty(p));
+        break;
+      case disc_node: 
+        /* @<Display discretionary |p|@>; */
+        /* The |post_break| list of a discretionary node is indicated by a prefixed
+           `\.{\char'174}' instead of the `\..' before the |pre_break| list. */
+        tprint_esc("discretionary");
+        if (vlink(no_break(p))!=null) {
+          tprint(" replacing "); 
+          node_list_display(vlink(no_break(p)));
+        }
+        node_list_display(vlink(pre_break(p))); /* recursive call */
+        append_char('|'); show_node_list(vlink(post_break(p))); 
+        flush_char(); /* recursive call */
+        break;
+      case mark_node: 
+        /* @<Display mark |p|@>; */
+        tprint_esc("mark");
+        if (mark_class(p)!=0) {
+          print_char('s'); print_int(mark_class(p));
+        }
+        print_mark(mark_ptr(p));
+        break;
+      case adjust_node: 
+        /* @<Display adjustment |p|@>; */
+        tprint_esc("vadjust"); 
+        if (adjust_pre(p)!=0) tprint(" pre ");
+        node_list_display(adjust_ptr(p)); /* recursive call */
+        break;
+      default:
+        show_math_node(p);
+        break;
+      }
+    }
+    p=vlink(p);
+  }
+}
+

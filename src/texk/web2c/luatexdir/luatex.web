@@ -336,6 +336,44 @@ procedure initialize; {this procedure gets things started properly}
 @t\4@>@<Basic printing procedures@>@/
 @t\4@>@<Error handling procedures@>@/
 
+@ Here is a workaround for the unfortunate limitation of WEB2C that
+doesn't know how to deal with symbolic case labels. 
+
+@d hlist_node_case==0
+@d vlist_node_case==1
+@d rule_node_case==2
+@d ins_node_case==3
+@d mark_node_case==4
+@d adjust_node_case==5
+@d disc_node_case==7
+@d whatsit_node_case==8
+@d math_node_case==9
+@d glue_node_case==10
+@d kern_node_case==11
+@d penalty_node_case==12
+@d unset_node_case==13
+@d margin_kern_node_case==37
+
+@<Initialize whatever \TeX\ might access@>=
+pdfassert(hlist_node_case=hlist_node);
+pdfassert(vlist_node_case=vlist_node);
+pdfassert(rule_node_case=rule_node);
+pdfassert(ins_node_case=ins_node);
+pdfassert(mark_node_case=mark_node);
+pdfassert(adjust_node_case=adjust_node);
+pdfassert(disc_node_case=disc_node);
+pdfassert(whatsit_node_case=whatsit_node);
+pdfassert(math_node_case=math_node);
+pdfassert(glue_node_case=glue_node);
+pdfassert(kern_node_case=kern_node);
+pdfassert(penalty_node_case=penalty_node);
+pdfassert(unset_node_case=unset_node);
+pdfassert(margin_kern_node_case=margin_kern_node);
+
+
+
+
+
 @ The overall \TeX\ program begins with the heading just shown, after which
 comes a bunch of procedure declarations and function declarations.
 Finally we will get to the main program, which begins with the
@@ -3539,8 +3577,6 @@ end;
 of |mem| is a nonempty, doubly-linked circular list of empty nodes,
 pointed to by the roving pointer |rover|.
 
-@d temp_node==46
-@d temp_node_size==2
 @d vmem(#) == varmem[#]
 @d vlink(#) == vmem(#).hh.rh {the |link| field of a memory word}
 @d vinfo(#) == vmem(#).hh.lh {the |info| field of a memory word}
@@ -3643,8 +3679,6 @@ glue should stretch or shrink or remain rigid; and |glue_order(p)|
 specifies the order of infinity to which glue setting applies (|normal|,
 |sfi|, |fil|, |fill|, or |filll|). The |subtype| field is not used.
 
-@d hlist_node=0 {|type| of hlist nodes}
-@d box_node_size=9 {number of words to allocate for a box node}
 @d width_offset=2 {position of |width| field in a box node}
 @d depth_offset=3 {position of |depth| field in a box node}
 @d height_offset=4 {position of |height| field in a box node}
@@ -3681,8 +3715,6 @@ end;
 @ A |vlist_node| is like an |hlist_node| in all respects except that it
 contains a vertical list.
 
-@d vlist_node=1 {|type| of vlist nodes}
-
 @ A |rule_node| stands for a solid black rectangle; it has |width|,
 |depth|, and |height| fields just as in an |hlist_node|. However, if
 any of these dimensions is $-2^{30}$, the actual value will be determined
@@ -3690,8 +3722,6 @@ by running the rule up to the boundary of the innermost enclosing box.
 This is called a ``running dimension.'' The |width| is never running in
 an hlist; the |height| and |depth| are never running in a~vlist.
 
-@d rule_node=2 {|type| of rule nodes}
-@d rule_node_size=7 {number of words to allocate for a rule node}
 @d null_flag==-@'10000000000 {$-2^{30}$, signifies a missing item}
 @d is_running(#) == (#=null_flag) {tests for a running dimension}
 @d rule_dir(#)==vlink(#+5)
@@ -3722,8 +3752,6 @@ will be used if this insertion floats to a subsequent page after a
 split insertion of the same class.  There is one more field, the
 |ins_ptr|, which points to the beginning of the vlist for the insertion.
 
-@d ins_node=3 {|type| of insertion nodes}
-@d ins_node_size=6 {number of words to allocate for an insertion}
 @d float_cost(#)==vmem(#+2).int {the |floating_penalty| to be used}
 @d ins_ptr(#)==vinfo(#+5) {the vertical list to be inserted}
 @d split_top_ptr(#)==vlink(#+5) {the |split_top_skip| to be used}
@@ -3732,8 +3760,6 @@ split insertion of the same class.  There is one more field, the
 of a token list that contains the user's \.{\\mark} text.
 In addition there is a |mark_class| field that contains the mark class.
 
-@d mark_node=4 {|type| of a mark node}
-@d mark_node_size=3 {number of words to allocate for a mark node}
 @d mark_ptr(#)==vlink(#+2) {head of the token list for a mark}
 @d mark_class(#)==vinfo(#+2) {the mark class}
 
@@ -3743,8 +3769,6 @@ vertical list; i.e., it is used to implement \TeX's `\.{\\vadjust}'
 operation.  The |adjust_ptr| field points to the vlist containing this
 material.
 
-@d adjust_node=5 {|type| of an adjust node}
-@d adjust_node_size=3
 @d adjust_pre == subtype  {pre-adjustment?}
 @d adjust_ptr(#)==vlink(#+2) {vertical list to be moved out of horizontal list}
 @#{|append_list| is used to append a list to |tail|}
@@ -3772,8 +3796,6 @@ and their base (through |make_accent|), and math nucleus items (in the
 conversion from |mlist| to |hlist|).
 
 
-@d glyph_node_size=5
-@d glyph_node=33 {|type| of a glyph node}
 @d is_char_node(#) == ((#<>null)and(type(#)=glyph_node))
 @d font(#)==vlink(#+2) {the font code in a |glyph_node|}
 @d character(#)==vinfo(#+2) {the character code in a |glyph_node|}
@@ -3876,8 +3898,6 @@ decides to make the break, and the discretionary node will disappear at
 that time; thus, the output routine sees only discretionaries that were
 not chosen.
 
-@d disc_node=7 {|type| of a discretionary node}
-@d disc_node_size=10
 @d automatic_disc=2
 @d syllable_disc=3
 @d disc_type==subtype {the kind of discretionary}
@@ -3911,15 +3931,11 @@ The present implementation of \TeX\ treats the features associated with
 illustrate how such routines might be coded. We shall defer further
 discussion of extensions until the end of this program.
 
-@d whatsit_node=8 {|type| of special extension nodes}
-
 @ A |math_node|, which occurs only in horizontal lists, appears before and
 after mathematical formulas. The |subtype| field is |before| before the
 formula and |after| after it. There is a |surround| field, which represents
 the amount of surrounding space inserted by \.{\\mathsurround}.
 
-@d math_node=9 {|type| of a math node}
-@d math_node_size=4
 @d surround(#)==vlink(#+2)
 @d before=0 {|subtype| for math node that introduces a formula}
 @d after=1 {|subtype| for math node that winds up a formula}
@@ -3966,8 +3982,6 @@ instead of scaled \.{pt}); and |cond_math_glue| denotes the `\.{\\nonscript}'
 feature that cancels the glue node immediately following if it appears
 in a subscript.
 
-@d glue_node=10 {|type| of node that points to a glue specification}
-@d glue_node_size=4
 @d cond_math_glue=98 {special |subtype| to suppress glue in the next node}
 @d mu_glue=99 {|subtype| for math glue}
 @d a_leaders=100 {|subtype| for aligned leaders}
@@ -3992,8 +4006,6 @@ fields called |stretch_order| and |shrink_order|; these contain the
 orders of infinity (|normal|, |sfi|, |fil|, |fill|, or |filll|)
 corresponding to the stretch and shrink values.
 
-@d glue_spec_size=4 {number of words to allocate for a glue specification}
-@d glue_spec_node=43
 @d glue_ref_count(#) == vlink(#+3) {reference count of a glue specification}
 @d stretch(#) == vlink(#+1) {the stretchability of this glob of glue}
 @d shrink(#) == vinfo(#+1) {the shrinkability of this glob of glue}
@@ -4067,16 +4079,12 @@ kerns inserted from font information or math mode calculations) or |explicit|
 (for kerns inserted from non-math accents) or |mu_glue| (for kerns
 inserted from \.{\\mkern} specifications in math formulas).
 
-@d kern_node=11 {|type| of a kern node}
-@d kern_node_size=4
 @d explicit=1 {|subtype| of kern nodes from \.{\\kern} and \.{\\/}}
 @d acc_kern=2 {|subtype| of kern nodes from accents}
 @d synctex_tag_kern(#)==vinfo(#+3)
 @d synctex_line_kern(#)==vlink(#+3)
 
 @# {memory structure for marginal kerns}
-@d margin_kern_node = 32
-@d margin_kern_node_size = 4
 @d margin_char(#) == vlink(#+3)
 
 @# {|subtype| of marginal kerns}
@@ -4110,8 +4118,6 @@ treated as infinity, and no break will be allowed for such high values.
 Similarly, any penalty |<=-10000| is treated as negative infinity, and a
 break will be forced.
 
-@d penalty_node=12 {|type| of a penalty node}
-@d penalty_node_size=3 {has to be the same as |glue_node_size|}
 @d inf_penalty=inf_bad {``infinite'' penalty value}
 @d eject_penalty=-inf_penalty {``negatively infinite'' penalty value}
 @d penalty(#) == vlink(#+2) {the added cost of breaking a list here}
@@ -4139,7 +4145,6 @@ The |subtype| field is called |span_count|; an unset box typically
 contains the data for |qo(span_count)+1| columns.
 Unset nodes will be changed to box nodes when alignment is completed.
 
-@d unset_node=13 {|type| for an unset node}
 @d glue_stretch(#)==vmem(#+glue_offset).sc {total stretch in an unset node}
 @d glue_shrink==shift_amount {total shrink in an unset node}
 @d span_count==subtype {indicates the number of spanned columns}
@@ -4350,17 +4355,7 @@ begin while p<>null do
 end;
 
 @ @<Print a short indication of the contents of node |p|@>=
-case type(p) of
-hlist_node,vlist_node,ins_node,whatsit_node,mark_node,adjust_node,
-  unset_node: print("[]");
-rule_node: print_char("|");
-glue_node: if glue_ptr(p)<>zero_glue then print_char(" ");
-math_node: print_char("$");
-disc_node: begin short_display(vlink(pre_break(p)));
-  short_display(vlink(post_break(p)));@/
-  end;
-othercases do_nothing
-endcases
+print_short_node_contents(p)
 
 @ The |show_node_list| routine requires some auxiliary subroutines: one to
 print a font-and-character combination, one to print a token list without
@@ -4454,223 +4449,6 @@ be given and no sublists will be traversed. Another global variable, called
 @!depth_threshold : integer; {maximum nesting depth in box displays}
 @!breadth_max : integer; {maximum number of items shown at the same list level}
 
-@ Now we are ready for |show_node_list| itself. This procedure has been
-written to be ``extra robust'' in the sense that it should not crash or get
-into a loop even if the data structures have been messed up by bugs in
-the rest of the program. You can safely call its parent routine
-|show_box(p)| for arbitrary values of |p| when you are debugging \TeX.
-However, in the presence of bad data, the procedure may
-@^dirty \PASCAL@>@^debugging@>
-fetch a |memory_word| whose variant is different from the way it was stored;
-for example, it might try to read |mem[p].hh| when |mem[p]|
-contains a scaled integer, if |p| is a pointer that has been
-clobbered or chosen at random.
-
-@p procedure show_node_list(@!p:integer); {prints a node list symbolically}
-label exit;
-var n:integer; {the number of items already printed at this level}
-@!g:real; {a glue ratio, as a floating point number}
-begin if cur_length>depth_threshold then
-  begin if p>null then print(" []");
-    {indicate that there's been some truncation}
-  return;
-  end;
-n:=0;
-while p<>null do
-  begin print_ln; print_current_string; {display the nesting history}
-  if tracing_online<-2 then print_int(p); 
-    incr(n); if n>breadth_max then {time to stop}
-    begin print("etc."); return;
-@.etc@>
-    end;
-  @<Display node |p|@>;
-  p:=vlink(p);
-  end;
-exit:
-end;
-
-@ @<Display node |p|@>=
-if is_char_node(p) then begin 
- print_font_and_char(p);
- if is_ligature(p) then @<Display ligature |p|@>;
- end
-else case type(p) of
-  hlist_node,vlist_node,unset_node: @<Display box |p|@>;
-  rule_node: @<Display rule |p|@>;
-  ins_node: @<Display insertion |p|@>;
-  whatsit_node: @<Display the whatsit node |p|@>;
-  glue_node: @<Display glue |p|@>;
-  margin_kern_node: begin
-    print_esc("kern");
-    print_scaled(width(p));
-    if subtype(p) = left_side then
-        print(" (left margin)")
-    else
-        print(" (right margin)");
-    end;
-  kern_node: @<Display kern |p|@>;
-  math_node: @<Display math node |p|@>;
-  penalty_node: @<Display penalty |p|@>;
-  disc_node: @<Display discretionary |p|@>;
-  mark_node: @<Display mark |p|@>;
-  adjust_node: @<Display adjustment |p|@>;
-  othercases show_math_node(p);
-  endcases
-
-@ @<Display box |p|@>=
-begin if type(p)=hlist_node then print_esc("h")
-else if type(p)=vlist_node then print_esc("v")
-else print_esc("unset");
-print("box("); print_scaled(height(p)); print_char("+");
-print_scaled(depth(p)); print(")x"); print_scaled(width(p));
-if type(p)=unset_node then
-  @<Display special fields of the unset node |p|@>
-else  begin @<Display the value of |glue_set(p)|@>;
-  if shift_amount(p)<>0 then
-    begin print(", shifted "); print_scaled(shift_amount(p));
-    end;
-  print(", direction "); print_dir(box_dir(p));
-  end;
-{|pdfassert(list_ptr(p)<>0);|}
-node_list_display(list_ptr(p)); {recursive call}
-end
-
-@ @<Display special fields of the unset node |p|@>=
-begin if span_count(p)<>min_quarterword then
-  begin print(" ("); print_int(qo(span_count(p))+1);
-  print(" columns)");
-  end;
-if glue_stretch(p)<>0 then
-  begin print(", stretch "); print_glue(glue_stretch(p),glue_order(p),0);
-  end;
-if glue_shrink(p)<>0 then
-  begin print(", shrink "); print_glue(glue_shrink(p),glue_sign(p),0);
-  end;
-end
-
-@ The code will have to change in this place if |glue_ratio| is
-a structured type instead of an ordinary |real|. Note that this routine
-should avoid arithmetic errors even if the |glue_set| field holds an
-arbitrary random value. The following code assumes that a properly
-formed nonzero |real| number has absolute value $2^{20}$ or more when
-it is regarded as an integer; this precaution was adequate to prevent
-floating point underflow on the author's computer.
-@^system dependencies@>
-@^dirty \PASCAL@>
-
-@<Display the value of |glue_set(p)|@>=
-g:=float(glue_set(p));
-if (g<>float_constant(0))and(glue_sign(p)<>normal) then
-  begin print(", glue set ");
-  if glue_sign(p)=shrinking then print("- ");
-  if abs(vmem(p+glue_offset).int)<@'4000000 then print("?.?")
-  else if abs(g)>float_constant(20000) then
-    begin if g>float_constant(0) then print_char(">")
-    else print("< -");
-    print_glue(20000*unity,glue_order(p),0);
-    end
-  else print_glue(round(unity*g),glue_order(p),0);
-@^real multiplication@>
-  end
-
-@ @<Display rule |p|@>=
-begin print_esc("rule("); print_rule_dimen(height(p)); print_char("+");
-print_rule_dimen(depth(p)); print(")x"); print_rule_dimen(width(p));
-end
-
-@ @<Display insertion |p|@>=
-begin print_esc("insert"); print_int(qo(subtype(p)));
-print(", natural size "); print_scaled(height(p));
-print("; split("); print_spec(split_top_ptr(p),0);
-print_char(","); print_scaled(depth(p));
-print("); float cost "); print_int(float_cost(p));
-node_list_display(ins_ptr(p)); {recursive call}
-end
-
-@ @<Display glue |p|@>=
-if subtype(p)>=a_leaders then @<Display leaders |p|@>
-else  begin print_esc("glue");
-  if subtype(p)<>normal then
-    begin print_char("(");
-    if subtype(p)<cond_math_glue then
-      print_skip_param(subtype(p)-1)
-    else if subtype(p)=cond_math_glue then print_esc("nonscript")
-    else print_esc("mskip");
-    print_char(")");
-    end;
-  if subtype(p)<>cond_math_glue then
-    begin print_char(" ");
-    if subtype(p)<cond_math_glue then print_spec(glue_ptr(p),0)
-    else print_spec(glue_ptr(p),"mu");
-    end;
-  end
-
-@ @<Display leaders |p|@>=
-begin print_esc("");
-if subtype(p)=c_leaders then print_char("c")
-else if subtype(p)=x_leaders then print_char("x");
-print("leaders "); print_spec(glue_ptr(p),0);
-node_list_display(leader_ptr(p)); {recursive call}
-end
-
-@ An ``explicit'' kern value is indicated implicitly by an explicit space.
-
-@<Display kern |p|@>=
-if subtype(p)<>mu_glue then
-  begin print_esc("kern");
-  if subtype(p)<>normal then print_char(" ");
-  print_scaled(width(p));
-  if subtype(p)=acc_kern then print(" (for accent)");
-@.for accent@>
-  end
-else  begin print_esc("mkern"); print_scaled(width(p)); print("mu");
-  end
-
-@ @<Display math node |p|@>=
-begin print_esc("math");
-if subtype(p)=before then print("on")
-else print("off");
-if width(p)<>0 then
-  begin print(", surrounded "); print_scaled(width(p));
-  end;
-end
-
-@ @<Display ligature |p|@>=
-begin print(" (ligature ");
-if is_leftboundary(p) then print_char("|");
-font_in_short_display:=font(p); short_display(lig_ptr(p));
-if is_rightboundary(p) then print_char("|");
-print_char(")");
-end
-
-@ @<Display penalty |p|@>=
-begin print_esc("penalty "); print_int(penalty(p));
-end
-
-@ The |post_break| list of a discretionary node is indicated by a prefixed
-`\.{\char'174}' instead of the `\..' before the |pre_break| list.
-
-@<Display discretionary |p|@>=
-begin print_esc("discretionary");
-if vlink(no_break(p))<>null then
-  begin print(" replacing "); node_list_display(vlink(no_break(p)));
-  end;
-node_list_display(vlink(pre_break(p))); {recursive call}
-append_char("|"); show_node_list(vlink(post_break(p))); flush_char; {recursive call}
-end
-
-@ @<Display mark |p|@>=
-begin print_esc("mark");
-if mark_class(p)<>0 then
-  begin print_char("s"); print_int(mark_class(p));
-  end;
-print_mark(mark_ptr(p));
-end
-
-@ @<Display adjustment |p|@>=
-begin print_esc("vadjust"); if adjust_pre(p) <> 0 then print(" pre ");
-node_list_display(adjust_ptr(p)); {recursive call}
-end
 
 @ The recursive machinery is started by calling |show_box|.
 @^recursion@>
@@ -12021,8 +11799,6 @@ Otherwise |cond_ptr| points to a two-word node; the |type|, |subtype|, and
 |cond_ptr| at the next level, and the second word contains the
 corresponding |if_line|.
 
-@d if_node==49
-@d if_node_size=2 {number of words in stack entry for conditionals}
 @d if_limit_subtype(#)==subtype(#+1)
 @d if_limit_type(#)==type(#+1)
 @d if_line_field(#)==vlink(#+1)
@@ -14534,8 +14310,6 @@ byte number of the \.{DVI} command in question (including the appropriate
 on the stack; and the |vinfo| field encodes the options for possible change
 in the \.{DVI} command.
 
-@d movement_node=48
-@d movement_node_size=3 {number of words per entry in the down and right stacks}
 @d location(#)==vmem(#+1).int {\.{DVI} byte number for a movement command}
 
 @<Glob...@>=
@@ -15107,8 +14881,8 @@ end
 
 @ @<Output the non-|char_node| |p| for |hlist_out|...@>=
 begin case type(p) of
-hlist_node,vlist_node:@<Output a box in an hlist@>;
-rule_node: begin
+hlist_node_case,vlist_node_case:@<Output a box in an hlist@>;
+rule_node_case: begin
   if not (dir_orthogonal(dir_primary[rule_dir(p)])(dir_primary[dvi_direction]))
     then begin
     rule_ht:=height(p); rule_dp:=depth(p); rule_wd:=width(p);
@@ -15120,20 +14894,20 @@ rule_node: begin
     end;
   goto fin_rule;
   end;
-whatsit_node: @<Output the whatsit node |p| in an hlist@>;
-glue_node: @<Move right or output leaders@>;
-disc_node: if vlink(no_break(p))<>null then begin
+whatsit_node_case: @<Output the whatsit node |p| in an hlist@>;
+glue_node_case: @<Move right or output leaders@>;
+disc_node_case: if vlink(no_break(p))<>null then begin
   vlink(tlink(no_break(p))):=vlink(p);
   q:=vlink(no_break(p)); 
   vlink(no_break(p)):=null;
   vlink(p):=q; 
   end;
-margin_kern_node:cur_h:=cur_h+width(p);
-kern_node: begin
+margin_kern_node_case:cur_h:=cur_h+width(p);
+kern_node_case: begin
   @<Record |kern_node| {\sl Sync\TeX} information@>;
   cur_h:=cur_h+width(p);
 end;
-math_node: begin
+math_node_case: begin
   @<Record |math_node| {\sl Sync\TeX} information@>;
   cur_h:=cur_h+surround(p);
 end;
@@ -15439,8 +15213,8 @@ end
 
 @ @<Output the non-|char_node| |p| for |vlist_out|@>=
 begin case type(p) of
-hlist_node,vlist_node:@<Output a box in a vlist@>;
-rule_node: begin
+hlist_node_case,vlist_node_case:@<Output a box in a vlist@>;
+rule_node_case: begin
   if not (dir_orthogonal(dir_primary[rule_dir(p)])(dir_primary[dvi_direction]))
     then begin
     rule_ht:=height(p); rule_dp:=depth(p); rule_wd:=width(p);
@@ -15452,9 +15226,9 @@ rule_node: begin
     end;
   goto fin_rule;
   end;
-whatsit_node: @<Output the whatsit node |p| in a vlist@>;
-glue_node: @<Move down or output leaders@>;
-kern_node:cur_v:=cur_v+width(p);
+whatsit_node_case: @<Output the whatsit node |p| in a vlist@>;
+glue_node_case: @<Move down or output leaders@>;
+kern_node_case:cur_v:=cur_v+width(p);
 othercases do_nothing
 endcases;@/
 goto next_p;
@@ -17126,7 +16900,6 @@ destination |pdf_ann_left| and |pdf_ann_top| are used for some types of destinat
 @d scan_special            == 3 {look into special text}
 
 @# {data structure for \.{\\pdfcolorstack}}
-@d pdf_colorstack_node_size == 4
 @d pdf_colorstack_stack(#)  == vlink(#+2) {stack number}
 @d pdf_colorstack_cmd(#)    == vinfo(#+2) {command: set, push, pop, current}
 @d pdf_colorstack_data(#)   == vlink(#+3) {data}
@@ -17139,15 +16912,11 @@ destination |pdf_ann_left| and |pdf_ann_top| are used for some types of destinat
 @d colorstack_current      == 3
 
 @# {data structure for \.{\\pdfsetmatrix}}
-@d pdf_setmatrix_node_size == 3
 @d pdf_setmatrix_data(#)   == vlink(#+2) {data}
 
 @# {data structure for \.{\\pdfsave}}
-@d pdf_save_node_size      == 3
 
 @# {data structure for \.{\\pdfrestore}}
-@d pdf_restore_node_size   == 3
-
 
 @# {data structure for \.{\\latelua}}
 @d late_lua_data           == write_tokens {data}
@@ -17155,7 +16924,6 @@ destination |pdf_ann_left| and |pdf_ann_top| are used for some types of destinat
 @d late_lua_name(#)        == vlink(#+3) {name}
 
 @# {data structure for \.{\\pdfobj} and \.{\\pdfrefobj}}
-@d pdf_refobj_node_size    == 3 {size of whatsit node representing the raw object}
 @d pdf_obj_objnum(#)       == vinfo(# + 2) {number of the raw object}
 @d obj_data_ptr            == obj_aux {pointer to |pdf_mem|}
 @d pdfmem_obj_size         == 4 {size of memory in |pdf_mem| which |obj_data_ptr| holds}
@@ -17168,11 +16936,10 @@ destination |pdf_ann_left| and |pdf_ann_top| are used for some types of destinat
                               read from an external file?}
 
 @# {data structure for \.{\\pdfxform} and \.{\\pdfrefxform}}
-@d pdf_refxform_node_size  == 6 {size of whatsit node for xform; words 1..3 are
-                              form dimensions}
-@d pdf_xform_objnum(#)     == vinfo(# + 4) {object number}
 @d pdfmem_xform_size       == 6 {size of memory in |pdf_mem| which
                               |obj_data_ptr| holds}
+
+@d pdf_xform_objnum(#)     == vinfo(# + 4) {object number}
 @d obj_xform_width(#)      == pdf_mem[obj_data_ptr(#) + 0]
 @d obj_xform_height(#)     == pdf_mem[obj_data_ptr(#) + 1]
 @d obj_xform_depth(#)      == pdf_mem[obj_data_ptr(#) + 2]
@@ -17184,14 +16951,11 @@ destination |pdf_ann_left| and |pdf_ann_top| are used for some types of destinat
                               Resources}
 
 @# {data structure for \.{\\pdfximage} and \.{\\pdfrefximage}}
-@d pdf_refximage_node_size == 6 {size of whatsit node for ximage; words 2..4
-                               are image dimensions}
 @d pdf_ximage_idx(#)       == vinfo(# + 5) {image index in array}
 
 @# {data structure of annotations; words 1..4 represent the coordinates of
     the annotation}
 @d obj_annot_ptr           == obj_aux {pointer to corresponding whatsit node}
-@d pdf_annot_node_size     == 8 {size of whatsit node representing annotation}
 @d pdf_annot_data(#)       == vinfo(# + 6) {raw data of general annotations}
 @d pdf_link_attr(#)        == vinfo(# + 6) {attributes of link annotations}
 @d pdf_link_action(#)      == vlink(# + 6) {pointer to action structure}
@@ -17205,7 +16969,6 @@ destination |pdf_ann_left| and |pdf_ann_top| are used for some types of destinat
 @d pdf_action_user         == 3 {user-defined action}
 
 @# {data structure of actions}
-@d pdf_action_size         == 4 {size of action structure in |mem|}
 @d action_node         == 45
 @d pdf_action_type(#)      == type(#+1) {action type}
 @d pdf_action_named_id(#)  == subtype(#+1) {identifier is type of name}
@@ -17219,9 +16982,8 @@ destination |pdf_ann_left| and |pdf_ann_top| are used for some types of destinat
 before all outline entries are defined, so memory allocated for outline
 entries can't not be deallocated and will stay in memory. For this reason we
 will store data of outline entries in |pdf_mem| instead of |mem|}
-
 @d pdfmem_outline_size     == 8 {size of memory in |pdf_mem| which
-|obj_outline_ptr| points to}
+                                  |obj_outline_ptr| points to}
 @d obj_outline_count        == obj_info{count of all opened children}
 @d obj_outline_ptr          == obj_aux {pointer to |pdf_mem|}
 @d obj_outline_title(#)     == pdf_mem[obj_outline_ptr(#)]
@@ -17246,9 +17008,6 @@ action}
 
 @# {data structure of destinations}
 @d obj_dest_ptr             == obj_aux {pointer to |pdf_dest_node|}
-@d pdf_dest_node_size       == 8 {size of whatsit node for destination;
-words |1..4| hold dest dimensions, word |6| identifier type, subtype
-and identifier of destination, word |6| the corresponding object number}
 @d pdf_dest_type(#)          == type(# + 6) {type of destination}
 @d pdf_dest_named_id(#)      == subtype(# + 6) {is named identifier?}
 @d pdf_dest_id(#)            == vlink(# + 6) {destination identifier}
@@ -17258,7 +17017,6 @@ object}
 
 @# {data structure of threads; words 1..4 represent the coordinates of the
     corners}
-@d pdf_thread_node_size      == 8
 @d pdf_thread_named_id(#)    == subtype(# + 6) {is a named identifier}
 @d pdf_thread_id(#)          == vlink(# + 6) {thread identifier}
 @d pdf_thread_attr(#)        == vinfo(# + 7) {attributes of thread}
@@ -18425,15 +18183,15 @@ end
 
 @ @<Output the non-|char_node| |p| for |pdf_hlist_out|...@>=
 begin case type(p) of
-hlist_node,vlist_node:@<(\pdfTeX) Output a box in an hlist@>;
-disc_node: if vlink(no_break(p))<>null then begin
+hlist_node_case,vlist_node_case:@<(\pdfTeX) Output a box in an hlist@>;
+disc_node_case: if vlink(no_break(p))<>null then begin
   q:=tail_of_list (vlink(no_break(p))); {TODO, this should be a tlink}
   vlink(q):=vlink(p);
   q:=vlink(no_break(p)); 
   vlink(no_break(p)):=null;
   vlink(p):=q; 
   end;
-rule_node: begin 
+rule_node_case: begin 
   if not (dir_orthogonal(dir_primary[rule_dir(p)])(dir_primary[dvi_direction]))
     then begin
     rule_ht:=height(p); rule_dp:=depth(p); rule_wd:=width(p);
@@ -18445,14 +18203,14 @@ rule_node: begin
     end;
   goto fin_rule;
   end;
-whatsit_node: @<Output the whatsit node |p| in |pdf_hlist_out|@>;
-glue_node: @<(\pdfTeX) Move right or output leaders@>;
-margin_kern_node: pdf_dvicmd_h(width(p));
-kern_node: begin
+whatsit_node_case: @<Output the whatsit node |p| in |pdf_hlist_out|@>;
+glue_node_case: @<(\pdfTeX) Move right or output leaders@>;
+margin_kern_node_case: pdf_dvicmd_h(width(p));
+kern_node_case: begin
   @<Record |kern_node| {\sl Sync\TeX} information@>;
   pdf_dvicmd_h(width(p));
   end;
-math_node: begin 
+math_node_case: begin 
   @<Record |math_node| {\sl Sync\TeX} information@>;
   pdf_dvicmd_h(surround(p));
   end;
@@ -18696,8 +18454,8 @@ end
 
 @ @<Output the non-|char_node| |p| for |pdf_vlist_out|@>=
 begin case type(p) of
-hlist_node,vlist_node:@<(\pdfTeX) Output a box in a vlist@>;
-rule_node: begin
+hlist_node_case,vlist_node_case:@<(\pdfTeX) Output a box in a vlist@>;
+rule_node_case: begin
   if not (dir_orthogonal(dir_primary[rule_dir(p)])(dir_primary[dvi_direction]))
     then begin
     rule_ht:=height(p); rule_dp:=depth(p); rule_wd:=width(p);
@@ -18709,9 +18467,9 @@ rule_node: begin
     end;
   goto fin_rule;
   end;
-whatsit_node: @<Output the whatsit node |p| in |pdf_vlist_out|@>;
-glue_node: @<(\pdfTeX) Move down or output leaders@>;
-kern_node:pdf_dvicmd_v(width(p));
+whatsit_node_case: @<Output the whatsit node |p| in |pdf_vlist_out|@>;
+glue_node_case: @<(\pdfTeX) Move down or output leaders@>;
+kern_node_case:pdf_dvicmd_v(width(p));
 othercases do_nothing
 endcases;@/
 goto next_p;
@@ -20526,14 +20284,14 @@ begin while is_char_node(p) do
     the hbox that will contain~it, then move to the next node@>;
 if p<>null then
   begin case type(p) of
-  hlist_node,vlist_node,rule_node,unset_node:
+  hlist_node_case,vlist_node_case,rule_node_case,unset_node_case:
     @<Incorporate box dimensions into the dimensions of
       the hbox that will contain~it@>;
-  ins_node,mark_node,adjust_node: begin if adjust_tail<>null then
+  ins_node_case,mark_node_case,adjust_node_case: begin if adjust_tail<>null then
     @<Transfer node |p| to the adjustment list@>; end;
-  whatsit_node:@<Incorporate a whatsit node into an hbox@>;
-  glue_node:@<Incorporate glue into the horizontal totals@>;
-    margin_kern_node: begin
+  whatsit_node_case:@<Incorporate a whatsit node into an hbox@>;
+  glue_node_case:@<Incorporate glue into the horizontal totals@>;
+    margin_kern_node_case: begin
     if m = cal_expand_ratio then begin
         f := font(margin_char(p));
         do_subst_font(margin_char(p), 1000);
@@ -20553,7 +20311,7 @@ if p<>null then
       end;
     x := x + width(p);
     end;
-  kern_node: begin
+  kern_node_case: begin
     if subtype(p) = normal then begin
         if m = cal_expand_ratio then begin
             font_stretch := font_stretch + kern_stretch(p);
@@ -20574,8 +20332,8 @@ if p<>null then
       end;
     x := x + width(p);
     end;
-  math_node: x:=x+surround(p);
-  disc_node:
+  math_node_case: x:=x+surround(p);
+  disc_node_case:
       begin
       if m = subst_ex_font then do_subst_font(p, font_expand_ratio);
       if vlink(no_break(p))<>null then begin
@@ -20906,12 +20664,12 @@ end;
 begin if is_char_node(p) then confusion("vpack")
 @:this can't happen vpack}{\quad vpack@>
 else  case type(p) of
-  hlist_node,vlist_node,rule_node,unset_node:
+  hlist_node_case,vlist_node_case,rule_node_case,unset_node_case:
     @<Incorporate box dimensions into the dimensions of
       the vbox that will contain~it@>;
-  whatsit_node:@<Incorporate a whatsit node into a vbox@>;
-  glue_node: @<Incorporate glue into the vertical totals@>;
-  kern_node: begin x:=x+d+width(p); d:=0;
+  whatsit_node_case:@<Incorporate a whatsit node into a vbox@>;
+  glue_node_case: @<Incorporate glue into the vertical totals@>;
+  kern_node_case: begin x:=x+d+width(p); d:=0;
     end;
   othercases do_nothing
   endcases;
@@ -21220,7 +20978,6 @@ Their |glue_sign| and |glue_order| are pre-empted as well, since it
 is necessary to store information about what to do when a template ends.
 This information is called the |extra_info| field.
 
-@d align_record_node=34
 @d u_part(#)==vlink(#+depth_offset) {pointer to \<u_j> token list}
 @d v_part(#)==vinfo(#+depth_offset) {pointer to \<v_j> token list}
 @d span_ptr(#)==vinfo(#+1) {column spanning list}
@@ -21245,7 +21002,6 @@ when they have to be pushed down, they are stored in 6-word nodes, and
 |align_ptr| points to the topmost such node.
 
 @d preamble==vlink(align_head) {the current preamble list}
-@d align_stack_node=47 
 
 @<Glob...@>=
 @!cur_align:pointer; {current position in preamble list}
@@ -21689,8 +21445,6 @@ that column. The code has to make sure that there is room for
 
 The |new_span_node| function is defined in |texnodes.c|.
 
-@d span_node==41
-@d span_node_size==3 {number of |mem| words for a span node}
 @d span_span(#)==vlink(#+1) {that is normally |alink| }
 
 @<Initialize the special list heads...@>=
@@ -22251,12 +22005,12 @@ var prev_p:pointer; {lags one step behind |p|}
 begin prev_p:=temp_head; vlink(temp_head):=p; r:=null;
 while p<>null do
   case type(p) of
-  hlist_node,vlist_node,rule_node:@<Insert glue for |split_top_skip|
+  hlist_node_case,vlist_node_case,rule_node_case:@<Insert glue for |split_top_skip|
     and set~|p:=null|@>;
-  whatsit_node,mark_node,ins_node: begin
+  whatsit_node_case,mark_node_case,ins_node_case: begin
     prev_p:=p; p:=vlink(prev_p);
     end;
-  glue_node,kern_node,penalty_node: begin
+  glue_node_case,kern_node_case,penalty_node_case: begin
     q:=p; p:=vlink(q); vlink(q):=null;
     vlink(prev_p):=p;
     if s then
@@ -22356,19 +22110,19 @@ not_found: if prev_dp>d then
 
 @ @<Use node |p| to update the current height and depth measurements...@>=
 case type(p) of
-hlist_node,vlist_node,rule_node: begin@t@>@;@/
+hlist_node_case,vlist_node_case,rule_node_case: begin@t@>@;@/
   cur_height:=cur_height+prev_dp+height(p); prev_dp:=depth(p);
   goto not_found;
   end;
-whatsit_node:@<Process whatsit |p| in |vert_break| loop, |goto not_found|@>;
-glue_node: if precedes_break(prev_p) then pi:=0
+whatsit_node_case:@<Process whatsit |p| in |vert_break| loop, |goto not_found|@>;
+glue_node_case: if precedes_break(prev_p) then pi:=0
   else goto update_heights;
-kern_node: begin if vlink(p)=null then t:=penalty_node
+kern_node_case: begin if vlink(p)=null then t:=penalty_node
   else t:=type(vlink(p));
   if t=glue_node then pi:=0@+else goto update_heights;
   end;
-penalty_node: pi:=penalty(p);
-mark_node,ins_node: goto not_found;
+penalty_node_case: pi:=penalty(p);
+mark_node_case,ins_node_case: goto not_found;
 othercases confusion("vertbreak")
 @:this can't happen vertbreak}{\quad vertbreak@>
 endcases
@@ -22588,8 +22342,6 @@ The data structure definitions here use the fact that the |@!height| field
 appears in the fourth word of a box node.
 @^data structure assumptions@>
 
-@d inserting_node=37 {an insertion class that has not yet overflowed}
-@d split_up_node=38 {an overflowed insertion class}
 @d broken_ptr(#)==vlink(#+2)
   {an insertion for this class will break here if anywhere}
 @d broken_ins(#)==vinfo(#+2) {this insertion might break at |broken_ptr|}
@@ -22891,23 +22643,23 @@ we know its successor.
 
 @<If the current page is empty...@>=
 case type(p) of
-hlist_node,vlist_node,rule_node: if page_contents<box_there then
+hlist_node_case,vlist_node_case,rule_node_case: if page_contents<box_there then
     @<Initialize the current page, insert the \.{\\topskip} glue
       ahead of |p|, and |goto continue|@>
   else @<Prepare to move a box or rule node to the current page,
     then |goto contribute|@>;
-whatsit_node: @<Prepare to move whatsit |p| to the current page,
+whatsit_node_case: @<Prepare to move whatsit |p| to the current page,
                      then |goto contribute|@>;
-glue_node: if page_contents<box_there then goto done1
+glue_node_case: if page_contents<box_there then goto done1
   else if precedes_break(page_tail) then pi:=0
   else goto update_heights;
-kern_node: if page_contents<box_there then goto done1
+kern_node_case: if page_contents<box_there then goto done1
   else if vlink(p)=null then return
   else if type(vlink(p))=glue_node then pi:=0
   else goto update_heights;
-penalty_node: if page_contents<box_there then goto done1@+else pi:=penalty(p);
-mark_node: goto contribute;
-ins_node: @<Append an insertion to the current page and |goto contribute|@>;
+penalty_node_case: if page_contents<box_there then goto done1@+else pi:=penalty(p);
+mark_node_case: goto contribute;
+ins_node_case: @<Append an insertion to the current page and |goto contribute|@>;
 othercases confusion("page")
 @:this can't happen page}{\quad page@>
 endcases
@@ -26195,8 +25947,6 @@ end;
 @ Paragraph shapes are set up in an obvious way. It needs one word more than in 
 \TeX, though.
 
-@d shape_node=54 { storage for shape pointers }
-
 @<Assignments@>=
 set_shape: begin q:=cur_chr; scan_optional_equals; scan_int; n:=cur_val;
   if n<=0 then p:=null
@@ -27732,14 +27482,9 @@ case of \.{\\openout}, we need three words and three auxiliary subfields
 to hold the string numbers for name, area, and extension.
 
 @d open_node=0 {|subtype| in whatsits that represent files to \.{\\openout}}
-@d open_node_size==4 {number of words in an open/whatsit node}
 @d write_node=1 {|subtype| in whatsits that represent things to \.{\\write}}
-@d write_node_size==3 {number of words in a write/whatsit node}
 @d close_node=2 {|subtype| in whatsits that represent streams to \.{\\closeout}}
-@d close_node_size==3 {number of words in a write/whatsit node}
 @d special_node=3 {|subtype| in whatsits that represent \.{\\special} things}
-@d special_node_size==3 {number of words in a write/whatsit node}
-@d dir_node_size=4 {number of words in change direction node}
 @d dir_dir(#)==vinfo(#+2) {keep the direction to be taken}
 @d dir_level(#)==vlink(#+2) {the save level at which the direction was defined}
 @d dir_dvi_ptr(#)==vinfo(#+3) {for reflecting dvi output}
@@ -27831,15 +27576,12 @@ stays the same.
 @d pdf_annot_node              == pdftex_first_extension_code + 7
 @d pdf_start_link_node         == pdftex_first_extension_code + 8
 @d pdf_end_link_node           == pdftex_first_extension_code + 9
-@d pdf_end_link_node_size==3
 @d pdf_outline_code            == pdftex_first_extension_code + 10
 @d pdf_dest_node               == pdftex_first_extension_code + 11
 @d pdf_thread_node             == pdftex_first_extension_code + 12
 @d pdf_start_thread_node       == pdftex_first_extension_code + 13
 @d pdf_end_thread_node         == pdftex_first_extension_code + 14
-@d pdf_end_thread_node_size==3
 @d pdf_save_pos_node           == pdftex_first_extension_code + 15
-@d pdf_save_pos_node_size==3
 @d pdf_info_code               == pdftex_first_extension_code + 16
 @d pdf_thread_data_node        == pdftex_first_extension_code + 16
 @d pdf_catalog_code            == pdftex_first_extension_code + 17
@@ -29310,13 +29052,6 @@ begin
     until a = b;
 end;
 
-@ @<Display <rule spec> for whatsit node created by \pdfTeX@>=
-print("(");
-print_rule_dimen(pdf_height(p));
-print_char("+");
-print_rule_dimen(pdf_depth(p));
-print(")x");
-print_rule_dimen(pdf_width(p))
 
 @ Each new type of node that appears in our data structure must be capable
 of being displayed, copied, destroyed, and so on. The routines that we
@@ -29351,237 +29086,10 @@ typesetting engine itself. Each has an id, a type, and a value. The
 type of the value depends on the |user_node_type| field. 
 
 @d user_defined_node==cancel_boundary_node+1
-@d user_defined_node_size=4
 @d user_node_id(#)==vlink(#+2)
 @d user_node_type(#)==vinfo(#+2)
 @d user_node_value(#)==vinfo(#+3)
 
-@ @<Display the whatsit...@>=
-case subtype(p) of
-open_node:begin print_write_whatsit("openout",p);
-  print_char("="); print_file_name(open_name(p),open_area(p),open_ext(p));
-  end;
-write_node:begin print_write_whatsit("write",p);
-  print_mark(write_tokens(p));
-  end;
-close_node:print_write_whatsit("closeout",p);
-special_node:begin print_esc("special");
-  print_mark(write_tokens(p));
-  end;
-dir_node:
-  if dir_dir(p)<0 then begin
-    print_esc("enddir"); print(" "); print_dir(dir_dir(p)+64);
-    end
-  else begin
-    print_esc("begindir"); print(" "); print_dir(dir_dir(p));
-    end;
-@<LOCAL: print out |local_paragraph| node@>;
-pdf_literal_node: begin
-    print_esc("pdfliteral");
-    case pdf_literal_mode(p) of
-    set_origin:
-        do_nothing;
-    direct_page:
-        print(" page");
-    direct_always:
-        print(" direct");
-    othercases confusion("literal2")
-    endcases;
-    print_mark(pdf_literal_data(p));
-end;
-pdf_colorstack_node: begin
-    print_esc("pdfcolorstack ");
-    print_int(pdf_colorstack_stack(p));
-    case  pdf_colorstack_cmd(p) of
-    colorstack_set:
-        print(" set ");
-    colorstack_push:
-        print(" push ");
-    colorstack_pop:
-        print(" pop");
-    colorstack_current:
-        print(" current");
-    othercases confusion("pdfcolorstack")
-    endcases;
-    if pdf_colorstack_cmd(p) <= colorstack_data then
-        print_mark(pdf_colorstack_data(p));
-end;
-pdf_setmatrix_node: begin
-    print_esc("pdfsetmatrix");
-    print_mark(pdf_setmatrix_data(p));
-end;
-pdf_save_node: begin
-    print_esc("pdfsave");
-end;
-pdf_restore_node: begin
-    print_esc("pdfrestore");
-end;
-cancel_boundary_node: begin
-    print_esc("noboundary");
-end;
-late_lua_node: begin
-    print_esc("latelua");
-    print_int(late_lua_reg(p));
-    print_mark(late_lua_data(p));
-end;
-close_lua_node: begin
-    print_esc("closelua");
-        print_int(late_lua_reg(p));
-end;
-pdf_refobj_node: begin
-    print_esc("pdfrefobj");
-    if obj_obj_is_stream(pdf_obj_objnum(p)) > 0 then begin
-        if obj_obj_stream_attr(pdf_obj_objnum(p)) <> null then begin
-            print(" attr");
-            print_mark(obj_obj_stream_attr(pdf_obj_objnum(p)));
-        end;
-        print(" stream");
-    end;
-    if obj_obj_is_file(pdf_obj_objnum(p)) > 0 then
-        print(" file");
-    print_mark(obj_obj_data(pdf_obj_objnum(p)));
-end;
-pdf_refxform_node: begin
-    print_esc("pdfrefxform");
-    print("(");
-    print_scaled(obj_xform_height(pdf_xform_objnum(p)));
-    print_char("+");
-    print_scaled(obj_xform_depth(pdf_xform_objnum(p)));
-    print(")x");
-    print_scaled(obj_xform_width(pdf_xform_objnum(p)));
-end;
-pdf_refximage_node: begin
-    print_esc("pdfrefximage");
-    print("(");
-    print_scaled(pdf_height(p));
-    print_char("+");
-    print_scaled(pdf_depth(p));
-    print(")x");
-    print_scaled(pdf_width(p));
-end;
-pdf_annot_node: begin
-    print_esc("pdfannot");
-    @<Display <rule spec> for whatsit node created by \pdfTeX@>;
-    print_mark(pdf_annot_data(p));
-end;
-pdf_start_link_node: begin
-    print_esc("pdflink");
-    @<Display <rule spec> for whatsit node created by \pdfTeX@>;
-    if pdf_link_attr(p) <> null then begin
-        print(" attr");
-        print_mark(pdf_link_attr(p));
-    end;
-    print(" action");
-    if pdf_action_type(pdf_link_action(p)) = pdf_action_user then begin
-        print(" user");
-        print_mark(pdf_action_tokens(pdf_link_action(p)));
-        return;
-    end;
-    if pdf_action_file(pdf_link_action(p)) <> null then begin
-        print(" file");
-        print_mark(pdf_action_file(pdf_link_action(p)));
-    end;
-    case pdf_action_type(pdf_link_action(p)) of
-    pdf_action_goto: begin
-        if pdf_action_named_id(pdf_link_action(p)) > 0 then begin
-            print(" goto name");
-            print_mark(pdf_action_id(pdf_link_action(p)));
-        end
-        else begin
-            print(" goto num");
-            print_int(pdf_action_id(pdf_link_action(p)))
-        end;
-    end;
-    pdf_action_page: begin
-        print(" page");
-        print_int(pdf_action_id(pdf_link_action(p)));
-        print_mark(pdf_action_tokens(pdf_link_action(p)));
-    end;
-    pdf_action_thread: begin
-        if pdf_action_named_id(pdf_link_action(p)) > 0 then begin
-            print(" thread name");
-            print_mark(pdf_action_id(pdf_link_action(p)));
-        end
-        else begin
-            print(" thread num");
-            print_int(pdf_action_id(pdf_link_action(p)));
-        end;
-    end;
-    othercases pdf_error("displaying", "unknown action type");
-    endcases;
-end;
-pdf_end_link_node: print_esc("pdfendlink");
-pdf_dest_node: begin
-    print_esc("pdfdest");
-    if pdf_dest_named_id(p) > 0 then begin
-        print(" name");
-        print_mark(pdf_dest_id(p));
-    end
-    else begin
-        print(" num");
-        print_int(pdf_dest_id(p));
-    end;
-    print(" ");
-    case pdf_dest_type(p) of
-    pdf_dest_xyz: begin
-        print("xyz");
-        if pdf_dest_xyz_zoom(p) <> null then begin
-            print(" zoom");
-            print_int(pdf_dest_xyz_zoom(p));
-        end;
-    end;
-    pdf_dest_fitbh: print("fitbh");
-    pdf_dest_fitbv: print("fitbv");
-    pdf_dest_fitb: print("fitb");
-    pdf_dest_fith: print("fith");
-    pdf_dest_fitv: print("fitv");
-    pdf_dest_fitr: begin
-        print("fitr");
-        @<Display <rule spec> for whatsit node created by \pdfTeX@>;
-    end;
-    pdf_dest_fit: print("fit");
-    othercases print("unknown!");
-    endcases;
-end;
-pdf_thread_node,
-pdf_start_thread_node: begin
-    if subtype(p) = pdf_thread_node then
-        print_esc("pdfthread")
-    else
-        print_esc("pdfstartthread");
-    print("("); print_rule_dimen(pdf_height(p)); print_char("+");
-    print_rule_dimen(pdf_depth(p)); print(")x");
-    print_rule_dimen(pdf_width(p));
-    if pdf_thread_attr(p) <> null then begin
-        print(" attr");
-        print_mark(pdf_thread_attr(p));
-    end;
-    if pdf_thread_named_id(p) > 0 then begin
-        print(" name");
-        print_mark(pdf_thread_id(p));
-    end
-    else begin
-        print(" num");
-        print_int(pdf_thread_id(p));
-    end;
-end;
-pdf_end_thread_node: print_esc("pdfendthread");
-pdf_save_pos_node: print_esc("pdfsavepos");
-user_defined_node: begin
-    print_esc("whatsit");
-        print_int(user_node_id(p));
-    print_char("=");
-    case user_node_type(p) of 
-    "a": print("<>");
-    "n": begin print("["); show_node_list(user_node_value(p)); print("]"); end;
-    "s": begin print(""""); print(user_node_value(p)); print(""""); end;
-    "t": print_mark(user_node_value(p));
-    othercases  { only d }
-      print_int(user_node_value(p));
-    endcases;
-        end;
-othercases print("whatsit?")
-endcases
 
 @ @<Incorporate a whatsit node into a vbox@>=
 if (subtype(p) = pdf_refxform_node) or (subtype(p) = pdf_refximage_node) then
@@ -29825,7 +29333,6 @@ for k:=0 to 15 do if write_open[k] then lua_a_close_out(write_file[k])
 @d local_box_right(#)==vlink(#+4) {\.{\\localleftbox}}
 @d local_box_right_width(#)==vinfo(#+4)
 @d local_par_dir(#)==vinfo(#+5)
-@d local_par_size==6
 
 @<LOCAL: Declare |make_local_par_node|@>=
 function make_local_par_node:pointer;
@@ -29846,35 +29353,6 @@ if local_right_box<>null then begin
 local_par_dir(p):=par_direction;
 make_local_par_node:=p;
 end
-
-@ @<LOCAL: print out |local_paragraph| node@>=
-local_par_node: begin
-  print_esc("whatsit");
-  append_char(".");
-  print_ln; print_current_string;
-  print_esc("localinterlinepenalty"); print("=");
-  print_int(local_pen_inter(p));
-  print_ln; print_current_string;
-  print_esc("localbrokenpenalty"); print("=");
-  print_int(local_pen_broken(p));
-  print_ln; print_current_string;
-  print_esc("localleftbox");
-  if local_box_left(p)=null then print("=null")
-  else begin
-    append_char(".");
-    show_node_list(local_box_left(p));
-    decr(pool_ptr);
-    end;
-  print_ln; print_current_string;
-  print_esc("localrightbox");
-  if local_box_right(p)=null then print("=null")
-  else begin
-    append_char(".");
-    show_node_list(local_box_right(p));
-    decr(pool_ptr);
-    end;
-  decr(pool_ptr);
-  end
 
 @ @<LOCAL: Add local paragraph node@>=
 begin tail_append(make_local_par_node) end
@@ -30117,10 +29595,10 @@ begin
       end
     else begin
       case type(q) of
-      hlist_node,vlist_node,rule_node,
-      margin_kern_node,kern_node:
+      hlist_node_case,vlist_node_case,rule_node_case,
+      margin_kern_node_case,kern_node_case:
         w:=w+width(q);
-      disc_node: if vlink(no_break(q))<>null then begin
+      disc_node_case: if vlink(no_break(q))<>null then begin
         w:=w+simple_advance_width(no_break(q));
         end;
       othercases do_nothing;
@@ -30147,9 +29625,9 @@ begin
       end 
     else begin
       case type(q) of
-      hlist_node,vlist_node,rule_node,
-      margin_kern_node,kern_node:w:=w+width(q);
-      glue_node: begin 
+      hlist_node_case,vlist_node_case,rule_node_case,
+      margin_kern_node_case,kern_node_case:w:=w+width(q);
+      glue_node_case: begin 
         g:=glue_ptr(q);
         w:=w+width(g)-cur_g; 
         if g_sign<>normal then
@@ -30168,11 +29646,11 @@ begin
           end;
         w:=w+cur_g; 
         end;
-      disc_node: if vlink(no_break(q))<>null then begin
+      disc_node_case: if vlink(no_break(q))<>null then begin
         w:=w+simple_advance_width(no_break(q));
         end;
-      math_node: w:=w+surround(q);
-      whatsit_node: begin
+      math_node_case: w:=w+surround(q);
+      whatsit_node_case: begin
         if subtype(q)=dir_node then begin 
           if dir_dir(q)>=0 then incr(dir_nest) else decr(dir_nest);
           if dir_nest=0 then begin
@@ -32026,7 +31504,6 @@ expression so far and |r| is the state of its evaluation; |t| is the
 term so far and |s| is the state of its evaluation; finally |n| is the
 numerator for a combined multiplication and division, if any.
 
-@d expr_node=39 { stack entry for subexpressions}
 @d expr_type(#)==type(#+1)
 @d expr_state(#)==subtype(#+1)
 @d expr_e_field(#)==vlink(#+1) {saved expression so far}

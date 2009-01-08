@@ -63,7 +63,6 @@
 @define function make_lang_data();
 @define procedure ext_do_line_break();
 @define procedure initialize_active;
-@define var active_node_size;
 @define var prev_char_p;
 @define function cur_break();
 @define function break_node();
@@ -636,3 +635,41 @@
 @define const text_style;
 @define const script_style;
 @define const script_script_style;
+
+@define const hlist_node;
+@define const vlist_node;
+@define const rule_node;
+@define const ins_node;
+@define const mark_node;
+@define const adjust_node;
+@define const disc_node;
+@define const whatsit_node;
+@define const math_node;
+@define const glue_node;
+@define const kern_node;
+@define const penalty_node;
+@define const unset_node;
+@define const margin_kern_node;
+@define const glyph_node;
+@define const align_record_node;
+@define const inserting_node;
+@define const split_up_node;
+@define const expr_node;
+@define const span_node;
+@define const glue_spec_node;
+@define const temp_node;
+@define const align_stack_node;
+@define const movement_node;
+@define const if_node;
+@define const shape_node;
+
+@define const temp_node_size;
+@define const glyph_node_size;
+@define const glue_spec_size;
+@define const write_node_size;
+@define const open_node_size;
+@define const span_node_size;
+@define const active_node_size;
+
+@define procedure print_short_node_contents();
+@define procedure show_node_list();

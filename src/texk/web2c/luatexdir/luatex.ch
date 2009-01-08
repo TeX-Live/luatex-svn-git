@@ -661,18 +661,6 @@ So they have been simplified here in the obvious way.
 @z
 
 @x
-  if abs(vmem(p+glue_offset).int)<@'4000000 then print("?.?")
-  else if abs(g)>float_constant(20000) then
-@y
-  { The Unix |pc| folks removed this restriction with a remark that
-    invalid bit patterns were vanishingly improbable, so we follow
-    their example without really understanding it.
-  |if abs(vmem(p+glue_offset).int)<@'4000000 then print('?.?')|
-  |else| }
-  if fabs(g)>float_constant(20000) then
-@z
-
-@x
 begin if m>0 then
   case m div (max_command+1) of
   0:print("vertical");

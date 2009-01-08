@@ -312,51 +312,56 @@ typedef enum {
     disc_node = 7,
     whatsit_node,
     math_node,
-    glue_node,
+    glue_node,       /* 10 */
     kern_node,
     penalty_node,
-    unset_node,                 /* 13 */
+    unset_node,      
     style_node,
-    choice_node,
+    choice_node,     /* 15 */
     ord_noad,
     op_noad,
     bin_noad,
     rel_noad,
-    open_noad,
+    open_noad,       /* 20 */
     close_noad,
     punct_noad,
     inner_noad,
     radical_noad,
-    fraction_noad,      /* 25 */
+    fraction_noad,   /* 25 */
     under_noad,
     over_noad,
     accent_noad,
     vcenter_noad,
-    left_noad,
+    left_noad,       /* 30 */
     right_noad,
-    margin_kern_node = 32,
-    glyph_node = 33,
-    align_record_node = 34,
-    pseudo_file_node = 35,
-    pseudo_line_node = 36,
-    inserting_node = 37,
-    split_up_node = 38,
-    expr_node = 39,
-    nesting_node = 40,
-    span_node = 41,
-    attribute_node = 42,
-    glue_spec_node = 43,
-    attribute_list_node = 44,
-    action_node = 45,
-    temp_node = 46,
-    align_stack_node = 47,
-    movement_node = 48,
-    if_node = 49,
-    unhyphenated_node = 50,
-    hyphenated_node = 51,
-    delta_node = 52,
-    passive_node = 53,
-    shape_node = 54
+    math_char_node,       /* kernel fields */
+    sub_box_node,
+    sub_mlist_node,
+    math_text_char_node,
+    delim_node,     /* shield fields */
+    margin_kern_node,
+    glyph_node,
+    align_record_node,
+    pseudo_file_node, /* 40 */
+    pseudo_line_node,
+    inserting_node,
+    split_up_node,
+    expr_node,
+    nesting_node,
+    span_node,
+    attribute_node,
+    glue_spec_node,
+    attribute_list_node,
+    action_node,
+    temp_node,
+    align_stack_node,
+    movement_node ,
+    if_node,
+    unhyphenated_node,
+    hyphenated_node,
+    delta_node,
+    passive_node,
+    shape_node,
 } node_types;
 
 #  define last_known_node temp_node     /* used by \lastnodetype */
@@ -419,6 +424,8 @@ typedef enum {
 /* this is like a fraction, but it only stores a |left_delimiter| */
 #  define radical_noad_size 10   /*number of |mem| words in a radical noad */
 
+#define math_kernel_node_size 2
+#define math_shield_node_size 3
 
 /* accessors for the |nucleus|-style two-word subnode fields */
 #  define math_type type
@@ -681,6 +688,9 @@ extern int has_attribute(halfword n, int c, int w);
 
 extern halfword new_span_node(halfword n, int c, scaled w);
 extern halfword string_to_pseudo(integer l, integer pool_ptr, integer nl);
+
+extern void print_short_node_contents(halfword);
+extern void show_node_list(integer);
 
 /* TH: these two defines still need checking. The node ordering in luatex is not 
    quite the same as in tex82 */
