@@ -30143,7 +30143,23 @@ end
 
 @ @<Output a Image node in a vlist@>=
 begin cur_v:=cur_v+pdf_height(p)+pdf_depth(p);
-  cur_h:=left_edge;
+  case box_direction(dvi_direction) of
+  dir_TL_: begin
+    cur_h:=left_edge;
+    end;
+  dir_BL_: begin
+    cur_h:=left_edge;
+    cur_v:=cur_v+pdf_height(p);
+    end;
+  dir_TR_: begin
+    cur_h:=cur_h-pdf_width(p);
+    end;
+  dir_BR_: begin
+    cur_h:=cur_h-pdf_width(p);
+    cur_v:=cur_v+pdf_height(p);
+    end;
+  othercases cur_h:=left_edge;
+  endcases;
   output_image(pdf_ximage_idx(p));
 end
 
@@ -30203,9 +30219,32 @@ endcases
 
 @ @<Output a Image node in a hlist@>=
 begin
-  cur_v:=base_line+pdf_depth(p);
+  case box_direction(dvi_direction) of
+  dir_TL_: begin
+    edge:=cur_h+pdf_width(p);
+    cur_v:=base_line+pdf_depth(p);
+    end;
+  dir_BL_: begin
+    edge:=cur_h+pdf_width(p);
+    cur_v:=base_line+pdf_height(p)+pdf_depth(p);
+    end;
+  dir_TR_: begin
+    cur_h:=cur_h-pdf_width(p);
+    edge:=cur_h;
+    cur_v:=base_line+pdf_depth(p);
+    end;
+  dir_BR_: begin
+    cur_h:=cur_h-pdf_width(p);
+    edge:=cur_h;
+    cur_v:=base_line+pdf_height(p)+pdf_depth(p);
+    end;
+  othercases begin 
+    edge:=cur_h+pdf_width(p);
+    cur_v:=base_line+pdf_depth(p);
+    end;
+  endcases;
   output_image(pdf_ximage_idx(p));
-  edge:=cur_h+pdf_width(p); cur_h:=edge; cur_v:=base_line;
+  cur_h:=edge; cur_v:=base_line;
 end
 
 @ @<Output a Form node in a hlist@>=
