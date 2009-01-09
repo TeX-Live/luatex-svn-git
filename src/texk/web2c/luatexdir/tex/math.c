@@ -1166,13 +1166,13 @@ void sub_sup(void)
     p = null;
     if (tail != head) {
         if (scripts_allowed(tail)) {
-            p = supscr(tail) + cur_cmd - sup_mark_cmd;  /* |supscr| or |subscr| */
-            t = math_type(p);
+          p = (cur_cmd == sup_mark_cmd ? supscr(tail) : subscr(tail));
+          t = math_type(p);
         }
     }
     if ((p == null) || (t != empty)) {
         tail_append(new_noad());
-        p = supscr(tail) + cur_cmd - sup_mark_cmd;      /* |supscr| or |subscr| */
+        p = (cur_cmd == sup_mark_cmd ? supscr(tail) : subscr(tail));
         if (t != empty) {
             if (cur_cmd == sup_mark_cmd) {
                 char *hlp[] = {
@@ -1304,7 +1304,7 @@ void close_math_group(pointer p)
           if (math_type(subscr(p)) == empty &&
               math_type(supscr(p)) == empty) {
             math_clone(saved(0),nucleus(p));
-            math_reset(nucleus(tail)); /* just in case */
+            math_reset(nucleus(p)); /* just in case */
             flush_node(p);
           }
         }
@@ -1317,7 +1317,7 @@ void close_math_group(pointer p)
                 q = vlink(q);
               vlink(q) = p;
               math_reset(nucleus(tail)); /* just in case */
-              math_reset(subscr(tail));
+              math_reset(subscr(tail)); 
               math_reset(supscr(tail));
               flush_node(tail);
               tail = p;
