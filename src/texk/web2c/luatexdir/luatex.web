@@ -3694,11 +3694,7 @@ specifies the order of infinity to which glue setting applies (|normal|,
 @d normal=0 {the most common case when several cases are named}
 @d stretching = 1 {glue setting applies to the stretch components}
 @d shrinking = 2 {glue setting applies to the shrink components}
-@d glue_offset = 7 {position of |glue_set| in a box node}
-@d glue_set(#) == vmem(#+glue_offset).gr
-  {a word of type |glue_ratio| for glue setting}
-@d synctex_tag_box(#)==vinfo(#+8)
-@d synctex_line_box(#)==vlink(#+8)
+@d glue_set(#) == vmem(#+7).gr {a word of type |glue_ratio| for glue setting}
 
 @ The |new_null_box| function returns a pointer to an |hlist_node| in
 which all subfields have the values corresponding to `\.{\\hbox\{\}}'.
@@ -3725,8 +3721,6 @@ an hlist; the |height| and |depth| are never running in a~vlist.
 @d null_flag==-@'10000000000 {$-2^{30}$, signifies a missing item}
 @d is_running(#) == (#=null_flag) {tests for a running dimension}
 @d rule_dir(#)==vlink(#+5)
-@d synctex_tag_rule(#)==vinfo(#+6)
-@d synctex_line_rule(#)==vlink(#+6)
 
 @ A new rule node is delivered by the |new_rule| function. It
 makes all the dimensions ``running,'' so you have to change the
@@ -3989,8 +3983,6 @@ in a subscript.
 @d x_leaders=102 {|subtype| for expanded leaders}
 @d glue_ptr(#)==vinfo(#+2) {pointer to a glue specification}
 @d leader_ptr(#)==vlink(#+2) {pointer to box or rule node for leaders}
-@d synctex_tag_glue(#)==vinfo(#+3)
-@d synctex_line_glue(#)==vlink(#+3)
 
 @ A glue specification has a halfword reference count in its first word,
 @^reference counts@>
@@ -4081,8 +4073,6 @@ inserted from \.{\\mkern} specifications in math formulas).
 
 @d explicit=1 {|subtype| of kern nodes from \.{\\kern} and \.{\\/}}
 @d acc_kern=2 {|subtype| of kern nodes from accents}
-@d synctex_tag_kern(#)==vinfo(#+3)
-@d synctex_line_kern(#)==vlink(#+3)
 
 @# {memory structure for marginal kerns}
 @d margin_char(#) == vlink(#+3)
@@ -4145,7 +4135,7 @@ The |subtype| field is called |span_count|; an unset box typically
 contains the data for |qo(span_count)+1| columns.
 Unset nodes will be changed to box nodes when alignment is completed.
 
-@d glue_stretch(#)==vmem(#+glue_offset).sc {total stretch in an unset node}
+@d glue_stretch(#)==vmem(#+7).sc {total stretch in an unset node}
 @d glue_shrink==shift_amount {total shrink in an unset node}
 @d span_count==subtype {indicates the number of spanned columns}
 
