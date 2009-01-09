@@ -12766,14 +12766,22 @@ prints a warning message unless the user has suppressed it.
 
 @p procedure char_warning(@!f:internal_font_number;@!c:integer);
 var old_setting: integer; {saved value of |tracing_online|}
+    k:0..22; {index to current digit; we assume that $0\L n<16^{22}$}
 begin if tracing_lost_chars>0 then
  begin old_setting:=tracing_online;
  if tracing_lost_chars>1 then tracing_online:=1;
   begin begin_diagnostic;
   print_nl("Missing character: There is no ");
 @.Missing character@>
-  print(c); print(" (");
-  print_int(c); print(") in font "); 
+  print(c); print(" (U+");
+  k:=0;
+  if c<16 then print_char('0');
+  if c<256 then print_char('0');
+  if c<4096 then print_char('0');
+  repeat dig[k]:=c mod 16; c:=c div 16; incr(k);
+  until c=0;
+  print_the_digs(k);
+  print(") in font "); 
   print_font_name(f);
   print_char("!"); end_diagnostic(false);
   end;
