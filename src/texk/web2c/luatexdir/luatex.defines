@@ -663,13 +663,24 @@
 @define const if_node;
 @define const shape_node;
 
-@define const temp_node_size;
-@define const glyph_node_size;
-@define const glue_spec_size;
 @define const write_node_size;
 @define const open_node_size;
-@define const span_node_size;
-@define const active_node_size;
 
 @define procedure print_short_node_contents();
 @define procedure show_node_list();
+
+@define const zero_glue       ;
+@define const sfi_glue        ;
+@define const fil_glue        ;
+@define const fill_glue       ;
+@define const ss_glue         ;
+@define const fil_neg_glue    ;
+@define const page_ins_head   ;
+@define const contrib_head    ;
+@define const page_head       ;
+@define const temp_head       ;
+@define const hold_head       ;
+@define const adjust_head     ;
+@define const pre_adjust_head ;
+@define const align_head      ;
+@define const end_span        ;

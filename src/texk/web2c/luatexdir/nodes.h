@@ -750,5 +750,7 @@ typedef enum {
 #  define end_span        align_head+temp_node_size
 #  define begin_point     end_span+span_node_size
 #  define end_point       begin_point+glyph_node_size
+#  define var_mem_stat_max (end_point+glyph_node_size-1)
+
 
 #endif

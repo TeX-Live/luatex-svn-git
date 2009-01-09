@@ -4164,32 +4164,23 @@ the \.{WEB} macro definitions above, so that format changes will leave
 \TeX's other algorithms intact.
 @^system dependencies@>
 
-@* \[11] Memory layout.
-Some areas of |mem| are dedicated to fixed usage, since static allocation is
-more efficient than dynamic allocation when we can get away with it. For
-example, |zero_glue| used for glue that is `\.{0pt plus 0pt minus 0pt}'. The
-following macro definitions accomplish the static allocation by giving
-symbolic names to the fixed positions. 
+@* \[11] Memory layout.  
 
-@d zero_glue==0 {specification for \.{0pt plus 0pt minus 0pt}}
-@d sfi_glue==zero_glue+glue_spec_size {\.{0pt plus 1fi minus 0pt}}
-@d fil_glue==sfi_glue+glue_spec_size {\.{0pt plus 1fil minus 0pt}}
-@d fill_glue==fil_glue+glue_spec_size {\.{0pt plus 1fill minus 0pt}}
-@d ss_glue==fill_glue+glue_spec_size {\.{0pt plus 1fil minus 1fil}}
-@d fil_neg_glue==ss_glue+glue_spec_size {\.{0pt plus -1fil minus 0pt}}
-@d page_ins_head==fil_neg_glue+glue_spec_size {list of insertion data for current page}
-@d contrib_head==page_ins_head+temp_node_size {list of items not yet on current page}
-@d page_head==contrib_head+temp_node_size {list for current page}
-@d temp_head==page_head+temp_node_size {head of a temporary list of some kind}
-@d hold_head==temp_head+temp_node_size {head of a temporary list of another kind}
-@d adjust_head==hold_head+temp_node_size {head of adjustment list returned by |hpack|}
-@d pre_adjust_head==adjust_head+temp_node_size {head of pre-adjustment list returned by |hpack|}
-@d active==pre_adjust_head+temp_node_size {head of active list in |line_break|}
-@d align_head==active+active_node_size {head of preamble list for alignments}
-@d end_span==align_head+temp_node_size {tail of spanned-width lists}
-@d begin_point==end_span+span_node_size {left-side dot for words in hyphenation}
-@d end_point==begin_point+glyph_node_size {right-side dot for words in hyphenation}
-@d var_mem_stat_max==(end_point+glyph_node_size-1) {largest statically allocated word in the variable-size |mem|}
+Some areas of |mem| are dedicated to fixed usage, since static
+allocation is more efficient than dynamic allocation when we can get
+away with it. For example, |zero_glue| used for glue that is `\.{0pt
+plus 0pt minus 0pt}'.  A few C macro definitions accomplish the static
+allocation of node memory locations by giving symbolic names to fixed
+positions. The list of imported constant identifiers is: |zero_glue|,
+|sfi_glue|, |fil_glue|, |fill_glue|, |ss_glue|, |fil_neg_glue| (all
+glue specs), |page_ins_head| (list of insertion data for current
+page), |contrib_head| (list of insertion data for current page),
+|page_head| (list for current page), |temp_head| and |hold_head|
+(temporary lists), |adjust_head| (head of adjustment list returned by
+|hpack|), |pre_adjust_head| (head of pre-adjustment list returned by
+|hpack|), |align_head| (head of alignment preamble), and 
+|end_span| (tail of spanned-width lists).
+
 
 @<Glob...@>=
 garbage:pointer;         {head of a junk list, write only}
@@ -4207,52 +4198,7 @@ initializing itself the slow~way.
 
 @ @<Initialize table entries...@>=
 procedure init_link_heads;forward;
-init_node_mem(var_mem_stat_max,500); 
-glue_ref_count(zero_glue):=null+1; width(zero_glue):=0; 
-type(zero_glue):=glue_spec_node; vlink(zero_glue):=null;
-stretch(zero_glue):=0; stretch_order(zero_glue):=normal;@/
-shrink(zero_glue):=0; shrink_order(zero_glue):=normal;@/
-glue_ref_count(sfi_glue):=null+1; width(sfi_glue):=0; 
-type(sfi_glue):=glue_spec_node;  vlink(sfi_glue):=null;
-stretch(sfi_glue):=0; stretch_order(sfi_glue):=sfi;@/
-shrink(sfi_glue):=0; shrink_order(sfi_glue):=normal;@/
-glue_ref_count(fil_glue):=null+1; width(fil_glue):=0; 
-type(fil_glue):=glue_spec_node;  vlink(fil_glue):=null;
-stretch(fil_glue):=unity; stretch_order(fil_glue):=fil;@/
-shrink(fil_glue):=0; shrink_order(fil_glue):=normal;@/
-glue_ref_count(fill_glue):=null+1; width(fill_glue):=0; 
-type(fill_glue):=glue_spec_node;  vlink(fill_glue):=null;
-stretch(fill_glue):=unity; stretch_order(fill_glue):=fill;@/
-shrink(fill_glue):=0; shrink_order(fill_glue):=normal;@/
-glue_ref_count(ss_glue):=null+1; width(ss_glue):=0; 
-type(ss_glue):=glue_spec_node;  vlink(ss_glue):=null;
-stretch(ss_glue):=unity; stretch_order(ss_glue):=fil;@/
-shrink(ss_glue):=unity; shrink_order(ss_glue):=fil;@/
-glue_ref_count(fil_neg_glue):=null+1; width(fil_neg_glue):=0; 
-type(fil_neg_glue):=glue_spec_node;  vlink(fil_neg_glue):=null;
-stretch(fil_neg_glue):=-unity; stretch_order(fil_neg_glue):=fil;@/
-shrink(fil_neg_glue):=0; shrink_order(fil_neg_glue):=normal;@/
-{initialize node list heads}
-vinfo(page_ins_head):=0; vlink(page_ins_head):=null; alink(page_ins_head):=null;
-vinfo(contrib_head):=0; vlink(contrib_head):=null; alink(contrib_head):=null;
-vinfo(page_head):=0; vlink(page_head):=null; alink(page_head):=null;
-vinfo(temp_head):=0; vlink(temp_head):=null; alink(temp_head):=null;
-vinfo(hold_head):=0; vlink(hold_head):=null; alink(hold_head):=null;
-vinfo(adjust_head):=0; vlink(adjust_head):=null; alink(adjust_head):=null;
-vinfo(pre_adjust_head):=0; vlink(pre_adjust_head):=null; alink(pre_adjust_head):=null;
-vinfo(active):=0; vlink(active):=null; alink(active):=null;
-vinfo(align_head):=0; vlink(align_head):=null; alink(align_head):=null;
-vinfo(end_span):=0; vlink(end_span):=null; alink(end_span):=null;
-type(begin_point):=glyph_node; subtype(begin_point):=0; vlink(begin_point):=null; 
-vinfo(begin_point+1):=null; alink(begin_point):=null; 
-font(begin_point):=0; character(begin_point):='.';
-vinfo(begin_point+3):=0; vlink(begin_point+3):=0; 
-vinfo(begin_point+4):=0; vlink(begin_point+4):=0; 
-type(end_point):=glyph_node; subtype(end_point):=0; vlink(end_point):=null; 
-vinfo(end_point+1):=null; alink(end_point):=null; 
-font(end_point):=0; character(end_point):='.';
-vinfo(end_point+3):=0; vlink(end_point+3):=0; 
-vinfo(end_point+4):=0; vlink(end_point+4):=0; 
+init_node_mem(500); 
 avail:=null; fix_mem_end:=0;
 init_list_heads;
 @<Initialize the special list heads and constant nodes@>;
@@ -4431,12 +4377,6 @@ documentation.
 up to a given maximum number of levels.  The history of nesting is indicated
 by the current string, which will be printed at the beginning of each line;
 the length of this string, namely |cur_length|, is the depth of nesting.
-
-Recursive calls on |show_node_list| therefore use the following pattern:
-
-@d node_list_display(#)==
-  begin append_char("."); show_node_list(#); flush_char;
-  end {|str_room| need not be checked; see |show_box| below}
 
 @ A global variable called |depth_threshold| is used to record the maximum
 depth of nesting for which |show_node_list| will show information.  If we

@@ -1406,9 +1406,9 @@ void free_node_chain(halfword q, integer s)
 }
 
 
-void init_node_mem(halfword prealloced, halfword t)
+void init_node_mem(halfword t)
 {
-    my_prealloc = prealloced;
+    my_prealloc = var_mem_stat_max;
     assert(whatsit_node_data[user_defined_node].id == user_defined_node);
     assert(node_data[passive_node].id == passive_node);
 
@@ -1426,10 +1426,56 @@ void init_node_mem(halfword prealloced, halfword t)
     memset((void *) varmem_sizes, 0, sizeof(char) * t);
 #endif
     var_mem_max = t;
-    rover = prealloced + 1;
+    rover = var_mem_stat_max + 1;
     vlink(rover) = rover;
     node_size(rover) = (t - rover);
     var_used = 0;
+    /* initialize static glue specs */
+    glue_ref_count(zero_glue)=null+1; width(zero_glue)=0; 
+    type(zero_glue)=glue_spec_node; vlink(zero_glue)=null;
+    stretch(zero_glue)=0; stretch_order(zero_glue)=normal;
+    shrink(zero_glue)=0; shrink_order(zero_glue)=normal;
+    glue_ref_count(sfi_glue)=null+1; width(sfi_glue)=0; 
+    type(sfi_glue)=glue_spec_node;  vlink(sfi_glue)=null;
+    stretch(sfi_glue)=0; stretch_order(sfi_glue)=sfi;
+    shrink(sfi_glue)=0; shrink_order(sfi_glue)=normal;
+    glue_ref_count(fil_glue)=null+1; width(fil_glue)=0; 
+    type(fil_glue)=glue_spec_node;  vlink(fil_glue)=null;
+    stretch(fil_glue)=unity; stretch_order(fil_glue)=fil;
+    shrink(fil_glue)=0; shrink_order(fil_glue)=normal;
+    glue_ref_count(fill_glue)=null+1; width(fill_glue)=0; 
+    type(fill_glue)=glue_spec_node;  vlink(fill_glue)=null;
+    stretch(fill_glue)=unity; stretch_order(fill_glue)=fill;
+    shrink(fill_glue)=0; shrink_order(fill_glue)=normal;
+    glue_ref_count(ss_glue)=null+1; width(ss_glue)=0; 
+    type(ss_glue)=glue_spec_node;  vlink(ss_glue)=null;
+    stretch(ss_glue)=unity; stretch_order(ss_glue)=fil;
+    shrink(ss_glue)=unity; shrink_order(ss_glue)=fil;
+    glue_ref_count(fil_neg_glue)=null+1; width(fil_neg_glue)=0; 
+    type(fil_neg_glue)=glue_spec_node;  vlink(fil_neg_glue)=null;
+    stretch(fil_neg_glue)=-unity; stretch_order(fil_neg_glue)=fil;
+    shrink(fil_neg_glue)=0; shrink_order(fil_neg_glue)=normal;
+    /* initialize node list heads */
+    vinfo(page_ins_head)=0; vlink(page_ins_head)=null; alink(page_ins_head)=null;
+    vinfo(contrib_head)=0; vlink(contrib_head)=null; alink(contrib_head)=null;
+    vinfo(page_head)=0; vlink(page_head)=null; alink(page_head)=null;
+    vinfo(temp_head)=0; vlink(temp_head)=null; alink(temp_head)=null;
+    vinfo(hold_head)=0; vlink(hold_head)=null; alink(hold_head)=null;
+    vinfo(adjust_head)=0; vlink(adjust_head)=null; alink(adjust_head)=null;
+    vinfo(pre_adjust_head)=0; vlink(pre_adjust_head)=null; alink(pre_adjust_head)=null;
+    vinfo(active)=0; vlink(active)=null; alink(active)=null;
+    vinfo(align_head)=0; vlink(align_head)=null; alink(align_head)=null;
+    vinfo(end_span)=0; vlink(end_span)=null; alink(end_span)=null;
+    type(begin_point)=glyph_node; subtype(begin_point)=0; vlink(begin_point)=null; 
+    vinfo(begin_point+1)=null; alink(begin_point)=null; 
+    font(begin_point)=0; character(begin_point)='.';
+    vinfo(begin_point+3)=0; vlink(begin_point+3)=0; 
+    vinfo(begin_point+4)=0; vlink(begin_point+4)=0; 
+    type(end_point)=glyph_node; subtype(end_point)=0; vlink(end_point)=null; 
+    vinfo(end_point+1)=null; alink(end_point)=null; 
+    font(end_point)=0; character(end_point)='.';
+    vinfo(end_point+3)=0; vlink(end_point+3)=0; 
+    vinfo(end_point+4)=0; vlink(end_point+4)=0; 
 }
 
 void dump_node_mem(void)
@@ -2356,6 +2402,8 @@ void show_whatsit_node(integer p)
 */
 
 /* |str_room| need not be checked; see |show_box|  */
+
+/* Recursive calls on |show_node_list| therefore use the following pattern: */
 
 #define node_list_display(A) do {               \
     append_char('.');                           \

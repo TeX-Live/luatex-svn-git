@@ -108,7 +108,7 @@ extern halfword var_mem_min;
 extern halfword var_mem_max;
 extern halfword get_node(integer s);
 extern void free_node(halfword p, integer s);
-extern void init_node_mem(integer r, integer s);
+extern void init_node_mem(integer s);
 extern void dump_node_mem(void);
 extern void undump_node_mem(void);
 
