@@ -4631,7 +4631,7 @@ break down otherwise.
 @d register=def_font+1
    {internal register ( \.{\\count}, \.{\\dimen}, etc.~)}
 @d assign_box_dir=register+1 {(\.{\\boxdir})}
-@d assign_dir=register+2 {(\.{\\pagedir}, \.{\\textdir})}
+@d assign_dir=register+2 {(\.{\\pagedir}, \.{\\bodydir}, \.{\\pardir}, \.{\\textdir}), \.{\\mathdir}}
 @d max_internal=assign_dir
    {the largest code that can follow \.{\\the}}
 @d advance=max_internal+1
@@ -6105,6 +6105,15 @@ assign_int: if chr_code<count_base then print_param(chr_code-int_base)
     end;
 assign_attr: begin print_esc("attribute"); print_int(chr_code-attribute_base);
     end;
+assign_box_dir: print_esc("boxdir");
+assign_dir: case chr_code of
+  dir_base+page_direction_code: print_esc("pagedir");
+  dir_base+body_direction_code: print_esc("bodydir");
+  dir_base+par_direction_code: print_esc("pardir");
+  dir_base+text_direction_code: print_esc("textdir");
+  dir_base+math_direction_code: print_esc("mathdir");
+  othercases print_esc("fixme (assign_dir)")
+  endcases;
 
 @ The integer parameters should really be initialized by a macro package;
 the following initialization does the minimum to keep \TeX\ from
