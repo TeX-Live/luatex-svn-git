@@ -542,11 +542,15 @@ typedef enum {
 
 #  define special_node_size 3
 
-#  define dir_node_size 4
+#  define dir_node_size 6
 #  define dir_dir(a)       vinfo((a)+2)
 #  define dir_level(a)     vlink((a)+2)
 #  define dir_dvi_ptr(a)   vinfo((a)+3)
 #  define dir_dvi_h(a)     vlink((a)+3)
+#  define dir_pg_h(a)      vinfo((a)+4)
+#  define dir_pg_v(a)      vlink((a)+4)
+#  define dir_cur_h(a)     vinfo((a)+5)
+#  define dir_cur_v(a)     vlink((a)+5)
 
 #  define write_node_size 3
 #  define close_node_size 3
