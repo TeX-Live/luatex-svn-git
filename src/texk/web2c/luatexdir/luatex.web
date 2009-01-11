@@ -14880,7 +14880,7 @@ if is_running(rule_ht) then rule_ht:=height(this_box);
 if is_running(rule_dp) then rule_dp:=depth(this_box);
 rule_ht:=rule_ht+rule_dp; {this is the rule thickness}
 if (rule_ht>0)and(rule_wd>0) then {we don't output empty rules}
-  begin synch_dvi; cur_v:=base_line+rule_dp; synch_dvi;
+  begin cur_v:=base_line+rule_dp; synch_dvi;
   case box_direction(dvi_direction) of
   dir_TL_: begin
     dvi_set_rule(rule_ht)(rule_wd);
