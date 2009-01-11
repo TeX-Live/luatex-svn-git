@@ -29250,16 +29250,12 @@ begin tail_append(make_local_par_node) end
 @ @<DIR: Assign direction codes@>=
 case cur_chr of
 dir_base+page_direction_code: begin
-  if its_all_over then begin
     scan_direction;
     eq_word_define(dir_base+page_direction_code,cur_val);
-    end;
   end;
 dir_base+body_direction_code: begin
-  if its_all_over then begin
     scan_direction;
     eq_word_define(dir_base+body_direction_code,cur_val);
-    end;
   end;
 dir_base+par_direction_code: begin
   scan_direction;
