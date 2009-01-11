@@ -1,7 +1,7 @@
 %  luatex.web
 %  
-%  Copyright 2006-2008 Taco Hoekwater <taco@@luatex.org>
-%  Copyright 2006-2008 Hartmut Henkel <hartmut@@luatex.org>
+%  Copyright 2006-2009 Taco Hoekwater <taco@@luatex.org>
+%  Copyright 2006-2009 Hartmut Henkel <hartmut@@luatex.org>
 %
 %  This file is part of LuaTeX.
 %
@@ -14604,7 +14604,6 @@ basepoint_horizontal: scaled;
 basepoint_vertical: scaled;
 save_direction: integer;
 dir_ptr,dir_tmp:pointer;
-dvi_dir_h,dvi_dir_ptr,dvi_temp_ptr:integer;
 @!left_edge: scaled; {the left coordinate for this box}
 @!save_h,@!save_v: scaled; {what |dvi_h| and |dvi_v| should pop to}
 @!save_box_pg_h,@!save_box_pg_v: scaled; {what |box_pg_h| and |box_pg_v| should pop to}
