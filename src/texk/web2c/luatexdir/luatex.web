@@ -5466,7 +5466,7 @@ box(0):=null; eq_type(box_base):=box_ref; eq_level(box_base):=level_one;
 for k:=box_base+1 to box_base+biggest_reg do eqtb[k]:=eqtb[box_base];
 cur_font:=null_font; eq_type(cur_font_loc):=data;
 eq_level(cur_font_loc):=level_one;@/
-for k:=math_font_base to math_font_base+47 do eqtb[k]:=eqtb[cur_font_loc];
+for k:=math_font_base to math_font_base+number_math_fonts-1 do eqtb[k]:=eqtb[cur_font_loc];
 equiv(cat_code_base):=0; eq_type(cat_code_base):=data;
 eq_level(cat_code_base):=level_one;@/
 eqtb[lc_code_base] :=eqtb[cat_code_base];
