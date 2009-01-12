@@ -949,7 +949,15 @@ void flush_node(halfword p)
             case 'd':
                 break;
             default:
-                tconfusion("extuser");
+              {
+                char *hlp[] = {
+                  "The type of the value in a user defined whatsit node should be one",
+                  "of 'a' (attribute list), 'd' (number), 'n' (node list), 's' (string),",
+                  "or 't' (tokenlist). Yours has an unknown type, and therefore I don't",
+                  "know how to free the node's value. A memory leak may result.",
+                  NULL } ;
+                tex_error("Unidentified user defined whatsit", hlp);
+              }
                 break;
             }
             break;

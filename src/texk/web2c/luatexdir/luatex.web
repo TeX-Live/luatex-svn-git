@@ -29136,6 +29136,7 @@ pdf_save_pos_node:
   @<Save current position in DVI mode@>;
 local_par_node:do_nothing;
 cancel_boundary_node: do_nothing;
+user_defined_node: do_nothing;
 othercases  confusion("ext4") {TH: those will be pdf extension nodes in dvi mode, most likely}
 @:this can't happen ext4}{\quad ext4@>
 endcases;
