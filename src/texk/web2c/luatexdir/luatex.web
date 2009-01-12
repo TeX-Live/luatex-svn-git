@@ -17369,12 +17369,6 @@ procedure scan_pdf_ext_toks; forward;
 
 @ Here come some subroutines to deal with expanded fonts for HZ-algorithm.
 
-@d set_char_and_font(#) ==
-if is_char_node(#) then begin
-    c := character(#);
-    f := font(#);
-end
-
 @d non_existent_path == "///..."
 
 @p
@@ -19862,19 +19856,6 @@ location |adjust_tail|.
 @!last_leftmost_char: pointer;
 @!last_rightmost_char: pointer;
 
-@ @d cal_margin_kern_var(#) ==
-begin
-    character(cp) := character(#);
-    font(cp) := font(#);
-    do_subst_font(cp, 1000);
-    if font(cp) <> font(#) then
-        margin_kern_stretch := margin_kern_stretch + left_pw(#) - left_pw(cp);
-    font(cp) := font(#);
-    do_subst_font(cp, -1000);
-    if font(cp) <> font(#) then
-        margin_kern_shrink := margin_kern_shrink + left_pw(cp) - left_pw(#);
-end
-
 @ @<Glob...@>=
 next_char_p:pointer; {pointer to the next char of an implicit kern}
 prev_char_p:pointer; {pointer to the previous char of an implicit kern}
@@ -19894,9 +19875,6 @@ font expansion is being used. We define some constants used when calling
 @d subst_ex_font       == 3 {substitute fonts}
 
 @d substituted = 3 {|subtype| of kern nodes that should be substituted}
-
-@d left_pw(#) == char_pw(#, left_side)
-@d right_pw(#) == char_pw(#, right_side)
 
 @p function char_stretch(p:halfword): scaled;
 var k: internal_font_number;
