@@ -233,34 +233,35 @@ be placed at the left and right of the fraction. In this way, a
 /* used to initialize a few static variables, not needed anymore */
 void initialize_math(void)
 {
-  return;
+    return;
 }
 
 /* this is called with a |nucleus|, |subscr|, or |supscr| as argument */
-void math_reset (pointer p)
+void math_reset(pointer p)
 {
-  math_list(p) = null;
-  math_type(p) = empty;
+    math_list(p) = null;
+    math_type(p) = empty;
 }
 
-void math_clone (pointer x, pointer q) 
+void math_clone(pointer x, pointer q)
 {
-  math_type(x)  = math_type(q);
-  if (math_type(q) == math_char) {
-    math_fam(x) = math_fam(q);
-    math_character(x) = math_character(q);
-  } else {
-    math_list(x) = math_list(q);
-  }
+    math_type(x) = math_type(q);
+    if (math_type(q) == math_char) {
+        math_fam(x) = math_fam(q);
+        math_character(x) = math_character(q);
+    } else {
+        math_list(x) = math_list(q);
+    }
 }
 
 
 /* this is called with a |left_delimiter|  or |right_delimiter| as argument */
-void delimiter_reset (pointer p) {
-  small_fam(p) = 0;
-  small_char(p) = 0;
-  large_fam(p) = 0;
-  large_char(p) = 0;
+void delimiter_reset(pointer p)
+{
+    small_fam(p) = 0;
+    small_char(p) = 0;
+    large_fam(p) = 0;
+    large_char(p) = 0;
 }
 
 /* The |new_noad| function creates an |ord_noad| that is completely null */
@@ -880,205 +881,226 @@ void enter_display_math(void)
 
 #define fam_in_range ((cur_fam>=0)&&(cur_fam<256))
 
-delcodeval do_scan_extdef_del_code (int extcode, boolean doclass) {
-  char *hlp[] = {
-    "I'm going to use 0 instead of that illegal code value.",
-    NULL
-  };
-  delcodeval d;
-  integer cur_val1; /* and the global |cur_val| */
-  integer mcls, msfam = 0, mschr = 0, mlfam = 0, mlchr = 0;
-  mcls = 0;
-  if (extcode==tex_mathcode) { /* \delcode, this is the easiest */
-    scan_int(); 
-    /*  "MFCCFCC or "FCCFCC */    
-    if (doclass) {
-      mcls = (cur_val / 0x1000000);
-      cur_val = (cur_val & 0xFFFFFF);
+delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
+{
+    char *hlp[] = {
+        "I'm going to use 0 instead of that illegal code value.",
+        NULL
+    };
+    delcodeval d;
+    integer cur_val1;           /* and the global |cur_val| */
+    integer mcls, msfam = 0, mschr = 0, mlfam = 0, mlchr = 0;
+    mcls = 0;
+    if (extcode == tex_mathcode) {      /* \delcode, this is the easiest */
+        scan_int();
+        /*  "MFCCFCC or "FCCFCC */
+        if (doclass) {
+            mcls = (cur_val / 0x1000000);
+            cur_val = (cur_val & 0xFFFFFF);
+        }
+        if (cur_val > 0xFFFFFF) {
+            tex_error("Invalid delimiter code", hlp);
+            cur_val = 0;
+        }
+        msfam = (cur_val / 0x100000);
+        mschr = (cur_val % 0x100000) / 0x1000;
+        mlfam = (cur_val & 0xFFF) / 0x100;
+        mlchr = (cur_val % 0x100);
+    } else if (extcode == aleph_mathcode) {     /* \odelcode */
+        /*  "MFFCCCC"FFCCCC or "FFCCCC"FFCCCC */
+        scan_int();
+        if (doclass) {
+            mcls = (cur_val / 0x1000000);
+            cur_val = (cur_val & 0xFFFFFF);
+        }
+        cur_val1 = cur_val;
+        scan_int();
+        if ((cur_val1 > 0xFFFFFF) || (cur_val > 0xFFFFFF)) {
+            tex_error("Invalid delimiter code", hlp);
+            cur_val1 = 0;
+            cur_val = 0;
+        }
+        msfam = (cur_val1 / 0x10000);
+        mschr = (cur_val1 % 0x10000);
+        mlfam = (cur_val / 0x10000);
+        mlchr = (cur_val % 0x10000);
+    } else if (extcode == xetex_mathcode) {     /* \LuaTeXdelcode */
+        /* <0-7>,<0-0xFF>,<0-0x10FFFF>  or <0-0xFF>,<0-0x10FFFF> */
+        if (doclass) {
+            scan_int();
+            mcls = cur_val;
+        }
+        scan_int();
+        msfam = cur_val;
+        scan_char_num();
+        mschr = cur_val;
+        if (msfam < 0 || msfam > 255) {
+            tex_error("Invalid delimiter code", hlp);
+            msfam = 0;
+            mschr = 0;
+        }
+        mlfam = 0;
+        mlchr = 0;
+    } else if (extcode == xetexnum_mathcode) {  /* \LuaTeXdelcodenum */
+        /* "FF<21bits> */
+        /* the largest numeric value is $2^29-1$, but 
+           the top of bit 21 can't be used as it contains invalid USV's
+         */
+        if (doclass) {          /* such a primitive doesn't exist */
+            tconfusion("xetexnum_mathcode");
+        }
+        scan_int();
+        msfam = (cur_val / 0x200000);
+        mschr = cur_val & 0x1FFFFF;
+        if (msfam < 0 || msfam > 255 || mschr > 0x10FFFF) {
+            tex_error("Invalid delimiter code", hlp);
+            msfam = 0;
+            mschr = 0;
+        }
+        mlfam = 0;
+        mlchr = 0;
+    } else {
+        /* something's gone wrong */
+        tconfusion("unknown_extcode");
     }
-    if (cur_val>0xFFFFFF) {
-      tex_error("Invalid delimiter code", hlp); cur_val=0;
-    }
-    msfam = (cur_val / 0x100000);
-    mschr = (cur_val % 0x100000) / 0x1000;
-    mlfam = (cur_val & 0xFFF) / 0x100;
-    mlchr = (cur_val % 0x100);
-  } else if (extcode==aleph_mathcode) { /* \odelcode */
-    /*  "MFFCCCC"FFCCCC or "FFCCCC"FFCCCC */    
-    scan_int(); 
-    if (doclass) {
-      mcls = (cur_val / 0x1000000);
-      cur_val = (cur_val & 0xFFFFFF);
-    }
-    cur_val1=cur_val; 
-    scan_int();
-    if ((cur_val1>0xFFFFFF) || (cur_val>0xFFFFFF)) {
-      tex_error("Invalid delimiter code", hlp);
-      cur_val1=0; cur_val=0;
-    }
-    msfam = (cur_val1 / 0x10000);
-    mschr = (cur_val1 % 0x10000);
-    mlfam = (cur_val  / 0x10000);
-    mlchr = (cur_val  % 0x10000);
-  } else if (extcode==xetex_mathcode) { /* \LuaTeXdelcode */
-    /* <0-7>,<0-0xFF>,<0-0x10FFFF>  or <0-0xFF>,<0-0x10FFFF> */
-    if (doclass) {
-      scan_int();
-      mcls = cur_val;
-    }
-    scan_int();
-    msfam = cur_val;
+    d.origin_value = extcode;
+    d.class_value = mcls;
+    d.small_family_value = msfam;
+    d.small_character_value = mschr;
+    d.large_family_value = mlfam;
+    d.large_character_value = mlchr;
+    return d;
+}
+
+void scan_extdef_del_code(int level, int extcode)
+{
+    delcodeval d;
+    integer p;
     scan_char_num();
-    mschr = cur_val;
-    if (msfam<0 || msfam>255) {
-      tex_error("Invalid delimiter code", hlp); 
-      msfam=0; mschr=0;
-    }
-    mlfam = 0;
-    mlchr = 0;
-  } else if (extcode==xetexnum_mathcode) { /* \LuaTeXdelcodenum */
-    /* "FF<21bits> */
-    /* the largest numeric value is $2^29-1$, but 
-       the top of bit 21 can't be used as it contains invalid USV's
-     */
-    if (doclass) { /* such a primitive doesn't exist */
-      tconfusion("xetexnum_mathcode");
-    }
-    scan_int(); 
-    msfam = (cur_val / 0x200000);
-    mschr = cur_val & 0x1FFFFF;
-    if (msfam<0 || msfam>255 || mschr>0x10FFFF) {
-      tex_error("Invalid delimiter code", hlp);
-      msfam=0; mschr=0;
-    }
-    mlfam = 0;
-    mlchr = 0;
-  } else {
+    p = cur_val;
+    scan_optional_equals();
+    d = do_scan_extdef_del_code(extcode, false);
+    set_del_code(p, extcode, d.small_family_value, d.small_character_value,
+                 d.large_family_value, d.large_character_value, level);
+}
+
+mathcodeval scan_mathchar(int extcode)
+{
+    char *hlp[] = {
+        "I'm going to use 0 instead of that illegal code value.",
+        NULL
+    };
+    mathcodeval d;
+    integer mcls = 0, mfam = 0, mchr = 0;
+    if (extcode == tex_mathcode) {      /* \mathcode */
+        /* "TFCC */
+        scan_int();
+        if (cur_val > 0x8000) {
+            tex_error("Invalid math code", hlp);
+            cur_val = 0;
+        }
+        mcls = (cur_val / 0x1000);
+        mfam = ((cur_val % 0x1000) / 0x100);
+        mchr = (cur_val % 0x100);
+    } else if (extcode == aleph_mathcode) {     /* \omathcode */
+        /* "TFFCCCC */
+        scan_int();
+        if (cur_val > 0x8000000) {
+            tex_error("Invalid math code", hlp);
+            cur_val = 0;
+        }
+        mcls = (cur_val / 0x1000000);
+        mfam = ((cur_val % 0x1000000) / 0x10000);
+        mchr = (cur_val % 0x10000);
+    } else if (extcode == xetex_mathcode) {
+        /* <0-0x7> <0-0xFF> <0-0x10FFFF> */
+        scan_int();
+        mcls = cur_val;
+        scan_int();
+        mfam = cur_val;
+        scan_char_num();
+        mchr = cur_val;
+        if (mcls < 0 || mcls > 7 || mfam > 255) {
+            tex_error("Invalid math code", hlp);
+            mchr = 0;
+            mfam = 0;
+            mcls = 0;
+        }
+    } else if (extcode == xetexnum_mathcode) {
+        /* "TFF<21bits> */
+        /* the largest numeric value is $2^32-1$, but 
+           the top of bit 21 can't be used as it contains invalid USV's
+         */
+        /* Note: |scan_int| won't accept classes 4-7 because these use bit 32 */
+        scan_int();
+        mfam = (cur_val / 0x200000) & 0x7FF;
+        mcls = mfam / 0x100;
+        mfam = mfam % 0x100;
+        mchr = cur_val & 0x1FFFFF;
+        if (mcls < 0 || mcls > 7 || mchr > 0x10FFFF) {
+            tex_error("Invalid math code", hlp);
+            mcls = 0;
+            mfam = 0;
+            mchr = 0;
+        }
+    } else {
         /* something's gone wrong */
-          tconfusion("unknown_extcode");
-  }
-  d.origin_value = extcode;
-  d.class_value = mcls;
-  d.small_family_value = msfam;
-  d.small_character_value = mschr;
-  d.large_family_value = mlfam;
-  d.large_character_value = mlchr;
-  return d;
-}
-
-void scan_extdef_del_code (int level, int extcode) {
-  delcodeval d;
-  integer p;
-  scan_char_num(); p= cur_val;
-  scan_optional_equals();  
-  d = do_scan_extdef_del_code(extcode, false);
-  set_del_code(p, extcode, d.small_family_value, d.small_character_value,
-               d.large_family_value, d.large_character_value, level);  
-}
-
-mathcodeval scan_mathchar (int extcode) {  
-  char *hlp[] = {
-    "I'm going to use 0 instead of that illegal code value.",
-    NULL
-  };
-  mathcodeval d;
-  integer mcls = 0, mfam = 0, mchr = 0;
-  if (extcode==tex_mathcode) { /* \mathcode */
-    /* "TFCC */
-    scan_int();
-    if (cur_val>0x8000) {
-      tex_error("Invalid math code", hlp); cur_val=0;
+        tconfusion("unknown_extcode");
     }
-    mcls = (cur_val / 0x1000);
-    mfam = ((cur_val % 0x1000) / 0x100);
-    mchr = (cur_val % 0x100);
-  } else if (extcode==aleph_mathcode) {  /* \omathcode */
-    /* "TFFCCCC */
-    scan_int();
-    if (cur_val>0x8000000) {
-      tex_error("Invalid math code", hlp); cur_val=0;
-    }
-    mcls = (cur_val / 0x1000000);
-    mfam = ((cur_val % 0x1000000) / 0x10000);
-    mchr = (cur_val % 0x10000);
-  } else if (extcode==xetex_mathcode) {
-    /* <0-0x7> <0-0xFF> <0-0x10FFFF> */
-    scan_int(); mcls=cur_val;
-    scan_int(); mfam=cur_val;
-    scan_char_num(); mchr=cur_val;
-    if ( mcls<0 || mcls>7 || mfam>255 ) {
-      tex_error("Invalid math code", hlp);
-      mchr=0; mfam=0; mcls=0;
-    }
-  } else if (extcode==xetexnum_mathcode) {
-    /* "TFF<21bits> */
-    /* the largest numeric value is $2^32-1$, but 
-       the top of bit 21 can't be used as it contains invalid USV's
-     */
-    /* Note: |scan_int| won't accept classes 4-7 because these use bit 32 */
-    scan_int();
-    mfam = (cur_val / 0x200000) & 0x7FF;
-    mcls = mfam / 0x100;
-    mfam = mfam % 0x100;
-    mchr = cur_val & 0x1FFFFF;
-    if ( mcls<0 || mcls>7 || mchr>0x10FFFF) {
-      tex_error("Invalid math code", hlp); 
-      mcls=0; mfam=0; mchr=0;
-    }
-  } else {
-        /* something's gone wrong */
-          tconfusion("unknown_extcode");
-  }
-  d.class_value = mcls;
-  d.family_value = mfam;
-  d.origin_value = extcode;
-  d.character_value = mchr;
-  return d;
+    d.class_value = mcls;
+    d.family_value = mfam;
+    d.origin_value = extcode;
+    d.character_value = mchr;
+    return d;
 }
 
 
-void scan_extdef_math_code (int level, int extcode) {
-  mathcodeval d;
-  integer p;
-  scan_char_num(); p= cur_val;
-  scan_optional_equals();  
-  d = scan_mathchar(extcode);
-  set_math_code(p, extcode, d.class_value, 
-                d.family_value, d.character_value, level);  
+void scan_extdef_math_code(int level, int extcode)
+{
+    mathcodeval d;
+    integer p;
+    scan_char_num();
+    p = cur_val;
+    scan_optional_equals();
+    d = scan_mathchar(extcode);
+    set_math_code(p, extcode, d.class_value,
+                  d.family_value, d.character_value, level);
 }
 
 
 /* this reads in a delcode when actually a mathcode is needed */
 
-mathcodeval scan_delimiter_as_mathchar (int extcode) {
-  delcodeval dval;
-  mathcodeval mval;
-  dval = do_scan_extdef_del_code (extcode, true);
-  mval.class_value     = dval.class_value;
-  mval.family_value    = dval.small_family_value;
-  mval.character_value = dval.small_character_value;
-  /* FIXME: mval.origin_value’ is used uninitialized in this function */
-  return mval;
+mathcodeval scan_delimiter_as_mathchar(int extcode)
+{
+    delcodeval dval;
+    mathcodeval mval;
+    dval = do_scan_extdef_del_code(extcode, true);
+    mval.class_value = dval.class_value;
+    mval.family_value = dval.small_family_value;
+    mval.character_value = dval.small_character_value;
+    /* FIXME: mval.origin_value’ is used uninitialized in this function */
+    return mval;
 }
 
-mathcodeval mathchar_from_integer (integer value, int extcode) {
-  mathcodeval mval;
-  mval.origin_value = extcode;
-  if (extcode==tex_mathcode) {
-    mval.class_value = (value / 0x1000);
-    mval.family_value = ((value % 0x1000) / 0x100);
-    mval.character_value =(value % 0x100);
-  } else if (extcode==aleph_mathcode) {
-    mval.class_value = (value / 0x1000000);
-    mval.family_value = ((value % 0x1000000) / 0x10000);
-    mval.character_value =(value % 0x10000);
-  } else { /* some xetexended xetex thing */
-    int mfam = (value / 0x200000) & 0x7FF;
-    mval.class_value  = mfam / 0x100;
-    mval.family_value = mfam % 0x100;
-    mval.character_value = value & 0x1FFFFF;
-  }
-  return mval;
+mathcodeval mathchar_from_integer(integer value, int extcode)
+{
+    mathcodeval mval;
+    mval.origin_value = extcode;
+    if (extcode == tex_mathcode) {
+        mval.class_value = (value / 0x1000);
+        mval.family_value = ((value % 0x1000) / 0x100);
+        mval.character_value = (value % 0x100);
+    } else if (extcode == aleph_mathcode) {
+        mval.class_value = (value / 0x1000000);
+        mval.family_value = ((value % 0x1000000) / 0x10000);
+        mval.character_value = (value % 0x10000);
+    } else {                    /* some xetexended xetex thing */
+        int mfam = (value / 0x200000) & 0x7FF;
+        mval.class_value = mfam / 0x100;
+        mval.family_value = mfam % 0x100;
+        mval.character_value = value & 0x1FFFFF;
+    }
+    return mval;
 }
 
 /* Recall that the |nucleus|, |subscr|, and |supscr| fields in a noad are
@@ -1095,8 +1117,8 @@ into a given word of |mem|.
 
 void scan_math(pointer p)
 {
-  /* label restart,reswitch,exit; */
-  mathcodeval mval;
+    /* label restart,reswitch,exit; */
+    mathcodeval mval;
   RESTART:
     get_next_nb_nr();
   RESWITCH:
@@ -1123,34 +1145,34 @@ void scan_math(pointer p)
         break;
     case math_char_num_cmd:
         if (cur_chr == 0)
-          mval = scan_mathchar(tex_mathcode);
-        else if (cur_chr==1)
-          mval = scan_mathchar(aleph_mathcode);
-        else if (cur_chr==2)
-          mval = scan_mathchar(xetex_mathcode);
-        else if (cur_chr==3)
-          mval = scan_mathchar(xetexnum_mathcode);
+            mval = scan_mathchar(tex_mathcode);
+        else if (cur_chr == 1)
+            mval = scan_mathchar(aleph_mathcode);
+        else if (cur_chr == 2)
+            mval = scan_mathchar(xetex_mathcode);
+        else if (cur_chr == 3)
+            mval = scan_mathchar(xetexnum_mathcode);
         else
-          tconfusion("scan_math");
+            tconfusion("scan_math");
         break;
     case math_given_cmd:
-        mval = mathchar_from_integer(cur_chr,tex_mathcode);
+        mval = mathchar_from_integer(cur_chr, tex_mathcode);
         break;
     case omath_given_cmd:
-        mval = mathchar_from_integer(cur_chr,aleph_mathcode);
+        mval = mathchar_from_integer(cur_chr, aleph_mathcode);
         break;
     case xmath_given_cmd:
-        mval = mathchar_from_integer(cur_chr,xetex_mathcode);
+        mval = mathchar_from_integer(cur_chr, xetex_mathcode);
         break;
     case delim_num_cmd:
-        if (cur_chr==0)
-          mval = scan_delimiter_as_mathchar(tex_mathcode);
-        else if (cur_chr==1)
-          mval = scan_delimiter_as_mathchar(aleph_mathcode);
-        else  if (cur_chr==2)
-          mval = scan_delimiter_as_mathchar(xetex_mathcode);
+        if (cur_chr == 0)
+            mval = scan_delimiter_as_mathchar(tex_mathcode);
+        else if (cur_chr == 1)
+            mval = scan_delimiter_as_mathchar(aleph_mathcode);
+        else if (cur_chr == 2)
+            mval = scan_delimiter_as_mathchar(xetex_mathcode);
         else
-          tconfusion("scan_math");
+            tconfusion("scan_math");
         break;
     default:
         /* The pointer |p| is placed on |save_stack| while a complex subformula
@@ -1165,9 +1187,9 @@ void scan_math(pointer p)
     math_type(p) = math_char;
     math_character(p) = mval.character_value;
     if ((mval.class_value == var_code) && fam_in_range)
-      math_fam(p) = cur_fam;
+        math_fam(p) = cur_fam;
     else
-      math_fam(p) = mval.family_value;
+        math_fam(p) = mval.family_value;
 }
 
 
@@ -1239,12 +1261,12 @@ delimiter is to be placed; the second tells if this delimiter follows
 void scan_delimiter(pointer p, integer r)
 {
     delcodeval dval;
-    if (r == tex_mathcode) { /* \radical */
-      dval = do_scan_extdef_del_code(tex_mathcode,false); 
-    } else if (r == aleph_mathcode) { /* \oradical */
-      dval = do_scan_extdef_del_code(aleph_mathcode,false); 
-    } else if (r == xetex_mathcode) { /* \LuaTeXradical */
-      dval = do_scan_extdef_del_code(xetex_mathcode,false); 
+    if (r == tex_mathcode) {    /* \radical */
+        dval = do_scan_extdef_del_code(tex_mathcode, false);
+    } else if (r == aleph_mathcode) {   /* \oradical */
+        dval = do_scan_extdef_del_code(aleph_mathcode, false);
+    } else if (r == xetex_mathcode) {   /* \LuaTeXradical */
+        dval = do_scan_extdef_del_code(xetex_mathcode, false);
     } else if (r == no_mathcode) {
         get_next_nb_nr();
         switch (cur_cmd) {
@@ -1253,40 +1275,42 @@ void scan_delimiter(pointer p, integer r)
             dval = get_del_code(cur_chr);
             break;
         case delim_num_cmd:
-            if (cur_chr == 0)  /* \delimiter */
-              dval = do_scan_extdef_del_code(tex_mathcode,true);
-            else if (cur_chr==1) /* \odelimiter */
-              dval = do_scan_extdef_del_code(aleph_mathcode,true);
-            else if (cur_chr==2) /* \XeTeXdelimiter */
-              dval = do_scan_extdef_del_code(xetex_mathcode,true);
+            if (cur_chr == 0)   /* \delimiter */
+                dval = do_scan_extdef_del_code(tex_mathcode, true);
+            else if (cur_chr == 1)      /* \odelimiter */
+                dval = do_scan_extdef_del_code(aleph_mathcode, true);
+            else if (cur_chr == 2)      /* \XeTeXdelimiter */
+                dval = do_scan_extdef_del_code(xetex_mathcode, true);
             else
-              tconfusion("scan_delimiter1");
+                tconfusion("scan_delimiter1");
             break;
         default:
             dval.small_family_value = -1;
             break;
         }
     } else {
-      tconfusion("scan_delimiter2");
+        tconfusion("scan_delimiter2");
     }
     if (dval.small_family_value < 0) {
-      char *hlp[] = {
-        "I was expecting to see something like `(' or `\\{' or",
-        "`\\}' here. If you typed, e.g., `{' instead of `\\{', you",
-        "should probably delete the `{' by typing `1' now, so that",
-        "braces don't get unbalanced. Otherwise just proceed",
-        "Acceptable delimiters are characters whose \\delcode is",
-        "nonnegative, or you can use `\\delimiter <delimiter code>'.",
-        NULL
-      };
-      back_error("Missing delimiter (. inserted)", hlp);
-      small_fam(p) = 0; small_char(p) = 0;
-      large_fam(p) = 0; large_char(p) = 0;
+        char *hlp[] = {
+            "I was expecting to see something like `(' or `\\{' or",
+            "`\\}' here. If you typed, e.g., `{' instead of `\\{', you",
+            "should probably delete the `{' by typing `1' now, so that",
+            "braces don't get unbalanced. Otherwise just proceed",
+            "Acceptable delimiters are characters whose \\delcode is",
+            "nonnegative, or you can use `\\delimiter <delimiter code>'.",
+            NULL
+        };
+        back_error("Missing delimiter (. inserted)", hlp);
+        small_fam(p) = 0;
+        small_char(p) = 0;
+        large_fam(p) = 0;
+        large_char(p) = 0;
     } else {
-      small_fam(p)  = dval.small_family_value;
-      small_char(p) = dval.small_character_value;
-      large_fam(p)  = dval.large_family_value;
-      large_char(p) = dval.large_character_value;
+        small_fam(p) = dval.small_family_value;
+        small_char(p) = dval.small_character_value;
+        large_fam(p) = dval.large_family_value;
+        large_char(p) = dval.large_character_value;
     }
     return;
 }
@@ -1298,48 +1322,48 @@ void math_radical(void)
     math_reset(nucleus(tail));
     math_reset(subscr(tail));
     math_reset(supscr(tail));
-    if (cur_chr==0) /* \radical */
-      scan_delimiter(left_delimiter(tail), tex_mathcode);
-    else if (cur_chr==1) /* \oradical */
-      scan_delimiter(left_delimiter(tail), aleph_mathcode);
-    else if (cur_chr==2) /* \LuaTeXradical */
-      scan_delimiter(left_delimiter(tail), xetex_mathcode);
+    if (cur_chr == 0)           /* \radical */
+        scan_delimiter(left_delimiter(tail), tex_mathcode);
+    else if (cur_chr == 1)      /* \oradical */
+        scan_delimiter(left_delimiter(tail), aleph_mathcode);
+    else if (cur_chr == 2)      /* \LuaTeXradical */
+        scan_delimiter(left_delimiter(tail), xetex_mathcode);
     else
-      tconfusion("math_radical");
+        tconfusion("math_radical");
     scan_math(nucleus(tail));
 }
 
 void math_ac(void)
 {
-  mathcodeval d;
-  if (cur_cmd == accent_cmd) {
-    char *hlp[] = {
-      "I'm changing \\accent to \\mathaccent here; wish me luck.",
-      "(Accents are not the same in formulas as they are in text.)",
-      NULL
-    };
-    tex_error("Please use \\mathaccent for accents in math mode", hlp);
-  }
-  tail_append(new_node(accent_noad, normal));
-  math_reset(nucleus(tail));
-  math_reset(subscr(tail));
-  math_reset(supscr(tail));
-  math_type(accent_chr(tail)) = math_char;
-  if (cur_chr == 0) { /* \mathaccent */
-    d =  scan_mathchar(tex_mathcode);
-  } else if (cur_chr == 1) {  /* \omathaccent */
-    d =  scan_mathchar(aleph_mathcode);
-  } else if (cur_chr == 2) {  /* \LuaTeXmathaccent */
-    d =  scan_mathchar(xetex_mathcode);
-  } else {
-    tconfusion("math_ac");
-  }
-  math_character(accent_chr(tail)) = d.character_value;
-  if ((d.class_value == var_code) && fam_in_range)
-    math_fam(accent_chr(tail)) = cur_fam;
-  else
-    math_fam(accent_chr(tail)) = d.family_value;
-  scan_math(nucleus(tail));
+    mathcodeval d;
+    if (cur_cmd == accent_cmd) {
+        char *hlp[] = {
+            "I'm changing \\accent to \\mathaccent here; wish me luck.",
+            "(Accents are not the same in formulas as they are in text.)",
+            NULL
+        };
+        tex_error("Please use \\mathaccent for accents in math mode", hlp);
+    }
+    tail_append(new_node(accent_noad, normal));
+    math_reset(nucleus(tail));
+    math_reset(subscr(tail));
+    math_reset(supscr(tail));
+    math_type(accent_chr(tail)) = math_char;
+    if (cur_chr == 0) {         /* \mathaccent */
+        d = scan_mathchar(tex_mathcode);
+    } else if (cur_chr == 1) {  /* \omathaccent */
+        d = scan_mathchar(aleph_mathcode);
+    } else if (cur_chr == 2) {  /* \LuaTeXmathaccent */
+        d = scan_mathchar(xetex_mathcode);
+    } else {
+        tconfusion("math_ac");
+    }
+    math_character(accent_chr(tail)) = d.character_value;
+    if ((d.class_value == var_code) && fam_in_range)
+        math_fam(accent_chr(tail)) = cur_fam;
+    else
+        math_fam(accent_chr(tail)) = d.family_value;
+    scan_math(nucleus(tail));
 }
 
 pointer math_vcenter_group(pointer p)
@@ -1406,8 +1430,8 @@ void sub_sup(void)
     p = null;
     if (tail != head) {
         if (scripts_allowed(tail)) {
-          p = (cur_cmd == sup_mark_cmd ? supscr(tail) : subscr(tail));
-          t = math_type(p);
+            p = (cur_cmd == sup_mark_cmd ? supscr(tail) : subscr(tail));
+            t = math_type(p);
         }
     }
     if ((p == null) || (t != empty)) {
@@ -1462,8 +1486,8 @@ void math_fraction(void)
         incompleat_noad = new_node(fraction_noad, normal);
         math_type(numerator(incompleat_noad)) = sub_mlist;
         math_list(numerator(incompleat_noad)) = vlink(head);
-        math_type(denominator(incompleat_noad))= empty;
-        math_list(denominator(incompleat_noad))= null;
+        math_type(denominator(incompleat_noad)) = empty;
+        math_list(denominator(incompleat_noad)) = null;
         delimiter_reset(left_delimiter(incompleat_noad));
         delimiter_reset(right_delimiter(incompleat_noad));
         vlink(head) = null;
@@ -1539,32 +1563,32 @@ void close_math_group(pointer p)
     p = fin_mlist(null);
     math_list(saved(0)) = p;
     if (p != null) {
-      if (vlink(p) == null) {
-        if (type(p) == ord_noad) {
-          if (math_type(subscr(p)) == empty &&
-              math_type(supscr(p)) == empty) {
-            math_clone(saved(0),nucleus(p));
-            math_reset(nucleus(p)); /* just in case */
-            flush_node(p);
-          }
-        }
-      } else {
-        if (type(p) == accent_noad) {
-          if (saved(0) == nucleus(tail)) {
-            if (type(tail) == ord_noad) {
-              q = head;
-              while (vlink(q) != tail)
-                q = vlink(q);
-              vlink(q) = p;
-              math_reset(nucleus(tail)); /* just in case */
-              math_reset(subscr(tail)); 
-              math_reset(supscr(tail));
-              flush_node(tail);
-              tail = p;
+        if (vlink(p) == null) {
+            if (type(p) == ord_noad) {
+                if (math_type(subscr(p)) == empty &&
+                    math_type(supscr(p)) == empty) {
+                    math_clone(saved(0), nucleus(p));
+                    math_reset(nucleus(p));     /* just in case */
+                    flush_node(p);
+                }
             }
-          }
+        } else {
+            if (type(p) == accent_noad) {
+                if (saved(0) == nucleus(tail)) {
+                    if (type(tail) == ord_noad) {
+                        q = head;
+                        while (vlink(q) != tail)
+                            q = vlink(q);
+                        vlink(q) = p;
+                        math_reset(nucleus(tail));      /* just in case */
+                        math_reset(subscr(tail));
+                        math_reset(supscr(tail));
+                        flush_node(tail);
+                        tail = p;
+                    }
+                }
+            }
         }
-      }
     }
 }
 
@@ -1937,4 +1961,3 @@ void finish_display_alignment(pointer p, pointer q, memory_word aux_save)
     prev_depth = aux_save.cint;
     resume_after_display();
 }
-
