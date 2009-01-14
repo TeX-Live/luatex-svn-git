@@ -27,6 +27,9 @@
 
 extern pointer new_noad(void);
 
+extern void show_mathcode (integer n);
+extern void show_delcode (integer n);
+
 extern void show_math_node(halfword);
 extern void print_math_comp(halfword);
 extern void print_limit_switch(halfword);
@@ -53,7 +56,7 @@ extern void build_choices(void);
 extern void close_math_group(halfword);
 extern void init_math(void);
 extern void start_eq_no(void);
-extern void set_math_char(integer);
+extern void set_math_char(mathcodeval);
 extern void math_math_comp(void);
 extern void math_limit_switch(void);
 extern void math_radical(void);
@@ -64,6 +67,9 @@ extern void sub_sup(void);
 extern void math_fraction(void);
 extern void math_left_right(void);
 extern void after_math(void);
+
+extern void scan_extdef_del_code (int level, int extcode);
+extern void scan_extdef_math_code (int level, int extcode);
 
 #  define total_mathsy_params 22
 #  define total_mathex_params 13

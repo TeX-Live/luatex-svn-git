@@ -173,11 +173,33 @@
 
 { bits for extended char code access }
 
+@define const tex_mathcode    ;
+@define const aleph_mathcode  ;
+@define const xetex_mathcode   ;
+@define const xetexnum_mathcode;
+
+@define type mathcodeval;
+@define @field origin_value;
+@define @field class_value;
+@define @field family_value;
+@define @field character_value;
+
+@define type delcodeval;
+@define @field small_family_value;
+@define @field small_character_value;
+@define @field large_family_value;
+@define @field large_character_value;
+
 @define function get_math_code();
+@define function get_math_code_num();
 @define procedure set_math_code();
-@define function get_del_code_a();
-@define function get_del_code_b();
+@define function get_del_code();
 @define procedure set_del_code();
+@define procedure show_mathcode_value();
+
+@define function scan_mathchar();
+@define function scan_delimiter_as_mathchar();
+@define function mathchar_from_integer();
 
 @define procedure unsave_math_codes ();
 @define procedure initialize_math_codes;
@@ -607,6 +629,10 @@
 @define procedure print_math_comp();
 @define procedure print_limit_switch();
 @define procedure print_style();
+
+@define procedure scan_extdef_math_code();
+@define procedure scan_extdef_del_code();
+
 @define const left_noad;
 @define const middle_noad;
 @define const right_noad;
@@ -684,3 +710,4 @@
 @define const pre_adjust_head ;
 @define const align_head      ;
 @define const end_span        ;
+

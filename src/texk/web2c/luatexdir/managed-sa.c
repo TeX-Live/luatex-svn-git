@@ -105,7 +105,7 @@ void set_sa_item(sa_tree head, integer n, sa_tree_item v, integer gl)
     head->tree[h][m][l] = v;
 }
 
-static void rawset_sa_item(sa_tree head, integer n, integer v)
+void rawset_sa_item(sa_tree head, integer n, integer v)
 {
     head->tree[HIGHPART_PART(n)][MIDPART_PART(n)][LOWPART_PART(n)] = v;
 }

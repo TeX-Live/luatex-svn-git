@@ -20,41 +20,6 @@
 
 /* $Id$ */
 
-/* some code array functions */
-
-extern void set_math_code(integer n, halfword v, quarterword grouplevel);
-extern halfword get_math_code(integer n);
-
-extern void set_del_code(integer n, halfword v, halfword w,
-                         quarterword grouplevel);
-extern halfword get_del_code_a(integer n);
-extern halfword get_del_code_b(integer n);
-
-extern void unsavemathcodes(quarterword grouplevel);
-extern void initializemathcodes();
-extern void dumpmathcodes();
-extern void undumpmathcodes();
-
-extern void set_lc_code(integer n, halfword v, quarterword grouplevel);
-extern halfword get_lc_code(integer n);
-extern void set_uc_code(integer n, halfword v, quarterword grouplevel);
-extern halfword get_uc_code(integer n);
-extern void set_sf_code(integer n, halfword v, quarterword grouplevel);
-extern halfword get_sf_code(integer n);
-extern void set_cat_code(integer h, integer n, halfword v,
-                         quarterword grouplevel);
-extern halfword get_cat_code(integer h, integer n);
-
-extern void unsavetextcodes(quarterword grouplevel);
-extern void unsavecatcodes(integer h, quarterword grouplevel);
-extern void copy_cat_codes(int from, int to);
-extern void initex_cat_codes(int h);
-extern void clearcatcodestack(integer h);
-extern boolean validcatcodetable(int h);
-
-extern void initializetextcodes();
-extern void dumptextcodes();
-extern void undumptextcodes();
 
 extern void do_vf(internal_font_number tmp_f);
 

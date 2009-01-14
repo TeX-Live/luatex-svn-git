@@ -565,11 +565,53 @@ void undump_text_codes(void);
 
 /* mathcodes.c */
 
-void set_math_code(integer n, halfword v, quarterword gl);
-halfword get_math_code(integer n);
-void set_del_code(integer n, halfword v, halfword w, quarterword gl);
-halfword get_del_code_a(integer n);
-halfword get_del_code_b(integer n);
+#define no_mathcode 0 /* this is a flag for |scan_delimiter| */
+#define tex_mathcode 8
+#define aleph_mathcode 16
+#define xetex_mathcode 21
+#define xetexnum_mathcode 22
+
+typedef struct mathcodeval {
+    integer class_value;
+    integer origin_value;
+    integer family_value;
+    integer character_value;
+} mathcodeval;
+
+void set_math_code(integer n,
+                   integer commandorigin, 
+                   integer mathclass, 
+                   integer mathfamily, 
+                   integer mathcharacter, quarterword gl);
+
+mathcodeval get_math_code(integer n);
+integer get_math_code_num (integer n) ;
+mathcodeval scan_mathchar (int extcode);
+mathcodeval scan_delimiter_as_mathchar (int extcode);
+
+mathcodeval mathchar_from_integer(integer value, int extcode);
+void show_mathcode_value (mathcodeval d);
+
+
+typedef struct delcodeval {
+    integer class_value;
+    integer origin_value;
+    integer small_family_value;
+    integer small_character_value;
+    integer large_family_value;
+    integer large_character_value;
+} delcodeval;
+
+void set_del_code(integer n, 
+                  integer commandorigin, 
+                  integer smathfamily, 
+                  integer smathcharacter, 
+                  integer lmathfamily, 
+                  integer lmathcharacter, 
+                  quarterword gl);
+
+delcodeval get_del_code(integer n);
+
 void unsave_math_codes(quarterword grouplevel);
 void initialize_math_codes(void);
 void dump_math_codes(void);

@@ -1392,7 +1392,7 @@ void mlist_to_hlist(void)
             goto DONE_WITH_NODE;
             break;
         default:
-            confusion(maketexstring("mlist1")); /* this can't happen mlist1 */
+            tconfusion("mlist1"); /* this can't happen mlist1 */
         }
         /* When we get to the following part of the program, we have ``fallen through''
            from cases that did not lead to |check_dimensions| or |done_with_noad| or

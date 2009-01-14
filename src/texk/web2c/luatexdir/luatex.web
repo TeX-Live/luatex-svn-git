@@ -4572,7 +4572,8 @@ expanded by `\.{\\the}'.
 @d char_given=min_internal {character code defined by \.{\\chardef}}
 @d math_given=char_given+1 {math code defined by \.{\\mathchardef}}
 @d omath_given=math_given+1 {math code defined by \.{\\omathchardef}}
-@d last_item=omath_given+1 {most recent item ( \.{\\lastpenalty},
+@d xmath_given=omath_given+1 {math code defined by \.{\\LuaTeXmathchardef}}
+@d last_item=xmath_given+1 {most recent item ( \.{\\lastpenalty},
   \.{\\lastkern}, \.{\\lastskip} )}
 @d max_non_prefixed_command=last_item
    {largest command code that can't be \.{\\global}}
@@ -5453,7 +5454,7 @@ possible.
 @d null_font==font_base
 @d null_ocp==ocp_base
 @d null_ocp_list==ocp_list_base
-@d var_code==@"7000000 {math code meaning ``use the current family''}
+@d var_code==7 {math code meaning ``use the current family''}
 
 @<Initialize table entries...@>=
 par_shape_ptr:=null; eq_type(par_shape_loc):=shape_ref;
@@ -5475,10 +5476,10 @@ eqtb[sf_code_base] :=eqtb[cat_code_base];
 eqtb[math_code_base]:=eqtb[cat_code_base];@/
 cat_code_table:=0;
 initex_cat_codes(0);
-for k:="0" to "9" do set_math_code(k,(hi(k+var_code)),level_one);@/
+for k:="0" to "9" do set_math_code(k,tex_mathcode,var_code,0,k,level_one);@/
 for k:="A" to "Z" do begin 
-  set_math_code(k,(hi(k+var_code+@"10000)),level_one);
-  set_math_code(k+32,(hi(k+32+var_code+@"10000)),level_one);@/
+  set_math_code(k,tex_mathcode,var_code,1,k,level_one);
+  set_math_code((k+32),tex_mathcode,var_code,1,(k+32),level_one);@/
   set_lc_code(k,k+32,level_one); set_lc_code(k+32,k+32,level_one);@/
   set_uc_code(k,k,level_one);    set_uc_code(k+32,k,level_one);@/
   set_sf_code(k,999,level_one);
@@ -5534,10 +5535,9 @@ print_esc(hash[font_id_base+equiv(n)].rh);
 end
 
 @ 
-@d is_omath(#)==  ((((#) mod @"1000000) div @"10000)>15) or
-     (((#) mod @"10000)>255)
 
 @<Show the halfword code in |eqtb[n]|@>=
+begin
 if n<math_code_base then
   begin if n<lc_code_base then
     begin print_esc("catcode"); print_int(n-cat_code_base);
@@ -5551,15 +5551,9 @@ if n<math_code_base then
   else  begin print_esc("sfcode"); print_int(n-sf_code_base);
     end;
   print_char("="); print_int(equiv(n));
-  end
-else begin 
-  if is_omath(get_math_code(n-math_code_base)) then
-    print_esc("omathcode")
-  else    
-    print_esc("mathcode"); 
-  print_int(n-math_code_base);
-  print_char("="); print_int(get_math_code(n-math_code_base));
-  end
+  end;
+end
+
 
 @ Region 5 of |eqtb| contains the integer parameters and registers defined
 here, as well as the |del_code| table. The latter table differs from the
@@ -6126,7 +6120,7 @@ for k:=attribute_base to del_code_base-1 do eqtb[k].int:=-1;
 mag:=1000; tolerance:=10000; hang_after:=1; max_dead_cycles:=25;
 escape_char:="\"; end_line_char:=carriage_return;
 eqtb[int_base+level_local_dir_code].int:=level_one;
-set_del_code(".",0,0,level_one); {this null delimiter is used in error recovery}
+set_del_code(".",tex_mathcode,0,0,0,0,level_one); {this null delimiter is used in error recovery}
 ex_hyphen_char:="-";
 
 @ The following procedure, which is called just before \TeX\ initializes its
@@ -6154,10 +6148,6 @@ else if n<attribute_base then
 else if n<del_code_base then
   begin print_esc("attribute"); print_int(n-attribute_base);
     print_char("="); print_int(eqtb[n].int);
-  end
-else begin 
-  {TH: todo, this stuff doesnt work}
-  print_esc("delcode");
   end;
 end
 
@@ -6939,6 +6929,8 @@ primitive("delimiter",delim_num,0);@/
 @!@:delimiter_}{\.{\\delimiter} primitive@>
 primitive("odelimiter",delim_num,1);@/
 @!@:odelimiter_}{\.{\\odelimiter} primitive@>
+primitive("LuaTeXdelimiter",delim_num,2);@/
+@!@:odelimiter_}{\.{\\LuaTeXdelimiter} primitive@>
 primitive("divide",divide,0);@/
 @!@:divide_}{\.{\\divide} primitive@>
 primitive("endcsname",end_cs_name,0);@/
@@ -6970,12 +6962,18 @@ primitive("mark",mark,0);@/
 @!@:mark_}{\.{\\mark} primitive@>
 primitive("mathaccent",math_accent,0);@/
 @!@:math_accent_}{\.{\\mathaccent} primitive@>
-primitive("mathchar",math_char_num,0);@/
-@!@:math_char_}{\.{\\mathchar} primitive@>
 primitive("omathaccent",math_accent,1);@/
 @!@:math_accent_}{\.{\\omathaccent} primitive@>
+primitive("LuaTeXmathaccent",math_accent,2);@/
+@!@:math_accent_}{\.{\\LuaTeXmathaccent} primitive@>
+primitive("mathchar",math_char_num,0);@/
+@!@:math_char_}{\.{\\mathchar} primitive@>
 primitive("omathchar",math_char_num,1);@/
 @!@:math_char_}{\.{\\omathchar} primitive@>
+primitive("LuaTeXmathchar",math_char_num,2);@/
+@!@:math_char_}{\.{\\LuaTeXmathchar} primitive@>
+primitive("LuaTeXmathcharnum",math_char_num,3);@/
+@!@:math_char_}{\.{\\LuaTeXmathcharnum} primitive@>
 primitive("mathchoice",math_choice,0);@/
 @!@:math_choice_}{\.{\\mathchoice} primitive@>
 primitive("multiply",multiply,0);@/
@@ -7004,6 +7002,8 @@ primitive("radical",radical,0);@/
 @!@:radical_}{\.{\\radical} primitive@>
 primitive("oradical",radical,1);@/
 @!@:radical_}{\.{\\oradical} primitive@>
+primitive("LuaTeXradical",radical,2);@/
+@!@:radical_}{\.{\\LuaTeXradical} primitive@>
 primitive("read",read_to_cs,0);@/
 @!@:read_}{\.{\\read} primitive@>
 primitive("relax",relax,too_big_char);
@@ -7047,7 +7047,9 @@ cs_name: print_esc("csname");
 def_font: print_esc("font");
 letterspace_font: print_esc("letterspacefont");
 pdf_copy_font: print_esc("pdfcopyfont");
-delim_num: if chr_code=0 then print_esc("delimiter") else print_esc("odelimiter") ;
+delim_num: if chr_code=0 then print_esc("delimiter") 
+  else if chr_code=1 then print_esc("odelimiter") 
+  else print_esc("LuaTeXdelimiter");
 divide: print_esc("divide");
 end_cs_name: print_esc("endcsname");
 end_group: print_esc("endgroup");
@@ -7064,8 +7066,13 @@ mark: begin
   else if chr_code=1 then print_esc("clearmarks")
   else print_esc("marks");
   end;
-math_accent: if chr_code=0 then print_esc("mathaccent") else print_esc("omathaccent");
-math_char_num: if chr_code=0 then print_esc("mathchar") else print_esc("omathchar");
+math_accent: if chr_code=0 then print_esc("mathaccent")
+  else if chr_code=1 then print_esc("omathaccent")
+  else print_esc("LuaTeXmathaccent");
+math_char_num: if chr_code=0 then print_esc("mathchar")
+  else if chr_code=1 then print_esc("omathchar") 
+  else if chr_code=2 then print_esc("LuaTeXmathchar") 
+  else print_esc("LuaTeXmathcharnum");
 math_choice: print_esc("mathchoice");
 multiply: print_esc("multiply");
 no_align: print_esc("noalign");
@@ -7074,7 +7081,9 @@ no_expand: if chr_code=0 then print_esc("noexpand")
    else print_esc("primitive");
 non_script: print_esc("nonscript");
 omit: print_esc("omit");
-radical: if chr_code=0 then print_esc("radical") else print_esc("oradical");
+radical: if chr_code=0 then print_esc("radical") 
+   else if chr_code=1 then print_esc("oradical")
+   else print_esc("LuaTeXradical");
 read_to_cs: if chr_code=0 then print_esc("read")
   @<Cases of |read| for |print_cmd_chr|@>;
 relax: print_esc("relax");
@@ -9547,6 +9556,7 @@ var m:halfword; {|chr_code| part of the operand token}
     n, k: integer; {accumulators}
 @!q:halfword; {general purpose index}
 @!p:0..nest_size; {index into |nest|}
+@!mval:mathcodeval; { a mathcode }
 begin m:=cur_chr;
 case cur_cmd of
 def_code: @<Fetch a character code from some table@>;
@@ -9572,7 +9582,7 @@ set_page_int:@<Fetch the |dead_cycles| or the |insert_penalties|@>;
 set_page_dimen: @<Fetch something on the |page_so_far|@>;
 set_shape: @<Fetch the |par_shape| size@>;
 set_box_dimen: @<Fetch a box dimension@>;
-char_given,math_given,omath_given: scanned_result(cur_chr)(int_val);
+char_given,math_given,omath_given,xmath_given: scanned_result(cur_chr)(int_val);
 assign_font_dimen: @<Fetch a font dimension@>;
 assign_font_int: @<Fetch a font integer@>;
 register: @<Fetch a register@>;
@@ -9613,7 +9623,8 @@ last_item: begin
   @<Fetch an item in the current node, if appropriate@>;
   cur_chr:=save_cur_chr;
   end;
-char_given,math_given,omath_given: scanned_result(m)(int_val); {TH: TODO, doesnt work}
+char_given,math_given,omath_given,xmath_given: 
+  scanned_result(m)(int_val); {TH: TODO, doesnt work}
 othercases @<Complain that |texlib| can't do this; give zero result@>
 endcases;@/
 exit:end;
@@ -9621,18 +9632,7 @@ exit:end;
 @ @<Fetch a character code from some table@>=
 begin scan_char_num;
 if m=math_code_base then begin
-  cur_val1:=get_math_code(cur_val);
-  if ((cur_val1 div @"1000000)>8) or
-     (((cur_val1 mod @"1000000) div @"10000)>15) or
-     ((cur_val1 mod @"10000)>255) then
-    begin print_err("Extended mathchar used as mathchar");
-@.Bad mathchar@>
-    help2("A mathchar number must be between 0 and ""7FFF.")@/
-      ("I changed this one to zero."); int_error(cur_val1); cur_val1:=0;
-    end;
-  cur_val1:=((cur_val1 div @"1000000)*@"1000) +
-            (((cur_val1 mod @"1000000) div @"10000)*@"100) +
-            (cur_val1 mod @"10000);
+  cur_val1:=get_math_code_num(cur_val);
   scanned_result(cur_val1)(int_val);
   end
 else if m=lc_code_base then begin
@@ -9657,7 +9657,10 @@ end
 
 @ @<Fetch an ext character code from some table@>=
 begin scan_char_num;
-if m=math_code_base then scanned_result(get_math_code(cur_val))(int_val)
+if m=math_code_base then begin 
+   cur_val1:=get_math_code_num(cur_val);
+   scanned_result(cur_val1)(int_val);
+   end
 { TH: next two lines should not be possible }
 else if m<math_code_base then scanned_result(equiv(m+cur_val))(int_val)
 else scanned_result(eqtb[m+cur_val].int)(int_val);
@@ -10200,12 +10203,6 @@ if (cur_val<0)or(cur_val>@'777777777) then
   help2("A numeric delimiter code must be between 0 and 2^{27}-1.")@/
     ("I changed this one to zero."); int_error(cur_val); cur_val:=0;
   end;
-cur_val1 := (((cur_val mod @"1000) div @"100) * @"10000) +
-            (cur_val mod @"100);
-cur_val := cur_val div @"1000;
-cur_val := ((cur_val div @"1000) * @"1000000) +
-           (((cur_val mod @"1000) div @"100) * @"10000) +
-           (cur_val mod @"100);
 end;
 
 procedure scan_fifty_one_bit_int;
@@ -23079,6 +23076,7 @@ label big_switch,reswitch,continue,exit;
 var@!t,k:integer; {general-purpose temporary variables}
 p:pointer; {for whatsit nodes and testing whether an auto kern should be inserted}
 chr_stack:integer; { to temporarily save an |cur_chr| to be appended }
+mval:mathcodeval; { to build up an argument to |set_math_char| }
 begin t:=0; {for -Wall}
 chr_stack:=-1; 
 if every_job<>null then begin_token_list(every_job,every_job_text);
@@ -23297,7 +23295,7 @@ mode by mistake. \TeX\ will insert a dollar sign and rescan the current token.
 
 @<Math-only cases in non-math modes...@>=
 non_math(sup_mark), non_math(sub_mark), non_math(math_char_num),
-non_math(math_given), non_math(omath_given), 
+non_math(math_given), non_math(omath_given), non_math(xmath_given), 
 non_math(math_comp), non_math(delim_num),
 non_math(left_right), non_math(above), non_math(radical),
 non_math(math_style), non_math(math_choice), non_math(vcenter),
@@ -24788,20 +24786,36 @@ mmode+char_num: begin scan_char_num; cur_chr:=cur_val;
   set_math_char(get_math_code(cur_chr));
   end;
 mmode+math_char_num: begin
-  if cur_chr=0 then scan_fifteen_bit_int
-  else scan_big_fifteen_bit_int;
-  set_math_char(cur_val);
+   if cur_chr=0 then
+     mval := scan_mathchar(tex_mathcode)
+   else if cur_chr=1 then
+     mval := scan_mathchar(aleph_mathcode)
+   else if cur_chr=2 then
+     mval := scan_mathchar(xetex_mathcode)
+   else
+     mval := scan_mathchar(xetexnum_mathcode);
+  set_math_char(mval);
   end;
 mmode+math_given: begin
-  set_math_char(((cur_chr div @"1000) * @"1000000) +
-                (((cur_chr mod @"1000) div @"100) * @"10000) +
-                (cur_chr mod @"100));
+  mval := mathchar_from_integer(cur_chr,tex_mathcode);
+  set_math_char(mval);
   end;
-mmode+omath_given: set_math_char(cur_chr);
+mmode+omath_given: begin
+  mval := mathchar_from_integer(cur_chr,aleph_mathcode);
+  set_math_char(mval);
+  end;
+mmode+xmath_given: begin
+  mval := mathchar_from_integer(cur_chr,xetex_mathcode);
+  set_math_char(mval);
+  end;
 mmode+delim_num: begin
-  if cur_chr=0 then scan_twenty_seven_bit_int
-  else scan_fifty_one_bit_int;
-  set_math_char(cur_val);
+  if cur_chr=0 then
+    mval := scan_delimiter_as_mathchar(tex_mathcode)
+  else if cur_chr=1 then
+    mval := scan_delimiter_as_mathchar(aleph_mathcode)
+  else 
+    mval := scan_delimiter_as_mathchar(xetex_mathcode);
+  set_math_char(mval);
   end;
 
 @ Primitive math operators like \.{\\mathop} and \.{\\underline} are given
@@ -25052,6 +25066,7 @@ var a:small_number; {accumulated prefix codes so far}
 @!p,@!q:pointer; {for temporary short-term use}
 @!n:integer; {ditto}
 @!e:boolean; {should a definition be expanded? or was \.{\\let} not done?}
+@!mval:mathcodeval; {for handling of \.{\\mathchardef}s}
 begin a:=0;
 while cur_cmd=prefix do
   begin if not odd(a div cur_chr) then a:=a+cur_chr;
@@ -25098,10 +25113,6 @@ since the following routines test for the \.{\\global} prefix as follows.
 @d global==(a>=4)
 @d define(#)==if global then geq_define(#)@+else eq_define(#)
 @d word_define(#)==if global then geq_word_define(#)@+else eq_word_define(#)
-@d define_math_code(#)==if global 
-   then set_math_code(#,level_one)@+else set_math_code(#,cur_level)
-@d define_del_code(#)==if global 
-   then set_del_code(#,level_one)@+else set_del_code(#,cur_level)
 @d define_lc_code(#)==if global 
    then set_lc_code(#,level_one)@+else set_lc_code(#,cur_level)
 @d define_uc_code(#)==if global 
@@ -25284,12 +25295,13 @@ corresponding |chr| is the |eqtb| location of the internal register in question.
 @d char_def_code=0 {|shorthand_def| for \.{\\chardef}}
 @d math_char_def_code=1 {|shorthand_def| for \.{\\mathchardef}}
 @d omath_char_def_code=2 {|shorthand_def| for \.{\\omathchardef}}
-@d count_def_code=3 {|shorthand_def| for \.{\\countdef}}
-@d attribute_def_code=4 {|shorthand_def| for \.{\\attributedef}}
-@d dimen_def_code=5 {|shorthand_def| for \.{\\dimendef}}
-@d skip_def_code=6 {|shorthand_def| for \.{\\skipdef}}
-@d mu_skip_def_code=7 {|shorthand_def| for \.{\\muskipdef}}
-@d toks_def_code=8 {|shorthand_def| for \.{\\toksdef}}
+@d xmath_char_def_code=3 {|shorthand_def| for \.{\\LuaTeXmathchardef}}
+@d count_def_code=4 {|shorthand_def| for \.{\\countdef}}
+@d attribute_def_code=5 {|shorthand_def| for \.{\\attributedef}}
+@d dimen_def_code=6 {|shorthand_def| for \.{\\dimendef}}
+@d skip_def_code=7 {|shorthand_def| for \.{\\skipdef}}
+@d mu_skip_def_code=8 {|shorthand_def| for \.{\\muskipdef}}
+@d toks_def_code=9 {|shorthand_def| for \.{\\toksdef}}
 
 @<Put each...@>=
 primitive("chardef",shorthand_def,char_def_code);@/
@@ -25298,6 +25310,8 @@ primitive("mathchardef",shorthand_def,math_char_def_code);@/
 @!@:math_char_def_}{\.{\\mathchardef} primitive@>
 primitive("omathchardef",shorthand_def,omath_char_def_code);@/
 @!@:math_char_def_}{\.{\\omathchardef} primitive@>
+primitive("LuaTeXmathchardef",shorthand_def,xmath_char_def_code);@/
+@!@:math_char_def_}{\.{\\LuaTeXmathchardef} primitive@>
 primitive("countdef",shorthand_def,count_def_code);@/
 @!@:count_def_}{\.{\\countdef} primitive@>
 primitive("attributedef",shorthand_def,attribute_def_code);@/
@@ -25316,6 +25330,7 @@ shorthand_def: case chr_code of
   char_def_code: print_esc("chardef");
   math_char_def_code: print_esc("mathchardef");
   omath_char_def_code: print_esc("omathchardef");
+  xmath_char_def_code: print_esc("LuaTeXmathchardef");
   count_def_code: print_esc("countdef");
   attribute_def_code: print_esc("attributedef");
   dimen_def_code: print_esc("dimendef");
@@ -25325,9 +25340,14 @@ shorthand_def: case chr_code of
   endcases;
 char_given: begin print_esc("char"); print_hex(chr_code);
   end;
-math_given: begin print_esc("mathchar"); print_hex(chr_code);
+math_given: begin print_esc("mathchar"); 
+  show_mathcode_value(mathchar_from_integer(chr_code,tex_mathcode));
   end;
-omath_given: begin print_esc("omathchar"); print_hex(chr_code);
+omath_given: begin print_esc("omathchar");
+  show_mathcode_value(mathchar_from_integer(chr_code,aleph_mathcode));
+  end;
+xmath_given: begin print_esc("LuaTeXmathchar"); 
+  show_mathcode_value(mathchar_from_integer(chr_code,xetex_mathcode));
   end;
 
 @ We temporarily define |p| to be |relax|, so that an occurrence of |p|
@@ -25341,11 +25361,20 @@ shorthand_def: begin n:=cur_chr; get_r_token; p:=cur_cs;
   case n of
   char_def_code: begin scan_char_num; define(p,char_given,cur_val);
     end;
-  math_char_def_code: begin scan_real_fifteen_bit_int;
+  math_char_def_code: begin
+    mval:=scan_mathchar(tex_mathcode);
+    cur_val:=(mval.class_value*16+mval.family_value)*256+mval.character_value;
     define(p,math_given,cur_val);
     end;
-  omath_char_def_code: begin scan_big_fifteen_bit_int;
+  omath_char_def_code: begin 
+    mval:=scan_mathchar(aleph_mathcode);
+    cur_val:=(mval.class_value*256+mval.family_value)*65536+mval.character_value;
     define(p,omath_given,cur_val);
+    end;
+  xmath_char_def_code: begin
+    mval:=scan_mathchar(xetex_mathcode);
+    cur_val:=(mval.class_value*256+mval.family_value)*(65536*32)+mval.character_value;
+    define(p,xmath_given,cur_val);
     end;
   othercases begin scan_register_num;
     case n of
@@ -25475,6 +25504,15 @@ primitive("omathcode",extdef_code,math_code_base);
 @!@:math_code_}{\.{\\omathcode} primitive@>
 primitive("odelcode",extdef_code,del_code_base);
 @!@:del_code_}{\.{\\odelcode} primitive@>
+primitive("LuaTeXmathcode",extdef_code,math_code_base+1);
+@!@:math_code_}{\.{\\LuaTeXmathcode} primitive@>
+primitive("LuaTeXdelcode",extdef_code,del_code_base+1);
+@!@:del_code_}{\.{\\LuaTeXdelcode} primitive@>
+primitive("LuaTeXmathcodenum",extdef_code,math_code_base+2);
+@!@:math_code_}{\.{\\LuaTeXmathcodenum} primitive@>
+primitive("LuaTeXdelcodenum",extdef_code,del_code_base+2);
+@!@:del_code_}{\.{\\LuaTeXdelcodenum} primitive@>
+
 
 @ @<Cases of |print_cmd_chr|...@>=
 def_code: if chr_code=cat_code_base then print_esc("catcode")
@@ -25484,6 +25522,10 @@ def_code: if chr_code=cat_code_base then print_esc("catcode")
   else if chr_code=sf_code_base then print_esc("sfcode")
   else print_esc("delcode");
 extdef_code: if chr_code=math_code_base then print_esc("omathcode")
+  else if chr_code=math_code_base+1 then print_esc("LuaTeXmathcode")
+  else if chr_code=math_code_base+2 then print_esc("LuaTeXmathcodenum")
+  else if chr_code=del_code_base+1 then print_esc("LuaTeXdelcode")
+  else if chr_code=del_code_base+2 then print_esc("LuaTeXdelcodenum")
   else print_esc("odelcode");
 def_family: print_size(chr_code-math_font_base);
 
@@ -25505,15 +25547,8 @@ following program is careful to check each case properly.
 def_code: begin @<Let |n| be the largest legal code value, based on |cur_chr|@>;
   p:=cur_chr;
   if cur_chr=math_code_base then begin
-    scan_char_num; p:= cur_val;
-    scan_optional_equals;  
-    scan_int;
-    check_def_code(math_code_base);
-    if cur_val=@"8000 then cur_val:=@"8000000
-    else cur_val:=((cur_val div @"1000) * @"1000000) +
-                  (((cur_val mod @"1000) div @"100) * @"10000) +
-                  (cur_val mod @"100);
-    define_math_code(p,cur_val);
+    if global then cur_val1:=level_one else cur_val1:=cur_level;
+    scan_extdef_math_code(cur_val1,tex_mathcode);
     end
   else if cur_chr=lc_code_base then begin
     scan_char_num; p:= cur_val;
@@ -25544,51 +25579,32 @@ def_code: begin @<Let |n| be the largest legal code value, based on |cur_chr|@>;
     define_cat_code(p,cur_val);
     end
   else if cur_chr=del_code_base then begin
-    scan_char_num; p:= cur_val;
-    scan_optional_equals;  
-    scan_int;
-    check_def_code(del_code_base);
-    cur_val1:=cur_val div @"1000;
-    cur_val1:=(cur_val1 div @"100)*@"10000 + (cur_val1 mod @"100);
-    cur_val:=cur_val mod @"1000;
-    cur_val:=(cur_val div @"100)*@"10000 + (cur_val mod @"100);
-    define_del_code(p,cur_val1,cur_val);
+    if global then cur_val1:=level_one else cur_val1:=cur_level;
+    scan_extdef_del_code(cur_val1,tex_mathcode);
     end;
+  end; 
+extdef_code: begin
+  if global then cur_val1:=level_one else cur_val1:=cur_level;
+  if cur_chr=math_code_base  then
+    scan_extdef_math_code(cur_val1,aleph_mathcode)
+  else if cur_chr=math_code_base+1 then
+    scan_extdef_math_code(cur_val1,xetex_mathcode)
+  else if cur_chr=math_code_base+2 then
+    scan_extdef_math_code(cur_val1,xetexnum_mathcode)
+  else if cur_chr=del_code_base  then
+    scan_extdef_del_code(cur_val1,aleph_mathcode)
+  else if cur_chr=del_code_base+1  then
+    scan_extdef_del_code(cur_val1,xetex_mathcode)
+  else if cur_chr=del_code_base+2  then
+    scan_extdef_del_code(cur_val1,xetexnum_mathcode);
   end;
-extdef_code: begin 
-  if cur_chr=del_code_base then begin
-   p:=cur_chr; scan_char_num; p:=p+cur_val; scan_optional_equals;
-   scan_int; cur_val1:=cur_val; scan_int; {backwards}
-   if (cur_val1>@"FFFFFF) or (cur_val>@"FFFFFF) then
-     begin print_err("Invalid code ("); print_int(cur_val1); print(" ");
-     print_int(cur_val);
-     print("), should be at most ""FFFFFF ""FFFFFF");
-     help1("I'm going to use 0 instead of that illegal code value.");@/
-     error; cur_val1:=0; cur_val:=0;
-     end;
-   define_del_code(p,cur_val1,cur_val);
-   end
-   else begin
-   p:=cur_chr; scan_char_num; p:=cur_val; scan_optional_equals;
-   scan_int;
-   if (cur_val>@"8000000) then
-     begin print_err("Invalid code ("); print_int(cur_val);
-@.Invalid code@>
-     print("), should be at most ");  print_int(@"8000000);
-     help1("I'm going to use 0 instead of that illegal code value.");@/
-     error; cur_val:=0;
-     end;
-   define_math_code(p,cur_val);
-   end;
-  end;
+
 
 @ @<Let |n| be the largest...@>=
 if cur_chr=cat_code_base then n:=max_char_code
 else if cur_chr=lc_code_base then n:=biggest_char
 else if cur_chr=uc_code_base then n:=biggest_char
-else if cur_chr=math_code_base then n:=@'100000
 else if cur_chr=sf_code_base then n:=@'77777
-else if cur_chr=del_code_base then n:=@'77777777
 else n:=biggest_char
 
 @ @<Assignments@>=

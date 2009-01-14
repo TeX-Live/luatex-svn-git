@@ -100,6 +100,7 @@ command_item command_names[] = {
     {"char_given", char_given_cmd, NULL},
     {"math_given", math_given_cmd, NULL},
     {"omath_given", omath_given_cmd, NULL},
+    {"xmath_given", xmath_given_cmd, NULL},
     {"last_item", last_item_cmd, NULL},
     {"toks_register", toks_register_cmd, NULL},
     {"assign_toks", assign_toks_cmd, NULL},
