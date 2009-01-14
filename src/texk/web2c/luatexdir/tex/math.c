@@ -887,7 +887,7 @@ delcodeval do_scan_extdef_del_code (int extcode, boolean doclass) {
   };
   delcodeval d;
   integer cur_val1; /* and the global |cur_val| */
-  integer mcls, msfam, mschr, mlfam, mlchr;
+  integer mcls, msfam = 0, mschr = 0, mlfam = 0, mlchr = 0;
   mcls = 0;
   if (extcode==tex_mathcode) { /* \delcode, this is the easiest */
     scan_int(); 
@@ -953,6 +953,9 @@ delcodeval do_scan_extdef_del_code (int extcode, boolean doclass) {
     }
     mlfam = 0;
     mlchr = 0;
+  } else {
+        /* something's gone wrong */
+          tconfusion("unknown_extcode");
   }
   d.origin_value = extcode;
   d.class_value = mcls;
@@ -979,7 +982,7 @@ mathcodeval scan_mathchar (int extcode) {
     NULL
   };
   mathcodeval d;
-  integer mcls, mfam, mchr;
+  integer mcls = 0, mfam = 0, mchr = 0;
   if (extcode==tex_mathcode) { /* \mathcode */
     /* "TFCC */
     scan_int();
@@ -1022,6 +1025,9 @@ mathcodeval scan_mathchar (int extcode) {
       tex_error("Invalid math code", hlp); 
       mcls=0; mfam=0; mchr=0;
     }
+  } else {
+        /* something's gone wrong */
+          tconfusion("unknown_extcode");
   }
   d.class_value = mcls;
   d.family_value = mfam;
@@ -1051,6 +1057,7 @@ mathcodeval scan_delimiter_as_mathchar (int extcode) {
   mval.class_value     = dval.class_value;
   mval.family_value    = dval.small_family_value;
   mval.character_value = dval.small_character_value;
+  /* FIXME: mval.origin_value’ is used uninitialized in this function */
   return mval;
 }
 
