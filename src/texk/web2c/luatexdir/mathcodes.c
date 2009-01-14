@@ -57,38 +57,39 @@ static int delcode_heapptr = 0;
 
 void unsavemathcode(quarterword gl)
 {
-  sa_stack_item st;
-  if (mathcode_head->stack == NULL)
-    return;
-  while (mathcode_head->stack_ptr > 0 && 
-         abs(mathcode_head->stack[mathcode_head->stack_ptr].level) 
-         >= (integer)gl) {
-    st = mathcode_head->stack[mathcode_head->stack_ptr];
-    if (st.level > 0) {
-      rawset_sa_item(mathcode_head, st.code, st.value);
-      /* now do a trace message, if requested */
-      if (int_par(param_tracing_restores_code)>0) {
-        begin_diagnostic(); 
-        print_char('{'); tprint("restoring"); print_char(' ');
-        show_mathcode(st.code); print_char('}');
-        end_diagnostic(false);
-      }
+    sa_stack_item st;
+    if (mathcode_head->stack == NULL)
+        return;
+    while (mathcode_head->stack_ptr > 0 &&
+           abs(mathcode_head->stack[mathcode_head->stack_ptr].level)
+           >= (integer) gl) {
+        st = mathcode_head->stack[mathcode_head->stack_ptr];
+        if (st.level > 0) {
+            rawset_sa_item(mathcode_head, st.code, st.value);
+            /* now do a trace message, if requested */
+            if (int_par(param_tracing_restores_code) > 0) {
+                begin_diagnostic();
+                print_char('{');
+                tprint("restoring");
+                print_char(' ');
+                show_mathcode(st.code);
+                print_char('}');
+                end_diagnostic(false);
+            }
+        }
+        (mathcode_head->stack_ptr)--;
     }
-    (mathcode_head->stack_ptr)--;
-  }
 }
 
-void set_math_code(integer n, 
-                   integer commandorigin, 
-                   integer mathclass, 
-                   integer mathfamily, 
-                   integer mathcharacter, 
-                   quarterword level)
+void set_math_code(integer n,
+                   integer commandorigin,
+                   integer mathclass,
+                   integer mathfamily, integer mathcharacter, quarterword level)
 {
     mathcodeval d;
-    d.origin_value    = commandorigin;
-    d.class_value     = mathclass;
-    d.family_value    = mathfamily;
+    d.origin_value = commandorigin;
+    d.class_value = mathclass;
+    d.family_value = mathfamily;
     d.character_value = mathcharacter;
     if (mathcode_heapptr == mathcode_heapsize) {
         mathcode_heapsize += MATHCODEHEAP;
@@ -98,11 +99,14 @@ void set_math_code(integer n,
     mathcode_heap[mathcode_heapptr] = d;
     set_sa_item(mathcode_head, n, mathcode_heapptr, level);
     mathcode_heapptr++;
-    if (int_par(param_tracing_assigns_code)>0) {
-      begin_diagnostic(); 
-      print_char('{'); tprint("assigning"); print_char(' ');
-      show_mathcode(n); print_char('}');
-      end_diagnostic(false);
+    if (int_par(param_tracing_assigns_code) > 0) {
+        begin_diagnostic();
+        print_char('{');
+        tprint("assigning");
+        print_char(' ');
+        show_mathcode(n);
+        print_char('}');
+        end_diagnostic(false);
     }
 }
 
@@ -112,10 +116,10 @@ mathcodeval get_math_code(integer n)
     ret = get_sa_item(mathcode_head, n);
     if (ret == MATHCODEDEFAULT) {
         mathcodeval d;
-        d.class_value     = 0;
-        d.family_value    = 0;
-        d.origin_value    = (n<256? tex_mathcode : 
-                             (n<65536? aleph_mathcode : xetex_mathcode));
+        d.class_value = 0;
+        d.family_value = 0;
+        d.origin_value = (n < 256 ? tex_mathcode :
+                          (n < 65536 ? aleph_mathcode : xetex_mathcode));
         d.character_value = n;
         return d;
     } else {
@@ -124,19 +128,22 @@ mathcodeval get_math_code(integer n)
 }
 
 
-integer get_math_code_num (integer n) 
+integer get_math_code_num(integer n)
 {
-  mathcodeval mval ;
-  mval = get_math_code(n);
-  if (mval.origin_value==tex_mathcode) {
-    return (mval.class_value*16+mval.family_value)*256+mval.character_value;
-  } else if (mval.origin_value==aleph_mathcode) {
-    return (mval.class_value*256+mval.family_value)*65536+mval.character_value;
-  } else if (mval.origin_value==xetexnum_mathcode ||
-            mval.origin_value==xetex_mathcode)  {
-    return (mval.class_value*256+mval.family_value)*(65536*32)+mval.character_value;
-  }
-  return 0;
+    mathcodeval mval;
+    mval = get_math_code(n);
+    if (mval.origin_value == tex_mathcode) {
+        return (mval.class_value * 16 + mval.family_value) * 256 +
+            mval.character_value;
+    } else if (mval.origin_value == aleph_mathcode) {
+        return (mval.class_value * 256 + mval.family_value) * 65536 +
+            mval.character_value;
+    } else if (mval.origin_value == xetexnum_mathcode
+               || mval.origin_value == xetex_mathcode) {
+        return (mval.class_value * 256 + mval.family_value) * (65536 * 32) +
+            mval.character_value;
+    }
+    return 0;
 }
 
 void initializemathcode(void)
@@ -181,7 +188,7 @@ void undumpmathcode(void)
     d.family_value = 0;
     d.character_value = 0;
     for (k = mathcode_heapptr; k < mathcode_heapsize; k++) {
-      mathcode_heap[k] = d;
+        mathcode_heap[k] = d;
     }
 }
 
@@ -209,45 +216,48 @@ void undumpmathcode(void)
     two_hex(A%256);           \
   } while (0)
 
-void show_mathcode (integer n) {
-  mathcodeval c = get_math_code(n);
-  if (c.origin_value==aleph_mathcode) {
-    tprint_esc("omathcode"); 
-  } else if (c.origin_value==xetex_mathcode) {
-    tprint_esc("LuaTeXmathcode");
-  } else if (c.origin_value==xetexnum_mathcode) {
-    tprint_esc("LuaTeXmathcodenum");
-  } else {
-    tprint_esc("mathcode"); 
-  }
-  print_int(n);
-  print_char('=');
-  show_mathcode_value(c);
+void show_mathcode(integer n)
+{
+    mathcodeval c = get_math_code(n);
+    if (c.origin_value == aleph_mathcode) {
+        tprint_esc("omathcode");
+    } else if (c.origin_value == xetex_mathcode) {
+        tprint_esc("LuaTeXmathcode");
+    } else if (c.origin_value == xetexnum_mathcode) {
+        tprint_esc("LuaTeXmathcodenum");
+    } else {
+        tprint_esc("mathcode");
+    }
+    print_int(n);
+    print_char('=');
+    show_mathcode_value(c);
 }
 
-void show_mathcode_value (mathcodeval c) {
-  if (c.origin_value==aleph_mathcode) {
-    print_char('"');
-    print_hex_digit(c.class_value);
-    two_hex(c.family_value);
-    four_hex(c.character_value);
-  } else if (c.origin_value==xetex_mathcode) {
-    print_char('"');
-    print_hex_digit(c.class_value);
-    print_char('"');
-    two_hex(c.family_value);
-    print_char('"');
-    six_hex(c.character_value);
-  } else if (c.origin_value==xetexnum_mathcode) {
-    int m ;
-    m = ((c.class_value*256)+c.family_value)*2097152+c.character_value;
-    print_int(m);
-  } else {
-    print_char('"');
-    print_hex_digit(c.class_value);
-    print_hex_digit(c.family_value);
-    two_hex(c.character_value);
-  }
+void show_mathcode_value(mathcodeval c)
+{
+    if (c.origin_value == aleph_mathcode) {
+        print_char('"');
+        print_hex_digit(c.class_value);
+        two_hex(c.family_value);
+        four_hex(c.character_value);
+    } else if (c.origin_value == xetex_mathcode) {
+        print_char('"');
+        print_hex_digit(c.class_value);
+        print_char('"');
+        two_hex(c.family_value);
+        print_char('"');
+        six_hex(c.character_value);
+    } else if (c.origin_value == xetexnum_mathcode) {
+        int m;
+        m = ((c.class_value * 256) + c.family_value) * 2097152 +
+            c.character_value;
+        print_int(m);
+    } else {
+        print_char('"');
+        print_hex_digit(c.class_value);
+        print_hex_digit(c.family_value);
+        two_hex(c.character_value);
+    }
 }
 
 
@@ -255,41 +265,42 @@ void show_mathcode_value (mathcodeval c) {
 
 void unsavedelcode(quarterword gl)
 {
-  sa_stack_item st;
-  if (delcode_head->stack == NULL)
-    return;
-  while (delcode_head->stack_ptr > 0 && 
-         abs(delcode_head->stack[delcode_head->stack_ptr].level) 
-         >= (integer)gl) {
-    st = delcode_head->stack[delcode_head->stack_ptr];
-    if (st.level > 0) {
-      rawset_sa_item(delcode_head, st.code, st.value);
-      /* now do a trace message, if requested */
-      if (int_par(param_tracing_restores_code)>0) {
-        begin_diagnostic(); 
-        print_char('{'); tprint("restoring"); print_char(' ');
-        show_delcode(st.code); print_char('}');
-        end_diagnostic(false);
-      }
+    sa_stack_item st;
+    if (delcode_head->stack == NULL)
+        return;
+    while (delcode_head->stack_ptr > 0 &&
+           abs(delcode_head->stack[delcode_head->stack_ptr].level)
+           >= (integer) gl) {
+        st = delcode_head->stack[delcode_head->stack_ptr];
+        if (st.level > 0) {
+            rawset_sa_item(delcode_head, st.code, st.value);
+            /* now do a trace message, if requested */
+            if (int_par(param_tracing_restores_code) > 0) {
+                begin_diagnostic();
+                print_char('{');
+                tprint("restoring");
+                print_char(' ');
+                show_delcode(st.code);
+                print_char('}');
+                end_diagnostic(false);
+            }
+        }
+        (delcode_head->stack_ptr)--;
     }
-    (delcode_head->stack_ptr)--;
-  }
 
 }
 
-void set_del_code(integer n, 
-                  integer commandorigin, 
-                  integer smathfamily, 
-                  integer smathcharacter, 
-                  integer lmathfamily, 
-                  integer lmathcharacter, 
-                  quarterword gl)
+void set_del_code(integer n,
+                  integer commandorigin,
+                  integer smathfamily,
+                  integer smathcharacter,
+                  integer lmathfamily, integer lmathcharacter, quarterword gl)
 {
     delcodeval d;
     d.origin_value = commandorigin;
-    d.small_family_value    = smathfamily;
+    d.small_family_value = smathfamily;
     d.small_character_value = smathcharacter;
-    d.large_family_value    = lmathfamily;
+    d.large_family_value = lmathfamily;
     d.large_character_value = lmathcharacter;
     if (delcode_heapptr == delcode_heapsize) {
         delcode_heapsize += DELCODEHEAP;
@@ -298,11 +309,14 @@ void set_del_code(integer n,
     }
     delcode_heap[delcode_heapptr] = d;
     set_sa_item(delcode_head, n, delcode_heapptr, gl);
-    if (int_par(param_tracing_assigns_code)>0) {
-      begin_diagnostic(); 
-      print_char('{'); tprint("assigning"); print_char(' ');
-      show_delcode(n); print_char('}');
-      end_diagnostic(false);
+    if (int_par(param_tracing_assigns_code) > 0) {
+        begin_diagnostic();
+        print_char('{');
+        tprint("assigning");
+        print_char(' ');
+        show_delcode(n);
+        print_char('}');
+        end_diagnostic(false);
     }
     delcode_heapptr++;
 }
@@ -314,9 +328,9 @@ delcodeval get_del_code(integer n)
     if (ret == DELCODEDEFAULT) {
         delcodeval d;
         d.origin_value = tex_mathcode;
-        d.small_family_value    = -1;
+        d.small_family_value = -1;
         d.small_character_value = 0;
-        d.large_family_value    = 0;
+        d.large_family_value = 0;
         d.large_character_value = 0;
         return d;
     } else {
@@ -364,56 +378,57 @@ void undumpdelcode(void)
         delcode_heap[k] = d;
     }
     d.origin_value = tex_mathcode;
-    d.small_family_value    = -1;
+    d.small_family_value = -1;
     d.small_character_value = 0;
-    d.large_family_value    = 0;
+    d.large_family_value = 0;
     d.large_character_value = 0;
     for (k = delcode_heapptr; k < delcode_heapsize; k++) {
         delcode_heap[k] = d;
     }
 }
 
-void show_delcode (integer n) {
-  delcodeval c;
-  c = get_del_code(n);
-  if (c.origin_value==tex_mathcode) {
-    tprint_esc("delcode");
-  } else if (c.origin_value==aleph_mathcode) {
-    tprint_esc("odelcode");
-  } else if (c.origin_value==xetex_mathcode) {
-    tprint_esc("LuaTeXdelcode");
-  } else if (c.origin_value==xetexnum_mathcode) {
-    tprint_esc("LuaTeXdelcodenum");
-  }
-  print_int(n);
-  print_char('='); 
-  if (c.small_family_value<0) {
-    print_char('-');
-    print_char('1');
-  } else {
-    if (c.origin_value==tex_mathcode) {
-      print_char('"'); 
-      print_hex_digit(c.small_family_value);
-      two_hex(c.small_character_value);
-      print_hex_digit(c.large_family_value);
-      two_hex(c.large_character_value);
-    } else if (c.origin_value==aleph_mathcode) {
-      print_char('"'); 
-      two_hex(c.small_family_value);
-      four_hex(c.small_character_value);
-      print_char('"'); 
-      two_hex(c.large_family_value);
-      four_hex(c.large_character_value);
-    } else if (c.origin_value==xetex_mathcode) {
-      print_char('"'); 
-      two_hex(c.small_family_value);
-      six_hex(c.small_character_value);
-    } else if (c.origin_value==xetexnum_mathcode) {
-      int m ;
-      m = c.small_family_value*2097152+c.small_character_value;
-      print_int(m);
+void show_delcode(integer n)
+{
+    delcodeval c;
+    c = get_del_code(n);
+    if (c.origin_value == tex_mathcode) {
+        tprint_esc("delcode");
+    } else if (c.origin_value == aleph_mathcode) {
+        tprint_esc("odelcode");
+    } else if (c.origin_value == xetex_mathcode) {
+        tprint_esc("LuaTeXdelcode");
+    } else if (c.origin_value == xetexnum_mathcode) {
+        tprint_esc("LuaTeXdelcodenum");
     }
-  }
+    print_int(n);
+    print_char('=');
+    if (c.small_family_value < 0) {
+        print_char('-');
+        print_char('1');
+    } else {
+        if (c.origin_value == tex_mathcode) {
+            print_char('"');
+            print_hex_digit(c.small_family_value);
+            two_hex(c.small_character_value);
+            print_hex_digit(c.large_family_value);
+            two_hex(c.large_character_value);
+        } else if (c.origin_value == aleph_mathcode) {
+            print_char('"');
+            two_hex(c.small_family_value);
+            four_hex(c.small_character_value);
+            print_char('"');
+            two_hex(c.large_family_value);
+            four_hex(c.large_character_value);
+        } else if (c.origin_value == xetex_mathcode) {
+            print_char('"');
+            two_hex(c.small_family_value);
+            six_hex(c.small_character_value);
+        } else if (c.origin_value == xetexnum_mathcode) {
+            int m;
+            m = c.small_family_value * 2097152 + c.small_character_value;
+            print_int(m);
+        }
+    }
 }
 
 
