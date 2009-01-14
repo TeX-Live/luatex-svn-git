@@ -10037,6 +10037,9 @@ applications of |scan_int| that have already been made inside of
 @d dir_prev_end(#)==((#) mod 4)
 @d dir_prev(#)==(((#)+1) mod 4)=dir_prev_end
 
+@d dir_horizontal(#)==(((#)=dir_L) or ((#)=dir_R))
+@d dir_vertical(#)==(((#)=dir_T) or ((#)=dir_B))
+
 {box directions}
 @d dir_TL_=0
 @d dir_TR_=1
@@ -10065,8 +10068,8 @@ applications of |scan_int| that have already been made inside of
 @d dir__BB=14
 @d dir__BR=15
 
-@d is_mirrored(#)==dir_opposite(dir_primary[#])(dir_tertiary[#])
-@d is_rotated(#)==dir_parallel(dir_secondary[#])(dir_tertiary[#])
+@d is_mirrored(#)==(dir_opposite(dir_primary[#])(dir_tertiary[#]))
+@d is_rotated(#)==(dir_parallel(dir_secondary[#])(dir_tertiary[#]))
 @d font_direction(#)==(# mod 16)
 @d box_direction(#)==(# div 4)
 
@@ -14489,11 +14492,12 @@ this is essentially the depth of |push| commands in the \.{DVI} output.
 @d synch_h==if page_h <> dvi_h then begin
     movement(page_h - dvi_h, right1);
     dvi_h := page_h;
-    end;
+    end
+
 @d synch_v==if page_v <> dvi_v then begin
     movement(dvi_v - page_v, down1);
     dvi_v := page_v;
-    end;
+    end
 
 @d synch_page_coordinates==case box_direction(dvi_direction) of
     dir_TL_: begin page_h := box_pg_h + cur_h; page_v := box_pg_v - cur_v; end;
@@ -14669,16 +14673,9 @@ if is_char_node(p) then
   repeat synch_dvi; f:=font(p); c:=character(p);
   ci := char_info_short(f,c);
   if f<>dvi_f then @<Change font |dvi_f| to |f|@>;
-  if is_rotated(dvi_direction) then begin
-    c_ht:=charinfo_width(ci) div 2;
-    c_wd:=charinfo_height(ci)+charinfo_depth(ci);
-    c_dp:=0;
-    end
-  else begin
-    c_ht:=charinfo_height(ci);
-    c_dp:=charinfo_depth(ci);
-    c_wd:=charinfo_width(ci);
-    end;
+  c_ht:=charinfo_height(ci);
+  c_dp:=charinfo_depth(ci);
+  c_wd:=charinfo_width(ci);
   if (font_natural_dir(f)<>-1) then begin
     case font_direction(dvi_direction) of
     dir__LT,dir__LB: begin
@@ -14687,25 +14684,43 @@ if is_char_node(p) then
     dir__RT,dir__RB: begin
       dvi_put(c);
       end;
-    dir__TL,dir__TR: begin
+    dir__TL,dir__TR,dir__BL,dir__BR: begin
+      c_wd := c_ht + c_dp;
       dvi_put(c);
       end;
-    dir__BL,dir__BR: begin
+    dir__LL: begin
+      dvi_right(c_wd);
       dvi_put(c);
       end;
-    dir__LL,dir__LR: begin
+    dir__RR: begin
+      dvi_left(c_wd);
+      dvi_put(c);
+      end;
+    dir__LR: begin
       dvi_set(c)(c_wd);
       end;
-    dir__RL,dir__RR: begin
+    dir__RL: begin
       dvi_put(c);
       end;
-    dir__TT,dir__TB: begin
+    dir__TT: begin
+      c_wd := c_ht + c_dp;
+      dvi_down(c_wd);
       dvi_put(c);
       end;
-    dir__BT,dir__BB: begin
+    dir__TB: begin
+      c_wd := c_ht + c_dp;
       dvi_put(c);
       end;
-    end;
+    dir__BT: begin
+      c_wd := c_ht + c_dp;
+      dvi_put(c);
+      end;
+    dir__BB: begin
+      c_wd := c_ht + c_dp;
+      dvi_up(c_wd);
+      dvi_put(c);
+      end;
+    endcases;
   end else begin
     case font_direction(dvi_direction) of
     dir__LT: begin
@@ -14720,47 +14735,54 @@ if is_char_node(p) then
       dvi_put(c);
       end;
     dir__RB: begin
-      dvi_left(c_wd);
       dvi_down(c_ht);
+      dvi_left(c_wd);
       dvi_put(c);
       end;
     dir__TL: begin
-      dvi_down(c_wd);
-      dvi_left(c_ht);
+      dvi_down(c_ht);
+      dvi_left(c_wd);
       dvi_put(c);
+      c_wd := c_ht + c_dp;
       end;
     dir__TR: begin
-      dvi_down(c_wd);
-      dvi_left(c_dp);
+      dvi_down(c_ht);
       dvi_put(c);
+      c_wd := c_ht + c_dp;
       end;
     dir__BL: begin
-      dvi_left(c_ht);
+      dvi_left(c_wd);
+      dvi_up(c_dp);
       dvi_put(c);
+      c_wd := c_ht + c_dp;
       end;
     dir__BR: begin
-      dvi_left(c_dp);
+      dvi_up(c_dp);
       dvi_put(c);
+      c_wd := c_ht + c_dp;
       end;
     dir__LL,dir__LR: begin
-      dvi_down(c_ht);
+      dvi_down((c_ht - c_dp) div 2);
       dvi_set(c)(c_wd);
       end;
     dir__RL,dir__RR: begin
       dvi_left(c_wd);
-      dvi_down(c_ht);
+      dvi_down((c_ht - c_dp) div 2);
       dvi_put(c);
       end;
     dir__TT,dir__TB: begin
-      dvi_down(c_wd);
-      dvi_left(c_ht);
+      dvi_down(c_ht);
+      dvi_left(c_wd div 2);
       dvi_put(c);
+      c_wd:=c_ht + c_dp;
       end;
     dir__BT,dir__BB: begin
-      dvi_left(c_ht);
+      dvi_up(c_dp);
+      dvi_left(c_wd div 2);
       dvi_put(c);
+      c_wd := c_ht + c_dp;
       end;
-     end;
+     endcases;
     end;
   cur_h:=cur_h+c_wd;
   p:=vlink(p);
@@ -14834,7 +14856,7 @@ if not (dir_orthogonal(dir_primary[box_dir(p)])(dir_primary[dvi_direction]))
   end
 else begin
   effective_horizontal:=height(p)+depth(p);
-  if not (is_mirrored(box_dir(p))) then
+  if not is_mirrored(box_dir(p)) then
     if dir_eq(dir_primary[box_dir(p)])(dir_secondary[dvi_direction]) then
       basepoint_horizontal:=height(p)
     else
@@ -14849,7 +14871,7 @@ else begin
   else
     basepoint_vertical:= (width(p) div 2);
   end;
-if not (is_mirrored(dvi_direction)) then
+if not is_mirrored(dvi_direction) then
   basepoint_vertical := basepoint_vertical + shift_amount(p)
     {shift the box `down'}
 else
@@ -15012,7 +15034,7 @@ if not (dir_orthogonal(dir_primary[box_dir(leader_box)])(dir_primary[dvi_directi
     basepoint_horizontal:=0;
   end
 else begin
-  if not (is_mirrored(box_dir(leader_box))) then
+  if not is_mirrored(box_dir(leader_box)) then
     if dir_eq(dir_primary[box_dir(leader_box)])(dir_secondary[dvi_direction]) then
       basepoint_horizontal:=height(leader_box)
     else
@@ -15027,7 +15049,7 @@ else begin
   else
     basepoint_vertical:= (width(leader_box) div 2);
   end;
-if not (is_mirrored(dvi_direction)) then
+if not is_mirrored(dvi_direction) then
   basepoint_vertical := basepoint_vertical + shift_amount(leader_box)
     {shift the box `down'}
 else
@@ -15136,7 +15158,7 @@ begin
 if not (dir_orthogonal(dir_primary[box_dir(p)])(dir_primary[dvi_direction]))
   then begin
   effective_vertical:=height(p)+depth(p);
-  if (type(p)=hlist_node) and (is_mirrored(box_dir(p))) then
+  if (type(p)=hlist_node) and is_mirrored(box_dir(p)) then
     basepoint_vertical:=depth(p)
   else
     basepoint_vertical:=height(p);
@@ -15147,7 +15169,7 @@ if not (dir_orthogonal(dir_primary[box_dir(p)])(dir_primary[dvi_direction]))
   end
 else begin
   effective_vertical:=width(p);
-  if not (is_mirrored(box_dir(p))) then
+  if not is_mirrored(box_dir(p)) then
     if dir_eq(dir_primary[box_dir(p)])(dir_secondary[dvi_direction]) then
       basepoint_horizontal:=height(p)
     else
@@ -15293,7 +15315,7 @@ begin
 if not (dir_orthogonal(dir_primary[box_dir(leader_box)])(dir_primary[dvi_direction]))
   then begin
   effective_vertical:=height(leader_box)+depth(leader_box);
-  if (type(leader_box)=hlist_node) and (is_mirrored(box_dir(leader_box))) then
+  if (type(leader_box)=hlist_node) and is_mirrored(box_dir(leader_box)) then
     basepoint_vertical:=depth(leader_box)
   else
     basepoint_vertical:=height(leader_box);
@@ -15304,7 +15326,7 @@ if not (dir_orthogonal(dir_primary[box_dir(leader_box)])(dir_primary[dvi_directi
   end
 else begin
   effective_vertical:=width(leader_box);
-  if not (is_mirrored(box_dir(leader_box))) then
+  if not is_mirrored(box_dir(leader_box)) then
     if dir_eq(dir_primary[box_dir(leader_box)])(dir_secondary[dvi_direction]) then
       basepoint_horizontal:=height(leader_box)
     else
@@ -18115,7 +18137,7 @@ if not (dir_orthogonal(dir_primary[box_dir(p)])(dir_primary[dvi_direction]))
   end
 else begin
   effective_horizontal:=height(p)+depth(p);
-  if not (is_mirrored(box_dir(p))) then
+  if not is_mirrored(box_dir(p)) then
     if dir_eq(dir_primary[box_dir(p)])(dir_secondary[dvi_direction]) then
       basepoint_horizontal:=height(p)
     else
@@ -18130,7 +18152,7 @@ else begin
   else
     basepoint_vertical:= (width(p) div 2);
   end;
-if not (is_mirrored(dvi_direction)) then
+if not is_mirrored(dvi_direction) then
   basepoint_vertical := basepoint_vertical + shift_amount(p)
     {shift the box `down'}
 else
@@ -18240,7 +18262,7 @@ if not (dir_orthogonal(dir_primary[box_dir(leader_box)])(dir_primary[dvi_directi
     basepoint_horizontal:=0;
   end
 else begin
-  if not (is_mirrored(box_dir(leader_box))) then
+  if not is_mirrored(box_dir(leader_box)) then
     if dir_eq(dir_primary[box_dir(leader_box)])(dir_secondary[dvi_direction]) then
       basepoint_horizontal:=height(leader_box)
     else
@@ -18255,7 +18277,7 @@ else begin
   else
     basepoint_vertical:= (width(leader_box) div 2);
   end;
-if not (is_mirrored(dvi_direction)) then
+if not is_mirrored(dvi_direction) then
   basepoint_vertical := basepoint_vertical + shift_amount(leader_box)
     {shift the box `down'}
 else
@@ -18365,7 +18387,7 @@ begin
 if not (dir_orthogonal(dir_primary[box_dir(p)])(dir_primary[dvi_direction]))
   then begin
   effective_vertical:=height(p)+depth(p);
-  if (type(p)=hlist_node) and (is_mirrored(box_dir(p))) then
+  if (type(p)=hlist_node) and is_mirrored(box_dir(p)) then
     basepoint_vertical:=depth(p)
   else
     basepoint_vertical:=height(p);
@@ -18380,7 +18402,7 @@ if not (dir_orthogonal(dir_primary[box_dir(p)])(dir_primary[dvi_direction]))
   end
 else begin
   effective_vertical:=width(p);
-  if not (is_mirrored(box_dir(p))) then
+  if not is_mirrored(box_dir(p)) then
     if dir_eq(dir_primary[box_dir(p)])(dir_secondary[dvi_direction]) then
       basepoint_horizontal:=height(p)
     else
@@ -20223,7 +20245,7 @@ if (type(p)=hlist_node) or (type(p)=vlist_node) then begin
     if (width(p) div 2)-s>h then h:=(width(p) div 2)-s;
     if (width(p) div 2)+s>d then d:=(width(p) div 2)+s;
     end
-  else if (type(p)=hlist_node) and (is_mirrored(hpack_dir)) then begin
+  else if (type(p)=hlist_node) and is_mirrored(hpack_dir) then begin
     x:=x+width(p);
     s:=shift_amount(p);
     if depth(p)-s>h then h:=depth(p)-s;
@@ -20545,7 +20567,7 @@ if (type(p)=hlist_node) or (type(p)=vlist_node) then begin
     s:=shift_amount(p);
     if depth(p)+height(p)+s>w then w:=depth(p)+height(p)+s;
     end
-  else if (type(p)=hlist_node) and (is_mirrored(box_dir(p))) then begin
+  else if (type(p)=hlist_node) and is_mirrored(box_dir(p)) then begin
     x:=x+d+depth(p); d:=height(p);
     s:=shift_amount(p);
     if width(p)+s>w then w:=width(p)+s;
@@ -20674,7 +20696,7 @@ var d:scaled; {deficiency of space between baselines}
 @!p:pointer; {a new glue node}
 begin if prev_depth>pdf_ignored_dimen then
   begin
-  if (type(b)=hlist_node) and (is_mirrored(box_dir(b))) then
+  if (type(b)=hlist_node) and is_mirrored(box_dir(b)) then
     d:=width(baseline_skip)-prev_depth-depth(b)
   else
     d:=width(baseline_skip)-prev_depth-height(b);
@@ -20685,7 +20707,7 @@ begin if prev_depth>pdf_ignored_dimen then
   vlink(tail):=p; tail:=p;
   end;
 vlink(tail):=b; tail:=b;
-if (type(b)=hlist_node) and (is_mirrored(box_dir(b))) then 
+if (type(b)=hlist_node) and is_mirrored(box_dir(b)) then 
   prev_depth:=height(b)
 else
   prev_depth:=depth(b);
@@ -22529,7 +22551,7 @@ endcases
 begin if page_contents=empty then freeze_page_specs(box_there)
 else page_contents:=box_there;
 q:=new_skip_param(top_skip_code); {now |temp_ptr=glue_ptr(q)|}
-if (type(p)=hlist_node) and (is_mirrored(body_direction)) then begin
+if (type(p)=hlist_node) and is_mirrored(body_direction) then begin
   if width(temp_ptr)>depth(p) then width(temp_ptr):=width(temp_ptr)-depth(p)
   else width(temp_ptr):=0;
   end
@@ -22542,7 +22564,7 @@ end
 
 @ @<Prepare to move a box or rule node to the current page...@>=
 begin
-if (type(p)=hlist_node) and (is_mirrored(body_direction)) then begin
+if (type(p)=hlist_node) and is_mirrored(body_direction) then begin
   page_total:=page_total+page_depth+depth(p);
   page_depth:=height(p);
   end
