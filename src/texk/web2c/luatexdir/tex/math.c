@@ -1075,10 +1075,10 @@ mathcodeval scan_delimiter_as_mathchar(int extcode)
     delcodeval dval;
     mathcodeval mval;
     dval = do_scan_extdef_del_code(extcode, true);
+    mval.origin_value = 0;
     mval.class_value = dval.class_value;
     mval.family_value = dval.small_family_value;
     mval.character_value = dval.small_character_value;
-    /* FIXME: mval.origin_value’ is used uninitialized in this function */
     return mval;
 }
 

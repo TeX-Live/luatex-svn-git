@@ -1771,7 +1771,7 @@ scaled divide_scaled(scaled s, scaled m, integer dd)
 
 scaled divide_scaled_n(double sd, double md, double n)
 {
-    double dd, di;
+    double dd, di = 0.0;
     dd = sd / md * n;
     if (dd>0.0) di = floor(dd+0.5);
     else if (dd<0.0) di = -floor ((-dd)+0.5); /* fix rounding */

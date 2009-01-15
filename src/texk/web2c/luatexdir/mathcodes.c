@@ -297,6 +297,7 @@ void set_del_code(integer n,
                   integer lmathfamily, integer lmathcharacter, quarterword gl)
 {
     delcodeval d;
+    d.class_value = 0;
     d.origin_value = commandorigin;
     d.small_family_value = smathfamily;
     d.small_character_value = smathcharacter;
@@ -327,6 +328,7 @@ delcodeval get_del_code(integer n)
     ret = get_sa_item(delcode_head, n);
     if (ret == DELCODEDEFAULT) {
         delcodeval d;
+        d.class_value = 0;
         d.origin_value = tex_mathcode;
         d.small_family_value = -1;
         d.small_character_value = 0;
@@ -354,6 +356,7 @@ void dumpdelcode(void)
     for (k = 0; k < delcode_heapptr; k++) {
         d = delcode_heap[k];
         dump_int(d.origin_value);
+        dump_int(d.class_value);
         dump_int(d.small_family_value);
         dump_int(d.small_character_value);
         dump_int(d.large_family_value);
@@ -371,6 +374,7 @@ void undumpdelcode(void)
     delcode_heap = Mxmalloc_array(delcodeval, delcode_heapsize);
     for (k = 0; k < delcode_heapptr; k++) {
         undump_int(d.origin_value);
+        undump_int(d.class_value);
         undump_int(d.small_family_value);
         undump_int(d.small_character_value);
         undump_int(d.large_family_value);
@@ -378,6 +382,7 @@ void undumpdelcode(void)
         delcode_heap[k] = d;
     }
     d.origin_value = tex_mathcode;
+    d.class_value = 0;
     d.small_family_value = -1;
     d.small_character_value = 0;
     d.large_family_value = 0;
