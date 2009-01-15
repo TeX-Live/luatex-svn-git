@@ -16435,11 +16435,21 @@ begin
     pdf_delta_h := 0;
 end;
 
+@ The code below used to run the |false| branch. I have removed it now because it
+sometimes causes a one scaled point rounding error when nothing is supposed to happen,
+and that minute rounding error manages to distort the placement of cursive fonts
+somehow. TH
+
+@p
 procedure pdf_use_font(f: internal_font_number; fontnum: integer);
 {mark |f| as a used font; set |font_used(f)|, |pdf_font_size(f)| and |pdf_font_num(f)|}
 begin
+  if false then begin
     call_func(divide_scaled(font_size(f), one_hundred_bp, 6));
     set_pdf_font_size(f,scaled_out);
+    end
+  else
+    set_pdf_font_size(f,font_size(f));
     set_font_used(f,true);
     pdfassert((fontnum > 0) or ((fontnum < 0) and (pdf_font_num(-fontnum) > 0)));
     set_pdf_font_num(f,fontnum);
