@@ -1766,16 +1766,15 @@ scaled divide_scaled(scaled s, scaled m, integer dd)
 }
 
 
-/* Sometimes there is one sp of difference in |scaled_out|
- * compared to the 'perfect' answer given above, but this
- * routine is only used by the pdf backend, not for typesetting.
+/* Same function, but using doubles instead of integers (faster)
  */
 
 scaled divide_scaled_n(double sd, double md, double n)
 {
-    int d = (int) (sd / md * n + 0.5);
-    scaled_out = (int) (d / n * md);
-    return d;
+    double dd = sd / md * n;
+    if (dd>0.0) dd += 0.5; else if (dd<0.0) dd -= 0.5;
+    scaled_out = (scaled) ((scaled)dd / n * md);
+    return (scaled)dd;
 }
 
 
