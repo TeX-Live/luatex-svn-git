@@ -1244,7 +1244,6 @@ void mlist_to_hlist(void)
     x = null;
     p = null;
     setup_cur_size_and_mu();
- NEXT_NODE:
     while (q != null) {
         /* We use the fact that no character nodes appear in an mlist, hence
            the field |type(q)| is always present. */
@@ -1484,6 +1483,7 @@ void mlist_to_hlist(void)
     r_type = 0;
     cur_style = style;
     setup_cur_size_and_mu();
+ NEXT_NODE:
     while (q != null) {
         /* If node |q| is a style node, change the style and |goto delete_q|;
            otherwise if it is not a noad, put it into the hlist,
