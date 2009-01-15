@@ -2239,7 +2239,7 @@ void show_whatsit_node(integer p)
         print_mark(pdf_annot_data(p));
         break;
     case pdf_start_link_node:
-        tprint_esc("pdflink");
+        tprint_esc("pdfstartlink");
         show_pdftex_whatsit_rule_spec(p);
         if (pdf_link_attr(p) != null) {
             tprint(" attr");
