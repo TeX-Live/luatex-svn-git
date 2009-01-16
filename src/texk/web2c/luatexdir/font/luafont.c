@@ -1749,7 +1749,7 @@ static void add_kern_before(halfword left, halfword right)
 {
     if ((!is_rightghost(right)) &&
         font(left) == font(right) && has_kern(font(left), character(left))) {
-        int k = get_kern(font(left), character(left), character(right));
+        int k = raw_get_kern(font(left), character(left), character(right));
         if (k != 0) {
             halfword kern = new_kern(k);
             halfword prev = alink(right);
@@ -1765,7 +1765,7 @@ static void add_kern_after(halfword left, halfword right, halfword aft)
 {
     if ((!is_rightghost(right)) &&
         font(left) == font(right) && has_kern(font(left), character(left))) {
-        int k = get_kern(font(left), character(left), character(right));
+        int k = raw_get_kern(font(left), character(left), character(right));
         if (k != 0) {
             halfword kern = new_kern(k);
             halfword next = vlink(aft);

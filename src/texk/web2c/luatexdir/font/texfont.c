@@ -987,12 +987,12 @@ liginfo get_ligature(internal_font_number f, integer lc, integer rc)
 }
 
 
-scaled get_kern(internal_font_number f, integer lc, integer rc)
+scaled raw_get_kern(internal_font_number f, integer lc, integer rc)
 {
     integer k;
     kerninfo u;
     charinfo *co;
-    if (lc == non_boundarychar || rc == non_boundarychar || (!has_kern(f, lc)))
+    if (lc == non_boundarychar || rc == non_boundarychar)
         return 0;
     k = 0;
     co = char_info(f, lc);
@@ -1009,6 +1009,14 @@ scaled get_kern(internal_font_number f, integer lc, integer rc)
         k++;
     }
     return 0;
+}
+
+
+scaled get_kern(internal_font_number f, integer lc, integer rc)
+{
+    if (lc == non_boundarychar || rc == non_boundarychar || (!has_kern(f, lc)))
+        return 0;
+    return raw_get_kern(f,lc,rc);
 }
 
 

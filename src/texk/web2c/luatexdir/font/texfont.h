@@ -465,6 +465,7 @@ extern char char_used(internal_font_number f, integer c);
 extern char *char_name(internal_font_number f, integer c);
 extern integer char_index(internal_font_number f, integer c);
 
+scaled raw_get_kern(internalfontnumber f, integer lc, integer rc);
 scaled get_kern(internalfontnumber f, integer lc, integer rc);
 liginfo get_ligature(internalfontnumber f, integer lc, integer rc);
 
