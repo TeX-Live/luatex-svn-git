@@ -913,7 +913,7 @@ print_feasible_break(halfword cur_p, pointer r, halfword b, integer pi,
 #define set_break_width_to_background(a) break_width[a]=background[(a)]
 
 #define convert_to_break_width(a)  \
-  varmem[(prev_r+(a))].cint -= (cur_active_width[(a)]+break_width[(a)])
+  varmem[(prev_r+(a))].cint = varmem[(prev_r+(a))].cint-cur_active_width[(a)]+break_width[(a)]
 
 #define store_break_width(a)      active_width[(a)]=break_width[(a)]
 
