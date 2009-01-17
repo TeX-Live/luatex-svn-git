@@ -177,6 +177,7 @@ ff_open (lua_State *L) {
       }
 	  lua_error(L);
 	} else {
+	  FVAppend(_FontViewCreate(sf));
 	  lua_ff_pushfont(L,sf);
 	  if (gww_error_count>0) {
 		lua_newtable(L);
