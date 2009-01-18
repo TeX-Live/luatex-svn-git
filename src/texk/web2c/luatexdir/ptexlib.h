@@ -558,6 +558,7 @@ void set_cat_code(integer h, integer n, halfword v, quarterword gl);
 halfword get_cat_code(integer h, integer n);
 void unsave_cat_codes(integer h, quarterword gl);
 int valid_catcode_table(int h);
+void initex_cat_codes(int h);
 void unsave_text_codes(quarterword grouplevel);
 void initialize_text_codes(void);
 void dump_text_codes(void);
