@@ -108,7 +108,7 @@ do_define_font(integer f, char *cnom, char *caire, scaled s,
                 fprintf(stdout, "font_from_lua(%s,%i): %f seconds\n",
                         font_name(f), f, tvdiff);
 #endif
-                /* lua_pop(Luas[0], 1); */ /* done by font_from_lua */
+                /* lua_pop(Luas[0], 1); *//* done by font_from_lua */
             } else if (lua_isnumber(Luas[0], -1)) {
                 r = lua_tonumber(Luas[0], -1);
                 destroy_saved_callback(callback_id);
@@ -129,7 +129,7 @@ do_define_font(integer f, char *cnom, char *caire, scaled s,
         }
     }
     if (res) {
-      if (font_type(f)!=virtual_font_type) { /* implies lua */
+        if (font_type(f) != virtual_font_type) {        /* implies lua */
             do_vf(f);
             set_font_natural_dir(f, natural_dir);
         }

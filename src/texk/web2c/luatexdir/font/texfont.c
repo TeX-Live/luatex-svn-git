@@ -313,7 +313,7 @@ int lua_char_exists_callback(internal_font_number f, integer c)
     int ret = 0;
     callback_id = callback_defined(char_exists_callback);
     if (callback_id != 0) {
-      if (!get_callback(L, callback_id)) {
+        if (!get_callback(L, callback_id)) {
             lua_pop(L, 2);
             return 0;
         }
@@ -1016,7 +1016,7 @@ scaled get_kern(internal_font_number f, integer lc, integer rc)
 {
     if (lc == non_boundarychar || rc == non_boundarychar || (!has_kern(f, lc)))
         return 0;
-    return raw_get_kern(f,lc,rc);
+    return raw_get_kern(f, lc, rc);
 }
 
 

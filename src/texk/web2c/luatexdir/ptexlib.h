@@ -566,11 +566,11 @@ void undump_text_codes(void);
 
 /* mathcodes.c */
 
-#define no_mathcode 0 /* this is a flag for |scan_delimiter| */
-#define tex_mathcode 8
-#define aleph_mathcode 16
-#define xetex_mathcode 21
-#define xetexnum_mathcode 22
+#  define no_mathcode 0         /* this is a flag for |scan_delimiter| */
+#  define tex_mathcode 8
+#  define aleph_mathcode 16
+#  define xetex_mathcode 21
+#  define xetexnum_mathcode 22
 
 typedef struct mathcodeval {
     integer class_value;
@@ -580,18 +580,17 @@ typedef struct mathcodeval {
 } mathcodeval;
 
 void set_math_code(integer n,
-                   integer commandorigin, 
-                   integer mathclass, 
-                   integer mathfamily, 
-                   integer mathcharacter, quarterword gl);
+                   integer commandorigin,
+                   integer mathclass,
+                   integer mathfamily, integer mathcharacter, quarterword gl);
 
 mathcodeval get_math_code(integer n);
-integer get_math_code_num (integer n) ;
-mathcodeval scan_mathchar (int extcode);
-mathcodeval scan_delimiter_as_mathchar (int extcode);
+integer get_math_code_num(integer n);
+mathcodeval scan_mathchar(int extcode);
+mathcodeval scan_delimiter_as_mathchar(int extcode);
 
 mathcodeval mathchar_from_integer(integer value, int extcode);
-void show_mathcode_value (mathcodeval d);
+void show_mathcode_value(mathcodeval d);
 
 
 typedef struct delcodeval {
@@ -603,13 +602,11 @@ typedef struct delcodeval {
     integer large_character_value;
 } delcodeval;
 
-void set_del_code(integer n, 
-                  integer commandorigin, 
-                  integer smathfamily, 
-                  integer smathcharacter, 
-                  integer lmathfamily, 
-                  integer lmathcharacter, 
-                  quarterword gl);
+void set_del_code(integer n,
+                  integer commandorigin,
+                  integer smathfamily,
+                  integer smathcharacter,
+                  integer lmathfamily, integer lmathcharacter, quarterword gl);
 
 delcodeval get_del_code(integer n);
 

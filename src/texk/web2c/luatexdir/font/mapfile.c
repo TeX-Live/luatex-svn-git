@@ -419,14 +419,15 @@ static void fm_scan_line()
     case MAPFILE:
         p = fm_line;
         while (!fm_eof()) {
-          if (fm_curbyte==fm_size) {
-            fm_curbyte++;
-            c = 10;
-          } else {
-            c = fm_getchar();
-          }
-          append_char_to_buf(c, p, fm_line, FM_BUF_SIZE);
-          if (c == 10) break;
+            if (fm_curbyte == fm_size) {
+                fm_curbyte++;
+                c = 10;
+            } else {
+                c = fm_getchar();
+            }
+            append_char_to_buf(c, p, fm_line, FM_BUF_SIZE);
+            if (c == 10)
+                break;
         }
         *(--p) = '\0';
         r = fm_line;
@@ -600,15 +601,17 @@ void fm_read_info()
                 }
             }
         } else {
-	  ftemp = kpse_find_file((char *) (nameoffile + 1), kpse_fontmap_format, 0);
-	  if (ftemp != NULL) {
-	    free(nameoffile);
-	    namelength = strlen(ftemp);
-	    nameoffile = xmalloc(namelength + 2);
-	    strcpy((char *) (nameoffile + 1), ftemp);
-	    free(ftemp);
-	  }
-	}
+            ftemp =
+                kpse_find_file((char *) (nameoffile + 1), kpse_fontmap_format,
+                               0);
+            if (ftemp != NULL) {
+                free(nameoffile);
+                namelength = strlen(ftemp);
+                nameoffile = xmalloc(namelength + 2);
+                strcpy((char *) (nameoffile + 1), ftemp);
+                free(ftemp);
+            }
+        }
         callback_id = callback_defined(read_map_file_callback);
         if (callback_id > 0) {
             if (run_callback(callback_id, "S->bSd", (char *) (nameoffile + 1),

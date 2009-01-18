@@ -505,7 +505,7 @@ size_t xfwrite(void *ptr, size_t size, size_t nmemb, FILE * stream)
 int xfflush(FILE * stream)
 {
     if (fflush(stream) != 0)
-      pdftex_fail("fflush() failed (%s)", strerror(errno));
+        pdftex_fail("fflush() failed (%s)", strerror(errno));
     return 0;
 }
 
@@ -513,7 +513,7 @@ int xgetc(FILE * stream)
 {
     int c = getc(stream);
     if (c < 0 && c != EOF)
-      pdftex_fail("getc() failed (%s)", strerror(errno));
+        pdftex_fail("getc() failed (%s)", strerror(errno));
     return c;
 }
 
@@ -521,7 +521,7 @@ int xputc(int c, FILE * stream)
 {
     int i = putc(c, stream);
     if (i < 0)
-      pdftex_fail("putc() failed (%s)", strerror(errno));
+        pdftex_fail("putc() failed (%s)", strerror(errno));
     return i;
 }
 
@@ -530,7 +530,7 @@ void write_stream_length(integer length, longinteger offset)
     if (jobname_cstr == NULL)
         jobname_cstr = xstrdup(makecstring(job_name));
     if (fixed_pdf_draftmode == 0) {
-      xfseeko(pdf_file, (off_t)offset, SEEK_SET, jobname_cstr);
+        xfseeko(pdf_file, (off_t) offset, SEEK_SET, jobname_cstr);
         fprintf(pdf_file, "%li", (long int) length);
         xfseeko(pdf_file, (off_t) pdfoffset(), SEEK_SET, jobname_cstr);
     }
@@ -883,7 +883,7 @@ void print_ID(strnumber filename)
     md5_append(&state, (const md5_byte_t *) time_str, size);
     /* get the file name */
     if (getcwd(pwd, sizeof(pwd)) == NULL)
-      pdftex_fail("getcwd() failed (%s), (path too long?)", strerror(errno));
+        pdftex_fail("getcwd() failed (%s), (path too long?)", strerror(errno));
     file_name = makecstring(filename);
     md5_append(&state, (const md5_byte_t *) pwd, strlen(pwd));
     md5_append(&state, (const md5_byte_t *) "/", 1);
@@ -1773,11 +1773,13 @@ scaled divide_scaled_n(double sd, double md, double n)
 {
     double dd, di = 0.0;
     dd = sd / md * n;
-    if (dd>0.0) di = floor(dd+0.5);
-    else if (dd<0.0) di = -floor ((-dd)+0.5); /* fix rounding */
+    if (dd > 0.0)
+        di = floor(dd + 0.5);
+    else if (dd < 0.0)
+        di = -floor((-dd) + 0.5);       /* fix rounding */
     /* fprintf(stdout,"divide_scaled_n(%f,%f,%f) = %f (%f)\n", sd, md, n, dd, di); */
     scaled_out = (scaled) (di / n * md);
-    return (scaled)dd;
+    return (scaled) dd;
 }
 
 
@@ -2050,18 +2052,19 @@ integer output_pages_tree()
 
 #ifdef MSVC
 
-#include <math.h>
+#  include <math.h>
 double rint(double x)
 {
-  double c, f, d1, d2;
+    double c, f, d1, d2;
 
-  c = ceil(x);
-  f = floor(x);
-  d1 = fabs(c-x);
-  d2 = fabs(x-f);
-  if(d1 > d2) return f;
-  else return c;
+    c = ceil(x);
+    f = floor(x);
+    d1 = fabs(c - x);
+    d2 = fabs(x - f);
+    if (d1 > d2)
+        return f;
+    else
+        return c;
 }
 
 #endif
-

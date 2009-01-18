@@ -98,7 +98,7 @@ typedef struct texfont {
     integer _font_cidsupplement;
 
     integer _font_ec;
-    unsigned _font_checksum;     /* internal information */
+    unsigned _font_checksum;    /* internal information */
     char _font_used;            /* internal information */
     char _font_touched;         /* internal information */
     integer _font_cache_id;     /* internal information */
@@ -429,8 +429,8 @@ extern integer ext_mid(internal_font_number f, integer c);
 
 /* character ligatures */
 
-#  define end_ligature          0x7FFFFF/* otherchar value meaning "stop" */
-#  define ignored_ligature      0x800000/* otherchar value meaning "disabled" */
+#  define end_ligature          0x7FFFFF        /* otherchar value meaning "stop" */
+#  define ignored_ligature      0x800000        /* otherchar value meaning "disabled" */
 
 #  define charinfo_ligature(b,c)     b->ligatures[c]
 

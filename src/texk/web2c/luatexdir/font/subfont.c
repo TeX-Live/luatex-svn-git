@@ -151,7 +151,7 @@ static sfd_entry *read_sfd(char *sfd_name)
             }
         }
     } else {
-      cur_file_name = kpse_find_file(cur_file_name, kpse_sfd_format, 0);
+        cur_file_name = kpse_find_file(cur_file_name, kpse_sfd_format, 0);
     }
     callback_id = callback_defined(read_sfd_file_callback);
     if (callback_id > 0) {
@@ -163,13 +163,13 @@ static sfd_entry *read_sfd(char *sfd_name)
             return NULL;
         }
     } else {
-      if (!sfd_open()) {
-        pdftex_warn("cannot open SFD file for reading");
-        cur_file_name = NULL;
-        return NULL;
-      }
-      sfd_read_file();
-      sfd_close();
+        if (!sfd_open()) {
+            pdftex_warn("cannot open SFD file for reading");
+            cur_file_name = NULL;
+            return NULL;
+        }
+        sfd_read_file();
+        sfd_close();
     }
     tex_printf("{");
     tex_printf("%s", cur_file_name);
@@ -235,7 +235,7 @@ boolean handle_subfont_fm(fm_entry * fm, int mode)
     if (r == NULL)
         return false;
     if (q <= p || r <= q + 1    /* prefix or sfd name is empty */
-        || r - p != (int)strlen(p) - 1)      /* or the second '@' is not the last char yet */
+        || r - p != (int) strlen(p) - 1)        /* or the second '@' is not the last char yet */
         return false;
     l = r - (q + 1);            /* length of sfd name */
     strncpy(buf, q + 1, l);

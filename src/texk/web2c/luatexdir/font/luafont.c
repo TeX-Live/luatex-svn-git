@@ -579,7 +579,7 @@ static int count_char_packet_bytes(lua_State * L)
     register int i;
     register int l = 0;
     int ff = 0;
-    for (i = 1; i <= (int)lua_objlen(L, -1); i++) {
+    for (i = 1; i <= (int) lua_objlen(L, -1); i++) {
         lua_rawgeti(L, -1, i);
         if (lua_istable(L, -1)) {
             lua_rawgeti(L, -1, 1);
@@ -659,7 +659,7 @@ read_char_packets(lua_State * L, integer * l_fonts, charinfo * co, int atsize)
         max_f++;
 
     cpackets = xmalloc(pc + 1);
-    for (i = 1; i <= (int)lua_objlen(L, -1); i++) {
+    for (i = 1; i <= (int) lua_objlen(L, -1); i++) {
         lua_rawgeti(L, -1, i);
         if (lua_istable(L, -1)) {
             /* fetch the command code */
@@ -1187,10 +1187,10 @@ int font_from_lua(lua_State * L, int f)
                  * explicit resizing would not be needed 
                  */
                 s_top = lua_gettop(L);
-                if (strcmp(font_name(f),s)==0)
-                  l_fonts[i] = f;
+                if (strcmp(font_name(f), s) == 0)
+                    l_fonts[i] = f;
                 else
-                  l_fonts[i] = find_font_id(s, "", t);
+                    l_fonts[i] = find_font_id(s, "", t);
                 lua_settop(L, s_top);
             } else {
                 pdftex_fail("Invalid local font in font %s!\n", font_name(f));
@@ -1520,7 +1520,7 @@ static halfword handle_lig_word(halfword cur)
                 if (right == null)
                     break;
                 /* --\par prohibits use of couple_nodes here */
-                try_couple_nodes(cur, right); 
+                try_couple_nodes(cur, right);
                 right = null;
                 continue;
             }
@@ -1693,8 +1693,8 @@ static halfword handle_lig_word(halfword cur)
             halfword prev = cur;
             /* --\par allows vlink(cur) to be null */
             cur = vlink(cur);
-            if (cur!=null) {
-              assert(alink(cur) == prev);
+            if (cur != null) {
+                assert(alink(cur) == prev);
             }
         }
     }
@@ -1730,7 +1730,8 @@ halfword handle_ligaturing(halfword head, halfword tail)
         cur = vlink(cur);
         assert(cur == null || alink(cur) == prev);
     }
-    if (prev==null) prev=tail;
+    if (prev == null)
+        prev = tail;
 
     if (valid_node(save_tail)) {
         try_couple_nodes(prev, save_tail);
@@ -1815,11 +1816,11 @@ do_handle_kerning(halfword root, halfword init_left, halfword init_right)
                     type(vlink(cur)) == glyph_node ? vlink(cur) : null;
                 do_handle_kerning(pre_break(cur), left, null);
                 do_handle_kerning(post_break(cur), null, right);
-                if (vlink_post_break(cur)!=null)
-                  tlink_post_break(cur) = tail_of_list(vlink_post_break(cur));
+                if (vlink_post_break(cur) != null)
+                    tlink_post_break(cur) = tail_of_list(vlink_post_break(cur));
                 do_handle_kerning(no_break(cur), left, right);
-                if (vlink_no_break(cur)!=null)
-                  tlink_no_break(cur) = tail_of_list(vlink_no_break(cur)); /* needed? */
+                if (vlink_no_break(cur) != null)
+                    tlink_no_break(cur) = tail_of_list(vlink_no_break(cur));    /* needed? */
             }
             if (left != null) {
                 if (character(left) < 0 || is_ghost(left)) {
@@ -1879,7 +1880,7 @@ static halfword
 run_lua_ligkern_callback(halfword head, halfword tail, int callback_id)
 {
     lua_State *L = Luas[0];
-    if (!get_callback(L,callback_id)) {
+    if (!get_callback(L, callback_id)) {
         lua_pop(L, 2);
         return tail;
     }
