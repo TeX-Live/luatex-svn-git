@@ -14489,25 +14489,25 @@ there is no need for a `\\{cur\_f}' variable.
 The depth of nesting of |hlist_out| and |vlist_out| is called |cur_s|;
 this is essentially the depth of |push| commands in the \.{DVI} output.
 
-@d synch_h==if page_h <> dvi_h then begin
-    movement(page_h - dvi_h, right1);
-    dvi_h := page_h;
+@d synch_h==if pos.h <> dvi_h then begin
+    movement(pos.h - dvi_h, right1);
+    dvi_h := pos.h;
     end
 
-@d synch_v==if page_v <> dvi_v then begin
-    movement(dvi_v - page_v, down1);
-    dvi_v := page_v;
+@d synch_v==if pos.v <> dvi_v then begin
+    movement(dvi_v - pos.v, down1);
+    dvi_v := pos.v;
     end
 
 @d synch_page_coordinates==case box_direction(dvi_direction) of
-    dir_TL_: begin page_h := box_pg_h + cur_h; page_v := box_pg_v - cur_v; end;
-    dir_TR_: begin page_h := box_pg_h - cur_h; page_v := box_pg_v - cur_v; end;
-    dir_BL_: begin page_h := box_pg_h + cur_h; page_v := box_pg_v + cur_v; end;
-    dir_BR_: begin page_h := box_pg_h - cur_h; page_v := box_pg_v + cur_v; end;
-    dir_LT_: begin page_h := box_pg_h + cur_v; page_v := box_pg_v - cur_h; end;
-    dir_RT_: begin page_h := box_pg_h - cur_v; page_v := box_pg_v - cur_h; end;
-    dir_LB_: begin page_h := box_pg_h + cur_v; page_v := box_pg_v + cur_h; end;
-    dir_RB_: begin page_h := box_pg_h - cur_v; page_v := box_pg_v + cur_h; end;
+    dir_TL_: begin pos.h := box_pos.h + cur_h; pos.v := box_pos.v - cur_v; end;
+    dir_TR_: begin pos.h := box_pos.h - cur_h; pos.v := box_pos.v - cur_v; end;
+    dir_BL_: begin pos.h := box_pos.h + cur_h; pos.v := box_pos.v + cur_v; end;
+    dir_BR_: begin pos.h := box_pos.h - cur_h; pos.v := box_pos.v + cur_v; end;
+    dir_LT_: begin pos.h := box_pos.h + cur_v; pos.v := box_pos.v - cur_h; end;
+    dir_RT_: begin pos.h := box_pos.h - cur_v; pos.v := box_pos.v - cur_h; end;
+    dir_LB_: begin pos.h := box_pos.h + cur_v; pos.v := box_pos.v + cur_h; end;
+    dir_RB_: begin pos.h := box_pos.h - cur_v; pos.v := box_pos.v + cur_h; end;
     end
 
 @d synch_dvi==begin
@@ -14515,12 +14515,15 @@ this is essentially the depth of |push| commands in the \.{DVI} output.
     synch_h; synch_v;
 end
 
-@d set_box_pg_origin==begin box_pg_h := page_h; box_pg_v := page_v; end
+@ @<Types...@>=
+@!position = record
+    h, v: scaled;
+    end;
 
-@<Glob...@>=
+@ @<Glob...@>=
 @!cur_h,@!cur_v:scaled; {\TeX\ position relative to origin of the surrounding box, in box coordinate system}
-@!box_pg_h,@!box_pg_v: scaled; {position of box origin in page coordinates}
-@!page_h,@!page_v:scaled; {global position on page, in $\rm sp$, from lower left page corner}
+@!box_pos: position; {position of box origin in page coordinates}
+@!pos: position; {global position on page, in $\rm sp$, from lower left page corner}
 @!dvi_h,@!dvi_v:scaled; {a \.{DVI} position in page coordinates, in sync with DVI file}
 @!dvi_f:internal_font_number; {the current font}
 @!cur_s:integer; {current depth of output box nesting, initially $-1$}
@@ -14607,7 +14610,7 @@ save_direction: integer;
 dir_ptr,dir_tmp:pointer;
 @!left_edge: scaled; {the left coordinate for this box}
 @!save_h,@!save_v: scaled; {what |dvi_h| and |dvi_v| should pop to}
-@!save_box_pg_h,@!save_box_pg_v: scaled; {what |box_pg_h| and |box_pg_v| should pop to}
+@!save_box_pos: position; {what |box_pos| should pop to}
 @!this_box: pointer; {pointer to containing box}
 @!g_order: glue_ord; {applicable order of infinity for glue}
 @!g_sign: normal..shrinking; {selects type of glue}
@@ -14626,7 +14629,7 @@ dir_ptr,dir_tmp:pointer;
 begin cur_g:=0; cur_glue:=float_constant(0);
 this_box:=temp_ptr; g_order:=glue_order(this_box);
 g_sign:=glue_sign(this_box); p:=list_ptr(this_box);
-cur_h:=0; cur_v:=0; set_box_pg_origin;
+cur_h:=0; cur_v:=0; box_pos:=pos;
 save_direction:=dvi_direction;
 dvi_direction:=box_dir(this_box);
 @<DIR: Initialize |dir_ptr| for |ship_out|@>;
@@ -14885,10 +14888,10 @@ else begin
   temp_ptr:=p; edge:=cur_h; cur_h:=cur_h + basepoint_horizontal;
   edge_v:=cur_v; cur_v:=base_line + basepoint_vertical;
   synch_dvi; save_h:=dvi_h; save_v:=dvi_v;
-  save_box_pg_h := box_pg_h; save_box_pg_v := box_pg_v;
+  save_box_pos:=box_pos;
   if type(p)=vlist_node then vlist_out@+else hlist_out;
   dvi_h:=save_h; dvi_v:=save_v;
-  box_pg_h := save_box_pg_h; box_pg_v := save_box_pg_v;
+  box_pos:=save_box_pos;
   cur_h:=edge+effective_horizontal; cur_v:=base_line;
   end
 end
@@ -15059,11 +15062,11 @@ temp_ptr:=leader_box;
 edge_h:=cur_h; cur_h:=cur_h + basepoint_horizontal;
 edge_v:=cur_v; cur_v:=base_line + basepoint_vertical;
 synch_dvi; save_h:=dvi_h; save_v:=dvi_v;
-save_box_pg_h := box_pg_h; save_box_pg_v := box_pg_v;
+save_box_pos:=box_pos;
 outer_doing_leaders:=doing_leaders; doing_leaders:=true;
 if type(leader_box)=vlist_node then vlist_out@+else hlist_out;
 doing_leaders:=outer_doing_leaders;
-box_pg_h := save_box_pg_h; box_pg_v := save_box_pg_v;
+box_pos:=save_box_pos;
 dvi_h:=save_h; dvi_v:=save_v;
 cur_h:=edge_h+leader_wd+lx; cur_v:=base_line;
 end
@@ -15075,7 +15078,7 @@ label move_past, fin_rule, next_p;
 var left_edge: scaled; {the left coordinate for this box}
 @!top_edge: scaled; {the top coordinate for this box}
 @!save_h,@!save_v: scaled; {what |dvi_h| and |dvi_v| should pop to}
-@!save_box_pg_h,@!save_box_pg_v: scaled; {what |box_pg_h| and |box_pg_v| should pop to}
+@!save_box_pos: position; {what |box_pos| should pop to}
 @!this_box: pointer; {pointer to containing box}
 @!g_order: glue_ord; {applicable order of infinity for glue}
 @!g_sign: normal..shrinking; {selects type of glue}
@@ -15098,7 +15101,7 @@ begin cur_g:=0; cur_glue:=float_constant(0);
 this_box:=temp_ptr; g_order:=glue_order(this_box);
 g_sign:=glue_sign(this_box); p:=list_ptr(this_box);
 {pdfassert(p<>0);}
-cur_h:=0; cur_v:=0; set_box_pg_origin;
+cur_h:=0; cur_v:=0; box_pos:=pos;
 save_direction:=dvi_direction;
 dvi_direction:=box_dir(this_box);
 incr(cur_s);
@@ -15195,11 +15198,11 @@ else  begin
   cur_h:=left_edge + basepoint_horizontal;
   cur_v:=cur_v + basepoint_vertical;
   synch_dvi; save_h:=dvi_h; save_v:=dvi_v;
-  save_box_pg_h := box_pg_h; save_box_pg_v := box_pg_v;
+  save_box_pos:=box_pos;
   temp_ptr:=p;
   if type(p)=vlist_node then vlist_out@+else hlist_out;
-  box_pg_h := save_box_pg_h; box_pg_v := save_box_pg_v;
   dvi_h:=save_h; dvi_v:=save_v;
+  box_pos:=save_box_pos;
   cur_h:=left_edge; cur_v:=edge_v + effective_vertical;
   end
 end
@@ -15348,11 +15351,11 @@ cur_h:=left_edge + basepoint_horizontal;
 edge_v:=cur_v ;
 cur_v:=cur_v + basepoint_vertical;
 synch_dvi; save_h:=dvi_h; save_v:=dvi_v;
-save_box_pg_h := box_pg_h; save_box_pg_v := box_pg_v;
+save_box_pos:=box_pos;
 outer_doing_leaders:=doing_leaders; doing_leaders:=true;
 if type(leader_box)=vlist_node then vlist_out@+else hlist_out;
 doing_leaders:=outer_doing_leaders;
-box_pg_h := save_box_pg_h; box_pg_v := save_box_pg_v;
+box_pos:=save_box_pos;
 dvi_h:=save_h; dvi_v:=save_v;
 cur_h:=left_edge; cur_v:=edge_v+leader_ht+lx;
 end
@@ -15431,11 +15434,11 @@ page_loc:=dvi_offset+dvi_ptr;
 dvi_out(bop);
 for k:=0 to 9 do dvi_four(count(k));
 dvi_four(last_bop); last_bop:=page_loc;
-{Think in upright page/paper coordinates): First preset |page_h| and |page_v| to the DVI origin.}
-page_h := one_true_inch;
-page_v := cur_page_height - one_true_inch;
-dvi_h := page_h; dvi_v := page_v;
-set_box_pg_origin;
+{Think in upright page/paper coordinates): First preset |pos.h| and |pos.v| to the DVI origin.}
+pos.h := one_true_inch;
+pos.v := cur_page_height - one_true_inch;
+dvi_h := pos.h; dvi_v := pos.v;
+box_pos := pos;
 {Then calculate |cur_h| and |cur_v| within the upright coordinate system
 for the DVI origin depending on the |page_direction|.}
 dvi_direction:=page_direction;
@@ -15461,12 +15464,12 @@ cur_h := cur_h - one_true_inch; {correct for DVI origin}
 cur_v := cur_v - one_true_inch;
 {The movement is actually done within the upright page coordinate system.}
 dvi_direction := dir_TL_; {only temporarily for this adjustment}
-synch_dvi; set_box_pg_origin; {keep track on page}
+synch_dvi; box_pos := pos; {keep track on page}
 {Then switch to page box coordinate system; do |height(p)| movement.}
 dvi_direction := page_direction;
 cur_h := 0;
 cur_v := height(p);
-synch_dvi; set_box_pg_origin;
+synch_dvi;
 {Now we are at the point on the page where the origin of the page box should go.}
 temp_ptr:=p;
 if type(p)=vlist_node then vlist_out@+else hlist_out;
@@ -17910,10 +17913,10 @@ end
 @d pdf_dvicmd_down(#)  == cur_v := cur_v + # {changed this for convenience (hahe)}
 @d pdf_dvicmd_up(#)    == cur_v := cur_v - #
 
-@d page_right(#) == page_h := page_h + (#)
-@d page_left(#)  == page_h := page_h - (#)
-@d page_up(#)    == page_v := page_v + (#)
-@d page_down(#)  == page_v := page_v - (#)
+@d page_right(#) == pos.h := pos.h + (#)
+@d page_left(#)  == pos.h := pos.h - (#)
+@d page_up(#)    == pos.v := pos.v + (#)
+@d page_down(#)  == pos.v := pos.v - (#)
 
 @d pdf_dvicmd_set(#)==output_one_char(f,#)
 @d pdf_dvicmd_put(#)==output_one_char(f,#); cur_h:=cur_h-c_wd
@@ -27401,8 +27404,8 @@ to hold the string numbers for name, area, and extension.
 @d dir_level(#)==vlink(#+2) {the save level at which the direction was defined}
 @d dir_dvi_ptr(#)==vinfo(#+3) {for reflecting dvi output}
 @d dir_dvi_h(#)==vlink(#+3) {for reflecting dvi output}
-@d dir_box_pg_h(#)==vinfo(#+4) {for reflecting dvi output}
-@d dir_box_pg_v(#)==vlink(#+4) {for reflecting dvi output}
+@d dir_box_pos_h(#)==vinfo(#+4) {for reflecting dvi output}
+@d dir_box_pos_v(#)==vlink(#+4) {for reflecting dvi output}
 @d dir_cur_h(#)==vinfo(#+5) {for reflecting dvi output}
 @d dir_cur_v(#)==vlink(#+5) {for reflecting dvi output}
 @d what_lang(#)==vlink(#+2) {language number, in the range |0..255|}
@@ -29171,8 +29174,8 @@ end;
 @ @<Save current position in DVI mode@>=
 begin
     synch_page_coordinates;
-    pdf_last_x_pos := page_h;
-    pdf_last_y_pos := page_v;
+    pdf_last_x_pos := pos.h;
+    pdf_last_y_pos := pos.v;
 end
 
 @ We don't implement \.{\\write} inside of leaders. (The reason is that
@@ -29413,17 +29416,17 @@ begin
     end else
         dir_cur_h(temp_ptr) := cur_h;
     dir_cur_v(temp_ptr) := cur_v;
-    dir_box_pg_h(temp_ptr) := box_pg_h;
-    dir_box_pg_v(temp_ptr) := box_pg_v;
+    dir_box_pos_h(temp_ptr) := box_pos.h;
+    dir_box_pos_v(temp_ptr) := box_pos.v;
     synch_page_coordinates; {no need for |synch_dvi|, as there is no DVI grouping}
-    set_box_pg_origin; {fake a nested |hlist_out|}
+    box_pos := pos; {fake a nested |hlist_out|}
     cur_h := 0; cur_v := 0;
     dvi_direction:=dir_dir(dir_ptr);
   end
   else begin
     pop_dir_node;
-    box_pg_h := dir_box_pg_h(p);
-    box_pg_v := dir_box_pg_v(p);
+    box_pos.h := dir_box_pos_h(p);
+    box_pos.v := dir_box_pos_v(p);
     cur_h := dir_cur_h(p);
     cur_v := dir_cur_v(p);
     if dir_ptr<>null then
