@@ -2034,8 +2034,10 @@ int unset_attribute(halfword n, int i, int val)
         t = attribute_id(vlink(p));
         if (t > i)
             return -1;
-        if (t == i)
+        if (t == i) {
+            p = vlink(p);
             break;
+        }
         j++;
         p = vlink(p);
     }
