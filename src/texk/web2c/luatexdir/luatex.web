@@ -14271,17 +14271,17 @@ of motion, and |o| is either |down1| or |right1|. We use the fact that
 the command codes have convenient arithmetic properties: |y1-down1=w1-right1|
 and |z1-down1=x1-right1|.
 
-@d dvi_set_end(#)==dvi_h := dvi_h + (#); end
+@d dvi_set_end(#)==dvi.h := dvi.h + (#); end
 @d dvi_set(#)==begin oval:=#; ocmd:=set1; out_cmd; dvi_set_end
 @d dvi_put(#)==oval:=#; ocmd:=put1; out_cmd
-@d dvi_set_rule_end(#)==dvi_four(#); dvi_h := dvi_h + (#); end
+@d dvi_set_rule_end(#)==dvi_four(#); dvi.h := dvi.h + (#); end
 @d dvi_set_rule(#)==begin dvi_out(set_rule); dvi_four(#); dvi_set_rule_end
 @d dvi_put_rule_end(#)==dvi_four(#)
 @d dvi_put_rule(#)==dvi_out(put_rule); dvi_four(#); dvi_put_rule_end
-@d dvi_right(#)==begin dvi_out(right4); dvi_four(#); dvi_h := dvi_h + (#); end
-@d dvi_left(#)==begin dvi_out(right4); dvi_four(-(#)); dvi_h := dvi_h - (#); end
-@d dvi_down(#)==begin dvi_out(down4); dvi_four(#); dvi_v := dvi_v - (#); end
-@d dvi_up(#)==begin dvi_out(down4); dvi_four(-(#)); dvi_v := dvi_v + (#); end
+@d dvi_right(#)==begin dvi_out(right4); dvi_four(#); dvi.h := dvi.h + (#); end
+@d dvi_left(#)==begin dvi_out(right4); dvi_four(-(#)); dvi.h := dvi.h - (#); end
+@d dvi_down(#)==begin dvi_out(down4); dvi_four(#); dvi.v := dvi.v - (#); end
+@d dvi_up(#)==begin dvi_out(down4); dvi_four(-(#)); dvi.v := dvi.v + (#); end
 
 @p procedure movement(@!w:scaled;@!o:eight_bits);
 label exit,found,not_found,2,1;
@@ -14474,14 +14474,14 @@ distances are computed in terms of glue together with the depth and
 height of adjacent boxes, and we want the \.{DVI} file to lump these
 three quantities together into a single motion.
 
-Therefore, \TeX\ maintains two pairs of global variables: |dvi_h| and |dvi_v|
+Therefore, \TeX\ maintains two pairs of global variables: |dvi.h| and |dvi.v|
 are the |h| and |v| coordinates corresponding to the commands actually
 output to the \.{DVI} file, while |cur_h| and |cur_v| are the coordinates
 corresponding to the current state of the output routines. Coordinate
 changes will accumulate in |cur_h| and |cur_v| without being reflected
 in the output, until such a change becomes necessary or desirable; we
-can call the |movement| procedure whenever we want to make |dvi_h=cur_h|
-or |dvi_v=cur_v|.
+can call the |movement| procedure whenever we want to make |dvi.h=cur_h|
+or |dvi.v=cur_v|.
 
 The current font reflected in the \.{DVI} output is called |dvi_f|;
 there is no need for a `\\{cur\_f}' variable.
@@ -14489,14 +14489,14 @@ there is no need for a `\\{cur\_f}' variable.
 The depth of nesting of |hlist_out| and |vlist_out| is called |cur_s|;
 this is essentially the depth of |push| commands in the \.{DVI} output.
 
-@d synch_h==if pos.h <> dvi_h then begin
-    movement(pos.h - dvi_h, right1);
-    dvi_h := pos.h;
+@d synch_h==if pos.h <> dvi.h then begin
+    movement(pos.h - dvi.h, right1);
+    dvi.h := pos.h;
     end
 
-@d synch_v==if pos.v <> dvi_v then begin
-    movement(dvi_v - pos.v, down1);
-    dvi_v := pos.v;
+@d synch_v==if pos.v <> dvi.v then begin
+    movement(dvi.v - pos.v, down1);
+    dvi.v := pos.v;
     end
 
 @d synch_page_coordinates==case box_direction(dvi_direction) of
@@ -14524,7 +14524,7 @@ end
 @!cur_h,@!cur_v:scaled; {\TeX\ position relative to origin of the surrounding box, in box coordinate system}
 @!box_pos: position; {position of box origin in page coordinates}
 @!pos: position; {global position on page, in $\rm sp$, from lower left page corner}
-@!dvi_h,@!dvi_v:scaled; {a \.{DVI} position in page coordinates, in sync with DVI file}
+@!dvi: position; {a \.{DVI} position in page coordinates, in sync with DVI file}
 @!dvi_f:internal_font_number; {the current font}
 @!cur_s:integer; {current depth of output box nesting, initially $-1$}
 
@@ -14549,7 +14549,7 @@ else
     end;
 
 @ @<Initialize variables as |ship_out| begins@>=
-dvi_h:=0; dvi_v:=0; cur_h:=0; cur_v:=0; dvi_f:=null_font;
+dvi.h:=0; dvi.v:=0; cur_h:=0; cur_v:=0; dvi_f:=null_font;
 @<Calculate DVI page dimensions and margins@>;
 ensure_dvi_open;
 if total_pages=0 then
@@ -14583,10 +14583,10 @@ box has coordinates |(cur_h,cur_v)|.
 @p procedure@?vlist_out; forward; {|hlist_out| and |vlist_out| are mutually
   recursive}
 
-@ The recursive procedures |hlist_out| and |vlist_out| each have local variables
-|save_h| and |save_v| to hold the values of |dvi_h| and |dvi_v| just before
-entering a new level of recursion.  In effect, the values of |save_h| and
-|save_v| on \TeX's run-time stack correspond to the values of |h| and |v|
+@ The recursive procedures |hlist_out| and |vlist_out| each have a local variable
+|save_dvi| to hold the value of |dvi| just before
+entering a new level of recursion.  In effect, the value of |save_dvi|
+on \TeX's run-time stack corresponds to the values of |h| and |v|
 that a \.{DVI}-reading program will push onto its coordinate stack.
 
 @d move_past=13 {go to this label when advancing past glue or a rule}
@@ -14609,7 +14609,8 @@ basepoint_vertical: scaled;
 save_direction: integer;
 dir_ptr,dir_tmp:pointer;
 @!left_edge: scaled; {the left coordinate for this box}
-@!save_h,@!save_v: scaled; {what |dvi_h| and |dvi_v| should pop to}
+@!save_h: scaled; {what |cur_h| should pop to}
+@!save_dvi: position; {what |dvi| should pop to}
 @!save_box_pos: position; {what |box_pos| should pop to}
 @!this_box: pointer; {pointer to containing box}
 @!g_order: glue_ord; {applicable order of infinity for glue}
@@ -14887,10 +14888,10 @@ if list_ptr(p)=null then begin
 else begin
   temp_ptr:=p; edge:=cur_h; cur_h:=cur_h + basepoint_horizontal;
   edge_v:=cur_v; cur_v:=base_line + basepoint_vertical;
-  synch_dvi; save_h:=dvi_h; save_v:=dvi_v;
+  synch_dvi; save_dvi:=dvi;
   save_box_pos:=box_pos;
   if type(p)=vlist_node then vlist_out@+else hlist_out;
-  dvi_h:=save_h; dvi_v:=save_v;
+  dvi:=save_dvi;
   box_pos:=save_box_pos;
   cur_h:=edge+effective_horizontal; cur_v:=base_line;
   end
@@ -15061,13 +15062,13 @@ else
 temp_ptr:=leader_box;
 edge_h:=cur_h; cur_h:=cur_h + basepoint_horizontal;
 edge_v:=cur_v; cur_v:=base_line + basepoint_vertical;
-synch_dvi; save_h:=dvi_h; save_v:=dvi_v;
+synch_dvi; save_dvi:=dvi;
 save_box_pos:=box_pos;
 outer_doing_leaders:=doing_leaders; doing_leaders:=true;
 if type(leader_box)=vlist_node then vlist_out@+else hlist_out;
 doing_leaders:=outer_doing_leaders;
 box_pos:=save_box_pos;
-dvi_h:=save_h; dvi_v:=save_v;
+dvi:=save_dvi;
 cur_h:=edge_h+leader_wd+lx; cur_v:=base_line;
 end
 
@@ -15077,7 +15078,8 @@ end
 label move_past, fin_rule, next_p;
 var left_edge: scaled; {the left coordinate for this box}
 @!top_edge: scaled; {the top coordinate for this box}
-@!save_h,@!save_v: scaled; {what |dvi_h| and |dvi_v| should pop to}
+@!save_v: scaled; {what |cur_v| should pop to}
+@!save_dvi: position; {what |dvi| should pop to}
 @!save_box_pos: position; {what |box_pos| should pop to}
 @!this_box: pointer; {pointer to containing box}
 @!g_order: glue_ord; {applicable order of infinity for glue}
@@ -15197,11 +15199,11 @@ else  begin
   edge_v:=cur_v;
   cur_h:=left_edge + basepoint_horizontal;
   cur_v:=cur_v + basepoint_vertical;
-  synch_dvi; save_h:=dvi_h; save_v:=dvi_v;
+  synch_dvi; save_dvi:=dvi;
   save_box_pos:=box_pos;
   temp_ptr:=p;
   if type(p)=vlist_node then vlist_out@+else hlist_out;
-  dvi_h:=save_h; dvi_v:=save_v;
+  dvi:=save_dvi;
   box_pos:=save_box_pos;
   cur_h:=left_edge; cur_v:=edge_v + effective_vertical;
   end
@@ -15350,13 +15352,13 @@ temp_ptr:=leader_box;
 cur_h:=left_edge + basepoint_horizontal;
 edge_v:=cur_v ;
 cur_v:=cur_v + basepoint_vertical;
-synch_dvi; save_h:=dvi_h; save_v:=dvi_v;
+synch_dvi; save_dvi:=dvi;
 save_box_pos:=box_pos;
 outer_doing_leaders:=doing_leaders; doing_leaders:=true;
 if type(leader_box)=vlist_node then vlist_out@+else hlist_out;
 doing_leaders:=outer_doing_leaders;
 box_pos:=save_box_pos;
-dvi_h:=save_h; dvi_v:=save_v;
+dvi:=save_dvi;
 cur_h:=left_edge; cur_v:=edge_v+leader_ht+lx;
 end
 
@@ -15437,7 +15439,7 @@ dvi_four(last_bop); last_bop:=page_loc;
 {Think in upright page/paper coordinates): First preset |pos.h| and |pos.v| to the DVI origin.}
 pos.h := one_true_inch;
 pos.v := cur_page_height - one_true_inch;
-dvi_h := pos.h; dvi_v := pos.v;
+dvi.h := pos.h; dvi.v := pos.v;
 box_pos := pos;
 {Then calculate |cur_h| and |cur_v| within the upright coordinate system
 for the DVI origin depending on the |page_direction|.}
