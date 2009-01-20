@@ -30106,14 +30106,12 @@ begin cur_v:=cur_v+pdf_height(p)+pdf_depth(p);
     end;
   dir_BL_: begin
     cur_h:=left_edge;
-    cur_v:=cur_v+pdf_height(p);
     end;
   dir_TR_: begin
-    cur_h:=cur_h-pdf_width(p);
+    cur_h:=left_edge-pdf_width(p);
     end;
   dir_BR_: begin
-    cur_h:=cur_h-pdf_width(p);
-    cur_v:=cur_v+pdf_height(p);
+    cur_h:=left_edge-pdf_width(p);
     end;
   othercases cur_h:=left_edge;
   endcases;
