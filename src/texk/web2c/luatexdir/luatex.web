@@ -9556,7 +9556,6 @@ var m:halfword; {|chr_code| part of the operand token}
     n, k: integer; {accumulators}
 @!q:halfword; {general purpose index}
 @!p:0..nest_size; {index into |nest|}
-@!mval:mathcodeval; { a mathcode }
 begin m:=cur_chr;
 case cur_cmd of
 def_code: @<Fetch a character code from some table@>;
