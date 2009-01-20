@@ -563,6 +563,7 @@ void unsave_text_codes(quarterword grouplevel);
 void initialize_text_codes(void);
 void dump_text_codes(void);
 void undump_text_codes(void);
+void copy_cat_codes(int from, int to);
 
 /* mathcodes.c */
 
