@@ -55,6 +55,74 @@ static int delcode_heapptr = 0;
 #define DELCODESTACK 4
 #define DELCODEDEFAULT 0xFFFFFFFF
 
+/* some helpers for mathcode printing */
+
+#define print_hex_digit(A) do {                 \
+    if ((A)>=10) print_char('A'+(A)-10);        \
+    else print_char('0'+(A));                   \
+  } while (0)
+
+#define two_hex(A) do {      \
+    print_hex_digit(A/16);   \
+    print_hex_digit(A%16);   \
+  } while (0)
+
+#define four_hex(A) do {      \
+    two_hex(A/256);           \
+    two_hex(A%256);           \
+  } while (0)
+
+#define six_hex(A) do {       \
+    two_hex((A)/65536);       \
+    two_hex(((A)%65536)/256); \
+    two_hex(A%256);           \
+  } while (0)
+
+void show_mathcode_value(mathcodeval c)
+{
+    if (c.origin_value == aleph_mathcode) {
+        print_char('"');
+        print_hex_digit(c.class_value);
+        two_hex(c.family_value);
+        four_hex(c.character_value);
+    } else if (c.origin_value == xetex_mathcode) {
+        print_char('"');
+        print_hex_digit(c.class_value);
+        print_char('"');
+        two_hex(c.family_value);
+        print_char('"');
+        six_hex(c.character_value);
+    } else if (c.origin_value == xetexnum_mathcode) {
+        int m;
+        m = (c.class_value + (c.family_value * 8)) * 2097152 +
+            c.character_value;
+        print_int(m);
+    } else {
+        print_char('"');
+        print_hex_digit(c.class_value);
+        print_hex_digit(c.family_value);
+        two_hex(c.character_value);
+    }
+}
+
+
+void show_mathcode(integer n)
+{
+    mathcodeval c = get_math_code(n);
+    if (c.origin_value == aleph_mathcode) {
+        tprint_esc("omathcode");
+    } else if (c.origin_value == xetex_mathcode) {
+        tprint_esc("Umathcode");
+    } else if (c.origin_value == xetexnum_mathcode) {
+        tprint_esc("Umathcodenum");
+    } else {
+        tprint_esc("mathcode");
+    }
+    print_int(n);
+    print_char('=');
+    show_mathcode_value(c);
+}
+
 void unsavemathcode(quarterword gl)
 {
     sa_stack_item st;
@@ -140,7 +208,7 @@ integer get_math_code_num(integer n)
             mval.character_value;
     } else if (mval.origin_value == xetexnum_mathcode
                || mval.origin_value == xetex_mathcode) {
-        return (mval.class_value * 256 + mval.family_value) * (65536 * 32) +
+      return (mval.class_value + (mval.family_value * 8)) * (65536 * 32) +
             mval.character_value;
     }
     return 0;
@@ -192,73 +260,51 @@ void undumpmathcode(void)
     }
 }
 
-/* This file starts with two show functions that are called from
-   |mathcodes.c|. TODO: The printing of values is not correct yet! */
 
-#define print_hex_digit(A) do {                 \
-    if ((A)>=10) print_char('A'+(A)-10);        \
-    else print_char('0'+(A));                   \
-  } while (0)
-
-#define two_hex(A) do {      \
-    print_hex_digit(A/16);   \
-    print_hex_digit(A%16);   \
-  } while (0)
-
-#define four_hex(A) do {      \
-    two_hex(A/256);           \
-    two_hex(A%256);           \
-  } while (0)
-
-#define six_hex(A) do {       \
-    two_hex((A)/65536);       \
-    two_hex(((A)%65536)/256); \
-    two_hex(A%256);           \
-  } while (0)
-
-void show_mathcode(integer n)
+void show_delcode(integer n)
 {
-    mathcodeval c = get_math_code(n);
-    if (c.origin_value == aleph_mathcode) {
-        tprint_esc("omathcode");
+    delcodeval c;
+    c = get_del_code(n);
+    if (c.origin_value == tex_mathcode) {
+        tprint_esc("delcode");
+    } else if (c.origin_value == aleph_mathcode) {
+        tprint_esc("odelcode");
     } else if (c.origin_value == xetex_mathcode) {
-        tprint_esc("LuaTeXmathcode");
+        tprint_esc("Udelcode");
     } else if (c.origin_value == xetexnum_mathcode) {
-        tprint_esc("LuaTeXmathcodenum");
-    } else {
-        tprint_esc("mathcode");
+        tprint_esc("Udelcodenum");
     }
     print_int(n);
     print_char('=');
-    show_mathcode_value(c);
-}
-
-void show_mathcode_value(mathcodeval c)
-{
-    if (c.origin_value == aleph_mathcode) {
-        print_char('"');
-        print_hex_digit(c.class_value);
-        two_hex(c.family_value);
-        four_hex(c.character_value);
-    } else if (c.origin_value == xetex_mathcode) {
-        print_char('"');
-        print_hex_digit(c.class_value);
-        print_char('"');
-        two_hex(c.family_value);
-        print_char('"');
-        six_hex(c.character_value);
-    } else if (c.origin_value == xetexnum_mathcode) {
-        int m;
-        m = ((c.class_value * 256) + c.family_value) * 2097152 +
-            c.character_value;
-        print_int(m);
+    if (c.small_family_value < 0) {
+        print_char('-');
+        print_char('1');
     } else {
-        print_char('"');
-        print_hex_digit(c.class_value);
-        print_hex_digit(c.family_value);
-        two_hex(c.character_value);
+        if (c.origin_value == tex_mathcode) {
+            print_char('"');
+            print_hex_digit(c.small_family_value);
+            two_hex(c.small_character_value);
+            print_hex_digit(c.large_family_value);
+            two_hex(c.large_character_value);
+        } else if (c.origin_value == aleph_mathcode) {
+            print_char('"');
+            two_hex(c.small_family_value);
+            four_hex(c.small_character_value);
+            print_char('"');
+            two_hex(c.large_family_value);
+            four_hex(c.large_character_value);
+        } else if (c.origin_value == xetex_mathcode) {
+            print_char('"');
+            two_hex(c.small_family_value);
+            six_hex(c.small_character_value);
+        } else if (c.origin_value == xetexnum_mathcode) {
+            int m;
+            m = c.small_family_value * 2097152 + c.small_character_value;
+            print_int(m);
+        }
     }
 }
+
 
 
 /* TODO: clean up the heap */
@@ -391,54 +437,6 @@ void undumpdelcode(void)
         delcode_heap[k] = d;
     }
 }
-
-void show_delcode(integer n)
-{
-    delcodeval c;
-    c = get_del_code(n);
-    if (c.origin_value == tex_mathcode) {
-        tprint_esc("delcode");
-    } else if (c.origin_value == aleph_mathcode) {
-        tprint_esc("odelcode");
-    } else if (c.origin_value == xetex_mathcode) {
-        tprint_esc("LuaTeXdelcode");
-    } else if (c.origin_value == xetexnum_mathcode) {
-        tprint_esc("LuaTeXdelcodenum");
-    }
-    print_int(n);
-    print_char('=');
-    if (c.small_family_value < 0) {
-        print_char('-');
-        print_char('1');
-    } else {
-        if (c.origin_value == tex_mathcode) {
-            print_char('"');
-            print_hex_digit(c.small_family_value);
-            two_hex(c.small_character_value);
-            print_hex_digit(c.large_family_value);
-            two_hex(c.large_character_value);
-        } else if (c.origin_value == aleph_mathcode) {
-            print_char('"');
-            two_hex(c.small_family_value);
-            four_hex(c.small_character_value);
-            print_char('"');
-            two_hex(c.large_family_value);
-            four_hex(c.large_character_value);
-        } else if (c.origin_value == xetex_mathcode) {
-            print_char('"');
-            two_hex(c.small_family_value);
-            six_hex(c.small_character_value);
-        } else if (c.origin_value == xetexnum_mathcode) {
-            int m;
-            m = c.small_family_value * 2097152 + c.small_character_value;
-            print_int(m);
-        }
-    }
-}
-
-
-
-
 
 void unsave_math_codes(quarterword grouplevel)
 {

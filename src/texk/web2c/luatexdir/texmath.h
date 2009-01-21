@@ -27,9 +27,6 @@
 
 extern pointer new_noad(void);
 
-extern void show_mathcode (integer n);
-extern void show_delcode (integer n);
-
 extern void show_math_node(halfword);
 extern void print_math_comp(halfword);
 extern void print_limit_switch(halfword);
