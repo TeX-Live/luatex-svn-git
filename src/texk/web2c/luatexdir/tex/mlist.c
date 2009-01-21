@@ -819,6 +819,8 @@ void make_fraction(pointer q)
     right_delimiter(q) = null;
     vlink(v) = z;
     y = hpack(x, 0, additional);
+    flush_node(numerator(q)); numerator(q) = null;
+    flush_node(denominator(q)); denominator(q) = null;
     assign_new_hlist(q,y);
 }
 
