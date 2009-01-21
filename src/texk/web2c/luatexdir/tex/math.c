@@ -1439,7 +1439,7 @@ void build_choices(void)
 void sub_sup(void)
 {
   pointer q;
-  if (tail == head || !scripts_allowed(tail)) {
+  if (tail == head || (!scripts_allowed(tail))) {
     tail_append(new_noad());
     q = new_node (sub_mlist_node,0);
     nucleus(tail) = q; 
