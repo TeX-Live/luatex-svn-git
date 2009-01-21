@@ -19,7 +19,7 @@
 
 \setvariables
   [document]
-  [beta=0.32.0]
+  [beta=0.33.0]
 
 \starttext
 
@@ -174,36 +174,56 @@ during callback processing (this will be explained in \in{section}[iocallback]).
 
 \section{Wide math characters}
 
-Text handling is now extended up to the full \UNICODE\ range, but math mode
-deals mostly with glyphs in fonts directly and fonts tend to be 16-bit
-at maximum. The extension from 8-bit to 16-bit was already present in
-\ALEPH\ by means of a set of extra primitives.
+Text handling is now extended up to the full \UNICODE\ range. The extension
+from 8-bit to 16-bit was already present in \ALEPH\ by means of a set of
+extra primitives starting with the \type{\o} prefix, the extension to full
+Unicode (the \type{\U} prefix) is compatible with \XETEX.
 
-Therefore, the math primitives from \TEX\ and \ALEPH\ are kept mostly
+The math primitives from \TEX\ and \ALEPH\ are kept mostly
 as they are, except for the ones that convert from input to math
-commands like \type{mathcode} and \type{omathcode}. The traditional
-\TEX\ primitives are unchanged, their arguments are upscaled from 8~to
-16~bits internally (as in \ALEPH).
+commands like \type{mathcode} and \type{omathcode} that now allow
+for a larger argument on the left hand side of the equals sign.
 
 % hahe: again wrong by 1?
 \starttabulate[|l|l|l|l|]
-\NC \bf primitive     \NC \bf max index/bits \NC \bf hex          \NC \bf numeric                       \NC\NR
-\NC \tex{mathchardef} \NC 15             \NC \tt~~~8000           \NC $2^{3}*2^{4}*2^{8}$               \NC\NR
-\NC \tex{mathcode}    \NC 8=15           \NC \tt~~~~~FF = ~~~800  \NC $2^{3}*2^{4}*2^{8}$               \NC\NR
-\NC \tex{delcode}     \NC 8=24           \NC \tt~~~~~FF = ~FFFFF  \NC $2^{4}*2^{8}*2^{4}*2^{8}$         \NC\NR
-\NC \tex{mathchar}    \NC 15             \NC \tt~~~7FFF           \NC $2^{3}*2^{4}*2^{8}$               \NC\NR
-\NC \tex{mathaccent}  \NC 15             \NC \tt~~~7FFF           \NC $2^{3}*2^{4}*2^{8}$               \NC\NR
-\NC \tex{delimiter}   \NC 27             \NC \tt7FFFFFF           \NC $2^{3}*2^{4}*2^{8}*2^{4}*2^{8}$   \NC\NR
-\NC \tex{radical}     \NC 27             \NC \tt7FFFFFF           \NC $2^{3}*2^{4}*2^{8}*2^{4}*2^{8}$   \NC\NR
-\NC \tex{omathchardef}\NC 27             \NC \tt8000000           \NC $2^{3}*2^{8}*2^{16}$              \NC\NR
-\NC \tex{omathcode}   \NC 21=27          \NC \tt~10FFFF = 8000000 \NC $2^{3}*2^{8}*2^{16}$              \NC\NR
-\NC \tex{odelcode}    \NC 21=24+24       \NC \tt~10FFFF = ~FFFFFF \NC $2^{8}*2^{16}$                    \NC\NR
-\NC                   \NC                \NC \tt~~~~~~~ + ~FFFFFF \NC \quad $+ 2^{8}*2^{16}$            \NC\NR
-\NC \tex{omathchar}   \NC 27             \NC \tt7FFFFFF           \NC $2^{3}*2^{8}*2^{18}$              \NC\NR
-\NC \tex{omathaccent} \NC 27             \NC \tt7FFFFFF           \NC $2^{3}*2^{8}*2^{18}$              \NC\NR
-\NC \tex{odelimiter}  \NC 27+24          \NC \tt7FFFFFF + ~FFFFFF \NC $2^{3}*2^{8}*2^{16}+2^{8}*2^{16}$ \NC\NR
-\NC \tex{oradical}    \NC 27+24          \NC \tt7FFFFFF + ~FFFFFF \NC $2^{3}*2^{8}*2^{16}+2^{8}*2^{16}$ \NC\NR
+\NC \bf primitive     \NC \bf max index/bits \NC \bf value range (in hex)  \NC\NR
+\NC \tex{mathchardef} \NC 15             \NC \tt~~~8000                    \NC\NR
+\NC \tex{mathcode}    \NC 8=15           \NC \tt~~~~~FF = ~~~800           \NC\NR
+\NC \tex{delcode}     \NC 8=24           \NC \tt~~~~~FF = ~FFFFF           \NC\NR
+\NC \tex{mathchar}    \NC 15             \NC \tt~~~7FFF                    \NC\NR
+\NC \tex{mathaccent}  \NC 15             \NC \tt~~~7FFF                    \NC\NR
+\NC \tex{delimiter}   \NC 27             \NC \tt7FFFFFF                    \NC\NR
+\NC \tex{radical}     \NC 27             \NC \tt7FFFFFF                    \NC\NR
+\NC \tex{omathchardef}\NC 27             \NC \tt8000000                    \NC\NR
+\NC \tex{omathcode}   \NC 21=27          \NC \tt~10FFFF = 8000000          \NC\NR
+\NC \tex{odelcode}    \NC 21=24+24       \NC \tt~10FFFF = ~FFFFFF + ~FFFFFF\NC\NR
+\NC \tex{omathchar}   \NC 27             \NC \tt7FFFFFF                    \NC\NR
+\NC \tex{omathaccent} \NC 27             \NC \tt7FFFFFF                    \NC\NR
+\NC \tex{odelimiter}  \NC 27+24          \NC \tt7FFFFFF + ~FFFFFF          \NC\NR
+\NC \tex{oradical}    \NC 27+24          \NC \tt7FFFFFF + ~FFFFFF          \NC\NR
+\NC \tex{Umathchardef}\NC 3+8+21         \NC \tt8+FF+10FFFF                \NC\NR
+\NC \tex{Umathcode}   \NC 21=3+8+21      \NC \tt~10FFFF = 8+FF+10FFFF      \NC\NR
+\NC \tex{Udelcode}    \NC 21=8+21        \NC \tt~10FFFF = FF+10FFFF        \NC\NR
+\NC \tex{Umathchar}   \NC 3+8+21         \NC \tt8+FF+10FFFF                \NC\NR
+\NC \tex{Umathaccent} \NC 3+8+21         \NC \tt8+FF+10FFFF                \NC\NR
+\NC \tex{Udelimiter}  \NC 3+8+21         \NC \tt8+FF+10FFFF                \NC\NR
+\NC \tex{Uradical}    \NC 8+21           \NC \tt7FFFFFF + ~FFFFFF          \NC\NR
+\NC \tex{Umathcharnum}\NC 32             \NC \tt see below                 \NC\NR
+\NC \tex{Umathcodenum}\NC 21=32          \NC \tt~10FFFF = see below        \NC\NR
+\NC \tex{Udelcodenum} \NC 21=29          \NC \tt~10FFFF = see below        \NC\NR
 \stoptabulate
+
+Note: for \type{\Umathcharnum} and \type{\Umathcodenum}, all information is
+packed into a single signed integer: the lowest 21 bits are the character
+code, the 3 bit above that represent the math class, and the family data is
+kept in the topmost bits (This means that the values for math families
+128--255 are actually negative).  For \type{\Udelcodenum} there is no math
+class; the math family information is stored in the bits directly on top of
+the character code. Using these three commands is not as natural as using
+the two- and three-value commands, so unless you know exactly what you are
+doing and absolutely require the speedup resulting from the faster input
+scanning, it is better to use the verbose commands instead.
+
 
 \section{Extended tables}
 
