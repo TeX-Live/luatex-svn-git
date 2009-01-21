@@ -231,6 +231,7 @@ pointer var_delimiter(pointer d, integer s, scaled v)
         x = large_char(d);
     }
   FOUND:
+    flush_node(d);
     if (f != null_font) {
         /* When the following code is executed, |char_tag(q)| will be equal to
            |ext_tag| if and only if a built-up symbol is supposed to be returned.
@@ -639,6 +640,7 @@ void make_radical(pointer q)
     }
     y = var_delimiter(left_delimiter(q), cur_size, height(x) + depth(x) + clr +
                       default_rule_thickness);
+    left_delimiter(q) = null;
     delta = depth(y) - (height(x) + depth(x) + clr);
     if (delta > 0)
         clr = clr + half(delta);        /* increase the actual clearance */
@@ -809,8 +811,10 @@ void make_fraction(pointer q)
        point to it */
     delta = (cur_style < text_style ? delim1(cur_size) : delim2(cur_size));
     x = var_delimiter(left_delimiter(q), cur_size, delta);
+    left_delimiter(q) = null;
     vlink(x) = v;
     z = var_delimiter(right_delimiter(q), cur_size, delta);
+    right_delimiter(q) = null;
     vlink(v) = z;
     y = hpack(x, 0, additional);
     assign_new_hlist(q,y);
@@ -1162,6 +1166,7 @@ small_number make_left_right(pointer q, integer style, scaled max_d,
     if (delta < delta2)
         delta = delta2;
     tmp = var_delimiter(delimiter(q), cur_size, delta);
+    delimiter(q) = null;
     assign_new_hlist(q,tmp);
     return (type(q) - (left_noad - open_noad)); /* |open_noad| or |close_noad| */
 }
@@ -1591,8 +1596,11 @@ void mlist_to_hlist(void)
            to nullify such dependant fields for all possible
            node and noad types.
          */
-        if (nodetype_has_attributes(type(r)))
+        switch (type(r)) {
+        default:
+          if (nodetype_has_attributes(type(r)))
             delete_attribute_ref(node_attr(r));
-        free_node(r, get_node_size(type(r), subtype(r)));
+          free_node(r, get_node_size(type(r), subtype(r)));
+        }
     }
 }

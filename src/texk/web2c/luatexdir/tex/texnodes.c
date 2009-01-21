@@ -1021,7 +1021,8 @@ void flush_node(halfword p)
     case right_noad:
         flush_node(delimiter(p));
         break;
-    case math_char_node:            /* nothing to do */
+    case delim_node:            /* nothing to do */
+    case math_char_node:
     case math_text_char_node:
         break;
     case sub_box_node: /* its math_list() will be used as a box content */
