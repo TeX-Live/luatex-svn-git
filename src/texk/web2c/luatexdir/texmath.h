@@ -44,7 +44,7 @@ extern halfword new_sub_box(halfword);
 
 extern pointer math_clone (pointer);
 
-#  define scripts_allowed(A) (type((A))>=ord_noad)&&(type((A))<left_noad)
+#  define scripts_allowed(A) ((type((A))>=ord_noad)&&(type((A))<left_noad))
 
 #  define default_code 010000000000     /* denotes |default_rule_thickness| */
 
