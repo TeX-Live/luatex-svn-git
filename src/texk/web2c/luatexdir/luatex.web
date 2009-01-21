@@ -18575,8 +18575,8 @@ if shipping_page then begin
     end;
   update_terminal;
 end;
-if (tracing_output>0)and(post_callback_id=0) then
-  begin if shipping_page then print_char("]");
+if (tracing_output>0)and(post_callback_id=0)and shipping_page then
+  begin print_char("]");
   begin_diagnostic; show_box(p); end_diagnostic(true);
   end;
 @<(\pdfTeX) Ship box |p| out@>;
@@ -28972,20 +28972,6 @@ begin
     until a = b;
 end;
 
-
-@ Each new type of node that appears in our data structure must be capable
-of being displayed, copied, destroyed, and so on. The routines that we
-need for write-oriented whatsits are somewhat like those for mark nodes;
-other extensions might, of course, involve more subtlety here.
-
-@<Basic printing...@>=
-procedure print_write_whatsit(@!s:str_number;@!p:pointer);
-begin print_esc(s);
-if write_stream(p)<16 then print_int(write_stream(p))
-else if write_stream(p)=16 then print_char("*")
-@.*\relax@>
-else print_char("-");
-end;
 
 @ Three extra node types carry information from |main_control|.
 
