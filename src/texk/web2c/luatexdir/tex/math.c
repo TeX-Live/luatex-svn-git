@@ -76,9 +76,9 @@ pointer fin_mlist(pointer);
 #define math_surround  dimen_par(param_math_surround_code)
 #define hang_indent    dimen_par(param_hang_indent_code)
 #define hang_after     int_par(param_hang_after_code)
-#define every_math     local_par(param_every_math_code)
-#define every_display  local_par(param_every_display_code)
-#define par_shape_ptr  local_par(param_par_shape_code)
+#define every_math     loc_par(param_every_math_code)
+#define every_display  loc_par(param_every_display_code)
+#define par_shape_ptr  loc_par(param_par_shape_code)
 
 /*
 When \TeX\ reads a formula that is enclosed between \.\$'s, it constructs an

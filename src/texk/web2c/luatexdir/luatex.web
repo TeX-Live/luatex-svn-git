@@ -4842,8 +4842,6 @@ be pushed onto |nest| if necessary.
   @!aux_field: memory_word;
   @!dirs_field: halfword;
   @!math_field: integer;
-  @!local_par_field: pointer;
-  @!local_par_bool_field: boolean;
   end;
 
 @ @d mode==cur_list.mode_field {current mode}
@@ -4860,10 +4858,6 @@ be pushed onto |nest| if necessary.
 @d dir_save==cur_list.dirs_field {dir stack when a paragraph is interrupted}
 @d dir_math_save==cur_list.math_field
    {should begin/end dir nodes be placed around mathematics?}
-@d local_par==cur_list.local_par_field
-   {pointer to whatsit for local stuff}
-@d local_par_bool==cur_list.local_par_bool_field
-   {has local stuff been changed in this group?}
 
 @<Glob...@>=
 @!nest:array[0..nest_size] of list_state_record;
@@ -4924,7 +4918,6 @@ eTeX_aux:=null;
 prev_depth:=ignore_depth; mode_line:=0;
 prev_graf:=0; shown_mode:=0;
 dir_save:=null; dir_math_save:=false;
-local_par:=null; local_par_bool:=false;
 @<Start a new current page@>;
 
 @ @p @<LOCAL: Declare |make_local_par_node|@>;
@@ -4944,7 +4937,6 @@ begin if nest_ptr>max_nest_stack then
 nest[nest_ptr]:=cur_list; {stack the record}
 incr(nest_ptr); head:=new_node(temp_node,0); tail:=head; prev_graf:=0; mode_line:=line;
 dir_save:=null; dir_math_save:=false;
-local_par:=make_local_par_node; local_par_bool:=false;
 eTeX_aux:=null;
 end;
 
@@ -4955,10 +4947,6 @@ is a node that should be returned to free memory.
 
 @p procedure pop_nest; {leave a semantic level, re-enter the old}
 begin
-if local_par<>null then begin
-  if local_par_bool then begin end {|tail_append(local_par)|}
-  else flush_node(local_par);
-  end;
 flush_node(head); decr(nest_ptr); cur_list:=nest[nest_ptr];
 end;
 
@@ -25243,7 +25231,6 @@ might be necessary.  Good first step.}
       (p=(int_base+local_broken_penalty_code))) then begin
     @<LOCAL: Add local paragraph node@>;
     eq_word_define(int_base+no_local_whatsits_code,no_local_whatsits+1);
-    local_par_bool:=true;
     end;
   if p=int_base+language_code then word_define(int_base+cur_lang_code,cur_val);
   end

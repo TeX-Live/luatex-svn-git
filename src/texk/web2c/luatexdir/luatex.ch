@@ -713,10 +713,8 @@ end;
 @z
 
 @x
-local_par:=null; local_par_bool:=false;
 @<Start a new current page@>;
 @y
-local_par:=null; local_par_bool:=false;
 @/{The following piece of code is a copy of module 991:}
 page_contents:=empty; page_tail:=page_head; {|link(page_head):=null;|}@/
 last_glue:=max_halfword; last_penalty:=0; last_kern:=0;
