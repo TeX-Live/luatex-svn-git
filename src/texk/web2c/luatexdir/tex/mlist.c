@@ -734,6 +734,8 @@ void make_math_accent(pointer q)
         math_list(nucleus(q)) = y;
         type(nucleus(q)) = sub_box_node;
     }
+    flush_node(accent_chr(q));
+    accent_chr(q) = null;
 }
 
 /*
@@ -1596,11 +1598,8 @@ void mlist_to_hlist(void)
            to nullify such dependant fields for all possible
            node and noad types.
          */
-        switch (type(r)) {
-        default:
-          if (nodetype_has_attributes(type(r)))
-            delete_attribute_ref(node_attr(r));
-          free_node(r, get_node_size(type(r), subtype(r)));
-        }
+        if (nodetype_has_attributes(type(r)))
+          delete_attribute_ref(node_attr(r));
+        free_node(r, get_node_size(type(r), subtype(r)));
     }
 }
