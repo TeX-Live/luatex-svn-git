@@ -1025,16 +1025,15 @@ void flush_node(halfword p)
     case math_char_node:
     case math_text_char_node:
         break;
-    case sub_box_node: /* its math_list() will be used as a box content */
+    case sub_box_node:
+    case sub_mlist_node:
+        flush_node_list(math_list(p));
         break;
     case fraction_noad:
         flush_node_list(numerator(p));
         flush_node_list(denominator(p));
         flush_node(left_delimiter(p));
         flush_node(right_delimiter(p));
-        break;
-    case sub_mlist_node:
-        flush_node_list(math_list(p));
         break;
     case pseudo_file_node:
         flush_node_list(pseudo_lines(p));
