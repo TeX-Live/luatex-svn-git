@@ -14486,7 +14486,11 @@ this is essentially the depth of |push| commands in the \.{DVI} output.
     dvi.v := pos.v;
     end
 
-@d synch_page_coordinates==case box_direction(dvi_direction) of
+@d synch_dvi_with_pos==begin
+    synch_h; synch_v;
+    end
+
+@d synch_pos_with_cur==case box_direction(dvi_direction) of
     dir_TL_: begin pos.h := box_pos.h + cur_h; pos.v := box_pos.v - cur_v; end;
     dir_TR_: begin pos.h := box_pos.h - cur_h; pos.v := box_pos.v - cur_v; end;
     dir_BL_: begin pos.h := box_pos.h + cur_h; pos.v := box_pos.v + cur_v; end;
@@ -14497,9 +14501,9 @@ this is essentially the depth of |push| commands in the \.{DVI} output.
     dir_RB_: begin pos.h := box_pos.h - cur_v; pos.v := box_pos.v + cur_h; end;
     end
 
-@d synch_dvi==begin
-    synch_page_coordinates;
-    synch_h; synch_v;
+@d synch_dvi_with_cur==begin
+    synch_pos_with_cur;
+    synch_dvi_with_pos;
 end
 
 @ @<Types...@>=
@@ -14661,7 +14665,7 @@ reaching a non-|char_node|. The program uses the fact that |set_char_0=0|.
 @<Output node |p| for |hlist_out|...@>=
 if is_char_node(p) then
   begin
-  repeat synch_dvi; f:=font(p); c:=character(p);
+  repeat synch_dvi_with_cur; f:=font(p); c:=character(p);
   ci := char_info_short(f,c);
   if f<>dvi_f then @<Change font |dvi_f| to |f|@>;
   c_ht:=charinfo_height(ci);
@@ -14875,7 +14879,7 @@ if list_ptr(p)=null then begin
 else begin
   temp_ptr:=p; edge:=cur_h; cur_h:=cur_h + basepoint_horizontal;
   edge_v:=cur_v; cur_v:=base_line + basepoint_vertical;
-  synch_dvi; save_dvi:=dvi;
+  synch_dvi_with_cur; save_dvi:=dvi;
   save_box_pos:=box_pos;
   if type(p)=vlist_node then vlist_out@+else hlist_out;
   dvi:=save_dvi;
@@ -14889,7 +14893,7 @@ if is_running(rule_ht) then rule_ht:=height(this_box);
 if is_running(rule_dp) then rule_dp:=depth(this_box);
 rule_ht:=rule_ht+rule_dp; {this is the rule thickness}
 if (rule_ht>0)and(rule_wd>0) then {we don't output empty rules}
-  begin cur_v:=base_line+rule_dp; synch_dvi;
+  begin cur_v:=base_line+rule_dp; synch_dvi_with_cur;
   case box_direction(dvi_direction) of
   dir_TL_: begin
     dvi_set_rule(rule_ht)(rule_wd);
@@ -15049,7 +15053,7 @@ else
 temp_ptr:=leader_box;
 edge_h:=cur_h; cur_h:=cur_h + basepoint_horizontal;
 edge_v:=cur_v; cur_v:=base_line + basepoint_vertical;
-synch_dvi; save_dvi:=dvi;
+synch_dvi_with_cur; save_dvi:=dvi;
 save_box_pos:=box_pos;
 outer_doing_leaders:=doing_leaders; doing_leaders:=true;
 if type(leader_box)=vlist_node then vlist_out@+else hlist_out;
@@ -15186,7 +15190,7 @@ else  begin
   edge_v:=cur_v;
   cur_h:=left_edge + basepoint_horizontal;
   cur_v:=cur_v + basepoint_vertical;
-  synch_dvi; save_dvi:=dvi;
+  synch_dvi_with_cur; save_dvi:=dvi;
   save_box_pos:=box_pos;
   temp_ptr:=p;
   if type(p)=vlist_node then vlist_out@+else hlist_out;
@@ -15201,7 +15205,7 @@ if is_running(rule_wd) then rule_wd:=width(this_box);
 rule_ht:=rule_ht+rule_dp; {this is the rule thickness}
 cur_v:=cur_v+rule_ht;
 if (rule_ht>0)and(rule_wd>0) then {we don't output empty rules}
-  begin synch_dvi;
+  begin synch_dvi_with_cur;
   case box_direction(dvi_direction) of
   dir_TL_: begin
     dvi_put_rule(rule_ht)(rule_wd);
@@ -15339,7 +15343,7 @@ temp_ptr:=leader_box;
 cur_h:=left_edge + basepoint_horizontal;
 edge_v:=cur_v ;
 cur_v:=cur_v + basepoint_vertical;
-synch_dvi; save_dvi:=dvi;
+synch_dvi_with_cur; save_dvi:=dvi;
 save_box_pos:=box_pos;
 outer_doing_leaders:=doing_leaders; doing_leaders:=true;
 if type(leader_box)=vlist_node then vlist_out@+else hlist_out;
@@ -15426,8 +15430,7 @@ dvi_four(last_bop); last_bop:=page_loc;
 {Think in upright page/paper coordinates): First preset |pos.h| and |pos.v| to the DVI origin.}
 pos.h := one_true_inch;
 pos.v := cur_page_height - one_true_inch;
-dvi.h := pos.h; dvi.v := pos.v;
-box_pos := pos;
+box_pos := pos; dvi := pos;
 {Then calculate |cur_h| and |cur_v| within the upright coordinate system
 for the DVI origin depending on the |page_direction|.}
 dvi_direction:=page_direction;
@@ -15453,12 +15456,12 @@ cur_h := cur_h - one_true_inch; {correct for DVI origin}
 cur_v := cur_v - one_true_inch;
 {The movement is actually done within the upright page coordinate system.}
 dvi_direction := dir_TL_; {only temporarily for this adjustment}
-synch_dvi; box_pos := pos; {keep track on page}
+synch_dvi_with_cur; box_pos := pos; {keep track on page}
 {Then switch to page box coordinate system; do |height(p)| movement.}
 dvi_direction := page_direction;
 cur_h := 0;
 cur_v := height(p);
-synch_dvi;
+synch_dvi_with_cur;
 {Now we are at the point on the page where the origin of the page box should go.}
 temp_ptr:=p;
 if type(p)=vlist_node then vlist_out@+else hlist_out;
@@ -17847,6 +17850,7 @@ save_direction: integer;
 dvi_ptr,dir_ptr,dir_tmp:pointer;
 @!left_edge: scaled; {the left coordinate for this box}
 @!save_h: scaled; {what |cur_h| should pop to}
+@!save_box_pos: position; {what |box_pos| should pop to}
 @!this_box: pointer; {pointer to containing box}
 @!g_order: glue_ord; {applicable order of infinity for glue}
 @!g_sign: normal..shrinking; {selects type of glue}
@@ -17867,6 +17871,7 @@ dvi_ptr,dir_ptr,dir_tmp:pointer;
 begin cur_g:=0; cur_glue:=float_constant(0);
 this_box:=temp_ptr; g_order:=glue_order(this_box);
 g_sign:=glue_sign(this_box); p:=list_ptr(this_box);
+{cur_h:=0; cur_v:=0;} box_pos:=pos;
 save_direction:=dvi_direction;
 dvi_direction:=box_dir(this_box);
 dvi_ptr:=0;  lx:=0;
@@ -17936,7 +17941,7 @@ end
 begin
 if is_char_node(p) then 
   begin
-  repeat f:=font(p); c:=character(p);
+  repeat synch_pos_with_cur; f:=font(p); c:=character(p);
   ci := char_info_short (f,c);
   {|writeln('hlist_out: a char node ', c:1 , ' in font ',f:1);|}
   if is_valid_char(c) then begin
@@ -18168,7 +18173,10 @@ else begin
   temp_ptr:=p; 
   edge:=cur_h; pdf_dvicmd_h(basepoint_horizontal);
   edge_v:=cur_v; cur_v:=base_line + basepoint_vertical;
+  synch_pos_with_cur;
+  save_box_pos:=box_pos;
   if type(p)=vlist_node then pdf_vlist_out@+else pdf_hlist_out;
+  box_pos:=save_box_pos;
   cur_h:=edge; pdf_dvicmd_h(effective_horizontal);
   cur_v:=base_line;
   end
@@ -18177,7 +18185,8 @@ end
 @ @<(\pdfTeX) Output a rule in an hlist@>=
 if is_running(rule_ht) then rule_ht:=height(this_box);
 if is_running(rule_dp) then rule_dp:=depth(this_box);
-if ((rule_ht+rule_dp)>0)and(rule_wd>0) then {we don't output empty rules}
+if ((rule_ht+rule_dp)>0)and(rule_wd>0) then begin {we don't output empty rules}
+  synch_pos_with_cur;
   case box_direction(dvi_direction) of
   dir_TL_: pdf_set_rule(cur_h,           cur_v + rule_dp, rule_wd,           rule_ht + rule_dp);
   dir_BL_: pdf_set_rule(cur_h,           cur_v + rule_ht, rule_wd,           rule_ht + rule_dp);
@@ -18188,6 +18197,7 @@ if ((rule_ht+rule_dp)>0)and(rule_wd>0) then {we don't output empty rules}
   dir_LB_: pdf_set_rule(cur_h - rule_ht, cur_v,           rule_ht + rule_dp, rule_wd);
   dir_RB_: pdf_set_rule(cur_h - rule_dp, cur_v,           rule_ht + rule_dp, rule_wd);
   end;
+end
 
 @ @<(\pdfTeX) Move right or output leaders@>=
 begin g:=glue_ptr(p); rule_wd:=width(g)-cur_g;
@@ -18288,9 +18298,12 @@ else
 temp_ptr:=leader_box;
 edge_h:=cur_h; cur_h:=cur_h + basepoint_horizontal;
 edge_v:=cur_v; cur_v:=base_line + basepoint_vertical;
+synch_pos_with_cur;
+save_box_pos:=box_pos;
 outer_doing_leaders:=doing_leaders; doing_leaders:=true;
 if type(leader_box)=vlist_node then pdf_vlist_out@+else pdf_hlist_out;
 doing_leaders:=outer_doing_leaders;
+box_pos:=save_box_pos;
 cur_h:=edge_h+leader_wd+lx; cur_v:=base_line;
 end
 
@@ -18300,6 +18313,7 @@ label move_past, fin_rule, next_p;
 var left_edge: scaled; {the left coordinate for this box}
 @!top_edge: scaled; {the top coordinate for this box}
 @!save_v: scaled; {what |cur_v| should pop to}
+@!save_box_pos: position; {what |box_pos| should pop to}
 @!this_box: pointer; {pointer to containing box}
 @!g_order: glue_ord; {applicable order of infinity for glue}
 @!g_sign: normal..shrinking; {selects type of glue}
@@ -18323,6 +18337,7 @@ begin cur_g:=0; cur_glue:=float_constant(0);
 this_box:=temp_ptr; g_order:=glue_order(this_box);
 g_sign:=glue_sign(this_box); p:=list_ptr(this_box);
 {pdfassert(p<>0);}
+{cur_h:=0; cur_v:=0;} box_pos:=pos;
 saving_v:=cur_v; saving_h:=cur_h;
 {|writeln(''); writeln('vlist_out: left edge: ', cur_h:1 , '');|}
 save_direction:=dvi_direction;
@@ -18428,8 +18443,11 @@ else  begin
   edge_v:=cur_v;
   cur_h:=left_edge + basepoint_horizontal;
   cur_v:=cur_v + basepoint_vertical; 
+  synch_pos_with_cur;
+  save_box_pos:=box_pos;
   temp_ptr:=p;
   if type(p)=vlist_node then pdf_vlist_out@+else pdf_hlist_out;
+  box_pos:=save_box_pos;
   cur_h:=left_edge; cur_v:=edge_v + effective_vertical;
   end
 end
@@ -18497,10 +18515,13 @@ end
 @ @<(\pdfTeX) Output a leader box at |cur_v|, ...@>=
 begin cur_h:=left_edge+shift_amount(leader_box);
 cur_v:=cur_v+height(leader_box); save_v:=cur_v;
+synch_pos_with_cur;
+save_box_pos:=box_pos;
 temp_ptr:=leader_box;
 outer_doing_leaders:=doing_leaders; doing_leaders:=true;
 if type(leader_box)=vlist_node then pdf_vlist_out@+else pdf_hlist_out;
 doing_leaders:=outer_doing_leaders;
+box_pos:=save_box_pos;
 cur_h:=left_edge;
 cur_v:=save_v-height(leader_box)+leader_ht+lx;
 end
@@ -18653,6 +18674,8 @@ else begin
 end;
 pdf_origin_h := 0;
 pdf_origin_v := cur_page_height;
+pos.h := 0; pos.v := 0;
+box_pos := pos;
 
 @ Here we write out the header for Form.
 
@@ -29039,7 +29062,7 @@ that actually send out the requested data. Let's do \.{\\special} first
 procedure special_out(@!p:pointer);
 var old_setting:0..max_selector; {holds print |selector|}
 @!k:pool_pointer; {index into |str_pool|}
-begin synch_dvi;@/
+begin synch_dvi_with_cur;@/
 old_setting:=selector; selector:=new_string;
 show_token_list(link(write_tokens(p)),null,pool_size-pool_ptr);
 selector:=old_setting;
@@ -29147,7 +29170,7 @@ end;
 
 @ @<Save current position in DVI mode@>=
 begin
-    synch_page_coordinates;
+    synch_pos_with_cur;
     pdf_last_x_pos := pos.h;
     pdf_last_y_pos := pos.v;
 end
@@ -29392,7 +29415,7 @@ begin
     dir_cur_v(temp_ptr) := cur_v;
     dir_box_pos_h(temp_ptr) := box_pos.h;
     dir_box_pos_v(temp_ptr) := box_pos.v;
-    synch_page_coordinates; {no need for |synch_dvi|, as there is no DVI grouping}
+    synch_pos_with_cur; {no need for |synch_dvi_with_cur|, as there is no DVI grouping}
     box_pos := pos; {fake a nested |hlist_out|}
     cur_h := 0; cur_v := 0;
     dvi_direction:=dir_dir(dir_ptr);
@@ -30068,6 +30091,7 @@ endcases
 
 @ @<Save current position to |pdf_last_x_pos|, |pdf_last_y_pos|@>=
 begin
+    synch_pos_with_cur;
     pdf_last_x_pos := cur_h;
     pdf_last_y_pos := cur_page_height - cur_v
 end
