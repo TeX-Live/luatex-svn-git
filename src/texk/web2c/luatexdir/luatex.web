@@ -4572,7 +4572,7 @@ expanded by `\.{\\the}'.
 @d char_given=min_internal {character code defined by \.{\\chardef}}
 @d math_given=char_given+1 {math code defined by \.{\\mathchardef}}
 @d omath_given=math_given+1 {math code defined by \.{\\omathchardef}}
-@d xmath_given=omath_given+1 {math code defined by \.{\\LuaTeXmathchardef}}
+@d xmath_given=omath_given+1 {math code defined by \.{\\Umathchardef}}
 @d last_item=xmath_given+1 {most recent item ( \.{\\lastpenalty},
   \.{\\lastkern}, \.{\\lastskip} )}
 @d max_non_prefixed_command=last_item
@@ -6929,8 +6929,8 @@ primitive("delimiter",delim_num,0);@/
 @!@:delimiter_}{\.{\\delimiter} primitive@>
 primitive("odelimiter",delim_num,1);@/
 @!@:odelimiter_}{\.{\\odelimiter} primitive@>
-primitive("LuaTeXdelimiter",delim_num,2);@/
-@!@:odelimiter_}{\.{\\LuaTeXdelimiter} primitive@>
+primitive("Udelimiter",delim_num,2);@/
+@!@:odelimiter_}{\.{\\Udelimiter} primitive@>
 primitive("divide",divide,0);@/
 @!@:divide_}{\.{\\divide} primitive@>
 primitive("endcsname",end_cs_name,0);@/
@@ -6964,16 +6964,16 @@ primitive("mathaccent",math_accent,0);@/
 @!@:math_accent_}{\.{\\mathaccent} primitive@>
 primitive("omathaccent",math_accent,1);@/
 @!@:math_accent_}{\.{\\omathaccent} primitive@>
-primitive("LuaTeXmathaccent",math_accent,2);@/
-@!@:math_accent_}{\.{\\LuaTeXmathaccent} primitive@>
+primitive("Umathaccent",math_accent,2);@/
+@!@:math_accent_}{\.{\\Umathaccent} primitive@>
 primitive("mathchar",math_char_num,0);@/
 @!@:math_char_}{\.{\\mathchar} primitive@>
 primitive("omathchar",math_char_num,1);@/
 @!@:math_char_}{\.{\\omathchar} primitive@>
-primitive("LuaTeXmathchar",math_char_num,2);@/
-@!@:math_char_}{\.{\\LuaTeXmathchar} primitive@>
-primitive("LuaTeXmathcharnum",math_char_num,3);@/
-@!@:math_char_}{\.{\\LuaTeXmathcharnum} primitive@>
+primitive("Umathchar",math_char_num,2);@/
+@!@:math_char_}{\.{\\Umathchar} primitive@>
+primitive("Umathcharnum",math_char_num,3);@/
+@!@:math_char_}{\.{\\Umathcharnum} primitive@>
 primitive("mathchoice",math_choice,0);@/
 @!@:math_choice_}{\.{\\mathchoice} primitive@>
 primitive("multiply",multiply,0);@/
@@ -7002,8 +7002,8 @@ primitive("radical",radical,0);@/
 @!@:radical_}{\.{\\radical} primitive@>
 primitive("oradical",radical,1);@/
 @!@:radical_}{\.{\\oradical} primitive@>
-primitive("LuaTeXradical",radical,2);@/
-@!@:radical_}{\.{\\LuaTeXradical} primitive@>
+primitive("Uradical",radical,2);@/
+@!@:radical_}{\.{\\Uradical} primitive@>
 primitive("read",read_to_cs,0);@/
 @!@:read_}{\.{\\read} primitive@>
 primitive("relax",relax,too_big_char);
@@ -7049,7 +7049,7 @@ letterspace_font: print_esc("letterspacefont");
 pdf_copy_font: print_esc("pdfcopyfont");
 delim_num: if chr_code=0 then print_esc("delimiter") 
   else if chr_code=1 then print_esc("odelimiter") 
-  else print_esc("LuaTeXdelimiter");
+  else print_esc("Udelimiter");
 divide: print_esc("divide");
 end_cs_name: print_esc("endcsname");
 end_group: print_esc("endgroup");
@@ -7068,11 +7068,11 @@ mark: begin
   end;
 math_accent: if chr_code=0 then print_esc("mathaccent")
   else if chr_code=1 then print_esc("omathaccent")
-  else print_esc("LuaTeXmathaccent");
+  else print_esc("Umathaccent");
 math_char_num: if chr_code=0 then print_esc("mathchar")
   else if chr_code=1 then print_esc("omathchar") 
-  else if chr_code=2 then print_esc("LuaTeXmathchar") 
-  else print_esc("LuaTeXmathcharnum");
+  else if chr_code=2 then print_esc("Umathchar") 
+  else print_esc("Umathcharnum");
 math_choice: print_esc("mathchoice");
 multiply: print_esc("multiply");
 no_align: print_esc("noalign");
@@ -7083,7 +7083,7 @@ non_script: print_esc("nonscript");
 omit: print_esc("omit");
 radical: if chr_code=0 then print_esc("radical") 
    else if chr_code=1 then print_esc("oradical")
-   else print_esc("LuaTeXradical");
+   else print_esc("Uradical");
 read_to_cs: if chr_code=0 then print_esc("read")
   @<Cases of |read| for |print_cmd_chr|@>;
 relax: print_esc("relax");
@@ -25331,7 +25331,7 @@ corresponding |chr| is the |eqtb| location of the internal register in question.
 @d char_def_code=0 {|shorthand_def| for \.{\\chardef}}
 @d math_char_def_code=1 {|shorthand_def| for \.{\\mathchardef}}
 @d omath_char_def_code=2 {|shorthand_def| for \.{\\omathchardef}}
-@d xmath_char_def_code=3 {|shorthand_def| for \.{\\LuaTeXmathchardef}}
+@d xmath_char_def_code=3 {|shorthand_def| for \.{\\Umathchardef}}
 @d count_def_code=4 {|shorthand_def| for \.{\\countdef}}
 @d attribute_def_code=5 {|shorthand_def| for \.{\\attributedef}}
 @d dimen_def_code=6 {|shorthand_def| for \.{\\dimendef}}
@@ -25346,8 +25346,8 @@ primitive("mathchardef",shorthand_def,math_char_def_code);@/
 @!@:math_char_def_}{\.{\\mathchardef} primitive@>
 primitive("omathchardef",shorthand_def,omath_char_def_code);@/
 @!@:math_char_def_}{\.{\\omathchardef} primitive@>
-primitive("LuaTeXmathchardef",shorthand_def,xmath_char_def_code);@/
-@!@:math_char_def_}{\.{\\LuaTeXmathchardef} primitive@>
+primitive("Umathchardef",shorthand_def,xmath_char_def_code);@/
+@!@:math_char_def_}{\.{\\Umathchardef} primitive@>
 primitive("countdef",shorthand_def,count_def_code);@/
 @!@:count_def_}{\.{\\countdef} primitive@>
 primitive("attributedef",shorthand_def,attribute_def_code);@/
@@ -25366,7 +25366,7 @@ shorthand_def: case chr_code of
   char_def_code: print_esc("chardef");
   math_char_def_code: print_esc("mathchardef");
   omath_char_def_code: print_esc("omathchardef");
-  xmath_char_def_code: print_esc("LuaTeXmathchardef");
+  xmath_char_def_code: print_esc("Umathchardef");
   count_def_code: print_esc("countdef");
   attribute_def_code: print_esc("attributedef");
   dimen_def_code: print_esc("dimendef");
@@ -25382,7 +25382,7 @@ math_given: begin print_esc("mathchar");
 omath_given: begin print_esc("omathchar");
   show_mathcode_value(mathchar_from_integer(chr_code,aleph_mathcode));
   end;
-xmath_given: begin print_esc("LuaTeXmathchar"); 
+xmath_given: begin print_esc("Umathchar"); 
   show_mathcode_value(mathchar_from_integer(chr_code,xetex_mathcode));
   end;
 
@@ -25540,14 +25540,14 @@ primitive("omathcode",extdef_code,math_code_base);
 @!@:math_code_}{\.{\\omathcode} primitive@>
 primitive("odelcode",extdef_code,del_code_base);
 @!@:del_code_}{\.{\\odelcode} primitive@>
-primitive("LuaTeXmathcode",extdef_code,math_code_base+1);
-@!@:math_code_}{\.{\\LuaTeXmathcode} primitive@>
-primitive("LuaTeXdelcode",extdef_code,del_code_base+1);
-@!@:del_code_}{\.{\\LuaTeXdelcode} primitive@>
-primitive("LuaTeXmathcodenum",extdef_code,math_code_base+2);
-@!@:math_code_}{\.{\\LuaTeXmathcodenum} primitive@>
-primitive("LuaTeXdelcodenum",extdef_code,del_code_base+2);
-@!@:del_code_}{\.{\\LuaTeXdelcodenum} primitive@>
+primitive("Umathcode",extdef_code,math_code_base+1);
+@!@:math_code_}{\.{\\Umathcode} primitive@>
+primitive("Udelcode",extdef_code,del_code_base+1);
+@!@:del_code_}{\.{\\Udelcode} primitive@>
+primitive("Umathcodenum",extdef_code,math_code_base+2);
+@!@:math_code_}{\.{\\Umathcodenum} primitive@>
+primitive("Udelcodenum",extdef_code,del_code_base+2);
+@!@:del_code_}{\.{\\Udelcodenum} primitive@>
 
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -25558,10 +25558,10 @@ def_code: if chr_code=cat_code_base then print_esc("catcode")
   else if chr_code=sf_code_base then print_esc("sfcode")
   else print_esc("delcode");
 extdef_code: if chr_code=math_code_base then print_esc("omathcode")
-  else if chr_code=math_code_base+1 then print_esc("LuaTeXmathcode")
-  else if chr_code=math_code_base+2 then print_esc("LuaTeXmathcodenum")
-  else if chr_code=del_code_base+1 then print_esc("LuaTeXdelcode")
-  else if chr_code=del_code_base+2 then print_esc("LuaTeXdelcodenum")
+  else if chr_code=math_code_base+1 then print_esc("Umathcode")
+  else if chr_code=math_code_base+2 then print_esc("Umathcodenum")
+  else if chr_code=del_code_base+1 then print_esc("Udelcode")
+  else if chr_code=del_code_base+2 then print_esc("Udelcodenum")
   else print_esc("odelcode");
 def_family: print_size(chr_code-math_font_base);
 
