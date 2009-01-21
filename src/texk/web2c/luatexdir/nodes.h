@@ -408,7 +408,7 @@ typedef enum {
 
 /* left and right noads */
 
-#  define left_right_noad_size 4
+#  define left_right_noad_size 3
 #  define delimiter(a)      vlink((a)+2)  /* |delimiter| field in left and right noads */
 
 /* fraction noads */
