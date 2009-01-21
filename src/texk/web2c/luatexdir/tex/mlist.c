@@ -184,6 +184,8 @@ pointer var_delimiter(pointer d, integer s, scaled v)
     c = 0;
     w = 0;
     large_attempt = false;
+    if (d==null)
+      goto FOUND; 
     z = small_fam(d);
     x = small_char(d);
     while (true) {

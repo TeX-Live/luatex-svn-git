@@ -1004,21 +1004,24 @@ void flush_node(halfword p)
     case close_noad:
     case punct_noad:
     case inner_noad:
-    case radical_noad:
     case over_noad:
     case under_noad:
     case vcenter_noad:
+    case radical_noad:
     case accent_noad:
-        if (nucleus(p)!=null)
-          flush_node_list(nucleus(p));
-        if (subscr(p) != null)
-          flush_node_list(subscr(p));
-        if (supscr(p) != null)
-          flush_node_list(supscr(p));
+        flush_node_list(nucleus(p));
+        flush_node_list(subscr(p));
+        flush_node_list(supscr(p));
+        if (type(p) == accent_noad) 
+          flush_node_list(accent_chr(p));
+        else if (type(p) == radical_noad) 
+          flush_node(left_delimiter(p));
         break;
-    case left_noad:            /* nothing to do */
+    case left_noad:
     case right_noad:
-    case math_char_node:
+        flush_node(delimiter(p));
+        break;
+    case math_char_node:            /* nothing to do */
     case math_text_char_node:
         break;
     case sub_box_node: /* its math_list() will be used as a box content */
@@ -1026,6 +1029,8 @@ void flush_node(halfword p)
     case fraction_noad:
         flush_node_list(numerator(p));
         flush_node_list(denominator(p));
+        flush_node(left_delimiter(p));
+        flush_node(right_delimiter(p));
         break;
     case sub_mlist_node:
         flush_node_list(math_list(p));
@@ -1776,7 +1781,6 @@ void print_node_mem_stats(int tracingstats, int tracingonline)
     char msg[256];
     char *s;
     integer free_chain_counts[MAX_CHAIN_SIZE] = { 0 };
-
     snprintf(msg, 255, "node memory in use: %d words out of %d",
              (int) (var_used + my_prealloc), (int) var_mem_max);
     tprint_nl(msg);

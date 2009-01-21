@@ -409,20 +409,20 @@ typedef enum {
 /* left and right noads */
 
 #  define left_right_noad_size 4
-#  define delimiter(a) ((a)+2)     /* |delimiter| field in left and right noads */
+#  define delimiter(a)      vlink((a)+2)  /* |delimiter| field in left and right noads */
 
 /* fraction noads */
 
-#  define fraction_noad_size 8  /*number of |mem| words in a fraction noad */
+#  define fraction_noad_size 5  /*number of |mem| words in a fraction noad */
 #  define thickness(a)       vlink((a)+2) /* |thickness| field in a fraction noad */
-#  define numerator(a)       vlink((a)+3)  /*|numerator| field in a fraction noad, two words */
-#  define denominator(a)     vinfo((a)+3)  /*|denominator| field in a fraction noad, two words */
-#  define left_delimiter(a)  ((a)+4)   /* first delimiter field of a noad, two words */
-#  define right_delimiter(a) ((a)+6)   /* second delimiter field of a fraction noad, two words */
+#  define numerator(a)       vlink((a)+3)  /*|numerator| field in a fraction noad */
+#  define denominator(a)     vinfo((a)+3)  /*|denominator| field in a fraction noad */
+#  define left_delimiter(a)  vlink((a)+4)   /* first delimiter field of a noad */
+#  define right_delimiter(a) vinfo((a)+4)   /* second delimiter field of a fraction noad */
 
 /* radical noads */
 /* this is like a fraction, but it only stores a |left_delimiter| */
-#  define radical_noad_size 6   /*number of |mem| words in a radical noad */
+#  define radical_noad_size 5   /*number of |mem| words in a radical noad */
 
 #define math_kernel_node_size 3
 
@@ -435,10 +435,10 @@ typedef enum {
 
 #define math_shield_node_size 4 /* not used yet */
 
-#  define small_fam(A)  subtype((A))   /* |fam| for ``small'' delimiter */
-#  define small_char(A) vlink((A))     /* |character| for ``small'' delimiter */
-#  define large_fam(A)  subtype((A)+1) /* |fam| for ``large'' delimiter */
-#  define large_char(A) vlink((A)+1)   /* |character| for ``large'' delimiter */
+#  define small_fam(A)  vinfo((A)+2) /* |fam| for ``small'' delimiter */
+#  define small_char(A) vlink((A)+2) /* |character| for ``small'' delimiter */
+#  define large_fam(A)  vlink((A)+3) /* |fam| for ``large'' delimiter */
+#  define large_char(A) vlink((A)+3) /* |character| for ``large'' delimiter */
 
 #  define middle_noad 1
 

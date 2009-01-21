@@ -257,15 +257,6 @@ pointer math_clone(pointer q)
 }
 
 
-/* this is called with a |left_delimiter|  or |right_delimiter| as argument */
-void delimiter_reset(pointer p)
-{
-    small_fam(p) = 0;
-    small_char(p) = 0;
-    large_fam(p) = 0;
-    large_char(p) = 0;
-}
-
 /* The |new_noad| function creates an |ord_noad| that is completely null */
 
 pointer new_noad(void)
@@ -570,17 +561,19 @@ void display_fraction_noad(pointer p)
         tprint("= default");
     else
         print_scaled(thickness(p));
-    if ((small_fam(left_delimiter(p)) != 0) ||
-        (small_char(left_delimiter(p)) != 0) ||
-        (large_fam(left_delimiter(p)) != 0) ||
-        (large_char(left_delimiter(p)) != 0)) {
+    if ((left_delimiter(p) != null) &&
+        ((small_fam(left_delimiter(p)) != 0) ||
+         (small_char(left_delimiter(p)) != 0) ||
+         (large_fam(left_delimiter(p)) != 0) ||
+         (large_char(left_delimiter(p)) != 0))) {
         tprint(", left-delimiter ");
         print_delimiter(left_delimiter(p));
     }
-    if ((small_fam(right_delimiter(p)) != 0) ||
-        (small_char(right_delimiter(p)) != 0) ||
-        (large_fam(right_delimiter(p)) != 0) ||
-        (large_char(right_delimiter(p)) != 0)) {
+    if ((right_delimiter(p) != null) &&
+        ((small_fam(right_delimiter(p)) != 0) ||
+         (small_char(right_delimiter(p)) != 0) ||
+         (large_fam(right_delimiter(p)) != 0) ||
+         (large_char(right_delimiter(p)) != 0))) {
         tprint(", right-delimiter ");
         print_delimiter(right_delimiter(p));
     }
@@ -1334,6 +1327,8 @@ void math_radical(void)
 {
     halfword q;
     tail_append(new_node(radical_noad, normal));
+    q = new_node(delim_node,0);
+    left_delimiter(tail) = q;
     if (cur_chr == 0)           /* \radical */
         scan_delimiter(left_delimiter(tail), tex_mathcode);
     else if (cur_chr == 1)      /* \oradical */
@@ -1486,6 +1481,7 @@ delimiters.
 void math_fraction(void)
 {
     small_number c;             /* the type of generalized fraction we are scanning */
+    pointer q;
     c = cur_chr;
     if (incompleat_noad != null) {
         char *hlp[] = {
@@ -1509,6 +1505,10 @@ void math_fraction(void)
         tail = head;
 
         if (c >= delimited_code) {
+            q = new_node(delim_node,0);
+            left_delimiter(incompleat_noad) = q;
+            q = new_node(delim_node,0);
+            right_delimiter(incompleat_noad) = q;
             scan_delimiter(left_delimiter(incompleat_noad), no_mathcode);
             scan_delimiter(right_delimiter(incompleat_noad), no_mathcode);
         }
@@ -1654,6 +1654,8 @@ void math_left_right(void)
     } else {
         p = new_noad();
         type(p) = t;
+        r = new_node(delim_node,0);
+        delimiter(p) = r;
         scan_delimiter(delimiter(p), no_mathcode);
         if (t == middle_noad) {
             type(p) = right_noad;
