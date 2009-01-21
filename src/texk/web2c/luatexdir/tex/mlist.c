@@ -953,6 +953,16 @@ scaled make_op(pointer q)
             depth(v) =
                 depth(v) + big_op_spacing5 + height(z) + depth(z) + shift_down;
         }
+        if (subscr(q)!=null) {
+          math_list(subscr(q)) = null; 
+          flush_node(subscr(q)); 
+          subscr(q) = null;
+        }
+        if (supscr(q)!=null) {
+          math_list(supscr(q)) = null; 
+          flush_node(supscr(q)); 
+          supscr(q) = null;
+        }
         assign_new_hlist(q,v);
     }
     return delta;
