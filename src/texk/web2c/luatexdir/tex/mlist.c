@@ -563,9 +563,38 @@ The second pass eliminates all noads and inserts the correct glue and
 penalties between nodes.
 */
 
-#define assign_new_hlist(A,B) do {                                      \
-    new_hlist(A)=B;                                                     \
-  } while (0)
+void assign_new_hlist (pointer q, pointer r) {
+  switch(type(q)) {
+  case fraction_noad:
+    math_list(numerator(q)) = null;
+    flush_node(numerator(q));
+    numerator(q) = null;
+    math_list(denominator(q)) = null;
+    flush_node(denominator(q)); 
+    denominator(q) = null;
+    break;
+  case radical_noad:
+  case ord_noad:
+  case op_noad:
+  case bin_noad:
+  case rel_noad:
+  case open_noad:
+  case close_noad:
+  case punct_noad:
+  case inner_noad:
+  case over_noad:
+  case under_noad:
+  case vcenter_noad:
+  case accent_noad:
+    if (nucleus(q)!=null) {
+      math_list(nucleus(q)) = null; 
+      flush_node(nucleus(q)); 
+      nucleus(q) = null;
+    }
+    break;
+  }       
+  new_hlist(q)=r;
+}
 
 #define choose_mlist(A) do { p=A(q); A(q)=null; } while (0)
 
@@ -755,8 +784,6 @@ void make_fraction(pointer q)
        are displaced from the baseline */
     x = clean_box(numerator(q), num_style(cur_style));
     z = clean_box(denominator(q), denom_style(cur_style));
-    math_list(numerator(q)) = null;
-    math_list(denominator(q)) = null;
     if (width(x) < width(z))
         x = rebox(x, width(z));
     else
@@ -819,8 +846,6 @@ void make_fraction(pointer q)
     right_delimiter(q) = null;
     vlink(v) = z;
     y = hpack(x, 0, additional);
-    flush_node(numerator(q)); numerator(q) = null;
-    flush_node(denominator(q)); denominator(q) = null;
     assign_new_hlist(q,y);
 }
 
@@ -1143,6 +1168,17 @@ void make_scripts(pointer q, scaled delta)
             p = vlink(p);
         vlink(p) = x;
     }
+    if (subscr(q)!=null) {
+      math_list(subscr(q)) = null; 
+      flush_node(subscr(q)); 
+      subscr(q) = null;
+    }
+    if (supscr(q)!=null) {
+      math_list(supscr(q)) = null; 
+      flush_node(supscr(q)); 
+      supscr(q) = null;
+    }
+
 }
 
 /* 
@@ -1427,7 +1463,6 @@ void mlist_to_hlist(void)
         if ((subscr(q) == null) && (supscr(q) == null))
             goto CHECK_DIMENSIONS;
         make_scripts(q, delta);
-
       CHECK_DIMENSIONS:
         z = hpack(new_hlist(q), 0, additional);
         if (height(z) > max_hl)
