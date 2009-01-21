@@ -26,16 +26,6 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-#define mode          cur_list.mode_field
-#define head          cur_list.head_field
-#define tail          cur_list.tail_field
-#define eTeX_aux      cur_list.eTeX_aux_field
-#define delim_ptr     eTeX_aux
-#define aux           cur_list.aux_field
-#define prev_depth    aux.cint
-#define space_factor  aux.hh.lhfield
-#define incompleat_noad aux.cint
-
 #define delimiter_factor     int_par(param_delimiter_factor_code)
 #define delimiter_shortfall  dimen_par(param_delimiter_shortfall_code)
 #define bin_op_penalty       int_par(param_bin_op_penalty_code)
@@ -408,20 +398,6 @@ void math_kern(pointer p, scaled m)
 }
 
 /*
-Sometimes it is necessary to destroy an mlist. The following
-subroutine empties the current list, assuming that |abs(mode)=mmode|.
-*/
-
-void flush_math(void)
-{
-    flush_node_list(vlink(head));
-    flush_node_list(incompleat_noad);
-    vlink(head) = null;
-    tail = head;
-    incompleat_noad = null;
-}
-
-/*
  \TeX's most important routine for dealing with formulas is called
 |mlist_to_hlist|.  After a formula has been scanned and represented as an
 mlist, this routine converts it to an hlist that can be placed into a box
@@ -462,16 +438,17 @@ pointer clean_box(pointer p, integer s)
     integer save_style;         /* |cur_style| to be restored */
     pointer x;                  /* box to be returned */
     pointer r;                  /* temporary pointer */
-    switch (math_type(p)) {
-    case math_char:
+    switch (type(p)) {
+    case math_char_node:
         cur_mlist = new_noad();
-        math_clone(nucleus(cur_mlist), p);
+        r = math_clone(p);
+        nucleus(cur_mlist) = r;
         break;
-    case sub_box:
+    case sub_box_node:
         q = math_list(p);
         goto FOUND;
         break;
-    case sub_mlist:
+    case sub_mlist_node:
         cur_mlist = math_list(p);
         break;
     default:
@@ -518,7 +495,7 @@ field to an ``unpacked'' form. The |fetch| routine sets |cur_f| and |cur_c|
 to the font code and character code of a given noad field. 
 It also takes care of issuing error messages for
 nonexistent characters; in such cases, |char_exists(cur_f,cur_c)| will be |false|
-after |fetch| has acted, and the field will also have been reset to |empty|.
+after |fetch| has acted, and the field will also have been reset to |null|.
 */
 /* The outputs of |fetch| are placed in global variables. */
 
@@ -553,11 +530,13 @@ void fetch(pointer a)
         msg = makecstring(s);
         tex_error(msg, hlp);
         free(msg);
-        math_type(a) = empty;
+        flush_node(a);
+        a = null;
     } else {
         if (!(char_exists(cur_f, cur_c))) {
             char_warning(cur_f, cur_c);
-            math_type(a) = empty;
+            flush_node(a);
+            a = null;
         }
     }
 }
@@ -581,8 +560,10 @@ The second pass eliminates all noads and inserts the correct glue and
 penalties between nodes.
 */
 
-#define new_hlist(A) vinfo(nucleus((A)))        /* the translation of an mlist. has to be a different node 
-                                                   location than |math_list|! */
+#define assign_new_hlist(A,B) do {                                      \
+    new_hlist(A)=B;                                                     \
+  } while (0)
+
 #define choose_mlist(A) do { p=A(q); A(q)=null; } while (0)
 
 /*
@@ -599,7 +580,7 @@ void make_over(pointer q)
     p = overbar(clean_box(nucleus(q), cramped_style(cur_style)),
                 3 * default_rule_thickness, default_rule_thickness);
     math_list(nucleus(q)) = p;
-    math_type(nucleus(q)) = sub_box;
+    type(nucleus(q)) = sub_box_node;
 }
 
 void make_under(pointer q)
@@ -617,7 +598,7 @@ void make_under(pointer q)
     height(y) = height(x);
     depth(y) = delta - height(y);
     math_list(nucleus(q)) = y;
-    math_type(nucleus(q)) = sub_box;
+    type(nucleus(q)) = sub_box_node;
 }
 
 void make_vcenter(pointer q)
@@ -664,7 +645,7 @@ void make_radical(pointer q)
     vlink(y) = p;
     p = hpack(y, 0, additional);
     math_list(nucleus(q)) = p;
-    math_type(nucleus(q)) = sub_box;
+    type(nucleus(q)) = sub_box_node;
 }
 
 /*
@@ -675,7 +656,7 @@ respect to the size of the final box.
 
 void make_math_accent(pointer q)
 {
-    pointer p, x, y;            /* temporary registers for box construction */
+    pointer p, r, x, y;            /* temporary registers for box construction */
     quarterword c;              /* accent character */
     internal_font_number f;     /* its font */
     scaled s;                   /* amount to skew the accent to the right */
@@ -688,7 +669,7 @@ void make_math_accent(pointer q)
         f = cur_f;
         /* Compute the amount of skew */
         s = 0;
-        if (math_type(nucleus(q)) == math_char) {
+        if (type(nucleus(q)) == math_char_node) {
             fetch(nucleus(q));
             s = get_kern(cur_f, cur_c, skew_char(cur_f));
         }
@@ -710,17 +691,20 @@ void make_math_accent(pointer q)
             delta = h;
         else
             delta = x_height(f);
-        if ((math_type(supscr(q)) != empty) || (math_type(subscr(q)) != empty)) {
-            if (math_type(nucleus(q)) == math_char) {
+        if ((supscr(q) != null) || (subscr(q) != null)) {
+            if (type(nucleus(q)) == math_char_node) {
                 /* Swap the subscript and superscript into box |x| */
                 flush_node_list(x);
                 x = new_noad();
-                math_clone(nucleus(x), nucleus(q));
-                math_clone(supscr(x), supscr(q));
-                math_clone(subscr(x), subscr(q));
+                r = math_clone(nucleus(q));
+                nucleus(x) = r; 
+                r = math_clone(supscr(q));
+                supscr(x) = r;
+                r = math_clone(subscr(q));
+                subscr(x) = r; 
                 math_reset(supscr(q));
                 math_reset(subscr(q));
-                math_type(nucleus(q)) = sub_mlist;
+                type(nucleus(q)) = sub_mlist_node;
                 math_list(nucleus(q)) = x;
                 x = clean_box(nucleus(q), cur_style);
                 delta = delta + height(x) - h;
@@ -744,7 +728,7 @@ void make_math_accent(pointer q)
             height(y) = h;
         }
         math_list(nucleus(q)) = y;
-        math_type(nucleus(q)) = sub_box;
+        type(nucleus(q)) = sub_box_node;
     }
 }
 
@@ -776,19 +760,13 @@ void make_fraction(pointer q)
         shift_down = denom1(cur_size);
     } else {
         shift_down = denom2(cur_size);
-        if (thickness(q) != 0)
-            shift_up = num2(cur_size);
-        else
-            shift_up = num3(cur_size);
+        shift_up = (thickness(q) != 0 ? num2(cur_size) : num3(cur_size));
     }
     if (thickness(q) == 0) {
         /* The numerator and denominator must be separated by a certain minimum
            clearance, called |clr| in the following program. The difference between
            |clr| and the actual clearance is |2delta|. */
-        if (cur_style < text_style)
-            clr = 7 * default_rule_thickness;
-        else
-            clr = 3 * default_rule_thickness;
+        clr = (cur_style < text_style ? (7 * default_rule_thickness) :  (3 * default_rule_thickness));
         delta = half(clr - ((shift_up - depth(x)) - (height(z) - shift_down)));
         if (delta > 0) {
             shift_up = shift_up + delta;
@@ -797,15 +775,10 @@ void make_fraction(pointer q)
     } else {
         /* In the case of a fraction line, the minimum clearance depends on the actual
            thickness of the line. */
-        if (cur_style < text_style)
-            clr = 3 * thickness(q);
-        else
-            clr = thickness(q);
-        delta = half(thickness(q));
-        delta1 =
-            clr - ((shift_up - depth(x)) - (axis_height(cur_size) + delta));
-        delta2 =
-            clr - ((axis_height(cur_size) - delta) - (height(z) - shift_down));
+        clr    = (cur_style < text_style ? (3 * thickness(q)) : thickness(q) );
+        delta  = half(thickness(q));
+        delta1 = clr - ((shift_up - depth(x)) - (axis_height(cur_size) + delta));
+        delta2 = clr - ((axis_height(cur_size) - delta) - (height(z) - shift_down));
         if (delta1 > 0)
             shift_up = shift_up + delta1;
         if (delta2 > 0)
@@ -822,8 +795,7 @@ void make_fraction(pointer q)
         vlink(p) = z;
     } else {
         y = fraction_rule(thickness(q));
-        p = new_kern((axis_height(cur_size) - delta) -
-                     (height(z) - shift_down));
+        p = new_kern((axis_height(cur_size) - delta) - (height(z) - shift_down));
         vlink(y) = p;
         vlink(p) = z;
         p = new_kern((shift_up - depth(x)) - (axis_height(cur_size) + delta));
@@ -833,16 +805,13 @@ void make_fraction(pointer q)
     list_ptr(v) = x;
     /* Put the fraction into a box with its delimiters, and make |new_hlist(q)|
        point to it */
-    if (cur_style < text_style)
-        delta = delim1(cur_size);
-    else
-        delta = delim2(cur_size);
+    delta = (cur_style < text_style ? delim1(cur_size) : delim2(cur_size));
     x = var_delimiter(left_delimiter(q), cur_size, delta);
     vlink(x) = v;
     z = var_delimiter(right_delimiter(q), cur_size, delta);
     vlink(v) = z;
     y = hpack(x, 0, additional);
-    new_hlist(q) = y;
+    assign_new_hlist(q,y);
 }
 
 
@@ -871,7 +840,7 @@ scaled make_op(pointer q)
     scaled shift_up, shift_down;        /* dimensions for box calculation */
     if ((subtype(q) == normal) && (cur_style < text_style))
         subtype(q) = limits;
-    if (math_type(nucleus(q)) == math_char) {
+    if (type(nucleus(q)) == math_char_node) {
         fetch(nucleus(q));
         if ((cur_style < text_style) && (char_tag(cur_f, cur_c) == list_tag)) { /* make it larger */
             c = char_remainder(cur_f, cur_c);
@@ -882,11 +851,11 @@ scaled make_op(pointer q)
         }
         delta = char_italic(cur_f, cur_c);
         x = clean_box(nucleus(q), cur_style);
-        if ((math_type(subscr(q)) != empty) && (subtype(q) != limits))
+        if ((subscr(q) != null) && (subtype(q) != limits))
             width(x) = width(x) - delta;        /* remove italic correction */
         shift_amount(x) = half(height(x) - depth(x)) - axis_height(cur_size);
         /* center vertically */
-        math_type(nucleus(q)) = sub_box;
+        type(nucleus(q)) = sub_box_node;
         math_list(nucleus(q)) = x;
     } else {
         delta = 0;
@@ -917,7 +886,7 @@ scaled make_op(pointer q)
            amount of glue between the displayed operator |y| and its limits |x| and
            |z|. The vlist inside box |v| will consist of |x| followed by |y| followed
            by |z|, with kern nodes for the spaces between and around them. */
-        if (math_type(supscr(q)) == empty) {
+        if (supscr(q) == null) {
             list_ptr(x) = null;
             flush_node(x);
             list_ptr(v) = y;
@@ -934,7 +903,7 @@ scaled make_op(pointer q)
             height(v) =
                 height(v) + big_op_spacing5 + height(x) + depth(x) + shift_up;
         }
-        if (math_type(subscr(q)) == empty) {
+        if (subscr(q) == null) {
             list_ptr(z) = null;
             flush_node(z);
         } else {
@@ -949,7 +918,7 @@ scaled make_op(pointer q)
             depth(v) =
                 depth(v) + big_op_spacing5 + height(z) + depth(z) + shift_down;
         }
-        new_hlist(q) = v;
+        assign_new_hlist(q,v);
     }
     return delta;
 }
@@ -959,7 +928,7 @@ A ligature found in a math formula does not create a ligature, because
 there is no question of hyphenation afterwards; the ligature will simply be
 stored in an ordinary |glyph_node|, after residing in an |ord_noad|.
 
-The |math_type| is converted to |math_text_char| here if we would not want to
+The |type| is converted to |math_text_char| here if we would not want to
 apply an italic correction to the current character unless it belongs
 to a math font (i.e., a font with |space=0|).
 
@@ -969,18 +938,19 @@ No boundary characters enter into these ligatures.
 void make_ord(pointer q)
 {
     integer a;                  /* the left-side character for lig/kern testing */
-    pointer p, r;               /* temporary registers for list manipulation */
+    pointer p, r, s;            /* temporary registers for list manipulation */
     scaled k;                   /* a kern */
     liginfo lig;                /* a ligature */
   RESTART:
-    if (math_type(subscr(q)) == empty &&
-        math_type(supscr(q)) == empty && math_type(nucleus(q)) == math_char) {
+    if (subscr(q) == null && 
+        supscr(q) == null && 
+        type(nucleus(q)) == math_char_node) {
         p = vlink(q);
         if ((p != null) &&
             (type(p) >= ord_noad) && (type(p) <= punct_noad) &&
-            (math_type(nucleus(p)) == math_char) &&
+            (type(nucleus(p)) == math_char_node) &&
             (math_fam(nucleus(p)) == math_fam(nucleus(q)))) {
-            math_type(nucleus(q)) = math_text_char;
+            type(nucleus(q)) = math_text_char_node;
             fetch(nucleus(q));
             a = cur_c;
             if ((has_kern(cur_f, a)) || (has_lig(cur_f, a))) {
@@ -1013,20 +983,24 @@ void make_ord(pointer q)
                         case 7:
                         case 11:
                             r = new_noad();     /* \.{|=:|}, \.{|=:|>}, \.{|=:|>>} */
+                            s = new_node(math_char_node,0);
+                            nucleus(r) = s ; 
                             math_character(nucleus(r)) = lig_replacement(lig);
                             math_fam(nucleus(r)) = math_fam(nucleus(q));
                             vlink(q) = r;
                             vlink(r) = p;
                             if (lig_type(lig) < 11)
-                                math_type(nucleus(r)) = math_char;
+                                type(nucleus(r)) = math_char_node;
                             else
-                                math_type(nucleus(r)) = math_text_char; /* prevent combination */
+                                type(nucleus(r)) = math_text_char_node; /* prevent combination */
                             break;
                         default:
                             vlink(q) = vlink(p);
                             math_character(nucleus(q)) = lig_replacement(lig);  /* \.{=:} */
-                            math_clone(subscr(q), subscr(p));
-                            math_clone(supscr(q), subscr(p));
+                            s = math_clone(subscr(p));
+                            subscr(q) = s;
+                            s = math_clone(supscr(p));
+                            supscr(q) = s;
                             math_reset(subscr(p));      /* just in case */
                             math_reset(supscr(p));
                             flush_node(p);
@@ -1034,7 +1008,7 @@ void make_ord(pointer q)
                         }
                         if (lig_type(lig) > 3)
                             return;
-                        math_type(nucleus(q)) = math_char;
+                        type(nucleus(q)) = math_char_node;
                         goto RESTART;
                     }
                 }
@@ -1085,7 +1059,7 @@ void make_scripts(pointer q, scaled delta)
         list_ptr(z) = null;
         flush_node(z);
     }
-    if (math_type(supscr(q)) == empty) {
+    if (supscr(q) == null) {
         /* Construct a subscript box |x| when there is no superscript */
         /* When there is a subscript without a superscript, the top of the subscript
            should not exceed the baseline plus four-fifths of the x-height. */
@@ -1115,7 +1089,7 @@ void make_scripts(pointer q, scaled delta)
         if (shift_up < clr)
             shift_up = clr;
 
-        if (math_type(subscr(q)) == empty) {
+        if (subscr(q) == null) {
             shift_amount(x) = -shift_up;
         } else {
             /* Construct a sub/superscript combination box |x|, with the
@@ -1186,7 +1160,7 @@ small_number make_left_right(pointer q, integer style, scaled max_d,
     if (delta < delta2)
         delta = delta2;
     tmp = var_delimiter(delimiter(q), cur_size, delta);
-    new_hlist(q) = tmp;
+    assign_new_hlist(q,tmp);
     return (type(q) - (left_noad - open_noad)); /* |open_noad| or |close_noad| */
 }
 
@@ -1404,17 +1378,17 @@ void mlist_to_hlist(void)
            @^subscripts@>
            @^superscripts@>
          */
-        switch (math_type(nucleus(q))) {
-        case math_char:
-        case math_text_char:
+        switch (type(nucleus(q))) {
+        case math_char_node:
+        case math_text_char_node:
             fetch(nucleus(q));
             if (char_exists(cur_f, cur_c)) {
                 delta = char_italic(cur_f, cur_c);
                 p = new_glyph(cur_f, cur_c);
-                if ((math_type(nucleus(q)) == math_text_char)
+                if ((type(nucleus(q)) == math_text_char_node)
                     && (space(cur_f) != 0))
                     delta = 0;  /* no italic correction in mid-word of text font */
-                if ((math_type(subscr(q)) == empty) && (delta != 0)) {
+                if ((subscr(q) == null) && (delta != 0)) {
                     x = new_kern(delta);
                     vlink(p) = x;
                     delta = 0;
@@ -1423,13 +1397,10 @@ void mlist_to_hlist(void)
                 p = null;
             }
             break;
-        case empty:
-            p = null;
-            break;
-        case sub_box:
+        case sub_box_node:
             p = math_list(nucleus(q));
             break;
-        case sub_mlist:
+        case sub_mlist_node:
             cur_mlist = math_list(nucleus(q));
             save_style = cur_style;
             mlist_penalties = false;
@@ -1439,10 +1410,10 @@ void mlist_to_hlist(void)
             p = hpack(vlink(temp_head), 0, additional);
             break;
         default:
-            confusion(maketexstring("mlist2")); /* this can't happen mlist2 */
+            tconfusion("mlist2"); /* this can't happen mlist2 */
         }
-        new_hlist(q) = p;
-        if ((math_type(subscr(q)) == empty) && (math_type(supscr(q)) == empty))
+        assign_new_hlist(q, p);
+        if ((subscr(q) == null) && (supscr(q) == null))
             goto CHECK_DIMENSIONS;
         make_scripts(q, delta);
 
@@ -1453,7 +1424,7 @@ void mlist_to_hlist(void)
         if (depth(z) > max_d)
             max_d = depth(z);
         list_ptr(z) = null;
-        flush_node(z);
+        flush_node(z); /* only drop the \hbox */
       DONE_WITH_NOAD:
         r = q;
         r_type = type(r);

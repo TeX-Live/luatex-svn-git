@@ -130,43 +130,34 @@ empty, and the |supscr| is a representation of `\.2'.
 
 The |nucleus|, |subscr|, and |supscr| fields are further broken into
 subfields. If |p| points to a noad, and if |q| is one of its principal
-fields (e.g., |q=subscr(p)|), there are several possibilities for the
-subfields, depending on the |math_type| of |q|.
+fields (e.g., |q=subscr(p)|), |q=null| indicates a field with no value (the
+corresponding attribute of noad |p| is not present). Otherwise, there are 
+several possibilities for the subfields, depending on the |type| of |q|.
 
-\yskip\hang|math_type(q)=math_char| means that |math_fam(q)| refers to one of
+\yskip\hang|type(q)=math_char_node| means that |math_fam(q)| refers to one of
 the sixteen font families, and |character(q)| is the number of a character
 within a font of that family, as in a character node.
 
-\yskip\hang|math_type(q)=math_text_char| is similar, but the character is
+\yskip\hang|type(q)=math_text_char_node| is similar, but the character is
 unsubscripted and unsuperscripted and it is followed immediately by another
-character from the same font. (This |math_type| setting appears only
+character from the same font. (This |type| setting appears only
 briefly during the processing; it is used to suppress unwanted italic
 corrections.)
 
-\yskip\hang|math_type(q)=empty| indicates a field with no value (the
-corresponding attribute of noad |p| is not present).
-
-\yskip\hang|math_type(q)=sub_box| means that |math_list(q)| points to a box
+\yskip\hang|type(q)=sub_box_node| means that |math_list(q)| points to a box
 node (either an |hlist_node| or a |vlist_node|) that should be used as the
 value of the field.  The |shift_amount| in the subsidiary box node is the
 amount by which that box will be shifted downward.
 
-\yskip\hang|math_type(q)=sub_mlist| means that |math_list(q)| points to
+\yskip\hang|type(q)=sub_mlist_node| means that |math_list(q)| points to
 an mlist; the mlist must be converted to an hlist in order to obtain
 the value of this field.
 
 \yskip\noindent In the latter case, we might have |math_list(q)=null|. This
-is not the same as |math_type(q)=empty|; for example, `\.{\$P\_\{\}\$}'
+is not the same as |q=null|; for example, `\.{\$P\_\{\}\$}'
 and `\.{\$P\$}' produce different results (the former will not have the
 ``italic correction'' added to the width of |P|, but the ``script skip''
 will be added).
-
-The definitions of subfields given here are a little wasteful of space,
-since a quarterword is being used for the |math_type| although only three
-bits would be needed. However, there are hardly ever many noads present at
-once, since they are soon converted to nodes that take up even more space,
-so we can afford to represent them in whatever way simplifies the
-programming.
 
 */
 
@@ -177,6 +168,21 @@ void unsave_math(void)
     decr(save_ptr);
     flush_node_list(text_dir_ptr);
     text_dir_ptr = saved(0);
+}
+
+
+/*
+Sometimes it is necessary to destroy an mlist. The following
+subroutine empties the current list, assuming that |abs(mode)=mmode|.
+*/
+
+void flush_math(void)
+{
+    flush_node_list(vlink(head));
+    flush_node_list(incompleat_noad);
+    vlink(head) = null;
+    tail = head;
+    incompleat_noad = null;
 }
 
 
@@ -199,29 +205,26 @@ A noad of type |ord_noad|, |op_noad|, \dots, |inner_noad| usually
 has a |subtype=normal|. The only exception is that an |op_noad| might
 have |subtype=limits| or |no_limits|, if the normal positioning of
 limits has been overridden for this operator.
-*/
 
-/*
-@ A |radical_noad| is five words long; the fifth word is the |left_delimiter|
-field, which usually represents a square root sign.
+A |radical_noad| also has a |left_delimiter| field, which usually
+represents a square root sign.
 
-A |fraction_noad| is six words long; it has a |right_delimiter| field
-as well as a |left_delimiter|.
+A |fraction_noad| has a |right_delimiter| field as well as a |left_delimiter|.
 
-Delimiter fields are of type |four_quarters|, and they have four subfields
+Delimiter fields have four subfields
 called |small_fam|, |small_char|, |large_fam|, |large_char|. These subfields
 represent variable-size delimiters by giving the ``small'' and ``large''
 starting characters, as explained in Chapter~17 of {\sl The \TeX book}.
 @:TeXbook}{\sl The \TeX book@>
 
-A |fraction_noad| is actually quite different from all other noads. Not
-only does it have six words, it has |thickness|, |denominator|, and
-|numerator| fields instead of |nucleus|, |subscr|, and |supscr|. The
-|thickness| is a scaled value that tells how thick to make a fraction
-rule; however, the special value |default_code| is used to stand for the
+A |fraction_noad| is actually quite different from all other noads. 
+It has |thickness|, |denominator|, and |numerator| fields instead of 
+|nucleus|, |subscr|, and |supscr|. The |thickness| is a scaled value 
+that tells how thick to make a fraction rule; however, the special 
+value |default_code| is used to stand for the
 |default_rule_thickness| of the current size. The |numerator| and
 |denominator| point to mlists that define a fraction; we always have
-$$\hbox{|math_type(numerator)=math_type(denominator)=sub_mlist|}.$$ The
+$$\hbox{|type(numerator)=type(denominator)=sub_mlist|}.$$ The
 |left_delimiter| and |right_delimiter| fields specify delimiters that will
 be placed at the left and right of the fraction. In this way, a
 |fraction_noad| is able to represent all of \TeX's operators \.{\\over},
@@ -230,28 +233,27 @@ be placed at the left and right of the fraction. In this way, a
 */
 
 
-/* used to initialize a few static variables, not needed anymore */
+/* This used to be used to initialize a few static variables. It is 
+  not used at the moment */
+
 void initialize_math(void)
 {
     return;
 }
 
-/* this is called with a |nucleus|, |subscr|, or |supscr| as argument */
-void math_reset(pointer p)
+pointer math_clone(pointer q)
 {
-    math_list(p) = null;
-    math_type(p) = empty;
-}
-
-void math_clone(pointer x, pointer q)
-{
-    math_type(x) = math_type(q);
-    if (math_type(q) == math_char) {
+    pointer x;
+    if (q == null) 
+      return null;
+    x = new_node(type(q),0);
+    if (type(q) == math_char_node) {
         math_fam(x) = math_fam(q);
         math_character(x) = math_character(q);
     } else {
         math_list(x) = math_list(q);
     }
+    return x;
 }
 
 
@@ -276,9 +278,10 @@ pointer new_noad(void)
 
 pointer new_sub_box(pointer cur_box)
 {
-    pointer p;
+  pointer p, q;
     p = new_noad();
-    math_type(nucleus(p)) = sub_box;
+    q = new_node(sub_box_node,0);
+    nucleus(p) = q;
     math_list(nucleus(p)) = cur_box;
     return p;
 }
@@ -289,7 +292,7 @@ nucleus underlined; an |over_noad| has it overlined. An |accent_noad| places
 an accent over its nucleus; the accent character appears as
 |math_fam(accent_chr(p))| and |math_character(accent_chr(p))|. A |vcenter_noad|
 centers its nucleus vertically with respect to the axis of the formula;
-in such noads we always have |math_type(nucleus(p))=sub_box|.
+in such noads we always have |type(nucleus(p))=sub_box|.
 
 And finally, we have |left_noad| and |right_noad| types, to implement
 \TeX's \.{\\left} and \.{\\right} as well as \eTeX's \.{\\middle}.
@@ -431,8 +434,8 @@ void print_delimiter(pointer p)
 @ The next subroutine will descend to another level of recursion when a
 subsidiary mlist needs to be displayed. The parameter |c| indicates what
 character is to become part of the recursion history. An empty mlist is
-distinguished from a field with |math_type(p)=empty|, because these are
-not equivalent (as explained above).
+distinguished from a missing field, because these are not equivalent 
+(as explained above).
 @^recursion@>
 */
 
@@ -440,20 +443,21 @@ not equivalent (as explained above).
 void print_subsidiary_data(pointer p, ASCII_code c)
 {                               /* display a noad field */
     if (cur_length >= depth_threshold) {
-        if (math_type(p) != empty)
-            tprint(" []");
+        if (p != null)
+          tprint(" []");
     } else {
         append_char(c);         /* include |c| in the recursion history */
-        switch (math_type(p)) {
-        case math_char:
+        if (p != null) {
+          switch (type(p)) {
+          case math_char_node:
             print_ln();
             print_current_string();
             print_fam_and_char(p);
             break;
-        case sub_box:
+          case sub_box_node:
             show_node_list(math_list(p));
             break;
-        case sub_mlist:
+          case sub_mlist_node:
             if (math_list(p) == null) {
                 print_ln();
                 print_current_string();
@@ -462,8 +466,7 @@ void print_subsidiary_data(pointer p, ASCII_code c)
                 show_node_list(math_list(p));
             }
             break;
-        default:
-            ;                   /* |empty| */
+          }
         }
         flush_char;             /* remove |c| from the recursion history */
     }
@@ -731,7 +734,10 @@ trivial, so we shall consider them later.
 
 void math_left_brace(void)
 {
+  pointer q;
     tail_append(new_noad());
+    q = new_node(math_char_node,0);
+    nucleus(tail) = q;
     back_input();
     scan_math(nucleus(tail));
 }
@@ -1027,17 +1033,17 @@ mathcodeval scan_mathchar(int extcode)
             mcls = 0;
         }
     } else if (extcode == xetexnum_mathcode) {
-        /* "TFF<21bits> */
+        /* "FFT<21bits> */
         /* the largest numeric value is $2^32-1$, but 
            the top of bit 21 can't be used as it contains invalid USV's
          */
-        /* Note: |scan_int| won't accept classes 4-7 because these use bit 32 */
+        /* Note: |scan_int| won't accept families 128-255 because these use bit 32 */
         scan_int();
         mfam = (cur_val / 0x200000) & 0x7FF;
-        mcls = mfam / 0x100;
-        mfam = mfam % 0x100;
+        mcls = mfam % 0x08;
+        mfam = mfam / 0x08;
         mchr = cur_val & 0x1FFFFF;
-        if (mcls < 0 || mcls > 7 || mchr > 0x10FFFF) {
+        if (mchr > 0x10FFFF) {
             tex_error("Invalid math code", hlp);
             mcls = 0;
             mfam = 0;
@@ -1096,19 +1102,19 @@ mathcodeval mathchar_from_integer(integer value, int extcode)
         mval.character_value = (value % 0x10000);
     } else {                    /* some xetexended xetex thing */
         int mfam = (value / 0x200000) & 0x7FF;
-        mval.class_value = mfam / 0x100;
-        mval.family_value = mfam % 0x100;
+        mval.class_value = mfam % 0x08;
+        mval.family_value = mfam / 0x08;
         mval.character_value = value & 0x1FFFFF;
     }
     return mval;
 }
 
-/* Recall that the |nucleus|, |subscr|, and |supscr| fields in a noad are
-broken down into subfields called |math_type| and either |info| or
-|(fam,character)|. The job of |scan_math| is to figure out what to place
-in one of these principal fields; it looks at the subformula that
-comes next in the input, and places an encoding of that subformula
-into a given word of |mem|.
+/* Recall that the |nucleus|, |subscr|, and |supscr| fields in a noad
+are broken down into subfields called |type| and either |math_list| or
+|(math_fam,math_character)|. The job of |scan_math| is to figure out
+what to place in one of these principal fields; it looks at the
+subformula that comes next in the input, and places an encoding of
+that subformula into a given word of |mem|.
 */
 
 
@@ -1119,6 +1125,7 @@ void scan_math(pointer p)
 {
     /* label restart,reswitch,exit; */
     mathcodeval mval;
+    assert(p!=null);
   RESTART:
     get_next_nb_nr();
   RESWITCH:
@@ -1184,7 +1191,7 @@ void scan_math(pointer p)
         push_math(math_group);
         return;
     }
-    math_type(p) = math_char;
+    type(p) = math_char_node;
     math_character(p) = mval.character_value;
     if ((mval.class_value == var_code) && fam_in_range)
         math_fam(p) = cur_fam;
@@ -1211,8 +1218,10 @@ void set_math_char(mathcodeval mval)
         x_token();
         back_input();
     } else {
+        pointer q;
         p = new_noad();
-        math_type(nucleus(p)) = math_char;
+        q = new_node(math_char_node, 0);
+        nucleus(p) = q;
         math_character(nucleus(p)) = mval.character_value;
         math_fam(nucleus(p)) = mval.family_value;
         if (mval.class_value == var_code) {
@@ -1229,8 +1238,11 @@ void set_math_char(mathcodeval mval)
 
 void math_math_comp(void)
 {
+    pointer q;
     tail_append(new_noad());
     type(tail) = cur_chr;
+    q = new_node(math_char_node, 0);
+    nucleus(tail) = q; 
     scan_math(nucleus(tail));
 }
 
@@ -1291,6 +1303,8 @@ void scan_delimiter(pointer p, integer r)
     } else {
         tconfusion("scan_delimiter2");
     }
+    if (p==null)
+      return;
     if (dval.small_family_value < 0) {
         char *hlp[] = {
             "I was expecting to see something like `(' or `\\{' or",
@@ -1318,10 +1332,8 @@ void scan_delimiter(pointer p, integer r)
 
 void math_radical(void)
 {
+    halfword q;
     tail_append(new_node(radical_noad, normal));
-    math_reset(nucleus(tail));
-    math_reset(subscr(tail));
-    math_reset(supscr(tail));
     if (cur_chr == 0)           /* \radical */
         scan_delimiter(left_delimiter(tail), tex_mathcode);
     else if (cur_chr == 1)      /* \oradical */
@@ -1330,11 +1342,14 @@ void math_radical(void)
         scan_delimiter(left_delimiter(tail), xetex_mathcode);
     else
         tconfusion("math_radical");
+    q = new_node(math_char_node, 0);
+    nucleus(tail) = q ; 
     scan_math(nucleus(tail));
 }
 
 void math_ac(void)
 {
+    halfword q;
     mathcodeval d;
     if (cur_cmd == accent_cmd) {
         char *hlp[] = {
@@ -1345,10 +1360,8 @@ void math_ac(void)
         tex_error("Please use \\mathaccent for accents in math mode", hlp);
     }
     tail_append(new_node(accent_noad, normal));
-    math_reset(nucleus(tail));
-    math_reset(subscr(tail));
-    math_reset(supscr(tail));
-    math_type(accent_chr(tail)) = math_char;
+    q = new_node(math_char_node,0);
+    accent_chr(tail) = q ;
     if (cur_chr == 0) {         /* \mathaccent */
         d = scan_mathchar(tex_mathcode);
     } else if (cur_chr == 1) {  /* \omathaccent */
@@ -1363,15 +1376,18 @@ void math_ac(void)
         math_fam(accent_chr(tail)) = cur_fam;
     else
         math_fam(accent_chr(tail)) = d.family_value;
+    q = new_node(math_char_node, 0);
+    nucleus(tail) = q;
     scan_math(nucleus(tail));
 }
 
 pointer math_vcenter_group(pointer p)
 {
-    pointer q;
+  pointer q, r;
     q = new_noad();
     type(q) = vcenter_noad;
-    math_type(nucleus(q)) = sub_box;
+    r = new_node(sub_box_node,0);
+    nucleus(q) = r; 
     math_list(nucleus(q)) = p;
     return q;
 }
@@ -1417,41 +1433,44 @@ void build_choices(void)
 
 /*
  Subscripts and superscripts are attached to the previous nucleus by the
-@^superscripts@>@^subscripts@>
-action procedure called |sub_sup|. We use the facts that |sub_mark=sup_mark+1|
-and |subscr(p)=supscr(p)+1|.
+ action procedure called |sub_sup|. 
 */
 
 void sub_sup(void)
 {
-    small_number t;             /* type of previous sub/superscript */
-    pointer p;                  /* field to be filled by |scan_math| */
-    t = empty;
-    p = null;
-    if (tail != head) {
-        if (scripts_allowed(tail)) {
-            p = (cur_cmd == sup_mark_cmd ? supscr(tail) : subscr(tail));
-            t = math_type(p);
-        }
+  pointer q;
+  if (tail == head || !scripts_allowed(tail)) {
+    tail_append(new_noad());
+    q = new_node (sub_mlist_node,0);
+    nucleus(tail) = q; 
+  }
+  if (cur_cmd == sup_mark_cmd) {
+    if (supscr(tail) != null) {
+      char *hlp[] = {
+        "I treat `x^1^2' essentially like `x^1{}^2'.", NULL
+      };
+      tail_append(new_noad());
+      q = new_node (sub_mlist_node,0);
+      nucleus(tail) = q; 
+      tex_error("Double superscript", hlp);
     }
-    if ((p == null) || (t != empty)) {
-        tail_append(new_noad());
-        p = (cur_cmd == sup_mark_cmd ? supscr(tail) : subscr(tail));
-        if (t != empty) {
-            if (cur_cmd == sup_mark_cmd) {
-                char *hlp[] = {
-                    "I treat `x^1^2' essentially like `x^1{}^2'.", NULL
-                };
-                tex_error("Double superscript", hlp);
-            } else {
-                char *hlp[] = {
-                    "I treat `x_1_2' essentially like `x_1{}_2'.", NULL
-                };
-                tex_error("Double subscript", hlp);
-            }
-        }
+    q = new_node (math_char_node,0);
+    supscr(tail) = q ;
+    scan_math(supscr(tail));
+  } else {
+    if (subscr(tail) != null) {
+      char *hlp[] = {
+        "I treat `x_1_2' essentially like `x_1{}_2'.", NULL
+      };
+      tail_append(new_noad());
+      q = new_node (sub_mlist_node,0);
+      nucleus(tail) = q; 
+      tex_error("Double subscript", hlp);
     }
-    scan_math(p);
+    q = new_node (math_char_node,0);
+    subscr(tail) = q; 
+    scan_math(subscr(tail));
+  }
 }
 
 /*
@@ -1476,20 +1495,16 @@ void math_fraction(void)
             NULL
         };
         if (c >= delimited_code) {
-            scan_delimiter(garbage, no_mathcode);
-            scan_delimiter(garbage, no_mathcode);
+            scan_delimiter(null, no_mathcode);
+            scan_delimiter(null, no_mathcode);
         }
         if ((c % delimited_code) == above_code)
             scan_normal_dimen();
         tex_error("Ambiguous; you need another { and }", hlp);
     } else {
         incompleat_noad = new_node(fraction_noad, normal);
-        math_type(numerator(incompleat_noad)) = sub_mlist;
+        numerator(incompleat_noad) = new_node(sub_mlist_node,0);
         math_list(numerator(incompleat_noad)) = vlink(head);
-        math_type(denominator(incompleat_noad)) = empty;
-        math_list(denominator(incompleat_noad)) = null;
-        delimiter_reset(left_delimiter(incompleat_noad));
-        delimiter_reset(right_delimiter(incompleat_noad));
         vlink(head) = null;
         tail = head;
 
@@ -1526,7 +1541,12 @@ pointer fin_mlist(pointer p)
 {
     pointer q;                  /* the mlist to return */
     if (incompleat_noad != null) {
-        math_type(denominator(incompleat_noad)) = sub_mlist;
+        if (denominator(incompleat_noad)!=null) {
+            type(denominator(incompleat_noad)) = sub_mlist_node;
+        } else {
+            q = new_node(sub_mlist_node,0);
+            denominator(incompleat_noad) = q;
+        }
         math_list(denominator(incompleat_noad)) = vlink(head);
         if (p == null) {
             q = incompleat_noad;
@@ -1559,16 +1579,22 @@ void close_math_group(pointer p)
     unsave_math();
 
     decr(save_ptr);
-    math_type(saved(0)) = sub_mlist;
+    type(saved(0)) = sub_mlist_node;
     p = fin_mlist(null);
     math_list(saved(0)) = p;
     if (p != null) {
         if (vlink(p) == null) {
             if (type(p) == ord_noad) {
-                if (math_type(subscr(p)) == empty &&
-                    math_type(supscr(p)) == empty) {
-                    math_clone(saved(0), nucleus(p));
-                    math_reset(nucleus(p));     /* just in case */
+                if (subscr(p) == null && 
+                    supscr(p) == null) {
+                    type(saved(0)) = type(nucleus(p));
+                    if (type(nucleus(p))==math_char_node) {
+                        math_fam(saved(0)) = math_fam(nucleus(p));
+                        math_character(saved(0)) = math_character(nucleus(p));
+                    } else {
+                        math_list(saved(0)) = math_list(nucleus(p));
+                        math_list(nucleus(p)) = null;
+                    }
                     flush_node(p);
                 }
             }
@@ -1580,9 +1606,9 @@ void close_math_group(pointer p)
                         while (vlink(q) != tail)
                             q = vlink(q);
                         vlink(q) = p;
-                        math_reset(nucleus(tail));      /* just in case */
-                        math_reset(subscr(tail));
-                        math_reset(supscr(tail));
+                        nucleus(tail) = null;/* just in case */
+                        subscr(tail) = null;
+                        supscr(tail) = null;
                         flush_node(tail);
                         tail = p;
                     }
@@ -1604,10 +1630,11 @@ void math_left_right(void)
     small_number t;             /* |left_noad| or |right_noad| */
     pointer p;                  /* new noad */
     pointer q;                  /* resulting mlist */
+    pointer r;                  /* temporary */
     t = cur_chr;
     if ((t != left_noad) && (cur_group != math_left_group)) {
         if (cur_group == math_shift_group) {
-            scan_delimiter(garbage, no_mathcode);
+            scan_delimiter(null, no_mathcode);
             if (t == middle_noad) {
                 char *hlp[] = {
                     "I'm ignoring a \\middle that had no matching \\left.",
@@ -1646,7 +1673,8 @@ void math_left_right(void)
         } else {
             tail_append(new_noad());
             type(tail) = inner_noad;
-            math_type(nucleus(tail)) = sub_mlist;
+            r = new_node(sub_mlist_node,0);
+            nucleus(tail) = r;
             math_list(nucleus(tail)) = q;
         }
     }

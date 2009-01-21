@@ -25,6 +25,7 @@
 #include "tokens.h"
 #undef name
 
+#define nDEBUG
 
 static const char _svn_version[] =
     "$Id$ $URL$";
@@ -244,8 +245,8 @@ node_info node_data[] = {
     {over_noad, noad_size, node_fields_over, "over"},
     {accent_noad, accent_noad_size, node_fields_accent, "accent"},
     {vcenter_noad, noad_size, node_fields_vcenter, "vcenter"},
-    {left_noad, noad_size, node_fields_left, "left"},
-    {right_noad, noad_size, node_fields_right, "right"},
+    {left_noad, left_right_noad_size, node_fields_left, "left"},
+    {right_noad, left_right_noad_size, node_fields_right, "right"},
     {math_char_node, math_kernel_node_size, node_fields_math_char, "math_char"},
     {sub_box_node, math_kernel_node_size, node_fields_sub_box, "sub_box"},
     {sub_mlist_node, math_kernel_node_size, node_fields_sub_mlist, "sub_mlist"},
@@ -1008,19 +1009,26 @@ void flush_node(halfword p)
     case under_noad:
     case vcenter_noad:
     case accent_noad:
-        if (math_type(nucleus(p)) == sub_mlist)
-            flush_node_list(math_list(nucleus(p)));
-        if (math_type(subscr(p)) == sub_mlist)
-            flush_node_list(math_list(subscr(p)));
-        if (math_type(supscr(p)) == sub_mlist)
-            flush_node_list(math_list(supscr(p)));
+        if (nucleus(p)!=null)
+          flush_node_list(nucleus(p));
+        if (subscr(p) != null)
+          flush_node_list(subscr(p));
+        if (supscr(p) != null)
+          flush_node_list(supscr(p));
         break;
     case left_noad:            /* nothing to do */
     case right_noad:
+    case math_char_node:
+    case math_text_char_node:
+        break;
+    case sub_box_node: /* its math_list() will be used as a box content */
         break;
     case fraction_noad:
-        flush_node_list(math_list(numerator(p)));
-        flush_node_list(math_list(denominator(p)));
+        flush_node_list(numerator(p));
+        flush_node_list(denominator(p));
+        break;
+    case sub_mlist_node:
+        flush_node_list(math_list(p));
         break;
     case pseudo_file_node:
         flush_node_list(pseudo_lines(p));
@@ -2135,20 +2143,40 @@ void show_pdftex_whatsit_rule_spec(integer p)
 }
 
 
+/*
+Each new type of node that appears in our data structure must be capable
+of being displayed, copied, destroyed, and so on. The routines that we
+need for write-oriented whatsits are somewhat like those for mark nodes;
+other extensions might, of course, involve more subtlety here.
+*/
+
+
+void print_write_whatsit(char *s, pointer p) 
+{
+    tprint_esc(s);
+    if (write_stream(p)<16) 
+        print_int(write_stream(p));
+    else if (write_stream(p)==16) 
+        print_char('*');
+    else 
+        print_char('-');
+}
+
+
 void show_whatsit_node(integer p)
 {
     switch (subtype(p)) {
     case open_node:
-        print_write_whatsit(maketexstring("openout"), p);
+        print_write_whatsit("openout", p);
         print_char('=');
         print_file_name(open_name(p), open_area(p), open_ext(p));
         break;
     case write_node:
-        print_write_whatsit(maketexstring("write"), p);
+        print_write_whatsit("write", p);
         print_mark(write_tokens(p));
         break;
     case close_node:
-        print_write_whatsit(maketexstring("closeout"), p);
+        print_write_whatsit("closeout", p);
         break;
     case special_node:
         tprint_esc("special");

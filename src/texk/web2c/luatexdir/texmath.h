@@ -40,8 +40,9 @@ extern void math_left_brace(void);
 extern void finish_display_alignment(halfword, halfword, memory_word);
 extern halfword new_sub_box(halfword);
 
-extern void math_reset (pointer);
-extern void math_clone (pointer, pointer);
+# define math_reset(p) do { if (p!=null) flush_node(p); p = null; } while (0)
+
+extern pointer math_clone (pointer);
 
 #  define scripts_allowed(A) (type((A))>=ord_noad)&&(type((A))<left_noad)
 
@@ -151,7 +152,6 @@ typedef enum {
 #  define sup_style(A) 2*((A)/4)+script_style+((A)%2)   /* smaller */
 #  define num_style(A) (A)+2-2*((A)/6)  /* smaller unless already script-script */
 #  define denom_style(A) 2*((A)/2)+cramped+2-2*((A)/6)  /* smaller, cramped */
-
 
 void mlist_to_hlist(void);
 

@@ -394,59 +394,51 @@ typedef enum {
 
 /* regular noads */
 
-#  define noad_size 8           /*number of words in a normal noad */
-#  define nucleus(a) ((a)+2)      /* the |nucleus| field of a noad, two words */
-#  define supscr(a)  ((a)+4)       /* the |supscr| field of a noad, two words */
-#  define subscr(a)  ((a)+6)       /* the |subscr| field of a noad, two words */
+#  define noad_size 4           /* number of words in a normal noad */
+#  define new_hlist(a) vlink((a)+2)        /* the translation of an mlist */
+#  define nucleus(a)   vinfo((a)+2)  /* the |nucleus| field of a noad */
+#  define supscr(a)    vlink((a)+3)   /* the |supscr| field of a noad */
+#  define subscr(a)    vinfo((a)+3)   /* the |subscr| field of a noad */
 
 /* accent noads */
-/* like a regular noad, but with one extra two-word field. */
+/* like a regular noad, but with one extra field. */
 
-#  define accent_noad_size 10    /*number of |mem| words in an accent noad */
-#  define accent_chr(A) (A)+8   /* the |accent_chr| field of an accent noad, two words */
+#  define accent_noad_size 5    /*number of |mem| words in an accent noad */
+#  define accent_chr(a) vinfo((a)+4)   /* the |accent_chr| field of an accent noad */
 
-/* left and right noads are just a small variation */
-/* TODO: subscr and supscr are always empty so could be removed */
+/* left and right noads */
 
-#  define delimiter nucleus     /* |delimiter| field in left and right noads, two words */
+#  define left_right_noad_size 4
+#  define delimiter(a) ((a)+2)     /* |delimiter| field in left and right noads */
 
 /* fraction noads */
 
-#  define fraction_noad_size 12  /*number of |mem| words in a fraction noad */
-#  define thickness(a) varmem[(a)+2].cint /* |thickness| field in a fraction noad */
-                                      /* |(a)+3| is left empty on purpose */
-#  define numerator          supscr   /*|numerator| field in a fraction noad, two words */
-#  define denominator        subscr   /*|denominator| field in a fraction noad, two words */
-#  define left_delimiter(a)  ((a)+8)   /* first delimiter field of a noad, two words */
-#  define right_delimiter(a) ((a)+10)   /* second delimiter field of a fraction noad, two words */
+#  define fraction_noad_size 8  /*number of |mem| words in a fraction noad */
+#  define thickness(a)       vlink((a)+2) /* |thickness| field in a fraction noad */
+#  define numerator(a)       vlink((a)+3)  /*|numerator| field in a fraction noad, two words */
+#  define denominator(a)     vinfo((a)+3)  /*|denominator| field in a fraction noad, two words */
+#  define left_delimiter(a)  ((a)+4)   /* first delimiter field of a noad, two words */
+#  define right_delimiter(a) ((a)+6)   /* second delimiter field of a fraction noad, two words */
 
 /* radical noads */
 /* this is like a fraction, but it only stores a |left_delimiter| */
-#  define radical_noad_size 10   /*number of |mem| words in a radical noad */
+#  define radical_noad_size 6   /*number of |mem| words in a radical noad */
 
-#define math_kernel_node_size 2
-#define math_shield_node_size 3
+#define math_kernel_node_size 3
 
-/* accessors for the |nucleus|-style two-word subnode fields */
-#  define math_type type
-#  define math_fam  subtype
-#  define math_character vlink
-#  define math_list vlink
+/* accessors for the |nucleus|-style node fields */
+#  define math_fam(a)       vinfo((a)+2)
+#  define math_character(a) vlink((a)+2)
+#  define math_list(a) vlink((a)+2)
 
 /* accessors for the |delimiter|-style two-word subnode fields */
+
+#define math_shield_node_size 4 /* not used yet */
+
 #  define small_fam(A)  subtype((A))   /* |fam| for ``small'' delimiter */
 #  define small_char(A) vlink((A))     /* |character| for ``small'' delimiter */
 #  define large_fam(A)  subtype((A)+1) /* |fam| for ``large'' delimiter */
 #  define large_char(A) vlink((A)+1)   /* |character| for ``large'' delimiter */
-
-
-
-typedef enum {
-    math_char = 1,              /* |math_type| when the attribute is simple */
-    sub_box,                    /* |math_type| when the attribute is a box */
-    sub_mlist,                  /* |math_type| when the attribute is a formula */
-    math_text_char              /* |math_type| when italic correction is dubious */
-} math_types;
 
 #  define middle_noad 1
 
