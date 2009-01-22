@@ -673,6 +673,9 @@ void tex_error(char *msg, char **hlp);
 scaled divide_scaled(scaled s, scaled m, integer dd);
 scaled divide_scaled_n(double s, double m, double d);
 
+/* mlist.c */
+void run_mlist_to_hlist(pointer p, integer m_style, boolean penalties);
+
 /* texpdf.c */
 void pdf_print_char(internal_font_number f, integer c);
 void pdf_print(str_number n);
