@@ -125,29 +125,29 @@ char *node_fields_glyph[] =
     { "attr", "char", "font", "lang", "left", "right", "uchyph",
     "components", "xoffset", "yoffset", NULL
 };
-char *node_fields_style[] = { NULL };
-char *node_fields_choice[] = { NULL };
-char *node_fields_ord[] = { NULL };
-char *node_fields_op[] = { NULL };
-char *node_fields_bin[] = { NULL };
-char *node_fields_rel[] = { NULL };
-char *node_fields_open[] = { NULL };
-char *node_fields_close[] = { NULL };
-char *node_fields_punct[] = { NULL };
-char *node_fields_inner[] = { NULL };
-char *node_fields_radical[] = { NULL };
-char *node_fields_fraction[] = { NULL };
-char *node_fields_under[] = { NULL };
-char *node_fields_over[] = { NULL };
-char *node_fields_accent[] = { NULL };
-char *node_fields_vcenter[] = { NULL };
-char *node_fields_left[] = { NULL };
-char *node_fields_right[] = { NULL };
-char *node_fields_math_char[] = { NULL };
-char *node_fields_sub_box[] = { NULL };
-char *node_fields_sub_mlist[] = { NULL };
-char *node_fields_math_text_char[] = { NULL };
-char *node_fields_delim[] = { NULL };
+char *node_fields_style[] = { "attr", NULL };
+char *node_fields_choice[] = { "attr", "display", "text", "script", "scriptscript", NULL };
+char *node_fields_ord[] = { "attr", "nucleus", "sub", "sup", NULL };
+char *node_fields_op[] = { "attr", "nucleus", "sub", "sup", NULL };
+char *node_fields_bin[] = { "attr", "nucleus", "sub", "sup", NULL };
+char *node_fields_rel[] = { "attr", "nucleus", "sub", "sup", NULL };
+char *node_fields_open[] = { "attr", "nucleus", "sub", "sup", NULL };
+char *node_fields_close[] = { "attr", "nucleus", "sub", "sup", NULL };
+char *node_fields_punct[] = { "attr", "nucleus", "sub", "sup", NULL };
+char *node_fields_inner[] = { "attr", "nucleus", "sub", "sup", NULL };
+char *node_fields_under[] = { "attr", "nucleus", "sub", "sup" , NULL };
+char *node_fields_over[] = { "attr", "nucleus", "sub", "sup",  NULL };
+char *node_fields_vcenter[] = { "attr", "nucleus", "sub", "sup", NULL };
+char *node_fields_radical[] = { "attr","nucleus", "sub", "sup", "left", NULL };
+char *node_fields_fraction[] = { "attr", "width", "num", "denom", "left", "right", NULL };
+char *node_fields_accent[] = { "attr", "nucleus", "sub", "sup", "accent", NULL };
+char *node_fields_left[] = { "attr", "left", NULL };
+char *node_fields_right[] = { "attr", "right", NULL };
+char *node_fields_math_char[] = { "attr", "fam", "char", NULL };
+char *node_fields_sub_box[] = { "attr", "list", NULL };
+char *node_fields_sub_mlist[] = { "attr", "list", NULL };
+char *node_fields_math_text_char[] = { "attr", "fam", "char", NULL };
+char *node_fields_delim[] = { "attr", "small_fam", "small_char", "large_fam", "large_char", NULL };
 
 char *node_fields_inserting[] =
     { "height", "last_ins_ptr", "best_ins_ptr", NULL };
@@ -596,6 +596,71 @@ halfword copy_node(const halfword p)
     case adjust_node:
         s = copy_node_list(adjust_ptr(p));
         adjust_ptr(r) = s;
+        break;
+
+    case choice_node:
+        s = copy_node_list(display_mlist(p));
+        display_mlist(r) = s;
+        s = copy_node_list(text_mlist(p));
+        text_mlist(r) = s;
+        s = copy_node_list(script_mlist(p));
+        script_mlist(r) = s;
+        s = copy_node_list(script_script_mlist(p));
+        script_script_mlist(r) = s;
+        break;
+    case ord_noad:
+    case op_noad:
+    case bin_noad:
+    case rel_noad:
+    case open_noad:
+    case close_noad:
+    case punct_noad:
+    case inner_noad:
+    case over_noad:
+    case under_noad:
+    case vcenter_noad:
+    case radical_noad:
+    case accent_noad:
+        s = copy_node_list(nucleus(p));
+        nucleus(r) = s;
+        s = copy_node_list(subscr(p));
+        subscr(r) = s;
+        s = copy_node_list(supscr(p));
+        supscr(r) = s;
+        if (type(p) == accent_noad) {
+          s = copy_node_list(accent_chr(p));
+          accent_chr(r) = s;
+        } else if (type(p) == radical_noad) {
+          s = copy_node(left_delimiter(p));
+          left_delimiter(r) = s;
+        }
+        break;
+    case left_noad:
+    case right_noad:
+        s = copy_node(delimiter(p));
+        delimiter(r) = s;
+        break;
+        /* 
+           case style_node:
+           case delim_node:
+           case math_char_node:
+           case math_text_char_node:
+           break;
+        */
+    case sub_box_node:
+    case sub_mlist_node:
+        s = copy_node_list(math_list(p));
+        math_list(r) = s;
+        break;
+    case fraction_noad:
+        s = copy_node_list(numerator(p));
+        numerator(r) = s;
+        s = copy_node_list(denominator(p));
+        denominator(r) = s;
+        s = copy_node(left_delimiter(p));
+        left_delimiter(r) = s;
+        s = copy_node(right_delimiter(p));
+        right_delimiter(r) = s;
         break;
     case glue_spec_node:
         glue_ref_count(r) = null;
@@ -1228,15 +1293,11 @@ void check_node(halfword p)
         dorangetest(p, script_script_mlist(p), var_mem_max);
         break;
     case fraction_noad:
-        dorangetest(p, vinfo(numerator(p)), var_mem_max);
-        dorangetest(p, vinfo(denominator(p)), var_mem_max);
+        dorangetest(p, numerator(p), var_mem_max);
+        dorangetest(p, denominator(p), var_mem_max);
+        dorangetest(p, left_delimiter(p), var_mem_max);
+        dorangetest(p, right_delimiter(p), var_mem_max);
         break;
-    case rule_node:
-    case kern_node:
-    case math_node:
-    case penalty_node:
-    case mark_node:
-    case style_node:
     case ord_noad:
     case op_noad:
     case bin_noad:
@@ -1245,13 +1306,35 @@ void check_node(halfword p)
     case close_noad:
     case punct_noad:
     case inner_noad:
-    case radical_noad:
     case over_noad:
     case under_noad:
     case vcenter_noad:
+        dorangetest(p, nucleus(p), var_mem_max);
+        dorangetest(p, subscr(p), var_mem_max);
+        dorangetest(p, supscr(p), var_mem_max);
+        break;
+    case radical_noad:
+        dorangetest(p, nucleus(p), var_mem_max);
+        dorangetest(p, subscr(p), var_mem_max);
+        dorangetest(p, supscr(p), var_mem_max);
+        dorangetest(p, left_delimiter(p), var_mem_max);
+        break;
     case accent_noad:
+        dorangetest(p, nucleus(p), var_mem_max);
+        dorangetest(p, subscr(p), var_mem_max);
+        dorangetest(p, supscr(p), var_mem_max);
+        dorangetest(p, accent_chr(p), var_mem_max);
+        break;
     case left_noad:
     case right_noad:
+        dorangetest(p, delimiter(p), var_mem_max);
+        break;
+    case rule_node:
+    case kern_node:
+    case math_node:
+    case penalty_node:
+    case mark_node:
+    case style_node:
     case attribute_list_node:
     case attribute_node:
     case glue_spec_node:
