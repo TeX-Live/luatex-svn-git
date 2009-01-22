@@ -4,6 +4,8 @@
 % check numbers
 % check \luatex command
 
+%\nopdfcompression
+%\loggingall
 \environment luatexref-env
  
 \logo[CFF]     {cff}
@@ -6331,9 +6333,10 @@ that the list of possible fields is actually quite small. First, the subnodes:
 
 \subsubsection{Math kernel subnodes}
 
-Many object fields in math mode are either simple characters in a specific family
-or math lists or node lists. There are four associated subnodes that represent
-these cases.
+Many object fields in math mode are either simple characters in a
+specific family or math lists or node lists. There are four associated
+subnodes that represent these cases (in the following node
+descriptions these are indicated by the word \type{<kernel>}).
 
 \subsubsubsection{math\_char and math\_text\_char subnodes}
 
@@ -6474,7 +6477,7 @@ Valid fields: \showfields{left}
 \NC \ssbf field     \NC \bf type  \NC  \bf explanation \NC\NR
 \NC subtype    \NC number         \NC unused\NC\NR
 \NC attr       \NC \syntax{<node>}\NC          \NC\NR
-\NC left       \NC \syntax{<delim>}\NC          \NC \NR
+\NC delim       \NC \syntax{<delim>}\NC          \NC \NR
 \stoptabulate
 
 \subsubsubsection{right nodes}
@@ -6484,9 +6487,9 @@ Valid fields: \showfields{right}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type  \NC  \bf explanation \NC\NR
-\NC subtype    \NC number         \NC unused\NC\NR
+\NC subtype    \NC number         \NC is 1 for a \type{\middle} item\NC\NR
 \NC attr       \NC \syntax{<node>}\NC          \NC\NR
-\NC right       \NC \syntax{<delim>}\NC          \NC \NR
+\NC delim       \NC \syntax{<delim>}\NC          \NC \NR
 \stoptabulate
 
 
