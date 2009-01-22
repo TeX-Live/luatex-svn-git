@@ -437,7 +437,7 @@ typedef enum {
 
 #  define small_fam(A)  vinfo((A)+2) /* |fam| for ``small'' delimiter */
 #  define small_char(A) vlink((A)+2) /* |character| for ``small'' delimiter */
-#  define large_fam(A)  vlink((A)+3) /* |fam| for ``large'' delimiter */
+#  define large_fam(A)  vinfo((A)+3) /* |fam| for ``large'' delimiter */
 #  define large_char(A) vlink((A)+3) /* |character| for ``large'' delimiter */
 
 #  define middle_noad 1
