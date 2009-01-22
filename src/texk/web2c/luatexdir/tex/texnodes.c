@@ -125,7 +125,7 @@ char *node_fields_glyph[] =
     { "attr", "char", "font", "lang", "left", "right", "uchyph",
     "components", "xoffset", "yoffset", NULL
 };
-char *node_fields_style[] = { "attr", NULL };
+char *node_fields_style[] = { "attr", "style", NULL };
 char *node_fields_choice[] = { "attr", "display", "text", "script", "scriptscript", NULL };
 char *node_fields_ord[] = { "attr", "nucleus", "sub", "sup", NULL };
 char *node_fields_op[] = { "attr", "nucleus", "sub", "sup", NULL };

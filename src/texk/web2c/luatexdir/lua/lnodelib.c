@@ -1585,7 +1585,10 @@ static int lua_nodelib_getfield(lua_State * L)
     case style_node:
       switch (field) {
       case 2:
-        lua_pushnumber(L, subtype(n));
+        lua_pushnumber(L, 0);
+        break;
+      case 4:
+        lua_pushstring(L, math_style_names[subtype(n)]);
         break;
       default:
         lua_pushnil(L);
@@ -2683,8 +2686,10 @@ static int lua_nodelib_setfield(lua_State * L)
             break;
         case style_node:
           switch (field) {
-          case 2:
-            subtype(n) = lua_tointeger(L, 3);
+          case 2: /* dummy subtype */
+            break;
+          case 4: 
+            subtype(n) = luaL_checkoption(L, 3, "text", math_style_names);
             break;
           default:
             return nodelib_cantset(L, field, n);
