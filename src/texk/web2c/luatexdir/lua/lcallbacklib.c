@@ -65,6 +65,7 @@ static const char *const callbacknames[] = {
     "pre_linebreak_filter",
     "linebreak_filter",
     "post_linebreak_filter",
+    "mlist_to_hlist",
     NULL
 };
 

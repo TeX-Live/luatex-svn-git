@@ -423,6 +423,37 @@ integer cur_size;               /* size code corresponding to |cur_style|  */
 scaled cur_mu;                  /* the math unit width corresponding to |cur_size| */
 boolean mlist_penalties;        /* should |mlist_to_hlist| insert penalties? */
 
+void run_mlist_to_hlist(pointer p, integer m_style, boolean penalties)
+{
+    int callback_id;
+    int a;
+    lua_State *L = Luas[0];
+    callback_id = callback_defined(mlist_to_hlist_callback);
+    if (p!=null && callback_id>0) {
+        if (!get_callback(L, callback_id)) {
+            lua_pop(L, 2);
+            return;
+        }
+        nodelist_to_lua(L, p);                   /* arg 1 */
+        lua_pushstring(L, math_style_names[m_style]); /* arg 2 */
+        lua_pushboolean(L, penalties);           /* arg 3 */
+        if (lua_pcall(L, 3, 1, 0) != 0) {   /* 3 args, 1 result */
+          fprintf(stdout, "error: %s\n", lua_tostring(L, -1));
+          lua_pop(L, 2);
+          error();
+          return;
+        }
+        a = nodelist_from_lua(L);
+        vlink(temp_head) = a;
+    } else {
+        cur_mlist = p;
+        cur_style = m_style;
+        mlist_penalties = penalties;
+        mlist_to_hlist();
+    }
+}
+
+
 /*
 @ The recursion in |mlist_to_hlist| is due primarily to a subroutine
 called |clean_box| that puts a given noad field into a box using a given

@@ -314,6 +314,12 @@ i.e., a smaller style has a larger numerical value.
 @:TeXbook}{\sl The \TeX book@>
 */
 
+const char *math_style_names[] = { "display", "display'",
+                                   "text", "text'",
+                                   "script", "script'",
+                                   "scriptscript", "scriptscript'",
+                                   NULL } ;
+
 pointer new_style(small_number s)
 {                               /* create a style node */
     return new_node(style_node, s);
@@ -1733,7 +1739,7 @@ static void check_second_math_shift(void)
     }
 }
 
-void finish_displayed_math(boolean l, boolean danger, pointer p, pointer a);
+void finish_displayed_math(boolean l, boolean danger, pointer a);
 
 void after_math(void)
 {
@@ -1748,10 +1754,7 @@ void after_math(void)
     p = fin_mlist(null);        /* this pops the nest */
     if (mode == -m) {           /* end of equation number */
         check_second_math_shift();
-        cur_mlist = p;
-        cur_style = text_style;
-        mlist_penalties = false;
-        mlist_to_hlist();
+        run_mlist_to_hlist(p, text_style, false);
         a = hpack(vlink(temp_head), 0, additional);
         unsave_math();
         decr(save_ptr);         /* now |cur_group=math_shift_group| */
@@ -1774,10 +1777,7 @@ void after_math(void)
         if (dir_math_save) {
             tail_append(new_dir(math_direction));
         }
-        cur_mlist = p;
-        cur_style = text_style;
-        mlist_penalties = (mode > 0);
-        mlist_to_hlist();
+        run_mlist_to_hlist(p, text_style, (mode > 0));
         vlink(tail) = vlink(temp_head);
         while (vlink(tail) != null)
             tail = vlink(tail);
@@ -1790,8 +1790,9 @@ void after_math(void)
         unsave_math();
     } else {
         if (a == null)
-            check_second_math_shift();
-        finish_displayed_math(l, danger, p, a);
+          check_second_math_shift();
+        run_mlist_to_hlist(p, display_style, false);
+        finish_displayed_math(l, danger, a);
     }
 }
 
@@ -1826,7 +1827,7 @@ equation number.
    vertical mode (or internal vertical mode). 
 */
 
-void finish_displayed_math(boolean l, boolean danger, pointer p, pointer a)
+void finish_displayed_math(boolean l, boolean danger, pointer a)
 {
     pointer b;                  /* box containing the equation */
     scaled w;                   /* width of the equation */
@@ -1839,10 +1840,7 @@ void finish_displayed_math(boolean l, boolean danger, pointer p, pointer a)
     pointer r;                  /* kern node used to position the display */
     pointer t;                  /* tail of adjustment list */
     pointer pre_t;              /* tail of pre-adjustment list */
-    cur_mlist = p;
-    cur_style = display_style;
-    mlist_penalties = false;
-    mlist_to_hlist();
+    pointer p;
     p = vlink(temp_head);
     adjust_tail = adjust_head;
     pre_adjust_tail = pre_adjust_head;

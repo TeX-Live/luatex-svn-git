@@ -728,6 +728,7 @@ typedef enum {
     pre_linebreak_filter_callback,
     linebreak_filter_callback,
     post_linebreak_filter_callback,
+    mlist_to_hlist_callback,
     total_callbacks
 } callback_callback_types;
 

@@ -141,6 +141,8 @@ typedef enum {
   script_script_style = 6, /* |subtype| for \.{\\scriptscriptstyle} */
 } math_style_subtypes;
 
+extern const char *math_style_names[];
+
 #  define cramped 1             /* add this to an uncramped style if you want to cramp it */
 
 
