@@ -1940,6 +1940,18 @@ node list itself, unless you explicitly set the \type{list} field
 to \type{nil} beforehand. And in a similar way, calling
 \type{node.free(n)} will invalidate \type{h} as well!
 
+
+\subsubsection{\luatex{node.mlist_to_hlist}}
+
+\startfunctioncall
+<node> h = node.mlist_to_hlist(<node> n, 
+             <string> displaytype, <boolean> penalties)
+\stopfunctioncall
+
+This runs the internal mlist to hlist conversion, converting the math list in
+\type{n} into the horizontal list \type{h}. The interface is exactly the same as
+for the callback \type{mlist_to_hlist}.)
+
 \subsubsection{\luatex{node.slide}}
 
 \startfunctioncall
@@ -3362,6 +3374,22 @@ function(<node> head, <node> tail) end
 No return values. This callback has to apply kerning between the nodes
 in the node list it receives. See \type{ligaturing} for calling
 conventions.
+
+
+\subsubsection{\luatex{mlist_to_hlist}}
+
+This callback replaces \LUATEX's math list to node list conversion algorithm.
+
+\startfunctioncall
+function(<node> head, <string> displaytype, <boolean> need_penalties)
+    return <node> newhead
+end
+\stopfunctioncall
+
+The returned node is the head of the list that will be added to the vertical or
+horizontal list, the string argument is either \quote{text} or \quote{display}
+depending on the current math mode, the boolean argument is \type{true} if penalties
+have to be inserted in this list, \type{false} otherwise.
 
 
 \subsection{Information reporting callbacks}
@@ -6294,6 +6322,174 @@ Valid fields: \showfields{margin_kern}
 \NC width      \NC number  \NC  \NC\NR
 \NC glyph      \NC \syntax{<node>}    \NC  \NC\NR
 \stoptabulate
+
+\subsection{Math nodes}
+
+These are the so||called \quote{noad}s and the nodes that are specifically
+associated with math processing. Most of these nodes contain sub-nodes so 
+that the list of possible fields is actually quite small. First, the subnodes: 
+
+\subsubsection{Math kernel subnodes}
+
+Many object fields in math mode are either simple characters in a specific family
+or math lists or node lists. There are four associated subnodes that represent
+these cases.
+
+\subsubsubsection{math\_char and math\_text\_char subnodes}
+
+Valid fields: \showfields{math_char}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field     \NC \bf type  \NC  \bf explanation \NC\NR
+\NC attr       \NC \syntax{<node>}\NC          \NC\NR
+\NC char       \NC number         \NC          \NC \NR
+\NC fam        \NC number         \NC          \NC\NR
+\stoptabulate
+ 
+\subsubsubsection{sub\_box and sub\_mlist subnodes}
+
+Valid fields: \showfields{sub_box}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field     \NC \bf type  \NC  \bf explanation \NC\NR
+\NC attr       \NC \syntax{<node>}\NC          \NC\NR
+\NC list       \NC \syntax{<node>}\NC          \NC \NR
+\stoptabulate
+ 
+\subsubsection{Math delimiter subnode}
+
+There is a fifth subnode type that is used excusively for delimiter 
+fields.
+
+\subsubsubsection{delim subnodes}
+
+Valid fields: \showfields{delim}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field     \NC \bf type  \NC  \bf explanation \NC\NR
+\NC attr       \NC \syntax{<node>}\NC          \NC\NR
+\NC small_char \NC number         \NC          \NC \NR
+\NC small_fam  \NC number         \NC          \NC\NR
+\NC large_char \NC number         \NC          \NC \NR
+\NC large_fam  \NC number         \NC          \NC\NR
+\stoptabulate
+
+\subsubsection{Math core nodes}
+
+First, there are the node types that are associated with the simple
+math objects. All of these have the same list of fields.
+
+\subsubsubsection{ord, op, bin, rel, open, close, punct, inner, vcenter,
+  under, over nodes}
+
+Valid fields: \showfields{ord}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field     \NC \bf type  \NC  \bf explanation \NC\NR
+\NC subtype    \NC number         \NC  unused except for \quote{op} \NC\NR
+\NC attr       \NC \syntax{<node>}\NC          \NC\NR
+\NC nucleus    \NC \syntax{<kernel>}\NC          \NC \NR
+\NC sub        \NC \syntax{<kernel>}\NC          \NC\NR
+\NC sup        \NC \syntax{<kernel>}\NC          \NC \NR
+\stoptabulate
+
+In \quote{op} nodes, the \type{subtype} is a numeric value representing
+the \quote{limits} state. 0 = \type{\displaylimits}, 
+1 = \type{\limits}, 2 = \type{\nolimits}.
+
+
+\subsubsubsection{accent nodes}
+
+
+Valid fields: \showfields{accent}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field     \NC \bf type  \NC  \bf explanation \NC\NR
+\NC attr       \NC \syntax{<node>}\NC          \NC\NR
+\NC nucleus    \NC \syntax{<kernel>}\NC          \NC \NR
+\NC sub        \NC \syntax{<kernel>}\NC          \NC\NR
+\NC sup        \NC \syntax{<kernel>}\NC          \NC \NR
+\NC accent     \NC \syntax{<kernel>}\NC          \NC\NR
+\stoptabulate
+
+\subsubsubsection{style nodes}
+
+Valid fields: \showfields{style}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field     \NC \bf type  \NC  \bf explanation \NC\NR
+\NC style    \NC string         \NC  contains the style \NC\NR
+\stoptabulate
+
+There are eight possibilities for the string value: one of 
+\quote{display}, \quote{text}, \quote{script}, or \quote{scriptscript}. 
+Each of these can have a trailing \type{'} to signify 
+\quote{cramped} styles.
+
+\subsubsubsection{choice nodes}
+
+Valid fields: \showfields{choice}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field  \NC \bf type       \NC  \bf explanation \NC\NR
+\NC attr         \NC \syntax{<node>}\NC          \NC\NR
+\NC display      \NC \syntax{<node>}\NC          \NC\NR
+\NC text         \NC \syntax{<node>}\NC          \NC\NR
+\NC script       \NC \syntax{<node>}\NC          \NC\NR
+\NC scriptscript \NC \syntax{<node>}\NC          \NC\NR
+\stoptabulate
+
+\subsubsubsection{radical nodes}
+
+Valid fields: \showfields{radical}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field     \NC \bf type  \NC  \bf explanation \NC\NR
+\NC attr       \NC \syntax{<node>}\NC          \NC\NR
+\NC nucleus    \NC \syntax{<kernel>}\NC          \NC \NR
+\NC sub        \NC \syntax{<kernel>}\NC          \NC\NR
+\NC sup        \NC \syntax{<kernel>}\NC          \NC \NR
+\NC left       \NC \syntax{<delim>}\NC          \NC \NR
+\stoptabulate
+
+\subsubsubsection{fraction nodes}
+
+Valid fields: \showfields{fraction}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field     \NC \bf type  \NC  \bf explanation \NC\NR
+\NC attr       \NC \syntax{<node>}\NC          \NC\NR
+\NC width      \NC number \NC          \NC \NR
+\NC num        \NC \syntax{<kernel>}\NC          \NC\NR
+\NC denom      \NC \syntax{<kernel>}\NC          \NC \NR
+\NC left       \NC \syntax{<delim>}\NC          \NC \NR
+\NC right      \NC \syntax{<delim>}\NC          \NC \NR
+\stoptabulate
+
+\subsubsubsection{left nodes}
+
+Valid fields: \showfields{left}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field     \NC \bf type  \NC  \bf explanation \NC\NR
+\NC subtype    \NC number         \NC unused\NC\NR
+\NC attr       \NC \syntax{<node>}\NC          \NC\NR
+\NC left       \NC \syntax{<delim>}\NC          \NC \NR
+\stoptabulate
+
+\subsubsubsection{right nodes}
+
+Valid fields: \showfields{right}
+
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field     \NC \bf type  \NC  \bf explanation \NC\NR
+\NC subtype    \NC number         \NC unused\NC\NR
+\NC attr       \NC \syntax{<node>}\NC          \NC\NR
+\NC right       \NC \syntax{<delim>}\NC          \NC \NR
+\stoptabulate
+
+
 
 \subsection{whatsit nodes}
 
