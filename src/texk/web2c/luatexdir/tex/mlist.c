@@ -35,6 +35,17 @@ static const char _svn_version[] =
 #define disable_lig          int_par(param_disable_lig_code)
 #define disable_kern         int_par(param_disable_kern_code)
 
+#define reset_attributes(p,newatt) do {             \
+    delete_attribute_ref(node_attr(p));             \
+    node_attr(p) = newatt;                          \
+    if (newatt!=null) {                             \
+      assert(type(newatt)==attribute_list_node);    \
+      add_node_attr_ref(node_attr(p));              \
+    }                                               \
+  } while (0)
+
+
+
 /* 
 In order to convert mlists to hlists, i.e., noads to nodes, we need several
 subroutines that are conveniently dealt with now.
@@ -69,19 +80,41 @@ void print_size(integer s)
     cur_mu=x_over_n(math_quad(cur_size),18);                            \
   } while (0)
 
+/* a simple routine that creates a flat copy of a nucleus */
+
+pointer math_clone(pointer q)
+{
+    pointer x;
+    if (q == null) 
+      return null;
+    x = new_node(type(q),0);
+    reset_attributes(x, node_attr(q));
+    if (type(q) == math_char_node) {
+        math_fam(x) = math_fam(q);
+        math_character(x) = math_character(q);
+    } else {
+        math_list(x) = math_list(q);
+    }
+    return x;
+}
+
+
+
+
 /*
   @ Here is a function that returns a pointer to a rule node having a given
   thickness |t|. The rule will extend horizontally to the boundary of the vlist
   that eventually contains it.
 */
 
-pointer fraction_rule(scaled t)
+pointer fraction_rule(scaled t, pointer att)
 {
     pointer p;                  /* the new node */
     p = new_rule();
     rule_dir(p) = math_direction;
     height(p) = t;
     depth(p) = 0;
+    reset_attributes(p,att);
     return p;
 }
 
@@ -96,12 +129,16 @@ pointer overbar(pointer b, scaled k, scaled t)
     pointer p, q;               /* nodes being constructed */
     p = new_kern(k);
     vlink(p) = b;
-    q = fraction_rule(t);
+    reset_attributes(p,node_attr(b));
+    q = fraction_rule(t,node_attr(b));
     vlink(q) = p;
     p = new_kern(t);
+    reset_attributes(p,node_attr(b));
     vlink(p) = q;
     pack_direction = math_direction;
-    return vpackage(p, 0, additional, max_dimen);
+    q = vpackage(p, 0, additional, max_dimen);
+    reset_attributes(q,node_attr(b));
+    return q;
 }
 
 /*
@@ -112,14 +149,16 @@ pointer overbar(pointer b, scaled k, scaled t)
   may deliver a slightly different result than |hpack| would produce.
 */
 
-pointer char_box(internal_font_number f, quarterword c)
+static pointer char_box(internal_font_number f, integer c, pointer bb)
 {
     pointer b, p;               /* the new box and its character node */
     b = new_null_box();
     width(b) = char_width(f, c) + char_italic(f, c);
     height(b) = char_height(f, c);
     depth(b) = char_depth(f, c);
+    reset_attributes(b,bb);
     p = new_char(f, c);
+    reset_attributes(p,bb);
     list_ptr(b) = p;
     return b;
 }
@@ -130,10 +169,10 @@ pointer char_box(internal_font_number f, quarterword c)
   of the characters already in box |b|:
 */
 
-void stack_into_box(pointer b, internal_font_number f, quarterword c)
+void stack_into_box(pointer b, internal_font_number f, integer c)
 {
     pointer p;                  /* new node placed into |b| */
-    p = char_box(f, c);
+    p = char_box(f, c, node_attr(b));
     vlink(p) = list_ptr(b);
     list_ptr(b) = p;
     height(b) = height(p);
@@ -145,7 +184,7 @@ void stack_into_box(pointer b, internal_font_number f, quarterword c)
  a given character:
 */
 
-scaled height_plus_depth(internal_font_number f, quarterword c)
+scaled height_plus_depth(internal_font_number f, integer c)
 {
     return (char_height(f, c) + char_depth(f, c));
 }
@@ -180,6 +219,7 @@ pointer var_delimiter(pointer d, integer s, scaled v)
     scaled w;                   /* largest height-plus-depth so far */
     integer z;                  /* runs through font family members */
     boolean large_attempt;      /* are we trying the ``large'' variant? */
+    pointer att;                /* to save the current attribute list */
     f = null_font;
     c = 0;
     w = 0;
@@ -192,7 +232,7 @@ pointer var_delimiter(pointer d, integer s, scaled v)
         /* The search process is complicated slightly by the facts that some of the
            characters might not be present in some of the fonts, and they might not
            be probed in increasing order of height. */
-        if ((z != 0) || (x != min_quarterword)) {
+        if ((z != 0) || (x != 0)) {
             z = z + s + script_size;
             do {
                 z = z - script_size;
@@ -231,6 +271,7 @@ pointer var_delimiter(pointer d, integer s, scaled v)
         x = large_char(d);
     }
   FOUND:
+    att = node_attr(d); node_attr(d) = null;
     flush_node(d);
     if (f != null_font) {
         /* When the following code is executed, |char_tag(q)| will be equal to
@@ -239,6 +280,7 @@ pointer var_delimiter(pointer d, integer s, scaled v)
         if (char_tag(f, c) == ext_tag) {
             b = new_null_box();
             type(b) = vlist_node;
+            reset_attributes(b,att);
             /* The width of an extensible character is the width of the repeatable
                module. If this module does not have positive height plus depth,
                we don't use any copies of it, otherwise we use as few as possible
@@ -249,51 +291,53 @@ pointer var_delimiter(pointer d, integer s, scaled v)
             w = 0;
             width(b) = char_width(f, cc) + char_italic(f, cc);
             cc = ext_bot(f, c);
-            if (cc != min_quarterword)
+            if (cc != 0)
                 w = w + height_plus_depth(f, cc);
             cc = ext_mid(f, c);
-            if (cc != min_quarterword)
+            if (cc != 0)
                 w = w + height_plus_depth(f, cc);
             cc = ext_top(f, c);
-            if (cc != min_quarterword)
+            if (cc != 0)
                 w = w + height_plus_depth(f, cc);
             n = 0;
             if (u > 0) {
                 while (w < v) {
                     w = w + u;
                     incr(n);
-                    if ((ext_mid(f, c)) != min_quarterword)
+                    if ((ext_mid(f, c)) != 0)
                         w = w + u;
                 }
             }
             cc = ext_bot(f, c);
-            if (cc != min_quarterword)
+            if (cc != 0)
                 stack_into_box(b, f, cc);
             cc = ext_rep(f, c);
             for (m = 1; m <= n; m++)
                 stack_into_box(b, f, cc);
             cc = ext_mid(f, c);
-            if (cc != min_quarterword) {
+            if (cc != 0) {
                 stack_into_box(b, f, cc);
                 cc = ext_rep(f, c);
                 for (m = 1; m <= n; m++)
                     stack_into_box(b, f, cc);
             }
             cc = ext_top(f, c);
-            if (cc != min_quarterword)
+            if (cc != 0)
                 stack_into_box(b, f, cc);
             depth(b) = w - height(b);
         } else {
-            b = char_box(f, c);
+          b = char_box(f, c, att);
         }
     } else {
         b = new_null_box();
+        reset_attributes(b,att);
         width(b) = null_delimiter_space;        /* use this width if no delimiter was found */
     }
     z = cur_size;
     cur_size = s;
     shift_amount(b) = half(height(b) - depth(b)) - axis_height(cur_size);
     cur_size = z;
+    delete_attribute_ref(att);
     return b;
 }
 
@@ -315,31 +359,42 @@ kern is inserted.
 
 pointer rebox(pointer b, scaled w)
 {
-    pointer p, q;               /* temporary registers for list manipulation */
+    pointer p, q, r, att;       /* temporary registers for list manipulation */
     internal_font_number f;     /* font in a one-character box */
     scaled v;                   /* width of a character without italic correction */
 
     if ((width(b) != w) && (list_ptr(b) != null)) {
-        if (type(b) == vlist_node)
-            b = hpack(b, 0, additional);
+      if (type(b) == vlist_node) {
+            p = hpack(b, 0, additional);
+            reset_attributes(p,node_attr(b));
+            b = p;
+        }
         p = list_ptr(b);
+        att = node_attr(b);
+        add_node_attr_ref(att);
         if ((is_char_node(p)) && (vlink(p) == null)) {
             f = font(p);
             v = char_width(f, character(p));
             if (v != width(b)) {
                 q = new_kern(width(b) - v);
+                reset_attributes(q,att);
                 vlink(p) = q;
             }
         }
         list_ptr(b) = null;
         flush_node(b);
         b = new_glue(ss_glue);
+        reset_attributes(b,att);
         vlink(b) = p;
         while (vlink(p) != null)
             p = vlink(p);
         q = new_glue(ss_glue);
+        reset_attributes(q,att);
         vlink(p) = q;
-        return hpack(b, w, exactly);
+        r = hpack(b, w, exactly);
+        reset_attributes(r,att);
+        delete_attribute_ref(att);
+        return r;
     } else {
         width(b) = w;
         return b;
@@ -504,6 +559,8 @@ pointer clean_box(pointer p, integer s)
         x = q;                  /* it's already clean */
     else
         x = hpack(q, 0, additional);
+    if (x!=q)
+      reset_attributes(x,node_attr(q));
     /* Here we save memory space in a common case. */
     q = list_ptr(x);
     if (is_char_node(q)) {
@@ -534,7 +591,7 @@ after |fetch| has acted, and the field will also have been reset to |null|.
 /* The outputs of |fetch| are placed in global variables. */
 
 internal_font_number cur_f;     /* the |font| field of a |math_char| */
-quarterword cur_c;              /* the |character| field of a |math_char| */
+integer cur_c;              /* the |character| field of a |math_char| */
 
 void fetch(pointer a)
 {                               /* unpack the |math_char| field |a| */
@@ -648,11 +705,13 @@ void make_under(pointer q)
     scaled delta;               /* overall height plus depth */
     x = clean_box(nucleus(q), cur_style);
     p = new_kern(3 * default_rule_thickness);
+    reset_attributes(p,node_attr(q));
     vlink(x) = p;
-    r = fraction_rule(default_rule_thickness);
+    r = fraction_rule(default_rule_thickness,node_attr(q));
     vlink(p) = r;
     pack_direction = math_direction;
     y = vpackage(x, 0, additional, max_dimen);
+    reset_attributes(y,node_attr(q));
     delta = height(y) + depth(y) + default_rule_thickness;
     height(y) = height(x);
     depth(y) = delta - height(y);
@@ -704,6 +763,7 @@ void make_radical(pointer q)
     p = overbar(x, clr, height(y));
     vlink(y) = p;
     p = hpack(y, 0, additional);
+    reset_attributes(p,node_attr(q));
     math_list(nucleus(q)) = p;
     type(nucleus(q)) = sub_box_node;
 }
@@ -717,7 +777,7 @@ respect to the size of the final box.
 void make_math_accent(pointer q)
 {
     pointer p, r, x, y;            /* temporary registers for box construction */
-    quarterword c;              /* accent character */
+    integer c;              /* accent character */
     internal_font_number f;     /* its font */
     scaled s;                   /* amount to skew the accent to the right */
     scaled h;                   /* height of character being accented */
@@ -771,7 +831,7 @@ void make_math_accent(pointer q)
                 h = height(x);
             }
         }
-        y = char_box(f, c);
+        y = char_box(f, c, node_attr(q));
         shift_amount(y) = s + half(w - width(y));
         width(y) = 0;
         p = new_kern(-delta);
@@ -779,10 +839,12 @@ void make_math_accent(pointer q)
         vlink(y) = p;
         pack_direction = math_direction;
         y = vpackage(y, 0, additional, max_dimen);
+        reset_attributes(y,node_attr(q));
         width(y) = width(x);
         if (height(y) < h) {
             /* Make the height of box |y| equal to |h| */
             p = new_kern(h - height(y));
+            reset_attributes(p,node_attr(q));
             vlink(p) = list_ptr(y);
             list_ptr(y) = p;
             height(y) = h;
@@ -850,17 +912,20 @@ void make_fraction(pointer q)
     height(v) = shift_up + height(x);
     depth(v) = depth(z) + shift_down;
     width(v) = width(x);        /* this also equals |width(z)| */
+    reset_attributes(v,node_attr(q));
     if (thickness(q) == 0) {
         p = new_kern((shift_up - depth(x)) - (height(z) - shift_down));
         vlink(p) = z;
     } else {
-        y = fraction_rule(thickness(q));
+        y = fraction_rule(thickness(q),node_attr(q));
         p = new_kern((axis_height(cur_size) - delta) - (height(z) - shift_down));
+        reset_attributes(p,node_attr(q));
         vlink(y) = p;
         vlink(p) = z;
         p = new_kern((shift_up - depth(x)) - (axis_height(cur_size) + delta));
         vlink(p) = y;
     }
+    reset_attributes(p,node_attr(q));
     vlink(x) = p;
     list_ptr(v) = x;
     /* Put the fraction into a box with its delimiters, and make |new_hlist(q)|
@@ -873,6 +938,7 @@ void make_fraction(pointer q)
     right_delimiter(q) = null;
     vlink(v) = z;
     y = hpack(x, 0, additional);
+    reset_attributes(y,node_attr(q));
     assign_new_hlist(q,y);
 }
 
@@ -898,7 +964,7 @@ scaled make_op(pointer q)
 {
     scaled delta;               /* offset between subscript and superscript */
     pointer p, v, x, y, z;      /* temporary registers for box construction */
-    quarterword c;              /* register for character examination */
+    integer c;              /* register for character examination */
     scaled shift_up, shift_down;        /* dimensions for box calculation */
     if ((subtype(q) == normal) && (cur_style < text_style))
         subtype(q) = limits;
@@ -929,6 +995,7 @@ scaled make_op(pointer q)
         y = clean_box(nucleus(q), cur_style);
         z = clean_box(subscr(q), sub_style(cur_style));
         v = new_null_box();
+        reset_attributes(v,node_attr(q));
         type(v) = vlist_node;
         width(v) = width(y);
         if (width(x) > width(v))
@@ -957,13 +1024,14 @@ scaled make_op(pointer q)
             if (shift_up < big_op_spacing1)
                 shift_up = big_op_spacing1;
             p = new_kern(shift_up);
+            reset_attributes(p,node_attr(q));
             vlink(p) = y;
             vlink(x) = p;
             p = new_kern(big_op_spacing5);
+            reset_attributes(p,node_attr(q));
             vlink(p) = x;
             list_ptr(v) = p;
-            height(v) =
-                height(v) + big_op_spacing5 + height(x) + depth(x) + shift_up;
+            height(v) = height(v) + big_op_spacing5 + height(x) + depth(x) + shift_up;
         }
         if (subscr(q) == null) {
             list_ptr(z) = null;
@@ -973,12 +1041,13 @@ scaled make_op(pointer q)
             if (shift_down < big_op_spacing2)
                 shift_down = big_op_spacing2;
             p = new_kern(shift_down);
+            reset_attributes(p,node_attr(q));
             vlink(y) = p;
             vlink(p) = z;
             p = new_kern(big_op_spacing5);
+            reset_attributes(p,node_attr(q));
             vlink(z) = p;
-            depth(v) =
-                depth(v) + big_op_spacing5 + height(z) + depth(z) + shift_down;
+            depth(v) = depth(v) + big_op_spacing5 + height(z) + depth(z) + shift_down;
         }
         if (subscr(q)!=null) {
           math_list(subscr(q)) = null; 
@@ -1055,7 +1124,9 @@ void make_ord(pointer q)
                         case 7:
                         case 11:
                             r = new_noad();     /* \.{|=:|}, \.{|=:|>}, \.{|=:|>>} */
+                            reset_attributes(r,node_attr(q));
                             s = new_node(math_char_node,0);
+                            reset_attributes(s,node_attr(q));
                             nucleus(r) = s ; 
                             math_character(nucleus(r)) = lig_replacement(lig);
                             math_fam(nucleus(r)) = math_fam(nucleus(q));
@@ -1088,6 +1159,7 @@ void make_ord(pointer q)
                     k = get_kern(cur_f, a, cur_c);
                     if (k != 0) {
                         p = new_kern(k);
+                        reset_attributes(p,node_attr(q));
                         vlink(p) = vlink(q);
                         vlink(q) = p;
                         return;
@@ -1190,10 +1262,12 @@ void make_scripts(pointer q, scaled delta)
             }
             shift_amount(x) = delta;    /* superscript is |delta| to the right of the subscript */
             p = new_kern((shift_up - depth(x)) - (height(y) - shift_down));
+            reset_attributes(p,node_attr(q));
             vlink(x) = p;
             vlink(p) = y;
             pack_direction = math_direction;
             x = vpackage(x, 0, additional, max_dimen);
+            reset_attributes(x,node_attr(q));
             shift_amount(x) = shift_down;
         }
     }
@@ -1469,11 +1543,13 @@ void mlist_to_hlist(void)
             if (char_exists(cur_f, cur_c)) {
                 delta = char_italic(cur_f, cur_c);
                 p = new_glyph(cur_f, cur_c);
+                reset_attributes(p,node_attr(nucleus(q)));
                 if ((type(nucleus(q)) == math_text_char_node)
                     && (space(cur_f) != 0))
                     delta = 0;  /* no italic correction in mid-word of text font */
                 if ((subscr(q) == null) && (delta != 0)) {
                     x = new_kern(delta);
+                    reset_attributes(x,node_attr(nucleus(q)));
                     vlink(p) = x;
                     delta = 0;
                 }
@@ -1492,6 +1568,7 @@ void mlist_to_hlist(void)
             cur_style = save_style;
             setup_cur_size_and_mu();
             p = hpack(vlink(temp_head), 0, additional);
+            reset_attributes(p,node_attr(nucleus(q)));
             break;
         default:
             tconfusion("mlist2"); /* this can't happen mlist2 */
@@ -1633,6 +1710,7 @@ void mlist_to_hlist(void)
             if (x != 0) {
                 y = math_glue(glue_par(x), cur_mu);
                 z = new_glue(y);
+                reset_attributes(z,node_attr(p));
                 glue_ref_count(y) = null;
                 vlink(p) = z;
                 p = z;
@@ -1655,6 +1733,7 @@ void mlist_to_hlist(void)
             r_type = type(vlink(q));
             if (r_type != penalty_node && r_type != rel_noad) {
                 z = new_penalty(pen);
+                reset_attributes(z,node_attr(q));
                 vlink(p) = z;
                 p = z;
             }

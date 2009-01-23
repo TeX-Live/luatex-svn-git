@@ -241,22 +241,6 @@ void initialize_math(void)
     return;
 }
 
-pointer math_clone(pointer q)
-{
-    pointer x;
-    if (q == null) 
-      return null;
-    x = new_node(type(q),0);
-    if (type(q) == math_char_node) {
-        math_fam(x) = math_fam(q);
-        math_character(x) = math_character(q);
-    } else {
-        math_list(x) = math_list(q);
-    }
-    return x;
-}
-
-
 /* The |new_noad| function creates an |ord_noad| that is completely null */
 
 pointer new_noad(void)
@@ -1601,20 +1585,25 @@ void close_math_group(pointer p)
                         math_list(saved(0)) = math_list(nucleus(p));
                         math_list(nucleus(p)) = null;
                     }
+                    node_attr(saved(0)) = node_attr(nucleus(p));
+                    node_attr(nucleus(p)) = null;
                     flush_node(p);
                 }
             }
         } else {
             if (type(p) == accent_noad) {
                 if (saved(0) == nucleus(tail)) {
+                    /* todo: check this branch */
                     if (type(tail) == ord_noad) {
                         q = head;
                         while (vlink(q) != tail)
                             q = vlink(q);
                         vlink(q) = p;
-                        nucleus(tail) = null;/* just in case */
+                        nucleus(tail) = null;
                         subscr(tail) = null;
                         supscr(tail) = null;
+                        node_attr(p) = node_attr(tail);
+                        node_attr(tail) = null;
                         flush_node(tail);
                         tail = p;
                     }

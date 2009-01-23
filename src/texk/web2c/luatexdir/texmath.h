@@ -37,9 +37,7 @@ extern void math_left_brace(void);
 extern void finish_display_alignment(halfword, halfword, memory_word);
 extern halfword new_sub_box(halfword);
 
-# define math_reset(p) do { if (p!=null) flush_node(p); p = null; } while (0)
-
-extern pointer math_clone (pointer);
+#  define math_reset(p) do { if (p!=null) flush_node(p); p = null; } while (0)
 
 #  define scripts_allowed(A) ((type((A))>=ord_noad)&&(type((A))<left_noad))
 
