@@ -564,13 +564,9 @@ void fetch(pointer a)
         msg = makecstring(s);
         tex_error(msg, hlp);
         free(msg);
-        flush_node(a);
-        a = null;
     } else {
         if (!(char_exists(cur_f, cur_c))) {
             char_warning(cur_f, cur_c);
-            flush_node(a);
-            a = null;
         }
     }
 }
