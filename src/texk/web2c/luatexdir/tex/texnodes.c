@@ -2829,3 +2829,88 @@ void show_node_list(integer p)
         p = vlink(p);
     }
 }
+
+/* This routine finds the 'base' width of a horizontal box, using the same logic
+  that \TeX82 used for \.{\\predisplaywidth} */
+
+pointer actual_box_width (pointer r, scaled base_width) 
+{
+    scaled w;                   /* calculated |size| */
+    pointer p;                  /* current node when calculating |pre_display_size| */
+    pointer q;                  /* glue specification when calculating |pre_display_size| */
+    internal_font_number f;     /* font in current |char_node| */
+    scaled d;                   /* increment to |v| */
+    scaled v;                   /* |w| plus possible glue amount */
+    w = -max_dimen;
+    v = shift_amount(r) + base_width;
+    p = list_ptr(r);
+    while (p != null) {
+      if (is_char_node(p)) {
+        f = font(p);
+        d = glyph_width(p);
+        goto found;
+      }
+      switch (type(p)) {
+      case hlist_node:
+      case vlist_node:
+      case rule_node:
+        d = width(p);
+        goto found;
+        break;
+      case margin_kern_node:
+        d = width(p);
+        break;
+      case kern_node:
+        d = width(p);
+        break;
+      case math_node:
+        d = surround(p);
+        break;
+      case glue_node:
+        /* We need to be careful that |w|, |v|, and |d| do not depend on any |glue_set|
+           values, since such values are subject to system-dependent rounding.
+           System-dependent numbers are not allowed to infiltrate parameters like
+           |pre_display_size|, since \TeX82 is supposed to make the same decisions on all
+           machines.
+        */
+        q = glue_ptr(p);
+        d = width(q);
+        if (glue_sign(r) == stretching) {
+          if ((glue_order(r) == stretch_order(q))
+              && (stretch(q) != 0))
+            v = max_dimen;
+        } else if (glue_sign(r) == shrinking) {
+          if ((glue_order(r) == shrink_order(q))
+              && (shrink(q) != 0))
+            v = max_dimen;
+        }
+        if (subtype(p) >= a_leaders)
+          goto found;
+        break;
+      case whatsit_node:
+        if ((subtype(p) == pdf_refxform_node)
+            || (subtype(p) == pdf_refximage_node))
+          d = pdf_width(p);
+        else
+          d = 0;
+        break;
+      default:
+        d = 0;
+        break;
+      }
+      if (v < max_dimen)
+        v = v + d;
+      goto not_found;
+    found:
+      if (v < max_dimen) {
+        v = v + d;
+        w = v;
+      } else {
+        w = max_dimen;
+        break;
+      }
+    not_found:
+      p = vlink(p);
+    }
+    return w;
+}

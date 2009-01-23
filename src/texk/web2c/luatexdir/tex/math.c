@@ -734,94 +734,20 @@ display. Then we can set the proper values of |display_width| and
 |display_indent| and |pre_display_size|.
 */
 
+
 void enter_display_math(void)
 {
-    /* label found,not_found,done; */
     scaled w;                   /* new or partial |pre_display_size| */
     scaled l;                   /* new |display_width| */
     scaled s;                   /* new |display_indent| */
-    pointer p;                  /* current node when calculating |pre_display_size| */
-    pointer q;                  /* glue specification when calculating |pre_display_size| */
-    internal_font_number f;     /* font in current |char_node| */
+    pointer p;
     integer n;                  /* scope of paragraph shape specification */
-    scaled v;                   /* |w| plus possible glue amount */
-    scaled d;                   /* increment to |v| */
     if (head == tail) {         /* `\.{\\noindent\$\$}' or `\.{\$\${ }\$\$}' */
         pop_nest();
         w = -max_dimen;
     } else {
         line_break(true);
-        v = shift_amount(just_box) + 2 * quad(get_cur_font());
-        w = -max_dimen;
-        p = list_ptr(just_box);
-        while (p != null) {
-            if (is_char_node(p)) {
-                f = font(p);
-                d = glyph_width(p);
-                goto found;
-            }
-            switch (type(p)) {
-            case hlist_node:
-            case vlist_node:
-            case rule_node:
-                d = width(p);
-                goto found;
-                break;
-            case margin_kern_node:
-                d = width(p);
-                break;
-            case kern_node:
-                d = width(p);
-                break;
-            case math_node:
-                d = surround(p);
-                break;
-            case glue_node:
-                /* We need to be careful that |w|, |v|, and |d| do not depend on any |glue_set|
-                   values, since such values are subject to system-dependent rounding.
-                   System-dependent numbers are not allowed to infiltrate parameters like
-                   |pre_display_size|, since \TeX82 is supposed to make the same decisions on all
-                   machines.
-                 */
-                q = glue_ptr(p);
-                d = width(q);
-                if (glue_sign(just_box) == stretching) {
-                    if ((glue_order(just_box) == stretch_order(q))
-                        && (stretch(q) != 0))
-                        v = max_dimen;
-                } else if (glue_sign(just_box) == shrinking) {
-                    if ((glue_order(just_box) == shrink_order(q))
-                        && (shrink(q) != 0))
-                        v = max_dimen;
-                }
-                if (subtype(p) >= a_leaders)
-                    goto found;
-                break;
-            case whatsit_node:
-                if ((subtype(p) == pdf_refxform_node)
-                    || (subtype(p) == pdf_refximage_node))
-                    d = pdf_width(p);
-                else
-                    d = 0;
-                break;
-            default:
-                d = 0;
-                break;
-            }
-            if (v < max_dimen)
-                v = v + d;
-            goto not_found;
-          found:
-            if (v < max_dimen) {
-                v = v + d;
-                w = v;
-            } else {
-                w = max_dimen;
-                break;
-            }
-          not_found:
-            p = vlink(p);
-        }
+        w = actual_box_width(just_box, (2 * quad(get_cur_font())));
     }
     /* now we are in vertical mode, working on the list that will contain the display */
     /* A displayed equation is considered to be three lines long, so we

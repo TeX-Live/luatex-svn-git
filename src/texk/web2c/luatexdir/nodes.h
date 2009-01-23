@@ -688,6 +688,7 @@ extern halfword string_to_pseudo(integer l, integer pool_ptr, integer nl);
 
 extern void print_short_node_contents(halfword n);
 extern void show_node_list(integer i);
+extern pointer actual_box_width (pointer r, scaled base_width) ;
 
 /* TH: these two defines still need checking. The node ordering in luatex is not 
    quite the same as in tex82 */
