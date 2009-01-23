@@ -269,16 +269,16 @@ an accent over its nucleus; the accent character appears as
 centers its nucleus vertically with respect to the axis of the formula;
 in such noads we always have |type(nucleus(p))=sub_box|.
 
-And finally, we have |left_noad| and |right_noad| types, to implement
+And finally, we have the |fence_noad| type, to implement
 \TeX's \.{\\left} and \.{\\right} as well as \eTeX's \.{\\middle}.
 The |nucleus| of such noads is
 replaced by a |delimiter| field; thus, for example, `\.{\\left(}' produces
-a |left_noad| such that |delimiter(p)| holds the family and character
-codes for all left parentheses. A |left_noad| never appears in an mlist
-except as the first element, and a |right_noad| never appears in an mlist
-except as the last element; furthermore, we either have both a |left_noad|
-and a |right_noad|, or neither one is present. The |subscr| and |supscr|
-fields are always |empty| in a |left_noad| and a |right_noad|.
+a |fence_noad| such that |delimiter(p)| holds the family and character
+codes for all left parentheses. A |fence_noad| of subtype |left_noad_side| 
+never appears in an mlist except as the first element, and a |fence_noad| 
+with subtype |right_noad_side| never appears in an mlist
+except as the last element; furthermore, we either have both a |left_noad_side|
+and a |right_noad_side|, or neither one is present.
 */
 
 /*
@@ -339,6 +339,7 @@ the current string would be `\.{.\^.\_/}' if |p| points to the |ord_noad| for
 
 
 void display_normal_noad(pointer p);    /* forward */
+void display_fence_noad(pointer p);    /* forward */
 void display_fraction_noad(pointer p);  /* forward */
 
 void show_math_node(pointer p)
@@ -375,9 +376,10 @@ void show_math_node(pointer p)
     case under_noad:
     case vcenter_noad:
     case accent_noad:
-    case left_noad:
-    case right_noad:
         display_normal_noad(p);
+        break;
+    case fence_noad:
+        display_fence_noad(p);
         break;
     case fraction_noad:
         display_fraction_noad(p);
@@ -519,19 +521,8 @@ void display_normal_noad(pointer p)
         tprint_esc("accent");
         print_fam_and_char(accent_chr(p));
         break;
-    case left_noad:
-        tprint_esc("left");
-        print_delimiter(delimiter(p));
-        break;
-    case right_noad:
-        if (subtype(p) == normal)
-            tprint_esc("right");
-        else
-            tprint_esc("middle");
-        print_delimiter(delimiter(p));
-        break;
     }
-    if (type(p) < left_noad) {
+    if (type(p) < fence_noad) {
         if (subtype(p) != normal) {
             if (subtype(p) == limits)
                 tprint_esc("limits");
@@ -542,6 +533,17 @@ void display_normal_noad(pointer p)
     }
     print_subsidiary_data(supscr(p), '^');
     print_subsidiary_data(subscr(p), '_');
+}
+
+void display_fence_noad(pointer p)
+{
+  if (subtype(p) == right_noad_side)
+    tprint_esc("right");
+  else if (subtype(p) == left_noad_side)
+    tprint_esc("left");
+  else
+    tprint_esc("middle");
+  print_delimiter(delimiter(p));
 }
 
 void display_fraction_noad(pointer p)
@@ -1522,8 +1524,8 @@ void math_fraction(void)
 /* At the end of a math formula or subformula, the |fin_mlist| routine is
 called upon to return a pointer to the newly completed mlist, and to
 pop the nest back to the enclosing semantic level. The parameter to
-|fin_mlist|, if not null, points to a |right_noad| that ends the
-current mlist; this |right_noad| has not yet been appended.
+|fin_mlist|, if not null, points to a |fence_noad| that ends the
+current mlist; this |fence_noad| has not yet been appended.
 */
 
 
@@ -1542,7 +1544,7 @@ pointer fin_mlist(pointer p)
             q = incompleat_noad;
         } else {
             q = math_list(numerator(incompleat_noad));
-            if ((type(q) != left_noad) || (delim_ptr == null))
+            if ((type(q) != fence_noad) || (subtype(q) != left_noad_side) || (delim_ptr == null))
                 tconfusion("right");    /* this can't happen */
             math_list(numerator(incompleat_noad)) = vlink(delim_ptr);
             vlink(delim_ptr) = incompleat_noad;
@@ -1622,15 +1624,15 @@ delimiters to appear between \.{\\left} and \.{\\right}.
 
 void math_left_right(void)
 {
-    small_number t;             /* |left_noad| or |right_noad| */
+    small_number t;             /* |left_noad_side| .. |right_noad_side| */
     pointer p;                  /* new noad */
     pointer q;                  /* resulting mlist */
     pointer r;                  /* temporary */
     t = cur_chr;
-    if ((t != left_noad) && (cur_group != math_left_group)) {
+    if ((t != left_noad_side) && (cur_group != math_left_group)) {
         if (cur_group == math_shift_group) {
             scan_delimiter(null, no_mathcode);
-            if (t == middle_noad) {
+            if (t == middle_noad_side) {
                 char *hlp[] = {
                     "I'm ignoring a \\middle that had no matching \\left.",
                     NULL
@@ -1648,21 +1650,18 @@ void math_left_right(void)
         }
     } else {
         p = new_noad();
-        type(p) = t;
+        type(p) = fence_noad;
+        subtype(p) = t;
         r = new_node(delim_node,0);
         delimiter(p) = r;
         scan_delimiter(delimiter(p), no_mathcode);
-        if (t == middle_noad) {
-            type(p) = right_noad;
-            subtype(p) = middle_noad;
-        }
-        if (t == left_noad) {
+        if (t == left_noad_side) {
             q = p;
         } else {
             q = fin_mlist(p);
             unsave_math();
         }
-        if (t != right_noad) {
+        if (t != right_noad_side) {
             push_math(math_left_group);
             vlink(head) = q;
             tail = p;

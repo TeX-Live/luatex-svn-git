@@ -39,7 +39,7 @@ extern halfword new_sub_box(halfword);
 
 #  define math_reset(p) do { if (p!=null) flush_node(p); p = null; } while (0)
 
-#  define scripts_allowed(A) ((type((A))>=ord_noad)&&(type((A))<left_noad))
+#  define scripts_allowed(A) ((type((A))>=ord_noad)&&(type((A))<fence_noad))
 
 #  define default_code 010000000000     /* denotes |default_rule_thickness| */
 

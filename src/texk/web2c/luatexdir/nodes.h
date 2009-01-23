@@ -285,8 +285,6 @@ typedef enum {
 #  define synctex_tag_math(a)  vinfo((a)+3)
 #  define synctex_line_math(a) vlink((a)+3)
 
-
-
 #  define ins_node_size 6
 #  define float_cost(a)    varmem[(a)+2].cint
 #  define ins_ptr(a)       vinfo((a)+5)
@@ -332,8 +330,7 @@ typedef enum {
     over_noad,
     accent_noad,
     vcenter_noad,
-    left_noad,       /* 30 */
-    right_noad,
+    fence_noad,       /* 30 */
     math_char_node,       /* kernel fields */
     sub_box_node,
     sub_mlist_node,
@@ -342,8 +339,8 @@ typedef enum {
     margin_kern_node,
     glyph_node,
     align_record_node,
-    pseudo_file_node, /* 40 */
-    pseudo_line_node,
+    pseudo_file_node,
+    pseudo_line_node, /* 40 */
     inserting_node,
     split_up_node,
     expr_node,
@@ -408,8 +405,14 @@ typedef enum {
 
 /* left and right noads */
 
-#  define left_right_noad_size 3
+#  define fence_noad_size 3
 #  define delimiter(a)      vlink((a)+2)  /* |delimiter| field in left and right noads */
+
+/* subtype of fence noads */
+
+#  define left_noad_side 1
+#  define middle_noad_side 2
+#  define right_noad_side 3
 
 /* fraction noads */
 
@@ -439,8 +442,6 @@ typedef enum {
 #  define small_char(A) vlink((A)+2) /* |character| for ``small'' delimiter */
 #  define large_fam(A)  vinfo((A)+3) /* |fam| for ``large'' delimiter */
 #  define large_char(A) vlink((A)+3) /* |character| for ``large'' delimiter */
-
-#  define middle_noad 1
 
 typedef enum {
     open_node = 0,

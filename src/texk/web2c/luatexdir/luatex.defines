@@ -633,9 +633,7 @@
 @define procedure scan_extdef_math_code();
 @define procedure scan_extdef_del_code();
 
-@define const left_noad;
-@define const middle_noad;
-@define const right_noad;
+@define const fence_noad;
 @define const ord_noad;
 @define const op_noad;
 @define const bin_noad;
@@ -650,6 +648,11 @@
 @define const over_noad;
 @define const accent_noad;
 @define const vcenter_noad;
+
+@define const left_noad_side   ;
+@define const middle_noad_side ;
+@define const right_noad_side  ;
+
 @define procedure print_size();
 @define procedure finish_display_alignment();
 @define function new_sub_box();

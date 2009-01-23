@@ -1709,8 +1709,7 @@ static int lua_nodelib_getfield(lua_State * L)
         lua_pushnil(L);
       }
       break;
-    case left_noad:
-    case right_noad:
+    case fence_noad:
       switch (field) {
       case 2:
         lua_pushnumber(L, subtype(n));
@@ -2810,8 +2809,7 @@ static int lua_nodelib_setfield(lua_State * L)
             return nodelib_cantset(L, field, n);
           }
           break;
-        case left_noad:
-        case right_noad:
+        case fence_noad:
           switch (field) {
           case 2:
             subtype(n) = lua_tointeger(L, 3);

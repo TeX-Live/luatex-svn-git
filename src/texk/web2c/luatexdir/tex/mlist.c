@@ -638,7 +638,7 @@ glue, it recursively evaluates all subsidiary mlists so that only the
 top-level mlist remains to be handled, it puts fractions and square roots
 and such things into boxes, it attaches subscripts and superscripts, and
 it computes the overall height and depth of the top-level mlist so that
-the size of delimiters for a |left_noad| and a |right_noad| will be known.
+the size of delimiters for a |fence_noad| will be known.
 The hlist resulting from each noad is recorded in that noad's |new_hlist|
 field, an integer field that replaces the |nucleus| or |thickness|.
 @^recursion@>
@@ -1295,10 +1295,8 @@ void make_scripts(pointer q, scaled delta)
 /* 
 The |make_left_right| function constructs a left or right delimiter of
 the required size and returns the value |open_noad| or |close_noad|. The
-|right_noad| and |left_noad| will both be based on the original |style|,
+|left_noad_side| and |right_noad_side| will both be based on the original |style|,
 so they will have consistent sizes.
-
-We use the fact that |right_noad-left_noad=close_noad-open_noad|.
 */
 
 small_number make_left_right(pointer q, integer style, scaled max_d,
@@ -1319,7 +1317,10 @@ small_number make_left_right(pointer q, integer style, scaled max_d,
     tmp = var_delimiter(delimiter(q), cur_size, delta);
     delimiter(q) = null;
     assign_new_hlist(q,tmp);
-    return (type(q) - (left_noad - open_noad)); /* |open_noad| or |close_noad| */
+    if (subtype(q) == left_noad_side)
+      return open_noad;
+    else
+      return close_noad;
 }
 
 
@@ -1358,6 +1359,7 @@ void mlist_to_hlist(void)
     pointer q;                  /* runs through the mlist */
     pointer r;                  /* the most recent noad preceding |q| */
     integer r_type;             /* the |type| of noad |r|, or |op_noad| if |r=null| */
+    integer r_subtype;          /* the |subtype| of noad |r| if |r_type| is |fence_noad| */
     integer t;                  /* the effective |type| of noad |q| during the second pass */
     pointer p, x, y, z;         /* temporary registers for list construction */
     integer pen;                /* a penalty to be inserted */
@@ -1370,6 +1372,7 @@ void mlist_to_hlist(void)
     q = mlist;
     r = null;
     r_type = op_noad;
+    r_subtype = 0;
     max_hl = 0;
     max_d = 0;
     x = null;
@@ -1392,21 +1395,26 @@ void mlist_to_hlist(void)
             case rel_noad:
             case open_noad:
             case punct_noad:
-            case left_noad:
                 type(q) = ord_noad;
                 goto RESWITCH;
+                break;
+            case fence_noad:
+                if (r_subtype == left_noad_side) {
+                  type(q) = ord_noad;
+                  goto RESWITCH;
+                }
             }
             break;
         case rel_noad:
         case close_noad:
         case punct_noad:
-        case right_noad:
             if (r_type == bin_noad)
                 type(r) = ord_noad;
-            if (type(q) == right_noad)
-                goto DONE_WITH_NOAD;
             break;
-        case left_noad:
+        case fence_noad:
+            if (subtype(q) != left_noad_side)
+              if (r_type == bin_noad)
+                type(r) = ord_noad;
             goto DONE_WITH_NOAD;
             break;
         case fraction_noad:
@@ -1588,8 +1596,8 @@ void mlist_to_hlist(void)
       DONE_WITH_NOAD:
         r = q;
         r_type = type(r);
-        if (r_type == right_noad) {
-            r_type = left_noad;
+        if (r_type == fence_noad) {
+            r_subtype = left_noad_side;
             cur_style = style;
             setup_cur_size_and_mu();
         }
@@ -1603,7 +1611,7 @@ void mlist_to_hlist(void)
 
     /* We have now tied up all the loose ends of the first pass of |mlist_to_hlist|.
        The second pass simply goes through and hooks everything together with the
-       proper glue and penalties. It also handles the |left_noad| and |right_noad| that
+       proper glue and penalties. It also handles the |fence_noad|s that
        might be present, since |max_hl| and |max_d| are now known. Variable |p| points
        to a node at the current end of the final hlist.
      */
@@ -1656,8 +1664,7 @@ void mlist_to_hlist(void)
             t = inner_noad;
             s = fraction_noad_size;
             break;
-        case left_noad:
-        case right_noad:
+        case fence_noad:
             t = make_left_right(q, style, max_d, max_hl);
             break;
         case style_node:
@@ -1738,7 +1745,7 @@ void mlist_to_hlist(void)
                 p = z;
             }
         }
-        if (type(q) == right_noad)
+        if (type(q) == fence_noad && subtype(q) == right_noad_side)
             t = open_noad;
         r_type = t;
       DELETE_Q:

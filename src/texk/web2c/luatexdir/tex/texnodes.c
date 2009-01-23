@@ -141,8 +141,7 @@ char *node_fields_vcenter[] = { "attr", "nucleus", "sub", "sup", NULL };
 char *node_fields_radical[] = { "attr","nucleus", "sub", "sup", "left", NULL };
 char *node_fields_fraction[] = { "attr", "width", "num", "denom", "left", "right", NULL };
 char *node_fields_accent[] = { "attr", "nucleus", "sub", "sup", "accent", NULL };
-char *node_fields_left[] = { "attr", "delim", NULL };
-char *node_fields_right[] = { "attr", "delim", NULL };
+char *node_fields_fence[] = { "attr", "delim", NULL };
 char *node_fields_math_char[] = { "attr", "fam", "char", NULL };
 char *node_fields_sub_box[] = { "attr", "list", NULL };
 char *node_fields_sub_mlist[] = { "attr", "list", NULL };
@@ -245,8 +244,7 @@ node_info node_data[] = {
     {over_noad, noad_size, node_fields_over, "over"},
     {accent_noad, accent_noad_size, node_fields_accent, "accent"},
     {vcenter_noad, noad_size, node_fields_vcenter, "vcenter"},
-    {left_noad, left_right_noad_size, node_fields_left, "left"},
-    {right_noad, left_right_noad_size, node_fields_right, "right"},
+    {fence_noad, fence_noad_size, node_fields_fence, "fence"},
     {math_char_node, math_kernel_node_size, node_fields_math_char, "math_char"},
     {sub_box_node, math_kernel_node_size, node_fields_sub_box, "sub_box"},
     {sub_mlist_node, math_kernel_node_size, node_fields_sub_mlist, "sub_mlist"},
@@ -635,8 +633,7 @@ halfword copy_node(const halfword p)
           left_delimiter(r) = s;
         }
         break;
-    case left_noad:
-    case right_noad:
+    case fence_noad:
         s = copy_node(delimiter(p));
         delimiter(r) = s;
         break;
@@ -1082,8 +1079,7 @@ void flush_node(halfword p)
         else if (type(p) == radical_noad) 
           flush_node(left_delimiter(p));
         break;
-    case left_noad:
-    case right_noad:
+    case fence_noad:
         flush_node(delimiter(p));
         break;
     case delim_node:            /* nothing to do */
@@ -1325,8 +1321,7 @@ void check_node(halfword p)
         dorangetest(p, supscr(p), var_mem_max);
         dorangetest(p, accent_chr(p), var_mem_max);
         break;
-    case left_noad:
-    case right_noad:
+    case fence_noad:
         dorangetest(p, delimiter(p), var_mem_max);
         break;
     case rule_node:

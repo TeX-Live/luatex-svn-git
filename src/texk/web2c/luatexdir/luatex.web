@@ -352,7 +352,7 @@ doesn't know how to deal with symbolic case labels.
 @d kern_node_case==11
 @d penalty_node_case==12
 @d unset_node_case==13
-@d margin_kern_node_case==37
+@d margin_kern_node_case==36
 
 @<Initialize whatever \TeX\ might access@>=
 pdfassert(hlist_node_case=hlist_node);
@@ -4821,7 +4821,7 @@ user's output routine.
 
 A seventh quantity, |eTeX_aux|, is used by the extended features \eTeX.
 In math mode it is known as |delim_ptr| and points to the most
-recent |left_noad| or |middle_noad| of a |math_left_group|.
+recent |fence_noad|  of a |math_left_group|.
 
 In horizontal mode, the |prev_graf| field is used for initial language data.
 
@@ -24984,17 +24984,17 @@ math_group: close_math_group(p);
 @ 
 
 @<Put each...@>=
-primitive("left",left_right,left_noad);
+primitive("left",left_right,left_noad_side);
 @!@:left_}{\.{\\left} primitive@>
-primitive("right",left_right,right_noad);
+primitive("right",left_right,right_noad_side);
 @!@:right_}{\.{\\right} primitive@>
-primitive("middle",left_right,middle_noad);
+primitive("middle",left_right,middle_noad_side);
 @!@:middle_}{\.{\\middle} primitive@>
 text(frozen_right):="right"; eqtb[frozen_right]:=eqtb[cur_val];
 
 @ @<Cases of |print_cmd_chr|...@>=
-left_right: if chr_code=left_noad then print_esc("left")
-else if chr_code=middle_noad then print_esc("middle")
+left_right: if chr_code=left_noad_side then print_esc("left")
+else if chr_code=middle_noad_side then print_esc("middle")
 else print_esc("right");
 
 @ @<Cases of |main_control| that build...@>=
@@ -30650,7 +30650,7 @@ loop@+begin print_nl("### "); print_group(true);
       print_char("$"); goto found;
       end;
     math_left_group:
-      begin if type(nest[p+1].eTeX_aux_field)=left_noad then print_esc("left")
+      begin if subtype(nest[p+1].eTeX_aux_field)=left_noad_side then print_esc("left")
       else print_esc("middle");
       goto found;
       end;
