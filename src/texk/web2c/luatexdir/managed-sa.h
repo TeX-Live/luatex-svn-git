@@ -29,12 +29,12 @@
 #  define MIDPART 128
 #  define LOWPART 128
 
-#  define HIGHPART_PART(a) ((a>>14)&127)
-#  define MIDPART_PART(a)  ((a>>7)&127)
-#  define LOWPART_PART(a)  (a&127)
+#  define HIGHPART_PART(a) (((a)>>14)&127)
+#  define MIDPART_PART(a)  (((a)>>7)&127)
+#  define LOWPART_PART(a)  ((a)&127)
 
-#  define Mxmalloc_array(a,b)  xmalloc(b*sizeof(a))
-#  define Mxrealloc_array(a,b,c)  xrealloc(a,c*sizeof(b))
+#  define Mxmalloc_array(a,b)  xmalloc((b)*sizeof(a))
+#  define Mxrealloc_array(a,b,c)  xrealloc((a),(c)*sizeof(b))
 #  define Mxfree(a) free(a); a=NULL
 
 typedef unsigned int sa_tree_item;

@@ -62,20 +62,20 @@ static int delcode_heapptr = 0;
     else print_char('0'+(A));                   \
   } while (0)
 
-#define two_hex(A) do {      \
-    print_hex_digit(A/16);   \
-    print_hex_digit(A%16);   \
+#define two_hex(A) do {       \
+    print_hex_digit((A)/16);  \
+    print_hex_digit((A)%16);  \
   } while (0)
 
 #define four_hex(A) do {      \
-    two_hex(A/256);           \
-    two_hex(A%256);           \
+    two_hex((A)/256);         \
+    two_hex((A)%256);         \
   } while (0)
 
 #define six_hex(A) do {       \
     two_hex((A)/65536);       \
     two_hex(((A)%65536)/256); \
-    two_hex(A%256);           \
+    two_hex((A)%256);         \
   } while (0)
 
 void show_mathcode_value(mathcodeval c)

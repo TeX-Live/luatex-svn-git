@@ -31,11 +31,14 @@ fi
 #       --make      : only make, no make distclean; configure
 #       --parallel  : make -j 2 -l 3.0
 ONLY_MAKE=FALSE
+STRIP_LUATEX=TRUE
 JOBS_IF_PARALLEL=2
 MAX_LOAD_IF_PARALLEL=3.0
 while [ "$1" != "" ] ; do
   if [ "$1" = "--make" ] ;
   then ONLY_MAKE=TRUE ;
+  elif [ "$1" = "--nostrip" ] ;
+  then STRIP_LUATEX=FALSE ;
   elif [ "$1" = "--parallel" ] ;
   then MAKE="$MAKE -j $JOBS_IF_PARALLEL -l $MAX_LOAD_IF_PARALLEL" ;
   fi ;
@@ -136,7 +139,12 @@ fi
 # go back
 cd ..
 
-$STRIP "$B"/texk/web2c/luatex
+if [ "$STRIP_LUATEX" == "TRUE" ] ;
+then
+  $STRIP "$B"/texk/web2c/luatex
+else
+  echo "luatex binary not stripped"
+fi
 
 # show the results
 ls -l "$B"/texk/web2c/luatex

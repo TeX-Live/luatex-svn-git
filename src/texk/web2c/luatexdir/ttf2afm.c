@@ -57,8 +57,8 @@ static const char _svn_version[] =
 #define print_dimen(N)  if (N != 0) fprintf(outfile, #N " %i\n", (int)get_ttf_funit(N))
 
 #define get_ttf_funit(n) \
-    (n < 0 ? -((-n/upem)*1000 + ((-n%upem)*1000)/upem) :\
-    ((n/upem)*1000 + ((n%upem)*1000)/upem))
+    (n < 0 ? -((-(n)/upem)*1000 + ((-(n)%upem)*1000)/upem) :\
+    (((n)/upem)*1000 + (((n)%upem)*1000)/upem))
 
 typedef struct _unicode_entry {
     TTF_USHORT code;
