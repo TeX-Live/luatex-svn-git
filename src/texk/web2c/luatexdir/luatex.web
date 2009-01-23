@@ -14259,16 +14259,12 @@ the command codes have convenient arithmetic properties: |y1-down1=w1-right1|
 and |z1-down1=x1-right1|.
 
 @d dvi_set_end(#)==dvi.h := dvi.h + (#); end
-@d dvi_set(#)==begin oval:=#; ocmd:=set1; out_cmd; dvi_set_end
-@d dvi_put(#)==oval:=#; ocmd:=put1; out_cmd
+@d dvi_set(#)==begin synch_dvi_with_pos; oval:=#; ocmd:=set1; out_cmd; dvi_set_end
+@d dvi_put(#)==begin synch_dvi_with_pos; oval:=#; ocmd:=put1; out_cmd; end
 @d dvi_set_rule_end(#)==dvi_four(#); dvi.h := dvi.h + (#); end
-@d dvi_set_rule(#)==begin dvi_out(set_rule); dvi_four(#); dvi_set_rule_end
-@d dvi_put_rule_end(#)==dvi_four(#)
-@d dvi_put_rule(#)==dvi_out(put_rule); dvi_four(#); dvi_put_rule_end
-@d dvi_right(#)==begin dvi_out(right4); dvi_four(#); dvi.h := dvi.h + (#); end
-@d dvi_left(#)==begin dvi_out(right4); dvi_four(-(#)); dvi.h := dvi.h - (#); end
-@d dvi_down(#)==begin dvi_out(down4); dvi_four(#); dvi.v := dvi.v - (#); end
-@d dvi_up(#)==begin dvi_out(down4); dvi_four(-(#)); dvi.v := dvi.v + (#); end
+@d dvi_set_rule(#)==begin synch_dvi_with_pos; dvi_out(set_rule); dvi_four(#); dvi_set_rule_end
+@d dvi_put_rule_end(#)==dvi_four(#); end 
+@d dvi_put_rule(#)==begin synch_dvi_with_pos; dvi_out(put_rule); dvi_four(#); dvi_put_rule_end
 
 @p procedure movement(@!w:scaled;@!o:eight_bits);
 label exit,found,not_found,2,1;
@@ -14665,7 +14661,7 @@ reaching a non-|char_node|. The program uses the fact that |set_char_0=0|.
 @<Output node |p| for |hlist_out|...@>=
 if is_char_node(p) then
   begin
-  repeat synch_dvi_with_cur; f:=font(p); c:=character(p);
+  repeat synch_pos_with_cur; f:=font(p); c:=character(p);
   ci := char_info_short(f,c);
   if f<>dvi_f then @<Change font |dvi_f| to |f|@>;
   c_ht:=charinfo_height(ci);
@@ -14684,11 +14680,11 @@ if is_char_node(p) then
       dvi_put(c);
       end;
     dir__LL: begin
-      dvi_right(c_wd);
+      pos_right(c_wd);
       dvi_put(c);
       end;
     dir__RR: begin
-      dvi_left(c_wd);
+      pos_left(c_wd);
       dvi_put(c);
       end;
     dir__LR: begin
@@ -14699,7 +14695,7 @@ if is_char_node(p) then
       end;
     dir__TT: begin
       c_wd := c_ht + c_dp;
-      dvi_down(c_wd);
+      pos_down(c_wd);
       dvi_put(c);
       end;
     dir__TB: begin
@@ -14712,7 +14708,7 @@ if is_char_node(p) then
       end;
     dir__BB: begin
       c_wd := c_ht + c_dp;
-      dvi_up(c_wd);
+      pos_up(c_wd);
       dvi_put(c);
       end;
     endcases;
@@ -14722,58 +14718,58 @@ if is_char_node(p) then
       dvi_set(c)(c_wd);
       end;
     dir__LB: begin
-      dvi_down(c_ht);
+      pos_down(c_ht);
       dvi_set(c)(c_wd);
       end;
     dir__RT: begin
-      dvi_left(c_wd);
+      pos_left(c_wd);
       dvi_put(c);
       end;
     dir__RB: begin
-      dvi_down(c_ht);
-      dvi_left(c_wd);
+      pos_down(c_ht);
+      pos_left(c_wd);
       dvi_put(c);
       end;
     dir__TL: begin
-      dvi_down(c_ht);
-      dvi_left(c_wd);
+      pos_down(c_ht);
+      pos_left(c_wd);
       dvi_put(c);
       c_wd := c_ht + c_dp;
       end;
     dir__TR: begin
-      dvi_down(c_ht);
+      pos_down(c_ht);
       dvi_put(c);
       c_wd := c_ht + c_dp;
       end;
     dir__BL: begin
-      dvi_left(c_wd);
-      dvi_up(c_dp);
+      pos_left(c_wd);
+      pos_up(c_dp);
       dvi_put(c);
       c_wd := c_ht + c_dp;
       end;
     dir__BR: begin
-      dvi_up(c_dp);
+      pos_up(c_dp);
       dvi_put(c);
       c_wd := c_ht + c_dp;
       end;
     dir__LL,dir__LR: begin
-      dvi_down((c_ht - c_dp) div 2);
+      pos_down((c_ht - c_dp) div 2);
       dvi_set(c)(c_wd);
       end;
     dir__RL,dir__RR: begin
-      dvi_left(c_wd);
-      dvi_down((c_ht - c_dp) div 2);
+      pos_left(c_wd);
+      pos_down((c_ht - c_dp) div 2);
       dvi_put(c);
       end;
     dir__TT,dir__TB: begin
-      dvi_down(c_ht);
-      dvi_left(c_wd div 2);
+      pos_down(c_ht);
+      pos_left(c_wd div 2);
       dvi_put(c);
       c_wd:=c_ht + c_dp;
       end;
     dir__BT,dir__BB: begin
-      dvi_up(c_dp);
-      dvi_left(c_wd div 2);
+      pos_up(c_dp);
+      pos_left(c_wd div 2);
       dvi_put(c);
       c_wd := c_ht + c_dp;
       end;
@@ -14893,35 +14889,35 @@ if is_running(rule_ht) then rule_ht:=height(this_box);
 if is_running(rule_dp) then rule_dp:=depth(this_box);
 rule_ht:=rule_ht+rule_dp; {this is the rule thickness}
 if (rule_ht>0)and(rule_wd>0) then {we don't output empty rules}
-  begin cur_v:=base_line+rule_dp; synch_dvi_with_cur;
+  begin cur_v:=base_line+rule_dp; synch_pos_with_cur;
   case box_direction(dvi_direction) of
   dir_TL_: begin
     dvi_set_rule(rule_ht)(rule_wd);
     end;
   dir_BL_: begin
-    dvi_down(rule_ht);
+    pos_down(rule_ht);
     dvi_set_rule(rule_ht)(rule_wd);
     end;
   dir_TR_: begin
-    dvi_left(rule_wd);
+    pos_left(rule_wd);
     dvi_put_rule(rule_ht)(rule_wd);
     end;
   dir_BR_: begin
-    dvi_left(rule_wd);
-    dvi_down(rule_ht);
+    pos_left(rule_wd);
+    pos_down(rule_ht);
     dvi_put_rule(rule_ht)(rule_wd);
     end;
   dir_LT_: begin
-    dvi_down(rule_wd);
-    dvi_left(rule_ht);
+    pos_down(rule_wd);
+    pos_left(rule_ht);
     dvi_set_rule(rule_wd)(rule_ht);
     end;
   dir_RT_: begin
-    dvi_down(rule_wd);
+    pos_down(rule_wd);
     dvi_put_rule(rule_wd)(rule_ht);
     end;
   dir_LB_: begin
-    dvi_left(rule_ht);
+    pos_left(rule_ht);
     dvi_set_rule(rule_wd)(rule_ht);
     end;
   dir_RB_: begin
@@ -15205,35 +15201,35 @@ if is_running(rule_wd) then rule_wd:=width(this_box);
 rule_ht:=rule_ht+rule_dp; {this is the rule thickness}
 cur_v:=cur_v+rule_ht;
 if (rule_ht>0)and(rule_wd>0) then {we don't output empty rules}
-  begin synch_dvi_with_cur;
+  begin synch_pos_with_cur;
   case box_direction(dvi_direction) of
   dir_TL_: begin
     dvi_put_rule(rule_ht)(rule_wd);
     end;
   dir_BL_: begin
-    dvi_down(rule_ht);
+    pos_down(rule_ht);
     dvi_put_rule(rule_ht)(rule_wd);
     end;
   dir_TR_: begin
-    dvi_left(rule_wd);
+    pos_left(rule_wd);
     dvi_set_rule(rule_ht)(rule_wd);
     end;
   dir_BR_: begin
-    dvi_down(rule_ht);
-    dvi_left(rule_wd);
+    pos_down(rule_ht);
+    pos_left(rule_wd);
     dvi_set_rule(rule_ht)(rule_wd);
     end;
   dir_LT_: begin
-    dvi_down(rule_wd);
-    dvi_left(rule_ht);
+    pos_down(rule_wd);
+    pos_left(rule_ht);
     dvi_set_rule(rule_wd)(rule_ht);
     end;
   dir_RT_: begin
-    dvi_down(rule_wd);
+    pos_down(rule_wd);
     dvi_put_rule(rule_wd)(rule_ht);
     end;
   dir_LB_: begin
-    dvi_left(rule_ht);
+    pos_left(rule_ht);
     dvi_set_rule(rule_wd)(rule_ht);
     end;
   dir_RB_: begin
@@ -17906,10 +17902,10 @@ end
 @d pdf_dvicmd_down(#)  == cur_v := cur_v + # {changed this for convenience (hahe)}
 @d pdf_dvicmd_up(#)    == cur_v := cur_v - #
 
-@d page_right(#) == pos.h := pos.h + (#)
-@d page_left(#)  == pos.h := pos.h - (#)
-@d page_up(#)    == pos.v := pos.v + (#)
-@d page_down(#)  == pos.v := pos.v - (#)
+@d pos_right(#) == pos.h := pos.h + (#)
+@d pos_left(#)  == pos.h := pos.h - (#)
+@d pos_up(#)    == pos.v := pos.v + (#)
+@d pos_down(#)  == pos.v := pos.v - (#)
 
 @d pdf_dvicmd_set(#)==output_one_char(f,#)
 @d pdf_dvicmd_put(#)==output_one_char(f,#); cur_h:=cur_h-c_wd
