@@ -22,6 +22,8 @@
 
 #include "nodes.h"
 
+#include "commands.h"
+
 static const char _svn_version[] =
     "$Id$ $URL$";
 
@@ -512,6 +514,19 @@ static int lua_nodelib_mlist_to_hlist(lua_State * L)
     lua_nodelib_push_fast(L, vlink(temp_head));
     return 1;
 }
+
+static int lua_nodelib_mfont(lua_State * L)
+{
+    int f, s;
+    f = luaL_checkinteger(L,1);
+    if (lua_gettop(L)==2)
+      s = lua_tointeger(L,2); /* this should be a multiple of 256 !*/
+    else
+      s = 0;
+    lua_pushnumber(L, fam_fnt(f + s));
+    return 1;
+}
+
 
 
 /* This function is similar to |get_node_type_id|, for field
@@ -3176,6 +3191,7 @@ static const struct luaL_reg nodelib_f[] = {
     {"copy_list", lua_nodelib_copy_list},
     {"hpack", lua_nodelib_hpack},
     {"mlist_to_hlist", lua_nodelib_mlist_to_hlist},
+    {"family_font", lua_nodelib_mfont},
     {"has_attribute", lua_nodelib_has_attribute},
     {"set_attribute", lua_nodelib_set_attribute},
     {"unset_attribute", lua_nodelib_unset_attribute},
