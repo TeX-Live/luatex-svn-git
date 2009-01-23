@@ -16879,7 +16879,6 @@ destination |pdf_ann_left| and |pdf_ann_top| are used for some types of destinat
 @d pdf_action_user         == 3 {user-defined action}
 
 @# {data structure of actions}
-@d action_node         == 45
 @d pdf_action_type(#)      == type(#+1) {action type}
 @d pdf_action_named_id(#)  == subtype(#+1) {identifier is type of name}
 @d pdf_action_id(#)        == vlink(#+1) {destination/thread name identifier}

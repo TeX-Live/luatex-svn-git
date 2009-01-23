@@ -682,6 +682,7 @@
 @define const split_up_node;
 @define const expr_node;
 @define const span_node;
+@define const action_node;
 @define const glue_spec_node;
 @define const temp_node;
 @define const align_stack_node;
