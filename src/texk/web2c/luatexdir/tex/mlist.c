@@ -124,20 +124,20 @@ pointer fraction_rule(scaled t, pointer att)
   fraction rule of thickness |t| under additional space of height |t|.
 */
 
-pointer overbar(pointer b, scaled k, scaled t)
+pointer overbar(pointer b, scaled k, scaled t, pointer att)
 {
     pointer p, q;               /* nodes being constructed */
     p = new_kern(k);
     vlink(p) = b;
-    reset_attributes(p,node_attr(b));
-    q = fraction_rule(t,node_attr(b));
+    reset_attributes(p,att);
+    q = fraction_rule(t,att);
     vlink(q) = p;
     p = new_kern(t);
-    reset_attributes(p,node_attr(b));
+    reset_attributes(p,att);
     vlink(p) = q;
     pack_direction = math_direction;
     q = vpackage(p, 0, additional, max_dimen);
-    reset_attributes(q,node_attr(b));
+    reset_attributes(q,att);
     return q;
 }
 
@@ -694,7 +694,7 @@ void make_over(pointer q)
 {
     pointer p;
     p = overbar(clean_box(nucleus(q), cramped_style(cur_style)),
-                3 * default_rule_thickness, default_rule_thickness);
+                3 * default_rule_thickness, default_rule_thickness, node_attr(nucleus(q)));
     math_list(nucleus(q)) = p;
     type(nucleus(q)) = sub_box_node;
 }
@@ -760,7 +760,7 @@ void make_radical(pointer q)
     if (delta > 0)
         clr = clr + half(delta);        /* increase the actual clearance */
     shift_amount(y) = -(height(x) + clr);
-    p = overbar(x, clr, height(y));
+    p = overbar(x, clr, height(y), node_attr(y));
     vlink(y) = p;
     p = hpack(y, 0, additional);
     reset_attributes(p,node_attr(q));
