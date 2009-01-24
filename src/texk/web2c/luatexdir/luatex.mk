@@ -26,7 +26,6 @@ XCPPFLAGS=-I$(LIBOBSDCOMPATDIR) -I$(LIBOBSDCOMPATDIR)/.. -I$(LIBOBSDCOMPATFSRCDI
 
 Makefile: $(srcdir)/$(luatexdir)/luatex.mk
 
-# luatex_bin = luatex ttf2afm pdftosrc
 luatex_bin = luatex
 linux_build_dir = $(HOME)/luatex/build/linux/texk/web2c
 
@@ -49,7 +48,7 @@ luatex: luatexd.h $(luatex_o) $(luatexextra_o) $(luatexlibsdep)
 # C file dependencies.
 $(luatex_c) luatexcoerce.h luatexd.h: luatex.p $(web2c_texmf) $(srcdir)/$(luatexdir)/luatex.defines $(srcdir)/$(luatexdir)/luatex.h
 	$(web2c) luatex
-    $(luatexd.h-with_synctex)
+#    $(luatexd.h-with_synctex)
 luatexextra.c: luatexd.h $(luatexdir)/luatexextra.h lib/texmfmp.c
 	test -d $(luatexdir) || mkdir $(luatexdir)
 	sed s/TEX-OR-MF-OR-MP/luatex/ $(srcdir)/lib/texmfmp.c >$@

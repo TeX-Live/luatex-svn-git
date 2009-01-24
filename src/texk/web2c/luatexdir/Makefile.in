@@ -128,7 +128,7 @@ makecpool: makecpool.o
 kpse_include ../make/clean.mk
 
 clean::
-	rm -f libpdf.a ttf2afm pdftosrc
+	rm -f libpdf.a 
 
 depend:
 	rm -f $(OBJS) $(srcdir)/depend.mk
