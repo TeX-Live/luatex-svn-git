@@ -139,7 +139,7 @@ fi
 # go back
 cd ..
 
-if [ "$STRIP_LUATEX" == "TRUE" ] ;
+if [ "$STRIP_LUATEX" = "TRUE" ] ;
 then
   $STRIP "$B"/texk/web2c/luatex
 else
