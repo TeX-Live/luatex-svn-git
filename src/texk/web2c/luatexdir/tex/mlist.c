@@ -726,7 +726,7 @@ void make_vcenter(pointer q)
     scaled delta;               /* its height plus depth */
     v = math_list(nucleus(q));
     if (type(v) != vlist_node)
-        confusion(maketexstring("vcenter"));    /* this can't happen vcenter */
+        tconfusion("vcenter");    /* this can't happen vcenter */
     delta = height(v) + depth(v);
     height(v) = axis_height(cur_size) + half(delta);
     depth(v) = delta - height(v);
@@ -1691,7 +1691,7 @@ void mlist_to_hlist(void)
             goto NEXT_NODE;
             break;
         default:
-            confusion(maketexstring("mlist3")); /* this can't happen mlist3 */
+            tconfusion("mlist3"); /* this can't happen mlist3 */
         }
         /* Append inter-element spacing based on |r_type| and |t| */
         if (r_type > 0) {       /* not the first noad */
@@ -1712,7 +1712,7 @@ void mlist_to_hlist(void)
                 x = (cur_style < script_style ? param_thick_mu_skip_code : 0);
                 break;
             default:
-                confusion(maketexstring("mlist4"));     /* this can't happen mlist4 */
+                tconfusion("mlist4");     /* this can't happen mlist4 */
                 break;
             }
             if (x != 0) {

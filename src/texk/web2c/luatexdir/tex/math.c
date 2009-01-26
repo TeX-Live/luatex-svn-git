@@ -534,7 +534,7 @@ void print_subsidiary_data(pointer p, ASCII_code c)
             if (math_list(p) == null) {
                 print_ln();
                 print_current_string();
-                print(maketexstring("{}"));
+                tprint("{}");
             } else {
                 show_node_list(math_list(p));
             }
@@ -1747,14 +1747,13 @@ void finish_displayed_math(boolean l, boolean danger, pointer a);
 
 void after_math(void)
 {
-    boolean l;                  /* `\.{\\leqno}' instead of `\.{\\eqno}' */
     boolean danger;             /* not enough symbol fonts are present */
     integer m;                  /* |mmode| or |-mmode| */
     pointer p;                  /* the formula */
-    pointer a;                  /* box containing equation number */
+    pointer a = null;           /* box containing equation number */
+    boolean l = false;          /* `\.{\\leqno}' instead of `\.{\\eqno}' */
     danger = check_necessary_fonts();
     m = mode;
-    l = false;
     p = fin_mlist(null);        /* this pops the nest */
     if (mode == -m) {           /* end of equation number */
         check_second_math_shift();
@@ -1767,8 +1766,6 @@ void after_math(void)
         danger = check_necessary_fonts();
         m = mode;
         p = fin_mlist(null);
-    } else {
-        a = null;
     }
     if (m < 0) {
         /* The |unsave| is done after everything else here; hence an appearance of
