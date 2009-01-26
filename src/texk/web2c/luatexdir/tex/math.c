@@ -330,7 +330,7 @@ pointer new_noad(void)
 
 pointer new_sub_box(pointer cur_box)
 {
-  pointer p, q;
+    pointer p, q;
     p = new_noad();
     q = new_node(sub_box_node,0);
     nucleus(p) = q;
@@ -478,16 +478,29 @@ void print_fam_and_char(pointer p)
     print(math_character(p));
 }
 
-/* TODO FIX : print 48-bit integer where needed! */
 void print_delimiter(pointer p)
-{                               /* prints a delimiter as 24-bit hex value */
-    integer a;                  /* accumulator */
-    a = small_fam(p) * 256 + small_char(p);
-    a = a * 0x1000 + large_fam(p) * 256 + large_char(p);
-    if (a < 0)
-        print_int(a);           /* this should never happen */
-    else
+{
+    integer a; 
+    if (small_fam(p) < 0) {
+        print_int(-1);           /* this should never happen */
+    } else if (small_fam(p)<16 && large_fam(p)<16 &&
+               small_char(p)<256 && large_char(p)<256) {
+        /* traditional tex style */
+        a = small_fam(p) * 256 + small_char(p);
+        a = a * 0x1000 + large_fam(p) * 256 + large_char(p);
         print_hex(a);
+    } else if ((large_fam(p)==0 && large_char(p)==0) ||
+               small_char(p)>65535 || large_char(p)>65535){
+        /* modern xetex/luatex style */
+        print_hex(small_fam(p));
+        print_hex(small_char(p));      
+    } else { 
+        /* assume this is omega-style */
+        a = small_fam(p) * 65536 + small_char(p);
+        print_hex(a);
+        a = large_fam(p) * 65536 + large_char(p);
+        print_hex(a);
+    }
 }
 
 /*
@@ -561,6 +574,10 @@ void display_normal_noad(pointer p)
         break;
     case op_noad:
         tprint_esc("mathop");
+        if (subtype(p) == limits)
+          tprint_esc("limits");
+        else if (subtype(p) == no_limits)
+          tprint_esc("nolimits");
         break;
     case bin_noad:
         tprint_esc("mathbin");
@@ -590,7 +607,6 @@ void display_normal_noad(pointer p)
         tprint_esc("vcenter");
         break;
     case radical_noad:
-        /*TH: TODO print oradical where needed and fix otherwise */
         tprint_esc("radical");
         print_delimiter(left_delimiter(p));
         break;
@@ -599,15 +615,7 @@ void display_normal_noad(pointer p)
         print_fam_and_char(accent_chr(p));
         break;
     }
-    if (type(p) < fence_noad) {
-        if (subtype(p) != normal) {
-            if (subtype(p) == limits)
-                tprint_esc("limits");
-            else
-                tprint_esc("nolimits");
-        }
-        print_subsidiary_data(nucleus(p), '.');
-    }
+    print_subsidiary_data(nucleus(p), '.');
     print_subsidiary_data(supscr(p), '^');
     print_subsidiary_data(subscr(p), '_');
 }
@@ -650,6 +658,7 @@ void display_fraction_noad(pointer p)
     print_subsidiary_data(denominator(p), '/');
 }
 
+/* This function is for |print_cmd_chr| only */
 
 void print_math_comp(halfword chr_code)
 {
@@ -918,7 +927,7 @@ delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
         mschr = (cur_val1 % 0x10000);
         mlfam = (cur_val / 0x10000);
         mlchr = (cur_val % 0x10000);
-    } else if (extcode == xetex_mathcode) {     /* \LuaTeXdelcode */
+    } else if (extcode == xetex_mathcode) {     /* \Udelcode */
         /* <0-7>,<0-0xFF>,<0-0x10FFFF>  or <0-0xFF>,<0-0x10FFFF> */
         if (doclass) {
             scan_int();
@@ -935,7 +944,7 @@ delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
         }
         mlfam = 0;
         mlchr = 0;
-    } else if (extcode == xetexnum_mathcode) {  /* \LuaTeXdelcodenum */
+    } else if (extcode == xetexnum_mathcode) {  /* \Udelcodenum */
         /* "FF<21bits> */
         /* the largest numeric value is $2^29-1$, but 
            the top of bit 21 can't be used as it contains invalid USV's
@@ -1075,6 +1084,10 @@ mathcodeval scan_delimiter_as_mathchar(int extcode)
     mval.character_value = dval.small_character_value;
     return mval;
 }
+
+/* this has to match the inverse routine in the pascal code
+ * where the |\Umathchardef| is executed 
+ */
 
 mathcodeval mathchar_from_integer(integer value, int extcode)
 {
@@ -1265,7 +1278,7 @@ void scan_delimiter(pointer p, integer r)
         dval = do_scan_extdef_del_code(tex_mathcode, false);
     } else if (r == aleph_mathcode) {   /* \oradical */
         dval = do_scan_extdef_del_code(aleph_mathcode, false);
-    } else if (r == xetex_mathcode) {   /* \LuaTeXradical */
+    } else if (r == xetex_mathcode) {   /* \Uradical */
         dval = do_scan_extdef_del_code(xetex_mathcode, false);
     } else if (r == no_mathcode) {
         get_next_nb_nr();
@@ -1279,7 +1292,7 @@ void scan_delimiter(pointer p, integer r)
                 dval = do_scan_extdef_del_code(tex_mathcode, true);
             else if (cur_chr == 1)      /* \odelimiter */
                 dval = do_scan_extdef_del_code(aleph_mathcode, true);
-            else if (cur_chr == 2)      /* \XeTeXdelimiter */
+            else if (cur_chr == 2)      /* \Udelimiter */
                 dval = do_scan_extdef_del_code(xetex_mathcode, true);
             else
                 tconfusion("scan_delimiter1");
@@ -1328,7 +1341,7 @@ void math_radical(void)
         scan_delimiter(left_delimiter(tail), tex_mathcode);
     else if (cur_chr == 1)      /* \oradical */
         scan_delimiter(left_delimiter(tail), aleph_mathcode);
-    else if (cur_chr == 2)      /* \LuaTeXradical */
+    else if (cur_chr == 2)      /* \Uradical */
         scan_delimiter(left_delimiter(tail), xetex_mathcode);
     else
         tconfusion("math_radical");
@@ -1356,7 +1369,7 @@ void math_ac(void)
         d = scan_mathchar(tex_mathcode);
     } else if (cur_chr == 1) {  /* \omathaccent */
         d = scan_mathchar(aleph_mathcode);
-    } else if (cur_chr == 2) {  /* \LuaTeXmathaccent */
+    } else if (cur_chr == 2) {  /* \Umathaccent */
         d = scan_mathchar(xetex_mathcode);
     } else {
         tconfusion("math_ac");
