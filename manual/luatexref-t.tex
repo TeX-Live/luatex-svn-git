@@ -6280,23 +6280,9 @@ Valid fields: \showfields{penalty}
 
 Valid fields: \showfields{glyph}
 
-\newbox\mybox
-\setbox\mybox=\hbox{\vbox {\hsize=3cm
-\starttabulate[|c|l|]
-\NC \ssbf bit  \NC \bf meaning \NC\NR
-\NC 0 \NC character \NC\NR
-\NC 1 \NC glyph     \NC\NR
-\NC 2 \NC ligature  \NC\NR
-\NC 3 \NC ghost     \NC\NR
-\NC 4 \NC left      \NC\NR
-\NC 5 \NC right     \NC\NR
-\stoptabulate
-}}
-
 \starttabulate[|lT|l|p|]
 \NC \ssbf field\NC \ssbf type         \NC \ssbf explanation \NC\NR
-\NC subtype    \NC number             \NC bitfield, with bits:\crlf
-                                          \copy\mybox\NC\NR
+\NC subtype    \NC number             \NC bitfield\NC\NR
 \NC attr       \NC \syntax{<node>}    \NC \NC\NR
 \NC char       \NC number             \NC \NC\NR
 \NC font       \NC number             \NC \NC\NR
@@ -6309,8 +6295,22 @@ Valid fields: \showfields{glyph}
 \NC yoffset    \NC number             \NC \NC\NR
 \stoptabulate
 
+Valid bits for the \type{subtype} field are:
+
+\starttabulate[|c|l|]
+\NC \ssbf bit  \NC \bf meaning \NC\NR
+\NC 0 \NC character \NC\NR
+\NC 1 \NC glyph     \NC\NR
+\NC 2 \NC ligature  \NC\NR
+\NC 3 \NC ghost     \NC\NR
+\NC 4 \NC left      \NC\NR
+\NC 5 \NC right     \NC\NR
+\stoptabulate
+
 See \in{section}[charsandglyphs] for a detailed description of the
 \type{subtype} field.
+
+
 
 \subsubsection{margin\_kern nodes}
 
