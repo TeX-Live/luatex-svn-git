@@ -633,6 +633,12 @@
 @define procedure scan_extdef_math_code();
 @define procedure scan_extdef_del_code();
 
+@define function fam_fnt();
+@define procedure def_fam_fnt();
+@define procedure dump_math_data;
+@define procedure undump_math_data;
+@define procedure unsave_math_data();
+
 @define const fence_noad;
 @define const ord_noad;
 @define const op_noad;

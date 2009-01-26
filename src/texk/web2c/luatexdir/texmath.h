@@ -67,6 +67,12 @@ extern void after_math(void);
 extern void scan_extdef_del_code (int level, int extcode);
 extern void scan_extdef_math_code (int level, int extcode);
 
+extern integer fam_fnt (integer fam_id, integer size_id);
+extern void def_fam_fnt (integer fam_id, integer size_id, integer f, integer lvl);
+extern void dump_math_data (void);
+extern void undump_math_data (void);
+void unsave_math_data (integer lvl);
+
 #  define total_mathsy_params 22
 #  define total_mathex_params 13
 
@@ -88,7 +94,7 @@ following macros, which take a size code as their parameter; for example,
 
 
 #  define mathsy_end(A)
-#  define mathsy(A) font_param(fam_fnt(2+cur_size),A) mathsy_end
+#  define mathsy(A) font_param(fam_fnt(2,cur_size),A) mathsy_end
 #  define math_x_height mathsy(5)
                                 /* height of `\.x' */
 #  define math_quad mathsy(6)   /* \.{18mu} */
@@ -115,7 +121,7 @@ omitted (since it is always |cur_size| when we refer to such parameters).
 @^font parameters@>
 */
 
-#  define mathex(A) font_param(fam_fnt(3+cur_size),A)
+#  define mathex(A) font_param(fam_fnt(3,cur_size),A)
 #  define default_rule_thickness mathex(8)      /* thickness of \.{\\over} bars */
 #  define big_op_spacing1 mathex(9)     /* minimum clearance above a displayed op */
 #  define big_op_spacing2 mathex(10)    /* minimum clearance below a displayed op */
@@ -153,8 +159,8 @@ extern const char *math_style_names[];
 void mlist_to_hlist(void);
 
 #  define text_size 0
-#  define script_size 256
-#  define script_script_size 512
+#  define script_size 1
+#  define script_script_size 2
 
 #  define math_direction int_par(param_math_direction_code)
 

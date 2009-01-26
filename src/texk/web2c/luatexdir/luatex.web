@@ -567,13 +567,11 @@ emphasize this distinction.
 @d string_offset=2097152
 @d font_biggest=5535 {the real biggest font}
 @d number_fonts=font_biggest-font_base+1
-@d number_math_fonts=768
-@d math_font_biggest=767
 @d biggest_lang=32767
 @d too_big_lang=32768
 @d text_size=0 {size code for the largest size in a family}
-@d script_size=256 {size code for the medium size in a family}
-@d script_script_size=512 {size code for the smallest size in a family}
+@d script_size=1 {size code for the medium size in a family}
+@d script_script_size=2 {size code for the smallest size in a family}
 
 
 @ In case somebody has inadvertently made bad settings of the ``constants,''
@@ -2659,7 +2657,6 @@ a way to make |interrupt| nonzero using the \PASCAL\ debugger.
 @!static_glue_base:integer; {C version of |glue_base|}
 @!static_dimen_base:integer; {C version of |dimen_base|}
 @!static_local_base:integer; {C version of |local_base|}
-@!static_math_font_base:integer; {C version of |math_font_base|}
 
 @ @p procedure check_interrupt;
 begin 
@@ -5345,10 +5342,8 @@ registers.
 @d local_right_box_base=local_left_box_base+1
 @d box_base=local_right_box_base+1 {table of |number_regs| box registers}
 @d cur_font_loc=box_base+number_regs {internal font number outside math mode}
-@d math_font_base=cur_font_loc+1 
-   {table of |number_math_fonts| math font numbers}
-@d cat_code_base=math_font_base+number_math_fonts 
-   {table of |number_chars| command codes (the ``catcodes'')}
+@d math_param_base=cur_font_loc+1  {current math parameter data index }
+@d cat_code_base=math_param_base+1 {current category code data index }
 @d lc_code_base=cat_code_base+1 {table of |number_chars| lowercase mappings}
 @d uc_code_base=lc_code_base+1 {table of |number_chars| uppercase mappings}
 @d sf_code_base=uc_code_base+1 {table of |number_chars| spacefactor mappings}
@@ -5374,7 +5369,6 @@ registers.
 @d local_right_box==equiv(local_right_box_base)
 @d box(#)==equiv(box_base+#)
 @d cur_font==equiv(cur_font_loc)
-@d fam_fnt(#)==equiv(math_font_base+#)
 
 @<Put each...@>=
 primitive("output",assign_toks,output_routine_loc);
@@ -5403,9 +5397,6 @@ primitive("pdfpageresources",assign_toks,pdf_page_resources_loc);
 @!@:pdf_page_resources_}{\.{\\pdfpageresources} primitive@>
 primitive("pdfpkmode",assign_toks,pdf_pk_mode_loc);
 @!@:pdf_pk_mode_}{\.{\\pdfpkmode} primitive@>
-
-@ @<Set init...@>=
-static_math_font_base:=math_font_base;
 
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -5455,9 +5446,9 @@ box(0):=null; eq_type(box_base):=box_ref; eq_level(box_base):=level_one;
 for k:=box_base+1 to box_base+biggest_reg do eqtb[k]:=eqtb[box_base];
 cur_font:=null_font; eq_type(cur_font_loc):=data;
 eq_level(cur_font_loc):=level_one;@/
-for k:=math_font_base to math_font_base+number_math_fonts-1 do eqtb[k]:=eqtb[cur_font_loc];
 equiv(cat_code_base):=0; eq_type(cat_code_base):=data;
 eq_level(cat_code_base):=level_one;@/
+eqtb[math_param_base]:=eqtb[cat_code_base];
 eqtb[lc_code_base] :=eqtb[cat_code_base];
 eqtb[uc_code_base] :=eqtb[cat_code_base];
 eqtb[sf_code_base] :=eqtb[cat_code_base];
@@ -5504,44 +5495,13 @@ else if n<cur_font_loc then
   else  begin depth_threshold:=0; breadth_max:=1; show_node_list(equiv(n));
     end;
   end
-else if n<cat_code_base then @<Show the font identifier in |eqtb[n]|@>
-else @<Show the halfword code in |eqtb[n]|@>
+else if n=cur_font_loc then @<Show the font identifier in |eqtb[n]|@>
 
 @ @<Show the font identifier in |eqtb[n]|@>=
-begin if n=cur_font_loc then print("current font")
-else if n<math_font_base+script_size then
-  begin print_esc("textfont"); print_int(n-math_font_base);
-  end
-else if n<math_font_base+script_script_size then
-  begin print_esc("scriptfont"); print_int(n-math_font_base-script_size);
-  end
-else  begin print_esc("scriptscriptfont"); print_int(n-math_font_base-script_script_size);
-  end;
-print_char("=");@/
+begin print("current font"); print_char("=");@/
 print_esc(hash[font_id_base+equiv(n)].rh);
   {that's |font_id_text(equiv(n))|}
 end
-
-@ 
-
-@<Show the halfword code in |eqtb[n]|@>=
-begin
-if n<math_code_base then
-  begin if n<lc_code_base then
-    begin print_esc("catcode"); print_int(n-cat_code_base);
-    end
-  else if n<uc_code_base then
-    begin print_esc("lccode"); print_int(n-lc_code_base);
-    end
-  else if n<sf_code_base then
-    begin print_esc("uccode"); print_int(n-uc_code_base);
-    end
-  else  begin print_esc("sfcode"); print_int(n-sf_code_base);
-    end;
-  print_char("="); print_int(equiv(n));
-  end;
-end
-
 
 @ Region 5 of |eqtb| contains the integer parameters and registers defined
 here, as well as the |del_code| table. The latter table differs from the
@@ -7374,6 +7334,7 @@ begin a:=false; l:=level_one; {just in case}
 unsave_math_codes(cur_level);
 unsave_cat_codes (cat_code_table,cur_level);
 unsave_text_codes(cur_level);
+unsave_math_data(cur_level);
 if cur_level>level_one then
   begin decr(cur_level);
   @<Clear off top level from |save_stack|@>;
@@ -9548,8 +9509,10 @@ begin m:=cur_chr;
 case cur_cmd of
 def_code: @<Fetch a character code from some table@>;
 extdef_code: @<Fetch an ext character code from some table@>;
-toks_register,assign_toks,def_family,set_font,def_font,letterspace_font,pdf_copy_font: @<Fetch a token list or
-  font identifier, provided that |level=tok_val|@>;
+toks_register,assign_toks,set_font,def_font,letterspace_font,pdf_copy_font: 
+  @<Fetch a token list or font identifier, provided that |level=tok_val|@>;
+def_family:
+  @<Fetch a math font identifier@>;
 assign_int: scanned_result(eqtb[m].int)(int_val);
 assign_attr: scanned_result(eqtb[m].int)(int_val);
 assign_box_dir: begin
@@ -9672,6 +9635,12 @@ else if cur_cmd<=assign_toks then
 else  begin back_input; scan_font_ident;
   scanned_result(font_id_base+cur_val)(ident_val);
   end
+
+@ @<Fetch a math font identifier@>=
+begin scan_char_num; cur_val1:=fam_fnt(cur_val,m);
+  scanned_result(cur_val1)(int_val);
+  end
+
 
 @ Users refer to `\.{\\the\\spacefactor}' only in horizontal
 mode, and to `\.{\\the\\prevdepth}' only in vertical mode; so we put the
@@ -12611,7 +12580,7 @@ else if cur_cmd=set_font then begin
   set_font_touched(f,1);
   end
 else if cur_cmd=def_family then begin 
-  m:=cur_chr; scan_math_family_int; f:=equiv(m+cur_val);
+  m:=cur_chr; scan_math_family_int; f:=fam_fnt(cur_val,m);
   set_font_touched(f,1);
   end
 else  begin print_err("Missing font identifier");
@@ -25163,6 +25132,8 @@ since the following routines test for the \.{\\global} prefix as follows.
    then set_sf_code(#,level_one)@+else set_sf_code(#,cur_level)
 @d define_cat_code(#)==if global 
    then set_cat_code(cat_code_table,#,level_one)@+else set_cat_code(cat_code_table,#,cur_level)
+@d define_fam_fnt(#)==if global 
+   then def_fam_fnt(#,level_one)@+else def_fam_fnt(#,cur_level)
 
 @<Adjust \(f)for the setting of \.{\\globaldefs}@>=
 if global_defs<>0 then
@@ -25414,7 +25385,7 @@ shorthand_def: begin n:=cur_chr; get_r_token; p:=cur_cs;
     end;
   xmath_char_def_code: begin
     mval:=scan_mathchar(xetex_mathcode);
-    cur_val:=(mval.class_value*256+mval.family_value)*(65536*32)+mval.character_value;
+    cur_val:=(mval.class_value+(8*mval.family_value))*(65536*32)+mval.character_value;
     define(p,xmath_given,cur_val);
     end;
   othercases begin scan_register_num;
@@ -25535,11 +25506,11 @@ primitive("sfcode",def_code,sf_code_base);
 @!@:sf_code_}{\.{\\sfcode} primitive@>
 primitive("delcode",def_code,del_code_base);
 @!@:del_code_}{\.{\\delcode} primitive@>
-primitive("textfont",def_family,math_font_base);
+primitive("textfont",def_family,text_size);
 @!@:text_font_}{\.{\\textfont} primitive@>
-primitive("scriptfont",def_family,math_font_base+script_size);
+primitive("scriptfont",def_family,script_size);
 @!@:script_font_}{\.{\\scriptfont} primitive@>
-primitive("scriptscriptfont",def_family,math_font_base+script_script_size);
+primitive("scriptscriptfont",def_family,script_script_size);
 @!@:script_script_font_}{\.{\\scriptscriptfont} primitive@>
 primitive("omathcode",extdef_code,math_code_base);
 @!@:math_code_}{\.{\\omathcode} primitive@>
@@ -25568,7 +25539,7 @@ extdef_code: if chr_code=math_code_base then print_esc("omathcode")
   else if chr_code=del_code_base+1 then print_esc("Udelcode")
   else if chr_code=del_code_base+2 then print_esc("Udelcodenum")
   else print_esc("odelcode");
-def_family: print_size(chr_code-math_font_base);
+def_family: print_size(chr_code);
 
 @ The different types of code values have different legal ranges; the
 following program is careful to check each case properly.
@@ -25649,8 +25620,9 @@ else if cur_chr=sf_code_base then n:=@'77777
 else n:=biggest_char
 
 @ @<Assignments@>=
-def_family: begin p:=cur_chr; scan_math_family_int; p:=p+cur_val;
-  scan_optional_equals; scan_font_ident; define(p,data,cur_val);
+def_family: begin p:=cur_chr; scan_math_family_int; cur_val1:=cur_val;
+  scan_optional_equals; scan_font_ident; 
+  define_fam_fnt(cur_val1,p,cur_val);
   end;
 
 @ Next we consider changes to \TeX's numeric registers.
@@ -26747,13 +26719,15 @@ dump_int(max_font_id);
 for k:=0 to max_font_id do
   @<Dump the array info for internal font number |k|@>;
 print_ln; print_int(max_font_id); print(" preloaded font");
-if max_font_id<>1 then print_char("s")
+if max_font_id<>1 then print_char("s");
+dump_math_data
 
 @ @<Undump the font information@>=
 undump_int(x);
 set_max_font_id(x);
 for k:=0 to max_font_id do
-  @<Undump the array info for internal font number |k|@>
+  @<Undump the array info for internal font number |k|@>;
+undump_math_data
 
 @ @<Dump the array info for internal font number |k|@>=
 begin dump_font(k);

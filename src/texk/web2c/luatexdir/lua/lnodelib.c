@@ -523,7 +523,7 @@ static int lua_nodelib_mfont(lua_State * L)
       s = lua_tointeger(L,2); /* this should be a multiple of 256 !*/
     else
       s = 0;
-    lua_pushnumber(L, fam_fnt(f + s));
+    lua_pushnumber(L, fam_fnt(f, s));
     return 1;
 }
 

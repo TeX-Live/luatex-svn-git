@@ -75,8 +75,13 @@ void print_size(integer s)
 */
 
 #define setup_cur_size_and_mu() do {                                    \
-    if (cur_style<script_style)  cur_size=text_size;                    \
-    else cur_size=script_size*((cur_style-text_style)/2);               \
+    if (cur_style==script_style ||                                      \
+        cur_style==(script_style+cramped))                              \
+      cur_size=script_size;                                             \
+    else if (cur_style==script_script_style ||                          \
+             cur_style==(script_script_style+cramped))                  \
+      cur_size=script_script_size;                                      \
+    else cur_size=text_size;                                            \
     cur_mu=x_over_n(math_quad(cur_size),18);                            \
   } while (0)
 
@@ -233,36 +238,32 @@ pointer var_delimiter(pointer d, integer s, scaled v)
            characters might not be present in some of the fonts, and they might not
            be probed in increasing order of height. */
         if ((z != 0) || (x != 0)) {
-            z = z + s + script_size;
-            do {
-                z = z - script_size;
-                g = fam_fnt(z);
-                if (g != null_font) {
-                    y = x;
-                    if ((y >= font_bc(g)) && (y <= font_ec(g))) {
-                      CONTINUE:
-                        if (char_exists(g, y)) {
-                            if (char_tag(g, y) == ext_tag) {
-                                f = g;
-                                c = y;
-                                goto FOUND;
-                            }
-                            u = height_plus_depth(g, y);
-                            if (u > w) {
-                                f = g;
-                                c = y;
-                                w = u;
-                                if (u >= v)
-                                    goto FOUND;
-                            }
-                            if (char_tag(g, y) == list_tag) {
-                                y = char_remainder(g, y);
-                                goto CONTINUE;
-                            }
-                        }
-                    }
+          g = fam_fnt(z, s);
+          if (g != null_font) {
+            y = x;
+            if ((y >= font_bc(g)) && (y <= font_ec(g))) {
+            CONTINUE:
+              if (char_exists(g, y)) {
+                if (char_tag(g, y) == ext_tag) {
+                  f = g;
+                  c = y;
+                  goto FOUND;
                 }
-            } while (z >= script_size);
+                u = height_plus_depth(g, y);
+                if (u > w) {
+                  f = g;
+                  c = y;
+                  w = u;
+                  if (u >= v)
+                    goto FOUND;
+                }
+                if (char_tag(g, y) == list_tag) {
+                  y = char_remainder(g, y);
+                  goto CONTINUE;
+                }
+              }
+            }
+          }
         }
         if (large_attempt)
             goto FOUND;         /* there were none large enough */
@@ -596,7 +597,7 @@ integer cur_c;              /* the |character| field of a |math_char| */
 void fetch(pointer a)
 {                               /* unpack the |math_char| field |a| */
     cur_c = math_character(a);
-    cur_f = fam_fnt(math_fam(a) + cur_size);
+    cur_f = fam_fnt(math_fam(a), cur_size);
     if (cur_f == null_font) {
         int saved_selector;
         str_number s;

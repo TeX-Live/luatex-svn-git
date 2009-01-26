@@ -22,6 +22,7 @@
 
 #include "nodes.h"
 #include "commands.h"
+#include "managed-sa.h"
 
 #include "tokens.h"
 
@@ -57,6 +58,8 @@ static const char _svn_version[] =
 #define scan_normal_dimen() scan_dimen(false,false,false)
 
 #define var_code 7
+
+extern void rawset_sa_item(sa_tree hed, integer n, integer v);
 
 /* TODO: not sure if this is the right order */
 #define back_error(A,B) do {                    \
@@ -185,6 +188,88 @@ void flush_math(void)
     incompleat_noad = null;
 }
 
+/* Before we can do anything in math mode, we need fonts. */
+
+#define MATHFONTSTACK  8
+#define MATHFONTDEFAULT 0 /* == nullfont */
+
+static sa_tree math_fam_head = NULL;
+
+integer fam_fnt (integer fam_id, integer size_id)
+{
+    integer n = fam_id+(256*size_id);
+    return (integer) get_sa_item(math_fam_head, n);
+}
+
+void def_fam_fnt (integer fam_id, integer size_id, integer f, integer lvl) 
+{
+    integer n = fam_id+(256*size_id);
+    set_sa_item(math_fam_head, n, f, lvl);
+    if (int_par(param_tracing_assigns_code) > 0) {
+        begin_diagnostic();
+        tprint("{assigning");
+        print_char(' ');
+        print_size(size_id);
+        print_int(fam_id);
+        print_char ('=');
+        print_font_identifier(fam_fnt(fam_id, size_id));
+        print_char('}');
+        end_diagnostic(false);
+    }
+}
+
+void unsave_math_data (integer gl)
+{
+    sa_stack_item st;
+    if (math_fam_head->stack == NULL)
+        return;
+    while (math_fam_head->stack_ptr > 0 &&
+           abs(math_fam_head->stack[math_fam_head->stack_ptr].level)
+           >= (integer) gl) {
+        st = math_fam_head->stack[math_fam_head->stack_ptr];
+        if (st.level > 0) {
+            rawset_sa_item(math_fam_head, st.code, st.value);
+            /* now do a trace message, if requested */
+            if (int_par(param_tracing_restores_code) > 0) {
+                int size_id = st.code / 256;
+                int fam_id = st.code % 256;
+                begin_diagnostic();
+                tprint("{restoring");
+                print_char(' ');
+                print_size(size_id);
+                print_int(fam_id);
+                print_char ('=');
+                print_font_identifier(fam_fnt(fam_id, size_id));
+                print_char('}');
+                end_diagnostic(false);
+            }
+        }
+        (math_fam_head->stack_ptr)--;
+    }
+}
+
+
+void dump_math_data (void)
+{
+    if (math_fam_head == NULL)
+        math_fam_head = new_sa_tree(MATHFONTSTACK, MATHFONTDEFAULT);
+    dump_sa_tree(math_fam_head);
+}
+
+void undump_math_data (void)
+{
+    math_fam_head = undump_sa_tree();
+}
+
+/*  */
+
+void initialize_math(void)
+{
+    if (math_fam_head == NULL)
+        math_fam_head = new_sa_tree(MATHFONTSTACK, MATHFONTDEFAULT);
+    return;
+}
+
 
 /*
 @ Each portion of a formula is classified as Ord, Op, Bin, Rel, Ope,
@@ -232,14 +317,6 @@ be placed at the left and right of the fraction. In this way, a
  \.{\\abovewithdelims}.
 */
 
-
-/* This used to be used to initialize a few static variables. It is 
-  not used at the moment */
-
-void initialize_math(void)
-{
-    return;
-}
 
 /* The |new_noad| function creates an |ord_noad| that is completely null */
 
@@ -1606,9 +1683,9 @@ void math_left_right(void)
 static boolean check_necessary_fonts(void)
 {
     boolean danger = false;
-    if ((font_params(fam_fnt(2 + text_size)) < total_mathsy_params) ||
-        (font_params(fam_fnt(2 + script_size)) < total_mathsy_params) ||
-        (font_params(fam_fnt(2 + script_script_size)) < total_mathsy_params)) {
+    if ((font_params(fam_fnt(2,text_size)) < total_mathsy_params) ||
+        (font_params(fam_fnt(2,script_size)) < total_mathsy_params) ||
+        (font_params(fam_fnt(2,script_script_size)) < total_mathsy_params)) {
         char *hlp[] = {
             "Sorry, but I can't typeset math unless \\textfont 2",
             "and \\scriptfont 2 and \\scriptscriptfont 2 have all",
@@ -1618,9 +1695,9 @@ static boolean check_necessary_fonts(void)
         tex_error("Math formula deleted: Insufficient symbol fonts", hlp);
         flush_math();
         danger = true;
-    } else if ((font_params(fam_fnt(3 + text_size)) < total_mathex_params) ||
-               (font_params(fam_fnt(3 + script_size)) < total_mathex_params) ||
-               (font_params(fam_fnt(3 + script_script_size)) <
+    } else if ((font_params(fam_fnt(3,text_size)) < total_mathex_params) ||
+               (font_params(fam_fnt(3,script_size)) < total_mathex_params) ||
+               (font_params(fam_fnt(3,script_script_size)) <
                 total_mathex_params)) {
         char *hlp[] = {
             "Sorry, but I can't typeset math unless \\textfont 3",

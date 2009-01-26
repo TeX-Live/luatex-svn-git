@@ -511,7 +511,6 @@ typedef enum {
 #define dimen_par(A) zeqtb[static_dimen_base+(A)].cint
 #define loc_par(A)   equiv(static_local_base+(A))
 #define glue_par(A)  equiv(static_glue_base+(A))
-#define fam_fnt(A)   equiv(static_math_font_base+(A))
 
 
 typedef enum {
