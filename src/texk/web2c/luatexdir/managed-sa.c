@@ -212,11 +212,11 @@ void dump_sa_tree(sa_tree a)
     boolean f;
     unsigned int x;
     int h, m, l;
-    if (a == NULL)
-        return;
+    assert (a != NULL);
     dump_int(a->stack_step);
     dump_int(a->dflt);
     if (a->tree != NULL) {
+        dump_int(1);
         for (h = 0; h < HIGHPART; h++) {
             if (a->tree[h] != NULL) {
                 f = 1;
@@ -239,6 +239,8 @@ void dump_sa_tree(sa_tree a)
                 dump_qqqq(f);
             }
         }
+    } else {
+      dump_int(0);
     }
 }
 
@@ -256,6 +258,10 @@ sa_tree undump_sa_tree(void)
     a->dflt = x;
     a->stack = Mxmalloc_array(sa_stack_item, a->stack_size);
     a->stack_ptr = 0;
+    a->tree = NULL;
+    undump_int(x);
+    if (x==0)
+      return a;
     a->tree = (sa_tree_item ***) Mxmalloc_array(void *, HIGHPART);
     for (h = 0; h < HIGHPART; h++) {
         undump_qqqq(f);
