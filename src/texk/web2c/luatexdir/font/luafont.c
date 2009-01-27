@@ -942,7 +942,7 @@ font_char_from_lua(lua_State * L, internal_font_number f, integer i,
                 set_charinfo_extensible(co, top, bot, mid, rep);
             } else {
                 pdftex_warn
-                    ("lua-loaded font %s char [%d] has an invalid extensible field!",
+                    ("lua-loaded font %s char [U+%X] has an invalid extensible field!",
                      font_name(f), (int) i);
             }
         }
@@ -978,7 +978,7 @@ font_char_from_lua(lua_State * L, internal_font_number f, integer i,
                         ctr++;
                     } else {
                         pdftex_warn
-                            ("lua-loaded font %s char [%d] has an invalid kern field!",
+                            ("lua-loaded font %s char [U+%X] has an invalid kern field!",
                              font_name(f), (int) i);
                     }
                     lua_pop(L, 1);
@@ -989,7 +989,7 @@ font_char_from_lua(lua_State * L, internal_font_number f, integer i,
                     set_charinfo_kerns(co, ckerns);
                 } else {
                     pdftex_warn
-                        ("lua-loaded font %s char [%d] has an invalid kerns field!",
+                        ("lua-loaded font %s char [U+%X] has an invalid kerns field!",
                          font_name(f), (int) i);
                 }
             }
@@ -1044,7 +1044,7 @@ font_char_from_lua(lua_State * L, internal_font_number f, integer i,
                         ctr++;
                     } else {
                         pdftex_warn
-                            ("lua-loaded font %s char [%d] has an invalid ligature field!",
+                            ("lua-loaded font %s char [U+%X] has an invalid ligature field!",
                              font_name(f), (int) i);
                     }
                     lua_pop(L, 1);      /* iterator value */
@@ -1055,7 +1055,7 @@ font_char_from_lua(lua_State * L, internal_font_number f, integer i,
                     set_charinfo_ligatures(co, cligs);
                 } else {
                     pdftex_warn
-                        ("lua-loaded font %s char [%d] has an invalid ligatures field!",
+                        ("lua-loaded font %s char [U+%X] has an invalid ligatures field!",
                          font_name(f), (int) i);
                 }
             }
