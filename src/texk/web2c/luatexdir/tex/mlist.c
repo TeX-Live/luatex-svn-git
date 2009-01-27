@@ -44,6 +44,381 @@ static const char _svn_version[] =
     }                                               \
   } while (0)
 
+/* here are the math parameters that are font-dependant */
+
+/*
+@ Before an mlist is converted to an hlist, \TeX\ makes sure that
+the fonts in family~2 have enough parameters to be math-symbol
+fonts, and that the fonts in family~3 have enough parameters to be
+math-extension fonts. The math-symbol parameters are referred to by using the
+following macros, which take a size code as their parameter; for example,
+|num1(cur_size)| gives the value of the |num1| parameter for the current size.
+@^parameters for symbols@>
+@^font parameters@>
+*/
+
+#  define total_mathsy_params 22
+#  define total_mathex_params 13
+
+#  define mathsy(A,B) font_param(fam_fnt(2,A),B)
+#  define math_x_height(A) mathsy(A,5)  /* height of `\.x' */
+#  define math_quad(A) mathsy(A,6)   /* \.{18mu} */
+#  define num1(A) mathsy(A,8)        /* numerator shift-up in display styles */
+#  define num2(A) mathsy(A,9)        /* numerator shift-up in non-display, non-\.{\\atop} */
+#  define num3(A) mathsy(A,10)       /* numerator shift-up in non-display \.{\\atop} */
+#  define denom1(A) mathsy(A,11)     /* denominator shift-down in display styles */
+#  define denom2(A) mathsy(A,12)     /* denominator shift-down in non-display styles */
+#  define sup1(A) mathsy(A,13)       /* superscript shift-up in uncramped display style */
+#  define sup2(A) mathsy(A,14)       /* superscript shift-up in uncramped non-display */
+#  define sup3(A) mathsy(A,15)       /* superscript shift-up in cramped styles */
+#  define sub1(A) mathsy(A,16)       /* subscript shift-down if superscript is absent */
+#  define sub2(A) mathsy(A,17)       /* subscript shift-down if superscript is present */
+#  define sup_drop(A) mathsy(A,18)   /* superscript baseline below top of large box */
+#  define sub_drop(A) mathsy(A,19)   /* subscript baseline below bottom of large box */
+#  define delim1(A) mathsy(A,20)     /* size of \.{\\atopwithdelims} delimiters in display styles */
+#  define delim2(A) mathsy(A,21)     /* size of \.{\\atopwithdelims} delimiters in non-displays */
+#  define axis_height(A) mathsy(A,22)/* height of fraction lines above the baseline */
+
+/* this function is for the benefit of |math.c| */
+
+scaled get_math_quad (int a) {
+  return math_quad(a);
+}
+
+/*
+The math-extension parameters have similar macros, but the size code is
+omitted (since it is always |cur_size| when we refer to such parameters).
+@^parameters for symbols@>
+@^font parameters@>
+*/
+
+#  define mathex(A,B) font_param(fam_fnt(3,A),B)
+#  define default_rule_thickness(A) mathex(A,8)      /* thickness of \.{\\over} bars */
+#  define big_op_spacing1(A) mathex(A,9)     /* minimum clearance above a displayed op */
+#  define big_op_spacing2(A) mathex(A,10)    /* minimum clearance below a displayed op */
+#  define big_op_spacing3(A) mathex(A,11)    /* minimum baselineskip above displayed op */
+#  define big_op_spacing4(A) mathex(A,12)    /* minimum baselineskip below displayed op */
+#  define big_op_spacing5(A) mathex(A,13)    /* padding above and below displayed limits */
+
+/* I made a few trivial extensions cf. MATH.MathConstants, but some of
+the MathConstants values have no matching usage in \LuaTeX\ right now.
+ 
+
+ScriptPercentScaleDown,
+ScriptScriptPercentScaleDown:
+  These should be handled by the macro package, on the engine
+  side there are three separate fonts
+
+DelimitedSubFormulaMinHeight:
+  This is perhaps related to word's natural math input? I have
+  no idea what to do about it
+
+DisplayOperatorMinHeight:
+  Nice idea, needs an extension to |make_op|, but not hard
+  (and required for \Udelcode-style specified math operators)
+
+MathLeading:
+  LuaTeX does not currently handle multi-line displays, and
+  the parameter does not seem to make much sense elsewhere
+
+FlattenedAccentBaseHeight:
+  This is based on the 'flac' GSUB feature. It would not be hard
+  to support that, but proper math accent placements cf. MATH
+  needs support for MathTopAccentAttachment table to be 
+  implemented first
+
+StretchStackTopShiftUp,
+StretchStackBottomShiftDown,
+StretchStackGapAboveMin,
+StretchStackGapBelowMin:
+  LuaTeX does not have horizontal delimiters yet, so nothing
+  can be done yet
+
+SkewedFractionHorizontalGap,
+SkewedFractionVerticalGap:
+  I am not sure it makes sense implementing skewed fractions,
+  so I would like to see an example first
+
+RadicalKernBeforeDegree,
+RadicalKernAfterDegree,
+RadicalKernBottomRaisePercent:
+  LuaTeX does not consider the degree a part of the radical yet
+
+MinConnectorOverlap:
+  LuaTeX's extensibles are always butt-to-butt. In general, MATH
+  extensibles seem somewhat smarter than LuaTeX currently is.
+
+*/
+
+/* because of the nature of the macros above, (almost) all of the 
+   following functions have an implicit parameter |cur_size|. 
+   I do not want to fix that right now, because the quering method
+   may change.
+*/
+
+static scaled accent_base_height (integer f)
+{ 
+    return x_height(f);
+}
+
+static scaled math_axis(int b) /* |b| is a size */
+{
+    return axis_height(b);
+}
+
+static scaled overbar_above_clearance(void) 
+{ 
+    return default_rule_thickness(cur_size); 
+}
+
+static scaled overbar_rule_thickness(void) 
+{ 
+    return default_rule_thickness(cur_size); 
+}
+
+static scaled overbar_vgap(void) 
+{ 
+    return (3*default_rule_thickness(cur_size)); 
+}
+
+static scaled underbar_rule_thickness(void) 
+{ 
+    return default_rule_thickness(cur_size); 
+}
+
+static scaled underbar_vgap(void)
+{ 
+    return (3*default_rule_thickness(cur_size)); 
+}
+
+static scaled underbar_below_clearance(void) 
+{ 
+    return 0;
+}
+
+/* note: the radical_rule_thickness and gap distances are later corrected 
+   for the height of the radical glyph */
+
+static scaled radical_vgap( int a) 
+{
+    if (a < text_style)
+        return (default_rule_thickness(cur_size)+(abs(math_x_height(cur_size))/4));
+    else
+        return (default_rule_thickness(cur_size)+(abs(default_rule_thickness(cur_size))/4));
+}
+
+static scaled radical_rule_thickness(void) 
+{ 
+    return default_rule_thickness(cur_size); 
+}
+
+static scaled radical_above_clearance(void) 
+{ 
+    return default_rule_thickness(cur_size); 
+}
+
+static scaled  stack_vgap (int a)
+{
+    if (a < text_style) 
+        return (7*default_rule_thickness(cur_size));
+    else 
+        return (3*default_rule_thickness(cur_size));
+}
+
+static scaled stack_num_up (int a) 
+{
+    if (a < text_style) 
+        return num1(cur_size);
+    else 
+        return num3(cur_size);
+}
+
+static scaled stack_denom_down (int a) 
+{
+    if (a < text_style) 
+        return denom1(cur_size);
+    else 
+        return denom2(cur_size);
+}
+
+static scaled fraction_rule_thickness(void)
+{ 
+    return default_rule_thickness(cur_size); 
+}
+
+
+static scaled fraction_num_vgap (int a, pointer q) 
+{
+   if (a < text_style) 
+       return (3 * thickness(q)); 
+   else 
+      return (thickness(q));       
+}
+
+static scaled fraction_denom_vgap (int a, pointer q) 
+{
+   if (a < text_style) 
+       return (3 * thickness(q)); 
+   else 
+      return (thickness(q));       
+}
+
+static scaled fraction_num_up (int a) 
+{
+    if (a < text_style) 
+        return num1(cur_size);
+    else 
+        return num2(cur_size);
+}
+
+static scaled fraction_denom_down (int a) 
+{
+    if (a < text_style) 
+        return denom1(cur_size);
+    else 
+        return denom2(cur_size);
+}
+
+static scaled fraction_delimiter_size (int a) 
+{
+    if (a < text_style) 
+        return delim1(cur_size);
+    else  
+        return delim2(cur_size);
+}
+
+static scaled limit_up_gap(void)
+{ 
+    return big_op_spacing1(cur_size); 
+}
+
+static scaled limit_up_baseline_gap(void)
+{ 
+    return big_op_spacing3(cur_size); 
+}
+
+static scaled limit_up_above_clearance(void)
+{ 
+    return big_op_spacing5(cur_size); 
+}
+
+static scaled limit_down_gap(void)
+{ 
+    return big_op_spacing2(cur_size); 
+}
+
+static scaled limit_down_baseline_gap(void)
+{ 
+    return big_op_spacing4(cur_size); 
+}
+
+static scaled limit_down_below_clearance(void)
+{ 
+    return big_op_spacing5(cur_size); 
+}
+
+
+static scaled  subscript_shift_baseline_drop (int a) 
+{
+    if (a<script_style) 
+        return sub_drop(script_size);
+    else
+        return sub_drop(script_script_size);
+}
+
+static scaled superscript_shift_baseline_drop (int a) 
+{
+    if (a<script_style) 
+        return sup_drop(script_size);
+    else
+        return sup_drop(script_script_size);
+}
+
+static scaled  subscript_shift_down(int a) 
+{
+    (void)a;
+    return sub1(cur_size);
+}
+
+static scaled subscript_shift_down_with_sup (int a) 
+{
+    (void)a;
+    return sub2(cur_size);
+}
+
+static scaled subscript_top_max (int a) 
+{ 
+    (void)a;
+    return (abs(math_x_height(cur_size) * 4) / 5);
+}
+
+
+static scaled superscript_shift_up (int a)
+{  
+    if (odd(a)) 
+        return sup3(cur_size);
+    else if (a < text_style) 
+        return sup1(cur_size);
+    else 
+        return sup2(cur_size);
+}
+
+static scaled superscript_bottom_min (int a)
+{
+    (void)a;
+    return (abs(math_x_height(cur_size)) / 4);
+}
+
+static scaled superscript_bottom_max_with_sub (int a) 
+{
+    (void)a;
+    return (abs(math_x_height(cur_size) * 4) / 5);
+}
+
+static scaled subsuperscript_gap (void)
+{ 
+    return (4 * default_rule_thickness(cur_size)); 
+}
+
+static scaled space_after_script (void) 
+{
+    return script_space;
+}
+
+
+/* .. */
+
+boolean check_necessary_fonts(void)
+{
+    boolean danger = false;
+    if ((font_params(fam_fnt(2,text_size)) < total_mathsy_params) ||
+        (font_params(fam_fnt(2,script_size)) < total_mathsy_params) ||
+        (font_params(fam_fnt(2,script_script_size)) < total_mathsy_params)) {
+        char *hlp[] = {
+            "Sorry, but I can't typeset math unless \\textfont 2",
+            "and \\scriptfont 2 and \\scriptscriptfont 2 have all",
+            "the \\fontdimen values needed in math symbol fonts.",
+            NULL
+        };
+        tex_error("Math formula deleted: Insufficient symbol fonts", hlp);
+        flush_math();
+        danger = true;
+    } else if ((font_params(fam_fnt(3,text_size)) < total_mathex_params) ||
+               (font_params(fam_fnt(3,script_size)) < total_mathex_params) ||
+               (font_params(fam_fnt(3,script_script_size)) <
+                total_mathex_params)) {
+        char *hlp[] = {
+            "Sorry, but I can't typeset math unless \\textfont 3",
+            "and \\scriptfont 3 and \\scriptscriptfont 3 have all",
+            "the \\fontdimen values needed in math extension fonts.",
+            NULL
+        };
+        tex_error("Math formula deleted: Insufficient extension fonts", hlp);
+        flush_math();
+        danger = true;
+    }
+    return danger;
+}
 
 
 /* 
@@ -126,10 +501,10 @@ pointer fraction_rule(scaled t, pointer att)
 /*
   @ The |overbar| function returns a pointer to a vlist box that consists of
   a given box |b|, above which has been placed a kern of height |k| under a
-  fraction rule of thickness |t| under additional space of height |t|.
+  fraction rule of thickness |t| under additional space of height |ht|.
 */
 
-pointer overbar(pointer b, scaled k, scaled t, pointer att)
+pointer overbar(pointer b, scaled k, scaled t, scaled ht, pointer att)
 {
     pointer p, q;               /* nodes being constructed */
     p = new_kern(k);
@@ -137,7 +512,7 @@ pointer overbar(pointer b, scaled k, scaled t, pointer att)
     reset_attributes(p,att);
     q = fraction_rule(t,att);
     vlink(q) = p;
-    p = new_kern(t);
+    p = new_kern(ht);
     reset_attributes(p,att);
     vlink(p) = q;
     pack_direction = math_direction;
@@ -334,10 +709,7 @@ pointer var_delimiter(pointer d, integer s, scaled v)
         reset_attributes(b,att);
         width(b) = null_delimiter_space;        /* use this width if no delimiter was found */
     }
-    z = cur_size;
-    cur_size = s;
-    shift_amount(b) = half(height(b) - depth(b)) - axis_height(cur_size);
-    cur_size = z;
+    shift_amount(b) = half(height(b) - depth(b)) - math_axis(s);
     delete_attribute_ref(att);
     return b;
 }
@@ -695,7 +1067,9 @@ void make_over(pointer q)
 {
     pointer p;
     p = overbar(clean_box(nucleus(q), cramped_style(cur_style)),
-                3 * default_rule_thickness, default_rule_thickness, node_attr(nucleus(q)));
+                overbar_vgap(), 
+                overbar_rule_thickness(), 
+                overbar_above_clearance(), node_attr(nucleus(q)));
     math_list(nucleus(q)) = p;
     type(nucleus(q)) = sub_box_node;
 }
@@ -705,15 +1079,19 @@ void make_under(pointer q)
     pointer p, x, y, r;         /* temporary registers for box construction */
     scaled delta;               /* overall height plus depth */
     x = clean_box(nucleus(q), cur_style);
-    p = new_kern(3 * default_rule_thickness);
+    p = new_kern(underbar_vgap());
     reset_attributes(p,node_attr(q));
     vlink(x) = p;
-    r = fraction_rule(default_rule_thickness,node_attr(q));
+    r = fraction_rule(underbar_rule_thickness(),node_attr(q));
     vlink(p) = r;
+    if (underbar_below_clearance()!=0) {
+      r = new_kern(underbar_below_clearance());
+      vlink(vlink(p)) = r;
+    }
     pack_direction = math_direction;
     y = vpackage(x, 0, additional, max_dimen);
     reset_attributes(y,node_attr(q));
-    delta = height(y) + depth(y) + default_rule_thickness;
+    delta = height(y) + depth(y) + underbar_rule_thickness();
     height(y) = height(x);
     depth(y) = delta - height(y);
     math_list(nucleus(q)) = y;
@@ -728,7 +1106,7 @@ void make_vcenter(pointer q)
     if (type(v) != vlist_node)
         tconfusion("vcenter");    /* this can't happen vcenter */
     delta = height(v) + depth(v);
-    height(v) = axis_height(cur_size) + half(delta);
+    height(v) = math_axis(cur_size) + half(delta);
     depth(v) = delta - height(v);
 }
 
@@ -739,29 +1117,25 @@ between a square root sign and the rule above its nucleus by assuming that the
 baseline of the square-root symbol is the same as the bottom of the rule. The
 height of the square-root symbol will be the thickness of the rule, and the
 depth of the square-root symbol should exceed or equal the height-plus-depth
-of the nucleus plus a certain minimum clearance~|clr|. The symbol will be
-placed so that the actual clearance is |clr| plus half the excess.
+of the nucleus plus a certain minimum clearance~|psi|. The symbol will be
+placed so that the actual clearance is |psi| plus half the excess.
 */
 
 void make_radical(pointer q)
 {
     pointer x, y, p;            /* temporary registers for box construction */
-    scaled delta, clr;          /* dimensions involved in the calculation */
+    scaled delta, psi, theta;          /* dimensions involved in the calculation */
     x = clean_box(nucleus(q), cramped_style(cur_style));
-    if (cur_style < text_style) {       /* display style */
-        clr = default_rule_thickness + (abs(math_x_height(cur_size)) / 4);
-    } else {
-        clr = default_rule_thickness;
-        clr = clr + (abs(clr) / 4);
-    }
-    y = var_delimiter(left_delimiter(q), cur_size, height(x) + depth(x) + clr +
-                      default_rule_thickness);
+    theta = radical_rule_thickness();
+    psi = radical_vgap(cur_style);
+    y = var_delimiter(left_delimiter(q), cur_size, height(x) + depth(x) + psi + theta);
     left_delimiter(q) = null;
-    delta = depth(y) - (height(x) + depth(x) + clr);
+    theta = height(y); /* re-do */
+    delta = depth(y) - (height(x) + depth(x) + psi);
     if (delta > 0)
-        clr = clr + half(delta);        /* increase the actual clearance */
-    shift_amount(y) = -(height(x) + clr);
-    p = overbar(x, clr, height(y), node_attr(y));
+        psi = psi + half(delta);        /* increase the actual clearance */
+    shift_amount(y) = -(height(x) + psi);
+    p = overbar(x, radical_above_clearance(), theta, psi, node_attr(y));
     vlink(y) = p;
     p = hpack(y, 0, additional);
     reset_attributes(p,node_attr(q));
@@ -808,10 +1182,10 @@ void make_math_accent(pointer q)
                 break;
             c = y;
         }
-        if (h < x_height(f))
+        if (h < accent_base_height(f))
             delta = h;
         else
-            delta = x_height(f);
+          delta = accent_base_height(f);
         if ((supscr(q) != null) || (subscr(q) != null)) {
             if (type(nucleus(q)) == math_char_node) {
                 /* Swap the subscript and superscript into box |x| */
@@ -868,7 +1242,7 @@ void make_fraction(pointer q)
     scaled delta, delta1, delta2, shift_up, shift_down, clr;
     /* dimensions for box calculations */
     if (thickness(q) == default_code)
-        thickness(q) = default_rule_thickness;
+      thickness(q) = fraction_rule_thickness();
     /* Create equal-width boxes |x| and |z| for the numerator and denominator,
        and compute the default amounts |shift_up| and |shift_down| by which they
        are displaced from the baseline */
@@ -878,32 +1252,30 @@ void make_fraction(pointer q)
         x = rebox(x, width(z));
     else
         z = rebox(z, width(x));
-    if (cur_style < text_style) {       /* display style */
-        shift_up = num1(cur_size);
-        shift_down = denom1(cur_size);
-    } else {
-        shift_down = denom2(cur_size);
-        shift_up = (thickness(q) != 0 ? num2(cur_size) : num3(cur_size));
-    }
     if (thickness(q) == 0) {
+        shift_up = stack_num_up(cur_style);
+        shift_down = stack_denom_down(cur_style);
         /* The numerator and denominator must be separated by a certain minimum
-           clearance, called |clr| in the following program. The difference between
-           |clr| and the actual clearance is |2delta|. */
-        clr = (cur_style < text_style ? (7 * default_rule_thickness) :  (3 * default_rule_thickness));
+         clearance, called |clr| in the following program. The difference between
+         |clr| and the actual clearance is |2delta|. */
+        clr = stack_vgap (cur_style);
         delta = half(clr - ((shift_up - depth(x)) - (height(z) - shift_down)));
         if (delta > 0) {
             shift_up = shift_up + delta;
             shift_down = shift_down + delta;
         }
     } else {
+      shift_up = fraction_num_up(cur_style);
+      shift_down = fraction_denom_down(cur_style);
         /* In the case of a fraction line, the minimum clearance depends on the actual
            thickness of the line. */
-        clr    = (cur_style < text_style ? (3 * thickness(q)) : thickness(q) );
         delta  = half(thickness(q));
-        delta1 = clr - ((shift_up - depth(x)) - (axis_height(cur_size) + delta));
-        delta2 = clr - ((axis_height(cur_size) - delta) - (height(z) - shift_down));
+        clr    = fraction_num_vgap(cur_style,q);
+        delta1 = clr - ((shift_up - depth(x)) - (math_axis(cur_size) + delta));
         if (delta1 > 0)
             shift_up = shift_up + delta1;
+        clr    = fraction_denom_vgap(cur_style,q);
+        delta2 = clr - ((math_axis(cur_size) - delta) - (height(z) - shift_down));
         if (delta2 > 0)
             shift_down = shift_down + delta2;
     }
@@ -919,11 +1291,11 @@ void make_fraction(pointer q)
         vlink(p) = z;
     } else {
         y = fraction_rule(thickness(q),node_attr(q));
-        p = new_kern((axis_height(cur_size) - delta) - (height(z) - shift_down));
+        p = new_kern((math_axis(cur_size) - delta) - (height(z) - shift_down));
         reset_attributes(p,node_attr(q));
         vlink(y) = p;
         vlink(p) = z;
-        p = new_kern((shift_up - depth(x)) - (axis_height(cur_size) + delta));
+        p = new_kern((shift_up - depth(x)) - (math_axis(cur_size) + delta));
         vlink(p) = y;
     }
     reset_attributes(p,node_attr(q));
@@ -931,7 +1303,7 @@ void make_fraction(pointer q)
     list_ptr(v) = x;
     /* Put the fraction into a box with its delimiters, and make |new_hlist(q)|
        point to it */
-    delta = (cur_style < text_style ? delim1(cur_size) : delim2(cur_size));
+    delta = fraction_delimiter_size(cur_style);
     x = var_delimiter(left_delimiter(q), cur_size, delta);
     left_delimiter(q) = null;
     vlink(x) = v;
@@ -982,7 +1354,7 @@ scaled make_op(pointer q)
         x = clean_box(nucleus(q), cur_style);
         if ((subscr(q) != null) && (subtype(q) != limits))
             width(x) = width(x) - delta;        /* remove italic correction */
-        shift_amount(x) = half(height(x) - depth(x)) - axis_height(cur_size);
+        shift_amount(x) = half(height(x) - depth(x)) - math_axis(cur_size);
         /* center vertically */
         type(nucleus(q)) = sub_box_node;
         math_list(nucleus(q)) = x;
@@ -1021,34 +1393,34 @@ scaled make_op(pointer q)
             flush_node(x);
             list_ptr(v) = y;
         } else {
-            shift_up = big_op_spacing3 - depth(x);
-            if (shift_up < big_op_spacing1)
-                shift_up = big_op_spacing1;
+          shift_up = limit_up_baseline_gap() - depth(x);
+          if (shift_up < limit_up_gap())
+            shift_up = limit_up_gap();
             p = new_kern(shift_up);
             reset_attributes(p,node_attr(q));
             vlink(p) = y;
             vlink(x) = p;
-            p = new_kern(big_op_spacing5);
+            p = new_kern(limit_up_above_clearance());
             reset_attributes(p,node_attr(q));
             vlink(p) = x;
             list_ptr(v) = p;
-            height(v) = height(v) + big_op_spacing5 + height(x) + depth(x) + shift_up;
+            height(v) = height(v) + limit_up_above_clearance() + height(x) + depth(x) + shift_up;
         }
         if (subscr(q) == null) {
             list_ptr(z) = null;
             flush_node(z);
         } else {
-            shift_down = big_op_spacing4 - height(z);
-            if (shift_down < big_op_spacing2)
-                shift_down = big_op_spacing2;
+          shift_down = limit_down_baseline_gap() - height(z);
+          if (shift_down < limit_down_gap())
+            shift_down = limit_down_gap();
             p = new_kern(shift_down);
             reset_attributes(p,node_attr(q));
             vlink(y) = p;
             vlink(p) = z;
-            p = new_kern(big_op_spacing5);
+            p = new_kern(limit_down_below_clearance());
             reset_attributes(p,node_attr(q));
             vlink(z) = p;
-            depth(v) = depth(v) + big_op_spacing5 + height(z) + depth(z) + shift_down;
+            depth(v) = depth(v) + limit_down_below_clearance() + height(z) + depth(z) + shift_down;
         }
         if (subscr(q)!=null) {
           math_list(subscr(q)) = null; 
@@ -1186,21 +1558,14 @@ void make_scripts(pointer q, scaled delta)
 {
     pointer p, x, y, z;         /* temporary registers for box construction */
     scaled shift_up, shift_down, clr;   /* dimensions in the calculation */
-    integer t;                  /* subsidiary size code */
     p = new_hlist(q);
     if (is_char_node(p)) {
         shift_up = 0;
         shift_down = 0;
     } else {
         z = hpack(p, 0, additional);
-        t = cur_size;
-        if (cur_style < script_style)
-            cur_size = script_size;
-        else
-            cur_size = script_script_size;
-        shift_up = height(z) - sup_drop(cur_size);
-        shift_down = depth(z) + sub_drop(cur_size);
-        cur_size = t;
+        shift_up = height(z) - superscript_shift_baseline_drop(cur_style); /* r18 */
+        shift_down = depth(z) + subscript_shift_baseline_drop(cur_style); /* r19 */        
         list_ptr(z) = null;
         flush_node(z);
     }
@@ -1209,10 +1574,10 @@ void make_scripts(pointer q, scaled delta)
         /* When there is a subscript without a superscript, the top of the subscript
            should not exceed the baseline plus four-fifths of the x-height. */
         x = clean_box(subscr(q), sub_style(cur_style));
-        width(x) = width(x) + script_space;
-        if (shift_down < sub1(cur_size))
-            shift_down = sub1(cur_size);
-        clr = height(x) - (abs(math_x_height(cur_size) * 4) / 5);
+        width(x) = width(x) + space_after_script();
+        if (shift_down < subscript_shift_down(cur_style))
+          shift_down = subscript_shift_down(cur_style);
+        clr = height(x) - subscript_top_max(cur_style);
         if (shift_down < clr)
             shift_down = clr;
         shift_amount(x) = shift_down;
@@ -1221,16 +1586,11 @@ void make_scripts(pointer q, scaled delta)
         /*The bottom of a superscript should never descend below the baseline plus
            one-fourth of the x-height. */
         x = clean_box(supscr(q), sup_style(cur_style));
-        width(x) = width(x) + script_space;
-        if (odd(cur_style))
-            clr = sup3(cur_size);
-        else if (cur_style < text_style)
-            clr = sup1(cur_size);
-        else
-            clr = sup2(cur_size);
+        width(x) = width(x) + space_after_script();
+        clr = superscript_shift_up(cur_style);
         if (shift_up < clr)
             shift_up = clr;
-        clr = depth(x) + (abs(math_x_height(cur_size)) / 4);
+        clr = depth(x) + superscript_bottom_min(cur_style);
         if (shift_up < clr)
             shift_up = clr;
 
@@ -1244,18 +1604,16 @@ void make_scripts(pointer q, scaled delta)
                If this condition would be violated, the subscript moves down, after which
                both subscript and superscript move up so that the bottom of the superscript
                is at least as high as the baseline plus four-fifths of the x-height. */
+
             y = clean_box(subscr(q), sub_style(cur_style));
-            width(y) = width(y) + script_space;
-            if (shift_down < sub2(cur_size))
-                shift_down = sub2(cur_size);
-            clr =
-                4 * default_rule_thickness - ((shift_up - depth(x)) -
-                                              (height(y) - shift_down));
+            width(y) = width(y) + space_after_script();
+            if (shift_down < subscript_shift_down_with_sup(cur_style))
+              shift_down = subscript_shift_down_with_sup(cur_style);
+            clr = subsuperscript_gap() - 
+              ((shift_up - depth(x)) - (height(y) - shift_down));
             if (clr > 0) {
                 shift_down = shift_down + clr;
-                clr =
-                    (abs(math_x_height(cur_size) * 4) / 5) - (shift_up -
-                                                              depth(x));
+                clr = superscript_bottom_max_with_sub(cur_style) - (shift_up - depth(x));
                 if (clr > 0) {
                     shift_up = shift_up + clr;
                     shift_down = shift_down - clr;
@@ -1307,7 +1665,7 @@ small_number make_left_right(pointer q, integer style, scaled max_d,
     pointer tmp;
     cur_style = style;
     setup_cur_size_and_mu();
-    delta2 = max_d + axis_height(cur_size);
+    delta2 = max_d + math_axis(cur_size);
     delta1 = max_hv + max_d - delta2;
     if (delta2 > delta1)
         delta1 = delta2;        /* |delta1| is max distance from axis */

@@ -1693,39 +1693,6 @@ void math_left_right(void)
 }
 
 
-static boolean check_necessary_fonts(void)
-{
-    boolean danger = false;
-    if ((font_params(fam_fnt(2,text_size)) < total_mathsy_params) ||
-        (font_params(fam_fnt(2,script_size)) < total_mathsy_params) ||
-        (font_params(fam_fnt(2,script_script_size)) < total_mathsy_params)) {
-        char *hlp[] = {
-            "Sorry, but I can't typeset math unless \\textfont 2",
-            "and \\scriptfont 2 and \\scriptscriptfont 2 have all",
-            "the \\fontdimen values needed in math symbol fonts.",
-            NULL
-        };
-        tex_error("Math formula deleted: Insufficient symbol fonts", hlp);
-        flush_math();
-        danger = true;
-    } else if ((font_params(fam_fnt(3,text_size)) < total_mathex_params) ||
-               (font_params(fam_fnt(3,script_size)) < total_mathex_params) ||
-               (font_params(fam_fnt(3,script_script_size)) <
-                total_mathex_params)) {
-        char *hlp[] = {
-            "Sorry, but I can't typeset math unless \\textfont 3",
-            "and \\scriptfont 3 and \\scriptscriptfont 3 have all",
-            "the \\fontdimen values needed in math extension fonts.",
-            NULL
-        };
-        tex_error("Math formula deleted: Insufficient extension fonts", hlp);
-        flush_math();
-        danger = true;
-    }
-    return danger;
-}
-
-
 /* \TeX\ gets to the following part of the program when 
 the first `\.\$' ending a display has been scanned.
 */
@@ -1859,7 +1826,7 @@ void finish_displayed_math(boolean l, boolean danger, pointer a)
         q = 0;
     } else {
         e = width(a);
-        q = e + math_quad(text_size);
+        q = e + get_math_quad(text_size);
     }
     if (w + q > z) {
         /* The user can force the equation number to go on a separate line

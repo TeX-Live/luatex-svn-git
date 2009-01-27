@@ -73,62 +73,13 @@ extern void dump_math_data (void);
 extern void undump_math_data (void);
 void unsave_math_data (integer lvl);
 
-#  define total_mathsy_params 22
-#  define total_mathex_params 13
-
 extern pointer cur_mlist;
 extern integer cur_style;
 extern boolean mlist_penalties;
 extern integer cur_size;
 
-/*
-@ Before an mlist is converted to an hlist, \TeX\ makes sure that
-the fonts in family~2 have enough parameters to be math-symbol
-fonts, and that the fonts in family~3 have enough parameters to be
-math-extension fonts. The math-symbol parameters are referred to by using the
-following macros, which take a size code as their parameter; for example,
-|num1(cur_size)| gives the value of the |num1| parameter for the current size.
-@^parameters for symbols@>
-@^font parameters@>
-*/
-
-
-#  define mathsy_end(A)
-#  define mathsy(A) font_param(fam_fnt(2,cur_size),A) mathsy_end
-#  define math_x_height mathsy(5)
-                                /* height of `\.x' */
-#  define math_quad mathsy(6)   /* \.{18mu} */
-#  define num1 mathsy(8)        /* numerator shift-up in display styles */
-#  define num2 mathsy(9)        /* numerator shift-up in non-display, non-\.{\\atop} */
-#  define num3 mathsy(10)       /* numerator shift-up in non-display \.{\\atop} */
-#  define denom1 mathsy(11)     /* denominator shift-down in display styles */
-#  define denom2 mathsy(12)     /* denominator shift-down in non-display styles */
-#  define sup1 mathsy(13)       /* superscript shift-up in uncramped display style */
-#  define sup2 mathsy(14)       /* superscript shift-up in uncramped non-display */
-#  define sup3 mathsy(15)       /* superscript shift-up in cramped styles */
-#  define sub1 mathsy(16)       /* subscript shift-down if superscript is absent */
-#  define sub2 mathsy(17)       /* subscript shift-down if superscript is present */
-#  define sup_drop mathsy(18)   /* superscript baseline below top of large box */
-#  define sub_drop mathsy(19)   /* subscript baseline below bottom of large box */
-#  define delim1 mathsy(20)     /* size of \.{\\atopwithdelims} delimiters in display styles */
-#  define delim2 mathsy(21)     /* size of \.{\\atopwithdelims} delimiters in non-displays */
-#  define axis_height mathsy(22)/* height of fraction lines above the baseline */
-
-/*
-The math-extension parameters have similar macros, but the size code is
-omitted (since it is always |cur_size| when we refer to such parameters).
-@^parameters for symbols@>
-@^font parameters@>
-*/
-
-#  define mathex(A) font_param(fam_fnt(3,cur_size),A)
-#  define default_rule_thickness mathex(8)      /* thickness of \.{\\over} bars */
-#  define big_op_spacing1 mathex(9)     /* minimum clearance above a displayed op */
-#  define big_op_spacing2 mathex(10)    /* minimum clearance below a displayed op */
-#  define big_op_spacing3 mathex(11)    /* minimum baselineskip above displayed op */
-#  define big_op_spacing4 mathex(12)    /* minimum baselineskip below displayed op */
-#  define big_op_spacing5 mathex(13)    /* padding above and below displayed limits */
-
+scaled get_math_quad (int a) ;
+boolean check_necessary_fonts(void);
 
 /*
   @ We also need to compute the change in style between mlists and their
