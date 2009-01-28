@@ -375,10 +375,10 @@ i.e., a smaller style has a larger numerical value.
 @:TeXbook}{\sl The \TeX book@>
 */
 
-const char *math_style_names[] = { "display", "display'",
-                                   "text", "text'",
-                                   "script", "script'",
-                                   "scriptscript", "scriptscript'",
+const char *math_style_names[] = { "display", "crampeddisplay",
+                                   "text", "crampedtext",
+                                   "script", "crampedscript",
+                                   "scriptscript", "crampedscriptscript",
                                    NULL } ;
 
 pointer new_style(small_number s)
@@ -547,20 +547,10 @@ void print_subsidiary_data(pointer p, ASCII_code c)
 
 void print_style(integer c)
 {
-    switch (c / 2) {
-    case 0:
-        tprint_esc("displaystyle");
-        break;
-    case 1:
-        tprint_esc("textstyle");
-        break;
-    case 2:
-        tprint_esc("scriptstyle");
-        break;
-    case 3:
-        tprint_esc("scriptscriptstyle");
-        break;
-    default:
+    if (c<=cramped_script_script_style) { 
+        tprint_esc(math_style_names[c]);
+        tprint("style");
+    } else {
         tprint("Unknown style!");
     }
 }

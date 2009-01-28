@@ -226,6 +226,24 @@ the two- and three-value commands, so unless you know exactly what you are
 doing and absolutely require the speedup resulting from the faster input
 scanning, it is better to use the verbose commands instead.
 
+\section{Additional math commands}
+
+\subsection{Math style setting}
+
+\LUATEX has four new primitives to set the cramped math styles
+directly:
+
+\starttyping
+\crampeddisplaystyle
+\crampedtextstyle
+\crampedscriptstyle
+\crampedscriptscriptstyle
+\stoptyping
+
+These additonal commands are not all that valuable on their own, but
+they come in handy as arguments to the math parameter settings that
+will be added shortly.
+
 
 \section{Extended tables}
 
@@ -1765,9 +1783,7 @@ The other available fields depend on the \type{id} (and for \quote{whatsits}, th
 \type{subtype}) of the node. Further details on the various fields and their
 meanings are given in~\in{chapter}[nodes].
 
-\TEX's math nodes are not yet supported: there is not yet an interface
-to the internals of the math list and it is not possible to create
-them from \LUA. Support for \type{unset} (alignment) nodes is partial:
+Support for \type{unset} (alignment) nodes is partial:
 they can be queried and modified from \LUA\ code, but not created.
 
 Nodes can be compared to each other, but: you are actually comparing

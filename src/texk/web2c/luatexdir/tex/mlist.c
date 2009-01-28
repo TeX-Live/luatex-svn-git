@@ -391,6 +391,7 @@ static scaled space_after_script (void)
 boolean check_necessary_fonts(void)
 {
     boolean danger = false;
+    return false; /* temp */
     if ((font_params(fam_fnt(2,text_size)) < total_mathsy_params) ||
         (font_params(fam_fnt(2,script_size)) < total_mathsy_params) ||
         (font_params(fam_fnt(2,script_script_size)) < total_mathsy_params)) {

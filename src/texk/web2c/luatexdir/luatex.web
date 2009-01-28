@@ -24893,6 +24893,14 @@ primitive("scriptstyle",math_style,script_style);
 @!@:script_style_}{\.{\\scriptstyle} primitive@>
 primitive("scriptscriptstyle",math_style,script_script_style);
 @!@:script_script_style_}{\.{\\scriptscriptstyle} primitive@>
+primitive("crampeddisplaystyle",math_style,cramped_display_style);
+@!@:cramped_display_style_}{\.{\\crampeddisplaystyle} primitive@>
+primitive("crampedtextstyle",math_style,cramped_text_style);
+@!@:cramped_text_style_}{\.{\\crampedtextstyle} primitive@>
+primitive("crampedscriptstyle",math_style,cramped_script_style);
+@!@:cramped_script_style_}{\.{\\crampedscriptstyle} primitive@>
+primitive("crampedscriptscriptstyle",math_style,cramped_script_script_style);
+@!@:cramped_script_script_style_}{\.{\\crampedscriptscriptstyle} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
 math_style: print_style(chr_code);

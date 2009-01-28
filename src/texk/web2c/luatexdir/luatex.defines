@@ -670,6 +670,10 @@
 @define const text_style;
 @define const script_style;
 @define const script_script_style;
+@define const cramped_display_style;
+@define const cramped_text_style;
+@define const cramped_script_style;
+@define const cramped_script_script_style;
 
 @define const hlist_node;
 @define const vlist_node;

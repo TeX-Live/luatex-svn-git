@@ -90,16 +90,19 @@ boolean check_necessary_fonts(void);
 */
 
 typedef enum {
-  display_style = 0,       /* |subtype| for \.{\\displaystyle} */
-  text_style = 2,          /* |subtype| for \.{\\textstyle} */
-  script_style = 4,        /* |subtype| for \.{\\scriptstyle} */
-  script_script_style = 6, /* |subtype| for \.{\\scriptscriptstyle} */
+  display_style = 0,           /* |subtype| for \.{\\displaystyle} */
+  cramped_display_style,       /* |subtype| for \.{\\crampeddisplaystyle} */
+  text_style,                  /* |subtype| for \.{\\textstyle} */
+  cramped_text_style,          /* |subtype| for \.{\\crampedtextstyle} */
+  script_style,                /* |subtype| for \.{\\scriptstyle} */
+  cramped_script_style,        /* |subtype| for \.{\\crampedscriptstyle} */
+  script_script_style,         /* |subtype| for \.{\\scriptscriptstyle} */
+  cramped_script_script_style, /* |subtype| for \.{\\crampedscriptscriptstyle} */
 } math_style_subtypes;
 
 extern const char *math_style_names[];
 
 #  define cramped 1             /* add this to an uncramped style if you want to cramp it */
-
 
 #  define cramped_style(A) 2*((A)/2)+cramped    /* cramp the style */
 #  define sub_style(A) 2*((A)/4)+script_style+cramped   /* smaller and cramped */
