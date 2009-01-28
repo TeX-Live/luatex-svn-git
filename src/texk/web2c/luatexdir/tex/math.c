@@ -673,7 +673,7 @@ void print_subsidiary_data(pointer p, ASCII_code c)
 void print_style(integer c)
 {
     if (c<=cramped_script_script_style) { 
-        tprint_esc(math_style_names[c]);
+        tprint_esc((char*)math_style_names[c]);
         tprint("style");
     } else {
         tprint("Unknown style!");
