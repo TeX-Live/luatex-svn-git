@@ -682,13 +682,13 @@
 
 @define const math_param_quad;
 @define const math_param_axis;
-@define const math_param_overbar_above_clearance;
+@define const math_param_overbar_kern;
 @define const math_param_overbar_rule;
 @define const math_param_overbar_vgap;
-@define const math_param_underbar_below_clearance;
+@define const math_param_underbar_kern;
 @define const math_param_underbar_rule;
 @define const math_param_underbar_vgap;
-@define const math_param_radical_above_clearance;
+@define const math_param_radical_kern;
 @define const math_param_radical_rule;
 @define const math_param_radical_vgap;
 @define const math_param_stack_vgap;
@@ -699,24 +699,23 @@
 @define const math_param_fraction_num_up;
 @define const math_param_fraction_denom_vgap;
 @define const math_param_fraction_denom_down;
-@define const math_param_fraction_delimiter_size;
-@define const math_param_limit_up_gap;
-@define const math_param_limit_up_baseline_gap;
-@define const math_param_limit_up_above_clearance;
-@define const math_param_limit_down_gap;
-@define const math_param_limit_down_baseline_gap;
-@define const math_param_limit_down_below_clearance;
-@define const math_param_subscript_shift_baseline_drop;
-@define const math_param_superscript_shift_baseline_drop;
-@define const math_param_subscript_shift_down;
-@define const math_param_subscript_shift_down_with_sup;
-@define const math_param_subscript_top_max;
-@define const math_param_superscript_shift_up;
-@define const math_param_superscript_bottom_min;
-@define const math_param_superscript_bottom_max_with_sub;
-@define const math_param_subsuperscript_gap;
+@define const math_param_fraction_del_size;
+@define const math_param_limit_above_vgap;
+@define const math_param_limit_above_bgap;
+@define const math_param_limit_above_kern;
+@define const math_param_limit_below_vgap;
+@define const math_param_limit_below_bgap;
+@define const math_param_limit_below_kern;
+@define const math_param_sub_shift_drop;
+@define const math_param_sup_shift_drop;
+@define const math_param_sub_shift_down;
+@define const math_param_sub_sup_shift_down;
+@define const math_param_sub_top_max;
+@define const math_param_sup_shift_up;
+@define const math_param_sup_bottom_min;
+@define const math_param_sup_sub_bottom_max;
+@define const math_param_subsup_vgap;
 @define const math_param_space_after_script;
-
 
 @define const hlist_node;
 @define const vlist_node;
