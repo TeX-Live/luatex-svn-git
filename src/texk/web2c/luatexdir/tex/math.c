@@ -218,7 +218,7 @@ void def_fam_fnt (integer fam_id, integer size_id, integer f, integer lvl)
     }
 }
 
-void unsave_math_data (integer gl)
+void unsave_math_fam_data (integer gl)
 {
     sa_stack_item st;
     if (math_fam_head->stack == NULL)
@@ -249,16 +249,139 @@ void unsave_math_data (integer gl)
 }
 
 
+
+/* and parameters */
+
+static char *math_param_names[] = {
+    "Umathquad",
+    "Umathaxis",
+    "Umathoverbaraboveclearance",
+    "Umathoverbarrule",
+    "Umathoverbarvgap",
+    "Umathunderbarbelowclearance",
+    "Umathunderbarrule",
+    "Umathunderbarvgap",
+    "Umathradicalaboveclearance",
+    "Umathradicalrule",
+    "Umathradicalvgap",
+    "Umathstackvgap",
+    "Umathstacknumup",
+    "Umathstackdenomdown",
+    "Umathfractionrule",
+    "Umathfractionnumvgap",
+    "Umathfractionnumup",
+    "Umathfractiondenomvgap",
+    "Umathfractiondenomdown",
+    "Umathfractiondelimitersize",
+    "Umathlimitupgap",
+    "Umathlimitupbaselinegap",
+    "Umathlimitupaboveclearance",
+    "Umathlimitdowngap",
+    "Umathlimitdownbaselinegap",
+    "Umathlimitdownbelowclearance",
+    "Umathsubscriptshiftbaselinedrop",
+    "Umathsuperscriptshiftbaselinedrop",
+    "Umathsubscriptshiftdown",
+    "Umathsubscriptshiftdownwithsup",
+    "Umathsubscripttopmax",
+    "Umathsuperscriptshiftup", 
+    "Umathsuperscriptbottommin",
+    "Umathsuperscriptbottommaxwithsub",
+    "Umathsubsuperscriptgap",
+    "Umathspaceafterscript",
+    NULL
+};
+
+#define MATHPARAMSTACK  8
+#define MATHPARAMDEFAULT 0 /* TODO, this is not a indicator value */
+
+static sa_tree math_param_head = NULL;
+
+void print_math_param (int param_code)
+{
+    if (param_code>=0 && param_code < math_param_last)
+      tprint_esc(math_param_names[param_code]);
+    else
+      tprint("Unknown math parameter code!");
+}
+
+void def_math_param (int param_id, int style_id, scaled value, int lvl) 
+{
+    integer n = param_id+(256*style_id);
+    set_sa_item(math_param_head, n, value, lvl);
+    if (int_par(param_tracing_assigns_code) > 0) {
+        begin_diagnostic();
+        tprint("{assigning");
+        print_char(' ');
+        print_math_param(param_id);
+        print_style(style_id);
+        print_char ('=');
+        print_int(value);
+        print_char('}');
+        end_diagnostic(false);
+    }
+}
+
+scaled get_math_param (int param_id, int style_id)
+{
+    integer n = param_id+(256*style_id);
+    return (scaled) get_sa_item(math_param_head, n);
+}
+
+
+void unsave_math_param_data (integer gl)
+{
+    sa_stack_item st;
+    if (math_param_head->stack == NULL)
+        return;
+    while (math_param_head->stack_ptr > 0 &&
+           abs(math_param_head->stack[math_param_head->stack_ptr].level)
+           >= (integer) gl) {
+        st = math_param_head->stack[math_param_head->stack_ptr];
+        if (st.level > 0) {
+            rawset_sa_item(math_param_head, st.code, st.value);
+            /* now do a trace message, if requested */
+            if (int_par(param_tracing_restores_code) > 0) {
+                int param_id = st.code % 256;
+                int style_id = st.code / 256;
+                begin_diagnostic();
+                tprint("{restoring");
+                print_char(' ');
+                print_math_param(param_id);
+                print_style(style_id);
+                print_char ('=');
+                print_int(get_math_param(param_id, style_id));
+                print_char('}');
+                end_diagnostic(false);
+            }
+        }
+        (math_param_head->stack_ptr)--;
+    }
+}
+
+
+/* saving and unsaving of both */
+
+void unsave_math_data (integer gl)
+{
+    unsave_math_fam_data (gl);
+    unsave_math_param_data (gl);
+}
+
 void dump_math_data (void)
 {
     if (math_fam_head == NULL)
         math_fam_head = new_sa_tree(MATHFONTSTACK, MATHFONTDEFAULT);
     dump_sa_tree(math_fam_head);
+    if (math_param_head == NULL)
+        math_param_head = new_sa_tree(MATHPARAMSTACK, MATHPARAMDEFAULT);
+    dump_sa_tree(math_param_head);
 }
 
 void undump_math_data (void)
 {
     math_fam_head = undump_sa_tree();
+    math_param_head = undump_sa_tree();
 }
 
 /*  */
@@ -267,6 +390,8 @@ void initialize_math(void)
 {
     if (math_fam_head == NULL)
         math_fam_head = new_sa_tree(MATHFONTSTACK, MATHFONTDEFAULT);
+    if (math_param_head == NULL)
+        math_param_head = new_sa_tree(MATHPARAMSTACK, MATHPARAMDEFAULT);
     return;
 }
 

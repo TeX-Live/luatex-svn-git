@@ -4622,7 +4622,9 @@ break down otherwise.
    {define an extended character code ( \.{\\omathcode}, etc.~)}
 @d def_family=extdef_code+1
    {declare math fonts ( \.{\\textfont}, etc.~)}
-@d set_font=def_family+1
+@d set_math_param=def_family+1
+   {declare math parameters ( \.{\\Umathquad}, etc.~)}
+@d set_font=set_math_param+1
    {set current font ( font identifiers )}
 @d def_font=set_font+1
    {define a font file ( \.{\\font} )}
@@ -9513,6 +9515,8 @@ toks_register,assign_toks,set_font,def_font,letterspace_font,pdf_copy_font:
   @<Fetch a token list or font identifier, provided that |level=tok_val|@>;
 def_family:
   @<Fetch a math font identifier@>;
+set_math_param:
+  @<Fetch a math param@>;
 assign_int: scanned_result(eqtb[m].int)(int_val);
 assign_attr: scanned_result(eqtb[m].int)(int_val);
 assign_box_dir: begin
@@ -9638,6 +9642,21 @@ else  begin back_input; scan_font_ident;
 
 @ @<Fetch a math font identifier@>=
 begin scan_char_num; cur_val1:=fam_fnt(cur_val,m);
+  scanned_result(cur_val1)(int_val);
+  end
+
+@ @<Fetch a math param@>=
+begin cur_val1:=cur_chr; get_token;
+  if cur_cmd<>math_style then
+    begin print_err("Missing math style, treated as \\displaystyle");
+@.Missing number...@>
+    help1("A style should have been here; I inserted `\\displaystyle'.");
+    cur_val:=display_style;    
+    back_error;
+    end
+  else
+    cur_val:=cur_chr;
+  cur_val1 := get_math_param(cur_val1,cur_chr);
   scanned_result(cur_val1)(int_val);
   end
 
@@ -25046,6 +25065,7 @@ any_mode(set_shape),
 any_mode(def_code),
 any_mode(extdef_code),
 any_mode(def_family),
+any_mode(set_math_param),
 any_mode(set_font),
 any_mode(def_font),
 any_mode(letterspace_font),
@@ -25142,6 +25162,9 @@ since the following routines test for the \.{\\global} prefix as follows.
    then set_cat_code(cat_code_table,#,level_one)@+else set_cat_code(cat_code_table,#,cur_level)
 @d define_fam_fnt(#)==if global 
    then def_fam_fnt(#,level_one)@+else def_fam_fnt(#,cur_level)
+@d define_math_param(#)==if global 
+   then def_math_param(#,level_one)@+else def_math_param(#,cur_level)
+
 
 @<Adjust \(f)for the setting of \.{\\globaldefs}@>=
 if global_defs<>0 then
@@ -25520,6 +25543,42 @@ primitive("scriptfont",def_family,script_size);
 @!@:script_font_}{\.{\\scriptfont} primitive@>
 primitive("scriptscriptfont",def_family,script_script_size);
 @!@:script_script_font_}{\.{\\scriptscriptfont} primitive@>
+primitive("Umathquad", set_math_param, math_param_quad);
+primitive("Umathaxis", set_math_param, math_param_axis);
+primitive("Umathoverbaraboveclearance", set_math_param, math_param_overbar_above_clearance);
+primitive("Umathoverbarrule", set_math_param, math_param_overbar_rule);
+primitive("Umathoverbarvgap", set_math_param, math_param_overbar_vgap);
+primitive("Umathunderbarbelowclearance", set_math_param, math_param_underbar_below_clearance);
+primitive("Umathunderbarrule", set_math_param, math_param_underbar_rule);
+primitive("Umathunderbarvgap", set_math_param, math_param_underbar_vgap);
+primitive("Umathradicalaboveclearance", set_math_param, math_param_radical_above_clearance);
+primitive("Umathradicalrule", set_math_param, math_param_radical_rule);
+primitive("Umathradicalvgap", set_math_param, math_param_radical_vgap);
+primitive("Umathstackvgap", set_math_param, math_param_stack_vgap);
+primitive("Umathstacknumup", set_math_param, math_param_stack_num_up);
+primitive("Umathstackdenomdown", set_math_param, math_param_stack_denom_down);
+primitive("Umathfractionrule", set_math_param, math_param_fraction_rule);
+primitive("Umathfractionnumvgap", set_math_param, math_param_fraction_num_vgap);
+primitive("Umathfractionnumup", set_math_param, math_param_fraction_num_up);
+primitive("Umathfractiondenomvgap", set_math_param, math_param_fraction_denom_vgap);
+primitive("Umathfractiondenomdown", set_math_param, math_param_fraction_denom_down);
+primitive("Umathfractiondelimitersize", set_math_param, math_param_fraction_delimiter_size);
+primitive("Umathlimitupgap", set_math_param, math_param_limit_up_gap);
+primitive("Umathlimitupbaselinegap", set_math_param, math_param_limit_up_baseline_gap);
+primitive("Umathlimitupaboveclearance", set_math_param, math_param_limit_up_above_clearance);
+primitive("Umathlimitdowngap", set_math_param, math_param_limit_down_gap);
+primitive("Umathlimitdownbaselinegap", set_math_param, math_param_limit_down_baseline_gap);
+primitive("Umathlimitdownbelowclearance", set_math_param, math_param_limit_down_below_clearance);
+primitive("Umathsubscriptshiftbaselinedrop", set_math_param, math_param_subscript_shift_baseline_drop);
+primitive("Umathsuperscriptshiftbaselinedrop", set_math_param, math_param_superscript_shift_baseline_drop);
+primitive("Umathsubscriptshiftdown", set_math_param, math_param_subscript_shift_down);
+primitive("Umathsubscriptshiftdownwithsup", set_math_param, math_param_subscript_shift_down_with_sup);
+primitive("Umathsubscripttopmax", set_math_param, math_param_subscript_top_max);
+primitive("Umathsuperscriptshiftup", set_math_param, math_param_superscript_shift_up);
+primitive("Umathsuperscriptbottommin", set_math_param, math_param_superscript_bottom_min);
+primitive("Umathsuperscriptbottommaxwithsub", set_math_param, math_param_superscript_bottom_max_with_sub);
+primitive("Umathsubsuperscriptgap", set_math_param, math_param_subsuperscript_gap);
+primitive("Umathspaceafterscript", set_math_param, math_param_space_after_script); 
 primitive("omathcode",extdef_code,math_code_base);
 @!@:math_code_}{\.{\\omathcode} primitive@>
 primitive("odelcode",extdef_code,del_code_base);
@@ -25548,6 +25607,7 @@ extdef_code: if chr_code=math_code_base then print_esc("omathcode")
   else if chr_code=del_code_base+2 then print_esc("Udelcodenum")
   else print_esc("odelcode");
 def_family: print_size(chr_code);
+set_math_param: print_math_param(chr_code);
 
 @ The different types of code values have different legal ranges; the
 following program is careful to check each case properly.
@@ -25631,6 +25691,19 @@ else n:=biggest_char
 def_family: begin p:=cur_chr; scan_math_family_int; cur_val1:=cur_val;
   scan_optional_equals; scan_font_ident; 
   define_fam_fnt(cur_val1,p,cur_val);
+  end;
+set_math_param: begin p:=cur_chr; get_token;
+   if cur_cmd<>math_style then begin 
+   print_err("Missing math style, treated as \\displaystyle");
+@.Missing number...@>
+    help1("A style should have been here; I inserted `\\displaystyle'.");
+    cur_val1:=display_style;    
+    back_error;
+    end
+  else
+    cur_val1:=cur_chr;
+  scan_optional_equals; scan_int; 
+  define_math_param(p,cur_val1,cur_val);
   end;
 
 @ Next we consider changes to \TeX's numeric registers.

@@ -120,6 +120,7 @@ command_item command_names[] = {
     {"def_code", def_code_cmd, NULL},
     {"extdef_code", extdef_code_cmd, NULL},
     {"def_family", def_family_cmd, NULL},
+    {"set_math_param", set_math_param_cmd, NULL},
     {"set_font", set_font_cmd, NULL},
     {"def_font", def_font_cmd, NULL},
     {"register", register_cmd, NULL},

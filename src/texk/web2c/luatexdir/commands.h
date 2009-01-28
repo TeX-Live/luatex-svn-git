@@ -126,6 +126,7 @@ typedef enum {
     def_code_cmd,               /* define a character code ( \.{\\catcode}, etc.~) */
     extdef_code_cmd,            /* define an extended character code ( \.{\\omathcode}, etc.~) */
     def_family_cmd,             /* declare math fonts ( \.{\\textfont}, etc.~) */
+    set_math_param_cmd,         /* set math parameters ( \.{\\mathquad}, etc.~) */
     set_font_cmd,               /* set current font ( font identifiers ) */
     def_font_cmd,               /* define a font file ( \.{\\font} ) */
     register_cmd,               /* internal register ( \.{\\count}, \.{\\dimen}, etc.~) */

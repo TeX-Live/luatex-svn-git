@@ -79,12 +79,6 @@ following macros, which take a size code as their parameter; for example,
 #  define delim2(A) mathsy(A,21)     /* size of \.{\\atopwithdelims} delimiters in non-displays */
 #  define axis_height(A) mathsy(A,22)/* height of fraction lines above the baseline */
 
-/* this function is for the benefit of |math.c| */
-
-scaled get_math_quad (int a) {
-  return math_quad(a);
-}
-
 /*
 The math-extension parameters have similar macros, but the size code is
 omitted (since it is always |cur_size| when we refer to such parameters).
@@ -150,15 +144,24 @@ MinConnectorOverlap:
 
 */
 
+/* this is not really a math param */
+
+static scaled accent_base_height (integer f)
+{ 
+    return x_height(f);
+}
+
+
 /* because of the nature of the macros above, (almost) all of the 
    following functions have an implicit parameter |cur_size|. 
    I do not want to fix that right now, because the quering method
    may change.
 */
 
-static scaled accent_base_height (integer f)
-{ 
-    return x_height(f);
+/* this function is for the benefit of |math.c| */
+
+scaled get_math_quad (int a) {
+  return math_quad(a);
 }
 
 static scaled math_axis(int b) /* |b| is a size */
@@ -452,13 +455,13 @@ void print_size(integer s)
 
 #define setup_cur_size_and_mu() do {                                    \
     if (cur_style==script_style ||                                      \
-        cur_style==(script_style+cramped))                              \
+        cur_style==cramped_script_style)                                \
       cur_size=script_size;                                             \
     else if (cur_style==script_script_style ||                          \
-             cur_style==(script_script_style+cramped))                  \
+             cur_style==cramped_script_script_style)                    \
       cur_size=script_script_size;                                      \
     else cur_size=text_size;                                            \
-    cur_mu=x_over_n(math_quad(cur_size),18);                            \
+    cur_mu=x_over_n(get_math_quad(cur_size),18);                        \
   } while (0)
 
 /* a simple routine that creates a flat copy of a nucleus */
