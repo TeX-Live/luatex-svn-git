@@ -205,6 +205,7 @@ void def_fam_fnt (integer fam_id, integer size_id, integer f, integer lvl)
 {
     integer n = fam_id+(256*size_id);
     set_sa_item(math_fam_head, n, f, lvl);
+    fixup_math_parameters(fam_id,size_id,f, lvl);
     if (int_par(param_tracing_assigns_code) > 0) {
         begin_diagnostic();
         tprint("{assigning");
@@ -293,7 +294,7 @@ static char *math_param_names[] = {
 };
 
 #define MATHPARAMSTACK  8
-#define MATHPARAMDEFAULT 0 /* TODO, this is not a indicator value */
+#define MATHPARAMDEFAULT undefined_math_parameter
 
 static sa_tree math_param_head = NULL;
 

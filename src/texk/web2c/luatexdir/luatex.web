@@ -25694,9 +25694,9 @@ def_family: begin p:=cur_chr; scan_math_family_int; cur_val1:=cur_val;
   end;
 set_math_param: begin p:=cur_chr; get_token;
    if cur_cmd<>math_style then begin 
-   print_err("Missing math style, treated as \\displaystyle");
+   print_err("Missing math style, treated as \displaystyle");
 @.Missing number...@>
-    help1("A style should have been here; I inserted `\\displaystyle'.");
+    help1("A style should have been here; I inserted `\displaystyle'.");
     cur_val1:=display_style;    
     back_error;
     end

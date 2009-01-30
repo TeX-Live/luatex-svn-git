@@ -44,6 +44,36 @@ static const char _svn_version[] =
     }                                               \
   } while (0)
 
+
+#define DEFINE_MATH_PARAMETERS(A,B,C,D) do {                            \
+    if (B==text_size) {                                                 \
+      def_math_param(A, text_style, (C),D);                             \
+      def_math_param(A, cramped_text_style, (C),D);                     \
+    } else if (B==script_size) {                                        \
+      def_math_param(A, script_style, (C),D);                           \
+      def_math_param(A, cramped_script_style, (C),D);                   \
+    } else if (B==script_script_size) {                                 \
+      def_math_param(A, script_script_style, (C),D);                    \
+      def_math_param(A, cramped_script_script_style, (C),D);            \
+    }                                                                   \
+  } while (0)
+
+#define DEFINE_DMATH_PARAMETERS(A,B,C,D) do {                           \
+    if (B==text_size) {                                                 \
+      def_math_param(A, display_style,(C),D);                           \
+      def_math_param(A, cramped_display_style,(C),D);                   \
+    }                                                                   \
+  } while (0)
+
+
+#define is_new_mathfont(A) (font_math_params(A)>0)
+#define is_old_mathfont(A,B) (font_math_params(A)==0 && font_params(A)>=(B))
+
+
+#define font_MATH_par(a,b)                                                  \
+  (font_math_params(a)>=b ? font_math_param(a,b) : undefined_math_parameter)
+      
+
 /* here are the math parameters that are font-dependant */
 
 /*
@@ -144,284 +174,639 @@ MinConnectorOverlap:
 
 */
 
-/* this is not really a math param */
+/* this is not really a math parameter at all */
+
+void math_param_error(char *param, int style)
+{
+    char s[256];
+    char *hlp[] = {
+      "Sorry, but I can't typeset math unless various parameters have",
+      "been set. This is normally done by loading special math fonts",
+      "into the math family slots. Your font set is lacking at least",
+      "the parameter mentioned earlier.",
+      NULL
+    };
+    snprintf(s,256,"Math error: parameter \\Umath%s\\%sstyle is not set",
+             param, math_style_names[style]);
+    tex_error(s, hlp);
+    /* flush_math();*/
+    return;
+}
+
 
 static scaled accent_base_height (integer f)
 { 
-    return x_height(f);
+  scaled a;
+  if (is_new_mathfont(f))
+    a = font_MATH_par(f,AccentBaseHeight);
+  else
+    a = x_height(f);
+  if (a==undefined_math_parameter) {
+    a = 0;
+  }
+  return a;
 }
 
+/* the non-staticness of this function is for the benefit of |math.c| */
 
-/* because of the nature of the macros above, (almost) all of the 
-   following functions have an implicit parameter |cur_size|. 
-   I do not want to fix that right now, because the quering method
-   may change.
-*/
-
-/* this function is for the benefit of |math.c| */
-
-scaled get_math_quad (int a) {
-  return math_quad(a);
+scaled get_math_quad (int var) {
+  scaled a = get_math_param(math_param_quad, var);
+  if (a==undefined_math_parameter) {
+    math_param_error("quad", var);
+    a = 0;
+  }
+  return a;
 }
 
-static scaled math_axis(int b) /* |b| is a size */
+/* this parameter is different because it is called with a size
+   specifier instead of a style specifier. */
+
+static scaled math_axis(int b)
 {
-    return axis_height(b);
+  scaled a ; 
+  int var;
+  if (b==script_size)
+    var = script_style;
+  else if (b==script_script_size)
+    var = script_script_style;
+  else
+    var = text_style;
+  a = get_math_param(math_param_axis,var);
+  if (a==undefined_math_parameter) {
+    math_param_error("axis", var);
+    a = 0;
+  }
+  return a;
 }
 
-static scaled overbar_above_clearance(void) 
+/* Old-style fonts do not define the radical_rule. This allows |make_radical| to select
+ * the backward compatibility code, and it means that we can't raise an error here.
+ */
+
+static scaled radical_rule (int var) 
 { 
-    return default_rule_thickness(cur_size); 
+  scaled a = get_math_param(math_param_radical_rule, var);
+  return a;
 }
 
-static scaled overbar_rule_thickness(void) 
+/* now follow all the trivial functions for the math parameters */
+
+static scaled overbar_kern (int var) 
 { 
-    return default_rule_thickness(cur_size); 
+  scaled a = get_math_param(math_param_overbar_kern, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("overbarkern", var); 
+    a=0; 
+  }
+  return a;
 }
 
-static scaled overbar_vgap(void) 
+static scaled overbar_rule (int var) 
 { 
-    return (3*default_rule_thickness(cur_size)); 
+  scaled a = get_math_param(math_param_overbar_rule, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("overbarrule", var); 
+    a=0; 
+  }
+  return a;
 }
 
-static scaled underbar_rule_thickness(void) 
+static scaled overbar_vgap (int var) 
 { 
-    return default_rule_thickness(cur_size); 
+  scaled a = get_math_param(math_param_overbar_vgap, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("overbarvgap", var); 
+    a=0; 
+  }
+  return a;
 }
 
-static scaled underbar_vgap(void)
+static scaled underbar_rule (int var) 
 { 
-    return (3*default_rule_thickness(cur_size)); 
+  scaled a = get_math_param(math_param_underbar_rule, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("underbarrule", var); 
+    a=0; 
+  }
+  return a;
 }
 
-static scaled underbar_below_clearance(void) 
+static scaled underbar_vgap (int var)
 { 
-    return 0;
+  scaled a = get_math_param(math_param_underbar_vgap, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("underbarvgap", var); 
+    a=0; 
+  }
+  return a;
 }
 
-/* note: the radical_rule_thickness and gap distances are later corrected 
-   for the height of the radical glyph */
+static scaled underbar_kern (int var) 
+{ 
+  scaled a = get_math_param(math_param_underbar_kern, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("underbarkern", var); 
+    a=0; 
+  }
+  return a;
+}
 
-static scaled radical_vgap( int a) 
+static scaled radical_vgap( int var) 
 {
-    if (a < text_style)
-        return (default_rule_thickness(cur_size)+(abs(math_x_height(cur_size))/4));
-    else
-        return (default_rule_thickness(cur_size)+(abs(default_rule_thickness(cur_size))/4));
+  scaled a = get_math_param(math_param_radical_vgap, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("radicalvgap", var); 
+    a=0; 
+  }
+  return a;
 }
 
-static scaled radical_rule_thickness(void) 
+
+static scaled radical_kern (int var) 
 { 
-    return default_rule_thickness(cur_size); 
+  scaled a = get_math_param(math_param_radical_kern, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("radicalkern", var); 
+    a=0; 
+  }
+  return a;
 }
 
-static scaled radical_above_clearance(void) 
+static scaled  stack_vgap (int var)
+{
+  scaled a = get_math_param(math_param_stack_vgap, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("stackvgap", var); 
+    a=0; 
+  }
+  return a;
+}
+
+static scaled stack_num_up (int var) 
+{
+  scaled a = get_math_param(math_param_stack_num_up, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("stacknumup", var); 
+    a=0; 
+  }
+  return a;
+}
+
+static scaled stack_denom_down (int var) 
+{
+  scaled a = get_math_param(math_param_stack_denom_down, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("stackdenomdown", var); 
+    a=0; 
+  }
+  return a;
+}
+
+static scaled fraction_rule (int var)
 { 
-    return default_rule_thickness(cur_size); 
+  scaled a = get_math_param(math_param_fraction_rule, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("fractionrule", var); 
+    a=0; 
+  }
+  return a;
 }
 
-static scaled  stack_vgap (int a)
+
+static scaled fraction_num_vgap (int var) 
 {
-    if (a < text_style) 
-        return (7*default_rule_thickness(cur_size));
-    else 
-        return (3*default_rule_thickness(cur_size));
+  scaled a = get_math_param(math_param_fraction_num_vgap, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("fractionnumvgap", var); 
+    a=0; 
+  }
+  return a;
 }
 
-static scaled stack_num_up (int a) 
+static scaled fraction_denom_vgap (int var) 
 {
-    if (a < text_style) 
-        return num1(cur_size);
-    else 
-        return num3(cur_size);
+  scaled a = get_math_param(math_param_fraction_denom_vgap, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("fractiondenomvgap", var); 
+    a=0; 
+  }
+  return a;
 }
 
-static scaled stack_denom_down (int a) 
+static scaled fraction_num_up (int var) 
 {
-    if (a < text_style) 
-        return denom1(cur_size);
-    else 
-        return denom2(cur_size);
+  scaled a = get_math_param(math_param_fraction_num_up, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("fractionnumup", var); 
+    a=0; 
+  }
+  return a;
 }
 
-static scaled fraction_rule_thickness(void)
+static scaled fraction_denom_down (int var) 
+{
+  scaled a = get_math_param(math_param_fraction_denom_down, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("fractiondenomdown", var); 
+    a=0; 
+  }
+  return a;
+}
+
+static scaled fraction_del_size (int var) 
+{
+  scaled a = get_math_param(math_param_fraction_del_size, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("fractiondelsize", var); 
+    a=0; 
+  }
+  return a;
+}
+
+static scaled limit_above_vgap (int var) 
 { 
-    return default_rule_thickness(cur_size); 
+  scaled a = get_math_param(math_param_limit_above_vgap, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("limitabovevgap", var); 
+    a=0; 
+  }
+  return a;
 }
 
-
-static scaled fraction_num_vgap (int a, pointer q) 
-{
-   if (a < text_style) 
-       return (3 * thickness(q)); 
-   else 
-      return (thickness(q));       
-}
-
-static scaled fraction_denom_vgap (int a, pointer q) 
-{
-   if (a < text_style) 
-       return (3 * thickness(q)); 
-   else 
-      return (thickness(q));       
-}
-
-static scaled fraction_num_up (int a) 
-{
-    if (a < text_style) 
-        return num1(cur_size);
-    else 
-        return num2(cur_size);
-}
-
-static scaled fraction_denom_down (int a) 
-{
-    if (a < text_style) 
-        return denom1(cur_size);
-    else 
-        return denom2(cur_size);
-}
-
-static scaled fraction_delimiter_size (int a) 
-{
-    if (a < text_style) 
-        return delim1(cur_size);
-    else  
-        return delim2(cur_size);
-}
-
-static scaled limit_up_gap(void)
+static scaled limit_above_bgap (int var) 
 { 
-    return big_op_spacing1(cur_size); 
+  scaled a = get_math_param(math_param_limit_above_bgap, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("limitabovebgap", var); 
+    a=0; 
+  }
+  return a;
 }
 
-static scaled limit_up_baseline_gap(void)
+static scaled limit_above_kern (int var) 
 { 
-    return big_op_spacing3(cur_size); 
+  scaled a = get_math_param(math_param_limit_above_kern, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("limitabovekern", var); 
+    a=0; 
+  }
+  return a;
 }
 
-static scaled limit_up_above_clearance(void)
+static scaled limit_below_vgap (int var) 
 { 
-    return big_op_spacing5(cur_size); 
+  scaled a = get_math_param(math_param_limit_below_vgap, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("limitbelowvgap", var); 
+    a=0; 
+  }
+  return a;
 }
 
-static scaled limit_down_gap(void)
+static scaled limit_below_bgap (int var) 
 { 
-    return big_op_spacing2(cur_size); 
+  scaled a = get_math_param(math_param_limit_below_bgap, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("limitbelowbgap", var); 
+    a=0; 
+  }
+  return a;
 }
 
-static scaled limit_down_baseline_gap(void)
+static scaled limit_below_kern (int var) 
 { 
-    return big_op_spacing4(cur_size); 
+  scaled a = get_math_param(math_param_limit_below_kern, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("limitbelowkern", var); 
+    a=0; 
+  }
+  return a;
 }
 
-static scaled limit_down_below_clearance(void)
-{ 
-    return big_op_spacing5(cur_size); 
-}
 
-
-static scaled  subscript_shift_baseline_drop (int a) 
+static scaled  sub_shift_drop (int var) 
 {
-    if (a<script_style) 
-        return sub_drop(script_size);
-    else
-        return sub_drop(script_script_size);
+  scaled a = get_math_param(math_param_sub_shift_drop, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("subshiftdrop", var); 
+    a=0; 
+  }
+  return a;
 }
 
-static scaled superscript_shift_baseline_drop (int a) 
+static scaled sup_shift_drop (int var) 
 {
-    if (a<script_style) 
-        return sup_drop(script_size);
-    else
-        return sup_drop(script_script_size);
+  scaled a = get_math_param(math_param_sup_shift_drop, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("supshiftdrop", var); 
+    a=0; 
+  }
+  return a;
 }
 
-static scaled  subscript_shift_down(int a) 
+static scaled  sub_shift_down(int var) 
 {
-    (void)a;
-    return sub1(cur_size);
+  scaled a = get_math_param(math_param_sub_shift_down, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("subshiftdown", var); 
+    a=0; 
+  }
+  return a;
 }
 
-static scaled subscript_shift_down_with_sup (int a) 
+static scaled sub_sup_shift_down (int var) 
 {
-    (void)a;
-    return sub2(cur_size);
+  scaled a = get_math_param(math_param_sub_sup_shift_down, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("subsupshiftdown", var); 
+    a=0; 
+  }
+  return a;
 }
 
-static scaled subscript_top_max (int a) 
-{ 
-    (void)a;
-    return (abs(math_x_height(cur_size) * 4) / 5);
-}
-
-
-static scaled superscript_shift_up (int a)
+static scaled sub_top_max (int var) 
 {  
-    if (odd(a)) 
-        return sup3(cur_size);
-    else if (a < text_style) 
-        return sup1(cur_size);
-    else 
-        return sup2(cur_size);
+  scaled a = get_math_param(math_param_sub_top_max, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("subtopmax", var); 
+    a=0; 
+  }
+  return a;
 }
 
-static scaled superscript_bottom_min (int a)
+static scaled sup_shift_up (int var)
+{  
+  scaled a = get_math_param(math_param_sup_shift_up, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("supshiftup", var); 
+    a=0; 
+  }
+  return a;
+}
+
+static scaled sup_bottom_min (int var)
 {
-    (void)a;
-    return (abs(math_x_height(cur_size)) / 4);
+  scaled a = get_math_param(math_param_sup_bottom_min, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("supbottommin", var); 
+    a=0; 
+  }
+  return a;
 }
 
-static scaled superscript_bottom_max_with_sub (int a) 
+static scaled sup_sub_bottom_max (int var) 
 {
-    (void)a;
-    return (abs(math_x_height(cur_size) * 4) / 5);
+  scaled a = get_math_param(math_param_sup_sub_bottom_max, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("supsubbottommax", var); 
+    a=0; 
+  }
+  return a;
 }
 
-static scaled subsuperscript_gap (void)
+static scaled subsup_vgap  (int var)
 { 
-    return (4 * default_rule_thickness(cur_size)); 
+  scaled a = get_math_param(math_param_subsup_vgap, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("subsupvgap", var); 
+    a=0; 
+  }
+  return a;
 }
 
-static scaled space_after_script (void) 
+static scaled space_after_script  (int var) 
 {
-    return script_space;
+  scaled a = get_math_param(math_param_space_after_script, var);
+  if (a==undefined_math_parameter) { 
+    math_param_error("spaceafterscript", var); 
+    a=0; 
+  }
+  return a;
 }
 
 
-/* .. */
+/* This function is no longer useful */
 
 boolean check_necessary_fonts(void)
 {
-    boolean danger = false;
     return false; /* temp */
-    if ((font_params(fam_fnt(2,text_size)) < total_mathsy_params) ||
-        (font_params(fam_fnt(2,script_size)) < total_mathsy_params) ||
-        (font_params(fam_fnt(2,script_script_size)) < total_mathsy_params)) {
-        char *hlp[] = {
-            "Sorry, but I can't typeset math unless \\textfont 2",
-            "and \\scriptfont 2 and \\scriptscriptfont 2 have all",
-            "the \\fontdimen values needed in math symbol fonts.",
-            NULL
-        };
-        tex_error("Math formula deleted: Insufficient symbol fonts", hlp);
-        flush_math();
-        danger = true;
-    } else if ((font_params(fam_fnt(3,text_size)) < total_mathex_params) ||
-               (font_params(fam_fnt(3,script_size)) < total_mathex_params) ||
-               (font_params(fam_fnt(3,script_script_size)) <
-                total_mathex_params)) {
-        char *hlp[] = {
-            "Sorry, but I can't typeset math unless \\textfont 3",
-            "and \\scriptfont 3 and \\scriptscriptfont 3 have all",
-            "the \\fontdimen values needed in math extension fonts.",
-            NULL
-        };
-        tex_error("Math formula deleted: Insufficient extension fonts", hlp);
-        flush_math();
-        danger = true;
+}
+
+void fixup_math_parameters (integer fam_id, integer size_id, integer f, integer lvl) 
+{
+  if (is_new_mathfont(f)) { /* fix all known parameters */
+
+    DEFINE_MATH_PARAMETERS(math_param_quad,size_id,font_size(f),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_quad,size_id,font_size(f),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_axis,size_id,font_MATH_par(f,AxisHeight),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_axis,size_id,font_MATH_par(f,AxisHeight),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_overbar_kern,size_id,font_MATH_par(f,OverbarExtraAscender),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_overbar_kern,size_id,font_MATH_par(f,OverbarExtraAscender),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_overbar_rule,size_id,font_MATH_par(f,OverbarRuleThickness),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_overbar_rule,size_id,font_MATH_par(f,OverbarRuleThickness),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_overbar_vgap,size_id,font_MATH_par(f,OverbarVerticalGap),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_overbar_vgap,size_id,font_MATH_par(f,OverbarVerticalGap),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_underbar_kern,size_id,font_MATH_par(f,UnderbarExtraDescender),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_underbar_kern,size_id,font_MATH_par(f,UnderbarExtraDescender),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_underbar_rule,size_id,font_MATH_par(f,UnderbarRuleThickness),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_underbar_rule,size_id,font_MATH_par(f,UnderbarRuleThickness),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_underbar_vgap,size_id,font_MATH_par(f,UnderbarVerticalGap),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_underbar_vgap,size_id,font_MATH_par(f,UnderbarVerticalGap),lvl);
+
+    DEFINE_MATH_PARAMETERS(math_param_stack_num_up,size_id,font_MATH_par(f,StackTopShiftUp),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_stack_num_up,size_id,font_MATH_par(f,StackTopDisplayStyleShiftUp),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_stack_denom_down,size_id,font_MATH_par(f,StackBottomShiftDown),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_stack_denom_down,size_id,font_MATH_par(f,StackBottomDisplayStyleShiftDown),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_stack_vgap,size_id,font_MATH_par(f,StackGapMin),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_stack_vgap,size_id,font_MATH_par(f,StackDisplayStyleGapMin),lvl);
+
+    DEFINE_MATH_PARAMETERS(math_param_radical_kern,size_id,font_MATH_par(f,RadicalExtraAscender),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_radical_kern,size_id,font_MATH_par(f,RadicalExtraAscender),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_radical_rule,size_id,font_MATH_par(f,RadicalRuleThickness),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_radical_rule,size_id,font_MATH_par(f,RadicalRuleThickness),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_radical_vgap,size_id,font_MATH_par(f,RadicalVerticalGap),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_radical_vgap,size_id,font_MATH_par(f,RadicalDisplayStyleVerticalGap),lvl);
+
+    if (size_id==text_size) {
+      def_math_param(math_param_sup_shift_up,display_style,font_MATH_par(f,SuperscriptShiftUp),lvl);
+      def_math_param(math_param_sup_shift_up,cramped_display_style,font_MATH_par(f,SuperscriptShiftUpCramped),lvl);
+      def_math_param(math_param_sup_shift_up,text_style,font_MATH_par(f,SuperscriptShiftUp),lvl);
+      def_math_param(math_param_sup_shift_up,cramped_text_style,font_MATH_par(f,SuperscriptShiftUpCramped),lvl);
+    } else if (size_id==script_size) {
+      def_math_param(math_param_sup_shift_up,script_style,font_MATH_par(f,SuperscriptShiftUp),lvl);
+      def_math_param(math_param_sup_shift_up,cramped_script_style,font_MATH_par(f,SuperscriptShiftUpCramped),lvl);
+    } else if (size_id==script_script_size) {
+      def_math_param(math_param_sup_shift_up,script_script_style,font_MATH_par(f,SuperscriptShiftUp),lvl);
+      def_math_param(math_param_sup_shift_up,cramped_script_script_style,font_MATH_par(f,SuperscriptShiftUpCramped),lvl);
     }
-    return danger;
+
+    DEFINE_MATH_PARAMETERS(math_param_sub_shift_drop,size_id,font_MATH_par(f,SubscriptBaselineDropMin),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_sub_shift_drop,size_id,font_MATH_par(f,SubscriptBaselineDropMin),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_sup_shift_drop,size_id,font_MATH_par(f,SuperscriptBaselineDropMax),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_sup_shift_drop,size_id,font_MATH_par(f,SuperscriptBaselineDropMax),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_sub_shift_down,size_id,font_MATH_par(f,SubscriptShiftDown),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_sub_shift_down,size_id,font_MATH_par(f,SubscriptShiftDown),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_sub_sup_shift_down,size_id,font_MATH_par(f,SubscriptShiftDown),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_sub_sup_shift_down,size_id,font_MATH_par(f,SubscriptShiftDown),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_sub_top_max,size_id,font_MATH_par(f,SubscriptTopMax),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_sub_top_max,size_id,font_MATH_par(f,SubscriptTopMax),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_sup_bottom_min,size_id,font_MATH_par(f,SuperscriptBottomMin),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_sup_bottom_min,size_id,font_MATH_par(f,SuperscriptBottomMin),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_sup_sub_bottom_max,size_id,font_MATH_par(f,SuperscriptBottomMaxWithSubscript),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_sup_sub_bottom_max,size_id,font_MATH_par(f,SuperscriptBottomMaxWithSubscript),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_subsup_vgap,size_id,font_MATH_par(f,SubSuperscriptGapMin),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_subsup_vgap,size_id,font_MATH_par(f,SubSuperscriptGapMin),lvl);
+
+    DEFINE_MATH_PARAMETERS (math_param_limit_above_vgap,size_id,font_MATH_par(f,UpperLimitGapMin),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_limit_above_vgap,size_id,font_MATH_par(f,UpperLimitGapMin),lvl);
+    DEFINE_MATH_PARAMETERS (math_param_limit_above_bgap,size_id,font_MATH_par(f,UpperLimitBaselineRiseMin),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_limit_above_bgap,size_id,font_MATH_par(f,UpperLimitBaselineRiseMin),lvl);
+    DEFINE_MATH_PARAMETERS (math_param_limit_above_kern,size_id,0,lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_limit_above_kern,size_id,0,lvl);
+    DEFINE_MATH_PARAMETERS (math_param_limit_below_vgap,size_id,font_MATH_par(f,LowerLimitGapMin),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_limit_below_vgap,size_id,font_MATH_par(f,LowerLimitGapMin),lvl);
+    DEFINE_MATH_PARAMETERS (math_param_limit_below_bgap,size_id,font_MATH_par(f,LowerLimitBaselineDropMin),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_limit_below_bgap,size_id,font_MATH_par(f,LowerLimitBaselineDropMin),lvl);
+    DEFINE_MATH_PARAMETERS (math_param_limit_below_kern,size_id,0,lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_limit_below_kern,size_id,0,lvl);
+
+    DEFINE_MATH_PARAMETERS(math_param_fraction_rule,size_id,font_MATH_par(f,FractionRuleThickness),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_fraction_rule,size_id,font_MATH_par(f,FractionRuleThickness),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_fraction_num_vgap,size_id,font_MATH_par(f,FractionNumeratorGapMin),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_fraction_num_vgap,size_id,font_MATH_par(f,FractionNumeratorDisplayStyleGapMin),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_fraction_num_up,size_id,font_MATH_par(f,FractionNumeratorShiftUp),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_fraction_num_up,size_id,font_MATH_par(f,FractionNumeratorDisplayStyleShiftUp),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_fraction_denom_vgap,size_id,font_MATH_par(f,FractionDenominatorGapMin),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_fraction_denom_vgap,size_id,font_MATH_par(f,FractionDenominatorDisplayStyleGapMin),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_fraction_denom_down,size_id,font_MATH_par(f,FractionDenominatorShiftDown),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_fraction_denom_down,size_id,font_MATH_par(f,FractionDenominatorDisplayStyleShiftDown),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_fraction_del_size,size_id,0,lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_fraction_del_size,size_id,0,lvl);
+
+    DEFINE_MATH_PARAMETERS(math_param_space_after_script,size_id,font_MATH_par(f,SpaceAfterScript),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_space_after_script,size_id,font_MATH_par(f,SpaceAfterScript),lvl);
+
+  } else if (fam_id==2 && is_old_mathfont(f,total_mathsy_params)) { 
+    /* fix old-style |sy| parameters */
+    DEFINE_MATH_PARAMETERS(math_param_quad,size_id,math_quad(size_id),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_quad,size_id,math_quad(size_id),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_axis,size_id,axis_height(size_id),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_axis,size_id,axis_height(size_id),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_stack_num_up,size_id,num3(size_id),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_stack_num_up,size_id,num1(size_id),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_stack_denom_down,size_id,denom2(size_id),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_stack_denom_down,size_id,denom1(size_id),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_fraction_num_up,size_id,num2(size_id),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_fraction_num_up,size_id,num1(size_id),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_fraction_denom_down,size_id,denom2(size_id),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_fraction_denom_down,size_id,denom1(size_id),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_fraction_del_size,size_id,delim2(size_id),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_fraction_del_size,size_id,delim1(size_id),lvl);
+    if (size_id==text_size) {
+      def_math_param(math_param_sup_shift_up,display_style,sup1(size_id),lvl);
+      def_math_param(math_param_sup_shift_up,cramped_display_style,sup3(size_id),lvl);
+      def_math_param(math_param_sup_shift_up,text_style,sup2(size_id),lvl);
+      def_math_param(math_param_sup_shift_up,cramped_text_style,sup3(size_id),lvl);
+    } else if (size_id==script_size) {
+      def_math_param(math_param_sub_shift_drop,display_style,sub_drop(size_id),lvl);
+      def_math_param(math_param_sub_shift_drop,cramped_display_style,sub_drop(size_id),lvl);
+      def_math_param(math_param_sub_shift_drop,text_style,sub_drop(size_id),lvl);
+      def_math_param(math_param_sub_shift_drop,cramped_text_style,sub_drop(size_id),lvl);
+      def_math_param(math_param_sup_shift_drop,display_style,sup_drop(size_id),lvl);
+      def_math_param(math_param_sup_shift_drop,cramped_display_style,sup_drop(size_id),lvl);
+      def_math_param(math_param_sup_shift_drop,text_style,sup_drop(size_id),lvl);
+      def_math_param(math_param_sup_shift_drop,cramped_text_style,sup_drop(size_id),lvl);
+      def_math_param(math_param_sup_shift_up,script_style,sup2(size_id),lvl);
+      def_math_param(math_param_sup_shift_up,cramped_script_style,sup3(size_id),lvl);
+    } else if (size_id==script_script_size) {
+      def_math_param(math_param_sub_shift_drop,script_style,sub_drop(size_id),lvl);
+      def_math_param(math_param_sub_shift_drop,cramped_script_style,sub_drop(size_id),lvl);
+      def_math_param(math_param_sub_shift_drop,script_script_style,sub_drop(size_id),lvl);
+      def_math_param(math_param_sub_shift_drop,cramped_script_script_style,sub_drop(size_id),lvl);
+      def_math_param(math_param_sup_shift_drop,script_style,sup_drop(size_id),lvl);
+      def_math_param(math_param_sup_shift_drop,cramped_script_style,sup_drop(size_id),lvl);
+      def_math_param(math_param_sup_shift_drop,script_script_style,sup_drop(size_id),lvl);
+      def_math_param(math_param_sup_shift_drop,cramped_script_script_style,sup_drop(size_id),lvl);
+      def_math_param(math_param_sup_shift_up,script_script_style,sup2(size_id),lvl);
+      def_math_param(math_param_sup_shift_up,cramped_script_script_style,sup3(size_id),lvl);
+    }
+    DEFINE_MATH_PARAMETERS(math_param_sub_shift_down,size_id,sub1(size_id),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_sub_shift_down,size_id,sub1(size_id),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_sub_sup_shift_down,size_id,sub2(size_id),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_sub_sup_shift_down,size_id,sub2(size_id),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_sub_top_max,size_id,(abs(math_x_height(size_id) * 4) / 5),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_sub_top_max,size_id, (abs(math_x_height(size_id) * 4) / 5),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_sup_bottom_min,size_id,(abs(math_x_height(size_id)) / 4),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_sup_bottom_min,size_id,(abs(math_x_height(size_id)) / 4),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_sup_sub_bottom_max,size_id,(abs(math_x_height(size_id) * 4) / 5),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_sup_sub_bottom_max,size_id,(abs(math_x_height(size_id) * 4) / 5),lvl);
+
+  } else if (fam_id==3 && is_old_mathfont(f,total_mathex_params)) { 
+    /* fix old-style |ex| parameters */
+    DEFINE_MATH_PARAMETERS(math_param_overbar_kern,size_id,default_rule_thickness(size_id),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_overbar_rule,size_id,default_rule_thickness(size_id),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_overbar_vgap,size_id,3*default_rule_thickness(size_id),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_overbar_kern,size_id,default_rule_thickness(size_id),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_overbar_rule,size_id,default_rule_thickness(size_id),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_overbar_vgap,size_id,3*default_rule_thickness(size_id),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_underbar_kern,size_id,0,lvl);
+    DEFINE_MATH_PARAMETERS(math_param_underbar_rule,size_id,default_rule_thickness(size_id),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_underbar_vgap,size_id,3*default_rule_thickness(size_id),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_underbar_kern,size_id,0,lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_underbar_rule,size_id,default_rule_thickness(size_id),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_underbar_vgap,size_id,3*default_rule_thickness(size_id),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_radical_kern,size_id,default_rule_thickness(size_id),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_radical_kern,size_id,default_rule_thickness(size_id),lvl);
+    /* The display-size radical_vgap is done in |finalize_math_pamaters| because it needs values from both the
+       sy and the ex font. */
+    DEFINE_MATH_PARAMETERS(math_param_radical_vgap,size_id,
+                           (default_rule_thickness(size_id)+(abs(default_rule_thickness(size_id))/4)),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_stack_vgap,size_id,3*default_rule_thickness(size_id),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_stack_vgap,size_id,7*default_rule_thickness(size_id),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_fraction_rule,size_id,default_rule_thickness(size_id),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_fraction_rule,size_id,default_rule_thickness(size_id),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_fraction_num_vgap,size_id,default_rule_thickness(size_id),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_fraction_num_vgap,size_id,3*default_rule_thickness(size_id),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_fraction_denom_vgap,size_id,default_rule_thickness(size_id),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_fraction_denom_vgap,size_id,3*default_rule_thickness(size_id),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_limit_above_vgap,size_id,big_op_spacing1(size_id),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_limit_above_vgap,size_id,big_op_spacing1(size_id),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_limit_above_bgap,size_id,big_op_spacing3(size_id),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_limit_above_bgap,size_id,big_op_spacing3(size_id),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_limit_above_kern,size_id,big_op_spacing5(size_id),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_limit_above_kern,size_id,big_op_spacing5(size_id),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_limit_below_vgap,size_id,big_op_spacing2(size_id),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_limit_below_vgap,size_id,big_op_spacing2(size_id),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_limit_below_bgap,size_id,big_op_spacing4(size_id),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_limit_below_bgap,size_id,big_op_spacing4(size_id),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_limit_below_kern,size_id,big_op_spacing5(size_id),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_limit_below_kern,size_id,big_op_spacing5(size_id),lvl);
+    DEFINE_MATH_PARAMETERS(math_param_subsup_vgap,size_id,4*default_rule_thickness(size_id),lvl);
+    DEFINE_DMATH_PARAMETERS(math_param_subsup_vgap,size_id,4*default_rule_thickness(size_id),lvl);
+    /* All of the |space_after_script|s are done in finalize_math_parameters because the
+       \.{\\scriptspace} may have been altered by the user
+     */
+  }
+}
+
+/* this needs to be called just at the start of |mlist_to_hlist| */
+void finalize_math_parameters (void) {
+    if (get_math_param(math_param_space_after_script,display_style)==undefined_math_parameter) {
+      def_math_param(math_param_space_after_script,display_style,script_space,cur_level);
+      def_math_param(math_param_space_after_script,text_style,script_space,cur_level);
+      def_math_param(math_param_space_after_script,script_style,script_space,cur_level);
+      def_math_param(math_param_space_after_script,script_script_style,script_space,cur_level);
+      def_math_param(math_param_space_after_script,cramped_display_style,script_space,cur_level);
+      def_math_param(math_param_space_after_script,cramped_text_style,script_space,cur_level);
+      def_math_param(math_param_space_after_script,cramped_script_style,script_space,cur_level);
+      def_math_param(math_param_space_after_script,cramped_script_script_style,script_space,cur_level);
+    }
+    if (get_math_param(math_param_radical_vgap,display_style)==undefined_math_parameter) {
+      def_math_param(math_param_radical_vgap,display_style,
+                     (default_rule_thickness(text_size)+(abs(math_x_height(text_size))/4)),cur_level);
+      def_math_param(math_param_radical_vgap,cramped_display_style,
+                     (default_rule_thickness(text_size)+(abs(math_x_height(text_size))/4)),cur_level);
+    }
 }
 
 
@@ -491,7 +876,7 @@ pointer math_clone(pointer q)
   that eventually contains it.
 */
 
-pointer fraction_rule(scaled t, pointer att)
+pointer do_fraction_rule(scaled t, pointer att)
 {
     pointer p;                  /* the new node */
     p = new_rule();
@@ -514,7 +899,7 @@ pointer overbar(pointer b, scaled k, scaled t, scaled ht, pointer att)
     p = new_kern(k);
     vlink(p) = b;
     reset_attributes(p,att);
-    q = fraction_rule(t,att);
+    q = do_fraction_rule(t,att);
     vlink(q) = p;
     p = new_kern(ht);
     reset_attributes(p,att);
@@ -860,6 +1245,7 @@ void run_mlist_to_hlist(pointer p, integer m_style, boolean penalties)
     int callback_id;
     int a;
     lua_State *L = Luas[0];
+    finalize_math_parameters ();
     callback_id = callback_defined(mlist_to_hlist_callback);
     if (p!=null && callback_id>0) {
         if (!get_callback(L, callback_id)) {
@@ -1071,9 +1457,9 @@ void make_over(pointer q)
 {
     pointer p;
     p = overbar(clean_box(nucleus(q), cramped_style(cur_style)),
-                overbar_vgap(), 
-                overbar_rule_thickness(), 
-                overbar_above_clearance(), node_attr(nucleus(q)));
+                overbar_vgap(cur_style), 
+                overbar_rule(cur_style), 
+                overbar_kern(cur_style), node_attr(nucleus(q)));
     math_list(nucleus(q)) = p;
     type(nucleus(q)) = sub_box_node;
 }
@@ -1083,19 +1469,19 @@ void make_under(pointer q)
     pointer p, x, y, r;         /* temporary registers for box construction */
     scaled delta;               /* overall height plus depth */
     x = clean_box(nucleus(q), cur_style);
-    p = new_kern(underbar_vgap());
+    p = new_kern(underbar_vgap(cur_style));
     reset_attributes(p,node_attr(q));
     vlink(x) = p;
-    r = fraction_rule(underbar_rule_thickness(),node_attr(q));
+    r = do_fraction_rule(underbar_rule(cur_style),node_attr(q));
     vlink(p) = r;
-    if (underbar_below_clearance()!=0) {
-      r = new_kern(underbar_below_clearance());
+    if (underbar_kern(cur_style)!=0) {
+      r = new_kern(underbar_kern(cur_style));
       vlink(vlink(p)) = r;
     }
     pack_direction = math_direction;
     y = vpackage(x, 0, additional, max_dimen);
     reset_attributes(y,node_attr(q));
-    delta = height(y) + depth(y) + underbar_rule_thickness();
+    delta = height(y) + depth(y) + underbar_rule(cur_style);
     height(y) = height(x);
     depth(y) = delta - height(y);
     math_list(nucleus(q)) = y;
@@ -1128,18 +1514,26 @@ placed so that the actual clearance is |psi| plus half the excess.
 void make_radical(pointer q)
 {
     pointer x, y, p;            /* temporary registers for box construction */
-    scaled delta, psi, theta;          /* dimensions involved in the calculation */
+    scaled delta, clr, theta;          /* dimensions involved in the calculation */
     x = clean_box(nucleus(q), cramped_style(cur_style));
-    theta = radical_rule_thickness();
-    psi = radical_vgap(cur_style);
-    y = var_delimiter(left_delimiter(q), cur_size, height(x) + depth(x) + psi + theta);
-    left_delimiter(q) = null;
-    theta = height(y); /* re-do */
-    delta = depth(y) - (height(x) + depth(x) + psi);
-    if (delta > 0)
-        psi = psi + half(delta);        /* increase the actual clearance */
-    shift_amount(y) = -(height(x) + psi);
-    p = overbar(x, radical_above_clearance(), theta, psi, node_attr(y));
+    clr = radical_vgap(cur_style);
+    theta = radical_rule(cur_style);
+    if (theta==undefined_math_parameter) {
+      theta = fraction_rule(cur_style);
+      y = var_delimiter(left_delimiter(q), cur_size, height(x) + depth(x) + clr + theta);
+      left_delimiter(q) = null;
+      theta = height(y);
+      delta = depth(y) - (height(x) + depth(x) + clr);
+      if (delta > 0)
+        clr = clr + half(delta);        /* increase the actual clearance */
+      shift_amount(y) = -(height(x) + clr);
+    } else {
+      y = var_delimiter(left_delimiter(q), cur_size, height(x) + depth(x) + clr + theta);
+      left_delimiter(q) = null;
+      delta = height(y) - (height(x) + clr + theta);
+      shift_amount(y) = delta;
+    }
+    p = overbar(x, clr, theta, radical_kern(cur_style),  node_attr(y));
     vlink(y) = p;
     p = hpack(y, 0, additional);
     reset_attributes(p,node_attr(q));
@@ -1246,7 +1640,7 @@ void make_fraction(pointer q)
     scaled delta, delta1, delta2, shift_up, shift_down, clr;
     /* dimensions for box calculations */
     if (thickness(q) == default_code)
-      thickness(q) = fraction_rule_thickness();
+      thickness(q) = fraction_rule(cur_style);
     /* Create equal-width boxes |x| and |z| for the numerator and denominator,
        and compute the default amounts |shift_up| and |shift_down| by which they
        are displaced from the baseline */
@@ -1274,11 +1668,13 @@ void make_fraction(pointer q)
         /* In the case of a fraction line, the minimum clearance depends on the actual
            thickness of the line. */
         delta  = half(thickness(q));
-        clr    = fraction_num_vgap(cur_style,q);
+        clr = fraction_num_vgap(cur_style);
+        clr = ext_xn_over_d(clr, thickness(q), fraction_rule(cur_style));
         delta1 = clr - ((shift_up - depth(x)) - (math_axis(cur_size) + delta));
         if (delta1 > 0)
             shift_up = shift_up + delta1;
-        clr    = fraction_denom_vgap(cur_style,q);
+        clr = fraction_denom_vgap(cur_style);
+        clr = ext_xn_over_d(clr, thickness(q), fraction_rule(cur_style));
         delta2 = clr - ((math_axis(cur_size) - delta) - (height(z) - shift_down));
         if (delta2 > 0)
             shift_down = shift_down + delta2;
@@ -1294,7 +1690,7 @@ void make_fraction(pointer q)
         p = new_kern((shift_up - depth(x)) - (height(z) - shift_down));
         vlink(p) = z;
     } else {
-        y = fraction_rule(thickness(q),node_attr(q));
+        y = do_fraction_rule(thickness(q),node_attr(q));
         p = new_kern((math_axis(cur_size) - delta) - (height(z) - shift_down));
         reset_attributes(p,node_attr(q));
         vlink(y) = p;
@@ -1307,7 +1703,7 @@ void make_fraction(pointer q)
     list_ptr(v) = x;
     /* Put the fraction into a box with its delimiters, and make |new_hlist(q)|
        point to it */
-    delta = fraction_delimiter_size(cur_style);
+    delta = fraction_del_size(cur_style);
     x = var_delimiter(left_delimiter(q), cur_size, delta);
     left_delimiter(q) = null;
     vlink(x) = v;
@@ -1397,34 +1793,34 @@ scaled make_op(pointer q)
             flush_node(x);
             list_ptr(v) = y;
         } else {
-          shift_up = limit_up_baseline_gap() - depth(x);
-          if (shift_up < limit_up_gap())
-            shift_up = limit_up_gap();
+          shift_up = limit_above_bgap(cur_style) - depth(x);
+          if (shift_up < limit_above_vgap(cur_style))
+            shift_up = limit_above_vgap(cur_style);
             p = new_kern(shift_up);
             reset_attributes(p,node_attr(q));
             vlink(p) = y;
             vlink(x) = p;
-            p = new_kern(limit_up_above_clearance());
+            p = new_kern(limit_above_kern(cur_style));
             reset_attributes(p,node_attr(q));
             vlink(p) = x;
             list_ptr(v) = p;
-            height(v) = height(v) + limit_up_above_clearance() + height(x) + depth(x) + shift_up;
+            height(v) = height(v) + limit_above_kern(cur_style) + height(x) + depth(x) + shift_up;
         }
         if (subscr(q) == null) {
             list_ptr(z) = null;
             flush_node(z);
         } else {
-          shift_down = limit_down_baseline_gap() - height(z);
-          if (shift_down < limit_down_gap())
-            shift_down = limit_down_gap();
+          shift_down = limit_below_bgap(cur_style) - height(z);
+          if (shift_down < limit_below_vgap(cur_style))
+            shift_down = limit_below_vgap(cur_style);
             p = new_kern(shift_down);
             reset_attributes(p,node_attr(q));
             vlink(y) = p;
             vlink(p) = z;
-            p = new_kern(limit_down_below_clearance());
+            p = new_kern(limit_below_kern(cur_style));
             reset_attributes(p,node_attr(q));
             vlink(z) = p;
-            depth(v) = depth(v) + limit_down_below_clearance() + height(z) + depth(z) + shift_down;
+            depth(v) = depth(v) + limit_below_kern(cur_style) + height(z) + depth(z) + shift_down;
         }
         if (subscr(q)!=null) {
           math_list(subscr(q)) = null; 
@@ -1568,8 +1964,8 @@ void make_scripts(pointer q, scaled delta)
         shift_down = 0;
     } else {
         z = hpack(p, 0, additional);
-        shift_up = height(z) - superscript_shift_baseline_drop(cur_style); /* r18 */
-        shift_down = depth(z) + subscript_shift_baseline_drop(cur_style); /* r19 */        
+        shift_up = height(z) - sup_shift_drop(cur_style); /* r18 */
+        shift_down = depth(z) + sub_shift_drop(cur_style); /* r19 */        
         list_ptr(z) = null;
         flush_node(z);
     }
@@ -1578,10 +1974,10 @@ void make_scripts(pointer q, scaled delta)
         /* When there is a subscript without a superscript, the top of the subscript
            should not exceed the baseline plus four-fifths of the x-height. */
         x = clean_box(subscr(q), sub_style(cur_style));
-        width(x) = width(x) + space_after_script();
-        if (shift_down < subscript_shift_down(cur_style))
-          shift_down = subscript_shift_down(cur_style);
-        clr = height(x) - subscript_top_max(cur_style);
+        width(x) = width(x) + space_after_script(cur_style);
+        if (shift_down < sub_shift_down(cur_style))
+          shift_down = sub_shift_down(cur_style);
+        clr = height(x) - sub_top_max(cur_style);
         if (shift_down < clr)
             shift_down = clr;
         shift_amount(x) = shift_down;
@@ -1590,11 +1986,11 @@ void make_scripts(pointer q, scaled delta)
         /*The bottom of a superscript should never descend below the baseline plus
            one-fourth of the x-height. */
         x = clean_box(supscr(q), sup_style(cur_style));
-        width(x) = width(x) + space_after_script();
-        clr = superscript_shift_up(cur_style);
+        width(x) = width(x) + space_after_script(cur_style);
+        clr = sup_shift_up(cur_style);
         if (shift_up < clr)
             shift_up = clr;
-        clr = depth(x) + superscript_bottom_min(cur_style);
+        clr = depth(x) + sup_bottom_min(cur_style);
         if (shift_up < clr)
             shift_up = clr;
 
@@ -1610,14 +2006,14 @@ void make_scripts(pointer q, scaled delta)
                is at least as high as the baseline plus four-fifths of the x-height. */
 
             y = clean_box(subscr(q), sub_style(cur_style));
-            width(y) = width(y) + space_after_script();
-            if (shift_down < subscript_shift_down_with_sup(cur_style))
-              shift_down = subscript_shift_down_with_sup(cur_style);
-            clr = subsuperscript_gap() - 
+            width(y) = width(y) + space_after_script(cur_style);
+            if (shift_down < sub_sup_shift_down(cur_style))
+              shift_down = sub_sup_shift_down(cur_style);
+            clr = subsup_vgap(cur_style) - 
               ((shift_up - depth(x)) - (height(y) - shift_down));
             if (clr > 0) {
                 shift_down = shift_down + clr;
-                clr = superscript_bottom_max_with_sub(cur_style) - (shift_up - depth(x));
+                clr = sup_sub_bottom_max(cur_style) - (shift_up - depth(x));
                 if (clr > 0) {
                     shift_up = shift_up + clr;
                     shift_down = shift_down - clr;

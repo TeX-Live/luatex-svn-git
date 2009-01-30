@@ -38,6 +38,69 @@ char *ligature_type_strings[] =
     "|=:|>>", NULL
 };
 
+const char *MATH_param_names[] = {
+    "nil",
+    "ScriptPercentScaleDown",
+    "ScriptScriptPercentScaleDown",
+    "DelimitedSubFormulaMinHeight",
+    "DisplayOperatorMinHeight",
+    "MathLeading",
+    "AxisHeight",
+    "AccentBaseHeight",
+    "FlattenedAccentBaseHeight",
+    "SubscriptShiftDown",
+    "SubscriptTopMax",
+    "SubscriptBaselineDropMin",
+    "SuperscriptShiftUp",
+    "SuperscriptShiftUpCramped",
+    "SuperscriptBottomMin",
+    "SuperscriptBaselineDropMax",
+    "SubSuperscriptGapMin",
+    "SuperscriptBottomMaxWithSubscript",
+    "SpaceAfterScript",
+    "UpperLimitGapMin",
+    "UpperLimitBaselineRiseMin",
+    "LowerLimitGapMin",
+    "LowerLimitBaselineDropMin",
+    "StackTopShiftUp",
+    "StackTopDisplayStyleShiftUp",
+    "StackBottomShiftDown",
+    "StackBottomDisplayStyleShiftDown",
+    "StackGapMin",
+    "StackDisplayStyleGapMin",
+    "StretchStackTopShiftUp",
+    "StretchStackBottomShiftDown",
+    "StretchStackGapAboveMin",
+    "StretchStackGapBelowMin",
+    "FractionNumeratorShiftUp",
+    "FractionNumeratorDisplayStyleShiftUp",
+    "FractionDenominatorShiftDown",
+    "FractionDenominatorDisplayStyleShiftDown",
+    "FractionNumeratorGapMin",
+    "FractionNumeratorDisplayStyleGapMin",
+    "FractionRuleThickness",
+    "FractionDenominatorGapMin",
+    "FractionDenominatorDisplayStyleGapMin",
+    "SkewedFractionHorizontalGap",
+    "SkewedFractionVerticalGap",
+    "OverbarVerticalGap",
+    "OverbarRuleThickness",
+    "OverbarExtraAscender",
+    "UnderbarVerticalGap",
+    "UnderbarRuleThickness",
+    "UnderbarExtraDescender",
+    "RadicalVerticalGap",
+    "RadicalDisplayStyleVerticalGap",
+    "RadicalRuleThickness",
+    "RadicalExtraAscender",
+    "RadicalKernBeforeDegree",
+    "RadicalKernAfterDegree",
+    "RadicalDegreeBottomRaisePercent",
+    "MinConnectorOverlap",
+    NULL,
+};
+
+
 void font_char_to_lua(lua_State * L, internalfontnumber f, charinfo * co)
 {
     int i;
@@ -196,6 +259,23 @@ static void write_lua_parameters(lua_State * L, int f)
 }
 
 
+static void write_lua_math_parameters(lua_State * L, int f)
+{
+    int k;
+    lua_newtable(L);
+    for (k = 1; k < font_math_params(f); k++) {
+      lua_pushnumber(L, font_math_param(f, k));
+      if (k<=MATH_param_max) {
+        lua_setfield(L, -2, MATH_param_names[k]);
+      } else {
+        lua_rawseti(L, -2, k); 
+      }
+    }
+    lua_setfield(L, -2, "MathConstants");
+}
+
+
+
 int font_to_lua(lua_State * L, int f)
 {
     int k;
@@ -305,6 +385,7 @@ int font_to_lua(lua_State * L, int f)
 
     /* params */
     write_lua_parameters(L, f);
+    write_lua_math_parameters(L, f);
 
     /* chars */
     lua_createtable(L, font_tables[f]->charinfo_size, 0);       /* all characters */
@@ -886,6 +967,29 @@ static void read_lua_parameters(lua_State * L, int f)
 
 }
 
+static void read_lua_math_parameters(lua_State * L, int f)
+{
+    int i = 0, n = 0;
+    lua_getfield(L, -1, "MathConstants");
+    if (lua_istable(L, -1)) {
+        lua_pushnil(L);
+        while (lua_next(L, -2) != 0) {
+            if (lua_isnumber(L, -2)) {
+                i = lua_tonumber(L, -2);
+            } else if (lua_isstring(L, -2)) {
+                i = luaL_checkoption(L,-2, NULL, MATH_param_names);              
+            }
+            n = lua_tonumber(L,-1);
+            if (i!=0) {
+              set_font_math_param(f,i,n);
+            }
+            lua_pop(L, 1);      /* pop value */
+        }
+    }
+    lua_pop(L, 1);
+}
+
+
 void
 font_char_from_lua(lua_State * L, internal_font_number f, integer i,
                    integer * l_fonts)
@@ -1211,6 +1315,7 @@ int font_from_lua(lua_State * L, int f)
 
     /* parameters */
     read_lua_parameters(L, f);
+    read_lua_math_parameters(L, f);
     read_lua_cidinfo(L, f);
 
     /* characters */

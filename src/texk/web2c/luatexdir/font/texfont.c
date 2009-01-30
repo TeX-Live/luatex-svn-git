@@ -104,6 +104,7 @@ integer new_font(void)
     font_tables[id]->_left_boundary = NULL;
     font_tables[id]->_right_boundary = NULL;
     font_tables[id]->_param_base = NULL;
+    font_tables[id]->_math_param_base = NULL;
 
     set_font_bc(id, 1);         /* ec = 0 */
     set_hyphen_char(id, '-');
@@ -645,6 +646,24 @@ void set_font_params(internal_font_number f, int b)
     }
 }
 
+void set_font_math_params(internal_font_number f, int b)
+{
+    int i;
+    i = font_math_params(f);
+    if (i != b) {
+        font_bytes += (b - font_math_params(f) + 1) * sizeof(scaled);
+        do_realloc(math_param_base(f), (b + 2), integer);
+        font_math_params(f) = b;
+        if (b > i) {
+            while (i < b) {
+                i++;
+                set_font_math_param(f, i, undefined_math_parameter);
+            }
+        }
+    }
+}
+
+
 
 integer copy_font(integer f)
 {
@@ -685,6 +704,13 @@ integer copy_font(integer f)
     font_bytes += i;
     param_base(k) = xmalloc(i);
     memcpy(param_base(k), param_base(f), i);
+
+    if (font_math_params(f)>0) {
+      i = sizeof(*math_param_base(f)) * font_math_params(f);
+      font_bytes += i;
+      math_param_base(k) = xmalloc(i);
+      memcpy(math_param_base(k), math_param_base(f), i);
+    }
 
     i = sizeof(charinfo) * (Charinfo_size(f) + 1);
     font_bytes += i;
@@ -740,6 +766,8 @@ void delete_font(integer f)
         destroy_sa_tree(font_tables[f]->characters);
 
         free(param_base(f));
+        if (math_param_base(f)!=NULL)
+          free(math_param_base(f));
         free(font_tables[f]);
         font_tables[f] = NULL;
 
@@ -1113,7 +1141,10 @@ void dump_font(int f)
     dump_string(font_cidordering(f));
 
     dump_things(*param_base(f), (font_params(f) + 1));
-
+    
+    if (font_math_params(f)>0) {
+      dump_things(*math_param_base(f), (font_math_params(f)));
+    }
     if (has_left_boundary(f)) {
         dump_int(1);
         dump_charinfo(f, left_boundarychar);
@@ -1264,6 +1295,15 @@ void undump_font(int f)
     font_bytes += i;
     param_base(f) = xmalloc(i);
     undump_things(*param_base(f), (font_params(f) + 1));
+
+    if (font_math_params(f)>0) {
+      i = sizeof(*math_param_base(f)) * (font_math_params(f) + 1);
+      font_bytes += i;
+      math_param_base(f) = xmalloc(i);
+      undump_things(*math_param_base(f), (font_math_params(f) + 1));
+    } else {
+      math_param_base(f) = NULL;
+    }
 
     font_tables[f]->_left_boundary = NULL;
     undump_int(x);

@@ -123,6 +123,8 @@ void mlist_to_hlist(void);
 #  define null_font 0
 #  define min_quarterword 0
 
+#define undefined_math_parameter max_dimen
+
 typedef enum {
     math_param_quad,
     math_param_axis,
@@ -166,5 +168,69 @@ extern void print_math_param (int param_code);
 extern void def_math_param (int param_code, int style_code, scaled value, int lvl);
 extern scaled get_math_param (int param_code, int style_code);
 
+
+typedef enum {
+    ScriptPercentScaleDown = 1,
+    ScriptScriptPercentScaleDown,
+    DelimitedSubFormulaMinHeight,
+    DisplayOperatorMinHeight,
+    MathLeading,
+    AxisHeight,
+    AccentBaseHeight,
+    FlattenedAccentBaseHeight,
+    SubscriptShiftDown,
+    SubscriptTopMax,
+    SubscriptBaselineDropMin,
+    SuperscriptShiftUp,
+    SuperscriptShiftUpCramped,
+    SuperscriptBottomMin,
+    SuperscriptBaselineDropMax,
+    SubSuperscriptGapMin,
+    SuperscriptBottomMaxWithSubscript,
+    SpaceAfterScript,
+    UpperLimitGapMin,
+    UpperLimitBaselineRiseMin,
+    LowerLimitGapMin,
+    LowerLimitBaselineDropMin,
+    StackTopShiftUp,
+    StackTopDisplayStyleShiftUp,
+    StackBottomShiftDown,
+    StackBottomDisplayStyleShiftDown,
+    StackGapMin,
+    StackDisplayStyleGapMin,
+    StretchStackTopShiftUp,
+    StretchStackBottomShiftDown,
+    StretchStackGapAboveMin,
+    StretchStackGapBelowMin,
+    FractionNumeratorShiftUp,
+    FractionNumeratorDisplayStyleShiftUp,
+    FractionDenominatorShiftDown,
+    FractionDenominatorDisplayStyleShiftDown,
+    FractionNumeratorGapMin,
+    FractionNumeratorDisplayStyleGapMin,
+    FractionRuleThickness,
+    FractionDenominatorGapMin,
+    FractionDenominatorDisplayStyleGapMin,
+    SkewedFractionHorizontalGap,
+    SkewedFractionVerticalGap,
+    OverbarVerticalGap,
+    OverbarRuleThickness,
+    OverbarExtraAscender,
+    UnderbarVerticalGap,
+    UnderbarRuleThickness,
+    UnderbarExtraDescender,
+    RadicalVerticalGap,
+    RadicalDisplayStyleVerticalGap,
+    RadicalRuleThickness,
+    RadicalExtraAscender,
+    RadicalKernBeforeDegree,
+    RadicalKernAfterDegree,
+    RadicalDegreeBottomRaisePercent,
+    MinConnectorOverlap,
+} MATH_param_codes;
+
+#define MATH_param_max MinConnectorOverlap
+
+extern const char *MATH_param_names[];
 
 #endif

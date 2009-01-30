@@ -121,6 +121,9 @@ typedef struct texfont {
     integer _font_params;
     scaled *_param_base;
 
+    integer _font_math_params;
+    scaled *_math_param_base;
+
     sa_tree characters;
     integer charinfo_count;
     integer charinfo_size;
@@ -328,9 +331,20 @@ boolean font_shareable(internal_font_number, internal_font_number);
 
 extern void set_font_params(internal_font_number f, int b);
 
-#  define set_font_param(f,n,b)                                   \
+#  define set_font_param(f,n,b)                                 \
   { if (font_params(f)<n) set_font_params(f,n);                 \
     font_param(f,n) = b; }
+
+
+#  define font_math_params(a)       font_tables[a]->_font_math_params
+#  define math_param_base(a)        font_tables[a]->_math_param_base
+#  define font_math_param(a,b)      font_tables[a]->_math_param_base[b]
+
+extern void set_font_math_params(internal_font_number f, int b);
+
+#  define set_font_math_param(f,n,b)                                   \
+  { if (font_math_params(f)<n) set_font_math_params(f,n);              \
+    font_math_param(f,n) = b; }
 
 /* Font parameters are sometimes referred to as |slant(f)|, |space(f)|, etc.*/
 
