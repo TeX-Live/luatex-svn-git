@@ -294,7 +294,66 @@ Each of these is set by a command like this:
 \Umathquad\displaystyle=1em
 \stoptyping
 
+\subsection{Math Parameters}
 
+\start
+
+\switchtobodyfont[8pt]
+
+\starttabulate[|l|l|l|p|]
+\NC \bf variable        \NC \bf style             \NC \bf default value opentype               \NC \bf default value tfm \NC\NR
+\NC axis                \NC --                    \NC AxisHeight                               \NC axis_height \NC\NR
+\NC fraction_del_size   \NC D, D'                 \NC 0                                        \NC delim1 \NC\NR
+\NC "                   \NC T, T', S, S', SS, SS' \NC 0                                        \NC delim2 \NC\NR
+\NC fraction_denom_down \NC D, D'                 \NC FractionDenominatorDisplayStyleShiftDown \NC denom1 \NC\NR
+\NC "                   \NC T, T', S, S', SS, SS' \NC FractionDenominatorShiftDown             \NC denom2 \NC\NR
+\NC fraction_denom_vgap \NC D, D'                 \NC FractionDenominatorDisplayStyleGapMin    \NC 3*default_rule_thickness \NC\NR
+\NC "                   \NC T, T', S, S', SS, SS' \NC FractionDenominatorGapMin                \NC default_rule_thickness \NC\NR
+\NC fraction_num_up     \NC D, D'                 \NC FractionNumeratorDisplayStyleShiftUp     \NC num1 \NC\NR
+\NC "                   \NC T, T', S, S', SS, SS' \NC FractionNumeratorShiftUp                 \NC num2 \NC\NR
+\NC fraction_num_vgap   \NC D, D'                 \NC FractionNumeratorDisplayStyleGapMin      \NC 3*default_rule_thickness \NC\NR
+\NC "                   \NC T, T', S, S', SS, SS' \NC FractionNumeratorGapMin                  \NC default_rule_thickness \NC\NR
+\NC fraction_rule       \NC --                    \NC FractionRuleThickness                    \NC default_rule_thickness \NC\NR
+\NC limit_above_bgap    \NC --                    \NC UpperLimitBaselineRiseMin                \NC big_op_spacing3 \NC\NR
+\NC limit_above_kern    \NC --                    \NC 0                                        \NC big_op_spacing5 \NC\NR
+\NC limit_above_vgap    \NC --                    \NC UpperLimitGapMin                         \NC big_op_spacing1 \NC\NR
+\NC limit_below_bgap    \NC --                    \NC LowerLimitBaselineDropMin                \NC big_op_spacing4 \NC\NR
+\NC limit_below_kern    \NC --                    \NC 0                                        \NC big_op_spacing5 \NC\NR
+\NC limit_below_vgap    \NC --                    \NC LowerLimitGapMin                         \NC big_op_spacing2 \NC\NR
+\NC overbar_kern        \NC --                    \NC OverbarExtraAscender                     \NC default_rule_thickness \NC\NR
+\NC overbar_rule        \NC --                    \NC OverbarRuleThickness                     \NC default_rule_thickness \NC\NR
+\NC overbar_vgap        \NC --                    \NC OverbarVerticalGap                       \NC 3*default_rule_thickness \NC\NR
+\NC quad                \NC --                    \NC <font_size(f)>                           \NC math_quad \NC\NR
+\NC radical_kern        \NC --                    \NC RadicalExtraAscender                     \NC default_rule_thickness \NC\NR
+\NC radical_rule        \NC --                    \NC RadicalRuleThickness                     \NC <not set> \NC\NR
+\NC radical_vgap        \NC D, D'                 \NC RadicalDisplayStyleVerticalGap           \NC (default_rule_thickness+\crlf
+                                                                                                    (abs(math_x_height)/4)) \NC\NR
+\NC "                   \NC T, T', S, S', SS, SS' \NC RadicalVerticalGap                       \NC (default_rule_thickness+\crlf
+                                                                                                    (abs(default_rule_thickness)/4)) \NC\NR
+\NC space_after_script  \NC --                    \NC SpaceAfterScript                         \NC script_space \NC\NR
+\NC stack_denom_down    \NC D, D'                 \NC StackBottomDisplayStyleShiftDown         \NC denom1 \NC\NR
+\NC "                   \NC T, T', S, S', SS, SS' \NC StackBottomShiftDown                     \NC denom2 \NC\NR
+\NC stack_num_up        \NC D, D'                 \NC StackTopDisplayStyleShiftUp              \NC num1 \NC\NR
+\NC "                   \NC T, T', S, S', SS, SS' \NC StackTopShiftUp                          \NC num3 \NC\NR
+\NC stack_vgap          \NC D, D'                 \NC StackDisplayStyleGapMin                  \NC 7*default_rule_thickness \NC\NR
+\NC "                   \NC T, T', S, S', SS, SS' \NC StackGapMin                              \NC 3*default_rule_thickness \NC\NR
+\NC sub_shift_down      \NC --                    \NC SubscriptShiftDown                       \NC sub1 \NC\NR
+\NC sub_shift_drop      \NC --                    \NC SubscriptBaselineDropMin                 \NC sub_drop \NC\NR
+\NC sub_sup_shift_down  \NC --                    \NC SubscriptShiftDown                       \NC sub2 \NC\NR
+\NC sub_top_max         \NC --                    \NC SubscriptTopMax                          \NC (abs(math_x_height * 4) / 5) \NC\NR
+\NC subsup_vgap         \NC --                    \NC SubSuperscriptGapMin                     \NC 4*default_rule_thickness \NC\NR
+\NC sup_bottom_min      \NC --                    \NC SuperscriptBottomMin                     \NC (abs(math_x_height) / 4) \NC\NR
+\NC sup_shift_drop      \NC --                    \NC SuperscriptBaselineDropMax               \NC sup_drop \NC\NR
+\NC sup_shift_up        \NC D                     \NC SuperscriptShiftUp                       \NC sup1 \NC\NR
+\NC "                   \NC T, S, SS,             \NC SuperscriptShiftUp                       \NC sup2 \NC\NR
+\NC "                   \NC D', T', S', SS'       \NC SuperscriptShiftUpCramped                \NC sup3 \NC\NR
+\NC sup_sub_bottom_max  \NC --                    \NC SuperscriptBottomMaxWithSubscript        \NC (abs(math_x_height * 4) / 5) \NC\NR
+\NC underbar_kern       \NC --                    \NC UnderbarExtraDescender                   \NC 0 \NC\NR
+\NC underbar_rule       \NC --                    \NC UnderbarRuleThickness                    \NC default_rule_thickness \NC\NR
+\NC underbar_vgap       \NC --                    \NC UnderbarVerticalGap                      \NC 3*default_rule_thickness \NC\NR
+\stoptabulate
+
+\stop
 
 \section{Extended tables}
 
