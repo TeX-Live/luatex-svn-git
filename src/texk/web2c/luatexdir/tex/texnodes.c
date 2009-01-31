@@ -126,7 +126,8 @@ char *node_fields_glyph[] =
     "components", "xoffset", "yoffset", NULL
 };
 char *node_fields_style[] = { "attr", "style", NULL };
-char *node_fields_choice[] = { "attr", "display", "text", "script", "scriptscript", NULL };
+char *node_fields_choice[] =
+    { "attr", "display", "text", "script", "scriptscript", NULL };
 char *node_fields_ord[] = { "attr", "nucleus", "sub", "sup", NULL };
 char *node_fields_op[] = { "attr", "nucleus", "sub", "sup", NULL };
 char *node_fields_bin[] = { "attr", "nucleus", "sub", "sup", NULL };
@@ -135,18 +136,21 @@ char *node_fields_open[] = { "attr", "nucleus", "sub", "sup", NULL };
 char *node_fields_close[] = { "attr", "nucleus", "sub", "sup", NULL };
 char *node_fields_punct[] = { "attr", "nucleus", "sub", "sup", NULL };
 char *node_fields_inner[] = { "attr", "nucleus", "sub", "sup", NULL };
-char *node_fields_under[] = { "attr", "nucleus", "sub", "sup" , NULL };
-char *node_fields_over[] = { "attr", "nucleus", "sub", "sup",  NULL };
+char *node_fields_under[] = { "attr", "nucleus", "sub", "sup", NULL };
+char *node_fields_over[] = { "attr", "nucleus", "sub", "sup", NULL };
 char *node_fields_vcenter[] = { "attr", "nucleus", "sub", "sup", NULL };
-char *node_fields_radical[] = { "attr","nucleus", "sub", "sup", "left", NULL };
-char *node_fields_fraction[] = { "attr", "width", "num", "denom", "left", "right", NULL };
-char *node_fields_accent[] = { "attr", "nucleus", "sub", "sup", "accent", NULL };
+char *node_fields_radical[] = { "attr", "nucleus", "sub", "sup", "left", NULL };
+char *node_fields_fraction[] =
+    { "attr", "width", "num", "denom", "left", "right", NULL };
+char *node_fields_accent[] =
+    { "attr", "nucleus", "sub", "sup", "accent", NULL };
 char *node_fields_fence[] = { "attr", "delim", NULL };
 char *node_fields_math_char[] = { "attr", "fam", "char", NULL };
 char *node_fields_sub_box[] = { "attr", "list", NULL };
 char *node_fields_sub_mlist[] = { "attr", "list", NULL };
 char *node_fields_math_text_char[] = { "attr", "fam", "char", NULL };
-char *node_fields_delim[] = { "attr", "small_fam", "small_char", "large_fam", "large_char", NULL };
+char *node_fields_delim[] =
+    { "attr", "small_fam", "small_char", "large_fam", "large_char", NULL };
 
 char *node_fields_inserting[] =
     { "height", "last_ins_ptr", "best_ins_ptr", NULL };
@@ -626,11 +630,11 @@ halfword copy_node(const halfword p)
         s = copy_node_list(supscr(p));
         supscr(r) = s;
         if (type(p) == accent_noad) {
-          s = copy_node_list(accent_chr(p));
-          accent_chr(r) = s;
+            s = copy_node_list(accent_chr(p));
+            accent_chr(r) = s;
         } else if (type(p) == radical_noad) {
-          s = copy_node(left_delimiter(p));
-          left_delimiter(r) = s;
+            s = copy_node(left_delimiter(p));
+            left_delimiter(r) = s;
         }
         break;
     case fence_noad:
@@ -643,7 +647,7 @@ halfword copy_node(const halfword p)
            case math_char_node:
            case math_text_char_node:
            break;
-        */
+         */
     case sub_box_node:
     case sub_mlist_node:
         s = copy_node_list(math_list(p));
@@ -1074,15 +1078,15 @@ void flush_node(halfword p)
         flush_node_list(nucleus(p));
         flush_node_list(subscr(p));
         flush_node_list(supscr(p));
-        if (type(p) == accent_noad) 
-          flush_node_list(accent_chr(p));
-        else if (type(p) == radical_noad) 
-          flush_node(left_delimiter(p));
+        if (type(p) == accent_noad)
+            flush_node_list(accent_chr(p));
+        else if (type(p) == radical_noad)
+            flush_node(left_delimiter(p));
         break;
     case fence_noad:
         flush_node(delimiter(p));
         break;
-    case delim_node:            /* nothing to do */
+    case delim_node:           /* nothing to do */
     case math_char_node:
     case math_text_char_node:
         break;
@@ -2233,14 +2237,14 @@ other extensions might, of course, involve more subtlety here.
 */
 
 
-void print_write_whatsit(char *s, pointer p) 
+void print_write_whatsit(char *s, pointer p)
 {
     tprint_esc(s);
-    if (write_stream(p)<16) 
+    if (write_stream(p) < 16)
         print_int(write_stream(p));
-    else if (write_stream(p)==16) 
+    else if (write_stream(p) == 16)
         print_char('*');
-    else 
+    else
         print_char('-');
 }
 
@@ -2833,7 +2837,7 @@ void show_node_list(integer p)
 /* This routine finds the 'base' width of a horizontal box, using the same logic
   that \TeX82 used for \.{\\predisplaywidth} */
 
-pointer actual_box_width (pointer r, scaled base_width) 
+pointer actual_box_width(pointer r, scaled base_width)
 {
     scaled w;                   /* calculated |size| */
     pointer p;                  /* current node when calculating |pre_display_size| */
@@ -2845,72 +2849,72 @@ pointer actual_box_width (pointer r, scaled base_width)
     v = shift_amount(r) + base_width;
     p = list_ptr(r);
     while (p != null) {
-      if (is_char_node(p)) {
-        f = font(p);
-        d = glyph_width(p);
-        goto found;
-      }
-      switch (type(p)) {
-      case hlist_node:
-      case vlist_node:
-      case rule_node:
-        d = width(p);
-        goto found;
-        break;
-      case margin_kern_node:
-        d = width(p);
-        break;
-      case kern_node:
-        d = width(p);
-        break;
-      case math_node:
-        d = surround(p);
-        break;
-      case glue_node:
-        /* We need to be careful that |w|, |v|, and |d| do not depend on any |glue_set|
-           values, since such values are subject to system-dependent rounding.
-           System-dependent numbers are not allowed to infiltrate parameters like
-           |pre_display_size|, since \TeX82 is supposed to make the same decisions on all
-           machines.
-        */
-        q = glue_ptr(p);
-        d = width(q);
-        if (glue_sign(r) == stretching) {
-          if ((glue_order(r) == stretch_order(q))
-              && (stretch(q) != 0))
-            v = max_dimen;
-        } else if (glue_sign(r) == shrinking) {
-          if ((glue_order(r) == shrink_order(q))
-              && (shrink(q) != 0))
-            v = max_dimen;
+        if (is_char_node(p)) {
+            f = font(p);
+            d = glyph_width(p);
+            goto found;
         }
-        if (subtype(p) >= a_leaders)
-          goto found;
-        break;
-      case whatsit_node:
-        if ((subtype(p) == pdf_refxform_node)
-            || (subtype(p) == pdf_refximage_node))
-          d = pdf_width(p);
-        else
-          d = 0;
-        break;
-      default:
-        d = 0;
-        break;
-      }
-      if (v < max_dimen)
-        v = v + d;
-      goto not_found;
-    found:
-      if (v < max_dimen) {
-        v = v + d;
-        w = v;
-      } else {
-        w = max_dimen;
-        break;
-      }
-    not_found:
-      p = vlink(p);
+        switch (type(p)) {
+        case hlist_node:
+        case vlist_node:
+        case rule_node:
+            d = width(p);
+            goto found;
+            break;
+        case margin_kern_node:
+            d = width(p);
+            break;
+        case kern_node:
+            d = width(p);
+            break;
+        case math_node:
+            d = surround(p);
+            break;
+        case glue_node:
+            /* We need to be careful that |w|, |v|, and |d| do not depend on any |glue_set|
+               values, since such values are subject to system-dependent rounding.
+               System-dependent numbers are not allowed to infiltrate parameters like
+               |pre_display_size|, since \TeX82 is supposed to make the same decisions on all
+               machines.
+             */
+            q = glue_ptr(p);
+            d = width(q);
+            if (glue_sign(r) == stretching) {
+                if ((glue_order(r) == stretch_order(q))
+                    && (stretch(q) != 0))
+                    v = max_dimen;
+            } else if (glue_sign(r) == shrinking) {
+                if ((glue_order(r) == shrink_order(q))
+                    && (shrink(q) != 0))
+                    v = max_dimen;
+            }
+            if (subtype(p) >= a_leaders)
+                goto found;
+            break;
+        case whatsit_node:
+            if ((subtype(p) == pdf_refxform_node)
+                || (subtype(p) == pdf_refximage_node))
+                d = pdf_width(p);
+            else
+                d = 0;
+            break;
+        default:
+            d = 0;
+            break;
+        }
+        if (v < max_dimen)
+            v = v + d;
+        goto not_found;
+      found:
+        if (v < max_dimen) {
+            v = v + d;
+            w = v;
+        } else {
+            w = max_dimen;
+            break;
+        }
+      not_found:
+        p = vlink(p);
     }
     return w;
 }

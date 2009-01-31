@@ -675,7 +675,8 @@ scaled divide_scaled_n(double s, double m, double d);
 
 /* mlist.c */
 void run_mlist_to_hlist(pointer p, integer m_style, boolean penalties);
-void fixup_math_parameters (integer fam_id, integer size_id, integer f, integer lvl);
+void fixup_math_parameters(integer fam_id, integer size_id, integer f,
+                           integer lvl);
 
 /* texpdf.c */
 void pdf_print_char(internal_font_number f, integer c);

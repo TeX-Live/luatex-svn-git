@@ -191,35 +191,35 @@ void flush_math(void)
 /* Before we can do anything in math mode, we need fonts. */
 
 #define MATHFONTSTACK  8
-#define MATHFONTDEFAULT 0 /* == nullfont */
+#define MATHFONTDEFAULT 0       /* == nullfont */
 
 static sa_tree math_fam_head = NULL;
 
-integer fam_fnt (integer fam_id, integer size_id)
+integer fam_fnt(integer fam_id, integer size_id)
 {
-    integer n = fam_id+(256*size_id);
+    integer n = fam_id + (256 * size_id);
     return (integer) get_sa_item(math_fam_head, n);
 }
 
-void def_fam_fnt (integer fam_id, integer size_id, integer f, integer lvl) 
+void def_fam_fnt(integer fam_id, integer size_id, integer f, integer lvl)
 {
-    integer n = fam_id+(256*size_id);
+    integer n = fam_id + (256 * size_id);
     set_sa_item(math_fam_head, n, f, lvl);
-    fixup_math_parameters(fam_id,size_id,f, lvl);
+    fixup_math_parameters(fam_id, size_id, f, lvl);
     if (int_par(param_tracing_assigns_code) > 0) {
         begin_diagnostic();
         tprint("{assigning");
         print_char(' ');
         print_size(size_id);
         print_int(fam_id);
-        print_char ('=');
+        print_char('=');
         print_font_identifier(fam_fnt(fam_id, size_id));
         print_char('}');
         end_diagnostic(false);
     }
 }
 
-void unsave_math_fam_data (integer gl)
+void unsave_math_fam_data(integer gl)
 {
     sa_stack_item st;
     if (math_fam_head->stack == NULL)
@@ -239,7 +239,7 @@ void unsave_math_fam_data (integer gl)
                 print_char(' ');
                 print_size(size_id);
                 print_int(fam_id);
-                print_char ('=');
+                print_char('=');
                 print_font_identifier(fam_fnt(fam_id, size_id));
                 print_char('}');
                 end_diagnostic(false);
@@ -298,17 +298,17 @@ static char *math_param_names[] = {
 
 static sa_tree math_param_head = NULL;
 
-void print_math_param (int param_code)
+void print_math_param(int param_code)
 {
-    if (param_code>=0 && param_code < math_param_last)
-      tprint_esc(math_param_names[param_code]);
+    if (param_code >= 0 && param_code < math_param_last)
+        tprint_esc(math_param_names[param_code]);
     else
-      tprint("Unknown math parameter code!");
+        tprint("Unknown math parameter code!");
 }
 
-void def_math_param (int param_id, int style_id, scaled value, int lvl) 
+void def_math_param(int param_id, int style_id, scaled value, int lvl)
 {
-    integer n = param_id+(256*style_id);
+    integer n = param_id + (256 * style_id);
     set_sa_item(math_param_head, n, value, lvl);
     if (int_par(param_tracing_assigns_code) > 0) {
         begin_diagnostic();
@@ -316,21 +316,21 @@ void def_math_param (int param_id, int style_id, scaled value, int lvl)
         print_char(' ');
         print_math_param(param_id);
         print_style(style_id);
-        print_char ('=');
+        print_char('=');
         print_int(value);
         print_char('}');
         end_diagnostic(false);
     }
 }
 
-scaled get_math_param (int param_id, int style_id)
+scaled get_math_param(int param_id, int style_id)
 {
-    integer n = param_id+(256*style_id);
+    integer n = param_id + (256 * style_id);
     return (scaled) get_sa_item(math_param_head, n);
 }
 
 
-void unsave_math_param_data (integer gl)
+void unsave_math_param_data(integer gl)
 {
     sa_stack_item st;
     if (math_param_head->stack == NULL)
@@ -350,7 +350,7 @@ void unsave_math_param_data (integer gl)
                 print_char(' ');
                 print_math_param(param_id);
                 print_style(style_id);
-                print_char ('=');
+                print_char('=');
                 print_int(get_math_param(param_id, style_id));
                 print_char('}');
                 end_diagnostic(false);
@@ -363,13 +363,13 @@ void unsave_math_param_data (integer gl)
 
 /* saving and unsaving of both */
 
-void unsave_math_data (integer gl)
+void unsave_math_data(integer gl)
 {
-    unsave_math_fam_data (gl);
-    unsave_math_param_data (gl);
+    unsave_math_fam_data(gl);
+    unsave_math_param_data(gl);
 }
 
-void dump_math_data (void)
+void dump_math_data(void)
 {
     if (math_fam_head == NULL)
         math_fam_head = new_sa_tree(MATHFONTSTACK, MATHFONTDEFAULT);
@@ -379,7 +379,7 @@ void dump_math_data (void)
     dump_sa_tree(math_param_head);
 }
 
-void undump_math_data (void)
+void undump_math_data(void)
 {
     math_fam_head = undump_sa_tree();
     math_param_head = undump_sa_tree();
@@ -458,7 +458,7 @@ pointer new_sub_box(pointer cur_box)
 {
     pointer p, q;
     p = new_noad();
-    q = new_node(sub_box_node,0);
+    q = new_node(sub_box_node, 0);
     nucleus(p) = q;
     math_list(nucleus(p)) = cur_box;
     return p;
@@ -502,10 +502,11 @@ i.e., a smaller style has a larger numerical value.
 */
 
 const char *math_style_names[] = { "display", "crampeddisplay",
-                                   "text", "crampedtext",
-                                   "script", "crampedscript",
-                                   "scriptscript", "crampedscriptscript",
-                                   NULL } ;
+    "text", "crampedtext",
+    "script", "crampedscript",
+    "scriptscript", "crampedscriptscript",
+    NULL
+};
 
 pointer new_style(small_number s)
 {                               /* create a style node */
@@ -542,7 +543,7 @@ the current string would be `\.{.\^.\_/}' if |p| points to the |ord_noad| for
 
 
 void display_normal_noad(pointer p);    /* forward */
-void display_fence_noad(pointer p);    /* forward */
+void display_fence_noad(pointer p);     /* forward */
 void display_fraction_noad(pointer p);  /* forward */
 
 void show_math_node(pointer p)
@@ -606,21 +607,21 @@ void print_fam_and_char(pointer p)
 
 void print_delimiter(pointer p)
 {
-    integer a; 
+    integer a;
     if (small_fam(p) < 0) {
-        print_int(-1);           /* this should never happen */
-    } else if (small_fam(p)<16 && large_fam(p)<16 &&
-               small_char(p)<256 && large_char(p)<256) {
+        print_int(-1);          /* this should never happen */
+    } else if (small_fam(p) < 16 && large_fam(p) < 16 &&
+               small_char(p) < 256 && large_char(p) < 256) {
         /* traditional tex style */
         a = small_fam(p) * 256 + small_char(p);
         a = a * 0x1000 + large_fam(p) * 256 + large_char(p);
         print_hex(a);
-    } else if ((large_fam(p)==0 && large_char(p)==0) ||
-               small_char(p)>65535 || large_char(p)>65535){
+    } else if ((large_fam(p) == 0 && large_char(p) == 0) ||
+               small_char(p) > 65535 || large_char(p) > 65535) {
         /* modern xetex/luatex style */
         print_hex(small_fam(p));
-        print_hex(small_char(p));      
-    } else { 
+        print_hex(small_char(p));
+    } else {
         /* assume this is omega-style */
         a = small_fam(p) * 65536 + small_char(p);
         print_hex(a);
@@ -643,29 +644,29 @@ void print_subsidiary_data(pointer p, ASCII_code c)
 {                               /* display a noad field */
     if (cur_length >= depth_threshold) {
         if (p != null)
-          tprint(" []");
+            tprint(" []");
     } else {
         append_char(c);         /* include |c| in the recursion history */
         if (p != null) {
-          switch (type(p)) {
-          case math_char_node:
-            print_ln();
-            print_current_string();
-            print_fam_and_char(p);
-            break;
-          case sub_box_node:
-            show_node_list(math_list(p));
-            break;
-          case sub_mlist_node:
-            if (math_list(p) == null) {
+            switch (type(p)) {
+            case math_char_node:
                 print_ln();
                 print_current_string();
-                tprint("{}");
-            } else {
+                print_fam_and_char(p);
+                break;
+            case sub_box_node:
                 show_node_list(math_list(p));
+                break;
+            case sub_mlist_node:
+                if (math_list(p) == null) {
+                    print_ln();
+                    print_current_string();
+                    tprint("{}");
+                } else {
+                    show_node_list(math_list(p));
+                }
+                break;
             }
-            break;
-          }
         }
         flush_char;             /* remove |c| from the recursion history */
     }
@@ -673,8 +674,8 @@ void print_subsidiary_data(pointer p, ASCII_code c)
 
 void print_style(integer c)
 {
-    if (c<=cramped_script_script_style) { 
-        tprint_esc((char*)math_style_names[c]);
+    if (c <= cramped_script_script_style) {
+        tprint_esc((char *) math_style_names[c]);
         tprint("style");
     } else {
         tprint("Unknown style!");
@@ -691,9 +692,9 @@ void display_normal_noad(pointer p)
     case op_noad:
         tprint_esc("mathop");
         if (subtype(p) == limits)
-          tprint_esc("limits");
+            tprint_esc("limits");
         else if (subtype(p) == no_limits)
-          tprint_esc("nolimits");
+            tprint_esc("nolimits");
         break;
     case bin_noad:
         tprint_esc("mathbin");
@@ -738,13 +739,13 @@ void display_normal_noad(pointer p)
 
 void display_fence_noad(pointer p)
 {
-  if (subtype(p) == right_noad_side)
-    tprint_esc("right");
-  else if (subtype(p) == left_noad_side)
-    tprint_esc("left");
-  else
-    tprint_esc("middle");
-  print_delimiter(delimiter(p));
+    if (subtype(p) == right_noad_side)
+        tprint_esc("right");
+    else if (subtype(p) == left_noad_side)
+        tprint_esc("left");
+    else
+        tprint_esc("middle");
+    print_delimiter(delimiter(p));
 }
 
 void display_fraction_noad(pointer p)
@@ -921,9 +922,9 @@ trivial, so we shall consider them later.
 
 void math_left_brace(void)
 {
-  pointer q;
+    pointer q;
     tail_append(new_noad());
-    q = new_node(math_char_node,0);
+    q = new_node(math_char_node, 0);
     nucleus(tail) = q;
     back_input();
     scan_math(nucleus(tail));
@@ -1242,7 +1243,7 @@ void scan_math(pointer p)
 {
     /* label restart,reswitch,exit; */
     mathcodeval mval;
-    assert(p!=null);
+    assert(p != null);
   RESTART:
     get_next_nb_nr();
   RESWITCH:
@@ -1359,7 +1360,7 @@ void math_math_comp(void)
     tail_append(new_noad());
     type(tail) = cur_chr;
     q = new_node(math_char_node, 0);
-    nucleus(tail) = q; 
+    nucleus(tail) = q;
     scan_math(nucleus(tail));
 }
 
@@ -1420,8 +1421,8 @@ void scan_delimiter(pointer p, integer r)
     } else {
         tconfusion("scan_delimiter2");
     }
-    if (p==null)
-      return;
+    if (p == null)
+        return;
     if (dval.small_family_value < 0) {
         char *hlp[] = {
             "I was expecting to see something like `(' or `\\{' or",
@@ -1451,7 +1452,7 @@ void math_radical(void)
 {
     halfword q;
     tail_append(new_node(radical_noad, normal));
-    q = new_node(delim_node,0);
+    q = new_node(delim_node, 0);
     left_delimiter(tail) = q;
     if (cur_chr == 0)           /* \radical */
         scan_delimiter(left_delimiter(tail), tex_mathcode);
@@ -1462,7 +1463,7 @@ void math_radical(void)
     else
         tconfusion("math_radical");
     q = new_node(math_char_node, 0);
-    nucleus(tail) = q ; 
+    nucleus(tail) = q;
     scan_math(nucleus(tail));
 }
 
@@ -1479,8 +1480,8 @@ void math_ac(void)
         tex_error("Please use \\mathaccent for accents in math mode", hlp);
     }
     tail_append(new_node(accent_noad, normal));
-    q = new_node(math_char_node,0);
-    accent_chr(tail) = q ;
+    q = new_node(math_char_node, 0);
+    accent_chr(tail) = q;
     if (cur_chr == 0) {         /* \mathaccent */
         d = scan_mathchar(tex_mathcode);
     } else if (cur_chr == 1) {  /* \omathaccent */
@@ -1502,11 +1503,11 @@ void math_ac(void)
 
 pointer math_vcenter_group(pointer p)
 {
-  pointer q, r;
+    pointer q, r;
     q = new_noad();
     type(q) = vcenter_noad;
-    r = new_node(sub_box_node,0);
-    nucleus(q) = r; 
+    r = new_node(sub_box_node, 0);
+    nucleus(q) = r;
     math_list(nucleus(q)) = p;
     return q;
 }
@@ -1557,39 +1558,39 @@ void build_choices(void)
 
 void sub_sup(void)
 {
-  pointer q;
-  if (tail == head || (!scripts_allowed(tail))) {
-    tail_append(new_noad());
-    q = new_node (sub_mlist_node,0);
-    nucleus(tail) = q; 
-  }
-  if (cur_cmd == sup_mark_cmd) {
-    if (supscr(tail) != null) {
-      char *hlp[] = {
-        "I treat `x^1^2' essentially like `x^1{}^2'.", NULL
-      };
-      tail_append(new_noad());
-      q = new_node (sub_mlist_node,0);
-      nucleus(tail) = q; 
-      tex_error("Double superscript", hlp);
+    pointer q;
+    if (tail == head || (!scripts_allowed(tail))) {
+        tail_append(new_noad());
+        q = new_node(sub_mlist_node, 0);
+        nucleus(tail) = q;
     }
-    q = new_node (math_char_node,0);
-    supscr(tail) = q ;
-    scan_math(supscr(tail));
-  } else {
-    if (subscr(tail) != null) {
-      char *hlp[] = {
-        "I treat `x_1_2' essentially like `x_1{}_2'.", NULL
-      };
-      tail_append(new_noad());
-      q = new_node (sub_mlist_node,0);
-      nucleus(tail) = q; 
-      tex_error("Double subscript", hlp);
+    if (cur_cmd == sup_mark_cmd) {
+        if (supscr(tail) != null) {
+            char *hlp[] = {
+                "I treat `x^1^2' essentially like `x^1{}^2'.", NULL
+            };
+            tail_append(new_noad());
+            q = new_node(sub_mlist_node, 0);
+            nucleus(tail) = q;
+            tex_error("Double superscript", hlp);
+        }
+        q = new_node(math_char_node, 0);
+        supscr(tail) = q;
+        scan_math(supscr(tail));
+    } else {
+        if (subscr(tail) != null) {
+            char *hlp[] = {
+                "I treat `x_1_2' essentially like `x_1{}_2'.", NULL
+            };
+            tail_append(new_noad());
+            q = new_node(sub_mlist_node, 0);
+            nucleus(tail) = q;
+            tex_error("Double subscript", hlp);
+        }
+        q = new_node(math_char_node, 0);
+        subscr(tail) = q;
+        scan_math(subscr(tail));
     }
-    q = new_node (math_char_node,0);
-    subscr(tail) = q; 
-    scan_math(subscr(tail));
-  }
 }
 
 /*
@@ -1623,15 +1624,15 @@ void math_fraction(void)
         tex_error("Ambiguous; you need another { and }", hlp);
     } else {
         incompleat_noad = new_node(fraction_noad, normal);
-        numerator(incompleat_noad) = new_node(sub_mlist_node,0);
+        numerator(incompleat_noad) = new_node(sub_mlist_node, 0);
         math_list(numerator(incompleat_noad)) = vlink(head);
         vlink(head) = null;
         tail = head;
 
         if (c >= delimited_code) {
-            q = new_node(delim_node,0);
+            q = new_node(delim_node, 0);
             left_delimiter(incompleat_noad) = q;
-            q = new_node(delim_node,0);
+            q = new_node(delim_node, 0);
             right_delimiter(incompleat_noad) = q;
             scan_delimiter(left_delimiter(incompleat_noad), no_mathcode);
             scan_delimiter(right_delimiter(incompleat_noad), no_mathcode);
@@ -1665,10 +1666,10 @@ pointer fin_mlist(pointer p)
 {
     pointer q;                  /* the mlist to return */
     if (incompleat_noad != null) {
-        if (denominator(incompleat_noad)!=null) {
+        if (denominator(incompleat_noad) != null) {
             type(denominator(incompleat_noad)) = sub_mlist_node;
         } else {
-            q = new_node(sub_mlist_node,0);
+            q = new_node(sub_mlist_node, 0);
             denominator(incompleat_noad) = q;
         }
         math_list(denominator(incompleat_noad)) = vlink(head);
@@ -1676,7 +1677,8 @@ pointer fin_mlist(pointer p)
             q = incompleat_noad;
         } else {
             q = math_list(numerator(incompleat_noad));
-            if ((type(q) != fence_noad) || (subtype(q) != left_noad_side) || (delim_ptr == null))
+            if ((type(q) != fence_noad) || (subtype(q) != left_noad_side)
+                || (delim_ptr == null))
                 tconfusion("right");    /* this can't happen */
             math_list(numerator(incompleat_noad)) = vlink(delim_ptr);
             vlink(delim_ptr) = incompleat_noad;
@@ -1709,10 +1711,9 @@ void close_math_group(pointer p)
     if (p != null) {
         if (vlink(p) == null) {
             if (type(p) == ord_noad) {
-                if (subscr(p) == null && 
-                    supscr(p) == null) {
+                if (subscr(p) == null && supscr(p) == null) {
                     type(saved(0)) = type(nucleus(p));
-                    if (type(nucleus(p))==math_char_node) {
+                    if (type(nucleus(p)) == math_char_node) {
                         math_fam(saved(0)) = math_fam(nucleus(p));
                         math_character(saved(0)) = math_character(nucleus(p));
                     } else {
@@ -1784,7 +1785,7 @@ void math_left_right(void)
         p = new_noad();
         type(p) = fence_noad;
         subtype(p) = t;
-        r = new_node(delim_node,0);
+        r = new_node(delim_node, 0);
         delimiter(p) = r;
         scan_delimiter(delimiter(p), no_mathcode);
         if (t == left_noad_side) {
@@ -1801,7 +1802,7 @@ void math_left_right(void)
         } else {
             tail_append(new_noad());
             type(tail) = inner_noad;
-            r = new_node(sub_mlist_node,0);
+            r = new_node(sub_mlist_node, 0);
             nucleus(tail) = r;
             math_list(nucleus(tail)) = q;
         }
@@ -1874,7 +1875,7 @@ void after_math(void)
         unsave_math();
     } else {
         if (a == null)
-          check_second_math_shift();
+            check_second_math_shift();
         run_mlist_to_hlist(p, display_style, false);
         finish_displayed_math(l, danger, a);
     }
