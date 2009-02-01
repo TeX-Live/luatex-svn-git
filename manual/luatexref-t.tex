@@ -21,7 +21,7 @@
 
 \setvariables
   [document]
-  [beta=0.33.0]
+  [beta=0.33.1]
 
 \starttext
 
@@ -246,6 +246,12 @@ will be added shortly.
 
 \subsection{Math parameter setting}
 
+In \LUATEX, the font dimension parameters that \TEX\ used in math
+typesetting are now accessible via primitive commands. In fact,
+refactoring of the math engine has resulted in many more parameters
+than were accessible before. 
+
+
 \starttabulate
 \NC primitive name                  \NC description \NC \NR
 \NC \type{\Umathquad}               \NC The width of 18mu's\NC \NR 
@@ -268,92 +274,210 @@ will be added shortly.
 \NC \type{\Umathfractionnumvgap}    \NC Vertical clearance between the numerator and the rule\NC \NR
 \NC \type{\Umathfractionnumup}      \NC Numerator shift upward in \type{\over} \NC \NR
 \NC \type{\Umathfractiondenomvgap}  \NC Vertical clearance between the denominator and the rule\NC \NR
-\NC \type{\Umathfractiondenomdown}  \NC Denominator shift downwar in \type{\over} \NC \NR
-\NC \type{\Umathfractiondelsize}    \NC \NC \NR
-\NC \type{\Umathlimitabovevgap}     \NC \NC \NR
-\NC \type{\Umathlimitabovebgap}     \NC \NC \NR
-\NC \type{\Umathlimitabovekern}     \NC \NC \NR
-\NC \type{\Umathlimitbelowvgap}     \NC \NC \NR
-\NC \type{\Umathlimitbelowbgap}     \NC \NC \NR
-\NC \type{\Umathlimitbelowkern}     \NC \NC \NR
-\NC \type{\Umathsubshiftdrop}       \NC \NC \NR
-\NC \type{\Umathsupshiftdrop}       \NC \NC \NR
-\NC \type{\Umathsubshiftdown}       \NC \NC \NR
-\NC \type{\Umathsubsupshiftdown}    \NC \NC \NR
-\NC \type{\Umathsubtopmax}          \NC \NC \NR
-\NC \type{\Umathsupshiftup}         \NC \NC \NR
-\NC \type{\Umathsupbottommin}       \NC \NC \NR
-\NC \type{\Umathsupsubbottommax}    \NC \NC \NR
-\NC \type{\Umathsubsupvgap}         \NC \NC \NR
-\NC \type{\Umathspaceafterscript}   \NC \NC \NR
+\NC \type{\Umathfractiondenomdown}  \NC Denominator shift downward in \type{\over} \NC \NR
+\NC \type{\Umathfractiondelsize}    \NC Minimum delimiter size for \type{\...withdelims}\NC \NR
+\NC \type{\Umathlimitabovevgap}     \NC Vertical clearance for limits above operators\NC \NR
+\NC \type{\Umathlimitabovebgap}     \NC Vertical baseline clearance for limits above operators\NC \NR
+\NC \type{\Umathlimitabovekern}     \NC Space reserved at the top of the limit\NC \NR
+\NC \type{\Umathlimitbelowvgap}     \NC Vertical clearance for limits below operators\NC \NR
+\NC \type{\Umathlimitbelowbgap}     \NC Vertical baseline clearance for limits below operators\NC \NR
+\NC \type{\Umathlimitbelowkern}     \NC Space reserved at the bottom of the limit\NC \NR
+\NC \type{\Umathsubshiftdrop}       \NC Subscript drop for boxes and subformulas\NC \NR
+\NC \type{\Umathsubshiftdown}       \NC Subscript drop for characters\NC \NR
+\NC \type{\Umathsupshiftdrop}       \NC Superscript drop (raise, actually) for boxes and subformulas\NC \NR
+\NC \type{\Umathsupshiftup}         \NC Superscript raise for characters\NC \NR
+\NC \type{\Umathsubsupshiftdown}    \NC Subscript drop in the presence of a superscript\NC \NR
+\NC \type{\Umathsubtopmax}          \NC The top of standalone subscripts cannot be higher than this above the baseline\NC \NR
+\NC \type{\Umathsupbottommin}       \NC The bottom of standalone superscripts cannot be less than this above the baseline\NC \NR
+\NC \type{\Umathsupsubbottommax}    \NC The bottom of the superscript of a combined super- and subscript
+                                        be at least as high as this above the baseline\NC \NR
+\NC \type{\Umathsubsupvgap}         \NC Vertical clearance between super- and subscript\NC \NR
+\NC \type{\Umathspaceafterscript}   \NC Additional space added after a super- or subscript\NC \NR
 \stoptabulate
 
-Each of these is set by a command like this:
+Each of the parameters in this section can be set by a command like this:
 
 \starttyping
 \Umathquad\displaystyle=1em
 \stoptyping
 
-\subsection{Math Parameters}
+they obey grouping, and you can use \type{\the\Umathquad\displaystyle} if needed.
+
+\subsection{Font-based Math Parameters}
+
+While it is nice to have these math parameters available for tweaking, it would be tedious to have to set
+each of them by hand. For this reason, \LUATEX\ initializes a bunch of these parameters whenever you assign a
+font identifier to a math family based on either the traditional math font dimensions in the font (for
+assignemnts to math family 2 and 3 using TFM-based fonts like \type{cmsy} and \type{cmex}), or based on the
+named values in a potential \type{MathConstants} table when the font is loaded via Lua.  If there is a
+\type{MathConstants} table, this takes precendence over font dimensions, and no attention is payed to
+which family is being assigned to.
+
+In the table below, the one-letter style abbreviations and symbolic tfm font dimension names match those
+using in the \TeX book. Assignments to \type{\textfont} set the values for the cramped and uncramped display
+and text styles. \type{\scriptfont} for the script styles, and \type{\scriptscriptfont} for the scriptscript
+styles. In the tfm case, assignments only happen in family 2 and family 3 (and of course only for the
+parameters for which there are font dimensions).
 
 \start
 
 \switchtobodyfont[8pt]
 
 \starttabulate[|l|l|l|p|]
-\NC \bf variable        \NC \bf style             \NC \bf default value opentype               \NC \bf default value tfm \NC\NR
-\NC axis                \NC --                    \NC AxisHeight                               \NC axis_height \NC\NR
-\NC fraction_del_size   \NC D, D'                 \NC 0                                        \NC delim1 \NC\NR
-\NC "                   \NC T, T', S, S', SS, SS' \NC 0                                        \NC delim2 \NC\NR
-\NC fraction_denom_down \NC D, D'                 \NC FractionDenominatorDisplayStyleShiftDown \NC denom1 \NC\NR
-\NC "                   \NC T, T', S, S', SS, SS' \NC FractionDenominatorShiftDown             \NC denom2 \NC\NR
-\NC fraction_denom_vgap \NC D, D'                 \NC FractionDenominatorDisplayStyleGapMin    \NC 3*default_rule_thickness \NC\NR
-\NC "                   \NC T, T', S, S', SS, SS' \NC FractionDenominatorGapMin                \NC default_rule_thickness \NC\NR
-\NC fraction_num_up     \NC D, D'                 \NC FractionNumeratorDisplayStyleShiftUp     \NC num1 \NC\NR
-\NC "                   \NC T, T', S, S', SS, SS' \NC FractionNumeratorShiftUp                 \NC num2 \NC\NR
-\NC fraction_num_vgap   \NC D, D'                 \NC FractionNumeratorDisplayStyleGapMin      \NC 3*default_rule_thickness \NC\NR
-\NC "                   \NC T, T', S, S', SS, SS' \NC FractionNumeratorGapMin                  \NC default_rule_thickness \NC\NR
-\NC fraction_rule       \NC --                    \NC FractionRuleThickness                    \NC default_rule_thickness \NC\NR
-\NC limit_above_bgap    \NC --                    \NC UpperLimitBaselineRiseMin                \NC big_op_spacing3 \NC\NR
-\NC limit_above_kern    \NC --                    \NC 0                                        \NC big_op_spacing5 \NC\NR
-\NC limit_above_vgap    \NC --                    \NC UpperLimitGapMin                         \NC big_op_spacing1 \NC\NR
-\NC limit_below_bgap    \NC --                    \NC LowerLimitBaselineDropMin                \NC big_op_spacing4 \NC\NR
-\NC limit_below_kern    \NC --                    \NC 0                                        \NC big_op_spacing5 \NC\NR
-\NC limit_below_vgap    \NC --                    \NC LowerLimitGapMin                         \NC big_op_spacing2 \NC\NR
-\NC overbar_kern        \NC --                    \NC OverbarExtraAscender                     \NC default_rule_thickness \NC\NR
-\NC overbar_rule        \NC --                    \NC OverbarRuleThickness                     \NC default_rule_thickness \NC\NR
-\NC overbar_vgap        \NC --                    \NC OverbarVerticalGap                       \NC 3*default_rule_thickness \NC\NR
-\NC quad                \NC --                    \NC <font_size(f)>                           \NC math_quad \NC\NR
-\NC radical_kern        \NC --                    \NC RadicalExtraAscender                     \NC default_rule_thickness \NC\NR
-\NC radical_rule        \NC --                    \NC RadicalRuleThickness                     \NC <not set> \NC\NR
-\NC radical_vgap        \NC D, D'                 \NC RadicalDisplayStyleVerticalGap           \NC (default_rule_thickness+\crlf
-                                                                                                    (abs(math_x_height)/4)) \NC\NR
-\NC "                   \NC T, T', S, S', SS, SS' \NC RadicalVerticalGap                       \NC (default_rule_thickness+\crlf
-                                                                                                    (abs(default_rule_thickness)/4)) \NC\NR
-\NC space_after_script  \NC --                    \NC SpaceAfterScript                         \NC script_space \NC\NR
-\NC stack_denom_down    \NC D, D'                 \NC StackBottomDisplayStyleShiftDown         \NC denom1 \NC\NR
-\NC "                   \NC T, T', S, S', SS, SS' \NC StackBottomShiftDown                     \NC denom2 \NC\NR
-\NC stack_num_up        \NC D, D'                 \NC StackTopDisplayStyleShiftUp              \NC num1 \NC\NR
-\NC "                   \NC T, T', S, S', SS, SS' \NC StackTopShiftUp                          \NC num3 \NC\NR
-\NC stack_vgap          \NC D, D'                 \NC StackDisplayStyleGapMin                  \NC 7*default_rule_thickness \NC\NR
-\NC "                   \NC T, T', S, S', SS, SS' \NC StackGapMin                              \NC 3*default_rule_thickness \NC\NR
-\NC sub_shift_down      \NC --                    \NC SubscriptShiftDown                       \NC sub1 \NC\NR
-\NC sub_shift_drop      \NC --                    \NC SubscriptBaselineDropMin                 \NC sub_drop \NC\NR
-\NC sub_sup_shift_down  \NC --                    \NC SubscriptShiftDown                       \NC sub2 \NC\NR
-\NC sub_top_max         \NC --                    \NC SubscriptTopMax                          \NC (abs(math_x_height * 4) / 5) \NC\NR
-\NC subsup_vgap         \NC --                    \NC SubSuperscriptGapMin                     \NC 4*default_rule_thickness \NC\NR
-\NC sup_bottom_min      \NC --                    \NC SuperscriptBottomMin                     \NC (abs(math_x_height) / 4) \NC\NR
-\NC sup_shift_drop      \NC --                    \NC SuperscriptBaselineDropMax               \NC sup_drop \NC\NR
-\NC sup_shift_up        \NC D                     \NC SuperscriptShiftUp                       \NC sup1 \NC\NR
-\NC "                   \NC T, S, SS,             \NC SuperscriptShiftUp                       \NC sup2 \NC\NR
-\NC "                   \NC D', T', S', SS'       \NC SuperscriptShiftUpCramped                \NC sup3 \NC\NR
-\NC sup_sub_bottom_max  \NC --                    \NC SuperscriptBottomMaxWithSubscript        \NC (abs(math_x_height * 4) / 5) \NC\NR
-\NC underbar_kern       \NC --                    \NC UnderbarExtraDescender                   \NC 0 \NC\NR
-\NC underbar_rule       \NC --                    \NC UnderbarRuleThickness                    \NC default_rule_thickness \NC\NR
-\NC underbar_vgap       \NC --                    \NC UnderbarVerticalGap                      \NC 3*default_rule_thickness \NC\NR
+\NC \bf variable                \NC \bf style             \NC \bf default value opentype               \NC \bf default value tfm \NC\NR
+\NC \tex{Umathaxis}             \NC --                    \NC AxisHeight                               \NC axis_height \NC\NR
+\NC \tex{Umathfractiondelsize}  \NC D, D'                 \NC 0$^1$                                    \NC delim1 \NC\NR
+\NC "                           \NC T, T', S, S', SS, SS' \NC 0$^1$                                    \NC delim2 \NC\NR
+\NC \tex{Umathfractiondenomdown}\NC D, D'                 \NC FractionDenominatorDisplayStyleShiftDown \NC denom1 \NC\NR
+\NC "                           \NC T, T', S, S', SS, SS' \NC FractionDenominatorShiftDown             \NC denom2 \NC\NR
+\NC \tex{Umathfractiondenomvgap}\NC D, D'                 \NC FractionDenominatorDisplayStyleGapMin    \NC 3*default_rule_thickness \NC\NR
+\NC "                           \NC T, T', S, S', SS, SS' \NC FractionDenominatorGapMin                \NC default_rule_thickness \NC\NR
+\NC \tex{Umathfractionnumup}    \NC D, D'                 \NC FractionNumeratorDisplayStyleShiftUp     \NC num1 \NC\NR
+\NC "                           \NC T, T', S, S', SS, SS' \NC FractionNumeratorShiftUp                 \NC num2 \NC\NR
+\NC \tex{Umathfractionnumvgap}  \NC D, D'                 \NC FractionNumeratorDisplayStyleGapMin      \NC 3*default_rule_thickness \NC\NR
+\NC "                           \NC T, T', S, S', SS, SS' \NC FractionNumeratorGapMin                  \NC default_rule_thickness \NC\NR
+\NC \tex{Umathfractionrule}     \NC --                    \NC FractionRuleThickness                    \NC default_rule_thickness \NC\NR
+\NC \tex{Umathlimitabovebgap}   \NC --                    \NC UpperLimitBaselineRiseMin                \NC big_op_spacing3 \NC\NR
+\NC \tex{Umathlimitabovekern}   \NC --                    \NC 0$^1$                                    \NC big_op_spacing5 \NC\NR
+\NC \tex{Umathlimitabovevgap}   \NC --                    \NC UpperLimitGapMin                         \NC big_op_spacing1 \NC\NR
+\NC \tex{Umathlimitbelowbgap}   \NC --                    \NC LowerLimitBaselineDropMin                \NC big_op_spacing4 \NC\NR
+\NC \tex{Umathlimitbelowkern}   \NC --                    \NC 0$^1$                                    \NC big_op_spacing5 \NC\NR
+\NC \tex{Umathlimitbelowvgap}   \NC --                    \NC LowerLimitGapMin                         \NC big_op_spacing2 \NC\NR
+\NC \tex{Umathoverbarkern}      \NC --                    \NC OverbarExtraAscender                     \NC default_rule_thickness \NC\NR
+\NC \tex{Umathoverbarrule}      \NC --                    \NC OverbarRuleThickness                     \NC default_rule_thickness \NC\NR
+\NC \tex{Umathoverbarvgap}      \NC --                    \NC OverbarVerticalGap                       \NC 3*default_rule_thickness \NC\NR
+\NC \tex{Umathquad}             \NC --                    \NC <font_size(f)>$^1$                       \NC math_quad \NC\NR
+\NC \tex{Umathradicalkern}      \NC --                    \NC RadicalExtraAscender                     \NC default_rule_thickness \NC\NR
+\NC \tex{Umathradicalrule}      \NC --                    \NC RadicalRuleThickness                     \NC <not set>$^2$ \NC\NR
+\NC \tex{Umathradicalvgap}      \NC D, D'                 \NC RadicalDisplayStyleVerticalGap           \NC (default_rule_thickness+\crlf
+                                                                                                    (abs(math_x_height)/4))$^3$ \NC\NR
+\NC "                           \NC T, T', S, S', SS, SS' \NC RadicalVerticalGap                       \NC (default_rule_thickness+\crlf
+                                                                                                    (abs(default_rule_thickness)/4))$^3$ \NC\NR
+\NC \tex{Umathspaceafterscript} \NC --                    \NC SpaceAfterScript                         \NC script_space$^4$ \NC\NR
+\NC \tex{Umathstackdenomdown}   \NC D, D'                 \NC StackBottomDisplayStyleShiftDown         \NC denom1 \NC\NR
+\NC "                           \NC T, T', S, S', SS, SS' \NC StackBottomShiftDown                     \NC denom2 \NC\NR
+\NC \tex{Umathstacknumup}       \NC D, D'                 \NC StackTopDisplayStyleShiftUp              \NC num1 \NC\NR
+\NC "                           \NC T, T', S, S', SS, SS' \NC StackTopShiftUp                          \NC num3 \NC\NR
+\NC \tex{Umathstackvgap}        \NC D, D'                 \NC StackDisplayStyleGapMin                  \NC 7*default_rule_thickness \NC\NR
+\NC "                           \NC T, T', S, S', SS, SS' \NC StackGapMin                              \NC 3*default_rule_thickness \NC\NR
+\NC \tex{Umathsubshiftdown}     \NC --                    \NC SubscriptShiftDown                       \NC sub1 \NC\NR
+\NC \tex{Umathsubshiftdrop}     \NC --                    \NC SubscriptBaselineDropMin                 \NC sub_drop \NC\NR
+\NC \tex{Umathsubsupshiftdown}  \NC --                    \NC SubscriptShiftDown                       \NC sub2 \NC\NR
+\NC \tex{Umathsubtopmax}        \NC --                    \NC SubscriptTopMax                          \NC (abs(math_x_height * 4) / 5) \NC\NR
+\NC \tex{Umathsubsupvgap}       \NC --                    \NC SubSuperscriptGapMin                     \NC 4*default_rule_thickness \NC\NR
+\NC \tex{Umathsupbottommin}     \NC --                    \NC SuperscriptBottomMin                     \NC (abs(math_x_height) / 4) \NC\NR
+\NC \tex{Umathsupshiftdrop}     \NC --                    \NC SuperscriptBaselineDropMax               \NC sup_drop \NC\NR
+\NC \tex{Umathsupshiftup}       \NC D                     \NC SuperscriptShiftUp                       \NC sup1 \NC\NR
+\NC "                           \NC T, S, SS,             \NC SuperscriptShiftUp                       \NC sup2 \NC\NR
+\NC "                           \NC D', T', S', SS'       \NC SuperscriptShiftUpCramped                \NC sup3 \NC\NR
+\NC \tex{Umathsupsubbottommax}  \NC --                    \NC SuperscriptBottomMaxWithSubscript        \NC (abs(math_x_height * 4) / 5) \NC\NR
+\NC \tex{Umathunderbarkern}     \NC --                    \NC UnderbarExtraDescender                   \NC 0$^5$ \NC\NR
+\NC \tex{Umathunderbarrule}     \NC --                    \NC UnderbarRuleThickness                    \NC default_rule_thickness \NC\NR
+\NC \tex{Umathunderbarvgap}     \NC --                    \NC UnderbarVerticalGap                      \NC 3*default_rule_thickness \NC\NR
 \stoptabulate
 
 \stop
+
+Note 1: Opentype fonts set \tex{Umathfractiondelsize}, \tex{Umathlimitabovekern}, \tex{Umathlimitbelowkern}
+to zero and set \tex{Umathquad} to the font size of the used font, because these are not supported in the
+MATH table,
+
+Note 2: Tfm fonts do not set \tex{Umathradicalrule} because \TeX82\ uses the height of the radical
+instead. When this parameter is indeed not set when \LUATEX\ has to typeset a radical, a backward
+compatibility mode will kick in that assumes that an oldstyle \TeX\ font is used.
+
+Note 3: If tfm fonts are used, then the \tex{Umathradicalvgap} is not set until the first time 
+\LUATEX\ has to typeset a formula because this needs parameters from both family2 and family3.
+This provides a partial backward compatibility with \TEX82, but that compatibilty is only partial:
+once the \tex{Umathradicalvgap} is set, it will not be recalculated any more.
+
+Note 4: (also if tfm fonts are used) A similar situation arises wrt. \tex{Umathspaceafterscript}: it is not
+set until the first time \LUATEX\ has to typeset a formula. This provides some backward compatibility with
+\TEX82.  But once the \tex{Umathspaceafterscript} is set, \tex{scriptspace} will never be looked at again.
+
+Note 5: Tfm fonts set \tex{Umathunderbarkern} to $0$ because \TeX82\ never adds a kern below the underbar.
+
+\subsection{Math spacing setting}
+
+Besides the parameters mentioned in the previous sections, there are
+also 64 primitives to control the math spacing table (as explained in
+Chapter~18 of the \TeX book). The primitive names are a simple matter
+of combining two math atom types, but for completeness' sake, here is
+the whole list:
+
+\startcolumns[n=2]
+\starttyping
+\Umathbinordspacing
+\Umathbinopspacing
+\Umathbinbinspacing
+\Umathbinrelspacing
+\Umathbinopenspacing
+\Umathbinclosespacing
+\Umathbinpunctspacing
+\Umathbininnerspacing
+\Umathrelordspacing
+\Umathrelopspacing
+\Umathrelbinspacing
+\Umathrelrelspacing
+\Umathrelopenspacing
+\Umathrelclosespacing
+\Umathrelpunctspacing
+\Umathrelinnerspacing
+\Umathopenordspacing
+\Umathopenopspacing
+\Umathopenbinspacing
+\Umathopenrelspacing
+\Umathopenopenspacing
+\Umathopenclosespacing
+\Umathopenpunctspacing
+\Umathopeninnerspacing
+\Umathcloseordspacing
+\Umathcloseopspacing
+\Umathclosebinspacing
+\Umathcloserelspacing
+\Umathcloseopenspacing
+\Umathcloseclosespacing
+\Umathclosepunctspacing
+\Umathcloseinnerspacing
+\Umathpunctordspacing
+\Umathpunctopspacing
+\Umathpunctbinspacing
+\Umathpunctrelspacing
+\Umathpunctopenspacing
+\Umathpunctclosespacing
+\Umathpunctpunctspacing
+\Umathpunctinnerspacing
+\Umathinnerordspacing
+\Umathinneropspacing
+\Umathinnerbinspacing
+\Umathinnerrelspacing
+\Umathinneropenspacing
+\Umathinnerclosespacing
+\Umathinnerpunctspacing
+\Umathinnerinnerspacing
+\stoptyping
+\stopcolumns
+
+These parameters are of type \type{\muskip}, so setting a parameter
+can be done like this:
+
+\starttyping
+\Umathopordspacing\displaystyle=4mu plus 2mu
+\stoptyping
+
+They are all initialized by initex to the values mentioned in the
+table in Chapter~18 of the \TeX book.
+
+Note 1: for ease of use as well as for backward compatibity, \type{\thinmuskip},
+\type{\medmuskip} and \type{\thickmuskip} are treated especially. In their case a pointer to
+the corresponding internal parameter is saved, not the actual \type{\muskip} value. This
+means that any later changes to one of these three parameters will be taken into account.
+
+Note 2: Careful readers will realise that there are also primitives
+for the items marked \type{*} in the \TeX book. These will not
+actually be used as those combinations of atoms cannot actually
+happen, but it seemed better not to break orthogonality. They are initialized to zero.
+
 
 \section{Extended tables}
 
