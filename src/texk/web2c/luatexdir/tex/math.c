@@ -290,6 +290,70 @@ static char *math_param_names[] = {
     "Umathsupsubbottommax",
     "Umathsubsupvgap",
     "Umathspaceafterscript",
+    "Umathordordspacing",
+    "Umathordopspacing",
+    "Umathordbinspacing",
+    "Umathordrelspacing",
+    "Umathordopenspacing",
+    "Umathordclosespacing",
+    "Umathordpunctspacing",
+    "Umathordinnerspacing",
+    "Umathopordspacing",
+    "Umathopopspacing",
+    "Umathopbinspacing",
+    "Umathoprelspacing",
+    "Umathopopenspacing",
+    "Umathopclosespacing",
+    "Umathoppunctspacing",
+    "Umathopinnerspacing",
+    "Umathbinordspacing",
+    "Umathbinopspacing",
+    "Umathbinbinspacing",
+    "Umathbinrelspacing",
+    "Umathbinopenspacing",
+    "Umathbinclosespacing",
+    "Umathbinpunctspacing",
+    "Umathbininnerspacing",
+    "Umathrelordspacing",
+    "Umathrelopspacing",
+    "Umathrelbinspacing",
+    "Umathrelrelspacing",
+    "Umathrelopenspacing",
+    "Umathrelclosespacing",
+    "Umathrelpunctspacing",
+    "Umathrelinnerspacing",
+    "Umathopenordspacing",
+    "Umathopenopspacing",
+    "Umathopenbinspacing",
+    "Umathopenrelspacing",
+    "Umathopenopenspacing",
+    "Umathopenclosespacing",
+    "Umathopenpunctspacing",
+    "Umathopeninnerspacing",
+    "Umathcloseordspacing",
+    "Umathcloseopspacing",
+    "Umathclosebinspacing",
+    "Umathcloserelspacing",
+    "Umathcloseopenspacing",
+    "Umathcloseclosespacing",
+    "Umathclosepunctspacing",
+    "Umathcloseinnerspacing",
+    "Umathpunctordspacing",
+    "Umathpunctopspacing",
+    "Umathpunctbinspacing",
+    "Umathpunctrelspacing",
+    "Umathpunctopenspacing",
+    "Umathpunctclosespacing",
+    "Umathpunctpunctspacing",
+    "Umathpunctinnerspacing",
+    "Umathinnerordspacing",
+    "Umathinneropspacing",
+    "Umathinnerbinspacing",
+    "Umathinnerrelspacing",
+    "Umathinneropenspacing",
+    "Umathinnerclosespacing",
+    "Umathinnerpunctspacing",
+    "Umathinnerinnerspacing",
     NULL
 };
 
@@ -391,8 +455,10 @@ void initialize_math(void)
 {
     if (math_fam_head == NULL)
         math_fam_head = new_sa_tree(MATHFONTSTACK, MATHFONTDEFAULT);
-    if (math_param_head == NULL)
+    if (math_param_head == NULL) {
         math_param_head = new_sa_tree(MATHPARAMSTACK, MATHPARAMDEFAULT);
+	initialize_math_spacing();
+    }
     return;
 }
 
