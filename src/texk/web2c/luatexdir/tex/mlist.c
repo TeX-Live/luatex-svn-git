@@ -2350,7 +2350,7 @@ void initialize_math_spacing(void) {
 
     ALL_STYLES   (math_param_op_ord_spacing,      thin_mu_skip);
     ALL_STYLES   (math_param_op_op_spacing,       thin_mu_skip);
-    ALL_STYLES   (math_param_op_bin_spacing,      -1);
+    ALL_STYLES   (math_param_op_bin_spacing,      0);
     SPLIT_STYLES (math_param_op_rel_spacing,      thick_mu_skip, 0);
     ALL_STYLES   (math_param_op_open_spacing,     0);
     ALL_STYLES   (math_param_op_close_spacing,    0);
@@ -2359,16 +2359,16 @@ void initialize_math_spacing(void) {
 
     SPLIT_STYLES (math_param_bin_ord_spacing,     med_mu_skip, 0);
     SPLIT_STYLES (math_param_bin_op_spacing,      med_mu_skip, 0);
-    ALL_STYLES   (math_param_bin_bin_spacing,     -1);
-    ALL_STYLES   (math_param_bin_rel_spacing,     -1);
+    ALL_STYLES   (math_param_bin_bin_spacing,     0);
+    ALL_STYLES   (math_param_bin_rel_spacing,     0);
     SPLIT_STYLES (math_param_bin_open_spacing,    med_mu_skip, 0);
-    ALL_STYLES   (math_param_bin_close_spacing,   -1);
-    ALL_STYLES   (math_param_bin_punct_spacing,   -1);
+    ALL_STYLES   (math_param_bin_close_spacing,   0);
+    ALL_STYLES   (math_param_bin_punct_spacing,   0);
     SPLIT_STYLES (math_param_bin_inner_spacing,   med_mu_skip, 0);
 
     SPLIT_STYLES (math_param_rel_ord_spacing,     thick_mu_skip, 0);
     SPLIT_STYLES (math_param_rel_op_spacing,      thick_mu_skip, 0);
-    ALL_STYLES   (math_param_rel_bin_spacing,     -1);
+    ALL_STYLES   (math_param_rel_bin_spacing,     0);
     ALL_STYLES   (math_param_rel_rel_spacing,     0);
     SPLIT_STYLES (math_param_rel_open_spacing,    thick_mu_skip, 0);
     ALL_STYLES   (math_param_rel_close_spacing,   0);
@@ -2377,7 +2377,7 @@ void initialize_math_spacing(void) {
 
     ALL_STYLES   (math_param_open_ord_spacing,    0);
     ALL_STYLES   (math_param_open_op_spacing,     0);
-    ALL_STYLES   (math_param_open_bin_spacing,    -1);
+    ALL_STYLES   (math_param_open_bin_spacing,    0);
     ALL_STYLES   (math_param_open_rel_spacing,    0);
     ALL_STYLES   (math_param_open_open_spacing,   0);
     ALL_STYLES   (math_param_open_close_spacing,  0);
@@ -2395,7 +2395,7 @@ void initialize_math_spacing(void) {
 
     SPLIT_STYLES (math_param_punct_ord_spacing,   thin_mu_skip, 0);
     SPLIT_STYLES (math_param_punct_op_spacing,    thin_mu_skip, 0);
-    ALL_STYLES   (math_param_punct_bin_spacing,   -1);
+    ALL_STYLES   (math_param_punct_bin_spacing,   0);
     SPLIT_STYLES (math_param_punct_rel_spacing,   thin_mu_skip, 0);
     SPLIT_STYLES (math_param_punct_open_spacing,  thin_mu_skip, 0);
     SPLIT_STYLES (math_param_punct_close_spacing, thin_mu_skip, 0);
@@ -2463,7 +2463,7 @@ pointer math_spacing_glue(int l_type, int r_type, int m_style)
     case both_types(ord_noad,  inner_noad):  x = get_math_param(math_param_ord_inner_spacing,m_style); break;
     case both_types(op_noad,   ord_noad  ):  x = get_math_param(math_param_op_ord_spacing,m_style); break;
     case both_types(op_noad,   op_noad   ):  x = get_math_param(math_param_op_op_spacing,m_style); break;
-    case both_types(op_noad,   bin_noad  ):  x = get_math_param(math_param_op_bin_spacing,m_style); break;
+      /*case both_types(op_noad,   bin_noad  ):  x = get_math_param(math_param_op_bin_spacing,m_style); break;*/
     case both_types(op_noad,   rel_noad  ):  x = get_math_param(math_param_op_rel_spacing,m_style); break;
     case both_types(op_noad,   open_noad ):  x = get_math_param(math_param_op_open_spacing,m_style); break;
     case both_types(op_noad,   close_noad):  x = get_math_param(math_param_op_close_spacing,m_style); break;
@@ -2471,15 +2471,15 @@ pointer math_spacing_glue(int l_type, int r_type, int m_style)
     case both_types(op_noad,   inner_noad):  x = get_math_param(math_param_op_inner_spacing,m_style); break;
     case both_types(bin_noad,  ord_noad  ):  x = get_math_param(math_param_bin_ord_spacing,m_style); break;
     case both_types(bin_noad,  op_noad   ):  x = get_math_param(math_param_bin_op_spacing,m_style); break;
-    case both_types(bin_noad,  bin_noad  ):  x = get_math_param(math_param_bin_bin_spacing,m_style); break;
-    case both_types(bin_noad,  rel_noad  ):  x = get_math_param(math_param_bin_rel_spacing,m_style); break;
+      /*case both_types(bin_noad,  bin_noad  ):  x = get_math_param(math_param_bin_bin_spacing,m_style); break;*/
+      /*case both_types(bin_noad,  rel_noad  ):  x = get_math_param(math_param_bin_rel_spacing,m_style); break;*/
     case both_types(bin_noad,  open_noad ):  x = get_math_param(math_param_bin_open_spacing,m_style); break;
-    case both_types(bin_noad,  close_noad):  x = get_math_param(math_param_bin_close_spacing,m_style); break;
-    case both_types(bin_noad,  punct_noad):  x = get_math_param(math_param_bin_punct_spacing,m_style); break;
+      /*case both_types(bin_noad,  close_noad):  x = get_math_param(math_param_bin_close_spacing,m_style); break;*/
+      /*case both_types(bin_noad,  punct_noad):  x = get_math_param(math_param_bin_punct_spacing,m_style); break;*/
     case both_types(bin_noad,  inner_noad):  x = get_math_param(math_param_bin_inner_spacing,m_style); break;
     case both_types(rel_noad,  ord_noad  ):  x = get_math_param(math_param_rel_ord_spacing,m_style); break;
     case both_types(rel_noad,  op_noad   ):  x = get_math_param(math_param_rel_op_spacing,m_style); break;
-    case both_types(rel_noad,  bin_noad  ):  x = get_math_param(math_param_rel_bin_spacing,m_style); break;
+      /*case both_types(rel_noad,  bin_noad  ):  x = get_math_param(math_param_rel_bin_spacing,m_style); break;*/
     case both_types(rel_noad,  rel_noad  ):  x = get_math_param(math_param_rel_rel_spacing,m_style); break;
     case both_types(rel_noad,  open_noad ):  x = get_math_param(math_param_rel_open_spacing,m_style); break;
     case both_types(rel_noad,  close_noad):  x = get_math_param(math_param_rel_close_spacing,m_style); break;
@@ -2487,7 +2487,7 @@ pointer math_spacing_glue(int l_type, int r_type, int m_style)
     case both_types(rel_noad,  inner_noad):  x = get_math_param(math_param_rel_inner_spacing,m_style); break;
     case both_types(open_noad, ord_noad  ):  x = get_math_param(math_param_open_ord_spacing,m_style); break;
     case both_types(open_noad, op_noad   ):  x = get_math_param(math_param_open_op_spacing,m_style); break;
-    case both_types(open_noad, bin_noad  ):  x = get_math_param(math_param_open_bin_spacing,m_style); break;
+      /*case both_types(open_noad, bin_noad  ):  x = get_math_param(math_param_open_bin_spacing,m_style); break;*/
     case both_types(open_noad, rel_noad  ):  x = get_math_param(math_param_open_rel_spacing,m_style); break;
     case both_types(open_noad, open_noad ):  x = get_math_param(math_param_open_open_spacing,m_style); break;
     case both_types(open_noad, close_noad):  x = get_math_param(math_param_open_close_spacing,m_style); break;
@@ -2503,7 +2503,7 @@ pointer math_spacing_glue(int l_type, int r_type, int m_style)
     case both_types(close_noad,inner_noad):  x = get_math_param(math_param_close_inner_spacing,m_style); break;
     case both_types(punct_noad,ord_noad  ):  x = get_math_param(math_param_punct_ord_spacing,m_style); break;
     case both_types(punct_noad,op_noad   ):  x = get_math_param(math_param_punct_op_spacing,m_style); break;
-    case both_types(punct_noad,bin_noad  ):  x = get_math_param(math_param_punct_bin_spacing,m_style); break;
+      /*case both_types(punct_noad,bin_noad  ):  x = get_math_param(math_param_punct_bin_spacing,m_style); break;*/
     case both_types(punct_noad,rel_noad  ):  x = get_math_param(math_param_punct_rel_spacing,m_style); break;
     case both_types(punct_noad,open_noad ):  x = get_math_param(math_param_punct_open_spacing,m_style); break;
     case both_types(punct_noad,close_noad):  x = get_math_param(math_param_punct_close_spacing,m_style); break;
