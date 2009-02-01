@@ -1,6 +1,6 @@
 /* mlist.c
 
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -96,8 +96,8 @@ following macros, which take a size code as their parameter; for example,
 #define num1(A) mathsy(A,8)     /* numerator shift-up in display styles */
 #define num2(A) mathsy(A,9)     /* numerator shift-up in non-display, non-\.{\\atop} */
 #define num3(A) mathsy(A,10)    /* numerator shift-up in non-display \.{\\atop} */
-#define denom1(A) mathsy(A,11)          /* denominator shift-down in display styles */
-#define denom2(A) mathsy(A,12)          /* denominator shift-down in non-display styles */
+#define denom1(A) mathsy(A,11)  /* denominator shift-down in display styles */
+#define denom2(A) mathsy(A,12)  /* denominator shift-down in non-display styles */
 #define sup1(A) mathsy(A,13)    /* superscript shift-up in uncramped display style */
 #define sup2(A) mathsy(A,14)    /* superscript shift-up in uncramped non-display */
 #define sup3(A) mathsy(A,15)    /* superscript shift-up in cramped styles */
@@ -105,8 +105,8 @@ following macros, which take a size code as their parameter; for example,
 #define sub2(A) mathsy(A,17)    /* subscript shift-down if superscript is present */
 #define sup_drop(A) mathsy(A,18)        /* superscript baseline below top of large box */
 #define sub_drop(A) mathsy(A,19)        /* subscript baseline below bottom of large box */
-#define delim1(A) mathsy(A,20)          /* size of \.{\\atopwithdelims} delimiters in display styles */
-#define delim2(A) mathsy(A,21)          /* size of \.{\\atopwithdelims} delimiters in non-displays */
+#define delim1(A) mathsy(A,20)  /* size of \.{\\atopwithdelims} delimiters in display styles */
+#define delim2(A) mathsy(A,21)  /* size of \.{\\atopwithdelims} delimiters in non-displays */
 #define axis_height(A) mathsy(A,22)     /* height of fraction lines above the baseline */
 
 /*
@@ -118,11 +118,11 @@ omitted (since it is always |cur_size| when we refer to such parameters).
 
 #define mathex(A,B) font_param(fam_fnt(3,A),B)
 #define default_rule_thickness(A) mathex(A,8)   /* thickness of \.{\\over} bars */
-#define big_op_spacing1(A) mathex(A,9)          /* minimum clearance above a displayed op */
-#define big_op_spacing2(A) mathex(A,10)         /* minimum clearance below a displayed op */
-#define big_op_spacing3(A) mathex(A,11)         /* minimum baselineskip above displayed op */
-#define big_op_spacing4(A) mathex(A,12)         /* minimum baselineskip below displayed op */
-#define big_op_spacing5(A) mathex(A,13)         /* padding above and below displayed limits */
+#define big_op_spacing1(A) mathex(A,9)  /* minimum clearance above a displayed op */
+#define big_op_spacing2(A) mathex(A,10) /* minimum clearance below a displayed op */
+#define big_op_spacing3(A) mathex(A,11) /* minimum baselineskip above displayed op */
+#define big_op_spacing4(A) mathex(A,12) /* minimum baselineskip below displayed op */
+#define big_op_spacing5(A) mathex(A,13) /* padding above and below displayed limits */
 
 /* I made a few trivial extensions cf. MATH.MathConstants, but some of
 the MathConstants values have no matching usage in \LuaTeX\ right now.
@@ -2338,7 +2338,9 @@ char math_spacing[] =
   } while (0)
 
 
-void initialize_math_spacing(void) {
+void initialize_math_spacing(void)
+{
+    /* *INDENT-OFF* */
     ALL_STYLES   (math_param_ord_ord_spacing,     0);
     ALL_STYLES   (math_param_ord_op_spacing,      thin_mu_skip);
     SPLIT_STYLES (math_param_ord_bin_spacing,     med_mu_skip, 0);
@@ -2410,41 +2412,43 @@ void initialize_math_spacing(void) {
     ALL_STYLES   (math_param_inner_close_spacing, 0);
     SPLIT_STYLES (math_param_inner_punct_spacing, thin_mu_skip, 0);
     SPLIT_STYLES (math_param_inner_inner_spacing, thin_mu_skip, 0);
+    /* *INDENT-ON* */
 }
 
 
-pointer math_spacing_glue_old(int l_type, int r_type, int m_style) {
-  pointer y,z;
-  int x;
-  z = null;
-  switch (math_spacing[l_type * 8 + r_type - 9 * ord_noad]) {
-  case '0':
-    x = 0;
-    break;
-  case '1':
-    x = (m_style < script_style ? param_thin_mu_skip_code : 0);
-    break;
-  case '2':
-    x = param_thin_mu_skip_code;
-    break;
-  case '3':
-    x = (m_style < script_style ? param_med_mu_skip_code : 0);
-    break;
-  case '4':
-    x = (m_style < script_style ? param_thick_mu_skip_code : 0);
-    break;
-  default:
-    tconfusion("mlist4");     /* this can't happen mlist4 */
-    x = -1;
-    break;
-  }
-  if (x != 0) {
-    y = math_glue(glue_par(x), cur_mu);
-    z = new_glue(y);
-    glue_ref_count(y) = null;
-    subtype(z) = x + 1;     /* store a symbolic subtype */
-  }
-  return z;
+pointer math_spacing_glue_old(int l_type, int r_type, int m_style)
+{
+    pointer y, z;
+    int x;
+    z = null;
+    switch (math_spacing[l_type * 8 + r_type - 9 * ord_noad]) {
+    case '0':
+        x = 0;
+        break;
+    case '1':
+        x = (m_style < script_style ? param_thin_mu_skip_code : 0);
+        break;
+    case '2':
+        x = param_thin_mu_skip_code;
+        break;
+    case '3':
+        x = (m_style < script_style ? param_med_mu_skip_code : 0);
+        break;
+    case '4':
+        x = (m_style < script_style ? param_thick_mu_skip_code : 0);
+        break;
+    default:
+        tconfusion("mlist4");   /* this can't happen mlist4 */
+        x = -1;
+        break;
+    }
+    if (x != 0) {
+        y = math_glue(glue_par(x), cur_mu);
+        z = new_glue(y);
+        glue_ref_count(y) = null;
+        subtype(z) = x + 1;     /* store a symbolic subtype */
+    }
+    return z;
 }
 
 #define both_types(A,B) ((A)*8+B)
@@ -2453,7 +2457,8 @@ pointer math_spacing_glue(int l_type, int r_type, int m_style)
 {
     int x = -1;
     pointer z = null;
-    switch (both_types(l_type,r_type)) {
+    switch (both_types(l_type, r_type)) {
+    /* *INDENT-OFF* */
     case both_types(ord_noad,  ord_noad  ):  x = get_math_param(math_param_ord_ord_spacing,m_style); break;
     case both_types(ord_noad,  op_noad   ):  x = get_math_param(math_param_ord_op_spacing,m_style); break;
     case both_types(ord_noad,  bin_noad  ):  x = get_math_param(math_param_ord_bin_spacing,m_style); break;
@@ -2518,22 +2523,23 @@ pointer math_spacing_glue(int l_type, int r_type, int m_style)
     case both_types(inner_noad,close_noad):  x = get_math_param(math_param_inner_close_spacing,m_style); break;
     case both_types(inner_noad,punct_noad):  x = get_math_param(math_param_inner_punct_spacing,m_style); break;
     case both_types(inner_noad,inner_noad):  x = get_math_param(math_param_inner_inner_spacing,m_style); break;
+    /* *INDENT-ON* */
     }
-    if (x<0) {
-      tconfusion("mathspacing");
+    if (x < 0) {
+        tconfusion("mathspacing");
     }
     if (x != 0) {
-      pointer y;
-      if (x <= thick_mu_skip) { /* trap thin/med/thick settings cf. old TeX */
-	y = math_glue(glue_par(x), cur_mu);
-	z = new_glue(y);
-	glue_ref_count(y) = null;
-	subtype(z) = x + 1;   /* store a symbolic subtype */
-      } else {
-	y = math_glue(x, cur_mu);
-	z = new_glue(y);
-	glue_ref_count(y) = null;
-      }
+        pointer y;
+        if (x <= thick_mu_skip) {       /* trap thin/med/thick settings cf. old TeX */
+            y = math_glue(glue_par(x), cur_mu);
+            z = new_glue(y);
+            glue_ref_count(y) = null;
+            subtype(z) = x + 1; /* store a symbolic subtype */
+        } else {
+            y = math_glue(x, cur_mu);
+            z = new_glue(y);
+            glue_ref_count(y) = null;
+        }
     }
     return z;
 }
@@ -2888,12 +2894,12 @@ void mlist_to_hlist(void)
         }
         /* Append inter-element spacing based on |r_type| and |t| */
         if (r_type > 0) {       /* not the first noad */
-	    z = math_spacing_glue(r_type,t,cur_style);
-	    if (z!=null) {
-	      reset_attributes(z,node_attr(p));
-	      vlink(p) = z;
-	      p = z;
-	    }
+            z = math_spacing_glue(r_type, t, cur_style);
+            if (z != null) {
+                reset_attributes(z, node_attr(p));
+                vlink(p) = z;
+                p = z;
+            }
         }
 
         /* Append any |new_hlist| entries for |q|, and any appropriate penalties */

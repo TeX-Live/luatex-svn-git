@@ -1,6 +1,6 @@
 /* math.c
 
-   Copyright 2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2008-2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -457,7 +457,7 @@ void initialize_math(void)
         math_fam_head = new_sa_tree(MATHFONTSTACK, MATHFONTDEFAULT);
     if (math_param_head == NULL) {
         math_param_head = new_sa_tree(MATHPARAMSTACK, MATHPARAMDEFAULT);
-	initialize_math_spacing();
+        initialize_math_spacing();
     }
     return;
 }

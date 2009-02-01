@@ -1,7 +1,7 @@
 /* texmath.h
    
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -65,21 +65,22 @@ extern void math_fraction(void);
 extern void math_left_right(void);
 extern void after_math(void);
 
-extern void scan_extdef_del_code (int level, int extcode);
-extern void scan_extdef_math_code (int level, int extcode);
+extern void scan_extdef_del_code(int level, int extcode);
+extern void scan_extdef_math_code(int level, int extcode);
 
-extern integer fam_fnt (integer fam_id, integer size_id);
-extern void def_fam_fnt (integer fam_id, integer size_id, integer f, integer lvl);
-extern void dump_math_data (void);
-extern void undump_math_data (void);
-void unsave_math_data (integer lvl);
+extern integer fam_fnt(integer fam_id, integer size_id);
+extern void def_fam_fnt(integer fam_id, integer size_id, integer f,
+                        integer lvl);
+extern void dump_math_data(void);
+extern void undump_math_data(void);
+void unsave_math_data(integer lvl);
 
 extern pointer cur_mlist;
 extern integer cur_style;
 extern boolean mlist_penalties;
 extern integer cur_size;
 
-scaled get_math_quad (int a) ;
+scaled get_math_quad(int a);
 boolean check_necessary_fonts(void);
 
 /*
@@ -91,14 +92,14 @@ boolean check_necessary_fonts(void);
 */
 
 typedef enum {
-  display_style = 0,           /* |subtype| for \.{\\displaystyle} */
-  cramped_display_style,       /* |subtype| for \.{\\crampeddisplaystyle} */
-  text_style,                  /* |subtype| for \.{\\textstyle} */
-  cramped_text_style,          /* |subtype| for \.{\\crampedtextstyle} */
-  script_style,                /* |subtype| for \.{\\scriptstyle} */
-  cramped_script_style,        /* |subtype| for \.{\\crampedscriptstyle} */
-  script_script_style,         /* |subtype| for \.{\\scriptscriptstyle} */
-  cramped_script_script_style, /* |subtype| for \.{\\crampedscriptscriptstyle} */
+    display_style = 0,          /* |subtype| for \.{\\displaystyle} */
+    cramped_display_style,      /* |subtype| for \.{\\crampeddisplaystyle} */
+    text_style,                 /* |subtype| for \.{\\textstyle} */
+    cramped_text_style,         /* |subtype| for \.{\\crampedtextstyle} */
+    script_style,               /* |subtype| for \.{\\scriptstyle} */
+    cramped_script_style,       /* |subtype| for \.{\\crampedscriptstyle} */
+    script_script_style,        /* |subtype| for \.{\\scriptscriptstyle} */
+    cramped_script_script_style,        /* |subtype| for \.{\\crampedscriptscriptstyle} */
 } math_style_subtypes;
 
 extern const char *math_style_names[];
@@ -124,7 +125,7 @@ void mlist_to_hlist(void);
 #  define null_font 0
 #  define min_quarterword 0
 
-#define undefined_math_parameter max_dimen
+#  define undefined_math_parameter max_dimen
 
 typedef enum {
     math_param_quad,
@@ -227,13 +228,15 @@ typedef enum {
     math_param_inner_close_spacing,
     math_param_inner_punct_spacing,
     math_param_inner_inner_spacing,
-    math_param_last } math_parameters;
+    math_param_last
+} math_parameters;
 
-#define math_param_first_mu_glue math_param_ord_ord_spacing
+#  define math_param_first_mu_glue math_param_ord_ord_spacing
 
-extern void print_math_param (int param_code);
-extern void def_math_param (int param_code, int style_code, scaled value, int lvl);
-extern scaled get_math_param (int param_code, int style_code);
+extern void print_math_param(int param_code);
+extern void def_math_param(int param_code, int style_code, scaled value,
+                           int lvl);
+extern scaled get_math_param(int param_code, int style_code);
 
 
 typedef enum {
@@ -296,7 +299,7 @@ typedef enum {
     MinConnectorOverlap,
 } MATH_param_codes;
 
-#define MATH_param_max MinConnectorOverlap
+#  define MATH_param_max MinConnectorOverlap
 
 extern const char *MATH_param_names[];
 
