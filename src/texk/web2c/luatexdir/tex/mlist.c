@@ -2435,6 +2435,7 @@ pointer math_spacing_glue_old(int l_type, int r_type, int m_style) {
     break;
   default:
     tconfusion("mlist4");     /* this can't happen mlist4 */
+    x = -1;
     break;
   }
   if (x != 0) {
