@@ -7175,6 +7175,14 @@ are missing.
 \item \type{savinghyphcodes} is a no-op and may possibly be removed.
  See~\in{chapter}[languages] for details.
 
+\item When kpathsea is used to find files, \LUATEX\ uses the
+\type{ofm} file format to search for font metrics. In turn, this means
+that \LUATEX\ looks at the \type{OFMFONTS} configuration variable 
+(like \OMEGA\ and \ALEPH) instead of \type{TFMFONTS} (like \TEX\ and
+\PDFTEX). Likewise for virtual fonts (\LUATEX\ uses the variable 
+\type{OVFFONTS} instead of \type{VFFONTS}).
+
+
 \stopitemize
 
 \section{Changes from \PDFTEX\ 1.40}
