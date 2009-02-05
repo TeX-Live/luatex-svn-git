@@ -1420,6 +1420,32 @@ void set_math_char(mathcodeval mval)
     }
 }
 
+
+/*
+ The |math_char_in_text| procedure creates a new node representing a math char
+in text code, and appends it to the current list. However, if the math code
+is sufficiently large, the |cur_chr| is treated as an active character and
+nothing is appended.
+*/
+
+void math_char_in_text(mathcodeval mval)
+{
+    pointer p;                  /* the new node */
+    if (mval.class_value == 8) {
+        /* An active character that is an |outer_call| is allowed here */
+        cur_cs = active_to_cs(cur_chr, true);
+        cur_cmd = eq_type(cur_cs);
+        cur_chr = equiv(cur_cs);
+        x_token();
+        back_input();
+    } else {
+        p = new_char(fam_fnt(mval.family_value, text_size), mval.character_value);
+        vlink(tail) = p;
+        tail = p;
+    }
+}
+
+
 void math_math_comp(void)
 {
     pointer q;

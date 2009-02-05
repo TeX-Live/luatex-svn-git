@@ -54,6 +54,7 @@ extern void close_math_group(halfword);
 extern void init_math(void);
 extern void start_eq_no(void);
 extern void set_math_char(mathcodeval);
+extern void math_char_in_text(mathcodeval);
 extern void math_math_comp(void);
 extern void math_limit_switch(void);
 extern void math_radical(void);

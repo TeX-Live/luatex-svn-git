@@ -678,6 +678,7 @@
 @define procedure def_math_param();
 @define procedure print_math_param();
 @define function get_math_param();
+@define procedure math_char_in_text();
 
 
 @define const math_param_quad;

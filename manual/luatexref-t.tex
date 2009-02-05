@@ -478,11 +478,17 @@ for the items marked \type{*} in the \TeX book. These will not
 actually be used as those combinations of atoms cannot actually
 happen, but it seemed better not to break orthogonality. They are initialized to zero.
 
+\section{Other Math changes}
+
+The commands \type{\mathchar}, \type{\omathchar}, and \type{\Umathchar} and control
+sequences that are the result of \type{\mathchardef}, \type{\omathchardef}, or
+\type{\Umathchardef}  are also acceptable in the horizontal and vertical modes.
+In those cases, the \type{\textfont} from the requested math family is used.
 
 \section{Extended tables}
 
-All traditional \TEX\ and \ETEX\ registers can be 16~bit numbers as in \ALEPH. The affected commands
-are:
+All traditional \TEX\ and \ETEX\ registers can be 16~bit numbers as in
+\ALEPH. The affected commands are:
 
 \startcolumns[n=4]
 \starttyping

@@ -23320,6 +23320,7 @@ any_mode(ignore_spaces): begin
     end;
   end;
 vmode+stop: if its_all_over then return; {this is the only way out}
+@t\4@>@<Math cases in non-math modes@>;
 @t\4@>@<Forbidden cases detected in |main_control|@>@+@,any_mode(mac_param):
   report_illegal_case;
 @<Math-only cases in non-math modes, or vice versa@>: insert_dollar_sign;
@@ -23333,8 +23334,7 @@ mode by mistake. \TeX\ will insert a dollar sign and rescan the current token.
 @d non_math(#)==vmode+#,hmode+#
 
 @<Math-only cases in non-math modes...@>=
-non_math(sup_mark), non_math(sub_mark), non_math(math_char_num),
-non_math(math_given), non_math(omath_given), non_math(xmath_given), 
+non_math(sup_mark), non_math(sub_mark),
 non_math(math_comp), non_math(delim_num),
 non_math(left_right), non_math(above), non_math(radical),
 non_math(math_style), non_math(math_choice), non_math(vcenter),
@@ -23342,6 +23342,36 @@ non_math(non_script), non_math(mkern), non_math(limit_switch),
 non_math(mskip), non_math(math_accent),
 mmode+endv, mmode+par_end, mmode+stop, mmode+vskip, mmode+un_vbox,
 mmode+valign, mmode+hrule
+
+@ @<Math cases in non-math modes@>=
+vmode+math_char_num, vmode+math_given, vmode+omath_given, vmode+xmath_given: begin
+    back_input; new_graf(true); 
+    end;
+hmode+math_char_num: begin
+    if cur_chr=0 then
+      mval := scan_mathchar(tex_mathcode)
+    else if cur_chr=1 then
+      mval := scan_mathchar(aleph_mathcode)
+    else if cur_chr=2 then
+      mval := scan_mathchar(xetex_mathcode)
+    else
+      mval := scan_mathchar(xetexnum_mathcode);
+    math_char_in_text(mval);
+    end;
+hmode+math_given: begin
+    mval := mathchar_from_integer(cur_chr,tex_mathcode);
+    math_char_in_text(mval);
+    end;
+hmode+omath_given: begin
+    mval := mathchar_from_integer(cur_chr,aleph_mathcode);
+    math_char_in_text(mval);
+    end;
+hmode+xmath_given: begin
+    mval := mathchar_from_integer(cur_chr,xetex_mathcode);
+    math_char_in_text(mval);
+    end
+
+
 
 @ @<Declare action...@>=
 procedure insert_dollar_sign;
