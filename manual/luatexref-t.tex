@@ -480,10 +480,24 @@ happen, but it seemed better not to break orthogonality. They are initialized to
 
 \section{Other Math changes}
 
+\subsection{Allowed math commands in non-math modes}
+
 The commands \type{\mathchar}, \type{\omathchar}, and \type{\Umathchar} and control
 sequences that are the result of \type{\mathchardef}, \type{\omathchardef}, or
 \type{\Umathchardef}  are also acceptable in the horizontal and vertical modes.
 In those cases, the \type{\textfont} from the requested math family is used.
+
+\subsection{Math accent handling}
+
+If a math accent has to be placed and the accentee is a character and has a non-zero
+\type{top_accent} value, then this value will be used to place the accent instead of
+the \type{\skewchar} kern used by \TEX82. 
+
+The \type{top_accent} value represents a vertical line somewhere in the accentee. The
+accent will be shifted horizontally such that its own \type{top_accent} line coincides
+with the one from the accentee. If the \type{top_accent} value of the accent is zero,
+then half the width of the accent followed by its italic correction is used instead.
+
 
 \section{Extended tables}
 
@@ -4495,7 +4509,7 @@ information (quite a few of these are only present if nonzero).
 \NC tex_height                   \NC number   \NC only if set\NC\NR
 \NC tex_depth                    \NC number   \NC only if set\NC\NR
 \NC italic_correction            \NC number   \NC only if set\NC\NR
-\NC top_accent_horiz             \NC number   \NC only if set\NC\NR
+\NC top_accent                   \NC number   \NC only if set\NC\NR
 \NC is_extended_shape            \NC number   \NC only if this character is part of a math extension list\NC\NR
 \NC altuni                       \NC table    \NC alternate unicode items \NC\NR
 \NC vert_variants                \NC table    \NC \NC \NR
@@ -5920,6 +5934,7 @@ The following top|-|level keys can be present inside a character hash:
 \NC height     \NC no          \NC yes          \NC yes      \NC number         \NC character's height, in sp (default 0) \NC\NR
 \NC depth      \NC no          \NC yes          \NC yes      \NC number         \NC character's depth, in sp (default 0) \NC\NR
 \NC italic     \NC no          \NC yes          \NC yes      \NC number         \NC character's italic correction, in sp (default zero) \NC\NR
+\NC top_accent \NC no          \NC no           \NC maybe    \NC number         \NC character's top accent alignment place, in sp (default zero) \NC\NR
 \NC left_protruding  \NC no    \NC no           \NC maybe    \NC number         \NC character's \tex{lpcode}\NC\NR
 \NC right_protruding \NC no    \NC no           \NC maybe    \NC number         \NC character's \tex{rpcode}\NC\NR
 \NC expansion_factor \NC no    \NC no           \NC maybe    \NC number         \NC character's \tex{efcode}\NC\NR
@@ -5934,6 +5949,10 @@ UTF-16BE hexadecimal format\NC\NR
 \NC index      \NC no          \NC no           \NC yes      \NC number         \NC the (\OPENTYPE\ or \TRUETYPE) font glyph index \NC\NR
 \NC used       \NC no          \NC yes          \NC yes      \NC boolean        \NC typeset already (default: false)? \NC\NR
 \stoptabulate
+
+The values of \type{top_accent} is used only for math accent placement for
+OpenType-based math fonts, see the Math changes section earlier in this manual for
+details.
 
 The values of \type{left_protruding} and \type{right_protruding} are used only when
 \tex{pdfprotrudechars} is non-zero.

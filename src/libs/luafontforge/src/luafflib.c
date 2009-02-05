@@ -944,7 +944,7 @@ handle_splinechar (lua_State *L,struct splinechar *glyph, int hasvmetrics) {
   if (glyph->italic_correction != TEX_UNDEF)
      dump_intfield(L, "italic_correction", glyph->italic_correction);
   if (glyph->top_accent_horiz != TEX_UNDEF)
-     dump_intfield(L, "top_accent_horiz",  glyph->top_accent_horiz);
+     dump_intfield(L, "top_accent",  glyph->top_accent_horiz);
 
   if (glyph->vert_variants != NULL) {
     lua_newtable(L);

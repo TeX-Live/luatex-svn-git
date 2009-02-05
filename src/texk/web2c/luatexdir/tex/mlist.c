@@ -1752,17 +1752,24 @@ void make_math_accent(pointer q)
     internal_font_number f;     /* its font */
     scaled s;                   /* amount to skew the accent to the right */
     scaled h;                   /* height of character being accented */
-    scaled delta;               /*space to remove between accent and accentee */
+    scaled delta;               /* space to remove between accent and accentee */
     scaled w;                   /* width of the accentee, not including sub/superscripts */
+    boolean s_is_absolute;      /* will be true if a top-accent is placed in |s| */
+    s_is_absolute = false;
     fetch(accent_chr(q));
     if (char_exists(cur_f, cur_c)) {
         c = cur_c;
         f = cur_f;
-        /* Compute the amount of skew */
+        /* Compute the amount of skew, or set |s| to an alignment point */
         s = 0;
         if (type(nucleus(q)) == math_char_node) {
             fetch(nucleus(q));
-            s = get_kern(cur_f, cur_c, skew_char(cur_f));
+            s = char_top_accent(cur_f, cur_c);
+            if (s!=0) {
+                s_is_absolute = true;
+            } else {
+                s = get_kern(cur_f, cur_c, skew_char(cur_f));
+            }
         }
         x = clean_box(nucleus(q), cramped_style(cur_style));
         w = width(x);
@@ -1803,7 +1810,15 @@ void make_math_accent(pointer q)
             }
         }
         y = char_box(f, c, node_attr(q));
-        shift_amount(y) = s + half(w - width(y));
+        if (s_is_absolute) {
+            scaled sa = char_top_accent(f, c);
+            if (sa==0) {
+                sa = half(width(y)); /* just take the center */
+            }
+            shift_amount(y) = s - sa;
+        } else {
+            shift_amount(y) = s + half(w - width(y));
+        }
         width(y) = 0;
         p = new_kern(-delta);
         vlink(p) = x;

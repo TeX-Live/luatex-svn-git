@@ -125,6 +125,10 @@ void font_char_to_lua(lua_State * L, internalfontnumber f, charinfo * co)
     lua_pushnumber(L, get_charinfo_italic(co));
     lua_rawset(L, -3);
 
+    lua_pushstring(L, "top_accent");
+    lua_pushnumber(L, get_charinfo_top_accent(co));
+    lua_rawset(L, -3);
+
     if (get_charinfo_ef(co) != 0) {
         lua_pushstring(L, "expansion_factor");
         lua_pushnumber(L, get_charinfo_ef(co));
@@ -572,6 +576,7 @@ make_luaS_index(width);
 make_luaS_index(height);
 make_luaS_index(depth);
 make_luaS_index(italic);
+make_luaS_index(top_accent);
 make_luaS_index(index);
 make_luaS_index(left_protruding);
 make_luaS_index(right_protruding);
@@ -615,6 +620,7 @@ void init_font_string_pointers(lua_State * L)
     init_luaS_index(height);
     init_luaS_index(depth);
     init_luaS_index(italic);
+    init_luaS_index(top_accent);
     init_luaS_index(index);
     init_luaS_index(left_protruding);
     init_luaS_index(right_protruding);
@@ -1015,6 +1021,8 @@ font_char_from_lua(lua_State * L, internal_font_number f, integer i,
         set_charinfo_depth(co, j);
         j = n_numeric_field(L, luaS_italic_index, 0);
         set_charinfo_italic(co, j);
+        j = n_numeric_field(L, luaS_top_accent_index, 0);
+        set_charinfo_top_accent(co, j);
         j = n_numeric_field(L, luaS_index_index, 0);
         set_charinfo_index(co, j);
         j = n_numeric_field(L, luaS_expansion_factor_index, 0);
