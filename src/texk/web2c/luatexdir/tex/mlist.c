@@ -1519,13 +1519,14 @@ boolean mlist_penalties;        /* should |mlist_to_hlist| insert penalties? */
 void run_mlist_to_hlist(pointer p, integer m_style, boolean penalties)
 {
     int callback_id;
-    int a;
+    int a, sfix;
     lua_State *L = Luas[0];
     finalize_math_parameters();
     callback_id = callback_defined(mlist_to_hlist_callback);
     if (p != null && callback_id > 0) {
+        sfix = lua_gettop(L);
         if (!get_callback(L, callback_id)) {
-            lua_pop(L, 2);
+            lua_settop(L, sfix);
             return;
         }
         nodelist_to_lua(L, p);  /* arg 1 */
@@ -1533,11 +1534,12 @@ void run_mlist_to_hlist(pointer p, integer m_style, boolean penalties)
         lua_pushboolean(L, penalties);  /* arg 3 */
         if (lua_pcall(L, 3, 1, 0) != 0) {       /* 3 args, 1 result */
             fprintf(stdout, "error: %s\n", lua_tostring(L, -1));
-            lua_pop(L, 2);
+            lua_settop(L, sfix);
             error();
             return;
         }
         a = nodelist_from_lua(L);
+        lua_settop(L, sfix);
         vlink(temp_head) = a;
     } else {
         cur_mlist = p;
