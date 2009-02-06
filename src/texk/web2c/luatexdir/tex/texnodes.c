@@ -139,7 +139,7 @@ char *node_fields_inner[] = { "attr", "nucleus", "sub", "sup", NULL };
 char *node_fields_under[] = { "attr", "nucleus", "sub", "sup", NULL };
 char *node_fields_over[] = { "attr", "nucleus", "sub", "sup", NULL };
 char *node_fields_vcenter[] = { "attr", "nucleus", "sub", "sup", NULL };
-char *node_fields_radical[] = { "attr", "nucleus", "sub", "sup", "left", NULL };
+char *node_fields_radical[] = { "attr", "nucleus", "sub", "sup", "left", "degree", NULL };
 char *node_fields_fraction[] =
     { "attr", "width", "num", "denom", "left", "right", NULL };
 char *node_fields_accent[] =
@@ -635,6 +635,8 @@ halfword copy_node(const halfword p)
         } else if (type(p) == radical_noad) {
             s = copy_node(left_delimiter(p));
             left_delimiter(r) = s;
+            s = copy_node_list(degree(p));
+            degree(r) = s;
         }
         break;
     case fence_noad:
@@ -1078,10 +1080,12 @@ void flush_node(halfword p)
         flush_node_list(nucleus(p));
         flush_node_list(subscr(p));
         flush_node_list(supscr(p));
-        if (type(p) == accent_noad)
+        if (type(p) == accent_noad) {
             flush_node_list(accent_chr(p));
-        else if (type(p) == radical_noad)
+        } else if (type(p) == radical_noad) {
             flush_node(left_delimiter(p));
+            flush_node_list(degree(p));
+        }
         break;
     case fence_noad:
         flush_node(delimiter(p));
@@ -1317,6 +1321,7 @@ void check_node(halfword p)
         dorangetest(p, nucleus(p), var_mem_max);
         dorangetest(p, subscr(p), var_mem_max);
         dorangetest(p, supscr(p), var_mem_max);
+        dorangetest(p, degree(p), var_mem_max);
         dorangetest(p, left_delimiter(p), var_mem_max);
         break;
     case accent_noad:

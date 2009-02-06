@@ -266,6 +266,14 @@ than were accessible before.
 \NC \type{\Umathradicalkern}        \NC Vertical clearance above the rule \NC \NR
 \NC \type{\Umathradicalrule}        \NC The width of the rule \NC \NR
 \NC \type{\Umathradicalvgap}        \NC Vertical clearance below the rule \NC \NR
+\NC \type{\Umathradicaldegreebefore}\NC The forward kern that takes place before placement of
+                                        the radical degree \NC \NR
+\NC \type{\Umathradicaldegreeafter} \NC The backward kern that takes place after placement of
+                                        the radical degree \NC \NR
+\NC \type{\Umathradicaldegreeraise} \NC This is the percentage of the total height and depth of
+                                        the radical sign that the degree is raised by. It is 
+                                        expressed in \type{percents}, so 60\% is expressed as the
+                                        integer $60$.\NC \NR
 \NC \type{\Umathstackvgap}          \NC Vertical clearance between the two
                                         elements in a \type{\atop} stack \NC \NR
 \NC \type{\Umathstacknumup}         \NC Numerator shift upward in \type{\atop} stack \NC \NR
@@ -353,6 +361,9 @@ parameters for which there are font dimensions).
                                                                                                     (abs(math_x_height)/4))$^3$ \NC\NR
 \NC "                           \NC T, T', S, S', SS, SS' \NC RadicalVerticalGap                       \NC (default_rule_thickness+\crlf
                                                                                                     (abs(default_rule_thickness)/4))$^3$ \NC\NR
+\NC \tex{Umathradicaldegreebefore}\NC --                  \NC RadicalKernBeforeDegree                  \NC <not set>$^2$ \NC\NR
+\NC \tex{Umathradicaldegreeafter}\NC --                   \NC RadicalKernAfterDegree                   \NC <not set>$^2$ \NC\NR
+\NC \tex{Umathradicaldegreeraise}\NC --                   \NC RadicalDegreeBottomRaisePercent          \NC <not set>$^2$ \NC\NR
 \NC \tex{Umathspaceafterscript} \NC --                    \NC SpaceAfterScript                         \NC script_space$^4$ \NC\NR
 \NC \tex{Umathstackdenomdown}   \NC D, D'                 \NC StackBottomDisplayStyleShiftDown         \NC denom1 \NC\NR
 \NC "                           \NC T, T', S, S', SS, SS' \NC StackBottomShiftDown                     \NC denom2 \NC\NR
@@ -378,13 +389,15 @@ parameters for which there are font dimensions).
 
 \stop
 
-Note 1: Opentype fonts set \tex{Umathfractiondelsize}, \tex{Umathlimitabovekern}, \tex{Umathlimitbelowkern}
-to zero and set \tex{Umathquad} to the font size of the used font, because these are not supported in the
-MATH table,
+Note 1: Opentype fonts set \tex{Umathfractiondelsize}, \tex{Umathlimitabovekern},
+\tex{Umathlimitbelowkern} to zero and set \tex{Umathquad} to the font size of the used font,
+because these are not supported in the MATH table,
 
 Note 2: Tfm fonts do not set \tex{Umathradicalrule} because \TeX82\ uses the height of the radical
 instead. When this parameter is indeed not set when \LUATEX\ has to typeset a radical, a backward
-compatibility mode will kick in that assumes that an oldstyle \TeX\ font is used.
+compatibility mode will kick in that assumes that an oldstyle \TeX\ font is used.  Also, they  do 
+not set \tex{Umathradicaldegreebefore}, \tex{Umathradicaldegreeafter}, and
+\tex{Umathradicaldegreeraise}.  These are then automatically initialized to $5/18$quad, $-10/18$quad, and 60.
 
 Note 3: If tfm fonts are used, then the \tex{Umathradicalvgap} is not set until the first time 
 \LUATEX\ has to typeset a formula because this needs parameters from both family2 and family3.
@@ -497,6 +510,20 @@ The \type{top_accent} value represents a vertical line somewhere in the accentee
 accent will be shifted horizontally such that its own \type{top_accent} line coincides
 with the one from the accentee. If the \type{top_accent} value of the accent is zero,
 then half the width of the accent followed by its italic correction is used instead.
+
+\subsection{Math root extension}
+
+The new primitive \type{\Uroot} allows the construction of a radical
+noad including a degree field. Its syntax is an extension of \type{\Uradical}:
+
+\starttyping
+\Uradical <fam integer> <char integer> <radicand>
+\Uroot    <fam integer> <char integer> <degree> <radicand>
+\stoptyping
+
+The placement of the degree is controlled by the math parameters
+\type{\Umathradicaldegreebefore}, \type{\Umathradicaldegreeafter}, and
+\type{\Umathradicaldegreeraise}. The degree will be typeset in \type{\scriptscriptstyle}.
 
 
 \section{Extended tables}
@@ -6756,6 +6783,7 @@ Valid fields: \showfields{radical}
 \NC sub        \NC \syntax{<kernel>}\NC          \NC\NR
 \NC sup        \NC \syntax{<kernel>}\NC          \NC \NR
 \NC left       \NC \syntax{<delim>}\NC          \NC \NR
+\NC degree     \NC \syntax{<kernel>}\NC Only set by \type{\Uroot} \NC \NR
 \stoptabulate
 
 \subsubsubsection{fraction nodes}

@@ -69,7 +69,7 @@ extern void rawset_sa_item(sa_tree hed, integer n, integer v);
     tex_error(A,B);                             \
   } while (0)
 
-void scan_math(pointer);
+int scan_math(pointer);
 pointer fin_mlist(pointer);
 
 #define pre_display_size dimen_par(param_pre_display_size_code)
@@ -265,6 +265,9 @@ static char *math_param_names[] = {
     "Umathradicalkern",
     "Umathradicalrule",
     "Umathradicalvgap",
+    "Umathradicaldegreebefore",
+    "Umathradicaldegreeafter",
+    "Umathradicaldegreeraise",
     "Umathstackvgap",
     "Umathstacknumup",
     "Umathstackdenomdown",
@@ -790,8 +793,14 @@ void display_normal_noad(pointer p)
         tprint_esc("vcenter");
         break;
     case radical_noad:
-        tprint_esc("radical");
+        if (degree(p)==null) 
+          tprint_esc("radical");
+        else
+          tprint_esc("Uroot");
         print_delimiter(left_delimiter(p));
+        if (degree(p)!=null) {
+          print_subsidiary_data(degree(p), '//');
+        }
         break;
     case accent_noad:
         tprint_esc("accent");
@@ -993,7 +1002,7 @@ void math_left_brace(void)
     q = new_node(math_char_node, 0);
     nucleus(tail) = q;
     back_input();
-    scan_math(nucleus(tail));
+    (void)scan_math(nucleus(tail));
 }
 
 /*
@@ -1305,7 +1314,7 @@ that subformula into a given word of |mem|.
 #define get_next_nb_nr() do { get_x_token(); } while (cur_cmd==spacer_cmd||cur_cmd==relax_cmd)
 
 
-void scan_math(pointer p)
+int scan_math(pointer p)
 {
     /* label restart,reswitch,exit; */
     mathcodeval mval;
@@ -1373,7 +1382,7 @@ void scan_math(pointer p)
         saved(0) = p;
         incr(save_ptr);
         push_math(math_group);
-        return;
+        return 1;
     }
     type(p) = math_char_node;
     math_character(p) = mval.character_value;
@@ -1381,6 +1390,7 @@ void scan_math(pointer p)
         math_fam(p) = cur_fam;
     else
         math_fam(p) = mval.family_value;
+    return 0;
 }
 
 
@@ -1453,7 +1463,7 @@ void math_math_comp(void)
     type(tail) = cur_chr;
     q = new_node(math_char_node, 0);
     nucleus(tail) = q;
-    scan_math(nucleus(tail));
+    (void)scan_math(nucleus(tail));
 }
 
 
@@ -1543,20 +1553,34 @@ void scan_delimiter(pointer p, integer r)
 void math_radical(void)
 {
     halfword q;
+    int chr_code = cur_chr ;
     tail_append(new_node(radical_noad, normal));
     q = new_node(delim_node, 0);
     left_delimiter(tail) = q;
-    if (cur_chr == 0)           /* \radical */
+    if (chr_code == 0)           /* \radical */
         scan_delimiter(left_delimiter(tail), tex_mathcode);
-    else if (cur_chr == 1)      /* \oradical */
+    else if (chr_code == 1)      /* \oradical */
         scan_delimiter(left_delimiter(tail), aleph_mathcode);
-    else if (cur_chr == 2)      /* \Uradical */
+    else if (chr_code == 2)      /* \Uradical */
+        scan_delimiter(left_delimiter(tail), xetex_mathcode);
+    else if (chr_code == 3)      /* \Uroot */
         scan_delimiter(left_delimiter(tail), xetex_mathcode);
     else
         tconfusion("math_radical");
-    q = new_node(math_char_node, 0);
-    nucleus(tail) = q;
-    scan_math(nucleus(tail));
+    if (chr_code == 3) {
+        q = new_node(math_char_node, 0);
+        vlink(q) = tail;
+        degree(tail) = q;
+        if(!scan_math(degree(tail))) {
+            q = new_node(math_char_node, 0);
+            nucleus(tail) = q;
+            (void)scan_math(nucleus(tail));
+        }
+    } else {
+      q = new_node(math_char_node, 0);
+      nucleus(tail) = q;
+      (void)scan_math(nucleus(tail));
+    }
 }
 
 void math_ac(void)
@@ -1590,7 +1614,7 @@ void math_ac(void)
         math_fam(accent_chr(tail)) = d.family_value;
     q = new_node(math_char_node, 0);
     nucleus(tail) = q;
-    scan_math(nucleus(tail));
+    (void)scan_math(nucleus(tail));
 }
 
 pointer math_vcenter_group(pointer p)
@@ -1668,7 +1692,7 @@ void sub_sup(void)
         }
         q = new_node(math_char_node, 0);
         supscr(tail) = q;
-        scan_math(supscr(tail));
+        (void)scan_math(supscr(tail));
     } else {
         if (subscr(tail) != null) {
             char *hlp[] = {
@@ -1681,7 +1705,7 @@ void sub_sup(void)
         }
         q = new_node(math_char_node, 0);
         subscr(tail) = q;
-        scan_math(subscr(tail));
+        (void)scan_math(subscr(tail));
     }
 }
 
@@ -1837,6 +1861,15 @@ void close_math_group(pointer p)
                 }
             }
         }
+    }
+    if (vlink(saved(0))>0) {
+      pointer q;
+      q = new_node(math_char_node, 0);
+      nucleus(vlink(saved(0))) = q;
+      vlink(saved(0)) = null;
+      saved(0) = q;
+      (void)scan_math(saved(0));
+      /* restart */
     }
 }
 

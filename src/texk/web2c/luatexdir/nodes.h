@@ -427,6 +427,8 @@ typedef enum {
 /* this is like a fraction, but it only stores a |left_delimiter| */
 #  define radical_noad_size 5   /*number of |mem| words in a radical noad */
 
+#  define degree(a) vinfo((a)+4)   /* the root degree in a radical noad */
+
 #define math_kernel_node_size 3
 
 /* accessors for the |nucleus|-style node fields */

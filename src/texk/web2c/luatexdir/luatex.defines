@@ -692,6 +692,9 @@
 @define const math_param_radical_kern;
 @define const math_param_radical_rule;
 @define const math_param_radical_vgap;
+@define const math_param_radical_degree_before;
+@define const math_param_radical_degree_after;
+@define const math_param_radical_degree_raise;
 @define const math_param_stack_vgap;
 @define const math_param_stack_num_up;
 @define const math_param_stack_denom_down;

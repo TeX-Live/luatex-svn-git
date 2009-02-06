@@ -163,11 +163,6 @@ SkewedFractionVerticalGap:
   I am not sure it makes sense implementing skewed fractions,
   so I would like to see an example first
 
-RadicalKernBeforeDegree,
-RadicalKernAfterDegree,
-RadicalKernBottomRaisePercent:
-  LuaTeX does not consider the degree a part of the radical yet
-
 MinConnectorOverlap:
   LuaTeX's extensibles are always butt-to-butt. In general, MATH
   extensibles seem somewhat smarter than LuaTeX currently is.
@@ -248,6 +243,37 @@ static scaled radical_rule(int var)
     scaled a = get_math_param(math_param_radical_rule, var);
     return a;
 }
+
+static scaled radical_degree_before(int var)
+{
+    scaled a = get_math_param(math_param_radical_degree_before, var);
+    if (a == undefined_math_parameter) {
+        math_param_error("radicaldegreebefore", var);
+        a = 0;
+    }
+    return a;
+}
+
+static scaled radical_degree_after(int var)
+{
+    scaled a = get_math_param(math_param_radical_degree_after, var);
+    if (a == undefined_math_parameter) {
+        math_param_error("radicaldegreeafter", var);
+        a = 0;
+    }
+    return a;
+}
+
+static scaled radical_degree_raise(int var)
+{
+    scaled a = get_math_param(math_param_radical_degree_raise, var);
+    if (a == undefined_math_parameter) {
+        math_param_error("radicaldegreeraise", var);
+        a = 0;
+    }
+    return a;
+}
+
 
 /* now follow all the trivial functions for the math parameters */
 
@@ -655,10 +681,19 @@ void fixup_math_parameters(integer fam_id, integer size_id, integer f,
         DEFINE_MATH_PARAMETERS(math_param_radical_vgap, size_id,
                                font_MATH_par(f, RadicalVerticalGap), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_radical_vgap, size_id,
-                                font_MATH_par(f,
-                                              RadicalDisplayStyleVerticalGap),
-                                lvl);
-
+                                font_MATH_par(f,RadicalDisplayStyleVerticalGap), lvl);
+        DEFINE_MATH_PARAMETERS(math_param_radical_degree_before, size_id,
+                               font_MATH_par(f, RadicalKernBeforeDegree), lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_radical_degree_before, size_id,
+                                font_MATH_par(f, RadicalKernBeforeDegree), lvl);
+        DEFINE_MATH_PARAMETERS(math_param_radical_degree_after, size_id,
+                               font_MATH_par(f, RadicalKernAfterDegree), lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_radical_degree_after, size_id,
+                                font_MATH_par(f, RadicalKernAfterDegree), lvl);
+        DEFINE_MATH_PARAMETERS(math_param_radical_degree_raise, size_id,
+                               font_MATH_par(f, RadicalDegreeBottomRaisePercent), lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_radical_degree_raise, size_id,
+                                font_MATH_par(f, RadicalDegreeBottomRaisePercent), lvl);
         if (size_id == text_size) {
             def_math_param(math_param_sup_shift_up, display_style,
                            font_MATH_par(f, SuperscriptShiftUp), lvl);
@@ -1001,6 +1036,52 @@ void finalize_math_parameters(void)
                        (default_rule_thickness(text_size) +
                         (abs(math_x_height(text_size)) / 4)), cur_level);
     }
+    if (get_math_param(math_param_radical_degree_raise, display_style) == undefined_math_parameter) {
+      DEFINE_MATH_PARAMETERS(math_param_radical_degree_raise, script_script_size, 60, cur_level);
+      DEFINE_MATH_PARAMETERS(math_param_radical_degree_raise, script_size, 60, cur_level);
+      DEFINE_MATH_PARAMETERS(math_param_radical_degree_raise, text_size, 60, cur_level);
+      DEFINE_DMATH_PARAMETERS(math_param_radical_degree_raise, text_size, 60, cur_level);
+    }
+    if (get_math_param(math_param_radical_degree_before, display_style) == undefined_math_parameter) {
+       def_math_param(math_param_radical_degree_before, cramped_script_script_style, 
+                      xn_over_d(get_math_quad(cramped_script_script_style),5,18), cur_level);
+       def_math_param(math_param_radical_degree_before, script_script_style, 
+                      xn_over_d(get_math_quad(script_script_style),5,18), cur_level);
+       def_math_param(math_param_radical_degree_before, cramped_script_style, 
+                      xn_over_d(get_math_quad(cramped_script_style),5,18), cur_level);
+       def_math_param(math_param_radical_degree_before, script_style, 
+                      xn_over_d(get_math_quad(script_style),5,18), cur_level);
+       def_math_param(math_param_radical_degree_before, cramped_text_style, 
+                      xn_over_d(get_math_quad(cramped_text_style),5,18), cur_level);
+       def_math_param(math_param_radical_degree_before, text_style, 
+                      xn_over_d(get_math_quad(text_style),5,18), cur_level);
+       def_math_param(math_param_radical_degree_before, cramped_display_style, 
+                      xn_over_d(get_math_quad(cramped_display_style),5,18), cur_level);
+       def_math_param(math_param_radical_degree_before, display_style, 
+                      xn_over_d(get_math_quad(display_style),5,18), cur_level);
+    }
+
+    if (get_math_param(math_param_radical_degree_after, display_style) == undefined_math_parameter) {
+       def_math_param(math_param_radical_degree_after, cramped_script_script_style, 
+                      -xn_over_d(get_math_quad(cramped_script_script_style),10,18), cur_level);
+       def_math_param(math_param_radical_degree_after, script_script_style, 
+                      -xn_over_d(get_math_quad(script_script_style),10,18), cur_level);
+       def_math_param(math_param_radical_degree_after, cramped_script_style, 
+                      -xn_over_d(get_math_quad(cramped_script_style),10,18), cur_level);
+       def_math_param(math_param_radical_degree_after, script_style, 
+                      -xn_over_d(get_math_quad(script_style),10,18), cur_level);
+       def_math_param(math_param_radical_degree_after, cramped_text_style, 
+                      -xn_over_d(get_math_quad(cramped_text_style),10,18), cur_level);
+       def_math_param(math_param_radical_degree_after, text_style, 
+                      -xn_over_d(get_math_quad(text_style),10,18), cur_level);
+       def_math_param(math_param_radical_degree_after, cramped_display_style, 
+                      -xn_over_d(get_math_quad(cramped_display_style),10,18), cur_level);
+       def_math_param(math_param_radical_degree_after, display_style, 
+                      -xn_over_d(get_math_quad(display_style),10,18), cur_level);
+    }
+
+
+
 }
 
 
@@ -1710,7 +1791,7 @@ placed so that the actual clearance is |psi| plus half the excess.
 void make_radical(pointer q)
 {
     pointer x, y, p;            /* temporary registers for box construction */
-    scaled delta, clr, theta;   /* dimensions involved in the calculation */
+    scaled delta, clr, theta, h;   /* dimensions involved in the calculation */
     x = clean_box(nucleus(q), cramped_style(cur_style));
     clr = radical_vgap(cur_style);
     theta = radical_rule(cur_style);
@@ -1724,15 +1805,31 @@ void make_radical(pointer q)
         if (delta > 0)
             clr = clr + half(delta);    /* increase the actual clearance */
         shift_amount(y) = -(height(x) + clr);
+        h = shift_amount(y) + height(y);
     } else {
         y = var_delimiter(left_delimiter(q), cur_size,
                           height(x) + depth(x) + clr + theta);
         left_delimiter(q) = null;
         delta = height(y) - (height(x) + clr + theta);
         shift_amount(y) = delta;
+        h = - (height(y) - shift_amount(y) );
     }
     p = overbar(x, clr, theta, radical_kern(cur_style), node_attr(y));
     vlink(y) = p;
+    if (degree(q)!=null) {
+      x = new_kern(radical_degree_after(cur_style));
+      reset_attributes(x, node_attr(degree(q)));
+      vlink(x) = y;
+      y = clean_box(degree(q), script_script_style);
+      reset_attributes(y, node_attr(degree(q)));
+      degree(q)=null;
+      shift_amount(y) = (xn_over_d(h,radical_degree_raise(cur_style),100));
+      vlink(y) = x;
+      x = new_kern(radical_degree_before(cur_style));
+      reset_attributes(x, node_attr(degree(q)));
+      vlink(x) = y;
+      y = x;
+    }
     p = hpack(y, 0, additional);
     reset_attributes(p, node_attr(q));
     math_list(nucleus(q)) = p;

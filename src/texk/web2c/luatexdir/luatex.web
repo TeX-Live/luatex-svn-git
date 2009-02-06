@@ -6954,6 +6954,8 @@ primitive("oradical",radical,1);@/
 @!@:radical_}{\.{\\oradical} primitive@>
 primitive("Uradical",radical,2);@/
 @!@:radical_}{\.{\\Uradical} primitive@>
+primitive("Uroot",radical,3);@/
+@!@:radical_}{\.{\\Uroot} primitive@>
 primitive("read",read_to_cs,0);@/
 @!@:read_}{\.{\\read} primitive@>
 primitive("relax",relax,too_big_char);
@@ -7033,7 +7035,8 @@ non_script: print_esc("nonscript");
 omit: print_esc("omit");
 radical: if chr_code=0 then print_esc("radical") 
    else if chr_code=1 then print_esc("oradical")
-   else print_esc("Uradical");
+   else if chr_code=2 then print_esc("Uradical")
+   else print_esc("Uroot");
 read_to_cs: if chr_code=0 then print_esc("read")
   @<Cases of |read| for |print_cmd_chr|@>;
 relax: print_esc("relax");
@@ -24926,7 +24929,7 @@ limit_switch: print_limit_switch (chr_code);
 @ @<Cases of |main_control| that build...@>=
 mmode+math_comp: math_math_comp;
 mmode+limit_switch: math_limit_switch;
-mmode+radical:math_radical;
+mmode+radical: math_radical;
 mmode+accent,mmode+math_accent:math_ac;
 mmode+vcenter: begin scan_spec(vcenter_group,false); normal_paragraph;
   push_nest; mode:=-vmode; prev_depth:=pdf_ignored_dimen;
@@ -25593,6 +25596,9 @@ primitive("Umathunderbarvgap",     set_math_param, math_param_underbar_vgap);
 primitive("Umathradicalkern",      set_math_param, math_param_radical_kern);
 primitive("Umathradicalrule",      set_math_param, math_param_radical_rule);
 primitive("Umathradicalvgap",      set_math_param, math_param_radical_vgap);
+primitive("Umathradicaldegreebefore",set_math_param, math_param_radical_degree_before);
+primitive("Umathradicaldegreeafter", set_math_param, math_param_radical_degree_after);
+primitive("Umathradicaldegreeraise", set_math_param, math_param_radical_degree_raise);
 primitive("Umathstackvgap",        set_math_param, math_param_stack_vgap);
 primitive("Umathstacknumup",       set_math_param, math_param_stack_num_up);
 primitive("Umathstackdenomdown",   set_math_param, math_param_stack_denom_down);
