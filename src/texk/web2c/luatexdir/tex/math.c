@@ -256,6 +256,7 @@ void unsave_math_fam_data(integer gl)
 static char *math_param_names[] = {
     "Umathquad",
     "Umathaxis",
+    "Umathoperatorsize",
     "Umathoverbarkern",
     "Umathoverbarrule",
     "Umathoverbarvgap",
@@ -799,7 +800,7 @@ void display_normal_noad(pointer p)
           tprint_esc("Uroot");
         print_delimiter(left_delimiter(p));
         if (degree(p)!=null) {
-          print_subsidiary_data(degree(p), '//');
+          print_subsidiary_data(degree(p), '/');
         }
         break;
     case accent_noad:

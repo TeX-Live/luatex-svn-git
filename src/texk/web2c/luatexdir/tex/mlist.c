@@ -137,10 +137,6 @@ DelimitedSubFormulaMinHeight:
   This is perhaps related to word's natural math input? I have
   no idea what to do about it
 
-DisplayOperatorMinHeight:
-  Nice idea, needs an extension to |make_op|, but not hard
-  (and required for \Udelcode-style specified math operators)
-
 MathLeading:
   LuaTeX does not currently handle multi-line displays, and
   the parameter does not seem to make much sense elsewhere
@@ -231,6 +227,13 @@ static scaled math_axis(int b)
         math_param_error("axis", var);
         a = 0;
     }
+    return a;
+}
+
+
+static scaled minimum_operator_size(int var)
+{
+    scaled a = get_math_param(math_param_operator_size, var);
     return a;
 }
 
@@ -674,6 +677,10 @@ void fixup_math_parameters(integer fam_id, integer size_id, integer f,
                                font_MATH_par(f, RadicalExtraAscender), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_radical_kern, size_id,
                                 font_MATH_par(f, RadicalExtraAscender), lvl);
+
+        DEFINE_DMATH_PARAMETERS(math_param_operator_size, size_id,
+                                font_MATH_par(f, DisplayOperatorMinHeight), lvl);
+
         DEFINE_MATH_PARAMETERS(math_param_radical_rule, size_id,
                                font_MATH_par(f, RadicalRuleThickness), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_radical_rule, size_id,
@@ -955,6 +962,7 @@ void fixup_math_parameters(integer fam_id, integer size_id, integer f,
                                (default_rule_thickness(size_id) +
                                 (abs(default_rule_thickness(size_id)) / 4)),
                                lvl);
+
         DEFINE_MATH_PARAMETERS(math_param_stack_vgap, size_id,
                                3 * default_rule_thickness(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_stack_vgap, size_id,
@@ -2052,13 +2060,21 @@ scaled make_op(pointer q)
     pointer p, v, x, y, z;      /* temporary registers for box construction */
     integer c;                  /* register for character examination */
     scaled shift_up, shift_down;        /* dimensions for box calculation */
+    scaled ok_size;
     if ((subtype(q) == normal) && (cur_style < text_style))
         subtype(q) = limits;
     if (type(nucleus(q)) == math_char_node) {
         fetch(nucleus(q));
-        if ((cur_style < text_style) && (char_tag(cur_f, cur_c) == list_tag)) { /* make it larger */
-            c = char_remainder(cur_f, cur_c);
-            if (char_exists(cur_f, c)) {
+        if (cur_style < text_style) {  /* try to make it larger */
+            if (minimum_operator_size(cur_style)!=undefined_math_parameter)
+                ok_size = minimum_operator_size(cur_style);
+            else
+                ok_size = height_plus_depth(cur_f, cur_c)+1;
+            while ((char_tag(cur_f, cur_c) == list_tag) &&
+                   height_plus_depth(cur_f, cur_c)<ok_size) {
+                c = char_remainder(cur_f, cur_c);
+                if (!char_exists(cur_f, c))
+                    break;
                 cur_c = c;
                 math_character(nucleus(q)) = c;
             }

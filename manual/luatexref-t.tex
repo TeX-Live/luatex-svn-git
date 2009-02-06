@@ -257,6 +257,7 @@ than were accessible before.
 \NC \type{\Umathquad}               \NC The width of 18mu's\NC \NR 
 \NC \type{\Umathaxis}               \NC Height of the vertical center axis of
                                         the math formula above the baseline\NC \NR
+\NC \type{\Umathoperatorsize}       \NC Minimum size of large operators in display mode \NC \NR
 \NC \type{\Umathoverbarkern}        \NC Vertical clearance above the rule \NC \NR
 \NC \type{\Umathoverbarrule}        \NC The width of the rule \NC \NR
 \NC \type{\Umathoverbarvgap}        \NC Vertical clearance below the rule \NC \NR
@@ -334,6 +335,7 @@ parameters for which there are font dimensions).
 \starttabulate[|l|l|l|p|]
 \NC \bf variable                \NC \bf style             \NC \bf default value opentype               \NC \bf default value tfm \NC\NR
 \NC \tex{Umathaxis}             \NC --                    \NC AxisHeight                               \NC axis_height \NC\NR
+\NC \tex{Umathoperatorsize}     \NC D, D'             \NC MinimumDisplayOperatorHeight             \NC $^6$ \NC\NR
 \NC \tex{Umathfractiondelsize}  \NC D, D'                 \NC 0$^1$                                    \NC delim1 \NC\NR
 \NC "                           \NC T, T', S, S', SS, SS' \NC 0$^1$                                    \NC delim2 \NC\NR
 \NC \tex{Umathfractiondenomdown}\NC D, D'                 \NC FractionDenominatorDisplayStyleShiftDown \NC denom1 \NC\NR
@@ -409,6 +411,10 @@ set until the first time \LUATEX\ has to typeset a formula. This provides some b
 \TEX82.  But once the \tex{Umathspaceafterscript} is set, \tex{scriptspace} will never be looked at again.
 
 Note 5: Tfm fonts set \tex{Umathunderbarkern} to $0$ because \TeX82\ never adds a kern below the underbar.
+
+Note 6: The \tex{Umathoperatorsize} is only used in \type{\displaystyle}, and is only set
+in OpenType fonts. In \TFM\ font mode, it is artificially set to one scaled point more than the
+initial attempt's size, so that always the \quote{first next} will be tried, just like in \TEX82.
 
 \subsection{Math spacing setting}
 

@@ -131,6 +131,7 @@ void mlist_to_hlist(void);
 typedef enum {
     math_param_quad,
     math_param_axis,
+    math_param_operator_size,
     math_param_overbar_kern,
     math_param_overbar_rule,
     math_param_overbar_vgap,

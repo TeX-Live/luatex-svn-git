@@ -683,6 +683,7 @@
 
 @define const math_param_quad;
 @define const math_param_axis;
+@define const math_param_operator_size;
 @define const math_param_overbar_kern;
 @define const math_param_overbar_rule;
 @define const math_param_overbar_vgap;

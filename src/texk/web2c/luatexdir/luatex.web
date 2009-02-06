@@ -25587,6 +25587,7 @@ primitive("scriptscriptfont",def_family,script_script_size);
 @!@:script_script_font_}{\.{\\scriptscriptfont} primitive@>
 primitive("Umathquad",             set_math_param, math_param_quad);
 primitive("Umathaxis",             set_math_param, math_param_axis);
+primitive("Umathoperatorsize",     set_math_param, math_param_operator_size);
 primitive("Umathoverbarkern",      set_math_param, math_param_overbar_kern);
 primitive("Umathoverbarrule",      set_math_param, math_param_overbar_rule);
 primitive("Umathoverbarvgap",      set_math_param, math_param_overbar_vgap);
