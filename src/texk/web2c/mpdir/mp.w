@@ -26036,6 +26036,7 @@ if (mp->ini_version) {
     mp->mem_name = mp_xstrdup(mp,"plain");
   }
   if (mp_open_mem_file(mp)) {
+    char *sfile = NULL;
     i = mp_undump_constants(mp);
     if (i != metapost_magic)
       goto OFF_BASE;    
@@ -26043,7 +26044,8 @@ if (mp->ini_version) {
     goto DONE;
 OFF_BASE:
     wterm_ln("(Fatal mem file error; ");
-    wterm((mp->find_file)(mp, mp->mem_name, "r", mp_filetype_memfile));
+    sfile = (mp->find_file)(mp, mp->mem_name, "r", mp_filetype_memfile);
+    if (sfile!=NULL) wterm(sfile);
     if (i>metapost_old_magic && i<metapost_magic) {
       wterm(" was written by an older version)\n");
     } else {
