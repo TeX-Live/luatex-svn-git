@@ -35,6 +35,7 @@
 
 #ifdef LUA_FF_LIB
 SplineFont *_SFReadTTFInfo(FILE *ttf, int flags,enum openflags openflags, char *filename,struct fontdict *fd);
+void THPatchSplineChar(SplineChar *sc);
 #endif
 
 char *SaveTablesPref;
@@ -2219,6 +2220,10 @@ return( sc );
 	LogError(_("Bad glyph (%d), its definition extends beyond the space allowed for it\n"), gid );
 	info->bad_glyph_data = true;
     }
+
+    /* find the bb */
+    THPatchSplineChar(sc);
+    
 return( sc );
 }
 
@@ -3828,6 +3833,9 @@ static void cidfigure(struct ttfinfo *info, struct topdicts *dict,
 	sf->glyphs[cid]->orig_pos = cid;		/* Bug! should be i, but I assume sf->chars[orig_pos]->orig_pos==orig_pos */
 	if ( sf->glyphs[cid]->layers[ly_fore].refs!=NULL )
 	    IError( "Reference found in CID font. Can't fix it up");
+
+        THPatchSplineChar(sf->glyphs[cid]);
+
 	if ( cstype==2 ) {
 	    if ( sf->glyphs[cid]->width == (int16) 0x8000 )
 		sf->glyphs[cid]->width = subdicts[j]->defaultwidthx;
@@ -6309,6 +6317,24 @@ return( true );
 /* I am not sure what happens to the ttinfo struct's members. 
    perhaps some need free()-ing
 */
+
+void THPatchSplineChar (SplineChar *sc) 
+{     
+  DBounds bb;
+  if (sc->layers!=NULL && sc->layers[ly_fore].splines != NULL) {
+    if (sc->xmax==0 && sc->ymax==0 && sc->xmin==0 && sc->ymin==0) {
+      SplineCharFindBounds(sc,&bb);
+      sc->xmin = bb.minx;
+      sc->ymin = bb.miny;
+      sc->xmax = bb.maxx;
+      sc->ymax = bb.maxy;
+    }
+    /* free the curves */
+    SplinePointListsFree(sc->layers[ly_fore].splines);
+    sc->layers[ly_fore].splines = NULL;
+  }
+}
+ 
 
 static SplineFont *SFFillFromTTFInfo(struct ttfinfo *info) {
     SplineFont *sf ;
