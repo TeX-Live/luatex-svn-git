@@ -2019,7 +2019,7 @@ return;
 }
 
 static void readttfcompositglyph(FILE *ttf,struct ttfinfo *info,SplineChar *sc, int32 end) {
-    RefChar *head=NULL, *last=NULL, *cur;
+    RefChar *head=NULL, *last=NULL, *cur=NULL;
     int flags=0, arg1, arg2;
     int use_my_metrics=0;
 
@@ -6331,7 +6331,11 @@ void THPatchSplineChar (SplineChar *sc)
     }
     /* free the curves */
     SplinePointListsFree(sc->layers[ly_fore].splines);
-    sc->layers[ly_fore].splines = NULL;
+    sc->layers[ly_fore].splines=NULL;
+  }
+  if (sc->layers[ly_fore].refs!=NULL) {
+    RefCharsFree(sc->layers[ly_fore].refs);
+    sc->layers[ly_fore].refs = NULL;
   }
 }
  
