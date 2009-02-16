@@ -295,11 +295,10 @@ static void set_cid_glyph_unicode(long index, glyph_unicode_entry * gp,
                                   internal_font_number f)
 {
     char *s;
-    if (font_tounicode(f)) {
-        if ((s = get_charinfo_tounicode(char_info(f, index))) != NULL) {
-            gp->code = UNI_EXTRA_STRING;
-            gp->unicode_seq = xstrdup(s);
-        }
+    if (font_tounicode(f) &&
+        (s = get_charinfo_tounicode(char_info(f, index))) != NULL) {
+        gp->code = UNI_EXTRA_STRING;
+        gp->unicode_seq = xstrdup(s);
     } else {
         gp->code = index;       /* fallback */
     }
