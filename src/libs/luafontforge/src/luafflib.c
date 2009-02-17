@@ -780,10 +780,10 @@ handle_glyphvariants (lua_State *L, struct glyphvariants *vars) {
   for (i=0; i< vars->part_cnt; i++) {
     lua_newtable(L);
     dump_stringfield(L, "component", vars->parts[i].component);
-    dump_intfield(L, "is_extender", vars->parts[i].is_extender);
-    dump_intfield(L, "startConnectorLength", vars->parts[i].startConnectorLength);
-    dump_intfield(L, "endConnectorLength", vars->parts[i].endConnectorLength);
-    dump_intfield(L, "fullAdvance", vars->parts[i].fullAdvance);
+    dump_intfield(L, "extender", vars->parts[i].is_extender);
+    dump_intfield(L, "start", vars->parts[i].startConnectorLength);
+    dump_intfield(L, "end", vars->parts[i].endConnectorLength);
+    dump_intfield(L, "advance", vars->parts[i].fullAdvance);
     lua_rawseti(L,-2,(i+1));
   }
   lua_setfield(L, -2, "parts");
