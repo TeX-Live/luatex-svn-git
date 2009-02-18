@@ -100,6 +100,14 @@ const char *MATH_param_names[] = {
     NULL,
 };
 
+static void dump_intfield (lua_State *L, char *n, int c)
+{
+    lua_pushstring(L, n);
+    lua_pushnumber(L, c);
+    lua_rawset(L, -3);
+}
+
+
 
 void font_char_to_lua(lua_State * L, internalfontnumber f, charinfo * co)
 {
@@ -177,17 +185,39 @@ void font_char_to_lua(lua_State * L, internalfontnumber f, charinfo * co)
     lua_rawset(L, -3);
 
     if (get_charinfo_tag(co) == ext_tag) {
-        lua_pushstring(L, "extensible");
-        lua_createtable(L, 0, 4);
-        lua_pushnumber(L, get_charinfo_extensible(co, EXT_TOP));
-        lua_setfield(L, -2, "top");
-        lua_pushnumber(L, get_charinfo_extensible(co, EXT_BOT));
-        lua_setfield(L, -2, "bot");
-        lua_pushnumber(L, get_charinfo_extensible(co, EXT_MID));
-        lua_setfield(L, -2, "mid");
-        lua_pushnumber(L, get_charinfo_extensible(co, EXT_REP));
-        lua_setfield(L, -2, "rep");
-        lua_rawset(L, -3);
+        extinfo *h;
+        h = get_charinfo_hor_variants(co);
+        if (h!=NULL) {
+            int i = 1;
+            lua_newtable(L);          
+            while (h!=NULL) {
+                lua_createtable(L, 0, 5);
+                dump_intfield(L, "glyph",     h->glyph);
+                dump_intfield(L, "extender",  h->extender);
+                dump_intfield(L, "start",     h->start_overlap);
+                dump_intfield(L, "end",       h->end_overlap);
+                dump_intfield(L, "advance",   h->advance);
+                lua_rawseti(L,-2,i); i++;
+                h = h->next;
+            }
+            lua_setfield(L, -2, "horiz_variants");
+        }
+        h = get_charinfo_vert_variants(co);
+        if (h!=NULL) {
+            int i = 1;
+            lua_newtable(L);          
+            while (h!=NULL) {
+                lua_createtable(L, 0, 5);
+                dump_intfield(L, "glyph",     h->glyph);
+                dump_intfield(L, "extender",  h->extender);
+                dump_intfield(L, "start",     h->start_overlap);
+                dump_intfield(L, "end",       h->end_overlap);
+                dump_intfield(L, "advance",   h->advance);
+                lua_rawseti(L,-2,i); i++;
+                h = h->next;
+            }
+            lua_setfield(L, -2, "vert_variants");
+        }
     }
     ki = get_charinfo_kerns(co);
     if (ki != NULL) {
@@ -613,6 +643,11 @@ make_luaS_index(right_boundary);
 make_luaS_index(kerns);
 make_luaS_index(ligatures);
 make_luaS_index(fonts);
+make_luaS_index(extender);
+make_luaS_index(start);
+make_luaS_index(end);
+make_luaS_index(advance);
+make_luaS_index(glyph);
 
 void init_font_string_pointers(lua_State * L)
 {
@@ -659,6 +694,12 @@ void init_font_string_pointers(lua_State * L)
     init_luaS_index(kerns);
     init_luaS_index(ligatures);
     init_luaS_index(fonts);
+
+    init_luaS_index(extender);
+    init_luaS_index(start);
+    init_luaS_index(end);
+    init_luaS_index(advance);
+    init_luaS_index(glyph);
 }
 
 static int count_char_packet_bytes(lua_State * L)
@@ -1057,6 +1098,57 @@ font_char_from_lua(lua_State * L, internal_font_number f, integer i,
                     ("lua-loaded font %s char [U+%X] has an invalid extensible field!",
                      font_name(f), (int) i);
             }
+        }
+        lua_pop(L, 1);
+
+        lua_getfield(L, -1, "horiz_variants");
+        if (lua_istable(L, -1)) {
+          int glyph, startconnect, endconnect, advance, extender;              
+          extinfo *h;
+          set_charinfo_tag(co, ext_tag);
+          set_charinfo_hor_variants(co, NULL);
+          for (k=1;;k++) {
+            lua_rawgeti(L, -1, k);
+            if (lua_istable(L, -1)) {
+              glyph        = n_numeric_field(L, luaS_glyph_index, 0);
+              extender     = n_numeric_field(L, luaS_extender_index, 0);
+              startconnect = n_numeric_field(L, luaS_start_index, 0);
+              endconnect   = n_numeric_field(L, luaS_end_index, 0);
+              advance      = n_numeric_field(L, luaS_advance_index, 0);
+              h = new_variant (glyph, startconnect, endconnect, advance , extender);
+              add_charinfo_hor_variant(co, h);
+              lua_pop(L, 1);
+            } else {              
+              lua_pop(L, 1);
+              break;
+            }
+          }
+        }
+        lua_pop(L, 1);
+
+
+        lua_getfield(L, -1, "vert_variants");
+        if (lua_istable(L, -1)) {
+          int glyph, startconnect, endconnect, advance, extender;              
+          extinfo *h;
+          set_charinfo_tag(co, ext_tag);
+          set_charinfo_vert_variants(co, NULL);
+          for (k=1;;k++) {
+            lua_rawgeti(L, -1, k);
+            if (lua_istable(L, -1)) {
+              glyph        = n_numeric_field(L, luaS_glyph_index, 0);
+              extender     = n_numeric_field(L, luaS_extender_index, 0);
+              startconnect = n_numeric_field(L, luaS_start_index, 0);
+              endconnect   = n_numeric_field(L, luaS_end_index, 0);
+              advance      = n_numeric_field(L, luaS_advance_index, 0);
+              h = new_variant (glyph, startconnect, endconnect, advance, extender);
+              add_charinfo_vert_variant(co, h);
+              lua_pop(L, 1);
+            } else {              
+              lua_pop(L, 1);
+              break;
+            }
+          }
         }
         lua_pop(L, 1);
 

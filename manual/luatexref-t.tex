@@ -302,6 +302,7 @@ than were accessible before.
                                         be at least as high as this above the baseline\NC \NR
 \NC \type{\Umathsubsupvgap}         \NC Vertical clearance between super- and subscript\NC \NR
 \NC \type{\Umathspaceafterscript}   \NC Additional space added after a super- or subscript\NC \NR
+\NC \type{\Umathconnectoroverlapmin}\NC Minimum overlap between parts in an extensible recipe\NC \NR
 \stoptabulate
 
 Each of the parameters in this section can be set by a command like this:
@@ -387,11 +388,12 @@ parameters for which there are font dimensions).
 \NC \tex{Umathunderbarkern}     \NC --                    \NC UnderbarExtraDescender                   \NC 0$^5$ \NC\NR
 \NC \tex{Umathunderbarrule}     \NC --                    \NC UnderbarRuleThickness                    \NC default_rule_thickness \NC\NR
 \NC \tex{Umathunderbarvgap}     \NC --                    \NC UnderbarVerticalGap                      \NC 3*default_rule_thickness \NC\NR
+\NC \tex{Umathconnectoroverlapmin}\NC --                  \NC MinConnectorOverlap                      \NC 0$^5$ \NC\NR
 \stoptabulate
 
 \stop
 
-Note 1: Opentype fonts set \tex{Umathfractiondelsize}, \tex{Umathlimitabovekern},
+Note 1: OpenType fonts set \tex{Umathfractiondelsize}, \tex{Umathlimitabovekern},
 \tex{Umathlimitbelowkern} to zero and set \tex{Umathquad} to the font size of the used font,
 because these are not supported in the MATH table,
 
@@ -410,7 +412,8 @@ Note 4: (also if tfm fonts are used) A similar situation arises wrt. \tex{Umaths
 set until the first time \LUATEX\ has to typeset a formula. This provides some backward compatibility with
 \TEX82.  But once the \tex{Umathspaceafterscript} is set, \tex{scriptspace} will never be looked at again.
 
-Note 5: Tfm fonts set \tex{Umathunderbarkern} to $0$ because \TeX82\ never adds a kern below the underbar.
+Note 5: Tfm fonts set \tex{Umathunderbarkern} and \tex{Umathconnectoroverlapmin} to zero because
+\TeX82\ never adds a kern below the underbar and always stacks extensibles without any overlap.
 
 Note 6: The \tex{Umathoperatorsize} is only used in \type{\displaystyle}, and is only set
 in OpenType fonts. In \TFM\ font mode, it is artificially set to one scaled point more than the
@@ -531,6 +534,10 @@ The placement of the degree is controlled by the math parameters
 \type{\Umathradicaldegreebefore}, \type{\Umathradicaldegreeafter}, and
 \type{\Umathradicaldegreeraise}. The degree will be typeset in \type{\scriptscriptstyle}.
 
+\subsection {Extensible delimiters}
+
+\LUATEX\ internally uses a structure that supports OpenType \quote{MathVariants} as well 
+as \TFM\ \quote{extensible recipes}. 
 
 \section{Extended tables}
 
@@ -5165,11 +5172,11 @@ The \type{parts} table is an array of smaller tables:
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
-\NC component             \NC string     \NC \NC \NR
-\NC is_extender           \NC number     \NC \NC \NR
-\NC startConnectorLength  \NC number     \NC \NC \NR
-\NC endConnectorLength    \NC number     \NC \NC \NR
-\NC fullAdvance           \NC number     \NC \NC \NR
+\NC component            \NC string     \NC \NC \NR
+\NC extender             \NC number     \NC \NC \NR
+\NC start                \NC number     \NC \NC \NR
+\NC end                  \NC number     \NC \NC \NR
+\NC advance              \NC number     \NC \NC \NR
 \stoptabulate
 
 
@@ -5971,10 +5978,11 @@ The following top|-|level keys can be present inside a character hash:
 \NC left_protruding  \NC no    \NC no           \NC maybe    \NC number         \NC character's \tex{lpcode}\NC\NR
 \NC right_protruding \NC no    \NC no           \NC maybe    \NC number         \NC character's \tex{rpcode}\NC\NR
 \NC expansion_factor \NC no    \NC no           \NC maybe    \NC number         \NC character's \tex{efcode}\NC\NR
-\NC tounicode  \NC no          \NC no           \NC maybe    \NC string         \NC character's Unicode equivalent(s), in
-UTF-16BE hexadecimal format\NC\NR
+\NC tounicode  \NC no          \NC no           \NC maybe    \NC string         \NC character's Unicode equivalent(s), in UTF-16BE hexadecimal format\NC\NR
 \NC next       \NC no          \NC yes          \NC yes      \NC number         \NC the \quote{next larger} character index \NC\NR
 \NC extensible \NC no          \NC yes          \NC yes      \NC table          \NC the constituent parts of an extensible recipe \NC\NR
+\NC vert_variants \NC no       \NC no           \NC yes      \NC table          \NC constituent parts of a vertical variant set\NC \NR
+\NC horiz_variants\NC no       \NC no           \NC yes      \NC table          \NC constituent parts of a horizontal variant set\NC \NR
 \NC kerns      \NC no          \NC yes          \NC yes      \NC table          \NC kerning information \NC\NR
 \NC ligatures  \NC no          \NC yes          \NC yes      \NC table          \NC ligaturing information \NC\NR
 \NC commands   \NC yes         \NC no           \NC yes      \NC array          \NC virtual font commands \NC\NR
@@ -6007,6 +6015,7 @@ the enclosing angle brackets. This may change in the future.} Small example: the
 \type{tounicode} for a \type{fi} ligature would be \type{00660069}.
 
 The presence of \type{extensible} will overrule \type{next}, if that is also present.
+It in in turn can be overruled by \type{vert_variants}.
 
 The \type{extensible} table is very simple:
 
@@ -6016,6 +6025,20 @@ The \type{extensible} table is very simple:
 \NC mid     \NC number   \NC \quote{middle} character index     \NC\NR
 \NC bot     \NC number   \NC \quote{bottom} character index     \NC\NR
 \NC rep     \NC number   \NC \quote{repeatable} character index \NC\NR
+\stoptabulate
+
+The \type{horiz_variants} and \type{vert_variants} are arrays of components. Each of those 
+components is itself a hash of up to five keys:
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC component            \NC number     \NC The character index (note that this is an encoding number, not a name).\NC \NR
+\NC extender             \NC number     \NC One (1) if this part is repeatable, zero (0) otherwise.\NC \NR
+\NC start                \NC number     \NC Maximum overlap at the starting side (in scaled points).\NC \NR
+\NC end                  \NC number     \NC Maximum overlap at the ending side (in scaled points).\NC \NR
+\NC advance              \NC number     \NC Total advance width of this item (can be zero or missing, 
+                                            then the natural size of the glyph for character \type{component}
+                                            is used).\NC \NR
 \stoptabulate
 
 The \type{kerns} table is a hash indexed by character index (and

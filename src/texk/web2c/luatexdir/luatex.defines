@@ -721,6 +721,7 @@
 @define const math_param_sup_sub_bottom_max;
 @define const math_param_subsup_vgap;
 @define const math_param_space_after_script;
+@define const math_param_connector_overlap_min;
 @define const math_param_first_mu_glue;
 @define const math_param_ord_ord_spacing;
 @define const math_param_ord_op_spacing;

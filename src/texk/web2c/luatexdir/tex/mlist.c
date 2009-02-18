@@ -124,7 +124,7 @@ omitted (since it is always |cur_size| when we refer to such parameters).
 #define big_op_spacing4(A) mathex(A,12) /* minimum baselineskip below displayed op */
 #define big_op_spacing5(A) mathex(A,13) /* padding above and below displayed limits */
 
-/* I made a few trivial extensions cf. MATH.MathConstants, but some of
+/* I made a bunch of extensions cf. the MATH table in OpenType, but some of
 the MathConstants values have no matching usage in \LuaTeX\ right now.
  
 
@@ -158,10 +158,6 @@ SkewedFractionHorizontalGap,
 SkewedFractionVerticalGap:
   I am not sure it makes sense implementing skewed fractions,
   so I would like to see an example first
-
-MinConnectorOverlap:
-  LuaTeX's extensibles are always butt-to-butt. In general, MATH
-  extensibles seem somewhat smarter than LuaTeX currently is.
 
 */
 
@@ -230,7 +226,6 @@ static scaled math_axis(int b)
     return a;
 }
 
-
 static scaled minimum_operator_size(int var)
 {
     scaled a = get_math_param(math_param_operator_size, var);
@@ -256,6 +251,17 @@ static scaled radical_degree_before(int var)
     }
     return a;
 }
+
+static scaled connector_overlap_min(int var)
+{
+    scaled a = get_math_param(math_param_connector_overlap_min, var);
+    if (a == undefined_math_parameter) {
+        math_param_error("connectoroverlapmin", var);
+        a = 0;
+    }
+    return a;
+}
+
 
 static scaled radical_degree_after(int var)
 {
@@ -825,6 +831,12 @@ void fixup_math_parameters(integer fam_id, integer size_id, integer f,
         DEFINE_DMATH_PARAMETERS(math_param_space_after_script, size_id,
                                 font_MATH_par(f, SpaceAfterScript), lvl);
 
+        DEFINE_MATH_PARAMETERS(math_param_connector_overlap_min, size_id,
+                               font_MATH_par(f, MinConnectorOverlap), lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_connector_overlap_min, size_id,
+                                font_MATH_par(f, MinConnectorOverlap), lvl);
+
+
     } else if (fam_id == 2 && is_old_mathfont(f, total_mathsy_params)) {
         /* fix old-style |sy| parameters */
         DEFINE_MATH_PARAMETERS(math_param_quad, size_id, math_quad(size_id),
@@ -1010,12 +1022,16 @@ void fixup_math_parameters(integer fam_id, integer size_id, integer f,
         /* All of the |space_after_script|s are done in finalize_math_parameters because the
            \.{\\scriptspace} may have been altered by the user
          */
+        DEFINE_MATH_PARAMETERS(math_param_connector_overlap_min, size_id, 0, lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_connector_overlap_min, size_id, 0, lvl);
     }
 }
 
 /* this needs to be called just at the start of |mlist_to_hlist| */
 void finalize_math_parameters(void)
 {
+    integer saved_trace = int_par(param_tracing_assigns_code);
+    int_par(param_tracing_assigns_code) = 0;
     if (get_math_param(math_param_space_after_script, display_style) ==
         undefined_math_parameter) {
         def_math_param(math_param_space_after_script, display_style,
@@ -1087,8 +1103,7 @@ void finalize_math_parameters(void)
        def_math_param(math_param_radical_degree_after, display_style, 
                       -xn_over_d(get_math_quad(display_style),10,18), cur_level);
     }
-
-
+    int_par(param_tracing_assigns_code) = saved_trace;
 
 }
 
@@ -1104,6 +1119,16 @@ for each combination of family and size.  (Be alert: Size codes get
 larger as the type gets smaller.)
 */
 
+
+char *math_size_string (integer s)
+{
+    if (s == text_size)
+        return "textfont";
+    else if (s == script_size)
+        return "scriptfont";
+    else
+        return "scriptscriptfont";
+}
 
 void print_size(integer s)
 {
@@ -1216,22 +1241,6 @@ static pointer char_box(internal_font_number f, integer c, pointer bb)
 }
 
 /*
-  When we build an extensible character, it's handy to have the
-  following subroutine, which puts a given character on top
-  of the characters already in box |b|:
-*/
-
-void stack_into_box(pointer b, internal_font_number f, integer c)
-{
-    pointer p;                  /* new node placed into |b| */
-    p = char_box(f, c, node_attr(b));
-    vlink(p) = list_ptr(b);
-    list_ptr(b) = p;
-    height(b) = height(p);
-}
-
-
-/*
  Another handy subroutine computes the height plus depth of
  a given character:
 */
@@ -1239,6 +1248,241 @@ void stack_into_box(pointer b, internal_font_number f, integer c)
 scaled height_plus_depth(internal_font_number f, integer c)
 {
     return (char_height(f, c) + char_depth(f, c));
+}
+
+
+/*
+  When we build an extensible character, it's handy to have the
+  following subroutine, which puts a given character on top
+  of the characters already in box |b|:
+*/
+
+scaled stack_into_box(pointer b, internal_font_number f, integer c)
+{
+    pointer p;                  /* new node placed into |b| */
+    p = char_box(f, c, node_attr(b));
+    vlink(p) = list_ptr(b);
+    list_ptr(b) = p;
+    height(b) = height(p);
+    return height_plus_depth(f,c);
+}
+
+
+
+void add_delim_kern(pointer b, scaled s)
+{
+    pointer p;                  /* new node placed into |b| */
+    p = new_kern(s);    
+    reset_attributes(p, node_attr(b));
+    vlink(p) = list_ptr(b);
+    list_ptr(b) = p;
+}
+
+
+/* */
+
+pointer get_delim_vbox (extinfo *ext, internal_font_number f, scaled v, pointer att) 
+{
+    pointer b;
+    extinfo *cur;
+    scaled min_overlap, prev_overlap; 
+    scaled b_max;              /* natural (maximum) height of the stack */
+    scaled s_max;              /* amount of possible shrink in the stack */
+    scaled a, wd, ht, last_ht;
+    integer cc;                 /* a temporary character code for extensibles  */
+    integer i;                 /* a temporary counter number of extensible pieces */
+    int with_extenders;
+    int num_extenders, num_normal, num_total;
+    scaled c, d, u;
+    scaled *max_shrinks = NULL;
+    assert(ext!=NULL);
+    b = new_null_box();
+    type(b) = vlist_node;
+    reset_attributes(b, att);
+    min_overlap = connector_overlap_min(cur_style);
+    assert(min_overlap>=0);
+    with_extenders = 0;
+    num_extenders = 0; num_normal = 0;
+    cur = ext; 
+    while (cur != NULL) {
+        if (cur->extender>0)
+            num_extenders++;
+        else
+            num_normal++;
+        /* no negative overlaps or advances are allowed */
+        assert(cur->start_overlap>=0);
+        assert(cur->end_overlap>=0);
+        assert(cur->advance>=0);
+        cur = cur->next;
+    }
+    if (num_normal==0) {
+        char *hlp[] = {
+          "Each extensible recipe should have at least one non-repeatable part.",
+          "To get around this problem, I have changed the first part to be",
+          "non-repeatable. Fix your font!",
+          NULL
+        };
+        tex_error("Extensible recipe has no fixed parts.", hlp);
+        ext->extender = 0;
+        num_normal=1;
+        num_extenders--;
+    }
+    /* |ext| holds a linked list of numerous items that may or may not be 
+       repeatable. For the total height, we have to figure out how many items
+       are needed to create a stack of at least |v|. 
+       The next |while| loop does  that. It has two goals: it finds out 
+       the natural height |b_max|  of the all the parts needed to reach
+       at least |v|,  and it sets |with_extenders| to the number of times 
+       each of the repeatable items in |ext| has to be repeated to reach 
+       that height.
+    */      
+ RETRY:
+    cur = ext; 
+    prev_overlap = -1; 
+    b_max = 0;
+    s_max = 0;
+    i = 0;
+    while (cur != NULL) {
+        a = cur->advance;
+        if (a==0) {
+            a = height_plus_depth(f,cur->glyph); /* for tfm fonts */
+            assert (a>= 0);
+        }
+        /* substract width of the current overlap if this is not the first */
+        if (prev_overlap>=0) {
+            c = prev_overlap;
+            if (c>cur->start_overlap)
+                c = cur->start_overlap;
+            if (c<min_overlap)
+                c = min_overlap;
+            b_max -= c;
+            d = prev_overlap;
+            if (d>cur->start_overlap)
+                d = cur->start_overlap;
+            if (d<min_overlap)
+                d = min_overlap;
+            s_max += (d - min_overlap);
+        }
+        if (cur->extender == 0) { /* not an extender */
+            i = 0;
+            prev_overlap = cur->end_overlap;
+        } else {
+            if (with_extenders>0) {
+                i--;
+                prev_overlap = cur->end_overlap;
+            } else {
+                i = 0;
+            }
+        }
+        b_max += a; /* add the advance value */
+        if (i==0) {
+            cur = cur->next;
+            i = with_extenders;
+        }
+    }
+    if (b_max<v && num_extenders>0) { /* not large enough, but can grow */
+        with_extenders++;
+        goto RETRY;
+    }
+    /* now |b_max| is the natural height, |with_extenders| holds
+       the count of each extender that is needed, and the maximum 
+       amount the stack can shrink by is |s_max|.
+
+       |(b_max-v)| is the total amount of extra height that needs to
+       be gotten rid of, and the total number of items in the stack is
+       |(num_extenders*with_extenders)+num_normal|
+    */
+    /* create an array of maximum shrinks and fill it */
+    i = 0; 
+    num_total = ((num_extenders*with_extenders)+num_normal);
+    max_shrinks = xcalloc(sizeof(scaled), (num_total-1));
+    cur = ext; 
+    prev_overlap = -1; 
+    c = 0;
+    while (cur != NULL) {
+        if (prev_overlap>=0) {
+            d = prev_overlap;
+            if (d>cur->start_overlap)
+                d = cur->start_overlap;
+            if (d<min_overlap)
+                d = min_overlap;
+            max_shrinks[c++] = (d - min_overlap); /* for testing */
+        }
+        if (cur->extender == 0) { /* not an extender */
+            i = 0;
+            prev_overlap = cur->end_overlap;
+        } else {
+            if (with_extenders>0) {
+                i--;
+                prev_overlap = cur->end_overlap;
+            } else {
+                i = 0;
+            }
+        }
+        if (i==0) {
+            cur = cur->next;
+            i = with_extenders;
+        }
+    }
+    /* now create the box contents */
+    cur = ext; 
+    wd = 0; d = 0; ht = 0;
+    while (cur != NULL) {
+        cc = cur->glyph;
+        if (char_width(f,cc) > wd) 
+            wd = char_width(f,cc);
+        if (cur->extender > 0 ) {
+            i = with_extenders;
+            while (i>0) {
+                ht += stack_into_box(b, f, cc);
+                if (d<(num_total-1)) {
+                    u = min_overlap;
+                    if (s_max!=0)
+                        u += xn_over_d(max_shrinks[d], (b_max-v), s_max);
+                    add_delim_kern(b, -u);
+                    ht -= u;
+                }
+                d++;
+                i--;
+            }
+        } else {
+            ht += stack_into_box(b, f, cc);
+            if (d<(num_total-1)) {
+                u = min_overlap;
+                if (s_max!=0)
+                    u += xn_over_d(max_shrinks[d], (b_max-v), s_max);
+                add_delim_kern(b, -u);
+                ht -= u;
+            }
+            d++;
+        }
+        cur = cur->next;
+    }
+    /* it is important to use |ht| here instead of |v| because  if there
+       was not enough shrink to get the correct size, it has to be centered
+       based on its actual height. That actual height is not the same as
+       |b_max| either because |min_overlap| can have ben set by the user
+       outside of the font's control.
+    */
+    last_ht = 0;
+    height(b) = ht;
+    depth(b) = 0;
+    /* the next correction is needed for radicals */
+    if (list_ptr(b)!=null &&
+        type(list_ptr(b))==hlist_node &&
+        list_ptr(list_ptr(b)) != null &&
+        type(list_ptr(list_ptr(b)))==glyph_node) { /* and it should be */
+      last_ht = char_height(font(list_ptr(list_ptr(b))), character (list_ptr(list_ptr(b))));
+      height(b) = last_ht;
+      depth(b) = ht - last_ht; 
+    }
+    /*
+      fprintf (stdout,"v=%f,b_max=%f,ht=%f,n=%d\n", (float)v/65536.0,
+      (float)b_max/65536.0,(float)height(b)/65536.0,num_total);
+    */
+    /* TODO: think about italic correction */
+    width(b) = wd;
+    return b;
 }
 
 
@@ -1265,13 +1509,12 @@ pointer var_delimiter(pointer d, integer s, scaled v)
     pointer b;                  /* the box that will be constructed */
     internal_font_number f, g;  /* best-so-far and tentative font codes */
     integer c, x, y;            /* best-so-far and tentative character codes */
-    integer cc;                 /* a temporary character code for extensibles  */
-    integer m, n;               /* the number of extensible pieces */
     scaled u;                   /* height-plus-depth of a tentative character */
     scaled w;                   /* largest height-plus-depth so far */
     integer z;                  /* runs through font family members */
     boolean large_attempt;      /* are we trying the ``large'' variant? */
     pointer att;                /* to save the current attribute list */
+    extinfo *ext;
     f = null_font;
     c = 0;
     w = 0;
@@ -1326,57 +1569,13 @@ pointer var_delimiter(pointer d, integer s, scaled v)
         /* When the following code is executed, |char_tag(q)| will be equal to
            |ext_tag| if and only if a built-up symbol is supposed to be returned.
          */
-        if (char_tag(f, c) == ext_tag) {
-            b = new_null_box();
-            type(b) = vlist_node;
-            reset_attributes(b, att);
-            /* The width of an extensible character is the width of the repeatable
-               module. If this module does not have positive height plus depth,
-               we don't use any copies of it, otherwise we use as few as possible
-               (in groups of two if there is a middle part).
-             */
-            cc = ext_rep(f, c);
-            u = height_plus_depth(f, cc);
-            w = 0;
-            width(b) = char_width(f, cc) + char_italic(f, cc);
-            cc = ext_bot(f, c);
-            if (cc != 0)
-                w = w + height_plus_depth(f, cc);
-            cc = ext_mid(f, c);
-            if (cc != 0)
-                w = w + height_plus_depth(f, cc);
-            cc = ext_top(f, c);
-            if (cc != 0)
-                w = w + height_plus_depth(f, cc);
-            n = 0;
-            if (u > 0) {
-                while (w < v) {
-                    w = w + u;
-                    incr(n);
-                    if ((ext_mid(f, c)) != 0)
-                        w = w + u;
-                }
-            }
-            cc = ext_bot(f, c);
-            if (cc != 0)
-                stack_into_box(b, f, cc);
-            cc = ext_rep(f, c);
-            for (m = 1; m <= n; m++)
-                stack_into_box(b, f, cc);
-            cc = ext_mid(f, c);
-            if (cc != 0) {
-                stack_into_box(b, f, cc);
-                cc = ext_rep(f, c);
-                for (m = 1; m <= n; m++)
-                    stack_into_box(b, f, cc);
-            }
-            cc = ext_top(f, c);
-            if (cc != 0)
-                stack_into_box(b, f, cc);
-            depth(b) = w - height(b);
+        ext = NULL;
+        if ((char_tag(f, c) == ext_tag) &&
+            ((ext = get_charinfo_vert_variants(char_info(f,c))) != NULL)) {
+            b = get_delim_vbox(ext, f, v, att);
         } else {
             b = char_box(f, c, att);
-        }
+        } 
     } else {
         b = new_null_box();
         reset_attributes(b, att);
@@ -1647,8 +1846,6 @@ void fetch(pointer a)
     cur_c = math_character(a);
     cur_f = fam_fnt(math_fam(a), cur_size);
     if (cur_f == null_font) {
-        int saved_selector;
-        str_number s;
         char *msg;
         char *hlp[] = {
             "Somewhere in the math formula just ended, you used the",
@@ -1657,17 +1854,9 @@ void fetch(pointer a)
             "and I'll try to forget that I needed that character.",
             NULL
         };
-        saved_selector = selector;
-        selector = new_string;
-        print_size(cur_size);
-        print_char(' ');
-        print_int(math_fam(a));
-        tprint(" is undefined (character ");
-        print_char(cur_c);
-        print_char(')');
-        s = make_string();
-        selector = saved_selector;
-        msg = makecstring(s);
+        msg = xmalloc(256);
+        snprintf(msg,255,"\\%s%d is undefined (character %d)",
+                 math_size_string(cur_size), (int)math_fam(a), (int)cur_c);
         tex_error(msg, hlp);
         free(msg);
     } else {

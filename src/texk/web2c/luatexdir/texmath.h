@@ -169,6 +169,7 @@ typedef enum {
     math_param_sup_sub_bottom_max,
     math_param_subsup_vgap,
     math_param_space_after_script,
+    math_param_connector_overlap_min,
     math_param_ord_ord_spacing,
     math_param_ord_op_spacing,
     math_param_ord_bin_spacing,

@@ -45,12 +45,20 @@ typedef struct kerninfo {
     scaled sc;
 } kerninfo;
 
+typedef struct extinfo {
+    struct extinfo *next;
+    int glyph;
+    int start_overlap;
+    int end_overlap;
+    int advance;
+    int extender; 
+} extinfo;
+
 typedef struct charinfo {
     char *name;                 /* postscript character name */
     liginfo *ligatures;         /* ligature items */
     kerninfo *kerns;            /* kern items */
     real_eight_bits *packets;   /* virtual commands.  */
-    integer *extensible;        /* extensible recipe (if any) */
     unsigned short index;       /* CID index */
     integer remainder;          /* spare value for odd items, could be union-ed with extensible */
     scaled width;               /* width */
@@ -64,6 +72,8 @@ typedef struct charinfo {
     char tag;                   /* list / ext taginfo */
     char used;                  /* char is typeset ? */
     char *tounicode;            /* unicode equivalent */
+    extinfo *hor_variants;      /* horizontal variants */
+    extinfo *vert_variants;     /* vertical variants */
 } charinfo;
 
 
@@ -80,6 +90,20 @@ typedef struct charinfo_short {
 } charinfo_short;
 #  endif
 
+#define EXT_NORMAL 0
+#define EXT_REPEAT 1
+
+extern extinfo *get_charinfo_vert_variants(charinfo * ci);
+extern extinfo *get_charinfo_hor_variants(charinfo * ci);
+extern void set_charinfo_hor_variants (charinfo * ci, extinfo *ext);
+extern void set_charinfo_vert_variants (charinfo * ci, extinfo *ext);
+extern void add_charinfo_vert_variant (charinfo * ci, extinfo *ext);
+extern void add_charinfo_hor_variant (charinfo * ci, extinfo *ext);
+
+extern extinfo *copy_variants (extinfo * o);
+
+extern extinfo *new_variant (int glyph, int startconnect, int endconnect,
+                             int advance, int repeater);
 
 extern charinfo_short char_info_short(internal_font_number f, integer c);
 

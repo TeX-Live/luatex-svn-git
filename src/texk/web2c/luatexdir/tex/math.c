@@ -294,6 +294,7 @@ static char *math_param_names[] = {
     "Umathsupsubbottommax",
     "Umathsubsupvgap",
     "Umathspaceafterscript",
+    "Umathconnectoroverlapmin",
     "Umathordordspacing",
     "Umathordopspacing",
     "Umathordbinspacing",

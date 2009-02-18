@@ -25625,6 +25625,7 @@ primitive("Umathsupbottommin",     set_math_param, math_param_sup_bottom_min);
 primitive("Umathsupsubbottommax",  set_math_param, math_param_sup_sub_bottom_max);
 primitive("Umathsubsupvgap",       set_math_param, math_param_subsup_vgap);
 primitive("Umathspaceafterscript", set_math_param, math_param_space_after_script); 
+primitive("Umathconnectoroverlapmin", set_math_param, math_param_connector_overlap_min); 
 primitive("Umathordordspacing",    set_math_param, math_param_ord_ord_spacing);
 primitive("Umathordopspacing",     set_math_param, math_param_ord_op_spacing);
 primitive("Umathordbinspacing",    set_math_param, math_param_ord_bin_spacing);
