@@ -403,7 +403,7 @@ void add_charinfo_hor_variant (charinfo * ci, extinfo *ext)
 
 extinfo *copy_variants (extinfo * o)
 {
-    extinfo *c, *t, *h = NULL; 
+    extinfo *c, *t = NULL, *h = NULL; 
     while (o != NULL) {
         c = copy_variant(o);
         if (h==null)
@@ -568,6 +568,7 @@ void set_charinfo_hor_variants (charinfo * ci, extinfo *ext)
 void set_charinfo_extensible(charinfo * ci, int top, int bot, int mid, int rep)
 {
     extinfo *ext;
+    set_charinfo_vert_variants (ci,NULL); /* clear old */
     if (bot==0 && top==0 && mid==0 && rep != 0) {
         ext = new_variant(rep,0,0,0,EXT_NORMAL);
         add_charinfo_vert_variant(ci, ext);
