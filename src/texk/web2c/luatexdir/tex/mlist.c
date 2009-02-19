@@ -1458,6 +1458,8 @@ pointer get_delim_vbox (extinfo *ext, internal_font_number f, scaled v, pointer 
         }
         cur = cur->next;
     }
+    if (max_shrinks!=NULL)
+      free(max_shrinks);
     /* it is important to use |ht| here instead of |v| because  if there
        was not enough shrink to get the correct size, it has to be centered
        based on its actual height. That actual height is not the same as

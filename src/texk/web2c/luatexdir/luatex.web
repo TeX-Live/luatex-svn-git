@@ -5456,6 +5456,8 @@ eqtb[uc_code_base] :=eqtb[cat_code_base];
 eqtb[sf_code_base] :=eqtb[cat_code_base];
 eqtb[math_code_base]:=eqtb[cat_code_base];@/
 cat_code_table:=0;
+initialize_math_codes;
+initialize_text_codes;
 initex_cat_codes(0);
 for k:="0" to "9" do set_math_code(k,tex_mathcode,var_code,0,k,level_one);@/
 for k:="A" to "Z" do begin 
@@ -5468,8 +5470,6 @@ for k:="A" to "Z" do begin
 
 @ @<Set init...@>=
 static_int_base:=int_base;
-initialize_math_codes;
-initialize_text_codes;
 
 @ @<Show equivalent |n|, in region 4@>=
 if (n=par_shape_loc) or ((n>=etex_pen_base) and (n<etex_pens)) then
@@ -27310,6 +27310,8 @@ else begin
     @<Finish the \.{DVI} file@>;
 end;
 @<Close {\sl Sync\TeX} file and write status@>;
+free_text_codes;
+free_math_codes;
 if log_opened then
   begin wlog_cr; selector:=selector-2;
   if (selector=term_only)and(callback_id=0) then begin

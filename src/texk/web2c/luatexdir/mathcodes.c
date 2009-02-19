@@ -450,6 +450,14 @@ void initialize_math_codes(void)
     initializedelcode();
 }
 
+void free_math_codes (void)
+{
+    destroy_sa_tree(mathcode_head);
+    xfree(mathcode_heap);
+    destroy_sa_tree(delcode_head);
+    xfree(delcode_heap);
+}
+
 void dump_math_codes(void)
 {
     dumpmathcode();

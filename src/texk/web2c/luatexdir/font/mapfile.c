@@ -880,7 +880,7 @@ void pdf_init_map_file(string map_name)
     mitem = xtalloc(1, mapitem);
     mitem->mode = FM_DUPIGNORE;
     mitem->type = MAPFILE;
-    mitem->line = xstrdup(map_name);
+    mitem->line = map_name;
 }
 
 

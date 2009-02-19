@@ -45,6 +45,7 @@ static sa_tree sfcode_head = NULL;
 #define CATCODESTACK 8
 #define CATCODEDEFAULT 12
 
+
 void set_lc_code(integer n, halfword v, quarterword gl)
 {
     set_sa_item(lccode_head, n, v, gl);
@@ -283,6 +284,22 @@ void initialize_text_codes(void)
     initializecatcodes();
     initializelccodes();
 }
+
+void free_text_codes (void)
+{
+    int k;
+    destroy_sa_tree(lccode_head);
+    destroy_sa_tree(uccode_head);
+    destroy_sa_tree(sfcode_head);
+    for (k = 0; k <= catcode_max; k++) {
+        if (catcode_valid[k]) {
+            destroy_sa_tree(catcode_heads[k]);
+        }
+    }
+    xfree(catcode_heads);
+    xfree(catcode_valid);
+}
+
 
 void dump_text_codes(void)
 {

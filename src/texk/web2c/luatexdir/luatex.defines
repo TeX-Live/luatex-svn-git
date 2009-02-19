@@ -205,6 +205,7 @@
 @define procedure initialize_math_codes;
 @define procedure dump_math_codes;
 @define procedure undump_math_codes;
+@define procedure free_math_codes;
 
 @define function get_lc_code();
 @define procedure set_lc_code();
@@ -225,6 +226,7 @@
 @define procedure unsave_cat_codes ();
 @define procedure unsave_text_codes ();
 @define procedure initializetextcodes;
+@define procedure free_text_codes;
 @define procedure dumptextcodes;
 @define procedure undumptextcodes;
 
