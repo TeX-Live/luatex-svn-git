@@ -115,8 +115,8 @@ debugging.
 \section{\UNICODE\ text support}
 
 Text input and output is now considered to be \UNICODE\ text, so
-input characters can use the full range of \UNICODE\ ($2^{20}+2^{16} =
-\hbox{10FFFF} = 1114111$). % hahe: wrong +/- 1
+input characters can use the full range of \UNICODE\ ($2^{20}+2^{16}-1 =
+\hbox{10FFFF} = 1114111$).
 
 Later chapters will talk of characters and glyphs. Although these
 are not the interchangeable, they are closely related. During
@@ -140,19 +140,19 @@ instance, \tex{char} now accepts values between~0 and 1114111. This
 should not be a problem for well|-|behaved input files, but it could
 create incompatibilities for input that would have generated an error
 when processed by older \TEX|-|based engines. The maximum number of
-allocations is \type {"10FFFF} or $2^{20}+2^{16}$ (21 bits). The % hahe: wrong?
+allocations is \type {"10FFFF} or $2^{20}+2^{16}-1$ (21 bits). The
 maximum value that can be assigned are:
 
 % hahe: all below wrong by 1?
 
 \starttabulate[|l|l|l|l|]
-\NC \bf primitive \NC \bf bits \NC \bf hex     \NC \bf numeric     \NC\NR
-\NC \tex{char}    \NC 21       \NC \tt ~10FFFF \NC $2^{20}+2^{16}$ \NC\NR
-\NC \tex{chardef} \NC 21       \NC \tt ~10FFFF \NC $2^{20}+2^{16}$ \NC\NR
-\NC \tex{lccode}  \NC 21       \NC \tt ~10FFFF \NC $2^{20}+2^{16}$ \NC\NR
-\NC \tex{uccode}  \NC 21       \NC \tt ~10FFFF \NC $2^{20}+2^{16}$ \NC\NR
-\NC \tex{sfcode}  \NC 15       \NC \tt ~~~7FFF \NC $2^{15}$        \NC\NR
-\NC \tex{catcode} \NC ~4       \NC \tt ~~~~~~F \NC $2^{4}$         \NC\NR
+\NC \bf primitive \NC \bf bits \NC \bf hex    \NC \bf numeric       \NC\NR
+\NC \tex{char}    \NC 21       \NC \tt 10FFFF \NC $2^{20}+2^{16}-1$ \NC\NR
+\NC \tex{chardef} \NC 21       \NC \tt 10FFFF \NC $2^{20}+2^{16}-1$ \NC\NR
+\NC \tex{lccode}  \NC 21       \NC \tt 10FFFF \NC $2^{20}+2^{16}-1$ \NC\NR
+\NC \tex{uccode}  \NC 21       \NC \tt 10FFFF \NC $2^{20}+2^{16}-1$ \NC\NR
+\NC \tex{sfcode}  \NC 15       \NC \tt ~~7FFF \NC $2^{15}-1$        \NC\NR
+\NC \tex{catcode} \NC ~4       \NC \tt ~~~~~F \NC $2^{4}-1$         \NC\NR
 \stoptabulate
 
 As far as the core engine is concerned, all input and output to
