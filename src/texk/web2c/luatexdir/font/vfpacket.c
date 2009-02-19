@@ -127,7 +127,7 @@ void do_vf_packet(internal_font_number vf_f, integer c)
 {
     internal_font_number lf;
     charinfo *co;
-    scaled save_cur_h, save_cur_v;
+    position save_cur;
     real_eight_bits *vf_packets;
     integer cur_packet_byte;
     integer cmd, fs_f;
@@ -139,8 +139,7 @@ void do_vf_packet(internal_font_number vf_f, integer c)
     if (packet_cur_s >= packet_max_recursion)
         overflow_string("max level recursion of virtual fonts",
                         packet_max_recursion);
-    save_cur_v = cur_v;
-    save_cur_h = cur_h;
+    save_cur = cur;
 
     lf = 0;                     /* for -Wall */
     co = get_charinfo(vf_f, c);
@@ -165,14 +164,14 @@ void do_vf_packet(internal_font_number vf_f, integer c)
             packet_number(lf);
             break;
         case packet_push_code:
-            packet_stack[packet_stack_ptr].stack_h = cur_h;
-            packet_stack[packet_stack_ptr].stack_v = cur_v;
+            packet_stack[packet_stack_ptr].stack_h = cur.h;
+            packet_stack[packet_stack_ptr].stack_v = cur.v;
             packet_stack_ptr++;
             break;
         case packet_pop_code:
             packet_stack_ptr--;
-            cur_h = packet_stack[packet_stack_ptr].stack_h;
-            cur_v = packet_stack[packet_stack_ptr].stack_v;
+            cur.h = packet_stack[packet_stack_ptr].stack_h;
+            cur.v = packet_stack[packet_stack_ptr].stack_v;
             break;
         case packet_char_code:
             packet_number(k);
@@ -181,23 +180,23 @@ void do_vf_packet(internal_font_number vf_f, integer c)
             } else {
                 output_one_char(lf, k);
             }
-            cur_h = cur_h + char_width(lf, k);
+            cur.h = cur.h + char_width(lf, k);
             break;
         case packet_rule_code:
             packet_scaled(rule_ht, fs_f);
             packet_scaled(rule_wd, fs_f);
             if ((rule_wd > 0) && (rule_ht > 0)) {
-                pdf_set_rule(cur_h, cur_v, rule_wd, rule_ht);
-                cur_h = cur_h + rule_wd;
+                pdf_set_rule(cur.h, cur.v, rule_wd, rule_ht);
+                cur.h = cur.h + rule_wd;
             }
             break;
         case packet_right_code:
             packet_scaled(i, fs_f);
-            cur_h = cur_h + i;
+            cur.h = cur.h + i;
             break;
         case packet_down_code:
             packet_scaled(i, fs_f);
-            cur_v = cur_v + i;
+            cur.v = cur.v + i;
             break;
         case packet_special_code:
             packet_number(k);
@@ -226,8 +225,7 @@ void do_vf_packet(internal_font_number vf_f, integer c)
                       maketexstring("invalid DVI command (2)"));
         }
     };
-    cur_h = save_cur_h;
-    cur_v = save_cur_v;
+    cur = save_cur;
     packet_cur_s--;
 }
 

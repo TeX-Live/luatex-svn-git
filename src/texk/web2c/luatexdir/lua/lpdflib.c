@@ -80,7 +80,7 @@ int luapdfprint(lua_State * L)
     switch (literal_mode) {
     case (set_origin):
         pdf_end_text();
-        pdf_set_origin(cur_h, cur_v);
+        pdf_set_origin(cur.h, cur.v);
         break;
     case (direct_page):
         pdf_end_text();

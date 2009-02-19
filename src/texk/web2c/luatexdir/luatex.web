@@ -14459,12 +14459,12 @@ three quantities together into a single motion.
 
 Therefore, \TeX\ maintains two pairs of global variables: |dvi.h| and |dvi.v|
 are the |h| and |v| coordinates corresponding to the commands actually
-output to the \.{DVI} file, while |cur_h| and |cur_v| are the coordinates
+output to the \.{DVI} file, while |cur.h| and |cur.v| are the coordinates
 corresponding to the current state of the output routines. Coordinate
-changes will accumulate in |cur_h| and |cur_v| without being reflected
+changes will accumulate in |cur.h| and |cur.v| without being reflected
 in the output, until such a change becomes necessary or desirable; we
-can call the |movement| procedure whenever we want to make |dvi.h=cur_h|
-or |dvi.v=cur_v|.
+can call the |movement| procedure whenever we want to make |dvi.h=cur.h|
+or |dvi.v=cur.v|.
 
 The current font reflected in the \.{DVI} output is called |dvi_f|;
 there is no need for a `\\{cur\_f}' variable.
@@ -14487,14 +14487,14 @@ this is essentially the depth of |push| commands in the \.{DVI} output.
     end
 
 @d synch_pos_with_cur==case box_direction(dvi_direction) of
-    dir_TL_: begin pos.h := box_pos.h + cur_h; pos.v := box_pos.v - cur_v; end;
-    dir_TR_: begin pos.h := box_pos.h - cur_h; pos.v := box_pos.v - cur_v; end;
-    dir_BL_: begin pos.h := box_pos.h + cur_h; pos.v := box_pos.v + cur_v; end;
-    dir_BR_: begin pos.h := box_pos.h - cur_h; pos.v := box_pos.v + cur_v; end;
-    dir_LT_: begin pos.h := box_pos.h + cur_v; pos.v := box_pos.v - cur_h; end;
-    dir_RT_: begin pos.h := box_pos.h - cur_v; pos.v := box_pos.v - cur_h; end;
-    dir_LB_: begin pos.h := box_pos.h + cur_v; pos.v := box_pos.v + cur_h; end;
-    dir_RB_: begin pos.h := box_pos.h - cur_v; pos.v := box_pos.v + cur_h; end;
+    dir_TL_: begin pos.h := box_pos.h + cur.h; pos.v := box_pos.v - cur.v; end;
+    dir_TR_: begin pos.h := box_pos.h - cur.h; pos.v := box_pos.v - cur.v; end;
+    dir_BL_: begin pos.h := box_pos.h + cur.h; pos.v := box_pos.v + cur.v; end;
+    dir_BR_: begin pos.h := box_pos.h - cur.h; pos.v := box_pos.v + cur.v; end;
+    dir_LT_: begin pos.h := box_pos.h + cur.v; pos.v := box_pos.v - cur.h; end;
+    dir_RT_: begin pos.h := box_pos.h - cur.v; pos.v := box_pos.v - cur.h; end;
+    dir_LB_: begin pos.h := box_pos.h + cur.v; pos.v := box_pos.v + cur.h; end;
+    dir_RB_: begin pos.h := box_pos.h - cur.v; pos.v := box_pos.v + cur.h; end;
     end
 
 @d synch_dvi_with_cur==begin
@@ -14508,7 +14508,7 @@ end
     end;
 
 @ @<Glob...@>=
-@!cur_h,@!cur_v:scaled; {\TeX\ position relative to origin of the surrounding box, in box coordinate system}
+@!cur:position; {\TeX\ position relative to origin of the surrounding box, in box coordinate system}
 @!box_pos: position; {position of box origin in page coordinates}
 @!pos: position; {global position on page, in $\rm sp$, from lower left page corner}
 @!dvi: position; {a \.{DVI} position in page coordinates, in sync with DVI file}
@@ -14536,7 +14536,7 @@ else
     end;
 
 @ @<Initialize variables as |ship_out| begins@>=
-dvi.h:=0; dvi.v:=0; cur_h:=0; cur_v:=0; dvi_f:=null_font;
+dvi.h:=0; dvi.v:=0; cur.h:=0; cur.v:=0; dvi_f:=null_font;
 @<Calculate DVI page dimensions and margins@>;
 ensure_dvi_open;
 if total_pages=0 then
@@ -14560,11 +14560,11 @@ if total_pages=0 then
 
 @ When |hlist_out| is called, its duty is to output the box represented
 by the |hlist_node| pointed to by |temp_ptr|. The reference point of that
-box has coordinates |(cur_h,cur_v)|.
+box has coordinates |(cur.h,cur.v)|.
 
 Similarly, when |vlist_out| is called, its duty is to output the box represented
 by the |vlist_node| pointed to by |temp_ptr|. The reference point of that
-box has coordinates |(cur_h,cur_v)|.
+box has coordinates |(cur.h,cur.v)|.
 @^recursion@>
 
 @p procedure@?vlist_out; forward; {|hlist_out| and |vlist_out| are mutually
@@ -14596,7 +14596,7 @@ basepoint_vertical: scaled;
 save_direction: integer;
 dir_ptr,dir_tmp:pointer;
 @!left_edge: scaled; {the left coordinate for this box}
-@!save_h: scaled; {what |cur_h| should pop to}
+@!save_h: scaled; {what |cur.h| should pop to}
 @!save_dvi: position; {what |dvi| should pop to}
 @!save_box_pos: position; {what |box_pos| should pop to}
 @!this_box: pointer; {pointer to containing box}
@@ -14617,17 +14617,17 @@ dir_ptr,dir_tmp:pointer;
 begin cur_g:=0; cur_glue:=float_constant(0);
 this_box:=temp_ptr; g_order:=glue_order(this_box);
 g_sign:=glue_sign(this_box); p:=list_ptr(this_box);
-cur_h:=0; cur_v:=0; box_pos:=pos;
+cur.h:=0; cur.v:=0; box_pos:=pos;
 save_direction:=dvi_direction;
 dvi_direction:=box_dir(this_box);
 @<DIR: Initialize |dir_ptr| for |ship_out|@>;
 incr(cur_s);
 if cur_s>0 then dvi_out(push);
 if cur_s>max_push then max_push:=cur_s;
-save_loc:=dvi_offset+dvi_ptr; base_line:=cur_v; left_edge:=cur_h;
+save_loc:=dvi_offset+dvi_ptr; base_line:=cur.v; left_edge:=cur.h;
 @<Start hlist {\sl Sync\TeX} information record@>;
 while p<>null do @<Output node |p| for |hlist_out| and move to the next node,
-  maintaining the condition |cur_v=base_line|@>;
+  maintaining the condition |cur.v=base_line|@>;
 @<Finish hlist {\sl Sync\TeX} information record@>;
 prune_movements(save_loc);
 if cur_s>0 then dvi_pop(save_loc);
@@ -14775,7 +14775,7 @@ if is_char_node(p) then
       end;
      endcases;
     end;
-  cur_h:=cur_h+c_wd;
+  cur.h:=cur.h+c_wd;
   p:=vlink(p);
   until not is_char_node(p);
   @<Record current point {\sl Sync\TeX} information@>;
@@ -14814,21 +14814,21 @@ disc_node_case: if vlink(no_break(p))<>null then begin
   vlink(no_break(p)):=null;
   vlink(p):=q; 
   end;
-margin_kern_node_case:cur_h:=cur_h+width(p);
+margin_kern_node_case:cur.h:=cur.h+width(p);
 kern_node_case: begin
   @<Record |kern_node| {\sl Sync\TeX} information@>;
-  cur_h:=cur_h+width(p);
+  cur.h:=cur.h+width(p);
 end;
 math_node_case: begin
   @<Record |math_node| {\sl Sync\TeX} information@>;
-  cur_h:=cur_h+surround(p);
+  cur.h:=cur.h+surround(p);
 end;
 othercases do_nothing
 endcases;@/
 goto next_p;
 fin_rule: @<Output a rule in an hlist@>;
 move_past: begin
-  cur_h:=cur_h+rule_wd;
+  cur.h:=cur.h+rule_wd;
   @<Record horizontal |rule_node| or |glue_node| {\sl Sync\TeX} information@>;
 end;
 next_p:p:=vlink(p);
@@ -14870,17 +14870,17 @@ else
     {shift the box `up'}
 if list_ptr(p)=null then begin
   @<Record void list {\sl Sync\TeX} information@>;
-  cur_h:=cur_h + effective_horizontal;
+  cur.h:=cur.h + effective_horizontal;
   end
 else begin
-  temp_ptr:=p; edge:=cur_h; cur_h:=cur_h + basepoint_horizontal;
-  edge_v:=cur_v; cur_v:=base_line + basepoint_vertical;
+  temp_ptr:=p; edge:=cur.h; cur.h:=cur.h + basepoint_horizontal;
+  edge_v:=cur.v; cur.v:=base_line + basepoint_vertical;
   synch_dvi_with_cur; save_dvi:=dvi;
   save_box_pos:=box_pos;
   if type(p)=vlist_node then vlist_out@+else hlist_out;
   dvi:=save_dvi;
   box_pos:=save_box_pos;
-  cur_h:=edge+effective_horizontal; cur_v:=base_line;
+  cur.h:=edge+effective_horizontal; cur.v:=base_line;
   end
 end
 
@@ -14889,7 +14889,7 @@ if is_running(rule_ht) then rule_ht:=height(this_box);
 if is_running(rule_dp) then rule_dp:=depth(this_box);
 rule_ht:=rule_ht+rule_dp; {this is the rule thickness}
 if (rule_ht>0)and(rule_wd>0) then {we don't output empty rules}
-  begin cur_v:=base_line+rule_dp; synch_pos_with_cur;
+  begin cur.v:=base_line+rule_dp; synch_pos_with_cur;
   case box_direction(dvi_direction) of
   dir_TL_: begin
     dvi_set_rule(rule_ht)(rule_wd);
@@ -14924,7 +14924,7 @@ if (rule_ht>0)and(rule_wd>0) then {we don't output empty rules}
     dvi_put_rule(rule_wd)(rule_ht);
     end;
   end;
-  cur_v:=base_line;
+  cur.v:=base_line;
   end
 
 @ @d billion==float_constant(1000000000)
@@ -14971,50 +14971,50 @@ else
   leader_wd:=height(leader_box)+depth(leader_box);
 if (leader_wd>0)and(rule_wd>0) then
   begin rule_wd:=rule_wd+10; {compensate for floating-point rounding}
-  edge:=cur_h+rule_wd; lx:=0;
-  @<Let |cur_h| be the position of the first box, and set |leader_wd+lx|
+  edge:=cur.h+rule_wd; lx:=0;
+  @<Let |cur.h| be the position of the first box, and set |leader_wd+lx|
     to the spacing between corresponding parts of boxes@>;
-  while cur_h+leader_wd<=edge do
-    @<Output a leader box at |cur_h|,
-      then advance |cur_h| by |leader_wd+lx|@>;
-  cur_h:=edge-10; goto next_p;
+  while cur.h+leader_wd<=edge do
+    @<Output a leader box at |cur.h|,
+      then advance |cur.h| by |leader_wd+lx|@>;
+  cur.h:=edge-10; goto next_p;
   end;
 end
 
 @ The calculations related to leaders require a bit of care. First, in the
-case of |a_leaders| (aligned leaders), we want to move |cur_h| to
+case of |a_leaders| (aligned leaders), we want to move |cur.h| to
 |left_edge| plus the smallest multiple of |leader_wd| for which the result
-is not less than the current value of |cur_h|; i.e., |cur_h| should become
+is not less than the current value of |cur.h|; i.e., |cur.h| should become
 $|left_edge|+|leader_wd|\times\lceil
-(|cur_h|-|left_edge|)/|leader_wd|\rceil$.  The program here should work in
+(|cur.h|-|left_edge|)/|leader_wd|\rceil$.  The program here should work in
 all cases even though some implementations of \PASCAL\ give nonstandard
-results for the |div| operation when |cur_h| is less than |left_edge|.
+results for the |div| operation when |cur.h| is less than |left_edge|.
 
-In the case of |c_leaders| (centered leaders), we want to increase |cur_h|
+In the case of |c_leaders| (centered leaders), we want to increase |cur.h|
 by half of the excess space not occupied by the leaders; and in the
-case of |x_leaders| (expanded leaders) we increase |cur_h|
+case of |x_leaders| (expanded leaders) we increase |cur.h|
 by $1/(q+1)$ of this excess space, where $q$ is the number of times the
 leader box will be replicated. Slight inaccuracies in the division might
 accumulate; half of this rounding error is placed at each end of the leaders.
 
-@<Let |cur_h| be the position of the first box, ...@>=
+@<Let |cur.h| be the position of the first box, ...@>=
 if subtype(p)=a_leaders then
-  begin save_h:=cur_h;
-  cur_h:=left_edge+leader_wd*((cur_h-left_edge)@!div leader_wd);
-  if cur_h<save_h then cur_h:=cur_h+leader_wd;
+  begin save_h:=cur.h;
+  cur.h:=left_edge+leader_wd*((cur.h-left_edge)@!div leader_wd);
+  if cur.h<save_h then cur.h:=cur.h+leader_wd;
   end
 else  begin lq:=rule_wd div leader_wd; {the number of box copies}
   lr:=rule_wd mod leader_wd; {the remaining space}
-  if subtype(p)=c_leaders then cur_h:=cur_h+(lr div 2)
+  if subtype(p)=c_leaders then cur.h:=cur.h+(lr div 2)
   else  begin lx:=lr div (lq+1);
-    cur_h:=cur_h+((lr-(lq-1)*lx) div 2);
+    cur.h:=cur.h+((lr-(lq-1)*lx) div 2);
     end;
   end
 
 @ The `\\{synch}' operations here are intended to decrease the number of
 bytes needed to specify horizontal and vertical motion in the \.{DVI} output.
 
-@<Output a leader box at |cur_h|, ...@>=
+@<Output a leader box at |cur.h|, ...@>=
 begin
 if not (dir_orthogonal(dir_primary[box_dir(leader_box)])(dir_primary[dvi_direction]))
   then begin
@@ -15047,8 +15047,8 @@ else
   basepoint_vertical := basepoint_vertical - shift_amount(leader_box);
     {shift the box `up'}
 temp_ptr:=leader_box;
-edge_h:=cur_h; cur_h:=cur_h + basepoint_horizontal;
-edge_v:=cur_v; cur_v:=base_line + basepoint_vertical;
+edge_h:=cur.h; cur.h:=cur.h + basepoint_horizontal;
+edge_v:=cur.v; cur.v:=base_line + basepoint_vertical;
 synch_dvi_with_cur; save_dvi:=dvi;
 save_box_pos:=box_pos;
 outer_doing_leaders:=doing_leaders; doing_leaders:=true;
@@ -15056,7 +15056,7 @@ if type(leader_box)=vlist_node then vlist_out@+else hlist_out;
 doing_leaders:=outer_doing_leaders;
 box_pos:=save_box_pos;
 dvi:=save_dvi;
-cur_h:=edge_h+leader_wd+lx; cur_v:=base_line;
+cur.h:=edge_h+leader_wd+lx; cur.v:=base_line;
 end
 
 @ The |vlist_out| routine is similar to |hlist_out|, but a bit simpler.
@@ -15065,7 +15065,7 @@ end
 label move_past, fin_rule, next_p;
 var left_edge: scaled; {the left coordinate for this box}
 @!top_edge: scaled; {the top coordinate for this box}
-@!save_v: scaled; {what |cur_v| should pop to}
+@!save_v: scaled; {what |cur.v| should pop to}
 @!save_dvi: position; {what |dvi| should pop to}
 @!save_box_pos: position; {what |box_pos| should pop to}
 @!this_box: pointer; {pointer to containing box}
@@ -15090,18 +15090,18 @@ begin cur_g:=0; cur_glue:=float_constant(0);
 this_box:=temp_ptr; g_order:=glue_order(this_box);
 g_sign:=glue_sign(this_box); p:=list_ptr(this_box);
 {pdfassert(p<>0);}
-cur_h:=0; cur_v:=0; box_pos:=pos;
+cur.h:=0; cur.v:=0; box_pos:=pos;
 save_direction:=dvi_direction;
 dvi_direction:=box_dir(this_box);
 incr(cur_s);
 if cur_s>0 then dvi_out(push);
 if cur_s>max_push then max_push:=cur_s;
-save_loc:=dvi_offset+dvi_ptr; left_edge:=cur_h; 
+save_loc:=dvi_offset+dvi_ptr; left_edge:=cur.h; 
 @<Start vlist {\sl Sync\TeX} information record@>;
-cur_v:=cur_v-height(this_box);
-top_edge:=cur_v;
+cur.v:=cur.v-height(this_box);
+top_edge:=cur.v;
 while p<>null do @<Output node |p| for |vlist_out| and move to the next node,
-  maintaining the condition |cur_h=left_edge|@>;
+  maintaining the condition |cur.h=left_edge|@>;
 @<Finish vlist {\sl Sync\TeX} information record@>;
 prune_movements(save_loc);
 if cur_s>0 then dvi_pop(save_loc);
@@ -15133,12 +15133,12 @@ rule_node_case: begin
   end;
 whatsit_node_case: @<Output the whatsit node |p| in a vlist@>;
 glue_node_case: @<Move down or output leaders@>;
-kern_node_case:cur_v:=cur_v+width(p);
+kern_node_case:cur.v:=cur.v+width(p);
 othercases do_nothing
 endcases;@/
 goto next_p;
 fin_rule: @<Output a rule in a vlist, |goto next_p|@>;
-move_past: cur_v:=cur_v+rule_ht;
+move_past: cur.v:=cur.v+rule_ht;
 end
 
 @ The |synch_v| here allows the \.{DVI} output to use one-byte commands
@@ -15179,27 +15179,27 @@ else begin
 basepoint_horizontal := basepoint_horizontal + shift_amount(p);
   {shift the box `right'}
 if list_ptr(p)=null then begin
-  cur_v:=cur_v+effective_vertical;
+  cur.v:=cur.v+effective_vertical;
   @<Record void list {\sl Sync\TeX} information@>;
   end
 else  begin
-  edge_v:=cur_v;
-  cur_h:=left_edge + basepoint_horizontal;
-  cur_v:=cur_v + basepoint_vertical;
+  edge_v:=cur.v;
+  cur.h:=left_edge + basepoint_horizontal;
+  cur.v:=cur.v + basepoint_vertical;
   synch_dvi_with_cur; save_dvi:=dvi;
   save_box_pos:=box_pos;
   temp_ptr:=p;
   if type(p)=vlist_node then vlist_out@+else hlist_out;
   dvi:=save_dvi;
   box_pos:=save_box_pos;
-  cur_h:=left_edge; cur_v:=edge_v + effective_vertical;
+  cur.h:=left_edge; cur.v:=edge_v + effective_vertical;
   end
 end
 
 @ @<Output a rule in a vlist...@>=
 if is_running(rule_wd) then rule_wd:=width(this_box);
 rule_ht:=rule_ht+rule_dp; {this is the rule thickness}
-cur_v:=cur_v+rule_ht;
+cur.v:=cur.v+rule_ht;
 if (rule_ht>0)and(rule_wd>0) then {we don't output empty rules}
   begin synch_pos_with_cur;
   case box_direction(dvi_direction) of
@@ -15275,34 +15275,34 @@ else
   leader_ht:=width(leader_box);
 if (leader_ht>0)and(rule_ht>0) then
   begin rule_ht:=rule_ht+10; {compensate for floating-point rounding}
-  edge:=cur_v+rule_ht; lx:=0;
-  @<Let |cur_v| be the position of the first box, and set |leader_ht+lx|
+  edge:=cur.v+rule_ht; lx:=0;
+  @<Let |cur.v| be the position of the first box, and set |leader_ht+lx|
     to the spacing between corresponding parts of boxes@>;
-  while cur_v+leader_ht<=edge do
-    @<Output a leader box at |cur_v|,
-      then advance |cur_v| by |leader_ht+lx|@>;
-  cur_v:=edge-10; goto next_p;
+  while cur.v+leader_ht<=edge do
+    @<Output a leader box at |cur.v|,
+      then advance |cur.v| by |leader_ht+lx|@>;
+  cur.v:=edge-10; goto next_p;
   end;
 end
 
-@ @<Let |cur_v| be the position of the first box, ...@>=
+@ @<Let |cur.v| be the position of the first box, ...@>=
 if subtype(p)=a_leaders then
-  begin save_v:=cur_v;
-  cur_v:=top_edge+leader_ht*((cur_v-top_edge)@!div leader_ht);
-  if cur_v<save_v then cur_v:=cur_v+leader_ht;
+  begin save_v:=cur.v;
+  cur.v:=top_edge+leader_ht*((cur.v-top_edge)@!div leader_ht);
+  if cur.v<save_v then cur.v:=cur.v+leader_ht;
   end
 else  begin lq:=rule_ht div leader_ht; {the number of box copies}
   lr:=rule_ht mod leader_ht; {the remaining space}
-  if subtype(p)=c_leaders then cur_v:=cur_v+(lr div 2)
+  if subtype(p)=c_leaders then cur.v:=cur.v+(lr div 2)
   else  begin lx:=lr div (lq+1);
-    cur_v:=cur_v+((lr-(lq-1)*lx) div 2);
+    cur.v:=cur.v+((lr-(lq-1)*lx) div 2);
     end;
   end
 
-@ When we reach this part of the program, |cur_v| indicates the top of a
+@ When we reach this part of the program, |cur.v| indicates the top of a
 leader box, not its baseline.
 
-@<Output a leader box at |cur_v|, ...@>=
+@<Output a leader box at |cur.v|, ...@>=
 begin
 if not (dir_orthogonal(dir_primary[box_dir(leader_box)])(dir_primary[dvi_direction]))
   then begin
@@ -15336,9 +15336,9 @@ else begin
 basepoint_horizontal := basepoint_horizontal + shift_amount(leader_box);
   {shift the box `right'}
 temp_ptr:=leader_box;
-cur_h:=left_edge + basepoint_horizontal;
-edge_v:=cur_v ;
-cur_v:=cur_v + basepoint_vertical;
+cur.h:=left_edge + basepoint_horizontal;
+edge_v:=cur.v ;
+cur.v:=cur.v + basepoint_vertical;
 synch_dvi_with_cur; save_dvi:=dvi;
 save_box_pos:=box_pos;
 outer_doing_leaders:=doing_leaders; doing_leaders:=true;
@@ -15346,7 +15346,7 @@ if type(leader_box)=vlist_node then vlist_out@+else hlist_out;
 doing_leaders:=outer_doing_leaders;
 box_pos:=save_box_pos;
 dvi:=save_dvi;
-cur_h:=left_edge; cur_v:=edge_v+leader_ht+lx;
+cur.h:=left_edge; cur.v:=edge_v+leader_ht+lx;
 end
 
 @ The |hlist_out| and |vlist_out| procedures are now complete, so we are
@@ -15427,36 +15427,36 @@ dvi_four(last_bop); last_bop:=page_loc;
 pos.h := one_true_inch;
 pos.v := cur_page_height - one_true_inch;
 box_pos := pos; dvi := pos;
-{Then calculate |cur_h| and |cur_v| within the upright coordinate system
+{Then calculate |cur.h| and |cur.v| within the upright coordinate system
 for the DVI origin depending on the |page_direction|.}
 dvi_direction:=page_direction;
 case box_direction(dvi_direction) of
 dir_TL_,dir_LT_: begin
-  cur_h := page_left_offset;
-  cur_v := page_top_offset;
+  cur.h := page_left_offset;
+  cur.v := page_top_offset;
   end;
 dir_TR_,dir_RT_: begin
-  cur_h := cur_page_width - page_right_offset;
-  cur_v := page_top_offset;
+  cur.h := cur_page_width - page_right_offset;
+  cur.v := page_top_offset;
   end;
 dir_BL_,dir_LB_: begin
-  cur_h := page_left_offset;
-  cur_v := cur_page_height - page_bottom_offset;
+  cur.h := page_left_offset;
+  cur.v := cur_page_height - page_bottom_offset;
   end;
 dir_RB_,dir_BR_: begin
-  cur_h := cur_page_width - page_right_offset;
-  cur_v := cur_page_height - page_bottom_offset;
+  cur.h := cur_page_width - page_right_offset;
+  cur.v := cur_page_height - page_bottom_offset;
   end;
 end;
-cur_h := cur_h - one_true_inch; {correct for DVI origin}
-cur_v := cur_v - one_true_inch;
+cur.h := cur.h - one_true_inch; {correct for DVI origin}
+cur.v := cur.v - one_true_inch;
 {The movement is actually done within the upright page coordinate system.}
 dvi_direction := dir_TL_; {only temporarily for this adjustment}
 synch_dvi_with_cur; box_pos := pos; {keep track on page}
 {Then switch to page box coordinate system; do |height(p)| movement.}
 dvi_direction := page_direction;
-cur_h := 0;
-cur_v := height(p);
+cur.h := 0;
+cur.v := height(p);
 synch_dvi_with_cur;
 {Now we are at the point on the page where the origin of the page box should go.}
 temp_ptr:=p;
@@ -16311,7 +16311,7 @@ end;
 @!pdf_h: scaled; {current horizontal coordinate in PDF output page}
 @!pdf_v: scaled; {current vertical coordinate in PDF output page}
 @!pdf_tj_start_h: scaled; {horizontal coordinate in PDF output page just before \.{TJ} array start}
-@!cur_delta_h: scaled; {horizontal |cur_h| offset from |pdf_tj_start_h|}
+@!cur_delta_h: scaled; {horizontal |cur.h| offset from |pdf_tj_start_h|}
 @!pdf_delta_h: scaled; {horizontal offset from |pdf_tj_start_h|}
 @!pdf_origin_h: scaled; {current horizontal origin in PDF output page}
 @!pdf_origin_v: scaled; {current vertical origin in PDF output page}
@@ -16383,8 +16383,8 @@ begin
     end;
 end;
 
-procedure pdf_set_textmatrix(v, v_out: scaled; f: internal_font_number);
-{set the next starting point to |cur_h|, |cur_v|}
+procedure pdf_set_textmatrix(vv, v_out: scaled; f: internal_font_number);
+{set the next starting point to |cur.h|, |cur.v|}
 var pdf_new_Tm_a, pdf_new_Tm_c: integer; {values |a| and |c| of the new text matrix}
 begin
     pdf_out(" ");
@@ -16405,20 +16405,20 @@ begin
         pdf_print(" 0 ");
         pdf_print_real(pdf_new_Tm_c, 3);
         pdf_print(" 1 ");
-        pdf_print_bp(cur_h - pdf_origin_h);
+        pdf_print_bp(cur.h - pdf_origin_h);
         pdf_h := pdf_origin_h + scaled_out;
         pdf_out(" ");
-        pdf_print_bp(pdf_origin_v - cur_v);
+        pdf_print_bp(pdf_origin_v - cur.v);
         pdf_v := pdf_origin_v - scaled_out;
         pdf_print(" Tm");
         pdf_cur_Tm_a := pdf_new_Tm_a;
         pdf_cur_Tm_c := pdf_new_Tm_c;
         pdfassert(pdf_cur_Tm_a > 0);
     end else begin
-        pdf_print_bp(cur_h - pdf_tj_start_h); {works only for unexpanded fonts}
+        pdf_print_bp(cur.h - pdf_tj_start_h); {works only for unexpanded fonts}
         pdf_h := pdf_tj_start_h + scaled_out;
         pdf_out(" ");
-        pdf_print_real(v, fixed_decimal_digits); {use |v| and |v_out| to avoid duplicate calculation}
+        pdf_print_real(vv, fixed_decimal_digits); {use |vv| and |v_out| to avoid duplicate calculation}
         pdf_v := pdf_v - v_out;
         pdf_print(" Td");
     end;
@@ -16557,7 +16557,7 @@ end;
 
 @ @p
 procedure pdf_begin_string(f: internal_font_number); {begin to draw a string}
-var s_out, v, v_out: scaled;
+var s_out, vv, v_out: scaled;
     s: integer;
 begin s_out:=0;
     if not pdf_doing_text then
@@ -16567,11 +16567,11 @@ begin s_out:=0;
         pdf_set_font(f);
     end;
     if pdf_cur_Tm_a = 1000 then begin
-        s := divide_scaled_n(cur_h - (pdf_tj_start_h + pdf_delta_h), pdf_font_size(f), 1000.0);
+        s := divide_scaled_n(cur.h - (pdf_tj_start_h + pdf_delta_h), pdf_font_size(f), 1000.0);
         s_out := scaled_out;
     end
     else begin
-        s := divide_scaled_n(round_xn_over_d(cur_h - (pdf_tj_start_h + pdf_delta_h), 1000,
+        s := divide_scaled_n(round_xn_over_d(cur.h - (pdf_tj_start_h + pdf_delta_h), 1000,
                                              pdf_cur_Tm_a), pdf_font_size(f), 1000.0);
         if abs(s) < @'100000 then begin
             s_out := round_xn_over_d(round_xn_over_d(pdf_font_size(f), abs(s), 1000),
@@ -16582,18 +16582,18 @@ begin s_out:=0;
         {no need to calculate |s_out| when |abs(s) >= @'100000|, since the text
          matrix will be reset below}
     end;
-    if abs(cur_v - pdf_v) >= min_bp_val then begin
-        v := divide_scaled(pdf_v - cur_v, one_hundred_bp,
+    if abs(cur.v - pdf_v) >= min_bp_val then begin
+        vv := divide_scaled(pdf_v - cur.v, one_hundred_bp,
                            fixed_decimal_digits + 2);
         v_out := scaled_out;
     end
     else begin
-        v := 0;
+        vv := 0;
         v_out := 0;
     end;
-    if (f <> pdf_f) or (v <> 0) or (abs(s) >= @'100000) then begin
+    if (f <> pdf_f) or (vv <> 0) or (abs(s) >= @'100000) then begin
         pdf_end_string;
-        pdf_set_textmatrix(v, v_out, f);
+        pdf_set_textmatrix(vv, v_out, f);
         pdf_f := f;
         s := 0;
     end;
@@ -16685,7 +16685,7 @@ begin
     case literal_mode of
     set_origin: begin
         pdf_end_text;
-        pdf_set_origin(cur_h, cur_v);
+        pdf_set_origin(cur.h, cur.v);
         end;
     direct_page:
         pdf_end_text;
@@ -17753,7 +17753,7 @@ begin
     selector:=old_setting;
     str_room(7);
     str_pool[pool_ptr] := 0; { make C string for pdfsetmatrix }
-    pdfsetmatrix(str_start_macro(str_ptr), cur_h, cur_page_height - cur_v);
+    pdfsetmatrix(str_start_macro(str_ptr), cur.h, cur_page_height - cur.v);
     str_room(7);
     append_char(" ");
     append_char("0");
@@ -17769,13 +17769,13 @@ end;
 
 procedure pdf_out_save;
 begin
-    checkpdfsave(cur_h, cur_v);
+    checkpdfsave(cur.h, cur.v);
     literal("q", set_origin, false);
 end;
 
 procedure pdf_out_restore;
 begin
-    checkpdfrestore(cur_h, cur_v);
+    checkpdfrestore(cur.h, cur.v);
     literal("Q", set_origin, false);
 end;
 
@@ -17844,7 +17844,7 @@ saving_v: scaled;
 save_direction: integer;
 dvi_ptr,dir_ptr,dir_tmp:pointer;
 @!left_edge: scaled; {the left coordinate for this box}
-@!save_h: scaled; {what |cur_h| should pop to}
+@!save_h: scaled; {what |cur.h| should pop to}
 @!save_box_pos: position; {what |box_pos| should pop to}
 @!this_box: pointer; {pointer to containing box}
 @!g_order: glue_ord; {applicable order of infinity for glue}
@@ -17866,23 +17866,23 @@ dvi_ptr,dir_ptr,dir_tmp:pointer;
 begin cur_g:=0; cur_glue:=float_constant(0);
 this_box:=temp_ptr; g_order:=glue_order(this_box);
 g_sign:=glue_sign(this_box); p:=list_ptr(this_box);
-{cur_h:=0; cur_v:=0;} box_pos:=pos;
+{cur.h:=0; cur.v:=0;} box_pos:=pos;
 save_direction:=dvi_direction;
 dvi_direction:=box_dir(this_box);
 dvi_ptr:=0;  lx:=0;
 @<DIR: Initialize |dir_ptr| for |ship_out|@>;
-saving_h:=cur_h; saving_v:=cur_v;
+saving_h:=cur.h; saving_v:=cur.v;
 incr(cur_s);
-base_line:=cur_v;
-left_edge:=cur_h;
+base_line:=cur.v;
+left_edge:=cur.h;
 prev_p:=this_box+list_offset;
 @<Create link annotations for the current hbox if needed@>;
 @<Start hlist {\sl Sync\TeX} information record@>;
 while p<>null do
     @<Output node |p| for |pdf_hlist_out| and move to the next node,
-    maintaining the condition |cur_v=base_line|@>;
+    maintaining the condition |cur.v=base_line|@>;
 @<Finish hlist {\sl Sync\TeX} information record@>;
-cur_h:=saving_h; cur_v:=saving_v;
+cur.h:=saving_h; cur.v:=saving_v;
 decr(cur_s);
 dvi_direction:=save_direction;
 @<DIR: Reset |dir_ptr|@>;
@@ -17897,10 +17897,10 @@ end
 
 @ 
 
-@d pdf_dvicmd_right(#) == cur_h := cur_h + #
-@d pdf_dvicmd_left(#)  == cur_h := cur_h - #
-@d pdf_dvicmd_down(#)  == cur_v := cur_v + # {changed this for convenience (hahe)}
-@d pdf_dvicmd_up(#)    == cur_v := cur_v - #
+@d pdf_dvicmd_right(#) == cur.h := cur.h + #
+@d pdf_dvicmd_left(#)  == cur.h := cur.h - #
+@d pdf_dvicmd_down(#)  == cur.v := cur.v + # {changed this for convenience (hahe)}
+@d pdf_dvicmd_up(#)    == cur.v := cur.v - #
 
 @d pos_right(#) == pos.h := pos.h + (#)
 @d pos_left(#)  == pos.h := pos.h - (#)
@@ -17908,28 +17908,28 @@ end
 @d pos_down(#)  == pos.v := pos.v - (#)
 
 @d pdf_dvicmd_set(#)==output_one_char(f,#)
-@d pdf_dvicmd_put(#)==output_one_char(f,#); cur_h:=cur_h-c_wd
+@d pdf_dvicmd_put(#)==output_one_char(f,#); cur.h:=cur.h-c_wd
 
 @d pdf_dvicmd_h(#)==case box_direction(dvi_direction) of
-  dir_TL_: cur_h := cur_h + #;
-  dir_BL_: cur_h := cur_h + #;
-  dir_TR_: cur_h := cur_h - #;
-  dir_BR_: cur_h := cur_h - #;
-  dir_LT_: cur_v := cur_v + #;
-  dir_RT_: cur_v := cur_v + #;
-  dir_LB_: cur_v := cur_v - #;
-  dir_RB_: cur_v := cur_v - #;
+  dir_TL_: cur.h := cur.h + #;
+  dir_BL_: cur.h := cur.h + #;
+  dir_TR_: cur.h := cur.h - #;
+  dir_BR_: cur.h := cur.h - #;
+  dir_LT_: cur.v := cur.v + #;
+  dir_RT_: cur.v := cur.v + #;
+  dir_LB_: cur.v := cur.v - #;
+  dir_RB_: cur.v := cur.v - #;
   endcases
 
 @d pdf_dvicmd_v(#)==case box_direction(dvi_direction) of
-  dir_TL_: cur_v := cur_v + #;
-  dir_TR_: cur_v := cur_v + #;
-  dir_BL_: cur_v := cur_v - #;
-  dir_BR_: cur_v := cur_v - #;
-  dir_LT_: cur_h := cur_h + #;
-  dir_LB_: cur_h := cur_h + #;
-  dir_RT_: cur_h := cur_h - #;
-  dir_RB_: cur_h := cur_h - #;
+  dir_TL_: cur.v := cur.v + #;
+  dir_TR_: cur.v := cur.v + #;
+  dir_BL_: cur.v := cur.v - #;
+  dir_BR_: cur.v := cur.v - #;
+  dir_LT_: cur.h := cur.h + #;
+  dir_LB_: cur.h := cur.h + #;
+  dir_RT_: cur.h := cur.h - #;
+  dir_RB_: cur.h := cur.h - #;
   endcases
 
 @<Output node |p| for |pdf_hlist_out|...@>=
@@ -18069,7 +18069,7 @@ if is_char_node(p) then
       pdf_dvicmd_up(-c_wd);
       end;
     end;
-    cur_h:=cur_h+c_wd;
+    cur.h:=cur.h+c_wd;
   end
   else
     char_warning(f, c);
@@ -18166,14 +18166,14 @@ if list_ptr(p)=null then begin
   end
 else begin
   temp_ptr:=p; 
-  edge:=cur_h; pdf_dvicmd_h(basepoint_horizontal);
-  edge_v:=cur_v; cur_v:=base_line + basepoint_vertical;
+  edge:=cur.h; pdf_dvicmd_h(basepoint_horizontal);
+  edge_v:=cur.v; cur.v:=base_line + basepoint_vertical;
   synch_pos_with_cur;
   save_box_pos:=box_pos;
   if type(p)=vlist_node then pdf_vlist_out@+else pdf_hlist_out;
   box_pos:=save_box_pos;
-  cur_h:=edge; pdf_dvicmd_h(effective_horizontal);
-  cur_v:=base_line;
+  cur.h:=edge; pdf_dvicmd_h(effective_horizontal);
+  cur.v:=base_line;
   end
 end
 
@@ -18183,14 +18183,14 @@ if is_running(rule_dp) then rule_dp:=depth(this_box);
 if ((rule_ht+rule_dp)>0)and(rule_wd>0) then begin {we don't output empty rules}
   synch_pos_with_cur;
   case box_direction(dvi_direction) of
-  dir_TL_: pdf_set_rule(cur_h,           cur_v + rule_dp, rule_wd,           rule_ht + rule_dp);
-  dir_BL_: pdf_set_rule(cur_h,           cur_v + rule_ht, rule_wd,           rule_ht + rule_dp);
-  dir_TR_: pdf_set_rule(cur_h - rule_wd, cur_v + rule_dp, rule_wd,           rule_ht + rule_dp);
-  dir_BR_: pdf_set_rule(cur_h - rule_wd, cur_v + rule_ht, rule_wd,           rule_ht + rule_dp);
-  dir_LT_: pdf_set_rule(cur_h - rule_ht, cur_v + rule_wd, rule_ht + rule_dp, rule_wd);
-  dir_RT_: pdf_set_rule(cur_h - rule_dp, cur_v + rule_wd, rule_ht + rule_dp, rule_wd);
-  dir_LB_: pdf_set_rule(cur_h - rule_ht, cur_v,           rule_ht + rule_dp, rule_wd);
-  dir_RB_: pdf_set_rule(cur_h - rule_dp, cur_v,           rule_ht + rule_dp, rule_wd);
+  dir_TL_: pdf_set_rule(cur.h,           cur.v + rule_dp, rule_wd,           rule_ht + rule_dp);
+  dir_BL_: pdf_set_rule(cur.h,           cur.v + rule_ht, rule_wd,           rule_ht + rule_dp);
+  dir_TR_: pdf_set_rule(cur.h - rule_wd, cur.v + rule_dp, rule_wd,           rule_ht + rule_dp);
+  dir_BR_: pdf_set_rule(cur.h - rule_wd, cur.v + rule_ht, rule_wd,           rule_ht + rule_dp);
+  dir_LT_: pdf_set_rule(cur.h - rule_ht, cur.v + rule_wd, rule_ht + rule_dp, rule_wd);
+  dir_RT_: pdf_set_rule(cur.h - rule_dp, cur.v + rule_wd, rule_ht + rule_dp, rule_wd);
+  dir_LB_: pdf_set_rule(cur.h - rule_ht, cur.v,           rule_ht + rule_dp, rule_wd);
+  dir_RB_: pdf_set_rule(cur.h - rule_dp, cur.v,           rule_ht + rule_dp, rule_wd);
   end;
 end
 
@@ -18235,29 +18235,29 @@ if (leader_wd>0)and(rule_wd>0) then
    in TRT mode, which is important for KASHIDAH fills.}
   case box_direction(dvi_direction) of
   dir_TR_,dir_RT_: begin
-    border:=cur_h+leader_wd;
-    cur_h:=cur_h-rule_wd+leader_wd;
-    edge:=cur_h-leader_wd;
+    border:=cur.h+leader_wd;
+    cur.h:=cur.h-rule_wd+leader_wd;
+    edge:=cur.h-leader_wd;
     end;
   othercases begin { |dir_TL_,dir_LT_| }
-    edge:=cur_h+rule_wd;
+    edge:=cur.h+rule_wd;
     border:=edge;
     end;
   end;
-  @<Let |cur_h| be the position of the first box, and set |leader_wd+lx|
+  @<Let |cur.h| be the position of the first box, and set |leader_wd+lx|
     to the spacing between corresponding parts of boxes@>;
-  while cur_h+leader_wd<=border do
-    @<(\pdfTeX) Output a leader box at |cur_h|,
-      then advance |cur_h| by |leader_wd+lx|@>;
+  while cur.h+leader_wd<=border do
+    @<(\pdfTeX) Output a leader box at |cur.h|,
+      then advance |cur.h| by |leader_wd+lx|@>;
   case box_direction(dvi_direction) of
-  dir_TR_,dir_RT_: cur_h:=edge;
-  dir_TL_,dir_LT_: cur_h:=edge;
+  dir_TR_,dir_RT_: cur.h:=edge;
+  dir_TL_,dir_LT_: cur.h:=edge;
   end;
   goto next_p;
   end;
 end
 
-@ @<(\pdfTeX) Output a leader box at |cur_h|, ...@>=
+@ @<(\pdfTeX) Output a leader box at |cur.h|, ...@>=
 begin
 if not (dir_orthogonal(dir_primary[box_dir(leader_box)])(dir_primary[dvi_direction]))
   then begin
@@ -18291,15 +18291,15 @@ else
   basepoint_vertical := basepoint_vertical - shift_amount(leader_box);
     {shift the box `up'}
 temp_ptr:=leader_box;
-edge_h:=cur_h; cur_h:=cur_h + basepoint_horizontal;
-edge_v:=cur_v; cur_v:=base_line + basepoint_vertical;
+edge_h:=cur.h; cur.h:=cur.h + basepoint_horizontal;
+edge_v:=cur.v; cur.v:=base_line + basepoint_vertical;
 synch_pos_with_cur;
 save_box_pos:=box_pos;
 outer_doing_leaders:=doing_leaders; doing_leaders:=true;
 if type(leader_box)=vlist_node then pdf_vlist_out@+else pdf_hlist_out;
 doing_leaders:=outer_doing_leaders;
 box_pos:=save_box_pos;
-cur_h:=edge_h+leader_wd+lx; cur_v:=base_line;
+cur.h:=edge_h+leader_wd+lx; cur.v:=base_line;
 end
 
 @ The |pdf_vlist_out| routine is similar to |pdf_hlist_out|, but a bit simpler.
@@ -18307,7 +18307,7 @@ end
 label move_past, fin_rule, next_p;
 var left_edge: scaled; {the left coordinate for this box}
 @!top_edge: scaled; {the top coordinate for this box}
-@!save_v: scaled; {what |cur_v| should pop to}
+@!save_v: scaled; {what |cur.v| should pop to}
 @!save_box_pos: position; {what |box_pos| should pop to}
 @!this_box: pointer; {pointer to containing box}
 @!g_order: glue_ord; {applicable order of infinity for glue}
@@ -18332,21 +18332,21 @@ begin cur_g:=0; cur_glue:=float_constant(0);
 this_box:=temp_ptr; g_order:=glue_order(this_box);
 g_sign:=glue_sign(this_box); p:=list_ptr(this_box);
 {pdfassert(p<>0);}
-{cur_h:=0; cur_v:=0;} box_pos:=pos;
-saving_v:=cur_v; saving_h:=cur_h;
-{|writeln(''); writeln('vlist_out: left edge: ', cur_h:1 , '');|}
+{cur.h:=0; cur.v:=0;} box_pos:=pos;
+saving_v:=cur.v; saving_h:=cur.h;
+{|writeln(''); writeln('vlist_out: left edge: ', cur.h:1 , '');|}
 save_direction:=dvi_direction;
 dvi_direction:=box_dir(this_box);
 incr(cur_s);
-left_edge:=cur_h;
+left_edge:=cur.h;
 @<Start vlist {\sl Sync\TeX} information record@>;
-cur_v:=cur_v-height(this_box); top_edge:=cur_v;
+cur.v:=cur.v-height(this_box); top_edge:=cur.v;
 @<Create thread for the current vbox if needed@>;
 while p<>null do
     @<Output node |p| for |pdf_vlist_out| and move to the next node,
-    maintaining the condition |cur_h=left_edge|@>;
+    maintaining the condition |cur.h=left_edge|@>;
 @<Finish vlist {\sl Sync\TeX} information record@>;
-cur_v:=saving_v; cur_h:=saving_h;
+cur.v:=saving_v; cur.h:=saving_h;
 decr(cur_s);
 dvi_direction:=save_direction;
 end;
@@ -18431,19 +18431,19 @@ else begin
   end;
 basepoint_horizontal := basepoint_horizontal + shift_amount(p);
 if list_ptr(p)=null then begin
-  cur_v:=cur_v+effective_vertical;
+  cur.v:=cur.v+effective_vertical;
   @<Record void list {\sl Sync\TeX} information@>;
   end
 else  begin 
-  edge_v:=cur_v;
-  cur_h:=left_edge + basepoint_horizontal;
-  cur_v:=cur_v + basepoint_vertical; 
+  edge_v:=cur.v;
+  cur.h:=left_edge + basepoint_horizontal;
+  cur.v:=cur.v + basepoint_vertical; 
   synch_pos_with_cur;
   save_box_pos:=box_pos;
   temp_ptr:=p;
   if type(p)=vlist_node then pdf_vlist_out@+else pdf_hlist_out;
   box_pos:=save_box_pos;
-  cur_h:=left_edge; cur_v:=edge_v + effective_vertical;
+  cur.h:=left_edge; cur.v:=edge_v + effective_vertical;
   end
 end
 
@@ -18452,14 +18452,14 @@ if is_running(rule_wd) then rule_wd:=width(this_box);
 rule_ht:=rule_ht+rule_dp; {this is the rule thickness}
 if (rule_ht>0)and(rule_wd>0) then {we don't output empty rules}
   case box_direction(dvi_direction) of
-  dir_TL_: pdf_set_rule(cur_h,           cur_v + rule_ht, rule_wd, rule_ht);
-  dir_BL_: pdf_set_rule(cur_h,           cur_v,           rule_wd, rule_ht);
-  dir_TR_: pdf_set_rule(cur_h - rule_wd, cur_v + rule_ht, rule_wd, rule_ht);
-  dir_BR_: pdf_set_rule(cur_h - rule_wd, cur_v,           rule_wd, rule_ht);
-  dir_LT_: pdf_set_rule(cur_h,           cur_v + rule_wd, rule_ht, rule_wd);
-  dir_RT_: pdf_set_rule(cur_h - rule_ht, cur_v + rule_wd, rule_ht, rule_wd);
-  dir_LB_: pdf_set_rule(cur_h,           cur_v,           rule_ht, rule_wd);
-  dir_RB_: pdf_set_rule(cur_h - rule_ht, cur_v,           rule_ht, rule_wd);
+  dir_TL_: pdf_set_rule(cur.h,           cur.v + rule_ht, rule_wd, rule_ht);
+  dir_BL_: pdf_set_rule(cur.h,           cur.v,           rule_wd, rule_ht);
+  dir_TR_: pdf_set_rule(cur.h - rule_wd, cur.v + rule_ht, rule_wd, rule_ht);
+  dir_BR_: pdf_set_rule(cur.h - rule_wd, cur.v,           rule_wd, rule_ht);
+  dir_LT_: pdf_set_rule(cur.h,           cur.v + rule_wd, rule_ht, rule_wd);
+  dir_RT_: pdf_set_rule(cur.h - rule_ht, cur.v + rule_wd, rule_ht, rule_wd);
+  dir_LB_: pdf_set_rule(cur.h,           cur.v,           rule_ht, rule_wd);
+  dir_RB_: pdf_set_rule(cur.h - rule_ht, cur.v,           rule_ht, rule_wd);
   end;
   pdf_dvicmd_v(rule_ht);
 goto next_p
@@ -18497,19 +18497,19 @@ if type(leader_box)=rule_node then
 leader_ht:=height(leader_box)+depth(leader_box);
 if (leader_ht>0)and(rule_ht>0) then
   begin rule_ht:=rule_ht+10; {compensate for floating-point rounding}
-  edge:=cur_v+rule_ht; lx:=0;
-  @<Let |cur_v| be the position of the first box, and set |leader_ht+lx|
+  edge:=cur.v+rule_ht; lx:=0;
+  @<Let |cur.v| be the position of the first box, and set |leader_ht+lx|
     to the spacing between corresponding parts of boxes@>;
-  while cur_v+leader_ht<=edge do
-    @<(\pdfTeX) Output a leader box at |cur_v|,
-      then advance |cur_v| by |leader_ht+lx|@>;
-  cur_v:=edge-10; goto next_p;
+  while cur.v+leader_ht<=edge do
+    @<(\pdfTeX) Output a leader box at |cur.v|,
+      then advance |cur.v| by |leader_ht+lx|@>;
+  cur.v:=edge-10; goto next_p;
   end;
 end
 
-@ @<(\pdfTeX) Output a leader box at |cur_v|, ...@>=
-begin cur_h:=left_edge+shift_amount(leader_box);
-cur_v:=cur_v+height(leader_box); save_v:=cur_v;
+@ @<(\pdfTeX) Output a leader box at |cur.v|, ...@>=
+begin cur.h:=left_edge+shift_amount(leader_box);
+cur.v:=cur.v+height(leader_box); save_v:=cur.v;
 synch_pos_with_cur;
 save_box_pos:=box_pos;
 temp_ptr:=leader_box;
@@ -18517,8 +18517,8 @@ outer_doing_leaders:=doing_leaders; doing_leaders:=true;
 if type(leader_box)=vlist_node then pdf_vlist_out@+else pdf_hlist_out;
 doing_leaders:=outer_doing_leaders;
 box_pos:=save_box_pos;
-cur_h:=left_edge;
-cur_v:=save_v-height(leader_box)+leader_ht+lx;
+cur.h:=left_edge;
+cur.v:=save_v-height(leader_box)+leader_ht+lx;
 end
 
 @ |fix_pdfoutput| freezes |fixed_pdfoutput| as soon as anything has been written
@@ -18652,20 +18652,20 @@ if is_shipping_page then begin
         cur_page_height := page_height
     else
         cur_page_height := height(p) + depth(p) + 2 * pdf_v_offset;
-    cur_h := pdf_h_offset;
-    cur_v := height(p) + pdf_v_offset;
+    cur.h := pdf_h_offset;
+    cur.v := height(p) + pdf_v_offset;
     case box_direction(dvi_direction) of
         dir_TL_,dir_LT_: begin end;
-        dir_TR_,dir_RT_: begin cur_h := cur_page_width - page_right_offset; end;
-        dir_RB_,dir_BR_: begin cur_h := cur_page_width - page_right_offset; cur_v := -page_bottom_offset; end;
-        dir_BL_,dir_LB_: begin cur_v := -page_bottom_offset; end; 
+        dir_TR_,dir_RT_: begin cur.h := cur_page_width - page_right_offset; end;
+        dir_RB_,dir_BR_: begin cur.h := cur_page_width - page_right_offset; cur.v := -page_bottom_offset; end;
+        dir_BL_,dir_LB_: begin cur.v := -page_bottom_offset; end; 
     end;
 end
 else begin
    cur_page_width := width(p);
    cur_page_height := height(p) + depth(p);
-   cur_h := 0;
-   cur_v := height(p);
+   cur.h := 0;
+   cur.v := height(p);
 end;
 pdf_origin_h := 0;
 pdf_origin_v := cur_page_height;
@@ -29576,25 +29576,25 @@ begin
     if (dir_opposite(dir_secondary[dir_dir(dir_ptr)])(dir_secondary[dvi_direction]))
     or (dir_eq(dir_secondary[dir_dir(dir_ptr)])(dir_secondary[dvi_direction]))
     then begin
-        dir_cur_h(temp_ptr) := cur_h + w;
+        dir_cur_h(temp_ptr) := cur.h + w;
         if dir_opposite(dir_secondary[dir_dir(dir_ptr)])(dir_secondary[dvi_direction]) then
-            cur_h := cur_h + w;
+            cur.h := cur.h + w;
     end else
-        dir_cur_h(temp_ptr) := cur_h;
-    dir_cur_v(temp_ptr) := cur_v;
+        dir_cur_h(temp_ptr) := cur.h;
+    dir_cur_v(temp_ptr) := cur.v;
     dir_box_pos_h(temp_ptr) := box_pos.h;
     dir_box_pos_v(temp_ptr) := box_pos.v;
     synch_pos_with_cur; {no need for |synch_dvi_with_cur|, as there is no DVI grouping}
     box_pos := pos; {fake a nested |hlist_out|}
-    cur_h := 0; cur_v := 0;
+    cur.h := 0; cur.v := 0;
     dvi_direction:=dir_dir(dir_ptr);
   end
   else begin
     pop_dir_node;
     box_pos.h := dir_box_pos_h(p);
     box_pos.v := dir_box_pos_v(p);
-    cur_h := dir_cur_h(p);
-    cur_v := dir_cur_v(p);
+    cur.h := dir_cur_h(p);
+    cur.v := dir_cur_v(p);
     if dir_ptr<>null then
       dvi_direction:=dir_dir(dir_ptr)
     else
@@ -29869,21 +29869,21 @@ begin d:=0;
     pdf_print_ln(" >>");
 end;
 
-procedure set_rect_dimens(p, parent_box: pointer; x, y, w, h, d, margin: scaled);
+procedure set_rect_dimens(p, parent_box: pointer; x, y, w, hh, d, margin: scaled);
 begin
-    pdf_ann_left(p) := cur_h;
+    pdf_ann_left(p) := cur.h;
     if is_running(w) then
         pdf_ann_right(p) := x + width(parent_box)
     else
-        pdf_ann_right(p) := cur_h + w;
-    if is_running(h) then
+        pdf_ann_right(p) := cur.h + w;
+    if is_running(hh) then
         pdf_ann_top(p) := y - height(parent_box)
     else
-        pdf_ann_top(p) := cur_v - h;
+        pdf_ann_top(p) := cur.v - hh; {TODO: revert hh to h (was needed by convert)}
     if is_running(d) then
         pdf_ann_bottom(p) := y  + depth(parent_box)
     else
-        pdf_ann_bottom(p) := cur_v + d;
+        pdf_ann_bottom(p) := cur.v + d;
     if is_shipping_page and matrixused then begin
         matrixtransformrect(pdf_ann_left(p), cur_page_height - pdf_ann_bottom(p),
                             pdf_ann_right(p), cur_page_height - pdf_ann_top(p));
@@ -29988,14 +29988,14 @@ begin
     if is_running(pdf_width(pdf_link_stack_top.link_node)) then begin
         p := pdf_link_stack_top.ref_link_node;
         if is_shipping_page and matrixused then begin
-            matrixrecalculate(cur_h + pdf_link_margin);
+            matrixrecalculate(cur.h + pdf_link_margin);
             pdf_ann_left(p)   := getllx - pdf_link_margin;
             pdf_ann_top(p)    := cur_page_height - getury - pdf_link_margin;
             pdf_ann_right(p)  := geturx + pdf_link_margin;
             pdf_ann_bottom(p) := cur_page_height - getlly + pdf_link_margin;
          end
          else
-            pdf_ann_right(p) := cur_h + pdf_link_margin;
+            pdf_ann_right(p) := cur.h + pdf_link_margin;
     end;
     pop_link_level;
 end;
@@ -30104,7 +30104,7 @@ begin
     if pdf_thread_level <> cur_s then
         pdf_error("ext4", "\pdfendthread ended up in different nesting level than \pdfstartthread");
     if is_running(pdf_thread_dp) and (last_thread <> null) then
-        pdf_ann_bottom(last_thread) := cur_v + pdf_thread_margin;
+        pdf_ann_bottom(last_thread) := cur.v + pdf_thread_margin;
     if pdf_last_thread_named_id then
         delete_token_ref(pdf_last_thread_id);
     last_thread := null;
@@ -30158,8 +30158,8 @@ begin
                             pdf_width(p), pdf_height(p), pdf_depth(p),
                             pdf_dest_margin)
         else begin
-        pdf_ann_left(p) := cur_h;
-        pdf_ann_top(p) := cur_v;
+        pdf_ann_left(p) := cur.h;
+        pdf_ann_top(p) := cur.v;
     end;
     pdf_dest_fith,
     pdf_dest_fitbh:
@@ -30168,7 +30168,7 @@ begin
                             pdf_width(p), pdf_height(p), pdf_depth(p),
                             pdf_dest_margin)
         else
-        pdf_ann_top(p) := cur_v;
+        pdf_ann_top(p) := cur.v;
     pdf_dest_fitv,
     pdf_dest_fitbv:
        if matrixused then
@@ -30176,7 +30176,7 @@ begin
                             pdf_width(p), pdf_height(p), pdf_depth(p),
                             pdf_dest_margin)
        else
-       pdf_ann_left(p) := cur_h;
+       pdf_ann_left(p) := cur.h;
     pdf_dest_fit,
     pdf_dest_fitb:
         do_nothing;
@@ -30188,14 +30188,14 @@ begin
 end;
 
 procedure out_form(p: pointer);
-var v: scaled;
+var vv: scaled; {TODO: revert vv to v (was needed by convert)}
 begin
     pdf_end_text;
     pdf_print_ln("q");
     if pdf_lookup_list(pdf_xform_list, pdf_xform_objnum(p)) = null then
         pdf_append_list(pdf_xform_objnum(p))(pdf_xform_list);
-    v := cur_v + obj_xform_depth(pdf_xform_objnum(p));
-    pdf_set_origin_temp(cur_h, v);
+    vv := cur.v + obj_xform_depth(pdf_xform_objnum(p));
+    pdf_set_origin_temp(cur.h, vv);
     pdf_print("/Fm");
     pdf_print_int(obj_info(pdf_xform_objnum(p)));
     pdf_print_resname_prefix;
@@ -30205,7 +30205,7 @@ end;
 
 procedure output_image(idx: integer);
 begin
-    out_image(idx, cur_h-pdf_origin_h, pdf_origin_v-cur_v);
+    out_image(idx, cur.h-pdf_origin_h, pdf_origin_v-cur.v);
     if pdf_lookup_list(pdf_ximage_list, image_objnum(idx)) = null then
         pdf_append_list(image_objnum(idx))(pdf_ximage_list);
 end;
@@ -30261,35 +30261,35 @@ endcases
 @ @<Save current position to |pdf_last_x_pos|, |pdf_last_y_pos|@>=
 begin
     synch_pos_with_cur;
-    pdf_last_x_pos := cur_h;
-    pdf_last_y_pos := cur_page_height - cur_v
+    pdf_last_x_pos := cur.h;
+    pdf_last_y_pos := cur_page_height - cur.v
 end
 
 @ @<Output a Image node in a vlist@>=
-begin cur_v:=cur_v+pdf_height(p)+pdf_depth(p);
+begin cur.v:=cur.v+pdf_height(p)+pdf_depth(p);
   case box_direction(dvi_direction) of
   dir_TL_: begin
-    cur_h:=left_edge;
+    cur.h:=left_edge;
     end;
   dir_BL_: begin
-    cur_h:=left_edge;
+    cur.h:=left_edge;
     end;
   dir_TR_: begin
-    cur_h:=left_edge-pdf_width(p);
+    cur.h:=left_edge-pdf_width(p);
     end;
   dir_BR_: begin
-    cur_h:=left_edge-pdf_width(p);
+    cur.h:=left_edge-pdf_width(p);
     end;
-  othercases cur_h:=left_edge;
+  othercases cur.h:=left_edge;
   endcases;
   output_image(pdf_ximage_idx(p));
 end
 
 @ @<Output a Form node in a vlist@>=
-begin cur_v:=cur_v+pdf_height(p);
-  cur_h:=left_edge;
+begin cur.v:=cur.v+pdf_height(p);
+  cur.h:=left_edge;
   out_form(p);
-  cur_v:=cur_v+pdf_depth(p);
+  cur.v:=cur.v+pdf_depth(p);
 end
 
 @ @<Output the whatsit node |p| in |pdf_hlist_out|@>=
@@ -30343,37 +30343,37 @@ endcases
 begin
   case box_direction(dvi_direction) of
   dir_TL_: begin
-    edge:=cur_h+pdf_width(p);
-    cur_v:=base_line+pdf_depth(p);
+    edge:=cur.h+pdf_width(p);
+    cur.v:=base_line+pdf_depth(p);
     end;
   dir_BL_: begin
-    edge:=cur_h+pdf_width(p);
-    cur_v:=base_line+pdf_height(p)+pdf_depth(p);
+    edge:=cur.h+pdf_width(p);
+    cur.v:=base_line+pdf_height(p)+pdf_depth(p);
     end;
   dir_TR_: begin
-    cur_h:=cur_h-pdf_width(p);
-    edge:=cur_h;
-    cur_v:=base_line+pdf_depth(p);
+    cur.h:=cur.h-pdf_width(p);
+    edge:=cur.h;
+    cur.v:=base_line+pdf_depth(p);
     end;
   dir_BR_: begin
-    cur_h:=cur_h-pdf_width(p);
-    edge:=cur_h;
-    cur_v:=base_line+pdf_height(p)+pdf_depth(p);
+    cur.h:=cur.h-pdf_width(p);
+    edge:=cur.h;
+    cur.v:=base_line+pdf_height(p)+pdf_depth(p);
     end;
   othercases begin 
-    edge:=cur_h+pdf_width(p);
-    cur_v:=base_line+pdf_depth(p);
+    edge:=cur.h+pdf_width(p);
+    cur.v:=base_line+pdf_depth(p);
     end;
   endcases;
   output_image(pdf_ximage_idx(p));
-  cur_h:=edge; cur_v:=base_line;
+  cur.h:=edge; cur.v:=base_line;
 end
 
 @ @<Output a Form node in a hlist@>=
 begin
-  cur_v:=base_line;
+  cur.v:=base_line;
   out_form(p);
-  edge:=cur_h+pdf_width(p); cur_h:=edge;
+  edge:=cur.h+pdf_width(p); cur.h:=edge;
 end
 
 @* \[53a] The extended features of \eTeX.
@@ -32167,12 +32167,12 @@ end;
 
 function get_cur_v: integer;
 begin
-    get_cur_v := cur_page_height - cur_v;
+    get_cur_v := cur_page_height - cur.v;
 end;
 
 function get_cur_h: integer;
 begin
-    get_cur_h := cur_h;
+    get_cur_h := cur.h;
 end;
 
 @* \[54] $\Omega$ changes.
