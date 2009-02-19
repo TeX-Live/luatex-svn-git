@@ -1336,53 +1336,87 @@ pointer get_delim_vbox (extinfo *ext, internal_font_number f, scaled v, pointer 
        each of the repeatable items in |ext| has to be repeated to reach 
        that height.
     */      
- RETRY:
     cur = ext; 
     prev_overlap = -1; 
-    b_max = 0;
+    b_max = 0; 
     s_max = 0;
-    i = 0;
-    while (cur != NULL) {
+    for (cur=ext;cur != NULL;cur = cur->next) {
+      /* substract width of the current overlap if this is not the first */
+      if (cur->extender == 0) { /* not an extender */
         a = cur->advance;
         if (a==0) {
-            a = height_plus_depth(f,cur->glyph); /* for tfm fonts */
-            assert (a>= 0);
+          a = height_plus_depth(f,cur->glyph); /* for tfm fonts */
+          assert (a>= 0);
+        }
+        b_max += a; /* add the advance value */
+        if (prev_overlap>=0) {
+          c = min_overlap;
+          if (c>cur->start_overlap)
+            c = cur->start_overlap;
+          if (c>prev_overlap)
+            c = prev_overlap;
+          b_max -= c;
+          d = c;
+          if (prev_overlap>cur->start_overlap) {
+            if (cur->start_overlap>d) 
+              d = cur->start_overlap;
+          } else {
+            if (prev_overlap>d) 
+              d = prev_overlap;
+          }
+          s_max += (d - c);
+        }
+        prev_overlap = cur->end_overlap;
+      }
+    }
+    if (b_max<v && num_extenders>0) { /* not large enough, but can grow */
+    RETRY:
+      with_extenders++;
+      cur = ext; 
+      prev_overlap = -1; 
+      b_max = 0;
+      s_max = 0;
+      i = 0;
+      while (cur != NULL) {
+        a = cur->advance;
+        if (a==0) {
+          a = height_plus_depth(f,cur->glyph); /* for tfm fonts */
+          assert (a>= 0);
         }
         /* substract width of the current overlap if this is not the first */
         if (prev_overlap>=0) {
+          c = min_overlap;
+          if (c>cur->start_overlap)
+            c = cur->start_overlap;
+          if (c>prev_overlap)
             c = prev_overlap;
-            if (c>cur->start_overlap)
-                c = cur->start_overlap;
-            if (c<min_overlap)
-                c = min_overlap;
             b_max -= c;
-            d = prev_overlap;
-            if (d>cur->start_overlap)
+            d = c;
+            if (prev_overlap>cur->start_overlap) {
+              if (cur->start_overlap>d)
                 d = cur->start_overlap;
-            if (d<min_overlap)
-                d = min_overlap;
-            s_max += (d - min_overlap);
+            } else {
+              if (prev_overlap>d)
+                d = prev_overlap;
+            }
+            s_max += (d - c);
         }
         if (cur->extender == 0) { /* not an extender */
-            i = 0;
-            prev_overlap = cur->end_overlap;
+          i = 0;
+          prev_overlap = cur->end_overlap;
         } else {
-            if (with_extenders>0) {
-                i--;
-                prev_overlap = cur->end_overlap;
-            } else {
-                i = 0;
-            }
+          i--;
+          prev_overlap = cur->end_overlap;
         }
         b_max += a; /* add the advance value */
         if (i==0) {
-            cur = cur->next;
-            i = with_extenders;
+          cur = cur->next;
+          i = with_extenders;
         }
-    }
-    if (b_max<v && num_extenders>0) { /* not large enough, but can grow */
-        with_extenders++;
+      }
+      if (b_max<v) { /* not large enough, but can grow */
         goto RETRY;
+      }
     }
     /* now |b_max| is the natural height, |with_extenders| holds
        the count of each extender that is needed, and the maximum 
@@ -1395,7 +1429,16 @@ pointer get_delim_vbox (extinfo *ext, internal_font_number f, scaled v, pointer 
     /* create an array of maximum shrinks and fill it */
     i = 0; 
     num_total = ((num_extenders*with_extenders)+num_normal);
-    max_shrinks = xcalloc(sizeof(scaled), (num_total-1));
+    if (num_total==1) {
+      /* weird, but could happen */
+      cc = ext->glyph;
+      (void)stack_into_box(b, f, cc);
+      width(b) = char_width(f,cc);
+      height(b) = char_height(f,cc);
+      depth(b) = char_depth(f,cc);
+      return b;
+    }
+    max_shrinks = xcalloc(sizeof(scaled), (num_total));
     cur = ext; 
     prev_overlap = -1; 
     c = 0;
@@ -1533,26 +1576,24 @@ pointer var_delimiter(pointer d, integer s, scaled v)
             g = fam_fnt(z, s);
             if (g != null_font) {
                 y = x;
-                if ((y >= font_bc(g)) && (y <= font_ec(g))) {
-                  CONTINUE:
-                    if (char_exists(g, y)) {
-                        if (char_tag(g, y) == ext_tag) {
-                            f = g;
-                            c = y;
-                            goto FOUND;
-                        }
-                        u = height_plus_depth(g, y);
-                        if (u > w) {
-                            f = g;
-                            c = y;
-                            w = u;
-                            if (u >= v)
-                                goto FOUND;
-                        }
-                        if (char_tag(g, y) == list_tag) {
-                            y = char_remainder(g, y);
-                            goto CONTINUE;
-                        }
+            CONTINUE:
+                if (char_exists(g, y)) {
+                    if (char_tag(g, y) == ext_tag) {
+                        f = g;
+                        c = y;
+                        goto FOUND;
+                    }
+                    u = height_plus_depth(g, y);
+                    if (u > w) {
+                      f = g;
+                      c = y;
+                      w = u;
+                      if (u >= v)
+                        goto FOUND;
+                    }
+                    if (char_tag(g, y) == list_tag) {
+                      y = char_remainder(g, y);
+                      goto CONTINUE;
                     }
                 }
             }
