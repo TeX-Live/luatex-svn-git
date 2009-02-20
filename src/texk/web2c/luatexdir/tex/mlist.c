@@ -1351,10 +1351,6 @@ pointer get_delim_vbox (extinfo *ext, internal_font_number f, scaled v, pointer 
         b_max += a; /* add the advance value */
         if (prev_overlap>=0) {
           c = min_overlap;
-          if (c>cur->start_overlap)
-            c = cur->start_overlap;
-          if (c>prev_overlap)
-            c = prev_overlap;
           b_max -= c;
           d = c;
           if (prev_overlap>cur->start_overlap) {
@@ -1385,11 +1381,7 @@ pointer get_delim_vbox (extinfo *ext, internal_font_number f, scaled v, pointer 
         }
         /* substract width of the current overlap if this is not the first */
         if (prev_overlap>=0) {
-          c = min_overlap;
-          if (c>cur->start_overlap)
-            c = cur->start_overlap;
-          if (c>prev_overlap)
-            c = prev_overlap;
+            c = min_overlap;
             b_max -= c;
             d = c;
             if (prev_overlap>cur->start_overlap) {
