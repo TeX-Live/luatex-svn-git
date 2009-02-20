@@ -1302,9 +1302,20 @@ pointer get_delim_vbox (extinfo *ext, internal_font_number f, scaled v, pointer 
     min_overlap = connector_overlap_min(cur_style);
     assert(min_overlap>=0);
     with_extenders = 0;
-    num_extenders = 0; num_normal = 0;
+    num_extenders = 0;
+    num_normal = 0;
     cur = ext; 
     while (cur != NULL) {
+        if (!char_exists(f,cur->glyph)) {
+            char *hlp[] = {
+              "Each glyph part in an extensible item should exist in the font.",
+              "I will give up trying to find a suitable size for now. Fix your font!",
+              NULL
+            };
+            tex_error("Variant part doesn't exist.", hlp);
+            width(b) = null_delimiter_space;   
+            return b;
+        }
         if (cur->extender>0)
             num_extenders++;
         else
@@ -1346,13 +1357,13 @@ pointer get_delim_vbox (extinfo *ext, internal_font_number f, scaled v, pointer 
         a = cur->advance;
         if (a==0) {
           a = height_plus_depth(f,cur->glyph); /* for tfm fonts */
-          assert (a>= 0);
+          assert (a> 0);
         }
         b_max += a; /* add the advance value */
         if (prev_overlap>=0) {
           c = min_overlap;
-          if (c>a) 
-              c=a;
+          if (c>=a) 
+            c=(a-1);
           b_max -= c;
           d = c;
           if (prev_overlap>cur->start_overlap) {
@@ -1384,8 +1395,8 @@ pointer get_delim_vbox (extinfo *ext, internal_font_number f, scaled v, pointer 
         /* substract width of the current overlap if this is not the first */
         if (prev_overlap>=0) {
             c = min_overlap;
-            if (c>a) 
-                c=a;
+            if (c>=a) 
+              c=(a-1);
             b_max -= c;
             d = c;
             if (prev_overlap>cur->start_overlap) {
@@ -1423,7 +1434,6 @@ pointer get_delim_vbox (extinfo *ext, internal_font_number f, scaled v, pointer 
        |(num_extenders*with_extenders)+num_normal|
     */
     /* create an array of maximum shrinks and fill it */
-    i = 0; 
     num_total = ((num_extenders*with_extenders)+num_normal);
     if (num_total==1) {
       /* weird, but could happen */
@@ -1434,34 +1444,42 @@ pointer get_delim_vbox (extinfo *ext, internal_font_number f, scaled v, pointer 
       depth(b) = char_depth(f,cc);
       return b;
     }
-    max_shrinks = xcalloc(sizeof(scaled), (num_total));
+    max_shrinks = xcalloc(num_total,sizeof(scaled));
     cur = ext; 
     prev_overlap = -1; 
     c = 0;
+    i = 0; 
+ REDO:
     while (cur != NULL) {
-        if (prev_overlap>=0) {
+        if (cur->extender == 0 || with_extenders) {
+          if (prev_overlap>=0) {
             d = prev_overlap;
             if (d>cur->start_overlap)
-                d = cur->start_overlap;
+              d = cur->start_overlap;
             if (d<min_overlap)
-                d = min_overlap;
-            max_shrinks[c++] = (d - min_overlap); /* for testing */
-        }
-        if (cur->extender == 0) { /* not an extender */
+              d = min_overlap;
+            max_shrinks[c++] = (d - min_overlap);
+          }
+          prev_overlap = cur->end_overlap;
+          if (cur->extender==0) {
+            /* simple char, just reset |i| */
             i = 0;
-            prev_overlap = cur->end_overlap;
-        } else {
-            if (with_extenders>0) {
-                i--;
-                prev_overlap = cur->end_overlap;
+          } else {
+            if (i==0) { /* first in loop */
+              i = with_extenders;
+              if (i!=1)
+                goto REDO;
+            } else if (i==1) {
+              /* done */
+              i = 0;
             } else {
-                i = 0;
+              i--;
+              if (i!=1)
+                goto REDO;
             }
+          }
         }
-        if (i==0) {
-            cur = cur->next;
-            i = with_extenders;
-        }
+        cur = cur->next;
     }
     /* now create the box contents */
     cur = ext; 
@@ -1497,8 +1515,7 @@ pointer get_delim_vbox (extinfo *ext, internal_font_number f, scaled v, pointer 
         }
         cur = cur->next;
     }
-    if (max_shrinks!=NULL)
-      free(max_shrinks);
+    xfree(max_shrinks);
     /* it is important to use |ht| here instead of |v| because  if there
        was not enough shrink to get the correct size, it has to be centered
        based on its actual height. That actual height is not the same as
