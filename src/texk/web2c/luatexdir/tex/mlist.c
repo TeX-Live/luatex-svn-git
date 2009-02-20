@@ -1538,7 +1538,6 @@ pointer get_delim_vbox (extinfo *ext, internal_font_number f, scaled v, pointer 
       fprintf (stdout,"v=%f,b_max=%f,ht=%f,n=%d\n", (float)v/65536.0,
       (float)b_max/65536.0,(float)height(b)/65536.0,num_total);
     */
-    /* TODO: think about italic correction */
     width(b) = wd;
     return b;
 }
@@ -1629,6 +1628,7 @@ pointer var_delimiter(pointer d, integer s, scaled v)
         if ((char_tag(f, c) == ext_tag) &&
             ((ext = get_charinfo_vert_variants(char_info(f,c))) != NULL)) {
             b = get_delim_vbox(ext, f, v, att);
+            width(b) += char_italic(f,c);
         } else {
             b = char_box(f, c, att);
         } 
