@@ -1321,9 +1321,18 @@ pointer get_delim_vbox (extinfo *ext, internal_font_number f, scaled v, pointer 
         else
             num_normal++;
         /* no negative overlaps or advances are allowed */
-        assert(cur->start_overlap>=0);
-        assert(cur->end_overlap>=0);
-        assert(cur->advance>=0);
+        if (cur->start_overlap<0 || cur->end_overlap<0 || cur->advance<0) {
+            char *hlp[] = {
+              "All measurements in extensible items should be positive.",
+              "To get around this problem, I have changed the font metrics.",
+              "Fix your font!",
+              NULL
+            };
+            tex_error("Extensible recipe has negative fields.", hlp);          
+            if (cur->start_overlap<0)  cur->start_overlap=0;
+            if (cur->end_overlap<0)  cur->end_overlap=0;
+            if (cur->advance<0)  cur->advance=0;
+        }
         cur = cur->next;
     }
     if (num_normal==0) {
