@@ -1281,7 +1281,7 @@ void add_delim_kern(pointer b, scaled s)
 
 /* */
 
-pointer get_delim_vbox (extinfo *ext, internal_font_number f, scaled v, pointer att) 
+pointer get_delim_box (extinfo *ext, internal_font_number f, scaled v, pointer att, int boxtype) 
 {
     pointer b;
     extinfo *cur;
@@ -1297,7 +1297,7 @@ pointer get_delim_vbox (extinfo *ext, internal_font_number f, scaled v, pointer 
     scaled *max_shrinks = NULL;
     assert(ext!=NULL);
     b = new_null_box();
-    type(b) = vlist_node;
+    type(b) = boxtype;
     reset_attributes(b, att);
     min_overlap = connector_overlap_min(cur_style);
     assert(min_overlap>=0);
@@ -1365,7 +1365,10 @@ pointer get_delim_vbox (extinfo *ext, internal_font_number f, scaled v, pointer 
       if (cur->extender == 0) { /* not an extender */
         a = cur->advance;
         if (a==0) {
-          a = height_plus_depth(f,cur->glyph); /* for tfm fonts */
+          if(boxtype==vlist_node)
+            a = height_plus_depth(f,cur->glyph); /* for tfm fonts */
+          else
+            a = char_width(f,cur->glyph); /* for tfm fonts */
           assert (a> 0);
         }
         b_max += a; /* add the advance value */
@@ -1398,7 +1401,10 @@ pointer get_delim_vbox (extinfo *ext, internal_font_number f, scaled v, pointer 
       while (cur != NULL) {
         a = cur->advance;
         if (a==0) {
-          a = height_plus_depth(f,cur->glyph); /* for tfm fonts */
+          if(boxtype==vlist_node)
+            a = height_plus_depth(f,cur->glyph); /* for tfm fonts */
+          else
+            a = char_width(f,cur->glyph);
           assert (a>= 0);
         }
         /* substract width of the current overlap if this is not the first */
@@ -1434,12 +1440,12 @@ pointer get_delim_vbox (extinfo *ext, internal_font_number f, scaled v, pointer 
         goto RETRY;
       }
     }
-    /* now |b_max| is the natural height, |with_extenders| holds
+    /* now |b_max| is the natural height or width, |with_extenders| holds
        the count of each extender that is needed, and the maximum 
        amount the stack can shrink by is |s_max|.
 
-       |(b_max-v)| is the total amount of extra height that needs to
-       be gotten rid of, and the total number of items in the stack is
+       |(b_max-v)| is the total amount of extra height or width that needs
+       to be gotten rid of, and the total number of items in the stack is
        |(num_extenders*with_extenders)+num_normal|
     */
     /* create an array of maximum shrinks and fill it */
@@ -1493,7 +1499,8 @@ pointer get_delim_vbox (extinfo *ext, internal_font_number f, scaled v, pointer 
     /* now create the box contents */
     cur = ext; 
     wd = 0; d = 0; ht = 0;
-    while (cur != NULL) {
+    if (boxtype==vlist_node) {
+      while (cur != NULL) {
         cc = cur->glyph;
         if (char_width(f,cc) > wd) 
             wd = char_width(f,cc);
@@ -1523,32 +1530,40 @@ pointer get_delim_vbox (extinfo *ext, internal_font_number f, scaled v, pointer 
             d++;
         }
         cur = cur->next;
+      }
+      xfree(max_shrinks);
+      /* it is important to use |ht| here instead of |v| because  if there
+         was not enough shrink to get the correct size, it has to be centered
+         based on its actual height. That actual height is not the same as
+         |b_max| either because |min_overlap| can have ben set by the user
+         outside of the font's control.
+      */
+      last_ht = 0;
+      height(b) = ht;
+      depth(b) = 0;
+      /* the next correction is needed for radicals */
+      if (list_ptr(b)!=null &&
+          type(list_ptr(b))==hlist_node &&
+          list_ptr(list_ptr(b)) != null &&
+          type(list_ptr(list_ptr(b)))==glyph_node) { /* and it should be */
+        last_ht = char_height(font(list_ptr(list_ptr(b))), character (list_ptr(list_ptr(b))));
+        height(b) = last_ht;
+        depth(b) = ht - last_ht; 
+      }
+      /*
+        fprintf (stdout,"v=%f,b_max=%f,ht=%f,n=%d\n", (float)v/65536.0,
+        (float)b_max/65536.0,(float)height(b)/65536.0,num_total);
+      */
+      width(b) = wd;
+    } else {
+      /* horizontal version */
     }
-    xfree(max_shrinks);
-    /* it is important to use |ht| here instead of |v| because  if there
-       was not enough shrink to get the correct size, it has to be centered
-       based on its actual height. That actual height is not the same as
-       |b_max| either because |min_overlap| can have ben set by the user
-       outside of the font's control.
-    */
-    last_ht = 0;
-    height(b) = ht;
-    depth(b) = 0;
-    /* the next correction is needed for radicals */
-    if (list_ptr(b)!=null &&
-        type(list_ptr(b))==hlist_node &&
-        list_ptr(list_ptr(b)) != null &&
-        type(list_ptr(list_ptr(b)))==glyph_node) { /* and it should be */
-      last_ht = char_height(font(list_ptr(list_ptr(b))), character (list_ptr(list_ptr(b))));
-      height(b) = last_ht;
-      depth(b) = ht - last_ht; 
-    }
-    /*
-      fprintf (stdout,"v=%f,b_max=%f,ht=%f,n=%d\n", (float)v/65536.0,
-      (float)b_max/65536.0,(float)height(b)/65536.0,num_total);
-    */
-    width(b) = wd;
     return b;
+}
+
+pointer get_delim_vbox (extinfo *ext, internal_font_number f, scaled v, pointer att) 
+{
+  return get_delim_box(ext, f, v, att, vlist_node);
 }
 
 
