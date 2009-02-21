@@ -1887,7 +1887,7 @@ pointer clean_box(pointer p, integer s)
         x = q;                  /* it's already clean */
     else
         x = hpack(q, 0, additional);
-    if (x != q)
+    if (x != q && q != null)
         reset_attributes(x, node_attr(q));
     /* Here we save memory space in a common case. */
     q = list_ptr(x);
