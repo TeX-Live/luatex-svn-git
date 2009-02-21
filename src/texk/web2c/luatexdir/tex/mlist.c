@@ -1680,6 +1680,7 @@ pointer var_delimiter(pointer d, integer s, scaled v)
     boolean large_attempt;      /* are we trying the ``large'' variant? */
     pointer att;                /* to save the current attribute list */
     extinfo *ext;
+    att = null;
     f = null_font;
     c = 0;
     w = 0;
@@ -1725,9 +1726,11 @@ pointer var_delimiter(pointer d, integer s, scaled v)
         x = large_char(d);
     }
   FOUND:
-    att = node_attr(d);
-    node_attr(d) = null;
-    flush_node(d);
+    if (d!=null) {
+      att = node_attr(d);
+      node_attr(d) = null;
+      flush_node(d);
+    }
     if (f != null_font) {
         /* When the following code is executed, |char_tag(q)| will be equal to
            |ext_tag| if and only if a built-up symbol is supposed to be returned.
