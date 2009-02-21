@@ -1268,6 +1268,26 @@ scaled stack_into_box(pointer b, internal_font_number f, integer c)
 }
 
 
+scaled stack_into_hbox(pointer b, internal_font_number f, integer c)
+{
+  pointer p,q;                  /* new node placed into |b| */
+    p = char_box(f, c, node_attr(b));
+    q = list_ptr(b);
+    if (q==null) {
+      list_ptr(b) = p;
+    } else {
+      while (vlink(q)!=null)
+	q = vlink(q);
+      vlink(q) = p;
+    }
+    if (height(b)<height(p))
+      height(b) = height(p);
+    if (depth(b)<depth(p))
+      depth(b) = depth(p);
+    return char_width(f,c);
+}
+
+
 
 void add_delim_kern(pointer b, scaled s)
 {
@@ -1277,6 +1297,22 @@ void add_delim_kern(pointer b, scaled s)
     vlink(p) = list_ptr(b);
     list_ptr(b) = p;
 }
+
+void add_delim_hkern(pointer b, scaled s)
+{
+  pointer p, q;                  /* new node placed into |b| */
+    p = new_kern(s);    
+    reset_attributes(p, node_attr(b));
+    q = list_ptr(b);
+    if (q==null) {
+      list_ptr(b) = p;
+    } else {
+      while (vlink(q)!=null)
+	q = vlink(q);
+      vlink(q) = p;
+    }
+}
+
 
 
 /* */
@@ -1288,7 +1324,7 @@ pointer get_delim_box (extinfo *ext, internal_font_number f, scaled v, pointer a
     scaled min_overlap, prev_overlap; 
     scaled b_max;              /* natural (maximum) height of the stack */
     scaled s_max;              /* amount of possible shrink in the stack */
-    scaled a, wd, ht, last_ht;
+    scaled a, wd, ht, dp, last_ht;
     integer cc;                 /* a temporary character code for extensibles  */
     integer i;                 /* a temporary counter number of extensible pieces */
     int with_extenders;
@@ -1498,7 +1534,7 @@ pointer get_delim_box (extinfo *ext, internal_font_number f, scaled v, pointer a
     }
     /* now create the box contents */
     cur = ext; 
-    wd = 0; d = 0; ht = 0;
+    wd = 0; d = 0; ht = 0; dp = 0;
     if (boxtype==vlist_node) {
       while (cur != NULL) {
         cc = cur->glyph;
@@ -1557,6 +1593,48 @@ pointer get_delim_box (extinfo *ext, internal_font_number f, scaled v, pointer a
       width(b) = wd;
     } else {
       /* horizontal version */
+
+      while (cur != NULL) {
+        cc = cur->glyph;
+        if (char_height(f,cc) > ht) 
+            ht = char_height(f,cc);
+        if (char_depth(f,cc) > dp) 
+            dp = char_depth(f,cc);
+        if (cur->extender > 0 ) {
+            i = with_extenders;
+            while (i>0) {
+                wd += stack_into_hbox(b, f, cc);
+                if (d<(num_total-1)) {
+                    u = min_overlap;
+                    if (s_max!=0)
+                        u += xn_over_d(max_shrinks[d], (b_max-v), s_max);
+                    add_delim_hkern(b, -u);
+                    wd -= u;
+                }
+                d++;
+                i--;
+            }
+        } else {
+            wd += stack_into_hbox(b, f, cc);
+            if (d<(num_total-1)) {
+                u = min_overlap;
+                if (s_max!=0)
+                    u += xn_over_d(max_shrinks[d], (b_max-v), s_max);
+                add_delim_hkern(b, -u);
+                wd -= u;
+            }
+            d++;
+        }
+        cur = cur->next;
+      }
+      xfree(max_shrinks);
+      /* it is important to use |wd| here instead of |v| because  if there
+         was not enough shrink to get the correct size, it has to be centered
+         based on its actual width. That actual width is not the same as
+         |b_max| either because |min_overlap| can have ben set by the user
+         outside of the font's control.
+      */
+      width(b) = wd;
     }
     return b;
 }
@@ -1565,6 +1643,12 @@ pointer get_delim_vbox (extinfo *ext, internal_font_number f, scaled v, pointer 
 {
   return get_delim_box(ext, f, v, att, vlist_node);
 }
+
+pointer get_delim_hbox (extinfo *ext, internal_font_number f, scaled v, pointer att) 
+{
+  return get_delim_box(ext, f, v, att, hlist_node);
+}
+
 
 
 /*
@@ -1665,6 +1749,88 @@ pointer var_delimiter(pointer d, integer s, scaled v)
     delete_attribute_ref(att);
     return b;
 }
+
+pointer flat_var_delimiter(pointer d, integer s, scaled v)
+{
+    /* label found,continue; */
+    pointer b;                  /* the box that will be constructed */
+    internal_font_number f, g;  /* best-so-far and tentative font codes */
+    integer c, x, y;            /* best-so-far and tentative character codes */
+    scaled u;                   /* height-plus-depth of a tentative character */
+    scaled w;                   /* largest height-plus-depth so far */
+    integer z;                  /* runs through font family members */
+    boolean large_attempt;      /* are we trying the ``large'' variant? */
+    pointer att;                /* to save the current attribute list */
+    extinfo *ext;
+    f = null_font;
+    c = 0;
+    w = 0;
+    large_attempt = false;
+    if (d == null)
+        goto FOUND;
+    z = small_fam(d);
+    x = small_char(d);
+    while (true) {
+        /* The search process is complicated slightly by the facts that some of the
+           characters might not be present in some of the fonts, and they might not
+           be probed in increasing order of height. */
+        if ((z != 0) || (x != 0)) {
+            g = fam_fnt(z, s);
+            if (g != null_font) {
+                y = x;
+            CONTINUE:
+                if (char_exists(g, y)) {
+                    if (char_tag(g, y) == ext_tag) {
+                        f = g;
+                        c = y;
+                        goto FOUND;
+                    }
+                    u = char_width(g, y);
+                    if (u > w) {
+                      f = g;
+                      c = y;
+                      w = u;
+                      if (u >= v)
+                        goto FOUND;
+                    }
+                    if (char_tag(g, y) == list_tag) {
+                      y = char_remainder(g, y);
+                      goto CONTINUE;
+                    }
+                }
+            }
+        }
+        if (large_attempt)
+            goto FOUND;         /* there were none large enough */
+        large_attempt = true;
+        z = large_fam(d);
+        x = large_char(d);
+    }
+  FOUND:
+    att = node_attr(d);
+    node_attr(d) = null;
+    flush_node(d);
+    if (f != null_font) {
+        /* When the following code is executed, |char_tag(q)| will be equal to
+           |ext_tag| if and only if a built-up symbol is supposed to be returned.
+         */
+        ext = NULL;
+        if ((char_tag(f, c) == ext_tag) &&
+            ((ext = get_charinfo_hor_variants(char_info(f,c))) != NULL)) {
+            b = get_delim_hbox(ext, f, v, att);
+            width(b) += char_italic(f,c);
+        } else {
+            b = char_box(f, c, att);
+        } 
+    } else {
+        b = new_null_box();
+        reset_attributes(b, att);
+        width(b) = 0; /* use this width if no delimiter was found */
+    }
+    delete_attribute_ref(att);
+    return b;
+}
+
 
 /*
 The next subroutine is much simpler; it is used for numerators and
@@ -2119,6 +2285,58 @@ void make_radical(pointer q)
       degree(q)=null;
     }
     p = hpack(y, 0, additional);
+    reset_attributes(p, node_attr(q));
+    math_list(nucleus(q)) = p;
+    type(nucleus(q)) = sub_box_node;
+}
+
+
+void make_over_delimiter(pointer q)
+{
+    pointer x, y, p;            /* temporary registers for box construction */
+    scaled xd;
+    x = clean_box(nucleus(q), cramped_style(cur_style));
+    y = flat_var_delimiter(left_delimiter(q), cur_size, xn_over_d(width(x),delimiter_factor,1000));
+    left_delimiter(q) = null;
+    if (width(y)>=width(x)) {
+      width(x) = width(y); /* just in case */
+    } else {
+      xd = (width(x) - width(y))/2;
+      p = new_kern (xd);
+      reset_attributes(p, node_attr(y));
+      vlink(p) = y;
+      y = hpack(p,0,additional);
+      reset_attributes(y, node_attr(y));
+    }
+    vlink(y) = x;
+    p = vpackage(y, 0, additional, max_dimen);
+    reset_attributes(p, node_attr(q));
+    math_list(nucleus(q)) = p;
+    type(nucleus(q)) = sub_box_node;
+}
+
+
+void make_under_delimiter(pointer q)
+{
+    pointer x, y, p;            /* temporary registers for box construction */
+    scaled xd;
+    x = clean_box(nucleus(q), cramped_style(cur_style));
+    y = flat_var_delimiter(left_delimiter(q), cur_size, xn_over_d(width(x),delimiter_factor,1000));
+    left_delimiter(q) = null;
+
+    if (width(y)>=width(x)) {
+      width(x) = width(y); /* just in case */
+    } else {
+      xd = (width(x) - width(y))/2;
+      p = new_kern (xd);
+      reset_attributes(p, node_attr(y));
+      vlink(p) = y;
+      y = hpack(p,0,additional);
+      reset_attributes(y, node_attr(y));
+    }
+    vlink(x) = y;
+    p = vpackage(x, 0, additional, max_dimen);
+    shift_amount(p) = (height(y)+depth(x));
     reset_attributes(p, node_attr(q));
     math_list(nucleus(q)) = p;
     type(nucleus(q)) = sub_box_node;
@@ -3040,7 +3258,12 @@ void mlist_to_hlist(void)
         case inner_noad:
             break;
         case radical_noad:
-            make_radical(q);
+   	    if (subtype(q)==4)
+              make_under_delimiter(q);
+            else if (subtype(q)==5)
+              make_over_delimiter(q);
+            else
+              make_radical(q);
             break;
         case over_noad:
             make_over(q);

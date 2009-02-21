@@ -6956,6 +6956,10 @@ primitive("Uradical",radical,2);@/
 @!@:radical_}{\.{\\Uradical} primitive@>
 primitive("Uroot",radical,3);@/
 @!@:radical_}{\.{\\Uroot} primitive@>
+primitive("Uunderdelimiter",radical,4);@/
+@!@:radical_}{\.{\\Uunderdelimiter} primitive@>
+primitive("Uoverdelimiter",radical,5);@/
+@!@:radical_}{\.{\\Uoverdelimiter} primitive@>
 primitive("read",read_to_cs,0);@/
 @!@:read_}{\.{\\read} primitive@>
 primitive("relax",relax,too_big_char);
@@ -7036,6 +7040,8 @@ omit: print_esc("omit");
 radical: if chr_code=0 then print_esc("radical") 
    else if chr_code=1 then print_esc("oradical")
    else if chr_code=2 then print_esc("Uradical")
+   else if chr_code=4 then print_esc("Uunderdelimiter")
+   else if chr_code=5 then print_esc("Uoverdelimiter")
    else print_esc("Uroot");
 read_to_cs: if chr_code=0 then print_esc("read")
   @<Cases of |read| for |print_cmd_chr|@>;

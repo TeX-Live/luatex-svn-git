@@ -795,10 +795,14 @@ void display_normal_noad(pointer p)
         tprint_esc("vcenter");
         break;
     case radical_noad:
-        if (degree(p)==null) 
-          tprint_esc("radical");
-        else
+        if (subtype(p)==5)
+	  tprint_esc("Uoverdelimiter");
+        else if (subtype(p)==4)
+	  tprint_esc("Uunderdelimiter");
+        else if (subtype(p)==3)
           tprint_esc("Uroot");
+	else
+          tprint_esc("radical");
         print_delimiter(left_delimiter(p));
         if (degree(p)!=null) {
           print_subsidiary_data(degree(p), '/');
@@ -1556,7 +1560,7 @@ void math_radical(void)
 {
     halfword q;
     int chr_code = cur_chr ;
-    tail_append(new_node(radical_noad, normal));
+    tail_append(new_node(radical_noad, chr_code));
     q = new_node(delim_node, 0);
     left_delimiter(tail) = q;
     if (chr_code == 0)           /* \radical */
@@ -1566,6 +1570,10 @@ void math_radical(void)
     else if (chr_code == 2)      /* \Uradical */
         scan_delimiter(left_delimiter(tail), xetex_mathcode);
     else if (chr_code == 3)      /* \Uroot */
+        scan_delimiter(left_delimiter(tail), xetex_mathcode);
+    else if (chr_code == 4)      /* \Uunderdelimiter */
+        scan_delimiter(left_delimiter(tail), xetex_mathcode);
+    else if (chr_code == 5)      /* \Uoverdelimiter */
         scan_delimiter(left_delimiter(tail), xetex_mathcode);
     else
         tconfusion("math_radical");
