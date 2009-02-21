@@ -2105,7 +2105,7 @@ void make_radical(pointer q)
       } else {
           br = radical_degree_before(cur_style);
           ar = radical_degree_after(cur_style);
-	  if (ar>(wr+br)) ar = (wr+br);
+	  if (-ar>(wr+br)) ar = -(wr+br);
           x = new_kern(ar);
           reset_attributes(x, node_attr(degree(q)));
 	  vlink(x) = y;
