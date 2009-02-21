@@ -2096,18 +2096,27 @@ void make_radical(pointer q)
     p = overbar(x, clr, theta, radical_kern(cur_style), node_attr(y));
     vlink(y) = p;
     if (degree(q)!=null) {
-      x = new_kern(radical_degree_after(cur_style));
-      reset_attributes(x, node_attr(degree(q)));
-      vlink(x) = y;
-      y = clean_box(degree(q), script_script_style);
-      reset_attributes(y, node_attr(degree(q)));
+      scaled wr, br, ar;
+      pointer r = clean_box(degree(q), script_script_style);
+      reset_attributes(r, node_attr(degree(q)));
+      wr = width(r);
+      if (wr==0) {
+	  flush_node(r);
+      } else {
+          br = radical_degree_before(cur_style);
+          ar = radical_degree_after(cur_style);
+	  if (ar>(wr+br)) ar = (wr+br);
+          x = new_kern(ar);
+          reset_attributes(x, node_attr(degree(q)));
+	  vlink(x) = y;
+	  shift_amount(r) = (xn_over_d(h,radical_degree_raise(cur_style),100));
+	  vlink(r) = x;
+	  x = new_kern(br);
+	  reset_attributes(x, node_attr(degree(q)));
+	  vlink(x) = r;
+	  y = x;
+      }
       degree(q)=null;
-      shift_amount(y) = (xn_over_d(h,radical_degree_raise(cur_style),100));
-      vlink(y) = x;
-      x = new_kern(radical_degree_before(cur_style));
-      reset_attributes(x, node_attr(degree(q)));
-      vlink(x) = y;
-      y = x;
     }
     p = hpack(y, 0, additional);
     reset_attributes(p, node_attr(q));
