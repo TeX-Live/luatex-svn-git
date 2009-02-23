@@ -127,7 +127,6 @@ omitted (since it is always |cur_size| when we refer to such parameters).
 /* I made a bunch of extensions cf. the MATH table in OpenType, but some of
 the MathConstants values have no matching usage in \LuaTeX\ right now.
  
-
 ScriptPercentScaleDown,
 ScriptScriptPercentScaleDown:
   These should be handled by the macro package, on the engine
@@ -147,17 +146,16 @@ FlattenedAccentBaseHeight:
   needs support for MathTopAccentAttachment table to be 
   implemented first
 
-StretchStackTopShiftUp,
-StretchStackBottomShiftDown,
-StretchStackGapAboveMin,
-StretchStackGapBelowMin:
-  LuaTeX does not have horizontal delimiters yet, so nothing
-  can be done yet
-
 SkewedFractionHorizontalGap,
 SkewedFractionVerticalGap:
   I am not sure it makes sense implementing skewed fractions,
   so I would like to see an example first
+
+Also still TODO for OpenType Math:
+  * cutins (math_kern)
+  * extensible large operators
+  * bottom accents
+  * prescripts
 
 */
 
@@ -345,6 +343,49 @@ static scaled underbar_kern(int var)
     }
     return a;
 }
+
+static scaled under_delimiter_vgap(int var)
+{
+    scaled a = get_math_param(math_param_under_delimiter_vgap, var);
+    if (a == undefined_math_parameter) {
+        math_param_error("underdelimitervgap", var);
+        a = 0;
+    }
+    return a;
+}
+
+static scaled under_delimiter_bgap(int var)
+{
+    scaled a = get_math_param(math_param_under_delimiter_bgap, var);
+    if (a == undefined_math_parameter) {
+        math_param_error("underdelimiterbgap", var);
+        a = 0;
+    }
+    return a;
+}
+
+
+static scaled over_delimiter_vgap(int var)
+{
+    scaled a = get_math_param(math_param_over_delimiter_vgap, var);
+    if (a == undefined_math_parameter) {
+        math_param_error("overdelimitervgap", var);
+        a = 0;
+    }
+    return a;
+}
+
+static scaled over_delimiter_bgap(int var)
+{
+    scaled a = get_math_param(math_param_over_delimiter_bgap, var);
+    if (a == undefined_math_parameter) {
+        math_param_error("overdelimiterbgap", var);
+        a = 0;
+    }
+    return a;
+}
+
+
 
 static scaled radical_vgap(int var)
 {
@@ -662,6 +703,25 @@ void fixup_math_parameters(integer fam_id, integer size_id, integer f,
                                font_MATH_par(f, UnderbarVerticalGap), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_underbar_vgap, size_id,
                                 font_MATH_par(f, UnderbarVerticalGap), lvl);
+
+        DEFINE_MATH_PARAMETERS(math_param_under_delimiter_vgap, size_id,
+                               font_MATH_par(f, StretchStackGapAboveMin), lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_under_delimiter_vgap, size_id,
+                                font_MATH_par(f, StretchStackGapAboveMin), lvl);
+        DEFINE_MATH_PARAMETERS(math_param_under_delimiter_bgap, size_id,
+                               font_MATH_par(f, StretchStackBottomShiftDown), lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_under_delimiter_bgap, size_id,
+                                font_MATH_par(f, StretchStackBottomShiftDown), lvl);
+
+        DEFINE_MATH_PARAMETERS(math_param_over_delimiter_vgap, size_id,
+                               font_MATH_par(f, StretchStackGapBelowMin), lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_over_delimiter_vgap, size_id,
+                                font_MATH_par(f, StretchStackGapBelowMin), lvl);
+        DEFINE_MATH_PARAMETERS(math_param_over_delimiter_bgap, size_id,
+                               font_MATH_par(f, StretchStackTopShiftUp), lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_over_delimiter_bgap, size_id,
+                                font_MATH_par(f, StretchStackTopShiftUp), lvl);
+
 
         DEFINE_MATH_PARAMETERS(math_param_stack_num_up, size_id,
                                font_MATH_par(f, StackTopShiftUp), lvl);
@@ -1024,6 +1084,25 @@ void fixup_math_parameters(integer fam_id, integer size_id, integer f,
          */
         DEFINE_MATH_PARAMETERS(math_param_connector_overlap_min, size_id, 0, lvl);
         DEFINE_DMATH_PARAMETERS(math_param_connector_overlap_min, size_id, 0, lvl);
+
+        DEFINE_MATH_PARAMETERS(math_param_under_delimiter_vgap, size_id,
+                               big_op_spacing2(size_id), lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_under_delimiter_vgap, size_id,
+                                big_op_spacing2(size_id), lvl);
+        DEFINE_MATH_PARAMETERS(math_param_under_delimiter_bgap, size_id,
+                               big_op_spacing4(size_id), lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_under_delimiter_bgap, size_id,
+                                big_op_spacing4(size_id), lvl);
+        DEFINE_MATH_PARAMETERS(math_param_over_delimiter_vgap, size_id,
+                               big_op_spacing1(size_id), lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_over_delimiter_vgap, size_id,
+                                big_op_spacing1(size_id), lvl);
+        DEFINE_MATH_PARAMETERS(math_param_over_delimiter_bgap, size_id,
+                               big_op_spacing3(size_id), lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_over_delimiter_bgap, size_id,
+                                big_op_spacing3(size_id), lvl);
+
+
     }
 }
 
@@ -2298,6 +2377,8 @@ void make_over_delimiter(pointer q)
 {
     pointer x, y, p;            /* temporary registers for box construction */
     scaled xd;
+    scaled vertical_gap = over_delimiter_vgap(cur_style);
+    scaled baseline_gap = over_delimiter_bgap(cur_style);
     x = clean_box(nucleus(q), cramped_style(cur_style));
     y = flat_var_delimiter(left_delimiter(q), cur_size, xn_over_d(width(x),delimiter_factor,1000));
     left_delimiter(q) = null;
@@ -2311,7 +2392,13 @@ void make_over_delimiter(pointer q)
       y = hpack(p,0,additional);
       reset_attributes(y, node_attr(y));
     }
-    vlink(y) = x;
+    /* now insert a suitable kern p between |y| and |x| */
+    xd = baseline_gap - (height(x) + depth(y));
+    if (xd<vertical_gap)
+      xd = vertical_gap;
+    p = new_kern(xd);
+    vlink(p) = x;
+    vlink(y) = p;
     p = vpackage(y, 0, additional, max_dimen);
     reset_attributes(p, node_attr(q));
     math_list(nucleus(q)) = p;
@@ -2323,6 +2410,8 @@ void make_under_delimiter(pointer q)
 {
     pointer x, y, p;            /* temporary registers for box construction */
     scaled xd;
+    scaled gap = under_delimiter_vgap(cur_style);
+    scaled baseline_gap = under_delimiter_bgap(cur_style);
     x = clean_box(nucleus(q), cramped_style(cur_style));
     y = flat_var_delimiter(left_delimiter(q), cur_size, xn_over_d(width(x),delimiter_factor,1000));
     left_delimiter(q) = null;
@@ -2337,7 +2426,13 @@ void make_under_delimiter(pointer q)
       y = hpack(p,0,additional);
       reset_attributes(y, node_attr(y));
     }
-    vlink(x) = y;
+    /* now insert a suitable kern p between |y| and |x| */
+    xd = baseline_gap - (height(y) + depth(x));
+    if (xd<gap)
+      xd = gap;
+    p = new_kern(xd);
+    vlink(p) = y;
+    vlink(x) = p;
     p = vpackage(x, 0, additional, max_dimen);
     shift_amount(p) = (height(y)+depth(x));
     reset_attributes(p, node_attr(q));
@@ -2361,6 +2456,7 @@ void make_math_accent(pointer q)
     scaled delta;               /* space to remove between accent and accentee */
     scaled w;                   /* width of the accentee, not including sub/superscripts */
     boolean s_is_absolute;      /* will be true if a top-accent is placed in |s| */
+    extinfo *ext;
     s_is_absolute = false;
     fetch(accent_chr(q));
     if (char_exists(cur_f, cur_c)) {
@@ -2381,15 +2477,26 @@ void make_math_accent(pointer q)
         w = width(x);
         h = height(x);
         /* Switch to a larger accent if available and appropriate */
+        y = null;
         while (1) {
-            if (char_tag(f, c) != list_tag)
+          ext = NULL;
+          if ((char_tag(f, c) == ext_tag) &&
+              ((ext = get_charinfo_hor_variants(char_info(f,c))) != NULL)) {
+            y = get_delim_hbox(ext, f, w, node_attr(accent_chr(q)));
+            break;
+          } else if (char_tag(f, c) != list_tag) {
+            break;
+          } else {
+            integer yy = char_remainder(f, c);
+            if (!char_exists(f, yy))
                 break;
-            y = char_remainder(f, c);
-            if (!char_exists(f, y))
-                break;
-            if (char_width(f, y) > w)
-                break;
-            c = y;
+            if (char_width(f, yy) > w)
+              break;
+            c = yy;
+          }
+        }
+        if (y==null) {
+          y = char_box(f, c, node_attr(accent_chr(q)));
         }
         if (h < accent_base_height(f))
             delta = h;
@@ -2415,7 +2522,6 @@ void make_math_accent(pointer q)
                 h = height(x);
             }
         }
-        y = char_box(f, c, node_attr(q));
         if (s_is_absolute) {
             scaled sa = char_top_accent(f, c);
             if (sa==0) {
