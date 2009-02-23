@@ -1612,6 +1612,10 @@ void math_ac(void)
 {
     halfword q;
     mathcodeval t, b;
+    t.character_value=0;
+    t.family_value=0;
+    b.character_value=0;
+    b.family_value=0;
     if (cur_cmd == accent_cmd) {
         char *hlp[] = {
             "I'm changing \\accent to \\mathaccent here; wish me luck.",
