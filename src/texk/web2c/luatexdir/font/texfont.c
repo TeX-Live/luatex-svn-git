@@ -469,6 +469,11 @@ void set_charinfo_top_accent(charinfo * ci, scaled val)
     ci->top_accent = val;
 }
 
+void set_charinfo_bot_accent(charinfo * ci, scaled val)
+{
+    ci->bot_accent = val;
+}
+
 void set_charinfo_tag(charinfo * ci, scaled val)
 {
     ci->tag = val;
@@ -623,6 +628,11 @@ scaled get_charinfo_top_accent(charinfo * ci)
     return ci->top_accent;
 }
 
+scaled get_charinfo_bot_accent(charinfo * ci)
+{
+    return ci->bot_accent;
+}
+
 char get_charinfo_tag(charinfo * ci)
 {
     return ci->tag;
@@ -734,6 +744,12 @@ scaled char_top_accent(internal_font_number f, integer c)
 {
     charinfo *ci = char_info(f, c);
     return get_charinfo_top_accent(ci);
+}
+
+scaled char_bot_accent(internal_font_number f, integer c)
+{
+    charinfo *ci = char_info(f, c);
+    return get_charinfo_bot_accent(ci);
 }
 
 
@@ -1230,6 +1246,7 @@ void dump_charinfo(int f, int c)
     dump_int(get_charinfo_depth(co));
     dump_int(get_charinfo_italic(co));
     dump_int(get_charinfo_top_accent(co));
+    dump_int(get_charinfo_bot_accent(co));
     dump_int(get_charinfo_tag(co));
     dump_int(get_charinfo_ef(co));
     dump_int(get_charinfo_rp(co));
@@ -1338,6 +1355,8 @@ int undump_charinfo(int f)
     set_charinfo_italic(co, x);
     undump_int(x);
     set_charinfo_top_accent(co, x);
+    undump_int(x);
+    set_charinfo_bot_accent(co, x);
     undump_int(x);
     set_charinfo_tag(co, x);
     undump_int(x);
