@@ -6916,6 +6916,10 @@ primitive("omathaccent",math_accent,1);@/
 @!@:math_accent_}{\.{\\omathaccent} primitive@>
 primitive("Umathaccent",math_accent,2);@/
 @!@:math_accent_}{\.{\\Umathaccent} primitive@>
+primitive("Umathbotaccent",math_accent,3);@/
+@!@:math_accent_}{\.{\\Umathbotaccent} primitive@>
+primitive("Umathaccents",math_accent,4);@/
+@!@:math_accent_}{\.{\\Umathaccents} primitive@>
 primitive("mathchar",math_char_num,0);@/
 @!@:math_char_}{\.{\\mathchar} primitive@>
 primitive("omathchar",math_char_num,1);@/

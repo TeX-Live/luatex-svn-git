@@ -2446,112 +2446,167 @@ centered over the accentee, and the accent width is treated as zero with
 respect to the size of the final box.
 */
 
-void make_math_accent(pointer q)
-{
+#define TOP_CODE 1
+#define BOT_CODE 2
+
+void do_make_math_accent (pointer q, internal_font_number f, integer c, int top_or_bot) {
     pointer p, r, x, y;         /* temporary registers for box construction */
-    integer c;                  /* accent character */
-    internal_font_number f;     /* its font */
     scaled s;                   /* amount to skew the accent to the right */
     scaled h;                   /* height of character being accented */
     scaled delta;               /* space to remove between accent and accentee */
     scaled w;                   /* width of the accentee, not including sub/superscripts */
     boolean s_is_absolute;      /* will be true if a top-accent is placed in |s| */
     extinfo *ext;
+    pointer attr_p;
+    attr_p = (top_or_bot == TOP_CODE ? accent_chr(q) : bot_accent_chr(q) );
     s_is_absolute = false;
-    fetch(accent_chr(q));
-    if (char_exists(cur_f, cur_c)) {
-        c = cur_c;
-        f = cur_f;
-        /* Compute the amount of skew, or set |s| to an alignment point */
-        s = 0;
-        if (type(nucleus(q)) == math_char_node) {
-            fetch(nucleus(q));
-            s = char_top_accent(cur_f, cur_c);
-            if (s!=0) {
-                s_is_absolute = true;
-            } else {
-                s = get_kern(cur_f, cur_c, skew_char(cur_f));
-            }
-        }
-        x = clean_box(nucleus(q), cramped_style(cur_style));
-        w = width(x);
-        h = height(x);
-        /* Switch to a larger accent if available and appropriate */
-        y = null;
-        while (1) {
-          ext = NULL;
-          if ((char_tag(f, c) == ext_tag) &&
-              ((ext = get_charinfo_hor_variants(char_info(f,c))) != NULL)) {
-            y = get_delim_hbox(ext, f, w, node_attr(accent_chr(q)));
-            break;
-          } else if (char_tag(f, c) != list_tag) {
-            break;
-          } else {
-            integer yy = char_remainder(f, c);
-            if (!char_exists(f, yy))
-                break;
-            if (char_width(f, yy) > w)
-              break;
-            c = yy;
-          }
-        }
-        if (y==null) {
-          y = char_box(f, c, node_attr(accent_chr(q)));
-        }
-        if (h < accent_base_height(f))
-            delta = h;
-        else
-            delta = accent_base_height(f);
-        if ((supscr(q) != null) || (subscr(q) != null)) {
-            if (type(nucleus(q)) == math_char_node) {
-                /* Swap the subscript and superscript into box |x| */
-                flush_node_list(x);
-                x = new_noad();
-                r = math_clone(nucleus(q));
-                nucleus(x) = r;
-                r = math_clone(supscr(q));
-                supscr(x) = r;
-                r = math_clone(subscr(q));
-                subscr(x) = r;
-                math_reset(supscr(q));
-                math_reset(subscr(q));
-                type(nucleus(q)) = sub_mlist_node;
-                math_list(nucleus(q)) = x;
-                x = clean_box(nucleus(q), cur_style);
-                delta = delta + height(x) - h;
-                h = height(x);
-            }
-        }
-        if (s_is_absolute) {
-            scaled sa = char_top_accent(f, c);
-            if (sa==0) {
-                sa = half(width(y)); /* just take the center */
-            }
-            shift_amount(y) = s - sa;
+    c = cur_c;
+    f = cur_f;
+    /* Compute the amount of skew, or set |s| to an alignment point */
+    s = 0;
+    if (type(nucleus(q)) == math_char_node) {
+      fetch(nucleus(q));
+      if (top_or_bot==TOP_CODE) {
+        s = char_top_accent(cur_f, cur_c);
+        if (s!=0) {
+          s_is_absolute = true;
         } else {
-            shift_amount(y) = s + half(w - width(y));
+          s = get_kern(cur_f, cur_c, skew_char(cur_f));
         }
-        width(y) = 0;
-        p = new_kern(-delta);
-        vlink(p) = x;
-        vlink(y) = p;
-        pack_direction = math_direction;
-        y = vpackage(y, 0, additional, max_dimen);
-        reset_attributes(y, node_attr(q));
-        width(y) = width(x);
-        if (height(y) < h) {
-            /* Make the height of box |y| equal to |h| */
-            p = new_kern(h - height(y));
-            reset_attributes(p, node_attr(q));
-            vlink(p) = list_ptr(y);
-            list_ptr(y) = p;
-            height(y) = h;
+      } else { /* new skewchar madness for bot accents */
+        s = char_bot_accent(cur_f, cur_c);
+        if (s!=0) {
+          s_is_absolute = true;
         }
-        math_list(nucleus(q)) = y;
-        type(nucleus(q)) = sub_box_node;
+      }
     }
-    flush_node(accent_chr(q));
-    accent_chr(q) = null;
+    x = clean_box(nucleus(q), cramped_style(cur_style));
+    w = width(x);
+    h = height(x);
+    /* Switch to a larger accent if available and appropriate */
+    y = null;
+    while (1) {
+      ext = NULL;
+      if ((char_tag(f, c) == ext_tag) &&
+          ((ext = get_charinfo_hor_variants(char_info(f,c))) != NULL)) {
+        scaled w1 = xn_over_d(w, delimiter_factor,1000);
+        if (w-w1>delimiter_shortfall) 
+            w1=w-delimiter_shortfall;
+        y = get_delim_hbox(ext, f, w1, node_attr(attr_p));
+        break;
+      } else if (char_tag(f, c) != list_tag) {
+        break;
+      } else {
+        integer yy = char_remainder(f, c);
+        if (!char_exists(f, yy))
+          break;
+        if (char_width(f, yy) > w)
+          break;
+        c = yy;
+      }
+    }
+    if (y==null) {
+      y = char_box(f, c, node_attr(attr_p));
+    }
+    if (top_or_bot==TOP_CODE) {
+      if (h < accent_base_height(f))
+        delta = h;
+      else
+        delta = accent_base_height(f);
+    } else {
+      delta = 0; /* hm */
+    }
+    if ((supscr(q) != null) || (subscr(q) != null)) {
+      if (type(nucleus(q)) == math_char_node) {
+        /* Swap the subscript and superscript into box |x| */
+        flush_node_list(x);
+        x = new_noad();
+        r = math_clone(nucleus(q));
+        nucleus(x) = r;
+        r = math_clone(supscr(q));
+        supscr(x) = r;
+        r = math_clone(subscr(q));
+        subscr(x) = r;
+        math_reset(supscr(q));
+        math_reset(subscr(q));
+        type(nucleus(q)) = sub_mlist_node;
+        math_list(nucleus(q)) = x;
+        x = clean_box(nucleus(q), cur_style);
+        delta = delta + height(x) - h;
+        h = height(x);
+      }
+    }
+    if (s_is_absolute) {
+      scaled sa;
+      if (top_or_bot==TOP_CODE) 
+        sa = char_top_accent(f, c);
+      else
+        sa = char_bot_accent(f, c);
+      if (sa==0) {
+        sa = half(width(y)); /* just take the center */
+      }
+      shift_amount(y) = s - sa;
+    } else {
+      shift_amount(y) = s + half(w - width(y));
+    }
+    width(y) = 0;
+    if (top_or_bot == TOP_CODE) {
+      p = new_kern(-delta);
+      vlink(p) = x;
+      vlink(y) = p;
+    } else {
+      /*
+      p = new_kern(-delta);
+      vlink(x) = p;
+      vlink(p) = y;
+      y = x;
+      */
+      vlink(x) = y;
+      y = x;
+    }
+    pack_direction = math_direction;
+    r = vpackage(y, 0, additional, max_dimen);
+    reset_attributes(r, node_attr(q));
+    if (top_or_bot == TOP_CODE) {
+      width(r) = width(x);
+    } else {
+      width(r) = width(y);
+    }
+    y = r;
+    if (top_or_bot==TOP_CODE) {
+      if (height(y) < h) {
+        /* Make the height of box |y| equal to |h| */
+        p = new_kern(h - height(y));
+        reset_attributes(p, node_attr(q));
+        vlink(p) = list_ptr(y);
+        list_ptr(y) = p;
+        height(y) = h;
+      }
+    } else {
+        shift_amount(y) = -(h-height(y));
+    }
+    math_list(nucleus(q)) = y;
+    type(nucleus(q)) = sub_box_node;
+}
+
+void make_math_accent(pointer q)
+{
+    if (accent_chr(q)!= null) {
+      fetch(accent_chr(q));
+      if (char_exists(cur_f, cur_c)) {
+        do_make_math_accent(q, cur_f, cur_c, TOP_CODE);
+      }
+      flush_node(accent_chr(q));
+      accent_chr(q) = null;
+    }
+    if (bot_accent_chr(q)!= null) {
+      fetch(bot_accent_chr(q));
+      if (char_exists(cur_f, cur_c)) {
+        do_make_math_accent(q, cur_f, cur_c, BOT_CODE);
+      }
+      flush_node(bot_accent_chr(q));
+      bot_accent_chr(q) = null;
+    }
 }
 
 /*

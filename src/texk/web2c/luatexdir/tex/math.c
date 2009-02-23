@@ -813,8 +813,19 @@ void display_normal_noad(pointer p)
         }
         break;
     case accent_noad:
-        tprint_esc("accent");
-        print_fam_and_char(accent_chr(p));
+        if (accent_chr(p)!=null) {
+          if (bot_accent_chr(p)!=null) {
+            tprint_esc("Umathaccents");
+            print_fam_and_char(accent_chr(p));
+            print_fam_and_char(bot_accent_chr(p));
+          } else {
+            tprint_esc("accent");
+            print_fam_and_char(accent_chr(p));
+          }
+        } else {
+          tprint_esc("Umathbotaccent");
+          print_fam_and_char(bot_accent_chr(p));
+        }
         break;
     }
     print_subsidiary_data(nucleus(p), '.');
@@ -1600,7 +1611,7 @@ void math_radical(void)
 void math_ac(void)
 {
     halfword q;
-    mathcodeval d;
+    mathcodeval t, b;
     if (cur_cmd == accent_cmd) {
         char *hlp[] = {
             "I'm changing \\accent to \\mathaccent here; wish me luck.",
@@ -1610,22 +1621,38 @@ void math_ac(void)
         tex_error("Please use \\mathaccent for accents in math mode", hlp);
     }
     tail_append(new_node(accent_noad, normal));
-    q = new_node(math_char_node, 0);
-    accent_chr(tail) = q;
     if (cur_chr == 0) {         /* \mathaccent */
-        d = scan_mathchar(tex_mathcode);
+        t = scan_mathchar(tex_mathcode);
     } else if (cur_chr == 1) {  /* \omathaccent */
-        d = scan_mathchar(aleph_mathcode);
+        t = scan_mathchar(aleph_mathcode);
     } else if (cur_chr == 2) {  /* \Umathaccent */
-        d = scan_mathchar(xetex_mathcode);
+        t = scan_mathchar(xetex_mathcode);
+    } else if (cur_chr == 3) {  /* \Umathbotaccent */
+        b = scan_mathchar(xetex_mathcode);
+    } else if (cur_chr == 4) {  /* \Umathaccents */
+        t = scan_mathchar(xetex_mathcode);
+        b = scan_mathchar(xetex_mathcode);
     } else {
         tconfusion("math_ac");
     }
-    math_character(accent_chr(tail)) = d.character_value;
-    if ((d.class_value == var_code) && fam_in_range)
+    if (!(t.character_value==0 && t.family_value==0)) {
+      q = new_node(math_char_node, 0);
+      accent_chr(tail) = q;
+      math_character(accent_chr(tail)) = t.character_value;
+      if ((t.class_value == var_code) && fam_in_range)
         math_fam(accent_chr(tail)) = cur_fam;
-    else
-        math_fam(accent_chr(tail)) = d.family_value;
+      else
+        math_fam(accent_chr(tail)) = t.family_value;
+    }
+    if (!(b.character_value==0 && b.family_value==0)) {
+      q = new_node(math_char_node, 0);
+      bot_accent_chr(tail) = q;
+      math_character(bot_accent_chr(tail)) = b.character_value;
+      if ((b.class_value == var_code) && fam_in_range)
+        math_fam(bot_accent_chr(tail)) = cur_fam;
+      else
+        math_fam(bot_accent_chr(tail)) = b.family_value;
+    }
     q = new_node(math_char_node, 0);
     nucleus(tail) = q;
     (void)scan_math(nucleus(tail));
