@@ -2372,71 +2372,79 @@ void make_radical(pointer q)
     type(nucleus(q)) = sub_box_node;
 }
 
+/* this has the |nucleus| box |x| as a limit below an extensible delimiter |y| */
 
 void make_over_delimiter(pointer q)
 {
-    pointer x, y, p;            /* temporary registers for box construction */
-    scaled xd;
-    scaled vertical_gap = over_delimiter_vgap(cur_style);
-    scaled baseline_gap = over_delimiter_bgap(cur_style);
-    x = clean_box(nucleus(q), cramped_style(cur_style));
+    pointer x, y, v, p ;  /* temporary registers for box construction */
+    scaled shift_up, shift_down, clr, delta;
+    x = clean_box(nucleus(q), sub_style(cur_style));
     y = flat_var_delimiter(left_delimiter(q), cur_size, xn_over_d(width(x),delimiter_factor,1000));
     left_delimiter(q) = null;
     if (width(y)>=width(x)) {
-      width(x) = width(y); /* just in case */
+      width(x) = rebox(x,width(y)); /* just in case */
     } else {
-      xd = (width(x) - width(y))/2;
-      p = new_kern (xd);
-      reset_attributes(p, node_attr(y));
-      vlink(p) = y;
-      y = hpack(p,0,additional);
-      reset_attributes(y, node_attr(y));
+      width(y) = rebox(y,width(x)); 
     }
-    /* now insert a suitable kern p between |y| and |x| */
-    xd = baseline_gap - (height(x) + depth(y));
-    if (xd<vertical_gap)
-      xd = vertical_gap;
-    p = new_kern(xd);
-    vlink(p) = x;
-    vlink(y) = p;
-    p = vpackage(y, 0, additional, max_dimen);
+    shift_up = over_delimiter_bgap(cur_style);
+    shift_down = under_delimiter_bgap(cur_style); 
+    clr = over_delimiter_vgap(cur_style);
+    delta = half(clr - ((shift_up - depth(x)) - (height(y) - shift_down)));
+    if (delta > 0) {
+      shift_up = shift_up + delta;
+      shift_down = shift_down + delta;
+    }
+    /* Construct a vlist box */
+    v = new_null_box();
+    type(v) = vlist_node;
+    height(v) = shift_up + height(x);
+    depth(v) = depth(y) + shift_down;
+    width(v) = width(x);   /* this also equals |width(y)| */
+    reset_attributes(v, node_attr(q));
+    p = new_kern((shift_up - depth(x)) - (height(y) - shift_down));
     reset_attributes(p, node_attr(q));
-    math_list(nucleus(q)) = p;
+    vlink(p) = y;
+    vlink(x) = p;
+    list_ptr(v) = x;
+    math_list(nucleus(q)) = v;
     type(nucleus(q)) = sub_box_node;
 }
 
+/* this has the |nucleus| box |x| as a limit atop an extensible delimiter |y| */
 
 void make_under_delimiter(pointer q)
 {
-    pointer x, y, p;            /* temporary registers for box construction */
-    scaled xd;
-    scaled gap = under_delimiter_vgap(cur_style);
-    scaled baseline_gap = under_delimiter_bgap(cur_style);
-    x = clean_box(nucleus(q), cramped_style(cur_style));
-    y = flat_var_delimiter(left_delimiter(q), cur_size, xn_over_d(width(x),delimiter_factor,1000));
+    pointer x, y, v, p;            /* temporary registers for box construction */
+    scaled shift_up, shift_down, clr, delta;
+    y = clean_box(nucleus(q), sup_style(cur_style));
+    x = flat_var_delimiter(left_delimiter(q), cur_size, xn_over_d(width(x),delimiter_factor,1000));
     left_delimiter(q) = null;
-
     if (width(y)>=width(x)) {
-      width(x) = width(y); /* just in case */
+      width(x) = rebox(x,width(y)); /* just in case */
     } else {
-      xd = (width(x) - width(y))/2;
-      p = new_kern (xd);
-      reset_attributes(p, node_attr(y));
-      vlink(p) = y;
-      y = hpack(p,0,additional);
-      reset_attributes(y, node_attr(y));
+      width(y) = rebox(y,width(x));
     }
-    /* now insert a suitable kern p between |y| and |x| */
-    xd = baseline_gap - (height(y) + depth(x));
-    if (xd<gap)
-      xd = gap;
-    p = new_kern(xd);
+    shift_up = over_delimiter_bgap(cur_style);
+    shift_down = under_delimiter_bgap(cur_style); 
+    clr = under_delimiter_vgap(cur_style);
+    delta = half(clr - ((shift_up - depth(x)) - (height(y) - shift_down)));
+    if (delta > 0) {
+      shift_up = shift_up + delta;
+      shift_down = shift_down + delta;
+    }
+    /* Construct a vlist box */
+    v = new_null_box();
+    type(v) = vlist_node;
+    height(v) = shift_up + height(x);
+    depth(v) = depth(y) + shift_down;
+    width(v) = width(x);   /* this also equals |width(y)| */
+    reset_attributes(v, node_attr(q));
+    p = new_kern((shift_up - depth(x)) - (height(y) - shift_down));
+    reset_attributes(p, node_attr(q));
     vlink(p) = y;
     vlink(x) = p;
-    p = vpackage(x, 0, additional, max_dimen);
-    shift_amount(p) = (height(y)+depth(x));
-    reset_attributes(p, node_attr(q));
-    math_list(nucleus(q)) = p;
+    list_ptr(v) = x;
+    math_list(nucleus(q)) = v;
     type(nucleus(q)) = sub_box_node;
 }
 
@@ -2567,11 +2575,7 @@ void do_make_math_accent (pointer q, internal_font_number f, integer c, int top_
     pack_direction = math_direction;
     r = vpackage(y, 0, additional, max_dimen);
     reset_attributes(r, node_attr(q));
-    if (top_or_bot == TOP_CODE) {
-      width(r) = width(x);
-    } else {
-      width(r) = width(y);
-    }
+    width(r) = w;
     y = r;
     if (top_or_bot==TOP_CODE) {
       if (height(y) < h) {
