@@ -257,7 +257,7 @@ void pdftex_fail(const char *fmt, ...)
     va_list args;
     va_start(args, fmt);
     print_ln();
-    safe_print("!luaTeX error");
+    safe_print("!LuaTeX error");
     if (cur_file_name) {
         safe_print(" (file ");
         safe_print(cur_file_name);
@@ -287,7 +287,7 @@ void pdftex_warn(const char *fmt, ...)
     va_list args;
     va_start(args, fmt);
     print_ln();
-    tex_printf("luaTeX warning");
+    tex_printf("LuaTeX warning");
     if (cur_file_name)
         tex_printf(" (file %s)", cur_file_name);
     tex_printf(": ");

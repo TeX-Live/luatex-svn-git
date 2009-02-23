@@ -20,7 +20,7 @@
 
 { $Id$ }
 
-{ luatex.defines: additions for luaTeX }
+{ luatex.defines: additions for LuaTeX }
 
 @define function simple_advance_width(); 
 

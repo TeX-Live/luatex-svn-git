@@ -50,7 +50,7 @@ const_string LUATEX_IHELP[] = {
     "Usage: luatex --lua=FILE [OPTION]... [TEXNAME[.tex]] [COMMANDS]",
     "   or: luatex --lua=FILE [OPTION]... \\FIRST-LINE",
     "   or: luatex --lua=FILE [OPTION]... &FMT ARGS",
-    "  Run luaTeX on TEXNAME, usually creating TEXNAME.pdf.",
+    "  Run LuaTeX on TEXNAME, usually creating TEXNAME.pdf.",
     "  Any remaining COMMANDS are processed as luatex input, after TEXNAME is read.",
     "",
     "  Alternatively, if the first non-option argument begins with a backslash,",

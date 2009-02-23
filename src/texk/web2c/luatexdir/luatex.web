@@ -70,7 +70,7 @@
 % Version 3.1415926 was a general cleanup with minor fixes (February 2008).
 
 
-% Although considerable effort has been expended to make the luaTeX program
+% Although considerable effort has been expended to make the LuaTeX program
 % correct and reliable, no warranty is implied; the authors disclaim any
 % obligation or liability for damages, including but not limited to
 % special, indirect, or consequential damages arising out of or in
@@ -249,16 +249,16 @@ known as `\eTeX'.
 @d pdftex_revision=="0" { \.{\\pdftexrevision} }
 @d pdftex_version_string=='-2.00.0' {current \pdfTeX\ version}
 @#
-@d luatex_version==33 { \.{\\luatexversion} }
-@d luatex_revision=="1" { \.{\\luatexrevision} }
-@d luatex_version_string=='snapshot-0.33.1' {current \LuaTeX\ version}
+@d luatex_version==34 { \.{\\luatexversion} }
+@d luatex_revision=="0" { \.{\\luatexrevision} }
+@d luatex_version_string=='snapshot-0.34.0' {current \LuaTeX\ version}
 @d luatex_date_info==-extra_version_info { the compile date is negated }
 @d luatex_svnversion==SVN_REV { as proposed by PM }
 @#
-@d luaTeX_banner=='This is LuaTeX, Version ',luatex_version_string,extra_version_info
+@d LuaTeX_banner=='This is LuaTeX, Version ',luatex_version_string,extra_version_info
    {printed when \LuaTeX\ starts}
 @#
-@d banner==luaTeX_banner
+@d banner==LuaTeX_banner
 @#
 @d TEX==ETEX {change program name into |ETEX|}
 
@@ -15936,7 +15936,7 @@ end;
 @ @<Initialize variables for \.{PDF} output@>=
 prepare_mag;
 if (pdf_minor_version < 0) or (pdf_minor_version > 9) then begin
-    print_err("luaTeX error (illegal pdfminorversion)");
+    print_err("LuaTeX error (illegal pdfminorversion)");
     print_ln;
     help2 ("The pdfminorversion must be between 0 and 9.")@/
         ("I changed this to 4.");
@@ -16112,7 +16112,7 @@ end
 procedure pdf_error(t, p: str_number);
 begin
     normalize_selector;
-    print_err("luaTeX error");
+    print_err("LuaTeX error");
     if t <> 0 then begin
         print(" (");
         print(t);
@@ -16128,7 +16128,7 @@ begin
         wake_up_terminal;
     if prepend_nl then
         print_ln;
-    print("luaTeX warning");
+    print("LuaTeX warning");
     if t <> 0 then begin
         print(" (");
         print(t);
@@ -19644,7 +19644,7 @@ begin
 end;
 
 @ @<Print the Producer key@>=
-pdf_print("/Producer (luaTeX-");
+pdf_print("/Producer (LuaTeX-");
 pdf_print_int(luatex_version div 100);
 pdf_out(".");
 pdf_print_int(luatex_version mod 100);

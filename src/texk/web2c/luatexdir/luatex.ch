@@ -29,11 +29,11 @@
 @z
 
 @x
-@d banner==luaTeX_banner
+@d banner==LuaTeX_banner
 @y
-@d luaTeXk_banner=='This is luaTeXk, Version ',luatex_version_string
+@d luaTeXk_banner=='This is LuaTeXk, Version ',luatex_version_string
 @#
-@d banner==luaTeX_banner
+@d banner==LuaTeX_banner
 @d banner_k==luaTeXk_banner
 @z
 
