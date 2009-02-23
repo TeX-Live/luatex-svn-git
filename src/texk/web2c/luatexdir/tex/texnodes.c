@@ -143,7 +143,7 @@ char *node_fields_radical[] = { "attr", "nucleus", "sub", "sup", "left", "degree
 char *node_fields_fraction[] =
     { "attr", "width", "num", "denom", "left", "right", NULL };
 char *node_fields_accent[] =
-    { "attr", "nucleus", "sub", "sup", "accent", NULL };
+    { "attr", "nucleus", "sub", "sup", "accent", "bot_accent", NULL };
 char *node_fields_fence[] = { "attr", "delim", NULL };
 char *node_fields_math_char[] = { "attr", "fam", "char", NULL };
 char *node_fields_sub_box[] = { "attr", "list", NULL };
@@ -632,6 +632,8 @@ halfword copy_node(const halfword p)
         if (type(p) == accent_noad) {
             s = copy_node_list(accent_chr(p));
             accent_chr(r) = s;
+            s = copy_node_list(bot_accent_chr(p));
+            bot_accent_chr(r) = s;
         } else if (type(p) == radical_noad) {
             s = copy_node(left_delimiter(p));
             left_delimiter(r) = s;
@@ -1082,6 +1084,7 @@ void flush_node(halfword p)
         flush_node_list(supscr(p));
         if (type(p) == accent_noad) {
             flush_node_list(accent_chr(p));
+            flush_node_list(bot_accent_chr(p));
         } else if (type(p) == radical_noad) {
             flush_node(left_delimiter(p));
             flush_node_list(degree(p));
@@ -1329,6 +1332,7 @@ void check_node(halfword p)
         dorangetest(p, subscr(p), var_mem_max);
         dorangetest(p, supscr(p), var_mem_max);
         dorangetest(p, accent_chr(p), var_mem_max);
+        dorangetest(p, bot_accent_chr(p), var_mem_max);
         break;
     case fence_noad:
         dorangetest(p, delimiter(p), var_mem_max);

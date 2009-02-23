@@ -398,10 +398,11 @@ typedef enum {
 #  define subscr(a)    vinfo((a)+3)   /* the |subscr| field of a noad */
 
 /* accent noads */
-/* like a regular noad, but with one extra field. */
+/* like a regular noad, but with two extra fields. */
 
 #  define accent_noad_size 5    /*number of |mem| words in an accent noad */
 #  define accent_chr(a) vinfo((a)+4)   /* the |accent_chr| field of an accent noad */
+#  define bot_accent_chr(a) vlink((a)+4) /* the |bot_accent_chr| field of an accent noad */
 
 /* left and right noads */
 

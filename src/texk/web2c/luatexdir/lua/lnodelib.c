@@ -1723,6 +1723,9 @@ static int lua_nodelib_getfield(lua_State * L)
       case 7:
         nodelib_pushlist(L, accent_chr(n));
         break;
+      case 8:
+        nodelib_pushlist(L, bot_accent_chr(n));
+        break;
       default:
         lua_pushnil(L);
       }
@@ -2825,6 +2828,9 @@ static int lua_nodelib_setfield(lua_State * L)
             break;
           case 7:
             accent_chr(n) = nodelib_getlist(L, 3);
+            break;
+          case 8:
+            bot_accent_chr(n) = nodelib_getlist(L, 3);
             break;
           default:
             return nodelib_cantset(L, field, n);
