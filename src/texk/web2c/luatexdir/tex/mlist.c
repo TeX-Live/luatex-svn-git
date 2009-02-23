@@ -1747,12 +1747,25 @@ pointer get_delim_hbox (extinfo *ext, internal_font_number f, scaled v, pointer 
   will be the height of its topmost component.
 */
 
+void endless_loop_error (internal_font_number g, integer y) {
+  char s[256];
+  char *hlp[] = {
+    "You managed to create a seemingly endless charlist chain in the current",
+    "font. I have counted until 10000 already and still have not escaped, so"
+    "I will jump out of the loop all by myself now. Fix your font!",
+    NULL
+  };
+  snprintf(s, 256, "Math error: endless loop in charlist (U+%04x in %s)",
+	   y, font_name(g));
+  tex_error(s, hlp);
+}
+
 pointer var_delimiter(pointer d, integer s, scaled v)
 {
     /* label found,continue; */
     pointer b;                  /* the box that will be constructed */
     internal_font_number f, g;  /* best-so-far and tentative font codes */
-    integer c, x, y;            /* best-so-far and tentative character codes */
+    integer c, i, x, y;         /* best-so-far and tentative character codes */
     scaled u;                   /* height-plus-depth of a tentative character */
     scaled w;                   /* largest height-plus-depth so far */
     integer z;                  /* runs through font family members */
@@ -1768,6 +1781,7 @@ pointer var_delimiter(pointer d, integer s, scaled v)
         goto FOUND;
     z = small_fam(d);
     x = small_char(d);
+    i = 0;
     while (true) {
         /* The search process is complicated slightly by the facts that some of the
            characters might not be present in some of the fonts, and they might not
@@ -1777,6 +1791,7 @@ pointer var_delimiter(pointer d, integer s, scaled v)
             if (g != null_font) {
                 y = x;
             CONTINUE:
+		i++;
                 if (char_exists(g, y)) {
                     if (char_tag(g, y) == ext_tag) {
                         f = g;
@@ -1791,6 +1806,11 @@ pointer var_delimiter(pointer d, integer s, scaled v)
                       if (u >= v)
                         goto FOUND;
                     }
+		    if (i>10000) {
+		      /* endless loop */
+		      endless_loop_error(g,y);
+		      goto FOUND;
+		    }
                     if (char_tag(g, y) == list_tag) {
                       y = char_remainder(g, y);
                       goto CONTINUE;
@@ -1837,7 +1857,7 @@ pointer flat_var_delimiter(pointer d, integer s, scaled v)
     /* label found,continue; */
     pointer b;                  /* the box that will be constructed */
     internal_font_number f, g;  /* best-so-far and tentative font codes */
-    integer c, x, y;            /* best-so-far and tentative character codes */
+    integer c,i, x, y;            /* best-so-far and tentative character codes */
     scaled u;                   /* height-plus-depth of a tentative character */
     scaled w;                   /* largest height-plus-depth so far */
     integer z;                  /* runs through font family members */
@@ -1847,11 +1867,13 @@ pointer flat_var_delimiter(pointer d, integer s, scaled v)
     f = null_font;
     c = 0;
     w = 0;
+    att = null;
     large_attempt = false;
     if (d == null)
         goto FOUND;
     z = small_fam(d);
     x = small_char(d);
+    i =0;
     while (true) {
         /* The search process is complicated slightly by the facts that some of the
            characters might not be present in some of the fonts, and they might not
@@ -1861,6 +1883,7 @@ pointer flat_var_delimiter(pointer d, integer s, scaled v)
             if (g != null_font) {
                 y = x;
             CONTINUE:
+		i++;
                 if (char_exists(g, y)) {
                     if (char_tag(g, y) == ext_tag) {
                         f = g;
@@ -1875,10 +1898,15 @@ pointer flat_var_delimiter(pointer d, integer s, scaled v)
                       if (u >= v)
                         goto FOUND;
                     }
+		    if (i>10000) {
+		      /* endless loop */
+		      endless_loop_error(g,y);
+		      goto FOUND;
+		    }
                     if (char_tag(g, y) == list_tag) {
                       y = char_remainder(g, y);
                       goto CONTINUE;
-                    }
+                    } 
                 }
             }
         }
@@ -1889,9 +1917,11 @@ pointer flat_var_delimiter(pointer d, integer s, scaled v)
         x = large_char(d);
     }
   FOUND:
-    att = node_attr(d);
-    node_attr(d) = null;
-    flush_node(d);
+    if (d!=null) {
+      att = node_attr(d);
+      node_attr(d) = null;
+      flush_node(d);
+    }
     if (f != null_font) {
         /* When the following code is executed, |char_tag(q)| will be equal to
            |ext_tag| if and only if a built-up symbol is supposed to be returned.
@@ -2379,20 +2409,19 @@ void make_over_delimiter(pointer q)
     pointer x, y, v, p ;  /* temporary registers for box construction */
     scaled shift_up, shift_down, clr, delta;
     x = clean_box(nucleus(q), sub_style(cur_style));
-    y = flat_var_delimiter(left_delimiter(q), cur_size, xn_over_d(width(x),delimiter_factor,1000));
+    y = flat_var_delimiter(left_delimiter(q), cur_size, width(x));
     left_delimiter(q) = null;
     if (width(y)>=width(x)) {
-      width(x) = rebox(x,width(y)); /* just in case */
+      width(x) = width(y); /* just in case */
     } else {
-      width(y) = rebox(y,width(x)); 
+      width(y) = width(x); 
     }
     shift_up = over_delimiter_bgap(cur_style);
-    shift_down = under_delimiter_bgap(cur_style); 
+    shift_down = 0; /* under_delimiter_bgap(cur_style); */
     clr = over_delimiter_vgap(cur_style);
-    delta = half(clr - ((shift_up - depth(x)) - (height(y) - shift_down)));
+    delta = clr - ((shift_up - depth(x)) - (height(y) - shift_down));
     if (delta > 0) {
       shift_up = shift_up + delta;
-      shift_down = shift_down + delta;
     }
     /* Construct a vlist box */
     v = new_null_box();
@@ -2417,19 +2446,18 @@ void make_under_delimiter(pointer q)
     pointer x, y, v, p;            /* temporary registers for box construction */
     scaled shift_up, shift_down, clr, delta;
     y = clean_box(nucleus(q), sup_style(cur_style));
-    x = flat_var_delimiter(left_delimiter(q), cur_size, xn_over_d(width(x),delimiter_factor,1000));
+    x = flat_var_delimiter(left_delimiter(q), cur_size, width(y));
     left_delimiter(q) = null;
     if (width(y)>=width(x)) {
-      width(x) = rebox(x,width(y)); /* just in case */
+      width(x) = width(y); /* just in case */
     } else {
-      width(y) = rebox(y,width(x));
+      width(y) = width(x);
     }
-    shift_up = over_delimiter_bgap(cur_style);
+    shift_up = 0; /* over_delimiter_bgap(cur_style);*/
     shift_down = under_delimiter_bgap(cur_style); 
     clr = under_delimiter_vgap(cur_style);
-    delta = half(clr - ((shift_up - depth(x)) - (height(y) - shift_down)));
+    delta = clr - ((shift_up - depth(x)) - (height(y) - shift_down));
     if (delta > 0) {
-      shift_up = shift_up + delta;
       shift_down = shift_down + delta;
     }
     /* Construct a vlist box */
@@ -2437,7 +2465,7 @@ void make_under_delimiter(pointer q)
     type(v) = vlist_node;
     height(v) = shift_up + height(x);
     depth(v) = depth(y) + shift_down;
-    width(v) = width(x);   /* this also equals |width(y)| */
+    width(v) = width(y);   /* this also equals |width(y)| */
     reset_attributes(v, node_attr(q));
     p = new_kern((shift_up - depth(x)) - (height(y) - shift_down));
     reset_attributes(p, node_attr(q));
