@@ -9670,8 +9670,14 @@ begin cur_val1:=cur_chr; get_token;
   else
     cur_val:=cur_chr;
   if cur_val1<math_param_first_mu_glue then begin
-    cur_val1 := get_math_param(cur_val1,cur_chr);
-    scanned_result(cur_val1)(int_val);
+    if cur_val1=math_param_radical_degree_raise then begin
+      cur_val1 := get_math_param(cur_val1,cur_chr);
+      scanned_result(cur_val1)(int_val);
+      end
+    else begin
+      cur_val1 := get_math_param(cur_val1,cur_chr);
+      scanned_result(cur_val1)(dimen_val);
+      end;
     end
   else begin
     cur_val1 := get_math_param(cur_val1,cur_chr);
