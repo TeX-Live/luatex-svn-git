@@ -25828,7 +25828,13 @@ set_math_param: begin p:=cur_chr; get_token;
   else
     cur_val1:=cur_chr;
   scan_optional_equals; 
-  if p<math_param_first_mu_glue then scan_int else begin
+  if p<math_param_first_mu_glue then begin 
+    if p=math_param_radical_degree_raise then
+       scan_int
+    else
+       scan_dimen(false, false, false);
+    end
+  else begin
     scan_glue(mu_val); trap_zero_glue;
     if cur_val=thin_mu_skip then cur_val:=thin_mu_skip_code
     else if cur_val=med_mu_skip then cur_val:=med_mu_skip_code
