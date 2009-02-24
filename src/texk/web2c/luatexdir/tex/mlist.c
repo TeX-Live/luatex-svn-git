@@ -2402,7 +2402,7 @@ void make_radical(pointer q)
     type(nucleus(q)) = sub_box_node;
 }
 
-/* this has the |nucleus| box |x| as a limit below an extensible delimiter |y| */
+/* this has the |nucleus| box |x| as a limit above an extensible delimiter |y| */
 
 void make_over_delimiter(pointer q)
 {
@@ -2439,7 +2439,7 @@ void make_over_delimiter(pointer q)
     type(nucleus(q)) = sub_box_node;
 }
 
-/* this has the |nucleus| box |x| as a limit atop an extensible delimiter |y| */
+/* this has the |nucleus| box |y| as a limit below an extensible delimiter |x| */
 
 void make_under_delimiter(pointer q)
 {
