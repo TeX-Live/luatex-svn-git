@@ -1515,9 +1515,9 @@ void scan_delimiter(pointer p, integer r)
 {
     delcodeval dval;
     if (r == tex_mathcode) {    /* \radical */
-        dval = do_scan_extdef_del_code(tex_mathcode, false);
+        dval = do_scan_extdef_del_code(tex_mathcode, true);
     } else if (r == aleph_mathcode) {   /* \oradical */
-        dval = do_scan_extdef_del_code(aleph_mathcode, false);
+        dval = do_scan_extdef_del_code(aleph_mathcode, true);
     } else if (r == xetex_mathcode) {   /* \Uradical */
         dval = do_scan_extdef_del_code(xetex_mathcode, false);
     } else if (r == no_mathcode) {
