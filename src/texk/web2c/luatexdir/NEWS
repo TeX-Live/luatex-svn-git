@@ -1,5 +1,56 @@
 
 ==============================================================
+Luatex beta-0.35.0 was released 20090224
+==============================================================
+
+* The math handling portions of LuaTeX are converted to C code,
+  and extended to support Unicode math. There are a great many
+  related changes, see the new Math chapter in the manual for 
+  details.
+
+* A nasty bug in the paragraph breaking routine was fixed.
+  (All lines except the first one were believed to be wider then
+  they really were. This affected which nodes were considered 
+  as active breakpoints) 
+
+* Various changes to the PDF backend to make it support non-latin
+  directions.
+
+* Fixed the behaviour of the page offsets. Placement of the output 
+  on the physical page should now work correctly in all directions, 
+  both in DVI and PDF.
+  There now are \pageleftoffset and \pagetopoffset primitives,
+  as well as 
+
+* fontforge.apply_featurefile() was broken since 0.31.0
+
+* The lua profiler library is added.
+
+* The included lua filesystem library is now 1.4.1.
+
+* Reading of pk files fixed.
+
+* An optional space afer a <direction specifier> for \textdir c.s.
+  is ignored from  now on.
+
+* \bodydir and \pagedir can now be (re)set even after the first 
+  page has been output.
+
+* The new callback mlist_to_hlist can be used to intercept the 
+  normal conversion of math lists to horizontal lists.
+
+* The programs ttf2afm and pdftosrc are removed from the luatex
+  distribution (these belong to pdftex).
+
+* fontforge.open() now uses much less memory when opening large
+  (CJK) fonts.
+
+* The included libpng is now 1.2.35.
+
+* Quite a lot of smaller bugfixes and cleanups (as usual).
+
+
+==============================================================
 Luatex beta-0.31.3 was released 20081229
 ==============================================================
 
