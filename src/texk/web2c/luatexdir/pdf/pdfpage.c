@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: pdfpage.c,v 1.358 2009/03/01 09:57:25 hahe Exp hahe $ */
+/* $Id: pdfpage.c,v 1.369 2009/03/01 22:15:56 hahe Exp hahe $ */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -133,7 +133,7 @@ void pdf_page_init()
     setpdffloat(p->cm[4], 0, decimal_digits);   /* horizontal movement on page */
     setpdffloat(p->cm[5], 0, decimal_digits);   /* vertical movement on page */
     /* for placement inside BT...ET */
-    setpdffloat(p->tm[0], 1000, 3);     /* mantissa holds HZ expand * ExtendFont */
+    setpdffloat(p->tm[0], exp10[6], 6); /* mantissa holds HZ expand * ExtendFont */
     setpdffloat(p->tm[1], 0, 0);
     setpdffloat(p->tm[2], 0, 3);        /* mantissa holds SlantFont, 0 = default */
     setpdffloat(p->tm[3], 1, 0);
@@ -297,12 +297,29 @@ static void set_pos(pdfstructure * p, scaledpos * pos)
     }
 }
 
+static void set_pos_temp(pdfstructure * p, scaledpos * pos)
+{
+    boolean move;
+    assert(is_pagemode(p));
+    move = calc_pdfpos(p, pos);
+    if (move == TRUE)
+        pdf_print_cm(p->cm);
+}
+
 void pdf_set_pos(scaled h, scaled v)
 {
     scaledpos pos;
     pos.h = h;
     pos.v = v;
     set_pos(pstruct, &pos);
+}
+
+void pdf_set_pos_temp(scaled h, scaled v)
+{
+    scaledpos pos;
+    pos.h = h;
+    pos.v = v;
+    set_pos_temp(pstruct, &pos);
 }
 
 /**********************************************************************/
@@ -314,7 +331,6 @@ static long pdf_char_width(pdfstructure * p, internal_font_number f, int i)
         lround((double) char_width(f, i) / font_size(f) *
                exp10[e_tj + p->cw.e]);
 }
-
 
 void pdf_print_charwidth(internal_font_number f, int i)
 {
@@ -410,12 +426,7 @@ static void goto_textmode(pdfstructure * p)
     boolean move;
     if (!is_textmode(p)) {
         if (is_pagemode(p)) {
-            move = calc_pdfpos(p, &origin);     /* reset to page origin */
-            if (move == TRUE) {
-                pdf_print_cm(p->cm);
-                p->pdf.h.m += p->cm[4].m;
-                p->pdf.v.m += p->cm[5].m;
-            }
+            set_pos(p, &origin);        /* reset to page origin */
             begin_text(p);
         } else {
             if (is_charmode(p))
@@ -434,7 +445,7 @@ void pos_finish(pdfstructure * p)
 
 /**********************************************************************/
 
-static void set_rule(pdfstructure * p, scaledpos * pos, scaled wd, scaled ht)
+static void place_rule(pdfstructure * p, scaledpos * pos, scaled wd, scaled ht)
 {
     boolean move;
     pdfpos dim;
@@ -447,9 +458,7 @@ static void set_rule(pdfstructure * p, scaledpos * pos, scaled wd, scaled ht)
     pdf_printf("q\n");
     if (ht <= one_bp) {
         tmppos.v += lround(0.5 * ht);
-        move = calc_pdfpos(p, &tmppos);
-        if (move == TRUE)
-            pdf_print_cm(p->cm);
+        set_pos_temp(p, &tmppos);
         pdf_printf("[]0 d 0 J ");
         print_pdffloat(&(dim.v));
         pdf_printf(" w 0 0 m ");
@@ -457,18 +466,14 @@ static void set_rule(pdfstructure * p, scaledpos * pos, scaled wd, scaled ht)
         pdf_printf(" 0 l S\n");
     } else if (wd <= one_bp) {
         tmppos.h += lround(0.5 * wd);
-        move = calc_pdfpos(p, &tmppos);
-        if (move == TRUE)
-            pdf_print_cm(p->cm);
+        set_pos_temp(p, &tmppos);
         pdf_printf("[]0 d 0 J ");
         print_pdffloat(&(dim.h));
         pdf_printf(" w 0 0 m 0 ");
         print_pdffloat(&(dim.v));
         pdf_printf(" l S\n");
     } else {
-        move = calc_pdfpos(p, &tmppos);
-        if (move == TRUE)
-            pdf_print_cm(p->cm);
+        set_pos_temp(p, &tmppos);
         pdf_printf("0 0 ");
         print_pdffloat(&(dim.h));
         pdf_printf(" ");
@@ -478,13 +483,15 @@ static void set_rule(pdfstructure * p, scaledpos * pos, scaled wd, scaled ht)
     pdf_printf("Q\n");
 }
 
-void pdf_set_rule(scaled h, scaled v, scaled wd, scaled ht)
+void pdf_place_rule(scaled h, scaled v, scaled wd, scaled ht)
 {
     scaledpos pos;
     pos.h = h;
     pos.v = v;
-    set_rule(pstruct, &pos, wd, ht);
+    place_rule(pstruct, &pos, wd, ht);
 }
+
+/**********************************************************************/
 
 static void setup_fontparameters(pdfstructure * p, internal_font_number f)
 {
@@ -504,7 +511,6 @@ static void setup_fontparameters(pdfstructure * p, internal_font_number f)
 static void set_textmatrix(pdfstructure * p, scaledpos * pos)
 {
     boolean move;
-    int k;
     assert(is_textmode(p));
     move = calc_pdfpos(p, pos);
     if (move == TRUE) {
@@ -523,8 +529,10 @@ static void set_font(pdfstructure * p)
     pdf_printf(" Tf ");
 }
 
-static void set_glyph(pdfstructure * p, scaledpos * pos, internal_font_number f,
-                      integer c)
+/**********************************************************************/
+
+static void place_glyph(pdfstructure * p, scaledpos * pos,
+                        internal_font_number f, integer c)
 {
     int move;
     if (f != p->f_cur || is_pagemode(p)) {
@@ -546,8 +554,8 @@ static void set_glyph(pdfstructure * p, scaledpos * pos, internal_font_number f,
             begin_chararray(p);
             move = calc_pdfpos(p, pos);
         }
-        assert((p->wmode == WMODE_H && p->cm[5].m == 0)
-               || (p->wmode == WMODE_V && p->cm[4].m == 0));
+        assert((p->wmode == WMODE_H && p->tm[5].m == 0)
+               || (p->wmode == WMODE_V && p->tm[4].m == 0));
         if (move == TRUE) {
             if (is_charmode(p))
                 end_charmode(p);
@@ -562,10 +570,30 @@ static void set_glyph(pdfstructure * p, scaledpos * pos, internal_font_number f,
     p->cw.m += pdf_char_width(p, p->f_pdf, c);  /* aka adv_char_width() */
 }
 
-void pdf_set_glyph(internal_font_number f, integer c)
+void pdf_place_glyph(internal_font_number f, integer c)
 {
     scaledpos tmppos;
     tmppos.h = pos.h;
     tmppos.v = pos.v;
-    set_glyph(pstruct, &tmppos, f, c);
+    place_glyph(pstruct, &tmppos, f, c);
+}
+
+/**********************************************************************/
+
+static void place_form(pdfstructure * p, scaledpos * pos, integer i)
+{
+    goto_pagemode(p);
+    pdf_printf("q\n");
+    set_pos_temp(p, pos);
+    pdf_printf("/Fm%d", i);
+    pdf_print_resname_prefix();
+    pdf_printf(" Do\nQ\n");
+}
+
+void pdf_place_form(scaled h, scaled v, integer i)
+{
+    scaledpos tmppos;
+    tmppos.h = h;
+    tmppos.v = v;
+    place_form(pstruct, &tmppos, i);
 }
