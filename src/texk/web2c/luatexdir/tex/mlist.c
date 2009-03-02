@@ -1546,7 +1546,7 @@ pointer get_delim_box (extinfo *ext, internal_font_number f, scaled v, pointer a
           prev_overlap = cur->end_overlap;
         }
         b_max += a; /* add the advance value */
-        if (i==0) {
+        if (i<=0) { /* can be $-1$ if the first glyph is an extender  */
           cur = cur->next;
           i = with_extenders;
         }
