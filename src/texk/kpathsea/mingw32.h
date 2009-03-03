@@ -1,7 +1,5 @@
-#ifndef _GNU_W32_H_
-#define _GNU_W32_H_
-
-#pragma warning( disable : 4007 4096 4018 4244 )
+#ifndef _MINGW32_H_
+#define _MINGW32_H_
 
 #include <stdlib.h>
 /* The embedded rndnpc.h defines boolean as 'unsigned char',
@@ -14,24 +12,11 @@
 #undef boolean
 #include <dirent.h>
 #include <direct.h>
+#include <fcntl.h>
+#include <ctype.h>
 
-#if defined(WIN32)
-# if defined(KPSEDLL)
-#  define GNUW32DLL KPSEDLL
-# else
-#  if defined(GNUW32_DLL) || defined(KPSE_DLL)
-#   if defined(MAKE_GNUW32_DLL) || defined(MAKE_KPSE_DLL)
-#    define GNUW32DLL __declspec( dllexport)
-#   else
-#    define GNUW32DLL __declspec( dllimport)
-#   endif
-#  else
-#   define GNUW32DLL
-#  endif
-# endif
-#else /* ! WIN32 */
-# define GNUW32DLL
-#endif
+#define ftello ftello64
+#define fseeko fseeko64
 
 #ifndef MAXPATHLEN
 #define MAXPATHLEN _MAX_PATH
@@ -76,5 +61,10 @@ typedef struct volume_info_data {
   char *    name;
   char *    type;
 } volume_info_data;
+
+void init_user_info (void);
+BOOL win32_get_long_filename (char *, char *, int);
+void set_home_warning (void);
+BOOL look_for_cmd(const char *, char **, char **);
 
 #endif

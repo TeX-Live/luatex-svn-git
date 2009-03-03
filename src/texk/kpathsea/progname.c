@@ -28,6 +28,11 @@
 #include <kpathsea/c-pathmx.h>
 #endif
 
+#ifdef __MINGW32__
+#include <kpathsea/mingw32.h>
+#endif
+
+
 #if defined(__i386_pc_gnu__)
 #ifndef _S_ISUID
 #define _S_ISUID    04000  /* Set user ID on execution.  */
@@ -75,7 +80,7 @@
    anything that glibc may have provided.  This avoids
    difficult-to-debug system-dependent behavior, and also universally
    supports the second (`progname') argument for dotted texmf.cnf values.
-
+   
    It would have been better to simply use our own variable names (and
    computations) in the first place, but it's not worth losing backward
    compatibility to rename them now.  */
@@ -351,6 +356,7 @@ remove_dots P1C(string, dir)
 /* Return directory ARGV0 comes from.  Check PATH if ARGV0 is not
    absolute.  */
 
+/* non-static because |selfdir| is used by luatex */
 string
 selfdir P1C(const_string, argv0)
 {
@@ -441,18 +447,12 @@ kpse_set_program_name P2C(const_string, argv0, const_string, progname)
     kpathsea_debug |= atoi (s);
   }
 
-#ifndef HAVE_PROGRAM_INVOCATION_NAME
 #if defined(WIN32)
   /* Set various info about user. Among many things,
      ensure that HOME is set. If debug_paths is on, 
      turn on some message if $HOME is not found. */
   if (KPSE_DEBUG_P(KPSE_DEBUG_PATHS)) {
-#ifndef __MINGW32__
     set_home_warning();
-#else
-    extern int output_home_warning;
-    output_home_warning = 1;
-#endif
   }
   init_user_info();
 
@@ -569,7 +569,6 @@ kpse_set_program_name P2C(const_string, argv0, const_string, progname)
 #else /* !WIN32 && !__DJGPP__ */
   program_invocation_name = xstrdup (argv0);
 #endif
-#endif /* not HAVE_PROGRAM_INVOCATION_NAME */
 
   /* We need to find SELFAUTOLOC *before* removing the ".exe" suffix from
      the program_name, otherwise the PATH search inside selfdir will fail,
@@ -589,9 +588,7 @@ kpse_set_program_name P2C(const_string, argv0, const_string, progname)
   free (sdir_parent);
   free (sdir_grandparent);
 
-#ifndef HAVE_PROGRAM_INVOCATION_NAME
   program_invocation_short_name = (string)xbasename (program_invocation_name);
-#endif
 
   if (progname) {
     kpse_program_name = xstrdup (progname);

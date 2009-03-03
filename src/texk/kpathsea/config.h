@@ -56,9 +56,9 @@
 #endif
 
 #ifdef WIN32
-# ifndef __STDC__
-#  define __STDC__ 1
-# endif
+#ifndef __STDC__
+#define __STDC__ 1
+#endif
 #endif /* not WIN32 */
 
 /* System dependencies that are figured out by `configure'.  */
@@ -84,11 +84,11 @@
   but before "lib.h". FP.
 */
 #ifdef WIN32
-# ifndef __MINGW32__
-#   include <win32lib.h>
-# else
-#   include "win32lib.h"
-# endif
+#ifdef __MINGW32__
+#include <kpathsea/mingw32.h>
+#else
+#include <win32lib.h>
+#endif
 #endif
 
 #include <kpathsea/debug.h>    /* Runtime tracing.  */
@@ -130,11 +130,5 @@
 #define stat ln_stat
 #define unlink ln_unlink
 #endif /* OS2 */
-
-#ifdef __MINGW32__
-#define ftello ftello64
-#define fseeko fseeko64
-#endif
-
 
 #endif /* not KPATHSEA_CONFIG_H */

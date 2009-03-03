@@ -83,12 +83,13 @@ find_dpi P1C(string, s)
   return dpi_number;
 }
 
-/* Use the file type from -format if that was specified, else guess
-   dynamically from NAME.  Return kpse_last_format if undeterminable.
-   This function is also used to parse the -format string, a case which
-   we distinguish by setting is_filename to false.
+/* Use the file type from -format if that was specified (i.e., the
+   user_format global variable), else guess dynamically from NAME.
+   Return kpse_last_format if undeterminable.  This function is also
+   used to parse the -format string, a case which we distinguish by
+   setting is_filename to false.
 
-   Note that a few filenames have been hard-coded for format types that
+   A few filenames have been hard-coded for format types that
    differ from what would be inferred from their extensions. */
 
 static kpse_file_format_type
@@ -116,8 +117,10 @@ find_format P2C(string, name, boolean, is_filename)
     ret = kpse_cnf_format;
   } else if (FILESTRCASEEQ (name, "updmap.cfg")) {
     ret = kpse_web2c_format;
+  } else if (FILESTRCASEEQ (name, "XDvi")) {
+    ret = kpse_program_text_format;
   } else {
-    int f;  /* kpse_file_format_type */
+    int f = 0;  /* kpse_file_format_type */
     unsigned name_len = strlen (name);
 
 /* Have to rely on `try_len' being declared here, since we can't assume
@@ -127,7 +130,6 @@ find_format P2C(string, name, boolean, is_filename)
   (ftry) && try_len <= name_len \
      && FILESTRCASEEQ (ftry, name + name_len - try_len))
 
-    f = 0;
     while (f != kpse_last_format) {
       unsigned try_len;
       const_string *ext;
@@ -143,7 +145,7 @@ find_format P2C(string, name, boolean, is_filename)
         ftry = kpse_format_info[f].type;
         found = TRY_SUFFIX (ftry);
       }
-      for (ext = kpse_format_info[f].suffix; !found && ext && *ext; ext++){
+      for (ext = kpse_format_info[f].suffix; !found && ext && *ext; ext++) {
         found = TRY_SUFFIX (*ext);
       }      
       for (ext = kpse_format_info[f].alt_suffix; !found && ext && *ext; ext++){
@@ -306,8 +308,14 @@ lookup P1C(string, name)
 
 #define USAGE "\n\
 Standalone path lookup and expansion for Kpathsea.\n\
+The default is to look up each FILENAME in turn and report its\n\
+first match (if any) to standard output.\n\
 \n\
--all                   output all matches (one per line), not just the first.\n\
+When looking up format (.fmt/.base/.mem) files, it is usually necessary\n\
+to also use -engine, or nothing will be returned; in particular, -engine=/\n\
+will return matching format files for any engine.\n\
+\n\
+-all                   output all matches, one per line.\n\
 -debug=NUM             set debugging flags.\n\
 -D, -dpi=NUM           use a base resolution of NUM; default 600.\n\
 -engine=STRING         set engine name to STRING.\n\
@@ -322,8 +330,8 @@ Standalone path lookup and expansion for Kpathsea.\n\
 -must-exist            search the disk as well as ls-R if necessary.\n\
 -path=STRING           search in the path STRING.\n\
 -progname=STRING       set program name to STRING.\n\
--show-path=NAME        output search path for file type NAME (see list below).\n\
--subdir=STRING         only output matches whose directory part ends with STRING.\n\
+-show-path=NAME        output search path for file type NAME (list below).\n\
+-subdir=STRING         only output matches whose directory ends with STRING.\n\
 -var-value=STRING      output the value of variable $STRING.\n\
 -version               print version number and exit.\n \
 "
@@ -500,8 +508,13 @@ main P2C(int, argc,  string *, argv)
   kpse_init_prog (uppercasify (kpse_program_name), dpi, mode, NULL);
   
   /* Have to do this after setting the program name.  */
-  if (user_format_string)
+  if (user_format_string) {  
     user_format = find_format (user_format_string, false);
+    if (user_format == kpse_last_format) {
+      WARNING1 ("kpsewhich: Ignoring unknown file type `%s'",
+                user_format_string);
+    }
+  }
   
   /* Variable expansion.  */
   if (var_to_expand)
@@ -522,7 +535,7 @@ main P2C(int, argc,  string *, argv)
         kpse_init_format (user_format);
       puts (kpse_format_info[user_format].path);
     } else {
-      WARNING1 ("kpsewhich: Ignoring unknown file type `%s'", path_to_show);
+      WARNING ("kpsewhich: Cannot show path for unknown file type");
     }
   }
 
