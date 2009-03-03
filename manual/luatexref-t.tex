@@ -1263,7 +1263,7 @@ tex.pdflastximagepages
 tex.pdflastannot
 tex.pdflastxpos
 tex.pdflastypos
-tex.pdfrandomseed,
+tex.pdfrandomseed
 tex.pdflastlink
 tex.luatexversion
 tex.Alephversion
@@ -5326,7 +5326,7 @@ there are font dimensions).
 \NC "                           \NC T, S, SS,             \NC SuperscriptShiftUp                       \NC sup2 \NC\NR
 \NC "                           \NC D', T', S', SS'       \NC SuperscriptShiftUpCramped                \NC sup3 \NC\NR
 \NC \tex{Umathsupsubbottommax}  \NC --                    \NC SuperscriptBottomMaxWithSubscript        \NC (abs(math_x_height * 4) / 5) \NC\NR
-\NC \tex{Umathunderbarkern}     \NC --                    \NC UnderbarExtraDescender                   \NC 0$^5$ \NC\NR
+\NC \tex{Umathunderbarkern}     \NC --                    \NC UnderbarExtraDescender                   \NC default_rule_thickness \NC\NR
 \NC \tex{Umathunderbarrule}     \NC --                    \NC UnderbarRuleThickness                    \NC default_rule_thickness \NC\NR
 \NC \tex{Umathunderbarvgap}     \NC --                    \NC UnderbarVerticalGap                      \NC 3*default_rule_thickness \NC\NR
 \NC \tex{Umathconnectoroverlapmin}\NC --                  \NC MinConnectorOverlap                      \NC 0$^5$ \NC\NR
@@ -5353,8 +5353,8 @@ Note 4: (also if tfm fonts are used) A similar situation arises wrt. \tex{Umaths
 set until the first time \LUATEX\ has to typeset a formula. This provides some backward compatibility with
 \TEX82.  But once the \tex{Umathspaceafterscript} is set, \tex{scriptspace} will never be looked at again.
 
-Note 5: Tfm fonts set \tex{Umathunderbarkern} and \tex{Umathconnectoroverlapmin} to zero because
-\TeX82\ never adds a kern below the underbar and always stacks extensibles without any overlap.
+Note 5: Tfm fonts set \tex{Umathconnectoroverlapmin} to zero because
+\TeX82\ always stacks extensibles without any overlap.
 
 Note 6: The \tex{Umathoperatorsize} is only used in \type{\displaystyle}, and is only set
 in \OPENTYPE\ fonts. In \TFM\ font mode, it is artificially set to one scaled point more than the

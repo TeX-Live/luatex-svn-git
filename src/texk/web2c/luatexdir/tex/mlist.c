@@ -1014,12 +1014,14 @@ void fixup_math_parameters(integer fam_id, integer size_id, integer f,
                                 default_rule_thickness(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_overbar_vgap, size_id,
                                 3 * default_rule_thickness(size_id), lvl);
-        DEFINE_MATH_PARAMETERS(math_param_underbar_kern, size_id, 0, lvl);
+        DEFINE_MATH_PARAMETERS(math_param_underbar_kern, size_id, 
+                               default_rule_thickness(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_underbar_rule, size_id,
                                default_rule_thickness(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_underbar_vgap, size_id,
                                3 * default_rule_thickness(size_id), lvl);
-        DEFINE_DMATH_PARAMETERS(math_param_underbar_kern, size_id, 0, lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_underbar_kern, size_id, 
+                                default_rule_thickness(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_underbar_rule, size_id,
                                 default_rule_thickness(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_underbar_vgap, size_id,
@@ -2308,14 +2310,10 @@ void make_under(pointer q)
     vlink(x) = p;
     r = do_fraction_rule(underbar_rule(cur_style), node_attr(q));
     vlink(p) = r;
-    if (underbar_kern(cur_style) != 0) {
-        r = new_kern(underbar_kern(cur_style));
-        vlink(vlink(p)) = r;
-    }
     pack_direction = math_direction;
     y = vpackage(x, 0, additional, max_dimen);
     reset_attributes(y, node_attr(q));
-    delta = height(y) + depth(y) + underbar_rule(cur_style);
+    delta = height(y) + depth(y) + underbar_kern(cur_style);
     height(y) = height(x);
     depth(y) = delta - height(y);
     math_list(nucleus(q)) = y;
