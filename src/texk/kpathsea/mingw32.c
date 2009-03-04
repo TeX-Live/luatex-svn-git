@@ -38,60 +38,19 @@ static int static_variable_mingw32_c = 0;
 
 /* Emulate getpwuid, getpwnam and others.  */
 
-struct passwd {
-    char *pw_name;
-    char *pw_passwd;
-    int   pw_uid;
-    int   pw_gid;
-    int   pw_quota;
-    char *pw_gecos;
-    char *pw_dir;
-    char *pw_shell;
-};
-
 char *get_home_directory(void);
 int _parse_root (char * name, char ** pPath);
-
-#define PASSWD_FIELD_SIZE 256
-
-static char the_passwd_name[PASSWD_FIELD_SIZE];
-static char the_passwd_passwd[PASSWD_FIELD_SIZE];
-static char the_passwd_gecos[PASSWD_FIELD_SIZE];
-static char the_passwd_dir[PASSWD_FIELD_SIZE];
-static char the_passwd_shell[PASSWD_FIELD_SIZE];
-
-struct passwd the_passwd = 
-{
-  the_passwd_name,
-  the_passwd_passwd,
-  0,
-  0,
-  0,
-  the_passwd_gecos,
-  the_passwd_dir,
-  the_passwd_shell,
-};
 
 void
 init_user_info (void)
 {
-  strcpy (the_passwd.pw_name, "unknown");
-  the_passwd.pw_uid = 123;
-  the_passwd.pw_gid = 123;
-
   /* Ensure HOME and SHELL are defined. */
-  /*
-   * With XEmacs, setting $HOME is deprecated.
-   * But with fpTeX, it is safer to assume $HOME defined.
-   */
-  {
-    char *home = get_home_directory();
-    if (home) {
-      putenv(concat("HOME=", home));
-    }
-    else {
-      putenv ("HOME=c:/");
-    }
+  char *home = get_home_directory();
+  if (home) {
+    putenv(concat("HOME=", home));
+  }
+  else {
+    putenv ("HOME=c:/");
   }
   if (getenv ("SHELL") == NULL)
     putenv ((GetVersion () & 0x80000000) ? "SHELL=command" : "SHELL=cmd");
@@ -109,18 +68,9 @@ init_user_info (void)
       putenv(concat("TMP=", p));
     }
   }
-
-  /* Set dir and shell from environment variables. */
-  strcpy (the_passwd.pw_dir, get_home_directory());
-  strcpy (the_passwd.pw_shell, getenv ("SHELL"));
-
 }
 
-char initial_directory[MAXPATHLEN];
-
 static char *cached_home_directory;
-
-int output_home_warning = 0;
 
 
 void
@@ -130,10 +80,10 @@ uncache_home_directory (void)
 								   of a few bytes */
 }
 
+/* This function could go away */
 void 
 set_home_warning (void) 
 {
-  output_home_warning = 1;
 }
 
 typedef HWND (WINAPI *pGetDesktopWindow)(void);
@@ -195,7 +145,7 @@ get_home_directory (void)
 	if (cached_home_directory) goto done;
   }
 
-  if (output_home_warning) {
+  if (1) {
 	fprintf(stderr, "kpathsea has been unable to determine a good value for the user's $HOME\n"
 			"	directory, and will be using the value:\n"
 			"		%s\n"
@@ -214,19 +164,23 @@ extern int __cdecl _free_osfhnd (int fd);
 /* Global referenced by various functions.  */
 volume_info_data volume_info;
 
-/* Vector to indicate which drives are local and fixed (for which cached
-   data never expires).  */
-static BOOL fixed_drives[26];
-
 /* Consider cached volume information to be stale if older than 10s,
    at least for non-local drives.  Info for fixed drives is never stale.  */
 #define DRIVE_INDEX( c ) ( (c) <= 'Z' ? (c) - 'A' : (c) - 'a' )
 #define VOLINFO_STILL_VALID( root_dir, info )		\
-  ( ( isalpha (root_dir[0]) &&				\
-      fixed_drives[ DRIVE_INDEX (root_dir[0]) ] )	\
+  ( ( isalpha (root_dir[0]) )				\
     || GetTickCount () - info->timestamp < 10000 )
 
 /* Cache support functions.  */
+
+/* this typedef will eventually replace the two separate static
+   variables volume_cache and volume_info 
+*/
+
+typedef struct win32_volumes {
+  volume_info_data info;
+  volume_info_data *cache;
+} win32_volumes ;
 
 /* Simple linked list with linear search is sufficient.  */
 static volume_info_data *volume_cache = NULL;
@@ -616,104 +570,6 @@ win32_get_long_filename (char * name, char * buf, int size)
   while (p != NULL && *p);
 
   return TRUE;
-}
-
-/* Map filename to a legal 8.3 name if necessary. */
-const char *
-map_win32_filename (const char * name, const char ** pPath)
-{
-  static char shortname[MAX_PATH];
-  char * str = shortname;
-  char c;
-  const char * path;
-  const char * save_name = name;
-
-  if (is_fat_volume (name, &path)) /* truncate to 8.3 */
-    {
-      register int left = 8;	/* maximum number of chars in part */
-      register int extn = 0;	/* extension added? */
-      register int dots = 2;	/* maximum number of dots allowed */
-
-      while (name < path)
-	*str++ = *name++;	/* skip past UNC header */
-
-      while ((c = *name++))
-        {
-	  switch ( c )
-	    {
-	    case '\\':
-	    case '/':
-	      *str++ = '\\';
-	      extn = 0;		/* reset extension flags */
-	      dots = 2;		/* max 2 dots */
-	      left = 8;		/* max length 8 for main part */
-	      break;
-	    case ':':
-	      *str++ = ':';
-	      extn = 0;		/* reset extension flags */
-	      dots = 2;		/* max 2 dots */
-	      left = 8;		/* max length 8 for main part */
-	      break;
-	    case '.':
-	      if ( dots )
-	        {
-		  /* Convert path components of the form .xxx to _xxx,
-		     but leave . and .. as they are.  This allows .emacs
-		     to be read as _emacs, for example.  */
-
-		  if (! *name ||
-		      *name == '.' ||
-		      IS_DIR_SEP (*name))
-		    {
-		      *str++ = '.';
-		      dots--;
-		    }
-		  else
-		    {
-		      *str++ = '_';
-		      left--;
-		      dots = 0;
-		    }
-		}
-	      else if ( !extn )
-	        {
-		  *str++ = '.';
-		  extn = 1;		/* we've got an extension */
-		  left = 3;		/* 3 chars in extension */
-		}
-	      else
-	        {
-		  /* any embedded dots after the first are converted to _ */
-		  *str++ = '_';
-		}
-	      break;
-	    case '~':
-	    case '#':			/* don't lose these, they're important */
-	      if ( ! left )
-		str[-1] = c;		/* replace last character of part */
-	      /* FALLTHRU */
-	    default:
-	      if ( left )
-	        {
-		  *str++ = tolower (c);	/* map to lower case (looks nicer) */
-		  left--;
-		  dots = 0;		/* started a path component */
-		}
-	      break;
-	    }
-	}
-      *str = '\0';
-    }
-  else
-    {
-      strcpy (shortname, name);
-      unixtodos_filename (shortname);
-    }
-
-  if (pPath)
-    *pPath = shortname + (path - save_name);
-
-  return shortname;
 }
 
 /*
