@@ -31,6 +31,10 @@
 #include <locale.h>
 #endif
 
+#ifdef WIN32
+int win32_system(const char *cmd, int async);
+#endif
+
 #include <signal.h> /* Catch interrupts.  */
 
 #include <texmfmp-help.h>
