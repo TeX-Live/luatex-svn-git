@@ -77,8 +77,6 @@ const_string LUATEX_IHELP[] = {
     NULL
 };
 
-extern char *selfdir(char *);   /* from kpathsea */
-
 char *ex_selfdir(char *argv0)
 {
 #if defined(WIN32)
