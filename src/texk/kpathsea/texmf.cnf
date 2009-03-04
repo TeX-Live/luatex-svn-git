@@ -1,12 +1,19 @@
 % original texmf.cnf -- runtime path configuration file for kpathsea.
 % Public domain.
-%
+% 
+% If you modify this original file, YOUR CHANGES WILL BE LOST when it is
+% updated.  Instead, put your changes -- and only your changes, not an
+% entire copy of the full texmf.cnf! -- in ../../texmf.cnf.  That is, if
+% this file is installed in /some/path/to/texlive/2008/texmf/web2c/texmf.cnf,
+% add your custom settings to /some/path/to/texlive/2008/texmf.cnf.
+% 
 % What follows is a super-summary of what this .cnf file can
 % contain. Please read the Kpathsea manual for more information.
 %
 % Any identifier (sticking to A-Za-z_ for names is safest) can be assigned.
 % The `=' (and surrounding spaces) is optional.
 % $foo (or ${foo}) in a value expands to the envvar or cnf value of foo.
+% Long lines can be continued with a \.
 %
 % Earlier entries (in the same or another file) override later ones, and
 % an environment variable foo overrides any texmf.cnf definition of foo.
@@ -20,18 +27,18 @@
 % right-hand side. For environment variables, use FOO_PROGRAM.
 %
 % Which file formats use which paths for searches is described in the
-% various programs' and the kpathsea documentation.
+% various programs' and the Kpathsea documentation.
 %
 % // means to search subdirectories (recursively).
 % A leading !! means to look only in the ls-R db, never on the disk.
 % In this file, either ; or : can be used to separate path components.
 % A leading/trailing/doubled path separator in the paths will be
 %   expanded into the compile-time default. Probably not what you want.
-%
-% You can use brace notation, for example: /usr/local/{mytex,othertex}
-% expands to /usr/local/mytex:/usr/local/othertex.  Instead of the comma
-% you can use the path separator: /usr/local/{mytex:othertex} also expands
-% to /usr/local/mytex:/usr/local/othertex.
+%   
+% Brace notation is supported, for example: /usr/local/{mytex,othertex}
+% expands to /usr/local/mytex:/usr/local/othertex.  You can use the path
+% separator as well as the comma for this: /usr/local/{mytex:othertex}
+% also expands to /usr/local/mytex:/usr/local/othertex.
 
 %  Part 1: Search paths and directories.
 
@@ -102,6 +109,15 @@ TEXMFCONFIG = ~/.texlive2008/texmf-config
 %
 % For texconfig to work properly, TEXMFCONFIG and TEXMFVAR should be named
 % explicitly and before all other trees.
+% 
+% TEXMFLOCAL follows TEXMFMAIN (and precedes TEXMFDIST) because the only
+% files in TEXMFMAIN are tightly coupled with the particular version of
+% the distribution, such as format files.  Overriding them would be more
+% likely to cause trouble than help.  On the other hand, all the
+% standard packages and fonts are in TEXMFDIST, and locally-installed
+% versions should take precedence over those (although it is generally a
+% source of confusion to have different versions of a package installed,
+% whatever the trees, so try to avoid it).
 TEXMF = {$TEXMFCONFIG,$TEXMFVAR,$TEXMFHOME,!!$TEXMFSYSCONFIG,!!$TEXMFSYSVAR,!!$TEXMFMAIN,!!$TEXMFLOCAL,!!$TEXMFDIST}
 
 % The system trees.  These are the trees that are shared by all the users.
@@ -137,7 +153,7 @@ TEXMFDBS = {!!$TEXMFSYSCONFIG,!!$TEXMFSYSVAR,!!$TEXMFMAIN,!!$TEXMFLOCAL,!!$TEXMF
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Usually you will not need to edit any of the other variables in part 1. %
+% Usually you will not need to edit any of the following variables.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % WEB2C is for Web2C specific files.  The current directory may not be
@@ -145,11 +161,15 @@ TEXMFDBS = {!!$TEXMFSYSCONFIG,!!$TEXMFSYSVAR,!!$TEXMFMAIN,!!$TEXMFLOCAL,!!$TEXMF
 WEB2C = $TEXMF/web2c
 
 % TEXINPUTS is for TeX input files -- i.e., anything to be found by \input
-% or \openin, including .sty, .eps, etc.
+% or \openin, including .sty, .eps, etc.  We specify paths for all known
+% formats, past or present.  Not all of them are built these days.
 
 % Plain TeX.  Have the command tex check all directories as a last
 % resort, we may have plain-compatible stuff anywhere.
 TEXINPUTS.tex           = .;$TEXMF/tex/{plain,generic,}//
+
+% Fontinst needs to read afm files.
+TEXINPUTS.fontinst      = .;$TEXMF/{tex,fonts/afm}//
 
 % Other plain-based formats.
 TEXINPUTS.amstex        = .;$TEXMF/tex/{amstex,plain,generic,}//
@@ -159,7 +179,6 @@ TEXINPUTS.ftex          = .;$TEXMF/tex/{formate,plain,generic,}//
 TEXINPUTS.jadetex       = .;$TEXMF/tex/{jadetex,plain,generic,}//
 TEXINPUTS.mex           = .;$TEXMF/tex/{mex,plain,generic,}//
 TEXINPUTS.texinfo       = .;$TEXMF/tex/{texinfo,plain,generic,}//
-TEXINPUTS.xetex         = .;$TEXMF/tex/{xetex,plain,generic,}//
 
 % LaTeX 2e specific macros are stored in latex/, macros that can only be
 % used with 2.09 in latex209/.  In addition, we look in the directory
@@ -167,12 +186,8 @@ TEXINPUTS.xetex         = .;$TEXMF/tex/{xetex,plain,generic,}//
 % mention 2e at all, but can be used with 2e.
 TEXINPUTS.cslatex       = .;$TEXMF/tex/{cslatex,csplain,latex,generic,}//
 TEXINPUTS.latex         = .;$TEXMF/tex/{latex,generic,}//
-TEXINPUTS.olatex        = .;$TEXMF/tex/{latex,generic,}//
 TEXINPUTS.latex209      = .;$TEXMF/tex/{latex209,generic,latex,}//
-TEXINPUTS.xelatex       = .;$TEXMF/tex/{xelatex,latex,generic,}//
-
-% Fontinst needs to read afm files.
-TEXINPUTS.fontinst      = .;$TEXMF/{tex,fonts/afm}//
+TEXINPUTS.olatex        = .;$TEXMF/tex/{latex,generic,}//
 
 % MLTeX.
 TEXINPUTS.frlatex       = .;$TEXMF/tex/{french,latex,generic,}//
@@ -180,13 +195,11 @@ TEXINPUTS.frtex         = .;$TEXMF/tex/{french,plain,generic,}//
 TEXINPUTS.mllatex       = .;$TEXMF/tex/{latex,generic,}//
 TEXINPUTS.mltex         = .;$TEXMF/tex/{plain,generic,}//
 
-% e-TeX.  This form of the input paths is borrowed from teTeX.  A certain
-% variant of TDS is assumed here, unaffected by the build variables.
+% e-TeX.
 TEXINPUTS.elatex        = .;$TEXMF/tex/{latex,generic,}//
 TEXINPUTS.etex          = .;$TEXMF/tex/{plain,generic,}//
 
-% pdfTeX.  This form of the input paths is borrowed from teTeX.  A certain
-% variant of TDS is assumed here, unaffected by the build variables.
+% pdfTeX.
 TEXINPUTS.pdfcslatex    = .;$TEXMF/tex/{cslatex,csplain,latex,generic,}//
 TEXINPUTS.pdfcsplain    = .;$TEXMF/tex/{csplain,plain,generic,}//
 TEXINPUTS.pdfjadetex    = .;$TEXMF/tex/{jadetex,plain,generic,}//
@@ -203,57 +216,68 @@ TEXINPUTS.pdfetex       = .;$TEXMF/tex/{plain,generic,}//
 
 % pdfxTeX.
 TEXINPUTS.pdfxlatex     = .;$TEXMF/tex/{latex,generic,}//
+TEXINPUTS.pdfxmex       = .;$TEXMF/tex/{mex,plain,generic,}//
 TEXINPUTS.pdfxtex       = .;$TEXMF/tex/{plain,generic,}//
 
-% XeTeX
+% LuaTeX.
+TEXINPUTS.lualatex      = .;$TEXMF/tex/{lualatex,latex,generic,}//
+TEXINPUTS.luatex        = .;$TEXMF/tex/{luatex,plain,generic,}//
+TEXINPUTS.pdflualatex   = .;$TEXMF/tex/{lualatex,latex,generic,}//
+TEXINPUTS.pdfluatex     = .;$TEXMF/tex/{lualatex,latex,generic,}//
+
+% XeTeX.
 TEXINPUTS.xelatex       = .;$TEXMF/tex/{xelatex,latex,generic,}//
 TEXINPUTS.xeplain       = .;$TEXMF/tex/{xeplain,eplain,plain,generic,}//
 TEXINPUTS.xetex         = .;$TEXMF/tex/{xetex,plain,generic,}//
 
-% Omega / Aleph
-TEXINPUTS.lamed         = .;$TEXMF/tex/{lamed,lambda,latex,generic,}//
-TEXINPUTS.lambda        = .;$TEXMF/tex/{lambda,latex,generic,}//
-TEXINPUTS.omega         = .;$TEXMF/tex/{plain,generic,}//
+% Omega / Aleph.
 TEXINPUTS.aleph         = .;$TEXMF/tex/{plain,generic,}//
-
-% ConTeXt
-TEXINPUTS.context       = .;$TEXMF/tex/{context,plain,generic,}//
-
-% odd formats needing their own paths
-TEXINPUTS.lamstex       = .;$TEXMF/tex/{lamstex,plain,generic,}//
-TEXINPUTS.lollipop      = .;$TEXMF/tex/{lollipop,plain,generic,}//
-
-% Earlier entries override later ones, so put this last.
-TEXINPUTS               = .;$TEXMF/tex/{$progname,generic,}//
-
-% extra format definitions for TeX Live
-
 TEXINPUTS.elambda       = .;$TEXMF/tex/{lambda,latex,generic,}//
 TEXINPUTS.eomega        = .;$TEXMF/tex/{plain,generic,}//
-TEXINPUTS.pdfxmex       = .;$TEXMF/tex/{mex,plain,generic,}//
-TEXINPUTS.frpdflatex    = .;$TEXMF/tex/{french,latex,generic,}//
-TEXINPUTS.frpdftex      = .;$TEXMF/tex/{french,plain,generic,}//
+TEXINPUTS.lambda        = .;$TEXMF/tex/{lambda,latex,generic,}//
+TEXINPUTS.lamed         = .;$TEXMF/tex/{lamed,lambda,latex,generic,}//
+TEXINPUTS.omega         = .;$TEXMF/tex/{plain,generic,}//
+
+% ConTeXt.
+TEXINPUTS.context       = .;$TEXMF/tex/{context,plain,generic,}//
+
+% XMLTeX.
 TEXINPUTS.xmltex        = .;$TEXMF/tex/{xmltex,latex,generic,}//
 TEXINPUTS.pdfxmltex     = .;$TEXMF/tex/{xmltex,latex,generic,}//
 
+% Miscellany, no longer built.
+TEXINPUTS.lamstex       = .;$TEXMF/tex/{lamstex,plain,generic,}//
+TEXINPUTS.lollipop      = .;$TEXMF/tex/{lollipop,plain,generic,}//
+TEXINPUTS.frpdflatex    = .;$TEXMF/tex/{french,latex,generic,}//
+TEXINPUTS.frpdftex      = .;$TEXMF/tex/{french,plain,generic,}//
+
+% Earlier entries override later ones, so put this generic one last.
+TEXINPUTS               = .;$TEXMF/tex/{$progname,generic,}//
+
+% ttf2tfm.
 TTF2TFMINPUTS =                 .;$TEXMF/ttf2pk//
 
 % Metafont, MetaPost inputs.
 MFINPUTS = .;$TEXMF/metafont//;{$TEXMF/fonts,$VARTEXFONTS}/source//
 MPINPUTS = .;$TEXMF/metapost//
 
-% allow for compressed files, and various extensions.
-TEXDOCSSUFFIX   = ;.pdf;.ps;.dvi;.html;.txt;.tex
-TEXDOCSCOMPRESS = ;.gz;.bz2;.zip;.Z
-TEXDOCEXT       = {$TEXDOCSSUFFIX}{$TEXDOCSCOMPRESS}
+% The following are not needed any more here. 
+% Moved to texdoc.cnf (and hard-coded default), see the texdoc manual.
+% See texdoc's source too if you need to allow compressed documentation.
+% TEXDOCSSUFFIX   = ;.pdf;.ps;.dvi;.html;.txt;.tex
+% TEXDOCSCOMPRESS = ;.gz;.bz2;.zip;.Z
+% TEXDOCEXT       = {$TEXDOCSSUFFIX}{$TEXDOCSCOMPRESS}
 
 % Dump files (fmt/base/mem) for vir{tex,mf,mp} to read.
 % We want to find the engine-specific file, e.g., cont-en.fmt can
 % exist under both pdftex/ and xetex/.  But just in case some formats
 % end up without an engine directory, look directly in web2c/ too.
+% We repeat the same definition three times because of the way fmtutil
+% is implemented; if we use ${TEXFORMATS}, the mpost/mf/etc. formats
+% will not be found.
 TEXFORMATS = .;$TEXMF/web2c{/$engine,}
-MFBASES = ${TEXFORMATS}
-MPMEMS = ${TEXFORMATS}
+MFBASES = .;$TEXMF/web2c{/$engine,}
+MPMEMS = .;$TEXMF/web2c{/$engine,}
 %
 % As of 2008, pool files don't exist any more (the strings are compiled
 % into the binaries), but just in case something expects to find these
@@ -375,8 +399,9 @@ FC_CACHEDIR=$TEXMFSYSVAR/fonts/cache
 % in addition to the doc files in the other hierarchies.
 % Also, find the English documentation first -- better than random, when
 % there are name collisions.
+% Also, find things from man pages first, same reason.
 TEXMFDOCDIR = $TEXMFDOC/doc{/english,}
-TEXDOCS = .;$TEXMF/doc//;$TEXMFDOCDIR//
+TEXDOCS = .;$TEXMF/doc{/man,}//;$TEXMFDOCDIR//
 TEXSOURCES = .;$TEXMF/source//
 
 % Web and CWeb input paths.
@@ -443,11 +468,10 @@ engine = unsetengine
 
 %  Part 2: Options.
 
-% If this is true, `tex a.b' will look first for a.b.tex (within each
-% path element), and then for a.b, i.e., we try standard extensions
-% first.  If this is false, we first look for a.b and then a.b.tex,
-% first.  If this is false, we first look for a.b and then a.b.tex,
-% i.e., we try the name as-is first.
+% If this option is set to true, `tex a.b' will look first for a.b.tex
+% (within each path element), and then for a.b, i.e., we try standard
+% extensions first.  If this is false, we first look for a.b and then
+% a.b.tex, i.e., we try the name as-is first.
 %
 % Both names are always tried; the difference is the order in which they
 % are tried.  The setting applies to all searches, not just .tex.
@@ -457,13 +481,26 @@ engine = unsetengine
 % always have an extension added first.
 %
 % The default is true, because we already avoid adding the standard
-% extension(s) in most common cases.  E.g., babel.sty will only look for
+% extension(s) in the usual cases.  E.g., babel.sty will only look for
 % babel.sty, not babel.sty.tex, regardless of this setting.
 try_std_extension_first = t
 
-% Enable system commands via \write18{...}?  Obviously insecure, despite
-% being so useful.
-shell_escape = f
+% Enable system commands via \write18{...}.  When enabled fully (set to
+% 1), obviously insecure.  When enabled partially (set to p), only the
+% commands listed in shell_escape_commands are allowed.  Although this
+% is not fully secure either, it is much better, and so useful that we
+% enable it for everything but bare tex.
+shell_escape = p
+
+% No spaces in this command list.
+shell_escape_commands = \
+bibtex,convert,dvips,epstopdf,epspdf,etex,gnuplot,kpsewhich,\
+latex,luatex,lualatex,makeindex,mpost,\
+pdfcrop,pdflatex,pdfluatex,ps2pdf,ps4pdf,pstopdf,pygmentize,\
+tex,texexec,texmfstart\
+
+% plain TeX should remain unenhanced.
+shell_escape.tex = f
 
 % Allow TeX \openin, \openout, or \input on filenames starting with `.'
 % (e.g., .rhosts) or outside the current tree (e.g., /etc/passwd)?
@@ -597,7 +634,7 @@ buf_size = 200000
 % for all known free hyphenation patterns to be loaded simultaneously
 % (as TeX Live does).
 %
-trie_size = 600000
+trie_size = 700000
 
 hyph_size = 8191        % prime number of hyphenation exceptions, >610, <32767.
                         % http://primes.utm.edu/curios/page.php/8191.html
