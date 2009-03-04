@@ -41,11 +41,6 @@
 #define IS_UNC_NAME(name) (strlen(name)>=3 && IS_DIR_SEP(*name)  \
                             && IS_DIR_SEP(*(name+1)) && isalnum(*(name+2)))
 #endif
-#ifndef IS_UNC_NAME
-#define IS_UNC_NAME(name) \
-  (strlen(name)>=3 && IS_DIR_SEP(*name)  \
-     && IS_DIR_SEP(*(name+1)) && isalnum(*(name+2)))
-#endif
 
 typedef struct volume_info_data {
   struct volume_info_data * next;
