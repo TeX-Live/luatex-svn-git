@@ -59,12 +59,6 @@ checked_dir_list_add P2C(str_llist_type *, l,  const_string, dir)
    the dir_links call, that's not enough -- without this path element
    caching as well, the execution time doubles.  */
 
-typedef struct
-{
-  const_string key;
-  str_llist_type *value;
-} cache_entry;
-
 static cache_entry *the_cache = NULL;
 static unsigned cache_length = 0;
 

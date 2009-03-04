@@ -84,10 +84,6 @@ kpse_var_value P1C(const_string, var)
    add to a list each time an expansion is started, and check the list
    before expanding.  */
 
-typedef struct {
-  const_string var;
-  boolean expanding;
-} expansion_type;
 static expansion_type *expansions; /* The sole variable of this type.  */
 static unsigned expansion_len = 0;
 
