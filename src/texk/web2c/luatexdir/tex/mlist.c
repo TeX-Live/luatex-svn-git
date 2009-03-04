@@ -2557,12 +2557,8 @@ void do_make_math_accent (pointer q, internal_font_number f, integer c, int top_
         x = new_noad();
         r = math_clone(nucleus(q));
         nucleus(x) = r;
-        r = math_clone(supscr(q));
-        supscr(x) = r;
-        r = math_clone(subscr(q));
-        subscr(x) = r;
-        math_reset(supscr(q));
-        math_reset(subscr(q));
+        supscr(x) = supscr(q); supscr(q) = null;
+        subscr(x) = subscr(q); subscr(q) = null;
         type(nucleus(q)) = sub_mlist_node;
         math_list(nucleus(q)) = x;
         x = clean_box(nucleus(q), cur_style);
