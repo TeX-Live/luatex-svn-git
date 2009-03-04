@@ -228,17 +228,17 @@ kpse_include ../make/config.mk
 info: $(library).info
 dvi: $(library).dvi
 
-$(library).info: bugs.texi hier.texi install.texi unixtex.texi
+$(library).info: doc/bugs.texi doc/hier.texi doc/install.texi doc/unixtex.texi
 
-@MAINT@INSTALL: install.texi
+@MAINT@INSTALL: doc/install.texi
 @MAINT@	$(MAKEINFO) $(one_info) $(MAKEINFO_FLAGS) $< -o $@
 @MAINT@	$(top_srcdir)/../add-info-toc $@
-@MAINT@BUGS: bugs.texi
+@MAINT@BUGS: doc/bugs.texi
 @MAINT@	$(MAKEINFO) $(one_info) $(MAKEINFO_FLAGS) $< -o $@
 @MAINT@	$(top_srcdir)/../add-info-toc $@
-@MAINT@HIER: hier.texi
+@MAINT@HIER: doc/hier.texi
 @MAINT@	$(MAKEINFO) $(one_info) $(MAKEINFO_FLAGS) $< -o $@
-@MAINT@unixtex.ftp: unixtex.texi
+@MAINT@unixtex.ftp: doc/unixtex.texi
 @MAINT@	$(MAKEINFO) $(one_info) $(MAKEINFO_FLAGS) $< -o $@
 @MAINT@doc: info HIER BUGS INSTALL unixtex.ftp
 

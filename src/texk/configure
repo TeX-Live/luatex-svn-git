@@ -757,7 +757,7 @@ PACKAGE_VERSION=
 PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
-ac_unique_file="kpathsea/kpathsea.texi"
+ac_unique_file="kpathsea/doc/kpathsea.texi"
 # Factoring default headers for most tests.
 ac_includes_default="\
 #include <stdio.h>

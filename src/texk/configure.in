@@ -12,7 +12,7 @@ dnl Consequence: we don't need to run configure in the kpathsea directory
 dnl itself; we can just copy from a program directory.  We'll use the
 dnl first one.
 dnl 
-AC_INIT(kpathsea/kpathsea.texi)
+AC_INIT(kpathsea/doc/kpathsea.texi)
 
 dnl These configure scripts won't work with anything else.
 AC_PREREQ(2.59)
