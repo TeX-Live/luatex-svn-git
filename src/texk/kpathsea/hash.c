@@ -67,9 +67,11 @@ hash_normalized P2C(hash_table_type, table,  const_string, key)
 hash_table_type
 hash_create P1C(unsigned, size) 
 {
-  /* hash_table_type ret; changed into "static ..." to work around gcc
-     optimizer bug for Alpha.  */
-  static hash_table_type ret;
+  /* The was "static ..." since Oct3, 1997 to work around a gcc
+     optimizer bug for Alpha. That particular optimization bug
+     should be gone by now (Mar4, 2009).
+  */
+  hash_table_type ret; 
   unsigned b;
   ret.buckets = XTALLOC (size, hash_element_type *);
   ret.size = size;
