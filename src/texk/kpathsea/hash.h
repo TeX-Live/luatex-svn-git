@@ -38,10 +38,8 @@ typedef struct
   unsigned size;
 } hash_table_type;
 
-#ifdef KPSE_DEBUG
 /* How to print the hash results when debugging.  */
 extern KPSEDLL boolean kpse_debug_hash_lookup_int;
-#endif
 
 /* Create a hash table of size SIZE.  */
 extern KPSEDLL hash_table_type hash_create P1H(unsigned size);
