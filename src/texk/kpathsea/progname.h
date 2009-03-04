@@ -49,4 +49,8 @@ extern KPSEDLL void kpse_set_program_name P2H(const_string argv0,
 
 extern KPSEDLL void kpse_set_progname P1H(const_string argv0);
 
+/* This function is used by LuaTeX's initialization */
+
+extern KPSEDLL string selfdir P1H(const_string argv0);
+
 #endif /* not KPATHSEA_PROGNAME_H */
