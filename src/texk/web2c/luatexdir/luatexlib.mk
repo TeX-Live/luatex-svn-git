@@ -31,9 +31,6 @@ ifeq ($(target),i386-mingw32)
     luatarget = mingw
   endif
 else
-ifeq ($(target),i386-linux)
-  luatarget = posix
-endif
 endif
 
 
