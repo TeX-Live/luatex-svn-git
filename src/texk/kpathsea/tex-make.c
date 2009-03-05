@@ -198,7 +198,7 @@ maketex P2C(kpse_file_format_type, format, string*, args)
     DWORD NUM;
     extern char *quote_args(char **argv);
 
-    if (look_for_cmd(args[0], &app_name, &new_cmd) == FALSE) {
+    if (look_for_cmd(args[0], &app_name) == FALSE) {
       ret = NULL;
       goto error_exit;
     }

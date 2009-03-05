@@ -587,13 +587,20 @@ win32_get_long_filename (char * name, char * buf, int size)
 */
 
 BOOL 
+#if 0
 look_for_cmd(const char *cmd, char **app, char **new)
+#else
+look_for_cmd(const char *cmd, char **app)
+#endif
 {
   char *env_path;
   char *p, *q;
   char pname[MAXPATHLEN], *fp;
   char *suffixes[] = { ".bat", ".cmd", ".com", ".exe", NULL };
   char **s;
+#if 1
+  char **new;
+#endif
   char *app_name, *new_cmd;
 
   BOOL go_on;
@@ -1084,7 +1091,13 @@ int win32_system(const char *cmd, int async)
     return 1;
   }
 
+#if 0
   if (look_for_cmd(cmd, &app_name, &new_cmd) == FALSE) {
+#else
+  new_cmd = xstrdup(cmd);
+  if (look_for_cmd(cmd, &app_name) == FALSE) {
+    if (new_cmd) free(new_cmd);
+#endif
     /* Failed to find the command or malformed cmd */
     errno = ENOEXEC;
 #ifdef _TRACE
