@@ -1,5 +1,6 @@
-This is kpathsea.info, produced by makeinfo version 4.12 from
-kpathsea.texi.
+This is ../../../../src/texk/kpathsea/doc/kpathsea.info, produced by
+makeinfo version 4.12 from
+../../../../src/texk/kpathsea/doc/kpathsea.texi.
 
 This file documents the Kpathsea library for path searching.
 
@@ -2441,7 +2442,7 @@ more work.
 500 regular files, `st_nlink' will be 3, and Kpathsea has to stat every
 one of those 501 entries.  Therein lies slowness.
 
-   You can disable the trick by undefining `UNIX_ST_LINK' in
+   You can disable the trick by undefining `ST_NLINK_TRICK' in
 `kpathsea/config.h'. (It is undefined by default except under Unix.)
 
    Unfortunately, in some cases files in leaf directories are `stat''d:
@@ -2883,6 +2884,9 @@ their corresponding format:
 
 `texmf.cnf'
      `cnf'
+
+`XDvi'
+     `other text files'
 
 
    A user-specified format will override the above defaults.
@@ -4538,6 +4542,8 @@ Index
                                                               (line  30)
 * st_nlink:                              Subdirectory expansion.
                                                               (line  26)
+* ST_NLINK_TRICK:                        Subdirectory expansion.
+                                                              (line  38)
 * stack trace:                           Bug checklist.       (line  62)
 * standalone path searching:             Invoking kpsewhich.  (line   6)
 * standard error and debugging output:   Debugging.           (line  27)
@@ -4577,7 +4583,7 @@ Index
 * T42FONTS:                              Supported file formats.
                                                               (line 189)
 * tcfmgr.map:                            Specially-recognized files.
-                                                              (line  44)
+                                                              (line  47)
 * TDS:                                   TeX directory structure.
                                                               (line   6)
 * testing, post-installation:            Installation testing.
@@ -4697,8 +4703,6 @@ Index
                                                               (line   6)
 * uname:                                 Bug checklist.       (line  21)
 * universe, BSD vs. system V:            Running make.        (line  44)
-* UNIX_ST_LINK:                          Subdirectory expansion.
-                                                              (line  38)
 * unixtex.ftp:                           unixtex.ftp.         (line   6)
 * unknown special warnings:              Suppressing warnings.
                                                               (line  31)
@@ -4755,6 +4759,8 @@ Index
 * XCFLAGS:                               Running make.        (line  26)
 * XCPPFLAGS:                             Running make.        (line  22)
 * XDEFS:                                 Running make.        (line  23)
+* XDvi:                                  Specially-recognized files.
+                                                              (line  41)
 * XDVIFONTS:                             Supported file formats.
                                                               (line 227)
 * XDVIMAKEPK:                            mktex script names.  (line  32)
@@ -4771,86 +4777,86 @@ Index
 
 
 Tag Table:
-Node: Top1552
-Node: Introduction2195
-Node: History4171
-Node: Installation8263
-Node: Simple installation9053
-Node: Custom installation12636
-Node: Disk space13810
-Node: Kpathsea application distributions14694
-Node: Changing search paths15809
-Node: Default path features16991
-Node: Default path generation19127
-Node: Running configure20570
-Node: configure shells21621
-Node: configure options22673
-Node: configure environment24180
-Node: configure scenarios25982
-Node: Shared library27568
-Node: Running make28582
-Node: Installing files30629
-Node: Cleaning up32576
-Node: Filename database generation33624
-Node: mktex scripts34191
-Node: mktex configuration35468
-Node: mktex script names41287
-Node: mktex script arguments42678
-Node: Installation testing43568
-Node: Security43932
-Node: TeX directory structure46499
-Node: unixtex.ftp50921
-Node: Electronic distribution52936
-Node: CD-ROM distribution55701
-Node: Other TeX packages56671
-Node: Reporting bugs57967
-Node: Bug checklist58707
-Node: Mailing lists62409
-Node: Debugging63768
-Node: Logging68840
-Node: Common problems70710
-Node: Unable to find files71541
-Node: Slow path searching73952
-Node: Unable to generate fonts75329
-Node: TeX or Metafont failing77838
-Node: Empty Makefiles79716
-Node: XtStrings80946
-Node: dlopen81782
-Node: ShellWidgetClass82600
-Node: Pointer combination warnings84232
-Node: Path searching84621
-Node: Searching overview85268
-Node: Path sources88664
-Node: Config files89735
-Node: Path expansion93380
-Node: Default expansion94329
-Node: Variable expansion96399
-Node: Tilde expansion97802
-Node: Brace expansion98782
-Node: KPSE_DOT expansion99887
-Node: Subdirectory expansion100400
-Node: Filename database102749
-Node: ls-R103803
-Node: Filename aliases106697
-Node: Database format107875
-Node: Invoking kpsewhich108888
-Node: Path searching options109833
-Node: Specially-recognized files116853
-Node: Auxiliary tasks118177
-Node: Standard options120002
-Node: TeX support120322
-Node: Supported file formats121613
-Node: File lookup128761
-Node: Glyph lookup130489
-Node: Basic glyph lookup131616
-Node: Fontmap132495
-Node: Fallback font135112
-Node: Suppressing warnings136077
-Node: Programming137182
-Node: Programming overview137695
-Node: Calling sequence139971
-Node: Program-specific files144963
-Node: Programming with config files146001
-Node: Index147301
+Node: Top1620
+Node: Introduction2263
+Node: History4239
+Node: Installation8331
+Node: Simple installation9121
+Node: Custom installation12704
+Node: Disk space13878
+Node: Kpathsea application distributions14762
+Node: Changing search paths15877
+Node: Default path features17059
+Node: Default path generation19195
+Node: Running configure20638
+Node: configure shells21689
+Node: configure options22741
+Node: configure environment24248
+Node: configure scenarios26050
+Node: Shared library27636
+Node: Running make28650
+Node: Installing files30697
+Node: Cleaning up32644
+Node: Filename database generation33692
+Node: mktex scripts34259
+Node: mktex configuration35536
+Node: mktex script names41355
+Node: mktex script arguments42746
+Node: Installation testing43636
+Node: Security44000
+Node: TeX directory structure46567
+Node: unixtex.ftp50989
+Node: Electronic distribution53004
+Node: CD-ROM distribution55769
+Node: Other TeX packages56739
+Node: Reporting bugs58035
+Node: Bug checklist58775
+Node: Mailing lists62477
+Node: Debugging63836
+Node: Logging68908
+Node: Common problems70778
+Node: Unable to find files71609
+Node: Slow path searching74020
+Node: Unable to generate fonts75397
+Node: TeX or Metafont failing77906
+Node: Empty Makefiles79784
+Node: XtStrings81014
+Node: dlopen81850
+Node: ShellWidgetClass82668
+Node: Pointer combination warnings84300
+Node: Path searching84689
+Node: Searching overview85336
+Node: Path sources88732
+Node: Config files89803
+Node: Path expansion93448
+Node: Default expansion94397
+Node: Variable expansion96467
+Node: Tilde expansion97870
+Node: Brace expansion98850
+Node: KPSE_DOT expansion99955
+Node: Subdirectory expansion100468
+Node: Filename database102819
+Node: ls-R103873
+Node: Filename aliases106767
+Node: Database format107945
+Node: Invoking kpsewhich108958
+Node: Path searching options109903
+Node: Specially-recognized files116923
+Node: Auxiliary tasks118279
+Node: Standard options120104
+Node: TeX support120424
+Node: Supported file formats121715
+Node: File lookup128863
+Node: Glyph lookup130591
+Node: Basic glyph lookup131718
+Node: Fontmap132597
+Node: Fallback font135214
+Node: Suppressing warnings136179
+Node: Programming137284
+Node: Programming overview137797
+Node: Calling sequence140073
+Node: Program-specific files145065
+Node: Programming with config files146103
+Node: Index147403
 
 End Tag Table
