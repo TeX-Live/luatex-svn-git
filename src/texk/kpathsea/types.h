@@ -108,9 +108,9 @@ typedef struct kpathsea_instance {
   unsigned elt_alloc;
   const_string path;                  /* The path we're currently working on.  */
   /* from pathsearch.c */
-  boolean not_first_search;
+  boolean followup_search;
   FILE *log_file;
-  boolean not_first_time;             /* Need to open the log file? */  
+  boolean log_opened;                 /* Need to open the log file? */  
   /* from progname.c */
   string program_invocation_name;     /* called name (conditional) */
   string program_invocation_short_name; /* short called name (conditional) */

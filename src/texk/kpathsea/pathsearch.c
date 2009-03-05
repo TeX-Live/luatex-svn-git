@@ -40,7 +40,7 @@
    need to do various special things in this case, since we obviously
    don't yet have the configuration files when we're searching for the
    configuration files.  */
-static boolean not_first_search = false;
+static boolean followup_search = false;
 
 
 
@@ -52,12 +52,12 @@ static void
 log_search P1C(str_list_type, filenames)
 {
   static FILE *log_file = NULL;
-  static boolean not_first_time = false; /* Need to open the log file?  */
+  static boolean log_opened = false; /* Need to open the log file?  */
   
-  if (not_first_time==false) {
+  if (log_opened==false) {
     /* Get name from either envvar or config file.  */
     string log_name = kpse_var_value ("TEXMFLOG");
-    not_first_time = true;
+    log_opened = true;
     if (log_name) {
       log_file = fopen (log_name, FOPEN_A_MODE);
       if (!log_file)
@@ -266,7 +266,7 @@ path_search P4C(const_string, path,  string, name,
     
     /* Try ls-R, unless we're searching for texmf.cnf.  Our caller
        (search), also tests first_search, and does the resetting.  */
-    found = not_first_search ? kpse_db_search (name, elt, all) : NULL;
+    found = followup_search ? kpse_db_search (name, elt, all) : NULL;
 
     /* Search the filesystem if (1) the path spec allows it, and either
          (2a) we are searching for texmf.cnf ; or
@@ -370,8 +370,8 @@ search P4C(const_string, path,  const_string, original_name,
 
   /* The very first search is for texmf.cnf.  We can't log that, since
      we want to allow setting TEXMFLOG in texmf.cnf.  */
-  if (not_first_search==false) {
-    not_first_search = true;
+  if (followup_search==false) {
+    followup_search = true;
   } else {
     /* Record the filenames we found, if desired.  And wrap them in a
        debugging line if we're doing that.  */
@@ -477,7 +477,7 @@ search_list P4C(const_string, path,  const_string*, names,
     kpse_normalize_path(elt);
 
     /* Try ls-R, unless we're searching for texmf.cnf. */
-    found = not_first_search ? kpse_db_search_list(names, elt, all) : NULL;
+    found = followup_search ? kpse_db_search_list(names, elt, all) : NULL;
 
     /* Search the filesystem if (1) the path spec allows it, and either
          (2a) we are searching for texmf.cnf ; or
@@ -516,8 +516,8 @@ search_list P4C(const_string, path,  const_string*, names,
       || (all && STR_LIST_LAST_ELT (ret_list) != NULL))
     str_list_add (&ret_list, NULL);
 
-  if (not_first_search==false) {
-    not_first_search = true;
+  if (followup_search==false) {
+    followup_search = true;
   } else {
     /* Record the filenames we found, if desired.  And wrap them in a
        debugging line if we're doing that.  */
