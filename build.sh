@@ -116,6 +116,13 @@ then
               --without-xetex     \
               --disable-largefile \
               || exit 1 
+    ( mkdir -p texk/kpathsea ;
+      cd texk/kpathsea ; 
+      ../../../src/texk/kpathsea/configure \
+        --disable-shared      \
+        --disable-largefile ) \
+        2>&1 | tee -a ../build/configure.log \
+          || exit 1
 	( mkdir -p libs/luafontforge/fontforge ;
       cd libs/luafontforge/fontforge ;
       ../../../../src/libs/luafontforge/fontforge/configure \
