@@ -29,7 +29,7 @@ extern KPSEDLL string kpse_program_name;
 /* Return directory ARGV0 comes from.  Check PATH if ARGV0 is not
    absolute.  */
 
-extern KPSEDLL string selfdir P1H(const_string argv0);
+extern KPSEDLL string kpse_selfdir P1H(const_string argv0);
 
 /* Set the first two variables above (if they're not predefined) to a copy
    of ARGV0 and everything in ARGV0 after the last directory separator,
