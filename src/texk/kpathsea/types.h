@@ -101,16 +101,16 @@ typedef struct kpathsea_instance {
   /* from hash.c */
   boolean kpse_debug_hash_lookup_int; /* for debugging */
   /* from mingw32.c (conditional) */ 
-  char *cached_home_directory;        /* all three are just cache data */ 
+  char *cached_home_directory;        /* cached home directory data */ 
   struct win32_volumes *volumes;      /* partial pointer to win32-specific data structure */
   /* from path-elt.c */
   string elt;                         /* statically created buffer for return value */
   unsigned elt_alloc;
   const_string path;                  /* The path we're currently working on.  */
   /* from pathsearch.c */
-  boolean first_search;               /* should be initialized to true */
+  boolean not_first_search;
   FILE *log_file;
-  boolean first_time;                 /* Need to open the log file? should also be true */
+  boolean not_first_time;             /* Need to open the log file? */  
   /* from progname.c */
   string program_invocation_name;     /* called name (conditional) */
   string program_invocation_short_name; /* short called name (conditional) */
