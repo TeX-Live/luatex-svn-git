@@ -95,7 +95,7 @@ char *ex_selfdir(char *argv0)
     /* sdir will be the directory of the executable, ie: c:/TeX/bin */
     return xdirname(path);
 #else
-    return selfdir(argv0);
+    return kpse_selfdir(argv0);
 #endif
 }
 
