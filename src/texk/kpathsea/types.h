@@ -68,13 +68,12 @@ typedef struct {
   boolean expanding;
 } expansion_type;
 
+typedef struct kpathsea_instance *kpathsea;
 
 #include <kpathsea/hash.h>
 #include <kpathsea/str-list.h>
 
 #include <kpathsea/tex-file.h>
-
-typedef struct kpathsea_instance *kpathsea;
 
 /* todo: what about getopt.c */
 
@@ -132,6 +131,13 @@ typedef struct kpathsea_instance {
   char **saved_env;       /* these keep track of changed items */
   int saved_count;     
 } kpathsea_instance;
+
+
+/* next routines come from kpathsea.c, using the new interface */
+
+extern KPSEDLL kpathsea kpathsea_new P1H(void);
+
+extern KPSEDLL void kpathsea_finish P1H(kpathsea);
 
 
 #endif /* not KPATHSEA_TYPES_H */

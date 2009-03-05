@@ -40,6 +40,10 @@ extern KPSEDLL string selfdir P1H(const_string argv0);
 extern KPSEDLL void kpse_set_program_name P2H(const_string argv0,
                                       const_string progname);
 
+extern KPSEDLL void kpathsea_set_program_name P3H(kpathsea kpse,
+                                      const_string argv0,
+                                      const_string progname);
+
 /* See also `kpse_reset_program_name' which is defined in tex-file.c
 
    That function is to be used to set kpse_program_name to a different

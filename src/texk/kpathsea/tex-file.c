@@ -155,6 +155,17 @@ kpse_set_program_enabled P3C(kpse_file_format_type, fmt,  boolean, value,
   }
 }
 
+void
+kpathsea_set_program_enabled P4C(kpathsea, kpse, kpse_file_format_type, fmt,
+                             boolean, value, kpse_src_type, level)
+{
+  kpse_format_info_type *f = &kpse_format_info[fmt];
+  if (level >= f->program_enable_level) {
+    f->program_enabled_p = value;
+    f->program_enable_level = level;
+  }
+}
+
 
 /* Web2c and kpsewhich have command-line options to set this stuff.  May
    as well have a common place.  */
@@ -187,6 +198,33 @@ kpse_maketex_option P2C(const_string, fmtname,  boolean, value)
   }
 }
 
+void
+kpathsea_maketex_option P3C(kpathsea, kpse, const_string, fmtname,  boolean, value)
+{
+  kpse_file_format_type fmt = kpse_last_format;
+  
+  /* Trying to match up with the suffix lists unfortunately doesn't work
+     well, since that would require initializing the formats.  */
+  /* FIXME: Currently the function silently ignores unrecognized arguments.*/
+  if (FILESTRCASEEQ (fmtname, "pk")) {
+    fmt = kpse_pk_format;
+  } else if (FILESTRCASEEQ (fmtname, "mf")) {
+    fmt = kpse_mf_format;
+  } else if (FILESTRCASEEQ (fmtname, "tex")) {
+    fmt = kpse_tex_format;
+  } else if (FILESTRCASEEQ (fmtname, "tfm")) {
+    fmt = kpse_tfm_format;
+  } else if (FILESTRCASEEQ (fmtname, "fmt")) {
+    fmt = kpse_fmt_format;
+  } else if (FILESTRCASEEQ (fmtname, "ofm")) {
+    fmt = kpse_ofm_format;
+  } else if (FILESTRCASEEQ (fmtname, "ocp")) {
+    fmt = kpse_ocp_format;
+  }
+  if (fmt != kpse_last_format) {
+    kpathsea_set_program_enabled (kpse, fmt, value, kpse_src_cmdline);
+  }
+}
 /* Macro subroutines for `init_path'.  TRY_ENV checks if an envvar ENAME
    is set and non-null, and sets var to ENAME if so.  */
 #define TRY_ENV(ename) do { \
@@ -1048,3 +1086,7 @@ kpse_reset_program_name P1C(const_string, progname)
        the programs that call this function. */
   }
 }
+
+/* Nasty but quick trick (easier than upgrading autotools) */
+
+#include <kpathsea/kpathsea.c>

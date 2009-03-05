@@ -606,6 +606,15 @@ kpse_set_program_name P2C(const_string, argv0, const_string, progname)
   xputenv ("progname", kpse_program_name);
 }
 
+
+void
+kpathsea_set_program_name P3C(kpathsea, kpse,
+           const_string, argv0, const_string, progname)
+{
+  kpse_set_program_name (argv0, progname);
+}
+
+
 /* This function is deprecated, because when we pretend to have a different
    name it will look for _that_ name in the PATH if program_invocation_name
    is not defined.  */
