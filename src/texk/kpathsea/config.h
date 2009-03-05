@@ -55,11 +55,9 @@
 #define DEV_NULL "/dev/null"
 #endif
 
-#ifdef WIN32
-#ifndef __STDC__
+#if defined (WIN32) && !defined (__STDC__)
 #define __STDC__ 1
 #endif
-#endif /* not WIN32 */
 
 /* System dependencies that are figured out by `configure'.  */
 #include <kpathsea/c-auto.h>

@@ -194,8 +194,11 @@ maketex P2C(kpse_file_format_type, format, string*, args)
     string new_cmd = NULL, app_name = NULL;
 
     char buf[1024+1];
+#ifdef __MINGW32__
+    DWORD num;
+#else
     int num;
-    DWORD NUM;
+#endif
     extern char *quote_args(char **argv);
 
     if (look_for_cmd(args[0], &app_name) == FALSE) {
@@ -281,16 +284,16 @@ maketex P2C(kpse_file_format_type, format, string*, args)
 
     /* Get stdout of child from the pipe. */
     fn = xstrdup("");
-    while (ReadFile(father_in,buf,sizeof(buf)-1, &NUM, NULL) != 0
-           && NUM > 0) {
-      if (NUM <= 0) {
+    while (ReadFile(father_in,buf,sizeof(buf)-1, &num, NULL) != 0
+           && num > 0) {
+      if (num <= 0) {
         if (GetLastError() != ERROR_BROKEN_PIPE) {
           FATAL2("kpathsea: read() error code for `%s' (Error %d)", new_cmd, GetLastError());
           break;
         }
       } else {
         string newfn;
-        buf[NUM] = '\0';
+        buf[num] = '\0';
         newfn = concat(fn, buf);
         free(fn);
         fn = newfn;
