@@ -1514,7 +1514,7 @@ pointer get_delim_box (extinfo *ext, internal_font_number f, scaled v, pointer a
       prev_overlap = -1; 
       b_max = 0;
       s_max = 0;
-      i = 0;
+      i = with_extenders;
       while (cur != NULL) {
         a = cur->advance;
         if (a==0) {
@@ -1758,7 +1758,7 @@ void endless_loop_error (internal_font_number g, integer y) {
     NULL
   };
   snprintf(s, 256, "Math error: endless loop in charlist (U+%04x in %s)",
-	   y, font_name(g));
+           (int)y, font_name(g));
   tex_error(s, hlp);
 }
 
