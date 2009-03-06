@@ -33,11 +33,103 @@
 #include <kpathsea/variable.h>
 
 
-/* See tex-file.h.  */
-const_string kpse_fallback_font = NULL;
-const_string kpse_fallback_resolutions_string = NULL;
-unsigned *kpse_fallback_resolutions = NULL;
-kpse_format_info_type kpse_format_info[kpse_last_format];
+/* One big global struct, and a variable that points to it */
+
+
+kpathsea_instance kpse_def_inst = {
+    NULL,      /*p_record_input record_input;*/
+    NULL,      /*p_record_output record_output;*/
+    {NULL, 0}, /*hash_table_type cnf_hash;*/
+    false,     /*boolean doing_cnf_init;*/
+    {NULL, 0}, /*hash_table_type db;*/
+    {NULL, 0}, /*hash_table_type alias_db;*/
+    {0, NULL}, /*str_list_type db_dir_list;*/
+    0,         /*unsigned debug;*/
+    {NULL, 0}, /*hash_table_type link_table;*/
+    NULL,      /*cache_entry *the_cache;*/
+    0,         /*unsigned cache_length;*/
+    {NULL, 0}, /*hash_table_type map;*/
+    NULL,  /*const_string map_path;*/
+    false, /*boolean kpse_debug_hash_lookup_int;*/
+    NULL,  /*char *cached_home_directory;*/
+    NULL,  /*struct win32_volumes *volumes;*/
+    NULL,  /*string elt;*/
+    0,     /*unsigned elt_alloc;*/
+    NULL,  /*const_string path;*/
+    false, /*boolean followup_search;*/
+    NULL,  /*FILE *log_file;*/
+    false, /*boolean log_opened;*/
+    NULL,  /*string invocation_name;*/
+    NULL,  /*string invocation_short_name;*/
+    NULL,  /*string program_name;*/
+    0,     /*int ll_verbose;*/
+    NULL,  /*const_string kpse_fallback_font;*/
+    NULL,  /*const_string kpse_fallback_resolutions_string;*/
+    0,     /*unsigned *kpse_fallback_resolutions;*/
+    {     /*kpse_format_info_type kpse_format_info[kpse_last_format];*/
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, 0, NULL, false, 0, false },
+    },
+    false, /*boolean kpse_make_tex_discard_errors;*/
+    NULL,  /*FILE *missfont;*/
+    NULL,  /*expansion_type *expansions;*/
+    0,     /*unsigned expansion_len ;*/
+    NULL,  /*char **saved_env;*/
+   0       /*int saved_count;*/
+};
+
+kpathsea kpse = &kpse_def_inst;
+
 
 /* These are not in the structure
    because it's annoying to initialize lists in C.  */
@@ -107,8 +199,8 @@ kpse_init_fallback_resolutions P1C(string, envvar)
   string size_str = getenv (size_var);
   unsigned *last_resort_sizes = NULL;
   unsigned size_count = 0;
-  const_string default_sizes = kpse_fallback_resolutions_string
-                         ? kpse_fallback_resolutions_string
+  const_string default_sizes = kpse->kpse_fallback_resolutions_string
+                         ? kpse->kpse_fallback_resolutions_string
                          : DEFAULT_FONT_SIZES; 
   string size_list = kpse_expand_default (size_str, default_sizes);
   
@@ -138,7 +230,7 @@ kpse_init_fallback_resolutions P1C(string, envvar)
 
   free (size_list);
     
-  kpse_fallback_resolutions = last_resort_sizes;
+  kpse->kpse_fallback_resolutions = last_resort_sizes;
 }
 
 /* We should be able to set the program arguments in the same way.  Not
@@ -148,7 +240,7 @@ void
 kpse_set_program_enabled P3C(kpse_file_format_type, fmt,  boolean, value,
                              kpse_src_type, level)
 {
-  kpse_format_info_type *f = &kpse_format_info[fmt];
+  kpse_format_info_type *f = &(kpse->kpse_format_info[fmt]);
   if (level >= f->program_enable_level) {
     f->program_enabled_p = value;
     f->program_enable_level = level;
@@ -225,13 +317,13 @@ init_path PVAR2C(kpse_format_info_type *, info, const_string, default_path, ap)
     /* Since sh doesn't like envvar names with `.', check PATH_prog
        as well as PATH.prog.  */
     if (!var) { /* Try PATH.prog. */
-      string evar = concat3 (env_name, ".", kpse_program_name);
+      string evar = concat3 (env_name, ".", kpse->program_name);
       env_value = getenv (evar);
       if (env_value && *env_value) {
         var = evar;
       } else { /* Try PATH_prog. */
         free (evar);
-        evar = concat3 (env_name, "_", kpse_program_name);
+        evar = concat3 (env_name, "_", kpse->program_name);
         env_value = getenv (evar);
         if (env_value && *env_value) {
           var = evar;
@@ -247,7 +339,7 @@ init_path PVAR2C(kpse_format_info_type *, info, const_string, default_path, ap)
     
     /* If we are initializing the cnf path, don't try to get any
        values from the cnf files; that's infinite loop time.  */
-    if (!info->cnf_path && info != &kpse_format_info[kpse_cnf_format])
+    if (!info->cnf_path && info != &(kpse->kpse_format_info[kpse_cnf_format]))
       info->cnf_path = kpse_cnf_get (env_name);
       
     if (var && info->cnf_path)
@@ -300,9 +392,9 @@ kpse_set_suffixes PVAR2C(kpse_file_format_type, format,
   int count = 0;
 
   if (alternate) {
-    list = &kpse_format_info[format].alt_suffix;
+      list = &(kpse->kpse_format_info[format].alt_suffix);
   } else {
-    list = &kpse_format_info[format].suffix;
+      list = &(kpse->kpse_format_info[format].suffix);
   }
 
   while ((s = va_arg (ap, string)) != NULL) {
@@ -315,7 +407,7 @@ kpse_set_suffixes PVAR2C(kpse_file_format_type, format,
 }}
 
 /* The path spec we are defining, one element of the global array.  */
-#define FMT_INFO kpse_format_info[format]
+#define FMT_INFO (kpse->kpse_format_info[format])
 /* Call kpse_set_add_suffixes.  */
 #define SUFFIXES(args) kpse_set_suffixes(format, false, args, NULL)
 #define ALT_SUFFIXES(args) kpse_set_suffixes(format, true, args, NULL)
@@ -337,7 +429,7 @@ kpse_set_suffixes PVAR2C(kpse_file_format_type, format,
 static void
 init_maketex PVAR2C(kpse_file_format_type, fmt,  const_string, dflt_prog, ap)
 {
-  kpse_format_info_type *f = &kpse_format_info[fmt];
+  kpse_format_info_type *f = &(kpse->kpse_format_info[fmt]);
   const_string prog = f->program ? f->program : dflt_prog; /* mktexpk */
   string PROG = uppercasify (prog);             /* MKTEXPK */
   string progval = kpse_var_value (PROG);       /* ENV/cnf{"MKTEXPK"} */
@@ -642,14 +734,14 @@ kpse_init_format P1C(kpse_file_format_type, format)
     case kpse_program_text_format:
       INIT_FORMAT ("other text files",
                    concatn (".", ENV_SEP_STRING, "$TEXMF/",
-                            kpse_program_name, "//", NULL),
-                   concat (uppercasify (kpse_program_name), "INPUTS"));
+                            kpse->program_name, "//", NULL),
+                   concat (uppercasify (kpse->program_name), "INPUTS"));
       break;
     case kpse_program_binary_format:
       INIT_FORMAT ("other binary files",
                    concatn (".", ENV_SEP_STRING, "$TEXMF/",
-                            kpse_program_name, "//", NULL),
-                   concat (uppercasify (kpse_program_name), "INPUTS"));
+                            kpse->program_name, "//", NULL),
+                   concat (uppercasify (kpse->program_name), "INPUTS"));
       FMT_INFO.binmode = true;
       break;
     case kpse_miscfonts_format:
@@ -792,6 +884,7 @@ target_asis_name (const_string **target, unsigned *count,
     const_string name, boolean use_fontmaps, boolean has_potential_suffix,
     string has_any_suffix)
 {
+    (void)has_any_suffix; /* -Wunused */
   /* Look for the name we've been given, provided non-suffix
      searches are allowed or the name already includes a suffix. */
   if (has_potential_suffix || !FMT_INFO.suffix_search_only) {
@@ -983,7 +1076,7 @@ FILE *
 kpse_open_file P2C(const_string, name,  kpse_file_format_type, type)
 {
   string fullname = kpse_find_file (name, type, true);
-  const_string mode = kpse_format_info[type].binmode
+  const_string mode = kpse->kpse_format_info[type].binmode
                       ? FOPEN_RBIN_MODE
                       : FOPEN_R_MODE;
   FILE *f = fullname ? fopen (fullname, mode) : NULL;
@@ -992,7 +1085,7 @@ kpse_open_file P2C(const_string, name,  kpse_file_format_type, type)
       perror (fullname);
       exit (1);
     } else {
-      FATAL2 ("%s file `%s' not found", kpse_format_info[type].type, name);
+      FATAL2 ("%s file `%s' not found", kpse->kpse_format_info[type].type, name);
     }
   }
   
@@ -1014,14 +1107,14 @@ kpse_reset_program_name P1C(const_string, progname)
   int i;
 
   /* It is a fatal error for either of these to be NULL. */
-  assert (progname && kpse_program_name);
+  assert (progname && kpse->program_name);
   /* Do nothing if the name is unchanged. */
-  if (STREQ(kpse_program_name, progname))
+  if (STREQ(kpse->program_name, progname))
     return;
 
-  free (kpse_program_name);
-  kpse_program_name = xstrdup (progname);
-  xputenv("progname", kpse_program_name);
+  free (kpse->program_name);
+  kpse->program_name = xstrdup (progname);
+  xputenv("progname", kpse->program_name);
   
   /* Clear paths -- do we want the db path to be cleared? */
   for (i = 0; i != kpse_last_format; ++i) {
@@ -1033,14 +1126,14 @@ kpse_reset_program_name P1C(const_string, progname)
       continue;
     /* Wipe the path (it is tested) and the cnf_path and because their
        values may differ with the new program name.  */
-    if (kpse_format_info[i].path != NULL) {
-      free ((string)kpse_format_info[i].path);
-      kpse_format_info[i].path = NULL;
+    if (kpse->kpse_format_info[i].path != NULL) {
+      free ((string)kpse->kpse_format_info[i].path);
+      kpse->kpse_format_info[i].path = NULL;
     }
     /* We cannot free the cnf_path: it points into the cnf hash, which
        means all hell will break loose if we did. */
-    if (kpse_format_info[i].cnf_path != NULL) {
-      kpse_format_info[i].cnf_path = NULL;
+    if (kpse->kpse_format_info[i].cnf_path != NULL) {
+      kpse->kpse_format_info[i].cnf_path = NULL;
     }
     /* We do not wipe the override_path at this point, though arguably
        we should provide new values.  It is not likely to matter for

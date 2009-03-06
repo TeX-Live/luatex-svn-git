@@ -24,19 +24,6 @@
 #include <kpathsea/types.h>
 
 
-/* If non-NULL, try looking for this if can't find the real font.  */
-extern const_string kpse_fallback_font;
-
-
-/* If non-NULL, default list of fallback resolutions comes from this
-   instead of the compile-time value.  Set by dvipsk for the R config
-   cmd.  *SIZES environment variables override/use as default.  */
-extern KPSEDLL const_string kpse_fallback_resolutions_string;
-
-/* If non-NULL, check these if can't find (within a few percent of) the
-   given resolution.  List must end with a zero element.  */
-extern unsigned *kpse_fallback_resolutions;
-
 /* This initializes the fallback resolution list.  If ENVVAR
    is set, it is used; otherwise, the envvar `TEXSIZES' is looked at; if
    that's not set either, a compile-time default is used.  */
@@ -144,11 +131,6 @@ typedef struct
   kpse_src_type program_enable_level; /* Who said to invoke `program'.  */
   boolean binmode;              /* The files must be opened in binary mode. */
 } kpse_format_info_type;
-
-/* The sole variable of that type, indexed by `kpse_file_format_type'.
-   Initialized by calls to `kpse_find_file' for `kpse_init_format'.  */
-extern KPSEDLL kpse_format_info_type kpse_format_info[kpse_last_format];
-
 
 /* If LEVEL is higher than `program_enabled_level' for FMT, set
    `program_enabled_p' to VALUE.  */

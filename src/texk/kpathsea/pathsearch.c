@@ -40,7 +40,6 @@
    need to do various special things in this case, since we obviously
    don't yet have the configuration files when we're searching for the
    configuration files.  */
-static boolean followup_search = false;
 
 
 
@@ -51,22 +50,20 @@ static boolean followup_search = false;
 static void
 log_search P1C(str_list_type, filenames)
 {
-  static FILE *log_file = NULL;
-  static boolean log_opened = false; /* Need to open the log file?  */
   
-  if (log_opened==false) {
+  if (kpse->log_opened==false) {
     /* Get name from either envvar or config file.  */
     string log_name = kpse_var_value ("TEXMFLOG");
-    log_opened = true;
+    kpse->log_opened = true;
     if (log_name) {
-      log_file = fopen (log_name, FOPEN_A_MODE);
-      if (!log_file)
+      kpse->log_file = fopen (log_name, FOPEN_A_MODE);
+      if (!kpse->log_file)
         perror (log_name);
       free (log_name);
     }
   }
 
-  if (KPSE_DEBUG_P (KPSE_DEBUG_SEARCH) || log_file) {
+  if (KPSE_DEBUG_P (KPSE_DEBUG_SEARCH) || kpse->log_file) {
     unsigned e;
 
     /* FILENAMES should never be null, but safety doesn't hurt.  */
@@ -75,8 +72,8 @@ log_search P1C(str_list_type, filenames)
       string filename = STR_LIST_ELT (filenames, e);
 
       /* Only record absolute filenames, for privacy.  */
-      if (log_file && kpse_absolute_p (filename, false))
-        fprintf (log_file, "%lu %s\n", (long unsigned) time (NULL),
+      if (kpse->log_file && kpse_absolute_p (filename, false))
+        fprintf (kpse->log_file, "%lu %s\n", (long unsigned) time (NULL),
                  filename);
 
       /* And show them online, if debugging.  We've already started
@@ -266,7 +263,7 @@ path_search P4C(const_string, path,  string, name,
     
     /* Try ls-R, unless we're searching for texmf.cnf.  Our caller
        (search), also tests first_search, and does the resetting.  */
-    found = followup_search ? kpse_db_search (name, elt, all) : NULL;
+    found = kpse->followup_search ? kpse_db_search (name, elt, all) : NULL;
 
     /* Search the filesystem if (1) the path spec allows it, and either
          (2a) we are searching for texmf.cnf ; or
@@ -370,8 +367,8 @@ search P4C(const_string, path,  const_string, original_name,
 
   /* The very first search is for texmf.cnf.  We can't log that, since
      we want to allow setting TEXMFLOG in texmf.cnf.  */
-  if (followup_search==false) {
-    followup_search = true;
+  if (kpse->followup_search==false) {
+    kpse->followup_search = true;
   } else {
     /* Record the filenames we found, if desired.  And wrap them in a
        debugging line if we're doing that.  */
@@ -477,7 +474,7 @@ search_list P4C(const_string, path,  const_string*, names,
     kpse_normalize_path(elt);
 
     /* Try ls-R, unless we're searching for texmf.cnf. */
-    found = followup_search ? kpse_db_search_list(names, elt, all) : NULL;
+    found = kpse->followup_search ? kpse_db_search_list(names, elt, all) : NULL;
 
     /* Search the filesystem if (1) the path spec allows it, and either
          (2a) we are searching for texmf.cnf ; or
@@ -516,8 +513,8 @@ search_list P4C(const_string, path,  const_string*, names,
       || (all && STR_LIST_LAST_ELT (ret_list) != NULL))
     str_list_add (&ret_list, NULL);
 
-  if (followup_search==false) {
-    followup_search = true;
+  if (kpse->followup_search==false) {
+    kpse->followup_search = true;
   } else {
     /* Record the filenames we found, if desired.  And wrap them in a
        debugging line if we're doing that.  */

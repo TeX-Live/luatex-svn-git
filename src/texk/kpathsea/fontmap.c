@@ -30,7 +30,7 @@
 
 /* We have one and only one fontmap, so may as well make it static
    instead of passing it around.  */
-static hash_table_type map;
+
 #ifndef MAP_NAME
 #define MAP_NAME "texfonts.map"
 #endif
@@ -38,7 +38,6 @@ static hash_table_type map;
 #define MAP_HASH_SIZE 4001
 #endif
 
-static const_string map_path; /* Only want to create this once. */
 
 /* Return next whitespace-delimited token in STR or NULL if none.  */
 
@@ -80,8 +79,8 @@ map_file_parse P1C(const_string, map_filename)
   unsigned map_lineno = 0;
   FILE *f = xfopen (map_filename, FOPEN_R_MODE);
 
-  if (kpse_record_input)
-    kpse_record_input (map_filename);
+  if (kpse->record_input)
+    kpse->record_input (map_filename);
 
   while ((orig_l = read_line (f)) != NULL) {
     string filename;
@@ -112,7 +111,7 @@ map_file_parse P1C(const_string, map_filename)
           WARNING2 ("%s:%u: Filename argument for include directive missing",
                     map_filename, map_lineno);
         } else {
-          string include_fname = kpse_path_search (map_path, alias, false);
+          string include_fname = kpse_path_search (kpse->map_path, alias, false);
           if (include_fname) {
             map_file_parse (include_fname);
             if (include_fname != alias)
@@ -135,7 +134,7 @@ map_file_parse P1C(const_string, map_filename)
         /* We've got everything.  Insert the new entry.  They were
            already dynamically allocated by token(), so don't bother
            with xstrdup.  */
-        hash_insert_normalized (&map, alias, filename);
+          hash_insert_normalized (&(kpse->map), alias, filename);
       }
     }
 
@@ -154,10 +153,10 @@ read_all_maps P1H(void)
 {
   string *filenames;
   
-  map_path = kpse_init_format (kpse_fontmap_format);
-  filenames = kpse_all_path_search (map_path, MAP_NAME);
+  kpse->map_path = kpse_init_format (kpse_fontmap_format);
+  filenames = kpse_all_path_search (kpse->map_path, MAP_NAME);
   
-  map = hash_create (MAP_HASH_SIZE);
+  kpse->map = hash_create (MAP_HASH_SIZE);
 
   while (*filenames) {
     map_file_parse (*filenames);
@@ -174,18 +173,18 @@ kpse_fontmap_lookup P1C(const_string, key)
   string *ret;
   string suffix = find_suffix (key);
   
-  if (map.size == 0) {
+  if (kpse->map.size == 0) {
     read_all_maps ();
   }
 
-  ret = hash_lookup (map, key);
+  ret = hash_lookup (kpse->map, key);
   if (!ret) {
     /* OK, the original KEY didn't work.  Let's check for the KEY without
        an extension -- perhaps they gave foobar.tfm, but the mapping only
        defines `foobar'.  */
     if (suffix) {
       string base_key = remove_suffix (key);
-      ret = hash_lookup (map, base_key);
+      ret = hash_lookup (kpse->map, base_key);
       free (base_key);
     }
   }

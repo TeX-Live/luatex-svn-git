@@ -191,9 +191,9 @@ static int show_path(lua_State * L)
     int op = luaL_checkoption(L, -1, "tex", filetypenames);
     int user_format = filetypes[op];
     TEST_PROGRAM_NAME_SET;
-    if (!kpse_format_info[user_format].type)    /* needed if arg was numeric */
+    if (!kpse->kpse_format_info[user_format].type)    /* needed if arg was numeric */
         kpse_init_format(user_format);
-    lua_pushstring(L, kpse_format_info[user_format].path);
+    lua_pushstring(L, kpse->kpse_format_info[user_format].path);
     return 1;
 }
 

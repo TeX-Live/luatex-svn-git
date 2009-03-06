@@ -51,7 +51,6 @@ have our customary command-line interface.
 #endif
 #include <kpathsea/kpathsea.h>
 extern char *kpathsea_version_string;
-extern string kpse_program_name;
 @= /*@@null@@*/ @> static char *mpost_tex_program = NULL;
 static int debug = 0; /* debugging for makempx */
 #ifdef WIN32

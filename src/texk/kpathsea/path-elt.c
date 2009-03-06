@@ -22,15 +22,6 @@
 #include <kpathsea/pathsearch.h>
 
 
-/* The static (but dynamically allocated) area we return the answer in,
-   and how much we've currently allocated for it.  */
-static string elt = NULL;
-static unsigned elt_alloc = 0;
-
-/* The path we're currently working on.  */
-static const_string path = NULL;
-
-
 /* Upon entry, the static `path' is at the first (and perhaps last)
    character of the return value, or else NULL if we're at the end (or
    haven't been called).  I make no provision for caching the results;
@@ -48,15 +39,15 @@ element P2C(const_string, passed_path,  boolean, env_p)
   unsigned len;
   
   if (passed_path)
-    path = passed_path;
+    kpse->path = passed_path;
   /* Check if called with NULL, and no previous path (perhaps we reached
      the end).  */
-  else if (!path)
+  else if (!kpse->path)
     return NULL;
   
   /* OK, we have a non-null `path' if we get here.  */
-  assert (path);
-  p = path;
+  assert (kpse->path);
+  p = kpse->path;
   
   /* Find the next colon not enclosed by braces (or the end of the path).  */
   brace_level = 0;
@@ -68,24 +59,24 @@ element P2C(const_string, passed_path,  boolean, env_p)
   }
    
   /* Return the substring starting at `path'.  */
-  len = p - path;
+  len = p - kpse->path;
 
   /* Make sure we have enough space (including the null byte).  */
-  if (len + 1 > elt_alloc)
+  if (len + 1 > kpse->elt_alloc)
     {
-      elt_alloc = len + 1;
-      elt = (string)xrealloc (elt, elt_alloc);
+      kpse->elt_alloc = len + 1;
+      kpse->elt = (string)xrealloc (kpse->elt, kpse->elt_alloc);
     }
 
-  strncpy (elt, path, len);
-  elt[len] = 0;
-  ret = elt;
+  strncpy (kpse->elt, kpse->path, len);
+  kpse->elt[len] = 0;
+  ret = kpse->elt;
 
   /* If we are at the end, return NULL next time.  */
-  if (path[len] == 0)
-    path = NULL;
+  if (kpse->path[len] == 0)
+    kpse->path = NULL;
   else
-    path += len + 1;
+    kpse->path += len + 1;
 
   return ret;
 }

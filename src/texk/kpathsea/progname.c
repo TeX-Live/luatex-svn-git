@@ -72,24 +72,6 @@
 #define S_IXOTH 0001
 #endif
 
-#ifndef HAVE_PROGRAM_INVOCATION_NAME
-/* Don't redefine the variables if glibc already has.  However, we do
-   not check for HAVE_PROGRAM_INVOCATION_NAME anywhere else in this
-   file; rather, we always use our own code to compute them, overwriting
-   anything that glibc may have provided.  This avoids
-   difficult-to-debug system-dependent behavior, and also universally
-   supports the second (`progname') argument for dotted texmf.cnf values.
-   
-   It would have been better to simply use our own variable names (and
-   computations) in the first place, but it's not worth losing backward
-   compatibility to rename them now.  */
-
-string program_invocation_name = NULL;
-string program_invocation_short_name = NULL;
-#endif
-
-/* And the variable for the program we pretend to be. */
-string kpse_program_name = NULL;
 
 #ifndef WIN32
 /* From a standalone program `ll' to expand symlinks written by Kimbo Mundy.
@@ -99,8 +81,6 @@ string kpse_program_name = NULL;
    that's what kimbo liked.  */
 
 #ifdef S_ISLNK
-static int ll_verbose = 0;
-static int ll_loop = 0;
 
 #undef BSIZE
 #define BSIZE 2048 /* sorry */
@@ -200,7 +180,9 @@ expand_symlinks P1C(char *, s)
      possibilities ourselves, so let the kernel do it.  And make it
      conditional so that people can see where the infinite loop is
      being caused (see engtools#1536).  */
-  if (!ll_loop) {
+  /* There used to be a test for a variable |ll_loop| here, but
+     it was initialized to zero and never updated */
+  if (0) {
     FILE *f = fopen (s, "r");
     if (!f && errno == ELOOP) {
       /* Not worried about other errors, we'll get to them in due course.  */
@@ -226,7 +208,7 @@ expand_symlinks P1C(char *, s)
       ReadSymLink (pre, sym);
 
       if (!strncmp (sym, "/", 1)) {
-        if (ll_verbose)
+        if (kpse->ll_verbose)
           printf ("[%s]%s%s -> [%s]%s%s\n", pre, EXPOS, post, sym, EXPOS,post);
         strcpy (pre, "");
 
@@ -236,7 +218,7 @@ expand_symlinks P1C(char *, s)
         if (!strlen (pre) && a == '/')
           strcpy (pre, "/");
 
-        if (ll_verbose) {
+        if (kpse->ll_verbose) {
           sprintf (before, "%s%s[%s]%s%s", pre, EXPRE, tmp, EXPOS, post);
           printf ("%s -> %s%s[%s]%s%s\n", before, pre, EXPRE, sym, EXPOS,post);
         }
@@ -257,7 +239,7 @@ expand_symlinks P1C(char *, s)
           StripLast (pre);
         }
 
-        if (done && ll_verbose) {
+        if (done && kpse->ll_verbose) {
           for (cp = before; *cp;)
             *cp++ = ' ';
           if (strlen (sym))
@@ -442,7 +424,7 @@ kpse_set_program_name P2C(const_string, argv0, const_string, progname)
   /* Set debugging stuff first, in case we end up doing debuggable stuff
      during this initialization.  */
   if (s) {
-    kpathsea_debug |= atoi (s);
+    kpse->debug |= atoi (s);
   }
 
 #if defined(WIN32)
@@ -503,7 +485,7 @@ kpse_set_program_name P2C(const_string, argv0, const_string, progname)
         if (IS_DIR_SEP(*fp)) *fp = DIR_SEP;
     /* sdir will be the directory of the executable, ie: c:/TeX/bin */
     sdir = xdirname(path);
-    program_invocation_name = xstrdup(xbasename(path));
+    kpse->invocation_name = xstrdup(xbasename(path));
   }
 
 #elif defined(__DJGPP__)
@@ -555,24 +537,24 @@ kpse_set_program_name P2C(const_string, argv0, const_string, progname)
 	if (IS_DIR_SEP (*fp))
 	  *fp = DIR_SEP;
 
-      program_invocation_name = xstrdup (long_progname);
+      kpse->invocation_name = xstrdup (long_progname);
     }
     else
       /* If `_truename' failed, God help them, because we won't...  */
-      program_invocation_name = xstrdup (argv0);
+      kpse->invocation_name = xstrdup (argv0);
   }
   else
-    program_invocation_name = xstrdup (argv0);
+    kpse->invocation_name = xstrdup (argv0);
 
 #else /* !WIN32 && !__DJGPP__ */
-  program_invocation_name = xstrdup (argv0);
+  kpse->invocation_name = xstrdup (argv0);
 #endif
 
   /* We need to find SELFAUTOLOC *before* removing the ".exe" suffix from
      the program_name, otherwise the PATH search inside kpse_selfdir will fail,
      since `prog' doesn't exists as a file, there's `prog.exe' instead.  */
 #ifndef WIN32
-  sdir = kpse_selfdir (program_invocation_name);
+  sdir = kpse_selfdir (kpse->invocation_name);
 #endif
   /* SELFAUTODIR is actually the parent of the invocation directory,
      and SELFAUTOPARENT the grandparent.  This is how teTeX did it.  */
@@ -586,28 +568,28 @@ kpse_set_program_name P2C(const_string, argv0, const_string, progname)
   free (sdir_parent);
   free (sdir_grandparent);
 
-  program_invocation_short_name = (string)xbasename (program_invocation_name);
+  kpse->invocation_short_name = (string)xbasename (kpse->invocation_name);
 
   if (progname) {
-    kpse_program_name = xstrdup (progname);
+    kpse->program_name = xstrdup (progname);
   } else {
     /* If configured --enable-shared and running from the build directory
        with the wrapper scripts (e.g., for make check), the binaries will
        be named foo.exe instead of foo.  Or possibly if we're running on a
        DOSISH system.  */
-    ext = find_suffix (program_invocation_short_name);
+    ext = find_suffix (kpse->invocation_short_name);
     if (ext && FILESTRCASEEQ (ext, "exe")) {
-      kpse_program_name = remove_suffix (program_invocation_short_name);
+      kpse->program_name = remove_suffix (kpse->invocation_short_name);
     } else {
-      kpse_program_name = xstrdup (program_invocation_short_name);
+      kpse->program_name = xstrdup (kpse->invocation_short_name);
     }
   }
 
-  xputenv ("progname", kpse_program_name);
+  xputenv ("progname", kpse->program_name);
 }
 
 /* This function is deprecated, because when we pretend to have a different
-   name it will look for _that_ name in the PATH if program_invocation_name
+   name it will look for _that_ name in the PATH if kpse->invocation_name
    is not defined.  */
 void
 kpse_set_progname P1C(const_string, argv0)

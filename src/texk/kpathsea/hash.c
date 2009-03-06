@@ -162,11 +162,6 @@ hash_remove P3C(hash_table_type *, table,  const_string, key,
 /* Look up STR in MAP.  Return a (dynamically-allocated) list of the
    corresponding strings or NULL if no match.  */ 
 
-#ifdef KPSE_DEBUG
-/* Print the hash values as integers if this is nonzero.  */
-boolean kpse_debug_hash_lookup_int = false; 
-#endif
-
 string *
 hash_lookup P2C(hash_table_type, table,  const_string, key)
 {
@@ -197,7 +192,7 @@ hash_lookup P2C(hash_table_type, table,  const_string, key)
           for (r = STR_LIST (ret); *r; r++)
             {
               putc (' ', stderr);
-              if (kpse_debug_hash_lookup_int)
+              if (kpse->debug_hash_lookup_int)
                 fprintf (stderr, "%ld", (long) *r);
               else
                 fputs (*r, stderr);

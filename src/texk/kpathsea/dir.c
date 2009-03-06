@@ -67,24 +67,23 @@ dir_p P1C(const_string, fn)
 int
 dir_links P2C(const_string, fn, long, nlinks)
 {
-  static hash_table_type link_table;
   string *hash_ret;
   
-  if (link_table.size == 0)
-    link_table = hash_create (457);
+  if (kpse->link_table.size == 0)
+    kpse->link_table = hash_create (457);
 
 #ifdef KPSE_DEBUG
   /* This is annoying, but since we're storing integers as pointers, we
      can't print them as strings.  */
   if (KPSE_DEBUG_P (KPSE_DEBUG_HASH))
-    kpse_debug_hash_lookup_int = true;
+    kpse->debug_hash_lookup_int = true;
 #endif
 
-  hash_ret = hash_lookup (link_table, fn);
+  hash_ret = hash_lookup (kpse->link_table, fn);
   
 #ifdef KPSE_DEBUG
   if (KPSE_DEBUG_P (KPSE_DEBUG_HASH))
-    kpse_debug_hash_lookup_int = false;
+    kpse->debug_hash_lookup_int = false;
 #endif
 
   /* Have to cast the int we need to/from the const_string that the hash
@@ -103,7 +102,7 @@ dir_links P2C(const_string, fn, long, nlinks)
         memcpy(str_nlinks, (char *)&nlinks, sizeof(nlinks));
         str_nlinks[sizeof(nlinks)] = '\0';
         /* It's up to us to copy the value.  */
-        hash_insert(&link_table, xstrdup(fn), (const_string)str_nlinks);
+        hash_insert(&(kpse->link_table), xstrdup(fn), (const_string)str_nlinks);
       }
 #else
       struct stat stats;
@@ -112,7 +111,7 @@ dir_links P2C(const_string, fn, long, nlinks)
       else
         nlinks = -1;
       /* It's up to us to copy the value.  */
-      hash_insert(&link_table, xstrdup(fn), (const_string)nlinks);
+      hash_insert(&(kpse->link_table), xstrdup(fn), (const_string)nlinks);
 #endif
 
 #ifdef KPSE_DEBUG

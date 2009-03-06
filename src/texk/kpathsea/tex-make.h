@@ -23,12 +23,6 @@
 #include <kpathsea/tex-file.h>
 #include <kpathsea/types.h>
 
-
-/* If true, throw away standard error from the mktex... scripts.
-   (Standard output is the filename, so we never throw that away.)  */
-extern KPSEDLL boolean kpse_make_tex_discard_errors;
-
-
 /* Run a program to create a file named by BASE_FILE in format FORMAT.
    Return the full filename to it, or NULL.  Any other information about
    the file is passed through environment variables.  See the mktexpk

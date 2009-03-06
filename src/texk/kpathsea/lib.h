@@ -29,11 +29,11 @@
    with status `errno', because that might be 256, which would mean
    success (exit statuses are truncated to eight bits).  */
 #define FATAL_PERROR(str) do { \
-  fprintf (stderr, "%s: ", program_invocation_name); \
+  fprintf (stderr, "%s: ", kpse->invocation_name); \
   perror (str); exit (EXIT_FAILURE); } while (0)
 
 #define START_FATAL() do { \
-  fprintf (stderr, "%s: fatal: ", program_invocation_name);
+  fprintf (stderr, "%s: fatal: ", kpse->invocation_name);
 #define END_FATAL() fputs (".\n", stderr); exit (1); } while (0)
 
 #define FATAL(str)							\
@@ -50,6 +50,15 @@
   START_FATAL (); fprintf (stderr, str, e1, e2, e3, e4, e5); END_FATAL ()
 #define FATAL6(str, e1, e2, e3, e4, e5, e6)				\
   START_FATAL (); fprintf (stderr, str, e1, e2, e3, e4, e5, e6); END_FATAL ()
+
+
+#define START_SPLITUP_FATAL() do { \
+  fprintf (stderr, "%s: fatal: ", program_invocation_name);
+
+#define SPLITUP_FATAL(str)							\
+  START_SPLITUP_FATAL (); fputs (str, stderr); END_FATAL ()
+#define SPLITUP_FATAL1(str, e1)							\
+  START_SPLITUP_FATAL (); fprintf (stderr, str, e1); END_FATAL ()
 
 
 #define START_WARNING() do { fputs ("warning: ", stderr)

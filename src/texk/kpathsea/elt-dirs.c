@@ -59,10 +59,6 @@ checked_dir_list_add P2C(str_llist_type *, l,  const_string, dir)
    the dir_links call, that's not enough -- without this path element
    caching as well, the execution time doubles.  */
 
-static cache_entry *the_cache = NULL;
-static unsigned cache_length = 0;
-
-
 /* Associate KEY with VALUE.  We implement the cache as a simple linear
    list, since it's unlikely to ever be more than a dozen or so elements
    long.  We don't bother to check here if PATH has already been saved;
@@ -72,10 +68,10 @@ static unsigned cache_length = 0;
 static void
 cache P2C(const_string, key,  str_llist_type *, value)
 {
-  cache_length++;
-  XRETALLOC (the_cache, cache_length, cache_entry);
-  the_cache[cache_length - 1].key = xstrdup (key);
-  the_cache[cache_length - 1].value = value;
+  kpse->cache_length++;
+  XRETALLOC (kpse->the_cache, kpse->cache_length, cache_entry);
+  kpse->the_cache[kpse->cache_length - 1].key = xstrdup (key);
+  kpse->the_cache[kpse->cache_length - 1].value = value;
 }
 
 
@@ -86,10 +82,10 @@ cached P1C(const_string, key)
 {
   unsigned p;
   
-  for (p = 0; p < cache_length; p++)
+  for (p = 0; p < kpse->cache_length; p++)
     {
-      if (FILESTRCASEEQ (the_cache[p].key, key))
-        return the_cache[p].value;
+      if (FILESTRCASEEQ (kpse->the_cache[p].key, key))
+        return kpse->the_cache[p].value;
     }
   
   return NULL;

@@ -19,8 +19,6 @@
 
 #ifdef KPSE_DEBUG /* whole file */
 
-unsigned kpathsea_debug = 0;
-
 /* If the real definitions of fopen or fclose are macros, we lose -- the
    #undef won't restore them. */
 

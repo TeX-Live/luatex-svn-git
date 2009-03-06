@@ -31,10 +31,6 @@
 #include <kpathsea/tex-file.h>
 #include <kpathsea/variable.h>
 
-/* Declared in recorder.h, used in fontmap.c, web2c/lib/texmfmp.c.  */
-void (*kpse_record_input) (const_string);
-void (*kpse_record_output) (const_string);
-
 /* By using our own hash table, instead of the environment, we
    complicate variable expansion (because we have to look in two
    places), but we don't bang so much on the system.  DOS and System V
@@ -42,7 +38,7 @@ void (*kpse_record_output) (const_string);
    `kpse_init_format' can distinguish between values originating from
    the cnf file and ones from environment variables, which can be useful
    for users trying to figure out what's going on.  */
-static hash_table_type cnf_hash;
+
 #define CNF_HASH_SIZE 751
 #define CNF_NAME "texmf.cnf"
 
@@ -146,7 +142,7 @@ do_line P1C(string, line)
     free (prog);
     var = lhs;
   }
-  hash_insert (&cnf_hash, var, value);
+  hash_insert (&(kpse->cnf_hash), var, value);
   
   /* We could check that anything remaining is preceded by a comment
      character, but let's not bother.  */
@@ -161,15 +157,15 @@ read_all_cnf P1H(void)
   string *cnf;
   const_string cnf_path = kpse_init_format (kpse_cnf_format);
 
-  cnf_hash = hash_create (CNF_HASH_SIZE);
+  kpse->cnf_hash = hash_create (CNF_HASH_SIZE);
 
   cnf_files = kpse_all_path_search (cnf_path, CNF_NAME);
   if (cnf_files && *cnf_files) {
     for (cnf = cnf_files; *cnf; cnf++) {
       string line;
       FILE *cnf_file = xfopen (*cnf, FOPEN_R_MODE);
-      if (kpse_record_input)
-        kpse_record_input (*cnf);
+      if (kpse->record_input)
+        kpse->record_input (*cnf);
 
       while ((line = read_line (cnf_file)) != NULL) {
         unsigned len = strlen (line);
@@ -218,7 +214,6 @@ kpse_cnf_get P1C(const_string, name)
 {
   string ret, ctry;
   string *ret_list;
-  static boolean doing_cnf_init = false;
 
   /* When we expand the compile-time value for DEFAULT_TEXMFCNF,
      we end up needing the value for TETEXDIR and other variables,
@@ -226,14 +221,14 @@ kpse_cnf_get P1C(const_string, name)
      code is not sufficient, somehow the ls-R path needs to be
      computed when initializing the cnf path.  Better to ensure that the
      compile-time path does not contain variable references.  */
-  if (doing_cnf_init)
+  if (kpse->doing_cnf_init)
     return NULL;
     
-  if (cnf_hash.size == 0) {
+  if (kpse->cnf_hash.size == 0) {
     /* Read configuration files and initialize databases.  */
-    doing_cnf_init = true;
+    kpse->doing_cnf_init = true;
     read_all_cnf ();
-    doing_cnf_init = false;
+    kpse->doing_cnf_init = false;
     
     /* Since `kpse_init_db' recursively calls us, we must call it from
        outside a `kpse_path_element' loop (namely, the one in
@@ -241,16 +236,16 @@ kpse_cnf_get P1C(const_string, name)
     kpse_init_db ();
   }
   
-  /* First look up NAME.`kpse_program_name', then NAME.  */
-  assert (kpse_program_name);
-  ctry = concat3 (name, ".", kpse_program_name);
-  ret_list = hash_lookup (cnf_hash, ctry);
+  /* First look up NAME.`kpse->program_name', then NAME.  */
+  assert (kpse->program_name);
+  ctry = concat3 (name, ".", kpse->program_name);
+  ret_list = hash_lookup (kpse->cnf_hash, ctry);
   free (ctry);
   if (ret_list) {
     ret = *ret_list;
     free (ret_list);
   } else {
-    ret_list = hash_lookup (cnf_hash, name);
+    ret_list = hash_lookup (kpse->cnf_hash, name);
     if (ret_list) {
       ret = *ret_list;
       free (ret_list);

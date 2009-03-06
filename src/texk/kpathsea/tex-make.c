@@ -27,11 +27,10 @@
 #include <kpathsea/tex-make.h>
 #include <kpathsea/variable.h>
 
+#if !defined (AMIGA) && !(defined (MSDOS) && !defined(DJGPP)) && !defined (WIN32)
+#include <sys/wait.h>
+#endif
 
-/* We never throw away stdout, since that is supposed to be the filename
-   found, if all is successful.  This variable controls whether stderr
-   is thrown away.  */
-boolean kpse_make_tex_discard_errors = false;
 
 /* We set the envvar MAKETEX_MAG, which is part of the default spec for
    MakeTeXPK above, based on KPATHSEA_DPI and MAKETEX_BASE_DPI.  */
@@ -93,7 +92,6 @@ set_maketex_mag P1H(void)
 static void
 misstex P2C(kpse_file_format_type, format,  string *, args)
 {
-  static FILE *missfont = NULL;
   string *s;
   
   /* If we weren't trying to make a font, do nothing.  Maybe should
@@ -107,7 +105,7 @@ misstex P2C(kpse_file_format_type, format,  string *, args)
 
   /* If this is the first time, have to open the log file.  But don't
      bother logging anything if they were discarding errors.  */
-  if (!missfont && !kpse_make_tex_discard_errors) {
+  if (!kpse->missfont && !kpse->make_tex_discard_errors) {
     const_string missfont_name = kpse_var_value ("MISSFONT_LOG");
     if (!missfont_name || *missfont_name == '1') {
       missfont_name = "missfont.log"; /* take default name */
@@ -116,26 +114,26 @@ misstex P2C(kpse_file_format_type, format,  string *, args)
       missfont_name = NULL; /* user requested no missfont.log */
     } /* else use user's name */
 
-    missfont = missfont_name ? fopen (missfont_name, FOPEN_A_MODE) : NULL;
-    if (!missfont && kpse_var_value ("TEXMFOUTPUT")) {
+    kpse->missfont = missfont_name ? fopen (missfont_name, FOPEN_A_MODE) : NULL;
+    if (!kpse->missfont && kpse_var_value ("TEXMFOUTPUT")) {
       missfont_name = concat3 (kpse_var_value ("TEXMFOUTPUT"), DIR_SEP_STRING,
                                missfont_name);
-      missfont = fopen (missfont_name, FOPEN_A_MODE);
+      kpse->missfont = fopen (missfont_name, FOPEN_A_MODE);
     }
 
-    if (missfont)
+    if (kpse->missfont)
       fprintf (stderr, "kpathsea: Appending font creation commands to %s.\n",
                missfont_name);
   }
   
   /* Write the command if we have a log file.  */
-  if (missfont) {
-    fputs (args[0], missfont);
+  if (kpse->missfont) {
+    fputs (args[0], kpse->missfont);
     for (s = &args[1]; *s != NULL; s++) {
-      putc(' ', missfont);
-      fputs (*s, missfont);
+      putc(' ', kpse->missfont);
+      fputs (*s, kpse->missfont);
     }
-    putc ('\n', missfont);
+    putc ('\n', kpse->missfont);
   }
 }  
 
@@ -154,7 +152,7 @@ maketex P2C(kpse_file_format_type, format, string*, args)
   string ret;
   string fn;
   
-  if (!kpse_make_tex_discard_errors) {
+  if (!kpse->make_tex_discard_errors) {
     fprintf (stderr, "\nkpathsea: Running");
     for (s = &args[0]; *s != NULL; s++)
       fprintf (stderr, " %s", *s);
@@ -178,6 +176,7 @@ maketex P2C(kpse_file_format_type, format, string*, args)
 #elif defined (MSDOS) && !defined(DJGPP)
 #error Implement new MSDOS mktex call interface here
 #elif defined (WIN32)
+
   /* We would vastly prefer to link directly with mktex.c here.
      Unfortunately, it is not quite possible because kpathsea
      is not reentrant. The progname is expected to be set in mktex.c
@@ -243,7 +242,7 @@ maketex P2C(kpse_file_format_type, format, string*, args)
     si.hStdOutput = father_out_dup;
 
     /* Child stderr */
-    if (kpse_make_tex_discard_errors) {
+    if (kpse->make_tex_discard_errors) {
       child_err = CreateFile("nul",
                              GENERIC_WRITE,
                              FILE_SHARE_READ | FILE_SHARE_WRITE,
@@ -394,7 +393,7 @@ maketex P2C(kpse_file_format_type, format, string*, args)
       }
       /* stderr -- use /dev/null if we discard errors */
       if (childerr != 2) {
-        if (kpse_make_tex_discard_errors) {
+        if (kpse->make_tex_discard_errors) {
           close(2);
           dup(childerr);
         }
@@ -478,10 +477,10 @@ kpse_make_tex P2C(kpse_file_format_type, format,  const_string, base)
   kpse_format_info_type spec; /* some compilers lack struct initialization */
   string ret = NULL;
   
-  spec = kpse_format_info[format];
+  spec = kpse->kpse_format_info[format];
   if (!spec.type) { /* Not initialized yet? */
     kpse_init_format (format);
-    spec = kpse_format_info[format];
+    spec = kpse->kpse_format_info[format];
   }
 
   if (spec.program && spec.program_enabled_p) {

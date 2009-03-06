@@ -52,14 +52,11 @@
 /* OK, we'll have tracing support.  */
 #define KPSE_DEBUG
 
-/* Bit vector defining what we should trace.  */
-extern KPSEDLL unsigned kpathsea_debug;
-
 /* Set a bit.  */
-#define KPSE_DEBUG_SET(bit) kpathsea_debug |= 1 << (bit)
+#define KPSE_DEBUG_SET(bit) kpse->debug |= 1 << (bit)
 
 /* Test if a bit is on.  */
-#define KPSE_DEBUG_P(bit) (kpathsea_debug & (1 << (bit)))
+#define KPSE_DEBUG_P(bit) (kpse->debug & (1 << (bit)))
 
 #define KPSE_DEBUG_STAT 0		/* stat calls */
 #define KPSE_DEBUG_HASH 1		/* hash lookups */

@@ -45,26 +45,26 @@ kpse_init_prog P4C(const_string, prefix,  unsigned, dpi,  const_string, mode,
     kpse_set_program_enabled (kpse_pk_format, 1, kpse_src_env);
     kpse_set_program_enabled (kpse_any_glyph_format, 1, kpse_src_env);
 
-    kpse_format_info[kpse_pk_format].program
-      = kpse_format_info[kpse_any_glyph_format].program
+    kpse->kpse_format_info[kpse_pk_format].program
+      = kpse->kpse_format_info[kpse_any_glyph_format].program
       = getenv (makepk_var);
   }
 
   /* A couple font paths have traditionally had application-specific
      environment variables to override all else; namely, XDVIFONTS and
      DVIPSHEADERS.  So set those if we have them.  */
-  kpse_format_info[kpse_pk_format].override_path
-    = kpse_format_info[kpse_gf_format].override_path
-    = kpse_format_info[kpse_any_glyph_format].override_path
-    = kpse_format_info[kpse_tfm_format].override_path
+  kpse->kpse_format_info[kpse_pk_format].override_path
+    = kpse->kpse_format_info[kpse_gf_format].override_path
+    = kpse->kpse_format_info[kpse_any_glyph_format].override_path
+    = kpse->kpse_format_info[kpse_tfm_format].override_path
     = getenv (font_var);
 
-  kpse_format_info[kpse_tex_ps_header_format].override_path
+  kpse->kpse_format_info[kpse_tex_ps_header_format].override_path
     = getenv (header_var);
 
   kpse_init_fallback_resolutions (size_var);
   xputenv_int ("MAKETEX_BASE_DPI", dpi);
-  kpse_fallback_font = fallback;
+  kpse->kpse_fallback_font = fallback;
   
   /* Ugliness.  See comments in kpse_make_tex in kpathsea/tex-make.c.  */
   xputenv ("MAKETEX_MODE", mode ? mode : DIR_SEP_STRING);

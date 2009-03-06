@@ -45,14 +45,16 @@ try_format P3C(const_string, fontname,  unsigned, dpi,
     = { UNIX_BITMAP_SPEC, DPI_BITMAP_SPEC, NULL };
   const_string *spec;
   boolean must_exist;
-  string ret = NULL;
-  const_string path = kpse_format_info[format].path;
   const_string *sfx;
+  string ret = NULL;
+  const_string path = kpse->kpse_format_info[format].path;
+  (void)dpi; /* -Wunused */
+  (void)fontname;  /* -Wunused */
   if (!path)
     path = kpse_init_format (format);
   
   /* Set the suffix on the name we'll be searching for.  */
-  sfx = kpse_format_info[format].suffix;
+  sfx = kpse->kpse_format_info[format].suffix;
   if (sfx && *sfx) 
     xputenv ("KPATHSEA_FORMAT", *sfx);
 
@@ -194,11 +196,11 @@ try_fallback_resolutions P4C(const_string, fontname,  unsigned, dpi,
   unsigned lower_diff, upper_diff;
   unsigned closest_diff = UINT_MAX;
   string ret = NULL; /* In case the only fallback resolution is DPI.  */
-
+  loc = 0; /* -Wall */
   /* First find the fallback size closest to DPI, even including DPI.  */
-  for (s = 0; kpse_fallback_resolutions[s] != 0; s++)
+  for (s = 0; kpse->kpse_fallback_resolutions[s] != 0; s++)
     {
-      unsigned this_diff = abs (kpse_fallback_resolutions[s] - dpi);
+      unsigned this_diff = abs (kpse->kpse_fallback_resolutions[s] - dpi);
       if (this_diff < closest_diff)
         {
           closest_diff = this_diff;
@@ -214,7 +216,7 @@ try_fallback_resolutions P4C(const_string, fontname,  unsigned, dpi,
   
   for (;;)
     {
-      unsigned fallback = kpse_fallback_resolutions[loc];
+      unsigned fallback = kpse->kpse_fallback_resolutions[loc];
       /* Don't bother to try DPI itself again.  */
       if (fallback != dpi)
         {
@@ -225,9 +227,9 @@ try_fallback_resolutions P4C(const_string, fontname,  unsigned, dpi,
       
       /* That didn't work. How far away are the locs above or below?  */
       lower_diff = lower_loc > -1
-                   ? dpi - kpse_fallback_resolutions[lower_loc] : INT_MAX;
+                   ? dpi - kpse->kpse_fallback_resolutions[lower_loc] : INT_MAX;
       upper_diff = upper_loc < max_loc
-                   ? kpse_fallback_resolutions[upper_loc] - dpi : INT_MAX;
+                   ? kpse->kpse_fallback_resolutions[upper_loc] - dpi : INT_MAX;
       
       /* But if we're at the end in both directions, quit.  */
       if (lower_diff == INT_MAX && upper_diff == INT_MAX)
@@ -290,12 +292,12 @@ kpse_find_glyph P4C(const_string, passed_fontname,  unsigned, dpi,
 
     /* If mktex... failed, try any fallback resolutions.  */
     else {
-      if (kpse_fallback_resolutions)
+      if (kpse->kpse_fallback_resolutions)
         ret = try_fallback_resolutions (fontname, dpi, format, glyph_file);
 
       /* We're down to the font of last resort.  */
-      if (!ret && kpse_fallback_font) {
-        const_string name = kpse_fallback_font;
+      if (!ret && kpse->kpse_fallback_font) {
+        const_string name = kpse->kpse_fallback_font;
         source = kpse_glyph_source_fallback;
         xputenv ("KPATHSEA_NAME", name);
 
@@ -303,7 +305,7 @@ kpse_find_glyph P4C(const_string, passed_fontname,  unsigned, dpi,
         ret = try_resolution (name, dpi, format, glyph_file);
 
         /* The fallback font at the fallback resolutions.  */
-        if (!ret && kpse_fallback_resolutions)
+        if (!ret && kpse->kpse_fallback_resolutions)
           ret = try_fallback_resolutions (name, dpi, format, glyph_file);
       }
     }

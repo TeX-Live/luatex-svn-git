@@ -35,8 +35,23 @@ static int static_variable_mingw32_c = 0;
 #include <shlobj.h>
 #include <errno.h>
 
-
 /* Emulate getpwuid, getpwnam and others.  */
+
+typedef HWND (WINAPI *pGetDesktopWindow)(void);
+
+typedef HRESULT (WINAPI * pSHGetSpecialFolderPathA)(HWND, LPSTR, int, BOOL);
+
+/* this typedef will eventually replace the two separate static
+   variables volume_cache and volume_info 
+*/
+
+typedef struct win32_volumes {
+  volume_info_data info;   /* Referenced by various functions.  */
+  volume_info_data *cache; /* Simple linked list with linear search is sufficient.  */
+} win32_volumes ;
+
+extern int __cdecl _set_osfhnd (int fd, long h);
+extern int __cdecl _free_osfhnd (int fd);
 
 char *get_home_directory(void);
 int _parse_root (char * name, char ** pPath);
@@ -44,6 +59,10 @@ int _parse_root (char * name, char ** pPath);
 void
 init_user_info (void)
 {
+  /* fill the still empty field in kpse */
+  if (!kpse->volumes) {
+      kpse->volumes = xcalloc(1,sizeof(win32_volumes));
+  }
   /* Ensure HOME and SHELL are defined. */
   char *home = get_home_directory();
   if (home) {
@@ -70,13 +89,10 @@ init_user_info (void)
   }
 }
 
-static char *cached_home_directory;
-
-
 void
 uncache_home_directory (void)
 {
-  cached_home_directory = NULL;	/* in some cases, this may cause the leaking
+  kpse->cached_home_directory = NULL;	/* in some cases, this may cause the leaking
 								   of a few bytes */
 }
 
@@ -86,26 +102,23 @@ set_home_warning (void)
 {
 }
 
-typedef HWND (WINAPI *pGetDesktopWindow)(void);
-typedef HRESULT (WINAPI * pSHGetSpecialFolderPathA)(HWND, LPSTR, int, BOOL);
-
 /* Returns the home directory, in external format */
 char *
 get_home_directory (void)
 {
 
-  if (cached_home_directory != NULL)
+  if (kpse->cached_home_directory != NULL)
 	goto done;
 
-  if ((cached_home_directory = getenv("HOME")) != NULL) {
+  if ((kpse->cached_home_directory = getenv("HOME")) != NULL) {
 	char q[MAXPATHLEN];
 	/* In case it is %HOMEDRIVE%%HOMEPATH% */
-	if (ExpandEnvironmentStrings(cached_home_directory, q, sizeof(q)) == 0) {
+	if (ExpandEnvironmentStrings(kpse->cached_home_directory, q, sizeof(q)) == 0) {
 	  /* Error */
-	  cached_home_directory = NULL;
+	  kpse->cached_home_directory = NULL;
 	}
 	else {
-	  cached_home_directory = xstrdup(q);
+	  kpse->cached_home_directory = xstrdup(q);
 	  goto done;
 	}
   }
@@ -114,7 +127,7 @@ get_home_directory (void)
 	char	*homedrive, *homepath;
 	if ((homedrive = getenv("HOMEDRIVE")) != NULL &&
 		(homepath = getenv("HOMEPATH")) != NULL) {
-	  cached_home_directory = concat(homedrive, homepath);
+	  kpse->cached_home_directory = concat(homedrive, homepath);
 	  goto done;
 	}
   }
@@ -138,11 +151,11 @@ get_home_directory (void)
 	if (hwnd && (h = LoadLibrary("shell32.dll"))) {
 	  if ((p1 = (pSHGetSpecialFolderPathA)GetProcAddress(h, "SHGetSpecialFolderPathA")))
 	    if ((*p1)(hwnd, q, CSIDL_PERSONAL, TRUE)) {
-	      cached_home_directory = xstrdup(q);
+	      kpse->cached_home_directory = xstrdup(q);
 	    }
 	  FreeLibrary(h);
 	}
-	if (cached_home_directory) goto done;
+	if (kpse->cached_home_directory) goto done;
   }
 
   if (1) {
@@ -150,19 +163,13 @@ get_home_directory (void)
 			"	directory, and will be using the value:\n"
 			"		%s\n"
 			"	This is probably incorrect.\n",
-			cached_home_directory
+			kpse->cached_home_directory
 			);
   }
  done:
-  return cached_home_directory;
+  return kpse->cached_home_directory;
 }
 
-
-extern int __cdecl _set_osfhnd (int fd, long h);
-extern int __cdecl _free_osfhnd (int fd);
-
-/* Global referenced by various functions.  */
-volume_info_data volume_info;
 
 /* Consider cached volume information to be stale if older than 10s,
    at least for non-local drives.  Info for fixed drives is never stale.  */
@@ -173,24 +180,12 @@ volume_info_data volume_info;
 
 /* Cache support functions.  */
 
-/* this typedef will eventually replace the two separate static
-   variables volume_cache and volume_info 
-*/
-
-typedef struct win32_volumes {
-  volume_info_data info;
-  volume_info_data *cache;
-} win32_volumes ;
-
-/* Simple linked list with linear search is sufficient.  */
-static volume_info_data *volume_cache = NULL;
-
 static volume_info_data *
 lookup_volume_info (char * root_dir)
 {
   volume_info_data * info;
 
-  for (info = volume_cache; info; info = info->next)
+  for (info = kpse->volumes->cache; info; info = info->next)
     if (stricmp (info->root_dir, root_dir) == 0)
       break;
   return info;
@@ -200,8 +195,8 @@ static void
 add_volume_info (char * root_dir, volume_info_data * info)
 {
   info->root_dir = xstrdup (root_dir);
-  info->next = volume_cache;
-  volume_cache = info;
+  info->next = kpse->volumes->cache;
+  kpse->volumes->cache = info;
 }
 
 
@@ -324,7 +319,7 @@ get_volume_info (const char * name, const char ** pPath)
   if (info != NULL)
     {
       /* Set global referenced by other functions.  */
-      volume_info = *info;
+      kpse->volumes->info = *info;
       return TRUE;
     }
   return FALSE;
@@ -336,7 +331,7 @@ int
 is_fat_volume (const char * name, const char ** pPath)
 {
   if (get_volume_info (name, pPath))
-    return (volume_info.maxcomp == 12);
+    return (kpse->volumes->info.maxcomp == 12);
   return FALSE;
 }
 

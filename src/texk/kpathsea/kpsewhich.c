@@ -136,19 +136,19 @@ find_format P2C(string, name, boolean, is_filename)
       const_string ftry;
       boolean found = false;
       
-      if (!kpse_format_info[f].type)
+      if (!kpse->kpse_format_info[f].type)
         kpse_init_format ((kpse_file_format_type) f);
 
       if (!is_filename) {
         /* Allow the long name, but only in the -format option.  We don't
            want a filename confused with a format name.  */
-        ftry = kpse_format_info[f].type;
+        ftry = kpse->kpse_format_info[f].type;
         found = TRY_SUFFIX (ftry);
       }
-      for (ext = kpse_format_info[f].suffix; !found && ext && *ext; ext++) {
+      for (ext = kpse->kpse_format_info[f].suffix; !found && ext && *ext; ext++) {
         found = TRY_SUFFIX (*ext);
       }      
-      for (ext = kpse_format_info[f].alt_suffix; !found && ext && *ext; ext++){
+      for (ext = kpse->kpse_format_info[f].alt_suffix; !found && ext && *ext; ext++){
         found = TRY_SUFFIX (*ext);
       }
 
@@ -385,7 +385,7 @@ read_command_line P2C(int, argc,  string *, argv)
     assert (g == 0); /* We have no short option names.  */
 
     if (ARGUMENT_IS ("debug")) {
-      kpathsea_debug |= atoi (optarg);
+      kpse->debug |= atoi (optarg);
 
     } else if (ARGUMENT_IS ("dpi") || ARGUMENT_IS ("D")) {
       dpi = atoi (optarg);
@@ -421,16 +421,16 @@ read_command_line P2C(int, argc,  string *, argv)
       for (f = 0; f < kpse_last_format; f++) {
         const_string *ext;
         kpse_init_format ((kpse_file_format_type)f);
-        printf ("%s:", kpse_format_info[f].type);
-        for (ext = kpse_format_info[f].suffix; ext && *ext; ext++) {
+        printf ("%s:", kpse->kpse_format_info[f].type);
+        for (ext = kpse->kpse_format_info[f].suffix; ext && *ext; ext++) {
           putchar (' ');
           fputs (*ext, stdout);
         }
-        if (kpse_format_info[f].alt_suffix) {
+        if (kpse->kpse_format_info[f].alt_suffix) {
           /* leave extra space between default and alt suffixes */
           putchar (' ');
         }
-        for (ext = kpse_format_info[f].alt_suffix; ext && *ext; ext++) {
+        for (ext = kpse->kpse_format_info[f].alt_suffix; ext && *ext; ext++) {
           putchar (' ');
           fputs (*ext, stdout);
         }
@@ -505,7 +505,7 @@ main P2C(int, argc,  string *, argv)
     xputenv ("engine", engine);
   
   /* NULL for no fallback font.  */
-  kpse_init_prog (uppercasify (kpse_program_name), dpi, mode, NULL);
+  kpse_init_prog (uppercasify (kpse->program_name), dpi, mode, NULL);
   
   /* Have to do this after setting the program name.  */
   if (user_format_string) {  
@@ -531,9 +531,9 @@ main P2C(int, argc,  string *, argv)
   /* Show a search path. */
   if (path_to_show) {
     if (user_format != kpse_last_format) {
-      if (!kpse_format_info[user_format].type) /* needed if arg was numeric */
+      if (!kpse->kpse_format_info[user_format].type) /* needed if arg was numeric */
         kpse_init_format (user_format);
-      puts (kpse_format_info[user_format].path);
+      puts (kpse->kpse_format_info[user_format].path);
     } else {
       WARNING ("kpsewhich: Cannot show path for unknown file type");
     }

@@ -32,16 +32,16 @@ kpse_var_value P1C(const_string, var)
 {
   string vtry, ret;
 
-  assert (kpse_program_name);
+  assert (kpse->program_name);
 
   /* First look for VAR.progname. */
-  vtry = concat3 (var, ".", kpse_program_name);
+  vtry = concat3 (var, ".", kpse->program_name);
   ret = getenv (vtry);
   free (vtry);
 
   if (!ret || !*ret) {
     /* Now look for VAR_progname. */
-    vtry = concat3 (var, "_", kpse_program_name);
+    vtry = concat3 (var, "_", kpse->program_name);
     ret = getenv (vtry);
     free (vtry);
   }
@@ -84,25 +84,22 @@ kpse_var_value P1C(const_string, var)
    add to a list each time an expansion is started, and check the list
    before expanding.  */
 
-static expansion_type *expansions; /* The sole variable of this type.  */
-static unsigned expansion_len = 0;
-
 static void
 expanding P2C(const_string, var,  boolean, xp)
 {
   unsigned e;
-  for (e = 0; e < expansion_len; e++) {
-    if (STREQ (expansions[e].var, var)) {
-      expansions[e].expanding = xp;
+  for (e = 0; e < kpse->expansion_len; e++) {
+    if (STREQ (kpse->expansions[e].var, var)) {
+      kpse->expansions[e].expanding = xp;
       return;
     }
   }
 
   /* New variable, add it to the list.  */
-  expansion_len++;
-  XRETALLOC (expansions, expansion_len, expansion_type);
-  expansions[expansion_len - 1].var = xstrdup (var);
-  expansions[expansion_len - 1].expanding = xp;
+  kpse->expansion_len++;
+  XRETALLOC (kpse->expansions, kpse->expansion_len, expansion_type);
+  kpse->expansions[kpse->expansion_len - 1].var = xstrdup (var);
+  kpse->expansions[kpse->expansion_len - 1].expanding = xp;
 }
 
 
@@ -112,9 +109,9 @@ static boolean
 expanding_p P1C(const_string, var)
 {
   unsigned e;
-  for (e = 0; e < expansion_len; e++) {
-    if (STREQ (expansions[e].var, var))
-      return expansions[e].expanding;
+  for (e = 0; e < kpse->expansion_len; e++) {
+    if (STREQ (kpse->expansions[e].var, var))
+      return kpse->expansions[e].expanding;
   }
   
   return false;
@@ -136,7 +133,7 @@ expand P3C(fn_type *, expansion,  const_string, start,  const_string, end)
   if (expanding_p (var)) {
     WARNING1 ("kpathsea: variable `%s' references itself (eventually)", var);
   } else {
-    string vtry = concat3 (var, "_", kpse_program_name);
+    string vtry = concat3 (var, "_", kpse->program_name);
     /* Check for an environment variable.  */
     value = getenv (vtry);
     free (vtry);
