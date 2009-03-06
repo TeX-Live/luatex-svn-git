@@ -1,6 +1,6 @@
 /* luainit.c
    
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -142,8 +142,6 @@ int lua_offset = 0;
 int safer_option = 0;
 int nosocket_option = 0;
 
-kpathsea kpse = NULL;
-
 /* Reading the options.  */
 
 /* Test whether getopt found an option ``A''.
@@ -262,11 +260,11 @@ static void parse_options(int argc, char **argv)
             pdf_draftmode_value = 1;
 
         } else if (ARGUMENT_IS("mktex")) {
-            kpathsea_maketex_option(kpse,optarg, true);
+            kpse_maketex_option(optarg, true);
 
         } else if (ARGUMENT_IS("no-mktex")) {
-            kpathsea_maketex_option(kpse,optarg, false);
- 
+            kpse_maketex_option(optarg, false);
+
         } else if (ARGUMENT_IS("interaction")) {
             /* These numbers match @d's in *.ch */
             if (STREQ(optarg, "batchmode")) {
@@ -417,10 +415,10 @@ void init_kpse(void)
         exit(1);
     }
 
-    kpathsea_set_program_enabled(kpse, kpse_fmt_format, MAKE_TEX_FMT_BY_DEFAULT,
-                                 kpse_src_compile);
+    kpse_set_program_enabled(kpse_fmt_format, MAKE_TEX_FMT_BY_DEFAULT,
+                             kpse_src_compile);
 
-    kpathsea_set_program_name(kpse, argv[0], user_progname);
+    kpse_set_program_name(argv[0], user_progname);
     program_name_set = 1;
 }
 
@@ -479,7 +477,6 @@ void lua_initialize(int ac, char **av)
 #define SYNCTEX_NO_OPTION INT_MAX
     synctexoption = SYNCTEX_NO_OPTION;
 
-    kpse = kpathsea_new(); /* needed by parse_options */
     /* parse commandline */
     parse_options(ac, av);
 
@@ -527,7 +524,6 @@ void lua_initialize(int ac, char **av)
                 free(given_file);
             /* this is not strictly needed but it pleases valgrind */
             lua_close(Luas[0]);
-            kpathsea_finish(kpse);
             exit(0);
         }
         /* unhide the 'tex' and 'pdf' table */

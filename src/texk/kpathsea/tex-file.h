@@ -154,17 +154,9 @@ extern KPSEDLL kpse_format_info_type kpse_format_info[kpse_last_format];
    `program_enabled_p' to VALUE.  */
 extern KPSEDLL void kpse_set_program_enabled P3H(kpse_file_format_type fmt,
                                          boolean value, kpse_src_type level);
-
-extern KPSEDLL void kpathsea_set_program_enabled P4H(kpathsea kpse, 
-                                         kpse_file_format_type fmt,
-                                         boolean value, kpse_src_type level);
-
 /* Call kpse_set_program_enabled with VALUE and the format corresponding
    to FMTNAME.  */
 extern KPSEDLL void kpse_maketex_option P2H(const_string fmtname,  boolean value);
-
-extern KPSEDLL void kpathsea_maketex_option P3H(kpathsea kpse, 
-                                         const_string fmtname,  boolean value);
 
 /* Change the list of searched suffixes (alternate suffixes if alternate is
    true).  */
