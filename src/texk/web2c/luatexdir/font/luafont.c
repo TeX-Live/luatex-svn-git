@@ -768,8 +768,8 @@ static int count_char_packet_bytes(lua_State * L)
 scaled sp_to_dvi(halfword sp, halfword atsize)
 {
     double result, mult;
-    mult = (double) (atsize >> 16);
-    result = (sp << 4);
+    mult = (double) (atsize / 65536.0);
+    result = (double) (sp * 16.0);
     return floor(result / mult);
 }
 
