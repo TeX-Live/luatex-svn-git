@@ -27055,7 +27055,7 @@ dump_int(pdf_mem_ptr);
 for k:=1 to pdf_mem_ptr-1 do begin 
   dump_int(pdf_mem[k]);
   end;
-print_ln; print_int(pdf_mem_ptr-1); print(" words of pdfTeX memory");
+print_ln; print_int(pdf_mem_ptr-1); print(" words of pdf memory");
 dump_int(obj_tab_size);
 dump_int(obj_ptr);
 dump_int(sys_obj_ptr);
