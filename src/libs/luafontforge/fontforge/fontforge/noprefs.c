@@ -25,7 +25,6 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "pfaedit.h"
-#include "groups.h"
 #include "plugins.h"
 #include <charset.h>
 #include <gfile.h>
@@ -76,7 +75,6 @@ extern int mf_ask;			/* in autotrace.c */
 extern int mf_clearbackgrounds;		/* in autotrace.c */
 extern int mf_showerrors;		/* in autotrace.c */
 extern char *mf_args;			/* in autotrace.c */
-static int glyph_2_name_map=0;		/* was in tottf.c, now a flag in savefont options dlg */
 extern int coverageformatsallowed;	/* in tottfgpos.c */
 extern int hint_diagonal_ends;		/* in stemdb.c */
 extern int hint_diagonal_intersections;	/* in stemdb.c */
@@ -134,9 +132,6 @@ static float gridfit_pointsizex=12;		/* in cvgridfit.c */
 static float gridfit_pointsizey=12;		/* in cvgridfit.c */
 static int  gridfit_x_sameas_y=true;		/* in cvgridfit.c */
 static int default_font_filter_index=0;
-static unichar_t *script_menu_names[SCRIPT_MENU_MAX];
-static char *script_filenames[SCRIPT_MENU_MAX];
-static char *RecentFiles[RECENT_MAX];
 static int ItalicConstrained = true;
 extern int clear_tt_instructions_when_needed;	/* cvundoes.c */
 static int default_cv_width;			/* in charview.c */
@@ -160,6 +155,9 @@ static char *pixmapdir=NULL;
 enum pref_types { pr_int, pr_real, pr_bool, pr_enum, pr_encoding, pr_string,
 	pr_file, pr_namelist, pr_unicode };
 
+int unused = 0;
+char *unused_string = NULL;
+
 static struct prefs_list {
     char *name;
     	/* In the prefs file the untranslated name will always be used, but */
@@ -174,11 +172,11 @@ static struct prefs_list {
     char *popup;
 } core_list[] = {
 	{ N_("OtherSubrsFile"), pr_file, &othersubrsfile, NULL, NULL, 'O', NULL, 0, N_("If you wish to replace Adobe's OtherSubrs array (for Type1 fonts)\nwith an array of your own, set this to point to a file containing\na list of up to 14 PostScript subroutines. Each subroutine must\nbe preceded by a line starting with '%%%%' (any text before the\nfirst '%%%%' line will be treated as an initial copyright notice).\nThe first three subroutines are for flex hints, the next for hint\nsubstitution (this MUST be present), the 14th (or 13 as the\nnumbering actually starts with 0) is for counter hints.\nThe subroutines should not be enclosed in a [ ] pair.") },
-	{ N_("AutoHint"), pr_bool, &autohint_before_rasterize, NULL, NULL, 'A', NULL, 0, N_("AutoHint before rasterizing") },
+	{ N_("AutoHint"), pr_bool, &unused, NULL, NULL, 'A', NULL, 0, N_("AutoHint before rasterizing") },
 	{ N_("NewCharset"), pr_encoding, &default_encoding, NULL, NULL, 'N', NULL, 0, N_("Default encoding for\nnew fonts") },
 	{ N_("NewEmSize"), pr_int, &new_em_size, NULL, NULL, 'S', NULL, 0, N_("The default size of the Em-Square in a newly created font.") },
 	{ N_("NewFontsQuadratic"), pr_bool, &new_fonts_are_order2, NULL, NULL, 'Q', NULL, 0, N_("Whether new fonts should contain splines of quadratic (truetype)\nor cubic (postscript & opentype).") },
-	{ N_("FreeTypeInFontView"), pr_bool, &use_freetype_to_rasterize_fv, NULL, NULL, 'O', NULL, 0, N_("Use the FreeType rasterizer (when available)\nto rasterize glyphs in the font view.\nThis generally results in better quality.") },
+	{ N_("FreeTypeInFontView"), pr_bool, &unused, NULL, NULL, 'O', NULL, 0, N_("Use the FreeType rasterizer (when available)\nto rasterize glyphs in the font view.\nThis generally results in better quality.") },
 	{ N_("LoadedFontsAsNew"), pr_bool, &loaded_fonts_same_as_new, NULL, NULL, 'L', NULL, 0, N_("Whether fonts loaded from the disk should retain their splines\nwith the original order (quadratic or cubic), or whether the\nsplines should be converted to the default order for new fonts\n(see NewFontsQuadratic).") },
 	{ N_("PreferCJKEncodings"), pr_bool, &prefer_cjk_encodings, NULL, NULL, 'C', NULL, 0, N_("When loading a truetype or opentype font which has both a unicode\nand a CJK encoding table, use this flag to specify which\nshould be loaded for the font.") },
 	{ N_("AskUserForCMap"), pr_bool, &ask_user_for_cmap, NULL, NULL, 'O', NULL, 0, N_("When loading a font in sfnt format (TrueType, OpenType, etc.),\nask the user to specify which cmap to use initially.") },
@@ -196,14 +194,14 @@ static struct prefs_list {
 	{ N_("AccentCenterLowest"), pr_bool, &GraveAcuteCenterBottom, NULL, NULL, '\0', NULL, 0, N_("When placing grave and acute accents above letters, should\nFontForge center them based on their full width, or\nshould it just center based on the lowest point\nof the accent.") },
 	{ N_("CharCenterHighest"), pr_bool, &CharCenterHighest, NULL, NULL, '\0', NULL, 0, N_("When centering an accent over a glyph, should the accent\nbe centered on the highest point(s) of the glyph,\nor the middle of the glyph?") },
 	{ N_("PreferSpacingAccents"), pr_bool, &PreferSpacingAccents, NULL, NULL, '\0', NULL, 0, N_("Use spacing accents (Unicode: 02C0-02FF) rather than\ncombining accents (Unicode: 0300-036F) when\nbuilding accented glyphs.") },
-	{ N_("PreferPotrace"), pr_bool, &preferpotrace, NULL, NULL, '\0', NULL, 0, N_("FontForge supports two different helper applications to do autotracing\n autotrace and potrace\nIf your system only has one it will use that one, if you have both\nuse this option to tell FontForge which to pick.") },
-	{ N_("AutotraceArgs"), pr_string, NULL, GetAutoTraceArgs, SetAutoTraceArgs, '\0', NULL, 0, N_("Extra arguments for configuring the autotrace program\n(either autotrace or potrace)") },
-	{ N_("AutotraceAsk"), pr_bool, &autotrace_ask, NULL, NULL, '\0', NULL, 0, N_("Ask the user for autotrace arguments each time autotrace is invoked") },
-	{ N_("MfArgs"), pr_string, &mf_args, NULL, NULL, '\0', NULL, 0, N_("Commands to pass to mf (metafont) program, the filename will follow these") },
-	{ N_("MfAsk"), pr_bool, &mf_ask, NULL, NULL, '\0', NULL, 0, N_("Ask the user for mf commands each time mf is invoked") },
-	{ N_("MfClearBg"), pr_bool, &mf_clearbackgrounds, NULL, NULL, '\0', NULL, 0, N_("FontForge loads large images into the background of each glyph\nprior to autotracing them. You may retain those\nimages to look at after mf processing is complete, or\nremove them to save space") },
-	{ N_("MfShowErr"), pr_bool, &mf_showerrors, NULL, NULL, '\0', NULL, 0, N_("MetaFont (mf) generates lots of verbiage to stdout.\nMost of the time I find it an annoyance but it is\nimportant to see if something goes wrong.") },
-	{ N_("FoundryName"), pr_string, &BDFFoundry, NULL, NULL, 'F', NULL, 0, N_("Name used for foundry field in bdf\nfont generation") },
+	{ N_("PreferPotrace"), pr_bool, &unused, NULL, NULL, '\0', NULL, 0, N_("FontForge supports two different helper applications to do autotracing\n autotrace and potrace\nIf your system only has one it will use that one, if you have both\nuse this option to tell FontForge which to pick.") },
+	{ N_("AutotraceArgs"), pr_string, &unused_string, NULL, NULL, '\0', NULL, 0, N_("Extra arguments for configuring the autotrace program\n(either autotrace or potrace)") },
+	{ N_("AutotraceAsk"), pr_bool, &unused, NULL, NULL, '\0', NULL, 0, N_("Ask the user for autotrace arguments each time autotrace is invoked") },
+	{ N_("MfArgs"), pr_string, &unused_string, NULL, NULL, '\0', NULL, 0, N_("Commands to pass to mf (metafont) program, the filename will follow these") },
+	{ N_("MfAsk"), pr_bool, &unused, NULL, NULL, '\0', NULL, 0, N_("Ask the user for mf commands each time mf is invoked") },
+	{ N_("MfClearBg"), pr_bool, &unused, NULL, NULL, '\0', NULL, 0, N_("FontForge loads large images into the background of each glyph\nprior to autotracing them. You may retain those\nimages to look at after mf processing is complete, or\nremove them to save space") },
+	{ N_("MfShowErr"), pr_bool, &unused, NULL, NULL, '\0', NULL, 0, N_("MetaFont (mf) generates lots of verbiage to stdout.\nMost of the time I find it an annoyance but it is\nimportant to see if something goes wrong.") },
+	{ N_("FoundryName"), pr_string, &unused_string, NULL, NULL, 'F', NULL, 0, N_("Name used for foundry field in bdf\nfont generation") },
 	{ N_("TTFFoundry"), pr_string, &TTFFoundry, NULL, NULL, 'T', NULL, 0, N_("Name used for Vendor ID field in\nttf (OS/2 table) font generation.\nMust be no more than 4 characters") },
 	{ N_("NewFontNameList"), pr_namelist, &namelist_for_new_fonts, NULL, NULL, '\0', NULL, 0, N_("FontForge will use this namelist when assigning\nglyph names to code points in a new font.") },
 	{ N_("RecognizePUANames"), pr_bool, &recognizePUA, NULL, NULL, 'U', NULL, 0, N_("Once upon a time, Adobe assigned PUA (public use area) encodings\nfor many stylistic variants of characters (small caps, old style\nnumerals, etc.). Adobe no longer believes this to be a good idea,\nand recommends that these encodings be ignored.\n\n The assignments were originally made because most applications\ncould not handle OpenType features for accessing variants. Adobe\nnow believes that all apps that matter can now do so. Applications\nlike Word and OpenOffice still can't handle these features, so\n fontforge's default behavior is to ignore Adobe's current\nrecommendations.\n\nNote: This does not affect figuring out unicode from the font's encoding,\nit just controls determining unicode from a name.") },
@@ -221,18 +219,18 @@ static struct prefs_list {
 	{ "DefaultFVRowCount", pr_int, &default_fv_row_count, NULL, NULL, 'S', NULL, 1 },
 	{ "DefaultFVColCount", pr_int, &default_fv_col_count, NULL, NULL, 'S', NULL, 1 },
 	{ "OnlyCopyDisplayed", pr_bool, &onlycopydisplayed, NULL, NULL, '\0', NULL, 1 },
-	{ "DefaultOutputFormat", pr_int, &oldformatstate, NULL, NULL, '\0', NULL, 1 },
-	{ "DefaultBitmapFormat", pr_int, &oldbitmapstate, NULL, NULL, '\0', NULL, 1 },
+	{ "DefaultOutputFormat", pr_int, &unused, NULL, NULL, '\0', NULL, 1 },
+	{ "DefaultBitmapFormat", pr_int, &unused, NULL, NULL, '\0', NULL, 1 },
 	{ "SaveValidate", pr_int, &old_validate, NULL, NULL, '\0', NULL, 1 },
 	{ "SaveFontLogAsk", pr_int, &old_fontlog, NULL, NULL, '\0', NULL, 1 },
-	{ "DefaultTTFflags", pr_int, &old_ttf_flags, NULL, NULL, '\0', NULL, 1 },
-	{ "DefaultPSflags", pr_int, &old_ps_flags, NULL, NULL, '\0', NULL, 1 },
-	{ "DefaultOTFflags", pr_int, &old_otf_flags, NULL, NULL, '\0', NULL, 1 },
-	{ "PageWidth", pr_int, &pagewidth, NULL, NULL, '\0', NULL, 1 },
-	{ "PageHeight", pr_int, &pageheight, NULL, NULL, '\0', NULL, 1 },
-	{ "PrintType", pr_int, &printtype, NULL, NULL, '\0', NULL, 1 },
-	{ "PrintCommand", pr_string, &printcommand, NULL, NULL, '\0', NULL, 1 },
-	{ "PageLazyPrinter", pr_string, &printlazyprinter, NULL, NULL, '\0', NULL, 1 },
+	{ "DefaultTTFflags", pr_int, &unused, NULL, NULL, '\0', NULL, 1 },
+	{ "DefaultPSflags", pr_int, &unused, NULL, NULL, '\0', NULL, 1 },
+	{ "DefaultOTFflags", pr_int, &unused, NULL, NULL, '\0', NULL, 1 },
+	{ "PageWidth", pr_int, &unused, NULL, NULL, '\0', NULL, 1 },
+	{ "PageHeight", pr_int, &unused, NULL, NULL, '\0', NULL, 1 },
+	{ "PrintType", pr_int, &unused, NULL, NULL, '\0', NULL, 1 },
+	{ "PrintCommand", pr_string, &unused_string, NULL, NULL, '\0', NULL, 1 },
+	{ "PageLazyPrinter", pr_string, &unused_string, NULL, NULL, '\0', NULL, 1 },
 	{ "CoverageFormatsAllowed", pr_int, &coverageformatsallowed, NULL, NULL, '\0', NULL, 1 },
 	{ "ForceNamesWhenOpening", pr_namelist, &force_names_when_opening, NULL, NULL, '\0', NULL, 1 },
 	{ "ForceNamesWhenSaving", pr_namelist, &force_names_when_saving, NULL, NULL, '\0', NULL, 1 },
@@ -306,32 +304,6 @@ static struct prefs_list {
 	NULL
 },
  *prefs_list[] = { core_list, extras, NULL };
-
-static int UserSettingsDiffer(void) {
-    int i,j;
-
-    if ( user_macfeat_otftag==NULL )
-return( false );
-
-    for ( i=0; user_macfeat_otftag[i].otf_tag!=0; ++i );
-    for ( j=0; macfeat_otftag[j].otf_tag!=0; ++j );
-    if ( i!=j )
-return( true );
-    for ( i=0; user_macfeat_otftag[i].otf_tag!=0; ++i ) {
-	for ( j=0; macfeat_otftag[j].otf_tag!=0; ++j ) {
-	    if ( macfeat_otftag[j].mac_feature_type ==
-		    user_macfeat_otftag[i].mac_feature_type &&
-		    macfeat_otftag[j].mac_feature_setting ==
-		    user_macfeat_otftag[i].mac_feature_setting &&
-		    macfeat_otftag[j].otf_tag ==
-		    user_macfeat_otftag[i].otf_tag )
-	break;
-	}
-	if ( macfeat_otftag[j].otf_tag==0 )
-return( true );
-    }
-return( false );
-}
 
 static int NOUI_GetPrefs(char *name,Val *val) {
     int i,j;
@@ -422,19 +394,6 @@ return( true );
 	}
     }
 return( false );
-}
-
-static char *getPfaEditPrefs(void) {
-    static char *prefs=NULL;
-    char buffer[1025];
-
-    if ( prefs!=NULL )
-return( prefs );
-    if ( getPfaEditDir(buffer)==NULL )
-return( NULL );
-    sprintf(buffer,"%s/prefs", getPfaEditDir(buffer));
-    prefs = copy(buffer);
-return( prefs );
 }
 
 static char *NOUI_getFontForgeShareDir(void) {
@@ -543,22 +502,9 @@ static int encmatch(const char *enc,int subok) {
 	{ "UCS-2-INTERNAL", e_unicode },
 	{ "ISO-10646", e_unicode },
 	{ "ISO_10646", e_unicode },
-#if 0
-	{ "eucJP", e_euc },
-	{ "EUC-JP", e_euc },
-	{ "ujis", ??? },
-	{ "EUC-KR", e_euckorean },
-#endif
 	{ NULL }};
     int i;
     char buffer[80];
-#if HAVE_ICONV_H
-    static char *last_complaint;
-
-    iconv_t test;
-    free(iconv_local_encoding_name);
-    iconv_local_encoding_name= NULL;
-#endif
 
     if ( strchr(enc,'@')!=NULL && strlen(enc)<sizeof(buffer)-1 ) {
 	strcpy(buffer,enc);
@@ -575,28 +521,7 @@ return( encs[i].enc );
 	    if ( strstrmatch(enc,encs[i].name)!=NULL )
 return( encs[i].enc );
 
-#if HAVE_ICONV_H
-	/* I only try to use iconv if the encoding doesn't match one I support*/
-	/*  loading iconv unicode data takes a while */
-	test = iconv_open(enc,FindUnicharName());
-	if ( test==(iconv_t) (-1) || test==NULL ) {
-	    if ( last_complaint==NULL || strcmp(last_complaint,enc)!=0 ) {
-		fprintf( stderr, "Neither FontForge nor iconv() supports your encoding (%s) we will pretend\n you asked for latin1 instead.\n", enc );
-		free( last_complaint );
-		last_complaint = copy(enc);
-	    }
-	} else {
-	    if ( last_complaint==NULL || strcmp(last_complaint,enc)!=0 ) {
-		fprintf( stderr, "FontForge does not support your encoding (%s), it will try to use iconv()\n or it will pretend the local encoding is latin1\n", enc );
-		free( last_complaint );
-		last_complaint = copy(enc);
-	    }
-	    iconv_local_encoding_name= copy(enc);
-	    iconv_close(test);
-	}
-#else
 	fprintf( stderr, "FontForge does not support your encoding (%s), it will pretend the local encoding is latin1\n", enc );
-#endif
 
 return( e_iso8859_1 );
     }
@@ -607,15 +532,8 @@ static int DefaultEncoding(void) {
     const char *loc;
     int enc;
 
-#if HAVE_LANGINFO_H
-    loc = nl_langinfo(CODESET);
-    enc = encmatch(loc,false);
-    if ( enc!=e_unknown )
-return( enc );
-#endif
     loc = getenv("LC_ALL");
     if ( loc==NULL ) loc = getenv("LC_CTYPE");
-    /*if ( loc==NULL ) loc = getenv("LC_MESSAGES");*/
     if ( loc==NULL ) loc = getenv("LANG");
 
     if ( loc==NULL )
@@ -649,12 +567,7 @@ static void DefaultXUID(void) {
 	r1 = rand()&0x3ff;
     } while ( r1==0 );		/* I reserve "0" for me! */
     gettimeofday(&tv,NULL);
-#ifndef LUA_FF_LIB
-    srandom(tv.tv_usec+1);
-    r2 = random();
-#else
     r2 = rand();
-#endif
     sprintf( buffer, "1021 %d %d", r1, r2 );
     free(xuid);
     xuid = copy(buffer);
@@ -666,228 +579,10 @@ static void NOUI_SetDefaults(void) {
     local_encoding = DefaultEncoding();
 }
 
-static void ParseMacMapping(char *pt,struct macsettingname *ms) {
-    char *end;
-
-    ms->mac_feature_type = strtol(pt,&end,10);
-    if ( *end==',' ) ++end;
-    ms->mac_feature_setting = strtol(end,&end,10);
-    if ( *end==' ' ) ++end;
-    ms->otf_tag =
-	((end[0]&0xff)<<24) |
-	((end[1]&0xff)<<16) |
-	((end[2]&0xff)<<8) |
-	(end[3]&0xff);
-}
-
-static void ParseNewMacFeature(FILE *p,char *line) {
-    fseek(p,-(strlen(line)-strlen("MacFeat:")),SEEK_CUR);
-    line[strlen("MacFeat:")] ='\0';
-    default_mac_feature_map = SFDParseMacFeatures(p,line);
-    fseek(p,-strlen(line),SEEK_CUR);
-    if ( user_mac_feature_map!=NULL )
-	MacFeatListFree(user_mac_feature_map);
-    user_mac_feature_map = default_mac_feature_map;
-}
-
 static void NOUI_LoadPrefs(void) {
-    char *prefs = getPfaEditPrefs();
-    FILE *p;
-    char line[1100];
-    int i, j, ri=0, mn=0, ms=0/*, fn=0, ff=0, filt_max=0*/;
-    int msp=0, msc=0;
-    char *pt;
-    struct prefs_list *pl;
-
-#if !defined(NOPLUGIN)
-    LoadPluginDir(NULL);
-#endif
-    LoadPfaEditEncodings();
-    LoadGroupList();
-
-    if ( prefs!=NULL && (p=fopen(prefs,"r"))!=NULL ) {
-	while ( fgets(line,sizeof(line),p)!=NULL ) {
-	    if ( *line=='#' )
-	continue;
-	    pt = strchr(line,':');
-	    if ( pt==NULL )
-	continue;
-	    for ( j=0; prefs_list[j]!=NULL; ++j ) {
-		for ( i=0; prefs_list[j][i].name!=NULL; ++i )
-		    if ( strncmp(line,prefs_list[j][i].name,pt-line)==0 )
-		break;
-		if ( prefs_list[j][i].name!=NULL )
-	    break;
-	    }
-	    pl = NULL;
-	    if ( prefs_list[j]!=NULL )
-		pl = &prefs_list[j][i];
-	    for ( ++pt; *pt=='\t'; ++pt );
-	    if ( line[strlen(line)-1]=='\n' )
-		line[strlen(line)-1] = '\0';
-	    if ( line[strlen(line)-1]=='\r' )
-		line[strlen(line)-1] = '\0';
-	    if ( pl==NULL ) {
-		if ( strncmp(line,"Recent:",strlen("Recent:"))==0 && ri<RECENT_MAX )
-		    RecentFiles[ri++] = copy(pt);
-		else if ( strncmp(line,"MenuScript:",strlen("MenuScript:"))==0 && ms<SCRIPT_MENU_MAX )
-		    script_filenames[ms++] = copy(pt);
-		else if ( strncmp(line,"MenuName:",strlen("MenuName:"))==0 && mn<SCRIPT_MENU_MAX )
-		    script_menu_names[mn++] = utf82u_copy(pt);
-#if 0
-		else if ( strncmp(line,"FontFilterName:",strlen("FontFilterName:"))==0 ) {
-		    if ( fn>=filt_max )
-			user_font_filters = grealloc(user_font_filters,((filt_max+=10)+1)*sizeof( struct openfilefilters));
-		    user_font_filters[fn].filter = NULL;
-		    user_font_filters[fn++].name = copy(pt);
-		    user_font_filters[fn].name = NULL;
-		} else if ( strncmp(line,"FontFilter:",strlen("FontFilter:"))==0 ) {
-		    if ( ff<filt_max )
-			user_font_filters[ff++].filter = copy(pt);
-		}
-#endif
-		else if ( strncmp(line,"MacMapCnt:",strlen("MacSetCnt:"))==0 ) {
-		    sscanf( pt, "%d", &msc );
-		    msp = 0;
-		    user_macfeat_otftag = gcalloc(msc+1,sizeof(struct macsettingname));
-		} else if ( strncmp(line,"MacMapping:",strlen("MacMapping:"))==0 && msp<msc ) {
-		    ParseMacMapping(pt,&user_macfeat_otftag[msp++]);
-		} else if ( strncmp(line,"MacFeat:",strlen("MacFeat:"))==0 ) {
-		    ParseNewMacFeature(p,line);
-		}
-	continue;
-	    }
-	    switch ( pl->type ) {
-	      case pr_encoding:
-		{ Encoding *enc = FindOrMakeEncoding(pt);
-		    if ( enc==NULL )
-			enc = FindOrMakeEncoding("ISO8859-1");
-		    if ( enc==NULL )
-			enc = &custom;
-		    *((Encoding **) (pl->val)) = enc;
-		}
-	      break;
-	      case pr_namelist:
-		{ NameList *nl = NameListByName(pt);
-		    if ( strcmp(pt,"NULL")==0 && pl->val != &namelist_for_new_fonts )
-			*((NameList **) (pl->val)) = NULL;
-		    else if ( nl!=NULL )
-			*((NameList **) (pl->val)) = nl;
-		}
-	      break;
-	      case pr_bool: case pr_int:
-		sscanf( pt, "%d", (int *) pl->val );
-	      break;
-	      case pr_unicode:
-		if ( sscanf( pt, "U+%x", (int *) pl->val )!=1 )
-		    if ( sscanf( pt, "u+%x", (int *) pl->val )!=1 )
-			sscanf( pt, "%x", (int *) pl->val );
-	      break;
-	      case pr_real:
-		sscanf( pt, "%f", (float *) pl->val );
-	      break;
-	      case pr_string: case pr_file:
-		if ( *pt=='\0' ) pt=NULL;
-		if ( pl->val!=NULL )
-		    *((char **) (pl->val)) = copy(pt);
-		else
-		    (pl->set)(copy(pt));
-	      break;
-	    }
-	}
-	fclose(p);
-    }
-    if ( othersubrsfile!=NULL && ReadOtherSubrsFile(othersubrsfile)<=0 )
-	fprintf( stderr, "Failed to read OtherSubrs from %s\n", othersubrsfile );
-	
-    if ( glyph_2_name_map ) {
-	old_ttf_flags |= ttf_flag_glyphmap;
-	old_otf_flags |= ttf_flag_glyphmap;
-    }
-    LoadNamelistDir(NULL);
 }
 
 static void NOUI_SavePrefs(int not_if_script) {
-    char *prefs = getPfaEditPrefs();
-    FILE *p;
-    int i, j;
-    char *temp;
-    struct prefs_list *pl;
-    extern int running_script;
-
-    if ( prefs==NULL )
-return;
-    if ( not_if_script && running_script )
-return;
-
-    if ( (p=fopen(prefs,"w"))==NULL )
-return;
-
-    for ( j=0; prefs_list[j]!=NULL; ++j ) for ( i=0; prefs_list[j][i].name!=NULL; ++i ) {
-	pl = &prefs_list[j][i];
-	switch ( pl->type ) {
-	  case pr_encoding:
-	    fprintf( p, "%s:\t%s\n", pl->name, (*((Encoding **) (pl->val)))->enc_name );
-	  break;
-	  case pr_namelist:
-	    fprintf( p, "%s:\t%s\n", pl->name, *((NameList **) (pl->val))==NULL ? "NULL" :
-		    (*((NameList **) (pl->val)))->title );
-	  break;
-	  case pr_bool: case pr_int:
-	    fprintf( p, "%s:\t%d\n", pl->name, *(int *) (pl->val) );
-	  break;
-	  case pr_unicode:
-	    fprintf( p, "%s:\tU+%04x\n", pl->name, *(int *) (pl->val) );
-	  break;
-	  case pr_real:
-	    fprintf( p, "%s:\t%g\n", pl->name, (double) *(float *) (pl->val) );
-	  break;
-	  case pr_string: case pr_file:
-	    if ( (pl->val)!=NULL )
-		temp = *(char **) (pl->val);
-	    else
-		temp = (char *) (pl->get());
-	    if ( temp!=NULL )
-		fprintf( p, "%s:\t%s\n", pl->name, temp );
-	    if ( (pl->val)==NULL )
-		free(temp);
-	  break;
-	}
-    }
-
-    for ( i=0; i<RECENT_MAX && RecentFiles[i]!=NULL; ++i )
-	fprintf( p, "Recent:\t%s\n", RecentFiles[i]);
-    for ( i=0; i<SCRIPT_MENU_MAX && script_filenames[i]!=NULL; ++i ) {
-	fprintf( p, "MenuScript:\t%s\n", script_filenames[i]);
-	fprintf( p, "MenuName:\t%s\n", temp = u2utf8_copy(script_menu_names[i]));
-	free(temp);
-    }
-#if 0
-    if ( user_font_filters!=NULL ) {
-	for ( i=0; user_font_filters[i].name!=NULL; ++i ) {
-	    fprintf( p, "FontFilterName:\t%s\n", user_font_filters[i].name);
-	    fprintf( p, "FontFilter:\t%s\n", user_font_filters[i].filter);
-	}
-    }
-#endif
-    if ( user_macfeat_otftag!=NULL && UserSettingsDiffer()) {
-	for ( i=0; user_macfeat_otftag[i].otf_tag!=0; ++i );
-	fprintf( p, "MacMapCnt: %d\n", i );
-	for ( i=0; user_macfeat_otftag[i].otf_tag!=0; ++i ) {
-	    fprintf( p, "MacMapping: %d,%d %c%c%c%c\n",
-		    user_macfeat_otftag[i].mac_feature_type,
-		    user_macfeat_otftag[i].mac_feature_setting,
-			(int) (user_macfeat_otftag[i].otf_tag>>24),
-			(int) ((user_macfeat_otftag[i].otf_tag>>16)&0xff),
-			(int) ((user_macfeat_otftag[i].otf_tag>>8)&0xff),
-			(int) (user_macfeat_otftag[i].otf_tag&0xff) );
-	}
-    }
-
-    if ( UserFeaturesDiffer())
-	SFDDumpMacFeat(p,default_mac_feature_map);
-
-    fclose(p);
 }
 
 static struct prefs_interface prefsnoui = {

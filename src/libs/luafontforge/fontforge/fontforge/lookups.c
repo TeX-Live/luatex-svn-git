@@ -2823,6 +2823,8 @@ static void ApplyAppleStateMachine(uint32 tag, OTLookup *otl,struct lookup_data 
 		    if ( ++kcnt>8 ) kcnt = 8;
 		}
 	      break;
+	    default: /* for -W */
+	      break; 
 	    }
 	    if ( entry->flags & 0x8000 )
 		mark_pos = pos;		/* The docs do not state whether this happens before or after substitutions are applied at the mark */

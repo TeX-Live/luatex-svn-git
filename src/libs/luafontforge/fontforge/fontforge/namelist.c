@@ -668,41 +668,7 @@ return( nl2 );
 return( nl );
 }
 
-static int isnamelist(char *filename) {
-    char *pt;
 
-    pt = strrchr(filename,'.');
-    if ( pt==NULL )
-return( false );
-    if ( strcmp(pt,".nam")==0 )
-return( true );
-
-return( false );
-}
-
-void LoadNamelistDir(char *dir) {
-    char prefdir[1024];
-    DIR *diro;
-    struct dirent *ent;
-    char buffer[1025];
-
-    if ( dir == NULL )
-	dir = getPfaEditDir(prefdir);
-    if ( dir == NULL )
-return;
-
-    diro = opendir(dir);
-    if ( diro==NULL )		/* It's ok not to have any */
-return;
-    
-    while ( (ent = readdir(diro))!=NULL ) {
-	if ( isnamelist(ent->d_name) ) {
-	    sprintf( buffer, "%s/%s", dir, ent->d_name );
-	    LoadNamelist(buffer);
-	}
-    }
-    closedir(diro);
-}
 /* ************************************************************************** */
 const char *RenameGlyphToNamelist(char *buffer, SplineChar *sc,NameList *old,NameList *new) {
     int i, up, ub, uc, ch;

@@ -461,52 +461,6 @@ return( pptval!=-1 || mmtval!=-1 || pmtval!=-1 || mptval==-1 );
 
 #define BasePtDistance(pt1, pt2)  sqrt(((pt1)->x-(pt2)->x)*((pt1)->x-(pt2)->x) + ((pt1)->y-(pt2)->y)*((pt1)->y-(pt2)->y))
 
-#if 0
-static int PointToSplineLessThan(BasePoint *test,Spline *against,real radius) {
-    BasePoint here;
-    double t;
-    double xdiff,ydiff, delta;
-
-    if ( BasePtDistance(test,&against->from->me)<=radius+.01 )
-return( true );
-    if ( BasePtDistance(test,&against->to->me)<=radius+.01 )
-return( true );
-    if ( (xdiff = against->from->me.x-against->to->me.x)<0 ) xdiff = -xdiff;
-    if ( (ydiff = against->from->me.y-against->to->me.y)<0 ) ydiff = -ydiff;
-    delta = radius/(2*(xdiff+ydiff));
-    if ( delta<.0625 ) delta = .0625;
-    for ( t=delta; t<.99999 ; t+=delta ) {
-	here.x = ((against->splines[0].a*t+against->splines[0].b)*t+against->splines[0].c)*t+against->splines[0].d;
-	here.y = ((against->splines[1].a*t+against->splines[1].b)*t+against->splines[1].c)*t+against->splines[1].d;
-	if ( BasePtDistance(test,&here)<=radius )
-return( true );
-    }
-return( false );
-}
-
-static int EntirelyWithin(SplinePoint *start,Spline *s,int dir,real radius) {
-    /* Return whether every point along the splines starting at start is */
-    /*  within radius of some point along the spline s */
-    Spline *test = dir ? start->next : start->prev;
-    BasePoint here;
-    double t;
-
-    while ( test!=NULL ) {
-	if ( !PointToSplineLessThan(&test->from->me,s,radius) ||
-		!PointToSplineLessThan(&test->to->me,s,radius))
-return( false );
-	for ( t=.125; t<.99999 ; t+=.125 ) {
-	    here.x = ((test->splines[0].a*t+test->splines[0].b)*t+test->splines[0].c)*t+test->splines[0].d;
-	    here.y = ((test->splines[1].a*t+test->splines[1].b)*t+test->splines[1].c)*t+test->splines[1].d;
-	    if ( !PointToSplineLessThan(&test->to->me,s,radius))
-return( false );
-	}
-	if ( dir ) test = test->to->next;
-	else test = test->from->prev;
-    }
-return( true );
-}
-#endif
 
 static SplinePoint *MergeSplinePoint(SplinePoint *sp1,SplinePoint *sp2) {
     /* sp1 and sp2 should be close together, use their average for the */
@@ -1074,40 +1028,6 @@ return(cnt);
 return( cnt );
 }
 
-#if 0
-static void SplineSetFixRidiculous(SplineSet *ss) {
-    /* Make sure we don't have any splines with ridiculous control points */
-    /* No control point, when projected onto the vector between the two */
-    /*  end points should be far beyond either of the end points... */
-    Spline *s, *first;
-    double vx, vy, test, end;
-    int unreasonable;
-
-    first = NULL;
-    for ( s=ss->first->next; s!=NULL && s!=first; s = s->to->next ) {
-	if ( first==NULL ) first = s;
-	vx = s->to->me.x-s->from->me.x; vy = s->to->me.y-s->from->me.y;
-	end = vx*vx + vy*vy;
-	unreasonable = false;
-	test = vx*(s->from->nextcp.x-s->from->me.x) +
-		vy*(s->from->nextcp.y-s->from->me.y);
-	if ( test<-2*end || test>2*end ) {
-	    s->from->nextcp = s->from->me;
-	    s->from->nonextcp = true;
-	    unreasonable = true;
-	}
-	test = vx*(s->to->prevcp.x-s->from->me.x) +
-		vy*(s->to->prevcp.y-s->from->me.y);
-	if ( test<-2*end || test>2*end ) {
-	    s->to->prevcp = s->to->me;
-	    s->to->noprevcp = true;
-	    unreasonable = true;
-	}
-	if ( unreasonable )
-	    SplineRefigure(s);
-    }
-}
-#endif
 
 static void SplineSetFixCPs(SplineSet *ss) {
     SplinePoint *sp;
@@ -1650,73 +1570,6 @@ return( ssplus );
 return( ssplus );
 }
 
-#if 0
-static void BisectTurners(SplineSet *spl) {
-    Spline *first, *s, *next;
-    double len,lenf,lent, dott,dotf;
-
-    /* Also if we have a spline which turns through about 180 degrees */
-    /*  our approximations degrade. So bisect any such splines */
-    first = NULL;
-    for ( s = spl->first->next; s!=NULL && s!=first; s=next ) {
-	next = s->to->next;
-	if ( first==NULL ) first = s;
-	len = sqrt( (s->from->me.x-s->to->me.x)*(s->from->me.x-s->to->me.x) +
-		    (s->from->me.y-s->to->me.y)*(s->from->me.y-s->to->me.y) );
-	lenf= sqrt( (s->from->me.x-s->from->nextcp.x)*(s->from->me.x-s->from->nextcp.x) +
-		    (s->from->me.y-s->from->nextcp.y)*(s->from->me.y-s->from->nextcp.y) );
-	dotf = ((s->from->me.x-s->to->me.x)*(s->from->me.x-s->from->nextcp.x) +
-		(s->from->me.y-s->to->me.y)*(s->from->me.y-s->from->nextcp.y))/
-		(len*lenf);
-	lent= sqrt( (s->to->prevcp.x-s->to->me.x)*(s->to->prevcp.x-s->to->me.x) +
-		    (s->to->prevcp.y-s->to->me.y)*(s->to->prevcp.y-s->to->me.y) );
-	dott = ((s->from->me.x-s->to->me.x)*(s->to->prevcp.x-s->to->me.x) +
-		(s->from->me.y-s->to->me.y)*(s->to->prevcp.y-s->to->me.y))/
-		(len*lent);
-	dotf = acos(dotf); dott = acos(dott);
-	if ( dotf+dott > PI/2 )
-	    SplineBisect(s,.5);
-    }
-}
-
-void SSBisectTurners(SplineSet *spl) {
-    while ( spl!=NULL ) {
-	BisectTurners(spl);
-	spl = spl->next;
-    }
-}
-#endif
-
-#ifdef LOCAL_DEBUG
-static void touchall(SplineSet *spl) {
-    SplinePoint *sp;
-
-    for ( sp=spl->last; sp!=NULL; ) {
-	if ( sp->prev==NULL )
-    break;
-	sp = sp->prev->from;
-	if ( sp==spl->last )
-    break;
-    }
-    for ( sp=spl->first; sp!=NULL; ) {
-	if ( sp->next==NULL )
-    break;
-	sp = sp->next->to;
-	if ( sp==spl->first )
-    break;
-    }
-}
-
-/* I know there's no prototype. It's just a useful routine to make valgrind */
-/*  check consistency */
-void splstouchall(SplineSet *ss) {
-    while ( ss!=NULL ) {
-	touchall(ss);
-	ss = ss->next;
-    }
-}
-#endif
-
 static SplineSet *SSRemoveUTurns(SplineSet *base, StrokeInfo *si) {
     /* All too often in MetaPost output splines have tiny cps which */
     /*  make the slope at the end-points irrelevant when looking at */
@@ -1904,9 +1757,6 @@ static SplineSet *SSRemoveUTurns(SplineSet *base, StrokeInfo *si) {
 	}
     }
 
-#if 0
-    BisectTurners(spl);
-#endif
 return( base );
 }
 
@@ -2023,65 +1873,3 @@ SplineSet *SplineSetStroke(SplineSet *spl,StrokeInfo *si,SplineChar *sc) {
 return( ret );
 }
 
-    /* for angles between [penangle,penangle+90] use (-r,t/2) rotated by penangle */
-    /*			  [penangle+90,penangle+180] use (-r,-t/2) */
-    /*			  [penangle+180,penangle+270] use (r,-t/2) */
-    /*			  [penangle+270,penangle] use (r,t/2) */
-
-SplineSet *SSStroke(SplineSet *spl,StrokeInfo *si,SplineChar *sc) {
-    SplineSet *head=NULL, *last=NULL, *cur;
-    /*int was_clock = true;*/
-
-    for ( ; spl!=NULL; spl = spl->next ) {
-	cur = SplineSetStroke(spl,si,sc);
-	if ( cur==NULL )		/* Can happen if stroke overlaps itself into nothing */
-    continue;
-	if ( head==NULL )
-	    head = cur;
-	else
-	    last->next = cur;
-	while ( cur->next!=NULL ) cur = cur->next;
-	last = cur;
-    }
-return( head );
-}
-
-#include "baseviews.h"
-
-void FVStrokeItScript(void *_fv, StrokeInfo *si) {
-    FontViewBase *fv = _fv;
-    int layer = fv->active_layer;
-    SplineSet *temp;
-    int i, cnt=0, gid;
-    SplineChar *sc;
-
-    for ( i=0; i<fv->map->enccount; ++i ) if ( (gid=fv->map->map[i])!=-1 && fv->sf->glyphs[gid]!=NULL && fv->selected[i] )
-	++cnt;
-    ff_progress_start_indicator(10,_("Stroking..."),_("Stroking..."),0,cnt,1);
-
-    SFUntickAll(fv->sf);
-    for ( i=0; i<fv->map->enccount; ++i ) {
-	if ( (gid=fv->map->map[i])!=-1 && (sc = fv->sf->glyphs[gid])!=NULL &&
-		!sc->ticked && fv->selected[i] ) {
-	    sc->ticked = true;
-	    if ( sc->parent->multilayer ) {
-		SCPreserveState(sc,false);
-		for ( layer = ly_fore; layer<sc->layer_cnt; ++layer ) {
-		    temp = SSStroke(sc->layers[layer].splines,si,sc);
-		    SplinePointListsFree( sc->layers[layer].splines );
-		    sc->layers[layer].splines = temp;
-		}
-		SCCharChangedUpdate(sc,ly_all);
-	    } else {
-		SCPreserveLayer(sc,layer,false);
-		temp = SSStroke(sc->layers[layer].splines,si,sc);
-		SplinePointListsFree( sc->layers[layer].splines );
-		sc->layers[layer].splines = temp;
-		SCCharChangedUpdate(sc,layer);
-	    }
-	    if ( !ff_progress_next())
-    break;
-	}
-    }
-    ff_progress_end_indicator();
-}

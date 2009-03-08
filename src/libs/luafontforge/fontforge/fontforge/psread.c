@@ -416,31 +416,6 @@ return( true );
 return( false );
 }
 
-static int CheckCodePointsComment(IO *wrapper) {
-    /* Check to see if this encoding includes the special comment we use */
-    /*  to indicate that the encoding is based on unicode code points rather */
-    /*  than glyph names */
-    char commentbuffer[128], *pt;
-    int ch;
-
-    /* Eat whitespace and comments. Comments last to eol (or formfeed) */
-    while ( isspace(ch = nextch(wrapper)) );
-    if ( ch!='%' ) {
-	unnextch(ch,wrapper);
-return( false );
-    }
-
-    pt = commentbuffer;
-    while ( (ch=nextch(wrapper))!=EOF && ch!='\r' && ch!='\n' && ch!='\f' ) {
-	if ( pt-commentbuffer < sizeof(commentbuffer)-1 )
-	    *pt++ = ch;
-    }
-    *pt = '\0';
-    if ( strcmp(commentbuffer," Use codepoints.")== 0 )
-return( true );
-
-return( false );
-}
 
 static int nextpstoken(IO *wrapper, real *val, char *tokbuf, int tbsize) {
     int ch, r, i;
@@ -1000,241 +975,6 @@ static Entity *EntityCreate(SplinePointList *head,int linecap,int linejoin,
 return( ent );
 }
 
-#ifdef FONTFORGE_CONFIG_TYPE3
-static uint8 *StringToBytes(struct psstack *stackel,int *len) {
-    char *pt;
-    uint8 *upt, *base, *ret;
-    int half, sofar, val, nesting;
-    int i,j;
-
-    pt = stackel->u.str;
-    if ( stackel->type==ps_instr ) {
-	/* imagemask operators take strings or procedures or files */
-	/* we support strings, or procedures containing strings */
-	while ( isspace(*pt)) ++pt;
-	if ( *pt=='{' || *pt=='[' ) ++pt;
-	while ( isspace(*pt)) ++pt;
-    } else if ( stackel->type!=pt_string )
-return( NULL );
-
-    upt = base = galloc(65536+1);	/* Maximum size of ps string */
-
-    if ( *pt=='(' ) {
-	/* A conventional string */
-	++pt;
-	nesting = 0;
-	while ( *pt!='\0' && (nesting!=0 || *pt!=')') ) {
-	    if ( *pt=='(' ) {
-		++nesting;
-		*upt++ = *pt++;
-	    } else if ( *pt==')' ) {
-		--nesting;
-		*upt++ = *pt++;
-	    } else if ( *pt=='\r' || *pt=='\n' ) {
-		/* any of lf, cr, crlf gets translated to \n */
-		if ( *pt=='\r' && pt[1]=='\n' ) ++pt;
-		*upt++ = '\n';
-		++pt;
-	    } else if ( *pt!='\\' ) {
-		*upt++ = *pt++;
-	    } else {
-		++pt;
-		if ( *pt=='\r' || *pt=='\n' ) {
-		    /* any of \lf, \cr, \crlf gets ignored */
-		    if ( *pt=='\r' && pt[1]=='\n' ) ++pt;
-		    ++pt;
-		} else if ( *pt=='n' ) {
-		    *upt++ = '\n';
-		    ++pt;
-		} else if ( *pt=='r' ) {
-		    *upt++ = '\r';
-		    ++pt;
-		} else if ( *pt=='t' ) {
-		    *upt++ = '\t';
-		    ++pt;
-		} else if ( *pt=='b' ) {
-		    *upt++ = '\b';
-		    ++pt;
-		} else if ( *pt=='f' ) {
-		    *upt++ = '\f';
-		    ++pt;
-		} else if ( *pt>='0' && *pt<='7' ) {
-		    if ( pt[1]<'0' || pt[1]>'7' )	/* This isn't really legal postscript */
-			*upt++ = *pt++ - '0';
-		    else if ( pt[2]<'0' || pt[2]>'7' ) {/* 3 octal digits are required */
-			*upt++ = ((*pt - '0')<<3) + (pt[1]-'0');
-			pt += 2;
-		    } else {
-			*upt++ = ((*pt - '0')<<6) + ((pt[1]-'0')<<3) + (pt[2]-'0');
-			pt += 3;
-		    }
-		} else if ( *pt=='(' || *pt==')' || *pt=='\\' )
-		    *upt++ = *pt++;
-		else {
-		    LogError( _("Unknown character after backslash in literal string.\n"));
-		    *upt++ = *pt++;
-		}
-	    }
-	}
-    } else if ( *pt!='<' ) {
-	LogError( _("Unknown string type\n" ));
-return( NULL );
-    } else if ( pt[1]!='~' ) {
-	/* A hex string. Ignore any characters which aren't hex */
-	half = sofar = 0;
-	++pt;
-	while ( *pt!='>' && *pt!='\0' ) {
-	    if ( *pt>='a' && *pt<='f' )
-		val = *pt++-'a'+10;
-	    else if ( *pt>='A' && *pt<='F' )
-		val = *pt++-'A'+10;
-	    else if ( isdigit(*pt))
-		val = *pt++-'0';
-	    else {
-		++pt;		/* Not hex */
-	continue;
-	    }
-	    if ( !half ) {
-		half = true;
-		sofar = val<<4;
-	    } else {
-		*upt++ = sofar|val;
-		half = false;
-	    }
-	}
-	if ( half )
-	    *upt++ = sofar;
-    } else {
-	/* An ASCII-85 string */
-	/* c1 c2 c3 c4 c5 (c>='!' && c<='u') => ((c1-'!')*85+(c2-'!'))*85... */
-	/* z => 32bits of 0 */
-	pt += 2;
-	while ( *pt!='\0' && *pt!='~' ) {
-	    if ( upt-base+4 > 65536 )
-	break;
-	    if ( *pt=='z' ) {
-		*upt++ = 0;
-		*upt++ = 0;
-		*upt++ = 0;
-		*upt++ = 0;
-		++pt;
-	    } else if ( *pt>='!' && *pt<='u' ) {
-		val = 0;
-		for ( i=0; i<5 && *pt>='!' && *pt<='u'; ++i )
-		    val = (val*85) + *pt++ - '!';
-		for ( j=i; j<5; ++j )
-		    val *= 85;
-		*upt++ =  val>>24      ;
-		if ( i>2 )
-		    *upt++ = (val>>16)&0xff;
-		if ( i>3 )
-		    *upt++ = (val>>8 )&0xff;
-		if ( i>4 )
-		    *upt++ =  val     &0xff;
-		if ( i<5 )
-	break;
-	    } else if ( isspace( *pt ) ) {
-		++pt;
-	    } else
-	break;
-	}
-    }
-    *len = upt-base;
-    ret = galloc(upt-base);
-    memcpy(ret,base,upt-base);
-    free(base);
-return(ret);
-}
-
-static int PSAddImagemask(EntityChar *ec,struct psstack *stack,int sp,
-	real transform[6],Color fillcol) {
-    uint8 *data;
-    int datalen, width, height, polarity;
-    real trans[6];
-    struct _GImage *base;
-    GImage *gi;
-    Entity *ent;
-    int i,j;
-
-    if ( sp<5 || (stack[sp-1].type!=ps_instr && stack[sp-1].type!=ps_string)) {
-	LogError( _("FontForge does not support dictionary based imagemask operators.\n" ));
-return( sp-1 );
-    }
-
-    if ( stack[sp-2].type!=ps_array || stack[sp-2].u.dict.cnt!=6 ) {
-	LogError( _("Fourth argument of imagemask must be a 6-element transformation matrix.\n" ));
-return( sp-5 );
-    }
-
-    if ( stack[sp-3].type!=ps_bool ) {
-	LogError( _("Third argument of imagemask must be a boolean.\n" ));
-return( sp-5 );
-    }
-    polarity = stack[sp-3].u.tf;
-    
-    if ( stack[sp-4].type!=ps_num || stack[sp-5].type!=ps_num ) {
-	LogError( _("First and second arguments of imagemask must be integers.\n" ));
-return( sp-5 );
-    }
-    height = stack[sp-4].u.val;
-    width = stack[sp-5].u.val;
-
-    data = StringToBytes(&stack[sp-1],&datalen);
-
-    if ( width<=0 || height<=0 || ((width+7)/8)*height>datalen ) {
-	LogError( _("Width or height arguments to imagemask contain invalid values\n(either negative or they require more data than provided).\n" ));
-	free(data);
-return( sp-5 );
-    }
-    trans[0] = stack[sp-2].u.dict.entries[0].u.val;
-    trans[1] = stack[sp-2].u.dict.entries[1].u.val;
-    trans[2] = stack[sp-2].u.dict.entries[2].u.val;
-    trans[3] = stack[sp-2].u.dict.entries[3].u.val;
-    trans[4] = stack[sp-2].u.dict.entries[4].u.val;
-    trans[5] = stack[sp-2].u.dict.entries[5].u.val;
-
-    gi = GImageCreate(it_mono,width,height);
-    base = gi->u.image;
-    base->trans = 1;
-    if ( polarity ) {
-	for ( i=0; i<datalen; ++i )
-	    data[i] ^= 0xff;
-    }
-    if ( trans[0]>0 && trans[3]<0 )
-	memcpy(base->data,data,datalen);
-    else if ( trans[0]>0 && trans[3]>0 ) {
-	for ( i=0; i<height; ++i )
-	    memcpy(base->data+i*base->bytes_per_line,data+(height-i)*base->bytes_per_line,
-		    base->bytes_per_line);
-    } else if ( trans[0]<0 && trans[3]<0 ) {
-	for ( i=0; i<height; ++i ) for ( j=0; j<width; ++j ) {
-	    if ( data[i*base->bytes_per_line+ (j>>3)]&(0x80>>(j&7)) )
-		base->data[i*base->bytes_per_line + ((width-j-1)>>3)] |=
-			(0x80>>((width-j-1)&7));
-	}
-    } else {
-	for ( i=0; i<height; ++i ) for ( j=0; j<width; ++j ) {
-	    if ( data[i*base->bytes_per_line+ (j>>3)]&(0x80>>(j&7)) )
-		base->data[(height-i-1)*base->bytes_per_line + ((width-j-1)>>3)] |=
-			(0x80>>((width-j-1)&7));
-	}
-    }
-    free(data);
-
-    ent = gcalloc(1,sizeof(Entity));
-    ent->type = et_image;
-    ent->u.image.image = gi;
-    memcpy(ent->u.image.transform,transform,sizeof(real[6]));
-    ent->u.image.transform[0] /= width;
-    ent->u.image.transform[3] /= height;
-    ent->u.image.transform[5] += height;
-    ent->u.image.col = fillcol;
-
-    ent->next = ec->splines;
-    ec->splines = ent;
-return( sp-5 );
-}
-#endif
 
 static void HandleType3Reference(IO *wrapper,EntityChar *ec,real transform[6],
 	char *tokbuf, int toksize) {
@@ -1298,15 +1038,8 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
     int warned = 0;
     struct garbage tofrees;
     SplineSet *clippath = NULL;
-#if !defined(FONTFORGE_CONFIG_TYPE3)
     char tokbuf[100];
     const int tokbufsize = 100;
-#else
-    char *tokbuf;
-    const int tokbufsize = 2*65536+10;
-
-    tokbuf = galloc(tokbufsize);
-#endif
 
     oldloc = setlocale(LC_NUMERIC,"C");
 
@@ -1378,28 +1111,6 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 		}
 	    }
 	} else {
-#if 0	/* /ps{count /foo exch def count copy foo array astore ==}def */
-	/* printstack */
-int ii;
-for ( ii=0; ii<sp; ++ii )
- if ( stack[ii].type==ps_num )
-  printf( "%g ", stack[ii].u.val );
- else if ( stack[ii].type==ps_bool )
-  printf( "%s ", stack[ii].u.tf ? "true" : "false" );
- else if ( stack[ii].type==ps_string )
-  printf( "(%s) ", stack[ii].u.str );
- else if ( stack[ii].type==ps_lit )
-  printf( "/%s ", stack[ii].u.str );
- else if ( stack[ii].type==ps_instr )
-  printf( "-%s- ", stack[ii].u.str );
- else if ( stack[ii].type==ps_mark )
-  printf( "--mark-- " );
- else if ( stack[ii].type==ps_array )
-  printf( "--[]-- " );
- else
-  printf( "--" "???" "-- " );
-printf( "-%s-\n", toknames[tok]);
-#endif
 	if ( tok==pt_unknown ) {
 	    if ( strcmp(tokbuf,"Cache")==0 )	/* Fontographer type3s */
 		tok = pt_setcachedevice;
@@ -2463,21 +2174,9 @@ printf( "-%s-\n", toknames[tok]);
 	    }
 	  break;
 	  case pt_imagemask:
-#ifdef FONTFORGE_CONFIG_TYPE3
-	    i = PSAddImagemask(ec,stack,sp,transform,fore);
-	    while ( sp>i ) {
-		--sp;
-		if ( stack[sp].type==ps_string || stack[sp].type==ps_instr ||
-			stack[sp].type==ps_lit )
-		    free(stack[sp].u.str);
-		else if ( stack[sp].type==ps_array || stack[sp].type==ps_dict )
-		    dictfree(&stack[sp].u.dict);
-	    }
-#else
 	    LogError( _("This version of FontForge does not support the imagemask operator.\nFor support configure --with-multilayer.\n") );
 	    if ( sp>=5 && (stack[sp-1].type==ps_instr || stack[sp-1].type==ps_string))
 		sp -= 5;
-#endif
 	  break;
 
 	  /* We don't do these right, but at least we'll avoid some errors with this hack */
@@ -2859,9 +2558,6 @@ printf( "-%s-\n", toknames[tok]);
     if ( ec->width == UNDEFINED_WIDTH )
 	ec->width = wrapper->advance_width;
     setlocale(LC_NUMERIC,oldloc);
-#ifdef FONTFORGE_CONFIG_TYPE3
-    free(tokbuf);
-#endif
 }
 
 static void InterpretPS(FILE *ps, char *psstr, EntityChar *ec, RetStack *rs) {
@@ -2921,162 +2617,8 @@ static Entity *EntityReverse(Entity *ent) {
 return( last );
 }
 
-#ifdef FONTFORGE_CONFIG_TYPE3
-static SplinePointList *SplinesFromLayers(SplineChar *sc,int *flags, int tostroke) {
-    int layer;
-    SplinePointList *head=NULL, *last, *new, *nlast, *temp, *each, *transed;
-    StrokeInfo si;
-    /*SplineSet *spl;*/
-    int handle_eraser;
-    real inversetrans[6], transform[6];
-    int changed;
-
-    if ( tostroke ) {
-	for ( layer=ly_fore; layer<sc->layer_cnt; ++layer ) {
-	    if ( sc->layers[layer].splines==NULL )
-	continue;
-	    else if ( head==NULL )
-		head = sc->layers[layer].splines;
-	    else
-		last->next = sc->layers[layer].splines;
-	    for ( last = sc->layers[layer].splines; last->next!=NULL; last=last->next );
-	    sc->layers[layer].splines = NULL;
-	}
-return( head );
-    }
-
-    if ( *flags==-1 )
-	*flags = PsStrokeFlagsDlg();
-
-    if ( *flags & sf_correctdir ) {
-	for ( layer=ly_fore; layer<sc->layer_cnt; ++layer ) if ( sc->layers[layer].dofill )
-	    SplineSetsCorrect(sc->layers[layer].splines,&changed);
-    }
-
-    handle_eraser = *flags & sf_handle_eraser;
-
-    for ( layer=ly_fore; layer<sc->layer_cnt; ++layer ) {
-	if ( sc->layers[layer].dostroke ) {
-	    memset(&si,'\0',sizeof(si));
-	    si.toobigwarn = *flags & sf_toobigwarn ? 1 : 0;
-	    si.join = sc->layers[layer].stroke_pen.linejoin;
-	    si.cap = sc->layers[layer].stroke_pen.linecap;
-	    si.removeoverlapifneeded = *flags & sf_removeoverlap ? 1 : 0;
-	    si.radius = sc->layers[layer].stroke_pen.width/2.0;
-	    if ( sc->layers[layer].stroke_pen.width==WIDTH_INHERITED )
-		si.radius = .5;
-	    if ( si.cap == lc_inherited ) si.cap = lc_butt;
-	    if ( si.join == lc_inherited ) si.join = lj_miter;
-	    new = NULL;
-	    memcpy(transform,sc->layers[layer].stroke_pen.trans,4*sizeof(real));
-	    transform[4] = transform[5] = 0;
-	    MatInverse(inversetrans,transform);
-	    transed = SplinePointListTransform(SplinePointListCopy(
-		    sc->layers[layer].splines),inversetrans,true);
-	    for ( each = transed; each!=NULL; each=each->next ) {
-		temp = SplineSetStroke(each,&si,sc);
-		if ( new==NULL )
-		    new=temp;
-		else
-		    nlast->next = temp;
-		if ( temp!=NULL )
-		    for ( nlast=temp; nlast->next!=NULL; nlast=nlast->next );
-	    }
-	    new = SplinePointListTransform(new,transform,true);
-	    SplinePointListsFree(transed);
-	    if ( handle_eraser && sc->layers[layer].stroke_pen.brush.col==0xffffff ) {
-		head = EraseStroke(sc,head,new);
-		last = head;
-		if ( last!=NULL )
-		    for ( ; last->next!=NULL; last=last->next );
-	    } else {
-		if ( head==NULL )
-		    head = new;
-		else
-		    last->next = new;
-		if ( new!=NULL )
-		    for ( last = new; last->next!=NULL; last=last->next );
-	    }
-	    if ( si.toobigwarn )
-		*flags |= sf_toobigwarn;
-	}
-	if ( sc->layers[layer].dofill ) {
-	    if ( handle_eraser && sc->layers[layer].fill_brush.col==0xffffff ) {
-		head = EraseStroke(sc,head,sc->layers[layer].splines);
-		last = head;
-		if ( last!=NULL )
-		    for ( ; last->next!=NULL; last=last->next );
-	    } else {
-		new = SplinePointListCopy(sc->layers[layer].splines);
-		if ( head==NULL )
-		    head = new;
-		else
-		    last->next = new;
-		if ( new!=NULL )
-		    for ( last = new; last->next!=NULL; last=last->next );
-	    }
-	}
-    }
-return( head );
-}
-
-void SFSplinesFromLayers(SplineFont *sf,int tostroke) {
-    /* User has turned off multi-layer, flatten the font */
-    int i, layer;
-    int flags= -1;
-    Layer *new;
-    CharViewBase *cv;
-
-    for ( i=0; i<sf->glyphcnt; ++i ) if ( sf->glyphs[i]!=NULL ) {
-	SplineChar *sc = sf->glyphs[i];
-	SplineSet *splines = SplinesFromLayers(sc,&flags,tostroke);
-	RefChar *head=NULL, *last=NULL;
-	for ( layer=ly_fore; layer<sc->layer_cnt; ++layer ) {
-	    if ( head==NULL )
-		head = last = sc->layers[layer].refs;
-	    else
-		last->next = sc->layers[layer].refs;
-	    if ( last!=NULL )
-		while ( last->next!=NULL ) last = last->next;
-	    sc->layers[layer].refs = NULL;
-	}
-	new = gcalloc(2,sizeof(Layer));
-	new[ly_back] = sc->layers[ly_back];
-	memset(&sc->layers[ly_back],0,sizeof(Layer));
-	LayerDefault(&new[ly_fore]);
-	new[ly_fore].splines = splines;
-	new[ly_fore].refs = head;
-	for ( layer=ly_fore; layer<sc->layer_cnt; ++layer ) {
-	    SplinePointListsMDFree(sc,sc->layers[layer].splines);
-	    RefCharsFree(sc->layers[layer].refs);
-	    ImageListsFree(sc->layers[layer].images);
-	}
-	free(sc->layers);
-	sc->layers = new;
-	sc->layer_cnt = 2;
-	for ( cv=sc->views; cv!=NULL; cv=cv->next ) {
-	    cv->layerheads[dm_back] = &sc->layers[ly_back];
-	    cv->layerheads[dm_fore] = &sc->layers[ly_fore];
-	}
-    }
-    SFReinstanciateRefs(sf);
-}
-
-void SFSetLayerWidthsStroked(SplineFont *sf, real strokewidth) {
-    int i;
-    /* We changed from a stroked font to a multilayered font */
-
-    for ( i=0; i<sf->glyphcnt; ++i ) if ( sf->glyphs[i]!=NULL ) {
-	SplineChar *sc = sf->glyphs[i];
-	sc->layers[ly_fore].dofill = false;
-	sc->layers[ly_fore].dostroke = true;
-	sc->layers[ly_fore].stroke_pen.width = strokewidth;
-    }
-}
-#else
 void SFSplinesFromLayers(SplineFont *sf, int tostroke) {
 }
-#endif
 
 static void EntityCharCorrectDir(EntityChar *ec) {
     SplineSet *ss;
@@ -3100,7 +2642,7 @@ static void EntityCharCorrectDir(EntityChar *ec) {
     }
 }
 
-void EntityDefaultStrokeFill(Entity *ent) {
+static void EntityDefaultStrokeFill(Entity *ent) {
     while ( ent!=NULL ) {
 	if ( ent->type == et_splines &&
 		ent->u.splines.stroke.col==0xffffffff &&
@@ -3124,7 +2666,7 @@ void EntityDefaultStrokeFill(Entity *ent) {
     }
 }
 
-SplinePointList *SplinesFromEntityChar(EntityChar *ec,int *flags,int is_stroked) {
+static SplinePointList *SplinesFromEntityChar(EntityChar *ec,int *flags,int is_stroked) {
     Entity *ent, *next;
     SplinePointList *head=NULL, *last, *new, *nlast, *temp, *each, *transed;
     StrokeInfo si;
@@ -3244,38 +2786,6 @@ SplinePointList *SplinesFromEntityChar(EntityChar *ec,int *flags,int is_stroked)
 return( head );
 }
 
-SplinePointList *SplinesFromEntities(Entity *ent,int *flags,int is_stroked) {
-    EntityChar ec;
-
-    memset(&ec,'\0',sizeof(ec));
-    ec.splines = ent;
-return( SplinesFromEntityChar(&ec,flags,is_stroked));
-}
-
-SplinePointList *SplinePointListInterpretPS(FILE *ps,int flags,int is_stroked, int *width) {
-    EntityChar ec;
-    SplineChar sc;
-
-    memset(&ec,'\0',sizeof(ec));
-    ec.width = ec.vwidth = UNDEFINED_WIDTH;
-    memset(&sc,0,sizeof(sc)); sc.name = "<No particular character>";
-    ec.sc = &sc;
-    InterpretPS(ps,NULL,&ec,NULL);
-    if ( width!=NULL )
-	*width = ec.width;
-return( SplinesFromEntityChar(&ec,&flags,is_stroked));
-}
-
-Entity *EntityInterpretPS(FILE *ps,int *width) {
-    EntityChar ec;
-
-    memset(&ec,'\0',sizeof(ec));
-    ec.width = ec.vwidth = UNDEFINED_WIDTH;
-    InterpretPS(ps,NULL,&ec,NULL);
-    if ( width!=NULL )
-	*width = ec.width;
-return( ec.splines );
-}
 
 static RefChar *revrefs(RefChar *cur) {
     RefChar *p, *n;
@@ -3318,13 +2828,7 @@ static void SCInterpretPS(FILE *ps,SplineChar *sc, int *flags) {
     ec.sc = sc;
     _InterpretPS(&wrapper,&ec,NULL);
     sc->width = ec.width;
-#ifdef FONTFORGE_CONFIG_TYPE3
-    sc->layer_cnt = 1;
-    SCAppendEntityLayers(sc,ec.splines);
-    if ( sc->layer_cnt==1 ) ++sc->layer_cnt;
-#else
     sc->layers[ly_fore].splines = SplinesFromEntityChar(&ec,flags,false);
-#endif
     sc->layers[ly_fore].refs = revrefs(ec.refs);
     free(wrapper.top);
 }
@@ -3396,104 +2900,6 @@ void PSFontInterpretPS(FILE *ps,struct charprocs *cp,char **encoding) {
 	    }
 	}
     }
-}
-
-/* Slurp up an encoding in the form:
- /Enc-name [
-    /charname
-    ...
- ] def
-We're not smart here no: 0 1 255 {1 index exch /.notdef put} for */
-Encoding *PSSlurpEncodings(FILE *file) {
-    char *names[1024];
-    int32 encs[1024];
-    Encoding *item, *head = NULL, *last;
-    char *encname;
-    char tokbuf[200];
-    IO wrapper;
-    real dval;
-    int i, max, any, enc, codepointsonly;
-    int tok;
-
-    wrapper.top = NULL;
-    wrapper.advance_width = UNDEFINED_WIDTH;
-    pushio(&wrapper,file,NULL,0);
-
-    while ( (tok = nextpstoken(&wrapper,&dval,tokbuf,sizeof(tokbuf)))!=pt_eof ) {
-	encname = NULL;
-	if ( tok==pt_namelit ) {
-	    encname = copy(tokbuf);
-	    tok = nextpstoken(&wrapper,&dval,tokbuf,sizeof(tokbuf));
-	}
-	if ( tok!=pt_openarray && tok!=pt_opencurly )
-return( head );
-	for ( i=0; i<sizeof(names)/sizeof(names[0]); ++i ) {
-	    encs[i] = -1;
-	    names[i]=NULL;
-	}
-	codepointsonly = CheckCodePointsComment(&wrapper);
-
-	max = -1; any = 0; i=0;
-	while ( (tok = nextpstoken(&wrapper,&dval,tokbuf,sizeof(tokbuf)))!=pt_eof &&
-		tok!=pt_closearray && tok!=pt_closecurly ) {
-	    if ( tok==pt_namelit && i<sizeof(names)/sizeof(names[0]) ) {
-		max = i;
-		if ( strcmp(tokbuf,".notdef")==0 ) {
-		    encs[i] = -1;
-		} else if ( (enc=UniFromName(tokbuf,ui_none,&custom))!=-1 ) {
-		    encs[i] = enc;
-		    /* Used not to do this, but there are several legal names */
-		    /*  for some slots and people get unhappy (rightly) if we */
-		    /*  use the wrong one */
-		    names[i] = copy(tokbuf);
-		    any = 1;
-		} else {
-		    names[i] = copy(tokbuf);
-		    any = 1;
-		}
-	    }
-	    ++i;
-	}
-	if ( encname!=NULL ) {
-	    tok = nextpstoken(&wrapper,&dval,tokbuf,sizeof(tokbuf));
-	    if ( tok==pt_def )
-		/* Good */;
-	}
-	if ( max!=-1 ) {
-	    if ( ++max<256 ) max = 256;
-	    item = gcalloc(1,sizeof(Encoding));
-	    item->enc_name = encname;
-	    item->char_cnt = max;
-	    item->unicode = galloc(max*sizeof(int32));
-	    memcpy(item->unicode,encs,max*sizeof(int32));
-	    if ( any && !codepointsonly ) {
-		item->psnames = gcalloc(max,sizeof(char *));
-		memcpy(item->psnames,names,max*sizeof(char *));
-	    } else {
-		for ( i=0; i<max; ++i )
-		    free(names[i]);
-	    }
-	    if ( head==NULL )
-		head = item;
-	    else
-		last->next = item;
-	    last = item;
-	}
-    }
-
-return( head );
-}
-
-int EvaluatePS(char *str,real *stack,int size) {
-    EntityChar ec;
-    RetStack rs;
-
-    memset(&ec,'\0',sizeof(ec));
-    memset(&rs,'\0',sizeof(rs));
-    rs.max = size;
-    rs.stack = stack;
-    InterpretPS(NULL,str,&ec,&rs);
-return( rs.cnt );
 }
 
 static void closepath(SplinePointList *cur, int is_type2) {
@@ -4418,12 +3824,6 @@ SplineChar *PSCharStringToSplines(uint8 *type1, int len, struct pscontext *conte
 		if ( context->painttype!=2 )
 		    closepath(cur,true);
 	    }
-#if 0	/* This doesn't work. It breaks type1 flex hinting. */
-	/* There's now a special hack just before returning which closes any */
-	/*  open paths */
-	    else if ( cur!=NULL && cur->first->prev==NULL )
-		closepath(cur,false);		/* Even in type1 fonts closepath is optional */
-#endif
 	  case 5: /* rlineto */
 	  case 6: /* hlineto */
 	  case 7: /* vlineto */

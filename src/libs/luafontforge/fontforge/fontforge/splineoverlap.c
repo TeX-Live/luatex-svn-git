@@ -269,7 +269,7 @@ return( start );
 return( start );
 }
 
-Monotonic *SSsToMContours(SplineSet *spl, enum overlap_type ot) {
+static Monotonic *SSsToMContours(SplineSet *spl, enum overlap_type ot) {
     Monotonic *head=NULL, *last = NULL;
 
     while ( spl!=NULL ) {
@@ -579,27 +579,9 @@ static Intersection *AddIntersection(Intersection *ilist,Monotonic *m1,
     if ( t1<m1->tstart || t1>m1->tend || t2<m2->tstart || t2>m2->tend )
 return( ilist );
 
-#if 0
-    if (( m1->start==m2->start && m1->start!=NULL && RealNear(t1,m1->tstart) && RealNear(t2,m2->tstart)) ||
-	    ( m1->start==m2->end && m1->start!=NULL && RealNear(t1,m1->tstart) && RealNear(t2,m2->tend)) ||
-	    ( m1->end==m2->start && m1->end!=NULL && RealNear(t1,m1->tend) && RealNear(t2,m2->tstart)) ||
-	    ( m1->end==m2->end && m1->end!=NULL && RealNear(t1,m1->tend) && RealNear(t2,m2->tend)) )
-return( ilist );
-    else
-    if ( RealWithin(t1,1.0,.01) && RealWithin(t2,0.0,.01) && BpSame(&m1->s->to->me,&m2->s->from->me)) {
-	t1 = 1.0;
-	t2 = 0.0;
-    } else if ( RealWithin(t2,1.0,.01) && RealWithin(t1,0.0,.01) && BpSame(&m2->s->to->me,&m1->s->from->me)) {
-	t1 = 0.0;
-	t2 = 1.0;
-    } else {
-#endif
 	t1 = RoundToEndpoints(m1,t1,inter);
 	t2 = RoundToEndpoints(m2,t2,inter);
 	t1 = RoundToEndpoints(m1,t1,inter);	/* Do it twice. rounding t2 can mean we now need to round t1 */
-#if 0
-    }
-#endif
 
     if (( m1->s->to == m2->s->from && RealWithin(t1,1.0,.01) && RealWithin(t2,0,.01)) ||
 	    ( m1->s->from == m2->s->to && RealWithin(t1,0,.01) && RealWithin(t2,1.0,.01)))
@@ -745,12 +727,6 @@ return( ilist );		/* Not interesting. Only intersection is at an endpoint */
 	break;
 	    y += diff;
 	}
-#if 0
-	if ( x1o==x2o ) {
-	    pt.x = x1o; pt.y = y;
-	    ilist = AddIntersection(ilist,m1,m2,t1o,t2o,&pt);
-	}
-#endif
 	for ( y+=diff; ; y += diff ) {
 	    /* I used to say y<=b.maxy in the above for statement. */
 	    /*  that seemed to get rounding errors on the mac, so we do it */
@@ -766,14 +742,6 @@ return( ilist );		/* Not interesting. Only intersection is at an endpoint */
 	continue;
 	    x1 = ((m1->s->splines[0].a*t1+m1->s->splines[0].b)*t1+m1->s->splines[0].c)*t1+m1->s->splines[0].d;
 	    x2 = ((m2->s->splines[0].a*t2+m2->s->splines[0].b)*t2+m2->s->splines[0].c)*t2+m2->s->splines[0].d;
-#if 0
-	    if ( x1==x2 && x1o!=x2o ) {
-		pt.x = x1; pt.y = y;
-		ilist = AddIntersection(ilist,m1,m2,t1,t2,&pt);
-		if ( m1->tend==t1 && m1->s==m1->next->s ) m1 = m1->next;
-		if ( m2->tend==t2 && m2->s==m2->next->s ) m2 = m2->next;
-	    } else
-#endif
 	    if ( x1o!=x2o && (x1o>x2o) != ( x1>x2 ) ) {
 		/* A cross over has occured. (assume we have a small enough */
 		/*  region that three cross-overs can't have occurred) */
@@ -828,12 +796,6 @@ return( ilist );		/* Not interesting. Only intersection is at an endpoint */
 	break;
 	    x += diff;
 	}
-#if 0
-	if ( y1o==y2o ) {
-	    pt.y = y1o; pt.x = x;
-	    ilist = AddIntersection(ilist,m1,m2,t1o,t2o,&pt);
-	}
-#endif
 	y1 = y2 = 0;
 	for ( x+=diff; ; x += diff ) {
 	    if ( x>b.maxx ) {
@@ -847,14 +809,6 @@ return( ilist );		/* Not interesting. Only intersection is at an endpoint */
 	continue;
 	    y1 = ((m1->s->splines[1].a*t1+m1->s->splines[1].b)*t1+m1->s->splines[1].c)*t1+m1->s->splines[1].d;
 	    y2 = ((m2->s->splines[1].a*t2+m2->s->splines[1].b)*t2+m2->s->splines[1].c)*t2+m2->s->splines[1].d;
-#if 0
-	    if ( y1==y2 && y1o!=y2o ) {
-		pt.y = y1; pt.x = x;
-		ilist = AddIntersection(ilist,m1,m2,t1,t2,&pt);
-		if ( m1->tend==t1 && m1->s==m1->next->s ) m1 = m1->next;
-		if ( m2->tend==t2 && m2->s==m2->next->s ) m2 = m2->next;
-	    } else
-#endif
 	    if ( (y1o>y2o) != ( y1>y2 ) ) {
 		/* A cross over has occured. (assume we have a small enough */
 		/*  region that three cross-overs can't have occurred) */
@@ -892,17 +846,6 @@ return( ilist );		/* Not interesting. Only intersection is at an endpoint */
 return( ilist );
 }
 
-#if 0
-static void SubsetSpline1(Spline1D *subset,Spline1D *orig,
-	extended tstart,extended tend,extended d) {
-    extended f = tend-tstart;
-
-    subset->a = orig->a*f*f*f;
-    subset->b = (orig->b + 3*orig->a*tstart) *f*f;
-    subset->c = (orig->c + (2*orig->b + 3*orig->a*tstart)*tstart) * f;
-    subset->d = d;
-}
-#endif
 
 static extended SplineContainsPoint(Monotonic *m,BasePoint *pt) {
     int which, nw;
@@ -981,28 +924,6 @@ return( false );
 
     /* Ok, if we've gotten this far we know that two of the end points are  */
     /*  on both splines.                                                    */
-#if 0
-    /* Interesting. The following algorithem does not produce a unique      */
-    /*  representation of the subset spline.  Must test each point          */
-    /* Then subset each spline so that [0,1] runs along the range we just   */
-    /*  found for it. Compare these two subsets, if they are almost equal   */
-    /*  then assume they are coincident, and return the two endpoints as    */
-    /*  the intersection points.                                            */
-    SubsetSpline1(&subs1,&m1->s->splines[0],t1s[0],t1s[1],pts[0].x);
-    SubsetSpline1(&subs2,&m2->s->splines[0],t2s[0],t2s[1],pts[0].x);
-    if ( !RealWithin(subs1.a,subs2.a,.1) || !RealWithin(subs1.b,subs2.b,.1) ||
-	    !RealWithin(subs1.c,subs2.c,.2) /* Don't need to check d, it's always pts[0].x */)
-return( false );
-
-    SubsetSpline1(&subs1,&m1->s->splines[1],t1s[0],t1s[1],pts[0].y);
-    SubsetSpline1(&subs2,&m2->s->splines[1],t2s[0],t2s[1],pts[0].y);
-    if ( !RealWithin(subs1.a,subs2.a,.1) || !RealWithin(subs1.b,subs2.b,.1) ||
-	    !RealWithin(subs1.c,subs2.c,.2) /* Don't need to check d, it's always pts[0].x */)
-return( false );
-
-    t1s[2] = t2s[2] = -1;
-return( true );
-#else
     t1s[2] = t2s[2] = -1;
     if ( !m1->s->knownlinear || !m1->s->knownlinear ) {
 	if ( t1s[1]<t1s[0] ) {
@@ -1031,7 +952,6 @@ return( false );
     }
 
 return( true );
-#endif
 }
 
 static void FigureProperMonotonicsAtIntersections(Intersection *ilist) {
@@ -1250,7 +1170,7 @@ return( -1 );
 return( 0 );
 }
 
-int MonotonicFindAt(Monotonic *ms,int which, extended test, Monotonic **space ) {
+static int MonotonicFindAt(Monotonic *ms,int which, extended test, Monotonic **space ) {
     /* Find all monotonic sections which intersect the line (x,y)[which] == test */
     /*  find the value of the other coord on that line */
     /*  Order them (by the other coord) */
@@ -1338,41 +1258,6 @@ static void FigureNeeds(Monotonic *ms,int which, extended test, Monotonic **spac
     int i, j, winding, ew, was_close, close;
 
     MonotonicFindAt(ms,which,test,space);
-
-#if 0		/* Really slow, and it fixes some problems at the expense of causing others */
-    for ( i=0; space[i+1]!=NULL; ++i ) {
-	/* If two splines are very close to each other, we may miss an */
-	/*  intersection. If that has happened, reorder the splines */
-	if ( space[i+1]->other - space[i]->other < .1 ) {
-	    extended oi, oi1, ti, ti1, test2;
-	    if ( which==1 ) {
-		if ( space[i+1]->b.miny > space[i]->b.miny )
-		    test2 = space[i]->b.miny;
-		else
-		    test2 = space[i+1]->b.miny;
-	    } else {
-		if ( space[i+1]->b.minx > space[i]->b.minx )
-		    test2 = space[i]->b.minx;
-		else
-		    test2 = space[i+1]->b.minx;
-	    }
-	    ti = BoundIterateSplineSolve(&space[i]->s->splines[which],
-		    space[i]->tstart,space[i]->tend,test2,error);
-	    ti1= BoundIterateSplineSolve(&space[i+1]->s->splines[which],
-		    space[i+1]->tstart,space[i+1]->tend,test2,error);
-	    oi = ((space[i]->s->splines[nw].a*ti+space[i]->s->splines[nw].b)*ti+
-		    space[i]->s->splines[nw].c)*ti+space[i]->s->splines[nw].d;
-	    oi1= ((space[i+1]->s->splines[nw].a*ti1+space[i+1]->s->splines[nw].b)*ti1+
-		    space[i+1]->s->splines[nw].c)*ti1+space[i+1]->s->splines[nw].d;
-	    if ( oi1<oi ) {
-		m = space[i];
-		space[i] = space[i+1];
-		space[i+1] = m;
- fprintf( stderr, "Flipped\n" );
-	    }
-	}
-    }
-#endif
 
     winding = 0; ew = 0; was_close = false;
     for ( i=0; space[i]!=NULL; ++i ) {
@@ -1608,16 +1493,6 @@ static void TestForBadDirections(Intersection *ilist) {
 	    ++cnt;
 	    if ( ml->m->isneeded ) ++ncnt;
 	}
-#if 0
-	if ( cnt>=4 && ncnt==cnt ) {
-	    ff_post_notice(_("Warning"),_("Glyph %.40s contains an overlapped region where two contours with opposite orientations intersect. This will not be removed. In many cases doing Element->Correct Direction before Remove Overlap will improve matters."),
-		    glyphname );
-	    fprintf( stderr, "%s: Fully needed intersection at (%g,%g)\n",
-		    glyphname,
-		    ilist->inter.x, ilist->inter.y );
-    break;
-	}
-#endif
 	ilist = ilist->next;
     }
 }
@@ -1703,24 +1578,6 @@ static MList *FindMLOfM(Intersection *curil,Monotonic *finalm) {
 	if ( ml->m==finalm )
 return( ml );
     }
-#if 0
-	if ( ml->isend ) {
-	    for ( m=ml->m; m!=NULL ; m=m->prev ) {
-		if ( m==finalm )
-return( ml );
-		if ( m->start != NULL )
-	    break;
-	    }
-	} else {
-	    for ( m=ml->m; m!=NULL; m=m->next ) {
-		if ( m==finalm )
-return( ml );
-		if ( m->end!=NULL )
-	    break;
-	    }
-	}
-    }
-#endif
 return( NULL );
 }
 
@@ -2012,7 +1869,7 @@ static SplineSet *MergeOpenAndFreeClosed(SplineSet *new,SplineSet *old,
 return(new);
 }
 
-void FreeMonotonics(Monotonic *m) {
+static void FreeMonotonics(Monotonic *m) {
     Monotonic *next;
 
     while ( m!=NULL ) {
@@ -2341,7 +2198,7 @@ return( -1 );
 return( t1 );
 }
 	
-void SSRemoveBacktracks(SplineSet *ss) {
+static void SSRemoveBacktracks(SplineSet *ss) {
     SplinePoint *sp;
 
     if ( ss==NULL )

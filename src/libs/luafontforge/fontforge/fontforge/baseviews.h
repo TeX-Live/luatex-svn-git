@@ -40,35 +40,6 @@ typedef struct drect {
     real width, height;
 } DRect;
 
-typedef struct pressedOn {
-    int x,y;			/* screen location of the press */
-    real cx, cy;		/* Translated into character space */
-    SplinePoint *sp;
-    unsigned int nextcp: 1;	/* Is the cursor on the "next" control point of */
-    unsigned int prevcp: 1;	/*  the spline point, or the "prev" control point */
-    unsigned int anysel: 1;	/* did we hit anything? */
-/*    unsigned int width: 1;	/ * we're moving the width rather than a spline */
-/*    unsigned int vwidth: 1;	/ * we're moving the width rather than a spline */
-    unsigned int pressed: 1;
-    unsigned int rubberbanding: 1;
-    unsigned int rubberlining: 1;
-    unsigned int transany: 1;
-    unsigned int transanyrefs: 1;
-    Spline *spline;
-    real t;			/* location on the spline where we pressed */
-    RefChar *ref;
-    SplinePointList *spl;	/* containing spline or point */
-    ImageList *img;
-    AnchorPoint *ap;
-    float ex, ey;		/* end of last rubber band rectangle */
-    BasePoint constrain;	/* Point to which we constrain movement */
-    BasePoint cp;		/* Original control point position */
-    spiro_cp *spiro;		/* If they clicked on a spiro point */
-    int spiro_index;		/* index of a clicked spiro_cp, or */
-			/* if they clicked on the spline between spiros, */
-			/* this is the spiro indexof the preceding spiro */
-} PressedOn;
-
 /* Note: These are ordered as they are displayed in the tools palette */
 enum cvtools { cvt_pointer, cvt_magnify,
 	cvt_freehand, cvt_hand,
@@ -439,13 +410,10 @@ extern void BDFFloatFree(BDFFloat *sel);
 extern int CVLayer(CharViewBase *cv);
 extern Undoes *CVPreserveStateHints(CharViewBase *cv);
 extern Undoes *CVPreserveState(CharViewBase *cv);
-extern Undoes *_CVPreserveTState(CharViewBase *cv,PressedOn *);
 extern Undoes *CVPreserveWidth(CharViewBase *cv,int width);
 extern Undoes *CVPreserveVWidth(CharViewBase *cv,int vwidth);
 extern void CVDoRedo(CharViewBase *cv);
 extern void CVDoUndo(CharViewBase *cv);
-extern void _CVRestoreTOriginalState(CharViewBase *cv,PressedOn *p);
-extern void _CVUndoCleanup(CharViewBase *cv,PressedOn *p);
 extern void CVRemoveTopUndo(CharViewBase *cv);
 extern void CopySelected(CharViewBase *cv,int doanchors);
 extern void CVCopyGridFit(CharViewBase *cv);

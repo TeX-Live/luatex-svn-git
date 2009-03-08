@@ -189,16 +189,13 @@ typedef struct charview {
     int enc;
     EncMap *map_of_enc;				/* Only use for comparison against fontview's map to see if our enc be valid */
 						/*  Will not be updated when fontview is reencoded */
-    PressedOn p;
     SplinePoint *lastselpt;
-    spiro_cp *lastselcp;
     /*GWindow tools, layers;*/
     int8 b1_tool, cb1_tool, b2_tool, cb2_tool;		/* Button 3 does a popup */
     int8 s1_tool, s2_tool, er_tool;			/* Bindings for wacom stylus and eraser */
     int8 showing_tool, pressed_tool, pressed_display, had_control, active_tool;
     SplinePointList *active_spl;
     SplinePoint *active_sp;
-    spiro_cp *active_cp;
     IPoint handscroll_base;
     uint16 rfh, ras;
     BasePoint lastknife;
@@ -214,7 +211,6 @@ typedef struct charview {
     real expandwidth, expandheight;
     SplinePointList *active_shape;
     SplinePoint joinpos;
-    spiro_cp joincp;
     SplineChar *template1, *template2;
 #if HANYANG
     struct jamodisplay *jamodisplay;
@@ -394,7 +390,6 @@ typedef struct findsel {
     unsigned int seek_controls: 1;	/* notice control points before base points */
     unsigned int all_controls: 1;	/* notice control points even if the base points aren't selected (in truetype point numbering mode where all cps are visible) */
     real scale;
-    PressedOn *p;
 } FindSel;
 
 typedef struct searchview {
@@ -800,9 +795,6 @@ extern int CVSetSel(CharView *cv,int mask);
 extern void CVInvertSel(CharView *cv);
 extern int CVAllSelected(CharView *cv);
 extern SplinePointList *CVAnySelPointList(CharView *cv);
-extern int CVAnySelPoint(CharView *cv, SplinePoint **selsp, spiro_cp **selcp);
-extern int CVOneThingSel(CharView *cv, SplinePoint **sp, SplinePointList **spl,
-	RefChar **ref, ImageList **img, AnchorPoint **ap, spiro_cp **cp);
 extern int CVOneContourSel(CharView *cv, SplinePointList **_spl,
 	RefChar **ref, ImageList **img);
 extern void CVImport(CharView *cv);
@@ -854,7 +846,6 @@ extern void CVMergeSplineSets(CharView *cv, SplinePoint *active, SplineSet *acti
 extern void CVAdjustControl(CharView *cv,BasePoint *cp, BasePoint *to);
 extern int  CVMoveSelection(CharView *cv, real dx, real dy, uint32 input_state);
 extern int  CVTestSelectFromEvent(CharView *cv,GEvent *event);
-extern void CVMouseMovePen(CharView *cv, PressedOn *p, GEvent *event);
 extern void CVMouseUpPoint(CharView *cv,GEvent *event);
 extern int  CVMouseMovePointer(CharView *cv, GEvent *event);
 extern void CVMouseDownPointer(CharView *cv, FindSel *fs, GEvent *event);
@@ -872,7 +863,6 @@ extern void CPUpdateInfo(CharView *cv, GEvent *event);
 extern void CPEndInfo(CharView *cv);
 extern void BVChar(BitmapView *cv, GEvent *event );
 extern void CVMouseDownPoint(CharView *cv,GEvent *event);
-extern void CVMouseMovePoint(CharView *cv,PressedOn *);
 extern void CVMouseUpPointer(CharView *cv );
 extern void CVCheckResizeCursors(CharView *cv);
 extern void CVMouseDownHand(CharView *cv);
@@ -881,7 +871,6 @@ extern void CVMouseDownTransform(CharView *cv);
 extern void CVMouseMoveTransform(CharView *cv);
 extern void CVMouseUpTransform(CharView *cv);
 extern void CVMouseDownKnife(CharView *cv);
-extern void CVMouseMoveKnife(CharView *cv,PressedOn *);
 extern void CVMouseUpKnife(CharView *cv,GEvent *event);
 extern void CVMouseMoveShape(CharView *cv);
 extern void CVMouseUpShape(CharView *cv);

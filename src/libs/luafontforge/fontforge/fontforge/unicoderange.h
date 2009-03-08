@@ -36,12 +36,3 @@ extern struct unicoderange {
     int actual;		/* Count of assigned codepoints in this range */
 } unicoderange[];
 
-struct rangeinfo {
-    struct unicoderange *range;
-    int cnt;
-    int actual;
-};
-
-enum ur_flags { ur_includeempty = 1, ur_sortbyname = 2, ur_sortbyunicode = 4 };
-extern struct rangeinfo *SFUnicodeRanges(SplineFont *sf, enum ur_flags flags);
-extern int unicoderange_cnt;

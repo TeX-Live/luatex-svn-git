@@ -119,7 +119,6 @@ extern Entity *EntityInterpretSVG(char *filename,char *memory, int memlen, int e
 extern Entity *EntityInterpretPDFPage(FILE *pdf,int select_page);
 extern SplinePointList *SplinesFromEntities(Entity *ent,int *flags,int is_stroked);
 extern void SCAppendEntityLayers(SplineChar *sc, Entity *ent);
-extern void EntityDefaultStrokeFill(Entity *ent);
 
 	/* Used for type3 fonts briefly */
 /* This is not a "real" structure. It is a temporary hack that encompasses */
@@ -131,8 +130,6 @@ typedef struct entitychar {
     SplineChar *sc;
     uint8 fromtype3;
 } EntityChar;
-
-extern SplinePointList *SplinesFromEntityChar(EntityChar *ec,int *flags,int is_stroked);
 
 struct pskeydict {
     int16 cnt, max;

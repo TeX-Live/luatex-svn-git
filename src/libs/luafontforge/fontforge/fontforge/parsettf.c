@@ -629,10 +629,8 @@ return( true );
 	    free(fn);
 	}
 	free(find);
-    } else if ( no_windowing_ui )
 	choice = 0;
-    else
-	choice = ff_choose(_("Pick a font, any font..."),(const char **) names,j,0,_("There are multiple fonts in this file, pick one"));
+    }
     if ( choice!=-1 ) {
 	fseek(ttf,offsets[choice],SEEK_SET);
 	*chosenname = copy(names[choice]);
@@ -652,11 +650,7 @@ static int PickCFFFont(char **fontnames) {
     names = gcalloc(cnt+1,sizeof(unichar_t *));
     for ( i=0; i<cnt; ++i )
 	names[i] = uc_copy(fontnames[i]);
-    if ( no_windowing_ui )
-	choice = 0;
-    else
-	choice = ff_choose(_("Pick a font, any font..."),
-	    (const char **) names,cnt,0,_("There are multiple fonts in this file, pick one"));
+    choice = 0;
     for ( i=0; i<cnt; ++i )
 	free(names[i]);
     free(names);
@@ -1566,25 +1560,10 @@ return;
 	cur->frommac[id/32] &= ~(1<<(id&0x1f));
     } else {
 	int ret;
-	extern int running_script;
 	if ( info->dupnamestate!=0 )
 	    ret = info->dupnamestate;
-	else if ( running_script )
+	else
 	    ret = 3;
-	else {
-	    char *buts[5];
-	    buts[0] = _("Use _First");
-	    buts[1] = _("First to _All");
-	    buts[2] = _("Second _to All");
-	    buts[3] = _("Use _Second");
-	    buts[4] = NULL;
-	    ret = ff_ask(_("Multiple names for language"),(const char **)buts,0,3,
-		    _("The 'name' table contains (at least) two strings for the %s in language %s, the first '%.12s...' the second '%.12s...'.\nWhich do you prefer?"),
-		    TTFNameIds(id),MSLangString(language),
-		    cur->names[id],str);
-	    if ( ret==1 || ret==2 )
-		info->dupnamestate = ret;
-	}
 	if ( ret==0 || ret==1 )
 	    free(str);
 	else {
@@ -1913,8 +1892,8 @@ static SplineSet *ttfbuildcontours(int path_cnt,uint16 *endpt, char *flags,
 	    cur->last = cur->first;
 	}
 	for ( sp=cur->first; ; ) {
-	    if ( sp->ttfindex!=0xffff && SPInterpolate(sp) )
-		sp->dontinterpolate = true;
+	  /*if ( sp->ttfindex!=0xffff && SPInterpolate(sp) )
+	    sp->dontinterpolate = true;*/ /* TODO: needs checking */
 	    if ( sp->next==NULL )
 	break;
 	    sp=sp->next->to;
@@ -5513,7 +5492,7 @@ return( 0 );
 return( 0 );
     }
     if ( info->bitmapdata_start!=0 && info->bitmaploc_start!=0 )
-	TTFLoadBitmaps(ttf,info,info->onlyonestrike);
+      ; /*TTFLoadBitmaps(ttf,info,info->onlyonestrike);*/
     else if ( info->onlystrikes )
 	ff_post_error( _("No Bitmap Strikes"), _("No (useable) bitmap strikes in this TTF font: %s"), filename==NULL ? "<unknown>" : filename );
     if ( info->onlystrikes && info->bitmaps==NULL ) {
@@ -6165,10 +6144,6 @@ static SplineFont *SFFillFromTTF(struct ttfinfo *info) {
     sf->grid = info->guidelines;
     sf->horiz_base = info->horiz_base;
     sf->vert_base = info->vert_base;
-    for ( bdf = info->bitmaps; bdf!=NULL; bdf = bdf->next ) {
-	bdf->sf = sf;
-    }
-    SFDefaultAscent(sf);
     if ( info->layers!=NULL ) {
 	info->layers[ly_fore] = sf->layers[ly_fore];
 	sf->layers[ly_fore].name = NULL;

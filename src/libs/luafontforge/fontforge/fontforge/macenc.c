@@ -1184,72 +1184,6 @@ return( NULL );
 return( ret );
 }
 
-char *Utf8ToMacStr(const char *ustr,int macenc,int maclang) {
-    char *ret, *rpt;
-    const unichar_t *table;
-    int i, ch;
-
-    if ( ustr==NULL )
-return( NULL );
-
-    if ( macenc==sm_japanese || macenc==sm_korean || macenc==sm_tradchinese ||
-	    macenc == sm_simpchinese ) {
-	Encoding *enc = FindOrMakeEncoding(macenc==sm_japanese ? "Sjis" :
-					    macenc==sm_korean ? "EUC-KR" :
-			                    macenc==sm_tradchinese ? "Big5" :
-			                      "EUC-CN" );
-	iconv_t fromutf8;
-	ICONV_CONST char *in;
-	char *out;
-	size_t inlen, outlen;
-	if ( enc==NULL )
-return( NULL );
-	fromutf8 = iconv_open(enc->iconv_name!=NULL?enc->iconv_name:enc->enc_name,"UTF-8");
-	if ( fromutf8==(iconv_t) -1 || fromutf8==NULL )
-return( NULL );
-	in = (char *) ustr;
-	inlen = strlen(ustr);
-	outlen = sizeof(unichar_t)*strlen(ustr);
-	out = ret = galloc(outlen+sizeof(unichar_t));
-	iconv(fromutf8,&in,&inlen,&out,&outlen);
-	out[0] = out[1] = '\0';
-#ifndef UNICHAR_16
-	out[2] = out[3] = '\0';
-#endif
-	iconv_close(fromutf8);
-return( ret );
-    }
-
-    table = macencodings[macenc];
-
-    if ( maclang==15 /* Icelandic */ ||
-	    maclang==30 /* Faroese */ ||
-	    maclang==149 /* Greenlandic */ )
-	table = iceland;
-    else if ( maclang == 17 /* turkish */ )
-	table = turkish;
-    else if ( maclang == 18 /* croatian */ )
-	table = croatian;
-    else if ( maclang == 37 /* romanian */ )
-	table = romanian;
-    else if ( maclang == 31 /* Farsi/Persian */ )
-	table = farsi;
-
-    if ( table==NULL )
-return( NULL );
-
-    ret = galloc(strlen(ustr)+1);
-    for ( rpt = ret; (ch=utf8_ildb(&ustr)); ) {
-	for ( i=0; i<256; ++i )
-	    if ( table[i]==ch ) {
-		*rpt++ = i;
-	break;
-	    }
-    }
-    *rpt = '\0';
-return( ret );
-}
-
 uint8 MacEncFromMacLang(int maclang) {
     if ( maclang<0 || maclang>=sizeof(_MacScriptFromLanguage)/sizeof(_MacScriptFromLanguage[0]))
 return( 0xff );
@@ -1372,42 +1306,6 @@ char *FindEnglishNameInMacName(struct macname *mn) {
 return( NULL );
 
 return( MacStrToUtf8(mn->name,mn->enc,mn->lang));
-}
-
-MacFeat *FindMacFeature(SplineFont *sf, int feat, MacFeat **secondary) {
-    MacFeat *from_f, *from_p;
-
-    for ( from_f = sf->features; from_f!=NULL && from_f->feature!=feat; from_f=from_f->next );
-    for ( from_p = default_mac_feature_map; from_p!=NULL && from_p->feature!=feat; from_p=from_p->next );
-    if ( from_f!=NULL ) {
-	if ( secondary!=NULL ) *secondary = from_p;
-return( from_f );
-    }
-    if ( secondary!=NULL ) *secondary = NULL;
-return( from_p );
-}
-
-struct macsetting *FindMacSetting(SplineFont *sf, int feat, int set,
-	struct macsetting **secondary) {
-    MacFeat *from_f, *from_p;
-    struct macsetting *s_f, *s_p;
-
-    if ( sf!=NULL )
-	for ( from_f = sf->features; from_f!=NULL && from_f->feature!=feat; from_f=from_f->next );
-    else
-	from_f = NULL;
-    for ( from_p = default_mac_feature_map; from_p!=NULL && from_p->feature!=feat; from_p=from_p->next );
-    s_f = s_p = NULL;
-    if ( from_f!=NULL )
-	for ( s_f = from_f->settings; s_f!=NULL && s_f->setting!=set; s_f=s_f->next );
-    if ( from_p!=NULL )
-	for ( s_p = from_p->settings; s_p!=NULL && s_p->setting!=set; s_p=s_p->next );
-    if ( s_f!=NULL ) {
-	if ( secondary!=NULL ) *secondary = s_p;
-return( s_f );
-    }
-    if ( secondary!=NULL ) *secondary = NULL;
-return( s_p );
 }
 
 struct macname *FindMacSettingName(SplineFont *sf, int feat, int set) {
@@ -2187,50 +2085,6 @@ MacFeat *default_mac_feature_map = &fs_features[26],
 	*builtin_mac_feature_map=&fs_features[26],
 	*user_mac_feature_map;
 
-static int MacNamesDiffer(struct macname *mn, struct macname *mn2) {
-
-    for ( ; mn!=NULL && mn2!=NULL; mn=mn->next, mn2 = mn2->next ) {
-	if ( mn->lang != mn2->lang || mn->enc!=mn2->enc ||
-		strcmp(mn->name,mn2->name)!=0 )
-return( true );
-    }
-    if ( mn==mn2 )		/* Both NULL */
-return( false );
-
-return( true );
-}
-
-static int MacSettingsDiffer(struct macsetting *ms, struct macsetting *ms2) {
-
-    for ( ; ms!=NULL && ms2!=NULL; ms=ms->next, ms2 = ms2->next ) {
-	if ( ms->setting != ms2->setting ||
-		ms->initially_enabled != ms2->initially_enabled ||
-		MacNamesDiffer(ms->setname,ms2->setname) )
-return( true );
-    }
-    if ( ms==ms2 )		/* Both NULL */
-return( false );
-
-return( true );
-}
-
-int UserFeaturesDiffer(void) {
-    MacFeat *mf, *mf2;
-    if ( user_mac_feature_map==NULL )
-return( false );
-    for ( mf=builtin_mac_feature_map, mf2=user_mac_feature_map;
-	    mf!=NULL && mf2!=NULL; mf=mf->next, mf2 = mf2->next ) {
-	if ( mf->feature != mf2->feature || mf->ismutex != mf2->ismutex ||
-		mf->default_setting != mf2->default_setting ||
-		MacNamesDiffer(mf->featname,mf2->featname) ||
-		MacSettingsDiffer(mf->settings,mf2->settings))
-return( true );
-    }
-    if ( mf==mf2 )		/* Both NULL */
-return( false );
-
-return( true );
-}
 
 struct macname *MacNameCopy(struct macname *mn) {
     struct macname *head=NULL, *last, *cur;

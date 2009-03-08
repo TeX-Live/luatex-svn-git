@@ -976,37 +976,10 @@ typedef struct spline {
     */
 } Spline;
 
-#ifndef _NO_LIBSPIRO
-# include "spiroentrypoints.h"
-#else
-# define SPIRO_OPEN_CONTOUR	'{'
-# define SPIRO_CORNER		'v'
-# define SPIRO_G4		'o'
-# define SPIRO_G2		'c'
-# define SPIRO_LEFT		'['
-# define SPIRO_RIGHT		']'
-# define SPIRO_END		'z'
-typedef struct {			/* Taken from spiro.h because I want */
-    double x;				/*  to be able to compile for spiro */
-    double y;				/*  even on a system without it */
-    char ty;
-} spiro_cp;
-#endif
-#define SPIRO_SELECTED(cp)	((cp)->ty&0x80)
-#define SPIRO_DESELECT(cp)	((cp)->ty&=~0x80)
-#define SPIRO_SELECT(cp)	((cp)->ty|=0x80)
-#define SPIRO_SPL_OPEN(spl)	((spl)->spiro_cnt>1 && ((spl)->spiros[0].ty&0x7f)==SPIRO_OPEN_CONTOUR)
-
-#define SPIRO_NEXT_CONSTRAINT	SPIRO_RIGHT	/* The curve is on the next side of the constraint point */
-#define SPIRO_PREV_CONSTRAINT	SPIRO_LEFT	/* The curve is on the prev side of the constraint point */
 
 typedef struct splinepointlist {
     SplinePoint *first, *last;
     struct splinepointlist *next;
-    spiro_cp *spiros;
-    uint16 spiro_cnt, spiro_max;
-	/* These could be bit fields, but bytes are easier to access and we */
-	/*  don't need the space (yet) */
     uint8 ticked;
     uint8 beziers_need_optimizer;	/* If the spiros have changed in spiro mode, then reverting to bezier mode might, someday, run a simplifier */
     uint8 is_clip_path;			/* In type3/svg fonts */
@@ -2024,7 +1997,6 @@ extern void SplinePointListFree(SplinePointList *spl);
 extern void SplinePointListMDFree(SplineChar *sc,SplinePointList *spl);
 extern void SplinePointListsMDFree(SplineChar *sc,SplinePointList *spl);
 extern void SplinePointListsFree(SplinePointList *head);
-extern void SplineSetSpirosClear(SplineSet *spl);
 extern void SplineSetBeziersClear(SplineSet *spl);
 extern void RefCharFree(RefChar *ref);
 extern void RefCharsFree(RefChar *ref);
@@ -2172,12 +2144,10 @@ extern void SCCatagorizePoints(SplineChar *sc);
 extern SplinePointList *SplinePointListCopy1(const SplinePointList *spl);
 extern SplinePointList *SplinePointListCopy(const SplinePointList *base);
 extern SplinePointList *SplinePointListCopySelected(SplinePointList *base);
-extern SplinePointList *SplinePointListCopySpiroSelected(SplinePointList *base);
 extern ImageList *ImageListCopy(ImageList *cimg);
 extern ImageList *ImageListTransform(ImageList *cimg,real transform[6]);
 extern void ApTransform(AnchorPoint *ap, real transform[6]);
 extern SplinePointList *SplinePointListTransform(SplinePointList *base, real transform[6], int allpoints );
-extern SplinePointList *SplinePointListSpiroTransform(SplinePointList *base, real transform[6], int allpoints );
 extern SplinePointList *SplinePointListShift(SplinePointList *base, real xoff, int allpoints );
 extern HintMask *HintMaskFromTransformedRef(RefChar *ref,BasePoint *trans,
 	SplineChar *basesc,HintMask *hm);
@@ -2314,7 +2284,6 @@ extern int SplineAtMinMax(Spline1D *sp, double t );
 extern void SplineRemoveExtremaTooClose(Spline1D *sp, extended *_t1, extended *_t2 );
 extern int NearSpline(struct findsel *fs, Spline *spline);
 extern real SplineNearPoint(Spline *spline, BasePoint *bp, real fudge);
-extern int SplineT2SpiroIndex(Spline *spline,double t,SplineSet *spl);
 extern void SCMakeDependent(SplineChar *dependent,SplineChar *base);
 extern SplinePoint *SplineBisect(Spline *spline, extended t);
 extern Spline *SplineSplit(Spline *spline, extended ts[3]);
@@ -2330,7 +2299,6 @@ extern SplineSet *SplineSetBindToPath(SplineSet *ss,int doscale, int glyph_as_un
 	int align,real offset, SplineSet *path);
 extern int SplineIsLinear(Spline *spline);
 extern int SplineIsLinearMake(Spline *spline);
-extern int SplineInSplineSet(Spline *spline, SplineSet *spl);
 extern int SSPointWithin(SplineSet *spl,BasePoint *pt);
 extern SplineSet *SSRemoveZeroLengthSplines(SplineSet *base);
 extern void SSRemoveStupidControlPoints(SplineSet *base);
@@ -2354,7 +2322,6 @@ enum ae_type { ae_all, ae_between_selected, ae_only_good, ae_only_good_rm_later 
 extern Spline *SplineAddExtrema(Spline *s,int always,real lenbound,
 	real offsetbound,DBounds *b);
 extern void SplineSetAddExtrema(SplineChar *sc,SplineSet *ss,enum ae_type between_selected, int emsize);
-extern void SplineSetAddSpiroExtrema(SplineChar *sc,SplineSet *ss,enum ae_type between_selected, int emsize);
 extern void SplineCharAddExtrema(SplineChar *sc,SplineSet *head,enum ae_type between_selected,int emsize);
 extern SplineSet *SplineCharRemoveTiny(SplineChar *sc,SplineSet *head);
 extern SplineFont *SplineFontNew(void);
@@ -2372,7 +2339,6 @@ extern SplineSet *SplineSetsDetectDir(SplineSet **_base, int *lastscan);
 extern void SPAverageCps(SplinePoint *sp);
 extern void SPLAverageCps(SplinePointList *spl);
 extern void SPWeightedAverageCps(SplinePoint *sp);
-extern void BP_HVForce(BasePoint *vector);
 extern void SplineCharDefaultPrevCP(SplinePoint *base);
 extern void SplineCharDefaultNextCP(SplinePoint *base);
 extern void SplineCharTangentNextCP(SplinePoint *sp);
@@ -2381,7 +2347,6 @@ extern void SPHVCurveForce(SplinePoint *sp);
 extern void SPSmoothJoint(SplinePoint *sp);
 extern int PointListIsSelected(SplinePointList *spl);
 extern void SCSplinePointsUntick(SplineChar *sc,int layer);
-extern void SplineSetsUntick(SplineSet *spl);
 extern void SFOrderBitmapList(SplineFont *sf);
 extern int KernThreshold(SplineFont *sf, int cnt);
 extern real SFGuessItalicAngle(SplineFont *sf);
@@ -2420,7 +2385,6 @@ extern int IntersectLinesClip(BasePoint *inter,
 #if 0
 extern void SSBisectTurners(SplineSet *spl);
 #endif
-extern void SSRemoveBacktracks(SplineSet *ss);
 extern SplineSet *SplineSetStroke(SplineSet *spl,StrokeInfo *si,SplineChar *sc);
 extern SplineSet *SSStroke(SplineSet *spl,StrokeInfo *si,SplineChar *sc);
 extern SplineSet *SplineSetRemoveOverlap(SplineChar *sc,SplineSet *base,enum overlap_type);
@@ -2509,7 +2473,7 @@ extern void SplineFontAutoHintRefs( SplineFont *sf, int layer);
 extern StemInfo *HintCleanup(StemInfo *stem,int dosort,int instance_count);
 extern int SplineFontIsFlexible(SplineFont *sf,int layer, int flags);
 extern int SCDrawsSomething(SplineChar *sc);
-extern int SCWorthOutputting(SplineChar *sc);
+#define SCWorthOutputting(a) 1
 extern int SFFindNotdef(SplineFont *sf, int fixed);
 extern int doesGlyphExpandHorizontally(SplineChar *sc);
 extern int IsntBDFChar(BDFChar *bdfc);
@@ -3044,12 +3008,6 @@ extern void SCTickValidationState(SplineChar *sc,int layer);
 extern int ValidatePrivate(SplineFont *sf);
 extern int SFValidate(SplineFont *sf, int layer, int force);
 extern int VSMaskFromFormat(SplineFont *sf, int layer, enum fontformat format);
-
-extern int hasspiro(void);
-extern SplineSet *SpiroCP2SplineSet(spiro_cp *spiros);
-extern spiro_cp *SplineSet2SpiroCP(SplineSet *ss,uint16 *_cnt);
-extern spiro_cp *SpiroCPCopy(spiro_cp *spiros,uint16 *_cnt);
-extern void SSRegenerateFromSpiros(SplineSet *spl);
 
 struct lang_frequencies;
 extern unichar_t *PrtBuildDef( SplineFont *sf, void *tf,
