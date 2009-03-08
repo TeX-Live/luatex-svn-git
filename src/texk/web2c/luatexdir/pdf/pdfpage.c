@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: pdfpage.c,v 1.369 2009/03/01 22:15:56 hahe Exp hahe $ */
+/* $Id: pdfpage.c,v 1.372 2009/03/01 23:25:52 hahe Exp hahe $ */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -423,7 +423,6 @@ static void goto_textmode(pdfstructure * p)
     scaledpos origin = {
         0, 0
     };
-    boolean move;
     if (!is_textmode(p)) {
         if (is_pagemode(p)) {
             set_pos(p, &origin);        /* reset to page origin */
@@ -434,8 +433,8 @@ static void goto_textmode(pdfstructure * p)
             if (is_chararraymode(p))
                 end_chararray(p);
         }
+        assert(is_textmode(p));
     }
-    assert(is_textmode(p));
 }
 
 void pos_finish(pdfstructure * p)
@@ -447,7 +446,6 @@ void pos_finish(pdfstructure * p)
 
 static void place_rule(pdfstructure * p, scaledpos * pos, scaled wd, scaled ht)
 {
-    boolean move;
     pdfpos dim;
     scaledpos tmppos = *pos;
     goto_pagemode(p);

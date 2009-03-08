@@ -653,6 +653,16 @@ integer epdf_orig_x(integer i);
 /* limglib.c */
 void vf_out_image(unsigned i);
 
+/* pdfpage.c */
+void pdf_place_rule(scaled h, scaled v, scaled wd, scaled ht);
+void pdf_place_glyph(internal_font_number f, integer c);
+void pdf_place_form(scaled h, scaled v, integer i);
+void pdf_goto_pagemode();
+void pdf_page_init();
+void pdf_set_pos(scaled h, scaled v);
+void pdf_end_string_nl();
+void pdf_print_charwidth(internal_font_number f, int i);
+
 /* vfovf.c */
 void vf_expand_local_fonts(internal_font_number f);
 internal_font_number letter_space_font(halfword u, internal_font_number f,

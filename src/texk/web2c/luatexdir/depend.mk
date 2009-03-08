@@ -2451,6 +2451,7 @@ lua/limglib.o: ../../../../src/texk/web2c/luatexdir/lua/limglib.c \
   ../../../../src/texk/web2c/luatexdir/lua/../image/image.h \
   ../../../../src/texk/web2c/luatexdir/lua/../luatex-api.h \
  
+pdf/pdfpage.o: ../../../../src/texk/web2c/luatexdir/pdf/pdfpage.c
 lang/hnjalloc.o: ../../../../src/texk/web2c/luatexdir/lang/hnjalloc.c
 lang/hyphen.o: ../../../../src/texk/web2c/luatexdir/lang/hyphen.c \
   ../../../../src/texk/web2c/luatexdir/lang/hnjalloc.h \

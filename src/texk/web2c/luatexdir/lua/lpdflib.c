@@ -39,7 +39,6 @@ static int findcurh(lua_State * L)
     return 1;
 }
 
-
 typedef enum { set_origin, direct_page, direct_always } pdf_lit_mode;
 
 int luapdfprint(lua_State * L)
@@ -47,6 +46,7 @@ int luapdfprint(lua_State * L)
     int n;
     unsigned i;
     size_t len;
+    position tmp;
     const char *outputstr, *st;
     pdf_lit_mode literal_mode;
     n = lua_gettop(L);
@@ -79,11 +79,13 @@ int luapdfprint(lua_State * L)
     check_pdfminorversion();
     switch (literal_mode) {
     case (set_origin):
-        pdf_end_text();
-        pdf_set_origin(cur.h, cur.v);
+        pdf_goto_pagemode();
+        tmp.h = cur.h; tmp.v = cur.v;
+        pos = synch_p_with_c(tmp);
+        pdf_set_pos(pos.h, pos.v);
         break;
     case (direct_page):
-        pdf_end_text();
+        pdf_goto_pagemode();
         break;
     case (direct_always):
         pdf_end_string_nl();

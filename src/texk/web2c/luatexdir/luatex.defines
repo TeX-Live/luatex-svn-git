@@ -538,6 +538,16 @@
 
 { functions from limglib.c }
 
+{ functions from pdfpage.c }
+@define procedure pdf_place_rule();
+@define procedure pdf_place_glyph();
+@define procedure pdf_place_form();
+@define procedure pdf_goto_pagemode;
+@define procedure pdf_page_init;
+@define procedure pdf_set_pos();
+@define procedure pdf_end_string_nl;
+@define procedure pdf_print_charwidth();
+
 { functions from writet3.c }
 @define function get_pk_char_width();
 

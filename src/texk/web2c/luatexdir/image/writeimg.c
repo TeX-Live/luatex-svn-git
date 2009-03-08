@@ -550,7 +550,7 @@ void out_img(image * img, scaled hpos, scaled vpos)
         break;
     default:;
     }
-    pdf_end_text();
+    pdf_goto_pagemode();
     if (pdf_page_group_val<1) 
       pdf_page_group_val = img_group_ref(idict); /* added from web for 1.40.8 */
     pdf_printf("q\n");

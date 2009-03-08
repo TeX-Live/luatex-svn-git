@@ -357,10 +357,7 @@ static void write_charwidth_array(fo_entry * fo, internalfontnumber f)
             j++;
         }
         j = i;
-        width = divide_scaled(char_width(f, i), pdf_font_size(f), 4);
-        pdf_printf("%i", (int) width / 10);     /* see adv_char_width() in pdftex.web */
-        if ((width = width % 10) != 0)
-            pdf_printf(".%i", width);
+        pdf_print_charwidth(f, i);
     }
     pdf_puts("]\n");
     pdf_end_obj();
@@ -859,13 +856,18 @@ static void write_cid_charwidth_array(fo_entry * fo)
         }
         if (glyph->id == (unsigned) (i + 1))
             pdf_puts(" ");
+
         if (j < 0) {
             pdf_puts("-");
             j = -j;
         }
+
+        /* pdf_print_charwidth(f, i); */
+
         pdf_printf("%i", (j / 10));
         if ((j % 10) != 0)
             pdf_printf(".%i", (j % 10));
+
         i = glyph->id;
     }
     pdf_puts("]]\n");

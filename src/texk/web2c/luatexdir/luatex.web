@@ -14479,8 +14479,8 @@ output to the \.{DVI} file, while |cur.h| and |cur.v| are the coordinates
 corresponding to the current state of the output routines. Coordinate
 changes will accumulate in |cur.h| and |cur.v| without being reflected
 in the output, until such a change becomes necessary or desirable; we
-can call the |movement| procedure whenever we want to make |dvi.h=cur.h|
-or |dvi.v=cur.v|.
+can call the |movement| procedure whenever we want to make |dvi.h=pos.h|
+or |dvi.v=pos.v|.
 
 The current font reflected in the \.{DVI} output is called |dvi_f|;
 there is no need for a `\\{cur\_f}' variable.
@@ -14518,6 +14518,15 @@ this is essentially the depth of |push| commands in the \.{DVI} output.
     synch_dvi_with_pos;
 end
 
+@d set_to_zero(#)==begin #.h := 0; #.v := 0; end
+
+@ @p function synch_p_with_c(cur: position):position;
+var pos: position;
+begin
+  synch_pos_with_cur;
+  synch_p_with_c := pos;
+end;
+
 @ @<Types...@>=
 @!position = record
     h, v: scaled;
@@ -14549,10 +14558,10 @@ else
     dir_BL_, dir_BR_: cur_page_height := height(p) + depth(p) + 2 * page_bottom_offset;
     dir_LT_, dir_RT_: cur_page_height := width(p) + 2 * page_top_offset;
     dir_LB_, dir_RB_: cur_page_height := width(p) + 2 * page_bottom_offset;
-    end;
+    end
 
 @ @<Initialize variables as |ship_out| begins@>=
-dvi.h:=0; dvi.v:=0; cur.h:=0; cur.v:=0; dvi_f:=null_font;
+set_to_zero(dvi); set_to_zero(cur); dvi_f:=null_font;
 @<Calculate DVI page dimensions and margins@>;
 ensure_dvi_open;
 if total_pages=0 then
@@ -14633,7 +14642,7 @@ dir_ptr,dir_tmp:pointer;
 begin cur_g:=0; cur_glue:=float_constant(0);
 this_box:=temp_ptr; g_order:=glue_order(this_box);
 g_sign:=glue_sign(this_box); p:=list_ptr(this_box);
-cur.h:=0; cur.v:=0; box_pos:=pos;
+set_to_zero(cur); box_pos:=pos;
 save_direction:=dvi_direction;
 dvi_direction:=box_dir(this_box);
 @<DIR: Initialize |dir_ptr| for |ship_out|@>;
@@ -14677,7 +14686,10 @@ reaching a non-|char_node|. The program uses the fact that |set_char_0=0|.
 @<Output node |p| for |hlist_out|...@>=
 if is_char_node(p) then
   begin
-  repeat synch_pos_with_cur; f:=font(p); c:=character(p);
+  repeat
+  if x_displace(p)<>0 then cur.h := cur.h + x_displace(p);
+  if y_displace(p)<>0 then cur.v := cur.v - y_displace(p);
+  synch_pos_with_cur; f:=font(p); c:=character(p);
   ci := char_info_short(f,c);
   if f<>dvi_f then @<Change font |dvi_f| to |f|@>;
   c_ht:=charinfo_height(ci);
@@ -14791,6 +14803,8 @@ if is_char_node(p) then
       end;
      endcases;
     end;
+  if x_displace(p)<>0 then cur.h := cur.h - x_displace(p);
+  if y_displace(p)<>0 then cur.v := cur.v + y_displace(p);
   cur.h:=cur.h+c_wd;
   p:=vlink(p);
   until not is_char_node(p);
@@ -15106,7 +15120,7 @@ begin cur_g:=0; cur_glue:=float_constant(0);
 this_box:=temp_ptr; g_order:=glue_order(this_box);
 g_sign:=glue_sign(this_box); p:=list_ptr(this_box);
 {pdfassert(p<>0);}
-cur.h:=0; cur.v:=0; box_pos:=pos;
+set_to_zero(cur); box_pos:=pos;
 save_direction:=dvi_direction;
 dvi_direction:=box_dir(this_box);
 incr(cur_s);
@@ -15468,12 +15482,12 @@ cur.h := cur.h - one_true_inch; {correct for DVI origin}
 cur.v := cur.v - one_true_inch;
 {The movement is actually done within the upright page coordinate system.}
 dvi_direction := dir_TL_; {only temporarily for this adjustment}
-synch_dvi_with_cur; box_pos := pos; {keep track on page}
+synch_pos_with_cur; box_pos := pos; {keep track on page}
 {Then switch to page box coordinate system; do |height(p)| movement.}
 dvi_direction := page_direction;
 cur.h := 0;
 cur.v := height(p);
-synch_dvi_with_cur;
+synch_pos_with_cur;
 {Now we are at the point on the page where the origin of the page box should go.}
 temp_ptr:=p;
 if type(p)=vlist_node then vlist_out@+else hlist_out;
@@ -15970,8 +15984,6 @@ else begin
     end;
     pdf_os_enable := false;
 end;
-min_bp_val :=
-    divide_scaled(one_hundred_bp, ten_pow[fixed_decimal_digits + 2], 0);
 if pdf_pk_resolution = 0 then {if not set from format file or by user}
     pdf_pk_resolution := pk_dpi; {take it from \.{texmf.cnf}}
 pk_scale_factor :=
@@ -16219,8 +16231,6 @@ accurary.
 @!one_hundred_bp: scaled; {scaled value corresponds to 100bp}
 @!one_bp: scaled; {scaled value corresponds to 1bp (rounded!)}
 @!ten_pow: array[0..9] of integer; {$10^0..10^9$}
-@!scaled_out: integer; {amount of |scaled| that was taken out in
-|divide_scaled|}
 
 @ @<Set init...@>=
 one_hundred_inch := 7227 * 65536; {exact, 473628672}
@@ -16256,51 +16266,7 @@ else
     round_xn_over_d := -u;
 end;
 
-@ Next subroutines are needed for controling spacing in PDF page description.
-For a given character |c| from a font |f|,
-the procedure |adv_char_width| advances |pdf_h|
-by {\it about\/} the amount |w|, which is the character width.
-But we cannot simply add |w| to |pdf_h|.
-Instead we have to bring the required shift into the same raster,
-on which also the \.{/Widths} array values,
-as they appear in the PDF file, are based.
-The |scaled_out| value is the |w| value moved into this raster.
-The \.{/Widths} values are used by the PDF reader independently
-to update its positions.
-So one has to be sure, that calculations are properly synchronized.
-Currently the \.{/Widths} array values are output
-with one digit after the decimal point,
-therefore the raster on which |adv_char_width| is operating
-is $1/10000$ of the |pdf_font_size|.
-
-For PK fonts things are more complicated,
-as we have to deal with scaling bitmaps as well.
-
-@p
-procedure adv_char_width(f: internal_font_number; c: integer); {update |pdf_h|
-by character width |w| from font |f|}
-var w, s_out: scaled;
-    s: integer;
-begin
-    w := char_width(f,c);
-    if hasfmentry(f) then begin
-        if pdf_cur_Tm_a = 1000 then begin
-            call_func(divide_scaled_n(w, pdf_font_size(f), 10000.0));
-            pdf_delta_h := pdf_delta_h + scaled_out;
-        end
-        else begin
-            s := divide_scaled_n(round_xn_over_d(w, 1000, pdf_cur_Tm_a),
-                                 pdf_font_size(f), 10000.0);
-            s_out := round_xn_over_d(round_xn_over_d(pdf_font_size(f), abs(s), 10000),
-                                     pdf_cur_Tm_a, 1000);
-            if s < 0 then
-                s_out := -s_out;
-            pdf_delta_h := pdf_delta_h + s_out;
-        end;
-    end else
-        pdf_delta_h := pdf_delta_h + get_pk_char_width(f, w);
-end;
-
+@ @p
 procedure pdf_print_bp(s: scaled); {print scaled as |bp|}
 begin
     pdf_print_real(divide_scaled(s, one_hundred_bp, fixed_decimal_digits + 2),
@@ -16317,24 +16283,7 @@ end;
 
 @* \[32c] PDF page description.
 
-@d pdf_h_offset == (h_offset + pdf_h_origin)
-@d pdf_v_offset == (v_offset + pdf_v_origin)
-@d pdf_x(#) == ((#) - pdf_h_offset + one_inch) {convert $x$-coordinate from \.{DVI} to PDF}
-@d pdf_y(#) == (cur_page_height - (#) - pdf_v_offset + one_inch) {convert $y$-coordinate from \.{DVI} to PDF}
-
 @<Glob...@>=
-@!pdf_f: internal_font_number; {the current font in PDF output page}
-@!pdf_h: scaled; {current horizontal coordinate in PDF output page}
-@!pdf_v: scaled; {current vertical coordinate in PDF output page}
-@!pdf_tj_start_h: scaled; {horizontal coordinate in PDF output page just before \.{TJ} array start}
-@!cur_delta_h: scaled; {horizontal |cur.h| offset from |pdf_tj_start_h|}
-@!pdf_delta_h: scaled; {horizontal offset from |pdf_tj_start_h|}
-@!pdf_origin_h: scaled; {current horizontal origin in PDF output page}
-@!pdf_origin_v: scaled; {current vertical origin in PDF output page}
-@!pdf_doing_string: boolean; {we are writing string to PDF file?}
-@!pdf_doing_text: boolean; {we are writing text section to PDF file?}
-@!min_bp_val: scaled;
-@!min_font_val: scaled; {(TJ array system)}
 @!fixed_pk_resolution: integer;
 @!fixed_decimal_digits: integer;
 @!fixed_gen_tounicode: integer;
@@ -16345,117 +16294,11 @@ end;
 @!pdf_output_value: integer;
 @!pdf_draftmode_option: integer;
 @!pdf_draftmode_value: integer;
-@!pdf_cur_Tm_a: integer; {value |a| of the current text matrix, i.e.,
-                          the current horizontal scaling factor}
-@!pdf_cur_Tm_c: integer; {value |c| of the current text matrix, i.e., slant (skew, obliqueness)}
-@!pdf_last_f: internal_font_number; {last font in PDF output page}
-@!pdf_last_fs: internal_font_number; {last font size in PDF output page}
 
-@ Following procedures implement low-level subroutines to convert \TeX{}
-internal structures to PDF page description.
-
-@p procedure pdf_set_origin(h, v: scaled); {set the origin to |h|, |v|}
-begin
-    if (abs(h - pdf_origin_h) >= min_bp_val) or
-        (abs(v - pdf_origin_v) >= min_bp_val) then begin
-        pdf_print("1 0 0 1 ");
-        pdf_print_bp(h - pdf_origin_h);
-        pdf_origin_h := pdf_origin_h + scaled_out;
-        pdf_out(" ");
-        pdf_print_bp(pdf_origin_v - v);
-        pdf_origin_v := pdf_origin_v - scaled_out;
-        pdf_print_ln(" cm");
-    end;
-    pdf_h := pdf_origin_h;
-    pdf_tj_start_h := pdf_h;
-    pdf_v := pdf_origin_v;
-end;
-
-procedure pdf_set_origin_temp(h, v: scaled); {set the origin to |h|, |v| inside group}
-begin
-    if (abs(h - pdf_origin_h) >= min_bp_val) or
-        (abs(v - pdf_origin_v) >= min_bp_val) then begin
-        pdf_print("1 0 0 1 ");
-        pdf_print_bp(h - pdf_origin_h);
-        pdf_out(" ");
-        pdf_print_bp(pdf_origin_v - v);
-        pdf_print_ln(" cm");
-    end;
-end;
-
-procedure pdf_end_string; {end the current string}
-begin
-    if pdf_doing_string then begin
-        pdf_print(")]TJ");
-        pdf_doing_string := false;
-    end;
-end;
-
-procedure pdf_end_string_nl; {end the current string, with new-line}
-begin
-    if pdf_doing_string then begin
-        pdf_print_ln(")]TJ");
-        pdf_doing_string := false;
-    end;
-end;
-
-procedure pdf_set_textmatrix(vv, v_out: scaled; f: internal_font_number);
-{set the next starting point to |cur.h|, |cur.v|}
-var pdf_new_Tm_a, pdf_new_Tm_c: integer; {values |a| and |c| of the new text matrix}
-begin
-    pdf_out(" ");
-    if f = pdf_f then begin
-        pdf_new_Tm_a := pdf_cur_Tm_a;
-        pdf_new_Tm_c := pdf_cur_Tm_c;
-    end else begin
-        if pdf_font_auto_expand(f) then
-            pdf_new_Tm_a := 1000 + pdf_font_expand_ratio(f)
-        else
-            pdf_new_Tm_a := 1000;
-        pdf_new_Tm_c := 0 * font_slant(f); {don't activate it yet, needs fixing writefont.c etc.}
-    end;
-    if (pdf_new_Tm_a <> 1000) or (pdf_cur_Tm_a <> 1000)
-    or (pdf_new_Tm_c <> 0) or (pdf_cur_Tm_c <> 0)
-    then begin
-        pdf_print_real(pdf_new_Tm_a, 3);
-        pdf_print(" 0 ");
-        pdf_print_real(pdf_new_Tm_c, 3);
-        pdf_print(" 1 ");
-        pdf_print_bp(cur.h - pdf_origin_h);
-        pdf_h := pdf_origin_h + scaled_out;
-        pdf_out(" ");
-        pdf_print_bp(pdf_origin_v - cur.v);
-        pdf_v := pdf_origin_v - scaled_out;
-        pdf_print(" Tm");
-        pdf_cur_Tm_a := pdf_new_Tm_a;
-        pdf_cur_Tm_c := pdf_new_Tm_c;
-        pdfassert(pdf_cur_Tm_a > 0);
-    end else begin
-        pdf_print_bp(cur.h - pdf_tj_start_h); {works only for unexpanded fonts}
-        pdf_h := pdf_tj_start_h + scaled_out;
-        pdf_out(" ");
-        pdf_print_real(vv, fixed_decimal_digits); {use |vv| and |v_out| to avoid duplicate calculation}
-        pdf_v := pdf_v - v_out;
-        pdf_print(" Td");
-    end;
-    pdf_tj_start_h := pdf_h;
-    pdf_delta_h := 0;
-end;
-
-@ The code below used to run the |false| branch. I have removed it now because it
-sometimes causes a one scaled point rounding error when nothing is supposed to happen,
-and that minute rounding error manages to distort the placement of cursive fonts
-somehow. TH
-
-@p
+@ @p
 procedure pdf_use_font(f: internal_font_number; fontnum: integer);
 {mark |f| as a used font; set |font_used(f)|, |pdf_font_size(f)| and |pdf_font_num(f)|}
 begin
-  if false then begin
-    call_func(divide_scaled(font_size(f), one_hundred_bp, 6));
-    set_pdf_font_size(f,scaled_out);
-    end
-  else
     set_pdf_font_size(f,font_size(f));
     set_font_used(f,true);
     pdfassert((fontnum > 0) or ((fontnum < 0) and (pdf_font_num(-fontnum) > 0)));
@@ -16525,7 +16368,7 @@ begin
     pdf_init_font(cur_val);
 end;
 
-procedure pdf_set_font(f: internal_font_number);
+function pdf_set_font(f: internal_font_number): internal_font_number;
 {set the actual font on PDF page}
 label found, found1;
 var p: pointer;
@@ -16546,134 +16389,10 @@ begin
     end;
     pdf_append_list(f)(pdf_font_list); {|f| not found in |pdf_font_list|, append it now}
 found:
-    if (k = pdf_last_f) and (font_size(f) = pdf_last_fs) then
-        return;
-    pdf_print("/F");
-    pdf_print_int(k);
-    pdf_print_resname_prefix;
-    pdf_out(" ");
-    pdf_print_real(divide_scaled(font_size(f), one_hundred_bp, 6), 4);
-    pdf_print(" Tf");
-    pdf_last_f := k;
-    pdf_last_fs := font_size(f);
-end;
-
-procedure pdf_begin_text; {begin a text section}
-begin
-    pdf_set_origin(0, cur_page_height);
-    pdf_print_ln("BT");
-    pdf_doing_text := true;
-    pdf_f := null_font;
-    pdf_last_f := null_font;
-    pdf_last_fs := 0;
-    pdf_doing_string := false;
-    pdf_cur_Tm_a := 1000;
-    pdf_cur_Tm_c := 0;
+    pdf_set_font := k;
 end;
 
 @ @p
-procedure pdf_begin_string(f: internal_font_number); {begin to draw a string}
-var s_out, vv, v_out: scaled;
-    s: integer;
-begin s_out:=0;
-    if not pdf_doing_text then
-        pdf_begin_text;
-    if f <> pdf_f then begin
-        pdf_end_string;
-        pdf_set_font(f);
-    end;
-    if pdf_cur_Tm_a = 1000 then begin
-        s := divide_scaled_n(cur.h - (pdf_tj_start_h + pdf_delta_h), pdf_font_size(f), 1000.0);
-        s_out := scaled_out;
-    end
-    else begin
-        s := divide_scaled_n(round_xn_over_d(cur.h - (pdf_tj_start_h + pdf_delta_h), 1000,
-                                             pdf_cur_Tm_a), pdf_font_size(f), 1000.0);
-        if abs(s) < @'100000 then begin
-            s_out := round_xn_over_d(round_xn_over_d(pdf_font_size(f), abs(s), 1000),
-                                     pdf_cur_Tm_a, 1000);
-            if s < 0 then
-                s_out := -s_out;
-        end;
-        {no need to calculate |s_out| when |abs(s) >= @'100000|, since the text
-         matrix will be reset below}
-    end;
-    if abs(cur.v - pdf_v) >= min_bp_val then begin
-        vv := divide_scaled(pdf_v - cur.v, one_hundred_bp,
-                           fixed_decimal_digits + 2);
-        v_out := scaled_out;
-    end
-    else begin
-        vv := 0;
-        v_out := 0;
-    end;
-    if (f <> pdf_f) or (vv <> 0) or (abs(s) >= @'100000) then begin
-        pdf_end_string;
-        pdf_set_textmatrix(vv, v_out, f);
-        pdf_f := f;
-        s := 0;
-    end;
-    if not pdf_doing_string then begin
-        pdf_print(" [");
-        if s = 0 then
-            pdf_out("(");
-    end;
-    if s <> 0 then begin
-        if pdf_doing_string then
-            pdf_out(")");
-        pdf_print_int(-s);
-        pdf_out("(");
-        pdf_delta_h := pdf_delta_h + s_out;
-    end;
-    pdf_doing_string := true;
-end;
-
-procedure pdf_end_text; {end a text section}
-begin
-    if pdf_doing_text then begin
-        pdf_end_string_nl;
-        pdf_print_ln("ET");
-        pdf_doing_text := false;
-    end;
-end;
-
-procedure pdf_set_rule(x, y, w, h: scaled); {draw a rule}
-begin
-    pdf_end_text;
-    pdf_print_ln("q");
-    if h <= one_bp then begin
-        pdf_set_origin_temp(x, y - (h + 1)/2);
-        pdf_print("[]0 d 0 J ");
-        pdf_print_bp(h); pdf_print(" w 0 0 m ");
-        pdf_print_bp(w); pdf_print_ln(" 0 l S");
-    end
-    else if w <= one_bp then begin
-        pdf_set_origin_temp(x + (w + 1)/2, y);
-        pdf_print("[]0 d 0 J ");
-        pdf_print_bp(w); pdf_print(" w 0 0 m 0 ");
-        pdf_print_bp(h); pdf_print_ln(" l S");
-    end
-    else begin
-        pdf_set_origin_temp(x, y);
-        pdf_print("0 0 ");
-        pdf_print_bp(w); pdf_out(" ");
-        pdf_print_bp(h); pdf_print_ln(" re f");
-    end;
-    pdf_print_ln("Q");
-end;
-
-procedure pdf_rectangle(left, top, right, bottom: scaled); {output a
-rectangle specification to PDF file}
-begin
-    prepare_mag;
-    pdf_print("/Rect [");
-    pdf_print_mag_bp(pdf_x(left)); pdf_out(" ");
-    pdf_print_mag_bp(pdf_y(bottom)); pdf_out(" ");
-    pdf_print_mag_bp(pdf_x(right)); pdf_out(" ");
-    pdf_print_mag_bp(pdf_y(top));
-    pdf_print_ln("]");
-end;
-
 procedure literal(s: str_number; literal_mode: integer; warn: boolean);
 var j: pool_pointer; {current character code position}
 begin
@@ -16700,11 +16419,12 @@ begin
     end;
     case literal_mode of
     set_origin: begin
-        pdf_end_text;
-        pdf_set_origin(cur.h, cur.v);
+        pdf_goto_pagemode;
+        synch_pos_with_cur;
+        pdf_set_pos(pos.h, pos.v);
         end;
     direct_page:
-        pdf_end_text;
+        pdf_goto_pagemode;
     direct_always:
         pdf_end_string_nl;
     othercases confusion("literal1")
@@ -16725,7 +16445,7 @@ begin
     b := pool_ptr;
     luacall(lua_id,s,r);
     if b<pool_ptr then begin
-      pdf_end_text;
+      pdf_goto_pagemode;
       while b<pool_ptr do begin
          pdf_out(str_pool[b]);
          incr(b);
@@ -17388,12 +17108,9 @@ The |has_packet()| C macro checks for this condition.
 @p procedure output_one_char(ffi:internal_font_number;c:integer);
 begin
   if has_packet(ffi,c) then 
-      do_vf_packet(ffi, c)
-  else begin
-      pdf_begin_string(ffi);
-      pdf_print_char(ffi, c);
-      adv_char_width(ffi, c);
-  end;
+    do_vf_packet(ffi, c)
+  else 
+    pdf_place_glyph(ffi, c);
 end;
 
 @ @<Declare procedures that need to be declared forward for \pdfTeX@>=
@@ -17769,7 +17486,8 @@ begin
     selector:=old_setting;
     str_room(7);
     str_pool[pool_ptr] := 0; { make C string for pdfsetmatrix }
-    pdfsetmatrix(str_start_macro(str_ptr), cur.h, cur_page_height - cur.v);
+    synch_pos_with_cur;
+    pdfsetmatrix(str_start_macro(str_ptr), pos.h, pos.v);
     str_room(7);
     append_char(" ");
     append_char("0");
@@ -17785,13 +17503,15 @@ end;
 
 procedure pdf_out_save;
 begin
-    checkpdfsave(cur.h, cur.v);
+    synch_pos_with_cur;
+    checkpdfsave(pos.h, pos.v);
     literal("q", set_origin, false);
 end;
 
 procedure pdf_out_restore;
 begin
-    checkpdfrestore(cur.h, cur.v);
+    synch_pos_with_cur;
+    checkpdfrestore(pos.h, pos.v);
     literal("Q", set_origin, false);
 end;
 
@@ -17855,8 +17575,6 @@ edge_h: scaled;
 effective_horizontal: scaled;
 basepoint_horizontal: scaled;
 basepoint_vertical: scaled;
-saving_h: scaled;
-saving_v: scaled;
 save_direction: integer;
 dvi_ptr,dir_ptr,dir_tmp:pointer;
 @!left_edge: scaled; {the left coordinate for this box}
@@ -17882,12 +17600,11 @@ dvi_ptr,dir_ptr,dir_tmp:pointer;
 begin cur_g:=0; cur_glue:=float_constant(0);
 this_box:=temp_ptr; g_order:=glue_order(this_box);
 g_sign:=glue_sign(this_box); p:=list_ptr(this_box);
-{cur.h:=0; cur.v:=0;} box_pos:=pos;
+set_to_zero(cur); box_pos:=pos;
 save_direction:=dvi_direction;
 dvi_direction:=box_dir(this_box);
 dvi_ptr:=0;  lx:=0;
 @<DIR: Initialize |dir_ptr| for |ship_out|@>;
-saving_h:=cur.h; saving_v:=cur.v;
 incr(cur_s);
 base_line:=cur.v;
 left_edge:=cur.h;
@@ -17898,7 +17615,6 @@ while p<>null do
     @<Output node |p| for |pdf_hlist_out| and move to the next node,
     maintaining the condition |cur.v=base_line|@>;
 @<Finish hlist {\sl Sync\TeX} information record@>;
-cur.h:=saving_h; cur.v:=saving_v;
 decr(cur_s);
 dvi_direction:=save_direction;
 @<DIR: Reset |dir_ptr|@>;
@@ -17913,183 +17629,136 @@ end
 
 @ 
 
-@d pdf_dvicmd_right(#) == cur.h := cur.h + #
-@d pdf_dvicmd_left(#)  == cur.h := cur.h - #
-@d pdf_dvicmd_down(#)  == cur.v := cur.v + # {changed this for convenience (hahe)}
-@d pdf_dvicmd_up(#)    == cur.v := cur.v - #
-
 @d pos_right(#) == pos.h := pos.h + (#)
 @d pos_left(#)  == pos.h := pos.h - (#)
 @d pos_up(#)    == pos.v := pos.v + (#)
 @d pos_down(#)  == pos.v := pos.v - (#)
 
-@d pdf_dvicmd_set(#)==output_one_char(f,#)
-@d pdf_dvicmd_put(#)==output_one_char(f,#); cur.h:=cur.h-c_wd
-
-@d pdf_dvicmd_h(#)==case box_direction(dvi_direction) of
-  dir_TL_: cur.h := cur.h + #;
-  dir_BL_: cur.h := cur.h + #;
-  dir_TR_: cur.h := cur.h - #;
-  dir_BR_: cur.h := cur.h - #;
-  dir_LT_: cur.v := cur.v + #;
-  dir_RT_: cur.v := cur.v + #;
-  dir_LB_: cur.v := cur.v - #;
-  dir_RB_: cur.v := cur.v - #;
-  endcases
-
-@d pdf_dvicmd_v(#)==case box_direction(dvi_direction) of
-  dir_TL_: cur.v := cur.v + #;
-  dir_TR_: cur.v := cur.v + #;
-  dir_BL_: cur.v := cur.v - #;
-  dir_BR_: cur.v := cur.v - #;
-  dir_LT_: cur.h := cur.h + #;
-  dir_LB_: cur.h := cur.h + #;
-  dir_RT_: cur.h := cur.h - #;
-  dir_RB_: cur.h := cur.h - #;
-  endcases
+@d pdf_set(#)==output_one_char(f,#)
 
 @<Output node |p| for |pdf_hlist_out|...@>=
 begin
 if is_char_node(p) then 
   begin
-  repeat synch_pos_with_cur; f:=font(p); c:=character(p);
-  ci := char_info_short (f,c);
-  {|writeln('hlist_out: a char node ', c:1 , ' in font ',f:1);|}
-  if is_valid_char(c) then begin
-  if is_rotated(dvi_direction) then begin
-    c_ht:=charinfo_width(ci) div 2;
-    c_dp:=0;
-    c_wd:=charinfo_height(ci)+charinfo_depth(ci);
-    end
-  else begin
-    c_ht:=charinfo_height(ci);
-    c_dp:=charinfo_depth(ci);
-    c_wd:=charinfo_width(ci);
-    end;
-  if (font_natural_dir(f)<>-1) then
+  repeat
+  if x_displace(p)<>0 then cur.h := cur.h + x_displace(p);
+  if y_displace(p)<>0 then cur.v := cur.v - y_displace(p);
+  synch_pos_with_cur; f:=font(p); c:=character(p);
+  ci := char_info_short(f,c);
+  c_ht:=charinfo_height(ci);
+  c_dp:=charinfo_depth(ci);
+  c_wd:=charinfo_width(ci);
+  if (font_natural_dir(f)<>-1) then begin
     case font_direction(dvi_direction) of
     dir__LT,dir__LB: begin
-      if x_displace(p)<>0 then pdf_dvicmd_right(x_displace(p));
-      if y_displace(p)<>0 then pdf_dvicmd_up(y_displace(p));
-      pdf_dvicmd_set(c);
-      if x_displace(p)<>0 then pdf_dvicmd_left(x_displace(p)); 
-      if y_displace(p)<>0 then pdf_dvicmd_down(y_displace(p));
+      pdf_set(c);
       end;
     dir__RT,dir__RB: begin
-      if x_displace(p)<>0 then pdf_dvicmd_left(x_displace(p));
-      if y_displace(p)<>0 then pdf_dvicmd_up(y_displace(p));
-      pdf_dvicmd_left(c_wd);
-      pdf_dvicmd_put(c);
-      if x_displace(p)<>0 then pdf_dvicmd_right(x_displace(p));
-      if y_displace(p)<>0 then pdf_dvicmd_down(y_displace(p));
+      pdf_set(c);
       end;
-    dir__TL,dir__TR: begin
-      pdf_dvicmd_put(c);
-      pdf_dvicmd_down(-c_wd);
+    dir__TL,dir__TR,dir__BL,dir__BR: begin
+      c_wd := c_ht + c_dp;
+      pdf_set(c);
       end;
-    dir__BL,dir__BR: begin
-      pdf_dvicmd_put(c);
-      pdf_dvicmd_up(-c_wd);
+    dir__LL: begin
+      pos_right(c_wd);
+      pdf_set(c);
       end;
-    dir__LL,dir__LR: begin
-      pdf_dvicmd_put(c);
-      pdf_dvicmd_right(c_wd);
+    dir__RR: begin
+      pos_left(c_wd);
+      pdf_set(c);
       end;
-    dir__RL,dir__RR: begin
-      pdf_dvicmd_put(c);
-      pdf_dvicmd_left(c_wd);
+    dir__LR: begin
+      pdf_set(c);
       end;
-    dir__TT,dir__TB: begin
-      pdf_dvicmd_put(c);
-      pdf_dvicmd_down(-c_wd);
+    dir__RL: begin
+      pdf_set(c);
       end;
-    dir__BT,dir__BB: begin
-      pdf_dvicmd_put(c);
-      pdf_dvicmd_up(-c_wd);
+    dir__TT: begin
+      c_wd := c_ht + c_dp;
+      pos_down(c_wd);
+      pdf_set(c);
       end;
-    end
-  else
+    dir__TB: begin
+      c_wd := c_ht + c_dp;
+      pdf_set(c);
+      end;
+    dir__BT: begin
+      c_wd := c_ht + c_dp;
+      pdf_set(c);
+      end;
+    dir__BB: begin
+      c_wd := c_ht + c_dp;
+      pos_up(c_wd);
+      pdf_set(c);
+      end;
+    endcases;
+  end else begin
     case font_direction(dvi_direction) of
     dir__LT: begin
-          if x_displace(p)<>0 then pdf_dvicmd_right(x_displace(p));
-          if y_displace(p)<>0 then pdf_dvicmd_up(y_displace(p));
-      pdf_dvicmd_set(c);
-          if x_displace(p)<>0 then pdf_dvicmd_left(x_displace(p));
-          if y_displace(p)<>0 then pdf_dvicmd_down(y_displace(p));
+      pdf_set(c);
       end;
     dir__LB: begin
-      pdf_dvicmd_down(-c_ht);
-      pdf_dvicmd_set(c);
-      pdf_dvicmd_up(-c_ht);
+      pos_down(c_ht);
+      pdf_set(c);
       end;
     dir__RT: begin
-          if x_displace(p)<>0 then pdf_dvicmd_left(x_displace(p));
-          if y_displace(p)<>0 then pdf_dvicmd_up(y_displace(p));
-      pdf_dvicmd_left(c_wd);
-      pdf_dvicmd_put(c);
-          if x_displace(p)<>0 then pdf_dvicmd_right(x_displace(p));
-          if y_displace(p)<>0 then pdf_dvicmd_down(y_displace(p));
+      pos_left(c_wd);
+      pdf_set(c);
       end;
     dir__RB: begin
-      pdf_dvicmd_left(c_wd);
-      pdf_dvicmd_down(-c_ht);
-      pdf_dvicmd_put(c);
-      pdf_dvicmd_up(-c_ht);
+      pos_down(c_ht);
+      pos_left(c_wd);
+      pdf_set(c);
       end;
     dir__TL: begin
-      pdf_dvicmd_down(-c_wd);
-      pdf_dvicmd_left(c_ht);
-      pdf_dvicmd_put(c);
-      pdf_dvicmd_right(c_ht);
+      pos_down(c_ht);
+      pos_left(c_wd);
+      pdf_set(c);
+      c_wd := c_ht + c_dp;
       end;
     dir__TR: begin
-      pdf_dvicmd_down(-c_wd);
-      pdf_dvicmd_left(c_dp);
-      pdf_dvicmd_put(c);
-      pdf_dvicmd_right(c_dp);
+      pos_down(c_ht);
+      pdf_set(c);
+      c_wd := c_ht + c_dp;
       end;
     dir__BL: begin
-      pdf_dvicmd_left(c_ht);
-      pdf_dvicmd_put(c);
-      pdf_dvicmd_right(c_ht);
-      pdf_dvicmd_up(-c_wd);
+      pos_left(c_wd);
+      pos_up(c_dp);
+      pdf_set(c);
+      c_wd := c_ht + c_dp;
       end;
     dir__BR: begin
-      pdf_dvicmd_left(c_dp);
-      pdf_dvicmd_put(c);
-      pdf_dvicmd_right(c_dp);
-      pdf_dvicmd_up(-c_wd);
+      pos_up(c_dp);
+      pdf_set(c);
+      c_wd := c_ht + c_dp;
       end;
     dir__LL,dir__LR: begin
-      pdf_dvicmd_down(-c_ht);
-      pdf_dvicmd_put(c);
-      pdf_dvicmd_up(-c_ht);
-      pdf_dvicmd_right(c_wd);
+      pos_down((c_ht - c_dp) div 2);
+      pdf_set(c);
       end;
     dir__RL,dir__RR: begin
-      pdf_dvicmd_left(c_wd);
-      pdf_dvicmd_down(-c_ht);
-      pdf_dvicmd_put(c);
-      pdf_dvicmd_up(-c_ht);
+      pos_left(c_wd);
+      pos_down((c_ht - c_dp) div 2);
+      pdf_set(c);
       end;
     dir__TT,dir__TB: begin
-      pdf_dvicmd_down(-c_wd);
-      pdf_dvicmd_left(c_ht);
-      pdf_dvicmd_put(c);
-      pdf_dvicmd_right(c_ht);
+      pos_down(c_ht);
+      pos_left(c_wd div 2);
+      pdf_set(c);
+      c_wd:=c_ht + c_dp;
       end;
     dir__BT,dir__BB: begin
-      pdf_dvicmd_left(c_ht);
-      pdf_dvicmd_put(c);
-      pdf_dvicmd_right(c_ht);
-      pdf_dvicmd_up(-c_wd);
+      pos_up(c_dp);
+      pos_left(c_wd div 2);
+      pdf_set(c);
+      c_wd := c_ht + c_dp;
       end;
+     endcases;
     end;
-    cur.h:=cur.h+c_wd;
-  end
-  else
-    char_warning(f, c);
-  prev_p:=p;
+  if x_displace(p)<>0 then cur.h := cur.h - x_displace(p);
+  if y_displace(p)<>0 then cur.v := cur.v + y_displace(p);
+  cur.h:=cur.h+c_wd;
   p:=vlink(p);
   until not is_char_node(p);
   @<Record current point {\sl Sync\TeX} information@>;
@@ -18122,21 +17791,21 @@ rule_node_case: begin
   end;
 whatsit_node_case: @<Output the whatsit node |p| in |pdf_hlist_out|@>;
 glue_node_case: @<(\pdfTeX) Move right or output leaders@>;
-margin_kern_node_case: pdf_dvicmd_h(width(p));
+margin_kern_node_case: cur.h := cur.h + width(p);
 kern_node_case: begin
   @<Record |kern_node| {\sl Sync\TeX} information@>;
-  pdf_dvicmd_h(width(p));
+  cur.h := cur.h + width(p);
   end;
 math_node_case: begin 
   @<Record |math_node| {\sl Sync\TeX} information@>;
-  pdf_dvicmd_h(surround(p));
+  cur.h := cur.h + surround(p);
   end;
 othercases do_nothing
 endcases;@/
 goto next_p;
 fin_rule: @<(\pdfTeX) Output a rule in an hlist@>;
 move_past: begin
-  pdf_dvicmd_h(rule_wd);
+  cur.h := cur.h + rule_wd;
   @<Record horizontal |rule_node| or |glue_node| {\sl Sync\TeX} information@>;
   end;
 next_p:prev_p:=p; p:=vlink(p);
@@ -18178,17 +17847,17 @@ else
     {shift the box `up'}
 if list_ptr(p)=null then begin 
   @<Record void list {\sl Sync\TeX} information@>;
-  pdf_dvicmd_h(effective_horizontal); 
+  cur.h := cur.h + effective_horizontal; 
   end
 else begin
   temp_ptr:=p; 
-  edge:=cur.h; pdf_dvicmd_h(basepoint_horizontal);
+  edge:=cur.h; cur.h := cur.h + basepoint_horizontal;
   edge_v:=cur.v; cur.v:=base_line + basepoint_vertical;
   synch_pos_with_cur;
   save_box_pos:=box_pos;
   if type(p)=vlist_node then pdf_vlist_out@+else pdf_hlist_out;
   box_pos:=save_box_pos;
-  cur.h:=edge; pdf_dvicmd_h(effective_horizontal);
+  cur.h:=edge; cur.h := cur.h + effective_horizontal;
   cur.v:=base_line;
   end
 end
@@ -18199,14 +17868,14 @@ if is_running(rule_dp) then rule_dp:=depth(this_box);
 if ((rule_ht+rule_dp)>0)and(rule_wd>0) then begin {we don't output empty rules}
   synch_pos_with_cur;
   case box_direction(dvi_direction) of
-  dir_TL_: pdf_set_rule(cur.h,           cur.v + rule_dp, rule_wd,           rule_ht + rule_dp);
-  dir_BL_: pdf_set_rule(cur.h,           cur.v + rule_ht, rule_wd,           rule_ht + rule_dp);
-  dir_TR_: pdf_set_rule(cur.h - rule_wd, cur.v + rule_dp, rule_wd,           rule_ht + rule_dp);
-  dir_BR_: pdf_set_rule(cur.h - rule_wd, cur.v + rule_ht, rule_wd,           rule_ht + rule_dp);
-  dir_LT_: pdf_set_rule(cur.h - rule_ht, cur.v + rule_wd, rule_ht + rule_dp, rule_wd);
-  dir_RT_: pdf_set_rule(cur.h - rule_dp, cur.v + rule_wd, rule_ht + rule_dp, rule_wd);
-  dir_LB_: pdf_set_rule(cur.h - rule_ht, cur.v,           rule_ht + rule_dp, rule_wd);
-  dir_RB_: pdf_set_rule(cur.h - rule_dp, cur.v,           rule_ht + rule_dp, rule_wd);
+  dir_TL_: pdf_place_rule(pos.h,           pos.v - rule_dp, rule_wd,           rule_ht + rule_dp);
+  dir_BL_: pdf_place_rule(pos.h,           pos.v - rule_ht, rule_wd,           rule_ht + rule_dp);
+  dir_TR_: pdf_place_rule(pos.h - rule_wd, pos.v - rule_dp, rule_wd,           rule_ht + rule_dp);
+  dir_BR_: pdf_place_rule(pos.h - rule_wd, pos.v - rule_ht, rule_wd,           rule_ht + rule_dp);
+  dir_LT_: pdf_place_rule(pos.h - rule_ht, pos.v - rule_wd, rule_ht + rule_dp, rule_wd);
+  dir_RT_: pdf_place_rule(pos.h - rule_dp, pos.v - rule_wd, rule_ht + rule_dp, rule_wd);
+  dir_LB_: pdf_place_rule(pos.h - rule_ht, pos.v,           rule_ht + rule_dp, rule_wd);
+  dir_RB_: pdf_place_rule(pos.h - rule_dp, pos.v,           rule_ht + rule_dp, rule_wd);
   end;
 end
 
@@ -18342,14 +18011,11 @@ var left_edge: scaled; {the left coordinate for this box}
 @!basepoint_horizontal: scaled;
 @!basepoint_vertical: scaled;
 @!edge_v: scaled;
-@!saving_v: scaled;
-@!saving_h: scaled;
 begin cur_g:=0; cur_glue:=float_constant(0);
 this_box:=temp_ptr; g_order:=glue_order(this_box);
 g_sign:=glue_sign(this_box); p:=list_ptr(this_box);
 {pdfassert(p<>0);}
-{cur.h:=0; cur.v:=0;} box_pos:=pos;
-saving_v:=cur.v; saving_h:=cur.h;
+set_to_zero(cur); box_pos:=pos;
 {|writeln(''); writeln('vlist_out: left edge: ', cur.h:1 , '');|}
 save_direction:=dvi_direction;
 dvi_direction:=box_dir(this_box);
@@ -18362,7 +18028,6 @@ while p<>null do
     @<Output node |p| for |pdf_vlist_out| and move to the next node,
     maintaining the condition |cur.h=left_edge|@>;
 @<Finish vlist {\sl Sync\TeX} information record@>;
-cur.v:=saving_v; cur.h:=saving_h;
 decr(cur_s);
 dvi_direction:=save_direction;
 end;
@@ -18396,12 +18061,12 @@ rule_node_case: begin
   end;
 whatsit_node_case: @<Output the whatsit node |p| in |pdf_vlist_out|@>;
 glue_node_case: @<(\pdfTeX) Move down or output leaders@>;
-kern_node_case:pdf_dvicmd_v(width(p));
+kern_node_case:cur.v := cur.v + width(p);
 othercases do_nothing
 endcases;@/
 goto next_p;
 fin_rule: @<(\pdfTeX) Output a rule in a vlist, |goto next_p|@>;
-move_past: pdf_dvicmd_v(rule_ht);
+move_past: cur.v := cur.v + rule_ht;
 end
 
 @ TODO: the direct test to switch between |width(p)| and |-width(p)|
@@ -18466,18 +18131,20 @@ end
 @ @<(\pdfTeX) Output a rule in a vlist...@>=
 if is_running(rule_wd) then rule_wd:=width(this_box);
 rule_ht:=rule_ht+rule_dp; {this is the rule thickness}
-if (rule_ht>0)and(rule_wd>0) then {we don't output empty rules}
+if (rule_ht>0)and(rule_wd>0) then begin {we don't output empty rules}
+  synch_pos_with_cur;
   case box_direction(dvi_direction) of
-  dir_TL_: pdf_set_rule(cur.h,           cur.v + rule_ht, rule_wd, rule_ht);
-  dir_BL_: pdf_set_rule(cur.h,           cur.v,           rule_wd, rule_ht);
-  dir_TR_: pdf_set_rule(cur.h - rule_wd, cur.v + rule_ht, rule_wd, rule_ht);
-  dir_BR_: pdf_set_rule(cur.h - rule_wd, cur.v,           rule_wd, rule_ht);
-  dir_LT_: pdf_set_rule(cur.h,           cur.v + rule_wd, rule_ht, rule_wd);
-  dir_RT_: pdf_set_rule(cur.h - rule_ht, cur.v + rule_wd, rule_ht, rule_wd);
-  dir_LB_: pdf_set_rule(cur.h,           cur.v,           rule_ht, rule_wd);
-  dir_RB_: pdf_set_rule(cur.h - rule_ht, cur.v,           rule_ht, rule_wd);
+  dir_TL_: pdf_place_rule(pos.h,           pos.v - rule_ht, rule_wd, rule_ht);
+  dir_BL_: pdf_place_rule(pos.h,           pos.v,           rule_wd, rule_ht);
+  dir_TR_: pdf_place_rule(pos.h - rule_wd, pos.v - rule_ht, rule_wd, rule_ht);
+  dir_BR_: pdf_place_rule(pos.h - rule_wd, pos.v,           rule_wd, rule_ht);
+  dir_LT_: pdf_place_rule(pos.h,           pos.v - rule_wd, rule_ht, rule_wd);
+  dir_RT_: pdf_place_rule(pos.h - rule_ht, pos.v - rule_wd, rule_ht, rule_wd);
+  dir_LB_: pdf_place_rule(pos.h,           pos.v,           rule_ht, rule_wd);
+  dir_RB_: pdf_place_rule(pos.h - rule_ht, pos.v,           rule_ht, rule_wd);
   end;
-  pdf_dvicmd_v(rule_ht);
+  cur.v := cur.v + rule_ht;
+end;
 goto next_p
 
 @ @<(\pdfTeX) Move down or output leaders@>=
@@ -18565,12 +18232,14 @@ save_xform_list: pointer; {to save |pdf_xform_list|}
 save_image_procset: integer;  {to save |pdf_image_procset|}
 save_text_procset: integer;  {to save |pdf_text_procset|}
 save_cur_page_height: scaled; {to save |cur_page_height| during flushing pending forms}
+form_margin: scaled;
 pdf_last_resources: integer; {pointer to most recently generated Resources object}
 pre_callback_id:integer;
 post_callback_id:integer;
 ret:boolean;
 begin @<Start sheet {\sl Sync\TeX} information record@>;
 begin 
+form_margin := one_bp;
 pre_callback_id:=callback_defined(start_page_number_callback);  
 post_callback_id:=callback_defined(stop_page_number_callback);  
 if (tracing_output>0)and(pre_callback_id=0) then
@@ -18624,6 +18293,10 @@ done:
 
 @ @<Initialize variables as |pdf_ship_out| begins@>=
 prepare_mag;
+if mag<>1000 then
+  one_true_inch:=xn_over_d(one_hundred_inch,10,mag)
+else
+  one_true_inch:=one_inch;
 temp_ptr:=p;
 pdf_last_resources := pdf_new_objnum;
 @<Reset resource lists@>;
@@ -18660,33 +18333,92 @@ last_thread := null
 
 @ @<Calculate PDF page dimensions and margins@>=
 if is_shipping_page then begin
-    if page_width > 0 then
-        cur_page_width := page_width
-    else
-        cur_page_width := width(p) + 2 * pdf_h_offset;
-    if page_height > 0 then
-        cur_page_height := page_height
-    else
-        cur_page_height := height(p) + depth(p) + 2 * pdf_v_offset;
-    cur.h := pdf_h_offset;
-    cur.v := height(p) + pdf_v_offset;
+    @<Calculate DVI page dimensions and margins@>;
+    {Think in upright page/paper coordinates): First preset |pos.h| and |pos.v| to the DVI origin.}
+    pos.h := pdf_h_origin;
+    pos.v := cur_page_height - pdf_v_origin;
+    box_pos := pos;
+    {Then calculate |cur.h| and |cur.v| within the upright coordinate system
+    for the DVI origin depending on the |page_direction|.}
+    dvi_direction:=page_direction;
     case box_direction(dvi_direction) of
-        dir_TL_,dir_LT_: begin end;
-        dir_TR_,dir_RT_: begin cur.h := cur_page_width - page_right_offset; end;
-        dir_RB_,dir_BR_: begin cur.h := cur_page_width - page_right_offset; cur.v := -page_bottom_offset; end;
-        dir_BL_,dir_LB_: begin cur.v := -page_bottom_offset; end; 
+    dir_TL_,dir_LT_: begin
+      cur.h := page_left_offset;
+      cur.v := page_top_offset;
+      end;
+    dir_TR_,dir_RT_: begin
+      cur.h := cur_page_width - page_right_offset;
+      cur.v := page_top_offset;
+      end;
+    dir_BL_,dir_LB_: begin
+      cur.h := page_left_offset;
+      cur.v := cur_page_height - page_bottom_offset;
+      end;
+    dir_RB_,dir_BR_: begin
+      cur.h := cur_page_width - page_right_offset;
+      cur.v := cur_page_height - page_bottom_offset;
+      end;
     end;
+    cur.h := cur.h - one_true_inch; {correct for DVI origin}
+    cur.v := cur.v - one_true_inch;
+    {The movement is actually done within the upright page coordinate system.}
+    dvi_direction := dir_TL_; {only temporarily for this adjustment}
+    synch_pos_with_cur; box_pos := pos; {keep track on page}
+    {Then switch to page box coordinate system; do |height(p)| movement.}
+    dvi_direction := page_direction;
+    cur.h := 0;
+    cur.v := height(p);
+    synch_pos_with_cur;
+    {Now we are at the point on the page where the origin of the page box should go.}
 end
 else begin
-   cur_page_width := width(p);
-   cur_page_height := height(p) + depth(p);
-   cur.h := 0;
-   cur.v := height(p);
+    dvi_direction:=box_dir(p);
+    case box_direction(dvi_direction) of
+    dir_TL_,dir_TR_,dir_BL_,dir_BR_: begin
+      cur_page_width := width(p);
+      cur_page_height := height(p) + depth(p);
+      end;
+    dir_LT_,dir_RT_,dir_LB_,dir_RB_: begin
+      cur_page_width := height(p) + depth(p);
+      cur_page_height := width(p);
+      end;
+    end;
+    case box_direction(dvi_direction) of
+    dir_TL_: begin
+      pos.h := 0;
+      pos.v := depth(p);
+      end;
+    dir_TR_: begin
+      pos.h := width(p);
+      pos.v := depth(p);
+      end;
+    dir_BL_: begin
+      pos.h := 0;
+      pos.v := height(p);
+      end;
+    dir_BR_: begin
+      pos.h := width(p);
+      pos.v := height(p);
+      end;
+    dir_LT_: begin
+      pos.h := height(p);
+      pos.v := width(p);
+      end;
+    dir_RT_: begin
+      pos.h := depth(p);
+      pos.v := width(p);
+      end;
+    dir_LB_: begin
+      pos.h := height(p);
+      pos.v := 0;
+      end;
+    dir_RB_: begin
+      pos.h := depth(p);
+      pos.v := 0;
+      end;
+    end;
 end;
-pdf_origin_h := 0;
-pdf_origin_v := cur_page_height;
-pos.h := 0; pos.v := 0;
-box_pos := pos;
+pdf_page_init;
 
 @ Here we write out the header for Form.
 
@@ -18698,9 +18430,10 @@ if obj_xform_attr(pdf_cur_form) <> null then begin
     delete_toks(obj_xform_attr(pdf_cur_form));
 end;
 pdf_print("/BBox [");
-pdf_print("0 0 ");
-pdf_print_bp(cur_page_width); pdf_out(" ");
-pdf_print_bp(cur_page_height); pdf_print_ln("]");
+pdf_print_bp(-form_margin); pdf_print(" ");
+pdf_print_bp(-form_margin); pdf_print(" ");
+pdf_print_bp(cur_page_width + form_margin); pdf_out(" ");
+pdf_print_bp(cur_page_height + form_margin); pdf_print_ln("]");
 pdf_print_ln("/FormType 1");
 pdf_print_ln("/Matrix [1 0 0 1 0 0]");
 pdf_indirect_ln("Resources", pdf_last_resources)
@@ -18740,7 +18473,7 @@ if shipping_page then begin
 end
 
 @ @<Finish stream of page/form contents@>=
-pdf_end_text;
+pdf_goto_pagemode;
 pdfshipoutend(shipping_page);
 pdf_end_stream
 
@@ -19030,8 +18763,6 @@ if pdf_ximage_list <> null then begin
 end
 
 @ @<Write out pending PDF marks@>=
-pdf_origin_h := 0;
-pdf_origin_v := cur_page_height;
 @<Write out PDF annotations@>;
 @<Write out PDF link annotations@>;
 @<Write out PDF mark destinations@>;
@@ -19045,7 +18776,7 @@ if pdf_annot_list <> null then begin
         pdf_begin_dict(info(k), 1);
         pdf_print_ln("/Type /Annot");
         pdf_print_toks_ln(pdf_annot_data(i));
-        pdf_rectangle(pdf_ann_left(i), pdf_ann_top(i), pdf_ann_right(i), pdf_ann_bottom(i));
+        pdf_rectangle(i);
         pdf_end_dict;
         k := link(k);
     end;
@@ -19062,7 +18793,7 @@ while k <> null do begin
         pdf_print_ln("/Subtype /Link");
     if pdf_link_attr(i) <> null then
         pdf_print_toks_ln(pdf_link_attr(i));
-    pdf_rectangle(pdf_ann_left(i), pdf_ann_top(i), pdf_ann_right(i), pdf_ann_bottom(i));
+    pdf_rectangle(i);
     if pdf_action_type(pdf_link_action(i)) <> pdf_action_user then
         pdf_print("/A ");
     write_action(pdf_link_action(i));
@@ -19102,8 +18833,8 @@ if pdf_dest_list <> null then begin
             case pdf_dest_type(i) of
             pdf_dest_xyz: begin
                 pdf_print("/XYZ ");
-                pdf_print_mag_bp(pdf_x(pdf_ann_left(i))); pdf_out(" ");
-                pdf_print_mag_bp(pdf_y(pdf_ann_top(i))); pdf_out(" ");
+                pdf_print_mag_bp(pdf_ann_left(i)); pdf_out(" ");
+                pdf_print_mag_bp(pdf_ann_top(i)); pdf_out(" ");
                 if pdf_dest_xyz_zoom(i) = null then
                     pdf_print("null")
                 else begin
@@ -19116,21 +18847,21 @@ if pdf_dest_list <> null then begin
                 pdf_print("/Fit");
             pdf_dest_fith: begin
                 pdf_print("/FitH ");
-                pdf_print_mag_bp(pdf_y(pdf_ann_top(i)));
+                pdf_print_mag_bp(pdf_ann_top(i));
             end;
             pdf_dest_fitv: begin
                 pdf_print("/FitV ");
-                pdf_print_mag_bp(pdf_x(pdf_ann_left(i)));
+                pdf_print_mag_bp(pdf_ann_left(i));
             end;
             pdf_dest_fitb:
                 pdf_print("/FitB");
             pdf_dest_fitbh: begin
                 pdf_print("/FitBH ");
-                pdf_print_mag_bp(pdf_y(pdf_ann_top(i)));
+                pdf_print_mag_bp(pdf_ann_top(i));
             end;
             pdf_dest_fitbv: begin
                 pdf_print("/FitBV ");
-                pdf_print_mag_bp(pdf_x(pdf_ann_left(i)));
+                pdf_print_mag_bp(pdf_ann_left(i));
             end;
             pdf_dest_fitr: begin
                 pdf_print("/FitR ");
@@ -19151,13 +18882,21 @@ end
 @ @<Declare procedures needed in |pdf_hlist_out|, |pdf_vlist_out|@>=
 procedure pdf_print_rect_spec(r: pointer); {prints a rect spec}
 begin
-    pdf_print_mag_bp(pdf_x(pdf_ann_left(r)));
+    pdf_print_mag_bp(pdf_ann_left(r));
     pdf_out(" ");
-    pdf_print_mag_bp(pdf_y(pdf_ann_bottom(r)));
+    pdf_print_mag_bp(pdf_ann_bottom(r));
     pdf_out(" ");
-    pdf_print_mag_bp(pdf_x(pdf_ann_right(r)));
+    pdf_print_mag_bp(pdf_ann_right(r));
     pdf_out(" ");
-    pdf_print_mag_bp(pdf_y(pdf_ann_top(r)));
+    pdf_print_mag_bp(pdf_ann_top(r));
+end;
+
+procedure pdf_rectangle(r:pointer); {output a rectangle specification to PDF file}
+begin
+    prepare_mag;
+    pdf_print("/Rect [");
+    pdf_print_rect_spec(r);
+    pdf_print_ln("]");
 end;
 
 @ @<Write out PDF bead rectangle specifications@>=
@@ -25314,19 +25053,19 @@ might be necessary.  Good first step.}
   end
 else if (p>=dimen_base)and(p<eqtb_size) then begin
   if p=(dimen_base+page_left_offset_code) then begin
-    n:=h_offset + cur_val - page_left_offset;
+    n:=cur_val - one_inch;
     word_define(dimen_base+h_offset_code, n);
     end 
   else if p=(dimen_base+h_offset_code) then begin
-    n:=page_left_offset + cur_val - h_offset;
+    n:=cur_val + one_inch;
     word_define(dimen_base+page_left_offset_code, n);
     end
   else if p=(dimen_base+page_top_offset_code) then begin
-    n:=v_offset + cur_val - page_top_offset;
+    n:=cur_val - one_inch;
     word_define(dimen_base+v_offset_code, n);
     end
   else if p=(dimen_base+v_offset_code) then begin
-    n:=page_top_offset + cur_val - v_offset;
+    n:=cur_val + one_inch;
     word_define(dimen_base+page_top_offset_code, n);
     end;
   word_define(p,cur_val);
@@ -29354,7 +29093,7 @@ open_node,write_node,close_node:@<Do some work that has been queued up
   for \.{\\write}@>;
 special_node:special_out(p);
 pdf_save_pos_node:
-  @<Save current position in DVI mode@>;
+  @<Save current position@>;
 local_par_node:do_nothing;
 cancel_boundary_node: do_nothing;
 user_defined_node: do_nothing;
@@ -29363,7 +29102,7 @@ othercases  confusion("ext4") {TH: those will be pdf extension nodes in dvi mode
 endcases;
 end;
 
-@ @<Save current position in DVI mode@>=
+@ @<Save current position@>=
 begin
     synch_pos_with_cur;
     pdf_last_x_pos := pos.h;
@@ -29612,7 +29351,7 @@ begin
     dir_box_pos_v(temp_ptr) := box_pos.v;
     synch_pos_with_cur; {no need for |synch_dvi_with_cur|, as there is no DVI grouping}
     box_pos := pos; {fake a nested |hlist_out|}
-    cur.h := 0; cur.v := 0;
+    set_to_zero(cur);
     dvi_direction:=dir_dir(dir_ptr);
   end
   else begin
@@ -29625,40 +29364,6 @@ begin
       dvi_direction:=dir_dir(dir_ptr)
     else
       dvi_direction:=0;
-  end
-end
-
-@ Many things regarding output work differently in pdf compared to dvi
-output. The easiest way to deal with in-line direction changes in pdf
-mode seems to be to move forward to find the needed width of the
-reversed section, then skip forward (or backward, depending on your
-viewpont) by that distance.
-
-@<(PDF) Output a reflection instruction if the direction has changed@>=
-begin
-if dir_dir(p)>=0 then begin
-  push_dir_node(p);
-  if dir_opposite(dir_secondary[dir_dir(dir_ptr)])(dir_secondary[dvi_direction])
-  then begin
-        @<(PDF) Calculate the needed width to the matching |enddir|, and store it in |w|, as
-      well as in the enddir's |dir_dvi_h|@>;
-    case box_direction(dvi_direction) of
-    dir_TL_,dir_BL_: pdf_dvicmd_right(w);
-    dir_TR_,dir_BR_: pdf_dvicmd_left(w);
-    end;
-  end;
-  dvi_direction:=dir_dir(dir_ptr);
-  end
-else begin
-  pop_dir_node;
-  if dir_ptr<>null then
-    dvi_direction:=dir_dir(dir_ptr)
-  else
-    dvi_direction:=0;
-  case box_direction(dvi_direction) of
-    dir_TL_,dir_BL_: pdf_dvicmd_right(dir_dvi_h(p));
-    dir_TR_,dir_BR_: pdf_dvicmd_left(dir_dvi_h(p));
-  end;
   end
 end
 
@@ -29895,33 +29600,42 @@ begin d:=0;
     pdf_print_ln(" >>");
 end;
 
-procedure set_rect_dimens(p, parent_box: pointer; x, y, w, hh, d, margin: scaled);
+procedure set_rect_dimens(p, parent_box: pointer; x, y, wd, ht, dp, margin: scaled);
+var ll, ur, pos_ll, pos_ur, tmp: position;
 begin
-    pdf_ann_left(p) := cur.h;
-    if is_running(w) then
-        pdf_ann_right(p) := x + width(parent_box)
+    ll.h := cur.h;
+    if is_running(dp) then
+        ll.v := y + depth(parent_box)
     else
-        pdf_ann_right(p) := cur.h + w;
-    if is_running(hh) then
-        pdf_ann_top(p) := y - height(parent_box)
+        ll.v := cur.v + dp;
+    if is_running(wd) then
+        ur.h := x + width(parent_box)
     else
-        pdf_ann_top(p) := cur.v - hh; {TODO: revert hh to h (was needed by convert)}
-    if is_running(d) then
-        pdf_ann_bottom(p) := y  + depth(parent_box)
+        ur.h := cur.h + wd;
+    if is_running(ht) then
+        ur.v := y - height(parent_box)
     else
-        pdf_ann_bottom(p) := cur.v + d;
-    if is_shipping_page and matrixused then begin
-        matrixtransformrect(pdf_ann_left(p), cur_page_height - pdf_ann_bottom(p),
-                            pdf_ann_right(p), cur_page_height - pdf_ann_top(p));
-        pdf_ann_left(p)   := getllx;
-        pdf_ann_bottom(p) := cur_page_height - getlly;
-        pdf_ann_right(p)  := geturx;
-        pdf_ann_top(p)    := cur_page_height - getury;
-    end;
-    pdf_ann_left(p)   := pdf_ann_left(p)   - margin;
-    pdf_ann_top(p)    := pdf_ann_top(p)    - margin;
-    pdf_ann_right(p)  := pdf_ann_right(p)  + margin;
-    pdf_ann_bottom(p) := pdf_ann_bottom(p) + margin;
+        ur.v := cur.v - ht;
+    {
+        if is_shipping_page and matrixused then begin
+            matrixtransformrect(pdf_ann_left(p), cur_page_height - pdf_ann_bottom(p),
+                                pdf_ann_right(p), cur_page_height - pdf_ann_top(p));
+            pdf_ann_left(p)   := getllx;
+            pdf_ann_bottom(p) := cur_page_height - getlly;
+            pdf_ann_right(p)  := geturx;
+            pdf_ann_top(p)    := cur_page_height - getury;
+        end;
+    }
+    pos_ll := synch_p_with_c(ll);
+    pos_ur := synch_p_with_c(ur);
+    if pos_ll.h > pos_ur.h then begin
+        tmp.h := pos_ll.h; pos_ll.h := pos_ur.h; pos_ur.h := tmp.h; end;
+    if pos_ll.v > pos_ur.v then begin
+        tmp.v := pos_ll.v; pos_ll.v := pos_ur.v; pos_ur.v := tmp.v; end;
+    pdf_ann_left(p)   := pos_ll.h - margin;
+    pdf_ann_bottom(p) := pos_ll.v - margin;
+    pdf_ann_right(p)  := pos_ur.h + margin;
+    pdf_ann_top(p)    := pos_ur.v + margin;
 end;
 
 procedure do_annot(p, parent_box: pointer; x, y: scaled);
@@ -30002,6 +29716,7 @@ end;
 
 procedure end_link;
 var p: pointer;
+tmp1, tmp2: position;
 begin
     if pdf_link_stack_ptr < 1 then
         pdf_error("ext4", "pdf_link_stack empty, \pdfendlink used without \pdfstartlink?");
@@ -30019,9 +29734,17 @@ begin
             pdf_ann_top(p)    := cur_page_height - getury - pdf_link_margin;
             pdf_ann_right(p)  := geturx + pdf_link_margin;
             pdf_ann_bottom(p) := cur_page_height - getlly + pdf_link_margin;
-         end
-         else
-            pdf_ann_right(p) := cur.h + pdf_link_margin;
+        end
+        else begin
+            tmp1.h := cur.h; tmp1.v := cur.v;
+            tmp2 := synch_p_with_c(tmp1);
+            case box_direction(dvi_direction) of
+            dir_TL_, dir_BL_: pdf_ann_right(p)  := tmp2.h + pdf_link_margin;
+            dir_TR_, dir_BR_: pdf_ann_left(p)   := tmp2.h - pdf_link_margin;
+            dir_LT_, dir_RT_: pdf_ann_bottom(p) := tmp2.v - pdf_link_margin;
+            dir_LB_, dir_RB_: pdf_ann_top(p)    := tmp2.v + pdf_link_margin;
+            endcases;
+        end;
     end;
     pop_link_level;
 end;
@@ -30126,11 +29849,20 @@ begin
 end;
 
 procedure end_thread;
+var tmp1, tmp2: position;
 begin
     if pdf_thread_level <> cur_s then
         pdf_error("ext4", "\pdfendthread ended up in different nesting level than \pdfstartthread");
-    if is_running(pdf_thread_dp) and (last_thread <> null) then
-        pdf_ann_bottom(last_thread) := cur.v + pdf_thread_margin;
+    if is_running(pdf_thread_dp) and (last_thread <> null) then begin
+        tmp1.h := cur.h; tmp1.v := cur.v;
+        tmp2 := synch_p_with_c(tmp1);
+        case box_direction(dvi_direction) of
+        dir_TL_, dir_TR_: pdf_ann_bottom(last_thread) := tmp2.v - pdf_thread_margin;
+        dir_BL_, dir_BR_: pdf_ann_top(last_thread)    := tmp2.v + pdf_thread_margin;
+        dir_LT_, dir_LB_: pdf_ann_right(last_thread)  := tmp2.h + pdf_thread_margin;
+        dir_RT_, dir_RB_: pdf_ann_left(last_thread)   := tmp2.h - pdf_thread_margin;
+        endcases;
+        end;
     if pdf_last_thread_named_id then
         delete_token_ref(pdf_last_thread_id);
     last_thread := null;
@@ -30164,6 +29896,7 @@ end;
 
 procedure do_dest(p, parent_box: pointer; x, y: scaled);
 var k: integer;
+tmp1, tmp2: position;
 begin
     if not is_shipping_page then
         pdf_error("ext4", "destinations cannot be inside an XForm");
@@ -30184,8 +29917,10 @@ begin
                             pdf_width(p), pdf_height(p), pdf_depth(p),
                             pdf_dest_margin)
         else begin
-        pdf_ann_left(p) := cur.h;
-        pdf_ann_top(p) := cur.v;
+        tmp1.h := cur.h; tmp1.v := cur.v;
+        tmp2 := synch_p_with_c(tmp1);
+        pdf_ann_left(p) := tmp2.h;
+        pdf_ann_top(p) := tmp2.v;
     end;
     pdf_dest_fith,
     pdf_dest_fitbh:
@@ -30193,16 +29928,22 @@ begin
             set_rect_dimens(p, parent_box, x, y,
                             pdf_width(p), pdf_height(p), pdf_depth(p),
                             pdf_dest_margin)
-        else
-        pdf_ann_top(p) := cur.v;
+        else begin
+        tmp1.h := cur.h; tmp1.v := cur.v;
+        tmp2 := synch_p_with_c(tmp1);
+        pdf_ann_top(p) := tmp2.v;
+        end;
     pdf_dest_fitv,
     pdf_dest_fitbv:
-       if matrixused then
+        if matrixused then
             set_rect_dimens(p, parent_box, x, y,
                             pdf_width(p), pdf_height(p), pdf_depth(p),
                             pdf_dest_margin)
-       else
-       pdf_ann_left(p) := cur.h;
+        else begin
+        tmp1.h := cur.h; tmp1.v := cur.v;
+        tmp2 := synch_p_with_c(tmp1);
+        pdf_ann_left(p) := tmp2.h;
+        end;
     pdf_dest_fit,
     pdf_dest_fitb:
         do_nothing;
@@ -30213,25 +29954,20 @@ begin
     endcases;
 end;
 
-procedure out_form(p: pointer);
+procedure output_form(p: pointer);
 var vv: scaled; {TODO: revert vv to v (was needed by convert)}
 begin
-    pdf_end_text;
-    pdf_print_ln("q");
+    vv := pos.v - obj_xform_depth(pdf_xform_objnum(p));
+    pdf_goto_pagemode;
+    pdf_place_form(pos.h, vv, obj_info(pdf_xform_objnum(p)));
     if pdf_lookup_list(pdf_xform_list, pdf_xform_objnum(p)) = null then
         pdf_append_list(pdf_xform_objnum(p))(pdf_xform_list);
-    vv := cur.v + obj_xform_depth(pdf_xform_objnum(p));
-    pdf_set_origin_temp(cur.h, vv);
-    pdf_print("/Fm");
-    pdf_print_int(obj_info(pdf_xform_objnum(p)));
-    pdf_print_resname_prefix;
-    pdf_print_ln(" Do");
-    pdf_print_ln("Q");
 end;
 
 procedure output_image(idx: integer);
 begin
-    out_image(idx, cur.h-pdf_origin_h, pdf_origin_v-cur.v);
+    pdf_goto_pagemode;
+    out_image(idx, pos.h, pos.v);
     if pdf_lookup_list(pdf_ximage_list, image_objnum(idx)) = null then
         pdf_append_list(image_objnum(idx))(pdf_ximage_list);
 end;
@@ -30260,7 +29996,7 @@ pdf_refobj_node:
 pdf_refxform_node:
     @<Output a Form node in a vlist@>;
 pdf_refximage_node:
-    @<Output a Image node in a vlist@>;
+    @<Output an Image node in a vlist@>;
 pdf_annot_node:
     do_annot(p, this_box, left_edge, top_edge + height(this_box));
 pdf_start_link_node:
@@ -30275,7 +30011,7 @@ pdf_start_thread_node:
 pdf_end_thread_node:
     end_thread;
 pdf_save_pos_node:
-    @<Save current position to |pdf_last_x_pos|, |pdf_last_y_pos|@>;
+    @<Save current position@>;
 special_node:
     pdf_special(p);
 othercases out_what(p);
@@ -30284,29 +30020,33 @@ endcases
 @ @<Glob...@>=
 @!is_shipping_page: boolean; {set to |shipping_page| when |pdf_ship_out| starts}
 
-@ @<Save current position to |pdf_last_x_pos|, |pdf_last_y_pos|@>=
-begin
-    synch_pos_with_cur;
-    pdf_last_x_pos := cur.h;
-    pdf_last_y_pos := cur_page_height - cur.v
-end
-
-@ @<Output a Image node in a vlist@>=
+@ @<Output an Image node in a vlist@>=
 begin cur.v:=cur.v+pdf_height(p)+pdf_depth(p);
+  synch_pos_with_cur;
   case box_direction(dvi_direction) of
-  dir_TL_: begin
-    cur.h:=left_edge;
+  dir_TR_: begin
+    pos_left(pdf_width(p));
     end;
   dir_BL_: begin
-    cur.h:=left_edge;
-    end;
-  dir_TR_: begin
-    cur.h:=left_edge-pdf_width(p);
+    pos_down(pdf_height(p)+pdf_depth(p));
     end;
   dir_BR_: begin
-    cur.h:=left_edge-pdf_width(p);
+    pos_left(pdf_width(p));
+    pos_down(pdf_height(p)+pdf_depth(p));
     end;
-  othercases cur.h:=left_edge;
+  dir_LT_: begin
+    pos_left(pdf_width(p));
+    pos_down(pdf_height(p)+pdf_depth(p));
+    end;
+  dir_RT_: begin
+    pos_down(pdf_height(p)+pdf_depth(p));
+    end;
+  dir_LB_: begin
+    pos_left(pdf_width(p));
+    end;
+  dir_RB_: begin
+    end;
+  othercases
   endcases;
   output_image(pdf_ximage_idx(p));
 end
@@ -30314,7 +30054,14 @@ end
 @ @<Output a Form node in a vlist@>=
 begin cur.v:=cur.v+pdf_height(p);
   cur.h:=left_edge;
-  out_form(p);
+  synch_pos_with_cur;
+  case box_direction(dvi_direction) of
+  dir_TR_: begin
+    pos_left(pdf_width(p));
+    end;
+  othercases
+  endcases;
+  output_form(p);
   cur.v:=cur.v+pdf_depth(p);
 end
 
@@ -30342,7 +30089,7 @@ pdf_refobj_node:
 pdf_refxform_node:
     @<Output a Form node in a hlist@>;
 pdf_refximage_node:
-    @<Output a Image node in a hlist@>;
+    @<Output an Image node in a hlist@>;
 pdf_annot_node:
     do_annot(p, this_box, left_edge, base_line);
 pdf_start_link_node:
@@ -30358,47 +30105,59 @@ pdf_start_thread_node:
 pdf_end_thread_node:
     pdf_error("ext4", "\pdfendthread ended up in hlist");
 pdf_save_pos_node:
-    @<Save current position to |pdf_last_x_pos|, |pdf_last_y_pos|@>;
+    @<Save current position@>;
 special_node:
     pdf_special(p);
 othercases if subtype(p)<>dir_node then out_what(p)
-else @<(PDF) Output a reflection instruction if the direction has changed@>;
+else @<Output a reflection instruction if the direction has changed@>;
 endcases
 
-@ @<Output a Image node in a hlist@>=
+@ @<Output an Image node in a hlist@>=
 begin
+  synch_pos_with_cur;
   case box_direction(dvi_direction) of
   dir_TL_: begin
-    edge:=cur.h+pdf_width(p);
-    cur.v:=base_line+pdf_depth(p);
-    end;
-  dir_BL_: begin
-    edge:=cur.h+pdf_width(p);
-    cur.v:=base_line+pdf_height(p)+pdf_depth(p);
+    pos_down(pdf_depth(p));
     end;
   dir_TR_: begin
-    cur.h:=cur.h-pdf_width(p);
-    edge:=cur.h;
-    cur.v:=base_line+pdf_depth(p);
+    pos_down(pdf_depth(p));
+    pos_left(pdf_width(p));
+    end;
+  dir_BL_: begin
+    pos_down(pdf_height(p));
     end;
   dir_BR_: begin
-    cur.h:=cur.h-pdf_width(p);
-    edge:=cur.h;
-    cur.v:=base_line+pdf_height(p)+pdf_depth(p);
+    pos_down(pdf_height(p));
+    pos_left(pdf_width(p));
     end;
-  othercases begin 
-    edge:=cur.h+pdf_width(p);
-    cur.v:=base_line+pdf_depth(p);
+  dir_LT_: begin
+    pos_left(pdf_width(p));
+    pos_down(pdf_height(p)+pdf_depth(p));
     end;
+  dir_RT_: begin
+    pos_down(pdf_height(p)+pdf_depth(p));
+    end;
+  dir_LB_: begin
+    pos_left(pdf_width(p));
+    end;
+  dir_RB_: begin
+    end;
+  othercases
   endcases;
   output_image(pdf_ximage_idx(p));
-  cur.h:=edge; cur.v:=base_line;
 end
 
 @ @<Output a Form node in a hlist@>=
 begin
   cur.v:=base_line;
-  out_form(p);
+  synch_pos_with_cur;
+  case box_direction(dvi_direction) of
+  dir_TR_: begin
+    pos_left(pdf_width(p));
+    end;
+  othercases
+  endcases;
+  output_form(p);
   edge:=cur.h+pdf_width(p); cur.h:=edge;
 end
 

@@ -1747,21 +1747,6 @@ scaled divide_scaled(scaled s, scaled m, integer dd)
         q++;
         r -= m;
     }
-    /* set up the value of q, in scaled points */
-/* *INDENT-OFF* */
-    switch (dd) {
-    case 0: scaled_out = sign * (s - r); break;
-    case 1: scaled_out = sign * (s - (r / 10)); break;
-    case 2: scaled_out = sign * (s - (r / 100)); break;
-    case 3: scaled_out = sign * (s - (r / 1000)); break;
-    case 4: scaled_out = sign * (s - (r / 10000)); break;
-    case 5: scaled_out = sign * (s - (r / 100000)); break;
-    case 6: scaled_out = sign * (s - (r / 1000000)); break;
-    case 7: scaled_out = sign * (s - (r / 10000000)); break;
-    case 8: scaled_out = sign * (s - (r / 100000000)); break;
-    case 9: scaled_out = sign * (s - (r / 1000000000)); break;
-    }
-/* *INDENT-ON* */
     return sign * q;
 }
 
@@ -1777,7 +1762,6 @@ scaled divide_scaled_n(double sd, double md, double n)
         di = floor(dd + 0.5);
     else if (dd < 0.0)
         di = -floor((-dd) + 0.5);
-    scaled_out = (scaled) (di / n * md);
     return (scaled) di;
 }
 
