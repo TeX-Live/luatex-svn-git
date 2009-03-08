@@ -338,7 +338,7 @@ void get_char_range(fo_entry * fo, internalfontnumber f)
 
 static void write_charwidth_array(fo_entry * fo, internalfontnumber f)
 {
-    int i, j, *ip, *fip, width;
+    int i, j, *ip, *fip;
     struct avl_traverser t;
     assert(fo->tx_tree != NULL);
     assert(fo->cw_objnum == 0);
