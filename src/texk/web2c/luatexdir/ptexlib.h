@@ -328,6 +328,7 @@ extern void set_image_index(integer, integer);
 extern void out_image(integer, scaled, scaled);
 extern void dumpimagemeta(void);
 extern void undumpimagemeta(integer, integer);
+extern void pdf_print_resname_prefix(void);
 
 /* writejbig2.c */
 extern void flush_jbig2_page0_objects();
