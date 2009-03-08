@@ -18709,7 +18709,7 @@ end
 @ When flushing pending forms we need to save and restore resource lists
 (|pdf_font_list|, |pdf_obj_list|, |pdf_xform_list| and |pdf_ximage_list|),
 which are also used by page shipping.
-Saving and restoring |cur_page_size.v| is needed for proper
+Saving and restoring |cur_page_size| is needed for proper
 writing out pending PDF marks.
 
 @<Write out pending forms@>=
