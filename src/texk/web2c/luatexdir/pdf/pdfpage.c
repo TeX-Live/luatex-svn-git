@@ -261,7 +261,7 @@ static void print_pdffloat(pdffloat * f)
     l = m % exp10[e];
     if (l != 0) {
         pdf_printf(".");
-        j = snprintf(a, 23, "%d", l + exp10[e]);
+        j = snprintf(a, 23, "%ld", l + exp10[e]);
         assert(j < 23);
         for (i = e; i > 0; i--) {
             if (a[i] != '0')
