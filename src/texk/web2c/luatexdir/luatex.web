@@ -14542,22 +14542,22 @@ end;
 
 @ @<Calculate DVI page dimensions and margins@>=
 if page_width > 0 then
-    cur_page_width := page_width
+    cur_page_size.h := page_width
 else
     case box_direction(dvi_direction) of
-    dir_TL_, dir_BL_: cur_page_width := width(p) + 2 * page_left_offset;
-    dir_TR_, dir_BR_: cur_page_width := width(p) + 2 * page_right_offset;
-    dir_LT_, dir_LB_: cur_page_width := height(p) + depth(p) + 2 * page_left_offset;
-    dir_RT_, dir_RB_: cur_page_width := height(p) + depth(p) + 2 * page_right_offset;
+    dir_TL_, dir_BL_: cur_page_size.h := width(p) + 2 * page_left_offset;
+    dir_TR_, dir_BR_: cur_page_size.h := width(p) + 2 * page_right_offset;
+    dir_LT_, dir_LB_: cur_page_size.h := height(p) + depth(p) + 2 * page_left_offset;
+    dir_RT_, dir_RB_: cur_page_size.h := height(p) + depth(p) + 2 * page_right_offset;
     end;
 if page_height > 0 then
-    cur_page_height := page_height
+    cur_page_size.v := page_height
 else
     case box_direction(dvi_direction) of
-    dir_TL_, dir_TR_: cur_page_height := height(p) + depth(p) + 2 * page_top_offset;
-    dir_BL_, dir_BR_: cur_page_height := height(p) + depth(p) + 2 * page_bottom_offset;
-    dir_LT_, dir_RT_: cur_page_height := width(p) + 2 * page_top_offset;
-    dir_LB_, dir_RB_: cur_page_height := width(p) + 2 * page_bottom_offset;
+    dir_TL_, dir_TR_: cur_page_size.v := height(p) + depth(p) + 2 * page_top_offset;
+    dir_BL_, dir_BR_: cur_page_size.v := height(p) + depth(p) + 2 * page_bottom_offset;
+    dir_LT_, dir_RT_: cur_page_size.v := width(p) + 2 * page_top_offset;
+    dir_LB_, dir_RB_: cur_page_size.v := width(p) + 2 * page_bottom_offset;
     end
 
 @ @<Initialize variables as |ship_out| begins@>=
@@ -15455,7 +15455,7 @@ for k:=0 to 9 do dvi_four(count(k));
 dvi_four(last_bop); last_bop:=page_loc;
 {Think in upright page/paper coordinates): First preset |pos.h| and |pos.v| to the DVI origin.}
 pos.h := one_true_inch;
-pos.v := cur_page_height - one_true_inch;
+pos.v := cur_page_size.v - one_true_inch;
 box_pos := pos; dvi := pos;
 {Then calculate |cur.h| and |cur.v| within the upright coordinate system
 for the DVI origin depending on the |page_direction|.}
@@ -15466,16 +15466,16 @@ dir_TL_,dir_LT_: begin
   cur.v := page_top_offset;
   end;
 dir_TR_,dir_RT_: begin
-  cur.h := cur_page_width - page_right_offset;
+  cur.h := cur_page_size.h - page_right_offset;
   cur.v := page_top_offset;
   end;
 dir_BL_,dir_LB_: begin
   cur.h := page_left_offset;
-  cur.v := cur_page_height - page_bottom_offset;
+  cur.v := cur_page_size.v - page_bottom_offset;
   end;
 dir_RB_,dir_BR_: begin
-  cur.h := cur_page_width - page_right_offset;
-  cur.v := cur_page_height - page_bottom_offset;
+  cur.h := cur_page_size.h - page_right_offset;
+  cur.v := cur_page_size.v - page_bottom_offset;
   end;
 end;
 cur.h := cur.h - one_true_inch; {correct for DVI origin}
@@ -18231,7 +18231,7 @@ save_ximage_list: pointer; {to save |pdf_ximage_list|}
 save_xform_list: pointer; {to save |pdf_xform_list|}
 save_image_procset: integer;  {to save |pdf_image_procset|}
 save_text_procset: integer;  {to save |pdf_text_procset|}
-save_cur_page_height: scaled; {to save |cur_page_height| during flushing pending forms}
+save_cur_page_size: position; {to save |cur_page_size| during flushing pending forms}
 form_margin: scaled;
 pdf_last_resources: integer; {pointer to most recently generated Resources object}
 pre_callback_id:integer;
@@ -18336,7 +18336,7 @@ if is_shipping_page then begin
     @<Calculate DVI page dimensions and margins@>;
     {Think in upright page/paper coordinates): First preset |pos.h| and |pos.v| to the DVI origin.}
     pos.h := pdf_h_origin;
-    pos.v := cur_page_height - pdf_v_origin;
+    pos.v := cur_page_size.v - pdf_v_origin;
     box_pos := pos;
     {Then calculate |cur.h| and |cur.v| within the upright coordinate system
     for the DVI origin depending on the |page_direction|.}
@@ -18347,16 +18347,16 @@ if is_shipping_page then begin
       cur.v := page_top_offset;
       end;
     dir_TR_,dir_RT_: begin
-      cur.h := cur_page_width - page_right_offset;
+      cur.h := cur_page_size.h - page_right_offset;
       cur.v := page_top_offset;
       end;
     dir_BL_,dir_LB_: begin
       cur.h := page_left_offset;
-      cur.v := cur_page_height - page_bottom_offset;
+      cur.v := cur_page_size.v - page_bottom_offset;
       end;
     dir_RB_,dir_BR_: begin
-      cur.h := cur_page_width - page_right_offset;
-      cur.v := cur_page_height - page_bottom_offset;
+      cur.h := cur_page_size.h - page_right_offset;
+      cur.v := cur_page_size.v - page_bottom_offset;
       end;
     end;
     cur.h := cur.h - one_true_inch; {correct for DVI origin}
@@ -18375,12 +18375,12 @@ else begin
     dvi_direction:=box_dir(p);
     case box_direction(dvi_direction) of
     dir_TL_,dir_TR_,dir_BL_,dir_BR_: begin
-      cur_page_width := width(p);
-      cur_page_height := height(p) + depth(p);
+      cur_page_size.h := width(p);
+      cur_page_size.v := height(p) + depth(p);
       end;
     dir_LT_,dir_RT_,dir_LB_,dir_RB_: begin
-      cur_page_width := height(p) + depth(p);
-      cur_page_height := width(p);
+      cur_page_size.h := height(p) + depth(p);
+      cur_page_size.v := width(p);
       end;
     end;
     case box_direction(dvi_direction) of
@@ -18432,8 +18432,8 @@ end;
 pdf_print("/BBox [");
 pdf_print_bp(-form_margin); pdf_print(" ");
 pdf_print_bp(-form_margin); pdf_print(" ");
-pdf_print_bp(cur_page_width + form_margin); pdf_out(" ");
-pdf_print_bp(cur_page_height + form_margin); pdf_print_ln("]");
+pdf_print_bp(cur_page_size.h + form_margin); pdf_out(" ");
+pdf_print_bp(cur_page_size.v + form_margin); pdf_print_ln("]");
 pdf_print_ln("/FormType 1");
 pdf_print_ln("/Matrix [1 0 0 1 0 0]");
 pdf_indirect_ln("Resources", pdf_last_resources)
@@ -18583,8 +18583,8 @@ pdf_print_ln("/Type /Page");
 pdf_indirect_ln("Contents", pdf_last_stream);
 pdf_indirect_ln("Resources", pdf_last_resources);
 pdf_print("/MediaBox [0 0 ");
-pdf_print_mag_bp(cur_page_width); pdf_out(" ");
-pdf_print_mag_bp(cur_page_height);
+pdf_print_mag_bp(cur_page_size.h); pdf_out(" ");
+pdf_print_mag_bp(cur_page_size.v);
 pdf_print_ln("]");
 if pdf_page_attr <> null then
     pdf_print_toks_ln(pdf_page_attr);
@@ -18709,7 +18709,7 @@ end
 @ When flushing pending forms we need to save and restore resource lists
 (|pdf_font_list|, |pdf_obj_list|, |pdf_xform_list| and |pdf_ximage_list|),
 which are also used by page shipping.
-Saving and restoring |cur_page_height| is needed for proper
+Saving and restoring |cur_page_size.v| is needed for proper
 writing out pending PDF marks.
 
 @<Write out pending forms@>=
@@ -18720,9 +18720,9 @@ if pdf_xform_list <> null then begin
             pdf_cur_form := info(k);
             @<Save resource lists@>;
             @<Reset resource lists@>;
-            save_cur_page_height := cur_page_height;
+            save_cur_page_size := cur_page_size;
             pdf_ship_out(obj_xform_box(pdf_cur_form), false);
-            cur_page_height := save_cur_page_height;
+            cur_page_size := save_cur_page_size;
             @<Restore resource lists@>;
         end;
         k := link(k);
@@ -29472,8 +29472,7 @@ dest_name_entry = record
 end;
 
 @ @<Glob...@>=
-@!cur_page_width: scaled; {width of page being shipped}
-@!cur_page_height: scaled; {height of page being shipped}
+@!cur_page_size: position; {width and height of page being shipped}
 @!pdf_obj_list: pointer; {list of objects in the current page}
 @!pdf_xform_list: pointer; {list of forms in the current page}
 @!pdf_ximage_list: pointer; {list of images in the current page}
@@ -29618,12 +29617,12 @@ begin
         ur.v := cur.v - ht;
     {
         if is_shipping_page and matrixused then begin
-            matrixtransformrect(pdf_ann_left(p), cur_page_height - pdf_ann_bottom(p),
-                                pdf_ann_right(p), cur_page_height - pdf_ann_top(p));
+            matrixtransformrect(pdf_ann_left(p), cur_page_size.v - pdf_ann_bottom(p),
+                                pdf_ann_right(p), cur_page_size.v - pdf_ann_top(p));
             pdf_ann_left(p)   := getllx;
-            pdf_ann_bottom(p) := cur_page_height - getlly;
+            pdf_ann_bottom(p) := cur_page_size.v - getlly;
             pdf_ann_right(p)  := geturx;
-            pdf_ann_top(p)    := cur_page_height - getury;
+            pdf_ann_top(p)    := cur_page_size.v - getury;
         end;
     }
     pos_ll := synch_p_with_c(ll);
@@ -29731,9 +29730,9 @@ begin
         if is_shipping_page and matrixused then begin
             matrixrecalculate(cur.h + pdf_link_margin);
             pdf_ann_left(p)   := getllx - pdf_link_margin;
-            pdf_ann_top(p)    := cur_page_height - getury - pdf_link_margin;
+            pdf_ann_top(p)    := cur_page_size.v - getury - pdf_link_margin;
             pdf_ann_right(p)  := geturx + pdf_link_margin;
-            pdf_ann_bottom(p) := cur_page_height - getlly + pdf_link_margin;
+            pdf_ann_bottom(p) := cur_page_size.v - getlly + pdf_link_margin;
         end
         else begin
             tmp1.h := cur.h; tmp1.v := cur.v;
@@ -31952,7 +31951,7 @@ end;
 
 function get_cur_v: integer;
 begin
-    get_cur_v := cur_page_height - cur.v;
+    get_cur_v := cur_page_size.v - cur.v;
 end;
 
 function get_cur_h: integer;
