@@ -7346,13 +7346,15 @@ number of not|-|so|-|expected changes. These are sometimes a side|-|effect
 of a new (conflicting) feature, or, more often than not, a change
 necessary to clean up the internal interfaces.
 
-\section{Changes from \TEX\ 3.141592}
+\section{Changes from \TEX\ 3.1415926}
 
 \startitemize
 
 \item See~\in{chapter}[languages] for many small changes related to paragraph
-  building, language handling, and hyphenation.
-
+  building, language handling, and hyphenation. Most important change:
+  adding a brace group in the middle of a word (like in \type{of{}fice})
+  does not prevent ligature creation.
+  
 \item There is no pool file, all strings are embedded during compilation.
 
 \item \type {plus 1 fillll} does not generate an error. The extra \quote{l} is
@@ -7362,8 +7364,8 @@ simply typeset.
 (negative values). If it is added, the character is always decimal 13 a/k/a
 \type{^^M} a/k/a carriage return (This change may be temporary).
 
-\item The banner line and the statistics messages are different, as
-well as many warnings and error texts.
+\item There is no error given for \type{\outer} macros that are
+expanded inside a group (This change may be temporary).
 
 \stopitemize
 
@@ -7394,8 +7396,8 @@ are missing.
   and the implementation uses a flat array instead of the mixed
  flat|\&|sparse model from \ETEX.
 
-\item \type{savinghyphcodes} is a no-op and may possibly be removed.
- See~\in{chapter}[languages] for details.
+\item \type{savinghyphcodes} is a no-op.
+See~\in{chapter}[languages] for details.
 
 \item When kpathsea is used to find files, \LUATEX\ uses the
 \type{ofm} file format to search for font metrics. In turn, this means
@@ -7455,19 +7457,12 @@ as well as the five supporting primitives \tex{knbscode}, \tex{stbscode},
 \stoptyping
 \stopcolumns
 
-\item The definitions for new didot and new cicero are patched.
-
-\item The \tex{pdfprimitive} is bugfixed.
-
 \item The \tex{pdftexversion} is set to 200.
 
 \item The PNG transparency fix from 1.40.6 is not applied
 (high-level support is pending)
 
-\item There is no synctex support yet (planned for 0.30)
-
-\item LFS (\PDF\ Files larger than 2GiB) support is not working
-properly yet.
+\item LFS (\PDF\ Files larger than 2GiB) support is not working yet.
 
 \stopitemize
 
