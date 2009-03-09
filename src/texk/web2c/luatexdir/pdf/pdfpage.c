@@ -409,8 +409,6 @@ static void goto_pagemode(pdfstructure * p)
             end_text(p);
         assert(is_pagemode(p));
     }
-    assert(p->pdf.h.m == 0);
-    assert(p->pdf.v.m == 0);
 }
 
 void pdf_goto_pagemode()
