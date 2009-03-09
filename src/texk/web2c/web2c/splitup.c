@@ -73,15 +73,15 @@ main P2C(int, argc, string *, argv)
     case 'l':
       max_lines = atoi(optarg);
       if (max_lines <= 0)
-        SPLITUP_FATAL("[-i] [-l lines] name");
+        FATAL("[-i] [-l lines] name");
       break;
     default:
-      SPLITUP_FATAL("[-i] [-l lines] name");
+      FATAL("[-i] [-l lines] name");
       break;
     }
   }
   if (optind + 1 != argc)
-    SPLITUP_FATAL("[-i] [-l lines] name");
+    FATAL("[-i] [-l lines] name");
   output_name = argv[optind];
 
   sprintf (filename, "%sd.h", output_name);
@@ -125,7 +125,7 @@ main P2C(int, argc, string *, argv)
     fputs ("#define INIMP\n#define MP\n", out);
     coerce = "mpcoerce.h";
   } else
-    SPLITUP_FATAL1 ("Can only split mf, mp, tex, etex, omega, eomega, aleph, luatex, pdf[e]tex, or xetex,\n not %s", output_name);
+    FATAL1 ("Can only split mf, mp, tex, etex, omega, eomega, aleph, luatex, pdf[e]tex, or xetex,\n not %s", output_name);
   
   coerce_len = strlen (coerce);
   
@@ -146,7 +146,7 @@ main P2C(int, argc, string *, argv)
     }
 
   if (strncmp (&buffer[10], coerce, coerce_len) != 0)
-    SPLITUP_FATAL1 ("No #include %s line", coerce);
+    FATAL1 ("No #include %s line", coerce);
 
   fputs (buffer, out);
   xfclose (out, filename);

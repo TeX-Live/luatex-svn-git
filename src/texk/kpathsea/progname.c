@@ -72,6 +72,22 @@
 #define S_IXOTH 0001
 #endif
 
+#ifndef HAVE_PROGRAM_INVOCATION_NAME
+/* Don't redefine the variables if glibc already has.  However, we do
+   not check for HAVE_PROGRAM_INVOCATION_NAME anywhere else in this
+   file; rather, we always use our own code to compute them, overwriting
+   anything that glibc may have provided.  This avoids
+   difficult-to-debug system-dependent behavior, and also universally
+   supports the second (`progname') argument for dotted texmf.cnf values.
+
+   It would have been better to simply use our own variable names (and
+   computations) in the first place, but it's not worth losing backward
+   compatibility to rename them now.  */
+
+string program_invocation_name = NULL;
+string program_invocation_short_name = NULL;
+#endif
+
 
 #ifndef WIN32
 /* From a standalone program `ll' to expand symlinks written by Kimbo Mundy.
@@ -485,7 +501,7 @@ kpse_set_program_name P2C(const_string, argv0, const_string, progname)
         if (IS_DIR_SEP(*fp)) *fp = DIR_SEP;
     /* sdir will be the directory of the executable, ie: c:/TeX/bin */
     sdir = xdirname(path);
-    kpse->invocation_name = xstrdup(xbasename(path));
+    program_invocation_name = xstrdup(xbasename(path));
   }
 
 #elif defined(__DJGPP__)
@@ -537,24 +553,24 @@ kpse_set_program_name P2C(const_string, argv0, const_string, progname)
 	if (IS_DIR_SEP (*fp))
 	  *fp = DIR_SEP;
 
-      kpse->invocation_name = xstrdup (long_progname);
+      program_invocation_name = xstrdup (long_progname);
     }
     else
       /* If `_truename' failed, God help them, because we won't...  */
-      kpse->invocation_name = xstrdup (argv0);
+      program_invocation_name = xstrdup (argv0);
   }
   else
-    kpse->invocation_name = xstrdup (argv0);
+    program_invocation_name = xstrdup (argv0);
 
 #else /* !WIN32 && !__DJGPP__ */
-  kpse->invocation_name = xstrdup (argv0);
+  program_invocation_name = xstrdup (argv0);
 #endif
 
   /* We need to find SELFAUTOLOC *before* removing the ".exe" suffix from
      the program_name, otherwise the PATH search inside kpse_selfdir will fail,
      since `prog' doesn't exists as a file, there's `prog.exe' instead.  */
 #ifndef WIN32
-  sdir = kpse_selfdir (kpse->invocation_name);
+  sdir = kpse_selfdir (program_invocation_name);
 #endif
   /* SELFAUTODIR is actually the parent of the invocation directory,
      and SELFAUTOPARENT the grandparent.  This is how teTeX did it.  */
@@ -568,7 +584,7 @@ kpse_set_program_name P2C(const_string, argv0, const_string, progname)
   free (sdir_parent);
   free (sdir_grandparent);
 
-  kpse->invocation_short_name = (string)xbasename (kpse->invocation_name);
+  program_invocation_short_name = (string)xbasename (program_invocation_name);
 
   if (progname) {
     kpse->program_name = xstrdup (progname);
@@ -577,11 +593,11 @@ kpse_set_program_name P2C(const_string, argv0, const_string, progname)
        with the wrapper scripts (e.g., for make check), the binaries will
        be named foo.exe instead of foo.  Or possibly if we're running on a
        DOSISH system.  */
-    ext = find_suffix (kpse->invocation_short_name);
+    ext = find_suffix (program_invocation_short_name);
     if (ext && FILESTRCASEEQ (ext, "exe")) {
-      kpse->program_name = remove_suffix (kpse->invocation_short_name);
+      kpse->program_name = remove_suffix (program_invocation_short_name);
     } else {
-      kpse->program_name = xstrdup (kpse->invocation_short_name);
+      kpse->program_name = xstrdup (program_invocation_short_name);
     }
   }
 
@@ -589,7 +605,7 @@ kpse_set_program_name P2C(const_string, argv0, const_string, progname)
 }
 
 /* This function is deprecated, because when we pretend to have a different
-   name it will look for _that_ name in the PATH if kpse->invocation_name
+   name it will look for _that_ name in the PATH if program_invocation_name
    is not defined.  */
 void
 kpse_set_progname P1C(const_string, argv0)

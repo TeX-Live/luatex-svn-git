@@ -218,8 +218,6 @@ typedef struct kpathsea_instance {
     FILE *log_file;
     boolean log_opened;                 /* Need to open the log file? */  
     /* from progname.c */
-    string invocation_name;     /* called name (conditional) */
-    string invocation_short_name; /* short called name (conditional) */
     string program_name;           /* pretended name */
     int ll_verbose;                     /* for symlinks (conditional) */
     /* from tex-file.c */

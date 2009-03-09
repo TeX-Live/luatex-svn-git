@@ -38,7 +38,7 @@ static const char _svn_version[] =
  * does much more, making it hard to use for our purpose. 
  *
  * In fact, it sets three C variables:
- *   kpse->invocation_name  kpse->invocation_short_name  kpse->program_name
+ *   program_invocation_name  program_invocation_short_name  kpse->program_name
  * and four environment variables:
  *   SELFAUTOLOC  SELFAUTODIR  SELFAUTOPARENT  progname
  *
@@ -455,11 +455,11 @@ void lua_initialize(int ac, char **av)
 
     ptexbanner = BANNER;
 
-    kpse->invocation_name = cleaned_invocation_name(argv[0]);
+    program_invocation_name = cleaned_invocation_name(argv[0]);
 
     /* be 'luac' */
     if (argc > 1 &&
-        (STREQ(kpse->invocation_name, "texluac") ||
+        (STREQ(program_invocation_name, "texluac") ||
          STREQ(argv[1], "--luaconly") || STREQ(argv[1], "--luac"))) {
         exit(luac_main(ac, av));
     }

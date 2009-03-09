@@ -22,6 +22,9 @@
 #include <kpathsea/c-proto.h>
 #include <kpathsea/types.h>
 
+extern KPSEDLL string program_invocation_name;
+extern KPSEDLL string program_invocation_short_name;
+
 /* Return directory ARGV0 comes from.  Check PATH if ARGV0 is not
    absolute.  */
 

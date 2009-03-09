@@ -59,8 +59,6 @@ kpathsea_instance kpse_def_inst = {
     false, /*boolean followup_search;*/
     NULL,  /*FILE *log_file;*/
     false, /*boolean log_opened;*/
-    NULL,  /*string invocation_name;*/
-    NULL,  /*string invocation_short_name;*/
     NULL,  /*string program_name;*/
     0,     /*int ll_verbose;*/
     NULL,  /*const_string kpse_fallback_font;*/
