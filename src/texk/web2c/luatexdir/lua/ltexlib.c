@@ -1244,6 +1244,31 @@ static int tex_hashpairs(lua_State * L)
     return 1;
 }
 
+#define prim_size 2100
+#define prim_text(a) prim[(a)].rh
+#define prim_eq_type(a) prim_eqtb[(a)].hh.b0
+#define prim_equiv(a) prim_eqtb[(a)].hh.rh
+
+
+static int tex_primitives(lua_State * L)
+{
+    int cmd, chr;
+    str_number s = 0;
+    int cs = 0;
+    lua_newtable(L);
+    while (cs < prim_size) {
+        s = prim_text(cs);
+        if (s > 0) {
+            lua_pushstring(L, makecstring(s));
+            cmd = prim_eq_type(cs);
+            chr = prim_equiv(cs);
+            make_token_table(L, cmd, chr, 0);
+            lua_rawset(L, -3);
+        }
+        cs++;
+    }
+    return 1;
+}
 
 
 
@@ -1285,6 +1310,7 @@ static const struct luaL_reg texlib[] = {
     {"pdfxformname", getpdfxformname},
     {"definefont", tex_definefont},
     {"hashtokens", tex_hashpairs},
+    {"primitives", tex_primitives},
     {NULL, NULL}                /* sentinel */
 };
 
