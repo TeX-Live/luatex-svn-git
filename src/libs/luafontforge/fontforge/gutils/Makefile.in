@@ -12,10 +12,6 @@ GU_VERSION=1
 GU_REVISION=3
 GU_AGE=0
 
-GFTP_VERSION=1
-GFTP_REVISION=0
-GFTP_AGE=0
-
 LIBTOOL = @LIBTOOL@
 CC = @CC@
 
@@ -26,19 +22,12 @@ X_EXTRA_LIBS = @X_EXTRA_LIBS@
 X_PRE_LIBS = @X_PRE_LIBS@
 STATIC_LIBS = @STATIC_LIBS@
 
-libgutils_OBJECTS = divisors.lo fsys.lo gcol.lo gimage.lo gimagereadbmp.lo \
- gimageread.lo gimagereadgif.lo gimagereadjpeg.lo gimagereadpng.lo \
- gimagereadras.lo gimagereadrgb.lo gimagereadtiff.lo gimagereadxbm.lo \
- gimagereadxpm.lo gimagewritebmp.lo gimagewritegimage.lo \
- gimagewritejpeg.lo gimagewritepng.lo gimagewritexbm.lo gimagewritexpm.lo \
- gwwintl.lo dynamic.lo \
- gio.lo giofile.lo giohosts.lo giomime.lo giothread.lo giotrans.lo
-libgioftp_OBJECTS = gioftp.lo
+libgutils_OBJECTS = fsys.lo gwwintl.lo
 
 Incs = -I$(top_builddir)/inc -I$(top_srcdir)/inc -I/usr/pkg/include -I/usr/pkg/include/giflib
 CFLAGS = @CFLAGS@ @CPPFLAGS@ $(Incs) @WFLAGS@ $(X_CFLAGS) -DNOTHREADS @DEFS@ -DLIBDIR='"$(libdir)"'
 
-both: ../libgutils.la ../libgioftp.la
+both: ../libgutils.la
 
 ../libgutils.la: $(libgutils_OBJECTS)
 	$(LIBTOOL) --mode=link $(CC) -no-undefined $(CFLAGS) @LDFLAGS@ -o ../libgutils.la $(libgutils_OBJECTS) \
@@ -46,17 +35,11 @@ both: ../libgutils.la ../libgioftp.la
 	    $(STATIC_LIBS)  \
 	    -rpath $(libdir) -version-info $(GU_VERSION):$(GU_REVISION):$(GU_AGE)
 
-../libgioftp.la: $(libgioftp_OBJECTS)
-	$(LIBTOOL) --mode=link $(CC) -no-undefined $(CFLAGS) @LDFLAGS@ -o ../libgioftp.la $(libgioftp_OBJECTS) \
-	    ../libgunicode.la @LIBS@ \
-	    $(STATIC_LIBS)  \
-	    -rpath $(libdir) -version-info $(GFTP_VERSION):$(GFTP_REVISION):$(GFTP_AGE)
-
 %.lo: %.c
 	$(LIBTOOL) --mode=compile $(CC) $(CFLAGS) -c $<
 
 clean:
-	-rm -f *.lo *.o .libs/* ../libgutils.la ../libgioftp.la
+	-rm -f *.lo *.o .libs/* ../libgutils.la 
 
 distclean cleaner:
-	-rm -f *.lo *.o ../libgutils.la Makefile ../libgioftp.la .libs/*
+	-rm -f *.lo *.o ../libgutils.la Makefile .libs/*
