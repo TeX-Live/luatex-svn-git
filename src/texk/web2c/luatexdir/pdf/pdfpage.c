@@ -569,10 +569,12 @@ place_glyph(pdfstructure * p, scaledpos * pos,
 
 void pdf_place_glyph(internal_font_number f, integer c)
 {
-    scaledpos tmppos;
-    tmppos.h = pos.h;
-    tmppos.v = pos.v;
-    place_glyph(pstruct, &tmppos, f, c);
+    if (char_exists(f,c)) {
+        scaledpos tmppos;
+        tmppos.h = pos.h;
+        tmppos.v = pos.v;
+        place_glyph(pstruct, &tmppos, f, c);
+    }
 }
 
 /**********************************************************************/
