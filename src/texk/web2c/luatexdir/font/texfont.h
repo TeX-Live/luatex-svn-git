@@ -419,7 +419,10 @@ extern void set_charinfo_ef(charinfo * ci, scaled val);
 extern void set_charinfo_lp(charinfo * ci, scaled val);
 extern void set_charinfo_rp(charinfo * ci, scaled val);
 
-#  define set_char_used(f,a,b)  set_charinfo_used(get_charinfo(f,a),b)
+#  define set_char_used(f,a,b)  do {                            \
+        if (char_exists(f,a))                                   \
+            set_charinfo_used(char_info(f,a),b);                \
+    } while (0)
 
 extern scaled get_charinfo_width(charinfo * ci);
 extern scaled get_charinfo_height(charinfo * ci);
