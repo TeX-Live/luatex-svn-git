@@ -30026,30 +30026,40 @@ endcases
 @!is_shipping_page: boolean; {set to |shipping_page| when |pdf_ship_out| starts}
 
 @ @<Output an Image node in a vlist@>=
-begin cur.v:=cur.v+pdf_height(p)+pdf_depth(p);
+begin cur.h:=left_edge;
   synch_pos_with_cur;
   case box_direction(dvi_direction) of
+  dir_TL_: begin
+    pos_down(pdf_height(p)+pdf_depth(p));
+    cur.v:=cur.v+pdf_height(p)+pdf_depth(p);
+    end;
   dir_TR_: begin
+    pos_down(pdf_height(p)+pdf_depth(p));
     pos_left(pdf_width(p));
+    cur.v:=cur.v+pdf_height(p)+pdf_depth(p);
     end;
   dir_BL_: begin
-    pos_down(pdf_height(p)+pdf_depth(p));
+    cur.v:=cur.v+pdf_height(p)+pdf_depth(p);
     end;
   dir_BR_: begin
     pos_left(pdf_width(p));
-    pos_down(pdf_height(p)+pdf_depth(p));
+    cur.v:=cur.v+pdf_height(p)+pdf_depth(p);
     end;
   dir_LT_: begin
-    pos_left(pdf_width(p));
     pos_down(pdf_height(p)+pdf_depth(p));
+    cur.v:=cur.v+pdf_width(p);
     end;
   dir_RT_: begin
+    pos_left(pdf_width(p));
     pos_down(pdf_height(p)+pdf_depth(p));
+    cur.v:=cur.v+pdf_width(p);
     end;
   dir_LB_: begin
-    pos_left(pdf_width(p));
+    cur.v:=cur.v+pdf_width(p);
     end;
   dir_RB_: begin
+    pos_left(pdf_width(p));
+    cur.v:=cur.v+pdf_width(p);
     end;
   othercases
   endcases;
