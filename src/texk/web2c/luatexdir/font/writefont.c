@@ -336,6 +336,22 @@ void get_char_range(fo_entry * fo, internalfontnumber f)
     }
 }
 
+static int font_has_subset (internalfontnumber f)
+{
+    int i,s;
+    for (i = font_bc(f); i <= font_ec(f); i++)  /* search for first_char and last_char */
+        if (pdf_char_marked(f, i))
+            break;
+    s = i;
+    for (i = font_ec(f); i >= font_bc(f); i--)
+        if (pdf_char_marked(f, i))
+            break;
+    if (s>i)
+        return 0;
+    else
+        return 1;
+}
+
 static void write_charwidth_array(fo_entry * fo, internalfontnumber f)
 {
     int i, j, *ip, *fip;
@@ -705,6 +721,9 @@ void do_pdf_font(integer font_objnum, internalfontnumber f)
      * only) there are more than 256 separate glyphs used. But for
      * now, just assume the user knows what he is doing;
      */
+    if (!font_has_subset (f))
+        return;
+
     if (font_encodingbytes(f) == 2) {
         /* Create a virtual font map entry, as this is needed by the
          * rest of the font inclusion mechanism.
