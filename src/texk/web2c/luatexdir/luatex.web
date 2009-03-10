@@ -30031,39 +30031,32 @@ begin cur.h:=left_edge;
   case box_direction(dvi_direction) of
   dir_TL_: begin
     pos_down(pdf_height(p)+pdf_depth(p));
-    cur.v:=cur.v+pdf_height(p)+pdf_depth(p);
     end;
   dir_TR_: begin
-    pos_down(pdf_height(p)+pdf_depth(p));
     pos_left(pdf_width(p));
-    cur.v:=cur.v+pdf_height(p)+pdf_depth(p);
+    pos_down(pdf_height(p)+pdf_depth(p));
     end;
   dir_BL_: begin
-    cur.v:=cur.v+pdf_height(p)+pdf_depth(p);
     end;
   dir_BR_: begin
     pos_left(pdf_width(p));
-    cur.v:=cur.v+pdf_height(p)+pdf_depth(p);
     end;
   dir_LT_: begin
-    pos_down(pdf_height(p)+pdf_depth(p));
-    cur.v:=cur.v+pdf_width(p);
+    pos_down(pdf_width(p));
     end;
   dir_RT_: begin
-    pos_left(pdf_width(p));
-    pos_down(pdf_height(p)+pdf_depth(p));
-    cur.v:=cur.v+pdf_width(p);
+    pos_left(pdf_height(p)+pdf_depth(p));
+    pos_down(pdf_width(p));
     end;
   dir_LB_: begin
-    cur.v:=cur.v+pdf_width(p);
     end;
   dir_RB_: begin
-    pos_left(pdf_width(p));
-    cur.v:=cur.v+pdf_width(p);
+    pos_left(pdf_height(p)+pdf_depth(p));
     end;
   othercases
   endcases;
   output_image(pdf_ximage_idx(p));
+  cur.v:=cur.v+pdf_height(p)+pdf_depth(p);
 end
 
 @ @<Output a Form node in a vlist@>=
@@ -30134,42 +30127,36 @@ begin
   case box_direction(dvi_direction) of
   dir_TL_: begin
     pos_down(pdf_depth(p));
-    edge:=cur.h+pdf_width(p);
     end;
   dir_TR_: begin
-    pos_down(pdf_depth(p));
     pos_left(pdf_width(p));
-    edge:=cur.h+pdf_width(p);
+    pos_down(pdf_depth(p));
     end;
   dir_BL_: begin
     pos_down(pdf_height(p));
-    edge:=cur.h+pdf_width(p);
     end;
   dir_BR_: begin
-    pos_down(pdf_height(p));
     pos_left(pdf_width(p));
-    edge:=cur.h+pdf_width(p);
+    pos_down(pdf_height(p));
     end;
   dir_LT_: begin
-    pos_left(pdf_width(p));
-    pos_down(pdf_height(p)+pdf_depth(p));
-    edge:=cur.h+pdf_height(p)+pdf_depth(p);
+    pos_left(pdf_height(p));
+    pos_down(pdf_width(p));
     end;
   dir_RT_: begin
-    pos_down(pdf_height(p)+pdf_depth(p));
-    edge:=cur.h+pdf_height(p)+pdf_depth(p);
+    pos_left(pdf_depth(p));
+    pos_down(pdf_width(p));
     end;
   dir_LB_: begin
-    pos_left(pdf_width(p));
-    edge:=cur.h+pdf_height(p)+pdf_depth(p);
+    pos_left(pdf_height(p));
     end;
   dir_RB_: begin
-    edge:=cur.h+pdf_height(p)+pdf_depth(p);
+    pos_left(pdf_depth(p));
     end;
   othercases
   endcases;
   output_image(pdf_ximage_idx(p));
-  cur.h:=edge;
+  edge:=cur.h+pdf_width(p); cur.h:=edge;
 end
 
 @ @<Output a Form node in a hlist@>=
