@@ -300,7 +300,7 @@ lib_LTLIBRARIES = libkpathsea.la
 libkpathsea_la_CPPFLAGS = -DMAKE_KPSE_DLL
 libkpathsea_la_LDFLAGS = -version-number $(KPSE_LT_VERSNUM)
 libkpathsea_la_LIBADD = $(LTLIBOBJS)
-BUILT_SOURCES = stamp-paths paths.h
+BUILT_SOURCES = paths.h
 libkpathsea_la_SOURCES = \
 	tex-file.c \
 	absolute.c \
@@ -1527,6 +1527,10 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_web2cDATA \
 	uninstall-kpseincludeHEADERS uninstall-libLTLIBRARIES \
 	uninstall-nodist_kpseincludeHEADERS
 
+
+$(libkpathsea_la_SOURCES): paths.h
+
+$(kpseinclude_HEADERS): paths.h
 
 #
 #

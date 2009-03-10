@@ -15,7 +15,7 @@ libkpathsea_la_LDFLAGS = -version-number $(KPSE_LT_VERSNUM)
 
 libkpathsea_la_LIBADD = $(LTLIBOBJS)
 
-BUILT_SOURCES = stamp-paths paths.h
+BUILT_SOURCES = paths.h
 
 ## Put tex-file.c first, because it's what depends on the paths, and may
 ## reduce frustration if the paths are wrong by doing it first.
@@ -76,6 +76,8 @@ libkpathsea_la_SOURCES = \
 	xrealloc.c \
 	xstat.c \
 	xstrdup.c
+
+$(libkpathsea_la_SOURCES): paths.h
 
 EXTRA_DIST += \
 	putenv.c \
@@ -140,6 +142,8 @@ kpseinclude_HEADERS = \
 	variable.h \
 	xopendir.h \
 	xstat.h
+
+$(kpseinclude_HEADERS): paths.h
 
 ## First null out comments and leading/trailing whitespace, then remove
 ## lines that define invalid C identifiers, then remove blank lines and
