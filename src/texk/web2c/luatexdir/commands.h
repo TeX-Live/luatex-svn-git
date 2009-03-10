@@ -431,7 +431,8 @@ typedef enum {
     param_last_line_fit_code,   /* adjustment for last line of paragraph */
     param_saving_vdiscards_code,        /* save items discarded from vlists */
     param_saving_hyph_codes_code,       /* save hyphenation codes for languages */
-    param_suppress_fontnotfound_error_code,     /* surpress errors for missing fonts */
+    param_suppress_fontnotfound_error_code,     /* suppress errors for missing fonts */
+    param_suppress_long_error_code,     /* suppress errors for \\par in non-long contexts */
     param_synctex_code,         /*  is synctex file generation enabled ?  */
 } int_param_codes;
 

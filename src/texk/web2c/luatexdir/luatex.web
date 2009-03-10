@@ -5628,7 +5628,8 @@ that will be defined later.
 @d saving_vdiscards_code=etex_int_base+7 {save items discarded from vlists}
 @d saving_hyph_codes_code=etex_int_base+8 {save hyphenation codes for languages}
 @d suppress_fontnotfound_error_code=etex_int_base+9 {surpress errors for missing fonts}
-@d etex_int_pars=etex_int_base+10 {total number of \eTeX's integer parameters}
+@d suppress_long_error_code=etex_int_base+10 {surpress errors for missing fonts}
+@d etex_int_pars=etex_int_base+11 {total number of \eTeX's integer parameters}
 @#
 @d synctex_code=etex_int_pars { is synctex file generation enabled ? }
 @d int_pars=synctex_code+1 {total number of integer parameters}
@@ -5749,6 +5750,7 @@ that will be defined later.
 @d saving_vdiscards==int_par(saving_vdiscards_code)
 @d saving_hyph_codes==int_par(saving_hyph_codes_code)
 @d suppress_fontnotfound_error==int_par(suppress_fontnotfound_error_code)
+@d suppress_long_error==int_par(suppress_long_error_code)
 @d synctex==int_par(synctex_code)
 
 @<Assign the values |depth_threshold:=show_box_depth|...@>=
@@ -9147,8 +9149,9 @@ if cur_tok=info(r) then
 @<Contribute the recently matched tokens to the current parameter, and
   |goto continue| if a partial match is still in effect;
   but abort if |s=null|@>;
-if cur_tok=par_token then if long_state<>long_call then
-  @<Report a runaway argument and abort@>;
+if cur_tok=par_token then if long_state<>long_call then 
+  if not suppress_long_error then
+    @<Report a runaway argument and abort@>;
 if cur_tok<right_brace_limit then
   if cur_tok<left_brace_limit then
     @<Contribute an entire group to the current parameter@>
@@ -9261,7 +9264,8 @@ begin unbalance:=1;
 @^inner loop@>
 loop@+  begin fast_store_new_token(cur_tok); get_token;
   if cur_tok=par_token then if long_state<>long_call then
-    @<Report a runaway argument and abort@>;
+    if not suppress_long_error then
+      @<Report a runaway argument and abort@>;
   if cur_tok<right_brace_limit then
     if cur_tok<left_brace_limit then incr(unbalance)
     else  begin decr(unbalance);
@@ -30290,7 +30294,9 @@ primitive("savingvdiscards",assign_int,int_base+saving_vdiscards_code);@/
 primitive("savinghyphcodes",assign_int,int_base+saving_hyph_codes_code);@/
 @!@:saving_hyph_codes_}{\.{\\savinghyphcodes} primitive@>
 primitive("suppressfontnotfounderror",assign_int,int_base+suppress_fontnotfound_error_code);@/
-@!@:suppress_fontnotfound_error_codes_}{\.{\\suppressfontnotfounderror} primitive@>
+@!@:suppress_fontnotfound_error_code_}{\.{\\suppressfontnotfounderror} primitive@>
+primitive("suppresslongerror",assign_int,int_base+suppress_long_error_code);@/
+@!@:suppress_long_error_code_}{\.{\\suppresslongerror} primitive@>
 primitive("synctex",assign_int,int_base+synctex_code);@/
 @!@:synctex_}{\.{\\synctex} primitive@>
 
@@ -30310,6 +30316,7 @@ last_line_fit_code:print_esc("lastlinefit");
 saving_vdiscards_code:print_esc("savingvdiscards");
 saving_hyph_codes_code:print_esc("savinghyphcodes");
 suppress_fontnotfound_error_code:print_esc("suppressfontnotfounderror");
+suppress_long_error_code:print_esc("suppresslongerror");
 synctex_code:print_esc("synctex");
 
 @ In order to handle \.{\\everyeof} we need an array |eof_seen| of
