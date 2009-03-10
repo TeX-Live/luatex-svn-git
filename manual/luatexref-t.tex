@@ -22,7 +22,7 @@
 
 \setvariables
   [document]
-  [beta=0.35.0]
+  [beta=0.36.0]
 
 \starttext
 
@@ -563,6 +563,32 @@ complain about font metrics that are not found. Instead it will
 silently skip the font assignment, making the requested csname for the
 font \tex{ifx} equal to \tex{nullfont}, so that it can be tested
 against that without bothering the user.
+
+\subsection{\tex{suppresslongerror}}
+
+\startsyntax
+\suppresslongerror = 1
+\stopsyntax
+
+If this new integer parameter is non|-|zero, then \LUATEX\ will not
+complain about \type{\par} commands encountered in contexts where
+that is normally prohibitited (most prominently in the arguments
+of non-long macros).
+
+\subsection{\tex{suppressifcsnameerror}}
+
+\startsyntax
+\suppressifcsnameerror = 1
+\stopsyntax
+
+If this new integer parameter is non|-|zero, then \LUATEX\ will not
+complain about non-expandable commands appearing in the middle of a 
+\type{\ifcsname} expansion. Instead, it will keep getting expanded
+tokens from the input until it encounters an \type{\endcsname}
+command. Use with care! This command is experimental: if the input
+expansion is unbalanced wrt. \type{\csname} \ldots \type{\endcsname}
+pairs, the \LUATEX\ process may hang indefinately.
+
 
 \subsection{Font syntax}
 

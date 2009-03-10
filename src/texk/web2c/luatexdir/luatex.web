@@ -249,9 +249,9 @@ known as `\eTeX'.
 @d pdftex_revision=="0" { \.{\\pdftexrevision} }
 @d pdftex_version_string=='-2.00.0' {current \pdfTeX\ version}
 @#
-@d luatex_version==35 { \.{\\luatexversion} }
+@d luatex_version==36 { \.{\\luatexversion} }
 @d luatex_revision=="0" { \.{\\luatexrevision} }
-@d luatex_version_string=='snapshot-0.35.0' {current \LuaTeX\ version}
+@d luatex_version_string=='snapshot-0.36.0' {current \LuaTeX\ version}
 @d luatex_date_info==-extra_version_info { the compile date is negated }
 @d luatex_svnversion==SVN_REV { as proposed by PM }
 @#
@@ -5629,7 +5629,8 @@ that will be defined later.
 @d saving_hyph_codes_code=etex_int_base+8 {save hyphenation codes for languages}
 @d suppress_fontnotfound_error_code=etex_int_base+9 {surpress errors for missing fonts}
 @d suppress_long_error_code=etex_int_base+10 {surpress errors for missing fonts}
-@d etex_int_pars=etex_int_base+11 {total number of \eTeX's integer parameters}
+@d suppress_ifcsname_error_code=etex_int_base+11 {surpress errors for failed \.{\\ifcsname}}
+@d etex_int_pars=etex_int_base+12 {total number of \eTeX's integer parameters}
 @#
 @d synctex_code=etex_int_pars { is synctex file generation enabled ? }
 @d int_pars=synctex_code+1 {total number of integer parameters}
@@ -5751,6 +5752,7 @@ that will be defined later.
 @d saving_hyph_codes==int_par(saving_hyph_codes_code)
 @d suppress_fontnotfound_error==int_par(suppress_fontnotfound_error_code)
 @d suppress_long_error==int_par(suppress_long_error_code)
+@d suppress_ifcsname_error==int_par(suppress_ifcsname_error_code)
 @d synctex==int_par(synctex_code)
 
 @<Assign the values |depth_threshold:=show_box_depth|...@>=
@@ -30297,6 +30299,8 @@ primitive("suppressfontnotfounderror",assign_int,int_base+suppress_fontnotfound_
 @!@:suppress_fontnotfound_error_code_}{\.{\\suppressfontnotfounderror} primitive@>
 primitive("suppresslongerror",assign_int,int_base+suppress_long_error_code);@/
 @!@:suppress_long_error_code_}{\.{\\suppresslongerror} primitive@>
+primitive("suppressifcsnameerror",assign_int,int_base+suppress_ifcsname_error_code);@/
+@!@:suppress_ifcsname_error_code_}{\.{\\suppressifcsnameerror} primitive@>
 primitive("synctex",assign_int,int_base+synctex_code);@/
 @!@:synctex_}{\.{\\synctex} primitive@>
 
@@ -31015,10 +31019,22 @@ if_cs_code:begin n:=get_avail; p:=n; {head of the list of characters}
   repeat get_x_token;
   if cur_cs=0 then store_new_token(cur_tok);
   until cur_cs<>0;
-  if cur_cmd<>end_cs_name then @<Complain about missing \.{\\endcsname}@>;
-  @<Look up the characters of list |n| in the hash table, and set |cur_cs|@>;
+  if cur_cmd<>end_cs_name then begin
+    if suppress_ifcsname_error then begin
+      repeat get_x_token;
+      until cur_cmd=end_cs_name;
+      end
+    else begin
+      @<Complain about missing \.{\\endcsname}@>;
+      @<Look up the characters of list |n| in the hash table, and set |cur_cs|@>;
+      b:=(eq_type(cur_cs)<>undefined_cs);
+      end;
+    end
+  else begin
+    @<Look up the characters of list |n| in the hash table, and set |cur_cs|@>;
+    b:=(eq_type(cur_cs)<>undefined_cs);
+    end;
   flush_list(n);
-  b:=(eq_type(cur_cs)<>undefined_cs);
   end;
 
 @ @<Look up the characters of list |n| in the hash table...@>=
