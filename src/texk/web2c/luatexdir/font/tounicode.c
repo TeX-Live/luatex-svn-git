@@ -316,7 +316,7 @@ integer write_tounicode(char **glyph_names, char *name)
     int bfchar_count, bfrange_count, subrange_count;
     assert(strlen(name) + strlen(builtin_suffix) < SMALL_BUF_SIZE);
     if (glyph_unicode_tree == NULL) {
-        pdftex_warn("no GlyphToUnicode entry has been inserted yet!");
+        /*pdftex_warn("no GlyphToUnicode entry has been inserted yet!");*/
         fixed_gen_tounicode = 0;
         return 0;
     }
