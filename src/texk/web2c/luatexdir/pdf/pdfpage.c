@@ -26,7 +26,7 @@
 
 #include "ptexlib.h"
 
-static const char __svn_version[] = "$Id$";
+static const char __svn_version[] = "$Id$ $URL$";
 
 #define lround(a) (long) floor((a) + 0.5)
 #define setpdffloat(a,b,c) {(a).m = (b); (a).e = (c);}

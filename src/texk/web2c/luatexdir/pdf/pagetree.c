@@ -32,7 +32,7 @@
 #endif
 #include "ptexlib.h"
 
-static const char __svn_version[] = "$Id$";
+static const char __svn_version[] = "$Id$ $URL$";
 
 /**********************************************************************/
 /* Page diversions */
