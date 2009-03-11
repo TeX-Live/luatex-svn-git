@@ -102,6 +102,7 @@ lang/hnjalloc.o \
 lang/hyphen.o \
 lang/texlang.o \
 pdf/pdfpage.o \
+pdf/pagetree.o \
 tex/linebreak.o \
 tex/postlinebreak.o \
 tex/texnodes.o \

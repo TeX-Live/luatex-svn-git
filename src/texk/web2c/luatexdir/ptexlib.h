@@ -1,7 +1,7 @@
 /* ptexlib.h
    
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -286,6 +286,18 @@ extern scaled getllx();
 extern scaled getlly();
 extern scaled geturx();
 extern scaled getury();
+
+/* pdf/pdfpage.c */
+void pdf_place_rule(scaled h, scaled v, scaled wd, scaled ht);
+void pdf_place_glyph(internal_font_number f, integer c);
+void pdf_place_form(scaled h, scaled v, integer i);
+void pdf_goto_pagemode();
+void pdf_page_init();
+void pdf_set_pos(scaled h, scaled v);
+void pdf_end_string_nl();
+void pdf_print_charwidth(internal_font_number f, int i);
+
+/* pdf/pagetree.c */
 extern integer pdf_do_page_divert(integer, integer);
 extern void pdf_do_page_undivert(integer, integer);
 extern integer output_pages_tree();
@@ -653,16 +665,6 @@ integer epdf_orig_x(integer i);
 
 /* limglib.c */
 void vf_out_image(unsigned i);
-
-/* pdfpage.c */
-void pdf_place_rule(scaled h, scaled v, scaled wd, scaled ht);
-void pdf_place_glyph(internal_font_number f, integer c);
-void pdf_place_form(scaled h, scaled v, integer i);
-void pdf_goto_pagemode();
-void pdf_page_init();
-void pdf_set_pos(scaled h, scaled v);
-void pdf_end_string_nl();
-void pdf_print_charwidth(internal_font_number f, int i);
 
 /* vfovf.c */
 void vf_expand_local_fonts(internal_font_number f);
