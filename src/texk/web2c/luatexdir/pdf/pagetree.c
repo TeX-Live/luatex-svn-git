@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: pagetree.c,v 1.3 2009/03/11 20:30:42 hahe Exp hahe $ */
+/* $Id$ */
 
 #include "openbsd-compat.h"
 #ifdef HAVE_ASPRINTF            /* asprintf is not defined in openbsd-compat.h, but in stdio.h */
@@ -32,7 +32,7 @@
 #endif
 #include "ptexlib.h"
 
-static const char __svn_version[] = "$Id: pagetree.c,v 1.3 2009/03/11 20:30:42 hahe Exp hahe $";
+static const char __svn_version[] = "$Id$";
 
 /**********************************************************************/
 /* Page diversions */

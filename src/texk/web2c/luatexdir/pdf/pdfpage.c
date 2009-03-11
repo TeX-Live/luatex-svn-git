@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: pdfpage.c,v 1.372 2009/03/01 23:25:52 hahe Exp hahe $ */
+/* $Id$ */
 
 #include <stdlib.h>
 #include <stdio.h>
