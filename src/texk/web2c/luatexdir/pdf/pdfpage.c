@@ -26,6 +26,8 @@
 
 #include "ptexlib.h"
 
+static const char __svn_version[] = "$Id$";
+
 #define lround(a) (long) floor((a) + 0.5)
 #define setpdffloat(a,b,c) {(a).m = (b); (a).e = (c);}
 #define pdf2double(a) ((double) (a).m / exp10[(a).e])
