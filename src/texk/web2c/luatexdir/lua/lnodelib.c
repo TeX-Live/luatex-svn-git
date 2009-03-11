@@ -482,19 +482,67 @@ static int lua_nodelib_hpack(lua_State * L)
     n = *(check_isnode(L, 1));
     if (lua_gettop(L) > 1) {
         w = lua_tointeger(L, 2);
-        if (lua_gettop(L) > 2 && lua_type(L, 3) == LUA_TSTRING) {
-            s = (char *) lua_tostring(L, 3);
-            if (strcmp(s, "additional") == 0) {
-                m = 1;
-            } else {
-                m = lua_tonumber(L, 3);
+        if (lua_gettop(L) > 2){
+	    if (lua_type(L, 3) == LUA_TSTRING) {
+		    s = (char *) lua_tostring(L, 3);
+		    if (strcmp(s, "additional") == 0)
+			m = 1;
+		    else if (strcmp(s,"exactly") == 0)
+			m = 0;
+		    else {
+			lua_pushstring(L, "3rd argument should be either additional or exactly");
+			lua_error(L);
+		    }
             }
+
+	    else if (lua_type(L, 3) == LUA_TNUMBER) {
+                m = lua_tonumber(L, 3);
+            }else{
+		lua_pushstring(L, "incorrect 3rd argument");
+	    }
         }
     }
     p = hpack(n, w, m);
     lua_nodelib_push_fast(L, p);
     return 1;
 }
+
+
+/* build a vbox */
+static int lua_nodelib_vpack(lua_State * L)
+{
+    halfword n, p;
+    char *s;
+    integer w = 0;
+    int m = 1;
+    n = *(check_isnode(L, 1));
+    if (lua_gettop(L) > 1) {
+        w = lua_tointeger(L, 2);
+        if (lua_gettop(L) > 2){
+	    if (lua_type(L, 3) == LUA_TSTRING) {
+		    s = (char *) lua_tostring(L, 3);
+		    if (strcmp(s, "additional") == 0)
+			m = 1;
+		    else if (strcmp(s,"exactly") == 0)
+			m = 0;
+		    else {
+			lua_pushstring(L, "3rd argument should be either additional or exactly");
+			lua_error(L);
+		    }
+            }
+
+	    else if (lua_type(L, 3) == LUA_TNUMBER) {
+                m = lua_tonumber(L, 3);
+            }else{
+		lua_pushstring(L, "incorrect 3rd argument");
+	    }
+        }
+    }
+    p = vpackage(n, w, m, max_dimen);
+    lua_nodelib_push_fast(L, p);
+    return 1;
+}
+
 
 /* create a hlist from a formula */
 
@@ -3202,6 +3250,7 @@ static const struct luaL_reg nodelib_f[] = {
     {"copy", lua_nodelib_copy},
     {"copy_list", lua_nodelib_copy_list},
     {"hpack", lua_nodelib_hpack},
+    {"vpack", lua_nodelib_vpack},
     {"mlist_to_hlist", lua_nodelib_mlist_to_hlist},
     {"family_font", lua_nodelib_mfont},
     {"has_attribute", lua_nodelib_has_attribute},
