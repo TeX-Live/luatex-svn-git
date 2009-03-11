@@ -14526,23 +14526,23 @@ end
 
 @d set_to_zero(#)==begin #.h := 0; #.v := 0; end
 
-@ @p function synch_p_with_c(cur: position):position;
-var pos: position;
+@ @p function synch_p_with_c(cur: scaledpos): scaledpos;
+var pos: scaledpos;
 begin
   synch_pos_with_cur;
   synch_p_with_c := pos;
 end;
 
 @ @<Types...@>=
-@!position = record
+@!scaledpos = record
     h, v: scaled;
     end;
 
 @ @<Glob...@>=
-@!cur:position; {\TeX\ position relative to origin of the surrounding box, in box coordinate system}
-@!box_pos: position; {position of box origin in page coordinates}
-@!pos: position; {global position on page, in $\rm sp$, from lower left page corner}
-@!dvi: position; {a \.{DVI} position in page coordinates, in sync with DVI file}
+@!cur: scaledpos; {\TeX\ position relative to origin of the surrounding box, in box coordinate system}
+@!box_pos: scaledpos; {position of box origin in page coordinates}
+@!pos: scaledpos; {global position on page, in $\rm sp$, from lower left page corner}
+@!dvi: scaledpos; {a \.{DVI} position in page coordinates, in sync with DVI file}
 @!dvi_f:internal_font_number; {the current font}
 @!cur_s:integer; {current depth of output box nesting, initially $-1$}
 
@@ -14628,8 +14628,8 @@ save_direction: integer;
 dir_ptr,dir_tmp:pointer;
 @!left_edge: scaled; {the left coordinate for this box}
 @!save_h: scaled; {what |cur.h| should pop to}
-@!save_dvi: position; {what |dvi| should pop to}
-@!save_box_pos: position; {what |box_pos| should pop to}
+@!save_dvi: scaledpos; {what |dvi| should pop to}
+@!save_box_pos: scaledpos; {what |box_pos| should pop to}
 @!this_box: pointer; {pointer to containing box}
 @!g_order: glue_ord; {applicable order of infinity for glue}
 @!g_sign: normal..shrinking; {selects type of glue}
@@ -15102,8 +15102,8 @@ label move_past, fin_rule, next_p;
 var left_edge: scaled; {the left coordinate for this box}
 @!top_edge: scaled; {the top coordinate for this box}
 @!save_v: scaled; {what |cur.v| should pop to}
-@!save_dvi: position; {what |dvi| should pop to}
-@!save_box_pos: position; {what |box_pos| should pop to}
+@!save_dvi: scaledpos; {what |dvi| should pop to}
+@!save_box_pos: scaledpos; {what |box_pos| should pop to}
 @!this_box: pointer; {pointer to containing box}
 @!g_order: glue_ord; {applicable order of infinity for glue}
 @!g_sign: normal..shrinking; {selects type of glue}
@@ -17585,7 +17585,7 @@ save_direction: integer;
 dvi_ptr,dir_ptr,dir_tmp:pointer;
 @!left_edge: scaled; {the left coordinate for this box}
 @!save_h: scaled; {what |cur.h| should pop to}
-@!save_box_pos: position; {what |box_pos| should pop to}
+@!save_box_pos: scaledpos; {what |box_pos| should pop to}
 @!this_box: pointer; {pointer to containing box}
 @!g_order: glue_ord; {applicable order of infinity for glue}
 @!g_sign: normal..shrinking; {selects type of glue}
@@ -17999,7 +17999,7 @@ label move_past, fin_rule, next_p;
 var left_edge: scaled; {the left coordinate for this box}
 @!top_edge: scaled; {the top coordinate for this box}
 @!save_v: scaled; {what |cur.v| should pop to}
-@!save_box_pos: position; {what |box_pos| should pop to}
+@!save_box_pos: scaledpos; {what |box_pos| should pop to}
 @!this_box: pointer; {pointer to containing box}
 @!g_order: glue_ord; {applicable order of infinity for glue}
 @!g_sign: normal..shrinking; {selects type of glue}
@@ -18237,7 +18237,7 @@ save_ximage_list: pointer; {to save |pdf_ximage_list|}
 save_xform_list: pointer; {to save |pdf_xform_list|}
 save_image_procset: integer;  {to save |pdf_image_procset|}
 save_text_procset: integer;  {to save |pdf_text_procset|}
-save_cur_page_size: position; {to save |cur_page_size| during flushing pending forms}
+save_cur_page_size: scaledpos; {to save |cur_page_size| during flushing pending forms}
 form_margin: scaled;
 pdf_last_resources: integer; {pointer to most recently generated Resources object}
 pre_callback_id:integer;
@@ -29478,7 +29478,7 @@ dest_name_entry = record
 end;
 
 @ @<Glob...@>=
-@!cur_page_size: position; {width and height of page being shipped}
+@!cur_page_size: scaledpos; {width and height of page being shipped}
 @!pdf_obj_list: pointer; {list of objects in the current page}
 @!pdf_xform_list: pointer; {list of forms in the current page}
 @!pdf_ximage_list: pointer; {list of images in the current page}
@@ -29606,7 +29606,7 @@ begin d:=0;
 end;
 
 procedure set_rect_dimens(p, parent_box: pointer; x, y, wd, ht, dp, margin: scaled);
-var ll, ur, pos_ll, pos_ur, tmp: position;
+var ll, ur, pos_ll, pos_ur, tmp: scaledpos;
 begin
     ll.h := cur.h;
     if is_running(dp) then
@@ -29721,7 +29721,7 @@ end;
 
 procedure end_link;
 var p: pointer;
-tmp1, tmp2: position;
+tmp1, tmp2: scaledpos;
 begin
     if pdf_link_stack_ptr < 1 then
         pdf_error("ext4", "pdf_link_stack empty, \pdfendlink used without \pdfstartlink?");
@@ -29854,7 +29854,7 @@ begin
 end;
 
 procedure end_thread;
-var tmp1, tmp2: position;
+var tmp1, tmp2: scaledpos;
 begin
     if pdf_thread_level <> cur_s then
         pdf_error("ext4", "\pdfendthread ended up in different nesting level than \pdfstartthread");
@@ -29901,7 +29901,7 @@ end;
 
 procedure do_dest(p, parent_box: pointer; x, y: scaled);
 var k: integer;
-tmp1, tmp2: position;
+tmp1, tmp2: scaledpos;
 begin
     if not is_shipping_page then
         pdf_error("ext4", "destinations cannot be inside an XForm");

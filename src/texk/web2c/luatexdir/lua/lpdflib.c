@@ -46,7 +46,7 @@ int luapdfprint(lua_State * L)
     int n;
     unsigned i;
     size_t len;
-    position tmp;
+    scaledpos tmp;
     const char *outputstr, *st;
     pdf_lit_mode literal_mode;
     n = lua_gettop(L);

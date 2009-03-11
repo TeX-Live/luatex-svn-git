@@ -127,7 +127,7 @@ void do_vf_packet(internal_font_number vf_f, integer c)
 {
     internal_font_number lf;
     charinfo *co;
-    position save_cur;
+    scaledpos save_cur;
     real_eight_bits *vf_packets;
     integer cur_packet_byte;
     integer cmd, fs_f;

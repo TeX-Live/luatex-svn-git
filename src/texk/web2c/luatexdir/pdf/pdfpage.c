@@ -47,11 +47,6 @@ typedef struct {
     pdffloat v;
 } pdfpos;
 
-typedef struct {
-    scaled h;
-    scaled v;
-} scaledpos;
-
 typedef enum { P_NONE, P_PAGE, P_TEXT, P_CHARARRAY, P_CHAR } pos_mode;
 typedef enum { WMODE_H, WMODE_V } writing_mode; /* []TJ runs horizontal or vertical */
 
@@ -528,8 +523,8 @@ static void set_font(pdfstructure * p)
 /**********************************************************************/
 
 static void
-place_glyph(pdfstructure * p, scaledpos * pos,
-            internal_font_number f, integer c)
+place_glyph(pdfstructure * p, scaledpos * pos, internal_font_number f,
+            integer c)
 {
     int move;
     if (f != p->f_cur || is_pagemode(p)) {
@@ -569,10 +564,9 @@ place_glyph(pdfstructure * p, scaledpos * pos,
 
 void pdf_place_glyph(internal_font_number f, integer c)
 {
-    if (char_exists(f,c)) {
-        scaledpos tmppos;
-        tmppos.h = pos.h;
-        tmppos.v = pos.v;
+    scaledpos tmppos;
+    if (char_exists(f, c)) {
+        tmppos = pos;
         place_glyph(pstruct, &tmppos, f, c);
     }
 }
