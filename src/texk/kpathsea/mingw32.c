@@ -41,28 +41,14 @@ typedef HWND (WINAPI *pGetDesktopWindow)(void);
 
 typedef HRESULT (WINAPI * pSHGetSpecialFolderPathA)(HWND, LPSTR, int, BOOL);
 
-/* this typedef will eventually replace the two separate static
-   variables volume_cache and volume_info 
-*/
-
-typedef struct win32_volumes {
-  volume_info_data info;   /* Referenced by various functions.  */
-  volume_info_data *cache; /* Simple linked list with linear search is sufficient.  */
-} win32_volumes ;
-
 extern int __cdecl _set_osfhnd (int fd, long h);
 extern int __cdecl _free_osfhnd (int fd);
 
-char *get_home_directory(void);
 int _parse_root (char * name, char ** pPath);
 
 void
 init_user_info (void)
 {
-  /* fill the still empty field in kpse */
-  if (!kpse->volumes) {
-      kpse->volumes = xcalloc(1,sizeof(win32_volumes));
-  }
   /* Ensure HOME and SHELL are defined. */
   char *home = get_home_directory();
   if (home) {
@@ -89,13 +75,6 @@ init_user_info (void)
   }
 }
 
-void
-uncache_home_directory (void)
-{
-  kpse->cached_home_directory = NULL;	/* in some cases, this may cause the leaking
-								   of a few bytes */
-}
-
 /* This function could go away */
 void 
 set_home_warning (void) 
@@ -106,19 +85,17 @@ set_home_warning (void)
 char *
 get_home_directory (void)
 {
+    char *found_home_directory = NULL;
 
-  if (kpse->cached_home_directory != NULL)
-	goto done;
-
-  if ((kpse->cached_home_directory = getenv("HOME")) != NULL) {
+  if ((found_home_directory = getenv("HOME")) != NULL) {
 	char q[MAXPATHLEN];
 	/* In case it is %HOMEDRIVE%%HOMEPATH% */
-	if (ExpandEnvironmentStrings(kpse->cached_home_directory, q, sizeof(q)) == 0) {
+	if (ExpandEnvironmentStrings(found_home_directory, q, sizeof(q)) == 0) {
 	  /* Error */
-	  kpse->cached_home_directory = NULL;
+	  found_home_directory = NULL;
 	}
 	else {
-	  kpse->cached_home_directory = xstrdup(q);
+	  found_home_directory = xstrdup(q);
 	  goto done;
 	}
   }
@@ -127,7 +104,7 @@ get_home_directory (void)
 	char	*homedrive, *homepath;
 	if ((homedrive = getenv("HOMEDRIVE")) != NULL &&
 		(homepath = getenv("HOMEPATH")) != NULL) {
-	  kpse->cached_home_directory = concat(homedrive, homepath);
+	  found_home_directory = concat(homedrive, homepath);
 	  goto done;
 	}
   }
@@ -151,11 +128,11 @@ get_home_directory (void)
 	if (hwnd && (h = LoadLibrary("shell32.dll"))) {
 	  if ((p1 = (pSHGetSpecialFolderPathA)GetProcAddress(h, "SHGetSpecialFolderPathA")))
 	    if ((*p1)(hwnd, q, CSIDL_PERSONAL, TRUE)) {
-	      kpse->cached_home_directory = xstrdup(q);
+	      found_home_directory = xstrdup(q);
 	    }
 	  FreeLibrary(h);
 	}
-	if (kpse->cached_home_directory) goto done;
+	if (found_home_directory) goto done;
   }
 
   if (1) {
@@ -163,11 +140,11 @@ get_home_directory (void)
 			"	directory, and will be using the value:\n"
 			"		%s\n"
 			"	This is probably incorrect.\n",
-			kpse->cached_home_directory
+			found_home_directory
 			);
   }
  done:
-  return kpse->cached_home_directory;
+  return found_home_directory;
 }
 
 
@@ -177,163 +154,6 @@ get_home_directory (void)
 #define VOLINFO_STILL_VALID( root_dir, info )		\
   ( ( isalpha (root_dir[0]) )				\
     || GetTickCount () - info->timestamp < 10000 )
-
-/* Cache support functions.  */
-
-static volume_info_data *
-lookup_volume_info (char * root_dir)
-{
-  volume_info_data * info;
-
-  for (info = kpse->volumes->cache; info; info = info->next)
-    if (stricmp (info->root_dir, root_dir) == 0)
-      break;
-  return info;
-}
-
-static void
-add_volume_info (char * root_dir, volume_info_data * info)
-{
-  info->root_dir = xstrdup (root_dir);
-  info->next = kpse->volumes->cache;
-  kpse->volumes->cache = info;
-}
-
-
-/* Wrapper for GetVolumeInformation, which uses caching to avoid
-   performance penalty (~2ms on 486 for local drives, 7.5ms for local
-   cdrom drive, ~5-10ms or more for remote drives on LAN).  */
-volume_info_data *
-GetCachedVolumeInformation (char * root_dir)
-{
-  volume_info_data * info;
-  char default_root[ MAX_PATH ];
-
-  /* NULL for root_dir means use root from current directory.  */
-  if (root_dir == NULL)
-    {
-      if (GetCurrentDirectory (MAX_PATH, default_root) == 0)
-	return NULL;
-      _parse_root (default_root, &root_dir);
-      *root_dir = 0;
-      root_dir = default_root;
-    }
-
-  /* Local fixed drives can be cached permanently.  Removable drives
-     cannot be cached permanently, since the volume name and serial
-     number (if nothing else) can change.  Remote drives should be
-     treated as if they are removable, since there is no sure way to
-     tell whether they are or not.  Also, the UNC association of drive
-     letters mapped to remote volumes can be changed at any time (even
-     by other processes) without notice.
-   
-     As a compromise, so we can benefit from caching info for remote
-     volumes, we use a simple expiry mechanism to invalidate cache
-     entries that are more than ten seconds old.  */
-
-  info = lookup_volume_info (root_dir);
-
-  if (info == NULL || ! VOLINFO_STILL_VALID (root_dir, info))
-  {
-    char  name[ 256 ];
-  DWORD     serialnum;
-  DWORD     maxcomp;
-  DWORD     flags;
-    char  type[ 256 ];
-
-    /* Info is not cached, or is stale. */
-    if (!GetVolumeInformation (root_dir,
-			       name, sizeof (name),
-			       &serialnum,
-			       &maxcomp,
-			       &flags,
-			       type, sizeof (type)))
-      return NULL;
-
-    /* Cache the volume information for future use, overwriting existing
-       entry if present.  */
-    if (info == NULL)
-      {
-	info = (volume_info_data *) xmalloc (sizeof (volume_info_data));
-	add_volume_info (root_dir, info);
-      }
-    else
-      {
-	free (info->name);
-	free (info->type);
-      }
-
-    info->name = xstrdup (name);
-    info->serialnum = serialnum;
-    info->maxcomp = maxcomp;
-    info->flags = flags;
-    info->type = xstrdup (type);
-    info->timestamp = GetTickCount ();
-  }
-
-  return info;
-}
-
-/* Get information on the volume where name is held; set path pointer to
-   start of pathname in name (past UNC header\volume header if present).  */
-int
-get_volume_info (const char * name, const char ** pPath)
-{
-  char temp[MAX_PATH];
-  char *rootname = NULL;  /* default to current volume */
-  volume_info_data * info;
-
-  if (name == NULL)
-    return FALSE;
-
-  /* find the root name of the volume if given */
-  if (isalpha (name[0]) && name[1] == ':')
-    {
-      rootname = temp;
-      temp[0] = *name++;
-      temp[1] = *name++;
-      temp[2] = '\\';
-      temp[3] = 0;
-    }
-  else if (IS_DIR_SEP (name[0]) && IS_DIR_SEP (name[1]))
-    {
-      char *str = temp;
-      int slashes = 4;
-      rootname = temp;
-      do
-        {
-	  if (IS_DIR_SEP (*name) && --slashes == 0)
-	    break;
-	  *str++ = *name++;
-	}
-      while ( *name );
-
-      *str++ = '\\';
-      *str = 0;
-    }
-
-  if (pPath)
-    *pPath = name;
-    
-  info = GetCachedVolumeInformation (rootname);
-  if (info != NULL)
-    {
-      /* Set global referenced by other functions.  */
-      kpse->volumes->info = *info;
-      return TRUE;
-    }
-  return FALSE;
-}
-
-/* Determine if volume is FAT format (ie. only supports short 8.3
-   names); also set path pointer to start of pathname in name.  */
-int
-is_fat_volume (const char * name, const char ** pPath)
-{
-  if (get_volume_info (name, pPath))
-    return (kpse->volumes->info.maxcomp == 12);
-  return FALSE;
-}
 
 
 /* Normalize filename by converting all path separators to
