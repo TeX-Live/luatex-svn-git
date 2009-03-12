@@ -41,6 +41,7 @@ libkpathsea_la_SOURCES = \
 	getopt1.c \
 	hash.c \
 	kdefault.c \
+	kpathsea.c \
 	line.c \
 	magstep.c \
 	make-suffix.c \
