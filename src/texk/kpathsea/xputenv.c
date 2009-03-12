@@ -18,12 +18,13 @@
 
 
 #include <kpathsea/config.h>
+#include <kpathsea/types.h>
 
 #ifdef WIN32
 #include <stdlib.h>
 #else
 #if !HAVE_DECL_PUTENV
-extern int putenv P1H(char* entry);
+extern int putenv (char* entry);
 #endif
 #endif /* not WIN32 */
 
@@ -37,7 +38,7 @@ extern int putenv P1H(char* entry);
  * which include making copies of the passed string, and more.
  */
 void
-xputenv(const char *var, const char *value)
+kpathsea_xputenv(kpathsea kpse, const char *var, const char *value)
 {
     char  *cur_item;
     char  *old_item;
@@ -70,7 +71,7 @@ xputenv(const char *var, const char *value)
     } else {
         /* We set a different value. */
         if (putenv(cur_item) < 0)
-            FATAL1("putenv(%s)", cur_item);
+            LIB_FATAL1("putenv(%s)", cur_item);
         /* Get the new string. */
         new_item = getenv(var);
         if (new_item != cur_item+var_lim) {
@@ -102,10 +103,24 @@ xputenv(const char *var, const char *value)
    environment value.  */
 
 void
-xputenv_int P2C(const_string, var_name,  int, num)
+kpathsea_xputenv_int (kpathsea kpse, const_string var_name,  int num)
 {
   char str[MAX_INT_LENGTH];
   sprintf (str, "%d", num);
   
-  xputenv (var_name, str);
+  kpathsea_xputenv (kpse, var_name, str);
 }
+
+#if defined (KPSE_COMPAT_API)
+void
+xputenv(const char *var, const char *value)
+{
+    kpathsea_xputenv(kpse_def, var, value);
+}
+
+void
+xputenv_int (const_string var_name,  int num)
+{
+    kpathsea_xputenv_int(kpse_def, var_name, num);
+}
+#endif
