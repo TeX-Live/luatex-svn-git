@@ -26,14 +26,14 @@ dnl     kpse_lib_major += 1;
 dnl     kpse_lib_minor = 0;
 dnl     kpse_lib_micro = 0;
 dnl
-m4_define([kpse_major_version], [3])[]dnl
-m4_define([kpse_minor_version], [5])[]dnl
-m4_define([kpse_micro_version], [7])[]dnl
+m4_define([kpse_major_version], [5])[]dnl
+m4_define([kpse_minor_version], [0])[]dnl
+m4_define([kpse_micro_version], [0])[]dnl
 m4_define([kpse_devel_version], [])[]dnl
 m4_define([kpse_version], [kpse_major_version.kpse_minor_version.kpse_micro_version[]kpse_devel_version])[]dnl
 
-m4_define([kpse_lib_major], [4])[]dnl
-m4_define([kpse_lib_minor], [1])[]dnl
+m4_define([kpse_lib_major], [5])[]dnl
+m4_define([kpse_lib_minor], [0])[]dnl
 m4_define([kpse_lib_micro], [0])[]dnl
 
 AC_INIT([Kpathsea], [kpse_version], [tex-k@tug.org])
