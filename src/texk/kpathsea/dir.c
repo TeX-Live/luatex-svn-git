@@ -27,7 +27,7 @@
    false if not. */
 
 boolean
-dir_p P1C(const_string, fn)
+kpathsea_dir_p (kpathsea kpse, const_string fn)
 {
   /* FIXME : using the stat() replacement in gnuw32, 
 	 we could avoid this win32 specific code. However,
@@ -56,6 +56,15 @@ dir_p P1C(const_string, fn)
 #endif
 }
 
+#if defined(KPSE_COMPAT_API)
+boolean
+dir_p (const_string fn)
+{
+    return kpathsea_dir_p(kpse_def,fn);
+}
+#endif
+
+
 /*
   Return -1 if FN isn't a directory, else its number of links.
   Duplicate the call to stat; no need to incur overhead of a function
@@ -65,7 +74,7 @@ dir_p P1C(const_string, fn)
   memoizes the nlinks value, the following ones retrieve it.
 */
 int
-dir_links P2C(const_string, fn, long, nlinks)
+kpathsea_dir_links (kpathsea kpse, const_string fn, long nlinks)
 {
   string *hash_ret;
   
@@ -124,3 +133,13 @@ dir_links P2C(const_string, fn, long, nlinks)
      (either 0, the value inserted or the value retrieved. */
   return nlinks;
 }
+
+#if defined (KPSE_COMPAT_API)
+int
+dir_links (const_string fn, long nlinks)
+{
+    return kpathsea_dir_links(kpse_def, fn, nlinks);
+}
+#endif
+
+

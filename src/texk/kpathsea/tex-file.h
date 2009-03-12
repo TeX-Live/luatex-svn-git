@@ -27,36 +27,72 @@
 /* This initializes the fallback resolution list.  If ENVVAR
    is set, it is used; otherwise, the envvar `TEXSIZES' is looked at; if
    that's not set either, a compile-time default is used.  */
-extern void kpse_init_fallback_resolutions P1H(string envvar);
+extern void kpathsea_init_fallback_resolutions (kpathsea kpse, string envvar);
 
 /* If LEVEL is higher than `program_enabled_level' for FMT, set
    `program_enabled_p' to VALUE.  */
-extern KPSEDLL void kpse_set_program_enabled P3H(kpse_file_format_type fmt,
-                                         boolean value, kpse_src_type level);
+extern KPSEDLL void kpathsea_set_program_enabled (kpathsea kpse, 
+                                                  kpse_file_format_type fmt,
+                                                  boolean value, kpse_src_type level);
 /* Call kpse_set_program_enabled with VALUE and the format corresponding
    to FMTNAME.  */
-extern KPSEDLL void kpse_maketex_option P2H(const_string fmtname,  boolean value);
+extern KPSEDLL void kpathsea_maketex_option (kpathsea kpse, const_string fmtname,  
+                                             boolean value);
 
 /* Change the list of searched suffixes (alternate suffixes if alternate is
    true).  */
-extern KPSEDLL void kpse_set_suffixes PVAR2H(kpse_file_format_type format,
-					     boolean alternate);
+extern KPSEDLL void kpathsea_set_suffixes PVAR3H(kpathsea kpse, 
+                                                 kpse_file_format_type format,
+                                                 boolean alternate);
 
 /* Initialize the info for the given format.  This is called
    automatically by `kpse_find_file', but the glyph searching (for
    example) can't use that function, so make it available.  */
-extern KPSEDLL const_string kpse_init_format P1H(kpse_file_format_type);
+extern KPSEDLL const_string kpathsea_init_format (kpathsea kpse, 
+                                                  kpse_file_format_type format);
 
 /* If FORMAT has a non-null `suffix' member, append it to NAME "."
    and call `kpse_path_search' with the result and the other arguments.
    If that fails, try just NAME.  */
-extern KPSEDLL string kpse_find_file P3H(const_string name,
+extern KPSEDLL string kpathsea_find_file (kpathsea kpse, const_string name,
                             kpse_file_format_type format,  boolean must_exist);
 
 /* Ditto, allowing ALL parameter and hence returning a NULL-terminated
    list of results.  */
+extern KPSEDLL string *kpathsea_find_file_generic
+  (kpathsea kpse, const_string name, kpse_file_format_type format,
+      boolean must_exist, boolean all);
+
+/* Don't just look up the name, actually open the file.  */
+extern KPSEDLL FILE *kpathsea_open_file (kpathsea kpse, const_string name, 
+                                         kpse_file_format_type format);
+
+/* This function is used to set kpse_program_name (from progname.c) to
+   a different value.  It will clear the path searching information, to
+   ensure that the search paths are appropriate to the new name. */
+extern KPSEDLL void kpathsea_reset_program_name (kpathsea kpse, 
+                                                 const_string progname);
+
+
+#if defined (KPSE_COMPAT_API)
+
+extern void kpse_init_fallback_resolutions (string envvar);
+
+extern KPSEDLL void kpse_set_program_enabled (kpse_file_format_type fmt,
+                                         boolean value, kpse_src_type level);
+
+extern KPSEDLL void kpse_maketex_option (const_string fmtname,  boolean value);
+
+extern KPSEDLL void kpse_set_suffixes PVAR2H(kpse_file_format_type format,
+					     boolean alternate);
+
+extern KPSEDLL const_string kpse_init_format (kpse_file_format_type);
+
+extern KPSEDLL string kpse_find_file (const_string name,
+                            kpse_file_format_type format,  boolean must_exist);
+
 extern KPSEDLL string *kpse_find_file_generic
-  P4H(const_string name, kpse_file_format_type format,
+  (const_string name, kpse_file_format_type format,
       boolean must_exist, boolean all);
 
 /* Here are some abbreviations.  */
@@ -73,12 +109,9 @@ extern KPSEDLL string *kpse_find_file_generic
 #define kpse_find_vf(name) kpse_find_file (name, kpse_vf_format, false)
 #define kpse_find_ovf(name) kpse_find_file (name, kpse_ovf_format, false)
 
-/* Don't just look up the name, actually open the file.  */
-extern KPSEDLL FILE *kpse_open_file P2H(const_string, kpse_file_format_type);
+extern KPSEDLL FILE *kpse_open_file (const_string, kpse_file_format_type);
 
-/* This function is used to set kpse_program_name (from progname.c) to
-   a different value.  It will clear the path searching information, to
-   ensure that the search paths are appropriate to the new name. */
-extern KPSEDLL void kpse_reset_program_name P1H(const_string progname);
+extern KPSEDLL void kpse_reset_program_name (const_string progname);
+#endif
 
 #endif /* not KPATHSEA_TEX_FILE_H */

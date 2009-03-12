@@ -28,7 +28,7 @@
 /* Here's the simple one, when a program just wants a value.  */
 
 string
-kpse_var_value P1C(const_string, var)
+kpathsea_var_value (kpathsea kpse, const_string var)
 {
   string vtry, ret;
 
@@ -52,7 +52,7 @@ kpse_var_value P1C(const_string, var)
 
   /* Not in the environment; check a config file.  */
   if (!ret || !*ret)
-    ret = kpse_cnf_get (var);
+      ret = kpathsea_cnf_get (kpse, var);
 
   /* We have a value; do variable and tilde expansion.  We want to use ~
      in the cnf files, to adapt nicely to Windows and to avoid extra /'s
@@ -60,11 +60,11 @@ kpse_var_value P1C(const_string, var)
      have any literal ~ characters, so our shell scripts don't have to
      worry about doing the ~ expansion.  */
   if (ret) {
-    string tmp = kpse_var_expand (ret);
+    string tmp = kpathsea_var_expand (kpse, ret);
     /* We don't want to free the previous value of ret here; apparently
        it's used later, somewhere, somehow.  (The end result was a crash
        when making tex.fmt.)  Sigh.  */
-    ret = kpse_tilde_expand (tmp);
+    ret = kpathsea_tilde_expand (kpse, tmp);
     if (ret != tmp) {
       free (tmp);
     }
@@ -77,6 +77,15 @@ kpse_var_value P1C(const_string, var)
 
   return ret;
 }
+
+#if defined (KPSE_COMPAT_API)
+string
+kpse_var_value (const_string var)
+{
+    return kpathsea_var_value (kpse_def,var);
+}
+#endif
+
 
 /* We have to keep track of variables being expanded, otherwise
    constructs like TEXINPUTS = $TEXINPUTS result in an infinite loop.
@@ -85,7 +94,7 @@ kpse_var_value P1C(const_string, var)
    before expanding.  */
 
 static void
-expanding P2C(const_string, var,  boolean, xp)
+expanding (kpathsea kpse, const_string var,  boolean xp)
 {
   unsigned e;
   for (e = 0; e < kpse->expansion_len; e++) {
@@ -106,7 +115,7 @@ expanding P2C(const_string, var,  boolean, xp)
 /* Return whether VAR is currently being expanding.  */
 
 static boolean
-expanding_p P1C(const_string, var)
+expanding_p (kpathsea kpse, const_string var)
 {
   unsigned e;
   for (e = 0; e < kpse->expansion_len; e++) {
@@ -122,7 +131,7 @@ expanding_p P1C(const_string, var)
    This is a subroutine for the more complicated expansion function.  */
 
 static void
-expand P3C(fn_type *, expansion,  const_string, start,  const_string, end)
+expand (kpathsea kpse, fn_type *expansion,  const_string start,  const_string end)
 {
   string value;
   unsigned len = end - start + 1;
@@ -130,7 +139,7 @@ expand P3C(fn_type *, expansion,  const_string, start,  const_string, end)
   strncpy (var, start, len);
   var[len] = 0;
   
-  if (expanding_p (var)) {
+  if (expanding_p (kpse, var)) {
     WARNING1 ("kpathsea: variable `%s' references itself (eventually)", var);
   } else {
     string vtry = concat3 (var, "_", kpse->program_name);
@@ -143,15 +152,15 @@ expand P3C(fn_type *, expansion,  const_string, start,  const_string, end)
 
     /* If no envvar, check the config files.  */
     if (!value || !*value)
-      value = kpse_cnf_get (var);
+      value = kpathsea_cnf_get (kpse, var);
 
     if (value) {
-      expanding (var, true);
-      value = kpse_var_expand (value);
-      expanding (var, false);
+      expanding (kpse, var, true);
+      value = kpathsea_var_expand (kpse, value);
+      expanding (kpse, var, false);
       
       { /* Do tilde expansion; see explanation above in kpse_var_value.  */
-        string tmp = kpse_tilde_expand (value);
+        string tmp = kpathsea_tilde_expand (kpse, value);
         if (value != tmp) {
           free (value);
           value = tmp;
@@ -186,7 +195,7 @@ expand P3C(fn_type *, expansion,  const_string, start,  const_string, end)
    constructs, especially ${var-value}.  We do do ~ expansion.  */
 
 string
-kpse_var_expand P1C(const_string, src)
+kpathsea_var_expand (kpathsea kpse, const_string src)
 {
   const_string s;
   string ret;
@@ -208,7 +217,7 @@ kpse_var_expand P1C(const_string, src)
         } while (IS_VAR_CHAR (*var_end));
 
         var_end--; /* had to go one past */
-        expand (&expansion, s, var_end);
+        expand (kpse, &expansion, s, var_end);
         s = var_end;
 
       } else if (IS_VAR_BEGIN_DELIMITER (*s)) {
@@ -222,7 +231,7 @@ kpse_var_expand P1C(const_string, src)
           WARNING1 ("%s: No matching } for ${", src);
           s = var_end - 1; /* will incr to null at top of loop */
         } else {
-          expand (&expansion, s, var_end - 1);
+          expand (kpse, &expansion, s, var_end - 1);
           s = var_end; /* will incr past } at top of loop*/
         }
 
@@ -239,6 +248,15 @@ kpse_var_expand P1C(const_string, src)
   ret = FN_STRING (expansion);
   return ret;
 }
+
+#if defined (KPSE_COMPAT_API)
+string
+kpse_var_expand (const_string src)
+{
+    return kpathsea_var_expand (kpse_def,src);
+}
+#endif
+
 
 #ifdef TEST
 
@@ -255,8 +273,9 @@ test_var (string test, string right_answer)
 
 
 int
-main ()
+main (int argc, char **argv)
 {
+  kpse_set_program_name(argv[0], NULL);
   test_var ("a", "a");
   test_var ("$foo", "");
   test_var ("a$foo", "a");

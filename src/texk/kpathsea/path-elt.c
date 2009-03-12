@@ -31,7 +31,7 @@
    IS_ENV_SEP; else use IS_DIR_SEP.  */
 
 static string
-element P2C(const_string, passed_path,  boolean, env_p)
+element (kpathsea kpse, const_string passed_path,  boolean env_p)
 {
   const_string p;
   string ret;
@@ -82,15 +82,24 @@ element P2C(const_string, passed_path,  boolean, env_p)
 }
 
 string
-kpse_path_element P1C(const_string, p)
+kpathsea_path_element (kpathsea kpse, const_string p)
 {
-  return element (p, true);
+    return element (kpse, p, true);
 }
 
+#if defined (KPSE_COMPAT_API)
 string
-kpse_filename_component P1C(const_string, p)
+kpse_path_element (const_string p)
 {
-  return element (p, false);
+    return kpathsea_path_element (kpse_def, p);
+}
+#endif
+
+
+string
+kpathsea_filename_component (kpathsea kpse, const_string p)
+{
+    return element (kpse, p, false);
 }
 
 #ifdef TEST

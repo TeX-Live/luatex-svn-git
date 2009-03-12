@@ -36,7 +36,7 @@
    MakeTeXPK above, based on KPATHSEA_DPI and MAKETEX_BASE_DPI.  */
 
 static void
-set_maketex_mag P1H(void)
+set_maketex_mag (kpathsea kpse)
 {
   char q[MAX_INT_LENGTH * 3 + 3];
   int m;
@@ -50,7 +50,7 @@ set_maketex_mag P1H(void)
   
   /* Fix up for roundoff error.  Hopefully the driver has already fixed
      up DPI, but may as well be safe, and also get the magstep number.  */
-  (void) kpse_magstep_fix (dpi, bdpi, &m);
+  (void) kpathsea_magstep_fix (kpse, dpi, bdpi, &m);
   
   if (m == 0) {
       if (bdpi <= 4000) {
@@ -82,7 +82,7 @@ set_maketex_mag P1H(void)
       }
       sprintf(q, "magstep\\(%s%d.%d\\)", sign, m / 2, (m & 1) * 5);
   }
-  xputenv ("MAKETEX_MAG", q);
+  kpathsea_xputenv (kpse, "MAKETEX_MAG", q);
 }
 
 /* This mktex... program was disabled, or the script failed.  If this
@@ -90,7 +90,7 @@ set_maketex_mag P1H(void)
    to a file missfont.log in the current directory.  */
 
 static void
-misstex P2C(kpse_file_format_type, format,  string *, args)
+misstex (kpathsea kpse, kpse_file_format_type format,  string *args)
 {
   string *s;
   
@@ -106,7 +106,7 @@ misstex P2C(kpse_file_format_type, format,  string *, args)
   /* If this is the first time, have to open the log file.  But don't
      bother logging anything if they were discarding errors.  */
   if (!kpse->missfont && !kpse->make_tex_discard_errors) {
-    const_string missfont_name = kpse_var_value ("MISSFONT_LOG");
+    const_string missfont_name = kpathsea_var_value (kpse, "MISSFONT_LOG");
     if (!missfont_name || *missfont_name == '1') {
       missfont_name = "missfont.log"; /* take default name */
     } else if (missfont_name
@@ -115,8 +115,8 @@ misstex P2C(kpse_file_format_type, format,  string *, args)
     } /* else use user's name */
 
     kpse->missfont = missfont_name ? fopen (missfont_name, FOPEN_A_MODE) : NULL;
-    if (!kpse->missfont && kpse_var_value ("TEXMFOUTPUT")) {
-      missfont_name = concat3 (kpse_var_value ("TEXMFOUTPUT"), DIR_SEP_STRING,
+    if (!kpse->missfont && kpathsea_var_value (kpse, "TEXMFOUTPUT")) {
+      missfont_name = concat3 (kpathsea_var_value (kpse, "TEXMFOUTPUT"), DIR_SEP_STRING,
                                missfont_name);
       kpse->missfont = fopen (missfont_name, FOPEN_A_MODE);
     }
@@ -142,7 +142,7 @@ misstex P2C(kpse_file_format_type, format,  string *, args)
    else) on standard output; hence, we run the script with `popen'.  */
 
 static string
-maketex P2C(kpse_file_format_type, format, string*, args)
+maketex (kpathsea kpse, kpse_file_format_type format, string* args)
 {
   /* New implementation, use fork/exec pair instead of popen, since
    * the latter is virtually impossible to make safe.
@@ -271,7 +271,7 @@ maketex P2C(kpse_file_format_type, format, string*, args)
                       &si,      /* pointer to STARTUPINFO */
                       &pi               /* pointer to PROCESS_INFORMATION */
                       ) == 0) {
-      FATAL2("kpathsea: CreateProcess() failed for `%s' (Error %x)\n", new_cmd, GetLastError());
+      LIB_FATAL2("kpathsea: CreateProcess() failed for `%s' (Error %x)\n", new_cmd, GetLastError());
     }
 
     CloseHandle(child_in);
@@ -287,7 +287,7 @@ maketex P2C(kpse_file_format_type, format, string*, args)
            && num > 0) {
       if (num <= 0) {
         if (GetLastError() != ERROR_BROKEN_PIPE) {
-          FATAL2("kpathsea: read() error code for `%s' (Error %d)", new_cmd, GetLastError());
+          LIB_FATAL2("kpathsea: read() error code for `%s' (Error %d)", new_cmd, GetLastError());
           break;
         }
       } else {
@@ -444,7 +444,7 @@ maketex P2C(kpse_file_format_type, format, string*, args)
         len--;
       }
 
-      ret = len == 0 ? NULL : kpse_readable_file (fn);
+      ret = len == 0 ? NULL : kpathsea_readable_file (kpse, fn);
       if (!ret && len > 1) {
         WARNING2("kpathsea: %s output `%s' instead of a filename",
                  args[0], fn);
@@ -460,9 +460,9 @@ maketex P2C(kpse_file_format_type, format, string*, args)
 #endif
 
   if (ret == NULL)
-    misstex (format, args);
+      misstex (kpse, format, args);
   else
-    kpse_db_insert (ret);
+      kpathsea_db_insert (kpse, ret);
   
   return ret;
 }
@@ -472,15 +472,15 @@ maketex P2C(kpse_file_format_type, format, string*, args)
    return NULL.  */
 
 string
-kpse_make_tex P2C(kpse_file_format_type, format,  const_string, base)
+kpathsea_make_tex (kpathsea kpse, kpse_file_format_type format,  const_string base)
 {
   kpse_format_info_type spec; /* some compilers lack struct initialization */
   string ret = NULL;
   
-  spec = kpse->kpse_format_info[format];
+  spec = kpse->format_info[format];
   if (!spec.type) { /* Not initialized yet? */
-    kpse_init_format (format);
-    spec = kpse->kpse_format_info[format];
+    kpathsea_init_format (kpse, format);
+    spec = kpse->format_info[format];
   }
 
   if (spec.program && spec.program_enabled_p) {
@@ -521,7 +521,7 @@ kpse_make_tex P2C(kpse_file_format_type, format,  const_string, base)
     if (format == kpse_gf_format
         || format == kpse_pk_format
         || format == kpse_any_glyph_format)
-      set_maketex_mag ();
+      set_maketex_mag (kpse);
 
     /* Here's an awful kludge: if the mode is `/', mktexpk recognizes
        it as a special case.  `kpse_prog_init' sets it to this in the
@@ -536,12 +536,12 @@ kpse_make_tex P2C(kpse_file_format_type, format,  const_string, base)
        such sites are uncommon, so they shouldn't make things harder
        for everyone else.  */
     for (argnum = 0; argnum < spec.argc; argnum++) {
-      args[argnum] = kpse_var_expand (spec.argv[argnum]);
+        args[argnum] = kpathsea_var_expand (kpse, spec.argv[argnum]);
     }
     args[argnum++] = xstrdup(base);
     args[argnum] = NULL;
 
-    ret = maketex (format, args);
+    ret = maketex (kpse, format, args);
 
     for (argnum = 0; args[argnum] != NULL; argnum++)
       free (args[argnum]);
@@ -550,35 +550,46 @@ kpse_make_tex P2C(kpse_file_format_type, format,  const_string, base)
 
   return ret;
 }
+
+#if defined (KPSE_COMPAT_API)
+string
+kpse_make_tex (kpse_file_format_type format,  const_string base)
+{
+  return kpathsea_make_tex (kpse_def, format, base);
+}
+#endif
+
 
 #ifdef TEST
 
 void
-test_make_tex (kpse_file_format_type fmt, const_string base)
+test_make_tex (kpathsea kpse, kpse_file_format_type fmt, const_string base)
 {
   string answer;
   
   printf ("\nAttempting %s in format %d:\n", base, fmt);
 
-  answer = kpse_make_tex (fmt, base);
+  answer = kpathsea_make_tex (kpse, fmt, base);
   puts (answer ? answer : "(nil)");
 }
 
 
 int
-main ()
+main (int argc, char **argv)
 {
-  xputenv ("KPATHSEA_DPI", "781"); /* call mktexpk */
-  xputenv ("MAKETEX_BASE_DPI", "300"); /* call mktexpk */
-  KPSE_MAKE_SPEC_ENABLED (kpse_make_specs[kpse_pk_format]) = true;
-  test_make_tex (kpse_pk_format, "cmr10");
+  kpathsea kpse = xcalloc(1, sizeof(kpathsea_instance));
+  kpathsea_set_program_name(kpse, argv[0], NULL);
+  kpathsea_xputenv (kpse, "KPATHSEA_DPI", "781"); /* call mktexpk */
+  kpathsea_xputenv (kpse,"MAKETEX_BASE_DPI", "300"); /* call mktexpk */
+  kpathsea_set_program_enabled(kpse, kpse_pk_format, 1, kpse_src_env);
+  test_make_tex (kpse, kpse_pk_format, "cmr10");
 
   /* Fail with mktextfm.  */
-  KPSE_MAKE_SPEC_ENABLED (kpse_make_specs[kpse_tfm_format]) = true;
-  test_make_tex (kpse_tfm_format, "foozler99");
+  kpathsea_set_program_enabled(kpse, kpse_tfm_format, 1, kpse_src_env);
+  test_make_tex (kpse, kpse_tfm_format, "foozler99");
   
   /* Call something disabled.  */
-  test_make_tex (kpse_bst_format, "no-way");
+  test_make_tex (kpse, kpse_bst_format, "no-way");
   
   return 0;
 }
@@ -588,6 +599,6 @@ main ()
 
 /*
 Local variables:
-test-compile-command: "gcc -g -I. -I.. -DTEST tex-make.c kpathsea.a"
+standalone-compile-command: "gcc -g -I. -I.. -DTEST tex-make.c kpathsea.a"
 End:
 */

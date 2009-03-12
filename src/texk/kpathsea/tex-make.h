@@ -27,7 +27,14 @@
    Return the full filename to it, or NULL.  Any other information about
    the file is passed through environment variables.  See the mktexpk
    stuff in `tex-make.c' for an example. */
-extern string kpse_make_tex P2H(kpse_file_format_type format,
-                                const_string base_file);
+
+extern string kpathsea_make_tex (kpathsea kpse, 
+                                 kpse_file_format_type format,
+                                 const_string base_file);
+
+#if defined (KPSE_COMPAT_API)
+extern string kpse_make_tex (kpse_file_format_type format,
+                             const_string base_file);
+#endif
 
 #endif /* not KPATHSEA_TEX_MAKE_H */

@@ -49,7 +49,7 @@
    looking for the cnf value.  */
 
 static void
-do_line P1C(string, line)
+do_line (kpathsea kpse, string line)
 {
   unsigned len;
   string start;
@@ -151,15 +151,15 @@ do_line P1C(string, line)
 /* Read all the configuration files in the path.  */
 
 static void
-read_all_cnf P1H(void)
+read_all_cnf (kpathsea kpse)
 {
   string *cnf_files;
   string *cnf;
-  const_string cnf_path = kpse_init_format (kpse_cnf_format);
+  const_string cnf_path = kpathsea_init_format (kpse, kpse_cnf_format);
 
   kpse->cnf_hash = hash_create (CNF_HASH_SIZE);
 
-  cnf_files = kpse_all_path_search (cnf_path, CNF_NAME);
+  cnf_files = kpathsea_all_path_search (kpse, cnf_path, CNF_NAME);
   if (cnf_files && *cnf_files) {
     for (cnf = cnf_files; *cnf; cnf++) {
       string line;
@@ -189,7 +189,7 @@ read_all_cnf P1H(void)
           }
         }
 
-        do_line (line);
+        do_line (kpse, line);
         free (line);
       }
 
@@ -210,7 +210,7 @@ read_all_cnf P1H(void)
    returned list -- this will be from the last-read cnf file.  */
 
 string
-kpse_cnf_get P1C(const_string, name)
+kpathsea_cnf_get (kpathsea kpse, const_string name)
 {
   string ret, ctry;
   string *ret_list;
@@ -227,13 +227,13 @@ kpse_cnf_get P1C(const_string, name)
   if (kpse->cnf_hash.size == 0) {
     /* Read configuration files and initialize databases.  */
     kpse->doing_cnf_init = true;
-    read_all_cnf ();
+    read_all_cnf (kpse);
     kpse->doing_cnf_init = false;
     
     /* Since `kpse_init_db' recursively calls us, we must call it from
        outside a `kpse_path_element' loop (namely, the one in
        `read_all_cnf' above): `kpse_path_element' is not reentrant.  */
-    kpse_init_db ();
+    kpathsea_init_db (kpse);
   }
   
   /* First look up NAME.`kpse->program_name', then NAME.  */
@@ -256,3 +256,12 @@ kpse_cnf_get P1C(const_string, name)
   
   return ret;
 }
+
+#if defined(KPSE_COMPAT_API)
+string
+kpse_cnf_get (const_string name)
+{
+    return kpathsea_cnf_get(kpse_def, name);
+}
+#endif
+
