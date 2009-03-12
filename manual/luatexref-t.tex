@@ -110,9 +110,11 @@ There are three new primitives to test the version of \LUATEX:
 The official \LUATEX\ version is defined follows:
 
 \startitemize
-\item The major version is the integer result of \tex{luatexversion} divided by 100.
+\item The major version is the integer result of \tex{luatexversion} divided by 100. The primitive is and \quote{internal variable}, so you may need to prefix it use with \type{\the} depending on the context.
 \item The minor version is the two-digit result of \tex{luatexversion} modulo 100.
-\item The revision is the given by \tex{luatexrevision}.
+\item The revision is the given by \tex{luatexrevision}. This primitive expands to a positive integer.
+\item The full version number consists of the major version,
+  minor version and revision, separated by dots.
 \stopitemize
 
 
