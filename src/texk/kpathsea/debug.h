@@ -84,10 +84,10 @@
 
 #undef fopen
 #define fopen kpse_fopen_trace
-extern KPSEDLL FILE *fopen P2H(const_string filename, const_string mode);
+extern KPSEDLL FILE *fopen (const char *filename, const char *mode);
 #undef fclose
 #define fclose kpse_fclose_trace
-extern KPSEDLL int fclose P1H(FILE *);
+extern KPSEDLL int fclose (FILE *);
 
 #endif /* not NO_DEBUG */
 

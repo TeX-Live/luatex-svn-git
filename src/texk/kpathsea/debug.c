@@ -23,26 +23,28 @@
    #undef won't restore them. */
 
 FILE *
-fopen P2C(const_string, filename,  const_string, mode)
+fopen (const char *filename,  const char *mode)
 {
 #undef fopen
   FILE *ret = fopen (filename, mode);
-
+#if defined (KPSE_COMPAT_API)
+  kpathsea kpse = kpse_def;
   if (KPSE_DEBUG_P (KPSE_DEBUG_FOPEN))
     DEBUGF3 ("fopen(%s, %s) => 0x%lx\n", filename, mode, (unsigned long) ret);
-
+#endif
   return ret;
 }
 
 int
-fclose P1C(FILE *, f)
+fclose (FILE * f)
 {
 #undef fclose
   int ret = fclose (f);
-  
+#if defined (KPSE_COMPAT_API)
+  kpathsea kpse = kpse_def;
   if (KPSE_DEBUG_P (KPSE_DEBUG_FOPEN))
     DEBUGF2 ("fclose(0x%lx) => %d\n", (unsigned long) f, ret);
-
+#endif
   return ret;
 }
 
