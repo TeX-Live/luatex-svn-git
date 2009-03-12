@@ -94,24 +94,24 @@ am_libkpathsea_la_OBJECTS = libkpathsea_la-tex-file.lo \
 	libkpathsea_la-fn.lo libkpathsea_la-fontmap.lo \
 	libkpathsea_la-getopt.lo libkpathsea_la-getopt1.lo \
 	libkpathsea_la-hash.lo libkpathsea_la-kdefault.lo \
-	libkpathsea_la-line.lo libkpathsea_la-magstep.lo \
-	libkpathsea_la-make-suffix.lo libkpathsea_la-mingw32.lo \
-	libkpathsea_la-path-elt.lo libkpathsea_la-pathsearch.lo \
-	libkpathsea_la-proginit.lo libkpathsea_la-progname.lo \
-	libkpathsea_la-readable.lo libkpathsea_la-rm-suffix.lo \
-	libkpathsea_la-str-list.lo libkpathsea_la-str-llist.lo \
-	libkpathsea_la-tex-glyph.lo libkpathsea_la-tex-hush.lo \
-	libkpathsea_la-tex-make.lo libkpathsea_la-tilde.lo \
-	libkpathsea_la-truncate.lo libkpathsea_la-uppercasify.lo \
-	libkpathsea_la-variable.lo libkpathsea_la-version.lo \
-	libkpathsea_la-xbasename.lo libkpathsea_la-xcalloc.lo \
-	libkpathsea_la-xdirname.lo libkpathsea_la-xfopen.lo \
-	libkpathsea_la-xfseek.lo libkpathsea_la-xfseeko.lo \
-	libkpathsea_la-xftell.lo libkpathsea_la-xftello.lo \
-	libkpathsea_la-xgetcwd.lo libkpathsea_la-xmalloc.lo \
-	libkpathsea_la-xopendir.lo libkpathsea_la-xputenv.lo \
-	libkpathsea_la-xrealloc.lo libkpathsea_la-xstat.lo \
-	libkpathsea_la-xstrdup.lo
+	libkpathsea_la-kpathsea.lo libkpathsea_la-line.lo \
+	libkpathsea_la-magstep.lo libkpathsea_la-make-suffix.lo \
+	libkpathsea_la-mingw32.lo libkpathsea_la-path-elt.lo \
+	libkpathsea_la-pathsearch.lo libkpathsea_la-proginit.lo \
+	libkpathsea_la-progname.lo libkpathsea_la-readable.lo \
+	libkpathsea_la-rm-suffix.lo libkpathsea_la-str-list.lo \
+	libkpathsea_la-str-llist.lo libkpathsea_la-tex-glyph.lo \
+	libkpathsea_la-tex-hush.lo libkpathsea_la-tex-make.lo \
+	libkpathsea_la-tilde.lo libkpathsea_la-truncate.lo \
+	libkpathsea_la-uppercasify.lo libkpathsea_la-variable.lo \
+	libkpathsea_la-version.lo libkpathsea_la-xbasename.lo \
+	libkpathsea_la-xcalloc.lo libkpathsea_la-xdirname.lo \
+	libkpathsea_la-xfopen.lo libkpathsea_la-xfseek.lo \
+	libkpathsea_la-xfseeko.lo libkpathsea_la-xftell.lo \
+	libkpathsea_la-xftello.lo libkpathsea_la-xgetcwd.lo \
+	libkpathsea_la-xmalloc.lo libkpathsea_la-xopendir.lo \
+	libkpathsea_la-xputenv.lo libkpathsea_la-xrealloc.lo \
+	libkpathsea_la-xstat.lo libkpathsea_la-xstrdup.lo
 libkpathsea_la_OBJECTS = $(am_libkpathsea_la_OBJECTS)
 libkpathsea_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
@@ -323,6 +323,7 @@ libkpathsea_la_SOURCES = \
 	getopt1.c \
 	hash.c \
 	kdefault.c \
+	kpathsea.c \
 	line.c \
 	magstep.c \
 	make-suffix.c \
@@ -602,6 +603,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkpathsea_la-getopt1.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkpathsea_la-hash.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkpathsea_la-kdefault.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkpathsea_la-kpathsea.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkpathsea_la-line.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkpathsea_la-magstep.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkpathsea_la-make-suffix.Plo@am__quote@
@@ -807,6 +809,13 @@ libkpathsea_la-kdefault.lo: kdefault.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='kdefault.c' object='libkpathsea_la-kdefault.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkpathsea_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libkpathsea_la-kdefault.lo `test -f 'kdefault.c' || echo '$(srcdir)/'`kdefault.c
+
+libkpathsea_la-kpathsea.lo: kpathsea.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkpathsea_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libkpathsea_la-kpathsea.lo -MD -MP -MF $(DEPDIR)/libkpathsea_la-kpathsea.Tpo -c -o libkpathsea_la-kpathsea.lo `test -f 'kpathsea.c' || echo '$(srcdir)/'`kpathsea.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libkpathsea_la-kpathsea.Tpo $(DEPDIR)/libkpathsea_la-kpathsea.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='kpathsea.c' object='libkpathsea_la-kpathsea.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkpathsea_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libkpathsea_la-kpathsea.lo `test -f 'kpathsea.c' || echo '$(srcdir)/'`kpathsea.c
 
 libkpathsea_la-line.lo: line.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkpathsea_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libkpathsea_la-line.lo -MD -MP -MF $(DEPDIR)/libkpathsea_la-line.Tpo -c -o libkpathsea_la-line.lo `test -f 'line.c' || echo '$(srcdir)/'`line.c
@@ -1304,6 +1313,10 @@ dist-lzma: distdir
 	tardir=$(distdir) && $(am__tar) | lzma -9 -c >$(distdir).tar.lzma
 	$(am__remove_distdir)
 
+dist-xz: distdir
+	tardir=$(distdir) && $(am__tar) | xz -c >$(distdir).tar.xz
+	$(am__remove_distdir)
+
 dist-tarZ: distdir
 	tardir=$(distdir) && $(am__tar) | compress -c >$(distdir).tar.Z
 	$(am__remove_distdir)
@@ -1333,6 +1346,8 @@ distcheck: dist
 	  bunzip2 -c $(distdir).tar.bz2 | $(am__untar) ;;\
 	*.tar.lzma*) \
 	  unlzma -c $(distdir).tar.lzma | $(am__untar) ;;\
+	*.tar.xz*) \
+	  xz -dc $(distdir).tar.xz | $(am__untar) ;;\
 	*.tar.Z*) \
 	  uncompress -c $(distdir).tar.Z | $(am__untar) ;;\
 	*.shar.gz*) \
@@ -1506,7 +1521,7 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_web2cDATA \
 	all all-am am--refresh check check-am clean clean-binPROGRAMS \
 	clean-generic clean-libLTLIBRARIES clean-libtool ctags \
 	ctags-recursive dist dist-all dist-bzip2 dist-gzip dist-lzma \
-	dist-shar dist-tarZ dist-zip distcheck distclean \
+	dist-shar dist-tarZ dist-xz dist-zip distcheck distclean \
 	distclean-compile distclean-generic distclean-hdr \
 	distclean-libtool distclean-tags distcleancheck distdir \
 	distuninstallcheck dvi dvi-am html html-am info info-am \
