@@ -18,6 +18,8 @@
 #ifndef KPATHSEA_TYPES_H
 #define KPATHSEA_TYPES_H
 
+#define KPSE_COMPAT_API 1 
+
 /* Booleans.  */
 /* NeXT wants to define their own boolean type.  */
 #ifndef HAVE_BOOLEAN
@@ -181,8 +183,6 @@ typedef struct
 
 typedef struct kpathsea_instance *kpathsea;
 
-/* todo: what about getopt.c */
-
 typedef struct kpathsea_instance {
     /* from cnf.c */
     p_record_input record_input;   /* for --recorder */
@@ -206,9 +206,6 @@ typedef struct kpathsea_instance {
     /* from hash.c */
     /* Print the hash values as integers if this is nonzero.  */
     boolean debug_hash_lookup_int;
-    /* from mingw32.c (conditional) */ 
-    char *cached_home_directory;        /* cached home directory data */ 
-    struct win32_volumes *volumes;      /* partial pointer to win32-specific data structure */
     /* from path-elt.c */
     string elt;                         /* statically created buffer for return value of |element| */
     unsigned elt_alloc;
@@ -218,21 +215,23 @@ typedef struct kpathsea_instance {
     FILE *log_file;
     boolean log_opened;                 /* Need to open the log file? */  
     /* from progname.c */
+    string invocation_name;
+    string invocation_short_name;
     string program_name;           /* pretended name */
     int ll_verbose;                     /* for symlinks (conditional) */
     /* from tex-file.c */
     /* If non-NULL, try looking for this if can't find the real font.  */
-    const_string kpse_fallback_font;
+    const_string fallback_font;
     /* If non-NULL, default list of fallback resolutions comes from this
      * instead of the compile-time value.  Set by dvipsk for the R config
      * cmd.  *SIZES environment variables override/use as default.  
      */
-    const_string kpse_fallback_resolutions_string;
+    const_string fallback_resolutions_string;
     /* If non-NULL, check these if can't find (within a few percent of) the
      * given resolution.  List must end with a zero element.  
      */
-    unsigned *kpse_fallback_resolutions;
-    kpse_format_info_type kpse_format_info[kpse_last_format];
+    unsigned *fallback_resolutions;
+    kpse_format_info_type format_info[kpse_last_format];
     /* from tex-make.c */
     /* We never throw away stdout, since that is supposed to be the filename
      *  found, if all is successful.  This variable controls whether stderr
@@ -252,14 +251,33 @@ typedef struct kpathsea_instance {
     int saved_count;     
 } kpathsea_instance;
 
+/* these come from kpathsea.c */
+extern KPSEDLL kpathsea kpathsea_new (void) ;
+extern KPSEDLL void kpathsea_finish (kpathsea kpse) ;
+
+#if defined (KPSE_COMPAT_API)
+
+#define kpse_bug_address kpathsea_bug_address
+
 extern kpathsea_instance kpse_def_inst;
-extern kpathsea kpse;
+extern kpathsea kpse_def;
 
 #define kpathsea_debug               kpse_def_inst.debug
 #define kpse_program_name            kpse_def_inst.program_name
 #define kpse_record_input            kpse_def_inst.record_input
 #define kpse_record_output           kpse_def_inst.record_output
 #define kpse_make_tex_discard_errors kpse_def_inst.make_tex_discard_errors
+#define kpse_fallback_font           kpse_def_inst.fallback_font
+#define kpse_fallback_resolutions_string  kpse_def_inst.fallback_resolutions_string
+#define kpse_fallback_resolutions    kpse_def_inst.fallback_resolutions
+#define kpse_format_info             kpse_def_inst.format_info
+
+#undef program_invocation_name
+#define program_invocation_name      kpse_def_inst.invocation_name
+#undef program_invocation_short_name
+#define program_invocation_short_name kpse_def_inst.invocation_short_name
+
+#endif /* KPSE_COMPAT_API */
 
 #endif /* not KPATHSEA_TYPES_H */
  
