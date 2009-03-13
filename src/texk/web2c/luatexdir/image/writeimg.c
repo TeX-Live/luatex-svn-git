@@ -33,6 +33,8 @@ static const char _svn_version[] =
 
 extern void pdf_print_real(integer m, integer d);
 
+extern pdfstructure *pstruct;
+
 #define obj_aux(A) obj_tab[(A)].int4
 
 /**********************************************************************/
@@ -260,10 +262,10 @@ void free_dict_strings(image_dict * p)
 }
 
 void free_image_dict(image_dict * p)
-{         
+{
     if (ini_version)
         return;                 /* The image may be \dump{}ed to a format */
-   /* called from limglib.c */    
+    /* called from limglib.c */
     assert(img_state(p) < DICT_REFERED);
     switch (img_type(p)) {
     case IMG_TYPE_PDF:
@@ -456,15 +458,16 @@ void scale_img(image * img)
     img_set_scaled(img);
 }
 
-void out_img(image * img, scaled hpos, scaled vpos)
+void out_img(image * img, pdfstructure * p, scaled hpos, scaled vpos)
 {
     float a[6];                 /* transformation matrix */
     float xoff, yoff, tmp;
     int r;                      /* number of digits after the decimal point */
     int k;
     scaled wd, ht, dp;
+    scaledpos tmppos;
     image_dict *idict;
-    integer groupref;   /* added from web for 1.40.8 */
+    integer groupref;           /* added from web for 1.40.8 */
     assert(img != 0);
     idict = img_dict(img);
     assert(idict != 0);
@@ -482,10 +485,10 @@ void out_img(image * img, scaled hpos, scaled vpos)
         r = 6;
     } else {
         /* added from web for 1.40.8 */
-        if (img_type(idict) == IMG_TYPE_PNG) { 
+        if (img_type(idict) == IMG_TYPE_PNG) {
             groupref = img_group_ref(idict);
-           if ((groupref>0) && (pdf_page_group_val<1))
-               pdf_page_group_val = groupref;
+            if ((groupref > 0) && (pdf_page_group_val < 1))
+                pdf_page_group_val = groupref;
         }
         /* /added from web */
         a[0] /= one_hundred_bp;
@@ -550,9 +553,13 @@ void out_img(image * img, scaled hpos, scaled vpos)
         break;
     default:;
     }
+/* the following is a kludge, TODO: use pdfpage.c functions */
+    tmppos.h = round(a[4]);
+    tmppos.v = round(a[5]);
+    (void) calc_pdfpos(p, &tmppos);
     pdf_goto_pagemode();
-    if (pdf_page_group_val<1) 
-      pdf_page_group_val = img_group_ref(idict); /* added from web for 1.40.8 */
+    if (pdf_page_group_val < 1)
+        pdf_page_group_val = img_group_ref(idict);      /* added from web for 1.40.8 */
     pdf_printf("q\n");
     pdf_print_real(round(a[0]), r);
     pdfout(' ');
@@ -562,9 +569,9 @@ void out_img(image * img, scaled hpos, scaled vpos)
     pdfout(' ');
     pdf_print_real(round(a[3]), r);
     pdfout(' ');
-    pdf_print_bp(round(a[4]));
+    print_pdffloat(&(p->cm[4]));
     pdfout(' ');
-    pdf_print_bp(round(a[5]));
+    print_pdffloat(&(p->cm[5]));
     pdf_printf(" cm\n/Im");
     pdf_print_int(img_index(idict));
     pdf_print_resname_prefix();
@@ -802,7 +809,7 @@ void undumpimagemeta(integer pdfversion, integer pdfinclusionerrorlevel)
         default:
             pdftex_fail("unknown type of image");
         }
-        read_img(idict,pdfversion, pdfinclusionerrorlevel);
+        read_img(idict, pdfversion, pdfinclusionerrorlevel);
     }
 }
 
@@ -858,7 +865,7 @@ void scale_image(integer ref)
 void out_image(integer ref, scaled hpos, scaled vpos)
 {
     image *a = img_array[ref];
-    out_img(a, hpos, vpos);
+    out_img(a, pstruct, hpos, vpos);
 }
 
 void write_image(integer ref)

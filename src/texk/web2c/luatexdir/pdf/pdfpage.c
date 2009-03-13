@@ -26,7 +26,8 @@
 
 #include "ptexlib.h"
 
-static const char __svn_version[] = "$Id$ $URL$";
+static const char __svn_version[] =
+    "$Id$ $URL$";
 
 #define lround(a) (long) floor((a) + 0.5)
 #define setpdffloat(a,b,c) {(a).m = (b); (a).e = (c);}
@@ -38,44 +39,6 @@ static const char __svn_version[] = "$Id$ $URL$";
 
 /* definitions from luatex.web */
 #define pdf_font_blink(a) font_tables[a]->_pdf_font_blink
-
-typedef struct {
-    long m;                     /* mantissa (significand) */
-    int e;                      /* exponent * -1 */
-} pdffloat;
-
-typedef struct {
-    pdffloat h;
-    pdffloat v;
-} pdfpos;
-
-typedef enum { P_NONE, P_PAGE, P_TEXT, P_CHARARRAY, P_CHAR } pos_mode;
-typedef enum { WMODE_H, WMODE_V } writing_mode; /* []TJ runs horizontal or vertical */
-
-#define is_pagemode(p)      ((p)->mode == P_PAGE)
-#define is_textmode(p)      ((p)->mode == P_TEXT)
-#define is_chararraymode(p) ((p)->mode == P_CHARARRAY)
-#define is_charmode(p)      ((p)->mode == P_CHAR)
-
-typedef struct {
-    pdfpos pdf;                 /* pos. on page (PDF page raster) */
-    pdfpos pdf_bt_pos;          /* pos. at begin of BT-ET group (PDF page raster) */
-    pdfpos pdf_tj_pos;          /* pos. at begin of TJ array (PDF page raster) */
-    pdffloat cw;                /* pos. within [(..)..]TJ array (glyph raster);
-                                   cw.e = fractional digits in /Widths array */
-    pdffloat tj_delta;          /* rel. movement in [(..)..]TJ array (glyph raster) */
-    pdffloat fs;                /* font size in PDF units */
-    pdffloat hz;                /* HZ expansion factor */
-    pdffloat ext;               /* ExtendFont factor */
-    pdffloat cm[6];             /* cm array */
-    pdffloat tm[6];             /* Tm array */
-    double k1;                  /* conv. factor from TeX sp to PDF page raster */
-    double k2;                  /* conv. factor from PDF page raster to TJ array raster */
-    internal_font_number f_cur; /* TeX font number */
-    internal_font_number f_pdf; /* /F* font number, of unexpanded base font! */
-    writing_mode wmode;         /* PDF writing mode WMode (horizontal/vertical) */
-    pos_mode mode;              /* current positioning mode */
-} pdfstructure;
 
 pdfstructure *pstruct = NULL;
 
@@ -140,7 +103,7 @@ void pdf_page_init()
     p->f_cur = null_font;
     p->f_pdf = null_font;
     p->wmode = WMODE_H;
-    p->mode = P_PAGE;
+    p->mode = PMODE_PAGE;
     calc_k1(p);
 }
 
@@ -190,12 +153,12 @@ synch_pos_with_cur(scaledpos * pos, scaledpos * cur, scaledpos * box_pos)
 
 /**********************************************************************/
 
-static boolean calc_pdfpos(pdfstructure * p, scaledpos * pos)
+boolean calc_pdfpos(pdfstructure * p, scaledpos * pos)
 {
     scaledpos new;
     int move_pdfpos = FALSE;
     switch (p->mode) {
-    case P_PAGE:
+    case PMODE_PAGE:
         new.h = lround(pos->h * p->k1);
         new.v = lround(pos->v * p->k1);
         p->cm[4].m = new.h - p->pdf.h.m;        /* cm is concatenated */
@@ -203,7 +166,7 @@ static boolean calc_pdfpos(pdfstructure * p, scaledpos * pos)
         if (abs(p->cm[4].m) >= 1 || abs(p->cm[5].m) >= 1)
             move_pdfpos = TRUE;
         break;
-    case P_TEXT:
+    case PMODE_TEXT:
         new.h = lround(pos->h * p->k1);
         new.v = lround(pos->v * p->k1);
         p->tm[4].m = new.h - p->pdf_bt_pos.h.m; /* Tm replaces */
@@ -211,8 +174,8 @@ static boolean calc_pdfpos(pdfstructure * p, scaledpos * pos)
         if (abs(p->tm[4].m) >= 1 || abs(p->tm[5].m) >= 1)
             move_pdfpos = TRUE;
         break;
-    case P_CHAR:
-    case P_CHARARRAY:
+    case PMODE_CHAR:
+    case PMODE_CHARARRAY:
         switch (p->wmode) {
         case WMODE_H:
             new.h = lround((pos->h * p->k1 - p->pdf_tj_pos.h.m) * p->k2);
@@ -244,7 +207,7 @@ static boolean calc_pdfpos(pdfstructure * p, scaledpos * pos)
 
 /**********************************************************************/
 
-static void print_pdffloat(pdffloat * f)
+void print_pdffloat(pdffloat * f)
 {
     char a[24];
     int e = f->e, i, j;
@@ -345,7 +308,7 @@ static void begin_text(pdfstructure * p)
     assert(is_pagemode(p));
     p->pdf_bt_pos = p->pdf;
     pdf_printf("BT\n");
-    p->mode = P_TEXT;
+    p->mode = PMODE_TEXT;
 }
 
 static void end_text(pdfstructure * p)
@@ -353,21 +316,21 @@ static void end_text(pdfstructure * p)
     assert(is_textmode(p));
     pdf_printf("ET\n");
     p->pdf = p->pdf_bt_pos;
-    p->mode = P_PAGE;
+    p->mode = PMODE_PAGE;
 }
 
 static void begin_charmode(pdfstructure * p)
 {
     assert(is_chararraymode(p));
     pdf_printf("(");
-    p->mode = P_CHAR;
+    p->mode = PMODE_CHAR;
 }
 
 static void end_charmode(pdfstructure * p)
 {
     assert(is_charmode(p));
     pdf_printf(")");
-    p->mode = P_CHARARRAY;
+    p->mode = PMODE_CHARARRAY;
 }
 
 static void begin_chararray(pdfstructure * p)
@@ -376,7 +339,7 @@ static void begin_chararray(pdfstructure * p)
     p->pdf_tj_pos = p->pdf;
     p->cw.m = 0;
     pdf_printf("[");
-    p->mode = P_CHARARRAY;
+    p->mode = PMODE_CHARARRAY;
 }
 
 static void end_chararray(pdfstructure * p)
@@ -384,7 +347,7 @@ static void end_chararray(pdfstructure * p)
     assert(is_chararraymode(p));
     pdf_printf("]TJ\n");
     p->pdf = p->pdf_tj_pos;
-    p->mode = P_TEXT;
+    p->mode = PMODE_TEXT;
 }
 
 void pdf_end_string_nl()
