@@ -186,7 +186,7 @@ to the newsgroup; the gateway is bidirectional).
 @cindex runtime debugging
 @cindex options for debugging
 
-@vindex kpathsea_debug
+@vindex kpse->debug
 @flindex debug.h
 Kpathsea provides a number of runtime debugging options, detailed below
 by their names and corresponding numeric values.  When the files you
@@ -201,10 +201,10 @@ first, for maximal output.  Dvipsk and Xdvik have additional
 program-specific debugging options as well.
 
 @vindex KPATHSEA_DEBUG
-@vindex kpathsea_debug
+@vindex kpse->debug
 You can also set the environment variable @code{KPATHSEA_DEBUG}; in this
 case, you should use the numbers below.  If you run the program under a
-debugger and set the variable @code{kpathsea_debug}, also use the numbers
+debugger and set the instance variable @code{kpse->debug}, also use the numbers
 below.
 
 @kindex -1 @r{debugging value}
