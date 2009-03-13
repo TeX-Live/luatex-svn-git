@@ -70,7 +70,7 @@ str_eq_cstr(str_number r, char *s, size_t l)
 {
   if (l!=(size_t)length(r))
     return false;
-  return strncmp((const char *)(str_pool+str_start_macro(r)), s, l);
+  return (strncmp((const char *)(str_pool+str_start_macro(r)), s, l)==0);
 }
 
 
