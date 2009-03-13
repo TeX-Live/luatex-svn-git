@@ -20,7 +20,7 @@
 /* $Id$ */
 
 #ifndef LUATEX_PRIMITIVE_H
-#define LUATEX_PRIMITIVE_H 1
+#  define LUATEX_PRIMITIVE_H 1
 
 /* This enum is a list of origins for primitive commands */
 
@@ -33,42 +33,43 @@ typedef enum {
     luatex_command,
 } command_origin;
 
-#define eq_level(a) zeqtb[a].hh.u.B1
-#define eq_type(a)  zeqtb[a].hh.u.B0
-#define equiv(a)    zeqtb[a].hh.v.RH
+#  define eq_level(a) zeqtb[a].hh.u.B1
+#  define eq_type(a)  zeqtb[a].hh.u.B0
+#  define equiv(a)    zeqtb[a].hh.v.RH
 
-#define undefined_primitive 0
-#define prim_size 2100 /* maximum number of primitives */
-#define prim_prime 1777 /* about 85\pct! of |primitive_size| */
+#  define undefined_primitive 0
+#  define prim_size 2100        /* maximum number of primitives */
+#  define prim_prime 1777       /* about 85\pct! of |primitive_size| */
 
-#define hash_prime 55711 /* a prime number equal to about 85\pct! of |hash_size| */
-#define hash_base 2
+#  define hash_prime 55711      /* a prime number equal to about 85\pct! of |hash_size| */
+#  define hash_base 2
 
-extern void init_primitives (void);
-extern void ini_init_primitives (void);
+extern void init_primitives(void);
+extern void ini_init_primitives(void);
 
-extern halfword compute_pool_hash (pool_pointer j, pool_pointer l, halfword prime_number);
-extern pointer prim_lookup (str_number s);
+extern halfword compute_pool_hash(pool_pointer j, pool_pointer l,
+                                  halfword prime_number);
+extern pointer prim_lookup(str_number s);
 
-extern boolean  is_primitive(str_number csname);
+extern boolean is_primitive(str_number csname);
 
-extern quarterword get_prim_eq_type (integer p);
-extern halfword get_prim_equiv (integer p);
-extern str_number get_prim_text (integer p);
+extern quarterword get_prim_eq_type(integer p);
+extern halfword get_prim_equiv(integer p);
+extern str_number get_prim_text(integer p);
 
-extern void dump_primitives (void);
-extern void undump_primitives (void);
+extern void dump_primitives(void);
+extern void undump_primitives(void);
 
-#define primitive_tex(a,b,c)    primitive((a),(b),(c),tex_command)
-#define primitive_etex(a,b,c)   primitive((a),(b),(c),etex_command)
-#define primitive_aleph(a,b,c)  primitive((a),(b),(c),aleph_command)
-#define primitive_omega(a,b,c)  primitive((a),(b),(c),omega_command)
-#define primitive_pdftex(a,b,c) primitive((a),(b),(c),pdftex_command)
-#define primitive_luatex(a,b,c) primitive((a),(b),(c),luatex_command)
+#  define primitive_tex(a,b,c)    primitive((a),(b),(c),tex_command)
+#  define primitive_etex(a,b,c)   primitive((a),(b),(c),etex_command)
+#  define primitive_aleph(a,b,c)  primitive((a),(b),(c),aleph_command)
+#  define primitive_omega(a,b,c)  primitive((a),(b),(c),omega_command)
+#  define primitive_pdftex(a,b,c) primitive((a),(b),(c),pdftex_command)
+#  define primitive_luatex(a,b,c) primitive((a),(b),(c),luatex_command)
 
 extern void primitive(str_number ss, quarterword c, halfword o, int cmd_origin);
 
-extern pointer string_lookup (str_number s);
+extern pointer string_lookup(str_number s);
 extern pointer id_lookup(integer j, integer l);
 
-#endif /* LUATEX_PRIMITIVE_H */
+#endif                          /* LUATEX_PRIMITIVE_H */
