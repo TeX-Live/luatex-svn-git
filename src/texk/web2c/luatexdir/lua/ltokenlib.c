@@ -169,14 +169,11 @@ static int run_get_command_id(lua_State * L)
 
 static int run_get_csname_id(lua_State * L)
 {
-    int texstr;
     char *s;
     size_t k, cs = 0;
     if (lua_isstring(L, -1)) {
         s = (char *) lua_tolstring(L, -1, &k);
-        texstr = maketexlstring(s, k);
-        cs = string_lookup(texstr);
-        flush_str(texstr);
+        cs = string_lookup(s, k);
     }
     lua_pushnumber(L, cs);
     return 1;
@@ -216,7 +213,6 @@ static int run_lookup(lua_State * L)
 {
     char *s;
     size_t l;
-    str_number t;
     integer cs, cmd, chr;
     int save_nncs;
     if (lua_isstring(L, -1)) {
@@ -225,9 +221,7 @@ static int run_lookup(lua_State * L)
             save_nncs = no_new_control_sequence;
             no_new_control_sequence = true;
             cs = id_lookup((last + 1), l);      /* cleans up the lookup buffer */
-            t = maketexlstring(s, l);
-            cs = string_lookup(t);
-            flush_str(t);
+            cs = string_lookup(s, l);
             cmd = zget_eq_type(cs);
             chr = zget_equiv(cs);
             make_token_table(L, cmd, chr, cs);

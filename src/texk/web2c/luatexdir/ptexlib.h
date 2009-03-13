@@ -213,7 +213,6 @@ extern void def_tounicode(strnumber, strnumber);
 extern integer write_tounicode(char **, char *);
 
 /* utils.c */
-extern boolean str_eq_cstr(strnumber, char *);
 extern char *makecstring(integer);
 extern char *makeclstring(integer, size_t *);
 extern void print_string(char *j);
@@ -705,6 +704,7 @@ void pdf_print_real(integer m, integer d);
 #  define  NO_CAT_TABLE      -2
 #  define  DEFAULT_CAT_TABLE -1
 
+extern boolean str_eq_cstr(str_number, char *, size_t);
 void get_next(void);
 halfword active_to_cs(int, int);
 void get_token_lua(void);

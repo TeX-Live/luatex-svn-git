@@ -80,7 +80,8 @@ void ini_init_primitives(void)
    @^Vitter, Jeffrey Scott@>
 */
 
-halfword compute_hash(char *j, pool_pointer l, halfword prime_number)
+static halfword
+compute_hash(char *j, pool_pointer l, halfword prime_number)
 {
     pool_pointer k;
     halfword h = (unsigned char) *j;
@@ -95,7 +96,8 @@ halfword compute_hash(char *j, pool_pointer l, halfword prime_number)
 
 /*  Here is the subroutine that searches the primitive table for an identifier */
 
-pointer prim_lookup(str_number s)
+pointer 
+prim_lookup(str_number s)
 {                               /* search the primitives table */
     integer h;                  /* hash code */
     pointer p;                  /* index in |hash| array */
@@ -149,7 +151,7 @@ boolean is_primitive(str_number csname)
 {
     integer n, m;
     m = prim_lookup(csname);
-    n = string_lookup(csname);
+    n = string_lookup(makecstring(csname), length(csname));
     return ((n != undefined_cs_cmd) &&
             (m != undefined_primitive) &&
             (eq_type(n) == prim_eq_type(m)) && (equiv(n) == prim_equiv(m)));
@@ -210,7 +212,7 @@ void primitive(str_number ss, quarterword c, halfword o, int cmd_origin)
     int j;                      /* index into |buffer| */
     small_number l;             /* length of the string */
     integer prim_val;           /* needed to fill |prim_eqtb| */
-
+    (void)cmd_origin; /* todo */
     if (ss < string_offset) {
         if (ss > 127)
             tconfusion("prim"); /* should be ASCII */
@@ -243,7 +245,8 @@ void primitive(str_number ss, quarterword c, halfword o, int cmd_origin)
  * Here is a helper that does the actual hash insertion.
  */
 
-halfword insert_id(halfword p, unsigned char *j, pool_pointer l)
+static halfword
+insert_id(halfword p, unsigned char *j, pool_pointer l)
 {
     integer d;
     unsigned char *k;
@@ -316,58 +319,31 @@ pointer id_lookup(integer j, integer l)
 }
 
 /*
- * Finding a primitive in the hash, based on a finished string.
+ * Finding a primitive in the hash, based on a C string.
  */
 
 
-pointer string_lookup(str_number s)
+pointer string_lookup(char *s, size_t l)
 {                               /* search the hash table */
     integer h;                  /* hash code */
     pointer p;                  /* index in |hash| array */
-    pool_pointer l;
-    if (s < string_offset) {
-        if (no_new_control_sequence) {
-            p = get_undefined_control_sequence();
-        } else {
-	    char w[5];
-	    utf8_idpb(w, s);
-            if (s <= 0x7F) 
-                l = 1;
-            else if (s <= 0x7FF)
-                l = 2;
-            else if (s <= 0xFFFF)
-                l = 3;
-            else
-                l = 4;
-	    h = compute_hash((char *) w, l, hash_prime);
-	    p = h + hash_base;
-            p = insert_id(p, (str_pool + str_start_macro(s)), l);
-        }
-    } else {
-        pool_pointer j;
-        j = str_start_macro(s);
-        if (s == str_ptr)
-            l = cur_length;
-        else
-            l = length(s);
-        h = compute_hash((char *) (str_pool + j), l, hash_prime);
-        p = h + hash_base;      /* we start searching here; note that |0<=h<hash_prime| */
-        while (1) {
-            if (text(p) > 0)
-                if (length(text(p)) == l)
-                    if (str_eq_str(text(p), s))
-                        goto FOUND;
-            if (next(p) == 0) {
-                if (no_new_control_sequence) {
-                    p = get_undefined_control_sequence();
-                } else {
-                    p = insert_id(p, (str_pool + str_start_macro(s)), l);
-                }
-                goto FOUND;
-            }
-            p = next(p);
-        }
+    h = compute_hash(s, l, hash_prime);
+    p = h + hash_base;      /* we start searching here; note that |0<=h<hash_prime| */
+    while (1) {
+      if (text(p) > 0)
+	if (length(text(p)) == (int)l)
+	  if (str_eq_cstr(text(p), s, l))
+	    goto FOUND;
+      if (next(p) == 0) {
+	if (no_new_control_sequence) {
+	  p = get_undefined_control_sequence();
+	} else {
+	  p = insert_id(p, (unsigned char *)s, l);
+	}
+	goto FOUND;
+      }
+      p = next(p);
     }
-  FOUND:
-    return p;
+ FOUND:
+    return p; 
 }

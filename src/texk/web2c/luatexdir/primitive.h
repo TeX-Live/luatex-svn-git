@@ -69,7 +69,8 @@ extern void undump_primitives(void);
 
 extern void primitive(str_number ss, quarterword c, halfword o, int cmd_origin);
 
-extern pointer string_lookup(str_number s);
+extern pointer string_lookup(char *s, size_t l);
 extern pointer id_lookup(integer j, integer l);
+
 
 #endif                          /* LUATEX_PRIMITIVE_H */

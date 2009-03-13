@@ -62,6 +62,19 @@ extern void insert_vj_template(void);
   } while (0)
 
 
+
+/* string compare */
+
+boolean 
+str_eq_cstr(str_number r, char *s, size_t l)
+{
+  if (l!=(size_t)length(r))
+    return false;
+  return strncmp((const char *)(str_pool+str_start_macro(r)), s, l);
+}
+
+
+
 int get_char_cat_code(int cur_chr)
 {
     int a;
@@ -79,6 +92,8 @@ static void invalid_character_error(void)
     tex_error("Text line contains an invalid character", hlp);
     deletions_allowed = true;
 }
+
+
 
 /* no longer done */
 
@@ -181,27 +196,24 @@ char *u2s(unsigned unic)
 
 halfword active_to_cs(int curchr, int force)
 {
-    int nncs = no_new_control_sequence;
-    str_number activetext;
     halfword curcs;
     char *a, *b;
     char *utfbytes = xmalloc(10);
+    int nncs = no_new_control_sequence;
     a = u2s(0xFFFF);
     utfbytes = strcpy(utfbytes, a);
+    if (force)
+        no_new_control_sequence = false;
     if (curchr > 0) {
         b = u2s(curchr);
         utfbytes = strcat(utfbytes, b);
         free(b);
-        activetext = maketexlstring(utfbytes, strlen(utfbytes));
+	curcs = string_lookup(utfbytes, strlen(utfbytes));
     } else {
         utfbytes[3] = '\0';
-        activetext = maketexlstring(utfbytes, 4);
+	curcs = string_lookup(utfbytes, 4);
     }
-    if (force)
-        no_new_control_sequence = false;
-    curcs = string_lookup(activetext);
     no_new_control_sequence = nncs;
-    flush_str(activetext);
     free(a);
     free(utfbytes);
     return curcs;
