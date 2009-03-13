@@ -541,9 +541,8 @@ emphasize this distinction.
 
 @d font_base=0 {smallest internal font number; must not be less
   than |min_quarterword|}
-@d hash_size=2100 {maximum number of control sequences; it should be at most
+@d hash_size=65536 {maximum number of control sequences; it should be at most
   about |(fix_mem_max-fix_mem_min)/10|}
-@d hash_prime=1777 {a prime number equal to about 85\pct! of |hash_size|}
 @d ocp_base=0 {smallest internal ocp number; must not be less
   than |min_quarterword|}
 @d ocp_biggest=32767 {the real biggest ocp}
@@ -5101,7 +5100,9 @@ locations for control sequences that are perpetually defined
   {permanent `\.{\\notexpanded:}'}
 @d frozen_primitive=frozen_control_sequence+11
   {permanent `\.{\\pdfprimitive}'}
-@d frozen_null_font=frozen_control_sequence+12
+@d frozen_special=frozen_control_sequence+12
+  {permanent `\.{\\special}'}
+@d frozen_null_font=frozen_control_sequence+13
   {permanent `\.{\\nullfont}'}
 @d font_id_base=frozen_null_font-font_base
   {begins table of |number_fonts| permanent font identifiers}
@@ -5225,43 +5226,43 @@ by using the routine called |primitive|, defined below. Let us enter them
 now, so that we don't have to list all those parameter names anywhere else.
 
 @<Put each of \TeX's primitives into the hash table@>=
-primitive("lineskip",assign_glue,glue_base+line_skip_code);@/
+primitive_tex("lineskip",assign_glue,glue_base+line_skip_code);@/
 @!@:line_skip_}{\.{\\lineskip} primitive@>
-primitive("baselineskip",assign_glue,glue_base+baseline_skip_code);@/
+primitive_tex("baselineskip",assign_glue,glue_base+baseline_skip_code);@/
 @!@:baseline_skip_}{\.{\\baselineskip} primitive@>
-primitive("parskip",assign_glue,glue_base+par_skip_code);@/
+primitive_tex("parskip",assign_glue,glue_base+par_skip_code);@/
 @!@:par_skip_}{\.{\\parskip} primitive@>
-primitive("abovedisplayskip",assign_glue,glue_base+above_display_skip_code);@/
+primitive_tex("abovedisplayskip",assign_glue,glue_base+above_display_skip_code);@/
 @!@:above_display_skip_}{\.{\\abovedisplayskip} primitive@>
-primitive("belowdisplayskip",assign_glue,glue_base+below_display_skip_code);@/
+primitive_tex("belowdisplayskip",assign_glue,glue_base+below_display_skip_code);@/
 @!@:below_display_skip_}{\.{\\belowdisplayskip} primitive@>
-primitive("abovedisplayshortskip",
+primitive_tex("abovedisplayshortskip",
   assign_glue,glue_base+above_display_short_skip_code);@/
 @!@:above_display_short_skip_}{\.{\\abovedisplayshortskip} primitive@>
-primitive("belowdisplayshortskip",
+primitive_tex("belowdisplayshortskip",
   assign_glue,glue_base+below_display_short_skip_code);@/
 @!@:below_display_short_skip_}{\.{\\belowdisplayshortskip} primitive@>
-primitive("leftskip",assign_glue,glue_base+left_skip_code);@/
+primitive_tex("leftskip",assign_glue,glue_base+left_skip_code);@/
 @!@:left_skip_}{\.{\\leftskip} primitive@>
-primitive("rightskip",assign_glue,glue_base+right_skip_code);@/
+primitive_tex("rightskip",assign_glue,glue_base+right_skip_code);@/
 @!@:right_skip_}{\.{\\rightskip} primitive@>
-primitive("topskip",assign_glue,glue_base+top_skip_code);@/
+primitive_tex("topskip",assign_glue,glue_base+top_skip_code);@/
 @!@:top_skip_}{\.{\\topskip} primitive@>
-primitive("splittopskip",assign_glue,glue_base+split_top_skip_code);@/
+primitive_tex("splittopskip",assign_glue,glue_base+split_top_skip_code);@/
 @!@:split_top_skip_}{\.{\\splittopskip} primitive@>
-primitive("tabskip",assign_glue,glue_base+tab_skip_code);@/
+primitive_tex("tabskip",assign_glue,glue_base+tab_skip_code);@/
 @!@:tab_skip_}{\.{\\tabskip} primitive@>
-primitive("spaceskip",assign_glue,glue_base+space_skip_code);@/
+primitive_tex("spaceskip",assign_glue,glue_base+space_skip_code);@/
 @!@:space_skip_}{\.{\\spaceskip} primitive@>
-primitive("xspaceskip",assign_glue,glue_base+xspace_skip_code);@/
+primitive_tex("xspaceskip",assign_glue,glue_base+xspace_skip_code);@/
 @!@:xspace_skip_}{\.{\\xspaceskip} primitive@>
-primitive("parfillskip",assign_glue,glue_base+par_fill_skip_code);@/
+primitive_tex("parfillskip",assign_glue,glue_base+par_fill_skip_code);@/
 @!@:par_fill_skip_}{\.{\\parfillskip} primitive@>
-primitive("thinmuskip",assign_mu_glue,glue_base+thin_mu_skip_code);@/
+primitive_tex("thinmuskip",assign_mu_glue,glue_base+thin_mu_skip_code);@/
 @!@:thin_mu_skip_}{\.{\\thinmuskip} primitive@>
-primitive("medmuskip",assign_mu_glue,glue_base+med_mu_skip_code);@/
+primitive_tex("medmuskip",assign_mu_glue,glue_base+med_mu_skip_code);@/
 @!@:med_mu_skip_}{\.{\\medmuskip} primitive@>
-primitive("thickmuskip",assign_mu_glue,glue_base+thick_mu_skip_code);@/
+primitive_tex("thickmuskip",assign_mu_glue,glue_base+thick_mu_skip_code);@/
 @!@:thick_mu_skip_}{\.{\\thickmuskip} primitive@>
 
 @ @<Cases of |print_cmd_chr| for symbolic printing of primitives@>=
@@ -5373,31 +5374,31 @@ registers.
 @d cur_font==equiv(cur_font_loc)
 
 @<Put each...@>=
-primitive("output",assign_toks,output_routine_loc);
+primitive_tex("output",assign_toks,output_routine_loc);
 @!@:output_}{\.{\\output} primitive@>
-primitive("everypar",assign_toks,every_par_loc);
+primitive_tex("everypar",assign_toks,every_par_loc);
 @!@:every_par_}{\.{\\everypar} primitive@>
-primitive("everymath",assign_toks,every_math_loc);
+primitive_tex("everymath",assign_toks,every_math_loc);
 @!@:every_math_}{\.{\\everymath} primitive@>
-primitive("everydisplay",assign_toks,every_display_loc);
+primitive_tex("everydisplay",assign_toks,every_display_loc);
 @!@:every_display_}{\.{\\everydisplay} primitive@>
-primitive("everyhbox",assign_toks,every_hbox_loc);
+primitive_tex("everyhbox",assign_toks,every_hbox_loc);
 @!@:every_hbox_}{\.{\\everyhbox} primitive@>
-primitive("everyvbox",assign_toks,every_vbox_loc);
+primitive_tex("everyvbox",assign_toks,every_vbox_loc);
 @!@:every_vbox_}{\.{\\everyvbox} primitive@>
-primitive("everyjob",assign_toks,every_job_loc);
+primitive_tex("everyjob",assign_toks,every_job_loc);
 @!@:every_job_}{\.{\\everyjob} primitive@>
-primitive("everycr",assign_toks,every_cr_loc);
+primitive_tex("everycr",assign_toks,every_cr_loc);
 @!@:every_cr_}{\.{\\everycr} primitive@>
-primitive("errhelp",assign_toks,err_help_loc);
+primitive_tex("errhelp",assign_toks,err_help_loc);
 @!@:err_help_}{\.{\\errhelp} primitive@>
-primitive("pdfpagesattr",assign_toks,pdf_pages_attr_loc);
+primitive_pdftex("pdfpagesattr",assign_toks,pdf_pages_attr_loc);
 @!@:pdf_pages_attr_}{\.{\\pdfpagesattr} primitive@>
-primitive("pdfpageattr",assign_toks,pdf_page_attr_loc);
+primitive_pdftex("pdfpageattr",assign_toks,pdf_page_attr_loc);
 @!@:pdf_page_attr_}{\.{\\pdfpageattr} primitive@>
-primitive("pdfpageresources",assign_toks,pdf_page_resources_loc);
+primitive_pdftex("pdfpageresources",assign_toks,pdf_page_resources_loc);
 @!@:pdf_page_resources_}{\.{\\pdfpageresources} primitive@>
-primitive("pdfpkmode",assign_toks,pdf_pk_mode_loc);
+primitive_pdftex("pdfpkmode",assign_toks,pdf_pk_mode_loc);
 @!@:pdf_pk_mode_}{\.{\\pdfpkmode} primitive@>
 
 
@@ -5869,182 +5870,182 @@ end;
 @ The integer parameter names must be entered into the hash table.
 
 @<Put each...@>=
-primitive("pretolerance",assign_int,int_base+pretolerance_code);@/
+primitive_tex("pretolerance",assign_int,int_base+pretolerance_code);@/
 @!@:pretolerance_}{\.{\\pretolerance} primitive@>
-primitive("tolerance",assign_int,int_base+tolerance_code);@/
+primitive_tex("tolerance",assign_int,int_base+tolerance_code);@/
 @!@:tolerance_}{\.{\\tolerance} primitive@>
-primitive("linepenalty",assign_int,int_base+line_penalty_code);@/
+primitive_tex("linepenalty",assign_int,int_base+line_penalty_code);@/
 @!@:line_penalty_}{\.{\\linepenalty} primitive@>
-primitive("hyphenpenalty",assign_int,int_base+hyphen_penalty_code);@/
+primitive_tex("hyphenpenalty",assign_int,int_base+hyphen_penalty_code);@/
 @!@:hyphen_penalty_}{\.{\\hyphenpenalty} primitive@>
-primitive("exhyphenpenalty",assign_int,int_base+ex_hyphen_penalty_code);@/
+primitive_tex("exhyphenpenalty",assign_int,int_base+ex_hyphen_penalty_code);@/
 @!@:ex_hyphen_penalty_}{\.{\\exhyphenpenalty} primitive@>
-primitive("clubpenalty",assign_int,int_base+club_penalty_code);@/
+primitive_tex("clubpenalty",assign_int,int_base+club_penalty_code);@/
 @!@:club_penalty_}{\.{\\clubpenalty} primitive@>
-primitive("widowpenalty",assign_int,int_base+widow_penalty_code);@/
+primitive_tex("widowpenalty",assign_int,int_base+widow_penalty_code);@/
 @!@:widow_penalty_}{\.{\\widowpenalty} primitive@>
-primitive("displaywidowpenalty",
+primitive_tex("displaywidowpenalty",
   assign_int,int_base+display_widow_penalty_code);@/
 @!@:display_widow_penalty_}{\.{\\displaywidowpenalty} primitive@>
-primitive("brokenpenalty",assign_int,int_base+broken_penalty_code);@/
+primitive_tex("brokenpenalty",assign_int,int_base+broken_penalty_code);@/
 @!@:broken_penalty_}{\.{\\brokenpenalty} primitive@>
-primitive("binoppenalty",assign_int,int_base+bin_op_penalty_code);@/
+primitive_tex("binoppenalty",assign_int,int_base+bin_op_penalty_code);@/
 @!@:bin_op_penalty_}{\.{\\binoppenalty} primitive@>
-primitive("relpenalty",assign_int,int_base+rel_penalty_code);@/
+primitive_tex("relpenalty",assign_int,int_base+rel_penalty_code);@/
 @!@:rel_penalty_}{\.{\\relpenalty} primitive@>
-primitive("predisplaypenalty",assign_int,int_base+pre_display_penalty_code);@/
+primitive_tex("predisplaypenalty",assign_int,int_base+pre_display_penalty_code);@/
 @!@:pre_display_penalty_}{\.{\\predisplaypenalty} primitive@>
-primitive("postdisplaypenalty",assign_int,int_base+post_display_penalty_code);@/
+primitive_tex("postdisplaypenalty",assign_int,int_base+post_display_penalty_code);@/
 @!@:post_display_penalty_}{\.{\\postdisplaypenalty} primitive@>
-primitive("interlinepenalty",assign_int,int_base+inter_line_penalty_code);@/
+primitive_tex("interlinepenalty",assign_int,int_base+inter_line_penalty_code);@/
 @!@:inter_line_penalty_}{\.{\\interlinepenalty} primitive@>
-primitive("doublehyphendemerits",
+primitive_tex("doublehyphendemerits",
   assign_int,int_base+double_hyphen_demerits_code);@/
 @!@:double_hyphen_demerits_}{\.{\\doublehyphendemerits} primitive@>
-primitive("finalhyphendemerits",
+primitive_tex("finalhyphendemerits",
   assign_int,int_base+final_hyphen_demerits_code);@/
 @!@:final_hyphen_demerits_}{\.{\\finalhyphendemerits} primitive@>
-primitive("adjdemerits",assign_int,int_base+adj_demerits_code);@/
+primitive_tex("adjdemerits",assign_int,int_base+adj_demerits_code);@/
 @!@:adj_demerits_}{\.{\\adjdemerits} primitive@>
-primitive("mag",assign_int,int_base+mag_code);@/
+primitive_tex("mag",assign_int,int_base+mag_code);@/
 @!@:mag_}{\.{\\mag} primitive@>
-primitive("delimiterfactor",assign_int,int_base+delimiter_factor_code);@/
+primitive_tex("delimiterfactor",assign_int,int_base+delimiter_factor_code);@/
 @!@:delimiter_factor_}{\.{\\delimiterfactor} primitive@>
-primitive("looseness",assign_int,int_base+looseness_code);@/
+primitive_tex("looseness",assign_int,int_base+looseness_code);@/
 @!@:looseness_}{\.{\\looseness} primitive@>
-primitive("time",assign_int,int_base+time_code);@/
+primitive_tex("time",assign_int,int_base+time_code);@/
 @!@:time_}{\.{\\time} primitive@>
-primitive("day",assign_int,int_base+day_code);@/
+primitive_tex("day",assign_int,int_base+day_code);@/
 @!@:day_}{\.{\\day} primitive@>
-primitive("month",assign_int,int_base+month_code);@/
+primitive_tex("month",assign_int,int_base+month_code);@/
 @!@:month_}{\.{\\month} primitive@>
-primitive("year",assign_int,int_base+year_code);@/
+primitive_tex("year",assign_int,int_base+year_code);@/
 @!@:year_}{\.{\\year} primitive@>
-primitive("showboxbreadth",assign_int,int_base+show_box_breadth_code);@/
+primitive_tex("showboxbreadth",assign_int,int_base+show_box_breadth_code);@/
 @!@:show_box_breadth_}{\.{\\showboxbreadth} primitive@>
-primitive("showboxdepth",assign_int,int_base+show_box_depth_code);@/
+primitive_tex("showboxdepth",assign_int,int_base+show_box_depth_code);@/
 @!@:show_box_depth_}{\.{\\showboxdepth} primitive@>
-primitive("hbadness",assign_int,int_base+hbadness_code);@/
+primitive_tex("hbadness",assign_int,int_base+hbadness_code);@/
 @!@:hbadness_}{\.{\\hbadness} primitive@>
-primitive("vbadness",assign_int,int_base+vbadness_code);@/
+primitive_tex("vbadness",assign_int,int_base+vbadness_code);@/
 @!@:vbadness_}{\.{\\vbadness} primitive@>
-primitive("pausing",assign_int,int_base+pausing_code);@/
+primitive_tex("pausing",assign_int,int_base+pausing_code);@/
 @!@:pausing_}{\.{\\pausing} primitive@>
-primitive("tracingonline",assign_int,int_base+tracing_online_code);@/
+primitive_tex("tracingonline",assign_int,int_base+tracing_online_code);@/
 @!@:tracing_online_}{\.{\\tracingonline} primitive@>
-primitive("tracingmacros",assign_int,int_base+tracing_macros_code);@/
+primitive_tex("tracingmacros",assign_int,int_base+tracing_macros_code);@/
 @!@:tracing_macros_}{\.{\\tracingmacros} primitive@>
-primitive("tracingstats",assign_int,int_base+tracing_stats_code);@/
+primitive_tex("tracingstats",assign_int,int_base+tracing_stats_code);@/
 @!@:tracing_stats_}{\.{\\tracingstats} primitive@>
-primitive("tracingparagraphs",assign_int,int_base+tracing_paragraphs_code);@/
+primitive_tex("tracingparagraphs",assign_int,int_base+tracing_paragraphs_code);@/
 @!@:tracing_paragraphs_}{\.{\\tracingparagraphs} primitive@>
-primitive("tracingpages",assign_int,int_base+tracing_pages_code);@/
+primitive_tex("tracingpages",assign_int,int_base+tracing_pages_code);@/
 @!@:tracing_pages_}{\.{\\tracingpages} primitive@>
-primitive("tracingoutput",assign_int,int_base+tracing_output_code);@/
+primitive_tex("tracingoutput",assign_int,int_base+tracing_output_code);@/
 @!@:tracing_output_}{\.{\\tracingoutput} primitive@>
-primitive("tracinglostchars",assign_int,int_base+tracing_lost_chars_code);@/
+primitive_tex("tracinglostchars",assign_int,int_base+tracing_lost_chars_code);@/
 @!@:tracing_lost_chars_}{\.{\\tracinglostchars} primitive@>
-primitive("tracingcommands",assign_int,int_base+tracing_commands_code);@/
+primitive_tex("tracingcommands",assign_int,int_base+tracing_commands_code);@/
 @!@:tracing_commands_}{\.{\\tracingcommands} primitive@>
-primitive("tracingrestores",assign_int,int_base+tracing_restores_code);@/
+primitive_tex("tracingrestores",assign_int,int_base+tracing_restores_code);@/
 @!@:tracing_restores_}{\.{\\tracingrestores} primitive@>
-primitive("uchyph",assign_int,int_base+uc_hyph_code);@/
+primitive_tex("uchyph",assign_int,int_base+uc_hyph_code);@/
 @!@:uc_hyph_}{\.{\\uchyph} primitive@>
-primitive("outputpenalty",assign_int,int_base+output_penalty_code);@/
+primitive_tex("outputpenalty",assign_int,int_base+output_penalty_code);@/
 @!@:output_penalty_}{\.{\\outputpenalty} primitive@>
-primitive("maxdeadcycles",assign_int,int_base+max_dead_cycles_code);@/
+primitive_tex("maxdeadcycles",assign_int,int_base+max_dead_cycles_code);@/
 @!@:max_dead_cycles_}{\.{\\maxdeadcycles} primitive@>
-primitive("hangafter",assign_int,int_base+hang_after_code);@/
+primitive_tex("hangafter",assign_int,int_base+hang_after_code);@/
 @!@:hang_after_}{\.{\\hangafter} primitive@>
-primitive("floatingpenalty",assign_int,int_base+floating_penalty_code);@/
+primitive_tex("floatingpenalty",assign_int,int_base+floating_penalty_code);@/
 @!@:floating_penalty_}{\.{\\floatingpenalty} primitive@>
-primitive("globaldefs",assign_int,int_base+global_defs_code);@/
+primitive_tex("globaldefs",assign_int,int_base+global_defs_code);@/
 @!@:global_defs_}{\.{\\globaldefs} primitive@>
-primitive("fam",assign_int,int_base+cur_fam_code);@/
+primitive_tex("fam",assign_int,int_base+cur_fam_code);@/
 @!@:fam_}{\.{\\fam} primitive@>
-primitive("escapechar",assign_int,int_base+escape_char_code);@/
+primitive_tex("escapechar",assign_int,int_base+escape_char_code);@/
 @!@:escape_char_}{\.{\\escapechar} primitive@>
-primitive("defaulthyphenchar",assign_int,int_base+default_hyphen_char_code);@/
+primitive_tex("defaulthyphenchar",assign_int,int_base+default_hyphen_char_code);@/
 @!@:default_hyphen_char_}{\.{\\defaulthyphenchar} primitive@>
-primitive("defaultskewchar",assign_int,int_base+default_skew_char_code);@/
+primitive_tex("defaultskewchar",assign_int,int_base+default_skew_char_code);@/
 @!@:default_skew_char_}{\.{\\defaultskewchar} primitive@>
-primitive("endlinechar",assign_int,int_base+end_line_char_code);@/
+primitive_tex("endlinechar",assign_int,int_base+end_line_char_code);@/
 @!@:end_line_char_}{\.{\\endlinechar} primitive@>
-primitive("newlinechar",assign_int,int_base+new_line_char_code);@/
+primitive_tex("newlinechar",assign_int,int_base+new_line_char_code);@/
 @!@:new_line_char_}{\.{\\newlinechar} primitive@>
-primitive("language",assign_int,int_base+language_code);@/
+primitive_tex("language",assign_int,int_base+language_code);@/
 @!@:language_}{\.{\\language} primitive@>
-primitive("setlanguage",assign_int,int_base+cur_lang_code);@/
+primitive_tex("setlanguage",assign_int,int_base+cur_lang_code);@/
 @!@:cur_lang_}{\.{\\setlanguage} primitive@>
-primitive("exhyphenchar",assign_int,int_base+ex_hyphen_char_code);@/
+primitive_tex("exhyphenchar",assign_int,int_base+ex_hyphen_char_code);@/
 @!@:ex_hyphen_char_}{\.{\\exhyphenchar} primitive@>
-primitive("lefthyphenmin",assign_int,int_base+left_hyphen_min_code);@/
+primitive_tex("lefthyphenmin",assign_int,int_base+left_hyphen_min_code);@/
 @!@:left_hyphen_min_}{\.{\\lefthyphenmin} primitive@>
-primitive("righthyphenmin",assign_int,int_base+right_hyphen_min_code);@/
+primitive_tex("righthyphenmin",assign_int,int_base+right_hyphen_min_code);@/
 @!@:right_hyphen_min_}{\.{\\righthyphenmin} primitive@>
-primitive("holdinginserts",assign_int,int_base+holding_inserts_code);@/
+primitive_tex("holdinginserts",assign_int,int_base+holding_inserts_code);@/
 @!@:holding_inserts_}{\.{\\holdinginserts} primitive@>
-primitive("errorcontextlines",assign_int,int_base+error_context_lines_code);@/
+primitive_tex("errorcontextlines",assign_int,int_base+error_context_lines_code);@/
 @!@:error_context_lines_}{\.{\\errorcontextlines} primitive@>
-primitive("luastartup",assign_int,int_base+luastartup_id_code);@/
+primitive_luatex("luastartup",assign_int,int_base+luastartup_id_code);@/
 @!@:luastartup_id_}{\.{\\luastartup} primitive@>
-primitive("nokerns",assign_int,int_base+disable_kern_code);@/
+primitive_luatex("nokerns",assign_int,int_base+disable_kern_code);@/
 @!@:disable_kern_}{\.{\\noligkerns} primitive@>
-primitive("noligs",assign_int,int_base+disable_lig_code);@/
+primitive_luatex("noligs",assign_int,int_base+disable_lig_code);@/
 @!@:disable_lig_}{\.{\\noligs} primitive@>
-primitive("catcodetable",assign_int,int_base+cat_code_table_code);@/
+primitive_luatex("catcodetable",assign_int,int_base+cat_code_table_code);@/
 @!@:cat_code_table_}{\.{\\catcodetable} primitive@>
-primitive("pdfoutput",assign_int,int_base+pdf_output_code);@/
+primitive_pdftex("pdfoutput",assign_int,int_base+pdf_output_code);@/
 @!@:pdf_output_}{\.{\\pdfoutput} primitive@>
-primitive("pdfcompresslevel",assign_int,int_base+pdf_compress_level_code);@/
+primitive_pdftex("pdfcompresslevel",assign_int,int_base+pdf_compress_level_code);@/
 @!@:pdf_compress_level_}{\.{\\pdfcompresslevel} primitive@>
-primitive("pdfobjcompresslevel",assign_int,int_base+pdf_objcompresslevel_code);@/
+primitive_pdftex("pdfobjcompresslevel",assign_int,int_base+pdf_objcompresslevel_code);@/
 @!@:pdf_objcompresslevel_}{\.{\\pdfobjcompresslevel} primitive@>
-primitive("pdfdecimaldigits",assign_int,int_base+pdf_decimal_digits_code);@/
+primitive_pdftex("pdfdecimaldigits",assign_int,int_base+pdf_decimal_digits_code);@/
 @!@:pdf_decimal_digits_}{\.{\\pdfdecimaldigits} primitive@>
-primitive("pdfmovechars",assign_int,int_base+pdf_move_chars_code);@/
+primitive_pdftex("pdfmovechars",assign_int,int_base+pdf_move_chars_code);@/
 @!@:pdf_move_chars_}{\.{\\pdfmovechars} primitive@>
-primitive("pdfimageresolution",assign_int,int_base+pdf_image_resolution_code);@/
+primitive_pdftex("pdfimageresolution",assign_int,int_base+pdf_image_resolution_code);@/
 @!@:pdf_image_resolution_}{\.{\\pdfimageresolution} primitive@>
-primitive("pdfpkresolution",assign_int,int_base+pdf_pk_resolution_code);@/
+primitive_pdftex("pdfpkresolution",assign_int,int_base+pdf_pk_resolution_code);@/
 @!@:pdf_pk_resolution_}{\.{\\pdfpkresolution} primitive@>
-primitive("pdfuniqueresname",assign_int,int_base+pdf_unique_resname_code);@/
+primitive_pdftex("pdfuniqueresname",assign_int,int_base+pdf_unique_resname_code);@/
 @!@:pdf_unique_resname_}{\.{\\pdfuniqueresname} primitive@>
-primitive("pdfoptionpdfminorversion",assign_int,int_base+pdf_minor_version_code);@/
+primitive_pdftex("pdfoptionpdfminorversion",assign_int,int_base+pdf_minor_version_code);@/
 @!@:pdf_minor_version_}{\.{\\pdfoptionpdfminorversion} primitive@>
-primitive("pdfoptionalwaysusepdfpagebox",assign_int,int_base+pdf_option_always_use_pdfpagebox_code);@/
+primitive_pdftex("pdfoptionalwaysusepdfpagebox",assign_int,int_base+pdf_option_always_use_pdfpagebox_code);@/
 @!@:pdf_option_always_use_pdfpagebox_}{\.{\\pdfoptionalwaysusepdfpagebox} primitive@>
-primitive("pdfoptionpdfinclusionerrorlevel",assign_int,int_base+pdf_option_pdf_inclusion_errorlevel_code);@/
+primitive_pdftex("pdfoptionpdfinclusionerrorlevel",assign_int,int_base+pdf_option_pdf_inclusion_errorlevel_code);@/
 @!@:pdf_option_pdf_inclusion_errorlevel_}{\.{\\pdfoptionpdfinclusionerrorlevel} primitive@>
-primitive("pdfminorversion",assign_int,int_base+pdf_minor_version_code);@/
+primitive_pdftex("pdfminorversion",assign_int,int_base+pdf_minor_version_code);@/
 @!@:pdf_minor_version_}{\.{\\pdfminorversion} primitive@>
-primitive("pdfforcepagebox",assign_int,int_base+pdf_force_pagebox_code);@/
+primitive_pdftex("pdfforcepagebox",assign_int,int_base+pdf_force_pagebox_code);@/
 @!@:pdf_force_pagebox_}{\.{\\pdfforcepagebox} primitive@>
-primitive("pdfpagebox",assign_int,int_base+pdf_pagebox_code);@/
+primitive_pdftex("pdfpagebox",assign_int,int_base+pdf_pagebox_code);@/
 @!@:pdf_pagebox_}{\.{\\pdfpagebox} primitive@>
-primitive("pdfinclusionerrorlevel",assign_int,int_base+pdf_inclusion_errorlevel_code);@/
+primitive_pdftex("pdfinclusionerrorlevel",assign_int,int_base+pdf_inclusion_errorlevel_code);@/
 @!@:pdf_inclusion_errorlevel_}{\.{\\pdfinclusionerrorlevel} primitive@>
-primitive("pdfgamma",assign_int,int_base+pdf_gamma_code);@/
+primitive_pdftex("pdfgamma",assign_int,int_base+pdf_gamma_code);@/
 @!@:pdf_gamma_}{\.{\\pdfgamma} primitive@>
-primitive("pdfimagegamma",assign_int,int_base+pdf_image_gamma_code);@/
+primitive_pdftex("pdfimagegamma",assign_int,int_base+pdf_image_gamma_code);@/
 @!@:pdf_image_gamma_}{\.{\\pdfimagegamma} primitive@>
-primitive("pdfimagehicolor",assign_int,int_base+pdf_image_hicolor_code);@/
+primitive_pdftex("pdfimagehicolor",assign_int,int_base+pdf_image_hicolor_code);@/
 @!@:pdf_image_hicolor_}{\.{\\pdfimagehicolor} primitive@>
-primitive("pdfimageapplygamma",assign_int,int_base+pdf_image_apply_gamma_code);@/
+primitive_pdftex("pdfimageapplygamma",assign_int,int_base+pdf_image_apply_gamma_code);@/
 @!@:pdf_image_apply_gamma_}{\.{\\pdfimageapplygamma} primitive@>
-primitive("pdfadjustspacing",assign_int,int_base+pdf_adjust_spacing_code);@/
+primitive_pdftex("pdfadjustspacing",assign_int,int_base+pdf_adjust_spacing_code);@/
 @!@:pdf_adjust_spacing_}{\.{\\pdfadjustspacing} primitive@>
-primitive("pdfprotrudechars",assign_int,int_base+pdf_protrude_chars_code);@/
+primitive_pdftex("pdfprotrudechars",assign_int,int_base+pdf_protrude_chars_code);@/
 @!@:pdf_protrude_chars_}{\.{\\pdfprotrudechars} primitive@>
-primitive("pdftracingfonts",assign_int,int_base+pdf_tracing_fonts_code);@/
+primitive_pdftex("pdftracingfonts",assign_int,int_base+pdf_tracing_fonts_code);@/
 @!@:pdf_tracing_fonts_}{\.{\\pdftracingfonts} primitive@>
-primitive("pdfgentounicode",assign_int,int_base+pdf_gen_tounicode_code);@/
+primitive_pdftex("pdfgentounicode",assign_int,int_base+pdf_gen_tounicode_code);@/
 @!@:pdf_gen_tounicode_}{\.{\\pdfgentounicode} primitive@>
-primitive("pdfdraftmode",assign_int,int_base+pdf_draftmode_code);@/
+primitive_pdftex("pdfdraftmode",assign_int,int_base+pdf_draftmode_code);@/
 @!@:pdf_draftmode_}{\.{\\pdfdraftmode} primitive@>
-primitive("pdfinclusioncopyfonts",assign_int,int_base+pdf_inclusion_copy_font_code);@/
+primitive_pdftex("pdfinclusioncopyfonts",assign_int,int_base+pdf_inclusion_copy_font_code);@/
 @!@:pdf_inclusion_copy_font_}{\.{\\pdfinclusioncopyfonts} primitive@>
-primitive("pdfreplacefont",assign_int,int_base+pdf_replace_font_code);@/
+primitive_pdftex("pdfreplacefont",assign_int,int_base+pdf_replace_font_code);@/
 @!@:pdf_replace_font_}{\.{\\pdfreplacefont} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -6268,79 +6269,79 @@ endcases;
 end;
 
 @ @<Put each...@>=
-primitive("parindent",assign_dimen,dimen_base+par_indent_code);@/
+primitive_tex("parindent",assign_dimen,dimen_base+par_indent_code);@/
 @!@:par_indent_}{\.{\\parindent} primitive@>
-primitive("mathsurround",assign_dimen,dimen_base+math_surround_code);@/
+primitive_tex("mathsurround",assign_dimen,dimen_base+math_surround_code);@/
 @!@:math_surround_}{\.{\\mathsurround} primitive@>
-primitive("lineskiplimit",assign_dimen,dimen_base+line_skip_limit_code);@/
+primitive_tex("lineskiplimit",assign_dimen,dimen_base+line_skip_limit_code);@/
 @!@:line_skip_limit_}{\.{\\lineskiplimit} primitive@>
-primitive("hsize",assign_dimen,dimen_base+hsize_code);@/
+primitive_tex("hsize",assign_dimen,dimen_base+hsize_code);@/
 @!@:hsize_}{\.{\\hsize} primitive@>
-primitive("vsize",assign_dimen,dimen_base+vsize_code);@/
+primitive_tex("vsize",assign_dimen,dimen_base+vsize_code);@/
 @!@:vsize_}{\.{\\vsize} primitive@>
-primitive("maxdepth",assign_dimen,dimen_base+max_depth_code);@/
+primitive_tex("maxdepth",assign_dimen,dimen_base+max_depth_code);@/
 @!@:max_depth_}{\.{\\maxdepth} primitive@>
-primitive("splitmaxdepth",assign_dimen,dimen_base+split_max_depth_code);@/
+primitive_tex("splitmaxdepth",assign_dimen,dimen_base+split_max_depth_code);@/
 @!@:split_max_depth_}{\.{\\splitmaxdepth} primitive@>
-primitive("boxmaxdepth",assign_dimen,dimen_base+box_max_depth_code);@/
+primitive_tex("boxmaxdepth",assign_dimen,dimen_base+box_max_depth_code);@/
 @!@:box_max_depth_}{\.{\\boxmaxdepth} primitive@>
-primitive("hfuzz",assign_dimen,dimen_base+hfuzz_code);@/
+primitive_tex("hfuzz",assign_dimen,dimen_base+hfuzz_code);@/
 @!@:hfuzz_}{\.{\\hfuzz} primitive@>
-primitive("vfuzz",assign_dimen,dimen_base+vfuzz_code);@/
+primitive_tex("vfuzz",assign_dimen,dimen_base+vfuzz_code);@/
 @!@:vfuzz_}{\.{\\vfuzz} primitive@>
-primitive("delimitershortfall",
+primitive_tex("delimitershortfall",
   assign_dimen,dimen_base+delimiter_shortfall_code);@/
 @!@:delimiter_shortfall_}{\.{\\delimitershortfall} primitive@>
-primitive("nulldelimiterspace",
+primitive_tex("nulldelimiterspace",
   assign_dimen,dimen_base+null_delimiter_space_code);@/
 @!@:null_delimiter_space_}{\.{\\nulldelimiterspace} primitive@>
-primitive("scriptspace",assign_dimen,dimen_base+script_space_code);@/
+primitive_tex("scriptspace",assign_dimen,dimen_base+script_space_code);@/
 @!@:script_space_}{\.{\\scriptspace} primitive@>
-primitive("predisplaysize",assign_dimen,dimen_base+pre_display_size_code);@/
+primitive_tex("predisplaysize",assign_dimen,dimen_base+pre_display_size_code);@/
 @!@:pre_display_size_}{\.{\\predisplaysize} primitive@>
-primitive("displaywidth",assign_dimen,dimen_base+display_width_code);@/
+primitive_tex("displaywidth",assign_dimen,dimen_base+display_width_code);@/
 @!@:display_width_}{\.{\\displaywidth} primitive@>
-primitive("displayindent",assign_dimen,dimen_base+display_indent_code);@/
+primitive_tex("displayindent",assign_dimen,dimen_base+display_indent_code);@/
 @!@:display_indent_}{\.{\\displayindent} primitive@>
-primitive("overfullrule",assign_dimen,dimen_base+overfull_rule_code);@/
+primitive_tex("overfullrule",assign_dimen,dimen_base+overfull_rule_code);@/
 @!@:overfull_rule_}{\.{\\overfullrule} primitive@>
-primitive("hangindent",assign_dimen,dimen_base+hang_indent_code);@/
+primitive_tex("hangindent",assign_dimen,dimen_base+hang_indent_code);@/
 @!@:hang_indent_}{\.{\\hangindent} primitive@>
-primitive("hoffset",assign_dimen,dimen_base+h_offset_code);@/
+primitive_tex("hoffset",assign_dimen,dimen_base+h_offset_code);@/
 @!@:h_offset_}{\.{\\hoffset} primitive@>
-primitive("voffset",assign_dimen,dimen_base+v_offset_code);@/
+primitive_tex("voffset",assign_dimen,dimen_base+v_offset_code);@/
 @!@:v_offset_}{\.{\\voffset} primitive@>
-primitive("emergencystretch",assign_dimen,dimen_base+emergency_stretch_code);@/
+primitive_tex("emergencystretch",assign_dimen,dimen_base+emergency_stretch_code);@/
 @!@:emergency_stretch_}{\.{\\emergencystretch} primitive@>
-primitive("pdfhorigin",assign_dimen,dimen_base+pdf_h_origin_code);@/
+primitive_pdftex("pdfhorigin",assign_dimen,dimen_base+pdf_h_origin_code);@/
 @!@:pdf_h_origin_}{\.{\\pdfhorigin} primitive@>
-primitive("pdfvorigin",assign_dimen,dimen_base+pdf_v_origin_code);@/
+primitive_pdftex("pdfvorigin",assign_dimen,dimen_base+pdf_v_origin_code);@/
 @!@:pdf_v_origin_}{\.{\\pdfvorigin} primitive@>
 @#
-primitive("pagewidth",assign_dimen,dimen_base+page_width_code);@/
-primitive("pdfpagewidth",assign_dimen,dimen_base+page_width_code);@/
+primitive_omega("pagewidth",assign_dimen,dimen_base+page_width_code);@/
+primitive_pdftex("pdfpagewidth",assign_dimen,dimen_base+page_width_code);@/
 @!@:page_width_}{\.{\\pdfpagewidth} primitive@>
-primitive("pageheight",assign_dimen,dimen_base+page_height_code);@/
-primitive("pdfpageheight",assign_dimen,dimen_base+page_height_code);@/
+primitive_omega("pageheight",assign_dimen,dimen_base+page_height_code);@/
+primitive_pdftex("pdfpageheight",assign_dimen,dimen_base+page_height_code);@/
 @!@:page_height_}{\.{\\pdfpageheight} primitive@>
 @#
-primitive("pdflinkmargin",assign_dimen,dimen_base+pdf_link_margin_code);@/
+primitive_pdftex("pdflinkmargin",assign_dimen,dimen_base+pdf_link_margin_code);@/
 @!@:pdf_link_margin_}{\.{\\pdflinkmargin} primitive@>
-primitive("pdfdestmargin",assign_dimen,dimen_base+pdf_dest_margin_code);@/
+primitive_pdftex("pdfdestmargin",assign_dimen,dimen_base+pdf_dest_margin_code);@/
 @!@:pdf_dest_margin_}{\.{\\pdfdestmargin} primitive@>
-primitive("pdfthreadmargin",assign_dimen,dimen_base+pdf_thread_margin_code);@/
+primitive_pdftex("pdfthreadmargin",assign_dimen,dimen_base+pdf_thread_margin_code);@/
 @!@:pdf_thread_margin_}{\.{\\pdfthreadmargin} primitive@>
-primitive("pdffirstlineheight",assign_dimen,dimen_base+pdf_first_line_height_code);@/
+primitive_pdftex("pdffirstlineheight",assign_dimen,dimen_base+pdf_first_line_height_code);@/
 @!@:pdf_first_line_height_}{\.{\\pdffirstlineheight} primitive@>
-primitive("pdflastlinedepth",assign_dimen,dimen_base+pdf_last_line_depth_code);@/
+primitive_pdftex("pdflastlinedepth",assign_dimen,dimen_base+pdf_last_line_depth_code);@/
 @!@:pdf_last_line_depth_}{\.{\\pdflastlinedepth} primitive@>
-primitive("pdfeachlineheight",assign_dimen,dimen_base+pdf_each_line_height_code);@/
+primitive_pdftex("pdfeachlineheight",assign_dimen,dimen_base+pdf_each_line_height_code);@/
 @!@:pdf_each_line_height_}{\.{\\pdfeachlineheight} primitive@>
-primitive("pdfeachlinedepth",assign_dimen,dimen_base+pdf_each_line_depth_code);@/
+primitive_pdftex("pdfeachlinedepth",assign_dimen,dimen_base+pdf_each_line_depth_code);@/
 @!@:pdf_each_line_depth_}{\.{\\pdfeachlinedepth} primitive@>
-primitive("pdfignoreddimen",assign_dimen,dimen_base+pdf_ignored_dimen_code);@/
+primitive_pdftex("pdfignoreddimen",assign_dimen,dimen_base+pdf_ignored_dimen_code);@/
 @!@:pdf_ignored_dimen_}{\.{\\pdfignoreddimen} primitive@>
-primitive("pdfpxdimen",assign_dimen,dimen_base+pdf_px_dimen_code);@/
+primitive_pdftex("pdfpxdimen",assign_dimen,dimen_base+pdf_px_dimen_code);@/
 @!@:pdf_px_dimen_}{\.{\\pdfpxdimen} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -6438,43 +6439,10 @@ A global boolean variable called |no_new_control_sequence| is set to
 @!no_new_control_sequence:boolean; {are new identifiers legal?}
 @!cs_count:integer; {total number of known identifiers}
 
-@ Primitive support needs a few extra variables and definitions
-
-@d prim_size=2100 {maximum number of primitives }
-@d prim_prime=1777 {about 85\pct! of |primitive_size|}
-@d prim_base=1
-@d prim_next(#) == prim[#].lh {link for coalesced lists}
-@d prim_text(#) == prim[#].rh {string number for control sequence name}
-@d prim_is_full == (prim_used=prim_base) {test if all positions are occupied}
-@d prim_eq_level_field(#)==#.hh.b1
-@d prim_eq_type_field(#)==#.hh.b0
-@d prim_equiv_field(#)==#.hh.rh
-@d prim_eq_level(#)==prim_eq_level_field(prim_eqtb[#]) {level of definition}
-@d prim_eq_type(#)==prim_eq_type_field(prim_eqtb[#]) {command code for equivalent}
-@d prim_equiv(#)==prim_equiv_field(prim_eqtb[#]) {equivalent value}
-@d undefined_primitive=0
-
-@<Glob...@>=
-@!prim: array [0..prim_size] of two_halves;  {the primitives table}
-@!prim_used:pointer; {allocation pointer for |prim|}
-@!prim_eqtb:array[0..prim_size] of memory_word;
-
 @ The extra set of functions make sure we can query the
 primitive meanings of thing s from C code
 
 @p 
-function get_prim_eq_level(p:integer):quarterword;
-begin
-  get_prim_eq_level := prim_eq_level(p);
-end;
-function get_prim_eq_type(p:integer):quarterword;
-begin
-  get_prim_eq_type := prim_eq_type(p);
-end;
-function get_prim_equiv(p:integer):halfword;
-begin
-  get_prim_equiv := prim_equiv(p);
-end;
 function get_eq_type(p:integer):quarterword;
 begin
   get_eq_type := eq_type(p);
@@ -6547,17 +6515,12 @@ end;
 
 @ @<Set init...@>=
 no_new_control_sequence:=true; {new identifiers are usually forbidden}
-prim_next(0):=0; prim_text(0):=0;
-for k:=1 to prim_size do prim[k]:=prim[0];
-prim_eq_level(0) := level_zero;
-prim_eq_type(0) := undefined_cs;
-prim_equiv(0) := null;
-for k:=1 to prim_size do prim_eqtb[k]:=prim_eqtb[0];
+init_primitives;
 next(hash_base):=0; text(hash_base):=0;
 for k:=hash_base+1 to undefined_control_sequence-1 do hash[k]:=hash[hash_base];
 
 @ @<Initialize table entries...@>=
-prim_used:=prim_size; {nothing is used}
+ini_init_primitives;
 hash_used:=frozen_control_sequence; {nothing is used}
 cs_count:=0;
 eq_type(frozen_dont_expand):=dont_expand;
@@ -6568,194 +6531,6 @@ eq_type(frozen_primitive):=ignore_spaces;
 equiv(frozen_primitive):=1;
 eq_level(frozen_primitive):=level_one;
 text(frozen_primitive):="primitive";
-
-@ Here is the subroutine that searches the hash table for an identifier
-that matches a given string of length |l>1| appearing in |buffer[j..
-(j+l-1)]|. If the identifier is found, the corresponding hash table address
-is returned. Otherwise, if the global variable |no_new_control_sequence|
-is |true|, the dummy address |undefined_control_sequence| is returned.
-Otherwise the identifier is inserted into the hash table and its location
-is returned.
-
-@p function id_lookup(@!j,@!l:integer):pointer; {search the hash table}
-label found; {go here if you found it}
-var h:integer; {hash code}
-@!d:integer; {number of characters in incomplete current string}
-@!p:pointer; {index in |hash| array}
-@!k:pointer; {index in |buffer| array}
-begin @<Compute the hash code |h|@>;
-p:=h+hash_base; {we start searching here; note that |0<=h<hash_prime|}
-loop@+begin if text(p)>0 then if length(text(p))=l then
-  if str_eq_buf(text(p),j) then goto found;
-  if next(p)=0 then
-    begin if no_new_control_sequence then
-      p:=undefined_control_sequence
-    else @<Insert a new control sequence after |p|, then make
-      |p| point to it@>;
-    goto found;
-    end;
-  p:=next(p);
-  end;
-found: id_lookup:=p;
-end;
-
-@ @<Insert a new control...@>=
-begin if text(p)>0 then
-  begin repeat if hash_is_full then overflow("hash size",hash_size);
-@:TeX capacity exceeded hash size}{\quad hash size@>
-  decr(hash_used);
-  until text(hash_used)=0; {search for an empty location in |hash|}
-  next(p):=hash_used; p:=hash_used;
-  end;
-str_room(l); d:=cur_length;
-while pool_ptr>str_start_macro(str_ptr) do
-  begin decr(pool_ptr); str_pool[pool_ptr+l]:=str_pool[pool_ptr];
-  end; {move current string up to make room for another}
-for k:=j to j+l-1 do append_char(buffer[k]);
-text(p):=make_string; pool_ptr:=pool_ptr+d; 
-@!stat incr(cs_count);@+tats@;@/
-end
-
-@ The value of |hash_prime| should be roughly 85\pct! of |hash_size|, and it
-should be a prime number.  The theory of hashing tells us to expect fewer
-than two table probes, on the average, when the search is successful.
-[See J.~S. Vitter, {\sl Journal of the ACM\/ \bf30} (1983), 231--258.]
-@^Vitter, Jeffrey Scott@>
-
-@<Compute the hash code |h|@>=
-h:=buffer[j];
-for k:=j+1 to j+l-1 do
-  begin h:=h+h+buffer[k];
-  while h>=hash_prime do h:=h-hash_prime;
-  end
-
-@ Here is the subroutine that searches the primitive table for an identifier
-
-@p function prim_lookup(@!s:str_number):pointer; {search the primitives table}
-label found; {go here if you found it}
-var h:integer; {hash code}
-@!p:pointer; {index in |hash| array}
-@!k:pointer; {index in string pool}
-@!the_hash_prime:halfword;
-@!j,@!l:integer;
-begin
-the_hash_prime:= prim_prime;
-if s<string_offset then begin
-  p := s;
-  if (p<0) or (get_prim_eq_level(p)<>level_one) then
-    p := undefined_primitive;
-end
-else begin
-  j:=str_start_macro(s);
-  if s = str_ptr then l := cur_length else l := length(s);
-  @<Compute the string hash code |h|@>;
-  p:=h+prim_base; {we start searching here; note that |0<=h<hash_prime|}
-  loop@+begin if prim_text(p)>0 then if length(prim_text(p))=l then
-    if str_eq_str(prim_text(p),s) then goto found;
-    if prim_next(p)=0 then
-      begin if no_new_control_sequence then
-        p:=undefined_primitive
-      else @<Insert a new primitive after |p|, then make
-        |p| point to it@>;
-      goto found;
-      end;
-    p:=prim_next(p);
-    end;
-  end;
-found: prim_lookup:=p;
-end;
-
-function string_lookup(@!s:str_number):pointer; {search the primitives table}
-label found; {go here if you found it}
-var h:integer; {hash code}
-@!d:integer; {number of characters in incomplete current string}
-@!p:pointer; {index in |hash| array}
-@!k:pointer; {index in string pool}
-@!the_hash_prime: halfword;
-@!j,@!l:integer;
-begin
-the_hash_prime := hash_prime;
-if s<string_offset then begin
-  p := s;
-  if (p<0) or (eq_level(p)<>level_one) then
-    if no_new_control_sequence then
-       p:=undefined_control_sequence
-    else begin
-       if s<=@"7F        then l:=1 else if s<=@"7FF then l:=2
-       else if s<=@"FFFF then l:=3 else l:=4;
-       @<Insert a control sequence after |p|, |p| point to it@>;
-    end;
-end
-else begin
-  j:=str_start_macro(s);
-  if s = str_ptr then l := cur_length else l := length(s);
-  @<Compute the string hash code |h|@>;
-  p:=h+hash_base; {we start searching here; note that |0<=h<hash_prime|}
-  loop@+begin if text(p)>0 then if length(text(p))=l then
-    if str_eq_str(text(p),s) then goto found;
-    if next(p)=0 then
-      begin 
-        if no_new_control_sequence then
-           p:=undefined_control_sequence
-        else 
-           @<Insert a control sequence after |p|, |p| point to it@>;
-        goto found;
-      end;
-    p:=next(p);
-    end;
-  end;
-found: string_lookup:=p;
-end;
-
-function is_primitive(csname:str_number):boolean;
-  var n,m:integer;
-begin
-  m := prim_lookup(csname);
-  n := string_lookup(csname);
-  is_primitive :=((n<>undefined_cs) and
-       (m<>undefined_primitive) and
-       (eq_type(n)=get_prim_eq_type(m)) and
-       (equiv(n)=get_prim_equiv(m)));
-end;
-
-@ @<Insert a control...@>=
-begin if text(p)>0 then
-  begin repeat if hash_is_full then overflow("hash size",hash_size);
-@:TeX capacity exceeded hash size}{\quad hash size@>
-  decr(hash_used);
-  until text(hash_used)=0; {search for an empty location in |hash|}
-  next(p):=hash_used; p:=hash_used;
-  end;
-str_room(l); d:=cur_length; j:=str_start_macro(s);
-while pool_ptr>str_start_macro(str_ptr) do
-  begin decr(pool_ptr); str_pool[pool_ptr+l]:=str_pool[pool_ptr];
-  end; {move current string up to make room for another}
-for k:=j to j+l-1 do append_char(str_pool[k]);
-text(p):=make_string; pool_ptr:=pool_ptr+d; 
-@!stat incr(cs_count);@+tats@;@/
-end
-
-
-@ @<Insert a new primitive...@>=
-begin if prim_text(p)>0 then
-  begin repeat if prim_is_full then overflow("primitive size",prim_size);
-@:TeX capacity exceeded primitive size}{\quad primitive size@>
-  decr(prim_used);
-  until prim_text(prim_used)=0; {search for an empty location in |prim|}
-  prim_next(p):=prim_used; p:=prim_used;
-  end;
-prim_text(p):=s;
-end
-
-@ The value of |prim_prime| should be roughly 85\pct! of
-|prim_size|, and it should be a prime number.
-
-@<Compute the string hash code |h|@>=
-h:=str_pool[j];
-for k:=j+1 to j+l-1 do
-  begin h:=h+h+str_pool[k];
-  while h>=the_hash_prime do h:=h-the_hash_prime;
-  end
 
 
 @ The procedure |print_cs| prints the name of a control sequence, given
@@ -6821,173 +6596,139 @@ else begin
   end;
 end;
 
-@ We need to put \TeX's ``primitive'' control sequences into the hash
-table, together with their command code (which will be the |eq_type|)
-and an operand (which will be the |equiv|). The |primitive| procedure
-does this, in a way that no \TeX\ user can. The global value |cur_val|
-contains the new |eqtb| pointer after |primitive| has acted.
-
-@p @!init procedure primitive(@!ss:str_number;@!c:quarterword;@!o:halfword);
-var k:pool_pointer; {index into |str_pool|}
-@!s:str_number; {actual |str_number| used }
-@!j:0..buf_size; {index into |buffer|}
-@!l:small_number; {length of the string}
-@!prim_val:integer; {needed to fill |prim_eqtb|}
-begin if ss<number_chars then begin
-  if ss>127 then confusion("prim"); { should be ASCII }
-  append_char(ss); 
-  s:=make_string;
-  end
-else
-  s:=ss;
-k:=str_start_macro(s); l:=str_start_macro(s+1)-k;
-    {we will move |s| into the (possibly non-empty) |buffer|}
-if first+l>buf_size+1 then
-  check_buffer_overflow(first+l);
-@:TeX capacity exceeded buffer size}{\quad buffer size@>
-for j:=0 to l-1 do buffer[first+j]:=so(str_pool[k+j]);
-cur_val:=id_lookup(first,l); {|no_new_control_sequence| is |false|}
-flush_string; text(cur_val):=s; {we don't want to have the string twice}
-prim_val:=prim_lookup(s);
-eq_level(cur_val):=level_one; eq_type(cur_val):=c; equiv(cur_val):=o;
-prim_eq_level(prim_val) := level_one;
-prim_eq_type(prim_val) := c;
-prim_equiv(prim_val) := o;
-end;
-tini
 
 @ Many of \TeX's primitives need no |equiv|, since they are identifiable
 by their |eq_type| alone. These primitives are loaded into the hash table
 as follows:
 
 @<Put each of \TeX's primitives into the hash table@>=
-primitive(" ",ex_space,0);@/
+primitive_tex(" ",ex_space,0);@/
 @!@:Single-character primitives /}{\quad\.{\\\ }@>
-primitive("/",ital_corr,0);@/
+primitive_tex("/",ital_corr,0);@/
 @!@:Single-character primitives /}{\quad\.{\\/}@>
-primitive("accent",accent,0);@/
+primitive_tex("accent",accent,0);@/
 @!@:accent_}{\.{\\accent} primitive@>
-primitive("advance",advance,0);@/
+primitive_tex("advance",advance,0);@/
 @!@:advance_}{\.{\\advance} primitive@>
-primitive("afterassignment",after_assignment,0);@/
+primitive_tex("afterassignment",after_assignment,0);@/
 @!@:after_assignment_}{\.{\\afterassignment} primitive@>
-primitive("aftergroup",after_group,0);@/
+primitive_tex("aftergroup",after_group,0);@/
 @!@:after_group_}{\.{\\aftergroup} primitive@>
-primitive("begingroup",begin_group,0);@/
+primitive_tex("begingroup",begin_group,0);@/
 @!@:begin_group_}{\.{\\begingroup} primitive@>
-primitive("char",char_num,0);@/
+primitive_tex("char",char_num,0);@/
 @!@:char_}{\.{\\char} primitive@>
-primitive("csname",cs_name,0);@/
+primitive_tex("csname",cs_name,0);@/
 @!@:cs_name_}{\.{\\csname} primitive@>
-primitive("delimiter",delim_num,0);@/
+primitive_tex("delimiter",delim_num,0);@/
 @!@:delimiter_}{\.{\\delimiter} primitive@>
-primitive("odelimiter",delim_num,1);@/
+primitive_omega("odelimiter",delim_num,1);@/
 @!@:odelimiter_}{\.{\\odelimiter} primitive@>
-primitive("Udelimiter",delim_num,2);@/
+primitive_luatex("Udelimiter",delim_num,2);@/
 @!@:odelimiter_}{\.{\\Udelimiter} primitive@>
-primitive("divide",divide,0);@/
+primitive_tex("divide",divide,0);@/
 @!@:divide_}{\.{\\divide} primitive@>
-primitive("endcsname",end_cs_name,0);@/
+primitive_tex("endcsname",end_cs_name,0);@/
 @!@:end_cs_name_}{\.{\\endcsname} primitive@>
-primitive("endgroup",end_group,0);
+primitive_tex("endgroup",end_group,0);
 @!@:end_group_}{\.{\\endgroup} primitive@>
 text(frozen_end_group):="endgroup"; eqtb[frozen_end_group]:=eqtb[cur_val];@/
-primitive("expandafter",expand_after,0);@/
+primitive_tex("expandafter",expand_after,0);@/
 @!@:expand_after_}{\.{\\expandafter} primitive@>
-primitive("font",def_font,0);@/
+primitive_tex("font",def_font,0);@/
 @!@:font_}{\.{\\font} primitive@>
-primitive("letterspacefont",letterspace_font,0);@/
+primitive_pdftex("letterspacefont",letterspace_font,0);@/
 @!@:letterspace_font_}{\.{\\letterspacefont} primitive@>
-primitive("pdfcopyfont",pdf_copy_font,0);@/
+primitive_pdftex("pdfcopyfont",pdf_copy_font,0);@/
 @!@:pdf_copy_font_}{\.{\\pdfcopyfont} primitive@>
-primitive("fontdimen",assign_font_dimen,0);@/
+primitive_tex("fontdimen",assign_font_dimen,0);@/
 @!@:font_dimen_}{\.{\\fontdimen} primitive@>
-primitive("halign",halign,0);@/
+primitive_tex("halign",halign,0);@/
 @!@:halign_}{\.{\\halign} primitive@>
-primitive("hrule",hrule,0);@/
+primitive_tex("hrule",hrule,0);@/
 @!@:hrule_}{\.{\\hrule} primitive@>
-primitive("ignorespaces",ignore_spaces,0);@/
+primitive_tex("ignorespaces",ignore_spaces,0);@/
 @!@:ignore_spaces_}{\.{\\ignorespaces} primitive@>
-primitive("insert",insert,0);@/
+primitive_tex("insert",insert,0);@/
 @!@:insert_}{\.{\\insert} primitive@>
-primitive("leftghost",char_ghost,0);@/
+primitive_omega("leftghost",char_ghost,0);@/
 @!@:leftghost_}{\.{\\leftghost} primitive@>
-primitive("mark",mark,0);@/
+primitive_tex("mark",mark,0);@/
 @!@:mark_}{\.{\\mark} primitive@>
-primitive("mathaccent",math_accent,0);@/
+primitive_tex("mathaccent",math_accent,0);@/
 @!@:math_accent_}{\.{\\mathaccent} primitive@>
-primitive("omathaccent",math_accent,1);@/
+primitive_omega("omathaccent",math_accent,1);@/
 @!@:math_accent_}{\.{\\omathaccent} primitive@>
-primitive("Umathaccent",math_accent,2);@/
+primitive_luatex("Umathaccent",math_accent,2);@/
 @!@:math_accent_}{\.{\\Umathaccent} primitive@>
-primitive("Umathbotaccent",math_accent,3);@/
+primitive_luatex("Umathbotaccent",math_accent,3);@/
 @!@:math_accent_}{\.{\\Umathbotaccent} primitive@>
-primitive("Umathaccents",math_accent,4);@/
+primitive_luatex("Umathaccents",math_accent,4);@/
 @!@:math_accent_}{\.{\\Umathaccents} primitive@>
-primitive("mathchar",math_char_num,0);@/
+primitive_tex("mathchar",math_char_num,0);@/
 @!@:math_char_}{\.{\\mathchar} primitive@>
-primitive("omathchar",math_char_num,1);@/
+primitive_omega("omathchar",math_char_num,1);@/
 @!@:math_char_}{\.{\\omathchar} primitive@>
-primitive("Umathchar",math_char_num,2);@/
+primitive_luatex("Umathchar",math_char_num,2);@/
 @!@:math_char_}{\.{\\Umathchar} primitive@>
-primitive("Umathcharnum",math_char_num,3);@/
+primitive_luatex("Umathcharnum",math_char_num,3);@/
 @!@:math_char_}{\.{\\Umathcharnum} primitive@>
-primitive("mathchoice",math_choice,0);@/
+primitive_tex("mathchoice",math_choice,0);@/
 @!@:math_choice_}{\.{\\mathchoice} primitive@>
-primitive("multiply",multiply,0);@/
+primitive_tex("multiply",multiply,0);@/
 @!@:multiply_}{\.{\\multiply} primitive@>
-primitive("noalign",no_align,0);@/
+primitive_tex("noalign",no_align,0);@/
 @!@:no_align_}{\.{\\noalign} primitive@>
-primitive("noboundary",no_boundary,0);@/
+primitive_tex("noboundary",no_boundary,0);@/
 @!@:no_boundary_}{\.{\\noboundary} primitive@>
-primitive("noexpand",no_expand,0);@/
+primitive_tex("noexpand",no_expand,0);@/
 @!@:no_expand_}{\.{\\noexpand} primitive@>
-primitive("primitive",no_expand,1);@/
+primitive_luatex("primitive",no_expand,1);@/
 @!@:primitive_}{\.{\\primitive} primitive@>
-primitive("pdfprimitive",no_expand,1);@/
+primitive_pdftex("pdfprimitive",no_expand,1);@/
 @!@:pdfprimitive_}{\.{\\pdfprimitive} primitive@>
-primitive("nonscript",non_script,0);@/
+primitive_tex("nonscript",non_script,0);@/
 @!@:non_script_}{\.{\\nonscript} primitive@>
-primitive("omit",omit,0);@/
+primitive_tex("omit",omit,0);@/
 @!@:omit_}{\.{\\omit} primitive@>
-primitive("parshape",set_shape,par_shape_loc);@/
+primitive_tex("parshape",set_shape,par_shape_loc);@/
 @!@:par_shape_}{\.{\\parshape} primitive@>
-primitive("penalty",break_penalty,0);@/
+primitive_tex("penalty",break_penalty,0);@/
 @!@:penalty_}{\.{\\penalty} primitive@>
-primitive("prevgraf",set_prev_graf,0);@/
+primitive_tex("prevgraf",set_prev_graf,0);@/
 @!@:prev_graf_}{\.{\\prevgraf} primitive@>
-primitive("radical",radical,0);@/
+primitive_tex("radical",radical,0);@/
 @!@:radical_}{\.{\\radical} primitive@>
-primitive("oradical",radical,1);@/
+primitive_omega("oradical",radical,1);@/
 @!@:radical_}{\.{\\oradical} primitive@>
-primitive("Uradical",radical,2);@/
+primitive_luatex("Uradical",radical,2);@/
 @!@:radical_}{\.{\\Uradical} primitive@>
-primitive("Uroot",radical,3);@/
+primitive_luatex("Uroot",radical,3);@/
 @!@:radical_}{\.{\\Uroot} primitive@>
-primitive("Uunderdelimiter",radical,4);@/
+primitive_luatex("Uunderdelimiter",radical,4);@/
 @!@:radical_}{\.{\\Uunderdelimiter} primitive@>
-primitive("Uoverdelimiter",radical,5);@/
+primitive_luatex("Uoverdelimiter",radical,5);@/
 @!@:radical_}{\.{\\Uoverdelimiter} primitive@>
-primitive("read",read_to_cs,0);@/
+primitive_tex("read",read_to_cs,0);@/
 @!@:read_}{\.{\\read} primitive@>
-primitive("relax",relax,too_big_char);
+primitive_tex("relax",relax,too_big_char);
 @!@:relax_}{\.{\\relax} primitive@>
 text(frozen_relax):="relax"; eqtb[frozen_relax]:=eqtb[cur_val];@/
-primitive("rightghost",char_ghost,1);@/
+primitive_omega("rightghost",char_ghost,1);@/
 @!@:rightghost_}{\.{\\rightghost} primitive@>
-primitive("setbox",set_box,0);@/
+primitive_tex("setbox",set_box,0);@/
 @!@:set_box_}{\.{\\setbox} primitive@>
-primitive("the",the,0);@/
+primitive_tex("the",the,0);@/
 @!@:the_}{\.{\\the} primitive@>
-primitive("toks",toks_register,0);@/
+primitive_tex("toks",toks_register,0);@/
 @!@:toks_}{\.{\\toks} primitive@>
-primitive("vadjust",vadjust,0);@/
+primitive_tex("vadjust",vadjust,0);@/
 @!@:vadjust_}{\.{\\vadjust} primitive@>
-primitive("valign",valign,0);@/
+primitive_tex("valign",valign,0);@/
 @!@:valign_}{\.{\\valign} primitive@>
-primitive("vcenter",vcenter,0);@/
+primitive_tex("vcenter",vcenter,0);@/
 @!@:vcenter_}{\.{\\vcenter} primitive@>
-primitive("vrule",vrule,0);@/
+primitive_tex("vrule",vrule,0);@/
 @!@:vrule_}{\.{\\vrule} primitive@>
 
 @ Each primitive has a corresponding inverse, so that it is possible to
@@ -8508,7 +8249,7 @@ when detecting a blank line.
 @!par_token:halfword; {token representing `\.{\\par}'}
 
 @ @<Put each...@>=
-primitive("par",par_end,too_big_char); {cf.\ |scan_file_name|}
+primitive_tex("par",par_end,too_big_char); {cf.\ |scan_file_name|}
 @!@:par_}{\.{\\par} primitive@>
 par_loc:=cur_val; par_token:=cs_token_flag+par_loc;
 
@@ -8846,9 +8587,9 @@ end
 which will be declared later; the processing of \.{\\endinput} is trivial.
 
 @<Put each...@>=
-primitive("input",input,0);@/
+primitive_tex("input",input,0);@/
 @!@:input_}{\.{\\input} primitive@>
-primitive("endinput",input,1);@/
+primitive_tex("endinput",input,1);@/
 @!@:end_input_}{\.{\\endinput} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -8974,29 +8715,29 @@ for i:=0 to biggest_mark do begin
 end;
 
 @ @<Put each...@>=
-primitive("topmark",top_bot_mark,top_mark_code);
+primitive_tex("topmark",top_bot_mark,top_mark_code);
 @!@:top_mark_}{\.{\\topmark} primitive@>
-primitive("firstmark",top_bot_mark,first_mark_code);
+primitive_tex("firstmark",top_bot_mark,first_mark_code);
 @!@:first_mark_}{\.{\\firstmark} primitive@>
-primitive("botmark",top_bot_mark,bot_mark_code);
+primitive_tex("botmark",top_bot_mark,bot_mark_code);
 @!@:bot_mark_}{\.{\\botmark} primitive@>
-primitive("splitfirstmark",top_bot_mark,split_first_mark_code);
+primitive_tex("splitfirstmark",top_bot_mark,split_first_mark_code);
 @!@:split_first_mark_}{\.{\\splitfirstmark} primitive@>
-primitive("splitbotmark",top_bot_mark,split_bot_mark_code);
+primitive_tex("splitbotmark",top_bot_mark,split_bot_mark_code);
 @!@:split_bot_mark_}{\.{\\splitbotmark} primitive@>
-primitive("clearmarks",mark,clear_marks_code);@/
+primitive_luatex("clearmarks",mark,clear_marks_code);@/
 @!@:clearmarks_}{\.{\\clearmarks} primitive@>
-primitive("marks",mark,marks_code);
+primitive_etex("marks",mark,marks_code);
 @!@:marks_}{\.{\\marks} primitive@>
-primitive("topmarks",top_bot_mark,top_mark_code+marks_code);
+primitive_etex("topmarks",top_bot_mark,top_mark_code+marks_code);
 @!@:top_marks_}{\.{\\topmarks} primitive@>
-primitive("firstmarks",top_bot_mark,first_mark_code+marks_code);
+primitive_etex("firstmarks",top_bot_mark,first_mark_code+marks_code);
 @!@:first_marks_}{\.{\\firstmarks} primitive@>
-primitive("botmarks",top_bot_mark,bot_mark_code+marks_code);
+primitive_etex("botmarks",top_bot_mark,bot_mark_code+marks_code);
 @!@:bot_marks_}{\.{\\botmarks} primitive@>
-primitive("splitfirstmarks",top_bot_mark,split_first_mark_code+marks_code);
+primitive_etex("splitfirstmarks",top_bot_mark,split_first_mark_code+marks_code);
 @!@:split_first_marks_}{\.{\\splitfirstmarks} primitive@>
-primitive("splitbotmarks",top_bot_mark,split_bot_mark_code+marks_code);
+primitive_etex("splitbotmarks",top_bot_mark,split_bot_mark_code+marks_code);
 @!@:split_bot_marks_}{\.{\\splitbotmarks} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -9493,15 +9234,15 @@ as their command code; they are distinguished by the |chr_code|, which
 is either |int_val|, |attr_val|, |dimen_val|, |glue_val|, or |mu_val|.
 
 @<Put each...@>=
-primitive("count",register,int_val);
+primitive_tex("count",register,int_val);
 @!@:count_}{\.{\\count} primitive@>
-primitive("attribute",register,attr_val);
+primitive_luatex("attribute",register,attr_val);
 @!@:count_}{\.{\\attribute} primitive@>
-primitive("dimen",register,dimen_val);
+primitive_tex("dimen",register,dimen_val);
 @!@:dimen_}{\.{\\dimen} primitive@>
-primitive("skip",register,glue_val);
+primitive_tex("skip",register,glue_val);
 @!@:skip_}{\.{\\skip} primitive@>
-primitive("muskip",register,mu_val);
+primitive_tex("muskip",register,mu_val);
 
 @ @<Cases of |print_cmd_chr|...@>=
 register: if chr_code=int_val then print_esc("count")
@@ -9736,55 +9477,55 @@ the codes for its extensions: |eTeX_version_code|, \dots\ .
 @d eTeX_expr=eTeX_mu+1 {first of \eTeX\ codes for expressions}
 
 @<Put each...@>=
-primitive("spacefactor",set_aux,hmode);
+primitive_tex("spacefactor",set_aux,hmode);
 @!@:space_factor_}{\.{\\spacefactor} primitive@>
-primitive("prevdepth",set_aux,vmode);@/
+primitive_tex("prevdepth",set_aux,vmode);@/
 @!@:prev_depth_}{\.{\\prevdepth} primitive@>
-primitive("deadcycles",set_page_int,0);
+primitive_tex("deadcycles",set_page_int,0);
 @!@:dead_cycles_}{\.{\\deadcycles} primitive@>
-primitive("insertpenalties",set_page_int,1);
+primitive_tex("insertpenalties",set_page_int,1);
 @!@:insert_penalties_}{\.{\\insertpenalties} primitive@>
-primitive("wd",set_box_dimen,width_offset);
+primitive_tex("wd",set_box_dimen,width_offset);
 @!@:wd_}{\.{\\wd} primitive@>
-primitive("ht",set_box_dimen,height_offset);
+primitive_tex("ht",set_box_dimen,height_offset);
 @!@:ht_}{\.{\\ht} primitive@>
-primitive("dp",set_box_dimen,depth_offset);
+primitive_tex("dp",set_box_dimen,depth_offset);
 @!@:dp_}{\.{\\dp} primitive@>
-primitive("lastpenalty",last_item,int_val);
+primitive_tex("lastpenalty",last_item,int_val);
 @!@:last_penalty_}{\.{\\lastpenalty} primitive@>
-primitive("lastkern",last_item,dimen_val);
+primitive_tex("lastkern",last_item,dimen_val);
 @!@:last_kern_}{\.{\\lastkern} primitive@>
-primitive("lastskip",last_item,glue_val);
+primitive_tex("lastskip",last_item,glue_val);
 @!@:last_skip_}{\.{\\lastskip} primitive@>
-primitive("inputlineno",last_item,input_line_no_code);
+primitive_tex("inputlineno",last_item,input_line_no_code);
 @!@:input_line_no_}{\.{\\inputlineno} primitive@>
-primitive("badness",last_item,badness_code);
+primitive_tex("badness",last_item,badness_code);
 @!@:badness_}{\.{\\badness} primitive@>
-primitive("pdftexversion",last_item,pdftex_version_code);@/
+primitive_pdftex("pdftexversion",last_item,pdftex_version_code);@/
 @!@:pdftex_version_}{\.{\\pdftexversion} primitive@>
-primitive("luatexversion",last_item,luatex_version_code);@/
+primitive_luatex("luatexversion",last_item,luatex_version_code);@/
 @!@:luatex_version_}{\.{\\luatexversion} primitive@>
-primitive("pdflastobj",last_item,pdf_last_obj_code);@/
+primitive_pdftex("pdflastobj",last_item,pdf_last_obj_code);@/
 @!@:pdf_last_obj_}{\.{\\pdflastobj} primitive@>
-primitive("pdflastxform",last_item,pdf_last_xform_code);@/
+primitive_pdftex("pdflastxform",last_item,pdf_last_xform_code);@/
 @!@:pdf_last_xform_}{\.{\\pdflastxform} primitive@>
-primitive("pdflastximage",last_item,pdf_last_ximage_code);@/
+primitive_pdftex("pdflastximage",last_item,pdf_last_ximage_code);@/
 @!@:pdf_last_ximage_}{\.{\\pdflastximage} primitive@>
-primitive("pdflastximagepages",last_item,pdf_last_ximage_pages_code);@/
+primitive_pdftex("pdflastximagepages",last_item,pdf_last_ximage_pages_code);@/
 @!@:pdf_last_ximage_pages_}{\.{\\pdflastximagepages} primitive@>
-primitive("pdflastannot",last_item,pdf_last_annot_code);@/
+primitive_pdftex("pdflastannot",last_item,pdf_last_annot_code);@/
 @!@:pdf_last_annot_}{\.{\\pdflastannot} primitive@>
-primitive("pdflastxpos",last_item,pdf_last_x_pos_code);@/
+primitive_pdftex("pdflastxpos",last_item,pdf_last_x_pos_code);@/
 @!@:pdf_last_x_pos_}{\.{\\pdflastxpos} primitive@>
-primitive("pdflastypos",last_item,pdf_last_y_pos_code);@/
+primitive_pdftex("pdflastypos",last_item,pdf_last_y_pos_code);@/
 @!@:pdf_last_y_pos_}{\.{\\pdflastypos} primitive@>
-primitive("pdfretval",last_item,pdf_retval_code);@/
+primitive_pdftex("pdfretval",last_item,pdf_retval_code);@/
 @!@:pdf_retval_}{\.{\\pdfretval} primitive@>
-primitive("pdflastximagecolordepth",last_item,pdf_last_ximage_colordepth_code);@/
+primitive_pdftex("pdflastximagecolordepth",last_item,pdf_last_ximage_colordepth_code);@/
 @!@:pdf_last_ximage_colordepth_}{\.{\\pdflastximagecolordepth} primitive@>
-primitive("pdfrandomseed",last_item,random_seed_code);
+primitive_pdftex("pdfrandomseed",last_item,random_seed_code);
 @!@:random_seed_}{\.{\\pdfrandomseed} primitive@>
-primitive("pdflastlink",last_item,pdf_last_link_code);@/
+primitive_pdftex("pdflastlink",last_item,pdf_last_link_code);@/
 @!@:pdf_last_link_}{\.{\\pdflastlink} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -10943,66 +10684,66 @@ such that |job_name_code| remains last.
 
 
 @<Put each...@>=
-primitive("number",convert,number_code);@/
+primitive_tex("number",convert,number_code);@/
 @!@:number_}{\.{\\number} primitive@>
-primitive("romannumeral",convert,roman_numeral_code);@/
+primitive_tex("romannumeral",convert,roman_numeral_code);@/
 @!@:roman_numeral_}{\.{\\romannumeral} primitive@>
-primitive("string",convert,string_code);@/
+primitive_tex("string",convert,string_code);@/
 @!@:string_}{\.{\\string} primitive@>
-primitive("meaning",convert,meaning_code);@/
+primitive_tex("meaning",convert,meaning_code);@/
 @!@:meaning_}{\.{\\meaning} primitive@>
-primitive("eTeXVersion",convert,etex_code);@/
+primitive_etex("eTeXVersion",convert,etex_code);@/
 @!@:omega_version_}{\.{\\OmegaVersion} primitive@>
-primitive("OmegaVersion",convert,omega_code);@/
+primitive_omega("OmegaVersion",convert,omega_code);@/
 @!@:omega_version_}{\.{\\OmegaVersion} primitive@>
-primitive("AlephVersion",convert,aleph_code);@/
+primitive_aleph("AlephVersion",convert,aleph_code);@/
 @!@:aleph_version_}{\.{\\AlephVersion} primitive@>
-primitive("fontname",convert,font_name_code);@/
+primitive_tex("fontname",convert,font_name_code);@/
 @!@:font_name_}{\.{\\fontname} primitive@>
-primitive("pdftexrevision",convert,pdftex_revision_code);@/
+primitive_pdftex("pdftexrevision",convert,pdftex_revision_code);@/
 @!@:pdftex_revision_}{\.{\\pdftexrevision} primitive@>
-primitive("luatexrevision",convert,luatex_revision_code);@/
+primitive_luatex("luatexrevision",convert,luatex_revision_code);@/
 @!@:luatex_revision_}{\.{\\luatexrevision} primitive@>
-primitive("luatexdatestamp",convert,luatex_date_code);@/
+primitive_luatex("luatexdatestamp",convert,luatex_date_code);@/
 @!@:luatex_date_}{\.{\\luatexdatestamp} primitive@>
-primitive("pdftexbanner",convert,pdftex_banner_code);@/
+primitive_pdftex("pdftexbanner",convert,pdftex_banner_code);@/
 @!@:pdftex_banner_}{\.{\\pdftexbanner} primitive@>
-primitive("pdffontname",convert,pdf_font_name_code);@/
+primitive_pdftex("pdffontname",convert,pdf_font_name_code);@/
 @!@:pdf_font_name_}{\.{\\pdffontname} primitive@>
-primitive("pdffontobjnum",convert,pdf_font_objnum_code);@/
+primitive_pdftex("pdffontobjnum",convert,pdf_font_objnum_code);@/
 @!@:pdf_font_objnum_}{\.{\\pdffontobjnum} primitive@>
-primitive("pdffontsize",convert,pdf_font_size_code);@/
+primitive_pdftex("pdffontsize",convert,pdf_font_size_code);@/
 @!@:pdf_font_size_}{\.{\\pdffontsize} primitive@>
-primitive("pdfpageref",convert,pdf_page_ref_code);@/
+primitive_pdftex("pdfpageref",convert,pdf_page_ref_code);@/
 @!@:pdf_page_ref_}{\.{\\pdfpageref} primitive@>
-primitive("leftmarginkern",convert,left_margin_kern_code);@/
+primitive_pdftex("leftmarginkern",convert,left_margin_kern_code);@/
 @!@:left_margin_kern_}{\.{\\leftmarginkern} primitive@>
-primitive("rightmarginkern",convert,right_margin_kern_code);@/
+primitive_pdftex("rightmarginkern",convert,right_margin_kern_code);@/
 @!@:right_margin_kern_}{\.{\\rightmarginkern} primitive@>
-primitive("pdfxformname",convert,pdf_xform_name_code);@/
+primitive_pdftex("pdfxformname",convert,pdf_xform_name_code);@/
 @!@:pdf_xform_name_}{\.{\\pdfxformname} primitive@>
-primitive("pdfcreationdate",convert,pdf_creation_date_code);@/
+primitive_pdftex("pdfcreationdate",convert,pdf_creation_date_code);@/
 @!@:pdf_creation_date_}{\.{\\pdfcreationdate} primitive@>
-primitive("pdfuniformdeviate",convert,uniform_deviate_code);@/
+primitive_pdftex("pdfuniformdeviate",convert,uniform_deviate_code);@/
 @!@:uniform_deviate_}{\.{\\pdfuniformdeviate} primitive@>
-primitive("pdfcolorstackinit",convert,pdf_colorstack_init_code);@/
+primitive_pdftex("pdfcolorstackinit",convert,pdf_colorstack_init_code);@/
 @!@:pdf_colorstack_init_}{\.{\\pdfcolorstackinit} primitive@>
-primitive("pdfnormaldeviate",convert,normal_deviate_code);@/
+primitive_pdftex("pdfnormaldeviate",convert,normal_deviate_code);@/
 @!@:normal_deviate_}{\.{\\pdfnormaldeviate} primitive@>
-primitive("directlua",convert,lua_code);@/
+primitive_tex("directlua",convert,lua_code);@/
 @!@:lua_}{\.{\\directlua} primitive@>
-primitive("luaescapestring",convert,lua_escape_string_code);@/
+primitive_luatex("luaescapestring",convert,lua_escape_string_code);@/
 @!@:lua_}{\.{\\luaescapestring} primitive@>
-primitive("expanded",convert,expanded_code);@/
+primitive_pdftex("expanded",convert,expanded_code);@/
 @!@:expanded_}{\.{\\expanded} primitive@>
 @#
-primitive("jobname",convert,job_name_code);@/
+primitive_tex("jobname",convert,job_name_code);@/
 @!@:job_name_}{\.{\\jobname} primitive@>
-primitive("formatname",convert,format_name_code);@/
+primitive_luatex("formatname",convert,format_name_code);@/
 @!@:format_name_}{\.{\\formatname} primitive@>
-primitive("pdfinsertht",convert,pdf_insert_ht_code);@/
+primitive_pdftex("pdfinsertht",convert,pdf_insert_ht_code);@/
 @!@:pdf_insert_ht_}{\.{\\pdfinsertht} primitive@>
-primitive("pdfximagebbox",convert,pdf_ximage_bbox_code);@/
+primitive_pdftex("pdfximagebbox",convert,pdf_ximage_bbox_code);@/
 @!@:pdf_ximage_bbox_}{\.{\\pdfximagebbox} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -11667,43 +11408,43 @@ We consider now the way \TeX\ handles various kinds of \.{\\if} commands.
 @d if_primitive_code=21 { `\.{\\ifprimitive}' }
 
 @<Put each...@>=
-primitive("if",if_test,if_char_code);
+primitive_tex("if",if_test,if_char_code);
 @!@:if_char_}{\.{\\if} primitive@>
-primitive("ifcat",if_test,if_cat_code);
+primitive_tex("ifcat",if_test,if_cat_code);
 @!@:if_cat_code_}{\.{\\ifcat} primitive@>
-primitive("ifnum",if_test,if_int_code);
+primitive_tex("ifnum",if_test,if_int_code);
 @!@:if_int_}{\.{\\ifnum} primitive@>
-primitive("ifdim",if_test,if_dim_code);
+primitive_tex("ifdim",if_test,if_dim_code);
 @!@:if_dim_}{\.{\\ifdim} primitive@>
-primitive("ifodd",if_test,if_odd_code);
+primitive_tex("ifodd",if_test,if_odd_code);
 @!@:if_odd_}{\.{\\ifodd} primitive@>
-primitive("ifvmode",if_test,if_vmode_code);
+primitive_tex("ifvmode",if_test,if_vmode_code);
 @!@:if_vmode_}{\.{\\ifvmode} primitive@>
-primitive("ifhmode",if_test,if_hmode_code);
+primitive_tex("ifhmode",if_test,if_hmode_code);
 @!@:if_hmode_}{\.{\\ifhmode} primitive@>
-primitive("ifmmode",if_test,if_mmode_code);
+primitive_tex("ifmmode",if_test,if_mmode_code);
 @!@:if_mmode_}{\.{\\ifmmode} primitive@>
-primitive("ifinner",if_test,if_inner_code);
+primitive_tex("ifinner",if_test,if_inner_code);
 @!@:if_inner_}{\.{\\ifinner} primitive@>
-primitive("ifvoid",if_test,if_void_code);
+primitive_tex("ifvoid",if_test,if_void_code);
 @!@:if_void_}{\.{\\ifvoid} primitive@>
-primitive("ifhbox",if_test,if_hbox_code);
+primitive_tex("ifhbox",if_test,if_hbox_code);
 @!@:if_hbox_}{\.{\\ifhbox} primitive@>
-primitive("ifvbox",if_test,if_vbox_code);
+primitive_tex("ifvbox",if_test,if_vbox_code);
 @!@:if_vbox_}{\.{\\ifvbox} primitive@>
-primitive("ifx",if_test,ifx_code);
+primitive_tex("ifx",if_test,ifx_code);
 @!@:ifx_}{\.{\\ifx} primitive@>
-primitive("ifeof",if_test,if_eof_code);
+primitive_tex("ifeof",if_test,if_eof_code);
 @!@:if_eof_}{\.{\\ifeof} primitive@>
-primitive("iftrue",if_test,if_true_code);
+primitive_tex("iftrue",if_test,if_true_code);
 @!@:if_true_}{\.{\\iftrue} primitive@>
-primitive("iffalse",if_test,if_false_code);
+primitive_tex("iffalse",if_test,if_false_code);
 @!@:if_false_}{\.{\\iffalse} primitive@>
-primitive("ifcase",if_test,if_case_code);
+primitive_tex("ifcase",if_test,if_case_code);
 @!@:if_case_}{\.{\\ifcase} primitive@>
-primitive("ifprimitive",if_test,if_primitive_code);
+primitive_luatex("ifprimitive",if_test,if_primitive_code);
 @!@:if_primitive_}{\.{\\ifprimitive} primitive@>
-primitive("ifpdfprimitive",if_test,if_primitive_code);
+primitive_pdftex("ifpdfprimitive",if_test,if_primitive_code);
 @!@:if_primitive_}{\.{\\ifpdfprimitive} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -11765,12 +11506,12 @@ corresponding |if_line|.
 cond_ptr:=null; if_limit:=normal; cur_if:=0; if_line:=0;
 
 @ @<Put each...@>=
-primitive("fi",fi_or_else,fi_code);
+primitive_tex("fi",fi_or_else,fi_code);
 @!@:fi_}{\.{\\fi} primitive@>
 text(frozen_fi):="fi"; eqtb[frozen_fi]:=eqtb[cur_val];
-primitive("or",fi_or_else,or_code);
+primitive_tex("or",fi_or_else,or_code);
 @!@:or_}{\.{\\or} primitive@>
-primitive("else",fi_or_else,else_code);
+primitive_tex("else",fi_or_else,else_code);
 @!@:else_}{\.{\\else} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -12611,7 +12352,7 @@ create_null_font;
 font_bytes:=0;
 
 @ @<Put each...@>=
-primitive("nullfont",set_font,null_font);
+primitive_tex("nullfont",set_font,null_font);
 @!@:null_font_}{\.{\\nullfont} primitive@>
 text(frozen_null_font):="nullfont"; eqtb[frozen_null_font]:=eqtb[cur_val];
 
@@ -12937,7 +12678,7 @@ ocp_info(null_ocp)(offset_ocp_info+4) := 36;  {|OTP_STOP|}
 
 
 @ @<Put each...@>=
-primitive("nullocp", set_ocp, null_ocp);
+primitive_omega("nullocp", set_ocp, null_ocp);
 text(frozen_null_ocp) := "nullocp";
 eqtb[frozen_null_ocp] := eqtb[cur_val];
 geq_define(ocp_active_number_base, data, 0);
@@ -13240,7 +12981,7 @@ ocp_lstackmem_ptr:=1;
 @ $\Omega$ always knows at least one ocp list, namely the null ocp list.
 
 @ @<Put each...@>=
-primitive("nullocplist", set_ocp_list, null_ocp_list);
+primitive_omega("nullocplist", set_ocp_list, null_ocp_list);
 text(frozen_null_ocp_list) := "nullocplist"; 
 eqtb[frozen_null_ocp_list] := eqtb[cur_val];
 
@@ -20814,12 +20555,12 @@ as its command code.
 @d end_template_token==cs_token_flag+frozen_end_template
 
 @<Put each of \TeX's primitives into the hash table@>=
-primitive("span",tab_mark,span_code);@/
+primitive_tex("span",tab_mark,span_code);@/
 @!@:span_}{\.{\\span} primitive@>
-primitive("cr",car_ret,cr_code);
+primitive_tex("cr",car_ret,cr_code);
 @!@:cr_}{\.{\\cr} primitive@>
 text(frozen_cr):="cr"; eqtb[frozen_cr]:=eqtb[cur_val];@/
-primitive("crcr",car_ret,cr_cr_code);
+primitive_tex("crcr",car_ret,cr_cr_code);
 @!@:cr_cr_}{\.{\\crcr} primitive@>
 text(frozen_end_template):="endtemplate"; text(frozen_endv):="endtemplate";
 eq_type(frozen_endv):=endv; equiv(frozen_endv):=null_list;
@@ -22051,21 +21792,21 @@ all split and floating insertions.
 @!insert_penalties:integer; {sum of the penalties for held-over insertions}
 
 @ @<Put each...@>=
-primitive("pagegoal",set_page_dimen,0);
+primitive_tex("pagegoal",set_page_dimen,0);
 @!@:page_goal_}{\.{\\pagegoal} primitive@>
-primitive("pagetotal",set_page_dimen,1);
+primitive_tex("pagetotal",set_page_dimen,1);
 @!@:page_total_}{\.{\\pagetotal} primitive@>
-primitive("pagestretch",set_page_dimen,2);
+primitive_tex("pagestretch",set_page_dimen,2);
 @!@:page_stretch_}{\.{\\pagestretch} primitive@>
-primitive("pagefilstretch",set_page_dimen,3);
+primitive_tex("pagefilstretch",set_page_dimen,3);
 @!@:page_fil_stretch_}{\.{\\pagefilstretch} primitive@>
-primitive("pagefillstretch",set_page_dimen,4);
+primitive_tex("pagefillstretch",set_page_dimen,4);
 @!@:page_fill_stretch_}{\.{\\pagefillstretch} primitive@>
-primitive("pagefilllstretch",set_page_dimen,5);
+primitive_tex("pagefilllstretch",set_page_dimen,5);
 @!@:page_filll_stretch_}{\.{\\pagefilllstretch} primitive@>
-primitive("pageshrink",set_page_dimen,6);
+primitive_tex("pageshrink",set_page_dimen,6);
 @!@:page_shrink_}{\.{\\pageshrink} primitive@>
-primitive("pagedepth",set_page_dimen,7);
+primitive_tex("pagedepth",set_page_dimen,7);
 @!@:page_depth_}{\.{\\pagedepth} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -23196,9 +22937,9 @@ end;
 endgame, since both of them have `|stop|' as their command code.
 
 @<Put each...@>=
-primitive("end",stop,0);@/
+primitive_tex("end",stop,0);@/
 @!@:end_}{\.{\\end} primitive@>
-primitive("dump",stop,1);@/
+primitive_tex("dump",stop,1);@/
 @!@:dump_}{\.{\\dump} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -23272,31 +23013,31 @@ The difference is in the value of |cur_chr|.
 @d mskip_code=5 {identifies \.{\\mskip}}
 
 @<Put each...@>=
-primitive("hskip",hskip,skip_code);@/
+primitive_tex("hskip",hskip,skip_code);@/
 @!@:hskip_}{\.{\\hskip} primitive@>
-primitive("hfil",hskip,fil_code);
+primitive_tex("hfil",hskip,fil_code);
 @!@:hfil_}{\.{\\hfil} primitive@>
-primitive("hfill",hskip,fill_code);@/
+primitive_tex("hfill",hskip,fill_code);@/
 @!@:hfill_}{\.{\\hfill} primitive@>
-primitive("hss",hskip,ss_code);
+primitive_tex("hss",hskip,ss_code);
 @!@:hss_}{\.{\\hss} primitive@>
-primitive("hfilneg",hskip,fil_neg_code);@/
+primitive_tex("hfilneg",hskip,fil_neg_code);@/
 @!@:hfil_neg_}{\.{\\hfilneg} primitive@>
-primitive("vskip",vskip,skip_code);@/
+primitive_tex("vskip",vskip,skip_code);@/
 @!@:vskip_}{\.{\\vskip} primitive@>
-primitive("vfil",vskip,fil_code);
+primitive_tex("vfil",vskip,fil_code);
 @!@:vfil_}{\.{\\vfil} primitive@>
-primitive("vfill",vskip,fill_code);@/
+primitive_tex("vfill",vskip,fill_code);@/
 @!@:vfill_}{\.{\\vfill} primitive@>
-primitive("vss",vskip,ss_code);
+primitive_tex("vss",vskip,ss_code);
 @!@:vss_}{\.{\\vss} primitive@>
-primitive("vfilneg",vskip,fil_neg_code);@/
+primitive_tex("vfilneg",vskip,fil_neg_code);@/
 @!@:vfil_neg_}{\.{\\vfilneg} primitive@>
-primitive("mskip",mskip,mskip_code);@/
+primitive_tex("mskip",mskip,mskip_code);@/
 @!@:mskip_}{\.{\\mskip} primitive@>
-primitive("kern",kern,explicit);
+primitive_tex("kern",kern,explicit);
 @!@:kern_}{\.{\\kern} primitive@>
-primitive("mkern",mkern,mu_glue);@/
+primitive_tex("mkern",mkern,mu_glue);@/
 @!@:mkern_}{\.{\\mkern} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -23575,38 +23316,38 @@ where the latter two are used denote \.{\\vbox} and \.{\\hbox}, respectively.
 @d vtop_code=4 {|chr_code| for `\.{\\vtop}'}
 
 @<Put each...@>=
-primitive("moveleft",hmove,1);
+primitive_tex("moveleft",hmove,1);
 @!@:move_left_}{\.{\\moveleft} primitive@>
-primitive("moveright",hmove,0);@/
+primitive_tex("moveright",hmove,0);@/
 @!@:move_right_}{\.{\\moveright} primitive@>
-primitive("raise",vmove,1);
+primitive_tex("raise",vmove,1);
 @!@:raise_}{\.{\\raise} primitive@>
-primitive("lower",vmove,0);
+primitive_tex("lower",vmove,0);
 @!@:lower_}{\.{\\lower} primitive@>
 @#
-primitive("box",make_box,box_code);
+primitive_tex("box",make_box,box_code);
 @!@:box_}{\.{\\box} primitive@>
-primitive("copy",make_box,copy_code);
+primitive_tex("copy",make_box,copy_code);
 @!@:copy_}{\.{\\copy} primitive@>
-primitive("lastbox",make_box,last_box_code);
+primitive_tex("lastbox",make_box,last_box_code);
 @!@:last_box_}{\.{\\lastbox} primitive@>
-primitive("vsplit",make_box,vsplit_code);
+primitive_tex("vsplit",make_box,vsplit_code);
 @!@:vsplit_}{\.{\\vsplit} primitive@>
-primitive("vtop",make_box,vtop_code);@/
+primitive_tex("vtop",make_box,vtop_code);@/
 @!@:vtop_}{\.{\\vtop} primitive@>
-primitive("vbox",make_box,vtop_code+vmode);
+primitive_tex("vbox",make_box,vtop_code+vmode);
 @!@:vbox_}{\.{\\vbox} primitive@>
-primitive("hbox",make_box,vtop_code+hmode);@/
+primitive_tex("hbox",make_box,vtop_code+hmode);@/
 @!@:hbox_}{\.{\\hbox} primitive@>
-primitive("shipout",leader_ship,a_leaders-1); {|ship_out_flag=leader_flag-1|}
+primitive_tex("shipout",leader_ship,a_leaders-1); {|ship_out_flag=leader_flag-1|}
 @!@:ship_out_}{\.{\\shipout} primitive@>
-primitive("leaders",leader_ship,a_leaders);
+primitive_tex("leaders",leader_ship,a_leaders);
 @!@:leaders_}{\.{\\leaders} primitive@>
-primitive("cleaders",leader_ship,c_leaders);
+primitive_tex("cleaders",leader_ship,c_leaders);
 @!@:c_leaders_}{\.{\\cleaders} primitive@>
-primitive("xleaders",leader_ship,x_leaders);
+primitive_tex("xleaders",leader_ship,x_leaders);
 @!@:x_leaders_}{\.{\\xleaders} primitive@>;
-primitive("boxdir",assign_box_dir,0);
+primitive_aleph("boxdir",assign_box_dir,0);
 @!@:box_dir}{\.{\\boxdir} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -23889,11 +23630,11 @@ or when the paragraph is explicitly started by `\.{\\quitvmode}',
 `\.{\\indent}' or `\.{\\noindent}'.
 
 @<Put each...@>=
-primitive("indent",start_par,1);
+primitive_tex("indent",start_par,1);
 @!@:indent_}{\.{\\indent} primitive@>
-primitive("noindent",start_par,0);
+primitive_tex("noindent",start_par,0);
 @!@:no_indent_}{\.{\\noindent} primitive@>
-primitive("quitvmode",start_par,2);
+primitive_pdftex("quitvmode",start_par,2);
 @!@:quit_vmode_}{\.{\\quitvmode} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -24145,19 +23886,19 @@ begin if (cur_chr<>glue_node)or(last_glue<>max_halfword) then
 end
 
 @ @<Put each...@>=
-primitive("unpenalty",remove_item,penalty_node);@/
+primitive_tex("unpenalty",remove_item,penalty_node);@/
 @!@:un_penalty_}{\.{\\unpenalty} primitive@>
-primitive("unkern",remove_item,kern_node);@/
+primitive_tex("unkern",remove_item,kern_node);@/
 @!@:un_kern_}{\.{\\unkern} primitive@>
-primitive("unskip",remove_item,glue_node);@/
+primitive_tex("unskip",remove_item,glue_node);@/
 @!@:un_skip_}{\.{\\unskip} primitive@>
-primitive("unhbox",un_hbox,box_code);@/
+primitive_tex("unhbox",un_hbox,box_code);@/
 @!@:un_hbox_}{\.{\\unhbox} primitive@>
-primitive("unhcopy",un_hbox,copy_code);@/
+primitive_tex("unhcopy",un_hbox,copy_code);@/
 @!@:un_hcopy_}{\.{\\unhcopy} primitive@>
-primitive("unvbox",un_vbox,box_code);@/
+primitive_tex("unvbox",un_vbox,box_code);@/
 @!@:un_vbox_}{\.{\\unvbox} primitive@>
-primitive("unvcopy",un_vbox,copy_code);@/
+primitive_tex("unvcopy",un_vbox,copy_code);@/
 @!@:un_vcopy_}{\.{\\unvcopy} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -24243,13 +23984,13 @@ generated by primitive commands.
 @d explicit_disc=1
 
 @<Put each...@>=
-primitive("-",discretionary,explicit_disc);
+primitive_tex("-",discretionary,explicit_disc);
 @!@:Single-character primitives -}{\quad\.{\\-}@>
-primitive("discretionary",discretionary,discretionary_disc);
+primitive_tex("discretionary",discretionary,discretionary_disc);
 @!@:discretionary_}{\.{\\discretionary} primitive@>
-primitive("localleftbox",assign_local_box,0);
+primitive_omega("localleftbox",assign_local_box,0);
 @!@:assign_local_box}{\.{\\localleftbox} primitive@>
-primitive("localrightbox",assign_local_box,1);
+primitive_omega("localrightbox",assign_local_box,1);
 @!@:assign_local_box}{\.{\\localrightbox} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -24601,9 +24342,9 @@ mmode+eq_no: if privileged then begin
   end;
 
 @ @<Put each...@>=
-primitive("eqno",eq_no,0);
+primitive_tex("eqno",eq_no,0);
 @!@:eq_no_}{\.{\\eqno} primitive@>
-primitive("leqno",eq_no,1);
+primitive_tex("leqno",eq_no,1);
 @!@:leq_no_}{\.{\\leqno} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -24656,31 +24397,31 @@ the command code |math_comp|, supplemented by the noad type that they
 generate.
 
 @<Put each...@>=
-primitive("mathord",math_comp,ord_noad);
+primitive_tex("mathord",math_comp,ord_noad);
 @!@:math_ord_}{\.{\\mathord} primitive@>
-primitive("mathop",math_comp,op_noad);
+primitive_tex("mathop",math_comp,op_noad);
 @!@:math_op_}{\.{\\mathop} primitive@>
-primitive("mathbin",math_comp,bin_noad);
+primitive_tex("mathbin",math_comp,bin_noad);
 @!@:math_bin_}{\.{\\mathbin} primitive@>
-primitive("mathrel",math_comp,rel_noad);
+primitive_tex("mathrel",math_comp,rel_noad);
 @!@:math_rel_}{\.{\\mathrel} primitive@>
-primitive("mathopen",math_comp,open_noad);
+primitive_tex("mathopen",math_comp,open_noad);
 @!@:math_open_}{\.{\\mathopen} primitive@>
-primitive("mathclose",math_comp,close_noad);
+primitive_tex("mathclose",math_comp,close_noad);
 @!@:math_close_}{\.{\\mathclose} primitive@>
-primitive("mathpunct",math_comp,punct_noad);
+primitive_tex("mathpunct",math_comp,punct_noad);
 @!@:math_punct_}{\.{\\mathpunct} primitive@>
-primitive("mathinner",math_comp,inner_noad);
+primitive_tex("mathinner",math_comp,inner_noad);
 @!@:math_inner_}{\.{\\mathinner} primitive@>
-primitive("underline",math_comp,under_noad);
+primitive_tex("underline",math_comp,under_noad);
 @!@:underline_}{\.{\\underline} primitive@>
-primitive("overline",math_comp,over_noad);@/
+primitive_tex("overline",math_comp,over_noad);@/
 @!@:overline_}{\.{\\overline} primitive@>
-primitive("displaylimits",limit_switch,normal);
+primitive_tex("displaylimits",limit_switch,normal);
 @!@:display_limits_}{\.{\\displaylimits} primitive@>
-primitive("limits",limit_switch,limits);
+primitive_tex("limits",limit_switch,limits);
 @!@:limits_}{\.{\\limits} primitive@>
-primitive("nolimits",limit_switch,no_limits);
+primitive_tex("nolimits",limit_switch,no_limits);
 @!@:no_limits_}{\.{\\nolimits} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -24707,21 +24448,21 @@ vcenter_group: begin line_break_context:=vcenter_group; end_graf; unsave; save_p
 @ The routine that inserts a |style_node| holds no surprises.
 
 @<Put each...@>=
-primitive("displaystyle",math_style,display_style);
+primitive_tex("displaystyle",math_style,display_style);
 @!@:display_style_}{\.{\\displaystyle} primitive@>
-primitive("textstyle",math_style,text_style);
+primitive_tex("textstyle",math_style,text_style);
 @!@:text_style_}{\.{\\textstyle} primitive@>
-primitive("scriptstyle",math_style,script_style);
+primitive_tex("scriptstyle",math_style,script_style);
 @!@:script_style_}{\.{\\scriptstyle} primitive@>
-primitive("scriptscriptstyle",math_style,script_script_style);
+primitive_tex("scriptscriptstyle",math_style,script_script_style);
 @!@:script_script_style_}{\.{\\scriptscriptstyle} primitive@>
-primitive("crampeddisplaystyle",math_style,cramped_display_style);
+primitive_luatex("crampeddisplaystyle",math_style,cramped_display_style);
 @!@:cramped_display_style_}{\.{\\crampeddisplaystyle} primitive@>
-primitive("crampedtextstyle",math_style,cramped_text_style);
+primitive_luatex("crampedtextstyle",math_style,cramped_text_style);
 @!@:cramped_text_style_}{\.{\\crampedtextstyle} primitive@>
-primitive("crampedscriptstyle",math_style,cramped_script_style);
+primitive_luatex("crampedscriptstyle",math_style,cramped_script_style);
 @!@:cramped_script_style_}{\.{\\crampedscriptstyle} primitive@>
-primitive("crampedscriptscriptstyle",math_style,cramped_script_script_style);
+primitive_luatex("crampedscriptscriptstyle",math_style,cramped_script_script_style);
 @!@:cramped_script_script_style_}{\.{\\crampedscriptscriptstyle} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -24747,17 +24488,17 @@ mmode+sub_mark,mmode+sup_mark: sub_sup;
 @d delimited_code=3 { `\.{\\abovewithdelims}', etc.}
 
 @<Put each...@>=
-primitive("above",above,above_code);@/
+primitive_tex("above",above,above_code);@/
 @!@:above_}{\.{\\above} primitive@>
-primitive("over",above,over_code);@/
+primitive_tex("over",above,over_code);@/
 @!@:over_}{\.{\\over} primitive@>
-primitive("atop",above,atop_code);@/
+primitive_tex("atop",above,atop_code);@/
 @!@:atop_}{\.{\\atop} primitive@>
-primitive("abovewithdelims",above,delimited_code+above_code);@/
+primitive_tex("abovewithdelims",above,delimited_code+above_code);@/
 @!@:above_with_delims_}{\.{\\abovewithdelims} primitive@>
-primitive("overwithdelims",above,delimited_code+over_code);@/
+primitive_tex("overwithdelims",above,delimited_code+over_code);@/
 @!@:over_with_delims_}{\.{\\overwithdelims} primitive@>
-primitive("atopwithdelims",above,delimited_code+atop_code);
+primitive_tex("atopwithdelims",above,delimited_code+atop_code);
 @!@:atop_with_delims_}{\.{\\atopwithdelims} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -24779,11 +24520,11 @@ math_group: close_math_group(p);
 @ 
 
 @<Put each...@>=
-primitive("left",left_right,left_noad_side);
+primitive_tex("left",left_right,left_noad_side);
 @!@:left_}{\.{\\left} primitive@>
-primitive("right",left_right,right_noad_side);
+primitive_tex("right",left_right,right_noad_side);
 @!@:right_}{\.{\\right} primitive@>
-primitive("middle",left_right,middle_noad_side);
+primitive_tex("middle",left_right,middle_noad_side);
 @!@:middle_}{\.{\\middle} primitive@>
 text(frozen_right):="right"; eqtb[frozen_right]:=eqtb[cur_val];
 
@@ -24818,19 +24559,19 @@ by adding the corresponding codes.  (\PASCAL's |set| operations could also
 have been used.)
 
 @<Put each...@>=
-primitive("long",prefix,1);
+primitive_tex("long",prefix,1);
 @!@:long_}{\.{\\long} primitive@>
-primitive("outer",prefix,2);
+primitive_tex("outer",prefix,2);
 @!@:outer_}{\.{\\outer} primitive@>
-primitive("global",prefix,4);
+primitive_tex("global",prefix,4);
 @!@:global_}{\.{\\global} primitive@>
-primitive("def",def,0);
+primitive_tex("def",def,0);
 @!@:def_}{\.{\\def} primitive@>
-primitive("gdef",def,1);
+primitive_tex("gdef",def,1);
 @!@:gdef_}{\.{\\gdef} primitive@>
-primitive("edef",def,2);
+primitive_tex("edef",def,2);
 @!@:edef_}{\.{\\edef} primitive@>
-primitive("xdef",def,3);
+primitive_tex("xdef",def,3);
 @!@:xdef_}{\.{\\xdef} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -25105,9 +24846,9 @@ def: begin if odd(cur_chr)and not global and(global_defs>=0) then a:=a+4;
 @ Both \.{\\let} and \.{\\futurelet} share the command code |let|.
 
 @<Put each...@>=
-primitive("let",let,normal);@/
+primitive_tex("let",let,normal);@/
 @!@:let_}{\.{\\let} primitive@>
-primitive("futurelet",let,normal+1);@/
+primitive_tex("futurelet",let,normal+1);@/
 @!@:future_let_}{\.{\\futurelet} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -25150,25 +24891,25 @@ corresponding |chr| is the |eqtb| location of the internal register in question.
 @d toks_def_code=9 {|shorthand_def| for \.{\\toksdef}}
 
 @<Put each...@>=
-primitive("chardef",shorthand_def,char_def_code);@/
+primitive_tex("chardef",shorthand_def,char_def_code);@/
 @!@:char_def_}{\.{\\chardef} primitive@>
-primitive("mathchardef",shorthand_def,math_char_def_code);@/
+primitive_tex("mathchardef",shorthand_def,math_char_def_code);@/
 @!@:math_char_def_}{\.{\\mathchardef} primitive@>
-primitive("omathchardef",shorthand_def,omath_char_def_code);@/
+primitive_omega("omathchardef",shorthand_def,omath_char_def_code);@/
 @!@:math_char_def_}{\.{\\omathchardef} primitive@>
-primitive("Umathchardef",shorthand_def,xmath_char_def_code);@/
+primitive_luatex("Umathchardef",shorthand_def,xmath_char_def_code);@/
 @!@:math_char_def_}{\.{\\Umathchardef} primitive@>
-primitive("countdef",shorthand_def,count_def_code);@/
+primitive_tex("countdef",shorthand_def,count_def_code);@/
 @!@:count_def_}{\.{\\countdef} primitive@>
-primitive("attributedef",shorthand_def,attribute_def_code);@/
+primitive_luatex("attributedef",shorthand_def,attribute_def_code);@/
 @!@:attribute_def_}{\.{\\attributedef} primitive@>
-primitive("dimendef",shorthand_def,dimen_def_code);@/
+primitive_tex("dimendef",shorthand_def,dimen_def_code);@/
 @!@:dimen_def_}{\.{\\dimendef} primitive@>
-primitive("skipdef",shorthand_def,skip_def_code);@/
+primitive_tex("skipdef",shorthand_def,skip_def_code);@/
 @!@:skip_def_}{\.{\\skipdef} primitive@>
-primitive("muskipdef",shorthand_def,mu_skip_def_code);@/
+primitive_tex("muskipdef",shorthand_def,mu_skip_def_code);@/
 @!@:mu_skip_def_}{\.{\\muskipdef} primitive@>
-primitive("toksdef",shorthand_def,toks_def_code);@/
+primitive_tex("toksdef",shorthand_def,toks_def_code);@/
 @!@:toks_def_}{\.{\\toksdef} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -25328,144 +25069,144 @@ end;
 and the font families are declared by |def_family|.
 
 @<Put each...@>=
-primitive("catcode",def_code,cat_code_base);
+primitive_tex("catcode",def_code,cat_code_base);
 @!@:cat_code_}{\.{\\catcode} primitive@>
-primitive("mathcode",def_code,math_code_base);
+primitive_tex("mathcode",def_code,math_code_base);
 @!@:math_code_}{\.{\\mathcode} primitive@>
-primitive("lccode",def_code,lc_code_base);
+primitive_tex("lccode",def_code,lc_code_base);
 @!@:lc_code_}{\.{\\lccode} primitive@>
-primitive("uccode",def_code,uc_code_base);
+primitive_tex("uccode",def_code,uc_code_base);
 @!@:uc_code_}{\.{\\uccode} primitive@>
-primitive("sfcode",def_code,sf_code_base);
+primitive_tex("sfcode",def_code,sf_code_base);
 @!@:sf_code_}{\.{\\sfcode} primitive@>
-primitive("delcode",def_code,del_code_base);
+primitive_tex("delcode",def_code,del_code_base);
 @!@:del_code_}{\.{\\delcode} primitive@>
-primitive("textfont",def_family,text_size);
+primitive_tex("textfont",def_family,text_size);
 @!@:text_font_}{\.{\\textfont} primitive@>
-primitive("scriptfont",def_family,script_size);
+primitive_tex("scriptfont",def_family,script_size);
 @!@:script_font_}{\.{\\scriptfont} primitive@>
-primitive("scriptscriptfont",def_family,script_script_size);
+primitive_tex("scriptscriptfont",def_family,script_script_size);
 @!@:script_script_font_}{\.{\\scriptscriptfont} primitive@>
-primitive("Umathquad",             set_math_param, math_param_quad);
-primitive("Umathaxis",             set_math_param, math_param_axis);
-primitive("Umathoperatorsize",     set_math_param, math_param_operator_size);
-primitive("Umathoverbarkern",      set_math_param, math_param_overbar_kern);
-primitive("Umathoverbarrule",      set_math_param, math_param_overbar_rule);
-primitive("Umathoverbarvgap",      set_math_param, math_param_overbar_vgap);
-primitive("Umathunderbarkern",     set_math_param, math_param_underbar_kern);
-primitive("Umathunderbarrule",     set_math_param, math_param_underbar_rule);
-primitive("Umathunderbarvgap",     set_math_param, math_param_underbar_vgap);
-primitive("Umathradicalkern",      set_math_param, math_param_radical_kern);
-primitive("Umathradicalrule",      set_math_param, math_param_radical_rule);
-primitive("Umathradicalvgap",      set_math_param, math_param_radical_vgap);
-primitive("Umathradicaldegreebefore",set_math_param, math_param_radical_degree_before);
-primitive("Umathradicaldegreeafter", set_math_param, math_param_radical_degree_after);
-primitive("Umathradicaldegreeraise", set_math_param, math_param_radical_degree_raise);
-primitive("Umathstackvgap",        set_math_param, math_param_stack_vgap);
-primitive("Umathstacknumup",       set_math_param, math_param_stack_num_up);
-primitive("Umathstackdenomdown",   set_math_param, math_param_stack_denom_down);
-primitive("Umathfractionrule",     set_math_param, math_param_fraction_rule);
-primitive("Umathfractionnumvgap",  set_math_param, math_param_fraction_num_vgap);
-primitive("Umathfractionnumup",    set_math_param, math_param_fraction_num_up);
-primitive("Umathfractiondenomvgap",set_math_param, math_param_fraction_denom_vgap);
-primitive("Umathfractiondenomdown",set_math_param, math_param_fraction_denom_down);
-primitive("Umathfractiondelsize",  set_math_param, math_param_fraction_del_size);
-primitive("Umathlimitabovevgap",   set_math_param, math_param_limit_above_vgap);
-primitive("Umathlimitabovebgap",   set_math_param, math_param_limit_above_bgap);
-primitive("Umathlimitabovekern",   set_math_param, math_param_limit_above_kern);
-primitive("Umathlimitdownvgap",    set_math_param, math_param_limit_below_vgap);
-primitive("Umathlimitdownbgap",    set_math_param, math_param_limit_below_bgap);
-primitive("Umathlimitdownkern",    set_math_param, math_param_limit_below_kern);
-primitive("Umathunderdelimitervgap", set_math_param, math_param_under_delimiter_vgap);
-primitive("Umathunderdelimiterbgap", set_math_param, math_param_under_delimiter_bgap);
-primitive("Umathoverdelimitervgap",set_math_param, math_param_over_delimiter_vgap);
-primitive("Umathoverdelimiterbgap",set_math_param, math_param_over_delimiter_bgap);
-primitive("Umathsubshiftdrop",     set_math_param, math_param_sub_shift_drop);
-primitive("Umathsupshiftdrop",     set_math_param, math_param_sup_shift_drop);
-primitive("Umathsubshiftdown",     set_math_param, math_param_sub_shift_down);
-primitive("Umathsubsupshiftdown",  set_math_param, math_param_sub_sup_shift_down);
-primitive("Umathsubtopmax",        set_math_param, math_param_sub_top_max);
-primitive("Umathsupshiftup",       set_math_param, math_param_sup_shift_up);
-primitive("Umathsupbottommin",     set_math_param, math_param_sup_bottom_min);
-primitive("Umathsupsubbottommax",  set_math_param, math_param_sup_sub_bottom_max);
-primitive("Umathsubsupvgap",       set_math_param, math_param_subsup_vgap);
-primitive("Umathspaceafterscript", set_math_param, math_param_space_after_script); 
-primitive("Umathconnectoroverlapmin", set_math_param, math_param_connector_overlap_min); 
-primitive("Umathordordspacing",    set_math_param, math_param_ord_ord_spacing);
-primitive("Umathordopspacing",     set_math_param, math_param_ord_op_spacing);
-primitive("Umathordbinspacing",    set_math_param, math_param_ord_bin_spacing);
-primitive("Umathordrelspacing",    set_math_param, math_param_ord_rel_spacing);
-primitive("Umathordopenspacing",   set_math_param, math_param_ord_open_spacing);
-primitive("Umathordclosespacing",  set_math_param, math_param_ord_close_spacing);
-primitive("Umathordpunctspacing",  set_math_param, math_param_ord_punct_spacing);
-primitive("Umathordinnerspacing",  set_math_param, math_param_ord_inner_spacing);
-primitive("Umathopordspacing",     set_math_param, math_param_op_ord_spacing);
-primitive("Umathopopspacing",      set_math_param, math_param_op_op_spacing);
-primitive("Umathopbinspacing",     set_math_param, math_param_op_bin_spacing);
-primitive("Umathoprelspacing",     set_math_param, math_param_op_rel_spacing);
-primitive("Umathopopenspacing",    set_math_param, math_param_op_open_spacing);
-primitive("Umathopclosespacing",   set_math_param, math_param_op_close_spacing);
-primitive("Umathoppunctspacing",   set_math_param, math_param_op_punct_spacing);
-primitive("Umathopinnerspacing",   set_math_param, math_param_op_inner_spacing);
-primitive("Umathbinordspacing",    set_math_param, math_param_bin_ord_spacing);
-primitive("Umathbinopspacing",     set_math_param, math_param_bin_op_spacing);
-primitive("Umathbinbinspacing",    set_math_param, math_param_bin_bin_spacing);
-primitive("Umathbinrelspacing",    set_math_param, math_param_bin_rel_spacing);
-primitive("Umathbinopenspacing",   set_math_param, math_param_bin_open_spacing);
-primitive("Umathbinclosespacing",  set_math_param, math_param_bin_close_spacing);
-primitive("Umathbinpunctspacing",  set_math_param, math_param_bin_punct_spacing);
-primitive("Umathbininnerspacing",  set_math_param, math_param_bin_inner_spacing);
-primitive("Umathrelordspacing",    set_math_param, math_param_rel_ord_spacing);
-primitive("Umathrelopspacing",     set_math_param, math_param_rel_op_spacing);
-primitive("Umathrelbinspacing",    set_math_param, math_param_rel_bin_spacing);
-primitive("Umathrelrelspacing",    set_math_param, math_param_rel_rel_spacing);
-primitive("Umathrelopenspacing",   set_math_param, math_param_rel_open_spacing);
-primitive("Umathrelclosespacing",  set_math_param, math_param_rel_close_spacing);
-primitive("Umathrelpunctspacing",  set_math_param, math_param_rel_punct_spacing);
-primitive("Umathrelinnerspacing",  set_math_param, math_param_rel_inner_spacing);
-primitive("Umathopenordspacing",   set_math_param, math_param_open_ord_spacing);
-primitive("Umathopenopspacing",    set_math_param, math_param_open_op_spacing);
-primitive("Umathopenbinspacing",   set_math_param, math_param_open_bin_spacing);
-primitive("Umathopenrelspacing",   set_math_param, math_param_open_rel_spacing);
-primitive("Umathopenopenspacing",  set_math_param, math_param_open_open_spacing);
-primitive("Umathopenclosespacing", set_math_param, math_param_open_close_spacing);
-primitive("Umathopenpunctspacing", set_math_param, math_param_open_punct_spacing);
-primitive("Umathopeninnerspacing", set_math_param, math_param_open_inner_spacing);
-primitive("Umathcloseordspacing",  set_math_param, math_param_close_ord_spacing);
-primitive("Umathcloseopspacing",   set_math_param, math_param_close_op_spacing);
-primitive("Umathclosebinspacing",  set_math_param, math_param_close_bin_spacing);
-primitive("Umathcloserelspacing",  set_math_param, math_param_close_rel_spacing);
-primitive("Umathcloseopenspacing", set_math_param, math_param_close_open_spacing);
-primitive("Umathcloseclosespacing",set_math_param, math_param_close_close_spacing);
-primitive("Umathclosepunctspacing",set_math_param, math_param_close_punct_spacing);
-primitive("Umathcloseinnerspacing",set_math_param, math_param_close_inner_spacing);
-primitive("Umathpunctordspacing",  set_math_param, math_param_punct_ord_spacing);
-primitive("Umathpunctopspacing",   set_math_param, math_param_punct_op_spacing);
-primitive("Umathpunctbinspacing",  set_math_param, math_param_punct_bin_spacing);
-primitive("Umathpunctrelspacing",  set_math_param, math_param_punct_rel_spacing);
-primitive("Umathpunctopenspacing", set_math_param, math_param_punct_open_spacing);
-primitive("Umathpunctclosespacing",set_math_param, math_param_punct_close_spacing);
-primitive("Umathpunctpunctspacing",set_math_param, math_param_punct_punct_spacing);
-primitive("Umathpunctinnerspacing",set_math_param, math_param_punct_inner_spacing);
-primitive("Umathinnerordspacing",  set_math_param, math_param_inner_ord_spacing);
-primitive("Umathinneropspacing",   set_math_param, math_param_inner_op_spacing);
-primitive("Umathinnerbinspacing",  set_math_param, math_param_inner_bin_spacing);
-primitive("Umathinnerrelspacing",  set_math_param, math_param_inner_rel_spacing);
-primitive("Umathinneropenspacing", set_math_param, math_param_inner_open_spacing);
-primitive("Umathinnerclosespacing",set_math_param, math_param_inner_close_spacing);
-primitive("Umathinnerpunctspacing",set_math_param, math_param_inner_punct_spacing);
-primitive("Umathinnerinnerspacing",set_math_param, math_param_inner_inner_spacing);
-primitive("omathcode",extdef_code,math_code_base);
+primitive_luatex("Umathquad",             set_math_param, math_param_quad);
+primitive_luatex("Umathaxis",             set_math_param, math_param_axis);
+primitive_luatex("Umathoperatorsize",     set_math_param, math_param_operator_size);
+primitive_luatex("Umathoverbarkern",      set_math_param, math_param_overbar_kern);
+primitive_luatex("Umathoverbarrule",      set_math_param, math_param_overbar_rule);
+primitive_luatex("Umathoverbarvgap",      set_math_param, math_param_overbar_vgap);
+primitive_luatex("Umathunderbarkern",     set_math_param, math_param_underbar_kern);
+primitive_luatex("Umathunderbarrule",     set_math_param, math_param_underbar_rule);
+primitive_luatex("Umathunderbarvgap",     set_math_param, math_param_underbar_vgap);
+primitive_luatex("Umathradicalkern",      set_math_param, math_param_radical_kern);
+primitive_luatex("Umathradicalrule",      set_math_param, math_param_radical_rule);
+primitive_luatex("Umathradicalvgap",      set_math_param, math_param_radical_vgap);
+primitive_luatex("Umathradicaldegreebefore",set_math_param, math_param_radical_degree_before);
+primitive_luatex("Umathradicaldegreeafter", set_math_param, math_param_radical_degree_after);
+primitive_luatex("Umathradicaldegreeraise", set_math_param, math_param_radical_degree_raise);
+primitive_luatex("Umathstackvgap",        set_math_param, math_param_stack_vgap);
+primitive_luatex("Umathstacknumup",       set_math_param, math_param_stack_num_up);
+primitive_luatex("Umathstackdenomdown",   set_math_param, math_param_stack_denom_down);
+primitive_luatex("Umathfractionrule",     set_math_param, math_param_fraction_rule);
+primitive_luatex("Umathfractionnumvgap",  set_math_param, math_param_fraction_num_vgap);
+primitive_luatex("Umathfractionnumup",    set_math_param, math_param_fraction_num_up);
+primitive_luatex("Umathfractiondenomvgap",set_math_param, math_param_fraction_denom_vgap);
+primitive_luatex("Umathfractiondenomdown",set_math_param, math_param_fraction_denom_down);
+primitive_luatex("Umathfractiondelsize",  set_math_param, math_param_fraction_del_size);
+primitive_luatex("Umathlimitabovevgap",   set_math_param, math_param_limit_above_vgap);
+primitive_luatex("Umathlimitabovebgap",   set_math_param, math_param_limit_above_bgap);
+primitive_luatex("Umathlimitabovekern",   set_math_param, math_param_limit_above_kern);
+primitive_luatex("Umathlimitdownvgap",    set_math_param, math_param_limit_below_vgap);
+primitive_luatex("Umathlimitdownbgap",    set_math_param, math_param_limit_below_bgap);
+primitive_luatex("Umathlimitdownkern",    set_math_param, math_param_limit_below_kern);
+primitive_luatex("Umathunderdelimitervgap", set_math_param, math_param_under_delimiter_vgap);
+primitive_luatex("Umathunderdelimiterbgap", set_math_param, math_param_under_delimiter_bgap);
+primitive_luatex("Umathoverdelimitervgap",set_math_param, math_param_over_delimiter_vgap);
+primitive_luatex("Umathoverdelimiterbgap",set_math_param, math_param_over_delimiter_bgap);
+primitive_luatex("Umathsubshiftdrop",     set_math_param, math_param_sub_shift_drop);
+primitive_luatex("Umathsupshiftdrop",     set_math_param, math_param_sup_shift_drop);
+primitive_luatex("Umathsubshiftdown",     set_math_param, math_param_sub_shift_down);
+primitive_luatex("Umathsubsupshiftdown",  set_math_param, math_param_sub_sup_shift_down);
+primitive_luatex("Umathsubtopmax",        set_math_param, math_param_sub_top_max);
+primitive_luatex("Umathsupshiftup",       set_math_param, math_param_sup_shift_up);
+primitive_luatex("Umathsupbottommin",     set_math_param, math_param_sup_bottom_min);
+primitive_luatex("Umathsupsubbottommax",  set_math_param, math_param_sup_sub_bottom_max);
+primitive_luatex("Umathsubsupvgap",       set_math_param, math_param_subsup_vgap);
+primitive_luatex("Umathspaceafterscript", set_math_param, math_param_space_after_script); 
+primitive_luatex("Umathconnectoroverlapmin", set_math_param, math_param_connector_overlap_min); 
+primitive_luatex("Umathordordspacing",    set_math_param, math_param_ord_ord_spacing);
+primitive_luatex("Umathordopspacing",     set_math_param, math_param_ord_op_spacing);
+primitive_luatex("Umathordbinspacing",    set_math_param, math_param_ord_bin_spacing);
+primitive_luatex("Umathordrelspacing",    set_math_param, math_param_ord_rel_spacing);
+primitive_luatex("Umathordopenspacing",   set_math_param, math_param_ord_open_spacing);
+primitive_luatex("Umathordclosespacing",  set_math_param, math_param_ord_close_spacing);
+primitive_luatex("Umathordpunctspacing",  set_math_param, math_param_ord_punct_spacing);
+primitive_luatex("Umathordinnerspacing",  set_math_param, math_param_ord_inner_spacing);
+primitive_luatex("Umathopordspacing",     set_math_param, math_param_op_ord_spacing);
+primitive_luatex("Umathopopspacing",      set_math_param, math_param_op_op_spacing);
+primitive_luatex("Umathopbinspacing",     set_math_param, math_param_op_bin_spacing);
+primitive_luatex("Umathoprelspacing",     set_math_param, math_param_op_rel_spacing);
+primitive_luatex("Umathopopenspacing",    set_math_param, math_param_op_open_spacing);
+primitive_luatex("Umathopclosespacing",   set_math_param, math_param_op_close_spacing);
+primitive_luatex("Umathoppunctspacing",   set_math_param, math_param_op_punct_spacing);
+primitive_luatex("Umathopinnerspacing",   set_math_param, math_param_op_inner_spacing);
+primitive_luatex("Umathbinordspacing",    set_math_param, math_param_bin_ord_spacing);
+primitive_luatex("Umathbinopspacing",     set_math_param, math_param_bin_op_spacing);
+primitive_luatex("Umathbinbinspacing",    set_math_param, math_param_bin_bin_spacing);
+primitive_luatex("Umathbinrelspacing",    set_math_param, math_param_bin_rel_spacing);
+primitive_luatex("Umathbinopenspacing",   set_math_param, math_param_bin_open_spacing);
+primitive_luatex("Umathbinclosespacing",  set_math_param, math_param_bin_close_spacing);
+primitive_luatex("Umathbinpunctspacing",  set_math_param, math_param_bin_punct_spacing);
+primitive_luatex("Umathbininnerspacing",  set_math_param, math_param_bin_inner_spacing);
+primitive_luatex("Umathrelordspacing",    set_math_param, math_param_rel_ord_spacing);
+primitive_luatex("Umathrelopspacing",     set_math_param, math_param_rel_op_spacing);
+primitive_luatex("Umathrelbinspacing",    set_math_param, math_param_rel_bin_spacing);
+primitive_luatex("Umathrelrelspacing",    set_math_param, math_param_rel_rel_spacing);
+primitive_luatex("Umathrelopenspacing",   set_math_param, math_param_rel_open_spacing);
+primitive_luatex("Umathrelclosespacing",  set_math_param, math_param_rel_close_spacing);
+primitive_luatex("Umathrelpunctspacing",  set_math_param, math_param_rel_punct_spacing);
+primitive_luatex("Umathrelinnerspacing",  set_math_param, math_param_rel_inner_spacing);
+primitive_luatex("Umathopenordspacing",   set_math_param, math_param_open_ord_spacing);
+primitive_luatex("Umathopenopspacing",    set_math_param, math_param_open_op_spacing);
+primitive_luatex("Umathopenbinspacing",   set_math_param, math_param_open_bin_spacing);
+primitive_luatex("Umathopenrelspacing",   set_math_param, math_param_open_rel_spacing);
+primitive_luatex("Umathopenopenspacing",  set_math_param, math_param_open_open_spacing);
+primitive_luatex("Umathopenclosespacing", set_math_param, math_param_open_close_spacing);
+primitive_luatex("Umathopenpunctspacing", set_math_param, math_param_open_punct_spacing);
+primitive_luatex("Umathopeninnerspacing", set_math_param, math_param_open_inner_spacing);
+primitive_luatex("Umathcloseordspacing",  set_math_param, math_param_close_ord_spacing);
+primitive_luatex("Umathcloseopspacing",   set_math_param, math_param_close_op_spacing);
+primitive_luatex("Umathclosebinspacing",  set_math_param, math_param_close_bin_spacing);
+primitive_luatex("Umathcloserelspacing",  set_math_param, math_param_close_rel_spacing);
+primitive_luatex("Umathcloseopenspacing", set_math_param, math_param_close_open_spacing);
+primitive_luatex("Umathcloseclosespacing",set_math_param, math_param_close_close_spacing);
+primitive_luatex("Umathclosepunctspacing",set_math_param, math_param_close_punct_spacing);
+primitive_luatex("Umathcloseinnerspacing",set_math_param, math_param_close_inner_spacing);
+primitive_luatex("Umathpunctordspacing",  set_math_param, math_param_punct_ord_spacing);
+primitive_luatex("Umathpunctopspacing",   set_math_param, math_param_punct_op_spacing);
+primitive_luatex("Umathpunctbinspacing",  set_math_param, math_param_punct_bin_spacing);
+primitive_luatex("Umathpunctrelspacing",  set_math_param, math_param_punct_rel_spacing);
+primitive_luatex("Umathpunctopenspacing", set_math_param, math_param_punct_open_spacing);
+primitive_luatex("Umathpunctclosespacing",set_math_param, math_param_punct_close_spacing);
+primitive_luatex("Umathpunctpunctspacing",set_math_param, math_param_punct_punct_spacing);
+primitive_luatex("Umathpunctinnerspacing",set_math_param, math_param_punct_inner_spacing);
+primitive_luatex("Umathinnerordspacing",  set_math_param, math_param_inner_ord_spacing);
+primitive_luatex("Umathinneropspacing",   set_math_param, math_param_inner_op_spacing);
+primitive_luatex("Umathinnerbinspacing",  set_math_param, math_param_inner_bin_spacing);
+primitive_luatex("Umathinnerrelspacing",  set_math_param, math_param_inner_rel_spacing);
+primitive_luatex("Umathinneropenspacing", set_math_param, math_param_inner_open_spacing);
+primitive_luatex("Umathinnerclosespacing",set_math_param, math_param_inner_close_spacing);
+primitive_luatex("Umathinnerpunctspacing",set_math_param, math_param_inner_punct_spacing);
+primitive_luatex("Umathinnerinnerspacing",set_math_param, math_param_inner_inner_spacing);
+primitive_omega("omathcode",extdef_code,math_code_base);
 @!@:math_code_}{\.{\\omathcode} primitive@>
-primitive("odelcode",extdef_code,del_code_base);
+primitive_omega("odelcode",extdef_code,del_code_base);
 @!@:del_code_}{\.{\\odelcode} primitive@>
-primitive("Umathcode",extdef_code,math_code_base+1);
+primitive_luatex("Umathcode",extdef_code,math_code_base+1);
 @!@:math_code_}{\.{\\Umathcode} primitive@>
-primitive("Udelcode",extdef_code,del_code_base+1);
+primitive_luatex("Udelcode",extdef_code,del_code_base+1);
 @!@:del_code_}{\.{\\Udelcode} primitive@>
-primitive("Umathcodenum",extdef_code,math_code_base+2);
+primitive_luatex("Umathcodenum",extdef_code,math_code_base+2);
 @!@:math_code_}{\.{\\Umathcodenum} primitive@>
-primitive("Udelcodenum",extdef_code,del_code_base+2);
+primitive_luatex("Udelcodenum",extdef_code,del_code_base+2);
 @!@:del_code_}{\.{\\Udelcodenum} primitive@>
 
 
@@ -25834,17 +25575,17 @@ set_shape: begin q:=cur_chr; scan_optional_equals; scan_int; n:=cur_val;
 @ New language information data is loaded by the |hyph_data| command.
 
 @<Put each...@>=
-primitive("hyphenation",hyph_data,0);
+primitive_tex("hyphenation",hyph_data,0);
 @!@:hyphenation_}{\.{\\hyphenation} primitive@>
-primitive("patterns",hyph_data,1);
+primitive_tex("patterns",hyph_data,1);
 @!@:patterns_}{\.{\\patterns} primitive@>
-primitive("prehyphenchar",hyph_data,2);
+primitive_luatex("prehyphenchar",hyph_data,2);
 @!@:prehyphenchar_}{\.{\\prehyphenchar} primitive@>
-primitive("posthyphenchar",hyph_data,3);
+primitive_luatex("posthyphenchar",hyph_data,3);
 @!@:posthyphenchar_}{\.{\\posthyphenchar} primitive@>
-primitive("preexhyphenchar",hyph_data,4);
+primitive_luatex("preexhyphenchar",hyph_data,4);
 @!@:preexhyphenchar_}{\.{\\preexhyphenchar} primitive@>
-primitive("postexhyphenchar",hyph_data,5);
+primitive_luatex("postexhyphenchar",hyph_data,5);
 @!@:postexhyphenchar_}{\.{\\postexhyphenchar} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -25895,19 +25636,19 @@ assign_font_int: begin
 end;
 
 @ @<Put each...@>=
-primitive("hyphenchar",assign_font_int,0);
+primitive_tex("hyphenchar",assign_font_int,0);
 @!@:hyphen_char_}{\.{\\hyphenchar} primitive@>
-primitive("skewchar",assign_font_int,1);
+primitive_tex("skewchar",assign_font_int,1);
 @!@:skew_char_}{\.{\\skewchar} primitive@>
-primitive("lpcode",assign_font_int,lp_code_base);
+primitive_pdftex("lpcode",assign_font_int,lp_code_base);
 @!@:lp_code_}{\.{\\lpcode} primitive@>
-primitive("rpcode",assign_font_int,rp_code_base);
+primitive_pdftex("rpcode",assign_font_int,rp_code_base);
 @!@:rp_code_}{\.{\\rpcode} primitive@>
-primitive("efcode",assign_font_int,ef_code_base);
+primitive_pdftex("efcode",assign_font_int,ef_code_base);
 @!@:ef_code_}{\.{\\efcode} primitive@>
-primitive("tagcode",assign_font_int,tag_code);
+primitive_pdftex("tagcode",assign_font_int,tag_code);
 @!@:tag_code_}{\.{\\tagcode} primitive@>
-primitive("pdfnoligatures",assign_font_int,no_lig_code);
+primitive_pdftex("pdfnoligatures",assign_font_int,no_lig_code);
 @!@:no_lig_code_}{\.{\\pdfnoligatures} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -26026,13 +25767,13 @@ set_font:begin print("select font "); print_font_name(chr_code);
   end;
 
 @ @<Put each...@>=
-primitive("batchmode",set_interaction,batch_mode);
+primitive_tex("batchmode",set_interaction,batch_mode);
 @!@:batch_mode_}{\.{\\batchmode} primitive@>
-primitive("nonstopmode",set_interaction,nonstop_mode);
+primitive_tex("nonstopmode",set_interaction,nonstop_mode);
 @!@:nonstop_mode_}{\.{\\nonstopmode} primitive@>
-primitive("scrollmode",set_interaction,scroll_mode);
+primitive_tex("scrollmode",set_interaction,scroll_mode);
 @!@:scroll_mode_}{\.{\\scrollmode} primitive@>
-primitive("errorstopmode",set_interaction,error_stop_mode);
+primitive_tex("errorstopmode",set_interaction,error_stop_mode);
 @!@:error_stop_mode_}{\.{\\errorstopmode} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -26092,9 +25833,9 @@ any_mode(after_group):begin get_token; save_for_after(cur_tok);
 @ Files for \.{\\read} are opened and closed by the |in_stream| command.
 
 @<Put each...@>=
-primitive("openin",in_stream,1);
+primitive_tex("openin",in_stream,1);
 @!@:open_in_}{\.{\\openin} primitive@>
-primitive("closein",in_stream,0);
+primitive_tex("closein",in_stream,0);
 @!@:close_in_}{\.{\\closein} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -26130,9 +25871,9 @@ current mode.
 any_mode(message):issue_message;
 
 @ @<Put each...@>=
-primitive("message",message,0);
+primitive_tex("message",message,0);
 @!@:message_}{\.{\\message} primitive@>
-primitive("errmessage",message,1);
+primitive_tex("errmessage",message,1);
 @!@:err_message_}{\.{\\errmessage} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -26198,9 +25939,9 @@ building a token list and then changing the cases of the letters in it.
 any_mode(case_shift):shift_case;
 
 @ @<Put each...@>=
-primitive("lowercase",case_shift,lc_code_base);
+primitive_tex("lowercase",case_shift,lc_code_base);
 @!@:lowercase_}{\.{\\lowercase} primitive@>
-primitive("uppercase",case_shift,uc_code_base);
+primitive_tex("uppercase",case_shift,uc_code_base);
 @!@:uppercase_}{\.{\\uppercase} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -26256,13 +25997,13 @@ any_mode(xray): show_whatever;
 @d show_lists=3 { \.{\\showlists} }
 
 @<Put each...@>=
-primitive("show",xray,show_code);
+primitive_tex("show",xray,show_code);
 @!@:show_}{\.{\\show} primitive@>
-primitive("showbox",xray,show_box_code);
+primitive_tex("showbox",xray,show_box_code);
 @!@:show_box_}{\.{\\showbox} primitive@>
-primitive("showthe",xray,show_the_code);
+primitive_tex("showthe",xray,show_the_code);
 @!@:show_the_}{\.{\\showthe} primitive@>
-primitive("showlists",xray,show_lists);
+primitive_tex("showlists",xray,show_lists);
 @!@:show_lists_}{\.{\\showlists} primitive@>
 
 @ @<Cases of |print_cmd_chr|...@>=
@@ -26664,8 +26405,7 @@ two words, |p| and |hash[p]|. The hash table is, of course, densely packed
 for |p>=hash_used|, so the remaining entries are output in a~block.
 
 @<Dump the hash table@>=
-for p:=0 to prim_size do dump_hh(prim[p]);
-for p:=0 to prim_size do dump_wd(prim_eqtb[p]);
+dump_primitives;
 dump_int(hash_used); cs_count:=frozen_control_sequence-1-hash_used;
 for p:=hash_base to hash_used do if text(p)<>0 then
   begin dump_int(p); dump_hh(hash[p]); incr(cs_count);
@@ -26675,8 +26415,7 @@ dump_int(cs_count);@/
 print_ln; print_int(cs_count); print(" multiletter control sequences")
 
 @ @<Undump the hash table@>=
-for p:=0 to prim_size do undump_hh(prim[p]);
-for p:=0 to prim_size do undump_wd(prim_eqtb[p]);
+undump_primitives;
 undump(hash_base)(frozen_control_sequence)(hash_used); p:=hash_base-1;
 repeat undump(p+1)(hash_used)(p); undump_hh(hash[p]);
 until p=hash_used;
@@ -27476,96 +27215,97 @@ stays the same.
 @d pdftex_last_extension_code  == pdftex_first_extension_code + 34
 
 @<Put each...@>=
-primitive("openout",extension,open_node);@/
+primitive_tex("openout",extension,open_node);@/
 @!@:open_out_}{\.{\\openout} primitive@>
-primitive("write",extension,write_node); write_loc:=cur_val;@/
+primitive_tex("write",extension,write_node); write_loc:=cur_val;@/
 @!@:write_}{\.{\\write} primitive@>
-primitive("closeout",extension,close_node);@/
+primitive_tex("closeout",extension,close_node);@/
 @!@:close_out_}{\.{\\closeout} primitive@>
-primitive("special",extension,special_node);@/
+primitive_tex("special",extension,special_node);@/
 @!@:special_}{\.{\\special} primitive@>
-primitive("immediate",extension,immediate_code);@/
+text(frozen_special):="special"; eqtb[frozen_special]:=eqtb[cur_val];@/
+primitive_tex("immediate",extension,immediate_code);@/
 @!@:immediate_}{\.{\\immediate} primitive@>
-primitive("localinterlinepenalty",assign_int,int_base+local_inter_line_penalty_code);@/
-primitive("localbrokenpenalty",assign_int,int_base+local_broken_penalty_code);@/
-primitive("pagedir",assign_dir,dir_base+page_direction_code);@/
-primitive("bodydir",assign_dir,dir_base+body_direction_code);@/
-primitive("pardir",assign_dir,dir_base+par_direction_code);@/
-primitive("textdir",assign_dir,dir_base+text_direction_code);@/
-primitive("mathdir",assign_dir,dir_base+math_direction_code);@/
-primitive("pageleftoffset",assign_dimen,dimen_base+page_left_offset_code);
-primitive("pagetopoffset",assign_dimen,dimen_base+page_top_offset_code);
-primitive("pagerightoffset",assign_dimen,dimen_base+page_right_offset_code);
-primitive("pagebottomoffset",assign_dimen,dimen_base+page_bottom_offset_code);
-primitive("pdfliteral",extension,pdf_literal_node);@/
+primitive_omega("localinterlinepenalty",assign_int,int_base+local_inter_line_penalty_code);@/
+primitive_omega("localbrokenpenalty",assign_int,int_base+local_broken_penalty_code);@/
+primitive_omega("pagedir",assign_dir,dir_base+page_direction_code);@/
+primitive_omega("bodydir",assign_dir,dir_base+body_direction_code);@/
+primitive_omega("pardir",assign_dir,dir_base+par_direction_code);@/
+primitive_omega("textdir",assign_dir,dir_base+text_direction_code);@/
+primitive_omega("mathdir",assign_dir,dir_base+math_direction_code);@/
+primitive_luatex("pageleftoffset",assign_dimen,dimen_base+page_left_offset_code);
+primitive_luatex("pagetopoffset",assign_dimen,dimen_base+page_top_offset_code);
+primitive_aleph("pagerightoffset",assign_dimen,dimen_base+page_right_offset_code);
+primitive_aleph("pagebottomoffset",assign_dimen,dimen_base+page_bottom_offset_code);
+primitive_pdftex("pdfliteral",extension,pdf_literal_node);@/
 @!@:pdf_literal_}{\.{\\pdfliteral} primitive@>
-primitive("pdfcolorstack",extension,pdf_colorstack_node);@/
+primitive_pdftex("pdfcolorstack",extension,pdf_colorstack_node);@/
 @!@:pdf_colorstack_}{\.{\\pdfcolorstack} primitive@>
-primitive("pdfsetmatrix",extension,pdf_setmatrix_node);@/
+primitive_pdftex("pdfsetmatrix",extension,pdf_setmatrix_node);@/
 @!@:pdf_setmatrix_}{\.{\\pdfsetmatrix} primitive@>
-primitive("pdfsave",extension,pdf_save_node);@/
+primitive_pdftex("pdfsave",extension,pdf_save_node);@/
 @!@:pdf_save_}{\.{\\pdfsave} primitive@>
-primitive("pdfrestore",extension,pdf_restore_node);@/
+primitive_pdftex("pdfrestore",extension,pdf_restore_node);@/
 @!@:pdf_restore_}{\.{\\pdfrestore} primitive@>
-primitive("pdfobj",extension,pdf_obj_code);@/
+primitive_pdftex("pdfobj",extension,pdf_obj_code);@/
 @!@:pdf_obj_}{\.{\\pdfobj} primitive@>
-primitive("pdfrefobj",extension,pdf_refobj_node);@/
+primitive_pdftex("pdfrefobj",extension,pdf_refobj_node);@/
 @!@:pdf_refobj_}{\.{\\pdfrefobj} primitive@>
-primitive("pdfxform",extension,pdf_xform_code);@/
+primitive_pdftex("pdfxform",extension,pdf_xform_code);@/
 @!@:pdf_xform_}{\.{\\pdfxform} primitive@>
-primitive("pdfrefxform",extension,pdf_refxform_node);@/
+primitive_pdftex("pdfrefxform",extension,pdf_refxform_node);@/
 @!@:pdf_refxform_}{\.{\\pdfrefxform} primitive@>
-primitive("pdfximage",extension,pdf_ximage_code);@/
+primitive_pdftex("pdfximage",extension,pdf_ximage_code);@/
 @!@:pdf_ximage_}{\.{\\pdfximage} primitive@>
-primitive("pdfrefximage",extension,pdf_refximage_node);@/
+primitive_pdftex("pdfrefximage",extension,pdf_refximage_node);@/
 @!@:pdf_refximage_}{\.{\\pdfrefximage} primitive@>
-primitive("pdfannot",extension,pdf_annot_node);@/
+primitive_pdftex("pdfannot",extension,pdf_annot_node);@/
 @!@:pdf_annot_}{\.{\\pdfannot} primitive@>
-primitive("pdfstartlink",extension,pdf_start_link_node);@/
+primitive_pdftex("pdfstartlink",extension,pdf_start_link_node);@/
 @!@:pdf_start_link_}{\.{\\pdfstartlink} primitive@>
-primitive("pdfendlink",extension,pdf_end_link_node);@/
+primitive_pdftex("pdfendlink",extension,pdf_end_link_node);@/
 @!@:pdf_end_link_}{\.{\\pdfendlink} primitive@>
-primitive("pdfoutline",extension,pdf_outline_code);@/
+primitive_pdftex("pdfoutline",extension,pdf_outline_code);@/
 @!@:pdf_outline_}{\.{\\pdfoutline} primitive@>
-primitive("pdfdest",extension,pdf_dest_node);@/
+primitive_pdftex("pdfdest",extension,pdf_dest_node);@/
 @!@:pdf_dest_}{\.{\\pdfdest} primitive@>
-primitive("pdfthread",extension,pdf_thread_node);@/
+primitive_pdftex("pdfthread",extension,pdf_thread_node);@/
 @!@:pdf_thread_}{\.{\\pdfthread} primitive@>
-primitive("pdfstartthread",extension,pdf_start_thread_node);@/
+primitive_pdftex("pdfstartthread",extension,pdf_start_thread_node);@/
 @!@:pdf_start_thread_}{\.{\\pdfstartthread} primitive@>
-primitive("pdfendthread",extension,pdf_end_thread_node);@/
+primitive_pdftex("pdfendthread",extension,pdf_end_thread_node);@/
 @!@:pdf_end_thread_}{\.{\\pdfendthread} primitive@>
-primitive("pdfsavepos",extension,pdf_save_pos_node);@/
+primitive_pdftex("pdfsavepos",extension,pdf_save_pos_node);@/
 @!@:pdf_save_pos_}{\.{\\pdfsavepos} primitive@>
-primitive("pdfinfo",extension,pdf_info_code);@/
+primitive_pdftex("pdfinfo",extension,pdf_info_code);@/
 @!@:pdf_info_}{\.{\\pdfinfo} primitive@>
-primitive("pdfcatalog",extension,pdf_catalog_code);@/
+primitive_pdftex("pdfcatalog",extension,pdf_catalog_code);@/
 @!@:pdf_catalog_}{\.{\\pdfcatalog} primitive@>
-primitive("pdfnames",extension,pdf_names_code);@/
+primitive_pdftex("pdfnames",extension,pdf_names_code);@/
 @!@:pdf_names_}{\.{\\pdfnames} primitive@>
-primitive("pdfincludechars",extension,pdf_include_chars_code);@/
+primitive_pdftex("pdfincludechars",extension,pdf_include_chars_code);@/
 @!@:pdf_include_chars_}{\.{\\pdfincludechars} primitive@>
-primitive("pdffontattr",extension,pdf_font_attr_code);@/
+primitive_pdftex("pdffontattr",extension,pdf_font_attr_code);@/
 @!@:pdf_font_attr_}{\.{\\pdffontattr} primitive@>
-primitive("pdfmapfile",extension,pdf_map_file_code);@/
+primitive_pdftex("pdfmapfile",extension,pdf_map_file_code);@/
 @!@:pdf_map_file_}{\.{\\pdfmapfile} primitive@>
-primitive("pdfmapline",extension,pdf_map_line_code);@/
+primitive_pdftex("pdfmapline",extension,pdf_map_line_code);@/
 @!@:pdf_map_line_}{\.{\\pdfmapline} primitive@>
-primitive("pdftrailer",extension,pdf_trailer_code);@/
+primitive_pdftex("pdftrailer",extension,pdf_trailer_code);@/
 @!@:pdf_trailer_}{\.{\\pdftrailer} primitive@>
-primitive("savecatcodetable",extension,save_cat_code_table_code);@/
+primitive_luatex("savecatcodetable",extension,save_cat_code_table_code);@/
 @!@:save_cat_code_table_}{\.{\\savecatcodetable} primitive@>
-primitive("initcatcodetable",extension,init_cat_code_table_code);@/
+primitive_luatex("initcatcodetable",extension,init_cat_code_table_code);@/
 @!@:init_cat_code_table_}{\.{\\initcatcodetable} primitive@>
-primitive("pdfsetrandomseed",extension,set_random_seed_code);@/
+primitive_pdftex("pdfsetrandomseed",extension,set_random_seed_code);@/
 @!@:set_random_seed_code}{\.{\\pdfsetrandomseed} primitive@>
-primitive("latelua",extension,late_lua_node);@/
+primitive_luatex("latelua",extension,late_lua_node);@/
 @!@:late_lua_node_}{\.{\\latelua} primitive@>
-primitive("closelua",extension,close_lua_node);@/
+primitive_luatex("closelua",extension,close_lua_node);@/
 @!@:close_lua_node_}{\.{\\closelua} primitive@>
-primitive("pdffontexpand",extension,pdf_font_expand_code);@/
+primitive_pdftex("pdffontexpand",extension,pdf_font_expand_code);@/
 @!@:pdf_font_expand_}{\.{\\pdffontexpand} primitive@>
-primitive("pdfglyphtounicode",extension,pdf_glyph_to_unicode_code);@/
+primitive_pdftex("pdfglyphtounicode",extension,pdf_glyph_to_unicode_code);@/
 @!@:pdf_glyph_to_unicode_}{\.{\\pdfglyphtounicode} primitive@>
 
 @ The variable |write_loc| just introduced is used to provide an
@@ -30223,25 +29963,25 @@ that integer.
 @d font_identifier_code==job_name_code+4 {command code for \.{tex.fontidentifer} (lua)}
 
 @<Generate all \eTeX...@>=
-primitive("lastnodetype",last_item,last_node_type_code);
+primitive_etex("lastnodetype",last_item,last_node_type_code);
 @!@:last_node_type_}{\.{\\lastnodetype} primitive@>
-primitive("Alephversion",last_item,Aleph_version_code);
+primitive_aleph("Alephversion",last_item,Aleph_version_code);
 @!@:eTeX_version_}{\.{\\Alephversion} primitive@>
-primitive("Omegaversion",last_item,Omega_version_code);
+primitive_aleph("Omegaversion",last_item,Omega_version_code);
 @!@:eTeX_version_}{\.{\\Omegaversion} primitive@>
-primitive("eTeXversion",last_item,eTeX_version_code);
+primitive_etex("eTeXversion",last_item,eTeX_version_code);
 @!@:eTeX_version_}{\.{\\eTeXversion} primitive@>
-primitive("Alephminorversion",last_item,Aleph_minor_version_code);
+primitive_aleph("Alephminorversion",last_item,Aleph_minor_version_code);
 @!@:eTeX_minor_version_}{\.{\\Alephminorversion} primitive@>
-primitive("Omegaminorversion",last_item,Omega_minor_version_code);
+primitive_aleph("Omegaminorversion",last_item,Omega_minor_version_code);
 @!@:eTeX_minor_version_}{\.{\\Omegaminorversion} primitive@>
-primitive("eTeXminorversion",last_item,eTeX_minor_version_code);
+primitive_etex("eTeXminorversion",last_item,eTeX_minor_version_code);
 @!@:eTeX_minor_version_}{\.{\\eTeXminorversion} primitive@>
-primitive("Alephrevision",convert,Aleph_revision_code);@/
+primitive_aleph("Alephrevision",convert,Aleph_revision_code);@/
 @!@:eTeX_revision_}{\.{\\Alephrevision} primitive@>
-primitive("Omegarevision",convert,Omega_revision_code);@/
+primitive_aleph("Omegarevision",convert,Omega_revision_code);@/
 @!@:eTeX_revision_}{\.{\\Omegarevision} primitive@>
-primitive("eTeXrevision",convert,eTeX_revision_code);@/
+primitive_etex("eTeXrevision",convert,eTeX_revision_code);@/
 @!@:eTeX_revision_}{\.{\\eTeXrevision} primitive@>
 
 @ @<Cases of |last_item| for |print_cmd_chr|@>=
@@ -30281,34 +30021,34 @@ eTeX_revision_code: print(eTeX_revision);
 equivalents.
 
 @<Generate all \eTeX...@>=
-primitive("everyeof",assign_toks,every_eof_loc);
+primitive_etex("everyeof",assign_toks,every_eof_loc);
 @!@:every_eof_}{\.{\\everyeof} primitive@>
-primitive("tracingassigns",assign_int,int_base+tracing_assigns_code);@/
+primitive_etex("tracingassigns",assign_int,int_base+tracing_assigns_code);@/
 @!@:tracing_assigns_}{\.{\\tracingassigns} primitive@>
-primitive("tracinggroups",assign_int,int_base+tracing_groups_code);@/
+primitive_etex("tracinggroups",assign_int,int_base+tracing_groups_code);@/
 @!@:tracing_groups_}{\.{\\tracinggroups} primitive@>
-primitive("tracingifs",assign_int,int_base+tracing_ifs_code);@/
+primitive_etex("tracingifs",assign_int,int_base+tracing_ifs_code);@/
 @!@:tracing_ifs_}{\.{\\tracingifs} primitive@>
-primitive("tracingscantokens",assign_int,int_base+tracing_scan_tokens_code);@/
+primitive_etex("tracingscantokens",assign_int,int_base+tracing_scan_tokens_code);@/
 @!@:tracing_scan_tokens_}{\.{\\tracingscantokens} primitive@>
-primitive("tracingnesting",assign_int,int_base+tracing_nesting_code);@/
+primitive_etex("tracingnesting",assign_int,int_base+tracing_nesting_code);@/
 @!@:tracing_nesting_}{\.{\\tracingnesting} primitive@>
-primitive("predisplaydirection",
+primitive_etex("predisplaydirection",
   assign_int,int_base+pre_display_direction_code);@/
 @!@:pre_display_direction_}{\.{\\predisplaydirection} primitive@>
-primitive("lastlinefit",assign_int,int_base+last_line_fit_code);@/
+primitive_etex("lastlinefit",assign_int,int_base+last_line_fit_code);@/
 @!@:last_line_fit_}{\.{\\lastlinefit} primitive@>
-primitive("savingvdiscards",assign_int,int_base+saving_vdiscards_code);@/
+primitive_etex("savingvdiscards",assign_int,int_base+saving_vdiscards_code);@/
 @!@:saving_vdiscards_}{\.{\\savingvdiscards} primitive@>
-primitive("savinghyphcodes",assign_int,int_base+saving_hyph_codes_code);@/
+primitive_etex("savinghyphcodes",assign_int,int_base+saving_hyph_codes_code);@/
 @!@:saving_hyph_codes_}{\.{\\savinghyphcodes} primitive@>
-primitive("suppressfontnotfounderror",assign_int,int_base+suppress_fontnotfound_error_code);@/
+primitive_luatex("suppressfontnotfounderror",assign_int,int_base+suppress_fontnotfound_error_code);@/
 @!@:suppress_fontnotfound_error_code_}{\.{\\suppressfontnotfounderror} primitive@>
-primitive("suppresslongerror",assign_int,int_base+suppress_long_error_code);@/
+primitive_luatex("suppresslongerror",assign_int,int_base+suppress_long_error_code);@/
 @!@:suppress_long_error_code_}{\.{\\suppresslongerror} primitive@>
-primitive("suppressifcsnameerror",assign_int,int_base+suppress_ifcsname_error_code);@/
+primitive_luatex("suppressifcsnameerror",assign_int,int_base+suppress_ifcsname_error_code);@/
 @!@:suppress_ifcsname_error_code_}{\.{\\suppressifcsnameerror} primitive@>
-primitive("synctex",assign_int,int_base+synctex_code);@/
+primitive_luatex("synctex",assign_int,int_base+synctex_code);@/
 @!@:synctex_}{\.{\\synctex} primitive@>
 
 @ @d every_eof==equiv(every_eof_loc)
@@ -30397,9 +30137,9 @@ respectively.
 @d current_group_type_code=eTeX_int+2 {code for \.{\\currentgrouptype}}
 
 @<Generate all \eTeX...@>=
-primitive("currentgrouplevel",last_item,current_group_level_code);
+primitive_etex("currentgrouplevel",last_item,current_group_level_code);
 @!@:current_group_level_}{\.{\\currentgrouplevel} primitive@>
-primitive("currentgrouptype",last_item,current_group_type_code);
+primitive_etex("currentgrouptype",last_item,current_group_type_code);
 @!@:current_group_type_}{\.{\\currentgrouptype} primitive@>
 
 @ @<Cases of |last_item| for |print_cmd_chr|@>=
@@ -30419,11 +30159,11 @@ and the type and branch of the current conditional.
 @d current_if_branch_code=eTeX_int+5 {code for \.{\\currentifbranch}}
 
 @<Generate all \eTeX...@>=
-primitive("currentiflevel",last_item,current_if_level_code);
+primitive_etex("currentiflevel",last_item,current_if_level_code);
 @!@:current_if_level_}{\.{\\currentiflevel} primitive@>
-primitive("currentiftype",last_item,current_if_type_code);
+primitive_etex("currentiftype",last_item,current_if_type_code);
 @!@:current_if_type_}{\.{\\currentiftype} primitive@>
-primitive("currentifbranch",last_item,current_if_branch_code);
+primitive_etex("currentifbranch",last_item,current_if_branch_code);
 @!@:current_if_branch_}{\.{\\currentifbranch} primitive@>
 
 @ @<Cases of |last_item| for |print_cmd_chr|@>=
@@ -30455,17 +30195,17 @@ font.
 @d font_char_ic_code=eTeX_dim+3 {code for \.{\\fontcharic}}
 
 @<Generate all \eTeX...@>=
-primitive("charwd",last_item,font_char_wd_code);
-primitive("fontcharwd",last_item,font_char_wd_code);
+primitive_omega("charwd",last_item,font_char_wd_code);
+primitive_etex("fontcharwd",last_item,font_char_wd_code);
 @!@:font_char_wd_}{\.{\\fontcharwd} primitive@>
-primitive("charht",last_item,font_char_ht_code);
-primitive("fontcharht",last_item,font_char_ht_code);
+primitive_omega("charht",last_item,font_char_ht_code);
+primitive_etex("fontcharht",last_item,font_char_ht_code);
 @!@:font_char_ht_}{\.{\\fontcharht} primitive@>
-primitive("chardp",last_item,font_char_dp_code);
-primitive("fontchardp",last_item,font_char_dp_code);
+primitive_omega("chardp",last_item,font_char_dp_code);
+primitive_etex("fontchardp",last_item,font_char_dp_code);
 @!@:font_char_dp_}{\.{\\fontchardp} primitive@>
-primitive("charic",last_item,font_char_ic_code);
-primitive("fontcharic",last_item,font_char_ic_code);
+primitive_omega("charit",last_item,font_char_ic_code);
+primitive_etex("fontcharic",last_item,font_char_ic_code);
 @!@:font_char_ic_}{\.{\\fontcharic} primitive@>
 
 @ @<Cases of |last_item| for |print_cmd_chr|@>=
@@ -30500,11 +30240,11 @@ commands return the indent and length parameters of the current
 @d par_shape_dimen_code=eTeX_dim+6 {code for \.{\\parshapedimen}}
 
 @<Generate all \eTeX...@>=
-primitive("parshapelength",last_item,par_shape_length_code);
+primitive_etex("parshapelength",last_item,par_shape_length_code);
 @!@:par_shape_length_}{\.{\\parshapelength} primitive@>
-primitive("parshapeindent",last_item,par_shape_indent_code);
+primitive_etex("parshapeindent",last_item,par_shape_indent_code);
 @!@:par_shape_indent_}{\.{\\parshapeindent} primitive@>
-primitive("parshapedimen",last_item,par_shape_dimen_code);
+primitive_etex("parshapedimen",last_item,par_shape_dimen_code);
 @!@:par_shape_dimen_}{\.{\\parshapedimen} primitive@>
 
 @ @<Cases of |last_item| for |print_cmd_chr|@>=
@@ -30532,7 +30272,7 @@ levels.
 @d show_groups=4 { \.{\\showgroups} }
 
 @<Generate all \eTeX...@>=
-primitive("showgroups",xray,show_groups);
+primitive_etex("showgroups",xray,show_groups);
 @!@:show_groups_}{\.{\\showgroups} primitive@>
 
 @ @<Cases of |xray| for |print_cmd_chr|@>=
@@ -30703,7 +30443,7 @@ end;
 @d show_tokens=5 { \.{\\showtokens} , must be odd! }
 
 @<Generate all \eTeX...@>=
-primitive("showtokens",xray,show_tokens);
+primitive_etex("showtokens",xray,show_tokens);
 @!@:show_tokens_}{\.{\\showtokens} primitive@>
 
 @ @<Cases of |xray| for |print_cmd_chr|@>=
@@ -30718,9 +30458,9 @@ use the fact that the command modifiers for \.{\\unexpanded} and
 are even.
 
 @<Generate all \eTeX...@>=
-primitive("unexpanded",the,1);@/
+primitive_etex("unexpanded",the,1);@/
 @!@:unexpanded_}{\.{\\unexpanded} primitive@>
-primitive("detokenize",the,show_tokens);@/
+primitive_etex("detokenize",the,show_tokens);@/
 @!@:detokenize_}{\.{\\detokenize} primitive@>
 
 @ @<Cases of |the| for |print_cmd_chr|@>=
@@ -30744,7 +30484,7 @@ if odd(cur_chr) then
 @d show_ifs=6 { \.{\\showifs} }
 
 @<Generate all \eTeX...@>=
-primitive("showifs",xray,show_ifs);
+primitive_etex("showifs",xray,show_ifs);
 @!@:show_ifs_}{\.{\\showifs} primitive@>
 
 @ @<Cases of |xray| for |print_cmd_chr|@>=
@@ -30776,7 +30516,7 @@ show_ifs: begin begin_diagnostic; print_nl(""); print_ln;
 interaction mode.
 
 @<Generate all \eTeX...@>=
-primitive("interactionmode",set_page_int,2);
+primitive_etex("interactionmode",set_page_int,2);
 @!@:interaction_mode_}{\.{\\interactionmode} primitive@>
 
 @ @<Cases of |set_page_int| for |print_cmd_chr|@>=
@@ -30805,9 +30545,9 @@ else if c=2 then
 primitive.
 
 @<Generate all \eTeX...@>=
-primitive("scantokens",input,2);
+primitive_etex("scantokens",input,2);
 @!@:scan_tokens_}{\.{\\scantokens} primitive@>
-primitive("scantextokens",input,3);
+primitive_luatex("scantextokens",input,3);
 @!@:scan_tex_tokens_}{\.{\\scantextokens} primitive@>
 
 @ @<Cases of |input| for |print_cmd_chr|@>=
@@ -30929,7 +30669,7 @@ end;
 while pseudo_files<>null do pseudo_close; {flush pseudo files}
 
 @ @<Generate all \eTeX...@>=
-primitive("readline",read_to_cs,1);@/
+primitive_etex("readline",read_to_cs,1);@/
 @!@:read_line_}{\.{\\readline} primitive@>
 
 @ @<Cases of |read| for |print_cmd_chr|@>=
@@ -30957,23 +30697,23 @@ if j=1 then
 @d if_abs_dim_code=23 { `\.{\\ifabsdim}' }
 
 @<Generate all \eTeX...@>=
-primitive("unless",expand_after,1);@/
+primitive_etex("unless",expand_after,1);@/
 @!@:unless_}{\.{\\unless} primitive@>
-primitive("ifdefined",if_test,if_def_code);
+primitive_etex("ifdefined",if_test,if_def_code);
 @!@:if_defined_}{\.{\\ifdefined} primitive@>
-primitive("ifcsname",if_test,if_cs_code);
+primitive_etex("ifcsname",if_test,if_cs_code);
 @!@:if_cs_name_}{\.{\\ifcsname} primitive@>
-primitive("iffontchar",if_test,if_font_char_code);
+primitive_etex("iffontchar",if_test,if_font_char_code);
 @!@:if_font_char_}{\.{\\iffontchar} primitive@>
-primitive("ifincsname",if_test,if_in_csname_code);
+primitive_pdftex("ifincsname",if_test,if_in_csname_code);
 @!@:if_in_csname_}{\.{\\ifincsname} primitive@>
-primitive("ifabsnum",if_test,if_abs_num_code);
+primitive_luatex("ifabsnum",if_test,if_abs_num_code);
 @!@:if_abs_num_}{\.{\\ifabsnum} primitive@>
-primitive("ifabsdim",if_test,if_abs_dim_code);
+primitive_luatex("ifabsdim",if_test,if_abs_dim_code);
 @!@:if_abs_dim_}{\.{\\ifabsdim} primitive@>
-primitive("ifpdfabsnum",if_test,if_abs_num_code);
+primitive_pdftex("ifpdfabsnum",if_test,if_abs_num_code);
 @!@:if_abs_num_}{\.{\\ifpdfabsnum} primitive@>
-primitive("ifpdfabsdim",if_test,if_abs_dim_code);
+primitive_pdftex("ifpdfabsdim",if_test,if_abs_dim_code);
 @!@:if_abs_dim_}{\.{\\ifpdfabsdim} primitive@>
 
 @ @<Cases of |expandafter| for |print_cmd_chr|@>=
@@ -31114,7 +30854,7 @@ expansions when lists of expanded tokens are built, e.g., for \.{\\edef}
 or during \.{\\write}.
 
 @<Generate all \eTeX...@>=
-primitive("protected",prefix,8);
+primitive_etex("protected",prefix,8);
 @!@:protected_}{\.{\\protected} primitive@>
 
 @ @<Cases of |prefix| for |print_cmd_chr|@>=
@@ -31250,13 +30990,13 @@ end;
 @ Here are the additional \eTeX\ primitives for expressions.
 
 @<Generate all \eTeX...@>=
-primitive("numexpr",last_item,eTeX_expr-int_val+int_val);
+primitive_etex("numexpr",last_item,eTeX_expr-int_val+int_val);
 @!@:num_expr_}{\.{\\numexpr} primitive@>
-primitive("dimexpr",last_item,eTeX_expr-int_val+dimen_val);
+primitive_etex("dimexpr",last_item,eTeX_expr-int_val+dimen_val);
 @!@:dim_expr_}{\.{\\dimexpr} primitive@>
-primitive("glueexpr",last_item,eTeX_expr-int_val+glue_val);
+primitive_etex("glueexpr",last_item,eTeX_expr-int_val+glue_val);
 @!@:glue_expr_}{\.{\\glueexpr} primitive@>
-primitive("muexpr",last_item,eTeX_expr-int_val+mu_val);
+primitive_etex("muexpr",last_item,eTeX_expr-int_val+mu_val);
 @!@:mu_expr_}{\.{\\muexpr} primitive@>
 
 @ @<Cases of |last_item| for |print_cmd_chr|@>=
@@ -31673,13 +31413,13 @@ and their orders of ``infinity'' of a glue specification.
 @d glue_shrink_code=eTeX_dim+8 {code for \.{\\glueshrink}}
 
 @<Generate all \eTeX...@>=
-primitive("gluestretchorder",last_item,glue_stretch_order_code);
+primitive_etex("gluestretchorder",last_item,glue_stretch_order_code);
 @!@:glue_stretch_order_}{\.{\\gluestretchorder} primitive@>
-primitive("glueshrinkorder",last_item,glue_shrink_order_code);
+primitive_etex("glueshrinkorder",last_item,glue_shrink_order_code);
 @!@:glue_shrink_order_}{\.{\\glueshrinkorder} primitive@>
-primitive("gluestretch",last_item,glue_stretch_code);
+primitive_etex("gluestretch",last_item,glue_stretch_code);
 @!@:glue_stretch_}{\.{\\gluestretch} primitive@>
-primitive("glueshrink",last_item,glue_shrink_code);
+primitive_etex("glueshrink",last_item,glue_shrink_code);
 @!@:glue_shrink_}{\.{\\glueshrink} primitive@>
 
 @ @<Cases of |last_item| for |print_cmd_chr|@>=
@@ -31712,9 +31452,9 @@ into normal glue and vice versa; they allow to manipulate math glue with
 @d glue_to_mu_code=eTeX_mu {code for \.{\\gluetomu}}
 
 @<Generate all \eTeX...@>=
-primitive("mutoglue",last_item,mu_to_glue_code);
+primitive_etex("mutoglue",last_item,mu_to_glue_code);
 @!@:mu_to_glue_}{\.{\\mutoglue} primitive@>
-primitive("gluetomu",last_item,glue_to_mu_code);
+primitive_etex("gluetomu",last_item,glue_to_mu_code);
 @!@:glue_to_mu_}{\.{\\gluetomu} primitive@>
 
 @ @<Cases of |last_item| for |print_cmd_chr|@>=
@@ -31751,9 +31491,9 @@ distinguished by their |chr_code| values |last_box_code| and
 |copy_code|.
 
 @<Generate all \eTeX...@>=
-primitive("pagediscards",un_vbox,last_box_code);@/
+primitive_etex("pagediscards",un_vbox,last_box_code);@/
 @!@:page_discards_}{\.{\\pagediscards} primitive@>
-primitive("splitdiscards",un_vbox,vsplit_code);@/
+primitive_etex("splitdiscards",un_vbox,vsplit_code);@/
 @!@:split_discards_}{\.{\\splitdiscards} primitive@>
 
 @ @<Cases of |un_vbox| for |print_cmd_chr|@>=
@@ -31775,13 +31515,13 @@ penalty values to be used instead of the corresponding single values.
 @d display_widow_penalties_ptr==equiv(display_widow_penalties_loc)
 
 @<Generate all \eTeX...@>=
-primitive("interlinepenalties",set_shape,inter_line_penalties_loc);@/
+primitive_etex("interlinepenalties",set_shape,inter_line_penalties_loc);@/
 @!@:inter_line_penalties_}{\.{\\interlinepenalties} primitive@>
-primitive("clubpenalties",set_shape,club_penalties_loc);@/
+primitive_etex("clubpenalties",set_shape,club_penalties_loc);@/
 @!@:club_penalties_}{\.{\\clubpenalties} primitive@>
-primitive("widowpenalties",set_shape,widow_penalties_loc);@/
+primitive_etex("widowpenalties",set_shape,widow_penalties_loc);@/
 @!@:widow_penalties_}{\.{\\widowpenalties} primitive@>
-primitive("displaywidowpenalties",set_shape,display_widow_penalties_loc);@/
+primitive_etex("displaywidowpenalties",set_shape,display_widow_penalties_loc);@/
 @!@:display_widow_penalties_}{\.{\\displaywidowpenalties} primitive@>
 
 @ @<Cases of |set_shape| for |print_cmd_chr|@>=
@@ -32683,17 +32423,17 @@ end
     end
    
 @ @<Put each...@>=
-primitive("ocp", def_ocp, 0);
-primitive("externalocp", def_ocp, 1);
-primitive("ocplist", def_ocp_list, 0);
-primitive("pushocplist", push_ocp_list, 0);
-primitive("popocplist", pop_ocp_list, 0);
-primitive("clearocplists", clear_ocp_lists, 0);
-primitive("addbeforeocplist", ocp_list_op, add_before_op);
-primitive("addafterocplist", ocp_list_op, add_after_op);
-primitive("removebeforeocplist", ocp_list_op, remove_before_op);
-primitive("removeafterocplist", ocp_list_op, remove_after_op);
-primitive("ocptracelevel", ocp_trace_level, 0);
+primitive_omega("ocp", def_ocp, 0);
+primitive_omega("externalocp", def_ocp, 1);
+primitive_omega("ocplist", def_ocp_list, 0);
+primitive_omega("pushocplist", push_ocp_list, 0);
+primitive_omega("popocplist", pop_ocp_list, 0);
+primitive_omega("clearocplists", clear_ocp_lists, 0);
+primitive_omega("addbeforeocplist", ocp_list_op, add_before_op);
+primitive_omega("addafterocplist", ocp_list_op, add_after_op);
+primitive_omega("removebeforeocplist", ocp_list_op, remove_before_op);
+primitive_omega("removeafterocplist", ocp_list_op, remove_after_op);
+primitive_omega("ocptracelevel", ocp_trace_level, 0);
 equiv(ocp_trace_level_base):=0;
 
 @ @<Cases of |print_cmd_chr|...@>=

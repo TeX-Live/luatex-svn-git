@@ -772,5 +772,6 @@ extern void get_lua_number(char *table, char *name, integer * target);
 extern void get_lua_string(char *table, char *name, char **target);
 
 #  include "texmath.h"
+#  include "primitive.h"
 
 #endif                          /* PDFTEXLIB */

@@ -110,6 +110,7 @@ tex/textoken.o \
 tex/texpdf.o \
 tex/math.o \
 tex/mlist.o \
+tex/primitive.o \
 managed-sa.o \
 mathcodes.o \
 textcodes.o \

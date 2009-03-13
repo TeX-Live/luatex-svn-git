@@ -855,3 +855,30 @@
 @define const align_head ;
 @define const end_span ;
 
+
+@define const tex_command;
+@define const etex_command;
+@define const aleph_command;
+@define const pdftex_command;
+@define const luatex_command;
+
+@define procedure primitive_tex();
+@define procedure primitive_etex();
+@define procedure primitive_aleph();
+@define procedure primitive_omega();
+@define procedure primitive_pdftex();
+@define procedure primitive_luatex();
+
+@define procedure init_primitives;
+@define procedure ini_init_primitives;
+@define procedure dump_primitives;
+@define procedure undump_primitives;
+@define function compute_pool_hash();
+
+@define const undefined_primitive;
+@define const hash_prime;
+
+@define function get_prim_eq_type();
+@define function get_prim_equiv();
+@define function prim_lookup();
+@define function id_lookup();

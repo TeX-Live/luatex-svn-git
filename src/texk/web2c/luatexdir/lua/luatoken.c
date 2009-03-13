@@ -322,7 +322,6 @@ static int get_cur_cs(lua_State * L)
 #define is_cat_letter(a)                                                \
   (get_char_cat_code(pool_to_unichar(str_start_macro(a))) == 11)
 
-static int hash_base = 0;
 static int eqtb_size = 0;
 static int null_cs = 0;
 static int undefined_control_sequence;
@@ -348,8 +347,7 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
     }
     ret = xmalloc(alloci);
     p = link(p);                /* skip refcount */
-    if (hash_base == 0) {
-        hash_base = get_hash_base();
+    if (eqtb_size == 0) {
         null_cs = get_nullcs();
         eqtb_size = get_eqtb_size();
         undefined_control_sequence = get_undefined_control_sequence();

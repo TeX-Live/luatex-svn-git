@@ -207,20 +207,6 @@ versions of the program.
 @z
 
 @x
-@d font_base=0 {smallest internal font number; must not be less
-  than |min_quarterword|}
-@d hash_size=2100 {maximum number of control sequences; it should be at most
-  about |(fix_mem_max-fix_mem_min)/10|}
-@d hash_prime=1777 {a prime number equal to about 85\pct! of |hash_size|}
-@y
-@d font_base=0 {smallest internal font number; must not be less
-  than |min_quarterword|}
-@d hash_size=65536 {maximum number of control sequences; it should be at most
-  about |(mem_max-mem_min)/10|}
-@d hash_prime=55711 {a prime number equal to about 85\pct! of |hash_size|}
-@z
-
-@x
 @d incr(#) == #:=#+1 {increase a variable by unity}
 @d decr(#) == #:=#-1 {decrease a variable by unity}
 @y
@@ -731,16 +717,6 @@ page_depth:=0; page_max_depth:=0;
 @z
 
 @x
-@d frozen_null_font=frozen_control_sequence+12
-  {permanent `\.{\\nullfont}'}
-@y
-@d frozen_special=frozen_control_sequence+12
-  {permanent `\.{\\special}'}
-@d frozen_null_font=frozen_control_sequence+13
-  {permanent `\.{\\nullfont}'}
-@z
-
-@x
 for k:=null_cs to undefined_control_sequence-1 do
   eqtb[k]:=eqtb[undefined_control_sequence];
 @y
@@ -813,59 +789,6 @@ hash_used:=frozen_control_sequence; {nothing is used}
 @y
 hash_used:=frozen_control_sequence; {nothing is used}
 hash_high:=0;
-@z
-
-@x
-@ @<Insert a new control...@>=
-begin if text(p)>0 then
-  begin repeat if hash_is_full then overflow("hash size",hash_size);
-@:TeX capacity exceeded hash size}{\quad hash size@>
-  decr(hash_used);
-  until text(hash_used)=0; {search for an empty location in |hash|}
-  next(p):=hash_used; p:=hash_used;
-  end;
-@y
-@ @<Insert a new control...@>=
-begin if text(p)>0 then
-  begin if hash_high<hash_extra then
-      begin incr(hash_high);
-      next(p):=hash_high+eqtb_size; p:=hash_high+eqtb_size;
-      end
-    else begin
-      repeat if hash_is_full then overflow("hash size",hash_size+hash_extra);
-@:TeX capacity exceeded hash size}{\quad hash size@>
-      decr(hash_used);
-      until text(hash_used)=0; {search for an empty location in |hash|}
-    next(p):=hash_used; p:=hash_used;
-    end;
-  end;
-@z
-
-
-@x
-@ @<Insert a control...@>=
-begin if text(p)>0 then
-  begin repeat if hash_is_full then overflow("hash size",hash_size);
-@:TeX capacity exceeded hash size}{\quad hash size@>
-  decr(hash_used);
-  until text(hash_used)=0; {search for an empty location in |hash|}
-  next(p):=hash_used; p:=hash_used;
-  end;
-@y
-@ @<Insert a control...@>=
-begin if text(p)>0 then
-  begin if hash_high<hash_extra then
-      begin incr(hash_high);
-      next(p):=hash_high+eqtb_size; p:=hash_high+eqtb_size;
-      end
-    else begin
-      repeat if hash_is_full then overflow("hash size",hash_size);
-@:TeX capacity exceeded hash size}{\quad hash size@>
-      decr(hash_used);
-      until text(hash_used)=0; {search for an empty location in |hash|}
-      next(p):=hash_used; p:=hash_used;
-      end;
-  end;
 @z
 
 @x
@@ -2252,13 +2175,6 @@ tini@/
     end
 @y
     abort {do something to cause a core dump}
-@z
-
-@x
-primitive("special",extension,special_node);@/
-@y
-primitive("special",extension,special_node);@/
-text(frozen_special):="special"; eqtb[frozen_special]:=eqtb[cur_val];@/
 @z
 
 @x

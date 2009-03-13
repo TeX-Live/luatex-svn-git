@@ -27,7 +27,6 @@ static const char _svn_version[] =
 extern int get_command_id(char *);
 
 static int max_command = 0;
-static int hash_base = 0;
 static int null_cs = 0;
 
 #define  protected_token 0x1C00001
@@ -286,7 +285,6 @@ int luaopen_token(lua_State * L)
 {
     luaL_register(L, "token", tokenlib);
     max_command = get_max_command();
-    hash_base = get_hash_base();
     null_cs = get_nullcs();
     return 1;
 }

@@ -696,7 +696,7 @@ int settex(lua_State * L)
     if (lua_isstring(L, (i - 1))) {
         st = (char *) lua_tolstring(L, (i - 1), &k);
         texstr = maketexlstring(st, k);
-        if (zis_primitive(texstr)) {
+        if (is_primitive(texstr)) {
             cur_cs = string_lookup(texstr);
             flush_str(texstr);
             cur_cmd = zget_eq_type(cur_cs);
@@ -986,13 +986,13 @@ int gettex(lua_State * L)
         size_t k;
         char *st = (char *) lua_tolstring(L, 2, &k);
         texstr = maketexlstring(st, k);
-        cur_cs = zprim_lookup(texstr);  /* not found == relax == 0 */
+        cur_cs = prim_lookup(texstr);  /* not found == relax == 0 */
         flush_str(texstr);
     }
     if (cur_cs > 0) {
         int cur_cmd, cur_code;
-        cur_cmd = zget_prim_eq_type(cur_cs);
-        cur_code = zget_prim_equiv(cur_cs);
+        cur_cmd = get_prim_eq_type(cur_cs);
+        cur_code = get_prim_equiv(cur_cs);
         switch (cur_cmd) {
         case last_item_cmd:
             retval = do_lastitem(L, cur_code);
@@ -1244,12 +1244,6 @@ static int tex_hashpairs(lua_State * L)
     return 1;
 }
 
-#define prim_size 2100
-#define prim_text(a) prim[(a)].rh
-#define prim_eq_type(a) prim_eqtb[(a)].hh.b0
-#define prim_equiv(a) prim_eqtb[(a)].hh.rh
-
-
 static int tex_primitives(lua_State * L)
 {
     int cmd, chr;
@@ -1257,11 +1251,11 @@ static int tex_primitives(lua_State * L)
     int cs = 0;
     lua_newtable(L);
     while (cs < prim_size) {
-        s = prim_text(cs);
+        s = get_prim_text(cs);
         if (s > 0) {
             lua_pushstring(L, makecstring(s));
-            cmd = prim_eq_type(cs);
-            chr = prim_equiv(cs);
+            cmd = get_prim_eq_type(cs);
+            chr = get_prim_equiv(cs);
             make_token_table(L, cmd, chr, 0);
             lua_rawset(L, -3);
         }
