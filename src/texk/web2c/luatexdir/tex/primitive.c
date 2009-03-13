@@ -54,6 +54,8 @@ static two_halves prim[(prim_size + 1)];        /* the primitives table */
 static pointer prim_used;       /* allocation pointer for |prim| */
 static memory_word prim_eqtb[(prim_size + 1)];
 
+extern char *utf8_idpb(char *w, unsigned int i);
+
 /* initialize the memory arrays */
 
 
@@ -327,7 +329,9 @@ pointer string_lookup(str_number s)
         if (no_new_control_sequence) {
             p = get_undefined_control_sequence();
         } else {
-            if (s <= 0x7F)
+	    char w[5];
+	    utf8_idpb(w, s);
+            if (s <= 0x7F) 
                 l = 1;
             else if (s <= 0x7FF)
                 l = 2;
@@ -335,6 +339,8 @@ pointer string_lookup(str_number s)
                 l = 3;
             else
                 l = 4;
+	    h = compute_hash((char *) w, l, hash_prime);
+	    p = h + hash_base;
             p = insert_id(p, (str_pool + str_start_macro(s)), l);
         }
     } else {
