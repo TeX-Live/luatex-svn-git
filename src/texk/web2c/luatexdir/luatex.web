@@ -29700,11 +29700,9 @@ begin
 end;
 
 procedure output_form(p: pointer);
-var vv: scaled; {TODO: revert vv to v (was needed by convert)}
 begin
-    vv := pos.v - obj_xform_depth(pdf_xform_objnum(p));
     pdf_goto_pagemode;
-    pdf_place_form(pos.h, vv, obj_info(pdf_xform_objnum(p)));
+    pdf_place_form(pos.h, pos.v, obj_info(pdf_xform_objnum(p)));
     if pdf_lookup_list(pdf_xform_list, pdf_xform_objnum(p)) = null then
         pdf_append_list(pdf_xform_objnum(p))(pdf_xform_list);
 end;
@@ -29800,17 +29798,21 @@ begin cur.h:=left_edge;
 end
 
 @ @<Output a Form node in a vlist@>=
-begin cur.v:=cur.v+pdf_height(p);
+begin
   cur.h:=left_edge;
   synch_pos_with_cur;
   case box_direction(dvi_direction) of
+  dir_TL_: begin
+    pos_down(pdf_height(p)+pdf_depth(p));
+    end;
   dir_TR_: begin
     pos_left(pdf_width(p));
+    pos_down(pdf_height(p)+pdf_depth(p));
     end;
   othercases
   endcases;
   output_form(p);
-  cur.v:=cur.v+pdf_depth(p);
+  cur.v:=cur.v+pdf_height(p)+pdf_depth(p);
 end
 
 @ @<Output the whatsit node |p| in |pdf_hlist_out|@>=
@@ -29904,7 +29906,11 @@ begin
   cur.v:=base_line;
   synch_pos_with_cur;
   case box_direction(dvi_direction) of
+  dir_TL_: begin
+    pos_down(pdf_depth(p));
+    end;
   dir_TR_: begin
+    pos_down(pdf_depth(p));
     pos_left(pdf_width(p));
     end;
   othercases
