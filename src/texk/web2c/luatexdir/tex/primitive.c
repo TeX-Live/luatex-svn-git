@@ -54,8 +54,6 @@ static two_halves prim[(prim_size + 1)];        /* the primitives table */
 static pointer prim_used;       /* allocation pointer for |prim| */
 static memory_word prim_eqtb[(prim_size + 1)];
 
-extern char *utf8_idpb(char *w, unsigned int i);
-
 /* initialize the memory arrays */
 
 
@@ -250,11 +248,15 @@ insert_id(halfword p, unsigned char *j, pool_pointer l)
 {
     integer d;
     unsigned char *k;
+    /* This code far from ideal: the existance of |hash_extra| changes
+       all the potential (short) coalesced lists into a single (long)
+       one. This will create a slowdown. */
     if (text(p) > 0) {
         if (hash_high < hash_extra) {
             incr(hash_high);
-            next(p) = hash_high + get_eqtb_size();
-            p = hash_high + get_eqtb_size();
+	    /* can't use eqtb_top here (perhaps because that is not finalized yet when called from |primitive|?) */
+            next(p) = hash_high + get_eqtb_size(); 
+            p = next(p);
         } else {
             do {
                 if (hash_is_full)
@@ -306,7 +308,7 @@ pointer id_lookup(integer j, integer l)
                     goto FOUND;
         if (next(p) == 0) {
             if (no_new_control_sequence) {
-                p = get_undefined_control_sequence();
+	      p = static_undefined_control_sequence;
             } else {
                 p = insert_id(p, (buffer + j), l);
             }
@@ -331,12 +333,11 @@ pointer string_lookup(char *s, size_t l)
     p = h + hash_base;      /* we start searching here; note that |0<=h<hash_prime| */
     while (1) {
       if (text(p) > 0)
-	if (length(text(p)) == (int)l)
-	  if (str_eq_cstr(text(p), s, l))
-	    goto FOUND;
+	if (str_eq_cstr(text(p), s, l))
+	  goto FOUND;
       if (next(p) == 0) {
 	if (no_new_control_sequence) {
-	  p = get_undefined_control_sequence();
+	  p = static_undefined_control_sequence;
 	} else {
 	  p = insert_id(p, (unsigned char *)s, l);
 	}
