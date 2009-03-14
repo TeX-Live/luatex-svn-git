@@ -1,6 +1,6 @@
 /* ltexlib.c
    
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -1247,7 +1247,7 @@ tex_extraprimitives(lua_State * L)
     } else {
       for (i=1;i<=n;i++) {
 	if (lua_isstring(L,i)) {
-	  char *s = lua_tostring(L,i);
+	  char *s = (char *) lua_tostring(L,i);
 	  if (strcmp(s,"etex")==0) {
 	    mask |= etex_command;
 	  } else if (strcmp(s,"pdftex")==0) {
