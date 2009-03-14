@@ -80,7 +80,8 @@ int luapdfprint(lua_State * L)
     switch (literal_mode) {
     case (set_origin):
         pdf_goto_pagemode();
-        tmp.h = cur.h; tmp.v = cur.v;
+        tmp.h = cur.h;
+        tmp.v = cur.v;
         pos = synch_p_with_c(tmp);
         pdf_set_pos(pos.h, pos.v);
         break;

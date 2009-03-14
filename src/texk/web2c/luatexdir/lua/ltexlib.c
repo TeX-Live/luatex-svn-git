@@ -172,7 +172,7 @@ int luacstring_input(void)
 /* open for reading, and make a new one for writing */
 void luacstring_start(int n)
 {
-    (void)n; /* for -W */
+    (void) n;                   /* for -W */
     spindle_index++;
     if (spindle_size == spindle_index) {        /* add a new one */
         spindles = xrealloc(spindles, sizeof(spindle) * (spindle_size + 1));
@@ -188,7 +188,7 @@ void luacstring_start(int n)
 void luacstring_close(int n)
 {
     rope *next, *t;
-    (void)n; /* for -W */
+    (void) n;                   /* for -W */
     next = read_spindle.head;
     while (next != NULL) {
         if (next->text != NULL)
@@ -666,12 +666,13 @@ int settex(lua_State * L)
         st = (char *) lua_tolstring(L, (i - 1), &k);
         texstr = maketexlstring(st, k);
         if (is_primitive(texstr)) {
-	  cur_cs = string_lookup(st, k);
+            cur_cs = string_lookup(st, k);
             flush_str(texstr);
             cur_cmd = zget_eq_type(cur_cs);
             if (is_int_assign(cur_cmd)) {
                 if (lua_isnumber(L, i)) {
-                  assign_internal_value(0,zget_equiv(cur_cs), lua_tonumber(L, i));
+                    assign_internal_value(0, zget_equiv(cur_cs),
+                                          lua_tonumber(L, i));
                 } else {
                     lua_pushstring(L, "unsupported value type");
                     lua_error(L);
@@ -955,7 +956,7 @@ int gettex(lua_State * L)
         size_t k;
         char *st = (char *) lua_tolstring(L, 2, &k);
         texstr = maketexlstring(st, k);
-        cur_cs = prim_lookup(texstr);  /* not found == relax == 0 */
+        cur_cs = prim_lookup(texstr);   /* not found == relax == 0 */
         flush_str(texstr);
     }
     if (cur_cs > 0) {
@@ -1182,7 +1183,7 @@ static int tex_definefont(lua_State * L)
     f = luaL_checkinteger(L, (i + 1));
     t = maketexlstring(csname, l);
     no_new_control_sequence = 0;
-    u = string_lookup(csname,l);
+    u = string_lookup(csname, l);
     no_new_control_sequence = 1;
     if (a)
         geq_define(u, set_font_cmd, f);
@@ -1233,44 +1234,43 @@ static int tex_primitives(lua_State * L)
     return 1;
 }
 
-static int
-tex_extraprimitives(lua_State * L)
+static int tex_extraprimitives(lua_State * L)
 {
     int n, i;
     int mask = 0;
     str_number s = 0;
     int cs = 0;
     n = lua_gettop(L);
-    if (n==0) {
-      mask = etex_command + aleph_command + omega_command +
-	pdftex_command + luatex_command;
+    if (n == 0) {
+        mask = etex_command + aleph_command + omega_command +
+            pdftex_command + luatex_command;
     } else {
-      for (i=1;i<=n;i++) {
-	if (lua_isstring(L,i)) {
-	  char *s = (char *) lua_tostring(L,i);
-	  if (strcmp(s,"etex")==0) {
-	    mask |= etex_command;
-	  } else if (strcmp(s,"pdftex")==0) {
-	    mask |= pdftex_command;
-	  } else if (strcmp(s,"aleph")==0) {
-	    mask |= aleph_command;
-	  } else if (strcmp(s,"omega")==0) {
-	    mask |= omega_command;
-	  } else if (strcmp(s,"luatex")==0) {
-	    mask |= luatex_command;
-	  }
-	}
-      }
+        for (i = 1; i <= n; i++) {
+            if (lua_isstring(L, i)) {
+                char *s = (char *) lua_tostring(L, i);
+                if (strcmp(s, "etex") == 0) {
+                    mask |= etex_command;
+                } else if (strcmp(s, "pdftex") == 0) {
+                    mask |= pdftex_command;
+                } else if (strcmp(s, "aleph") == 0) {
+                    mask |= aleph_command;
+                } else if (strcmp(s, "omega") == 0) {
+                    mask |= omega_command;
+                } else if (strcmp(s, "luatex") == 0) {
+                    mask |= luatex_command;
+                }
+            }
+        }
     }
     lua_newtable(L);
     i = 1;
     while (cs < prim_size) {
         s = get_prim_text(cs);
         if (s > 0) {
-	  if (get_prim_origin(cs) & mask) {
-            lua_pushstring(L, makecstring(s));
-            lua_rawseti(L, -2, i++);
-	  }
+            if (get_prim_origin(cs) & mask) {
+                lua_pushstring(L, makecstring(s));
+                lua_rawseti(L, -2, i++);
+            }
         }
         cs++;
     }

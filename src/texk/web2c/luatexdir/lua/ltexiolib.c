@@ -27,31 +27,29 @@ typedef void (*texio_printer) (strnumber s);
 
 static char *loggable_info = NULL;
 
-static boolean
-get_selector_value (lua_State * L, int i, char *l)
+static boolean get_selector_value(lua_State * L, int i, char *l)
 {
-  boolean r = false;
-  if (lua_isstring(L, i)) {
-    char *s = (char *) lua_tostring(L, i);
-    if (strcmp(s, "log") == 0) {
-      *l = log_only;
-      r = true;
-    } else if (strcmp(s, "term") == 0) {
-      *l = term_only;
-      r = true;
-    } else if (strcmp(s, "term and log") == 0) {
-      *l = term_and_log;
-      r = true;
+    boolean r = false;
+    if (lua_isstring(L, i)) {
+        char *s = (char *) lua_tostring(L, i);
+        if (strcmp(s, "log") == 0) {
+            *l = log_only;
+            r = true;
+        } else if (strcmp(s, "term") == 0) {
+            *l = term_only;
+            r = true;
+        } else if (strcmp(s, "term and log") == 0) {
+            *l = term_and_log;
+            r = true;
+        }
+    } else {
+        lua_pushstring(L, "first argument is not a string");
+        lua_error(L);
     }
-  } else {
-    lua_pushstring(L, "first argument is not a string");
-    lua_error(L);
-  }
-  return r;
+    return r;
 }
 
-static int 
-do_texio_print(lua_State * L, texio_printer printfunction)
+static int do_texio_print(lua_State * L, texio_printer printfunction)
 {
     strnumber texs;
     char *s;
@@ -65,8 +63,8 @@ do_texio_print(lua_State * L, texio_printer printfunction)
         lua_error(L);
     }
     if (n > 1) {
-      if (get_selector_value (L, i, &selector))
-	i++;
+        if (get_selector_value(L, i, &selector))
+            i++;
     }
     if (selector != log_only && selector != term_only
         && selector != term_and_log) {
@@ -76,15 +74,15 @@ do_texio_print(lua_State * L, texio_printer printfunction)
     if (str_start[str_ptr - 0x200000] < pool_ptr)
         u = make_string();
     for (; i <= n; i++) {
-      if (lua_isstring(L, i)) {
-        s = (char *) lua_tolstring(L, i, &k);
-        texs = maketexlstring(s, k);
-        printfunction(texs);
-        flush_str(texs);
-      } else {
-	lua_pushstring(L, "argument is not a string");
-	lua_error(L);
-      }
+        if (lua_isstring(L, i)) {
+            s = (char *) lua_tolstring(L, i, &k);
+            texs = maketexlstring(s, k);
+            printfunction(texs);
+            flush_str(texs);
+        } else {
+            lua_pushstring(L, "argument is not a string");
+            lua_error(L);
+        }
     }
     selector = save_selector;
     if (u != 0)
@@ -92,23 +90,22 @@ do_texio_print(lua_State * L, texio_printer printfunction)
     return 0;
 }
 
-static void
-do_texio_ini_print(lua_State * L, char *extra)
+static void do_texio_ini_print(lua_State * L, char *extra)
 {
     char *s;
     int i = 1;
     char l = term_and_log;
     int n = lua_gettop(L);
     if (n > 1) {
-      if (get_selector_value (L, i, &l)) 
-	i++; 
+        if (get_selector_value(L, i, &l))
+            i++;
     }
     for (; i <= n; i++) {
         if (lua_isstring(L, i)) {
             s = (char *) lua_tostring(L, i);
-            if (l == term_and_log || l == term_only )
+            if (l == term_and_log || l == term_only)
                 fprintf(stdout, "%s%s", extra, s);
-            if (l == log_only || l == term_and_log ) {
+            if (l == log_only || l == term_and_log) {
                 if (loggable_info == NULL) {
                     loggable_info = strdup(s);
                 } else {
@@ -121,8 +118,7 @@ do_texio_ini_print(lua_State * L, char *extra)
     }
 }
 
-static int
-texio_print(lua_State * L)
+static int texio_print(lua_State * L)
 {
     if (ready_already != 314159 || pool_ptr == 0 || job_name == 0) {
         do_texio_ini_print(L, "");
@@ -131,8 +127,7 @@ texio_print(lua_State * L)
     return do_texio_print(L, zprint);
 }
 
-static int
-texio_printnl(lua_State * L)
+static int texio_printnl(lua_State * L)
 {
     if (ready_already != 314159 || pool_ptr == 0 || job_name == 0) {
         do_texio_ini_print(L, "\n");
@@ -142,8 +137,7 @@ texio_printnl(lua_State * L)
 }
 
 /* at the point this function is called, the selector is log_only */
-void 
-flush_loggable_info(void)
+void flush_loggable_info(void)
 {
     if (loggable_info != NULL) {
         fprintf(log_file, "%s\n", loggable_info);
