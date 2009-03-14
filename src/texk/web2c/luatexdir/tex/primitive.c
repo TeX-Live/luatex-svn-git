@@ -43,10 +43,12 @@ static const char _svn_version[] =
 #define prim_next(a) prim[(a)].lhfield  /* link for coalesced lists */
 #define prim_text(a) prim[(a)].rh       /* string number for control sequence name */
 #define prim_is_full (prim_used==prim_base)     /* test if all positions are occupied */
-#define prim_eq_level_field(a) (a).hh.b1
+
+/* The primitives do not have an |eq_level|, that field is replaced by |origin| */
+#define prim_origin_field(a) (a).hh.b1
 #define prim_eq_type_field(a)  (a).hh.b0
 #define prim_equiv_field(a) (a).hh.rh
-#define prim_eq_level(a) prim_eq_level_field(prim_eqtb[(a)])    /* level of definition */
+#define prim_origin(a) prim_origin_field(prim_eqtb[(a)])    /* level of definition */
 #define prim_eq_type(a) prim_eq_type_field(prim_eqtb[(a)])      /* command code for equivalent */
 #define prim_equiv(a) prim_equiv_field(prim_eqtb[(a)])  /* equivalent value */
 
@@ -163,6 +165,11 @@ quarterword get_prim_eq_type(integer p)
     return prim_eq_type(p);
 }
 
+quarterword get_prim_origin(integer p)
+{
+    return prim_origin(p);
+}
+
 halfword get_prim_equiv(integer p)
 {
     return prim_equiv(p);
@@ -203,14 +210,26 @@ void undump_primitives(void)
    contains the new |eqtb| pointer after |primitive| has acted.
 */
 
-void primitive(str_number ss, quarterword c, halfword o, int cmd_origin)
+void
+primitive_def (str_number s, quarterword c, halfword o) 
 {
     pool_pointer k;             /* index into |str_pool| */
-    str_number s;               /* actual |str_number| used */
-    int j;                      /* index into |buffer| */
     small_number l;             /* length of the string */
+    k = str_start_macro(s);
+    l = length(s);
+    cur_val = string_lookup((char *)(str_pool+k), l); /* this creates a string copy */
+    flush_string();   /* but we don't want to have it twice */
+    text(cur_val) = s; 
+    eq_level(cur_val) = level_one;
+    eq_type(cur_val) = c;
+    equiv(cur_val) = o;
+}
+
+void
+primitive(str_number ss, quarterword c, halfword o, int cmd_origin)
+{
+    str_number s;               /* actual |str_number| used */
     integer prim_val;           /* needed to fill |prim_eqtb| */
-    (void)cmd_origin; /* todo */
     if (ss < string_offset) {
         if (ss > 127)
             tconfusion("prim"); /* should be ASCII */
@@ -219,21 +238,11 @@ void primitive(str_number ss, quarterword c, halfword o, int cmd_origin)
     } else {
         s = ss;
     }
-    k = str_start_macro(s);
-    l = str_start_macro(s + 1) - k;
-    /* ee will move |s| into the (possibly non-empty) |buffer| */
-    if (first + l > buf_size + 1)
-        check_buffer_overflow(first + l);
-    for (j = 0; j <= l - 1; j++)
-        buffer[first + j] = str_pool[k + j];
-    cur_val = id_lookup(first, l);      /* |no_new_control_sequence| is |false| */
-    flush_string();
-    text(cur_val) = s;          /* we don't want to have the string twice */
+    if (true || cmd_origin==tex_command) {
+      primitive_def(s, c, o);
+    }
     prim_val = prim_lookup(s);
-    eq_level(cur_val) = level_one;
-    eq_type(cur_val) = c;
-    equiv(cur_val) = o;
-    prim_eq_level(prim_val) = level_one;
+    prim_origin(prim_val) = cmd_origin;
     prim_eq_type(prim_val) = c;
     prim_equiv(prim_val) = o;
 }

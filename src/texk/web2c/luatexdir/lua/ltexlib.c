@@ -1233,6 +1233,49 @@ static int tex_primitives(lua_State * L)
     return 1;
 }
 
+static int
+tex_extraprimitives(lua_State * L)
+{
+    int n, i;
+    int mask = 0;
+    str_number s = 0;
+    int cs = 0;
+    n = lua_gettop(L);
+    if (n==0) {
+      mask = etex_command + aleph_command + omega_command +
+	pdftex_command + luatex_command;
+    } else {
+      for (i=1;i<=n;i++) {
+	if (lua_isstring(L,i)) {
+	  char *s = lua_tostring(L,i);
+	  if (strcmp(s,"etex")==0) {
+	    mask |= etex_command;
+	  } else if (strcmp(s,"pdftex")==0) {
+	    mask |= pdftex_command;
+	  } else if (strcmp(s,"aleph")==0) {
+	    mask |= aleph_command;
+	  } else if (strcmp(s,"omega")==0) {
+	    mask |= omega_command;
+	  } else if (strcmp(s,"luatex")==0) {
+	    mask |= luatex_command;
+	  }
+	}
+      }
+    }
+    lua_newtable(L);
+    i = 1;
+    while (cs < prim_size) {
+        s = get_prim_text(cs);
+        if (s > 0) {
+	  if (get_prim_origin(cs) & mask) {
+            lua_pushstring(L, makecstring(s));
+            lua_rawseti(L, -2, i++);
+	  }
+        }
+        cs++;
+    }
+    return 1;
+}
 
 
 static const struct luaL_reg texlib[] = {
@@ -1274,6 +1317,7 @@ static const struct luaL_reg texlib[] = {
     {"definefont", tex_definefont},
     {"hashtokens", tex_hashpairs},
     {"primitives", tex_primitives},
+    {"extraprimitives", tex_extraprimitives},
     {NULL, NULL}                /* sentinel */
 };
 

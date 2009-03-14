@@ -25,12 +25,12 @@
 /* This enum is a list of origins for primitive commands */
 
 typedef enum {
-    tex_command,
-    etex_command,
-    aleph_command,
-    omega_command,
-    pdftex_command,
-    luatex_command,
+    tex_command=1,
+    etex_command=2,
+    aleph_command=4,
+    omega_command=8,
+    pdftex_command=16,
+    luatex_command=32,
 } command_origin;
 
 #  define eq_level(a) zeqtb[a].hh.u.B1
@@ -56,6 +56,7 @@ extern boolean is_primitive(str_number csname);
 extern quarterword get_prim_eq_type(integer p);
 extern halfword get_prim_equiv(integer p);
 extern str_number get_prim_text(integer p);
+extern quarterword get_prim_origin(integer p);
 
 extern void dump_primitives(void);
 extern void undump_primitives(void);
@@ -68,6 +69,7 @@ extern void undump_primitives(void);
 #  define primitive_luatex(a,b,c) primitive((a),(b),(c),luatex_command)
 
 extern void primitive(str_number ss, quarterword c, halfword o, int cmd_origin);
+extern void primitive_def (str_number s, quarterword c, halfword o) ;
 
 extern pointer string_lookup(char *s, size_t l);
 extern pointer id_lookup(integer j, integer l);
