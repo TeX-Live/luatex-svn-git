@@ -322,9 +322,7 @@ static int get_cur_cs(lua_State * L)
 #define is_cat_letter(a)                                                \
   (get_char_cat_code(pool_to_unichar(str_start_macro(a))) == 11)
 
-static int eqtb_size = 0;
 static int null_cs = 0;
-static int undefined_control_sequence;
 
 /* 2,720,652 */
 char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
@@ -347,10 +345,8 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
     }
     ret = xmalloc(alloci);
     p = link(p);                /* skip refcount */
-    if (eqtb_size == 0) {
+    if (null_cs == 0) {
         null_cs = get_nullcs();
-        eqtb_size = get_eqtb_size();
-        undefined_control_sequence = get_undefined_control_sequence();
     }
     e = get_escape_char();
     while (p != null) {
@@ -366,9 +362,9 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
                     if (q == null_cs) {
                         /* Print_esc("csname"); Print_esc("endcsname"); */
                     }
-                } else if ((q >= undefined_control_sequence)
-                           && ((q <= eqtb_size)
-                               || (q > eqtb_size + hash_extra))) {
+                } else if ((q >= static_undefined_control_sequence)
+                           && ((q <= eqtb_top)
+                               || (q > eqtb_top + hash_extra))) {
                     Print_esc("IMPOSSIBLE.");
                 } else if ((zget_cs_text(q) < 0)
                            || (zget_cs_text(q) >= str_ptr)) {
