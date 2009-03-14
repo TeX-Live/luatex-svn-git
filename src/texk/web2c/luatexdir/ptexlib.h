@@ -67,6 +67,8 @@ typedef enum { WMODE_H, WMODE_V } writing_mode; /* []TJ runs horizontal or verti
 #  define is_chararraymode(p) ((p)->mode == PMODE_CHARARRAY)
 #  define is_charmode(p)      ((p)->mode == PMODE_CHAR)
 
+#define setpdffloat(a,b,c) {(a).m = (b); (a).e = (c);}
+
 typedef struct {
     pdfpos pdf;                 /* pos. on page (PDF page raster) */
     pdfpos pdf_bt_pos;          /* pos. at begin of BT-ET group (PDF page raster) */
@@ -342,6 +344,7 @@ void pdf_end_string_nl();
 void pdf_print_charwidth(internal_font_number f, int i);
 boolean calc_pdfpos(pdfstructure * p, scaledpos * pos);
 void print_pdffloat(pdffloat * f);
+void pdf_print_cm(pdffloat * cm);
 
 /* pdf/pagetree.c */
 extern integer pdf_do_page_divert(integer, integer);

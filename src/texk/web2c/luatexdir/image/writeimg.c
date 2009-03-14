@@ -458,7 +458,7 @@ void scale_img(image * img)
     img_set_scaled(img);
 }
 
-void out_img(image * img, pdfstructure * p, scaled hpos, scaled vpos)
+void out_img(image * img, pdfstructure * p, scaledpos * pos)
 {
     float a[6];                 /* transformation matrix */
     float xoff, yoff, tmp;
@@ -466,6 +466,7 @@ void out_img(image * img, pdfstructure * p, scaled hpos, scaled vpos)
     int k;
     scaled wd, ht, dp;
     scaledpos tmppos;
+    pdffloat cm[6];
     image_dict *idict;
     integer groupref;           /* added from web for 1.40.8 */
     assert(img != 0);
@@ -533,8 +534,8 @@ void out_img(image * img, pdfstructure * p, scaled hpos, scaled vpos)
     a[1] *= ht + dp;
     a[2] *= wd;
     a[3] *= ht + dp;
-    a[4] = hpos - xoff;
-    a[5] = vpos - yoff;
+    a[4] = pos->h - xoff;
+    a[5] = pos->v - yoff;
     k = img_transform(img) + img_rotation(idict);
     if ((img_transform(img) & 7) > 3)
         k++;
@@ -553,26 +554,22 @@ void out_img(image * img, pdfstructure * p, scaled hpos, scaled vpos)
         break;
     default:;
     }
-/* the following is a kludge, TODO: use pdfpage.c functions */
+    /* the following is a kludge, TODO: use pdfpage.c functions */
+    setpdffloat(cm[0], round(a[0]), r);
+    setpdffloat(cm[1], round(a[1]), r);
+    setpdffloat(cm[2], round(a[2]), r);
+    setpdffloat(cm[3], round(a[3]), r);
     tmppos.h = round(a[4]);
     tmppos.v = round(a[5]);
     (void) calc_pdfpos(p, &tmppos);
+    cm[4] = p->cm[4];
+    cm[5] = p->cm[5];
     pdf_goto_pagemode();
     if (pdf_page_group_val < 1)
         pdf_page_group_val = img_group_ref(idict);      /* added from web for 1.40.8 */
     pdf_printf("q\n");
-    pdf_print_real(round(a[0]), r);
-    pdfout(' ');
-    pdf_print_real(round(a[1]), r);
-    pdfout(' ');
-    pdf_print_real(round(a[2]), r);
-    pdfout(' ');
-    pdf_print_real(round(a[3]), r);
-    pdfout(' ');
-    print_pdffloat(&(p->cm[4]));
-    pdfout(' ');
-    print_pdffloat(&(p->cm[5]));
-    pdf_printf(" cm\n/Im");
+    pdf_print_cm(cm);
+    pdf_printf("/Im");
     pdf_print_int(img_index(idict));
     pdf_print_resname_prefix();
     pdf_printf(" Do\nQ\n");
@@ -864,8 +861,11 @@ void scale_image(integer ref)
 
 void out_image(integer ref, scaled hpos, scaled vpos)
 {
+    scaledpos pos;
+    pos.h = hpos;
+    pos.v = vpos;
     image *a = img_array[ref];
-    out_img(a, pstruct, hpos, vpos);
+    out_img(a, pstruct, &pos);
 }
 
 void write_image(integer ref)

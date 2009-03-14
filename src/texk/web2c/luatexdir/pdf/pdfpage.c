@@ -242,8 +242,17 @@ static void print_pdf_matrix(pdffloat * tm)
     print_pdffloat(tm + i);
 }
 
-#define pdf_print_cm(a) {print_pdf_matrix(a); pdf_printf(" cm\n");}
-#define pdf_print_tm(a) {print_pdf_matrix(a); pdf_printf(" Tm ");}
+void pdf_print_cm(pdffloat * cm)
+{
+    print_pdf_matrix(cm);
+    pdf_printf(" cm\n");
+}
+
+static void pdf_print_tm(pdffloat * tm)
+{
+    print_pdf_matrix(tm);
+    pdf_printf(" Tm ");
+}
 
 static void set_pos(pdfstructure * p, scaledpos * pos)
 {
@@ -529,11 +538,8 @@ place_glyph(pdfstructure * p, scaledpos * pos, internal_font_number f,
 
 void pdf_place_glyph(internal_font_number f, integer c)
 {
-    scaledpos tmppos;
-    if (char_exists(f, c)) {
-        tmppos = pos;
-        place_glyph(pstruct, &tmppos, f, c);
-    }
+    if (char_exists(f, c))
+        place_glyph(pstruct, &pos, f, c);
 }
 
 /**********************************************************************/
@@ -550,8 +556,8 @@ static void place_form(pdfstructure * p, scaledpos * pos, integer i)
 
 void pdf_place_form(scaled h, scaled v, integer i)
 {
-    scaledpos tmppos;
-    tmppos.h = h;
-    tmppos.v = v;
-    place_form(pstruct, &tmppos, i);
+    scaledpos pos;
+    pos.h = h;
+    pos.v = v;
+    place_form(pstruct, &pos, i);
 }
