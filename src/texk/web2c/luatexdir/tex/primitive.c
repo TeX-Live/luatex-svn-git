@@ -48,7 +48,7 @@ static const char _svn_version[] =
 #define prim_origin_field(a) (a).hh.b1
 #define prim_eq_type_field(a)  (a).hh.b0
 #define prim_equiv_field(a) (a).hh.rh
-#define prim_origin(a) prim_origin_field(prim_eqtb[(a)])    /* level of definition */
+#define prim_origin(a) prim_origin_field(prim_eqtb[(a)])        /* level of definition */
 #define prim_eq_type(a) prim_eq_type_field(prim_eqtb[(a)])      /* command code for equivalent */
 #define prim_equiv(a) prim_equiv_field(prim_eqtb[(a)])  /* equivalent value */
 
@@ -80,8 +80,7 @@ void ini_init_primitives(void)
    @^Vitter, Jeffrey Scott@>
 */
 
-static halfword
-compute_hash(char *j, pool_pointer l, halfword prime_number)
+static halfword compute_hash(char *j, pool_pointer l, halfword prime_number)
 {
     pool_pointer k;
     halfword h = (unsigned char) *j;
@@ -96,8 +95,7 @@ compute_hash(char *j, pool_pointer l, halfword prime_number)
 
 /*  Here is the subroutine that searches the primitive table for an identifier */
 
-pointer 
-prim_lookup(str_number s)
+pointer prim_lookup(str_number s)
 {                               /* search the primitives table */
     integer h;                  /* hash code */
     pointer p;                  /* index in |hash| array */
@@ -210,23 +208,21 @@ void undump_primitives(void)
    contains the new |eqtb| pointer after |primitive| has acted.
 */
 
-void
-primitive_def (str_number s, quarterword c, halfword o) 
+void primitive_def(str_number s, quarterword c, halfword o)
 {
     pool_pointer k;             /* index into |str_pool| */
     small_number l;             /* length of the string */
     k = str_start_macro(s);
     l = length(s);
-    cur_val = string_lookup((char *)(str_pool+k), l); /* this creates a string copy */
-    flush_string();   /* but we don't want to have it twice */
-    text(cur_val) = s; 
+    cur_val = string_lookup((char *) (str_pool + k), l);        /* this creates a string copy */
+    flush_string();             /* but we don't want to have it twice */
+    text(cur_val) = s;
     eq_level(cur_val) = level_one;
     eq_type(cur_val) = c;
     equiv(cur_val) = o;
 }
 
-void
-primitive(str_number ss, quarterword c, halfword o, int cmd_origin)
+void primitive(str_number ss, quarterword c, halfword o, int cmd_origin)
 {
     str_number s;               /* actual |str_number| used */
     integer prim_val;           /* needed to fill |prim_eqtb| */
@@ -238,8 +234,8 @@ primitive(str_number ss, quarterword c, halfword o, int cmd_origin)
     } else {
         s = ss;
     }
-    if (true || cmd_origin==tex_command) {
-      primitive_def(s, c, o);
+    if (true || cmd_origin == tex_command) {
+        primitive_def(s, c, o);
     }
     prim_val = prim_lookup(s);
     prim_origin(prim_val) = cmd_origin;
@@ -252,8 +248,7 @@ primitive(str_number ss, quarterword c, halfword o, int cmd_origin)
  * Here is a helper that does the actual hash insertion.
  */
 
-static halfword
-insert_id(halfword p, unsigned char *j, pool_pointer l)
+static halfword insert_id(halfword p, unsigned char *j, pool_pointer l)
 {
     integer d;
     unsigned char *k;
@@ -263,8 +258,8 @@ insert_id(halfword p, unsigned char *j, pool_pointer l)
     if (text(p) > 0) {
         if (hash_high < hash_extra) {
             incr(hash_high);
-	    /* can't use eqtb_top here (perhaps because that is not finalized yet when called from |primitive|?) */
-            next(p) = hash_high + get_eqtb_size(); 
+            /* can't use eqtb_top here (perhaps because that is not finalized yet when called from |primitive|?) */
+            next(p) = hash_high + get_eqtb_size();
             p = next(p);
         } else {
             do {
@@ -317,7 +312,7 @@ pointer id_lookup(integer j, integer l)
                     goto FOUND;
         if (next(p) == 0) {
             if (no_new_control_sequence) {
-	      p = static_undefined_control_sequence;
+                p = static_undefined_control_sequence;
             } else {
                 p = insert_id(p, (buffer + j), l);
             }
@@ -339,21 +334,21 @@ pointer string_lookup(char *s, size_t l)
     integer h;                  /* hash code */
     pointer p;                  /* index in |hash| array */
     h = compute_hash(s, l, hash_prime);
-    p = h + hash_base;      /* we start searching here; note that |0<=h<hash_prime| */
+    p = h + hash_base;          /* we start searching here; note that |0<=h<hash_prime| */
     while (1) {
-      if (text(p) > 0)
-	if (str_eq_cstr(text(p), s, l))
-	  goto FOUND;
-      if (next(p) == 0) {
-	if (no_new_control_sequence) {
-	  p = static_undefined_control_sequence;
-	} else {
-	  p = insert_id(p, (unsigned char *)s, l);
-	}
-	goto FOUND;
-      }
-      p = next(p);
+        if (text(p) > 0)
+            if (str_eq_cstr(text(p), s, l))
+                goto FOUND;
+        if (next(p) == 0) {
+            if (no_new_control_sequence) {
+                p = static_undefined_control_sequence;
+            } else {
+                p = insert_id(p, (unsigned char *) s, l);
+            }
+            goto FOUND;
+        }
+        p = next(p);
     }
- FOUND:
-    return p; 
+  FOUND:
+    return p;
 }

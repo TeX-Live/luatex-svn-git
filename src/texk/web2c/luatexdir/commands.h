@@ -433,7 +433,7 @@ typedef enum {
     param_saving_hyph_codes_code,       /* save hyphenation codes for languages */
     param_suppress_fontnotfound_error_code,     /* suppress errors for missing fonts */
     param_suppress_long_error_code,     /* suppress errors for \\par in non-long contexts */
-    param_suppress_ifcsname_error_code,     /* suppress errors for \\ifcsname junk contexts */
+    param_suppress_ifcsname_error_code, /* suppress errors for \\ifcsname junk contexts */
     param_synctex_code,         /*  is synctex file generation enabled ?  */
 } int_param_codes;
 

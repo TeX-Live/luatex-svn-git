@@ -139,7 +139,8 @@ char *node_fields_inner[] = { "attr", "nucleus", "sub", "sup", NULL };
 char *node_fields_under[] = { "attr", "nucleus", "sub", "sup", NULL };
 char *node_fields_over[] = { "attr", "nucleus", "sub", "sup", NULL };
 char *node_fields_vcenter[] = { "attr", "nucleus", "sub", "sup", NULL };
-char *node_fields_radical[] = { "attr", "nucleus", "sub", "sup", "left", "degree", NULL };
+char *node_fields_radical[] =
+    { "attr", "nucleus", "sub", "sup", "left", "degree", NULL };
 char *node_fields_fraction[] =
     { "attr", "width", "num", "denom", "left", "right", NULL };
 char *node_fields_accent[] =

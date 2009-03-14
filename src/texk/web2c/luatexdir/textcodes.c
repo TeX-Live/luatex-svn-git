@@ -285,7 +285,7 @@ void initialize_text_codes(void)
     initializelccodes();
 }
 
-void free_text_codes (void)
+void free_text_codes(void)
 {
     int k;
     destroy_sa_tree(lccode_head);

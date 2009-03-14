@@ -67,7 +67,7 @@ typedef enum { WMODE_H, WMODE_V } writing_mode; /* []TJ runs horizontal or verti
 #  define is_chararraymode(p) ((p)->mode == PMODE_CHARARRAY)
 #  define is_charmode(p)      ((p)->mode == PMODE_CHAR)
 
-#define setpdffloat(a,b,c) {(a).m = (b); (a).e = (c);}
+#  define setpdffloat(a,b,c) {(a).m = (b); (a).e = (c);}
 
 typedef struct {
     pdfpos pdf;                 /* pos. on page (PDF page raster) */

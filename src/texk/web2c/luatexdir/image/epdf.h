@@ -52,7 +52,7 @@ extern "C" {
     extern integer epdf_page_box;
     extern void *epdf_xref;
     extern integer epdf_lastGroupObjectNum;
- 
+
     extern integer pdf_box_spec_media;
     extern integer pdf_box_spec_crop;
     extern integer pdf_box_spec_bleed;
@@ -105,7 +105,7 @@ extern "C" {
 
 /* epdf.c */
     extern void epdf_mark_glyphs(struct fd_entry *, char *);
-  extern struct fd_entry *epdf_create_fontdescriptor(struct fm_entry *, int);
+    extern struct fd_entry *epdf_create_fontdescriptor(struct fm_entry *, int);
     extern int get_fd_objnum(struct fd_entry *);
     extern int get_fn_objnum(struct fd_entry *);
 

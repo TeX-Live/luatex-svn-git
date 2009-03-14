@@ -656,7 +656,7 @@ static boolean transparent_page_group_was_written = false;
  * write out additional objects */
 void write_additional_png_objects(void)
 {
-  return; /* this interferes with current macro-based usage and cannot be configured */
+    return;                     /* this interferes with current macro-based usage and cannot be configured */
     if (last_png_needs_page_group) {
         if (!transparent_page_group_was_written && transparent_page_group > 1) {
             /* create new group object */
@@ -665,7 +665,8 @@ void write_additional_png_objects(void)
             if (get_pdf_compress_level() == 0) {
                 pdf_puts("%PTEX Group needed for transparent pngs\n");
             }
-            pdf_puts("<</Type/Group /S/Transparency /CS/DeviceRGB /I true /K true>>\n");
+            pdf_puts
+                ("<</Type/Group /S/Transparency /CS/DeviceRGB /I true /K true>>\n");
             pdf_end_obj();
         }
     }

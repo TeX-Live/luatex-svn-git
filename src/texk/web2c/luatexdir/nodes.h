@@ -310,37 +310,37 @@ typedef enum {
     disc_node = 7,
     whatsit_node,
     math_node,
-    glue_node,       /* 10 */
+    glue_node,                  /* 10 */
     kern_node,
     penalty_node,
-    unset_node,      
+    unset_node,
     style_node,
-    choice_node,     /* 15 */
+    choice_node,                /* 15 */
     ord_noad,
     op_noad,
     bin_noad,
     rel_noad,
-    open_noad,       /* 20 */
+    open_noad,                  /* 20 */
     close_noad,
     punct_noad,
     inner_noad,
     radical_noad,
-    fraction_noad,   /* 25 */
+    fraction_noad,              /* 25 */
     under_noad,
     over_noad,
     accent_noad,
     vcenter_noad,
-    fence_noad,       /* 30 */
-    math_char_node,       /* kernel fields */
+    fence_noad,                 /* 30 */
+    math_char_node,             /* kernel fields */
     sub_box_node,
     sub_mlist_node,
     math_text_char_node,
-    delim_node,     /* shield fields */
+    delim_node,                 /* shield fields */
     margin_kern_node,
     glyph_node,
     align_record_node,
     pseudo_file_node,
-    pseudo_line_node, /* 40 */
+    pseudo_line_node,           /* 40 */
     inserting_node,
     split_up_node,
     expr_node,
@@ -352,7 +352,7 @@ typedef enum {
     action_node,
     temp_node,
     align_stack_node,
-    movement_node ,
+    movement_node,
     if_node,
     unhyphenated_node,
     hyphenated_node,
@@ -392,22 +392,22 @@ typedef enum {
 /* regular noads */
 
 #  define noad_size 4           /* number of words in a normal noad */
-#  define new_hlist(a) vlink((a)+2)        /* the translation of an mlist */
-#  define nucleus(a)   vinfo((a)+2)  /* the |nucleus| field of a noad */
-#  define supscr(a)    vlink((a)+3)   /* the |supscr| field of a noad */
-#  define subscr(a)    vinfo((a)+3)   /* the |subscr| field of a noad */
+#  define new_hlist(a) vlink((a)+2)     /* the translation of an mlist */
+#  define nucleus(a)   vinfo((a)+2)     /* the |nucleus| field of a noad */
+#  define supscr(a)    vlink((a)+3)     /* the |supscr| field of a noad */
+#  define subscr(a)    vinfo((a)+3)     /* the |subscr| field of a noad */
 
 /* accent noads */
 /* like a regular noad, but with two extra fields. */
 
 #  define accent_noad_size 5    /*number of |mem| words in an accent noad */
-#  define accent_chr(a) vinfo((a)+4)   /* the |accent_chr| field of an accent noad */
-#  define bot_accent_chr(a) vlink((a)+4) /* the |bot_accent_chr| field of an accent noad */
+#  define accent_chr(a) vinfo((a)+4)    /* the |accent_chr| field of an accent noad */
+#  define bot_accent_chr(a) vlink((a)+4)        /* the |bot_accent_chr| field of an accent noad */
 
 /* left and right noads */
 
 #  define fence_noad_size 3
-#  define delimiter(a)      vlink((a)+2)  /* |delimiter| field in left and right noads */
+#  define delimiter(a)      vlink((a)+2)        /* |delimiter| field in left and right noads */
 
 /* subtype of fence noads */
 
@@ -418,19 +418,19 @@ typedef enum {
 /* fraction noads */
 
 #  define fraction_noad_size 5  /*number of |mem| words in a fraction noad */
-#  define thickness(a)       vlink((a)+2) /* |thickness| field in a fraction noad */
-#  define numerator(a)       vlink((a)+3)  /*|numerator| field in a fraction noad */
-#  define denominator(a)     vinfo((a)+3)  /*|denominator| field in a fraction noad */
-#  define left_delimiter(a)  vlink((a)+4)   /* first delimiter field of a noad */
-#  define right_delimiter(a) vinfo((a)+4)   /* second delimiter field of a fraction noad */
+#  define thickness(a)       vlink((a)+2)       /* |thickness| field in a fraction noad */
+#  define numerator(a)       vlink((a)+3)       /*|numerator| field in a fraction noad */
+#  define denominator(a)     vinfo((a)+3)       /*|denominator| field in a fraction noad */
+#  define left_delimiter(a)  vlink((a)+4)       /* first delimiter field of a noad */
+#  define right_delimiter(a) vinfo((a)+4)       /* second delimiter field of a fraction noad */
 
 /* radical noads */
 /* this is like a fraction, but it only stores a |left_delimiter| */
 #  define radical_noad_size 5   /*number of |mem| words in a radical noad */
 
-#  define degree(a) vinfo((a)+4)   /* the root degree in a radical noad */
+#  define degree(a) vinfo((a)+4)        /* the root degree in a radical noad */
 
-#define math_kernel_node_size 3
+#  define math_kernel_node_size 3
 
 /* accessors for the |nucleus|-style node fields */
 #  define math_fam(a)       vinfo((a)+2)
@@ -439,12 +439,13 @@ typedef enum {
 
 /* accessors for the |delimiter|-style two-word subnode fields */
 
-#define math_shield_node_size 4 /* not used yet */
+#  define math_shield_node_size 4
+                                /* not used yet */
 
-#  define small_fam(A)  vinfo((A)+2) /* |fam| for ``small'' delimiter */
-#  define small_char(A) vlink((A)+2) /* |character| for ``small'' delimiter */
-#  define large_fam(A)  vinfo((A)+3) /* |fam| for ``large'' delimiter */
-#  define large_char(A) vlink((A)+3) /* |character| for ``large'' delimiter */
+#  define small_fam(A)  vinfo((A)+2)    /* |fam| for ``small'' delimiter */
+#  define small_char(A) vlink((A)+2)    /* |character| for ``small'' delimiter */
+#  define large_fam(A)  vinfo((A)+3)    /* |fam| for ``large'' delimiter */
+#  define large_char(A) vlink((A)+3)    /* |character| for ``large'' delimiter */
 
 typedef enum {
     open_node = 0,
@@ -495,8 +496,8 @@ typedef enum {
 } whatsit_types;
 
 
-#define  get_node_size(i,j) (i!=whatsit_node ? node_data[i].size : whatsit_node_data[j].size)
-#define  get_node_name(i,j) (i!=whatsit_node ? node_data[i].name : whatsit_node_data[j].name)
+#  define  get_node_size(i,j) (i!=whatsit_node ? node_data[i].size : whatsit_node_data[j].size)
+#  define  get_node_name(i,j) (i!=whatsit_node ? node_data[i].name : whatsit_node_data[j].name)
 
 
 #  define pdf_info_code pdf_thread_data_node
@@ -691,7 +692,7 @@ extern halfword string_to_pseudo(integer l, integer pool_ptr, integer nl);
 
 extern void print_short_node_contents(halfword n);
 extern void show_node_list(integer i);
-extern pointer actual_box_width (pointer r, scaled base_width) ;
+extern pointer actual_box_width(pointer r, scaled base_width);
 
 /* TH: these two defines still need checking. The node ordering in luatex is not 
    quite the same as in tex82 */

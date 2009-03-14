@@ -65,12 +65,11 @@ extern void insert_vj_template(void);
 
 /* string compare */
 
-boolean 
-str_eq_cstr(str_number r, char *s, size_t l)
+boolean str_eq_cstr(str_number r, char *s, size_t l)
 {
-  if (l!=(size_t)length(r))
-    return false;
-  return (strncmp((const char *)(str_pool+str_start_macro(r)), s, l)==0);
+    if (l != (size_t) length(r))
+        return false;
+    return (strncmp((const char *) (str_pool + str_start_macro(r)), s, l) == 0);
 }
 
 
@@ -208,10 +207,10 @@ halfword active_to_cs(int curchr, int force)
         b = u2s(curchr);
         utfbytes = strcat(utfbytes, b);
         free(b);
-	curcs = string_lookup(utfbytes, strlen(utfbytes));
+        curcs = string_lookup(utfbytes, strlen(utfbytes));
     } else {
         utfbytes[3] = '\0';
-	curcs = string_lookup(utfbytes, 4);
+        curcs = string_lookup(utfbytes, 4);
     }
     no_new_control_sequence = nncs;
     free(a);

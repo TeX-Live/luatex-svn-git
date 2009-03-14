@@ -709,9 +709,11 @@ void fixup_math_parameters(integer fam_id, integer size_id, integer f,
         DEFINE_DMATH_PARAMETERS(math_param_under_delimiter_vgap, size_id,
                                 font_MATH_par(f, StretchStackGapAboveMin), lvl);
         DEFINE_MATH_PARAMETERS(math_param_under_delimiter_bgap, size_id,
-                               font_MATH_par(f, StretchStackBottomShiftDown), lvl);
+                               font_MATH_par(f, StretchStackBottomShiftDown),
+                               lvl);
         DEFINE_DMATH_PARAMETERS(math_param_under_delimiter_bgap, size_id,
-                                font_MATH_par(f, StretchStackBottomShiftDown), lvl);
+                                font_MATH_par(f, StretchStackBottomShiftDown),
+                                lvl);
 
         DEFINE_MATH_PARAMETERS(math_param_over_delimiter_vgap, size_id,
                                font_MATH_par(f, StretchStackGapBelowMin), lvl);
@@ -745,7 +747,8 @@ void fixup_math_parameters(integer fam_id, integer size_id, integer f,
                                 font_MATH_par(f, RadicalExtraAscender), lvl);
 
         DEFINE_DMATH_PARAMETERS(math_param_operator_size, size_id,
-                                font_MATH_par(f, DisplayOperatorMinHeight), lvl);
+                                font_MATH_par(f, DisplayOperatorMinHeight),
+                                lvl);
 
         DEFINE_MATH_PARAMETERS(math_param_radical_rule, size_id,
                                font_MATH_par(f, RadicalRuleThickness), lvl);
@@ -754,7 +757,9 @@ void fixup_math_parameters(integer fam_id, integer size_id, integer f,
         DEFINE_MATH_PARAMETERS(math_param_radical_vgap, size_id,
                                font_MATH_par(f, RadicalVerticalGap), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_radical_vgap, size_id,
-                                font_MATH_par(f,RadicalDisplayStyleVerticalGap), lvl);
+                                font_MATH_par(f,
+                                              RadicalDisplayStyleVerticalGap),
+                                lvl);
         DEFINE_MATH_PARAMETERS(math_param_radical_degree_before, size_id,
                                font_MATH_par(f, RadicalKernBeforeDegree), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_radical_degree_before, size_id,
@@ -764,9 +769,13 @@ void fixup_math_parameters(integer fam_id, integer size_id, integer f,
         DEFINE_DMATH_PARAMETERS(math_param_radical_degree_after, size_id,
                                 font_MATH_par(f, RadicalKernAfterDegree), lvl);
         DEFINE_MATH_PARAMETERS(math_param_radical_degree_raise, size_id,
-                               font_MATH_par(f, RadicalDegreeBottomRaisePercent), lvl);
+                               font_MATH_par(f,
+                                             RadicalDegreeBottomRaisePercent),
+                               lvl);
         DEFINE_DMATH_PARAMETERS(math_param_radical_degree_raise, size_id,
-                                font_MATH_par(f, RadicalDegreeBottomRaisePercent), lvl);
+                                font_MATH_par(f,
+                                              RadicalDegreeBottomRaisePercent),
+                                lvl);
         if (size_id == text_size) {
             def_math_param(math_param_sup_shift_up, display_style,
                            font_MATH_par(f, SuperscriptShiftUp), lvl);
@@ -1014,13 +1023,13 @@ void fixup_math_parameters(integer fam_id, integer size_id, integer f,
                                 default_rule_thickness(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_overbar_vgap, size_id,
                                 3 * default_rule_thickness(size_id), lvl);
-        DEFINE_MATH_PARAMETERS(math_param_underbar_kern, size_id, 
+        DEFINE_MATH_PARAMETERS(math_param_underbar_kern, size_id,
                                default_rule_thickness(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_underbar_rule, size_id,
                                default_rule_thickness(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_underbar_vgap, size_id,
                                3 * default_rule_thickness(size_id), lvl);
-        DEFINE_DMATH_PARAMETERS(math_param_underbar_kern, size_id, 
+        DEFINE_DMATH_PARAMETERS(math_param_underbar_kern, size_id,
                                 default_rule_thickness(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_underbar_rule, size_id,
                                 default_rule_thickness(size_id), lvl);
@@ -1084,8 +1093,10 @@ void fixup_math_parameters(integer fam_id, integer size_id, integer f,
         /* All of the |space_after_script|s are done in finalize_math_parameters because the
            \.{\\scriptspace} may have been altered by the user
          */
-        DEFINE_MATH_PARAMETERS(math_param_connector_overlap_min, size_id, 0, lvl);
-        DEFINE_DMATH_PARAMETERS(math_param_connector_overlap_min, size_id, 0, lvl);
+        DEFINE_MATH_PARAMETERS(math_param_connector_overlap_min, size_id, 0,
+                               lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_connector_overlap_min, size_id, 0,
+                                lvl);
 
         DEFINE_MATH_PARAMETERS(math_param_under_delimiter_vgap, size_id,
                                big_op_spacing2(size_id), lvl);
@@ -1141,48 +1152,72 @@ void finalize_math_parameters(void)
                        (default_rule_thickness(text_size) +
                         (abs(math_x_height(text_size)) / 4)), cur_level);
     }
-    if (get_math_param(math_param_radical_degree_raise, display_style) == undefined_math_parameter) {
-      DEFINE_MATH_PARAMETERS(math_param_radical_degree_raise, script_script_size, 60, cur_level);
-      DEFINE_MATH_PARAMETERS(math_param_radical_degree_raise, script_size, 60, cur_level);
-      DEFINE_MATH_PARAMETERS(math_param_radical_degree_raise, text_size, 60, cur_level);
-      DEFINE_DMATH_PARAMETERS(math_param_radical_degree_raise, text_size, 60, cur_level);
+    if (get_math_param(math_param_radical_degree_raise, display_style) ==
+        undefined_math_parameter) {
+        DEFINE_MATH_PARAMETERS(math_param_radical_degree_raise,
+                               script_script_size, 60, cur_level);
+        DEFINE_MATH_PARAMETERS(math_param_radical_degree_raise, script_size, 60,
+                               cur_level);
+        DEFINE_MATH_PARAMETERS(math_param_radical_degree_raise, text_size, 60,
+                               cur_level);
+        DEFINE_DMATH_PARAMETERS(math_param_radical_degree_raise, text_size, 60,
+                                cur_level);
     }
-    if (get_math_param(math_param_radical_degree_before, display_style) == undefined_math_parameter) {
-       def_math_param(math_param_radical_degree_before, cramped_script_script_style, 
-                      xn_over_d(get_math_quad(cramped_script_script_style),5,18), cur_level);
-       def_math_param(math_param_radical_degree_before, script_script_style, 
-                      xn_over_d(get_math_quad(script_script_style),5,18), cur_level);
-       def_math_param(math_param_radical_degree_before, cramped_script_style, 
-                      xn_over_d(get_math_quad(cramped_script_style),5,18), cur_level);
-       def_math_param(math_param_radical_degree_before, script_style, 
-                      xn_over_d(get_math_quad(script_style),5,18), cur_level);
-       def_math_param(math_param_radical_degree_before, cramped_text_style, 
-                      xn_over_d(get_math_quad(cramped_text_style),5,18), cur_level);
-       def_math_param(math_param_radical_degree_before, text_style, 
-                      xn_over_d(get_math_quad(text_style),5,18), cur_level);
-       def_math_param(math_param_radical_degree_before, cramped_display_style, 
-                      xn_over_d(get_math_quad(cramped_display_style),5,18), cur_level);
-       def_math_param(math_param_radical_degree_before, display_style, 
-                      xn_over_d(get_math_quad(display_style),5,18), cur_level);
+    if (get_math_param(math_param_radical_degree_before, display_style) ==
+        undefined_math_parameter) {
+        def_math_param(math_param_radical_degree_before,
+                       cramped_script_script_style,
+                       xn_over_d(get_math_quad(cramped_script_script_style), 5,
+                                 18), cur_level);
+        def_math_param(math_param_radical_degree_before, script_script_style,
+                       xn_over_d(get_math_quad(script_script_style), 5, 18),
+                       cur_level);
+        def_math_param(math_param_radical_degree_before, cramped_script_style,
+                       xn_over_d(get_math_quad(cramped_script_style), 5, 18),
+                       cur_level);
+        def_math_param(math_param_radical_degree_before, script_style,
+                       xn_over_d(get_math_quad(script_style), 5, 18),
+                       cur_level);
+        def_math_param(math_param_radical_degree_before, cramped_text_style,
+                       xn_over_d(get_math_quad(cramped_text_style), 5, 18),
+                       cur_level);
+        def_math_param(math_param_radical_degree_before, text_style,
+                       xn_over_d(get_math_quad(text_style), 5, 18), cur_level);
+        def_math_param(math_param_radical_degree_before, cramped_display_style,
+                       xn_over_d(get_math_quad(cramped_display_style), 5, 18),
+                       cur_level);
+        def_math_param(math_param_radical_degree_before, display_style,
+                       xn_over_d(get_math_quad(display_style), 5, 18),
+                       cur_level);
     }
 
-    if (get_math_param(math_param_radical_degree_after, display_style) == undefined_math_parameter) {
-       def_math_param(math_param_radical_degree_after, cramped_script_script_style, 
-                      -xn_over_d(get_math_quad(cramped_script_script_style),10,18), cur_level);
-       def_math_param(math_param_radical_degree_after, script_script_style, 
-                      -xn_over_d(get_math_quad(script_script_style),10,18), cur_level);
-       def_math_param(math_param_radical_degree_after, cramped_script_style, 
-                      -xn_over_d(get_math_quad(cramped_script_style),10,18), cur_level);
-       def_math_param(math_param_radical_degree_after, script_style, 
-                      -xn_over_d(get_math_quad(script_style),10,18), cur_level);
-       def_math_param(math_param_radical_degree_after, cramped_text_style, 
-                      -xn_over_d(get_math_quad(cramped_text_style),10,18), cur_level);
-       def_math_param(math_param_radical_degree_after, text_style, 
-                      -xn_over_d(get_math_quad(text_style),10,18), cur_level);
-       def_math_param(math_param_radical_degree_after, cramped_display_style, 
-                      -xn_over_d(get_math_quad(cramped_display_style),10,18), cur_level);
-       def_math_param(math_param_radical_degree_after, display_style, 
-                      -xn_over_d(get_math_quad(display_style),10,18), cur_level);
+    if (get_math_param(math_param_radical_degree_after, display_style) ==
+        undefined_math_parameter) {
+        def_math_param(math_param_radical_degree_after,
+                       cramped_script_script_style,
+                       -xn_over_d(get_math_quad(cramped_script_script_style),
+                                  10, 18), cur_level);
+        def_math_param(math_param_radical_degree_after, script_script_style,
+                       -xn_over_d(get_math_quad(script_script_style), 10, 18),
+                       cur_level);
+        def_math_param(math_param_radical_degree_after, cramped_script_style,
+                       -xn_over_d(get_math_quad(cramped_script_style), 10, 18),
+                       cur_level);
+        def_math_param(math_param_radical_degree_after, script_style,
+                       -xn_over_d(get_math_quad(script_style), 10, 18),
+                       cur_level);
+        def_math_param(math_param_radical_degree_after, cramped_text_style,
+                       -xn_over_d(get_math_quad(cramped_text_style), 10, 18),
+                       cur_level);
+        def_math_param(math_param_radical_degree_after, text_style,
+                       -xn_over_d(get_math_quad(text_style), 10, 18),
+                       cur_level);
+        def_math_param(math_param_radical_degree_after, cramped_display_style,
+                       -xn_over_d(get_math_quad(cramped_display_style), 10, 18),
+                       cur_level);
+        def_math_param(math_param_radical_degree_after, display_style,
+                       -xn_over_d(get_math_quad(display_style), 10, 18),
+                       cur_level);
     }
     int_par(param_tracing_assigns_code) = saved_trace;
 
@@ -1201,7 +1236,7 @@ larger as the type gets smaller.)
 */
 
 
-char *math_size_string (integer s)
+char *math_size_string(integer s)
 {
     if (s == text_size)
         return "textfont";
@@ -1345,27 +1380,27 @@ scaled stack_into_box(pointer b, internal_font_number f, integer c)
     vlink(p) = list_ptr(b);
     list_ptr(b) = p;
     height(b) = height(p);
-    return height_plus_depth(f,c);
+    return height_plus_depth(f, c);
 }
 
 
 scaled stack_into_hbox(pointer b, internal_font_number f, integer c)
 {
-  pointer p,q;                  /* new node placed into |b| */
+    pointer p, q;               /* new node placed into |b| */
     p = char_box(f, c, node_attr(b));
     q = list_ptr(b);
-    if (q==null) {
-      list_ptr(b) = p;
+    if (q == null) {
+        list_ptr(b) = p;
     } else {
-      while (vlink(q)!=null)
-	q = vlink(q);
-      vlink(q) = p;
+        while (vlink(q) != null)
+            q = vlink(q);
+        vlink(q) = p;
     }
-    if (height(b)<height(p))
-      height(b) = height(p);
-    if (depth(b)<depth(p))
-      depth(b) = depth(p);
-    return char_width(f,c);
+    if (height(b) < height(p))
+        height(b) = height(p);
+    if (depth(b) < depth(p))
+        depth(b) = depth(p);
+    return char_width(f, c);
 }
 
 
@@ -1373,7 +1408,7 @@ scaled stack_into_hbox(pointer b, internal_font_number f, integer c)
 void add_delim_kern(pointer b, scaled s)
 {
     pointer p;                  /* new node placed into |b| */
-    p = new_kern(s);    
+    p = new_kern(s);
     reset_attributes(p, node_attr(b));
     vlink(p) = list_ptr(b);
     list_ptr(b) = p;
@@ -1381,16 +1416,16 @@ void add_delim_kern(pointer b, scaled s)
 
 void add_delim_hkern(pointer b, scaled s)
 {
-  pointer p, q;                  /* new node placed into |b| */
-    p = new_kern(s);    
+    pointer p, q;               /* new node placed into |b| */
+    p = new_kern(s);
     reset_attributes(p, node_attr(b));
     q = list_ptr(b);
-    if (q==null) {
-      list_ptr(b) = p;
+    if (q == null) {
+        list_ptr(b) = p;
     } else {
-      while (vlink(q)!=null)
-	q = vlink(q);
-      vlink(q) = p;
+        while (vlink(q) != null)
+            q = vlink(q);
+        vlink(q) = p;
     }
 }
 
@@ -1398,70 +1433,74 @@ void add_delim_hkern(pointer b, scaled s)
 
 /* */
 
-pointer get_delim_box (extinfo *ext, internal_font_number f, scaled v, pointer att, int boxtype) 
+pointer get_delim_box(extinfo * ext, internal_font_number f, scaled v,
+                      pointer att, int boxtype)
 {
     pointer b;
     extinfo *cur;
-    scaled min_overlap, prev_overlap; 
-    scaled b_max;              /* natural (maximum) height of the stack */
-    scaled s_max;              /* amount of possible shrink in the stack */
+    scaled min_overlap, prev_overlap;
+    scaled b_max;               /* natural (maximum) height of the stack */
+    scaled s_max;               /* amount of possible shrink in the stack */
     scaled a, wd, ht, dp, last_ht;
     integer cc;                 /* a temporary character code for extensibles  */
-    integer i;                 /* a temporary counter number of extensible pieces */
+    integer i;                  /* a temporary counter number of extensible pieces */
     int with_extenders;
     int num_extenders, num_normal, num_total;
     scaled c, d, u;
     scaled *max_shrinks = NULL;
-    assert(ext!=NULL);
+    assert(ext != NULL);
     b = new_null_box();
     type(b) = boxtype;
     reset_attributes(b, att);
     min_overlap = connector_overlap_min(cur_style);
-    assert(min_overlap>=0);
+    assert(min_overlap >= 0);
     with_extenders = 0;
     num_extenders = 0;
     num_normal = 0;
-    cur = ext; 
+    cur = ext;
     while (cur != NULL) {
-        if (!char_exists(f,cur->glyph)) {
+        if (!char_exists(f, cur->glyph)) {
             char *hlp[] = {
-              "Each glyph part in an extensible item should exist in the font.",
-              "I will give up trying to find a suitable size for now. Fix your font!",
-              NULL
+                "Each glyph part in an extensible item should exist in the font.",
+                "I will give up trying to find a suitable size for now. Fix your font!",
+                NULL
             };
             tex_error("Variant part doesn't exist.", hlp);
-            width(b) = null_delimiter_space;   
+            width(b) = null_delimiter_space;
             return b;
         }
-        if (cur->extender>0)
+        if (cur->extender > 0)
             num_extenders++;
         else
             num_normal++;
         /* no negative overlaps or advances are allowed */
-        if (cur->start_overlap<0 || cur->end_overlap<0 || cur->advance<0) {
+        if (cur->start_overlap < 0 || cur->end_overlap < 0 || cur->advance < 0) {
             char *hlp[] = {
-              "All measurements in extensible items should be positive.",
-              "To get around this problem, I have changed the font metrics.",
-              "Fix your font!",
-              NULL
+                "All measurements in extensible items should be positive.",
+                "To get around this problem, I have changed the font metrics.",
+                "Fix your font!",
+                NULL
             };
-            tex_error("Extensible recipe has negative fields.", hlp);          
-            if (cur->start_overlap<0)  cur->start_overlap=0;
-            if (cur->end_overlap<0)  cur->end_overlap=0;
-            if (cur->advance<0)  cur->advance=0;
+            tex_error("Extensible recipe has negative fields.", hlp);
+            if (cur->start_overlap < 0)
+                cur->start_overlap = 0;
+            if (cur->end_overlap < 0)
+                cur->end_overlap = 0;
+            if (cur->advance < 0)
+                cur->advance = 0;
         }
         cur = cur->next;
     }
-    if (num_normal==0) {
+    if (num_normal == 0) {
         char *hlp[] = {
-          "Each extensible recipe should have at least one non-repeatable part.",
-          "To get around this problem, I have changed the first part to be",
-          "non-repeatable. Fix your font!",
-          NULL
+            "Each extensible recipe should have at least one non-repeatable part.",
+            "To get around this problem, I have changed the first part to be",
+            "non-repeatable. Fix your font!",
+            NULL
         };
         tex_error("Extensible recipe has no fixed parts.", hlp);
         ext->extender = 0;
-        num_normal=1;
+        num_normal = 1;
         num_extenders--;
     }
     /* |ext| holds a linked list of numerous items that may or may not be 
@@ -1472,90 +1511,90 @@ pointer get_delim_box (extinfo *ext, internal_font_number f, scaled v, pointer a
        at least |v|,  and it sets |with_extenders| to the number of times 
        each of the repeatable items in |ext| has to be repeated to reach 
        that height.
-    */      
-    cur = ext; 
-    prev_overlap = -1; 
-    b_max = 0; 
+     */
+    cur = ext;
+    prev_overlap = -1;
+    b_max = 0;
     s_max = 0;
-    for (cur=ext;cur != NULL;cur = cur->next) {
-      /* substract width of the current overlap if this is not the first */
-      if (cur->extender == 0) { /* not an extender */
-        a = cur->advance;
-        if (a==0) {
-          if(boxtype==vlist_node)
-            a = height_plus_depth(f,cur->glyph); /* for tfm fonts */
-          else
-            a = char_width(f,cur->glyph); /* for tfm fonts */
-          assert (a> 0);
-        }
-        b_max += a; /* add the advance value */
-        if (prev_overlap>=0) {
-          c = min_overlap;
-          if (c>=a) 
-            c=(a-1);
-          b_max -= c;
-          d = c;
-          if (prev_overlap>cur->start_overlap) {
-            if (cur->start_overlap>d) 
-              d = cur->start_overlap;
-          } else {
-            if (prev_overlap>d) 
-              d = prev_overlap;
-          }
-          s_max += (d - c);
-        }
-        prev_overlap = cur->end_overlap;
-      }
-    }
-    if (b_max<v && num_extenders>0) { /* not large enough, but can grow */
-    RETRY:
-      with_extenders++;
-      cur = ext; 
-      prev_overlap = -1; 
-      b_max = 0;
-      s_max = 0;
-      i = with_extenders;
-      while (cur != NULL) {
-        a = cur->advance;
-        if (a==0) {
-          if(boxtype==vlist_node)
-            a = height_plus_depth(f,cur->glyph); /* for tfm fonts */
-          else
-            a = char_width(f,cur->glyph);
-          assert (a>= 0);
-        }
+    for (cur = ext; cur != NULL; cur = cur->next) {
         /* substract width of the current overlap if this is not the first */
-        if (prev_overlap>=0) {
-            c = min_overlap;
-            if (c>=a) 
-              c=(a-1);
-            b_max -= c;
-            d = c;
-            if (prev_overlap>cur->start_overlap) {
-              if (cur->start_overlap>d)
-                d = cur->start_overlap;
-            } else {
-              if (prev_overlap>d)
-                d = prev_overlap;
+        if (cur->extender == 0) {       /* not an extender */
+            a = cur->advance;
+            if (a == 0) {
+                if (boxtype == vlist_node)
+                    a = height_plus_depth(f, cur->glyph);       /* for tfm fonts */
+                else
+                    a = char_width(f, cur->glyph);      /* for tfm fonts */
+                assert(a > 0);
             }
-            s_max += (d - c);
+            b_max += a;         /* add the advance value */
+            if (prev_overlap >= 0) {
+                c = min_overlap;
+                if (c >= a)
+                    c = (a - 1);
+                b_max -= c;
+                d = c;
+                if (prev_overlap > cur->start_overlap) {
+                    if (cur->start_overlap > d)
+                        d = cur->start_overlap;
+                } else {
+                    if (prev_overlap > d)
+                        d = prev_overlap;
+                }
+                s_max += (d - c);
+            }
+            prev_overlap = cur->end_overlap;
         }
-        if (cur->extender == 0) { /* not an extender */
-          i = 0;
-          prev_overlap = cur->end_overlap;
-        } else {
-          i--;
-          prev_overlap = cur->end_overlap;
+    }
+    if (b_max < v && num_extenders > 0) {       /* not large enough, but can grow */
+      RETRY:
+        with_extenders++;
+        cur = ext;
+        prev_overlap = -1;
+        b_max = 0;
+        s_max = 0;
+        i = with_extenders;
+        while (cur != NULL) {
+            a = cur->advance;
+            if (a == 0) {
+                if (boxtype == vlist_node)
+                    a = height_plus_depth(f, cur->glyph);       /* for tfm fonts */
+                else
+                    a = char_width(f, cur->glyph);
+                assert(a >= 0);
+            }
+            /* substract width of the current overlap if this is not the first */
+            if (prev_overlap >= 0) {
+                c = min_overlap;
+                if (c >= a)
+                    c = (a - 1);
+                b_max -= c;
+                d = c;
+                if (prev_overlap > cur->start_overlap) {
+                    if (cur->start_overlap > d)
+                        d = cur->start_overlap;
+                } else {
+                    if (prev_overlap > d)
+                        d = prev_overlap;
+                }
+                s_max += (d - c);
+            }
+            if (cur->extender == 0) {   /* not an extender */
+                i = 0;
+                prev_overlap = cur->end_overlap;
+            } else {
+                i--;
+                prev_overlap = cur->end_overlap;
+            }
+            b_max += a;         /* add the advance value */
+            if (i <= 0) {       /* can be $-1$ if the first glyph is an extender  */
+                cur = cur->next;
+                i = with_extenders;
+            }
         }
-        b_max += a; /* add the advance value */
-        if (i<=0) { /* can be $-1$ if the first glyph is an extender  */
-          cur = cur->next;
-          i = with_extenders;
+        if (b_max < v) {        /* not large enough, but can grow */
+            goto RETRY;
         }
-      }
-      if (b_max<v) { /* not large enough, but can grow */
-        goto RETRY;
-      }
     }
     /* now |b_max| is the natural height or width, |with_extenders| holds
        the count of each extender that is needed, and the maximum 
@@ -1564,170 +1603,174 @@ pointer get_delim_box (extinfo *ext, internal_font_number f, scaled v, pointer a
        |(b_max-v)| is the total amount of extra height or width that needs
        to be gotten rid of, and the total number of items in the stack is
        |(num_extenders*with_extenders)+num_normal|
-    */
+     */
     /* create an array of maximum shrinks and fill it */
-    num_total = ((num_extenders*with_extenders)+num_normal);
-    if (num_total==1) {
-      /* weird, but could happen */
-      cc = ext->glyph;
-      (void)stack_into_box(b, f, cc);
-      width(b) = char_width(f,cc);
-      height(b) = char_height(f,cc);
-      depth(b) = char_depth(f,cc);
-      return b;
+    num_total = ((num_extenders * with_extenders) + num_normal);
+    if (num_total == 1) {
+        /* weird, but could happen */
+        cc = ext->glyph;
+        (void) stack_into_box(b, f, cc);
+        width(b) = char_width(f, cc);
+        height(b) = char_height(f, cc);
+        depth(b) = char_depth(f, cc);
+        return b;
     }
-    max_shrinks = xcalloc(num_total,sizeof(scaled));
-    cur = ext; 
-    prev_overlap = -1; 
+    max_shrinks = xcalloc(num_total, sizeof(scaled));
+    cur = ext;
+    prev_overlap = -1;
     c = 0;
-    i = 0; 
- REDO:
+    i = 0;
+  REDO:
     while (cur != NULL) {
         if (cur->extender == 0 || with_extenders) {
-          if (prev_overlap>=0) {
-            d = prev_overlap;
-            if (d>cur->start_overlap)
-              d = cur->start_overlap;
-            if (d<min_overlap)
-              d = min_overlap;
-            max_shrinks[c++] = (d - min_overlap);
-          }
-          prev_overlap = cur->end_overlap;
-          if (cur->extender==0) {
-            /* simple char, just reset |i| */
-            i = 0;
-          } else {
-            if (i==0) { /* first in loop */
-              i = with_extenders;
-              if (i!=1)
-                goto REDO;
-            } else if (i==1) {
-              /* done */
-              i = 0;
-            } else {
-              i--;
-              if (i!=1)
-                goto REDO;
+            if (prev_overlap >= 0) {
+                d = prev_overlap;
+                if (d > cur->start_overlap)
+                    d = cur->start_overlap;
+                if (d < min_overlap)
+                    d = min_overlap;
+                max_shrinks[c++] = (d - min_overlap);
             }
-          }
+            prev_overlap = cur->end_overlap;
+            if (cur->extender == 0) {
+                /* simple char, just reset |i| */
+                i = 0;
+            } else {
+                if (i == 0) {   /* first in loop */
+                    i = with_extenders;
+                    if (i != 1)
+                        goto REDO;
+                } else if (i == 1) {
+                    /* done */
+                    i = 0;
+                } else {
+                    i--;
+                    if (i != 1)
+                        goto REDO;
+                }
+            }
         }
         cur = cur->next;
     }
     /* now create the box contents */
-    cur = ext; 
-    wd = 0; d = 0; ht = 0; dp = 0;
-    if (boxtype==vlist_node) {
-      while (cur != NULL) {
-        cc = cur->glyph;
-        if (char_width(f,cc) > wd) 
-            wd = char_width(f,cc);
-        if (cur->extender > 0 ) {
-            i = with_extenders;
-            while (i>0) {
+    cur = ext;
+    wd = 0;
+    d = 0;
+    ht = 0;
+    dp = 0;
+    if (boxtype == vlist_node) {
+        while (cur != NULL) {
+            cc = cur->glyph;
+            if (char_width(f, cc) > wd)
+                wd = char_width(f, cc);
+            if (cur->extender > 0) {
+                i = with_extenders;
+                while (i > 0) {
+                    ht += stack_into_box(b, f, cc);
+                    if (d < (num_total - 1)) {
+                        u = min_overlap;
+                        if (s_max != 0)
+                            u += xn_over_d(max_shrinks[d], (b_max - v), s_max);
+                        add_delim_kern(b, -u);
+                        ht -= u;
+                    }
+                    d++;
+                    i--;
+                }
+            } else {
                 ht += stack_into_box(b, f, cc);
-                if (d<(num_total-1)) {
+                if (d < (num_total - 1)) {
                     u = min_overlap;
-                    if (s_max!=0)
-                        u += xn_over_d(max_shrinks[d], (b_max-v), s_max);
+                    if (s_max != 0)
+                        u += xn_over_d(max_shrinks[d], (b_max - v), s_max);
                     add_delim_kern(b, -u);
                     ht -= u;
                 }
                 d++;
-                i--;
             }
-        } else {
-            ht += stack_into_box(b, f, cc);
-            if (d<(num_total-1)) {
-                u = min_overlap;
-                if (s_max!=0)
-                    u += xn_over_d(max_shrinks[d], (b_max-v), s_max);
-                add_delim_kern(b, -u);
-                ht -= u;
-            }
-            d++;
+            cur = cur->next;
         }
-        cur = cur->next;
-      }
-      xfree(max_shrinks);
-      /* it is important to use |ht| here instead of |v| because  if there
-         was not enough shrink to get the correct size, it has to be centered
-         based on its actual height. That actual height is not the same as
-         |b_max| either because |min_overlap| can have ben set by the user
-         outside of the font's control.
-      */
-      last_ht = 0;
-      height(b) = ht;
-      depth(b) = 0;
-      /* the next correction is needed for radicals */
-      if (list_ptr(b)!=null &&
-          type(list_ptr(b))==hlist_node &&
-          list_ptr(list_ptr(b)) != null &&
-          type(list_ptr(list_ptr(b)))==glyph_node) { /* and it should be */
-        last_ht = char_height(font(list_ptr(list_ptr(b))), character (list_ptr(list_ptr(b))));
-        height(b) = last_ht;
-        depth(b) = ht - last_ht; 
-      }
-      /*
-        fprintf (stdout,"v=%f,b_max=%f,ht=%f,n=%d\n", (float)v/65536.0,
-        (float)b_max/65536.0,(float)height(b)/65536.0,num_total);
-      */
-      width(b) = wd;
+        xfree(max_shrinks);
+        /* it is important to use |ht| here instead of |v| because  if there
+           was not enough shrink to get the correct size, it has to be centered
+           based on its actual height. That actual height is not the same as
+           |b_max| either because |min_overlap| can have ben set by the user
+           outside of the font's control.
+         */
+        last_ht = 0;
+        height(b) = ht;
+        depth(b) = 0;
+        /* the next correction is needed for radicals */
+        if (list_ptr(b) != null && type(list_ptr(b)) == hlist_node && list_ptr(list_ptr(b)) != null && type(list_ptr(list_ptr(b))) == glyph_node) {     /* and it should be */
+            last_ht =
+                char_height(font(list_ptr(list_ptr(b))),
+                            character(list_ptr(list_ptr(b))));
+            height(b) = last_ht;
+            depth(b) = ht - last_ht;
+        }
+        /*
+           fprintf (stdout,"v=%f,b_max=%f,ht=%f,n=%d\n", (float)v/65536.0,
+           (float)b_max/65536.0,(float)height(b)/65536.0,num_total);
+         */
+        width(b) = wd;
     } else {
-      /* horizontal version */
+        /* horizontal version */
 
-      while (cur != NULL) {
-        cc = cur->glyph;
-        if (char_height(f,cc) > ht) 
-            ht = char_height(f,cc);
-        if (char_depth(f,cc) > dp) 
-            dp = char_depth(f,cc);
-        if (cur->extender > 0 ) {
-            i = with_extenders;
-            while (i>0) {
+        while (cur != NULL) {
+            cc = cur->glyph;
+            if (char_height(f, cc) > ht)
+                ht = char_height(f, cc);
+            if (char_depth(f, cc) > dp)
+                dp = char_depth(f, cc);
+            if (cur->extender > 0) {
+                i = with_extenders;
+                while (i > 0) {
+                    wd += stack_into_hbox(b, f, cc);
+                    if (d < (num_total - 1)) {
+                        u = min_overlap;
+                        if (s_max != 0)
+                            u += xn_over_d(max_shrinks[d], (b_max - v), s_max);
+                        add_delim_hkern(b, -u);
+                        wd -= u;
+                    }
+                    d++;
+                    i--;
+                }
+            } else {
                 wd += stack_into_hbox(b, f, cc);
-                if (d<(num_total-1)) {
+                if (d < (num_total - 1)) {
                     u = min_overlap;
-                    if (s_max!=0)
-                        u += xn_over_d(max_shrinks[d], (b_max-v), s_max);
+                    if (s_max != 0)
+                        u += xn_over_d(max_shrinks[d], (b_max - v), s_max);
                     add_delim_hkern(b, -u);
                     wd -= u;
                 }
                 d++;
-                i--;
             }
-        } else {
-            wd += stack_into_hbox(b, f, cc);
-            if (d<(num_total-1)) {
-                u = min_overlap;
-                if (s_max!=0)
-                    u += xn_over_d(max_shrinks[d], (b_max-v), s_max);
-                add_delim_hkern(b, -u);
-                wd -= u;
-            }
-            d++;
+            cur = cur->next;
         }
-        cur = cur->next;
-      }
-      xfree(max_shrinks);
-      /* it is important to use |wd| here instead of |v| because  if there
-         was not enough shrink to get the correct size, it has to be centered
-         based on its actual width. That actual width is not the same as
-         |b_max| either because |min_overlap| can have ben set by the user
-         outside of the font's control.
-      */
-      width(b) = wd;
+        xfree(max_shrinks);
+        /* it is important to use |wd| here instead of |v| because  if there
+           was not enough shrink to get the correct size, it has to be centered
+           based on its actual width. That actual width is not the same as
+           |b_max| either because |min_overlap| can have ben set by the user
+           outside of the font's control.
+         */
+        width(b) = wd;
     }
     return b;
 }
 
-pointer get_delim_vbox (extinfo *ext, internal_font_number f, scaled v, pointer att) 
+pointer get_delim_vbox(extinfo * ext, internal_font_number f, scaled v,
+                       pointer att)
 {
-  return get_delim_box(ext, f, v, att, vlist_node);
+    return get_delim_box(ext, f, v, att, vlist_node);
 }
 
-pointer get_delim_hbox (extinfo *ext, internal_font_number f, scaled v, pointer att) 
+pointer get_delim_hbox(extinfo * ext, internal_font_number f, scaled v,
+                       pointer att)
 {
-  return get_delim_box(ext, f, v, att, hlist_node);
+    return get_delim_box(ext, f, v, att, hlist_node);
 }
 
 
@@ -1749,17 +1792,18 @@ pointer get_delim_hbox (extinfo *ext, internal_font_number f, scaled v, pointer 
   will be the height of its topmost component.
 */
 
-void endless_loop_error (internal_font_number g, integer y) {
-  char s[256];
-  char *hlp[] = {
-    "You managed to create a seemingly endless charlist chain in the current",
-    "font. I have counted until 10000 already and still have not escaped, so"
-    "I will jump out of the loop all by myself now. Fix your font!",
-    NULL
-  };
-  snprintf(s, 256, "Math error: endless loop in charlist (U+%04x in %s)",
-           (int)y, font_name(g));
-  tex_error(s, hlp);
+void endless_loop_error(internal_font_number g, integer y)
+{
+    char s[256];
+    char *hlp[] = {
+        "You managed to create a seemingly endless charlist chain in the current",
+        "font. I have counted until 10000 already and still have not escaped, so"
+            "I will jump out of the loop all by myself now. Fix your font!",
+        NULL
+    };
+    snprintf(s, 256, "Math error: endless loop in charlist (U+%04x in %s)",
+             (int) y, font_name(g));
+    tex_error(s, hlp);
 }
 
 pointer var_delimiter(pointer d, integer s, scaled v)
@@ -1792,8 +1836,8 @@ pointer var_delimiter(pointer d, integer s, scaled v)
             g = fam_fnt(z, s);
             if (g != null_font) {
                 y = x;
-            CONTINUE:
-		i++;
+              CONTINUE:
+                i++;
                 if (char_exists(g, y)) {
                     if (char_tag(g, y) == ext_tag) {
                         f = g;
@@ -1802,20 +1846,20 @@ pointer var_delimiter(pointer d, integer s, scaled v)
                     }
                     u = height_plus_depth(g, y);
                     if (u > w) {
-                      f = g;
-                      c = y;
-                      w = u;
-                      if (u >= v)
+                        f = g;
+                        c = y;
+                        w = u;
+                        if (u >= v)
+                            goto FOUND;
+                    }
+                    if (i > 10000) {
+                        /* endless loop */
+                        endless_loop_error(g, y);
                         goto FOUND;
                     }
-		    if (i>10000) {
-		      /* endless loop */
-		      endless_loop_error(g,y);
-		      goto FOUND;
-		    }
                     if (char_tag(g, y) == list_tag) {
-                      y = char_remainder(g, y);
-                      goto CONTINUE;
+                        y = char_remainder(g, y);
+                        goto CONTINUE;
                     }
                 }
             }
@@ -1827,10 +1871,10 @@ pointer var_delimiter(pointer d, integer s, scaled v)
         x = large_char(d);
     }
   FOUND:
-    if (d!=null) {
-      att = node_attr(d);
-      node_attr(d) = null;
-      flush_node(d);
+    if (d != null) {
+        att = node_attr(d);
+        node_attr(d) = null;
+        flush_node(d);
     }
     if (f != null_font) {
         /* When the following code is executed, |char_tag(q)| will be equal to
@@ -1838,12 +1882,12 @@ pointer var_delimiter(pointer d, integer s, scaled v)
          */
         ext = NULL;
         if ((char_tag(f, c) == ext_tag) &&
-            ((ext = get_charinfo_vert_variants(char_info(f,c))) != NULL)) {
+            ((ext = get_charinfo_vert_variants(char_info(f, c))) != NULL)) {
             b = get_delim_vbox(ext, f, v, att);
-            width(b) += char_italic(f,c);
+            width(b) += char_italic(f, c);
         } else {
             b = char_box(f, c, att);
-        } 
+        }
     } else {
         b = new_null_box();
         reset_attributes(b, att);
@@ -1859,7 +1903,7 @@ pointer flat_var_delimiter(pointer d, integer s, scaled v)
     /* label found,continue; */
     pointer b;                  /* the box that will be constructed */
     internal_font_number f, g;  /* best-so-far and tentative font codes */
-    integer c,i, x, y;            /* best-so-far and tentative character codes */
+    integer c, i, x, y;         /* best-so-far and tentative character codes */
     scaled u;                   /* height-plus-depth of a tentative character */
     scaled w;                   /* largest height-plus-depth so far */
     integer z;                  /* runs through font family members */
@@ -1875,7 +1919,7 @@ pointer flat_var_delimiter(pointer d, integer s, scaled v)
         goto FOUND;
     z = small_fam(d);
     x = small_char(d);
-    i =0;
+    i = 0;
     while (true) {
         /* The search process is complicated slightly by the facts that some of the
            characters might not be present in some of the fonts, and they might not
@@ -1884,8 +1928,8 @@ pointer flat_var_delimiter(pointer d, integer s, scaled v)
             g = fam_fnt(z, s);
             if (g != null_font) {
                 y = x;
-            CONTINUE:
-		i++;
+              CONTINUE:
+                i++;
                 if (char_exists(g, y)) {
                     if (char_tag(g, y) == ext_tag) {
                         f = g;
@@ -1894,21 +1938,21 @@ pointer flat_var_delimiter(pointer d, integer s, scaled v)
                     }
                     u = char_width(g, y);
                     if (u > w) {
-                      f = g;
-                      c = y;
-                      w = u;
-                      if (u >= v)
+                        f = g;
+                        c = y;
+                        w = u;
+                        if (u >= v)
+                            goto FOUND;
+                    }
+                    if (i > 10000) {
+                        /* endless loop */
+                        endless_loop_error(g, y);
                         goto FOUND;
                     }
-		    if (i>10000) {
-		      /* endless loop */
-		      endless_loop_error(g,y);
-		      goto FOUND;
-		    }
                     if (char_tag(g, y) == list_tag) {
-                      y = char_remainder(g, y);
-                      goto CONTINUE;
-                    } 
+                        y = char_remainder(g, y);
+                        goto CONTINUE;
+                    }
                 }
             }
         }
@@ -1919,10 +1963,10 @@ pointer flat_var_delimiter(pointer d, integer s, scaled v)
         x = large_char(d);
     }
   FOUND:
-    if (d!=null) {
-      att = node_attr(d);
-      node_attr(d) = null;
-      flush_node(d);
+    if (d != null) {
+        att = node_attr(d);
+        node_attr(d) = null;
+        flush_node(d);
     }
     if (f != null_font) {
         /* When the following code is executed, |char_tag(q)| will be equal to
@@ -1930,16 +1974,16 @@ pointer flat_var_delimiter(pointer d, integer s, scaled v)
          */
         ext = NULL;
         if ((char_tag(f, c) == ext_tag) &&
-            ((ext = get_charinfo_hor_variants(char_info(f,c))) != NULL)) {
+            ((ext = get_charinfo_hor_variants(char_info(f, c))) != NULL)) {
             b = get_delim_hbox(ext, f, v, att);
-            width(b) += char_italic(f,c);
+            width(b) += char_italic(f, c);
         } else {
             b = char_box(f, c, att);
-        } 
+        }
     } else {
         b = new_null_box();
         reset_attributes(b, att);
-        width(b) = 0; /* use this width if no delimiter was found */
+        width(b) = 0;           /* use this width if no delimiter was found */
     }
     delete_attribute_ref(att);
     return b;
@@ -2215,8 +2259,8 @@ void fetch(pointer a)
             NULL
         };
         msg = xmalloc(256);
-        snprintf(msg,255,"\\%s%d is undefined (character %d)",
-                 math_size_string(cur_size), (int)math_fam(a), (int)cur_c);
+        snprintf(msg, 255, "\\%s%d is undefined (character %d)",
+                 math_size_string(cur_size), (int) math_fam(a), (int) cur_c);
         tex_error(msg, hlp);
         free(msg);
     } else {
@@ -2346,7 +2390,7 @@ placed so that the actual clearance is |psi| plus half the excess.
 void make_radical(pointer q)
 {
     pointer x, y, p;            /* temporary registers for box construction */
-    scaled delta, clr, theta, h;   /* dimensions involved in the calculation */
+    scaled delta, clr, theta, h;        /* dimensions involved in the calculation */
     x = clean_box(nucleus(q), cramped_style(cur_style));
     clr = radical_vgap(cur_style);
     theta = radical_rule(cur_style);
@@ -2367,32 +2411,34 @@ void make_radical(pointer q)
         left_delimiter(q) = null;
         delta = height(y) - (height(x) + clr + theta);
         shift_amount(y) = delta;
-        h = - (height(y) - shift_amount(y) );
+        h = -(height(y) - shift_amount(y));
     }
     p = overbar(x, clr, theta, radical_kern(cur_style), node_attr(y));
     vlink(y) = p;
-    if (degree(q)!=null) {
-      scaled wr, br, ar;
-      pointer r = clean_box(degree(q), script_script_style);
-      reset_attributes(r, node_attr(degree(q)));
-      wr = width(r);
-      if (wr==0) {
-	  flush_node(r);
-      } else {
-          br = radical_degree_before(cur_style);
-          ar = radical_degree_after(cur_style);
-	  if (-ar>(wr+br)) ar = -(wr+br);
-          x = new_kern(ar);
-          reset_attributes(x, node_attr(degree(q)));
-	  vlink(x) = y;
-	  shift_amount(r) = (xn_over_d(h,radical_degree_raise(cur_style),100));
-	  vlink(r) = x;
-	  x = new_kern(br);
-	  reset_attributes(x, node_attr(degree(q)));
-	  vlink(x) = r;
-	  y = x;
-      }
-      degree(q)=null;
+    if (degree(q) != null) {
+        scaled wr, br, ar;
+        pointer r = clean_box(degree(q), script_script_style);
+        reset_attributes(r, node_attr(degree(q)));
+        wr = width(r);
+        if (wr == 0) {
+            flush_node(r);
+        } else {
+            br = radical_degree_before(cur_style);
+            ar = radical_degree_after(cur_style);
+            if (-ar > (wr + br))
+                ar = -(wr + br);
+            x = new_kern(ar);
+            reset_attributes(x, node_attr(degree(q)));
+            vlink(x) = y;
+            shift_amount(r) =
+                (xn_over_d(h, radical_degree_raise(cur_style), 100));
+            vlink(r) = x;
+            x = new_kern(br);
+            reset_attributes(x, node_attr(degree(q)));
+            vlink(x) = r;
+            y = x;
+        }
+        degree(q) = null;
     }
     p = hpack(y, 0, additional);
     reset_attributes(p, node_attr(q));
@@ -2404,29 +2450,29 @@ void make_radical(pointer q)
 
 void make_over_delimiter(pointer q)
 {
-    pointer x, y, v, p ;  /* temporary registers for box construction */
+    pointer x, y, v, p;         /* temporary registers for box construction */
     scaled shift_up, shift_down, clr, delta;
     x = clean_box(nucleus(q), sub_style(cur_style));
     y = flat_var_delimiter(left_delimiter(q), cur_size, width(x));
     left_delimiter(q) = null;
-    if (width(y)>=width(x)) {
-      width(x) = width(y); /* just in case */
+    if (width(y) >= width(x)) {
+        width(x) = width(y);    /* just in case */
     } else {
-      width(y) = width(x); 
+        width(y) = width(x);
     }
     shift_up = over_delimiter_bgap(cur_style);
-    shift_down = 0; /* under_delimiter_bgap(cur_style); */
+    shift_down = 0;             /* under_delimiter_bgap(cur_style); */
     clr = over_delimiter_vgap(cur_style);
     delta = clr - ((shift_up - depth(x)) - (height(y) - shift_down));
     if (delta > 0) {
-      shift_up = shift_up + delta;
+        shift_up = shift_up + delta;
     }
     /* Construct a vlist box */
     v = new_null_box();
     type(v) = vlist_node;
     height(v) = shift_up + height(x);
     depth(v) = depth(y) + shift_down;
-    width(v) = width(x);   /* this also equals |width(y)| */
+    width(v) = width(x);        /* this also equals |width(y)| */
     reset_attributes(v, node_attr(q));
     p = new_kern((shift_up - depth(x)) - (height(y) - shift_down));
     reset_attributes(p, node_attr(q));
@@ -2441,29 +2487,29 @@ void make_over_delimiter(pointer q)
 
 void make_under_delimiter(pointer q)
 {
-    pointer x, y, v, p;            /* temporary registers for box construction */
+    pointer x, y, v, p;         /* temporary registers for box construction */
     scaled shift_up, shift_down, clr, delta;
     y = clean_box(nucleus(q), sup_style(cur_style));
     x = flat_var_delimiter(left_delimiter(q), cur_size, width(y));
     left_delimiter(q) = null;
-    if (width(y)>=width(x)) {
-      width(x) = width(y); /* just in case */
+    if (width(y) >= width(x)) {
+        width(x) = width(y);    /* just in case */
     } else {
-      width(y) = width(x);
+        width(y) = width(x);
     }
-    shift_up = 0; /* over_delimiter_bgap(cur_style);*/
-    shift_down = under_delimiter_bgap(cur_style); 
+    shift_up = 0;               /* over_delimiter_bgap(cur_style); */
+    shift_down = under_delimiter_bgap(cur_style);
     clr = under_delimiter_vgap(cur_style);
     delta = clr - ((shift_up - depth(x)) - (height(y) - shift_down));
     if (delta > 0) {
-      shift_down = shift_down + delta;
+        shift_down = shift_down + delta;
     }
     /* Construct a vlist box */
     v = new_null_box();
     type(v) = vlist_node;
     height(v) = shift_up + height(x);
     depth(v) = depth(y) + shift_down;
-    width(v) = width(y);   /* this also equals |width(y)| */
+    width(v) = width(y);        /* this also equals |width(y)| */
     reset_attributes(v, node_attr(q));
     p = new_kern((shift_up - depth(x)) - (height(y) - shift_down));
     reset_attributes(p, node_attr(q));
@@ -2483,7 +2529,9 @@ respect to the size of the final box.
 #define TOP_CODE 1
 #define BOT_CODE 2
 
-void do_make_math_accent (pointer q, internal_font_number f, integer c, int top_or_bot) {
+void do_make_math_accent(pointer q, internal_font_number f, integer c,
+                         int top_or_bot)
+{
     pointer p, r, x, y;         /* temporary registers for box construction */
     scaled s;                   /* amount to skew the accent to the right */
     scaled h;                   /* height of character being accented */
@@ -2492,27 +2540,27 @@ void do_make_math_accent (pointer q, internal_font_number f, integer c, int top_
     boolean s_is_absolute;      /* will be true if a top-accent is placed in |s| */
     extinfo *ext;
     pointer attr_p;
-    attr_p = (top_or_bot == TOP_CODE ? accent_chr(q) : bot_accent_chr(q) );
+    attr_p = (top_or_bot == TOP_CODE ? accent_chr(q) : bot_accent_chr(q));
     s_is_absolute = false;
     c = cur_c;
     f = cur_f;
     /* Compute the amount of skew, or set |s| to an alignment point */
     s = 0;
     if (type(nucleus(q)) == math_char_node) {
-      fetch(nucleus(q));
-      if (top_or_bot==TOP_CODE) {
-        s = char_top_accent(cur_f, cur_c);
-        if (s!=0) {
-          s_is_absolute = true;
-        } else {
-          s = get_kern(cur_f, cur_c, skew_char(cur_f));
+        fetch(nucleus(q));
+        if (top_or_bot == TOP_CODE) {
+            s = char_top_accent(cur_f, cur_c);
+            if (s != 0) {
+                s_is_absolute = true;
+            } else {
+                s = get_kern(cur_f, cur_c, skew_char(cur_f));
+            }
+        } else {                /* new skewchar madness for bot accents */
+            s = char_bot_accent(cur_f, cur_c);
+            if (s != 0) {
+                s_is_absolute = true;
+            }
         }
-      } else { /* new skewchar madness for bot accents */
-        s = char_bot_accent(cur_f, cur_c);
-        if (s!=0) {
-          s_is_absolute = true;
-        }
-      }
     }
     x = clean_box(nucleus(q), cramped_style(cur_style));
     w = width(x);
@@ -2520,96 +2568,98 @@ void do_make_math_accent (pointer q, internal_font_number f, integer c, int top_
     /* Switch to a larger accent if available and appropriate */
     y = null;
     while (1) {
-      ext = NULL;
-      if ((char_tag(f, c) == ext_tag) &&
-          ((ext = get_charinfo_hor_variants(char_info(f,c))) != NULL)) {
-        scaled w1 = xn_over_d(w, delimiter_factor,1000);
-        if (w-w1>delimiter_shortfall) 
-            w1=w-delimiter_shortfall;
-        y = get_delim_hbox(ext, f, w1, node_attr(attr_p));
-        break;
-      } else if (char_tag(f, c) != list_tag) {
-        break;
-      } else {
-        integer yy = char_remainder(f, c);
-        if (!char_exists(f, yy))
-          break;
-        if (char_width(f, yy) > w)
-          break;
-        c = yy;
-      }
+        ext = NULL;
+        if ((char_tag(f, c) == ext_tag) &&
+            ((ext = get_charinfo_hor_variants(char_info(f, c))) != NULL)) {
+            scaled w1 = xn_over_d(w, delimiter_factor, 1000);
+            if (w - w1 > delimiter_shortfall)
+                w1 = w - delimiter_shortfall;
+            y = get_delim_hbox(ext, f, w1, node_attr(attr_p));
+            break;
+        } else if (char_tag(f, c) != list_tag) {
+            break;
+        } else {
+            integer yy = char_remainder(f, c);
+            if (!char_exists(f, yy))
+                break;
+            if (char_width(f, yy) > w)
+                break;
+            c = yy;
+        }
     }
-    if (y==null) {
-      y = char_box(f, c, node_attr(attr_p));
+    if (y == null) {
+        y = char_box(f, c, node_attr(attr_p));
     }
-    if (top_or_bot==TOP_CODE) {
-      if (h < accent_base_height(f))
-        delta = h;
-      else
-        delta = accent_base_height(f);
+    if (top_or_bot == TOP_CODE) {
+        if (h < accent_base_height(f))
+            delta = h;
+        else
+            delta = accent_base_height(f);
     } else {
-      delta = 0; /* hm */
+        delta = 0;              /* hm */
     }
     if ((supscr(q) != null) || (subscr(q) != null)) {
-      if (type(nucleus(q)) == math_char_node) {
-        /* Swap the subscript and superscript into box |x| */
-        flush_node_list(x);
-        x = new_noad();
-        r = math_clone(nucleus(q));
-        nucleus(x) = r;
-        supscr(x) = supscr(q); supscr(q) = null;
-        subscr(x) = subscr(q); subscr(q) = null;
-        type(nucleus(q)) = sub_mlist_node;
-        math_list(nucleus(q)) = x;
-        x = clean_box(nucleus(q), cur_style);
-        delta = delta + height(x) - h;
-        h = height(x);
-      }
+        if (type(nucleus(q)) == math_char_node) {
+            /* Swap the subscript and superscript into box |x| */
+            flush_node_list(x);
+            x = new_noad();
+            r = math_clone(nucleus(q));
+            nucleus(x) = r;
+            supscr(x) = supscr(q);
+            supscr(q) = null;
+            subscr(x) = subscr(q);
+            subscr(q) = null;
+            type(nucleus(q)) = sub_mlist_node;
+            math_list(nucleus(q)) = x;
+            x = clean_box(nucleus(q), cur_style);
+            delta = delta + height(x) - h;
+            h = height(x);
+        }
     }
     if (s_is_absolute) {
-      scaled sa;
-      if (top_or_bot==TOP_CODE) 
-        sa = char_top_accent(f, c);
-      else
-        sa = char_bot_accent(f, c);
-      if (sa==0) {
-        sa = half(width(y)); /* just take the center */
-      }
-      shift_amount(y) = s - sa;
+        scaled sa;
+        if (top_or_bot == TOP_CODE)
+            sa = char_top_accent(f, c);
+        else
+            sa = char_bot_accent(f, c);
+        if (sa == 0) {
+            sa = half(width(y));        /* just take the center */
+        }
+        shift_amount(y) = s - sa;
     } else {
-      shift_amount(y) = s + half(w - width(y));
+        shift_amount(y) = s + half(w - width(y));
     }
     width(y) = 0;
     if (top_or_bot == TOP_CODE) {
-      p = new_kern(-delta);
-      vlink(p) = x;
-      vlink(y) = p;
+        p = new_kern(-delta);
+        vlink(p) = x;
+        vlink(y) = p;
     } else {
-      /*
-      p = new_kern(-delta);
-      vlink(x) = p;
-      vlink(p) = y;
-      y = x;
-      */
-      vlink(x) = y;
-      y = x;
+        /*
+           p = new_kern(-delta);
+           vlink(x) = p;
+           vlink(p) = y;
+           y = x;
+         */
+        vlink(x) = y;
+        y = x;
     }
     pack_direction = math_direction;
     r = vpackage(y, 0, additional, max_dimen);
     reset_attributes(r, node_attr(q));
     width(r) = w;
     y = r;
-    if (top_or_bot==TOP_CODE) {
-      if (height(y) < h) {
-        /* Make the height of box |y| equal to |h| */
-        p = new_kern(h - height(y));
-        reset_attributes(p, node_attr(q));
-        vlink(p) = list_ptr(y);
-        list_ptr(y) = p;
-        height(y) = h;
-      }
+    if (top_or_bot == TOP_CODE) {
+        if (height(y) < h) {
+            /* Make the height of box |y| equal to |h| */
+            p = new_kern(h - height(y));
+            reset_attributes(p, node_attr(q));
+            vlink(p) = list_ptr(y);
+            list_ptr(y) = p;
+            height(y) = h;
+        }
     } else {
-        shift_amount(y) = -(h-height(y));
+        shift_amount(y) = -(h - height(y));
     }
     math_list(nucleus(q)) = y;
     type(nucleus(q)) = sub_box_node;
@@ -2617,21 +2667,21 @@ void do_make_math_accent (pointer q, internal_font_number f, integer c, int top_
 
 void make_math_accent(pointer q)
 {
-    if (accent_chr(q)!= null) {
-      fetch(accent_chr(q));
-      if (char_exists(cur_f, cur_c)) {
-        do_make_math_accent(q, cur_f, cur_c, TOP_CODE);
-      }
-      flush_node(accent_chr(q));
-      accent_chr(q) = null;
+    if (accent_chr(q) != null) {
+        fetch(accent_chr(q));
+        if (char_exists(cur_f, cur_c)) {
+            do_make_math_accent(q, cur_f, cur_c, TOP_CODE);
+        }
+        flush_node(accent_chr(q));
+        accent_chr(q) = null;
     }
-    if (bot_accent_chr(q)!= null) {
-      fetch(bot_accent_chr(q));
-      if (char_exists(cur_f, cur_c)) {
-        do_make_math_accent(q, cur_f, cur_c, BOT_CODE);
-      }
-      flush_node(bot_accent_chr(q));
-      bot_accent_chr(q) = null;
+    if (bot_accent_chr(q) != null) {
+        fetch(bot_accent_chr(q));
+        if (char_exists(cur_f, cur_c)) {
+            do_make_math_accent(q, cur_f, cur_c, BOT_CODE);
+        }
+        flush_node(bot_accent_chr(q));
+        bot_accent_chr(q) = null;
     }
 }
 
@@ -2751,13 +2801,13 @@ scaled make_op(pointer q)
         subtype(q) = limits;
     if (type(nucleus(q)) == math_char_node) {
         fetch(nucleus(q));
-        if (cur_style < text_style) {  /* try to make it larger */
-            if (minimum_operator_size(cur_style)!=undefined_math_parameter)
+        if (cur_style < text_style) {   /* try to make it larger */
+            if (minimum_operator_size(cur_style) != undefined_math_parameter)
                 ok_size = minimum_operator_size(cur_style);
             else
-                ok_size = height_plus_depth(cur_f, cur_c)+1;
+                ok_size = height_plus_depth(cur_f, cur_c) + 1;
             while ((char_tag(cur_f, cur_c) == list_tag) &&
-                   height_plus_depth(cur_f, cur_c)<ok_size) {
+                   height_plus_depth(cur_f, cur_c) < ok_size) {
                 c = char_remainder(cur_f, cur_c);
                 if (!char_exists(cur_f, c))
                     break;
@@ -3448,12 +3498,12 @@ void mlist_to_hlist(void)
         case inner_noad:
             break;
         case radical_noad:
-   	    if (subtype(q)==4)
-              make_under_delimiter(q);
-            else if (subtype(q)==5)
-              make_over_delimiter(q);
+            if (subtype(q) == 4)
+                make_under_delimiter(q);
+            else if (subtype(q) == 5)
+                make_over_delimiter(q);
             else
-              make_radical(q);
+                make_radical(q);
             break;
         case over_noad:
             make_over(q);

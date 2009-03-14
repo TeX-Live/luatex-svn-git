@@ -48,10 +48,10 @@ static integer font_id_maxval = 0;
 
 extern extinfo *get_charinfo_vert_variants(charinfo * ci);
 extern extinfo *get_charinfo_hor_variants(charinfo * ci);
-extern void set_charinfo_hor_variants (charinfo * ci, extinfo *ext);
-extern void set_charinfo_vert_variants (charinfo * ci, extinfo *ext);
+extern void set_charinfo_hor_variants(charinfo * ci, extinfo * ext);
+extern void set_charinfo_vert_variants(charinfo * ci, extinfo * ext);
 
-extern extinfo *copy_variants (extinfo * o);
+extern extinfo *copy_variants(extinfo * o);
 
 
 static void grow_font_table(integer id)
@@ -248,10 +248,13 @@ charinfo *copy_charinfo(charinfo * ci)
 
     /* horizontal and vertical extenders */
     if (get_charinfo_vert_variants(ci) != NULL) {
-        set_charinfo_vert_variants(co, copy_variants(get_charinfo_vert_variants(ci)));
+        set_charinfo_vert_variants(co,
+                                   copy_variants(get_charinfo_vert_variants
+                                                 (ci)));
     }
     if (get_charinfo_hor_variants(ci) != NULL) {
-        set_charinfo_hor_variants(co, copy_variants(get_charinfo_hor_variants(ci)));
+        set_charinfo_hor_variants(co,
+                                  copy_variants(get_charinfo_hor_variants(ci)));
     }
     return co;
 }
@@ -321,35 +324,35 @@ int lua_char_exists_callback(internal_font_number f, integer c)
 }
 
 
-extinfo *new_variant (int glyph, int startconnect, int endconnect,
-                      int advance, int repeater)
+extinfo *new_variant(int glyph, int startconnect, int endconnect,
+                     int advance, int repeater)
 {
     extinfo *ext;
     ext = xmalloc(sizeof(extinfo));
     ext->next = NULL;
     ext->glyph = glyph;
-    ext->start_overlap =  startconnect;
-    ext->end_overlap =  endconnect;
+    ext->start_overlap = startconnect;
+    ext->end_overlap = endconnect;
     ext->advance = advance;
     ext->extender = repeater;
     return ext;
 }
 
 
-extinfo *copy_variant (extinfo *old)
+extinfo *copy_variant(extinfo * old)
 {
     extinfo *ext;
     ext = xmalloc(sizeof(extinfo));
-    ext->next          = NULL;
-    ext->glyph         = old->glyph;
+    ext->next = NULL;
+    ext->glyph = old->glyph;
     ext->start_overlap = old->start_overlap;
-    ext->end_overlap   = old->end_overlap;
-    ext->advance       = old->advance;
-    ext->extender      = old->extender;
+    ext->end_overlap = old->end_overlap;
+    ext->advance = old->advance;
+    ext->extender = old->extender;
     return ext;
 }
 
-void dump_variant (extinfo *ext)
+void dump_variant(extinfo * ext)
 {
     dump_int(ext->glyph);
     dump_int(ext->start_overlap);
@@ -360,82 +363,88 @@ void dump_variant (extinfo *ext)
 }
 
 
-extinfo * undump_variant (void)
+extinfo *undump_variant(void)
 {
     int x;
     extinfo *ext;
     undump_int(x);
-    if (x==0)
-      return NULL;
+    if (x == 0)
+        return NULL;
     ext = xmalloc(sizeof(extinfo));
     ext->next = NULL;
     ext->glyph = x;
-    undump_int(x);  ext->start_overlap = x;
-    undump_int(x);  ext->end_overlap   = x;
-    undump_int(x);  ext->advance       = x;
-    undump_int(x);  ext->extender      = x;
+    undump_int(x);
+    ext->start_overlap = x;
+    undump_int(x);
+    ext->end_overlap = x;
+    undump_int(x);
+    ext->advance = x;
+    undump_int(x);
+    ext->extender = x;
     return ext;
 }
 
-void add_charinfo_vert_variant (charinfo * ci, extinfo *ext)
+void add_charinfo_vert_variant(charinfo * ci, extinfo * ext)
 {
     if (ci->vert_variants == NULL) {
         ci->vert_variants = ext;
     } else {
         extinfo *lst = ci->vert_variants;
-        while (lst->next != NULL) lst = lst->next;
+        while (lst->next != NULL)
+            lst = lst->next;
         lst->next = ext;
     }
-    
+
 }
 
-void add_charinfo_hor_variant (charinfo * ci, extinfo *ext)
+void add_charinfo_hor_variant(charinfo * ci, extinfo * ext)
 {
     if (ci->hor_variants == NULL) {
         ci->hor_variants = ext;
     } else {
         extinfo *lst = ci->hor_variants;
-        while (lst->next != NULL) lst = lst->next;
+        while (lst->next != NULL)
+            lst = lst->next;
         lst->next = ext;
     }
-    
+
 }
 
-extinfo *copy_variants (extinfo * o)
+extinfo *copy_variants(extinfo * o)
 {
-    extinfo *c, *t = NULL, *h = NULL; 
+    extinfo *c, *t = NULL, *h = NULL;
     while (o != NULL) {
         c = copy_variant(o);
-        if (h==null)
-            h = c;  
-        else 
+        if (h == null)
+            h = c;
+        else
             t->next = c;
         t = c;
         o = o->next;
     }
-  
+
     return h;
 }
 
 
-void dump_charinfo_variants (extinfo *o)
+void dump_charinfo_variants(extinfo * o)
 {
     while (o != NULL) {
         dump_variant(o);
         o = o->next;
     }
     dump_int(0);
-    return ;
+    return;
 }
 
-extinfo *undump_charinfo_variants (void)
+extinfo *undump_charinfo_variants(void)
 {
-    extinfo *c, *t, *h = NULL; 
+    extinfo *c, *t, *h = NULL;
     c = undump_variant();
     while (c != NULL) {
-        if (h==null)
-            h = c;  
-        else 
+        if (h == null)
+            h = c;
+        else
             t->next = c;
         t = c;
         c = undump_variant();
@@ -532,35 +541,35 @@ void set_charinfo_rp(charinfo * ci, scaled val)
     ci->rp = val;
 }
 
-void set_charinfo_vert_variants (charinfo * ci, extinfo *ext)
+void set_charinfo_vert_variants(charinfo * ci, extinfo * ext)
 {
     extinfo *c, *lst;
     if (ci->vert_variants != NULL) {
         lst = ci->vert_variants;
         while (lst != NULL) {
-             c = lst->next;
-             free(lst);
-             lst = c;
+            c = lst->next;
+            free(lst);
+            lst = c;
         }
     }
     ci->vert_variants = ext;
 }
 
-void set_charinfo_hor_variants (charinfo * ci, extinfo *ext)
+void set_charinfo_hor_variants(charinfo * ci, extinfo * ext)
 {
     extinfo *c, *lst;
     if (ci->hor_variants != NULL) {
         lst = ci->hor_variants;
         while (lst != NULL) {
-             c = lst->next;
-             free(lst);
-             lst = c;
+            c = lst->next;
+            free(lst);
+            lst = c;
         }
     }
     ci->hor_variants = ext;
-    
+
 }
-                                       
+
 /* In TeX, extensibles were fairly simple things. 
    This function squeezes a TFM extensible into the vertical extender structures.
    |advance==0| is a special case for TFM fonts, because finding the proper 
@@ -573,32 +582,32 @@ void set_charinfo_hor_variants (charinfo * ci, extinfo *ext)
 void set_charinfo_extensible(charinfo * ci, int top, int bot, int mid, int rep)
 {
     extinfo *ext;
-    set_charinfo_vert_variants (ci,NULL); /* clear old */
-    if (bot==0 && top==0 && mid==0 && rep != 0) {
-        ext = new_variant(rep,0,0,0,EXT_NORMAL);
+    set_charinfo_vert_variants(ci, NULL);       /* clear old */
+    if (bot == 0 && top == 0 && mid == 0 && rep != 0) {
+        ext = new_variant(rep, 0, 0, 0, EXT_NORMAL);
         add_charinfo_vert_variant(ci, ext);
-        ext = new_variant(rep,0,0,0,EXT_REPEAT);
+        ext = new_variant(rep, 0, 0, 0, EXT_REPEAT);
         add_charinfo_vert_variant(ci, ext);
         return;
     }
-    if (bot!=0) {
-        ext = new_variant(bot,0,0,0,EXT_NORMAL);
+    if (bot != 0) {
+        ext = new_variant(bot, 0, 0, 0, EXT_NORMAL);
         add_charinfo_vert_variant(ci, ext);
     }
-    if (rep!=0) {
-        ext = new_variant(rep,0,0,0,EXT_REPEAT);
+    if (rep != 0) {
+        ext = new_variant(rep, 0, 0, 0, EXT_REPEAT);
         add_charinfo_vert_variant(ci, ext);
     }
-    if (mid!=0) {
-        ext = new_variant(mid,0,0,0,EXT_NORMAL);
+    if (mid != 0) {
+        ext = new_variant(mid, 0, 0, 0, EXT_NORMAL);
         add_charinfo_vert_variant(ci, ext);
-        if (rep!=0) {
-            ext = new_variant(rep,0,0,0,EXT_REPEAT);
+        if (rep != 0) {
+            ext = new_variant(rep, 0, 0, 0, EXT_REPEAT);
             add_charinfo_vert_variant(ci, ext);
         }
     }
-    if (top!=0) {
-        ext = new_variant(top,0,0,0,EXT_NORMAL);
+    if (top != 0) {
+        ext = new_variant(top, 0, 0, 0, EXT_NORMAL);
         add_charinfo_vert_variant(ci, ext);
     }
 }
@@ -697,7 +706,7 @@ extinfo *get_charinfo_vert_variants(charinfo * ci)
 {
     extinfo *w = NULL;
     if (ci->vert_variants != NULL)
-        w = ci->vert_variants ;
+        w = ci->vert_variants;
     return w;
 }
 
@@ -705,7 +714,7 @@ extinfo *get_charinfo_hor_variants(charinfo * ci)
 {
     extinfo *w = NULL;
     if (ci->hor_variants != NULL)
-        w = ci->hor_variants ;
+        w = ci->hor_variants;
     return w;
 }
 
@@ -878,11 +887,11 @@ integer copy_font(integer f)
     param_base(k) = xmalloc(i);
     memcpy(param_base(k), param_base(f), i);
 
-    if (font_math_params(f)>0) {
-      i = sizeof(*math_param_base(f)) * font_math_params(f);
-      font_bytes += i;
-      math_param_base(k) = xmalloc(i);
-      memcpy(math_param_base(k), math_param_base(f), i);
+    if (font_math_params(f) > 0) {
+        i = sizeof(*math_param_base(f)) * font_math_params(f);
+        font_bytes += i;
+        math_param_base(k) = xmalloc(i);
+        memcpy(math_param_base(k), math_param_base(f), i);
     }
 
     i = sizeof(charinfo) * (Charinfo_size(f) + 1);
@@ -930,8 +939,8 @@ void delete_font(integer f)
                 set_charinfo_packets(co, NULL);
                 set_charinfo_ligatures(co, NULL);
                 set_charinfo_kerns(co, NULL);
-                set_charinfo_vert_variants(co,NULL);
-                set_charinfo_hor_variants(co,NULL);
+                set_charinfo_vert_variants(co, NULL);
+                set_charinfo_hor_variants(co, NULL);
             }
         }
         /* free .notdef */
@@ -940,8 +949,8 @@ void delete_font(integer f)
         destroy_sa_tree(font_tables[f]->characters);
 
         free(param_base(f));
-        if (math_param_base(f)!=NULL)
-          free(math_param_base(f));
+        if (math_param_base(f) != NULL)
+            free(math_param_base(f));
         free(font_tables[f]);
         font_tables[f] = NULL;
 
@@ -1289,8 +1298,8 @@ void dump_charinfo(int f, int c)
     }
 
     if (get_charinfo_tag(co) == ext_tag) {
-      dump_charinfo_variants(get_charinfo_vert_variants(co));
-      dump_charinfo_variants(get_charinfo_hor_variants(co));
+        dump_charinfo_variants(get_charinfo_vert_variants(co));
+        dump_charinfo_variants(get_charinfo_hor_variants(co));
     }
 }
 
@@ -1310,9 +1319,9 @@ void dump_font(int f)
     dump_string(font_cidordering(f));
 
     dump_things(*param_base(f), (font_params(f) + 1));
-    
-    if (font_math_params(f)>0) {
-      dump_things(*math_param_base(f), (font_math_params(f)));
+
+    if (font_math_params(f) > 0) {
+        dump_things(*math_param_base(f), (font_math_params(f)));
     }
     if (has_left_boundary(f)) {
         dump_int(1);
@@ -1415,8 +1424,8 @@ int undump_charinfo(int f)
     set_charinfo_packets(co, packet);
 
     if (get_charinfo_tag(co) == ext_tag) {
-      set_charinfo_vert_variants(co, undump_charinfo_variants());
-      set_charinfo_hor_variants(co, undump_charinfo_variants());
+        set_charinfo_vert_variants(co, undump_charinfo_variants());
+        set_charinfo_hor_variants(co, undump_charinfo_variants());
     }
     return i;
 }
@@ -1462,13 +1471,13 @@ void undump_font(int f)
     param_base(f) = xmalloc(i);
     undump_things(*param_base(f), (font_params(f) + 1));
 
-    if (font_math_params(f)>0) {
-      i = sizeof(*math_param_base(f)) * (font_math_params(f) + 1);
-      font_bytes += i;
-      math_param_base(f) = xmalloc(i);
-      undump_things(*math_param_base(f), (font_math_params(f) + 1));
+    if (font_math_params(f) > 0) {
+        i = sizeof(*math_param_base(f)) * (font_math_params(f) + 1);
+        font_bytes += i;
+        math_param_base(f) = xmalloc(i);
+        undump_things(*math_param_base(f), (font_math_params(f) + 1));
     } else {
-      math_param_base(f) = NULL;
+        math_param_base(f) = NULL;
     }
 
     font_tables[f]->_left_boundary = NULL;

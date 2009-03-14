@@ -51,7 +51,7 @@ typedef struct extinfo {
     int start_overlap;
     int end_overlap;
     int advance;
-    int extender; 
+    int extender;
 } extinfo;
 
 typedef struct charinfo {
@@ -91,20 +91,20 @@ typedef struct charinfo_short {
 } charinfo_short;
 #  endif
 
-#define EXT_NORMAL 0
-#define EXT_REPEAT 1
+#  define EXT_NORMAL 0
+#  define EXT_REPEAT 1
 
 extern extinfo *get_charinfo_vert_variants(charinfo * ci);
 extern extinfo *get_charinfo_hor_variants(charinfo * ci);
-extern void set_charinfo_hor_variants (charinfo * ci, extinfo *ext);
-extern void set_charinfo_vert_variants (charinfo * ci, extinfo *ext);
-extern void add_charinfo_vert_variant (charinfo * ci, extinfo *ext);
-extern void add_charinfo_hor_variant (charinfo * ci, extinfo *ext);
+extern void set_charinfo_hor_variants(charinfo * ci, extinfo * ext);
+extern void set_charinfo_vert_variants(charinfo * ci, extinfo * ext);
+extern void add_charinfo_vert_variant(charinfo * ci, extinfo * ext);
+extern void add_charinfo_hor_variant(charinfo * ci, extinfo * ext);
 
-extern extinfo *copy_variants (extinfo * o);
+extern extinfo *copy_variants(extinfo * o);
 
-extern extinfo *new_variant (int glyph, int startconnect, int endconnect,
-                             int advance, int repeater);
+extern extinfo *new_variant(int glyph, int startconnect, int endconnect,
+                            int advance, int repeater);
 
 extern charinfo_short char_info_short(internal_font_number f, integer c);
 

@@ -208,7 +208,7 @@ integer get_math_code_num(integer n)
             mval.character_value;
     } else if (mval.origin_value == xetexnum_mathcode
                || mval.origin_value == xetex_mathcode) {
-      return (mval.class_value  + (mval.family_value * 8)) * (65536 * 32) +
+        return (mval.class_value + (mval.family_value * 8)) * (65536 * 32) +
             mval.character_value;
     }
     return 0;
@@ -450,7 +450,7 @@ void initialize_math_codes(void)
     initializedelcode();
 }
 
-void free_math_codes (void)
+void free_math_codes(void)
 {
     destroy_sa_tree(mathcode_head);
     xfree(mathcode_heap);

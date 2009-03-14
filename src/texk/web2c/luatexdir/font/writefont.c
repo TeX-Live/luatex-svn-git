@@ -336,9 +336,9 @@ void get_char_range(fo_entry * fo, internalfontnumber f)
     }
 }
 
-static int font_has_subset (internalfontnumber f)
+static int font_has_subset(internalfontnumber f)
 {
-    int i,s;
+    int i, s;
     for (i = font_bc(f); i <= font_ec(f); i++)  /* search for first_char and last_char */
         if (pdf_char_marked(f, i))
             break;
@@ -346,7 +346,7 @@ static int font_has_subset (internalfontnumber f)
     for (i = font_ec(f); i >= font_bc(f); i--)
         if (pdf_char_marked(f, i))
             break;
-    if (s>i)
+    if (s > i)
         return 0;
     else
         return 1;
@@ -721,7 +721,7 @@ void do_pdf_font(integer font_objnum, internalfontnumber f)
      * only) there are more than 256 separate glyphs used. But for
      * now, just assume the user knows what he is doing;
      */
-    if (!font_has_subset (f))
+    if (!font_has_subset(f))
         return;
 
     if (font_encodingbytes(f) == 2) {
