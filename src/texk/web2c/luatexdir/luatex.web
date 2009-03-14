@@ -5124,6 +5124,14 @@ eq_level(undefined_control_sequence):=level_zero;
 for k:=null_cs to undefined_control_sequence-1 do
   eqtb[k]:=eqtb[undefined_control_sequence];
 
+@ Create a C version of |undefined_control_sequence|.
+
+@<Global...@>=
+@!static_undefined_control_sequence:integer;
+
+@ @<Set init...@>=
+static_undefined_control_sequence:=undefined_control_sequence;
+
 @ Here is a routine that displays the current meaning of an |eqtb| entry
 in region 1 or~2. (Similar routines for the other regions will appear
 below.)
