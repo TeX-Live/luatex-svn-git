@@ -310,10 +310,10 @@ int do_run_callback(int special, char *values, va_list vl)
         narg++;
     }
     {
-      int i;
-      lua_active ++;
-      i = lua_pcall(L, narg, nres, 0);
-      lua_active --;
+        int i;
+        lua_active++;
+        i = lua_pcall(L, narg, nres, 0);
+        lua_active--;
         /* lua_remove(L, base); *//* remove traceback function */
         if (i != 0) {
             /* Can't be more precise here, could be called before 

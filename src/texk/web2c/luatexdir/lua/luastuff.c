@@ -289,7 +289,7 @@ void luacall(int n, int p, int nameptr)
         luainterpreter(n);
     }
     l = 0;
-    lua_active ++;
+    lua_active++;
     s = tokenlist_to_cstring(p, 1, &l);
     ls.s = s;
     ls.size = l;
@@ -321,7 +321,7 @@ void luacall(int n, int p, int nameptr)
         }
         xfree(lua_id);
     }
-    lua_active --;
+    lua_active--;
 }
 
 void luatokencall(int n, int p, int nameptr)
@@ -334,7 +334,7 @@ void luatokencall(int n, int p, int nameptr)
         luainterpreter(n);
     }
     l = 0;
-    lua_active ++;
+    lua_active++;
     s = tokenlist_to_cstring(p, 1, &l);
     ls.s = s;
     ls.size = l;
@@ -365,7 +365,7 @@ void luatokencall(int n, int p, int nameptr)
         }
         xfree(lua_id);
     }
-    lua_active --;
+    lua_active--;
 }
 
 

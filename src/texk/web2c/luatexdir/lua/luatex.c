@@ -30,22 +30,22 @@ extern int program_name_set;    /* in lkpselib.c */
 
 void b_test_in(void)
 {
-  if (program_name_set) {
-    string fname = kpse_find_file((char *) (nameoffile + 1),
-                                  kpse_program_binary_format, true);
-    if (fname) {
-        libcfree(nameoffile);
-        nameoffile = xmalloc(2 + strlen(fname));
-        namelength = strlen(fname);
-        strcpy((char *) nameoffile + 1, fname);
-    } else {
-        libcfree(nameoffile);
-        nameoffile = xmalloc(2);
-        namelength = 0;
-        nameoffile[0] = 0;
-        nameoffile[1] = 0;
+    if (program_name_set) {
+        string fname = kpse_find_file((char *) (nameoffile + 1),
+                                      kpse_program_binary_format, true);
+        if (fname) {
+            libcfree(nameoffile);
+            nameoffile = xmalloc(2 + strlen(fname));
+            namelength = strlen(fname);
+            strcpy((char *) nameoffile + 1, fname);
+        } else {
+            libcfree(nameoffile);
+            nameoffile = xmalloc(2);
+            namelength = 0;
+            nameoffile[0] = 0;
+            nameoffile[1] = 0;
+        }
     }
-  }
 }
 
 
