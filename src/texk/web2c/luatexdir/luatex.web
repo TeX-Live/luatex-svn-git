@@ -12237,10 +12237,8 @@ if not callback_defined(start_run_callback) then begin
   if buffer[l]=end_line_char then decr(l); { TODO: multichar endlinechar}
   for k:=1 to l do print(buffer[k]);
   print_ln; {now the transcript file contains the first line of input}
-  end
-else begin
-  flush_loggable_info;
-end;
+  end;
+flush_loggable_info; {should be done always}
 selector:=old_setting+2; {|log_only| or |term_and_log|}
 end;
 
