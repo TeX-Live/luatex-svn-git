@@ -69,7 +69,7 @@ extern void undump_primitives(void);
 #  define primitive_luatex(a,b,c) primitive((a),(b),(c),luatex_command)
 
 extern void primitive(str_number ss, quarterword c, halfword o, int cmd_origin);
-extern void primitive_def(str_number s, quarterword c, halfword o);
+extern void primitive_def(char *s, size_t l, quarterword c, halfword o);
 
 extern pointer string_lookup(char *s, size_t l);
 extern pointer id_lookup(integer j, integer l);

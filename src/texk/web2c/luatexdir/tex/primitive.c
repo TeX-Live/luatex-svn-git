@@ -208,15 +208,12 @@ void undump_primitives(void)
    contains the new |eqtb| pointer after |primitive| has acted.
 */
 
-void primitive_def(str_number s, quarterword c, halfword o)
+void primitive_def(char *s, size_t l, quarterword c, halfword o)
 {
-    pool_pointer k;             /* index into |str_pool| */
-    small_number l;             /* length of the string */
-    k = str_start_macro(s);
-    l = length(s);
-    cur_val = string_lookup((char *) (str_pool + k), l);        /* this creates a string copy */
-    flush_string();             /* but we don't want to have it twice */
-    text(cur_val) = s;
+    int nncs = no_new_control_sequence;
+    no_new_control_sequence = false;
+    cur_val = string_lookup(s, l);        /* this creates a string */
+    no_new_control_sequence = nncs;
     eq_level(cur_val) = level_one;
     eq_type(cur_val) = c;
     equiv(cur_val) = o;
@@ -235,7 +232,8 @@ void primitive(str_number ss, quarterword c, halfword o, int cmd_origin)
         s = ss;
     }
     if (true || cmd_origin == tex_command) {
-        primitive_def(s, c, o);
+        char *thes = makecstring(s);
+        primitive_def(thes, strlen(thes), c, o);
     }
     prim_val = prim_lookup(s);
     prim_origin(prim_val) = cmd_origin;
