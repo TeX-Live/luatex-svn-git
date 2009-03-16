@@ -1597,7 +1597,7 @@ and true (the setting of \type{globaldefs} is not taken into account).
 
 This function returns a hash table listing all primitives that \LUATEX\
 knows about. The keys in the hash are primitives names, the values are
-tables representing tokens (see~\section[luatokens]). The third value
+tables representing tokens (see~\in{section }[luatokens]). The third value
 is always zero.
 
 
@@ -1611,13 +1611,21 @@ This function returns a list of the extra primitives that originate
 from the engine(s) given by the requested string value(s). The
 possible values and their (current) return values are:
 
+\startluacode
+function out_prim (a)
+  for _,n in pairs(tex.extraprimitives(a)) do 
+    tex.print(n .. '\\hskip 4pt plus 5em') 
+  end 
+end
+\stopluacode
+
 \starttabulate[|l|p|]
 \NC \bf name\NC \bf values \NC \NR
-\NC etex    \NC \ctxlua{for _,n in pairs(tex.extraprimitives('etex') do tex.print(n)) end } \NC \NR
-\NC pdftex  \NC \ctxlua{for _,n in pairs(tex.extraprimitives('pdftex') do tex.print(n)) end } \NC \NR
-\NC omega   \NC \ctxlua{for _,n in pairs(tex.extraprimitives('omega') do tex.print(n)) end } \NC \NR
-\NC aleph   \NC \ctxlua{for _,n in pairs(tex.extraprimitives('aleph) do tex.print(n)) end } \NC \NR
-\NC luatex  \NC \ctxlua{for _,n in pairs(tex.extraprimitives('luatex) do tex.print(n)) end } \NC \NR
+\NC etex    \NC \ctxlua{out_prim('etex')   } \NC \NR
+\NC pdftex  \NC \ctxlua{out_prim('pdftex') } \NC \NR
+\NC omega   \NC \ctxlua{out_prim('omega')  } \NC \NR
+\NC aleph   \NC \ctxlua{out_prim('aleph')  } \NC \NR
+\NC luatex  \NC \ctxlua{out_prim('luatex') } \NC \NR
 \stoptabulate
 
 Note that \type{luatex} does not contain \type{directlua}, as that is
