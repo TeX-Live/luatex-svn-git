@@ -1298,12 +1298,20 @@ static int tex_enableprimitives(lua_State * L)
                     str_number s = maketexstring(prim);
                     halfword prim_val = prim_lookup(s);
                     if (prim_val != undefined_primitive) {
-                        size_t newl = strlen(prim)+l;
-                        char *newprim = (char *) xmalloc (newl+1);
+                        char *newprim;
+                        size_t newl;
                         halfword cur_cmd = get_prim_eq_type(prim_val);
                         halfword cur_chr = get_prim_equiv(prim_val);
-                        strcpy(newprim,pre);
-                        strcat(newprim+l,prim);
+                        if (strncmp(pre,prim,l)!=0) { /* not a prefix */
+                            newl =  strlen(prim)+l;
+                            newprim = (char *) xmalloc (newl+1);
+                            strcpy(newprim,pre);
+                            strcat(newprim+l,prim);
+                        } else {
+                            newl = strlen(prim);
+                            newprim = (char *) xmalloc (newl+1);
+                            strcpy(newprim,prim);
+                        }
                         if (string_lookup(newprim, newl) == static_undefined_control_sequence ) {
                             primitive_def(newprim, newl, cur_cmd, cur_chr);
                         }

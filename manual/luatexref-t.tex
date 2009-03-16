@@ -1569,7 +1569,7 @@ generates a \quote{number to big} error as well.
 
 \startfunctioncall
 <number> n = tex.scale(<number> o, <number> delta)
-table n = tex.scale(table o, <number> delta)
+<table> n = tex.scale(table o, <number> delta)
 \stopfunctioncall
 
 Multiplies the \LUA\ numbers \type{o} and \type{delta}, and returns a
@@ -1589,8 +1589,113 @@ Associates \type{csname} with the internal font number \type{fontid}.
 The definition is global if (and only if) \type{global} is specified
 and true (the setting of \type{globaldefs} is not taken into account).
 
+\subsubsection{\luatex{tex.primitives}}
 
-\section{The \luatex{token} library}
+\startfunctioncall
+<table> t = tex.primitives()
+\stopfunctioncall
+
+This function returns a hash table listing all primitives that \LUATEX\
+knows about. The keys in the hash are primitives names, the values are
+tables representing tokens (see~\section[luatokens]). The third value
+is always zero.
+
+
+\subsubsection{\luatex{tex.extraprimitives}}
+
+\startfunctioncall
+<table> t = tex.extraprimitives(<string> s, ...)
+\stopfunctioncall
+
+This function returns a list of the extra primitives that originate
+from the engine(s) given by the requested string value(s). The
+possible values and their (current) return values are:
+
+\starttabulate[|l|p|]
+\NC \bf name\NC \bf values \NC \NR
+\NC etex    \NC \ctxlua{for _,n in pairs(tex.extraprimitives('etex') do tex.print(n)) end } \NC \NR
+\NC pdftex  \NC \ctxlua{for _,n in pairs(tex.extraprimitives('pdftex') do tex.print(n)) end } \NC \NR
+\NC omega   \NC \ctxlua{for _,n in pairs(tex.extraprimitives('omega') do tex.print(n)) end } \NC \NR
+\NC aleph   \NC \ctxlua{for _,n in pairs(tex.extraprimitives('aleph) do tex.print(n)) end } \NC \NR
+\NC luatex  \NC \ctxlua{for _,n in pairs(tex.extraprimitives('luatex) do tex.print(n)) end } \NC \NR
+\stoptabulate
+
+Note that \type{luatex} does not contain \type{directlua}, as that is
+considered to be a core primitive, along with all the \TEX82 primitives.
+
+Running \type{tex.extraprimitives()} will give you the complete list,
+it is equivalent to \type{tex.extraprimitives('etex', 'pdftex', 'omega', 'aleph', 'luatex')}
+
+\subsubsection{\luatex{tex.enableprimitives}}
+
+\startfunctioncall
+tex.enableprimitives(<string> prefix, <table> primitive names)
+\stopfunctioncall
+
+This function accepts a prefix string and an array of primitive names. 
+
+For each combination of \quote{prefix} and \quote{name}, the
+\type{tex.enableprimitives} first verifies that \quote{name} is
+and actual primitive (it must be returned by one of the
+\type{tex.extraprimitives()} calls explained above, or part of
+\TEX82, or \type{\directlua}). If it is not, 
+\type{tex.enableprimitives} does nothing and skips to the next pair.
+
+But if it is, then it will contruct a csname variable by concatenating the
+\quote{prefix} and \quote{name}, unless the \quote{prefix} is already the actual
+prefix of \quote{name}. In the latter case, it will discard the \quote{prefix},
+and just use \quote{name}.
+
+Then it will check for the existence of the constructed csname.
+If the csname is currently undefined (note: that is not the same as
+\type{\relax}), it will globally define the csname to have the
+meaning: run code belonging to the primitive \quote{name}. If for some
+reason the csname is already defined, it does nothing and tries the
+next pair.
+
+An example:
+	
+\starttyping
+  tex.enableprimitives('LuaTeX', {'formatname'})
+\stoptyping
+
+will define \type{\LuaTeXformatname} with the same intrinsic meaning
+as the documented primitive \type{\formatname}, provided that the
+control sequences \type{\LuaTeXformatname} is currently undefined.
+
+Second example:
+
+\starttyping
+  tex.enableprimitives('Omega',tex.primitives ('omega'))
+\stoptyping
+
+will define a whole series of csnames like \type{\Omegatextdir},
+\type{\Omegapardir}, etc., but it will stick with \type{\OmegaVersion} 
+instead of creating the doubly-prefixed \type{\OmegaOmegaVersion}.
+
+Starting with version 0.40 (and this is why the above two functions
+are needed), \LUATEX\ in \type{--ini} mode will contain only the \TEX82
+primitives and \type{\directlua}, no extra primitives {\bf at all}.
+
+So, if you want to have all the new functionality available using
+their default names, as it is now, you will have to add
+
+\starttyping
+  \expandafter\ifx\csname directlua\endcsname \relax \else
+     \directlua {tex.enableprimitives('',tex.primitives ())}
+  \fi
+\stoptyping
+
+near the beginning of your format generation file. Or you can choose
+different prefixes for different subsets, as you see fit.
+
+Calling some form of \type{tex.enableprimitives()} is highly important
+though, because if you do not, you will end up with a \TEX82-lookalike
+that can run lua code but not do much else. The defined csnames are
+(of course) saved in the format and will be available runtime.
+
+
+\section[luatokens]{The \luatex{token} library}
 
 The \luatex{token} table contains interface functions to \TEX's
 handling of tokens. These functions are most useful when combined with
@@ -2628,7 +2733,7 @@ object methods you can call:
 \NC width        \NC function \NC the \type{charwd} value \NC \NR
 \NC height       \NC function \NC the \type{charht} value \NC \NR
 \NC depth        \NC function \NC the \type{chardp} value \NC \NR
-\NC italcorr     \NC function \NC the \type{charic} value \NC \NR
+\NC italcorr     \NC function \NC the \type{charit} value \NC \NR
 \NC charcode     \NC function \NC the (rounded) \type{charcode} value \NC \NR
 \stoptabulate
 
@@ -7610,7 +7715,7 @@ The primitives
 \NC \tex{fontcharwd}   \NC \tex{charwd}     \NC \NR
 \NC \tex{fontcharht}   \NC \tex{charht}     \NC \NR
 \NC \tex{fontchardp}   \NC \tex{chardp}     \NC \NR
-\NC \tex{fontcharic}   \NC \tex{charic}     \NC \NR
+\NC \tex{fontcharic}   \NC \tex{charit}     \NC \NR
 \stoptabulate
 
 are all aliases of each other.
