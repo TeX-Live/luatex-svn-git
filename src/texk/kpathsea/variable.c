@@ -71,7 +71,7 @@ kpathsea_var_value (kpathsea kpse, const_string var)
   }
 
 #ifdef KPSE_DEBUG
-  if (KPSE_DEBUG_P (KPSE_DEBUG_VARS))
+  if (KPATHSEA_DEBUG_P (KPSE_DEBUG_VARS))
     DEBUGF2("variable: %s = %s\n", var, ret ? ret : "(nil)");
 #endif
 

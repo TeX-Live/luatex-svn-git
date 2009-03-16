@@ -742,7 +742,7 @@ kpathsea_init_format (kpathsea kpse, kpse_file_format_type format)
 #define MAYBE(member) (FMT_INFO.member ? FMT_INFO.member : "(none)")
 
   /* Describe the monster we've created.  */
-  if (KPSE_DEBUG_P (KPSE_DEBUG_PATHS))
+  if (KPATHSEA_DEBUG_P (KPSE_DEBUG_PATHS))
     {
       DEBUGF2 ("Search path for %s files (from %s)\n",
               FMT_INFO.type, FMT_INFO.path_source);
@@ -928,7 +928,7 @@ kpathsea_find_file_generic (kpathsea kpse, const_string name,  kpse_file_format_
   if (FMT_INFO.path == NULL)
     kpathsea_init_format (kpse, format);
 
-  if (KPSE_DEBUG_P (KPSE_DEBUG_SEARCH))
+  if (KPATHSEA_DEBUG_P (KPSE_DEBUG_SEARCH))
     DEBUGF3 ("kpse_find_file: searching for %s of type %s (from %s)\n",
              name, FMT_INFO.type, FMT_INFO.path_source);
 

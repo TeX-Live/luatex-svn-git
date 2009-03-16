@@ -39,7 +39,7 @@ kpathsea_dir_p (kpathsea kpse, const_string fn)
   kpse_normalize_path((string)fn);
   fa = GetFileAttributes(fn);
 
-  if (KPSE_DEBUG_P(KPSE_DEBUG_STAT)) {
+  if (KPATHSEA_DEBUG_P (KPSE_DEBUG_STAT)) {
     if (fa == 0xFFFFFFFF) {
       fprintf(stderr, "failed to get file attributes for %s (%d)\n",
 	      fn, GetLastError());
@@ -84,14 +84,14 @@ kpathsea_dir_links (kpathsea kpse, const_string fn, long nlinks)
 #ifdef KPSE_DEBUG
   /* This is annoying, but since we're storing integers as pointers, we
      can't print them as strings.  */
-  if (KPSE_DEBUG_P (KPSE_DEBUG_HASH))
+  if (KPATHSEA_DEBUG_P (KPSE_DEBUG_HASH))
     kpse->debug_hash_lookup_int = true;
 #endif
 
   hash_ret = hash_lookup (kpse->link_table, fn);
   
 #ifdef KPSE_DEBUG
-  if (KPSE_DEBUG_P (KPSE_DEBUG_HASH))
+  if (KPATHSEA_DEBUG_P (KPSE_DEBUG_HASH))
     kpse->debug_hash_lookup_int = false;
 #endif
 
@@ -124,7 +124,7 @@ kpathsea_dir_links (kpathsea kpse, const_string fn, long nlinks)
 #endif
 
 #ifdef KPSE_DEBUG
-      if (KPSE_DEBUG_P (KPSE_DEBUG_STAT))
+      if (KPATHSEA_DEBUG_P (KPSE_DEBUG_STAT))
         DEBUGF2 ("dir_links(%s) => %ld\n", fn, nlinks);
 #endif
   }

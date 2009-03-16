@@ -376,7 +376,7 @@ kpathsea_normalize_path (kpathsea kpse, string elt)
       ;
   }
   
-  if (KPSE_DEBUG_P (KPSE_DEBUG_STAT) && ret != 1)
+  if (KPATHSEA_DEBUG_P (KPSE_DEBUG_STAT) && ret != 1)
     DEBUGF2 ("kpse_normalize_path (%s) => %u\n", elt, ret);
 
   return ret;
@@ -418,7 +418,7 @@ kpathsea_element_dirs (kpathsea kpse, string elt)
   cache (kpse, elt, ret);
 
 #ifdef KPSE_DEBUG
-  if (KPSE_DEBUG_P (KPSE_DEBUG_EXPAND))
+  if (KPATHSEA_DEBUG_P (KPSE_DEBUG_EXPAND))
     {
       DEBUGF1 ("path element %s =>", elt);
       if (ret)

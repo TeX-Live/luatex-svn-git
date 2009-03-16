@@ -147,7 +147,7 @@ db_build (kpathsea kpse, hash_table_type *table,  const_string db_filename)
     }
 
 #ifdef KPSE_DEBUG
-    if (KPSE_DEBUG_P (KPSE_DEBUG_HASH)) {
+    if (KPATHSEA_DEBUG_P (KPSE_DEBUG_HASH)) {
       /* Don't make this a debugging bit, since the output is so
          voluminous, and being able to specify -1 is too useful.
          Instead, let people who want it run the program under
@@ -327,7 +327,7 @@ alias_build (kpathsea kpse, hash_table_type *table,  const_string alias_filename
     }
 
 #ifdef KPSE_DEBUG
-    if (KPSE_DEBUG_P (KPSE_DEBUG_HASH)) {
+    if (KPATHSEA_DEBUG_P (KPSE_DEBUG_HASH)) {
       /* As with ls-R above ... */
       boolean hash_summary_only = true;
       DEBUGF2 ("%s: %u aliases.\n", alias_filename, count);
@@ -498,7 +498,7 @@ kpathsea_db_search (kpathsea kpse, const_string name,
       boolean matched = match (db_file, path_elt);
 
 #ifdef KPSE_DEBUG
-      if (KPSE_DEBUG_P (KPSE_DEBUG_SEARCH))
+      if (KPATHSEA_DEBUG_P (KPSE_DEBUG_SEARCH))
         DEBUGF3 ("db:match(%s,%s) = %d\n", db_file, path_elt, matched);
 #endif
 
@@ -663,7 +663,7 @@ kpathsea_db_search_list (kpathsea kpse, const_string* names,
               boolean matched = match (db_file, path);
               
 #ifdef KPSE_DEBUG
-              if (KPSE_DEBUG_P (KPSE_DEBUG_SEARCH))
+              if (KPATHSEA_DEBUG_P (KPSE_DEBUG_SEARCH))
                 DEBUGF3 ("db:match(%s,%s) = %d\n", db_file, path, matched);
 #endif
 

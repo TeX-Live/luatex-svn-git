@@ -63,7 +63,7 @@ log_search (kpathsea kpse, str_list_type filenames)
     }
   }
 
-  if (KPSE_DEBUG_P (KPSE_DEBUG_SEARCH) || kpse->log_file) {
+  if (KPATHSEA_DEBUG_P (KPSE_DEBUG_SEARCH) || kpse->log_file) {
     unsigned e;
 
     /* FILENAMES should never be null, but safety doesn't hurt.  */
@@ -79,7 +79,7 @@ log_search (kpathsea kpse, str_list_type filenames)
       /* And show them online, if debugging.  We've already started
          the debugging line in `search', where this is called, so
          just print the filename here, don't use DEBUGF.  */
-      if (KPSE_DEBUG_P (KPSE_DEBUG_SEARCH)) {
+      if (KPATHSEA_DEBUG_P (KPSE_DEBUG_SEARCH)) {
         putc (' ', stderr);
         fputs (filename, stderr);
       }
@@ -351,7 +351,7 @@ search (kpathsea kpse, const_string path,  const_string original_name,
      consider PATH at all.  */
   absolute_p = kpathsea_absolute_p (kpse, name, true);
   
-  if (KPSE_DEBUG_P (KPSE_DEBUG_SEARCH))
+  if (KPATHSEA_DEBUG_P (KPSE_DEBUG_SEARCH))
     DEBUGF4 ("start search(file=%s, must_exist=%d, find_all=%d, path=%s).\n",
              name, must_exist, all, path);
 
@@ -372,10 +372,10 @@ search (kpathsea kpse, const_string path,  const_string original_name,
   } else {
     /* Record the filenames we found, if desired.  And wrap them in a
        debugging line if we're doing that.  */
-    if (KPSE_DEBUG_P (KPSE_DEBUG_SEARCH))
+    if (KPATHSEA_DEBUG_P (KPSE_DEBUG_SEARCH))
       DEBUGF1 ("search(%s) =>", original_name);
     log_search (kpse, ret_list);
-    if (KPSE_DEBUG_P (KPSE_DEBUG_SEARCH))
+    if (KPATHSEA_DEBUG_P (KPSE_DEBUG_SEARCH))
       putc ('\n', stderr);
   }  
 
@@ -427,7 +427,7 @@ search_list (kpathsea kpse, const_string path,  const_string* names,
 
   ret_list = str_list_init();
 
-  if (KPSE_DEBUG_P (KPSE_DEBUG_SEARCH)) {
+  if (KPATHSEA_DEBUG_P (KPSE_DEBUG_SEARCH)) {
     DEBUGF1  ("start search(files=[%s", *names);
     for (namep = names+1; *namep != NULL; namep++) {
       fputc(' ', stderr);
@@ -518,7 +518,7 @@ search_list (kpathsea kpse, const_string path,  const_string* names,
   } else {
     /* Record the filenames we found, if desired.  And wrap them in a
        debugging line if we're doing that.  */
-    if (KPSE_DEBUG_P (KPSE_DEBUG_SEARCH)) {
+    if (KPATHSEA_DEBUG_P (KPSE_DEBUG_SEARCH)) {
       DEBUGF1 ("search([%s", *names);
       for (namep = names+1; *namep != NULL; namep++) {
         fputc (' ', stderr);
@@ -527,7 +527,7 @@ search_list (kpathsea kpse, const_string path,  const_string* names,
       fputs ("]) =>", stderr);
     }
     log_search (kpse, ret_list);
-    if (KPSE_DEBUG_P (KPSE_DEBUG_SEARCH))
+    if (KPATHSEA_DEBUG_P (KPSE_DEBUG_SEARCH))
       putc ('\n', stderr);
   }
 

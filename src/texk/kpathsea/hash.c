@@ -183,7 +183,7 @@ hash_lookup (hash_table_type table,  const_string key)
 #ifdef KPSE_DEBUG
 #if defined (KPSE_COMPAT_API)
   kpathsea kpse = kpse_def;
-  if (KPSE_DEBUG_P (KPSE_DEBUG_HASH))
+  if (KPATHSEA_DEBUG_P (KPSE_DEBUG_HASH))
     {
       DEBUGF1 ("hash_lookup(%s) =>", key);
       if (!STR_LIST (ret))
