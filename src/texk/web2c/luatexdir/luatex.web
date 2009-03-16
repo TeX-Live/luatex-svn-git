@@ -16858,12 +16858,129 @@ The |has_packet()| C macro checks for this condition.
 
 @ The following code typesets a character to PDF output.
 
-@p procedure output_one_char(ffi:internal_font_number;c:integer);
+@p
+procedure output_one_char(ffi:internal_font_number;c:integer);
+var c_wd,c_ht,c_dp: scaled; {the real width, height and depth of the character}
+ci: charinfo_short;
 begin
-  if has_packet(ffi,c) then 
+  if has_packet(ffi,c) then
     do_vf_packet(ffi, c)
-  else 
-    pdf_place_glyph(ffi, c);
+  else begin
+    synch_pos_with_cur;
+    ci := char_info_short(ffi,c);
+    c_ht:=charinfo_height(ci);
+    c_dp:=charinfo_depth(ci);
+    c_wd:=charinfo_width(ci);
+    if (false and (font_natural_dir(ffi)<>-1)) then begin {TODO: repair}
+      case font_direction(dvi_direction) of
+      dir__LT,dir__LB: begin
+        pdf_place_glyph(ffi, c);
+        end;
+      dir__RT,dir__RB: begin
+        pdf_place_glyph(ffi, c);
+        end;
+      dir__TL,dir__TR,dir__BL,dir__BR: begin
+        c_wd := c_ht + c_dp;
+        pdf_place_glyph(ffi, c);
+        end;
+      dir__LL: begin
+        pos_right(c_wd);
+        pdf_place_glyph(ffi, c);
+        end;
+      dir__RR: begin
+        pos_left(c_wd);
+        pdf_place_glyph(ffi, c);
+        end;
+      dir__LR: begin
+        pdf_place_glyph(ffi, c);
+        end;
+      dir__RL: begin
+        pdf_place_glyph(ffi, c);
+        end;
+      dir__TT: begin
+        c_wd := c_ht + c_dp;
+        pos_down(c_wd);
+        pdf_place_glyph(ffi, c);
+        end;
+      dir__TB: begin
+        c_wd := c_ht + c_dp;
+        pdf_place_glyph(ffi, c);
+        end;
+      dir__BT: begin
+        c_wd := c_ht + c_dp;
+        pdf_place_glyph(ffi, c);
+        end;
+      dir__BB: begin
+        c_wd := c_ht + c_dp;
+        pos_up(c_wd);
+        pdf_place_glyph(ffi, c);
+        end;
+      endcases;
+    end else begin
+      case font_direction(dvi_direction) of
+      dir__LT: begin
+        pdf_place_glyph(ffi, c);
+        end;
+      dir__LB: begin
+        pos_down(c_ht);
+        pdf_place_glyph(ffi, c);
+        end;
+      dir__RT: begin
+        pos_left(c_wd);
+        pdf_place_glyph(ffi, c);
+        end;
+      dir__RB: begin
+        pos_down(c_ht);
+        pos_left(c_wd);
+        pdf_place_glyph(ffi, c);
+        end;
+      dir__TL: begin
+        pos_down(c_ht);
+        pos_left(c_wd);
+        pdf_place_glyph(ffi, c);
+        c_wd := c_ht + c_dp;
+        end;
+      dir__TR: begin
+        pos_down(c_ht);
+        pdf_place_glyph(ffi, c);
+        c_wd := c_ht + c_dp;
+        end;
+      dir__BL: begin
+        pos_left(c_wd);
+        pos_up(c_dp);
+        pdf_place_glyph(ffi, c);
+        c_wd := c_ht + c_dp;
+        end;
+      dir__BR: begin
+        pos_up(c_dp);
+        pdf_place_glyph(ffi, c);
+        c_wd := c_ht + c_dp;
+        end;
+      dir__LL,dir__LR: begin
+        pos_down((c_ht - c_dp) div 2);
+        pdf_place_glyph(ffi, c);
+        end;
+      dir__RL,dir__RR: begin
+        pos_left(c_wd);
+        pos_down((c_ht - c_dp) div 2);
+        pdf_place_glyph(ffi, c);
+        end;
+      dir__TT,dir__TB: begin
+        pos_down(c_ht);
+        pos_left(c_wd div 2);
+        pdf_place_glyph(ffi, c);
+        c_wd:=c_ht + c_dp;
+        end;
+      dir__BT,dir__BB: begin
+        pos_up(c_dp);
+        pos_left(c_wd div 2);
+        pdf_place_glyph(ffi, c);
+        c_wd := c_ht + c_dp;
+        end;
+      endcases;
+    end;
+    cur.h:=cur.h+c_wd;
+  end;
 end;
 
 @ @<Declare procedures that need to be declared forward for \pdfTeX@>=
@@ -17387,135 +17504,19 @@ end
 @d pos_up(#)    == pos.v := pos.v + (#)
 @d pos_down(#)  == pos.v := pos.v - (#)
 
-@d pdf_set(#)==output_one_char(f,#)
-
 @<Output node |p| for |pdf_hlist_out|...@>=
 begin
-if is_char_node(p) then 
-  begin
+if is_char_node(p) then begin
   repeat
-  if x_displace(p)<>0 then cur.h := cur.h + x_displace(p);
-  if y_displace(p)<>0 then cur.v := cur.v - y_displace(p);
-  synch_pos_with_cur; f:=font(p); c:=character(p);
-  ci := char_info_short(f,c);
-  c_ht:=charinfo_height(ci);
-  c_dp:=charinfo_depth(ci);
-  c_wd:=charinfo_width(ci);
-  if (font_natural_dir(f)<>-1) then begin
-    case font_direction(dvi_direction) of
-    dir__LT,dir__LB: begin
-      pdf_set(c);
-      end;
-    dir__RT,dir__RB: begin
-      pdf_set(c);
-      end;
-    dir__TL,dir__TR,dir__BL,dir__BR: begin
-      c_wd := c_ht + c_dp;
-      pdf_set(c);
-      end;
-    dir__LL: begin
-      pos_right(c_wd);
-      pdf_set(c);
-      end;
-    dir__RR: begin
-      pos_left(c_wd);
-      pdf_set(c);
-      end;
-    dir__LR: begin
-      pdf_set(c);
-      end;
-    dir__RL: begin
-      pdf_set(c);
-      end;
-    dir__TT: begin
-      c_wd := c_ht + c_dp;
-      pos_down(c_wd);
-      pdf_set(c);
-      end;
-    dir__TB: begin
-      c_wd := c_ht + c_dp;
-      pdf_set(c);
-      end;
-    dir__BT: begin
-      c_wd := c_ht + c_dp;
-      pdf_set(c);
-      end;
-    dir__BB: begin
-      c_wd := c_ht + c_dp;
-      pos_up(c_wd);
-      pdf_set(c);
-      end;
-    endcases;
-  end else begin
-    case font_direction(dvi_direction) of
-    dir__LT: begin
-      pdf_set(c);
-      end;
-    dir__LB: begin
-      pos_down(c_ht);
-      pdf_set(c);
-      end;
-    dir__RT: begin
-      pos_left(c_wd);
-      pdf_set(c);
-      end;
-    dir__RB: begin
-      pos_down(c_ht);
-      pos_left(c_wd);
-      pdf_set(c);
-      end;
-    dir__TL: begin
-      pos_down(c_ht);
-      pos_left(c_wd);
-      pdf_set(c);
-      c_wd := c_ht + c_dp;
-      end;
-    dir__TR: begin
-      pos_down(c_ht);
-      pdf_set(c);
-      c_wd := c_ht + c_dp;
-      end;
-    dir__BL: begin
-      pos_left(c_wd);
-      pos_up(c_dp);
-      pdf_set(c);
-      c_wd := c_ht + c_dp;
-      end;
-    dir__BR: begin
-      pos_up(c_dp);
-      pdf_set(c);
-      c_wd := c_ht + c_dp;
-      end;
-    dir__LL,dir__LR: begin
-      pos_down((c_ht - c_dp) div 2);
-      pdf_set(c);
-      end;
-    dir__RL,dir__RR: begin
-      pos_left(c_wd);
-      pos_down((c_ht - c_dp) div 2);
-      pdf_set(c);
-      end;
-    dir__TT,dir__TB: begin
-      pos_down(c_ht);
-      pos_left(c_wd div 2);
-      pdf_set(c);
-      c_wd:=c_ht + c_dp;
-      end;
-    dir__BT,dir__BB: begin
-      pos_up(c_dp);
-      pos_left(c_wd div 2);
-      pdf_set(c);
-      c_wd := c_ht + c_dp;
-      end;
-     endcases;
-    end;
-  if x_displace(p)<>0 then cur.h := cur.h - x_displace(p);
-  if y_displace(p)<>0 then cur.v := cur.v + y_displace(p);
-  cur.h:=cur.h+c_wd;
-  p:=vlink(p);
+    if x_displace(p)<>0 then cur.h := cur.h + x_displace(p);
+    if y_displace(p)<>0 then cur.v := cur.v - y_displace(p);
+    output_one_char(font(p), character(p));
+    if x_displace(p)<>0 then cur.h := cur.h - x_displace(p);
+    if y_displace(p)<>0 then cur.v := cur.v + y_displace(p);
+    p:=vlink(p);
   until not is_char_node(p);
   @<Record current point {\sl Sync\TeX} information@>;
-  end
+end
 else @<Output the non-|char_node| |p| for |pdf_hlist_out|
     and move to the next node@>;
 end
