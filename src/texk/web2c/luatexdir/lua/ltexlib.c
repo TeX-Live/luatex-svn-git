@@ -1277,6 +1277,57 @@ static int tex_extraprimitives(lua_State * L)
     return 1;
 }
 
+static int tex_enableprimitives(lua_State * L)
+{
+    int n = lua_gettop(L);
+    if (n != 2) {
+        lua_pushstring(L, "wrong number of arguments");
+        lua_error(L);
+    } else {
+        size_t l;
+        int i;
+        char *pre = (char *) luaL_checklstring(L, 1, &l);
+        if (lua_istable(L,2)) {
+            int nncs = no_new_control_sequence;
+            no_new_control_sequence = true;
+            i = 1;
+            while (1) {
+                lua_rawgeti(L,2,i);
+                if (lua_isstring(L,3)) {
+                    char *prim = (char *) lua_tostring(L,3);
+                    str_number s = maketexstring(prim);
+                    halfword prim_val = prim_lookup(s);
+                    if (prim_val != undefined_primitive) {
+                        size_t newl = strlen(prim)+l;
+                        char *newprim = (char *) xmalloc (newl+1);
+                        halfword cur_cmd = get_prim_eq_type(prim_val);
+                        halfword cur_chr = get_prim_equiv(prim_val);
+                        strcpy(newprim,pre);
+                        strcat(newprim+l,prim);
+                        if (string_lookup(newprim, newl) == static_undefined_control_sequence ) {
+                            primitive_def(newprim, newl, cur_cmd, cur_chr);
+                        }
+                        free (newprim);
+                    }
+                    flush_str(s);
+                } else {
+                    lua_pop(L,1);
+                    break;
+                }
+                lua_pop(L,1);
+                i++;
+            }
+            lua_pop(L,1); /* the table */
+            no_new_control_sequence = nncs;
+        } else {
+            lua_pushstring(L, "Expected an array of names as second argument");
+            lua_error(L);
+        }
+    }
+    return 0;
+}
+
+
 
 static const struct luaL_reg texlib[] = {
     {"write", luacwrite},
@@ -1318,6 +1369,7 @@ static const struct luaL_reg texlib[] = {
     {"hashtokens", tex_hashpairs},
     {"primitives", tex_primitives},
     {"extraprimitives", tex_extraprimitives},
+    {"enableprimitives", tex_enableprimitives},
     {NULL, NULL}                /* sentinel */
 };
 
