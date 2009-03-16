@@ -32,6 +32,10 @@
 #    include "luatexd.h"
 #  endif
 
+#ifdef MSVC
+extern double rint(double x);
+#endif
+
 /* pdftexlib macros */
 #  include "ptexmac.h"
 
