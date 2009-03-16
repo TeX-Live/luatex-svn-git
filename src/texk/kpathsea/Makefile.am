@@ -220,7 +220,7 @@ kpsereadlink_SOURCES = readlink.c
 kpsewhich_LDADD = libkpathsea.la
 
 ## The scripts and their data
-web2cdir = ${prefix}/web2c
+web2cdir = ${prefix}/texmf/web2c
 
 dist_web2c_SCRIPTS = mktexdir mktexnam mktexupd
 
