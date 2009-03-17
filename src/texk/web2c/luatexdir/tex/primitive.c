@@ -231,7 +231,7 @@ void primitive(str_number ss, quarterword c, halfword o, int cmd_origin)
     } else {
         s = ss;
     }
-    if (true || cmd_origin == tex_command) {
+    if (true || cmd_origin == tex_command || cmd_origin == core_command) {
         char *thes = makecstring(s);
         primitive_def(thes, strlen(thes), c, o);
     }

@@ -1251,6 +1251,10 @@ static int tex_extraprimitives(lua_State * L)
                 char *s = (char *) lua_tostring(L, i);
                 if (strcmp(s, "etex") == 0) {
                     mask |= etex_command;
+                } else if (strcmp(s, "tex") == 0) {
+                    mask |= tex_command;
+                } else if (strcmp(s, "core") == 0) {
+                    mask |= core_command;
                 } else if (strcmp(s, "pdftex") == 0) {
                     mask |= pdftex_command;
                 } else if (strcmp(s, "aleph") == 0) {

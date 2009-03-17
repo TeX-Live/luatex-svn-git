@@ -868,6 +868,7 @@
 @define procedure primitive_omega();
 @define procedure primitive_pdftex();
 @define procedure primitive_luatex();
+@define procedure primitive_core();
 
 @define procedure init_primitives;
 @define procedure ini_init_primitives;

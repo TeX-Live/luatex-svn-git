@@ -10738,7 +10738,7 @@ primitive_pdftex("pdfcolorstackinit",convert,pdf_colorstack_init_code);@/
 @!@:pdf_colorstack_init_}{\.{\\pdfcolorstackinit} primitive@>
 primitive_pdftex("pdfnormaldeviate",convert,normal_deviate_code);@/
 @!@:normal_deviate_}{\.{\\pdfnormaldeviate} primitive@>
-primitive_tex("directlua",convert,lua_code);@/
+primitive_core("directlua",convert,lua_code);@/
 @!@:lua_}{\.{\\directlua} primitive@>
 primitive_luatex("luaescapestring",convert,lua_escape_string_code);@/
 @!@:lua_}{\.{\\luaescapestring} primitive@>

@@ -31,6 +31,7 @@ typedef enum {
     omega_command = 8,
     pdftex_command = 16,
     luatex_command = 32,
+    core_command = 64,
 } command_origin;
 
 #  define eq_level(a) zeqtb[a].hh.u.B1
@@ -67,6 +68,7 @@ extern void undump_primitives(void);
 #  define primitive_omega(a,b,c)  primitive((a),(b),(c),omega_command)
 #  define primitive_pdftex(a,b,c) primitive((a),(b),(c),pdftex_command)
 #  define primitive_luatex(a,b,c) primitive((a),(b),(c),luatex_command)
+#  define primitive_core(a,b,c)   primitive((a),(b),(c),core_command)
 
 extern void primitive(str_number ss, quarterword c, halfword o, int cmd_origin);
 extern void primitive_def(char *s, size_t l, quarterword c, halfword o);

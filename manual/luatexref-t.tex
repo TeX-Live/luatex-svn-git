@@ -1607,7 +1607,7 @@ is always zero.
 <table> t = tex.extraprimitives(<string> s, ...)
 \stopfunctioncall
 
-This function returns a list of the extra primitives that originate
+This function returns a list of the primitives that originate
 from the engine(s) given by the requested string value(s). The
 possible values and their (current) return values are:
 
@@ -1621,6 +1621,8 @@ end
 
 \starttabulate[|l|p|]
 \NC \bf name\NC \bf values \NC \NR
+\NC tex     \NC \ctxlua{out_prim('tex')    } \NC \NR
+\NC core    \NC \ctxlua{out_prim('core')   } \NC \NR
 \NC etex    \NC \ctxlua{out_prim('etex')   } \NC \NR
 \NC pdftex  \NC \ctxlua{out_prim('pdftex') } \NC \NR
 \NC omega   \NC \ctxlua{out_prim('omega')  } \NC \NR
@@ -1628,11 +1630,15 @@ end
 \NC luatex  \NC \ctxlua{out_prim('luatex') } \NC \NR
 \stoptabulate
 
-Note that \type{luatex} does not contain \type{directlua}, as that is
-considered to be a core primitive, along with all the \TEX82 primitives.
+Note that \type{'luatex'} does not contain \type{directlua}, as that is
+considered to be a core primitive, along with all the \TEX82
+primitives, so it is part of the list that is returned from \type{'core}.
 
-Running \type{tex.extraprimitives()} will give you the complete list,
-it is equivalent to \type{tex.extraprimitives('etex', 'pdftex', 'omega', 'aleph', 'luatex')}
+Running \type{tex.extraprimitives()} will give you the complete list
+of primitives that are not defined at \LUATEX\ 0.40 \type{-ini}
+startup. It is exactly equivalent to \type{tex.extraprimitives('etex',
+'pdftex', 'omega', 'aleph', 'luatex')}
+
 
 \subsubsection{\luatex{tex.enableprimitives}}
 
