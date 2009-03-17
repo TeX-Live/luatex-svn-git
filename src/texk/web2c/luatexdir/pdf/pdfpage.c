@@ -361,6 +361,8 @@ static void end_chararray(pdfstructure * p)
 
 void pdf_end_string_nl()
 {
+    if (is_charmode(pstruct))
+        end_charmode(pstruct);
     if (is_chararraymode(pstruct))
         end_chararray(pstruct);
 }
@@ -501,7 +503,7 @@ place_glyph(pdfstructure * p, scaledpos * pos, internal_font_number f,
             integer c)
 {
     int move;
-    if (f != p->f_cur || is_pagemode(p)) {
+    if (f != p->f_cur || is_textmode(p) || is_pagemode(p)) {
         goto_textmode(p);
         if (f != p->f_cur)
             setup_fontparameters(p, f);
