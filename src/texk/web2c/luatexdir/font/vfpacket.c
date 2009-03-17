@@ -186,7 +186,8 @@ void do_vf_packet(internal_font_number vf_f, integer c)
             packet_scaled(rule_ht, fs_f);
             packet_scaled(rule_wd, fs_f);
             if ((rule_wd > 0) && (rule_ht > 0)) {
-                pdf_place_rule(cur.h, cur.v, rule_wd, rule_ht);
+                pos = synch_p_with_c(cur);
+                pdf_place_rule(pos.h, pos.v, rule_wd, rule_ht);
                 cur.h = cur.h + rule_wd;
             }
             break;
