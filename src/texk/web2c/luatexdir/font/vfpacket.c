@@ -217,6 +217,7 @@ void do_vf_packet(internal_font_number vf_f, integer c)
             break;
         case packet_image_code:
             packet_number(k);
+            pos = synch_p_with_c(cur);
             vf_out_image(k);
             break;
         case packet_node_code:
