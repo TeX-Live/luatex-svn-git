@@ -16860,99 +16860,98 @@ The |has_packet()| C macro checks for this condition.
 
 @p
 procedure output_one_char(ffi:internal_font_number;c:integer);
-begin
-  if has_packet(ffi,c) then
-    do_vf_packet(ffi, c)
-  else begin
-    synch_pos_with_cur;
-    pdf_place_glyph(ffi, c);
-  end;
-end;
-
-procedure out_one_char(ffi:internal_font_number;c:integer);
 var c_wd,c_ht,c_dp: scaled; {the real width, height and depth of the character}
 ci: charinfo_short;
 save, save_box_pos: scaledpos;
 save_direction: integer;
 begin
-  save := cur;
-
   ci := char_info_short(ffi,c);
   c_ht:=charinfo_height(ci);
   c_dp:=charinfo_depth(ci);
   c_wd:=charinfo_width(ci);
-
+  synch_pos_with_cur;
   case box_direction(dvi_direction) of
   dir_TL_: begin
       case font_direction(dvi_direction) of
-      dir__LT: begin
-        end;
-      dir__LR: begin
-        cur.v := cur.v + (c_ht - c_dp)/2;
-        end;
+      dir__LL, dir__LR: pos_down((c_ht - c_dp) div 2);
+      dir__LT: ;
+      dir__LB: pos_down(c_ht);
       endcases;
     end;
   dir_TR_: begin
+      pos_left(c_wd);
       case font_direction(dvi_direction) of
-      dir__RT: begin
-        cur.h := cur.h + c_wd;
-        end;
-      dir__RL: begin
-        cur.h := cur.h + c_wd;
-        cur.v := cur.v + (c_ht - c_dp)/2;
-        end;
+      dir__RL, dir__RR: pos_down((c_ht - c_dp) div 2);
+      dir__RT: ;
+      dir__RB: pos_down(c_ht);
+      endcases;
+    end;
+  dir_BL_: begin
+      case font_direction(dvi_direction) of
+      dir__LL, dir__LR: pos_down((c_ht - c_dp) div 2);
+      dir__LT: pos_up(c_dp);
+      dir__LB: pos_down(c_ht);
+      endcases;
+    end;
+  dir_BR_: begin
+      pos_left(c_wd);
+      case font_direction(dvi_direction) of
+      dir__RL, dir__RR: pos_down((c_ht - c_dp) div 2);
+      dir__RT: pos_up(c_dp);
+      dir__RB: pos_down(c_ht);
       endcases;
     end;
   dir_LT_: begin
+      pos_down(c_ht);
       case font_direction(dvi_direction) of
-      dir__TT, dir__TB: begin
-        cur.v := cur.v - c_wd / 2;
-        cur.h := cur.h + c_ht;
-        end;
+      dir__TL: pos_left(c_wd);
+      dir__TR: ;
+      dir__TB, dir__TT: pos_left(c_wd div 2);
+      endcases;
+    end;
+  dir_RT_: begin
+      pos_down(c_ht);
+      case font_direction(dvi_direction) of
+      dir__TL: pos_left(c_wd);
+      dir__TR: ;
+      dir__TB, dir__TT: pos_left(c_wd div 2);
+      endcases;
+    end;
+  dir_LB_: begin
+      pos_up(c_dp);
+      case font_direction(dvi_direction) of
+      dir__BL: pos_left(c_wd);
+      dir__BR: ;
+      dir__BB, dir__BT: pos_left(c_wd div 2);
+      endcases;
+    end;
+  dir_RB_: begin
+      pos_up(c_dp);
+      case font_direction(dvi_direction) of
+      dir__BL: pos_left(c_wd);
+      dir__BR: ;
+      dir__BB, dir__BT: pos_left(c_wd div 2);
       endcases;
     end;
   endcases;
-
-  synch_pos_with_cur;
-  save_box_pos := box_pos;
-  box_pos := pos;
-  set_to_zero(cur);
-  save_direction := dvi_direction;
-  dvi_direction := dir_TL_; {local virtual font coordinate system}
-
-  output_one_char(ffi,c);
-
-  box_pos := save_box_pos;
-  dvi_direction := save_direction;
-  cur := save;
+  if has_packet(ffi,c) then begin
+    save := cur;
+    save_box_pos := box_pos;
+    box_pos := pos;
+    save_direction := dvi_direction;
+    dvi_direction := dir_TL_; {local virtual font coordinate system}
+    set_to_zero(cur);
+    do_vf_packet(ffi, c);
+    dvi_direction := save_direction;
+    box_pos := save_box_pos;
+    cur := save;
+  end else
+    pdf_place_glyph(ffi, c);
   case box_direction(dvi_direction) of
-  dir_TL_: begin
-    case font_direction(dvi_direction) of
-    dir__LT: begin
-      cur.h := cur.h + c_wd;
-      end;
-    dir__LR: begin
-      cur.h := cur.h + c_wd;
-      end;
-    endcases;
-    end;
-  dir_TR_: begin
-      case font_direction(dvi_direction) of
-      dir__RT: begin
-        cur.h := cur.h + c_wd;
-        end;
-      dir__RL: begin
-        cur.h := cur.h + c_wd;
-        end;
-      endcases;
-    end;
-  dir_LT_: begin
-      case font_direction(dvi_direction) of
-      dir__TT, dir__TB: begin
-        cur.h := cur.h + c_ht + c_dp;
-        end;
-      endcases;
-    end;
+  dir_TL_, dir_TR_, dir_BL_, dir_BR_:
+    cur.h := cur.h + c_wd;
+  dir_LT_, dir_RT_, dir_LB_, dir_RB_:
+    cur.h := cur.h + c_ht + c_dp;
   endcases;
 end;
 
@@ -17409,8 +17408,6 @@ end;
 procedure pdf_hlist_out; {output an |hlist_node| box}
 label move_past, fin_rule, next_p;
 var base_line: scaled; {the baseline coordinate for this box}
-c_wd,c_ht,c_dp: scaled;
-  {the real width, height and depth of the character}
 w: scaled; { temporary value for directional width calculation }
 dir_nest: integer; { for tracking nested direction nodes }
 edge_v: scaled;
@@ -17483,7 +17480,7 @@ if is_char_node(p) then begin
   repeat
     if x_displace(p)<>0 then cur.h := cur.h + x_displace(p);
     if y_displace(p)<>0 then cur.v := cur.v - y_displace(p);
-    out_one_char(font(p), character(p));
+    output_one_char(font(p), character(p));
     if x_displace(p)<>0 then cur.h := cur.h - x_displace(p);
     if y_displace(p)<>0 then cur.v := cur.v + y_displace(p);
     p:=vlink(p);

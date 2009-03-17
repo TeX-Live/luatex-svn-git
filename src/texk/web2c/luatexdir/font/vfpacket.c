@@ -52,18 +52,18 @@ static packet_stack_index packet_stack_ptr = 0; /* pointer into |packet_stack| *
 
 #define do_packet_byte() vf_packets[cur_packet_byte++]
 
-#define packet_number(fw)  {          \
-  fw = do_packet_byte();            \
-  fw = fw*256 + do_packet_byte();       \
-  fw = fw*256 + do_packet_byte();       \
+#define packet_number(fw)  {              \
+  fw = do_packet_byte();                  \
+  fw = fw*256 + do_packet_byte();         \
+  fw = fw*256 + do_packet_byte();         \
   fw = fw*256 + do_packet_byte(); }
 
-#define packet_scaled(a,fs) { integer fw;   \
-  fw = do_packet_byte();            \
-  if (fw>127) fw = fw - 256;          \
-  fw = fw*256 + do_packet_byte();       \
-  fw = fw*256 + do_packet_byte();       \
-  fw = fw*256 + do_packet_byte();       \
+#define packet_scaled(a,fs) { integer fw; \
+  fw = do_packet_byte();                  \
+  if (fw>127) fw = fw - 256;              \
+  fw = fw*256 + do_packet_byte();         \
+  fw = fw*256 + do_packet_byte();         \
+  fw = fw*256 + do_packet_byte();         \
     a = sqxfw(fw, fs); }
 
 
@@ -178,7 +178,12 @@ void do_vf_packet(internal_font_number vf_f, integer c)
             if (!char_exists(lf, k)) {
                 char_warning(lf, k);
             } else {
-                output_one_char(lf, k);
+                if (has_packet(lf, k))
+                    do_vf_packet(lf, k);
+                else {
+                    pos = synch_p_with_c(cur);
+                    pdf_place_glyph(lf, k);
+                }
             }
             cur.h = cur.h + char_width(lf, k);
             break;
@@ -188,8 +193,8 @@ void do_vf_packet(internal_font_number vf_f, integer c)
             if ((rule_wd > 0) && (rule_ht > 0)) {
                 pos = synch_p_with_c(cur);
                 pdf_place_rule(pos.h, pos.v, rule_wd, rule_ht);
-                cur.h = cur.h + rule_wd;
             }
+            cur.h = cur.h + rule_wd;
             break;
         case packet_right_code:
             packet_scaled(i, fs_f);
