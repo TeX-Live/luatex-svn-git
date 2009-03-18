@@ -23,6 +23,7 @@
 #include <string.h>
 
 #include "nodes.h"
+#include "font/texfont.h"
 #include "hyphen.h"
 
 static const char _svn_version[] =
@@ -833,9 +834,13 @@ void hnj_hyphenation(halfword head, halfword tail)
 
     while (r != null) {         /* could be while(1), but let's be paranoid */
         int clang, lhmin, rhmin;
+        halfword hyf_font;
         halfword end_word = r;
         wordstart = r;
         assert(is_simple_character(wordstart));
+        hyf_font = font(wordstart);
+        if (hyphen_char(hyf_font)<0) /* for backward compat */
+            hyf_font = 0;
         clang = char_lang(wordstart);
         lhmin = char_lhmin(wordstart);
         rhmin = char_rhmin(wordstart);
@@ -854,7 +859,7 @@ void hnj_hyphenation(halfword head, halfword tail)
             r = vlink(r);
         }
         if (valid_wordend(r) && wordlen >= lhmin + rhmin
-            && (lang = tex_languages[clang]) != NULL) {
+            && (hyf_font != 0) && (lang = tex_languages[clang]) != NULL) {
             *hy = 0;
             if (lang->exceptions != 0 &&
                 (replacement =
