@@ -5835,7 +5835,7 @@ inter-glyph kerning is added.
 Fourth, automatic discretionaries are handled differently. \TEX82
 inserts an empty discretionary after sensing an input character that
 matches the \tex{hyphenchar} in the current font. This test is wrong,
-in our opinion: wether or not hyphenation takes place should not
+in our opinion: whether or not hyphenation takes place should not
 depend on the current font, it is a language property.
 
 In \LUATEX, it works like this: if \LUATEX\ senses a string of input
@@ -5846,9 +5846,13 @@ Incidentally, this is a global parameter instead of a
 language-specific one because it may be useful to change the value
 depending on the document structure instead of the text language.
 
-The exact status and meaning of \tex{hyphenchar} is still under
-consideration, it will probably become used in the character to glyph
-conversion stage. Currently it is simply ignored.
+The only use \LUATEX\ has for \tex{hyphenchar} is at the check
+whether a word should be considered for hyphenation at all. If the
+\tex{hyphenchar} of the font attached to the first character node in a
+word is negative, then hyphenation of that word is abandoned
+immediately. {\bf This behaviour is added for backward
+compatibility only, and the use of \type{\hyphenchar=-1} as a means of
+preventing hyphenation should not be used in new \LUATEX\ documents.}
 
 Fifth, \tex{setlanguage} no longer creates whatsits. The meaning of
 \tex{setlanguage} is changed so that it is now an integer parameter
