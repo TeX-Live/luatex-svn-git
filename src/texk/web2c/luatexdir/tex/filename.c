@@ -22,6 +22,9 @@
 #include "tokens.h"
 #include "commands.h"
 
+static const char _svn_version[] =
+    "$Id$ $URL$";
+
 #define wake_up_terminal() ;
 #define clear_terminal() ;
 
