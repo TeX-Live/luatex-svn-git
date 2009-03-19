@@ -1,4 +1,4 @@
-/* mlist.c
+/* texdeffont.c
 
    Copyright 2009 Taco Hoekwater <taco@luatex.org>
 
@@ -97,6 +97,25 @@ void tex_def_font (small_number a)
     if (cur_cmd!=left_brace_cmd) {
         back_input();
         scan_file_name();
+        if (cur_area != get_nullstr() || cur_ext != get_nullstr()) {
+            /* Have to do some rescue-ing here, fonts only have a name,
+               no area nor extension */
+            old_setting = selector;
+            selector = new_string;
+            if (cur_area != get_nullstr()) {
+                print(cur_area);
+            }
+            if (cur_name != get_nullstr()) {
+                print(cur_name);
+            }
+            if (cur_ext != get_nullstr()) {
+                print(cur_ext);
+            }
+            selector = old_setting;
+            cur_name = make_string();
+            cur_ext = get_nullstr(); 
+            cur_area = get_nullstr();            
+        }
     } else {
         back_input();
         (void)scan_toks(false,true);
@@ -150,7 +169,7 @@ void tex_def_font (small_number a)
         natural_dir=cur_val;
     }
     name_in_progress=false;
-    f=read_font_info(u,cur_name,cur_area,s,natural_dir);
+    f=read_font_info(u,cur_name,s,natural_dir);
     equiv(u)=f; 
     zeqtb[get_font_id_base()+f]=zeqtb[u]; 
     text(get_font_id_base()+f) = t;

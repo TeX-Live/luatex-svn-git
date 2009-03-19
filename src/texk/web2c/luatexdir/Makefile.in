@@ -112,6 +112,7 @@ tex/math.o \
 tex/mlist.o \
 tex/primitive.o \
 tex/texdeffont.o \
+tex/filename.o \
 managed-sa.o \
 mathcodes.o \
 textcodes.o \

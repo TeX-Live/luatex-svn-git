@@ -438,6 +438,13 @@
 
 @define procedure writefontstuff;
 
+{functions from filename.c }
+@define procedure pack_job_name();
+@define procedure prompt_file_name();
+@define procedure scan_file_name;
+@define function make_name_string;
+@define procedure print_file_name();
+
 { functions from utils.c }
 @define procedure escapehex();
 @define procedure escapename();

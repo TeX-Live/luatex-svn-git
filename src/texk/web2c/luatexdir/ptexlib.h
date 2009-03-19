@@ -223,6 +223,13 @@ extern size_t last_ptr_index;
 
 int loadpoolstrings(integer spare_size);
 
+/* filename.c */
+extern void scan_file_name (void);
+extern void pack_job_name(char *s);
+extern void prompt_file_name(char *s, char *e);
+extern str_number make_name_string(void);
+extern void print_file_name (str_number, str_number, str_number);
+
 /* A hack to counter fixwrites */
 #  define do_write_wterm(a) fprintf(stdout, "%s",  a)
 

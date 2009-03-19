@@ -254,7 +254,7 @@ vf_def_font(internal_font_number f, unsigned char *vf_buffer, integer * vf_cr)
     s = make_string();
     k = tfm_lookup(s, fs);
     if (k == null_font)
-        k = read_font_info(get_nullcs(), s, get_nullstr(), fs, -1);
+        k = read_font_info(get_nullcs(), s, fs, -1);
     if (k != null_font) {
         if (checksum != 0 && font_checksum(k) != 0
             && checksum != font_checksum(k))
@@ -1509,8 +1509,7 @@ letter_space_font(halfword u, internal_font_number f, integer e)
 
 
     /* read a new font and expand the character widths */
-    k = read_font_info(u, tex_font_name(f), get_nullstr(), font_size(f),
-                       font_natural_dir(f));
+    k = read_font_info(u, tex_font_name(f), font_size(f), font_natural_dir(f));
     set_no_ligatures(k);        /* disable ligatures for letter-spaced fonts */
 /*
   for (i = 0;i <= font_widths(k);i++) {

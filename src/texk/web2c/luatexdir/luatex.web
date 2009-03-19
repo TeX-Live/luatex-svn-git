@@ -11778,31 +11778,7 @@ System-dependent changes to allow such things should probably
 be made with reluctance, and only when an entire file name that
 includes spaces is ``quoted'' somehow.
 
-@ In order to isolate the system-dependent aspects of file names, the
-@^system dependencies@>
-system-independent parts of \TeX\ are expressed in terms
-of three system-dependent
-procedures called |begin_name|, |more_name|, and |end_name|. In
-essence, if the user-specified characters of the file name are $c_1\ldots c_n$,
-the system-independent driver program does the operations
-$$|begin_name|;\,|more_name|(c_1);\,\ldots\,;\,|more_name|(c_n);
-\,|end_name|.$$
-These three procedures communicate with each other via global variables.
-Afterwards the file name will appear in the string pool as three strings
-called |cur_name|\penalty10000\hskip-.05em,
-|cur_area|, and |cur_ext|; the latter two are null (i.e.,
-|""|), unless they were explicitly specified by the user.
-
-Actually the situation is slightly more complicated, because \TeX\ needs
-to know when the file name ends. The |more_name| routine is a function
-(with side effects) that returns |true| on the calls |more_name|$(c_1)$,
-\dots, |more_name|$(c_{n-1})$. The final call |more_name|$(c_n)$
-returns |false|; or, it returns |true| and the token following $c_n$ is
-something like `\.{\\hbox}' (i.e., not a character). In other words,
-|more_name| is supposed to return |true| unless it is sure that the
-file name has been completely scanned; and |end_name| is supposed to be able
-to finish the assembly of |cur_name|, |cur_area|, and |cur_ext| regardless of
-whether $|more_name|(c_n)$ returned |true| or |false|.
+@ Here are the global values that file names will be scanned into.
 
 @<Glob...@>=
 @!cur_name:str_number; {name of file just scanned}
@@ -11840,60 +11816,6 @@ from place to place.
 @d OMEGA_ocp_area=="OmegaOCPs:"
 @.OmegaOCPs@>
 
-@ Here now is the first of the system-dependent routines for file name scanning.
-@^system dependencies@>
-
-@p procedure begin_name;
-begin area_delimiter:=0; ext_delimiter:=0;
-end;
-
-@ And here's the second. The string pool might change as the file name is
-being scanned, since a new \.{\\csname} might be entered; therefore we keep
-|area_delimiter| and |ext_delimiter| relative to the beginning of the current
-string, instead of assigning an absolute address like |pool_ptr| to them.
-@^system dependencies@>
-
-@p function more_name(@!c:ASCII_code):boolean;
-begin if c=" " then more_name:=false
-else  begin str_room(1); append_char(c); {contribute |c| to the current string}
-  if (c=">")or(c=":") then
-    begin area_delimiter:=cur_length; ext_delimiter:=0;
-    end
-  else if (c=".")and(ext_delimiter=0) then ext_delimiter:=cur_length;
-  more_name:=true;
-  end;
-end;
-
-@ The third.
-@^system dependencies@>
-
-@p procedure end_name;
-begin if str_ptr+3>(max_strings+string_offset) then
-  overflow("number of strings",max_strings-init_str_ptr);
-@:TeX capacity exceeded number of strings}{\quad number of strings@>
-if area_delimiter=0 then cur_area:=""
-else  begin cur_area:=str_ptr;
-  str_start_macro(str_ptr+1):=str_start_macro(str_ptr)+area_delimiter; incr(str_ptr);
-  end;
-if ext_delimiter=0 then
-  begin cur_ext:=""; cur_name:=make_string;
-  end
-else  begin cur_name:=str_ptr;
-  str_start_macro(str_ptr+1):=str_start_macro(str_ptr)+ext_delimiter-area_delimiter-1;
-  incr(str_ptr); cur_ext:=make_string;
-  end;
-end;
-
-@ Conversely, here is a routine that takes three strings and prints a file
-name that might have produced them. (The routine is system dependent, because
-some operating systems put the file area last instead of first.)
-@^system dependencies@>
-
-@<Basic printing...@>=
-procedure print_file_name(@!n,@!a,@!e:integer);
-begin slow_print(a); slow_print(n); slow_print(e);
-end;
-
 @ Another system-dependent routine is needed to convert three internal
 \TeX\ strings
 into the |nameoffile| value that is used to open files. The present code
@@ -11925,7 +11847,7 @@ and extensions related to format files.
 @d format_default_length=20 {length of the |TEX_format_default| string}
 @d format_area_length=11 {length of its area part}
 @d format_ext_length=4 {length of its `\.{.fmt}' part}
-@d format_extension=".fmt" {the extension, as a \.{WEB} constant}
+@d format_extension=='.fmt' {the extension, as a \.{WEB} constant}
 
 @<Glob...@>=
 @!TEX_format_default:packed array[1..format_default_length] of char;
@@ -12016,33 +11938,6 @@ we dare not use `|str_room|'.
 @d b_make_name_string(#)==make_name_string
 @d w_make_name_string(#)==make_name_string
 
-@p function make_name_string:str_number;
-var k:1..file_name_size; {index into |nameoffile|}
-begin if (pool_ptr+namelength>pool_size)or(str_ptr=max_strings)or
- (cur_length>0) then
-  make_name_string:="?"
-else  begin for k:=1 to namelength do append_char(nameoffile[k]);
-  make_name_string:=make_string;
-  end;
-end;
-
-@ Now let's consider the ``driver''
-routines by which \TeX\ deals with file names
-in a system-independent manner.  First comes a procedure that looks for a
-file name in the input by calling |get_x_token| for the information.
-
-@p procedure scan_file_name;
-label done;
-begin name_in_progress:=true; begin_name;
-@<Get the next non-blank non-call...@>;
-loop@+begin if (cur_cmd>other_char)or(cur_chr>biggest_char) then {not a character}
-    begin back_input; goto done;
-    end;
-  if not more_name(cur_chr) then goto done;
-  get_x_token;
-  end;
-done: end_name; name_in_progress:=false;
-end;
 
 @ The global variable |name_in_progress| is used to prevent recursive
 use of |scan_file_name|, since the |begin_name| and other procedures
@@ -12065,66 +11960,19 @@ and `\.{.fmt}' in the names of \TeX's output files.
 We have |job_name=0| if and only if the `\.{log}' file has not been opened,
 except of course for a short time just after |job_name| has become nonzero.
 
-@<Initialize the output...@>=
-job_name:=0; name_in_progress:=false; log_opened:=false;
-
-@ Here is a routine that manufactures the output file names, assuming that
-|job_name<>0|. It ignores and changes the current settings of |cur_area|
-and |cur_ext|.
-
 @d pack_cur_name==pack_file_name(cur_name,cur_area,cur_ext)
 
-@p procedure pack_job_name(@!s:str_number); {|s = ".log"|, |".dvi"|, or
-  |format_extension|}
-begin cur_area:=""; cur_ext:=s;
-cur_name:=job_name; pack_cur_name;
-end;
-
-@ If some trouble arises when \TeX\ tries to open a file, the following
-routine calls upon the user to supply another file name. Parameter~|s|
-is used in the error message to identify the type of file; parameter~|e|
-is the default extension if none is given. Upon exit from the routine,
-variables |cur_name|, |cur_area|, |cur_ext|, and |nameoffile| are
-ready for another attempt at file opening.
-
-@p procedure prompt_file_name(@!s,@!e:str_number);
-label done;
-var k:0..buf_size; {index into |buffer|}
-begin if interaction=scroll_mode then wake_up_terminal;
-if s="input file name" then print_err("I can't find file `")
-@.I can't find file x@>
-else print_err("I can't write on file `");
-@.I can't write on file x@>
-print_file_name(cur_name,cur_area,cur_ext); print("'.");
-if e=".tex" then show_context;
-print_nl("Please type another "); print(s);
-@.Please type...@>
-if interaction<scroll_mode then
-  fatal_error("*** (job aborted, file error in nonstop mode)");
-@.job aborted, file error...@>
-clear_terminal; prompt_input(": "); @<Scan file name in the buffer@>;
-if cur_ext="" then cur_ext:=e;
-pack_cur_name;
-end;
-
-@ @<Scan file name in the buffer@>=
-begin begin_name; k:=first;
-while (buffer[k]=" ")and(k<last) do incr(k);
-loop@+  begin if k=last then goto done;
-  if not more_name(buffer[k]) then goto done;
-  incr(k);
-  end;
-done:end_name;
-end
+@<Initialize the output...@>=
+job_name:=0; name_in_progress:=false; log_opened:=false;
 
 @ Here's an example of how these conventions are used. Whenever it is time to
 ship out a box of stuff, we shall use the macro |ensure_dvi_open|.
 
 @d ensure_dvi_open==if output_file_name=0 then
   begin if job_name=0 then open_log_file;
-  pack_job_name(".dvi");
+  pack_job_name('.dvi');
   while not lua_b_open_out(dvi_file) do
-    prompt_file_name("file name for output",".dvi");
+    prompt_file_name('file name for output','.dvi');
   dvi_file:=name_file_pointer   ;
   output_file_name:=b_make_name_string(dvi_file);
   end
@@ -12147,7 +11995,7 @@ var old_setting:0..max_selector; {previous |selector| setting}
 begin old_setting:=selector;
 if job_name=0 then job_name:="texput";
 @.texput@>
-pack_job_name(".log");
+pack_job_name('.log');
 while not lua_a_open_out(addressof(log_file),0) do @<Try to get a different log file name@>;
 log_file := name_file_pointer;
 log_name:=a_make_name_string(log_file);
@@ -12182,7 +12030,7 @@ this file.
 
 @<Try to get a different log file name@>=
 begin selector:=term_only;
-prompt_file_name("transcript file name",".log");
+prompt_file_name('transcript file name','.log');
 end
 
 @ @<Print the banner...@>=
@@ -12207,7 +12055,7 @@ pack_cur_name;
 loop@+  begin begin_file_reading; {set up |cur_file| and new level of input}
   if lua_a_open_in(cur_file,0) then goto done;
   end_file_reading; {remove the level that didn't work}
-  prompt_file_name("input file name",".tex");
+  prompt_file_name('input file name','.tex');
   end;
 done: 
 cur_file := name_file_pointer;
@@ -15362,7 +15210,7 @@ end;
 
 function new_dummy_font: internal_font_number;
 begin
-    new_dummy_font := read_font_info(null_cs, "dummy", "", -1000, -1);
+    new_dummy_font := read_font_info(null_cs, "dummy", -1000, -1);
 end;
 
 function get_hash_size: integer;
@@ -15698,10 +15546,10 @@ begin
         return;
     if job_name = 0 then
         open_log_file;
-    pack_job_name(".pdf");
+    pack_job_name('.pdf');
     if fixed_pdf_draftmode = 0 then
         while not lua_b_open_out(pdf_file) do
-            prompt_file_name("file name for output",".pdf");
+            prompt_file_name('file name for output','.pdf');
     pdf_file:=name_file_pointer;
     output_file_name := b_make_name_string(pdf_file);
 end;
@@ -16946,7 +16794,7 @@ begin
                 font_id_text(k) := font_id_text(f);
             end
         else
-           k := read_font_info(null_cs, s, "", font_size(f), font_natural_dir(f)); 
+           k := read_font_info(null_cs, s, font_size(f), font_natural_dir(f)); 
     end;
     copy_expand_params(k, f, e);
     load_expand_font := k;
@@ -26435,7 +26283,7 @@ if interaction=batch_mode then selector:=log_only
 else selector:=term_and_log;
 pack_job_name(format_extension);
 while not w_open_out(fmt_file) do
-  prompt_file_name("format file name",format_extension);
+  prompt_file_name('format file name',format_extension);
 print_nl("Beginning to dump on file ");
 @.Beginning to dump...@>
 slow_print(w_make_name_string(fmt_file)); flush_string;
@@ -28676,7 +28524,7 @@ if not doing_leaders then
       if cur_ext="" then cur_ext:=".tex";
       pack_cur_name;
       while not lua_a_open_out(write_file[j],(j+1)) do
-        prompt_file_name("output file name",".tex");
+        prompt_file_name('output file name','.tex');
       write_file[j]:= name_file_pointer;
       write_open[j]:=true;
       end;

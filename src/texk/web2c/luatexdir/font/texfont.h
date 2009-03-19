@@ -556,8 +556,7 @@ int read_tfm_info(internal_font_number f, char *nom, char *aire, scaled s);
 
 /* from dofont.c */
 
-extern int read_font_info(pointer u, strnumber nom, strnumber aire, scaled s,
-                          integer ndir);
+extern int read_font_info(pointer u, strnumber nom, scaled s, integer ndir);
 extern int find_font_id(char *nom, char *aire, scaled s);
 
 /* for and from vfpacket.c */
