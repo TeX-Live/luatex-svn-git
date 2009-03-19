@@ -2351,6 +2351,11 @@ begin
   help1(a);
 end;
 @#
+procedure dohelp0;
+begin
+  help0;
+end;
+@#
 procedure do_print_err (s:str_number);
 begin
   print_err(s);
@@ -9110,62 +9115,6 @@ end;
 repeat get_x_token;
 until cur_cmd<>spacer
 
-@ In case you are getting bored, here is a slightly less trivial routine:
-Given a string of lowercase letters, like `\.{pt}' or `\.{plus}' or
-`\.{width}', the |scan_keyword| routine checks to see whether the next
-tokens of input match this string. The match must be exact, except that
-uppercase letters will match their lowercase counterparts; uppercase
-equivalents are determined by subtracting |"a"-"A"|, rather than using the
-|uc_code| table, since \TeX\ uses this routine only for its own limited
-set of keywords.
-
-If a match is found, the characters are effectively removed from the input
-and |true| is returned. Otherwise |false| is returned, and the input
-is left essentially unchanged (except for the fact that some macros
-may have been expanded, etc.).
-@^inner loop@>
-
-@p function scan_keyword(@!s:str_number):boolean; {look for a given string}
-label exit;
-var p:pointer; {tail of the backup list}
-@!q:pointer; {new node being added to the token list via |store_new_token|}
-@!k:pool_pointer; {index into |str_pool|}
-begin 
-if s<number_chars then begin 
-        @<Get the next non-blank non-call token@>;
-    if (cur_cs=0)and((cur_chr=s)or(cur_chr=s-"a"+"A")) then
-      scan_keyword:=true
-    else 
-      begin back_input;
-      scan_keyword:=false; return;
-      end;
-  end 
-else begin
-  p:=backup_head; link(p):=null; 
-  k:=str_start_macro(s);
-  while k<str_start_macro(s+1) do
-    begin get_x_token; {recursion is possible here}
-@^recursion@>
-    if (cur_cs=0)and@|
-     ((cur_chr=so(str_pool[k]))or(cur_chr=so(str_pool[k])-"a"+"A")) then
-      begin store_new_token(cur_tok); incr(k);
-      end
-    else if (cur_cmd<>spacer)or(p<>backup_head) then
-      begin 
-      if p<>backup_head then begin
-         q:=get_avail; info(q):=cur_tok; link(q):=null;
-         link(p) := q;
-         back_list(link(backup_head));
-             end
-      else
-         back_input;
-      scan_keyword:=false; return;
-      end;
-    end;
-  flush_list(link(backup_head)); scan_keyword:=true;
-end;
-exit:end;
-
 @ Here is a procedure that sounds an alarm when mu and non-mu units
 are being switched.
 
@@ -9831,39 +9780,6 @@ applications of |scan_int| that have already been made inside of
 @d font_direction(#)==(# mod 16)
 @d box_direction(#)==(# div 4)
 
-@d scan_single_dir(#)==begin
-if scan_keyword("T") then #:=dir_T
-else if scan_keyword("L") then #:=dir_L
-else if scan_keyword("B") then #:=dir_B
-else if scan_keyword("R") then #:=dir_R
-else begin
-  print_err("Bad direction"); cur_val:=0;
-  goto exit;
-  end
-end
-
-@<Declare procedures that scan restricted classes of integers@>=
-procedure scan_direction;
-var d1,d2,d3: integer;
-begin
-get_x_token;
-if cur_cmd=assign_dir then begin
-  cur_val:=eqtb[cur_chr].int;
-  goto exit;
-  end
-else back_input;
-scan_single_dir(d1);
-scan_single_dir(d2);
-if dir_parallel(d1)(d2) then begin
-  print_err("Bad direction"); cur_val:=0;
-  goto exit;
-  end;
-scan_single_dir(d3);
-@<Scan an optional space@>;
-cur_val:=d1*8+dir_rearrange[d2]*4+d3;
-exit:
-end;
-
 @ It is nice to have routines that say what they do, so the original
 |scan_eight_bit_int| is superceded by |scan_register_num| and
 |scan_mark_num|. It may become split up even further in the future.
@@ -10279,9 +10195,9 @@ if inf then @<Scan for \(f)\.{fil} units; |goto attach_fraction| if found@>;
 @<Scan for \(u)units that are internal dimensions;
   |goto attach_sign| with |cur_val| set if found@>;
 if mu then @<Scan for \(m)\.{mu} units and |goto attach_fraction|@>;
-if scan_keyword("true") then @<Adjust \(f)for the magnification ratio@>;
+if scan_keyword('true') then @<Adjust \(f)for the magnification ratio@>;
 @.true@>
-if scan_keyword("pt") then goto attach_fraction; {the easy case}
+if scan_keyword('pt') then goto attach_fraction; {the easy case}
 @.pt@>
 @<Scan for \(a)all other units and adjust |cur_val| and |f| accordingly;
   |goto done| in the case of scaled points@>;
@@ -10296,10 +10212,10 @@ L}' will lead to two error messages (one for each additional keyword
 Not so for luatex, it just parses the construct in reverse.
 
 @<Scan for \(f)\.{fil} units...@>=
-if scan_keyword("filll") then begin cur_order:=filll; goto attach_fraction; end
-else if scan_keyword("fill") then begin cur_order:=fill; goto attach_fraction; end
-else if scan_keyword("fil") then begin cur_order:=fil; goto attach_fraction; end
-else if scan_keyword("fi") then begin cur_order:=sfi; goto attach_fraction; end
+if scan_keyword('filll') then begin cur_order:=filll; goto attach_fraction; end
+else if scan_keyword('fill') then begin cur_order:=fill; goto attach_fraction; end
+else if scan_keyword('fil') then begin cur_order:=fil; goto attach_fraction; end
+else if scan_keyword('fi') then begin cur_order:=sfi; goto attach_fraction; end
 
 @ @<Scan for \(u)units that are internal dimensions...@>=
 save_cur_val:=cur_val;
@@ -10313,11 +10229,11 @@ else  begin if mu then
   v:=cur_val; goto found;
   end;
 if mu then goto not_found;
-if scan_keyword("em") then v:=(@<The em width for |cur_font|@>)
+if scan_keyword('em') then v:=(@<The em width for |cur_font|@>)
 @.em@>
-else if scan_keyword("ex") then v:=(@<The x-height for |cur_font|@>)
+else if scan_keyword('ex') then v:=(@<The x-height for |cur_font|@>)
 @.ex@>
-else if scan_keyword("px") then v:=pdf_px_dimen
+else if scan_keyword('px') then v:=pdf_px_dimen
 @.px@>
 else goto not_found;
 @<Scan an optional space@>;
@@ -10326,7 +10242,7 @@ goto attach_sign;
 not_found:
 
 @ @<Scan for \(m)\.{mu} units and |goto attach_fraction|@>=
-if scan_keyword("mu") then goto attach_fraction
+if scan_keyword('mu') then goto attach_fraction
 @.mu@>
 else  begin print_err("Illegal unit of measure ("); print("mu inserted)");
 @.Illegal unit of measure@>
@@ -10368,25 +10284,25 @@ $\rm nd$, however.
 @d set_conversion(#)==@+begin num:=#; set_conversion_end
 
 @<Scan for \(a)all other units and adjust |cur_val| and |f|...@>=
-if scan_keyword("in") then set_conversion(7227)(100)
+if scan_keyword('in') then set_conversion(7227)(100)
 @.in@>
-else if scan_keyword("pc") then set_conversion(12)(1)
+else if scan_keyword('pc') then set_conversion(12)(1)
 @.pc@>
-else if scan_keyword("cm") then set_conversion(7227)(254)
+else if scan_keyword('cm') then set_conversion(7227)(254)
 @.cm@>
-else if scan_keyword("mm") then set_conversion(7227)(2540)
+else if scan_keyword('mm') then set_conversion(7227)(2540)
 @.mm@>
-else if scan_keyword("bp") then set_conversion(7227)(7200)
+else if scan_keyword('bp') then set_conversion(7227)(7200)
 @.bp@>
-else if scan_keyword("dd") then set_conversion(1238)(1157)
+else if scan_keyword('dd') then set_conversion(1238)(1157)
 @.dd@>
-else if scan_keyword("cc") then set_conversion(14856)(1157)
+else if scan_keyword('cc') then set_conversion(14856)(1157)
 @.cc@>
-else if scan_keyword("nd") then set_conversion(685)(642)
+else if scan_keyword('nd') then set_conversion(685)(642)
 @.nd@>
-else if scan_keyword("nc") then set_conversion(1370)(107)
+else if scan_keyword('nc') then set_conversion(1370)(107)
 @.nc@>
-else if scan_keyword("sp") then goto done
+else if scan_keyword('sp') then goto done
 @.sp@>
 else @<Complain about unknown unit and |goto done2|@>;
 cur_val:=xn_over_d(cur_val,num,denom);
@@ -10453,12 +10369,12 @@ exit:end;
 
 @ @<Create a new glue specification whose width is |cur_val|...@>=
 q:=new_spec(zero_glue); width(q):=cur_val;
-if scan_keyword("plus") then
+if scan_keyword('plus') then
 @.plus@>
   begin scan_dimen(mu,true,false);
   stretch(q):=cur_val; stretch_order(q):=cur_order;
   end;
-if scan_keyword("minus") then
+if scan_keyword('minus') then
 @.minus@>
   begin scan_dimen(mu,true,false);
   shrink(q):=cur_val; shrink_order(q):=cur_order;
@@ -10486,15 +10402,15 @@ else begin
   height(q):=default_rule; depth(q):=0;
   rule_dir(q):=text_direction;
 end;
-reswitch: if scan_keyword("width") then
+reswitch: if scan_keyword('width') then
 @.width@>
   begin scan_normal_dimen; width(q):=cur_val; goto reswitch;
   end;
-if scan_keyword("height") then
+if scan_keyword('height') then
 @.height@>
   begin scan_normal_dimen; height(q):=cur_val; goto reswitch;
   end;
-if scan_keyword("depth") then
+if scan_keyword('depth') then
 @.depth@>
   begin scan_normal_dimen; depth(q):=cur_val; goto reswitch;
   end;
@@ -10881,11 +10797,11 @@ pdf_creation_date_code:
 job_name_code: if job_name=0 then open_log_file;
 pdf_colorstack_init_code:
   begin
-    bool := scan_keyword("page");
-    if scan_keyword("direct") then
+    bool := scan_keyword('page');
+    if scan_keyword('direct') then
         cur_val := direct_always
     else
-        if scan_keyword("page") then
+        if scan_keyword('page') then
             cur_val := direct_page
         else
             cur_val := set_origin;
@@ -10960,7 +10876,7 @@ lua_code:
     save_def_ref := def_ref;
     save_warning_index := warning_index;
     sn:=null;
-        if scan_keyword("name") then begin
+        if scan_keyword('name') then begin
            scan_pdf_ext_toks;
        sn := def_ref;
         end;
@@ -17145,7 +17061,7 @@ begin
     if (stretch_limit = 0) and (shrink_limit = 0) then
         pdf_error("font expansion", "invalid limit(s)");
     auto_expand := false;
-    if scan_keyword("autoexpand") then begin
+    if scan_keyword('autoexpand') then begin
         auto_expand := true;
         @<Scan an optional space@>; 
     end;
@@ -19289,7 +19205,7 @@ attr_list:=attr_list_cache;
 if three_codes then begin
   s:=saved(0);
 continue:
-  if scan_keyword("attr") then begin
+  if scan_keyword('attr') then begin
     scan_register_num; i:=cur_val;
     scan_optional_equals;
     scan_int; v:=cur_val;
@@ -19300,15 +19216,15 @@ continue:
     attr_list:=do_set_attribute(attr_list,i,v);
     goto continue;
   end;
-  if scan_keyword("dir") then begin
+  if scan_keyword('dir') then begin
     scan_direction; spec_direction:=cur_val;
     goto continue;
     end;
   end;
 if attr_list=attr_list_cache then begin add_node_attr_ref(attr_list); end;
-if scan_keyword("to") then spec_code:=exactly
+if scan_keyword('to') then spec_code:=exactly
 @.to@>
-else if scan_keyword("spread") then spec_code:=additional
+else if scan_keyword('spread') then spec_code:=additional
 @.spread@>
 else  begin spec_code:=additional; cur_val:=0;
   goto found;
@@ -23494,7 +23410,7 @@ done:end
 
 @<Split off part of a vertical box, make |cur_box| point to it@>=
 begin scan_register_num; n:=cur_val;
-if not scan_keyword("to") then
+if not scan_keyword('to') then
 @.to@>
   begin print_err("Missing `to' inserted");
 @.Missing `to' inserted@>
@@ -23748,7 +23664,7 @@ else  begin scan_register_num;
     end;
   end;
 saved(0) := cur_val;
-if (cur_cmd = vadjust) and scan_keyword("pre") then
+if (cur_cmd = vadjust) and scan_keyword('pre') then
     saved(1) := 1
 else
     saved(1) := 0;
@@ -24955,7 +24871,7 @@ shorthand_def: begin n:=cur_chr; get_r_token; p:=cur_cs;
 
 @ @<Assignments@>=
 read_to_cs: begin j:=cur_chr; scan_int; n:=cur_val;
-  if not scan_keyword("to") then
+  if not scan_keyword('to') then
 @.to@>
     begin print_err("Missing `to' inserted");
 @.Missing `to'...@>
@@ -25327,7 +25243,7 @@ var l,@!q,@!r,@!s:pointer; {for list manipulation}
 begin q:=cur_cmd; 
 @<Compute the register location |l| and its type |p|; but |return| if invalid@>;
 if q=register then scan_optional_equals
-else if scan_keyword("by") then do_nothing; {optional `\.{by}'}
+else if scan_keyword('by') then do_nothing; {optional `\.{by}'}
 @.by@>
 arith_error:=false;
 if q<multiply then @<Compute result of |register| or
@@ -25642,98 +25558,9 @@ endcases;
 @ Here is where the information for a new font gets loaded.
 
 @<Assignments@>=
-def_font: def_new_font(a);
+def_font: tex_def_font(a); {in C}
 letterspace_font: new_letterspaced_font(a);
 pdf_copy_font: make_font_copy(a);
-
-
-@ @<Declare subprocedures for |prefixed_command|@>=
-procedure def_new_font(@!a:small_number);
-var u:pointer; {user's font identifier}
-@!s:scaled; {stated ``at'' size, or negative of scaled magnification}
-@!f:internal_font_number; {runs through existing fonts}
-@!t:str_number; {name for the frozen font identifier}
-@!old_setting:0..max_selector; {holds |selector| setting}
-@!offset:integer;
-@!natural_dir:integer;{the natural direction of the font}
-@!flushable_string:str_number; {string not yet referenced}
-@!junk:pointer;
-begin if job_name=0 then open_log_file;
-  {avoid confusing \.{texput} with the font name}
-@.texput@>
-get_r_token; u:=cur_cs;
-if u>=null_cs then t:=text(u) else t:="FONT";
-define(u,set_font,null_font); scan_optional_equals; 
-@<Get the next non-blank non-call token@>;
-if cur_cmd<>left_brace then begin
-  back_input;
-  scan_file_name;
-  end 
-else begin
-  back_input;
-  junk:=scan_toks(false,true);
-  old_setting:=selector; selector:=new_string;
-  token_show(def_ref); selector:=old_setting;
-  flush_list(def_ref);
-  str_room(1);
-  cur_name:=make_string;
-  cur_ext:=""; 
-  cur_area:="";
-  end;
-@<Scan the font size specification@>;
-name_in_progress:=true;
-if scan_keyword("offset") then begin
-  scan_int;
-  offset:=cur_val;
-  if (cur_val<0) then begin
-    print_err("Illegal offset has been changed to 0");
-    help1("The offset must be bigger than 0."); int_error(cur_val);
-    offset:=0;
-    end
-  end
-else offset:=0;
-if scan_keyword("naturaldir") then begin
-  scan_direction;
-  natural_dir:=cur_val;
-  end
-else natural_dir:=-1;
-name_in_progress:=false;
-if cur_area = "" then
-  f:=read_font_info(u,cur_name,"",s,natural_dir)
-else
-  f:=read_font_info(u,cur_name,cur_area,s,natural_dir);
-equiv(u):=f; eqtb[font_id_base+f]:=eqtb[u]; font_id_text(f):=t;
-end;
-
-@ @<Scan the font size specification@>=
-name_in_progress:=true; {this keeps |cur_name| from being changed}
-if scan_keyword("at") then @<Put the \(p)(positive) `at' size into |s|@>
-@.at@>
-else if scan_keyword("scaled") then
-@.scaled@>
-  begin scan_int; s:=-cur_val;
-  if (cur_val<=0)or(cur_val>32768) then
-    begin print_err("Illegal magnification has been changed to 1000");@/
-@.Illegal magnification...@>
-    help1("The magnification ratio must be between 1 and 32768.");
-    int_error(cur_val); s:=-1000;
-    end;
-  end
-else s:=-1000;
-name_in_progress:=false
-
-@ @<Put the \(p)(positive) `at' size into |s|@>=
-begin scan_normal_dimen; s:=cur_val;
-if (s<=0)or(s>=@'1000000000) then
-  begin print_err("Improper `at' size (");
-  print_scaled(s); print("pt), replaced by 10pt");
-@.Improper `at' size...@>
-  help2("I can only handle fonts at positive sizes that are")@/
-  ("less than 2048pt, so I've changed what you said to 10pt.");
-  error; s:=10*unity;
-  end;
-end
-
 
 @ @<Cases of |print_cmd_chr|...@>=
 set_font:begin print("select font "); print_font_name(chr_code);
@@ -27498,9 +27325,9 @@ end;
 begin
     check_pdfoutput("\pdfliteral", true);
     new_whatsit(pdf_literal_node);
-    if scan_keyword("direct") then
+    if scan_keyword('direct') then
         pdf_literal_mode(tail) := direct_always
-    else if scan_keyword("page") then
+    else if scan_keyword('page') then
         pdf_literal_mode(tail) := direct_page
     else
         pdf_literal_mode(tail) := set_origin;
@@ -27531,16 +27358,16 @@ begin
         error;
         cur_val := 0;
     end;
-    if scan_keyword("set") then begin
+    if scan_keyword('set') then begin
         i := colorstack_set;
     end
-    else if scan_keyword("push") then begin
+    else if scan_keyword('push') then begin
         i := colorstack_push;
     end
-    else if scan_keyword("pop") then begin
+    else if scan_keyword('pop') then begin
         i := colorstack_pop;
     end
-    else if scan_keyword("current") then begin
+    else if scan_keyword('current') then begin
         i := colorstack_current;
     end
     else begin
@@ -27591,7 +27418,7 @@ end
 begin
     check_pdfoutput("\latelua", true);
     new_whatsit(late_lua_node);
-    if scan_keyword("name") then begin
+    if scan_keyword('name') then begin
        scan_pdf_ext_toks;
        late_lua_name(tail) := def_ref;
     end;
@@ -27622,7 +27449,7 @@ end
 @ @<Implement \.{\\pdfobj}@>=
 begin
     check_pdfoutput("\pdfobj", true);
-    if scan_keyword("reserveobjnum") then begin
+    if scan_keyword('reserveobjnum') then begin
         @<Scan an optional space@>;
         incr(pdf_obj_count);
         pdf_create_obj(obj_type_obj, pdf_obj_count);
@@ -27630,7 +27457,7 @@ begin
     end
     else begin
         k := -1;
-        if scan_keyword("useobjnum") then begin
+        if scan_keyword('useobjnum') then begin
             scan_int;
             k := cur_val;
             if (k <= 0) or (k > obj_ptr) or (obj_data_ptr(k) <> 0) then begin
@@ -27645,9 +27472,9 @@ begin
             k := obj_ptr;
         end;
         obj_data_ptr(k) := pdf_get_mem(pdfmem_obj_size);
-        if scan_keyword("stream") then begin
+        if scan_keyword('stream') then begin
             obj_obj_is_stream(k) := 1;
-            if scan_keyword("attr") then begin
+            if scan_keyword('attr') then begin
                 scan_pdf_ext_toks;
                 obj_obj_stream_attr(k) := def_ref;
             end
@@ -27656,7 +27483,7 @@ begin
         end
         else
             obj_obj_is_stream(k) := 0;
-        if scan_keyword("file") then
+        if scan_keyword('file') then
             obj_obj_is_file(k) := 1
         else
             obj_obj_is_file(k) := 0;
@@ -27718,13 +27545,13 @@ begin
     pdf_create_obj(obj_type_xform, pdf_xform_count);
     k := obj_ptr;
     obj_data_ptr(k) := pdf_get_mem(pdfmem_xform_size);
-    if scan_keyword("attr") then begin
+    if scan_keyword('attr') then begin
         scan_pdf_ext_toks;
         obj_xform_attr(k) := def_ref;
     end
     else
         obj_xform_attr(k) := null;
-    if scan_keyword("resources") then begin
+    if scan_keyword('resources') then begin
         scan_pdf_ext_toks;
         obj_xform_resources(k) := def_ref;
     end
@@ -27774,15 +27601,15 @@ warn_pdfpagebox := true;
 function scan_pdf_box_spec: integer; {scans PDF pagebox specification}
 begin
     scan_pdf_box_spec := 0;
-    if scan_keyword("mediabox") then
+    if scan_keyword('mediabox') then
         scan_pdf_box_spec := pdf_box_spec_media
-    else if scan_keyword("cropbox") then
+    else if scan_keyword('cropbox') then
         scan_pdf_box_spec := pdf_box_spec_crop
-    else if scan_keyword("bleedbox") then
+    else if scan_keyword('bleedbox') then
         scan_pdf_box_spec := pdf_box_spec_bleed
-    else if scan_keyword("trimbox") then
+    else if scan_keyword('trimbox') then
         scan_pdf_box_spec := pdf_box_spec_trim
-    else if scan_keyword("artbox") then
+    else if scan_keyword('artbox') then
         scan_pdf_box_spec := pdf_box_spec_art
 end;
 
@@ -27795,17 +27622,17 @@ begin
     height(alt_rule) := null_flag;
     depth(alt_rule) := null_flag;
 reswitch:
-    if scan_keyword("width") then begin
+    if scan_keyword('width') then begin
         scan_normal_dimen;
         width(alt_rule) := cur_val;
         goto reswitch;
     end;
-    if scan_keyword("height") then begin
+    if scan_keyword('height') then begin
         scan_normal_dimen;
         height(alt_rule) := cur_val;
         goto reswitch;
     end;
-    if scan_keyword("depth") then begin
+    if scan_keyword('depth') then begin
         scan_normal_dimen;
         depth(alt_rule) := cur_val;
         goto reswitch;
@@ -27830,22 +27657,22 @@ begin
     named := 0;
     page := 1;
     colorspace := 0;
-    if scan_keyword("attr") then begin
+    if scan_keyword('attr') then begin
         scan_pdf_ext_toks;
         attr := tokens_to_string(def_ref);
         delete_token_ref(def_ref);
     end;
-    if scan_keyword("named") then begin
+    if scan_keyword('named') then begin
         scan_pdf_ext_toks;
         named := tokens_to_string(def_ref);
         delete_token_ref(def_ref);
         page := 0;
     end
-    else if scan_keyword("page") then begin
+    else if scan_keyword('page') then begin
         scan_int;
         page := cur_val;
     end;
-    if scan_keyword("colorspace") then begin
+    if scan_keyword('colorspace') then begin
         scan_int;
         colorspace := cur_val;
     end;
@@ -27975,11 +27802,11 @@ var p: integer;
 begin
     p := new_node(action_node,0);
     scan_action := p;
-    if scan_keyword("user") then
+    if scan_keyword('user') then
         pdf_action_type(p) := pdf_action_user
-    else if scan_keyword("goto") then
+    else if scan_keyword('goto') then
         pdf_action_type(p) := pdf_action_goto
-    else if scan_keyword("thread") then
+    else if scan_keyword('thread') then
         pdf_action_type(p) := pdf_action_thread
     else
         pdf_error("ext1", "action type missing");
@@ -27988,11 +27815,11 @@ begin
         pdf_action_tokens(p) := def_ref;
         return;
     end;
-    if scan_keyword("file") then begin
+    if scan_keyword('file') then begin
         scan_pdf_ext_toks;
         pdf_action_file(p) := def_ref;
     end;
-    if scan_keyword("page") then begin
+    if scan_keyword('page') then begin
         if pdf_action_type(p) <> pdf_action_goto then
             pdf_error("ext1", "only GoTo action can be used with `page'");
         pdf_action_type(p) := pdf_action_page;
@@ -28004,12 +27831,12 @@ begin
         scan_pdf_ext_toks;
         pdf_action_tokens(p) := def_ref;
     end
-    else if scan_keyword("name") then begin
+    else if scan_keyword('name') then begin
         scan_pdf_ext_toks;
         pdf_action_named_id(p) := 1;
         pdf_action_id(p) := def_ref;
     end
-    else if scan_keyword("num") then begin
+    else if scan_keyword('num') then begin
         if (pdf_action_type(p) = pdf_action_goto) and
             (pdf_action_file(p) <> null) then
             pdf_error("ext1",
@@ -28022,10 +27849,10 @@ begin
     end
     else
         pdf_error("ext1", "identifier type missing");
-    if scan_keyword("newwindow") then begin
+    if scan_keyword('newwindow') then begin
         pdf_action_new_window(p) := 1;
         @<Scan an optional space@>; end
-    else if scan_keyword("nonewwindow") then begin
+    else if scan_keyword('nonewwindow') then begin
         pdf_action_new_window(p) := 2;
         @<Scan an optional space@>; end
     else
@@ -28047,7 +27874,7 @@ begin
     pdf_height(tail) := height(alt_rule);
     pdf_depth(tail) := depth(alt_rule);
     if (w = pdf_thread_node) or (w = pdf_start_thread_node) then begin
-        if scan_keyword("attr") then begin
+        if scan_keyword('attr') then begin
             scan_pdf_ext_toks;
             pdf_thread_attr(tail) := def_ref;
         end
@@ -28062,11 +27889,11 @@ end;
 @ @<Implement \.{\\pdfannot}@>=
 begin
     check_pdfoutput("\pdfannot", true);
-    if scan_keyword("reserveobjnum") then begin
+    if scan_keyword('reserveobjnum') then begin
         pdf_last_annot := pdf_new_objnum;
         @<Scan an optional space@>; end
     else begin
-        if scan_keyword("useobjnum") then begin
+        if scan_keyword('useobjnum') then begin
             scan_int;
             k := cur_val;
             if (k <= 0) or (k > obj_ptr) or (obj_annot_ptr(k) <> 0) then
@@ -28094,7 +27921,7 @@ begin
     k := pdf_new_objnum;
     new_annot_whatsit(pdf_start_link_node);
             pdf_link_attr(tail) := null;
-        if scan_keyword("attr") then begin
+        if scan_keyword('attr') then begin
             scan_pdf_ext_toks;
             pdf_link_attr(tail) := def_ref;
         end;
@@ -28130,14 +27957,14 @@ end;
 @ @<Implement \.{\\pdfoutline}@>=
 begin
     check_pdfoutput("\pdfoutline", true);
-    if scan_keyword("attr") then begin
+    if scan_keyword('attr') then begin
         scan_pdf_ext_toks;
         r := def_ref;
     end
     else
         r := 0;
     p := scan_action;
-    if scan_keyword("count") then begin
+    if scan_keyword('count') then begin
         scan_int;
         i := cur_val;
     end
@@ -28232,7 +28059,7 @@ begin
     check_pdfoutput("\pdfdest", true);
     q := tail;
     new_whatsit(pdf_dest_node);
-    if scan_keyword("num") then begin
+    if scan_keyword('num') then begin
         scan_int;
         if cur_val <= 0 then
             pdf_error("ext1", "num identifier must be positive");
@@ -28241,16 +28068,16 @@ begin
         pdf_dest_id(tail) := cur_val;
         pdf_dest_named_id(tail) := 0;
     end
-    else if scan_keyword("name") then begin
+    else if scan_keyword('name') then begin
         scan_pdf_ext_toks;
         pdf_dest_id(tail) := def_ref;
         pdf_dest_named_id(tail) := 1;
     end
     else
         pdf_error("ext1", "identifier type missing");
-    if scan_keyword("xyz") then begin
+    if scan_keyword('xyz') then begin
         pdf_dest_type(tail) := pdf_dest_xyz;
-        if scan_keyword("zoom") then begin
+        if scan_keyword('zoom') then begin
             scan_int;
             if cur_val > max_halfword then
                 pdf_error("ext1", "number too big");
@@ -28259,19 +28086,19 @@ begin
         else
             pdf_dest_xyz_zoom(tail) := null;
     end
-    else if scan_keyword("fitbh") then
+    else if scan_keyword('fitbh') then
         pdf_dest_type(tail) := pdf_dest_fitbh
-    else if scan_keyword("fitbv") then
+    else if scan_keyword('fitbv') then
         pdf_dest_type(tail) := pdf_dest_fitbv
-    else if scan_keyword("fitb") then
+    else if scan_keyword('fitb') then
         pdf_dest_type(tail) := pdf_dest_fitb
-    else if scan_keyword("fith") then
+    else if scan_keyword('fith') then
         pdf_dest_type(tail) := pdf_dest_fith
-    else if scan_keyword("fitv") then
+    else if scan_keyword('fitv') then
         pdf_dest_type(tail) := pdf_dest_fitv
-    else if scan_keyword("fitr") then
+    else if scan_keyword('fitr') then
         pdf_dest_type(tail) := pdf_dest_fitr
-    else if scan_keyword("fit") then
+    else if scan_keyword('fit') then
         pdf_dest_type(tail) := pdf_dest_fit
     else
         pdf_error("ext1", "destination type missing");
@@ -28301,7 +28128,7 @@ end
 @ @<Declare procedures needed in |do_ext...@>=
 procedure scan_thread_id;
 begin
-    if scan_keyword("num") then begin
+    if scan_keyword('num') then begin
         scan_int;
         if cur_val <= 0 then
             pdf_error("ext1", "num identifier must be positive");
@@ -28310,7 +28137,7 @@ begin
         pdf_thread_id(tail) := cur_val;
         pdf_thread_named_id(tail) := 0;
     end
-    else if scan_keyword("name") then begin
+    else if scan_keyword('name') then begin
         scan_pdf_ext_toks;
         pdf_thread_id(tail) := def_ref;
         pdf_thread_named_id(tail) := 1;
@@ -28382,7 +28209,7 @@ begin
     scan_pdf_ext_toks;
     if pdf_output > 0 then
         pdf_catalog_toks := concat_tokens(pdf_catalog_toks, def_ref);
-    if scan_keyword("openaction") then begin
+    if scan_keyword('openaction') then begin
         if pdf_catalog_openaction <> 0 then
             pdf_error("ext1", "duplicate of openaction")
         else begin

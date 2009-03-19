@@ -1562,11 +1562,6 @@ if (cur_cs=0)or(cur_cs>eqtb_top)or
 @z
 
 @x
-@!flushable_string:str_number; {string not yet referenced}
-@y
-@z
-
-@x
 interaction:=cur_chr;
 @y
 interaction:=cur_chr;

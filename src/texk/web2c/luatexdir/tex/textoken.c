@@ -189,6 +189,112 @@ char *u2s(unsigned unic)
     return buf;
 }
 
+
+/* 
+   In case you are getting bored, here is a slightly less trivial routine:
+   Given a string of lowercase letters, like `\.{pt}' or `\.{plus}' or
+   `\.{width}', the |scan_keyword| routine checks to see whether the next
+   tokens of input match this string. The match must be exact, except that
+   uppercase letters will match their lowercase counterparts; uppercase
+   equivalents are determined by subtracting |"a"-"A"|, rather than using the
+   |uc_code| table, since \TeX\ uses this routine only for its own limited
+   set of keywords.
+
+   If a match is found, the characters are effectively removed from the input
+   and |true| is returned. Otherwise |false| is returned, and the input
+   is left essentially unchanged (except for the fact that some macros
+   may have been expanded, etc.).
+   @^inner loop@>
+*/
+
+boolean
+scan_keyword(char *s) /* look for a given string */
+{
+    pointer p; /* tail of the backup list */
+    pointer q; /* new node being added to the token list via |store_new_token| */
+    char *k; /* index into |str_pool| */
+    if (strlen(s)==1) {
+        /* @<Get the next non-blank non-call token@>; */
+        do { 
+            get_x_token();
+        } while ((cur_cmd==spacer_cmd)||(cur_cmd==relax_cmd));
+        if ((cur_cs==0)&&
+            ((cur_chr==*s)||(cur_chr==*s-'a'+'A'))) {
+            return true;
+        } else {
+            back_input();
+            return false;
+        }
+    } else {
+        p=backup_head; link(p)=null; 
+        k=s;
+        while (*k) {
+            get_x_token(); /* recursion is possible here */
+            if ((cur_cs==0)&&
+                ((cur_chr==*k)||(cur_chr==*k-'a'+'A'))) {
+                store_new_token(cur_tok);
+                k++;
+            } else if ((cur_cmd!=spacer_cmd)||(p!=backup_head)) {
+                if (p!=backup_head) {
+                    q=get_avail(); info(q)=cur_tok; link(q)=null;
+                    link(p) = q;
+                    begin_token_list(link(backup_head),backed_up);
+                }  else {
+                    back_input();
+                }
+                return false;
+            }
+        }
+        flush_list(link(backup_head)); 
+    }
+    return true;
+}
+
+/* |scan_direction| has to be defined here because luatangle will output 
+   a character constant when it sees a string literal of length 1 */
+
+#define dir_T 0
+#define dir_L 1
+#define dir_B 2
+#define dir_R 3
+
+#define scan_single_dir(A) do {                     \
+        if (scan_keyword("T")) A=dir_T;             \
+        else if (scan_keyword("L")) A=dir_L;        \
+        else if (scan_keyword("B")) A=dir_B;        \
+        else if (scan_keyword("R")) A=dir_R;        \
+        else {                                      \
+            tex_error("Bad direction", NULL);       \
+            cur_val=0;                              \
+            return;                                 \
+        }                                           \
+    } while (0)
+
+void 
+scan_direction (void) 
+{
+    integer d1,d2,d3;
+    get_x_token();
+    if (cur_cmd==assign_dir_cmd) {
+        cur_val=zeqtb[cur_chr].cint;
+        return;
+    } else {
+        back_input();
+    }
+    scan_single_dir(d1);
+    scan_single_dir(d2);
+    if (dir_parallel(d1,d2)) {
+        tex_error("Bad direction", NULL);
+        cur_val=0;
+        return;
+    }
+    scan_single_dir(d3);
+    get_x_token(); 
+    if (cur_cmd!=spacer_cmd) back_input(); 
+   cur_val=d1*8+dir_rearrange[d2]*4+d3;
+}
+
+
 /* We can not return |undefined_control_sequence| under some conditions
  * (inside |shift_case|, for example). This needs thinking.
  */
