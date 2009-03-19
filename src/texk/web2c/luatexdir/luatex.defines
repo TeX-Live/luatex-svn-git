@@ -494,6 +494,8 @@
 {functions from textoken.c }
 
 @define function get_next;
+@define function scan_keyword();
+@define procedure scan_direction;
 @define function active_to_cs();
 
 { functions from vfpacket.c }
@@ -883,3 +885,5 @@
 @define function get_prim_equiv();
 @define function prim_lookup();
 @define function id_lookup();
+
+@define procedure tex_def_font();
