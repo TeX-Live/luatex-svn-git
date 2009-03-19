@@ -201,23 +201,20 @@ prompt_file_name(char *s, char *e)
     str_number saved_cur_name; /* to catch empty terminal input */
     char prompt [256];
     str_number texprompt ; 
+    char *ar, *na, *ex;
     saved_cur_name = cur_name;
     if (interaction==scroll_mode) {
         wake_up_terminal();
     }
-    if (strcmp(s,"input file name")==0) {
-        /* @.I can't find file x@>*/
-        snprintf(prompt,255, "I can't find file `%s%s%s'.",
-                 makecstring(cur_area),
-                 makecstring(cur_name),
-                 makecstring(cur_ext));
-    } else {
-        /*@.I can't write on file x@>*/
-        snprintf(prompt,255, "I can't write on file `%s%s%s'.",
-                 makecstring(cur_area),
-                 makecstring(cur_name),
-                 makecstring(cur_ext));
+    ar = xstrdup(makecstring(cur_area));
+    na = xstrdup(makecstring(cur_name));
+    ex = xstrdup(makecstring(cur_ext));
+    if (strcmp(s,"input file name")==0) { /* @.I can't find file x@>*/
+        snprintf(prompt,255, "I can't find file `%s%s%s'.", ar, na, ex);
+    } else {   /*@.I can't write on file x@>*/
+        snprintf(prompt,255, "I can't write on file `%s%s%s'.",ar, na, ex);
     }
+    free(ar); free(na); free(ex);
     texprompt = maketexstring((char *)prompt);
     do_print_err(texprompt);
     flush_str(texprompt);
