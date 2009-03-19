@@ -201,6 +201,7 @@ prompt_file_name(char *s, char *e)
     str_number saved_cur_name; /* to catch empty terminal input */
     char prompt [256];
     str_number texprompt ; 
+    saved_cur_name = cur_name;
     if (interaction==scroll_mode) {
         wake_up_terminal();
     }
