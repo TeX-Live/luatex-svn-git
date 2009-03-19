@@ -302,24 +302,26 @@ void tex_error(char *msg, char **hlp)
 {
     strnumber aa = 0, bb = 0, cc = 0, dd = 0, ee = 0;
     int k = 0;
-    while (hlp[k] != NULL)
-        k++;
-    if (k > 0)
-        aa = maketexstring(hlp[0]);
-    if (k > 1)
-        bb = maketexstring(hlp[1]);
-    if (k > 2)
-        cc = maketexstring(hlp[2]);
-    if (k > 3)
-        dd = maketexstring(hlp[3]);
-    if (k > 4)
-        ee = maketexstring(hlp[4]);
-
+    if (hlp!=NULL) {
+        while (hlp[k] != NULL)
+            k++;
+        if (k > 0)
+            aa = maketexstring(hlp[0]);
+        if (k > 1)
+            bb = maketexstring(hlp[1]);
+        if (k > 2)
+            cc = maketexstring(hlp[2]);
+        if (k > 3)
+            dd = maketexstring(hlp[3]);
+        if (k > 4)
+            ee = maketexstring(hlp[4]);
+    }
     do_print_err(maketexstring(msg));
     flush_str(last_tex_string);
 
 /* *INDENT-OFF* */
     switch (k) {
+    case 0: dohelp0(); break;
     case 1: dohelp1(aa); break;
     case 2: dohelp2(aa, bb); break;
     case 3: dohelp3(aa, bb, cc); break;
