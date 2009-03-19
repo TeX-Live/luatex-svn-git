@@ -166,8 +166,6 @@ read_font_info(pointer u, strnumber nom, scaled s, integer natural_dir)
             tex_error(msg, help);
             free(msg);
         }
-        if (caire != NULL)
-            free(caire);
         free(cnom);
         return 0;
     }
