@@ -760,9 +760,15 @@ void pdf_print_real(integer m, integer d);
 
 extern boolean str_eq_cstr(str_number, char *, size_t);
 void get_next(void);
+boolean scan_keyword(char *);
+void scan_direction(void);
 halfword active_to_cs(int, int);
 void get_token_lua(void);
 int get_char_cat_code(int);
+
+/* texdeffont.c */
+
+void tex_def_font (small_number a);
 
 /* lcallbacklib.c */
 
