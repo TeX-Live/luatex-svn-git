@@ -113,7 +113,6 @@ more_name(ASCII_code c)
 static void 
 end_name (void)
 { 
-    pool_pointer j,s,t; /* running indices */
     if (str_ptr+3>(max_strings+string_offset)) 
         overflow_string("number of strings",max_strings-init_str_ptr);
     /* @:TeX capacity exceeded number of strings}{\quad number of strings@>*/
