@@ -585,18 +585,18 @@ static int PickTTFFont(FILE *ttf,char *filename,char **chosenname) {
     /* TTCF version = */ getlong(ttf);
     cnt = getlong(ttf);
     if ( cnt==1 ) {
-	/* This is easy, don't bother to ask the user, there's no choice */
-	int32 offset = getlong(ttf);
-	fseek(ttf,offset,SEEK_SET);
-return( true );
+        /* This is easy, don't bother to ask the user, there's no choice */
+        int32 offset = getlong(ttf);
+        fseek(ttf,offset,SEEK_SET);
+        return( true );
     }
     offsets = galloc(cnt*sizeof(int32));
     for ( i=0; i<cnt; ++i )
-	offsets[i] = getlong(ttf);
+        offsets[i] = getlong(ttf);
     names = galloc(cnt*sizeof(char *));
     for ( i=j=0; i<cnt; ++i ) {
-	names[j] = TTFGetFontName(ttf,offsets[i],0);
-	if ( names[j]!=NULL ) ++j;
+        names[j] = TTFGetFontName(ttf,offsets[i],0);
+        if ( names[j]!=NULL ) ++j;
     }
     pt = strrchr(filename,'/');
     if ( pt==NULL ) pt = filename;
@@ -604,33 +604,33 @@ return( true );
     /*  that ff wouldn't open it */
     /* Now someone will complain about "Nafees(Updated).ttc(fo(ob)ar)" */
     if ( (lparen = strrchr(pt,'('))!=NULL &&
-	    (rparen = strrchr(lparen,')'))!=NULL &&
-	    rparen[1]=='\0' ) {
-	char *find = copy(lparen+1);
-	pt = strchr(find,')');
-	if ( pt!=NULL ) *pt='\0';
-	for ( choice=cnt-1; choice>=0; --choice )
-	    if ( strcmp(names[choice],find)==0 )
-	break;
-	if ( choice==-1 ) {
-	    char *end;
-	    choice = strtol(find,&end,10);
-	    if ( *end!='\0' )
-		choice = -1;
-	}
-	if ( choice==-1 ) {
-	    char *fn = copy(filename);
-	    fn[lparen-filename] = '\0';
-	    ff_post_error(_("Not in Collection"),
+         (rparen = strrchr(lparen,')'))!=NULL &&
+         rparen[1]=='\0' ) {
+        char *find = copy(lparen+1);
+        pt = strchr(find,')');
+        if ( pt!=NULL ) *pt='\0';
+        for ( choice=cnt-1; choice>=0; --choice )
+            if ( strcmp(names[choice],find)==0 )
+                break;
+        if ( choice==-1 ) {
+            char *end;
+            choice = strtol(find,&end,10);
+            if ( *end!='\0' )
+                choice = -1;
+        }
+        if ( choice==-1 ) {
+            char *fn = copy(filename);
+            fn[lparen-filename] = '\0';
+            ff_post_error(_("Not in Collection"),
 /* GT: The user is trying to open a font file which contains multiple fonts and */
 /* GT: has asked for a font which is not in that file. */
 /* GT: The string will look like: <fontname> is not in <filename> */
 		    _("%1$s is not in %2$.100s"),find,fn);
-	    free(fn);
-	}
-	free(find);
-	choice = 0;
-    }
+            free(fn);
+        }
+        free(find);
+    } else
+        choice = 0;
     if ( choice!=-1 ) {
 	fseek(ttf,offsets[choice],SEEK_SET);
 	*chosenname = copy(names[choice]);
