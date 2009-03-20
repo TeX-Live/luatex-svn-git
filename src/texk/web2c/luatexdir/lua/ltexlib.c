@@ -53,13 +53,39 @@ static int spindle_size = 0;
 static spindle *spindles = NULL;
 static int spindle_index = 0;
 
+static void
+luac_store (lua_State *L, int i, int partial, integer cattable)
+{
+    char *st, *sttemp;
+    size_t tsize;
+    rope *rn = NULL;
+    sttemp = (char *) lua_tolstring(L, i, &tsize);
+    st = xmalloc((tsize + 1));
+    memcpy(st, sttemp, (tsize + 1));
+    if (st) {
+        luacstrings++;
+        rn = (rope *) xmalloc(sizeof(rope));
+        rn->text = st;
+        rn->tsize = tsize;
+        rn->partial = partial;
+        rn->cattable = cattable;
+        rn->next = NULL;
+        if (write_spindle.head == NULL) {
+            assert(write_spindle.tail == NULL);
+            write_spindle.head = rn;
+        } else {
+            write_spindle.tail->next = rn;
+        }
+        write_spindle.tail = rn;
+        write_spindle.complete = 0;
+    }
+}
 
-static int do_luacprint(lua_State * L, int partial, int deftable)
+
+static int
+do_luacprint(lua_State * L, int partial, int deftable)
 {
     int i, n;
-    size_t tsize;
-    char *st, *sttemp;
-    rope *rn;
     integer cattable = (integer) deftable;
     int startstrings = 1;
     n = lua_gettop(L);
@@ -69,31 +95,23 @@ static int do_luacprint(lua_State * L, int partial, int deftable)
             startstrings = 2;
         }
     }
-    for (i = startstrings; i <= n; i++) {
-        if (!lua_isstring(L, i)) {
-            lua_pushstring(L, "no string to print");
-            lua_error(L);
-        }
-        sttemp = (char *) lua_tolstring(L, i, &tsize);
-        st = xmalloc((tsize + 1));
-        memcpy(st, sttemp, (tsize + 1));
-        if (st) {
-            /* fprintf(stderr,"W[%d]:=%s\n",spindle_index,st); */
-            luacstrings++;
-            rn = (rope *) xmalloc(sizeof(rope));        /* valgrind says we leak here */
-            rn->text = st;
-            rn->tsize = tsize;
-            rn->partial = partial;
-            rn->cattable = cattable;
-            rn->next = NULL;
-            if (write_spindle.head == NULL) {
-                assert(write_spindle.tail == NULL);
-                write_spindle.head = rn;
+    if (lua_type(L, startstrings) == LUA_TTABLE) {
+        for (i = 1; ; i++) {
+            lua_rawgeti(L,startstrings, i);
+            if (lua_isstring(L, -1)) {
+                luac_store(L, -1, partial, cattable);
+                lua_pop(L,1);
             } else {
-                write_spindle.tail->next = rn;
+                break;
             }
-            write_spindle.tail = rn;
-            write_spindle.complete = 0;
+        }
+    } else {
+        for (i = startstrings; i <= n; i++) {
+            if (!lua_isstring(L, i)) {
+                lua_pushstring(L, "no string to print");
+                lua_error(L);
+            }
+            luac_store(L,i, partial, cattable);
         }
     }
     return 0;
