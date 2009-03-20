@@ -90,6 +90,32 @@ implemented in \LUA\ instead.
 
 \chapter{Basic \TEX\ enhancements}
 
+\section{Introduction}
+
+From day one, \LUATEX\ has offered extra functionality when compared
+to the superset of pdftex and Aleph. That has not been limited to
+the possibility to execute lua code via \type{\directlua}, but
+\LUATEX\ also adds functionality via new \TEX-side primitives.
+
+However, starting with beta \type{0.40.0}, most of that functionality
+will be hidden by default. When \LUATEX\ 0.40.0 starts up in
+\quote{iniluatex} mode (\type{luatex -ini}), it defines only the
+primitive commands known by \TEX82 and the one extra command
+\type{\directlua}.
+
+As is fitting, a lua function has to be called to add the extra
+primitives to the user environment. The simplest method to get access
+to all of the new primitive commands is by adding this line to the
+format generation file:
+
+\starttyping
+\directlua { tex.enableprimitives('',tex.extraprimitives()) }
+\stoptyping
+
+More fine-grained control is possible, you can look the details in
+\in{section}[luaprimitives]. For simplicity's sake, this manual
+assumes that you have executed the lua command given above.
+
 \section{Version information}
 
 There are three new primitives to test the version of \LUATEX:
@@ -319,6 +345,16 @@ The syntax is
 \directlua <16-bit number> <general text>
 \stopsyntax
 
+{\bf Up until beta 0.36, there was support for multiple lua states,
+and to make that possible, the \type{\directlua} and \type{\latelua}
+command required an integer argument to be given always. Such integer
+values are still accepted for the moment, although they generate a
+(rather pesky) warning.  This backward compatibility support will be
+removed starting with beta \type{0.41.0}.}
+
+This library used to be called \quote{fontforge}. The library 
+is still available under that name for now, 
+
 The last \syntax{<general text>} is expanded fully, and then fed
 into the \LUA\ interpreter. After reading and expansion has been applied to the
 \syntax{<general text>}, the resulting token list is converted to a
@@ -359,7 +395,11 @@ the chunk name.
 Likewise, the \syntax{<16-bit number>} designates a name of a \LUA\
 chunk, but in this case the name will be taken from the
 \type{lua.name} array (see the documentation of the \type{lua} table
-further in this manual)
+further in this manual). This syntax is new in version 0.36.0. 
+
+Backward compatibility note: when there is a valid name in
+\type{lua.name[<16-bit number>]}, the potential warning about 
+a superfluous integer will be suppressed.
 
 The chunk name should not start with a \type{@}, or it will be displayed
 as a file name (this is a quirk in the current \LUA\ implementation).
@@ -404,6 +444,13 @@ or simply using lua's I/O routines.
 \latelua name <general text> <general text>!crlf
 \latelua <16-bit number> <general text>
 \stopsyntax
+
+{\bf Up until beta 0.36, there was support for multiple lua states,
+and to make that possible, the \type{\directlua} and \type{\latelua}
+command required an integer argument to be given always. Such integer
+values are still accepted for the moment, although they generate a
+(rather pesky) warning.  This backward compatibility support will be
+removed starting with beta \type{0.41.0}.}
 
 Expansion of macros etcetera in the final \type{<general text>} is delayed
 until just before the whatsit is executed (like in \tex{write}). With
@@ -1579,56 +1626,7 @@ Associates \type{csname} with the internal font number \type{fontid}.
 The definition is global if (and only if) \type{global} is specified
 and true (the setting of \type{globaldefs} is not taken into account).
 
-\subsubsection{\luatex{tex.primitives}}
-
-\startfunctioncall
-<table> t = tex.primitives()
-\stopfunctioncall
-
-This function returns a hash table listing all primitives that \LUATEX\
-knows about. The keys in the hash are primitives names, the values are
-tables representing tokens (see~\in{section }[luatokens]). The third value
-is always zero.
-
-
-\subsubsection{\luatex{tex.extraprimitives}}
-
-\startfunctioncall
-<table> t = tex.extraprimitives(<string> s, ...)
-\stopfunctioncall
-
-This function returns a list of the primitives that originate
-from the engine(s) given by the requested string value(s). The
-possible values and their (current) return values are:
-
-\startluacode
-function out_prim (a)
-  for _,n in pairs(tex.extraprimitives(a)) do 
-    tex.print(n .. '\\hskip 4pt plus 5em') 
-  end 
-end
-\stopluacode
-
-\starttabulate[|l|p|]
-\NC \bf name\NC \bf values \NC \NR
-\NC tex     \NC \ctxlua{out_prim('tex')    } \NC \NR
-\NC core    \NC \ctxlua{out_prim('core')   } \NC \NR
-\NC etex    \NC \ctxlua{out_prim('etex')   } \NC \NR
-\NC pdftex  \NC \ctxlua{out_prim('pdftex') } \NC \NR
-\NC omega   \NC \ctxlua{out_prim('omega')  } \NC \NR
-\NC aleph   \NC \ctxlua{out_prim('aleph')  } \NC \NR
-\NC luatex  \NC \ctxlua{out_prim('luatex') } \NC \NR
-\stoptabulate
-
-Note that \type{'luatex'} does not contain \type{directlua}, as that is
-considered to be a core primitive, along with all the \TEX82
-primitives, so it is part of the list that is returned from \type{'core}.
-
-Running \type{tex.extraprimitives()} will give you the complete list
-of primitives that are not defined at \LUATEX\ 0.40 \type{-ini}
-startup. It is exactly equivalent to \type{tex.extraprimitives('etex',
-'pdftex', 'omega', 'aleph', 'luatex')}
-
+\subsection[luaprimitives]{Functions for dealing with primitives }
 
 \subsubsection{\luatex{tex.enableprimitives}}
 
@@ -1697,6 +1695,57 @@ Calling some form of \type{tex.enableprimitives()} is highly important
 though, because if you do not, you will end up with a \TEX82-lookalike
 that can run lua code but not do much else. The defined csnames are
 (of course) saved in the format and will be available runtime.
+
+
+\subsubsection{\luatex{tex.extraprimitives}}
+
+\startfunctioncall
+<table> t = tex.extraprimitives(<string> s, ...)
+\stopfunctioncall
+
+This function returns a list of the primitives that originate
+from the engine(s) given by the requested string value(s). The
+possible values and their (current) return values are:
+
+\startluacode
+function out_prim (a)
+  for _,n in pairs(tex.extraprimitives(a)) do 
+    tex.print(n .. '\\hskip 4pt plus 5em') 
+  end 
+end
+\stopluacode
+
+\starttabulate[|l|p|]
+\NC \bf name\NC \bf values \NC \NR
+\NC tex     \NC \ctxlua{out_prim('tex')    } \NC \NR
+\NC core    \NC \ctxlua{out_prim('core')   } \NC \NR
+\NC etex    \NC \ctxlua{out_prim('etex')   } \NC \NR
+\NC pdftex  \NC \ctxlua{out_prim('pdftex') } \NC \NR
+\NC omega   \NC \ctxlua{out_prim('omega')  } \NC \NR
+\NC aleph   \NC \ctxlua{out_prim('aleph')  } \NC \NR
+\NC luatex  \NC \ctxlua{out_prim('luatex') } \NC \NR
+\stoptabulate
+
+Note that \type{'luatex'} does not contain \type{directlua}, as that is
+considered to be a core primitive, along with all the \TEX82
+primitives, so it is part of the list that is returned from \type{'core'}.
+
+Running \type{tex.extraprimitives()} will give you the complete list
+of primitives that are not defined at \LUATEX\ 0.40 \type{-ini}
+startup. It is exactly equivalent to \type{tex.extraprimitives('etex',
+'pdftex', 'omega', 'aleph', 'luatex')}
+
+\subsubsection{\luatex{tex.primitives}}
+
+\startfunctioncall
+<table> t = tex.primitives()
+\stopfunctioncall
+
+This function returns a hash table listing all primitives that \LUATEX\
+knows about. The keys in the hash are primitives names, the values are
+tables representing tokens (see~\in{section }[luatokens]). The third value
+is always zero.
+
 
 
 \section[luatokens]{The \luatex{token} library}
@@ -3970,7 +4019,7 @@ the executable after loading and executing the startup file.
 The font library provides the interface into the internals of the font
 system, and also it contains helper functions to load traditional
 \TEX\ font metrics formats. Other font loading functionality is
-provided by the \luatex{fontforge} library that will be discussed in
+provided by the \luatex{fontloader} library that will be discussed in
 the next section.
 
 \subsection{Loading a \TFM\ file}
@@ -4093,12 +4142,16 @@ itself, as a \LUA\ table. The indices are listed incrementally, but they
 do not always form an array of consecutive numbers: in some cases
 there can be holes in the sequence.
 
-\section{The \luatex{fontforge} library}
+\section{The \luatex{fontloader} library (0.36)}
+
+{\bf This library used to be called \quote{fontforge}. The library 
+is still available under that name for now, but that alias will be
+removed starting with beta \type{0.41.0}}
 
 \subsection{Getting quick information on a font}
 
 \startfunctioncall
-local info = fontforge.info('filename')
+local info = fontloader.info('filename')
 \stopfunctioncall
 
 This function returns either \type{nil}, or a \type{table}, or an
@@ -4124,17 +4177,17 @@ directory contents.
 \subsection{Loading an \OPENTYPE\ or \TRUETYPE\ file}
 
 If you want to use an \OPENTYPE\ font, you have to get the metric
-information from somewhere. Using the \type{fontforge} library, the
+information from somewhere. Using the \type{fontloader} library, the
 basic way to get that information is thus:
 
 
 \starttyping
 function load_font (filename)
   local metrics = nil
-  local font = fontforge.open(filename)
+  local font = fontloader.open(filename)
   if font then
-     metrics = fontforge.to_table(font)
-     fontforge.close(font)
+     metrics = fontloader.to_table(font)
+     fontloader.close(font)
   end
   return metrics
 end
@@ -4145,22 +4198,22 @@ myfont = load_font('/opt/tex/texmf/fonts/data/arial.ttf')
 The main function call is
 
 \startfunctioncall
-f, w = fontforge.open('filename')
+f, w = fontloader.open('filename')
 \stopfunctioncall
 
 The first return value is a table representation of the font. The
 second return value is a table containing any warnings and errors
-reported by fontforge while opening the font. In normal typesetting,
+reported by fontloader while opening the font. In normal typesetting,
 you would probably ignore the second argument, but it can be useful
 for debugging purposes.
 
 For \TRUETYPE\ collections (when filename ends in 'ttc'), you have to
 use a second string argument to specify which font you want from the
 collection.  Use one of the \type{fullname} strings that are returned
-by \type{fontforge.info} for that.
+by \type{fontloader.info} for that.
 
 \startfunctioncall
-f, w = fontforge.open('filename','fullname')
+f, w = fontloader.open('filename','fullname')
 \stopfunctioncall
 
 
@@ -4194,7 +4247,7 @@ actual font file ourselves:
 You can apply a \quote{feature file} to a loaded font:
 
 \startfunctioncall
-fontforge.apply_featurefile(f,'filename')
+fontloader.apply_featurefile(f,'filename')
 \stopfunctioncall
 
 A \quote{feature file} is a textual representation of the features in an
@@ -4210,20 +4263,20 @@ for a more detailed description of feature files.
 You can apply an \quote{\AFM\ file} to a loaded font:
 
 \startfunctioncall
-fontforge.apply_afmfile(f,'filename')
+fontloader.apply_afmfile(f,'filename')
 \stopfunctioncall
 
 An \AFM\ file is a textual representation of (some of) the meta information
 in a \TYPEONE\ font. See \hyphenatedurl{http://www.adobe.com/devnet/font/pdfs/5004.AFM_Spec.pdf}
 for more information about afm files.
 
-Note: If you \type{fontforge.open()} a \TYPEONE\ file named \type{font.pfb},
+Note: If you \type{fontloader.open()} a \TYPEONE\ file named \type{font.pfb},
 the library will automatically search for and apply \type{font.afm}
 if it exists in the same directory as the file \type{font.pfb}. In that case,
 there is no need for an explicit call to \type{apply_afmfile()}.
 
 
-\section{Fontforge font tables}
+\section{Fontloader font tables}
 
 \subsection{Table types}
 
@@ -6467,7 +6520,7 @@ glyph, using the \type{index} key in the character information as
 value. The overall effect is like having an encoding based on numbers
 instead of traditional (\POSTSCRIPT) name|-|based reencoding. The way
 to get the correct \type{index} numbers for \TYPEONE\ fonts is by
-loading the font via \type{fontforge.open}; use the table indices as
+loading the font via \type{fontloader.open}; use the table indices as
 \type{index} fields.
 
 This type of reencoding means that there is no longer a clear
@@ -7829,13 +7882,6 @@ be worth the hassle and the limitations will eventually be documented.
 possible breakpoints into account where ligatures are involved in
 the process.  This means that line breaks may change in future
 versions.
-
-\item Sometimes font loading via \FONTFORGE\ generates a message like this
-\starttyping
-Bad call to gww_iconv_open, neither arg is UCS4 (EUC-CN->UTF-8)
-\stoptyping
-during font loading. This is a limitation of the internal iconv
-implementation.
 
 \item \luatex{tex.print()} and \luatex{tex.sprint()} do not work if
 \tex{directlua} is used in an \OTP\ file (in the output of an
