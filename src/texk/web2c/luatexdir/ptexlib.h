@@ -766,6 +766,7 @@ void pdf_print_real(integer m, integer d);
 
 extern boolean str_eq_cstr(str_number, char *, size_t);
 void get_next(void);
+extern void check_outer_validity (void);
 boolean scan_keyword(char *);
 void scan_direction(void);
 halfword active_to_cs(int, int);

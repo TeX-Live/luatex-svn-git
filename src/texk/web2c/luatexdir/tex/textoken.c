@@ -92,10 +92,6 @@ static void invalid_character_error(void)
     deletions_allowed = true;
 }
 
-
-
-/* no longer done */
-
 static boolean process_sup_mark(void);  /* below */
 
 static int scan_control_sequence(void); /* below */
@@ -324,6 +320,110 @@ halfword active_to_cs(int curchr, int force)
     return curcs;
 }
 
+
+/* Before getting into |get_next|, let's consider the subroutine that
+   is called when an `\.{\\outer}' control sequence has been scanned or
+   when the end of a file has been reached. These two cases are distinguished
+   by |cur_cs|, which is zero at the end of a file.
+*/
+
+/* TODO */
+void 
+check_outer_validity (void)
+{
+#if 0
+    pointer p; /* points to inserted token list */
+    pointer q; /* auxiliary pointer */
+    if (scanner_status!=normal) {
+        deletions_allowed=false;
+        /* @<Back up an outer control sequence so that it can be reread@>; */
+        /* An outer control sequence that occurs in a \.{\\read} will not be reread,
+           since the error recovery for \.{\\read} is not very powerful. */
+        if (cur_cs!=0) {
+            if ((state==token_list)||(name<1)||(name>17)) {
+                p=get_avail();
+                info(p)=cs_token_flag+cur_cs;
+                back_list(p); /* prepare to read the control sequence again */
+            }
+            cur_cmd=spacer_cmd;
+            cur_chr=' '; /* replace it by a space */
+        }
+        if (scanner_status>skipping) {
+            char *errhlp[] = { "I suspect you have forgotten a `}', causing me",
+                               "to read past where you wanted me to stop.",
+                               "I'll try to recover; but if the error is serious,",
+                               "you'd better type `E' or `X' now and fix your file.",
+                               NULL };
+            /* @<Tell the user what has run away and try to recover@> */
+            runaway(); /* print a definition, argument, or preamble */
+            if (cur_cs==0) { 
+                print_err("File ended");
+            } else {  
+                cur_cs=0; 
+                print_err("Forbidden control sequence found");
+            }
+            print(" while scanning ");
+            /* @<Print either `\.{definition}' or `\.{use}' or `\.{preamble}' or `\.{text}',
+               and insert tokens that should lead to recovery@>; */
+            /* The recovery procedure can't be fully understood without knowing more
+               about the \TeX\ routines that should be aborted, but we can sketch the
+               ideas here:  For a runaway definition we will insert a right brace; for a
+               runaway preamble, we will insert a special \.{\\cr} token and a right
+               brace; and for a runaway argument, we will set |long_state| to
+               |outer_call| and insert \.{\\par}. */
+            p=get_avail();
+            switch (scanner_status) {
+            case defining:
+                print("definition"); 
+                info(p)=right_brace_token+'}';
+                break;
+            case matching: 
+                print("use"); 
+                info(p)=par_token;
+                long_state=outer_call_cmd;
+                break;
+            case aligning: 
+                print("preamble"); 
+                info(p)=right_brace_token+'}'; 
+                q=p;
+                p=get_avail(); link(p)=q; info(p)=cs_token_flag+frozen_cr;
+                align_state=-1000000;
+                break;
+            case absorbing: 
+                print("text"); 
+                info(p)=right_brace_token+'}';
+                break;
+            }  /*there are no other cases */
+            ins_list(p);
+            print(" of "); 
+            sprint_cs(warning_index);
+            error();
+        } else  {
+            char *errhlp[];
+            if (cur_cs!=0) {
+                errhlp = { "A forbidden control sequence occurred in skipped text.",
+                           "This kind of error happens when you say `\\if...' and forget",
+                           "the matching `\\fi'. I've inserted a `\\fi'; this might work.",
+                           NULL };
+                cur_cs=0;
+            } else {
+                errhlp = { "The file ended while I was skipping conditional text.",
+                           "This kind of error happens when you say `\\if...' and forget",
+                           "the matching `\\fi'. I've inserted a `\\fi'; this might work.",
+                           NULL };
+            }
+            print_err("Incomplete "); 
+            print_cmd_chr(if_test,cur_if); /* @.Incomplete \\if...@> */
+            print("; all text was ignored after line ");
+            print_int(skip_line);
+            cur_tok=cs_token_flag+frozen_fi; 
+            ins_error();
+        }
+        deletions_allowed=true;
+    }
+#endif
+}
+
 static boolean get_next_file(void)
 {
   SWITCH:
@@ -359,6 +459,7 @@ static boolean get_next_file(void)
         case new_line + escape_cmd:
         case skip_blanks + escape_cmd: /* @<Scan a control sequence ...@>; */
             state = scan_control_sequence();
+            if (cur_cmd>=outer_call_cmd) check_outer_validity();
             break;
         case mid_line + active_char_cmd:
         case new_line + active_char_cmd:
@@ -367,6 +468,7 @@ static boolean get_next_file(void)
             cur_cmd = eq_type(cur_cs);
             cur_chr = equiv(cur_cs);
             state = mid_line;
+            if (cur_cmd>=outer_call_cmd) check_outer_validity();
             break;
         case mid_line + sup_mark_cmd:
         case new_line + sup_mark_cmd:
@@ -409,6 +511,7 @@ static boolean get_next_file(void)
             cur_cs = par_loc;
             cur_cmd = eq_type(cur_cs);
             cur_chr = equiv(cur_cs);
+            if (cur_cmd>=outer_call_cmd) check_outer_validity();
             break;
         case skip_blanks + left_brace_cmd:
         case new_line + left_brace_cmd:
@@ -820,6 +923,7 @@ static next_line_retval next_line(void)
             }
             force_eof = false;
             end_file_reading();
+            check_outer_validity();
             return next_line_restart;
         }
         if (inhibit_eol || end_line_char_inactive)
@@ -879,18 +983,22 @@ static boolean get_next_tokenlist(void)
     if (t >= cs_token_flag) {   /* a control sequence token */
         cur_cs = t - cs_token_flag;
         cur_cmd = eq_type(cur_cs);
-        if (cur_cmd == dont_expand_cmd) {       /* @<Get the next token, suppressing expansion@> */
-            /* The present point in the program is reached only when the |expand|
-               routine has inserted a special marker into the input. In this special
-               case, |info(loc)| is known to be a control sequence token, and |link(loc)=null|.
-             */
-            cur_cs = info(loc) - cs_token_flag;
-            loc = null;
-            cur_cmd = eq_type(cur_cs);
-            if (cur_cmd > max_command_cmd) {
-                cur_cmd = relax_cmd;
-                cur_chr = no_expand_flag;
-                return true;
+        if (cur_cmd>=outer_call_cmd) {
+            if (cur_cmd == dont_expand_cmd) {       /* @<Get the next token, suppressing expansion@> */
+                /* The present point in the program is reached only when the |expand|
+                   routine has inserted a special marker into the input. In this special
+                   case, |info(loc)| is known to be a control sequence token, and |link(loc)=null|.
+                */
+                cur_cs = info(loc) - cs_token_flag;
+                loc = null;
+                cur_cmd = eq_type(cur_cs);
+                if (cur_cmd > max_command_cmd) {
+                    cur_cmd = relax_cmd;
+                    cur_chr = no_expand_flag;
+                    return true;
+                }
+            } else {
+                check_outer_validity();
             }
         }
         cur_chr = equiv(cur_cs);
