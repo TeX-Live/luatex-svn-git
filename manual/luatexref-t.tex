@@ -1533,9 +1533,15 @@ at the moment.
 \startfunctioncall
 tex.print(<string> s, ...)
 tex.print(<number> n, <string> s, ...)
+tex.print(<table> t)
+tex.print(<number> n, <table> t)
 \stopfunctioncall
 
 Each string argument is treated by \TEX\ as a separate input line.
+If there is a table argument instead of a list of strings, this has to
+be a consecutive array of strings to print (the first non-string value
+will stop the printing process).  This syntax was added in 0.36.
+
 
 The optional parameter can be used to print the strings using the
 catcode regime defined by \tex{catcodetable}~\type{n}. If \type{n} is not
@@ -1551,6 +1557,8 @@ others do.
 \startfunctioncall
 tex.sprint(<string> s, ...)
 tex.sprint(<number> n, <string> s, ...)
+tex.sprint(<table> t)
+tex.sprint(<number> n, <table> t)
 \stopfunctioncall
 
 Each string argument is treated by \TEX\ as a special kind of input line
@@ -1562,7 +1570,7 @@ that makes it suitable for use as a partial line input mechanism:
 \item No \tex{endlinechar} is inserted.
 \item Trailing spaces are not removed.
 
-(Note that this does not prevent \TEX\ itself from eating spaces as
+Note that this does not prevent \TEX\ itself from eating spaces as
 result of interpreting the line. For example, in
 
 \starttyping
@@ -1570,14 +1578,18 @@ before\directlua{tex.sprint("\\relax")tex.sprint(" inbetween")}after
 \stoptyping
 
 the space before \type{inbetween} will be gobbled as a result of
-the \quote{normal} scanning of \tex{relax}).
+the \quote{normal} scanning of \tex{relax}.
 \stopitemize
 
+If there is a table argument instead of a list of strings, this has to
+be a consecutive array of strings to print (the first non-string value
+will stop the printing process).   This syntax was added in 0.36.
 
 \subsubsection{\luatex{tex.write}}
 
 \startfunctioncall
 tex.write(<string> s, ...)
+tex.write(<table> t)
 \stopfunctioncall
 
 Each string argument is treated by \TEX\ as a special kind of input
@@ -1589,6 +1601,11 @@ information:
      \quote{character} (for all others).
 \item There is no \tex{endlinechar} appended.
 \stopitemize
+
+If there is a table argument instead of a list of strings, this has to
+be a consecutive array of strings to print (the first non-string value
+will stop the printing process).  This syntax was added in 0.36.
+
 
 \subsection{Helper functions}
 
