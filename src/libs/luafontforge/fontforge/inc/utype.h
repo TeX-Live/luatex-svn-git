@@ -48,21 +48,15 @@
 #define ____COMBININGPOSMASK	0x1fff00
 
 extern const unsigned short ____tolower[];
+#if 0
 extern const unsigned short ____toupper[];
-extern const unsigned short ____totitle[];
-extern const unsigned short ____tomirror[];
-extern const unsigned char ____digitval[];
+#endif
 extern const unsigned int  ____utype[];
 
-extern const unsigned int  ____utype2[];
-
-extern const unsigned int  ____codepointassigned[];
-
 #define tolower(ch) (____tolower[(ch)+1])
+#if 0
 #define toupper(ch) (____toupper[(ch)+1])
-#define totitle(ch) (____totitle[(ch)+1])
-#define tomirror(ch) (____tomirror[(ch)+1])
-#define tovalue(ch) (____digitval[(ch)+1])
+#endif
 #define islower(ch) (____utype[(ch)+1]&____L)
 #define isupper(ch) (____utype[(ch)+1]&____U)
 #define istitle(ch) (____utype[(ch)+1]&____TITLE)
@@ -91,12 +85,6 @@ extern const unsigned int  ____codepointassigned[];
 #define isarabisolated(ch) (____utype[(ch)+1]&____ISOLATED)
 
 #define isdecompositionnormative(ch) (____utype[(ch)+1]&____DECOMPNORM)
-
-#define combiningclass(ch) (____utype2[(ch)+1]&____COMBININGCLASS)
-#define combiningposmask(ch) (____utype2[(ch)+1]&____COMBININGPOSMASK)
-
-#define isunicodepointassigned(ch) (____codepointassigned[(ch)/32]&(1<<((ch)%32)))
-
 
 extern struct arabicforms {
     unsigned short initial, medial, final, isolated;
