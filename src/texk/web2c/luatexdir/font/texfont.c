@@ -302,7 +302,7 @@ integer char_exists(internal_font_number f, integer c)
 int lua_char_exists_callback(internal_font_number f, integer c)
 {
     integer callback_id;
-    lua_State *L = Luas[0];
+    lua_State *L = Luas;
     int ret = 0;
     callback_id = callback_defined(char_exists_callback);
     if (callback_id != 0) {

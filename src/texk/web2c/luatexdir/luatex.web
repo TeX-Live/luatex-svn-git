@@ -10728,7 +10728,7 @@ p, q: pointer;
 @!j: integer; {second temp integer}
 @!b:pool_pointer; {base of temporary string}
 @!s: str_number; {first temp string}
-@!sn: str_number; {lua chunk name}
+@!sn: integer; {lua chunk name}
 @!u: str_number; {third temp string}
 @!junk: pointer;
 begin
@@ -10869,28 +10869,29 @@ expanded_code:
   end;
 lua_code:
   begin
-        u:=0;
-    { check if a string is already being built}
+    u:=0;
+    { Have to check if a string is already being built, because lua code
+      may call library functions that may call C functions that 
+      themselves use the string pool, like e.g. |maketexstring| }
     if str_start_macro(str_ptr)<pool_ptr then u:=make_string;
     save_scanner_status := scanner_status;
     save_def_ref := def_ref;
     save_warning_index := warning_index;
-    sn:=null;
-        if scan_keyword('name') then begin
-           scan_pdf_ext_toks;
+    sn:=0;
+    if scan_keyword('name') then begin
+       scan_pdf_ext_toks;
        sn := def_ref;
-        end;
-        scan_register_num;
-        i := cur_val;
+    end;
+    @<Parse optional lua state integer, or an instance name to be stored in |sn|@>;
     scan_pdf_ext_toks;
     s := def_ref;
     warning_index := save_warning_index;
     def_ref := save_def_ref;
     scanner_status := save_scanner_status;
     luacstrings:=0;
-    luatokencall(i,s,sn);
+    luatokencall(s,sn);
     delete_token_ref(s);
-        if u<>0 then begin
+    if u<>0 then begin
       if str_ptr=u+1 then 
         decr(str_ptr)
       else begin {copy old string to the top location}
@@ -10900,8 +10901,8 @@ lua_code:
            str_pool[pool_ptr+i]:=str_pool[str_start_macro(u)+i];
         end;
     end; 
-        if luacstrings>0 then
-          lua_string_start;
+    if luacstrings>0 then
+      lua_string_start;
     return;
   end;
 pdf_insert_ht_code: scan_register_num;
@@ -10916,6 +10917,26 @@ pdf_ximage_bbox_code: begin
     end;
 @<Cases of `Scan the argument for command |c|'@>
 end {there are no other cases}
+
+@ @<Parse optional lua state...@>=
+begin
+    @<Get the next non-blank non-relax non-call token@>;
+    back_input; { have to push it back, whatever it is }
+    if cur_cmd<>left_brace then begin
+      scan_register_num;
+      if get_lua_name(cur_val) then
+        sn:=(cur_val-65536)
+      else begin
+        i:=tracing_online;
+        tracing_online:=1;
+        begin_diagnostic;
+        print_nl("Warning: support for multiple lua states has been dropped.");
+        print_nl("  Please stop using a number after \directlua and \latelua.");
+        end_diagnostic(true);
+        tracing_online:=i;
+        end;
+      end;
+end 
 
 @ @<Print the result of command |c|@>=
 case c of
@@ -15956,11 +15977,11 @@ begin
     pdf_print_nl;
 end;
 
-procedure latelua(lua_id: quarterword; s: pointer; r: pointer);
+procedure latelua(s: pointer; r: pointer);
 var b: pool_pointer; {current character code position}
 begin
     b := pool_ptr;
-    luacall(lua_id,s,r);
+    luacall(s,r);
     if b<pool_ptr then begin
       pdf_goto_pagemode;
       while b<pool_ptr do begin
@@ -16079,7 +16100,6 @@ destination |pdf_ann_left| and |pdf_ann_top| are used for some types of destinat
 
 @# {data structure for \.{\\latelua}}
 @d late_lua_data           == write_tokens {data}
-@d late_lua_reg(#)         == vinfo(#+2) {register id}
 @d late_lua_name(#)        == vlink(#+3) {name}
 
 @# {data structure for \.{\\pdfobj} and \.{\\pdfrefobj}}
@@ -17137,7 +17157,7 @@ procedure do_late_lua(p: pointer);
 begin
    if not doing_leaders then begin
       expand_late_lua(p);
-      latelua(late_lua_reg(p), def_ref, late_lua_name(p));
+      latelua(def_ref, late_lua_name(p));
       flush_list(def_ref); 
     end;
 end;
@@ -22953,7 +22973,8 @@ procedure handle_right_brace;
 var p,@!q:pointer; {for short-term use}
 @!d:scaled; {holds |split_max_depth| in |insert_group|}
 @!f:integer; {holds |floating_penalty| in |insert_group|}
-begin case cur_group of
+begin p:=null;
+case cur_group of
 simple_group: begin
   temp_no_whatsits:=no_local_whatsits;
   temp_no_dirs:=no_local_dirs;
@@ -26857,7 +26878,6 @@ stays the same.
 @d set_random_seed_code        == pdftex_first_extension_code + 25
 @d pdf_glyph_to_unicode_code   == pdftex_first_extension_code + 26
 @d late_lua_node               == pdftex_first_extension_code + 27
-@d close_lua_node              == pdftex_first_extension_code + 28
 @d save_cat_code_table_code    == pdftex_first_extension_code + 29
 @d init_cat_code_table_code    == pdftex_first_extension_code + 30
 @d pdf_colorstack_node         == pdftex_first_extension_code + 31
@@ -26953,8 +26973,6 @@ primitive_pdftex("pdfsetrandomseed",extension,set_random_seed_code);@/
 @!@:set_random_seed_code}{\.{\\pdfsetrandomseed} primitive@>
 primitive_luatex("latelua",extension,late_lua_node);@/
 @!@:late_lua_node_}{\.{\\latelua} primitive@>
-primitive_luatex("closelua",extension,close_lua_node);@/
-@!@:close_lua_node_}{\.{\\closelua} primitive@>
 primitive_pdftex("pdffontexpand",extension,pdf_font_expand_code);@/
 @!@:pdf_font_expand_}{\.{\\pdffontexpand} primitive@>
 primitive_pdftex("pdfglyphtounicode",extension,pdf_glyph_to_unicode_code);@/
@@ -27007,7 +27025,6 @@ extension: case chr_code of
   set_random_seed_code: print_esc("pdfsetrandomseed");
   pdf_glyph_to_unicode_code: print_esc("pdfglyphtounicode");
   late_lua_node: print_esc("latelua");
-  close_lua_node: print_esc("closelua");
   cancel_boundary_node: print_esc("noboundary");
   othercases print("[unknown extension!]")
   endcases;
@@ -27023,6 +27040,7 @@ any_mode(extension):do_extension;
 procedure do_extension;
 var i,@!j,@!k:integer; {all-purpose integers}
 @!p,@!q,@!r:pointer; {all-purpose pointers}
+@!sn:integer; {a potential lua state name}
 begin case cur_chr of
   open_node:@<Implement \.{\\openout}@>;
   write_node:@<Implement \.{\\write}@>;
@@ -27063,7 +27081,6 @@ begin case cur_chr of
   set_random_seed_code: @<Implement \.{\\pdfsetrandomseed}@>;
   pdf_glyph_to_unicode_code: @<Implement \.{\\pdfglyphtounicode}@>;
   late_lua_node: @<Implement \.{\\latelua}@>;
-  close_lua_node: @<Implement \.{\\closelua}@>;
 othercases confusion("ext1")
 @:this can't happen ext1}{\quad ext1@>
 endcases;
@@ -27270,18 +27287,11 @@ begin
        scan_pdf_ext_toks;
        late_lua_name(tail) := def_ref;
     end;
-    scan_register_num;
-    late_lua_reg(tail) := cur_val;
+    sn:=0;
+    @<Parse optional lua state...@>;
+    if sn then late_lua_name(tail) := sn;
     call_func(scan_toks(false, false));
     late_lua_data(tail) := def_ref;
-end
-
-@ @<Implement \.{\\closelua}@>=
-begin
-    check_pdfoutput("\closelua", true);
-    new_whatsit(close_lua_node);
-        scan_register_num;
-        late_lua_reg(tail) := cur_val;
 end
 
 @ The \.{\\pdfobj} primitive is used to create a ``raw'' object in the PDF
@@ -28545,10 +28555,6 @@ if cur_cmd=extension then begin
       flush_node_list(tail); tail:=p; vlink(p):=null;
       end
     else case cur_chr of
-      close_lua_node: begin
-        scan_register_num;
-            closelua(cur_val);
-      end;
         pdf_obj_code: begin
             do_extension; {scan object and set |pdf_last_obj|}
             if obj_data_ptr(pdf_last_obj) = 0 then {this object has not been initialized yet}
@@ -29381,8 +29387,6 @@ pdf_restore_node:
     pdf_out_restore;
 late_lua_node:
     do_late_lua(p);
-close_lua_node:
-    closelua(late_lua_reg(p));
 pdf_refobj_node:
     if not is_obj_scheduled(pdf_obj_objnum(p)) then begin
         pdf_append_list(pdf_obj_objnum(p))(pdf_obj_list);
@@ -29481,8 +29485,6 @@ pdf_restore_node:
     pdf_out_restore;
 late_lua_node:
     do_late_lua(p);
-close_lua_node:
-        closelua(late_lua_reg(p));
 pdf_refobj_node:
     if not is_obj_scheduled(pdf_obj_objnum(p)) then begin
         pdf_append_list(pdf_obj_objnum(p))(pdf_obj_list);

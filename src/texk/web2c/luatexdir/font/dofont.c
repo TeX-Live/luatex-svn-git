@@ -90,13 +90,13 @@ do_define_font(integer f, char *cnom, char *caire, scaled s,
 #endif
         free(cnam);
         if (callback_id > 0) {  /* success */
-            luaL_checkstack(Luas[0], 1, "out of stack space");
-            lua_rawgeti(Luas[0], LUA_REGISTRYINDEX, callback_id);
-            if (lua_istable(Luas[0], -1)) {
+            luaL_checkstack(Luas, 1, "out of stack space");
+            lua_rawgeti(Luas, LUA_REGISTRYINDEX, callback_id);
+            if (lua_istable(Luas, -1)) {
 #if TIMERS
                 gettimeofday(&tva, NULL);
 #endif
-                res = font_from_lua(Luas[0], f);
+                res = font_from_lua(Luas, f);
                 destroy_saved_callback(callback_id);
 #if TIMERS
                 gettimeofday(&tvb, NULL);
@@ -108,15 +108,15 @@ do_define_font(integer f, char *cnom, char *caire, scaled s,
                 fprintf(stdout, "font_from_lua(%s,%i): %f seconds\n",
                         font_name(f), f, tvdiff);
 #endif
-                /* lua_pop(Luas[0], 1); *//* done by font_from_lua */
-            } else if (lua_isnumber(Luas[0], -1)) {
-                r = lua_tonumber(Luas[0], -1);
+                /* lua_pop(Luas, 1); *//* done by font_from_lua */
+            } else if (lua_isnumber(Luas, -1)) {
+                r = lua_tonumber(Luas, -1);
                 destroy_saved_callback(callback_id);
                 delete_font(f);
-                lua_pop(Luas[0], 1);
+                lua_pop(Luas, 1);
                 return r;
             } else {
-                lua_pop(Luas[0], 1);
+                lua_pop(Luas, 1);
                 delete_font(f);
                 return 0;
             }

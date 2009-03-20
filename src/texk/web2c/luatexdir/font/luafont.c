@@ -1514,10 +1514,10 @@ int font_from_lua(lua_State * L, int f)
         }
 
 #if SAVE_REF
-        r = luaL_ref(Luas[0], LUA_REGISTRYINDEX);       /* pops the table */
+        r = luaL_ref(Luas, LUA_REGISTRYINDEX);       /* pops the table */
         set_font_cache_id(f, r);
 #else
-        lua_pop(Luas[0], 1);
+        lua_pop(Luas, 1);
 #endif
     } else {                    /* jikes, no characters */
         pdftex_warn("lua-loaded font [%d] (%s) has no character table!", f,
@@ -2097,7 +2097,7 @@ halfword handle_kerning(halfword head, halfword tail)
 static halfword
 run_lua_ligkern_callback(halfword head, halfword tail, int callback_id)
 {
-    lua_State *L = Luas[0];
+    lua_State *L = Luas;
     if (!get_callback(L, callback_id)) {
         lua_pop(L, 2);
         return tail;

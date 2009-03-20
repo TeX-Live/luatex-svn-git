@@ -38,8 +38,21 @@ static bytecode *lua_bytecode_registers = NULL;
 int luabytecode_max = -1;
 unsigned int luabytecode_bytes = 0;
 
+char *luanames[65536] = {NULL};
+
+extern char *luanames[];
+
+char *
+get_lua_name  (int i) 
+{
+    if (i<0 || i>65535) 
+        return NULL;
+    return luanames[i];
+}
+
 void dump_luac_registers(void)
 {
+    integer x;
     int k, n;
     bytecode b;
     dump_int(luabytecode_max);
@@ -59,10 +72,22 @@ void dump_luac_registers(void)
             }
         }
     }
+    for (k = 0; k < 65536; k++) {
+        char *a = luanames[k];
+        if (a!=NULL) {
+            x = strlen(a)+1; 
+            dump_int(x); 
+            dump_things(*a, x);
+        } else {
+            x = 0; 
+            dump_int(x);
+        }
+    }
 }
 
 void undump_luac_registers(void)
 {
+    integer x;
     int k, n;
     unsigned int i;
     bytecode b;
@@ -90,6 +115,14 @@ void undump_luac_registers(void)
             lua_bytecode_registers[k].size = b.size;
             lua_bytecode_registers[k].alloc = b.size;
             lua_bytecode_registers[k].buf = b.buf;
+        }
+    }
+    for (k = 0; k < 65536; k++) {
+        undump_int(x);
+        if (x > 0) {
+            char *s = xmalloc(x);
+            undump_things(*s, x);
+            luanames[k] = s;
         }
     }
 }
@@ -129,6 +162,7 @@ static int bytecode_register_shadow_get(lua_State * L, int k)
 int writer(lua_State * L, const void *b, size_t size, void *B)
 {
     bytecode *buf = (bytecode *) B;
+    (void)L; /* for -Wunused */
     if ((int) (buf->size + size) > buf->alloc) {
         buf->buf = xrealloc(buf->buf, buf->alloc + size + LOAD_BUF_SIZE);
         buf->alloc = buf->alloc + size + LOAD_BUF_SIZE;
@@ -142,6 +176,7 @@ int writer(lua_State * L, const void *b, size_t size, void *B)
 const char *reader(lua_State * L, void *ud, size_t * size)
 {
     bytecode *buf = (bytecode *) ud;
+    (void)L; /* for -Wunused */
     if (buf->done == buf->size) {
         *size = 0;
         buf->done = 0;
@@ -230,54 +265,65 @@ int set_bytecode(lua_State * L)
 }
 
 
-int set_instancename(lua_State * L)
+int set_luaname(lua_State * L)
 {
+    int k;
     char *s;
-    int n;
-    n = (int) luaL_checkinteger(L, -2);
-    s = (char *) luaL_checkstring(L, -1);
-    lua_set_instancename(n, s);
+    if (lua_gettop(L)==3) {
+        k = (int) luaL_checkinteger(L, 2);
+        if (k>65535 || k<0) {
+            /* error */
+        } else {
+            if (luanames[k] != NULL) {
+                free(luanames[k]);
+                luanames[k] = NULL;
+            }
+            if (lua_isstring(L, 3)) {
+                s = (char *) lua_tostring(L,3);
+                if (s!=NULL) 
+                    luanames[k] = xstrdup(s);
+            }
+        }
+    }
     return 0;
 }
 
-int get_instancename(lua_State * L)
+int get_luaname(lua_State * L)
 {
-    char *s;
-    int n;
-    n = (int) luaL_checkinteger(L, -1);
-    s = lua_get_instancename(n);
-    if (s != NULL) {
-        lua_pushstring(L, s);
-    } else {
+    int k;
+    k = (int) luaL_checkinteger(L, 2);
+    if (k>65535 || k<0) {
+        /* error */
         lua_pushnil(L);
+    } else {
+        if (luanames[k]!=NULL)
+            lua_pushstring(L, luanames[k]);
+        else 
+            lua_pushnil(L);
     }
     return 1;
 }
 
 
 
-
-
 static const struct luaL_reg lualib[] = {
     /* *INDENT-OFF* */
-    {"getinstancename", get_instancename},
-    {"setinstancename", set_instancename},
-    {"getbytecode",     get_bytecode},
-    {"setbytecode",     set_bytecode},
+    {"getluaname",  get_luaname},
+    {"setluaname",  set_luaname},
+    {"getbytecode", get_bytecode},
+    {"setbytecode", set_bytecode},
     /* *INDENT-ON* */
     {NULL, NULL}                /* sentinel */
 };
 
-int luaopen_lua(lua_State * L, int n, char *fname)
+int luaopen_lua(lua_State * L, char *fname)
 {
     luaL_register(L, "lua", lualib);
     make_table(L, "bytecode", "getbytecode", "setbytecode");
-    make_table(L, "instancename", "getinstancename", "setinstancename");
+    make_table(L, "name", "getluaname", "setluaname");
     lua_newtable(L);
     lua_setfield(L, LUA_REGISTRYINDEX, "bytecode_shadow");
-    lua_pushinteger(L, n);
-    lua_setfield(L, -2, "id");
-    lua_pushstring(L, "0.1");
+    lua_pushstring(L, LUA_VERSION);
     lua_setfield(L, -2, "version");
     if (fname == NULL) {
         lua_pushnil(L);

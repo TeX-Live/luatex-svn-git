@@ -536,7 +536,7 @@ int tokenlist_from_lua(lua_State * L)
 
 void do_get_token_lua(integer callback_id)
 {
-    lua_State *L = Luas[0];
+    lua_State *L = Luas;
     while (1) {
         if (!get_callback(L, callback_id)) {
             get_next();

@@ -739,9 +739,8 @@ internal_font_number copy_font_info(internal_font_number f);
 void flush_loggable_info(void);
 
 /* luastuff.c */
-void closelua(int n);
-void luacall(int n, int s, int nameptr);
-void luatokencall(int n, int p, int nameptr);
+void luacall(int s, int nameptr);
+void luatokencall(int p, int nameptr);
 
 void tex_error(char *msg, char **hlp);
 
@@ -837,6 +836,8 @@ extern void get_saved_lua_string(int i, char *name, char **target);
 extern void get_lua_boolean(char *table, char *name, boolean * target);
 extern void get_lua_number(char *table, char *name, integer * target);
 extern void get_lua_string(char *table, char *name, char **target);
+
+extern char *get_lua_name (int i);
 
 #  include "texmath.h"
 #  include "primitive.h"

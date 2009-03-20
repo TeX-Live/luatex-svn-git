@@ -59,7 +59,7 @@ char *pack_type_name[] = { "exactly", "additional" };
 
 void lua_node_filter_s(int filterid, char *extrainfo)
 {
-    lua_State *L = Luas[0];
+    lua_State *L = Luas;
     int s_top = lua_gettop(L);
     if (!get_callback(L, callback_defined(filterid))) {
         lua_settop(L, s_top);
@@ -82,7 +82,7 @@ lua_node_filter(int filterid, int xextrainfo, halfword head_node,
 {
     halfword ret;
     int a;
-    lua_State *L = Luas[0];
+    lua_State *L = Luas;
     char *extrainfo = group_code_names[xextrainfo];
     int callback_id = callback_defined(filterid);
     if (head_node == null || vlink(head_node) == null || callback_id == 0)
@@ -129,7 +129,7 @@ lua_linebreak_callback(int is_broken, halfword head_node, halfword * new_head)
     int a;
     register halfword *p;
     int ret = 0;                /* failure */
-    lua_State *L = Luas[0];
+    lua_State *L = Luas;
     int callback_id = callback_defined(linebreak_filter_callback);
     if (head_node == null || vlink(head_node) == null || callback_id == 0)
         return ret;
@@ -162,7 +162,7 @@ halfword
 lua_hpack_filter(halfword head_node, scaled size, int pack_type, int extrainfo)
 {
     halfword ret;
-    lua_State *L = Luas[0];
+    lua_State *L = Luas;
     int callback_id = callback_defined(hpack_filter_callback);
     if (head_node == null || callback_id == 0)
         return head_node;
@@ -202,7 +202,7 @@ lua_vpack_filter(halfword head_node, scaled size, int pack_type, scaled maxd,
 {
     halfword ret;
     integer callback_id;
-    lua_State *L = Luas[0];
+    lua_State *L = Luas;
     if (head_node == null)
         return head_node;
     if (strcmp("output", group_code_names[extrainfo]) == 0) {

@@ -310,7 +310,7 @@ char *clean_hyphenation(char *buffer, char **cleaned)
 void load_hyphenation(struct tex_language *lang, unsigned char *buffer)
 {
     char *s, *value, *cleaned;
-    lua_State *L = Luas[0];
+    lua_State *L = Luas;
     if (lang == NULL)
         return;
     if (lang->exceptions == 0) {
@@ -347,7 +347,7 @@ void clear_hyphenation(struct tex_language *lang)
     if (lang == NULL)
         return;
     if (lang->exceptions != 0) {
-        luaL_unref(Luas[0], LUA_REGISTRYINDEX, lang->exceptions);
+        luaL_unref(Luas, LUA_REGISTRYINDEX, lang->exceptions);
         lang->exceptions = 0;
     }
 }
@@ -511,7 +511,7 @@ void set_disc_field(halfword f, halfword t)
 char *hyphenation_exception(int exceptions, char *w)
 {
     char *ret = NULL;
-    lua_State *L = Luas[0];
+    lua_State *L = Luas;
     lua_checkstack(L, 2);
     lua_rawgeti(L, LUA_REGISTRYINDEX, exceptions);
     if (lua_istable(L, -1)) {   /* ?? */
@@ -534,7 +534,7 @@ char *exception_strings(struct tex_language *lang)
     size_t size = 0, current = 0;
     size_t l = 0;
     char *ret = NULL;
-    lua_State *L = Luas[0];
+    lua_State *L = Luas;
     if (lang->exceptions == 0)
         return NULL;
     lua_checkstack(L, 2);
@@ -913,7 +913,7 @@ void new_hyphenation(halfword head, halfword tail)
     fix_node_list(head);        /* TODO: use couple_nodes() in append_tail()! */
     callback_id = callback_defined(hyphenate_callback);
     if (callback_id > 0) {
-        lua_State *L = Luas[0];
+        lua_State *L = Luas;
         if (!get_callback(L, callback_id)) {
             lua_pop(L, 2);
             return;

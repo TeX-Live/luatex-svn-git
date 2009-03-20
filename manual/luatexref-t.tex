@@ -305,9 +305,7 @@ The \type{attr} keyword(s) should come before a \type{to} or
 \section{\LUA\ related primitives}
 
 In order to merge \LUA\ code with \TEX\ input, a few new primitives are
-needed. \LUATEX\ has support for 65536 separate \LUA\ interpreter
-states. States are automatically created based on the integer argument
-to the primitives \tex{directlua} and \tex{latelua}.
+needed. 
 
 
 \subsection{\tex{directlua}}
@@ -316,14 +314,13 @@ The primitive \tex{directlua} is used to execute \LUA\ code immediately.
 The syntax is
 
 \startsyntax
-\directlua <16-bit number> <general text>!crlf
-\directlua name <general text> <16-bit number> <general text>
+\directlua <general text>!crlf
+\directlua name <general text> <general text>!crlf
+\directlua <16-bit number> <general text>
 \stopsyntax
 
-The second \syntax{<general text>} is expanded fully, and then fed
-into the \LUA\ interpreter state indicated by the \syntax{<16-bit
-number>}. If the state does not exist yet, it will be initialized
-automatically. After reading and expansion has been applied to the
+The last \syntax{<general text>} is expanded fully, and then fed
+into the \LUA\ interpreter. After reading and expansion has been applied to the
 \syntax{<general text>}, the resulting token list is converted to a
 string as if it was displayed using \type{\the\toks}. On the \LUA\
 side, each \type{\directlua} block is treated as a separate chunk. In
@@ -347,7 +344,7 @@ category codes locally. Another possibility is to say:
 Then \LUA\ line comments can be used, since \TEX\ does not replace
 line endings with spaces.
 
-\syntax{name <general text>} specifies the name of the \LUA\ chunk,
+The \syntax{name <general text>} specifies the name of the \LUA\ chunk,
 mainly shown in the stack backtrace of error messages created by \LUA\
 code. The \syntax{<general text>} is expanded fully, thus macros can
 be used to generate the chunk name, i.e.
@@ -359,11 +356,16 @@ be used to generate the chunk name, i.e.
 to include the name of the input file as well as the input line into
 the chunk name.
 
+Likewise, the \syntax{<16-bit number>} designates a name of a \LUA\
+chunk, but in this case the name will be taken from the
+\type{lua.name} array (see the documentation of the \type{lua} table
+further in this manual)
+
 The chunk name should not start with a \type{@}, or it will be displayed
 as a file name (this is a quirk in the current \LUA\ implementation).
 
 \startbuffer
-$\pi = \directlua0{tex.print(math.pi)}$
+$\pi = \directlua{tex.print(math.pi)}$
 \stopbuffer
 
 The \tex{directlua} command is expandable: the results of the \LUA\
@@ -398,13 +400,17 @@ or you can write to other output streams via \type{texio.write}
 or simply using lua's I/O routines.
 
 \startsyntax
+\latelua <general text>!crlf
+\latelua name <general text> <general text>!crlf
 \latelua <16-bit number> <general text>
 \stopsyntax
 
-Expansion of macros etcetera in the \type{<general text>} is delayed
+Expansion of macros etcetera in the final \type{<general text>} is delayed
 until just before the whatsit is executed (like in \tex{write}). With
 regard to PDF output stream \tex{latelua} behaves as \tex{pdfliteral page}.
 
+The \syntax{name <general text>}  and \syntax{<16-bit number>} behave 
+in the same way as they do for \type{\directlua}
 
 \subsection{\tex{luaescapestring}}
 
@@ -427,24 +433,8 @@ is easier to keep the code in a separate file and load it using \LUA's
 \type{dofile}:
 
 \starttyping
-\directlua0 { dofile('mysetups.lua')}
+\directlua { dofile('mysetups.lua')}
 \stoptyping
-
-\subsection{\tex{closelua}}
-
-This primitive allows you to close a \LUA\ state, freeing all of its
-used memory.
-
-\startsyntax
-\closelua <16-bit number>
-\stopsyntax
-
-You cannot close the initial \LUA\ state~0, attempts to do so
-will be silently ignored. States are never closed automatically
-except when a fatal out of memory error occurs, at which point
-\LUATEX\ will exit anyway. Also be aware that \LUA\ states are not
-closed immediately, but only when the \tex{output} routine comes
-into play next (because there may be pending \tex{latelua} calls).
 
 \section{New \ETEX\ primitives}
 
@@ -1529,7 +1519,7 @@ that makes it suitable for use as a partial line input mechanism:
 result of interpreting the line. For example, in
 
 \starttyping
-before\directlua0{tex.sprint("\\relax")tex.sprint(" inbetween")}after
+before\directlua{tex.sprint("\\relax")tex.sprint(" inbetween")}after
 \stoptyping
 
 the space before \type{inbetween} will be gobbled as a result of
@@ -3597,28 +3587,20 @@ later \LUA\ code to use.
 
 \section{The \luatex{lua} library}
 
-This library contains two read|-|only  items:
-
-\subsection{Variables}
-
-\starttyping
-<number> n = lua.id
-\stoptyping
-
-This returns the id number of the instance.
+This library contains one read|-|only  item:
 
 \starttyping
 <string> s = lua.version
 \stoptyping
 
 This returns a \LUATEX\ version identifier string. The value is
-currently \directlua0{tex.print('lua.version')}, but it is soon to be
+currently \directlua {tex.print('lua.version')}, but it is soon to be
 replaced by something more elaborate.
 
 \subsection{\LUA\ bytecode registers}
 
 \LUA\ registers can be used to communicate \LUA\ functions across \LUA\
-states. The accepted values for assignments are functions and
+chunks. The accepted values for assignments are functions and
 nil. Likewise, the retrieved value is either a function or \type{nil}.
 
 \starttyping
@@ -3662,6 +3644,18 @@ above code is used in \INITEX. If it contains private information, i.e.
 the user name, this information is then contained in the format file as
 well. This should be kept in mind when preloading files into a bytecode
 register in \INITEX.
+
+\subsection{\LUA\ chunk name registers}
+
+There is an array of 65536 (0--65535) potential chunk names for use with 
+the \type{\directlua} and \type{\latelua} primitives.
+
+\startfunctioncall
+lua.name[<number> n] = <string> s
+<string> s = lua.name[<number n>]
+\stopfunctioncall
+
+If you want to unset a lua name, you can assign \type{nil} to it.
 
 \section{The \luatex{kpse} library}
 
@@ -3917,7 +3911,6 @@ The current list is:
 \NC lasterrorstring\NC           last error string\NC \NR
 \NC luabytecodes\NC              number of active \LUA\ bytecode registers\NC \NR
 \NC luabytecode_bytes\NC         number of bytes in \LUA\ bytecode registers\NC \NR
-\NC luastates\NC                 number of active \LUA\ interpreters\NC \NR
 \NC luastate_bytes\NC            number of bytes in use by \LUA\ interpreters\NC \NR
 \NC output_active\NC             \type{true} if the \tex{output} routine is active\NC \NR
 \NC callbacks\NC                 total number of executed callbacks so far\NC \NR
@@ -6597,7 +6590,7 @@ font for that (because characters that are already present cannot be altered).
 Finally, here is a plain \TEX\ input file with a virtual font demonstration:
 
 \startbuffer
-\directlua0 {
+\directlua {
   callback.register('define_font',
     function (name,size)
       if name == 'cmr10-red' then

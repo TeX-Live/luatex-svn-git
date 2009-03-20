@@ -32,7 +32,7 @@ typedef struct LoadS {
     size_t size;
 } LoadS;
 
-extern lua_State *Luas[];
+extern lua_State *Luas;
 
 extern void make_table(lua_State * L, char *tab, char *getfunc, char *setfunc);
 
@@ -84,7 +84,7 @@ extern int luaopen_kpse(lua_State * L);
 
 extern int luaopen_callback(lua_State * L);
 
-extern int luaopen_lua(lua_State * L, int n, char *fname);
+extern int luaopen_lua(lua_State * L, char *fname);
 
 extern int luaopen_stats(lua_State * L);
 
@@ -125,6 +125,4 @@ typedef struct command_item_ {
 extern command_item command_names[];
 extern int callback_callbacks_id;
 
-void luainterpreter(int n);
-char *lua_get_instancename(int n);
-void lua_set_instancename(int n, char *s);
+extern void luainterpreter(void);

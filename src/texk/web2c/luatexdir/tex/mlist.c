@@ -2131,7 +2131,7 @@ void run_mlist_to_hlist(pointer p, integer m_style, boolean penalties)
 {
     int callback_id;
     int a, sfix;
-    lua_State *L = Luas[0];
+    lua_State *L = Luas;
     finalize_math_parameters();
     callback_id = callback_defined(mlist_to_hlist_callback);
     if (p != null && callback_id > 0) {

@@ -74,68 +74,68 @@ int callback_callbacks_id = 0;
 void get_lua_boolean(char *table, char *name, boolean * target)
 {
     int stacktop;
-    stacktop = lua_gettop(Luas[0]);
-    luaL_checkstack(Luas[0], 2, "out of stack space");
-    lua_getglobal(Luas[0], table);
-    if (lua_istable(Luas[0], -1)) {
-        lua_getfield(Luas[0], -1, name);
-        if (lua_isboolean(Luas[0], -1)) {
-            *target = (lua_toboolean(Luas[0], -1));
-        } else if (lua_isnumber(Luas[0], -1)) {
-            *target = (lua_tonumber(Luas[0], -1) == 0 ? 0 : 1);
+    stacktop = lua_gettop(Luas);
+    luaL_checkstack(Luas, 2, "out of stack space");
+    lua_getglobal(Luas, table);
+    if (lua_istable(Luas, -1)) {
+        lua_getfield(Luas, -1, name);
+        if (lua_isboolean(Luas, -1)) {
+            *target = (lua_toboolean(Luas, -1));
+        } else if (lua_isnumber(Luas, -1)) {
+            *target = (lua_tonumber(Luas, -1) == 0 ? 0 : 1);
         }
     }
-    lua_settop(Luas[0], stacktop);
+    lua_settop(Luas, stacktop);
     return;
 }
 
 void get_saved_lua_boolean(int r, char *name, boolean * target)
 {
     int stacktop;
-    stacktop = lua_gettop(Luas[0]);
-    luaL_checkstack(Luas[0], 2, "out of stack space");
-    lua_rawgeti(Luas[0], LUA_REGISTRYINDEX, r);
-    if (lua_istable(Luas[0], -1)) {
-        lua_getfield(Luas[0], -1, name);
-        if (lua_isboolean(Luas[0], -1)) {
-            *target = lua_toboolean(Luas[0], -1);
-        } else if (lua_isnumber(Luas[0], -1)) {
-            *target = (lua_tonumber(Luas[0], -1) == 0 ? 0 : 1);
+    stacktop = lua_gettop(Luas);
+    luaL_checkstack(Luas, 2, "out of stack space");
+    lua_rawgeti(Luas, LUA_REGISTRYINDEX, r);
+    if (lua_istable(Luas, -1)) {
+        lua_getfield(Luas, -1, name);
+        if (lua_isboolean(Luas, -1)) {
+            *target = lua_toboolean(Luas, -1);
+        } else if (lua_isnumber(Luas, -1)) {
+            *target = (lua_tonumber(Luas, -1) == 0 ? 0 : 1);
         }
     }
-    lua_settop(Luas[0], stacktop);
+    lua_settop(Luas, stacktop);
     return;
 }
 
 void get_lua_number(char *table, char *name, integer * target)
 {
     int stacktop;
-    stacktop = lua_gettop(Luas[0]);
-    luaL_checkstack(Luas[0], 2, "out of stack space");
-    lua_getglobal(Luas[0], table);
-    if (lua_istable(Luas[0], -1)) {
-        lua_getfield(Luas[0], -1, name);
-        if (lua_isnumber(Luas[0], -1)) {
-            *target = lua_tonumber(Luas[0], -1);
+    stacktop = lua_gettop(Luas);
+    luaL_checkstack(Luas, 2, "out of stack space");
+    lua_getglobal(Luas, table);
+    if (lua_istable(Luas, -1)) {
+        lua_getfield(Luas, -1, name);
+        if (lua_isnumber(Luas, -1)) {
+            *target = lua_tonumber(Luas, -1);
         }
     }
-    lua_settop(Luas[0], stacktop);
+    lua_settop(Luas, stacktop);
     return;
 }
 
 void get_saved_lua_number(int r, char *name, integer * target)
 {
     int stacktop;
-    stacktop = lua_gettop(Luas[0]);
-    luaL_checkstack(Luas[0], 2, "out of stack space");
-    lua_rawgeti(Luas[0], LUA_REGISTRYINDEX, r);
-    if (lua_istable(Luas[0], -1)) {
-        lua_getfield(Luas[0], -1, name);
-        if (lua_isnumber(Luas[0], -1)) {
-            *target = lua_tonumber(Luas[0], -1);
+    stacktop = lua_gettop(Luas);
+    luaL_checkstack(Luas, 2, "out of stack space");
+    lua_rawgeti(Luas, LUA_REGISTRYINDEX, r);
+    if (lua_istable(Luas, -1)) {
+        lua_getfield(Luas, -1, name);
+        if (lua_isnumber(Luas, -1)) {
+            *target = lua_tonumber(Luas, -1);
         }
     }
-    lua_settop(Luas[0], stacktop);
+    lua_settop(Luas, stacktop);
     return;
 }
 
@@ -143,32 +143,32 @@ void get_saved_lua_number(int r, char *name, integer * target)
 void get_lua_string(char *table, char *name, char **target)
 {
     int stacktop;
-    stacktop = lua_gettop(Luas[0]);
-    luaL_checkstack(Luas[0], 2, "out of stack space");
-    lua_getglobal(Luas[0], table);
-    if (lua_istable(Luas[0], -1)) {
-        lua_getfield(Luas[0], -1, name);
-        if (lua_isstring(Luas[0], -1)) {
-            *target = (char *) lua_tostring(Luas[0], -1);
+    stacktop = lua_gettop(Luas);
+    luaL_checkstack(Luas, 2, "out of stack space");
+    lua_getglobal(Luas, table);
+    if (lua_istable(Luas, -1)) {
+        lua_getfield(Luas, -1, name);
+        if (lua_isstring(Luas, -1)) {
+            *target = (char *) lua_tostring(Luas, -1);
         }
     }
-    lua_settop(Luas[0], stacktop);
+    lua_settop(Luas, stacktop);
     return;
 }
 
 void get_saved_lua_string(int r, char *name, char **target)
 {
     int stacktop;
-    stacktop = lua_gettop(Luas[0]);
-    luaL_checkstack(Luas[0], 2, "out of stack space");
-    lua_rawgeti(Luas[0], LUA_REGISTRYINDEX, r);
-    if (lua_istable(Luas[0], -1)) {
-        lua_getfield(Luas[0], -1, name);
-        if (lua_isstring(Luas[0], -1)) {
-            *target = (char *) lua_tostring(Luas[0], -1);
+    stacktop = lua_gettop(Luas);
+    luaL_checkstack(Luas, 2, "out of stack space");
+    lua_rawgeti(Luas, LUA_REGISTRYINDEX, r);
+    if (lua_istable(Luas, -1)) {
+        lua_getfield(Luas, -1, name);
+        if (lua_isstring(Luas, -1)) {
+            *target = (char *) lua_tostring(Luas, -1);
         }
     }
-    lua_settop(Luas[0], stacktop);
+    lua_settop(Luas, stacktop);
     return;
 }
 
@@ -185,7 +185,7 @@ int run_saved_callback(int r, char *name, char *values, ...)
 {
     va_list args;
     int ret = 0;
-    lua_State *L = Luas[0];
+    lua_State *L = Luas;
     int stacktop = lua_gettop(L);
     va_start(args, values);
     luaL_checkstack(L, 2, "out of stack space");
@@ -220,7 +220,7 @@ int run_and_save_callback(int i, char *values, ...)
 {
     va_list args;
     int ret = 0;
-    lua_State *L = Luas[0];
+    lua_State *L = Luas;
     int stacktop = lua_gettop(L);
     va_start(args, values);
     if (get_callback(L, i)) {
@@ -239,7 +239,7 @@ int run_callback(int i, char *values, ...)
 {
     va_list args;
     int ret = 0;
-    lua_State *L = Luas[0];
+    lua_State *L = Luas;
     int stacktop = lua_gettop(L);
     va_start(args, values);
     if (get_callback(L, i)) {
@@ -260,7 +260,7 @@ int do_run_callback(int special, char *values, va_list vl)
     int *bufloc;
     char *ss = NULL;
     int retval = 0;
-    lua_State *L = Luas[0];
+    lua_State *L = Luas;
     if (special == 2) {         /* copy the enclosing table */
         luaL_checkstack(L, 1, "out of stack space");
         lua_pushvalue(L, -2);
@@ -423,7 +423,7 @@ int do_run_callback(int special, char *values, va_list vl)
 
 void destroy_saved_callback(int i)
 {
-    luaL_unref(Luas[0], LUA_REGISTRYINDEX, i);
+    luaL_unref(Luas, LUA_REGISTRYINDEX, i);
 }
 
 static int callback_register(lua_State * L)

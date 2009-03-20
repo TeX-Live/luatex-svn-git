@@ -513,9 +513,9 @@ void lua_initialize(int ac, char **av)
     /* this is sometimes needed */
     putenv("engine=luatex");
 
-    luainterpreter(0);
+    luainterpreter();
 
-    prepare_cmdline(Luas[0], argv, argc, lua_offset);   /* collect arguments */
+    prepare_cmdline(Luas, argv, argc, lua_offset);   /* collect arguments */
 
     if (startup_filename != NULL) {
         given_file = xstrdup(startup_filename);
@@ -524,17 +524,17 @@ void lua_initialize(int ac, char **av)
     /* now run the file */
     if (startup_filename != NULL) {
         /* hide the 'tex' and 'pdf' table */
-        tex_table_id = hide_lua_table(Luas[0], "tex");
-        token_table_id = hide_lua_table(Luas[0], "token");
-        node_table_id = hide_lua_table(Luas[0], "node");
-        pdf_table_id = hide_lua_table(Luas[0], "pdf");
+        tex_table_id = hide_lua_table(Luas, "tex");
+        token_table_id = hide_lua_table(Luas, "token");
+        node_table_id = hide_lua_table(Luas, "node");
+        pdf_table_id = hide_lua_table(Luas, "pdf");
 
-        if (luaL_loadfile(Luas[0], startup_filename)) {
-            fprintf(stdout, "%s\n", lua_tostring(Luas[0], -1));
+        if (luaL_loadfile(Luas, startup_filename)) {
+            fprintf(stdout, "%s\n", lua_tostring(Luas, -1));
             exit(1);
         }
-        if (lua_pcall(Luas[0], 0, 0, 0)) {
-            fprintf(stdout, "%s\n", lua_tostring(Luas[0], -1));
+        if (lua_pcall(Luas, 0, 0, 0)) {
+            fprintf(stdout, "%s\n", lua_tostring(Luas, -1));
             exit(1);
         }
         /* no filename? quit now! */
@@ -548,14 +548,14 @@ void lua_initialize(int ac, char **av)
             if (given_file)
                 free(given_file);
             /* this is not strictly needed but it pleases valgrind */
-            lua_close(Luas[0]);
+            lua_close(Luas);
             exit(0);
         }
         /* unhide the 'tex' and 'pdf' table */
-        unhide_lua_table(Luas[0], "tex", tex_table_id);
-        unhide_lua_table(Luas[0], "pdf", pdf_table_id);
-        unhide_lua_table(Luas[0], "token", token_table_id);
-        unhide_lua_table(Luas[0], "node", node_table_id);
+        unhide_lua_table(Luas, "tex", tex_table_id);
+        unhide_lua_table(Luas, "pdf", pdf_table_id);
+        unhide_lua_table(Luas, "token", token_table_id);
+        unhide_lua_table(Luas, "node", node_table_id);
 
         /* kpse_init */
         kpse_init = -1;

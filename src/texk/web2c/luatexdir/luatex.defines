@@ -98,6 +98,7 @@
 @define procedure luacall();
 @define procedure luatokencall();
 @define procedure closelua();
+@define function get_lua_name();
 
 { for virtual file input }
 
