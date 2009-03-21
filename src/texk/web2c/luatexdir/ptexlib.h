@@ -40,9 +40,9 @@ extern double rint(double x);
 #  include "ptexmac.h"
 
 /* synctex */
-#  include "synctex.h"
+#  include "utils/synctex.h"
 
-#  include "avlstuff.h"
+#  include "utils/avlstuff.h"
 #  include "image/image.h"
 
 #  include "openbsd-compat.h"

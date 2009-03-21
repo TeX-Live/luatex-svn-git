@@ -50,8 +50,6 @@ XCPPFLAGS=-I.. -I$(srcdir)/.. -I../.. -I$(srcdir)/../.. -I$(LIBMD5DIR) \
 
 
 OBJS = \
-avl.o \
-avlstuff.o \
 font/mapfile.o \
 font/pkin.o \
 font/subfont.o \
@@ -116,9 +114,11 @@ tex/filename.o \
 managed-sa.o \
 mathcodes.o \
 textcodes.o \
-utils.o \
-writezip.o \
-synctex.o
+utils/avl.o \
+utils/avlstuff.o \
+utils/utils.o \
+utils/writezip.o \
+utils/synctex.o
 
 all: libpdf.a makecpool
 

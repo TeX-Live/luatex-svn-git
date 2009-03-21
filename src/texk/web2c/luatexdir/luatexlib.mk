@@ -15,7 +15,7 @@ luapdflib_sources = $(srcdir)/luatexdir/*.c $(srcdir)/luatexdir/*.h \
 	$(srcdir)/luatexdir/*/*.cc
 
 $(luapdflib): $(luapdflib_sources) luatexdir/luatexextra.h ctangle
-	cd luatexdir && mkdir -p font image lua lang pdf tex && $(MAKE) $(common_makeargs) libpdf.a
+	cd luatexdir && mkdir -p font image lua lang pdf tex utils && $(MAKE) $(common_makeargs) libpdf.a
 
 # lua
 
