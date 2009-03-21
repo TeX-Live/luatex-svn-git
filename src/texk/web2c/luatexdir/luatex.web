@@ -14930,8 +14930,8 @@ var page_loc:integer; {location of the current |bop|}
 pre_callback_id:integer;
 post_callback_id:integer;
 ret:boolean;
-begin @<Start sheet {\sl Sync\TeX} information record@>;
-begin 
+begin
+@<Start sheet {\sl Sync\TeX} information record@>;
 pre_callback_id:=callback_defined(start_page_number_callback);  
 post_callback_id:=callback_defined(stop_page_number_callback);  
 if (tracing_output>0)and(pre_callback_id=0) then
@@ -14964,7 +14964,6 @@ update_terminal; {progress report}
 @<Flush the box from memory, showing statistics if requested@>;
 if post_callback_id>0 then 
   ret:=run_callback(post_callback_id,'->');
-end;
 @<Finish sheet {\sl Sync\TeX} information record@>;
 end;
 
@@ -17746,8 +17745,8 @@ pdf_last_resources: integer; {pointer to most recently generated Resources objec
 pre_callback_id:integer;
 post_callback_id:integer;
 ret:boolean;
-begin @<Start sheet {\sl Sync\TeX} information record@>;
-begin 
+begin
+@<Start sheet {\sl Sync\TeX} information record@>;
 form_margin := one_bp;
 pre_callback_id:=callback_defined(start_page_number_callback);  
 post_callback_id:=callback_defined(stop_page_number_callback);  
@@ -17785,7 +17784,6 @@ update_terminal; {progress report}
 @<Flush the box from memory, showing statistics if requested@>;
 if post_callback_id>0 then 
   ret:=run_callback(post_callback_id,'->');
-end;
 @<Finish sheet {\sl Sync\TeX} information record@>;
 end;
 
