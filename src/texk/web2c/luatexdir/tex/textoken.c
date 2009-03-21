@@ -1002,8 +1002,13 @@ static next_line_retval next_line(void)
                 /* update_terminal(); *//* show user that file has been read */
             }
             force_eof = false;
-            end_file_reading();
-            check_outer_validity();
+	    if (name==21 ||   /* lua input */
+		name==19) {   /* \scantextokens */
+	      end_file_reading();
+	    } else {
+	      end_file_reading();
+	      check_outer_validity();
+	    } 
             return next_line_restart;
         }
         if (inhibit_eol || end_line_char_inactive)
