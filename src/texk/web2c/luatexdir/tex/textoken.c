@@ -26,10 +26,18 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
+#define skipping 1 /* |scanner_status| when passing conditional text */
+#define defining 2 /* |scanner_status| when reading a macro definition */
+#define matching 3 /* |scanner_status| when reading macro arguments */
+#define aligning 4 /* |scanner_status| when reading an alignment preamble */
+#define absorbing 5 /* |scanner_status| when reading a balanced text */
+
+#define right_brace_token 0x400000  /* $2^{21}\cdot|right_brace|$ */
 
 #define cat_code_table int_par(param_cat_code_table_code)
 #define tracing_nesting int_par(param_tracing_nesting_code)
 #define end_line_char int_par(param_end_line_char_code)
+#define suppress_outer_error int_par(param_suppress_outer_error_code)
 
 #define every_eof get_every_eof()
 
@@ -320,6 +328,61 @@ halfword active_to_cs(int curchr, int force)
     return curcs;
 }
 
+/* TODO this function should listen to \.{\\escapechar} */
+
+#define is_active_cs(a) (length(a)>3 &&                               \
+                         (str_pool[str_start_macro(a)]   == 0xEF) &&  \
+                         (str_pool[str_start_macro(a)+1] == 0xBF) &&  \
+                         (str_pool[str_start_macro(a)+2] == 0xBF))
+
+
+char * 
+cs_to_string (pointer p) /* prints a control sequence */
+{
+  char *s;
+  int k = 0;
+  static char ret[256] = {0};
+  if (p==null_cs) {
+    ret[k++] = '\\';
+    s = "csname";
+    while (*s) { ret[k++] = *s++; }
+    ret[k++] = '\\';
+    s = "endcsname";
+    while (*s) { ret[k++] = *s++; }
+    ret[k]=0;
+
+  } else {
+    str_number txt = zget_cs_text(p);
+    s = makecstring(txt);
+    if (is_active_cs(txt)) {
+      s = s + 3;
+      while (*s) { ret[k++] = *s++; }
+      ret[k]=0;
+    } else {
+      ret[k++] = '\\';
+      while (*s) { ret[k++] = *s++; }
+      ret[k]=0;
+    }
+  }
+  return (char *)ret;
+}
+
+/* TODO this is a quick hack, will be solved differently soon */
+
+char *
+cmd_chr_to_string (int cmd, int chr)
+{
+  char *s;
+  strnumber str;
+  int sel = selector; 
+  selector = new_string;
+  print_cmd_chr(cmd,chr);
+  str = make_string();
+  s = makecstring(str);
+  selector = sel;
+  flush_str(str);
+  return s;
+}
 
 /* Before getting into |get_next|, let's consider the subroutine that
    is called when an `\.{\\outer}' control sequence has been scanned or
@@ -327,13 +390,21 @@ halfword active_to_cs(int curchr, int force)
    by |cur_cs|, which is zero at the end of a file.
 */
 
-/* TODO */
+static int frozen_control_sequence = 0;
+
+#define frozen_cr (frozen_control_sequence+1) /* permanent `\.{\\cr}' */
+#define frozen_fi (frozen_control_sequence+4) /* permanent `\.{\\fi}' */
+
 void 
 check_outer_validity (void)
 {
-#if 0
     pointer p; /* points to inserted token list */
     pointer q; /* auxiliary pointer */
+    if (suppress_outer_error)
+      return;
+    if (frozen_control_sequence==0) {
+      frozen_control_sequence = get_nullcs()+1+get_hash_size(); /* hashbase=nullcs+1 */
+    }
     if (scanner_status!=normal) {
         deletions_allowed=false;
         /* @<Back up an outer control sequence so that it can be reread@>; */
@@ -343,7 +414,7 @@ check_outer_validity (void)
             if ((state==token_list)||(name<1)||(name>17)) {
                 p=get_avail();
                 info(p)=cs_token_flag+cur_cs;
-                back_list(p); /* prepare to read the control sequence again */
+                begin_token_list(p,backed_up); /* prepare to read the control sequence again */
             }
             cur_cmd=spacer_cmd;
             cur_chr=' '; /* replace it by a space */
@@ -354,15 +425,16 @@ check_outer_validity (void)
                                "I'll try to recover; but if the error is serious,",
                                "you'd better type `E' or `X' now and fix your file.",
                                NULL };
+	    char errmsg[256];
+	    char *startmsg, *scannermsg;
             /* @<Tell the user what has run away and try to recover@> */
             runaway(); /* print a definition, argument, or preamble */
             if (cur_cs==0) { 
-                print_err("File ended");
+                startmsg = "File ended";
             } else {  
                 cur_cs=0; 
-                print_err("Forbidden control sequence found");
+                startmsg = "Forbidden control sequence found";
             }
-            print(" while scanning ");
             /* @<Print either `\.{definition}' or `\.{use}' or `\.{preamble}' or `\.{text}',
                and insert tokens that should lead to recovery@>; */
             /* The recovery procedure can't be fully understood without knowing more
@@ -374,54 +446,59 @@ check_outer_validity (void)
             p=get_avail();
             switch (scanner_status) {
             case defining:
-                print("definition"); 
+  	        scannermsg = "definition"; 
                 info(p)=right_brace_token+'}';
                 break;
             case matching: 
-                print("use"); 
+                scannermsg = "use"; 
                 info(p)=par_token;
                 long_state=outer_call_cmd;
                 break;
             case aligning: 
-                print("preamble"); 
+   	        scannermsg = "preamble"; 
                 info(p)=right_brace_token+'}'; 
                 q=p;
                 p=get_avail(); link(p)=q; info(p)=cs_token_flag+frozen_cr;
                 align_state=-1000000;
                 break;
             case absorbing: 
-                print("text"); 
+                scannermsg = "text"; 
                 info(p)=right_brace_token+'}';
                 break;
             }  /*there are no other cases */
-            ins_list(p);
-            print(" of "); 
-            sprint_cs(warning_index);
-            error();
+            begin_token_list(p,inserted);
+	    snprintf(errmsg,255, "%s while scanning %s of %s", 
+		     startmsg, scannermsg, cs_to_string(warning_index));
+            tex_error(errmsg, errhlp);
         } else  {
-            char *errhlp[];
+	    char errmsg[256];
+            char *errhlp_no[] = { "The file ended while I was skipping conditional text.",
+				  "This kind of error happens when you say `\\if...' and forget",
+				  "the matching `\\fi'. I've inserted a `\\fi'; this might work.",
+				  NULL };
+            char *errhlp_cs[] = { "A forbidden control sequence occurred in skipped text.",
+				  "This kind of error happens when you say `\\if...' and forget",
+				  "the matching `\\fi'. I've inserted a `\\fi'; this might work.",
+				  NULL };
+	    char **errhlp = (char **)errhlp_no;
             if (cur_cs!=0) {
-                errhlp = { "A forbidden control sequence occurred in skipped text.",
-                           "This kind of error happens when you say `\\if...' and forget",
-                           "the matching `\\fi'. I've inserted a `\\fi'; this might work.",
-                           NULL };
+   	        errhlp = errhlp_cs;
                 cur_cs=0;
-            } else {
-                errhlp = { "The file ended while I was skipping conditional text.",
-                           "This kind of error happens when you say `\\if...' and forget",
-                           "the matching `\\fi'. I've inserted a `\\fi'; this might work.",
-                           NULL };
             }
-            print_err("Incomplete "); 
-            print_cmd_chr(if_test,cur_if); /* @.Incomplete \\if...@> */
-            print("; all text was ignored after line ");
-            print_int(skip_line);
+	    snprintf(errmsg,255,"Incomplete %s; all text was ignored after line %d",
+		     cmd_chr_to_string(if_test_cmd,cur_if), skip_line);
+            /* @.Incomplete \\if...@> */
             cur_tok=cs_token_flag+frozen_fi; 
-            ins_error();
+	    /* back up one inserted token and call |error| */
+	    { OK_to_interrupt=false; 
+	      back_input(); 
+	      token_type=inserted;
+	      OK_to_interrupt=true; 
+	      tex_error(errmsg, errhlp);
+	    }
         }
         deletions_allowed=true;
     }
-#endif
 }
 
 static boolean get_next_file(void)

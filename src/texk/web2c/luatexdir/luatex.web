@@ -5644,7 +5644,8 @@ that will be defined later.
 @d suppress_fontnotfound_error_code=etex_int_base+9 {surpress errors for missing fonts}
 @d suppress_long_error_code=etex_int_base+10 {surpress errors for missing fonts}
 @d suppress_ifcsname_error_code=etex_int_base+11 {surpress errors for failed \.{\\ifcsname}}
-@d etex_int_pars=etex_int_base+12 {total number of \eTeX's integer parameters}
+@d suppress_outer_error_code=etex_int_base+12 {surpress errors for \.{\\outer}}
+@d etex_int_pars=etex_int_base+13 {total number of \eTeX's integer parameters}
 @#
 @d synctex_code=etex_int_pars { is synctex file generation enabled ? }
 @d int_pars=synctex_code+1 {total number of integer parameters}
@@ -29708,6 +29709,8 @@ primitive_luatex("suppresslongerror",assign_int,int_base+suppress_long_error_cod
 @!@:suppress_long_error_code_}{\.{\\suppresslongerror} primitive@>
 primitive_luatex("suppressifcsnameerror",assign_int,int_base+suppress_ifcsname_error_code);@/
 @!@:suppress_ifcsname_error_code_}{\.{\\suppressifcsnameerror} primitive@>
+primitive_luatex("suppressoutererror",assign_int,int_base+suppress_outer_error_code);@/
+@!@:suppress_outer_error_code_}{\.{\\suppressoutererror} primitive@>
 primitive_luatex("synctex",assign_int,int_base+synctex_code);@/
 @!@:synctex_}{\.{\\synctex} primitive@>
 
@@ -29728,6 +29731,7 @@ saving_vdiscards_code:print_esc("savingvdiscards");
 saving_hyph_codes_code:print_esc("savinghyphcodes");
 suppress_fontnotfound_error_code:print_esc("suppressfontnotfounderror");
 suppress_long_error_code:print_esc("suppresslongerror");
+suppress_outer_error_code:print_esc("suppressoutererror");
 synctex_code:print_esc("synctex");
 
 @ In order to handle \.{\\everyeof} we need an array |eof_seen| of

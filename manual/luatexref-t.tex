@@ -600,7 +600,7 @@ The new table is allocated globally: it will not go away after the
 current group has ended. If the supplied number is the currently
 active table, an error is raised.
 
-\subsection{\tex{suppressfontnotfounderror}}
+\subsection{\tex{suppressfontnotfounderror} (0.11)}
 
 \startsyntax
 \suppressfontnotfounderror = 1
@@ -612,7 +612,7 @@ silently skip the font assignment, making the requested csname for the
 font \tex{ifx} equal to \tex{nullfont}, so that it can be tested
 against that without bothering the user.
 
-\subsection{\tex{suppresslongerror}}
+\subsection{\tex{suppresslongerror} (0.36)}
 
 \startsyntax
 \suppresslongerror = 1
@@ -623,7 +623,7 @@ complain about \type{\par} commands encountered in contexts where
 that is normally prohibitited (most prominently in the arguments
 of non-long macros).
 
-\subsection{\tex{suppressifcsnameerror}}
+\subsection{\tex{suppressifcsnameerror} (0.36)}
 
 \startsyntax
 \suppressifcsnameerror = 1
@@ -637,6 +637,21 @@ command. Use with care! This command is experimental: if the input
 expansion is unbalanced wrt. \type{\csname} \ldots \type{\endcsname}
 pairs, the \LUATEX\ process may hang indefinately.
 
+
+\subsection{\tex{suppressoutererror} (0.36)}
+
+\startsyntax
+\suppressoutererror = 1
+\stopsyntax
+
+If this new integer parameter is non|-|zero, then \LUATEX\ will not
+complain about \type{\outer} commands encountered in contexts where
+that is normally prohibitited.
+
+The addition of this command coincides with a change in the
+\LUATEX\ engine: ever since the snapshot of 20060915, \type{\outer}
+was simply ignored. That behaviour has now reverted back to be 
+\TEX82-compatible by default.
 
 \subsection{Font syntax}
 
