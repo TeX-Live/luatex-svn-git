@@ -103,8 +103,6 @@ Tue Jul 1 15:23:00 UTC 2008
 #       define SYNCTEX_FREE(x) free(x)
 #   endif
 
-#define curv cur_v
-#define curh cur_h
 #define ruleht rule_ht
 #define ruledp rule_dp
 #define rulewd rule_wd
@@ -681,6 +679,7 @@ static inline void synctex_record_vlist(halfword p);
  *  address of the vlist We assume that p is really a vlist node! */
 void synctex_vlist(halfword this_box)
 {
+    scaledpos pos;
 	SYNCTEX_RETURN_IF_DISABLED;
 #if SYNCTEX_DEBUG
     printf("\nSynchronize DEBUG: synctexhlist\n");
@@ -692,8 +691,9 @@ void synctex_vlist(halfword this_box)
     synctex_ctxt.recorder = NULL;   /*  reset  */
     synctex_ctxt.tag = SYNCTEX_TAG_MODEL(this_box,box_node_size);
     synctex_ctxt.line = SYNCTEX_LINE_MODEL(this_box,box_node_size);
-	synctex_ctxt.curh = cur.h;
-	synctex_ctxt.curv = cur.v;
+    pos = synch_p_with_c(cur);
+	synctex_ctxt.curh = pos.h;
+	synctex_ctxt.curv = pos.v;
     synctex_record_vlist(this_box);
 }
 
@@ -705,6 +705,7 @@ static inline void synctex_record_tsilv(halfword p);
  *  synctex_vlist sent at the beginning of that procedure.    */
 void synctex_tsilv(halfword this_box)
 {
+    scaledpos pos;
 	SYNCTEX_RETURN_IF_DISABLED;
 #if SYNCTEX_DEBUG
     printf("\nSynchronize DEBUG: synctextsilv\n");
@@ -716,8 +717,9 @@ void synctex_tsilv(halfword this_box)
     synctex_ctxt.node = this_box; /*  0 to reset  */
     synctex_ctxt.tag = SYNCTEX_TAG_MODEL(this_box,box_node_size);
     synctex_ctxt.line = SYNCTEX_LINE_MODEL(this_box,box_node_size);
-	synctex_ctxt.curh = cur.h;
-	synctex_ctxt.curv = cur.v;
+    pos = synch_p_with_c(cur);
+	synctex_ctxt.curh = pos.h;
+	synctex_ctxt.curv = pos.v;
     synctex_ctxt.recorder = NULL;
     synctex_record_tsilv(this_box);
 }
@@ -728,6 +730,7 @@ static inline void synctex_record_void_vlist(halfword p);
  *  There is no need to balance a void vlist.  */
 void synctex_void_vlist(halfword p, halfword this_box)
 {
+    scaledpos pos;
 	SYNCTEX_RETURN_IF_DISABLED;
 #if SYNCTEX_DEBUG
     printf("\nSynchronize DEBUG: synctexvoidvlist\n");
@@ -738,8 +741,9 @@ void synctex_void_vlist(halfword p, halfword this_box)
     synctex_ctxt.node = p;          /*  reset  */
     synctex_ctxt.tag = SYNCTEX_TAG_MODEL(p,box_node_size);
     synctex_ctxt.line = SYNCTEX_LINE_MODEL(p,box_node_size);
-	synctex_ctxt.curh = cur.h;
-	synctex_ctxt.curv = cur.v;
+    pos = synch_p_with_c(cur);
+	synctex_ctxt.curh = pos.h;
+	synctex_ctxt.curv = pos.v;
     synctex_ctxt.recorder = NULL;   /*  reset  */
     synctex_record_void_vlist(p);
 }
@@ -752,6 +756,7 @@ static inline void synctex_record_hlist(halfword p);
  *  address of the hlist We assume that p is really an hlist node! */
 void synctex_hlist(halfword this_box)
 {
+    scaledpos pos;
 	SYNCTEX_RETURN_IF_DISABLED;
 #if SYNCTEX_DEBUG
     printf("\nSynchronize DEBUG: synctexhlist\n");
@@ -762,8 +767,9 @@ void synctex_hlist(halfword this_box)
     synctex_ctxt.node = this_box;   /*  0 to reset  */
     synctex_ctxt.tag = SYNCTEX_TAG_MODEL(this_box,box_node_size);
     synctex_ctxt.line = SYNCTEX_LINE_MODEL(this_box,box_node_size);
-	synctex_ctxt.curh = cur.h;
-	synctex_ctxt.curv = cur.v;
+    pos = synch_p_with_c(cur);
+	synctex_ctxt.curh = pos.h;
+	synctex_ctxt.curv = pos.v;
     synctex_ctxt.recorder = NULL;   /*  reset  */
     synctex_record_hlist(this_box);
 }
@@ -776,6 +782,7 @@ static inline void synctex_record_tsilh(halfword p);
  *  synctex_hlist sent at the beginning of that procedure.    */
 void synctex_tsilh(halfword this_box)
 {
+    scaledpos pos;
 	SYNCTEX_RETURN_IF_DISABLED;
 #if SYNCTEX_DEBUG
     printf("\nSynchronize DEBUG: synctextsilh\n");
@@ -787,8 +794,9 @@ void synctex_tsilh(halfword this_box)
     synctex_ctxt.node = this_box;     /*  0 to force next node to be recorded!  */
     synctex_ctxt.tag = SYNCTEX_TAG_MODEL(this_box,box_node_size);
     synctex_ctxt.line = SYNCTEX_LINE_MODEL(this_box,box_node_size);
-	synctex_ctxt.curh = cur.h;
-	synctex_ctxt.curv = cur.v;
+    pos = synch_p_with_c(cur);
+	synctex_ctxt.curh = pos.h;
+	synctex_ctxt.curv = pos.v;
     synctex_ctxt.recorder = NULL;   /*  reset  */
     synctex_record_tsilh(this_box);
 }
@@ -799,6 +807,7 @@ static inline void synctex_record_void_hlist(halfword p);
  *  There is no need to balance a void hlist.  */
 void synctex_void_hlist(halfword p, halfword this_box)
 {
+    scaledpos pos;
 	SYNCTEX_RETURN_IF_DISABLED;
 #if SYNCTEX_DEBUG
     printf("\nSynchronize DEBUG: synctexvoidhlist\n");
@@ -814,8 +823,9 @@ void synctex_void_hlist(halfword p, halfword this_box)
     synctex_ctxt.node = p;          /*  0 to reset  */
     synctex_ctxt.tag = SYNCTEX_TAG_MODEL(p,box_node_size);
     synctex_ctxt.line = SYNCTEX_LINE_MODEL(p,box_node_size);
-	synctex_ctxt.curh = cur.h;
-	synctex_ctxt.curv = cur.v;
+    pos = synch_p_with_c(cur);
+	synctex_ctxt.curh = pos.h;
+	synctex_ctxt.curv = pos.v;
     synctex_ctxt.recorder = NULL;   /*  reset  */
     synctex_record_void_hlist(p);
 }
@@ -847,6 +857,7 @@ void synctex_math_recorder(halfword p);
         See: @ @<Output the non-|char_node| |p| for...  */
 void synctex_math(halfword p, halfword this_box)
 {
+    scaledpos pos;
 	SYNCTEX_RETURN_IF_DISABLED;
 #if SYNCTEX_DEBUG
     printf("\nSynchronize DEBUG: synctexmath\n");
@@ -861,8 +872,9 @@ void synctex_math(halfword p, halfword this_box)
     synctex_ctxt.node = p;
     synctex_ctxt.tag = SYNCTEX_TAG_MODEL(p,medium_node_size);
     synctex_ctxt.line = SYNCTEX_LINE_MODEL(p,medium_node_size);
-	synctex_ctxt.curh = cur.h;
-	synctex_ctxt.curv = cur.v;
+    pos = synch_p_with_c(cur);
+	synctex_ctxt.curh = pos.h;
+	synctex_ctxt.curv = pos.v;
     synctex_ctxt.recorder = NULL;/*  no need to record once more  */
     synctex_math_recorder(p);/*  always record synchronously  */
 }
@@ -878,6 +890,7 @@ static inline void synctex_record_rule(halfword p);
                                 || (0 >= SYNCTEX_LINE_MODEL(NODE,rule_node_size))
 void synctex_horizontal_rule_or_glue(halfword p, halfword this_box)
 {
+    scaledpos pos;
 	SYNCTEX_RETURN_IF_DISABLED;
 #if SYNCTEX_DEBUG
     printf("\nSynchronize DEBUG: synctexglue\n");
@@ -893,8 +906,9 @@ void synctex_horizontal_rule_or_glue(halfword p, halfword this_box)
 		}
 	}
 	synctex_ctxt.node = p;
-	synctex_ctxt.curh = cur.h;
-	synctex_ctxt.curv = cur.v;
+        pos = synch_p_with_c(cur);
+	synctex_ctxt.curh = pos.h;
+	synctex_ctxt.curv = pos.v;
 	synctex_ctxt.recorder = NULL;
 	switch(SYNCTEX_TYPE(p)) {
 		case rule_node:
@@ -1014,6 +1028,7 @@ void synctexnode(halfword p, halfword this_box)
          synchronously for the current location    */
 void synctex_current(void)
 {
+    scaledpos pos;
 	SYNCTEX_RETURN_IF_DISABLED;
 #if SYNCTEX_DEBUG
     printf("\nSynchronize DEBUG: synctexcurrent\n");
@@ -1021,9 +1036,10 @@ void synctex_current(void)
 	if (SYNCTEX_IGNORE(nothing)) {
         return;
     } else {
+		pos = synch_p_with_c(cur);
 		size_t len = SYNCTEX_fprintf(SYNCTEX_FILE,"x%i,%i:%i,%i\n",
 			synctex_ctxt.tag,synctex_ctxt.line,
-			cur.h UNIT,cur.v UNIT);
+			pos.h UNIT,pos.v UNIT);
 		if(len>0) {
 			synctex_ctxt.total_length += len;
 			return;

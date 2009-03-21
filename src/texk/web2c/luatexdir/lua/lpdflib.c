@@ -46,7 +46,6 @@ int luapdfprint(lua_State * L)
     int n;
     unsigned i;
     size_t len;
-    scaledpos tmp;
     const char *outputstr, *st;
     pdf_lit_mode literal_mode;
     n = lua_gettop(L);
@@ -80,9 +79,7 @@ int luapdfprint(lua_State * L)
     switch (literal_mode) {
     case (set_origin):
         pdf_goto_pagemode();
-        tmp.h = cur.h;
-        tmp.v = cur.v;
-        pos = synch_p_with_c(tmp);
+        pos = synch_p_with_c(cur);
         pdf_set_pos(pos.h, pos.v);
         break;
     case (direct_page):
