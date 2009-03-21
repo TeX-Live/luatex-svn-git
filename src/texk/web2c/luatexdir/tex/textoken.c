@@ -465,6 +465,9 @@ check_outer_validity (void)
                 scannermsg = "text"; 
                 info(p)=right_brace_token+'}';
                 break;
+            default: /* can't happen */
+                scannermsg = "unknown"; 
+                break;
             }  /*there are no other cases */
             begin_token_list(p,inserted);
 	    snprintf(errmsg,255, "%s while scanning %s of %s", 
