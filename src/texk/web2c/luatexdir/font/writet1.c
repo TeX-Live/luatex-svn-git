@@ -1,7 +1,7 @@
 /* writet1.c
    
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -1597,7 +1597,7 @@ static void t1_flush_cs(boolean is_subr)
         cr = 4330;
         cs_len = 0;
         return_cs = xtalloc(t1_lenIV + 1, byte);
-        if (t1_lenIV > 0) {
+        if (t1_lenIV >= 0) {
             for (cs_len = 0, r = return_cs; cs_len < t1_lenIV; cs_len++, r++)
                 *r = cencrypt(0x00, &cr);
             *r = cencrypt(CS_RETURN, &cr);
