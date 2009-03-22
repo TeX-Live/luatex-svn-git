@@ -1,7 +1,7 @@
 /* utils.c
-   
+
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -22,7 +22,6 @@
 #ifdef HAVE_ASPRINTF            /* asprintf is not defined in openbsd-compat.h, but in stdio.h */
 #  include <stdio.h>
 #endif
-
 
 #include "sys/types.h"
 #ifndef __MINGW32__
@@ -195,7 +194,6 @@ strnumber maketexlstring(const char *s, size_t l)
     return last_tex_string;
 }
 
-
 /* print a C string through TeX */
 void print_string(char *j)
 {
@@ -246,7 +244,7 @@ void remove_pdffile(void)
 /* pdftex_fail may be called when a buffer overflow has happened/is
    happening, therefore may not call mktexstring.  However, with the
    current implementation it appears that error messages are misleading,
-   possibly because pool overflows are detected too late. 
+   possibly because pool overflows are detected too late.
 
    The output format of this fuction must be the same as pdf_error in
    pdftex.web! */
@@ -297,12 +295,11 @@ void pdftex_warn(const char *fmt, ...)
     print_ln();
 }
 
-
 void tex_error(char *msg, char **hlp)
 {
     strnumber aa = 0, bb = 0, cc = 0, dd = 0, ee = 0;
     int k = 0;
-    if (hlp!=NULL) {
+    if (hlp != NULL) {
         while (hlp[k] != NULL)
             k++;
         if (k > 0)
@@ -343,7 +340,6 @@ void tex_error(char *msg, char **hlp)
         flush_str(aa);
 }
 
-
 void garbage_warning(void)
 {
     pdftex_warn("dangling objects discarded, no output file produced.");
@@ -355,7 +351,6 @@ char *makecstring(integer s)
     size_t l;
     return makeclstring(s, &l);
 }
-
 
 char *makeclstring(integer s, size_t * len)
 {
@@ -606,7 +601,6 @@ char *convertStringToPDFString(const char *in, int len)
     return pstrbuf;
 }
 
-
 /* Converts any string given in in in an allowed PDF string which can be
  * handled by printf et.al.: \ is escaped to \\, parenthesis are escaped and
  * control characters are octal encoded.
@@ -646,10 +640,9 @@ void escapestring(poolpointer in)
     }
 }
 
-
 /* Convert any given string in a PDF name using escaping mechanism
    of PDF 1.2. The result does not include the leading slash.
-   
+
    PDF specification 1.6, section 3.2.6 "Name Objects" explains:
    <blockquote>
     Beginning with PDF 1.2, any character except null (character code 0) may
@@ -680,7 +673,7 @@ void escapestring(poolpointer in)
      125       escaped  delimiter "}"
      127..255  escaped  recommended
      else      copy     regular characters
-     
+
    Parameter "in" is a pointer into the string pool where
    the input string is located. The output string is written
    as temporary string right after the input string.
@@ -741,9 +734,9 @@ void escapename(poolpointer in)
 
 /* Convert any given string in a PDF hexadecimal string. The
    result does not include the angle brackets.
-   
+
    This procedure uses uppercase hexadecimal letters.
-   
+
    See escapename for description of parameters.
 */
 void escapehex(poolpointer in)
@@ -772,7 +765,7 @@ void escapehex(poolpointer in)
 
    Last hex digit can be omitted, it is replaced by zero, see
    PDF specification.
-   
+
    Invalid digits are silently ignored.
 
    See escapename for description of parameters.
@@ -816,8 +809,7 @@ void unescapehex(poolpointer in)
     }
 }
 
-
-/* Converts any string given in in in an allowed PDF string which is 
+/* Converts any string given in in in an allowed PDF string which is
  * hexadecimal encoded;
  * sizeof(out) should be at least lin*2+1.
  */
@@ -849,15 +841,15 @@ static void convertStringToHexString(const char *in, char *out, int lin)
     identifiers are set to the same value. If both identifiers match when a
     file reference is resolved, it is very likely that the correct file has
     been found; if only the first identifier matches, then a different
-    version of the correct file has been found. 
+    version of the correct file has been found.
         To help ensure the uniqueness of file identifiers, it is recommend
     that they be computed using a message digest algorithm such as MD5
     (described in Internet RFC 1321, The MD5 Message-Digest Algorithm; see
     the Bibliography), using the following information (see implementation
-    note 106 in Appendix H): 
-    - The current time 
-    - A string representation of the file's location, usually a pathname 
-    - The size of the file in bytes 
+    note 106 in Appendix H):
+    - The current time
+    - A string representation of the file's location, usually a pathname
+    - The size of the file in bytes
     - The values of all entries in the file's document information
       dictionary (see Section 9.2.1,  Document Information Dictionary )
   </blockquote>
@@ -944,17 +936,15 @@ void print_ID(strnumber filename)
 
   The main difficulty is get the time zone offset. strftime() does this in ISO
   C99 (e.g. newer glibc) with %z, but we have to work with other systems (e.g.
-  Solaris 2.5). 
+  Solaris 2.5).
 */
 
 static time_t start_time = 0;
 #define TIME_STR_SIZE 30
-static char start_time_str[TIME_STR_SIZE];
-    /* minimum size for time_str is 24: "D:YYYYmmddHHMMSS+HH'MM'" */
+static char start_time_str[TIME_STR_SIZE];      /* minimum size for time_str is 24: "D:YYYYmmddHHMMSS+HH'MM'" */
 
 static void makepdftime(time_t t, char *time_str)
 {
-
     struct tm lt, gmt;
     size_t size;
     int i, off, off_hours, off_mins;
@@ -970,7 +960,7 @@ static void makepdftime(time_t t, char *time_str)
     }
 
     /* correction for seconds: %S can be in range 00..61,
-       the PDF reference expects 00..59,   
+       the PDF reference expects 00..59,
        therefore we map "60" and "61" to "59" */
     if (time_str[14] == '6') {
         time_str[14] = '5';
@@ -1138,7 +1128,6 @@ void initversionstring(char **versions)
                     ZLIB_VERSION, zlib_version, xpdfVersion);
 }
 
-
 /*************************************************/
 /* Color Stack and Matrix Transformation Support */
 /*************************************************/
@@ -1190,8 +1179,7 @@ static colstack_type *colstacks = NULL;
 static int colstacks_size = 0;
 static int colstacks_used = 0;
 
-/*
-    Initialization is done, if the color stacks are used,
+/*  Initialization is done, if the color stacks are used,
     init_colorstacks() is defined as macro to avoid unnecessary
     procedure calls.
 */
@@ -1220,8 +1208,7 @@ int colorstackused()
     return colstacks_used;
 }
 
-/*
-    newcolorstack()
+/*  newcolorstack()
     A new color stack is setup with the given parameters.
     The stack number is returned or -1 in case of error (no room).
 */
@@ -1270,9 +1257,7 @@ int newcolorstack(integer s, integer literal_mode, boolean page_start)
 
 #define get_colstack(n) (&colstacks[n])
 
-/*
-    Puts a string on top of the string pool and updates pool_ptr.
-*/
+/* Puts a string on top of the string pool and updates pool_ptr. */
 void put_cstring_on_str_pool(poolpointer start, char *str)
 {
     size_t len;
@@ -1419,7 +1404,6 @@ integer colorstackskippagestart(int colstack_no)
     return 0;
 }
 
-
 /* stack for \pdfsetmatrix */
 
 typedef struct {
@@ -1519,8 +1503,7 @@ void pdfshipoutend(boolean shipping_page)
     }
 }
 
-/*
-    \pdfsetmatrix{a b c d}
+/*  \pdfsetmatrix{a b c d}
     e := pos_h
     f := pos_v
     M_top: current active matrix at the top of
@@ -1564,8 +1547,8 @@ void pdfsetmatrix(poolpointer in, scaledpos pos)
             return;
         }
         /* calculate this transformation matrix */
-        x.e = (double) pos.h *(1.0 - x.a) - (double) pos.v *x.c;
-        x.f = (double) pos.v *(1.0 - x.d) - (double) pos.h *x.b;
+        x.e = (double) pos.h * (1.0 - x.a) - (double) pos.v * x.c;
+        x.f = (double) pos.v * (1.0 - x.d) - (double) pos.h * x.b;
         matrix_stack_room();
         z = &matrix_stack[matrix_stack_used];
         if (matrix_stack_used > 0) {
@@ -1713,7 +1696,7 @@ void check_pool_overflow(int wsize)
 
 #define max_integer 0x7FFFFFFF
 
-/* the return value is a decimal number with the point |dd| places from the back, 
+/* the return value is a decimal number with the point |dd| places from the back,
    |scaled_out| is the number of scaled points corresponding to that.
 */
 
@@ -1751,9 +1734,7 @@ scaled divide_scaled(scaled s, scaled m, integer dd)
     return sign * q;
 }
 
-
-/* Same function, but using doubles instead of integers (faster)
- */
+/* Same function, but using doubles instead of integers (faster) */
 
 scaled divide_scaled_n(double sd, double md, double n)
 {
