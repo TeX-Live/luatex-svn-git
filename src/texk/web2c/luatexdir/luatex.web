@@ -13468,15 +13468,13 @@ dvi_out(font_check_2(f));
 dvi_out(font_check_3(f));@/
 dvi_four(font_size(f));
 dvi_four(font_dsize(f));@/
-dvi_out(strlen(font_area(f)));
+dvi_out(0); { |font_area(f)| is unused }
 dvi_out(strlen(font_name(f)));
 @<Output the font name whose internal number is |f|@>;
 end;
 
 @ @<Output the font name whose internal number is |f|@>=
 fa := get_font_name(f); k := 0;
-while fa[k]<>0 do begin dvi_out(fa[k]); incr(k); end;
-fa := get_font_area(f); k := 0;
 while fa[k]<>0 do begin dvi_out(fa[k]); incr(k); end
 
 @ Versions of \TeX\ intended for small computers might well choose to omit
