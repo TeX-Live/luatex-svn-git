@@ -1441,8 +1441,7 @@ boolean matrixused()
 
 /* stack for positions of \pdfsave */
 typedef struct {
-    int pos_h;
-    int pos_v;
+    scaledpos pos;
     int matrix_stack;
 } pos_entry;
 static pos_entry *pos_stack = 0;        /* the stack */
@@ -1463,7 +1462,7 @@ void matrix_stack_room()
     }
 }
 
-void checkpdfsave(int cur_h, int cur_v)
+void checkpdfsave(scaledpos pos)
 {
     pos_entry *new_stack;
 
@@ -1475,26 +1474,26 @@ void checkpdfsave(int cur_h, int cur_v)
         xfree(pos_stack);
         pos_stack = new_stack;
     }
-    pos_stack[pos_stack_used].pos_h = cur_h;
-    pos_stack[pos_stack_used].pos_v = cur_v;
+    pos_stack[pos_stack_used].pos.h = pos.h;
+    pos_stack[pos_stack_used].pos.v = pos.v;
     if (page_mode) {
         pos_stack[pos_stack_used].matrix_stack = matrix_stack_used;
     }
     pos_stack_used++;
 }
 
-void checkpdfrestore(int cur_h, int cur_v)
+void checkpdfrestore(scaledpos pos)
 {
-    int diff_h, diff_v;
+    scaledpos diff;
     if (pos_stack_used == 0) {
         pdftex_warn("%s", "\\pdfrestore: missing \\pdfsave");
         return;
     }
     pos_stack_used--;
-    diff_h = cur_h - pos_stack[pos_stack_used].pos_h;
-    diff_v = cur_v - pos_stack[pos_stack_used].pos_v;
-    if (diff_h != 0 || diff_v != 0) {
-        pdftex_warn("Misplaced \\pdfrestore by (%usp, %usp)", diff_h, diff_v);
+    diff.h = pos.h - pos_stack[pos_stack_used].pos.h;
+    diff.v = pos.v - pos_stack[pos_stack_used].pos.v;
+    if (diff.h != 0 || diff.v != 0) {
+        pdftex_warn("Misplaced \\pdfrestore by (%usp, %usp)", diff.h, diff.v);
     }
     if (page_mode) {
         matrix_stack_used = pos_stack[pos_stack_used].matrix_stack;
@@ -1522,8 +1521,8 @@ void pdfshipoutend(boolean shipping_page)
 
 /*
     \pdfsetmatrix{a b c d}
-    e := cur_h
-    f := cur_v
+    e := pos_h
+    f := pos_v
     M_top: current active matrix at the top of
            the matrix stack
 
@@ -1550,7 +1549,7 @@ void pdfshipoutend(boolean shipping_page)
 
 */
 
-void pdfsetmatrix(poolpointer in, scaled cur_h, scaled cur_v)
+void pdfsetmatrix(poolpointer in, scaledpos pos)
 {
     /* Argument of \pdfsetmatrix starts with str_pool[in] and ends
        before str_pool[pool_ptr]. */
@@ -1565,8 +1564,8 @@ void pdfsetmatrix(poolpointer in, scaled cur_h, scaled cur_v)
             return;
         }
         /* calculate this transformation matrix */
-        x.e = (double) cur_h *(1.0 - x.a) - (double) cur_v *x.c;
-        x.f = (double) cur_v *(1.0 - x.d) - (double) cur_h *x.b;
+        x.e = (double) pos.h *(1.0 - x.a) - (double) pos.v *x.c;
+        x.f = (double) pos.v *(1.0 - x.d) - (double) pos.h *x.b;
         matrix_stack_room();
         z = &matrix_stack[matrix_stack_used];
         if (matrix_stack_used > 0) {

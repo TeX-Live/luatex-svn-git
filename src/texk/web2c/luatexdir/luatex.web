@@ -16849,7 +16849,7 @@ begin
     str_room(7);
     str_pool[pool_ptr] := 0; { make C string for pdfsetmatrix }
     synch_pos_with_cur;
-    pdfsetmatrix(str_start_macro(str_ptr), pos.h, pos.v);
+    pdfsetmatrix(str_start_macro(str_ptr), pos);
     str_room(7);
     append_char(" ");
     append_char("0");
@@ -16866,14 +16866,14 @@ end;
 procedure pdf_out_save;
 begin
     synch_pos_with_cur;
-    checkpdfsave(pos.h, pos.v);
+    checkpdfsave(pos);
     literal("q", set_origin, false);
 end;
 
 procedure pdf_out_restore;
 begin
     synch_pos_with_cur;
-    checkpdfrestore(pos.h, pos.v);
+    checkpdfrestore(pos);
     literal("Q", set_origin, false);
 end;
 
