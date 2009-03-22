@@ -154,7 +154,7 @@ debugging.
 
 Text input and output is now considered to be \UNICODE\ text, so
 input characters can use the full range of \UNICODE\ ($2^{20}+2^{16}-1 =
-\hbox{10FFFF} = 1114111$).
+\hbox{0x10FFFF} = 1{,}114{,}111$).
 
 Later chapters will talk of characters and glyphs. Although these
 are not the interchangeable, they are closely related. During
@@ -167,14 +167,14 @@ implemented, please do not be too harsh on us if we make errors in
 the usage of the terms.
 
 Note: for now, it only makes sense to use values above the base
-plane (\type{"0xFFFF}) for \tex{mathcode} and \tex{catcode}
+plane (\type{"FFFF}) for \tex{mathcode} and \tex{catcode}
 assignments, since the hyphenation patterns are still limited to
 max.\ 16-bit values, so the other commands will not know what to
 do with those high values.
 
 A few primitives are affected by this, all in a similar fashion: each of
 them has to accommodate for a larger range of acceptable numbers.  For
-instance, \tex{char} now accepts values between~0 and 1114111. This
+instance, \tex{char} now accepts values between~0 and $1{,}114{,}111$. This
 should not be a problem for well|-|behaved input files, but it could
 create incompatibilities for input that would have generated an error
 when processed by older \TEX|-|based engines. The maximum number of
@@ -184,13 +184,13 @@ maximum value that can be assigned are:
 % hahe: all below wrong by 1?
 
 \starttabulate[|l|l|l|l|]
-\NC \bf primitive \NC \bf bits \NC \bf hex    \NC \bf numeric       \NC\NR
-\NC \tex{char}    \NC 21       \NC \tt 10FFFF \NC $2^{20}+2^{16}-1$ \NC\NR
-\NC \tex{chardef} \NC 21       \NC \tt 10FFFF \NC $2^{20}+2^{16}-1$ \NC\NR
-\NC \tex{lccode}  \NC 21       \NC \tt 10FFFF \NC $2^{20}+2^{16}-1$ \NC\NR
-\NC \tex{uccode}  \NC 21       \NC \tt 10FFFF \NC $2^{20}+2^{16}-1$ \NC\NR
-\NC \tex{sfcode}  \NC 15       \NC \tt ~~7FFF \NC $2^{15}-1$        \NC\NR
-\NC \tex{catcode} \NC ~4       \NC \tt ~~~~~F \NC $2^{4}-1$         \NC\NR
+\NC \bf primitive \NC \bf bits      \NC \bf hex    \NC \bf numeric       \NC\NR
+\NC \tex{char}    \NC 21            \NC \tt 10FFFF \NC $2^{20}+2^{16}-1$ \NC\NR
+\NC \tex{chardef} \NC 21            \NC \tt 10FFFF \NC $2^{20}+2^{16}-1$ \NC\NR
+\NC \tex{lccode}  \NC 21            \NC \tt 10FFFF \NC $2^{20}+2^{16}-1$ \NC\NR
+\NC \tex{uccode}  \NC 21            \NC \tt 10FFFF \NC $2^{20}+2^{16}-1$ \NC\NR
+\NC \tex{sfcode}  \NC 15            \NC \tt ~~7FFF \NC $2^{15}-1$        \NC\NR
+\NC \tex{catcode} \NC \hphantom{2}4 \NC \tt ~~~~~F \NC $2^{4}-1$         \NC\NR
 \stoptabulate
 
 As far as the core engine is concerned, all input and output to
@@ -200,9 +200,9 @@ later chapter.
 
 Output in byte|-|sized chunks can be achieved by using characters
 just outside of the valid \UNICODE\ range, starting at the value
-1.114.112 (0x110000). When the times comes to print a character
-$c>=1.114.112$, \LUATEX\ will actually print the single byte
-corresponding to $c-1.114.112$.
+$1{,}114{,}112$ (0x110000). When the times comes to print a character
+$c>=1{,}114{,}112$, \LUATEX\ will actually print the single byte
+corresponding to $c-1{,}114{,}112$.
 
 Output to the terminal uses \type{^^} notation for the lower
 control range ($c<32$), with the exception of \type{^^I},
@@ -331,7 +331,7 @@ The \type{attr} keyword(s) should come before a \type{to} or
 \section{\LUA\ related primitives}
 
 In order to merge \LUA\ code with \TEX\ input, a few new primitives are
-needed. 
+needed.
 
 
 \subsection{\tex{directlua}}
@@ -352,8 +352,8 @@ values are still accepted for the moment, although they generate a
 (rather pesky) warning.  This backward compatibility support will be
 removed starting with beta \type{0.41.0}.}
 
-This library used to be called \quote{fontforge}. The library 
-is still available under that name for now, 
+This library used to be called \quote{fontforge}. The library
+is still available under that name for now,
 
 The last \syntax{<general text>} is expanded fully, and then fed
 into the \LUA\ interpreter. After reading and expansion has been applied to the
@@ -395,10 +395,10 @@ the chunk name.
 Likewise, the \syntax{<16-bit number>} designates a name of a \LUA\
 chunk, but in this case the name will be taken from the
 \type{lua.name} array (see the documentation of the \type{lua} table
-further in this manual). This syntax is new in version 0.36.0. 
+further in this manual). This syntax is new in version 0.36.0.
 
 Backward compatibility note: when there is a valid name in
-\type{lua.name[<16-bit number>]}, the potential warning about 
+\type{lua.name[<16-bit number>]}, the potential warning about
 a superfluous integer will be suppressed.
 
 The chunk name should not start with a \type{@}, or it will be displayed
@@ -456,7 +456,7 @@ Expansion of macros etcetera in the final \type{<general text>} is delayed
 until just before the whatsit is executed (like in \tex{write}). With
 regard to PDF output stream \tex{latelua} behaves as \tex{pdfliteral page}.
 
-The \syntax{name <general text>}  and \syntax{<16-bit number>} behave 
+The \syntax{name <general text>}  and \syntax{<16-bit number>} behave
 in the same way as they do for \type{\directlua}
 
 \subsection{\tex{luaescapestring}}
@@ -630,7 +630,7 @@ of non-long macros).
 \stopsyntax
 
 If this new integer parameter is non|-|zero, then \LUATEX\ will not
-complain about non-expandable commands appearing in the middle of a 
+complain about non-expandable commands appearing in the middle of a
 \type{\ifcsname} expansion. Instead, it will keep getting expanded
 tokens from the input until it encounters an \type{\endcsname}
 command. Use with care! This command is experimental: if the input
@@ -650,7 +650,7 @@ that is normally prohibitited.
 
 The addition of this command coincides with a change in the
 \LUATEX\ engine: ever since the snapshot of 20060915, \type{\outer}
-was simply ignored. That behaviour has now reverted back to be 
+was simply ignored. That behaviour has now reverted back to be
 \TEX82-compatible by default.
 
 \subsection{Font syntax}
@@ -1666,13 +1666,13 @@ and true (the setting of \type{globaldefs} is not taken into account).
 tex.enableprimitives(<string> prefix, <table> primitive names)
 \stopfunctioncall
 
-This function accepts a prefix string and an array of primitive names. 
+This function accepts a prefix string and an array of primitive names.
 
 For each combination of \quote{prefix} and \quote{name}, the
 \type{tex.enableprimitives} first verifies that \quote{name} is
 and actual primitive (it must be returned by one of the
 \type{tex.extraprimitives()} calls explained above, or part of
-\TEX82, or \type{\directlua}). If it is not, 
+\TEX82, or \type{\directlua}). If it is not,
 \type{tex.enableprimitives} does nothing and skips to the next pair.
 
 But if it is, then it will contruct a csname variable by concatenating the
@@ -1704,7 +1704,7 @@ Second example:
 \stoptyping
 
 will define a whole series of csnames like \type{\Omegatextdir},
-\type{\Omegapardir}, etc., but it will stick with \type{\OmegaVersion} 
+\type{\Omegapardir}, etc., but it will stick with \type{\OmegaVersion}
 instead of creating the doubly-prefixed \type{\OmegaOmegaVersion}.
 
 Starting with version 0.40 (and this is why the above two functions
@@ -1741,9 +1741,9 @@ possible values and their (current) return values are:
 
 \startluacode
 function out_prim (a)
-  for _,n in pairs(tex.extraprimitives(a)) do 
-    tex.print(n .. '\\hskip 4pt plus 5em') 
-  end 
+  for _,n in pairs(tex.extraprimitives(a)) do
+    tex.print(n .. '\\hskip 4pt plus 5em')
+  end
 end
 \stopluacode
 
@@ -2945,10 +2945,10 @@ ellipses have an extra string-valued key \type{type} with value
 A color is an integer array with 0, 1, 3 or 4 values:
 
 \starttabulate[|l|l|p|]
-\NC 0  \NC marking only \NC no values \NC\NR
-\NC 1  \NC greyscale    \NC one value in the range (0,1), \quote {black} is 0 \NC\NR
-\NC 3  \NC \RGB         \NC three values in the range (0,1), \quote {black} is 0,0,0  \NC\NR
-\NC 4  \NC \CMYK        \NC four values in the range (0,1), \quote {black} is 0,0,0,1  \NC\NR
+\NC 0  \NC marking only \NC no values                                                     \NC\NR
+\NC 1  \NC greyscale    \NC one value in the range $(0,1)$, \quote {black} is $0$         \NC\NR
+\NC 3  \NC \RGB         \NC three values in the range $(0,1)$, \quote {black} is $0,0,0$  \NC\NR
+\NC 4  \NC \CMYK        \NC four values in the range $(0,1)$, \quote {black} is $0,0,0,1$ \NC\NR
 \stoptabulate
 
 If the color model of the internal object was \type{unitialized}, then
@@ -3728,7 +3728,7 @@ register in \INITEX.
 
 \subsection{\LUA\ chunk name registers}
 
-There is an array of 65536 (0--65535) potential chunk names for use with 
+There is an array of 65536 (0--65535) potential chunk names for use with
 the \type{\directlua} and \type{\latelua} primitives.
 
 \startfunctioncall
@@ -4176,7 +4176,7 @@ there can be holes in the sequence.
 
 \section{The \luatex{fontloader} library (0.36)}
 
-{\bf This library used to be called \quote{fontforge}. The library 
+{\bf This library used to be called \quote{fontforge}. The library
 is still available under that name for now, but that alias will be
 removed starting with beta \type{0.41.0}}
 
@@ -4408,7 +4408,7 @@ information (quite a few of these are only present if nonzero).
 \NC width                        \NC number   \NC only for horizontal fonts\NC\NR
 \NC vwidth                       \NC number   \NC only for vertical fonts\NC\NR
 \NC lsidebearing                 \NC number   \NC only if nonzero and not equal to boundingbox[1]\NC\NR
-\NC class                        \NC string   \NC one of "automatic", "none" ,"base", "ligature","mark", "component"\NC\NR
+\NC class                        \NC string   \NC one of "automatic", "none", "base", "ligature", "mark", "component" \NC\NR
 \NC kerns                        \NC array    \NC only for horizontal fonts, if set\NC\NR
 \NC vkerns                       \NC array    \NC only for vertical fonts, if set\NC\NR
 \NC dependents                   \NC array    \NC linear array of glyph name strings, only if nonempty\NC\NR
@@ -5750,7 +5750,7 @@ In those cases, the \type{\textfont} from the requested math family is used.
 
 \section{Math todo}
 
-The following items are all still todo (most of them hopefully before \LUATEX\ 0.40 
+The following items are all still todo (most of them hopefully before \LUATEX\ 0.40
 comes out).
 
 \startitemize
@@ -7593,7 +7593,7 @@ necessary to clean up the internal interfaces.
   building, language handling, and hyphenation. Most important change:
   adding a brace group in the middle of a word (like in \type{of{}fice})
   does not prevent ligature creation.
-  
+
 \item There is no pool file, all strings are embedded during compilation.
 
 \item \type {plus 1 fillll} does not generate an error. The extra \quote{l} is
