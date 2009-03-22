@@ -28491,26 +28491,23 @@ begin
         ur.v := y - height(parent_box)
     else
         ur.v := cur.v - ht;
-    {
-        if is_shipping_page and matrixused then begin
-            matrixtransformrect(pdf_ann_left(p), cur_page_size.v - pdf_ann_bottom(p),
-                                pdf_ann_right(p), cur_page_size.v - pdf_ann_top(p));
-            pdf_ann_left(p)   := getllx;
-            pdf_ann_bottom(p) := cur_page_size.v - getlly;
-            pdf_ann_right(p)  := geturx;
-            pdf_ann_top(p)    := cur_page_size.v - getury;
-        end;
-    }
     pos_ll := synch_p_with_c(ll);
     pos_ur := synch_p_with_c(ur);
     if pos_ll.h > pos_ur.h then begin
         tmp.h := pos_ll.h; pos_ll.h := pos_ur.h; pos_ur.h := tmp.h; end;
     if pos_ll.v > pos_ur.v then begin
         tmp.v := pos_ll.v; pos_ll.v := pos_ur.v; pos_ur.v := tmp.v; end;
-    pdf_ann_left(p)   := pos_ll.h - margin;
+    if is_shipping_page and matrixused then begin
+        matrixtransformrect(pos_ll.h, pos_ll.v, pos_ur.h, pos_ur.v);
+        pos_ll.h := getllx;
+        pos_ll.v := getlly;
+        pos_ur.h := geturx;
+        pos_ur.v := getury;
+    end;
+    pdf_ann_left(p) := pos_ll.h - margin;
     pdf_ann_bottom(p) := pos_ll.v - margin;
-    pdf_ann_right(p)  := pos_ur.h + margin;
-    pdf_ann_top(p)    := pos_ur.v + margin;
+    pdf_ann_right(p) := pos_ur.h + margin;
+    pdf_ann_top(p) := pos_ur.v + margin;
 end;
 
 procedure do_annot(p, parent_box: pointer; x, y: scaled);
