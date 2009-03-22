@@ -1004,7 +1004,7 @@ int gettex(lua_State * L)
         case omath_given_cmd:
             retval = do_scan_internal(L, cur_cmd, cur_code);
             break;
-        case set_shape_cmd:
+        case set_tex_shape_cmd:
             retval = get_parshape(L);
             break;
         default:

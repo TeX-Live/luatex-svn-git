@@ -879,6 +879,7 @@
 @define procedure primitive_pdftex();
 @define procedure primitive_luatex();
 @define procedure primitive_core();
+@define procedure print_cmd_chr();
 
 @define procedure init_primitives;
 @define procedure ini_init_primitives;

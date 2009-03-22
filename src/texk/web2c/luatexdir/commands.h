@@ -122,9 +122,12 @@ typedef enum {
     set_page_dimen_cmd,         /* specify state info ( \.{\\pagegoal}, etc.~) */
     set_page_int_cmd,           /* specify state info ( \.{\\deadcycles},  \.{\\insertpenalties} ) */
     set_box_dimen_cmd,          /* change dimension of box ( \.{\\wd}, \.{\\ht}, \.{\\dp} ) */
-    set_shape_cmd,              /* specify fancy paragraph shape ( \.{\\parshape} ) */
-    def_code_cmd,               /* define a character code ( \.{\\catcode}, etc.~) */
-    extdef_code_cmd,            /* define an extended character code ( \.{\\omathcode}, etc.~) */
+    set_tex_shape_cmd,          /* specify fancy paragraph shape ( \.{\\parshape} ) */
+    set_etex_shape_cmd,         /* specify etex extended list ( \.{\\interlinepenalties}, etc.~) */
+    def_char_code_cmd,          /* define a character code ( \.{\\catcode}, etc.~) */
+    def_del_code_cmd,           /* define a delimiter code ( \.{\\delcode}) */
+    extdef_math_code_cmd,       /* define an extended character code ( \.{\\omathcode}, etc.~) */
+    extdef_del_code_cmd,        /* define an extended delimiter code ( \.{\\odelcode}, etc.~) */
     def_family_cmd,             /* declare math fonts ( \.{\\textfont}, etc.~) */
     set_math_param_cmd,         /* set math parameters ( \.{\\mathquad}, etc.~) */
     set_font_cmd,               /* set current font ( font identifiers ) */
@@ -177,6 +180,7 @@ typedef enum {
     shape_ref_cmd,              /* the equivalent points to a parshape specification */
     box_ref_cmd,                /* the equivalent points to a box node, or is |null| */
     data_cmd,                   /* the equivalent is simply a halfword number */
+#define last_cmd data_cmd
 } tex_command_code;
 
 
