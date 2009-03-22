@@ -1504,8 +1504,8 @@ void pdfshipoutend(boolean shipping_page)
 }
 
 /*  \pdfsetmatrix{a b c d}
-    e := pos_h
-    f := pos_v
+    e := pos.h
+    f := pos.v
     M_top: current active matrix at the top of
            the matrix stack
 
