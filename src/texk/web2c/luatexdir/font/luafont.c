@@ -1514,7 +1514,7 @@ int font_from_lua(lua_State * L, int f)
         }
 
 #if SAVE_REF
-        r = luaL_ref(Luas, LUA_REGISTRYINDEX);       /* pops the table */
+        r = luaL_ref(Luas, LUA_REGISTRYINDEX);  /* pops the table */
         set_font_cache_id(f, r);
 #else
         lua_pop(Luas, 1);

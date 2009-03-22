@@ -26,13 +26,13 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-#define skipping 1 /* |scanner_status| when passing conditional text */
-#define defining 2 /* |scanner_status| when reading a macro definition */
-#define matching 3 /* |scanner_status| when reading macro arguments */
-#define aligning 4 /* |scanner_status| when reading an alignment preamble */
-#define absorbing 5 /* |scanner_status| when reading a balanced text */
+#define skipping 1              /* |scanner_status| when passing conditional text */
+#define defining 2              /* |scanner_status| when reading a macro definition */
+#define matching 3              /* |scanner_status| when reading macro arguments */
+#define aligning 4              /* |scanner_status| when reading an alignment preamble */
+#define absorbing 5             /* |scanner_status| when reading a balanced text */
 
-#define right_brace_token 0x400000  /* $2^{21}\cdot|right_brace|$ */
+#define right_brace_token 0x400000      /* $2^{21}\cdot|right_brace|$ */
 
 #define cat_code_table int_par(param_cat_code_table_code)
 #define tracing_nesting int_par(param_tracing_nesting_code)
@@ -211,45 +211,46 @@ char *u2s(unsigned unic)
    @^inner loop@>
 */
 
-boolean
-scan_keyword(char *s) /* look for a given string */
-{
-    pointer p; /* tail of the backup list */
-    pointer q; /* new node being added to the token list via |store_new_token| */
-    char *k; /* index into |str_pool| */
-    if (strlen(s)==1) {
+boolean scan_keyword(char *s)
+{                               /* look for a given string */
+    pointer p;                  /* tail of the backup list */
+    pointer q;                  /* new node being added to the token list via |store_new_token| */
+    char *k;                    /* index into |str_pool| */
+    if (strlen(s) == 1) {
         /* @<Get the next non-blank non-call token@>; */
-        do { 
+        do {
             get_x_token();
-        } while ((cur_cmd==spacer_cmd)||(cur_cmd==relax_cmd));
-        if ((cur_cs==0)&&
-            ((cur_chr==*s)||(cur_chr==*s-'a'+'A'))) {
+        } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
+        if ((cur_cs == 0) && ((cur_chr == *s) || (cur_chr == *s - 'a' + 'A'))) {
             return true;
         } else {
             back_input();
             return false;
         }
     } else {
-        p=backup_head; link(p)=null; 
-        k=s;
+        p = backup_head;
+        link(p) = null;
+        k = s;
         while (*k) {
-            get_x_token(); /* recursion is possible here */
-            if ((cur_cs==0)&&
-                ((cur_chr==*k)||(cur_chr==*k-'a'+'A'))) {
+            get_x_token();      /* recursion is possible here */
+            if ((cur_cs == 0) &&
+                ((cur_chr == *k) || (cur_chr == *k - 'a' + 'A'))) {
                 store_new_token(cur_tok);
                 k++;
-            } else if ((cur_cmd!=spacer_cmd)||(p!=backup_head)) {
-                if (p!=backup_head) {
-                    q=get_avail(); info(q)=cur_tok; link(q)=null;
+            } else if ((cur_cmd != spacer_cmd) || (p != backup_head)) {
+                if (p != backup_head) {
+                    q = get_avail();
+                    info(q) = cur_tok;
+                    link(q) = null;
                     link(p) = q;
-                    begin_token_list(link(backup_head),backed_up);
-                }  else {
+                    begin_token_list(link(backup_head), backed_up);
+                } else {
                     back_input();
                 }
                 return false;
             }
         }
-        flush_list(link(backup_head)); 
+        flush_list(link(backup_head));
     }
     return true;
 }
@@ -274,28 +275,28 @@ scan_keyword(char *s) /* look for a given string */
         }                                           \
     } while (0)
 
-void 
-scan_direction (void) 
+void scan_direction(void)
 {
-    integer d1,d2,d3;
+    integer d1, d2, d3;
     get_x_token();
-    if (cur_cmd==assign_dir_cmd) {
-        cur_val=zeqtb[cur_chr].cint;
+    if (cur_cmd == assign_dir_cmd) {
+        cur_val = zeqtb[cur_chr].cint;
         return;
     } else {
         back_input();
     }
     scan_single_dir(d1);
     scan_single_dir(d2);
-    if (dir_parallel(d1,d2)) {
+    if (dir_parallel(d1, d2)) {
         tex_error("Bad direction", NULL);
-        cur_val=0;
+        cur_val = 0;
         return;
     }
     scan_single_dir(d3);
-    get_x_token(); 
-    if (cur_cmd!=spacer_cmd) back_input(); 
-   cur_val=d1*8+dir_rearrange[d2]*4+d3;
+    get_x_token();
+    if (cur_cmd != spacer_cmd)
+        back_input();
+    cur_val = d1 * 8 + dir_rearrange[d2] * 4 + d3;
 }
 
 
@@ -336,52 +337,58 @@ halfword active_to_cs(int curchr, int force)
                          (str_pool[str_start_macro(a)+2] == 0xBF))
 
 
-char * 
-cs_to_string (pointer p) /* prints a control sequence */
-{
-  char *s;
-  int k = 0;
-  static char ret[256] = {0};
-  if (p==null_cs) {
-    ret[k++] = '\\';
-    s = "csname";
-    while (*s) { ret[k++] = *s++; }
-    ret[k++] = '\\';
-    s = "endcsname";
-    while (*s) { ret[k++] = *s++; }
-    ret[k]=0;
+char *cs_to_string(pointer p)
+{                               /* prints a control sequence */
+    char *s;
+    int k = 0;
+    static char ret[256] = { 0 };
+    if (p == null_cs) {
+        ret[k++] = '\\';
+        s = "csname";
+        while (*s) {
+            ret[k++] = *s++;
+        }
+        ret[k++] = '\\';
+        s = "endcsname";
+        while (*s) {
+            ret[k++] = *s++;
+        }
+        ret[k] = 0;
 
-  } else {
-    str_number txt = zget_cs_text(p);
-    s = makecstring(txt);
-    if (is_active_cs(txt)) {
-      s = s + 3;
-      while (*s) { ret[k++] = *s++; }
-      ret[k]=0;
     } else {
-      ret[k++] = '\\';
-      while (*s) { ret[k++] = *s++; }
-      ret[k]=0;
+        str_number txt = zget_cs_text(p);
+        s = makecstring(txt);
+        if (is_active_cs(txt)) {
+            s = s + 3;
+            while (*s) {
+                ret[k++] = *s++;
+            }
+            ret[k] = 0;
+        } else {
+            ret[k++] = '\\';
+            while (*s) {
+                ret[k++] = *s++;
+            }
+            ret[k] = 0;
+        }
     }
-  }
-  return (char *)ret;
+    return (char *) ret;
 }
 
 /* TODO this is a quick hack, will be solved differently soon */
 
-char *
-cmd_chr_to_string (int cmd, int chr)
+char *cmd_chr_to_string(int cmd, int chr)
 {
-  char *s;
-  strnumber str;
-  int sel = selector; 
-  selector = new_string;
-  print_cmd_chr(cmd,chr);
-  str = make_string();
-  s = makecstring(str);
-  selector = sel;
-  flush_str(str);
-  return s;
+    char *s;
+    strnumber str;
+    int sel = selector;
+    selector = new_string;
+    print_cmd_chr(cmd, chr);
+    str = make_string();
+    s = makecstring(str);
+    selector = sel;
+    flush_str(str);
+    return s;
 }
 
 /* Before getting into |get_next|, let's consider the subroutine that
@@ -392,47 +399,47 @@ cmd_chr_to_string (int cmd, int chr)
 
 static int frozen_control_sequence = 0;
 
-#define frozen_cr (frozen_control_sequence+1) /* permanent `\.{\\cr}' */
-#define frozen_fi (frozen_control_sequence+4) /* permanent `\.{\\fi}' */
+#define frozen_cr (frozen_control_sequence+1)   /* permanent `\.{\\cr}' */
+#define frozen_fi (frozen_control_sequence+4)   /* permanent `\.{\\fi}' */
 
-void 
-check_outer_validity (void)
+void check_outer_validity(void)
 {
-    pointer p; /* points to inserted token list */
-    pointer q; /* auxiliary pointer */
+    pointer p;                  /* points to inserted token list */
+    pointer q;                  /* auxiliary pointer */
     if (suppress_outer_error)
-      return;
-    if (frozen_control_sequence==0) {
-      frozen_control_sequence = get_nullcs()+1+get_hash_size(); /* hashbase=nullcs+1 */
+        return;
+    if (frozen_control_sequence == 0) {
+        frozen_control_sequence = get_nullcs() + 1 + get_hash_size();   /* hashbase=nullcs+1 */
     }
-    if (scanner_status!=normal) {
-        deletions_allowed=false;
+    if (scanner_status != normal) {
+        deletions_allowed = false;
         /* @<Back up an outer control sequence so that it can be reread@>; */
         /* An outer control sequence that occurs in a \.{\\read} will not be reread,
            since the error recovery for \.{\\read} is not very powerful. */
-        if (cur_cs!=0) {
-            if ((state==token_list)||(name<1)||(name>17)) {
-                p=get_avail();
-                info(p)=cs_token_flag+cur_cs;
-                begin_token_list(p,backed_up); /* prepare to read the control sequence again */
+        if (cur_cs != 0) {
+            if ((state == token_list) || (name < 1) || (name > 17)) {
+                p = get_avail();
+                info(p) = cs_token_flag + cur_cs;
+                begin_token_list(p, backed_up); /* prepare to read the control sequence again */
             }
-            cur_cmd=spacer_cmd;
-            cur_chr=' '; /* replace it by a space */
+            cur_cmd = spacer_cmd;
+            cur_chr = ' ';      /* replace it by a space */
         }
-        if (scanner_status>skipping) {
+        if (scanner_status > skipping) {
             char *errhlp[] = { "I suspect you have forgotten a `}', causing me",
-                               "to read past where you wanted me to stop.",
-                               "I'll try to recover; but if the error is serious,",
-                               "you'd better type `E' or `X' now and fix your file.",
-                               NULL };
-	    char errmsg[256];
-	    char *startmsg, *scannermsg;
+                "to read past where you wanted me to stop.",
+                "I'll try to recover; but if the error is serious,",
+                "you'd better type `E' or `X' now and fix your file.",
+                NULL
+            };
+            char errmsg[256];
+            char *startmsg, *scannermsg;
             /* @<Tell the user what has run away and try to recover@> */
-            runaway(); /* print a definition, argument, or preamble */
-            if (cur_cs==0) { 
+            runaway();          /* print a definition, argument, or preamble */
+            if (cur_cs == 0) {
                 startmsg = "File ended";
-            } else {  
-                cur_cs=0; 
+            } else {
+                cur_cs = 0;
                 startmsg = "Forbidden control sequence found";
             }
             /* @<Print either `\.{definition}' or `\.{use}' or `\.{preamble}' or `\.{text}',
@@ -443,64 +450,72 @@ check_outer_validity (void)
                runaway preamble, we will insert a special \.{\\cr} token and a right
                brace; and for a runaway argument, we will set |long_state| to
                |outer_call| and insert \.{\\par}. */
-            p=get_avail();
+            p = get_avail();
             switch (scanner_status) {
             case defining:
-  	        scannermsg = "definition"; 
-                info(p)=right_brace_token+'}';
+                scannermsg = "definition";
+                info(p) = right_brace_token + '}';
                 break;
-            case matching: 
-                scannermsg = "use"; 
-                info(p)=par_token;
-                long_state=outer_call_cmd;
+            case matching:
+                scannermsg = "use";
+                info(p) = par_token;
+                long_state = outer_call_cmd;
                 break;
-            case aligning: 
-   	        scannermsg = "preamble"; 
-                info(p)=right_brace_token+'}'; 
-                q=p;
-                p=get_avail(); link(p)=q; info(p)=cs_token_flag+frozen_cr;
-                align_state=-1000000;
+            case aligning:
+                scannermsg = "preamble";
+                info(p) = right_brace_token + '}';
+                q = p;
+                p = get_avail();
+                link(p) = q;
+                info(p) = cs_token_flag + frozen_cr;
+                align_state = -1000000;
                 break;
-            case absorbing: 
-                scannermsg = "text"; 
-                info(p)=right_brace_token+'}';
+            case absorbing:
+                scannermsg = "text";
+                info(p) = right_brace_token + '}';
                 break;
-            default: /* can't happen */
-                scannermsg = "unknown"; 
+            default:           /* can't happen */
+                scannermsg = "unknown";
                 break;
-            }  /*there are no other cases */
-            begin_token_list(p,inserted);
-	    snprintf(errmsg,255, "%s while scanning %s of %s", 
-		     startmsg, scannermsg, cs_to_string(warning_index));
+            }                   /*there are no other cases */
+            begin_token_list(p, inserted);
+            snprintf(errmsg, 255, "%s while scanning %s of %s",
+                     startmsg, scannermsg, cs_to_string(warning_index));
             tex_error(errmsg, errhlp);
-        } else  {
-	    char errmsg[256];
-            char *errhlp_no[] = { "The file ended while I was skipping conditional text.",
-				  "This kind of error happens when you say `\\if...' and forget",
-				  "the matching `\\fi'. I've inserted a `\\fi'; this might work.",
-				  NULL };
-            char *errhlp_cs[] = { "A forbidden control sequence occurred in skipped text.",
-				  "This kind of error happens when you say `\\if...' and forget",
-				  "the matching `\\fi'. I've inserted a `\\fi'; this might work.",
-				  NULL };
-	    char **errhlp = (char **)errhlp_no;
-            if (cur_cs!=0) {
-   	        errhlp = errhlp_cs;
-                cur_cs=0;
+        } else {
+            char errmsg[256];
+            char *errhlp_no[] =
+                { "The file ended while I was skipping conditional text.",
+                "This kind of error happens when you say `\\if...' and forget",
+                "the matching `\\fi'. I've inserted a `\\fi'; this might work.",
+                NULL
+            };
+            char *errhlp_cs[] =
+                { "A forbidden control sequence occurred in skipped text.",
+                "This kind of error happens when you say `\\if...' and forget",
+                "the matching `\\fi'. I've inserted a `\\fi'; this might work.",
+                NULL
+            };
+            char **errhlp = (char **) errhlp_no;
+            if (cur_cs != 0) {
+                errhlp = errhlp_cs;
+                cur_cs = 0;
             }
-	    snprintf(errmsg,255,"Incomplete %s; all text was ignored after line %d",
-		     cmd_chr_to_string(if_test_cmd,cur_if), skip_line);
+            snprintf(errmsg, 255,
+                     "Incomplete %s; all text was ignored after line %d",
+                     cmd_chr_to_string(if_test_cmd, cur_if), skip_line);
             /* @.Incomplete \\if...@> */
-            cur_tok=cs_token_flag+frozen_fi; 
-	    /* back up one inserted token and call |error| */
-	    { OK_to_interrupt=false; 
-	      back_input(); 
-	      token_type=inserted;
-	      OK_to_interrupt=true; 
-	      tex_error(errmsg, errhlp);
-	    }
+            cur_tok = cs_token_flag + frozen_fi;
+            /* back up one inserted token and call |error| */
+            {
+                OK_to_interrupt = false;
+                back_input();
+                token_type = inserted;
+                OK_to_interrupt = true;
+                tex_error(errmsg, errhlp);
+            }
         }
-        deletions_allowed=true;
+        deletions_allowed = true;
     }
 }
 
@@ -539,7 +554,8 @@ static boolean get_next_file(void)
         case new_line + escape_cmd:
         case skip_blanks + escape_cmd: /* @<Scan a control sequence ...@>; */
             state = scan_control_sequence();
-            if (cur_cmd>=outer_call_cmd) check_outer_validity();
+            if (cur_cmd >= outer_call_cmd)
+                check_outer_validity();
             break;
         case mid_line + active_char_cmd:
         case new_line + active_char_cmd:
@@ -548,7 +564,8 @@ static boolean get_next_file(void)
             cur_cmd = eq_type(cur_cs);
             cur_chr = equiv(cur_cs);
             state = mid_line;
-            if (cur_cmd>=outer_call_cmd) check_outer_validity();
+            if (cur_cmd >= outer_call_cmd)
+                check_outer_validity();
             break;
         case mid_line + sup_mark_cmd:
         case new_line + sup_mark_cmd:
@@ -591,7 +608,8 @@ static boolean get_next_file(void)
             cur_cs = par_loc;
             cur_cmd = eq_type(cur_cs);
             cur_chr = equiv(cur_cs);
-            if (cur_cmd>=outer_call_cmd) check_outer_validity();
+            if (cur_cmd >= outer_call_cmd)
+                check_outer_validity();
             break;
         case skip_blanks + left_brace_cmd:
         case new_line + left_brace_cmd:
@@ -1002,13 +1020,13 @@ static next_line_retval next_line(void)
                 /* update_terminal(); *//* show user that file has been read */
             }
             force_eof = false;
-	    if (name==21 ||   /* lua input */
-		name==19) {   /* \scantextokens */
-	      end_file_reading();
-	    } else {
-	      end_file_reading();
-	      check_outer_validity();
-	    } 
+            if (name == 21 ||   /* lua input */
+                name == 19) {   /* \scantextokens */
+                end_file_reading();
+            } else {
+                end_file_reading();
+                check_outer_validity();
+            }
             return next_line_restart;
         }
         if (inhibit_eol || end_line_char_inactive)
@@ -1068,12 +1086,12 @@ static boolean get_next_tokenlist(void)
     if (t >= cs_token_flag) {   /* a control sequence token */
         cur_cs = t - cs_token_flag;
         cur_cmd = eq_type(cur_cs);
-        if (cur_cmd>=outer_call_cmd) {
-            if (cur_cmd == dont_expand_cmd) {       /* @<Get the next token, suppressing expansion@> */
+        if (cur_cmd >= outer_call_cmd) {
+            if (cur_cmd == dont_expand_cmd) {   /* @<Get the next token, suppressing expansion@> */
                 /* The present point in the program is reached only when the |expand|
                    routine has inserted a special marker into the input. In this special
                    case, |info(loc)| is known to be a control sequence token, and |link(loc)=null|.
-                */
+                 */
                 cur_cs = info(loc) - cs_token_flag;
                 loc = null;
                 cur_cmd = eq_type(cur_cs);

@@ -1154,9 +1154,9 @@ ext_try_break(integer pi,
         artificial_demerits = false;
         shortfall = line_width - cur_active_width[1];
         if (break_node(r) == null)
-          shortfall -= init_internal_left_box_width;
+            shortfall -= init_internal_left_box_width;
         else
-          shortfall -= passive_last_left_box_width(break_node(r));
+            shortfall -= passive_last_left_box_width(break_node(r));
         shortfall -= internal_right_box_width;
         if (pdf_protrude_chars > 1) {
             halfword l, o;
@@ -1517,9 +1517,8 @@ ext_do_line_break(boolean d,
                   halfword widow_penalties_ptr,
                   int display_widow_penalty,
                   int widow_penalty,
-                  int broken_penalty, 
-                  halfword final_par_glue, 
-                  halfword pdf_ignored_dimen)
+                  int broken_penalty,
+                  halfword final_par_glue, halfword pdf_ignored_dimen)
 {
     /* DONE,DONE1,DONE2,DONE3,DONE4,DONE5,CONTINUE; */
     halfword cur_p, q, r, s;    /* miscellaneous nodes of temporary interest */
@@ -1563,8 +1562,10 @@ ext_do_line_break(boolean d,
         }
     } else {
         last_special_line = vinfo(par_shape_ptr + 1) - 1;
-        second_indent = varmem[(par_shape_ptr + 2 * (last_special_line + 1)    )].cint;
-        second_width  = varmem[(par_shape_ptr + 2 * (last_special_line + 1) + 1)].cint; 
+        second_indent =
+            varmem[(par_shape_ptr + 2 * (last_special_line + 1))].cint;
+        second_width =
+            varmem[(par_shape_ptr + 2 * (last_special_line + 1) + 1)].cint;
     }
     if (looseness == 0)
         easy_line = last_special_line;
@@ -1661,7 +1662,8 @@ ext_do_line_break(boolean d,
         auto_breaking = true;
         cur_p = vlink(temp_head);
         /* LOCAL: Initialize with first |local_paragraph| node */
-        if ((cur_p != null) && (type(cur_p) == whatsit_node) && (subtype(cur_p) == local_par_node)) {
+        if ((cur_p != null) && (type(cur_p) == whatsit_node)
+            && (subtype(cur_p) == local_par_node)) {
             assert(alink(cur_p) == temp_head);
             internal_pen_inter = local_pen_inter(cur_p);
             internal_pen_broken = local_pen_broken(cur_p);
@@ -2165,7 +2167,8 @@ ext_post_line_break(d,
                     best_bet,
                     last_special_line,
                     second_width,
-                    second_indent, first_width, first_indent, best_line, pdf_ignored_dimen);
+                    second_indent, first_width, first_indent, best_line,
+                    pdf_ignored_dimen);
   /* /Break the paragraph at the chosen... */
   /* Clean up the memory by removing the break nodes; */
 clean_up_the_memory();

@@ -40,17 +40,17 @@ static const char _svn_version[] =
 #define hash_size 65536
 
 #define span_code 1114113
-#define unless_code 32 /* amount added for `\.{\\unless}' prefix */
-#define protected_token 0x1C00001   /* $2^{21}\cdot|end_match|+1$ */
+#define unless_code 32          /* amount added for `\.{\\unless}' prefix */
+#define protected_token 0x1C00001       /* $2^{21}\cdot|end_match|+1$ */
 #define offset_ocp_name 1
 #define ocp_name(A) ocp_tables[(A)][offset_ocp_name]
 
 #define skip_base      get_skip_base()
 #define mu_skip_base   get_mu_skip_base()
-#define glue_base      static_glue_base      
+#define glue_base      static_glue_base
 #define toks_base      get_toks_base()
 #define count_base     get_count_base()
-#define int_base       static_int_base       
+#define int_base       static_int_base
 #define attribute_base get_attribute_base()
 #define scaled_base    get_scaled_base()
 #define dimen_base     get_dimen_base()
@@ -86,21 +86,21 @@ static memory_word prim_eqtb[(prim_size + 1)];
    cmd,chr -> name lookups. */
 
 typedef struct prim_info {
-  halfword subids;   /* number of name entries */
-  halfword offset;   /* offset to be used for |chr_code|s */
-  str_number *names; /* array of names */
+    halfword subids;            /* number of name entries */
+    halfword offset;            /* offset to be used for |chr_code|s */
+    str_number *names;          /* array of names */
 } prim_info;
 
-static prim_info prim_data[(last_cmd+1)];
+static prim_info prim_data[(last_cmd + 1)];
 
 /* initialize the memory arrays */
 
 void init_primitives(void)
 {
     int k;
-    memset(prim_data, 0,  (sizeof(prim_info) * (last_cmd + 1)));
-    memset(prim, 0,       (sizeof(two_halves) * (prim_size + 1)));
-    memset(prim_eqtb, 0,  (sizeof(memory_word) * (prim_size + 1)));
+    memset(prim_data, 0, (sizeof(prim_info) * (last_cmd + 1)));
+    memset(prim, 0, (sizeof(two_halves) * (prim_size + 1)));
+    memset(prim_eqtb, 0, (sizeof(memory_word) * (prim_size + 1)));
     for (k = 0; k <= prim_size; k++)
         prim_eq_type(k) = undefined_cs_cmd;
 }
@@ -135,8 +135,8 @@ static halfword compute_hash(char *j, pool_pointer l, halfword prime_number)
 
 pointer prim_lookup(str_number s)
 {
-    integer h;  /* hash code */
-    pointer p;  /* index in |hash| array */
+    integer h;                  /* hash code */
+    pointer p;                  /* index in |hash| array */
     pool_pointer j, l;
     if (s < string_offset) {
         p = s;
@@ -221,7 +221,7 @@ str_number get_prim_text(integer p)
 
 void dump_primitives(void)
 {
-  int p, q;
+    int p, q;
     for (p = 0; p <= prim_size; p++)
         dump_hh(prim[p]);
     for (p = 0; p <= prim_size; p++)
@@ -229,9 +229,9 @@ void dump_primitives(void)
     for (p = 0; p <= last_cmd; p++) {
         dump_int(prim_data[p].offset);
         dump_int(prim_data[p].subids);
-        for (q=0;q<prim_data[p].subids;q++) {
+        for (q = 0; q < prim_data[p].subids; q++) {
             dump_int(prim_data[p].names[q]);
-	}
+        }
     }
 }
 
@@ -246,12 +246,14 @@ void undump_primitives(void)
     for (p = 0; p <= last_cmd; p++) {
         undump_int(prim_data[p].offset);
         undump_int(prim_data[p].subids);
-        if (prim_data[p].subids>0) {
-            prim_data[p].names = (str_number *)xcalloc ((prim_data[p].subids), sizeof(str_number *));
+        if (prim_data[p].subids > 0) {
+            prim_data[p].names =
+                (str_number *) xcalloc((prim_data[p].subids),
+                                       sizeof(str_number *));
         }
-        for (q=0;q<prim_data[p].subids;q++) {
+        for (q = 0; q < prim_data[p].subids; q++) {
             undump_int(prim_data[p].names[q]);
-	}
+        }
     }
 }
 
@@ -272,7 +274,7 @@ void primitive_def(char *s, size_t l, quarterword c, halfword o)
 {
     int nncs = no_new_control_sequence;
     no_new_control_sequence = false;
-    cur_val = string_lookup(s, l); /* this creates the |text()| string */
+    cur_val = string_lookup(s, l);      /* this creates the |text()| string */
     no_new_control_sequence = nncs;
     eq_level(cur_val) = level_one;
     eq_type(cur_val) = c;
@@ -292,28 +294,30 @@ void primitive_def(char *s, size_t l, quarterword c, halfword o)
    needed, but it helps catch errors of this kind.
 */
 
-void 
-store_primitive_name (str_number s, quarterword c, halfword o, halfword offset) {
-  int idx;
-  if (prim_data[c].offset != 0 && 
-      prim_data[c].offset != offset) {
-    assert(false);
-  }
-  prim_data[c].offset = offset;
-  idx = ((int)o-offset);
-  assert(idx>=0);
-  assert(idx<=0xFFFF);
-  if (prim_data[c].subids<(idx+1)) {
-    str_number *new = (str_number *)xcalloc ((idx+1), sizeof(str_number *));
-    if (prim_data[c].names!=NULL) {
-      assert (prim_data[c].subids);
-      memcpy (new, (prim_data[c].names), (prim_data[c].subids*sizeof(str_number)));
-      free (prim_data[c].names);
+void
+store_primitive_name(str_number s, quarterword c, halfword o, halfword offset)
+{
+    int idx;
+    if (prim_data[c].offset != 0 && prim_data[c].offset != offset) {
+        assert(false);
     }
-    prim_data[c].names = new;
-    prim_data[c].subids = idx+1;
-  } 
-  prim_data[c].names[idx] = s;
+    prim_data[c].offset = offset;
+    idx = ((int) o - offset);
+    assert(idx >= 0);
+    assert(idx <= 0xFFFF);
+    if (prim_data[c].subids < (idx + 1)) {
+        str_number *new =
+            (str_number *) xcalloc((idx + 1), sizeof(str_number *));
+        if (prim_data[c].names != NULL) {
+            assert(prim_data[c].subids);
+            memcpy(new, (prim_data[c].names),
+                   (prim_data[c].subids * sizeof(str_number)));
+            free(prim_data[c].names);
+        }
+        prim_data[c].names = new;
+        prim_data[c].subids = idx + 1;
+    }
+    prim_data[c].names[idx] = s;
 }
 
 /* Compared to tex82, |primitive| has two extra parameters. The |off| is an offset 
@@ -322,12 +326,13 @@ store_primitive_name (str_number s, quarterword c, halfword o, halfword offset) 
 */
 
 void
-primitive(str_number ss, quarterword c, halfword o, halfword off, int cmd_origin)
+primitive(str_number ss, quarterword c, halfword o, halfword off,
+          int cmd_origin)
 {
     str_number s;               /* actual |str_number| used */
     integer prim_val;           /* needed to fill |prim_eqtb| */
-    assert (o>=off);
-   if (ss < string_offset) {
+    assert(o >= off);
+    if (ss < string_offset) {
         if (ss > 127)
             tconfusion("prim"); /* should be ASCII */
         append_char(ss);
@@ -343,7 +348,7 @@ primitive(str_number ss, quarterword c, halfword o, halfword off, int cmd_origin
     prim_origin(prim_val) = cmd_origin;
     prim_eq_type(prim_val) = c;
     prim_equiv(prim_val) = o;
-    store_primitive_name (s, c, o, off);
+    store_primitive_name(s, c, o, off);
 }
 
 
@@ -351,8 +356,7 @@ primitive(str_number ss, quarterword c, halfword o, halfword off, int cmd_origin
  * Here is a helper that does the actual hash insertion.
  */
 
-static halfword
-insert_id (halfword p, unsigned char *j, pool_pointer l)
+static halfword insert_id(halfword p, unsigned char *j, pool_pointer l)
 {
     integer d;
     unsigned char *k;
@@ -363,7 +367,7 @@ insert_id (halfword p, unsigned char *j, pool_pointer l)
         if (hash_high < hash_extra) {
             incr(hash_high);
             /* can't use eqtb_top here (perhaps because that is not finalized 
-	       yet when called from |primitive|?) */
+               yet when called from |primitive|?) */
             next(p) = hash_high + get_eqtb_size();
             p = next(p);
         } else {
@@ -403,8 +407,7 @@ insert_id (halfword p, unsigned char *j, pool_pointer l)
 */
 
 
-pointer 
-id_lookup(integer j, integer l)
+pointer id_lookup(integer j, integer l)
 {                               /* search the hash table */
     integer h;                  /* hash code */
     pointer p;                  /* index in |hash| array */
@@ -436,8 +439,7 @@ id_lookup(integer j, integer l)
  */
 
 
-pointer 
-string_lookup(char *s, size_t l)
+pointer string_lookup(char *s, size_t l)
 {                               /* search the hash table */
     integer h;                  /* hash code */
     pointer p;                  /* index in |hash| array */
@@ -477,159 +479,190 @@ string_lookup(char *s, size_t l)
 
 #define chr_cmd(A) do { tprint(A); print(chr_code); } while (0)
 
-void
-prim_cmd_chr (quarterword cmd,  halfword chr_code)
+void prim_cmd_chr(quarterword cmd, halfword chr_code)
 {
-  int idx = chr_code - prim_data[cmd].offset ;
-  if (cmd<=last_cmd && 
-      idx>=0 && idx<prim_data[cmd].subids &&
-      prim_data[cmd].names != NULL &&
-      prim_data[cmd].names[idx] != 0) {
-    tprint("\\"); 
-    print(prim_data[cmd].names[idx]);
-  } else {
-    /* TEX82 didn't print the |cmd,idx| information, but it may be useful */
-    tprint("[unknown command code! (");  
-    print_int(cmd); tprint(", "); print_int(idx);
-    tprint(")]");
-  }
+    int idx = chr_code - prim_data[cmd].offset;
+    if (cmd <= last_cmd &&
+        idx >= 0 && idx < prim_data[cmd].subids &&
+        prim_data[cmd].names != NULL && prim_data[cmd].names[idx] != 0) {
+        tprint("\\");
+        print(prim_data[cmd].names[idx]);
+    } else {
+        /* TEX82 didn't print the |cmd,idx| information, but it may be useful */
+        tprint("[unknown command code! (");
+        print_int(cmd);
+        tprint(", ");
+        print_int(idx);
+        tprint(")]");
+    }
 }
 
-void 
-print_cmd_chr(quarterword cmd,  halfword chr_code)
+void print_cmd_chr(quarterword cmd, halfword chr_code)
 {
-  integer n; /* temp variable */
-  switch (cmd) {
-  case left_brace_cmd:  chr_cmd("begin-group character "); break;
-  case right_brace_cmd: chr_cmd("end-group character "); break;
-  case math_shift_cmd:  chr_cmd("math shift character "); break;
-  case mac_param_cmd:   chr_cmd("macro parameter character "); break;
-  case sup_mark_cmd:    chr_cmd("superscript character "); break;
-  case sub_mark_cmd:    chr_cmd("subscript character "); break;
-  case endv_cmd:        tprint("end of alignment template"); break;
-  case spacer_cmd:      chr_cmd("blank space "); break;
-  case letter_cmd:      chr_cmd("the letter "); break;
-  case other_char_cmd:  chr_cmd("the character "); break;
-  case tab_mark_cmd: 
-    if (chr_code==span_code) tprint_esc("span");
-    else chr_cmd("alignment tab character ");
-    break;
-  case if_test_cmd:  
-    if (chr_code>=unless_code) tprint_esc("unless");
-    prim_cmd_chr(cmd,(chr_code % unless_code));
-    break;
-  case math_comp_cmd: 
-    print_math_comp (chr_code);
-    break;
-  case limit_switch_cmd: 
-    print_limit_switch (chr_code);
-    break;
-  case math_style_cmd: 
-    print_style(chr_code);
-    break;
-  case char_given_cmd:  
-    tprint_esc("char"); print_hex(chr_code);
-    break;
-  case math_given_cmd:  
-    tprint_esc("mathchar"); 
-    show_mathcode_value(mathchar_from_integer(chr_code,tex_mathcode));
-    break;
-  case omath_given_cmd:  
-    tprint_esc("omathchar");
-    show_mathcode_value(mathchar_from_integer(chr_code,aleph_mathcode));
-    break;
-  case xmath_given_cmd:  
-    tprint_esc("Umathchar"); 
-    show_mathcode_value(mathchar_from_integer(chr_code,xetex_mathcode));
-    break;
-  case def_family_cmd: 
-    print_size(chr_code);
-    break;
-  case set_math_param_cmd: 
-    print_math_param(chr_code);
-    break;
-  case set_font_cmd: 
-    tprint("select font "); 
-    tprint(font_name(chr_code));
-    if (font_size(chr_code)!=font_dsize(chr_code)) {
-      tprint(" at "); 
-      print_scaled(font_size(chr_code));
-      tprint("pt");
-    }
-    break;
-  case undefined_cs_cmd: 
-    tprint("undefined");
-    break;
-  case call_cmd:
-  case long_call_cmd:
-  case outer_call_cmd:
-  case long_outer_call_cmd: 
-    n=cmd-call_cmd;
-    if (info(link(chr_code))==protected_token)  
-      n=n+4;
-    if (odd(n / 4)) tprint_esc("protected");
-    if (odd(n))     tprint_esc("long");
-    if (odd(n / 2)) tprint_esc("outer");
-    if (n>0) 
-      tprint(" ");
-    tprint("macro");
-    break;
-  case extension_cmd: 
-    if (chr_code<prim_data[cmd].subids &&
-	prim_data[cmd].names[chr_code] != 0) {
-      prim_cmd_chr(cmd,chr_code);
-    } else {
-      tprint("[unknown extension! (");
-      print_int(chr_code);
-      tprint(")]");
+    integer n;                  /* temp variable */
+    switch (cmd) {
+    case left_brace_cmd:
+        chr_cmd("begin-group character ");
+        break;
+    case right_brace_cmd:
+        chr_cmd("end-group character ");
+        break;
+    case math_shift_cmd:
+        chr_cmd("math shift character ");
+        break;
+    case mac_param_cmd:
+        chr_cmd("macro parameter character ");
+        break;
+    case sup_mark_cmd:
+        chr_cmd("superscript character ");
+        break;
+    case sub_mark_cmd:
+        chr_cmd("subscript character ");
+        break;
+    case endv_cmd:
+        tprint("end of alignment template");
+        break;
+    case spacer_cmd:
+        chr_cmd("blank space ");
+        break;
+    case letter_cmd:
+        chr_cmd("the letter ");
+        break;
+    case other_char_cmd:
+        chr_cmd("the character ");
+        break;
+    case tab_mark_cmd:
+        if (chr_code == span_code)
+            tprint_esc("span");
+        else
+            chr_cmd("alignment tab character ");
+        break;
+    case if_test_cmd:
+        if (chr_code >= unless_code)
+            tprint_esc("unless");
+        prim_cmd_chr(cmd, (chr_code % unless_code));
+        break;
+    case math_comp_cmd:
+        print_math_comp(chr_code);
+        break;
+    case limit_switch_cmd:
+        print_limit_switch(chr_code);
+        break;
+    case math_style_cmd:
+        print_style(chr_code);
+        break;
+    case char_given_cmd:
+        tprint_esc("char");
+        print_hex(chr_code);
+        break;
+    case math_given_cmd:
+        tprint_esc("mathchar");
+        show_mathcode_value(mathchar_from_integer(chr_code, tex_mathcode));
+        break;
+    case omath_given_cmd:
+        tprint_esc("omathchar");
+        show_mathcode_value(mathchar_from_integer(chr_code, aleph_mathcode));
+        break;
+    case xmath_given_cmd:
+        tprint_esc("Umathchar");
+        show_mathcode_value(mathchar_from_integer(chr_code, xetex_mathcode));
+        break;
+    case def_family_cmd:
+        print_size(chr_code);
+        break;
+    case set_math_param_cmd:
+        print_math_param(chr_code);
+        break;
+    case set_font_cmd:
+        tprint("select font ");
+        tprint(font_name(chr_code));
+        if (font_size(chr_code) != font_dsize(chr_code)) {
+            tprint(" at ");
+            print_scaled(font_size(chr_code));
+            tprint("pt");
+        }
+        break;
+    case undefined_cs_cmd:
+        tprint("undefined");
+        break;
+    case call_cmd:
+    case long_call_cmd:
+    case outer_call_cmd:
+    case long_outer_call_cmd:
+        n = cmd - call_cmd;
+        if (info(link(chr_code)) == protected_token)
+            n = n + 4;
+        if (odd(n / 4))
+            tprint_esc("protected");
+        if (odd(n))
+            tprint_esc("long");
+        if (odd(n / 2))
+            tprint_esc("outer");
+        if (n > 0)
+            tprint(" ");
+        tprint("macro");
+        break;
+    case extension_cmd:
+        if (chr_code < prim_data[cmd].subids &&
+            prim_data[cmd].names[chr_code] != 0) {
+            prim_cmd_chr(cmd, chr_code);
+        } else {
+            tprint("[unknown extension! (");
+            print_int(chr_code);
+            tprint(")]");
 
+        }
+        break;
+    case set_ocp_cmd:
+        tprint("select ocp ");
+        slow_print(ocp_name(chr_code));
+        break;
+    case set_ocp_list_cmd:
+        tprint("select ocp list ");
+        break;
+    case assign_glue_cmd:
+    case assign_mu_glue_cmd:
+        if (chr_code < skip_base) {
+            print_skip_param(chr_code - glue_base);
+        } else if (chr_code < mu_skip_base) {
+            tprint_esc("skip");
+            print_int(chr_code - skip_base);
+        } else {
+            tprint_esc("muskip");
+            print_int(chr_code - mu_skip_base);
+        }
+        break;
+    case assign_toks_cmd:
+        if (chr_code >= toks_base) {
+            tprint_esc("toks");
+            print_int(chr_code - toks_base);
+        } else {
+            prim_cmd_chr(cmd, chr_code);
+        }
+        break;
+    case assign_int_cmd:
+        if (chr_code < count_base) {
+            print_param(chr_code - int_base);
+        } else {
+            tprint_esc("count");
+            print_int(chr_code - count_base);
+        }
+        break;
+    case assign_attr_cmd:
+        tprint_esc("attribute");
+        print_int(chr_code - attribute_base);
+        break;
+    case assign_dimen_cmd:
+        if (chr_code < scaled_base) {
+            print_length_param(chr_code - dimen_base);
+        } else {
+            tprint_esc("dimen");
+            print_int(chr_code - scaled_base);
+        }
+        break;
+    default:
+        /* these are most commands, actually */
+        prim_cmd_chr(cmd, chr_code);
+        break;
     }
-    break;
-  case set_ocp_cmd:
-    tprint("select ocp "); 
-    slow_print(ocp_name(chr_code)); 
-    break;
-  case set_ocp_list_cmd: 
-    tprint("select ocp list "); 
-    break;
-  case assign_glue_cmd:
-  case assign_mu_glue_cmd: 
-    if (chr_code<skip_base) {
-      print_skip_param(chr_code-glue_base);
-    } else if (chr_code<mu_skip_base) {
-      tprint_esc("skip"); print_int(chr_code-skip_base);
-    } else  {
-      tprint_esc("muskip"); print_int(chr_code-mu_skip_base);
-    }
-    break;
-  case assign_toks_cmd: 
-    if (chr_code>=toks_base) {
-      tprint_esc("toks"); print_int(chr_code-toks_base);
-    } else {
-      prim_cmd_chr(cmd,chr_code);
-    }
-    break;
-  case assign_int_cmd: 
-    if (chr_code<count_base) {
-      print_param(chr_code-int_base);
-    } else  {
-      tprint_esc("count"); print_int(chr_code-count_base);
-    }
-    break;
-  case assign_attr_cmd: 
-    tprint_esc("attribute"); print_int(chr_code-attribute_base);
-    break;
-  case assign_dimen_cmd: 
-    if (chr_code<scaled_base) {
-      print_length_param(chr_code-dimen_base);
-    } else  {
-      tprint_esc("dimen"); print_int(chr_code-scaled_base);
-    }
-    break;
-  default: 
-    /* these are most commands, actually */
-    prim_cmd_chr(cmd,chr_code);
-    break;
-  }
 }
-

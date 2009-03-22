@@ -141,8 +141,7 @@ do_define_font(integer f, char *cnom, char *caire, scaled s,
 
 }
 
-int
-read_font_info(pointer u, strnumber nom, scaled s, integer natural_dir)
+int read_font_info(pointer u, strnumber nom, scaled s, integer natural_dir)
 {
     integer f;
     char *cnom;

@@ -32,9 +32,9 @@
 #    include "luatexd.h"
 #  endif
 
-#ifdef MSVC
+#  ifdef MSVC
 extern double rint(double x);
-#endif
+#  endif
 
 /* pdftexlib macros */
 #  include "ptexmac.h"
@@ -224,11 +224,11 @@ extern size_t last_ptr_index;
 int loadpoolstrings(integer spare_size);
 
 /* filename.c */
-extern void scan_file_name (void);
+extern void scan_file_name(void);
 extern void pack_job_name(char *s);
 extern void prompt_file_name(char *s, char *e);
 extern str_number make_name_string(void);
-extern void print_file_name (str_number, str_number, str_number);
+extern void print_file_name(str_number, str_number, str_number);
 
 /* A hack to counter fixwrites */
 #  define do_write_wterm(a) fprintf(stdout, "%s",  a)
@@ -766,7 +766,7 @@ void pdf_print_real(integer m, integer d);
 
 extern boolean str_eq_cstr(str_number, char *, size_t);
 void get_next(void);
-extern void check_outer_validity (void);
+extern void check_outer_validity(void);
 boolean scan_keyword(char *);
 void scan_direction(void);
 halfword active_to_cs(int, int);
@@ -775,7 +775,7 @@ int get_char_cat_code(int);
 
 /* texdeffont.c */
 
-void tex_def_font (small_number a);
+void tex_def_font(small_number a);
 
 /* lcallbacklib.c */
 
@@ -838,7 +838,7 @@ extern void get_lua_boolean(char *table, char *name, boolean * target);
 extern void get_lua_number(char *table, char *name, integer * target);
 extern void get_lua_string(char *table, char *name, char **target);
 
-extern char *get_lua_name (int i);
+extern char *get_lua_name(int i);
 
 #  include "texmath.h"
 #  include "primitive.h"
