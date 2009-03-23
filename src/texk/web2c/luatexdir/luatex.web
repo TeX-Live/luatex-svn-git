@@ -21215,8 +21215,8 @@ node $r_j$ is followed by |r@t$_{j+1}$@>=vlink(r@t$_j$@>)|; and if there are
 each node in this list refers to an insertion number; for example, `\.{\\insert
 250}' would correspond to a node whose |subtype| is |qi(250)|
 (the same as the |subtype| field of the relevant |ins_node|). These |subtype|
-fields are in increasing order, and |subtype(page_ins_head)=
-qi(output_box)|, so |page_ins_head| serves as a convenient sentinel
+fields are in increasing order, and |subtype(page_ins_head)=65535, so 
+|page_ins_head| serves as a convenient sentinel
 at the end of the list. A record is present for each insertion number that
 appears in the current page.
 
@@ -21250,7 +21250,7 @@ appears in the fourth word of a box node.
 @d best_ins_ptr(#)==vinfo(#+3) {the optimum most recent insertion}
 
 @<Initialize the special list heads...@>=
-subtype(page_ins_head):=output_box;
+subtype(page_ins_head):=65535;
 type(page_ins_head):=split_up_node; vlink(page_ins_head):=page_ins_head;
 
 @ An array |page_so_far| records the heights and depths of everything
