@@ -1,3 +1,65 @@
+==============================================================
+Luatex beta-0.36.0 was released 20090323
+==============================================================
+
+* The included fontforge code is stripped considerably, and
+  the lua table to access the code is renamed to 'fontloader'.
+  The old name ('fontforge') will remain present for a while,
+  but will eventually go away.
+
+* New lua functions: tex.primitives(), tex.extraprimitives, 
+  tex.enableprimitives().  This is a prelude to a big change
+  in the next beta: iniluatex will from now on start up with
+  only the TeX82 primitives and \directlua, everything else
+  has to be bootstrapped via tex.enableprimitives().
+  See the manual for more details.
+
+* Support for multiple lua states has been removed, and at the
+  same time support for adding name ids to lua chunks has been
+  added.  See the manual for more details.
+
+* More changes to the PDF backend to make it support non-latin
+  directions (form and image placement, vertical typesetting,
+  synctex).
+
+* The kpathsea library is updated. Highlights: cleaner build 
+  process (thanks to Peter Breitenlohner), cleaner mingw32 
+  (cross)compilation support, and a new reentrant API.
+
+* Some possible endless loops within extended delimiters in
+  math mode are now trapped.
+
+* Movements inside VF font characters were considerably off 
+  due to a wrong conversion routine.
+
+* Error handling for \outer has been reinstated, but can be
+  suppressed via the new primitive \suppressoutererror.
+
+* The new primitives: \suppresslongerror and \suppressifcsnameerror
+  that can be used to suppress errors for \par in non-long macros 
+  and for non-expandable objects inside \ifcsname ... \endcsname, 
+  respectively.
+
+* New lua function: node.vpack() via a patch from Khaled Hosny
+  that also improves error handling in node.hpack().
+
+* Fix the typo that caused \charic (instead of \charit)
+  to be defined as a primitive.
+
+* Suppression of hyphenation via \hyphenchar\font=-1 now works
+  again.
+
+* The lua functions tex.print(), tex.sprint(), tex.write() now
+  accept an array of strings as well as vararg list of strings
+  to print.
+
+* A change to be build process: luatex.p is no longer split 
+  int smaller pieces before running the C compiler.
+
+* Melissa O'Neill contributed a bugfix to the Type1 font 
+  subsetting code.
+
+* A bunch of smaller bugfixes and cleanups (as usual).
 
 ==============================================================
 Luatex beta-0.35.0 was released 20090224
