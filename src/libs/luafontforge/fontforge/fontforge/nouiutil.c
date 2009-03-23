@@ -59,6 +59,7 @@ static void NOUI_LogError(const char *format,...) {
 
 static void NOUI_post_notice(const char *title,const char *statement,...) {
     va_list ap;
+  (void)title;
     va_start(ap,statement);
     NOUI__LogError(statement,ap);
     va_end(ap);
@@ -66,6 +67,7 @@ static void NOUI_post_notice(const char *title,const char *statement,...) {
 
 static void NOUI_post_error(const char *title,const char *statement,...) {
     va_list ap;
+  (void)title;
     va_start(ap,statement);
     NOUI__LogError(statement,ap);
     va_end(ap);
@@ -73,49 +75,82 @@ static void NOUI_post_error(const char *title,const char *statement,...) {
 
 static int NOUI_ask(const char *title, const char **answers,
 	int def, int cancel,const char *question,...) {
+  (void)title;
+  (void)answers;
+  (void)def;
+  (void)cancel;
+  (void)question;
 return( def );
 }
 
 static int NOUI_choose(const char *title, const char **choices,int cnt, int def,
 	const char *question,...) {
+  (void)title;
+  (void)choices;
+  (void)def;
+  (void)cnt;
+  (void)question;
 return( def );
 }
 
 static int NOUI_choose_multiple(char *title, const char **choices,char *sel,
 	int cnt, char *buts[2], const char *question,...) {
+  (void)title;
+  (void)choices;
+  (void)sel;
+  (void)cnt;
+  (void)buts;
+  (void)question;
 return( -1 );
 }
 
 static char *NOUI_ask_string(const char *title, const char *def,
 	const char *question,...) {
+  (void)title;
+  (void)def;
+  (void)question;
 return( (char *) def );
 }
 
 static char *NOUI_open_file(const char *title, const char *defaultfile,
 	const char *initial_filter) {
+  (void)title;
+  (void)defaultfile;
+  (void)initial_filter;
 return( NULL );
 }
 
 static char *NOUI_saveas_file(const char *title, const char *defaultfile,
 	const char *initial_filter) {
+  (void)title;
+  (void)initial_filter;
 return( copy(defaultfile) );
 }
 
 static void NOUI_progress_start(int delay, const char *title, const char *line1,
 	const char *line2, int tot, int stages) {
+  (void)delay;
+  (void)title;
+  (void)line1;
+  (void)line2;
+  (void)tot;
+  (void)stages;
 }
 
 static void NOUI_void_void_noop(void) {
 }
 
 static void NOUI_void_int_noop(int useless) {
+  (void)useless;
 }
 
 static int NOUI_int_int_noop(int useless) {
+  (void)useless;
 return( true );
 }
 
 static void NOUI_void_str_noop(const char * useless) {
+  (void)useless;
 }
 
 static int NOUI_alwaystrue(void) {

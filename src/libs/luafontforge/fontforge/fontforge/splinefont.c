@@ -193,7 +193,7 @@ return( _SFMakeChar(sf,map,enc));
 }
 
 struct unicoderange specialnames[] = {
-    { NULL }
+    { NULL, 0, 0, 0, 0, 0, 0 }
 };
 
 
@@ -239,7 +239,7 @@ struct compressors compressors[] = {
     { ".Z", "gunzip", "compress" },
 /* file types which are both archived and compressed (.tgz, .zip) are handled */
 /*  by the archiver above */
-    NULL
+    { NULL, NULL, NULL }
 };
 
 char *Decompress(char *name, int compression) {
@@ -293,7 +293,6 @@ SplineFont *_ReadSplineFont(FILE *file,char *filename,enum openflags openflags) 
     int fromsfd = false;
     int i;
     char *pt, *strippedname, *oldstrippedname, *tmpfile=NULL, *paren=NULL, *fullname=filename, *rparen;
-    char *archivedir=NULL;
     int len;
     int checked;
     int compression=0;

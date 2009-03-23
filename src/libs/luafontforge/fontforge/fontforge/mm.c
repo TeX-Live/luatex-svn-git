@@ -200,7 +200,7 @@ char *MMExtractArrayNth(char *pt,int ipos) {
     while ( *pt!=']' && *pt!=' ' ) {
 	while ( *pt==' ' ) ++pt;
 	if ( *pt=='[' ) {
-	    if ( i<sizeof(hold)/sizeof(hold[0]) )
+	  if ( i<(int)(sizeof(hold)/sizeof(hold[0])) )
 		hold[i++] = MMExtractNth(pt,ipos);
 	    ++pt;
 	    while ( *pt!=']' && *pt!='\0' ) ++pt;

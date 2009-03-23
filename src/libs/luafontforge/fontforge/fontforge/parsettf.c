@@ -269,7 +269,7 @@ static struct ms_2_locales { char *loc_name; int local_id; } ms_2_locals[] = {
     { "ji", 0x43d },	/* Obsolete Yiddish */
     { "yo", 0x46a },
     { "zu", 0x435 },
-    { NULL }};
+    { NULL, 0 }};
 
 int MSLanguageFromLocale(void) {
     const char *lang=NULL;
@@ -411,10 +411,11 @@ static Encoding *enc_from_platspec(int platform,int specific) {
     } else if ( platform==7 ) {		/* Used internally in freetype, but */
 	if ( specific==0 )		/*  there's no harm in looking for it */
 	    enc = "AdobeStandard";	/*  even if it never happens */
-	else if ( specific==1 )
+	else if ( specific==1 ) {
 	    /* adobe_expert */;
-	else if ( specific==2 )
+	} else if ( specific==2 ) {
 	    /* adobe_custom */;
+	}
     }
     e = FindOrMakeEncoding(enc);
     if ( e==NULL ) {
@@ -490,11 +491,12 @@ return( ret );
 
 char *TTFGetFontName(FILE *ttf,int32 offset,int32 off2) {
     int i,num;
-    int32 tag, nameoffset, length, stringoffset;
+    int32 tag, length, stringoffset;
     int plat, spec, lang, name, len, off, val;
-    int fullval, fullstr, fulllen, famval, famstr, famlen;
     Encoding *enc;
-    int fullplat, fullspec, fulllang, famplat, famspec, famlang;
+    int32 nameoffset = 0;
+    int fullval=0, fullstr=0, fulllen=0, famval=0, famstr=0, famlen=0;
+    int fullplat=0, fullspec=0, fulllang=0, famplat=0, famspec=0, famlang=0;
     int locale = MSLanguageFromLocale();
     int maclang = WinLangToMac(locale);
 
@@ -789,12 +791,12 @@ return;
     }
 
     /* Checksums. First file as a whole, then each table */
-    if ( filechecksum(ttf,0,-1)!=0xb1b0afba ) {
+    if ( filechecksum(ttf,0,-1)!=(int)0xb1b0afba ) {
 	LogError(_("File checksum is incorrect."));
 	info->bad_sfnt_header = true;
     }
     for ( i=0; i<info->numtables-1; ++i ) if ( tabs[i].tag!=CHR('h','e','a','d')) {
-	if ( filechecksum(ttf,tabs[i].offset,tabs[i].length)!=tabs[i].checksum ) {
+      if ( filechecksum(ttf,tabs[i].offset,tabs[i].length)!=(int)tabs[i].checksum ) {
 	    LogError(_("Table '%c%c%c%c' has a bad checksum."),
 		    tabs[i].tag>>24, tabs[i].tag>>16, tabs[i].tag>>8, tabs[i].tag );
 	    info->bad_sfnt_header = true;
@@ -950,13 +952,14 @@ static struct tablenames { uint32 tag; char *name; } stdtables[] = {
     { CHR('v','m','t','x'), N_("vertical metrics table") },
     { CHR('V','O','R','G'), N_("vertical origin table") },
     { CHR('Z','a','p','f'), N_("glyph reference table") },
-    0
+    { 0 , NULL }
 };
 
 static int readttfheader(FILE *ttf, struct ttfinfo *info,char *filename,
 	char **choosenname) {
     int i, j, k;
-    int tag, checksum, offset, length, version;
+    unsigned tag;
+    int checksum, offset, length, version;
     int first = true;
 
     version=getlong(ttf);
@@ -2155,7 +2158,7 @@ static SplineChar *readttfglyph(FILE *ttf,struct ttfinfo *info,int start, int en
     sc->vwidth = info->emsize;
     sc->orig_pos = gid;
 
-    if ( end>info->glyph_length ) {
+    if ( end>(int)info->glyph_length ) {
 	if ( !info->complainedbeyondglyfend )
 	    LogError(_("Bad glyph (%d), its definition extends beyond the end of the glyf table\n"), gid );
 	info->bad_glyph_data = true;
@@ -2690,7 +2693,7 @@ return( NULL );
 	    --i;
 	} else {
 	    names[i] = galloc(offsets[i+1]-offsets[i]+1);
-	    for ( j=0; j<offsets[i+1]-offsets[i]; ++j )
+	    for ( j=0; j<(int)(offsets[i+1]-offsets[i]); ++j )
 		names[i][j] = getc(ttf);
 	    names[i][j] = '\0';
 	}
@@ -2914,7 +2917,7 @@ return;
 	if ( offsets[i+1]>offsets[i] && offsets[i+1]-offsets[i]<0x10000 ) {
 	    subs->lens[i] = offsets[i+1]-offsets[i];
 	    subs->values[i] = galloc(offsets[i+1]-offsets[i]+1);
-	    for ( j=0; j<offsets[i+1]-offsets[i]; ++j )
+	    for ( j=0; j<(int)(offsets[i+1]-offsets[i]); ++j )
 		subs->values[i][j] = getc(ttf);
 	    subs->values[i][j] = '\0';
 	} else {
@@ -3944,7 +3947,7 @@ static int readtyp1glyphs(FILE *ttf,struct ttfinfo *info) {
     }
     
     tmp = tmpfile();
-    for ( i=0; i<info->typ1_length; ++i )
+    for ( i=0; i<(int)info->typ1_length; ++i )
 	putc(getc(ttf),tmp);
     rewind(tmp);
     fd = _ReadPSFont(tmp);
@@ -4041,7 +4044,7 @@ static void dummywidthsfromstrike(FILE *ttf,struct ttfinfo *info) {
     BDFFont *bdf;
     int i, cnt;
     double scaled_sum;
-
+    (void)ttf; /* -Wall */
     if ( info->bitmaps==NULL )
 return;
 #if 0
@@ -4109,6 +4112,7 @@ static void readttfvwidths(FILE *ttf,struct ttfinfo *info) {
 }
 
 static int modenc(int enc,int modtype) {
+  (void)modtype; /* for -Wall */
 return( enc );
 }
 
@@ -4248,7 +4252,7 @@ return( ret );
 
 static void ApplyVariationSequenceSubtable(FILE *ttf,uint32 vs_map,
 	struct ttfinfo *info,int justinuse) {
-    int sub_table_len, vs_cnt, i, j, rcnt, gid, cur_gid;
+    int sub_table_len, vs_cnt, i, j, rcnt, gid;
     struct vs_data { int vs; uint32 def, non_def; } *vs_data;
     SplineChar *sc;
 
@@ -4272,7 +4276,7 @@ static void ApplyVariationSequenceSubtable(FILE *ttf,uint32 vs_map,
 		int cnt = getc(ttf);
 		int uni;
 		for ( uni=start_uni; uni<=start_uni+cnt; ++uni ) {
-		    SplineChar *sc;
+		    SplineChar *sc=NULL;
 		    struct altuni *altuni;
 		    for ( gid = 0; gid<info->glyph_cnt; ++gid ) {
 			if ( (sc = info->chars[gid])!=NULL ) {
@@ -4320,7 +4324,7 @@ static void ApplyVariationSequenceSubtable(FILE *ttf,uint32 vs_map,
 		    if ( curgid>=info->glyph_cnt || curgid<0 ||
 			    info->chars[curgid]==NULL ) {
 			LogError( _("GID out of range (%d) in format 14 'cmap' subtable\n"),
-				cur_gid );
+				curgid );
 			info->bad_cmap = true;
 		    } else {
 			SplineChar *sc = info->chars[curgid];
@@ -4879,15 +4883,15 @@ return;
 	    /*  anything else */
 	    fseek(ttf,8192,SEEK_CUR);
 	    ngroups = getlong(ttf);
-	    for ( j=0; j<ngroups; ++j ) {
+	    for ( j=0; j<(int)ngroups; ++j ) {
 		start = getlong(ttf);
 		end = getlong(ttf);
 		startglyph = getlong(ttf);
 		if ( justinuse==git_justinuse )
-		    for ( i=start; i<=end; ++i )
+		  for ( i=start; i<=(int)end; ++i )
 			info->inuse[startglyph+i-start]= 1;
 		else
-		    for ( i=start; i<=end; ++i ) {
+		  for ( i=start; i<=(int)end; ++i ) {
 			int uenc = ((i>>16)-0xd800)*0x400 + (i&0xffff)-0xdc00 + 0x10000;
 			sc = info->chars[startglyph+i-start];
 			if ( dounicode && sc->unicodeenc==-1 )
@@ -4923,19 +4927,19 @@ return;
 		enc = FindOrMakeEncoding("UnicodeFull");
 	    }
 	    ngroups = getlong(ttf);
-	    for ( j=0; j<ngroups; ++j ) {
+	    for ( j=0; j<(int)ngroups; ++j ) {
 		start = getlong(ttf);
 		end = getlong(ttf);
 		startglyph = getlong(ttf);
 		if ( justinuse==git_justinuse ) {
-		    for ( i=start; i<=end; ++i )
-			if ( startglyph+i-start < info->glyph_cnt )
+		  for ( i=start; i<=(int)end; ++i )
+		    if ( startglyph+i-start < (unsigned)info->glyph_cnt )
 			    info->inuse[startglyph+i-start]= 1;
 			else
 		    break;
 		} else
-		    for ( i=start; i<=end; ++i ) {
-			if ( startglyph+i-start >= info->glyph_cnt ||
+		  for ( i=start; i<=(int)end; ++i ) {
+		    if ( startglyph+i-start >= (unsigned)info->glyph_cnt ||
 				info->chars[startglyph+i-start]==NULL ) {
 			    LogError( _("Bad font: Encoding data out of range.\n") );
 			    info->bad_cmap = true;
@@ -5748,7 +5752,7 @@ static SplineFont *SFFromTuple(SplineFont *basesf,struct variations *v,int tuple
     SplineFont *sf;
     int i;
     RefChar *r;
-
+    (void)info; /* for -Wall */
     sf = SplineFontEmpty();
     sf->display_size = basesf->display_size;
     sf->display_antialias = basesf->display_antialias;
@@ -5991,7 +5995,6 @@ return;
 static SplineFont *SFFillFromTTF(struct ttfinfo *info) {
     SplineFont *sf, *_sf;
     int i,k;
-    BDFFont *bdf;
     SplineChar *sc;
     struct ttf_table *last[2], *tab, *next;
 
@@ -6364,7 +6367,7 @@ return( sf );
 SplineFont *_SFReadTTFInfo(FILE *ttf, int flags,enum openflags openflags, char *filename,struct fontdict *fd) {
     struct ttfinfo info;
     int ret;
-
+    (void)openflags; /* for -Wall */
     memset(&info,'\0',sizeof(struct ttfinfo));
     info.onlystrikes = (flags&ttf_onlystrikes)?1:0;
     info.onlyonestrike = (flags&ttf_onlyonestrike)?1:0;
@@ -6401,6 +6404,7 @@ return( sf );
 
 SplineFont *_CFFParse(FILE *temp,int len, char *fontsetname) {
     struct ttfinfo info;
+    (void)fontsetname; /* for -Wall */
 
     memset(&info,'\0',sizeof(info));
     info.cff_start = 0;

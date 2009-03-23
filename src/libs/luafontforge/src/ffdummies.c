@@ -52,7 +52,6 @@ static void LUAUI__LogError(const char *format,va_list ap) {
 
 void LUAUI_LogError(const char *format,...) {
     va_list ap;
-
     va_start(ap,format);
     LUAUI__LogError(format,ap);
     va_end(ap);
@@ -60,6 +59,7 @@ void LUAUI_LogError(const char *format,...) {
 
 static void LUAUI_post_notice(const char *title,const char *statement,...) {
     va_list ap;
+    (void)title;
     va_start(ap,statement);
     LUAUI__LogError(statement,ap);
     va_end(ap);
@@ -67,6 +67,7 @@ static void LUAUI_post_notice(const char *title,const char *statement,...) {
 
 static void LUAUI_post_error(const char *title,const char *statement,...) {
     va_list ap;
+    (void)title;
     va_start(ap,statement);
     LUAUI__LogError(statement,ap);
     va_end(ap);
@@ -74,49 +75,80 @@ static void LUAUI_post_error(const char *title,const char *statement,...) {
 
 static int LUAUI_ask(const char *title, const char **answers,
 	int def, int cancel,const char *question,...) {
+  (void)title;
+  (void)answers;
+  (void)cancel;
+  (void)question;
 return( def );
 }
 
 static int LUAUI_choose(const char *title, const char **choices,int cnt, int def,
 	const char *question,...) {
+  (void)title;
+  (void)choices;
+  (void)cnt;
+  (void)question;
 return( def );
 }
 
 static int LUAUI_choose_multiple(char *title, const char **choices,char *sel,
 	int cnt, char *buts[2], const char *question,...) {
+  (void)title;
+  (void)choices;
+  (void)sel;
+  (void)cnt;
+  (void)buts;
+  (void)question;
 return( -1 );
 }
 
 static char *LUAUI_ask_string(const char *title, const char *def,
 	const char *question,...) {
+  (void)title;
+  (void)def;
+  (void)question;
 return( (char *) def );
 }
 
 static char *LUAUI_open_file(const char *title, const char *defaultfile,
 	const char *initial_filter) {
+  (void)title;
+  (void)initial_filter;
+  (void)defaultfile;
 return( NULL );
 }
 
 static char *LUAUI_saveas_file(const char *title, const char *defaultfile,
 	const char *initial_filter) {
+  (void)title;
+  (void)initial_filter;
 return( copy(defaultfile) );
 }
 
 static void LUAUI_progress_start(int delay, const char *title, const char *line1,
 	const char *line2, int tot, int stages) {
+  (void)delay;
+  (void)title;
+  (void)line1;
+  (void)line2;
+  (void)tot;
+  (void)stages;
 }
 
 static void LUAUI_void_void_noop(void) {
 }
 
 static void LUAUI_void_int_noop(int useless) {
+  (void)useless;
 }
 
 static int LUAUI_int_int_noop(int useless) {
+  (void)useless;
 return( true );
 }
 
 static void LUAUI_void_str_noop(const char * useless) {
+  (void)useless;
 }
 
 static int LUAUI_alwaystrue(void) {
@@ -165,7 +197,11 @@ struct ui_interface luaui_interface = {
 
 /* some bits and pieces */
 
-int URLFromFile(char *url,FILE *from) { return false; }
+int URLFromFile(char *url,FILE *from) { 
+  (void)url;
+  (void)from;
+  return false; 
+}
 
 /* print.c */
 int pagewidth = 0, pageheight=0;	/* In points */
@@ -175,9 +211,17 @@ int printtype = 0;
 
 void ScriptPrint(FontViewBase *fv,int type,int32 *pointsizes,char *samplefile,
 	unichar_t *sample, char *outputfile) {
+  (void)fv;
+  (void)type;
+  (void)pointsizes;
+  (void)samplefile;
+  (void)sample;
+  (void)outputfile;
 }
 
 int PdfDumpGlyphResources(void *pi, SplineChar *sc) {
+  (void)pi;
+  (void)sc;
   return 0;
 }
 
@@ -191,18 +235,22 @@ return NULL;
 }
 
 void SetAutoTraceArgs(void *a) {
+  (void)a;
 }
 
 void FVAutoTrace(FontViewBase *fv,int ask) {
+  (void)fv; (void)ask;
 }
 
 SplineFont *SFFromMF(char *filename) {
+  (void)filename;
 return NULL;
 }
 
 /* http.c */
 
 FILE *URLToTempFile(char *url,void *_lock) {
+  (void)_lock; (void)url;
    ff_post_error(_("Could not parse URL"),_("FontForge only handles ftp and http URLs at the moment"));
 return( NULL );
 }

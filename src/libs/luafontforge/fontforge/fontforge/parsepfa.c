@@ -1272,7 +1272,7 @@ static void findstring(struct fontparse *fp,struct pschars *subrs,int index,char
 static void findnumbers(struct fontparse *fp,struct pschars *chars,char *str) {
     int val;
     char *end;
-
+    (void)fp;
     forever {
 	int index = chars->next;
 	char *namestrt;

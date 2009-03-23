@@ -1185,7 +1185,7 @@ return( ret );
 }
 
 uint8 MacEncFromMacLang(int maclang) {
-    if ( maclang<0 || maclang>=sizeof(_MacScriptFromLanguage)/sizeof(_MacScriptFromLanguage[0]))
+  if ( maclang<0 || maclang>=(int)(sizeof(_MacScriptFromLanguage)/sizeof(_MacScriptFromLanguage[0])))
 return( 0xff );
 
 return( _MacScriptFromLanguage[maclang] );
@@ -1193,7 +1193,7 @@ return( _MacScriptFromLanguage[maclang] );
 
 uint16 WinLangFromMac(int maclang) {
 
-    if ( maclang<0 || maclang>=sizeof(_WinLangFromMac)/sizeof(_WinLangFromMac[0]))
+  if ( maclang<0 || maclang>=(int)(sizeof(_WinLangFromMac)/sizeof(_WinLangFromMac[0])))
 return( 0xffff );
 
 return( _WinLangFromMac[maclang] );
@@ -1202,12 +1202,12 @@ return( _WinLangFromMac[maclang] );
 uint16 WinLangToMac(int winlang) {
     int i;
 
-    for ( i=0; i<sizeof(_WinLangFromMac)/sizeof(_WinLangFromMac[0]); ++i )
+    for ( i=0; i<(int)(sizeof(_WinLangFromMac)/sizeof(_WinLangFromMac[0])); ++i )
 	if ( _WinLangFromMac[i] == winlang )
 return( i );
 
     winlang &= 0xff;
-    for ( i=0; i<sizeof(_WinLangFromMac)/sizeof(_WinLangFromMac[0]); ++i )
+    for ( i=0; i<(int)(sizeof(_WinLangFromMac)/sizeof(_WinLangFromMac[0])); ++i )
 	if ( (_WinLangFromMac[i]&0xff) == winlang )
 return( i );
 
@@ -1260,7 +1260,7 @@ return(found);
 	found = 34;
 return( found );
     }
-    for ( i=0; i<sizeof(LanguageCodesFromMacLang)/sizeof(LanguageCodesFromMacLang[0]); ++i ) {
+    for ( i=0; i<(int)(sizeof(LanguageCodesFromMacLang)/sizeof(LanguageCodesFromMacLang[0])); ++i ) {
 	if ( LanguageCodesFromMacLang[i]!=NULL &&
 		strncmp(loc,LanguageCodesFromMacLang[i],strlen(LanguageCodesFromMacLang[i]))==0 ) {
 	    found = i;
@@ -1927,7 +1927,7 @@ static struct macname fs_names[] = {
 	{ NULL, 0, 4, "Volledige breedte" },
 	{ NULL, 0, 4, "Unicodeontleding" },
 	{ NULL, 0, 4, "Canonieke ontleding" },
-	 { NULL }
+	{ NULL, 0, 0, NULL }
 };
 
 static struct macsetting fs_settings[] = {
@@ -2047,7 +2047,7 @@ static struct macsetting fs_settings[] = {
 	{ &fs_settings[112], 2, 0, &fs_names[142], 0 },
 	{ &fs_settings[113], 1, 0, &fs_names[141], 0 },
 	{ &fs_settings[114], 0, 0, &fs_names[140], 1 },
-	 { NULL }
+	{ NULL,              0, 0, NULL,           0 }
 };
 
 static MacFeat fs_features[] = {
@@ -2078,7 +2078,7 @@ static MacFeat fs_features[] = {
 	{ &fs_features[23], 2, 1, 0, 0, &fs_names[11], &fs_settings[11] },
 	{ &fs_features[24], 1, 0, 0, 0, &fs_names[2], &fs_settings[8] },
 	{ &fs_features[25], 0, 0, 0, 0, &fs_names[0], &fs_settings[0] },
-	 { NULL }
+	{ NULL,             0, 0, 0, 0, NULL,         NULL }
 };
 
 MacFeat *default_mac_feature_map = &fs_features[26],
@@ -2087,7 +2087,7 @@ MacFeat *default_mac_feature_map = &fs_features[26],
 
 
 struct macname *MacNameCopy(struct macname *mn) {
-    struct macname *head=NULL, *last, *cur;
+    struct macname *head=NULL, *last=NULL, *cur;
 
     while ( mn!=NULL ) {
 	cur = chunkalloc(sizeof(struct macname));
@@ -2226,7 +2226,7 @@ static struct { char *name; int code; } localmaclang[] = {
     {N_("Greek (polytonic)"), 148},
     {N_("Greenlandic"), 149},
     {N_("Azebaijani (roman)"), 150},
-    { NULL }};
+    { NULL, 0 }};
 
 char *MacLanguageFromCode(int code) {
     int i;

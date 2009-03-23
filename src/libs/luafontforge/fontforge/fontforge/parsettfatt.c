@@ -443,7 +443,9 @@ return( ret );
 static void addPairPos(struct ttfinfo *info, int glyph1, int glyph2,
 	struct lookup *l, struct lookup_subtable *subtable, struct valuerecord *vr1,struct valuerecord *vr2,
 	uint32 base,FILE *ttf) {
-    
+    (void)ttf; /* for -Wall */
+    (void)l; /* for -Wall */
+    (void)base; /* for -Wall */    
     if ( glyph1<info->glyph_cnt && glyph2<info->glyph_cnt ) {
 	PST *pos = chunkalloc(sizeof(PST));
 	pos->type = pst_pair;
@@ -475,6 +477,9 @@ static int addKernPair(struct ttfinfo *info, int glyph1, int glyph2,
 	int16 offset, uint32 devtab, struct lookup *l, struct lookup_subtable *subtable,int isv,
 	FILE *ttf) {
     KernPair *kp;
+    (void)ttf; /* for -Wall */
+    (void)l; /* for -Wall */
+    (void)devtab; /* for -Wall */
     if ( glyph1<info->glyph_cnt && glyph2<info->glyph_cnt &&
 	    info->chars[glyph1]!=NULL && info->chars[glyph2]!=NULL ) {
 	for ( kp=isv ? info->chars[glyph1]->vkerns : info->chars[glyph1]->kerns;
@@ -668,7 +673,7 @@ static AnchorPoint *readAnchorPoint(FILE *ttf,uint32 base,AnchorClass *class,
 	enum anchor_type type,AnchorPoint *last, struct ttfinfo *info) {
     AnchorPoint *ap;
     int format;
-
+    (void)info; /* for -Wall */
     fseek(ttf,base,SEEK_SET);
 
     ap = chunkalloc(sizeof(AnchorPoint));
@@ -706,7 +711,7 @@ static void gposCursiveSubTable(FILE *ttf, int stoffset, struct ttfinfo *info,st
     AnchorClass *class;
     SplineChar *sc;
     char buf[50];
-
+    (void)l; /* for -Wall */
     format=getushort(ttf);
     if ( format!=1 )	/* Unknown subtable format */
 return;
@@ -814,7 +819,8 @@ static void MarkGlyphsProcessBases(FILE *ttf,int baseoffset,
     int basecnt,i, j, ibase;
     uint16 *offsets;
     SplineChar *sc;
-
+    (void)subtable; /* for -Wall */
+    (void)l; /* for -Wall */
     fseek(ttf,baseoffset,SEEK_SET);
     basecnt = getushort(ttf);
     if ( feof(ttf) ) {
@@ -845,7 +851,8 @@ static void MarkGlyphsProcessLigs(FILE *ttf,int baseoffset,
     int basecnt,compcnt, i, j, k, kbase;
     uint16 *loffsets, *aoffsets;
     SplineChar *sc;
-
+    (void)subtable; /* for -Wall */
+    (void)l; /* for -Wall */
     fseek(ttf,baseoffset,SEEK_SET);
     basecnt = getushort(ttf);
     if ( feof(ttf) ) {
@@ -917,6 +924,8 @@ return;
 	  MarkGlyphsProcessLigs(ttf,stoffset+baseoffset,
 	    info,l,subtable,baseglyphs,classcnt,classes);
       break;
+      default:
+      break;
     }
     info->anchor_class_cnt += classcnt;
     ++ info->anchor_merge_cnt;
@@ -930,7 +939,7 @@ static void gposSimplePos(FILE *ttf, int stoffset, struct ttfinfo *info,
     uint16 format;
     uint16 *glyphs;
     struct valuerecord *vr=NULL, _vr, *which;
-
+    (void)l; /* for -Wall */
     format=getushort(ttf);
     if ( format!=1 && format!=2 )	/* Unknown subtable format */
 return;
@@ -980,7 +989,7 @@ return;
 static void ProcessSubLookups(FILE *ttf,struct ttfinfo *info,int gpos,
 	struct lookup *alllooks,struct seqlookup *sl) {
     int i;
-
+    (void)ttf; /* for -Wall */
     i = (intpt) sl->lookup;
     if ( i<0 || i>=info->lookup_cnt ) {
 	LogError( _("Attempt to reference lookup %d (within a contextual lookup), but there are\n only %d lookups in %s\n"),
@@ -1013,7 +1022,7 @@ static void g___ContextSubTable1(FILE *ttf, int stoffset,
     FPST *fpst;
     struct fpst_rule *rule;
     int warned = false, warned2 = false;
-
+    (void)l; /* for -Wall */
     coverage = getushort(ttf);
     rcnt = getushort(ttf);		/* glyph count in coverage table */
     rules = galloc(rcnt*sizeof(struct rule));
@@ -1120,7 +1129,7 @@ static void g___ChainingSubTable1(FILE *ttf, int stoffset,
     FPST *fpst;
     struct fpst_rule *rule;
     int warned = false, warned2 = false;
-
+    (void)l; /* for -Wall */
     coverage = getushort(ttf);
     rcnt = getushort(ttf);		/* glyph count in coverage table */
     rules = galloc(rcnt*sizeof(struct rule));
@@ -1273,7 +1282,7 @@ static void g___ContextSubTable2(FILE *ttf, int stoffset,
     struct fpst_rule *rule;
     uint16 *glyphs, *class;
     int warned2 = false;
-
+    (void)l; /* for -Wall */
     coverage = getushort(ttf);
     classoff = getushort(ttf);
     rcnt = getushort(ttf);		/* class count in coverage table *//* == number of top level rules */
@@ -1281,7 +1290,7 @@ static void g___ContextSubTable2(FILE *ttf, int stoffset,
     for ( i=0; i<rcnt; ++i )
 	rules[i].offsets = getushort(ttf)+stoffset;
     cnt = 0;
-    for ( i=0; i<rcnt; ++i ) if ( rules[i].offsets!=stoffset ) { /* some classes might be unused */
+    for ( i=0; i<rcnt; ++i ) if ( rules[i].offsets!=(unsigned)stoffset ) { /* some classes might be unused */
 	fseek(ttf,rules[i].offsets,SEEK_SET);
 	rules[i].scnt = getushort(ttf);
 	if ( rules[i].scnt<0 ) {
@@ -1397,7 +1406,7 @@ static void g___ChainingSubTable2(FILE *ttf, int stoffset,
     struct fpst_rule *rule;
     uint16 *glyphs, *class;
     int warned2 = false;
-
+    (void)l; /* for -Wall */
     coverage = getushort(ttf);
     bclassoff = getushort(ttf);
     classoff = getushort(ttf);
@@ -1556,7 +1565,7 @@ static void g___ContextSubTable3(FILE *ttf, int stoffset,
     FPST *fpst;
     struct fpst_rule *rule;
     int warned2 = false;
-
+    (void)l; /* for -Wall */
     gcnt = getushort(ttf);
     scnt = getushort(ttf);
     if ( feof(ttf) ) {
@@ -1619,7 +1628,7 @@ static void g___ChainingSubTable3(FILE *ttf, int stoffset,
     FPST *fpst;
     struct fpst_rule *rule;
     int warned2 = false;
-
+    (void)l; /* for -Wall */
     bcnt = getushort(ttf);
     if ( feof(ttf)) {
 	LogError( _("End of file in context chaining subtable.\n") );
@@ -2127,7 +2136,7 @@ static void gsubReverseChainSubTable(FILE *ttf, int stoffset,
     uint16 coverage, *bcoverage, *fcoverage, *sglyphs, *glyphs;
     FPST *fpst;
     struct fpst_rule *rule;
-
+    (void)l; /* for -Wall */
     if ( justinuse==git_findnames )
 return;		/* Don't give names to these guys, they might not be unique */
     if ( getushort(ttf)!=1 )
@@ -2270,7 +2279,7 @@ static struct scripts *readttfscripts(FILE *ttf,int32 pos, struct ttfinfo *info,
     int deflang, lcnt;
     struct scripts *scripts;
 
-    if ( pos>=info->g_bounds ) {
+    if ( pos>=(int32)info->g_bounds ) {
 	LogError(_("Attempt to read script data beyond end of %s table"), isgpos ? "GPOS" : "GSUB" );
 	info->bad_ot = true;
 return( NULL );
@@ -2345,7 +2354,7 @@ static struct feature *readttffeatures(FILE *ttf,int32 pos,int isgpos, struct tt
     struct feature *features;
     int parameters;
 
-    if ( pos>=info->g_bounds ) {
+    if ( pos>=(int32)info->g_bounds ) {
 	LogError(_("Attempt to read feature data beyond end of %s table"), isgpos ? "GPOS" : "GSUB" );
 	info->bad_ot = true;
 return( NULL );
@@ -2397,7 +2406,7 @@ static struct lookup *readttflookups(FILE *ttf,int32 pos, struct ttfinfo *info, 
     OTLookup *otlookup, *last=NULL;
     struct lookup_subtable *st;
 
-    if ( pos>=info->g_bounds ) {
+    if ( pos>=(int32)info->g_bounds ) {
 	LogError(_("Attempt to read lookup data beyond end of %s table"), isgpos ? "GPOS" : "GSUB" );
 	info->bad_ot = true;
 return( NULL );
@@ -2547,7 +2556,7 @@ static void gposExtensionSubTable(FILE *ttf, int stoffset,
 	struct lookup *alllooks) {
     uint32 base = ftell(ttf), st, offset;
     int lu_type;
-
+    (void)stoffset; /* for -Wall */
     /* Format = */ getushort(ttf);
     lu_type = getushort(ttf);
     offset = getlong(ttf);
@@ -2595,7 +2604,7 @@ static void gsubExtensionSubTable(FILE *ttf, int stoffset,
 	struct lookup *alllooks) {
     uint32 base = ftell(ttf), st, offset;
     int lu_type;
-
+    (void)stoffset; /* for -Wall */
     /* Format = */ getushort(ttf);
     lu_type = getushort(ttf);
     offset = getlong(ttf);
@@ -3614,7 +3623,7 @@ static void morx_figure_ligatures(struct statemachine *sm, int lcp, int ligindex
     PST *pst;
     int len;
 
-    if ( lcp<0 || sm->ligActOff+4*ligindex+3>sm->length )
+    if ( lcp<0 || sm->ligActOff+4*ligindex+3>(unsigned)sm->length )
 return;
 
     lig = memlong(sm->data,sm->length, sm->ligActOff+4*ligindex);
@@ -3624,7 +3633,7 @@ return;
 	sm->lig_comp_glyphs[lcp] = i;
 	lig_offset += memushort(sm->data,sm->length,sm->compOff + 2*( ((((int32) lig)<<2)>>2) + i ) );
 	if ( lig&0xc0000000 ) {
-	    if ( sm->ligOff+2*lig_offset+1 > sm->length ) {
+	  if ( sm->ligOff+2*lig_offset+1 > (unsigned)sm->length ) {
 		LogError( _("Invalid ligature offset\n") );
 		info->bad_gx = true;
     break;
@@ -3888,7 +3897,7 @@ static struct statetable *read_statetable(FILE *ttf, int ent_extras, int ismorx,
     state_max = 2; ent_max = 0;
     while ( old_state_max!=state_max ) {
 	i = old_state_max*nclasses;
-	fseek(ttf,here+state_off+(ismorx?i*sizeof(uint16):i),SEEK_SET);
+	fseek(ttf,here+state_off+(ismorx?(int)(i*sizeof(uint16)):i),SEEK_SET);
 	old_state_max = state_max;
 	for ( ; i<state_max*nclasses; ++i ) {
 	    ent = ismorx ? getushort(ttf) : getc(ttf);
@@ -4147,9 +4156,9 @@ static void read_perglyph_subs(FILE *ttf,struct ttfinfo *info,
     continue;
 	if ( subs==0 )			/* A little risky, one could substitute notdef */
     continue;				/*  but they shouldn't */
-	if ( here<subs_base )
+	if ( here<(unsigned)subs_base )
     continue;
-	if ( here>=subs_end )
+	if ( here>=(unsigned)subs_end )
     break;
 	if ( evermarked ) {
 	    if ( used[(here-subs_base)/2] )
@@ -4424,7 +4433,7 @@ static uint32 readmortchain(FILE *ttf,struct ttfinfo *info, uint32 base, int ism
     uint32 tag;
     struct tagmaskfeature { uint32 tag, enable_flags; uint16 ismac, feat, set; } tmf[32];
     int r2l;
-
+    (void)base; /* for -Wall */
     default_flags = getlong(ttf);
     chain_len = getlong(ttf);
     if ( ismorx ) {
@@ -4436,7 +4445,7 @@ static uint32 readmortchain(FILE *ttf,struct ttfinfo *info, uint32 base, int ism
     }
 
     k = 0;
-    for ( i=0; i<nfeatures; ++i ) {
+    for ( i=0; i<(int)nfeatures; ++i ) {
 	featureType = getushort(ttf);
 	featureSetting = getushort(ttf);
 	enable_flags = getlong(ttf);
@@ -4462,7 +4471,7 @@ return( chain_len );
     if ( k==0 )
 return( chain_len );
 
-    for ( i=0; i<nsubtables; ++i ) {
+    for ( i=0; i<(int)nsubtables; ++i ) {
 	here = ftell(ttf);
 	if ( ismorx ) {
 	    length = getlong(ttf);
@@ -4978,7 +4987,7 @@ return;
 static void ttf_math_read_mathkernv(FILE *ttf, uint32 start,struct mathkernvertex *mkv,
 	SplineChar *sc, int istop, struct ttfinfo *info) {
     int cnt, i;
-
+    (void)info; /* for -Wall */
     fseek(ttf,start,SEEK_SET);
     /* There is one more width than height. I store the width count */
     /*  and guess a dummy height later */
@@ -5315,7 +5324,8 @@ static struct baselangextent *readttfbaseminmax(FILE *ttf,uint32 offset,struct t
 	uint32 script_tag,uint32 lang_tag) {
     int j,feat_cnt;
     struct baselangextent *lang, *cur, *last;
-
+    (void)info; /* for -Wall */
+    (void)script_tag; /* for -Wall */
     fseek(ttf,offset,SEEK_SET);
     lang = chunkalloc(sizeof(struct baselangextent));
     lang->lang = lang_tag;
@@ -5458,8 +5468,8 @@ return;
 		}
 		free(ls);
 	    }
+   	    free(bs);
 	}
-	free(bs);
     }
 }
 

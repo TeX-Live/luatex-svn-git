@@ -187,7 +187,7 @@ struct opentype_feature_friendlynames friendlies[] = {
     { CHR('z','e','r','o'),	"zero", N_("Slashed Zero"),		gsub_single_mask },
 /* This is my hack for setting the "Required feature" field of a script */
     { CHR(' ','R','Q','D'),	" RQD", N_("Required feature"),		gsub_single_mask|gsub_multiple_mask|gsub_alternate_mask|gsub_ligature_mask|gsub_context_mask|gsub_contextchain_mask|gsub_reversecchain_mask|morx_context_mask|gpos_single_mask|gpos_pair_mask|gpos_cursive_mask|gpos_mark2base_mask|gpos_mark2ligature_mask|gpos_mark2mark_mask|gpos_context_mask|gpos_contextchain_mask },
-    { 0, NULL, 0 }
+    { 0, NULL, 0, 0 }
 };
 
 static int uint32_cmp(const void *_ui1, const void *_ui2) {
@@ -386,7 +386,7 @@ uint32 *SFLangsInScript(SplineFont *sf,int gpos,uint32 script) {
 		for ( sl=fl->scripts ; sl!=NULL; sl=sl->next ) {
 		    if ( sl->script==script ) {
 			for ( l=0; l<sl->lang_cnt; ++l ) {
-			    int lang;
+			    unsigned lang;
 			    if ( l<MAX_LANG )
 				lang = sl->langs[l];
 			    else
@@ -463,7 +463,7 @@ uint32 *SFFeaturesInScriptLang(SplineFont *sf,int gpos,uint32 script,uint32 lang
 			if ( fl->ismac && gpos==-2 )
 			    matched = true;
 			else for ( l=0; l<sl->lang_cnt; ++l ) {
-			    int testlang;
+			    unsigned testlang;
 			    if ( l<MAX_LANG )
 				testlang = sl->langs[l];
 			    else
@@ -531,7 +531,7 @@ OTLookup **SFLookupsInScriptLangFeature(SplineFont *sf,int gpos,uint32 script,ui
 		for ( sl=fl->scripts ; sl!=NULL; sl=sl->next ) {
 		    if ( sl->script==script ) {
 			for ( l=0; l<sl->lang_cnt; ++l ) {
-			    int testlang;
+			    unsigned testlang;
 			    if ( l<MAX_LANG )
 				testlang = sl->langs[l];
 			    else
@@ -575,7 +575,7 @@ return( gid );
 static int PSTValid(SplineFont *sf,PST *pst) {
     char *start, *pt, ch;
     int ret;
-
+    (void)sf;
     switch ( pst->type ) {
       case pst_position:
 return( true );
@@ -607,7 +607,7 @@ SplineChar **SFGlyphsWithPSTinSubtable(SplineFont *sf,struct lookup_subtable *su
     PST *pst;
     int ispair = subtable->lookup->lookup_type == gpos_pair;
     int isliga = subtable->lookup->lookup_type == gsub_ligature;
-
+    sc = NULL;
     for ( i=0; i<sf->glyphcnt; ++i ) if ( SCWorthOutputting(sc = sf->glyphs[i]) ) {
 	if ( ispair ) {
 	    for ( k=0; k<2; ++k ) {
@@ -662,7 +662,7 @@ SplineChar **SFGlyphsWithLigatureinLookup(SplineFont *sf,struct lookup_subtable 
     SplineChar **glyphs, *sc;
     int i, cnt;
     PST *pst;
-
+    sc=NULL;
     for ( i=0; i<sf->glyphcnt; ++i ) if ( SCWorthOutputting(sc = sf->glyphs[i]) ) {
 	for ( pst=sc->possub; pst!=NULL; pst=pst->next ) {
 	    if ( pst->subtable == subtable ) {
@@ -703,7 +703,7 @@ void SFFindUnusedLookups(SplineFont *sf) {
     PST *pst;
     int k,gid,isv;
     SplineFont *_sf = sf;
-
+    sc=NULL;
     if ( _sf->cidmaster ) _sf = _sf->cidmaster;
 
     /* Some things are obvious. If a subtable consists of a kernclass or some */
@@ -833,7 +833,7 @@ static void RemoveNestedReferences(SplineFont *sf,int isgpos,OTLookup *dying) {
     OTLookup *otl;
     struct lookup_subtable *sub;
     int i,j,k;
-
+    (void)dying;
     for ( otl = isgpos ? sf->gpos_lookups : sf->gsub_lookups; otl!=NULL; otl = otl->next ) {
 	if ( otl->lookup_type==morx_context ) {
 	    for ( sub=otl->subtables; sub!=NULL; sub=sub->next ) {
@@ -878,7 +878,7 @@ void SFRemoveUnusedLookupSubTables(SplineFont *sf,
     struct lookup_subtable *sub, *subnext, *prev;
     AnchorClass *ac, *acprev, *acnext;
     OTLookup *otl, *otlprev, *otlnext;
-
+    otlprev=NULL;
     /* Presumes someone has called SFFindUnusedLookups first */
 
     if ( remove_incomplete_anchorclasses ) {
@@ -989,7 +989,7 @@ void SFRemoveLookupSubTable(SplineFont *sf,struct lookup_subtable *sub) {
 	SplineFont *_sf;
 	PST *pst, *prev, *next;
 	KernPair *kp, *kpprev, *kpnext;
-	k=0;
+	k=0; i=0;
 	do {
 	    _sf = sf->subfontcnt==0 ? sf : sf->subfonts[i];
 	    for ( i=0; i<_sf->glyphcnt; ++i ) if ( (sc=_sf->glyphs[i])!=NULL ) {
@@ -1159,7 +1159,7 @@ char *SuffixFromTags(FeatureScriptLangList *fl) {
 	{ CHR('s','w','s','h'), "swash" },
 	{ CHR('f','w','i','d'), "full" },
 	{ CHR('h','w','i','d'), "hw" },
-	{ 0 }
+	{ 0 , NULL }
 	};
     int i;
 
@@ -1319,7 +1319,7 @@ static struct {
 /*  { N_("Private Use Script 2"), CHR('q','a','a','b') },*/
 /*  { N_("Undetermined Script"), CHR('z','y','y','y') },*/
 /*  { N_("Uncoded Script"), CHR('z','z','z','z') },*/
-    { NULL }
+    { NULL, 0 }
 };
 
 void LookupInit(void) {
@@ -1355,7 +1355,7 @@ char *TagFullName(SplineFont *sf,uint32 tag, int ismac, int onlyifknown) {
 	    free( setname );
 	}
     } else {
-	int stag = tag;
+	unsigned stag = tag;
 	if ( tag==CHR('n','u','t','f') )	/* early name that was standardize later as... */
 	    stag = CHR('a','f','r','c');	/*  Stood for nut fractions. "nut" meaning "fits in an en" in old typography-speak => vertical fractions rather than diagonal ones */
 	if ( tag==REQUIRED_FEATURE ) {
@@ -1392,6 +1392,7 @@ void NameOTLookup(OTLookup *otl,SplineFont *sf) {
     char *format;
     struct lookup_subtable *subtable;
     int k;
+    (void)sf;
 
     LookupInit();
 
@@ -1770,7 +1771,7 @@ void FLMerge(OTLookup *into, OTLookup *from) {
 
 void SFSubTablesMerge(SplineFont *_sf,struct lookup_subtable *subfirst,
 	struct lookup_subtable *subsecond) {
-    int lookup_type = subfirst->lookup->lookup_type;
+    unsigned lookup_type = subfirst->lookup->lookup_type;
     int gid,k,isv;
     SplineChar *sc;
     SplineFont *sf = _sf;
@@ -2747,6 +2748,7 @@ static void ApplyAppleStateMachine(uint32 tag, OTLookup *otl,struct lookup_data 
     int cnt_cur, cnt_mark;
     struct asm_state *entry;
     int kern_stack[8], kcnt;		/* Kerning state machines handle at most 8 glyphs */
+    (void)tag;
     /* Flaws: Line processing has not been done yet, so we are never in the */
     /*  start of line state and we never get an end of line token. We never */
     /*  get deleted tokens either, those glyphs are just gone */
@@ -2754,7 +2756,6 @@ static void ApplyAppleStateMachine(uint32 tag, OTLookup *otl,struct lookup_data 
     /* Class 1: Glyph not in any classes */
     /* Class 2: Deleted (we never see) */
     /* Class 3: End of line (we never see) */
-
     /* Mac doesn't have the concept of subtables, but a user could create one */
     /*  it will get flattened out into its own "lookup" when written to a file*/
     /*  So if there are multiple subtables, just process them all */
@@ -3658,7 +3659,7 @@ return( data.str );
 static void doreplace(char **haystack,char *start,char *search,char *rpl,int slen) {
     int rlen;
     char *pt = start+slen;
-
+    (void)search;
     rlen = strlen(rpl);
     if ( slen>=rlen ) {
 	memcpy(start,rpl,rlen);
@@ -3718,7 +3719,8 @@ static int rplglyphname(char **haystack,char *search, char *rpl) {
     /* If we change "f" to "uni0066" then we should also change "f.sc" to */
     /*  "uni0066.sc" and "f_f_l" to "uni0066_uni0066_l" */
     char *start, *pt, *base = *haystack;
-    int ch, match, slen = strlen(search);
+    int ch, match;
+    unsigned slen = strlen(search);
     int any = 0;
 
     if ( slen>=strlen( base ))
@@ -3754,7 +3756,7 @@ return( false );			/* In particular don't rename ourselves*/
 static int glyphnameIsComponent(char *haystack,char *search) {
     /* Check for a glyph name in ligature names and dotted names */
     char *start, *pt;
-    int slen = strlen(search);
+    unsigned slen = strlen(search);
 
     if ( slen>=strlen( haystack ))
 return( false );
@@ -3907,7 +3909,7 @@ struct lookup_subtable *SFSubTableFindOrMake(SplineFont *sf,uint32 tag,uint32 sc
     if ( sf->cidmaster ) sf = sf->cidmaster;
     base = isgpos ? &sf->gpos_lookups : &sf->gsub_lookups;
     for ( otl= *base; otl!=NULL; otl=otl->next ) {
-	if ( otl->lookup_type==lookup_type &&
+      if ( otl->lookup_type==(unsigned)lookup_type &&
 		FeatureScriptTagInFeatureScriptList(tag,script,otl->features) ) {
 	    for ( sub = otl->subtables; sub!=NULL; sub=sub->next )
 		if ( sub->kc==NULL )
@@ -3951,7 +3953,7 @@ struct lookup_subtable *SFSubTableMake(SplineFont *sf,uint32 tag,uint32 script,
     if ( sf->cidmaster ) sf = sf->cidmaster;
     base = isgpos ? &sf->gpos_lookups : &sf->gsub_lookups;
     for ( otl= *base; otl!=NULL; otl=otl->next ) {
-	if ( otl->lookup_type==lookup_type &&
+      if ( otl->lookup_type==(unsigned)lookup_type &&
 		FeatureScriptTagInFeatureScriptList(tag,script,otl->features) ) {
 	    found = otl;
 	}
@@ -4356,7 +4358,7 @@ return( false );
 }
 
 int KernClassContains(KernClass *kc, char *name1, char *name2, int ordered ) {
-    int infirst=0, insecond=0, scpos1, kwpos1, scpos2, kwpos2;
+    int infirst=0, insecond=0, scpos1=0, kwpos1=0, scpos2=0, kwpos2=0;
     int i;
 
     for ( i=1; i<kc->first_cnt; ++i ) {
@@ -4435,13 +4437,22 @@ return( -1 );
 
 
 static void NOFI_SortInsertLookup(SplineFont *sf, OTLookup *newotl) {
+  (void)sf;
+  (void)newotl;
 }
 
 static void NOFI_OTLookupCopyInto(SplineFont *into_sf,SplineFont *from_sf,
 	OTLookup *from_otl, OTLookup *to_otl, int scnt, OTLookup *before ) {
+  (void)into_sf;
+  (void)from_sf;
+  (void)from_otl;
+  (void)to_otl;
+  (void)scnt;
+  (void)before;
 }
 
 static void NOFI_Destroy(SplineFont *sf) {
+  (void)sf;
 }
 
 struct fi_interface noui_fi = {

@@ -128,7 +128,7 @@ return( uni );
 
     for ( j=0; accents[j][0]!=0xffff; ++j ) {
 	for ( k=0; k<4 && accents[j][k]!=0; ++k ) {
-	    if ( uni==accents[j][k] ) {
+	    if ( uni==(int)accents[j][k] ) {
 		uni = 0x300+j;
 	break;
 	    }

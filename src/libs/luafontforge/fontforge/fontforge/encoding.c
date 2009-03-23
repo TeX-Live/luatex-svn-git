@@ -111,14 +111,14 @@ static int32 unicode_from_MacSymbol[] = {
 /* I don't think iconv provides encodings for zapfdingbats nor jis201 */
 /*  Perhaps I should list them here for compatability, but I think I'll just */
 /*  leave them out. I doubt they get used.				     */
-static Encoding texbase = { "TeX-Base-Encoding", 256, tex_base_encoding, NULL, NULL, 1, 1, 1, 1 };
-       Encoding custom = { "Custom", 0, NULL, NULL, &texbase,			  1, 1, 0, 0, 0, 0, 0, 1, 0, 0 };
-static Encoding original = { "Original", 0, NULL, NULL, &custom,		  1, 1, 0, 0, 0, 0, 0, 0, 1, 0 };
-static Encoding unicodebmp = { "UnicodeBmp", 65536, NULL, NULL, &original, 	  1, 1, 0, 0, 1, 1, 0, 0, 0, 0 };
-static Encoding unicodefull = { "UnicodeFull", 17*65536, NULL, NULL, &unicodebmp, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0 };
+static Encoding texbase = { "TeX-Base-Encoding", 256, tex_base_encoding, NULL, NULL, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0 }, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0, 0  };
+       Encoding custom = { "Custom", 0, NULL, NULL, &texbase,			  1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, { 0, 0 }, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0, 0 };
+static Encoding original = { "Original", 0, NULL, NULL, &custom,		  1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, { 0, 0 }, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0, 0  };
+static Encoding unicodebmp = { "UnicodeBmp", 65536, NULL, NULL, &original, 	  1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0 }, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0, 0  };
+static Encoding unicodefull = { "UnicodeFull", 17*65536, NULL, NULL, &unicodebmp, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, { 0, 0 }, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0, 0  };
 static Encoding adobestd = { "AdobeStandard", 256, unicode_from_adobestd, AdobeStandardEncoding, &unicodefull,
-										  1, 1, 1, 1, 0, 0, 0, 0, 0, 0 };
-static Encoding symbol = { "Symbol", 256, unicode_from_MacSymbol, NULL, &adobestd,1, 1, 1, 1, 0, 0, 0, 0, 0, 0 };
+										  1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0 }, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0, 0  };
+static Encoding symbol = { "Symbol", 256, unicode_from_MacSymbol, NULL, &adobestd,1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0 }, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0, 0  };
 
 Encoding *enclist = &symbol;
 
@@ -375,24 +375,29 @@ return( NULL );
 	if ( !temp.has_2byte && !good[033]/* escape */ ) {
 	    if ( strstr(iconv_name,"2022")!=NULL &&
 		    strstr(iconv_name,"JP3")!=NULL &&
-		    TryEscape( &temp,"\33$(O" ))
+                      TryEscape( &temp,"\33$(O" )) {
 		;
+	    }
 	    else if ( strstr(iconv_name,"2022")!=NULL &&
 		    strstr(iconv_name,"JP2")!=NULL &&
-		    TryEscape( &temp,"\33$(D" ))
+		      TryEscape( &temp,"\33$(D" )) {
 		;
+	    }
 	    else if ( strstr(iconv_name,"2022")!=NULL &&
 		    strstr(iconv_name,"JP")!=NULL &&
-		    TryEscape( &temp,"\33$B" ))
+		      TryEscape( &temp,"\33$B" )) {
 		;
+	    }
 	    else if ( strstr(iconv_name,"2022")!=NULL &&
 		    strstr(iconv_name,"KR")!=NULL &&
-		    TryEscape( &temp,"\33$)C\16" ))
+		      TryEscape( &temp,"\33$)C\16" )) {
 		;
+	    }
 	    else if ( strstr(iconv_name,"2022")!=NULL &&
 		    strstr(iconv_name,"CN")!=NULL &&
-		    TryEscape( &temp,"\33$)A\16" ))
+		      TryEscape( &temp,"\33$)A\16" )) {
 		;
+	    }
 	}
     }
     if ( !temp.has_1byte && !temp.has_2byte )
@@ -493,7 +498,7 @@ int NameUni2CID(struct cidmap *map,int uni, const char *name) {
 return( -1 );
     if ( uni!=-1 ) {
 	for ( i=0; i<map->namemax; ++i )
-	    if ( map->unicode[i]==uni )
+	  if ( map->unicode[i]==(unsigned)uni )
 return( i );
     } else {
 	for ( i=0; i<map->namemax; ++i )
@@ -639,10 +644,10 @@ struct cidmap *FindCidMap(char *registry,char *ordering,int supplement,SplineFon
     struct cidmap *map, *maybe=NULL;
     char *file, *maybefile=NULL;
     int maybe_sup = -1;
-    char *buts[3], *buts2[3], *buts3[3];
+    char *buts[3], *buts2[3];
     char buf[100];
     int ret;
-
+    
     if ( sf!=NULL && sf->cidmaster ) sf = sf->cidmaster;
     if ( sf!=NULL && sf->loading_cid_map )
 return( NULL );

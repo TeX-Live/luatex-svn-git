@@ -214,7 +214,7 @@ static SplineFont *SearchPostscriptResources(FILE *f,long rlistpos,int subcnt,lo
     FILE *pfb;
     FontDict *fd;
     SplineFont *sf;
-
+    (void)name_list;
     fseek(f,rlistpos,SEEK_SET);
     rsrcids = gcalloc(subcnt,sizeof(short));
     offsets = gcalloc(subcnt,sizeof(long));
@@ -335,7 +335,7 @@ static SplineFont *SearchTtfResources(FILE *f,long rlistpos,int subcnt,long rdat
     char **names;
     char *pt,*lparen, *rparen;
     char *chosenname=NULL;
-
+    (void)name_list;
     fseek(f,rlistpos,SEEK_SET);
     if ( subcnt>1 || (flags&ttf_onlynames) ) {
 	names = gcalloc(subcnt+1,sizeof(char *));
@@ -703,8 +703,8 @@ static FOND *PickFOND(FOND *fondlist,char *filename,char **name, int *style) {
     FOND *test;
     uint8 stylesused[96];
     char **names;
-    FOND **fonds, *fond;
-    int *styles;
+    FOND **fonds = NULL, *fond = NULL;
+    int *styles = NULL;
     int cnt, which;
     char *pt, *lparen;
     char *find = NULL;
@@ -879,7 +879,7 @@ static SplineFont *IsResourceFork(FILE *f, long offset,char *filename,int flags,
     int i, cnt, subcnt, nfnt_subcnt=0, font_subcnt=0, fond_subcnt=0;
     SplineFont *sf;
     FOND *fondlist=NULL;
-
+    fond_pos=0;
     fseek(f,offset,SEEK_SET);
     if ( fread(buffer,1,16,f)!=16 )
 return( NULL );

@@ -118,7 +118,7 @@ return;
 	LogError( _("Hmm, this 'fvar' table has an unexpected size for an instance, I shan't parse it\n") );
 return;
     }
-    if ( data_off+axis_count*20+instance_count*(4+4*axis_count)> info->fvar_len ) {
+    if ( data_off+axis_count*20+instance_count*(4+4*axis_count)> (int)info->fvar_len ) {
 	LogError( _("Hmm, this 'fvar' table is too short\n") );
 return;
     }

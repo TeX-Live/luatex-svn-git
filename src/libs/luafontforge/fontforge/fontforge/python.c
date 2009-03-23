@@ -33,6 +33,8 @@
 
 #include <stdio.h>
 
+#include "uiinterface.h"
+
 typedef struct flaglist {
   const char *name;
   int flag;
@@ -63,7 +65,7 @@ static struct flaglist sfnt_name_str_ids[] = {
     { "CID findfont Name", 20},
     { "WWS Family", 21},
     { "WWS Subfamily", 22},
-    NULL
+    { NULL, 0 }
 };
 /* These don't get translated. They are a copy of a similar list in fontinfo.c */
 static struct flaglist sfnt_name_mslangs[] = {
@@ -290,7 +292,7 @@ static struct flaglist sfnt_name_mslangs[] = {
     { "Yiddish", 0x43d},
     { "Yoruba", 0x46a},
     { "Zulu", 0x435},
-    { NULL }};
+    { NULL, 0 }};
 
 const char *NOUI_TTFNameIds(int id) {
     int i;

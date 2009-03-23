@@ -331,7 +331,7 @@ static struct keywords {
     { "pos", tk_position },
     { "enum", tk_enumerate },
     { "anon", tk_anonymous },
-    { NULL }
+    { NULL, 0 }
 };
 
 static struct tablekeywords hhead_keys[] = {
@@ -339,14 +339,14 @@ static struct tablekeywords hhead_keys[] = {
     { "Ascender", sizeof(short), 1, offsetof(struct pfminfo,hhead_ascent)+offsetof(SplineFont,pfminfo) },
     { "Descender", sizeof(short), 1, offsetof(struct pfminfo,hhead_descent)+offsetof(SplineFont,pfminfo) },
     { "LineGap", sizeof(short), 1, offsetof(struct pfminfo,linegap)+offsetof(SplineFont,pfminfo) },
-    { NULL }
+    { NULL, 0, 0, 0 }
 };
 
 static struct tablekeywords vhead_keys[] = {
     { "VertTypoAscender", sizeof(short), 1, -1 },
     { "VertTypoDescender", sizeof(short), 1, -1 },
     { "VertTypoLineGap", sizeof(short), 1, offsetof(struct pfminfo,vlinegap)+offsetof(SplineFont,pfminfo) },
-    { NULL }
+    { NULL, 0, 0, 0 }
 };
 
 static struct tablekeywords os2_keys[] = {
@@ -364,7 +364,7 @@ static struct tablekeywords os2_keys[] = {
     { "WeightClass", sizeof(short), 1, offsetof(struct pfminfo,weight)+offsetof(SplineFont,pfminfo) },
     { "WidthClass", sizeof(short), 1, offsetof(struct pfminfo,width)+offsetof(SplineFont,pfminfo) },
     { "Vendor", sizeof(short), 1, offsetof(struct pfminfo,os2_vendor)+offsetof(SplineFont,pfminfo) },
-    { NULL }
+    { NULL, 0, 0, 0 }
 };
 
 
@@ -3155,6 +3155,7 @@ static void fea_ApplyLookupListPST(struct parseState *tok,
 	struct feat_item *lookup_data,OTLookup *otl) {
     struct lookup_subtable *sub = NULL, *last=NULL;
     struct feat_item *l;
+    (void)tok;
     /* Simple pst's are easy. We just attach them to their proper glyphs */
     /*  and then clear the feat_item pst slot (so we don't free them later) */
     /* There might be a subtable break */

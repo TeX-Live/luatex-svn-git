@@ -33,6 +33,10 @@ static void NClipboard_Grab(void) {
 
 static void NClipboard_AddDataType(const char *type, void *data, int cnt, int size,
 	void *(*gendata)(void *,int32 *len), void (*freedata)(void *)) {
+  (void)type;
+  (void)cnt;
+  (void)size;
+  (void)gendata;
     if ( freedata!=NULL && data !=NULL )
 	(freedata)(data);
 }
@@ -40,10 +44,12 @@ static void NClipboard_AddDataType(const char *type, void *data, int cnt, int si
 /* Asks for the clip and waits for the response. */
 static void *NClipboard_Request(const char *mimetype,int *len) {
     *len = 0;
+  (void)mimetype;
 return( NULL );
 }
 
 static int NClipboard_HasType(const char *mimetype) {
+  (void)mimetype;
 return( 0 );
 }
 

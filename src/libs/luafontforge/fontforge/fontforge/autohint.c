@@ -964,7 +964,7 @@ static HintInstance *SCGuessHintPoints(SplineChar *sc, int layer, StemInfo *stem
 	break;
 	    }
 	}
-	if ( val!=0x80000000 ) {
+	if ( (unsigned)val!=0x80000000 ) {
 	    for ( prev=NULL, test=head; test!=NULL && val>test->begin; prev=test, test=test->next );
 	    if ( test==NULL || val!=test->begin ) {
 		cur = chunkalloc(sizeof(HintInstance));

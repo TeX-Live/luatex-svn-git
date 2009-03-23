@@ -93,6 +93,7 @@ return( fv );
 
 static FontViewBase *FontViewBase_Create(SplineFont *sf,int hide) {
     FontViewBase *fv = _FontViewBaseCreate(sf);
+    (void)hide;
 return( fv );
 }
 
@@ -143,17 +144,18 @@ static void FontViewBase_Free(FontViewBase *fv) {
 }
 
 static int FontViewBaseWinInfo(FontViewBase *fv, int *cc, int *rc) {
+    (void)fv;
     *cc = 16; *rc = 4;
 return( -1 );
 }
 
-static void FontViewBaseSetTitle(FontViewBase *foo) { }
-static void FontViewBaseSetTitles(SplineFont *foo) { }
-static void FontViewBaseRefreshAll(SplineFont *foo) { }
-static void FontViewBaseReformatOne(FontViewBase *foo) { }
-static void FontViewBaseReformatAll(SplineFont *foo) { }
-static void FontViewBaseLayerChanged(FontViewBase *foo) { }
-static void FV_ToggleCharChanged(SplineChar *foo) { }
+static void FontViewBaseSetTitle(FontViewBase *foo) { (void)foo; }
+static void FontViewBaseSetTitles(SplineFont *foo) { (void)foo; }
+static void FontViewBaseRefreshAll(SplineFont *foo) { (void)foo; }
+static void FontViewBaseReformatOne(FontViewBase *foo) { (void)foo; }
+static void FontViewBaseReformatAll(SplineFont *foo) { (void)foo; }
+static void FontViewBaseLayerChanged(FontViewBase *foo) {(void)foo;  }
+static void FV_ToggleCharChanged(SplineChar *foo) {(void)foo;  }
 static FontViewBase *FVAny(void) { return fv_list; }
 static int  FontIsActive(SplineFont *sf) {
     FontViewBase *fv;
@@ -180,6 +182,8 @@ return( NULL );
 }
 
 static void FVExtraEncSlots(FontViewBase *fv, int encmax) {
+  (void)fv;
+  (void)encmax;
 }
 
 static void FontViewBase_Close(FontViewBase *fv) {
@@ -202,6 +206,8 @@ static void FVB_ShowFilled(FontViewBase *fv) {
 }
 
 static void FVB_ReattachCVs(SplineFont *old, SplineFont *new) {
+  (void)old;
+  (void)new;
 }
 
 static void FVB_DeselectAll(FontViewBase *fv) {
@@ -209,9 +215,12 @@ static void FVB_DeselectAll(FontViewBase *fv) {
 }
 
 static void FVB_DisplayChar(FontViewBase *fv,int gid) {
+  (void)fv;
+  (void)gid;
 }
 
 static int SFB_CloseAllInstrs(SplineFont *sf) {
+  (void)sf;
 return( true );
 }
 
@@ -249,17 +258,22 @@ struct fv_interface *fv_interface = &noui_fv;
 
 /******************************************************************************/
 static int NoGlyphs(struct metricsview *mv) {
+  (void)mv;
 return( 0 );
 }
 
 static SplineChar *Nothing(struct metricsview *mv, int i) {
+  (void)mv;
+  (void)i; 
 return( NULL );
 }
 
 static void NoReKern(struct splinefont *sf) {
+  (void)sf;
 }
 
 static void NoCloseAll(struct splinefont *sf) {
+  (void)sf;
 }
 
 struct mv_interface noui_mv = {
