@@ -78,7 +78,8 @@ static const int filetypes[] = {
     kpse_opentype_format,
     kpse_pdftex_config_format,
     kpse_lig_format,
-    kpse_texmfscripts_format
+    kpse_texmfscripts_format,
+    kpse_lua_format
 };
 
 static const char *const filetypenames[] = {
@@ -133,8 +134,12 @@ static const char *const filetypenames[] = {
     "pdftex config",
     "lig files",
     "texmfscripts",
+    "lua",
     NULL
 };
+
+
+#define KPATHSEA_METATABLE  "luatex_kpathsea"
 
 /* set to 1 by the |program_name| function */
 
@@ -186,6 +191,42 @@ static int find_file(lua_State * L)
     return 1;
 }
 
+
+static int lua_kpathsea_find_file(lua_State * L)
+{
+    int i;
+    int ftype = kpse_tex_format;
+    int mexist = 0;
+    kpathsea *kp = (kpathsea *)luaL_checkudata(L, 1, KPATHSEA_METATABLE);
+    char *st = (char *) luaL_checkstring(L, 2);
+    i = lua_gettop(L);
+    while (i > 2) {
+        if (lua_isboolean(L, i)) {
+            mexist = lua_toboolean(L, i);
+        } else if (lua_isnumber(L, i)) {
+            mexist = lua_tonumber(L, i);
+        } else if (lua_isstring(L, i)) {
+            int op = luaL_checkoption(L, i, NULL, filetypenames);
+            ftype = filetypes[op];
+        }
+        i--;
+    }
+    if (ftype == kpse_pk_format ||
+        ftype == kpse_gf_format || ftype == kpse_any_glyph_format) {
+        /* ret.format, ret.name, ret.dpi */
+        kpse_glyph_file_type ret;
+        lua_pushstring(L, kpathsea_find_glyph(*kp, st, mexist, ftype, &ret));
+    } else {
+        if (mexist > 0)
+            mexist = 1;
+        if (mexist < 0)
+            mexist = 0;
+        lua_pushstring(L, kpathsea_find_file(*kp, st, ftype, mexist));
+    }
+    return 1;
+
+}
+
 static int show_path(lua_State * L)
 {
     int op = luaL_checkoption(L, -1, "tex", filetypenames);
@@ -197,12 +238,30 @@ static int show_path(lua_State * L)
     return 1;
 }
 
+static int lua_kpathsea_show_path(lua_State * L)
+{
+    kpathsea *kp = (kpathsea *)luaL_checkudata(L, 1, KPATHSEA_METATABLE);
+    int op = luaL_checkoption(L, -1, "tex", filetypenames);
+    int user_format = filetypes[op];
+    if (!(*kp)->format_info[user_format].type)    /* needed if arg was numeric */
+        kpathsea_init_format(*kp, user_format);
+    lua_pushstring(L, (*kp)->format_info[user_format].path);
+    return 1;
+}
 
 static int expand_path(lua_State * L)
 {
     const char *st = luaL_checkstring(L, 1);
     TEST_PROGRAM_NAME_SET;
     lua_pushstring(L, kpse_path_expand(st));
+    return 1;
+}
+
+static int lua_kpathsea_expand_path(lua_State * L)
+{
+    kpathsea *kp = (kpathsea *)luaL_checkudata(L, 1, KPATHSEA_METATABLE);
+    const char *st = luaL_checkstring(L, 2);
+    lua_pushstring(L, kpathsea_path_expand(*kp, st));
     return 1;
 }
 
@@ -214,6 +273,15 @@ static int expand_braces(lua_State * L)
     return 1;
 }
 
+static int lua_kpathsea_expand_braces(lua_State * L)
+{
+    kpathsea *kp = (kpathsea *)luaL_checkudata(L, 1, KPATHSEA_METATABLE);
+    const char *st = luaL_checkstring(L, 2);
+    lua_pushstring(L, kpathsea_brace_expand(*kp, st));
+    return 1;
+}
+
+
 static int expand_var(lua_State * L)
 {
     const char *st = luaL_checkstring(L, 1);
@@ -222,6 +290,15 @@ static int expand_var(lua_State * L)
     return 1;
 }
 
+static int lua_kpathsea_expand_var(lua_State * L)
+{
+    kpathsea *kp = (kpathsea *)luaL_checkudata(L, 1, KPATHSEA_METATABLE);
+    const char *st = luaL_checkstring(L, 2);
+    lua_pushstring(L, kpathsea_var_expand(*kp, st));
+    return 1;
+}
+
+
 static int var_value(lua_State * L)
 {
     const char *st = luaL_checkstring(L, 1);
@@ -229,6 +306,15 @@ static int var_value(lua_State * L)
     lua_pushstring(L, kpse_var_value(st));
     return 1;
 }
+
+static int lua_kpathsea_var_value(lua_State * L)
+{
+    kpathsea *kp = (kpathsea *)luaL_checkudata(L, 1, KPATHSEA_METATABLE);
+    const char *st = luaL_checkstring(L, 2);
+    lua_pushstring(L, kpathsea_var_value(*kp, st));
+    return 1;
+}
+
 
 /* Engine support is a bit of a problem, because we do not want
  * to interfere with the normal format discovery of |luatex|.
@@ -270,6 +356,17 @@ static int init_prog(lua_State * L)
     return 0;
 }
 
+static int lua_kpathsea_init_prog(lua_State * L)
+{
+    kpathsea *kp = (kpathsea *)luaL_checkudata(L, 1, KPATHSEA_METATABLE);
+    const char *prefix = luaL_checkstring(L, 2);
+    unsigned dpi = luaL_checkinteger(L, 3);
+    const char *mode = luaL_checkstring(L, 4);
+    const char *fallback = luaL_optstring(L, 5, NULL);
+    kpathsea_init_prog(*kp,prefix, dpi, mode, fallback);
+    return 0;
+}
+
 static int readable_file(lua_State * L)
 {
     const char *name = luaL_checkstring(L, 1);
@@ -278,23 +375,70 @@ static int readable_file(lua_State * L)
     return 1;
 }
 
+static int lua_kpathsea_readable_file(lua_State * L)
+{
+    kpathsea *kp = (kpathsea *)luaL_checkudata(L, 1, KPATHSEA_METATABLE);
+    const char *name = luaL_checkstring(L, 2);
+    lua_pushstring(L, (char *) kpathsea_readable_file(*kp,name));
+    return 1;
+}
 
-static const struct luaL_reg kpselib[] = {
-    {"set_program_name", set_program_name},
-    {"init_prog", init_prog},
-    {"readable_file", readable_file},
-    {"find_file", find_file},
-    {"expand_path", expand_path},
-    {"expand_var", expand_var},
-    {"expand_braces", expand_braces},
-    {"var_value", var_value},
-    {"show_path", show_path},
+
+static int lua_kpathsea_finish(lua_State * L)
+{
+    kpathsea *kp = (kpathsea *)luaL_checkudata(L, 1, KPATHSEA_METATABLE);
+    kpathsea_finish(*kp);
+    return 0;
+}
+
+static int lua_kpathsea_new(lua_State * L)
+{
+    kpathsea kpse = NULL;
+    kpathsea *kp = NULL;
+    char *argv = (char *)luaL_checkstring(L,1);
+    char *liar = (char *)luaL_optstring(L,2,argv);
+    kpse = kpathsea_new();
+    kpathsea_set_program_name(kpse, argv, liar);
+    kp = (kpathsea *)lua_newuserdata(L, sizeof(kpathsea *));
+    *kp = kpse;
+    luaL_getmetatable(L, KPATHSEA_METATABLE);
+    lua_setmetatable(L, -2);    
+    return 1;
+}
+
+static const struct luaL_reg kpselib_m[] = {
+    {"__gc",          lua_kpathsea_finish        },
+    {"init_prog",     lua_kpathsea_init_prog     },
+    {"readable_file", lua_kpathsea_readable_file },
+    {"find_file",     lua_kpathsea_find_file     },
+    {"expand_path",   lua_kpathsea_expand_path   },
+    {"expand_var",    lua_kpathsea_expand_var    },
+    {"expand_braces", lua_kpathsea_expand_braces },
+    {"var_value",     lua_kpathsea_var_value     },
+    {"show_path",     lua_kpathsea_show_path     },
     {NULL, NULL}                /* sentinel */
 };
 
+static const struct luaL_reg kpselib_l[] = {
+    {"new",              lua_kpathsea_new },
+    {"set_program_name", set_program_name },
+    {"init_prog",        init_prog        },
+    {"readable_file",    readable_file    },
+    {"find_file",        find_file        },
+    {"expand_path",      expand_path      },
+    {"expand_var",       expand_var       },
+    {"expand_braces",    expand_braces    },
+    {"var_value",        var_value        },
+    {"show_path",        show_path        },
+    {NULL, NULL}                /* sentinel */
+};
 
 int luaopen_kpse(lua_State * L)
 {
-    luaL_register(L, "kpse", kpselib);
+    luaL_newmetatable(L, KPATHSEA_METATABLE);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2,"__index");
+    luaL_register(L, NULL, kpselib_m);
+    luaL_register(L, "kpse", kpselib_l);
     return 1;
 }

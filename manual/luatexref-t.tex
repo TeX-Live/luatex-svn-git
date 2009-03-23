@@ -3740,18 +3740,27 @@ If you want to unset a lua name, you can assign \type{nil} to it.
 
 \section{The \luatex{kpse} library}
 
-This library provides an interface to the \KPATHSEA\ file search method.
+This library provides two separate, but nearly identical interfaces to
+the \KPATHSEA\ file search functionality: there is a \quote{normal}
+procedural interface that shares its kpathsea instance with \LUATEX\
+itself, and an object oriented interface that is completely on its
+own. The object oriented interface and \type{kpse.new} have been added
+in \LUATEX\ 0.37.
+
+\subsection{\luatex{kpse.set_program_name} and  \luatex{kpse.new}}
 
 Before the search library can be used at all, its database has to be
-initialized. When \LUATEX\ is used to typeset documents, this happens
-automatically (that is, unless explicitly prohibited by the user's
-startup script. See~\in{section}[init] for more details). In \TEXLUA\
-mode, the initialization has to be done explicitly via the
-\luatex{kpse.set_program_name} function.
+initialized. There are three possibilities, two of which belong to the
+procedural interface.
 
-\subsection{\luatex{kpse.set_program_name}}
+First, when \LUATEX\ is used to typeset documents, this initialization
+happens automatically and the \KPATHSEA\ executable and program names
+are set to \type{luatex} (that is, unless explicitly prohibited by the
+user's startup script. See~\in{section}[init] for more details).
 
-Sets the \KPATHSEA\ executable (and optionally program) name.
+Second, in \TEXLUA\ mode, the initialization has to be done explicitly
+via the \luatex{kpse.set_program_name} function, which sets the
+\KPATHSEA\ executable (and optionally program) name.
 
 \startfunctioncall
 kpse.set_program_name(<string> name)
@@ -3761,8 +3770,21 @@ kpse.set_program_name(<string> name, <string> progname)
 The second argument controls the use of the \quote{dotted} values in the
 \type{texmf.cnf} configuration file, and defaults to the first argument.
 
+Third, if you prefer the object oriented interface, you have to call a
+different function. It has the same arguments, but it returns a
+userdata variable.
 
-\subsection{\luatex{kpse.find_file}}
+\startfunctioncall
+local kpathsea = kpse.new(<string> name)
+local kpathsea = kpse.new(<string> name, <string> progname)
+\stopfunctioncall
+
+Apart from these two functions, the calling conventions of the
+interfaces are identical. Depending on the chosen interface, you
+either call \type{kpse.find_file()} or \type{kpathsea:find_file()},
+with identical arguments and return vales.
+
+\subsection{\luatex{find_file}}
 
 The most often used function in the library is find_file:
 
@@ -3840,10 +3862,13 @@ standalone \type{kpsewhich} program:
 'pdftex config'
 'lig files'
 'texmfscripts'
+'lua'
 \stoptyping
 \stopsimplecolumns
 
-The default type is \type{tex}.
+The default type is \type{tex}. Note: this is different from
+\KPSEWHICH, which tries to deduce the file type itself from
+looking at the supplied extension.
 
 \sym{mustexist}
 
@@ -3856,7 +3881,7 @@ will search the disk as well as the \type {ls-R} databases.
 This is used for the size argument of the formats \type{pk}, \type{gf}, and \type{bitmap font}.
 \stopitemize
 
-\subsection{\luatex{kpse.init_prog}}
+\subsection{\luatex{init_prog}}
 
 Extra initialization for programs that need to generate bitmap fonts.
 
@@ -3866,7 +3891,7 @@ kpse.init_prog(<string> prefix, <number> base_dpi, <string> mfmode, <string> fal
 \stopfunctioncall
 
 
-\subsection{\luatex{kpse.readable_file}}
+\subsection{\luatex{readable_file}}
 
 Test if an (absolute) file name is a readable file
 
@@ -3880,7 +3905,7 @@ due to aliases and system|-|specific handling under e.\,g.\ \MSDOS.
 
 Returns \lua {nil} if the file does not exist or is not readable.
 
-\subsection{\luatex{kpse.expand_path}}
+\subsection{\luatex{expand_path}}
 
 Like kpsewhich's \type {-expand-path}:
 
@@ -3888,7 +3913,7 @@ Like kpsewhich's \type {-expand-path}:
 <string> r = kpse.expand_path(<string> s)
 \stopfunctioncall
 
-\subsection{\luatex{kpse.expand_var}}
+\subsection{\luatex{expand_var}}
 
 Like kpsewhich's  \type{-expand-var}:
 
@@ -3896,7 +3921,7 @@ Like kpsewhich's  \type{-expand-var}:
 <string> r = kpse.expand_var(<string> s)
 \stopfunctioncall
 
-\subsection{\luatex{kpse.expand_braces}}
+\subsection{\luatex{expand_braces}}
 
 Like kpsewhich's \type{-expand-braces}:
 
@@ -3904,7 +3929,7 @@ Like kpsewhich's \type{-expand-braces}:
 <string> r = kpse.expand_braces(<string> s)
 \stopfunctioncall
 
-\subsection{\luatex{kpse.show_path}}
+\subsection{\luatex{show_path}}
 
 Like kpsewhich's \type{-show-path}:
 
@@ -3913,7 +3938,7 @@ Like kpsewhich's \type{-show-path}:
 \stopfunctioncall
 
 
-\subsection{\luatex{kpse.var_value}}
+\subsection{\luatex{var_value}}
 
 Like kpsewhich's \type{-var-value}:
 
