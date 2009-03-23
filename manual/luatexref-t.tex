@@ -22,7 +22,7 @@
 
 \setvariables
   [document]
-  [beta=0.36.0]
+  [beta=0.37.0]
 
 \starttext
 
@@ -652,6 +652,18 @@ The addition of this command coincides with a change in the
 \LUATEX\ engine: ever since the snapshot of 20060915, \type{\outer}
 was simply ignored. That behaviour has now reverted back to be
 \TEX82-compatible by default.
+
+
+\subsection{\tex{outputbox} (0.37)}
+
+\startsyntax
+\outputbox = 65535
+\stopsyntax
+
+This new integer parameter allows you to alter the number of the box
+that will be used to store the page to be shipped out in. It's default
+value is 255, and the acceptable range is from 0 to 65535.
+
 
 \subsection{Font syntax}
 

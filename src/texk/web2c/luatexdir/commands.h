@@ -391,6 +391,7 @@ typedef enum {
     param_disable_lig_code,
     param_disable_kern_code,
     param_cat_code_table_code,
+    param_output_box_code,
     param_cur_lang_code,        /* current language id */
     param_ex_hyphen_char_code,
     param_page_direction_code,  /* the five direction params do not exist in web */

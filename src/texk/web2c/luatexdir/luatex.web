@@ -249,11 +249,11 @@ known as `\eTeX'.
 @d pdftex_revision=="0" { \.{\\pdftexrevision} }
 @d pdftex_version_string=='-2.00.0' {current \pdfTeX\ version}
 @#
-@d luatex_version==36 { \.{\\luatexversion} }
+@d luatex_version==37 { \.{\\luatexversion} }
 @d luatex_revision=="0" { \.{\\luatexrevision} }
-@d luatex_version_string=='snapshot-0.36.0' {current \LuaTeX\ version}
+@d luatex_version_string=='snapshot-0.37.0' {current \LuaTeX\ version}
 @d luatex_date_info==-extra_version_info { the compile date is negated }
-@d luatex_svnversion==SVN_REV { as proposed by PM }
+@d luatex_svnversion==SVN_REV { as proposed by Peter M\"unster }
 @#
 @d LuaTeX_banner=='This is LuaTeX, Version ',luatex_version_string,extra_version_info
    {printed when \LuaTeX\ starts}
@@ -5567,9 +5567,10 @@ that will be defined later.
 @d disable_lig_code=61
 @d disable_kern_code=62
 @d cat_code_table_code=63
-@d cur_lang_code=64 {current language id}
-@d ex_hyphen_char_code=65
-@d tex_int_pars=66 {total number of \.{\\TeX} + Aleph integer parameters}
+@d output_box_code=64
+@d cur_lang_code=65 {current language id}
+@d ex_hyphen_char_code=66
+@d tex_int_pars=67 {total number of \.{\\TeX} + Aleph integer parameters}
 @#
 @d dir_base=int_base+tex_int_pars
 @d page_direction_code=0
@@ -5705,6 +5706,7 @@ that will be defined later.
 @d disable_lig==int_par(disable_lig_code)
 @d disable_kern==int_par(disable_kern_code)
 @d cat_code_table==int_par(cat_code_table_code)
+@d output_box==int_par(output_box_code)
 @#
 @d pdf_adjust_spacing   == int_par(pdf_adjust_spacing_code)
 @d pdf_protrude_chars   == int_par(pdf_protrude_chars_code)
@@ -5819,6 +5821,7 @@ luastartup_id_code:print_esc("luastartup");
 disable_lig_code:print_esc("noligs");
 disable_kern_code:print_esc("nokerns");
 cat_code_table_code:print_esc("catcodetable");
+output_box_code:print_esc("outputbox");
 @#
 local_inter_line_penalty_code: print_esc("localinterlinepenalty");
 local_broken_penalty_code: print_esc("localbrokenpenalty");
@@ -5982,6 +5985,8 @@ primitive_luatex("noligs",assign_int,int_base+disable_lig_code,int_base);@/
 @!@:disable_lig_}{\.{\\noligs} primitive@>
 primitive_luatex("catcodetable",assign_int,int_base+cat_code_table_code,int_base);@/
 @!@:cat_code_table_}{\.{\\catcodetable} primitive@>
+primitive_luatex("outputbox",assign_int,int_base+output_box_code,int_base);@/
+@!@:output_box_}{\.{\\outputbox} primitive@>
 primitive_pdftex("pdfoutput",assign_int,int_base+pdf_output_code,int_base);@/
 @!@:pdf_output_}{\.{\\pdfoutput} primitive@>
 primitive_pdftex("pdfcompresslevel",assign_int,int_base+pdf_compress_level_code,int_base);@/
@@ -6048,6 +6053,7 @@ escape_char:="\"; end_line_char:=carriage_return;
 eqtb[int_base+level_local_dir_code].int:=level_one;
 set_del_code(".",tex_mathcode,0,0,0,0,level_one); {this null delimiter is used in error recovery}
 ex_hyphen_char:="-";
+output_box:=255;
 
 @ The following procedure, which is called just before \TeX\ initializes its
 input and output, establishes the initial values of the date and time.
@@ -21210,7 +21216,7 @@ each node in this list refers to an insertion number; for example, `\.{\\insert
 250}' would correspond to a node whose |subtype| is |qi(250)|
 (the same as the |subtype| field of the relevant |ins_node|). These |subtype|
 fields are in increasing order, and |subtype(page_ins_head)=
-qi(255)|, so |page_ins_head| serves as a convenient sentinel
+qi(output_box)|, so |page_ins_head| serves as a convenient sentinel
 at the end of the list. A record is present for each insertion number that
 appears in the current page.
 
@@ -21244,7 +21250,7 @@ appears in the fourth word of a box node.
 @d best_ins_ptr(#)==vinfo(#+3) {the optimum most recent insertion}
 
 @<Initialize the special list heads...@>=
-subtype(page_ins_head):=qi(255);
+subtype(page_ins_head):=output_box;
 type(page_ins_head):=split_up_node; vlink(page_ins_head):=page_ins_head;
 
 @ An array |page_so_far| records the heights and depths of everything
@@ -21409,7 +21415,7 @@ last_glue:=max_halfword; last_penalty:=0; last_kern:=0;
 last_node_type:=-1;
 page_depth:=0; page_max_depth:=0
 
-@ At certain times box 255 is supposed to be void (i.e., |null|),
+@ At certain times box \outputbox is supposed to be void (i.e., |null|),
 or an insertion box is supposed to be ready to accept a vertical list.
 If not, an error message is printed, and the following subroutine
 flushes the unwanted contents, reporting them to the user.
@@ -21753,7 +21759,7 @@ end
 
 @ When the page builder has looked at as much material as could appear before
 the next page break, it makes its decision. The break that gave minimum
-badness will be used to put a completed ``page'' into box 255, with insertions
+badness will be used to put a completed ``page'' into box \.{\\outputbox}, with insertions
 appended to their other boxes.
 
 We also set the values of |top_mark|, |first_mark|, and |bot_mark|. The
@@ -21785,7 +21791,7 @@ for i:=0 to biggest_used_mark do begin
     delete_first_mark(i);
     end;
   end;
-@<Put the \(o)optimal current page into box 255, update |first_mark| and
+@<Put the \(o)optimal current page into box |output_box|, update |first_mark| and
   |bot_mark|, append insertions to their boxes, and put the
   remaining nodes back on the contribution list@>;
 for i:=0 to biggest_used_mark do begin
@@ -21812,9 +21818,9 @@ pointer |p| runs through the vlist, with |prev_p| trailing behind;
 pointer |q| is the tail of a list of insertions that
 are being held over for a subsequent page.
 
-@<Put the \(o)optimal current page into box 255...@>=
+@<Put the \(o)optimal current page into box ...@>=
 if c=best_page_break then best_page_break:=null; {|c| not yet linked in}
-@<Ensure that box 255 is empty before output@>;
+@<Ensure that box |output_box| is empty before output@>;
 insert_penalties:=0; {this will count the number of insertions held over}
 save_split_top_skip:=split_top_skip;
 if holding_inserts<=0 then
@@ -21832,17 +21838,17 @@ while p<>best_page_break do
   prev_p:=p; p:=vlink(prev_p);
   end;
 split_top_skip:=save_split_top_skip;
-@<Break the current page at node |p|, put it in box~255,
+@<Break the current page at node |p|, put it in box~|output_box|,
   and put the remaining nodes on the contribution list@>;
 @<Delete \(t)the page-insertion nodes@>
 
-@ @<Ensure that box 255 is empty before output@>=
-if box(255)<>null then
-  begin print_err(""); print_esc("box"); print("255 is not void");
-@:box255}{\.{\\box255 is not void}@>
-  help2("You shouldn't use \box255 except in \output routines.")@/
+@ @<Ensure that box |output_box| is empty before output@>=
+if box(output_box)<>null then
+  begin print_err(""); print_esc("box"); print_int(output_box); print(" is not void");
+@:box\\outputbox}{\.{\\box\\outputbox is not void}@>
+  help2("You shouldn't use \box\outputbox except in \output routines.")@/
     ("Proceed, and I'll discard its present contents.");
-  box_error(255);
+  box_error(output_box);
   end
 
 @ @<Update the values of |first_mark| and |bot_mark|@>=
@@ -21877,7 +21883,7 @@ if p<>null then
 save_vbadness:=vbadness; vbadness:=inf_bad;
 save_vfuzz:=vfuzz; vfuzz:=max_dimen; {inhibit error messages}
 pack_direction:=body_direction;
-box(255):=filtered_vpackage(vlink(page_head),best_size,exactly,page_max_depth,output_group);
+box(output_box):=filtered_vpackage(vlink(page_head),best_size,exactly,page_max_depth,output_group);
 vbadness:=save_vbadness; vfuzz:=save_vfuzz;
 if last_glue<>max_halfword then delete_glue_ref(last_glue);
 @<Start a new current page@>; {this sets |last_glue:=max_halfword|}
@@ -21977,7 +21983,7 @@ begin if vlink(page_head)<>null then
   vlink(page_head):=null; page_tail:=page_head;
   end;
 flush_node_list(page_disc); page_disc:=null;
-ship_out(box(255)); box(255):=null;
+ship_out(box(output_box)); box(output_box):=null;
 end
 
 @ @<Explain that too many dead cycles have occurred in a row@>=
@@ -21985,7 +21991,7 @@ begin print_err("Output loop---"); print_int(dead_cycles);
 @.Output loop...@>
 print(" consecutive dead cycles");
 help3("I've concluded that your \output is awry; it never does a")@/
-("\shipout, so I'm shipping \box255 out myself. Next time")@/
+("\shipout, so I'm shipping \box\outputbox out myself. Next time")@/
 ("increase \maxdeadcycles if you want me to be more patient!"); error;
 end
 
@@ -22008,7 +22014,7 @@ begin if (loc<>null) or
   @<Recover from an unbalanced output routine@>;
 end_token_list; {conserve stack space in case more outputs are triggered}
 end_graf; unsave; output_active:=false; insert_penalties:=0;@/
-@<Ensure that box 255 is empty after output@>;
+@<Ensure that box |output_box| is empty after output@>;
 if tail<>head then {current list goes after heldover insertions}
   begin vlink(page_tail):=vlink(head);
   page_tail:=tail;
@@ -22032,15 +22038,15 @@ repeat get_token;
 until loc=null;
 end {loops forever if reading from a file, since |null=min_halfword<=0|}
 
-@ @<Ensure that box 255 is empty after output@>=
-if box(255)<>null then
+@ @<Ensure that box |output_box| is empty after output@>=
+if box(output_box)<>null then
   begin print_err("Output routine didn't use all of ");
-  print_esc("box"); print_int(255);
+  print_esc("box"); print_int(output_box);
 @.Output routine didn't use...@>
-  help3("Your \output commands should empty \box255,")@/
-    ("e.g., by saying `\shipout\box255'.")@/
+  help3("Your \output commands should empty \box\outputbox,")@/
+    ("e.g., by saying `\shipout\box\outputbox'.")@/
     ("Proceed; I'll discard its present contents.");
-  box_error(255);
+  box_error(output_box);
   end
 
 @* \[46] The chief executive.
@@ -23198,12 +23204,12 @@ vmode+vadjust,
 
 @ @<Declare act...@>=
 procedure begin_insert_or_adjust;
-begin if cur_cmd=vadjust then cur_val:=255
+begin if cur_cmd=vadjust then cur_val:=output_box
 else  begin scan_register_num;
-  if cur_val=255 then
-    begin print_err("You can't "); print_esc("insert"); print_int(255);
-@.You can't \\insert255@>
-    help1("I'm changing to \insert0; box 255 is special.");
+  if cur_val=output_box then
+    begin print_err("You can't "); print_esc("insert"); print_int(output_box);
+@.You can't \\insert\outputbox@>
+    help1("I'm changing to \insert0; box \outputbox is special.");
     error; cur_val:=0;
     end;
   end;
@@ -23222,9 +23228,9 @@ insert_group: begin
   line_break_context:=insert_group; 
   end_graf; q:=split_top_skip; add_glue_ref(q);
   d:=split_max_depth; f:=floating_penalty; unsave; save_ptr := save_ptr - 2;
-  {now |saved(0)| is the insertion number, or 255 for |vadjust|}
+  {now |saved(0)| is the insertion number, or |output_box| for |vadjust|}
   p:=vpack(vlink(head),natural); pop_nest;
-  if saved(0)<>255 then
+  if saved(0)<>output_box then
     begin tail_append(new_node(ins_node,saved(0))); 
     height(tail):=height(p)+depth(p); ins_ptr(tail):=list_ptr(p);
     split_top_ptr(tail):=q; depth(tail):=d; float_cost(tail):=f;
@@ -24161,7 +24167,12 @@ if (p>=int_base)and(p<attribute_base) then begin
       error;
       end;
     end
-  else if (p=new_line_char)and(cur_val>127) then begin
+  else if (p=(int_base+output_box_code)and((cur_val>65535)or(cur_val<0))) then begin
+    print_err("Invalid \outputbox");
+    help1("The value for \outputbox has to be between 0 and 65535.");
+    error;
+    end
+  else if ((p=new_line_char)and((cur_val>127)or(cur_val<0))) then begin
     print_err("Invalid \newlinechar");
     help1("The value for \newlinechar has to be between 0 and 127.");
     error;
@@ -29435,7 +29446,7 @@ loop@+begin print_nl("### "); print_group(true);
       goto found2;
       end;
     insert_group:
-      begin if saved(-2)=255 then print_esc("vadjust")
+      begin if saved(-2)=output_box then print_esc("vadjust")
       else  begin print_esc("insert"); print_int(saved(-2));
         end;
       goto found2;
