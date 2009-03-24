@@ -1,0 +1,10 @@
+chktex:
+	http://mirror.sourceshare.org/savannah/chktex/chktex-1.6.3.tar.gz
+	http://savannah.nongnu.org/download/chktex/chktex-1.6.3.tar.gz
+
+dvipdfm:
+	ftp://ftp.kettering.edu/pub/outgoing/mwicks/dvipdfm/dvipdfm-0.13.2d.tar.gz
+	http://gaspra.kettering.edu/dvipdfm/dvipdfm-0.13.2d.tar.gz
+
+lcdf-typetools:
+	http://www.lcdf.org/type/lcdf-typetools-2.75.tar.gz

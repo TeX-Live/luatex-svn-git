@@ -1,0 +1,47 @@
+Public domain.  Originally created by Karl Berry, 2005.
+
+Libraries we compile for TeX Live.
+
+==> freetype2 <==
+  Original sources from:
+    http://savannah.nongnu.org/download/freetype/freetype-2.3.8.tar.bz2
+
+==> gd <==
+  Original sources from:
+    http://www.libgd.org/releases/gd-2.0.35.tar.bz2
+
+==> libpng <==
+  Original sources from:
+    ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-1.2.35.tar.bz2
+
+==> t1lib <==
+  Original sources from:
+    ftp://sunsite.unc.edu/pub/Linux/libs/graphics/t1lib-5.1.2.tar.gz
+
+==> xpdf <==
+  Original sources from:
+    http://www.foolabs.com/xpdf/xpdf-3.02.tar.gz
+    ftp://ftp.foolabs.com/pub/xpdf/xpdf-3.02.tar.gz
+  Applied two patches:
+    xpdf-3.02pl1.patch
+    xpdf-3.02pl2.patch
+  Applied patch for PDF_PARSER_ONLY:
+    xpdf/xpdf-3.02-PDF_PARSER_ONLY.patch
+  Applied patch for pdftex:
+    xpdf/xpdf-3.02-pdftex.patch
+  Applied patch for djgpp:
+    xpdf/xpdf-3.02-time_h.patch
+
+==> zlib <==
+  Original sources from:
+    http://www.zlib.net/zlib-1.2.3.tar.bz2
+
+====================
+
+Apart from descending into the various subdirectories, this sub-package
+'libs' creates two files ../subdir-configure and ../subdir-conf.args.  They
+allow the top-level Makefile to properly configure ../utils and ../texk
+without the need to adjust the absolute or relative paths to the respective
+source directories (as already done by configure for this directory).
+
+2009-01-20	Peter Breitenlohner <peb@mppmu.mpg.de>
