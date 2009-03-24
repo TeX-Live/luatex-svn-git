@@ -6690,6 +6690,10 @@ primitive_luatex("Uunderdelimiter",radical,4,0);@/
 @!@:radical_}{\.{\\Uunderdelimiter} primitive@>
 primitive_luatex("Uoverdelimiter",radical,5,0);@/
 @!@:radical_}{\.{\\Uoverdelimiter} primitive@>
+primitive_luatex("Udelimiterunder",radical,6,0);@/
+@!@:radical_}{\.{\\Udelimiterunder} primitive@>
+primitive_luatex("Udelimiterover",radical,7,0);@/
+@!@:radical_}{\.{\\Udelimiterover} primitive@>
 primitive_tex("read",read_to_cs,0,0);@/
 @!@:read_}{\.{\\read} primitive@>
 primitive_tex("relax",relax,too_big_char,too_big_char);

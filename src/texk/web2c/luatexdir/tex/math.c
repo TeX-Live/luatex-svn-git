@@ -799,7 +799,11 @@ void display_normal_noad(pointer p)
         tprint_esc("vcenter");
         break;
     case radical_noad:
-        if (subtype(p) == 5)
+        if (subtype(p) == 7)
+            tprint_esc("Udelimiterover");
+        else if (subtype(p) == 6)
+            tprint_esc("Udelimiterunder");
+        else if (subtype(p) == 5)
             tprint_esc("Uoverdelimiter");
         else if (subtype(p) == 4)
             tprint_esc("Uunderdelimiter");
@@ -1590,6 +1594,10 @@ void math_radical(void)
     else if (chr_code == 4)     /* \Uunderdelimiter */
         scan_delimiter(left_delimiter(tail), xetex_mathcode);
     else if (chr_code == 5)     /* \Uoverdelimiter */
+        scan_delimiter(left_delimiter(tail), xetex_mathcode);
+    else if (chr_code == 6)     /* \Udelimiterunder */
+        scan_delimiter(left_delimiter(tail), xetex_mathcode);
+    else if (chr_code == 7)     /* \Udelimiterover */
         scan_delimiter(left_delimiter(tail), xetex_mathcode);
     else
         tconfusion("math_radical");
