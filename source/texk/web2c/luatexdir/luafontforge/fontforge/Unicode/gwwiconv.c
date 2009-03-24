@@ -1,4 +1,4 @@
-/* Copyright (C) 2004-2007 by George Williams */
+/* Copyright (C) 2004-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,7 +34,7 @@
 #include <stdio.h>
 
 #ifdef LUA_FF_LIB
-extern void LogError(const char *fmt,...);
+extern void LUAUI_LogError(const char *fmt,...);
 #endif
 
 #ifndef HAVE_ICONV_H
@@ -66,13 +66,19 @@ static void endian_detector(void) {
 
 static enum encoding name_to_enc(const char *encname) {
     struct { const char *name; enum encoding enc; } map[] = {
+	{ "UCS-2-INTERNAL", e_unicode },
 	{ "UCS2", e_unicode },
 	{ "UCS-2", e_unicode },
-	{ "UCS-2-INTERNAL", e_unicode },
+	{ "UCS-2LE", e_unicode },
+	{ "UCS-2BE", e_unicode },
+	{ "UNICODELITTLE", e_unicode },
+	{ "UNICODEBIG", e_unicode },
 	{ "ISO-10646/UCS2", e_unicode },
 	{ "ISO-10646/USC2", e_unicode },		/* Old typo */
 	{ "UCS4", e_ucs4 },
 	{ "UCS-4", e_ucs4 },
+	{ "UCS-4LE", e_ucs4 },
+	{ "UCS-4BE", e_ucs4 },
 	{ "UCS-4-INTERNAL", e_ucs4 },
 	{ "ISO-10646/UCS4", e_ucs4 },
 	{ "iso8859-1", e_iso8859_1 },
@@ -148,9 +154,9 @@ return( (iconv_t)(-1) );
 #else
     } else if ( stuff.from!=e_ucs4 && stuff.to!=e_ucs4 ) {
 #ifdef LUA_FF_LIB
-	  LogError("Bad call to gww_iconv_open, neither arg is UCS4 (%s->%s)", fromenc, toenc);
+          LUAUI_LogError("Bad call to gww_iconv_open, neither arg is UCS4 (%s->%s)", fromenc, toenc);
 #else
-	  fprintf( stderr, "Bad call to gww_iconv_open, neither arg is UCS4 (%s->%s)\n" , fromenc, toenc);
+       fprintf( stderr, "Bad call to gww_iconv_open, neither arg is UCS4\n" );
 #endif
 return( (iconv_t)(-1) );
 #endif
@@ -236,7 +242,6 @@ return( (size_t) -1 );			/* Incomplete multi-byte sequence */
 		} else
 return( (size_t) -1 );
 	    }
-#ifndef LUA_FF_LIB
 	} else if ( cd->to==e_johab || cd->to==e_big5 || cd->to==e_big5hkscs ) {
 	    struct charmap2 *table = cd->to==e_johab ? &johab_from_unicode :
 				     cd->to==e_big5  ? &big5_from_unicode :
@@ -369,7 +374,6 @@ return( (size_t) -1 );
 		} else
 return( (size_t) -1 );
 	    }
-#endif
 	} else if ( cd->to==e_utf8 ) {
 	    while ( *inlen>1 && *outlen>0 ) {
 		unichar_t uch;
@@ -446,7 +450,6 @@ return( (size_t) -1 );			/* Incomplete multi-byte sequence */
 		} else
 return( (size_t) -1 );
 	    }
-#ifndef LUA_FF_LIB
 	} else if ( cd->to==e_johab || cd->to==e_big5 || cd->to==e_big5hkscs ) {
 	    struct charmap2 *table = cd->to==e_johab ? &johab_from_unicode :
 				     cd->to==e_big5  ? &big5_from_unicode :
@@ -579,7 +582,6 @@ return( (size_t) -1 );
 		} else
 return( (size_t) -1 );
 	    }
-#endif
 	} else if ( cd->to==e_utf8 ) {
 	    while ( *inlen>1 && *outlen>0 ) {
 		int uch;

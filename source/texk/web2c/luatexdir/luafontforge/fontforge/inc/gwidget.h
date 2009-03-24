@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2007 by George Williams */
+/* Copyright (C) 2000-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -134,8 +134,11 @@ int GWidgetAskCentered8(const char *title,
 	const char ** answers, int def, int cancel,const char *question,...);
 char *GWidgetAskString8(const char *title,
 	const char *def,const char *question,...);
+char *GWidgetAskPassword8(const char *title,
+	const char *def,const char *question,...);
 void GWidgetPostNotice8(const char *title,const char *statement,...);
-void _GWidgetPostNotice8(const char *title,const char *statement,va_list ap);
+void _GWidgetPostNotice8(const char *title,const char *statement,va_list ap,int timeout);
+void GWidgetPostNoticeTimeout8(int timeout, const char *title,const char *statement,...);
 int GWidgetPostNoticeActive8(const char *title);
 void GWidgetError8(const char *title,const char *statement,...);
 
@@ -151,14 +154,18 @@ int GWidgetChoicesB8(char *title, const char **choices, int cnt, int def,
 int GWidgetChoicesBM8(char *title, const char **choices,char *sel,
 	int cnt, char *buts[2], const char *question,...);
 
+extern struct hslrgb GWidgetColor(const char *title,struct hslrgb *defcol,struct hslrgb fontcols[6]);
+
 #define gwwv_choose_multiple	GWidgetChoicesBM8
 #define gwwv_choose_with_buttons	GWidgetChoicesB8
 #define gwwv_choose		GWidgetChoices8
 #define gwwv_ask_string		GWidgetAskString8
+#define gwwv_ask_password	GWidgetAskPassword8
 #define gwwv_ask		GWidgetAsk8
 #define gwwv_ask_centered	GWidgetAskCentered8
 #define gwwv_post_error		GWidgetError8
 #define gwwv_post_notice	GWidgetPostNotice8
+#define gwwv_post_notice_timeout	GWidgetPostNoticeTimeout8
 #define gwwv_open_filename(tit,def,filter,filtfunc)	GWidgetOpenFile8(tit,def,filter,NULL,filtfunc)
 #define gwwv_save_filename(tit,def,filter)		GWidgetSaveAsFile8(tit,def,filter,NULL,NULL)
 #define gwwv_save_filename_with_gadget(tit,def,filter,gcd)		GWidgetSaveAsFileWithGadget8(tit,def,filter,NULL,NULL,gcd)

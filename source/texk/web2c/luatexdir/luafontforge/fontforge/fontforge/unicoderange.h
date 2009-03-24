@@ -1,4 +1,4 @@
-/* Copyright (C) 2006,2007 by George Williams */
+/* Copyright (C) 2006-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -36,12 +36,3 @@ extern struct unicoderange {
     int actual;		/* Count of assigned codepoints in this range */
 } unicoderange[];
 
-struct rangeinfo {
-    struct unicoderange *range;
-    int cnt;
-    int actual;
-};
-
-enum ur_flags { ur_includeempty = 1, ur_sortbyname = 2, ur_sortbyunicode = 4 };
-extern struct rangeinfo *SFUnicodeRanges(SplineFont *sf, enum ur_flags flags);
-int unicoderange_cnt;

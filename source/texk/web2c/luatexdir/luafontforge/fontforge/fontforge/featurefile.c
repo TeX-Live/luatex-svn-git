@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2007 by George Williams */
+/* Copyright (C) 2000-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -24,1443 +24,22 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "pfaeditui.h"
+#include "fontforgevw.h"
 #include "ttf.h"
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#ifdef __need_size_t
+/* This is a bug on the mac, someone defines this and leaves it defined */
+/*  that means when I load stddef.h it only defines size_t and doesn't */
+/*  do offset_of, which is what I need */
+# undef __need_size_t
+#endif
 #include <stddef.h>
 #include <string.h>
 #include <utype.h>
 #include <ustring.h>
 
-#include <stddef.h> /* for offsetof() */
-
-#ifdef LUA_FF_LIB
-extern void gwwv_post_error(char *a, ...);
-extern void gwwv_post_notice (char *a, ...) ;
-
-#define Isspace(a) ((a)==' '|| ((a) >= '\t' &&  (a) <= '\r'))
-#define Isdigit(a) ((a)>='0' && (a)<='9')
-#define Isalpha(a) (((a)>='A' && (a)<='Z')||((a)>='a' && (a)<='z'))
-#define Ishexdigit(a) (((a)>='0' && (a)<='9')||((a)>='A' && (a)<='F')||((a)>='a' && (a)<='f'))
-#define Isalnum(a) (((a)>='0' && (a)<='9')||((a)>='A' && (a)<='Z')||((a)>='a' && (a)<='z'))
-#endif
-
-/* Adobe's opentype feature file */
-
-/* ************************************************************************** */
-/* ******************************* Output feat ****************************** */
-/* ************************************************************************** */
-
-/* Do GPOS and GSUB features have to share the same feature statement? */
-
-static void dump_glyphname(FILE *out, SplineChar *sc) {
-    if ( sc->parent->cidmaster!=NULL )
-	fprintf( out, "\\%d", sc->orig_pos /* That's the CID */ );
-    else
-	fprintf( out, "\\%s", sc->name );
-}
-
-static void dump_glyphbyname(FILE *out, SplineFont *sf, char *name) {
-    SplineChar *sc = SFGetChar(sf,-1,name);
-
-    if ( sc==NULL )
-	LogError( "No glyph named %s.", name );
-    if ( sc->parent->cidmaster==NULL || sc==NULL )
-	fprintf( out, "\\%s", name );
-    else
-	fprintf( out, "\\%s", sc->name );
-}
-
-static void dump_glyphnamelist(FILE *out, SplineFont *sf, char *names) {
-    char *pt, *start;
-    int ch;
-    SplineChar *sc2;
-    int len=0;
-    char cidbuf[20], *nm;
-
-    if ( sf->subfontcnt==0 ) {
-	for ( pt=names; ; ) {
-	    while ( *pt==' ' ) ++pt;
-	    if ( *pt=='\0' )
-	break;
-	    for ( start=pt; *pt!=' ' && *pt!='\0'; ++pt );
-	    ch = *pt; *pt = '\0';
-	    if ( pt-start+len+1 >72 ) {
-		fprintf( out, "\n\t" );
-		len = 8;
-	    }
-	    fprintf( out, "%s ", start );
-	    len += strlen(start)+1;
-	    *pt = ch;
-	}
-    } else {
-	for ( pt=names; ; ) {
-	    while ( *pt==' ' ) ++pt;
-	    if ( *pt=='\0' )
-	break;
-	    for ( start=pt; *pt!=' ' && *pt!='\0'; ++pt );
-	    ch = *pt; *pt = '\0';
-	    sc2 = SFGetChar(sf,-1,start);
-	    if ( sc2==NULL ) {
-		LogError( "No CID named %s", start);
-		nm = start;
-	    } else {
-		sprintf( cidbuf, "\\%d", sc2->orig_pos );
-		nm = cidbuf;
-	    }
-	    if ( strlen(nm)+len+1 >72 ) {
-		fprintf( out, "\n\t" );
-		len = 8;
-	    }
-	    fprintf( out, "%s ", nm );
-	    len += strlen(nm)+1;
-	    *pt = ch;
-	}
-    }
-}
-
-static char *lookupname(OTLookup *otl) {
-    char *pt1, *pt2;
-    static char space[32];
-
-    if ( otl->tempname != NULL )
-return( otl->tempname );
-
-    for ( pt1=otl->lookup_name,pt2=space; *pt1 && pt2<space+31; ++pt1 ) {
-	if ( !(*pt1&0x80) && (Isalpha(*pt1) || *pt1=='_' || *pt1=='.' ||
-		(pt1!=otl->lookup_name && Isdigit(*pt1))))
-	    *pt2++ = *pt1;
-    }
-    *pt2 = '\0';
-return( space );
-}
-
-#ifdef FONTFORGE_CONFIG_DEVICETABLES
-static void dumpdevice(FILE *out,DeviceTable *devtab) {
-    int i, any = false;
-
-    fprintf( out, "<device " );
-    if ( devtab!=NULL && devtab->corrections!=NULL ) {
-	for ( i=devtab->first_pixel_size; i<=devtab->last_pixel_size; ++i ) if ( devtab->corrections[i-devtab->first_pixel_size]!=0 ) {
-	    if ( any )
-		putc(',',out);
-	    else
-		any = true;
-	    fprintf( out, "%d %d", i, devtab->corrections[i-devtab->first_pixel_size]);
-	}
-    }
-    if ( any )
-	fprintf( out, ">" );
-    else
-	fprintf( out, "NULL>" );
-}
-#endif
-
-static void dump_valuerecord(FILE *out, struct vr *vr) {
-    fprintf( out, "<%d %d %d %d", vr->xoff, vr->yoff, vr->h_adv_off, vr->v_adv_off );
-#ifdef FONTFORGE_CONFIG_DEVICETABLES
-    if ( vr->adjust!=NULL ) {
-	putc( ' ', out);
-	dumpdevice(out,&vr->adjust->xadjust);
-	putc( ' ', out);
-	dumpdevice(out,&vr->adjust->yadjust);
-	putc( ' ', out);
-	dumpdevice(out,&vr->adjust->xadv);
-	putc( ' ', out);
-	dumpdevice(out,&vr->adjust->yadv);
-    }
-#endif
-    putc('>',out);
-}
-
-static void dump_anchorpoint(FILE *out,AnchorPoint *ap) {
-
-    if ( ap==NULL ) {
-	fprintf( out, "<anchor NULL>" );
-return;
-    }
-
-    fprintf( out, "<anchor %g %g", rint(ap->me.x), rint(ap->me.y) );
-    if ( ap->has_ttf_pt )
-	fprintf( out, " %d", ap->ttf_pt_index );
-#ifdef FONTFORGE_CONFIG_DEVICETABLES
-    else if ( ap->xadjust.corrections!=NULL || ap->yadjust.corrections!=NULL ) {
-	putc(' ',out);
-	dumpdevice(out,&ap->xadjust);
-	putc(' ',out);
-	dumpdevice(out,&ap->yadjust);
-    }
-#endif
-    putc('>',out);
-}
-
-static void dump_kernclass(FILE *out,SplineFont *sf,struct lookup_subtable *sub) {
-    int i,j;
-    KernClass *kc = sub->kc;
-
-    for ( i=0; i<kc->first_cnt; ++i ) if ( kc->firsts[i]!=NULL ) {
-	fprintf( out, "    @kc%d_first_%d = [", sub->subtable_offset, i );
-	dump_glyphnamelist(out,sf,kc->firsts[i] );
-	fprintf( out, "];\n" );
-    }
-    for ( i=0; i<kc->second_cnt; ++i ) if ( kc->seconds[i]!=NULL ) {
-	fprintf( out, "    @kc%d_second_%d = [", sub->subtable_offset, i );
-	dump_glyphnamelist(out,sf,kc->seconds[i] );
-	fprintf( out, "];\n" );
-    }
-    for ( i=0; i<kc->first_cnt; ++i ) if ( kc->firsts[i]!=NULL ) {
-	for ( j=0; j<kc->second_cnt; ++j ) if ( kc->seconds[j]!=NULL ) {
-	    if ( kc->offsets[i*kc->second_cnt+j]!=0 )
-		fprintf( out, "    pos @kc%d_first_%d @kc%d_second_%d %d;\n",
-			sub->subtable_offset, i,
-			sub->subtable_offset, j,
-			kc->offsets[i*kc->second_cnt+j]);
-	}
-    }
-}
-
-static char *nameend_from_class(char *glyphclass) {
-    char *pt  = glyphclass;
-
-    while ( *pt==' ' ) ++pt;
-    while ( *pt!=' ' && *pt!='\0' ) ++pt;
-return( pt );
-}
-
-static OTLookup *lookup_in_rule(struct fpst_rule *r,int seq,int *index, int *pos) {
-    int i;
-    OTLookup *otl;
-    /* Suppose there are two lookups which affect the same sequence pos? */
-    /* That's legal in otf, but I don't think it can be specified in the */
-    /*  feature file. It doesn't seem likely to be used so I ignore it */
-
-    for ( i=0; i<r->lookup_cnt && seq<r->lookups[i].seq; ++i );
-    if ( i>=r->lookup_cnt )
-return( NULL );
-    *index = i;
-    *pos = seq-r->lookups[i].seq;
-    otl = r->lookups[i].lookup;
-    if ( seq==r->lookups[i].seq )
-return( otl );
-    if ( otl->lookup_type == gsub_ligature )
-return( otl );
-    else if ( otl->lookup_type == gpos_pair && *pos==1 )
-return( otl );
-
-return( NULL );
-}
-
-static PST *pst_from_single_lookup(SplineFont *sf, OTLookup *otl, char *name ) {
-    SplineChar *sc = SFGetChar(sf,-1,name);
-    PST *pst;
-
-    if ( sc==NULL )
-return( NULL );
-    for ( pst=sc->possub; pst!=NULL; pst=pst->next ) {
-	if ( pst->subtable!=NULL && pst->subtable->lookup == otl )
-return( pst );
-    }
-return( NULL );
-}
-
-static PST *pst_from_pos_pair_lookup(SplineFont *sf, OTLookup *otl, char *name1, char *name2, PST *space ) {
-    SplineChar *sc = SFGetChar(sf,-1,name1), *sc2;
-    PST *pst;
-    int isv;
-    KernPair *kp;
-
-    if ( sc==NULL )
-return( NULL );
-    for ( pst=sc->possub; pst!=NULL; pst=pst->next ) {
-	if ( pst->subtable!=NULL && pst->subtable->lookup == otl &&
-		strcmp(pst->u.pair.paired,name2)==0 )
-return( pst );
-    }
-
-    sc2 = SFGetChar(sf,-1,name2);
-    if ( sc2==NULL )
-return( NULL );
-    /* Ok. not saved as a pst. If a kp then build a pst of it */
-    for ( isv=0; isv<2; ++isv ) {
-	for ( kp= isv ? sc->vkerns : sc->kerns; kp!=NULL; kp=kp->next ) {
-	    if ( kp->subtable->lookup==otl && kp->sc == sc2 ) {
-		memset(space->u.pair.vr,0,2*sizeof(struct vr));
-		/* !!! Bug. Lose device tables here */
-		if ( isv )
-		    space->u.pair.vr[0].v_adv_off = kp->off;
-		else if ( otl->lookup_flags&pst_r2l )
-		    space->u.pair.vr[1].h_adv_off = kp->off;
-		else
-		    space->u.pair.vr[0].h_adv_off = kp->off;
-return( space );
-	    }
-	}
-    }
-return( NULL );
-}
-
-static PST *pst_from_ligature(SplineFont *sf, OTLookup *otl, char *components ) {
-    PST *pst;
-    SplineFont *_sf;
-    int k,gid;
-    SplineChar *sc;
-
-    k=0;
-    do {
-	_sf = sf->subfontcnt==0 ? sf : sf->subfonts[k];
-	for ( gid=0; gid<_sf->glyphcnt; ++gid ) if ( (sc = _sf->glyphs[gid])!=NULL ) {
-	    for ( pst=sc->possub; pst!=NULL; pst=pst->next ) {
-		if ( pst->subtable!=NULL && pst->subtable->lookup == otl &&
-			strcmp(pst->u.lig.components,components)==0 ) {
-		    pst->u.lig.lig = sc;
-return( pst );
-		}
-	    }
-	}
-	++k;
-    } while ( k<sf->subfontcnt );
-return( NULL );
-}
-
-static PST *pst_any_from_otl(SplineFont *sf, OTLookup *otl ) {
-    PST *pst;
-    SplineFont *_sf;
-    int k,gid;
-    SplineChar *sc;
-
-    k=0;
-    do {
-	_sf = sf->subfontcnt==0 ? sf : sf->subfonts[k];
-	for ( gid=0; gid<_sf->glyphcnt; ++gid ) if ( (sc = _sf->glyphs[gid])!=NULL ) {
-	    for ( pst=sc->possub; pst!=NULL; pst=pst->next ) {
-		if ( pst->subtable!=NULL && pst->subtable->lookup == otl ) {
-		    if ( otl->lookup_type == gsub_ligature )
-			pst->u.lig.lig = sc;
-return( pst );
-		}
-	    }
-	}
-	++k;
-    } while ( k<sf->subfontcnt );
-return( NULL );
-}
-
-static AnchorPoint *apfind_entry_exit(SplineFont *sf,OTLookup *otl, char *name,
-	AnchorPoint **_exit) {
-    AnchorPoint *entry = NULL, *exit = NULL;
-    AnchorPoint *ap;
-    SplineChar *sc = SFGetChar(sf,-1,name);
-
-    if ( sc==NULL )
-return( NULL );
-    for ( ap = sc->anchor ; ap!=NULL; ap=ap->next ) {
-	if ( ap->anchor->subtable->lookup == otl ) {
-	    if ( ap->type == at_centry )
-		entry = ap;
-	    else if ( ap->type == at_cexit )
-		exit = ap;
-	}
-    }
-    *_exit = exit;
-return( entry );
-}
-
-static void dump_contextpstglyphs(FILE *out,SplineFont *sf,
-	struct lookup_subtable *sub, struct fpst_rule *r, int in_ignore) {
-    int i, j, pos, index;
-    OTLookup *otl;
-    struct vr pairvr[2];
-    PST *pst, space;
-    char *start, *pt, *last_start, *last_end;
-    int ch, ch2;
-
-    space.u.pair.vr = pairvr;
-
-    if ( r->u.glyph.back!=NULL ) {
-	dump_glyphnamelist(out,sf,r->u.glyph.back );
-	putc(' ',out);
-    }
-    last_start = last_end = NULL;
-    for ( pt=r->u.glyph.names; ; ) {
-	while ( *pt==' ' ) ++pt;
-	if ( *pt=='\0' )
-    break;
-	for ( start=pt; *pt!=' ' && *pt!='\0'; ++pt );
-	ch = *pt; *pt = '\0';
-	otl = lookup_in_rule(r,i,&index, &pos);
-	if ( otl!=NULL ) {
-	    if ( otl->lookup_type == gpos_cursive )
-		fprintf( out, "cursive " );
-	    else if ( otl->lookup_type == gpos_mark2mark )
-		fprintf( out, "mark " );
-	}
-	dump_glyphbyname(out,sf,start);
-	if ( in_ignore )
-	    putc('\'',out);
-	else if ( otl!=NULL ) {
-	    putc( index&1 ? '"' : '\'', out );
-	    if ( otl->lookup_type==gpos_single ) {
-		pst = pst_from_single_lookup(sf, otl, start);
-		if ( pst!=NULL )
-		    dump_valuerecord(out,&pst->u.pos);
-	    } else if ( otl->lookup_type==gpos_pair ) {
-		if ( pos==1 ) {
-		    ch2 = *last_end; *last_end = '\0';
-		    pst = pst_from_pos_pair_lookup(sf,otl,last_start,start,&space);
-		    *last_end = ch2;
-		} else {
-		    char *next_start, *next_end;
-		    next_start = pt;
-		    while ( *next_start==' ' ) ++next_start;
-		    if ( *next_start!='\0' ) {
-			for ( next_end=next_start; *next_end!=' ' && *next_end!='\0'; ++next_end );
-			ch2 = *next_end; *next_end = '\0';
-			pst = pst_from_pos_pair_lookup(sf,otl,start,next_start,&space);
-			*next_end = ch2;
-		    } else
-			pst = NULL;
-		}
-		if ( pst!=NULL )
-		    dump_valuerecord(out,&pst->u.pair.vr[pos]);
-	    } else if ( otl->lookup_type==gpos_cursive ) {
-		AnchorPoint *entry, *exit;
-		entry = apfind_entry_exit(sf,otl,start,&exit);
-		dump_anchorpoint(out,entry);
-		putc(' ',out);
-		dump_anchorpoint(out,exit);
-		putc(' ',out);
-	    } else if ( otl->lookup_type>gpos_start && otl->ticked )
-		fprintf(out, "<lookup %s> ", lookupname(otl) );
-	}
-	last_start = start; last_end = pt;
-	*pt = ch;
-	putc(' ',out);
-    }
-    if ( r->u.glyph.fore!=NULL ) {
-	dump_glyphnamelist(out,sf,r->u.glyph.fore );
-	putc(' ',out);
-    }
-    if ( r->lookup_cnt!=0 && sub->lookup->lookup_type<gpos_start ) {
-	fprintf( out, " by " );
-	for ( i=0; i<r->lookup_cnt; ++i ) {
-	    otl = r->lookups[i].lookup;
-	    for ( pt=r->u.glyph.names, j=0; ; ) {
-		while ( *pt==' ' ) ++pt;
-		if ( *pt=='\0' || j>=r->lookups[i].seq )
-	    break;
-		while ( *pt!=' ' && *pt!='\0' ) ++pt;
-	    }
-	    if ( otl->lookup_type == gsub_single ) {
-		pst = pst_from_single_lookup(sf,otl,pt);
-		if ( pst!=NULL )
-		    dump_glyphbyname(out,sf,pst->u.subs.variant );
-	    } else if ( otl->lookup_type==gsub_ligature ) {
-		pst = pst_from_ligature(sf,otl,pt);
-		if ( pst!=NULL )
-		    dump_glyphname(out,pst->u.lig.lig);
-		putc( ' ',out );
-	    } else if ( otl->lookup_type<gpos_start && otl->ticked )
-		fprintf(out, "<lookup %s> ", lookupname(otl) );
-	}
-    }
-}
-
-static void dump_contextpstcoverage(FILE *out,SplineFont *sf,
-	struct lookup_subtable *sub, struct fpst_rule *r, int in_ignore) {
-    int i, pos, index;
-    OTLookup *otl;
-    PST *pst, space;
-    char *start, *pt, *last_end;
-    int ch, ch2;
-
-    for ( i=0; i<r->u.coverage.bcnt; ++i ) {
-	putc('[',out);
-	dump_glyphnamelist(out,sf,r->u.coverage.bcovers[i] );
-	fprintf( out, "] ");
-    }
-    for ( i=0; i<r->u.coverage.ncnt; ++i ) {
-	putc('[',out);
-	dump_glyphnamelist(out,sf,r->u.coverage.ncovers[i] );
-	putc(']',out);
-	if ( in_ignore )
-	    putc('\'',out);
-	else {
-	    otl = lookup_in_rule(r,i,&index, &pos);
-	    if ( otl!=NULL ) {
-		putc( index&1 ? '"' : '\'', out );
-		/* Ok, I don't see any way to specify a class of value records */
-		/*  so just assume all vr will be the same for the class */
-		pt = nameend_from_class(r->u.coverage.ncovers[i]);
-		ch = *pt; *pt = '\0';
-		if ( otl->ticked && otl->lookup_type>=gpos_start )
-		    fprintf(out, "<lookup %s> ", lookupname(otl) );
-		else if ( otl->lookup_type==gpos_single ) {
-		    pst = pst_from_single_lookup(sf,otl,r->u.coverage.ncovers[i]);
-		    if ( pst!=NULL )
-			dump_valuerecord(out,&pst->u.pos);
-		} else if ( otl->lookup_type==gpos_pair ) {
-		    if ( pos==1 ) {
-			last_end = nameend_from_class(r->u.coverage.ncovers[i-1]);
-			ch2 = *last_end; *last_end = '\0';
-			pst = pst_from_pos_pair_lookup(sf,otl,r->u.coverage.ncovers[i-1],r->u.coverage.ncovers[i],&space);
-			*last_end = ch2;
-		    } else if ( i+1<r->u.coverage.ncnt ) {
-			char *next_end;
-			next_end = nameend_from_class(r->u.coverage.ncovers[i+1]);
-			ch2 = *next_end; *next_end = '\0';
-			pst = pst_from_pos_pair_lookup(sf,otl,r->u.coverage.ncovers[i],r->u.coverage.ncovers[i+1],&space);
-			*next_end = ch2;
-		    } else
-			pst = NULL;
-		    if ( pst!=NULL )
-			dump_valuerecord(out,&pst->u.pair.vr[pos]);
-		}
-		*pt = ch;
-	    }
-	}
-	putc(' ',out);
-    }
-    for ( i=0; i<r->u.coverage.fcnt; ++i ) {
-	putc('[',out);
-	dump_glyphnamelist(out,sf,r->u.coverage.fcovers[i] );
-	fprintf( out, "] ");
-    }
-    if ( r->lookup_cnt!=0 && sub->lookup->lookup_type<gpos_start ) {
-	fprintf( out, " by " );
-	for ( i=0; i<r->lookup_cnt; ++i ) {
-	    int len;
-	    otl = r->lookups[i].lookup;
-	    if ( otl->ticked )
-		fprintf(out, "<lookup %s> ", lookupname(otl) );
-	    else if ( otl->lookup_type==gsub_single ) {
-		len = 40;
-		putc('[',out);
-		for ( pt=r->u.coverage.ncovers[r->lookups[i].seq]; ; ) {
-		    while ( *pt==' ' ) ++pt;
-		    if ( *pt=='\0' )
-		break;
-		    for ( start=pt; *pt!=' ' && *pt!='\0'; ++pt );
-		    ch = *pt; *pt = '\0';
-		    pst = pst_from_single_lookup(sf,otl,start);
-		    if ( len+(pst==NULL?4:strlen(pst->u.subs.variant))>80 ) {
-			fprintf(out,"\n\t" );
-			len = 8;
-		    }
-		    if ( pst!=NULL ) {
-			dump_glyphbyname(out,sf,pst->u.subs.variant);
-			len += strlen(pst->u.subs.variant);
-		    } else {
-			fprintf( out, "NULL" );
-			len += 4;
-		    }
-		    *pt = ch;
-		    putc(' ',out);
-		    ++len;
-		}
-		putc(']',out);
-	    } else if ( otl->lookup_type==gsub_ligature ) {
-		/* If we get here assume there is only one ligature */
-		/*  or there is only one combination of input glyphs (all coverage tables contain one glyph) */
-		if ( sub->fpst->effectively_by_glyphs ) {
-		    /* Build up THE combination of input glyphs */
-		    int len, n;
-		    char *start;
-		    for ( n=len=0; n<r->u.coverage.ncnt; ++n )
-			len += strlen(r->u.coverage.ncovers[n])+1;
-		    start = galloc(len+1);
-		    for ( n=len=0; n<r->u.coverage.ncnt; ++n ) {
-			strcpy(start+len,r->u.coverage.ncovers[n]);
-			len += strlen(r->u.coverage.ncovers[n]);
-			if ( start[len-1]!=' ' )
-			    start[len++] = ' ';
-		    }
-		    if ( len!=0 )
-			start[len-1] = '\0';
-		    pst = pst_from_ligature(sf,otl,start);
-		    free( start );
-		} else
-		    pst = pst_any_from_otl(sf,otl);
-		if ( pst!=NULL )
-		    dump_glyphname(out,pst->u.lig.lig);
-	    }
-	}
-    }
-    putc(';',out); putc('\n',out);
-}
-
-static void dump_contextpstclass(FILE *out,SplineFont *sf,
-	struct lookup_subtable *sub, struct fpst_rule *r, int in_ignore) {
-    FPST *fpst = sub->fpst;
-    int i, pos, index;
-    OTLookup *otl;
-    PST *pst, space;
-    char *start, *pt, *last_start, *last_end;
-    int ch, ch2;
-
-    for ( i=0; i<r->u.class.bcnt; ++i )
-	fprintf( out, "@cc%d_back_%d ", sub->subtable_offset, r->u.class.bclasses[i] );
-    for ( i=0; i<r->u.class.ncnt; ++i ) {
-	fprintf( out, "@cc%d_match_%d", sub->subtable_offset, r->u.class.nclasses[i] );
-	if ( in_ignore )
-	    putc( '\'',out );
-	else {
-	    otl = lookup_in_rule(r,i,&index, &pos);
-	    if ( otl!=NULL ) {
-		putc( index&1 ? '"' : '\'', out );
-		/* Ok, I don't see any way to specify a class of value records */
-		/*  so just assume all vr will be the same for the class */
-		start = fpst->nclass[r->u.class.nclasses[i]];
-		pt = nameend_from_class(start);
-		ch = *pt; *pt = '\0';
-		if ( otl->ticked && otl->lookup_type>=gpos_start )
-		    fprintf(out, "<lookup %s> ", lookupname(otl) );
-		else if ( otl->lookup_type==gpos_single ) {
-		    pst = pst_from_single_lookup(sf,otl,start);
-		    if ( pst!=NULL )
-			dump_valuerecord(out,&pst->u.pos);
-		} else if ( otl->lookup_type==gpos_pair ) {
-		    if ( pos==1 ) {
-			last_start = fpst->nclass[r->u.class.nclasses[i-1]];
-			last_end = nameend_from_class(last_start);
-			ch2 = *last_end; *last_end = '\0';
-			pst = pst_from_pos_pair_lookup(sf,otl,last_start,start,&space);
-			*last_end = ch2;
-		    } else if ( i+1<r->u.coverage.ncnt ) {
-			char *next_start, *next_end;
-			next_start = fpst->nclass[r->u.class.nclasses[i+1]];
-			next_end = nameend_from_class(next_start);
-			ch2 = *next_end; *next_end = '\0';
-			pst = pst_from_pos_pair_lookup(sf,otl,start,next_start,&space);
-			*next_end = ch2;
-		    } else
-			pst = NULL;
-		    if ( pst!=NULL )
-			dump_valuerecord(out,&pst->u.pair.vr[pos]);
-		}
-		*pt = ch;
-	    }
-	}
-	putc(' ',out);
-    }
-    for ( i=0; i<r->u.class.fcnt; ++i )
-	fprintf( out, "@cc%d_ahead_%d ", sub->subtable_offset, r->u.class.fclasses[i] );
-    if ( r->lookup_cnt!=0 && sub->lookup->lookup_type<gpos_start ) {
-	fprintf( out, " by " );
-	for ( i=0; i<r->lookup_cnt; ++i ) {
-	    otl = r->lookups[i].lookup;
-	    if ( otl->ticked )
-		fprintf(out, "<lookup %s> ", lookupname(otl) );
-	    else if ( otl->lookup_type==gsub_single ) {
-		putc('[',out);
-		for ( pt=fpst->nclass[r->u.class.nclasses[r->lookups[i].seq]]; ; ) {
-		    while ( *pt==' ' ) ++pt;
-		    if ( *pt=='\0' )
-		break;
-		    for ( start=pt; *pt!=' ' && *pt!='\0'; ++pt );
-		    ch = *pt; *pt = '\0';
-		    pst = pst_from_single_lookup(sf,otl,start);
-		    if ( pst!=NULL )
-			dump_glyphbyname(out,sf,pst->u.subs.variant);
-		    else
-			fprintf( out, "NULL" );
-		    *pt = ch;
-		    putc(' ',out);
-		}
-		putc(']',out);
-	    } else if ( otl->lookup_type==gsub_ligature ) {
-		/* I don't think it is possible to do this correctly */
-		/* adobe doesn't say how to order glyphs for [f longs]' [i l]' */
-		/* so just assume there is only one ligature */
-		pst = pst_any_from_otl(sf,otl);
-		if ( pst!=NULL )
-		    dump_glyphname(out,pst->u.lig.lig);
-	    }
-	    putc( ' ',out );
-	}
-    }
-}
-
-static void dump_contextpst(FILE *out,SplineFont *sf,struct lookup_subtable *sub) {
-    FPST *fpst = sub->fpst;
-    int i,j,k;
-
-    if ( fpst->format==pst_reversecoverage ) {
-	IError( "I can find no documentation on how to describe reverse context chaining lookups. Lookup %s will be skipped.",
-		sub->lookup->lookup_name );
-return;
-    }
-    if ( fpst->format==pst_class ) {
-	if ( fpst->nclass!=NULL ) {
-	    for ( i=0; i<fpst->nccnt; ++i ) if ( fpst->nclass[i]!=NULL ) {
-		fprintf( out, "    @cc%d_match_%d = [", sub->subtable_offset, i );
-		dump_glyphnamelist(out,sf,fpst->nclass[i] );
-		fprintf( out, "];\n" );
-	    }
-	}
-	if ( fpst->bclass!=NULL ) {
-	    for ( i=0; i<fpst->bccnt; ++i ) if ( fpst->bclass[i]!=NULL ) {
-		fprintf( out, "    @cc%d_back_%d = [", sub->subtable_offset, i );
-		dump_glyphnamelist(out,sf,fpst->bclass[i] );
-		fprintf( out, "];\n" );
-	    }
-	}
-	if ( fpst->fclass!=NULL ) {
-	    for ( i=0; i<fpst->fccnt; ++i ) if ( fpst->fclass[i]!=NULL ) {
-		fprintf( out, "    @cc%d_ahead_%d = [", sub->subtable_offset, i );
-		dump_glyphnamelist(out,sf,fpst->fclass[i] );
-		fprintf( out, "];\n" );
-	    }
-	}
-    }
-    for ( j=0; j<fpst->rule_cnt; ++j ) {
-	struct fpst_rule *r = &fpst->rules[j];
-	for ( i=0; i<r->lookup_cnt; ++i ) for ( k=i+1; k<r->lookup_cnt; ++k ) {
-	    if ( r->lookups[i].seq > r->lookups[k].seq ) {
-		int s = r->lookups[i].seq;
-		OTLookup *otl = r->lookups[i].lookup;
-		r->lookups[i].seq = r->lookups[k].seq;
-		r->lookups[k].seq = s;
-		r->lookups[i].lookup = r->lookups[k].lookup;
-		r->lookups[k].lookup = otl;
-	    }
-	}
-	fprintf( out, r->lookup_cnt==0 ? "    ignore sub " : "    sub " );
-	if ( fpst->format==pst_class ) {
-	    dump_contextpstclass(out,sf,sub,r,true);
-	} else if ( fpst->format==pst_glyphs ) {
-	    dump_contextpstglyphs(out,sf,sub,r,true);
-	} else {
-	    dump_contextpstcoverage(out,sf,sub,r,true);
-	}
-    }
-}
-
-static void dump_anchors(FILE *out,SplineFont *sf,struct lookup_subtable *sub) {
-    int i, j, k, l;
-    SplineFont *_sf;
-    SplineChar *sc;
-    AnchorClass *ac;
-    AnchorPoint *ap, *ap_entry, *ap_exit;
-
-    for ( ac = sf->anchor; ac!=NULL; ac=ac->next ) if ( ac->subtable==sub ) {
-	if ( sub->lookup->lookup_type==gpos_cursive ) {
-	    k=0;
-	    do {
-		_sf = k<sf->subfontcnt ? sf->subfonts[k] : sf;
-		for ( i=0; i<_sf->glyphcnt; ++i ) if ( (sc=_sf->glyphs[i])!=NULL ) {
-		    ap_entry = ap_exit = NULL;
-		    for ( ap=sc->anchor; ap!=NULL; ap=ap->next ) if ( ap->anchor==ac ) {
-			if ( ap->type == at_centry )
-			    ap_entry = ap;
-			else if ( ap->type == at_cexit )
-			    ap_exit = ap;
-		    }
-		    if ( ap_entry!=NULL || ap_exit!=NULL ) {
-			fprintf( out, "    pos cursive " );
-			dump_glyphname(out,sc);
-			putc(' ',out);
-			dump_anchorpoint(out,ap_entry);
-			putc(' ',out);
-			dump_anchorpoint(out,ap_exit);
-			putc(';',out);
-			putc('\n',out);
-		    }
-		}
-		++k;
-	    } while ( k<sf->subfontcnt );
-	} else {
-	    struct amarks { SplineChar *sc; AnchorPoint *ap; } *marks = NULL;
-	    int cnt, max;
-	    cnt = max = 0;
-	    k=0;
-	    do {
-		_sf = k<sf->subfontcnt ? sf->subfonts[k] : sf;
-		for ( i=0; i<_sf->glyphcnt; ++i ) if ( (sc=_sf->glyphs[i])!=NULL ) {
-		    for ( ap=sc->anchor; ap!=NULL; ap=ap->next ) {
-			if ( ap->anchor==ac && ap->type==at_mark ) {
-			    if ( cnt>=max )
-				marks = grealloc(marks,(max+=20)*sizeof(struct amarks));
-			    marks[cnt].sc = sc;
-			    marks[cnt].ap = ap;
-			    fprintf( out, "    mark ");
-			    dump_glyphname(out,sc);
-			    putc(' ',out);
-			    dump_anchorpoint(out,ap);
-			    fprintf( out, ";\n");
-			    ++cnt;
-		    break;
-			}
-		    }
-		}
-		++k;
-	    } while ( k<sf->subfontcnt );
-	    if ( cnt==0 )
-    continue;		/* No marks? Nothing to be done */
-	    if ( sub->lookup->lookup_type!=gpos_mark2ligature ) {
-		do {
-		    _sf = k<sf->subfontcnt ? sf->subfonts[k] : sf;
-		    for ( i=0; i<_sf->glyphcnt; ++i ) if ( (sc=_sf->glyphs[i])!=NULL ) {
-			for ( ap=sc->anchor; ap!=NULL; ap=ap->next ) {
-			    if ( ap->anchor==ac && ap->type!=at_mark ) {
-				fprintf( out, "    pos ");
-			        if ( sub->lookup->lookup_type == gpos_mark2mark )
-				    fprintf( out, "mark " );
-				dump_glyphname(out,sc);
-				putc(' ',out);
-				dump_anchorpoint(out,ap);
-				fprintf( out, " mark [" );
-				for ( j=0; j<cnt; ++j ) {
-				    dump_glyphname(out,marks[j].sc);
-				    putc(' ',out);
-				}
-				fprintf(out,"];\n" );
-			    }
-			}
-		    }
-		    ++k;
-		} while ( k<sf->subfontcnt );
-	    } else {
-		struct amarks *lig=NULL;
-		int lcnt, lmax=0, ligmax;
-		do {
-		    _sf = k<sf->subfontcnt ? sf->subfonts[k] : sf;
-		    for ( i=0; i<_sf->glyphcnt; ++i ) if ( (sc=_sf->glyphs[i])!=NULL ) {
-			lcnt = 0; ligmax=1;
-			for ( ap=sc->anchor; ap!=NULL; ap=ap->next ) {
-			    if ( ap->anchor==ac && ap->type!=at_mark ) {
-				if ( lcnt>=lmax )
-				    lig = grealloc(lig,(lmax+=20)*sizeof(struct amarks));
-				lig[lcnt].sc = sc;
-				lig[lcnt].ap = ap;
-			        if ( ap->lig_index>ligmax )
-				    ligmax = ap->lig_index;
-				++lcnt;
-			    }
-			}
-			if ( lcnt>0 ) {
-			    fprintf( out, "    pos " );
-			    dump_glyphname(out,sc);
-			    for ( j=0; j<=ligmax; ++j ) {
-				putc(' ',out );
-			        for ( l=0; l<lcnt; ++l ) {
-				    if ( lig[l].ap->lig_index==ligmax ) {
-					dump_anchorpoint(out,lig[l].ap);
-				break;
-				    }
-				}
-			        if ( l==lcnt )
-				    dump_anchorpoint(out,NULL);
-			    }
-			    fprintf( out, " mark [" );
-			    for ( j=0; j<cnt; ++j ) {
-				dump_glyphname(out,marks[j].sc);
-				putc(' ',out);
-			    }
-			    fprintf(out,"];\n" );
-			}
-		    }
-		    ++k;
-		} while ( k<sf->subfontcnt );
-		free(lig);
-	    }
-	    free(marks);
-	}
-    }
-}
-
-static void number_subtables(SplineFont *sf) {
-    OTLookup *otl;
-    struct lookup_subtable *sub;
-    int isgpos, cnt;
-
-    cnt = 0;
-    for ( isgpos=0; isgpos<2; ++isgpos ) {
-	for ( otl = isgpos ? sf->gpos_lookups : sf->gsub_lookups; otl!=NULL; otl = otl->next ) {
-	    for ( sub = otl->subtables; sub!=NULL; sub=sub->next )
-		sub->subtable_offset = cnt++;
-	}
-    }
-}
-
-static int fea_bad_contextual_nestedlookup(SplineFont *sf,FPST *fpst, OTLookup *nested) {
-    int gid, k;
-    SplineFont *_sf;
-    SplineChar *sc;
-    PST *pst, *found;
-    /* non-cursive anchors can't currently be expressed in contextuals */
-    /* Nor can other contextuals */
-    /* Nor can alternate/multiple substitutions */
-    /* If we are class based or coverage table based (and interesting classes */
-    /*  contain more than one glyph name) then we can't express single_pos, */
-    /*  kerning, ligatures, cursive anchors (unless everything in the lookup */
-    /*  results in the same transformation) */
-
-    switch ( nested->lookup_type ) {
-      case gsub_single:
-return( false );			/* This is the one thing that can always be expressed */
-      case gsub_multiple:
-      case gsub_alternate:
-      case gsub_context:
-      case gsub_contextchain:
-      case gsub_reversecchain:
-      case gpos_mark2base:
-      case gpos_mark2ligature:
-      case gpos_mark2mark:
-      case gpos_contextchain:
-      case gpos_context:
-return( true );		/* These can never be expressed */
-      case gpos_cursive:
-      case gpos_pair:
-return( fpst->format!=pst_glyphs /* && !fpst->effectively_by_glyphs*/ );
-      case gsub_ligature:
-      case gpos_single:
-	if ( fpst->format==pst_glyphs || fpst->effectively_by_glyphs )
-return( false );
-	/* One can conceive of a fraction lookup */
-	/*   [one one.proportion] [slash fraction] [two two.lining] => onehalf */
-	/*  where all inputs go to one output. That can be expressed */
-	/* One can also conceive of a positioning lookup (subscript->superscript) */
-	/*  where all value records are the same */
-	found = NULL;
-	k=0;
-	do {
-	    _sf = sf->subfontcnt==0 ? sf : sf->subfonts[k];
-	    for ( gid=0; gid<_sf->glyphcnt; ++gid ) if ( (sc = _sf->glyphs[gid])!=NULL ) {
-		for ( pst=sc->possub; pst!=NULL; pst=pst->next ) {
-		    if ( pst->subtable!=NULL && pst->subtable->lookup==nested ) {
-			if ( found==NULL ) {
-			    found = pst;
-		break;
-			} else if ( nested->lookup_type==gsub_ligature )
-return( true );			/* Different glyphs */
-			else if ( found->u.pos.xoff!=pst->u.pos.xoff ||
-				found->u.pos.yoff!=pst->u.pos.yoff ||
-				found->u.pos.h_adv_off!=pst->u.pos.h_adv_off ||
-				found->u.pos.v_adv_off!=pst->u.pos.v_adv_off )
-return( true );
-			else
-		break;
-		    }
-		}
-	    }
-	    ++k;
-	} while ( k<sf->subfontcnt );
-	if ( found==NULL )
-return( true );
-return( false );
-      default:
-return( true );
-    }
-}
-
-static void dump_lookup(FILE *out, SplineFont *sf, OTLookup *otl);
-
-static void dump_needednestedlookups(FILE *out, SplineFont *sf, OTLookup *otl) {
-    struct lookup_subtable *sub;
-    int r, s, n;
-    /* So we cheat, and extend the fea format to allow us to specify a lookup */
-    /*  in contextuals */
-
-    for ( sub = otl->subtables; sub!=NULL; sub=sub->next ) {
-	FPST *fpst = sub->fpst;
-	fpst->effectively_by_glyphs = false;
-	if ( fpst->format==pst_coverage ) {
-	    fpst->effectively_by_glyphs = true;
-	    for ( r=0; r<fpst->rule_cnt; ++r ) {
-		for ( n=0; n<fpst->rules[r].u.coverage.ncnt; ++n ) {
-		    if ( strchr(fpst->rules[r].u.coverage.ncovers[n],' ')!=NULL )
-			fpst->effectively_by_glyphs = false;
-		break;
-		}
-	    }
-	}
-	for ( r=0; r<fpst->rule_cnt; ++r ) {
-	    for ( s=0; s<fpst->rules[r].lookup_cnt; ++s ) {
-		OTLookup *nested = fpst->rules[r].lookups[s].lookup;
-		if ( nested!=NULL && nested->features==NULL && !nested->ticked &&
-			fea_bad_contextual_nestedlookup(sf,fpst,nested))
-		    dump_lookup(out,sf,nested);
-	    }
-	}
-    }
-}
-		    
-static void dump_lookup(FILE *out, SplineFont *sf, OTLookup *otl) {
-    struct lookup_subtable *sub;
-    static char *flagnames[] = { "RightToLeft", "IgnoreBaseGlyphs", "IgnoreLigatures", "IgnoreMarks", NULL };
-    int i, k, first;
-    SplineFont *_sf;
-    SplineChar *sc;
-    PST *pst;
-    int isv;
-    KernPair *kp;
-
-    if ( otl->lookup_type == morx_indic || otl->lookup_type==morx_context ||
-	    otl->lookup_type==morx_insert || otl->lookup_type==kern_statemachine )
-return;					/* No support for apple "lookups" */
-
-    otl->ticked = true;
-
-    if ( otl->lookup_type==gsub_context || otl->lookup_type==gsub_contextchain ||
-	    otl->lookup_type==gpos_context || otl->lookup_type==gpos_contextchain )
-	dump_needednestedlookups(out,sf,otl);
-
-    if ( sf->cidmaster ) sf = sf->cidmaster;
-    number_subtables(sf);
-
-    fprintf( out, "\nlookup %s {\n", lookupname(otl) );
-    if ( otl->lookup_flags==0 || otl->lookup_flags>15 )
-	fprintf( out, "  lookupflag %d;\n", otl->lookup_flags );
-    else {
-	fprintf( out, "  lookupflag" );
-	first = true;
-	for ( i=0; i<4; ++i ) if ( otl->lookup_flags&(1<<i)) {
-	    if ( !first )
-		putc(',',out);
-	    else
-		first = false;
-	    fprintf( out, " %s", flagnames[i] );
-	}
-	putc(';',out);
-	putc('\n',out);
-    }
-    for ( sub=otl->subtables; sub!=NULL; sub=sub->next ) {
-	if ( sub!=otl->subtables )
-	    fprintf( out, "  subtable;\n" );
-	if ( sub->kc!=NULL )
-	    dump_kernclass(out,sf,sub);
-	else if ( sub->fpst!=NULL )
-	    dump_contextpst(out,sf,sub);
-	else if ( sub->anchor_classes )
-	    dump_anchors(out,sf,sub);
-	else {
-	    k=0;
-	    do {
-		_sf = k<sf->subfontcnt ? sf->subfonts[k] : sf;
-		for ( i=0; i<_sf->glyphcnt; ++i ) if ( (sc=_sf->glyphs[i])!=NULL ) {
-		    for ( pst=sc->possub; pst!=NULL; pst=pst->next ) if ( pst->subtable==sub ) {
-			switch ( otl->lookup_type ) {
-			  case gsub_single:
-			  case gsub_multiple:
-			    fprintf( out, "    sub " );
-			    dump_glyphname(out,sc);
-			    fprintf( out, " by " );
-			    dump_glyphnamelist(out,sf,pst->u.subs.variant );
-			    fprintf( out,";\n" );
-			  break;
-			  case gsub_alternate:
-			    fprintf( out, "    sub " );
-			    dump_glyphname(out,sc);
-			    fprintf( out, " from [" );
-			    dump_glyphnamelist(out,sf,pst->u.alt.components );
-			    fprintf( out,"];\n" );
-			  break;
-			  case gsub_ligature:
-			    fprintf( out, "    sub " );
-			    dump_glyphnamelist(out,sf,pst->u.lig.components );
-			    fprintf( out, " by " );
-			    dump_glyphname(out,sc);
-			    fprintf( out,";\n" );
-			  break;
-			  case gpos_single:
-			    fprintf( out, "    pos " );
-			    dump_glyphname(out,sc);
-			    putc(' ',out);
-			    dump_valuerecord(out,&pst->u.pos);
-			    fprintf( out,";\n" );
-			  break;
-			  case gpos_pair:
-			    fprintf( out, "    pos " );
-			    dump_glyphname(out,sc);
-			    putc(' ',out);
-			    dump_valuerecord(out,&pst->u.pair.vr[0]);
-			    putc(' ',out);
-			    dump_glyphnamelist(out,sf,pst->u.pair.paired );
-			    putc(' ',out);
-			    dump_valuerecord(out,&pst->u.pair.vr[0]);
-			    fprintf( out,";\n" );
-			  break;
-			  default:
-			    /* Eh? How'd we get here? An anchor class with */
-			    /* no anchors perhaps? */
-			  break;
-			}
-		    }
-		    for ( isv=0; isv<2; ++isv ) {
-			for ( kp=isv ? sc->vkerns : sc->kerns; kp!=NULL; kp=kp->next ) if ( kp->subtable==sub ) {
-			    fprintf( out, "    pos " );
-			    dump_glyphname(out,sc);
-			    putc(' ',out);
-#ifdef FONTFORGE_CONFIG_DEVICETABLES
-			    if ( kp->adjust!=NULL ) {
-				/* If we have a device table then we must use the long */
-			        /* format */
-				if ( isv ) {
-				    fprintf( out," < 0 0 0 %d <device NULL> <device NULL> <device NULL> ",
-					    kp->off );
-				    dumpdevice(out,kp->adjust);
-			            fprintf( out, " > " );
-			            dump_glyphname(out,kp->sc);
-			            fprintf( out, " < 0 0 0 0 >;\n" );
-				} else if ( otl->lookup_flags&pst_r2l ) {
-				    fprintf( out, " < 0 0 0 0 > " );
-			            dump_glyphname(out,kp->sc);
-				    fprintf( out," < 0 0 %d 0 <device NULL> <device NULL> ",
-					    kp->off );
-				    dumpdevice(out,kp->adjust);
-			            fprintf( out, " <device NULL>>;\n" );
-				} else {
-				    fprintf( out," < 0 0 %d 0 <device NULL> <device NULL> ",
-					    kp->off );
-				    dumpdevice(out,kp->adjust);
-			            fprintf( out, " <device NULL>> " );
-			            dump_glyphname(out,kp->sc);
-			            fprintf( out, " < 0 0 0 0 >;\n" );
-				}
-			    } else
-#endif
-			    if ( otl->lookup_flags&pst_r2l ) {
-				fprintf( out, " < 0 0 0 0 > " );
-				dump_glyphname(out,kp->sc);
-				fprintf( out," < 0 0 %d 0 >;\n", kp->off );
-			    } else {
-				dump_glyphname(out,kp->sc);
-				putc(' ',out);
-			        fprintf( out, "%d;\n", kp->off );
-			    }
-			}
-		    }		/* End isv/kp loops */
-		}
-		++k;
-	    } while ( k<sf->subfontcnt );
-	}
-    }				/* End subtables */
-    fprintf( out, "} %s;\n", lookupname(otl) );
-}
-
-#ifndef LUA_FF_LIB
-static void untick_lookups(SplineFont *sf) {
-    OTLookup *otl;
-    int isgpos;
-
-    for ( isgpos=0; isgpos<2; ++isgpos )
-	for ( otl= isgpos ? sf->gpos_lookups : sf->gsub_lookups; otl!=NULL; otl=otl->next )
-	    otl->ticked = false;
-}
-#endif
-
-void FeatDumpOneLookup(FILE *out,SplineFont *sf, OTLookup *otl) {
-#ifndef LUA_FF_LIB
-    FeatureScriptLangList *fl;
-    struct scriptlanglist *sl;
-    int l;
-
-    untick_lookups(sf);
-
-    dump_lookup(out,sf,otl);
-
-    for ( fl = otl->features; fl!=NULL; fl=fl->next ) {
-	fprintf( out, "\nfeature %s%c%c%c%c {\n",
-		fl->featuretag==CHR('m','a','r','k') ? "\\" : "",
-		fl->featuretag>>24, fl->featuretag>16, fl->featuretag>>8, fl->featuretag );
-	for ( sl = fl->scripts; sl!=NULL; sl=sl->next ) {
-	    fprintf( out, "  script %c%c%c%c;\n",
-		    sl->script>>24, sl->script>16, sl->script>>8, sl->script );
-	    for ( l=0; l<sl->lang_cnt; ++l ) {
-		uint32 lang = l<MAX_LANG ? sl->langs[l] : sl->morelangs[l-MAX_LANG];
-		fprintf( out, "     language %c%c%c%c %s;\n",
-			lang>>24, lang>16, lang>>8, lang,
-			lang!=DEFAULT_LANG ? "exclude_dflt" : "" );
-		fprintf( out, "      lookup %s;\n", lookupname(otl));
-	    }
-	}
-	fprintf( out, "\n} %s%c%c%c%c;\n",
-		fl->featuretag==CHR('m','a','r','k') ? "\\" : "",
-		fl->featuretag>>24, fl->featuretag>16, fl->featuretag>>8, fl->featuretag );
-    }
-#endif
-}
-
-#ifndef LUA_FF_LIB
-static void dump_gdef(FILE *out,SplineFont *sf) {
-    PST *pst;
-    int i,gid,j,k,l, lcnt, needsclass;
-    SplineChar *sc;
-    SplineFont *_sf;
-    struct lglyphs { SplineChar *sc; PST *pst; } *glyphs;
-    static char *clsnames[] = { "@GDEF_Simple", "@GDEF_Ligature", "@GDEF_Mark", "@GDEF_Component" };
-    _sf = NULL;
-    glyphs = NULL;
-    for ( l=0; l<2; ++l ) {
-	lcnt = 0;
-	needsclass = false;
-	k=0;
-	do {
-	    _sf = sf->subfontcnt==0 ? sf : _sf;
-	    for ( gid=0; gid<_sf->glyphcnt; ++gid ) if ( (sc=_sf->glyphs[gid])!=NULL ) {
-		if ( sc->glyph_class!=0 || gdefclass(sc)!=1 )
-		    needsclass = true;
-		for ( pst=sc->possub; pst!=NULL; pst=pst->next ) {
-		    if ( pst->type == pst_lcaret ) {
-			for ( j=pst->u.lcaret.cnt-1; j>=0; --j )
-			    if ( pst->u.lcaret.carets[j]!=0 )
-			break;
-			if ( j!=-1 )
-		break;
-		    }
-		}
-		if ( pst!=NULL ) {
-		    if ( glyphs!=NULL ) { glyphs[lcnt].sc = sc; glyphs[lcnt].pst = pst; }
-		    ++lcnt;
-		}
-	    }
-	    ++k;
-	} while ( k<sf->subfontcnt );
-	if ( lcnt==0 )
-    break;
-	if ( glyphs!=NULL )
-    break;
-	glyphs = galloc((lcnt+1)*sizeof(struct lglyphs));
-	glyphs[lcnt].sc = NULL;
-    }
-
-    if ( !needsclass && lcnt==0 /* && sf->mark_class_cnt==0*/ )
-return;					/* No anchor positioning, no ligature carets */
-
-    if ( needsclass ) {
-	int len;
-	putc('\n',out);
-	/* Class definitions must go outside the table itself. Stupid */
-	for ( i=0; i<4; ++i ) {
-	    fprintf( out, "%s = [", clsnames[i] );
-	    len = strlen(clsnames[i])+8;
-	    k=0;
-	    do {
-		_sf = sf->subfontcnt==0 ? sf : _sf;
-		for ( gid=0; gid<_sf->glyphcnt; ++gid ) if ( (sc=_sf->glyphs[gid])!=NULL ) {
-		    if ( sc->glyph_class==i+1 || (sc->glyph_class==0 && gdefclass(sc)==i+1 )) {
-			if ( len+strlen(sc->name)+1 >80 ) {
-			    putc('\n',out); putc('\t',out);
-			    len = 8;
-			}
-			dump_glyphname(out,sc);
-			putc(' ',out);
-			len += strlen(sc->name)+1;
-		    }
-		}
-		++k;
-	    } while ( k<sf->subfontcnt );
-	    fprintf( out, "];\n");
-	}
-    }
-    fprintf( out, "\ntable GDEF {\n" );
-    if ( needsclass ) {
-	fprintf( out, "  GlyphClassDef %s %s %s %s;\n\n",
-		clsnames[0], clsnames[1], clsnames[2], clsnames[3]);
-    }
-
-    for ( i=0; i<lcnt; ++i ) {
-	PST *pst = glyphs[i].pst;
-	fprintf( out, "  LigatureCaret " );
-	dump_glyphname(out,glyphs[i].sc);
-	for ( k=0; k<pst->u.lcaret.cnt; ++k ) {
-	    fprintf( out, " <caret %d>", pst->u.lcaret.carets[k]);
-	}
-	fprintf( out, ";\n" );
-    }
-    free( glyphs );
-
-    /* no way to specify mark classes */
-
-    fprintf( out, "} GDEF;\n\n" );
-}
-
-static void dump_gsubgpos(FILE *out, SplineFont *sf) {
-    int isgpos;
-    int i,l,s, subl;
-    OTLookup *otl;
-    FeatureScriptLangList *fl;
-    struct scriptlanglist *sl;
-
-    for ( isgpos=0; isgpos<2; ++isgpos ) {
-	uint32 *feats = SFFeaturesInScriptLang(sf,isgpos,0xffffffff,0xffffffff);
-	if ( feats[0]!=0 ) {
-	    uint32 *scripts = SFScriptsInLookups(sf,isgpos);
-	    fprintf( out, "\n# %s \n\n", isgpos ? "GPOS" : "GSUB" );
-	    for ( otl= isgpos ? sf->gpos_lookups : sf->gsub_lookups; otl!=NULL; otl=otl->next )
-		if ( otl->features!=NULL )	/* Nested lookups will be output with the lookups which invoke them */
-		    dump_lookup( out, sf, otl );
-	    for ( i=0; feats[i]!=0; ++i ) {
-		fprintf( out, "\nfeature %s%c%c%c%c {\n",
-			feats[i]==CHR('m','a','r','k') ? "\\" : "",
-			feats[i]>>24, feats[i]>>16, feats[i]>>8, feats[i] );
-		if ( feats[i]==CHR('s','i','z','e') ) {
-		    struct otfname *nm;
-		    fprintf( out, "  parameters %.1f", sf->design_size/10.0 );
-		    if ( sf->fontstyle_id!=0 ) {
-			fprintf( out, " %d %.1f %.1f;\n",
-				sf->fontstyle_id,
-			        sf->design_range_bottom/10.0, sf->design_range_top/10.0 );
-			for ( nm = sf->fontstyle_name; nm!=NULL; nm=nm->next ) {
-			    char *pt;
-			    fprintf( out, "  sizemenuname 3 1 0x%x \"", nm->lang );
-			    for ( pt = nm->name; ; ) {
-				int ch = utf8_ildb((const char **) &pt);
-			        if ( ch=='\0' )
-			    break;
-				if ( ch>=' ' && ch<=0x7f && ch!='"' && ch!='\\' )
-				    putc(ch,out);
-				else
-				    fprintf( out, "\\%04x", ch );
-			    }
-			    fprintf( out, "\";\n" );
-			}
-		    } else
-			fprintf( out, " 0 0 0;\n" );
-		} else for ( s=0; scripts[s]!=0; ++s ) {
-		    uint32 *langs = SFLangsInScript(sf,isgpos,scripts[s]);
-		    int firsts = true;
-		    for ( l=0; langs[l]!=0; ++l ) {
-			int first = true;
-			for ( otl = isgpos ? sf->gpos_lookups : sf->gsub_lookups; otl!=NULL; otl=otl->next ) {
-			    for ( fl=otl->features; fl!=NULL; fl=fl->next ) if ( fl->featuretag==feats[i] ) {
-				for ( sl=fl->scripts; sl!=NULL; sl=sl->next ) if ( sl->script==scripts[s] ) {
-				    for ( subl=0; subl<sl->lang_cnt; ++subl ) {
-					uint32 lang = subl<MAX_LANG ? sl->langs[subl] : sl->morelangs[subl-MAX_LANG];
-			                if ( lang==langs[l] )
-			    goto found;
-				    }
-				}
-			    }
-			    found:
-			    if ( fl!=NULL ) {
-				if ( firsts ) {
-				    fprintf( out, "\n  script %c%c%c%c;\n",
-					    scripts[s]>>24, scripts[s]>>16, scripts[s]>>8, scripts[s] );
-				    firsts = false;
-				}
-				if ( first ) {
-				    fprintf( out, "     language %c%c%c%c %s;\n",
-					    langs[l]>>24, langs[l]>>16, langs[l]>>8, langs[l],
-					    langs[l]!=DEFAULT_LANG ? "exclude_dflt" : "" );
-				    first = false;
-				}
-				fprintf( out, "      lookup %s;\n", lookupname(otl));
-			    }
-			}
-		    }
-		    free(langs);
-		}
-		fprintf( out, "} %s%c%c%c%c;\n",
-			    feats[i]==CHR('m','a','r','k') ? "\\" : "",
-			    feats[i]>>24, feats[i]>>16, feats[i]>>8, feats[i] );
-	    }
-	    free(scripts);
-	}
-	free(feats);
-    }
-}
-
-/* Sadly the lookup names I generate are often not distinguishable in the */
-/*  first 31 characters. So provide a fall back mechanism if we get a name */
-/*  collision */
-static void preparenames(SplineFont *sf) {
-    int isgpos, cnt, try, i;
-    OTLookup *otl;
-    char **names, *name;
-    char namebuf[32], featbuf[8], scriptbuf[8], *feat, *script;
-    struct scriptlanglist *sl;
-
-    cnt = 0;
-    for ( isgpos=0; isgpos<2; ++isgpos )
-	for ( otl=isgpos ? sf->gpos_lookups : sf->gsub_lookups; otl!=NULL; otl=otl->next )
-	    ++cnt;
-    if ( cnt==0 )
-return;
-    names = galloc(cnt*sizeof(char *));
-    featbuf[4] = scriptbuf[4] = 0;
-    cnt = 0;
-    for ( isgpos=0; isgpos<2; ++isgpos ) {
-	for ( otl=isgpos ? sf->gpos_lookups : sf->gsub_lookups; otl!=NULL; otl=otl->next ) {
-	    name = lookupname(otl);
-	    for ( try=0; ; ++try ) {
-		for ( i=0; i<cnt; ++i )
-		    if ( strcmp(name,names[i])==0 )
-		break;
-		if ( i==cnt ) {
-		    /* It's a unique name, use it */
-		    otl->tempname = names[cnt++] = copy(name);
-	    break;
-		}
-
-		feat = ""; script = "";
-		if ( otl->features!=NULL ) {
-		    featbuf[0] = otl->features->featuretag>>24;
-		    featbuf[1] = otl->features->featuretag>>16;
-		    featbuf[2] = otl->features->featuretag>>8;
-		    featbuf[3] = otl->features->featuretag&0xff;
-		    feat = featbuf;
-		    for ( sl=otl->features->scripts; sl!=NULL; sl=sl->next ) {
-			if ( sl->script!=DEFAULT_SCRIPT ) {
-			    scriptbuf[0] = sl->script>>24;
-			    scriptbuf[1] = sl->script>>16;
-			    scriptbuf[2] = sl->script>>8;
-			    scriptbuf[3] = sl->script&0xff;
-			    script = scriptbuf;
-		    break;
-			}
-		    }
-		}
-		sprintf( namebuf, "%s_%s_%s%s_%d", isgpos ? "pos" : "sub",
-			    otl->lookup_type== gsub_single ? "single" :
-			    otl->lookup_type== gsub_multiple ? "mult" :
-			    otl->lookup_type== gsub_alternate ? "alt" :
-			    otl->lookup_type== gsub_ligature ? "ligature" :
-			    otl->lookup_type== gsub_context ? "context" :
-			    otl->lookup_type== gsub_contextchain ? "chain" :
-			    otl->lookup_type== gsub_reversecchain ? "reversecc" :
-			    otl->lookup_type== gpos_single ? "single" :
-			    otl->lookup_type== gpos_pair ? "pair" :
-			    otl->lookup_type== gpos_cursive ? "cursive" :
-			    otl->lookup_type== gpos_mark2base ? "mark2base" :
-			    otl->lookup_type== gpos_mark2ligature ? "mark2liga" :
-			    otl->lookup_type== gpos_mark2mark ? "mark2mark" :
-			    otl->lookup_type== gpos_context ? "context" :
-			    otl->lookup_type== gpos_contextchain ? "chain" :
-				"unknown",
-			feat, script, try++ );
-		name = namebuf;
-	    }
-	}
-    }
-    free(names);
-}
-
-static void cleanupnames(SplineFont *sf) {
-    int isgpos;
-    OTLookup *otl;
-
-    for ( isgpos=0; isgpos<2; ++isgpos )
-	for ( otl=isgpos ? sf->gpos_lookups : sf->gsub_lookups; otl!=NULL; otl=otl->next ) {
-	    free( otl->tempname );
-	    otl->tempname = NULL;
-	}
-}
-#endif
-
-void FeatDumpFontLookups(FILE *out,SplineFont *sf) {
-#ifndef LUA_FF_LIB
-    if ( sf->cidmaster!=NULL ) sf=sf->cidmaster;
-
-    untick_lookups(sf);
-    preparenames(sf);
-    dump_gsubgpos(out,sf);
-    dump_gdef(out,sf);
-    cleanupnames(sf);
-#endif
-}
 
 
 /* ************************************************************************** */
@@ -1528,17 +107,6 @@ static int strcmpD(const void *_str1, const void *_str2) {
 return( strcmp(str1,str2));
 }
 
-/* Ok, somes strings overlap so can't use normal strcpy */
-static char *mystrcpy(char *str1, const char *str2) {
-    int ch;
-    char *dest = str1;
-
-    while ( (ch = *str2++)!='\0' )
-	*str1++ = ch;
-    *str1 = '\0';
-return( dest );
-}
-
 /* Order glyph classes just so we can do a simple string compare to check for */
 /*  class match. So the order doesn't really matter, just so it is consistent */
 static char *fea_canonicalClassOrder(char *class) {
@@ -1586,70 +154,96 @@ static int fea_classesIntersect(char *class1, char *class2) {
     int ch1, ch2;
 
     for ( pt1=class1 ; ; ) {
-	while ( *pt1==' ' ) ++pt1;
-	if ( *pt1=='\0' )
-return( 0 );
-	for ( start1 = pt1; *pt1!=' ' && *pt1!='\0'; ++pt1 );
-	ch1 = *pt1; *pt1 = '\0';
-	for ( pt2=class2 ; ; ) {
-	    while ( *pt2==' ' ) ++pt2;
-	    if ( *pt2=='\0' )
-	break;
-	    for ( start2 = pt2; *pt2!=' ' && *pt2!='\0'; ++pt2 );
-	    ch2 = *pt2; *pt2 = '\0';
-	    if ( strcmp(start1,start2)==0 ) {
-		*pt2 = ch2; *pt1 = ch1;
-return( 1 );
-	    }
-	    *pt2 = ch2;
-	}
-	*pt1 = ch1;
+        while ( *pt1==' ' ) ++pt1;
+        if ( *pt1=='\0' )
+            return( 0 );
+        for ( start1 = pt1; *pt1!=' ' && *pt1!='\0'; ++pt1 );
+        ch1 = *pt1; *pt1 = '\0';
+        for ( pt2=class2 ; ; ) {
+            while ( *pt2==' ' ) ++pt2;
+            if ( *pt2=='\0' )
+                break;
+            for ( start2 = pt2; *pt2!=' ' && *pt2!='\0'; ++pt2 );
+            ch2 = *pt2; *pt2 = '\0';
+            if ( strcmp(start1,start2)==0 ) {
+                *pt2 = ch2; *pt1 = ch1;
+                return( 1 );
+            }
+            *pt2 = ch2;
+        }
+        *pt1 = ch1;
     }
 }
 
+
+#define SKIP_SPACES(s, i)                       \
+    do {                                        \
+        while ((s)[i] == ' ')                   \
+            i++;                                \
+    }                                           \
+    while (0)
+
+#define FIND_SPACE(s, i)                        \
+    do {                                        \
+        while ((s)[i] != ' ' && (s)[i] != '\0') \
+            i++;                                \
+    }                                           \
+    while (0)
+
+
 static char *fea_classesSplit(char *class1, char *class2) {
-    char *pt1, *start1, *pt2, *start2;
-    int ch1, ch2;
+    char *intersection;
     int len = strlen(class1), len2 = strlen(class2);
-    char *intersection, *ipt;
+    int ix;
+    int i, j, i_end, j_end;
+    int length;
+    int match_found;
 
     if ( len2>len ) len = len2;
-    intersection = ipt = galloc(len2+1);
-    
-    for ( pt1=class1 ; ; ) {
-	while ( *pt1==' ' ) ++pt1;
-	if ( *pt1=='\0' )
-    break;
-	for ( start1 = pt1; *pt1!=' ' && *pt1!='\0'; ++pt1 );
-	ch1 = *pt1; *pt1 = '\0';
-	for ( pt2=class2 ; ; ) {
-	    while ( *pt2==' ' ) ++pt2;
-	    if ( *pt2=='\0' )
-	break;
-	    for ( start2 = pt2; *pt2!=' ' && *pt2!='\0'; ++pt2 );
-	    ch2 = *pt2; *pt2 = '\0';
-	    if ( strcmp(start1,start2)==0 ) {
-		/* Here's a glyph name in both classes. Remove it from each */
-		/*  and add to the new intersection class */
-		strcpy(ipt,start1);
-		ipt += strlen(ipt);
-		*ipt++ = ' ';
-		*pt2 = ch2; *pt1 = ch1;
-		while ( *pt2==' ' ) ++pt2;
-		while ( *pt1==' ' ) ++pt1;
-		mystrcpy(start1,pt1); ch1 = *pt1;
-		mystrcpy(start2,pt2);
-	break;
-	    }
-	    *pt2 = ch2;
-	}
-	*pt1 = ch1;
+    intersection = galloc(len+1);
+    ix = 0;
+
+    i = 0;
+    SKIP_SPACES(class1, i);
+    while (class1[i] != '\0') {
+        i_end = i;
+        FIND_SPACE(class1, i_end);
+
+        length = i_end - i;
+
+        match_found = 0;
+        j = 0;
+        SKIP_SPACES(class2, j);
+        while (!match_found && class2[j] != '\0') {
+            j_end = j;
+            FIND_SPACE(class2, j_end);
+
+            if (length == j_end - j && strncmp(class1 + i, class2 + j, length) == 0) {
+                match_found = 1;
+
+                if (ix != 0) {
+                    intersection[ix] = ' ';
+                    ix++;
+                }
+                memcpy(intersection + ix, class1 + i, length * sizeof (char));
+                ix += length;
+
+                SKIP_SPACES(class1, i_end);
+                memmove(class1 + i, class1 + i_end, (strlen(class1 + i_end) + 1) * sizeof (char));
+                SKIP_SPACES(class2, j_end);
+                memmove(class2 + j, class2 + j_end, (strlen(class2 + j_end) + 1) * sizeof (char));
+            } else {
+                j = j_end;
+                SKIP_SPACES(class2, j);
+            }
+        }
+        if (!match_found) {
+            i = i_end;
+            SKIP_SPACES(class1, i);
+        }
     }
-    if ( ipt!=intersection )
-	ipt[-1] = '\0';
-    else
-	*intersection = '\0';		/* Should never happen (we only call this if there is one) */
-return( intersection );
+    intersection[ix] = '\0';
+    return( intersection );
 }
 
 #define MAXT	40
@@ -1737,7 +331,7 @@ static struct keywords {
     { "pos", tk_position },
     { "enum", tk_enumerate },
     { "anon", tk_anonymous },
-    {NULL}
+    { NULL, 0 }
 };
 
 static struct tablekeywords hhead_keys[] = {
@@ -1745,14 +339,14 @@ static struct tablekeywords hhead_keys[] = {
     { "Ascender", sizeof(short), 1, offsetof(struct pfminfo,hhead_ascent)+offsetof(SplineFont,pfminfo) },
     { "Descender", sizeof(short), 1, offsetof(struct pfminfo,hhead_descent)+offsetof(SplineFont,pfminfo) },
     { "LineGap", sizeof(short), 1, offsetof(struct pfminfo,linegap)+offsetof(SplineFont,pfminfo) },
-    {NULL}
+    { NULL, 0, 0, 0 }
 };
 
 static struct tablekeywords vhead_keys[] = {
     { "VertTypoAscender", sizeof(short), 1, -1 },
     { "VertTypoDescender", sizeof(short), 1, -1 },
     { "VertTypoLineGap", sizeof(short), 1, offsetof(struct pfminfo,vlinegap)+offsetof(SplineFont,pfminfo) },
-    {NULL}
+    { NULL, 0, 0, 0 }
 };
 
 static struct tablekeywords os2_keys[] = {
@@ -1770,7 +364,7 @@ static struct tablekeywords os2_keys[] = {
     { "WeightClass", sizeof(short), 1, offsetof(struct pfminfo,weight)+offsetof(SplineFont,pfminfo) },
     { "WidthClass", sizeof(short), 1, offsetof(struct pfminfo,width)+offsetof(SplineFont,pfminfo) },
     { "Vendor", sizeof(short), 1, offsetof(struct pfminfo,os2_vendor)+offsetof(SplineFont,pfminfo) },
-    {NULL}
+    { NULL, 0, 0, 0 }
 };
 
 
@@ -1790,7 +384,7 @@ return;
 
     in = tok->inlist[tok->inc_depth];
     ch = getc(in);
-    while ( Isspace(ch))
+    while ( isspace(ch))
 	ch = getc(in);
     pt = namebuf;
     while ( ch!=EOF && ch!=')' && pt<namebuf+sizeof(namebuf)-1 ) {
@@ -1803,7 +397,7 @@ return;
 	LogError(_("Include filename too long on line %d of %s"), tok->line[tok->inc_depth], tok->filename[tok->inc_depth] );
 	++tok->err_count;
     }
-    while ( pt>=namebuf+1 && Isspace(pt[-1]) )
+    while ( pt>=namebuf+1 && isspace(pt[-1]) )
 	--pt;
     *pt = '\0';
     if ( ch!=')' ) {
@@ -1848,11 +442,12 @@ return;
     tok->filename[tok->inc_depth] = filename;
     tok->inlist[tok->inc_depth] = in;
     tok->line[tok->inc_depth] = 1;
+    fea_ParseTok(tok);
 }
 
 static void fea_ParseTok(struct parseState *tok) {
     FILE *in = tok->inlist[tok->inc_depth];
-    int ch, peekch;
+    int ch, peekch = 0;
     char *pt, *start;
 
     if ( tok->backedup ) {
@@ -1860,10 +455,9 @@ static void fea_ParseTok(struct parseState *tok) {
 return;
     }
 
-    peekch = 0;
   skip_whitespace:
     ch = getc(in);
-    while ( Isspace(ch) || ch=='#' ) {
+    while ( isspace(ch) || ch=='#' ) {
 	if ( ch=='#' )
 	    while ( (ch=getc(in))!=EOF && ch!='\n' && ch!='\r' );
 	if ( ch=='\n' || ch=='\r' ) {
@@ -1891,12 +485,12 @@ return;
     }
 
     start = pt = tok->tokbuf;
-    if ( ch=='\\' ) {
+    if ( ch=='\\' || ch=='-' ) {
 	peekch=getc(in);
 	ungetc(peekch,in);
     }
 
-    if ( Isdigit(ch) || ch=='-' || ch=='+' || (ch=='\\' && Isdigit(peekch)) ) {
+    if ( isdigit(ch) || ch=='+' || ((ch=='-' || ch=='\\') && isdigit(peekch)) ) {
 	tok->type = tk_int;
 	if ( ch=='-' || ch=='+' ) {
 	    if ( ch=='-' ) {
@@ -1908,13 +502,13 @@ return;
 	    ch = getc(in);
 	    tok->type = tk_cid;
 	}
-	while ( (Isdigit( ch ) ||
+	while ( (isdigit( ch ) ||
 		(tok->base==0 && (ch=='x' || ch=='X' || (ch>='a' && ch<='f') || (ch>='A' && ch<='F'))))
 		&& pt<tok->tokbuf+15 ) {
 	    *pt++ = ch;
 	    ch = getc(in);
 	}
-	if ( Isdigit(ch)) {
+	if ( isdigit(ch)) {
 	    LogError(_("Number too long on line %d of %s"), tok->line[tok->inc_depth], tok->filename[tok->inc_depth] );
 	    ++tok->err_count;
 	} else if ( pt==start ) {
@@ -1925,7 +519,7 @@ return;
 	*pt = '\0';
 	tok->value = strtol(tok->tokbuf,NULL,tok->base);
 return;
-    } else if ( ch=='@' || ch=='_' || ch=='\\' || Isalnum(ch)) {	/* Names can't start with dot */
+    } else if ( ch=='@' || ch=='_' || ch=='\\' || isalnum(ch)) {	/* Names can't start with dot */
 	int check_keywords = true;
 	tok->type = tk_name;
 	if ( ch=='@' ) {
@@ -1938,13 +532,13 @@ return;
 	    ch = getc(in);
 	    check_keywords = false;
 	}
-	while (( Isalnum(ch) || ch=='_' || ch=='.' ) && pt<start+31 ) {
+	while (( isalnum(ch) || ch=='_' || ch=='.' ) && pt<start+31 ) {
 	    *pt++ = ch;
 	    ch = getc(in);
 	}
 	*pt = '\0';
 	ungetc(ch,in);
-	if ( Isalnum(ch) || ch=='_' || ch=='.' ) {
+	if ( isalnum(ch) || ch=='_' || ch=='.' ) {
 	    LogError(_("Name too long on line %d of %s"), tok->line[tok->inc_depth], tok->filename[tok->inc_depth] );
 	    ++tok->err_count;
 	} else if ( pt==start ) {
@@ -2039,7 +633,7 @@ static int fea_ParseDeciPoints(struct parseState *tok) {
 	ch = getc(in);
 	if ( ch=='.' ) {
 	    *pt++ = ch;
-	    while ( (ch = getc(in))!=EOF && Isdigit(ch)) {
+	    while ( (ch = getc(in))!=EOF && isdigit(ch)) {
 		if ( pt<tok->tokbuf+sizeof(tok->tokbuf)-1 )
 		    *pt++ = ch;
 	    }
@@ -2222,10 +816,7 @@ return( copy( sc->name ));
 static SplineChar *fea_glyphname_get(struct parseState *tok,char *name) {
     SplineFont *sf = tok->sf;
     SplineChar *sc = SFGetChar(sf,-1,name);
-    int gid;
-#ifndef LUA_FF_LIB
-	int enc;
-#endif
+    int enc, gid;
 
     if ( sf->subfontcnt!=0 ) {
 	LogError(_("Reference to a glyph name in a CID-keyed font on line %d of %s"), tok->line[tok->inc_depth], tok->filename[tok->inc_depth] );
@@ -2233,9 +824,8 @@ static SplineChar *fea_glyphname_get(struct parseState *tok,char *name) {
 return(sc);
     }
 
-    if ( sc!=NULL )
+    if ( sc!=NULL || strcmp(name,"NULL")==0 )
 return( sc );
-#ifndef LUA_FF_LIB
     enc = SFFindSlot(sf,sf->fv->map,-1,name);
     if ( enc!=-1 ) {
 	sc = SFMakeChar(sf,sf->fv->map,enc);
@@ -2246,7 +836,6 @@ return( sc );
 	}
 return( sc );
     }
-#endif
     
     for ( gid=sf->glyphcnt-1; gid>=0; --gid ) if ( (sc=sf->glyphs[gid])!=NULL ) {
 	if ( strcmp(sc->name,name)==0 )
@@ -2256,7 +845,7 @@ return( sc );
 /* Don't encode it (not in current encoding), just add it, so we needn't */
 /*  mess with maps or selections */
     SFExpandGlyphCount(sf,sf->glyphcnt+1);
-    sc = SplineCharCreate();
+    sc = SFSplineCharCreate(sf);
     sc->name = copy(name);
     sc->unicodeenc = UniFromName(name,ui_none,&custom);
     sc->parent = sf;
@@ -2285,16 +874,15 @@ static char *fea_ParseGlyphClass(struct parseState *tok) {
     } else if ( tok->type!=tk_char || tok->tokbuf[0]!='[' ) {
 	LogError(_("Expected '[' in glyph class definition on line %d of %s"), tok->line[tok->inc_depth], tok->filename[tok->inc_depth] );
 	++tok->err_count;
-return(NULL);
+return( NULL );
     } else {
-	char *contents;
+	char *contents = NULL;
 	int cnt=0, max=0;
-	int last_val, range_type, range_len;
+	int last_val = 0, range_type, range_len = 0;
 	char last_glyph[MAXT+1];
-	char *pt1, *start1, *pt2, *start2;
+	char *pt1, *start1, *pt2, *start2 = NULL;
 	int v1, v2;
 
-	start2 = NULL; range_len = 0; last_val =0 ; contents = NULL;
 	forever {
 	    fea_ParseTok(tok);
 	    if ( tok->type==tk_char && tok->tokbuf[0]==']' )
@@ -2336,10 +924,10 @@ return(NULL);
 			break;
 				}
 			        start1 = pt1; start2 = pt2;
-			        if ( !Isdigit(*pt1) || !Isdigit(*pt2))
+			        if ( !isdigit(*pt1) || !isdigit(*pt2))
 				    range_type = 1;
 				else {
-				    for ( range_len=0; range_len<3 && Isdigit(*pt1) && Isdigit(*pt2);
+				    for ( range_len=0; range_len<3 && isdigit(*pt1) && isdigit(*pt2);
 					    ++range_len, ++pt1, ++pt2 );
 				    range_type = 2;
 			            --pt1; --pt2;
@@ -2355,7 +943,7 @@ return(NULL);
 			v1 = *start1; v2 = *start2;
 			for ( ++v1; v1<=v2; ++v1 ) {
 			    *start1 = v1;
-			    contents = fea_glyphname_validate(tok,tok->tokbuf);
+			    contents = fea_glyphname_validate(tok,start1);
 			    if ( v1==v2 )
 			break;
 			    if ( contents!=NULL )
@@ -2366,10 +954,10 @@ return(NULL);
 			v2 = strtol(start2,NULL,10);
 			for ( ++v1; v1<=v2; ++v1 ) {
 			    if ( range_len==2 )
-				sprintf( last_glyph, "%.*s%02d%s", start2-tok->tokbuf,
+				sprintf( last_glyph, "%.*s%02d%s", (int) (start2-tok->tokbuf),
 					tok->tokbuf, v1, start2+2 );
 			    else
-				sprintf( last_glyph, "%.*s%03d%s", start2-tok->tokbuf,
+				sprintf( last_glyph, "%.*s%03d%s", (int) (start2-tok->tokbuf),
 					tok->tokbuf, v1, start2+3 );
 			    contents = fea_glyphname_validate(tok,last_glyph);
 			    if ( v1==v2 )
@@ -2385,10 +973,12 @@ return(NULL);
 	break;
 		}
 		last_val=-1; last_glyph[0] = '\0';
+	    } else if ( tok->type == tk_NULL ) {
+		contents = copy("NULL");
 	    } else {
 		LogError(_("Expected glyph name, cid, or class in glyph class definition on line %d of %s"), tok->line[tok->inc_depth], tok->filename[tok->inc_depth] );
 		++tok->err_count;
-return(NULL);
+	break;
 	    }
 	    if ( contents!=NULL )
 		cnt = fea_AddGlyphs(&glyphs,&max,cnt,contents);
@@ -2397,6 +987,13 @@ return(NULL);
 	    glyphs = copy("");	/* Is it legal to have an empty class? I can't think of any use for one */
     }
 return( glyphs );
+}
+
+static char *fea_ParseGlyphClassGuarded(struct parseState *tok) {
+    char *ret = fea_ParseGlyphClass(tok);
+    if ( ret==NULL )
+	ret = copy("");
+return( ret );
 }
 
 static void fea_ParseLookupFlags(struct parseState *tok) {
@@ -2515,7 +1112,7 @@ return;
     if ( inside_feat ) {
 	struct feat_item *item = chunkalloc(sizeof(struct feat_item));
 	item->type = ft_langsys;
-	item->u2.sl = SLCopy(tok->def_langsyses);
+	item->u2.sl = SListCopy(tok->def_langsyses);
 	item->next = tok->sofar;
 	tok->sofar = item;
     }
@@ -2668,7 +1265,7 @@ return( true );
 
     if ( SFFindLookup(tok->sf,name)!=NULL ) {
 	if ( !tok->lookup_in_sf_warned ) {
-	    gwwv_post_notice(_("Refers to Font"),_("Reference to a lookup which is not in the feature file but which is in the font, %.50s"), name );
+	    ff_post_notice(_("Refers to Font"),_("Reference to a lookup which is not in the feature file but which is in the font, %.50s"), name );
 	    tok->lookup_in_sf_warned = true;
 	}
 return( true );
@@ -2781,7 +1378,7 @@ static struct markedglyphs *fea_ParseMarkedGlyphs(struct parseState *tok,
 	    cur->is_cursive = is_cursive;
 	    cur->is_mark = is_mark;
 	    cur->is_name = false;
-	    cur->name_or_class = fea_ParseGlyphClass(tok);
+	    cur->name_or_class = fea_ParseGlyphClassGuarded(tok);
 	} else if ( allow_marks && tok->type==tk_char &&
 		(tok->tokbuf[0]=='\'' || tok->tokbuf[0]=='"') && last!=NULL ) {
 	    if ( last_mark!=tok->tokbuf[0] || (prev!=NULL && prev->mark_count==0)) {
@@ -3011,6 +1608,11 @@ static struct feat_item *fea_process_sub_single(struct parseState *tok,
 	temp = fea_glyphname_get(tok,rpl->name_or_class);
 	if ( temp!=NULL ) {
 	    start = glyphs->name_or_class;
+	    if ( start==NULL ) {
+		LogError(_("Internal state messed up on line %d of %s"), tok->line[tok->inc_depth], tok->filename[tok->inc_depth] );
+		++tok->err_count;
+return( sofar );
+	    }
 	    forever {
 		while ( *start==' ' ) ++start;
 		if ( *start=='\0' )
@@ -3099,8 +1701,8 @@ static FPST *fea_markedglyphs_to_fpst(struct parseState *tok,struct markedglyphs
     int i;
     FPST *fpst;
     struct fpst_rule *r;
-    struct feat_item *item, *head;
-    head = NULL;
+    struct feat_item *item, *head = NULL;
+
     for ( g=glyphs; g!=NULL && g->mark_count==0; g=g->next ) {
 	++bcnt;
 	if ( !g->is_name ) all_single = false;
@@ -3156,8 +1758,9 @@ static FPST *fea_markedglyphs_to_fpst(struct parseState *tok,struct markedglyphs
     item->u2.fpst = fpst;
 
     if ( is_pos ) {
-	for ( g=glyphs; g!=NULL && g->mark_count!=0; g=g->next );
+	for ( g=glyphs; g!=NULL && g->mark_count==0; g=g->next );
 	for ( i=0; g!=NULL; ++i ) {
+	    head = NULL;
 	    if ( g->lookupname!=NULL ) {
 		head = chunkalloc(sizeof(struct feat_item));
 		head->type = ft_lookup_ref;
@@ -3170,14 +1773,14 @@ static FPST *fea_markedglyphs_to_fpst(struct parseState *tok,struct markedglyphs
 		    ( g->next->next==NULL || g->next->next->mark_count!=g->mark_count)) {
 		head = fea_process_pos_pair(tok,g,NULL,false);
 	    } else {
-		LogError(_("Unparseable contetual sequence on line %d of %s"), tok->line[tok->inc_depth], tok->filename[tok->inc_depth] );
+		LogError(_("Unparseable contextual sequence on line %d of %s"), tok->line[tok->inc_depth], tok->filename[tok->inc_depth] );
 		++tok->err_count;
 	    }
 	    r->lookups[i].lookup = (OTLookup *) head;
 	    cnt = g->mark_count;
 	    while ( g!=NULL && g->mark_count == cnt )	/* skip everything involved here */
 		g=g->next;
-	    for ( ; g!=NULL && g->mark_count!=0; g=g->next ); /* skip any uninvolved glyphs */
+	    for ( ; g!=NULL && g->mark_count==0; g=g->next ); /* skip any uninvolved glyphs */
 	}
     }
 
@@ -3242,7 +1845,7 @@ static void fea_ParseSubstitute(struct parseState *tok) {
 	    /* Alternate subs */
 	    char *alts;
 	    fea_ParseTok(tok);
-	    alts = fea_ParseGlyphClass(tok);
+	    alts = fea_ParseGlyphClassGuarded(tok);
 	    sc = fea_glyphname_get(tok,glyphs->name_or_class);
 	    if ( sc!=NULL ) {
 		item = chunkalloc(sizeof(struct feat_item));
@@ -3323,7 +1926,7 @@ static void fea_ParseSubstitute(struct parseState *tok) {
 	    } else if ( g->next!=NULL && g->mark_count==g->next->mark_count ) {
 		head = fea_process_sub_ligature(tok,g,rpl,NULL);
 	    } else {
-		LogError(_("Unparseable contetual sequence on line %d of %s"), tok->line[tok->inc_depth], tok->filename[tok->inc_depth] );
+		LogError(_("Unparseable contextual sequence on line %d of %s"), tok->line[tok->inc_depth], tok->filename[tok->inc_depth] );
 		++tok->err_count;
 	    }
 	    r->lookups[i].lookup = (OTLookup *) head;
@@ -3390,7 +1993,7 @@ return;
 	    ch = *pt; *pt = '\0';
 	    sc = fea_glyphname_get(tok,start);
 	    *pt = ch;
-	    while ( Isspace(*pt)) ++pt;
+	    while ( isspace(*pt)) ++pt;
 	    if ( sc==NULL ) {
 		tok->sofar = item->next;	/* Oops, remove it */
 		chunkfree(item,sizeof(*item));
@@ -3483,7 +2086,8 @@ static void fea_ParsePosition(struct parseState *tok, int enumer) {
 	    if ( tok->type==tk_name )
 		mark_class = copy(tok->tokbuf);
 	    else
-		mark_class = fea_canonicalClassOrder(fea_ParseGlyphClass(tok));
+		mark_class = fea_canonicalClassOrder(fea_ParseGlyphClassGuarded(tok));
+	    fea_ParseTok(tok);
 	    if ( glyphs->is_mark && glyphs->ap_cnt>1 ) {
 		LogError(_("Mark to base anchor statements may only have one anchor on line %d of %s"), tok->line[tok->inc_depth], tok->filename[tok->inc_depth] );
 		++tok->err_count;
@@ -3723,6 +2327,8 @@ return;
 	    else {
 		struct feat_item *f;
 		for ( f = tok->sofar->next; f!=NULL; f=f->next ) {
+		    if ( f->type==ft_lookup_start || f->type==ft_subtable )
+		break;
 		    if ( f->type!=ft_ap || f->mark_class==NULL )
 		continue;
 		    if ( strcmp(tok->sofar->mark_class,f->mark_class)==0 )
@@ -3843,7 +2449,7 @@ static struct nameid *fea_ParseNameId(struct parseState *tok,int strid) {
 		value = 0;
 		for ( i=0; i<dmax; ++i ) {
 		    ch = getc(in);
-		    if ( !Ishexdigit(ch)) {
+		    if ( !ishexdigit(ch)) {
 			ungetc(ch,in);
 		break;
 		    }
@@ -3955,7 +2561,7 @@ return;
     item->type = ft_feat_start;
     item->u1.tag = feat_tag;
     if ( tok->def_langsyses!=NULL )
-	item->u2.sl = SLCopy(tok->def_langsyses);
+	item->u2.sl = SListCopy(tok->def_langsyses);
     else {
 	item->u2.sl = chunkalloc(sizeof(struct scriptlanglist));
 	item->u2.sl->script = DEFAULT_SCRIPT;
@@ -4174,7 +2780,7 @@ static void fea_ParseTableKeywords(struct parseState *tok, struct tablekeywords 
 		    FILE *in = tok->inlist[tok->inc_depth];
 		    int ch = getc(in);
 		    if ( ch=='.' )
-			for ( ch=getc(in); Isdigit(ch); ch=getc(in));
+			for ( ch=getc(in); isdigit(ch); ch=getc(in));
 		    ungetc(ch,in);
 		}
 		if ( index!=-1 && keys[index].cnt!=1 ) {
@@ -4259,7 +2865,7 @@ static void fea_ParseGDEFTable(struct parseState *tok) {
 	    else if ( tok->type==tk_cid )
 		item->u1.class = fea_cid_validate(tok,tok->value);
 	    else if ( tok->type == tk_class || (tok->type==tk_char && tok->tokbuf[0]=='['))
-		item->u1.class = fea_ParseGlyphClass(tok);
+		item->u1.class = fea_ParseGlyphClassGuarded(tok);
 	    else {
 		LogError(_("Expected name or class on line %d of %s"), tok->line[tok->inc_depth], tok->filename[tok->inc_depth] );
 		++tok->err_count;
@@ -4294,7 +2900,7 @@ static void fea_ParseGDEFTable(struct parseState *tok) {
 	    tok->sofar = item;
 	    for ( i=0; i<4; ++i ) {
 		fea_ParseTok(tok);
-		item->u1.gdef_classes[i] = fea_ParseGlyphClass(tok);
+		item->u1.gdef_classes[i] = fea_ParseGlyphClassGuarded(tok);
 	    }
 	    fea_ParseTok(tok);
 	} else {
@@ -4549,6 +3155,7 @@ static void fea_ApplyLookupListPST(struct parseState *tok,
 	struct feat_item *lookup_data,OTLookup *otl) {
     struct lookup_subtable *sub = NULL, *last=NULL;
     struct feat_item *l;
+    (void)tok;
     /* Simple pst's are easy. We just attach them to their proper glyphs */
     /*  and then clear the feat_item pst slot (so we don't free them later) */
     /* There might be a subtable break */
@@ -4615,6 +3222,8 @@ static void fea_ApplyLookupListContextual(struct parseState *tok,
 		last->next = sub;
 	    last = sub;
 	    sub->fpst = l->u2.fpst;
+	    l->u2.fpst->next = tok->sf->possub;
+	    tok->sf->possub = l->u2.fpst;
 	    l->u2.fpst = NULL;
 	    sub->fpst->subtable = sub;
 	    for ( i=0; i<sub->fpst->rule_cnt; ++i ) {
@@ -4705,7 +3314,8 @@ static void fea_ApplyLookupListMark2(struct parseState *tok,
     classes = galloc(mcnt*sizeof(char *));
     acs = galloc(mcnt*sizeof(AnchorClass *));
     ac_cnt = 0;
-    while ( lookup_data != NULL ) {
+    while ( lookup_data != NULL && lookup_data->type!=ft_lookup_end ) {
+	struct feat_item *orig = lookup_data;
 	sub = NULL;
 	/* Skip any subtable marks */
 	while ( lookup_data!=NULL &&
@@ -4767,7 +3377,8 @@ static void fea_ApplyLookupListMark2(struct parseState *tok,
 
 	/* Now go back and assign the marks to the correct anchor classes */
 	for ( l=mark_start; l!=NULL &&
-		((l->type==ft_ap && l->u2.ap->type==at_mark) ||
+		/* The base aps will have been set to NULL above */
+		((l->type==ft_ap && l->u2.ap!=NULL && l->u2.ap->type==at_mark) ||
 		 l->type==ft_lookup_start ||
 		 l->type==ft_lookupflags ) ;
 		l = l->lookup_next ) {
@@ -4788,7 +3399,19 @@ static void fea_ApplyLookupListMark2(struct parseState *tok,
 		}
 	    }
 	}
+	if ( lookup_data==orig )
+    break;
     }
+}
+
+
+static int is_blank(const char *s) {
+    int i;
+
+    i = 0;
+    while (s[i] != '\0' && s[i] == ' ')
+        i++;
+    return( s[i] == '\0');
 }
 
 struct class_set {
@@ -4819,12 +3442,28 @@ static void fea_canonicalClassSet(struct class_set *set) {
 	    set->cnt -= off;
 	}
     }
-    for ( i=1; i<set->cnt; ++i ) {
-	if ( fea_classesIntersect(set->classes[i-1],set->classes[i]) ) {
-	    if ( set->cnt>=set->max )
-		set->classes = grealloc(set->classes,(set->max+=20)*sizeof(char *));
-	    set->classes[set->cnt++] = fea_classesSplit(set->classes[i-1],set->classes[i]);
-	}
+
+    for ( i=0; i < set->cnt - 1; ++i ) {
+        for ( j=i+1; j < set->cnt; ++j ) {
+            if ( fea_classesIntersect(set->classes[i],set->classes[j]) ) {
+                if ( set->cnt>=set->max )
+                    set->classes = grealloc(set->classes,(set->max+=20)*sizeof(char *));
+                set->classes[set->cnt++] = fea_classesSplit(set->classes[i],set->classes[j]);
+            }
+        }
+    }
+
+    /* Remove empty classes */
+    i = 0;
+    while (i < set->cnt) {
+        if (is_blank(set->classes[i])) {
+            free(set->classes[i]);
+            for ( k=i+1 ; k < set->cnt; ++k )
+                set->classes[k-1] = set->classes[k];
+            set->cnt -= 1;
+        } else {
+            i++;
+        }
     }
 }
 
@@ -4859,7 +3498,7 @@ static void fea_fillKernClass(KernClass *kc,struct feat_item *l) {
 	    pst = l->u2.pst;
 	    for ( i=1; i<kc->first_cnt; ++i ) {
 		if ( fea_classesIntersect(kc->firsts[i],l->u1.class) ) {
-		    for ( j=1; j<kc->first_cnt; ++j ) {
+		    for ( j=1; j<kc->second_cnt; ++j ) {
 			if ( fea_classesIntersect(kc->seconds[j],pst->u.pair.paired) ) {
 			    /* FontForge only supports kerning classes in one direction at a time, not full value records */
 			    if ( pst->u.pair.vr[0].h_adv_off != 0 ) {
@@ -4892,6 +3531,26 @@ static void fea_fillKernClass(KernClass *kc,struct feat_item *l) {
 	}
 	l = l->lookup_next;
     }
+}
+
+static void SFKernClassRemoveFree(SplineFont *sf,KernClass *kc) {
+    KernClass *prev;
+
+    if ( sf->kerns==kc )
+	sf->kerns = kc->next;
+    else if ( sf->vkerns==kc )
+	sf->vkerns = kc->next;
+    else {
+	prev = NULL;
+	if ( sf->kerns!=NULL )
+	    for ( prev=sf->kerns; prev!=NULL && prev->next!=kc; prev=prev->next );
+	if ( prev==NULL && sf->vkerns!=NULL )
+	    for ( prev=sf->vkerns; prev!=NULL && prev->next!=kc; prev=prev->next );
+	if ( prev!=NULL )
+	    prev->next = kc->next;
+    }
+    kc->next = NULL;
+    KernClassListFree(kc);
 }
 
 static void fea_ApplyLookupListPair(struct parseState *tok,
@@ -4999,6 +3658,8 @@ static void fea_ApplyLookupListPair(struct parseState *tok,
 		lastsub->next = sub;
 	    lastsub = sub;
 
+	    if ( sub->kc!=NULL )
+		SFKernClassRemoveFree(tok->sf,sub->kc);
 	    sub->kc = kc = chunkalloc(sizeof(KernClass));
 	    kc->first_cnt = lefts.cnt+1; kc->second_cnt = rights.cnt+1;
 	    kc->firsts = galloc(kc->first_cnt*sizeof(char *));
@@ -5054,7 +3715,11 @@ static OTLookup *fea_ApplyLookupList(struct parseState *tok,
 	    if ( otl->lookup_name!=NULL &&
 		    strcmp(otl->lookup_name,lookup_data->u1.lookup_name)==0)
 return( otl );
-return( SFFindLookup(tok->sf,lookup_data->u1.lookup_name));
+	otl = SFFindLookup(tok->sf,lookup_data->u1.lookup_name);
+	if ( otl==NULL )
+	    LogError( _("No lookup named %s"),lookup_data->u1.lookup_name );
+	    /* Can't give a line number, this is second pass */
+return( otl );
     }
 
     otl = chunkalloc(sizeof(OTLookup));
@@ -5124,13 +3789,16 @@ static void fea_AttachFeatureToLookup(OTLookup *otl,uint32 feat_tag,
 	struct scriptlanglist *sl) {
     FeatureScriptLangList *fl;
 
+    if ( otl==NULL )
+return;
+
     for ( fl = otl->features; fl!=NULL && fl->featuretag!=feat_tag; fl=fl->next );
     if ( fl==NULL ) {
 	fl = chunkalloc(sizeof(FeatureScriptLangList));
 	fl->next = otl->features;
 	otl->features = fl;
 	fl->featuretag = feat_tag;
-	fl->scripts = SLCopy(sl);
+	fl->scripts = SListCopy(sl);
     } else
 	SLMerge(fl,sl);
 }
@@ -5435,14 +4103,18 @@ return( p );
 
 static void fea_NameLookups(struct parseState *tok) {
     SplineFont *sf = tok->sf;
-    OTLookup *gpos_last, *gsub_last, *otl, *otlnext;
+    OTLookup *gpos_last=NULL, *gsub_last=NULL, *otl, *otlnext;
     int gp_cnt=0, gs_cnt=0, acnt;
     AnchorClass *ac, *acnext, *an;
 
-    for ( gpos_last = sf->gpos_lookups; gpos_last!=NULL; gpos_last=gpos_last->next )
-	gpos_last->lookup_index = gp_cnt++;
-    for ( gsub_last = sf->gsub_lookups; gsub_last!=NULL; gsub_last=gsub_last->next )
-	gsub_last->lookup_index = gs_cnt++;
+    for ( otl = sf->gpos_lookups; otl!=NULL; otl=otl->next ) {
+	otl->lookup_index = gp_cnt++;
+	gpos_last = otl;
+    }
+    for ( otl = sf->gsub_lookups; otl!=NULL; otl=otl->next ) {
+	otl->lookup_index = gs_cnt++;
+	gsub_last = otl;
+    }
 
     for ( otl = tok->created; otl!=NULL; otl=otlnext ) {
 	otlnext = otl->next;
@@ -5492,11 +4164,8 @@ static void fea_NameLookups(struct parseState *tok) {
     }
 
     sf->changed = true;
-#ifndef FONTFORGE_CONFIG_NO_WINDOWING_UI
-    FVSetTitle(sf->fv);
-    if ( sf->fv->v!=NULL )
-	GDrawRequestExpose(sf->fv->v,NULL,false);
-#endif
+    FVSetTitles(sf);
+    FVRefreshAll(sf);
 }
 	
 void SFApplyFeatureFile(SplineFont *sf,FILE *file,char *filename) {
@@ -5517,7 +4186,7 @@ void SFApplyFeatureFile(SplineFont *sf,FILE *file,char *filename) {
 	fea_ApplyFile(&tok, tok.sofar);
 	fea_NameLookups(&tok);
     } else
-	gwwv_post_error("Not applied","There were errors when parsing the feature file and the features have not been applied");
+	ff_post_error("Not applied","There were errors when parsing the feature file and the features have not been applied");
     fea_featitemFree(tok.sofar);
     ScriptLangListFree(tok.def_langsyses);
     for ( gc = tok.classes; gc!=NULL; gc=gcnext ) {
@@ -5531,7 +4200,7 @@ void SFApplyFeatureFilename(SplineFont *sf,char *filename) {
     FILE *in = fopen(filename,"r");
 
     if ( in==NULL ) {
-	gwwv_post_error(_("Cannot open file"),_("Cannot open feature file %.120s"), filename );
+	ff_post_error(_("Cannot open file"),_("Cannot open feature file %.120s"), filename );
 return;
     }
     SFApplyFeatureFile(sf,in,filename);

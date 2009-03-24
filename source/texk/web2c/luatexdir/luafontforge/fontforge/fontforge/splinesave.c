@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2007 by George Williams */
+/* Copyright (C) 2000-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,6 +33,8 @@
 #include <string.h>
 #include <utype.h>
 #include <gwidget.h>
+
+int autohint_before_generate = 1;
 
 /* Let's talk about references. */
 /* If we are doing Type1 output, then the obvious way of doing them is seac */
@@ -123,6 +125,7 @@ typedef struct glyphinfo {
 	uint8 wasseac;
     } *gb, *active;
     SplineFont *sf;
+    int layer;
     int glyphcnt;
     int subfontcnt;
     int bcnt, bmax;
@@ -155,7 +158,7 @@ struct hintdb {
     unsigned int skiphm: 1;		/* Set when coming back to the start point of a contour. hintmask should be set the first time, not the second */
     unsigned int donefirsthm: 1;
     int cursub;				/* Current subr number */
-    BasePoint current;
+    DBasePoint current;
     GlyphInfo *gi;
 };
 
@@ -163,11 +166,15 @@ static void GIContentsFree(GlyphInfo *gi,SplineChar *dummynotdef) {
     int i,j;
 
     if ( gi->glyphcnt>0 && gi->gb[0].sc == dummynotdef ) {
-	SplinePointListsFree(dummynotdef->layers[ly_fore].splines);
+	if ( dummynotdef->layers!=NULL ) {
+	    SplinePointListsFree(dummynotdef->layers[gi->layer].splines);
+	    dummynotdef->layers[gi->layer].splines = NULL;
+	}
 	StemInfosFree(dummynotdef->hstem);
 	StemInfosFree(dummynotdef->vstem);
-	dummynotdef->layers[ly_fore].splines = NULL;
 	dummynotdef->vstem = dummynotdef->hstem = NULL;
+	free(dummynotdef->layers);
+	dummynotdef->layers = NULL;
     }
 
     for ( i=0; i<gi->pcnt; ++i ) {
@@ -337,21 +344,18 @@ void RefCharsFreeRef(RefChar *ref) {
     while ( ref!=NULL ) {
 	rnext = ref->next;
 	/* don't free the splines */
-#ifdef FONTFORGE_CONFIG_TYPE3
-	free(ref->layers);
-#endif
 	chunkfree(ref,sizeof(RefChar));
 	ref = rnext;
     }
 }
 
-static void MarkTranslationRefs(SplineFont *sf) {
+static void MarkTranslationRefs(SplineFont *sf,int layer) {
     int i;
     SplineChar *sc;
     RefChar *r;
 
     for ( i=0; i<sf->glyphcnt; ++i ) if ( (sc = sf->glyphs[i])!=NULL ) {
-	for ( r = sc->layers[ly_fore].refs; r!=NULL; r=r->next )
+	for ( r = sc->layers[layer].refs; r!=NULL; r=r->next )
 	    r->justtranslated = (r->transform[0]==1 && r->transform[3]==1 &&
 		    r->transform[1]==0 && r->transform[2]==0);
     }
@@ -886,14 +890,9 @@ return( false );
 return( true );
 }
 
-static int AnyRefs(SplineChar *sc) {
-    int i;
+static int AnyRefs(SplineChar *sc,int layer) {
 
-    for ( i=ly_fore; i<sc->layer_cnt; ++i )
-	if ( sc->layers[i].refs!=NULL )
-return( true );
-
-return( false );
+return( sc->layers[layer].refs!=NULL );
 }
 
 static void refmoveto(GrowBuf *gb,BasePoint *current,BasePoint rpos[MmMax],
@@ -1155,92 +1154,37 @@ static void _CvtPsSplineSet(GrowBuf *gb, SplinePointList *spl[MmMax], int instan
     SplinePointListsFree(freeme);
 }
 
-static RefChar *IsRefable(RefChar *ref, int isps, real transform[6], RefChar *sofar) {
-    real trans[6];
-    RefChar *sub;
-#ifdef FONTFORGE_CONFIG_TYPE3
-    struct reflayer *rl;
-#endif
 
-    trans[0] = ref->transform[0]*transform[0] +
-		ref->transform[1]*transform[2];
-    trans[1] = ref->transform[0]*transform[1] +
-		ref->transform[1]*transform[3];
-    trans[2] = ref->transform[2]*transform[0] +
-		ref->transform[3]*transform[2];
-    trans[3] = ref->transform[2]*transform[1] +
-		ref->transform[3]*transform[3];
-    trans[4] = ref->transform[4]*transform[0] +
-		ref->transform[5]*transform[2] +
-		transform[4];
-    trans[5] = ref->transform[4]*transform[1] +
-		ref->transform[5]*transform[3] +
-		transform[5];
-
-    if (( isps==1 && ref->adobe_enc!=-1 ) ||
-	    (/*isps!=1 &&*/ (ref->sc->layers[ly_fore].splines!=NULL || ref->sc->layers[ly_fore].refs==NULL))) {
-	/* If we're in postscript mode and the character we are refering to */
-	/*  has an adobe encoding then we are done. */
-	/* In TrueType mode, if the character has no refs itself then we are */
-	/*  done, but if it has splines as well as refs we are also done */
-	/*  because it will have to be dumped out as splines */
-	/* Type2 PS (opentype) is the same as truetype here */
-	/* Now that I allow refs to be subrs in type1, it also uses the ttf test */
-	sub = RefCharCreate();
-#ifdef FONTFORGE_CONFIG_TYPE3
-	rl = sub->layers;
-	*sub = *ref;
-	sub->layers = rl;
-	*rl = ref->layers[0];
-#else
-	*sub = *ref;
-#endif
-	sub->next = sofar;
-	/*sub->layers[0].splines = NULL;*/
-	memcpy(sub->transform,trans,sizeof(trans));
-return( sub );
-    } else if ( /* isps &&*/ ( ref->sc->layers[ly_fore].refs==NULL || ref->sc->layers[ly_fore].splines!=NULL) ) {
-	RefCharsFreeRef(sofar);
-return( NULL );
-    }
-    for ( sub=ref->sc->layers[ly_fore].refs; sub!=NULL; sub=sub->next ) {
-	sofar = IsRefable(sub,isps,trans, sofar);
-	if ( sofar==NULL )
-return( NULL );
-    }
-return( sofar );
-}
-
-static int IsPSSeacable(SplineChar *sc) {
+static int IsPSSeacable(SplineChar *sc,int layer) {
     RefChar *ref;
 
-    if ( sc->layers[ly_fore].refs==NULL || sc->layers[ly_fore].splines!=NULL )
+    if ( sc->layers[layer].refs==NULL || sc->layers[layer].splines!=NULL )
 return( false );
 
-    for ( ref=sc->layers[ly_fore].refs; ref!=NULL; ref=ref->next ) {
+    for ( ref=sc->layers[layer].refs; ref!=NULL; ref=ref->next ) {
 	if ( !ref->justtranslated )
 return( false );
     }
 return( true );
 }
 
-static RefChar *RefFindAdobe(RefChar *r, RefChar *t) {
+static RefChar *RefFindAdobe(RefChar *r, RefChar *t,int layer) {
     *t = *r;
-    while ( t->adobe_enc==-1 && t->sc->layers[ly_fore].refs!=NULL &&
-	    t->sc->layers[ly_fore].refs->next==NULL &&
-	    t->sc->layers[ly_fore].splines==NULL &&
-	    t->sc->layers[ly_fore].refs->justtranslated ) {
-	t->transform[4] += t->sc->layers[ly_fore].refs->transform[4];
-	t->transform[5] += t->sc->layers[ly_fore].refs->transform[5];
-	t->adobe_enc = t->sc->layers[ly_fore].refs->adobe_enc;
-	t->orig_pos = t->sc->layers[ly_fore].refs->orig_pos;
-	t->sc = t->sc->layers[ly_fore].refs->sc;
+    while ( t->adobe_enc==-1 && t->sc->layers[layer].refs!=NULL &&
+	    t->sc->layers[layer].refs->next==NULL &&
+	    t->sc->layers[layer].splines==NULL &&
+	    t->sc->layers[layer].refs->justtranslated ) {
+	t->transform[4] += t->sc->layers[layer].refs->transform[4];
+	t->transform[5] += t->sc->layers[layer].refs->transform[5];
+	t->adobe_enc = t->sc->layers[layer].refs->adobe_enc;
+	t->orig_pos = t->sc->layers[layer].refs->orig_pos;
+	t->sc = t->sc->layers[layer].refs->sc;
     }
 return( t );
 }
 
 static int IsSeacable(GrowBuf *gb, SplineChar *scs[MmMax],
-	int instance_count, int round) {
+	int instance_count, int round,int layer) {
     /* can be at most two chars in a seac (actually must be exactly 2, but */
     /*  I'll put in a space if there's only one (and if splace is blank) */
     RefChar *r1, *r2, *rt, *refs;
@@ -1250,18 +1194,18 @@ static int IsSeacable(GrowBuf *gb, SplineChar *scs[MmMax],
     real data[MmMax][6];
 
     for ( j=0 ; j<instance_count; ++j )
-	if ( !IsPSSeacable(scs[j]))
+	if ( !IsPSSeacable(scs[j],layer))
 return( false );
 
-    refs = scs[0]->layers[ly_fore].refs;
+    refs = scs[0]->layers[layer].refs;
     if ( refs==NULL )
 return( false );
 
     r1 = refs;
     if ((r2 = r1->next)==NULL ) {
-	RefChar *refs = r1->sc->layers[ly_fore].refs;
+	RefChar *refs = r1->sc->layers[layer].refs;
 	if ( refs!=NULL && refs->next!=NULL && refs->next->next==NULL &&
-		r1->sc->layers[ly_fore].splines==NULL &&
+		r1->sc->layers[layer].splines==NULL &&
 		refs->adobe_enc!=-1 && refs->next->adobe_enc!=-1 ) {
 	    r2 = refs->next;
 	    r1 = refs;
@@ -1280,7 +1224,7 @@ return( false );
 	    r2 = NULL;			/* No space???? */
 	else {
 	    space.sc = scs[0]->parent->glyphs[i];
-	    if ( space.sc->layers[ly_fore].splines!=NULL || space.sc->layers[ly_fore].refs!=NULL )
+	    if ( space.sc->layers[layer].splines!=NULL || space.sc->layers[layer].refs!=NULL )
 		r2 = NULL;
 	}
     } else if ( r2->next!=NULL )
@@ -1291,9 +1235,9 @@ return( false );
     /*  does) */
     if ( r2!=NULL ) {
 	if ( r1->adobe_enc==-1 )
-	    r1 = RefFindAdobe(r1,&t1);
+	    r1 = RefFindAdobe(r1,&t1,layer);
 	if ( r2->adobe_enc==-1 )
-	    r2 = RefFindAdobe(r2,&t2);
+	    r2 = RefFindAdobe(r2,&t2,layer);
     }
 
 /* CID fonts have no encodings. So we can't use seac to reference characters */
@@ -1331,12 +1275,12 @@ return( false );
 	RefChar *r3, t3;
 
 	SplineCharFindBounds(r2sc,&b);
-	if ( scs[j]->layers[ly_fore].refs!=NULL && scs[j]->layers[ly_fore].refs->next==NULL )
+	if ( scs[j]->layers[layer].refs!=NULL && scs[j]->layers[layer].refs->next==NULL )
 	    r3 = r2;		/* Space, not offset */
 	else if ( swap )
-	    r3 = RefFindAdobe(scs[j]->layers[ly_fore].refs,&t3);
+	    r3 = RefFindAdobe(scs[j]->layers[layer].refs,&t3,layer);
 	else
-	    r3 = RefFindAdobe(scs[j]->layers[ly_fore].refs->next,&t3);
+	    r3 = RefFindAdobe(scs[j]->layers[layer].refs->next,&t3,layer);
 
 	b.minx = myround(b.minx,round);
 	data[j][0] = b.minx;
@@ -1354,32 +1298,32 @@ return( false );
 return( true );
 }
 
-static int _SCNeedsSubsPts(SplineChar *sc) {
+static int _SCNeedsSubsPts(SplineChar *sc,int layer) {
     RefChar *ref;
 
     if ( sc->hstem==NULL && sc->vstem==NULL )
 return( false );
 
-    if ( sc->layers[ly_fore].splines!=NULL )
-return( sc->layers[ly_fore].splines->first->hintmask==NULL );
+    if ( sc->layers[layer].splines!=NULL )
+return( sc->layers[layer].splines->first->hintmask==NULL );
 
-    for ( ref = sc->layers[ly_fore].refs; ref!=NULL; ref=ref->next )
+    for ( ref = sc->layers[layer].refs; ref!=NULL; ref=ref->next )
 	if ( ref->layers[0].splines!=NULL )
 return( ref->layers[0].splines->first->hintmask==NULL );
 
 return( false );		/* It's empty. that's easy. */
 }
 
-static int SCNeedsSubsPts(SplineChar *sc,enum fontformat format) {
+static int SCNeedsSubsPts(SplineChar *sc,enum fontformat format,int layer) {
     if ( (format!=ff_mma && format!=ff_mmb) || sc->parent->mm==NULL ) {
 	if ( !sc->hconflicts && !sc->vconflicts )
 return( false );		/* No conflicts, no swap-over points needed */
-return( _SCNeedsSubsPts(sc));
+return( _SCNeedsSubsPts(sc,layer));
     } else {
 	MMSet *mm = sc->parent->mm;
 	int i;
 	for ( i=0; i<mm->instance_count; ++i ) if ( sc->orig_pos<mm->instances[i]->glyphcnt ) {
-	    if ( _SCNeedsSubsPts(mm->instances[i]->glyphs[sc->orig_pos]) )
+	    if ( _SCNeedsSubsPts(mm->instances[i]->glyphs[sc->orig_pos],layer) )
 return( true );
 	}
 return( false );
@@ -1389,7 +1333,7 @@ return( false );
 static void ExpandRef1(GrowBuf *gb, SplineChar *scs[MmMax], int instance_count,
 	struct hintdb *hdb, RefChar *r[MmMax], BasePoint trans[MmMax],
 	BasePoint current[MmMax],
-	struct pschars *subrs, int round, int iscjk) {
+	struct pschars *subrs, int round, int iscjk, int layer) {
     BasePoint *bpt;
     BasePoint rtrans[MmMax], rpos[MmMax];
     int i;
@@ -1412,7 +1356,7 @@ static void ExpandRef1(GrowBuf *gb, SplineChar *scs[MmMax], int instance_count,
 	}
     } else {
 	/* Hints for a real reference */
-	if ( !NeverConflicts(r,instance_count) || r[0]->sc->anyflexes || AnyRefs(r[0]->sc) )
+	if ( !NeverConflicts(r,instance_count) || r[0]->sc->layers[layer].anyflexes || AnyRefs(r[0]->sc,layer) )
 	    /* Hints already done */;
 	else if ( hdb->noconflicts )
 	    /* Hints already done */;
@@ -1453,7 +1397,7 @@ static void ExpandRef1(GrowBuf *gb, SplineChar *scs[MmMax], int instance_count,
 static void RSC2PS1(GrowBuf *gb, SplineChar *base[MmMax],SplineChar *rsc[MmMax],
 	struct hintdb *hdb, BasePoint *trans, struct pschars *subrs,
 	BasePoint current[MmMax], int flags, int iscjk,
-	int instance_count ) {
+	int instance_count, int layer ) {
     BasePoint subtrans[MmMax];
     SplineChar *rscs[MmMax];
     int round = (flags&ps_flag_round)? true : false;
@@ -1463,40 +1407,40 @@ static void RSC2PS1(GrowBuf *gb, SplineChar *base[MmMax],SplineChar *rsc[MmMax],
     int wasntconflicted = hdb->noconflicts;
 
     for ( i=0; i<instance_count; ++i ) {
-	spls[i] = rsc[i]->layers[ly_fore].splines;
+	spls[i] = rsc[i]->layers[layer].splines;
 	if ( base[0]!=rsc[0] )
 	    spls[i] = freeme[i] = SPLCopyTranslatedHintMasks(spls[i],base[i],rsc[i],&trans[i]);
     }
     _CvtPsSplineSet(gb,spls,instance_count,current,round,hdb,
-	    base[0]->parent->order2,base[0]->parent->strokedfont);
+	    base[0]->layers[layer].order2,base[0]->parent->strokedfont);
     if ( base[0]!=rsc[0] )
 	for ( i=0; i<instance_count; ++i )
 	    SplinePointListsFree(freeme[i]);
 
     for ( i=0; i<instance_count; ++i )
-	refs[i] = rsc[i]->layers[ly_fore].refs;
+	refs[i] = rsc[i]->layers[layer].refs;
     while ( refs[0]!=NULL ) {
 	for ( i=0; i<instance_count; ++i )
 	    spls[i] = refs[i]->layers[0].splines;
 	if ( !refs[0]->justtranslated ) {
 	    for ( i=0; i<instance_count; ++i )
-		spls[i] = freeme[i] = SPLCopyTransformedHintMasks(refs[i],base[i],&trans[i]);
+		spls[i] = freeme[i] = SPLCopyTransformedHintMasks(refs[i],base[i],&trans[i],layer);
 	    if ( NeverConflicts(refs,instance_count) && !hdb->noconflicts &&
 		    refs[0]->transform[1]==0 && refs[0]->transform[2]==0 )
 		CallTransformedHintSubr(gb,hdb,base,refs,trans,instance_count,round);
 	    _CvtPsSplineSet(gb,spls,instance_count,current,round,hdb,
-		    base[0]->parent->order2,base[0]->parent->strokedfont);
+		    base[0]->layers[layer].order2,base[0]->parent->strokedfont);
 	    for ( i=0; i<instance_count; ++i )
 		SplinePointListsFree(freeme[i]);
 	} else if ( refs[0]->sc->ttf_glyph!=0x7fff &&
 		((flags&ps_flag_nohints) ||
-		 !refs[0]->sc->anyflexes ||
+		 !refs[0]->sc->layers[layer].anyflexes ||
 		 (refs[0]->transform[4]+trans[0].x==0 && refs[0]->transform[5]+trans[0].y==0)) &&
 		((flags&ps_flag_nohints) ||
 		 NeverConflicts(refs,instance_count) ||
 		 AllStationary(refs,trans,instance_count)) ) {
 	    ExpandRef1(gb,base,instance_count,hdb,refs,trans,
-		    current,subrs,round,iscjk);
+		    current,subrs,round,iscjk,layer);
 	} else {
 	    for ( i=0; i<instance_count; ++i ) {
 		subtrans[i].x = trans[i].x + refs[i]->transform[4];
@@ -1508,7 +1452,7 @@ static void RSC2PS1(GrowBuf *gb, SplineChar *base[MmMax],SplineChar *rsc[MmMax],
 		hdb->noconflicts = true;
 	    }
 	    RSC2PS1(gb,base,rscs,hdb,subtrans,subrs,current,flags,iscjk,
-		    instance_count);
+		    instance_count,layer);
 	    hdb->noconflicts = wasntconflicted;
 	}
 	for ( i=0; i<instance_count; ++i )
@@ -1534,8 +1478,8 @@ static unsigned char *SplineChar2PS(SplineChar *sc,int *len,int round,int iscjk,
     HintMask *hm[MmMax];
     int fixuphm = false;
 
-    if ( !(flags&ps_flag_nohints) && SCNeedsSubsPts(sc,format))
-	SCFigureHintMasks(sc);
+    if ( !(flags&ps_flag_nohints) && SCNeedsSubsPts(sc,format,gi->layer))
+	SCFigureHintMasks(sc,gi->layer);
 
     if ( (format==ff_mma || format==ff_mmb) && mm!=NULL ) {
 	instance_count = mm->instance_count;
@@ -1560,11 +1504,11 @@ static unsigned char *SplineChar2PS(SplineChar *sc,int *len,int round,int iscjk,
 	for ( i=0; i<instance_count; ++i )
 	    if ( scs[i]->vconflicts || scs[i]->hconflicts )
 	break;
-	if ( scs[0]->layers[ly_fore].splines!=NULL && i==instance_count ) {	/* No conflicts */
+	if ( scs[0]->layers[gi->layer].splines!=NULL && i==instance_count ) {	/* No conflicts */
 	    fixuphm = true;
 	    for ( i=0; i<instance_count; ++i ) {
-		hm[i] = scs[i]->layers[ly_fore].splines->first->hintmask;
-		scs[i]->layers[ly_fore].splines->first->hintmask = NULL;
+		hm[i] = scs[i]->layers[gi->layer].splines->first->hintmask;
+		scs[i]->layers[gi->layer].splines->first->hintmask = NULL;
 	    }
 	}
     }
@@ -1599,7 +1543,7 @@ static unsigned char *SplineChar2PS(SplineChar *sc,int *len,int round,int iscjk,
     /*  seac (they have no encoding so it doesn't work), that's what iscjk&0x100 */
     /*  tests for */
     if ( scs[0]->ttf_glyph==0x7fff && !(iscjk&0x100) && !(flags&ps_flag_noseac) &&
-	    IsSeacable(&gb,scs,instance_count,round)) {
+	    IsSeacable(&gb,scs,instance_count,round,gi->layer)) {
 	if ( gi )
 	    gi->active->wasseac = true;
 	/* in MM fonts, all should share the same refs, so all should be */
@@ -1614,7 +1558,7 @@ static unsigned char *SplineChar2PS(SplineChar *sc,int *len,int round,int iscjk,
 	}
 	memset(&trans,0,sizeof(trans));
 	RSC2PS1(&gb,scs,scs,hdb,trans,subrs,current,flags,iscjk,
-		instance_count);
+		instance_count,gi->layer);
     }
     if ( gi->bcnt==-1 ) {	/* If it's whitespace */
 	gi->bcnt = 0;
@@ -1639,199 +1583,20 @@ static unsigned char *SplineChar2PS(SplineChar *sc,int *len,int round,int iscjk,
 	}
     } else if ( fixuphm ) {
 	for ( i=0; i<instance_count; ++i )
-	    scs[i]->layers[ly_fore].splines->first->hintmask = hm[i];
+	    scs[i]->layers[gi->layer].splines->first->hintmask = hm[i];
     }
 return( ret );
 }
 
-#ifdef FONTFORGE_CONFIG_PS_REFS_GET_SUBRS
-static int AlwaysSeacable(SplineChar *sc,int flags) {
-    struct splinecharlist *d;
-    RefChar *r;
-
-    if ( sc->parent->cidmaster!=NULL )	/* Can't use seac in CID fonts, no encoding */
-return( false );
-    if ( flags&ps_flag_noseac )
-return( false );
-
-    for ( d=sc->dependents; d!=NULL; d = d->next ) {
-	if ( d->sc->layers[ly_fore].splines!=NULL )	/* I won't deal with things with both splines and refs. */
-    continue;				/*  skip it */
-	for ( r=d->sc->layers[ly_fore].refs; r!=NULL; r=r->next ) {
-	    if ( !r->justtranslated )
-	break;				/* Can't deal with it either way */
-	}
-	if ( r!=NULL )		/* Bad transform matrix */
-    continue;			/* Can't handle either way, skip */
-
-	for ( r=d->sc->layers[ly_fore].refs; r!=NULL; r=r->next ) {
-	    if ( r->adobe_enc==-1 )
-return( false );			/* not seacable, but could go in subr */
-	}
-	r = d->sc->layers[ly_fore].refs;
-	if ( r->next!=NULL && r->next->next!=NULL )
-return( false );		/* seac only takes 2 glyphs */
-	if ( r->next!=NULL &&
-		((r->transform[4]!=0 || r->transform[5]!=0 || r->sc->width!=d->sc->width) &&
-		 (r->next->transform[4]!=0 || r->next->transform[5]!=0 || r->next->sc->width!=d->sc->width)))
-return( false );		/* seac only allows one to be translated, and the untranslated one must have the right width */
-	if ( r->next==NULL &&
-		(r->transform[4]!=0 || r->transform[5]!=0 || r->sc->width!=d->sc->width))
-return( false );
-    }
-    /* Either always can be represented by seac, or sometimes by neither */
-return( true );
-}
-
-/* normally we can't put a character with hint conflicts into a subroutine */
-/*  (because when we would have to invoke the hints within the subr and */
-/*   hints are expressed as absolute positions, so if the char has been */
-/*   translated we can't do the hints right). BUT if the character is not */
-/*  translated, and if it has the right lbearing, then the hints in the */
-/*  ref will match those in the character and we can use a subroutine for */
-/*  both */
-/* If at least one ref fits our requirements then return true */
-/* The same reasoning applies to flex hints. There are absolute expressions */
-/*  in them too. */
-static int SpecialCaseConflicts(SplineChar *sc) {
-    struct splinecharlist *d;
-    RefChar *r;
-    DBounds sb, db;
-
-    SplineCharFindBounds(sc,&sb);
-    for ( d=sc->dependents; d!=NULL; d = d->next ) {
-	SplineCharFindBounds(d->sc,&db);
-	if ( db.minx != sb.minx )
-    continue;
-	for ( r=d->sc->layers[ly_fore].refs; r!=NULL; r=r->next )
-	    if ( r->sc == sc && r->justtranslated &&
-		    r->transform[4]==0 && r->transform[5]==0 )
-return( true );
-    }
-return( false );
-}
-
-static BasePoint *FigureStartStop(SplineChar *sc, GlyphInfo *gi ) {
-    int m, didfirst;
-    SplineChar *msc;
-    SplineSet *spl;
-    RefChar *r;
-    BasePoint *startstop;
-
-    /* We need to know the location of the first point on the */
-    /*  first path (need to rmoveto it, and the location of the */
-    /*  last point on the last path (will need to move from it */
-    /*  for the next component) */
-
-    startstop = gcalloc(2*gi->instance_count,sizeof(BasePoint));
-    for ( m=0; m<gi->instance_count; ++m ) {
-	if ( gi->instance_count==1 || sc->parent->mm==NULL )
-	    msc = sc;
-	else
-	    msc = sc->parent->mm->instances[m]->glyphs[sc->orig_pos];
-	didfirst = false;
-	spl = msc->layers[ly_fore].splines;
-	if ( spl!=NULL ) {
-	    startstop[0] = spl->first->me;
-	    didfirst = true;
-	    while ( spl!=NULL ) {
-		/* Closepath does NOT set the current point */
-		/* Remember we reverse PostScript */
-		if ( spl->last==spl->first && spl->first->next!=NULL &&
-			spl->first->next->knownlinear )
-		    startstop[1] = spl->first->next->to->me;
-		else
-		    startstop[1] = spl->last->me;
-		spl = spl->next;
-	    }
-	}
-	for ( r=msc->layers[ly_fore].refs; r!=NULL; r=r->next ) {
-	    spl = r->layers[0].splines;
-	    if ( spl!=NULL ) {
-		if ( !didfirst )
-		    startstop[0] = spl->first->me;
-		didfirst = true;
-	    }
-	    while ( spl!=NULL ) {
-		/* Closepath does NOT set the current point */
-		/* Remember we reverse PostScript */
-		if ( spl->last==spl->first && spl->first->next!=NULL &&
-			spl->first->next->knownlinear )
-		    startstop[1] = spl->first->next->to->me;
-		else
-		    startstop[1] = spl->last->me;
-		spl = spl->next;
-	    }
-	}
-    }
-return( startstop );
-}
-#endif	/* FONTFORGE_CONFIG_PS_REFS_GET_SUBRS */
 
 /* Mark those glyphs which can live totally in subrs */
 static void SplineFont2FullSubrs1(int flags,GlyphInfo *gi) {
     int i;
     SplineChar *sc;
-#ifdef FONTFORGE_CONFIG_PS_REFS_GET_SUBRS
-    int anydone, cc;
-    struct potentialsubrs *ps;
-    SplineSet *spl;
-    RefChar *r;
-#endif	/* FONTFORGE_CONFIG_PS_REFS_GET_SUBRS */
 
-    if ( !autohint_before_generate && !(flags&ps_flag_nohints))
-	SplineFontAutoHintRefs(gi->sf);
     for ( i=0; i<gi->glyphcnt; ++i ) if ( (sc=gi->gb[i].sc)!=NULL )
 	sc->ttf_glyph = 0x7fff;
 
-#ifdef FONTFORGE_CONFIG_PS_REFS_GET_SUBRS
-    anydone = true;
-    while ( anydone ) {
-	anydone = false;
-	for ( i=0; i<gi->glyphcnt; ++i ) if ( (sc=gi->gb[i].sc)!=NULL ) {
-	    if ( !SCWorthOutputting(sc) || sc->ttf_glyph!=0x7fff )
-	continue;
-	    /* if the glyph is a single contour with no hintmasks then */
-	    /*  our single contour code will find it. If we do it here too */
-	    /*  we'll get a subr which points to another subr. Very dull and */
-	    /*  a waste of space */
-	    cc = 0;
-	    for ( spl=sc->layers[ly_fore].splines; spl!=NULL; spl=spl->next )
-		++cc;
-	    for ( r= sc->layers[ly_fore].refs; r!=NULL && cc<2 ; r=r->next ) {
-		for ( spl=r->layers[0].splines; spl!=NULL; spl=spl->next )
-		    ++cc;
-	    }
-	    if ( cc<2 )
-	continue;
-	    /* Put the */
-	    /*  character into a subr if it is referenced by other characters */
-	    if ( (sc->dependents!=NULL &&
-		     ((!sc->hconflicts && !sc->vconflicts && !sc->anyflexes) ||
-			 SpecialCaseConflicts(sc)) &&
-		     !AlwaysSeacable(sc,flags))) {
-		RefChar *r;
-
-		for ( r=sc->layers[ly_fore].refs; r!=NULL; r=r->next )
-		    if ( r->sc->ttf_glyph==0x7fff )
-		break;
-		if ( r!=NULL )	/* Contains a reference to something which is */
-	continue;		/* not in a sub itself. Skip it for now, we'll*/
-				/* come back to it next pass when perhaps the */
-			        /* reference will be nicely ensconsed itself */
-		if ( gi->pcnt>=gi->pmax )
-		    gi->psubrs = grealloc(gi->psubrs,(gi->pmax+=gi->glyphcnt)*sizeof(struct potentialsubrs));
-		ps = &gi->psubrs[gi->pcnt];
-		memset(ps,0,sizeof(*ps));	/* set cnt to 0 */
-		ps->idx = gi->pcnt++;
-		ps->full_glyph_index = i;
-		sc->ttf_glyph = gi->pcnt-1;
-		ps->startstop = FigureStartStop(sc,gi);
-		anydone = true;
-	    }
-	}
-    }
-#endif	/* FONTFORGE_CONFIG_PS_REFS_GET_SUBRS */
 }
 
 int SFOneWidth(SplineFont *sf) {
@@ -1862,6 +1627,8 @@ int CIDOneWidth(SplineFont *_sf) {
     do {
 	sf = _sf->subfonts==NULL? _sf : _sf->subfonts[k];
 	for ( i=0; i<sf->glyphcnt; ++i ) if ( SCWorthOutputting(sf->glyphs[i]) &&
+		strcmp(sf->glyphs[i]->name,".null")!=0 &&
+		strcmp(sf->glyphs[i]->name,"nonmarkingreturn")!=0 &&
 		(strcmp(sf->glyphs[i]->name,".notdef")!=0 || sf->glyphs[i]->layers[ly_fore].splines!=NULL)) {
 	    /* Only trust the width of notdef if it's got some content */
 	    /* (at least as far as fixed pitch determination goes) */
@@ -1876,52 +1643,6 @@ int CIDOneWidth(SplineFont *_sf) {
 return(width);
 }
 
-int SFOneHeight(SplineFont *sf) {
-    int width, i;
-
-    if ( !sf->hasvmetrics )
-return( sf->ascent+sf->descent );
-
-    width = -2;
-    for ( i=0; i<sf->glyphcnt; ++i ) if ( SCWorthOutputting(sf->glyphs[i]) &&
-	    (strcmp(sf->glyphs[i]->name,".notdef")!=0 || sf->glyphs[i]->layers[ly_fore].splines!=NULL)) {
-	/* Only trust the width of notdef if it's got some content */
-	/* (at least as far as fixed pitch determination goes) */
-	if ( width==-2 ) width = sf->glyphs[i]->vwidth;
-	else if ( width!=sf->glyphs[i]->vwidth ) {
-	    width = -1;
-    break;
-	}
-    }
-return(width);
-}
-
-int SFIsCJK(SplineFont *sf,EncMap *map) {
-    char *val;
-
-    if ( (val = PSDictHasEntry(sf->private,"LanguageGroup"))!=NULL )
-return( strtol(val,NULL,10));
-
-    if ( map->enc->is_japanese || map->enc->is_korean ||
-	    map->enc->is_tradchinese || map->enc->is_simplechinese )
-return( true );
-    if ( (map->enc->is_unicodebmp || map->enc->is_unicodefull) &&
-	    sf->glyphcnt>0x3000 &&
-	    SCWorthOutputting(sf->glyphs[0x3000]) &&
-	    !SCWorthOutputting(sf->glyphs['A']) )
-return( true );
-    if ( map->enc==&custom ) {
-	/* If it's in a CID font and it doesn't contain alphabetics, then */
-	/*  it's assumed to be CJK */
-	if ( sf->cidmaster!=NULL )
-return( !SCWorthOutputting(SFGetChar(sf,'A',NULL)) &&
-	!SCWorthOutputting(SFGetChar(sf,0x391,NULL)) &&		/* Alpha */
-	!SCWorthOutputting(SFGetChar(sf,0x410,NULL)) &&		/* Cyrillic A */
-	!SCWorthOutputting(SFGetChar(sf,-1,"uni0041.hw")) );	/* Halfwidth A, non standard name, from my cidmap */
-    }
-
-return( false );
-}
 
 static void SetupType1Subrs(struct pschars *subrs,GlyphInfo *gi) {
     int scnt, call_size;
@@ -2051,122 +1772,8 @@ static void SetupType1Chrs(struct pschars *chrs,struct pschars *subrs,GlyphInfo 
     }
 }
 
-struct pschars *SplineFont2ChrsSubrs(SplineFont *sf, int iscjk,
-	struct pschars *subrs,int flags, enum fontformat format) {
-    struct pschars *chrs = gcalloc(1,sizeof(struct pschars));
-    int i, cnt, instance_count;
-    int fixed;
-    int notdef_pos;
-    MMSet *mm = sf->mm;
-    int round = (flags&ps_flag_round)? true : false;
-    GlyphInfo gi;
-    SplineChar dummynotdef, *sc;
-#ifdef FONTFORGE_CONFIG_TYPE3
-    Layer dummylayers[2];
-#endif
 
-    if ( (format==ff_mma || format==ff_mmb) && mm!=NULL ) {
-	instance_count = mm->instance_count;
-	sf = mm->instances[0];
-	fixed = 0;
-	for ( i=0; i<instance_count; ++i ) {
-	    MarkTranslationRefs(mm->instances[i]);
-	    fixed = SFOneWidth(mm->instances[i]);
-	    if ( fixed==-1 )
-	break;
-	}
-    } else {
-	MarkTranslationRefs(sf);
-	fixed = SFOneWidth(sf);
-	instance_count = 1;
-    }
-
-    notdef_pos = SFFindNotdef(sf,fixed);
-    cnt = 0;
-    for ( i=0; i<sf->glyphcnt; ++i )
-#if HANYANG
-	if ( sf->glyphs[i]!=NULL && sf->glyphs[i]->compositionunit )
-	    /* Don't count it */;
-	else
-#endif
-	if ( SCWorthOutputting(sf->glyphs[i]) &&
-		( i==notdef_pos || strcmp(sf->glyphs[i]->name,".notdef")!=0))
-	    ++cnt;
-/* only honor the width on .notdef in non-fixed pitch fonts (or ones where there is an actual outline in notdef) */
-    if ( notdef_pos==-1 )
-	++cnt;		/* one notdef entry */
-
-    memset(&gi,0,sizeof(gi));
-    memset(&gi.hashed,-1,sizeof(gi.hashed));
-    gi.instance_count = 1;
-    gi.sf = sf;
-    gi.glyphcnt = cnt;
-    gi.gb = gcalloc(cnt,sizeof(struct glyphbits));
-    gi.pmax = 3*cnt;
-    gi.psubrs = galloc(gi.pmax*sizeof(struct potentialsubrs));
-    gi.instance_count = instance_count;
-
-    if ( notdef_pos==-1 ) {
-	memset(&dummynotdef,0,sizeof(dummynotdef));
-	dummynotdef.name = ".notdef";
-	dummynotdef.parent = sf;
-	dummynotdef.layer_cnt = 2;
-#ifdef FONTFORGE_CONFIG_TYPE3
-	dummynotdef.layers = dummylayers;
-	memset(dummylayers,0,sizeof(dummylayers));
-#endif
-	dummynotdef.width = SFOneWidth(sf);
-	if ( dummynotdef.width==-1 )
-	    dummynotdef.width = (sf->ascent+sf->descent)/2;
-	gi.gb[0].sc = &dummynotdef;
-    } else
-	gi.gb[0].sc = sf->glyphs[notdef_pos];
-    cnt = 1;
-    for ( i=0 ; i<sf->glyphcnt; ++i ) {
-#if HANYANG
-	if ( sf->glyphs[i]!=NULL && sf->glyphs[i]->compositionunit )
-	    /* don't output it, should be in a subroutine */;
-	else
-#endif
-	if ( SCWorthOutputting(sf->glyphs[i]) &&
-		strcmp(sf->glyphs[i]->name,".notdef")!=0)	/* We've already added .notdef */
-	    gi.gb[cnt++].sc = sf->glyphs[i];
-    }
-
-    SplineFont2FullSubrs1(flags,&gi);
-
-    for ( i=0; i<cnt; ++i ) {
-	if ( (sc = gi.gb[i].sc)==NULL )
-    continue;
-	gi.active = &gi.gb[i];
-	SplineChar2PS(sc,NULL, round,iscjk,subrs,flags,format,&gi);
-#ifndef FONTFORGE_CONFIG_NO_WINDOWING_UI
-	if ( !gwwv_progress_next()) {
-	    PSCharsFree(chrs);
-	    GIFree(&gi,&dummynotdef);
-return( NULL );
-	}
-#endif		/* FONTFORGE_CONFIG_NO_WINDOWING_UI */
-    }
-
-    SetupType1Subrs(subrs,&gi);
-
-    chrs->cnt = cnt;
-    chrs->keys = galloc(cnt*sizeof(char *));
-    chrs->lens = galloc(cnt*sizeof(int));
-    chrs->values = galloc(cnt*sizeof(unsigned char *));
-
-    SetupType1Chrs(chrs,subrs,&gi,false);
-
-    GIFree(&gi,&dummynotdef);
-
-    chrs->next = cnt;
-    if ( chrs->next>chrs->cnt )
-	IError("Character estimate failed, about to die..." );
-return( chrs );
-}
-
-struct pschars *CID2ChrsSubrs(SplineFont *cidmaster,struct cidbytes *cidbytes,int flags) {
+struct pschars *CID2ChrsSubrs(SplineFont *cidmaster,struct cidbytes *cidbytes,int flags,int layer) {
     struct pschars *chrs = gcalloc(1,sizeof(struct pschars));
     int i, cnt, cid;
     SplineFont *sf = NULL;
@@ -2176,9 +1783,6 @@ struct pschars *CID2ChrsSubrs(SplineFont *cidmaster,struct cidbytes *cidbytes,in
     GlyphInfo gi;
     int notdef_subfont;
     SplineChar dummynotdef, *sc;
-#ifdef FONTFORGE_CONFIG_TYPE3
-    Layer dummylayers[2];
-#endif
 
     cnt = 0; notdef_subfont = -1;
     for ( i=0; i<cidmaster->subfontcnt; ++i ) {
@@ -2194,11 +1798,8 @@ struct pschars *CID2ChrsSubrs(SplineFont *cidmaster,struct cidbytes *cidbytes,in
 	memset(&dummynotdef,0,sizeof(dummynotdef));
 	dummynotdef.name = ".notdef";
 	dummynotdef.parent = cidmaster->subfonts[0];
-	dummynotdef.layer_cnt = 2;
-#ifdef FONTFORGE_CONFIG_TYPE3
-	dummynotdef.layers = dummylayers;
-	memset(dummylayers,0,sizeof(dummylayers));
-#endif
+	dummynotdef.layer_cnt = layer+1;
+	dummynotdef.layers = gcalloc(layer+1,sizeof(Layer));;
 	dummynotdef.width = SFOneWidth(dummynotdef.parent);
 	if ( dummynotdef.width==-1 )
 	    dummynotdef.width = (dummynotdef.parent->ascent+dummynotdef.parent->descent);
@@ -2210,6 +1811,7 @@ struct pschars *CID2ChrsSubrs(SplineFont *cidmaster,struct cidbytes *cidbytes,in
     gi.gb = galloc(cnt*sizeof(struct glyphbits));
     gi.pmax = 3*cnt;
     gi.psubrs = galloc(gi.pmax*sizeof(struct potentialsubrs));
+    gi.layer = layer;
 
     chrs->cnt = cnt;
     chrs->lens = gcalloc(cnt,sizeof(int));
@@ -2221,7 +1823,7 @@ struct pschars *CID2ChrsSubrs(SplineFont *cidmaster,struct cidbytes *cidbytes,in
     /*  as there are no global subrs */
     for ( i=0; i<cidmaster->subfontcnt; ++i ) {
 	gi.sf = sf = cidmaster->subfonts[i];
-	MarkTranslationRefs(sf);
+	MarkTranslationRefs(sf,layer);
 	fd = &cidbytes->fds[i];
 	memset(&gi.hashed,-1,sizeof(gi.hashed));
 	gi.instance_count = 1;
@@ -2244,14 +1846,11 @@ struct pschars *CID2ChrsSubrs(SplineFont *cidmaster,struct cidbytes *cidbytes,in
 	    gi.active = &gi.gb[cid];
 	    SplineChar2PS(sc,NULL, round,fd->iscjk|0x100,fd->subrs,
 		    flags,ff_cid,&gi);
-#ifndef FONTFORGE_CONFIG_NO_WINDOWING_UI
-	    if ( !gwwv_progress_next()) {
+	    if ( !ff_progress_next()) {
 		PSCharsFree(chrs);
 		GIFree(&gi,&dummynotdef);
 return( NULL );
-	    }
-#endif		/* FONTFORGE_CONFIG_NO_WINDOWING_UI */
-	
+	    }	
 	}
 
 	SetupType1Subrs(fd->subrs,&gi);
@@ -2406,7 +2005,8 @@ static void moveto2(GrowBuf *gb,struct hintdb *hdb,SplinePoint *to, int round) {
 	AddNumber2(gb,tom->y-hdb->current.y,round);
 	*(gb->pt)++ = 21;		/* r move to */
     }
-    hdb->current = *tom;
+    hdb->current.x = rint(32768*tom->x)/32768;
+    hdb->current.y = rint(32768*tom->y)/32768;
     StartNextSubroutine(gb,hdb);
 }
 
@@ -2486,7 +2086,8 @@ static Spline *lineto2(GrowBuf *gb,struct hintdb *hdb,Spline *spline, Spline *do
 		    AddNumber2(gb,tom->y-fromm->y,round);
 		else
 		    AddNumber2(gb,tom->x-fromm->x,round);
-		hdb->current = *tom;
+		hdb->current.x = rint(32768*tom->x)/32768;
+		hdb->current.y = rint(32768*tom->y)/32768;
 		if ( test==lasthvgood ) {
 		    test = test->to->next;
 	    break;
@@ -2517,7 +2118,8 @@ return( test );
 	}
 	AddNumber2(gb,tom->x-fromm->x,round);
 	AddNumber2(gb,tom->y-fromm->y,round);
-	hdb->current = *tom;
+	hdb->current.x = rint(32768*tom->x)/32768;
+	hdb->current.y = rint(32768*tom->y)/32768;
 	if ( test==lastgood ) {
 	    test = test->to->next;
     break;
@@ -2532,7 +2134,7 @@ return( test );
 static Spline *curveto2(GrowBuf *gb,struct hintdb *hdb,Spline *spline, Spline *done, int round) {
     int cnt=0, hv;
     Spline *first;
-    BasePoint start;
+    DBasePoint start;
     int donehm;
 
     HintSetup2(gb,hdb,spline->to,true);
@@ -2664,7 +2266,8 @@ static void flexto2(GrowBuf *gb,struct hintdb *hdb,Spline *pspline,int round) {
 	*gb->pt++ = 12; *gb->pt++ = 37;		/* flex1 */
     }
 
-    hdb->current = *end;
+    hdb->current.x = rint(32768*end->x)/32768;
+    hdb->current.y = rint(32768*end->y)/32768;
 }
 
 static void CvtPsSplineSet2(GrowBuf *gb, SplinePointList *spl,
@@ -2778,7 +2381,7 @@ return;
 }
 
 static void DumpRefsHints(GrowBuf *gb, struct hintdb *hdb,RefChar *cur,StemInfo *h,StemInfo *v,
-	BasePoint *trans, int round) {
+	BasePoint *trans, int round,int layer) {
     uint8 masks[12];
     int cnt, sets=0;
     StemInfo *rs;
@@ -2788,11 +2391,11 @@ static void DumpRefsHints(GrowBuf *gb, struct hintdb *hdb,RefChar *cur,StemInfo 
     /* If we have a subroutine containing conflicts, then its hints will match*/
     /*  ours exactly, and we can use its hintmasks directly */
     if (( cur->sc->hconflicts || cur->sc->vconflicts ) &&
-	    cur->sc->layers[ly_fore].splines!=NULL &&
-	    cur->sc->layers[ly_fore].splines->first->hintmask!=NULL ) {
-	AddMask2(gb,*cur->sc->layers[ly_fore].splines->first->hintmask,hdb->cnt,19);		/* hintmask */
+	    cur->sc->layers[layer].splines!=NULL &&
+	    cur->sc->layers[layer].splines->first->hintmask!=NULL ) {
+	AddMask2(gb,*cur->sc->layers[layer].splines->first->hintmask,hdb->cnt,19);		/* hintmask */
 	hdb->donefirsthm = true;
-	memcpy(hdb->mask,*cur->sc->layers[ly_fore].splines->first->hintmask,sizeof(HintMask));
+	memcpy(hdb->mask,*cur->sc->layers[layer].splines->first->hintmask,sizeof(HintMask));
 return;
     }
 
@@ -2858,7 +2461,7 @@ static void SetTransformedHintMask(GrowBuf *gb,struct hintdb *hdb,
 
 static void ExpandRef2(GrowBuf *gb, SplineChar *sc, struct hintdb *hdb,
 	RefChar *r, BasePoint *trans,
-	struct pschars *subrs, int round) {
+	struct pschars *subrs, int round,int layer) {
     BasePoint *bpt;
     BasePoint temp, rtrans;
     GlyphInfo *gi;
@@ -2873,7 +2476,7 @@ static void ExpandRef2(GrowBuf *gb, SplineChar *sc, struct hintdb *hdb,
 
     BreakSubroutine(gb,hdb);
     if ( hdb->cnt>0 && !hdb->noconflicts )
-	DumpRefsHints(gb,hdb,r,sc->hstem,sc->vstem,&rtrans,round);
+	DumpRefsHints(gb,hdb,r,sc->hstem,sc->vstem,&rtrans,round,layer);
 
     /* Translate from end of last character to where this one should */
     /*  start (we must have one moveto operator to start off, none */
@@ -2904,7 +2507,7 @@ static void ExpandRef2(GrowBuf *gb, SplineChar *sc, struct hintdb *hdb,
 
 static void RSC2PS2(GrowBuf *gb, SplineChar *base,SplineChar *rsc,
 	struct hintdb *hdb, BasePoint *trans, struct pschars *subrs,
-	int flags ) {
+	int flags, int layer ) {
     BasePoint subtrans;
     int stationary = trans->x==0 && trans->y==0;
     RefChar *r, *unsafe=NULL;
@@ -2914,14 +2517,14 @@ static void RSC2PS2(GrowBuf *gb, SplineChar *base,SplineChar *rsc,
     int hc, vc;
     SplineSet *freeme, *temp;
     int wasntconflicted = hdb->noconflicts;
-	oldh = NULL; oldv = NULL; hc = 0; vc = 0; /* for -Wall */
+
     if ( flags&ps_flag_nohints ) {
 	oldh = rsc->hstem; oldv = rsc->vstem;
 	hc = rsc->hconflicts; vc = rsc->vconflicts;
 	rsc->hstem = NULL; rsc->vstem = NULL;
 	rsc->hconflicts = false; rsc->vconflicts = false;
     } else {
-	for ( r=rsc->layers[ly_fore].refs; r!=NULL; r=r->next ) {
+	for ( r=rsc->layers[layer].refs; r!=NULL; r=r->next ) {
 	    if ( !r->justtranslated )
 	continue;
 	    if ( r->sc->hconflicts || r->sc->vconflicts ) {
@@ -2938,22 +2541,22 @@ static void RSC2PS2(GrowBuf *gb, SplineChar *base,SplineChar *rsc,
 
     if ( unsafe && allwithouthints ) {
 	if ( unsafe->sc->lsidebearing!=0x7fff ) {
-	    ExpandRef2(gb,base,hdb,unsafe,trans,subrs,round);
+	    ExpandRef2(gb,base,hdb,unsafe,trans,subrs,round,layer);
 	} else if ( unsafe->transform[4]==0 && unsafe->transform[5]==0 )
-	    RSC2PS2(gb,base,unsafe->sc,hdb,trans,subrs,flags);
+	    RSC2PS2(gb,base,unsafe->sc,hdb,trans,subrs,flags,layer);
 	else
 	    unsafe = NULL;
     } else
 	unsafe = NULL;
 
     /* What is the hintmask state here? It should not matter */
-    freeme = NULL; temp = rsc->layers[ly_fore].splines;
+    freeme = NULL; temp = rsc->layers[layer].splines;
     if ( base!=rsc )
 	temp = freeme = SPLCopyTranslatedHintMasks(temp,base,rsc,trans);
-    CvtPsSplineSet2(gb,temp,hdb,rsc->parent->order2,round);
+    CvtPsSplineSet2(gb,temp,hdb,rsc->layers[layer].order2,round);
     SplinePointListsFree(freeme);
 
-    for ( r = rsc->layers[ly_fore].refs; r!=NULL; r = r->next ) if ( r!=unsafe ) {
+    for ( r = rsc->layers[layer].refs; r!=NULL; r = r->next ) if ( r!=unsafe ) {
 	if ( !r->justtranslated ) {
 	    if ( !r->sc->hconflicts && !r->sc->vconflicts && !hdb->noconflicts &&
 		    r->transform[1]==0 && r->transform[2]==0 &&
@@ -2961,13 +2564,13 @@ static void RSC2PS2(GrowBuf *gb, SplineChar *base,SplineChar *rsc,
 		SetTransformedHintMask(gb,hdb,base,r,trans,round);
 	    if ( !hdb->donefirsthm )
 		DummyHintmask(gb,hdb);
-	    temp = SPLCopyTransformedHintMasks(r,base,trans);
-	    CvtPsSplineSet2(gb,temp,hdb,rsc->parent->order2,round);
+	    temp = SPLCopyTransformedHintMasks(r,base,trans,layer);
+	    CvtPsSplineSet2(gb,temp,hdb,rsc->layers[layer].order2,round);
 	    SplinePointListsFree(temp);
 	} else if ( r->sc->lsidebearing!=0x7fff &&
 		((flags&ps_flag_nohints) ||
 		 (!r->sc->hconflicts && !r->sc->vconflicts)) ) {
-	    ExpandRef2(gb,base,hdb,r,trans,subrs,round);
+	    ExpandRef2(gb,base,hdb,r,trans,subrs,round,layer);
 	} else {
 	    subtrans.x = trans->x + r->transform[4];
 	    subtrans.y = trans->y + r->transform[5];
@@ -2975,7 +2578,7 @@ static void RSC2PS2(GrowBuf *gb, SplineChar *base,SplineChar *rsc,
 		SetTransformedHintMask(gb,hdb,base,r,trans,round);
 		hdb->noconflicts = true;
 	    }
-	    RSC2PS2(gb,base,r->sc,hdb,&subtrans,subrs,flags);
+	    RSC2PS2(gb,base,r->sc,hdb,&subtrans,subrs,flags,layer);
 	    hdb->noconflicts = wasntconflicted;
 	}
     }
@@ -2998,22 +2601,19 @@ static unsigned char *SplineChar2PS2(SplineChar *sc,int *len, int nomwid,
     int round = (flags&ps_flag_round)? true : false;
     HintMask *hm = NULL;
     BasePoint trans;
-	oldh = NULL; oldv = NULL; hc = 0; vc = 0; /* for -Wall */
-    if ( autohint_before_generate && sc->changedsincelasthinted &&
-	    !sc->manualhints && !(flags&ps_flag_nohints))
-	SplineCharAutoHint(sc,NULL);
-    if ( !(flags&ps_flag_nohints) && SCNeedsSubsPts(sc,ff_otf))
-	SCFigureHintMasks(sc);
+
+    if ( !(flags&ps_flag_nohints) && SCNeedsSubsPts(sc,ff_otf,gi->layer))
+	SCFigureHintMasks(sc,gi->layer);
 
     if ( flags&ps_flag_nohints ) {
 	oldh = sc->hstem; oldv = sc->vstem;
 	hc = sc->hconflicts; vc = sc->vconflicts;
 	sc->hstem = NULL; sc->vstem = NULL;
 	sc->hconflicts = false; sc->vconflicts = false;
-    } else if ( sc->layers[ly_fore].splines!=NULL && !sc->vconflicts &&
+    } else if ( sc->layers[gi->layer].splines!=NULL && !sc->vconflicts &&
 	    !sc->hconflicts ) {
-	hm = sc->layers[ly_fore].splines->first->hintmask;
-	sc->layers[ly_fore].splines->first->hintmask = NULL;
+	hm = sc->layers[gi->layer].splines->first->hintmask;
+	sc->layers[gi->layer].splines->first->hintmask = NULL;
     }
 
     memset(&gb,'\0',sizeof(gb));
@@ -3040,7 +2640,7 @@ static unsigned char *SplineChar2PS2(SplineChar *sc,int *len, int nomwid,
     DumpHints(&gb,sc->vstem,sc->hconflicts || sc->vconflicts?-1:3,
 			    sc->hconflicts || sc->vconflicts?23:3,round);
     CounterHints2(&gb, sc, hdb.cnt );
-    RSC2PS2(&gb,sc,sc,&hdb,&trans,subrs,flags);
+    RSC2PS2(&gb,sc,sc,&hdb,&trans,subrs,flags,gi->layer);
 
     if ( gi->bcnt==-1 ) {	/* If it's whitespace */
 	gi->bcnt = 0;
@@ -3055,7 +2655,7 @@ static unsigned char *SplineChar2PS2(SplineChar *sc,int *len, int nomwid,
 	sc->hstem = oldh; sc->vstem = oldv;
 	sc->hconflicts = hc; sc->vconflicts = vc;
     } else if ( hm!=NULL )
-	sc->layers[ly_fore].splines->first->hintmask = hm;
+	sc->layers[gi->layer].splines->first->hintmask = hm;
 return( ret );
 }
 
@@ -3065,7 +2665,7 @@ static SplinePoint *LineTo(SplinePoint *last, int x, int y) {
 return( sp );
 }
 
-static void Type2NotDefSplines(SplineFont *sf,SplineChar *sc) {
+static void Type2NotDefSplines(SplineFont *sf,SplineChar *sc,int layer) {
     /* I'd always assumed that Type2 notdefs would look like type1 notdefs */
     /*  but they don't, they look like truetype notdefs. And Ralf Stubner */
     /*  points out that the spec says they should. So make a box here */
@@ -3092,7 +2692,7 @@ static void Type2NotDefSplines(SplineFont *sf,SplineChar *sc) {
     SplineMake3(inner->last,inner->first);
     inner->last = inner->first;
 
-    sc->layers[ly_fore].splines = ss;
+    sc->layers[layer].splines = ss;
 
     hints = chunkalloc(sizeof(StemInfo));
     hints->start = stem;
@@ -3111,108 +2711,29 @@ static void Type2NotDefSplines(SplineFont *sf,SplineChar *sc) {
     sc->hstem = hints;
 }
 
-#ifdef FONTFORGE_CONFIG_PS_REFS_GET_SUBRS
-/* This char has hint conflicts. Check to see if we can put it into a subr */
-/*  in spite of that. If there is at least one dependent character which: */
-/*	refers to us without translating us */
-/*	and all its other refs contain no hints at all */
-static int Type2SpecialCase(SplineChar *sc) {
-    struct splinecharlist *d;
-    RefChar *r;
-
-    for ( d=sc->dependents; d!=NULL; d=d->next ) {
-	for ( r=d->sc->layers[ly_fore].refs; r!=NULL; r = r->next ) {
-	    if ( autohint_before_generate && r->sc!=NULL &&
-		    r->sc->changedsincelasthinted && !r->sc->manualhints )
-		SplineCharAutoHint(r->sc,NULL);
-	    if ( r->transform[0]!=1 || r->transform[1]!=0 ||
-		    r->transform[2]!=0 || r->transform[3]!=1 )
-	break;
-	    if ( r->sc!=sc && (r->sc->hstem!=NULL || r->sc->vstem!=NULL))
-	break;
-	    if ( r->sc==sc && (r->transform[4]!=0 || r->transform[5]!=0))
-	break;
-	}
-	if ( r==NULL )
-return( true );
-    }
-return( false );
-}
-#endif	/* FONTFORGE_CONFIG_PS_REFS_GET_SUBRS */
-
 /* Mark those glyphs which can live totally in subrs */
 static void SplineFont2FullSubrs2(int flags,GlyphInfo *gi) {
     int i;
     SplineChar *sc;
-#ifdef FONTFORGE_CONFIG_PS_REFS_GET_SUBRS
-    int cc;
-    RefChar *r;
-    struct potentialsubrs *ps;
-    SplineSet *spl;
-#endif	/* FONTFORGE_CONFIG_PS_REFS_GET_SUBRS */
-
-    if ( !autohint_before_generate && !(flags&ps_flag_nohints))
-	SplineFontAutoHintRefs(gi->sf);
 
     for ( i=0; i<gi->glyphcnt; ++i ) if ( (sc=gi->gb[i].sc)!=NULL )
 	sc->lsidebearing = 0x7fff;
 
-/* This code allows us to put whole glyphs into subroutines */
-/* I found slight improvements in space on some fonts, and large increases */
-/*  in others. So I'm disabling it for now */
-#ifdef FONTFORGE_CONFIG_PS_REFS_GET_SUBRS
-    /* We don't allow refs to refs. It's too complex */
-    for ( i=0; i<gi->glyphcnt; ++i ) if ( (sc=gi->gb[i].sc)!=NULL ) {
-	if ( SCWorthOutputting(sc) &&
-	    (( sc->layers[ly_fore].refs==NULL && sc->dependents!=NULL &&
-		    ( (!sc->hconflicts && !sc->vconflicts) ||
-			Type2SpecialCase(sc)) )  )) {
-	    /* if the glyph is a single contour with no hintmasks then */
-	    /*  our single contour code will find it. If we do it here too */
-	    /*  we'll get a subr which points to another subr. Very dull and */
-	    /*  a waste of space */
-	    cc = 0;
-	    for ( spl=sc->layers[ly_fore].splines; spl!=NULL; spl=spl->next )
-		++cc;
-	    for ( r= sc->layers[ly_fore].refs; r!=NULL && cc<2 ; r=r->next ) {
-		for ( spl=r->layers[0].splines; spl!=NULL; spl=spl->next )
-		    ++cc;
-	    }
-	    if ( cc<2 )
-    continue;
-	    /* Put the */
-	    /*  character into a subr if it is referenced by other characters */
-	    if ( gi->pcnt>=gi->pmax )
-		gi->psubrs = grealloc(gi->psubrs,(gi->pmax+=gi->glyphcnt)*sizeof(struct potentialsubrs));
-	    ps = &gi->psubrs[gi->pcnt];
-	    memset(ps,0,sizeof(*ps));	/* set cnt to 0 */
-	    ps->idx = gi->pcnt++;
-	    ps->full_glyph_index = i;
-	    sc->lsidebearing = gi->pcnt-1;
-	    ps->startstop = FigureStartStop(sc,gi);
-	}
-    }
-#endif	/* FONTFORGE_CONFIG_PS_REFS_GET_SUBRS */
 }
 
 struct pschars *SplineFont2ChrsSubrs2(SplineFont *sf, int nomwid, int defwid,
-	const int *bygid, int cnt, int flags, struct pschars **_subrs) {
+	const int *bygid, int cnt, int flags, struct pschars **_subrs, int layer) {
     struct pschars *subrs, *chrs;
     int i,j,k,scnt;
     SplineChar *sc;
     GlyphInfo gi;
     SplineChar dummynotdef;
-#ifdef FONTFORGE_CONFIG_TYPE3
-    Layer dummylayers[2];
-#endif
-
-    if ( !autohint_before_generate && !(flags&ps_flag_nohints))
-	SplineFontAutoHintRefs(sf);
 
     memset(&gi,0,sizeof(gi));
     memset(&gi.hashed,-1,sizeof(gi.hashed));
     gi.instance_count = 1;
     gi.sf = sf;
+    gi.layer = layer;
     gi.glyphcnt = cnt;
     gi.bygid = bygid;
     gi.gb = gcalloc(cnt,sizeof(struct glyphbits));
@@ -3225,27 +2746,20 @@ struct pschars *SplineFont2ChrsSubrs2(SplineFont *sf, int nomwid, int defwid,
 	    memset(sc,0,sizeof(dummynotdef));
 	    dummynotdef.name = ".notdef";
 	    dummynotdef.parent = sf;
-	    dummynotdef.layer_cnt = 2;
-#ifdef FONTFORGE_CONFIG_TYPE3
-	    dummynotdef.layers = dummylayers;
-	    memset(dummylayers,0,sizeof(dummylayers));
-#endif
+	    dummynotdef.layer_cnt = sf->layer_cnt;
+	    dummynotdef.layers = gcalloc(sf->layer_cnt,sizeof(Layer));
 	    dummynotdef.width = SFOneWidth(sf);
 	    if ( dummynotdef.width==-1 )
 		dummynotdef.width = (sf->ascent+sf->descent)/2;
-	    Type2NotDefSplines(sf,&dummynotdef);
+	    Type2NotDefSplines(sf,&dummynotdef,layer);
 	} else if ( gid!=-1 )
 	    sc = sf->glyphs[gid];
 	else
     continue;
 	gi.gb[i].sc = sc;
-	if ( autohint_before_generate && sc!=NULL &&
-		sc->changedsincelasthinted && !sc->manualhints &&
-		!(flags&ps_flag_nohints))
-	    SplineCharAutoHint(sc,NULL);
 	sc->lsidebearing = 0x7fff;
     }
-    MarkTranslationRefs(sf);
+    MarkTranslationRefs(sf,layer);
     SplineFont2FullSubrs2(flags,&gi);
 
     for ( i=0; i<cnt; ++i ) {
@@ -3253,9 +2767,7 @@ struct pschars *SplineFont2ChrsSubrs2(SplineFont *sf, int nomwid, int defwid,
     continue;
 	gi.active = &gi.gb[i];
 	SplineChar2PS2(sc,NULL,nomwid,defwid,NULL,flags,&gi);
-#ifndef FONTFORGE_CONFIG_NO_WINDOWING_UI
-	gwwv_progress_next();
-#endif
+	ff_progress_next();
     }
 
     for ( i=scnt=0; i<gi.pcnt; ++i ) {
@@ -3401,7 +2913,7 @@ return( chrs );
 }
 
 struct pschars *CID2ChrsSubrs2(SplineFont *cidmaster,struct fd2data *fds,
-	int flags, struct pschars **_glbls) {
+	int flags, struct pschars **_glbls, int layer) {
     struct pschars *chrs, *glbls;
     int i, j, cnt, cid, max, fd;
     int *scnts;
@@ -3412,15 +2924,12 @@ struct pschars *CID2ChrsSubrs2(SplineFont *cidmaster,struct fd2data *fds,
     /*  we add it. */
     GlyphInfo gi;
     SplineChar dummynotdef;
-#ifdef FONTFORGE_CONFIG_TYPE3
-    Layer dummylayers[2];
-#endif
 
     max = 0;
     for ( i=0; i<cidmaster->subfontcnt; ++i ) {
 	if ( max<cidmaster->subfonts[i]->glyphcnt )
 	    max = cidmaster->subfonts[i]->glyphcnt;
-	MarkTranslationRefs(cidmaster->subfonts[i]);
+	MarkTranslationRefs(cidmaster->subfonts[i],layer);
     }
     cnt = 1;			/* for .notdef */
     for ( cid = 1; cid<max; ++cid ) {
@@ -3445,6 +2954,7 @@ struct pschars *CID2ChrsSubrs2(SplineFont *cidmaster,struct fd2data *fds,
     gi.gb = gcalloc(cnt,sizeof(struct glyphbits));
     gi.pmax = 3*cnt;
     gi.psubrs = galloc(gi.pmax*sizeof(struct potentialsubrs));
+    gi.layer = layer;
 
     for ( cid = cnt = 0; cid<max; ++cid ) {
 	sf = NULL;
@@ -3462,15 +2972,12 @@ struct pschars *CID2ChrsSubrs2(SplineFont *cidmaster,struct fd2data *fds,
 	    memset(sc,0,sizeof(dummynotdef));
 	    dummynotdef.name = ".notdef";
 	    dummynotdef.parent = sf;
-	    dummynotdef.layer_cnt = 2;
-#ifdef FONTFORGE_CONFIG_TYPE3
-	    dummynotdef.layers = dummylayers;
-	    memset(dummylayers,0,sizeof(dummylayers));
-#endif
+	    dummynotdef.layer_cnt = layer+1;
+	    dummynotdef.layers = gcalloc(layer+1,sizeof(Layer));
 	    dummynotdef.width = SFOneWidth(sf);
 	    if ( dummynotdef.width==-1 )
 		dummynotdef.width = (sf->ascent+sf->descent);
-	    Type2NotDefSplines(sf,&dummynotdef);
+	    Type2NotDefSplines(sf,&dummynotdef,layer);
 	    gi.gb[cnt].sc = sc;
 	    gi.gb[cnt].fd = i = cidmaster->subfontcnt-1;
 #if 0 && HANYANG			/* Too much stuff knows the glyph cnt, can't refigure it here at the end */
@@ -3487,9 +2994,7 @@ struct pschars *CID2ChrsSubrs2(SplineFont *cidmaster,struct fd2data *fds,
 	    sc->ttf_glyph = cnt++;
 	    SplineChar2PS2(sc,NULL,fds[i].nomwid,fds[i].defwid,NULL,flags,&gi);
 	}
-#ifndef FONTFORGE_CONFIG_NO_WINDOWING_UI
-	gwwv_progress_next();
-#endif
+	ff_progress_next();
     }
 
     scnts = gcalloc( cidmaster->subfontcnt+1,sizeof(int));

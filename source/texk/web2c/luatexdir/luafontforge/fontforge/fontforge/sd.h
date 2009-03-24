@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2007 by George Williams */
+/* Copyright (C) 2000-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,22 +26,24 @@
  */
 #ifndef _SD_H
 #define _SD_H
+# include <gimage.h>
 
 /* All coordinates are in millimeters */
 /* they will be displayed to the user scaled by the units field of the design */
 
 #include "splinefont.h"
-#if defined(FONTFORGE_CONFIG_GTK)
-# include <gtk/gtk.h>
-#elif defined(FONTFORGE_CONFIG_GDRAW)
-# include "gdraw.h"
-#else
-# include <ggadget.h>		/* Need GImage, gettext, etc. even if no UI */
-#endif
+
+struct epattern {
+    struct entity *tile;
+    real width, height;
+    DBounds bbox;
+    real transform[6];
+};
 
 typedef struct entpen {
     Color col;
-    struct tile *tile;
+    struct gradient *grad;
+    struct epattern *tile;
     float scale;
     float opacity;
 } Pen;
@@ -81,6 +83,7 @@ typedef struct entity {
 	    struct entity *group;
 	} group;
     } u;
+    SplineSet *clippath;
     DBounds bb;
     struct entity *next;
 } Entity;
@@ -93,16 +96,8 @@ typedef struct entlayer {
 
 typedef struct tile {
     Entity *tile;
-#ifdef FONTFORGE_CONFIG_NO_WINDOWING_UI
-    struct tileinstance { real scale;struct tileinstance *next; }
+    struct tileinstance { real scale; struct gwindow *pixmap; struct tileinstance *next; }
 	    *instances;
-#elif defined( FONTFORGE_CONFIG_GTK )
-    struct tileinstance { real scale; GdkWindow pixmap; struct tileinstance *next; }
-	    *instances;
-#elif defined( FONTFORGE_CONFIG_GDRAW )
-    struct tileinstance { real scale; GWindow pixmap; struct tileinstance *next; }
-	    *instances;
-#endif
     char *name;
 } Tile;
 
@@ -119,11 +114,11 @@ typedef struct splinedesign {
     struct dview *dvs;
 } SplineDesign, Design;
 
-extern Entity *EntityInterpretPS(FILE *ps);
+extern Entity *EntityInterpretPS(FILE *ps,int *width);
 extern Entity *EntityInterpretSVG(char *filename,char *memory, int memlen, int em_size,int ascent);
+extern Entity *EntityInterpretPDFPage(FILE *pdf,int select_page);
 extern SplinePointList *SplinesFromEntities(Entity *ent,int *flags,int is_stroked);
 extern void SCAppendEntityLayers(SplineChar *sc, Entity *ent);
-extern void EntityDefaultStrokeFill(Entity *ent);
 
 	/* Used for type3 fonts briefly */
 /* This is not a "real" structure. It is a temporary hack that encompasses */
@@ -135,8 +130,6 @@ typedef struct entitychar {
     SplineChar *sc;
     uint8 fromtype3;
 } EntityChar;
-
-extern SplinePointList *SplinesFromEntityChar(EntityChar *ec,int *flags,int is_stroked);
 
 struct pskeydict {
     int16 cnt, max;

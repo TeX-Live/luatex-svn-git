@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2007 by George Williams */
+/* Copyright (C) 2000-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,68 +26,8 @@
  */
 #ifndef _GDRAW_H
 #define _GDRAW_H
-#include "basics.h"
+#include "gimage.h"
 #include "charset.h"
-
-typedef uint32 Color;
-
-#define COLOR_UNKNOWN		((Color) 0xffffffff)
-#define COLOR_TRANSPARENT	((Color) 0xffffffff)
-#define COLOR_DEFAULT		((Color) 0xfffffffe)
-#define COLOR_CREATE(r,g,b)	(((r)<<16) | ((g)<<8) | (b))
-#define COLOR_RED(col)		((col)>>16)
-#define COLOR_GREEN(col)	(((col)>>8) & 0xff)
-#define COLOR_BLUE(col)		((col)&0xff)
-
-typedef struct clut {
-    int16 clut_len;
-    unsigned int is_grey: 1;
-    uint32 trans_index;		/* will be ignored for cluts in images, use base->trans instead */
-    Color clut[256];
-} GClut;
-
-typedef struct revcmap RevCMap;
-
-enum image_type { it_mono, it_bitmap=it_mono, it_index, it_true };
-
-struct _GImage {
-/* Format: bitmaps are stored with the most significant bit first in byte units
-	    indexed images are stored in byte units
-	    true color images are stored in 4 byte units, 0,red,green,blue
-*/
-    unsigned int image_type: 2;
-    int16 delay;		/* for animated GIFs, delay to next frame */
-    int32 width, height;
-    int32 bytes_per_line;
-    uint8 *data;
-    GClut *clut;
-    Color trans;		/* PNG supports more than one transparent color, we don't */
-				/* for non-true color images this is the index, not a color */
-};
-
-/* We deal with 1 bit, 8 bit and 32 bit images internal. 1 bit images may have*/
-/*  a clut (if they don't assume bw, 0==black, 1==white), 8 bit must have a */
-/*  clut, 32bit are actually 24 bit RGB images, but we pad them for easy */
-/*  accessing. it_screen means that we've got an image that can be drawn */
-/*  directly on the screen */
-typedef struct gimage {
-    short list_len;		/* length of list */
-    union {			/* depends on whether has_list is set */
-	struct _GImage *image;
-    	struct _GImage **images;
-    } u;
-    void *userdata;
-} GImage;
-
-enum pastetrans_type { ptt_paste_trans_to_trans, ptt_old_shines_through};
-
-typedef struct grect {
-    int32 x,y,width,height;
-} GRect;
-
-typedef struct gpoint {
-    int16 x,y;
-} GPoint;
 
 enum font_style { fs_none, fs_italic=1, fs_smallcaps=2, fs_condensed=4, fs_extended=8 };
 enum font_type { ft_unknown, ft_serif, ft_sans, ft_mono, ft_cursive, ft_max };
@@ -156,7 +96,7 @@ typedef struct gtextbounds {
 			        /*  "width" which may be totally different */
 } GTextBounds;
 
-enum selnames { sn_primary, sn_clipboard, sn_drag_and_drop, sn_max };
+enum selnames { sn_primary, sn_clipboard, sn_drag_and_drop, sn_user1, sn_user2, sn_max };
 typedef struct gwindow *GWindow;
 typedef struct gdisplay GDisplay;
 typedef struct gtimer GTimer;
@@ -169,11 +109,15 @@ enum keystate_mask { ksm_shift=1, ksm_capslock=2, ksm_control=4, ksm_meta=8,
 	ksm_numlock=0x10,	/* It's numlock on my 386 system */
 	ksm_super=0x40,		/* RedHat mask for the key with the windows flag on it */
 	ksm_hyper=0x80,
-/* Both Suse and Mac OS/X now map option to 0x2000, but under 10.0 it was meta */
-	ksm_option=0x2000,
+/* Both Suse and Mac OS/X.2 now map option to 0x2000, but under 10.0 it was meta */
+/* Under 10.4 it is the meta mask again */
+	/*ksm_option=0x2000,*/
+	ksm_menumask=(ksm_control|ksm_meta|ksm_cmdmacosx|0xf0),
+
 	ksm_button1=(1<<8), ksm_button2=(1<<9), ksm_button3=(1<<10),
 	ksm_button4=(1<<11), ksm_button5=(1<<12),
-	ksm_buttons=(ksm_button1|ksm_button2|ksm_button3|ksm_button4|ksm_button5)};
+	ksm_buttons=(ksm_button1|ksm_button2|ksm_button3|ksm_button4|ksm_button5)
+	};
 enum mnemonic_focus { mf_normal, mf_tab, mf_mnemonic, mf_shortcut };
 typedef struct gevent {
     enum event_type { et_noevent = -1, et_char, et_charup,
@@ -294,7 +238,8 @@ typedef struct gwindow_attrs {
 	    wam_noresize=0x2000, wam_restrict=0x4000, wam_redirect=0x8000,
 	    wam_isdlg=0x10000, wam_notrestricted=0x20000,
 	    wam_transient=0x40000,
-	    wam_utf8_wtitle=0x80000, wam_utf8_ititle=0x100000 } mask;
+	    wam_utf8_wtitle=0x80000, wam_utf8_ititle=0x100000,
+	    wam_cairo=0x200000 } mask;
     uint32 event_masks;			/* (1<<et_char) | (1<<et_mouseup) etc */
     int16 border_width;
     Color border_color;			/* Color_UNKNOWN if unspecified */
@@ -352,6 +297,13 @@ typedef struct gdeveventmask {
 } GDevEventMask;
 
 enum gzoom_flags { gzf_pos=1, gzf_size=2 };
+    /* bit flags for the hasCairo query */
+enum gcairo_flags { gc_buildpath=1,	/* Has build path commands (postscript, cairo) */
+		    gc_alpha=2,		/* Supports alpha channels & translucent colors (cairo, pdf) */
+		    gc_xor=4,		/* Cairo can't do the traditional XOR drawing that X11 does */
+		    gc_pango=8,
+		    gc_all = gc_buildpath|gc_alpha
+		    };
 
 typedef int (*GDrawEH)(GWindow,GEvent *);
 
@@ -393,6 +345,7 @@ extern GRect *GDrawGetSize(GWindow w, GRect *ret);
 extern GDrawEH GDrawGetEH(GWindow w);
 extern void GDrawSetEH(GWindow w,GDrawEH e_h);
 extern void GDrawGetPointerPosition(GWindow w, GEvent *mouse);
+extern GWindow GDrawGetPointerWindow(GWindow w);
 extern void GDrawRaise(GWindow w);
 extern void GDrawRaiseAbove(GWindow w,GWindow below);
 extern int  GDrawIsAbove(GWindow w,GWindow other);
@@ -436,28 +389,35 @@ extern FontRequest *GDrawDecomposeFont(GFont *fi, FontRequest *rq);
 extern enum charset GDrawFindEncoding(unichar_t *text, int32 len,
 	GFont *fi, unichar_t **next, int *ulevel);
 extern void GDrawFontMetrics(GFont *fi,int *as, int *ds, int *ld);
+extern void GDrawWindowFontMetrics(GWindow gw,GFont *fi,int *as, int *ds, int *ld);
 extern int32 GDrawGetTextPtAfterPos(GWindow gw,unichar_t *text, int32 cnt, FontMods *mods,
 	int32 maxwidth, unichar_t **end);
 extern int32 GDrawGetTextPtBeforePos(GWindow gw,unichar_t *text, int32 cnt, FontMods *mods,
 	int32 maxwidth, unichar_t **end);
 extern int32 GDrawGetTextPtFromPos(GWindow gw,unichar_t *text, int32 cnt, FontMods *mods,
 	int32 maxwidth, unichar_t **end);
-int32 GDrawGetTextBounds(GWindow gw,unichar_t *text, int32 cnt, FontMods *mods,
+int32 GDrawGetTextBounds(GWindow gw,const unichar_t *text, int32 cnt, FontMods *mods,
 	GTextBounds *size);
 extern int32 GDrawGetTextWidth(GWindow gw, const unichar_t *text, int32 cnt, FontMods *mods);
 extern int32 GDrawDrawText(GWindow gw, int32 x, int32 y, const unichar_t *txt, int32 cnt, FontMods *mods, Color col);
 /* Routines that handle bidirectional text */
 /* (slower than the equivalent left to right routines) */
-extern int32 GDrawDrawBiText(GWindow gw, int32 x, int32 y, unichar_t *txt, int32 cnt, FontMods *mods, Color col);
-extern int32 GDrawGetBiTextWidth(GWindow gw,unichar_t *text, int len, int32 cnt, FontMods *mods);
-extern int32 GDrawGetBiTextPtAfterPos(GWindow gw,unichar_t *text, int32 cnt, FontMods *mods,
+/* will call pango if available. */
+extern int32 GDrawDrawBiText(GWindow gw, int32 x, int32 y, const unichar_t *txt, int32 cnt, FontMods *mods, Color col);
+extern int32 GDrawDrawBiText8(GWindow gw, int32 x, int32 y, const char *txt, int32 cnt, FontMods *mods, Color col);
+extern int32 GDrawGetBiTextWidth(GWindow gw,const unichar_t *text, int len, int32 cnt, FontMods *mods);
+extern int32 GDrawGetBiText8Width(GWindow gw,const char *text, int len, int32 cnt, FontMods *mods);
+extern int32 GDrawGetBiTextPtAfterPos(GWindow gw,const unichar_t *text, int32 cnt, FontMods *mods,
 	int32 maxwidth, unichar_t **end);
-extern int32 GDrawGetBiTextPtBeforePos(GWindow gw,unichar_t *text, int32 cnt, FontMods *mods,
+extern int32 GDrawGetBiTextPtBeforePos(GWindow gw,const unichar_t *text, int32 cnt, FontMods *mods,
 	int32 maxwidth, unichar_t **end);
-extern int32 GDrawGetBiTextPtFromPos(GWindow gw,unichar_t *text, int32 cnt, FontMods *mods,
+extern int32 GDrawGetBiTextPtFromPos(GWindow gw,const unichar_t *text, int32 cnt, FontMods *mods,
 	int32 maxwidth, unichar_t **end);
+extern int32 GDrawGetBiTextBounds(GWindow gw,const unichar_t *text, int32 cnt, FontMods *mods, GTextBounds *bounds);
+extern int32 GDrawGetBiText8Bounds(GWindow gw,const char *text, int32 cnt, FontMods *mods, GTextBounds *bounds);
 extern int GDrawFontHasCharset(FontInstance *fi,/*enum charset*/int charset);
-extern int32 GDrawIsAllLeftToRight(unichar_t *text, int32 cnt);
+extern int32 GDrawIsAllLeftToRight(const unichar_t *text, int32 cnt);
+extern int32 GDrawIsAllLeftToRight8(const char *text, int32 cnt);
 extern void GDrawBiText1(GBiText *bd, const unichar_t *text, int32 cnt);
 extern void GDrawArabicForms(GBiText *bd, int32 start, int32 end);
 extern void _GDrawBiText2(GBiText *bd, int32 start, int32 end);
@@ -489,6 +449,7 @@ extern void GDrawDrawPoly(GWindow w, GPoint *pts, int16 cnt, Color col);
 extern void GDrawFillPoly(GWindow w, GPoint *pts, int16 cnt, Color col);
 extern void GDrawScroll(GWindow w, GRect *rect, int32 hor, int32 vert);
 extern void GDrawDrawImage(GWindow w, GImage *img, GRect *src, int32 x, int32 y);
+extern void GDrawDrawGlyph(GWindow w, GImage *img, GRect *src, int32 x, int32 y);
 extern void GDrawDrawScaledImage(GWindow w, GImage *img, int32 x, int32 y);
 extern void GDrawDrawImageMagnified(GWindow w, GImage *img, GRect *src, int32 x, int32 y,
 	int32 width, int32 height);
@@ -503,6 +464,11 @@ extern void GDrawAddSelectionType(GWindow w,enum selnames sel,char *type,
 	void (*freedata)(void *));
 extern void *GDrawRequestSelection(GWindow w,enum selnames sn, char *typename, int32 *len);
 extern int GDrawSelectionHasType(GWindow w,enum selnames sn, char *typename);
+extern void GDrawBindSelection(GDisplay *disp,enum selnames sel, char *atomname);
+extern int GDrawSelectionOwned(GDisplay *disp,enum selnames sel);
+extern void GDrawPropertyToSelectionOwner(GDisplay *disp,enum selnames sel,
+	char *property, char *type, int format, int mode,
+	uint8 *data, int nelements);
 
 extern void GDrawPointerUngrab(GDisplay *disp);
 extern void GDrawPointerGrab(GWindow w);
@@ -532,62 +498,35 @@ extern void GDrawSetBuildCharHooks(void (*hook)(GDisplay *), void (*inshook)(GDi
 
 extern int GDrawRequestDeviceEvents(GWindow w,int devcnt,struct gdeveventmask *de);
 
+extern enum gcairo_flags GDrawHasCairo(GWindow w);
+extern void GDrawQueueDrawing(GWindow w,void (*)(GWindow,void *),void *);
+extern void GDrawPathStartNew(GWindow w);
+extern void GDrawPathClose(GWindow w);
+extern void GDrawPathMoveTo(GWindow w,double x, double y);
+extern void GDrawPathLineTo(GWindow w,double x, double y);
+extern void GDrawPathCurveTo(GWindow w,
+		    double cx1, double cy1,
+		    double cx2, double cy2,
+		    double x, double y);
+extern void GDrawPathStroke(GWindow w,Color col);
+extern void GDrawPathFill(GWindow w,Color col);
+extern void GDrawPathFillAndStroke(GWindow w,Color fillcol, Color strokecol);
+extern void GDrawEnableCairo(int on);
+extern void GDrawEnablePango(int on);
+
+extern void GDrawLayoutInit(GWindow w, char *text, int cnt, GFont *fi);
+extern void GDrawLayoutDraw(GWindow w, int32 x, int32 y, Color fg);
+extern void GDrawLayoutIndexToPos(GWindow w, int index, GRect *pos);
+extern int  GDrawLayoutXYToIndex(GWindow w, int x, int y);
+extern void GDrawLayoutExtents(GWindow w, GRect *size);
+extern void GDrawLayoutSetWidth(GWindow w, int width);
+extern int  GDrawLayoutLineCount(GWindow w);
+extern int  GDrawLayoutLineStart(GWindow w,int line);
+
 extern void GDrawFatalError(const char *fmt,...);
 extern void GDrawIError(const char *fmt,...);
 extern void GDrawError(const char *fmt,...);
 
-extern GImage *GImageCreate(enum image_type type, int32 width, int32 height);
-extern GImage *_GImage_Create(enum image_type type, int32 width, int32 height);
-extern void GImageDestroy(GImage *gi);
-extern GImage *GImageCreateAnimation(GImage **images, int n);
-extern GImage *GImageAddImageBefore(GImage *dest, GImage *src, int pos);
-
-extern GImage *GImageBaseGetSub(struct _GImage *base, enum image_type it, GRect *src, GClut *nclut, RevCMap *rev);
-extern GImage *GImageGetSub(GImage *image,enum image_type it, GRect *src, GClut *nclut, RevCMap *rev);
-extern int GImageInsertToBase(struct _GImage *tobase, GImage *from, GRect *src, RevCMap *rev,
-	int to_x, int to_y, enum pastetrans_type ptt );
-extern int GImageInsert(GImage *to, GImage *from, GRect *src, RevCMap *rev,
-	int to_x, int to_y, enum pastetrans_type ptt );
-extern Color GImageGetPixelColor(GImage *base,int x, int y);
-extern int GImageGetWidth(GImage *);
-extern int GImageGetHeight(GImage *);
 extern int GImageGetScaledWidth(GWindow gw, GImage *img);
 extern int GImageGetScaledHeight(GWindow gw, GImage *img);
-extern void *GImageGetUserData(GImage *img);
-extern void GImageSetUserData(GImage *img,void *userdata);
-extern void GImageResize(struct _GImage *tobase, struct _GImage *fbase,
-	GRect *src, RevCMap *rev);
-extern GImage *GImageResize32(GImage *from, GRect *src, int width, int height, Color trans);
-extern GImage *GImageResizeSame(GImage *from, GRect *src, int width, int height, RevCMap *rev);
-extern RevCMap *GClutReverse(GClut *clut,int side_size);
-void GClut_RevCMapFree(RevCMap *rev);
-extern GClut *GImageFindCLUT(GImage *image,GClut *clut,int clutmax);
-extern int GImageSameClut(GClut *clut,GClut *nclut);
-extern int GImageGreyClut(GClut *clut);
-extern Color GImageColourFName(unichar_t *name);
-extern Color _GImage_ColourFName(char *name);
-extern char *GImageNameFColour(Color col);
-extern Color GDrawColorDarken(Color col, int by);
-extern Color GDrawColorBrighten(Color col, int by);
-
-extern int GImageWriteGImage(GImage *gi, char *filename);
-extern int GImageWriteBmp(GImage *gi, char *filename);
-extern GImage *GImageRead_Bmp(FILE *file);
-extern GImage *GImageReadBmp(char *filename);
-extern int GImageWriteXbm(GImage *gi, char *filename);
-extern GImage *GImageReadXbm(char *filename);
-extern int GImageWriteXpm(GImage *gi, char *filename);
-extern GImage *GImageReadXpm(char *filename);
-extern int GImageWriteEps(GImage *gi, char *filename);
-extern GImage *GImageReadTiff(char *filename);
-extern GImage *GImageReadJpeg(char *filename);
-extern int GImageWriteJpeg(GImage *gi, char *filename, int quality, int progressive);
-extern GImage *GImageRead_Png(FILE *fp);
-extern GImage *GImageReadPng(char *filename);
-extern int GImageWritePng(GImage *gi, char *filename, int progressive);
-extern GImage *GImageReadGif(char *filename);
-extern int GImageWriteGif(GImage *gi,char *filename,int progressive);
-extern GImage *GImageReadRas(char *filename);		/* Sun Raster */
-extern GImage *GImageReadRgb(char *filename);		/* SGI */
-extern GImage *GImageRead(char *filename);
 #endif

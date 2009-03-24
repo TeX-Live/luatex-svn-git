@@ -4,6 +4,8 @@
 #ifndef FF_CONFIG_H
 #define FF_CONFIG_H
 
+#define _NO_FFSCRIPT 1
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 

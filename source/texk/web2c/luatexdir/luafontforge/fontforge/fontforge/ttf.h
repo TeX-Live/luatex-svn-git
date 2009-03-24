@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2007 by George Williams */
+/* Copyright (C) 2001-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -81,6 +81,7 @@ struct ttfinfo {
     unsigned int use_typo_metrics: 1;
     unsigned int weight_width_slope_only: 1;
     unsigned int optimized_for_cleartype: 1;
+    unsigned int apply_lsb: 1;
     enum openflags openflags;
     /* Mac fonts platform=0/1, platform specific enc id, roman=0, english is lang code 0 */
     /* iso platform=2, platform specific enc id, latin1=0/2, no language */
@@ -105,12 +106,15 @@ struct ttfinfo {
     short gasp_version;
     int dupnamestate;
     struct ttflangname *names;
-    char *fontcomments;
+    char *fontcomments, *fontlog;
+    char **cvt_names;
     SplineChar **chars;		/* from all over, glyf table for contours */
     				/* 		  cmap table for encodings */
 			        /*		  hmtx table for widths */
 			        /*		  post table for names */
 			        /* Or from	  CFF  table for everything in opentype */
+    LayerInfo *layers;
+    int layer_cnt;
     BDFFont *bitmaps;
     char *cidregistry, *ordering;
     int supplement;
@@ -120,11 +124,14 @@ struct ttfinfo {
     char *inuse;		/* What glyphs are used by this font in the ttc */
 
     int numtables;
+    		/* BASE  */
+    uint32 base_start;		/* Offset from sof to start of 'BASE' table */
     		/* CFF  */
     uint32 cff_start;		/* Offset from sof to start of postscript compact font format */
     uint32 cff_length;
     		/* cmap */
     uint32 encoding_start;	/* Offset from sof to start of encoding table */
+    uint32 vs_start;		/* Offset within 'cmap' to variant selector table */
 		/* gasp */
     uint32 gasp_start;
 		/* glyf */
@@ -198,6 +205,11 @@ struct ttfinfo {
     uint32 feat_start;
     uint32 mort_start;
     uint32 morx_start;
+    uint32 bsln_start;
+
+		/* MATH Table */
+    uint32 math_start;
+    uint32 math_length;
 
 		/* Info for instructions */
     uint32 cvt_start, cvt_len;
@@ -226,6 +238,7 @@ struct ttfinfo {
     OTLookup *mort_subs_lookup, *mort_pos_lookup2;
     int mort_r2l, mort_tag_mac, mort_feat, mort_setting, mort_is_nested;
     uint16 *morx_classes;
+    uint16 *bsln_values;
 
     int mort_max;
 
@@ -271,7 +284,23 @@ struct ttfinfo {
 #endif
     int gasp_cnt;
     struct gasp *gasp;
+    struct MATH *math;
+    /* Set of errors we found when loading the font */
+    unsigned int bad_ps_fontname: 1;
+    unsigned int bad_glyph_data: 1;
+    unsigned int bad_cff: 1;
+    unsigned int bad_metrics: 1;
+    unsigned int bad_cmap: 1;
+    unsigned int bad_embedded_bitmap: 1;
+    unsigned int bad_gx: 1;
+    unsigned int bad_ot: 1;
+    unsigned int bad_os2_version: 1;
+    unsigned int bad_sfnt_header: 1;
+    Layer guidelines;
+    struct Base *horiz_base, *vert_base;
 };
+
+enum gsub_inusetype { git_normal, git_justinuse, git_findnames };
 
 #define MAX_TAB	48
 struct tabdir {
@@ -289,7 +318,9 @@ struct tabdir {
 	uint16 dup_of;
 	uint16 orderingval;
     } tabs[MAX_TAB];		/* room for all the above tables */
-    struct taboff *ordered[MAX_TAB];
+				/* Not in any particular order. */
+    struct taboff *ordered[MAX_TAB];	/* Ordered the way the tables should be output in file */
+    struct taboff *alpha[MAX_TAB];	/* Ordered alphabetically by tag for the ttf header */
 };
 
 struct glyphhead {
@@ -380,7 +411,6 @@ struct maxp {
     uint16 maxcomponentdepth;
 	/* Apple docs say: 0 (if no composits), maximum value 1 (one level of composit) */
 	/* OpenType docs say: 1 (if no composits), any depth allowed */
-    uint16 mbz;		/* pad out to a 4byte boundary */
 };
 
 struct nametab {
@@ -513,6 +543,7 @@ struct glyphinfo {
     int32 *pointcounts;
     int *bygid;			/* glyph list */
     int gcnt;
+    int layer;
 };
 
 struct vorg {
@@ -560,6 +591,10 @@ struct alltabs {
     int maxplen;
     FILE *os2f;
     int os2len;
+    FILE *math;
+    int mathlen;
+    FILE *base;
+    int baselen;
     FILE *cvtf;
     int cvtlen;
     FILE *fpgmf;		/* Copied from an original ttf file and dumped out. Never generated */
@@ -601,6 +636,8 @@ struct alltabs {
     int featlen;
     FILE *morx;
     int morxlen;
+    FILE *bsln;
+    int bslnlen;
     FILE *pfed;
     int pfedlen;
     FILE *tex;
@@ -617,6 +654,10 @@ struct alltabs {
     int avarlen;
     FILE *fftmf;
     int fftmlen;
+    FILE *dsigf;
+    int dsiglen;
+    FILE *hdmxf;
+    int hdmxlen;
     int defwid, nomwid;
     int sidcnt;
     int lenpos;
@@ -647,6 +688,8 @@ struct alltabs {
     int fontstyle_name_strid;	/* For GPOS 'size' */
     SplineFont *sf;
     EncMap *map;
+    struct ttf_table *oldcvt;
+    int oldcvtlen;
 };
 
 struct subhead { uint16 first, cnt, delta, rangeoff; };	/* a sub header in 8/16 cmap table */
@@ -701,6 +744,8 @@ extern int ttfFixupRef(SplineChar **chars,int i);
 extern void otf_dumpgpos(struct alltabs *at, SplineFont *sf);
 extern void otf_dumpgsub(struct alltabs *at, SplineFont *sf);
 extern void otf_dumpgdef(struct alltabs *at, SplineFont *sf);
+extern void otf_dumpbase(struct alltabs *at, SplineFont *sf);
+extern void otf_dump_dummydsig(struct alltabs *at, SplineFont *sf);
 extern int gdefclass(SplineChar *sc);
 
     /* Apple Advanced Typography Tables */
@@ -710,6 +755,7 @@ extern void aat_dumplcar(struct alltabs *at, SplineFont *sf);
 extern void aat_dumpmorx(struct alltabs *at, SplineFont *sf);
 extern void aat_dumpopbd(struct alltabs *at, SplineFont *sf);
 extern void aat_dumpprop(struct alltabs *at, SplineFont *sf);
+extern void aat_dumpbsln(struct alltabs *at, SplineFont *sf);
 extern int LookupHasDefault(OTLookup *otl);
 extern int scriptsHaveDefault(struct scriptlanglist *sl);
 extern int FPSTisMacable(SplineFont *sf, FPST *fpst);
@@ -717,6 +763,8 @@ extern uint32 MacFeatureToOTTag(int featureType,int featureSetting);
 extern int OTTagToMacFeature(uint32 tag, int *featureType,int *featureSetting);
 extern uint16 *props_array(SplineFont *sf,struct glyphinfo *gi);
 extern int haslrbounds(SplineChar *sc, PST **left, PST **right);
+extern int16 *PerGlyphDefBaseline(SplineFont *sf,int *def_baseline);
+extern void FigureBaseOffsets(SplineFont *sf,int def_bsln,int offsets[32]);
 
     /* Apple variation tables */
 extern int ContourPtNumMatch(MMSet *mm, int gid);
@@ -737,10 +785,12 @@ extern int memushort(uint8 *data,int table_len, int offset);
 extern void memputshort(uint8 *data,int offset,uint16 val);
 extern int TTF__getcvtval(SplineFont *sf,int val);
 extern int TTF_getcvtval(SplineFont *sf,int val);
-extern void initforinstrs(SplineChar *sc);
+extern void SCinitforinstrs(SplineChar *sc);
 extern int SSAddPoints(SplineSet *ss,int ptcnt,BasePoint *bp, char *flags);
+extern int Macable(SplineFont *sf, OTLookup *otl);
 
     /* Used by both otf and apple */
+extern int LigCaretCnt(SplineChar *sc);
 extern uint16 *ClassesFromNames(SplineFont *sf,char **classnames,int class_cnt,
 	int numGlyphs, SplineChar ***glyphs, int apple_kc);
 extern SplineChar **SFGlyphsFromNames(SplineFont *sf,char *names);
@@ -774,6 +824,11 @@ extern void ttf_bdf_read(FILE *ttf,struct ttfinfo *info);
 	/* The FFTM table, to some timestamps I'd like */
 extern int ttf_fftm_dump(SplineFont *sf,struct alltabs *at);
 
+    /* The MATH table */
+extern void otf_dump_math(struct alltabs *at, SplineFont *sf);
+extern void otf_read_math(FILE *ttf,struct ttfinfo *info);
+extern void otf_read_math_used(FILE *ttf,struct ttfinfo *info);
+extern void GuessNamesFromMATH(FILE *ttf,struct ttfinfo *info);
 
     /* Parsing advanced typography */
 extern void readmacfeaturemap(FILE *ttf,struct ttfinfo *info);
@@ -782,10 +837,12 @@ extern void readttfmort(FILE *ttf,struct ttfinfo *info);
 extern void readttfopbd(FILE *ttf,struct ttfinfo *info);
 extern void readttflcar(FILE *ttf,struct ttfinfo *info);
 extern void readttfprop(FILE *ttf,struct ttfinfo *info);
+extern void readttfbsln(FILE *ttf,struct ttfinfo *info);
 extern void readttfgsubUsed(FILE *ttf,struct ttfinfo *info);
 extern void GuessNamesFromGSUB(FILE *ttf,struct ttfinfo *info);
 extern void readttfgpossub(FILE *ttf,struct ttfinfo *info,int gpos);
 extern void readttfgdef(FILE *ttf,struct ttfinfo *info);
+extern void readttfbase(FILE *ttf,struct ttfinfo *info);
 
 extern void VariationFree(struct ttfinfo *info);
 extern void readttfvariations(struct ttfinfo *info, FILE *ttf);

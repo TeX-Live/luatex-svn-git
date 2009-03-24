@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2007 by George Williams */
+/* Copyright (C) 2000-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -50,3 +50,9 @@ extern GImage _GIcon_macttf;
 extern GImage _GIcon_compressed;
 extern GImage _GIcon_tar;
 extern GImage _GIcon_homefolder;
+extern GImage _GIcon_configtool;
+extern GImage _GIcon_bookmark;
+extern GImage _GIcon_nobookmark;
+extern GImage _GIcon_nobookmark;
+extern GImage _GIcon_backarrow;
+extern GImage _GIcon_forwardarrow;

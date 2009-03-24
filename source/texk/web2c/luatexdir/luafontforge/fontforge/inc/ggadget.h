@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2007 by George Williams */
+/* Copyright (C) 2000-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -51,6 +51,27 @@ typedef struct gtextinfo {
 						/* should really be in menuitem, but that wastes space and complicates GTextInfoDraw */
 } GTextInfo;
 
+typedef struct gtextinfo2 {
+    unichar_t *text;
+    GImage *image;
+    Color fg;
+    Color bg;
+    void *userdata;
+    GFont *font;
+    unsigned int disabled: 1;
+    unsigned int image_precedes: 1;
+    unsigned int checkable: 1;			/* Only for menus */
+    unsigned int checked: 1;			/* Only for menus */
+    unsigned int selected: 1;			/* Only for lists (used internally for menu(bar)s, when cursor is on the line) */
+    unsigned int line: 1;			/* Only for menus */
+    unsigned int text_is_1byte: 1;		/* If passed in as 1byte (ie. iso-8859-1) text, will be converted */
+    unsigned int text_in_resource: 1;		/* the text field is actually an index into the string resource table */
+    unsigned int changed: 1;			/* If a row/column widget changed this */
+    unsigned int sort_me_first_in_list: 1;	/* used for directories in file chooser widgets */
+    unichar_t mnemonic;				/* Only for menus and menubars */
+						/* should really be in menuitem, but that wastes space and complicates GTextInfoDraw */
+} GTextInfo2;
+
 typedef struct gmenuitem {
     GTextInfo ti;
     unichar_t shortcut;
@@ -90,7 +111,8 @@ enum box_flags {
     box_foreground_shadow_outer = 8,	/* 1 point line, bottom&right */
     box_do_depressed_background = 0x10,
     box_draw_default = 0x20,	/* if a default button draw a depressed rect around button */
-    box_generate_colors = 0x40	/* use border_brightest to compute other border cols */
+    box_generate_colors = 0x40,	/* use border_brightest to compute other border cols */
+    box_gradient_bg = 0x80
     };
 typedef struct gbox {
     unsigned char border_type;	
@@ -109,6 +131,7 @@ typedef struct gbox {
     Color disabled_foreground;
     Color active_border;
     Color depressed_background;
+    Color gradient_bg_end;
 } GBox;
 
 typedef struct ggadget GGadget;
@@ -117,6 +140,7 @@ typedef struct ggadget *GGadgetSet;
 enum sb_type { sb_upline, sb_downline, sb_uppage, sb_downpage, sb_track, sb_trackrelease };
 
 typedef int (*GGadgetHandler)(GGadget *,GEvent *);
+typedef unichar_t **(*GTextCompletionHandler)(GGadget *,int from_tab);
 
 typedef struct ggadgetdata {
     GRect pos;
@@ -135,6 +159,7 @@ typedef struct ggadgetdata {
 	struct ggadgetcreatedata **boxelements;	/* An array of things to go in the box */
 	struct matrixinit *matrix;
 	GDrawEH drawable_e_h;	/* Drawable event handler */
+	GTextCompletionHandler completion;
     } u;
     enum gg_flags { gg_visible=1, gg_enabled=2, gg_pos_in_pixels=4,
 	gg_sb_vert=8, gg_line_vert=gg_sb_vert,
@@ -189,7 +214,9 @@ struct matrixinit {
     struct col_init {
 	enum me_type { me_int, me_enum, me_real, me_string, me_bigstr, me_func,
 		me_funcedit,
-		me_stringchoice, me_stringchoicetrans, me_stringchoicetag } me_type;
+		me_stringchoice, me_stringchoicetrans, me_stringchoicetag,
+		me_button,
+		me_hex, me_uhex, me_addr } me_type;
 	char *(*func)(GGadget *,int r,int c);
 	GTextInfo *enum_vals;
 	void (*enable_enum)(GGadget *,GMenuItem *, int r, int c);
@@ -201,6 +228,7 @@ struct matrixinit {
 	    intpt md_ival;
 	    double md_real;
 	    char *md_str;
+	    void *md_addr;
 	} u;
 	uint8 frozen;
 	uint8 user_bits;
@@ -220,6 +248,7 @@ struct gdirentry;
 typedef enum fchooserret (*GFileChooserFilterType)(GGadget *g,struct gdirentry *ent,
 	const unichar_t *dir);
 
+    /* Obsolete */
 #define _STR_NULL	(-1)		/* Null string resource */
 #define _STR_Language	0
 #define _STR_OK		1
@@ -258,6 +287,7 @@ extern void GStringSetFallbackArray(const unichar_t **array,const unichar_t *mn,
 	const int *ires);
 unichar_t *GStringFileGetResource(char *filename, int index,unichar_t *mnemonic);
 extern void GResourceUseGetText(void);
+extern FontInstance *GResourceFindFont(char *resourcename,FontInstance *deffont);
 
 void GGadgetDestroy(GGadget *g);
 void GGadgetSetVisible(GGadget *g,int visible);
@@ -270,6 +300,7 @@ void GGadgetSetUserData(GGadget *g, void *d);
 void GGadgetSetPopupMsg(GGadget *g, const unichar_t *msg);
 GRect *GGadgetGetInnerSize(GGadget *g,GRect *rct);
 GRect *GGadgetGetSize(GGadget *g,GRect *rct);
+void GGadgetGetDesiredVisibleSize(GGadget *g,GRect *outer, GRect *inner);
 void GGadgetGetDesiredSize(GGadget *g,GRect *outer, GRect *inner);
 void GGadgetSetDesiredSize(GGadget *g,GRect *outer, GRect *inner);
 int GGadgetGetCid(GGadget *g);
@@ -295,6 +326,8 @@ GGadgetHandler GGadgetGetHandler(GGadget *g);
 void GTextFieldSelect(GGadget *g,int sel_start, int sel_end);
 void GTextFieldShow(GGadget *g,int pos);
 void GTextFieldReplace(GGadget *g,const unichar_t *txt);
+void GCompletionFieldSetCompletion(GGadget *g,GTextCompletionHandler completion);
+void GCompletionFieldSetCompletionMode(GGadget *g,int enabled);
 void GGadgetClearList(GGadget *g);
 void GGadgetSetList(GGadget *g, GTextInfo **ti, int32 copyit);
 GTextInfo **GGadgetGetList(GGadget *g,int32 *len);	/* Do not free!!! */
@@ -324,6 +357,8 @@ void GTabSetSetNestedExpose(GGadget *g, void (*)(GWindow,GGadget *,GEvent *));
 void GTabSetSetNestedMouse(GGadget *g, int (*)(GGadget *,GEvent *));
 void GTabSetChangeTabName(GGadget *g, char *name, int pos);
 void GTabSetRemetric(GGadget *g);
+void GTabSetRemoveTabByPos(GGadget *g, int pos);
+void GTabSetRemoveTabByName(GGadget *g, char *name);
 
 int32 GScrollBarGetPos(GGadget *g);
 int32 GScrollBarSetPos(GGadget *g,int32 pos);
@@ -337,6 +372,8 @@ void GMenuBarSetItemEnabled(GGadget *g, int mid, int enabled);
 void GMenuBarSetItemName(GGadget *g, int mid, const unichar_t *name);
 void GMenuSetShortcutDomain(char *domain);
 const char *GMenuGetShortcutDomain(void);
+int GMenuIsCommand(GEvent *event,char *shortcut);
+int GMenuMask(void);
 
 
 void GFileChooserPopupCheck(GGadget *g,GEvent *e);
@@ -356,11 +393,19 @@ unichar_t **GFileChooserGetMimetypes(GGadget *g);
 void GFileChooserGetChildren(GGadget *g,GGadget **pulldown, GGadget **list, GGadget **tf);
 int GFileChooserPosIsDir(GGadget *g, int pos);
 unichar_t *GFileChooserFileNameOfPos(GGadget *g, int pos);
+void GFileChooserSetShowHidden(int sh);
+int GFileChooserGetShowHidden(void);
+void GFileChooserSetDirectoryPlacement(int dp);
+int GFileChooserGetDirectoryPlacement(void);
+void GFileChooserSetBookmarks(unichar_t **b);
+unichar_t **GFileChooserGetBookmarks(void);
+void GFileChooserSetPrefsChangedCallback(void *data, void (*p_c)(void *));
 
 void GHVBoxSetExpandableCol(GGadget *g,int col);
 void GHVBoxSetExpandableRow(GGadget *g,int row);
 void GHVBoxSetPadding(GGadget *g,int hpad, int vpad);
 void GHVBoxFitWindow(GGadget *g);
+void GHVBoxReflow(GGadget *g);
 
 void GMatrixEditSet(GGadget *g,struct matrix_data *data, int rows, int copy_it);
 struct matrix_data *GMatrixEditGet(GGadget *g, int *rows);
@@ -370,12 +415,14 @@ int GMatrixEditGetColCnt(GGadget *g);
 int GMatrixEditGetActiveRow(GGadget *g);
 int GMatrixEditGetActiveCol(GGadget *g);
 void GMatrixEditDeleteRow(GGadget *g,int row);
+void GMatrixEditScrollToRowCol(GGadget *g,int r, int c);
 int GMatrixEditStringDlg(GGadget *g,int row,int col);
 void GMatrixEditSetNewText(GGadget *g, char *text);
 void GMatrixEditSetOtherButtonEnable(GGadget *g, void (*sob)(GGadget *g, int r, int c));
 void GMatrixEditSetMouseMoveReporter(GGadget *g, void (*rmm)(GGadget *g, int r, int c));
 void GMatrixEditSetTextChangeReporter(GGadget *g, void (*tcr)(GGadget *g, int r, int c, GGadget *text));
 void GMatrixEditSetValidateStr(GGadget *g, char *(*validate)(GGadget *g, int r, int c, int wasnew, char *str));
+void GMatrixEditSetBeforeDelete(GGadget *g, void (*predelete)(GGadget *g, int r));
 void GMatrixEditUp(GGadget *g);
 void GMatrixEditDown(GGadget *g);
 void GMatrixEditSetUpDownVisible(GGadget *g, int enabled);
@@ -383,6 +430,7 @@ void GMatrixEditAddButtons(GGadget *g, GGadgetCreateData *gcd);
 void GMatrixEditEnableColumn(GGadget *g, int col, int enabled);
 void GMatrixEditShowColumn(GGadget *g, int col, int visible);
 void GMatrixEditSetColumnChoices(GGadget *g, int col, GTextInfo *ti);
+void GMatrixEditSetColumnCompletion(GGadget *g, int col, GTextCompletionHandler completion);
 
 GWindow GDrawableGetWindow(GGadget *g);
 
@@ -423,8 +471,10 @@ GGadget *GListCreate(struct gwindow *base, GGadgetData *gd,void *data);
 GGadget *GTextFieldCreate(struct gwindow *base, GGadgetData *gd,void *data);
 GGadget *GPasswordCreate(struct gwindow *base, GGadgetData *gd,void *data);
 GGadget *GNumericFieldCreate(struct gwindow *base, GGadgetData *gd,void *data);
+GGadget *GTextCompletionCreate(struct gwindow *base, GGadgetData *gd,void *data);
 GGadget *GTextAreaCreate(struct gwindow *base, GGadgetData *gd,void *data);
 GGadget *GListFieldCreate(struct gwindow *base, GGadgetData *gd,void *data);
+GGadget *GSimpleListFieldCreate(struct gwindow *base, GGadgetData *gd,void *data);
 GGadget *GMenuBarCreate(struct gwindow *base, GGadgetData *gd,void *data);
 GGadget *GMenu2BarCreate(struct gwindow *base, GGadgetData *gd,void *data);
 GGadget *GTabSetCreate(struct gwindow *base, GGadgetData *gd,void *data);
@@ -441,44 +491,19 @@ GGadget *CreateFileChooser(struct gwindow *base, GGadgetData *gd,void *data);
 GGadget *CreateGadgets(struct gwindow *base, GGadgetCreateData *gcd);
 
 GTextInfo **GTextInfoArrayFromList(GTextInfo *ti, uint16 *cnt);
+GImage *GGadgetResourceFindImage(char *name, GImage *def);
+
+void GGadgetSetImageDir(char *dir);
+void GGadgetSetImagePath(char *path);
+GImage *GGadgetImageCache(char *filename);
 
 extern unichar_t *utf82u_mncopy(const char *utf8buf,unichar_t *mn);
 
-#if 0
-void GadgetRedraw(Gadget *g);
-void GadgetSetBox(Gadget *g,Box *b);
-Box *GadgetGetBox(Gadget *g);
-Rect *GadgetGetPos(Gadget *g);
-void GadgetMove(Gadget *g, int x, int y);
-void GadgetResize(Gadget *g, int width, int height);
-void GadgetReposition(Gadget *g, Rect *r);
-void GadgetSetVisible(Gadget *g, int visible);
-int GadgetIsVisible(Gadget *g);
-void GadgetSetEnabled(Gadget *g, int enabled);
-int GadgetIsEnabled(Gadget *g);
-void GadgetSetFocus(Gadget *g);
-int GadgetHasFocus(Gadget *g);
-void GadgetSetMnemonic(Gadget *g, int ch);
-int GadgetGetMnemonic(Gadget *g);
-void GadgetSetAccel(Gadget *g, int ch, short mask);
-int GadgetGetAccelChar(Gadget *g);
-short GadgetGetAccelMask(Gadget *g);
-
-void GadgetSetTitle(Gadget *g,const unichar_t *title);
-unichar_t *GadgetGetTitle(Gadget *g);
-void GadgetSetFont(Gadget *g,GFont *font);
-GFont *GadgetGetFont(Gadget *g);
-
-void GadgetSetCheck(Gadget *g,int checked);
-int GadgetGetChecked(Gadget *g);
-
-void GadgetClearList(Gadget *g);
-void GadgetSetListTI(Gadget *g,GTextInfo *ti);
-void GadgetSetList(Gadget *g,unichar_t **list);
-void GadgetPrependToList(Gadget *g,unichar_t *
-
-void GadgetSetMenuItem(Gadget *,MenuItem *m);
-MenuItem *GadgetGetMenuItem(Gadget *);
-#endif
+extern double GetCalmReal8(GWindow gw,int cid,char *namer,int *err);
+extern double GetReal8(GWindow gw,int cid,char *namer,int *err);
+extern int GetCalmInt8(GWindow gw,int cid,char *name,int *err);
+extern int GetInt8(GWindow gw,int cid,char *namer,int *err);
+extern int GetUnicodeChar8(GWindow gw,int cid,char *namer,int *err);
+extern void GGadgetProtest8(char *labelr);
 
 #endif

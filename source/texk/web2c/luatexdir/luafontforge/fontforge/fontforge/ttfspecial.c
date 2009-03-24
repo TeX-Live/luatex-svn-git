@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2007 by George Williams */
+/* Copyright (C) 2000-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,10 +25,11 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "pfaedit.h"
+#include <math.h>
 #include <time.h>
 #include <utype.h>
 #include <ustring.h>
-#include <gdraw.h>		/* For COLOR_DEFAULT */
+#include <gimage.h>		/* For COLOR_DEFAULT */
 
 #include "ttf.h"
 
@@ -41,260 +42,64 @@
 /* *************************         Output         ************************* */
 /* ************************************************************************** */
 
-/* 'PfEd' table format is as follows...				 */
-/* uint32  version number 0x00010000				 */
-/* uint32  subtable count					 */
-/* struct { uint32 tab, offset } tag/offset for first subtable	 */
-/* struct { uint32 tab, offset } tag/offset for second subtable	 */
-/* ...								 */
+#include "PfEd.h"	/* This describes the format of the 'PfEd' table */
+			/*  and its many subtables. */
 
-/* 'PfEd' 'fcmt' font comment subtable format			 */
-/*  short version number 0					 */
-/*  short string length						 */
-/*  String in latin1 (ASCII is better)				 */
-
-/* 'PfEd' 'cmnt' glyph comment subtable format			 */
-/*  short  version number 0					 */
-/*  short  count-of-ranges					 */
-/*  struct { short start-glyph, end-glyph, short offset }	 */
-/*  ...								 */
-/*  foreach glyph >=start-glyph, <=end-glyph(+1)		 */
-/*   uint32 offset		to glyph comment string (in UCS2) */
-/*  ...								 */
-/*  And one last offset pointing beyong the end of the last string to enable length calculations */
-/*  String table in UCS2 (NUL terminated). All offsets from start*/
-/*   of subtable */
-
-/* 'PfEd' 'colr' glyph colour subtable				 */
-/*  short  version number 0					 */
-/*  short  count-of-ranges					 */
-/*  struct { short start-glyph, end-glyph, uint32 colour (rgb) } */
-
-#define MAX_SUBTABLE_TYPES	3
-
-struct PfEd_subtabs {
-    int next;
-    struct {
-	FILE *data;
-	uint32 tag;
-	uint32 offset;
-    } subtabs[MAX_SUBTABLE_TYPES];
-};
-
-static void PfEd_FontComment(SplineFont *sf, struct PfEd_subtabs *pfed ) {
-    FILE *fcmt;
-    char *pt;
-
-    if ( sf->comments==NULL || *sf->comments=='\0' )
-return;
-    pfed->subtabs[pfed->next].tag = CHR('f','c','m','t');
-    pfed->subtabs[pfed->next++].data = fcmt = tmpfile();
-
-    putshort(fcmt,0);			/* sub-table version number */
-    putshort(fcmt,strlen(sf->comments));
-    for ( pt = sf->comments; *pt; ++pt )
-	putshort(fcmt,*pt);
-    putshort(fcmt,0);
-    if ( ftell(fcmt)&2 ) putshort(fcmt,0);
-}
-
-static void PfEd_GlyphComments(SplineFont *sf, struct PfEd_subtabs *pfed,
-	struct glyphinfo *gi ) {
-    int i, j, k, any, cnt, last, skipped;
-    uint32 offset;
-    SplineChar *sc, *sc2;
-    FILE *cmnt;
-    char *upt;
-    uint32 uch;
-
-	sc2 = NULL;
-    any = 0; 
-    /* We don't need to check in bygid order. We just want to know existance */
-    for ( i=0; i<sf->glyphcnt; ++i ) {
-	if ( sf->glyphs[i]!=NULL && sf->glyphs[i]->ttf_glyph!=-1 &&
-		sf->glyphs[i]->comment!=NULL ) {
-	    any = true;
-    break;
-	}
-    }
-
-    if ( !any )
-return;
-
-    pfed->subtabs[pfed->next].tag = CHR('c','m','n','t');
-    pfed->subtabs[pfed->next++].data = cmnt = tmpfile();
-
-    putshort(cmnt,0);			/* sub-table version number */
-
-    offset = 0;
-    for ( j=0; j<4; ++j ) {
-	cnt = 0;
-	for ( i=0; i<gi->gcnt; ++i ) if ( gi->bygid[i]!=-1 ) {
-	    sc=sf->glyphs[gi->bygid[i]];
-	    if ( sc!=NULL && sc->comment!=NULL ) {
-		last = i; skipped = false;
-		for ( k=i+1; k<gi->gcnt; ++k ) {
-		    if ( gi->bygid[k]!=-1 )
-			sc2 = sf->glyphs[gi->bygid[k]];
-		    if ( (gi->bygid[k]==-1 || sc2->comment==NULL) && skipped )
-		break;
-		    if ( gi->bygid[k]!=-1 && sc2->comment!=NULL ) {
-			last = k;
-			skipped = false;
-		    } else
-			skipped = true;
-		}
-		++cnt;
-		if ( j==1 ) {
-		    putshort(cmnt,i);
-		    putshort(cmnt,last);
-		    putlong(cmnt,offset);
-		    offset += sizeof(uint32)*(last-i+2);
-		} else if ( j==2 ) {
-		    for ( ; i<=last; ++i ) {
-			if ( gi->bygid[i]==-1 || (sc=sf->glyphs[gi->bygid[i]])->comment==NULL )
-			    putlong(cmnt,0);
-			else {
-			    putlong(cmnt,offset);
-			    offset += sizeof(unichar_t)*(utf82u_strlen(sc->comment)+1);
-			}
-		    }
-		    putlong(cmnt,offset);	/* Guard data, to let us calculate the string lengths */
-		} else if ( j==3 ) {
-		    for ( ; i<=last; ++i ) {
-			if ( gi->bygid[i]==-1 || (sc=sf->glyphs[gi->bygid[i]])->comment==NULL )
-		    continue;
-			for ( upt = sc->comment; (uch = utf8_ildb((const char **) &upt))!='\0'; ) {
-			    if ( uch<0x10000 )
-				putshort(cmnt,uch);
-			    else {
-				putshort(cmnt,0xd800|(uch/0x400));
-				putshort(cmnt,0xdc00|(uch&0x3ff));
-			    }
-			}
-			putshort(cmnt,0);
-		    }
-		}
-		i = last;
-	    }
-	}
-	if ( j==0 ) {
-	    putshort(cmnt,cnt);
-	    offset = 2*sizeof(short) + cnt*(2*sizeof(short)+sizeof(uint32));
-	}
-    }
-    if ( ftell(cmnt) & 2 )
-	putshort(cmnt,0);
-}
-
-static void PfEd_Colours(SplineFont *sf, struct PfEd_subtabs *pfed, struct glyphinfo *gi ) {
-    int i, j, k, any, cnt, last;
-    SplineChar *sc, *sc2;
-    FILE *colr;
-
-    any = 0;
-    for ( i=0; i<sf->glyphcnt; ++i ) {
-	if ( sf->glyphs[i]!=NULL && sf->glyphs[i]->ttf_glyph!=-1 &&
-		sf->glyphs[i]->color!=COLOR_DEFAULT ) {
-	    any = true;
-    break;
-	}
-    }
-
-    if ( !any )
-return;
-
-    pfed->subtabs[pfed->next].tag = CHR('c','o','l','r');
-    pfed->subtabs[pfed->next++].data = colr = tmpfile();
-
-    putshort(colr,0);			/* sub-table version number */
-    for ( j=0; j<2; ++j ) {
-	cnt = 0;
-	for ( i=0; i<gi->gcnt; ++i ) if ( gi->bygid[i]!=-1 ) {
-	    sc = sf->glyphs[gi->bygid[i]];
-	    if ( sc!=NULL && sc->color!=COLOR_DEFAULT ) {
-		last = i;
-		for ( k=i+1; k<gi->gcnt; ++k ) {
-		    if ( gi->bygid[k]==-1 )
-		break;
-		    sc2 = sf->glyphs[gi->bygid[k]];
-		    if ( sc2->color != sc->color )
-		break;
-		    last = k;
-		}
-		++cnt;
-		if ( j==1 ) {
-		    putshort(colr,i);
-		    putshort(colr,last);
-		    putlong(colr,sc->color);
-		}
-		i = last;
-	    }
-	}
-	if ( j==0 )
-	    putshort(colr,cnt);
-    }
-    if ( ftell(colr) & 2 )
-	putshort(colr,0);
-}
-
-void pfed_dump(struct alltabs *at, SplineFont *sf) {
-    struct PfEd_subtabs pfed;
-    FILE *file;
-    int i;
-    uint32 offset;
-
-    memset(&pfed,0,sizeof(pfed));
-    if ( at->gi.flags & ttf_flag_pfed_comments ) {
-	PfEd_FontComment(sf, &pfed );
-	PfEd_GlyphComments(sf, &pfed, &at->gi );
-    }
-    if ( at->gi.flags & ttf_flag_pfed_colors )
-	PfEd_Colours(sf, &pfed, &at->gi );
-
-    if ( pfed.next==0 )
-return;		/* No subtables */
-
-    at->pfed = file = tmpfile();
-    putlong(file, 0x00010000);		/* Version number */
-    putlong(file, pfed.next);		/* sub-table count */
-    offset = 2*sizeof(uint32) + 2*pfed.next*sizeof(uint32);
-    for ( i=0; i<pfed.next; ++i ) {
-	putlong(file,pfed.subtabs[i].tag);
-	putlong(file,offset);
-	fseek(pfed.subtabs[i].data,0,SEEK_END);
-	pfed.subtabs[i].offset = offset;
-	offset += ftell(pfed.subtabs[i].data);
-    }
-    for ( i=0; i<pfed.next; ++i ) {
-	fseek(pfed.subtabs[i].data,0,SEEK_SET);
-	ttfcopyfile(file,pfed.subtabs[i].data,pfed.subtabs[i].offset,"PfEd-subtable");
-    }
-    if ( ftell(file)&3 )
-	IError("'PfEd' table not properly aligned");
-    at->pfedlen = ftell(file);
-}
+#define MAX_SUBTABLE_TYPES	20
 
 /* *************************    The 'PfEd' table    ************************* */
 /* *************************          Input         ************************* */
 
-static void pfed_readfontcomment(FILE *ttf,struct ttfinfo *info,uint32 base) {
+static void pfed_readfontcomment(FILE *ttf,struct ttfinfo *info,uint32 base,
+	uint32 tag) {
     int len;
-    char *pt, *end;
+    char *start, *pt, *end;
+    int use_utf8;
 
     fseek(ttf,base,SEEK_SET);
-    if ( getushort(ttf)!=0 )
+    use_utf8 = getushort(ttf);
+    if ( use_utf8!=0 && use_utf8!=1 )
 return;			/* Bad version number */
     len = getushort(ttf);
-    pt = galloc(len+1);		/* data are stored as UCS2, but currently are ASCII */
-    info->fontcomments = pt;
+    start = pt = galloc(len+1);
+
     end = pt+len;
-    while ( pt<end )
-	*pt++ = getushort(ttf);
+    if ( use_utf8 ) {
+	while ( pt<end )
+	    *pt++ = getc(ttf);
+    } else {
+	while ( pt<end )
+	    *pt++ = getushort(ttf);
+    }
     *pt = '\0';
+    if ( !use_utf8 ) {
+	pt = latin1_2_utf8_copy(info->fontcomments);
+	free(start);
+	start = pt;
+    }
+    if ( tag==flog_TAG )
+	info->fontlog = start;
+    else
+	info->fontcomments = start;
 }
 
-static char *ReadUnicodeStr(FILE *ttf,uint32 offset,int len) {
+static char *pfed_read_utf8(FILE *ttf, uint32 start) {
+    int ch, len;
+    char *str, *pt;
+
+    fseek( ttf, start, SEEK_SET);
+    len = 0;
+    while ( (ch=getc(ttf))!='\0' && ch!=EOF )
+	++len;
+    fseek( ttf, start, SEEK_SET);
+    str = pt = galloc(len+1);
+    while ( (ch=getc(ttf))!='\0' && ch!=EOF )
+	*pt++ = ch;
+    *pt = '\0';
+return( str );
+}
+
+static char *pfed_read_ucs2_len(FILE *ttf,uint32 offset,int len) {
     char *pt, *str;
     uint32 uch, uch2;
     int i;
@@ -321,14 +126,53 @@ return( NULL );
     *pt++ = 0;
 return( grealloc(str,pt-str) );
 }
+
+static char *pfed_read_utf8_len(FILE *ttf,uint32 offset,int len) {
+    char *pt, *str;
+    int i;
+
+    if ( len<0 )
+return( NULL );
+
+    pt = str = galloc(len+1);
+    fseek(ttf,offset,SEEK_SET);
+    for ( i=0; i<len; ++i )
+	*pt++ = getc(ttf);
+    *pt = '\0';
+return( str );
+}
+
+static void pfed_readcvtcomments(FILE *ttf,struct ttfinfo *info,uint32 base ) {
+    int count, i;
+    uint16 *offsets;
+
+    fseek(ttf,base,SEEK_SET);
+    if ( getushort(ttf)!=0 )
+return;			/* Bad version number */
+    count = getushort(ttf);
     
+    offsets = galloc(count*sizeof(uint16));
+    info->cvt_names = galloc((count+1)*sizeof(char *));
+    for ( i=0; i<count; ++i )
+	offsets[i] = getushort(ttf);
+    for ( i=0; i<count; ++i ) {
+	if ( offsets[i]==0 )
+	    info->cvt_names[i] = NULL;
+	else
+	    info->cvt_names[i] = pfed_read_utf8(ttf,base+offsets[i]);
+    }
+    free(offsets);
+}
+
 static void pfed_readglyphcomments(FILE *ttf,struct ttfinfo *info,uint32 base) {
     int n, i, j;
     struct grange { int start, end; uint32 offset; } *grange;
     uint32 offset, next;
+    int use_utf8;
 
     fseek(ttf,base,SEEK_SET);
-    if ( getushort(ttf)!=0 )
+    use_utf8 = getushort(ttf);
+    if ( use_utf8!=0 && use_utf8!=1 )
 return;			/* Bad version number */
     n = getushort(ttf);
     grange = galloc(n*sizeof(struct grange));
@@ -346,7 +190,10 @@ return;			/* Bad version number */
 	    fseek( ttf,base+grange[i].offset+(j-grange[i].start)*sizeof(uint32),SEEK_SET);
 	    offset = getlong(ttf);
 	    next = getlong(ttf);
-	    info->chars[j]->comment = ReadUnicodeStr(ttf,base+offset,next-offset);
+	    if ( use_utf8 )
+		info->chars[j]->comment = pfed_read_utf8_len(ttf,base+offset,next-offset);
+	    else
+		info->chars[j]->comment = pfed_read_ucs2_len(ttf,base+offset,next-offset);
 	    if ( info->chars[j]->comment == NULL )
 		LogError("Invalid comment string (negative length?) in 'PfEd' table for glyph %s.",
 			info->chars[j]->name );
@@ -376,6 +223,448 @@ return;			/* Bad version number */
     }
 }
 
+static void pfed_readlookupnames(FILE *ttf,struct ttfinfo *info,uint32 base,
+	OTLookup *lookups) {
+    OTLookup *otl;
+    struct lookup_subtable *sub;
+    AnchorClass *ac;
+    int i, j, k, n, s, a;
+    struct lstruct { int name_off, subs_off; } *ls, *ss, *as;
+
+    fseek(ttf,base,SEEK_SET);
+    if ( getushort(ttf)!=0 )
+return;			/* Bad version number */
+    n = getushort(ttf);
+    ls = galloc(n*sizeof(struct lstruct));
+    for ( i=0; i<n; ++i ) {
+	ls[i].name_off = getushort(ttf);
+	ls[i].subs_off = getushort(ttf);
+    }
+    for ( i=0, otl=lookups; i<n && otl!=NULL; ++i, otl=otl->next ) {
+	if ( ls[i].name_off!=0 ) {
+	    free( otl->lookup_name );
+	    otl->lookup_name = pfed_read_utf8(ttf,base+ls[i].name_off);
+	}
+	if ( ls[i].subs_off!=0 ) {
+	    fseek(ttf,base+ls[i].subs_off,SEEK_SET);
+	    s = getushort(ttf);
+	    ss = galloc(s*sizeof(struct lstruct));
+	    for ( j=0; j<s; ++j ) {
+		ss[j].name_off = getushort(ttf);
+		ss[j].subs_off = getushort(ttf);
+	    }
+	    for ( j=0, sub=otl->subtables; j<s && sub!=NULL; ++j, sub=sub->next ) {
+		if ( ss[j].name_off!=0 ) {
+		    free( sub->subtable_name );
+		    sub->subtable_name = pfed_read_utf8(ttf,base+ss[j].name_off);
+		}
+		if ( ss[j].subs_off!=0 ) {
+		    if ( !sub->anchor_classes )
+			LogError("Whoops, attempt to name anchors in a subtable which doesn't contain any\n");
+		    else {
+			fseek(ttf,base+ss[j].subs_off,SEEK_SET);
+			a = getushort(ttf);
+			as = galloc(a*sizeof(struct lstruct));
+			for ( k=0; k<a; ++k ) {
+			    as[k].name_off = getushort(ttf);
+			}
+			k=0;
+			for ( ac=info->ahead; ac!=NULL; ac=ac->next ) {
+			    if ( ac->subtable==sub ) {
+				if ( as[k].name_off!=0 ) {
+				    free( ac->name );
+				    ac->name = pfed_read_utf8(ttf,base+as[k].name_off);
+				}
+			        ++k;
+			    }
+			}
+			free(as);
+		    }
+		}
+	    }
+	    /* I guess it's ok for some subtables to be unnamed, so no check for sub!=NULL */
+	    if ( j<s )
+		LogError("Whoops, more names than subtables of lookup %s\n", otl->lookup_name );
+	    free(ss);
+	}
+    }
+    /* I guess it's ok for some lookups to be unnamed, so no check for otf!=NULL */
+    if ( i<n )
+	LogError("Whoops, more names than lookups\n" );
+    free(ls);
+}
+
+static float pfed_get_coord(FILE *ttf,int mod) {
+    if ( mod==V_B )
+return( (float) (signed char) getc(ttf) );
+    else if ( mod==V_S )
+return( (float) (short) getushort(ttf));
+    else if ( mod==V_F )
+return( getlong(ttf)/256.0 );
+    else {
+	LogError( "Bad data type in contour verb in 'PfEd'\n");
+return( 0 );
+    }
+}
+
+static void pfed_read_normal_contour(FILE *ttf,SplineSet *ss,
+	uint32 base, int type) {
+    SplinePoint *sp, *current;
+    int verb, v, m;
+    float offx, offy, offx1 = 0, offy1 = 0, offx2, offy2;
+    int was_implicit=false;
+
+    fseek(ttf,base,SEEK_SET);
+
+    verb = getc(ttf);
+    if ( COM_VERB(verb)!=V_MoveTo ) {
+	LogError("Whoops, contours must begin with a move to\n" );
+	ss->first = ss->last = SplinePointCreate(0,0);
+return;
+    }
+    offx = pfed_get_coord(ttf,COM_MOD(verb));
+    offy = pfed_get_coord(ttf,COM_MOD(verb));
+    ss->first = current = SplinePointCreate(offx,offy);
+    forever {
+	verb = getc(ttf);
+	v = COM_VERB(verb); m = COM_MOD(verb);
+	if ( m==3 ) {
+	    LogError("Bad data modifier in contour command in 'PfEd'\n" );
+    break;
+	}
+	if ( verb==V_Close || verb==V_End )
+    break;
+	else if ( v>=V_LineTo && v<=V_VLineTo ) {
+	    offx = offy = 0;
+	    if ( v==V_LineTo ) {
+		offx = pfed_get_coord(ttf,m);
+		offy = pfed_get_coord(ttf,m);
+	    } else if ( v==V_HLineTo )
+		offx = pfed_get_coord(ttf,m);
+	    else if ( v==V_VLineTo )
+		offy = pfed_get_coord(ttf,m);
+	    sp = SplinePointCreate(current->me.x+offx,current->me.y+offy);
+	} else if ( v>=V_QCurveTo && v<=V_QVImplicit ) {
+	    int will_be_implicit = true;
+	    offx = offy = 0; offx1 = offy1 = 1;	/* else implicit points become straight lines too soon */
+	    if ( v==V_QCurveTo ) {
+		offx = pfed_get_coord(ttf,m);
+		offy = pfed_get_coord(ttf,m);
+		offx1 = pfed_get_coord(ttf,m);
+		offy1 = pfed_get_coord(ttf,m);
+		will_be_implicit = false;
+	    } else if ( v==V_QImplicit ) {
+		offx = pfed_get_coord(ttf,m);
+		offy = pfed_get_coord(ttf,m);
+	    } else if ( v==V_QHImplicit ) {
+		offx = pfed_get_coord(ttf,m);
+	    } else if ( v==V_QVImplicit ) {
+		offy = pfed_get_coord(ttf,m);
+	    }
+	    
+	    current->nextcp.x = current->me.x+offx;
+	    current->nextcp.y = current->me.y+offy;
+	    current->nonextcp = false;
+	    sp = SplinePointCreate(current->nextcp.x+offx1,current->nextcp.y+offy1);
+	    sp->prevcp = current->nextcp;
+	    sp->noprevcp = false;
+	    if ( was_implicit ) {
+		current->me.x = (current->prevcp.x + current->nextcp.x)/2;
+		current->me.y = (current->prevcp.y + current->nextcp.y)/2;
+		SplineRefigure(current->prev);
+	    }
+	    was_implicit = will_be_implicit;
+	} else if ( v>=V_CurveTo && v<=V_HVCurveTo ) {
+	    offx=offy=offx2=offy2=0;
+	    if ( v==V_CurveTo ) {
+		offx = pfed_get_coord(ttf,m);
+		offy = pfed_get_coord(ttf,m);
+		offx1 = pfed_get_coord(ttf,m);
+		offy1 = pfed_get_coord(ttf,m);
+		offx2 = pfed_get_coord(ttf,m);
+		offy2 = pfed_get_coord(ttf,m);
+	    } else if ( v==V_VHCurveTo ) {
+		offy = pfed_get_coord(ttf,m);
+		offx1 = pfed_get_coord(ttf,m);
+		offy1 = pfed_get_coord(ttf,m);
+		offx2 = pfed_get_coord(ttf,m);
+	    } else if ( v==V_HVCurveTo ) {
+		offx = pfed_get_coord(ttf,m);
+		offx1 = pfed_get_coord(ttf,m);
+		offy1 = pfed_get_coord(ttf,m);
+		offy2 = pfed_get_coord(ttf,m);
+	    }
+	    current->nextcp.x = current->me.x+offx;
+	    current->nextcp.y = current->me.y+offy;
+	    current->nonextcp = false;
+	    sp = SplinePointCreate(current->nextcp.x+offx1+offx2,current->nextcp.y+offy1+offy2);
+	    sp->prevcp.x = current->nextcp.x+offx1;
+	    sp->prevcp.y = current->nextcp.y+offy1;
+	    sp->noprevcp = false;
+	} else {
+	    LogError("Whoops, unexpected verb in contour %d.%d\n", v, m );
+    break;
+	}
+	SplineMake(current,sp,type==2);
+	current = sp;
+    }
+    if ( verb==V_Close ) {
+	if ( was_implicit ) {
+	    current->me.x = (current->prevcp.x + ss->first->nextcp.x)/2;
+	    current->me.y = (current->prevcp.y + ss->first->nextcp.y)/2;
+	}
+	if ( current->me.x==ss->first->me.x && current->me.y==ss->first->me.y ) {
+	    current->prev->to = ss->first;
+	    ss->first->prev = current->prev;
+	    ss->first->prevcp = current->prevcp;
+	    ss->first->noprevcp = current->noprevcp;
+	    SplinePointFree(current);
+	} else
+	    SplineMake(current,ss->first,type==2);
+	ss->last = ss->first;
+    } else {
+	ss->last = current;
+    }
+    SPLCatagorizePoints(ss);
+}
+
+
+static void pfed_read_glyph_layer(FILE *ttf,struct ttfinfo *info,Layer *ly,
+	uint32 base, int type, int version) {
+    int cc, ic, rc, i, j;
+    SplineSet *ss;
+    struct contours { int data_off, name_off; SplineSet *ss; } *contours;
+    int gid;
+    RefChar *last, *cur;
+
+    fseek(ttf,base,SEEK_SET);
+    cc = getushort(ttf);
+    rc = 0;
+    if ( version==1 )
+	rc = getushort(ttf);
+    ic = getushort(ttf);
+    contours = galloc(cc*sizeof(struct contours));
+    for ( i=0; i<cc; ++i ) {
+	contours[i].data_off = getushort(ttf);
+	contours[i].name_off = getushort(ttf);
+    }
+    last = NULL;
+    for ( i=0; i<rc; ++i ) {
+	cur = RefCharCreate();
+	for ( j=0; j<6; ++j )
+	    cur->transform[j] = getlong(ttf)/32768.0;
+	gid = getushort(ttf);
+	cur->sc = info->chars[gid];
+	cur->orig_pos = gid;
+	cur->unicode_enc = cur->sc->unicodeenc;
+	if ( last==NULL )
+	    ly->refs = cur;
+	else
+	    last->next = cur;
+	last = cur;
+    }
+    
+    ss = ly->splines;			/* Only relevant for spiros where they live in someone else's layer */
+    for ( i=0; i<cc; ++i ) {
+	if ( type!=1 ) {		/* Not spiros */
+	    contours[i].ss = chunkalloc(sizeof(SplineSet));
+	    if ( i==0 )
+		ly->splines = contours[i].ss;
+	    else
+		contours[i-1].ss->next = contours[i].ss;
+	    if ( contours[i].name_off!=0 )
+		contours[i].ss->contour_name = pfed_read_utf8(ttf,base+contours[i].name_off);
+	    pfed_read_normal_contour(ttf,contours[i].ss,base+contours[i].data_off,type);
+	}
+    }
+    free(contours);
+}
+
+static void pfed_readguidelines(FILE *ttf,struct ttfinfo *info,uint32 base) {
+    int i,v,h,off;
+    int version;
+    SplinePoint *sp, *nsp;
+    SplineSet *ss;
+
+    fseek(ttf,base,SEEK_SET);
+    version = getushort(ttf);
+    if ( version>1 )
+return;			/* Bad version number */
+    v = getushort(ttf);
+    h = getushort(ttf);
+    (void) getushort(ttf);
+    off = getushort(ttf);
+
+    if ( off!=0 ) {
+	pfed_read_glyph_layer(ttf,info,&info->guidelines,base+off,info->to_order2?2:3,version);
+    } else {
+	struct npos { int pos; int offset; } *vs, *hs;
+	vs = galloc(v*sizeof(struct npos));
+	hs = galloc(h*sizeof(struct npos));
+	for ( i=0; i<v; ++i ) {
+	    vs[i].pos = (short) getushort(ttf);
+	    vs[i].offset = getushort(ttf);
+	}
+	for ( i=0; i<h; ++i ) {
+	    hs[i].pos = (short) getushort(ttf);
+	    hs[i].offset = getushort(ttf);
+	}
+	for ( i=0; i<v; ++i ) {
+	    sp = SplinePointCreate(vs[i].pos,-info->emsize);
+	    nsp = SplinePointCreate(vs[i].pos,2*info->emsize);
+	    SplineMake(sp,nsp,info->to_order2);
+	    ss = chunkalloc(sizeof(SplineSet));
+	    ss->first = sp; ss->last = nsp;
+	    if ( vs[i].offset!=0 )
+		ss->contour_name = pfed_read_utf8(ttf,base+vs[i].offset);
+	    ss->next = info->guidelines.splines;
+	    info->guidelines.splines = ss;
+	}
+	for ( i=0; i<h; ++i ) {
+	    sp = SplinePointCreate(-info->emsize,hs[i].pos);
+	    nsp = SplinePointCreate(2*info->emsize,hs[i].pos);
+	    SplineMake(sp,nsp,info->to_order2);
+	    ss = chunkalloc(sizeof(SplineSet));
+	    ss->first = sp; ss->last = nsp;
+	    if ( hs[i].offset!=0 )
+		ss->contour_name = pfed_read_utf8(ttf,base+hs[i].offset);
+	    ss->next = info->guidelines.splines;
+	    info->guidelines.splines = ss;
+	}
+	SPLCatagorizePoints(info->guidelines.splines);
+	free(vs); free(hs);
+    }
+}
+
+static void pfed_redo_refs(SplineChar *sc,int layer) {
+    RefChar *refs;
+
+    sc->ticked = true;
+    for ( refs=sc->layers[layer].refs; refs!=NULL; refs=refs->next ) {
+	if ( !refs->sc->ticked )
+	    pfed_redo_refs(refs->sc,layer);
+	SCReinstanciateRefChar(sc,refs,layer);
+    }
+}
+
+static void pfed_read_layer(FILE *ttf,struct ttfinfo *info,int layer,int type, uint32 base,
+	uint32 start,int version) {
+    uint32 *loca = gcalloc(info->glyph_cnt,sizeof(uint32));
+    int i,j;
+    SplineChar *sc;
+    int rcnt;
+    struct range { int start, last; uint32 offset; } *ranges;
+
+    fseek(ttf,start,SEEK_SET);
+    rcnt = getushort(ttf);
+    ranges = galloc(rcnt*sizeof(struct range));
+    for ( i=0; i<rcnt; ++i ) {
+	ranges[i].start  = getushort(ttf);
+	ranges[i].last   = getushort(ttf);
+	ranges[i].offset = getlong(ttf);
+    }
+    for ( i=0; i<rcnt; ++i ) {
+	fseek(ttf,base+ranges[i].offset,SEEK_SET);
+	for ( j=ranges[i].start; j<=ranges[i].last; ++j )
+	    loca[j] = getlong(ttf);
+	for ( j=ranges[i].start; j<=ranges[i].last; ++j ) {
+	    Layer *ly;
+	    sc = info->chars[j];
+	    ly = &sc->layers[layer];
+	    if ( loca[j]!=0 )
+		pfed_read_glyph_layer(ttf,info,ly,base+loca[j],type,version);
+	}
+    }
+    free(ranges); free(loca);
+
+    for ( i=0; i<info->glyph_cnt; ++i ) if ( info->chars[i]!=NULL )
+	info->chars[i]->ticked = false;
+    for ( i=0; i<info->glyph_cnt; ++i ) if ( info->chars[i]!=NULL )
+	pfed_redo_refs(info->chars[i],layer);
+}
+
+static void pfed_readotherlayers(FILE *ttf,struct ttfinfo *info,uint32 base) {
+    int i, l, lcnt, spiro_index, gid;
+    int version;
+    struct layer_info { int type, name_off, data_off, sf_layer; char *name; } *layers;
+    int non_spiro_cnt=0;
+    SplineChar *sc;
+
+    fseek(ttf,base,SEEK_SET);
+    version = getushort(ttf);
+    if ( version>1 )
+return;			/* Bad version number */
+    lcnt = getushort(ttf);
+    layers = galloc(lcnt*sizeof(struct layer_info));
+    for ( i=0; i<lcnt; ++i ) {
+	layers[i].type     = getushort(ttf);
+	layers[i].name_off = getushort(ttf);
+	layers[i].data_off = getlong(ttf);
+	layers[i].sf_layer = -1;
+    }
+    spiro_index = -1;
+    non_spiro_cnt = 0;
+    for ( i=0; i<lcnt; ++i ) {
+	if ( layers[i].name_off==0 )
+	    layers[i].name = copy("Unnamed");
+	else {
+	    layers[i].name = pfed_read_utf8(ttf,base+layers[i].name_off);
+	    if ( layers[i].type==1 && strcmp(layers[i].name,"Spiro")==0 )
+		spiro_index = i;
+	}
+	if ( layers[i].type==2 || layers[i].type==3 || layers[i].type==0x102 || layers[i].type==0x103 )
+	    ++non_spiro_cnt;
+    }
+    if ( spiro_index==-1 ) {
+	for ( i=0; i<lcnt; ++i )
+	    if ( layers[i].type==1 ) {
+		spiro_index=i;
+	break;
+	    }
+    }
+
+    if ( non_spiro_cnt!=0 ) {
+	info->layer_cnt = non_spiro_cnt+1;
+	info->layers = gcalloc(info->layer_cnt+1,sizeof(LayerInfo));
+	info->layers[ly_back].background = true;
+	info->layers[ly_fore].order2 = info->to_order2;
+	info->layers[ly_fore].background = false;
+	l = i = 0;
+	if ( (layers[i].type&0xff)==1 )
+	    ++i;
+	if ( layers[i].type&0x100 ) {
+	    /* first layer output is foreground, so it can't replace the background layer */
+	    ++info->layer_cnt;
+	    l = 2;
+	    info->layers[ly_back].order2 = info->to_order2;
+	}
+	for ( ; i<lcnt; ++i ) if ( (layers[i].type&0xff)==2 || (layers[i].type&0xff)==3 ) {
+	    info->layers[l].name   = layers[i].name;
+	    layers[i].name = NULL;
+	    layers[i].sf_layer = l;
+	    info->layers[l].order2 = (layers[i].type&0xff)==2;
+	    info->layers[l].background = (layers[i].type&0x100)?0:1;
+	    if ( l==0 ) l=2; else ++l;
+	}
+	if ( info->layer_cnt!=2 ) {
+	    for ( gid = 0; gid<info->glyph_cnt; ++gid ) if ((sc=info->chars[gid])!=NULL ) {
+		sc->layers = grealloc(sc->layers,info->layer_cnt*sizeof(Layer));
+		memset(sc->layers+2,0,(info->layer_cnt-2)*sizeof(Layer));
+		sc->layer_cnt = info->layer_cnt;
+	    }
+	}
+    }
+    if ( spiro_index!=-1 )
+	pfed_read_layer(ttf,info,ly_fore,layers[spiro_index].type,base,base+layers[spiro_index].data_off,version);
+    for ( i=0; i<lcnt; ++i ) if ( layers[i].sf_layer!=-1 ) {
+	pfed_read_layer(ttf,info,layers[i].sf_layer,layers[i].type&0xff,
+		base,base+layers[i].data_off,version);
+    }
+    for ( i=0; i<lcnt; ++i )
+	free( layers[i].name );
+    free( layers );
+}
+
 void pfed_read(FILE *ttf,struct ttfinfo *info) {
     int n,i;
     struct tagoff { uint32 tag, offset; } tagoff[MAX_SUBTABLE_TYPES+30];
@@ -392,14 +681,29 @@ return;
 	tagoff[i].offset = getlong(ttf);
     }
     for ( i=0; i<n; ++i ) switch ( tagoff[i].tag ) {
-      case CHR('f','c','m','t'):
-	pfed_readfontcomment(ttf,info,info->pfed_start+tagoff[i].offset);
+      case fcmt_TAG: case flog_TAG:
+	pfed_readfontcomment(ttf,info,info->pfed_start+tagoff[i].offset, tagoff[i].tag);
       break;
-      case CHR('c','m','n','t'):
+      case cvtc_TAG:
+	pfed_readcvtcomments(ttf,info,info->pfed_start+tagoff[i].offset);
+      break;
+      case cmnt_TAG:
 	pfed_readglyphcomments(ttf,info,info->pfed_start+tagoff[i].offset);
       break;
-      case CHR('c','o','l','r'):
+      case colr_TAG:
 	pfed_readcolours(ttf,info,info->pfed_start+tagoff[i].offset);
+      break;
+      case GPOS_TAG:
+	pfed_readlookupnames(ttf,info,info->pfed_start+tagoff[i].offset,info->gpos_lookups);
+      break;
+      case GSUB_TAG:
+	pfed_readlookupnames(ttf,info,info->pfed_start+tagoff[i].offset,info->gsub_lookups);
+      break;
+      case layr_TAG:
+	pfed_readotherlayers(ttf,info,info->pfed_start+tagoff[i].offset);
+      break;
+      case guid_TAG:
+	pfed_readguidelines(ttf,info,info->pfed_start+tagoff[i].offset);
       break;
       default:
 	LogError( _("Unknown subtable '%c%c%c%c' in 'PfEd' table, ignored\n"),
@@ -425,13 +729,19 @@ return;
 /*  short  glyph-count						 */
 /*  array[glyph-count] of { int16 height,depth }		 */
 
+/* 'TeX ' 'itlc' per-glyph italic correction subtable		 */
+/*  short  version number 0					 */
+/*  short  glyph-count						 */
+/*  array[glyph-count] of int16 italic_correction		 */
+
+/* !!!!!!!!!!! OBSOLETE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
 /* 'TeX ' 'sbsp' per-glyph sub/super script positioning subtable */
 /*  short  version number 0					 */
 /*  short  glyph-count						 */
 /*  array[glyph-count] of { int16 sub,super }			 */
 
 #undef MAX_SUBTABLE_TYPES
-#define MAX_SUBTABLE_TYPES	3
+#define MAX_SUBTABLE_TYPES	4
 
 struct TeX_subtabs {
     int next;
@@ -492,147 +802,6 @@ static uint32 tex_mathext_params[] = {
     TeX_BigOpSpace5,
     0};
 
-/* ************************************************************************** */
-/* *************************    The 'TeX ' table    ************************* */
-/* *************************         Output         ************************* */
-/* ************************************************************************** */
-
-static void TeX_dumpFontParams(SplineFont *sf, struct TeX_subtabs *tex, struct alltabs *at ) {
-    FILE *fprm;
-    int i,pcnt;
-    uint32 *tags;
-
-    if ( sf->texdata.type==tex_unset )
-return;
-    tex->subtabs[tex->next].tag = CHR('f','t','p','m');
-    tex->subtabs[tex->next++].data = fprm = tmpfile();
-
-    putshort(fprm,0);			/* sub-table version number */
-    pcnt = sf->texdata.type==tex_math ? 22 : sf->texdata.type==tex_mathext ? 13 : 7;
-    tags = sf->texdata.type==tex_math ? tex_math_params :
-	    sf->texdata.type==tex_mathext ? tex_mathext_params :
-					    tex_text_params;
-    putshort(fprm,pcnt);
-    for ( i=0; i<pcnt; ++i ) {
-	putlong(fprm,tags[i]);
-	putlong(fprm,sf->texdata.params[i]);
-    }
-    /* always aligned */
-}
-
-static void TeX_dumpHeightDepth(SplineFont *sf, struct TeX_subtabs *tex, struct alltabs *at ) {
-    FILE *htdp;
-    int i,j,k,last_g, gid;
-    DBounds b;
-
-    for ( i=at->gi.gcnt-1; i>=0; --i ) {
-	gid = at->gi.bygid[i];
-	if ( gid!=-1 && sf->glyphs[gid]!=NULL &&
-		(sf->glyphs[gid]->tex_height!=TEX_UNDEF || sf->glyphs[gid]->tex_depth!=TEX_UNDEF))
-    break;
-    }
-    if ( i<0 )		/* No height/depth info */
-return;
-
-    tex->subtabs[tex->next].tag = CHR('h','t','d','p');
-    tex->subtabs[tex->next++].data = htdp = tmpfile();
-
-    putshort(htdp,0);				/* sub-table version number */
-    putshort(htdp,sf->glyphs[gid]->ttf_glyph+1);/* data for this many glyphs */
-
-    last_g = -1;
-    for ( j=0; j<=i; ++j ) {
-	gid = at->gi.bygid[j];
-	if ( gid!=-1 && sf->glyphs[gid]!=NULL ) {
-	    SplineChar *sc = sf->glyphs[gid];
-	    for ( k=last_g+1; k<sc->ttf_glyph; ++k ) {
-		putshort(htdp,0);
-		putshort(htdp,0);
-	    }
-	    if ( sc->tex_depth==TEX_UNDEF || sc->tex_height==TEX_UNDEF )
-		SplineCharFindBounds(sc,&b);
-	    putshort( htdp, sc->tex_height==TEX_UNDEF ? b.maxy : sc->tex_height );
-	    putshort( htdp, sc->tex_depth==TEX_UNDEF ? -b.miny : sc->tex_depth );
-	    last_g = sc->ttf_glyph;
-	}
-    }
-    /* always aligned */
-}
-
-static void TeX_dumpSubSuper(SplineFont *sf, struct TeX_subtabs *tex, struct alltabs *at ) {
-    FILE *sbsp;
-    int i,j,k,last_g, gid;
-
-    for ( i=at->gi.gcnt-1; i>=0; --i ) {
-	gid = at->gi.bygid[i];
-	if ( gid!=-1 && sf->glyphs[gid]!=NULL &&
-		(sf->glyphs[gid]->tex_sub_pos!=TEX_UNDEF || sf->glyphs[gid]->tex_super_pos!=TEX_UNDEF))
-    break;
-    }
-    if ( i<0 )		/* No sub/super info */
-return;
-
-    tex->subtabs[tex->next].tag = CHR('s','b','s','p');
-    tex->subtabs[tex->next++].data = sbsp = tmpfile();
-
-    putshort(sbsp,0);				/* sub-table version number */
-    putshort(sbsp,sf->glyphs[gid]->ttf_glyph+1);/* data for this many glyphs */
-
-    last_g = -1;
-    for ( j=0; j<=i; ++j ) {
-	gid = at->gi.bygid[j];
-	if ( gid!=-1 && sf->glyphs[gid]!=NULL ) {
-	    SplineChar *sc = sf->glyphs[gid];
-	    for ( k=last_g+1; k<sc->ttf_glyph; ++k ) {
-		putshort(sbsp,0);
-		putshort(sbsp,0);
-	    }
-	    putshort( sbsp, sc->tex_sub_pos==TEX_UNDEF ? sc->width : sc->tex_sub_pos );
-	    putshort( sbsp, sc->tex_super_pos!=TEX_UNDEF ? sc->tex_super_pos :
-			    sc->tex_sub_pos!=TEX_UNDEF ? sc->width - sc->tex_sub_pos :
-				    0 );
-	    last_g = sc->ttf_glyph;
-	}
-    }
-    /* always aligned */
-}
-
-void tex_dump(struct alltabs *at, SplineFont *sf) {
-    struct TeX_subtabs tex;
-    FILE *file;
-    int i;
-    uint32 offset;
-
-    if ( !(at->gi.flags & ttf_flag_TeXtable ))
-return;
-
-    memset(&tex,0,sizeof(tex));
-    TeX_dumpFontParams(sf,&tex,at);
-    TeX_dumpHeightDepth(sf,&tex,at);
-    TeX_dumpSubSuper(sf,&tex,at);
-
-    if ( tex.next==0 )
-return;		/* No subtables */
-
-    at->tex = file = tmpfile();
-    putlong(file, 0x00010000);		/* Version number */
-    putlong(file, tex.next);		/* sub-table count */
-    offset = 2*sizeof(uint32) + 2*tex.next*sizeof(uint32);
-    for ( i=0; i<tex.next; ++i ) {
-	putlong(file,tex.subtabs[i].tag);
-	putlong(file,offset);
-	fseek(tex.subtabs[i].data,0,SEEK_END);
-	tex.subtabs[i].offset = offset;
-	offset += ftell(tex.subtabs[i].data);
-    }
-    for ( i=0; i<tex.next; ++i ) {
-	fseek(tex.subtabs[i].data,0,SEEK_SET);
-	ttfcopyfile(file,tex.subtabs[i].data,tex.subtabs[i].offset,"TeX-subtable");
-    }
-    if ( ftell(file)&3 )
-	IError("'TeX ' table not properly aligned");
-    at->texlen = ftell(file);
-}
 
 /* *************************    The 'TeX ' table    ************************* */
 /* *************************          Input         ************************* */
@@ -684,7 +853,7 @@ return;
     }
 }
 
-static void TeX_readSubSuper(FILE *ttf,struct ttfinfo *info,uint32 base) {
+static void TeX_readItalicCorr(FILE *ttf,struct ttfinfo *info,uint32 base) {
     int i,gcnt;
 
     fseek(ttf,base,SEEK_SET);
@@ -692,12 +861,10 @@ static void TeX_readSubSuper(FILE *ttf,struct ttfinfo *info,uint32 base) {
 return;
     gcnt = getushort(ttf);
     for ( i=0; i<gcnt && i<info->glyph_cnt; ++i ) {
-	int super, sub;
-	sub = getushort(ttf);
-	super = getushort(ttf);
+	int ital;
+	ital = getushort(ttf);
 	if ( info->chars[i]!=NULL ) {
-	    info->chars[i]->tex_sub_pos = sub;
-	    info->chars[i]->tex_super_pos = super;
+	    info->chars[i]->italic_correction = ital;
 	}
     }
 }
@@ -724,8 +891,8 @@ return;
       case CHR('h','t','d','p'):
 	TeX_readHeightDepth(ttf,info,info->tex_start+tagoff[i].offset);
       break;
-      case CHR('s','b','s','p'):
-	TeX_readSubSuper(ttf,info,info->tex_start+tagoff[i].offset);
+      case CHR('i','t','l','c'):
+	TeX_readItalicCorr(ttf,info,info->tex_start+tagoff[i].offset);
       break;
       default:
 	LogError( _("Unknown subtable '%c%c%c%c' in 'TeX ' table, ignored\n"),
@@ -734,334 +901,3 @@ return;
     }
 }
 
-/* ************************************************************************** */
-/* *************************    The 'BDF ' table    ************************* */
-/* *************************         Output         ************************* */
-/* ************************************************************************** */
-
-/* the BDF table is used to store BDF properties so that we can do round trip */
-/* conversion from BDF->otb->BDF without losing anything. */
-/* Format:
-	USHORT	version		: 'BDF' table version number, must be 0x0001
-	USHORT	strikeCount	: number of strikes in table
-	ULONG	stringTable	: offset (from start of BDF table) to string table
-
-followed by an array of 'strikeCount' descriptors that look like: 
-	USHORT	ppem		: vertical pixels-per-EM for this strike
-	USHORT	num_items	: number of items (properties and atoms), max is 255
-
-this array is followed by 'strikeCount' value sets. Each "value set" is 
-an array of (num_items) items that look like:
-	ULONG	item_name	: offset in string table to item name
-	USHORT	item_type	: item type: 0 => non-property string (e.g. COMMENT)
-					     1 => non-property atom (e.g. FONT)
-					     2 => non-property int32
-					     3 => non-property uint32
-					  0x10 => flag for a property, ored
-						  with above value types)
-	ULONG	item_value	: item value. 
-				strings	 => an offset into the string table
-					  to the corresponding string,
-					  without the surrending double-quotes
-
-				atoms	 => an offset into the string table
-
-				integers => the corresponding 32-bit value
-Then the string table of null terminated strings. These strings should be in
-ASCII.
-*/
-
-/* Internally FF stores BDF comments as one psuedo property per line. As you */
-/*  might expect. But FreeType merges them into one large lump with newlines */
-/*  between lines. Which means that BDF tables created by FreeType will be in*/
-/*  that format. So we might as well be compatible. We will pack & unpack    */
-/*  comment lines */
-
-static int BDFPropCntMergedComments(BDFFont *bdf) {
-    int i, cnt;
-
-    cnt = 0;
-    for ( i=0; i<bdf->prop_cnt; ++i ) {
-	++cnt;
-	if ( strmatch(bdf->props[i].name,"COMMENT")==0 )
-    break;
-    }
-    for ( ; i<bdf->prop_cnt; ++i ) {
-	if ( strmatch(bdf->props[i].name,"COMMENT")==0 )
-    continue;
-	++cnt;
-    }
-return( cnt );
-}
-
-static char *MergeComments(BDFFont *bdf) {
-    int len, i;
-    char *str;
-
-    len = 0;
-    for ( i=0; i<bdf->prop_cnt; ++i ) {
-	if ( strmatch(bdf->props[i].name,"COMMENT")==0 &&
-		((bdf->props[i].type & ~prt_property)==prt_string ||
-		 (bdf->props[i].type & ~prt_property)==prt_atom ))
-	    len += strlen( bdf->props[i].u.atom ) + 1;
-    }
-    if ( len==0 )
-return( copy( "" ));
-
-    str = galloc( len+1 );
-    len = 0;
-    for ( i=0; i<bdf->prop_cnt; ++i ) {
-	if ( strmatch(bdf->props[i].name,"COMMENT")==0 &&
-		((bdf->props[i].type & ~prt_property)==prt_string ||
-		 (bdf->props[i].type & ~prt_property)==prt_atom )) {
-	    strcpy(str+len,bdf->props[i].u.atom );
-	    len += strlen( bdf->props[i].u.atom ) + 1;
-	    str[len-1] = '\n';
-	}
-    }
-    str[len-1] = '\0';
-return( str );
-}
-    
-#define AMAX	50
-
-int ttf_bdf_dump(SplineFont *sf,struct alltabs *at,int32 *sizes) {
-    FILE *strings;
-    struct atomoff { char *name; int pos; } atomoff[AMAX];
-    int acnt=0;
-    int spcnt = 0;
-    int i,j,k;
-    BDFFont *bdf;
-    long pos;
-
-    for ( i=0; sizes[i]!=0; ++i ) {
-	for ( bdf=sf->bitmaps; bdf!=NULL && (bdf->pixelsize!=(sizes[i]&0xffff) || BDFDepth(bdf)!=(sizes[i]>>16)); bdf=bdf->next );
-	if ( bdf!=NULL && bdf->prop_cnt!=0 )
-	    ++spcnt;
-    }
-    if ( spcnt==0 )	/* No strikes with properties */
-return(true);
-	
-    at->bdf = tmpfile();
-    strings = tmpfile();
-
-    putshort(at->bdf,0x0001);
-    putshort(at->bdf,spcnt);
-    putlong(at->bdf,0);		/* offset to string table */
-
-    for ( i=0; sizes[i]!=0; ++i ) {
-	for ( bdf=sf->bitmaps; bdf!=NULL && (bdf->pixelsize!=(sizes[i]&0xffff) || BDFDepth(bdf)!=(sizes[i]>>16)); bdf=bdf->next );
-	if ( bdf!=NULL && bdf->prop_cnt!=0 ) {
-	    putshort(at->bdf,bdf->pixelsize);
-	    putshort(at->bdf,BDFPropCntMergedComments(bdf));
-	}
-    }
-
-    for ( i=0; sizes[i]!=0; ++i ) {
-	for ( bdf=sf->bitmaps; bdf!=NULL && (bdf->pixelsize!=(sizes[i]&0xffff) || BDFDepth(bdf)!=(sizes[i]>>16)); bdf=bdf->next );
-	if ( bdf!=NULL && bdf->prop_cnt!=0 ) {
-	    int saw_comment=0;
-	    char *str;
-	    for ( j=0; j<bdf->prop_cnt; ++j ) {
-		if ( strmatch(bdf->props[j].name,"COMMENT")==0 && saw_comment )
-	    continue;
-		/* Try to reuse keyword names in string space */
-		for ( k=0 ; k<acnt; ++k ) {
-		    if ( strcmp(atomoff[k].name,bdf->props[j].name)==0 )
-		break;
-		}
-		if ( k>=acnt && k<AMAX ) {
-		    atomoff[k].name = bdf->props[j].name;
-		    atomoff[k].pos = ftell(strings);
-		    ++acnt;
-		    fwrite(atomoff[k].name,1,strlen(atomoff[k].name)+1,strings);
-		}
-		if ( k<acnt )
-		    putlong(at->bdf,atomoff[k].pos);
-		else {
-		    putlong(at->bdf,ftell(strings));
-		    fwrite(bdf->props[j].name,1,strlen(bdf->props[j].name)+1,strings);
-		}
-		str = bdf->props[j].u.str;
-		if ( strmatch(bdf->props[j].name,"COMMENT")==0 ) {
-		    str = MergeComments(bdf);
-		    saw_comment = true;
-		}
-		putshort(at->bdf,bdf->props[j].type);
-		if ( (bdf->props[j].type & ~prt_property)==prt_string ||
-			(bdf->props[j].type & ~prt_property)==prt_atom ) {
-		    putlong(at->bdf,ftell(strings));
-		    fwrite(str,1,strlen(str)+1,strings);
-		    if ( str!=bdf->props[j].u.str )
-			free(str);
-		} else {
-		    putlong(at->bdf,bdf->props[j].u.val);
-		}
-	    }
-	}
-    }
-
-    pos = ftell(at->bdf);
-    fseek(at->bdf,4,SEEK_SET);
-    putlong(at->bdf,pos);
-    fseek(at->bdf,0,SEEK_END);
-
-    if ( !ttfcopyfile(at->bdf,strings,pos,"BDF string table"))
-return( false );
-
-    at->bdflen = ftell( at->bdf );
-
-    /* Align table */
-    if ( at->bdflen&1 )
-	putc('\0',at->bdf);
-    if ( (at->bdflen+1)&2 )
-	putshort(at->bdf,0);
-
-return( true );
-}
-
-/* *************************    The 'BDF ' table    ************************* */
-/* *************************          Input         ************************* */
-
-static char *getstring(FILE *ttf,long start) {
-    long here = ftell(ttf);
-    int len, ch;
-    char *str, *pt;
-
-    fseek(ttf,start,SEEK_SET);
-    for ( len=1; (ch=getc(ttf))>0 ; ++len );
-    fseek(ttf,start,SEEK_SET);
-    pt = str = galloc(len);
-    while ( (ch=getc(ttf))>0 )
-	*pt++ = ch;
-    *pt = '\0';
-    fseek(ttf,here,SEEK_SET);
-return( str );
-}
-
-/* COMMENTS get stored all in one lump by freetype. De-lump them */
-static int CheckForNewlines(BDFFont *bdf,int k) {
-    char *pt, *start;
-    int cnt, i;
-
-    for ( cnt=0, pt = bdf->props[k].u.atom; *pt; ++pt )
-	if ( *pt=='\n' )
-	    ++cnt;
-    if ( cnt==0 )
-return( k );
-
-    bdf->prop_cnt += cnt;
-    bdf->props = grealloc(bdf->props, bdf->prop_cnt*sizeof( BDFProperties ));
-
-    pt = strchr(bdf->props[k].u.atom,'\n');
-    *pt = '\0'; ++pt;
-    for ( i=1; i<=cnt; ++i ) {
-	start = pt;
-	while ( *pt!='\n' && *pt!='\0' ) ++pt;
-	bdf->props[k+i].name = copy(bdf->props[k].name);
-	bdf->props[k+i].type = bdf->props[k].type;
-	bdf->props[k+i].u.atom = copyn(start,pt-start);
-	if ( *pt=='\n' ) ++pt;
-    }
-    pt = copy( bdf->props[k].u.atom );
-    free( bdf->props[k].u.atom );
-    bdf->props[k].u.atom = pt;
-return( k+cnt );
-}
-
-void ttf_bdf_read(FILE *ttf,struct ttfinfo *info) {
-    int strike_cnt, i,j,k;
-    long string_start;
-    struct bdfinfo { BDFFont *bdf; int cnt; } *bdfinfo;
-    BDFFont *bdf;
-
-    if ( info->bdf_start==0 )
-return;
-    fseek(ttf,info->bdf_start,SEEK_SET);
-    if ( getushort(ttf)!=1 )
-return;
-    strike_cnt = getushort(ttf);
-    string_start = getlong(ttf) + info->bdf_start;
-
-    bdfinfo = galloc(strike_cnt*sizeof(struct bdfinfo));
-    for ( i=0; i<strike_cnt; ++i ) {
-	int ppem, num_items;
-	ppem = getushort(ttf);
-	num_items = getushort(ttf);
-	for ( bdf=info->bitmaps; bdf!=NULL; bdf=bdf->next )
-	    if ( bdf->pixelsize==ppem )
-	break;
-	bdfinfo[i].bdf = bdf;
-	bdfinfo[i].cnt = num_items;
-    }
-
-    for ( i=0; i<strike_cnt; ++i ) {
-	if ( (bdf = bdfinfo[i].bdf) ==NULL )
-	    fseek(ttf,10*bdfinfo[i].cnt,SEEK_CUR);
-	else {
-	    bdf->prop_cnt = bdfinfo[i].cnt;
-	    bdf->props = galloc(bdf->prop_cnt*sizeof(BDFProperties));
-	    for ( j=k=0; j<bdfinfo[i].cnt; ++j, ++k ) {
-		long name = getlong(ttf);
-		int type = getushort(ttf);
-		long value = getlong(ttf);
-		bdf->props[k].type = type;
-		bdf->props[k].name = getstring(ttf,string_start+name);
-		switch ( type&~prt_property ) {
-		  case prt_int: case prt_uint:
-		    bdf->props[k].u.val = value;
-		    if ( strcmp(bdf->props[k].name,"FONT_ASCENT")==0 &&
-			    value<=bdf->pixelsize ) {
-			bdf->ascent = value;
-			bdf->descent = bdf->pixelsize-value;
-		    }
-		  break;
-		  case prt_string: case prt_atom:
-		    bdf->props[k].u.str = getstring(ttf,string_start+value);
-		    k = CheckForNewlines(bdf,k);
-		  break;
-		}
-	    }
-	}
-    }
-}
-
-
-/* ************************************************************************** */
-/* *************************    The 'FFTM' table    ************************* */
-/* *************************         Output         ************************* */
-/* ************************************************************************** */
-
-/* FontForge timestamp table */
-/* Contains: */
-/*  date of fontforge sources */
-/*  date of font's (not file's) creation */
-/*  date of font's modification */
-int ttf_fftm_dump(SplineFont *sf,struct alltabs *at) {
-    int32 results[2];
-    extern const time_t source_modtime;
-
-    at->fftmf = tmpfile();
-
-    putlong(at->fftmf,0x00000001);	/* Version */
-
-    cvt_unix_to_1904(source_modtime,results);
-    putlong(at->fftmf,results[1]);
-    putlong(at->fftmf,results[0]);
-
-    cvt_unix_to_1904(sf->creationtime,results);
-    putlong(at->fftmf,results[1]);
-    putlong(at->fftmf,results[0]);
-
-    cvt_unix_to_1904(sf->modificationtime,results);
-    putlong(at->fftmf,results[1]);
-    putlong(at->fftmf,results[0]);
-
-    at->fftmlen = ftell(at->fftmf);	/* had better be 7*4 */
-	    /* It will never be misaligned */
-    if ( (at->fftmlen&1)!=0 )
-	putc(0,at->fftmf);
-    if ( ((at->fftmlen+1)&2)!=0 )
-	putshort(at->fftmf,0);
-return( true );
-}

@@ -1,8 +1,5 @@
 #ifndef _UTYPE_H
-
 #define _UTYPE_H
-
-#ifndef LUA_FF_LIB
 
 #define ____L	0x1
 #define ____U	0x2
@@ -50,22 +47,16 @@
 #define ____TOUCHING	0x100000
 #define ____COMBININGPOSMASK	0x1fff00
 
-extern const unsigned int  ____utype[];
 extern const unsigned short ____tolower[];
+#if 0
 extern const unsigned short ____toupper[];
-extern const unsigned short ____totitle[];
-extern const unsigned short ____tomirror[];
-extern const unsigned char ____digitval[];
-
-extern const unsigned int  ____utype2[];
-
-extern const unsigned int  ____codepointassigned[];
+#endif
+extern const unsigned int  ____utype[];
 
 #define tolower(ch) (____tolower[(ch)+1])
+#if 0
 #define toupper(ch) (____toupper[(ch)+1])
-#define totitle(ch) (____totitle[(ch)+1])
-#define tomirror(ch) (____tomirror[(ch)+1])
-#define tovalue(ch) (____digitval[(ch)+1])
+#endif
 #define islower(ch) (____utype[(ch)+1]&____L)
 #define isupper(ch) (____utype[(ch)+1]&____U)
 #define istitle(ch) (____utype[(ch)+1]&____TITLE)
@@ -73,6 +64,7 @@ extern const unsigned int  ____codepointassigned[];
 #define isdigit(ch) (____utype[(ch)+1]&____D)
 #define isalnum(ch) (____utype[(ch)+1]&(____L|____U|____TITLE|____AL|____D))
 #define isideographic(ch) (____utype[(ch)+1]&____ID)
+#define isideoalpha(ch) (____utype[(ch)+1]&(____ID|____L|____U|____TITLE|____AL))
 #define isspace(ch) (____utype[(ch)+1]&____S)
 #define ispunct(ch) (____utype[(ch)+1]&_____P)
 #define ishexdigit(ch) (____utype[(ch)+1]&____X)
@@ -94,12 +86,6 @@ extern const unsigned int  ____codepointassigned[];
 
 #define isdecompositionnormative(ch) (____utype[(ch)+1]&____DECOMPNORM)
 
-#define combiningclass(ch) (____utype2[(ch)+1]&____COMBININGCLASS)
-#define combiningposmask(ch) (____utype2[(ch)+1]&____COMBININGPOSMASK)
-
-#define isunicodepointassigned(ch) (____codepointassigned[(ch)/32]&(1<<((ch)%32)))
-
-
 extern struct arabicforms {
     unsigned short initial, medial, final, isolated;
     unsigned int isletter: 1;
@@ -111,5 +97,4 @@ extern struct arabicforms {
 
 #define _DOUBLE_S	0xdf
 
-#endif /* LUA_FF_LIB */
 #endif

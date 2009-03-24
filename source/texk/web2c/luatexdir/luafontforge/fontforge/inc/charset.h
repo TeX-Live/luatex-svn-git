@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2007 by George Williams */
+/* Copyright (C) 2000-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -65,7 +65,7 @@ extern int /*enum charset*/ local_encoding;
 # include <iconv.h>
 extern char *iconv_local_encoding_name;
 #else
-# include <gwwiconv.h>		/* My fake iconv based on encodings in gdraw/gunicode */
+# include "gwwiconv.h"		/* My fake iconv based on encodings in gdraw/gunicode */
 #endif
 extern struct namemap { char *name; int map; } encodingnames[];
 #endif

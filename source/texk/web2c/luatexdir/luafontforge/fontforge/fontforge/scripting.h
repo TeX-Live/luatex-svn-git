@@ -1,4 +1,4 @@
-/* Copyright (C) 2005-2007 by George Williams */
+/* Copyright (C) 2005-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,7 +28,7 @@
 #ifndef _SCRIPTING_H
 #define _SCRIPTING_H
 
-#include "pfaeditui.h"
+#include "fontforgevw.h"
 #include <setjmp.h>
 #include <stdarg.h>
 
@@ -89,9 +89,11 @@ typedef struct context {
     char *filename;			/* Irrelevant for user defined funcs */
     int lineno;				/* Irrelevant for user defined funcs */
     int ungotch;			/* Irrelevant for user defined funcs */
-    FontView *curfv;			/* Current fontview */
+    FontViewBase *curfv;		/* Current fontview */
     jmp_buf *err_env;			/* place to longjump to on an error */
 } Context;
+
+void arrayfree(Array *);
 
 void FontImage(SplineFont *sf,char *filename,Array *arr,int width,int height);
 
@@ -126,4 +128,13 @@ void ScriptErrorString( Context *c, const char *msg, const char *name);
 void ScriptErrorF( Context *c, const char *fmt, ... );
 	/* Standard printf-style spec. All string arguments assumed to be in */
 	/* utf8 */
+
+extern int running_script;
+
+/* Hooks so a scripting dlg can execute fontforge's legacy scripting language */
+extern void ff_VerboseCheck(void);
+extern enum token_type ff_NextToken(Context *c);
+extern void ff_backuptok(Context *c);
+extern void ff_statement(Context*);
+
 #endif	/* _SCRIPTING_H */

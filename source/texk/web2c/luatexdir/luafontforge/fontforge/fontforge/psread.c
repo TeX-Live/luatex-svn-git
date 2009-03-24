@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2007 by George Williams */
+/* Copyright (C) 2000-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,20 +31,9 @@
 #include <utype.h>
 #include "psfont.h"
 #include "sd.h"
-#if defined(FONTFORGE_CONFIG_TYPE3) && !defined(FONTFORGE_CONFIG_NO_WINDOWING_UI)
-# include "views.h"		/* For CharView */
-#endif
+#include "views.h"		/* For CharViewBase */
 #ifdef HAVE_IEEEFP_H
 # include <ieeefp.h>		/* Solaris defines isnan in ieeefp rather than math.h */
-#endif
-
-#ifdef LUA_FF_LIB
-/* no need for iconv here, since PS is 8-bit legacy */
-#define Isspace(a) ((a)==' '|| ((a) >= '\t' &&  (a) <= '\r'))
-#define Isdigit(a) ((a)>='0' && (a)<='9')
-#else
-#define Isspace isspace
-#define Isdigit isdigit
 #endif
 
 typedef struct _io {
@@ -58,6 +47,7 @@ typedef struct _io {
 typedef struct io {
     struct _io *top;
     int endedstopped;
+    int advance_width;		/* Can be set from a PS comment by MF2PT1 */
 } IO;
 
 typedef struct growbuf {
@@ -165,7 +155,7 @@ enum pstoks { pt_eof=-1, pt_moveto, pt_rmoveto, pt_curveto, pt_rcurveto,
     pt_setgray, pt_currentgray, pt_sethsbcolor, pt_currenthsbcolor,
     pt_setrgbcolor, pt_currentrgbcolor, pt_setcmykcolor, pt_currentcmykcolor,
     pt_currentpoint,
-    pt_fill, pt_stroke,
+    pt_fill, pt_stroke, pt_clip,
 
     pt_imagemask,
 
@@ -210,7 +200,7 @@ static char *toknames[] = { "moveto", "rmoveto", "curveto", "rcurveto",
 	"setgray", "currentgray", "sethsbcolor", "currenthsbcolor",
 	"setrgbcolor", "currentrgbcolor", "setcmykcolor", "currentcmykcolor",
 	"currentpoint",
-	"fill", "stroke",
+	"fill", "stroke", "clip",
 
 	"imagemask",
 
@@ -245,8 +235,8 @@ static char *toknames[] = { "moveto", "rmoveto", "curveto", "rcurveto",
 static int getfoghex(_IO *io) {
     int ch,val;
 
-    while ( Isspace( ch = getc(io->fog)));
-    if ( Isdigit(ch))
+    while ( isspace( ch = getc(io->fog)));
+    if ( isdigit(ch))
 	val = ch-'0';
     else if ( ch >= 'A' && ch <= 'F' )
 	val = ch-'A'+10;
@@ -256,8 +246,8 @@ static int getfoghex(_IO *io) {
 return(EOF);
 
     val <<= 4;
-    while ( Isspace( ch = getc(io->fog)));
-    if ( Isdigit(ch))
+    while ( isspace( ch = getc(io->fog)));
+    if ( isdigit(ch))
 	val |= ch-'0';
     else if ( ch >= 'A' && ch <= 'F' )
 	val |= ch-'A'+10;
@@ -402,7 +392,7 @@ static int ioescapestopped(IO *wrapper, struct psstack *stack, int sp) {
 	free(io);
 	if ( wasstopped ) {
 	    wrapper->top = iop;
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = ps_bool;
 		stack[sp++].u.tf = true;
 	    }
@@ -426,42 +416,30 @@ return( true );
 return( false );
 }
 
-static int CheckCodePointsComment(IO *wrapper) {
-    /* Check to see if this encoding includes the special comment we use */
-    /*  to indicate that the encoding is based on unicode code points rather */
-    /*  than glyph names */
-    char commentbuffer[128], *pt;
-    int ch;
-
-    /* Eat whitespace and comments. Comments last to eol (or formfeed) */
-    while ( Isspace(ch = nextch(wrapper)) );
-    if ( ch!='%' ) {
-	unnextch(ch,wrapper);
-return( false );
-    }
-
-    pt = commentbuffer;
-    while ( (ch=nextch(wrapper))!=EOF && ch!='\r' && ch!='\n' && ch!='\f' ) {
-	if ( pt-commentbuffer < sizeof(commentbuffer)-1 )
-	    *pt++ = ch;
-    }
-    *pt = '\0';
-    if ( strcmp(commentbuffer," Use codepoints.")== 0 )
-return( true );
-
-return( false );
-}
 
 static int nextpstoken(IO *wrapper, real *val, char *tokbuf, int tbsize) {
     int ch, r, i;
     char *pt, *end;
+    float mf2pt_advance_width;
+
+    pt = tokbuf;
+    end = pt+tbsize-1;
 
     /* Eat whitespace and comments. Comments last to eol (or formfeed) */
     while ( 1 ) {
-	while ( Isspace(ch = nextch(wrapper)) );
+	while ( isspace(ch = nextch(wrapper)) );
 	if ( ch!='%' )
     break;
-	while ( (ch=nextch(wrapper))!=EOF && ch!='\r' && ch!='\n' && ch!='\f' );
+	while ( (ch=nextch(wrapper))!=EOF && ch!='\r' && ch!='\n' && ch!='\f' )
+	    if ( pt<end )
+		*pt++ = ch;
+	*pt='\0';
+	/* Some comments have meanings (that we care about) */
+	if ( sscanf( tokbuf, " MF2PT1: bbox %*g %*g %g %*g", &mf2pt_advance_width )==1 )
+	    wrapper->advance_width = mf2pt_advance_width;
+	else if ( sscanf( tokbuf, " MF2PT1: glyph_dimensions %*g %*g %g %*g", &mf2pt_advance_width )==1 )
+	    wrapper->advance_width = mf2pt_advance_width;
+	pt = tokbuf;
     }
 
     if ( ch==EOF )
@@ -520,7 +498,7 @@ return( pt_closearray );
 return( pt_unknown );	/* single character token */
     } else if ( ch=='/' ) {
 	pt = tokbuf;
-	while ( (ch=nextch(wrapper))!=EOF && !Isspace(ch) && ch!='%' &&
+	while ( (ch=nextch(wrapper))!=EOF && !isspace(ch) && ch!='%' &&
 		ch!='(' && ch!=')' && ch!='<' && ch!='>' && ch!='[' && ch!=']' &&
 		ch!='{' && ch!='}' && ch!='/' )
 	    if ( pt<tokbuf+tbsize-2 )
@@ -529,7 +507,7 @@ return( pt_unknown );	/* single character token */
 	unnextch(ch,wrapper);
 return( pt_namelit );	/* name literal */
     } else {
-	while ( (ch=nextch(wrapper))!=EOF && !Isspace(ch) && ch!='%' &&
+	while ( (ch=nextch(wrapper))!=EOF && !isspace(ch) && ch!='%' &&
 		ch!='(' && ch!=')' && ch!='<' && ch!='>' && ch!='[' && ch!=']' &&
 		ch!='{' && ch!='}' && ch!='/' ) {
 	    if ( pt<tokbuf+tbsize-2 )
@@ -568,7 +546,7 @@ return( pt_unknown );
     }
 }
 
-static void Transform(BasePoint *to, BasePoint *from, real trans[6]) {
+static void Transform(BasePoint *to, DBasePoint *from, real trans[6]) {
     to->x = trans[0]*from->x+trans[2]*from->y+trans[4];
     to->y = trans[1]*from->x+trans[3]*from->y+trans[5];
 }
@@ -614,6 +592,7 @@ static void ECCatagorizePoints( EntityChar *ec ) {
 
     for ( ent=ec->splines; ent!=NULL; ent=ent->next ) if ( ent->type == et_splines ) {
 	SPLCatagorizePoints( ent->u.splines.splines );
+	SPLCatagorizePoints( ent->clippath );
     }
 }
 
@@ -721,7 +700,7 @@ static void CheckMake(SplinePoint *from, SplinePoint *to) {
 static void circlearcto(real a1, real a2, real cx, real cy, real r,
 	SplineSet *cur, real *transform ) {
     SplinePoint *pt;
-    BasePoint temp, base, cp;
+    DBasePoint temp, base, cp;
     real cplen;
     int sign=1;
     real s1, s2, c1, c2;
@@ -834,7 +813,7 @@ static int aload(int sp, struct psstack *stack,int stacktop, struct garbage *tof
 		++sp;
 	    }
 	}
-	if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 	    stack[sp].type = ps_array;
 	    stack[sp].u.dict = dict;
 	    ++sp;
@@ -980,7 +959,7 @@ return(nsp);
 }
 
 static Entity *EntityCreate(SplinePointList *head,int linecap,int linejoin,
-	real linewidth, real *transform) {
+	real linewidth, real *transform, SplineSet *clippath) {
     Entity *ent = gcalloc(1,sizeof(Entity));
     ent->type = et_splines;
     ent->u.splines.splines = head;
@@ -991,245 +970,11 @@ static Entity *EntityCreate(SplinePointList *head,int linecap,int linejoin,
     ent->u.splines.stroke.col = 0xffffffff;
     ent->u.splines.fill.opacity = 1.0;
     ent->u.splines.stroke.opacity = 1.0;
+    ent->clippath = SplinePointListCopy(clippath);
     memcpy(ent->u.splines.transform,transform,6*sizeof(real));
 return( ent );
 }
 
-#ifdef FONTFORGE_CONFIG_TYPE3
-static uint8 *StringToBytes(struct psstack *stackel,int *len) {
-    char *pt;
-    uint8 *upt, *base, *ret;
-    int half, sofar, val, nesting;
-    int i,j;
-
-    pt = stackel->u.str;
-    if ( stackel->type==ps_instr ) {
-	/* imagemask operators take strings or procedures or files */
-	/* we support strings, or procedures containing strings */
-	while ( Isspace(*pt)) ++pt;
-	if ( *pt=='{' || *pt=='[' ) ++pt;
-	while ( Isspace(*pt)) ++pt;
-    } else if ( stackel->type!=pt_string )
-return( NULL );
-
-    upt = base = galloc(65536+1);	/* Maximum size of ps string */
-
-    if ( *pt=='(' ) {
-	/* A conventional string */
-	++pt;
-	nesting = 0;
-	while ( *pt!='\0' && (nesting!=0 || *pt!=')') ) {
-	    if ( *pt=='(' ) {
-		++nesting;
-		*upt++ = *pt++;
-	    } else if ( *pt==')' ) {
-		--nesting;
-		*upt++ = *pt++;
-	    } else if ( *pt=='\r' || *pt=='\n' ) {
-		/* any of lf, cr, crlf gets translated to \n */
-		if ( *pt=='\r' && pt[1]=='\n' ) ++pt;
-		*upt++ = '\n';
-		++pt;
-	    } else if ( *pt!='\\' ) {
-		*upt++ = *pt++;
-	    } else {
-		++pt;
-		if ( *pt=='\r' || *pt=='\n' ) {
-		    /* any of \lf, \cr, \crlf gets ignored */
-		    if ( *pt=='\r' && pt[1]=='\n' ) ++pt;
-		    ++pt;
-		} else if ( *pt=='n' ) {
-		    *upt++ = '\n';
-		    ++pt;
-		} else if ( *pt=='r' ) {
-		    *upt++ = '\r';
-		    ++pt;
-		} else if ( *pt=='t' ) {
-		    *upt++ = '\t';
-		    ++pt;
-		} else if ( *pt=='b' ) {
-		    *upt++ = '\b';
-		    ++pt;
-		} else if ( *pt=='f' ) {
-		    *upt++ = '\f';
-		    ++pt;
-		} else if ( *pt>='0' && *pt<='7' ) {
-		    if ( pt[1]<'0' || pt[1]>'7' )	/* This isn't really legal postscript */
-			*upt++ = *pt++ - '0';
-		    else if ( pt[2]<'0' || pt[2]>'7' ) {/* 3 octal digits are required */
-			*upt++ = ((*pt - '0')<<3) + (pt[1]-'0');
-			pt += 2;
-		    } else {
-			*upt++ = ((*pt - '0')<<6) + ((pt[1]-'0')<<3) + (pt[2]-'0');
-			pt += 3;
-		    }
-		} else if ( *pt=='(' || *pt==')' || *pt=='\\' )
-		    *upt++ = *pt++;
-		else {
-		    LogError( _("Unknown character after backslash in literal string.\n"));
-		    *upt++ = *pt++;
-		}
-	    }
-	}
-    } else if ( *pt!='<' ) {
-	LogError( _("Unknown string type\n" ));
-return( NULL );
-    } else if ( pt[1]!='~' ) {
-	/* A hex string. Ignore any characters which aren't hex */
-	half = sofar = 0;
-	++pt;
-	while ( *pt!='>' && *pt!='\0' ) {
-	    if ( *pt>='a' && *pt<='f' )
-		val = *pt++-'a'+10;
-	    else if ( *pt>='A' && *pt<='F' )
-		val = *pt++-'A'+10;
-	    else if ( Isdigit(*pt))
-		val = *pt++-'0';
-	    else {
-		++pt;		/* Not hex */
-	continue;
-	    }
-	    if ( !half ) {
-		half = true;
-		sofar = val<<4;
-	    } else {
-		*upt++ = sofar|val;
-		half = false;
-	    }
-	}
-	if ( half )
-	    *upt++ = sofar;
-    } else {
-	/* An ASCII-85 string */
-	/* c1 c2 c3 c4 c5 (c>='!' && c<='u') => ((c1-'!')*85+(c2-'!'))*85... */
-	/* z => 32bits of 0 */
-	pt += 2;
-	while ( *pt!='\0' && *pt!='~' ) {
-	    if ( upt-base+4 > 65536 )
-	break;
-	    if ( *pt=='z' ) {
-		*upt++ = 0;
-		*upt++ = 0;
-		*upt++ = 0;
-		*upt++ = 0;
-		++pt;
-	    } else if ( *pt>='!' && *pt<='u' ) {
-		val = 0;
-		for ( i=0; i<5 && *pt>='!' && *pt<='u'; ++i )
-		    val = (val*85) + *pt++ - '!';
-		for ( j=i; j<5; ++j )
-		    val *= 85;
-		*upt++ =  val>>24      ;
-		if ( i>2 )
-		    *upt++ = (val>>16)&0xff;
-		if ( i>3 )
-		    *upt++ = (val>>8 )&0xff;
-		if ( i>4 )
-		    *upt++ =  val     &0xff;
-		if ( i<5 )
-	break;
-	    } else if ( Isspace( *pt ) ) {
-		++pt;
-	    } else
-	break;
-	}
-    }
-    *len = upt-base;
-    ret = galloc(upt-base);
-    memcpy(ret,base,upt-base);
-    free(base);
-return(ret);
-}
-
-static int PSAddImagemask(EntityChar *ec,struct psstack *stack,int sp,
-	real transform[6],Color fillcol) {
-    uint8 *data;
-    int datalen, width, height, polarity;
-    real trans[6];
-    struct _GImage *base;
-    GImage *gi;
-    Entity *ent;
-    int i,j;
-
-    if ( sp<5 || (stack[sp-1].type!=ps_instr && stack[sp-1].type!=ps_string)) {
-	LogError( _("FontForge does not support dictionary based imagemask operators.\n" ));
-return( sp-1 );
-    }
-
-    if ( stack[sp-2].type!=ps_array || stack[sp-2].u.dict.cnt!=6 ) {
-	LogError( _("Fourth argument of imagemask must be a 6-element transformation matrix.\n" ));
-return( sp-5 );
-    }
-
-    if ( stack[sp-3].type!=ps_bool ) {
-	LogError( _("Third argument of imagemask must be a boolean.\n" ));
-return( sp-5 );
-    }
-    polarity = stack[sp-3].u.tf;
-    
-    if ( stack[sp-4].type!=ps_num || stack[sp-5].type!=ps_num ) {
-	LogError( _("First and second arguments of imagemask must be integers.\n" ));
-return( sp-5 );
-    }
-    height = stack[sp-4].u.val;
-    width = stack[sp-5].u.val;
-
-    data = StringToBytes(&stack[sp-1],&datalen);
-
-    if ( width<=0 || height<=0 || ((width+7)/8)*height>datalen ) {
-	LogError( _("Width or height arguments to imagemask contain invalid values\n(either negative or they require more data than provided).\n" ));
-	free(data);
-return( sp-5 );
-    }
-    trans[0] = stack[sp-2].u.dict.entries[0].u.val;
-    trans[1] = stack[sp-2].u.dict.entries[1].u.val;
-    trans[2] = stack[sp-2].u.dict.entries[2].u.val;
-    trans[3] = stack[sp-2].u.dict.entries[3].u.val;
-    trans[4] = stack[sp-2].u.dict.entries[4].u.val;
-    trans[5] = stack[sp-2].u.dict.entries[5].u.val;
-
-    gi = GImageCreate(it_mono,width,height);
-    base = gi->u.image;
-    base->trans = 1;
-    if ( polarity ) {
-	for ( i=0; i<datalen; ++i )
-	    data[i] ^= 0xff;
-    }
-    if ( trans[0]>0 && trans[3]<0 )
-	memcpy(base->data,data,datalen);
-    else if ( trans[0]>0 && trans[3]>0 ) {
-	for ( i=0; i<height; ++i )
-	    memcpy(base->data+i*base->bytes_per_line,data+(height-i)*base->bytes_per_line,
-		    base->bytes_per_line);
-    } else if ( trans[0]<0 && trans[3]<0 ) {
-	for ( i=0; i<height; ++i ) for ( j=0; j<width; ++j ) {
-	    if ( data[i*base->bytes_per_line+ (j>>3)]&(0x80>>(j&7)) )
-		base->data[i*base->bytes_per_line + ((width-j-1)>>3)] |=
-			(0x80>>((width-j-1)&7));
-	}
-    } else {
-	for ( i=0; i<height; ++i ) for ( j=0; j<width; ++j ) {
-	    if ( data[i*base->bytes_per_line+ (j>>3)]&(0x80>>(j&7)) )
-		base->data[(height-i-1)*base->bytes_per_line + ((width-j-1)>>3)] |=
-			(0x80>>((width-j-1)&7));
-	}
-    }
-    free(data);
-
-    ent = gcalloc(1,sizeof(Entity));
-    ent->type = et_image;
-    ent->u.image.image = gi;
-    memcpy(ent->u.image.transform,transform,sizeof(real[6]));
-    ent->u.image.transform[0] /= width;
-    ent->u.image.transform[3] /= height;
-    ent->u.image.transform[5] += height;
-    ent->u.image.col = fillcol;
-
-    ent->next = ec->splines;
-    ec->splines = ent;
-return( sp-5 );
-}
-#endif
 
 static void HandleType3Reference(IO *wrapper,EntityChar *ec,real transform[6],
 	char *tokbuf, int toksize) {
@@ -1253,7 +998,7 @@ return;		/* Hunh. I don't understand it. I give up */
 return;		/* Hunh. I don't understand it. I give up */
 
     /* Ok, it looks very much like a reference to glyphname */
-    ref = chunkalloc(sizeof(RefChar));
+    ref = RefCharCreate();
     memcpy(ref->transform,transform,sizeof(ref->transform));
     ref->sc = (SplineChar *) glyphname;
     ref->next = ec->refs;
@@ -1262,7 +1007,7 @@ return;		/* Hunh. I don't understand it. I give up */
 
 static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
     SplinePointList *cur=NULL, *head=NULL;
-    BasePoint current, temp;
+    DBasePoint current, temp;
     int tok, i, j;
     struct psstack stack[100];
     real dval;
@@ -1272,11 +1017,12 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
     real transform[6], t[6];
     struct graphicsstate {
 	real transform[6];
-	BasePoint current;
+	DBasePoint current;
 	real linewidth;
 	int linecap, linejoin;
 	Color fore;
 	DashType dashes[DASH_MAX];
+	SplineSet *clippath;
     } gsaves[30];
     int gsp = 0;
     int ccnt=0;
@@ -1291,15 +1037,9 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
     char *oldloc;
     int warned = 0;
     struct garbage tofrees;
-#if !defined(FONTFORGE_CONFIG_TYPE3)
+    SplineSet *clippath = NULL;
     char tokbuf[100];
     const int tokbufsize = 100;
-#else
-    char *tokbuf;
-    const int tokbufsize = 2*65536+10;
-
-    tokbuf = galloc(tokbufsize);
-#endif
 
     oldloc = setlocale(LC_NUMERIC,"C");
 
@@ -1326,12 +1066,12 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 
     while ( (tok = nextpstoken(wrapper,&dval,tokbuf,tokbufsize))!=pt_eof ) {
 	if ( endedstopped(wrapper)) {
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	  if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = ps_bool;
 		stack[sp++].u.tf = false;
 	    }
 	}
-	if ( sp>sizeof(stack)/sizeof(stack[0])*4/5 ) {
+	if ( sp>(int)(sizeof(stack)/sizeof(stack[0])*4/5) ) {
 	    /* We don't interpret all of postscript */
 	    /* Sometimes we leave garbage on the stack that a real PS interp */
 	    /*  would have handled. If the stack gets too deep, clean out the */
@@ -1346,7 +1086,7 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	    if ( ccnt>0 )
 		AddTok(&gb,tokbuf,tok==pt_namelit);
 	    else {
-		if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	      if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		    stack[sp].type = ps_instr;
 		    if ( gb.pt==NULL )
 			stack[sp++].u.str = copy("");
@@ -1359,7 +1099,7 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	} else if ( tok==pt_unknown && (kv=lookup(&dict,tokbuf))!=NULL ) {
 	    if ( kv->type == ps_instr )
 		pushio(wrapper,NULL,copy(kv->u.str),0);
-	    else if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    else if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = kv->type;
 		stack[sp++].u = kv->u;
 		if ( kv->type==ps_instr || kv->type==ps_lit || kv->type==ps_string )
@@ -1371,34 +1111,12 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 		}
 	    }
 	} else {
-#if 0	/* /ps{count /foo exch def count copy foo array astore ==}def */
-	/* printstack */
-int ii;
-for ( ii=0; ii<sp; ++ii )
- if ( stack[ii].type==ps_num )
-  printf( "%g ", stack[ii].u.val );
- else if ( stack[ii].type==ps_bool )
-  printf( "%s ", stack[ii].u.tf ? "true" : "false" );
- else if ( stack[ii].type==ps_string )
-  printf( "(%s) ", stack[ii].u.str );
- else if ( stack[ii].type==ps_lit )
-  printf( "/%s ", stack[ii].u.str );
- else if ( stack[ii].type==ps_instr )
-  printf( "-%s- ", stack[ii].u.str );
- else if ( stack[ii].type==ps_mark )
-  printf( "--mark-- " );
- else if ( stack[ii].type==ps_array )
-  printf( "--[]-- " );
- else
-  printf( "--" "???" "-- " );
-printf( "-%s-\n", toknames[tok]);
-#endif
 	if ( tok==pt_unknown ) {
 	    if ( strcmp(tokbuf,"Cache")==0 )	/* Fontographer type3s */
 		tok = pt_setcachedevice;
 	    else if ( strcmp(tokbuf,"SetWid")==0 ) {
 		tok = pt_setcharwidth;
-		if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+		if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		    stack[sp].type = ps_num;
 		    stack[sp++].u.val = 0;
 		}
@@ -1431,7 +1149,7 @@ printf( "-%s-\n", toknames[tok]);
 			 stack[sp-1].u.val>=0 && stack[sp-1].u.val<=255 ) ||
 			(wrapper->top->fogns && sp>6 && stack[sp-7].type == ps_num &&
 			 stack[sp-7].u.val>=0 && stack[sp-7].u.val<=255 )) {
-		    ref = chunkalloc(sizeof(RefChar));
+		    ref = RefCharCreate();
 		    memcpy(ref->transform,transform,sizeof(ref->transform));
 		    if ( wrapper->top->fogns ) {
 			sp -= 6;
@@ -1456,19 +1174,19 @@ printf( "-%s-\n", toknames[tok]);
 	}
 	switch ( tok ) {
 	  case pt_number:
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = ps_num;
 		stack[sp++].u.val = dval;
 	    }
 	  break;
 	  case pt_string:
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = ps_string;
 		stack[sp++].u.str = copyn(tokbuf+1,strlen(tokbuf)-2);
 	    }
 	  break;
 	  case pt_true: case pt_false:
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = ps_bool;
 		stack[sp++].u.tf = tok==pt_true;
 	    }
@@ -1483,7 +1201,7 @@ printf( "-%s-\n", toknames[tok]);
 	    }
 	  break;
 	  case pt_count:
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = ps_num;
 		stack[sp].u.val = sp;
 		++sp;
@@ -1510,7 +1228,7 @@ printf( "-%s-\n", toknames[tok]);
 	    }
 	  break;
 	  case pt_dup:
-	    if ( sp>0 && sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp>0 && sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp] = stack[sp-1];
 		if ( stack[sp].type==ps_string || stack[sp].type==ps_instr ||
 			stack[sp].type==ps_lit )
@@ -1525,7 +1243,7 @@ printf( "-%s-\n", toknames[tok]);
 	  case pt_copy:
 	    if ( sp>0 ) {
 		int n = stack[--sp].u.val;
-		if ( n+sp<sizeof(stack)/sizeof(stack[0]) ) {
+		if ( n+sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		    int i;
 		    for ( i=0; i<n; ++i ) {
 			stack[sp] = stack[sp-n];
@@ -2023,7 +1741,7 @@ printf( "-%s-\n", toknames[tok]);
 	  case pt_namelit:
 	    if ( strcmp(tokbuf,"CharProcs")==0 && ec!=NULL ) {
 		HandleType3Reference(wrapper,ec,transform,tokbuf,tokbufsize);
-	    } else if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    } else if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = ps_lit;
 		stack[sp++].u.str = copy(tokbuf);
 	    }
@@ -2041,6 +1759,9 @@ printf( "-%s-\n", toknames[tok]);
 	    }
 	  break;
 	  case pt_newpath:
+	    SplinePointListsFree(head);
+	    head = NULL;
+	    cur = NULL;
 	  break;
 	  case pt_lineto: case pt_rlineto:
 	  case pt_moveto: case pt_rmoveto:
@@ -2191,7 +1912,7 @@ printf( "-%s-\n", toknames[tok]);
 		    xt1 = x1 + t*(current.x-x1)/l1; yt1 = y1 + t*(current.y-y1)/l1;
 		    xt2 = x1 + t*(x2-x1)/l2; yt2 = y1 + t*(y2-y1)/l2;
 		    if ( xt1!=current.x || yt1!=current.y ) {
-			BasePoint temp;
+			DBasePoint temp;
 			temp.x = xt1; temp.y = yt1;
 			pt = chunkalloc(sizeof(SplinePoint));
 			Transform(&pt->me,&temp,transform);
@@ -2224,7 +1945,9 @@ printf( "-%s-\n", toknames[tok]);
 		if ( RealNear(cur->first->me.x,cur->last->me.x) && RealNear(cur->first->me.y,cur->last->me.y) ) {
 		    SplinePoint *oldlast = cur->last;
 		    cur->first->prevcp = oldlast->prevcp;
-		    cur->first->noprevcp = false;
+		    cur->first->prevcp.x += (cur->first->me.x-oldlast->me.x);
+		    cur->first->prevcp.y += (cur->first->me.y-oldlast->me.y);
+		    cur->first->noprevcp = oldlast->noprevcp;
 		    oldlast->prev->from->next = NULL;
 		    cur->last = oldlast->prev->from;
 		    SplineFree(oldlast->prev);
@@ -2257,22 +1980,22 @@ printf( "-%s-\n", toknames[tok]);
 	    }
 	  break;
 	  case pt_currentlinecap: case pt_currentlinejoin:
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = ps_num;
 		stack[sp++].u.val = tok==pt_currentlinecap?linecap:linejoin;
 	    }
 	  break;
 	  case pt_currentlinewidth:
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = ps_num;
 		stack[sp++].u.val = linewidth;
 	    }
 	  break;
 	  case pt_currentdash:
-	    if ( sp+1<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp+1<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		struct pskeydict dict;
-		for ( i=0; i<DASH_MAX && dashes[i]!=0; ++i );
 		dict.is_executable = 0;
+		for ( i=0; i<DASH_MAX && dashes[i]!=0; ++i );
 		dict.cnt = dict.max = i;
 		dict.entries = gcalloc(i,sizeof(struct pskeyval));
 		for ( j=0; j<i; ++j ) {
@@ -2286,7 +2009,7 @@ printf( "-%s-\n", toknames[tok]);
 	    }
 	  break;
 	  case pt_currentgray:
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = ps_num;
 		stack[sp++].u.val = (3*((fore>>16)&0xff) + 6*((fore>>8)&0xff) + (fore&0xff))/2550.;
 	    }
@@ -2306,7 +2029,7 @@ printf( "-%s-\n", toknames[tok]);
 	    }
 	  break;
 	  case pt_currenthsbcolor: case pt_currentrgbcolor:
-	    if ( sp+2<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp+2<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = stack[sp+1].type = stack[sp+2].type = ps_num;
 		if ( tok==pt_currentrgbcolor ) {
 		    stack[sp++].u.val = ((fore>>16)&0xff)/255.;
@@ -2345,7 +2068,7 @@ printf( "-%s-\n", toknames[tok]);
 	  case pt_sethsbcolor:
 	    if ( sp>=3 ) {
 		real h = stack[sp-3].u.val, s = stack[sp-2].u.val, b = stack[sp-1].u.val;
-		int r = 0,g = 0,bl =0 ;
+		int r=0,g=0,bl=0;
 		if ( s==0 )	/* it's grey */
 		    fore = ((int) (b*255)) * 0x010101;
 		else {
@@ -2378,7 +2101,7 @@ printf( "-%s-\n", toknames[tok]);
 	    }
 	  break;
 	  case pt_currentcmykcolor:
-	    if ( sp+3<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp+3<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		real c,m,y,k;
 		stack[sp].type = stack[sp+1].type = stack[sp+2].type = stack[sp+3].type = ps_num;
 		y = 1.-(fore&0xff)/255.;
@@ -2414,7 +2137,7 @@ printf( "-%s-\n", toknames[tok]);
 	    }
 	  break;
 	  case pt_currentpoint:
-	    if ( sp+1<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp+1<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = ps_num;
 		stack[sp++].u.val = current.x;
 		stack[sp].type = ps_num;
@@ -2431,7 +2154,7 @@ printf( "-%s-\n", toknames[tok]);
 		    memcpy(ent->u.splines.transform,transform,sizeof(transform));
 		}
 	    } else {
-		ent = EntityCreate(head,linecap,linejoin,linewidth,transform);
+		ent = EntityCreate(head,linecap,linejoin,linewidth,transform,clippath);
 		ent->next = ec->splines;
 		ec->splines = ent;
 	    }
@@ -2441,29 +2164,26 @@ printf( "-%s-\n", toknames[tok]);
 		ent->u.splines.stroke.col = fore;
 	    head = NULL; cur = NULL;
 	  break;
-
-	  case pt_imagemask:
-#ifdef FONTFORGE_CONFIG_TYPE3
-	    i = PSAddImagemask(ec,stack,sp,transform,fore);
-	    while ( sp>i ) {
-		--sp;
-		if ( stack[sp].type==ps_string || stack[sp].type==ps_instr ||
-			stack[sp].type==ps_lit )
-		    free(stack[sp].u.str);
-		else if ( stack[sp].type==ps_array || stack[sp].type==ps_dict )
-		    dictfree(&stack[sp].u.dict);
+	  case pt_clip:
+	    /* I really should intersect the old clip path with the new, but */
+	    /*  I don't trust my intersect routine, crashes too often */
+	    SplinePointListsFree(clippath);
+	    clippath = SplinePointListCopy(head);
+	    if ( clippath!=NULL && clippath->first!=clippath->last ) {
+		SplineMake3(clippath->last,clippath->first);
+		clippath->last = clippath->first;
 	    }
-#else
+	  break;
+	  case pt_imagemask:
 	    LogError( _("This version of FontForge does not support the imagemask operator.\nFor support configure --with-multilayer.\n") );
 	    if ( sp>=5 && (stack[sp-1].type==ps_instr || stack[sp-1].type==ps_string))
 		sp -= 5;
-#endif
 	  break;
 
 	  /* We don't do these right, but at least we'll avoid some errors with this hack */
 	  case pt_save: case pt_currentmatrix:
 	    /* push some junk on the stack */
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = ps_num;
 		stack[sp++].u.val = 0;
 	    }
@@ -2476,6 +2196,7 @@ printf( "-%s-\n", toknames[tok]);
 		gsaves[gsp].linecap = linecap;
 		gsaves[gsp].linejoin = linejoin;
 		gsaves[gsp].fore = fore;
+		gsaves[gsp].clippath = SplinePointListCopy(clippath);
 		++gsp;
 		/* I should be saving the "current path" too, but that's too hard */
 	    }
@@ -2494,18 +2215,20 @@ printf( "-%s-\n", toknames[tok]);
 		linecap = gsaves[gsp].linecap;
 		linejoin = gsaves[gsp].linejoin;
 		fore = gsaves[gsp].fore;
+		SplinePointListsFree(clippath);
+		clippath = gsaves[gsp].clippath;
 	    }
 	  break;
 	  case pt_null:
 	    /* push a 0. I don't handle pointers properly */
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].u.val = 0;
 		stack[sp++].type = ps_num;
 	    }
 	  break;
 	  case pt_currentoverprint:
 	    /* push false. I don't handle this properly */
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].u.val = 0;
 		stack[sp++].type = ps_bool;
 	    }
@@ -2517,7 +2240,7 @@ printf( "-%s-\n", toknames[tok]);
 	  break;
 	  case pt_currentflat:
 	    /* push 1.0 (default value). I don't handle this properly */
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0]) )) {
 		stack[sp].u.val = 1.0;
 		stack[sp++].type = ps_num;
 	    }
@@ -2529,7 +2252,7 @@ printf( "-%s-\n", toknames[tok]);
 	  break;
 	  case pt_currentmiterlimit:
 	    /* push 10.0 (default value). I don't handle this properly */
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].u.val = 10.0;
 		stack[sp++].type = ps_num;
 	    }
@@ -2541,7 +2264,7 @@ printf( "-%s-\n", toknames[tok]);
 	  break;
 	  case pt_currentpacking:
 	    /* push false (default value). I don't handle this properly */
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].u.val = 0;
 		stack[sp++].type = ps_bool;
 	    }
@@ -2553,7 +2276,7 @@ printf( "-%s-\n", toknames[tok]);
 	  break;
 	  case pt_currentstrokeadjust:
 	    /* push false (default value). I don't handle this properly */
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].u.val = 0;
 		stack[sp++].type = ps_bool;
 	    }
@@ -2565,7 +2288,7 @@ printf( "-%s-\n", toknames[tok]);
 	  break;
 	  case pt_currentsmoothness:
 	    /* default value is installation dependant. I don't handle this properly */
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].u.val = 1.0;
 		stack[sp++].type = ps_num;
 	    }
@@ -2577,7 +2300,7 @@ printf( "-%s-\n", toknames[tok]);
 	  break;
 	  case pt_currentobjectformat:
 	    /* default value is installation dependant. I don't handle this properly */
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].u.val = 0.0;
 		stack[sp++].type = ps_num;
 	    }
@@ -2589,7 +2312,7 @@ printf( "-%s-\n", toknames[tok]);
 	  break;
 	  case pt_currentglobal: case pt_currentshared:
 	    /* push false (default value). I don't handle this properly */
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].u.val = 0;
 		stack[sp++].type = ps_bool;
 	    }
@@ -2601,7 +2324,7 @@ printf( "-%s-\n", toknames[tok]);
 	  break;
 
 	  case pt_openarray: case pt_mark:
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp++].type = ps_mark;
 	    }
 	  break;
@@ -2611,7 +2334,7 @@ printf( "-%s-\n", toknames[tok]);
 	    break;
 	    if ( i==sp )
 		LogError( _("No mark in counttomark\n") );
-	    else if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    else if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = ps_num;
 		stack[sp++].u.val = i;
 	    }
@@ -2641,6 +2364,7 @@ printf( "-%s-\n", toknames[tok]);
 		LogError( _("No mark in ] (close array)\n") );
 	    else {
 		struct pskeydict dict;
+		dict.is_executable = 0;
 		dict.cnt = dict.max = i;
 		dict.entries = gcalloc(i,sizeof(struct pskeyval));
 		for ( j=0; j<i; ++j ) {
@@ -2824,21 +2548,26 @@ printf( "-%s-\n", toknames[tok]);
     }
     freestuff(stack,sp,&dict,&gb,&tofrees);
     if ( head!=NULL ) {
-	ent = EntityCreate(head,linecap,linejoin,linewidth,transform);
+	ent = EntityCreate(head,linecap,linejoin,linewidth,transform,clippath);
 	ent->next = ec->splines;
 	ec->splines = ent;
     }
+    while ( gsp>0 ) {
+	--gsp;
+	SplinePointListsFree(gsaves[gsp].clippath);
+    }
+    SplinePointListsFree(clippath);
     ECCatagorizePoints(ec);
+    if ( ec->width == UNDEFINED_WIDTH )
+	ec->width = wrapper->advance_width;
     setlocale(LC_NUMERIC,oldloc);
-#ifdef FONTFORGE_CONFIG_TYPE3
-    free(tokbuf);
-#endif
 }
 
 static void InterpretPS(FILE *ps, char *psstr, EntityChar *ec, RetStack *rs) {
     IO wrapper;
 
     memset(&wrapper,0,sizeof(wrapper));
+    wrapper.advance_width = UNDEFINED_WIDTH;
     pushio(&wrapper,ps,psstr,0);
     _InterpretPS(&wrapper,ec,rs);
 }
@@ -2891,166 +2620,10 @@ static Entity *EntityReverse(Entity *ent) {
 return( last );
 }
 
-#ifdef FONTFORGE_CONFIG_TYPE3
-static SplinePointList *SplinesFromLayers(SplineChar *sc,int *flags, int tostroke) {
-    int layer;
-    SplinePointList *head=NULL, *last, *new, *nlast, *temp, *each, *transed;
-    StrokeInfo si;
-    /*SplineSet *spl;*/
-    int handle_eraser;
-    real inversetrans[6], transform[6];
-    int changed;
-
-    if ( tostroke ) {
-	for ( layer=ly_fore; layer<sc->layer_cnt; ++layer ) {
-	    if ( sc->layers[layer].splines==NULL )
-	continue;
-	    else if ( head==NULL )
-		head = sc->layers[layer].splines;
-	    else
-		last->next = sc->layers[layer].splines;
-	    for ( last = sc->layers[layer].splines; last->next!=NULL; last=last->next );
-	    sc->layers[layer].splines = NULL;
-	}
-return( head );
-    }
-
-    if ( *flags==-1 )
-	*flags = PsStrokeFlagsDlg();
-
-    if ( *flags & sf_correctdir ) {
-	for ( layer=ly_fore; layer<sc->layer_cnt; ++layer ) if ( sc->layers[layer].dofill )
-	    SplineSetsCorrect(sc->layers[layer].splines,&changed);
-    }
-
-    handle_eraser = *flags & sf_handle_eraser;
-
-    for ( layer=ly_fore; layer<sc->layer_cnt; ++layer ) {
-	if ( sc->layers[layer].dostroke ) {
-	    memset(&si,'\0',sizeof(si));
-	    si.toobigwarn = *flags & sf_toobigwarn ? 1 : 0;
-	    si.join = sc->layers[layer].stroke_pen.linejoin;
-	    si.cap = sc->layers[layer].stroke_pen.linecap;
-	    si.removeoverlapifneeded = *flags & sf_removeoverlap ? 1 : 0;
-	    si.radius = sc->layers[layer].stroke_pen.width/2.0;
-	    if ( sc->layers[layer].stroke_pen.width==WIDTH_INHERITED )
-		si.radius = .5;
-	    if ( si.cap == lc_inherited ) si.cap = lc_butt;
-	    if ( si.join == lc_inherited ) si.join = lj_miter;
-	    new = NULL;
-	    memcpy(transform,sc->layers[layer].stroke_pen.trans,4*sizeof(real));
-	    transform[4] = transform[5] = 0;
-	    MatInverse(inversetrans,transform);
-	    transed = SplinePointListTransform(SplinePointListCopy(
-		    sc->layers[layer].splines),inversetrans,true);
-	    for ( each = transed; each!=NULL; each=each->next ) {
-		temp = SplineSetStroke(each,&si,sc);
-		if ( new==NULL )
-		    new=temp;
-		else
-		    nlast->next = temp;
-		if ( temp!=NULL )
-		    for ( nlast=temp; nlast->next!=NULL; nlast=nlast->next );
-	    }
-	    new = SplinePointListTransform(new,transform,true);
-	    SplinePointListsFree(transed);
-	    if ( handle_eraser && sc->layers[layer].stroke_pen.brush.col==0xffffff ) {
-		head = EraseStroke(sc,head,new);
-		last = head;
-		if ( last!=NULL )
-		    for ( ; last->next!=NULL; last=last->next );
-	    } else {
-		if ( head==NULL )
-		    head = new;
-		else
-		    last->next = new;
-		if ( new!=NULL )
-		    for ( last = new; last->next!=NULL; last=last->next );
-	    }
-	    if ( si.toobigwarn )
-		*flags |= sf_toobigwarn;
-	}
-	if ( sc->layers[layer].dofill ) {
-	    if ( handle_eraser && sc->layers[layer].fill_brush.col==0xffffff ) {
-		head = EraseStroke(sc,head,sc->layers[layer].splines);
-		last = head;
-		if ( last!=NULL )
-		    for ( ; last->next!=NULL; last=last->next );
-	    } else {
-		new = SplinePointListCopy(sc->layers[layer].splines);
-		if ( head==NULL )
-		    head = new;
-		else
-		    last->next = new;
-		if ( new!=NULL )
-		    for ( last = new; last->next!=NULL; last=last->next );
-	    }
-	}
-    }
-return( head );
-}
-
-void SFSplinesFromLayers(SplineFont *sf,int tostroke) {
-    /* User has turned off multi-layer, flatten the font */
-    int i, layer;
-    int flags= -1;
-    Layer *new;
-#ifndef FONTFORGE_CONFIG_NO_WINDOWING_UI
-    CharView *cv;
-#endif
-
-    for ( i=0; i<sf->glyphcnt; ++i ) if ( sf->glyphs[i]!=NULL ) {
-	SplineChar *sc = sf->glyphs[i];
-	SplineSet *splines = SplinesFromLayers(sc,&flags,tostroke);
-	RefChar *head=NULL, *last=NULL;
-	for ( layer=ly_fore; layer<sc->layer_cnt; ++layer ) {
-	    if ( head==NULL )
-		head = last = sc->layers[layer].refs;
-	    else
-		last->next = sc->layers[layer].refs;
-	    if ( last!=NULL )
-		while ( last->next!=NULL ) last = last->next;
-	    sc->layers[layer].refs = NULL;
-	}
-	new = gcalloc(2,sizeof(Layer));
-	new[ly_back] = sc->layers[ly_back];
-	memset(&sc->layers[ly_back],0,sizeof(Layer));
-	LayerDefault(&new[ly_fore]);
-	new[ly_fore].splines = splines;
-	new[ly_fore].refs = head;
-	for ( layer=ly_fore; layer<sc->layer_cnt; ++layer ) {
-	    SplinePointListsMDFree(sc,sc->layers[layer].splines);
-	    RefCharsFree(sc->layers[layer].refs);
-	    ImageListsFree(sc->layers[layer].images);
-	}
-	free(sc->layers);
-	sc->layers = new;
-	sc->layer_cnt = 2;
-#ifndef FONTFORGE_CONFIG_NO_WINDOWING_UI
-	for ( cv=sc->views; cv!=NULL; cv=cv->next ) {
-	    cv->layerheads[dm_back] = &sc->layers[ly_back];
-	    cv->layerheads[dm_fore] = &sc->layers[ly_fore];
-	}
-#endif
-    }
-    SFReinstanciateRefs(sf);
-}
-
-void SFSetLayerWidthsStroked(SplineFont *sf, real strokewidth) {
-    int i;
-    /* We changed from a stroked font to a multilayered font */
-
-    for ( i=0; i<sf->glyphcnt; ++i ) if ( sf->glyphs[i]!=NULL ) {
-	SplineChar *sc = sf->glyphs[i];
-	sc->layers[ly_fore].dofill = false;
-	sc->layers[ly_fore].dostroke = true;
-	sc->layers[ly_fore].stroke_pen.width = strokewidth;
-    }
-}
-#else
 void SFSplinesFromLayers(SplineFont *sf, int tostroke) {
+  (void)sf;
+  (void)tostroke;
 }
-#endif
 
 static void EntityCharCorrectDir(EntityChar *ec) {
     SplineSet *ss;
@@ -3069,11 +2642,12 @@ static void EntityCharCorrectDir(EntityChar *ec) {
 		for ( ss=ent->u.splines.splines; ss!=NULL; ss=ss->next )
 		    SplineSetReverse(ss);
 	    }
+	    SplineSetsCorrect(ent->clippath,&changed);
 	}
     }
 }
 
-void EntityDefaultStrokeFill(Entity *ent) {
+static void EntityDefaultStrokeFill(Entity *ent) {
     while ( ent!=NULL ) {
 	if ( ent->type == et_splines &&
 		ent->u.splines.stroke.col==0xffffffff &&
@@ -3097,7 +2671,7 @@ void EntityDefaultStrokeFill(Entity *ent) {
     }
 }
 
-SplinePointList *SplinesFromEntityChar(EntityChar *ec,int *flags,int is_stroked) {
+static SplinePointList *SplinesFromEntityChar(EntityChar *ec,int *flags,int is_stroked) {
     Entity *ent, *next;
     SplinePointList *head=NULL, *last, *new, *nlast, *temp, *each, *transed;
     StrokeInfo si;
@@ -3105,7 +2679,7 @@ SplinePointList *SplinesFromEntityChar(EntityChar *ec,int *flags,int is_stroked)
     /*SplineSet *spl;*/
     int handle_eraser = false;
     int ask = false;
-	nlast = NULL; last = NULL;
+
     EntityDefaultStrokeFill(ec->splines);
 
     if ( !is_stroked ) {
@@ -3114,15 +2688,14 @@ SplinePointList *SplinesFromEntityChar(EntityChar *ec,int *flags,int is_stroked)
 	    for ( ent=ec->splines; ent!=NULL; ent = ent->next ) {
 		if ( ent->type == et_splines &&
 			(ent->u.splines.fill.col==0xffffff ||
+			 /*ent->u.splines.clippath!=NULL ||*/
 			 (ent->u.splines.stroke_width!=0 && ent->u.splines.stroke.col!=0xffffffff))) {
 		    ask = true;
 	    break;
 		}
 	    }
-#ifndef LUA_FF_LIB
 	    if ( ask )
 		*flags = PsStrokeFlagsDlg();
-#endif
 	}
 
 	if ( *flags & sf_correctdir )		/* Will happen if flags still unset (-1) */
@@ -3212,37 +2785,12 @@ SplinePointList *SplinesFromEntityChar(EntityChar *ec,int *flags,int is_stroked)
 		    for ( last = new; last->next!=NULL; last=last->next );
 	    }
 	}
+	SplinePointListsFree(ent->clippath);
 	free(ent);
     }
 return( head );
 }
 
-SplinePointList *SplinesFromEntities(Entity *ent,int *flags,int is_stroked) {
-    EntityChar ec;
-
-    memset(&ec,'\0',sizeof(ec));
-    ec.splines = ent;
-return( SplinesFromEntityChar(&ec,flags,is_stroked));
-}
-
-SplinePointList *SplinePointListInterpretPS(FILE *ps,int flags,int is_stroked) {
-    EntityChar ec;
-    SplineChar sc;
-
-    memset(&ec,'\0',sizeof(ec));
-    memset(&sc,0,sizeof(sc)); sc.name = "<No particular character>";
-    ec.sc = &sc;
-    InterpretPS(ps,NULL,&ec,NULL);
-return( SplinesFromEntityChar(&ec,&flags,is_stroked));
-}
-
-Entity *EntityInterpretPS(FILE *ps) {
-    EntityChar ec;
-
-    memset(&ec,'\0',sizeof(ec));
-    InterpretPS(ps,NULL,&ec,NULL);
-return( ec.splines );
-}
 
 static RefChar *revrefs(RefChar *cur) {
     RefChar *p, *n;
@@ -3266,10 +2814,11 @@ static void SCInterpretPS(FILE *ps,SplineChar *sc, int *flags) {
     IO wrapper;
     int ch;
 
-    while ( Isspace(ch = getc(ps)) );
+    while ( isspace(ch = getc(ps)) );
     ungetc(ch,ps);
 
     memset(&wrapper,0,sizeof(wrapper));
+    wrapper.advance_width = UNDEFINED_WIDTH;
     if ( ch!='<' ) {
 	pushio(&wrapper,ps,NULL,0);
 
@@ -3284,13 +2833,7 @@ static void SCInterpretPS(FILE *ps,SplineChar *sc, int *flags) {
     ec.sc = sc;
     _InterpretPS(&wrapper,&ec,NULL);
     sc->width = ec.width;
-#ifdef FONTFORGE_CONFIG_TYPE3
-    sc->layer_cnt = 1;
-    SCAppendEntityLayers(sc,ec.splines);
-    if ( sc->layer_cnt==1 ) ++sc->layer_cnt;
-#else
     sc->layers[ly_fore].splines = SplinesFromEntityChar(&ec,flags,false);
-#endif
     sc->layers[ly_fore].refs = revrefs(ec.refs);
     free(wrapper.top);
 }
@@ -3305,6 +2848,7 @@ void PSFontInterpretPS(FILE *ps,struct charprocs *cp,char **encoding) {
     int flags = -1;
 
     wrapper.top = NULL;
+    wrapper.advance_width = UNDEFINED_WIDTH;
     pushio(&wrapper,ps,NULL,0);
 
     while ( (tok = nextpstoken(&wrapper,&dval,tokbuf,sizeof(tokbuf)))!=pt_eof && tok!=pt_end ) {
@@ -3315,16 +2859,12 @@ void PSFontInterpretPS(FILE *ps,struct charprocs *cp,char **encoding) {
 		cp->values = grealloc(cp->values,cp->cnt*sizeof(char *));
 	    }
 	    if ( cp->next<cp->cnt ) {
-		sc = SplineCharCreate();
+		sc = SplineCharCreate(2);
 		cp->keys[cp->next] = copy(tokbuf);
 		cp->values[cp->next++] = sc;
 		sc->name = copy(tokbuf);
 		SCInterpretPS(ps,sc,&flags);
-#if defined(FONTFORGE_CONFIG_GDRAW)
-       		gwwv_progress_next();
-#elif defined(FONTFORGE_CONFIG_GTK)
-       		gwwv_progress_next();
-#endif
+       		ff_progress_next();
 	    } else {
 		memset(&dummy,0,sizeof(dummy));
 		dummy.fromtype3 = true;
@@ -3367,112 +2907,20 @@ void PSFontInterpretPS(FILE *ps,struct charprocs *cp,char **encoding) {
     }
 }
 
-/* Slurp up an encoding in the form:
- /Enc-name [
-    /charname
-    ...
- ] def
-We're not smart here no: 0 1 255 {1 index exch /.notdef put} for */
-Encoding *PSSlurpEncodings(FILE *file) {
-    char *names[1024];
-    int32 encs[1024];
-    Encoding *item, *head = NULL, *last = NULL;
-    char *encname;
-    char tokbuf[200];
-    IO wrapper;
-    real dval;
-    int i, max, any, enc, codepointsonly;
-    int tok;
-
-    wrapper.top = NULL;
-    pushio(&wrapper,file,NULL,0);
-
-    while ( (tok = nextpstoken(&wrapper,&dval,tokbuf,sizeof(tokbuf)))!=pt_eof ) {
-	encname = NULL;
-	if ( tok==pt_namelit ) {
-	    encname = copy(tokbuf);
-	    tok = nextpstoken(&wrapper,&dval,tokbuf,sizeof(tokbuf));
-	}
-	if ( tok!=pt_openarray && tok!=pt_opencurly )
-return( head );
-	for ( i=0; i<sizeof(names)/sizeof(names[0]); ++i ) {
-	    encs[i] = -1;
-	    names[i]=NULL;
-	}
-	codepointsonly = CheckCodePointsComment(&wrapper);
-
-	max = -1; any = 0; i=0;
-	while ( (tok = nextpstoken(&wrapper,&dval,tokbuf,sizeof(tokbuf)))!=pt_eof &&
-		tok!=pt_closearray && tok!=pt_closecurly ) {
-	    if ( tok==pt_namelit && i<sizeof(names)/sizeof(names[0]) ) {
-		max = i;
-		if ( strcmp(tokbuf,".notdef")==0 ) {
-		    encs[i] = -1;
-		} else if ( (enc=UniFromName(tokbuf,ui_none,&custom))!=-1 ) {
-		    encs[i] = enc;
-		    /* Used not to do this, but there are several legal names */
-		    /*  for some slots and people get unhappy (rightly) if we */
-		    /*  use the wrong one */
-		    names[i] = copy(tokbuf);
-		    any = 1;
-		} else {
-		    names[i] = copy(tokbuf);
-		    any = 1;
-		}
-	    }
-	    ++i;
-	}
-	if ( encname!=NULL ) {
-	    tok = nextpstoken(&wrapper,&dval,tokbuf,sizeof(tokbuf));
-	    if ( tok==pt_def )
-		/* Good */;
-	}
-	if ( max!=-1 ) {
-	    if ( ++max<256 ) max = 256;
-	    item = gcalloc(1,sizeof(Encoding));
-	    item->enc_name = encname;
-	    item->char_cnt = max;
-	    item->unicode = galloc(max*sizeof(int32));
-	    memcpy(item->unicode,encs,max*sizeof(int32));
-	    if ( any && !codepointsonly ) {
-		item->psnames = gcalloc(max,sizeof(char *));
-		memcpy(item->psnames,names,max*sizeof(char *));
-	    } else {
-		for ( i=0; i<max; ++i )
-		    free(names[i]);
-	    }
-	    if ( head==NULL )
-		head = item;
-	    else
-		last->next = item;
-	    last = item;
-	}
-    }
-
-return( head );
-}
-
-int EvaluatePS(char *str,real *stack,int size) {
-    EntityChar ec;
-    RetStack rs;
-
-    memset(&ec,'\0',sizeof(ec));
-    memset(&rs,'\0',sizeof(rs));
-    rs.max = size;
-    rs.stack = stack;
-    InterpretPS(NULL,str,&ec,&rs);
-return( rs.cnt );
-}
-
 static void closepath(SplinePointList *cur, int is_type2) {
     if ( cur!=NULL && cur->first==cur->last && cur->first->prev==NULL && is_type2 )
 return;		/* The "path" is just a single point created by a moveto */
 		/* Probably we're just doing another moveto */
     if ( cur!=NULL && cur->first!=NULL && cur->first!=cur->last ) {
-	if ( RealNear(cur->first->me.x,cur->last->me.x) && RealNear(cur->first->me.y,cur->last->me.y) ) {
+/* I allow for greater errors here than I do in the straight postscript code */
+/*  because: 1) the rel-rel operators will accumulate more rounding errors   */
+/*  2) I only output 2 decimal digits after the decimal in type1 output */
+	if ( RealWithin(cur->first->me.x,cur->last->me.x,.05) && RealWithin(cur->first->me.y,cur->last->me.y,.05) ) {
 	    SplinePoint *oldlast = cur->last;
 	    cur->first->prevcp = oldlast->prevcp;
-	    cur->first->noprevcp = false;
+	    cur->first->prevcp.x += (cur->first->me.x-oldlast->me.x);
+	    cur->first->prevcp.y += (cur->first->me.y-oldlast->me.y);
+	    cur->first->noprevcp = oldlast->noprevcp;
 	    oldlast->prev->from->next = NULL;
 	    cur->last = oldlast->prev->from;
 	    chunkfree(oldlast->prev,sizeof(*oldlast));
@@ -3635,11 +3083,11 @@ SplineChar *PSCharStringToSplines(uint8 *type1, int len, struct pscontext *conte
     int is_type2 = context->is_type2;
     real stack[50]; int sp=0, v;		/* Type1 stack is about 25 long, Type2 stack is 48 */
     real transient[32];
-    SplineChar *ret = SplineCharCreate();
+    SplineChar *ret = SplineCharCreate(2);
     SplinePointList *cur=NULL, *oldcur=NULL;
     RefChar *r1, *r2, *rlast=NULL;
-    BasePoint current;
-    real dx, dy, dx2, dy2, dx3, dy3, dx4, dy4, dx5, dy5, dx6, dy6;
+    DBasePoint current;
+    real dx, dy, dx2, dy2, dx3, dy3, dx4, dy4, dx5, dy5, dx6=0, dy6;
     SplinePoint *pt;
     /* subroutines may be nested to a depth of 10 */
     struct substate { unsigned char *type1; int len; int subnum; } pcstack[11];
@@ -3658,7 +3106,6 @@ SplineChar *PSCharStringToSplines(uint8 *type1, int len, struct pscontext *conte
     real unblended[2][MmMax];
     int last_was_b1=false, old_last_was_b1;
 
-	dx6=0; /* compiler warning */
     if ( !is_type2 && context->instance_count>1 )
 	memset(unblended,0,sizeof(unblended));
 
@@ -4173,27 +3620,27 @@ SplineChar *PSCharStringToSplines(uint8 *type1, int len, struct pscontext *conte
 		}
 		if ( cur!=NULL && cur->first!=NULL && (cur->first!=cur->last || cur->first->next==NULL) ) {
 		    current.x = rint((current.x+dx)*1024)/1024; current.y = rint((current.y+dy)*1024)/1024;
-		    cur->last->nextcp = current;
+		    cur->last->nextcp.x = current.x; cur->last->nextcp.y = current.y;
 		    cur->last->nonextcp = false;
 		    current.x = rint((current.x+dx2)*1024)/1024; current.y = rint((current.y+dy2)*1024)/1024;
 		    pt = chunkalloc(sizeof(SplinePoint));
 		    pt->hintmask = pending_hm; pending_hm = NULL;
-		    pt->prevcp = current;
+		    pt->prevcp.x = current.x; pt->prevcp.y = current.y;
 		    current.x = rint((current.x+dx3)*1024)/1024; current.y = rint((current.y+dy3)*1024)/1024;
-		    pt->me = current;
+		    pt->me.x = current.x; pt->me.y = current.y;
 		    pt->nonextcp = true;
 		    CheckMake(cur->last,pt);
 		    SplineMake3(cur->last,pt);
 		    cur->last = pt;
 
 		    current.x = rint((current.x+dx4)*1024)/1024; current.y = rint((current.y+dy4)*1024)/1024;
-		    cur->last->nextcp = current;
+		    cur->last->nextcp.x = current.x; cur->last->nextcp.y = current.y;
 		    cur->last->nonextcp = false;
 		    current.x = rint((current.x+dx5)*1024)/1024; current.y = rint((current.y+dy5)*1024)/1024;
 		    pt = chunkalloc(sizeof(SplinePoint));
-		    pt->prevcp = current;
+		    pt->prevcp.x = current.x; pt->prevcp.y = current.y;
 		    current.x = rint((current.x+dx6)*1024)/1024; current.y = rint((current.y+dy6)*1024)/1024;
-		    pt->me = current;
+		    pt->me.x = current.x; pt->me.y = current.y;
 		    pt->nonextcp = true;
 		    CheckMake(cur->last,pt);
 		    SplineMake3(cur->last,pt);
@@ -4210,10 +3657,10 @@ SplineChar *PSCharStringToSplines(uint8 *type1, int len, struct pscontext *conte
 	  case 1: /* hstem */
 	  case 18: /* hstemhm */
 	    base = 0;
-	    if ( sp&1 ) {
+	    if ( (sp&1) && ret->width == (int16) 0x8000 )
 		ret->width = stack[0];
+	    if ( sp&1 )
 		base=1;
-	    }
 	    if ( sp-base<2 )
 		LogError( _("Stack underflow on hstem in %s\n"), name );
 	    /* stack[0] is absolute y for start of horizontal hint */
@@ -4252,14 +3699,15 @@ SplineChar *PSCharStringToSplines(uint8 *type1, int len, struct pscontext *conte
 	  case 19: /* hintmask */
 	  case 20: /* cntrmask */
 	    /* If there's anything on the stack treat it as a vstem hint */
-	    base = 0;
 	  case 3: /* vstem */
 	  case 23: /* vstemhm */
+	    base = 0;
 	    if ( cur==NULL || v==3 || v==23 ) {
-		if ( (sp&1) && is_type2 ) {
+		if ( (sp&1) && is_type2 && ret->width == (int16) 0x8000 ) {
 		    ret->width = stack[0];
-		    base=1;
 		}
+		if ( sp&1 )
+		    base=1;
 		/* I've seen a vstemhm with no arguments. I've no idea what that */
 		/*  means. It came right after a hintmask */
 		/* I'm confused about v/hstemhm because the manual says it needs */
@@ -4301,7 +3749,7 @@ SplineChar *PSCharStringToSplines(uint8 *type1, int len, struct pscontext *conte
 		sp = 0;
 	    }
 	    if ( v==19 || v==20 ) {		/* hintmask, cntrmask */
-		int bytes = (hint_cnt+7)/8;
+	      unsigned bytes = (hint_cnt+7)/8;
 		if ( bytes>sizeof(HintMask) ) bytes = sizeof(HintMask);
 		if ( v==19 ) {
 		    ret->hstem = HintsAppend(ret->hstem,activeh); activeh=NULL;
@@ -4309,10 +3757,15 @@ SplineChar *PSCharStringToSplines(uint8 *type1, int len, struct pscontext *conte
 		    if ( pending_hm==NULL )
 			pending_hm = chunkalloc(sizeof(HintMask));
 		    memcpy(pending_hm,type1,bytes);
-		} else if ( cp<sizeof(counters)/sizeof(counters[0]) ) {
+		} else if ( cp<(int)(sizeof(counters)/sizeof(counters[0])) ) {
 		    counters[cp] = chunkalloc(sizeof(HintMask));
 		    memcpy(counters[cp],type1,bytes);
 		    ++cp;
+		}
+		if ( bytes!=(unsigned)hint_cnt/8 ) {
+		    int mask = 0xff>>(hint_cnt&7);
+		    if ( type1[bytes-1]&mask )
+			LogError( _("Hint mask (or counter mask) with too many hints in %s\n"), name );
 		}
 		type1 += bytes;
 		len -= bytes;
@@ -4320,7 +3773,7 @@ SplineChar *PSCharStringToSplines(uint8 *type1, int len, struct pscontext *conte
 	  break;
 	  case 14: /* endchar */
 	    /* endchar is allowed to terminate processing even within a subroutine */
-	    if ( (sp&1) && is_type2 )
+	    if ( (sp&1) && is_type2 && ret->width == (int16) 0x8000 )
 		ret->width = stack[0];
 	    if ( context->painttype!=2 )
 		closepath(cur,is_type2);
@@ -4363,20 +3816,19 @@ SplineChar *PSCharStringToSplines(uint8 *type1, int len, struct pscontext *conte
 	  case 22: /* hmoveto */
 	  case 4: /* vmoveto */
 	    if ( is_type2 ) {
-		if ( (v==21 && sp==3) || (v!=21 && sp==2)) {
+		if (( (v==21 && sp==3) || (v!=21 && sp==2))  && ret->width == (int16) 0x8000 )
 		    /* Character's width may be specified on the first moveto */
 		    ret->width = stack[0];
-		    stack[0] = stack[1]; stack[1] = stack[2]; --sp;
+		if ( v==21 && sp>2 ) {
+		    stack[0] = stack[sp-2]; stack[1] = stack[sp-1];
+		    sp = 2;
+		} else if ( v!=21 && sp>1 ) {
+		    stack[0] = stack[sp-1];
+		    sp = 1;
 		}
 		if ( context->painttype!=2 )
 		    closepath(cur,true);
 	    }
-#if 0	/* This doesn't work. It breaks type1 flex hinting. */
-	/* There's now a special hack just before returning which closes any */
-	/*  open paths */
-	    else if ( cur!=NULL && cur->first->prev==NULL )
-		closepath(cur,false);		/* Even in type1 fonts closepath is optional */
-#endif
 	  case 5: /* rlineto */
 	  case 6: /* hlineto */
 	  case 7: /* vlineto */
@@ -4408,12 +3860,12 @@ SplineChar *PSCharStringToSplines(uint8 *type1, int len, struct pscontext *conte
 		current.x = rint((current.x+dx)*1024)/1024; current.y = rint((current.y+dy)*1024)/1024;
 		pt = chunkalloc(sizeof(SplinePoint));
 		pt->hintmask = pending_hm; pending_hm = NULL;
-		pt->me = current;
+		pt->me.x = current.x; pt->me.y = current.y;
 		pt->noprevcp = true; pt->nonextcp = true;
 		if ( v==4 || v==21 || v==22 ) {
 		    if ( cur!=NULL && cur->first==cur->last && cur->first->prev==NULL && is_type2 ) {
 			/* Two adjacent movetos should not create single point paths */
-			cur->first->me = current;
+			cur->first->me.x = current.x; cur->first->me.y = current.y;
 			SplinePointFree(pt);
 		    } else {
 			SplinePointList *spl = chunkalloc(sizeof(SplinePointList));
@@ -4445,7 +3897,7 @@ SplineChar *PSCharStringToSplines(uint8 *type1, int len, struct pscontext *conte
 		if ( cur!=NULL ) {
 		    pt = chunkalloc(sizeof(SplinePoint));
 		    pt->hintmask = pending_hm; pending_hm = NULL;
-		    pt->me = current;
+		    pt->me.x = current.x; pt->me.y = current.y;
 		    pt->noprevcp = true; pt->nonextcp = true;
 		    CheckMake(cur->last,pt);
 		    SplineMake3(cur->last,pt);
@@ -4523,14 +3975,14 @@ SplineChar *PSCharStringToSplines(uint8 *type1, int len, struct pscontext *conte
 		++polarity;
 		if ( cur!=NULL && cur->first!=NULL && (cur->first!=cur->last || cur->first->next==NULL) ) {
 		    current.x = rint((current.x+dx)*1024)/1024; current.y = rint((current.y+dy)*1024)/1024;
-		    cur->last->nextcp = current;
+		    cur->last->nextcp.x = current.x; cur->last->nextcp.y = current.y;
 		    cur->last->nonextcp = false;
 		    current.x = rint((current.x+dx2)*1024)/1024; current.y = rint((current.y+dy2)*1024)/1024;
 		    pt = chunkalloc(sizeof(SplinePoint));
 		    pt->hintmask = pending_hm; pending_hm = NULL;
-		    pt->prevcp = current;
+		    pt->prevcp.x = current.x; pt->prevcp.y = current.y;
 		    current.x = rint((current.x+dx3)*1024)/1024; current.y = rint((current.y+dy3)*1024)/1024;
-		    pt->me = current;
+		    pt->me.x = current.x; pt->me.y = current.y;
 		    pt->nonextcp = true;
 		    CheckMake(cur->last,pt);
 		    SplineMake3(cur->last,pt);
@@ -4543,7 +3995,7 @@ SplineChar *PSCharStringToSplines(uint8 *type1, int len, struct pscontext *conte
 		if ( cur!=NULL ) {	/* In legal code, cur can't be null here, but I got something illegal... */
 		    pt = chunkalloc(sizeof(SplinePoint));
 		    pt->hintmask = pending_hm; pending_hm = NULL;
-		    pt->me = current;
+		    pt->me.x = current.x; pt->me.y = current.y;
 		    pt->noprevcp = true; pt->nonextcp = true;
 		    CheckMake(cur->last,pt);
 		    SplineMake3(cur->last,pt);
@@ -4658,12 +4110,12 @@ SplineChar *PSCharStringToSplines(uint8 *type1, int len, struct pscontext *conte
     }
     ret->hstem = HintCleanup(ret->hstem,true,context->instance_count);
     ret->vstem = HintCleanup(ret->vstem,true,context->instance_count);
-    SCGuessHHintInstancesList(ret);
-    SCGuessVHintInstancesList(ret);
+    SCGuessHHintInstancesList(ret,ly_fore);
+    SCGuessVHintInstancesList(ret,ly_fore);
     ret->hconflicts = StemListAnyConflicts(ret->hstem);
     ret->vconflicts = StemListAnyConflicts(ret->vstem);
     if ( context->instance_count==1 && !ret->hconflicts && !ret->vconflicts )
-	SCClearHintMasks(ret,false);
+	SCClearHintMasks(ret,ly_fore,false);
     HintsRenumber(ret);
     if ( name!=NULL && strcmp(name,".notdef")!=0 )
 	ret->widthset = true;

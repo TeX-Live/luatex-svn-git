@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2007 by George Williams */
+/* Copyright (C) 2000-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -38,11 +38,14 @@
 void SplineRefigure3(Spline *spline) {
     SplinePoint *from = spline->from, *to = spline->to;
     Spline1D *xsp = &spline->splines[0], *ysp = &spline->splines[1];
+    Spline old;
 
 #ifdef DEBUG
     if ( RealNear(from->me.x,to->me.x) && RealNear(from->me.y,to->me.y))
 	IError("Zero length spline created");
 #endif
+    if ( spline->acceptableextrema )
+	old = *spline;
     xsp->d = from->me.x; ysp->d = from->me.y;
     if ( from->nonextcp ) from->nextcp = from->me;
     else if ( from->nextcp.x==from->me.x && from->nextcp.y == from->me.y ) from->nonextcp = true;
@@ -72,7 +75,7 @@ void SplineRefigure3(Spline *spline) {
 	if ( ysp->a==0 && xsp->a==0 && ysp->b==0 && xsp->b==0 )
 	    spline->islinear = true;	/* This seems extremely unlikely... */
     }
-    if ( isnan(ysp->a) || isnan(xsp->a) )
+    if ( !finite(ysp->a) || !finite(xsp->a) || !finite(ysp->c) || !finite(xsp->c) || !finite(ysp->d) || !finite(xsp->d))
 	IError("NaN value in spline creation");
     LinearApproxFree(spline->approx);
     spline->approx = NULL;
@@ -84,18 +87,15 @@ void SplineRefigure3(Spline *spline) {
 	spline->isquadratic = true;	/* Only likely if we read in a TTF */
     spline->order2 = false;
 
-#if 0
-    _SplineRefigure3(&s);
-# define RealNear(a,b) ((a)==(b))
-    
-    if ( !RealNear(spline->splines[0].a,s.splines[0].a) ||
-	    !RealNear(spline->splines[0].b,s.splines[0].b) ||
-	    !RealNear(spline->splines[0].c,s.splines[0].c) ||
-	    !RealNear(spline->splines[0].d,s.splines[0].d) ||
-	    !RealNear(spline->splines[1].a,s.splines[1].a) ||
-	    !RealNear(spline->splines[1].b,s.splines[1].b) ||
-	    !RealNear(spline->splines[1].c,s.splines[1].c) ||
-	    !RealNear(spline->splines[1].d,s.splines[1].d) )
-	fprintf( stderr, "error\n" );
-#endif
+    if ( spline->acceptableextrema ) {
+	/* I don't check "d", because changes to that reflect simple */
+	/*  translations which will not affect the shape of the spline */
+	if ( !RealNear(old.splines[0].a,spline->splines[0].a) ||
+		!RealNear(old.splines[0].b,spline->splines[0].b) ||
+		!RealNear(old.splines[0].c,spline->splines[0].c) ||
+		!RealNear(old.splines[1].a,spline->splines[1].a) ||
+		!RealNear(old.splines[1].b,spline->splines[1].b) ||
+		!RealNear(old.splines[1].c,spline->splines[1].c) )
+	    spline->acceptableextrema = false;
+    }
 }

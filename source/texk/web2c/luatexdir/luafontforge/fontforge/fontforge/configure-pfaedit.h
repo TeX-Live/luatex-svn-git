@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2007 by George Williams */
+/* Copyright (C) 2002-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,28 +27,8 @@
 #ifndef _CONFIG_FONTFORGE_H_
 #define _CONFIG_FONTFORGE_H_
 
+
 #include "ff-config.h"
-
-/*  !!!!!!!!!!!!!!!!! Experimental. Don't try to use it yet !!!!!!!!!!!!!!!!! */
-/* FontForge can be configured with a windowing UI based on my widgets (gdraw)*/
-/*  the gtk widget set, or finally with no windowing UI.                      */
-/*  It is probably best to used gtk if it is available			      */
-/*									      */
-/* #define FONTFORGE_CONFIG_GTK						      */
-/* #define FONTFORGE_CONFIG_GDRAW					      */
-/* #define FONTFORGE_CONFIG_NO_WINDOWING_UI				      */
-/*									      */
-/* Can be set from configure --with-gtk, --with-gdraw, --with-noui	      */
-#ifdef FONTFORGE_CONFIG_NO_WINDOWING_UI
-# undef FONTFORGE_CONFIG_GDRAW
-# undef FONTFORGE_CONFIG_GTK
-#elif defined(FONTFORGE_CONFIG_GTK)
-# undef FONTFORGE_CONFIG_GDRAW
-#elif !defined(FONTFORGE_CONFIG_GDRAW)
-/* If nothing defined, default to traditional setting. At least for now       */
-# define FONTFORGE_CONFIG_GDRAW
-#endif
-
 
 /* Making FontForge handle more of the capabilities of type3 & svg fonts is not*/
 /*  something most people will want. It wastes space too. So I thought I'd    */
@@ -97,13 +77,16 @@
 /* The paste after command pastes the contents of the clipboard into the      */
 /*  current glyph, translates that by the advance width of the current glyph  */
 /*  and increments the advance width by the advance width of the clipboard    */
+/*									      */
+/* Can be set from configure --enable-pasteafter			      */
+
 
 
 /* Someone asked for encoding GB12345. Neither libiconv nor iconv supports it.*/
 /*									      */
 /* #define FONTFORGE_CONFIG_GB12345					      */
 /*									      */
-/* Can be set from configure --with-gb12345				      */
+/* Can be set from configure --enable-gb12345				      */
 
 
 /* I doubt anyone but me will be interested in the tile path command, so I    */
@@ -112,11 +95,13 @@
 /*									      */
 /* #define FONTFORGE_CONFIG_TILEPATH					      */
 /*									      */
-/* The tile path command uses the contents of the clipboard as a tile which is*/
-/*  applied to any selected paths, replacing them. It could be used to make a */
-/*  font whose stems were filled with celtic knotwork, for example	      */
+/* The tile path command lets you specify a tile which will then be laid out  */
+/*  along a path. It could be used to make a font whose stems were filled with*/
+/*  celtic knotwork, or bamboo segments, for example.			      */
 /* It's sort of an extension to the Expand Stroke command, only it strokes    */
 /*  with a pattern */
+/*									      */
+/* Can be set from configure --enable-tilepath				      */
 
 
 /* There used to be a property _XFREE86_GLYPH_RANGES (in bdf/pcf) fonts which */
@@ -133,13 +118,6 @@
 /*  than the current approach. This flag restores the old algorithm.	      */
 /*									      */
 /* #define FONTFORGE_CONFIG_NON_SYMMETRIC_QUADRATIC_CONVERSION		      */
-/*									      */
-
-
-/* Yoshiki Hayashi wants a copy background to foreground command in the       */
-/*  outline view. Setting this flag will enable his patch		      */
-/*									      */
-/* #define FONTFORGE_CONFIG_COPY_BG_TO_FG				      */
 /*									      */
 
 
@@ -174,9 +152,9 @@
 
 /* In addition to placing snippets of charstrings into subrs, I tried adding  */
 /*  whole glyphs (when that was possible). To my surprise, it made things     */
-/*  in one of my test cases, and barely registered an improvement in another  */
-/*  So I think we're better off without it. But I don't understand why things */
-/*  are worse so I'm leaving the code in to play with                         */
+/*  worse in one of my test cases, and barely registered an improvement in    */
+/*  another.   So I think we're better off without it. But I don't understand */
+/*  why things are worse so I'm leaving the code in to play with              */
 /*									      */
 /* #define FONTFORGE_CONFIG_PS_REFS_GET_SUBRS				      */
 /*									      */
@@ -247,10 +225,6 @@
 /* If there are no freetype header files then define _NO_FREETYPE	      */
 /* If the freetype library has the bytecode debugger then define FREETYPE_HAS_DEBUGGER */
 /* If there is no mmap system call then define _NO_MMAP			      */
-#ifdef FONTFORGE_CONFIG_NO_WINDOWING_UI
-# undef FREETYPE_HAS_DEBUGGER
-/* Debugger is meaningless if we have no UI (and doesn't compile) */
-#endif
 
 /* If there is no ungif library (or if it is out of date) define _NO_LIBUNGIF */
 /* If there is no png (or z) library define _NO_LIBPNG			      */
@@ -289,4 +263,30 @@
 /*  "x' = x, y' = y+sin(x)" would not produce anything useful when applied to */
 /*  a long line segment like [0,100]...[100,100], but if that were broken up  */
 /*  into sub-segments each pi long the results would be much better */
+
+
+/******* Don't need this any longer as copy layer 2 layer is always available */
+/* Yoshiki Hayashi wants a copy background to foreground command in the       */
+/*  outline view. Setting this flag will enable his patch		      */
+/*									      */
+/* #define FONTFORGE_CONFIG_COPY_BG_TO_FG				      */
+/*									      */
+
+
+/* ************************************************************************** */
+/* **************************** Numeric Settings **************************** */
+/* ************************************************************************** */
+
+
+/* The number of files displayed in the "File->Recent" menu */
+#define RECENT_MAX	10
+
+/* The number of tabs allowed in the outline glyph view of former glyphs */
+#define FORMER_MAX	10
+
+/* The maximum number of layers allowed in a normal font (this includes the */
+/*  default foreground and background layers) -- this does not limit type3  */
+/*  fonts */
+#define BACK_LAYER_MAX	256
+
 #endif

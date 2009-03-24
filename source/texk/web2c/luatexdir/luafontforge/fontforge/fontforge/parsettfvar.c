@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2007 by George Williams */
+/* Copyright (C) 2000-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -118,7 +118,7 @@ return;
 	LogError( _("Hmm, this 'fvar' table has an unexpected size for an instance, I shan't parse it\n") );
 return;
     }
-    if ( data_off+axis_count*20+instance_count*(4+4*axis_count)> info->fvar_len ) {
+    if ( data_off+axis_count*20+instance_count*(4+4*axis_count)> (int)info->fvar_len ) {
 	LogError( _("Hmm, this 'fvar' table is too short\n") );
 return;
     }
@@ -356,7 +356,7 @@ return;
     for ( ref=sc->layers[ly_fore].refs; ref!=NULL; ref=ref->next ) {
 	ref->transform[4] += xd;
 	ref->transform[5] += yd;
-	SCReinstanciateRefChar(sc,ref);
+	SCReinstanciateRefChar(sc,ref,ly_fore);
     }
 }
 
@@ -375,7 +375,7 @@ static void VaryGlyph(SplineChar *sc,int *points, int *xdeltas, int *ydeltas,
 		if ( xdeltas[i]!=0 || ydeltas[i]!=0 ) {
 		    ref->transform[4] += xdeltas[i];
 		    ref->transform[5] += ydeltas[i];
-		    SCReinstanciateRefChar(sc,ref);
+		    SCReinstanciateRefChar(sc,ref,ly_fore);
 		}
 	    }
 	} else {
@@ -411,7 +411,7 @@ static void VaryGlyph(SplineChar *sc,int *points, int *xdeltas, int *ydeltas,
 		    if ( xdeltas[j]!=0 || ydeltas[j]!=0 ) {
 			ref->transform[4] += xdeltas[j];
 			ref->transform[5] += ydeltas[j];
-			SCReinstanciateRefChar(sc,ref);
+			SCReinstanciateRefChar(sc,ref,ly_fore);
 		    }
 		    ++j;
 		}
@@ -760,14 +760,7 @@ void readttfvariations(struct ttfinfo *info, FILE *ttf) {
     if ( info->gvar_start==0 || info->gvar_len==0 || info->fvar_start==0 || info->fvar_len==0 )
 return;
 
-#if defined(FONTFORGE_CONFIG_GDRAW)
-    gwwv_progress_change_line2(_("Processing Variations"));
-    if ( !no_windowing_ui )
-	GDrawProcessPendingEvents(NULL);
-#elif defined(FONTFORGE_CONFIG_GTK)
-    gwwv_progress_change_line2(_("Processing Variations"));
-    /* !!! force an expose */
-#endif
+    ff_progress_change_line2(_("Processing Variations"));
     parsefvar(info,ttf);
     if ( info->variations!=NULL && info->avar_start!=0 )
 	parseavar(info,ttf);

@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2007 by George Williams */
+/* Copyright (C) 2000-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,35 +28,18 @@
 #define _PFAEDIT_H_
 
 #include "configure-pfaedit.h"
-#if defined( FONTFORGE_CONFIG_GTK )
-# include "basics.h"
-# include "gimage.h"
-# include <gtk/gtk.h>
-# include <gwwv.h>
-#else /*if defined( FONTFORGE_CONFIG_GDRAW )*/
-# include <basics.h>
-# include <stdio.h>
-# include <string.h>
-# if defined( FONTFORGE_CONFIG_GDRAW )
-#  include <gprogress.h>
-# endif
-#endif
+#include <basics.h>
+#include <stdio.h>
+#include <string.h>
+#include <intl.h>
 #include "splinefont.h"
-
-#if defined(FONTFORGE_CONFIG_NO_WINDOWING_UI)
-#include "intl.h"
-#endif
+#include "uiinterface.h"
 
 static const int unicode4_size = 17*65536;
     /* Unicode goes up to 0x10ffff */
 
 
-extern void IError(const char *fmt,...);
-extern int ErrorWindowExists(void);
-extern void ShowErrorWindow(void);
-extern void LogError(const char *format,...);
-extern void ff_post_notice(const char *title,const char *statement,...);
-
+extern void ProcessNativeScript(int argc, char *argv[], FILE *script);
 extern void CheckIsScript(int argc, char *argv[]);
 
 extern char *AdobeStandardEncoding[256];
@@ -76,7 +59,6 @@ extern int adjustlbearing;
 extern int autohint_before_rasterize;
 extern int autohint_before_generate;
 extern int seperate_hint_controls;
-extern int ItalicConstrained;
 extern int no_windowing_ui;
 extern uint32 default_background;
 extern int use_utf8_in_script;
@@ -93,19 +75,29 @@ extern char *printcommand, *printlazyprinter;
 
 extern Encoding *enclist;
 
-#define RECENT_MAX	4
-extern char *RecentFiles[RECENT_MAX];
 
 #define SCRIPT_MENU_MAX	10
-#if defined( FONTFORGE_CONFIG_GTK )
-extern char *script_menu_names[SCRIPT_MENU_MAX];
-#else
-extern unichar_t *script_menu_names[SCRIPT_MENU_MAX];
-#endif
-extern char *script_filenames[SCRIPT_MENU_MAX];
 
 
 extern MacFeat *default_mac_feature_map;
 
+typedef struct library_version_configuration {
+    uint16 major, minor;
+    long library_source_modtime;
+    char *library_source_modtime_string;
+    int  library_source_versiondate;
+    uint16 sizeof_me;
+    uint16 sizeof_splinefont;
+    uint16 sizeof_splinechar;
+    uint16 sizeof_fvbase;
+    uint16 sizeof_cvbase;
+    uint16 sizeof_cvcontainer;
+    uint8  config_had_devicetables;
+    uint8  config_had_multilayer;
+    uint8  config_had_python;
+    uint8  mba1;		/* Must be all ones (0xff), config values are 0,1 need to distinquish from both */
+} Library_Version_Configuration;
+extern Library_Version_Configuration library_version_configuration;
 
+extern int check_library_version(Library_Version_Configuration *exe_lib_version, int fatal, int quiet);
 #endif

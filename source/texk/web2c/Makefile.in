@@ -93,24 +93,32 @@ libff_a_LIBADD =
 am_libff_a_OBJECTS = libff_a-alphabet.$(OBJEXT) libff_a-char.$(OBJEXT) \
 	libff_a-cjk.$(OBJEXT) libff_a-gwwiconv.$(OBJEXT) \
 	libff_a-memory.$(OBJEXT) libff_a-ustring.$(OBJEXT) \
-	libff_a-autohint.$(OBJEXT) libff_a-charview.$(OBJEXT) \
-	libff_a-contextchain.$(OBJEXT) libff_a-encoding.$(OBJEXT) \
-	libff_a-featurefile.$(OBJEXT) libff_a-fontinfo.$(OBJEXT) \
-	libff_a-fontview.$(OBJEXT) libff_a-fvfonts.$(OBJEXT) \
-	libff_a-kernclass.$(OBJEXT) libff_a-lookups.$(OBJEXT) \
+	libff_a-ArabicForms.$(OBJEXT) libff_a-backtrns.$(OBJEXT) \
+	libff_a-dump.$(OBJEXT) libff_a-makebuildtables.$(OBJEXT) \
+	libff_a-makeutype.$(OBJEXT) libff_a-ucharmap.$(OBJEXT) \
+	libff_a-unialt.$(OBJEXT) libff_a-utype.$(OBJEXT) \
+	libff_a-autohint.$(OBJEXT) libff_a-clipnoui.$(OBJEXT) \
+	libff_a-cvundoes.$(OBJEXT) libff_a-dumppfa.$(OBJEXT) \
+	libff_a-encoding.$(OBJEXT) libff_a-featurefile.$(OBJEXT) \
+	libff_a-fontviewbase.$(OBJEXT) libff_a-fvcomposit.$(OBJEXT) \
+	libff_a-fvfonts.$(OBJEXT) libff_a-lookups.$(OBJEXT) \
 	libff_a-macbinary.$(OBJEXT) libff_a-macenc.$(OBJEXT) \
-	libff_a-namelist.$(OBJEXT) libff_a-parsepfa.$(OBJEXT) \
+	libff_a-mathconstants.$(OBJEXT) libff_a-mm.$(OBJEXT) \
+	libff_a-namelist.$(OBJEXT) libff_a-noprefs.$(OBJEXT) \
+	libff_a-nouiutil.$(OBJEXT) libff_a-parsepfa.$(OBJEXT) \
 	libff_a-parsettf.$(OBJEXT) libff_a-parsettfatt.$(OBJEXT) \
-	libff_a-parsettfvar.$(OBJEXT) libff_a-prefs.$(OBJEXT) \
-	libff_a-psread.$(OBJEXT) libff_a-pua.$(OBJEXT) \
-	libff_a-splinefill.$(OBJEXT) libff_a-splineorder2.$(OBJEXT) \
-	libff_a-splineoverlap.$(OBJEXT) \
+	libff_a-parsettfvar.$(OBJEXT) libff_a-psread.$(OBJEXT) \
+	libff_a-pua.$(OBJEXT) libff_a-python.$(OBJEXT) \
+	libff_a-sfd1.$(OBJEXT) libff_a-splinechar.$(OBJEXT) \
+	libff_a-splinefill.$(OBJEXT) libff_a-splinefont.$(OBJEXT) \
+	libff_a-splineorder2.$(OBJEXT) libff_a-splineoverlap.$(OBJEXT) \
 	libff_a-splinerefigure.$(OBJEXT) libff_a-splinesave.$(OBJEXT) \
-	libff_a-splinestroke.$(OBJEXT) libff_a-splineutil.$(OBJEXT) \
-	libff_a-splineutil2.$(OBJEXT) libff_a-stamp.$(OBJEXT) \
+	libff_a-splinesaveafm.$(OBJEXT) libff_a-splinestroke.$(OBJEXT) \
+	libff_a-splineutil.$(OBJEXT) libff_a-splineutil2.$(OBJEXT) \
 	libff_a-start.$(OBJEXT) libff_a-stemdb.$(OBJEXT) \
-	libff_a-tottf.$(OBJEXT) libff_a-tottfgpos.$(OBJEXT) \
-	libff_a-tottfvar.$(OBJEXT) libff_a-ttfspecial.$(OBJEXT) \
+	libff_a-tottf.$(OBJEXT) libff_a-tottfaat.$(OBJEXT) \
+	libff_a-tottfgpos.$(OBJEXT) libff_a-ttfspecial.$(OBJEXT) \
+	libff_a-fsys.$(OBJEXT) libff_a-gwwintl.$(OBJEXT) \
 	libff_a-ffdummies.$(OBJEXT) libff_a-luafflib.$(OBJEXT)
 libff_a_OBJECTS = $(am_libff_a_OBJECTS)
 liblua51_a_AR = $(AR) $(ARFLAGS)
@@ -136,14 +144,17 @@ libluamisc_a_AR = $(AR) $(ARFLAGS)
 libluamisc_a_LIBADD =
 am_libluamisc_a_OBJECTS = libluamisc_a-lfs.$(OBJEXT) \
 	libluamisc_a-md5.$(OBJEXT) libluamisc_a-md5lib.$(OBJEXT) \
-	libluamisc_a-lpeg.$(OBJEXT) libluamisc_a-luazip.$(OBJEXT) \
+	libluamisc_a-lpeg.$(OBJEXT) libluamisc_a-clocks.$(OBJEXT) \
+	libluamisc_a-core_profiler.$(OBJEXT) \
+	libluamisc_a-function_meter.$(OBJEXT) \
+	libluamisc_a-lua50_profiler.$(OBJEXT) \
+	libluamisc_a-stack.$(OBJEXT) libluamisc_a-luazip.$(OBJEXT) \
 	libluamisc_a-lgzip.$(OBJEXT) libluamisc_a-lzlib.$(OBJEXT) \
 	libluamisc_a-slnunico.$(OBJEXT)
 libluamisc_a_OBJECTS = $(am_libluamisc_a_OBJECTS)
 libluatex_a_AR = $(AR) $(ARFLAGS)
 libluatex_a_LIBADD =
-am_libluatex_a_OBJECTS = libluatex_a-avl.$(OBJEXT) \
-	libluatex_a-avlstuff.$(OBJEXT) libluatex_a-dofont.$(OBJEXT) \
+am_libluatex_a_OBJECTS = libluatex_a-dofont.$(OBJEXT) \
 	libluatex_a-luafont.$(OBJEXT) libluatex_a-mapfile.$(OBJEXT) \
 	libluatex_a-pkin.$(OBJEXT) libluatex_a-sfnt.$(OBJEXT) \
 	libluatex_a-subfont.$(OBJEXT) libluatex_a-texfont.$(OBJEXT) \
@@ -170,13 +181,20 @@ am_libluatex_a_OBJECTS = libluatex_a-avl.$(OBJEXT) \
 	libluatex_a-ltokenlib.$(OBJEXT) libluatex_a-luainit.$(OBJEXT) \
 	libluatex_a-luanode.$(OBJEXT) libluatex_a-luastuff.$(OBJEXT) \
 	libluatex_a-luatex.$(OBJEXT) libluatex_a-luatoken.$(OBJEXT) \
-	libluatex_a-texluac.$(OBJEXT) libluatex_a-managed-sa.$(OBJEXT) \
-	libluatex_a-mathcodes.$(OBJEXT) \
-	libluatex_a-linebreak.$(OBJEXT) \
+	libluatex_a-texluac.$(OBJEXT) libluatex_a-makecpool.$(OBJEXT) \
+	libluatex_a-managed-sa.$(OBJEXT) \
+	libluatex_a-mathcodes.$(OBJEXT) libluatex_a-pagetree.$(OBJEXT) \
+	libluatex_a-pdfpage.$(OBJEXT) libluatex_a-filename.$(OBJEXT) \
+	libluatex_a-linebreak.$(OBJEXT) libluatex_a-math.$(OBJEXT) \
+	libluatex_a-mlist.$(OBJEXT) \
 	libluatex_a-postlinebreak.$(OBJEXT) \
+	libluatex_a-primitive.$(OBJEXT) \
+	libluatex_a-texdeffont.$(OBJEXT) \
 	libluatex_a-texnodes.$(OBJEXT) libluatex_a-texpdf.$(OBJEXT) \
 	libluatex_a-textoken.$(OBJEXT) libluatex_a-textcodes.$(OBJEXT) \
-	libluatex_a-utils.$(OBJEXT) libluatex_a-writezip.$(OBJEXT)
+	libluatex_a-avl.$(OBJEXT) libluatex_a-avlstuff.$(OBJEXT) \
+	libluatex_a-synctex.$(OBJEXT) libluatex_a-utils.$(OBJEXT) \
+	libluatex_a-writezip.$(OBJEXT)
 am__objects_1 = libluatex_a-mp.$(OBJEXT) libluatex_a-psout.$(OBJEXT)
 nodist_libluatex_a_OBJECTS = $(am__objects_1)
 libluatex_a_OBJECTS = $(am_libluatex_a_OBJECTS) \
@@ -617,45 +635,66 @@ EXTRA_DIST = PROJECTS cftests config.h cpascal.h help.h tangle.web \
 	luatexdir/zziplib/zzip/zziplib.wpj \
 	luatexdir/zziplib/zzipback.sed luatexdir/zziplib/zzipwrap \
 	luatexdir/luafilesystem/Makefile \
-	luatexdir/luafilesystem/config luatexdir/luafilesystem/doc \
+	luatexdir/luafilesystem/Makefile.win \
+	luatexdir/luafilesystem/README luatexdir/luafilesystem/config \
+	luatexdir/luafilesystem/config.win luatexdir/luafilesystem/doc \
+	luatexdir/luafilesystem/src/lfs.def \
 	luatexdir/luafilesystem/tests luatexdir/luafilesystem/vc6 \
 	luatexdir/luamd5/makefile luatexdir/luamd5/md5.html \
 	luatexdir/luamd5/md5.lua luatexdir/luamd5/md5tests.lua \
-	luatexdir/luazip/Makefile luatexdir/luazip/README \
-	luatexdir/luazip/config luatexdir/luazip/doc \
-	luatexdir/luazip/tests luatexdir/luazip/vc6 \
-	luatexdir/luazip/vc7 luatexdir/luazlib/Makefile \
-	luatexdir/luazlib/README luatexdir/luazlib/gzip.lua \
-	luatexdir/luazlib/test_gzip.lua \
+	luatexdir/luaprofiler/Makefile luatexdir/luazip/Makefile \
+	luatexdir/luazip/README luatexdir/luazip/config \
+	luatexdir/luazip/doc luatexdir/luazip/tests \
+	luatexdir/luazip/vc6 luatexdir/luazip/vc7 \
+	luatexdir/luazlib/Makefile luatexdir/luazlib/README \
+	luatexdir/luazlib/gzip.lua luatexdir/luazlib/test_gzip.lua \
 	luatexdir/luazlib/test_zlib.lua luatexdir/luazlib/zlib.lua \
 	luatexdir/slnunicode/unitest luatexdir/luafontforge/ChangeLog \
 	luatexdir/luafontforge/fontforge/AUTHORS \
 	luatexdir/luafontforge/fontforge/INSTALL \
 	luatexdir/luafontforge/fontforge/LICENSE \
 	luatexdir/luafontforge/fontforge/VERSION \
+	luatexdir/luafontforge/fontforge/libs \
+	luatexdir/luafontforge/fontforge/po \
 	luatexdir/luafontforge/Makefile \
 	luatexdir/luafontforge/fontforge/Makefile \
+	luatexdir/luafontforge/fontforge/Makefile.in \
 	luatexdir/luafontforge/fontforge/Unicode/Makefile \
+	luatexdir/luafontforge/fontforge/Unicode/Makefile.in \
 	luatexdir/luafontforge/fontforge/Unicode/descrip.mms \
+	luatexdir/luafontforge/fontforge/Unicode/gwwintl.c \
+	luatexdir/luafontforge/fontforge/aclocal.m4 \
+	luatexdir/luafontforge/fontforge/config.guess \
+	luatexdir/luafontforge/fontforge/config.sub \
+	luatexdir/luafontforge/fontforge/configure \
+	luatexdir/luafontforge/fontforge/configure-options \
+	luatexdir/luafontforge/fontforge/configure.in \
 	luatexdir/luafontforge/fontforge/descrip.mms \
+	luatexdir/luafontforge/fontforge/fontforge.pc.in \
 	luatexdir/luafontforge/fontforge/fontforge/Makefile \
+	luatexdir/luafontforge/fontforge/fontforge/Makefile.in \
 	luatexdir/luafontforge/fontforge/fontforge/descrip.mms \
 	luatexdir/luafontforge/fontforge/fontforge/lff.opt \
 	luatexdir/luafontforge/fontforge/fontforge/scriptfuncs.h \
 	luatexdir/luafontforge/fontforge/fontforge/scripting.h \
 	luatexdir/luafontforge/fontforge/fontforge/sfd1.h \
 	luatexdir/luafontforge/fontforge/fontforge/stamper.c \
+	luatexdir/luafontforge/fontforge/gdraw/Makefile.in \
+	luatexdir/luafontforge/fontforge/gutils/Makefile.in \
+	luatexdir/luafontforge/fontforge/inc/config.h.in \
+	luatexdir/luafontforge/fontforge/inc/config.h_vms \
+	luatexdir/luafontforge/fontforge/inc/descrip.mms \
+	luatexdir/luafontforge/fontforge/inc/gimage.h \
+	luatexdir/luafontforge/fontforge/install-sh \
+	luatexdir/luafontforge/fontforge/ltmain.sh \
+	luatexdir/luafontforge/fontforge/plugins/Makefile.in \
+	luatexdir/luafontforge/fontforge/systemspecific.in \
 	luatexdir/luafontforge/fontforge/fontforge/xlib.opt \
 	$(lua_mp_web) luatexdir/ChangeLog luatexdir/NEWS \
 	luatexdir/README luatexdir/change-files.txt \
-	luatexdir/font/subfont.txt luatexdir/pdftosrc.1 \
-	luatexdir/pdftosrc.cc luatexdir/pdftosrc.rc \
-	luatexdir/ttf2afm.c luatexdir/ttf2afm.rc luatexdir/macnames.c \
-	luatexdir/.indent.pro luatexdir/Makefile.in \
-	luatexdir/depend.mk luatexdir/font/.indent.pro \
-	luatexdir/image/.indent.pro luatexdir/lua/.indent.pro \
-	luatexdir/luatex.mk luatexdir/luatexlib.mk fmtutil.in \
-	Makefile.in.orig configure.in.orig
+	luatexdir/font/subfont.txt luatexdir/Makefile.in \
+	luatexdir/depend.mk luatexdir/luatex.mk luatexdir/luatexlib.mk \
+	fmtutil.in Makefile.in.orig configure.in.orig
 DISTCLEANFILES = $(EXTRA_LIBRARIES) tangle.c tangle.h tangle.p \
 	tangle-web2c stamp-tangle tangleboot.c tangleboot.h ctangle.c \
 	cweb.c stamp-ctangle cftest.p $(web_programs:=.c) \
@@ -856,6 +895,16 @@ libluamisc_a_SOURCES = \
 	luatexdir/luamd5/md5.h \
 	luatexdir/luamd5/md5lib.c \
 	luatexdir/luapeg/lpeg.c \
+	luatexdir/luaprofiler/clocks.h \
+    luatexdir/luaprofiler/core_profiler.h \
+    luatexdir/luaprofiler/function_meter.h  \
+    luatexdir/luaprofiler/luaprofiler.h  \
+    luatexdir/luaprofiler/stack.h \
+    luatexdir/luaprofiler/clocks.c \
+	luatexdir/luaprofiler/core_profiler.c \
+	luatexdir/luaprofiler/function_meter.c \
+	luatexdir/luaprofiler/lua50_profiler.c \
+	luatexdir/luaprofiler/stack.c \
 	luatexdir/luazip/src/luazip.c \
 	luatexdir/luazip/src/luazip.h \
 	luatexdir/luazlib/lgzip.c \
@@ -873,82 +922,109 @@ libff_a_CPPFLAGS = \
 	-I$(top_srcdir)/luatexdir/luafontforge/fontforge/fontforge
 
 libff_a_SOURCES = \
-	luatexdir/luafontforge/fontforge/Unicode/alphabet.c \
-	luatexdir/luafontforge/fontforge/Unicode/char.c \
-	luatexdir/luafontforge/fontforge/Unicode/cjk.c \
-	luatexdir/luafontforge/fontforge/Unicode/gwwiconv.c \
-	luatexdir/luafontforge/fontforge/Unicode/memory.c \
-	luatexdir/luafontforge/fontforge/Unicode/ustring.c \
-	luatexdir/luafontforge/fontforge/fontforge/autohint.c \
-	luatexdir/luafontforge/fontforge/fontforge/charview.c \
-	luatexdir/luafontforge/fontforge/fontforge/configure-pfaedit.h \
-	luatexdir/luafontforge/fontforge/fontforge/contextchain.c \
-	luatexdir/luafontforge/fontforge/fontforge/edgelist.h \
-	luatexdir/luafontforge/fontforge/fontforge/edgelist2.h \
-	luatexdir/luafontforge/fontforge/fontforge/encoding.c \
-	luatexdir/luafontforge/fontforge/fontforge/featurefile.c \
-	luatexdir/luafontforge/fontforge/fontforge/fontinfo.c \
-	luatexdir/luafontforge/fontforge/fontforge/fontview.c \
-	luatexdir/luafontforge/fontforge/fontforge/fvfonts.c \
-	luatexdir/luafontforge/fontforge/fontforge/groups.h \
-	luatexdir/luafontforge/fontforge/fontforge/kernclass.c \
-	luatexdir/luafontforge/fontforge/fontforge/lookups.c \
-	luatexdir/luafontforge/fontforge/fontforge/macbinary.c \
-	luatexdir/luafontforge/fontforge/fontforge/macenc.c \
-	luatexdir/luafontforge/fontforge/fontforge/namelist.c \
-	luatexdir/luafontforge/fontforge/fontforge/ofl.h \
-	luatexdir/luafontforge/fontforge/fontforge/parsepfa.c \
-	luatexdir/luafontforge/fontforge/fontforge/parsettf.c \
-	luatexdir/luafontforge/fontforge/fontforge/parsettfatt.c \
-	luatexdir/luafontforge/fontforge/fontforge/parsettfvar.c \
-	luatexdir/luafontforge/fontforge/fontforge/pfaedit.h \
-	luatexdir/luafontforge/fontforge/fontforge/pfaeditui.h \
-	luatexdir/luafontforge/fontforge/fontforge/plugins.h \
-	luatexdir/luafontforge/fontforge/fontforge/prefs.c \
-	luatexdir/luafontforge/fontforge/fontforge/psfont.h \
-	luatexdir/luafontforge/fontforge/fontforge/psread.c \
-	luatexdir/luafontforge/fontforge/fontforge/pua.c \
-	luatexdir/luafontforge/fontforge/fontforge/sd.h \
-	luatexdir/luafontforge/fontforge/fontforge/splinefill.c \
-	luatexdir/luafontforge/fontforge/fontforge/splinefont.h \
-	luatexdir/luafontforge/fontforge/fontforge/splineorder2.c \
-	luatexdir/luafontforge/fontforge/fontforge/splineoverlap.c \
-	luatexdir/luafontforge/fontforge/fontforge/splinerefigure.c \
-	luatexdir/luafontforge/fontforge/fontforge/splinesave.c \
-	luatexdir/luafontforge/fontforge/fontforge/splinestroke.c \
-	luatexdir/luafontforge/fontforge/fontforge/splineutil.c \
-	luatexdir/luafontforge/fontforge/fontforge/splineutil2.c \
-	luatexdir/luafontforge/fontforge/fontforge/stamp.c \
-	luatexdir/luafontforge/fontforge/fontforge/start.c \
-	luatexdir/luafontforge/fontforge/fontforge/stemdb.c \
-	luatexdir/luafontforge/fontforge/fontforge/stemdb.h \
-	luatexdir/luafontforge/fontforge/fontforge/tottf.c \
-	luatexdir/luafontforge/fontforge/fontforge/tottfgpos.c \
-	luatexdir/luafontforge/fontforge/fontforge/ttf.h \
-	luatexdir/luafontforge/fontforge/fontforge/tottfvar.c \
-	luatexdir/luafontforge/fontforge/fontforge/ttfspecial.c \
-	luatexdir/luafontforge/fontforge/fontforge/unicoderange.h \
-	luatexdir/luafontforge/fontforge/fontforge/views.h \
-	luatexdir/luafontforge/fontforge/inc/basics.h \
-	luatexdir/luafontforge/fontforge/inc/chardata.h \
-	luatexdir/luafontforge/fontforge/inc/charset.h \
-	luatexdir/luafontforge/fontforge/inc/dynamic.h \
-	luatexdir/luafontforge/fontforge/inc/fileutil.h \
-	luatexdir/luafontforge/fontforge/inc/gdraw.h \
-	luatexdir/luafontforge/fontforge/inc/gfile.h \
-	luatexdir/luafontforge/fontforge/inc/ggadget.h \
-	luatexdir/luafontforge/fontforge/inc/gicons.h \
-	luatexdir/luafontforge/fontforge/inc/gio.h \
-	luatexdir/luafontforge/fontforge/inc/gkeysym.h \
-	luatexdir/luafontforge/fontforge/inc/gprogress.h \
-	luatexdir/luafontforge/fontforge/inc/gresource.h \
-	luatexdir/luafontforge/fontforge/inc/gwidget.h \
-	luatexdir/luafontforge/fontforge/inc/gwwiconv.h \
-	luatexdir/luafontforge/fontforge/inc/intl.h \
-	luatexdir/luafontforge/fontforge/inc/ustring.h \
-	luatexdir/luafontforge/fontforge/inc/utype.h \
-	luatexdir/luafontforge/src/ffdummies.c \
-	luatexdir/luafontforge/src/luafflib.c
+    luatexdir/luafontforge/fontforge/Unicode/alphabet.c \
+    luatexdir/luafontforge/fontforge/Unicode/char.c \
+    luatexdir/luafontforge/fontforge/Unicode/cjk.c \
+    luatexdir/luafontforge/fontforge/Unicode/gwwiconv.c \
+    luatexdir/luafontforge/fontforge/Unicode/memory.c \
+    luatexdir/luafontforge/fontforge/Unicode/ustring.c \
+    luatexdir/luafontforge/fontforge/Unicode/ArabicForms.c \
+    luatexdir/luafontforge/fontforge/Unicode/backtrns.c \
+    luatexdir/luafontforge/fontforge/Unicode/combiners.h \
+    luatexdir/luafontforge/fontforge/Unicode/dump.c \
+    luatexdir/luafontforge/fontforge/Unicode/makebuildtables.c \
+    luatexdir/luafontforge/fontforge/Unicode/makeutype.c \
+    luatexdir/luafontforge/fontforge/Unicode/ucharmap.c \
+    luatexdir/luafontforge/fontforge/Unicode/unialt.c \
+    luatexdir/luafontforge/fontforge/Unicode/utype.c \
+    luatexdir/luafontforge/fontforge/fontforge/PfEd.h \
+    luatexdir/luafontforge/fontforge/fontforge/autohint.c \
+    luatexdir/luafontforge/fontforge/fontforge/baseviews.h \
+    luatexdir/luafontforge/fontforge/fontforge/clipnoui.c \
+    luatexdir/luafontforge/fontforge/fontforge/configure-pfaedit.h \
+    luatexdir/luafontforge/fontforge/fontforge/cvundoes.c \
+    luatexdir/luafontforge/fontforge/fontforge/dumppfa.c \
+    luatexdir/luafontforge/fontforge/fontforge/edgelist.h \
+    luatexdir/luafontforge/fontforge/fontforge/edgelist2.h \
+    luatexdir/luafontforge/fontforge/fontforge/encoding.c \
+    luatexdir/luafontforge/fontforge/fontforge/encoding.h \
+    luatexdir/luafontforge/fontforge/fontforge/featurefile.c \
+    luatexdir/luafontforge/fontforge/fontforge/fontforgevw.h \
+    luatexdir/luafontforge/fontforge/fontforge/fontviewbase.c \
+    luatexdir/luafontforge/fontforge/fontforge/fvcomposit.c \
+    luatexdir/luafontforge/fontforge/fontforge/fvfonts.c \
+    luatexdir/luafontforge/fontforge/fontforge/groups.h \
+    luatexdir/luafontforge/fontforge/fontforge/libffstamp.h \
+    luatexdir/luafontforge/fontforge/fontforge/libstamp.pre \
+    luatexdir/luafontforge/fontforge/fontforge/lookups.c \
+    luatexdir/luafontforge/fontforge/fontforge/lookups.h \
+    luatexdir/luafontforge/fontforge/fontforge/macbinary.c \
+    luatexdir/luafontforge/fontforge/fontforge/macenc.c \
+    luatexdir/luafontforge/fontforge/fontforge/mathconstants.c \
+    luatexdir/luafontforge/fontforge/fontforge/mm.c \
+    luatexdir/luafontforge/fontforge/fontforge/mm.h \
+    luatexdir/luafontforge/fontforge/fontforge/namelist.c \
+    luatexdir/luafontforge/fontforge/fontforge/noprefs.c \
+    luatexdir/luafontforge/fontforge/fontforge/nouiutil.c \
+    luatexdir/luafontforge/fontforge/fontforge/ofl.h \
+    luatexdir/luafontforge/fontforge/fontforge/parsepfa.c \
+    luatexdir/luafontforge/fontforge/fontforge/parsettf.c \
+    luatexdir/luafontforge/fontforge/fontforge/parsettfatt.c \
+    luatexdir/luafontforge/fontforge/fontforge/parsettfvar.c \
+    luatexdir/luafontforge/fontforge/fontforge/pfaedit.h \
+    luatexdir/luafontforge/fontforge/fontforge/pfaeditui.h \
+    luatexdir/luafontforge/fontforge/fontforge/plugins.h \
+    luatexdir/luafontforge/fontforge/fontforge/psfont.h \
+    luatexdir/luafontforge/fontforge/fontforge/psread.c \
+    luatexdir/luafontforge/fontforge/fontforge/pua.c \
+    luatexdir/luafontforge/fontforge/fontforge/python.c \
+    luatexdir/luafontforge/fontforge/fontforge/sd.h \
+    luatexdir/luafontforge/fontforge/fontforge/sfd1.c \
+    luatexdir/luafontforge/fontforge/fontforge/splinechar.c \
+    luatexdir/luafontforge/fontforge/fontforge/splinefill.c \
+    luatexdir/luafontforge/fontforge/fontforge/splinefont.c \
+    luatexdir/luafontforge/fontforge/fontforge/splinefont.h \
+    luatexdir/luafontforge/fontforge/fontforge/splineorder2.c \
+    luatexdir/luafontforge/fontforge/fontforge/splineoverlap.c \
+    luatexdir/luafontforge/fontforge/fontforge/splinerefigure.c \
+    luatexdir/luafontforge/fontforge/fontforge/splinesave.c \
+    luatexdir/luafontforge/fontforge/fontforge/splinesaveafm.c \
+    luatexdir/luafontforge/fontforge/fontforge/splinestroke.c \
+    luatexdir/luafontforge/fontforge/fontforge/splineutil.c \
+    luatexdir/luafontforge/fontforge/fontforge/splineutil2.c \
+    luatexdir/luafontforge/fontforge/fontforge/start.c \
+    luatexdir/luafontforge/fontforge/fontforge/stemdb.c \
+    luatexdir/luafontforge/fontforge/fontforge/stemdb.h \
+    luatexdir/luafontforge/fontforge/fontforge/tottf.c \
+    luatexdir/luafontforge/fontforge/fontforge/tottfaat.c \
+    luatexdir/luafontforge/fontforge/fontforge/tottfgpos.c \
+    luatexdir/luafontforge/fontforge/fontforge/ttf.h \
+    luatexdir/luafontforge/fontforge/fontforge/ttfspecial.c \
+    luatexdir/luafontforge/fontforge/fontforge/uiinterface.h \
+    luatexdir/luafontforge/fontforge/fontforge/unicoderange.h \
+    luatexdir/luafontforge/fontforge/fontforge/views.h \
+    luatexdir/luafontforge/fontforge/gutils/fsys.c \
+    luatexdir/luafontforge/fontforge/gutils/gwwintl.c \
+    luatexdir/luafontforge/fontforge/inc/basics.h \
+    luatexdir/luafontforge/fontforge/inc/chardata.h \
+    luatexdir/luafontforge/fontforge/inc/charset.h \
+    luatexdir/luafontforge/fontforge/inc/dynamic.h \
+    luatexdir/luafontforge/fontforge/inc/fileutil.h \
+    luatexdir/luafontforge/fontforge/inc/gdraw.h \
+    luatexdir/luafontforge/fontforge/inc/gfile.h \
+    luatexdir/luafontforge/fontforge/inc/ggadget.h \
+    luatexdir/luafontforge/fontforge/inc/gicons.h \
+    luatexdir/luafontforge/fontforge/inc/gio.h \
+    luatexdir/luafontforge/fontforge/inc/gkeysym.h \
+    luatexdir/luafontforge/fontforge/inc/gprogress.h \
+    luatexdir/luafontforge/fontforge/inc/gresource.h \
+    luatexdir/luafontforge/fontforge/inc/gwidget.h \
+    luatexdir/luafontforge/fontforge/inc/gwwiconv.h \
+    luatexdir/luafontforge/fontforge/inc/intl.h \
+    luatexdir/luafontforge/fontforge/inc/ustring.h \
+    luatexdir/luafontforge/fontforge/inc/utype.h \
+    luatexdir/luafontforge/src/ffdummies.c \
+    luatexdir/luafontforge/src/luafflib.c
 
 libluatex_a_DEPENDENCIES = libff.a
 libluatex_a_CPPFLAGS = $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) \
@@ -956,11 +1032,9 @@ libluatex_a_CPPFLAGS = $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) \
 	-Iluatexdir -I$(srcdir)/luatexdir -I$(srcdir)/luatexdir/lua51 \
 	-DpdfTeX
 libluatex_a_SOURCES = \
-	luatexdir/avl.c \
-	luatexdir/avl.h \
-	luatexdir/avlstuff.c \
-	luatexdir/avlstuff.h \
+	luatexdir/commands.h  \
 	luatexdir/font/dofont.c  \
+	luatexdir/font/luatexfont.h  \
 	luatexdir/font/luafont.c  \
 	luatexdir/font/mapfile.c  \
 	luatexdir/font/pkin.c  \
@@ -987,6 +1061,7 @@ libluatex_a_SOURCES = \
 	luatexdir/font/writettf.h  \
 	luatexdir/font/writetype0.c  \
 	luatexdir/font/writetype2.c  \
+	luatexdir/get_svnversion.sh  \
 	luatexdir/hyphen.h \
 	luatexdir/image/epdf.c  \
 	luatexdir/image/epdf.h  \
@@ -1023,26 +1098,41 @@ libluatex_a_SOURCES = \
 	luatexdir/lua/texluac.c  \
 	luatexdir/luatex-api.h \
 	luatexdir/luatex.h \
+	luatexdir/makecpool.c \
 	luatexdir/managed-sa.c \
 	luatexdir/managed-sa.h \
 	luatexdir/mathcodes.c \
 	luatexdir/nodes.h \
+	luatexdir/pdf/pagetree.c \
+	luatexdir/pdf/pdfpage.c \
+	luatexdir/primitive.h \
 	luatexdir/ptexmac.h \
-	luatexdir/svnversion.h \
+	luatexdir/tex/filename.c  \
 	luatexdir/tex/linebreak.c  \
+	luatexdir/tex/math.c  \
+	luatexdir/tex/mlist.c  \
 	luatexdir/tex/postlinebreak.c  \
+	luatexdir/tex/primitive.c  \
+	luatexdir/tex/texdeffont.c  \
 	luatexdir/tex/texnodes.c  \
 	luatexdir/tex/texpdf.c  \
 	luatexdir/tex/textoken.c  \
+	luatexdir/texmath.h \
 	luatexdir/textcodes.c \
 	luatexdir/tokens.h \
-	luatexdir/utils.c \
-	luatexdir/writezip.c
+	luatexdir/utils/avl.c \
+	luatexdir/utils/avl.h \
+	luatexdir/utils/avlstuff.c \
+	luatexdir/utils/avlstuff.h \
+	luatexdir/utils/synctex.h \
+	luatexdir/utils/synctex.c \
+	luatexdir/utils/utils.c \
+	luatexdir/utils/writezip.c
 
 nodist_libluatex_a_SOURCES = $(lua_mp_c_h)
 lua_mp_c_h = luatexdir/mp.c luatexdir/mplib.h luatexdir/mpmp.h \
 	luatexdir/mppsout.h luatexdir/psout.c
-lua_mp_web = luatexdir/lua/mp.w luatexdir/lua/psout.w
+lua_mp_web = luatexdir/avl.h luatexdir/lua/mp.w luatexdir/lua/psout.w
 EXTRA_libluatex_a_SOURCES = luatexdir/font/macnames.c
 libmd5_a_CPPFLAGS = -I$(srcdir)/libmd5
 libmd5_a_SOURCES = libmd5/md5.c libmd5/md5.h
@@ -1293,49 +1383,66 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gftodvi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gftopk.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gftype.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-ArabicForms.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-alphabet.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-autohint.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-backtrns.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-char.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-charview.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-cjk.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-contextchain.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-clipnoui.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-cvundoes.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-dump.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-dumppfa.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-encoding.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-featurefile.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-ffdummies.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-fontinfo.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-fontview.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-fontviewbase.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-fsys.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-fvcomposit.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-fvfonts.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-gwwiconv.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-kernclass.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-gwwintl.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-lookups.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-luafflib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-macbinary.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-macenc.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-makebuildtables.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-makeutype.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-mathconstants.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-memory.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-mm.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-namelist.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-noprefs.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-nouiutil.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-parsepfa.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-parsettf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-parsettfatt.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-parsettfvar.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-prefs.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-psread.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-pua.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-python.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-sfd1.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-splinechar.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-splinefill.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-splinefont.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-splineorder2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-splineoverlap.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-splinerefigure.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-splinesave.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-splinesaveafm.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-splinestroke.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-splineutil.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-splineutil2.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-stamp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-start.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-stemdb.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-tottf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-tottfaat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-tottfgpos.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-tottfvar.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-ttfspecial.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-ucharmap.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-unialt.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-ustring.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-utype.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua51_a-lapi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua51_a-lauxlib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua51_a-lbaselib.Po@am__quote@
@@ -1366,19 +1473,25 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua51_a-lundump.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua51_a-lvm.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua51_a-lzio.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluamisc_a-clocks.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluamisc_a-core_profiler.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluamisc_a-function_meter.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluamisc_a-lfs.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluamisc_a-lgzip.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluamisc_a-lpeg.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluamisc_a-lua50_profiler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluamisc_a-luazip.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluamisc_a-lzlib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluamisc_a-md5.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluamisc_a-md5lib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluamisc_a-slnudata.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluamisc_a-slnunico.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluamisc_a-stack.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-avl.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-avlstuff.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-dofont.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-epdf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-filename.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-hnjalloc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-hyphen.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-lcallbacklib.Po@am__quote@
@@ -1403,16 +1516,24 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-luatex.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-luatoken.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-macnames.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-makecpool.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-managed-sa.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-mapfile.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-math.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-mathcodes.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-mlist.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-mp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pagetree.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pdfpage.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pdftoepdf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pkin.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-postlinebreak.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-primitive.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-psout.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-sfnt.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-subfont.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-synctex.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-texdeffont.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-texfont.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-texlang.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-texluac.Po@am__quote@
@@ -1593,6 +1714,118 @@ libff_a-ustring.obj: luatexdir/luafontforge/fontforge/Unicode/ustring.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-ustring.obj `if test -f 'luatexdir/luafontforge/fontforge/Unicode/ustring.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/Unicode/ustring.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/Unicode/ustring.c'; fi`
 
+libff_a-ArabicForms.o: luatexdir/luafontforge/fontforge/Unicode/ArabicForms.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-ArabicForms.o -MD -MP -MF $(DEPDIR)/libff_a-ArabicForms.Tpo -c -o libff_a-ArabicForms.o `test -f 'luatexdir/luafontforge/fontforge/Unicode/ArabicForms.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/Unicode/ArabicForms.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-ArabicForms.Tpo $(DEPDIR)/libff_a-ArabicForms.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/Unicode/ArabicForms.c' object='libff_a-ArabicForms.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-ArabicForms.o `test -f 'luatexdir/luafontforge/fontforge/Unicode/ArabicForms.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/Unicode/ArabicForms.c
+
+libff_a-ArabicForms.obj: luatexdir/luafontforge/fontforge/Unicode/ArabicForms.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-ArabicForms.obj -MD -MP -MF $(DEPDIR)/libff_a-ArabicForms.Tpo -c -o libff_a-ArabicForms.obj `if test -f 'luatexdir/luafontforge/fontforge/Unicode/ArabicForms.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/Unicode/ArabicForms.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/Unicode/ArabicForms.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-ArabicForms.Tpo $(DEPDIR)/libff_a-ArabicForms.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/Unicode/ArabicForms.c' object='libff_a-ArabicForms.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-ArabicForms.obj `if test -f 'luatexdir/luafontforge/fontforge/Unicode/ArabicForms.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/Unicode/ArabicForms.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/Unicode/ArabicForms.c'; fi`
+
+libff_a-backtrns.o: luatexdir/luafontforge/fontforge/Unicode/backtrns.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-backtrns.o -MD -MP -MF $(DEPDIR)/libff_a-backtrns.Tpo -c -o libff_a-backtrns.o `test -f 'luatexdir/luafontforge/fontforge/Unicode/backtrns.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/Unicode/backtrns.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-backtrns.Tpo $(DEPDIR)/libff_a-backtrns.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/Unicode/backtrns.c' object='libff_a-backtrns.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-backtrns.o `test -f 'luatexdir/luafontforge/fontforge/Unicode/backtrns.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/Unicode/backtrns.c
+
+libff_a-backtrns.obj: luatexdir/luafontforge/fontforge/Unicode/backtrns.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-backtrns.obj -MD -MP -MF $(DEPDIR)/libff_a-backtrns.Tpo -c -o libff_a-backtrns.obj `if test -f 'luatexdir/luafontforge/fontforge/Unicode/backtrns.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/Unicode/backtrns.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/Unicode/backtrns.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-backtrns.Tpo $(DEPDIR)/libff_a-backtrns.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/Unicode/backtrns.c' object='libff_a-backtrns.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-backtrns.obj `if test -f 'luatexdir/luafontforge/fontforge/Unicode/backtrns.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/Unicode/backtrns.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/Unicode/backtrns.c'; fi`
+
+libff_a-dump.o: luatexdir/luafontforge/fontforge/Unicode/dump.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-dump.o -MD -MP -MF $(DEPDIR)/libff_a-dump.Tpo -c -o libff_a-dump.o `test -f 'luatexdir/luafontforge/fontforge/Unicode/dump.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/Unicode/dump.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-dump.Tpo $(DEPDIR)/libff_a-dump.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/Unicode/dump.c' object='libff_a-dump.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-dump.o `test -f 'luatexdir/luafontforge/fontforge/Unicode/dump.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/Unicode/dump.c
+
+libff_a-dump.obj: luatexdir/luafontforge/fontforge/Unicode/dump.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-dump.obj -MD -MP -MF $(DEPDIR)/libff_a-dump.Tpo -c -o libff_a-dump.obj `if test -f 'luatexdir/luafontforge/fontforge/Unicode/dump.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/Unicode/dump.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/Unicode/dump.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-dump.Tpo $(DEPDIR)/libff_a-dump.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/Unicode/dump.c' object='libff_a-dump.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-dump.obj `if test -f 'luatexdir/luafontforge/fontforge/Unicode/dump.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/Unicode/dump.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/Unicode/dump.c'; fi`
+
+libff_a-makebuildtables.o: luatexdir/luafontforge/fontforge/Unicode/makebuildtables.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-makebuildtables.o -MD -MP -MF $(DEPDIR)/libff_a-makebuildtables.Tpo -c -o libff_a-makebuildtables.o `test -f 'luatexdir/luafontforge/fontforge/Unicode/makebuildtables.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/Unicode/makebuildtables.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-makebuildtables.Tpo $(DEPDIR)/libff_a-makebuildtables.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/Unicode/makebuildtables.c' object='libff_a-makebuildtables.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-makebuildtables.o `test -f 'luatexdir/luafontforge/fontforge/Unicode/makebuildtables.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/Unicode/makebuildtables.c
+
+libff_a-makebuildtables.obj: luatexdir/luafontforge/fontforge/Unicode/makebuildtables.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-makebuildtables.obj -MD -MP -MF $(DEPDIR)/libff_a-makebuildtables.Tpo -c -o libff_a-makebuildtables.obj `if test -f 'luatexdir/luafontforge/fontforge/Unicode/makebuildtables.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/Unicode/makebuildtables.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/Unicode/makebuildtables.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-makebuildtables.Tpo $(DEPDIR)/libff_a-makebuildtables.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/Unicode/makebuildtables.c' object='libff_a-makebuildtables.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-makebuildtables.obj `if test -f 'luatexdir/luafontforge/fontforge/Unicode/makebuildtables.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/Unicode/makebuildtables.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/Unicode/makebuildtables.c'; fi`
+
+libff_a-makeutype.o: luatexdir/luafontforge/fontforge/Unicode/makeutype.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-makeutype.o -MD -MP -MF $(DEPDIR)/libff_a-makeutype.Tpo -c -o libff_a-makeutype.o `test -f 'luatexdir/luafontforge/fontforge/Unicode/makeutype.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/Unicode/makeutype.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-makeutype.Tpo $(DEPDIR)/libff_a-makeutype.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/Unicode/makeutype.c' object='libff_a-makeutype.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-makeutype.o `test -f 'luatexdir/luafontforge/fontforge/Unicode/makeutype.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/Unicode/makeutype.c
+
+libff_a-makeutype.obj: luatexdir/luafontforge/fontforge/Unicode/makeutype.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-makeutype.obj -MD -MP -MF $(DEPDIR)/libff_a-makeutype.Tpo -c -o libff_a-makeutype.obj `if test -f 'luatexdir/luafontforge/fontforge/Unicode/makeutype.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/Unicode/makeutype.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/Unicode/makeutype.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-makeutype.Tpo $(DEPDIR)/libff_a-makeutype.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/Unicode/makeutype.c' object='libff_a-makeutype.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-makeutype.obj `if test -f 'luatexdir/luafontforge/fontforge/Unicode/makeutype.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/Unicode/makeutype.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/Unicode/makeutype.c'; fi`
+
+libff_a-ucharmap.o: luatexdir/luafontforge/fontforge/Unicode/ucharmap.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-ucharmap.o -MD -MP -MF $(DEPDIR)/libff_a-ucharmap.Tpo -c -o libff_a-ucharmap.o `test -f 'luatexdir/luafontforge/fontforge/Unicode/ucharmap.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/Unicode/ucharmap.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-ucharmap.Tpo $(DEPDIR)/libff_a-ucharmap.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/Unicode/ucharmap.c' object='libff_a-ucharmap.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-ucharmap.o `test -f 'luatexdir/luafontforge/fontforge/Unicode/ucharmap.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/Unicode/ucharmap.c
+
+libff_a-ucharmap.obj: luatexdir/luafontforge/fontforge/Unicode/ucharmap.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-ucharmap.obj -MD -MP -MF $(DEPDIR)/libff_a-ucharmap.Tpo -c -o libff_a-ucharmap.obj `if test -f 'luatexdir/luafontforge/fontforge/Unicode/ucharmap.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/Unicode/ucharmap.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/Unicode/ucharmap.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-ucharmap.Tpo $(DEPDIR)/libff_a-ucharmap.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/Unicode/ucharmap.c' object='libff_a-ucharmap.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-ucharmap.obj `if test -f 'luatexdir/luafontforge/fontforge/Unicode/ucharmap.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/Unicode/ucharmap.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/Unicode/ucharmap.c'; fi`
+
+libff_a-unialt.o: luatexdir/luafontforge/fontforge/Unicode/unialt.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-unialt.o -MD -MP -MF $(DEPDIR)/libff_a-unialt.Tpo -c -o libff_a-unialt.o `test -f 'luatexdir/luafontforge/fontforge/Unicode/unialt.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/Unicode/unialt.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-unialt.Tpo $(DEPDIR)/libff_a-unialt.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/Unicode/unialt.c' object='libff_a-unialt.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-unialt.o `test -f 'luatexdir/luafontforge/fontforge/Unicode/unialt.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/Unicode/unialt.c
+
+libff_a-unialt.obj: luatexdir/luafontforge/fontforge/Unicode/unialt.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-unialt.obj -MD -MP -MF $(DEPDIR)/libff_a-unialt.Tpo -c -o libff_a-unialt.obj `if test -f 'luatexdir/luafontforge/fontforge/Unicode/unialt.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/Unicode/unialt.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/Unicode/unialt.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-unialt.Tpo $(DEPDIR)/libff_a-unialt.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/Unicode/unialt.c' object='libff_a-unialt.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-unialt.obj `if test -f 'luatexdir/luafontforge/fontforge/Unicode/unialt.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/Unicode/unialt.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/Unicode/unialt.c'; fi`
+
+libff_a-utype.o: luatexdir/luafontforge/fontforge/Unicode/utype.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-utype.o -MD -MP -MF $(DEPDIR)/libff_a-utype.Tpo -c -o libff_a-utype.o `test -f 'luatexdir/luafontforge/fontforge/Unicode/utype.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/Unicode/utype.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-utype.Tpo $(DEPDIR)/libff_a-utype.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/Unicode/utype.c' object='libff_a-utype.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-utype.o `test -f 'luatexdir/luafontforge/fontforge/Unicode/utype.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/Unicode/utype.c
+
+libff_a-utype.obj: luatexdir/luafontforge/fontforge/Unicode/utype.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-utype.obj -MD -MP -MF $(DEPDIR)/libff_a-utype.Tpo -c -o libff_a-utype.obj `if test -f 'luatexdir/luafontforge/fontforge/Unicode/utype.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/Unicode/utype.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/Unicode/utype.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-utype.Tpo $(DEPDIR)/libff_a-utype.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/Unicode/utype.c' object='libff_a-utype.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-utype.obj `if test -f 'luatexdir/luafontforge/fontforge/Unicode/utype.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/Unicode/utype.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/Unicode/utype.c'; fi`
+
 libff_a-autohint.o: luatexdir/luafontforge/fontforge/fontforge/autohint.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-autohint.o -MD -MP -MF $(DEPDIR)/libff_a-autohint.Tpo -c -o libff_a-autohint.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/autohint.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/autohint.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-autohint.Tpo $(DEPDIR)/libff_a-autohint.Po
@@ -1607,33 +1840,47 @@ libff_a-autohint.obj: luatexdir/luafontforge/fontforge/fontforge/autohint.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-autohint.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/autohint.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/autohint.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/autohint.c'; fi`
 
-libff_a-charview.o: luatexdir/luafontforge/fontforge/fontforge/charview.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-charview.o -MD -MP -MF $(DEPDIR)/libff_a-charview.Tpo -c -o libff_a-charview.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/charview.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/charview.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-charview.Tpo $(DEPDIR)/libff_a-charview.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/charview.c' object='libff_a-charview.o' libtool=no @AMDEPBACKSLASH@
+libff_a-clipnoui.o: luatexdir/luafontforge/fontforge/fontforge/clipnoui.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-clipnoui.o -MD -MP -MF $(DEPDIR)/libff_a-clipnoui.Tpo -c -o libff_a-clipnoui.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/clipnoui.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/clipnoui.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-clipnoui.Tpo $(DEPDIR)/libff_a-clipnoui.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/clipnoui.c' object='libff_a-clipnoui.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-charview.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/charview.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/charview.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-clipnoui.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/clipnoui.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/clipnoui.c
 
-libff_a-charview.obj: luatexdir/luafontforge/fontforge/fontforge/charview.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-charview.obj -MD -MP -MF $(DEPDIR)/libff_a-charview.Tpo -c -o libff_a-charview.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/charview.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/charview.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/charview.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-charview.Tpo $(DEPDIR)/libff_a-charview.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/charview.c' object='libff_a-charview.obj' libtool=no @AMDEPBACKSLASH@
+libff_a-clipnoui.obj: luatexdir/luafontforge/fontforge/fontforge/clipnoui.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-clipnoui.obj -MD -MP -MF $(DEPDIR)/libff_a-clipnoui.Tpo -c -o libff_a-clipnoui.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/clipnoui.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/clipnoui.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/clipnoui.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-clipnoui.Tpo $(DEPDIR)/libff_a-clipnoui.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/clipnoui.c' object='libff_a-clipnoui.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-charview.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/charview.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/charview.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/charview.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-clipnoui.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/clipnoui.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/clipnoui.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/clipnoui.c'; fi`
 
-libff_a-contextchain.o: luatexdir/luafontforge/fontforge/fontforge/contextchain.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-contextchain.o -MD -MP -MF $(DEPDIR)/libff_a-contextchain.Tpo -c -o libff_a-contextchain.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/contextchain.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/contextchain.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-contextchain.Tpo $(DEPDIR)/libff_a-contextchain.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/contextchain.c' object='libff_a-contextchain.o' libtool=no @AMDEPBACKSLASH@
+libff_a-cvundoes.o: luatexdir/luafontforge/fontforge/fontforge/cvundoes.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-cvundoes.o -MD -MP -MF $(DEPDIR)/libff_a-cvundoes.Tpo -c -o libff_a-cvundoes.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/cvundoes.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/cvundoes.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-cvundoes.Tpo $(DEPDIR)/libff_a-cvundoes.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/cvundoes.c' object='libff_a-cvundoes.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-contextchain.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/contextchain.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/contextchain.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-cvundoes.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/cvundoes.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/cvundoes.c
 
-libff_a-contextchain.obj: luatexdir/luafontforge/fontforge/fontforge/contextchain.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-contextchain.obj -MD -MP -MF $(DEPDIR)/libff_a-contextchain.Tpo -c -o libff_a-contextchain.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/contextchain.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/contextchain.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/contextchain.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-contextchain.Tpo $(DEPDIR)/libff_a-contextchain.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/contextchain.c' object='libff_a-contextchain.obj' libtool=no @AMDEPBACKSLASH@
+libff_a-cvundoes.obj: luatexdir/luafontforge/fontforge/fontforge/cvundoes.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-cvundoes.obj -MD -MP -MF $(DEPDIR)/libff_a-cvundoes.Tpo -c -o libff_a-cvundoes.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/cvundoes.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/cvundoes.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/cvundoes.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-cvundoes.Tpo $(DEPDIR)/libff_a-cvundoes.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/cvundoes.c' object='libff_a-cvundoes.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-contextchain.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/contextchain.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/contextchain.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/contextchain.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-cvundoes.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/cvundoes.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/cvundoes.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/cvundoes.c'; fi`
+
+libff_a-dumppfa.o: luatexdir/luafontforge/fontforge/fontforge/dumppfa.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-dumppfa.o -MD -MP -MF $(DEPDIR)/libff_a-dumppfa.Tpo -c -o libff_a-dumppfa.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/dumppfa.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/dumppfa.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-dumppfa.Tpo $(DEPDIR)/libff_a-dumppfa.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/dumppfa.c' object='libff_a-dumppfa.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-dumppfa.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/dumppfa.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/dumppfa.c
+
+libff_a-dumppfa.obj: luatexdir/luafontforge/fontforge/fontforge/dumppfa.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-dumppfa.obj -MD -MP -MF $(DEPDIR)/libff_a-dumppfa.Tpo -c -o libff_a-dumppfa.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/dumppfa.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/dumppfa.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/dumppfa.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-dumppfa.Tpo $(DEPDIR)/libff_a-dumppfa.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/dumppfa.c' object='libff_a-dumppfa.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-dumppfa.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/dumppfa.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/dumppfa.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/dumppfa.c'; fi`
 
 libff_a-encoding.o: luatexdir/luafontforge/fontforge/fontforge/encoding.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-encoding.o -MD -MP -MF $(DEPDIR)/libff_a-encoding.Tpo -c -o libff_a-encoding.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/encoding.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/encoding.c
@@ -1663,33 +1910,33 @@ libff_a-featurefile.obj: luatexdir/luafontforge/fontforge/fontforge/featurefile.
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-featurefile.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/featurefile.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/featurefile.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/featurefile.c'; fi`
 
-libff_a-fontinfo.o: luatexdir/luafontforge/fontforge/fontforge/fontinfo.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-fontinfo.o -MD -MP -MF $(DEPDIR)/libff_a-fontinfo.Tpo -c -o libff_a-fontinfo.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/fontinfo.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/fontinfo.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-fontinfo.Tpo $(DEPDIR)/libff_a-fontinfo.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/fontinfo.c' object='libff_a-fontinfo.o' libtool=no @AMDEPBACKSLASH@
+libff_a-fontviewbase.o: luatexdir/luafontforge/fontforge/fontforge/fontviewbase.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-fontviewbase.o -MD -MP -MF $(DEPDIR)/libff_a-fontviewbase.Tpo -c -o libff_a-fontviewbase.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/fontviewbase.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/fontviewbase.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-fontviewbase.Tpo $(DEPDIR)/libff_a-fontviewbase.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/fontviewbase.c' object='libff_a-fontviewbase.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-fontinfo.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/fontinfo.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/fontinfo.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-fontviewbase.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/fontviewbase.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/fontviewbase.c
 
-libff_a-fontinfo.obj: luatexdir/luafontforge/fontforge/fontforge/fontinfo.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-fontinfo.obj -MD -MP -MF $(DEPDIR)/libff_a-fontinfo.Tpo -c -o libff_a-fontinfo.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/fontinfo.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/fontinfo.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/fontinfo.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-fontinfo.Tpo $(DEPDIR)/libff_a-fontinfo.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/fontinfo.c' object='libff_a-fontinfo.obj' libtool=no @AMDEPBACKSLASH@
+libff_a-fontviewbase.obj: luatexdir/luafontforge/fontforge/fontforge/fontviewbase.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-fontviewbase.obj -MD -MP -MF $(DEPDIR)/libff_a-fontviewbase.Tpo -c -o libff_a-fontviewbase.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/fontviewbase.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/fontviewbase.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/fontviewbase.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-fontviewbase.Tpo $(DEPDIR)/libff_a-fontviewbase.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/fontviewbase.c' object='libff_a-fontviewbase.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-fontinfo.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/fontinfo.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/fontinfo.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/fontinfo.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-fontviewbase.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/fontviewbase.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/fontviewbase.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/fontviewbase.c'; fi`
 
-libff_a-fontview.o: luatexdir/luafontforge/fontforge/fontforge/fontview.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-fontview.o -MD -MP -MF $(DEPDIR)/libff_a-fontview.Tpo -c -o libff_a-fontview.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/fontview.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/fontview.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-fontview.Tpo $(DEPDIR)/libff_a-fontview.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/fontview.c' object='libff_a-fontview.o' libtool=no @AMDEPBACKSLASH@
+libff_a-fvcomposit.o: luatexdir/luafontforge/fontforge/fontforge/fvcomposit.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-fvcomposit.o -MD -MP -MF $(DEPDIR)/libff_a-fvcomposit.Tpo -c -o libff_a-fvcomposit.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/fvcomposit.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/fvcomposit.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-fvcomposit.Tpo $(DEPDIR)/libff_a-fvcomposit.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/fvcomposit.c' object='libff_a-fvcomposit.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-fontview.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/fontview.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/fontview.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-fvcomposit.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/fvcomposit.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/fvcomposit.c
 
-libff_a-fontview.obj: luatexdir/luafontforge/fontforge/fontforge/fontview.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-fontview.obj -MD -MP -MF $(DEPDIR)/libff_a-fontview.Tpo -c -o libff_a-fontview.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/fontview.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/fontview.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/fontview.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-fontview.Tpo $(DEPDIR)/libff_a-fontview.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/fontview.c' object='libff_a-fontview.obj' libtool=no @AMDEPBACKSLASH@
+libff_a-fvcomposit.obj: luatexdir/luafontforge/fontforge/fontforge/fvcomposit.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-fvcomposit.obj -MD -MP -MF $(DEPDIR)/libff_a-fvcomposit.Tpo -c -o libff_a-fvcomposit.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/fvcomposit.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/fvcomposit.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/fvcomposit.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-fvcomposit.Tpo $(DEPDIR)/libff_a-fvcomposit.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/fvcomposit.c' object='libff_a-fvcomposit.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-fontview.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/fontview.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/fontview.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/fontview.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-fvcomposit.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/fvcomposit.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/fvcomposit.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/fvcomposit.c'; fi`
 
 libff_a-fvfonts.o: luatexdir/luafontforge/fontforge/fontforge/fvfonts.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-fvfonts.o -MD -MP -MF $(DEPDIR)/libff_a-fvfonts.Tpo -c -o libff_a-fvfonts.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/fvfonts.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/fvfonts.c
@@ -1704,20 +1951,6 @@ libff_a-fvfonts.obj: luatexdir/luafontforge/fontforge/fontforge/fvfonts.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/fvfonts.c' object='libff_a-fvfonts.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-fvfonts.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/fvfonts.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/fvfonts.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/fvfonts.c'; fi`
-
-libff_a-kernclass.o: luatexdir/luafontforge/fontforge/fontforge/kernclass.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-kernclass.o -MD -MP -MF $(DEPDIR)/libff_a-kernclass.Tpo -c -o libff_a-kernclass.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/kernclass.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/kernclass.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-kernclass.Tpo $(DEPDIR)/libff_a-kernclass.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/kernclass.c' object='libff_a-kernclass.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-kernclass.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/kernclass.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/kernclass.c
-
-libff_a-kernclass.obj: luatexdir/luafontforge/fontforge/fontforge/kernclass.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-kernclass.obj -MD -MP -MF $(DEPDIR)/libff_a-kernclass.Tpo -c -o libff_a-kernclass.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/kernclass.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/kernclass.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/kernclass.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-kernclass.Tpo $(DEPDIR)/libff_a-kernclass.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/kernclass.c' object='libff_a-kernclass.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-kernclass.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/kernclass.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/kernclass.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/kernclass.c'; fi`
 
 libff_a-lookups.o: luatexdir/luafontforge/fontforge/fontforge/lookups.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-lookups.o -MD -MP -MF $(DEPDIR)/libff_a-lookups.Tpo -c -o libff_a-lookups.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/lookups.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/lookups.c
@@ -1761,6 +1994,34 @@ libff_a-macenc.obj: luatexdir/luafontforge/fontforge/fontforge/macenc.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-macenc.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/macenc.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/macenc.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/macenc.c'; fi`
 
+libff_a-mathconstants.o: luatexdir/luafontforge/fontforge/fontforge/mathconstants.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-mathconstants.o -MD -MP -MF $(DEPDIR)/libff_a-mathconstants.Tpo -c -o libff_a-mathconstants.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/mathconstants.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/mathconstants.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-mathconstants.Tpo $(DEPDIR)/libff_a-mathconstants.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/mathconstants.c' object='libff_a-mathconstants.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-mathconstants.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/mathconstants.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/mathconstants.c
+
+libff_a-mathconstants.obj: luatexdir/luafontforge/fontforge/fontforge/mathconstants.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-mathconstants.obj -MD -MP -MF $(DEPDIR)/libff_a-mathconstants.Tpo -c -o libff_a-mathconstants.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/mathconstants.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/mathconstants.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/mathconstants.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-mathconstants.Tpo $(DEPDIR)/libff_a-mathconstants.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/mathconstants.c' object='libff_a-mathconstants.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-mathconstants.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/mathconstants.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/mathconstants.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/mathconstants.c'; fi`
+
+libff_a-mm.o: luatexdir/luafontforge/fontforge/fontforge/mm.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-mm.o -MD -MP -MF $(DEPDIR)/libff_a-mm.Tpo -c -o libff_a-mm.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/mm.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/mm.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-mm.Tpo $(DEPDIR)/libff_a-mm.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/mm.c' object='libff_a-mm.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-mm.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/mm.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/mm.c
+
+libff_a-mm.obj: luatexdir/luafontforge/fontforge/fontforge/mm.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-mm.obj -MD -MP -MF $(DEPDIR)/libff_a-mm.Tpo -c -o libff_a-mm.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/mm.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/mm.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/mm.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-mm.Tpo $(DEPDIR)/libff_a-mm.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/mm.c' object='libff_a-mm.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-mm.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/mm.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/mm.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/mm.c'; fi`
+
 libff_a-namelist.o: luatexdir/luafontforge/fontforge/fontforge/namelist.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-namelist.o -MD -MP -MF $(DEPDIR)/libff_a-namelist.Tpo -c -o libff_a-namelist.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/namelist.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/namelist.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-namelist.Tpo $(DEPDIR)/libff_a-namelist.Po
@@ -1774,6 +2035,34 @@ libff_a-namelist.obj: luatexdir/luafontforge/fontforge/fontforge/namelist.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/namelist.c' object='libff_a-namelist.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-namelist.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/namelist.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/namelist.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/namelist.c'; fi`
+
+libff_a-noprefs.o: luatexdir/luafontforge/fontforge/fontforge/noprefs.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-noprefs.o -MD -MP -MF $(DEPDIR)/libff_a-noprefs.Tpo -c -o libff_a-noprefs.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/noprefs.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/noprefs.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-noprefs.Tpo $(DEPDIR)/libff_a-noprefs.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/noprefs.c' object='libff_a-noprefs.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-noprefs.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/noprefs.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/noprefs.c
+
+libff_a-noprefs.obj: luatexdir/luafontforge/fontforge/fontforge/noprefs.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-noprefs.obj -MD -MP -MF $(DEPDIR)/libff_a-noprefs.Tpo -c -o libff_a-noprefs.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/noprefs.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/noprefs.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/noprefs.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-noprefs.Tpo $(DEPDIR)/libff_a-noprefs.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/noprefs.c' object='libff_a-noprefs.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-noprefs.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/noprefs.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/noprefs.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/noprefs.c'; fi`
+
+libff_a-nouiutil.o: luatexdir/luafontforge/fontforge/fontforge/nouiutil.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-nouiutil.o -MD -MP -MF $(DEPDIR)/libff_a-nouiutil.Tpo -c -o libff_a-nouiutil.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/nouiutil.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/nouiutil.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-nouiutil.Tpo $(DEPDIR)/libff_a-nouiutil.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/nouiutil.c' object='libff_a-nouiutil.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-nouiutil.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/nouiutil.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/nouiutil.c
+
+libff_a-nouiutil.obj: luatexdir/luafontforge/fontforge/fontforge/nouiutil.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-nouiutil.obj -MD -MP -MF $(DEPDIR)/libff_a-nouiutil.Tpo -c -o libff_a-nouiutil.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/nouiutil.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/nouiutil.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/nouiutil.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-nouiutil.Tpo $(DEPDIR)/libff_a-nouiutil.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/nouiutil.c' object='libff_a-nouiutil.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-nouiutil.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/nouiutil.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/nouiutil.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/nouiutil.c'; fi`
 
 libff_a-parsepfa.o: luatexdir/luafontforge/fontforge/fontforge/parsepfa.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-parsepfa.o -MD -MP -MF $(DEPDIR)/libff_a-parsepfa.Tpo -c -o libff_a-parsepfa.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/parsepfa.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/parsepfa.c
@@ -1831,20 +2120,6 @@ libff_a-parsettfvar.obj: luatexdir/luafontforge/fontforge/fontforge/parsettfvar.
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-parsettfvar.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/parsettfvar.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/parsettfvar.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/parsettfvar.c'; fi`
 
-libff_a-prefs.o: luatexdir/luafontforge/fontforge/fontforge/prefs.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-prefs.o -MD -MP -MF $(DEPDIR)/libff_a-prefs.Tpo -c -o libff_a-prefs.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/prefs.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/prefs.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-prefs.Tpo $(DEPDIR)/libff_a-prefs.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/prefs.c' object='libff_a-prefs.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-prefs.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/prefs.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/prefs.c
-
-libff_a-prefs.obj: luatexdir/luafontforge/fontforge/fontforge/prefs.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-prefs.obj -MD -MP -MF $(DEPDIR)/libff_a-prefs.Tpo -c -o libff_a-prefs.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/prefs.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/prefs.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/prefs.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-prefs.Tpo $(DEPDIR)/libff_a-prefs.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/prefs.c' object='libff_a-prefs.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-prefs.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/prefs.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/prefs.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/prefs.c'; fi`
-
 libff_a-psread.o: luatexdir/luafontforge/fontforge/fontforge/psread.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-psread.o -MD -MP -MF $(DEPDIR)/libff_a-psread.Tpo -c -o libff_a-psread.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/psread.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/psread.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-psread.Tpo $(DEPDIR)/libff_a-psread.Po
@@ -1873,6 +2148,48 @@ libff_a-pua.obj: luatexdir/luafontforge/fontforge/fontforge/pua.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-pua.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/pua.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/pua.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/pua.c'; fi`
 
+libff_a-python.o: luatexdir/luafontforge/fontforge/fontforge/python.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-python.o -MD -MP -MF $(DEPDIR)/libff_a-python.Tpo -c -o libff_a-python.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/python.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/python.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-python.Tpo $(DEPDIR)/libff_a-python.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/python.c' object='libff_a-python.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-python.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/python.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/python.c
+
+libff_a-python.obj: luatexdir/luafontforge/fontforge/fontforge/python.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-python.obj -MD -MP -MF $(DEPDIR)/libff_a-python.Tpo -c -o libff_a-python.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/python.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/python.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/python.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-python.Tpo $(DEPDIR)/libff_a-python.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/python.c' object='libff_a-python.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-python.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/python.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/python.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/python.c'; fi`
+
+libff_a-sfd1.o: luatexdir/luafontforge/fontforge/fontforge/sfd1.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-sfd1.o -MD -MP -MF $(DEPDIR)/libff_a-sfd1.Tpo -c -o libff_a-sfd1.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/sfd1.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/sfd1.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-sfd1.Tpo $(DEPDIR)/libff_a-sfd1.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/sfd1.c' object='libff_a-sfd1.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-sfd1.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/sfd1.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/sfd1.c
+
+libff_a-sfd1.obj: luatexdir/luafontforge/fontforge/fontforge/sfd1.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-sfd1.obj -MD -MP -MF $(DEPDIR)/libff_a-sfd1.Tpo -c -o libff_a-sfd1.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/sfd1.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/sfd1.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/sfd1.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-sfd1.Tpo $(DEPDIR)/libff_a-sfd1.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/sfd1.c' object='libff_a-sfd1.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-sfd1.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/sfd1.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/sfd1.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/sfd1.c'; fi`
+
+libff_a-splinechar.o: luatexdir/luafontforge/fontforge/fontforge/splinechar.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-splinechar.o -MD -MP -MF $(DEPDIR)/libff_a-splinechar.Tpo -c -o libff_a-splinechar.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/splinechar.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/splinechar.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-splinechar.Tpo $(DEPDIR)/libff_a-splinechar.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/splinechar.c' object='libff_a-splinechar.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-splinechar.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/splinechar.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/splinechar.c
+
+libff_a-splinechar.obj: luatexdir/luafontforge/fontforge/fontforge/splinechar.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-splinechar.obj -MD -MP -MF $(DEPDIR)/libff_a-splinechar.Tpo -c -o libff_a-splinechar.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/splinechar.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/splinechar.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/splinechar.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-splinechar.Tpo $(DEPDIR)/libff_a-splinechar.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/splinechar.c' object='libff_a-splinechar.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-splinechar.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/splinechar.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/splinechar.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/splinechar.c'; fi`
+
 libff_a-splinefill.o: luatexdir/luafontforge/fontforge/fontforge/splinefill.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-splinefill.o -MD -MP -MF $(DEPDIR)/libff_a-splinefill.Tpo -c -o libff_a-splinefill.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/splinefill.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/splinefill.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-splinefill.Tpo $(DEPDIR)/libff_a-splinefill.Po
@@ -1886,6 +2203,20 @@ libff_a-splinefill.obj: luatexdir/luafontforge/fontforge/fontforge/splinefill.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/splinefill.c' object='libff_a-splinefill.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-splinefill.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/splinefill.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/splinefill.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/splinefill.c'; fi`
+
+libff_a-splinefont.o: luatexdir/luafontforge/fontforge/fontforge/splinefont.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-splinefont.o -MD -MP -MF $(DEPDIR)/libff_a-splinefont.Tpo -c -o libff_a-splinefont.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/splinefont.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/splinefont.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-splinefont.Tpo $(DEPDIR)/libff_a-splinefont.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/splinefont.c' object='libff_a-splinefont.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-splinefont.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/splinefont.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/splinefont.c
+
+libff_a-splinefont.obj: luatexdir/luafontforge/fontforge/fontforge/splinefont.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-splinefont.obj -MD -MP -MF $(DEPDIR)/libff_a-splinefont.Tpo -c -o libff_a-splinefont.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/splinefont.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/splinefont.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/splinefont.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-splinefont.Tpo $(DEPDIR)/libff_a-splinefont.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/splinefont.c' object='libff_a-splinefont.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-splinefont.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/splinefont.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/splinefont.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/splinefont.c'; fi`
 
 libff_a-splineorder2.o: luatexdir/luafontforge/fontforge/fontforge/splineorder2.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-splineorder2.o -MD -MP -MF $(DEPDIR)/libff_a-splineorder2.Tpo -c -o libff_a-splineorder2.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/splineorder2.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/splineorder2.c
@@ -1943,6 +2274,20 @@ libff_a-splinesave.obj: luatexdir/luafontforge/fontforge/fontforge/splinesave.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-splinesave.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/splinesave.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/splinesave.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/splinesave.c'; fi`
 
+libff_a-splinesaveafm.o: luatexdir/luafontforge/fontforge/fontforge/splinesaveafm.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-splinesaveafm.o -MD -MP -MF $(DEPDIR)/libff_a-splinesaveafm.Tpo -c -o libff_a-splinesaveafm.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/splinesaveafm.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/splinesaveafm.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-splinesaveafm.Tpo $(DEPDIR)/libff_a-splinesaveafm.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/splinesaveafm.c' object='libff_a-splinesaveafm.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-splinesaveafm.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/splinesaveafm.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/splinesaveafm.c
+
+libff_a-splinesaveafm.obj: luatexdir/luafontforge/fontforge/fontforge/splinesaveafm.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-splinesaveafm.obj -MD -MP -MF $(DEPDIR)/libff_a-splinesaveafm.Tpo -c -o libff_a-splinesaveafm.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/splinesaveafm.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/splinesaveafm.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/splinesaveafm.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-splinesaveafm.Tpo $(DEPDIR)/libff_a-splinesaveafm.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/splinesaveafm.c' object='libff_a-splinesaveafm.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-splinesaveafm.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/splinesaveafm.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/splinesaveafm.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/splinesaveafm.c'; fi`
+
 libff_a-splinestroke.o: luatexdir/luafontforge/fontforge/fontforge/splinestroke.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-splinestroke.o -MD -MP -MF $(DEPDIR)/libff_a-splinestroke.Tpo -c -o libff_a-splinestroke.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/splinestroke.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/splinestroke.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-splinestroke.Tpo $(DEPDIR)/libff_a-splinestroke.Po
@@ -1984,20 +2329,6 @@ libff_a-splineutil2.obj: luatexdir/luafontforge/fontforge/fontforge/splineutil2.
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/splineutil2.c' object='libff_a-splineutil2.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-splineutil2.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/splineutil2.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/splineutil2.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/splineutil2.c'; fi`
-
-libff_a-stamp.o: luatexdir/luafontforge/fontforge/fontforge/stamp.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-stamp.o -MD -MP -MF $(DEPDIR)/libff_a-stamp.Tpo -c -o libff_a-stamp.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/stamp.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/stamp.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-stamp.Tpo $(DEPDIR)/libff_a-stamp.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/stamp.c' object='libff_a-stamp.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-stamp.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/stamp.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/stamp.c
-
-libff_a-stamp.obj: luatexdir/luafontforge/fontforge/fontforge/stamp.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-stamp.obj -MD -MP -MF $(DEPDIR)/libff_a-stamp.Tpo -c -o libff_a-stamp.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/stamp.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/stamp.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/stamp.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-stamp.Tpo $(DEPDIR)/libff_a-stamp.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/stamp.c' object='libff_a-stamp.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-stamp.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/stamp.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/stamp.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/stamp.c'; fi`
 
 libff_a-start.o: luatexdir/luafontforge/fontforge/fontforge/start.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-start.o -MD -MP -MF $(DEPDIR)/libff_a-start.Tpo -c -o libff_a-start.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/start.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/start.c
@@ -2041,6 +2372,20 @@ libff_a-tottf.obj: luatexdir/luafontforge/fontforge/fontforge/tottf.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-tottf.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/tottf.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/tottf.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/tottf.c'; fi`
 
+libff_a-tottfaat.o: luatexdir/luafontforge/fontforge/fontforge/tottfaat.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-tottfaat.o -MD -MP -MF $(DEPDIR)/libff_a-tottfaat.Tpo -c -o libff_a-tottfaat.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/tottfaat.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/tottfaat.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-tottfaat.Tpo $(DEPDIR)/libff_a-tottfaat.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/tottfaat.c' object='libff_a-tottfaat.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-tottfaat.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/tottfaat.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/tottfaat.c
+
+libff_a-tottfaat.obj: luatexdir/luafontforge/fontforge/fontforge/tottfaat.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-tottfaat.obj -MD -MP -MF $(DEPDIR)/libff_a-tottfaat.Tpo -c -o libff_a-tottfaat.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/tottfaat.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/tottfaat.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/tottfaat.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-tottfaat.Tpo $(DEPDIR)/libff_a-tottfaat.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/tottfaat.c' object='libff_a-tottfaat.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-tottfaat.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/tottfaat.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/tottfaat.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/tottfaat.c'; fi`
+
 libff_a-tottfgpos.o: luatexdir/luafontforge/fontforge/fontforge/tottfgpos.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-tottfgpos.o -MD -MP -MF $(DEPDIR)/libff_a-tottfgpos.Tpo -c -o libff_a-tottfgpos.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/tottfgpos.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/tottfgpos.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-tottfgpos.Tpo $(DEPDIR)/libff_a-tottfgpos.Po
@@ -2055,20 +2400,6 @@ libff_a-tottfgpos.obj: luatexdir/luafontforge/fontforge/fontforge/tottfgpos.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-tottfgpos.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/tottfgpos.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/tottfgpos.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/tottfgpos.c'; fi`
 
-libff_a-tottfvar.o: luatexdir/luafontforge/fontforge/fontforge/tottfvar.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-tottfvar.o -MD -MP -MF $(DEPDIR)/libff_a-tottfvar.Tpo -c -o libff_a-tottfvar.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/tottfvar.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/tottfvar.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-tottfvar.Tpo $(DEPDIR)/libff_a-tottfvar.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/tottfvar.c' object='libff_a-tottfvar.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-tottfvar.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/tottfvar.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/tottfvar.c
-
-libff_a-tottfvar.obj: luatexdir/luafontforge/fontforge/fontforge/tottfvar.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-tottfvar.obj -MD -MP -MF $(DEPDIR)/libff_a-tottfvar.Tpo -c -o libff_a-tottfvar.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/tottfvar.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/tottfvar.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/tottfvar.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-tottfvar.Tpo $(DEPDIR)/libff_a-tottfvar.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/tottfvar.c' object='libff_a-tottfvar.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-tottfvar.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/tottfvar.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/tottfvar.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/tottfvar.c'; fi`
-
 libff_a-ttfspecial.o: luatexdir/luafontforge/fontforge/fontforge/ttfspecial.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-ttfspecial.o -MD -MP -MF $(DEPDIR)/libff_a-ttfspecial.Tpo -c -o libff_a-ttfspecial.o `test -f 'luatexdir/luafontforge/fontforge/fontforge/ttfspecial.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/fontforge/ttfspecial.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-ttfspecial.Tpo $(DEPDIR)/libff_a-ttfspecial.Po
@@ -2082,6 +2413,34 @@ libff_a-ttfspecial.obj: luatexdir/luafontforge/fontforge/fontforge/ttfspecial.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/fontforge/ttfspecial.c' object='libff_a-ttfspecial.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-ttfspecial.obj `if test -f 'luatexdir/luafontforge/fontforge/fontforge/ttfspecial.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/fontforge/ttfspecial.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/fontforge/ttfspecial.c'; fi`
+
+libff_a-fsys.o: luatexdir/luafontforge/fontforge/gutils/fsys.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-fsys.o -MD -MP -MF $(DEPDIR)/libff_a-fsys.Tpo -c -o libff_a-fsys.o `test -f 'luatexdir/luafontforge/fontforge/gutils/fsys.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/gutils/fsys.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-fsys.Tpo $(DEPDIR)/libff_a-fsys.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/gutils/fsys.c' object='libff_a-fsys.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-fsys.o `test -f 'luatexdir/luafontforge/fontforge/gutils/fsys.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/gutils/fsys.c
+
+libff_a-fsys.obj: luatexdir/luafontforge/fontforge/gutils/fsys.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-fsys.obj -MD -MP -MF $(DEPDIR)/libff_a-fsys.Tpo -c -o libff_a-fsys.obj `if test -f 'luatexdir/luafontforge/fontforge/gutils/fsys.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/gutils/fsys.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/gutils/fsys.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-fsys.Tpo $(DEPDIR)/libff_a-fsys.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/gutils/fsys.c' object='libff_a-fsys.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-fsys.obj `if test -f 'luatexdir/luafontforge/fontforge/gutils/fsys.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/gutils/fsys.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/gutils/fsys.c'; fi`
+
+libff_a-gwwintl.o: luatexdir/luafontforge/fontforge/gutils/gwwintl.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-gwwintl.o -MD -MP -MF $(DEPDIR)/libff_a-gwwintl.Tpo -c -o libff_a-gwwintl.o `test -f 'luatexdir/luafontforge/fontforge/gutils/gwwintl.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/gutils/gwwintl.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-gwwintl.Tpo $(DEPDIR)/libff_a-gwwintl.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/gutils/gwwintl.c' object='libff_a-gwwintl.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-gwwintl.o `test -f 'luatexdir/luafontforge/fontforge/gutils/gwwintl.c' || echo '$(srcdir)/'`luatexdir/luafontforge/fontforge/gutils/gwwintl.c
+
+libff_a-gwwintl.obj: luatexdir/luafontforge/fontforge/gutils/gwwintl.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-gwwintl.obj -MD -MP -MF $(DEPDIR)/libff_a-gwwintl.Tpo -c -o libff_a-gwwintl.obj `if test -f 'luatexdir/luafontforge/fontforge/gutils/gwwintl.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/gutils/gwwintl.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/gutils/gwwintl.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-gwwintl.Tpo $(DEPDIR)/libff_a-gwwintl.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontforge/fontforge/gutils/gwwintl.c' object='libff_a-gwwintl.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-gwwintl.obj `if test -f 'luatexdir/luafontforge/fontforge/gutils/gwwintl.c'; then $(CYGPATH_W) 'luatexdir/luafontforge/fontforge/gutils/gwwintl.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontforge/fontforge/gutils/gwwintl.c'; fi`
 
 libff_a-ffdummies.o: luatexdir/luafontforge/src/ffdummies.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-ffdummies.o -MD -MP -MF $(DEPDIR)/libff_a-ffdummies.Tpo -c -o libff_a-ffdummies.o `test -f 'luatexdir/luafontforge/src/ffdummies.c' || echo '$(srcdir)/'`luatexdir/luafontforge/src/ffdummies.c
@@ -2587,6 +2946,76 @@ libluamisc_a-lpeg.obj: luatexdir/luapeg/lpeg.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluamisc_a-lpeg.obj `if test -f 'luatexdir/luapeg/lpeg.c'; then $(CYGPATH_W) 'luatexdir/luapeg/lpeg.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapeg/lpeg.c'; fi`
 
+libluamisc_a-clocks.o: luatexdir/luaprofiler/clocks.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluamisc_a-clocks.o -MD -MP -MF $(DEPDIR)/libluamisc_a-clocks.Tpo -c -o libluamisc_a-clocks.o `test -f 'luatexdir/luaprofiler/clocks.c' || echo '$(srcdir)/'`luatexdir/luaprofiler/clocks.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluamisc_a-clocks.Tpo $(DEPDIR)/libluamisc_a-clocks.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luaprofiler/clocks.c' object='libluamisc_a-clocks.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluamisc_a-clocks.o `test -f 'luatexdir/luaprofiler/clocks.c' || echo '$(srcdir)/'`luatexdir/luaprofiler/clocks.c
+
+libluamisc_a-clocks.obj: luatexdir/luaprofiler/clocks.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluamisc_a-clocks.obj -MD -MP -MF $(DEPDIR)/libluamisc_a-clocks.Tpo -c -o libluamisc_a-clocks.obj `if test -f 'luatexdir/luaprofiler/clocks.c'; then $(CYGPATH_W) 'luatexdir/luaprofiler/clocks.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luaprofiler/clocks.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluamisc_a-clocks.Tpo $(DEPDIR)/libluamisc_a-clocks.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luaprofiler/clocks.c' object='libluamisc_a-clocks.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluamisc_a-clocks.obj `if test -f 'luatexdir/luaprofiler/clocks.c'; then $(CYGPATH_W) 'luatexdir/luaprofiler/clocks.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luaprofiler/clocks.c'; fi`
+
+libluamisc_a-core_profiler.o: luatexdir/luaprofiler/core_profiler.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluamisc_a-core_profiler.o -MD -MP -MF $(DEPDIR)/libluamisc_a-core_profiler.Tpo -c -o libluamisc_a-core_profiler.o `test -f 'luatexdir/luaprofiler/core_profiler.c' || echo '$(srcdir)/'`luatexdir/luaprofiler/core_profiler.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluamisc_a-core_profiler.Tpo $(DEPDIR)/libluamisc_a-core_profiler.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luaprofiler/core_profiler.c' object='libluamisc_a-core_profiler.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluamisc_a-core_profiler.o `test -f 'luatexdir/luaprofiler/core_profiler.c' || echo '$(srcdir)/'`luatexdir/luaprofiler/core_profiler.c
+
+libluamisc_a-core_profiler.obj: luatexdir/luaprofiler/core_profiler.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluamisc_a-core_profiler.obj -MD -MP -MF $(DEPDIR)/libluamisc_a-core_profiler.Tpo -c -o libluamisc_a-core_profiler.obj `if test -f 'luatexdir/luaprofiler/core_profiler.c'; then $(CYGPATH_W) 'luatexdir/luaprofiler/core_profiler.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luaprofiler/core_profiler.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluamisc_a-core_profiler.Tpo $(DEPDIR)/libluamisc_a-core_profiler.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luaprofiler/core_profiler.c' object='libluamisc_a-core_profiler.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluamisc_a-core_profiler.obj `if test -f 'luatexdir/luaprofiler/core_profiler.c'; then $(CYGPATH_W) 'luatexdir/luaprofiler/core_profiler.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luaprofiler/core_profiler.c'; fi`
+
+libluamisc_a-function_meter.o: luatexdir/luaprofiler/function_meter.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluamisc_a-function_meter.o -MD -MP -MF $(DEPDIR)/libluamisc_a-function_meter.Tpo -c -o libluamisc_a-function_meter.o `test -f 'luatexdir/luaprofiler/function_meter.c' || echo '$(srcdir)/'`luatexdir/luaprofiler/function_meter.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluamisc_a-function_meter.Tpo $(DEPDIR)/libluamisc_a-function_meter.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luaprofiler/function_meter.c' object='libluamisc_a-function_meter.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluamisc_a-function_meter.o `test -f 'luatexdir/luaprofiler/function_meter.c' || echo '$(srcdir)/'`luatexdir/luaprofiler/function_meter.c
+
+libluamisc_a-function_meter.obj: luatexdir/luaprofiler/function_meter.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluamisc_a-function_meter.obj -MD -MP -MF $(DEPDIR)/libluamisc_a-function_meter.Tpo -c -o libluamisc_a-function_meter.obj `if test -f 'luatexdir/luaprofiler/function_meter.c'; then $(CYGPATH_W) 'luatexdir/luaprofiler/function_meter.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luaprofiler/function_meter.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluamisc_a-function_meter.Tpo $(DEPDIR)/libluamisc_a-function_meter.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luaprofiler/function_meter.c' object='libluamisc_a-function_meter.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluamisc_a-function_meter.obj `if test -f 'luatexdir/luaprofiler/function_meter.c'; then $(CYGPATH_W) 'luatexdir/luaprofiler/function_meter.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luaprofiler/function_meter.c'; fi`
+
+libluamisc_a-lua50_profiler.o: luatexdir/luaprofiler/lua50_profiler.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluamisc_a-lua50_profiler.o -MD -MP -MF $(DEPDIR)/libluamisc_a-lua50_profiler.Tpo -c -o libluamisc_a-lua50_profiler.o `test -f 'luatexdir/luaprofiler/lua50_profiler.c' || echo '$(srcdir)/'`luatexdir/luaprofiler/lua50_profiler.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluamisc_a-lua50_profiler.Tpo $(DEPDIR)/libluamisc_a-lua50_profiler.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luaprofiler/lua50_profiler.c' object='libluamisc_a-lua50_profiler.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluamisc_a-lua50_profiler.o `test -f 'luatexdir/luaprofiler/lua50_profiler.c' || echo '$(srcdir)/'`luatexdir/luaprofiler/lua50_profiler.c
+
+libluamisc_a-lua50_profiler.obj: luatexdir/luaprofiler/lua50_profiler.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluamisc_a-lua50_profiler.obj -MD -MP -MF $(DEPDIR)/libluamisc_a-lua50_profiler.Tpo -c -o libluamisc_a-lua50_profiler.obj `if test -f 'luatexdir/luaprofiler/lua50_profiler.c'; then $(CYGPATH_W) 'luatexdir/luaprofiler/lua50_profiler.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luaprofiler/lua50_profiler.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluamisc_a-lua50_profiler.Tpo $(DEPDIR)/libluamisc_a-lua50_profiler.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luaprofiler/lua50_profiler.c' object='libluamisc_a-lua50_profiler.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluamisc_a-lua50_profiler.obj `if test -f 'luatexdir/luaprofiler/lua50_profiler.c'; then $(CYGPATH_W) 'luatexdir/luaprofiler/lua50_profiler.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luaprofiler/lua50_profiler.c'; fi`
+
+libluamisc_a-stack.o: luatexdir/luaprofiler/stack.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluamisc_a-stack.o -MD -MP -MF $(DEPDIR)/libluamisc_a-stack.Tpo -c -o libluamisc_a-stack.o `test -f 'luatexdir/luaprofiler/stack.c' || echo '$(srcdir)/'`luatexdir/luaprofiler/stack.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluamisc_a-stack.Tpo $(DEPDIR)/libluamisc_a-stack.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luaprofiler/stack.c' object='libluamisc_a-stack.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluamisc_a-stack.o `test -f 'luatexdir/luaprofiler/stack.c' || echo '$(srcdir)/'`luatexdir/luaprofiler/stack.c
+
+libluamisc_a-stack.obj: luatexdir/luaprofiler/stack.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluamisc_a-stack.obj -MD -MP -MF $(DEPDIR)/libluamisc_a-stack.Tpo -c -o libluamisc_a-stack.obj `if test -f 'luatexdir/luaprofiler/stack.c'; then $(CYGPATH_W) 'luatexdir/luaprofiler/stack.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luaprofiler/stack.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluamisc_a-stack.Tpo $(DEPDIR)/libluamisc_a-stack.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luaprofiler/stack.c' object='libluamisc_a-stack.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluamisc_a-stack.obj `if test -f 'luatexdir/luaprofiler/stack.c'; then $(CYGPATH_W) 'luatexdir/luaprofiler/stack.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luaprofiler/stack.c'; fi`
+
 libluamisc_a-luazip.o: luatexdir/luazip/src/luazip.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluamisc_a-luazip.o -MD -MP -MF $(DEPDIR)/libluamisc_a-luazip.Tpo -c -o libluamisc_a-luazip.o `test -f 'luatexdir/luazip/src/luazip.c' || echo '$(srcdir)/'`luatexdir/luazip/src/luazip.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluamisc_a-luazip.Tpo $(DEPDIR)/libluamisc_a-luazip.Po
@@ -2656,34 +3085,6 @@ libluamisc_a-slnudata.obj: luatexdir/slnunicode/slnudata.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/slnunicode/slnudata.c' object='libluamisc_a-slnudata.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluamisc_a-slnudata.obj `if test -f 'luatexdir/slnunicode/slnudata.c'; then $(CYGPATH_W) 'luatexdir/slnunicode/slnudata.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/slnunicode/slnudata.c'; fi`
-
-libluatex_a-avl.o: luatexdir/avl.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-avl.o -MD -MP -MF $(DEPDIR)/libluatex_a-avl.Tpo -c -o libluatex_a-avl.o `test -f 'luatexdir/avl.c' || echo '$(srcdir)/'`luatexdir/avl.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-avl.Tpo $(DEPDIR)/libluatex_a-avl.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/avl.c' object='libluatex_a-avl.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-avl.o `test -f 'luatexdir/avl.c' || echo '$(srcdir)/'`luatexdir/avl.c
-
-libluatex_a-avl.obj: luatexdir/avl.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-avl.obj -MD -MP -MF $(DEPDIR)/libluatex_a-avl.Tpo -c -o libluatex_a-avl.obj `if test -f 'luatexdir/avl.c'; then $(CYGPATH_W) 'luatexdir/avl.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/avl.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-avl.Tpo $(DEPDIR)/libluatex_a-avl.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/avl.c' object='libluatex_a-avl.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-avl.obj `if test -f 'luatexdir/avl.c'; then $(CYGPATH_W) 'luatexdir/avl.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/avl.c'; fi`
-
-libluatex_a-avlstuff.o: luatexdir/avlstuff.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-avlstuff.o -MD -MP -MF $(DEPDIR)/libluatex_a-avlstuff.Tpo -c -o libluatex_a-avlstuff.o `test -f 'luatexdir/avlstuff.c' || echo '$(srcdir)/'`luatexdir/avlstuff.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-avlstuff.Tpo $(DEPDIR)/libluatex_a-avlstuff.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/avlstuff.c' object='libluatex_a-avlstuff.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-avlstuff.o `test -f 'luatexdir/avlstuff.c' || echo '$(srcdir)/'`luatexdir/avlstuff.c
-
-libluatex_a-avlstuff.obj: luatexdir/avlstuff.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-avlstuff.obj -MD -MP -MF $(DEPDIR)/libluatex_a-avlstuff.Tpo -c -o libluatex_a-avlstuff.obj `if test -f 'luatexdir/avlstuff.c'; then $(CYGPATH_W) 'luatexdir/avlstuff.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/avlstuff.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-avlstuff.Tpo $(DEPDIR)/libluatex_a-avlstuff.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/avlstuff.c' object='libluatex_a-avlstuff.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-avlstuff.obj `if test -f 'luatexdir/avlstuff.c'; then $(CYGPATH_W) 'luatexdir/avlstuff.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/avlstuff.c'; fi`
 
 libluatex_a-dofont.o: luatexdir/font/dofont.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-dofont.o -MD -MP -MF $(DEPDIR)/libluatex_a-dofont.Tpo -c -o libluatex_a-dofont.o `test -f 'luatexdir/font/dofont.c' || echo '$(srcdir)/'`luatexdir/font/dofont.c
@@ -3371,6 +3772,20 @@ libluatex_a-texluac.obj: luatexdir/lua/texluac.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-texluac.obj `if test -f 'luatexdir/lua/texluac.c'; then $(CYGPATH_W) 'luatexdir/lua/texluac.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/texluac.c'; fi`
 
+libluatex_a-makecpool.o: luatexdir/makecpool.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-makecpool.o -MD -MP -MF $(DEPDIR)/libluatex_a-makecpool.Tpo -c -o libluatex_a-makecpool.o `test -f 'luatexdir/makecpool.c' || echo '$(srcdir)/'`luatexdir/makecpool.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-makecpool.Tpo $(DEPDIR)/libluatex_a-makecpool.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/makecpool.c' object='libluatex_a-makecpool.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-makecpool.o `test -f 'luatexdir/makecpool.c' || echo '$(srcdir)/'`luatexdir/makecpool.c
+
+libluatex_a-makecpool.obj: luatexdir/makecpool.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-makecpool.obj -MD -MP -MF $(DEPDIR)/libluatex_a-makecpool.Tpo -c -o libluatex_a-makecpool.obj `if test -f 'luatexdir/makecpool.c'; then $(CYGPATH_W) 'luatexdir/makecpool.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/makecpool.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-makecpool.Tpo $(DEPDIR)/libluatex_a-makecpool.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/makecpool.c' object='libluatex_a-makecpool.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-makecpool.obj `if test -f 'luatexdir/makecpool.c'; then $(CYGPATH_W) 'luatexdir/makecpool.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/makecpool.c'; fi`
+
 libluatex_a-managed-sa.o: luatexdir/managed-sa.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-managed-sa.o -MD -MP -MF $(DEPDIR)/libluatex_a-managed-sa.Tpo -c -o libluatex_a-managed-sa.o `test -f 'luatexdir/managed-sa.c' || echo '$(srcdir)/'`luatexdir/managed-sa.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-managed-sa.Tpo $(DEPDIR)/libluatex_a-managed-sa.Po
@@ -3399,6 +3814,48 @@ libluatex_a-mathcodes.obj: luatexdir/mathcodes.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-mathcodes.obj `if test -f 'luatexdir/mathcodes.c'; then $(CYGPATH_W) 'luatexdir/mathcodes.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/mathcodes.c'; fi`
 
+libluatex_a-pagetree.o: luatexdir/pdf/pagetree.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-pagetree.o -MD -MP -MF $(DEPDIR)/libluatex_a-pagetree.Tpo -c -o libluatex_a-pagetree.o `test -f 'luatexdir/pdf/pagetree.c' || echo '$(srcdir)/'`luatexdir/pdf/pagetree.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-pagetree.Tpo $(DEPDIR)/libluatex_a-pagetree.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pagetree.c' object='libluatex_a-pagetree.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-pagetree.o `test -f 'luatexdir/pdf/pagetree.c' || echo '$(srcdir)/'`luatexdir/pdf/pagetree.c
+
+libluatex_a-pagetree.obj: luatexdir/pdf/pagetree.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-pagetree.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pagetree.Tpo -c -o libluatex_a-pagetree.obj `if test -f 'luatexdir/pdf/pagetree.c'; then $(CYGPATH_W) 'luatexdir/pdf/pagetree.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pagetree.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-pagetree.Tpo $(DEPDIR)/libluatex_a-pagetree.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pagetree.c' object='libluatex_a-pagetree.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-pagetree.obj `if test -f 'luatexdir/pdf/pagetree.c'; then $(CYGPATH_W) 'luatexdir/pdf/pagetree.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pagetree.c'; fi`
+
+libluatex_a-pdfpage.o: luatexdir/pdf/pdfpage.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfpage.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfpage.Tpo -c -o libluatex_a-pdfpage.o `test -f 'luatexdir/pdf/pdfpage.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfpage.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-pdfpage.Tpo $(DEPDIR)/libluatex_a-pdfpage.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfpage.c' object='libluatex_a-pdfpage.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfpage.o `test -f 'luatexdir/pdf/pdfpage.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfpage.c
+
+libluatex_a-pdfpage.obj: luatexdir/pdf/pdfpage.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfpage.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfpage.Tpo -c -o libluatex_a-pdfpage.obj `if test -f 'luatexdir/pdf/pdfpage.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfpage.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfpage.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-pdfpage.Tpo $(DEPDIR)/libluatex_a-pdfpage.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfpage.c' object='libluatex_a-pdfpage.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfpage.obj `if test -f 'luatexdir/pdf/pdfpage.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfpage.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfpage.c'; fi`
+
+libluatex_a-filename.o: luatexdir/tex/filename.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-filename.o -MD -MP -MF $(DEPDIR)/libluatex_a-filename.Tpo -c -o libluatex_a-filename.o `test -f 'luatexdir/tex/filename.c' || echo '$(srcdir)/'`luatexdir/tex/filename.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-filename.Tpo $(DEPDIR)/libluatex_a-filename.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/filename.c' object='libluatex_a-filename.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-filename.o `test -f 'luatexdir/tex/filename.c' || echo '$(srcdir)/'`luatexdir/tex/filename.c
+
+libluatex_a-filename.obj: luatexdir/tex/filename.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-filename.obj -MD -MP -MF $(DEPDIR)/libluatex_a-filename.Tpo -c -o libluatex_a-filename.obj `if test -f 'luatexdir/tex/filename.c'; then $(CYGPATH_W) 'luatexdir/tex/filename.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/filename.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-filename.Tpo $(DEPDIR)/libluatex_a-filename.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/filename.c' object='libluatex_a-filename.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-filename.obj `if test -f 'luatexdir/tex/filename.c'; then $(CYGPATH_W) 'luatexdir/tex/filename.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/filename.c'; fi`
+
 libluatex_a-linebreak.o: luatexdir/tex/linebreak.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-linebreak.o -MD -MP -MF $(DEPDIR)/libluatex_a-linebreak.Tpo -c -o libluatex_a-linebreak.o `test -f 'luatexdir/tex/linebreak.c' || echo '$(srcdir)/'`luatexdir/tex/linebreak.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-linebreak.Tpo $(DEPDIR)/libluatex_a-linebreak.Po
@@ -3413,6 +3870,34 @@ libluatex_a-linebreak.obj: luatexdir/tex/linebreak.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-linebreak.obj `if test -f 'luatexdir/tex/linebreak.c'; then $(CYGPATH_W) 'luatexdir/tex/linebreak.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/linebreak.c'; fi`
 
+libluatex_a-math.o: luatexdir/tex/math.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-math.o -MD -MP -MF $(DEPDIR)/libluatex_a-math.Tpo -c -o libluatex_a-math.o `test -f 'luatexdir/tex/math.c' || echo '$(srcdir)/'`luatexdir/tex/math.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-math.Tpo $(DEPDIR)/libluatex_a-math.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/math.c' object='libluatex_a-math.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-math.o `test -f 'luatexdir/tex/math.c' || echo '$(srcdir)/'`luatexdir/tex/math.c
+
+libluatex_a-math.obj: luatexdir/tex/math.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-math.obj -MD -MP -MF $(DEPDIR)/libluatex_a-math.Tpo -c -o libluatex_a-math.obj `if test -f 'luatexdir/tex/math.c'; then $(CYGPATH_W) 'luatexdir/tex/math.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/math.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-math.Tpo $(DEPDIR)/libluatex_a-math.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/math.c' object='libluatex_a-math.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-math.obj `if test -f 'luatexdir/tex/math.c'; then $(CYGPATH_W) 'luatexdir/tex/math.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/math.c'; fi`
+
+libluatex_a-mlist.o: luatexdir/tex/mlist.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-mlist.o -MD -MP -MF $(DEPDIR)/libluatex_a-mlist.Tpo -c -o libluatex_a-mlist.o `test -f 'luatexdir/tex/mlist.c' || echo '$(srcdir)/'`luatexdir/tex/mlist.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-mlist.Tpo $(DEPDIR)/libluatex_a-mlist.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/mlist.c' object='libluatex_a-mlist.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-mlist.o `test -f 'luatexdir/tex/mlist.c' || echo '$(srcdir)/'`luatexdir/tex/mlist.c
+
+libluatex_a-mlist.obj: luatexdir/tex/mlist.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-mlist.obj -MD -MP -MF $(DEPDIR)/libluatex_a-mlist.Tpo -c -o libluatex_a-mlist.obj `if test -f 'luatexdir/tex/mlist.c'; then $(CYGPATH_W) 'luatexdir/tex/mlist.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/mlist.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-mlist.Tpo $(DEPDIR)/libluatex_a-mlist.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/mlist.c' object='libluatex_a-mlist.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-mlist.obj `if test -f 'luatexdir/tex/mlist.c'; then $(CYGPATH_W) 'luatexdir/tex/mlist.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/mlist.c'; fi`
+
 libluatex_a-postlinebreak.o: luatexdir/tex/postlinebreak.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-postlinebreak.o -MD -MP -MF $(DEPDIR)/libluatex_a-postlinebreak.Tpo -c -o libluatex_a-postlinebreak.o `test -f 'luatexdir/tex/postlinebreak.c' || echo '$(srcdir)/'`luatexdir/tex/postlinebreak.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-postlinebreak.Tpo $(DEPDIR)/libluatex_a-postlinebreak.Po
@@ -3426,6 +3911,34 @@ libluatex_a-postlinebreak.obj: luatexdir/tex/postlinebreak.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/postlinebreak.c' object='libluatex_a-postlinebreak.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-postlinebreak.obj `if test -f 'luatexdir/tex/postlinebreak.c'; then $(CYGPATH_W) 'luatexdir/tex/postlinebreak.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/postlinebreak.c'; fi`
+
+libluatex_a-primitive.o: luatexdir/tex/primitive.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-primitive.o -MD -MP -MF $(DEPDIR)/libluatex_a-primitive.Tpo -c -o libluatex_a-primitive.o `test -f 'luatexdir/tex/primitive.c' || echo '$(srcdir)/'`luatexdir/tex/primitive.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-primitive.Tpo $(DEPDIR)/libluatex_a-primitive.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/primitive.c' object='libluatex_a-primitive.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-primitive.o `test -f 'luatexdir/tex/primitive.c' || echo '$(srcdir)/'`luatexdir/tex/primitive.c
+
+libluatex_a-primitive.obj: luatexdir/tex/primitive.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-primitive.obj -MD -MP -MF $(DEPDIR)/libluatex_a-primitive.Tpo -c -o libluatex_a-primitive.obj `if test -f 'luatexdir/tex/primitive.c'; then $(CYGPATH_W) 'luatexdir/tex/primitive.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/primitive.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-primitive.Tpo $(DEPDIR)/libluatex_a-primitive.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/primitive.c' object='libluatex_a-primitive.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-primitive.obj `if test -f 'luatexdir/tex/primitive.c'; then $(CYGPATH_W) 'luatexdir/tex/primitive.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/primitive.c'; fi`
+
+libluatex_a-texdeffont.o: luatexdir/tex/texdeffont.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-texdeffont.o -MD -MP -MF $(DEPDIR)/libluatex_a-texdeffont.Tpo -c -o libluatex_a-texdeffont.o `test -f 'luatexdir/tex/texdeffont.c' || echo '$(srcdir)/'`luatexdir/tex/texdeffont.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-texdeffont.Tpo $(DEPDIR)/libluatex_a-texdeffont.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/texdeffont.c' object='libluatex_a-texdeffont.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-texdeffont.o `test -f 'luatexdir/tex/texdeffont.c' || echo '$(srcdir)/'`luatexdir/tex/texdeffont.c
+
+libluatex_a-texdeffont.obj: luatexdir/tex/texdeffont.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-texdeffont.obj -MD -MP -MF $(DEPDIR)/libluatex_a-texdeffont.Tpo -c -o libluatex_a-texdeffont.obj `if test -f 'luatexdir/tex/texdeffont.c'; then $(CYGPATH_W) 'luatexdir/tex/texdeffont.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/texdeffont.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-texdeffont.Tpo $(DEPDIR)/libluatex_a-texdeffont.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/texdeffont.c' object='libluatex_a-texdeffont.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-texdeffont.obj `if test -f 'luatexdir/tex/texdeffont.c'; then $(CYGPATH_W) 'luatexdir/tex/texdeffont.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/texdeffont.c'; fi`
 
 libluatex_a-texnodes.o: luatexdir/tex/texnodes.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-texnodes.o -MD -MP -MF $(DEPDIR)/libluatex_a-texnodes.Tpo -c -o libluatex_a-texnodes.o `test -f 'luatexdir/tex/texnodes.c' || echo '$(srcdir)/'`luatexdir/tex/texnodes.c
@@ -3483,33 +3996,75 @@ libluatex_a-textcodes.obj: luatexdir/textcodes.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-textcodes.obj `if test -f 'luatexdir/textcodes.c'; then $(CYGPATH_W) 'luatexdir/textcodes.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/textcodes.c'; fi`
 
-libluatex_a-utils.o: luatexdir/utils.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-utils.o -MD -MP -MF $(DEPDIR)/libluatex_a-utils.Tpo -c -o libluatex_a-utils.o `test -f 'luatexdir/utils.c' || echo '$(srcdir)/'`luatexdir/utils.c
+libluatex_a-avl.o: luatexdir/utils/avl.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-avl.o -MD -MP -MF $(DEPDIR)/libluatex_a-avl.Tpo -c -o libluatex_a-avl.o `test -f 'luatexdir/utils/avl.c' || echo '$(srcdir)/'`luatexdir/utils/avl.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-avl.Tpo $(DEPDIR)/libluatex_a-avl.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/utils/avl.c' object='libluatex_a-avl.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-avl.o `test -f 'luatexdir/utils/avl.c' || echo '$(srcdir)/'`luatexdir/utils/avl.c
+
+libluatex_a-avl.obj: luatexdir/utils/avl.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-avl.obj -MD -MP -MF $(DEPDIR)/libluatex_a-avl.Tpo -c -o libluatex_a-avl.obj `if test -f 'luatexdir/utils/avl.c'; then $(CYGPATH_W) 'luatexdir/utils/avl.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/avl.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-avl.Tpo $(DEPDIR)/libluatex_a-avl.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/utils/avl.c' object='libluatex_a-avl.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-avl.obj `if test -f 'luatexdir/utils/avl.c'; then $(CYGPATH_W) 'luatexdir/utils/avl.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/avl.c'; fi`
+
+libluatex_a-avlstuff.o: luatexdir/utils/avlstuff.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-avlstuff.o -MD -MP -MF $(DEPDIR)/libluatex_a-avlstuff.Tpo -c -o libluatex_a-avlstuff.o `test -f 'luatexdir/utils/avlstuff.c' || echo '$(srcdir)/'`luatexdir/utils/avlstuff.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-avlstuff.Tpo $(DEPDIR)/libluatex_a-avlstuff.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/utils/avlstuff.c' object='libluatex_a-avlstuff.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-avlstuff.o `test -f 'luatexdir/utils/avlstuff.c' || echo '$(srcdir)/'`luatexdir/utils/avlstuff.c
+
+libluatex_a-avlstuff.obj: luatexdir/utils/avlstuff.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-avlstuff.obj -MD -MP -MF $(DEPDIR)/libluatex_a-avlstuff.Tpo -c -o libluatex_a-avlstuff.obj `if test -f 'luatexdir/utils/avlstuff.c'; then $(CYGPATH_W) 'luatexdir/utils/avlstuff.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/avlstuff.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-avlstuff.Tpo $(DEPDIR)/libluatex_a-avlstuff.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/utils/avlstuff.c' object='libluatex_a-avlstuff.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-avlstuff.obj `if test -f 'luatexdir/utils/avlstuff.c'; then $(CYGPATH_W) 'luatexdir/utils/avlstuff.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/avlstuff.c'; fi`
+
+libluatex_a-synctex.o: luatexdir/utils/synctex.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-synctex.o -MD -MP -MF $(DEPDIR)/libluatex_a-synctex.Tpo -c -o libluatex_a-synctex.o `test -f 'luatexdir/utils/synctex.c' || echo '$(srcdir)/'`luatexdir/utils/synctex.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-synctex.Tpo $(DEPDIR)/libluatex_a-synctex.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/utils/synctex.c' object='libluatex_a-synctex.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-synctex.o `test -f 'luatexdir/utils/synctex.c' || echo '$(srcdir)/'`luatexdir/utils/synctex.c
+
+libluatex_a-synctex.obj: luatexdir/utils/synctex.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-synctex.obj -MD -MP -MF $(DEPDIR)/libluatex_a-synctex.Tpo -c -o libluatex_a-synctex.obj `if test -f 'luatexdir/utils/synctex.c'; then $(CYGPATH_W) 'luatexdir/utils/synctex.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/synctex.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-synctex.Tpo $(DEPDIR)/libluatex_a-synctex.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/utils/synctex.c' object='libluatex_a-synctex.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-synctex.obj `if test -f 'luatexdir/utils/synctex.c'; then $(CYGPATH_W) 'luatexdir/utils/synctex.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/synctex.c'; fi`
+
+libluatex_a-utils.o: luatexdir/utils/utils.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-utils.o -MD -MP -MF $(DEPDIR)/libluatex_a-utils.Tpo -c -o libluatex_a-utils.o `test -f 'luatexdir/utils/utils.c' || echo '$(srcdir)/'`luatexdir/utils/utils.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-utils.Tpo $(DEPDIR)/libluatex_a-utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/utils.c' object='libluatex_a-utils.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/utils/utils.c' object='libluatex_a-utils.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-utils.o `test -f 'luatexdir/utils.c' || echo '$(srcdir)/'`luatexdir/utils.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-utils.o `test -f 'luatexdir/utils/utils.c' || echo '$(srcdir)/'`luatexdir/utils/utils.c
 
-libluatex_a-utils.obj: luatexdir/utils.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-utils.obj -MD -MP -MF $(DEPDIR)/libluatex_a-utils.Tpo -c -o libluatex_a-utils.obj `if test -f 'luatexdir/utils.c'; then $(CYGPATH_W) 'luatexdir/utils.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils.c'; fi`
+libluatex_a-utils.obj: luatexdir/utils/utils.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-utils.obj -MD -MP -MF $(DEPDIR)/libluatex_a-utils.Tpo -c -o libluatex_a-utils.obj `if test -f 'luatexdir/utils/utils.c'; then $(CYGPATH_W) 'luatexdir/utils/utils.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/utils.c'; fi`
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-utils.Tpo $(DEPDIR)/libluatex_a-utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/utils.c' object='libluatex_a-utils.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/utils/utils.c' object='libluatex_a-utils.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-utils.obj `if test -f 'luatexdir/utils.c'; then $(CYGPATH_W) 'luatexdir/utils.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-utils.obj `if test -f 'luatexdir/utils/utils.c'; then $(CYGPATH_W) 'luatexdir/utils/utils.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/utils.c'; fi`
 
-libluatex_a-writezip.o: luatexdir/writezip.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-writezip.o -MD -MP -MF $(DEPDIR)/libluatex_a-writezip.Tpo -c -o libluatex_a-writezip.o `test -f 'luatexdir/writezip.c' || echo '$(srcdir)/'`luatexdir/writezip.c
+libluatex_a-writezip.o: luatexdir/utils/writezip.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-writezip.o -MD -MP -MF $(DEPDIR)/libluatex_a-writezip.Tpo -c -o libluatex_a-writezip.o `test -f 'luatexdir/utils/writezip.c' || echo '$(srcdir)/'`luatexdir/utils/writezip.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-writezip.Tpo $(DEPDIR)/libluatex_a-writezip.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/writezip.c' object='libluatex_a-writezip.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/utils/writezip.c' object='libluatex_a-writezip.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-writezip.o `test -f 'luatexdir/writezip.c' || echo '$(srcdir)/'`luatexdir/writezip.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-writezip.o `test -f 'luatexdir/utils/writezip.c' || echo '$(srcdir)/'`luatexdir/utils/writezip.c
 
-libluatex_a-writezip.obj: luatexdir/writezip.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-writezip.obj -MD -MP -MF $(DEPDIR)/libluatex_a-writezip.Tpo -c -o libluatex_a-writezip.obj `if test -f 'luatexdir/writezip.c'; then $(CYGPATH_W) 'luatexdir/writezip.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/writezip.c'; fi`
+libluatex_a-writezip.obj: luatexdir/utils/writezip.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-writezip.obj -MD -MP -MF $(DEPDIR)/libluatex_a-writezip.Tpo -c -o libluatex_a-writezip.obj `if test -f 'luatexdir/utils/writezip.c'; then $(CYGPATH_W) 'luatexdir/utils/writezip.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/writezip.c'; fi`
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-writezip.Tpo $(DEPDIR)/libluatex_a-writezip.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/writezip.c' object='libluatex_a-writezip.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/utils/writezip.c' object='libluatex_a-writezip.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-writezip.obj `if test -f 'luatexdir/writezip.c'; then $(CYGPATH_W) 'luatexdir/writezip.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/writezip.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-writezip.obj `if test -f 'luatexdir/utils/writezip.c'; then $(CYGPATH_W) 'luatexdir/utils/writezip.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/writezip.c'; fi`
 
 libluatex_a-macnames.o: luatexdir/font/macnames.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-macnames.o -MD -MP -MF $(DEPDIR)/libluatex_a-macnames.Tpo -c -o libluatex_a-macnames.o `test -f 'luatexdir/font/macnames.c' || echo '$(srcdir)/'`luatexdir/font/macnames.c

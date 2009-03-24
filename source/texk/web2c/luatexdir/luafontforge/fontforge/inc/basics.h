@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2007 by George Williams */
+/* Copyright (C) 2000-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,6 +30,11 @@
 #ifdef VMS		/* these three lines from Jacob Jansen, Open VMS port */
 # include <vms_jackets.h>
 #endif
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+#define gfree ff_gfree
+#define grealloc ff_grealloc
 
 #include <stdio.h>		/* for NULL */
 #ifdef HAVE_STDINT_H
@@ -45,16 +50,11 @@
 
 #define forever for (;;)
 
-#ifndef _AIX
-
 typedef int32_t		int32;
-typedef int16_t		int16;
-typedef int8_t		int8;
-
-#endif
-
 typedef uint32_t	uint32;
+typedef int16_t		int16;
 typedef uint16_t	uint16;
+typedef int8_t		int8;
 typedef uint8_t		uint8;
 
 	/* An integral type which can hold a pointer */
@@ -65,12 +65,6 @@ typedef uint16 unichar_t;
 #else
 typedef uint32 unichar_t;
 #endif
-
-
-#define gfree ff_gree
-#define galloc ff_galloc
-#define grealloc ff_grealloc
-#define gcalloc ff_gcalloc
 
 extern void *galloc(long size);
 extern void *gcalloc(int cnt, long size);

@@ -1,4 +1,4 @@
-/* Copyright (C) 2004-2007 by George Williams */
+/* Copyright (C) 2004-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -46,6 +46,7 @@ extern size_t gww_iconv( gww_iconv_t cd,
 
 #  define iconv_arg2_t	char **
 # else		/* HAVE_ICONV_H */
+#  include <iconv.h>
 #  ifdef iconv			/* libiconv has a different calling convention */
 #   define iconv_arg2_t	const char **
 #  else

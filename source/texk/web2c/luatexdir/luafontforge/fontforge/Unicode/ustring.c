@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2007 by George Williams */
+/* Copyright (C) 2000-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,14 +28,6 @@
 #include "ustring.h"
 #include "utype.h"
 
-#ifdef LUA_FF_LIB
-extern int unic_tolower(int);
-#define Tolower unic_tolower
-#else
-#define Tolower tolower
-#endif
-
-
 long uc_strcmp(const unichar_t *str1,const char *str2) {
     long ch1, ch2;
     for (;;) {
@@ -59,8 +51,8 @@ long uc_strmatch(const unichar_t *str1, const char *str2) {
     long ch1, ch2;
     for (;;) {
 	ch1 = *str1++; ch2 = *(unsigned char *) str2++ ;
-	ch1 = Tolower(ch1);
-	ch2 = Tolower(ch2);
+	ch1 = tolower(ch1);
+	ch2 = tolower(ch2);
 	if ( ch1!=ch2 || ch1=='\0' )
 return(ch1-ch2);
     }
@@ -70,8 +62,8 @@ long uc_strnmatch(const unichar_t *str1, const char *str2, int len) {
     long ch1, ch2;
     for (;--len>=0;) {
 	ch1 = *str1++; ch2 = *(unsigned char *) str2++ ;
-	ch1 = Tolower(ch1);
-	ch2 = Tolower(ch2);
+	ch1 = tolower(ch1);
+	ch2 = tolower(ch2);
 	if ( ch1!=ch2 || ch1=='\0' || len<=0 )
 return(ch1-ch2);
     }
@@ -82,8 +74,8 @@ long u_strnmatch(const unichar_t *str1, const unichar_t *str2, int len) {
     long ch1, ch2;
     for (;--len>=0;) {
 	ch1 = *str1++; ch2 = *str2++ ;
-	ch1 = Tolower(ch1);
-	ch2 = Tolower(ch2);
+	ch1 = tolower(ch1);
+	ch2 = tolower(ch2);
 	if ( ch1!=ch2 || ch1=='\0' || len<=0 )
 return(ch1-ch2);
     }
@@ -113,8 +105,8 @@ long u_strmatch(const unichar_t *str1, const unichar_t *str2) {
     long ch1, ch2;
     for (;;) {
 	ch1 = *str1++; ch2 = *str2++ ;
-	ch1 = Tolower(ch1);
-	ch2 = Tolower(ch2);
+	ch1 = tolower(ch1);
+	ch2 = tolower(ch2);
 	if ( ch1!=ch2 || ch1=='\0' )
 return(ch1-ch2);
     }
@@ -256,8 +248,8 @@ unichar_t *uc_strstrmatch(const unichar_t *longer, const char *substr) {
 	str1 = lpt; str2 = (unsigned char *) substr;
 	for (;;) {
 	    ch1 = *str1++; ch2 = *str2++ ;
-	    ch1 = Tolower(ch1);
-	    ch2 = Tolower(ch2);
+	    ch1 = tolower(ch1);
+	    ch2 = tolower(ch2);
 	    if ( ch2=='\0' )
 return((unichar_t *) lpt);
 	    if ( ch1!=ch2 )
@@ -275,8 +267,8 @@ unichar_t *u_strstrmatch(const unichar_t *longer, const unichar_t *substr) {
 	str1 = lpt; str2 = substr;
 	for (;;) {
 	    ch1 = *str1++; ch2 = *str2++ ;
-	    ch1 = Tolower(ch1);
-	    ch2 = Tolower(ch2);
+	    ch1 = tolower(ch1);
+	    ch2 = tolower(ch2);
 	    if ( ch2=='\0' )
 return((unichar_t *) lpt);
 	    if ( ch1!=ch2 )
@@ -447,7 +439,7 @@ return( val );
 unichar_t *cu_strstartmatch(const char *key,const unichar_t *str) {
     if ( key && str ) {
 	while( *key ) {
-	    if(Tolower(*key) != Tolower(*str))
+	    if(tolower(*key) != tolower(*str))
 return 0;               
 	    key++;
 	    str++;
@@ -462,8 +454,8 @@ unichar_t *u_strstartmatch(const unichar_t *initial, const unichar_t *full) {
 	ch1 = *initial++; ch2 = *full++ ;
 	if ( ch1=='\0' )
 return( (unichar_t *) full );
-	ch1 = Tolower(ch1);
-	ch2 = Tolower(ch2);
+	ch1 = tolower(ch1);
+	ch2 = tolower(ch2);
 	if ( ch1!=ch2 || ch1=='\0' )
 return(NULL);
     }
@@ -511,6 +503,7 @@ unichar_t *utf82u_strncpy(unichar_t *ubuf,const char *utf8buf,int len) {
 	    w = (w<<6) | ((pt[1]&0xf)<<2) | ((pt[2]&0x30)>>4);
 	    w2 = ((pt[2]&0xf)<<6) | (pt[3]&0x3f);
 	    *upt = w*0x400 + w2 + 0x10000;
+	    pt += 4;
 #endif
 	}
 	++upt;
@@ -676,6 +669,18 @@ char *u2utf8_strcpy(char *utf8buf,const unichar_t *ubuf) {
     }
     *pt = '\0';
 return( utf8buf );
+}
+
+char *utf8_strchr(const char *str, int search) {
+    int ch;
+    const char *old = str;
+
+    while ( (ch = utf8_ildb(&str))!=0 ) {
+	if ( ch==search )
+return( (char *) old );
+	old = str;
+    }
+return( NULL );
 }
 
 char *latin1_2_utf8_strcpy(char *utf8buf,const char *lbuf) {
@@ -866,7 +871,7 @@ int utf8_strlen(const char *utf8_str) {
     /* how many characters in the string NOT bytes */
     int len = 0;
 
-    while ( utf8_ildb(&utf8_str)!=0 )
+    while ( utf8_ildb(&utf8_str)>0 )
 	++len;
 return( len );
 }
@@ -876,7 +881,7 @@ int utf82u_strlen(const char *utf8_str) {
     int ch;
     int len = 0;
 
-    while ( (ch = utf8_ildb(&utf8_str))!=0 )
+    while ( (ch = utf8_ildb(&utf8_str))>0 )
 	if ( ch>0x10000 )
 	    len += 2;
 	else

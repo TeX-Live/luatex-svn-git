@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2007 by George Williams */
+/* Copyright (C) 2000-2008 by George Williams */
 /*
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -67,18 +67,20 @@ typedef struct edgelist {
     uint8 *bitmap;
     Edge *last, *splinesetfirst;
     SplineChar *sc;
+    int layer;
     char *interesting;
     int major, other;
-    unsigned int genmajoredges: 1;	/* generate a list of edges parrallel to the major axis */
+    unsigned int genmajoredges: 1;	/* generate a list of edges parallel to the major axis */
     Edge *majors;		/* ordered so that lowest edge is first */
     Edge *majorhold;		/* to hold major edges as we pass them and they become useless */
     Hints *hhints, *vhints;
     int is_overlap;
+    DBounds bbox;		/* Not always set. {m,o}{min,max} a provide scaled bbox, this is in glyph units */
 } EdgeList;
 
 extern void FreeEdges(EdgeList *es);
 extern double TOfNextMajor(Edge *e, EdgeList *es, double sought_y );
-extern void FindEdgesSplineSet(SplinePointList *spl, EdgeList *es);
+extern void FindEdgesSplineSet(SplinePointList *spl, EdgeList *es, int ignore_clip);
 extern Edge *ActiveEdgesInsertNew(EdgeList *es, Edge *active,int i);
 extern Edge *ActiveEdgesRefigure(EdgeList *es, Edge *active,real i);
 extern Edge *ActiveEdgesFindStem(Edge *apt, Edge **prev, real i);
@@ -126,6 +128,7 @@ typedef struct eilist {
     EI **ordered;
     char *ends;			/* flag to say an edge ends on this line */
     SplineChar *sc;
+    int layer;
     int major;
     EI *splinelast, *splinefirst;
     EI **bottoms, **tops;	/* Used only be FindNeeded in RemoveOverlap */
