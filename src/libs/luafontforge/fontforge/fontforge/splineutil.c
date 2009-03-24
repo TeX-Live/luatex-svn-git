@@ -99,7 +99,7 @@ return( gcalloc(1,size));
     if ( size&(CHUNK_UNIT-1) )
 	size = (size+CHUNK_UNIT-1)&~(CHUNK_UNIT-1);
 
-    if ( (size&(CHUNK_UNIT-1)) || size>=CHUNK_MAX*CHUNK_UNIT || size<=sizeof(struct chunk)) {
+    if ( (size&(CHUNK_UNIT-1)) || size>=(int)(CHUNK_MAX*CHUNK_UNIT) || size<=(int)sizeof(struct chunk)) {
 	fprintf( stderr, "Attempt to allocate something of size %d\n", size );
 return( gcalloc(1,size));
     }
@@ -146,7 +146,7 @@ return;
     if ( size&(CHUNK_UNIT-1) )
 	size = (size+CHUNK_UNIT-1)&~(CHUNK_UNIT-1);
 
-    if ( (size&(CHUNK_UNIT-1)) || size>=CHUNK_MAX*CHUNK_UNIT || size<=sizeof(struct chunk)) {
+    if ( (size&(CHUNK_UNIT-1)) || size>=(int)(CHUNK_MAX*CHUNK_UNIT) || size<=(int)sizeof(struct chunk)) {
 	fprintf( stderr, "Attempt to free something of size %d\n", size );
 	free(item);
     } else {
@@ -574,7 +574,7 @@ void SplineCharFindBounds(SplineChar *sc,DBounds *bounds) {
 
 void SplineFontLayerFindBounds(SplineFont *sf,int layer,DBounds *bounds) {
     int i, k, first, last;
-
+    (void)layer;
     if ( sf->multilayer ) {
 	SplineFontFindBounds(sf,bounds);
 return;
@@ -1960,7 +1960,7 @@ return( NULL );
 	if ( pt==end )
     break;
 	++(pscontext->instance_count);
-	if ( pscontext->instance_count>=sizeof(pscontext->blend_values)/sizeof(pscontext->blend_values[0])) {
+	if ( pscontext->instance_count>=(int)(sizeof(pscontext->blend_values)/sizeof(pscontext->blend_values[0]))) {
 	    LogError( _("Multiple master font with more than 16 instances\n") );
     break;
 	}
@@ -1985,7 +1985,7 @@ return( NULL );
 	for ( end=pt; *end!=' ' && *end!=']' && *end!='\0'; ++end );
 	if ( pt==end )
     break;
-	if ( mm->axis_count>=sizeof(mm->axes)/sizeof(mm->axes[0])) {
+	if ( mm->axis_count>=(int)(sizeof(mm->axes)/sizeof(mm->axes[0]))) {
 	    LogError( _("Multiple master font with more than 4 axes\n") );
     break;
 	}
@@ -2167,7 +2167,8 @@ return( sf );
 
 static SplineFont *SplineFontFromCIDType1(SplineFont *sf, FontDict *fd,
 	struct pscontext *pscontext) {
-    int i,j,k, bad, uni;
+    int i,j,k, uni;
+    unsigned bad;
     SplineChar **chars;
     char buffer[100];
     struct cidmap *map;
@@ -2182,7 +2183,7 @@ static SplineFont *SplineFontFromCIDType1(SplineFont *sf, FontDict *fd,
     if ( bad!=0x80000000 || fd->cidfonttype!=0 ) {
 	LogError( _("Could not parse a CID font, %sCIDFontType %d, %sfonttype %d\n"),
 		( fd->cidfonttype!=0 ) ? "unexpected " : "",
-		( bad!=0x80000000 ) ? "unexpected " : "",
+		  ( bad!=0x80000000 ) ? "unexpected " : "",
 		fd->cidfonttype, bad );
 	SplineFontFree(sf);
 return( NULL );
@@ -2294,6 +2295,7 @@ void RefCharFindBounds(RefChar *rf) {
 void SCReinstanciateRefChar(SplineChar *sc,RefChar *rf,int layer) {
     SplinePointList *new, *last;
     RefChar *refs;
+    (void)sc;
     {
 	if ( rf->layer_cnt>0 ) {
 	    SplinePointListsFree(rf->layers[0].splines);
@@ -2555,7 +2557,7 @@ extended SplineSolve(const Spline1D *sp, real tmin, real tmax, extended sought,r
     extended ts[3];
     int i;
     extended t;
-
+    (void)err;
     temp = *sp;
     temp.d -= sought;
     CubicSolve(&temp,ts);
@@ -2863,8 +2865,9 @@ void SplineRemoveExtremaTooClose(Spline1D *sp, extended *_t1, extended *_t2 ) {
 	    t2 = -1;
 	else if ( t1!=-1 )
 	    t1 = -1;
-	else
+	else {
 	    /* Well we should just remove the whole spline? */;
+	}
     }
     *_t1 = t1; *_t2 = t2;
 }
@@ -2922,9 +2925,9 @@ static void IterateSolve(const Spline1D *sp,extended ts[3]) {
 	}
     } else if ( sp->c!=0 ) {
 	ts[0] = -sp->d/(extended) sp->c;
-    } else
+    } else {
 	/* No solutions, or all solutions */;
-
+    }
     for ( i=j=0; i<3; ++i )
 	if ( ts[i]>=0 && ts[i]<=1 )
 	    ts[j++] = ts[i];
@@ -2991,7 +2994,7 @@ return( -1 );
 
 static int ICAddInter(int cnt,BasePoint *foundpos,extended *foundt1,extended *foundt2,
 	const Spline *s1,const Spline *s2,extended t1,extended t2, int maxcnt) {
-
+    (void)s2;
     if ( cnt>=maxcnt )
 return( cnt );
 
@@ -3640,7 +3643,7 @@ return( anchors );
 }
 
 AnchorPoint *AnchorPointsCopy(AnchorPoint *alist) {
-    AnchorPoint *head=NULL, *last, *ap;
+    AnchorPoint *head=NULL, *last=NULL, *ap;
 
     while ( alist!=NULL ) {
 	ap = chunkalloc(sizeof(AnchorPoint));
@@ -3708,6 +3711,8 @@ void FPSTRuleContentsFree(struct fpst_rule *r, enum fpossub_format format) {
 	    free(r->u.coverage.fcovers[j]);
 	free(r->u.coverage.fcovers);
       break;
+    default: 
+      break;
     }
     free(r->lookups);
 }
@@ -3774,6 +3779,8 @@ return( NULL );
 		    t->u.coverage.fcovers[j] = copy(f->u.coverage.fcovers[j]);
 	    }
 	  break;
+	default: 
+          break;
 	}
 	if ( f->lookup_cnt!=0 ) {
 	    t->lookup_cnt = f->lookup_cnt;

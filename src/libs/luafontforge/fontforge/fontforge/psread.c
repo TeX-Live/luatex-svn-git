@@ -392,7 +392,7 @@ static int ioescapestopped(IO *wrapper, struct psstack *stack, int sp) {
 	free(io);
 	if ( wasstopped ) {
 	    wrapper->top = iop;
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = ps_bool;
 		stack[sp++].u.tf = true;
 	    }
@@ -813,7 +813,7 @@ static int aload(int sp, struct psstack *stack,int stacktop, struct garbage *tof
 		++sp;
 	    }
 	}
-	if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 	    stack[sp].type = ps_array;
 	    stack[sp].u.dict = dict;
 	    ++sp;
@@ -1066,12 +1066,12 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 
     while ( (tok = nextpstoken(wrapper,&dval,tokbuf,tokbufsize))!=pt_eof ) {
 	if ( endedstopped(wrapper)) {
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	  if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = ps_bool;
 		stack[sp++].u.tf = false;
 	    }
 	}
-	if ( sp>sizeof(stack)/sizeof(stack[0])*4/5 ) {
+	if ( sp>(int)(sizeof(stack)/sizeof(stack[0])*4/5) ) {
 	    /* We don't interpret all of postscript */
 	    /* Sometimes we leave garbage on the stack that a real PS interp */
 	    /*  would have handled. If the stack gets too deep, clean out the */
@@ -1086,7 +1086,7 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	    if ( ccnt>0 )
 		AddTok(&gb,tokbuf,tok==pt_namelit);
 	    else {
-		if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	      if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		    stack[sp].type = ps_instr;
 		    if ( gb.pt==NULL )
 			stack[sp++].u.str = copy("");
@@ -1099,7 +1099,7 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	} else if ( tok==pt_unknown && (kv=lookup(&dict,tokbuf))!=NULL ) {
 	    if ( kv->type == ps_instr )
 		pushio(wrapper,NULL,copy(kv->u.str),0);
-	    else if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    else if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = kv->type;
 		stack[sp++].u = kv->u;
 		if ( kv->type==ps_instr || kv->type==ps_lit || kv->type==ps_string )
@@ -1116,7 +1116,7 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 		tok = pt_setcachedevice;
 	    else if ( strcmp(tokbuf,"SetWid")==0 ) {
 		tok = pt_setcharwidth;
-		if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+		if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		    stack[sp].type = ps_num;
 		    stack[sp++].u.val = 0;
 		}
@@ -1174,19 +1174,19 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	}
 	switch ( tok ) {
 	  case pt_number:
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = ps_num;
 		stack[sp++].u.val = dval;
 	    }
 	  break;
 	  case pt_string:
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = ps_string;
 		stack[sp++].u.str = copyn(tokbuf+1,strlen(tokbuf)-2);
 	    }
 	  break;
 	  case pt_true: case pt_false:
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = ps_bool;
 		stack[sp++].u.tf = tok==pt_true;
 	    }
@@ -1201,7 +1201,7 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	    }
 	  break;
 	  case pt_count:
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = ps_num;
 		stack[sp].u.val = sp;
 		++sp;
@@ -1228,7 +1228,7 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	    }
 	  break;
 	  case pt_dup:
-	    if ( sp>0 && sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp>0 && sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp] = stack[sp-1];
 		if ( stack[sp].type==ps_string || stack[sp].type==ps_instr ||
 			stack[sp].type==ps_lit )
@@ -1243,7 +1243,7 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	  case pt_copy:
 	    if ( sp>0 ) {
 		int n = stack[--sp].u.val;
-		if ( n+sp<sizeof(stack)/sizeof(stack[0]) ) {
+		if ( n+sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		    int i;
 		    for ( i=0; i<n; ++i ) {
 			stack[sp] = stack[sp-n];
@@ -1741,7 +1741,7 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	  case pt_namelit:
 	    if ( strcmp(tokbuf,"CharProcs")==0 && ec!=NULL ) {
 		HandleType3Reference(wrapper,ec,transform,tokbuf,tokbufsize);
-	    } else if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    } else if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = ps_lit;
 		stack[sp++].u.str = copy(tokbuf);
 	    }
@@ -1980,20 +1980,21 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	    }
 	  break;
 	  case pt_currentlinecap: case pt_currentlinejoin:
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = ps_num;
 		stack[sp++].u.val = tok==pt_currentlinecap?linecap:linejoin;
 	    }
 	  break;
 	  case pt_currentlinewidth:
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = ps_num;
 		stack[sp++].u.val = linewidth;
 	    }
 	  break;
 	  case pt_currentdash:
-	    if ( sp+1<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp+1<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		struct pskeydict dict;
+		dict.is_executable = 0;
 		for ( i=0; i<DASH_MAX && dashes[i]!=0; ++i );
 		dict.cnt = dict.max = i;
 		dict.entries = gcalloc(i,sizeof(struct pskeyval));
@@ -2008,7 +2009,7 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	    }
 	  break;
 	  case pt_currentgray:
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = ps_num;
 		stack[sp++].u.val = (3*((fore>>16)&0xff) + 6*((fore>>8)&0xff) + (fore&0xff))/2550.;
 	    }
@@ -2028,7 +2029,7 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	    }
 	  break;
 	  case pt_currenthsbcolor: case pt_currentrgbcolor:
-	    if ( sp+2<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp+2<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = stack[sp+1].type = stack[sp+2].type = ps_num;
 		if ( tok==pt_currentrgbcolor ) {
 		    stack[sp++].u.val = ((fore>>16)&0xff)/255.;
@@ -2067,7 +2068,7 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	  case pt_sethsbcolor:
 	    if ( sp>=3 ) {
 		real h = stack[sp-3].u.val, s = stack[sp-2].u.val, b = stack[sp-1].u.val;
-		int r,g,bl;
+		int r=0,g=0,bl=0;
 		if ( s==0 )	/* it's grey */
 		    fore = ((int) (b*255)) * 0x010101;
 		else {
@@ -2100,7 +2101,7 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	    }
 	  break;
 	  case pt_currentcmykcolor:
-	    if ( sp+3<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp+3<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		real c,m,y,k;
 		stack[sp].type = stack[sp+1].type = stack[sp+2].type = stack[sp+3].type = ps_num;
 		y = 1.-(fore&0xff)/255.;
@@ -2136,7 +2137,7 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	    }
 	  break;
 	  case pt_currentpoint:
-	    if ( sp+1<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp+1<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = ps_num;
 		stack[sp++].u.val = current.x;
 		stack[sp].type = ps_num;
@@ -2182,7 +2183,7 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	  /* We don't do these right, but at least we'll avoid some errors with this hack */
 	  case pt_save: case pt_currentmatrix:
 	    /* push some junk on the stack */
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = ps_num;
 		stack[sp++].u.val = 0;
 	    }
@@ -2220,14 +2221,14 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	  break;
 	  case pt_null:
 	    /* push a 0. I don't handle pointers properly */
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].u.val = 0;
 		stack[sp++].type = ps_num;
 	    }
 	  break;
 	  case pt_currentoverprint:
 	    /* push false. I don't handle this properly */
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].u.val = 0;
 		stack[sp++].type = ps_bool;
 	    }
@@ -2239,7 +2240,7 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	  break;
 	  case pt_currentflat:
 	    /* push 1.0 (default value). I don't handle this properly */
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0]) )) {
 		stack[sp].u.val = 1.0;
 		stack[sp++].type = ps_num;
 	    }
@@ -2251,7 +2252,7 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	  break;
 	  case pt_currentmiterlimit:
 	    /* push 10.0 (default value). I don't handle this properly */
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].u.val = 10.0;
 		stack[sp++].type = ps_num;
 	    }
@@ -2263,7 +2264,7 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	  break;
 	  case pt_currentpacking:
 	    /* push false (default value). I don't handle this properly */
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].u.val = 0;
 		stack[sp++].type = ps_bool;
 	    }
@@ -2275,7 +2276,7 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	  break;
 	  case pt_currentstrokeadjust:
 	    /* push false (default value). I don't handle this properly */
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].u.val = 0;
 		stack[sp++].type = ps_bool;
 	    }
@@ -2287,7 +2288,7 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	  break;
 	  case pt_currentsmoothness:
 	    /* default value is installation dependant. I don't handle this properly */
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].u.val = 1.0;
 		stack[sp++].type = ps_num;
 	    }
@@ -2299,7 +2300,7 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	  break;
 	  case pt_currentobjectformat:
 	    /* default value is installation dependant. I don't handle this properly */
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].u.val = 0.0;
 		stack[sp++].type = ps_num;
 	    }
@@ -2311,7 +2312,7 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	  break;
 	  case pt_currentglobal: case pt_currentshared:
 	    /* push false (default value). I don't handle this properly */
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].u.val = 0;
 		stack[sp++].type = ps_bool;
 	    }
@@ -2323,7 +2324,7 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	  break;
 
 	  case pt_openarray: case pt_mark:
-	    if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp++].type = ps_mark;
 	    }
 	  break;
@@ -2333,7 +2334,7 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	    break;
 	    if ( i==sp )
 		LogError( _("No mark in counttomark\n") );
-	    else if ( sp<sizeof(stack)/sizeof(stack[0]) ) {
+	    else if ( sp<(int)(sizeof(stack)/sizeof(stack[0])) ) {
 		stack[sp].type = ps_num;
 		stack[sp++].u.val = i;
 	    }
@@ -2363,6 +2364,7 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 		LogError( _("No mark in ] (close array)\n") );
 	    else {
 		struct pskeydict dict;
+		dict.is_executable = 0;
 		dict.cnt = dict.max = i;
 		dict.entries = gcalloc(i,sizeof(struct pskeyval));
 		for ( j=0; j<i; ++j ) {
@@ -2380,6 +2382,7 @@ static void _InterpretPS(IO *wrapper, EntityChar *ec, RetStack *rs) {
 	  case pt_array:
 	    if ( sp>=1 && stack[sp-1].type==ps_num ) {
 		struct pskeydict dict;
+		dict.is_executable = 0;
 		dict.cnt = dict.max = stack[sp-1].u.val;
 		dict.entries = gcalloc(dict.cnt,sizeof(struct pskeyval));
 		/* all entries are inited to void */
@@ -2618,6 +2621,8 @@ return( last );
 }
 
 void SFSplinesFromLayers(SplineFont *sf, int tostroke) {
+  (void)sf;
+  (void)tostroke;
 }
 
 static void EntityCharCorrectDir(EntityChar *ec) {
@@ -3082,7 +3087,7 @@ SplineChar *PSCharStringToSplines(uint8 *type1, int len, struct pscontext *conte
     SplinePointList *cur=NULL, *oldcur=NULL;
     RefChar *r1, *r2, *rlast=NULL;
     DBasePoint current;
-    real dx, dy, dx2, dy2, dx3, dy3, dx4, dy4, dx5, dy5, dx6, dy6;
+    real dx, dy, dx2, dy2, dx3, dy3, dx4, dy4, dx5, dy5, dx6=0, dy6;
     SplinePoint *pt;
     /* subroutines may be nested to a depth of 10 */
     struct substate { unsigned char *type1; int len; int subnum; } pcstack[11];
@@ -3744,7 +3749,7 @@ SplineChar *PSCharStringToSplines(uint8 *type1, int len, struct pscontext *conte
 		sp = 0;
 	    }
 	    if ( v==19 || v==20 ) {		/* hintmask, cntrmask */
-		int bytes = (hint_cnt+7)/8;
+	      unsigned bytes = (hint_cnt+7)/8;
 		if ( bytes>sizeof(HintMask) ) bytes = sizeof(HintMask);
 		if ( v==19 ) {
 		    ret->hstem = HintsAppend(ret->hstem,activeh); activeh=NULL;
@@ -3752,12 +3757,12 @@ SplineChar *PSCharStringToSplines(uint8 *type1, int len, struct pscontext *conte
 		    if ( pending_hm==NULL )
 			pending_hm = chunkalloc(sizeof(HintMask));
 		    memcpy(pending_hm,type1,bytes);
-		} else if ( cp<sizeof(counters)/sizeof(counters[0]) ) {
+		} else if ( cp<(int)(sizeof(counters)/sizeof(counters[0])) ) {
 		    counters[cp] = chunkalloc(sizeof(HintMask));
 		    memcpy(counters[cp],type1,bytes);
 		    ++cp;
 		}
-		if ( bytes!=hint_cnt/8 ) {
+		if ( bytes!=(unsigned)hint_cnt/8 ) {
 		    int mask = 0xff>>(hint_cnt&7);
 		    if ( type1[bytes-1]&mask )
 			LogError( _("Hint mask (or counter mask) with too many hints in %s\n"), name );
