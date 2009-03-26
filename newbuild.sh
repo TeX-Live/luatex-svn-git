@@ -54,7 +54,7 @@ then
   B=newbuild-windows
   OLDPATH=$PATH
   PATH=/usr/mingw32/mingw32/bin:$PATH
-  CONFHOST="--target=i386-pc-mingw32"
+  CONFHOST="--host=i386-pc-mingw32"
 fi
 
 # ----------
