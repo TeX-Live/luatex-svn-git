@@ -1168,7 +1168,10 @@ handle_encmap (lua_State *L, struct encmap *map, int notdef_loc) {
   if (map->backmax > 0 && map->backmap != NULL) {
     lua_newtable(L);
     for (i=0;i<map->backmax;i++) {
-      if (map->backmap[i]!=-1) {
+      if (map->backmap[i]!=-1) { /* TODO: check this, because valgrind sometimes says
+                                    "Conditional jump or move depends on uninitialised value(s)"
+                                    needs a test file.
+                                 */ 
         if (i<notdef_loc)
           lua_pushnumber(L,(i+1));
         else
@@ -2226,14 +2229,16 @@ ff_info (lua_State *L) {
     lua_error(L);
   } else {
 	if (sf->next != NULL) {
+      SplineFont *sf_next;
 	  i = 1;
 	  lua_newtable(L);
 	  while (sf) {
 		do_ff_info(L, sf);
 		lua_rawseti(L,-2,i);
 		i++;
+        sf_next = sf->next;
 		SplineFontFree(sf);
-		sf = sf->next;
+		sf = sf_next;
 	  }
 	} else {
 	  do_ff_info(L, sf);
