@@ -16,7 +16,7 @@ luatex_CPPFLAGS += $(OBSDCOMPAT_INCLUDES) -I$(srcdir)/libmd5
 luatex_CPPFLAGS += -Iluatexdir -I$(srcdir)/luatexdir -I$(srcdir)/luatexdir/lua51
 luatex_CPPFLAGS += -Dextra_version_info=`date +-%Y%m%d%H`
 
-luatex_ldadd = libluatex.a libff.a libluamisc.a libzzip.a liblua51.a
+luatex_ldadd = libluatex.a libff.a libluamisc.a libzzip.a libluasocket.a liblua51.a
 luatex_ldadd += $(LIBPNG_LIBS) $(ZLIB_LIBS) $(XPDF_LIBS)
 luatex_ldadd += $(OBSDCOMPAT_LIBS) libmd5.a
 
@@ -227,11 +227,128 @@ EXTRA_DIST += \
 	luatexdir/zziplib/zzipback.sed \
 	luatexdir/zziplib/zzipwrap
 
+
+## luasocket
+##
+EXTRA_LIBRARIES += libluasocket.a
+
+libluasocket_a_DEPENDENCIES = $(KPSE_ZLIB_DEPEND) libzzip.a 
+
+libluasocket_a_CPPFLAGS = \
+	-I$(top_srcdir)/luatexdir/luasocket -I$(srcdir)/luatexdir/lua51
+
+libluasocket_a_SOURCES = \
+	luatexdir/luasocket/src/auxiliar.c \
+	luatexdir/luasocket/src/auxiliar.h \
+	luatexdir/luasocket/src/buffer.c \
+	luatexdir/luasocket/src/buffer.h \
+	luatexdir/luasocket/src/except.c \
+	luatexdir/luasocket/src/except.h \
+	luatexdir/luasocket/src/inet.c \
+	luatexdir/luasocket/src/inet.h \
+	luatexdir/luasocket/src/io.c \
+	luatexdir/luasocket/src/io.h \
+	luatexdir/luasocket/src/lua_preload.c \
+	luatexdir/luasocket/src/luasocket.c \
+	luatexdir/luasocket/src/luasocket.h \
+	luatexdir/luasocket/src/mime.c \
+	luatexdir/luasocket/src/mime.h \
+	luatexdir/luasocket/src/options.c \
+	luatexdir/luasocket/src/options.h \
+	luatexdir/luasocket/src/select.c \
+	luatexdir/luasocket/src/select.h \
+	luatexdir/luasocket/src/socket.c \
+	luatexdir/luasocket/src/socket.h \
+	luatexdir/luasocket/src/tcp.c \
+	luatexdir/luasocket/src/tcp.h \
+	luatexdir/luasocket/src/timeout.c \
+	luatexdir/luasocket/src/timeout.h \
+	luatexdir/luasocket/src/udp.c \
+	luatexdir/luasocket/src/udp.h \
+	luatexdir/luasocket/src/usocket.h
+
+
+EXTRA_DIST += \
+	luatexdir/luasocket/src/socket_lua.c \
+    luatexdir/luasocket/src/ftp_lua.c \
+    luatexdir/luasocket/src/http_lua.c \
+    luatexdir/luasocket/src/smtp_lua.c \
+    luatexdir/luasocket/src/tp_lua.c \
+    luatexdir/luasocket/src/url_lua.c \
+    luatexdir/luasocket/src/ltn12_lua.c \
+    luatexdir/luasocket/src/mime_lua.c
+
+## Not used
+##
+EXTRA_DIST += \
+	luatexdir/luasocket/src/Makefile \
+	luatexdir/luasocket/src/unix.c \
+	luatexdir/luasocket/src/unix.h \
+	luatexdir/luasocket/src/usocket.c \
+	luatexdir/luasocket/src/wsocket.c \
+	luatexdir/luasocket/src/wsocket.h \
+    luatexdir/luasocket/src/ftp.lua \
+    luatexdir/luasocket/src/http.lua \
+    luatexdir/luasocket/src/smtp.lua \
+    luatexdir/luasocket/src/tp.lua \
+    luatexdir/luasocket/src/url.lua \
+    luatexdir/luasocket/src/ltn12.lua \
+    luatexdir/luasocket/src/mime.lua \
+    luatexdir/luasocket/LICENSE \
+    luatexdir/luasocket/NEW \
+    luatexdir/luasocket/README \
+    luatexdir/luasocket/config \
+    luatexdir/luasocket/luasocket.sln \
+    luatexdir/luasocket/makefile \
+    luatexdir/luasocket/mime.vcproj \
+    luatexdir/luasocket/socket.vcproj \
+    luatexdir/luasocket/doc/dns.html \
+    luatexdir/luasocket/doc/ftp.html \
+    luatexdir/luasocket/doc/http.html \
+    luatexdir/luasocket/doc/index.html \
+    luatexdir/luasocket/doc/installation.html \
+    luatexdir/luasocket/doc/introduction.html \
+    luatexdir/luasocket/doc/ltn12.html \
+    luatexdir/luasocket/doc/luasocket.png \
+    luatexdir/luasocket/doc/mime.html \
+    luatexdir/luasocket/doc/reference.css \
+    luatexdir/luasocket/doc/reference.html \
+    luatexdir/luasocket/doc/smtp.html \
+    luatexdir/luasocket/doc/socket.html \
+    luatexdir/luasocket/doc/tcp.html \
+    luatexdir/luasocket/doc/udp.html \
+    luatexdir/luasocket/doc/url.html \
+    luatexdir/luasocket/etc/README \
+    luatexdir/luasocket/etc/b64.lua \
+    luatexdir/luasocket/etc/check-links.lua \
+    luatexdir/luasocket/etc/check-memory.lua \
+    luatexdir/luasocket/etc/dict.lua \
+    luatexdir/luasocket/etc/dispatch.lua \
+    luatexdir/luasocket/etc/eol.lua \
+    luatexdir/luasocket/etc/forward.lua \
+    luatexdir/luasocket/etc/get.lua \
+    luatexdir/luasocket/etc/lp.lua \
+    luatexdir/luasocket/etc/qp.lua \
+    luatexdir/luasocket/etc/tftp.lua \
+    luatexdir/luasocket/samples/README \
+    luatexdir/luasocket/samples/cddb.lua \
+    luatexdir/luasocket/samples/daytimeclnt.lua \
+    luatexdir/luasocket/samples/echoclnt.lua \
+    luatexdir/luasocket/samples/echosrvr.lua \
+    luatexdir/luasocket/samples/listener.lua \
+    luatexdir/luasocket/samples/lpr.lua \
+    luatexdir/luasocket/samples/talker.lua \
+    luatexdir/luasocket/samples/tinyirc.lua \
+    luatexdir/luasocket/test/README \
+    luatexdir/luasocket/test/testclnt.lua \
+    luatexdir/luasocket/test/testsrvr.lua \
+    luatexdir/luasocket/test/testsupport.lua
+
 ## libluamisc (luafilesystem, luamd5, luapeg, luazip, luazlib, luaprofiler,
 ## and slnunicode)
 EXTRA_LIBRARIES += libluamisc.a
 
-libluamisc_a_DEPENDENCIES = $(KPSE_ZLIB_DEPEND) libzzip.a
+libluamisc_a_DEPENDENCIES = libluasocket.a
 
 libluamisc_a_CPPFLAGS = \
 	$(KPSE_ZLIB_INCLUDES) \
@@ -524,7 +641,6 @@ libluatex_a_SOURCES = \
 	luatexdir/lua/lkpselib.c  \
 	luatexdir/lua/llanglib.c  \
 	luatexdir/lua/llualib.c  \
-	luatexdir/lua/lmplib.c  \
 	luatexdir/lua/lnodelib.c  \
 	luatexdir/lua/loslibext.c  \
 	luatexdir/lua/lpdflib.c  \
@@ -544,6 +660,7 @@ libluatex_a_SOURCES = \
 	luatexdir/managed-sa.c \
 	luatexdir/managed-sa.h \
 	luatexdir/mathcodes.c \
+    luatexdir/mp/lmplib.c \
 	luatexdir/nodes.h \
 	luatexdir/pdf/pagetree.c \
 	luatexdir/pdf/pdfpage.c \
@@ -580,16 +697,20 @@ $(libluatex_a_SOURCES): $(lua_mp_c_h)
 endif LUATEX
 
 ## These files are mutually dependent
-lua_mp_c_h = luatexdir/mp.c luatexdir/mplib.h luatexdir/mpmp.h
-lua_mp_c_h += luatexdir/mppsout.h luatexdir/psout.c
-lua_mp_web =  luatexdir/avl.h luatexdir/lua/mp.w luatexdir/lua/psout.w
+lua_mp_c_h =  luatexdir/mp.c luatexdir/mplib.h luatexdir/mpmp.h
+lua_mp_c_h += luatexdir/mppsout.h luatexdir/psout.c luatexdir/mplibps.h 
+lua_mp_c_h += luatexdir/memio.c luatexdir/tfmin.c
+lua_mp_web =  luatexdir/mp/avl.h luatexdir/mp/avl.c luatexdir/mp/mp.w luatexdir/mp/psout.w
+lua_mp_web += luatexdir/mp/memio.w luatexdir/mp/tfmin.w
 $(lua_mp_c_h): mp-ctangle
 mp-ctangle: ctangle $(lua_mp_web) luatexd.h
 	$(mkdir_p) luatexdir
 	CWEBINPUTS=$(srcdir)/luatexdir/lua $(ctangle) mp.w
 	CWEBINPUTS=$(srcdir)/luatexdir/lua $(ctangle) psout.w
+	CWEBINPUTS=$(srcdir)/luatexdir/lua $(ctangle) tfmin.w
+	CWEBINPUTS=$(srcdir)/luatexdir/lua $(ctangle) memio.w
 	rm -f $(lua_mp_c_h)
-	mv mp.c mplib.h mpmp.h mppsout.h psout.c luatexdir
+	mv mp.c mplib.h mpmp.h mppsout.h psout.c mplibps.h memio.c tfmin.c luatexdir
 	echo timestamp >$@
 	touch $(lua_mp_c_h)
 
