@@ -1145,7 +1145,8 @@ return( NULL );
 	inlen = strlen(in);
 	outlen = (inlen+1)*4;
 	out = (char *) (ret = galloc(outlen+2));
-	iconv(toutf8,&in,&inlen,&out,&outlen);
+	if(iconv(toutf8,&in,&inlen,&out,&outlen)==-1)
+return( NULL );
 	out[0] = '\0';
 	iconv_close(toutf8);
 #ifdef UNICHAR_16
@@ -1159,7 +1160,8 @@ return( NULL );
 	inlen = strlen(in);
 	outlen = (inlen+1)*4;
 	out = (char *) (ret = galloc(outlen+2));
-	iconv(toutf8,&in,&inlen,&out,&outlen);
+	if(iconv(toutf8,&in,&inlen,&out,&outlen)==-1)
+return( NULL );
 	out[0] = '\0';
 	iconv_close(toutf8);
     free(in);
