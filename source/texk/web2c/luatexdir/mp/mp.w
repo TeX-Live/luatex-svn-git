@@ -3989,13 +3989,31 @@ static char *mp_utoa (unsigned v) {
 void mp_do_snprintf (char *str, int size, const char *format, ...) {
   const char *fmt;
   char *res;
+  int fw, pad;
   va_list ap;
   va_start(ap, format);
   res = str;
   for (fmt=format;*fmt!='\0';fmt++) {
      if (*fmt=='%') {
+       fw=0;
+       pad=0;
        fmt++;
        switch(*fmt) {
+       case '0':
+         pad=1;
+         break;
+       case '1':
+       case '2':
+       case '3':
+       case '4':
+       case '5':
+       case '6':
+       case '7':
+       case '8':
+       case '9':
+          assert(fw==0);
+          fw = *fmt-'0';
+          break;
        case 's':
          {
            char *s = va_arg(ap, char *);
@@ -4009,6 +4027,13 @@ void mp_do_snprintf (char *str, int size, const char *format, ...) {
        case 'd':
          {
            char *s = mp_itoa(va_arg(ap, int));
+           if (fw) {
+              int ffw = fw-strlen(s);
+              while (ffw-->0) {
+                 *res = (pad ? '0' : ' ');
+                 if (size-->0) res++;
+              }
+           }
            if (s != NULL) {
              while (*s) {
                *res = *s++;
@@ -4020,6 +4045,13 @@ void mp_do_snprintf (char *str, int size, const char *format, ...) {
        case 'u':
          {
            char *s = mp_utoa(va_arg(ap, unsigned));
+           if (fw) {
+              int ffw = fw-strlen(s);
+              while (ffw-->0) {
+                 *res = (pad ? '0' : ' ');
+                 if (size-->0) res++;
+              }
+           }
            if (s != NULL) {
              while (*s) {
                *res = *s++;
