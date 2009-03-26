@@ -152,6 +152,19 @@ am_libluamisc_a_OBJECTS = libluamisc_a-lfs.$(OBJEXT) \
 	libluamisc_a-lgzip.$(OBJEXT) libluamisc_a-lzlib.$(OBJEXT) \
 	libluamisc_a-slnunico.$(OBJEXT)
 libluamisc_a_OBJECTS = $(am_libluamisc_a_OBJECTS)
+libluasocket_a_AR = $(AR) $(ARFLAGS)
+libluasocket_a_LIBADD =
+am_libluasocket_a_OBJECTS = libluasocket_a-auxiliar.$(OBJEXT) \
+	libluasocket_a-buffer.$(OBJEXT) \
+	libluasocket_a-except.$(OBJEXT) libluasocket_a-inet.$(OBJEXT) \
+	libluasocket_a-io.$(OBJEXT) \
+	libluasocket_a-lua_preload.$(OBJEXT) \
+	libluasocket_a-luasocket.$(OBJEXT) \
+	libluasocket_a-mime.$(OBJEXT) libluasocket_a-options.$(OBJEXT) \
+	libluasocket_a-select.$(OBJEXT) \
+	libluasocket_a-socket.$(OBJEXT) libluasocket_a-tcp.$(OBJEXT) \
+	libluasocket_a-timeout.$(OBJEXT) libluasocket_a-udp.$(OBJEXT)
+libluasocket_a_OBJECTS = $(am_libluasocket_a_OBJECTS)
 libluatex_a_AR = $(AR) $(ARFLAGS)
 libluatex_a_LIBADD =
 am_libluatex_a_OBJECTS = libluatex_a-dofont.$(OBJEXT) \
@@ -174,19 +187,19 @@ am_libluatex_a_OBJECTS = libluatex_a-dofont.$(OBJEXT) \
 	libluatex_a-lcallbacklib.$(OBJEXT) \
 	libluatex_a-lfontlib.$(OBJEXT) libluatex_a-limglib.$(OBJEXT) \
 	libluatex_a-lkpselib.$(OBJEXT) libluatex_a-llanglib.$(OBJEXT) \
-	libluatex_a-llualib.$(OBJEXT) libluatex_a-lmplib.$(OBJEXT) \
-	libluatex_a-lnodelib.$(OBJEXT) libluatex_a-loslibext.$(OBJEXT) \
-	libluatex_a-lpdflib.$(OBJEXT) libluatex_a-lstatslib.$(OBJEXT) \
+	libluatex_a-llualib.$(OBJEXT) libluatex_a-lnodelib.$(OBJEXT) \
+	libluatex_a-loslibext.$(OBJEXT) libluatex_a-lpdflib.$(OBJEXT) \
+	libluatex_a-lstatslib.$(OBJEXT) \
 	libluatex_a-ltexiolib.$(OBJEXT) libluatex_a-ltexlib.$(OBJEXT) \
 	libluatex_a-ltokenlib.$(OBJEXT) libluatex_a-luainit.$(OBJEXT) \
 	libluatex_a-luanode.$(OBJEXT) libluatex_a-luastuff.$(OBJEXT) \
 	libluatex_a-luatex.$(OBJEXT) libluatex_a-luatoken.$(OBJEXT) \
 	libluatex_a-texluac.$(OBJEXT) libluatex_a-makecpool.$(OBJEXT) \
 	libluatex_a-managed-sa.$(OBJEXT) \
-	libluatex_a-mathcodes.$(OBJEXT) libluatex_a-pagetree.$(OBJEXT) \
-	libluatex_a-pdfpage.$(OBJEXT) libluatex_a-filename.$(OBJEXT) \
-	libluatex_a-linebreak.$(OBJEXT) libluatex_a-math.$(OBJEXT) \
-	libluatex_a-mlist.$(OBJEXT) \
+	libluatex_a-mathcodes.$(OBJEXT) libluatex_a-lmplib.$(OBJEXT) \
+	libluatex_a-pagetree.$(OBJEXT) libluatex_a-pdfpage.$(OBJEXT) \
+	libluatex_a-filename.$(OBJEXT) libluatex_a-linebreak.$(OBJEXT) \
+	libluatex_a-math.$(OBJEXT) libluatex_a-mlist.$(OBJEXT) \
 	libluatex_a-postlinebreak.$(OBJEXT) \
 	libluatex_a-primitive.$(OBJEXT) \
 	libluatex_a-texdeffont.$(OBJEXT) \
@@ -195,7 +208,8 @@ am_libluatex_a_OBJECTS = libluatex_a-dofont.$(OBJEXT) \
 	libluatex_a-avl.$(OBJEXT) libluatex_a-avlstuff.$(OBJEXT) \
 	libluatex_a-synctex.$(OBJEXT) libluatex_a-utils.$(OBJEXT) \
 	libluatex_a-writezip.$(OBJEXT)
-am__objects_1 = libluatex_a-mp.$(OBJEXT) libluatex_a-psout.$(OBJEXT)
+am__objects_1 = libluatex_a-mp.$(OBJEXT) libluatex_a-psout.$(OBJEXT) \
+	libluatex_a-memio.$(OBJEXT) libluatex_a-tfmin.$(OBJEXT)
 nodist_libluatex_a_OBJECTS = $(am__objects_1)
 libluatex_a_OBJECTS = $(am_libluatex_a_OBJECTS) \
 	$(nodist_libluatex_a_OBJECTS)
@@ -288,8 +302,9 @@ nodist_luatex_OBJECTS = $(am__objects_3) luatex-luatex-pool.$(OBJEXT) \
 	luatex-luatexextra.$(OBJEXT)
 luatex_OBJECTS = $(nodist_luatex_OBJECTS)
 am__DEPENDENCIES_2 = libluatex.a libff.a libluamisc.a libzzip.a \
-	liblua51.a $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) libmd5.a
+	libluasocket.a liblua51.a $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) libmd5.a
 am__DEPENDENCIES_3 = $(proglib) $(am__DEPENDENCIES_1)
 am_md5main_OBJECTS = md5main-md5main.$(OBJEXT)
 md5main_OBJECTS = $(am_md5main_OBJECTS)
@@ -386,30 +401,31 @@ CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(libff_a_SOURCES) $(liblua51_a_SOURCES) \
 	$(libluamisc_a_SOURCES) $(EXTRA_libluamisc_a_SOURCES) \
-	$(libluatex_a_SOURCES) $(EXTRA_libluatex_a_SOURCES) \
-	$(nodist_libluatex_a_SOURCES) $(libmd5_a_SOURCES) \
-	$(nodist_libmf_a_SOURCES) $(libzzip_a_SOURCES) \
-	$(nodist_bibtex_SOURCES) $(nodist_ctangle_SOURCES) \
-	$(nodist_ctangleboot_SOURCES) $(nodist_ctie_SOURCES) \
-	$(nodist_cweave_SOURCES) $(nodist_dvicopy_SOURCES) \
-	$(nodist_dvitomp_SOURCES) $(nodist_dvitype_SOURCES) \
-	$(gftodvi_SOURCES) $(nodist_gftodvi_SOURCES) \
-	$(nodist_gftopk_SOURCES) $(nodist_gftype_SOURCES) \
-	$(nodist_luatangle_SOURCES) $(nodist_luatex_SOURCES) \
-	$(nodist_EXTRA_luatex_SOURCES) $(md5main_SOURCES) \
-	$(nodist_mf_SOURCES) $(nodist_mf_nowin_SOURCES) \
-	$(nodist_mft_SOURCES) $(nodist_patgen_SOURCES) \
-	$(nodist_pktogf_SOURCES) $(nodist_pktype_SOURCES) \
-	$(nodist_pltotf_SOURCES) $(nodist_pooltype_SOURCES) \
-	$(nodist_tangle_SOURCES) $(nodist_tangleboot_SOURCES) \
-	$(nodist_tex_SOURCES) $(nodist_tftopl_SOURCES) \
-	$(nodist_tie_SOURCES) $(nodist_vftovp_SOURCES) \
-	$(nodist_vptovf_SOURCES) $(nodist_weave_SOURCES)
+	$(libluasocket_a_SOURCES) $(libluatex_a_SOURCES) \
+	$(EXTRA_libluatex_a_SOURCES) $(nodist_libluatex_a_SOURCES) \
+	$(libmd5_a_SOURCES) $(nodist_libmf_a_SOURCES) \
+	$(libzzip_a_SOURCES) $(nodist_bibtex_SOURCES) \
+	$(nodist_ctangle_SOURCES) $(nodist_ctangleboot_SOURCES) \
+	$(nodist_ctie_SOURCES) $(nodist_cweave_SOURCES) \
+	$(nodist_dvicopy_SOURCES) $(nodist_dvitomp_SOURCES) \
+	$(nodist_dvitype_SOURCES) $(gftodvi_SOURCES) \
+	$(nodist_gftodvi_SOURCES) $(nodist_gftopk_SOURCES) \
+	$(nodist_gftype_SOURCES) $(nodist_luatangle_SOURCES) \
+	$(nodist_luatex_SOURCES) $(nodist_EXTRA_luatex_SOURCES) \
+	$(md5main_SOURCES) $(nodist_mf_SOURCES) \
+	$(nodist_mf_nowin_SOURCES) $(nodist_mft_SOURCES) \
+	$(nodist_patgen_SOURCES) $(nodist_pktogf_SOURCES) \
+	$(nodist_pktype_SOURCES) $(nodist_pltotf_SOURCES) \
+	$(nodist_pooltype_SOURCES) $(nodist_tangle_SOURCES) \
+	$(nodist_tangleboot_SOURCES) $(nodist_tex_SOURCES) \
+	$(nodist_tftopl_SOURCES) $(nodist_tie_SOURCES) \
+	$(nodist_vftovp_SOURCES) $(nodist_vptovf_SOURCES) \
+	$(nodist_weave_SOURCES)
 DIST_SOURCES = $(libff_a_SOURCES) $(liblua51_a_SOURCES) \
 	$(libluamisc_a_SOURCES) $(EXTRA_libluamisc_a_SOURCES) \
-	$(libluatex_a_SOURCES) $(EXTRA_libluatex_a_SOURCES) \
-	$(libmd5_a_SOURCES) $(libzzip_a_SOURCES) $(gftodvi_SOURCES) \
-	$(md5main_SOURCES)
+	$(libluasocket_a_SOURCES) $(libluatex_a_SOURCES) \
+	$(EXTRA_libluatex_a_SOURCES) $(libmd5_a_SOURCES) \
+	$(libzzip_a_SOURCES) $(gftodvi_SOURCES) $(md5main_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-dvi-recursive install-exec-recursive \
@@ -601,8 +617,8 @@ nodist_man_MANS = ctiedir/ctie.1 tiedir/tie.1
 dist_check_SCRIPTS = tangle.test luatexdir/luatangle.test \
 	libmd5/md5.test
 TESTS = tangle.test tiedir/tie.test $(am__append_7) libmd5/md5.test
-EXTRA_LIBRARIES = libmf.a liblua51.a libzzip.a libluamisc.a libff.a \
-	libluatex.a libmd5.a
+EXTRA_LIBRARIES = libmf.a liblua51.a libzzip.a libluasocket.a \
+	libluamisc.a libff.a libluatex.a libmd5.a
 EXTRA_DIST = PROJECTS cftests config.h cpascal.h help.h tangle.web \
 	tangle.ch tangleboot.p cwebdir ctangleboot.c cwebboot.c \
 	$(web_programs:=.web) $(web_programs:=.ch) ctiedir tiedir \
@@ -634,6 +650,68 @@ EXTRA_DIST = PROJECTS cftests config.h cpascal.h help.h tangle.web \
 	luatexdir/zziplib/zzip/fseeko.h \
 	luatexdir/zziplib/zzip/zziplib.wpj \
 	luatexdir/zziplib/zzipback.sed luatexdir/zziplib/zzipwrap \
+	luatexdir/luasocket/src/socket_lua.c \
+	luatexdir/luasocket/src/ftp_lua.c \
+	luatexdir/luasocket/src/http_lua.c \
+	luatexdir/luasocket/src/smtp_lua.c \
+	luatexdir/luasocket/src/tp_lua.c \
+	luatexdir/luasocket/src/url_lua.c \
+	luatexdir/luasocket/src/ltn12_lua.c \
+	luatexdir/luasocket/src/mime_lua.c \
+	luatexdir/luasocket/src/Makefile \
+	luatexdir/luasocket/src/unix.c luatexdir/luasocket/src/unix.h \
+	luatexdir/luasocket/src/usocket.c \
+	luatexdir/luasocket/src/wsocket.c \
+	luatexdir/luasocket/src/wsocket.h \
+	luatexdir/luasocket/src/ftp.lua \
+	luatexdir/luasocket/src/http.lua \
+	luatexdir/luasocket/src/smtp.lua \
+	luatexdir/luasocket/src/tp.lua luatexdir/luasocket/src/url.lua \
+	luatexdir/luasocket/src/ltn12.lua \
+	luatexdir/luasocket/src/mime.lua luatexdir/luasocket/LICENSE \
+	luatexdir/luasocket/NEW luatexdir/luasocket/README \
+	luatexdir/luasocket/config luatexdir/luasocket/luasocket.sln \
+	luatexdir/luasocket/makefile luatexdir/luasocket/mime.vcproj \
+	luatexdir/luasocket/socket.vcproj \
+	luatexdir/luasocket/doc/dns.html \
+	luatexdir/luasocket/doc/ftp.html \
+	luatexdir/luasocket/doc/http.html \
+	luatexdir/luasocket/doc/index.html \
+	luatexdir/luasocket/doc/installation.html \
+	luatexdir/luasocket/doc/introduction.html \
+	luatexdir/luasocket/doc/ltn12.html \
+	luatexdir/luasocket/doc/luasocket.png \
+	luatexdir/luasocket/doc/mime.html \
+	luatexdir/luasocket/doc/reference.css \
+	luatexdir/luasocket/doc/reference.html \
+	luatexdir/luasocket/doc/smtp.html \
+	luatexdir/luasocket/doc/socket.html \
+	luatexdir/luasocket/doc/tcp.html \
+	luatexdir/luasocket/doc/udp.html \
+	luatexdir/luasocket/doc/url.html \
+	luatexdir/luasocket/etc/README luatexdir/luasocket/etc/b64.lua \
+	luatexdir/luasocket/etc/check-links.lua \
+	luatexdir/luasocket/etc/check-memory.lua \
+	luatexdir/luasocket/etc/dict.lua \
+	luatexdir/luasocket/etc/dispatch.lua \
+	luatexdir/luasocket/etc/eol.lua \
+	luatexdir/luasocket/etc/forward.lua \
+	luatexdir/luasocket/etc/get.lua luatexdir/luasocket/etc/lp.lua \
+	luatexdir/luasocket/etc/qp.lua \
+	luatexdir/luasocket/etc/tftp.lua \
+	luatexdir/luasocket/samples/README \
+	luatexdir/luasocket/samples/cddb.lua \
+	luatexdir/luasocket/samples/daytimeclnt.lua \
+	luatexdir/luasocket/samples/echoclnt.lua \
+	luatexdir/luasocket/samples/echosrvr.lua \
+	luatexdir/luasocket/samples/listener.lua \
+	luatexdir/luasocket/samples/lpr.lua \
+	luatexdir/luasocket/samples/talker.lua \
+	luatexdir/luasocket/samples/tinyirc.lua \
+	luatexdir/luasocket/test/README \
+	luatexdir/luasocket/test/testclnt.lua \
+	luatexdir/luasocket/test/testsrvr.lua \
+	luatexdir/luasocket/test/testsupport.lua \
 	luatexdir/luafilesystem/Makefile \
 	luatexdir/luafilesystem/Makefile.win \
 	luatexdir/luafilesystem/README luatexdir/luafilesystem/config \
@@ -777,10 +855,11 @@ luatex_tangle = WEBINPUTS=$(srcdir)/luatexdir $(buildenv) $(LUATANGLE)
 luatex_CPPFLAGS = $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(XPDF_INCLUDES) \
 	$(OBSDCOMPAT_INCLUDES) -I$(srcdir)/libmd5 -Iluatexdir \
 	-I$(srcdir)/luatexdir -I$(srcdir)/luatexdir/lua51 \
-	-Dextra_version_info=`date +-%Y%m%d%H`
-luatex_ldadd = libluatex.a libff.a libluamisc.a libzzip.a liblua51.a \
-	$(LIBPNG_LIBS) $(ZLIB_LIBS) $(XPDF_LIBS) $(OBSDCOMPAT_LIBS) \
-	libmd5.a
+	-I$(srcdir)/luatexdir/mp -Dextra_version_info=`date \
+	+-%Y%m%d%H`
+luatex_ldadd = libluatex.a libff.a libluamisc.a libzzip.a \
+	libluasocket.a liblua51.a $(LIBPNG_LIBS) $(ZLIB_LIBS) \
+	$(XPDF_LIBS) $(OBSDCOMPAT_LIBS) libmd5.a
 luatex_LDADD = $(luatex_ldadd) $(LDADD) $(socketlibs)
 luatex_DEPENDENCIES = $(proglib) libluatex.a $(LIBPNG_DEPEND) \
 	$(ZLIB_DEPEND) $(XPDF_DEPEND) $(OBSDCOMPAT_DEPEND) libmd5.a
@@ -882,7 +961,41 @@ libzzip_a_SOURCES = \
 	luatexdir/zziplib/zzip/zip.c \
 	luatexdir/zziplib/zzip/zzip.h
 
-libluamisc_a_DEPENDENCIES = $(KPSE_ZLIB_DEPEND) libzzip.a
+libluasocket_a_DEPENDENCIES = $(KPSE_ZLIB_DEPEND) libzzip.a 
+libluasocket_a_CPPFLAGS = \
+	-I$(top_srcdir)/luatexdir/luasocket -I$(srcdir)/luatexdir/lua51
+
+libluasocket_a_SOURCES = \
+	luatexdir/luasocket/src/auxiliar.c \
+	luatexdir/luasocket/src/auxiliar.h \
+	luatexdir/luasocket/src/buffer.c \
+	luatexdir/luasocket/src/buffer.h \
+	luatexdir/luasocket/src/except.c \
+	luatexdir/luasocket/src/except.h \
+	luatexdir/luasocket/src/inet.c \
+	luatexdir/luasocket/src/inet.h \
+	luatexdir/luasocket/src/io.c \
+	luatexdir/luasocket/src/io.h \
+	luatexdir/luasocket/src/lua_preload.c \
+	luatexdir/luasocket/src/luasocket.c \
+	luatexdir/luasocket/src/luasocket.h \
+	luatexdir/luasocket/src/mime.c \
+	luatexdir/luasocket/src/mime.h \
+	luatexdir/luasocket/src/options.c \
+	luatexdir/luasocket/src/options.h \
+	luatexdir/luasocket/src/select.c \
+	luatexdir/luasocket/src/select.h \
+	luatexdir/luasocket/src/socket.c \
+	luatexdir/luasocket/src/socket.h \
+	luatexdir/luasocket/src/tcp.c \
+	luatexdir/luasocket/src/tcp.h \
+	luatexdir/luasocket/src/timeout.c \
+	luatexdir/luasocket/src/timeout.h \
+	luatexdir/luasocket/src/udp.c \
+	luatexdir/luasocket/src/udp.h \
+	luatexdir/luasocket/src/usocket.h
+
+libluamisc_a_DEPENDENCIES = libluasocket.a
 libluamisc_a_CPPFLAGS = \
 	$(KPSE_ZLIB_INCLUDES) \
 	-I$(top_srcdir)/luatexdir/lua51 \
@@ -1082,7 +1195,6 @@ libluatex_a_SOURCES = \
 	luatexdir/lua/lkpselib.c  \
 	luatexdir/lua/llanglib.c  \
 	luatexdir/lua/llualib.c  \
-	luatexdir/lua/lmplib.c  \
 	luatexdir/lua/lnodelib.c  \
 	luatexdir/lua/loslibext.c  \
 	luatexdir/lua/lpdflib.c  \
@@ -1102,6 +1214,7 @@ libluatex_a_SOURCES = \
 	luatexdir/managed-sa.c \
 	luatexdir/managed-sa.h \
 	luatexdir/mathcodes.c \
+    luatexdir/mp/lmplib.c \
 	luatexdir/nodes.h \
 	luatexdir/pdf/pagetree.c \
 	luatexdir/pdf/pdfpage.c \
@@ -1131,8 +1244,11 @@ libluatex_a_SOURCES = \
 
 nodist_libluatex_a_SOURCES = $(lua_mp_c_h)
 lua_mp_c_h = luatexdir/mp.c luatexdir/mplib.h luatexdir/mpmp.h \
-	luatexdir/mppsout.h luatexdir/psout.c
-lua_mp_web = luatexdir/avl.h luatexdir/lua/mp.w luatexdir/lua/psout.w
+	luatexdir/mppsout.h luatexdir/psout.c luatexdir/mplibps.h \
+	luatexdir/memio.c luatexdir/tfmin.c
+lua_mp_web = luatexdir/mp/avl.h luatexdir/mp/avl.c luatexdir/mp/mp.w \
+	luatexdir/mp/psout.w luatexdir/mp/memio.w luatexdir/mp/tfmin.w
+lua_mp_CPPFLAGS = -I$(srcdir)/luatexdir/mp
 EXTRA_libluatex_a_SOURCES = luatexdir/font/macnames.c
 libmd5_a_CPPFLAGS = -I$(srcdir)/libmd5
 libmd5_a_SOURCES = libmd5/md5.c libmd5/md5.h
@@ -1215,6 +1331,10 @@ libluamisc.a: $(libluamisc_a_OBJECTS) $(libluamisc_a_DEPENDENCIES)
 	-rm -f libluamisc.a
 	$(libluamisc_a_AR) libluamisc.a $(libluamisc_a_OBJECTS) $(libluamisc_a_LIBADD)
 	$(RANLIB) libluamisc.a
+libluasocket.a: $(libluasocket_a_OBJECTS) $(libluasocket_a_DEPENDENCIES) 
+	-rm -f libluasocket.a
+	$(libluasocket_a_AR) libluasocket.a $(libluasocket_a_OBJECTS) $(libluasocket_a_LIBADD)
+	$(RANLIB) libluasocket.a
 libluatex.a: $(libluatex_a_OBJECTS) $(libluatex_a_DEPENDENCIES) 
 	-rm -f libluatex.a
 	$(libluatex_a_AR) libluatex.a $(libluatex_a_OBJECTS) $(libluatex_a_LIBADD)
@@ -1487,6 +1607,20 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluamisc_a-slnudata.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluamisc_a-slnunico.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluamisc_a-stack.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluasocket_a-auxiliar.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluasocket_a-buffer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluasocket_a-except.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluasocket_a-inet.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluasocket_a-io.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluasocket_a-lua_preload.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluasocket_a-luasocket.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluasocket_a-mime.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluasocket_a-options.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluasocket_a-select.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluasocket_a-socket.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluasocket_a-tcp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluasocket_a-timeout.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluasocket_a-udp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-avl.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-avlstuff.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-dofont.Po@am__quote@
@@ -1521,6 +1655,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-mapfile.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-math.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-mathcodes.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-memio.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-mlist.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-mp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pagetree.Po@am__quote@
@@ -1541,6 +1676,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-texpdf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-textcodes.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-textoken.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-tfmin.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-tfmofm.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-tounicode.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-tt_glyf.Po@am__quote@
@@ -3086,6 +3222,202 @@ libluamisc_a-slnudata.obj: luatexdir/slnunicode/slnudata.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluamisc_a-slnudata.obj `if test -f 'luatexdir/slnunicode/slnudata.c'; then $(CYGPATH_W) 'luatexdir/slnunicode/slnudata.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/slnunicode/slnudata.c'; fi`
 
+libluasocket_a-auxiliar.o: luatexdir/luasocket/src/auxiliar.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-auxiliar.o -MD -MP -MF $(DEPDIR)/libluasocket_a-auxiliar.Tpo -c -o libluasocket_a-auxiliar.o `test -f 'luatexdir/luasocket/src/auxiliar.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/auxiliar.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-auxiliar.Tpo $(DEPDIR)/libluasocket_a-auxiliar.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/auxiliar.c' object='libluasocket_a-auxiliar.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-auxiliar.o `test -f 'luatexdir/luasocket/src/auxiliar.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/auxiliar.c
+
+libluasocket_a-auxiliar.obj: luatexdir/luasocket/src/auxiliar.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-auxiliar.obj -MD -MP -MF $(DEPDIR)/libluasocket_a-auxiliar.Tpo -c -o libluasocket_a-auxiliar.obj `if test -f 'luatexdir/luasocket/src/auxiliar.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/auxiliar.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/auxiliar.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-auxiliar.Tpo $(DEPDIR)/libluasocket_a-auxiliar.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/auxiliar.c' object='libluasocket_a-auxiliar.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-auxiliar.obj `if test -f 'luatexdir/luasocket/src/auxiliar.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/auxiliar.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/auxiliar.c'; fi`
+
+libluasocket_a-buffer.o: luatexdir/luasocket/src/buffer.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-buffer.o -MD -MP -MF $(DEPDIR)/libluasocket_a-buffer.Tpo -c -o libluasocket_a-buffer.o `test -f 'luatexdir/luasocket/src/buffer.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/buffer.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-buffer.Tpo $(DEPDIR)/libluasocket_a-buffer.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/buffer.c' object='libluasocket_a-buffer.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-buffer.o `test -f 'luatexdir/luasocket/src/buffer.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/buffer.c
+
+libluasocket_a-buffer.obj: luatexdir/luasocket/src/buffer.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-buffer.obj -MD -MP -MF $(DEPDIR)/libluasocket_a-buffer.Tpo -c -o libluasocket_a-buffer.obj `if test -f 'luatexdir/luasocket/src/buffer.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/buffer.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/buffer.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-buffer.Tpo $(DEPDIR)/libluasocket_a-buffer.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/buffer.c' object='libluasocket_a-buffer.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-buffer.obj `if test -f 'luatexdir/luasocket/src/buffer.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/buffer.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/buffer.c'; fi`
+
+libluasocket_a-except.o: luatexdir/luasocket/src/except.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-except.o -MD -MP -MF $(DEPDIR)/libluasocket_a-except.Tpo -c -o libluasocket_a-except.o `test -f 'luatexdir/luasocket/src/except.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/except.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-except.Tpo $(DEPDIR)/libluasocket_a-except.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/except.c' object='libluasocket_a-except.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-except.o `test -f 'luatexdir/luasocket/src/except.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/except.c
+
+libluasocket_a-except.obj: luatexdir/luasocket/src/except.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-except.obj -MD -MP -MF $(DEPDIR)/libluasocket_a-except.Tpo -c -o libluasocket_a-except.obj `if test -f 'luatexdir/luasocket/src/except.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/except.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/except.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-except.Tpo $(DEPDIR)/libluasocket_a-except.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/except.c' object='libluasocket_a-except.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-except.obj `if test -f 'luatexdir/luasocket/src/except.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/except.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/except.c'; fi`
+
+libluasocket_a-inet.o: luatexdir/luasocket/src/inet.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-inet.o -MD -MP -MF $(DEPDIR)/libluasocket_a-inet.Tpo -c -o libluasocket_a-inet.o `test -f 'luatexdir/luasocket/src/inet.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/inet.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-inet.Tpo $(DEPDIR)/libluasocket_a-inet.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/inet.c' object='libluasocket_a-inet.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-inet.o `test -f 'luatexdir/luasocket/src/inet.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/inet.c
+
+libluasocket_a-inet.obj: luatexdir/luasocket/src/inet.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-inet.obj -MD -MP -MF $(DEPDIR)/libluasocket_a-inet.Tpo -c -o libluasocket_a-inet.obj `if test -f 'luatexdir/luasocket/src/inet.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/inet.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/inet.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-inet.Tpo $(DEPDIR)/libluasocket_a-inet.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/inet.c' object='libluasocket_a-inet.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-inet.obj `if test -f 'luatexdir/luasocket/src/inet.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/inet.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/inet.c'; fi`
+
+libluasocket_a-io.o: luatexdir/luasocket/src/io.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-io.o -MD -MP -MF $(DEPDIR)/libluasocket_a-io.Tpo -c -o libluasocket_a-io.o `test -f 'luatexdir/luasocket/src/io.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/io.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-io.Tpo $(DEPDIR)/libluasocket_a-io.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/io.c' object='libluasocket_a-io.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-io.o `test -f 'luatexdir/luasocket/src/io.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/io.c
+
+libluasocket_a-io.obj: luatexdir/luasocket/src/io.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-io.obj -MD -MP -MF $(DEPDIR)/libluasocket_a-io.Tpo -c -o libluasocket_a-io.obj `if test -f 'luatexdir/luasocket/src/io.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/io.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/io.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-io.Tpo $(DEPDIR)/libluasocket_a-io.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/io.c' object='libluasocket_a-io.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-io.obj `if test -f 'luatexdir/luasocket/src/io.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/io.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/io.c'; fi`
+
+libluasocket_a-lua_preload.o: luatexdir/luasocket/src/lua_preload.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-lua_preload.o -MD -MP -MF $(DEPDIR)/libluasocket_a-lua_preload.Tpo -c -o libluasocket_a-lua_preload.o `test -f 'luatexdir/luasocket/src/lua_preload.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/lua_preload.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-lua_preload.Tpo $(DEPDIR)/libluasocket_a-lua_preload.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/lua_preload.c' object='libluasocket_a-lua_preload.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-lua_preload.o `test -f 'luatexdir/luasocket/src/lua_preload.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/lua_preload.c
+
+libluasocket_a-lua_preload.obj: luatexdir/luasocket/src/lua_preload.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-lua_preload.obj -MD -MP -MF $(DEPDIR)/libluasocket_a-lua_preload.Tpo -c -o libluasocket_a-lua_preload.obj `if test -f 'luatexdir/luasocket/src/lua_preload.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/lua_preload.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/lua_preload.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-lua_preload.Tpo $(DEPDIR)/libluasocket_a-lua_preload.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/lua_preload.c' object='libluasocket_a-lua_preload.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-lua_preload.obj `if test -f 'luatexdir/luasocket/src/lua_preload.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/lua_preload.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/lua_preload.c'; fi`
+
+libluasocket_a-luasocket.o: luatexdir/luasocket/src/luasocket.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-luasocket.o -MD -MP -MF $(DEPDIR)/libluasocket_a-luasocket.Tpo -c -o libluasocket_a-luasocket.o `test -f 'luatexdir/luasocket/src/luasocket.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/luasocket.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-luasocket.Tpo $(DEPDIR)/libluasocket_a-luasocket.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/luasocket.c' object='libluasocket_a-luasocket.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-luasocket.o `test -f 'luatexdir/luasocket/src/luasocket.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/luasocket.c
+
+libluasocket_a-luasocket.obj: luatexdir/luasocket/src/luasocket.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-luasocket.obj -MD -MP -MF $(DEPDIR)/libluasocket_a-luasocket.Tpo -c -o libluasocket_a-luasocket.obj `if test -f 'luatexdir/luasocket/src/luasocket.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/luasocket.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/luasocket.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-luasocket.Tpo $(DEPDIR)/libluasocket_a-luasocket.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/luasocket.c' object='libluasocket_a-luasocket.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-luasocket.obj `if test -f 'luatexdir/luasocket/src/luasocket.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/luasocket.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/luasocket.c'; fi`
+
+libluasocket_a-mime.o: luatexdir/luasocket/src/mime.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-mime.o -MD -MP -MF $(DEPDIR)/libluasocket_a-mime.Tpo -c -o libluasocket_a-mime.o `test -f 'luatexdir/luasocket/src/mime.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/mime.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-mime.Tpo $(DEPDIR)/libluasocket_a-mime.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/mime.c' object='libluasocket_a-mime.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-mime.o `test -f 'luatexdir/luasocket/src/mime.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/mime.c
+
+libluasocket_a-mime.obj: luatexdir/luasocket/src/mime.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-mime.obj -MD -MP -MF $(DEPDIR)/libluasocket_a-mime.Tpo -c -o libluasocket_a-mime.obj `if test -f 'luatexdir/luasocket/src/mime.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/mime.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/mime.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-mime.Tpo $(DEPDIR)/libluasocket_a-mime.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/mime.c' object='libluasocket_a-mime.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-mime.obj `if test -f 'luatexdir/luasocket/src/mime.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/mime.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/mime.c'; fi`
+
+libluasocket_a-options.o: luatexdir/luasocket/src/options.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-options.o -MD -MP -MF $(DEPDIR)/libluasocket_a-options.Tpo -c -o libluasocket_a-options.o `test -f 'luatexdir/luasocket/src/options.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/options.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-options.Tpo $(DEPDIR)/libluasocket_a-options.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/options.c' object='libluasocket_a-options.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-options.o `test -f 'luatexdir/luasocket/src/options.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/options.c
+
+libluasocket_a-options.obj: luatexdir/luasocket/src/options.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-options.obj -MD -MP -MF $(DEPDIR)/libluasocket_a-options.Tpo -c -o libluasocket_a-options.obj `if test -f 'luatexdir/luasocket/src/options.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/options.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/options.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-options.Tpo $(DEPDIR)/libluasocket_a-options.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/options.c' object='libluasocket_a-options.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-options.obj `if test -f 'luatexdir/luasocket/src/options.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/options.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/options.c'; fi`
+
+libluasocket_a-select.o: luatexdir/luasocket/src/select.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-select.o -MD -MP -MF $(DEPDIR)/libluasocket_a-select.Tpo -c -o libluasocket_a-select.o `test -f 'luatexdir/luasocket/src/select.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/select.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-select.Tpo $(DEPDIR)/libluasocket_a-select.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/select.c' object='libluasocket_a-select.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-select.o `test -f 'luatexdir/luasocket/src/select.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/select.c
+
+libluasocket_a-select.obj: luatexdir/luasocket/src/select.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-select.obj -MD -MP -MF $(DEPDIR)/libluasocket_a-select.Tpo -c -o libluasocket_a-select.obj `if test -f 'luatexdir/luasocket/src/select.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/select.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/select.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-select.Tpo $(DEPDIR)/libluasocket_a-select.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/select.c' object='libluasocket_a-select.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-select.obj `if test -f 'luatexdir/luasocket/src/select.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/select.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/select.c'; fi`
+
+libluasocket_a-socket.o: luatexdir/luasocket/src/socket.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-socket.o -MD -MP -MF $(DEPDIR)/libluasocket_a-socket.Tpo -c -o libluasocket_a-socket.o `test -f 'luatexdir/luasocket/src/socket.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/socket.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-socket.Tpo $(DEPDIR)/libluasocket_a-socket.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/socket.c' object='libluasocket_a-socket.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-socket.o `test -f 'luatexdir/luasocket/src/socket.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/socket.c
+
+libluasocket_a-socket.obj: luatexdir/luasocket/src/socket.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-socket.obj -MD -MP -MF $(DEPDIR)/libluasocket_a-socket.Tpo -c -o libluasocket_a-socket.obj `if test -f 'luatexdir/luasocket/src/socket.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/socket.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/socket.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-socket.Tpo $(DEPDIR)/libluasocket_a-socket.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/socket.c' object='libluasocket_a-socket.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-socket.obj `if test -f 'luatexdir/luasocket/src/socket.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/socket.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/socket.c'; fi`
+
+libluasocket_a-tcp.o: luatexdir/luasocket/src/tcp.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-tcp.o -MD -MP -MF $(DEPDIR)/libluasocket_a-tcp.Tpo -c -o libluasocket_a-tcp.o `test -f 'luatexdir/luasocket/src/tcp.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/tcp.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-tcp.Tpo $(DEPDIR)/libluasocket_a-tcp.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/tcp.c' object='libluasocket_a-tcp.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-tcp.o `test -f 'luatexdir/luasocket/src/tcp.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/tcp.c
+
+libluasocket_a-tcp.obj: luatexdir/luasocket/src/tcp.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-tcp.obj -MD -MP -MF $(DEPDIR)/libluasocket_a-tcp.Tpo -c -o libluasocket_a-tcp.obj `if test -f 'luatexdir/luasocket/src/tcp.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/tcp.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/tcp.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-tcp.Tpo $(DEPDIR)/libluasocket_a-tcp.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/tcp.c' object='libluasocket_a-tcp.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-tcp.obj `if test -f 'luatexdir/luasocket/src/tcp.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/tcp.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/tcp.c'; fi`
+
+libluasocket_a-timeout.o: luatexdir/luasocket/src/timeout.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-timeout.o -MD -MP -MF $(DEPDIR)/libluasocket_a-timeout.Tpo -c -o libluasocket_a-timeout.o `test -f 'luatexdir/luasocket/src/timeout.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/timeout.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-timeout.Tpo $(DEPDIR)/libluasocket_a-timeout.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/timeout.c' object='libluasocket_a-timeout.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-timeout.o `test -f 'luatexdir/luasocket/src/timeout.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/timeout.c
+
+libluasocket_a-timeout.obj: luatexdir/luasocket/src/timeout.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-timeout.obj -MD -MP -MF $(DEPDIR)/libluasocket_a-timeout.Tpo -c -o libluasocket_a-timeout.obj `if test -f 'luatexdir/luasocket/src/timeout.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/timeout.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/timeout.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-timeout.Tpo $(DEPDIR)/libluasocket_a-timeout.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/timeout.c' object='libluasocket_a-timeout.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-timeout.obj `if test -f 'luatexdir/luasocket/src/timeout.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/timeout.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/timeout.c'; fi`
+
+libluasocket_a-udp.o: luatexdir/luasocket/src/udp.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-udp.o -MD -MP -MF $(DEPDIR)/libluasocket_a-udp.Tpo -c -o libluasocket_a-udp.o `test -f 'luatexdir/luasocket/src/udp.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/udp.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-udp.Tpo $(DEPDIR)/libluasocket_a-udp.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/udp.c' object='libluasocket_a-udp.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-udp.o `test -f 'luatexdir/luasocket/src/udp.c' || echo '$(srcdir)/'`luatexdir/luasocket/src/udp.c
+
+libluasocket_a-udp.obj: luatexdir/luasocket/src/udp.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluasocket_a-udp.obj -MD -MP -MF $(DEPDIR)/libluasocket_a-udp.Tpo -c -o libluasocket_a-udp.obj `if test -f 'luatexdir/luasocket/src/udp.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/udp.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/udp.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluasocket_a-udp.Tpo $(DEPDIR)/libluasocket_a-udp.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/udp.c' object='libluasocket_a-udp.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-udp.obj `if test -f 'luatexdir/luasocket/src/udp.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/udp.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/udp.c'; fi`
+
 libluatex_a-dofont.o: luatexdir/font/dofont.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-dofont.o -MD -MP -MF $(DEPDIR)/libluatex_a-dofont.Tpo -c -o libluatex_a-dofont.o `test -f 'luatexdir/font/dofont.c' || echo '$(srcdir)/'`luatexdir/font/dofont.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-dofont.Tpo $(DEPDIR)/libluatex_a-dofont.Po
@@ -3576,20 +3908,6 @@ libluatex_a-llualib.obj: luatexdir/lua/llualib.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-llualib.obj `if test -f 'luatexdir/lua/llualib.c'; then $(CYGPATH_W) 'luatexdir/lua/llualib.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/llualib.c'; fi`
 
-libluatex_a-lmplib.o: luatexdir/lua/lmplib.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-lmplib.o -MD -MP -MF $(DEPDIR)/libluatex_a-lmplib.Tpo -c -o libluatex_a-lmplib.o `test -f 'luatexdir/lua/lmplib.c' || echo '$(srcdir)/'`luatexdir/lua/lmplib.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-lmplib.Tpo $(DEPDIR)/libluatex_a-lmplib.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/lua/lmplib.c' object='libluatex_a-lmplib.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-lmplib.o `test -f 'luatexdir/lua/lmplib.c' || echo '$(srcdir)/'`luatexdir/lua/lmplib.c
-
-libluatex_a-lmplib.obj: luatexdir/lua/lmplib.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-lmplib.obj -MD -MP -MF $(DEPDIR)/libluatex_a-lmplib.Tpo -c -o libluatex_a-lmplib.obj `if test -f 'luatexdir/lua/lmplib.c'; then $(CYGPATH_W) 'luatexdir/lua/lmplib.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/lmplib.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-lmplib.Tpo $(DEPDIR)/libluatex_a-lmplib.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/lua/lmplib.c' object='libluatex_a-lmplib.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-lmplib.obj `if test -f 'luatexdir/lua/lmplib.c'; then $(CYGPATH_W) 'luatexdir/lua/lmplib.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/lmplib.c'; fi`
-
 libluatex_a-lnodelib.o: luatexdir/lua/lnodelib.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-lnodelib.o -MD -MP -MF $(DEPDIR)/libluatex_a-lnodelib.Tpo -c -o libluatex_a-lnodelib.o `test -f 'luatexdir/lua/lnodelib.c' || echo '$(srcdir)/'`luatexdir/lua/lnodelib.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-lnodelib.Tpo $(DEPDIR)/libluatex_a-lnodelib.Po
@@ -3813,6 +4131,20 @@ libluatex_a-mathcodes.obj: luatexdir/mathcodes.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/mathcodes.c' object='libluatex_a-mathcodes.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-mathcodes.obj `if test -f 'luatexdir/mathcodes.c'; then $(CYGPATH_W) 'luatexdir/mathcodes.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/mathcodes.c'; fi`
+
+libluatex_a-lmplib.o: luatexdir/mp/lmplib.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-lmplib.o -MD -MP -MF $(DEPDIR)/libluatex_a-lmplib.Tpo -c -o libluatex_a-lmplib.o `test -f 'luatexdir/mp/lmplib.c' || echo '$(srcdir)/'`luatexdir/mp/lmplib.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-lmplib.Tpo $(DEPDIR)/libluatex_a-lmplib.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/mp/lmplib.c' object='libluatex_a-lmplib.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-lmplib.o `test -f 'luatexdir/mp/lmplib.c' || echo '$(srcdir)/'`luatexdir/mp/lmplib.c
+
+libluatex_a-lmplib.obj: luatexdir/mp/lmplib.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-lmplib.obj -MD -MP -MF $(DEPDIR)/libluatex_a-lmplib.Tpo -c -o libluatex_a-lmplib.obj `if test -f 'luatexdir/mp/lmplib.c'; then $(CYGPATH_W) 'luatexdir/mp/lmplib.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/mp/lmplib.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-lmplib.Tpo $(DEPDIR)/libluatex_a-lmplib.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/mp/lmplib.c' object='libluatex_a-lmplib.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-lmplib.obj `if test -f 'luatexdir/mp/lmplib.c'; then $(CYGPATH_W) 'luatexdir/mp/lmplib.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/mp/lmplib.c'; fi`
 
 libluatex_a-pagetree.o: luatexdir/pdf/pagetree.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-pagetree.o -MD -MP -MF $(DEPDIR)/libluatex_a-pagetree.Tpo -c -o libluatex_a-pagetree.o `test -f 'luatexdir/pdf/pagetree.c' || echo '$(srcdir)/'`luatexdir/pdf/pagetree.c
@@ -4107,6 +4439,34 @@ libluatex_a-psout.obj: luatexdir/psout.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/psout.c' object='libluatex_a-psout.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-psout.obj `if test -f 'luatexdir/psout.c'; then $(CYGPATH_W) 'luatexdir/psout.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/psout.c'; fi`
+
+libluatex_a-memio.o: luatexdir/memio.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-memio.o -MD -MP -MF $(DEPDIR)/libluatex_a-memio.Tpo -c -o libluatex_a-memio.o `test -f 'luatexdir/memio.c' || echo '$(srcdir)/'`luatexdir/memio.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-memio.Tpo $(DEPDIR)/libluatex_a-memio.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/memio.c' object='libluatex_a-memio.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-memio.o `test -f 'luatexdir/memio.c' || echo '$(srcdir)/'`luatexdir/memio.c
+
+libluatex_a-memio.obj: luatexdir/memio.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-memio.obj -MD -MP -MF $(DEPDIR)/libluatex_a-memio.Tpo -c -o libluatex_a-memio.obj `if test -f 'luatexdir/memio.c'; then $(CYGPATH_W) 'luatexdir/memio.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/memio.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-memio.Tpo $(DEPDIR)/libluatex_a-memio.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/memio.c' object='libluatex_a-memio.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-memio.obj `if test -f 'luatexdir/memio.c'; then $(CYGPATH_W) 'luatexdir/memio.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/memio.c'; fi`
+
+libluatex_a-tfmin.o: luatexdir/tfmin.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-tfmin.o -MD -MP -MF $(DEPDIR)/libluatex_a-tfmin.Tpo -c -o libluatex_a-tfmin.o `test -f 'luatexdir/tfmin.c' || echo '$(srcdir)/'`luatexdir/tfmin.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-tfmin.Tpo $(DEPDIR)/libluatex_a-tfmin.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tfmin.c' object='libluatex_a-tfmin.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-tfmin.o `test -f 'luatexdir/tfmin.c' || echo '$(srcdir)/'`luatexdir/tfmin.c
+
+libluatex_a-tfmin.obj: luatexdir/tfmin.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-tfmin.obj -MD -MP -MF $(DEPDIR)/libluatex_a-tfmin.Tpo -c -o libluatex_a-tfmin.obj `if test -f 'luatexdir/tfmin.c'; then $(CYGPATH_W) 'luatexdir/tfmin.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tfmin.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-tfmin.Tpo $(DEPDIR)/libluatex_a-tfmin.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tfmin.c' object='libluatex_a-tfmin.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-tfmin.obj `if test -f 'luatexdir/tfmin.c'; then $(CYGPATH_W) 'luatexdir/tfmin.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tfmin.c'; fi`
 
 libmd5_a-md5.o: libmd5/md5.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmd5_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmd5_a-md5.o -MD -MP -MF $(DEPDIR)/libmd5_a-md5.Tpo -c -o libmd5_a-md5.o `test -f 'libmd5/md5.c' || echo '$(srcdir)/'`libmd5/md5.c
@@ -5444,10 +5804,12 @@ luatangle.p: tangle $(luatangle_sources)
 $(lua_mp_c_h): mp-ctangle
 mp-ctangle: ctangle $(lua_mp_web) luatexd.h
 	$(mkdir_p) luatexdir
-	CWEBINPUTS=$(srcdir)/luatexdir/lua $(ctangle) mp.w
-	CWEBINPUTS=$(srcdir)/luatexdir/lua $(ctangle) psout.w
+	CWEBINPUTS=$(srcdir)/luatexdir/mp $(ctangle) mp.w
+	CWEBINPUTS=$(srcdir)/luatexdir/mp $(ctangle) psout.w
+	CWEBINPUTS=$(srcdir)/luatexdir/mp $(ctangle) tfmin.w
+	CWEBINPUTS=$(srcdir)/luatexdir/mp $(ctangle) memio.w
 	rm -f $(lua_mp_c_h)
-	mv mp.c mplib.h mpmp.h mppsout.h psout.c luatexdir
+	mv mp.c mplib.h mpmp.h mppsout.h psout.c mplibps.h memio.c tfmin.c luatexdir
 	echo timestamp >$@
 	touch $(lua_mp_c_h)
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

@@ -13,7 +13,7 @@ luatex_tangle = WEBINPUTS=$(srcdir)/luatexdir $(buildenv) $(LUATANGLE)
 
 luatex_CPPFLAGS = $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(XPDF_INCLUDES)
 luatex_CPPFLAGS += $(OBSDCOMPAT_INCLUDES) -I$(srcdir)/libmd5
-luatex_CPPFLAGS += -Iluatexdir -I$(srcdir)/luatexdir -I$(srcdir)/luatexdir/lua51
+luatex_CPPFLAGS += -Iluatexdir -I$(srcdir)/luatexdir -I$(srcdir)/luatexdir/lua51 -I$(srcdir)/luatexdir/mp
 luatex_CPPFLAGS += -Dextra_version_info=`date +-%Y%m%d%H`
 
 luatex_ldadd = libluatex.a libff.a libluamisc.a libzzip.a libluasocket.a liblua51.a
@@ -702,13 +702,14 @@ lua_mp_c_h += luatexdir/mppsout.h luatexdir/psout.c luatexdir/mplibps.h
 lua_mp_c_h += luatexdir/memio.c luatexdir/tfmin.c
 lua_mp_web =  luatexdir/mp/avl.h luatexdir/mp/avl.c luatexdir/mp/mp.w luatexdir/mp/psout.w
 lua_mp_web += luatexdir/mp/memio.w luatexdir/mp/tfmin.w
+lua_mp_CPPFLAGS = -I$(srcdir)/luatexdir/mp
 $(lua_mp_c_h): mp-ctangle
 mp-ctangle: ctangle $(lua_mp_web) luatexd.h
 	$(mkdir_p) luatexdir
-	CWEBINPUTS=$(srcdir)/luatexdir/lua $(ctangle) mp.w
-	CWEBINPUTS=$(srcdir)/luatexdir/lua $(ctangle) psout.w
-	CWEBINPUTS=$(srcdir)/luatexdir/lua $(ctangle) tfmin.w
-	CWEBINPUTS=$(srcdir)/luatexdir/lua $(ctangle) memio.w
+	CWEBINPUTS=$(srcdir)/luatexdir/mp $(ctangle) mp.w
+	CWEBINPUTS=$(srcdir)/luatexdir/mp $(ctangle) psout.w
+	CWEBINPUTS=$(srcdir)/luatexdir/mp $(ctangle) tfmin.w
+	CWEBINPUTS=$(srcdir)/luatexdir/mp $(ctangle) memio.w
 	rm -f $(lua_mp_c_h)
 	mv mp.c mplib.h mpmp.h mppsout.h psout.c mplibps.h memio.c tfmin.c luatexdir
 	echo timestamp >$@
