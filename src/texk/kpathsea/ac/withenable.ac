@@ -1,4 +1,0 @@
-## texk/kpathsea/ac/withenable.ac
-## configure options and TL libraries required for kpathsea
-KPSE_WITH_LIB([kpathsea])
-m4_include(kpse_TL[texk/kpathsea/ac/web2c.ac])
