@@ -28,6 +28,7 @@ fi
 ONLY_MAKE=FALSE
 STRIP_LUATEX=TRUE
 MINGWCROSS=FALSE
+PPCCROSS=FALSE
 JOBS_IF_PARALLEL=2
 MAX_LOAD_IF_PARALLEL=3.0
 
@@ -38,6 +39,8 @@ while [ "$1" != "" ] ; do
   then STRIP_LUATEX=FALSE ;
   elif [ "$1" = "--mingw" ] ;
   then MINGWCROSS=TRUE ;
+  elif [ "$1" = "--ppc" ] ;
+  then PPCCROSS=TRUE ;
   elif [ "$1" = "--parallel" ] ;
   then MAKE="$MAKE -j $JOBS_IF_PARALLEL -l $MAX_LOAD_IF_PARALLEL" ;
   fi ;
@@ -56,6 +59,17 @@ then
   PATH=/usr/mingw32/bin:$PATH
   CONFHOST="--host=mingw32 --build=i686-linux-gnu "
 fi
+
+if [ "$PPCCROSS" = "TRUE" ]
+then
+  B=ppc
+  CFLAGS="-arch ppc $CFLAGS"
+  XCFLAGS="-arch ppc $XCFLAGS"
+  CXXFLAGS="-arch ppc $CXXFLAGS"
+  LDFLAGS="-arch ppc $LDFLAGS" 
+  export CFLAGS CXXFLAGS LDFLAGS XCFLAGS  
+fi
+
 
 # ----------
 # clean up, if needed
