@@ -22491,7 +22491,7 @@ fi
 
 
 if test "x$enable_luatex" = xyes; then
-  ac_config_headers="$ac_config_headers ff-config.h:luatexdir/luafontforge/ff-config.in"
+  ac_config_headers="$ac_config_headers ff-config.h:luatexdir/luafontloader/ff-config.in"
 
 
 for ac_header in langinfo_h
@@ -24488,7 +24488,7 @@ do
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "libtool") CONFIG_COMMANDS="$CONFIG_COMMANDS libtool" ;;
     "c-auto.h") CONFIG_HEADERS="$CONFIG_HEADERS c-auto.h:c-auto.in" ;;
-    "ff-config.h") CONFIG_HEADERS="$CONFIG_HEADERS ff-config.h:luatexdir/luafontforge/ff-config.in" ;;
+    "ff-config.h") CONFIG_HEADERS="$CONFIG_HEADERS ff-config.h:luatexdir/luafontloader/ff-config.in" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "doc/Makefile") CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
     "lib/Makefile") CONFIG_FILES="$CONFIG_FILES lib/Makefile" ;;
