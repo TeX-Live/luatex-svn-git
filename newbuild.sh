@@ -53,8 +53,8 @@ if [ "$MINGWCROSS" = "TRUE" ]
 then
   B=newbuild-windows
   OLDPATH=$PATH
-  PATH=/usr/mingw32/mingw32/bin:$PATH
-  CONFHOST="--host=i386-pc-mingw32"
+  PATH=/usr/mingw32/bin:$PATH
+  CONFHOST="--host=mingw32 --build=i686-linux-gnu "
 fi
 
 # ----------
@@ -133,6 +133,7 @@ then
     --without-system-libpng \
     --without-system-teckit \
     --without-system-zlib \
+    --without-system-t1lib \
     --disable-shared    \
     --disable-largefile \
     || exit 1 
