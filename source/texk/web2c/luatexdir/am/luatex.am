@@ -155,7 +155,7 @@ EXTRA_LIBRARIES += libzzip.a
 libzzip_a_DEPENDENCIES = liblua51.a
 
 libzzip_a_CPPFLAGS = \
-	$(KPSE_ZLIB_INCLUDES) \
+	$(ZLIB_INCLUDES) \
 	-I$(top_srcdir)/luatexdir/zziplib
 
 libzzip_a_SOURCES = \
@@ -232,7 +232,7 @@ EXTRA_DIST += \
 ##
 EXTRA_LIBRARIES += libluasocket.a
 
-libluasocket_a_DEPENDENCIES = $(KPSE_ZLIB_DEPEND) libzzip.a 
+libluasocket_a_DEPENDENCIES = $(ZLIB_DEPEND) libzzip.a 
 
 libluasocket_a_CPPFLAGS = \
 	-I$(top_srcdir)/luatexdir/luasocket -I$(srcdir)/luatexdir/lua51
@@ -351,7 +351,7 @@ EXTRA_LIBRARIES += libluamisc.a
 libluamisc_a_DEPENDENCIES = libluasocket.a
 
 libluamisc_a_CPPFLAGS = \
-	$(KPSE_ZLIB_INCLUDES) \
+	$(ZLIB_INCLUDES) \
 	-I$(top_srcdir)/luatexdir/lua51 \
 	-I$(top_srcdir)/luatexdir/zziplib
 
@@ -720,4 +720,3 @@ EXTRA_DIST += \
 	luatexdir/depend.mk \
 	luatexdir/luatex.mk \
 	luatexdir/luatexlib.mk
-
