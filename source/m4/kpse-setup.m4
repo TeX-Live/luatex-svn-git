@@ -9,14 +9,16 @@
 
 # KPSE_SETUP(TOP-LEVEL)
 # ---------------------
-# Initialize path prefix kpse_TL to top-level teTeX / TeX live (TL) directory.
+# Initialize path prefix kpse_TL to top-level teTeX / TeX Live (TL) directory.
 # Sinclude all withenable.ac files providing:
 #   configure options --with-system-LIB, --with-LIB-includes, and --with-LIB-libdir
 #     for libraries
 #   configure option --without-PKG for programs
 #   library dependencies for programs and libraries
 AC_DEFUN([KPSE_SETUP],
-[m4_define([kpse_TL], [$1])
+[m4_define([kpse_TL], [$1])[]dnl
+m4_define([kpse_indent_26], [28])[]dnl
+m4_define([kpse_indent_28], [30])[]dnl
 KPSE_WEB2C_PREPARE
 m4_sinclude(kpse_TL[ac/withenable.ac])
 m4_sinclude(kpse_TL[utils/ac/withenable.ac])

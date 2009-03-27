@@ -718,6 +718,10 @@ enable_dvidvi
 enable_dviljk
 enable_dvipdfm
 enable_dvipdfmx
+enable_dvipng
+enable_debug
+enable_timing
+with_gs
 enable_dvipos
 enable_dvipsk
 enable_gsftopk
@@ -743,6 +747,7 @@ enable_tex4htk
 enable_ttf2pk
 enable_ttfdump
 enable_xdv2pdf
+enable_xdvik
 enable_xdvipdfmx
 with_system_kpathsea
 with_kpathsea_includes
@@ -1424,10 +1429,11 @@ Optional Features:
   --disable-tpic2pdftex   do not build the tpic2pdftex package
   --disable-vlna          do not build the vlna package
   --disable-web2c         do not build the web2c (TeX & Co.) package
-  --enable-auto-core      cause TeX&MF to dump core, given a certain filename
-  --disable-dump-share    make fmt/base/mem files architecture-dependent
-  --enable-fmtutil        use fmtutil for build dumps
-  --enable-ipc            enable TeX's --ipc option, i.e., pipe to a program
+  --enable-auto-core        cause TeX&MF to dump core, given a certain
+                            filename
+  --disable-dump-share      make fmt/base/mem files architecture-dependent
+  --enable-fmtutil          use fmtutil for build dumps
+  --enable-ipc              enable TeX's --ipc option, i.e., pipe to a program
   --disable-tex               do not compile and install TeX
   --enable-etex               compile and install e-TeX
   --enable-omega              compile and install Omega
@@ -1435,19 +1441,18 @@ Optional Features:
   --disable-pdftex            do not compile and install pdfTeX
   --disable-luatex            do not compile and install luaTeX
   --enable-xetex              compile and install XeTeX
-  --disable-mf            do not build METAFONT
+  --disable-mf              do not build METAFONT
   --enable-mf-nowin           build a separate non-windows-capable METAFONT
   --enable-epsfwin            include EPSF pseudo window support
   --enable-hp2627win          include HP 2627 window support
   --enable-mftalkwin          include mftalk (generic server) window support
   --enable-nextwin            include NeXT window support
   --enable-regiswin           include Regis window support
-  --enable-suntoolswin        include old Suntools (this is not X) window
-                              support
+  --enable-suntoolswin        include old Suntools (not X) window support
   --enable-tektronixwin       include Tektronix window support
   --enable-unitermwin         include Uniterm window support
-  --disable-mp            do not build METAPOST
-  --disable-web-progs     do not build WEB programs bibtex ... weave
+  --disable-mp              do not build METAPOST
+  --disable-web-progs       do not build WEB programs bibtex ... weave
   --enable-one            build the one (testing) package
   --disable-afm2pl        do not build the afm2pl package
   --disable-bibtex8       do not build the bibtex8 package
@@ -1460,6 +1465,9 @@ Optional Features:
   --disable-dviljk        do not build the dviljk package
   --disable-dvipdfm       do not build the dvipdfm package
   --disable-dvipdfmx      do not build the dvipdfmx package
+  --disable-dvipng        do not build the dvipng package
+  --disable-debug           Compile without debug (-d) option
+  --enable-timing           Output execution time of dvipng
   --disable-dvipos        do not build the dvipos package
   --disable-dvipsk        do not build the dvipsk package
   --disable-gsftopk       do not build the gsftopk package
@@ -1488,6 +1496,7 @@ Optional Features:
   --disable-ttf2pk        do not build the ttf2pk package
   --disable-ttfdump       do not build the ttfdump package
   --disable-xdv2pdf       do not build the xdv2pdf package
+  --disable-xdvik         do not build the xdvik package
   --disable-xdvipdfmx     do not build the xdvipdfmx package
   --disable-mktexmf-default   do not run mktexmf if MF source missing
   --disable-mktexpk-default   do not run mktexpk if PK font missing
@@ -1504,6 +1513,7 @@ Optional Packages:
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-editor=CMD       invoke CMD from the `e' option [vi +%d %s]
   --with-mf-x-toolkit     Use X toolkit for METAFONT
+  --with-gs=/PATH/TO/gs   Hard-wire the location of GhostScript
   --with-system-kpathsea  use installed kpathsea headers and library
   --with-kpathsea-includes=DIR
                           kpathsea headers installed in DIR
@@ -2031,7 +2041,6 @@ ac_configure="$SHELL $ac_aux_dir/configure"  # Please don't use this var.
 
 
 
-
 ## ac/withenable.ac
 
 ## utils/ac/withenable.ac
@@ -2549,6 +2558,47 @@ test "x$enable_dvipdfmx" = xno || {
 }
 
 
+## texk/dvipng/ac/withenable.ac
+## configure options and TL libraries required for dvipng
+# Check whether --enable-dvipng was given.
+if test "${enable_dvipng+set}" = set; then
+  enableval=$enable_dvipng;
+fi
+case $enable_dvipng in #(
+  yes|no);; #(
+  *) { $as_echo "$as_me:$LINENO: Assuming \`--enable-dvipng'" >&5
+$as_echo "$as_me: Assuming \`--enable-dvipng'" >&6;}
+     enable_dvipng=yes
+     ac_configure_args="$ac_configure_args '--enable-dvipng'";;
+esac
+
+test "x$enable_dvipng" = xno || {
+  need_kpathsea=yes
+  need_freetype2=yes
+  need_gd=yes
+  need_t1lib=yes
+}
+
+## texk/dvipng/ac/dvipng.ac
+## configure options for dvipng
+# Check whether --enable-debug was given.
+if test "${enable_debug+set}" = set; then
+  enableval=$enable_debug;
+fi
+
+# Check whether --enable-timing was given.
+if test "${enable_timing+set}" = set; then
+  enableval=$enable_timing;
+fi
+
+
+# Check whether --with-gs was given.
+if test "${with_gs+set}" = set; then
+  withval=$with_gs;
+fi
+
+
+
 ## texk/dvipos/ac/withenable.ac
 ## configure options and TL libraries required for dvipos
 # Check whether --enable-dvipos was given.
@@ -2644,7 +2694,7 @@ test "x$enable_lcdf_typetools" = xno || {
 }
 
 ## texk/lcdf-typetools/ac/lcdf-typetools.ac
-## configure options for lcdf-typetools.ac
+## configure options for lcdf-typetools
 # Check whether --enable-cfftot1 was given.
 if test "${enable_cfftot1+set}" = set; then
   enableval=$enable_cfftot1;
@@ -2851,6 +2901,26 @@ esac
 
 test "x$enable_xdv2pdf" = xno || {
   need_kpathsea=yes
+}
+
+
+## texk/xdvik/ac/withenable.ac
+## configure options and TL libraries required for xdvik
+# Check whether --enable-xdvik was given.
+if test "${enable_xdvik+set}" = set; then
+  enableval=$enable_xdvik;
+fi
+case $enable_xdvik in #(
+  yes|no);; #(
+  *) { $as_echo "$as_me:$LINENO: Assuming \`--enable-xdvik'" >&5
+$as_echo "$as_me: Assuming \`--enable-xdvik'" >&6;}
+     enable_xdvik=yes
+     ac_configure_args="$ac_configure_args '--enable-xdvik'";;
+esac
+
+test "x$enable_xdvik" = xno || {
+  need_kpathsea=yes
+  need_t1lib=yes
 }
 
 
