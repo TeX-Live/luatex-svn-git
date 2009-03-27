@@ -49,12 +49,12 @@ done
 #
 STRIP=strip
 
-B=newbuild
+B=build
 CONFHOST=
 
 if [ "$MINGWCROSS" = "TRUE" ]
 then
-  B=newbuild-windows
+  B=build-windows
   OLDPATH=$PATH
   PATH=/usr/mingw32/bin:$PATH
   CONFHOST="--host=mingw32 --build=i686-linux-gnu "
