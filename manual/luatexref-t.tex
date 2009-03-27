@@ -352,9 +352,6 @@ values are still accepted for the moment, although they generate a
 (rather pesky) warning.  This backward compatibility support will be
 removed starting with beta \type{0.41.0}.}
 
-This library used to be called \quote{fontforge}. The library
-is still available under that name for now,
-
 The last \syntax{<general text>} is expanded fully, and then fed
 into the \LUA\ interpreter. After reading and expansion has been applied to the
 \syntax{<general text>}, the resulting token list is converted to a
@@ -775,10 +772,11 @@ becomes opened (note that \TEX\ does not even know its \tex{jobname}
 yet at this point). See \in{chapter}[libraries] for more information
 about the \LUATEX-specific \LUA\ extension tables.
 
-The \LUA\ initialization script is loaded into \LUA\ state~0, and
-everything you do will remain visible during the rest of the run, with
-the exception of the aforementioned \luatex{tex}, \luatex{token},
-\luatex{node} and \luatex{pdf} tables: those will be initialized
+
+Everything you do in the \LUA\ initialization script will remain
+visible during the rest of the run, with the exception of the
+aforementioned \luatex{tex}, \luatex{token}, \luatex{node} and 
+\luatex{pdf} tables: those will be initialized 
 to their documented state after the execution of the script. You
 should not store anything in variables or within tables with these
 four global names, as they will be overwritten completely.
@@ -3023,8 +3021,6 @@ the \type{char} is a glyph id in the range 0 to 255; the returned
 \section{The \luatex{callback} library}
 
 This library has functions that register, find and list callbacks.
-
-The \luatex{callback} library is only available in \LUA\ state zero (0).
 
 \startfunctioncall
 id, error = callback.register(<string> callback_name,function callback_func)
@@ -7536,18 +7532,7 @@ Valid fields: \showfields{whatsit,late_lua}
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
 \NC attr      \NC \syntax{<node>}    \NC  \NC\NR
-\NC reg       \NC number  \NC \LUA\ state id number \NC\NR
 \NC data      \NC string  \NC data to execute\NC\NR
-\stoptabulate
-
-\subsubsection{close_lua nodes}
-
-Valid fields: \showfields{whatsit,close_lua}
-
-\starttabulate[|lT|l|p|]
-\NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
-\NC attr      \NC \syntax{<node>}    \NC  \NC\NR
-\NC reg    \NC number  \NC \LUA\ state id number\NC\NR
 \stoptabulate
 
 \subsubsection{pdf_colorstack  nodes}
