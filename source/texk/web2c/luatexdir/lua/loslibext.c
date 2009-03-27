@@ -27,6 +27,12 @@
 static const char _svn_version[] =
     "$Id: loslibext.c 1594 2008-11-28 13:32:48Z oneiros $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/lua/loslibext.c $";
 
+#if defined(_WIN32) || defined(WIN32) || defined(__NT__)
+#define MKDIR(a,b) mkdir(a)
+#else
+#define MKDIR(a,b) mkdir(a,b)
+#endif
+
 /* An attempt to figure out the basic platform, does not
   care about niceties like version numbers yet,
   and ignores platforms where luatex is unlikely to 
@@ -763,7 +769,7 @@ char *do_mkdtemp(char *tmpl)
         xes[4] = repl[v % 36];
         v /= 36;
         xes[5] = repl[v % 36];
-        if (mkdir(tmpl, S_IRUSR | S_IWUSR | S_IXUSR) >= 0) {
+        if (MKDIR(tmpl, S_IRUSR | S_IWUSR | S_IXUSR) >= 0) {
             dirs_made++;
             return tmpl;
         } else if (errno != EEXIST) {

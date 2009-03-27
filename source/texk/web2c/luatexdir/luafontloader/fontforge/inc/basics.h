@@ -31,6 +31,10 @@
 # include <vms_jackets.h>
 #endif
 #ifdef HAVE_CONFIG_H
+/* cross-compiler woes */
+#ifdef __MINGW32__
+#define _CTYPE_H_
+#endif
 # include "config.h"
 #endif
 #define gfree ff_gfree

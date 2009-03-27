@@ -27,6 +27,11 @@
 #ifndef _BASEVIEWS_H
 #define _BASEVIEWS_H
 
+/* cross-compiler woes */
+#if defined (small) 
+#undef small
+#endif
+
 #include "splinefont.h"
 
 enum widthtype { wt_width, wt_lbearing, wt_rbearing, wt_vwidth };

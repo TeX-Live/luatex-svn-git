@@ -2659,7 +2659,7 @@ static unsigned char *SplineChar2PS2(SplineChar *sc,int *len, int nomwid,
 return( ret );
 }
 
-static SplinePoint *LineTo(SplinePoint *last, int x, int y) {
+static SplinePoint *FFLineTo(SplinePoint *last, int x, int y) {
     SplinePoint *sp = SplinePointCreate(x,y);
     SplineMake3(last,sp);
 return( sp );
@@ -2678,17 +2678,17 @@ static void Type2NotDefSplines(SplineFont *sf,SplineChar *sc,int layer) {
 
     ss = chunkalloc(sizeof(SplineSet));
     ss->first = ss->last = SplinePointCreate(stem,0);
-    ss->last = LineTo(ss->last,stem,ymax);
-    ss->last = LineTo(ss->last,sc->width-stem,ymax);
-    ss->last = LineTo(ss->last,sc->width-stem,0);
+    ss->last = FFLineTo(ss->last,stem,ymax);
+    ss->last = FFLineTo(ss->last,sc->width-stem,ymax);
+    ss->last = FFLineTo(ss->last,sc->width-stem,0);
     SplineMake3(ss->last,ss->first);
     ss->last = ss->first;
 
     ss->next = inner = chunkalloc(sizeof(SplineSet));
     inner->first = inner->last = SplinePointCreate(2*stem,stem);
-    inner->last = LineTo(inner->last,sc->width-2*stem,stem);
-    inner->last = LineTo(inner->last,sc->width-2*stem,ymax-stem);
-    inner->last = LineTo(inner->last,2*stem,ymax-stem);
+    inner->last = FFLineTo(inner->last,sc->width-2*stem,stem);
+    inner->last = FFLineTo(inner->last,sc->width-2*stem,ymax-stem);
+    inner->last = FFLineTo(inner->last,2*stem,ymax-stem);
     SplineMake3(inner->last,inner->first);
     inner->last = inner->first;
 
