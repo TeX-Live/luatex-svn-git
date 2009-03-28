@@ -44,6 +44,11 @@ static const char _svn_version[] =
  *
  */
 
+/* temp here */
+extern void mk_shellcmdlist (char *v);
+extern int shell_cmd_is_allowed (char **cmd, char **safecmd, char **cmdname);
+extern void init_shell_escape (void);
+
 extern string normalize_quotes(const_string name, const_string mesg);
 
 const_string LUATEX_IHELP[] = {
@@ -151,44 +156,49 @@ int nosocket_option = 0;
 
 /* SunOS cc can't initialize automatic structs, so make this static.  */
 static struct option long_options[]
-= { {"fmt", 1, 0, 0},
-{"lua", 1, 0, 0},
-{"luaonly", 0, 0, 0},
-{"safer", 0, &safer_option, 1},
-{"nosocket", 0, &nosocket_option, 1},
-{"help", 0, 0, 0},
-{"ini", 0, &ini_version, 1},
-{"interaction", 1, 0, 0},
-{"halt-on-error", 0, &haltonerrorp, 1},
-{"kpathsea-debug", 1, 0, 0},
-{"progname", 1, 0, 0},
-{"version", 0, 0, 0},
-{"credits", 0, 0, 0},
-{"recorder", 0, &recorder_enabled, 1},
-{"etex", 0, 0, 0},
-{"output-comment", 1, 0, 0},
-{"output-directory", 1, 0, 0},
-{"draftmode", 0, 0, 0},
-{"output-format", 1, 0, 0},
-{"shell-escape", 0, &shellenabledp, 1},
-{"no-shell-escape", 0, &shellenabledp, -1},
-{"debug-format", 0, &debug_format_file, 1},
-{"file-line-error-style", 0, &filelineerrorstylep, 1},
-{"no-file-line-error-style", 0, &filelineerrorstylep, -1},
+= { { "fmt",                   1, 0, 0},
+{ "lua",                       1, 0, 0},
+{ "luaonly",                   0, 0, 0},
+{ "safer",                     0, &safer_option, 1},
+{ "nosocket",                  0, &nosocket_option, 1},
+{ "help",                      0, 0, 0},
+{ "ini",                       0, &ini_version, 1},
+{ "interaction",               1, 0, 0},
+{ "halt-on-error",             0, &haltonerrorp, 1},
+{ "kpathsea-debug",            1, 0, 0},
+{ "progname",                  1, 0, 0},
+{ "version",                   0, 0, 0},
+{ "credits",                   0, 0, 0},
+{ "recorder",                  0, &recorder_enabled, 1},
+{ "etex",                      0, 0, 0},
+{ "output-comment",            1, 0, 0},
+{ "output-directory",          1, 0, 0},
+{ "draftmode",                 0, 0, 0},
+{ "output-format",             1, 0, 0},
+{ "shell-escape",              0, &shellenabledp, 1},
+{ "no-shell-escape",           0, &shellenabledp, -1},
+{ "shell-escape",              0, &shellenabledp, 1 },
+{ "no-shell-escape",           0, &shellenabledp, -1 },
+{ "enable-write18",            0, &shellenabledp, 1 },
+{ "disable-write18",           0, &shellenabledp, -1 },
+{ "shell-restricted",          0, 0, 0 },
+{ "debug-format",              0, &debug_format_file, 1},
+{ "file-line-error-style",     0, &filelineerrorstylep, 1},
+{ "no-file-line-error-style",  0, &filelineerrorstylep, -1},
       /* Shorter option names for the above. */
-{"file-line-error", 0, &filelineerrorstylep, 1},
-{"no-file-line-error", 0, &filelineerrorstylep, -1},
-{"jobname", 1, 0, 0},
-{"parse-first-line", 0, &parsefirstlinep, 1},
-{"no-parse-first-line", 0, &parsefirstlinep, -1},
-{"translate-file", 1, 0, 0},
-{"default-translate-file", 1, 0, 0},
-{"8bit", 0, 0, 0},
-{"mktex", 1, 0, 0},
-{"no-mktex", 1, 0, 0},
+{ "file-line-error",           0, &filelineerrorstylep, 1},
+{ "no-file-line-error",        0, &filelineerrorstylep, -1},
+{ "jobname",                   1, 0, 0},
+{ "parse-first-line",          0, &parsefirstlinep, 1},
+{ "no-parse-first-line",       0, &parsefirstlinep, -1},
+{ "translate-file",            1, 0, 0},
+{ "default-translate-file",    1, 0, 0},
+{ "8bit",                      0, 0, 0},
+{ "mktex",                     1, 0, 0},
+{ "no-mktex",                  1, 0, 0},
 /* Synchronization: just like "interaction" above */
-{"synctex", 1, 0, 0},
-{0, 0, 0, 0}
+{ "synctex",                   1, 0, 0},
+{ 0,                           0, 0, 0}
 };
 
 static void parse_options(int argc, char **argv)
@@ -243,6 +253,10 @@ static void parse_options(int argc, char **argv)
                 output_comment[255] = 0;
             }
 
+        } else if (ARGUMENT_IS ("shell-restricted")) {
+            shellenabledp = 1;
+            restrictedshell = 1;
+      
         } else if (ARGUMENT_IS("output-format")) {
             pdf_output_option = 1;
             if (strcmp(optarg, "dvi") == 0) {
@@ -444,6 +458,7 @@ void init_kpse(void)
                              kpse_src_compile);
 
     kpse_set_program_name(argv[0], user_progname);
+    init_shell_escape(); /* set up 'restrictedshell' */
     program_name_set = 1;
 }
 
@@ -564,7 +579,7 @@ void lua_initialize(int ac, char **av)
         if (kpse_init != 0) {
             luainit = 0;        /* re-enable loading of texmf.cnf values, see luatex.ch */
             init_kpse();
-        }
+	}
         /* prohibit_file_trace (boolean) */
         tracefilenames = 1;
         get_lua_boolean("texconfig", "trace_file_names", &tracefilenames);
@@ -576,8 +591,29 @@ void lua_initialize(int ac, char **av)
         /* halt_on_error */
         haltonerrorp = false;
         get_lua_boolean("texconfig", "halt_on_error", &haltonerrorp);
+ 
+        /* restrictedshell */
+	char *v1 = NULL;
+        get_lua_string("texconfig", "shell_escape", &v1);
+	if (v1) {
+	  if (*v1 == 't' || *v1 == 'y' || *v1 == '1') {
+	    shellenabledp = 1;
+	  } else if (*v1 == 'p') {
+	    shellenabledp = 1;
+	    restrictedshell = 1;
+	  }
+	}
+	/* If shell escapes are restricted, get allowed cmds from cnf.  */   
+	if (shellenabledp && restrictedshell == 1) {
+	  v1 = NULL;
+	  get_lua_string("texconfig", "shell_escape_commands", &v1);
+	  if (v1) {
+	    mk_shellcmdlist (v1);
+	  }
+	}
 
-        fix_dumpname();
+	fix_dumpname();
+
     } else {
         if (luainit) {
             if (given_file) {
