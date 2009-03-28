@@ -100,7 +100,7 @@ then
     --disable-devnag   \
     --disable-dialog   \
     --disable-dtl      \
-    --disable-dump-share  \
+    --enable-dump-share  \
     --disable-dvi2tty  \
     --disable-dvidvi   \
     --disable-dviljk   \
