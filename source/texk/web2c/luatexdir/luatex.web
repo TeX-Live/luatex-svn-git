@@ -6047,7 +6047,7 @@ complete failure.
 
 @<Initialize table entries...@>=
 for k:=int_base to attribute_base-1 do eqtb[k].int:=0;
-for k:=attribute_base to del_code_base-1 do eqtb[k].int:=-1;
+for k:=attribute_base to del_code_base-1 do eqtb[k].int:=UNUSED_ATTRIBUTE;
 mag:=1000; tolerance:=10000; hang_after:=1; max_dead_cycles:=25;
 escape_char:="\"; end_line_char:=carriage_return;
 eqtb[int_base+level_local_dir_code].int:=level_one;

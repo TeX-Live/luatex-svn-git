@@ -37,6 +37,7 @@
 @define procedure add_node_attr_ref();
 @define procedure replace_attribute_list();
 @define procedure update_attribute_cache;
+@define const UNUSED_ATTRIBUTE;
 
 @define function new_span_node();
 

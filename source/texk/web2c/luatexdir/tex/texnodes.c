@@ -1988,7 +1988,7 @@ void update_attribute_cache(void)
     p = attr_list_cache;
     for (i = 0; i <= max_used_attr; i++) {
         register int v = get_attribute(i);
-        if (v >= 0) {
+        if (v > UNUSED_ATTRIBUTE) {
             register halfword r = new_attribute_node(i, v);
             vlink(p) = r;
             p = r;
@@ -2132,12 +2132,12 @@ int unset_attribute(halfword n, int i, int val)
         return null;
     p = node_attr(n);
     if (p == null)
-        return -1;
+        return UNUSED_ATTRIBUTE;
     assert(vlink(p) != null);
     while (vlink(p) != null) {
         t = attribute_id(vlink(p));
         if (t > i)
-            return -1;
+            return UNUSED_ATTRIBUTE;
         if (t == i) {
             p = vlink(p);
             break;
@@ -2146,7 +2146,7 @@ int unset_attribute(halfword n, int i, int val)
         p = vlink(p);
     }
     if (attribute_id(p) != i)
-        return -1;
+        return UNUSED_ATTRIBUTE;
     /* if we are still here, the attribute exists */
     p = node_attr(n);
     if (attr_list_ref(p) != 1) {
@@ -2165,8 +2165,8 @@ int unset_attribute(halfword n, int i, int val)
     while (j-- > 0)
         p = vlink(p);
     t = attribute_value(p);
-    if (val == -1 || t == val) {
-        attribute_value(p) = -1;
+    if (val == UNUSED_ATTRIBUTE || t == val) {
+        attribute_value(p) = UNUSED_ATTRIBUTE;
     }
     return t;
 }
@@ -2175,23 +2175,23 @@ int has_attribute(halfword n, int i, int val)
 {
     register halfword p;
     if (!nodetype_has_attributes(type(n)))
-        return -1;
+        return UNUSED_ATTRIBUTE;
     p = node_attr(n);
     if (p == null || vlink(p) == null)
-        return -1;
+        return UNUSED_ATTRIBUTE;
     p = vlink(p);
     while (p != null) {
         if (attribute_id(p) == i) {
             int ret = attribute_value(p);
-            if (val == -1 || val == ret)
+            if (val == UNUSED_ATTRIBUTE || val == ret)
                 return ret;
-            return -1;
+            return UNUSED_ATTRIBUTE;
         } else if (attribute_id(p) > i) {
-            return -1;
+            return UNUSED_ATTRIBUTE;
         }
         p = vlink(p);
     }
-    return -1;
+    return UNUSED_ATTRIBUTE;
 }
 
 void print_short_node_contents(halfword p)
