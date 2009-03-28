@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: pdfpage.c 2046 2009-03-17 20:06:05Z hhenkel $ */
+/* $Id$ */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -27,7 +27,7 @@
 #include "ptexlib.h"
 
 static const char __svn_version[] =
-    "$Id: pdfpage.c 2046 2009-03-17 20:06:05Z hhenkel $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/pdf/pdfpage.c $";
+    "$Id$ $URL$";
 
 #define lround(a) (long) floor((a) + 0.5)
 #define setpdffloat(a,b,c) {(a).m = (b); (a).e = (c);}
