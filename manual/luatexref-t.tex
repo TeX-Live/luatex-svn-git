@@ -262,12 +262,15 @@ and can be used after \tex{the} etc.\ just like the normal
 \attributedef <csname> <optional equals> <16-bit number>
 \stopsyntax
 
-Conceptually, an attribute is either \quote{set} or \quote{unset}. Set
-attributes can only have values of~$0$ or more, otherwise they are
-considered unset and automatically remapped to an special negative
-value meaning \quote{unset} (currently that value is $-1$, but please
-test on negativity, not on a specific value). All attributes start
-out in the \quote{unset} state (in \INITEX).
+Conceptually, an attribute is either \quote{set} or
+\quote{unset}. Unset attributes have a special negative value to
+indicate that they are unset, that value is the lowest legal value:
+\type{-"7FFFFFFF} in hexadecimal, a.k.a. $-2147483647$ in decimal.  
+It follows that the value \type{-"7FFFFFFF} cannot be used as
+a legal attribute value, but you {\it can\/} assign \type{-"7FFFFFFF} to
+\quote{unset} an attribute. All attributes start out in this
+\quote{unset} state in \INITEX (prior to 0.37, there could not be 
+valid negative attribute values, and the \quote{unset} value was $-1$).
 
 Attributes can be used as extra counter values, but their usefulness
 comes mostly from the fact that the numbers and values of all \quote{set}
@@ -4044,6 +4047,12 @@ the executable after loading and executing the startup file.
                                            and enables interpretation of the following numeric key--value pairs.
                                           (only ever unset this if you implement {\it all\/} file
                                           find callbacks!)\NC \NR
+\NC shell_escape    \NC    string\NC Use \type{'y'} or \type{'t'} or \type{'1'} to enable \type{\write18} unconditionally, 
+                                     \type{'p'} to enable the commands that are listed in \type{shell_escape_commands} (new in 0.37)\NC\NR
+\NC shell_escape_commands \NC string\NC Comma-separated list of command names that may be executed by \type{\write18} even
+                                        if \type{shell_escape} is set to \type{'p'}. Do {\it not\/} use spaces around commas,
+                                        separate any required command arguments by using a space, and use the ASCII double quote 
+                                        (\type{"}) for any needed argument or path quoting  (new in 0.37)\NC\NR
 \NC string_vacancies \NC   number\NC  75000\NC cf.\ web2c docs \NC \NR
 \NC pool_free \NC 	        number\NC  5000\NC cf.\ web2c docs \NC \NR
 \NC max_strings \NC        number\NC  15000\NC cf.\ web2c docs \NC \NR
@@ -6102,13 +6111,9 @@ the values of the language-specific variables \tex{preexhyphenchar} and
 \TEX82's empty discretionary).
 \stopitemize
 
-Previously, there were problems with changing the node attributes
-mid-word, but that problem is now solved, as nodes in a word are not
-converted to and from a string any more (this was required by the old
-hyphenation code), they are edited in place. Inserted characters and
-ligatures inherit their attributes from the nearest glyph node item
-(usually the preceding one, but the following one for the items
-inserted at the left-hand side of a word).
+Inserted characters and ligatures inherit their attributes from the
+nearest glyph node item (usually the preceding one, but the following
+one for the items inserted at the left-hand side of a word).
 
 Word boundaries are no longer implied by font switches, but by
 language switches. One word can have two separate fonts and still be
@@ -7949,10 +7954,6 @@ versions.
 \tex{directlua} is used in an \OTP\ file (in the output of an
 \type{expression} rule).
 
-\item Handling of attributes in math mode is not complete. The data
-structures in math mode are quite different from those in text mode,
-so this will take some extra effort to implement correctly.
-
 \item When used inside  \tex{directlua}, \type{pdf.print()} should create a
 literal node instead of flushing immediately.
 
@@ -8003,7 +8004,7 @@ characters in fonts.
 
 \item Make the number of the output box configurable.
 
-\item Complete the attributes in math and switch all the nodes to a double|-|linked list.
+\item Switch all the node lists to a double|-|linked list.
 
 \item Finish the interface from \LUA\ to \TeX's internals, specially the hash and
 equivalence table (a small subpart is implementing \tex{csname}
