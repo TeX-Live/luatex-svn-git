@@ -2695,7 +2695,7 @@ void do_make_math_accent(pointer q, internal_font_number f, integer c,
     pack_direction = math_direction;
     r = vpackage(y, 0, additional, max_dimen);
     reset_attributes(r, node_attr(q));
-    width(r) = w;
+    width(r) = width(x);
     y = r;
     if (top_or_bot == TOP_CODE) {
         if (height(y) < h) {
