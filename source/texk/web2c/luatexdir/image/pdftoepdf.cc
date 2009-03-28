@@ -28,7 +28,6 @@
 #include <GString.h>
 #include <gmem.h>
 #include <gfile.h>
-#include <config.h>
 #include <assert.h>
 #include "Object.h"
 #include "Stream.h"
