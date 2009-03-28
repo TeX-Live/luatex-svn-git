@@ -17,8 +17,6 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id$ */
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
@@ -27,7 +25,8 @@
 #include "ptexlib.h"
 
 static const char __svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+    "$URL$";
 
 #define lround(a) (long) floor((a) + 0.5)
 #define setpdffloat(a,b,c) {(a).m = (b); (a).e = (c);}

@@ -17,8 +17,6 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id$ */
-
 #include "ptexlib.h"
 
 #include "openbsd-compat.h"
@@ -33,7 +31,9 @@
 #  define EX_SOFTWARE 70
 #endif
 
-static const char __svn_version[] = "$Id$ $URL$";
+static const char __svn_version[] =
+    "$Id$ "
+    "$URL$";
 
 /**********************************************************************/
 /* Page diversions */
