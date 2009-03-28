@@ -946,7 +946,7 @@ void new_hyphenation(halfword head, halfword tail)
 void dump_one_language(int i)
 {
     char *s = NULL;
-    unsigned x = 0;
+    integer x = 0;
     struct tex_language *lang;
     lang = tex_languages[i];
     dump_int(lang->id);
@@ -973,7 +973,7 @@ void dump_one_language(int i)
 
 void dump_language_data(void)
 {
-    int i;
+    integer i;
     dump_int(next_lang_id);
     for (i = 0; i < next_lang_id; i++) {
         if (tex_languages[i]) {
@@ -989,7 +989,7 @@ void dump_language_data(void)
 void undump_one_language(int i)
 {
     char *s = NULL;
-    unsigned x = 0;
+    integer x = 0;
     struct tex_language *lang = get_language(i);
     undump_int(x);
     lang->id = x;
@@ -1021,7 +1021,7 @@ void undump_one_language(int i)
 
 void undump_language_data(void)
 {
-    unsigned i, x, numlangs;
+    integer i, x, numlangs;
     undump_int(numlangs);
     next_lang_id = numlangs;
     for (i = 0; i < numlangs; i++) {

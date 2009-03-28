@@ -82,7 +82,7 @@ halfword rover = 0;
 
 halfword free_chain[MAX_CHAIN_SIZE] = { null };
 
-static int my_prealloc = 0;
+static integer my_prealloc = 0;
 
 int fix_node_lists = 1;
 
@@ -1665,7 +1665,7 @@ void dump_node_mem(void)
 
 void undump_node_mem(void)
 {
-    int x;
+    integer x;
     undump_int(x);
     undump_int(rover);
     var_mem_max = (x < 100000 ? 100000 : x);

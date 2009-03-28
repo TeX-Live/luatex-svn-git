@@ -365,7 +365,7 @@ void dump_variant(extinfo * ext)
 
 extinfo *undump_variant(void)
 {
-    int x;
+    integer x;
     extinfo *ext;
     undump_int(x);
     if (x == 0)
@@ -1244,7 +1244,7 @@ scaled get_kern(internal_font_number f, integer lc, integer rc)
 void dump_charinfo(int f, int c)
 {
     charinfo *co;
-    int x;
+    integer x;
     liginfo *lig;
     kerninfo *kern;
     dump_int(c);
@@ -1305,7 +1305,7 @@ void dump_charinfo(int f, int c)
 
 void dump_font(int f)
 {
-    int i, x;
+    integer i, x;
 
     set_font_used(f, 0);
     font_tables[f]->charinfo_cache = NULL;
@@ -1346,7 +1346,7 @@ void dump_font(int f)
 int undump_charinfo(int f)
 {
     charinfo *co;
-    int x, i;
+    integer x, i;
     char *s = NULL;
     liginfo *lig = NULL;
     kerninfo *kern = NULL;
@@ -1439,7 +1439,7 @@ int undump_charinfo(int f)
 
 void undump_font(int f)
 {
-    int x, i;
+    integer x, i;
     texfont *tt;
     charinfo *ci;
     char *s;

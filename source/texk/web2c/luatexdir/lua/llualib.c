@@ -35,7 +35,7 @@ typedef struct {
 
 static bytecode *lua_bytecode_registers = NULL;
 
-int luabytecode_max = -1;
+integer luabytecode_max = -1;
 unsigned int luabytecode_bytes = 0;
 
 char *luanames[65536] = {NULL};
@@ -53,7 +53,7 @@ get_lua_name  (int i)
 void dump_luac_registers(void)
 {
     integer x;
-    int k, n;
+    integer k, n;
     bytecode b;
     dump_int(luabytecode_max);
     if (lua_bytecode_registers != NULL) {
@@ -88,7 +88,7 @@ void dump_luac_registers(void)
 void undump_luac_registers(void)
 {
     integer x;
-    int k, n;
+    integer k, n;
     unsigned int i;
     bytecode b;
     undump_int(luabytecode_max);
@@ -107,7 +107,7 @@ void undump_luac_registers(void)
         undump_int(n);
         for (i = 0; i < (unsigned) n; i++) {
             undump_int(k);
-            undump_int(b.size);
+            undump_int(x); b.size = x;
             b.buf = xmalloc(b.size);
             luabytecode_bytes += b.size;
             memset(b.buf, 0, b.size);
