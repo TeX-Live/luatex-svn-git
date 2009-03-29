@@ -235,7 +235,7 @@ EXTRA_LIBRARIES += libluasocket.a
 libluasocket_a_DEPENDENCIES = $(ZLIB_DEPEND) libzzip.a 
 
 libluasocket_a_CPPFLAGS = \
-	-I$(top_srcdir)/luatexdir/luasocket -I$(srcdir)/luatexdir/lua51
+	-DLUASOCKET_DEBUG -I$(top_srcdir)/luatexdir/luasocket -I$(srcdir)/luatexdir/lua51
 
 libluasocket_a_SOURCES = \
 	luatexdir/luasocket/src/auxiliar.c \
