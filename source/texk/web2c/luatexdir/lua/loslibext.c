@@ -807,6 +807,11 @@ static int os_tmpdir(lua_State * L)
     }
 }
 
+static int os_execute (lua_State *L) {
+  lua_pushinteger(L, system(luaL_optstring(L, 1, NULL)));
+  return 1;
+}
+
 
 void open_oslibext(lua_State * L, int safer_option)
 {
@@ -816,40 +821,32 @@ void open_oslibext(lua_State * L, int safer_option)
     lua_getglobal(L, "os");
     lua_pushcfunction(L, ex_sleep);
     lua_setfield(L, -2, "sleep");
-    lua_getglobal(L, "os");
     lua_pushliteral(L, OS_PLATTYPE);
     lua_setfield(L, -2, "type");
-    lua_getglobal(L, "os");
     lua_pushliteral(L, OS_PLATNAME);
     lua_setfield(L, -2, "name");
-    lua_getglobal(L, "os");
     lua_pushcfunction(L, ex_uname);
     lua_setfield(L, -2, "uname");
 #if (! defined (WIN32))  && (! defined (__SUNOS__))
-    lua_getglobal(L, "os");
     lua_pushcfunction(L, os_times);
     lua_setfield(L, -2, "times");
 #endif
 #if ! defined (__SUNOS__)
-    lua_getglobal(L, "os");
     lua_pushcfunction(L, os_gettimeofday);
     lua_setfield(L, -2, "gettimeofday");
 #endif
+
     if (!safer_option) {
-        lua_getglobal(L, "os");
         lua_pushcfunction(L, os_setenv);
         lua_setfield(L, -2, "setenv");
-        lua_getglobal(L, "os");
         lua_pushcfunction(L, os_exec);
         lua_setfield(L, -2, "exec");
-        lua_getglobal(L, "os");
         lua_pushcfunction(L, os_spawn);
         lua_setfield(L, -2, "spawn");
-        lua_getglobal(L, "os");
+        lua_pushcfunction(L, os_execute);
+        lua_setfield(L, -2, "execute");
         lua_pushcfunction(L, os_tmpdir);
         lua_setfield(L, -2, "tmpdir");
-
     }
-
-
+    lua_pop(L,1);   /* pop the table */
 }
