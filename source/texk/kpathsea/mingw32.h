@@ -15,7 +15,6 @@
 #include <fcntl.h>
 #include <ctype.h>
 
-
 #define ftello ftello64
 #define fseeko fseeko64
 

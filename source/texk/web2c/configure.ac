@@ -36,13 +36,15 @@ AC_DEFINE_UNQUOTED([WEB2CVERSION], [" (Web2C $WEB2CVERSION)"])
 
 dnl Common code for all programs using libkpathsea.
 KPSE_COMMON([web2c programs])
+
+AC_PROG_CXX
+KPSE_CXX_HACK
+
 dnl Include additional code for web2c.
 KPSE_WEB2C_PREPARE
 m4_include([ac/web2c.ac])
 
 KPSE_ASM_UNDERSCORE
-
-AC_PROG_CXX
 
 AS_CASE([$with_editor], [''|yes|no], [with_editor='vi +%d %s'])
 AC_DEFINE_UNQUOTED([EDITOR], ["$with_editor"],
@@ -59,16 +61,26 @@ AS_IF([test "x$enable_dump_share" = xno],
 
 AM_CONDITIONAL([FMU], [test "x$enable_fmtutil" = xyes])
 
-AS_IF([test "x$enable_ipc" = xyes], [
+KPSE_CHECK_WIN32
+AM_CONDITIONAL([WIN32], [test "x$kpse_cv_have_win32" != xno])
+AM_CONDITIONAL([MINGW32], [test "x$kpse_cv_have_win32" = xmingw32])
+
 # -lsocket is needed on Solaris, at least.  Maybe -lnsl on SCO, too?
 # See ac_path_xtra.
-AC_CHECK_FUNC([connect], ,
-              [AC_CHECK_LIB([socket], [connect],
-                            [socketlibs="-lsocket"],
-                            [AC_CHECK_LIB([nsl], [connect],
-                                          [socketlibs="-lnsl"],
-                                          [AC_MSG_WARN([no socket library: disabling ipc])
-                                           enable_ipc=no])])])
+AS_IF([test "x$enable_ipc:$enable_luatex" != xno:no], [
+kpse_save_LIBS=$LIBS
+AC_SEARCH_LIBS([connect], [socket nsl])
+LIBS=$kpse_save_LIBS
+AS_CASE([$ac_cv_search_connect],
+        ["none required"], [],
+        [no], [AS_IF([test "x$enable_luatex" = xyes],
+                     ,
+                     [AC_MSG_WARN([no socket library: disabling ipc])
+                                   enable_ipc=no])],
+        [socketlibs="-l$ac_cv_search_connect"])
+
+AS_IF([test "x$kpse_cv_have_win32" != xno], [socketlibs="-lwsock32"])
+
 AS_IF([test "x$enable_ipc" = xyes],
       [AC_DEFINE([IPC], 1, [tex: Define to enable --ipc.])])
 ])
@@ -216,10 +228,6 @@ AH_TOP([/* c-auto.h: defines for web2c, as determined by configure.
 #define WEB2CVERSION "REPLACE-WITH-WEB2CVERSION"])
 AH_BOTTOM([#endif /* !WEB2C_C_AUTO_H */])
 
-KPSE_CHECK_WIN32
-AM_CONDITIONAL([WIN32], [test "x$kpse_cv_have_win32" != xno])
-AM_CONDITIONAL([MINGW32], [test "x$kpse_cv_have_win32" = xmingw32])
-
 AS_IF([test "x$enable_luatex" = xyes],
 [AC_CONFIG_HEADERS([ff-config.h:luatexdir/luafontloader/ff-config.in])
 AC_CHECK_HEADERS([langinfo_h])
@@ -244,7 +252,8 @@ AS_IF([test "x$enable_luatex" = xyes],
 
 AC_CONFIG_SUBDIRS([web2c])
 
-AC_CONFIG_FILES([Makefile doc/Makefile lib/Makefile man/Makefile])
+AC_CONFIG_FILES([Makefile doc/Makefile lib/Makefile man/Makefile
+                 ])
 
 if test "x$cross_compiling" = xyes; then
   AC_MSG_CHECKING([if your tie supports WEBINPUTS])

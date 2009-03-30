@@ -30,8 +30,12 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
+build_triplet = @build@
+host_triplet = @host@
 subdir = .
 DIST_COMMON = README $(am__configure_deps) \
+	$(srcdir)/../build-aux/config.guess \
+	$(srcdir)/../build-aux/config.sub \
 	$(srcdir)/../build-aux/install-sh \
 	$(srcdir)/../build-aux/missing $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(top_srcdir)/configure \
@@ -40,61 +44,20 @@ DIST_COMMON = README $(am__configure_deps) \
 	../build-aux/ltmain.sh ../build-aux/missing \
 	../build-aux/texinfo.tex ../build-aux/ylwrap
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/../m4/kpse-pkgs.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/../m4/kpse-cxx-hack.m4 \
+	$(top_srcdir)/../m4/kpse-options.m4 \
+	$(top_srcdir)/../m4/kpse-pkgs.m4 \
 	$(top_srcdir)/../m4/kpse-setup.m4 \
 	$(top_srcdir)/../m4/kpse-web2c.m4 \
 	$(top_srcdir)/../ac/withenable.ac \
 	$(top_srcdir)/../utils/ac/withenable.ac \
-	$(top_srcdir)/../utils/dialog/ac/withenable.ac \
-	$(top_srcdir)/../utils/pdfopen/ac/withenable.ac \
-	$(top_srcdir)/../utils/ps2eps/ac/withenable.ac \
-	$(top_srcdir)/../utils/psutils/ac/withenable.ac \
-	$(top_srcdir)/../utils/t1utils/ac/withenable.ac \
-	$(top_srcdir)/../utils/tpic2pdftex/ac/withenable.ac \
-	$(top_srcdir)/../utils/vlna/ac/withenable.ac \
 	$(top_srcdir)/../texk/ac/withenable.ac \
 	$(top_srcdir)/../texk/web2c/ac/withenable.ac \
 	$(top_srcdir)/../texk/web2c/ac/web2c.ac \
-	$(top_srcdir)/../texk/one/ac/withenable.ac \
-	$(top_srcdir)/../texk/afm2pl/ac/withenable.ac \
-	$(top_srcdir)/../texk/bibtex8/ac/withenable.ac \
-	$(top_srcdir)/../texk/cjkutils/ac/withenable.ac \
-	$(top_srcdir)/../texk/detex/ac/withenable.ac \
-	$(top_srcdir)/../texk/devnag/ac/withenable.ac \
-	$(top_srcdir)/../texk/dtl/ac/withenable.ac \
-	$(top_srcdir)/../texk/dvi2tty/ac/withenable.ac \
-	$(top_srcdir)/../texk/dvidvi/ac/withenable.ac \
-	$(top_srcdir)/../texk/dviljk/ac/withenable.ac \
-	$(top_srcdir)/../texk/dvipdfm/ac/withenable.ac \
-	$(top_srcdir)/../texk/dvipdfmx/ac/withenable.ac \
-	$(top_srcdir)/../texk/dvipng/ac/withenable.ac \
-	$(top_srcdir)/../texk/dvipng/ac/dvipng.ac \
-	$(top_srcdir)/../texk/dvipos/ac/withenable.ac \
-	$(top_srcdir)/../texk/dvipsk/ac/withenable.ac \
-	$(top_srcdir)/../texk/gsftopk/ac/withenable.ac \
-	$(top_srcdir)/../texk/lacheck/ac/withenable.ac \
-	$(top_srcdir)/../texk/lcdf-typetools/ac/withenable.ac \
-	$(top_srcdir)/../texk/lcdf-typetools/ac/lcdf-typetools.ac \
-	$(top_srcdir)/../texk/makeindexk/ac/withenable.ac \
-	$(top_srcdir)/../texk/musixflx/ac/withenable.ac \
-	$(top_srcdir)/../texk/ps2pkm/ac/withenable.ac \
-	$(top_srcdir)/../texk/seetexk/ac/withenable.ac \
-	$(top_srcdir)/../texk/tex4htk/ac/withenable.ac \
-	$(top_srcdir)/../texk/ttf2pk/ac/withenable.ac \
-	$(top_srcdir)/../texk/ttfdump/ac/withenable.ac \
-	$(top_srcdir)/../texk/xdv2pdf/ac/withenable.ac \
-	$(top_srcdir)/../texk/xdvik/ac/withenable.ac \
-	$(top_srcdir)/../texk/xdvipdfmx/ac/withenable.ac \
 	$(top_srcdir)/../texk/kpathsea/ac/withenable.ac \
 	$(top_srcdir)/../texk/kpathsea/ac/web2c.ac \
 	$(top_srcdir)/../libs/ac/withenable.ac \
-	$(top_srcdir)/../libs/teckit/ac/withenable.ac \
-	$(top_srcdir)/../libs/graphite/ac/withenable.ac \
 	$(top_srcdir)/../libs/xpdf/ac/withenable.ac \
-	$(top_srcdir)/../libs/gd/ac/withenable.ac \
-	$(top_srcdir)/../libs/freetype2/ac/withenable.ac \
-	$(top_srcdir)/../libs/freetype/ac/withenable.ac \
-	$(top_srcdir)/../libs/t1lib/ac/withenable.ac \
 	$(top_srcdir)/../libs/obsdcompat/ac/withenable.ac \
 	$(top_srcdir)/../libs/libpng/ac/withenable.ac \
 	$(top_srcdir)/../libs/zlib/ac/withenable.ac \
@@ -173,14 +136,22 @@ am__leading_dot = @am__leading_dot@
 am__tar = @am__tar@
 am__untar = @am__untar@
 bindir = @bindir@
+build = @build@
 build_alias = @build_alias@
+build_cpu = @build_cpu@
+build_os = @build_os@
+build_vendor = @build_vendor@
 builddir = @builddir@
 datadir = @datadir@
 datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
+host = @host@
 host_alias = @host_alias@
+host_cpu = @host_cpu@
+host_os = @host_os@
+host_vendor = @host_vendor@
 htmldir = @htmldir@
 includedir = @includedir@
 infodir = @infodir@
@@ -443,6 +414,10 @@ dist-lzma: distdir
 	tardir=$(distdir) && $(am__tar) | lzma -9 -c >$(distdir).tar.lzma
 	$(am__remove_distdir)
 
+dist-xz: distdir
+	tardir=$(distdir) && $(am__tar) | xz -c >$(distdir).tar.xz
+	$(am__remove_distdir)
+
 dist-tarZ: distdir
 	tardir=$(distdir) && $(am__tar) | compress -c >$(distdir).tar.Z
 	$(am__remove_distdir)
@@ -472,6 +447,8 @@ distcheck: dist
 	  bunzip2 -c $(distdir).tar.bz2 | $(am__untar) ;;\
 	*.tar.lzma*) \
 	  unlzma -c $(distdir).tar.lzma | $(am__untar) ;;\
+	*.tar.xz*) \
+	  xz -dc $(distdir).tar.xz | $(am__untar) ;;\
 	*.tar.Z*) \
 	  uncompress -c $(distdir).tar.Z | $(am__untar) ;;\
 	*.shar.gz*) \
@@ -623,8 +600,8 @@ uninstall-am:
 .PHONY: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) CTAGS GTAGS \
 	all all-am all-local am--refresh check check-am clean \
 	clean-generic ctags ctags-recursive dist dist-all dist-bzip2 \
-	dist-gzip dist-hook dist-lzma dist-shar dist-tarZ dist-zip \
-	distcheck distclean distclean-generic distclean-tags \
+	dist-gzip dist-hook dist-lzma dist-shar dist-tarZ dist-xz \
+	dist-zip distcheck distclean distclean-generic distclean-tags \
 	distcleancheck distdir distuninstallcheck dvi dvi-am html \
 	html-am info info-am install install-am install-data \
 	install-data-am install-dvi install-dvi-am install-exec \

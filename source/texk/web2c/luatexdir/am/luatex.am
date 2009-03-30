@@ -536,9 +536,7 @@ EXTRA_DIST += \
 	luatexdir/luafontloader/fontforge/AUTHORS \
 	luatexdir/luafontloader/fontforge/INSTALL \
 	luatexdir/luafontloader/fontforge/LICENSE \
-	luatexdir/luafontloader/fontforge/VERSION \
-	luatexdir/luafontloader/fontforge/libs \
-	luatexdir/luafontloader/fontforge/po 
+	luatexdir/luafontloader/fontforge/VERSION
 
 ## Not used
 ##
@@ -562,7 +560,6 @@ libluatex_a_DEPENDENCIES = libff.a
 libluatex_a_CPPFLAGS = $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(XPDF_INCLUDES)
 libluatex_a_CPPFLAGS += $(OBSDCOMPAT_INCLUDES) -I$(srcdir)/libmd5
 libluatex_a_CPPFLAGS += -Iluatexdir -I$(srcdir)/luatexdir -I$(srcdir)/luatexdir/lua51
-libluatex_a_CPPFLAGS += -I$(srcdir)/luatexdir/mp
 libluatex_a_CPPFLAGS += -DpdfTeX
 
 libluatex_a_SOURCES = \
@@ -678,6 +675,7 @@ lua_mp_c_h += luatexdir/mppsout.h luatexdir/psout.c luatexdir/mplibps.h
 lua_mp_c_h += luatexdir/memio.c luatexdir/tfmin.c
 lua_mp_web =  luatexdir/mp/avl.h luatexdir/mp/avl.c luatexdir/mp/mp.w luatexdir/mp/psout.w
 lua_mp_web += luatexdir/mp/memio.w luatexdir/mp/tfmin.w
+libluatex_a_CPPFLAGS += -I$(srcdir)/luatexdir/mp
 $(lua_mp_c_h): mp-ctangle
 mp-ctangle: ctangle $(lua_mp_web) luatexd.h
 	$(mkdir_p) luatexdir
@@ -706,7 +704,7 @@ EXTRA_DIST += \
 
 
 ## Tests
-
+##
 dist_check_SCRIPTS += luatexdir/luatangle.test
 
 if LUATEX
