@@ -79,7 +79,7 @@ AS_CASE([$ac_cv_search_connect],
                                    enable_ipc=no])],
         [socketlibs="-l$ac_cv_search_connect"])
 
-AS_IF([test "x$kpse_cv_have_win32" != xno], [socketlibs="-lwsock32"])
+AC_CHECK_LIB([wsock32], [main], [socketlibs="-lwsock32"])
 
 AS_IF([test "x$enable_ipc" = xyes],
       [AC_DEFINE([IPC], 1, [tex: Define to enable --ipc.])])
