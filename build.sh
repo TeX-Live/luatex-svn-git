@@ -48,6 +48,7 @@ while [ "$1" != "" ] ; do
 done
 #
 STRIP=strip
+LUATEXEXE=luatex
 
 if [ `uname` = "Darwin" ] ; 
 then
@@ -60,6 +61,8 @@ CONFHOST=
 if [ "$MINGWCROSS" = "TRUE" ]
 then
   B=build-windows
+  STRIP=mingw32-strip
+  LUATEXEXE=luatex.exe
   OLDPATH=$PATH
   PATH=/usr/mingw32/bin:$PATH
   CONFHOST="--host=mingw32 --build=i686-linux-gnu "
@@ -165,7 +168,7 @@ cd ..
 
 if [ "$STRIP_LUATEX" = "TRUE" ] ;
 then
-  $STRIP "$B"/texk/web2c/luatex
+  $STRIP "$B"/texk/web2c/$LUATEXEXE
 else
   echo "luatex binary not stripped"
 fi
@@ -176,5 +179,5 @@ then
 fi
 
 # show the results
-ls -l "$B"/texk/web2c/luatex
+ls -l "$B"/texk/web2c/$LUATEXEXE
  
