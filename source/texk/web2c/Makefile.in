@@ -5455,7 +5455,7 @@ tangle-web2c: tangle.p
 	$(web2c) tangle
 	echo timestamp >$@
 	touch tangle.c tangle.h
-tangle.p: tangleboot tangle.web tangle.ch
+tangle.p: tangleboot$(EXEEXT) tangle.web tangle.ch
 	WEBINPUTS=.:$(srcdir) $(tangleboot) tangle tangle
 tangle.web:
 	@echo "You seem to be missing tangle.web, perhaps because you" >&2
@@ -5482,9 +5482,9 @@ tangleboot.p: tangle.web tangle.ch
 	fi
 	date >stamp-tangle
 	$(MAKE) $(AM_MAKEFLAGS) tangle$(EXEEXT)
-ctangle.c: ctangleboot cwebdir/ctangle.w cwebdir/ctang-w2c.ch
+ctangle.c: ctangleboot$(EXEEXT) cwebdir/ctangle.w cwebdir/ctang-w2c.ch
 	CWEBINPUTS=$(srcdir)/cwebdir $(ctangleboot) ctangle ctang-w2c
-cweb.c: ctangleboot cwebdir/common.w cwebdir/comm-w2c.ch
+cweb.c: ctangleboot$(EXEEXT) cwebdir/common.w cwebdir/comm-w2c.ch
 	CWEBINPUTS=$(srcdir)/cwebdir $(ctangleboot) common comm-w2c cweb.c
 stamp-ctangle: ctangleboot.c cwebboot.c
 	date >stamp-ctangle
@@ -5629,11 +5629,11 @@ weave-web2c: $(web2c_common) $(web2c_programs) weave.p
 	touch weave.c weave.h
 weave.p: tangle weave.web weave.ch
 	$(tangle) weave weave
-ctie.c: ctangle ctiedir/ctie.w ctiedir/ctie-k.ch
+ctie.c: ctangle$(EXEEXT) ctiedir/ctie.w ctiedir/ctie-k.ch
 	CWEBINPUTS=$(srcdir)/ctiedir $(ctangle) ctie.w ctie-k.ch
-cweave.c: ctangle cwebdir/cweave.w cwebdir/cweav-w2c.ch
+cweave.c: ctangle$(EXEEXT) cwebdir/cweave.w cwebdir/cweav-w2c.ch
 	CWEBINPUTS=$(srcdir)/cwebdir $(ctangle) cweave cweav-w2c
-tie.c: ctangle tiedir/tie.w tiedir/tie-w2c.ch
+tie.c: ctangle$(EXEEXT) tiedir/tie.w tiedir/tie-w2c.ch
 	CWEBINPUTS=$(srcdir)/tiedir $(ctangle) tie.w tie-w2c.ch
 $(tex_c_h): tex-web2c
 tex-web2c: tex.p $(web2c_texmf)
@@ -5678,7 +5678,7 @@ luatex-web2c: luatex.p $(web2c_texmf) luatexdir/luatex.defines
 luatexextra.c: luatexd.h luatexdir/luatexextra.h lib/texmfmp.c
 	sed s/TEX-OR-MF-OR-MP/luatex/ $(srcdir)/lib/texmfmp.c >$@
 luatex.p luatex.pool: luatex-tangle
-luatex-tangle: luatangle $(luatex_sources)
+luatex-tangle: luatangle$(EXEEXT) $(luatex_sources)
 	$(luatex_tangle) --underlines luatex luatex
 	echo timestamp >$@
 	touch luatex.p luatex.pool
@@ -5693,12 +5693,12 @@ luatexdir/luatexextra.h: luatexdir/luatexextra.in luatexdir/luatex.version
 	  $(srcdir)/luatexdir/luatexextra.in >$@
 luatangle.c luatangle.h: $(web2c_common) $(web2c_programs) luatangle.p
 	$(web2c) luatangle
-luatangle.p: tangle $(luatangle_sources)
+luatangle.p: tangle$(EXEEXT) $(luatangle_sources)
 	WEBINPUTS=$(srcdir)/luatexdir $(buildenv) $(TANGLE) luatangle luatangle
 
 @LUATEX_TRUE@$(libluatex_a_SOURCES): $(lua_mp_c_h)
 $(lua_mp_c_h): mp-ctangle
-mp-ctangle: ctangle $(lua_mp_web) luatexd.h
+mp-ctangle: ctangle$(EXEEXT) $(lua_mp_web) luatexd.h
 	$(mkdir_p) luatexdir
 	CWEBINPUTS=$(srcdir)/luatexdir/mp $(ctangle) mp.w
 	CWEBINPUTS=$(srcdir)/luatexdir/mp $(ctangle) psout.w
