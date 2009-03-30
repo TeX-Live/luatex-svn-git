@@ -311,7 +311,6 @@ void dump_text_codes(void)
 
 void undump_text_codes(void)
 {
-    integer x;
     undumpsfcodes();
     undumpuccodes();
     undumplccodes();
