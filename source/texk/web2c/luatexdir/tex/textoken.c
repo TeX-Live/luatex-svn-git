@@ -503,7 +503,7 @@ void check_outer_validity(void)
             }
             snprintf(errmsg, 255,
                      "Incomplete %s; all text was ignored after line %d",
-                     cmd_chr_to_string(if_test_cmd, cur_if), skip_line);
+                     cmd_chr_to_string(if_test_cmd, cur_if), (int)skip_line);
             /* @.Incomplete \\if...@> */
             cur_tok = cs_token_flag + frozen_fi;
             /* back up one inserted token and call |error| */
