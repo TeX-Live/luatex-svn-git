@@ -13,16 +13,21 @@
 #define liolib_c
 #define LUA_LIB
 
+#ifndef MINGW32
+#define LUA_USE_POSIX 1
+#endif
+
 #include "lua.h"
 
 #include "lauxlib.h"
 #include "lualib.h"
 
-
+#include <ptexlib.h>
 
 #define IO_INPUT	1
 #define IO_OUTPUT	2
 
+extern int shell_cmd_is_allowed (char **cmd, char **safecmd, char **cmdname);
 
 static const char *const fnames[] = {"input", "output"};
 
@@ -170,11 +175,41 @@ static int io_open_ro (lua_State *L) {
 
 
 static int io_popen (lua_State *L) {
-  const char *filename = luaL_checkstring(L, 1);
+  int ret = 1;
+  char *safecmd = NULL;
+  char *cmdname = NULL;
+  int allow = 0;
+  char *cmd = (char *)luaL_checkstring(L, 1);
   const char *mode = luaL_optstring(L, 2, "r");
   FILE **pf = newfile(L);
-  *pf = lua_popen(L, filename, mode);
-  return (*pf == NULL) ? pushresult(L, 0, filename) : 1;
+
+  if (shellenabledp <= 0) {
+      lua_pushnil(L);
+      lua_pushliteral(L, "All command execution is disabled");
+      return 2;
+  }  
+  /* If restrictedshell == 0, any command is allowed. */
+  if (restrictedshell == 0)
+    allow = 1;
+  else
+    allow = shell_cmd_is_allowed (&cmd, &safecmd, &cmdname);
+
+  if (allow == 1) {
+      *pf = lua_popen(L, cmd, mode);
+      ret =  (*pf == NULL) ? pushresult(L, 0, cmd) : 1;
+  } else if (allow == 2) {
+      *pf = lua_popen(L, safecmd, mode);
+      ret = (*pf == NULL) ? pushresult(L, 0, safecmd) : 1;
+  } else if (allow == 0) {
+      lua_pushnil(L);
+      lua_pushliteral(L, "Command execution disabled via shell_escape='p'");
+      ret = 2;
+  } else {
+      lua_pushnil(L);
+      lua_pushliteral(L, "Bad command line quoting");
+      ret = 2;
+  }
+  return ret;
 }
 
 

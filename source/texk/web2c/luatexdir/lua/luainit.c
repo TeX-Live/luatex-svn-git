@@ -43,11 +43,9 @@ static const char _svn_version[] =
  *   SELFAUTOLOC  SELFAUTODIR  SELFAUTOPARENT  progname
  *
  */
-
-/* temp here */
 extern void mk_shellcmdlist (char *v);
 extern int shell_cmd_is_allowed (char **cmd, char **safecmd, char **cmdname);
-extern void init_shell_escape (void);
+extern void init_shell_escape (void);  
 
 extern string normalize_quotes(const_string name, const_string mesg);
 
@@ -519,6 +517,8 @@ void lua_initialize(int ac, char **av)
 
     /* parse commandline */
     parse_options(ac, av);
+    if (lua_only)
+        shellenabledp = true;
 
     /* make sure that the locale is 'sane' (for lua) */
     putenv("LC_CTYPE=C");
