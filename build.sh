@@ -49,6 +49,11 @@ done
 #
 STRIP=strip
 
+if [ `uname` = "Darwin" ] ; 
+then
+   export MACOSX_DEPLOYMENT_TARGET=10.4
+fi;
+
 B=build
 CONFHOST=
 
