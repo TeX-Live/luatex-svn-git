@@ -877,7 +877,7 @@ static void write_epdf1(image_dict * idict)
         if (lastGroup->dictGetLength() > 0) {
             pdf_puts("/Group ");
             groupIsIndirect = lastGroup->isRef();
-            pdf_printf("%d 0 R", epdf_lastGroupObjectNum);
+            pdf_printf("%d 0 R", (int)epdf_lastGroupObjectNum);
             pdf_puts("\n");
         }
       }  
