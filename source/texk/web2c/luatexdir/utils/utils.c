@@ -1477,7 +1477,7 @@ void checkpdfrestore(scaledpos pos)
     diff.h = pos.h - pos_stack[pos_stack_used].pos.h;
     diff.v = pos.v - pos_stack[pos_stack_used].pos.v;
     if (diff.h != 0 || diff.v != 0) {
-        pdftex_warn("Misplaced \\pdfrestore by (%dsp, %dsp)", diff.h, diff.v);
+        pdftex_warn("Misplaced \\pdfrestore by (%dsp, %dsp)", (int)diff.h, (int)diff.v);
     }
     if (page_mode) {
         matrix_stack_used = pos_stack[pos_stack_used].matrix_stack;
