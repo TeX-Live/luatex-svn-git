@@ -136,9 +136,12 @@ There are three new primitives to test the version of \LUATEX:
 The official \LUATEX\ version is defined follows:
 
 \startitemize
-\item The major version is the integer result of \tex{luatexversion} divided by 100. The primitive is and \quote{internal variable}, so you may need to prefix it use with \type{\the} depending on the context.
+\item The major version is the integer result of \tex{luatexversion} divided by 100. 
+ The primitive is and \quote{internal variable}, so you may need to prefix it 
+  use with \type{\the} depending on the context.
 \item The minor version is the two-digit result of \tex{luatexversion} modulo 100.
-\item The revision is the given by \tex{luatexrevision}. This primitive expands to a positive integer.
+\item The revision is the given by \tex{luatexrevision}. This primitive expands to a 
+  positive integer.
 \item The full version number consists of the major version,
   minor version and revision, separated by dots.
 \stopitemize
@@ -813,6 +816,20 @@ needs to check \type{--progname} (and \type{--ini} and \type{--fmt}, if
 
 The C coroutine (\COCO) patches from luajit are applied to the \LUA\ core, the used
 version is 1.1.3.  See \hyphenatedurl{http://luajit.org/coco.html} for details.
+
+In keeping with the other \TEX-like programs in \TEXLIVE, the two \LUA\ functions
+\type{os.execute} and \type{io.popen} (as well as the two new functions \type{os.exec}
+and \type{os.spawn} that are explained below) take the value of \type{shell_escape}
+and/or \type{shell_escape_commands} in account. Whenever \LUATEX\ is run with the
+assumed intention to typeset a document (and by that I mean that it is called as
+\type{luatex}, as opposed to \type{texlua}, and that the commandline option 
+\type{--luaonly} was not given), it will only run the four functions above if the 
+matching texmf.cnf variable(s) or their \type{texconfig} (see~\in{section}[texconfig])
+counterparts allow execution of the requested system command. In \quote{script
+interpreter} runs of \LUATEX, these settings have no effect, and all four functions
+function as normal. This change is new in 0.37.
+
+
 
 The \lua{read("*line")} function from the io library has been
 adjusted so that it is line|-|ending neutral: any of \type{LF}, \type
@@ -4035,7 +4052,7 @@ The current list is:
                                  a result of other callbacks (e.g. file readers)\NC \NR
 \stoptabulate
 
-\section{The \luatex{texconfig} table}
+\section[texconfig]{The \luatex{texconfig} table}
 
 This is a table that is created empty. A startup \LUA\ script could
 fill this table with a number of settings that are read out by
@@ -7636,9 +7653,6 @@ simply typeset.
 \item The \tex{endlinechar} can be either added (values 0 or more), or not
 (negative values). If it is added, the character is always decimal 13 a/k/a
 \type{^^M} a/k/a carriage return (This change may be temporary).
-
-\item There is no error given for \type{\outer} macros that are
-expanded inside a group (This change may be temporary).
 
 \stopitemize
 
