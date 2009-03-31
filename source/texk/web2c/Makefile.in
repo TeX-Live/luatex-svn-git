@@ -32,6 +32,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+@OMFONTS_TRUE@am__append_1 = omegafonts
 EXTRA_PROGRAMS = $(am__EXEEXT_1) tex$(EXEEXT) mf$(EXEEXT) \
 	mf-nowin$(EXEEXT) luatex$(EXEEXT) luatangle$(EXEEXT)
 bin_PROGRAMS = tangle$(EXEEXT) ctangle$(EXEEXT) $(am__EXEEXT_2) \
@@ -46,24 +47,32 @@ DIST_COMMON = README $(am__configure_deps) $(dist_check_SCRIPTS) \
 	$(srcdir)/../../build-aux/install-sh \
 	$(srcdir)/../../build-aux/ltmain.sh \
 	$(srcdir)/../../build-aux/missing $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(srcdir)/am/bootstrap.am \
-	$(srcdir)/am/cweb.am $(srcdir)/am/texmf.am $(srcdir)/am/web.am \
-	$(srcdir)/c-auto.in $(srcdir)/libmd5/am/md5.am \
-	$(srcdir)/luatexdir/am/luatex.am \
-	$(srcdir)/mplibdir/am/mplib.am $(top_srcdir)/configure \
+	$(srcdir)/Makefile.in $(srcdir)/alephdir/am/aleph.am \
+	$(srcdir)/am/bootstrap.am $(srcdir)/am/cweb.am \
+	$(srcdir)/am/texmf.am $(srcdir)/am/web.am $(srcdir)/c-auto.in \
+	$(srcdir)/etexdir/am/etex.am $(srcdir)/libmd5/am/md5.am \
+	$(srcdir)/luatexdir/am/luatex.am $(srcdir)/mpdir/am/mp.am \
+	$(srcdir)/mplibdir/am/mplib.am \
+	$(srcdir)/omegaware/am/omegaware.am \
+	$(srcdir)/pdftexdir/am/pdftex.am \
+	$(srcdir)/synctexdir/am/synctex.am \
+	$(srcdir)/xetexdir/am/xetex.am $(top_srcdir)/configure \
 	$(top_srcdir)/luatexdir/luafontloader/ff-config.in \
-	../../build-aux/config.guess ../../build-aux/config.sub \
-	../../build-aux/depcomp ../../build-aux/install-sh \
-	../../build-aux/ltmain.sh ../../build-aux/missing \
-	../../build-aux/texinfo.tex ../../build-aux/ylwrap AUTHORS \
-	ChangeLog INSTALL NEWS
-@WEB_TRUE@am__append_1 = $(web_programs)
-@TEX_TRUE@am__append_2 = tex
-@MF_TRUE@am__append_3 = mf
-@MFN_TRUE@@MF_TRUE@am__append_4 = mf-nowin
-@LUATEX_TRUE@am__append_5 = luatex luatangle
-@MINGW32_FALSE@am__append_6 = -DLUA_USE_POSIX
-@LUATEX_TRUE@am__append_7 = luatexdir/luatangle.test
+	$(top_srcdir)/mpware/Makefile.in \
+	$(top_srcdir)/omegafonts/Makefile.in \
+	$(top_srcdir)/otps/Makefile.in \
+	$(top_srcdir)/window/Makefile.in ../../build-aux/config.guess \
+	../../build-aux/config.sub ../../build-aux/depcomp \
+	../../build-aux/install-sh ../../build-aux/ltmain.sh \
+	../../build-aux/missing ../../build-aux/texinfo.tex \
+	../../build-aux/ylwrap AUTHORS ChangeLog INSTALL NEWS
+@WEB_TRUE@am__append_2 = $(web_programs)
+@TEX_TRUE@am__append_3 = tex
+@MF_TRUE@am__append_4 = mf
+@MFN_TRUE@@MF_TRUE@am__append_5 = mf-nowin
+@LUATEX_TRUE@am__append_6 = luatex luatangle
+@MINGW32_FALSE@am__append_7 = -DLUA_USE_POSIX
+@LUATEX_TRUE@am__append_8 = luatexdir/luatangle.test
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/../../m4/kpse-asm.m4 \
@@ -91,7 +100,8 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = c-auto.h ff-config.h
-CONFIG_CLEAN_FILES =
+CONFIG_CLEAN_FILES = mpware/Makefile omegafonts/Makefile otps/Makefile \
+	window/Makefile
 ARFLAGS = cru
 libff_a_AR = $(AR) $(ARFLAGS)
 libff_a_LIBADD =
@@ -441,7 +451,7 @@ RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = $(SUBDIRS)
+DIST_SUBDIRS = doc lib man mpware web2c . window omegafonts otps
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -614,13 +624,13 @@ x_tool_libs = @x_tool_libs@
 ACLOCAL_AMFLAGS = -I ../../m4
 INCLUDES = -I$(top_builddir)/.. $(KPATHSEA_INCLUDES)
 version = $(WEB2CVERSION)
-SUBDIRS = doc lib man web2c .
+SUBDIRS = doc lib man mpware web2c . window $(am__append_1) otps
 proglib = lib/lib.a
 dist_man_MANS = 
 nodist_man_MANS = ctiedir/ctie.1 tiedir/tie.1
 dist_check_SCRIPTS = tangle.test luatexdir/luatangle.test \
 	libmd5/md5.test
-TESTS = tangle.test tiedir/tie.test $(am__append_7) libmd5/md5.test
+TESTS = tangle.test tiedir/tie.test $(am__append_8) libmd5/md5.test
 EXTRA_LIBRARIES = libmf.a liblua51.a libzzip.a libluasocket.a \
 	libluamisc.a libff.a libluatex.a libmd5.a
 EXTRA_DIST = PROJECTS cftests config.h cpascal.h help.h tangle.web \
@@ -846,7 +856,7 @@ nodist_luatex_SOURCES = $(luatex_c_h) luatex-pool.c luatexextra.c luatexdir/luat
 luatex_sources = luatexdir/luatex.web luatexdir/luatex.ch
 nodist_luatangle_SOURCES = luatangle.c luatangle.h
 luatangle_sources = luatexdir/luatangle.web luatexdir/luatangle.ch
-liblua51_a_CPPFLAGS = -I$(top_srcdir)/luatexdir/lua51 $(am__append_6)
+liblua51_a_CPPFLAGS = -I$(top_srcdir)/luatexdir/lua51 $(am__append_7)
 liblua51_a_SOURCES = \
 	luatexdir/lua51/lapi.c \
 	luatexdir/lua51/lapi.h \
@@ -1237,7 +1247,7 @@ all: c-auto.h ff-config.h
 .SUFFIXES: .c .cc .cxx .lo .o .obj
 am--refresh:
 	@:
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/am/bootstrap.am $(srcdir)/am/web.am $(srcdir)/am/cweb.am $(srcdir)/am/texmf.am $(srcdir)/mplibdir/am/mplib.am $(srcdir)/luatexdir/am/luatex.am $(srcdir)/libmd5/am/md5.am $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/am/bootstrap.am $(srcdir)/am/web.am $(srcdir)/am/cweb.am $(srcdir)/am/texmf.am $(srcdir)/mpdir/am/mp.am $(srcdir)/mplibdir/am/mplib.am $(srcdir)/etexdir/am/etex.am $(srcdir)/pdftexdir/am/pdftex.am $(srcdir)/luatexdir/am/luatex.am $(srcdir)/xetexdir/am/xetex.am $(srcdir)/omegaware/am/omegaware.am $(srcdir)/alephdir/am/aleph.am $(srcdir)/synctexdir/am/synctex.am $(srcdir)/libmd5/am/md5.am $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -1294,6 +1304,14 @@ stamp-h2: $(top_srcdir)/luatexdir/luafontloader/ff-config.in $(top_builddir)/con
 
 distclean-hdr:
 	-rm -f c-auto.h stamp-h1 ff-config.h stamp-h2
+mpware/Makefile: $(top_builddir)/config.status $(top_srcdir)/mpware/Makefile.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+omegafonts/Makefile: $(top_builddir)/config.status $(top_srcdir)/omegafonts/Makefile.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+otps/Makefile: $(top_builddir)/config.status $(top_srcdir)/otps/Makefile.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+window/Makefile: $(top_builddir)/config.status $(top_srcdir)/window/Makefile.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
 libff.a: $(libff_a_OBJECTS) $(libff_a_DEPENDENCIES) 
 	-rm -f libff.a
 	$(libff_a_AR) libff.a $(libff_a_OBJECTS) $(libff_a_LIBADD)

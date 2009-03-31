@@ -5,7 +5,11 @@ INCLUDES = -I$(top_builddir)/.. $(KPATHSEA_INCLUDES)
 
 version = $(WEB2CVERSION)
 
-SUBDIRS = doc lib man web2c .
+SUBDIRS = doc lib man mpware web2c . window
+if OMFONTS
+SUBDIRS += omegafonts
+endif OMFONTS
+SUBDIRS += otps
 
 proglib = lib/lib.a
 
@@ -102,11 +106,32 @@ include $(srcdir)/am/cweb.am
 ## TeX and MF
 include $(srcdir)/am/texmf.am
 
+## old MetaPost
+include $(srcdir)/mpdir/am/mp.am
+
 ## new MetaPost, also used for by luaTeX
 include $(srcdir)/mplibdir/am/mplib.am
 
+## e-TeX
+include $(srcdir)/etexdir/am/etex.am
+
+## pdfTeX
+include $(srcdir)/pdftexdir/am/pdftex.am
+
 ## luaTeX
 include $(srcdir)/luatexdir/am/luatex.am
+
+## XeTeX
+include $(srcdir)/xetexdir/am/xetex.am
+
+## omegaware web programs
+include $(srcdir)/omegaware/am/omegaware.am
+
+## Aleph
+include $(srcdir)/alephdir/am/aleph.am
+
+## SyncTeX
+include $(srcdir)/synctexdir/am/synctex.am
 
 ## libmd5
 include $(srcdir)/libmd5/am/md5.am

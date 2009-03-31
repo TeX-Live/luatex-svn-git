@@ -294,7 +294,9 @@ fi
 
 AC_CONFIG_SUBDIRS([web2c])
 
-AC_CONFIG_FILES([Makefile doc/Makefile lib/Makefile man/Makefile])
+AC_CONFIG_FILES([Makefile doc/Makefile lib/Makefile man/Makefile
+                 mpware/Makefile omegafonts/Makefile otps/Makefile
+                 window/Makefile])
 
 dnl The subdirectory web2c must be configured for the build system.
 dnl Can not share the cache file with the subdirectory!
