@@ -23,7 +23,7 @@
 #ifndef LUATEXLIB
 #  define LUATEXLIB
 
-#define SVN_REV "unknown" /* temp hack */
+#  define SVN_REV "unknown"     /* temp hack */
 
 /* WEB2C macros and prototypes */
 #  if !defined(LUATEXCOERCE)

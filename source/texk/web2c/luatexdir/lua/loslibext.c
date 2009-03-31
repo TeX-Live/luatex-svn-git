@@ -28,12 +28,12 @@ static const char _svn_version[] =
     "$Id: loslibext.c 1594 2008-11-28 13:32:48Z oneiros $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/lua/loslibext.c $";
 
 #if defined(_WIN32) || defined(WIN32) || defined(__NT__)
-#define MKDIR(a,b) mkdir(a)
+#  define MKDIR(a,b) mkdir(a)
 #else
-#define MKDIR(a,b) mkdir(a,b)
+#  define MKDIR(a,b) mkdir(a,b)
 #endif
 
-extern int shell_cmd_is_allowed (char **cmd, char **safecmd, char **cmdname);
+extern int shell_cmd_is_allowed(char **cmd, char **safecmd, char **cmdname);
 
 /* An attempt to figure out the basic platform, does not
   care about niceties like version numbers yet,
@@ -383,19 +383,19 @@ static int os_exec(lua_State * L)
      */
     if (restrictedshell == 0)
         allow = 1;
-    else 
-        allow = shell_cmd_is_allowed (&runcmd, &safecmd, &cmdname);
+    else
+        allow = shell_cmd_is_allowed(&runcmd, &safecmd, &cmdname);
 
-    if (allow>0 && cmdline != NULL && runcmd != NULL) {
+    if (allow > 0 && cmdline != NULL && runcmd != NULL) {
 #if defined(WIN32) && DONT_REALLY_EXIT
-        if (allow==2)
+        if (allow == 2)
             exec_command(safecmd, cmdline, environ);
         else
             exec_command(runcmd, cmdline, environ);
 #else
         {
             int r;
-            if (allow==2)
+            if (allow == 2)
                 r = exec_command(safecmd, cmdline, environ);
             else
                 r = exec_command(runcmd, cmdline, environ);
@@ -409,10 +409,10 @@ static int os_exec(lua_State * L)
 #endif
     }
     if (safecmd)
-        free (safecmd);
+        free(safecmd);
     if (cmdname)
-        free (cmdname);
-    if (allow==0) {
+        free(cmdname);
+    if (allow == 0) {
         lua_pushnil(L);
         lua_pushliteral(L, "Command execution disabled via shell_escape='p'");
         return 2;
@@ -462,17 +462,17 @@ static int os_spawn(lua_State * L)
      */
     if (restrictedshell == 0)
         allow = 1;
-    else 
-        allow = shell_cmd_is_allowed (&runcmd, &safecmd, &cmdname);
-    if (allow>0 && cmdline != NULL && runcmd != NULL) {
-        if (allow==2)
+    else
+        allow = shell_cmd_is_allowed(&runcmd, &safecmd, &cmdname);
+    if (allow > 0 && cmdline != NULL && runcmd != NULL) {
+        if (allow == 2)
             i = spawn_command(safecmd, cmdline, environ);
         else
             i = spawn_command(runcmd, cmdline, environ);
         if (safecmd)
-            free (safecmd);
+            free(safecmd);
         if (cmdname)
-            free (cmdname);
+            free(cmdname);
         if (i == 0) {
             lua_pushnumber(L, i);
             return 1;
@@ -501,10 +501,10 @@ static int os_spawn(lua_State * L)
         }
     }
     if (safecmd)
-        free (safecmd);
+        free(safecmd);
     if (cmdname)
-        free (cmdname);
-    if (allow==0) {
+        free(cmdname);
+    if (allow == 0) {
         lua_pushnil(L);
         lua_pushliteral(L, "Command execution disabled via shell_escape='p'");
         return 2;
@@ -880,14 +880,13 @@ static int os_tmpdir(lua_State * L)
 }
 
 
-static int
-os_execute (lua_State *L) 
+static int os_execute(lua_State * L)
 {
     int allow = 0;
     int ret = 1;
     char *safecmd = NULL;
     char *cmdname = NULL;
-    char *cmd = (char *)luaL_optstring(L, 1, NULL);
+    char *cmd = (char *) luaL_optstring(L, 1, NULL);
 
     if (shellenabledp <= 0) {
         lua_pushnil(L);
@@ -897,25 +896,26 @@ os_execute (lua_State *L)
     /* If restrictedshell == 0, any command is allowed. */
     if (restrictedshell == 0)
         allow = 1;
-    else 
-        allow = shell_cmd_is_allowed (&cmd, &safecmd, &cmdname);
+    else
+        allow = shell_cmd_is_allowed(&cmd, &safecmd, &cmdname);
 
     if (allow == 1) {
-        lua_pushinteger(L, system (cmd));
+        lua_pushinteger(L, system(cmd));
     } else if (allow == 2) {
-        lua_pushinteger(L, system (safecmd));
+        lua_pushinteger(L, system(safecmd));
     } else {
         lua_pushnil(L);
-        ret = 2;      
+        ret = 2;
         if (allow == 0)
-            lua_pushstring(L, "Command execution disabled via shell_escape='p'");
-        else /* allow == -1 */
+            lua_pushstring(L,
+                           "Command execution disabled via shell_escape='p'");
+        else                    /* allow == -1 */
             lua_pushstring(L, "Quoting error in system command line.");
     }
     if (safecmd)
-        free (safecmd);
+        free(safecmd);
     if (cmdname)
-        free (cmdname);
+        free(cmdname);
     return ret;
 }
 
@@ -955,5 +955,5 @@ void open_oslibext(lua_State * L, int safer_option)
         lua_pushcfunction(L, os_tmpdir);
         lua_setfield(L, -2, "tmpdir");
     }
-    lua_pop(L,1);   /* pop the table */
+    lua_pop(L, 1);              /* pop the table */
 }

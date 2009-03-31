@@ -872,15 +872,15 @@ static void write_epdf1(image_dict * idict)
 
     // write the page Group if it's there
     if (epdf_lastGroupObjectNum > 0) {
-      if (page->getGroup() != NULL) {
-        initDictFromDict(lastGroup, page->getGroup());
-        if (lastGroup->dictGetLength() > 0) {
-            pdf_puts("/Group ");
-            groupIsIndirect = lastGroup->isRef();
-            pdf_printf("%d 0 R", (int)epdf_lastGroupObjectNum);
-            pdf_puts("\n");
+        if (page->getGroup() != NULL) {
+            initDictFromDict(lastGroup, page->getGroup());
+            if (lastGroup->dictGetLength() > 0) {
+                pdf_puts("/Group ");
+                groupIsIndirect = lastGroup->isRef();
+                pdf_printf("%d 0 R", (int) epdf_lastGroupObjectNum);
+                pdf_puts("\n");
+            }
         }
-      }  
     }
     // write the page Metadata if it's there
     if (page->getMetadata() != NULL) {

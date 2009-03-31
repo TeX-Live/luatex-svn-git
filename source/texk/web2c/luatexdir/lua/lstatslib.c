@@ -60,7 +60,7 @@ char *getlasterror(void)
 
 extern int luabytecode_max;
 extern int luabytecode_bytes;
-static int luastate_max = 1; /* fixed value */
+static int luastate_max = 1;    /* fixed value */
 extern int luastate_bytes;
 extern int callback_count;
 extern int saved_callback_count;

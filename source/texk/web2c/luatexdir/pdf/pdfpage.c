@@ -488,7 +488,7 @@ static void set_textmatrix(pdfstructure * p, scaledpos * pos)
 
 static void set_font(pdfstructure * p)
 {
-    pdf_printf("/F%d", (int)p->f_pdf);
+    pdf_printf("/F%d", (int) p->f_pdf);
     pdf_print_resname_prefix();
     pdf_printf(" ");
     print_pdffloat(&(p->fs));
@@ -550,7 +550,7 @@ static void place_form(pdfstructure * p, scaledpos * pos, integer i)
     goto_pagemode(p);
     pdf_printf("q\n");
     set_pos_temp(p, pos);
-    pdf_printf("/Fm%d", (int)i);
+    pdf_printf("/Fm%d", (int) i);
     pdf_print_resname_prefix();
     pdf_printf(" Do\nQ\n");
 }

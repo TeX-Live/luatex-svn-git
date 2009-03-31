@@ -787,7 +787,7 @@ static int lua_nodelib_has_attribute(lua_State * L)
     if (n != NULL) {
         i = lua_tointeger(L, 2);
         val = luaL_optinteger(L, 3, UNUSED_ATTRIBUTE);
-        if ((val = has_attribute(*n, i, val)) > UNUSED_ATTRIBUTE ) {
+        if ((val = has_attribute(*n, i, val)) > UNUSED_ATTRIBUTE) {
             lua_pushnumber(L, val);
             return 1;
         }
@@ -804,7 +804,7 @@ static int lua_nodelib_set_attribute(lua_State * L)
         i = lua_tointeger(L, 2);
         val = lua_tointeger(L, 3);
         n = check_isnode(L, 1);
-        if (val == UNUSED_ATTRIBUTE ) {
+        if (val == UNUSED_ATTRIBUTE) {
             (void) unset_attribute(*n, i, val);
         } else {
             set_attribute(*n, i, val);
@@ -826,7 +826,7 @@ static int lua_nodelib_unset_attribute(lua_State * L)
         val = luaL_optnumber(L, 3, UNUSED_ATTRIBUTE);
         n = check_isnode(L, 1);
         ret = unset_attribute(*n, i, val);
-        if (ret > UNUSED_ATTRIBUTE ) {
+        if (ret > UNUSED_ATTRIBUTE) {
             lua_pushnumber(L, ret);
         } else {
             lua_pushnil(L);

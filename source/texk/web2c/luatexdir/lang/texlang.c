@@ -839,7 +839,7 @@ void hnj_hyphenation(halfword head, halfword tail)
         wordstart = r;
         assert(is_simple_character(wordstart));
         hyf_font = font(wordstart);
-        if (hyphen_char(hyf_font)<0) /* for backward compat */
+        if (hyphen_char(hyf_font) < 0)  /* for backward compat */
             hyf_font = 0;
         clang = char_lang(wordstart);
         lhmin = char_lhmin(wordstart);

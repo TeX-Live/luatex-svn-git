@@ -273,7 +273,7 @@ sa_tree undump_sa_tree(void)
                     a->tree[h][m] = Mxmalloc_array(sa_tree_item, LOWPART);
                     for (l = 0; l < LOWPART; l++) {
                         undump_int(x);
-                        a->tree[h][m][l] = (unsigned int)x;
+                        a->tree[h][m][l] = (unsigned int) x;
                     }
                 } else {
                     a->tree[h][m] = NULL;

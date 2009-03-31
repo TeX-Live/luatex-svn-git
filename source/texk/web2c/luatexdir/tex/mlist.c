@@ -2448,10 +2448,11 @@ void make_radical(pointer q)
 
 
 /* Construct a vlist box */
-static pointer 
-wrapup_delimiter (pointer x, pointer y, pointer q, 
-                  scaled shift_up, scaled shift_down) {
-    pointer p;  /* temporary register for box construction */
+static pointer
+wrapup_delimiter(pointer x, pointer y, pointer q,
+                 scaled shift_up, scaled shift_down)
+{
+    pointer p;                  /* temporary register for box construction */
     pointer v = new_null_box();
     type(v) = vlist_node;
     height(v) = shift_up + height(x);
@@ -2477,12 +2478,12 @@ wrapup_delimiter (pointer x, pointer y, pointer q,
 
 void make_over_delimiter(pointer q)
 {
-    pointer x, y, v;         /* temporary registers for box construction */
+    pointer x, y, v;            /* temporary registers for box construction */
     scaled shift_up, shift_down, clr, delta;
     x = clean_box(nucleus(q), sub_style(cur_style));
     y = flat_var_delimiter(left_delimiter(q), cur_size, width(x));
     left_delimiter(q) = null;
-    fixup_widths(x,y);
+    fixup_widths(x, y);
     shift_up = over_delimiter_bgap(cur_style);
     shift_down = 0;             /* under_delimiter_bgap(cur_style); */
     clr = over_delimiter_vgap(cur_style);
@@ -2490,7 +2491,7 @@ void make_over_delimiter(pointer q)
     if (delta > 0) {
         shift_up = shift_up + delta;
     }
-    v = wrapup_delimiter (x, y, q, shift_up, shift_down);
+    v = wrapup_delimiter(x, y, q, shift_up, shift_down);
     width(v) = width(x);        /* this also equals |width(y)| */
     math_list(nucleus(q)) = v;
     type(nucleus(q)) = sub_box_node;
@@ -2500,20 +2501,22 @@ void make_over_delimiter(pointer q)
 
 void make_delimiter_over(pointer q)
 {
-    pointer x, y, v;         /* temporary registers for box construction */
+    pointer x, y, v;            /* temporary registers for box construction */
     scaled shift_up, shift_down, clr, delta;
     y = clean_box(nucleus(q), cur_style);
-    x = flat_var_delimiter(left_delimiter(q), cur_size+(cur_size==script_script_size?0:1), width(y));
+    x = flat_var_delimiter(left_delimiter(q),
+                           cur_size + (cur_size == script_script_size ? 0 : 1),
+                           width(y));
     left_delimiter(q) = null;
-    fixup_widths(x,y);
+    fixup_widths(x, y);
     shift_up = over_delimiter_bgap(cur_style);
-    shift_down = 0; 
+    shift_down = 0;
     clr = over_delimiter_vgap(cur_style);
     delta = clr - ((shift_up - depth(x)) - (height(y) - shift_down));
     if (delta > 0) {
         shift_up = shift_up + delta;
     }
-    v = wrapup_delimiter (x, y, q, shift_up, shift_down);
+    v = wrapup_delimiter(x, y, q, shift_up, shift_down);
     width(v) = width(x);        /* this also equals |width(y)| */
     math_list(nucleus(q)) = v;
     type(nucleus(q)) = sub_box_node;
@@ -2524,12 +2527,14 @@ void make_delimiter_over(pointer q)
 
 void make_delimiter_under(pointer q)
 {
-    pointer x, y, v;         /* temporary registers for box construction */
+    pointer x, y, v;            /* temporary registers for box construction */
     scaled shift_up, shift_down, clr, delta;
     x = clean_box(nucleus(q), cur_style);
-    y = flat_var_delimiter(left_delimiter(q), cur_size+(cur_size==script_script_size?0:1) , width(x));
+    y = flat_var_delimiter(left_delimiter(q),
+                           cur_size + (cur_size == script_script_size ? 0 : 1),
+                           width(x));
     left_delimiter(q) = null;
-    fixup_widths(x,y);
+    fixup_widths(x, y);
     shift_up = 0;               /* over_delimiter_bgap(cur_style); */
     shift_down = under_delimiter_bgap(cur_style);
     clr = under_delimiter_vgap(cur_style);
@@ -2537,7 +2542,7 @@ void make_delimiter_under(pointer q)
     if (delta > 0) {
         shift_down = shift_down + delta;
     }
-    v = wrapup_delimiter (x, y, q, shift_up, shift_down);
+    v = wrapup_delimiter(x, y, q, shift_up, shift_down);
     width(v) = width(y);        /* this also equals |width(y)| */
     math_list(nucleus(q)) = v;
     type(nucleus(q)) = sub_box_node;
@@ -2548,12 +2553,12 @@ void make_delimiter_under(pointer q)
 
 void make_under_delimiter(pointer q)
 {
-    pointer x, y, v;         /* temporary registers for box construction */
+    pointer x, y, v;            /* temporary registers for box construction */
     scaled shift_up, shift_down, clr, delta;
     y = clean_box(nucleus(q), sup_style(cur_style));
     x = flat_var_delimiter(left_delimiter(q), cur_size, width(y));
     left_delimiter(q) = null;
-    fixup_widths(x,y);
+    fixup_widths(x, y);
     shift_up = 0;               /* over_delimiter_bgap(cur_style); */
     shift_down = under_delimiter_bgap(cur_style);
     clr = under_delimiter_vgap(cur_style);
@@ -2561,7 +2566,7 @@ void make_under_delimiter(pointer q)
     if (delta > 0) {
         shift_down = shift_down + delta;
     }
-    v = wrapup_delimiter (x, y, q, shift_up, shift_down);
+    v = wrapup_delimiter(x, y, q, shift_up, shift_down);
     width(v) = width(y);        /* this also equals |width(y)| */
     math_list(nucleus(q)) = v;
     type(nucleus(q)) = sub_box_node;

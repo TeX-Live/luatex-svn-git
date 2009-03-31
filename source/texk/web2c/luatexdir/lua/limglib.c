@@ -729,7 +729,7 @@ static const struct luaL_Reg imglib[] = {
 void vf_out_image(unsigned i)
 {
     image *a, **aa;
-    lua_State *L = Luas;     /* ... */
+    lua_State *L = Luas;        /* ... */
     lua_rawgeti(L, LUA_GLOBALSINDEX, i);        /* image ... */
     aa = (image **) luaL_checkudata(L, -1, TYPE_IMG);
     a = *aa;

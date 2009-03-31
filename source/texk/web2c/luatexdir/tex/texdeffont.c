@@ -157,7 +157,8 @@ void tex_def_font(small_number a)
             char err[256];
             char *errhelp[] =
                 { "The magnification ratio must be between 1 and 32768.",
-      NULL };
+                NULL
+            };
             snprintf(err, 255,
                      "Illegal magnification has been changed to 1000 (%d)",
                      (int) cur_val);

@@ -245,10 +245,14 @@ void undumpmathcode(void)
     undump_int(mathcode_heapptr);
     mathcode_heap = Mxmalloc_array(mathcodeval, mathcode_heapsize);
     for (k = 0; k < mathcode_heapptr; k++) {
-        undump_int(x); d.origin_value = x;
-        undump_int(x); d.class_value = x;
-        undump_int(x); d.family_value = x;
-        undump_int(x); d.character_value = x;
+        undump_int(x);
+        d.origin_value = x;
+        undump_int(x);
+        d.class_value = x;
+        undump_int(x);
+        d.family_value = x;
+        undump_int(x);
+        d.character_value = x;
         mathcode_heap[k] = d;
     }
     d.origin_value = 0;

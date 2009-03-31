@@ -53,8 +53,7 @@ static int spindle_size = 0;
 static spindle *spindles = NULL;
 static int spindle_index = 0;
 
-static void
-luac_store (lua_State *L, int i, int partial, integer cattable)
+static void luac_store(lua_State * L, int i, int partial, integer cattable)
 {
     char *st, *sttemp;
     size_t tsize;
@@ -82,8 +81,7 @@ luac_store (lua_State *L, int i, int partial, integer cattable)
 }
 
 
-static int
-do_luacprint(lua_State * L, int partial, int deftable)
+static int do_luacprint(lua_State * L, int partial, int deftable)
 {
     int i, n;
     integer cattable = (integer) deftable;
@@ -96,11 +94,11 @@ do_luacprint(lua_State * L, int partial, int deftable)
         }
     }
     if (lua_type(L, startstrings) == LUA_TTABLE) {
-        for (i = 1; ; i++) {
-            lua_rawgeti(L,startstrings, i);
+        for (i = 1;; i++) {
+            lua_rawgeti(L, startstrings, i);
             if (lua_isstring(L, -1)) {
                 luac_store(L, -1, partial, cattable);
-                lua_pop(L,1);
+                lua_pop(L, 1);
             } else {
                 break;
             }
@@ -111,7 +109,7 @@ do_luacprint(lua_State * L, int partial, int deftable)
                 lua_pushstring(L, "no string to print");
                 lua_error(L);
             }
-            luac_store(L,i, partial, cattable);
+            luac_store(L, i, partial, cattable);
         }
     }
     return 0;
@@ -1310,14 +1308,14 @@ static int tex_enableprimitives(lua_State * L)
         size_t l;
         int i;
         char *pre = (char *) luaL_checklstring(L, 1, &l);
-        if (lua_istable(L,2)) {
+        if (lua_istable(L, 2)) {
             int nncs = no_new_control_sequence;
             no_new_control_sequence = true;
             i = 1;
             while (1) {
-                lua_rawgeti(L,2,i);
-                if (lua_isstring(L,3)) {
-                    char *prim = (char *) lua_tostring(L,3);
+                lua_rawgeti(L, 2, i);
+                if (lua_isstring(L, 3)) {
+                    char *prim = (char *) lua_tostring(L, 3);
                     str_number s = maketexstring(prim);
                     halfword prim_val = prim_lookup(s);
                     if (prim_val != undefined_primitive) {
@@ -1325,30 +1323,31 @@ static int tex_enableprimitives(lua_State * L)
                         size_t newl;
                         halfword cur_cmd = get_prim_eq_type(prim_val);
                         halfword cur_chr = get_prim_equiv(prim_val);
-                        if (strncmp(pre,prim,l)!=0) { /* not a prefix */
-                            newl =  strlen(prim)+l;
-                            newprim = (char *) xmalloc (newl+1);
-                            strcpy(newprim,pre);
-                            strcat(newprim+l,prim);
+                        if (strncmp(pre, prim, l) != 0) {       /* not a prefix */
+                            newl = strlen(prim) + l;
+                            newprim = (char *) xmalloc(newl + 1);
+                            strcpy(newprim, pre);
+                            strcat(newprim + l, prim);
                         } else {
                             newl = strlen(prim);
-                            newprim = (char *) xmalloc (newl+1);
-                            strcpy(newprim,prim);
+                            newprim = (char *) xmalloc(newl + 1);
+                            strcpy(newprim, prim);
                         }
-                        if (string_lookup(newprim, newl) == static_undefined_control_sequence ) {
+                        if (string_lookup(newprim, newl) ==
+                            static_undefined_control_sequence) {
                             primitive_def(newprim, newl, cur_cmd, cur_chr);
                         }
-                        free (newprim);
+                        free(newprim);
                     }
                     flush_str(s);
                 } else {
-                    lua_pop(L,1);
+                    lua_pop(L, 1);
                     break;
                 }
-                lua_pop(L,1);
+                lua_pop(L, 1);
                 i++;
             }
-            lua_pop(L,1); /* the table */
+            lua_pop(L, 1);      /* the table */
             no_new_control_sequence = nncs;
         } else {
             lua_pushstring(L, "Expected an array of names as second argument");

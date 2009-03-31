@@ -78,7 +78,7 @@ extern void set_disc_field(halfword f, halfword t);
 
 /* attribute lists */
 
-#  define UNUSED_ATTRIBUTE -0x7FFFFFFF /* as low as it goes */
+#  define UNUSED_ATTRIBUTE -0x7FFFFFFF  /* as low as it goes */
 
 /* it is convenient to have attribute list nodes and attribute node
  * be the same size
