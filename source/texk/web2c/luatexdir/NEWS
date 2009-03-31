@@ -1,4 +1,56 @@
 ==============================================================
+Luatex beta-0.37.0 was released 20090331
+==============================================================
+
+* Luatex now implements shell_escape = 'p', a new feature
+  in web2c that intends to make \write18 more secure. As 
+  a side-effect, if luatex is used for typesetting, it will 
+  now also apply shell_escape = 'p' and shell_escape = 'f'
+  to the lua functions io.popen(), os.execute(), os.exec(), 
+  and os.spawn().
+  Nothing has changed for the case where luatex is used as 
+  a script interpreter.
+
+* Attributes can now have negative values. The special value
+  for 'unset' is lowered to -0x7FFFFFFF (it used to be -1).
+
+* The lua 'kpse' library now has an object-oriented interface 
+  as companion to the procedural interface. This is useful for
+  e.g. controlling the discovery of mplib files.
+
+* The new internal integer parameter \outputbox allows setting
+  of the output box number (default: 255, max: 65535)
+
+* The new primitives \Udelimiterunder and \Udelimiterover 
+  complete the set of 'StretchStacks' for OpenType Math.
+
+* Fixed a bug in font string conversions on the Macintosh that 
+  resulted in warnings about 'unaligned pointers being freed'.
+
+* Khaled Hosny spotted a bunch of manual errors.
+
+* There was bug in the width of math_accent objects when 
+  there were super- or subscripts attached to the accentee.
+
+* In PDF mode, TRT \leaders were bugged.
+
+* The source tree now uses the new texlive build system that 
+  Peter Breitenlohner created. 
+
+* There is now a single build.sh instead of four separate
+  ones. It has a few options:
+      --make      : only make, no make distclean; configure
+      --parallel  : make -j 2 -l 3.0
+      --nostrip   : do not strip binary
+      --mingw     : crosscompile for mingw32 from i386-linux
+      --ppc       : crosscompile for ppc osx on intel osx
+
+  Note: --parallel still sometimes causes crashes due to
+  timing errors, so use that option with care.
+
+* Many compiler warnings have been removed (but not all yet).
+
+==============================================================
 Luatex beta-0.36.0 was released 20090323
 ==============================================================
 
