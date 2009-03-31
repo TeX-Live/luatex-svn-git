@@ -32,6 +32,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+EXTRA_PROGRAMS = $(am__EXEEXT_1) tex$(EXEEXT) mf$(EXEEXT) \
+	mf-nowin$(EXEEXT) luatex$(EXEEXT) luatangle$(EXEEXT)
 bin_PROGRAMS = tangle$(EXEEXT) ctangle$(EXEEXT) $(am__EXEEXT_2) \
 	ctie$(EXEEXT) cweave$(EXEEXT) tie$(EXEEXT) $(am__EXEEXT_3) \
 	$(am__EXEEXT_4) $(am__EXEEXT_5) $(am__EXEEXT_6)
@@ -47,7 +49,8 @@ DIST_COMMON = README $(am__configure_deps) $(dist_check_SCRIPTS) \
 	$(srcdir)/Makefile.in $(srcdir)/am/bootstrap.am \
 	$(srcdir)/am/cweb.am $(srcdir)/am/texmf.am $(srcdir)/am/web.am \
 	$(srcdir)/c-auto.in $(srcdir)/libmd5/am/md5.am \
-	$(srcdir)/luatexdir/am/luatex.am $(top_srcdir)/configure \
+	$(srcdir)/luatexdir/am/luatex.am \
+	$(srcdir)/mplibdir/am/mplib.am $(top_srcdir)/configure \
 	$(top_srcdir)/luatexdir/luafontloader/ff-config.in \
 	../../build-aux/config.guess ../../build-aux/config.sub \
 	../../build-aux/depcomp ../../build-aux/install-sh \
@@ -57,7 +60,7 @@ DIST_COMMON = README $(am__configure_deps) $(dist_check_SCRIPTS) \
 @WEB_TRUE@am__append_1 = $(web_programs)
 @TEX_TRUE@am__append_2 = tex
 @MF_TRUE@am__append_3 = mf
-@MFN_TRUE@am__append_4 = mf-nowin
+@MFN_TRUE@@MF_TRUE@am__append_4 = mf-nowin
 @LUATEX_TRUE@am__append_5 = luatex luatangle
 @MINGW32_FALSE@am__append_6 = -DLUA_USE_POSIX
 @LUATEX_TRUE@am__append_7 = luatexdir/luatangle.test
@@ -71,6 +74,7 @@ am__aclocal_m4_deps = $(top_srcdir)/../../m4/kpse-asm.m4 \
 	$(top_srcdir)/../../m4/kpse-lex.m4 \
 	$(top_srcdir)/../../m4/kpse-libpng-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-obsdcompat-flags.m4 \
+	$(top_srcdir)/../../m4/kpse-socket-libs.m4 \
 	$(top_srcdir)/../../m4/kpse-web2c.m4 \
 	$(top_srcdir)/../../m4/kpse-win32.m4 \
 	$(top_srcdir)/../../m4/kpse-xpdf-flags.m4 \
@@ -240,7 +244,7 @@ am__EXEEXT_1 = bibtex$(EXEEXT) dvicopy$(EXEEXT) dvitomp$(EXEEXT) \
 @WEB_TRUE@am__EXEEXT_2 = $(am__EXEEXT_1)
 @TEX_TRUE@am__EXEEXT_3 = tex$(EXEEXT)
 @MF_TRUE@am__EXEEXT_4 = mf$(EXEEXT)
-@MFN_TRUE@am__EXEEXT_5 = mf-nowin$(EXEEXT)
+@MFN_TRUE@@MF_TRUE@am__EXEEXT_5 = mf-nowin$(EXEEXT)
 @LUATEX_TRUE@am__EXEEXT_6 = luatex$(EXEEXT) luatangle$(EXEEXT)
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
@@ -610,7 +614,7 @@ x_tool_libs = @x_tool_libs@
 ACLOCAL_AMFLAGS = -I ../../m4
 INCLUDES = -I$(top_builddir)/.. $(KPATHSEA_INCLUDES)
 version = $(WEB2CVERSION)
-SUBDIRS = doc lib man web2c . 
+SUBDIRS = doc lib man web2c .
 proglib = lib/lib.a
 dist_man_MANS = 
 nodist_man_MANS = ctiedir/ctie.1 tiedir/tie.1
@@ -1233,7 +1237,7 @@ all: c-auto.h ff-config.h
 .SUFFIXES: .c .cc .cxx .lo .o .obj
 am--refresh:
 	@:
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/am/bootstrap.am $(srcdir)/am/web.am $(srcdir)/am/cweb.am $(srcdir)/am/texmf.am $(srcdir)/luatexdir/am/luatex.am $(srcdir)/libmd5/am/md5.am $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/am/bootstrap.am $(srcdir)/am/web.am $(srcdir)/am/cweb.am $(srcdir)/am/texmf.am $(srcdir)/mplibdir/am/mplib.am $(srcdir)/luatexdir/am/luatex.am $(srcdir)/libmd5/am/md5.am $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -5515,119 +5519,119 @@ bibtex-web2c: $(web2c_common) $(web2c_programs) web2c/cvtbib.sed bibtex.p
 	$(web2c) bibtex
 	echo timestamp >$@
 	touch bibtex.c bibtex.h
-bibtex.p: tangle bibtex.web bibtex.ch
+bibtex.p: tangle$(EXEEXT) bibtex.web bibtex.ch
 	$(tangle) bibtex bibtex
 dvicopy.c dvicopy.h: dvicopy-web2c
 dvicopy-web2c: $(web2c_common) $(web2c_programs) dvicopy.p
 	$(web2c) dvicopy
 	echo timestamp >$@
 	touch dvicopy.c dvicopy.h
-dvicopy.p: tangle dvicopy.web dvicopy.ch
+dvicopy.p: tangle$(EXEEXT) dvicopy.web dvicopy.ch
 	$(tangle) dvicopy dvicopy
 dvitomp.c dvitomp.h: dvitomp-web2c
 dvitomp-web2c: $(web2c_common) $(web2c_programs) dvitomp.p
 	$(web2c) dvitomp
 	echo timestamp >$@
 	touch dvitomp.c dvitomp.h
-dvitomp.p: tangle dvitomp.web dvitomp.ch
+dvitomp.p: tangle$(EXEEXT) dvitomp.web dvitomp.ch
 	$(tangle) dvitomp dvitomp
 dvitype.c dvitype.h: dvitype-web2c
 dvitype-web2c: $(web2c_common) $(web2c_programs) dvitype.p
 	$(web2c) dvitype
 	echo timestamp >$@
 	touch dvitype.c dvitype.h
-dvitype.p: tangle dvitype.web dvitype.ch
+dvitype.p: tangle$(EXEEXT) dvitype.web dvitype.ch
 	$(tangle) dvitype dvitype
 gftodvi.c gftodvi.h: gftodvi-web2c
 gftodvi-web2c: $(web2c_common) $(web2c_programs) gftodvi.p
 	$(web2c) gftodvi
 	echo timestamp >$@
 	touch gftodvi.c gftodvi.h
-gftodvi.p: tangle gftodvi.web gftodvi.ch
+gftodvi.p: tangle$(EXEEXT) gftodvi.web gftodvi.ch
 	$(tangle) gftodvi gftodvi
 gftopk.c gftopk.h: gftopk-web2c
 gftopk-web2c: $(web2c_common) $(web2c_programs) gftopk.p
 	$(web2c) gftopk
 	echo timestamp >$@
 	touch gftopk.c gftopk.h
-gftopk.p: tangle gftopk.web gftopk.ch
+gftopk.p: tangle$(EXEEXT) gftopk.web gftopk.ch
 	$(tangle) gftopk gftopk
 gftype.c gftype.h: gftype-web2c
 gftype-web2c: $(web2c_common) $(web2c_programs) gftype.p
 	$(web2c) gftype
 	echo timestamp >$@
 	touch gftype.c gftype.h
-gftype.p: tangle gftype.web gftype.ch
+gftype.p: tangle$(EXEEXT) gftype.web gftype.ch
 	$(tangle) gftype gftype
 mft.c mft.h: mft-web2c
 mft-web2c: $(web2c_common) $(web2c_programs) mft.p
 	$(web2c) mft
 	echo timestamp >$@
 	touch mft.c mft.h
-mft.p: tangle mft.web mft.ch
+mft.p: tangle$(EXEEXT) mft.web mft.ch
 	$(tangle) mft mft
 patgen.c patgen.h: patgen-web2c
 patgen-web2c: $(web2c_common) $(web2c_programs) patgen.p
 	$(web2c) patgen
 	echo timestamp >$@
 	touch patgen.c patgen.h
-patgen.p: tangle patgen.web patgen.ch
+patgen.p: tangle$(EXEEXT) patgen.web patgen.ch
 	$(tangle) patgen patgen
 pktogf.c pktogf.h: pktogf-web2c
 pktogf-web2c: $(web2c_common) $(web2c_programs) pktogf.p
 	$(web2c) pktogf
 	echo timestamp >$@
 	touch pktogf.c pktogf.h
-pktogf.p: tangle pktogf.web pktogf.ch
+pktogf.p: tangle$(EXEEXT) pktogf.web pktogf.ch
 	$(tangle) pktogf pktogf
 pktype.c pktype.h: pktype-web2c
 pktype-web2c: $(web2c_common) $(web2c_programs) pktype.p
 	$(web2c) pktype
 	echo timestamp >$@
 	touch pktype.c pktype.h
-pktype.p: tangle pktype.web pktype.ch
+pktype.p: tangle$(EXEEXT) pktype.web pktype.ch
 	$(tangle) pktype pktype
 pltotf.c pltotf.h: pltotf-web2c
 pltotf-web2c: $(web2c_common) $(web2c_programs) pltotf.p
 	$(web2c) pltotf
 	echo timestamp >$@
 	touch pltotf.c pltotf.h
-pltotf.p: tangle pltotf.web pltotf.ch
+pltotf.p: tangle$(EXEEXT) pltotf.web pltotf.ch
 	$(tangle) pltotf pltotf
 pooltype.c pooltype.h: pooltype-web2c
 pooltype-web2c: $(web2c_common) $(web2c_programs) pooltype.p
 	$(web2c) pooltype
 	echo timestamp >$@
 	touch pooltype.c pooltype.h
-pooltype.p: tangle pooltype.web pooltype.ch
+pooltype.p: tangle$(EXEEXT) pooltype.web pooltype.ch
 	$(tangle) pooltype pooltype
 tftopl.c tftopl.h: tftopl-web2c
 tftopl-web2c: $(web2c_common) $(web2c_programs) tftopl.p
 	$(web2c) tftopl
 	echo timestamp >$@
 	touch tftopl.c tftopl.h
-tftopl.p: tangle tftopl.web tftopl.ch
+tftopl.p: tangle$(EXEEXT) tftopl.web tftopl.ch
 	$(tangle) tftopl tftopl
 vftovp.c vftovp.h: vftovp-web2c
 vftovp-web2c: $(web2c_common) $(web2c_programs) vftovp.p
 	$(web2c) vftovp
 	echo timestamp >$@
 	touch vftovp.c vftovp.h
-vftovp.p: tangle vftovp.web vftovp.ch
+vftovp.p: tangle$(EXEEXT) vftovp.web vftovp.ch
 	$(tangle) vftovp vftovp
 vptovf.c vptovf.h: vptovf-web2c
 vptovf-web2c: $(web2c_common) $(web2c_programs) vptovf.p
 	$(web2c) vptovf
 	echo timestamp >$@
 	touch vptovf.c vptovf.h
-vptovf.p: tangle vptovf.web vptovf.ch
+vptovf.p: tangle$(EXEEXT) vptovf.web vptovf.ch
 	$(tangle) vptovf vptovf
 weave.c weave.h: weave-web2c
 weave-web2c: $(web2c_common) $(web2c_programs) weave.p
 	$(web2c) weave
 	echo timestamp >$@
 	touch weave.c weave.h
-weave.p: tangle weave.web weave.ch
+weave.p: tangle$(EXEEXT) weave.web weave.ch
 	$(tangle) weave weave
 ctie.c: ctangle$(EXEEXT) ctiedir/ctie.w ctiedir/ctie-k.ch
 	CWEBINPUTS=$(srcdir)/ctiedir $(ctangle) ctie.w ctie-k.ch
@@ -5696,7 +5700,7 @@ luatangle.c luatangle.h: $(web2c_common) $(web2c_programs) luatangle.p
 luatangle.p: tangle$(EXEEXT) $(luatangle_sources)
 	WEBINPUTS=$(srcdir)/luatexdir $(buildenv) $(TANGLE) luatangle luatangle
 
-@LUATEX_TRUE@$(libluatex_a_SOURCES): $(lua_mp_c_h)
+$(libluatex_a_OBJECTS): $(lua_mp_c_h)
 $(lua_mp_c_h): mp-ctangle
 mp-ctangle: ctangle$(EXEEXT) $(lua_mp_web) luatexd.h
 	$(mkdir_p) luatexdir

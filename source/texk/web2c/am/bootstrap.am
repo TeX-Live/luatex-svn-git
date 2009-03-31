@@ -101,7 +101,7 @@ cwebboot.c: cwebdir/common.w cwebdir/comm-w2c.ch
 DISTCLEANFILES += stamp-ctangle
 
 ## Tests
-
+##
 dist_check_SCRIPTS += tangle.test
 
 TESTS += tangle.test

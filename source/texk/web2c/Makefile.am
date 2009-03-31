@@ -5,11 +5,12 @@ INCLUDES = -I$(top_builddir)/.. $(KPATHSEA_INCLUDES)
 
 version = $(WEB2CVERSION)
 
-SUBDIRS = doc lib man web2c . 
+SUBDIRS = doc lib man web2c .
 
 proglib = lib/lib.a
 
 ## Below we will add to these
+EXTRA_PROGRAMS =
 bin_PROGRAMS =
 noinst_PROGRAMS =
 dist_man_MANS =
@@ -101,13 +102,16 @@ include $(srcdir)/am/cweb.am
 ## TeX and MF
 include $(srcdir)/am/texmf.am
 
+## new MetaPost, also used for by luaTeX
+include $(srcdir)/mplibdir/am/mplib.am
+
 ## luaTeX
 include $(srcdir)/luatexdir/am/luatex.am
 
 ## libmd5
 include $(srcdir)/libmd5/am/md5.am
 
-## Not yet used
+## Not used
 ##
 EXTRA_DIST += fmtutil.in
 

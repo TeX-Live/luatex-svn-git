@@ -1,9 +1,13 @@
+2009-03-29  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.c: remove all references to Omega, eOmega, and pdfeTeX.
+
 2009-03-28  Karl Berry  <karl@tug.org>
 
 	* texmfmp.c (mk_shellcmdlist, shell_cmd_is_allowed): not static,
 	so luatex can access.  From Taco.
 
-2009-03-27  Taco Hoekwater <taco@luatex.org>
+2009-03-27  Taco Hoekwater  <taco@luatex.org>
 
 	* texmfmp.c (parse_options): add #ifndef luaTeX guard for 
 	--src-specials, because luaTeX does not implement it.

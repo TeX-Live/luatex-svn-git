@@ -65,34 +65,25 @@ KPSE_CHECK_WIN32
 AM_CONDITIONAL([WIN32], [test "x$kpse_cv_have_win32" != xno])
 AM_CONDITIONAL([MINGW32], [test "x$kpse_cv_have_win32" = xmingw32])
 
-# -lsocket is needed on Solaris, at least.  Maybe -lnsl on SCO, too?
-# See ac_path_xtra.
-AS_IF([test "x$enable_ipc:$enable_luatex" != xno:no], [
-kpse_save_LIBS=$LIBS
-AC_SEARCH_LIBS([connect], [socket nsl])
-LIBS=$kpse_save_LIBS
-AS_CASE([$ac_cv_search_connect],
-        ["none required"], [],
-        [no], [AS_IF([test "x$enable_luatex" = xyes],
-                     ,
-                     [AC_MSG_WARN([no socket library: disabling ipc])
-                                   enable_ipc=no])],
-        [socketlibs="-l$ac_cv_search_connect"])
-
-AC_CHECK_LIB([wsock32], [main], [socketlibs="-lwsock32"])
-
+KPSE_CHECK_SOCKET_LIBS
+AS_IF([test "x$enable_ipc:$enable_luatex" != xno:no],
+      [AS_CASE([$ac_cv_search_connect],
+               ["none required"], [],
+               [no], [AS_IF([test "x$enable_luatex" = xyes],
+                            [AC_MSG_ERROR([Sorry, no socket library: can not build luaTeX])],
+                            [AC_MSG_WARN([no socket library: disabling ipc])
+                                          enable_ipc=no])],
+               [socketlibs="-l$ac_cv_search_connect"])])
 AS_IF([test "x$enable_ipc" = xyes],
       [AC_DEFINE([IPC], 1, [tex: Define to enable --ipc.])])
-])
 AC_SUBST([socketlibs])
 
-dnl Generate *TEX, OMEGA, and ALEPH conditionals.
+dnl Generate *TEX and ALEPH conditionals.
 m4_foreach([Kpse_Prog], [kpse_tex_progs],
            [m4_ifset([Kpse_Prog],
                      [KPSE_XTEX_COND(Kpse_Prog)])])[]dnl
-dnl Disable SyncTeX support for TeX.
-AM_CONDITIONAL([TEX_SYNCTEX], [false])[]dnl
-AS_IF([test "x$enable_omega:$enable_aleph:$enable_xetex" = xno:no:no],
+
+AS_IF([test "x$enable_aleph:$enable_xetex" = xno:no],
       [enable_otangle=no],
       [enable_otangle=yes])
 AM_CONDITIONAL([OTANGLE],
@@ -135,7 +126,7 @@ AC_SUBST([x_ext_lib])
 AC_SUBST([x_tool_libs])
 AC_SUBST([wlibs])
 
-dnl Generate *WIN defines.
+dnl Generate MetaFont *WIN defines.
 m4_foreach([Kpse_Win], [kpse_mf_win],
            [m4_ifset([Kpse_Win],
                      [KPSE_MFWIN_DEFINE(Kpse_Win)])])[]dnl
@@ -179,14 +170,18 @@ if test `(uname) 2>/dev/null` = aux; then
   AC_CHECK_LIB([posix], [sigemptyset])
 fi
 
+dnl FIXME: luaTeX requires <unistd.h>, access, and atoi
+dnl
 AC_CHECK_SIZEOF([int])
-AC_CHECK_FUNCS([strerror])
-AC_CHECK_HEADERS([errno.h])
+AC_CHECK_SIZEOF([long])
+AC_SEARCH_LIBS([pow], [m])
+AC_CHECK_FUNCS([access atoi strerror])
+AC_CHECK_HEADERS([errno.h langinfo.h sys/timeb.h sys/wait.h])
+AC_TYPE_LONG_DOUBLE
+AC_TYPE_LONG_LONG_INT
 
 dnl FIXME: needed for libpdf -> xpdf ?
 AC_CHECK_HEADERS([time.h])
-
-AC_SEARCH_LIBS([pow], [m])
 
 dnl FIXME: obsolete
 AC_TYPE_SIGNAL
@@ -228,32 +223,23 @@ AH_TOP([/* c-auto.h: defines for web2c, as determined by configure.
 #define WEB2CVERSION "REPLACE-WITH-WEB2CVERSION"])
 AH_BOTTOM([#endif /* !WEB2C_C_AUTO_H */])
 
-AS_IF([test "x$enable_luatex" = xyes],
-[AC_CONFIG_HEADERS([ff-config.h:luatexdir/luafontloader/ff-config.in])
-AC_CHECK_HEADERS([langinfo_h])
-AC_TYPE_LONG_DOUBLE
-AC_TYPE_LONG_LONG_INT
-])
+dnl Additional config header for luaTeX
+AC_CONFIG_HEADERS([ff-config.h:luatexdir/luafontloader/ff-config.in])
 
 # For cross-compilation.  Put at the end so there is a fair chance
 # these are still visible when the configure script has finished.
 
 # The supporting programs we need to have available on the build machine.
-#                     make variable  cross      native  
-KPSE_CROSS_PATH_PROG([TANGLEBOOT],  [tangle],  [./tangleboot])
-KPSE_CROSS_PATH_PROG([TANGLE],      [tangle],  [./tangle])
-KPSE_CROSS_PATH_PROG([CTANGLEBOOT], [ctangle], [./ctangleboot])
-KPSE_CROSS_PATH_PROG([CTANGLE],     [ctangle], [./ctangle])
-KPSE_CROSS_PATH_PROG([TIE],         [tie],     [./tie])
-AS_IF([test "x$enable_otangle" = xyes],
-      [KPSE_CROSS_PATH_PROG([OTANGLE],   [otangle],   [./otangle])])
-AS_IF([test "x$enable_luatex" = xyes],
-      [KPSE_CROSS_PATH_PROG([LUATANGLE], [luatangle], [./luatangle])])
-
-AC_CONFIG_SUBDIRS([web2c])
-
-AC_CONFIG_FILES([Makefile doc/Makefile lib/Makefile man/Makefile
-                 ])
+#                     make variable  cross        native  
+KPSE_CROSS_PATH_PROG([TANGLEBOOT],  [tangle],    [./tangleboot])
+KPSE_CROSS_PATH_PROG([TANGLE],      [tangle],    [./tangle])
+KPSE_CROSS_PATH_PROG([CTANGLEBOOT], [ctangle],   [./ctangleboot])
+KPSE_CROSS_PATH_PROG([CTANGLE],     [ctangle],   [./ctangle])
+KPSE_CROSS_PATH_PROG([TIE],         [tie],       [./tie])
+dnl Required for Aleph and XeTeX
+KPSE_CROSS_PATH_PROG([OTANGLE],     [otangle],   [./otangle])
+dnl Required for luaTeX
+KPSE_CROSS_PATH_PROG([LUATANGLE],   [luatangle], [./luatangle])
 
 if test "x$cross_compiling" = xyes; then
   AC_MSG_CHECKING([if your tie supports WEBINPUTS])
@@ -305,6 +291,10 @@ if test "x$cross_compiling" = xyes; then
     rm -f cftest.p
   fi
 fi
+
+AC_CONFIG_SUBDIRS([web2c])
+
+AC_CONFIG_FILES([Makefile doc/Makefile lib/Makefile man/Makefile])
 
 dnl The subdirectory web2c must be configured for the build system.
 dnl Can not share the cache file with the subdirectory!

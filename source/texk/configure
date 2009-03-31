@@ -692,7 +692,6 @@ enable_fmtutil
 enable_ipc
 enable_tex
 enable_etex
-enable_omega
 enable_aleph
 enable_pdftex
 enable_luatex
@@ -761,7 +760,8 @@ ttfdump
 xdv2pdf
 xdvik
 xdvipdfmx
-tetex'
+tetex
+texlive'
 
 # Initialize some variables set by options.
 ac_init_help=
@@ -1403,7 +1403,6 @@ Optional Features:
   --enable-ipc              enable TeX's --ipc option, i.e., pipe to a program
   --disable-tex               do not compile and install TeX
   --enable-etex               compile and install e-TeX
-  --enable-omega              compile and install Omega
   --disable-aleph             do not compile and install Aleph
   --disable-pdftex            do not compile and install pdfTeX
   --disable-luatex            do not compile and install luaTeX
@@ -2115,14 +2114,6 @@ case $enable_etex in
   yes|no) : ;;
   *) enable_etex=no ;;
 esac
-# Check whether --enable-omega was given.
-if test "${enable_omega+set}" = set; then
-  enableval=$enable_omega;
-fi
-case $enable_omega in
-  yes|no) : ;;
-  *) enable_omega=no ;;
-esac
 # Check whether --enable-aleph was given.
 if test "${enable_aleph+set}" = set; then
   enableval=$enable_aleph;
@@ -2229,6 +2220,7 @@ fi
 if test "${enable_web_progs+set}" = set; then
   enableval=$enable_web_progs;
 fi
+
 
 
 
@@ -3278,6 +3270,16 @@ if test -x $srcdir/tetex/configure; then
   DIST_SUBTEXK="$DIST_SUBTEXK tetex"
   if false; then
     subdirs="$subdirs tetex"
+
+  fi
+fi
+
+
+if test -x $srcdir/texlive/configure; then
+  test "x$enable_texlive" = xno || SUBTEXK="$SUBTEXK texlive"
+  DIST_SUBTEXK="$DIST_SUBTEXK texlive"
+  if false; then
+    subdirs="$subdirs texlive"
 
   fi
 fi
