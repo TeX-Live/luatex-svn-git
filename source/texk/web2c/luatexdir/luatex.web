@@ -17321,12 +17321,8 @@ if not (dir_orthogonal(dir_primary[box_dir(p)])(dir_primary[dvi_direction]))
     basepoint_vertical:=depth(p)
   else
     basepoint_vertical:=height(p);
-  if dir_opposite(dir_secondary[box_dir(p)])(dir_secondary[dvi_direction]) then begin
-    if dvi_direction=dir_TL_ then
-      basepoint_horizontal:=width(p) 
-    else
-      basepoint_horizontal:=-width(p);
-    end
+  if dir_opposite(dir_secondary[box_dir(p)])(dir_secondary[dvi_direction]) then
+    basepoint_horizontal:=width(p) 
   else
     basepoint_horizontal:=0;
   end
@@ -17348,11 +17344,12 @@ else begin
     basepoint_vertical:=width(p);
   end;
 basepoint_horizontal := basepoint_horizontal + shift_amount(p);
+  {shift the box `right'}
 if list_ptr(p)=null then begin
   cur.v:=cur.v+effective_vertical;
   @<Record void list {\sl Sync\TeX} information@>;
   end
-else  begin 
+else begin 
   edge_v:=cur.v;
   cur.h:=left_edge + basepoint_horizontal;
   cur.v:=cur.v + basepoint_vertical; 
