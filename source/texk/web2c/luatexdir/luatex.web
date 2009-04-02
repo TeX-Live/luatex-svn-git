@@ -14497,7 +14497,7 @@ if list_ptr(p)=null then begin
   cur.v:=cur.v+effective_vertical;
   @<Record void list {\sl Sync\TeX} information@>;
   end
-else  begin
+else begin
   edge_v:=cur.v;
   cur.h:=left_edge + basepoint_horizontal;
   cur.v:=cur.v + basepoint_vertical;
@@ -17099,20 +17099,18 @@ if not is_mirrored(dvi_direction) then
 else
   basepoint_vertical := basepoint_vertical - shift_amount(p);
     {shift the box `up'}
-if list_ptr(p)=null then begin 
+if list_ptr(p)=null then begin
   @<Record void list {\sl Sync\TeX} information@>;
-  cur.h := cur.h + effective_horizontal; 
+  cur.h:=cur.h + effective_horizontal;
   end
 else begin
-  temp_ptr:=p; 
-  edge:=cur.h; cur.h := cur.h + basepoint_horizontal;
+  temp_ptr:=p; edge:=cur.h; cur.h:=cur.h + basepoint_horizontal;
   edge_v:=cur.v; cur.v:=base_line + basepoint_vertical;
   synch_pos_with_cur;
   save_box_pos:=box_pos;
   if type(p)=vlist_node then pdf_vlist_out@+else pdf_hlist_out;
   box_pos:=save_box_pos;
-  cur.h:=edge; cur.h := cur.h + effective_horizontal;
-  cur.v:=base_line;
+  cur.h:=edge+effective_horizontal; cur.v:=base_line;
   end
 end
 
@@ -17322,7 +17320,7 @@ if not (dir_orthogonal(dir_primary[box_dir(p)])(dir_primary[dvi_direction]))
   else
     basepoint_vertical:=height(p);
   if dir_opposite(dir_secondary[box_dir(p)])(dir_secondary[dvi_direction]) then
-    basepoint_horizontal:=width(p) 
+    basepoint_horizontal:=width(p)
   else
     basepoint_horizontal:=0;
   end
@@ -17349,10 +17347,10 @@ if list_ptr(p)=null then begin
   cur.v:=cur.v+effective_vertical;
   @<Record void list {\sl Sync\TeX} information@>;
   end
-else begin 
+else begin
   edge_v:=cur.v;
   cur.h:=left_edge + basepoint_horizontal;
-  cur.v:=cur.v + basepoint_vertical; 
+  cur.v:=cur.v + basepoint_vertical;
   synch_pos_with_cur;
   save_box_pos:=box_pos;
   temp_ptr:=p;
