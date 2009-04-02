@@ -162,7 +162,7 @@ boolean calc_pdfpos(pdfstructure * p, scaledpos * pos)
         new.v = lround(pos->v * p->k1);
         p->cm[4].m = new.h - p->pdf.h.m;        /* cm is concatenated */
         p->cm[5].m = new.v - p->pdf.v.m;
-        if (abs(p->cm[4].m) >= 1 || abs(p->cm[5].m) >= 1)
+        if (new.h != p->pdf.h.m || new.v != p->pdf.v.m)
             move_pdfpos = TRUE;
         break;
     case PMODE_TEXT:
@@ -170,7 +170,7 @@ boolean calc_pdfpos(pdfstructure * p, scaledpos * pos)
         new.v = lround(pos->v * p->k1);
         p->tm[4].m = new.h - p->pdf_bt_pos.h.m; /* Tm replaces */
         p->tm[5].m = new.v - p->pdf_bt_pos.v.m;
-        if (abs(p->tm[4].m) >= 1 || abs(p->tm[5].m) >= 1)
+        if (new.h != p->pdf.h.m || new.v != p->pdf.v.m)
             move_pdfpos = TRUE;
         break;
     case PMODE_CHAR:
@@ -181,17 +181,17 @@ boolean calc_pdfpos(pdfstructure * p, scaledpos * pos)
             new.v = lround(pos->v * p->k1);
             p->tj_delta.m =
                 -lround((new.h - p->cw.m) / exp10[p->cw.e - p->tj_delta.e]);
-            p->tm[5].m = new.v - p->pdf.v.m;    /* p->tm[4] is meaningless */
-            if (abs(p->tj_delta.m) >= 1 || abs(p->tm[5].m) >= 1)
+            p->tm[5].m = new.v - p->pdf_bt_pos.v.m;     /* p->tm[4] is meaningless */
+            if (p->tj_delta.m != 0 || new.v != p->pdf.v.m)
                 move_pdfpos = TRUE;
             break;
         case WMODE_V:
             new.h = lround(pos->h * p->k1);
             new.v = lround((p->pdf_tj_pos.v.m - pos->v * p->k1) * p->k2);
-            p->tm[4].m = new.h - p->pdf.h.m;    /* p->tm[5] is meaningless */
+            p->tm[4].m = new.h - p->pdf_bt_pos.h.m;     /* p->tm[5] is meaningless */
             p->tj_delta.m =
                 -lround((new.v - p->cw.m) / exp10[p->cw.e - p->tj_delta.e]);
-            if (abs(p->tj_delta.m) >= 1 || abs(p->tm[4].m) >= 1)
+            if (p->tj_delta.m != 0 || new.h != p->pdf.h.m)
                 move_pdfpos = TRUE;
             break;
         default:
@@ -513,20 +513,24 @@ place_glyph(pdfstructure * p, scaledpos * pos, internal_font_number f,
     assert(is_charmode(p) || is_chararraymode(p));
     move = calc_pdfpos(p, pos);
     if (move == TRUE) {
-        if ((p->wmode == WMODE_H && abs(p->tm[5].m) >= 1)
-            || (p->wmode == WMODE_V && abs(p->tm[4].m) >= 1)
+        if ((p->wmode == WMODE_H
+             && (p->pdf_bt_pos.v.m + p->tm[5].m) != p->pdf.v.m)
+            || (p->wmode == WMODE_V
+                && (p->pdf_bt_pos.h.m + p->tm[4].m) != p->pdf.h.m)
             || abs(p->tj_delta.m) >= 1000000) {
             goto_textmode(p);
             set_textmatrix(p, pos);
             begin_chararray(p);
             move = calc_pdfpos(p, pos);
         }
-        assert((p->wmode == WMODE_H && p->tm[5].m == 0)
-               || (p->wmode == WMODE_V && p->tm[4].m == 0));
         if (move == TRUE) {
+            assert((p->wmode == WMODE_H
+                    && (p->pdf_bt_pos.v.m + p->tm[5].m) == p->pdf.v.m)
+                   || (p->wmode == WMODE_V
+                       && (p->pdf_bt_pos.h.m + p->tm[4].m) == p->pdf.h.m));
             if (is_charmode(p))
                 end_charmode(p);
-            assert(abs(p->tj_delta.m) >= 1);
+            assert(p->tj_delta.m != 0);
             print_pdffloat(&(p->tj_delta));
             p->cw.m -= p->tj_delta.m * exp10[p->cw.e - p->tj_delta.e];
         }
