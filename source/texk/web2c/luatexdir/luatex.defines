@@ -173,6 +173,8 @@
 @define function lua_hpack_filter();
 @define function lua_vpack_filter();
 
+@define procedure check_texconfig_init;
+
 { bits for extended char code access }
 
 @define const tex_mathcode    ;

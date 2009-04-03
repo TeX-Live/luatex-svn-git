@@ -26146,6 +26146,7 @@ random_seed :=(microseconds*1000)+(epochseconds mod 1000000);@/
 init_randoms(random_seed);@/
 initialize_math;
 @<Initialize the print |selector|...@>;
+check_texconfig_init;
 if (loc<limit)and(get_cat_code(cat_code_table,buffer[loc])<>escape) then start_input;
   {\.{\\input} assumed}
 @<DIR: Initialize |text_dir_ptr|@>;

@@ -632,3 +632,21 @@ void lua_initialize(int ac, char **av)
         }
     }
 }
+
+void
+check_texconfig_init (void) {
+    if (Luas!=NULL) {
+        lua_getglobal(Luas, "texconfig");
+        if (lua_istable(Luas, -1)) {
+            lua_getfield(Luas, -1, "init");
+            if (lua_isfunction(Luas, -1)) {
+                int i = lua_pcall(Luas, 0, 0, 0);
+                if (i != 0) {
+                    /* Can't be more precise here, called before TeX initialization  */
+                    fprintf(stderr, "This went wrong: %s\n", lua_tostring(Luas, -1));
+                    error();
+                }
+            }
+        }
+    }
+}
