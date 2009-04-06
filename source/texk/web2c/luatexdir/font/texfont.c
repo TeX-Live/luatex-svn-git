@@ -1303,13 +1303,53 @@ void dump_charinfo(int f, int c)
     }
 }
 
+void 
+dump_font_entry (texfont *f)
+{
+    dump_int(f->_font_size);
+    dump_int(f->_font_dsize);
+    dump_int(f->_font_cidversion);
+    dump_int(f->_font_cidsupplement);
+    dump_int(f->_font_ec);
+    dump_int(f->_font_checksum); 
+    dump_int(f->_font_used);
+    dump_int(f->_font_touched);
+    dump_int(f->_font_cache_id);
+    dump_int(f->_font_encodingbytes);
+    dump_int(f->_font_slant);
+    dump_int(f->_font_extend); 
+    dump_int(f->_font_tounicode);
+    dump_int(f->_font_type);
+    dump_int(f->_font_format);
+    dump_int(f->_font_embedding);
+    dump_int(f->_font_bc);
+    dump_int(f->_hyphen_char);
+    dump_int(f->_skew_char);
+    dump_int(f->_font_natural_dir);
+    dump_int(f->_font_params);
+    dump_int(f->_font_math_params);
+    dump_int(f->charinfo_count);
+    dump_int(f->charinfo_size);
+    dump_int(f->ligatures_disabled);
+    dump_int(f->_pdf_font_num);
+    dump_int(f->_pdf_font_size);
+    dump_int(f->_pdf_font_blink);
+    dump_int(f->_pdf_font_elink);
+    dump_int(f->_pdf_font_expand_ratio); 
+    dump_int(f->_pdf_font_shrink);
+    dump_int(f->_pdf_font_stretch);
+    dump_int(f->_pdf_font_step);
+    dump_int(f->_pdf_font_auto_expand);
+    dump_int(f->_pdf_font_attr);
+}
+
 void dump_font(int f)
 {
     integer i, x;
 
     set_font_used(f, 0);
     font_tables[f]->charinfo_cache = NULL;
-    dump_things(*(font_tables[f]), 1);
+    dump_font_entry(font_tables[f]);
     dump_string(font_name(f));
     dump_string(font_area(f));
     dump_string(font_filename(f));
@@ -1437,6 +1477,49 @@ int undump_charinfo(int f)
     a(f,s); }
 
 
+void 
+undump_font_entry (texfont *f)
+{
+    integer x = 0;
+    undump_int(x); f->_font_size = x;
+    undump_int(x); f->_font_dsize = x;
+    undump_int(x); f->_font_cidversion = x;
+    undump_int(x); f->_font_cidsupplement = x;
+    undump_int(x); f->_font_ec = x;
+    undump_int(x); f->_font_checksum = x;
+    undump_int(x); f->_font_used = x;
+    undump_int(x); f->_font_touched = x;
+    undump_int(x); f->_font_cache_id = x;
+    undump_int(x); f->_font_encodingbytes = x;
+    undump_int(x); f->_font_slant = x;
+    undump_int(x); f->_font_extend = x;
+    undump_int(x); f->_font_tounicode = x;
+    undump_int(x); f->_font_type = x;
+    undump_int(x); f->_font_format = x;
+    undump_int(x); f->_font_embedding = x;
+    undump_int(x); f->_font_bc = x;
+    undump_int(x); f->_hyphen_char = x;
+    undump_int(x); f->_skew_char = x;
+    undump_int(x); f->_font_natural_dir = x;
+    undump_int(x); f->_font_params = x;
+    undump_int(x); f->_font_math_params = x;
+    undump_int(x); f->charinfo_count = x;
+    undump_int(x); f->charinfo_size = x;
+    undump_int(x); f->ligatures_disabled = x;
+    undump_int(x); f->_pdf_font_num = x;
+    undump_int(x); f->_pdf_font_size = x;
+    undump_int(x); f->_pdf_font_blink = x;
+    undump_int(x); f->_pdf_font_elink = x;
+    undump_int(x); f->_pdf_font_expand_ratio = x;
+    undump_int(x); f->_pdf_font_shrink = x;
+    undump_int(x); f->_pdf_font_stretch = x;
+    undump_int(x); f->_pdf_font_step = x;
+    undump_int(x); f->_pdf_font_auto_expand = x;
+    undump_int(x); f->_pdf_font_attr = x;
+}
+
+
+
 void undump_font(int f)
 {
     integer x, i;
@@ -1444,18 +1527,10 @@ void undump_font(int f)
     charinfo *ci;
     char *s;
     grow_font_table(f);
-    font_tables[f] = NULL;
-    font_bytes += sizeof(texfont);
     tt = xmalloc(sizeof(texfont));
-    undump_things(*tt, 1);
-    /* these |char *| need resetting */
-    tt->_font_name = NULL;
-    tt->_font_area = NULL;
-    tt->_font_filename = NULL;
-    tt->_font_fullname = NULL;
-    tt->_font_encodingname = NULL;
-    tt->_font_cidregistry = NULL;
-    tt->_font_cidordering = NULL;
+    memset(tt,0,sizeof(texfont));
+    font_bytes += sizeof(texfont);
+    undump_font_entry(tt);
     font_tables[f] = tt;
 
     undump_font_string(set_font_name);
@@ -1476,24 +1551,13 @@ void undump_font(int f)
         font_bytes += i;
         math_param_base(f) = xmalloc(i);
         undump_things(*math_param_base(f), (font_math_params(f) + 1));
-    } else {
-        math_param_base(f) = NULL;
     }
 
-    font_tables[f]->_left_boundary = NULL;
     undump_int(x);
-    if (x) {
-        i = undump_charinfo(f);
-    }
-    /* left boundary */
-    font_tables[f]->_right_boundary = NULL;
+    if (x) { i = undump_charinfo(f); }  /* left boundary */
     undump_int(x);
-    if (x) {
-        i = undump_charinfo(f);
-    }
-
-    /* right boundary */
-    font_tables[f]->characters = new_sa_tree(1, 0);     /* stack size 1, default item value 0 */
+    if (x) { i = undump_charinfo(f); }  /* right boundary */
+    font_tables[f]->characters = new_sa_tree(1, 0); /* stack size 1, default item value 0 */
     ci = xcalloc(1, sizeof(charinfo));
     set_charinfo_name(ci, xstrdup(".notdef"));
     font_tables[f]->charinfo = ci;
