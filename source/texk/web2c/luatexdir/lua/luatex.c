@@ -273,7 +273,7 @@ void do_zundump(char *p, int item_size, int nitems, FILE * in_file)
     }
 }
 
-#define COMPRESSION "R3"
+#define COMPRESSION "0"
 
 boolean zopen_w_input(FILE ** f, int format, const_string fopen_mode)
 {
