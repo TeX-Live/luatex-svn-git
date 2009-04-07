@@ -39,12 +39,25 @@ extern halfword new_sub_box(halfword);
 
 #  define math_reset(p) do { if (p!=null) flush_node(p); p = null; } while (0)
 
-#  define scripts_allowed(A) ((type((A))>=ord_noad)&&(type((A))<fence_noad))
+#  define scripts_allowed(A) ((type((A))>=simple_noad)&&(type((A))<fence_noad))
 
 #  define default_code 010000000000     /* denotes |default_rule_thickness| */
 
-#  define limits 1              /* |subtype| of |op_noad| whose scripts are to be above, below */
-#  define no_limits 2           /* |subtype| of |op_noad| whose scripts are to be normal */
+typedef enum {
+  ord_noad_type = 0,
+  op_noad_type_normal,
+  op_noad_type_limits,
+  op_noad_type_no_limits,
+  bin_noad_type,
+  rel_noad_type,
+  open_noad_type,
+  close_noad_type,
+  punct_noad_type,
+  inner_noad_type,
+  under_noad_type,
+  over_noad_type,
+  vcenter_noad_type,
+} noad_types;
 
 extern void initialize_math(void);
 extern void initialize_math_spacing(void);

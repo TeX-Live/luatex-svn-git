@@ -665,18 +665,18 @@
 @define procedure unsave_math_data();
 
 @define const fence_noad;
-@define const ord_noad;
-@define const op_noad;
-@define const bin_noad;
-@define const rel_noad;
-@define const open_noad;
-@define const close_noad;
-@define const punct_noad;
-@define const inner_noad;
-@define const limits;
-@define const no_limits;
-@define const under_noad;
-@define const over_noad;
+@define const ord_noad_type;
+@define const op_noad_type_normal;
+@define const op_noad_type_limits;
+@define const op_noad_type_no_limits;
+@define const bin_noad_type;
+@define const rel_noad_type;
+@define const open_noad_type;
+@define const close_noad_type;
+@define const punct_noad_type;
+@define const inner_noad_type;
+@define const under_noad_type;
+@define const over_noad_type;
 @define const accent_noad;
 @define const vcenter_noad;
 

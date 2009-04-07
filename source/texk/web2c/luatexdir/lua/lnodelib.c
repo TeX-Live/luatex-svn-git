@@ -1680,17 +1680,7 @@ static int lua_nodelib_getfield(lua_State * L)
             lua_pushnil(L);
         }
         break;
-    case ord_noad:
-    case op_noad:
-    case bin_noad:
-    case rel_noad:
-    case open_noad:
-    case close_noad:
-    case punct_noad:
-    case inner_noad:
-    case under_noad:
-    case over_noad:
-    case vcenter_noad:
+    case simple_noad:
         switch (field) {
         case 2:
             lua_pushnumber(L, subtype(n));
@@ -2786,17 +2776,7 @@ static int lua_nodelib_setfield(lua_State * L)
                 return nodelib_cantset(L, field, n);
             }
             break;
-        case ord_noad:
-        case op_noad:
-        case bin_noad:
-        case rel_noad:
-        case open_noad:
-        case close_noad:
-        case punct_noad:
-        case inner_noad:
-        case under_noad:
-        case over_noad:
-        case vcenter_noad:
+        case simple_noad:
             switch (field) {
             case 2:
                 subtype(n) = lua_tointeger(L, 3);

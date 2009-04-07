@@ -524,7 +524,7 @@ be placed at the left and right of the fraction. In this way, a
 pointer new_noad(void)
 {
     pointer p;
-    p = new_node(ord_noad, normal);
+    p = new_node(simple_noad, ord_noad_type);
     /* all noad fields are zero after this */
     return p;
 }
@@ -642,18 +642,8 @@ void show_math_node(pointer p)
         show_node_list(script_script_mlist(p));
         flush_char;
         break;
-    case ord_noad:
-    case op_noad:
-    case bin_noad:
-    case rel_noad:
-    case open_noad:
-    case close_noad:
-    case punct_noad:
-    case inner_noad:
+    case simple_noad:
     case radical_noad:
-    case over_noad:
-    case under_noad:
-    case vcenter_noad:
     case accent_noad:
         display_normal_noad(p);
         break;
@@ -761,42 +751,51 @@ void print_style(integer c)
 void display_normal_noad(pointer p)
 {
     switch (type(p)) {
-    case ord_noad:
-        tprint_esc("mathord");
-        break;
-    case op_noad:
-        tprint_esc("mathop");
-        if (subtype(p) == limits)
-            tprint_esc("limits");
-        else if (subtype(p) == no_limits)
-            tprint_esc("nolimits");
-        break;
-    case bin_noad:
-        tprint_esc("mathbin");
-        break;
-    case rel_noad:
-        tprint_esc("mathrel");
-        break;
-    case open_noad:
-        tprint_esc("mathopen");
-        break;
-    case close_noad:
-        tprint_esc("mathclose");
-        break;
-    case punct_noad:
-        tprint_esc("mathpunct");
-        break;
-    case inner_noad:
-        tprint_esc("mathinner");
-        break;
-    case over_noad:
-        tprint_esc("overline");
-        break;
-    case under_noad:
-        tprint_esc("underline");
-        break;
-    case vcenter_noad:
-        tprint_esc("vcenter");
+    case simple_noad:
+        switch (subtype(p)) {
+        case ord_noad_type: 
+            tprint_esc("mathord"); 
+            break;
+        case op_noad_type_normal: 
+        case op_noad_type_limits: 
+        case op_noad_type_no_limits: 
+            tprint_esc("mathop");
+            if (subtype(p) == op_noad_type_limits)
+                tprint_esc("limits");
+            else if (subtype(p) == op_noad_type_no_limits)
+                tprint_esc("nolimits");
+            break;
+        case bin_noad_type:
+            tprint_esc("mathbin");
+            break;
+        case rel_noad_type:
+            tprint_esc("mathrel");
+            break;
+        case open_noad_type:
+            tprint_esc("mathopen");
+            break;
+        case close_noad_type:
+            tprint_esc("mathclose");
+            break;
+        case punct_noad_type:
+            tprint_esc("mathpunct");
+            break;
+        case inner_noad_type:
+            tprint_esc("mathinner");
+            break;
+        case over_noad_type:
+            tprint_esc("overline");
+            break;
+        case under_noad_type:
+            tprint_esc("underline");
+            break;
+        case vcenter_noad_type:
+            tprint_esc("vcenter");
+            break;
+        default:
+            tprint("<unknown noad type!>");
+            break;
+        }
         break;
     case radical_noad:
         if (subtype(p) == 7)
@@ -880,44 +879,47 @@ void display_fraction_noad(pointer p)
 void print_math_comp(halfword chr_code)
 {
     switch (chr_code) {
-    case ord_noad:
+    case ord_noad_type:
         tprint_esc("mathord");
         break;
-    case op_noad:
+    case op_noad_type_normal:
         tprint_esc("mathop");
         break;
-    case bin_noad:
+    case bin_noad_type:
         tprint_esc("mathbin");
         break;
-    case rel_noad:
+    case rel_noad_type:
         tprint_esc("mathrel");
         break;
-    case open_noad:
+    case open_noad_type:
         tprint_esc("mathopen");
         break;
-    case close_noad:
+    case close_noad_type:
         tprint_esc("mathclose");
         break;
-    case punct_noad:
+    case punct_noad_type:
         tprint_esc("mathpunct");
         break;
-    case inner_noad:
+    case inner_noad_type:
         tprint_esc("mathinner");
         break;
-    case under_noad:
+    case under_noad_type:
         tprint_esc("underline");
         break;
-    default:
+    case over_noad_type:
         tprint_esc("overline");
+        break;
+    default:
+        tprint("<unknown math_comp type!>");
         break;
     }
 }
 
 void print_limit_switch(halfword chr_code)
 {
-    if (chr_code == limits)
+    if (chr_code == op_noad_type_limits)
         tprint_esc("limits");
-    else if (chr_code == no_limits)
+    else if (chr_code == op_noad_type_no_limits)
         tprint_esc("nolimits");
     else
         tprint_esc("displaylimits");
@@ -1446,9 +1448,17 @@ void set_math_char(mathcodeval mval)
         if (mval.class_value == var_code) {
             if (fam_in_range)
                 math_fam(nucleus(p)) = cur_fam;
-            type(p) = ord_noad;
+            subtype(p) = ord_noad_type;
         } else {
-            type(p) = ord_noad + mval.class_value;
+          switch (mval.class_value) {
+          case 0: subtype(p) = ord_noad_type; break;
+          case 1: subtype(p) = op_noad_type_normal; break;
+          case 2: subtype(p) = bin_noad_type; break;
+          case 3: subtype(p) = rel_noad_type; break;
+          case 4: subtype(p) = open_noad_type; break;
+          case 5: subtype(p) = close_noad_type; break;
+          case 6: subtype(p) = inner_noad_type; break;
+          }
         }
         vlink(tail) = p;
         tail = p;
@@ -1486,7 +1496,7 @@ void math_math_comp(void)
 {
     pointer q;
     tail_append(new_noad());
-    type(tail) = cur_chr;
+    subtype(tail) = cur_chr;
     q = new_node(math_char_node, 0);
     nucleus(tail) = q;
     (void) scan_math(nucleus(tail));
@@ -1500,7 +1510,7 @@ void math_limit_switch(void)
         NULL
     };
     if (head != tail) {
-        if (type(tail) == op_noad) {
+        if (type(tail) == simple_noad) {
             subtype(tail) = cur_chr;
             return;
         }
@@ -1633,7 +1643,7 @@ void math_ac(void)
         };
         tex_error("Please use \\mathaccent for accents in math mode", hlp);
     }
-    tail_append(new_node(accent_noad, normal));
+    tail_append(new_node(accent_noad, 0));
     if (cur_chr == 0) {         /* \mathaccent */
         t = scan_mathchar(tex_mathcode);
     } else if (cur_chr == 1) {  /* \omathaccent */
@@ -1675,7 +1685,7 @@ pointer math_vcenter_group(pointer p)
 {
     pointer q, r;
     q = new_noad();
-    type(q) = vcenter_noad;
+    subtype(q) = vcenter_noad_type;
     r = new_node(sub_box_node, 0);
     nucleus(q) = r;
     math_list(nucleus(q)) = p;
@@ -1793,7 +1803,7 @@ void math_fraction(void)
             scan_normal_dimen();
         tex_error("Ambiguous; you need another { and }", hlp);
     } else {
-        incompleat_noad = new_node(fraction_noad, normal);
+        incompleat_noad = new_node(fraction_noad, 0);
         numerator(incompleat_noad) = new_node(sub_mlist_node, 0);
         math_list(numerator(incompleat_noad)) = vlink(head);
         vlink(head) = null;
@@ -1880,7 +1890,7 @@ void close_math_group(pointer p)
     math_list(saved(0)) = p;
     if (p != null) {
         if (vlink(p) == null) {
-            if (type(p) == ord_noad) {
+            if (type(p) == simple_noad && subtype(p) == ord_noad_type ) {
                 if (subscr(p) == null && supscr(p) == null) {
                     type(saved(0)) = type(nucleus(p));
                     if (type(nucleus(p)) == math_char_node) {
@@ -1899,7 +1909,7 @@ void close_math_group(pointer p)
             if (type(p) == accent_noad) {
                 if (saved(0) == nucleus(tail)) {
                     /* todo: check this branch */
-                    if (type(tail) == ord_noad) {
+                    if (type(tail) == simple_noad && subtype(tail) == ord_noad_type) {
                         q = head;
                         while (vlink(q) != tail)
                             q = vlink(q);
@@ -1980,7 +1990,7 @@ void math_left_right(void)
             delim_ptr = p;
         } else {
             tail_append(new_noad());
-            type(tail) = inner_noad;
+            subtype(tail) = inner_noad_type;
             r = new_node(sub_mlist_node, 0);
             nucleus(tail) = r;
             math_list(nucleus(tail)) = q;

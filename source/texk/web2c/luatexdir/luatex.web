@@ -23813,31 +23813,31 @@ the command code |math_comp|, supplemented by the noad type that they
 generate.
 
 @<Put each...@>=
-primitive_tex("mathord",math_comp,ord_noad,0);
+primitive_tex("mathord",math_comp,ord_noad_type,0);
 @!@:math_ord_}{\.{\\mathord} primitive@>
-primitive_tex("mathop",math_comp,op_noad,0);
+primitive_tex("mathop",math_comp,op_noad_type_normal,0);
 @!@:math_op_}{\.{\\mathop} primitive@>
-primitive_tex("mathbin",math_comp,bin_noad,0);
+primitive_tex("mathbin",math_comp,bin_noad_type,0);
 @!@:math_bin_}{\.{\\mathbin} primitive@>
-primitive_tex("mathrel",math_comp,rel_noad,0);
+primitive_tex("mathrel",math_comp,rel_noad_type,0);
 @!@:math_rel_}{\.{\\mathrel} primitive@>
-primitive_tex("mathopen",math_comp,open_noad,0);
+primitive_tex("mathopen",math_comp,open_noad_type,0);
 @!@:math_open_}{\.{\\mathopen} primitive@>
-primitive_tex("mathclose",math_comp,close_noad,0);
+primitive_tex("mathclose",math_comp,close_noad_type,0);
 @!@:math_close_}{\.{\\mathclose} primitive@>
-primitive_tex("mathpunct",math_comp,punct_noad,0);
+primitive_tex("mathpunct",math_comp,punct_noad_type,0);
 @!@:math_punct_}{\.{\\mathpunct} primitive@>
-primitive_tex("mathinner",math_comp,inner_noad,0);
+primitive_tex("mathinner",math_comp,inner_noad_type,0);
 @!@:math_inner_}{\.{\\mathinner} primitive@>
-primitive_tex("underline",math_comp,under_noad,0);
+primitive_tex("underline",math_comp,under_noad_type,0);
 @!@:underline_}{\.{\\underline} primitive@>
-primitive_tex("overline",math_comp,over_noad,0);@/
+primitive_tex("overline",math_comp,over_noad_type,0);@/
 @!@:overline_}{\.{\\overline} primitive@>
-primitive_tex("displaylimits",limit_switch,normal,0);
+primitive_tex("displaylimits",limit_switch,op_noad_type_normal,0);
 @!@:display_limits_}{\.{\\displaylimits} primitive@>
-primitive_tex("limits",limit_switch,limits,0);
+primitive_tex("limits",limit_switch,op_noad_type_limits,0);
 @!@:limits_}{\.{\\limits} primitive@>
-primitive_tex("nolimits",limit_switch,no_limits,0);
+primitive_tex("nolimits",limit_switch,op_noad_type_no_limits,0);
 @!@:no_limits_}{\.{\\nolimits} primitive@>
 
 @ @<Cases of |main_control| that build...@>=

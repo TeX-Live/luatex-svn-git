@@ -2301,17 +2301,7 @@ void assign_new_hlist(pointer q, pointer r)
         denominator(q) = null;
         break;
     case radical_noad:
-    case ord_noad:
-    case op_noad:
-    case bin_noad:
-    case rel_noad:
-    case open_noad:
-    case close_noad:
-    case punct_noad:
-    case inner_noad:
-    case over_noad:
-    case under_noad:
-    case vcenter_noad:
+    case simple_noad:
     case accent_noad:
         if (nucleus(q) != null) {
             math_list(nucleus(q)) = null;
@@ -2850,8 +2840,8 @@ scaled make_op(pointer q)
     integer c;                  /* register for character examination */
     scaled shift_up, shift_down;        /* dimensions for box calculation */
     scaled ok_size;
-    if ((subtype(q) == normal) && (cur_style < text_style))
-        subtype(q) = limits;
+    if ((subtype(q) == op_noad_type_normal) && (cur_style < text_style))
+        subtype(q) = op_noad_type_limits;
     if (type(nucleus(q)) == math_char_node) {
         fetch(nucleus(q));
         if (cur_style < text_style) {   /* try to make it larger */
@@ -2870,7 +2860,7 @@ scaled make_op(pointer q)
         }
         delta = char_italic(cur_f, cur_c);
         x = clean_box(nucleus(q), cur_style);
-        if ((subscr(q) != null) && (subtype(q) != limits))
+        if ((subscr(q) != null) && (subtype(q) != op_noad_type_limits))
             width(x) = width(x) - delta;        /* remove italic correction */
         shift_amount(x) = half(height(x) - depth(x)) - math_axis(cur_size);
         /* center vertically */
@@ -2879,7 +2869,7 @@ scaled make_op(pointer q)
     } else {
         delta = 0;
     }
-    if (subtype(q) == limits) {
+    if (subtype(q) == op_noad_type_limits) {
         /* The following program builds a vlist box |v| for displayed limits. The
            width of the box is not affected by the fact that the limits may be skewed. */
         x = clean_box(supscr(q), sup_style(cur_style));
@@ -2981,8 +2971,9 @@ void make_ord(pointer q)
     if (subscr(q) == null &&
         supscr(q) == null && type(nucleus(q)) == math_char_node) {
         p = vlink(q);
-        if ((p != null) &&
-            (type(p) >= ord_noad) && (type(p) <= punct_noad) &&
+        if ((p != null) && 
+            (type(p) == simple_noad) &&
+            (subtype(p) <= punct_noad_type) &&
             (type(nucleus(p)) == math_char_node) &&
             (math_fam(nucleus(p)) == math_fam(nucleus(q)))) {
             type(nucleus(q)) = math_text_char_node;
@@ -3198,32 +3189,11 @@ small_number make_left_right(pointer q, integer style, scaled max_d,
     delimiter(q) = null;
     assign_new_hlist(q, tmp);
     if (subtype(q) == left_noad_side)
-        return open_noad;
+        return open_noad_type;
     else
-        return close_noad;
+        return close_noad_type;
 }
 
-
-/*
-The inter-element spacing in math formulas depends on a $8\times8$ table that
-\TeX\ preloads as a 64-digit string. The elements of this string have the
-following significance:
-$$\vbox{\halign{#\hfil\cr
-\.0 means no space;\cr
-\.1 means a conditional thin space (\.{\\nonscript\\mskip\\thinmuskip});\cr
-\.2 means a thin space (\.{\\mskip\\thinmuskip});\cr
-\.3 means a conditional medium space
-  (\.{\\nonscript\\mskip\\medmuskip});\cr
-\.4 means a conditional thick space
-  (\.{\\nonscript\\mskip\\thickmuskip});\cr
-\.* means an impossible case.\cr}}$$
-This is all pretty cryptic, but {\sl The \TeX book\/} explains what is
-supposed to happen, and the string makes it happen.
-@:TeXbook}{\sl The \TeX book@>
-*/
-
-char math_spacing[] =
-    "0234000122*4000133**3**344*0400400*000000234000111*1111112341011";
 
 #define level_one 1
 #define thin_mu_skip param_thin_mu_skip_code
@@ -3334,113 +3304,82 @@ void initialize_math_spacing(void)
 }
 
 
-pointer math_spacing_glue_old(int l_type, int r_type, int m_style)
-{
-    pointer y, z;
-    int x;
-    z = null;
-    switch (math_spacing[l_type * 8 + r_type - 9 * ord_noad]) {
-    case '0':
-        x = 0;
-        break;
-    case '1':
-        x = (m_style < script_style ? param_thin_mu_skip_code : 0);
-        break;
-    case '2':
-        x = param_thin_mu_skip_code;
-        break;
-    case '3':
-        x = (m_style < script_style ? param_med_mu_skip_code : 0);
-        break;
-    case '4':
-        x = (m_style < script_style ? param_thick_mu_skip_code : 0);
-        break;
-    default:
-        tconfusion("mlist4");   /* this can't happen mlist4 */
-        x = -1;
-        break;
-    }
-    if (x != 0) {
-        y = math_glue(glue_par(x), cur_mu);
-        z = new_glue(y);
-        glue_ref_count(y) = null;
-        subtype(z) = x + 1;     /* store a symbolic subtype */
-    }
-    return z;
-}
-
-#define both_types(A,B) ((A)*8+B)
+#define both_types(A,B) ((A)*16+(B))
 
 pointer math_spacing_glue(int l_type, int r_type, int m_style)
 {
     int x = -1;
     pointer z = null;
+    if (l_type==op_noad_type_limits || l_type==op_noad_type_no_limits)
+        l_type = op_noad_type_normal;
+    if (r_type==op_noad_type_limits || r_type==op_noad_type_no_limits)
+        r_type = op_noad_type_normal;
     switch (both_types(l_type, r_type)) {
     /* *INDENT-OFF* */
-    case both_types(ord_noad,  ord_noad  ):  x = get_math_param(math_param_ord_ord_spacing,m_style); break;
-    case both_types(ord_noad,  op_noad   ):  x = get_math_param(math_param_ord_op_spacing,m_style); break;
-    case both_types(ord_noad,  bin_noad  ):  x = get_math_param(math_param_ord_bin_spacing,m_style); break;
-    case both_types(ord_noad,  rel_noad  ):  x = get_math_param(math_param_ord_rel_spacing,m_style); break;
-    case both_types(ord_noad,  open_noad ):  x = get_math_param(math_param_ord_open_spacing,m_style); break;
-    case both_types(ord_noad,  close_noad):  x = get_math_param(math_param_ord_close_spacing,m_style); break;
-    case both_types(ord_noad,  punct_noad):  x = get_math_param(math_param_ord_punct_spacing,m_style); break;
-    case both_types(ord_noad,  inner_noad):  x = get_math_param(math_param_ord_inner_spacing,m_style); break;
-    case both_types(op_noad,   ord_noad  ):  x = get_math_param(math_param_op_ord_spacing,m_style); break;
-    case both_types(op_noad,   op_noad   ):  x = get_math_param(math_param_op_op_spacing,m_style); break;
-      /*case both_types(op_noad,   bin_noad  ):  x = get_math_param(math_param_op_bin_spacing,m_style); break;*/
-    case both_types(op_noad,   rel_noad  ):  x = get_math_param(math_param_op_rel_spacing,m_style); break;
-    case both_types(op_noad,   open_noad ):  x = get_math_param(math_param_op_open_spacing,m_style); break;
-    case both_types(op_noad,   close_noad):  x = get_math_param(math_param_op_close_spacing,m_style); break;
-    case both_types(op_noad,   punct_noad):  x = get_math_param(math_param_op_punct_spacing,m_style); break;
-    case both_types(op_noad,   inner_noad):  x = get_math_param(math_param_op_inner_spacing,m_style); break;
-    case both_types(bin_noad,  ord_noad  ):  x = get_math_param(math_param_bin_ord_spacing,m_style); break;
-    case both_types(bin_noad,  op_noad   ):  x = get_math_param(math_param_bin_op_spacing,m_style); break;
-      /*case both_types(bin_noad,  bin_noad  ):  x = get_math_param(math_param_bin_bin_spacing,m_style); break;*/
-      /*case both_types(bin_noad,  rel_noad  ):  x = get_math_param(math_param_bin_rel_spacing,m_style); break;*/
-    case both_types(bin_noad,  open_noad ):  x = get_math_param(math_param_bin_open_spacing,m_style); break;
-      /*case both_types(bin_noad,  close_noad):  x = get_math_param(math_param_bin_close_spacing,m_style); break;*/
-      /*case both_types(bin_noad,  punct_noad):  x = get_math_param(math_param_bin_punct_spacing,m_style); break;*/
-    case both_types(bin_noad,  inner_noad):  x = get_math_param(math_param_bin_inner_spacing,m_style); break;
-    case both_types(rel_noad,  ord_noad  ):  x = get_math_param(math_param_rel_ord_spacing,m_style); break;
-    case both_types(rel_noad,  op_noad   ):  x = get_math_param(math_param_rel_op_spacing,m_style); break;
-      /*case both_types(rel_noad,  bin_noad  ):  x = get_math_param(math_param_rel_bin_spacing,m_style); break;*/
-    case both_types(rel_noad,  rel_noad  ):  x = get_math_param(math_param_rel_rel_spacing,m_style); break;
-    case both_types(rel_noad,  open_noad ):  x = get_math_param(math_param_rel_open_spacing,m_style); break;
-    case both_types(rel_noad,  close_noad):  x = get_math_param(math_param_rel_close_spacing,m_style); break;
-    case both_types(rel_noad,  punct_noad):  x = get_math_param(math_param_rel_punct_spacing,m_style); break;
-    case both_types(rel_noad,  inner_noad):  x = get_math_param(math_param_rel_inner_spacing,m_style); break;
-    case both_types(open_noad, ord_noad  ):  x = get_math_param(math_param_open_ord_spacing,m_style); break;
-    case both_types(open_noad, op_noad   ):  x = get_math_param(math_param_open_op_spacing,m_style); break;
-      /*case both_types(open_noad, bin_noad  ):  x = get_math_param(math_param_open_bin_spacing,m_style); break;*/
-    case both_types(open_noad, rel_noad  ):  x = get_math_param(math_param_open_rel_spacing,m_style); break;
-    case both_types(open_noad, open_noad ):  x = get_math_param(math_param_open_open_spacing,m_style); break;
-    case both_types(open_noad, close_noad):  x = get_math_param(math_param_open_close_spacing,m_style); break;
-    case both_types(open_noad, punct_noad):  x = get_math_param(math_param_open_punct_spacing,m_style); break;
-    case both_types(open_noad, inner_noad):  x = get_math_param(math_param_open_inner_spacing,m_style); break;
-    case both_types(close_noad,ord_noad  ):  x = get_math_param(math_param_close_ord_spacing,m_style); break;
-    case both_types(close_noad,op_noad   ):  x = get_math_param(math_param_close_op_spacing,m_style); break;
-    case both_types(close_noad,bin_noad  ):  x = get_math_param(math_param_close_bin_spacing,m_style); break;
-    case both_types(close_noad,rel_noad  ):  x = get_math_param(math_param_close_rel_spacing,m_style); break;
-    case both_types(close_noad,open_noad ):  x = get_math_param(math_param_close_open_spacing,m_style); break;
-    case both_types(close_noad,close_noad):  x = get_math_param(math_param_close_close_spacing,m_style); break;
-    case both_types(close_noad,punct_noad):  x = get_math_param(math_param_close_punct_spacing,m_style); break;
-    case both_types(close_noad,inner_noad):  x = get_math_param(math_param_close_inner_spacing,m_style); break;
-    case both_types(punct_noad,ord_noad  ):  x = get_math_param(math_param_punct_ord_spacing,m_style); break;
-    case both_types(punct_noad,op_noad   ):  x = get_math_param(math_param_punct_op_spacing,m_style); break;
-      /*case both_types(punct_noad,bin_noad  ):  x = get_math_param(math_param_punct_bin_spacing,m_style); break;*/
-    case both_types(punct_noad,rel_noad  ):  x = get_math_param(math_param_punct_rel_spacing,m_style); break;
-    case both_types(punct_noad,open_noad ):  x = get_math_param(math_param_punct_open_spacing,m_style); break;
-    case both_types(punct_noad,close_noad):  x = get_math_param(math_param_punct_close_spacing,m_style); break;
-    case both_types(punct_noad,punct_noad):  x = get_math_param(math_param_punct_punct_spacing,m_style); break;
-    case both_types(punct_noad,inner_noad):  x = get_math_param(math_param_punct_inner_spacing,m_style); break;
-    case both_types(inner_noad,ord_noad  ):  x = get_math_param(math_param_inner_ord_spacing,m_style); break;
-    case both_types(inner_noad,op_noad   ):  x = get_math_param(math_param_inner_op_spacing,m_style); break;
-    case both_types(inner_noad,bin_noad  ):  x = get_math_param(math_param_inner_bin_spacing,m_style); break;
-    case both_types(inner_noad,rel_noad  ):  x = get_math_param(math_param_inner_rel_spacing,m_style); break;
-    case both_types(inner_noad,open_noad ):  x = get_math_param(math_param_inner_open_spacing,m_style); break;
-    case both_types(inner_noad,close_noad):  x = get_math_param(math_param_inner_close_spacing,m_style); break;
-    case both_types(inner_noad,punct_noad):  x = get_math_param(math_param_inner_punct_spacing,m_style); break;
-    case both_types(inner_noad,inner_noad):  x = get_math_param(math_param_inner_inner_spacing,m_style); break;
+    case both_types(ord_noad_type,  ord_noad_type  ):  x = get_math_param(math_param_ord_ord_spacing,m_style); break;
+    case both_types(ord_noad_type,  op_noad_type_normal   ):  x = get_math_param(math_param_ord_op_spacing,m_style); break;
+    case both_types(ord_noad_type,  bin_noad_type  ):  x = get_math_param(math_param_ord_bin_spacing,m_style); break;
+    case both_types(ord_noad_type,  rel_noad_type  ):  x = get_math_param(math_param_ord_rel_spacing,m_style); break;
+    case both_types(ord_noad_type,  open_noad_type ):  x = get_math_param(math_param_ord_open_spacing,m_style); break;
+    case both_types(ord_noad_type,  close_noad_type):  x = get_math_param(math_param_ord_close_spacing,m_style); break;
+    case both_types(ord_noad_type,  punct_noad_type):  x = get_math_param(math_param_ord_punct_spacing,m_style); break;
+    case both_types(ord_noad_type,  inner_noad_type):  x = get_math_param(math_param_ord_inner_spacing,m_style); break;
+    case both_types(op_noad_type_normal, ord_noad_type  ):  x = get_math_param(math_param_op_ord_spacing,m_style); break;
+    case both_types(op_noad_type_normal, op_noad_type_normal   ):  x = get_math_param(math_param_op_op_spacing,m_style); break;
+      /*case both_types(op_noad_type_normal,   bin_noad_type  ):  x = get_math_param(math_param_op_bin_spacing,m_style); break;*/
+    case both_types(op_noad_type_normal,   rel_noad_type  ):  x = get_math_param(math_param_op_rel_spacing,m_style); break;
+    case both_types(op_noad_type_normal,   open_noad_type ):  x = get_math_param(math_param_op_open_spacing,m_style); break;
+    case both_types(op_noad_type_normal,   close_noad_type):  x = get_math_param(math_param_op_close_spacing,m_style); break;
+    case both_types(op_noad_type_normal,   punct_noad_type):  x = get_math_param(math_param_op_punct_spacing,m_style); break;
+    case both_types(op_noad_type_normal,   inner_noad_type):  x = get_math_param(math_param_op_inner_spacing,m_style); break;
+    case both_types(bin_noad_type,  ord_noad_type  ):  x = get_math_param(math_param_bin_ord_spacing,m_style); break;
+    case both_types(bin_noad_type,  op_noad_type_normal   ):  x = get_math_param(math_param_bin_op_spacing,m_style); break;
+      /*case both_types(bin_noad_type,  bin_noad_type  ):  x = get_math_param(math_param_bin_bin_spacing,m_style); break;*/
+      /*case both_types(bin_noad_type,  rel_noad_type  ):  x = get_math_param(math_param_bin_rel_spacing,m_style); break;*/
+    case both_types(bin_noad_type,  open_noad_type ):  x = get_math_param(math_param_bin_open_spacing,m_style); break;
+      /*case both_types(bin_noad_type,  close_noad_type):  x = get_math_param(math_param_bin_close_spacing,m_style); break;*/
+      /*case both_types(bin_noad_type,  punct_noad_type):  x = get_math_param(math_param_bin_punct_spacing,m_style); break;*/
+    case both_types(bin_noad_type,  inner_noad_type):  x = get_math_param(math_param_bin_inner_spacing,m_style); break;
+    case both_types(rel_noad_type,  ord_noad_type  ):  x = get_math_param(math_param_rel_ord_spacing,m_style); break;
+    case both_types(rel_noad_type,  op_noad_type_normal   ):  x = get_math_param(math_param_rel_op_spacing,m_style); break;
+      /*case both_types(rel_noad_type,  bin_noad_type  ):  x = get_math_param(math_param_rel_bin_spacing,m_style); break;*/
+    case both_types(rel_noad_type,  rel_noad_type  ):  x = get_math_param(math_param_rel_rel_spacing,m_style); break;
+    case both_types(rel_noad_type,  open_noad_type ):  x = get_math_param(math_param_rel_open_spacing,m_style); break;
+    case both_types(rel_noad_type,  close_noad_type):  x = get_math_param(math_param_rel_close_spacing,m_style); break;
+    case both_types(rel_noad_type,  punct_noad_type):  x = get_math_param(math_param_rel_punct_spacing,m_style); break;
+    case both_types(rel_noad_type,  inner_noad_type):  x = get_math_param(math_param_rel_inner_spacing,m_style); break;
+    case both_types(open_noad_type, ord_noad_type  ):  x = get_math_param(math_param_open_ord_spacing,m_style); break;
+    case both_types(open_noad_type, op_noad_type_normal   ):  x = get_math_param(math_param_open_op_spacing,m_style); break;
+      /*case both_types(open_noad_type, bin_noad_type  ):  x = get_math_param(math_param_open_bin_spacing,m_style); break;*/
+    case both_types(open_noad_type, rel_noad_type  ):  x = get_math_param(math_param_open_rel_spacing,m_style); break;
+    case both_types(open_noad_type, open_noad_type ):  x = get_math_param(math_param_open_open_spacing,m_style); break;
+    case both_types(open_noad_type, close_noad_type):  x = get_math_param(math_param_open_close_spacing,m_style); break;
+    case both_types(open_noad_type, punct_noad_type):  x = get_math_param(math_param_open_punct_spacing,m_style); break;
+    case both_types(open_noad_type, inner_noad_type):  x = get_math_param(math_param_open_inner_spacing,m_style); break;
+    case both_types(close_noad_type,ord_noad_type  ):  x = get_math_param(math_param_close_ord_spacing,m_style); break;
+    case both_types(close_noad_type,op_noad_type_normal   ):  x = get_math_param(math_param_close_op_spacing,m_style); break;
+    case both_types(close_noad_type,bin_noad_type  ):  x = get_math_param(math_param_close_bin_spacing,m_style); break;
+    case both_types(close_noad_type,rel_noad_type  ):  x = get_math_param(math_param_close_rel_spacing,m_style); break;
+    case both_types(close_noad_type,open_noad_type ):  x = get_math_param(math_param_close_open_spacing,m_style); break;
+    case both_types(close_noad_type,close_noad_type):  x = get_math_param(math_param_close_close_spacing,m_style); break;
+    case both_types(close_noad_type,punct_noad_type):  x = get_math_param(math_param_close_punct_spacing,m_style); break;
+    case both_types(close_noad_type,inner_noad_type):  x = get_math_param(math_param_close_inner_spacing,m_style); break;
+    case both_types(punct_noad_type,ord_noad_type  ):  x = get_math_param(math_param_punct_ord_spacing,m_style); break;
+    case both_types(punct_noad_type,op_noad_type_normal   ):  x = get_math_param(math_param_punct_op_spacing,m_style); break;
+      /*case both_types(punct_noad_type,bin_noad_type  ):  x = get_math_param(math_param_punct_bin_spacing,m_style); break;*/
+    case both_types(punct_noad_type,rel_noad_type  ):  x = get_math_param(math_param_punct_rel_spacing,m_style); break;
+    case both_types(punct_noad_type,open_noad_type ):  x = get_math_param(math_param_punct_open_spacing,m_style); break;
+    case both_types(punct_noad_type,close_noad_type):  x = get_math_param(math_param_punct_close_spacing,m_style); break;
+    case both_types(punct_noad_type,punct_noad_type):  x = get_math_param(math_param_punct_punct_spacing,m_style); break;
+    case both_types(punct_noad_type,inner_noad_type):  x = get_math_param(math_param_punct_inner_spacing,m_style); break;
+    case both_types(inner_noad_type,ord_noad_type  ):  x = get_math_param(math_param_inner_ord_spacing,m_style); break;
+    case both_types(inner_noad_type,op_noad_type_normal   ):  x = get_math_param(math_param_inner_op_spacing,m_style); break;
+    case both_types(inner_noad_type,bin_noad_type  ):  x = get_math_param(math_param_inner_bin_spacing,m_style); break;
+    case both_types(inner_noad_type,rel_noad_type  ):  x = get_math_param(math_param_inner_rel_spacing,m_style); break;
+    case both_types(inner_noad_type,open_noad_type ):  x = get_math_param(math_param_inner_open_spacing,m_style); break;
+    case both_types(inner_noad_type,close_noad_type):  x = get_math_param(math_param_inner_close_spacing,m_style); break;
+    case both_types(inner_noad_type,punct_noad_type):  x = get_math_param(math_param_inner_punct_spacing,m_style); break;
+    case both_types(inner_noad_type,inner_noad_type):  x = get_math_param(math_param_inner_inner_spacing,m_style); break;
     /* *INDENT-ON* */
     }
     if (x < 0) {
@@ -3479,6 +3418,7 @@ void mlist_to_hlist(void)
     integer r_type;             /* the |type| of noad |r|, or |op_noad| if |r=null| */
     integer r_subtype;          /* the |subtype| of noad |r| if |r_type| is |fence_noad| */
     integer t;                  /* the effective |type| of noad |q| during the second pass */
+    integer t_subtype;          /* the effective |subtype| of noad |q| during the second pass */
     pointer p, x, y, z;         /* temporary registers for list construction */
     integer pen;                /* a penalty to be inserted */
     integer s;                  /* the size of a noad to be deleted */
@@ -3489,8 +3429,8 @@ void mlist_to_hlist(void)
     style = cur_style;          /* tuck global parameters away as local variables */
     q = mlist;
     r = null;
-    r_type = op_noad;
-    r_subtype = 0;
+    r_type = simple_noad;
+    r_subtype = op_noad_type_normal;
     max_hl = 0;
     max_d = 0;
     x = null;
@@ -3506,49 +3446,75 @@ void mlist_to_hlist(void)
       RESWITCH:
         delta = 0;
         switch (type(q)) {
-        case bin_noad:
-            switch (r_type) {
-            case bin_noad:
-            case op_noad:
-            case rel_noad:
-            case open_noad:
-            case punct_noad:
-                type(q) = ord_noad;
-                goto RESWITCH;
-                break;
-            case fence_noad:
-                if (r_subtype == left_noad_side) {
-                    type(q) = ord_noad;
-                    goto RESWITCH;
+        case simple_noad:
+            switch (subtype(q)) {
+            case bin_noad_type:
+                switch (r_type) {
+                case simple_noad:
+                    switch (r_subtype) {
+                    case bin_noad_type:
+                    case op_noad_type_normal:
+                    case op_noad_type_limits:
+                    case op_noad_type_no_limits:
+                    case rel_noad_type:
+                    case open_noad_type:
+                    case punct_noad_type:
+                        subtype(q) = ord_noad_type;
+                        goto RESWITCH;
+                        break;
+                    }
+                    break;
+                case fence_noad:
+                    if (r_subtype == left_noad_side) {
+                        subtype(q) = ord_noad_type;
+                        goto RESWITCH;
+                    }
+                    break;
                 }
+                break;
+            case over_noad_type:
+                make_over(q);
+                break;
+            case under_noad_type:
+                make_under(q);
+                break;
+            case vcenter_noad_type:
+                make_vcenter(q);
+                break;
+            case rel_noad_type:
+            case close_noad_type:
+            case punct_noad_type:
+                if (r_type == simple_noad && r_subtype == bin_noad_type) {
+                    type(r) = simple_noad;
+                    subtype(r) = ord_noad_type;
+                }
+                break;
+            case op_noad_type_normal:
+            case op_noad_type_limits:
+            case op_noad_type_no_limits:
+                delta = make_op(q);
+                if (subtype(q) == op_noad_type_limits)
+                    goto CHECK_DIMENSIONS;
+                break;
+            case ord_noad_type:
+                make_ord(q);
+                break;
+            case open_noad_type:
+            case inner_noad_type:
+                break;
             }
-            break;
-        case rel_noad:
-        case close_noad:
-        case punct_noad:
-            if (r_type == bin_noad)
-                type(r) = ord_noad;
             break;
         case fence_noad:
             if (subtype(q) != left_noad_side)
-                if (r_type == bin_noad)
-                    type(r) = ord_noad;
+                if (r_type == simple_noad && r_subtype == bin_noad_type) {
+                    type(r) = simple_noad;
+                    subtype(r) = ord_noad_type;
+                }
             goto DONE_WITH_NOAD;
             break;
         case fraction_noad:
             make_fraction(q);
             goto CHECK_DIMENSIONS;
-            break;
-        case op_noad:
-            delta = make_op(q);
-            if (subtype(q) == limits)
-                goto CHECK_DIMENSIONS;
-            break;
-        case ord_noad:
-            make_ord(q);
-            break;
-        case open_noad:
-        case inner_noad:
             break;
         case radical_noad:
             if (subtype(q) == 4)
@@ -3562,17 +3528,8 @@ void mlist_to_hlist(void)
             else
                 make_radical(q);
             break;
-        case over_noad:
-            make_over(q);
-            break;
-        case under_noad:
-            make_under(q);
-            break;
         case accent_noad:
             make_math_accent(q);
-            break;
-        case vcenter_noad:
-            make_vcenter(q);
             break;
         case style_node:
             cur_style = subtype(q);
@@ -3723,6 +3680,7 @@ void mlist_to_hlist(void)
       DONE_WITH_NOAD:
         r = q;
         r_type = type(r);
+        r_subtype = subtype(r);
         if (r_type == fence_noad) {
             r_subtype = left_noad_side;
             cur_style = style;
@@ -3731,8 +3689,10 @@ void mlist_to_hlist(void)
       DONE_WITH_NODE:
         q = vlink(q);
     }
-    if (r_type == bin_noad)
-        type(r) = ord_noad;
+    if (r_type == simple_noad && r_subtype == bin_noad_type) {
+        type(r) = simple_noad;
+        subtype(r) = ord_noad_type;
+    }
     /* Make a second pass over the mlist, removing all noads and inserting the
        proper spacing and penalties */
 
@@ -3746,6 +3706,7 @@ void mlist_to_hlist(void)
     vlink(p) = null;
     q = mlist;
     r_type = 0;
+    r_subtype = 0;
     cur_style = style;
     setup_cur_size_and_mu();
   NEXT_NODE:
@@ -3757,30 +3718,21 @@ void mlist_to_hlist(void)
            inner_noad|), and set |pen| to the associated penalty */
         /* Just before doing the big |case| switch in the second pass, the program
            sets up default values so that most of the branches are short. */
-        t = ord_noad;
+        t = simple_noad;
+        t_subtype = ord_noad_type;
         s = noad_size;
         pen = inf_penalty;
         switch (type(q)) {
-        case op_noad:
-        case open_noad:
-        case close_noad:
-        case punct_noad:
-        case inner_noad:
-            t = type(q);
-            break;
-        case bin_noad:
-            t = bin_noad;
-            pen = bin_op_penalty;
-            break;
-        case rel_noad:
-            t = rel_noad;
-            pen = rel_penalty;
-            break;
-        case ord_noad:
-        case vcenter_noad:
-        case over_noad:
-        case under_noad:
-            break;
+        case simple_noad:
+            t_subtype = subtype(q);
+            switch (t_subtype) {
+            case bin_noad_type:
+                pen = bin_op_penalty;
+                break;
+            case rel_noad_type:
+                pen = rel_penalty;
+                break;
+            }
         case radical_noad:
             s = radical_noad_size;
             break;
@@ -3788,11 +3740,12 @@ void mlist_to_hlist(void)
             s = accent_noad_size;
             break;
         case fraction_noad:
-            t = inner_noad;
+            t = simple_noad;
+            t_subtype = inner_noad_type;
             s = fraction_noad_size;
             break;
         case fence_noad:
-            t = make_left_right(q, style, max_d, max_hl);
+            t_subtype = make_left_right(q, style, max_d, max_hl);
             break;
         case style_node:
             /* Change the current style and |goto delete_q| */
@@ -3821,7 +3774,7 @@ void mlist_to_hlist(void)
         }
         /* Append inter-element spacing based on |r_type| and |t| */
         if (r_type > 0) {       /* not the first noad */
-            z = math_spacing_glue(r_type, t, cur_style);
+            z = math_spacing_glue(r_subtype, t_subtype, cur_style);
             if (z != null) {
                 reset_attributes(z, node_attr(p));
                 vlink(p) = z;
@@ -3842,16 +3795,20 @@ void mlist_to_hlist(void)
         }
         if (penalties && vlink(q) != null && pen < inf_penalty) {
             r_type = type(vlink(q));
-            if (r_type != penalty_node && r_type != rel_noad) {
+            r_subtype = subtype(vlink(q));
+            if (r_type != penalty_node && (r_type != simple_noad || r_subtype != rel_noad_type)) {
                 z = new_penalty(pen);
                 reset_attributes(z, node_attr(q));
                 vlink(p) = z;
                 p = z;
             }
         }
-        if (type(q) == fence_noad && subtype(q) == right_noad_side)
-            t = open_noad;
+        if (type(q) == fence_noad && subtype(q) == right_noad_side) {
+            t = simple_noad;
+            t_subtype = open_noad_type;
+        }
         r_type = t;
+        r_subtype = t_subtype;
       DELETE_Q:
         r = q;
         q = vlink(q);

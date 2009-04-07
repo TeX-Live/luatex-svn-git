@@ -235,20 +235,20 @@ node_info node_data[] = {
     {unset_node, box_node_size, node_fields_unset, "unset"},
     {style_node, style_node_size, node_fields_style, "style"},
     {choice_node, style_node_size, node_fields_choice, "choice"},
-    {ord_noad, noad_size, node_fields_ord, "ord"},
-    {op_noad, noad_size, node_fields_op, "op"},
-    {bin_noad, noad_size, node_fields_bin, "bin"},
-    {rel_noad, noad_size, node_fields_rel, "rel"},
-    {open_noad, noad_size, node_fields_open, "open"},
-    {close_noad, noad_size, node_fields_close, "close"},
-    {punct_noad, noad_size, node_fields_punct, "punct"},
-    {inner_noad, noad_size, node_fields_inner, "inner"},
+    {simple_noad, noad_size, node_fields_ord, "noad"},
+    {old_op_noad, noad_size, node_fields_op, "op"},
+    {old_bin_noad, noad_size, node_fields_bin, "bin"},
+    {old_rel_noad, noad_size, node_fields_rel, "rel"},
+    {old_open_noad, noad_size, node_fields_open, "open"},
+    {old_close_noad, noad_size, node_fields_close, "close"},
+    {old_punct_noad, noad_size, node_fields_punct, "punct"},
+    {old_inner_noad, noad_size, node_fields_inner, "inner"},
     {radical_noad, radical_noad_size, node_fields_radical, "radical"},
     {fraction_noad, fraction_noad_size, node_fields_fraction, "fraction"},
-    {under_noad, noad_size, node_fields_under, "under"},
-    {over_noad, noad_size, node_fields_over, "over"},
+    {old_under_noad, noad_size, node_fields_under, "under"},
+    {old_over_noad, noad_size, node_fields_over, "over"},
     {accent_noad, accent_noad_size, node_fields_accent, "accent"},
-    {vcenter_noad, noad_size, node_fields_vcenter, "vcenter"},
+    {old_vcenter_noad, noad_size, node_fields_vcenter, "vcenter"},
     {fence_noad, fence_noad_size, node_fields_fence, "fence"},
     {math_char_node, math_kernel_node_size, node_fields_math_char, "math_char"},
     {sub_box_node, math_kernel_node_size, node_fields_sub_box, "sub_box"},
@@ -611,17 +611,7 @@ halfword copy_node(const halfword p)
         s = copy_node_list(script_script_mlist(p));
         script_script_mlist(r) = s;
         break;
-    case ord_noad:
-    case op_noad:
-    case bin_noad:
-    case rel_noad:
-    case open_noad:
-    case close_noad:
-    case punct_noad:
-    case inner_noad:
-    case over_noad:
-    case under_noad:
-    case vcenter_noad:
+    case simple_noad:
     case radical_noad:
     case accent_noad:
         s = copy_node_list(nucleus(p));
@@ -1067,17 +1057,7 @@ void flush_node(halfword p)
         flush_node_list(script_mlist(p));
         flush_node_list(script_script_mlist(p));
         break;
-    case ord_noad:
-    case op_noad:
-    case bin_noad:
-    case rel_noad:
-    case open_noad:
-    case close_noad:
-    case punct_noad:
-    case inner_noad:
-    case over_noad:
-    case under_noad:
-    case vcenter_noad:
+    case simple_noad:
     case radical_noad:
     case accent_noad:
         flush_node_list(nucleus(p));
@@ -1306,17 +1286,7 @@ void check_node(halfword p)
         dorangetest(p, left_delimiter(p), var_mem_max);
         dorangetest(p, right_delimiter(p), var_mem_max);
         break;
-    case ord_noad:
-    case op_noad:
-    case bin_noad:
-    case rel_noad:
-    case open_noad:
-    case close_noad:
-    case punct_noad:
-    case inner_noad:
-    case over_noad:
-    case under_noad:
-    case vcenter_noad:
+    case simple_noad:
         dorangetest(p, nucleus(p), var_mem_max);
         dorangetest(p, subscr(p), var_mem_max);
         dorangetest(p, supscr(p), var_mem_max);

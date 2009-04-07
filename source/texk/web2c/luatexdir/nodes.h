@@ -318,20 +318,20 @@ typedef enum {
     unset_node,
     style_node,
     choice_node,                /* 15 */
-    ord_noad,
-    op_noad,
-    bin_noad,
-    rel_noad,
-    open_noad,                  /* 20 */
-    close_noad,
-    punct_noad,
-    inner_noad,
+    simple_noad,
+    old_op_noad,
+    old_bin_noad,
+    old_rel_noad,
+    old_open_noad,                  /* 20 */
+    old_close_noad,
+    old_punct_noad,
+    old_inner_noad,
     radical_noad,
     fraction_noad,              /* 25 */
-    under_noad,
-    over_noad,
+    old_under_noad,
+    old_over_noad,
     accent_noad,
-    vcenter_noad,
+    old_vcenter_noad,
     fence_noad,                 /* 30 */
     math_char_node,             /* kernel fields */
     sub_box_node,
