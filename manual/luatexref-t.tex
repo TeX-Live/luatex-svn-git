@@ -22,7 +22,7 @@
 
 \setvariables
   [document]
-  [beta=0.37.0]
+  [beta=0.38.0]
 
 \starttext
 
@@ -4050,6 +4050,9 @@ The current list is:
 \NC callbacks\NC                 total number of executed callbacks so far\NC \NR
 \NC indirect_callbacks\NC        number of those that were themselves
                                  a result of other callbacks (e.g. file readers)\NC \NR
+\NC luatex_version\NC            the luatex version number (added in 0.38)\NC\NR
+\NC luatex_revision\NC           the luatex revision string (added in 0.38)\NC\NR
+\NC ini_version\NC               \type{true} if this is an \INITEX\ run (added in 0.38)\NC\NR
 \stoptabulate
 
 \section[texconfig]{The \luatex{texconfig} table}
