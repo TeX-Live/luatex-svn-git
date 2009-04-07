@@ -2428,7 +2428,7 @@ void make_radical(pointer q)
             vlink(x) = r;
             y = x;
         }
-        degree(q) = null;
+        flush_node(degree(q));
     }
     p = hpack(y, 0, additional);
     reset_attributes(p, node_attr(q));

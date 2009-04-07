@@ -1612,10 +1612,13 @@ void math_radical(void)
     else
         tconfusion("math_radical");
     if (chr_code == 3) {
+      /* the trick with the |vlink(q)| is used by |scan_math| 
+         to decide whether it needs to go on */
         q = new_node(math_char_node, 0);
         vlink(q) = tail;
         degree(tail) = q;
         if (!scan_math(degree(tail))) {
+            vlink(degree(tail)) = null;
             q = new_node(math_char_node, 0);
             nucleus(tail) = q;
             (void) scan_math(nucleus(tail));
@@ -1900,6 +1903,7 @@ void close_math_group(pointer p)
                         math_list(saved(0)) = math_list(nucleus(p));
                         math_list(nucleus(p)) = null;
                     }
+                    delete_attribute_ref(node_attr(saved(0))); 
                     node_attr(saved(0)) = node_attr(nucleus(p));
                     node_attr(nucleus(p)) = null;
                     flush_node(p);
@@ -1917,6 +1921,7 @@ void close_math_group(pointer p)
                         nucleus(tail) = null;
                         subscr(tail) = null;
                         supscr(tail) = null;
+                        delete_attribute_ref(node_attr(p)); 
                         node_attr(p) = node_attr(tail);
                         node_attr(tail) = null;
                         flush_node(tail);
