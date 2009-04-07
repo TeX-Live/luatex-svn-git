@@ -4564,7 +4564,9 @@ expanded by `\.{\\the}'.
 @d ex_space=64 {explicit space ( \.{\\\ } )}
 @d no_boundary=65 {suppress boundary ligatures ( \.{\\noboundary} )}
 @d radical=66 {square root and similar signs ( \.{\\radical} )}
-@d end_cs_name=67 {end control sequence ( \.{\\endcsname} )}
+@d super_sub_script=67 {explicit super ( \.{\\Usuperscript} ) or subscript ( \.{\\Usubscript} )}
+@d math_shift_cs=68 {explicit math switch ( \.{\\Ustartmath}, etc.~)}
+@d end_cs_name=69 {end control sequence ( \.{\\endcsname} )}
 @d char_ghost=end_cs_name+1
    {\.{\\ghostleft}, \.{\\ghostright} character for kerning}
 @d assign_local_box=char_ghost+1
@@ -22316,7 +22318,7 @@ mode by mistake. \TeX\ will insert a dollar sign and rescan the current token.
 
 @<Math-only cases in non-math modes...@>=
 non_math(sup_mark), non_math(sub_mark),
-non_math(math_comp), non_math(delim_num),
+non_math(super_sub_script), non_math(math_comp), non_math(delim_num),
 non_math(left_right), non_math(above), non_math(radical),
 non_math(math_style), non_math(math_choice), non_math(vcenter),
 non_math(non_script), non_math(mkern), non_math(limit_switch),
@@ -23079,7 +23081,7 @@ primitive_pdftex("quitvmode",start_par,2,0);
 vmode+start_par: new_graf(cur_chr>0);
 vmode+letter,vmode+other_char,vmode+char_num,vmode+char_given,
    vmode+char_ghost,
-   vmode+math_shift,vmode+un_hbox,vmode+vrule,
+   vmode+math_shift,vmode+math_shift_cs,vmode+un_hbox,vmode+vrule,
    vmode+accent,vmode+discretionary,vmode+hskip,vmode+valign,
    vmode+ex_space,vmode+no_boundary:@t@>@;@/
   begin back_input; new_graf(true);
@@ -23753,8 +23755,20 @@ end;
 the definitions of the primitives and the infrastructure hooks into |main_control|, 
 |print_cmd_chr| and |handle_right_brace|.
 
+@<Put each...@>=
+primitive_luatex("Ustartmath",math_shift_cs,text_style,0);
+@!@:math_shift_cs_}{\.{\\Ustartmath} primitive@>
+primitive_luatex("Ustopmath",math_shift_cs,cramped_text_style,0);
+@!@:math_shift_cs_}{\.{\\Ustopmath} primitive@>
+primitive_luatex("Ustartdisplaymath",math_shift_cs,display_style,0);
+@!@:math_shift_cs_}{\.{\\Ustartdisplaymath} primitive@>
+primitive_luatex("Ustopdisplaymath",math_shift_cs,cramped_display_style,0);
+@!@:math_shift_cs_}{\.{\\Ustopdisplaymath} primitive@>
+
+@
+
 @<Cases of |main_control| that build...@>=
-hmode+math_shift:init_math;
+hmode+math_shift, hmode+math_shift_cs:init_math;
 mmode+eq_no: if privileged then begin
   if cur_group=math_shift_group then start_eq_no
   else off_save;
@@ -23887,8 +23901,16 @@ mmode+math_choice: append_choices;
 @ @<Cases of |handle_right_brace|...@>=
 math_choice_group: build_choices;
 
+@ Here are two primives for explicit super- or subscript choice.
+
+@<Put each...@>=
+primitive_luatex("Usuperscript",super_sub_script,sup_mark,sup_mark);
+@!@:super_sub_script_}{\.{\\Usuperscript} primitive@>
+primitive_luatex("Usubscript",super_sub_script,sub_mark,sup_mark);
+@!@:super_sub_script_}{\.{\\Usubscript} primitive@>
+
 @ @<Cases of |main_control| that build...@>=
-mmode+sub_mark,mmode+sup_mark: sub_sup;
+mmode+sub_mark,mmode+sup_mark,mmode+super_sub_script: sub_sup;
 
 @ 
 @d above_code=0 { `\.{\\above}' }
@@ -23933,7 +23955,7 @@ mmode+left_right: math_left_right;
 @ Here is the only way out of math mode.
 
 @<Cases of |main_control| that build...@>=
-mmode+math_shift: if cur_group=math_shift_group then after_math
+mmode+math_shift,mmode+math_shift_cs: if cur_group=math_shift_group then after_math
   else off_save;
 
 

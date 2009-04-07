@@ -977,12 +977,20 @@ called for.
 
 void init_math(void)
 {
-    get_token();                /* |get_x_token| would fail on \.{\\ifmmode}\thinspace! */
-    if ((cur_cmd == math_shift_cmd) && (mode > 0)) {
+    if ( cur_cmd == math_shift_cmd ) {
+        get_token();                /* |get_x_token| would fail on \.{\\ifmmode}\thinspace! */
+        if ((cur_cmd == math_shift_cmd) && (mode > 0)) {
+            enter_display_math();
+        } else {
+            back_input();
+            enter_ordinary_math();
+        }
+    } else if (cur_cmd==math_shift_cs_cmd && cur_chr == display_style ) {
         enter_display_math();
-    } else {
-        back_input();
+    } else if (cur_cmd==math_shift_cs_cmd && cur_chr == text_style ) {
         enter_ordinary_math();
+    } else {
+        you_cant(); 
     }
 }
 
@@ -1747,7 +1755,8 @@ void sub_sup(void)
         q = new_node(sub_mlist_node, 0);
         nucleus(tail) = q;
     }
-    if (cur_cmd == sup_mark_cmd) {
+    if (cur_cmd == sup_mark_cmd || 
+        cur_chr == sup_mark_cmd ) { /* super_sub_script */
         if (supscr(tail) != null) {
             char *hlp[] = {
                 "I treat `x^1^2' essentially like `x^1{}^2'.", NULL
@@ -1760,7 +1769,8 @@ void sub_sup(void)
         q = new_node(math_char_node, 0);
         supscr(tail) = q;
         (void) scan_math(supscr(tail));
-    } else {
+    } else if (cur_cmd == sub_mark_cmd || 
+               cur_chr == sub_mark_cmd ) {
         if (subscr(tail) != null) {
             char *hlp[] = {
                 "I treat `x_1_2' essentially like `x_1{}_2'.", NULL
@@ -2021,6 +2031,30 @@ static void check_second_math_shift(void)
     }
 }
 
+static void check_display_math_end(void)
+{
+    if (cur_chr != cramped_display_style) {
+        char *hlp[] = {
+            "I shall assume that you typed that.",
+            NULL
+        };
+        tex_error("Display math should end with \\Ustopdisplaymath", hlp);
+    }
+}
+
+static void check_inline_math_end(void)
+{
+    if (cur_chr != cramped_text_style) {
+        char *hlp[] = {
+            "I shall assume that you typed that.",
+            NULL
+        };
+        tex_error("Inline math should end with \\Ustopmath", hlp);
+    }
+}
+
+
+
 void finish_displayed_math(boolean l, boolean danger, pointer a);
 
 void after_math(void)
@@ -2033,8 +2067,16 @@ void after_math(void)
     danger = check_necessary_fonts();
     m = mode;
     p = fin_mlist(null);        /* this pops the nest */
+    if (cur_cmd == math_shift_cs_cmd &&
+        (cur_chr == text_style || cur_chr == display_style)) {
+      you_cant();
+    }
     if (mode == -m) {           /* end of equation number */
-        check_second_math_shift();
+        if (cur_cmd == math_shift_cmd ) {
+            check_second_math_shift();
+        } else {
+            check_display_math_end();
+        }
         run_mlist_to_hlist(p, text_style, false);
         a = hpack(vlink(temp_head), 0, additional);
         unsave_math();
@@ -2052,6 +2094,9 @@ void after_math(void)
            `\.{\$\$...\$\$}', since `\.{\\abovedisplayskip}' inside a display affects the
            space above that display.
          */
+        if (cur_cmd == math_shift_cs_cmd) {
+            check_inline_math_end();
+        }
         tail_append(new_math(math_surround, before));
         if (dir_math_save) {
             tail_append(new_dir(math_direction));
@@ -2068,8 +2113,13 @@ void after_math(void)
         space_factor = 1000;
         unsave_math();
     } else {
-        if (a == null)
-            check_second_math_shift();
+        if (a == null) {
+          if (cur_cmd == math_shift_cmd) {
+                check_second_math_shift();
+            } else {
+                check_display_math_end();
+            }
+        } 
         run_mlist_to_hlist(p, display_style, false);
         finish_displayed_math(l, danger, a);
     }

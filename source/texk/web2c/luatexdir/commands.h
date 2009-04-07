@@ -98,6 +98,8 @@ typedef enum {
     ex_space_cmd,               /* explicit space ( \.{\\\ } ) */
     no_boundary_cmd,            /* suppress boundary ligatures ( \.{\\noboundary} ) */
     radical_cmd,                /* square root and similar signs ( \.{\\radical} ) */
+    super_sub_script_cmd,       /* explicit super- or subscript */
+    math_shift_cs_cmd,          /* start- and endmath */
     end_cs_name_cmd,            /* end control sequence ( \.{\\endcsname} ) */
     char_ghost_cmd,             /* \.{\\ghostleft}, \.{\\ghostright} character for kerning */
     assign_local_box_cmd,       /* box for guillemets \.{\\localleftbox} or \.{\\localrightbox} */
