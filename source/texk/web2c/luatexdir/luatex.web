@@ -14895,6 +14895,16 @@ begin
     get_nullfont := null_font;
 end;
 
+function get_luatexversion: integer;
+begin
+    get_luatexversion := luatex_version;
+end;
+
+function get_luatexrevision: str_number;
+begin
+    get_luatexrevision := luatex_revision;
+end;
+
 function get_par_shape_ptr: halfword;
 begin
     get_par_shape_ptr := par_shape_ptr;

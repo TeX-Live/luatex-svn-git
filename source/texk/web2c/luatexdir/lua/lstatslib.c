@@ -57,6 +57,10 @@ char *getlasterror(void)
     return makecstring(last_error);
 }
 
+char *luatexrevision(void)
+{
+    return makecstring(get_luatexrevision());
+}
 
 extern int luabytecode_max;
 extern int luabytecode_bytes;
@@ -75,6 +79,9 @@ static struct statistic stats[] = {
     {"log_name", 's', &texmf_log_name}, /* weird */
     {"banner", 'S', &getbanner},
     {"pdftex_banner", 's', &pdftex_banner},
+    {"luatex_version", 'G', &get_luatexversion},
+    {"luatex_revision", 'S', &luatexrevision},
+    {"ini_version", 'b', &ini_version},
     /*
      * mem stat 
      */
@@ -182,7 +189,10 @@ static int do_getstat(lua_State * L, int i)
         lua_pushboolean(L, g());
         break;
     case 'n':
-        lua_nodelib_push_fast(L, *(halfword *) (stats[i].value));
+        if (*(halfword *) (stats[i].value)!=0)
+          lua_nodelib_push_fast(L, *(halfword *) (stats[i].value));
+        else
+          lua_pushnil(L);
         break;
     case 'b':
         lua_pushboolean(L, *(integer *) (stats[i].value));
