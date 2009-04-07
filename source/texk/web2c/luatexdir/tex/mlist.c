@@ -3732,6 +3732,11 @@ void mlist_to_hlist(void)
             case rel_noad_type:
                 pen = rel_penalty;
                 break;
+            case vcenter_noad_type:
+            case over_noad_type:
+            case under_noad_type:
+                t_subtype = ord_noad_type;
+                break;
             }
         case radical_noad:
             s = radical_noad_size;
