@@ -98,6 +98,7 @@ cd "$B"
 if [ "$ONLY_MAKE" = "FALSE" ]
 then
 ../source/configure  $CONFHOST \
+    --enable-cxx-runtime-hack \
     --disable-afm2pl    \
     --disable-aleph  \
     --disable-bibtex   \
