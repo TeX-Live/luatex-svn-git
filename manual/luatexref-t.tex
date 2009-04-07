@@ -7170,38 +7170,43 @@ provide the large version as an extension to the \type{small_char}.
 
 \subsubsection{Math core nodes}
 
-First, there are the node types that are associated with the simple
-math objects. All of these have the same list of fields.
+First, there are the objects (the \TEXBOOK\ calls then \quote{atoms})
+that are associated with the simple math objects: Ord, Op, Bin, Rel,
+Open, Close, Punct, Inner, Over, Under, Vcent. These all have
+the same fields, and they are combined into a single node type with
+separate subtypes for differentiation.
 
-\subsubsubsection{ord, bin, rel, open, close, punct, inner, vcenter,
-  under, over nodes}
+\subsubsubsection{simple nodes}
 
-Valid fields: \showfields{ord}
+Valid fields: \showfields{noad}
 
 \starttabulate[|lT|l|p|]
-\NC \ssbf field     \NC \bf type  \NC  \bf explanation \NC\NR
-\NC attr       \NC \syntax{<node>}\NC          \NC\NR
-\NC nucleus    \NC \syntax{<kernel>}\NC          \NC \NR
+\NC \ssbf field     \NC \bf type    \NC  \bf explanation \NC\NR
+\NC subtype    \NC number           \NC see below    \NC\NR
+\NC attr       \NC \syntax{<node>}  \NC          \NC\NR
+\NC nucleus    \NC \syntax{<kernel>}\NC          \NC\NR
 \NC sub        \NC \syntax{<kernel>}\NC          \NC\NR
-\NC sup        \NC \syntax{<kernel>}\NC          \NC \NR
+\NC sup        \NC \syntax{<kernel>}\NC          \NC\NR
 \stoptabulate
 
-\subsubsubsection{op nodes}
-
-Valid fields: \showfields{op}
-
-Operators are a bit special because they also have a sensible
+Operators are a bit special because they occupy three subtypes.
 \type{subtype}.
 
 \starttabulate[|lT|l|p|]
-\NC \ssbf field     \NC \bf type  \NC  \bf explanation \NC\NR
-\NC subtype    \NC number         \NC  0 = \type{\displaylimits},
-                                       1 = \type{\limits},
-                                       2 = \type{\nolimits} \NC\NR
-\NC attr       \NC \syntax{<node>}\NC          \NC\NR
-\NC nucleus    \NC \syntax{<kernel>}\NC          \NC \NR
-\NC sub        \NC \syntax{<kernel>}\NC          \NC\NR
-\NC sup        \NC \syntax{<kernel>}\NC          \NC \NR
+\NC \ssbf number     \NC  \bf node sub type         \NC\NR
+\NC 0                \NC  Ord                       \NC\NR
+\NC 1                \NC  Op, \type{\displaylimits} \NC\NR
+\NC 2                \NC  Op, \type{\limits}        \NC\NR
+\NC 3                \NC  Op, \type{\nolimits}      \NC\NR
+\NC 4                \NC  Bin                       \NC\NR
+\NC 5                \NC  Rel                       \NC\NR
+\NC 6                \NC  Open                      \NC\NR
+\NC 7                \NC  Close                     \NC\NR
+\NC 8                \NC  Punct                     \NC\NR
+\NC 9                \NC  Inner                     \NC\NR
+\NC 10               \NC  Under                     \NC\NR
+\NC 11               \NC  Over                      \NC\NR
+\NC 12               \NC  Vcent                     \NC\NR
 \stoptabulate
 
 \subsubsubsection{accent nodes}
