@@ -18823,8 +18823,8 @@ continue:
     scan_direction; spec_direction:=cur_val;
     goto continue;
     end;
+  if attr_list=attr_list_cache then begin add_node_attr_ref(attr_list); end;
   end;
-if attr_list=attr_list_cache then begin add_node_attr_ref(attr_list); end;
 if scan_keyword('to') then spec_code:=exactly
 @.to@>
 else if scan_keyword('spread') then spec_code:=additional
