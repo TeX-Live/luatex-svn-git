@@ -2321,7 +2321,8 @@ node.write(<node> n)
 \stopfunctioncall
 
 This is an experimental function that will append a node list to
-\TEX's \quote {current list}. There is no error checking yet!
+\TEX's \quote {current list} (the node list is not deep-copied 
+any more since version 0.38).  There is no error checking yet!
 
 \subsection{Attribute handling}
 
@@ -5468,6 +5469,32 @@ directly:
 These additional commands are not all that valuable on their own, but
 they come in handy as arguments to the math parameter settings that
 will be added shortly.
+
+\section {Verbose versions of single-character math commands}
+
+
+\LUATEX\ defines six new primitives that have the same function as 
+\type{^}, \type{_}, \type{$}, and \type{$$}. %$
+
+\starttabulate[|l|l|l|l|]
+\NC \bf primitive         \NC \bf explanation                           \NC\NR
+\NC \tex{Usuperscript}    \NC Duplicates the functionality of \type{^}  \NC\NR
+\NC \tex{Usubscript}      \NC Duplicates the functionality of \type{_}  \NC\NR
+\NC \tex{Ustartmath}      \NC Duplicates the functionality of \type{$}, % $
+                              when used in non-math mode.  \NC\NR
+\NC \tex{Ustopmath}       \NC Duplicates the functionality of \type{$}, % $
+                              when used in inline math mode.  \NC\NR
+\NC \tex{Ustartdisplaymath}\NC Duplicates the functionality of \type{$$}, % $$
+                              when used in non-math mode.  \NC\NR
+\NC \tex{Ustopdisplaymath} \NC Duplicates the functionality of \type{$$}, % $$
+                              when used in display math mode.  \NC\NR
+\stoptabulate
+
+All are new in version 0.38. The \tex{Ustopmath} and \tex{Ustopdisplaymath}
+primitives check if the current math mode is the correct one (inline
+vs. displayed), but you can freely intermix the four mathon|/|mathoff
+commands with explicit dollar sign(s).
+
 
 \section{Math parameter settings}
 
