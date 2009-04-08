@@ -450,7 +450,7 @@ static int lua_nodelib_append(lua_State * L)
     j = lua_gettop(L);
     for (i = 1; i <= j; i++) {
         n = check_isnode(L, i);
-        m = copy_node_list(*n);
+        m = *n;
         new_tail_append(m);
         while (vlink(m) != null) {
             m = vlink(m);
