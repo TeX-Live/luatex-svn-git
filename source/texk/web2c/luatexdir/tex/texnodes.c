@@ -1981,6 +1981,9 @@ void build_attribute_list(halfword b)
         }
         attr_list_ref(attr_list_cache)++;
         node_attr(b) = attr_list_cache;
+#ifdef DEBUG
+        fprintf(stderr, "Added attrlist (%d) to node %d (count=%d)\n", node_attr(b), b, attr_list_ref(attr_list_cache)) ;
+#endif
     }
 }
 
@@ -1989,6 +1992,9 @@ void delete_attribute_ref(halfword b)
     if (b != null) {
         assert(type(b) == attribute_list_node);
         attr_list_ref(b)--;
+#ifdef DEBUG
+        fprintf(stderr, "Removed attrlistref (%d) (count=%d)\n", b, attr_list_ref(b)) ;
+#endif
         if (attr_list_ref(b) == 0) {
             if (b == attr_list_cache)
                 attr_list_cache = cache_disabled;
