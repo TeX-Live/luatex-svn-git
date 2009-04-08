@@ -1056,7 +1056,7 @@ static int str_split (lua_State *L) {
   }
   p = malloc(l+1);
   if (p==NULL) {
-	fprintf(stderr, "fatal: memory exhausted (malloc of %u bytes).\n",l+1);
+	fprintf(stderr, "fatal: memory exhausted (malloc of %u bytes).\n",(int)(l+1));
 	exit(EXIT_FAILURE);
   }
   strcpy(p,s);
