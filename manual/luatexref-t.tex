@@ -5591,6 +5591,9 @@ parameters for three font sizes). In the \TFM\ case, assignments only happen
 in family~2 and family~3 (and of course only for the parameters for which
 there are font dimensions).
 
+Besides the parameters below, \LUATEX\ also looks at the \quote{space}
+font dimension parameter. For math fonts, this should be set to zero.
+
 \start
 
 \switchtobodyfont[8pt]
@@ -5684,7 +5687,6 @@ Note 5: Tfm fonts set \tex{Umathconnectoroverlapmin} to zero because
 Note 6: The \tex{Umathoperatorsize} is only used in \type{\displaystyle}, and is only set
 in \OPENTYPE\ fonts. In \TFM\ font mode, it is artificially set to one scaled point more than the
 initial attempt's size, so that always the \quote{first next} will be tried, just like in \TEX82.
-
 
 Note 7: The \tex{Umathradicaldegreeraise} is a special case because it is the only parameter that is
 expressed in a percentage instead of as a number of scaled points.
