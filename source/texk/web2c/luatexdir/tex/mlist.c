@@ -3102,6 +3102,7 @@ scaled math_kern_at(internal_font_number f, integer c, int side, int v)
         kerns_heights = co->bottom_right_math_kern_array;
     } else {
         tconfusion("math_kern_at");
+        kerns_heights = NULL; /* not reached */
     }
 #ifdef DEBUG
     fprintf(stderr, "   entry 0: %d,%d\n", kerns_heights[0], kerns_heights[1]);
