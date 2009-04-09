@@ -23474,9 +23474,10 @@ unsave;
 kind:=saved(-1);
 decr(save_ptr);
 p:=vlink(head); pop_nest;
-p:=hpack(p,natural);
+if p<>null then
+  p:=hpack(p,natural);
 if kind=0 then
-  eq_define(local_left_box_base,box_ref,p)
+    eq_define(local_left_box_base,box_ref,p)
 else
   eq_define(local_right_box_base,box_ref,p);
 if abs(mode)=hmode then
