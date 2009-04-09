@@ -11772,7 +11772,7 @@ while not lua_a_open_out(addressof(log_file),0) do @<Try to get a different log 
 log_file := name_file_pointer;
 log_name:=a_make_name_string(log_file);
 selector:=log_only; log_opened:=true;
-if not callback_defined(start_run_callback) then begin
+if callback_defined(start_run_callback)=0 then begin
   @<Print the banner line, including the date and time@>;
   input_stack[input_ptr]:=cur_input; {make sure bottom level is in memory}
   print_nl("**");
@@ -14689,7 +14689,7 @@ if (tracing_output>0)and(pre_callback_id=0) then
   end;
 if pre_callback_id>0 then
   ret:=run_callback(pre_callback_id,'->')
-else begin
+else if pre_callback_id=0 then begin
   if term_offset>max_print_line-9 then print_ln
   else if (term_offset>0)or(file_offset>0) then print_char(" ");
   print_char("["); j:=9;
@@ -14822,7 +14822,7 @@ while cur_s>-1 do
 if total_pages=0 then begin 
   if callback_id=0 then
     print_nl("No pages of output.")
-  else
+  else if callback_id>0 then
     res:=run_callback(callback_id,'->');
   end
 @.No pages of output@>
@@ -14847,7 +14847,7 @@ else  begin dvi_out(post); {beginning of the postamble}
     if total_pages<>1 then print_char("s");
     print(", "); print_int(dvi_offset+dvi_ptr); print(" bytes).");
     end
-  else
+  else if callback_id>0 then
     res:=run_callback(callback_id,'->');
   b_close(dvi_file);
   end
@@ -17496,7 +17496,7 @@ is_shipping_page := shipping_page;
 if shipping_page then begin
   if pre_callback_id>0 then 
     ret:=run_callback(pre_callback_id,'->')
-  else begin
+  else if pre_callback_id=0 then begin
     if term_offset>max_print_line-9 then print_ln
     else if (term_offset>0)or(file_offset>0) then print_char(" ");
     print_char("["); j:=9;
@@ -18310,7 +18310,7 @@ are already written completely to PDF output file.
 if total_pages=0 then begin
     if callback_id=0 then
         print_nl("No pages of output.")
-    else
+    else if callback_id>0 then
         res:=run_callback(callback_id,'->');
     @.No pages of output@>
     if pdf_gone > 0 then
@@ -18348,7 +18348,7 @@ else begin
             if total_pages<>1 then print_char("s");
             print(", "); print_int(pdf_offset); print(" bytes).");
         end
-        else
+        else if callback_id>0 then
             res:=run_callback(callback_id,'->');
     end;
     libpdffinish;
@@ -20760,7 +20760,7 @@ last_line_fill:=vlink(tail);
 pop_nest;
 start_of_par:=tail;
 callback_id:=callback_defined(linebreak_filter_callback);
-if callback_id<>0 then begin
+if callback_id>0 then begin
   callback_id := lua_linebreak_callback(d, temp_head, addressof(tail));
   if callback_id>0 then begin
     just_box := tail;
@@ -25960,7 +25960,7 @@ if callback_id=0 then begin
   else  begin slow_print(format_ident); print_ln;
     end;
   end
-else
+else if callback_id>0 then
   res:= run_callback(callback_id,'->');
 update_terminal;
 end;
@@ -26117,7 +26117,7 @@ while cond_ptr<>null do
   cur_if:=subtype(cond_ptr); temp_ptr:=cond_ptr;
   cond_ptr:=vlink(cond_ptr); flush_node(temp_ptr);
   end;
-if not callback_defined(stop_run_callback) then 
+if callback_defined(stop_run_callback)=0 then 
   if history<>spotless then
     if ((history=warning_issued)or(interaction<error_stop_mode)) then
       if selector=term_and_log then

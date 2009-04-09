@@ -1161,7 +1161,7 @@ void get_token_lua(void)
 {
     register int callback_id;
     callback_id = callback_defined(token_filter_callback);
-    if (callback_id != 0) {
+    if (callback_id > 0) {
         while (state == token_list && loc == null && index != v_template)
             end_token_list();
         /* there is some stuff we don't want to see inside the callback */

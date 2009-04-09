@@ -430,7 +430,10 @@ static int callback_register(lua_State * L)
 {
     int cb;
     char *s;
-    if (!lua_isstring(L, 1) || ((!lua_isfunction(L, 2)) && !lua_isnil(L, 2))) {
+    if (!lua_isstring(L, 1) || 
+	((!lua_isfunction(L, 2)) && 
+	 (!lua_isnil(L, 2)) &&
+	 (!(lua_isboolean(L, 2) && lua_toboolean(L,2)==0)))) {
         lua_pushnil(L);
         lua_pushstring(L, "Invalid arguments to callback.register.");
         return 2;
@@ -447,6 +450,8 @@ static int callback_register(lua_State * L)
     }
     if (lua_isfunction(L, 2)) {
         callback_set[cb] = cb;
+    } else if (lua_isboolean(L, 2)) {
+        callback_set[cb] = -1;
     } else {
         callback_set[cb] = 0;
     }

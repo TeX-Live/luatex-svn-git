@@ -927,7 +927,7 @@ void new_hyphenation(halfword head, halfword tail)
             return;
         }
         lua_pop(L, 1);
-    } else {
+    } else if (callback_id == 0) {
         hnj_hyphenation(head, tail);
     }
 }

@@ -121,7 +121,7 @@ do_define_font(integer f, char *cnom, char *caire, scaled s,
                 return 0;
             }
         }
-    } else {
+    } else if (callback_id==0) {
         res = read_tfm_info(f, cnom, caire, s);
         if (res) {
             set_hyphen_char(f, get_default_hyphen_char());

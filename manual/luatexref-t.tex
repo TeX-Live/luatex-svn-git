@@ -3046,6 +3046,7 @@ This library has functions that register, find and list callbacks.
 \startfunctioncall
 id, error = callback.register(<string> callback_name,function callback_func)
 id, error = callback.register(<string> callback_name,nil)
+id, error = callback.register(<string> callback_name,false)
 \stopfunctioncall
 
 where the \syntax{callback_name} is a predefined callback name, see
@@ -3057,10 +3058,15 @@ case, \type{error} contains an error message, otherwise it is
 \LUATEX\ internalizes the callback function in such a way that
 it does not matter if you redefine a function accidentally.
 
-% hahe: what happens then?
-
 Callback assignments are always global. You can use the special value
-\type {nil} instead of a function for clearing the callback.
+\type {nil} instead of a function for clearing the callback. 
+
+For some minor speed gain, you can assign the boolean \type{false} to
+the non-file related callbacks, doing so will prevent \LUATEX\ from
+executing whatever it would execute by default (when no callback
+function is registered at all). Be warned: this may cause all sorts of
+grief unless you know {\it exactly} what you are doing! This functionality
+is present since version 0.38.
 
 Currently, callbacks are not dumped into the format file.
 
@@ -3359,6 +3365,7 @@ If you return \type{nil}, \LUATEX\ will pretend like your callback
 never happened. You can gain a small amount of processing time from
 that.
 
+This callback does not replace any internal code.
 
 \subsubsection{\luatex{token_filter}}
 
@@ -3388,6 +3395,9 @@ list (a table consisting of a list of consecutive token tables), then
 that list will be pushed to the input stack at a completely new token
 list level, with its token type set to \quote{inserted}. In either case,
 the returned token(s) will not be fed back into the callback function.
+
+Setting this  callback to \type{false} has no effect (because otherwise 
+nothing would happen, forever).
 
 \subsection{Node list processing callbacks}
 
@@ -3423,6 +3433,9 @@ values are:
 \NC after_display   \NC a display is finished                  \NC\NR
 \NC end             \NC \LUATEX\ is terminating (it's all over)\NC\NR
 \stoptabulate
+
+This callback does not replace any internal code.
+
 
 \subsubsection{\luatex{pre_linebreak_filter}}
 
@@ -3462,6 +3475,9 @@ will be explained in the next two paragraphs.
 \NC fin_row      \NC alignment row                             \NC\NR
 \stoptabulate
 
+This callback does not replace any internal code.
+
+
 \subsubsection{\luatex{linebreak_filter}}
 
 This callback replaces \LUATEX's line breaking algorithm.
@@ -3480,6 +3496,10 @@ If you return something that is not a \type{<node>}, \LUATEX\ will
 apply the internal linebreak algorithm on the list that starts at
 \type{<head>}.
 
+Setting this  callback to \type{false} is possible, but dangerous,
+because it is possible you will end up in an unfixable 
+\quote{deadcycles loop}.
+
 \subsubsection{\luatex{post_linebreak_filter}}
 
 This callback is called just after \LUATEX\ has converted a list
@@ -3490,6 +3510,8 @@ function(<node> head, <string> groupcode)
     return true | false | <node> newhead
 end
 \stopfunctioncall
+
+This callback does not replace any internal code.
 
 \subsubsection{\luatex{hpack_filter}}
 
@@ -3508,6 +3530,8 @@ The \type{packtype} is either \type{additional} or \type{exactly}. If
 argument. If \type{exactly}, then the \type{size} is a \tex{hbox to ...}.
 In both cases, the number is in scaled points.
 
+This callback does not replace any internal code.
+
 \subsubsection{\luatex{vpack_filter}}
 
 This callback is called when \TEX\ is ready to start boxing some
@@ -3523,6 +3547,8 @@ function(<node> head, <string> groupcode, <number> size, <string> packtype,  <nu
 end
 \stopfunctioncall
 
+This callback does not replace any internal code.
+
 \subsubsection{\luatex{pre_output_filter}}
 
 This callback is called when \TEX\ is ready to start boxing the
@@ -3534,6 +3560,8 @@ function(<node> head, <string> groupcode, <number> size, <string> packtype, <num
 end
 \stopfunctioncall
 
+This callback does not replace any internal code.
+
 \subsubsection{\luatex{hyphenate}}
 
 \startfunctioncall
@@ -3544,6 +3572,8 @@ end
 No return values. This callback has to insert discretionary nodes in
 the node list it receives.
 
+Setting this  callback to \type{false} will prevent the internal 
+discretionary insertion pass.
 
 \subsubsection{\luatex{ligaturing}}
 
@@ -3569,6 +3599,9 @@ second callback argument can often be ignored. It is provided for
 orthogonality, and because it can sometimes be handy when special
 processing has to take place.
 
+Setting this  callback to \type{false} will prevent the internal 
+ligature creation pass.
+
 \subsubsection{\luatex{kerning}}
 
 \startfunctioncall
@@ -3579,6 +3612,8 @@ No return values. This callback has to apply kerning between the nodes
 in the node list it receives. See \type{ligaturing} for calling
 conventions.
 
+Setting this  callback to \type{false} will prevent the internal
+kern insertion pass.
 
 \subsubsection{\luatex{mlist_to_hlist}}
 
@@ -3595,6 +3630,8 @@ horizontal list, the string argument is either \quote{text} or \quote{display}
 depending on the current math mode, the boolean argument is \type{true} if penalties
 have to be inserted in this list, \type{false} otherwise.
 
+Setting this  callback to \type{false} is bad, it will almost 
+certainly result in an endless loop.
 
 \subsection{Information reporting callbacks}
 
@@ -3604,7 +3641,9 @@ have to be inserted in this list, \type{false} otherwise.
 function()
 \stopfunctioncall
 
-Replaces the code that prints \LUATEX's banner.
+This callback replaces the code that prints \LUATEX's banner. Note that for
+succesful use, this callback has to be set in the lua initialization file,
+otherwise it will be seen only after the run has already started.
 
 \subsubsection{\luatex{stop_run}}
 
@@ -3612,7 +3651,7 @@ Replaces the code that prints \LUATEX's banner.
 function()
 \stopfunctioncall
 
-Replaces the code that prints \LUATEX's statistics and \quote{output written
+This callback replaces the code that prints \LUATEX's statistics and \quote{output written
 to} messages.
 
 \subsubsection{\luatex{start_page_number}}
@@ -3646,6 +3685,8 @@ This callback is run from inside the \TEX\ error function, and the idea
 is to allow you to do some extra reporting on top of what \TEX\ already
 does (none of the normal actions are removed). You may find some of
 the values in the \luatex{status} table useful.
+
+This callback does not replace any internal code.
 
 \startitemize
 
@@ -3694,6 +3735,9 @@ The internal structure of the \type{font} table that is to be
 returned is explained in \in{chapter}[fonts]. That table is saved
 internally, so you can put extra fields in the table for your
 later \LUA\ code to use.
+
+Setting this callback to \type{false} is pointless as it will prevent
+font loading completely but will nevertheless generate errors.
 
 \section{The \luatex{lua} library}
 

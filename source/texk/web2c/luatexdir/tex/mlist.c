@@ -2161,7 +2161,7 @@ void run_mlist_to_hlist(pointer p, integer m_style, boolean penalties)
         a = nodelist_from_lua(L);
         lua_settop(L, sfix);
         vlink(temp_head) = a;
-    } else {
+    } else if (callback_id==0) {
         cur_mlist = p;
         cur_style = m_style;
         mlist_penalties = penalties;
