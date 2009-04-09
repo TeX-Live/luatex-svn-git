@@ -572,7 +572,7 @@ void set_charinfo_hor_variants(charinfo * ci, extinfo * ext)
 
 int get_charinfo_math_kerns(charinfo * ci, int id)
 {
-    int k;
+    int k = 0; /* all callers check for result>0 */
     if (id==top_left_kern) {
         k = ci->top_left_math_kerns;
     } else if (id==bottom_left_kern) {
