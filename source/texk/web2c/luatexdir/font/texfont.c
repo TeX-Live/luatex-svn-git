@@ -570,6 +570,121 @@ void set_charinfo_hor_variants(charinfo * ci, extinfo * ext)
 
 }
 
+int get_charinfo_math_kerns(charinfo * ci, int id)
+{
+    int k;
+    if (id==top_left_kern) {
+        k = ci->top_left_math_kerns;
+    } else if (id==bottom_left_kern) {
+        k = ci->bottom_left_math_kerns;
+    } else if (id==bottom_right_kern) {
+        k = ci->bottom_right_math_kerns;
+    } else if (id==top_right_kern) {
+        k = ci->top_right_math_kerns;
+    }
+    return k;
+}
+
+void add_charinfo_math_kern(charinfo * ci, int id, scaled ht, scaled krn)
+{
+    int k;
+    fprintf(stderr, "storing a math kern with (id=%d,ht=%d,kern=%d)\n", id, ht, krn);
+    if (id==top_left_kern) {
+        k = ci->top_left_math_kerns;
+        do_realloc(ci->top_left_math_kern_array, ((k+1)*2), sizeof(scaled));
+        ci->top_left_math_kern_array[k] = ht;
+        ci->top_left_math_kern_array[(k+1)] = krn;
+        ci->top_left_math_kerns++;
+    } else if (id==bottom_left_kern) {
+        k = ci->bottom_left_math_kerns;
+        do_realloc(ci->bottom_left_math_kern_array, ((k+1)*2), sizeof(scaled));
+        ci->bottom_left_math_kern_array[k] = ht;
+        ci->bottom_left_math_kern_array[(k+1)] = krn;
+        ci->bottom_left_math_kerns++;
+    } else if (id==bottom_right_kern) {
+        k = ci->bottom_right_math_kerns;
+        do_realloc(ci->bottom_right_math_kern_array, ((k+1)*2), sizeof(scaled));
+        ci->bottom_right_math_kern_array[k] = ht;
+        ci->bottom_right_math_kern_array[(k+1)] = krn;
+        ci->bottom_right_math_kerns++;
+    } else if (id==top_right_kern) {
+        k = ci->top_right_math_kerns;
+        do_realloc(ci->top_right_math_kern_array, ((k+1)*2), sizeof(scaled));
+        ci->top_right_math_kern_array[k] = ht;
+        ci->top_right_math_kern_array[(k+1)] = krn;
+        ci->top_right_math_kerns++;
+    }
+}
+
+
+static void dump_math_kerns(charinfo * ci)
+{
+    integer k,l;
+    l = ci->top_left_math_kerns;
+    dump_int(l);
+    for (k=0;k<l;k++) {
+        dump_int(ci->top_left_math_kern_array[(2*k)]);
+        dump_int(ci->top_left_math_kern_array[(2*k)+1]);
+    }
+    l = ci->bottom_left_math_kerns;
+    dump_int(l);
+    for (k=0;k<l;k++) {
+        dump_int(ci->bottom_left_math_kern_array[(2*k)]);
+        dump_int(ci->bottom_left_math_kern_array[(2*k)+1]);
+    }
+    l = ci->bottom_right_math_kerns;
+    dump_int(l);
+    for (k=0;k<l;k++) {
+        dump_int(ci->bottom_right_math_kern_array[(2*k)]);
+        dump_int(ci->bottom_right_math_kern_array[(2*k)+1]);
+    }
+    l = ci->top_right_math_kerns;
+    dump_int(l);
+    for (k=0;k<l;k++) {
+        dump_int(ci->bottom_left_math_kern_array[(2*k)]);
+        dump_int(ci->bottom_left_math_kern_array[(2*k)+1]);
+    }
+}
+
+static void undump_math_kerns(charinfo * ci)
+{
+    int k;
+    integer x;
+    undump_int(x);
+    ci->top_left_math_kerns = (int)x;
+    if (x>0)
+        ci->top_left_math_kern_array = xmalloc(2*sizeof(scaled)*x);
+    for (k=0;k<ci->top_left_math_kerns;k++) {
+        undump_int(x); ci->top_left_math_kern_array[(2*k)] = (scaled)x;
+        undump_int(x); ci->top_left_math_kern_array[(2*k)+1] = (scaled)x;
+    }
+    undump_int(x);
+    ci->bottom_left_math_kerns = (int)x;
+    if (x>0)
+        ci->bottom_left_math_kern_array = xmalloc(2*sizeof(scaled)*x);
+    for (k=0;k<ci->bottom_left_math_kerns;k++) {
+        undump_int(x); ci->bottom_left_math_kern_array[(2*k)] = (scaled)x;
+        undump_int(x); ci->bottom_left_math_kern_array[(2*k)+1] = (scaled)x;
+    }
+    undump_int(x);
+    ci->bottom_right_math_kerns = (int)x;
+    if (x>0)
+        ci->bottom_right_math_kern_array = xmalloc(2*sizeof(scaled)*x);
+    for (k=0;k<ci->bottom_right_math_kerns;k++) {
+        undump_int(x); ci->bottom_right_math_kern_array[(2*k)] = (scaled)x;
+        undump_int(x); ci->bottom_right_math_kern_array[(2*k)+1] = (scaled)x;
+    }
+    undump_int(x);
+    ci->top_right_math_kerns = (int)x; 
+    if (x>0)
+        ci->top_right_math_kern_array = xmalloc(2*sizeof(scaled)*x);
+    for (k=0;k<ci->top_right_math_kerns;k++) {
+        undump_int(x); ci->top_right_math_kern_array[(2*k)] = (scaled)x;
+        undump_int(x); ci->top_right_math_kern_array[(2*k)+1] = (scaled)x;
+    }
+}
+
+
 /* In TeX, extensibles were fairly simple things. 
    This function squeezes a TFM extensible into the vertical extender structures.
    |advance==0| is a special case for TFM fonts, because finding the proper 
@@ -1041,7 +1156,9 @@ boolean font_shareable(internal_font_number f, internal_font_number k)
         }
     } else {
         if ((font_filename(k) != NULL && font_filename(f) != NULL &&
-             strcmp(font_filename(k), font_filename(f)) == 0)
+             strcmp(font_filename(k), font_filename(f)) == 0 &&
+             font_fullname(k) != NULL && font_fullname(f) != NULL &&
+             strcmp(font_fullname(k), font_fullname(f)) == 0 ) 
             || (pdf_font_auto_expand(f)
                 && (pdf_font_blink(f) != 0)     /* 0 = nullfont */
                 &&same_font_name(k, pdf_font_blink(f)))) {
@@ -1301,6 +1418,7 @@ void dump_charinfo(int f, int c)
         dump_charinfo_variants(get_charinfo_vert_variants(co));
         dump_charinfo_variants(get_charinfo_hor_variants(co));
     }
+    dump_math_kerns(co);
 }
 
 void 
@@ -1467,6 +1585,7 @@ int undump_charinfo(int f)
         set_charinfo_vert_variants(co, undump_charinfo_variants());
         set_charinfo_hor_variants(co, undump_charinfo_variants());
     }
+    undump_math_kerns(co);
     return i;
 }
 

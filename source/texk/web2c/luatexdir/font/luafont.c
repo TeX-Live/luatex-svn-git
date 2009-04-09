@@ -108,10 +108,31 @@ static void dump_intfield(lua_State * L, char *n, int c)
 }
 
 
+void dump_math_kerns (lua_State *L, charinfo *co, int l, int id) {
+  int i;
+  for (i=0; i<l;i++) {
+    lua_newtable(L);
+    if (id==top_left_kern) {
+        dump_intfield(L, "height", co->top_left_math_kern_array[(2*i)]);
+        dump_intfield(L, "kern",   co->top_left_math_kern_array[(2*i)+1]);
+    } else if (id==top_right_kern) {
+        dump_intfield(L, "height", co->top_right_math_kern_array[(2*i)]);
+        dump_intfield(L, "kern",   co->top_right_math_kern_array[(2*i)+1]);
+    } else if (id==bottom_right_kern) {
+        dump_intfield(L, "height", co->bottom_right_math_kern_array[(2*i)]);
+        dump_intfield(L, "kern",   co->bottom_right_math_kern_array[(2*i)+1]);
+    } else if (id==bottom_left_kern) {
+        dump_intfield(L, "height", co->bottom_left_math_kern_array[(2*i)]);
+        dump_intfield(L, "kern",   co->bottom_left_math_kern_array[(2*i)+1]);
+    }
+    lua_rawseti(L,-2, (i+1));
+  }
+}
+
 
 void font_char_to_lua(lua_State * L, internalfontnumber f, charinfo * co)
 {
-    int i;
+    int i, j;
     liginfo *l;
     kerninfo *ki;
 
@@ -262,6 +283,43 @@ void font_char_to_lua(lua_State * L, internalfontnumber f, charinfo * co)
         }
         lua_rawset(L, -3);
     }
+
+    lua_newtable(L);
+
+    i = get_charinfo_math_kerns(co, top_right_kern);
+    j = 0;
+    if (i>0) {
+        j++;
+        lua_newtable(L);
+        dump_math_kerns(L, co, i, top_right_kern);
+        lua_setfield(L, -2, "top_right");
+    }
+    i = get_charinfo_math_kerns(co, top_left_kern);
+    if (i>0) {
+        j++;
+        lua_newtable(L);
+        dump_math_kerns(L, co, i, top_left_kern);
+        lua_setfield(L, -2, "top_left");
+    }
+    i = get_charinfo_math_kerns(co, bottom_right_kern);
+    if (i>0) {
+        j++;
+        lua_newtable(L);
+        dump_math_kerns(L, co, i, bottom_right_kern);
+        lua_setfield(L, -2, "bottom_right");
+    }
+    i = get_charinfo_math_kerns(co, bottom_left_kern);
+    if (i>0) {
+        j++;
+        lua_newtable(L);
+        dump_math_kerns(L, co, i, bottom_left_kern);
+        lua_setfield(L, -2, "bottom_left");
+    }
+    if (j>0) 
+        lua_setfield(L, -2, "mathkern");
+    else
+        lua_pop(L,1);
+
 }
 
 static void write_lua_parameters(lua_State * L, int f)
@@ -1045,7 +1103,40 @@ static void read_lua_math_parameters(lua_State * L, int f)
     lua_pop(L, 1);
 }
 
+#define MIN_INF -0x7FFFFFFF
 
+
+static void 
+store_math_kerns (lua_State * L, charinfo *co, int id )
+{
+    int l, k;
+    scaled ht, krn;
+    if (lua_istable(L, -1) && ((k=lua_objlen(L,-1))>0)) {
+        for (l=0;l<k;l++) {
+            lua_rawgeti(L,-1,(l+1));
+            if (lua_istable(L, -1)) {
+                lua_getfield(L, -1, "height");
+                if (lua_isnumber(L,-1)) {
+                    ht = (scaled)lua_tonumber(L,-1);
+                } else {
+                    ht = MIN_INF;
+                }
+                lua_pop(L,1);
+                lua_getfield(L, -1, "kern");
+                if (lua_isnumber(L,-1)) {
+                    krn = (scaled)lua_tonumber(L,-1);
+                } else {
+                    krn = MIN_INF;
+                }
+                lua_pop(L,1);
+                if (krn>MIN_INF && ht>MIN_INF) 
+                    add_charinfo_math_kern(co,id,ht,krn);
+            }
+            lua_pop(L,1);
+        }
+    }
+}
+    
 void
 font_char_from_lua(lua_State * L, internal_font_number f, integer i,
                    integer * l_fonts)
@@ -1162,6 +1253,31 @@ font_char_from_lua(lua_State * L, internal_font_number f, integer i,
                     break;
                 }
             }
+        }
+        lua_pop(L, 1);
+
+        /* Here is a complete example:
+           ["mathkern"]={
+           ["bottom_left"] ={ { ["height"]=420, ["kern"]=80  }, { ["height"]=520,  ["kern"]=4   } },
+           ["bottom_right"]={ { ["height"]=0,   ["kern"]=48  } },
+           ["top_left"]    ={ { ["height"]=620, ["kern"]=0   }, { ["height"]=720,  ["kern"]=-80 } },
+           ["top_right"]   ={ { ["height"]=676, ["kern"]=115 }, { ["height"]=776,  ["kern"]=45  } },
+           } 
+        */
+        lua_getfield(L, -1, "mathkern");
+        if (lua_istable(L, -1)) {
+            lua_getfield(L, -1, "top_left");
+            store_math_kerns(L, co, top_left_kern);
+            lua_pop(L,1);
+            lua_getfield(L, -1, "top_right");
+            store_math_kerns(L, co, top_right_kern);
+            lua_pop(L,1);
+            lua_getfield(L, -1, "bottom_right");
+            store_math_kerns(L, co, bottom_right_kern);
+            lua_pop(L,1);
+            lua_getfield(L, -1, "bottom_left");
+            store_math_kerns(L, co, bottom_left_kern);
+            lua_pop(L,1);
         }
         lua_pop(L, 1);
 
