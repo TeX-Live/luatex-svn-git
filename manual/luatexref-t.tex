@@ -5470,32 +5470,6 @@ These additional commands are not all that valuable on their own, but
 they come in handy as arguments to the math parameter settings that
 will be added shortly.
 
-\section {Verbose versions of single-character math commands}
-
-
-\LUATEX\ defines six new primitives that have the same function as 
-\type{^}, \type{_}, \type{$}, and \type{$$}. %$
-
-\starttabulate[|l|l|l|l|]
-\NC \bf primitive         \NC \bf explanation                           \NC\NR
-\NC \tex{Usuperscript}    \NC Duplicates the functionality of \type{^}  \NC\NR
-\NC \tex{Usubscript}      \NC Duplicates the functionality of \type{_}  \NC\NR
-\NC \tex{Ustartmath}      \NC Duplicates the functionality of \type{$}, % $
-                              when used in non-math mode.  \NC\NR
-\NC \tex{Ustopmath}       \NC Duplicates the functionality of \type{$}, % $
-                              when used in inline math mode.  \NC\NR
-\NC \tex{Ustartdisplaymath}\NC Duplicates the functionality of \type{$$}, % $$
-                              when used in non-math mode.  \NC\NR
-\NC \tex{Ustopdisplaymath} \NC Duplicates the functionality of \type{$$}, % $$
-                              when used in display math mode.  \NC\NR
-\stoptabulate
-
-All are new in version 0.38. The \tex{Ustopmath} and \tex{Ustopdisplaymath}
-primitives check if the current math mode is the correct one (inline
-vs. displayed), but you can freely intermix the four mathon|/|mathoff
-commands with explicit dollar sign(s).
-
-
 \section{Math parameter settings}
 
 In \LUATEX, the font dimension parameters that \TEX\ used in math
@@ -5773,7 +5747,7 @@ actually be used as those combinations of atoms cannot actually
 happen, but it seemed better not to break orthogonality. They are initialized to zero.
 
 
-\subsection{Math accent handling}
+\section{Math accent handling}
 
 \LUATEX\ supports both top accents and bottom accents in math mode. For bottom accents,
 there is the new primitive \tex{Umathbotaccent}. If you want to set both top and bottom
@@ -5802,7 +5776,7 @@ takes place.
 \LUATEX\ has horizontal extensibles, and when present, these will be used by the accent
 commands.
 
-\subsection{Math root extension}
+\section{Math root extension}
 
 The new primitive \type{\Uroot} allows the construction of a radical
 noad including a degree field. Its syntax is an extension of \type{\Uradical}:
@@ -5817,7 +5791,49 @@ The placement of the degree is controlled by the math parameters
 \type{\Umathradicaldegreeraise}. The degree will be typeset in \type{\scriptscriptstyle}.
 
 
-\subsection{Scripts on horizontally extensible items like arrows}
+\section{Math kerning in super- and subscripts}
+
+The character fields in a lua-loaded OpenType math font can have a \quote{mathkern} table.  
+The format of this table is the same as the \quote{mathkern} table that is returned by
+the \type{fontloader} library, except that all height and kern values have to 
+be specified in actual scaled points.
+
+When a super- or subscript has to be placed next to a math item, \LUATEX\ checks
+whether the super- or subscript and the nucleus are both simple character items. If
+they are, and if the fonts of both character imtes are OpenType fonts (as opposed to
+legacy \TEX\ fonts), then \LUATEX\ will use the OpenType MATH algorithm for deciding
+on the horizontal placement of the super- or subscript.
+
+This works as follows:
+
+\startitemize
+\item The vertical position of the script is calculated.
+\item The default horizontal position is flat next to the base character.
+\item For superscripts, the italic correction of the base character is added.
+\item For a superscript, two vertical values are calculated: the bottom of the
+   script (after shifting up), and the top of the base. For a subscript,
+   the two values are the top of the (shifted down) script, and the bottom
+   of the base.
+\item For each of these two locations:
+    \startitemize
+    \item find the mathkern value at this height for the base
+      (for a subscript placement, this is the bottom_right corner,
+       for a superscript placement the top_right corner)
+    \item find the mathkern value at this height for the script
+      (for a subscript placement, this is the top_left corner,
+       for a superscript placement the bottom_left corner)
+    \item add the found values together to get a preliminary result.
+    \stopitemize
+\item The horizontal kern to be applied is the smallest of the two results from 
+    previous step.
+\stopitemize
+
+The mathkern value at a specific height is the kern value that is specified by the
+next higher height and kern pair, or the highest one in the character (if there is no
+value high enough in the character), or simply zero (if the character has no mathkern
+pairs at all).
+
+\section{Scripts on horizontally extensible items like arrows}
 
 The new primitives \tex{Uunderdelimiter} and \tex{Uoverdelimiter}
 (both from 0.35) allow the placement of a subscript or superscript on
@@ -5839,6 +5855,31 @@ as \TFM\ \quote{extensible recipes}.
 
 
 \section{Other Math changes}
+
+\subsection {Verbose versions of single-character math commands}
+
+\LUATEX\ defines six new primitives that have the same function as 
+\type{^}, \type{_}, \type{$}, and \type{$$}. %$
+
+\starttabulate[|l|l|l|l|]
+\NC \bf primitive         \NC \bf explanation                           \NC\NR
+\NC \tex{Usuperscript}    \NC Duplicates the functionality of \type{^}  \NC\NR
+\NC \tex{Usubscript}      \NC Duplicates the functionality of \type{_}  \NC\NR
+\NC \tex{Ustartmath}      \NC Duplicates the functionality of \type{$}, % $
+                              when used in non-math mode.  \NC\NR
+\NC \tex{Ustopmath}       \NC Duplicates the functionality of \type{$}, % $
+                              when used in inline math mode.  \NC\NR
+\NC \tex{Ustartdisplaymath}\NC Duplicates the functionality of \type{$$}, % $$
+                              when used in non-math mode.  \NC\NR
+\NC \tex{Ustopdisplaymath} \NC Duplicates the functionality of \type{$$}, % $$
+                              when used in display math mode.  \NC\NR
+\stoptabulate
+
+All are new in version 0.38. The \tex{Ustopmath} and \tex{Ustopdisplaymath}
+primitives check if the current math mode is the correct one (inline
+vs. displayed), but you can freely intermix the four mathon|/|mathoff
+commands with explicit dollar sign(s).
+
 
 \subsection{Allowed math commands in non-math modes}
 
@@ -6462,10 +6503,11 @@ The following top|-|level keys can be present inside a character hash:
 \NC name       \NC no          \NC no           \NC no       \NC string         \NC the character (\POSTSCRIPT) name \NC\NR
 \NC index      \NC no          \NC no           \NC yes      \NC number         \NC the (\OPENTYPE\ or \TRUETYPE) font glyph index \NC\NR
 \NC used       \NC no          \NC yes          \NC yes      \NC boolean        \NC typeset already (default: false)? \NC\NR
+\NC mathkern   \NC no          \NC no           \NC yes      \NC table          \NC math cut-in specifications \NC\NR  
 \stoptabulate
 
-The values of \type{top_accent} and \type{bot_accent} are used only for math accent
-placement, see the \at[math]{math chapter} in this manual for details.
+The values of \type{top_accent}, \type{bot_accent} and \type{mathkern} are used only for math 
+accent and superscript placement, see the \at[math]{math chapter} in this manual for details.
 
 The values of \type{left_protruding} and \type{right_protruding} are used only when
 \tex{pdfprotrudechars} is non-zero.
