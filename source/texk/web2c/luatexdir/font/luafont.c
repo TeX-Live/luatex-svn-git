@@ -97,6 +97,7 @@ const char *MATH_param_names[] = {
     "RadicalKernAfterDegree",
     "RadicalDegreeBottomRaisePercent",
     "MinConnectorOverlap",
+    "SubscriptShiftDownWithSuperscript",
     NULL,
 };
 

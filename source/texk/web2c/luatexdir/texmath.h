@@ -320,9 +320,11 @@ typedef enum {
     RadicalKernAfterDegree,
     RadicalDegreeBottomRaisePercent,
     MinConnectorOverlap,
+    SubscriptShiftDownWithSuperscript,
+    MATH_param_last,
 } MATH_param_codes;
 
-#  define MATH_param_max MinConnectorOverlap
+#  define MATH_param_max MATH_param_last
 
 extern const char *MATH_param_names[];
 

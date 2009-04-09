@@ -5619,7 +5619,8 @@ font dimension parameter. For math fonts, this should be set to zero.
 \NC "                           \NC T, T', S, S', SS, SS' \NC StackGapMin                              \NC 3*default_rule_thickness \NC\NR
 \NC \tex{Umathsubshiftdown}     \NC --                    \NC SubscriptShiftDown                       \NC sub1 \NC\NR
 \NC \tex{Umathsubshiftdrop}     \NC --                    \NC SubscriptBaselineDropMin                 \NC sub_drop \NC\NR
-\NC \tex{Umathsubsupshiftdown}  \NC --                    \NC SubscriptShiftDown                       \NC sub2 \NC\NR
+\NC \tex{Umathsubsupshiftdown}  \NC --                    \NC SubscriptShiftDownWithSuperscript$^8$    \NC      \NC\NR
+\NC                             \NC                       \NC \quad\ or SubscriptShiftDown             \NC sub2 \NC\NR
 \NC \tex{Umathsubtopmax}        \NC --                    \NC SubscriptTopMax                          \NC (abs(math_x_height * 4) / 5) \NC\NR
 \NC \tex{Umathsubsupvgap}       \NC --                    \NC SubSuperscriptGapMin                     \NC 4*default_rule_thickness \NC\NR
 \NC \tex{Umathsupbottommin}     \NC --                    \NC SuperscriptBottomMin                     \NC (abs(math_x_height) / 4) \NC\NR
@@ -5664,6 +5665,9 @@ initial attempt's size, so that always the \quote{first next} will be tried, jus
 
 Note 7: The \tex{Umathradicaldegreeraise} is a special case because it is the only parameter that is
 expressed in a percentage instead of as a number of scaled points.
+
+Note 8: \type{SubscriptShiftDownWithSuperscript} does not actually exist in the \quote{standard}
+Opentype Math font Cambria, but it is useful enough to be added. New in version 0.38.
 
 \section{Math spacing setting}
 

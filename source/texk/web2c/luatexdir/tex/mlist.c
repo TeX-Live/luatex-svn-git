@@ -812,10 +812,19 @@ void fixup_math_parameters(integer fam_id, integer size_id, integer f,
                                font_MATH_par(f, SubscriptShiftDown), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_sub_shift_down, size_id,
                                 font_MATH_par(f, SubscriptShiftDown), lvl);
-        DEFINE_MATH_PARAMETERS(math_param_sub_sup_shift_down, size_id,
-                               font_MATH_par(f, SubscriptShiftDown), lvl);
-        DEFINE_DMATH_PARAMETERS(math_param_sub_sup_shift_down, size_id,
-                                font_MATH_par(f, SubscriptShiftDown), lvl);
+
+        if (font_MATH_par(f, SubscriptShiftDownWithSuperscript)!=undefined_math_parameter) {
+            DEFINE_MATH_PARAMETERS(math_param_sub_sup_shift_down, size_id,
+                                   font_MATH_par(f, SubscriptShiftDownWithSuperscript), lvl);
+            DEFINE_DMATH_PARAMETERS(math_param_sub_sup_shift_down, size_id,
+                                    font_MATH_par(f, SubscriptShiftDownWithSuperscript), lvl);
+        } else {
+            DEFINE_MATH_PARAMETERS(math_param_sub_sup_shift_down, size_id,
+                                   font_MATH_par(f, SubscriptShiftDown), lvl);
+            DEFINE_DMATH_PARAMETERS(math_param_sub_sup_shift_down, size_id,
+                                    font_MATH_par(f, SubscriptShiftDown), lvl);
+        }
+
         DEFINE_MATH_PARAMETERS(math_param_sub_top_max, size_id,
                                font_MATH_par(f, SubscriptTopMax), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_sub_top_max, size_id,
@@ -3312,7 +3321,7 @@ void make_scripts(pointer q, pointer p, scaled it)
                                        sub_mark_cmd, shift_down);
                     if (delta2 != MATH_KERN_NOT_FOUND && delta2 != 0) {
                         p = attach_hkern_to_new_hlist(q, delta2);
-                    }
+                    } 
                 }
             }
             /* now the horizontal shift for the superscript. */
@@ -3327,6 +3336,8 @@ void make_scripts(pointer q, pointer p, scaled it)
                                        sup_mark_cmd, shift_up);
                 }
             }
+            if (delta2 == MATH_KERN_NOT_FOUND)
+               delta2=0;
             if (clr != MATH_KERN_NOT_FOUND) {
                 shift_amount(x) = clr + delta1 - delta2;
             } else {
