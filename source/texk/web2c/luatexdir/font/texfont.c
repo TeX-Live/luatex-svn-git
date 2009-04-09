@@ -256,6 +256,53 @@ charinfo *copy_charinfo(charinfo * ci)
         set_charinfo_hor_variants(co,
                                   copy_variants(get_charinfo_hor_variants(ci)));
     }
+    /* TODO: copy mathkerns */
+    x = ci->top_left_math_kerns;
+    co->top_left_math_kerns = x;
+    if (x > 0) {
+        co->top_left_math_kern_array = xmalloc(2 * sizeof(scaled) * x);
+        for (k = 0; k < co->top_left_math_kerns; k++) {
+            co->top_left_math_kern_array[(2 * k)] =
+                ci->top_left_math_kern_array[(2 * k)];
+            co->top_left_math_kern_array[(2 * k) + 1] =
+                ci->top_left_math_kern_array[(2 * k) + 1];
+        }
+    }
+    x = ci->top_right_math_kerns;
+    co->top_right_math_kerns = x;
+    if (x > 0) {
+        co->top_right_math_kern_array = xmalloc(2 * sizeof(scaled) * x);
+        for (k = 0; k < co->top_right_math_kerns; k++) {
+            co->top_right_math_kern_array[(2 * k)] =
+                ci->top_right_math_kern_array[(2 * k)];
+            co->top_right_math_kern_array[(2 * k) + 1] =
+                ci->top_right_math_kern_array[(2 * k) + 1];
+        }
+    }
+    x = ci->bottom_right_math_kerns;
+    co->bottom_right_math_kerns = x;
+    if (x > 0) {
+        co->bottom_right_math_kern_array = xmalloc(2 * sizeof(scaled) * x);
+        for (k = 0; k < co->bottom_right_math_kerns; k++) {
+            co->bottom_right_math_kern_array[(2 * k)] =
+                ci->bottom_right_math_kern_array[(2 * k)];
+            co->bottom_right_math_kern_array[(2 * k) + 1] =
+                ci->bottom_right_math_kern_array[(2 * k) + 1];
+        }
+    }
+    x = ci->bottom_left_math_kerns;
+    co->bottom_left_math_kerns = x;
+    if (x > 0) {
+        co->bottom_left_math_kern_array = xmalloc(2 * sizeof(scaled) * x);
+        for (k = 0; k < co->bottom_left_math_kerns; k++) {
+            co->bottom_left_math_kern_array[(2 * k)] =
+                ci->bottom_left_math_kern_array[(2 * k)];
+            co->bottom_left_math_kern_array[(2 * k) + 1] =
+                ci->bottom_left_math_kern_array[(2 * k) + 1];
+        }
+    }
+
+
     return co;
 }
 
@@ -572,6 +619,7 @@ void set_charinfo_hor_variants(charinfo * ci, extinfo * ext)
 
 int get_charinfo_math_kerns(charinfo * ci, int id)
 {
+
     int k = 0;                  /* all callers check for result>0 */
     if (id == top_left_kern) {
         k = ci->top_left_math_kerns;
@@ -581,6 +629,8 @@ int get_charinfo_math_kerns(charinfo * ci, int id)
         k = ci->bottom_right_math_kerns;
     } else if (id == top_right_kern) {
         k = ci->top_right_math_kerns;
+    } else {
+        tconfusion("get_charinfo_math_kerns");
     }
     return k;
 }
@@ -588,35 +638,35 @@ int get_charinfo_math_kerns(charinfo * ci, int id)
 void add_charinfo_math_kern(charinfo * ci, int id, scaled ht, scaled krn)
 {
     int k;
-    fprintf(stderr, "storing a math kern with (id=%d,ht=%d,kern=%d)\n", id, ht,
-            krn);
     if (id == top_left_kern) {
         k = ci->top_left_math_kerns;
         do_realloc(ci->top_left_math_kern_array, ((k + 1) * 2), sizeof(scaled));
-        ci->top_left_math_kern_array[k] = ht;
-        ci->top_left_math_kern_array[(k + 1)] = krn;
+        ci->top_left_math_kern_array[(2 * (k))] = ht;
+        ci->top_left_math_kern_array[((2 * (k)) + 1)] = krn;
         ci->top_left_math_kerns++;
     } else if (id == bottom_left_kern) {
         k = ci->bottom_left_math_kerns;
         do_realloc(ci->bottom_left_math_kern_array, ((k + 1) * 2),
                    sizeof(scaled));
-        ci->bottom_left_math_kern_array[k] = ht;
-        ci->bottom_left_math_kern_array[(k + 1)] = krn;
+        ci->bottom_left_math_kern_array[(2 * (k))] = ht;
+        ci->bottom_left_math_kern_array[(2 * (k)) + 1] = krn;
         ci->bottom_left_math_kerns++;
     } else if (id == bottom_right_kern) {
         k = ci->bottom_right_math_kerns;
         do_realloc(ci->bottom_right_math_kern_array, ((k + 1) * 2),
                    sizeof(scaled));
-        ci->bottom_right_math_kern_array[k] = ht;
-        ci->bottom_right_math_kern_array[(k + 1)] = krn;
+        ci->bottom_right_math_kern_array[(2 * (k))] = ht;
+        ci->bottom_right_math_kern_array[(2 * (k)) + 1] = krn;
         ci->bottom_right_math_kerns++;
     } else if (id == top_right_kern) {
         k = ci->top_right_math_kerns;
         do_realloc(ci->top_right_math_kern_array, ((k + 1) * 2),
                    sizeof(scaled));
-        ci->top_right_math_kern_array[k] = ht;
-        ci->top_right_math_kern_array[(k + 1)] = krn;
+        ci->top_right_math_kern_array[(2 * (k))] = ht;
+        ci->top_right_math_kern_array[(2 * (k)) + 1] = krn;
         ci->top_right_math_kerns++;
+    } else {
+        tconfusion("add_charinfo_math_kern");
     }
 }
 
@@ -1610,7 +1660,7 @@ int undump_charinfo(int f)
 void undump_font_entry(texfont * f)
 {
     integer x = 0;
-    /* *INDENT-OFF* */
+    /* *INDENT-OFF* */  
     undump_int(x); f->_font_size = x;
     undump_int(x); f->_font_dsize = x;
     undump_int(x); f->_font_cidversion = x;
@@ -1646,7 +1696,7 @@ void undump_font_entry(texfont * f)
     undump_int(x); f->_pdf_font_step = x;
     undump_int(x); f->_pdf_font_auto_expand = x;
     undump_int(x); f->_pdf_font_attr = x;
-    /* *INDENT-ON* */
+    /* *INDENT-ON* */  
 }
 
 
