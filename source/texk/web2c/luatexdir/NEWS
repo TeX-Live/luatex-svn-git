@@ -1,4 +1,56 @@
 ==============================================================
+Luatex beta-0.38.0 was released 20090410
+==============================================================
+
+* tex.enableprimitives() had a bug were previously defined (but
+  currently undefined) control sequences prevented the creation 
+  of the new csname.
+
+* The special calling format callback.register('name', false)
+  not only disables the callback, but also the builtin code it 
+  is supposed to replace. 
+
+* Empty \localleftbox and \localrightbox -es are now suppressed.
+
+* Support for <f>.MathConstants.SubscriptShiftDownWithSuperscript
+  was added, to solve the lack of "sub2" in OpenType math.
+
+* Luatex now supports horizontal super- and subscript placement
+  corrections via the OpenType MATH mathkern table. See the
+  manual for details.
+
+* node.write() no longer copies its argument node list before 
+  appending it.
+
+* There are six new primitives that are verbose forms 
+  of one and two byte special tokens:
+  \Usuperscript \Usubscript 
+  \Ustartmath \Ustopmath 
+  \Ustartdisplaymath \Ustopdisplaymath
+
+* The attribute node leaks in math mode and alignmetns have been 
+  fixed.
+
+* The 11 simple math noads are now combined into a single "noad"
+  node type.
+
+* Static linking against libstdc++ is working once again.
+
+* There is a small fix in the keyword scanner to solve the
+  problem of 'Runaway ... while scanning ???' that could happen
+  for some primitives.
+
+* Lua now also has the "architecture independent bytecode"
+  patch applied.
+
+* Lua is updated to version 5.1.4 with coco patches 1.1.5, and 
+  lpeg is now 0.9. 
+
+* Some TRT/TLT backend bugs are fixed.
+
+* Various manual updates.
+
+==============================================================
 Luatex beta-0.37.0 was released 20090331
 ==============================================================
 
