@@ -1320,6 +1320,7 @@ static int tex_enableprimitives(lua_State * L)
                     halfword prim_val = prim_lookup(s);
                     if (prim_val != undefined_primitive) {
                         char *newprim;
+			integer val;
                         size_t newl;
                         halfword cur_cmd = get_prim_eq_type(prim_val);
                         halfword cur_chr = get_prim_equiv(prim_val);
@@ -1333,8 +1334,9 @@ static int tex_enableprimitives(lua_State * L)
                             newprim = (char *) xmalloc(newl + 1);
                             strcpy(newprim, prim);
                         }
-                        if (string_lookup(newprim, newl) ==
-                            static_undefined_control_sequence) {
+			val = string_lookup(newprim, newl);
+                        if (val == static_undefined_control_sequence ||
+			    zget_eq_type(val) == undefined_cs_cmd) {
                             primitive_def(newprim, newl, cur_cmd, cur_chr);
                         }
                         free(newprim);
