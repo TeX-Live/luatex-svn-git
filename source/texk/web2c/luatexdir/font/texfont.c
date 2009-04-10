@@ -129,6 +129,7 @@ integer new_font(void)
     ci = xcalloc(1, sizeof(charinfo));
     set_charinfo_name(ci, xstrdup(".notdef"));
     font_tables[id]->charinfo = ci;
+    font_tables[id]->charinfo_size = 1;
     font_tables[id]->charinfo_cache = NULL;
 
     return id;
@@ -147,13 +148,15 @@ charinfo *get_charinfo(internal_font_number f, integer c)
     if (proper_char_index(c)) {
         glyph = get_sa_item(Characters(f), c);
         if (!glyph) {
-            /* this could be optimized using controlled growth */
-            font_bytes += sizeof(charinfo);
+
             glyph = ++font_tables[f]->charinfo_count;
-            do_realloc(font_tables[f]->charinfo, (glyph + 1), charinfo);
-            memset(&(font_tables[f]->charinfo[glyph]), 0, sizeof(charinfo));
+            if (glyph>=font_tables[f]->charinfo_size) {
+                font_bytes += (16*sizeof(charinfo));
+                do_realloc(font_tables[f]->charinfo, (glyph + 16), charinfo);
+                memset(&(font_tables[f]->charinfo[glyph]), 0, (16*sizeof(charinfo)));
+                font_tables[f]->charinfo_size += 16;                
+            }
             font_tables[f]->charinfo[glyph].ef = 1000;  /* init */
-            font_tables[f]->charinfo_size = glyph;
             set_sa_item(font_tables[f]->characters, c, glyph, 1);       /* 1= global */
         }
         return &(font_tables[f]->charinfo[glyph]);
