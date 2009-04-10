@@ -715,6 +715,11 @@ make_luaS_index(start);
 make_luaS_index(end);
 make_luaS_index(advance);
 make_luaS_index(glyph);
+make_luaS_index(extensible);
+make_luaS_index(horiz_variants);
+make_luaS_index(vert_variants);
+make_luaS_index(mathkern);
+make_luaS_index(commands);
 
 void init_font_string_pointers(lua_State * L)
 {
@@ -768,6 +773,13 @@ void init_font_string_pointers(lua_State * L)
     init_luaS_index(end);
     init_luaS_index(advance);
     init_luaS_index(glyph);
+
+    init_luaS_index(extensible);
+    init_luaS_index(horiz_variants);
+    init_luaS_index(vert_variants);
+    init_luaS_index(mathkern);
+    init_luaS_index(commands);
+
 }
 
 static int count_char_packet_bytes(lua_State * L)
@@ -1186,7 +1198,9 @@ font_char_from_lua(lua_State * L, internal_font_number f, integer i,
             set_charinfo_tag(co, list_tag);
             set_charinfo_remainder(co, k);
         }
-        lua_getfield(L, -1, "extensible");
+
+        lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_extensible_index);
+        lua_rawget(L, -2);
         if (lua_istable(L, -1)) {
             int top, bot, mid, rep;
             top = n_numeric_field(L, luaS_top_index, 0);
@@ -1204,7 +1218,8 @@ font_char_from_lua(lua_State * L, internal_font_number f, integer i,
         }
         lua_pop(L, 1);
 
-        lua_getfield(L, -1, "horiz_variants");
+        lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_horiz_variants_index);
+        lua_rawget(L, -2);
         if (lua_istable(L, -1)) {
             int glyph, startconnect, endconnect, advance, extender;
             extinfo *h;
@@ -1230,8 +1245,8 @@ font_char_from_lua(lua_State * L, internal_font_number f, integer i,
         }
         lua_pop(L, 1);
 
-
-        lua_getfield(L, -1, "vert_variants");
+        lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_vert_variants_index);
+        lua_rawget(L, -2);
         if (lua_istable(L, -1)) {
             int glyph, startconnect, endconnect, advance, extender;
             extinfo *h;
@@ -1265,7 +1280,8 @@ font_char_from_lua(lua_State * L, internal_font_number f, integer i,
            ["top_right"]   ={ { ["height"]=676, ["kern"]=115 }, { ["height"]=776,  ["kern"]=45  } },
            } 
         */
-        lua_getfield(L, -1, "mathkern");
+        lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_mathkern_index);
+        lua_rawget(L, -2);
         if (lua_istable(L, -1)) {
             lua_getfield(L, -1, "top_left");
             store_math_kerns(L, co, top_left_kern);
@@ -1331,7 +1347,8 @@ font_char_from_lua(lua_State * L, internal_font_number f, integer i,
         }
 
         /* packet commands */
-        lua_getfield(L, -1, "commands");
+        lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_commands_index);
+        lua_rawget(L, -2);
         if (lua_istable(L, -1)) {
             lua_pushnil(L);     /* first key */
             if (lua_next(L, -2) != 0) {
