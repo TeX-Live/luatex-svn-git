@@ -749,6 +749,8 @@ void flush_loggable_info(void);
 void luacall(int s, int nameptr);
 void luatokencall(int p, int nameptr);
 
+extern void check_texconfig_init (void);
+
 void tex_error(char *msg, char **hlp);
 
 scaled divide_scaled(scaled s, scaled m, integer dd);

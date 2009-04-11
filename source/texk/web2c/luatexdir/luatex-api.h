@@ -127,4 +127,3 @@ extern int callback_callbacks_id;
 
 extern void luainterpreter(void);
 
-extern void check_texconfig_init (void);
