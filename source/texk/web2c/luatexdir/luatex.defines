@@ -175,6 +175,8 @@
 
 @define procedure check_texconfig_init;
 
+@define procedure lua_pdf_literal();
+
 { bits for extended char code access }
 
 @define const tex_mathcode    ;

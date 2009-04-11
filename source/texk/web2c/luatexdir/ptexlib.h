@@ -619,6 +619,11 @@ void lua_node_filter_s(int filterid, char *extrainfo);
 int lua_linebreak_callback(int is_broken, halfword head_node,
                            halfword * new_head);
 
+void lua_pdf_literal (int i);
+void copy_pdf_literal (pointer r, pointer p);
+void free_pdf_literal (pointer p);
+void show_pdf_literal (pointer p);
+
 void load_tex_patterns(int curlang, halfword head);
 void load_tex_hyphenation(int curlang, halfword head);
 

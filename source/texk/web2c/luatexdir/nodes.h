@@ -577,8 +577,21 @@ typedef enum {
 #  define local_par_dir(a)         vinfo((a)+5)
 
 
-#  define pdf_literal_data(a)  vlink(a+2)
-#  define pdf_literal_mode(a)  vinfo(a+2)
+#  define pdf_literal_data(a)  vlink((a)+2)
+#  define pdf_literal_mode(a)  type((a)+2)
+#  define pdf_literal_type(a)  subtype((a)+2)
+
+/* type of literal data */
+#define lua_refid_literal      1 /* not a |normal| string */
+
+/* literal ctm types */
+
+typedef enum {
+    set_origin = 0,
+    direct_page,
+    direct_always,
+} ctm_transform_modes;
+
 
 #  define pdf_refobj_node_size 3
 

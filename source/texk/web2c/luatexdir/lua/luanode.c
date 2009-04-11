@@ -266,3 +266,68 @@ int visible_last_node_type(int n)
         return -1;              /* this is not right, probably dir nodes! */
     return last_known_node + 1;
 }
+
+void
+lua_pdf_literal (int i)
+{
+  char *s = NULL;
+  size_t l = 0;
+  lua_rawgeti(Luas, LUA_REGISTRYINDEX, i);
+  s = (char *)lua_tolstring(Luas,-1,&l);
+  while (l--) {
+    pdf_room(1);
+    pdf_buf[pdf_ptr++] = *s++;
+  }
+  pdf_buf[pdf_ptr++] = 10; /* pdf_print_nl */
+}
+
+void
+copy_pdf_literal (pointer r, pointer p)
+{
+  pdf_literal_type(r) = pdf_literal_type(p);
+  pdf_literal_mode(r) = pdf_literal_mode(p);
+  if (pdf_literal_type(p)==normal) {
+    pdf_literal_data(r) = pdf_literal_data(p);
+    add_token_ref(pdf_literal_data(p));
+  } else {
+    lua_rawgeti(Luas, LUA_REGISTRYINDEX, pdf_literal_data(p));
+    pdf_literal_data(r) = luaL_ref(Luas, LUA_REGISTRYINDEX);
+  }
+}
+
+
+void
+free_pdf_literal (pointer p)
+{
+  if (pdf_literal_type(p)==normal) {
+    delete_token_ref(pdf_literal_data(p));
+  } else {
+    luaL_unref(Luas, LUA_REGISTRYINDEX, pdf_literal_data(p));
+  }
+}
+
+void
+show_pdf_literal (pointer p)
+{
+    tprint_esc("pdfliteral");
+    switch (pdf_literal_mode(p)) {
+    case set_origin:
+        break;
+    case direct_page:
+        tprint(" page");
+	break;
+    case direct_always:
+        tprint(" direct");
+	break;
+    default:
+        tconfusion("literal2");
+	break;
+    }
+    if (pdf_literal_type(p)==normal) {
+        print_mark(pdf_literal_data(p));
+    } else {
+        lua_rawgeti(Luas, LUA_REGISTRYINDEX, pdf_literal_data(p));
+	tprint((char *)lua_tostring(Luas,-1));
+	lua_pop(Luas,1);
+    }
+}           

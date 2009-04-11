@@ -51,13 +51,6 @@ typedef enum {
 } pdf_destination_types;
 
 
-typedef enum {
-    set_origin = 0,
-    direct_page,
-    direct_always,
-} ctm_transform_modes;
-
-
 #define obj_aux(A)              obj_tab[(A)].int4
 #define obj_data_ptr            obj_aux
 #define obj_obj_data(A)         pdf_mem[obj_data_ptr((A)) + 0]
@@ -671,7 +664,7 @@ halfword copy_node(const halfword p)
             add_token_ref(write_tokens(p));
             break;
         case pdf_literal_node:
-            add_token_ref(pdf_literal_data(p));
+    	    copy_pdf_literal(r,p);
             break;
         case pdf_colorstack_node:
             if (pdf_colorstack_cmd(p) <= colorstack_data)
@@ -953,7 +946,7 @@ void flush_node(halfword p)
             delete_token_ref(write_tokens(p));
             break;
         case pdf_literal_node:
-            delete_token_ref(pdf_literal_data(p));
+     	    free_pdf_literal(p);
             break;
         case pdf_colorstack_node:
             if (pdf_colorstack_cmd(p) <= colorstack_data)
@@ -1185,7 +1178,8 @@ void check_node(halfword p)
             check_token_ref(write_tokens(p));
             break;
         case pdf_literal_node:
-            check_token_ref(pdf_literal_data(p));
+   	    if (pdf_literal_type(p)==normal)
+                check_token_ref(pdf_literal_data(p));
             break;
         case pdf_colorstack_node:
             if (pdf_colorstack_cmd(p) <= colorstack_data)
@@ -2300,21 +2294,7 @@ void show_whatsit_node(integer p)
         decr(pool_ptr);
         break;
     case pdf_literal_node:
-        tprint_esc("pdfliteral");
-        switch (pdf_literal_mode(p)) {
-        case set_origin:
-            break;
-        case direct_page:
-            tprint(" page");
-            break;
-        case direct_always:
-            tprint(" direct");
-            break;
-        default:
-            tconfusion("literal2");
-            break;
-        }
-        print_mark(pdf_literal_data(p));
+        show_pdf_literal(p);
         break;
     case pdf_colorstack_node:
         tprint_esc("pdfcolorstack ");

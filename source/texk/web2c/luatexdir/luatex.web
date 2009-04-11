@@ -15145,16 +15145,6 @@ begin
     incr(pdf_ptr);
 end
 
-@d pdf_room(#) == {make sure that there are at least |n| bytes free in PDF buffer}
-begin
-    if pdf_os_mode and (# + pdf_ptr > pdf_buf_size) then
-        pdf_os_get_os_buf(#)
-    else if not pdf_os_mode and (# > pdf_buf_size) then
-        overflow("PDF output buffer", pdf_op_buf_size)
-    else if not pdf_os_mode and (# + pdf_ptr > pdf_buf_size) then
-        pdf_flush;
-end
-
 @d pdf_out(#) == {do the same as |pdf_quick_out| and flush the PDF
 buffer if necessary}
 begin
@@ -15472,6 +15462,16 @@ begin
         pdf_buf := pdf_os_buf;
         pdf_buf_size := pdf_os_buf_size;
     end;
+end;
+
+procedure pdf_room(n: integer); {make sure that there are at least |n| bytes free in PDF buffer}
+begin
+    if pdf_os_mode and (n + pdf_ptr > pdf_buf_size) then
+        pdf_os_get_os_buf(n)
+    else if not pdf_os_mode and (n > pdf_buf_size) then
+        overflow("PDF output buffer", pdf_op_buf_size)
+    else if not pdf_os_mode and (n + pdf_ptr > pdf_buf_size) then
+        pdf_flush;
 end;
 
 procedure remove_last_space;
@@ -15829,8 +15829,10 @@ destination |pdf_ann_left| and |pdf_ann_top| are used for some types of destinat
 
 @# {data structure for \.{\\pdfliteral}}
 @d pdf_literal_data(#)     == vlink(#+2) {data}
-@d pdf_literal_mode(#)     == vinfo(#+2) {mode of resetting the text matrix
+@d pdf_literal_mode(#)     == type(#+2) {mode of resetting the text matrix
                               while writing data to the page stream}
+@d pdf_literal_type(#)     == subtype(#+2) {indicates whether data is a |str_number| or
+                               something else}
 @# {modes of setting the current transformation matrix (CTM)}
 @d set_origin              == 0 {end text (ET) if needed, set CTM to current point}
 @d direct_page             == 1 {end text (ET) if needed, but don't change the CTM}
@@ -16786,12 +16788,30 @@ procedure pdf_out_literal(p:pointer);
 var old_setting:0..max_selector; {holds print |selector|}
     s: str_number;
 begin
-    old_setting:=selector; selector:=new_string;
-    show_token_list(link(pdf_literal_data(p)),null,pool_size-pool_ptr);
-    selector:=old_setting;
-    s := make_string;
-    literal(s, pdf_literal_mode(p), false);
-    flush_str(s);
+    if pdf_literal_type(p)=normal then begin
+      old_setting:=selector; selector:=new_string;
+      show_token_list(link(pdf_literal_data(p)),null,pool_size-pool_ptr);
+      selector:=old_setting;
+      s := make_string;
+      literal(s, pdf_literal_mode(p), false);
+      flush_str(s);
+      end
+    else begin
+      pdfassert(pdf_literal_mode(p)<>scan_special);
+      case pdf_literal_mode(p) of
+      set_origin: begin
+        pdf_goto_pagemode;
+        synch_pos_with_cur;
+        pdf_set_pos(pos.h, pos.v);
+        end;
+      direct_page:
+        pdf_goto_pagemode;
+      direct_always:
+        pdf_end_string_nl;
+      othercases confusion("literal1")
+      endcases;
+      lua_pdf_literal(pdf_literal_data(p));
+      end;
 end;
 
 procedure pdf_out_colorstack(p:pointer);
@@ -26696,6 +26716,7 @@ begin
     else
         pdf_literal_mode(tail) := set_origin;
     scan_pdf_ext_toks;
+    pdf_literal_type(tail) := normal;
     pdf_literal_data(tail) := def_ref;
 end
 

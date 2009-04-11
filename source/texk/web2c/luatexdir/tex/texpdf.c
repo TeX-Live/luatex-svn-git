@@ -35,17 +35,6 @@ static const char _svn_version[] =
 
 #define pdf_quick_out(a)  pdf_buf[pdf_ptr++] = a
 
-/* make sure that there are at least |n| bytes free in PDF buffer */
-
-#define pdf_room(a) do {                                        \
-    if ((pdf_os_mode) && ((a) + pdf_ptr > pdf_buf_size))        \
-      pdf_os_get_os_buf(a);                                     \
-    else if ((!pdf_os_mode) && ((a) > pdf_buf_size) )           \
-      overflow(maketexstring("PDF output buffer"), pdf_op_buf_size);            \
-    else if ((!pdf_os_mode) && ((a) + pdf_ptr > pdf_buf_size))  \
-      pdf_flush();                                              \
-  } while (0)
-
 /* do the same as |pdf_quick_out| and flush the PDF buffer if necessary  */
 
 #define pdf_out(a) do {   \
