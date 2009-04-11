@@ -8371,7 +8371,7 @@ if cur_cs<>undefined_primitive then begin
 end
 
 
-@ This block deals with unexandable \.{\\primitive} appearing at a spot where
+@ This block deals with unexpandable \.{\\primitive} appearing at a spot where
 an integer or an internal values should have been found. It fetches the
 next token then resets |cur_cmd|, |cur_cs|, and |cur_tok|, based on the 
 primitive value of that token. No expansion takes place, because the
@@ -8391,6 +8391,7 @@ else begin
   cur_cmd := relax;
   cur_chr := 0;
   cur_tok := cs_token_flag+frozen_relax;
+  cur_cs  := frozen_relax;
   end;
 goto restart;
 end
