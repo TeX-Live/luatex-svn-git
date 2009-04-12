@@ -28,7 +28,6 @@
 extern pointer new_noad(void);
 
 extern void show_math_node(halfword);
-extern void print_size(halfword);
 extern void flush_math(void);
 extern void math_left_brace(void);
 extern void finish_display_alignment(halfword, halfword, memory_word);

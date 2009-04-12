@@ -210,7 +210,7 @@ void def_fam_fnt(integer fam_id, integer size_id, integer f, integer lvl)
         begin_diagnostic();
         tprint("{assigning");
         print_char(' ');
-        print_size(size_id);
+        print_cmd_chr(def_family_cmd,size_id);
         print_int(fam_id);
         print_char('=');
         print_font_identifier(fam_fnt(fam_id, size_id));
@@ -237,7 +237,7 @@ void unsave_math_fam_data(integer gl)
                 begin_diagnostic();
                 tprint("{restoring");
                 print_char(' ');
-                print_size(size_id);
+		print_cmd_chr(def_family_cmd,size_id);
                 print_int(fam_id);
                 print_char('=');
                 print_font_identifier(fam_fnt(fam_id, size_id));

@@ -1255,17 +1255,6 @@ char *math_size_string(integer s)
         return "scriptscriptfont";
 }
 
-void print_size(integer s)
-{
-    if (s == text_size)
-        tprint_esc("textfont");
-    else if (s == script_size)
-        tprint_esc("scriptfont");
-    else
-        tprint_esc("scriptscriptfont");
-}
-
-
 /*
   @ When the style changes, the following piece of program computes associated
   information:

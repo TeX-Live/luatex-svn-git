@@ -558,9 +558,6 @@ void print_cmd_chr(quarterword cmd, halfword chr_code)
         tprint_esc("Umathchar");
         show_mathcode_value(mathchar_from_integer(chr_code, xetex_mathcode));
         break;
-    case def_family_cmd:
-        print_size(chr_code);
-        break;
     case set_font_cmd:
         tprint("select font ");
         tprint(font_name(chr_code));
