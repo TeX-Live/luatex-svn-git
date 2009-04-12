@@ -1966,7 +1966,7 @@ var j:pool_pointer; {current character code position}
 @!v:integer; { a unicode char }
 begin if s>=str_ptr then s:="???" {this can't happen}
 @.???@>
-else if s<string_offset then
+else if s<string_offset then begin
   if s<0 then s:="???" {can't happen}
   else begin 
     {TH not sure about this, disabled for now!}
@@ -2000,6 +2000,7 @@ else if s<string_offset then
       end;
     return;
     end;
+  end;
 j:=str_start_macro(s);
 while j<str_start_macro(s+1) do
   begin { 0x110000 in utf=8: 0xF4 0x90 0x80 0x80 }
@@ -3180,11 +3181,13 @@ label exit;
 var @!q,@!r:integer; {temporary registers}
 begin @<Reduce to the case that |a,c>=0|, |b,d>0|@>;
 loop@+  begin q := a div d; r := c div b;
-  if q<>r then
+  if q<>r then begin
     if q>r then return_sign(1)@+else return_sign(-1);
+    end;
   q := a mod d; r := c mod b;
-  if r=0 then
+  if r=0 then begin
     if q=0 then return_sign(0)@+else return_sign(1);
+    end;
   if q=0 then return_sign(-1);
   a:=b; b:=q; c:=d; d:=r;
   end; {now |a>d>0| and |c>b>0|}
@@ -3198,11 +3201,13 @@ if c<0 then
   begin negate(c); negate(d);
   end;
 if d<=0 then
-  begin if b>=0 then
+  begin if b>=0 then begin
     if ((a=0)or(b=0))and((c=0)or(d=0)) then return_sign(0)
     else return_sign(1);
-  if d=0 then
+    end;
+  if d=0 then begin
     if a=0 then return_sign(0)@+else return_sign(-1);
+    end;
   q:=a; a:=c; c:=q; q:=-b; b:=-d; d:=q;
   end
 else if b<=0 then
@@ -5293,6 +5298,7 @@ for k:=glue_base+1 to local_base-1 do eqtb[k]:=eqtb[glue_base];
 glue_ref_count(zero_glue):=glue_ref_count(zero_glue)+local_base-glue_base;
 
 @ @<Show equivalent |n|, in region 3@>=
+begin
 if n<skip_base then
   begin print_skip_param(n-glue_base); print_char("=");
   if n<glue_base+thin_mu_skip_code then print_spec(equiv(n),"pt")
@@ -5304,7 +5310,8 @@ else if n<mu_skip_base then
   end
 else  begin print_esc("muskip"); print_int(n-mu_skip_base); print_char("=");
   print_spec(equiv(n),"mu");
-  end
+  end;
+end
 
 @ Region 4 of |eqtb| contains the local quantities defined here. The
 bulk of this region is taken up by five tables that are indexed by eight-bit
@@ -5462,6 +5469,7 @@ for k:="A" to "Z" do begin
 static_int_base:=int_base;
 
 @ @<Show equivalent |n|, in region 4@>=
+begin
 if (n=par_shape_loc) or ((n>=etex_pen_base) and (n<etex_pens)) then
   begin if n=par_shape_loc then print_cmd_chr(set_tex_shape,n)
   else  print_cmd_chr(set_etex_shape,n);
@@ -5489,7 +5497,8 @@ else if n<cur_font_loc then
   else  begin depth_threshold:=0; breadth_max:=1; show_node_list(equiv(n));
     end;
   end
-else if n=cur_font_loc then @<Show the font identifier in |eqtb[n]|@>
+else if n=cur_font_loc then @<Show the font identifier in |eqtb[n]|@>;
+end
 
 @ @<Show the font identifier in |eqtb[n]|@>=
 begin print("current font"); print_char("=");@/
@@ -7983,10 +7992,11 @@ begin if token_type>=backed_up then {token list to be deleted}
         end;
     end;
   end
-else if token_type=u_template then
+else if token_type=u_template then begin
   if align_state>500000 then align_state:=0
-  else fatal_error("(interwoven alignment preambles are not allowed)");
+  else fatal_error("(interwoven alignment preambles are not allowed)"); 
 @.interwoven alignment preambles...@>
+  end;
 pop_input;
 check_interrupt;
 end;
@@ -8004,9 +8014,10 @@ var p:pointer; {a token list of length one}
 begin while (state=token_list)and(loc=null)and(token_type<>v_template) do
   end_token_list; {conserve stack space}
 p:=get_avail; info(p):=cur_tok;
-if cur_tok<right_brace_limit then
+if cur_tok<right_brace_limit then begin
   if cur_tok<left_brace_limit then decr(align_state)
   else incr(align_state);
+  end;
 push_input; state:=token_list; start:=p; token_type:=backed_up;
 loc:=p; {that was |back_list(p)|, without procedure overhead}
 end;
@@ -8015,9 +8026,10 @@ end;
 begin t:=cur_tok; cur_tok:=p;
 if a then
   begin p:=get_avail; info(p):=cur_tok; link(p):=loc; loc:=p; start:=p;
-  if cur_tok<right_brace_limit then
+  if cur_tok<right_brace_limit then begin
     if cur_tok<left_brace_limit then decr(align_state)
     else incr(align_state);
+    end;
   end
 else  begin back_input; a:=1; { etex is always on }
   end;
@@ -8864,21 +8876,23 @@ to prohibit the \.{\\par}, so \TeX\ keeps quiet about this bending of
 the rules.
 
 @<Contribute the recently matched tokens to the current parameter...@>=
-if s<>r then
+if s<>r then begin
   if s=null then @<Report an improper use of the macro and abort@>
   else  begin t:=s;
     repeat store_new_token(info(t)); incr(m); u:=link(t); v:=s;
-    loop@+  begin if u=r then
+    loop@+  begin if u=r then begin
         if cur_tok<>info(v) then goto done
         else  begin r:=link(v); goto continue;
           end;
+        end;
       if info(u)<>info(v) then goto done;
       u:=link(u); v:=link(v);
       end;
     done: t:=link(t);
     until t=r;
     r:=s; {at this point, no tokens are recently matched}
-    end
+    end;
+  end
 
 @ @<Report an improper use...@>=
 begin print_err("Use of "); sprint_cs(warning_index);
@@ -8898,11 +8912,12 @@ loop@+  begin fast_store_new_token(cur_tok); get_token;
   if cur_tok=par_token then if long_state<>long_call then
     if not suppress_long_error then
       @<Report a runaway argument and abort@>;
-  if cur_tok<right_brace_limit then
+  if cur_tok<right_brace_limit then begin
     if cur_tok<left_brace_limit then incr(unbalance)
     else  begin decr(unbalance);
       if unbalance=0 then goto done1;
       end;
+    end;
   end;
 done1: rbrace_ptr:=p; store_new_token(cur_tok);
 end
@@ -9547,12 +9562,13 @@ count for the glue does not yet include the reference by |cur_val|.
 If |negative| is |true|, |cur_val_level| is known to be |<=mu_val|.
 
 @<Fix the reference count, if any, ...@>=
-if negative then
+if negative then begin
   if cur_val_level>=glue_val then
     begin cur_val:=new_spec(cur_val);
     @<Negate all three glue components of |cur_val|@>;
     end
-  else negate(cur_val)
+  else negate(cur_val);
+  end
 else if (cur_val_level>=glue_val)and(cur_val_level<=mu_val) then
   add_glue_ref(cur_val)
 
@@ -9838,9 +9854,10 @@ such constants behave like numeric ones.
 begin get_token; {suppress macro expansion}
 if cur_tok<cs_token_flag then
   begin cur_val:=cur_chr;
-  if cur_cmd<=right_brace then
+  if cur_cmd<=right_brace then begin
     if cur_cmd=right_brace then incr(align_state)
     else decr(align_state);
+    end;
   end
 else begin {the value of a csname in this context is its name}
   if is_active_csname(cur_tok-cs_token_flag) then
@@ -10058,10 +10075,12 @@ L}' will lead to two error messages (one for each additional keyword
 Not so for luatex, it just parses the construct in reverse.
 
 @<Scan for \(f)\.{fil} units...@>=
+begin
 if scan_keyword('filll') then begin cur_order:=filll; goto attach_fraction; end
 else if scan_keyword('fill') then begin cur_order:=fill; goto attach_fraction; end
 else if scan_keyword('fil') then begin cur_order:=fil; goto attach_fraction; end
-else if scan_keyword('fi') then begin cur_order:=sfi; goto attach_fraction; end
+else if scan_keyword('fi') then begin cur_order:=sfi; goto attach_fraction; end;
+end
 
 @ @<Scan for \(u)units that are internal dimensions...@>=
 save_cur_val:=cur_val;
@@ -10088,6 +10107,7 @@ goto attach_sign;
 not_found:
 
 @ @<Scan for \(m)\.{mu} units and |goto attach_fraction|@>=
+begin
 if scan_keyword('mu') then goto attach_fraction
 @.mu@>
 else  begin print_err("Illegal unit of measure ("); print("mu inserted)");
@@ -10098,7 +10118,8 @@ else  begin print_err("Illegal unit of measure ("); print("mu inserted)");
     ("two letters. (See Chapter 27 of The TeXbook.)");
 @:TeXbook}{\sl The \TeX book@>
   error; goto attach_fraction;
-  end
+  end;
+end
 
 @ @<Adjust \(f)for the magnification ratio@>=
 begin prepare_mag;
@@ -10994,11 +11015,12 @@ end
 unbalance:=1;
 loop@+  begin if xpand then @<Expand the next part of the input@>
   else get_token;
-  if cur_tok<right_brace_limit then
+  if cur_tok<right_brace_limit then begin
     if cur_cmd<right_brace then incr(unbalance)
     else  begin decr(unbalance);
       if unbalance=0 then goto found;
-      end
+      end;
+    end
   else if cur_cmd=mac_param then
     if macro_def then @<Look for parameter number or \.{\#\#}@>;
   store_new_token(cur_tok);
@@ -11027,7 +11049,7 @@ end
 @ @<Look for parameter number...@>=
 begin s:=cur_tok;
 if xpand then get_x_token else get_token;
-if cur_cmd<>mac_param then
+if cur_cmd<>mac_param then begin
   if (cur_tok<=zero_token)or(cur_tok>t) then
     begin print_err("Illegal parameter number in definition of ");
 @.Illegal parameter number...@>
@@ -11038,6 +11060,7 @@ if cur_cmd<>mac_param then
     back_error; cur_tok:=s;
     end
   else cur_tok:=out_param_token-"0"+cur_chr;
+  end;
 end
 
 @ Another way to create a token list is via the \.{\\read} command. The
@@ -11976,9 +11999,10 @@ begin scan_int; n:=cur_val; scan_font_ident; f:=cur_val;
   if n<=0 then
     @<Issue a font parameter error message, and return@>
   else begin
-    if n>font_params(f) then
+    if n>font_params(f) then begin
       if font_touched(f) then @<Issue a font parameter error message, and return@>
       else @<Increase the number of parameters in the font@>;
+      end;
     end;
   scan_optional_equals; scan_normal_dimen;
   set_font_param(f,n,cur_val);
@@ -11994,9 +12018,10 @@ begin scan_int; n:=cur_val; scan_font_ident; f:=cur_val;
   if n<=0 then 
     @<Issue a font parameter error message, and return@>
   else begin
-    if n>font_params(f) then
+    if n>font_params(f) then begin
       if font_touched(f) then @<Issue a font parameter error message, and return@>
       else @<Increase the number of parameters in the font@>;
+      end;
     end;
   cur_val:=font_param(f,n);
 exit:
@@ -13480,8 +13505,9 @@ end
 @d out_cmd ==
 begin
 if (oval<@"100)and(oval>=0) then begin
-  if (ocmd<>set1)or(oval>127) then
-  if (ocmd=fnt1)and(oval<64) then Incr(oval)(fnt_num_0) @+ else dvi_debug_out(ocmd);
+  if (ocmd<>set1)or(oval>127) then begin
+  if (ocmd=fnt1)and(oval<64) then Incr(oval)(fnt_num_0) @+ else dvi_debug_out(ocmd); 
+  end;
   end
 else
   begin if (oval<@"10000)and(oval>=0) then dvi_debug_out(ocmd+1) @+ else @;
@@ -20319,7 +20345,7 @@ init_col; fin_col:=false;
 exit: end;
 
 @ @<If the preamble list has been traversed, check that the row has ended@>=
-if (p=null)and(extra_info(cur_align)<cr_code) then
+if (p=null)and(extra_info(cur_align)<cr_code) then begin
  if cur_loop<>null then @<Lengthen the preamble periodically@>
  else  begin print_err("Extra alignment tab has been changed to ");
 @.Extra alignment tab...@>
@@ -20328,7 +20354,8 @@ if (p=null)and(extra_info(cur_align)<cr_code) then
   ("in the preamble to the \halign or \valign now in progress.")@/
   ("So I'll assume that you meant to type \cr instead.");
   extra_info(cur_align):=cr_code; error;
-  end
+  end;
+end
 
 @ @<Lengthen the preamble...@>=
 begin r:=new_node(align_record_node,0); vlink(q):=r; p:=vlink(q); {a new alignrecord}
@@ -20565,12 +20592,13 @@ pack_begin_line:=0
 @ @<Set the glue in all the unset...@>=
 q:=vlink(head); s:=head;
 while q<>null do
-  begin if not is_char_node(q) then
+  begin if not is_char_node(q) then begin
     if type(q)=unset_node then
       @<Set the unset box |q| and the unset boxes in it@>
     else if type(q)=rule_node then
       @<Make the running dimensions in rule |q| extend to the
         boundaries of the alignment@>;
+    end;
   s:=q; q:=vlink(q);
   end
 
@@ -21079,10 +21107,11 @@ endcases
 if pi<inf_penalty then
   begin @<Compute the badness, |b|, using |awful_bad|
     if the box is too full@>;
-  if b<awful_bad then
+  if b<awful_bad then begin
     if pi<=eject_penalty then b:=pi
     else if b<inf_bad then b:=b+pi
       else b:=deplorable;
+    end;
   if b<=least_cost then
     begin best_place:=p; least_cost:=b;
     best_height_plus_depth:=cur_height+prev_dp;
@@ -21182,7 +21211,7 @@ if type(v)<>vlist_node then
 @<Look at all the marks...@>=
 p:=list_ptr(v);
 if p=q then list_ptr(v):=null
-else loop@+begin if type(p)=mark_node then
+else loop@+begin if type(p)=mark_node then begin
     if split_first_mark(mark_class(p))=null then
       begin split_first_mark(mark_class(p)):=mark_ptr(p);
       split_bot_mark(mark_class(p)):=split_first_mark(mark_class(p));
@@ -21193,6 +21222,7 @@ else loop@+begin if type(p)=mark_node then
       split_bot_mark(mark_class(p)):=mark_ptr(p);
       add_token_ref(split_bot_mark(mark_class(p)));
       end;
+    end;
   if vlink(p)=q then
     begin vlink(p):=null; goto done;
     end;
@@ -21844,10 +21874,11 @@ for i:=0 to biggest_used_mark do begin
     begin first_mark(i):=top_mark(i); add_token_ref(top_mark(i));
     end;
   end;
-if output_routine<>null then
+if output_routine<>null then begin
   if dead_cycles>=max_dead_cycles then
     @<Explain that too many dead cycles have occurred in a row@>
   else @<Fire up the user's output routine and |return|@>;
+  end;
 @<Perform the default output routine@>;
 exit:end;
 
@@ -21918,9 +21949,10 @@ are not actually present in the box.
 
 @<Break the current page at node |p|, put it...@>=
 if p<>null then
-  begin if vlink(contrib_head)=null then
+  begin if vlink(contrib_head)=null then begin
     if nest_ptr=0 then tail:=page_tail
-    else contrib_tail:=page_tail;
+    else contrib_tail:=page_tail; 
+    end;
   vlink(page_tail):=vlink(contrib_head);
   vlink(contrib_head):=p;
   vlink(prev_p):=null;
@@ -22891,10 +22923,11 @@ procedure box_end(@!box_context:integer);
 begin if box_context<box_flag then @<Append box |cur_box| to the current list,
     shifted by |box_context|@>
 else if box_context<ship_out_flag then @<Store \(c)|cur_box| in a box register@>
-else if cur_box<>null then
+else if cur_box<>null then begin
   if box_context>ship_out_flag then @<Append a new leader node that
       uses |cur_box|@>
   else ship_out(cur_box);
+  end;
 end;
 
 @ The global variable |adjust_tail| will be non-null if and only if the
@@ -24155,29 +24188,30 @@ if (cur_cmd<>def)and((a mod 4<>0)or(j<>0)) then
 since the following routines test for the \.{\\global} prefix as follows.
 
 @d global==(a>=4)
-@d define(#)==if global then geq_define(#)@+else eq_define(#)
-@d word_define(#)==if global then geq_word_define(#)@+else eq_word_define(#)
-@d define_lc_code(#)==if global 
-   then set_lc_code(#,level_one)@+else set_lc_code(#,cur_level)
-@d define_uc_code(#)==if global 
-   then set_uc_code(#,level_one)@+else set_uc_code(#,cur_level)
-@d define_sf_code(#)==if global 
-   then set_sf_code(#,level_one)@+else set_sf_code(#,cur_level)
-@d define_cat_code(#)==if global 
-   then set_cat_code(cat_code_table,#,level_one)@+else set_cat_code(cat_code_table,#,cur_level)
-@d define_fam_fnt(#)==if global 
-   then def_fam_fnt(#,level_one)@+else def_fam_fnt(#,cur_level)
-@d define_math_param(#)==if global 
-   then def_math_param(#,level_one)@+else def_math_param(#,cur_level)
+@d define(#)==begin if global then geq_define(#)@+else eq_define(#); end
+@d word_define(#)==begin if global then geq_word_define(#)@+else eq_word_define(#); end
+@d define_lc_code(#)==begin if global 
+   then set_lc_code(#,level_one)@+else set_lc_code(#,cur_level); end
+@d define_uc_code(#)==begin if global 
+   then set_uc_code(#,level_one)@+else set_uc_code(#,cur_level); end
+@d define_sf_code(#)==begin if global 
+   then set_sf_code(#,level_one)@+else set_sf_code(#,cur_level); end
+@d define_cat_code(#)==begin if global 
+   then set_cat_code(cat_code_table,#,level_one)@+else set_cat_code(cat_code_table,#,cur_level); end
+@d define_fam_fnt(#)==begin if global 
+   then def_fam_fnt(#,level_one)@+else def_fam_fnt(#,cur_level); end
+@d define_math_param(#)==begin if global 
+   then def_math_param(#,level_one)@+else def_math_param(#,cur_level); end
 
 
 @<Adjust \(f)for the setting of \.{\\globaldefs}@>=
-if global_defs<>0 then
+if global_defs<>0 then begin
   if global_defs<0 then
     begin if global then a:=a-4;
     end
   else  begin if not global then a:=a+4;
-    end
+    end;
+  end
 
 @ When a control sequence is to be defined, by \.{\\def} or \.{\\let} or
 something similar, the |get_r_token| routine will substitute a special
@@ -29554,7 +29588,7 @@ if saved(-2)<>0 then
 
 @ @<Show the box context@>=
 i:=saved(-4);
-if i<>0 then
+if i<>0 then begin
   if i<box_flag then
     begin if abs(nest[p].mode_field)=vmode then j:=hmove else j:=vmove;
     if i>0 then print_cmd_chr(j,0) else print_cmd_chr(j,1);
@@ -29566,7 +29600,8 @@ if i<>0 then
       end;
     print_esc("setbox"); print_int(i-box_flag); print_char("=");
     end
-  else print_cmd_chr(leader_ship,i-(leader_flag-a_leaders))
+  else print_cmd_chr(leader_ship,i-(leader_flag-a_leaders));
+  end
 
 @ The |scan_general_text| procedure is much like |scan_toks(false,false)|,
 but will be invoked via |expand|, i.e., recursively.
@@ -29594,11 +29629,12 @@ p:=get_avail; def_ref:=p; token_ref_count(def_ref):=0; p:=def_ref;
 scan_left_brace; {remove the compulsory left brace}
 unbalance:=1;
 loop@+  begin get_token;
-  if cur_tok<right_brace_limit then
+  if cur_tok<right_brace_limit then begin
     if cur_cmd<right_brace then incr(unbalance)
     else  begin decr(unbalance);
       if unbalance=0 then goto found;
       end;
+    end;
   store_new_token(cur_tok);
   end;
 found: q:=link(def_ref); free_avail(def_ref); {discard reference count}
@@ -30161,12 +30197,13 @@ while cur_val_level>level do
   else if cur_val_level=mu_val then mu_error;
   decr(cur_val_level);
   end;
-if negative then
+if negative then begin
   if cur_val_level>=glue_val then
     begin m:=cur_val; cur_val:=new_spec(m); delete_glue_ref(m);
     @<Negate all three glue components of |cur_val|@>;
     end
   else negate(cur_val);
+  end;
 return;
 end
 
