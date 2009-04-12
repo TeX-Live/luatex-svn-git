@@ -115,6 +115,7 @@ extern void close_file_or_pipe P1H(FILE *);
 void mk_shellcmdlist (char *);
 void init_shell_escape (void);
 int shell_cmd_is_allowed (char **cmd, char **safecmd, char **cmdname);
+int runsystem (char *cmd);
 
 /* All but the Omega family use this. */
 #if !defined(Aleph)
