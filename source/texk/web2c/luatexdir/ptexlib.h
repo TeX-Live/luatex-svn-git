@@ -51,7 +51,8 @@ extern double rint(double x);
 
 /***********************************************************************/
 
-#include "pdf/pdfpage.h"
+#  include "pdf/pagetree.h"
+#  include "pdf/pdfpage.h"
 
 /***********************************************************************/
 
@@ -303,11 +304,6 @@ extern scaled getllx();
 extern scaled getlly();
 extern scaled geturx();
 extern scaled getury();
-
-/* pdf/pagetree.c */
-extern integer pdf_do_page_divert(integer, integer);
-extern void pdf_do_page_undivert(integer, integer);
-extern integer output_pages_tree();
 
 /* writeenc.c */
 extern fe_entry *get_fe_entry(char *);
@@ -564,10 +560,10 @@ void lua_node_filter_s(int filterid, char *extrainfo);
 int lua_linebreak_callback(int is_broken, halfword head_node,
                            halfword * new_head);
 
-void lua_pdf_literal (int i);
-void copy_pdf_literal (pointer r, pointer p);
-void free_pdf_literal (pointer p);
-void show_pdf_literal (pointer p);
+void lua_pdf_literal(int i);
+void copy_pdf_literal(pointer r, pointer p);
+void free_pdf_literal(pointer p);
+void show_pdf_literal(pointer p);
 
 void load_tex_patterns(int curlang, halfword head);
 void load_tex_hyphenation(int curlang, halfword head);
@@ -694,7 +690,7 @@ void flush_loggable_info(void);
 void luacall(int s, int nameptr);
 void luatokencall(int p, int nameptr);
 
-extern void check_texconfig_init (void);
+extern void check_texconfig_init(void);
 
 void tex_error(char *msg, char **hlp);
 
