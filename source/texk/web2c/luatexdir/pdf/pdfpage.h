@@ -23,25 +23,21 @@
 #  define PDFPAGE_H
 /**********************************************************************/
 
-typedef struct
-{
-  long m;			/* mantissa (significand) */
-  int e;			/* exponent * -1 */
+typedef struct {
+    long m;                     /* mantissa (significand) */
+    int e;                      /* exponent * -1 */
 } pdffloat;
 
-typedef struct
-{
-  pdffloat h;
-  pdffloat v;
+typedef struct {
+    pdffloat h;
+    pdffloat v;
 } pdfpos;
 
-typedef enum
-{ PMODE_NONE, PMODE_PAGE, PMODE_TEXT, PMODE_CHARARRAY,
-  PMODE_CHAR
+typedef enum { PMODE_NONE, PMODE_PAGE, PMODE_TEXT, PMODE_CHARARRAY,
+    PMODE_CHAR
 } pos_mode;
 
-typedef enum
-{ WMODE_H, WMODE_V } writing_mode;	/* []TJ runs horizontal or vertical */
+typedef enum { WMODE_H, WMODE_V } writing_mode; /* []TJ runs horizontal or vertical */
 
 #  define is_pagemode(p)      ((p)->mode == PMODE_PAGE)
 #  define is_textmode(p)      ((p)->mode == PMODE_TEXT)
@@ -50,41 +46,40 @@ typedef enum
 
 #  define setpdffloat(a,b,c) {(a).m = (b); (a).e = (c);}
 
-typedef struct
-{
-  pdfpos pdf;			/* pos. on page (PDF page raster) */
-  pdfpos pdf_bt_pos;		/* pos. at begin of BT-ET group (PDF page raster) */
-  pdfpos pdf_tj_pos;		/* pos. at begin of TJ array (PDF page raster) */
-  pdffloat cw;			/* pos. within [(..)..]TJ array (glyph raster);
-				   cw.e = fractional digits in /Widths array */
-  pdffloat tj_delta;		/* rel. movement in [(..)..]TJ array (glyph raster) */
-  pdffloat fs;			/* font size in PDF units */
-  pdffloat hz;			/* HZ expansion factor */
-  pdffloat ext;			/* ExtendFont factor */
-  pdffloat cm[6];		/* cm array */
-  pdffloat tm[6];		/* Tm array */
-  double k1;			/* conv. factor from TeX sp to PDF page raster */
-  double k2;			/* conv. factor from PDF page raster to TJ array raster */
-  internal_font_number f_cur;	/* TeX font number */
-  internal_font_number f_pdf;	/* /F* font number, of unexpanded base font! */
-  writing_mode wmode;		/* PDF writing mode WMode (horizontal/vertical) */
-  pos_mode mode;		/* current positioning mode */
+typedef struct {
+    pdfpos pdf;                 /* pos. on page (PDF page raster) */
+    pdfpos pdf_bt_pos;          /* pos. at begin of BT-ET group (PDF page raster) */
+    pdfpos pdf_tj_pos;          /* pos. at begin of TJ array (PDF page raster) */
+    pdffloat cw;                /* pos. within [(..)..]TJ array (glyph raster);
+                                   cw.e = fractional digits in /Widths array */
+    pdffloat tj_delta;          /* rel. movement in [(..)..]TJ array (glyph raster) */
+    pdffloat fs;                /* font size in PDF units */
+    pdffloat hz;                /* HZ expansion factor */
+    pdffloat ext;               /* ExtendFont factor */
+    pdffloat cm[6];             /* cm array */
+    pdffloat tm[6];             /* Tm array */
+    double k1;                  /* conv. factor from TeX sp to PDF page raster */
+    double k2;                  /* conv. factor from PDF page raster to TJ array raster */
+    internal_font_number f_cur; /* TeX font number */
+    internal_font_number f_pdf; /* /F* font number, of unexpanded base font! */
+    writing_mode wmode;         /* PDF writing mode WMode (horizontal/vertical) */
+    pos_mode mode;              /* current positioning mode */
 } pdfstructure;
 
 /**********************************************************************/
 
-boolean calc_pdfpos (pdfstructure * p, scaledpos * pos);
-void pdf_end_string_nl ();
-void pdf_goto_pagemode ();
-void pdf_page_init ();
-void pdf_place_form (scaled h, scaled v, integer i);
-void pdf_place_glyph (internal_font_number f, integer c);
-void pdf_place_rule (scaled h, scaled v, scaled wd, scaled ht);
-void pdf_print_charwidth (internal_font_number f, int i);
-void pdf_print_cm (pdffloat * cm);
-void pdf_set_pos (scaled h, scaled v);
-void pos_finish (pdfstructure * p);
-void print_pdffloat (pdffloat * f);
+boolean calc_pdfpos(pdfstructure * p, scaledpos * pos);
+void pdf_end_string_nl();
+void pdf_goto_pagemode();
+void pdf_page_init();
+void pdf_place_form(scaled h, scaled v, integer i);
+void pdf_place_glyph(internal_font_number f, integer c);
+void pdf_place_rule(scaled h, scaled v, scaled wd, scaled ht);
+void pdf_print_charwidth(internal_font_number f, int i);
+void pdf_print_cm(pdffloat * cm);
+void pdf_set_pos(scaled h, scaled v);
+void pos_finish(pdfstructure * p);
+void print_pdffloat(pdffloat * f);
 
 /**********************************************************************/
 #endif
