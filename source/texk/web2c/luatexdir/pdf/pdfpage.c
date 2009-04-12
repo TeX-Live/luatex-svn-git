@@ -282,14 +282,6 @@ void pdf_set_pos(scaled h, scaled v)
     set_pos(pstruct, &pos);
 }
 
-void pdf_set_pos_temp(scaled h, scaled v)
-{
-    scaledpos pos;
-    pos.h = h;
-    pos.v = v;
-    set_pos_temp(pstruct, &pos);
-}
-
 /**********************************************************************/
 
 static long pdf_char_width(pdfstructure * p, internal_font_number f, int i)
