@@ -753,47 +753,6 @@ void display_fraction_noad(pointer p)
     print_subsidiary_data(denominator(p), '/');
 }
 
-/* This function is for |print_cmd_chr| only */
-
-void print_math_comp(halfword chr_code)
-{
-    switch (chr_code) {
-    case ord_noad_type:
-        tprint_esc("mathord");
-        break;
-    case op_noad_type_normal:
-        tprint_esc("mathop");
-        break;
-    case bin_noad_type:
-        tprint_esc("mathbin");
-        break;
-    case rel_noad_type:
-        tprint_esc("mathrel");
-        break;
-    case open_noad_type:
-        tprint_esc("mathopen");
-        break;
-    case close_noad_type:
-        tprint_esc("mathclose");
-        break;
-    case punct_noad_type:
-        tprint_esc("mathpunct");
-        break;
-    case inner_noad_type:
-        tprint_esc("mathinner");
-        break;
-    case under_noad_type:
-        tprint_esc("underline");
-        break;
-    case over_noad_type:
-        tprint_esc("overline");
-        break;
-    default:
-        tprint("<unknown math_comp type!>");
-        break;
-    }
-}
-
 /*
 The routines that \TeX\ uses to create mlists are similar to those we have
 just seen for the generation of hlists and vlists. But it is necessary to

@@ -542,9 +542,6 @@ void print_cmd_chr(quarterword cmd, halfword chr_code)
             tprint_esc("unless");
         prim_cmd_chr(cmd, (chr_code % unless_code));
         break;
-    case math_comp_cmd:
-        print_math_comp(chr_code);
-        break;
     case math_style_cmd:
         print_style(chr_code);
         break;
