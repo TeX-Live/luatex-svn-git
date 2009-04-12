@@ -2854,27 +2854,44 @@ scaled make_op(pointer q)
     if (type(nucleus(q)) == math_char_node) {
         fetch(nucleus(q));
         if (cur_style < text_style) {   /* try to make it larger */
-            if (minimum_operator_size(cur_style) != undefined_math_parameter)
-                ok_size = minimum_operator_size(cur_style);
-            else
+	    ok_size = minimum_operator_size(cur_style);
+            if (ok_size != undefined_math_parameter) {
+		/* creating a temporary delimiter is the cleanest way */
+		y = new_node(delim_node, 0);
+		small_fam(y) = math_fam(nucleus(q));
+		small_char(y) = math_character(nucleus(q));
+		x = var_delimiter (y, text_size, ok_size);
+		delta = 0;
+            } else {
                 ok_size = height_plus_depth(cur_f, cur_c) + 1;
-            while ((char_tag(cur_f, cur_c) == list_tag) &&
-                   height_plus_depth(cur_f, cur_c) < ok_size) {
-                c = char_remainder(cur_f, cur_c);
-                if (!char_exists(cur_f, c))
-                    break;
-                cur_c = c;
-                math_character(nucleus(q)) = c;
-            }
-        }
-        delta = char_italic(cur_f, cur_c);
-        x = clean_box(nucleus(q), cur_style);
-        if ((subscr(q) != null) && (subtype(q) != op_noad_type_limits))
-            width(x) = width(x) - delta;        /* remove italic correction */
-        shift_amount(x) = half(height(x) - depth(x)) - math_axis(cur_size);
-        /* center vertically */
-        type(nucleus(q)) = sub_box_node;
-        math_list(nucleus(q)) = x;
+                while ((char_tag(cur_f, cur_c) == list_tag) &&
+		       height_plus_depth(cur_f, cur_c) < ok_size) {
+		    c = char_remainder(cur_f, cur_c);
+		    if (!char_exists(cur_f, c))
+                        break;
+		    cur_c = c;
+		    math_character(nucleus(q)) = c;
+		}
+		delta = char_italic(cur_f, cur_c);
+		x = clean_box(nucleus(q), cur_style);
+		if ((subscr(q) != null) && (subtype(q) != op_noad_type_limits))
+  		    width(x) = width(x) - delta;        /* remove italic correction */
+	        shift_amount(x) = half(height(x) - depth(x)) - math_axis(cur_size);
+	        /* center vertically */
+	    }
+	    type(nucleus(q)) = sub_box_node;
+	    math_list(nucleus(q)) = x;
+
+        } else { /* normal size */
+            delta = char_italic(cur_f, cur_c);
+	    x = clean_box(nucleus(q), cur_style);
+	    if ((subscr(q) != null) && (subtype(q) != op_noad_type_limits))
+	        width(x) = width(x) - delta;        /* remove italic correction */
+	    shift_amount(x) = half(height(x) - depth(x)) - math_axis(cur_size);
+	    /* center vertically */
+	    type(nucleus(q)) = sub_box_node;
+	    math_list(nucleus(q)) = x;
+	}
     } else {
         delta = 0;
     }
