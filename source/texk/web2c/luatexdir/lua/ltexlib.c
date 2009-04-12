@@ -886,6 +886,31 @@ int do_lastitem(lua_State * L, int cur_code)
     return retval;
 }
 
+static int tex_setmathparm (lua_State *L)
+{
+    int i, j;
+    scaled k;
+    if ((lua_gettop(L) == 3)) {
+        i = luaL_checkoption(L, 1, NULL, math_param_names);
+        j = luaL_checkoption(L, 2, NULL, math_style_names);
+	k = (scaled)lua_tonumber(L, 3);
+	def_math_param (i,j,k, cur_level);
+    }
+    return 0;
+}
+
+static int tex_getmathparm (lua_State *L)
+{
+    int i, j;
+    scaled k;
+    if ((lua_gettop(L) == 2)) {
+        i = luaL_checkoption(L, 1, NULL, math_param_names);
+        j = luaL_checkoption(L, 2, NULL, math_style_names);
+	k = get_math_param (i,j);
+	lua_pushnumber(L, k);
+    }
+    return 1;
+}
 
 static int getfontname(lua_State * L)
 {
@@ -1360,7 +1385,6 @@ static int tex_enableprimitives(lua_State * L)
 }
 
 
-
 static const struct luaL_reg texlib[] = {
     {"write", luacwrite},
     {"print", luacprint},
@@ -1402,6 +1426,8 @@ static const struct luaL_reg texlib[] = {
     {"primitives", tex_primitives},
     {"extraprimitives", tex_extraprimitives},
     {"enableprimitives", tex_enableprimitives},
+    {"setmath", tex_setmathparm},
+    {"getmath", tex_getmathparm},
     {NULL, NULL}                /* sentinel */
 };
 

@@ -1539,6 +1539,66 @@ assigning to a temporary variable:
 tex.box[0] = node.copy_list(tex.box[2])
 \stoptyping
 
+\subsection{Math parameters}
+
+It is possible to set and query the internal math parameters
+using:
+
+\startfunctioncall
+tex.setmath(<string> n, <string> t, <number> n)
+<number> n = tex.getmath(<string> n, <string> t)
+\stopfunctioncall
+
+The first string is the parameter name minus the leading \quote{Umath},
+and the second string is the style name minus the traling \quote{style}.
+
+Just to be complete, the values for the math parameter name are:
+
+\starttyping
+quad                axis               operatorsize
+overbarkern         overbarrule        overbarvgap
+underbarkern        underbarrule       underbarvgap
+radicalkern         radicalrule        radicalvgap
+radicaldegreebefore radicaldegreeafter radicaldegreeraise
+stackvgap           stacknumup         stackdenomdown
+fractionrule        fractionnumvgap    fractionnumup
+fractiondenomvgap   fractiondenomdown  fractiondelsize
+limitabovevgap      limitabovebgap     limitabovekern
+limitdownvgap       limitdownbgap      limitdownkern
+underdelimitervgap  underdelimiterbgap
+overdelimitervgap   overdelimiterbgap
+subshiftdrop        supshiftdrop       subshiftdown
+subsupshiftdown     subtopmax          supshiftup
+supbottommin        supsubbottommax    subsupvgap
+spaceafterscript    connectoroverlapmin
+ordordspacing       ordopspacing       ordbinspacing     ordrelspacing
+ordopenspacing      ordclosespacing    ordpunctspacing   ordinnerspacing
+opordspacing        opopspacing        opbinspacing      oprelspacing
+opopenspacing       opclosespacing     oppunctspacing    opinnerspacing
+binordspacing       binopspacing       binbinspacing     binrelspacing
+binopenspacing      binclosespacing    binpunctspacing   bininnerspacing
+relordspacing       relopspacing       relbinspacing     relrelspacing
+relopenspacing      relclosespacing    relpunctspacing   relinnerspacing
+openordspacing      openopspacing      openbinspacing    openrelspacing
+openopenspacing     openclosespacing   openpunctspacing  openinnerspacing
+closeordspacing     closeopspacing     closebinspacing   closerelspacing
+closeopenspacing    closeclosespacing  closepunctspacing closeinnerspacing
+punctordspacing     punctopspacing     punctbinspacing   punctrelspacing
+punctopenspacing    punctclosespacing  punctpunctspacing punctinnerspacing
+innerordspacing     inneropspacing     innerbinspacing   innerrelspacing
+inneropenspacing    innerclosespacing  innerpunctspacing innerinnerspacing
+\stoptyping
+
+The values for the style parameter name are:
+
+\starttyping
+display       crampeddisplay
+text          crampedtext
+script        crampedscript
+scriptscript  crampedscriptscript
+\stoptyping
+
+
 \subsection{Special list heads}
 
 The virtual table  \luatex{tex.lists} contains the set of internal

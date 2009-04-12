@@ -250,6 +250,8 @@ typedef enum {
     math_param_last
 } math_parameters;
 
+extern const char *math_param_names[];
+
 #  define math_param_first_mu_glue math_param_ord_ord_spacing
 
 extern void def_math_param(int param_code, int style_code, scaled value,

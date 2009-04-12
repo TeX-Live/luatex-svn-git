@@ -455,12 +455,48 @@ i.e., a smaller style has a larger numerical value.
 @:TeXbook}{\sl The \TeX book@>
 */
 
-const char *math_style_names[] = { "display", "crampeddisplay",
+const char *math_style_names[] = { 
+    "display", "crampeddisplay",
     "text", "crampedtext",
     "script", "crampedscript",
     "scriptscript", "crampedscriptscript",
     NULL
 };
+
+const char *math_param_names[] = {
+    "quad", "axis", "operatorsize",
+    "overbarkern", "overbarrule", "overbarvgap",
+    "underbarkern","underbarrule", "underbarvgap",
+    "radicalkern", "radicalrule", "radicalvgap",
+    "radicaldegreebefore", "radicaldegreeafter", "radicaldegreeraise",
+    "stackvgap", "stacknumup", "stackdenomdown",
+    "fractionrule", "fractionnumvgap", "fractionnumup",
+    "fractiondenomvgap","fractiondenomdown", "fractiondelsize",
+    "limitabovevgap", "limitabovebgap", "limitabovekern",
+    "limitdownvgap", "limitdownbgap", "limitdownkern",
+    "underdelimitervgap", "underdelimiterbgap",
+    "overdelimitervgap", "overdelimiterbgap",
+    "subshiftdrop", "supshiftdrop", "subshiftdown",
+    "subsupshiftdown","subtopmax", "supshiftup",
+    "supbottommin", "supsubbottommax", "subsupvgap",
+    "spaceafterscript", "connectoroverlapmin",
+    "ordordspacing", "ordopspacing","ordbinspacing","ordrelspacing",
+    "ordopenspacing","ordclosespacing", "ordpunctspacing","ordinnerspacing",
+    "opordspacing", "opopspacing", "opbinspacing", "oprelspacing",
+    "opopenspacing", "opclosespacing", "oppunctspacing", "opinnerspacing",
+    "binordspacing", "binopspacing", "binbinspacing", "binrelspacing",
+    "binopenspacing", "binclosespacing", "binpunctspacing", "bininnerspacing",
+    "relordspacing", "relopspacing", "relbinspacing", "relrelspacing",
+    "relopenspacing", "relclosespacing", "relpunctspacing", "relinnerspacing",
+    "openordspacing", "openopspacing", "openbinspacing", "openrelspacing",
+    "openopenspacing", "openclosespacing", "openpunctspacing", "openinnerspacing",
+    "closeordspacing", "closeopspacing", "closebinspacing", "closerelspacing",
+    "closeopenspacing", "closeclosespacing", "closepunctspacing", "closeinnerspacing",
+    "punctordspacing", "punctopspacing", "punctbinspacing", "punctrelspacing",
+    "punctopenspacing", "punctclosespacing", "punctpunctspacing", "punctinnerspacing",
+    "innerordspacing", "inneropspacing", "innerbinspacing", "innerrelspacing",
+    "inneropenspacing", "innerclosespacing", "innerpunctspacing", "innerinnerspacing",
+    NULL };
 
 pointer new_style(small_number s)
 {                               /* create a style node */
