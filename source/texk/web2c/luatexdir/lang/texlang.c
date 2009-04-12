@@ -27,7 +27,7 @@
 #include "hyphen.h"
 
 static const char _svn_version[] =
-    "$Id: texlang.c 2064 2009-03-20 13:13:14Z taco $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/lang/texlang.c $";
+    "$Id$ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/lang/texlang.c $";
 
 /* functions from the fontforge unicode library */
 

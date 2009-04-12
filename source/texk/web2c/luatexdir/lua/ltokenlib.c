@@ -22,7 +22,7 @@
 #include "tokens.h"
 
 static const char _svn_version[] =
-    "$Id: ltokenlib.c 2015 2009-03-13 19:06:34Z taco $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/lua/ltokenlib.c $";
+    "$Id$ $URL$";
 
 extern int get_command_id(char *);
 

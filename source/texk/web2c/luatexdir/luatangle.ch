@@ -1,5 +1,5 @@
 % luatangle.ch: web2c changes to file tangle.ch
-% $Id: luatangle.ch 1230 2008-05-03 11:11:32Z oneiros $
+% $Id$
 % 
 % This file is part of LuaTeX.
 %

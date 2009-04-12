@@ -18,7 +18,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. }
 
-{ $Id: luatex.defines 2079 2009-03-22 10:15:03Z taco $ }
+{ $Id$ }
 
 { luatex.defines: additions for LuaTeX }
 

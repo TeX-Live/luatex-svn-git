@@ -21,7 +21,7 @@
 #include <ptexlib.h>
 
 static const char _svn_version[] =
-    "$Id: lpdflib.c 2072 2009-03-21 08:50:20Z hhenkel $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/lua/lpdflib.c $";
+    "$Id$ $URL$";
 
 static int findcurv(lua_State * L)
 {

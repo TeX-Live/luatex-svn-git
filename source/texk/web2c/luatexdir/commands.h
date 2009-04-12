@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: commands.h 2094 2009-03-23 14:13:54Z taco $ */
+/* $Id$ */
 
 
 typedef enum {

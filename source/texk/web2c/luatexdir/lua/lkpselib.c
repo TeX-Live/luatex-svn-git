@@ -25,7 +25,7 @@
 #include <kpathsea/readable.h>
 
 static const char _svn_version[] =
-    "$Id: lkpselib.c 2093 2009-03-23 11:44:13Z taco $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/lua/lkpselib.c $";
+    "$Id$ $URL$";
 
 static const int filetypes[] = {
     kpse_gf_format,

@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: managed-sa.h 1829 2009-01-23 23:52:50Z hhenkel $ */
+/* $Id$ */
 
 #ifndef MANAGED_SA_H
 #  define MANAGED_SA_H 1

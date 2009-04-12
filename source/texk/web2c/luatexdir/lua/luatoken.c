@@ -24,7 +24,7 @@
 #include "commands.h"
 
 static const char _svn_version[] =
-    "$Id: luatoken.c 2079 2009-03-22 10:15:03Z taco $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/lua/luatoken.c $";
+    "$Id$ $URL$";
 
 command_item command_names[] = {
     {"relax", relax_cmd, NULL},

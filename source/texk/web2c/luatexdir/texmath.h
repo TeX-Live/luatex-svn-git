@@ -18,7 +18,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: texmath.h 1893 2009-02-23 11:30:05Z taco $ */
+/* $Id$ */
 
 #ifndef TEXMATH_H
 #  define TEXMATH_H 1

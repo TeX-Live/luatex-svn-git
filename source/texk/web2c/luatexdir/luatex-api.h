@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: luatex-api.h 2064 2009-03-20 13:13:14Z taco $ */
+/* $Id$ */
 
 #include <stdlib.h>
 #include <stdio.h>

@@ -25,7 +25,7 @@
 #include "commands.h"
 
 static const char _svn_version[] =
-    "$Id: lnodelib.c 2027 2009-03-14 18:47:32Z oneiros $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/lua/lnodelib.c $";
+    "$Id$ $URL$";
 
 #define init_luaS_index(a) do {                                         \
     lua_pushliteral(L,#a);                                              \

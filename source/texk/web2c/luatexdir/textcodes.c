@@ -25,7 +25,7 @@
 #include "commands.h"
 
 static const char __svn_version[] =
-    "$Id: textcodes.c 2029 2009-03-14 19:10:25Z oneiros $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/textcodes.c $";
+    "$Id$ $URL$";
 
 #define LCCODESTACK  8
 #define LCCODEDEFAULT 0

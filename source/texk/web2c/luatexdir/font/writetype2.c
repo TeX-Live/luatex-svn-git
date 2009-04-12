@@ -25,7 +25,7 @@
 #include "tt_glyf.h"
 
 static const char _svn_version[] =
-    "$Id: writetype2.c 1783 2009-01-18 12:51:01Z oneiros $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/font/writetype2.c $";
+    "$Id$ $URL$";
 
 /* forward*/
 void make_tt_subset(fd_entry * fd, unsigned char *buffer, integer buflen);

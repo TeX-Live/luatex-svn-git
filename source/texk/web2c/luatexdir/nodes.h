@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: nodes.h 2029 2009-03-14 19:10:25Z oneiros $ */
+/* $Id$ */
 
 #include <stdarg.h>
 

@@ -19,7 +19,7 @@
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 static const char __svn_version[] =
-    "$Id: macnames.c 1223 2008-05-02 13:39:55Z oneiros $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/font/macnames.c $";
+    "$Id$ $URL$";
 
 const char notdef[] = ".notdef";
 

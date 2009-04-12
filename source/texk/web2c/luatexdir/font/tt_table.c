@@ -34,7 +34,7 @@
 #include "tt_table.h"
 
 static const char _svn_version[] =
-    "$Id: tt_table.c 1588 2008-11-28 13:18:54Z oneiros $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/font/tt_table.c $";
+    "$Id$ $URL$";
 
 /*
   tables contains information refered by other tables

@@ -18,7 +18,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: luatex.h 1766 2009-01-14 16:15:49Z taco $ */
+/* $Id$ */
 
 
 extern void do_vf(internal_font_number tmp_f);

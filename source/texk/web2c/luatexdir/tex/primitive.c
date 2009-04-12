@@ -25,7 +25,7 @@
 #include "tokens.h"
 
 static const char _svn_version[] =
-    "$Id: primitive.c 2086 2009-03-22 15:32:08Z oneiros $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/tex/primitive.c $";
+    "$Id$ $URL$";
 
 /* as usual, the file starts with a bunch of #defines that mimic pascal @ds */
 

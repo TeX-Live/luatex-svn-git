@@ -22,7 +22,7 @@
 #include "nodes.h"
 
 static const char _svn_version[] =
-    "$Id: lfontlib.c 1226 2008-05-02 16:11:02Z oneiros $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/lua/lfontlib.c $";
+    "$Id$ $URL$";
 
 #define TIMERS 0
 

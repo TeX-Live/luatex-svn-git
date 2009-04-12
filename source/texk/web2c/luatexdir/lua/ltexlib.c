@@ -24,7 +24,7 @@
 #include "tokens.h"
 
 static const char _svn_version[] =
-    "$Id: ltexlib.c 2079 2009-03-22 10:15:03Z taco $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/lua/ltexlib.c $";
+    "$Id$ $URL$";
 
 extern halfword *check_isnode(lua_State * L, int ud);
 extern void lua_nodelib_push_fast(lua_State * L, halfword n);

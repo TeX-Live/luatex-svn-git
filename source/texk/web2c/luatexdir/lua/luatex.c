@@ -22,7 +22,7 @@
 #include <zlib.h>
 
 static const char _svn_version[] =
-    "$Id: luatex.c 2028 2009-03-14 18:50:21Z oneiros $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/lua/luatex.c $";
+    "$Id$ $URL$";
 
 /* do this aleph stuff here, for now */
 

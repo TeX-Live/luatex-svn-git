@@ -21,7 +21,7 @@
 #include <ptexlib.h>
 
 static const char _svn_version[] =
-    "$Id: lcallbacklib.c 2064 2009-03-20 13:13:14Z taco $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/lua/lcallbacklib.c $";
+    "$Id$ $URL$";
 
 extern int do_run_callback(int special, char *values, va_list vl);
 extern int lua_traceback(lua_State * L);

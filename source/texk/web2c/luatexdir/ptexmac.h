@@ -18,7 +18,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: ptexmac.h 1407 2008-07-15 10:49:28Z taco $ */
+/* $Id$ */
 
 #ifndef PDFTEXMAC
 #  define PDFTEXMAC

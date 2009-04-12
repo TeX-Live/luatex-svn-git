@@ -1,5 +1,5 @@
 ## luatexlib.mk - Makefile fragment for libraries used by luatex.
-# $Id: luatexlib.mk 2073 2009-03-21 10:06:50Z hhenkel $
+# $Id$
 # Public domain.
 
 # luatex depends on a number of libraries.

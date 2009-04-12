@@ -24,7 +24,7 @@
 #include "commands.h"
 
 static const char _svn_version[] =
-    "$Id: textoken.c 2086 2009-03-22 15:32:08Z oneiros $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/tex/textoken.c $";
+    "$Id$ $URL$";
 
 #define skipping 1              /* |scanner_status| when passing conditional text */
 #define defining 2              /* |scanner_status| when reading a macro definition */

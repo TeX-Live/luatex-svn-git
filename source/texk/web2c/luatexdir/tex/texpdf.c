@@ -22,7 +22,7 @@
 #include <ctype.h>
 
 static const char _svn_version[] =
-    "$Id: texpdf.c 1436 2008-07-17 09:27:08Z taco $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/tex/texpdf.c $";
+    "$Id$ $URL$";
 
 #define number_chars 1114112
 #define string_offset 2097152

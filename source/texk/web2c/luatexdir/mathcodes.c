@@ -26,7 +26,7 @@
 extern void rawset_sa_item(sa_tree head, integer n, integer v);
 
 static const char __svn_version[] =
-    "$Id: mathcodes.c 2029 2009-03-14 19:10:25Z oneiros $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/mathcodes.c $";
+    "$Id$ $URL$";
 
 /* math codes */
 

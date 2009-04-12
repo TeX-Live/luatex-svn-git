@@ -32,7 +32,7 @@
 #include "writettf.h"
 
 static const char _svn_version[] =
-    "$Id: tt_glyf.c 1592 2008-11-28 13:23:51Z oneiros $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/font/tt_glyf.c $";
+    "$Id$ $URL$";
 
 #define NUM_GLYPH_LIMIT        65534
 #define TABLE_DATA_ALLOC_SIZE  40960

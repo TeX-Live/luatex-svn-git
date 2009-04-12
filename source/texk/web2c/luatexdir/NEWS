@@ -642,7 +642,7 @@ Other news:
    we probably introduced new problems as well).
 
 * Most (all?) files now have a corrected Copyright header,
-   and link in $Id: NEWS 2091 2009-03-23 09:24:59Z taco $ and  $URL$ into the object file.
+   and link in $Id$ and  $URL$ into the object file.
 
 * Some unnecessary files were removed from the distribution.
 

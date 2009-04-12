@@ -22,7 +22,7 @@
 #include "managed-sa.h"
 
 static const char __svn_version[] =
-    "$Id: managed-sa.c 2029 2009-03-14 19:10:25Z oneiros $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/managed-sa.c $";
+    "$Id$ $URL$";
 
 static void store_sa_stack(sa_tree a, integer n, integer v, integer gl)
 {

@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: tokens.h 1697 2008-12-28 21:09:06Z oneiros $ */
+/* $Id$ */
 
 #define token_list 0
 #define cs_token_flag 0x1FFFFFFF

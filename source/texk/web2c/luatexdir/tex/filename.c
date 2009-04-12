@@ -23,7 +23,7 @@
 #include "commands.h"
 
 static const char _svn_version[] =
-    "$Id: filename.c 2086 2009-03-22 15:32:08Z oneiros $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/tex/filename.c $";
+    "$Id$ $URL$";
 
 #define wake_up_terminal() ;
 #define clear_terminal() ;
