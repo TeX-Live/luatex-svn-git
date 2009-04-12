@@ -1918,12 +1918,9 @@ void close_math_group(pointer p)
                     node_attr(nucleus(p)) = null;
                     flush_node(p);
                 }
-            }
-        } else {
-            if (type(p) == accent_noad) {
-                if (saved(0) == nucleus(tail)) {
-                    /* todo: check this branch */
-                    if (type(tail) == simple_noad && subtype(tail) == ord_noad_type) {
+	    } else if (type(p) == accent_noad) {
+	        if (saved(0) == nucleus(tail)) {
+		    if (type(tail) == simple_noad && subtype(tail) == ord_noad_type) {
                         q = head;
                         while (vlink(q) != tail)
                             q = vlink(q);
