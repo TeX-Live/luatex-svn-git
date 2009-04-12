@@ -8971,25 +8971,6 @@ if cur_cmd<>left_brace then
   end;
 end;
 
-@ The |scan_right_brace| routine is called when a right brace is supposed to be
-the next non-blank token. (The term ``right brace'' means, more precisely,
-a character whose catcode is |right_brace|.) \TeX\ allows \.{\\relax} to
-appear before the |right_brace|.
-
-@p procedure scan_right_brace; {reads a mandatory |right_brace|}
-begin @<Get the next non-blank non-relax non-call token@>;
-if cur_cmd<>right_brace then
-  begin print_err("Missing { inserted");
-@.Missing \{ inserted@>
-  help4("A right brace was mandatory here, so I've put one in.")@/
-    ("You might want to delete and/or insert some corrections")@/
-    ("so that I will find a matching right brace soon.")@/
-    ("(If you're confused by all this, try typing `I}' now.)");
-  back_error; cur_tok:=right_brace_token+"}"; cur_cmd:=right_brace;
-  cur_chr:="}"; incr(align_state);
-  end;
-end;
-
 @ @<Get the next non-blank non-relax non-call token@>=
 repeat get_x_token;
 until (cur_cmd<>spacer)and(cur_cmd<>relax)
