@@ -570,9 +570,6 @@ void print_cmd_chr(quarterword cmd, halfword chr_code)
     case def_family_cmd:
         print_size(chr_code);
         break;
-    case set_math_param_cmd:
-        print_math_param(chr_code);
-        break;
     case set_font_cmd:
         tprint("select font ");
         tprint(font_name(chr_code));

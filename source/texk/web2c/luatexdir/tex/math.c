@@ -253,131 +253,10 @@ void unsave_math_fam_data(integer gl)
 
 /* and parameters */
 
-static char *math_param_names[] = {
-    "Umathquad",
-    "Umathaxis",
-    "Umathoperatorsize",
-    "Umathoverbarkern",
-    "Umathoverbarrule",
-    "Umathoverbarvgap",
-    "Umathunderbarkern",
-    "Umathunderbarrule",
-    "Umathunderbarvgap",
-    "Umathradicalkern",
-    "Umathradicalrule",
-    "Umathradicalvgap",
-    "Umathradicaldegreebefore",
-    "Umathradicaldegreeafter",
-    "Umathradicaldegreeraise",
-    "Umathstackvgap",
-    "Umathstacknumup",
-    "Umathstackdenomdown",
-    "Umathfractionrule",
-    "Umathfractionnumvgap",
-    "Umathfractionnumup",
-    "Umathfractiondenomvgap",
-    "Umathfractiondenomdown",
-    "Umathfractiondelsize",
-    "Umathlimitabovevgap",
-    "Umathlimitabovebgap",
-    "Umathlimitabovekern",
-    "Umathlimitdownvgap",
-    "Umathlimitdownbgap",
-    "Umathlimitdownkern",
-    "Umathunderdelimitervgap",
-    "Umathunderdelimiterbgap",
-    "Umathoverdelimitervgap",
-    "Umathoverdelimiterbgap",
-    "Umathsubshiftdrop",
-    "Umathsupshiftdrop",
-    "Umathsubshiftdown",
-    "Umathsubsupshiftdown",
-    "Umathsubtopmax",
-    "Umathsupshiftup",
-    "Umathsupbottommin",
-    "Umathsupsubbottommax",
-    "Umathsubsupvgap",
-    "Umathspaceafterscript",
-    "Umathconnectoroverlapmin",
-    "Umathordordspacing",
-    "Umathordopspacing",
-    "Umathordbinspacing",
-    "Umathordrelspacing",
-    "Umathordopenspacing",
-    "Umathordclosespacing",
-    "Umathordpunctspacing",
-    "Umathordinnerspacing",
-    "Umathopordspacing",
-    "Umathopopspacing",
-    "Umathopbinspacing",
-    "Umathoprelspacing",
-    "Umathopopenspacing",
-    "Umathopclosespacing",
-    "Umathoppunctspacing",
-    "Umathopinnerspacing",
-    "Umathbinordspacing",
-    "Umathbinopspacing",
-    "Umathbinbinspacing",
-    "Umathbinrelspacing",
-    "Umathbinopenspacing",
-    "Umathbinclosespacing",
-    "Umathbinpunctspacing",
-    "Umathbininnerspacing",
-    "Umathrelordspacing",
-    "Umathrelopspacing",
-    "Umathrelbinspacing",
-    "Umathrelrelspacing",
-    "Umathrelopenspacing",
-    "Umathrelclosespacing",
-    "Umathrelpunctspacing",
-    "Umathrelinnerspacing",
-    "Umathopenordspacing",
-    "Umathopenopspacing",
-    "Umathopenbinspacing",
-    "Umathopenrelspacing",
-    "Umathopenopenspacing",
-    "Umathopenclosespacing",
-    "Umathopenpunctspacing",
-    "Umathopeninnerspacing",
-    "Umathcloseordspacing",
-    "Umathcloseopspacing",
-    "Umathclosebinspacing",
-    "Umathcloserelspacing",
-    "Umathcloseopenspacing",
-    "Umathcloseclosespacing",
-    "Umathclosepunctspacing",
-    "Umathcloseinnerspacing",
-    "Umathpunctordspacing",
-    "Umathpunctopspacing",
-    "Umathpunctbinspacing",
-    "Umathpunctrelspacing",
-    "Umathpunctopenspacing",
-    "Umathpunctclosespacing",
-    "Umathpunctpunctspacing",
-    "Umathpunctinnerspacing",
-    "Umathinnerordspacing",
-    "Umathinneropspacing",
-    "Umathinnerbinspacing",
-    "Umathinnerrelspacing",
-    "Umathinneropenspacing",
-    "Umathinnerclosespacing",
-    "Umathinnerpunctspacing",
-    "Umathinnerinnerspacing",
-    NULL
-};
-
 #define MATHPARAMSTACK  8
 #define MATHPARAMDEFAULT undefined_math_parameter
 
 static sa_tree math_param_head = NULL;
-
-void print_math_param(int param_code)
-{
-    if (param_code >= 0 && param_code < math_param_last)
-        tprint_esc(math_param_names[param_code]);
-    else
-        tprint("Unknown math parameter code!");
-}
 
 void def_math_param(int param_id, int style_id, scaled value, int lvl)
 {
@@ -387,7 +266,7 @@ void def_math_param(int param_id, int style_id, scaled value, int lvl)
         begin_diagnostic();
         tprint("{assigning");
         print_char(' ');
-        print_math_param(param_id);
+	print_cmd_chr(set_math_param_cmd,param_id);
         print_style(style_id);
         print_char('=');
         print_int(value);
@@ -421,7 +300,7 @@ void unsave_math_param_data(integer gl)
                 begin_diagnostic();
                 tprint("{restoring");
                 print_char(' ');
-                print_math_param(param_id);
+		print_cmd_chr(set_math_param_cmd,param_id);
                 print_style(style_id);
                 print_char('=');
                 print_int(get_math_param(param_id, style_id));

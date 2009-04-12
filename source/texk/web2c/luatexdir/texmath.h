@@ -256,7 +256,6 @@ typedef enum {
 
 #  define math_param_first_mu_glue math_param_ord_ord_spacing
 
-extern void print_math_param(int param_code);
 extern void def_math_param(int param_code, int style_code, scaled value,
                            int lvl);
 extern scaled get_math_param(int param_code, int style_code);
