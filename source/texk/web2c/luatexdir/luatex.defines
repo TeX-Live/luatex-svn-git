@@ -653,9 +653,6 @@
 
 @define procedure initialize_math;
 @define procedure show_math_node();
-@define procedure print_math_comp();
-@define procedure print_limit_switch();
-@define procedure print_style();
 
 @define procedure scan_extdef_math_code();
 @define procedure scan_extdef_del_code();
@@ -666,7 +663,6 @@
 @define procedure undump_math_data;
 @define procedure unsave_math_data();
 
-@define const fence_noad;
 @define const ord_noad_type;
 @define const op_noad_type_normal;
 @define const op_noad_type_limits;
@@ -686,7 +682,6 @@
 @define const middle_noad_side ;
 @define const right_noad_side  ;
 
-@define procedure print_size();
 @define procedure finish_display_alignment();
 @define function new_sub_box();
 @define function math_vcenter_group();

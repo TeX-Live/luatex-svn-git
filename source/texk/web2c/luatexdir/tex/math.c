@@ -267,7 +267,7 @@ void def_math_param(int param_id, int style_id, scaled value, int lvl)
         tprint("{assigning");
         print_char(' ');
 	print_cmd_chr(set_math_param_cmd,param_id);
-        print_style(style_id);
+        print_cmd_chr(math_style_cmd,style_id);
         print_char('=');
         print_int(value);
         print_char('}');
@@ -301,7 +301,7 @@ void unsave_math_param_data(integer gl)
                 tprint("{restoring");
                 print_char(' ');
 		print_cmd_chr(set_math_param_cmd,param_id);
-                print_style(style_id);
+                print_cmd_chr(math_style_cmd,style_id);
                 print_char('=');
                 print_int(get_math_param(param_id, style_id));
                 print_char('}');
@@ -504,7 +504,7 @@ void show_math_node(pointer p)
 {
     switch (type(p)) {
     case style_node:
-        print_style(subtype(p));
+	print_cmd_chr(math_style_cmd,subtype(p));
         break;
     case choice_node:
         tprint_esc("mathchoice");
@@ -615,17 +615,6 @@ void print_subsidiary_data(pointer p, ASCII_code c)
         flush_char;             /* remove |c| from the recursion history */
     }
 }
-
-void print_style(integer c)
-{
-    if (c <= cramped_script_script_style) {
-        tprint_esc((char *) math_style_names[c]);
-        tprint("style");
-    } else {
-        tprint("Unknown style!");
-    }
-}
-
 
 void display_normal_noad(pointer p)
 {
