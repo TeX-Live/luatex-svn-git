@@ -28214,7 +28214,7 @@ dir_base+par_direction_code: begin
 dir_base+text_direction_code: begin scan_direction;
   if (no_local_dirs>0) and (abs(mode)=hmode) then begin
     @<DIR: Add local dir node@>;
-    dir_dir(tail):=dir_dir(tail)-64;
+    dir_dir(tail):=dir_dir(tail);
     end;
   if dir_level(text_dir_ptr)=cur_level then
     @<DIR: Remove from |text_dir_ptr|@>;
