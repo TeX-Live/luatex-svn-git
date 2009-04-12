@@ -49,12 +49,8 @@ extern double rint(double x);
 
 #  include "openbsd-compat.h"
 
-/***********************************************************************/
-
 #  include "pdf/pagetree.h"
 #  include "pdf/pdfpage.h"
-
-/***********************************************************************/
 
 /* pdftexlib type declarations */
 typedef struct {
@@ -63,19 +59,18 @@ typedef struct {
     boolean valid;
 } key_entry;
 
-struct _subfont_entry;
-typedef struct _subfont_entry subfont_entry;
-
-struct _subfont_entry {
+typedef struct _subfont_entry {
     char *infix;                /* infix for this subfont, eg "01" */
     long charcodes[256];        /* the mapping for this subfont as read from sfd */
-    subfont_entry *next;
-};
+    struct _subfont_entry *next;
+} subfont_entry;
 
 typedef struct {
     char *name;                 /* sfd name, eg "Unicode" */
     subfont_entry *subfont;     /* linked list of subfonts */
 } sfd_entry;
+
+#  include "font/mapfile.h"
 
 typedef struct {
     integer fe_objnum;          /* object number */
@@ -95,25 +90,6 @@ typedef struct {
 #  define FD_FLAGS_DEFAULT_EMBED  4     /* a symbol font */
 #  define FD_FLAGS_DEFAULT_NON_EMBED 0x22
                                         /* a nonsymbolic serif font */
-
-typedef struct {
-    /* parameters scanned from the map file: */
-    char *tfm_name;             /* TFM file name (1st field in map line) */
-    char *sfd_name;             /* subfont directory name, like @sfd_name@ */
-    char *ps_name;              /* PostScript name (optional 2nd field in map line) */
-    integer fd_flags;           /* font descriptor /Flags (PDF Ref. section 5.7.1) */
-    integer slant;              /* SlantFont */
-    integer extend;             /* ExtendFont */
-    char *encname;              /* encoding file name */
-    char *ff_name;              /* font file name */
-    unsigned short type;        /* various flags */
-    short pid;                  /* Pid for truetype fonts */
-    short eid;                  /* Eid for truetype fonts */
-    /* parameters NOT scanned from the map file: */
-    subfont_entry *subfont;     /* subfont mapping */
-    unsigned short links;       /* link flags from tfm_tree and ps_tree */
-    boolean in_use;             /* true if this structure has been referenced already */
-} fm_entry;
 
 typedef struct glw_entry_ {     /* subset glyphs for inclusion in CID-based fonts */
     unsigned int id;            /* glyph CID */
@@ -159,11 +135,6 @@ typedef struct fo_entry_ {
 
 /**********************************************************************/
 
-typedef struct {
-    char *ff_name;              /* base name of font file */
-    char *ff_path;              /* full path to font file */
-} ff_entry;
-
 typedef short shalfword;
 typedef struct {
     integer charcode, cwidth, cheight, xoff, yoff, xescape, rastersize;
@@ -200,20 +171,6 @@ extern void print_file_name(str_number, str_number, str_number);
 extern integer get_fontfile_num(int);
 extern integer get_fontname_num(int);
 extern void epdf_free(void);
-
-/* mapfile.c */
-extern fm_entry *lookup_fontmap(char *);
-extern boolean hasfmentry(internalfontnumber);
-extern void fm_free(void);
-extern void fm_read_info(void);
-extern ff_entry *check_ff_exist(char *, boolean);
-extern void pdfmapfile(integer);
-extern void pdfmapline(integer);
-extern void pdf_init_map_file(string map_name);
-extern fm_entry *new_fm_entry(void);
-extern void delete_fm_entry(fm_entry *);
-extern int avl_do_entry(fm_entry *, int);
-extern int check_std_t1font(char *s);
 
 /* papersiz.c */
 extern integer myatodim(char **);
