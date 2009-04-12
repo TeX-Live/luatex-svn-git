@@ -1,6 +1,6 @@
 /* pagetree.h
 
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -17,13 +17,15 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
+/* $Id$ */
+
 #ifndef PAGETREE_H
 #  define PAGETREE_H
 /**********************************************************************/
 
-integer output_pages_tree();
-integer pdf_do_page_divert(integer, integer);
-void pdf_do_page_undivert(integer, integer);
+integer output_pages_tree ();
+integer pdf_do_page_divert (integer, integer);
+void pdf_do_page_undivert (integer, integer);
 
 /**********************************************************************/
 #endif
