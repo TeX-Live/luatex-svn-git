@@ -110,7 +110,7 @@ void pdf_page_init()
 
 #ifdef SYNCH_POS_WITH_CUR
 /* some time this will be needed */
-synch_pos_with_cur(scaledpos * pos, scaledpos * cur, scaledpos * box_pos)
+void synch_pos_with_cur(scaledpos * pos, scaledpos * cur, scaledpos * box_pos)
 {
     switch (dvi_direction) {
     case dir_TL_:
