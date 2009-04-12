@@ -794,17 +794,6 @@ void print_math_comp(halfword chr_code)
     }
 }
 
-void print_limit_switch(halfword chr_code)
-{
-    if (chr_code == op_noad_type_limits)
-        tprint_esc("limits");
-    else if (chr_code == op_noad_type_no_limits)
-        tprint_esc("nolimits");
-    else
-        tprint_esc("displaylimits");
-}
-
-
 /*
 The routines that \TeX\ uses to create mlists are similar to those we have
 just seen for the generation of hlists and vlists. But it is necessary to

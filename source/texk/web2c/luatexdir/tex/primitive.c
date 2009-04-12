@@ -545,9 +545,6 @@ void print_cmd_chr(quarterword cmd, halfword chr_code)
     case math_comp_cmd:
         print_math_comp(chr_code);
         break;
-    case limit_switch_cmd:
-        print_limit_switch(chr_code);
-        break;
     case math_style_cmd:
         print_style(chr_code);
         break;
