@@ -827,7 +827,7 @@ assumed intention to typeset a document (and by that I mean that it is called as
 matching texmf.cnf variable(s) or their \type{texconfig} (see~\in{section}[texconfig])
 counterparts allow execution of the requested system command. In \quote{script
 interpreter} runs of \LUATEX, these settings have no effect, and all four functions
-function as normal. This change is new in 0.37.
+function as normal. This change is new in 0.37.0.
 
 
 
@@ -1404,19 +1404,27 @@ tex.pdflastximagecolordepth
 
 \TEX's attributes (\tex{attribute}), counters (\tex{count}),
 dimensions (\tex{dimen}), skips (\tex{skip}) and token (\tex{toks})
-registers can be accessed and written to using five virtual
-sub|-|tables of the
-\luatex{tex} table:
+registers can be accessed and written to using two times five virtual
+sub|-|tables of the \luatex{tex} table:
 
 \startcolumns[n=3]
 \starttyping
-tex.attribute
+tex.attribute 
 tex.count
 tex.dimen
 tex.skip
 tex.toks
+tex.gattribute 
+tex.gcount
+tex.gdimen
+tex.gskip
+tex.gtoks
 \stoptyping
 \stopcolumns
+
+The set that has a \type{g} prefix does global assignment when
+used to set a value.  These are new in version 0.39.0, and
+somewhat experimental; the syntax or name may change in the future.
 
 It is possible to use the names of relevant \tex{attributedef}, \tex{countdef},
 \tex{dimendef}, \tex{skipdef},  or \tex{toksdef} control sequences as indices
@@ -1448,28 +1456,14 @@ objects (see the description of the node interface elsewhere in this
 manual).
 
 As an alternative to array addressing, there are also accessor
-functions defined:
+functions defined for all cases, for example, here is the set
+of possibilities for \type{\skip} registers:
 
 \startfunctioncall
-tex.setdimen(<number> n, <string> s)
-tex.setdimen(<string> s, <string> s)
-tex.setdimen(<number> n, <number> n)
-tex.setdimen(<string> s, <number> n)
-<number> n = tex.getdimen(<number> n)
-<number> n = tex.getdimen(<string> s)
-
-tex.setcount(<number> n, <number> n)
-tex.setcount(<string> s, <number> n)
-<number> n = tex.getcount(<number> n)
-<number> n = tex.getcount(<string> s)
-
-tex.settoks (<number> n, <string> s)
-tex.settoks (<string> s, <string> s)
-<string> s = tex.gettoks (<number> n)
-<string> s = tex.gettoks (<string> s)
-
 tex.setskip (<number> n, <node> s)
 tex.setskip (<string> s, <node> s)
+tex.gsetskip (<number> n, <node> s)
+tex.gsetskip (<string> s, <node> s)
 <node> s = tex.getskip (<number> n)
 <node> s = tex.getskip (<string> s)
 \stopfunctioncall
@@ -1483,7 +1477,14 @@ altered using three other virtual sub|-|tables :
 tex.wd
 tex.ht
 tex.dp
+tex.gwd
+tex.ght
+tex.gdp
 \stoptyping
+
+The set that has a \type{g} prefix does global assignment when
+used to set a value. These are new in version 0.39.0, and
+somewhat experimental; the syntax or name may change in the future.
 
 Boxes are indexed by number or by name. In macro packages
 \type {chardef} is normally used to refer to allocated box registers and
@@ -1498,12 +1499,15 @@ functions defined:
 
 \startfunctioncall
 tex.setboxwd(<number> n, <number> n)
+tex.gsetboxwd(<number> n, <number> n)
 <number> n = tex.getboxwd(<number> n)
 
 tex.setboxht(<number> n, <number> n)
+tex.gsetboxht(<number> n, <number> n)
 <number> n = tex.getboxht(<number> n)
 
 tex.setboxdp(<number> n, <number> n)
+tex.gsetboxdp(<number> n, <number> n)
 <number> n = tex.getboxdp(<number> n)
 \stopfunctioncall
 
@@ -1512,16 +1516,22 @@ interface as defined in the \luatex{node} library:
 
 \starttyping
 tex.box
+tex.gbox
 \stoptyping
 
 for array access, or
 
 \starttyping
 tex.setbox(<number> n, <node> s)
+tex.gsetbox(<number> n, <node> s)
 <node> n = tex.getbox(<number> n)
 \stoptyping
 
 for function|-|based access.
+
+The set that has a \type{g} prefix does global assignment when
+used to set a value.  These are new in version 0.39.0, and
+somewhat experimental; the syntax or name may change in the future.
 
 Be warned that an assignment like
 
