@@ -2130,9 +2130,13 @@ void run_mlist_to_hlist(pointer p, integer m_style, boolean penalties)
     int callback_id;
     int a, sfix;
     lua_State *L = Luas;
+    if (p == null) {
+        vlink(temp_head) =  null; 
+        return;
+    }
     finalize_math_parameters();
     callback_id = callback_defined(mlist_to_hlist_callback);
-    if (p != null && callback_id > 0) {
+    if (callback_id > 0) {
         sfix = lua_gettop(L);
         if (!get_callback(L, callback_id)) {
             lua_settop(L, sfix);
@@ -2155,6 +2159,8 @@ void run_mlist_to_hlist(pointer p, integer m_style, boolean penalties)
         cur_style = m_style;
         mlist_penalties = penalties;
         mlist_to_hlist();
+    } else {
+        vlink(temp_head) =  null; 
     }
 }
 
