@@ -1748,7 +1748,7 @@ ext_do_line_break(boolean d,
                 case dir_node: /* @<DIR: Adjust the dir stack for the |line_break| routine@>; */
                     if (dir_dir(cur_p) >= 0) {
                         line_break_dir = dir_dir(cur_p);
-                        push_dir_node(cur_p);
+                        push_dir_node(cur_p); /* adds to dir_ptr */
                     } else {
                         pop_dir_node();
                         if (dir_ptr != null)
@@ -2144,6 +2144,11 @@ if (do_last_line_fit) {
      (By introducing this subprocedure, we are able to keep |line_break|
      from getting extremely long.)
    */
+
+/* first thing |ext_post_line_break| does is reset |dir_ptr| */
+     flush_node_list(dir_ptr);
+     dir_ptr=null;
+   
 ext_post_line_break(d,
                     right_skip,
                     left_skip,
@@ -2172,8 +2177,4 @@ ext_post_line_break(d,
   /* /Break the paragraph at the chosen... */
   /* Clean up the memory by removing the break nodes; */
 clean_up_the_memory();
-  /*
-     flush_node_list(dir_ptr);
-     dir_ptr=null;
-   */
 }
