@@ -25,7 +25,7 @@
 #include "tokens.h"
 #undef name
 
-#define nDEBUG
+#define noDEBUG
 
 static const char _svn_version[] =
     "$Id$ $URL$";
@@ -719,6 +719,10 @@ halfword copy_node(const halfword p)
         }
         break;
     }
+#ifdef DEBUG
+    fprintf(stderr, "Alloc-ing %s node %d (copy of %d)\n",
+            get_node_name(type(r), subtype(r)), (int) r, (int) p);
+#endif
     return r;
 }
 
