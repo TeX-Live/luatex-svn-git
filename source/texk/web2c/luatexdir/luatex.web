@@ -253,7 +253,8 @@ known as `\eTeX'.
 @d luatex_revision=="0" { \.{\\luatexrevision} }
 @d luatex_version_string=='snapshot-0.39.0' {current \LuaTeX\ version}
 @d luatex_date_info==-extra_version_info { the compile date is negated }
-@d luatex_svnversion=='$Id$' { as proposed by Peter M\"unster }
+@d luatex_svnversion=='$Id$' 
+   {for long --version information, as proposed by Peter M\"unster}
 @#
 @d LuaTeX_banner=='This is LuaTeX, Version ',luatex_version_string,extra_version_info
    {printed when \LuaTeX\ starts}
@@ -26034,8 +26035,7 @@ end;
 procedure print_version_banner;
 begin
 wterm(banner);
-wterm(', build ');
-do_write_wterm(luatex_svnversion);
+write_svnversion(luatex_svnversion);
 end;
 
 

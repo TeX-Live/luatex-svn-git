@@ -23,8 +23,6 @@
 #ifndef LUATEXLIB
 #  define LUATEXLIB
 
-#  define SVN_REV "unknown"     /* temp hack */
-
 /* WEB2C macros and prototypes */
 #  if !defined(LUATEXCOERCE)
 #    ifdef luatex
@@ -162,8 +160,8 @@ extern void prompt_file_name(char *s, char *e);
 extern str_number make_name_string(void);
 extern void print_file_name(str_number, str_number, str_number);
 
-/* A hack to counter fixwrites */
-#  define do_write_wterm(a) fprintf(stdout, "%s",  a)
+/* luainit.c */
+extern void write_svnversion(char *a);
 
 /* pdftexlib function prototypes */
 

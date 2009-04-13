@@ -650,3 +650,21 @@ check_texconfig_init (void) {
         }
     }
 }
+
+void write_svnversion(char *v) 
+{       
+    char *a_head, *n;
+    char *a = strdup(v);
+    int l = strlen("$Id: luatex.web ");
+    if (a != NULL) {
+        a_head = a;
+	if (strlen(a)>l)
+	    a+=l;
+	n = a;
+	while (*n!='\0' && *n!=' ')
+	    n++;
+	*n = '\0';
+	fprintf(stdout, " luatex.web v%s",  a);
+	free (a_head);
+    }
+}
