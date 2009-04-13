@@ -713,6 +713,21 @@ void create_fontdictionary(fm_entry * fm, integer font_objnum,
 
 /**********************************************************************/
 
+static int has_ttf_outlines(fm_entry *fm) 
+{
+    FILE *f = fopen(fm->ff_name,"rb");
+    if (f!=NULL) {
+        int ch1 = getc(f);
+        int ch2 = getc(f);
+        int ch3 = getc(f);
+        int ch4 = getc(f);
+        fclose (f);
+	if (ch1=='O' && ch2=='T' && ch3=='T' && ch4=='O') 
+  	    return 0;
+	return 1;
+    }
+    return 0;
+}
 
 void do_pdf_font(integer font_objnum, internalfontnumber f)
 {
@@ -740,7 +755,11 @@ void do_pdf_font(integer font_objnum, internalfontnumber f)
 
         switch (font_format(f)) {
         case opentype_format:
-            set_opentype(fm);
+            if (has_ttf_outlines(fm)) {
+                set_truetype(fm);
+            } else {
+                set_opentype(fm);
+	    }
             break;
         case truetype_format:
             set_truetype(fm);
