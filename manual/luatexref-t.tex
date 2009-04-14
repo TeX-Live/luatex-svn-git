@@ -623,7 +623,7 @@ against that without bothering the user.
 
 If this new integer parameter is non|-|zero, then \LUATEX\ will not
 complain about \type{\par} commands encountered in contexts where
-that is normally prohibitited (most prominently in the arguments
+that is normally prohibited (most prominently in the arguments
 of non-long macros).
 
 \subsection{\tex{suppressifcsnameerror} (0.36)}
@@ -638,7 +638,7 @@ complain about non-expandable commands appearing in the middle of a
 tokens from the input until it encounters an \type{\endcsname}
 command. Use with care! This command is experimental: if the input
 expansion is unbalanced wrt. \type{\csname} \ldots \type{\endcsname}
-pairs, the \LUATEX\ process may hang indefinately.
+pairs, the \LUATEX\ process may hang indefinitely.
 
 
 \subsection{\tex{suppressoutererror} (0.36)}
@@ -649,7 +649,7 @@ pairs, the \LUATEX\ process may hang indefinately.
 
 If this new integer parameter is non|-|zero, then \LUATEX\ will not
 complain about \type{\outer} commands encountered in contexts where
-that is normally prohibitited.
+that is normally prohibited.
 
 The addition of this command coincides with a change in the
 \LUATEX\ engine: ever since the snapshot of 20060915, \type{\outer}
@@ -849,13 +849,13 @@ string field in its attributes table (\type{permissions}).
 
 The \lua{string} library has an extra function:
 \luatex{string.explode(s[,m])}. This function returns an array containing
-the string argument \type{s} split into substrings based on the value
+the string argument \type{s} split into sub-strings based on the value
 of the string argument \type{m}. The second argument is a string that
 is either empty (this splits the string into characters), a single
 character (this splits on each occurrence of that character, possibly
 introducing empty strings), or a single character followed by the plus
 sign \type{+} (this special version does not create empty
-substrings). The default value for \type{m} is \type{ +} (multiple
+sub-strings). The default value for \type{m} is \type{ +} (multiple
 spaces).
 
 Note: \type{m} is not hidden by surrounding braces (as it would be if
@@ -1026,7 +1026,7 @@ is two 'characters' (bytes), so \type{aä} totals three.
 (version 2.0.2).
 
 Note: the \type{.lua} support modules from \type{luasocket} are also
-preloaded inside the executable, there are no external file dependancies.
+preloaded inside the executable, there are no external file dependencies.
 \stopitemize
 
 
@@ -1561,7 +1561,7 @@ As before an optional first parameter of \type{'global'} indicates a
 global assignment.
 
 The first string is the parameter name minus the leading \quote{Umath},
-and the second string is the style name minus the traling \quote{style}.
+and the second string is the style name minus the trailing \quote{style}.
 
 Just to be complete, the values for the math parameter name are:
 
@@ -1622,7 +1622,7 @@ registers that keep track of building page lists.
 \NC contrib_head       \NC  the recent contributions \NC \NR
 \NC page_head          \NC  the page-so-far \NC \NR
 %\NC temp_head          \NC  \NC \NR
-\NC hold_head          \NC used for heldover items for next page\NC \NR
+\NC hold_head          \NC used for held-over items for next page\NC \NR
 \NC adjust_head        \NC head of the current \tex{adjust} list \NC \NR
 \NC pre_adjust_head    \NC head of the current \tex{adjust pre} list\NC \NR
 % \NC align_head         \NC  \NC \NR
@@ -1776,7 +1776,7 @@ and actual primitive (it must be returned by one of the
 \TEX82, or \type{\directlua}). If it is not,
 \type{tex.enableprimitives} does nothing and skips to the next pair.
 
-But if it is, then it will contruct a csname variable by concatenating the
+But if it is, then it will construct a csname variable by concatenating the
 \quote{prefix} and \quote{name}, unless the \quote{prefix} is already the actual
 prefix of \quote{name}. In the latter case, it will discard the \quote{prefix},
 and just use \quote{name}.
@@ -2361,7 +2361,7 @@ because special kernings with word boundaries are possible).
 node.unprotect_glyphs(<node> n)
 \stopfunctioncall
 
-Substracts 256 from all glyph node subtypes. This and the next
+Subtracts 256 from all glyph node subtypes. This and the next
 function are helpers to convert from \type{characters} to
 \type{glyphs} during node processing.
 
@@ -2374,7 +2374,7 @@ node.protect_glyphs(<node> n)
 Adds 256 to all glyph node subtypes in the node list starting at
 \type{n}, except that if the value is 1, it adds only 255. The special
 handling of 1 means that \type{characters} will become \type{glyphs}
-after substraction of 256.
+after subtraction of 256.
 
 \subsubsection{\luatex{node.last_node}}
 
@@ -2459,7 +2459,7 @@ The optional \type{target} can be one of three possibilities:
 
 Note: If several strings are given, and if the first of these strings
 is or might be one of the targets above, the \type{target} must be
-specified explicitely to prevent \LUA\ from interpreting the first
+specified explicitly to prevent \LUA\ from interpreting the first
 string as the target.
 
 \subsubsection{\luatex{texio.write_nl}}
@@ -3028,7 +3028,7 @@ Paths and pens (that are really just a special type of paths as far as
 is a table that represents a knot.
 
 \starttabulate[|lT|l|p|]
-\NC left_type	\NC string \NC when present: 'endpoint', but ususally absent \NC \NR
+\NC left_type	\NC string \NC when present: 'endpoint', but usually absent \NC \NR
 \NC right_type	\NC string \NC like \type{left_type}\NC \NR
 \NC x_coord		\NC number \NC X coordinate of this knot\NC \NR
 \NC y_coord		\NC number \NC Y coordinate of this knot\NC \NR
@@ -3053,7 +3053,7 @@ A color is an integer array with 0, 1, 3 or 4 values:
 \NC 4  \NC \CMYK        \NC four values in the range $(0,1)$, \quote {black} is $0,0,0,1$ \NC\NR
 \stoptabulate
 
-If the color model of the internal object was \type{unitialized}, then
+If the color model of the internal object was \type{uninitialized}, then
 it was initialized to the values representing \quote {black} in the colorspace
 \type{defaultcolormodel} that was in effect at the time of the \type{shipout}.
 
@@ -3386,7 +3386,7 @@ either one of the file discovery callbacks or the internal version of
 
 \sym{success}
 
-Return false when a fatal error occured (e.\,g.\ when the file cannot be
+Return false when a fatal error occurred (e.\,g.\ when the file cannot be
 found, after all).
 
 \sym{data}
@@ -3713,7 +3713,7 @@ function()
 \stopfunctioncall
 
 This callback replaces the code that prints \LUATEX's banner. Note that for
-succesful use, this callback has to be set in the lua initialization file,
+successful use, this callback has to be set in the lua initialization file,
 otherwise it will be seen only after the run has already started.
 
 \subsubsection{\luatex{stop_run}}
@@ -3838,7 +3838,7 @@ file as actual \LUA\ bytecode, so it can also be used to preload \LUA\ code.
 
 Note: The function must not contain any upvalues. Currently, functions
 containing upvalues can be stored (and their upvalues are set to
-\type{nil}), but this is an artefact of the current \LUA\
+\type{nil}), but this is an artifact of the current \LUA\
 implementation and thus subject to change.
 
 The associated function calls are
@@ -5373,7 +5373,7 @@ Clears the exception dictionary for this language.
 <string> n = lang.clean(<string> o)
 \stopfunctioncall
 
-Creates a hypenation key from the supplied hyphenation value. The
+Creates a hyphenation key from the supplied hyphenation value. The
 syntax of the argument string is explained in the next
 chapter,~\in{section}[patternsexceptions]. This function is useful if
 you want to do something else based on the words in a dictionary file,
@@ -5409,7 +5409,7 @@ lang.posthyphenchar(<language> l, <number> n)
 
 Gets or sets the \quote{post|-|break} hyphen character for implicit
 hyphenation in this language (initially null, decimal~0, indicating
-emptyness).
+emptiness).
 
 
 \startfunctioncall
@@ -5419,7 +5419,7 @@ lang.preexhyphenchar(<language> l, <number> n)
 
 Gets or sets the \quote{pre|-|break} hyphen character for explicit
 hyphenation in this language (initially null, decimal~0, indicating
-emptyness).
+emptiness).
 
 \startfunctioncall
 <number> n = lang.postexhyphenchar(<language> l)
@@ -5428,7 +5428,7 @@ lang.postexhyphenchar(<language> l, <number> n)
 
 Gets or sets the \quote{post|-|break} hyphen character for explicit
 hyphenation in this language (initially null, decimal~0, indicating
-emptyness).
+emptiness).
 
 \startfunctioncall
 <boolean> success = lang.hyphenate(<node> head)
@@ -5437,7 +5437,7 @@ emptyness).
 
 Inserts hyphenation points (discretionary nodes) in a node list. If
 \type{tail} is given as argument, processing stops on that node.
-Currently, \type{succes} is always true if \type{head} (and \type{tail}, if
+Currently, \type{success} is always true if \type{head} (and \type{tail}, if
 specified) are proper nodes, regardless of possible other errors.
 
 Hyphenation works only on \quote{characters}, a special subtype of all
@@ -6323,7 +6323,7 @@ place yet.
 
 The internal structures \LUATEX\ uses for the insertion of
 discretionaries in words is very different from the ones in \TEX82,
-and that means there are some noticable differences in handling as
+and that means there are some noticeable differences in handling as
 well.
 
 First and foremost, there is no \quote{compressed trie} involved in
