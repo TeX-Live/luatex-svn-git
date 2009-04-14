@@ -23978,7 +23978,7 @@ mmode+non_script: begin tail_append(new_glue(zero_glue));
 mmode+math_choice: if cur_chr=0 then append_choices else setup_math_style;
 
 @ @<Cases of |handle_right_brace|...@>=
-math_choice_group: if cur_chr=0 then build_choices;
+math_choice_group: build_choices;
 
 @ Here are two primives for explicit super- or subscript choice.
 
