@@ -136,11 +136,11 @@ There are three new primitives to test the version of \LUATEX:
 The official \LUATEX\ version is defined follows:
 
 \startitemize
-\item The major version is the integer result of \tex{luatexversion} divided by 100. 
- The primitive is and \quote{internal variable}, so you may need to prefix it 
+\item The major version is the integer result of \tex{luatexversion} divided by 100.
+ The primitive is and \quote{internal variable}, so you may need to prefix it
   use with \type{\the} depending on the context.
 \item The minor version is the two-digit result of \tex{luatexversion} modulo 100.
-\item The revision is the given by \tex{luatexrevision}. This primitive expands to a 
+\item The revision is the given by \tex{luatexrevision}. This primitive expands to a
   positive integer.
 \item The full version number consists of the major version,
   minor version and revision, separated by dots.
@@ -268,11 +268,11 @@ and can be used after \tex{the} etc.\ just like the normal
 Conceptually, an attribute is either \quote{set} or
 \quote{unset}. Unset attributes have a special negative value to
 indicate that they are unset, that value is the lowest legal value:
-\type{-"7FFFFFFF} in hexadecimal, a.k.a. $-2147483647$ in decimal.  
+\type{-"7FFFFFFF} in hexadecimal, a.k.a. $-2147483647$ in decimal.
 It follows that the value \type{-"7FFFFFFF} cannot be used as
 a legal attribute value, but you {\it can\/} assign \type{-"7FFFFFFF} to
 \quote{unset} an attribute. All attributes start out in this
-\quote{unset} state in \INITEX (prior to 0.37, there could not be 
+\quote{unset} state in \INITEX (prior to 0.37, there could not be
 valid negative attribute values, and the \quote{unset} value was $-1$).
 
 Attributes can be used as extra counter values, but their usefulness
@@ -697,7 +697,7 @@ interpreter:
 \item if a \type{--luaonly} option is given on the commandline, or
 \item if the executable is named \type{texlua} (or \type{luatexlua}), or
 \item if the only non|-|option argument (file) on the commandline has the extension
-	\type{lua} or \type{luc}.
+        \type{lua} or \type{luc}.
 \stopitemize
 
 In this mode, it will set \LUA's \type{arg[0]} to the found script
@@ -781,8 +781,8 @@ about the \LUATEX-specific \LUA\ extension tables.
 
 Everything you do in the \LUA\ initialization script will remain
 visible during the rest of the run, with the exception of the
-aforementioned \luatex{tex}, \luatex{token}, \luatex{node} and 
-\luatex{pdf} tables: those will be initialized 
+aforementioned \luatex{tex}, \luatex{token}, \luatex{node} and
+\luatex{pdf} tables: those will be initialized
 to their documented state after the execution of the script. You
 should not store anything in variables or within tables with these
 four global names, as they will be overwritten completely.
@@ -822,8 +822,8 @@ In keeping with the other \TEX-like programs in \TEXLIVE, the two \LUA\ function
 and \type{os.spawn} that are explained below) take the value of \type{shell_escape}
 and/or \type{shell_escape_commands} in account. Whenever \LUATEX\ is run with the
 assumed intention to typeset a document (and by that I mean that it is called as
-\type{luatex}, as opposed to \type{texlua}, and that the commandline option 
-\type{--luaonly} was not given), it will only run the four functions above if the 
+\type{luatex}, as opposed to \type{texlua}, and that the commandline option
+\type{--luaonly} was not given), it will only run the four functions above if the
 matching texmf.cnf variable(s) or their \type{texconfig} (see~\in{section}[texconfig])
 counterparts allow execution of the requested system command. In \quote{script
 interpreter} runs of \LUATEX, these settings have no effect, and all four functions
@@ -1427,7 +1427,7 @@ sub|-|tables of the \luatex{tex} table:
 
 \startcolumns[n=3]
 \starttyping
-tex.attribute 
+tex.attribute
 tex.count
 tex.dimen
 tex.skip
@@ -1499,7 +1499,7 @@ The box size registers accept \LUA\ numbers (in scaled points)
 or strings (with included dimension). The result is always a number
 in scaled points.
 
-As an alternative to array addressing, there are also three sets of 
+As an alternative to array addressing, there are also three sets of
 accessor functions defined (like above):
 
 \startfunctioncall
@@ -1789,7 +1789,7 @@ reason the csname is already defined, it does nothing and tries the
 next pair.
 
 An example:
-	
+
 \starttyping
   tex.enableprimitives('LuaTeX', {'formatname'})
 \stoptyping
@@ -2392,7 +2392,7 @@ node.write(<node> n)
 \stopfunctioncall
 
 This is an experimental function that will append a node list to
-\TEX's \quote {current list} (the node list is not deep-copied 
+\TEX's \quote {current list} (the node list is not deep-copied
 any more since version 0.38).  There is no error checking yet!
 
 \subsection{Attribute handling}
@@ -3028,14 +3028,14 @@ Paths and pens (that are really just a special type of paths as far as
 is a table that represents a knot.
 
 \starttabulate[|lT|l|p|]
-\NC left_type	\NC string \NC when present: 'endpoint', but usually absent \NC \NR
-\NC right_type	\NC string \NC like \type{left_type}\NC \NR
-\NC x_coord		\NC number \NC X coordinate of this knot\NC \NR
-\NC y_coord		\NC number \NC Y coordinate of this knot\NC \NR
-\NC left_x		\NC number \NC X coordinate of the precontrol point of this knot\NC \NR
-\NC left_y		\NC number \NC Y coordinate of the precontrol point of this knot\NC \NR
-\NC right_x		\NC number \NC X coordinate of the postcontrol point of this knot\NC \NR
-\NC right_y		\NC number \NC Y coordinate of the postcontrol point of this knot\NC \NR
+\NC left_type   \NC string \NC when present: 'endpoint', but usually absent \NC \NR
+\NC right_type  \NC string \NC like \type{left_type}\NC \NR
+\NC x_coord             \NC number \NC X coordinate of this knot\NC \NR
+\NC y_coord             \NC number \NC Y coordinate of this knot\NC \NR
+\NC left_x              \NC number \NC X coordinate of the precontrol point of this knot\NC \NR
+\NC left_y              \NC number \NC Y coordinate of the precontrol point of this knot\NC \NR
+\NC right_x             \NC number \NC X coordinate of the postcontrol point of this knot\NC \NR
+\NC right_y             \NC number \NC Y coordinate of the postcontrol point of this knot\NC \NR
 \stoptabulate
 
 There is one special case: pens that are (possibly transformed)
@@ -3130,7 +3130,7 @@ case, \type{error} contains an error message, otherwise it is
 it does not matter if you redefine a function accidentally.
 
 Callback assignments are always global. You can use the special value
-\type {nil} instead of a function for clearing the callback. 
+\type {nil} instead of a function for clearing the callback.
 
 For some minor speed gain, you can assign the boolean \type{false} to
 the non-file related callbacks, doing so will prevent \LUATEX\ from
@@ -3467,7 +3467,7 @@ that list will be pushed to the input stack at a completely new token
 list level, with its token type set to \quote{inserted}. In either case,
 the returned token(s) will not be fed back into the callback function.
 
-Setting this  callback to \type{false} has no effect (because otherwise 
+Setting this  callback to \type{false} has no effect (because otherwise
 nothing would happen, forever).
 
 \subsection{Node list processing callbacks}
@@ -3568,7 +3568,7 @@ apply the internal linebreak algorithm on the list that starts at
 \type{<head>}.
 
 Setting this  callback to \type{false} is possible, but dangerous,
-because it is possible you will end up in an unfixable 
+because it is possible you will end up in an unfixable
 \quote{deadcycles loop}.
 
 \subsubsection{\luatex{post_linebreak_filter}}
@@ -3643,7 +3643,7 @@ end
 No return values. This callback has to insert discretionary nodes in
 the node list it receives.
 
-Setting this  callback to \type{false} will prevent the internal 
+Setting this  callback to \type{false} will prevent the internal
 discretionary insertion pass.
 
 \subsubsection{\luatex{ligaturing}}
@@ -3670,7 +3670,7 @@ second callback argument can often be ignored. It is provided for
 orthogonality, and because it can sometimes be handy when special
 processing has to take place.
 
-Setting this  callback to \type{false} will prevent the internal 
+Setting this  callback to \type{false} will prevent the internal
 ligature creation pass.
 
 \subsubsection{\luatex{kerning}}
@@ -3701,7 +3701,7 @@ horizontal list, the string argument is either \quote{text} or \quote{display}
 depending on the current math mode, the boolean argument is \type{true} if penalties
 have to be inserted in this list, \type{false} otherwise.
 
-Setting this  callback to \type{false} is bad, it will almost 
+Setting this  callback to \type{false} is bad, it will almost
 certainly result in an endless loop.
 
 \subsection{Information reporting callbacks}
@@ -4183,20 +4183,20 @@ the executable after loading and executing the startup file.
                                            and enables interpretation of the following numeric key--value pairs.
                                           (only ever unset this if you implement {\it all\/} file
                                           find callbacks!)\NC \NR
-\NC shell_escape    \NC    string\NC Use \type{'y'} or \type{'t'} or \type{'1'} to enable \type{\write18} unconditionally, 
+\NC shell_escape    \NC    string\NC Use \type{'y'} or \type{'t'} or \type{'1'} to enable \type{\write18} unconditionally,
                                      \type{'p'} to enable the commands that are listed in \type{shell_escape_commands} (new in 0.37)\NC\NR
 \NC shell_escape_commands \NC string\NC Comma-separated list of command names that may be executed by \type{\write18} even
                                         if \type{shell_escape} is set to \type{'p'}. Do {\it not\/} use spaces around commas,
-                                        separate any required command arguments by using a space, and use the ASCII double quote 
+                                        separate any required command arguments by using a space, and use the ASCII double quote
                                         (\type{"}) for any needed argument or path quoting  (new in 0.37)\NC\NR
 \NC string_vacancies \NC   number\NC  75000\NC cf.\ web2c docs \NC \NR
-\NC pool_free \NC 	        number\NC  5000\NC cf.\ web2c docs \NC \NR
+\NC pool_free \NC               number\NC  5000\NC cf.\ web2c docs \NC \NR
 \NC max_strings \NC        number\NC  15000\NC cf.\ web2c docs \NC \NR
 \NC strings_free \NC       number\NC  100\NC cf.\ web2c docs \NC \NR
-\NC nest_size \NC 	        number\NC  50\NC cf.\ web2c docs \NC \NR
+\NC nest_size \NC               number\NC  50\NC cf.\ web2c docs \NC \NR
 \NC max_in_open \NC        number\NC  15\NC cf.\ web2c docs \NC \NR
 \NC param_size \NC         number\NC  60\NC cf.\ web2c docs \NC \NR
-\NC save_size \NC 	        number\NC  4000\NC cf.\ web2c docs \NC \NR
+\NC save_size \NC               number\NC  4000\NC cf.\ web2c docs \NC \NR
 \NC stack_size \NC         number\NC  300\NC cf.\ web2c docs \NC \NR
 \NC dvi_buf_size \NC       number\NC  16384\NC cf.\ web2c docs \NC \NR
 \NC error_line \NC         number\NC  79\NC cf.\ web2c docs \NC \NR
@@ -4209,7 +4209,7 @@ the executable after loading and executing the startup file.
 \NC pk_dpi \NC             number\NC  72\NC cf.\ web2c docs \NC \NR
 \NC trace_file_names \NC boolean \NC true \NC \type{false} disables \TEX's normal file open|-|close
                                               feedback (the assumption is that callbacks will take care of
-	                                      that) \NC \NR
+                                              that) \NC \NR
 \NC file_line_error  \NC boolean \NC false \NC do \type{file:line} style error messages\NC \NR
 \NC halt_on_error    \NC boolean \NC false \NC abort run on the first encountered error\NC \NR
 \NC formatname       \NC string \NC \NC if no format name was given
@@ -4939,7 +4939,7 @@ The scripts table within features has:
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
-\NC script	               \NC string          \NC \NC\NR
+\NC script                     \NC string          \NC \NC\NR
 \NC langs                  \NC array of strings \NC \NC\NR
 \stoptabulate
 
@@ -5464,13 +5464,13 @@ style that will be used for a formula in an expandable fashion
 (while the math list is still being read).  To make this possible,
 \LUATEX\ adds the new primitive: \type{\mathstyle}. This is a
 \quote{convert command} like e.g. \type{\romannumeral}: its value can
-only be read, not set. 
+only be read, not set.
 
 \subsection{\tex{mathstyle}}
 
 The returned value is between 0 and 7 (in math mode), or $-1$
 (all other modes). For easy testing, the eight math style commands
-have been altered so that the can be used as numeric values, so you 
+have been altered so that the can be used as numeric values, so you
 can write code like this:
 
 \starttyping
@@ -5483,10 +5483,10 @@ can write code like this:
 
 \subsection{\tex{Ustack}}
 
-There are a few math commands in \TEX\ where the style that will be used 
+There are a few math commands in \TEX\ where the style that will be used
 is not known straight from the start. These commands (\tex{over},
 \tex{atop}, \tex{overwithdelims}, \tex{atopwithdelims}) would
-therefore normally return wrong values for \type{\mathstyle}. To 
+therefore normally return wrong values for \type{\mathstyle}. To
 fix this, \LUATEX\ introduces a special prefix command:
 \type{\Ustack}:
 
@@ -5495,7 +5495,7 @@ $\Ustack {a \over b}$
 \stoptyping
 
 The \type{\Ustack} command will scan the next brace and start a new
-math group with the correct (numerator) math style. 
+math group with the correct (numerator) math style.
 
 \section{Unicode math characters}
 
@@ -5952,9 +5952,9 @@ The placement of the degree is controlled by the math parameters
 
 \section{Math kerning in super- and subscripts}
 
-The character fields in a lua-loaded OpenType math font can have a \quote{mathkern} table.  
+The character fields in a lua-loaded OpenType math font can have a \quote{mathkern} table.
 The format of this table is the same as the \quote{mathkern} table that is returned by
-the \type{fontloader} library, except that all height and kern values have to 
+the \type{fontloader} library, except that all height and kern values have to
 be specified in actual scaled points.
 
 When a super- or subscript has to be placed next to a math item, \LUATEX\ checks
@@ -5983,7 +5983,7 @@ This works as follows:
        for a superscript placement the bottom_left corner)
     \item add the found values together to get a preliminary result.
     \stopitemize
-\item The horizontal kern to be applied is the smallest of the two results from 
+\item The horizontal kern to be applied is the smallest of the two results from
     previous step.
 \stopitemize
 
@@ -5997,7 +5997,7 @@ pairs at all).
 The new primitives \tex{Uunderdelimiter} and \tex{Uoverdelimiter}
 (both from 0.35) allow the placement of a subscript or superscript on
 an automatically extensible item and \tex{Udelimiterunder} and
-\tex{Udelimiterover} (both from 0.37) allow the placement of 
+\tex{Udelimiterover} (both from 0.37) allow the placement of
 an automatically extensible item as a subscript or superscript on a
 nucleus.
 
@@ -6017,7 +6017,7 @@ as \TFM\ \quote{extensible recipes}.
 
 \subsection {Verbose versions of single-character math commands}
 
-\LUATEX\ defines six new primitives that have the same function as 
+\LUATEX\ defines six new primitives that have the same function as
 \type{^}, \type{_}, \type{$}, and \type{$$}. %$
 
 \starttabulate[|l|l|l|l|]
@@ -6662,10 +6662,10 @@ The following top|-|level keys can be present inside a character hash:
 \NC name       \NC no          \NC no           \NC no       \NC string         \NC the character (\POSTSCRIPT) name \NC\NR
 \NC index      \NC no          \NC no           \NC yes      \NC number         \NC the (\OPENTYPE\ or \TRUETYPE) font glyph index \NC\NR
 \NC used       \NC no          \NC yes          \NC yes      \NC boolean        \NC typeset already (default: false)? \NC\NR
-\NC mathkern   \NC no          \NC no           \NC yes      \NC table          \NC math cut-in specifications \NC\NR  
+\NC mathkern   \NC no          \NC no           \NC yes      \NC table          \NC math cut-in specifications \NC\NR
 \stoptabulate
 
-The values of \type{top_accent}, \type{bot_accent} and \type{mathkern} are used only for math 
+The values of \type{top_accent}, \type{bot_accent} and \type{mathkern} are used only for math
 accent and superscript placement, see the \at[math]{math chapter} in this manual for details.
 
 The values of \type{left_protruding} and \type{right_protruding} are used only when
