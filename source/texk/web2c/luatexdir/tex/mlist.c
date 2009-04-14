@@ -2125,7 +2125,7 @@ integer cur_size;               /* size code corresponding to |cur_style|  */
 scaled cur_mu;                  /* the math unit width corresponding to |cur_size| */
 boolean mlist_penalties;        /* should |mlist_to_hlist| insert penalties? */
 
-void run_mlist_to_hlist(pointer p, integer m_style, boolean penalties)
+void run_mlist_to_hlist(pointer p, integer mstyle, boolean penalties)
 {
     int callback_id;
     int a, sfix;
@@ -2143,7 +2143,7 @@ void run_mlist_to_hlist(pointer p, integer m_style, boolean penalties)
             return;
         }
         nodelist_to_lua(L, p);  /* arg 1 */
-        lua_pushstring(L, math_style_names[m_style]);   /* arg 2 */
+        lua_pushstring(L, math_style_names[mstyle]);   /* arg 2 */
         lua_pushboolean(L, penalties);  /* arg 3 */
         if (lua_pcall(L, 3, 1, 0) != 0) {       /* 3 args, 1 result */
             fprintf(stdout, "error: %s\n", lua_tostring(L, -1));
@@ -2156,7 +2156,7 @@ void run_mlist_to_hlist(pointer p, integer m_style, boolean penalties)
         vlink(temp_head) = a;
     } else if (callback_id==0) {
         cur_mlist = p;
-        cur_style = m_style;
+        cur_style = mstyle;
         mlist_penalties = penalties;
         mlist_to_hlist();
     } else {
@@ -3532,7 +3532,7 @@ void initialize_math_spacing(void)
 
 #define both_types(A,B) ((A)*16+(B))
 
-pointer math_spacing_glue(int l_type, int r_type, int m_style)
+pointer math_spacing_glue(int l_type, int r_type, int mstyle)
 {
     int x = -1;
     pointer z = null;
@@ -3542,70 +3542,70 @@ pointer math_spacing_glue(int l_type, int r_type, int m_style)
         r_type = op_noad_type_normal;
     switch (both_types(l_type, r_type)) {
     /* *INDENT-OFF* */
-    case both_types(ord_noad_type,  ord_noad_type  ):  x = get_math_param(math_param_ord_ord_spacing,m_style); break;
-    case both_types(ord_noad_type,  op_noad_type_normal   ):  x = get_math_param(math_param_ord_op_spacing,m_style); break;
-    case both_types(ord_noad_type,  bin_noad_type  ):  x = get_math_param(math_param_ord_bin_spacing,m_style); break;
-    case both_types(ord_noad_type,  rel_noad_type  ):  x = get_math_param(math_param_ord_rel_spacing,m_style); break;
-    case both_types(ord_noad_type,  open_noad_type ):  x = get_math_param(math_param_ord_open_spacing,m_style); break;
-    case both_types(ord_noad_type,  close_noad_type):  x = get_math_param(math_param_ord_close_spacing,m_style); break;
-    case both_types(ord_noad_type,  punct_noad_type):  x = get_math_param(math_param_ord_punct_spacing,m_style); break;
-    case both_types(ord_noad_type,  inner_noad_type):  x = get_math_param(math_param_ord_inner_spacing,m_style); break;
-    case both_types(op_noad_type_normal, ord_noad_type  ):  x = get_math_param(math_param_op_ord_spacing,m_style); break;
-    case both_types(op_noad_type_normal, op_noad_type_normal   ):  x = get_math_param(math_param_op_op_spacing,m_style); break;
-      /*case both_types(op_noad_type_normal,   bin_noad_type  ):  x = get_math_param(math_param_op_bin_spacing,m_style); break;*/
-    case both_types(op_noad_type_normal,   rel_noad_type  ):  x = get_math_param(math_param_op_rel_spacing,m_style); break;
-    case both_types(op_noad_type_normal,   open_noad_type ):  x = get_math_param(math_param_op_open_spacing,m_style); break;
-    case both_types(op_noad_type_normal,   close_noad_type):  x = get_math_param(math_param_op_close_spacing,m_style); break;
-    case both_types(op_noad_type_normal,   punct_noad_type):  x = get_math_param(math_param_op_punct_spacing,m_style); break;
-    case both_types(op_noad_type_normal,   inner_noad_type):  x = get_math_param(math_param_op_inner_spacing,m_style); break;
-    case both_types(bin_noad_type,  ord_noad_type  ):  x = get_math_param(math_param_bin_ord_spacing,m_style); break;
-    case both_types(bin_noad_type,  op_noad_type_normal   ):  x = get_math_param(math_param_bin_op_spacing,m_style); break;
-      /*case both_types(bin_noad_type,  bin_noad_type  ):  x = get_math_param(math_param_bin_bin_spacing,m_style); break;*/
-      /*case both_types(bin_noad_type,  rel_noad_type  ):  x = get_math_param(math_param_bin_rel_spacing,m_style); break;*/
-    case both_types(bin_noad_type,  open_noad_type ):  x = get_math_param(math_param_bin_open_spacing,m_style); break;
-      /*case both_types(bin_noad_type,  close_noad_type):  x = get_math_param(math_param_bin_close_spacing,m_style); break;*/
-      /*case both_types(bin_noad_type,  punct_noad_type):  x = get_math_param(math_param_bin_punct_spacing,m_style); break;*/
-    case both_types(bin_noad_type,  inner_noad_type):  x = get_math_param(math_param_bin_inner_spacing,m_style); break;
-    case both_types(rel_noad_type,  ord_noad_type  ):  x = get_math_param(math_param_rel_ord_spacing,m_style); break;
-    case both_types(rel_noad_type,  op_noad_type_normal   ):  x = get_math_param(math_param_rel_op_spacing,m_style); break;
-      /*case both_types(rel_noad_type,  bin_noad_type  ):  x = get_math_param(math_param_rel_bin_spacing,m_style); break;*/
-    case both_types(rel_noad_type,  rel_noad_type  ):  x = get_math_param(math_param_rel_rel_spacing,m_style); break;
-    case both_types(rel_noad_type,  open_noad_type ):  x = get_math_param(math_param_rel_open_spacing,m_style); break;
-    case both_types(rel_noad_type,  close_noad_type):  x = get_math_param(math_param_rel_close_spacing,m_style); break;
-    case both_types(rel_noad_type,  punct_noad_type):  x = get_math_param(math_param_rel_punct_spacing,m_style); break;
-    case both_types(rel_noad_type,  inner_noad_type):  x = get_math_param(math_param_rel_inner_spacing,m_style); break;
-    case both_types(open_noad_type, ord_noad_type  ):  x = get_math_param(math_param_open_ord_spacing,m_style); break;
-    case both_types(open_noad_type, op_noad_type_normal   ):  x = get_math_param(math_param_open_op_spacing,m_style); break;
-      /*case both_types(open_noad_type, bin_noad_type  ):  x = get_math_param(math_param_open_bin_spacing,m_style); break;*/
-    case both_types(open_noad_type, rel_noad_type  ):  x = get_math_param(math_param_open_rel_spacing,m_style); break;
-    case both_types(open_noad_type, open_noad_type ):  x = get_math_param(math_param_open_open_spacing,m_style); break;
-    case both_types(open_noad_type, close_noad_type):  x = get_math_param(math_param_open_close_spacing,m_style); break;
-    case both_types(open_noad_type, punct_noad_type):  x = get_math_param(math_param_open_punct_spacing,m_style); break;
-    case both_types(open_noad_type, inner_noad_type):  x = get_math_param(math_param_open_inner_spacing,m_style); break;
-    case both_types(close_noad_type,ord_noad_type  ):  x = get_math_param(math_param_close_ord_spacing,m_style); break;
-    case both_types(close_noad_type,op_noad_type_normal   ):  x = get_math_param(math_param_close_op_spacing,m_style); break;
-    case both_types(close_noad_type,bin_noad_type  ):  x = get_math_param(math_param_close_bin_spacing,m_style); break;
-    case both_types(close_noad_type,rel_noad_type  ):  x = get_math_param(math_param_close_rel_spacing,m_style); break;
-    case both_types(close_noad_type,open_noad_type ):  x = get_math_param(math_param_close_open_spacing,m_style); break;
-    case both_types(close_noad_type,close_noad_type):  x = get_math_param(math_param_close_close_spacing,m_style); break;
-    case both_types(close_noad_type,punct_noad_type):  x = get_math_param(math_param_close_punct_spacing,m_style); break;
-    case both_types(close_noad_type,inner_noad_type):  x = get_math_param(math_param_close_inner_spacing,m_style); break;
-    case both_types(punct_noad_type,ord_noad_type  ):  x = get_math_param(math_param_punct_ord_spacing,m_style); break;
-    case both_types(punct_noad_type,op_noad_type_normal   ):  x = get_math_param(math_param_punct_op_spacing,m_style); break;
-      /*case both_types(punct_noad_type,bin_noad_type  ):  x = get_math_param(math_param_punct_bin_spacing,m_style); break;*/
-    case both_types(punct_noad_type,rel_noad_type  ):  x = get_math_param(math_param_punct_rel_spacing,m_style); break;
-    case both_types(punct_noad_type,open_noad_type ):  x = get_math_param(math_param_punct_open_spacing,m_style); break;
-    case both_types(punct_noad_type,close_noad_type):  x = get_math_param(math_param_punct_close_spacing,m_style); break;
-    case both_types(punct_noad_type,punct_noad_type):  x = get_math_param(math_param_punct_punct_spacing,m_style); break;
-    case both_types(punct_noad_type,inner_noad_type):  x = get_math_param(math_param_punct_inner_spacing,m_style); break;
-    case both_types(inner_noad_type,ord_noad_type  ):  x = get_math_param(math_param_inner_ord_spacing,m_style); break;
-    case both_types(inner_noad_type,op_noad_type_normal   ):  x = get_math_param(math_param_inner_op_spacing,m_style); break;
-    case both_types(inner_noad_type,bin_noad_type  ):  x = get_math_param(math_param_inner_bin_spacing,m_style); break;
-    case both_types(inner_noad_type,rel_noad_type  ):  x = get_math_param(math_param_inner_rel_spacing,m_style); break;
-    case both_types(inner_noad_type,open_noad_type ):  x = get_math_param(math_param_inner_open_spacing,m_style); break;
-    case both_types(inner_noad_type,close_noad_type):  x = get_math_param(math_param_inner_close_spacing,m_style); break;
-    case both_types(inner_noad_type,punct_noad_type):  x = get_math_param(math_param_inner_punct_spacing,m_style); break;
-    case both_types(inner_noad_type,inner_noad_type):  x = get_math_param(math_param_inner_inner_spacing,m_style); break;
+    case both_types(ord_noad_type,  ord_noad_type  ):  x = get_math_param(math_param_ord_ord_spacing,mstyle); break;
+    case both_types(ord_noad_type,  op_noad_type_normal   ):  x = get_math_param(math_param_ord_op_spacing,mstyle); break;
+    case both_types(ord_noad_type,  bin_noad_type  ):  x = get_math_param(math_param_ord_bin_spacing,mstyle); break;
+    case both_types(ord_noad_type,  rel_noad_type  ):  x = get_math_param(math_param_ord_rel_spacing,mstyle); break;
+    case both_types(ord_noad_type,  open_noad_type ):  x = get_math_param(math_param_ord_open_spacing,mstyle); break;
+    case both_types(ord_noad_type,  close_noad_type):  x = get_math_param(math_param_ord_close_spacing,mstyle); break;
+    case both_types(ord_noad_type,  punct_noad_type):  x = get_math_param(math_param_ord_punct_spacing,mstyle); break;
+    case both_types(ord_noad_type,  inner_noad_type):  x = get_math_param(math_param_ord_inner_spacing,mstyle); break;
+    case both_types(op_noad_type_normal, ord_noad_type  ):  x = get_math_param(math_param_op_ord_spacing,mstyle); break;
+    case both_types(op_noad_type_normal, op_noad_type_normal   ):  x = get_math_param(math_param_op_op_spacing,mstyle); break;
+      /*case both_types(op_noad_type_normal,   bin_noad_type  ):  x = get_math_param(math_param_op_bin_spacing,mstyle); break;*/
+    case both_types(op_noad_type_normal,   rel_noad_type  ):  x = get_math_param(math_param_op_rel_spacing,mstyle); break;
+    case both_types(op_noad_type_normal,   open_noad_type ):  x = get_math_param(math_param_op_open_spacing,mstyle); break;
+    case both_types(op_noad_type_normal,   close_noad_type):  x = get_math_param(math_param_op_close_spacing,mstyle); break;
+    case both_types(op_noad_type_normal,   punct_noad_type):  x = get_math_param(math_param_op_punct_spacing,mstyle); break;
+    case both_types(op_noad_type_normal,   inner_noad_type):  x = get_math_param(math_param_op_inner_spacing,mstyle); break;
+    case both_types(bin_noad_type,  ord_noad_type  ):  x = get_math_param(math_param_bin_ord_spacing,mstyle); break;
+    case both_types(bin_noad_type,  op_noad_type_normal   ):  x = get_math_param(math_param_bin_op_spacing,mstyle); break;
+      /*case both_types(bin_noad_type,  bin_noad_type  ):  x = get_math_param(math_param_bin_bin_spacing,mstyle); break;*/
+      /*case both_types(bin_noad_type,  rel_noad_type  ):  x = get_math_param(math_param_bin_rel_spacing,mstyle); break;*/
+    case both_types(bin_noad_type,  open_noad_type ):  x = get_math_param(math_param_bin_open_spacing,mstyle); break;
+      /*case both_types(bin_noad_type,  close_noad_type):  x = get_math_param(math_param_bin_close_spacing,mstyle); break;*/
+      /*case both_types(bin_noad_type,  punct_noad_type):  x = get_math_param(math_param_bin_punct_spacing,mstyle); break;*/
+    case both_types(bin_noad_type,  inner_noad_type):  x = get_math_param(math_param_bin_inner_spacing,mstyle); break;
+    case both_types(rel_noad_type,  ord_noad_type  ):  x = get_math_param(math_param_rel_ord_spacing,mstyle); break;
+    case both_types(rel_noad_type,  op_noad_type_normal   ):  x = get_math_param(math_param_rel_op_spacing,mstyle); break;
+      /*case both_types(rel_noad_type,  bin_noad_type  ):  x = get_math_param(math_param_rel_bin_spacing,mstyle); break;*/
+    case both_types(rel_noad_type,  rel_noad_type  ):  x = get_math_param(math_param_rel_rel_spacing,mstyle); break;
+    case both_types(rel_noad_type,  open_noad_type ):  x = get_math_param(math_param_rel_open_spacing,mstyle); break;
+    case both_types(rel_noad_type,  close_noad_type):  x = get_math_param(math_param_rel_close_spacing,mstyle); break;
+    case both_types(rel_noad_type,  punct_noad_type):  x = get_math_param(math_param_rel_punct_spacing,mstyle); break;
+    case both_types(rel_noad_type,  inner_noad_type):  x = get_math_param(math_param_rel_inner_spacing,mstyle); break;
+    case both_types(open_noad_type, ord_noad_type  ):  x = get_math_param(math_param_open_ord_spacing,mstyle); break;
+    case both_types(open_noad_type, op_noad_type_normal   ):  x = get_math_param(math_param_open_op_spacing,mstyle); break;
+      /*case both_types(open_noad_type, bin_noad_type  ):  x = get_math_param(math_param_open_bin_spacing,mstyle); break;*/
+    case both_types(open_noad_type, rel_noad_type  ):  x = get_math_param(math_param_open_rel_spacing,mstyle); break;
+    case both_types(open_noad_type, open_noad_type ):  x = get_math_param(math_param_open_open_spacing,mstyle); break;
+    case both_types(open_noad_type, close_noad_type):  x = get_math_param(math_param_open_close_spacing,mstyle); break;
+    case both_types(open_noad_type, punct_noad_type):  x = get_math_param(math_param_open_punct_spacing,mstyle); break;
+    case both_types(open_noad_type, inner_noad_type):  x = get_math_param(math_param_open_inner_spacing,mstyle); break;
+    case both_types(close_noad_type,ord_noad_type  ):  x = get_math_param(math_param_close_ord_spacing,mstyle); break;
+    case both_types(close_noad_type,op_noad_type_normal   ):  x = get_math_param(math_param_close_op_spacing,mstyle); break;
+    case both_types(close_noad_type,bin_noad_type  ):  x = get_math_param(math_param_close_bin_spacing,mstyle); break;
+    case both_types(close_noad_type,rel_noad_type  ):  x = get_math_param(math_param_close_rel_spacing,mstyle); break;
+    case both_types(close_noad_type,open_noad_type ):  x = get_math_param(math_param_close_open_spacing,mstyle); break;
+    case both_types(close_noad_type,close_noad_type):  x = get_math_param(math_param_close_close_spacing,mstyle); break;
+    case both_types(close_noad_type,punct_noad_type):  x = get_math_param(math_param_close_punct_spacing,mstyle); break;
+    case both_types(close_noad_type,inner_noad_type):  x = get_math_param(math_param_close_inner_spacing,mstyle); break;
+    case both_types(punct_noad_type,ord_noad_type  ):  x = get_math_param(math_param_punct_ord_spacing,mstyle); break;
+    case both_types(punct_noad_type,op_noad_type_normal   ):  x = get_math_param(math_param_punct_op_spacing,mstyle); break;
+      /*case both_types(punct_noad_type,bin_noad_type  ):  x = get_math_param(math_param_punct_bin_spacing,mstyle); break;*/
+    case both_types(punct_noad_type,rel_noad_type  ):  x = get_math_param(math_param_punct_rel_spacing,mstyle); break;
+    case both_types(punct_noad_type,open_noad_type ):  x = get_math_param(math_param_punct_open_spacing,mstyle); break;
+    case both_types(punct_noad_type,close_noad_type):  x = get_math_param(math_param_punct_close_spacing,mstyle); break;
+    case both_types(punct_noad_type,punct_noad_type):  x = get_math_param(math_param_punct_punct_spacing,mstyle); break;
+    case both_types(punct_noad_type,inner_noad_type):  x = get_math_param(math_param_punct_inner_spacing,mstyle); break;
+    case both_types(inner_noad_type,ord_noad_type  ):  x = get_math_param(math_param_inner_ord_spacing,mstyle); break;
+    case both_types(inner_noad_type,op_noad_type_normal   ):  x = get_math_param(math_param_inner_op_spacing,mstyle); break;
+    case both_types(inner_noad_type,bin_noad_type  ):  x = get_math_param(math_param_inner_bin_spacing,mstyle); break;
+    case both_types(inner_noad_type,rel_noad_type  ):  x = get_math_param(math_param_inner_rel_spacing,mstyle); break;
+    case both_types(inner_noad_type,open_noad_type ):  x = get_math_param(math_param_inner_open_spacing,mstyle); break;
+    case both_types(inner_noad_type,close_noad_type):  x = get_math_param(math_param_inner_close_spacing,mstyle); break;
+    case both_types(inner_noad_type,punct_noad_type):  x = get_math_param(math_param_inner_punct_spacing,mstyle); break;
+    case both_types(inner_noad_type,inner_noad_type):  x = get_math_param(math_param_inner_inner_spacing,mstyle); break;
     /* *INDENT-ON* */
     }
     if (x < 0) {

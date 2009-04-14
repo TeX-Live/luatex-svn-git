@@ -121,8 +121,12 @@ extern const char *math_style_names[];
 #  define sup_style(A) 2*((A)/4)+script_style+((A)%2)   /* smaller */
 #  define num_style(A) (A)+2-2*((A)/6)  /* smaller unless already script-script */
 #  define denom_style(A) 2*((A)/2)+cramped+2-2*((A)/6)  /* smaller, cramped */
+#  define sup_sup_style(A) sup_style(sup_style((A)))   /* smaller */
 
 void mlist_to_hlist(void);
+
+void setup_math_style (void);
+void print_math_style (void);
 
 #  define text_size 0
 #  define script_size 1
@@ -131,6 +135,12 @@ void mlist_to_hlist(void);
 #  define math_direction int_par(param_math_direction_code)
 
 #  define dir_math_save cur_list.math_field
+#  define m_style cur_list.math_style_field
+#  define init_math_fields() do {               \
+        dir_math_save=false;                    \
+        m_style=-1;                             \
+    } while (0)
+
 
 #  define null_font 0
 #  define min_quarterword 0

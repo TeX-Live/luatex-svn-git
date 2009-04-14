@@ -4557,7 +4557,7 @@ expanded by `\.{\\the}'.
 @d limit_switch=51 {diddle limit conventions ( \.{\\displaylimits}, etc.~)}
 @d above=52 {generalized fraction ( \.{\\above}, \.{\\atop}, etc.~)}
 @d math_style=53 {style specification ( \.{\\displaystyle}, etc.~)}
-@d math_choice=54 {choice specification ( \.{\\mathchoice} )}
+@d math_choice=54 {choice specification ( \.{\\mathchoice}, \.{\\Ustack} )}
 @d non_script=55 {conditional math glue ( \.{\\nonscript} )}
 @d vcenter=56 {vertically center a vbox ( \.{\\vcenter} )}
 @d case_shift=57 {force specific case ( \.{\\lowercase}, \.{\\uppercase}~)}
@@ -4849,6 +4849,8 @@ level is kept in the global quantities |mode|, |head|, |tail|, |prev_graf|,
 |aux|, and |mode_line|, which live in a \PASCAL\ record that is ready to
 be pushed onto |nest| if necessary.
 
+The math field is used by various bits and pieces in |math.c|
+
 @d ignore_depth==-65536000 {magic dimension value to mean `ignore me'}
 
 @<Types...@>=
@@ -4859,13 +4861,13 @@ be pushed onto |nest| if necessary.
   @!aux_field: memory_word;
   @!dirs_field: halfword;
   @!math_field: integer;
+  @!math_style_field: integer;
   end;
 
 @ @d mode==cur_list.mode_field {current mode}
 @d head==cur_list.head_field {header node of current list}
 @d tail==cur_list.tail_field {final node on current list}
 @d eTeX_aux==cur_list.eTeX_aux_field {auxiliary data for \eTeX}
-@d delim_ptr==eTeX_aux {most recent left or right noad of a math left group}
 @d prev_graf==cur_list.pg_field {number of paragraph lines accumulated}
 @d aux==cur_list.aux_field {auxiliary data about the current list}
 @d prev_depth==aux.sc {the name of |aux| in vertical mode}
@@ -4873,8 +4875,6 @@ be pushed onto |nest| if necessary.
 @d incompleat_noad==aux.int {the name of |aux| in math mode}
 @d mode_line==cur_list.ml_field {source file line number at beginning of list}
 @d dir_save==cur_list.dirs_field {dir stack when a paragraph is interrupted}
-@d dir_math_save==cur_list.math_field
-   {should begin/end dir nodes be placed around mathematics?}
 
 @<Glob...@>=
 @!nest:array[0..nest_size] of list_state_record;
@@ -4934,7 +4934,7 @@ mode:=vmode; head:=contrib_head; tail:=contrib_head;
 eTeX_aux:=null;
 prev_depth:=ignore_depth; mode_line:=0;
 prev_graf:=0; shown_mode:=0;
-dir_save:=null; dir_math_save:=false;
+dir_save:=null; init_math_fields;
 @<Start a new current page@>;
 
 @ @p @<LOCAL: Declare |make_local_par_node|@>;
@@ -4953,7 +4953,7 @@ begin if nest_ptr>max_nest_stack then
   end;
 nest[nest_ptr]:=cur_list; {stack the record}
 incr(nest_ptr); head:=new_node(temp_node,0); tail:=head; prev_graf:=0; mode_line:=line;
-dir_save:=null; dir_math_save:=false;
+dir_save:=null; init_math_fields;
 eTeX_aux:=null;
 end;
 
@@ -6668,6 +6668,8 @@ primitive_luatex("Umathcharnum",math_char_num,3,0);@/
 @!@:math_char_}{\.{\\Umathcharnum} primitive@>
 primitive_tex("mathchoice",math_choice,0,0);@/
 @!@:math_choice_}{\.{\\mathchoice} primitive@>
+primitive_luatex("Ustack",math_choice,1,0);@/
+@!@:math_choice_}{\.{\\Ustack} primitive@>
 primitive_tex("multiply",multiply,0,0);@/
 @!@:multiply_}{\.{\\multiply} primitive@>
 primitive_tex("noalign",no_align,0,0);@/
@@ -9115,6 +9117,7 @@ assign_dir: scanned_result(eqtb[m].int)(dir_val);
 assign_dimen: scanned_result(eqtb[m].sc)(dimen_val);
 assign_glue: scanned_result(equiv(m))(glue_val);
 assign_mu_glue: scanned_result(equiv(m))(mu_val);
+math_style: scanned_result(m)(int_val);
 set_aux: @<Fetch the |space_factor| or the |prev_depth|@>;
 set_prev_graf: @<Fetch the |prev_graf|@>;
 set_page_int:@<Fetch the |dead_cycles| or the |insert_penalties|@>;
@@ -9154,6 +9157,7 @@ assign_dir: scanned_result(eqtb[m].int)(dir_val);
 assign_dimen: scanned_result(eqtb[m].sc)(dimen_val);
 assign_glue: scanned_result(equiv(m))(glue_val);
 assign_mu_glue: scanned_result(equiv(m))(mu_val);
+math_style: scanned_result(m)(int_val);
 set_aux: @<Fetch the |space_factor| or the |prev_depth|@>;
 set_prev_graf: @<Fetch the |prev_graf|@>;
 set_page_int:@<Fetch the |dead_cycles| or the |insert_penalties|@>;
@@ -9815,6 +9819,8 @@ restart:
 if cur_tok=alpha_token then @<Scan an alphabetic character code into |cur_val|@>
 else if cur_tok=cs_token_flag+frozen_primitive then
   @<Reset |cur_tok| for unexpandable primitives, goto restart@>
+else if cur_cmd=math_style then
+  cur_val:=cur_chr
 else if (cur_cmd>=min_internal)and(cur_cmd<=max_internal) then
   scan_something_internal(int_val,false)
 else @<Scan a numeric constant@>;
@@ -10451,8 +10457,9 @@ such that |job_name_code| remains last.
 @d pdf_colorstack_init_code = pdftex_first_expand_code + 16 {command code for \.{\\pdfcolorstackinit}}
 @d luatex_revision_code     = pdftex_first_expand_code + 17 {command code for \.{\\luatexrevision}}
 @d luatex_date_code         = pdftex_first_expand_code + 18 {command code for \.{\\luatexdate}}
-@d expanded_code           =  pdftex_first_expand_code + 19 {command code for \.{\\luatexdate}}
-@d pdftex_convert_codes     = pdftex_first_expand_code + 20 {end of \pdfTeX's command codes}
+@d math_style_code          = pdftex_first_expand_code + 19 {command code for \.{\\mathstyle}}
+@d expanded_code            = pdftex_first_expand_code + 20 {command code for \.{\\expanded}}
+@d pdftex_convert_codes     = pdftex_first_expand_code + 21 {end of \pdfTeX's command codes}
 @d job_name_code=pdftex_convert_codes {command code for \.{\\jobname}}
 
 
@@ -10507,6 +10514,8 @@ primitive_core("directlua",convert,lua_code,0);@/
 @!@:lua_}{\.{\\directlua} primitive@>
 primitive_luatex("luaescapestring",convert,lua_escape_string_code,0);@/
 @!@:lua_}{\.{\\luaescapestring} primitive@>
+primitive_luatex("mathstyle",convert,math_style_code,0);@/
+@!@:math_style_}{\.{\\mathstyle} primitive@>
 primitive_pdftex("expanded",convert,expanded_code,0);@/
 @!@:expanded_}{\.{\\expanded} primitive@>
 @#
@@ -10668,6 +10677,7 @@ lua_escape_string_code:
         if u<>0 then begin decr(str_ptr); u:=0; end;
     return;
   end;
+math_style_code:  do_nothing;
 expanded_code:
   begin
     save_scanner_status := scanner_status;
@@ -10818,6 +10828,7 @@ pdf_xform_name_code: print_int(obj_info(cur_val));
 pdf_colorstack_init_code: print_int(cur_val);
 uniform_deviate_code:     print_int(unif_rand(cur_val));
 normal_deviate_code:      print_int(norm_rand);
+math_style_code:          print_math_style;
 pdf_insert_ht_code: begin
     i := qi(cur_val);
     p := page_ins_head;
@@ -10873,6 +10884,7 @@ begin
   uniform_deviate_code:   print_int(unif_rand(i));
   format_name_code:       print(format_name);
   job_name_code:          print(job_name);
+  math_style_code:        print_math_style;
   font_name_code: begin
     append_string(font_name(i));
     if font_size(i)<>font_dsize(i) then
@@ -23963,10 +23975,10 @@ mmode+math_style: tail_append(new_style(cur_chr));
 mmode+non_script: begin tail_append(new_glue(zero_glue));
   subtype(tail):=cond_math_glue;
   end;
-mmode+math_choice: append_choices;
+mmode+math_choice: if cur_chr=0 then append_choices else setup_math_style;
 
 @ @<Cases of |handle_right_brace|...@>=
-math_choice_group: build_choices;
+math_choice_group: if cur_chr=0 then build_choices;
 
 @ Here are two primives for explicit super- or subscript choice.
 

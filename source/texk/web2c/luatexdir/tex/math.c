@@ -69,7 +69,7 @@ extern void rawset_sa_item(sa_tree hed, integer n, integer v);
     tex_error(A,B);                             \
   } while (0)
 
-int scan_math(pointer);
+int scan_math(pointer, int);
 pointer fin_mlist(pointer);
 
 #define pre_display_size dimen_par(param_pre_display_size_code)
@@ -500,6 +500,7 @@ const char *math_param_names[] = {
 
 pointer new_style(small_number s)
 {                               /* create a style node */
+    m_style = s;
     return new_node(style_node, s);
 }
 
@@ -801,19 +802,20 @@ void new_save_level_math(group_code c)
     eq_word_define(static_int_base + param_level_local_dir_code, cur_level);
 }
 
-void push_math(group_code c)
+void push_math(group_code c, int mstyle)
 {
     if (math_direction != text_direction)
         dir_math_save = true;
     push_nest();
     mode = -mmode;
     incompleat_noad = null;
+    m_style = mstyle;
     new_save_level_math(c);
 }
 
 void enter_ordinary_math(void)
 {
-    push_math(math_shift_group);
+    push_math(math_shift_group, text_style);
     eq_word_define(static_int_base + param_cur_fam_code, -1);
     if (every_math != null)
         begin_token_list(every_math, every_math_text);
@@ -889,7 +891,7 @@ void math_left_brace(void)
     q = new_node(math_char_node, 0);
     nucleus(tail) = q;
     back_input();
-    (void) scan_math(nucleus(tail));
+    (void) scan_math(nucleus(tail), m_style);
 }
 
 /*
@@ -940,7 +942,7 @@ void enter_display_math(void)
         l = varmem[p].cint;
     }
 
-    push_math(math_shift_group);
+    push_math(math_shift_group, display_style);
     mode = mmode;
     eq_word_define(static_int_base + param_cur_fam_code, -1);
     eq_word_define(static_dimen_base + param_pre_display_size_code, w);
@@ -1201,7 +1203,7 @@ that subformula into a given word of |mem|.
 #define get_next_nb_nr() do { get_x_token(); } while (cur_cmd==spacer_cmd||cur_cmd==relax_cmd)
 
 
-int scan_math(pointer p)
+int scan_math(pointer p, int mstyle)
 {
     /* label restart,reswitch,exit; */
     mathcodeval mval;
@@ -1268,7 +1270,7 @@ int scan_math(pointer p)
         scan_left_brace();
         saved(0) = p;
         incr(save_ptr);
-        push_math(math_group);
+        push_math(math_group, mstyle);
         return 1;
     }
     type(p) = math_char_node;
@@ -1359,7 +1361,10 @@ void math_math_comp(void)
     subtype(tail) = cur_chr;
     q = new_node(math_char_node, 0);
     nucleus(tail) = q;
-    (void) scan_math(nucleus(tail));
+    if (cur_chr==over_noad_type)
+        (void) scan_math(nucleus(tail), cramped_style(m_style));
+    else
+        (void) scan_math(nucleus(tail), m_style);
 }
 
 
@@ -1477,16 +1482,16 @@ void math_radical(void)
         q = new_node(math_char_node, 0);
         vlink(q) = tail;
         degree(tail) = q;
-        if (!scan_math(degree(tail))) {
+        if (!scan_math(degree(tail), sup_sup_style(m_style))) {
             vlink(degree(tail)) = null;
             q = new_node(math_char_node, 0);
             nucleus(tail) = q;
-            (void) scan_math(nucleus(tail));
+            (void) scan_math(nucleus(tail), cramped_style(m_style));
         }
     } else {
         q = new_node(math_char_node, 0);
         nucleus(tail) = q;
-        (void) scan_math(nucleus(tail));
+        (void) scan_math(nucleus(tail), cramped_style(m_style));
     }
 }
 
@@ -1541,7 +1546,7 @@ void math_ac(void)
     }
     q = new_node(math_char_node, 0);
     nucleus(tail) = q;
-    (void) scan_math(nucleus(tail));
+    (void) scan_math(nucleus(tail), cramped_style(m_style));
 }
 
 pointer math_vcenter_group(pointer p)
@@ -1565,12 +1570,14 @@ void append_choices(void)
     tail_append(new_choice());
     incr(save_ptr);
     saved(-1) = 0;
-    push_math(math_choice_group);
+    push_math(math_choice_group, display_style);
     scan_left_brace();
 }
 void build_choices(void)
 {
     pointer p;                  /* the current mlist */
+    int prev_style;
+    prev_style = m_style;
     unsave_math();
     p = fin_mlist(null);
     switch (saved(-1)) {
@@ -1590,7 +1597,7 @@ void build_choices(void)
         break;
     }                           /* there are no other cases */
     incr(saved(-1));
-    push_math(math_choice_group);
+    push_math(math_choice_group, (prev_style+2));
     scan_left_brace();
 }
 
@@ -1620,7 +1627,7 @@ void sub_sup(void)
         }
         q = new_node(math_char_node, 0);
         supscr(tail) = q;
-        (void) scan_math(supscr(tail));
+        (void) scan_math(supscr(tail), sup_style(m_style));
     } else if (cur_cmd == sub_mark_cmd || 
                cur_chr == sub_mark_cmd ) {
         if (subscr(tail) != null) {
@@ -1634,7 +1641,7 @@ void sub_sup(void)
         }
         q = new_node(math_char_node, 0);
         subscr(tail) = q;
-        (void) scan_math(subscr(tail));
+        (void) scan_math(subscr(tail), sub_style(m_style));
     }
 }
 
@@ -1673,6 +1680,7 @@ void math_fraction(void)
         math_list(numerator(incompleat_noad)) = vlink(head);
         vlink(head) = null;
         tail = head;
+        m_style = cramped_style(m_style);
 
         if (c >= delimited_code) {
             q = new_node(delim_node, 0);
@@ -1747,6 +1755,7 @@ surround an accent that is the nucleus of an Ord atom.
 void close_math_group(pointer p)
 {
     pointer q;
+    int old_style = m_style;
     unsave_math();
 
     decr(save_ptr);
@@ -1796,7 +1805,7 @@ void close_math_group(pointer p)
         nucleus(vlink(saved(0))) = q;
         vlink(saved(0)) = null;
         saved(0) = q;
-        (void) scan_math(saved(0));
+        (void) scan_math(saved(0), old_style);
         /* restart */
     }
 }
@@ -1848,7 +1857,7 @@ void math_left_right(void)
             unsave_math();
         }
         if (t != right_noad_side) {
-            push_math(math_left_group);
+            push_math(math_left_group, cur_style);
             vlink(head) = q;
             tail = p;
             delim_ptr = p;
@@ -2166,4 +2175,24 @@ void finish_display_alignment(pointer p, pointer q, memory_word aux_save)
     tail_append(new_param_glue(param_below_display_skip_code));
     prev_depth = aux_save.cint;
     resume_after_display();
+}
+
+/* Interface to \.{\\Umath} and \.{\\mathstyle} */
+
+void setup_math_style (void)
+{
+    pointer q;
+    tail_append(new_noad());
+    q = new_node(math_char_node, 0);
+    nucleus(tail) = q;
+    (void) scan_math(nucleus(tail), num_style(m_style));
+}
+
+
+void print_math_style (void)
+{
+    if (abs(mode)==mmode)
+        print_int(m_style);
+    else
+        print_int(-1);
 }

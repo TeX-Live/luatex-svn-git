@@ -207,6 +207,10 @@
 @define function scan_delimiter_as_mathchar();
 @define function mathchar_from_integer();
 
+@define procedure init_math_field;
+@define procedure setup_math_style;
+@define procedure print_math_style;
+
 @define procedure unsave_math_codes ();
 @define procedure initialize_math_codes;
 @define procedure dump_math_codes;

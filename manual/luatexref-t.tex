@@ -22,7 +22,7 @@
 
 \setvariables
   [document]
-  [beta=0.38.0]
+  [beta=0.39.0]
 
 \starttext
 
@@ -5455,6 +5455,46 @@ been made accessible and changeable via control sequences. Third, there are
 extensions that make it easier to use \OPENTYPE\ math fonts. And finally,
 there are some extensions that have been proposed in the past that are now
 added to the engine.
+
+\section{The current math style}
+
+Starting with \LUATEX\ 0.39.0, it is possible to discover the math
+style that will be used for a formula in an expandable fashion
+(while the math list is still being read).  To make this possible,
+\LUATEX\ adds the new primitive: \type{\mathstyle}. This is a
+\quote{convert command} like e.g. \type{\romannumeral}: its value can
+only be read, not set. 
+
+\subsection{\tex{mathstyle}}
+
+The returned value is between 0 and 7 (in math mode), or $-1$
+(all other modes). For easy testing, the eight math style commands
+have been altered so that the can be used as numeric values, so you 
+can write code like this:
+
+\starttyping
+\ifnum\mathstyle=\textstyle
+   \message{normal text style}
+\else \ifnum\mathstyle=\crampedtextstyle
+   \message{cramped text style}
+\fi \fi
+\stoptyping
+
+\subsection{\tex{Ustack}}
+
+There are a few math commands in \TEX\ where the style that will be used 
+is not known straight from the start. These commands (\tex{over},
+\tex{atop}, \tex{overwithdelims}, \tex{atopwithdelims}) would
+therefore normally return wrong values for \type{\mathstyle}. To 
+fix this, \LUATEX\ introduces a special prefix command:
+\type{\Ustack}:
+
+\starttyping
+$\Ustack {a \over b}$
+\stoptyping
+
+The \type{\Ustack} command will scan the next brace and start a new
+math group with the correct (numerator) math style. 
 
 \section{Unicode math characters}
 
