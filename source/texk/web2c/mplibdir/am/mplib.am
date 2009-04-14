@@ -11,14 +11,13 @@ EXTRA_LIBRARIES += libmplib.a
 newmpost_c_h = mpost.c mpxout.c
 newmpost_web = mplibdir/mpost.w mplibdir/mpxout.w
 
-newmpost_CPPFLAGS = -Implibdir -I$(srcdir)/mplibdir
+newmpost_CPPFLAGS = -I. -I$(srcdir)/mplibdir
 newmpost_DEPENDENCIES = libmplib.a
 newmpost_LDADD = libmplib.a $(KPATHSEA_LIBS) -lm
 newmpost_SOURCES = $(newmpost_c_h)
 
-$(newmpost_c_h): mpost-ctangle
+$(newmpost_c_h): mpost-ctangle libmplib.a
 mpost-ctangle: ctangle$(EXEEXT) $(newmpost_web)
-	$(mkdir_p) mplibdir 
 	CWEBINPUTS=$(srcdir)/mplibdir $(ctangle) mpost.w
 	CWEBINPUTS=$(srcdir)/mplibdir $(ctangle) mpxout.w
 	echo timestamp >$@
@@ -27,20 +26,16 @@ mpost-ctangle: ctangle$(EXEEXT) $(newmpost_web)
 DISTCLEANFILES += $(newmpost_c_h) mpost-ctangle
 
 ## These files are mutually dependent
-libmplib_c_h =  mp.c mplib.h mpmp.h
-libmplib_c_h += mppsout.h psout.c mplibps.h 
-libmplib_c_h += svgout.c memio.c tfmin.c
+libmplib_c_h =  mp.c mplib.h mpmp.h mppsout.h psout.c mplibps.h svgout.c memio.c tfmin.c
 libmplib_true_c = mplibdir/avl.h mplibdir/avl.c 
 libmplib_web = $(libmplib_true_c) mplibdir/mp.w mplibdir/psout.w
 libmplib_web += mplibdir/svgout.w mplibdir/memio.w mplibdir/tfmin.w
 
-libmplib_a_CPPFLAGS = -I$(srcdir)/mplibdir
-
+libmplib_a_CPPFLAGS = -I. -I$(srcdir)/mplibdir
 libmplib_a_SOURCES = $(libmplib_c_h) $(libmplib_true_c)
 
 $(libmplib_c_h): mplib-ctangle  $(libmplib_true_c)
 mplib-ctangle: ctangle$(EXEEXT) $(libmplib_web)
-	$(mkdir_p) mplibdir
 	CWEBINPUTS=$(srcdir)/mplibdir $(ctangle) mp.w
 	CWEBINPUTS=$(srcdir)/mplibdir $(ctangle) psout.w
 	CWEBINPUTS=$(srcdir)/mplibdir $(ctangle) svgout.w
@@ -53,7 +48,7 @@ EXTRA_DIST += $(libmplib_web)
 
 DISTCLEANFILES += $(libmplib_c_h) mplib-ctangle
 
-# only used by luatex
+# only used by luatex, perhaps should not be mentioned here
 EXTRA_DIST += mplibdir/lmplib.c
 
 

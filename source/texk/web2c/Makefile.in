@@ -644,7 +644,7 @@ TESTS = tangle.test tiedir/tie.test $(am__append_8) libmd5/md5.test
 EXTRA_LIBRARIES = libmf.a libmplib.a liblua51.a libzzip.a \
 	libluasocket.a libluamisc.a libff.a libluatex.a libmd5.a
 
-# only used by luatex
+# only used by luatex, perhaps should not be mentioned here
 EXTRA_DIST = PROJECTS cftests config.h cpascal.h help.h tangle.web \
 	tangle.ch tangleboot.p cwebdir ctangleboot.c cwebboot.c \
 	$(web_programs:=.web) $(web_programs:=.ch) ctiedir tiedir \
@@ -854,16 +854,15 @@ nodist_libmf_a_SOURCES = $(mf_c_h) mf-pool.c
 libmf_a_CPPFLAGS = -DMETA_FONT
 newmpost_c_h = mpost.c mpxout.c
 newmpost_web = mplibdir/mpost.w mplibdir/mpxout.w
-newmpost_CPPFLAGS = -Implibdir -I$(srcdir)/mplibdir
+newmpost_CPPFLAGS = -I. -I$(srcdir)/mplibdir
 newmpost_DEPENDENCIES = libmplib.a
 newmpost_LDADD = libmplib.a $(KPATHSEA_LIBS) -lm
 newmpost_SOURCES = $(newmpost_c_h)
-libmplib_c_h = mp.c mplib.h mpmp.h mppsout.h psout.c mplibps.h \
-	svgout.c memio.c tfmin.c
+libmplib_c_h = mp.c mplib.h mpmp.h mppsout.h psout.c mplibps.h svgout.c memio.c tfmin.c
 libmplib_true_c = mplibdir/avl.h mplibdir/avl.c 
 libmplib_web = $(libmplib_true_c) mplibdir/mp.w mplibdir/psout.w \
 	mplibdir/svgout.w mplibdir/memio.w mplibdir/tfmin.w
-libmplib_a_CPPFLAGS = -I$(srcdir)/mplibdir
+libmplib_a_CPPFLAGS = -I. -I$(srcdir)/mplibdir
 libmplib_a_SOURCES = $(libmplib_c_h) $(libmplib_true_c)
 nodist_EXTRA_luatex_SOURCES = dummy.cxx
 luatex_tangle = WEBINPUTS=$(srcdir)/luatexdir $(buildenv) $(LUATANGLE)
@@ -5778,9 +5777,8 @@ mf-final.ch: $(TIE) mf.web mf.ch mf-binpool.ch
 mf-pool.c: mf.pool $(makecpool) tmf-pool.h
 	$(makecpool) mf.pool $(srcdir)/tmf-pool.h >$@ || rm -f $@
 
-$(newmpost_c_h): mpost-ctangle
+$(newmpost_c_h): mpost-ctangle libmplib.a
 mpost-ctangle: ctangle$(EXEEXT) $(newmpost_web)
-	$(mkdir_p) mplibdir 
 	CWEBINPUTS=$(srcdir)/mplibdir $(ctangle) mpost.w
 	CWEBINPUTS=$(srcdir)/mplibdir $(ctangle) mpxout.w
 	echo timestamp >$@
@@ -5788,7 +5786,6 @@ mpost-ctangle: ctangle$(EXEEXT) $(newmpost_web)
 
 $(libmplib_c_h): mplib-ctangle  $(libmplib_true_c)
 mplib-ctangle: ctangle$(EXEEXT) $(libmplib_web)
-	$(mkdir_p) mplibdir
 	CWEBINPUTS=$(srcdir)/mplibdir $(ctangle) mp.w
 	CWEBINPUTS=$(srcdir)/mplibdir $(ctangle) psout.w
 	CWEBINPUTS=$(srcdir)/mplibdir $(ctangle) svgout.w
