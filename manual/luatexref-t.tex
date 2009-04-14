@@ -1066,7 +1066,25 @@ The subset comprising simple integer and dimension registers are
 writable as well as readable (stuff like \tex{tracingcommands} and
 \tex{parindent}).
 
-\subsection{Integer parameters}
+\subsection{Internal parameter values}
+
+For all the parameters in this section, it is possible to access them
+directly using their names as index in the \type{tex} table, or by
+using one of the functions \type{tex.get()} and \type{tex.set()}.
+
+The exact parameters and return values differ depending on the actual
+parameter, and so does whether \type{tex.set} has any effect. For the
+parameters that {\it can\/} be set, it is possible to use
+\type{'global'} as the first argument to \type{tex.set}; this makes
+the  assignment global instead of local.
+
+\startfunctioncall
+tex.set (<string> n, ...)
+tex.set ('global', <string> n, ...)
+... = tex.get (<string> n)
+\stopfunctioncall
+
+\subsubsection{Integer parameters}
 
 The integer parameters accept and return \LUA\ numbers.
 
@@ -1177,7 +1195,7 @@ tex.spacefactor
 \stoptyping
 \stopcolumns
 
-\subsection{Dimension parameters}
+\subsubsection{Dimension parameters}
 
 The dimension parameters accept \LUA\ numbers (signifying scaled points)
 or strings (with included dimension). The result is always a number in
@@ -1245,7 +1263,7 @@ tex.prevdepth
 \stoptyping
 \stopcolumns
 
-\subsection{Direction parameters}
+\subsubsection{Direction parameters}
 
 The direction parameters are read|-|only and return a \LUA\ string.
 
@@ -1259,7 +1277,7 @@ tex.textdir
 \stoptyping
 \stopcolumns
 
-\subsection{Glue parameters}
+\subsubsection{Glue parameters}
 
 All glue parameters are read|-|only and return a userdata object that
 represents a \type{glue_spec} node.
@@ -1284,7 +1302,7 @@ tex.xspaceskip
 \stoptyping
 \stopcolumns
 
-\subsection{Muglue parameters}
+\subsubsection{Muglue parameters}
 
 All muglue parameters are read|-|only and return a \LUA\ string.
 
@@ -1296,7 +1314,7 @@ tex.thinmuskip
 \stoptyping
 \stopcolumns
 
-\subsection{Tokenlist parameters}
+\subsubsection{Tokenlist parameters}
 
 All tokenlist parameters are read|-|only and return a \LUA\ string.
 
@@ -1414,17 +1432,8 @@ tex.count
 tex.dimen
 tex.skip
 tex.toks
-tex.gattribute 
-tex.gcount
-tex.gdimen
-tex.gskip
-tex.gtoks
 \stoptyping
 \stopcolumns
-
-The set that has a \type{g} prefix does global assignment when
-used to set a value.  These are new in version 0.39.0, and
-somewhat experimental; the syntax or name may change in the future.
 
 It is possible to use the names of relevant \tex{attributedef}, \tex{countdef},
 \tex{dimendef}, \tex{skipdef},  or \tex{toksdef} control sequences as indices
@@ -1462,11 +1471,14 @@ of possibilities for \type{\skip} registers:
 \startfunctioncall
 tex.setskip (<number> n, <node> s)
 tex.setskip (<string> s, <node> s)
-tex.gsetskip (<number> n, <node> s)
-tex.gsetskip (<string> s, <node> s)
+tex.setskip ('global',<number> n, <node> s)
+tex.setskip ('global',<string> s, <node> s)
 <node> s = tex.getskip (<number> n)
 <node> s = tex.getskip (<string> s)
 \stopfunctioncall
+
+In the function-based interface, it is possible to define values
+globally by using the string \type{'global'} as the first function argument.
 
 \subsection{Box registers}
 
@@ -1477,14 +1489,7 @@ altered using three other virtual sub|-|tables :
 tex.wd
 tex.ht
 tex.dp
-tex.gwd
-tex.ght
-tex.gdp
 \stoptyping
-
-The set that has a \type{g} prefix does global assignment when
-used to set a value. These are new in version 0.39.0, and
-somewhat experimental; the syntax or name may change in the future.
 
 Boxes are indexed by number or by name. In macro packages
 \type {chardef} is normally used to refer to allocated box registers and
@@ -1494,44 +1499,36 @@ The box size registers accept \LUA\ numbers (in scaled points)
 or strings (with included dimension). The result is always a number
 in scaled points.
 
-As an alternative to array addressing, there are also accessor
-functions defined:
+As an alternative to array addressing, there are also three sets of 
+accessor functions defined (like above):
 
 \startfunctioncall
 tex.setboxwd(<number> n, <number> n)
-tex.gsetboxwd(<number> n, <number> n)
+tex.setboxwd('global',<number> n, <number> n)
 <number> n = tex.getboxwd(<number> n)
-
-tex.setboxht(<number> n, <number> n)
-tex.gsetboxht(<number> n, <number> n)
-<number> n = tex.getboxht(<number> n)
-
-tex.setboxdp(<number> n, <number> n)
-tex.gsetboxdp(<number> n, <number> n)
-<number> n = tex.getboxdp(<number> n)
 \stopfunctioncall
+
+In the function-based interface, it is possible to define values
+globally by using the string \type{'global'} as the first function argument.
 
 It is also possible to set and query actual boxes, using the node
 interface as defined in the \luatex{node} library:
 
 \starttyping
 tex.box
-tex.gbox
 \stoptyping
 
 for array access, or
 
 \starttyping
 tex.setbox(<number> n, <node> s)
-tex.gsetbox(<number> n, <node> s)
+tex.setbox('global', <number> n, <node> s)
 <node> n = tex.getbox(<number> n)
 \stoptyping
 
 for function|-|based access.
-
-The set that has a \type{g} prefix does global assignment when
-used to set a value.  These are new in version 0.39.0, and
-somewhat experimental; the syntax or name may change in the future.
+In the function-based interface, it is possible to define values
+globally by using the string \type{'global'} as the first function argument.
 
 Be warned that an assignment like
 
@@ -1556,8 +1553,12 @@ using:
 
 \startfunctioncall
 tex.setmath(<string> n, <string> t, <number> n)
+tex.setmath('global', <string> n, <string> t, <number> n)
 <number> n = tex.getmath(<string> n, <string> t)
 \stopfunctioncall
+
+As before an optional first parameter of \type{'global'} indicates a
+global assignment.
 
 The first string is the parameter name minus the leading \quote{Umath},
 and the second string is the style name minus the traling \quote{style}.
