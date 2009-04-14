@@ -279,6 +279,7 @@ lua_pdf_literal (int i)
     pdf_buf[pdf_ptr++] = *s++;
   }
   pdf_buf[pdf_ptr++] = 10; /* pdf_print_nl */
+  lua_pop(Luas,1);
 }
 
 void
