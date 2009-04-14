@@ -3164,11 +3164,11 @@ static void mpx_set_char(MPX mpx, char *cname) {
 	for (f = mpx->specfnt; f != (max_fnums+1); f = mpx->next_specfnt[f]) {
         p = avl_find(&tmp, mpx->charcodes[f]);
 	    if (p!=NULL)
-		  goto OUT;
+		  goto OUT_LABEL;
 	}
 	mpx_abort(mpx, "There is no character %s", cname);
   }
-OUT:
+OUT_LABEL:
   c = p->num;
   if (!is_specchar(c)) {
 	mpx_set_num_char(mpx, f, c);
