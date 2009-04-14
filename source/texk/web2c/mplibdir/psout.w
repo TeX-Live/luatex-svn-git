@@ -1,18 +1,18 @@
-% $Id: psout.w 804 2008-12-23 15:22:15Z taco $
+% $Id: psout.w 878 2009-03-22 08:22:33Z taco $
 %
 % Copyright 2008 Taco Hoekwater.
 %
 % This program is free software: you can redistribute it and/or modify
-% it under the terms of the GNU General Public License as published by
-% the Free Software Foundation, either version 2 of the License, or
+% it under the terms of the GNU Lesser General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
 % (at your option) any later version.
 %
 % This program is distributed in the hope that it will be useful,
 % but WITHOUT ANY WARRANTY; without even the implied warranty of
 % MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-% GNU General Public License for more details.
+% GNU Lesser General Public License for more details.
 %
-% You should have received a copy of the GNU General Public License
+% You should have received a copy of the GNU Lesser General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 % TeX is a trademark of the American Mathematical Society.
@@ -86,19 +86,29 @@
 
 @ There is a small bit of code from the backend that bleads through
 to the frontend because I do not know how to set up the includes
-properly. Those are the definitions of |struct libavl_allocator|
-and |typedef struct psout_data_struct * psout_data|.
-
-The |libavl_allocator| is a trick that makes sure that frontends 
-do not need |avl.h|, and the |psout_data| is needed for the backend 
-data structure.
+properly. That is the |typedef struct psout_data_struct * psout_data|.
 
 @ @(mppsout.h@>=
+#include "avl.h"
 @<Types...@>
 typedef struct psout_data_struct {
   @<Globals@>
 } psout_data_struct ;
 @<Exported function headers@>
+
+@ 
+@c
+void *avl_probe (avl_tree t, void *p) {
+  int ret = avl_ins(p, t, false);
+  if (ret < 0) 
+    return NULL;
+  else 
+    return avl_find(p, t);
+}
+
+@ @<Exported...@>=
+void *avl_probe (avl_tree t, void *p) ;
+
 
 @ @c
 static boolean mp_isdigit (int a) {
@@ -128,15 +138,15 @@ static int mp_strcasecmp (const char *s1, const char *s2) {
 }
 
 @ @<Exported function headers@>=
-void mp_backend_initialize (MP mp) ;
-void mp_backend_free (MP mp) ;
+void mp_ps_backend_initialize (MP mp) ;
+void mp_ps_backend_free (MP mp) ;
 
 @
-@c void mp_backend_initialize (MP mp) {
+@c void mp_ps_backend_initialize (MP mp) {
   mp->ps = mp_xmalloc(mp,1,sizeof(psout_data_struct));
   @<Set initial values@>;
 }
-void mp_backend_free (MP mp) {
+void mp_ps_backend_free (MP mp) {
   @<Dealloc variables@>;
   enc_free(mp);
   t1_free(mp);
@@ -156,14 +166,14 @@ mp->ps->ps_offset = 0;
 
 @
 
-@d wps(A)     (mp->write_ascii_file)(mp,mp->ps_file,(A))
+@d wps(A)     (mp->write_ascii_file)(mp,mp->output_file,(A))
 @d wps_chr(A) do { 
   char ss[2]; 
   ss[0]=(A); ss[1]=0; 
-  (mp->write_ascii_file)(mp,mp->ps_file,(char *)ss); 
+  (mp->write_ascii_file)(mp,mp->output_file,(char *)ss); 
 } while (0)
-@d wps_cr     (mp->write_ascii_file)(mp,mp->ps_file,"\n")
-@d wps_ln(A)  { wterm_cr; (mp->write_ascii_file)(mp,mp->ps_file,(A)); }
+@d wps_cr     (mp->write_ascii_file)(mp,mp->output_file,"\n")
+@d wps_ln(A)  { wterm_cr; (mp->write_ascii_file)(mp,mp->output_file,(A)); }
 
 @c
 static void mp_ps_print_ln (MP mp) { /* prints an end-of-line */
@@ -513,50 +523,69 @@ static void mp_write_enc (MP mp, enc_entry * e) {
 @ All encoding entries go into AVL tree for fast search by name.
 
 @<Glob...@>=
-struct avl_table *enc_tree;
+avl_tree enc_tree;
 
-@ Memory management functions for avl 
+@
 
 @<Static variables in the outer block@>=
 static const char notdef[] = ".notdef";
 
-@ @<Declarations@>=
-static void *avl_xmalloc (struct libavl_allocator *allocator, size_t size);
-static void avl_xfree (struct libavl_allocator *allocator, void *block);
-
-@ @c
-static void *avl_xmalloc (struct libavl_allocator *allocator, size_t size) {
-    (void)allocator;
-    return malloc (size);
-}
-static void avl_xfree (struct libavl_allocator *allocator, void *block) {
-    (void)allocator;
-    free (block);
-}
-
-@ @<Glob...@>=
-struct libavl_allocator avl_xallocator;
-
 @ @<Set initial...@>=
-mp->ps->avl_xallocator.libavl_malloc=avl_xmalloc;
-mp->ps->avl_xallocator.libavl_free= avl_xfree;
 mp->ps->enc_tree = NULL;
 
 @ @c
-static int comp_enc_entry (const void *pa, const void *pb, void *p) {
+static int comp_enc_entry (void *p, const void *pa, const void *pb) {
     (void)p;
     return strcmp (((const enc_entry *) pa)->file_name,
                    ((const enc_entry *) pb)->file_name);
 }
+static void *destroy_enc_entry (void *pa) {
+    enc_entry *p;
+    int i;
+    p = (enc_entry *) pa;
+    mp_xfree (p->file_name);
+    if (p->glyph_names != NULL)
+        for (i = 0; i < 256; i++)
+            if (p->glyph_names[i] != notdef)
+                mp_xfree (p->glyph_names[i]);
+    mp_xfree (p->glyph_names);
+    mp_xfree (p);
+}
+static void *copy_enc_entry (const void *pa) {
+    enc_entry *p, *q;
+    int i;
+    p = (enc_entry *) pa;
+    q = malloc (sizeof (enc_entry));
+    if (q!=NULL) {
+        q->loaded = p->loaded;
+        q->file_name = strdup (p->file_name);
+        q->objnum = p->objnum;
+        q->tounicode = p->tounicode;
+        q->glyph_names = malloc (256 * sizeof (char *));
+        if (p->glyph_names == NULL)
+            return NULL;
+        for (i = 0; i < 256; i++) {
+           if (p->glyph_names[i]!=NULL)
+              q->glyph_names[i] = strdup(p->glyph_names[i]);
+           else
+              q->glyph_names[i] = NULL;
+        }
+    }
+    return (void *)q;
+}
+
 static enc_entry * mp_add_enc (MP mp, char *s) {
     int i;
     enc_entry tmp, *p;
     void **aa;
     if (mp->ps->enc_tree == NULL) {
-      mp->ps->enc_tree = avl_create (comp_enc_entry, NULL, &mp->ps->avl_xallocator);
+      mp->ps->enc_tree = avl_create (comp_enc_entry,
+                                     copy_enc_entry, 
+                                     destroy_enc_entry, 
+                                     malloc, free, NULL);
     }
     tmp.file_name = s;
-    p = (enc_entry *) avl_find (mp->ps->enc_tree, &tmp);
+    p = (enc_entry *) avl_find (&tmp, mp->ps->enc_tree);
     if (p != NULL)              /* encoding already registered */
         return p;
     p = mp_xmalloc (mp,1,sizeof (enc_entry));
@@ -573,27 +602,13 @@ static enc_entry * mp_add_enc (MP mp, char *s) {
 
 @ cleaning up... 
 
-@c 
-static void mp_destroy_enc_entry (void *pa, void *pb) {
-    enc_entry *p;
-    int i;
-    p = (enc_entry *) pa;
-    (void)pb;
-    mp_xfree (p->file_name);
-    if (p->glyph_names != NULL)
-        for (i = 0; i < 256; i++)
-            if (p->glyph_names[i] != notdef)
-                mp_xfree (p->glyph_names[i]);
-    mp_xfree (p->glyph_names);
-    mp_xfree (p);
-}
 
 @ @<Declarations@>=
 static void enc_free (MP mp);
 
 @ @c static void enc_free (MP mp) {
     if (mp->ps->enc_tree != NULL)
-      avl_destroy (mp->ps->enc_tree, mp_destroy_enc_entry);
+      avl_destroy (mp->ps->enc_tree);
 }
 
 @ @<Declarations@>=
@@ -708,6 +723,8 @@ static const char nontfm[] = "<nontfm>";
     if (a < b)
         return -1
 
+@d do_strdup(a) (a==NULL ? NULL : strdup(a))
+
 @c
 static fm_entry *new_fm_entry (MP mp) {
     fm_entry *fm;
@@ -734,7 +751,24 @@ static fm_entry *new_fm_entry (MP mp) {
     return fm;
 }
 
-static void delete_fm_entry (fm_entry * fm) {
+static void *copy_fm_entry (const void *p) {
+    fm_entry *fm, *fp;
+    fp = (fm_entry *)p;
+    fm = malloc (sizeof(fm_entry));
+    if (fm==NULL)
+      return NULL;
+    memcpy(fm, fp, sizeof(fm_entry));
+    fm->tfm_name   = do_strdup(fp->tfm_name);
+    fm->ps_name    = do_strdup(fp->ps_name);
+    fm->ff_name    = do_strdup(fp->ff_name);
+    fm->subset_tag = do_strdup(fp->subset_tag);
+    fm->charset    = do_strdup(fp->charset);
+    return (void *)fm;
+}
+
+
+static void * delete_fm_entry (void *p) {
+    fm_entry *fm = (fm_entry *)p;
     mp_xfree (fm->tfm_name);
     mp_xfree (fm->ps_name);
     mp_xfree (fm->ff_name);
@@ -751,7 +785,19 @@ static ff_entry *new_ff_entry (MP mp) {
     return ff;
 }
 
-static void delete_ff_entry (ff_entry * ff) {
+static void *copy_ff_entry (const void *p) {
+    ff_entry *ff, *fp;
+    fp = (ff_entry *)p;
+    ff = (ff_entry *)malloc (sizeof(ff_entry));
+    if (ff == NULL) 
+      return NULL;
+    ff->ff_name = do_strdup(fp->ff_name);
+    ff->ff_path = do_strdup(fp->ff_path);
+    return ff;
+}
+
+static void * delete_ff_entry (void *p) {
+    ff_entry *ff = (ff_entry *)p;
     mp_xfree (ff->ff_name);
     mp_xfree (ff->ff_path);
     mp_xfree (ff);
@@ -785,9 +831,9 @@ boolean mp_has_fm_entry (MP mp,font_number f, fm_entry **fm) {
 }
 
 @ @<Glob...@>=
-struct avl_table *tfm_tree;
-struct avl_table *ps_tree;
-struct avl_table *ff_tree;
+avl_tree tfm_tree;
+avl_tree ps_tree;
+avl_tree ff_tree;
 
 @ @<Set initial...@>=
 mp->ps->tfm_tree = NULL;
@@ -797,7 +843,7 @@ mp->ps->ff_tree = NULL;
 @ AVL sort |fm_entry| into |tfm_tree| by |tfm_name |
 
 @c
-static int comp_fm_entry_tfm (const void *pa, const void *pb, void *p) {
+static int comp_fm_entry_tfm (void *p, const void *pa, const void *pb) {
     (void)p;
     return strcmp (((const fm_entry *) pa)->tfm_name,
                    ((const fm_entry *) pb)->tfm_name);
@@ -805,7 +851,7 @@ static int comp_fm_entry_tfm (const void *pa, const void *pb, void *p) {
 
 @ AVL sort |fm_entry| into |ps_tree| by |ps_name|, |slant|, and |extend|
 
-@c static int comp_fm_entry_ps (const void *pa, const void *pb, void *p) {
+@c static int comp_fm_entry_ps (void *p, const void *pa, const void *pb) {
     int i;
     const fm_entry *p1 = (const fm_entry *) pa;
     const fm_entry *p2 = (const fm_entry *) pb;
@@ -823,7 +869,7 @@ static int comp_fm_entry_tfm (const void *pa, const void *pb, void *p) {
 
 @ AVL sort |ff_entry| into |ff_tree| by |ff_name|
 
-@c static int comp_ff_entry (const void *pa, const void *pb, void *p) {
+@c static int comp_ff_entry (void *p, const void *pa, const void *pb) {
     (void)p;
     return strcmp (((const ff_entry *) pa)->ff_name,
                    ((const ff_entry *) pb)->ff_name);
@@ -831,15 +877,24 @@ static int comp_fm_entry_tfm (const void *pa, const void *pb, void *p) {
 
 @ @c static void create_avl_trees (MP mp) {
     if (mp->ps->tfm_tree == NULL) {
-        mp->ps->tfm_tree = avl_create (comp_fm_entry_tfm, NULL, &mp->ps->avl_xallocator);
+        mp->ps->tfm_tree = avl_create (comp_fm_entry_tfm,
+                                      copy_fm_entry,
+                                      delete_fm_entry,
+                                      malloc, free, NULL);
         assert (mp->ps->tfm_tree != NULL);
     }
     if (mp->ps->ps_tree == NULL) {
-        mp->ps->ps_tree = avl_create (comp_fm_entry_ps, NULL, &mp->ps->avl_xallocator);
+        mp->ps->ps_tree = avl_create (comp_fm_entry_ps, 
+                                      copy_fm_entry,
+                                      delete_fm_entry,
+                                      malloc, free, NULL);
         assert (mp->ps->ps_tree != NULL);
     }
     if (mp->ps->ff_tree == NULL) {
-        mp->ps->ff_tree = avl_create (comp_ff_entry, NULL, &mp->ps->avl_xallocator);
+        mp->ps->ff_tree = avl_create (comp_ff_entry, 
+                                      copy_ff_entry,
+                                      delete_ff_entry,
+                                      malloc, free, NULL);
         assert (mp->ps->ff_tree != NULL);
     }
 }
@@ -868,7 +923,7 @@ static int avl_do_entry (MP mp, fm_entry * fp, int mode) {
     /* handle |tfm_name| link */
 
     if (strcmp (fp->tfm_name, nontfm)) {
-        p = (fm_entry *) avl_find (mp->ps->tfm_tree, fp);
+        p = (fm_entry *) avl_find (fp, mp->ps->tfm_tree);
         if (p != NULL) {
             if (mode == FM_DUPIGNORE) {
                mp_snprintf(s,128,"fontmap entry for `%s' already exists, duplicates ignored",
@@ -883,7 +938,7 @@ static int avl_do_entry (MP mp, fm_entry * fp, int mode) {
                     mp_warn(mp,s);
                     goto exit;
                 }
-                a = avl_delete (mp->ps->tfm_tree, p);
+                (void) avl_del (p,mp->ps->tfm_tree,&a);
                 assert (a != NULL);
                 unset_tfmlink (p);
                 if (!has_pslink (p))
@@ -901,7 +956,7 @@ static int avl_do_entry (MP mp, fm_entry * fp, int mode) {
 
     if (fp->ps_name != NULL) {
         assert (fp->tfm_name != NULL);
-        p = (fm_entry *) avl_find (mp->ps->ps_tree, fp);
+        p = (fm_entry *) avl_find (fp, mp->ps->ps_tree);
         if (p != NULL) {
             if (mode == FM_DUPIGNORE) {
                 mp_snprintf(s,128,
@@ -918,7 +973,7 @@ static int avl_do_entry (MP mp, fm_entry * fp, int mode) {
                     mp_warn(mp,s);
                     goto exit;
                 }
-                a = avl_delete (mp->ps->ps_tree, p);
+                (void)avl_del (p,mp->ps->ps_tree,&a);
                 assert (a != NULL);
                 unset_pslink (p);
                 if (!has_tfmlink (p))
@@ -1270,11 +1325,11 @@ static int check_fm_entry (MP mp, fm_entry * fm, boolean warn) {
     }
 }
 
-@ @<Declarations@>=
-static fm_entry * mp_fm_lookup (MP mp, font_number f);
+@ @<Exported function ...@>=
+fm_entry * mp_fm_lookup (MP mp, font_number f);
 
 @ @c 
-static fm_entry * mp_fm_lookup (MP mp, font_number f) {
+fm_entry * mp_fm_lookup (MP mp, font_number f) {
     char *tfm;
     fm_entry *fm;
     fm_entry tmp;
@@ -1285,7 +1340,7 @@ static fm_entry * mp_fm_lookup (MP mp, font_number f) {
     assert (strcmp (tfm, nontfm));
     /* Look up for full <tfmname>[+-]<expand> */
     tmp.tfm_name = tfm;
-    fm = (fm_entry *) avl_find (mp->ps->tfm_tree, &tmp);
+    fm = (fm_entry *) avl_find (&tmp, mp->ps->tfm_tree);
     if (fm != NULL) {
         init_fm (fm, f);
         return (fm_entry *) fm;
@@ -1295,7 +1350,7 @@ static fm_entry * mp_fm_lookup (MP mp, font_number f) {
         return NULL;
 
     tmp.tfm_name = tfm;
-    fm = (fm_entry *) avl_find (mp->ps->tfm_tree, &tmp);
+    fm = (fm_entry *) avl_find (&tmp, mp->ps->tfm_tree);
     if (fm != NULL) {           /* found an entry with the base tfm name, e.g. cmr10 */
       return (fm_entry *) fm; /* font expansion uses the base font */
     }
@@ -1320,7 +1375,7 @@ static ff_entry *check_ff_exist (MP mp, fm_entry * fm) {
 
     assert (fm->ff_name != NULL);
     tmp.ff_name = fm->ff_name;
-    ff = (ff_entry *) avl_find (mp->ps->ff_tree, &tmp);
+    ff = (ff_entry *) avl_find (&tmp, mp->ps->ff_tree);
     if (ff == NULL) {           /* not yet in database */
         ff = new_ff_entry (mp);
         ff->ff_name = mp_xstrdup (mp,fm->ff_name);
@@ -1458,11 +1513,11 @@ static void fm_free (MP mp);
 @ @c
 static void fm_free (MP mp) {
     if (mp->ps->tfm_tree != NULL)
-        avl_destroy (mp->ps->tfm_tree, destroy_fm_entry_tfm);
+        avl_destroy (mp->ps->tfm_tree);
     if (mp->ps->ps_tree != NULL)
-        avl_destroy (mp->ps->ps_tree, destroy_fm_entry_ps);
+        avl_destroy (mp->ps->ps_tree);
     if (mp->ps->ff_tree != NULL)
-        avl_destroy (mp->ps->ff_tree, destroy_ff_entry);
+        avl_destroy (mp->ps->ff_tree);
 }
 
 @ The file |ps_tab_file| gives a table of \TeX\ font names and corresponding
@@ -1474,11 +1529,11 @@ This routine reads the table, updates |font_ps_name| entries starting after
 
 @d ps_tab_name "psfonts.map"  /* locates font name translation table */
 
-@<Declarations@>=
-static void mp_read_psname_table (MP mp) ;
+@<Exported function ...@>=
+void mp_read_psname_table (MP mp) ;
 
 @ @c 
-static void mp_read_psname_table (MP mp) {
+void mp_read_psname_table (MP mp) {
   font_number k;
   if (mp->ps->mitem == NULL) {
     mp->ps->mitem = mp_xmalloc (mp,1,sizeof(mapitem));
@@ -2569,7 +2624,7 @@ static void cs_store (MP mp, boolean is_subr) {
 
 #define CC_STACK_SIZE       24
 
-static integer cc_stack[CC_STACK_SIZE], *stack_ptr = cc_stack;
+static double cc_stack[CC_STACK_SIZE], *stack_ptr = cc_stack;
 static cc_entry cc_tab[CS_MAX];
 static boolean is_cc_init = false;
 
@@ -2590,7 +2645,7 @@ static boolean is_cc_init = false;
 
 #define cc_get(N)   ((N) < 0 ? *(stack_ptr + (N)) : *(cc_stack + (N)))
 
-#define cc_push(V)  *stack_ptr++ = V
+#define cc_push(V)  *stack_ptr++ = (double)(V)
 #define cc_clear()  stack_ptr = cc_stack
 
 #define set_cc(N, B, A, C) \
@@ -2754,7 +2809,7 @@ static void cs_mark (MP mp, const char *cs_name, int subr)
             }
             switch (cc - cc_tab) {
             case CS_CALLSUBR:
-                a1 = cc_get (-1);
+                a1 = (integer)cc_get (-1);
                 cc_pop (1);
                 mark_subr (mp,a1);
                 if (!mp->ps->subr_tab[a1].valid) {
@@ -2767,9 +2822,10 @@ static void cs_mark (MP mp, const char *cs_name, int subr)
                 cc_push (0);
                 break;
             case CS_CALLOTHERSUBR:
-                if (cc_get (-1) == 3)
-                    lastargOtherSubr3 = cc_get (-3);
-                a1 = cc_get (-2) + 2;
+              a1 = (integer)cc_get (-1);
+                if (a1 == 3)
+                  lastargOtherSubr3 = (integer)cc_get (-3);
+                a1 = (integer)cc_get (-2) + 2;
                 cc_pop (a1);
                 break;
             case CS_POP:
@@ -2780,8 +2836,8 @@ static void cs_mark (MP mp, const char *cs_name, int subr)
                  */
                 break;
             case CS_SEAC:
-                a1 = cc_get (3);
-                a2 = cc_get (4);
+                a1 = (integer)cc_get (3);
+                a2 = (integer)cc_get (4);
                 cc_clear ();
                 mark_cs (mp,standard_glyph_names[a1]);
                 mark_cs (mp,standard_glyph_names[a2]);
@@ -2873,14 +2929,15 @@ static void init_cs_entry ( cs_entry * cs) {
 
 static void t1_mark_glyphs (MP mp, font_number tex_font);
 
-static void t1_read_subrs (MP mp, font_number tex_font, fm_entry *fm_cur)
+static void t1_read_subrs (MP mp, font_number tex_font, fm_entry *fm_cur, int read_only)
 {
     int i, s;
     cs_entry *ptr;
     t1_getline (mp);
     while (!(t1_charstrings () || t1_subrs ())) {
         t1_scan_param (mp,tex_font, fm_cur);
-        t1_putline (mp);
+        if (!read_only)
+          t1_putline (mp);
         t1_getline (mp);
     }
   FOUND:
@@ -2984,7 +3041,7 @@ static void t1_flush_cs (MP mp, boolean is_subr)
         cr = 4330;
         cs_len = 0;
         return_cs = mp_xmalloc (mp, (size_t)(mp->ps->t1_lenIV + 1) , sizeof(byte));
-        if ( mp->ps->t1_lenIV > 0) {
+        if ( mp->ps->t1_lenIV >= 0) {
             for (cs_len = 0, r = return_cs; 
                  cs_len<(unsigned short)mp->ps->t1_lenIV; cs_len++, r++)
                 *r = cencrypt (0x00, &cr);
@@ -3086,7 +3143,7 @@ static void t1_mark_glyphs (MP mp, font_number tex_font)
                 mp->ps->subr_max = ptr - mp->ps->subr_tab;
 }
 
-static void t1_subset_charstrings (MP mp, font_number tex_font) 
+static void t1_do_subset_charstrings (MP mp, font_number tex_font) 
 {
     cs_entry *ptr;
     mp->ps->cs_size_pos =
@@ -3107,6 +3164,12 @@ static void t1_subset_charstrings (MP mp, font_number tex_font)
     }
     mp->ps->cs_dict_end = mp_xstrdup (mp,mp->ps->t1_line_array);
     t1_mark_glyphs (mp,tex_font);
+}
+
+static void t1_subset_charstrings (MP mp, font_number tex_font) 
+{
+    cs_entry *ptr;
+    t1_do_subset_charstrings (mp, tex_font);
     if (mp->ps->subr_tab != NULL) {
         if (mp->ps->cs_token_pair == NULL) 
             mp_fatal_error
@@ -3189,7 +3252,7 @@ static void  writet1 (MP mp, font_number tex_font, fm_entry *fm_cur) {
     t1_start_eexec (mp,fm_cur);
     cc_init ();
     cs_init (mp);
-    t1_read_subrs (mp,tex_font, fm_cur);
+    t1_read_subrs (mp,tex_font, fm_cur, false);
     t1_subset_charstrings (mp,tex_font);
     t1_subset_end (mp);
     t1_close_font_file (mp,">");
@@ -3205,6 +3268,486 @@ static void  t1_free (MP mp) {
   mp_xfree (mp->ps->t1_buf_array);
 }
 
+@* Embedding Charstrings.
+
+The SVG backend uses some routines that use an ascii representation of
+a type1 font. First, here is the type associated with it:
+
+@<Types ...@>=
+typedef struct mp_ps_font {
+  int font_num; /* just to put something in */
+  char **t1_glyph_names;
+  cs_entry *cs_tab;
+  cs_entry *cs_ptr;
+  cs_entry *subr_tab;
+  int t1_lenIV;
+  int slant;
+  int extend;
+  @<Variables for the charstring parser@>
+} mp_ps_font;
+
+@ The parser creates a structure and fills it.
+
+@c
+
+mp_ps_font *mp_ps_font_parse (MP mp, int tex_font) {
+  mp_ps_font *f;
+  fm_entry *fm_cur;
+  char msg[128];
+  (void)mp_has_fm_entry (mp, tex_font, &fm_cur);
+  if (fm_cur == NULL) {
+    mp_snprintf(msg,128,"fontmap entry for `%s' not found", mp->font_name[tex_font]);
+    mp_warn(mp,msg);
+    return NULL;
+  }
+  if (is_truetype(fm_cur) ||
+	 (fm_cur->ps_name == NULL && fm_cur->ff_name == NULL) ||
+      (!is_included(fm_cur))) {
+    mp_snprintf(msg,128,"font `%s' cannot be embedded", mp->font_name[tex_font]);
+    mp_warn(mp,msg);
+    return NULL;
+  }
+  if (!t1_open_fontfile (mp,fm_cur,"<")) { /* message handled there */
+    return NULL;
+  }
+  f = mp_xmalloc(mp, 1, sizeof(struct mp_ps_font));
+  f->font_num = tex_font;
+  f->t1_glyph_names = NULL;
+  f->cs_tab   = NULL;
+  f->cs_ptr   = NULL;
+  f->subr_tab = NULL;
+  f->orig_x = f->orig_y = 0.0;
+  f->slant = (int)fm_cur->slant;
+  f->extend = (int)fm_cur->extend;
+  t1_getline (mp);
+  while (!t1_prefix ("/Encoding")) {
+    t1_scan_param (mp,tex_font, fm_cur);
+    t1_getline (mp);
+  }
+  t1_builtin_enc (mp);
+  if (is_reencoded (fm_cur)) {
+	mp_read_enc (mp, fm_cur->encoding);;
+    f->t1_glyph_names = external_enc ();
+  } else {
+    f->t1_glyph_names = mp->ps->t1_builtin_glyph_names;
+  }
+  do {
+    t1_getline (mp);
+    t1_scan_param (mp,tex_font, fm_cur);
+  } while (mp->ps->t1_in_eexec == 0);
+
+  /* t1_start_eexec (mp,fm_cur); */
+  cc_init ();
+  cs_init (mp);
+  /* the boolean is needed to make sure that |t1_read_subrs| 
+     doesn't output stuff */
+  t1_read_subrs (mp,tex_font, fm_cur, true);
+  mp->ps->t1_synthetic = true ;
+  t1_do_subset_charstrings (mp, tex_font);
+  f->cs_tab = mp->ps->cs_tab;
+  mp->ps->cs_tab = NULL;
+  f->cs_ptr = mp->ps->cs_ptr;
+  mp->ps->cs_ptr = NULL;
+  f->subr_tab = mp->ps->subr_tab;
+  mp->ps->subr_tab = NULL;   
+  f->t1_lenIV = mp->ps->t1_lenIV;
+  t1_close_font_file (mp,">");
+  return f;
+}
+
+@ @<Exported function headers@>=
+mp_ps_font *mp_ps_font_parse (MP mp, int tex_font);
+
+@ Freeing the structure
+
+@c
+void mp_ps_font_free (MP mp, mp_ps_font *f) {
+  (void)mp;
+  mp_xfree(f);
+}
+
+@ @<Exported function headers@>=
+void mp_ps_font_free (MP mp, mp_ps_font *f);
+
+
+@ Parsing Charstrings.
+
+@<Variables for the charstring parser@>=
+double cur_x, cur_y; /* current point */
+double orig_x, orig_y; /* origin (for seac) */
+mp_edge_object *h; /* the whole picture */
+mp_graphic_object *p; /* the current subpath in the picture */
+mp_knot *pp; /* the last known knot in the subpath */
+
+
+@ @c
+mp_edge_object *mp_ps_font_charstring (MP mp, mp_ps_font *f, int c) {
+  mp_edge_object *h = NULL;
+  f->h = NULL; f->p = NULL; f->pp = NULL; /* just in case */
+  f->cur_x = f->cur_y = 0.0;
+  f->orig_x = f->orig_y = 0.0;
+  if (cs_parse(mp,f,f->t1_glyph_names[c], 0)) {
+    h = f->h;
+  } else {
+    if (f->h != NULL) { 
+      finish_subpath();
+      mp_gr_toss_objects(f->h);
+    }
+  }
+  f->h = NULL; f->p = NULL; f->pp = NULL;
+  return h;
+}
+
+
+
+@ @<Exported function headers@>=
+mp_edge_object *mp_ps_font_charstring (MP mp, mp_ps_font *f, int c);
+
+
+@ 
+@<Declarations@>=
+boolean cs_parse (MP mp, mp_ps_font *f, const char *cs_name, int subr);
+
+@ 
+@d scaled_from_double(a) (scaled)((a)*65536.0)
+@d double_from_scaled(a) (double)((a)/65536.0)
+
+@d start_subpath(f,dx,dy) do {  
+  assert(f->pp == NULL);
+  assert(f->p == NULL);
+  f->pp = mp_xmalloc(mp, 1, sizeof (mp_knot));
+  f->pp->left_type = mp_endpoint;
+  f->pp->right_type = mp_open;
+  f->pp->x_coord = scaled_from_double(f->cur_x + dx);
+  f->pp->y_coord = scaled_from_double(f->cur_y + dy);
+  f->pp->left_x = f->pp->right_x = f->pp->x_coord;
+  f->pp->left_y = f->pp->right_y = f->pp->y_coord;
+  f->pp->next = NULL;
+  f->cur_x += dx;
+  f->cur_y += dy;
+  f->p = mp_new_graphic_object(mp,mp_fill_code);
+  gr_path_p((mp_fill_object *)f->p) = f->pp;
+} while (0)
+
+@d finish_subpath() do {
+  if (f->p != NULL) {
+    if (f->h->body == NULL) {
+      f->h->body = f->p;
+    } else {
+      mp_graphic_object *q = f->h->body;
+      while (gr_link(q) != NULL)
+        q = gr_link(q);
+      q->next = f->p;
+    }
+  }
+  f->p = NULL;
+  f->pp = NULL;
+} while (0)
+
+@d add_line_segment(f,dx,dy) do {
+   assert(f->pp != NULL);
+   n = mp_xmalloc(mp,1, sizeof (mp_knot));
+   n->left_type = mp_open;
+   n->right_type = mp_endpoint;
+   n->next = gr_path_p((mp_fill_object *)f->p); /* loop */  
+   n->x_coord = scaled_from_double(f->cur_x + dx);
+   n->y_coord = scaled_from_double(f->cur_y + dy);
+   n->right_x = n->x_coord;
+   n->right_y = n->y_coord;
+   n->left_x = n->x_coord;
+   n->left_y = n->y_coord;
+   f->pp->right_type = mp_open;
+   f->pp->next = n;
+   f->pp = n;
+   f->cur_x += dx;
+   f->cur_y += dy;
+} while (0)
+
+@d add_curve_segment(f,dx1,dy1,dx2,dy2,dx3,dy3) do {
+   n = mp_xmalloc(mp, 1, sizeof (mp_knot));
+   n->left_type = mp_open;
+   n->right_type = mp_endpoint; 
+   n->next = gr_path_p((mp_fill_object *)f->p); /* loop */  
+   n->x_coord = scaled_from_double(f->cur_x + dx1 + dx2 + dx3);
+   n->y_coord = scaled_from_double(f->cur_y + dy1 + dy2 + dy3);
+   n->right_x = n->x_coord;
+   n->right_y = n->y_coord;
+   n->left_x = scaled_from_double(f->cur_x + dx1 + dx2);
+   n->left_y = scaled_from_double(f->cur_y + dy1 + dy2);
+   f->pp->right_x = scaled_from_double(f->cur_x + dx1);
+   f->pp->right_y = scaled_from_double(f->cur_y + dy1);
+   f->pp->right_type = mp_open;
+   f->pp->next = n;
+   f->pp = n;
+   f->cur_x += dx1 + dx2 + dx3;
+   f->cur_y += dy1 + dy2 + dy3;
+} while (0)
+
+@d cs_no_debug(A) cs_do_debug(mp,f,A,#A)
+@d cs_debug(A) 
+
+@c 
+
+void cs_do_debug (MP mp, mp_ps_font *f, int i, char *s) {
+   int n = cc_tab[i].nargs;
+   (void)mp; /* for -Wall */
+   (void)f; /* for -Wall */
+   while (n>0) {
+      fprintf (stdout,"%d ", (int)cc_get((-n)));
+      n--;
+   }
+   fprintf (stdout,"%s\n", s);
+}
+
+boolean cs_parse (MP mp, mp_ps_font *f, const char *cs_name, int subr)
+{
+  byte *data;
+  int i, b, cs_len;
+  integer a, a1, a2;
+  unsigned short cr;
+  static integer lastargOtherSubr3 = 3;
+
+  cs_entry *ptr;
+  cc_entry *cc;
+  mp_knot *n;
+
+  if (cs_name == NULL) {
+     ptr = f->subr_tab + subr;
+  } else {
+    i = 0;
+    for (ptr = f->cs_tab; ptr < f->cs_ptr; ptr++, i++) {
+      if (strcmp (ptr->glyph_name, cs_name) == 0)
+        break;
+    }
+    ptr = f->cs_tab+i; /* this is the right charstring */
+  }
+
+  data = ptr->data + 4;
+  cr = 4330;
+  cs_len = (int)ptr->cslen;
+  for (i = 0; i < f->t1_lenIV; i++, cs_len--)
+      (void)cs_getchar (mp);
+
+  while (cs_len > 0) {
+    --cs_len;
+    b = cs_getchar(mp);
+    if (b >= 32) {
+       if (b <= 246)
+           a = b - 139;
+       else if (b <= 250) {
+           --cs_len;
+           a = (int)((unsigned)(b - 247) << 8) + 108 + cs_getchar (mp);
+       } else if (b <= 254) {
+           --cs_len;
+           a = -(int)((unsigned)(b - 251) << 8) - 108 - cs_getchar (mp);
+       } else {
+           cs_len -= 4;
+           a = (cs_getchar (mp) & 0xff) << 24;
+           a |= (cs_getchar (mp) & 0xff) << 16;
+           a |= (cs_getchar (mp) & 0xff) << 8;
+           a |= (cs_getchar (mp) & 0xff) << 0;
+           if (sizeof (integer) > 4 && (a & 0x80000000))
+               a |= ~0x7FFFFFFF;
+       }
+       cc_push (a);
+   } else {
+       if (b == CS_ESCAPE) {
+           b = cs_getchar (mp) + CS_1BYTE_MAX;
+           cs_len--;
+       }
+       if (b >= CS_MAX) {
+           cs_warn (mp,cs_name, subr, "command value out of range: %i",
+                    (int) b);
+           goto cs_error;
+       }
+       cc = cc_tab + b;
+       if (!cc->valid) {
+           cs_warn (mp,cs_name, subr, "command not valid: %i", (int) b);
+           goto cs_error;
+       }
+       if (cc->bottom) {
+           if (stack_ptr - cc_stack < cc->nargs)
+               cs_warn (mp,cs_name, subr,
+                        "less arguments on stack (%i) than required (%i)",
+                        (int) (stack_ptr - cc_stack), (int) cc->nargs);
+           else if (stack_ptr - cc_stack > cc->nargs)
+               cs_warn (mp,cs_name, subr,
+                        "more arguments on stack (%i) than required (%i)",
+                        (int) (stack_ptr - cc_stack), (int) cc->nargs);
+       }
+      switch (cc - cc_tab) {
+      case CS_CLOSEPATH: /* - CLOSEPATH |- */
+        cs_debug(CS_CLOSEPATH);
+        finish_subpath();
+        cc_clear ();
+        break;
+      case CS_HLINETO: /* |- dx HLINETO  |- */
+        cs_debug(CS_HLINETO);
+        add_line_segment(f,cc_get(-1),0);
+        cc_clear ();
+        break;
+      case CS_HVCURVETO: /* |- dx1 dx2 dy2 dy3 HVCURVETO |- */
+        cs_debug(CS_HVCURVETO);
+        add_curve_segment(f,cc_get(-4),0,cc_get(-3),cc_get(-2),0,cc_get(-1));
+        cc_clear ();
+        break;
+      case CS_RLINETO: /* |- dx dy RLINETO |- */
+        cs_debug(CS_RLINETO);
+        add_line_segment(f,cc_get(-2),cc_get(-1));
+        cc_clear ();
+        break;
+      case CS_RRCURVETO: /* |- dx1 dy1 dx2 dy2 dx3 dy3 RRCURVETO |- */
+        cs_debug(CS_RRCURVETO);
+        add_curve_segment(f,cc_get(-6),cc_get(-5),cc_get(-4),cc_get(-3),cc_get(-2),cc_get(-1));
+        cc_clear ();
+        break;
+      case CS_VHCURVETO: /* |- dy1 dx2 dy2 dx3 VHCURVETO |- */
+        cs_debug(CS_VHCURVETO);
+        add_curve_segment(f,0, cc_get(-4),cc_get(-3),cc_get(-2),cc_get(-1),0);
+        cc_clear ();
+        break;
+      case CS_VLINETO: /* |- dy VLINETO |- */
+        cs_debug(CS_VLINETO);
+        add_line_segment(f,0,cc_get(-1));
+        cc_clear ();
+        break;
+      case CS_HMOVETO: /* |- dx HMOVETO  |- */
+        cs_debug(CS_HMOVETO);
+        finish_subpath();
+        start_subpath(f,cc_get(-1),0);
+        cc_clear ();
+        break;
+      case CS_RMOVETO:  /* |- dx dy RMOVETO |- */
+        cs_debug(CS_RMOVETO);
+        finish_subpath();
+        start_subpath(f,cc_get(-2),cc_get(-1));
+        cc_clear ();
+        break;
+      case CS_VMOVETO: /* |- dy VMOVETO |- */
+        cs_debug(CS_VMOVETO);
+        finish_subpath();
+        start_subpath(f,0,cc_get(-1));
+        cc_clear ();
+        break;
+        /* hinting commands */
+      case CS_DOTSECTION: /* - DOTSECTION |- */
+        cs_debug(CS_DOTSECTION);
+        cc_clear ();
+        break;
+      case CS_HSTEM:  /* |- y dy HSTEM |- */
+        cs_debug(CS_HSTEM);
+        cc_clear ();
+        break;
+      case CS_HSTEM3: /* |- y0 dy0 y1 dy1 y2 dy2 HSTEM3 |- */
+        cs_debug(CS_HSTEM3);
+        cc_clear ();
+        break;
+      case CS_VSTEM:  /* |- x dx VSTEM |- */
+        cs_debug(CS_VSTEM);
+        cc_clear ();
+        break;
+      case CS_VSTEM3: /* |- x0 dx0 x1 dx1 x2 dx2 VSTEM3 |- */
+        cs_debug(CS_VSTEM3);
+        cc_clear ();
+        break;
+        /* start and close commands */
+      case CS_SEAC: /* |- asb adx ady bchar achar SEAC |- */
+        cs_debug(CS_SEAC);
+        { double adx, ady;
+          adx = cc_get (1);
+          ady = cc_get (2);
+          a1 = (integer)cc_get (3);
+          a2 = (integer)cc_get (4);
+          cc_clear ();
+          (void)cs_parse(mp,f,standard_glyph_names[a1],0); /* base */
+          f->orig_x += adx;
+          f->orig_y += ady;
+          (void)cs_parse(mp,f,standard_glyph_names[a2],0);
+        }
+        break;
+      case CS_ENDCHAR: /* - ENDCHAR |- */
+        cs_debug(CS_ENDCHAR);
+        cc_clear ();
+        return true;
+        break;
+      case CS_HSBW:  /* |- sbx wx HSBW |- */
+        cs_debug(CS_HSBW);
+        f->h = mp_xmalloc(mp, 1,sizeof(mp_edge_object));
+        f->h->body = NULL; f->h->next = NULL;
+        f->h->parent = mp;
+        f->h->filename = NULL;
+        f->h->minx = f->h->miny = f->h->maxx = f->h->maxy = 0;
+        f->cur_x = cc_get(-2) + f->orig_x;
+        f->cur_y = 0.0 + f->orig_y;
+        f->orig_x = f->cur_x;
+        f->orig_y = f->cur_y;
+        cc_clear ();
+        break;
+      case CS_SBW: /* |- sbx sby wx wy SBW |- */
+        cs_debug(CS_SBW);
+        f->h = mp_xmalloc(mp, 1,sizeof(mp_edge_object));
+        f->h->body = NULL; f->h->next = NULL;
+        f->h->parent = mp;
+        f->h->filename = NULL;
+        f->h->minx = f->h->miny = f->h->maxx = f->h->maxy = 0;
+        f->cur_x = cc_get(-4) + f->orig_x;
+        f->cur_y = cc_get(-3) + f->orig_y;
+        f->orig_x = f->cur_x;
+        f->orig_y = f->cur_y;
+        cc_clear ();
+        break;
+        /* arithmetic */
+      case CS_DIV:  /* num1 num2 DIV quotient */
+        cs_debug(CS_DIV);
+        { double num,den,res;
+          num = cc_get (-2);
+          den = cc_get (-1);
+          res = num/den;
+          cc_pop (2);
+          cc_push (res);
+          break;
+        }
+        /* subrs */
+      case CS_CALLSUBR: /* subr CALLSUBR - */
+        cs_debug(CS_CALLSUBR);
+        a1 = (integer)cc_get (-1);
+        cc_pop (1);
+        (void)cs_parse(mp,f,NULL,a1);
+        break;
+      case CS_RETURN: /* - RETURN - */
+        cs_debug(CS_RETURN);
+        return true;
+        break;
+      case CS_CALLOTHERSUBR: /* arg1 ... argn n othersubr CALLOTHERSUBR - */
+        a1 = (integer)cc_get (-1);
+        if (a1 == 3)
+          lastargOtherSubr3 = (integer)cc_get (-3);
+        a1 = (integer)cc_get(-2) + 2;
+        cc_pop (a1);
+        break;
+      case CS_POP: /* - POP number */
+        cc_push (lastargOtherSubr3);
+        break;
+      case CS_SETCURRENTPOINT: /* |- x y SETCURRENTPOINT |- */
+        cs_debug(CS_SETCURRENTPOINT);
+        f->cur_x = cc_get(-2);
+        f->cur_y = cc_get(-1);
+        f->pp = NULL;
+        cc_clear ();
+        break;
+      default:
+        if (cc->clear)
+          cc_clear ();
+      }
+    }
+  }  
+  return true;
+cs_error:   /* an error occured during parsing */
+  cc_clear ();
+  ptr->valid = false;
+  ptr->is_used = false;
+  return false;
+}
 
 @* \[44d] Embedding fonts.
 
@@ -5510,7 +6053,7 @@ int mp_gr_ship_out (mp_edge_object *hh, int qprologues, int qprocset,int standal
   }
   mp_ps_print_cmd(mp, "showpage","P"); mp_ps_print_ln(mp);
   mp_ps_print(mp, "%%EOF"); mp_ps_print_ln(mp);
-  (mp->close_file)(mp,mp->ps_file);
+  (mp->close_file)(mp,mp->output_file);
   if ( prologues<=0 ) 
     mp_clear_sizes(mp);
   return 1;

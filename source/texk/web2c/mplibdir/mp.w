@@ -1,18 +1,18 @@
-% $Id: mp.w 806 2008-12-23 16:22:29Z taco $
+% $Id: mp.w 873 2009-03-19 07:44:11Z taco $
 %
 % Copyright 2008 Taco Hoekwater.
 %
 % This program is free software: you can redistribute it and/or modify
-% it under the terms of the GNU General Public License as published by
-% the Free Software Foundation, either version 2 of the License, or
+% it under the terms of the GNU Lesser General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
 % (at your option) any later version.
 %
 % This program is distributed in the hope that it will be useful,
 % but WITHOUT ANY WARRANTY; without even the implied warranty of
 % MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-% GNU General Public License for more details.
+% GNU Lesser General Public License for more details.
 %
-% You should have received a copy of the GNU General Public License
+% You should have received a copy of the GNU Lesser General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 % TeX is a trademark of the American Mathematical Society.
@@ -89,13 +89,13 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d default_banner "This is MetaPost, Version 1.102" /* printed when \MP\ starts */
+@d default_banner "This is MetaPost, Version 1.110" /* printed when \MP\ starts */
 @d true 1
 @d false 0
 
 @(mpmp.h@>=
-#define metapost_version "1.102"
-#define metapost_magic (('M'*256) + 'P')*65536 + 1102
+#define metapost_version "1.110"
+#define metapost_magic (('M'*256) + 'P')*65536 + 1110
 #define metapost_old_magic (('M'*256) + 'P')*65536 + 1080
 
 @ The external library header for \MP\ is |mplib.h|. It contains a
@@ -124,6 +124,7 @@ wholesale.
 @(mpmp.h@>=
 #include <setjmp.h>
 typedef struct psout_data_struct * psout_data;
+typedef struct svgout_data_struct * svgout_data;
 #ifndef HAVE_BOOLEAN
 typedef int boolean;
 #endif
@@ -133,13 +134,6 @@ typedef int integer;
 @<Declare helpers@>
 @<Types in the outer block@>
 @<Constants in the outer block@>
-#  ifndef LIBAVL_ALLOCATOR
-#    define LIBAVL_ALLOCATOR
-    struct libavl_allocator {
-        void *(*libavl_malloc) (struct libavl_allocator *, size_t libavl_size);
-        void (*libavl_free) (struct libavl_allocator *, void *libavl_block);
-    };
-#  endif
 typedef struct MP_instance {
   @<Option variables@>
   @<Global variables@>
@@ -159,8 +153,10 @@ typedef struct MP_instance {
 #include <time.h> /* for struct tm \& co */
 #include "mplib.h"
 #include "mplibps.h" /* external header */
+#include "mplibsvg.h" /* external header */
 #include "mpmp.h" /* internal header */
 #include "mppsout.h" /* internal header */
+#include "mpsvgout.h" /* internal header */
 extern font_number mp_read_font_info (MP mp, char *fname); /* tfmin.w */
 @h
 @<Declarations@>
@@ -375,6 +371,7 @@ int hash_prime; /* a prime number equal to about 85\pct! of |hash_size| */
 int error_line; /* width of context lines on terminal error messages */
 int half_error_line; /* width of first lines of contexts in terminal
   error messages; should be between 30 and |error_line-15| */
+int halt_on_error; /* do we quit at the first error? */
 int max_print_line; /* width of longest text lines output; should be at least 60 */
 unsigned hash_size; /* maximum number of symbolic tokens,
   must be less than |max_halfword-3*param_size| */
@@ -401,6 +398,7 @@ if (mp->half_error_line>mp->error_line-15 )
   mp->half_error_line = mp->error_line-15;
 mp->max_print_line=100;
 set_value(mp->max_print_line,opt->max_print_line,79);
+mp->halt_on_error = (opt->halt_on_error ? true : false);
 
 @ In case somebody has inadvertently made bad settings of the ``constants,''
 \MP\ checks them using a global variable called |bad|.
@@ -1623,7 +1621,7 @@ to the terminal, the transcript file, or the \ps\ output file, respectively.
 
 @<Glob...@>=
 void * log_file; /* transcript of \MP\ session */
-void * ps_file; /* the generic font output goes here */
+void * output_file; /* the generic font output goes here */
 unsigned int selector; /* where to print a message */
 unsigned char dig[23]; /* digits in a number, for rounding */
 integer tally; /* the number of characters recently printed */
@@ -2099,7 +2097,6 @@ const char * help_line[6]; /* helps for the next |error| */
 unsigned int help_ptr; /* the number of help lines present */
 boolean use_err_help; /* should the |err_help| string be shown? */
 str_number err_help; /* a string set up by \&{errhelp} */
-str_number filename_template; /* a string set up by \&{filenametemplate} */
 
 @ @<Allocate or ...@>=
 mp->use_err_help=false;
@@ -2138,6 +2135,9 @@ void mp_error (MP mp) { /* completes the job of error reporting */
   if ( mp->history<mp_error_message_issued ) 
 	mp->history=mp_error_message_issued;
   mp_print_char(mp, xord('.')); mp_show_context(mp);
+  if (mp->halt_on_error) {
+    mp->history=mp_fatal_error_stop; mp_jump_out(mp);
+  }
   if ((!mp->noninteractive) && (mp->interaction==mp_error_stop_mode )) {
     @<Get user's advice and |return|@>;
   }
@@ -3949,7 +3949,6 @@ char *mp_xstrdup(MP mp, const char *s) {
 
 @ @<Internal library declarations@>=
 #ifdef HAVE_SNPRINTF
-extern int snprintf(char *str, size_t size, const char *format, ...);
 #define mp_snprintf (void)snprintf
 #else
 #define mp_snprintf mp_do_snprintf
@@ -3989,31 +3988,13 @@ static char *mp_utoa (unsigned v) {
 void mp_do_snprintf (char *str, int size, const char *format, ...) {
   const char *fmt;
   char *res;
-  int fw, pad;
   va_list ap;
   va_start(ap, format);
   res = str;
   for (fmt=format;*fmt!='\0';fmt++) {
      if (*fmt=='%') {
-       fw=0;
-       pad=0;
        fmt++;
        switch(*fmt) {
-       case '0':
-         pad=1;
-         break;
-       case '1':
-       case '2':
-       case '3':
-       case '4':
-       case '5':
-       case '6':
-       case '7':
-       case '8':
-       case '9':
-          assert(fw==0);
-          fw = *fmt-'0';
-          break;
        case 's':
          {
            char *s = va_arg(ap, char *);
@@ -4027,13 +4008,6 @@ void mp_do_snprintf (char *str, int size, const char *format, ...) {
        case 'd':
          {
            char *s = mp_itoa(va_arg(ap, int));
-           if (fw) {
-              int ffw = fw-strlen(s);
-              while (ffw-->0) {
-                 *res = (pad ? '0' : ' ');
-                 if (size-->0) res++;
-              }
-           }
            if (s != NULL) {
              while (*s) {
                *res = *s++;
@@ -4045,13 +4019,6 @@ void mp_do_snprintf (char *str, int size, const char *format, ...) {
        case 'u':
          {
            char *s = mp_utoa(va_arg(ap, unsigned));
-           if (fw) {
-              int ffw = fw-strlen(s);
-              while (ffw-->0) {
-                 *res = (pad ? '0' : ' ');
-                 if (size-->0) res++;
-              }
-           }
            if (s != NULL) {
              while (*s) {
                *res = *s++;
@@ -5107,7 +5074,9 @@ fuss with. Every such parameter has an identifying code number, defined here.
 
 @<Types...@>=
 enum mp_given_internal {
-  mp_tracing_titles=1, /* show titles online when they appear */
+  mp_output_template=1, /* a string set up by \&{outputtemplate} */
+  mp_output_format, /* the output format set up by \&{outputformat} */
+  mp_tracing_titles, /* show titles online when they appear */
   mp_tracing_equations, /* show each variable when it becomes known */
   mp_tracing_capsules, /* show capsules too */
   mp_tracing_choices, /* show the control points chosen for paths */
@@ -5256,6 +5225,10 @@ mp_primitive(mp, "defaultcolormodel",internal_quantity,mp_default_color_model);
 @:mp_default_color_model_}{\&{defaultcolormodel} primitive@>
 mp_primitive(mp, "restoreclipcolor",internal_quantity,mp_restore_clip_color);
 @:mp_restore_clip_color_}{\&{restoreclipcolor} primitive@>
+mp_primitive(mp, "outputtemplate",internal_quantity,mp_output_template);
+@:mp_output_template_}{\&{outputtemplate} primitive@>
+mp_primitive(mp, "outputformat",internal_quantity,mp_output_format);
+@:mp_output_format_}{\&{outputformat} primitive@>
 
 @ Colors can be specified in four color models. In the special
 case of |no_model|, MetaPost does not output any color operator to
@@ -5282,6 +5255,8 @@ enum mp_color_model {
 @ @<Initialize table entries (done by \.{INIMP} only)@>=
 mp->internal[mp_default_color_model]=(mp_rgb_model*unity);
 mp->internal[mp_restore_clip_color]=unity;
+mp->internal[mp_output_template]=intern("%j.%c");
+mp->internal[mp_output_format]=intern("eps");
 
 @ Well, we do have to list the names one more time, for use in symbolic
 printouts.
@@ -5324,6 +5299,8 @@ mp->int_name[mp_default_color_model]=xstrdup("defaultcolormodel");
 mp->int_name[mp_procset]=xstrdup("mpprocset");
 mp->int_name[mp_gtroffmode]=xstrdup("troffmode");
 mp->int_name[mp_restore_clip_color]=xstrdup("restoreclipcolor");
+mp->int_name[mp_output_template]=xstrdup("outputtemplate");
+mp->int_name[mp_output_format]=xstrdup("outputformat");
 
 @ The following procedure, which is called just before \MP\ initializes its
 input and output, establishes the initial values of the date and time.
@@ -13081,6 +13058,7 @@ by analogy with |line_stack|.
 
 @<Glob...@>=
 integer in_open; /* the number of lines in the buffer, less one */
+integer in_open_max; /* highest value of |in_open| ever seen */
 unsigned int open_parens; /* the number of open text files */
 void  * *input_file ;
 integer *line_stack ; /* the line number for each file */
@@ -13585,6 +13563,8 @@ or |limit| or |line|.
   if ( mp->first==mp->buf_size ) 
     mp_reallocate_buffer(mp,(mp->buf_size+(mp->buf_size/4)));
   incr(mp->in_open); push_input; iindex=mp->in_open;
+  if (mp->in_open_max<mp->in_open)
+    mp->in_open_max=mp->in_open;
   mp->mpx_name[iindex]=absent;
   start=(halfword)mp->first;
   name=is_term; /* |terminal_input| is now |true| */
@@ -16082,7 +16062,7 @@ to the |name_of_file| value that is used to open files. The present code
 allows both lowercase and uppercase letters in the file name.
 @^system dependencies@>
 
-@d append_to_name(A) { c=xord((int)(A)); 
+@d append_to_name(A) { c=xord((ASCII_code)(A));
   if ( k<file_name_size ) {
     mp->name_of_file[k]=(char)xchr(c);
     incr(k);
@@ -16200,7 +16180,7 @@ static str_number mp_make_name_string (MP mp) {
   int k; /* index into |name_of_file| */
   str_room(mp->name_length);
   for (k=0;k<mp->name_length;k++) {
-    append_char(xord((int)mp->name_of_file[k]));
+    append_char(xord((ASCII_code)mp->name_of_file[k]));
   }
   return mp_make_string(mp);
 }
@@ -16262,7 +16242,7 @@ void mp_ptr_scan_file (MP mp,  char *s) {
   mp_begin_name(mp);
   p=s; q=p+strlen(s);
   while ( p<q ){ 
-    if ( ! mp_more_name(mp, xord((int)(*p)))) break;
+    if ( ! mp_more_name(mp, xord((ASCII_code)(*p)))) break;
     p++;
   }
   mp_end_name(mp);
@@ -17721,6 +17701,8 @@ of the save stack, as described earlier.)
     mp_back_input(mp);
   }
   mp->cur_type=mp_known; mp->cur_exp=mp->internal[q];
+  if (q == mp_output_format || q == mp_output_template)
+    mp->cur_type=mp_string_type;
 }
 
 @ The most difficult part of |scan_primary| has been saved for last, since
@@ -21697,7 +21679,9 @@ void mp_do_assignment (MP mp) {
 }
 
 @ @<Assign the current expression to an internal variable@>=
-if ( mp->cur_type==mp_known )  {
+if ( mp->cur_type==mp_known || mp->cur_type==mp_string_type )  {
+  if (mp->cur_type==mp_string_type)
+    add_str_ref(mp->cur_exp);
   mp->internal[mp_info(lhs)-(hash_end)]=mp->cur_exp;
 } else { 
   exp_err("Internal quantity `");
@@ -25508,7 +25492,7 @@ static char *mp_set_output_file_name (MP mp, integer c) {
   integer cc; /* a temporary integer for template building  */
   integer f,g=0; /* field widths */
   if ( mp->job_name==NULL ) mp_open_log_file(mp);
-  if ( mp->filename_template==0 ) {
+  if ( mp->internal[mp_output_template]==0) { 
     char *s; /* a file extension derived from |c| */
     if ( c<0 ) 
       s=xstrdup(".ps");
@@ -25522,15 +25506,21 @@ static char *mp_set_output_file_name (MP mp, integer c) {
     old_setting=mp->selector; 
     mp->selector=new_string;
     f = 0;
-    i = mp->str_start[mp->filename_template];
+    i = mp->str_start[mp->internal[mp_output_template]];
     n = null_str; /* initialize */
-    while ( i<str_stop(mp->filename_template) ) {
+    while ( i<str_stop(mp->internal[mp_output_template]) ) {
        if ( mp->str_pool[i]=='%' ) {
       CONTINUE:
         incr(i);
-        if ( i<str_stop(mp->filename_template) ) {
+        if ( i<str_stop(mp->internal[mp_output_template]) ) {
           if ( mp->str_pool[i]=='j' ) {
             mp_print(mp, mp->job_name);
+          } else if ( mp->str_pool[i]=='o' ) {
+             { char *s;
+               s = str(mp->internal[mp_output_format]);
+               mp_print(mp, s);
+               mp_xfree(s);
+             }
           } else if ( mp->str_pool[i]=='d' ) {
              cc= mp_round_unscaled(mp, mp->internal[mp_day]);
              print_with_leading_zeroes(cc);
@@ -25597,7 +25587,7 @@ void mp_open_output_file (MP mp) {
   integer c; /* \&{charcode} rounded to the nearest integer */
   c=mp_round_unscaled(mp, mp->internal[mp_char_code]);
   ss = mp_set_output_file_name(mp, c);
-  while ( ! mp_a_open_out(mp, (void *)&mp->ps_file, mp_filetype_postscript) )
+  while ( ! mp_a_open_out(mp, (void *)&mp->output_file, mp_filetype_postscript) )
     mp_prompt_file_name(mp, "file name for output",ss);
   xfree(ss);
   @<Store the true output file name if appropriate@>;
@@ -25917,14 +25907,25 @@ void mp_ship_out (MP mp, pointer h) { /* output edge structure |h| */
 @ @<Declarations@>=
 static void mp_shipout_backend (MP mp, pointer h);
 
-@ @c
+@ 
+@c
 void mp_shipout_backend (MP mp, pointer h) {
+  char *s;
   mp_edge_object *hh; /* the first graphical object */
   hh = mp_gr_export(mp,h);
-  (void)mp_gr_ship_out (hh,
+  s = NULL;
+  if (mp->internal[mp_output_format]>0)
+    s =  str(mp->internal[mp_output_format]);
+  if (s && strcmp(s,"svg")==0) {
+    (void)mp_svg_gr_ship_out (hh,
+                 (mp->internal[mp_prologues]/65536),
+                 false);
+  } else {
+    (void)mp_gr_ship_out (hh,
                  (mp->internal[mp_prologues]/65536),
                  (mp->internal[mp_procset]/65536), 
                  false);
+  }
   mp_gr_toss_objects(hh);
 }
 
@@ -25947,12 +25948,15 @@ by which a user can send things to the \.{GF} file.
 
 @ @<Glob...@>=
 psout_data ps;
+svgout_data svg;
 
 @ @<Allocate or initialize ...@>=
-mp_backend_initialize(mp);
+mp_ps_backend_initialize(mp);
+mp_svg_backend_initialize(mp);
 
 @ @<Dealloc...@>=
-mp_backend_free(mp);
+mp_ps_backend_free(mp);
+mp_svg_backend_free(mp);
 
 
 @* \[45] Dumping and undumping the tables.
@@ -26068,7 +26072,6 @@ if (mp->ini_version) {
     mp->mem_name = mp_xstrdup(mp,"plain");
   }
   if (mp_open_mem_file(mp)) {
-    char *sfile = NULL;
     i = mp_undump_constants(mp);
     if (i != metapost_magic)
       goto OFF_BASE;    
@@ -26076,8 +26079,7 @@ if (mp->ini_version) {
     goto DONE;
 OFF_BASE:
     wterm_ln("(Fatal mem file error; ");
-    sfile = (mp->find_file)(mp, mp->mem_name, "r", mp_filetype_memfile);
-    if (sfile!=NULL) wterm(sfile);
+    wterm((mp->find_file)(mp, mp->mem_name, "r", mp_filetype_memfile));
     if (i>metapost_old_magic && i<metapost_magic) {
       wterm(" was written by an older version)\n");
     } else {
@@ -26215,10 +26217,11 @@ if ( mp->log_opened ) {
   wlog_ln(s);
   mp_snprintf(s,128," %i symbolic tokens out of %i", (int)mp->st_count, (int)mp->hash_size);
   wlog_ln(s);
-  mp_snprintf(s,128," %ii,%in,%ip,%ib stack positions out of %ii,%in,%ip,%ib",
+  mp_snprintf(s,128," %ii,%in,%ip,%ib,%if stack positions out of %ii,%in,%ip,%ib,%if",
            (int)mp->max_in_stack,(int)mp->int_ptr,
-           (int)mp->max_param_stack,(int)mp->max_buf_stack+1,
-           (int)mp->stack_size,(int)mp->max_internal,(int)mp->param_size,(int)mp->buf_size);
+           (int)mp->max_param_stack,(int)mp->max_buf_stack+1,(int)mp->in_open_max,
+           (int)mp->stack_size,(int)mp->max_internal,(int)mp->param_size,
+	   (int)mp->buf_size,(int)mp->max_in_open);
   wlog_ln(s);
   mp_snprintf(s,128," %i string compactions (moved %i characters, %i strings)",
           (int)mp->pact_count,(int)mp->pact_chars,(int)mp->pact_strs);
@@ -26352,10 +26355,12 @@ But when we finish this part of the program, \MP\ is ready to call on the
 
 @<Save the filename template@>=
 { 
-  if ( mp->filename_template!=0 ) delete_str_ref(mp->filename_template);
-  if ( length(mp->cur_exp)==0 ) mp->filename_template=0;
-  else { 
-    mp->filename_template=mp->cur_exp; add_str_ref(mp->filename_template);
+  delete_str_ref(mp->internal[mp_output_template]);
+  if ( length(mp->cur_exp)==0 ) {
+    mp->internal[mp_output_template] = rts("%j.%c");
+  } else { 
+    mp->internal[mp_output_template]=mp->cur_exp; 
+    add_str_ref(mp->internal[mp_output_template]);
   }
 }
 

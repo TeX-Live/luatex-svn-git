@@ -14,14 +14,17 @@ luatex_tangle = WEBINPUTS=$(srcdir)/luatexdir $(buildenv) $(LUATANGLE)
 
 luatex_CPPFLAGS = $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(XPDF_INCLUDES)
 luatex_CPPFLAGS += $(OBSDCOMPAT_INCLUDES) -I$(srcdir)/libmd5
-luatex_CPPFLAGS += -Iluatexdir -I$(srcdir)/luatexdir -I$(srcdir)/luatexdir/lua51 -I$(srcdir)/luatexdir/mp
+luatex_CPPFLAGS += -Iluatexdir -I$(srcdir)/luatexdir -I$(srcdir)/luatexdir/lua51 -I$(srcdir)/mplibdir
 luatex_CPPFLAGS += -Dextra_version_info=`date +-%Y%m%d%H`
 
 luatex_ldadd = libluatex.a libff.a libluamisc.a libzzip.a libluasocket.a liblua51.a
 luatex_ldadd += $(LIBPNG_LIBS) $(ZLIB_LIBS) $(XPDF_LIBS)
-luatex_ldadd += $(OBSDCOMPAT_LIBS) libmd5.a
+luatex_ldadd += $(OBSDCOMPAT_LIBS) libmd5.a libmplib.a 
 
 luatex_LDADD = $(luatex_ldadd) $(LDADD) $(socketlibs)
+
+## We must have created libmplib.a already
+$(luatex_OBJECTS): libmplib.a
 
 luatex_DEPENDENCIES = $(proglib) libluatex.a
 luatex_DEPENDENCIES += $(LIBPNG_DEPEND) $(ZLIB_DEPEND) $(XPDF_DEPEND)
@@ -635,7 +638,7 @@ libluatex_a_SOURCES = \
 	luatexdir/managed-sa.c \
 	luatexdir/managed-sa.h \
 	luatexdir/mathcodes.c \
-        luatexdir/mp/lmplib.c \
+    mplibdir/lmplib.c \
 	luatexdir/nodes.h \
 	luatexdir/pdf/pagetree.c \
 	luatexdir/pdf/pdfpage.c \
@@ -662,34 +665,6 @@ libluatex_a_SOURCES = \
 	luatexdir/utils/synctex.c \
 	luatexdir/utils/utils.c \
 	luatexdir/utils/writezip.c
-
-nodist_libluatex_a_SOURCES = $(lua_mp_c_h)
-
-## We must create lua_mp_c_h before building the libluatex_a_SOURCES.
-$(libluatex_a_OBJECTS): $(lua_mp_c_h)
-
-## These files are mutually dependent
-lua_mp_c_h =  luatexdir/mp.c luatexdir/mplib.h luatexdir/mpmp.h
-lua_mp_c_h += luatexdir/mppsout.h luatexdir/psout.c luatexdir/mplibps.h 
-lua_mp_c_h += luatexdir/memio.c luatexdir/tfmin.c
-lua_mp_web =  luatexdir/mp/avl.h luatexdir/mp/avl.c luatexdir/mp/mp.w luatexdir/mp/psout.w
-lua_mp_web += luatexdir/mp/memio.w luatexdir/mp/tfmin.w
-libluatex_a_CPPFLAGS += -I$(srcdir)/luatexdir/mp
-$(lua_mp_c_h): mp-ctangle
-mp-ctangle: ctangle$(EXEEXT) $(lua_mp_web) luatexd.h
-	$(mkdir_p) luatexdir
-	CWEBINPUTS=$(srcdir)/luatexdir/mp $(ctangle) mp.w
-	CWEBINPUTS=$(srcdir)/luatexdir/mp $(ctangle) psout.w
-	CWEBINPUTS=$(srcdir)/luatexdir/mp $(ctangle) tfmin.w
-	CWEBINPUTS=$(srcdir)/luatexdir/mp $(ctangle) memio.w
-	rm -f $(lua_mp_c_h)
-	mv mp.c mplib.h mpmp.h mppsout.h psout.c mplibps.h memio.c tfmin.c luatexdir
-	echo timestamp >$@
-	touch $(lua_mp_c_h)
-
-EXTRA_DIST += $(lua_mp_web)
-
-DISTCLEANFILES += $(lua_mp_c_h) mp-ctangle
 
 ## included by luatexdir/font/writettf.c
 EXTRA_libluatex_a_SOURCES = luatexdir/font/macnames.c
