@@ -1,4 +1,60 @@
 ==============================================================
+Luatex beta-0.39.0 was released 20090415
+==============================================================
+
+* iniluatex will from now on start up with only the TeX82 primitives
+  and \directlua, everything else has to be bootstrapped via 
+  tex.enableprimitives(). This change was planned for 0.40.0,
+  but *now* is the time to test it.
+  
+* A bugfix for \primitive in various expandable contexts,
+  and \primitive now generates an error message when the 
+  argument is not actually a primitive's name.
+
+* There was a bug found in the math accent handling.
+
+* Large math operators are now treated like extensible characters
+  in the sense that they can be composed of segments.
+
+* The extra assign- and restore tracing information from eTeX
+  had a massive bug because of a dangling else in the pascal web.
+  As a side-effect of fixing this bugs, all such potential errors
+  in the pascal web have been fixed (for now).
+
+* The math parameters can now be set and queried from lua code
+  via the new tex.setmath() and tex.getmath() functions.
+
+* Reflection in a \hbox was broken.
+
+* There was a leak of direction nodes in the paragraph builder.
+
+* The font backend now does a small peek to differentiate 
+  truetype and postscript style opentype fonts. This fixes
+  the "Can't find CFF table" bug for otf's with truetype outlines.
+
+* Parameters and registers can now also be assinged to globally
+  from lua (see the manual for details).
+
+* It is now possible to query the current math style while a 
+  formula is still being constructed by using the new read-only
+  value \mathstyle. Associated is the new command \Ustack that
+  is to be used as a prefix for {.. \over ..} and friends. 
+  See the manual for more information.
+
+* The embedded MPLib is brought up to date with the current
+  metapost repository (version 1.110 and a few small patches).
+  
+* Luatex can now handle two breakpoints inside a single ligature
+  (like for the functional word of-f-ice). The solution is not
+  perfect yet, but the chance of missed hyphenation points in 
+  actual documents should now be negligible.
+
+* Some speedups in the font loading code, and in the handling of 
+  pdf_literal nodes that are set from within Lua code.
+
+* Some source code and manual cleanup, as usual.
+
+==============================================================
 Luatex beta-0.38.0 was released 20090410
 ==============================================================
 
