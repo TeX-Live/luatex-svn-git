@@ -156,8 +156,8 @@ debugging.
 \section{\UNICODE\ text support}
 
 Text input and output is now considered to be \UNICODE\ text, so
-input characters can use the full range of \UNICODE\ ($2^{20}+2^{16}-1 =
-\hbox{0x10FFFF} = 1{,}114{,}111$).
+input characters can use the full range of \UNICODE\ ($2^{20}+2^{16}-1
+= \hbox{0x10FFFF}$).
 
 Later chapters will talk of characters and glyphs. Although these
 are not the interchangeable, they are closely related. During
@@ -169,32 +169,16 @@ a clear separation between the two concepts. Until this is
 implemented, please do not be too harsh on us if we make errors in
 the usage of the terms.
 
-Note: for now, it only makes sense to use values above the base
-plane (\type{"FFFF}) for \tex{mathcode} and \tex{catcode}
-assignments, since the hyphenation patterns are still limited to
-max.\ 16-bit values, so the other commands will not know what to
-do with those high values.
-
-A few primitives are affected by this, all in a similar fashion: each of
-them has to accommodate for a larger range of acceptable numbers.  For
-instance, \tex{char} now accepts values between~0 and $1{,}114{,}111$. This
-should not be a problem for well|-|behaved input files, but it could
-create incompatibilities for input that would have generated an error
-when processed by older \TEX|-|based engines. The maximum number of
-allocations is \type {"10FFFF} or $2^{20}+2^{16}-1$ (21 bits). The
-maximum value that can be assigned are:
-
-% hahe: all below wrong by 1?
-
-\starttabulate[|l|l|l|l|]
-\NC \bf primitive \NC \bf bits      \NC \bf hex    \NC \bf numeric       \NC\NR
-\NC \tex{char}    \NC 21            \NC \tt 10FFFF \NC $2^{20}+2^{16}-1$ \NC\NR
-\NC \tex{chardef} \NC 21            \NC \tt 10FFFF \NC $2^{20}+2^{16}-1$ \NC\NR
-\NC \tex{lccode}  \NC 21            \NC \tt 10FFFF \NC $2^{20}+2^{16}-1$ \NC\NR
-\NC \tex{uccode}  \NC 21            \NC \tt 10FFFF \NC $2^{20}+2^{16}-1$ \NC\NR
-\NC \tex{sfcode}  \NC 15            \NC \tt ~~7FFF \NC $2^{15}-1$        \NC\NR
-\NC \tex{catcode} \NC \hphantom{2}4 \NC \tt ~~~~~F \NC $2^{4}-1$         \NC\NR
-\stoptabulate
+A few primitives are affected by this, all in a similar fashion: each
+of them has to accommodate for a larger range of acceptable numbers.
+For instance, \tex{char} now accepts values between~0 and
+$1{,}114{,}111$. This should not be a problem for well|-|behaved input
+files, but it could create incompatibilities for input that would have
+generated an error when processed by older \TEX|-|based engines. The
+affected commands with an altered initial (left of the equals sign) or
+secondary (right of the equals sign) value are: \tex{char},
+\tex{lccode},\tex{uccode}, \tex{catcode}, \tex{sfcode}, \tex{efcode},
+\tex{lpcode}, \tex{rpcode}, \tex{chardef}
 
 As far as the core engine is concerned, all input and output to
 text files is \UTF-8 encoded. Input files can be pre|-|processed
@@ -205,7 +189,7 @@ Output in byte|-|sized chunks can be achieved by using characters
 just outside of the valid \UNICODE\ range, starting at the value
 $1{,}114{,}112$ (0x110000). When the times comes to print a character
 $c>=1{,}114{,}112$, \LUATEX\ will actually print the single byte
-corresponding to $c-1{,}114{,}112$.
+corresponding to $c$ minus 1{,}114{,}112.
 
 Output to the terminal uses \type{^^} notation for the lower
 control range ($c<32$), with the exception of \type{^^I},
