@@ -341,7 +341,7 @@ primitive(str_number ss, quarterword c, halfword o, halfword off,
         s = ss;
     }
     char *thes = makecstring(s);
-    if (true || cmd_origin == tex_command || cmd_origin == core_command) {
+    if (cmd_origin == tex_command || cmd_origin == core_command) {
         primitive_def(thes, strlen(thes), c, o);
     }
     prim_val = prim_lookup(s);
