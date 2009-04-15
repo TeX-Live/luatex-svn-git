@@ -216,42 +216,51 @@ void ext_post_line_break(boolean d,
             halfword a = alink(r);
             halfword v = vlink(r);
             assert(a != null);
-            if (v == null) {    /* nested disc, let's unfold */
-                fprintf(stderr, "Nested disc [%d]<-[%d]->null\n", (int) a,
-                        (int) r);
-                do {
-                    halfword d;
-                    while (alink(a) != null)
-                        a = alink(a);
-                    assert(type(a) == nesting_node);
-                    assert(subtype(a) == no_break_head(0));     /* No_break */
-                    d = a - subtype(a); /* MAGIC subtype is offset of nesting with disc */
-                    assert(type(d) == disc_node);
-                    v = vlink(d);
-                    a = alink(d);
-                    fprintf(stderr, "Up to disc [%d]<-[%d]->[%d] & link [%d]\n",
-                            (int) a, (int) d, (int) v, (int) vlink_no_break(d));
-                    assert(a != null);
-                    couple_nodes(a, vlink_no_break(d));
-                    vlink_no_break(d) = null;
-                    tlink_no_break(d) = null;
-                    flush_node(d);
-                } while (v == null);
-                couple_nodes(r, v);
-                fprintf(stderr, "Close list [%d]<->[%d] a=[%d]\n", (int) r,
-                        (int) v, (int) alink(r));
-                a = alink(r);
-            }
-            if (vlink_no_break(r) != null) {
-                flush_node_list(vlink_no_break(r));
-                vlink_no_break(r) = null;
-                tlink_no_break(r) = null;
-            }
-            if (vlink_pre_break(r) != null) {
-                couple_nodes(a, vlink_pre_break(r));
-                couple_nodes(tlink_pre_break(r), r);
-                vlink_pre_break(r) = null;
-                tlink_pre_break(r) = null;
+            assert(v != null);
+            switch (subtype(r)) {
+              case select_disc:
+                if (vlink_pre_break(r) != null) {
+                    flush_node_list(vlink_pre_break(r));
+                    vlink_pre_break(r) = null;
+                    tlink_pre_break(r) = null;
+                }
+                if (vlink_no_break(r) != null) {
+                    couple_nodes(a, vlink_no_break(r));
+                    couple_nodes(tlink_no_break(r), r);
+                    vlink_no_break(r) = null;
+                    tlink_no_break(r) = null;
+                }
+                assert(type(a)==disc_node && subtype(a)==init_disc);
+                flush_node_list(vlink_no_break(a));
+                vlink_no_break(a) = null;
+                tlink_no_break(a) = null;
+                flush_node_list(vlink_pre_break(a));
+                vlink_pre_break(a) = null;
+                tlink_pre_break(a) = null;
+                flush_node_list(vlink_post_break(a));
+                vlink_post_break(a) = null;
+                tlink_post_break(a) = null;
+                break;
+              case init_disc:
+                assert(type(v)==disc_node && subtype(v)==select_disc);
+                subtype(v) = syllable_disc; /* not special any more */
+                flush_node_list(vlink_no_break(v));
+                vlink_no_break(v) = vlink_post_break(r);
+                tlink_no_break(v) = tlink_post_break(r);
+                vlink_post_break(r) = null;
+                tlink_post_break(r) = null;
+              default:
+                if (vlink_no_break(r) != null) {
+                    flush_node_list(vlink_no_break(r));
+                    vlink_no_break(r) = null;
+                    tlink_no_break(r) = null;
+                }
+                if (vlink_pre_break(r) != null) {
+                    couple_nodes(a, vlink_pre_break(r));
+                    couple_nodes(tlink_pre_break(r), r);
+                    vlink_pre_break(r) = null;
+                    tlink_pre_break(r) = null;
+                }
             }
             if (vlink_post_break(r) != null) {
                 couple_nodes(r, vlink_post_break(r));

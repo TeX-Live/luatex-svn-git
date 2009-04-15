@@ -1717,6 +1717,24 @@ static void nesting_prepend(halfword nest, halfword newn)
 }
 
 
+static void nesting_prepend_list(halfword nest, halfword newn)
+{
+    halfword head = vlink(nest);
+    assert(alink(nest) == null);
+    assert(alink(newn) == null);
+    couple_nodes(nest, newn);
+    if (head == null) {
+        assert(tlink(nest) == null);
+        tlink(nest) = tail_of_list(newn);
+    } else {
+        halfword tail = tail_of_list(newn);
+        assert(alink(head) == nest);
+        assert(tail_of_list(head) == tlink(nest)); 
+        couple_nodes(tail, head);
+    }
+}
+
+
 static int test_ligature(liginfo * lig, halfword left, halfword right)
 {
     if (type(left) != glyph_node)
@@ -1836,6 +1854,18 @@ static halfword handle_lig_nest(halfword root, halfword cur)
 }
 
 
+static void print_disc(halfword cur)
+{
+    halfword n;
+    fprintf (stdout, "cur(%d,%d) {", cur, subtype(cur));
+    n = vlink_pre_break(cur); show_node_list(n);
+    fprintf (stdout, "}{");
+    n = vlink_post_break(cur); show_node_list(n);
+    fprintf (stdout, "}{");
+    n = vlink_no_break(cur); show_node_list(n);
+    fprintf (stdout, "}\n");
+}
+
 static halfword handle_lig_word(halfword cur)
 {
     halfword right = null;
@@ -1953,88 +1983,75 @@ static halfword handle_lig_word(halfword cur)
             }
             /* A discretionary followed by ... */
         } else if (type(cur) == disc_node) {
+
             assert_disc(cur);
             /* If {?}{x}{?} or {?}{?}{y} then ... */
             if (vlink_no_break(cur) != null || vlink_post_break(cur) != null) {
                 halfword fwd;
-                halfword lists[511];    /* max 8 levels */
-
-                int i, max_depth = 0;
-                lists[max_depth++] =
-                    handle_lig_nest(post_break(cur), vlink_post_break(cur));
-                lists[max_depth++] =
-                    handle_lig_nest(no_break(cur), vlink_no_break(cur));
-                while (1) {
-                    if ((fwd = vlink(cur)) == null)
-                        return cur;
-                    if (type(fwd) == glyph_node) {
-                        halfword next;
-                        for (i = 0; i < max_depth; i++) {
-                            liginfo lig;
-                            halfword tail = tlink(lists[i]);
-                            if (tail != null && test_ligature(&lig, tail, fwd))
-                                goto add_glyph_to_all;
-                        }
-                        /* if we get here, nothing had a ligature, so we stop */
+                liginfo lig;
+                if (vlink_post_break(cur)!=null)
+                    handle_lig_nest(post_break(cur),vlink_post_break(cur));
+                if (vlink_no_break(cur)!=null)
+                    handle_lig_nest(no_break(cur),vlink_no_break(cur));
+                while ((fwd = vlink(cur)) != null ) {
+                    if (type(fwd) != glyph_node) break;
+                    halfword nob = tlink_no_break(cur);
+                    halfword pst = tlink_post_break(cur);
+                    if ((nob == null || !test_ligature(&lig, nob, fwd)) &&
+                        (pst == null || !test_ligature(&lig, pst, fwd)) )
                         break;
-                      add_glyph_to_all:
-                        for (i = 0; i < max_depth; i++) {
-                            halfword copy = copy_node(fwd);
-                            halfword tail = tlink(lists[i]);
-                            nesting_append(lists[i], copy);
-                            if (tail == null)
-                                continue;       /* first character - never a ligature */
-                            handle_lig_nest(lists[i], tail);
+                    nesting_append(no_break(cur),copy_node(fwd));
+                    handle_lig_nest(no_break(cur),nob);
+                    halfword next = vlink(fwd);
+                    uncouple_node(fwd);
+                    try_couple_nodes(cur, next);
+                    nesting_append(post_break(cur),fwd);
+                    handle_lig_nest(post_break(cur),pst);
+                }
+                if (fwd != null && type(fwd) == disc_node) {
+                    halfword next = vlink(fwd);
+                    if (vlink_no_break(fwd)==null &&
+                        vlink_post_break(fwd)==null &&
+                        next != null &&
+                        type(next) == glyph_node &&
+                        ((tlink_post_break(cur)!= null &&
+                          test_ligature(&lig,tlink_post_break(cur),next)) ||
+                         (tlink_no_break(cur)!= null &&
+                          test_ligature(&lig,tlink_no_break(cur),next)))) {
+                        /* Building an init_disc followed by a select_disc
+                         * {a-}{b}{AB} {-}{}{} 'c'
+                         */
+                        halfword last = vlink(next);
+                        uncouple_node(next);
+                        try_couple_nodes(fwd, last);
+                        /* {a-}{b}{AB} {-}{c}{} */
+                        nesting_append(post_break(fwd),copy_node(next));
+                        /* {a-}{b}{AB} {-}{c}{-} */
+                        if (vlink_no_break(cur)!=null) {
+                            nesting_prepend(no_break(fwd),copy_node(vlink_pre_break(fwd)));
                         }
-                        next = vlink(fwd);
-                        uncouple_node(fwd);
-                        try_couple_nodes(cur, next);
-                        flush_node(fwd);
-                    } else if (type(fwd) == disc_node) {
-                        halfword next;
-                        /* MAGIC WARNING
-                         * A disc followed by a disc can have different kernings
-                         * depending on which path is choosen, and it is impossible to
-                         * store the possible kernings: fe {}{A}{W} {V}{}{A}
-                         * So we _always_ add discs so only a simple path remains. */
-                        int m = max_depth;      /* as max_depth changes in this loop */
-                        for (i = 0; i < m; i++) {
-                            halfword copy = copy_node(fwd);
-                            halfword tail = tlink(lists[i]);
-                            if (tail != null) {
-                                halfword prev = alink(tail);
-                                assert(alink(tail) != null);
-                                uncouple_node(tail);
-                                vlink(prev) = null;
-                                if (prev == lists[i]) {
-                                    tlink(prev) = null;
-                                } else {
-                                    tlink(lists[i]) = prev;
-                                }
-                                nesting_prepend(pre_break(copy), tail);
-                                nesting_prepend(no_break(copy),
-                                                copy_node(tail));
-                            }
-                            nesting_append(lists[i], copy);
-                            handle_lig_nest(pre_break(copy),
-                                            vlink_pre_break(copy));
-                            assert(max_depth < 256);
-                            lists[max_depth++] =
-                                handle_lig_nest(no_break(copy),
-                                                vlink_no_break(copy));
-                            lists[i] =
-                                handle_lig_nest(post_break(copy),
-                                                vlink_post_break(copy));
+                        /* {a-}{b}{AB} {b-}{c}{-} */
+                        if (vlink_post_break(cur)!=null) 
+                            nesting_prepend_list(pre_break(fwd),copy_node_list(vlink_post_break(cur)));
+                        /* {a-}{b}{AB} {b-}{c}{AB-} */
+                        if (vlink_no_break(cur)!=null) {
+                            nesting_prepend_list(no_break(fwd),copy_node_list(vlink_no_break(cur)));
                         }
-                        next = vlink(fwd);
-                        uncouple_node(fwd);
-                        try_couple_nodes(cur, next);
-                        flush_node(fwd);
-                    } else {
-                        return cur;
+                        /* {a-}{b}{ABC} {b-}{c}{AB-} */
+                        halfword tail = tlink_no_break(cur);
+                        nesting_append(no_break(cur),copy_node(next));
+                        handle_lig_nest(no_break(cur),tail);
+                        /* {a-}{BC}{ABC} {b-}{c}{AB-} */
+                        tail = tlink_post_break(cur);
+                        nesting_append(post_break(cur),next);
+                        handle_lig_nest(post_break(cur),tail);
+                        /* and set the subtypes */
+                        subtype(cur) = init_disc;
+                        subtype(fwd) = select_disc;
                     }
                 }
             }
+
         } else {                /* NO GLYPH NOR DISC */
             /* fprintf(stdout,"This is a %d node\n",type(cur)); */
             /* assert(0); *//* TODO howcome there can be a glue here? */

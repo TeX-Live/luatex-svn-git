@@ -191,7 +191,9 @@ typedef enum {
     discretionary_disc = 0,
     explicit_disc,
     automatic_disc,
-    syllable_disc
+    syllable_disc,
+    init_disc, /* first of a duo of syllable_discs */
+    select_disc, /* second of a duo of syllable_discs */
 } discretionary_types;
 
 #  define pre_break_head(a)   ((a)+4)

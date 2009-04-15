@@ -77,6 +77,7 @@
 @define procedure dump_language_data;
 @define procedure undump_language_data;
 @define function insert_discretionary();
+@define const select_disc;
 @define function compound_word_break();
 @define procedure set_pre_hyphen_char();
 @define procedure set_post_hyphen_char();

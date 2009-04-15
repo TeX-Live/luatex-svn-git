@@ -14176,7 +14176,7 @@ rule_node_case: begin
   end;
 whatsit_node_case: @<Output the whatsit node |p| in an hlist@>;
 glue_node_case: @<Move right or output leaders@>;
-disc_node_case: if vlink(no_break(p))<>null then begin
+disc_node_case: if vlink(no_break(p))<>null then if subtype(p)<>select_disc then begin
   vlink(tlink(no_break(p))):=vlink(p);
   q:=vlink(no_break(p));
   vlink(no_break(p)):=null;
@@ -17107,7 +17107,7 @@ end
 @ @<Output the non-|char_node| |p| for |pdf_hlist_out|...@>=
 begin case type(p) of
 hlist_node_case,vlist_node_case:@<(\pdfTeX) Output a box in an hlist@>;
-disc_node_case: if vlink(no_break(p))<>null then begin
+disc_node_case: if vlink(no_break(p))<>null then if subtype(p)<>select_disc then begin 
   q:=tail_of_list (vlink(no_break(p))); {TODO, this should be a tlink}
   vlink(q):=vlink(p);
   q:=vlink(no_break(p));
@@ -19195,11 +19195,6 @@ if m = cal_expand_ratio then begin
     font_shrink := 0;
     font_expand_ratio := 0;
 end;
-@{
-if m = subst_ex_font then begin
-  wterm_ln('replacing ', font_expand_ratio:1);
-end;
-@}
 h:=0; @<Clear dimensions to zero@>;
 disc_level:=0;
 reswitch:
@@ -19308,7 +19303,7 @@ if p<>null then
   disc_node_case:
       begin
       if m = subst_ex_font then do_subst_font(p, font_expand_ratio);
-      if vlink(no_break(p))<>null then begin
+      if (subtype(p)<>select_disc)and(vlink(no_break(p))<>null) then begin
         pack_interrupt[disc_level]:=vlink(p);
         incr(disc_level);
         p:=no_break(p);
@@ -23614,7 +23609,7 @@ end
 @<Prune the current list, if necessary...@>=
 q:=head; p:=vlink(q); n:=0;
 while p<>null do
-  begin if not is_char_node(p) then if type(p)<>disc_node then
+  begin if not is_char_node(p) then
     if type(p)>rule_node then if type(p)<>kern_node then
       begin print_err("Improper discretionary list");
 @.Improper discretionary list@>
