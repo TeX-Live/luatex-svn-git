@@ -112,7 +112,17 @@ format generation file:
 \directlua { tex.enableprimitives('',tex.extraprimitives()) }
 \stoptyping
 
-More fine-grained control is possible, you can look the details in
+But be aware, that the curly braces may not have the proper \type{\catcode}
+assigned to them at this early time (giving a 'Missing number' error),
+so it may be needed to put these assignments
+
+\starttyping
+\catcode `\{=1
+\catcode `\}=2
+\stoptyping
+
+before the above line.
+More fine-grained primitives control is possible, you can look the details in
 \in{section}[luaprimitives]. For simplicity's sake, this manual
 assumes that you have executed the lua command given above.
 
