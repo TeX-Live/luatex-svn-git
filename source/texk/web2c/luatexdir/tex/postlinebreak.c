@@ -230,6 +230,7 @@ void ext_post_line_break(boolean d,
                     vlink_no_break(r) = null;
                     tlink_no_break(r) = null;
                 }
+		
                 assert(type(a)==disc_node && subtype(a)==init_disc);
                 flush_node_list(vlink_no_break(a));
                 vlink_no_break(a) = null;
@@ -240,6 +241,7 @@ void ext_post_line_break(boolean d,
                 flush_node_list(vlink_post_break(a));
                 vlink_post_break(a) = null;
                 tlink_post_break(a) = null;
+		
                 break;
               case init_disc:
                 assert(type(v)==disc_node && subtype(v)==select_disc);

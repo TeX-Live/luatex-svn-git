@@ -1837,7 +1837,9 @@ ext_do_line_break(boolean d,
                                           pdf_protrude_chars, line_penalty,
                                           last_line_fit, double_hyphen_demerits,
                                           final_hyphen_demerits, first_p,
-                                          vlink(cur_p));
+                                          vlink(cur_p));                            
+#if 0			    
+                            /* TODO this does not work */
                             /* go back to the starting situation */
                             do_one_seven_eight(sub_disc_width_from_active_width);
                             do_one_seven_eight(reset_disc_width);
@@ -1851,6 +1853,7 @@ ext_do_line_break(boolean d,
                                           last_line_fit, double_hyphen_demerits,
                                           final_hyphen_demerits, first_p,
                                           vlink(cur_p));
+#endif
                         }
                         do_one_seven_eight(sub_disc_width_from_active_width);
                     }
