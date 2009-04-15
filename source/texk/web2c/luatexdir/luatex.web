@@ -8382,6 +8382,12 @@ if cur_cs<>undefined_primitive then begin
     p:=get_avail; info(p):=cs_token_flag+frozen_primitive;
     link(p):=loc; loc:=p; start:=p;
     end;
+  end
+else begin
+  print_err("Missing primitive name");
+  help2("The control sequence marked <to be read again> does not")@/
+    ("represent any known primitive.");
+  back_error;
   end;
 end
 
