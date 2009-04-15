@@ -97,8 +97,8 @@ to the superset of pdftex and Aleph. That has not been limited to
 the possibility to execute lua code via \type{\directlua}, but
 \LUATEX\ also adds functionality via new \TEX-side primitives.
 
-However, starting with beta \type{0.40.0}, most of that functionality
-will be hidden by default. When \LUATEX\ 0.40.0 starts up in
+However, starting with beta \type{0.39.0}, most of that functionality
+will be hidden by default. When \LUATEX\ 0.39.0 starts up in
 \quote{iniluatex} mode (\type{luatex -ini}), it defines only the
 primitive commands known by \TEX82 and the one extra command
 \type{\directlua}.
@@ -1792,7 +1792,7 @@ will define a whole series of csnames like \type{\Omegatextdir},
 \type{\Omegapardir}, etc., but it will stick with \type{\OmegaVersion}
 instead of creating the doubly-prefixed \type{\OmegaOmegaVersion}.
 
-Starting with version 0.40 (and this is why the above two functions
+Starting with version 0.39.0 (and this is why the above two functions
 are needed), \LUATEX\ in \type{--ini} mode will contain only the \TEX82
 primitives and \type{\directlua}, no extra primitives {\bf at all}.
 
@@ -1848,7 +1848,7 @@ considered to be a core primitive, along with all the \TEX82
 primitives, so it is part of the list that is returned from \type{'core'}.
 
 Running \type{tex.extraprimitives()} will give you the complete list
-of primitives that are not defined at \LUATEX\ 0.40 \type{-ini}
+of primitives that are not defined at \LUATEX\ 0.39.0 \type{-ini}
 startup. It is exactly equivalent to \type{tex.extraprimitives('etex',
 'pdftex', 'omega', 'aleph', 'luatex')}
 
@@ -6033,23 +6033,14 @@ In those cases, the \type{\textfont} from the requested math family is used.
 
 \section{Math todo}
 
-The following items are all still todo (most of them hopefully before \LUATEX\ 0.40
-comes out).
+The following items are still todo.
 
 \startitemize
 \item Pre-scripts.
 \item Multi-story stacks.
-\item Support for extensible big operators.
-\item Make a \tex{mathstyle} parameter that can be queried during
-  math list parsing (this implies a new primitive to deal with
-  \type{{.. \over ..}} and \type{{.. \atop ..}}).
-\item Staggered kerning (the \type{math_kern} array in \OPENTYPE).
-\item Allow setting of the math parameters directly from Lua.
 \item Flattened accents for high characters (?).
 \item Better control over the spacing around displays and handling of equation numbers.
 \item Support for multi-line displays using \MATHML\ style alignment points.
-\item The eight \quote{normal} noads will be merged into a single node id
-   with subtypes.
 \stopitemize
 
 \chapter[languages]{Languages and characters, fonts and glyphs}
@@ -6432,6 +6423,25 @@ That's bad enough, but if there was a hyphenation point between the
 with discretionaries in the post-break text as well as in the
 replacement text of the top-level discretionary that resulted from the
 first hyphenation point.  And this is only a simple case.
+
+As of 0.39.0, the solution in \LUATEX\ is not as smart as all this. It
+essentially creates the following set of items for \type{of-f-ice}:
+
+\starttyping
+{o}{{f}{-},
+    {fi},
+    {ffi}},
+   {{f}{-},
+    {i},
+    {fi}}{c}{e}
+\stoptyping
+
+This is not perfect (because the \type{off-ice} hyphenation will never
+be chosen), but luckily three-item ligatures with multiple embedded
+hyphenation points are extremely rare indeed: even this example was
+artificially created. A full, perfect solution is possible, but is 
+low on the agenda now that at least \type{office} can be hyphenated 
+properly again.
 
 \section{Breaking paragraphs into lines}
 
@@ -7205,12 +7215,16 @@ Valid fields: \showfields{disc}
                                 0 = the \tex{discretionary} command,
                                 1 = the \tex{-} command,
                                 2 = added automatically following a \type{-},
-                                3 = added by the hyphenation algorithm\NC\NR
+                                3 = added by the hyphenation algorithm (simple),
+	                        4 = added by the hyphenation algorithm (hard, first item),
+	                        5 = added by the hyphenation algorithm (hard, second item)\NC\NR
 \NC attr       \NC \syntax{<node>}    \NC  \NC\NR
 \NC pre        \NC \syntax{<node>}    \NC  pointer to the pre|-|break text\NC\NR
 \NC post       \NC \syntax{<node>}    \NC  pointer to the post|-|break text\NC\NR
 \NC replace    \NC \syntax{<node>}    \NC  pointer to the no|-|break text\NC\NR
 \stoptabulate
+
+The subtype numbers~4 and~5 belong to the \quote{of-f-ice} explanation given elsewhere.
 
 \subsubsection{math nodes}
 
@@ -8181,10 +8195,13 @@ be worth the hassle and the limitations will eventually be documented.
 
 \startitemize
 
-\item The current linebreaking implementation does not yet take all
-possible breakpoints into account where ligatures are involved in
-the process.  This means that line breaks may change in future
-versions.
+\item The current linebreaking implementation still does not yet take all
+possible breakpoints into account where ligatures are involved in the
+process.  This means that line breaks may change in future versions of
+\LUATEX, in situations where exotic fonts (with ligatures with 3 parts
+or more) are combined with languages with exotic hyphenation patterns
+(where multiple hyphenation points can happen within one such
+ligature). 
 
 \item \luatex{tex.print()} and \luatex{tex.sprint()} do not work if
 \tex{directlua} is used in an \OTP\ file (in the output of an
@@ -8197,12 +8214,6 @@ literal node instead of flushing immediately.
 \PDF\ mode, and especially the vertical scripts support is missing
 almost completely (only \type {TRT} and \type {TLT} are routinely tested).
 
-% \item Letter spacing (\tex{letterspacefont}) is currently non|-|functional
-% due to massive changes in the virtual font handling. This
-% functionality may actually be removed completely in the future,
-% because it is straightforward to set up letterspacing using the \LUA\
-% \quote{define_font} interface.
-
 \item Node pointers are not always checked for validity, so if you make a
 mistake in the node list processing, \LUATEX\ may terminate itself with an
 assertion error or \quote{Emergency stop}.
@@ -8213,8 +8224,6 @@ because the column width is not taken into account during the final
 placement phase (this is a bug inherited from \ALEPH). Also, \ALEPH\
 apparently dislikes having more than one non-grouped \tex{textdir}
 command in a single lined paragraph.
-
-\item Certain constructs in math mode leak memory nodes.
 
 \stopitemize
 
