@@ -4177,9 +4177,9 @@ the executable after loading and executing the startup file.
                                            and enables interpretation of the following numeric key--value pairs.
                                           (only ever unset this if you implement {\it all\/} file
                                           find callbacks!)\NC \NR
-\NC shell_escape    \NC    string\NC Use \type{'y'} or \type{'t'} or \type{'1'} to enable \type{\write18} unconditionally,
+\NC shell_escape    \NC    string\NC \type{'f'}\NC Use \type{'y'} or \type{'t'} or \type{'1'} to enable \type{\write18} unconditionally,
                                      \type{'p'} to enable the commands that are listed in \type{shell_escape_commands} (new in 0.37)\NC\NR
-\NC shell_escape_commands \NC string\NC Comma-separated list of command names that may be executed by \type{\write18} even
+\NC shell_escape_commands \NC string\NC \NC Comma-separated list of command names that may be executed by \type{\write18} even
                                         if \type{shell_escape} is set to \type{'p'}. Do {\it not\/} use spaces around commas,
                                         separate any required command arguments by using a space, and use the ASCII double quote
                                         (\type{"}) for any needed argument or path quoting  (new in 0.37)\NC\NR
