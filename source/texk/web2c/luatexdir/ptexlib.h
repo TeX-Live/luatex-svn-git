@@ -618,7 +618,7 @@ void do_get_token_lua(integer callback_id);
 
 /* luanode.c */
 int visible_last_node_type(int n);
-void print_node_mem_stats(int n, int o);
+void print_node_mem_stats(void);
 
 /* writeimg.c */
 integer epdf_xsize(integer i);

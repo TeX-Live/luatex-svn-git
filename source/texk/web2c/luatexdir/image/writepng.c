@@ -137,7 +137,7 @@ void read_png_info(image_dict * idict, img_readtype_e readtype)
 #define write_simple_pixel(r)    pdf_buf[pdf_ptr++] = *r++
 
 #define write_noninterlaced(outmac)                      \
-  for (i = 0; (unsigned) i < (int)info_p->height; i++) { \
+    for (i = 0; i < (int)info_p->height; i++) {          \
     png_read_row(png_p, row, NULL);                      \
     r = row;                                             \
     k = info_p->rowbytes;                                \
@@ -152,7 +152,7 @@ void read_png_info(image_dict * idict, img_readtype_e readtype)
         }
 
 #define write_interlaced(outmac)                         \
-  for (i = 0; (unsigned) i < (int)info_p->height; i++) { \
+    for (i = 0; i < (int)info_p->height; i++) {          \
             row = rows[i];                               \
             k = info_p->rowbytes;                        \
             while(k > 0) {                               \

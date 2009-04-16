@@ -35,6 +35,7 @@ struct avl_table *fd_tree = NULL;       /* tree of font descriptor objects */
 
 static int comp_fo_entry(const void *pa, const void *pb, void *p)
 {
+    (void)p;
     return strcmp(((const fo_entry *) pa)->fm->tfm_name,
                   ((const fo_entry *) pb)->fm->tfm_name);
 }
@@ -43,6 +44,7 @@ static int comp_fd_entry(const void *pa, const void *pb, void *p)
 {
     int i;
     const fd_entry *p1 = (const fd_entry *) pa, *p2 = (const fd_entry *) pb;
+    (void)p;
     assert(p1->fm != NULL && is_fontfile(p1->fm) &&
            p2->fm != NULL && is_fontfile(p2->fm));
     if ((i = strcmp(p1->fm->ff_name, p2->fm->ff_name)) != 0)
@@ -807,6 +809,7 @@ void do_pdf_font(integer font_objnum, internalfontnumber f)
 int comp_glw_entry(const void *pa, const void *pb, void *p)
 {
     unsigned short i, j;
+    (void)p;
     i = (*(glw_entry *) pa).id;
     j = (*(glw_entry *) pb).id;
     cmp_return(i, j);

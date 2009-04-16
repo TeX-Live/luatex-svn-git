@@ -1541,7 +1541,7 @@ int font_from_lua(lua_State * L, int f)
                 if (strcmp(font_name(f), s) == 0)
                     l_fonts[i] = f;
                 else
-                    l_fonts[i] = find_font_id(s, "", t);
+                    l_fonts[i] = find_font_id(s, t);
                 lua_settop(L, s_top);
             } else {
                 pdftex_fail("Invalid local font in font %s!\n", font_name(f));
@@ -1853,18 +1853,6 @@ static halfword handle_lig_nest(halfword root, halfword cur)
     return root;
 }
 
-
-static void print_disc(halfword cur)
-{
-    halfword n;
-    fprintf (stdout, "cur(%d,%d) {", cur, subtype(cur));
-    n = vlink_pre_break(cur); show_node_list(n);
-    fprintf (stdout, "}{");
-    n = vlink_post_break(cur); show_node_list(n);
-    fprintf (stdout, "}{");
-    n = vlink_no_break(cur); show_node_list(n);
-    fprintf (stdout, "}\n");
-}
 
 static halfword handle_lig_word(halfword cur)
 {

@@ -26143,7 +26143,7 @@ if log_opened then
     pool_size-init_pool_ptr:1);@/
   wlog_ln(' ',var_mem_max:1,',',fix_mem_max:1,@|
     ' words of node,token memory allocated');@/
-  print_node_mem_stats(tracing_stats, tracing_online);
+  print_node_mem_stats;
   wlog_ln(' ',cs_count:1,' multiletter control sequences out of ',
     hash_size:1);@/
   wlog(' ',max_font_id,' font');

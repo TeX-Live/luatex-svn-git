@@ -53,12 +53,14 @@ struct libavl_allocator avl_xallocator = {
 
 int comp_int_entry(const void *pa, const void *pb, void *p)
 {
+    (void)p;
     cmp_return(*(const int *) pa, *(const int *) pb);
     return 0;
 }
 
 int comp_string_entry(const void *pa, const void *pb, void *p)
 {
+    (void)p;
     return strcmp((const char *) pa, (const char *) pb);
 }
 
@@ -76,7 +78,7 @@ int compare_info(const void *pa, const void *pb, void *param)
 {
     integer a, b;
     int as, ae, bs, be, al, bl;
-
+    (void)param;
     a = ((const oentry *) pa)->int0;
     b = ((const oentry *) pb)->int0;
     if (a < 0 && b < 0) {       /* string comparison */
@@ -169,6 +171,7 @@ typedef struct {
 
 static void destroy_oentry(void *pa, void *pb)
 {
+    (void)pb;
     oentry *p = (oentry *) pa;
     xfree(p);
 }

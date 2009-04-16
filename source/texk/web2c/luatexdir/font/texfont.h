@@ -568,13 +568,13 @@ extern void set_lp_code(internal_font_number f, integer c, integer i);
 extern void set_rp_code(internal_font_number f, integer c, integer i);
 extern void set_ef_code(internal_font_number f, integer c, integer i);
 
-int read_tfm_info(internal_font_number f, char *nom, char *aire, scaled s);
+int read_tfm_info(internal_font_number f, char *nom, scaled s);
 
 
 /* from dofont.c */
 
 extern int read_font_info(pointer u, strnumber nom, scaled s, integer ndir);
-extern int find_font_id(char *nom, char *aire, scaled s);
+extern int find_font_id(char *nom, scaled s);
 
 /* for and from vfpacket.c */
 

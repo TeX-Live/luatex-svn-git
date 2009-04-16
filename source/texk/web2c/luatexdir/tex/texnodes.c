@@ -1834,7 +1834,7 @@ halfword list_node_mem_usage(void)
     return q;
 }
 
-void print_node_mem_stats(int tracingstats, int tracingonline)
+void print_node_mem_stats(void)
 {
     int i, b;
     halfword j;

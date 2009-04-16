@@ -652,7 +652,7 @@ typedef image *img_entry;
 /* define img_ptr, img_array, & img_limit */
 /* avoid use of size_t */
 img_entry *img_ptr, *img_array = NULL;
-integer img_limit;
+size_t img_limit;
 
 
 integer img_to_array(image * img)

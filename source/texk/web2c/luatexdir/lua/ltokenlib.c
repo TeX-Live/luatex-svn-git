@@ -204,6 +204,7 @@ static int run_get_next(lua_State * L)
 
 static int run_expand(lua_State * L)
 {
+    (void)L;
     expand();
     return 0;
 }

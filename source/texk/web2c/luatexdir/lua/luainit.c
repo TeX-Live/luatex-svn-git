@@ -506,7 +506,6 @@ void lua_initialize(int ac, char **av)
     interactionoption = 4;
     dump_name = NULL;
 
-#warning SyncTeX: -synctex command line option available
     /* 0 means "disable Synchronize TeXnology".
      * synctexoption is a *.web variable.
      * We initialize it to a weird value to catch the -synctex command line flag
@@ -655,16 +654,16 @@ void write_svnversion(char *v)
 {       
     char *a_head, *n;
     char *a = strdup(v);
-    int l = strlen("$Id: luatex.web ");
+    size_t l = strlen("$Id: luatex.web ");
     if (a != NULL) {
         a_head = a;
-	if (strlen(a)>l)
-	    a+=l;
-	n = a;
-	while (*n!='\0' && *n!=' ')
-	    n++;
-	*n = '\0';
-	fprintf(stdout, " luatex.web v%s",  a);
-	free (a_head);
+        if (strlen(a)>l)
+            a+=l;
+        n = a;
+        while (*n!='\0' && *n!=' ')
+            n++;
+        *n = '\0';
+        fprintf(stdout, " luatex.web v%s",  a);
+        free (a_head);
     }
 }

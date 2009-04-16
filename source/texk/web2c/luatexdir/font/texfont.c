@@ -150,7 +150,7 @@ charinfo *get_charinfo(internal_font_number f, integer c)
         if (!glyph) {
 
             glyph = ++font_tables[f]->charinfo_count;
-            if (glyph>=font_tables[f]->charinfo_size) {
+            if (glyph>=(unsigned)font_tables[f]->charinfo_size) {
                 font_bytes += (16*sizeof(charinfo));
                 do_realloc(font_tables[f]->charinfo, (glyph + 16), charinfo);
                 memset(&(font_tables[f]->charinfo[glyph]), 0, (16*sizeof(charinfo)));

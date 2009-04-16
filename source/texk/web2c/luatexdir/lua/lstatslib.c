@@ -219,6 +219,7 @@ static int getstats(lua_State * L)
 
 static int setstats(lua_State * L)
 {
+    (void)L;
     return 0;
 }
 

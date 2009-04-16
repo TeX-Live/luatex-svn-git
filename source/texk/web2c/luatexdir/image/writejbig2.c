@@ -93,17 +93,20 @@ struct avl_table *file_tree = NULL;
 
 static int comp_file_entry(const void *pa, const void *pb, void *p)
 {
+    (void)p;
     return strcmp(((const FILEINFO *) pa)->filepath,
                   ((const FILEINFO *) pb)->filepath);
 }
 
 static int comp_page_entry(const void *pa, const void *pb, void *p)
 {
+    (void)p;
     return ((const PAGEINFO *) pa)->pagenum - ((const PAGEINFO *) pb)->pagenum;
 }
 
 static int comp_segment_entry(const void *pa, const void *pb, void *p)
 {
+    (void)p;
     return ((const SEGINFO *) pa)->segnum - ((const SEGINFO *) pb)->segnum;
 }
 
@@ -314,7 +317,7 @@ boolean readseghdr(FILEINFO * fip, SEGINFO * sip)
 {
     unsigned int i;
     sip->hdrstart = xftell(fip->file, fip->filepath);
-    if (fip->sequentialaccess && sip->hdrstart == fip->filesize)
+    if (fip->sequentialaccess && sip->hdrstart == (unsigned)fip->filesize)
         return false;           /* no endoffileflag is ok for sequentialaccess */
 #ifdef DEBUG
     printf("\nhdrstart %d\n", sip->hdrstart);
@@ -564,7 +567,7 @@ void rd_jbig2_info(FILEINFO * fip)
         if (!readseghdr(fip, sip) || sip->endoffileflag)
             break;
         if (sip->segpage > 0) {
-            if (sip->segpage > currentpage) {
+            if (sip->segpage > (int)currentpage) {
                 plp = litem_append(&(fip->pages));
                 plp->last->d = new_pageinfo();
                 currentpage = sip->segpage;

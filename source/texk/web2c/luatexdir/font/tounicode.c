@@ -31,6 +31,7 @@ static struct avl_table *glyph_unicode_tree = NULL;
 
 static int comp_glyph_unicode_entry(const void *pa, const void *pb, void *p)
 {
+    (void)p;
     return strcmp(((const glyph_unicode_entry *) pa)->name,
                   ((const glyph_unicode_entry *) pb)->name);
 }
@@ -48,6 +49,7 @@ static glyph_unicode_entry *new_glyph_unicode_entry(void)
 static void destroy_glyph_unicode_entry(void *pa, void *pb)
 {
     glyph_unicode_entry *e = (glyph_unicode_entry *) pa;
+    (void)pb;
     xfree(e->name);
     if (e->code == UNI_STRING) {
         assert(e->unicode_seq != NULL);

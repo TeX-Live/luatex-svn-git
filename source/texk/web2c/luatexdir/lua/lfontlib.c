@@ -46,7 +46,7 @@ static int font_read_tfm(lua_State * L)
             s = (integer) lua_tonumber(L, 2);
             if (strlen(cnom)) {
                 f = new_font();
-                if (read_tfm_info(f, cnom, "", s)) {
+                if (read_tfm_info(f, cnom, s)) {
                     k = font_to_lua(L, f);
                     delete_font(f);
                     return k;

@@ -69,6 +69,7 @@ static void destroy_sfd_entry(void *pa, void *pb)
     subfont_entry *p, *q;
     sfd_entry *sfd;
     sfd = (sfd_entry *) pa;
+    (void)pb;
     p = sfd->subfont;
     while (p != NULL) {
         q = p->next;
@@ -81,6 +82,7 @@ static void destroy_sfd_entry(void *pa, void *pb)
 
 static int comp_sfd_entry(const void *pa, const void *pb, void *p)
 {
+    (void)p;
     return strcmp(((const sfd_entry *) pa)->name,
                   ((const sfd_entry *) pb)->name);
 }

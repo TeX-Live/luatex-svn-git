@@ -1407,6 +1407,7 @@ static void cs_mark(const char *cs_name, int subr)
 
 static int comp_t1_glyphs(const void *pa, const void *pb, void *p)
 {
+    (void)p;
     return strcmp(*((const char **) pa), *((const char **) pb));
 }
 
