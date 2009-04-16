@@ -212,7 +212,7 @@ top_srcdir = @top_srcdir@
 #========================================================================
 #========================================================================
 ACLOCAL_AMFLAGS = -I ../../m4
-EXTRA_DIST = $(XPDF_TREE) xpdf-3.02-pl2.patch \
+EXTRA_DIST = $(XPDF_TREE) xpdf-3.02-pl2.patch xpdf-3.02-pl3.patch \
 	xpdf-3.02-PDF_PARSER_ONLY.patch xpdf-3.02-pdftex.patch \
 	xpdf-3.02-time_h.patch xpdf-3.02-mingw32.patch
 SUBDIRS = goo fofi xpdf
