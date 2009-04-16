@@ -17048,7 +17048,6 @@ dvi_ptr,dir_ptr,dir_tmp:pointer;
 @!lx:scaled; {extra space between leader boxes}
 @!outer_doing_leaders:boolean; {were we doing leaders?}
 @!edge:scaled; {right edge of sub-box or leader space}
-@!border:scaled; {right edge of sub-box or leader space}
 @!prev_p:pointer; {one step behind |p|}
 @!glue_temp:real; {glue value before rounding}
 @!cur_glue:real; {glue seen so far}
