@@ -135,10 +135,6 @@ integer new_font(void)
     return id;
 }
 
-#define Charinfo_count(a) font_tables[a]->charinfo_count
-#define Charinfo_size(a) font_tables[a]->charinfo_size
-#define Characters(a) font_tables[a]->characters
-
 #define find_charinfo_id(f,c) get_sa_item(font_tables[f]->characters,c)
 
 charinfo *get_charinfo(internal_font_number f, integer c)
@@ -146,7 +142,7 @@ charinfo *get_charinfo(internal_font_number f, integer c)
     sa_tree_item glyph;
     charinfo *ci;
     if (proper_char_index(c)) {
-        glyph = get_sa_item(Characters(f), c);
+        glyph = get_sa_item(font_tables[f]->characters, c);
         if (!glyph) {
 
             glyph = ++font_tables[f]->charinfo_count;
@@ -182,7 +178,7 @@ void set_charinfo(internal_font_number f, integer c, charinfo * ci)
 {
     sa_tree_item glyph;
     if (proper_char_index(c)) {
-        glyph = get_sa_item(Characters(f), c);
+      glyph = get_sa_item(font_tables[f]->characters, c);
         if (glyph) {
             font_tables[f]->charinfo[glyph] = *ci;
         } else {
@@ -1074,11 +1070,11 @@ integer copy_font(integer f)
         memcpy(math_param_base(k), math_param_base(f), i);
     }
 
-    i = sizeof(charinfo) * (Charinfo_size(f) + 1);
+    i = sizeof(charinfo) * (font_tables[f]->charinfo_size + 1);
     font_bytes += i;
     font_tables[k]->charinfo = xmalloc(i);
     memset(font_tables[k]->charinfo, 0, i);
-    for (i = 0; i <= Charinfo_size(k); i++) {
+    for (i = 0; i < font_tables[k]->charinfo_size; i++) {
         ci = copy_charinfo(&font_tables[f]->charinfo[i]);
         font_tables[k]->charinfo[i] = *ci;
     }
