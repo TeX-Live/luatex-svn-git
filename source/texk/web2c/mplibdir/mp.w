@@ -1,4 +1,4 @@
-% $Id: mp.w 873 2009-03-19 07:44:11Z taco $
+% $Id: mp.w 930 2009-04-17 13:51:12Z taco $
 %
 % Copyright 2008 Taco Hoekwater.
 %
@@ -89,13 +89,13 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d default_banner "This is MetaPost, Version 1.110" /* printed when \MP\ starts */
+@d default_banner "This is MetaPost, Version 1.120" /* printed when \MP\ starts */
 @d true 1
 @d false 0
 
 @(mpmp.h@>=
-#define metapost_version "1.110"
-#define metapost_magic (('M'*256) + 'P')*65536 + 1110
+#define metapost_version "1.120"
+#define metapost_magic (('M'*256) + 'P')*65536 + 1120
 #define metapost_old_magic (('M'*256) + 'P')*65536 + 1080
 
 @ The external library header for \MP\ is |mplib.h|. It contains a
@@ -4786,7 +4786,8 @@ and |string_type| in that order.
 
 @<Types...@>=
 enum mp_variable_type {
-mp_vacuous=1, /* no expression was present */
+mp_internal_type=0, /* an internal that has not been frozen yet */
+mp_vacuous, /* no expression was present */
 mp_boolean_type, /* \&{boolean} with a known value */
 mp_unknown_boolean,
 mp_string_type, /* \&{string} with a known value */
@@ -4818,6 +4819,7 @@ static void mp_print_type (MP mp,quarterword t) ;
 @ @<Basic printing procedures@>=
 void mp_print_type (MP mp,quarterword t) { 
   switch (t) {
+  case mp_internal_type:mp_print(mp, "new internal"); break;
   case mp_vacuous:mp_print(mp, "mp_vacuous"); break;
   case mp_boolean_type:mp_print(mp, "boolean"); break;
   case mp_unknown_boolean:mp_print(mp, "unknown boolean"); break;
@@ -5153,6 +5155,7 @@ enum mp_given_internal {
 
 @<Glob...@>=
 scaled *internal;  /* the values of internal quantities */
+int *int_type;    /* their types */
 char **int_name;  /* their names */
 int int_ptr;  /* the maximum internal quantity defined so far */
 int max_internal; /* current maximum number of internal quantities */
@@ -5166,6 +5169,15 @@ mp->internal = xmalloc ((mp->max_internal+1), sizeof(scaled));
 memset(mp->internal,0,(mp->max_internal+1)* sizeof(scaled));
 mp->int_name = xmalloc ((mp->max_internal+1), sizeof(char *));
 memset(mp->int_name,0,(mp->max_internal+1) * sizeof(char *));
+mp->int_type = xmalloc ((mp->max_internal+1), sizeof(int));
+memset(mp->int_type,0,(mp->max_internal+1) * sizeof(int));
+{
+  int i;
+  for (i=1;i<=max_given_internal;i++)
+    mp->int_type[i]=mp_known;
+}
+mp->int_type[mp_output_format]=mp_string_type;
+mp->int_type[mp_output_template]=mp_string_type;
 mp->troff_mode=(opt->troff_mode>0 ? true : false);
 
 @ @<Exported function ...@>=
@@ -6874,8 +6886,11 @@ third kind.
 static void mp_save_internal (MP mp,halfword q) {
   pointer p; /* new item for the save stack */
   if ( mp->save_ptr!=null ){ 
-     p=mp_get_node(mp, save_node_size); mp_info(p)=hash_end+q;
-    mp_link(p)=mp->save_ptr; value(p)=mp->internal[q]; mp->save_ptr=p;
+     p=mp_get_node(mp, save_node_size);
+     mp_info(p)=hash_end+q;
+     mp_link(p)=mp->save_ptr; 
+     value(p)=mp->internal[q];
+     mp->save_ptr=p;
   }
 }
 
@@ -6891,16 +6906,29 @@ static void mp_unsave (MP mp) {
     q=mp_info(mp->save_ptr);
     if ( q>hash_end ) {
       if ( mp->internal[mp_tracing_restores]>0 ) {
-        mp_begin_diagnostic(mp); mp_print_nl(mp, "{restoring ");
-        mp_print(mp, mp->int_name[q-(hash_end)]); mp_print_char(mp, xord('='));
-        mp_print_scaled(mp, value(mp->save_ptr)); mp_print_char(mp, xord('}'));
+        mp_begin_diagnostic(mp);
+        mp_print_nl(mp, "{restoring ");
+        mp_print(mp, mp->int_name[q-(hash_end)]);
+        mp_print_char(mp, xord('='));
+        if (mp->int_type[q-(hash_end)]==mp_known) {
+           mp_print_scaled(mp, value(mp->save_ptr));
+        } else if (mp->int_type[q-(hash_end)]==mp_string_type) {
+           char *s = mp_str(mp, value(mp->save_ptr));
+           mp_print(mp, s);
+           free(s);
+        } else {
+           mp_confusion(mp,"internal_restore");
+        }
+        mp_print_char(mp, xord('}'));
         mp_end_diagnostic(mp, false);
       }
       mp->internal[q-(hash_end)]=value(mp->save_ptr);
     } else { 
       if ( mp->internal[mp_tracing_restores]>0 ) {
-        mp_begin_diagnostic(mp); mp_print_nl(mp, "{restoring ");
-        mp_print_text(q); mp_print_char(mp, xord('}'));
+        mp_begin_diagnostic(mp); 
+        mp_print_nl(mp, "{restoring ");
+        mp_print_text(q); 
+        mp_print_char(mp, xord('}'));
         mp_end_diagnostic(mp, false);
       }
       mp_clear_symbol(mp, q,false);
@@ -16965,6 +16993,7 @@ case mp_vacuous:mp_print(mp, "mp_vacuous"); break;
 case mp_boolean_type:
   if ( v==true_code ) mp_print(mp, "true"); else mp_print(mp, "false");
   break;
+case mp_internal_type:
 case unknown_types: case mp_numeric_type:
   @<Display a variable that's been declared but not defined@>;
   break;
@@ -17037,8 +17066,8 @@ the ring consists entirely of capsules.
 { mp_print_type(mp, t);
 if ( v!=null )
   { mp_print_char(mp, xord(' '));
-  while ( (mp_name_type(v)==mp_capsule) && (v!=p) ) v=value(v);
-  mp_print_variable_name(mp, v);
+    while ( (mp_name_type(v)==mp_capsule) && (v!=p) ) v=value(v);
+    mp_print_variable_name(mp, v);
   };
 }
 
@@ -17732,9 +17761,8 @@ of the save stack, as described earlier.)
     }
     mp_back_input(mp);
   }
-  mp->cur_type=mp_known; mp->cur_exp=mp->internal[q];
-  if (q == mp_output_format || q == mp_output_template)
-    mp->cur_type=mp_string_type;
+  mp->cur_exp=mp->internal[q];
+  mp->cur_type=mp->int_type[q];
 }
 
 @ The most difficult part of |scan_primary| has been saved for last, since
@@ -21712,16 +21740,42 @@ void mp_do_assignment (MP mp) {
 
 @ @<Assign the current expression to an internal variable@>=
 if ( mp->cur_type==mp_known || mp->cur_type==mp_string_type )  {
-  if (mp->cur_type==mp_string_type)
-    add_str_ref(mp->cur_exp);
-  mp->internal[mp_info(lhs)-(hash_end)]=mp->cur_exp;
+  if (mp->int_type[mp_info(lhs)-(hash_end)]==mp_internal_type) {
+      mp->int_type[mp_info(lhs)-(hash_end)]=mp->cur_type;
+  }
+  if (mp->cur_type==mp_string_type) {
+    if (mp->int_type[mp_info(lhs)-(hash_end)]!=mp->cur_type) {
+       exp_err("Internal quantity `");
+@.Internal quantity...@>
+       mp_print(mp, mp->int_name[mp_info(lhs)-(hash_end)]);
+       mp_print(mp, "' must receive a known numeric value");
+       help2("I can\'t set this internal quantity to anything but a known",
+             "numeric value, so I'll have to ignore this assignment.");
+      mp_put_get_error(mp);
+    } else {
+      add_str_ref(mp->cur_exp);
+      mp->internal[mp_info(lhs)-(hash_end)]=mp->cur_exp;
+    }
+  } else { /* mp_known */
+    if (mp->int_type[mp_info(lhs)-(hash_end)]!=mp->cur_type) {
+       exp_err("Internal quantity `");
+@.Internal quantity...@>
+       mp_print(mp, mp->int_name[mp_info(lhs)-(hash_end)]);
+       mp_print(mp, "' must receive a known string");
+       help2("I can\'t set this internal quantity to anything but a known",
+             "string, so I'll have to ignore this assignment.");
+      mp_put_get_error(mp);
+    } else {
+      mp->internal[mp_info(lhs)-(hash_end)]=mp->cur_exp;
+    }
+  }
 } else { 
   exp_err("Internal quantity `");
 @.Internal quantity...@>
   mp_print(mp, mp->int_name[mp_info(lhs)-(hash_end)]);
-  mp_print(mp, "' must receive a known value");
-  help2("I can\'t set an internal quantity to anything but a known",
-        "numeric value, so I'll have to ignore this assignment.");
+  mp_print(mp, "' must receive a known numeric or string");
+  help2("I can\'t set an internal quantity to anything but a known string",
+        "or known numeric value, so I'll have to ignore this assignment.");
   mp_put_get_error(mp);
 }
 
@@ -22839,22 +22893,27 @@ void mp_grow_internals (MP mp, int l);
 void mp_grow_internals (MP mp, int l) {
   scaled *internal;
   char * *int_name; 
+  int    *int_type; 
   int k;
   if ( hash_end+l>max_halfword ) {
     mp_confusion(mp, "out of memory space"); /* can't be reached */
   }
   int_name = xmalloc ((l+1),sizeof(char *));
+  int_type = xmalloc ((l+1),sizeof(int));
   internal = xmalloc ((l+1),sizeof(scaled));
   for (k=0;k<=l; k++ ) { 
     if (k<=mp->max_internal) {
       internal[k]=mp->internal[k]; 
       int_name[k]=mp->int_name[k]; 
+      int_type[k]=mp->int_type[k]; 
     } else {
       internal[k]=0; 
       int_name[k]=NULL; 
+      int_type[k]=mp_internal_type; 
     }
   }
-  xfree(mp->internal); xfree(mp->int_name);
+  xfree(mp->internal); xfree(mp->int_name); xfree(mp->int_type);
+  mp->int_type = int_type;
   mp->int_name = int_name;
   mp->internal = internal;
   mp->max_internal = l;
@@ -22882,6 +22941,7 @@ for (k=0;k<=mp->max_internal;k++) {
 }
 xfree(mp->internal); 
 xfree(mp->int_name); 
+xfree(mp->int_type); 
 
 
 @ The various `\&{show}' commands are distinguished by modifier fields

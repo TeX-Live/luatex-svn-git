@@ -1,4 +1,4 @@
-% $Id: mpost.w 892 2009-04-14 14:28:42Z taco $
+% $Id: mpost.w 929 2009-04-17 10:39:27Z taco $
 %
 % Copyright 2008 Taco Hoekwater.
 %
@@ -22,7 +22,7 @@
 \def\[#1]{#1.}
 \pdfoutput=1
 
-@* \[1] Metapost executable.
+@*\MP\ executable.
 
 Now that all of \MP\ is a library, a separate program is needed to 
 have our customary command-line interface. 
@@ -242,8 +242,9 @@ void recorder_start(char *jobname) {
   return  kpse_find_file (nam, fmt, req);
 }
 
-@ Invoke makempx (or troffmpx) to make sure there is an up-to-date
-   .mpx file for a given .mp file.  (Original from John Hobby 3/14/90) 
+@ Invoke {\tt makempx} (or {\tt troffmpx}) to make sure there is an
+   up-to-date {\tt .mpx} file for a given {\tt .mp} file.  (Original
+   from John Hobby 3/14/90)
 
 @d default_args " --parse-first-line --interaction=nonstopmode"
 @d TEX     "tex"
@@ -878,7 +879,7 @@ int main (int argc, char **argv) { /* |start_here| */
   struct MP_options * options; /* instance options */
   int a=0; /* argc counter */
   boolean nokpse = false; /* switch to {\it not} enable kpse */
-  char *user_progname = NULL; /* If the user overrides argv[0] with -progname.  */
+  char *user_progname = NULL; /* If the user overrides |argv[0]| with {\tt -progname}.  */
   options = mp_options();
   options->ini_version       = (int)false;
   options->print_found_names = (int)true;

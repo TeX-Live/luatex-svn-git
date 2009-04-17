@@ -1,4 +1,4 @@
-% $Id: psout.w 878 2009-03-22 08:22:33Z taco $
+% $Id: psout.w 928 2009-04-17 10:03:51Z taco $
 %
 % Copyright 2008 Taco Hoekwater.
 %
@@ -207,6 +207,15 @@ static void mp_ps_do_print (MP mp, const char *ss, size_t len) { /* prints strin
 @c
 static void mp_ps_print (MP mp, const char *ss) {
   ps_room(strlen(ss));
+  mp_ps_do_print(mp, ss, strlen(ss));
+}
+static void mp_ps_dsc_print (MP mp, const char *dsc, const char *ss) {
+  ps_room(strlen(ss));
+  if (mp->ps->ps_offset==0) {
+    mp_ps_do_print(mp, "%%+ ", 4);
+    mp_ps_do_print(mp, dsc, strlen(dsc));
+    mp_ps_print_char(mp, ' ');
+  }
   mp_ps_do_print(mp, ss, strlen(ss));
 }
 
@@ -3997,7 +4006,7 @@ static void mp_list_used_resources (MP mp, int prologues, int procset);
         mp_ps_print_nl(mp, "%%+ encoding");
       }
       mp_ps_print_char(mp, ' ');
-      mp_ps_print(mp, mp->font_enc_name[f]);
+      mp_ps_dsc_print(mp, "encoding", mp->font_enc_name[f]);
       ldf=(int)f;
     }
   FOUND:
@@ -4022,9 +4031,9 @@ static void mp_list_used_resources (MP mp, int prologues, int procset);
       mp_ps_print_char(mp, ' ');
 	  if ( (prologues==3)&&
            (mp_font_is_subsetted(mp,f)) )
-        mp_ps_print(mp, mp_fm_font_subset_name(mp,f));
+        mp_ps_dsc_print(mp, "font", mp_fm_font_subset_name(mp,f));
       else
-        mp_ps_print(mp, mp->font_ps_name[f]);
+        mp_ps_dsc_print(mp, "font", mp->font_ps_name[f]);
       ldf=(int)f;
     }
   FOUND2:
@@ -4063,7 +4072,7 @@ static void mp_list_supplied_resources (MP mp, int prologues, int procset);
         mp_ps_print_nl(mp, "%%+ encoding");
       }
       mp_ps_print_char(mp, ' ');
-      mp_ps_print(mp, mp->font_enc_name[f]);
+      mp_ps_dsc_print(mp, "encoding", mp->font_enc_name[f]);
       ldf=(int)f;
     }
   FOUND:
@@ -4089,9 +4098,9 @@ static void mp_list_supplied_resources (MP mp, int prologues, int procset);
         }
         mp_ps_print_char(mp, ' ');
 	    if ( mp_font_is_subsetted(mp,f) ) 
-          mp_ps_print(mp, mp_fm_font_subset_name(mp,f));
+          mp_ps_dsc_print(mp, "font", mp_fm_font_subset_name(mp,f));
         else
-          mp_ps_print(mp, mp->font_ps_name[f]);
+          mp_ps_dsc_print(mp, "font", mp->font_ps_name[f]);
         ldf=(int)f;
       }
     FOUND2:
@@ -4127,7 +4136,7 @@ static void mp_list_needed_resources (MP mp, int prologues);
         mp_ps_print_nl(mp, "%%DocumentNeededResources: font");
       }
       mp_ps_print_char(mp, ' ');
-      mp_ps_print(mp, mp->font_ps_name[f]);
+      mp_ps_dsc_print(mp, "font", mp->font_ps_name[f]);
       ldf=(int)f;
     }
   FOUND:
