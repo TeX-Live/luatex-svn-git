@@ -1,5 +1,5 @@
 /* ptexlib.h
-   
+
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
    Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
 
@@ -299,9 +299,6 @@ extern void out_image(integer, scaled, scaled);
 extern void dumpimagemeta(void);
 extern void undumpimagemeta(integer, integer);
 extern void pdf_print_resname_prefix(void);
-
-/* writejbig2.c */
-extern void flush_jbig2_page0_objects();
 
 /* writet1.c */
 extern boolean t1_subset(char *, char *, unsigned char *);

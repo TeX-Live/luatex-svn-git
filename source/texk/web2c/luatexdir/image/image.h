@@ -1,5 +1,5 @@
 /* image.h
-   
+
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
    Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
 
@@ -223,20 +223,22 @@ void read_img(image_dict *, integer, integer);
 #  endif
 
 void read_png_info(image_dict *, img_readtype_e);
-void read_jpg_info(image_dict *, img_readtype_e);
-void read_jbig2_info(image_dict *);
-void read_pdf_info(image_dict *, integer, integer);
 void write_img(image_dict *);
 void write_png(image_dict *);
-void write_jpg(image_dict *);
-void write_jbig2(image_dict *);
-void write_epdf(image_dict *);
-
-extern void write_additional_epdf_objects(void);
 extern void write_additional_png_objects(void);
+
+/* writejpg.c */
+
+void read_jpg_info(image_dict *, img_readtype_e);
+void write_jpg(image_dict *);
+
+#  include "writejbig2.h"
 
 /* pdftoepdf.cc */
 
 void unrefPdfDocument(char *);
+void read_pdf_info(image_dict *, integer, integer);
+void write_epdf(image_dict *);
+extern void write_additional_epdf_objects(void);
 
 #endif
