@@ -27,7 +27,8 @@
 #include "tokens.h"
 
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+    "$URL$";
 
 #define mode          cur_list.mode_field
 #define head          cur_list.head_field
@@ -53,7 +54,7 @@ static const char _svn_version[] =
 #define mmode (hmode+max_command_cmd+1)
 
 #define cur_fam int_par(param_cur_fam_code)
-#define text_direction zeqtb[param_text_direction_code].cint
+#define text_direction zeqtb[static_int_base + param_text_direction_code].cint
 
 #define scan_normal_dimen() scan_dimen(false,false,false)
 
