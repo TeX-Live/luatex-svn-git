@@ -438,20 +438,16 @@ void init_kpse(void)
     if (!user_progname) {
         if (ini_version) {
             user_progname = input_name;
-        } else {
-            if (!startup_filename) {
-                if (!dump_name) {
-                    dump_name = cleaned_invocation_name(argv[0]);
-                    user_progname = dump_name;
-                }
+            if (!user_progname) {
+                user_progname = cleaned_invocation_name(argv[0]);
             }
+        } else {
+            if (!dump_name) {
+                dump_name = cleaned_invocation_name(argv[0]);
+            }
+            user_progname = dump_name;
         }
     }
-    if (!user_progname) {
-        fprintf(stdout, "kpathsea mode needs a --progname or --fmt switch\n");
-        exit(1);
-    }
-
     kpse_set_program_enabled(kpse_fmt_format, MAKE_TEX_FMT_BY_DEFAULT,
                              kpse_src_compile);
 
