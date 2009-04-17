@@ -27,8 +27,6 @@ static const char _svn_version[] =
 
 #define noVERBOSE
 
-#define SAVE_REF 1
-
 char *font_type_strings[] = { "unknown", "virtual", "real", NULL };
 char *font_format_strings[] =
     { "unknown", "type1", "type3", "truetype", "opentype", NULL };
@@ -380,7 +378,7 @@ int font_to_lua(lua_State * L, int f)
 {
     int k;
     charinfo *co;
-    if (font_cache_id(f)) {
+    if (font_cache_id(f)>0) {
         /* fetch the table from the registry if  it was 
            saved there by font_from_lua() */
         lua_rawgeti(L, LUA_REGISTRYINDEX, font_cache_id(f));
@@ -510,6 +508,13 @@ int font_to_lua(lua_State * L, int f)
         }
     }
     lua_setfield(L, -2, "characters");
+
+    if (font_cache_id(f)==0) { /* renew */
+        integer r;
+        lua_pushvalue(L,-1);
+        r = luaL_ref(Luas, LUA_REGISTRYINDEX);  /* pops the table */
+        set_font_cache_id(f, r);
+    }
     return 1;
 }
 
@@ -1428,6 +1433,18 @@ int font_from_lua(lua_State * L, int f)
     int ec;                     /* last char index */
     char *s;
     integer *l_fonts = NULL;
+    integer save_ref = 1; /* unneeded, really */
+
+    /* will we save a cache of the luat table? */
+    s = string_field(L, "cache", "yes");
+    if (strcmp(s,"yes")==0)
+        save_ref=1;
+    else if (strcmp(s,"no")==0)
+        save_ref=-1;
+    else if (strcmp(s,"renew")==0)
+        save_ref=0;
+    free(s);
+        
     /* the table is at stack index -1 */
 
     if (luaS_width_index == 0)
@@ -1647,12 +1664,13 @@ int font_from_lua(lua_State * L, int f)
                         font_name(f));
         }
 
-#if SAVE_REF
-        r = luaL_ref(Luas, LUA_REGISTRYINDEX);  /* pops the table */
-        set_font_cache_id(f, r);
-#else
-        lua_pop(Luas, 1);
-#endif
+        if (save_ref>0) {
+            r = luaL_ref(Luas, LUA_REGISTRYINDEX);  /* pops the table */
+            set_font_cache_id(f, r);
+        } else {
+            lua_pop(Luas, 1);
+            set_font_cache_id(f, save_ref);
+        }
     } else {                    /* jikes, no characters */
         pdftex_warn("lua-loaded font [%d] (%s) has no character table!", f,
                     font_name(f));

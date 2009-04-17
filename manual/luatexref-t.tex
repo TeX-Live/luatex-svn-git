@@ -6504,7 +6504,7 @@ by the \luatex{font.read_tfm()} routine, and \quote{used} means whether or not t
 The top|-|level keys in the table are as follows:
 
 \starttabulate[|Tl|l|l|l|l|p|]
-\NC \ssbf key            \NC \bf from vf \NC \bf from tfm \NC \bf used\NC \bf value type \NC \bf description \NC\NR
+\NC \ssbf key  \NC \bf from vf \NC \bf from tfm \NC \bf used\NC \bf value type \NC \bf description \NC\NR
 \NC name               \NC yes      \NC yes      \NC yes \NC string \NC metric (file) name\NC\NR
 \NC area               \NC no       \NC yes      \NC yes \NC string \NC (directory) location, typically empty\NC\NR
 \NC used               \NC no       \NC yes      \NC yes \NC boolean\NC used already? (initial: false)\NC \NR
@@ -6526,13 +6526,20 @@ The top|-|level keys in the table are as follows:
 \NC embedding          \NC no       \NC no       \NC yes \NC string \NC \PDF\ inclusion\NC \NR
 \NC filename           \NC no       \NC no       \NC yes \NC string \NC disk file name\NC\NR
 \NC tounicode          \NC no       \NC yes      \NC yes \NC number \NC if 1, \LUATEX\ assumes per-glyph tounicode entries are
-present in the font\NC\NR
+                                                                        present in the font\NC\NR
 \NC stretch            \NC no       \NC no       \NC yes \NC number \NC the \quote {stretch} value from \tex{pdffontexpand}\NC\NR
 \NC shrink             \NC no       \NC no       \NC yes \NC number \NC the \quote {shrink} value from \tex{pdffontexpand}\NC\NR
 \NC step               \NC no       \NC no       \NC yes \NC number \NC the \quote {step} value from \tex{pdffontexpand}\NC\NR
 \NC auto_expand        \NC no       \NC no       \NC yes \NC boolean\NC the \quote {autoexpand} keyword from \tex{pdffontexpand}\NC\NR
 \NC expansion_factor   \NC no       \NC no       \NC no  \NC number \NC the actual expansion factor of an expanded font\NC\NR
 \NC attributes         \NC no       \NC no       \NC yes \NC string \NC the \tex{pdffontattr}\NC\NR
+\NC cache              \NC no       \NC no       \NC yes \NC string \NC this key controls caching of the lua table on the \type{tex}
+                                                                        end. \type{yes}: use a reference to the table that is
+                                                                        passed to \LUATEX\  (this is the default). \type{no}: don't store the table
+                                                                        reference, don't cache any lua data for this font.
+                                                                        \type{renew}: don't store the table reference, but
+                                                                        save a reference to the table that is created at the
+                                                                        first access to one of its fields in font.fonts. \NC\NR
 \stoptabulate
 
 The key \type{name} is always required. The keys \type{stretch},
