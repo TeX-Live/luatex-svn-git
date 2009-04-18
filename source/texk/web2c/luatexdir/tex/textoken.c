@@ -383,7 +383,7 @@ char *cs_to_string(pointer p)
 char *cmd_chr_to_string(int cmd, int chr)
 {
     char *s;
-    strnumber str;
+    str_number str;
     int sel = selector;
     selector = new_string;
     print_cmd_chr(cmd, chr);

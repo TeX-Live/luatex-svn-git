@@ -1154,7 +1154,7 @@ boolean is_valid_font(integer id)
 }
 
 /* return 1 == identical */
-boolean cmp_font_name(integer id, strnumber t)
+boolean cmp_font_name(integer id, str_number t)
 {
     char *tid, *tt;
     if (!is_valid_font(id))
@@ -1168,7 +1168,7 @@ boolean cmp_font_name(integer id, strnumber t)
     return 1;
 }
 
-boolean cmp_font_area(integer id, strnumber t)
+boolean cmp_font_area(integer id, str_number t)
 {
     char *tt = NULL;
     char *tid = font_area(id);

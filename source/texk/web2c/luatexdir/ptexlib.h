@@ -146,7 +146,7 @@ extern char *cur_file_name;
 extern const char notdef[];
 extern integer t1_length1, t1_length2, t1_length3;
 extern integer ttf_length;
-extern strnumber last_tex_string;
+extern str_number last_tex_string;
 extern size_t last_ptr_index;
 
 /* loadpool.c */
@@ -183,7 +183,7 @@ extern boolean handle_subfont_fm(fm_entry *, int);
 
 /* tounicode.c */
 extern void glyph_unicode_free(void);
-extern void def_tounicode(strnumber, strnumber);
+extern void def_tounicode(str_number, str_number);
 extern integer write_tounicode(char **, char *);
 
 /* utils.c */
@@ -205,15 +205,15 @@ extern int xgetc(FILE *);
 extern int xputc(int, FILE *);
 extern scaled ext_xn_over_d(scaled, scaled, scaled);
 extern size_t xfwrite(void *, size_t size, size_t nmemb, FILE *);
-extern strnumber get_resname_prefix(void);
-extern strnumber maketexstring(const char *);
-extern strnumber maketexlstring(const char *, size_t);
+extern str_number get_resname_prefix(void);
+extern str_number maketexstring(const char *);
+extern str_number maketexlstring(const char *, size_t);
 extern integer fb_offset(void);
 extern void fb_flush(void);
 extern void fb_putchar(eight_bits b);
 extern void fb_seek(integer);
 extern void libpdffinish(void);
-extern char *makecfilename(strnumber s);
+extern char *makecfilename(str_number s);
 extern void make_subset_tag(fd_entry *);
 __attribute__ ((format(printf, 1, 2)))
 extern void pdf_printf(const char *, ...);
@@ -227,7 +227,7 @@ __attribute__ ((format(printf, 1, 2)))
 extern void tex_printf(const char *, ...);
 extern void write_stream_length(integer, longinteger);
 extern char *convertStringToPDFString(const char *in, int len);
-extern void print_ID(strnumber);
+extern void print_ID(str_number);
 extern void print_creation_date();
 extern void print_mod_date();
 extern void escapename(poolpointer in);

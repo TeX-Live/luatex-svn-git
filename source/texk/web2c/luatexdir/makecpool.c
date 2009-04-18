@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
     printf("  NULL };\n"
            "int loadpoolstrings (integer spare_size) {\n"
            "  const char *s;\n"
-           "  strnumber g=0;\n"
+           "  str_number g=0;\n"
            "  int i=0,j=0;\n"
            "  while ((s = poolfilearr[j++])) {\n"
            "    int l = strlen (s);\n"

@@ -23,7 +23,7 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-typedef void (*texio_printer) (strnumber s);
+typedef void (*texio_printer) (str_number s);
 
 static char *loggable_info = NULL;
 
@@ -51,11 +51,11 @@ static boolean get_selector_value(lua_State * L, int i, char *l)
 
 static int do_texio_print(lua_State * L, texio_printer printfunction)
 {
-    strnumber texs;
+    str_number texs;
     char *s;
     size_t k;
     int i = 1;
-    strnumber u = 0;
+    str_number u = 0;
     char save_selector = selector;
     int n = lua_gettop(L);
     if (n == 0 || !lua_isstring(L, -1)) {

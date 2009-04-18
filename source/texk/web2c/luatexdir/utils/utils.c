@@ -50,7 +50,7 @@ static const char __svn_version[] =
         pdftex_fail ("snprintf failed: file %s, line %d", __FILE__, __LINE__);
 
 char *cur_file_name = NULL;
-strnumber last_tex_string;
+str_number last_tex_string;
 static char print_buf[PRINTF_BUF_SIZE];
 static char *jobname_cstr = NULL;
 static char *job_id_string = NULL;
@@ -176,14 +176,14 @@ void pdf_printf(const char *fmt, ...)
     va_end(args);
 }
 
-strnumber maketexstring(const char *s)
+str_number maketexstring(const char *s)
 {
     if (s == NULL || *s == 0)
         return get_nullstr();
     return maketexlstring(s, strlen(s));
 }
 
-strnumber maketexlstring(const char *s, size_t l)
+str_number maketexlstring(const char *s, size_t l)
 {
     if (s == NULL || l == 0)
         return get_nullstr();
@@ -297,7 +297,7 @@ void pdftex_warn(const char *fmt, ...)
 
 void tex_error(char *msg, char **hlp)
 {
-    strnumber aa = 0, bb = 0, cc = 0, dd = 0, ee = 0;
+    str_number aa = 0, bb = 0, cc = 0, dd = 0, ee = 0;
     int k = 0;
     if (hlp != NULL) {
         while (hlp[k] != NULL)
@@ -471,7 +471,7 @@ void make_pdftex_banner(void)
     pdftexbanner_init = true;
 }
 
-strnumber get_resname_prefix(void)
+str_number get_resname_prefix(void)
 {
 /*     static char name_str[] = */
 /* "!\"$&'*+,-.0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\\" */
@@ -859,7 +859,7 @@ static void convertStringToHexString(const char *in, char *out, int lin)
   scanning the info dict is also difficult, we start with a simpler
   implementation using just the first two items.
  */
-void print_ID(strnumber filename)
+void print_ID(str_number filename)
 {
     time_t t;
     size_t size;
@@ -1034,7 +1034,7 @@ void getcreationdate()
     That means, file names that are legal on some operation systems
     cannot any more be used since pdfTeX version 1.30.4.
 */
-char *makecfilename(strnumber s)
+char *makecfilename(str_number s)
 {
     char *name = makecstring(s);
     char *p = name;

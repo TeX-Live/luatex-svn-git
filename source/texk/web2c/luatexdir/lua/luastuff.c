@@ -381,7 +381,7 @@ void luatex_load_init(int s, LoadS * ls)
 lua_State *luatex_error(lua_State * L, int is_fatal)
 {
 
-    strnumber s;
+    str_number s;
     const char *luaerr;
     size_t len = 0;
     char *err = NULL;

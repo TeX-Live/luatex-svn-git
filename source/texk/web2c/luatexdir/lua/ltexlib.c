@@ -521,7 +521,7 @@ static int settoks (lua_State * L)
 static int gettoks(lua_State * L)
 {
     integer k;
-    strnumber t;
+    str_number t;
     k = get_item_index (L, lua_gettop(L), get_toks_base());
     check_index_range(k,"gettoks");
     t = get_tex_toks_register(k);

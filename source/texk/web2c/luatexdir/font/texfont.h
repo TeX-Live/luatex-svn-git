@@ -221,14 +221,14 @@ extern char *font_embedding_strings[];
 #  define set_font_name(f,b)        font_name(f) = b
 #  define tex_font_name(a)          maketexstring(font_name(a))
 
-boolean cmp_font_name(integer, strnumber);
+boolean cmp_font_name(integer, str_number);
 
 #  define font_area(a)              font_tables[a]->_font_area
 #  define get_font_area(a)          (unsigned char *)font_area(a)
 #  define set_font_area(f,b)        font_area(f) = b
 #  define tex_font_area(a)          maketexstring(font_area(a))
 
-boolean cmp_font_area(integer, strnumber);
+boolean cmp_font_area(integer, str_number);
 
 #  define font_reassign(a,b)            { if (a!=NULL) free(a); a = b; }
 
@@ -573,7 +573,7 @@ int read_tfm_info(internal_font_number f, char *nom, scaled s);
 
 /* from dofont.c */
 
-extern int read_font_info(pointer u, strnumber nom, scaled s, integer ndir);
+extern int read_font_info(pointer u, str_number nom, scaled s, integer ndir);
 extern int find_font_id(char *nom, scaled s);
 
 /* for and from vfpacket.c */
