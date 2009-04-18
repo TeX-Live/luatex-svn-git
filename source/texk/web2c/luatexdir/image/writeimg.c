@@ -1,7 +1,7 @@
 /* writeimg.c
-   
+
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -24,12 +24,17 @@
 #include <kpathsea/c-memstr.h>
 
 #include "image.h"
+#include "writejpg.h"
+#include "writepng.h"
+#include "writejbig2.h"
+#include "pdftoepdf.h"
 
 #include <../lua51/lua.h>
 #include <../lua51/lauxlib.h>
 
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+    "$URL$";
 
 extern void pdf_print_real(integer m, integer d);
 
@@ -654,7 +659,6 @@ typedef image *img_entry;
 img_entry *img_ptr, *img_array = NULL;
 size_t img_limit;
 
-
 integer img_to_array(image * img)
 {
     assert(img != NULL);
@@ -662,8 +666,6 @@ integer img_to_array(image * img)
     *img_ptr = img;
     return img_ptr++ - img_array;       /* now img is read-only */
 }
-
-
 
 /**********************************************************************/
 
@@ -809,9 +811,6 @@ void undumpimagemeta(integer pdfversion, integer pdfinclusionerrorlevel)
         read_img(idict, pdfversion, pdfinclusionerrorlevel);
     }
 }
-
-
-
 
 /**********************************************************************/
 /* stuff to be accessible from TeX */

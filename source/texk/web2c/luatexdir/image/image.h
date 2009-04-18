@@ -1,7 +1,7 @@
 /* image.h
 
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -199,37 +199,4 @@ typedef struct {
 #  define is_ht_running(N)      (img_height(N) == null_flag)
 #  define is_dp_running(N)      (img_depth(N) == null_flag)
 
-/**********************************************************************/
-
-/* writeimg.c */
-
-void new_img_pdfstream_struct(image_dict *);
-void check_pdfstream_dict(image_dict *);
-void write_pdfstream(image_dict *);
-image *new_image();
-image_dict *new_image_dict();
-void init_image(image *);
-void init_image_dict(image_dict *);
-void scale_img(image *);
-integer img_to_array(image *);
-void delete_image(image *);
-void free_image_dict(image_dict * p);
-void read_img(image_dict *, integer, integer);
-void write_img(image_dict *);
-
-/* writejpg.c */
-
-void read_jpg_info(image_dict *, img_readtype_e);
-void write_jpg(image_dict *);
-
-#  include "writepng.h"
-#  include "writejbig2.h"
-
-/* pdftoepdf.cc */
-
-void unrefPdfDocument(char *);
-void read_pdf_info(image_dict *, integer, integer);
-void write_epdf(image_dict *);
-extern void write_additional_epdf_objects(void);
-
-#endif
+#endif                          /* IMAGE_H */

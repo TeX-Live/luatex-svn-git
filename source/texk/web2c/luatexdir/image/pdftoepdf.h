@@ -1,4 +1,4 @@
-/* writejbig2.h
+/* pdftoepdf.h
 
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
    Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
@@ -20,13 +20,14 @@
 
 /* $Id$ */
 
-#ifndef WRITEJBIG2_H
-#  define WRITEJBIG2_H
+#ifndef PDFTOEPDF_H
+#  define PDFTOEPDF_H
 
 #  include "image.h"
 
-void flush_jbig2_page0_objects();
-void read_jbig2_info(image_dict *);
-void write_jbig2(image_dict *);
+void read_pdf_info(image_dict *, integer, integer);
+void unrefPdfDocument(char *);
+void write_additional_epdf_objects(void);
+void write_epdf(image_dict *);
 
-#endif                          /* WRITEJBIG"_H */
+#endif                          /* PDFTOEPDF_H */

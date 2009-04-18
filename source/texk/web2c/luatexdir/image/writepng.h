@@ -20,13 +20,13 @@
 
 /* $Id$ */
 
-#include "image.h"
-
 #ifndef WRITEPNG_H
 #  define WRITEPNG_H
 
-void read_png_info(image_dict *, img_readtype_e);
-void write_png(image_dict *);
-extern void write_additional_png_objects(void);
+#  include "image.h"
 
-#endif
+void read_png_info(image_dict *, img_readtype_e);
+void write_additional_png_objects(void);
+void write_png(image_dict *);
+
+#endif                          /* WRITEPNG_H */

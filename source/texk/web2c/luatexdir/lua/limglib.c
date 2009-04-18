@@ -23,7 +23,6 @@
 #include <../lua51/lua.h>
 #include <../lua51/lauxlib.h>
 #include <ptexlib.h>
-#include "../image/image.h"
 #include "../luatex-api.h"
 
 static const char _svn_version[] =

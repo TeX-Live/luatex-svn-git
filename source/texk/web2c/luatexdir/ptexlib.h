@@ -20,8 +20,8 @@
 
 /* $Id$ */
 
-#ifndef LUATEXLIB
-#  define LUATEXLIB
+#ifndef PTEXLIB_H
+#  define PTEXLIB_H
 
 /* WEB2C macros and prototypes */
 #  if !defined(LUATEXCOERCE)
@@ -43,7 +43,7 @@ extern double rint(double x);
 #  include "utils/synctex.h"
 
 #  include "utils/avlstuff.h"
-#  include "image/image.h"
+#  include "image/writeimg.h"
 
 #  include "openbsd-compat.h"
 
@@ -270,35 +270,6 @@ extern void do_pdf_font(integer, internalfontnumber);
 extern fd_entry *lookup_fd_entry(char *, integer, integer);
 extern fd_entry *new_fd_entry(void);
 extern void write_fontstuff();
-
-/* writeimg.c */
-extern boolean check_image_b(integer);
-extern boolean check_image_c(integer);
-extern boolean check_image_i(integer);
-extern boolean is_pdf_image(integer);
-extern boolean is_png_image(integer);
-extern integer image_pages(integer);
-extern integer image_index(integer);
-extern integer image_width(integer);
-extern integer image_height(integer);
-extern integer image_depth(integer);
-extern integer image_objnum(integer);
-extern integer image_imgnum(integer);
-extern integer new_image_entry(void);
-extern integer read_image(integer, integer, strnumber, integer, strnumber,
-                          strnumber, integer, integer, integer, integer);
-extern void img_free(void);
-extern void update_image_procset(integer);
-extern void write_image(integer);
-extern integer image_colordepth(integer img);
-extern integer image_groupref(integer img);
-extern void scale_image(integer);
-extern void set_image_dimensions(integer, integer, integer, integer);
-extern void set_image_index(integer, integer);
-extern void out_image(integer, scaled, scaled);
-extern void dumpimagemeta(void);
-extern void undumpimagemeta(integer, integer);
-extern void pdf_print_resname_prefix(void);
 
 /* writet1.c */
 extern boolean t1_subset(char *, char *, unsigned char *);
@@ -617,12 +588,6 @@ void do_get_token_lua(integer callback_id);
 int visible_last_node_type(int n);
 void print_node_mem_stats(void);
 
-/* writeimg.c */
-integer epdf_xsize(integer i);
-integer epdf_ysize(integer i);
-integer epdf_orig_y(integer i);
-integer epdf_orig_x(integer i);
-
 /* limglib.c */
 void vf_out_image(unsigned i);
 
@@ -745,4 +710,4 @@ extern char *get_lua_name(int i);
 #  include "texmath.h"
 #  include "primitive.h"
 
-#endif                          /* PDFTEXLIB */
+#endif                          /* PTEXLIB_H */
