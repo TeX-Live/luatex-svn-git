@@ -35,6 +35,11 @@ static const char _svn_version[] =
 #define disable_lig          int_par(param_disable_lig_code)
 #define disable_kern         int_par(param_disable_kern_code)
 
+#define level_one 1
+#define thin_mu_skip param_thin_mu_skip_code
+#define med_mu_skip param_med_mu_skip_code
+#define thick_mu_skip param_thick_mu_skip_code
+
 #define nDEBUG
 
 #define reset_attributes(p,newatt) do {             \
@@ -1171,21 +1176,21 @@ void finalize_math_parameters(void)
     if (get_math_param(math_param_space_after_script, display_style) ==
         undefined_math_parameter) {
         def_math_param(math_param_space_after_script, display_style,
-                       script_space, cur_level);
-        def_math_param(math_param_space_after_script, text_style, script_space,
-                       cur_level);
+                       script_space, level_one);
+        def_math_param(math_param_space_after_script, text_style,
+		       script_space, level_one);
         def_math_param(math_param_space_after_script, script_style,
-                       script_space, cur_level);
+                       script_space, level_one);
         def_math_param(math_param_space_after_script, script_script_style,
-                       script_space, cur_level);
+                       script_space, level_one);
         def_math_param(math_param_space_after_script, cramped_display_style,
-                       script_space, cur_level);
+                       script_space, level_one);
         def_math_param(math_param_space_after_script, cramped_text_style,
-                       script_space, cur_level);
+                       script_space, level_one);
         def_math_param(math_param_space_after_script, cramped_script_style,
-                       script_space, cur_level);
+                       script_space, level_one);
         def_math_param(math_param_space_after_script,
-                       cramped_script_script_style, script_space, cur_level);
+                       cramped_script_script_style, script_space, level_one);
     }
     int_par(param_tracing_assigns_code) = saved_trace;
 
@@ -3378,12 +3383,6 @@ small_number make_left_right(pointer q, integer style, scaled max_d,
     else
         return close_noad_type;
 }
-
-
-#define level_one 1
-#define thin_mu_skip param_thin_mu_skip_code
-#define med_mu_skip param_med_mu_skip_code
-#define thick_mu_skip param_thick_mu_skip_code
 
 
 #define TEXT_STYLES(A,B) do {					\
