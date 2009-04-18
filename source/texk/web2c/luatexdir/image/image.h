@@ -215,23 +215,14 @@ integer img_to_array(image *);
 void delete_image(image *);
 void free_image_dict(image_dict * p);
 void read_img(image_dict *, integer, integer);
-
-/* writepng.c */
-
-#  ifndef boolean               /* TODO: from where to get the original definition? */
-#    define boolean int
-#  endif
-
-void read_png_info(image_dict *, img_readtype_e);
 void write_img(image_dict *);
-void write_png(image_dict *);
-extern void write_additional_png_objects(void);
 
 /* writejpg.c */
 
 void read_jpg_info(image_dict *, img_readtype_e);
 void write_jpg(image_dict *);
 
+#  include "writepng.h"
 #  include "writejbig2.h"
 
 /* pdftoepdf.cc */
