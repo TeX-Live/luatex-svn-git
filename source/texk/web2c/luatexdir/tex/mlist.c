@@ -1018,6 +1018,15 @@ void fixup_math_parameters(integer fam_id, integer size_id, integer f,
         DEFINE_DMATH_PARAMETERS(math_param_sup_sub_bottom_max, size_id,
                                 (abs(math_x_height(size_id) * 4) / 5), lvl);
 
+        /* The display-size radical_vgap is done twice because it needs 
+           values from both the sy and the ex font. */
+        def_math_param(math_param_radical_vgap, display_style,
+                       (default_rule_thickness(text_size) +
+                        (abs(math_x_height(text_size)) / 4)), cur_level);
+        def_math_param(math_param_radical_vgap, cramped_display_style,
+                       (default_rule_thickness(text_size) +
+                        (abs(math_x_height(text_size)) / 4)), cur_level);
+
     } else if (fam_id == 3 && is_old_mathfont(f, total_mathex_params)) {
         /* fix old-style |ex| parameters */
         DEFINE_MATH_PARAMETERS(math_param_overbar_kern, size_id,
@@ -1048,8 +1057,7 @@ void fixup_math_parameters(integer fam_id, integer size_id, integer f,
                                default_rule_thickness(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_radical_kern, size_id,
                                 default_rule_thickness(size_id), lvl);
-        /* The display-size radical_vgap is done in |finalize_math_pamaters| because it needs values from both the
-           sy and the ex font. */
+
         DEFINE_MATH_PARAMETERS(math_param_radical_vgap, size_id,
                                (default_rule_thickness(size_id) +
                                 (abs(default_rule_thickness(size_id)) / 4)),
@@ -1124,6 +1132,14 @@ void fixup_math_parameters(integer fam_id, integer size_id, integer f,
         DEFINE_DMATH_PARAMETERS(math_param_over_delimiter_bgap, size_id,
                                 big_op_spacing3(size_id), lvl);
 
+        /* The display-size radical_vgap is done twice because it needs 
+           values from both the sy and the ex font. */
+        def_math_param(math_param_radical_vgap, display_style,
+                       (default_rule_thickness(text_size) +
+                        (abs(math_x_height(text_size)) / 4)), cur_level);
+        def_math_param(math_param_radical_vgap, cramped_display_style,
+                       (default_rule_thickness(text_size) +
+                        (abs(math_x_height(text_size)) / 4)), cur_level);
 
     }
 }
@@ -1151,15 +1167,6 @@ void finalize_math_parameters(void)
                        script_space, cur_level);
         def_math_param(math_param_space_after_script,
                        cramped_script_script_style, script_space, cur_level);
-    }
-    if (get_math_param(math_param_radical_vgap, display_style) ==
-        undefined_math_parameter) {
-        def_math_param(math_param_radical_vgap, display_style,
-                       (default_rule_thickness(text_size) +
-                        (abs(math_x_height(text_size)) / 4)), cur_level);
-        def_math_param(math_param_radical_vgap, cramped_display_style,
-                       (default_rule_thickness(text_size) +
-                        (abs(math_x_height(text_size)) / 4)), cur_level);
     }
     if (get_math_param(math_param_radical_degree_raise, display_style) ==
         undefined_math_parameter) {
