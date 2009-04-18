@@ -659,7 +659,7 @@ void write_svnversion(char *v)
         while (*n!='\0' && *n!=' ')
             n++;
         *n = '\0';
-        fprintf(stdout, " luatex.web v%s",  a);
+        fprintf(stdout, " luatex.web >= v%s",  a);
         free (a_head);
     }
 }
