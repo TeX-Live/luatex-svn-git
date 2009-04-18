@@ -51,8 +51,6 @@ typedef enum {
 } pdf_destination_types;
 
 
-#define obj_aux(A)              obj_tab[(A)].int4
-#define obj_data_ptr            obj_aux
 #define obj_obj_data(A)         pdf_mem[obj_data_ptr((A)) + 0]
 #define obj_obj_is_stream(A)    pdf_mem[obj_data_ptr((A)) + 1]
 #define obj_obj_stream_attr(A)  pdf_mem[obj_data_ptr((A)) + 2]

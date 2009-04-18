@@ -132,8 +132,8 @@ void avl_put_obj(integer objptr, integer t)
             pdftex_fail("avlstuff.c: avl_create() PdfObjTree failed");
     }
     oe = xtalloc(1, oentry);
-    oe->int0 = obj_tab[objptr].int0;
-    oe->objptr = objptr;        /* allows to relocate objtab */
+    oe->int0 = obj_info(objptr);
+    oe->objptr = objptr;        /* allows to relocate obj_tab */
     pp = avl_probe(PdfObjTree[t], oe);
     if (pp == NULL)
         pdftex_fail("avlstuff.c: avl_probe() out of memory in insertion");

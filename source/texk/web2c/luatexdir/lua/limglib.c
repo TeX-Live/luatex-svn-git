@@ -26,7 +26,8 @@
 #include "../luatex-api.h"
 
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+    "$URL$";
 
 /**********************************************************************/
 
@@ -566,11 +567,6 @@ static int l_scan_image(lua_State * L)
     read_scale_img(L, a);
     return 1;                   /* image */
 }
-
-/* DANGER! these should go into some header file... */
-#define obj_type_ximage 7
-#define obj_aux(a)      obj_tab[a].int4 /* auxiliary pointer */
-#define obj_data_ptr    obj_aux /* pointer to |pdf_mem| */
 
 static halfword img_to_node(image * a, integer ref)
 {

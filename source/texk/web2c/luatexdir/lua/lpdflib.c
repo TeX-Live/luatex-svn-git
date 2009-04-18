@@ -21,7 +21,8 @@
 #include <ptexlib.h>
 
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+    "$URL$";
 
 static int findcurv(lua_State * L)
 {
@@ -97,9 +98,6 @@ int luapdfprint(lua_State * L)
     }
     return 0;
 }
-
-/* DANGER! this should go into some header file */
-#define obj_type_others 0
 
 static int l_immediateobj(lua_State * L)
 {

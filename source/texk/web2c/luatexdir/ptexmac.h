@@ -28,9 +28,9 @@
 #    define M_PI           3.14159265358979323846
                                                 /* pi */
 #    define M_PI_2         1.5707963267948966192E0
-                                                /*Hex  2^ 0 * 1.921FB54442D18 */
+                                                /* Hex 2^ 0 * 1.921FB54442D18 */
 #    define M_PI_4         7.8539816339744830962E-1
-                                                /*Hex  2^-1 * 1.921FB54442D18 */
+                                                /* Hex 2^-1 * 1.921FB54442D18 */
 #  endif
 
 #  ifdef WIN32
@@ -42,11 +42,30 @@
 #    define random() rand()
 #  endif
 
+/**********************************************************************/
 /* Pascal WEB macros */
-#  define maxinteger 0x7FFFFFFF
-#  define maxdimen   0x3FFFFFFF
 
-#  define objinfo(n) objtab[n].int0
+#  define max_integer      0x7FFFFFFF
+#  define max_dimen        0x3FFFFFFF
+
+#  define obj_info(a)      obj_tab[(a)].int0
+#  define obj_link(a)      obj_tab[(a)].int1
+#  define obj_offset(a)    obj_tab[(a)].int2
+#  define obj_os_idx(a)    obj_tab[(a)].int3
+#  define obj_aux(a)       obj_tab[(a)].int4
+#  define obj_data_ptr     obj_aux
+
+/* types of objects */
+#  define obj_type_others  0    /* objects which are not linked in any list */
+#  define obj_type_page    1    /* index of linked list of Page objects */
+#  define obj_type_font    2    /* index of linked list of Fonts objects */
+#  define obj_type_outline 3    /* index of linked list of outline objects */
+#  define obj_type_dest    4    /* index of linked list of destination objects */
+#  define obj_type_obj     5    /* index of linked list of raw objects */
+#  define obj_type_xform   6    /* index of linked list of XObject forms */
+#  define obj_type_ximage  7    /* index of linked list of XObject image */
+#  define obj_type_thread  8    /* index of linked list of num article threads */
+#  define head_tab_max     obj_type_thread      /* max index of |head_tab| */
 
 #  define pdfroom(n) do {                                    \
     if ((unsigned)(n + pdf_ptr) > (unsigned)pdf_buf_size) {  \
@@ -67,6 +86,8 @@
 } while (0)
 
 #  define pdfoffset()     (pdf_gone + pdf_ptr)
+
+/**********************************************************************/
 
 #  define MAX_CHAR_CODE       255
 #  define PRINTF_BUF_SIZE     1024
@@ -134,9 +155,6 @@ extern void check_pool_overflow(int wsize);
         T##_ptr = T##_array + last_ptr_index;          \
     }                                                  \
 } while (0)
-
-#  define is_cfg_comment(c) \
-    (c == 10 || c == '*' || c == '#' || c == ';' || c == '%')
 
 #  define define_array(T)                   \
 T##_entry      *T##_ptr, *T##_array = NULL; \

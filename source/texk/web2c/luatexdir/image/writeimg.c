@@ -40,8 +40,6 @@ extern void pdf_print_real(integer m, integer d);
 
 extern pdfstructure *pstruct;
 
-#define obj_aux(A) obj_tab[(A)].int4
-
 /**********************************************************************/
 /*
   Patch ImageTypeDetection 2003/02/08 by Heiko Oberdiek.

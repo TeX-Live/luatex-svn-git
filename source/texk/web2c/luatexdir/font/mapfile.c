@@ -44,6 +44,8 @@ static integer fm_curbyte = 0;
 #define fm_close()      xfclose(fm_file, cur_file_name)
 #define fm_getchar()    fm_buffer[fm_curbyte++]
 #define fm_eof()        (fm_curbyte>fm_size)
+#define is_cfg_comment(c) \
+    (c == 10 || c == '*' || c == '#' || c == ';' || c == '%')
 
 typedef enum { FM_DUPIGNORE, FM_REPLACE, FM_DELETE } updatemode;
 typedef enum { MAPFILE, MAPLINE } maptype;
@@ -136,7 +138,7 @@ struct avl_table *encname_tree = NULL;
 
 static int comp_fm_entry_tfm(const void *pa, const void *pb, void *p)
 {
-    (void)p;
+    (void) p;
     return strcmp(((const fm_entry *) pa)->tfm_name,
                   ((const fm_entry *) pb)->tfm_name);
 }
@@ -147,7 +149,7 @@ static int comp_fm_entry_ps(const void *pa, const void *pb, void *p)
 {
     int i;
     const fm_entry *p1 = (const fm_entry *) pa, *p2 = (const fm_entry *) pb;
-    (void)p;
+    (void) p;
     assert(p1->ps_name != NULL && p2->ps_name != NULL);
     if ((i = strcmp(p1->ps_name, p2->ps_name)))
         return i;
@@ -160,7 +162,7 @@ static int comp_fm_entry_ps(const void *pa, const void *pb, void *p)
 
 static int comp_ff_entry(const void *pa, const void *pb, void *p)
 {
-    (void)p;
+    (void) p;
     return strcmp(((const ff_entry *) pa)->ff_name,
                   ((const ff_entry *) pb)->ff_name);
 }
@@ -947,7 +949,7 @@ ff_entry *check_ff_exist(char *ff_name, boolean is_tt)
 static void destroy_fm_entry_tfm(void *pa, void *pb)
 {
     fm_entry *fm;
-    (void)pb;
+    (void) pb;
     fm = (fm_entry *) pa;
     if (!has_pslink(fm))
         delete_fm_entry(fm);
@@ -958,7 +960,7 @@ static void destroy_fm_entry_tfm(void *pa, void *pb)
 static void destroy_fm_entry_ps(void *pa, void *pb)
 {
     fm_entry *fm;
-    (void)pb;
+    (void) pb;
     fm = (fm_entry *) pa;
     if (!has_tfmlink(fm))
         delete_fm_entry(fm);
@@ -969,7 +971,7 @@ static void destroy_fm_entry_ps(void *pa, void *pb)
 static void destroy_ff_entry(void *pa, void *pb)
 {
     ff_entry *ff;
-    (void)pb;
+    (void) pb;
     ff = (ff_entry *) pa;
     delete_ff_entry(ff);
 }

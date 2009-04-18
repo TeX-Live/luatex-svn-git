@@ -541,7 +541,7 @@ scaled ext_xn_over_d(scaled x, scaled n, scaled d)
         r += 0.5;
     else
         r -= 0.5;
-    if (r >= (double) maxinteger || r <= -(double) maxinteger)
+    if (r >= (double) max_integer || r <= -(double) max_integer)
         pdftex_warn("arithmetic: number too big");
     return (scaled) r;
 }
