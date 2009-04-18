@@ -58,21 +58,17 @@ typedef short shalfword;
 /* loadpool.c */
 int loadpoolstrings(integer spare_size);
 
-/* filename.c */
+/* tex/filename.c */
 extern void scan_file_name(void);
 extern void pack_job_name(char *s);
 extern void prompt_file_name(char *s, char *e);
 extern str_number make_name_string(void);
 extern void print_file_name(str_number, str_number, str_number);
 
-/* luainit.c */
+/* lua/luainit.c */
 extern void write_svnversion(char *a);
 
-/* papersiz.c */
-extern integer myatodim(char **);
-extern integer myatol(char **);
-
-/* writezip.c */
+/* utils/writezip.c */
 extern void write_zip(boolean);
 extern void zip_free(void);
 
@@ -157,8 +153,6 @@ extern halfword handle_kerning(halfword head, halfword tail);
     dir_ptr=vlink(dir_tmp);                     \
     flush_node(dir_tmp);                        \
   }
-
-
 
 #  define dir_parallel(a,b) (((a) % 2)==((b) % 2))
 #  define dir_orthogonal(a,b) (((a) % 2)!=((b) % 2))
@@ -300,7 +294,6 @@ mathcodeval scan_delimiter_as_mathchar(int extcode);
 mathcodeval mathchar_from_integer(integer value, int extcode);
 void show_mathcode_value(mathcodeval d);
 
-
 typedef struct delcodeval {
     integer class_value;
     integer origin_value;
@@ -323,18 +316,18 @@ void initialize_math_codes(void);
 void dump_math_codes(void);
 void undump_math_codes(void);
 
-/* texlang.c */
+/* lang/texlang.c */
 
 void dump_language_data(void);
 void undump_language_data(void);
 char *exception_strings(struct tex_language *lang);
 
-/* llualib.c */
+/* lua/llualib.c */
 
 void dump_luac_registers(void);
 void undump_luac_registers(void);
 
-/* ltexlib.c */
+/* lua/ltexlib.c */
 void luacstring_start(int n);
 void luacstring_close(int n);
 integer luacstring_cattable(void);
@@ -342,29 +335,20 @@ int luacstring_input(void);
 int luacstring_partial(void);
 int luacstring_final_line(void);
 
-/* luatoken.c */
+/* lua/luatoken.c */
 void do_get_token_lua(integer callback_id);
 
-/* luanode.c */
+/* lua/luanode.c */
 int visible_last_node_type(int n);
 void print_node_mem_stats(void);
 
-/* limglib.c */
+/* lua/limglib.c */
 void vf_out_image(unsigned i);
 
-/* vfovf.c */
-void vf_expand_local_fonts(internal_font_number f);
-internal_font_number letter_space_font(halfword u, internal_font_number f,
-                                       integer e);
-internal_font_number auto_expand_font(internal_font_number f, integer e);
-str_number expand_font_name(internal_font_number f, integer e);
-void pdf_check_vf_cur_val(void);
-internal_font_number copy_font_info(internal_font_number f);
-
-/* ltexiolib.c */
+/* lua/ltexiolib.c */
 void flush_loggable_info(void);
 
-/* luastuff.c */
+/* lua/luastuff.c */
 void luacall(int s, int nameptr);
 void luatokencall(int p, int nameptr);
 
@@ -373,19 +357,19 @@ extern void check_texconfig_init(void);
 scaled divide_scaled(scaled s, scaled m, integer dd);
 scaled divide_scaled_n(double s, double m, double d);
 
-/* mlist.c */
+/* tex/mlist.c */
 void run_mlist_to_hlist(pointer p, integer m_style, boolean penalties);
 void fixup_math_parameters(integer fam_id, integer size_id, integer f,
                            integer lvl);
 
-/* texpdf.c */
+/* tex/texpdf.c */
 void pdf_print_char(internal_font_number f, integer c);
 void pdf_print(str_number n);
 void pdf_print_str(str_number n);
 void pdf_print_int(longinteger n);
 void pdf_print_real(integer m, integer d);
 
-/* textoken.c */
+/* tex/textoken.c */
 
 #  define  NO_CAT_TABLE      -2
 #  define  DEFAULT_CAT_TABLE -1
@@ -399,7 +383,7 @@ halfword active_to_cs(int, int);
 void get_token_lua(void);
 int get_char_cat_code(int);
 
-/* texdeffont.c */
+/* tex/texdeffont.c */
 
 void tex_def_font(small_number a);
 
