@@ -1,5 +1,5 @@
 /* ptexmac.h
-   
+
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
    Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
 
@@ -89,19 +89,11 @@
 
 /**********************************************************************/
 
-#  define MAX_CHAR_CODE       255
 #  define PRINTF_BUF_SIZE     1024
 #  define MAX_CSTRING_LEN     1024 * 1024
 #  define MAX_PSTRING_LEN     1024
 #  define SMALL_BUF_SIZE      256
 #  define SMALL_ARRAY_SIZE    256
-#  define FONTNAME_BUF_SIZE   128
-                                /* a PDF name can be maximum 127 chars long */
-
-#  define pdftex_debug    tex_printf
-
-extern void check_buffer_overflow(int wsize);
-extern void check_pool_overflow(int wsize);
 
 #  define check_buf(size, buf_size)                                 \
   if ((unsigned)(size) > (unsigned)(buf_size))                      \

@@ -71,6 +71,8 @@ void getcreationdate(void);
 char *makecfilename(str_number s);
 char *stripzeros(char *);
 void initversionstring(char **versions);
+extern void check_buffer_overflow(int wsize);
+extern void check_pool_overflow(int wsize);
 
 extern str_number last_tex_string;
 extern char *cur_file_name;
