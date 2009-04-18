@@ -119,5 +119,6 @@ fm_entry *new_fm_entry(void);
 void delete_fm_entry(fm_entry *);
 int avl_do_entry(fm_entry *, int);
 int check_std_t1font(char *s);
+int is_subsetable(fm_entry * fm);
 
 #endif                          /* MAPFILE_H */

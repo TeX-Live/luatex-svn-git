@@ -43,117 +43,19 @@ extern double rint(double x);
 #  include "utils/synctex.h"
 
 #  include "utils/avlstuff.h"
-
 #  include "image/writeimg.h"
-
 #  include "openbsd-compat.h"
-
 #  include "pdf/pagetree.h"
 #  include "pdf/pdfpage.h"
-
-/* pdftexlib type declarations */
-typedef struct {
-    const char *pdfname;
-    const char *t1name;
-    boolean valid;
-} key_entry;
-
-typedef struct _subfont_entry {
-    char *infix;                /* infix for this subfont, eg "01" */
-    long charcodes[256];        /* the mapping for this subfont as read from sfd */
-    struct _subfont_entry *next;
-} subfont_entry;
-
-typedef struct {
-    char *name;                 /* sfd name, eg "Unicode" */
-    subfont_entry *subfont;     /* linked list of subfonts */
-} sfd_entry;
-
+#  include "font/luatexfont.h"
 #  include "font/mapfile.h"
-
-typedef struct {
-    integer fe_objnum;          /* object number */
-    char *name;                 /* encoding file name */
-    char **glyph_names;         /* array of glyph names */
-    struct avl_table *tx_tree;  /* tree of encoding positions marked as used by TeX */
-} fe_entry;
-
-typedef struct {
-    char *name;                 /* glyph name */
-    long code;                  /* -1 = undefined; -2 = multiple codes, stored
-                                   as string in unicode_seq; otherwise unicode value */
-    char *unicode_seq;          /* multiple unicode sequence */
-} glyph_unicode_entry;
-
-#  define FD_FLAGS_NOT_SET_IN_MAPLINE -1
-#  define FD_FLAGS_DEFAULT_EMBED  4     /* a symbol font */
-#  define FD_FLAGS_DEFAULT_NON_EMBED 0x22
-                                        /* a nonsymbolic serif font */
-
-typedef struct glw_entry_ {     /* subset glyphs for inclusion in CID-based fonts */
-    unsigned int id;            /* glyph CID */
-    signed int wd;              /* glyph width in 1/1000 em parts */
-} glw_entry;
-
-/**********************************************************************/
-
-typedef struct {
-    int val;                    /* value */
-    boolean set;                /* true if parameter has been set */
-} intparm;
-
-typedef struct fd_entry_ {
-    integer fd_objnum;          /* object number of the font descriptor object */
-    char *fontname;             /* /FontName (without subset tag) */
-    char *subset_tag;           /* 6-character subset tag */
-    boolean ff_found;
-    integer ff_objnum;          /* object number of the font program stream */
-    integer fn_objnum;          /* font name object number (embedded PDF) */
-    boolean all_glyphs;         /* embed all glyphs? */
-    boolean write_ttf_glyph_names;
-    intparm font_dim[FONT_KEYS_NUM];
-    fe_entry *fe;               /* pointer to encoding structure */
-    char **builtin_glyph_names; /* builtin encoding as read from the Type1 font file */
-    fm_entry *fm;               /* pointer to font map structure */
-    struct avl_table *tx_tree;  /* tree of non-reencoded TeX characters marked as used */
-    struct avl_table *gl_tree;  /* tree of all marked glyphs */
-} fd_entry;
-
-typedef struct fo_entry_ {
-    integer fo_objnum;          /* object number of the font dictionary */
-    internalfontnumber tex_font;        /* needed only for \pdffontattr{} */
-    fm_entry *fm;               /* pointer to font map structure for this font dictionary */
-    fd_entry *fd;               /* pointer to /FontDescriptor object structure */
-    fe_entry *fe;               /* pointer to encoding structure */
-    integer cw_objnum;          /* object number of the font program object */
-    integer first_char;         /* first character used in this font */
-    integer last_char;          /* last character used in this font */
-    struct avl_table *tx_tree;  /* tree of non-reencoded TeX characters marked as used */
-    integer tounicode_objnum;   /* object number of ToUnicode */
-} fo_entry;
-
-/**********************************************************************/
-
 #  include "utils/utils.h"
 
-typedef short shalfword;
-typedef struct {
-    integer charcode, cwidth, cheight, xoff, yoff, xescape, rastersize;
-    halfword *raster;
-} chardesc;
+/**********************************************************************/
 
-/* pdftexlib variable declarations */
-extern boolean true_dimen;
-extern char **t1_glyph_names, *t1_builtin_glyph_names[];
-extern char *cur_file_name;
-extern const char notdef[];
-extern integer t1_length1, t1_length2, t1_length3;
-extern integer ttf_length;
-extern str_number last_tex_string;
-extern size_t last_ptr_index;
+typedef short shalfword;
 
 /* loadpool.c */
-
 int loadpoolstrings(integer spare_size);
 
 /* filename.c */
@@ -166,73 +68,13 @@ extern void print_file_name(str_number, str_number, str_number);
 /* luainit.c */
 extern void write_svnversion(char *a);
 
-/* pdftexlib function prototypes */
-
-/* epdf.c */
-extern integer get_fontfile_num(int);
-extern integer get_fontname_num(int);
-extern void epdf_free(void);
-
 /* papersiz.c */
 extern integer myatodim(char **);
 extern integer myatol(char **);
 
-/* pkin.c */
-extern int readchar(boolean, chardesc *);
-
-/* subfont.c */
-extern void sfd_free(void);
-extern boolean handle_subfont_fm(fm_entry *, int);
-
-/* tounicode.c */
-extern void glyph_unicode_free(void);
-extern void def_tounicode(str_number, str_number);
-extern integer write_tounicode(char **, char *);
-
-/* writeenc.c */
-extern fe_entry *get_fe_entry(char *);
-extern void enc_free(void);
-extern void write_fontencodings(void);
-
-/* writefont.c */
-extern void do_pdf_font(integer, internalfontnumber);
-extern fd_entry *lookup_fd_entry(char *, integer, integer);
-extern fd_entry *new_fd_entry(void);
-extern void write_fontstuff();
-
-/* writet1.c */
-extern boolean t1_subset(char *, char *, unsigned char *);
-extern char **load_enc_file(char *);
-extern void writet1(fd_entry *);
-extern void t1_free(void);
-
-/* writet3.c */
-extern void writet3(int, internalfontnumber);
-extern scaled get_pk_char_width(internalfontnumber, scaled);
-
-/* writettf.c */
-extern void writettf(fd_entry *);
-extern void writeotf(fd_entry *);
-extern void ttf_free(void);
-
 /* writezip.c */
 extern void write_zip(boolean);
 extern void zip_free(void);
-
-/**********************************************************************/
-static const key_entry font_key[FONT_KEYS_NUM] = {
-    {"Ascent", "Ascender", 1}
-    , {"CapHeight", "CapHeight", 1}
-    , {"Descent", "Descender", 1}
-    , {"ItalicAngle", "ItalicAngle", 1}
-    , {"StemV", "StdVW", 1}
-    , {"XHeight", "XHeight", 1}
-    , {"FontBBox", "FontBBox", 1}
-    , {"", "", 0}
-    , {"", "", 0}
-    , {"", "", 0}
-    , {"FontName", "FontName", 1}
-};
 
 /**********************************************************************/
 
@@ -245,9 +87,6 @@ typedef enum {
     new_string = 21
 } selector_settings;
 
-
-#  include "font/texfont.h"
-
 /* language stuff */
 
 typedef struct _lang_variables {
@@ -256,7 +95,6 @@ typedef struct _lang_variables {
     int pre_exhyphen_char;
     int post_exhyphen_char;
 } lang_variables;
-
 
 #  include "hyphen.h"
 
@@ -299,7 +137,7 @@ extern halfword new_ligkern(halfword head, halfword tail);
 extern halfword handle_ligaturing(halfword head, halfword tail);
 extern halfword handle_kerning(halfword head, halfword tail);
 
-#  define push_dir(a)                               \
+#  define push_dir(a)                           \
   { dir_tmp=new_dir((a));                       \
     vlink(dir_tmp)=dir_ptr; dir_ptr=dir_tmp;    \
     dir_ptr=dir_tmp;                            \
@@ -314,10 +152,10 @@ extern halfword handle_kerning(halfword head, halfword tail);
     vlink(dir_tmp)=dir_ptr; dir_ptr=dir_tmp;    \
   }
 
-#  define pop_dir_node()                    \
-  { dir_tmp=dir_ptr;                    \
-    dir_ptr=vlink(dir_tmp);             \
-    flush_node(dir_tmp);                \
+#  define pop_dir_node()                        \
+  { dir_tmp=dir_ptr;                            \
+    dir_ptr=vlink(dir_tmp);                     \
+    flush_node(dir_tmp);                        \
   }
 
 
@@ -568,7 +406,6 @@ void tex_def_font(small_number a);
 /* lcallbacklib.c */
 
 #  include <../lua51/lua.h>
-
 
 typedef enum {
     find_write_file_callback = 1,

@@ -28,7 +28,7 @@
 */
 
 #ifndef TEXFONT_H
-#  define TEXFONT_H 1
+#  define TEXFONT_H
 
 #  include "luatexdir/managed-sa.h"
 
@@ -79,10 +79,10 @@ typedef struct charinfo {
     int top_right_math_kerns;
     int bottom_right_math_kerns;
     int bottom_left_math_kerns;
-    scaled *top_left_math_kern_array; 
-    scaled *top_right_math_kern_array; 
-    scaled *bottom_right_math_kern_array; 
-    scaled *bottom_left_math_kern_array; 
+    scaled *top_left_math_kern_array;
+    scaled *top_right_math_kern_array;
+    scaled *bottom_right_math_kern_array;
+    scaled *bottom_left_math_kern_array;
 } charinfo;
 
 
@@ -406,7 +406,7 @@ typedef enum {
     top_right_kern = 1,
     bottom_right_kern = 2,
     bottom_left_kern = 3,
-    top_left_kern = 4 
+    top_left_kern = 4
 } font_math_kern_codes;
 
 extern charinfo *get_charinfo(internal_font_number f, integer c);
@@ -433,8 +433,9 @@ extern void set_charinfo_ef(charinfo * ci, scaled val);
 extern void set_charinfo_lp(charinfo * ci, scaled val);
 extern void set_charinfo_rp(charinfo * ci, scaled val);
 
-extern void add_charinfo_math_kern(charinfo *ci, int type, scaled ht, scaled krn);
-extern int  get_charinfo_math_kerns(charinfo * ci, int id);
+extern void add_charinfo_math_kern(charinfo * ci, int type, scaled ht,
+                                   scaled krn);
+extern int get_charinfo_math_kerns(charinfo * ci, int id);
 
 #  define set_char_used(f,a,b)  do {                            \
         if (char_exists(f,a))                                   \
@@ -599,4 +600,6 @@ extern scaled sqxfw(scaled sq, integer fw);
 extern void do_vf_packet(internal_font_number vf_f, integer c);
 extern int vf_packet_bytes(charinfo * co);
 
-#endif
+charinfo *copy_charinfo(charinfo * ci);
+
+#endif                          /* TEXFONT_H */

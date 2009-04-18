@@ -165,22 +165,6 @@ size_t          T##_limit
 #  define xtalloc             XTALLOC
 #  define xretalloc           XRETALLOC
 
-#  define ASCENT_CODE         0
-#  define CAPHEIGHT_CODE      1
-#  define DESCENT_CODE        2
-#  define ITALIC_ANGLE_CODE   3
-#  define STEMV_CODE          4
-#  define XHEIGHT_CODE        5
-#  define FONTBBOX1_CODE      6
-#  define FONTBBOX2_CODE      7
-#  define FONTBBOX3_CODE      8
-#  define FONTBBOX4_CODE      9
-#  define FONTNAME_CODE       10
-#  define GEN_KEY_NUM         (XHEIGHT_CODE + 1)
-#  define MAX_KEY_CODE        (FONTBBOX1_CODE + 1)
-#  define INT_KEYS_NUM        (FONTBBOX4_CODE + 1)
-#  define FONT_KEYS_NUM       (FONTNAME_CODE + 1)
-
 #  define set_cur_file_name(s) \
     cur_file_name = s;         \
     pack_file_name(maketexstring(cur_file_name), get_nullstr(), get_nullstr())

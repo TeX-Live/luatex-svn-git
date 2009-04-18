@@ -889,7 +889,6 @@ void pdf_init_map_file(string map_name)
     mitem->line = map_name;
 }
 
-
 /**********************************************************************/
 /*
  * Early check whether a font file exists. Search tree ff_tree is used
@@ -941,6 +940,14 @@ ff_entry *check_ff_exist(char *ff_name, boolean is_tt)
         assert(aa != NULL);
     }
     return ff;
+}
+
+/**********************************************************************/
+
+int is_subsetable(fm_entry * fm)
+{
+    assert(is_included(fm));
+    return is_subsetted(fm);
 }
 
 /**********************************************************************/

@@ -72,6 +72,10 @@ char *makecfilename(str_number s);
 char *stripzeros(char *);
 void initversionstring(char **versions);
 
+extern str_number last_tex_string;
+extern char *cur_file_name;
+extern size_t last_ptr_index;
+
 /**********************************************************************/
 /* color stack and matrix transformation support */
 

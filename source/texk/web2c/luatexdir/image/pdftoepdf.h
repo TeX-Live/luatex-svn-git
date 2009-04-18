@@ -29,5 +29,11 @@ void read_pdf_info(image_dict *, integer, integer);
 void unrefPdfDocument(char *);
 void write_additional_epdf_objects(void);
 void write_epdf(image_dict *);
+void epdf_check_mem(void);
+
+/* epdf.c --- this should go in an own header file */
+extern integer get_fontfile_num(int);
+extern integer get_fontname_num(int);
+extern void epdf_free(void);
 
 #endif                          /* PDFTOEPDF_H */
