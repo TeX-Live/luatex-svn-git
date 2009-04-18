@@ -51,6 +51,7 @@ extern double rint(double x);
 #  include "font/mapfile.h"
 #  include "utils/utils.h"
 #  include "image/writejbig2.h"
+#  include "image/pdftoepdf.h"
 
 /**********************************************************************/
 
