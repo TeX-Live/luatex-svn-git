@@ -27,6 +27,6 @@
 
 void read_jbig2_info(image_dict *);
 void write_jbig2(image_dict *);
-void flushjbig2page0objects();
+void flush_jbig2_page0_objects();
 
 #endif
