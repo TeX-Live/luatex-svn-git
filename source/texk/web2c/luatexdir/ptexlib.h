@@ -43,6 +43,7 @@ extern double rint(double x);
 #  include "utils/synctex.h"
 
 #  include "utils/avlstuff.h"
+
 #  include "image/writeimg.h"
 
 #  include "openbsd-compat.h"
@@ -133,6 +134,8 @@ typedef struct fo_entry_ {
 
 /**********************************************************************/
 
+#  include "utils/utils.h"
+
 typedef short shalfword;
 typedef struct {
     integer charcode, cwidth, cheight, xoff, yoff, xescape, rastersize;
@@ -185,80 +188,6 @@ extern boolean handle_subfont_fm(fm_entry *, int);
 extern void glyph_unicode_free(void);
 extern void def_tounicode(str_number, str_number);
 extern integer write_tounicode(char **, char *);
-
-/* utils.c */
-extern char *makecstring(integer);
-extern char *makeclstring(integer, size_t *);
-extern void print_string(char *j);
-extern void append_string(char *s);
-extern void getcreationdate(void);
-extern void tconfusion(char *s);
-extern void tprint(char *s);
-extern void tprint_nl(char *s);
-extern void tprint_esc(char *s);
-extern char *stripzeros(char *);
-
-#  define overflow_string(a,b) { overflow(maketexstring(a),b); flush_str(last_tex_string); }
-
-extern int xfflush(FILE *);
-extern int xgetc(FILE *);
-extern int xputc(int, FILE *);
-extern scaled ext_xn_over_d(scaled, scaled, scaled);
-extern size_t xfwrite(void *, size_t size, size_t nmemb, FILE *);
-extern str_number get_resname_prefix(void);
-extern str_number maketexstring(const char *);
-extern str_number maketexlstring(const char *, size_t);
-extern integer fb_offset(void);
-extern void fb_flush(void);
-extern void fb_putchar(eight_bits b);
-extern void fb_seek(integer);
-extern void libpdffinish(void);
-extern char *makecfilename(str_number s);
-extern void make_subset_tag(fd_entry *);
-__attribute__ ((format(printf, 1, 2)))
-extern void pdf_printf(const char *, ...);
-extern void pdf_puts(const char *);
-__attribute__ ((noreturn, format(printf, 1, 2)))
-extern void pdftex_fail(const char *, ...);
-__attribute__ ((format(printf, 1, 2)))
-extern void pdftex_warn(const char *, ...);
-extern void set_job_id(int, int, int, int);
-__attribute__ ((format(printf, 1, 2)))
-extern void tex_printf(const char *, ...);
-extern void write_stream_length(integer, longinteger);
-extern char *convertStringToPDFString(const char *in, int len);
-extern void print_ID(str_number);
-extern void print_creation_date();
-extern void print_mod_date();
-extern void escapename(poolpointer in);
-extern void escapestring(poolpointer in);
-extern void escapehex(poolpointer in);
-extern void unescapehex(poolpointer in);
-extern void make_pdftex_banner(void);
-extern void init_start_time();
-extern void remove_pdffile(void);
-extern void garbage_warning(void);
-extern void initversionstring(char **versions);
-extern int newcolorstack(integer s, integer literal_mode, boolean pagestart);
-extern int colorstackused();
-extern integer colorstackset(int colstack_no, integer s);
-extern integer colorstackpush(int colstack_no, integer s);
-extern integer colorstackpop(int colstack_no);
-extern integer colorstackcurrent(int colstack_no);
-extern integer colorstackskippagestart(int colstack_no);
-extern void checkpdfsave(scaledpos pos);
-extern void checkpdfrestore(scaledpos pos);
-extern void pdfshipoutbegin(boolean shipping_page);
-extern void pdfshipoutend(boolean shipping_page);
-extern void pdfsetmatrix(poolpointer in, scaledpos pos);
-extern void matrixtransformpoint(scaled x, scaled y);
-extern void matrixtransformrect(scaled llx, scaled lly, scaled urx, scaled ury);
-extern boolean matrixused();
-extern void matrixrecalculate(scaled urx);
-extern scaled getllx();
-extern scaled getlly();
-extern scaled geturx();
-extern scaled getury();
 
 /* writeenc.c */
 extern fe_entry *get_fe_entry(char *);
@@ -608,8 +537,6 @@ void luacall(int s, int nameptr);
 void luatokencall(int p, int nameptr);
 
 extern void check_texconfig_init(void);
-
-void tex_error(char *msg, char **hlp);
 
 scaled divide_scaled(scaled s, scaled m, integer dd);
 scaled divide_scaled_n(double s, double m, double d);

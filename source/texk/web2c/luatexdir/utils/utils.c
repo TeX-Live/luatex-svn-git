@@ -43,7 +43,8 @@
 #include "xpdf/config.h"        /* just to get the xpdf version */
 
 static const char __svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+    "$URL$";
 
 #define check_nprintf(size_get, size_want) \
     if ((unsigned)(size_get) >= (unsigned)(size_want)) \
@@ -813,6 +814,7 @@ void unescapehex(poolpointer in)
  * hexadecimal encoded;
  * sizeof(out) should be at least lin*2+1.
  */
+
 static void convertStringToHexString(const char *in, char *out, int lin)
 {
     int i, j, k;
@@ -1258,7 +1260,7 @@ int newcolorstack(integer s, integer literal_mode, boolean page_start)
 #define get_colstack(n) (&colstacks[n])
 
 /* Puts a string on top of the string pool and updates pool_ptr. */
-void put_cstring_on_str_pool(poolpointer start, char *str)
+static void put_cstring_on_str_pool(poolpointer start, char *str)
 {
     size_t len;
 
@@ -1363,7 +1365,7 @@ integer colorstackpop(int colstack_no)
     return colstack->literal_mode;
 }
 
-void colorstackpagestart()
+static void colorstackpagestart()
 {
     int i, j;
     colstack_type *colstack;
