@@ -1,4 +1,4 @@
-/* writejbig2.h
+/* writepng.h
 
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
    Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
@@ -18,7 +18,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: writejbig2.h 2315 2009-04-17 23:34:42Z hhenkel $ */
+/* $Id$ */
 
 #include "image.h"
 
