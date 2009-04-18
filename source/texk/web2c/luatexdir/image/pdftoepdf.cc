@@ -45,7 +45,8 @@
 #include "epdf.h"
 
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+    "$URL$";
 
 #define one_hundred_bp  6578176 /* 7227 * 65536 / 72 */
 

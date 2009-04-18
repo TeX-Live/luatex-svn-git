@@ -219,12 +219,6 @@ extern void ttf_free(void);
 extern void write_zip(boolean);
 extern void zip_free(void);
 
-/* avlstuff.c */
-extern int comp_int_entry(const void *, const void *, void *);
-extern int comp_string_entry(const void *, const void *, void *);
-extern void avl_put_obj(integer, integer);
-extern integer avl_find_obj(integer, integer, integer);
-
 /**********************************************************************/
 static const key_entry font_key[FONT_KEYS_NUM] = {
     {"Ascent", "Ascender", 1}

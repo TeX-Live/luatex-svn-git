@@ -21,7 +21,6 @@
 
 #ifndef PDFPAGE_H
 #  define PDFPAGE_H
-/**********************************************************************/
 
 typedef struct {
     long m;                     /* mantissa (significand) */
@@ -81,5 +80,4 @@ void pdf_set_pos(scaled h, scaled v);
 void pos_finish(pdfstructure * p);
 void print_pdffloat(pdffloat * f);
 
-/**********************************************************************/
 #endif
