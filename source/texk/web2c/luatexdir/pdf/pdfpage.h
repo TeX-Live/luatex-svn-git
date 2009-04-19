@@ -65,6 +65,8 @@ typedef struct {
     pos_mode mode;              /* current positioning mode */
 } pdfstructure;
 
+extern pdfstructure *pstruct;
+
 /**********************************************************************/
 
 boolean calc_pdfpos(pdfstructure * p, scaledpos * pos);

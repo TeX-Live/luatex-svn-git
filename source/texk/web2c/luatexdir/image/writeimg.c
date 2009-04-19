@@ -36,10 +36,6 @@ static const char _svn_version[] =
     "$Id$ "
     "$URL$";
 
-extern void pdf_print_real(integer m, integer d);
-
-extern pdfstructure *pstruct;
-
 /**********************************************************************/
 /*
   Patch ImageTypeDetection 2003/02/08 by Heiko Oberdiek.
@@ -683,14 +679,14 @@ integer img_to_array(image * img)
 
 /* some of the dumped values are really type int, not integer,
  * but since the macro falls back to generic_dump anyway, that
- * does not matter. 
+ * does not matter.
  */
 
 #define dumpinteger generic_dump
 #define undumpinteger generic_undump
 
 /* (un)dumping a string means dumping the allocation size, followed
- * by the bytes. The trailing \0 is dumped as well, because that 
+ * by the bytes. The trailing \0 is dumped as well, because that
  * makes the code simpler.
  */
 
@@ -716,8 +712,6 @@ integer img_to_array(image * img)
       s = a ;					\
     } else { s = NULL; }			\
   } while (0)
-
-
 
 void dumpimagemeta(void)
 {
@@ -885,7 +879,6 @@ integer image_group_ref(integer ref)
     return img_group_ref(img_dict(img_array[ref]));
 }
 
-
 /* The following five functions are for \pdfximagebbox */
 
 integer epdf_xsize(integer ref)
@@ -917,7 +910,6 @@ boolean is_png_image(integer ref)
 {
     return img_type(img_dict(img_array[ref])) == IMG_TYPE_PNG;
 }
-
 
 integer image_objnum(integer ref)
 {

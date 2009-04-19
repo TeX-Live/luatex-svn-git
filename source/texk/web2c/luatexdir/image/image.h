@@ -40,8 +40,6 @@ extern integer zround(double);  /* from zround.c */
 #  define TYPE_IMG        "image"
 #  define TYPE_IMG_DICT   "image-dict"
 
-#  define scaled          integer
-
 /**********************************************************************/
 
 typedef struct {
