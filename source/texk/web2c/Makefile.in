@@ -1160,6 +1160,7 @@ libluatex_a_SOURCES = \
 	luatexdir/font/luatexfont.h  \
 	luatexdir/font/luafont.c  \
 	luatexdir/font/mapfile.c  \
+	luatexdir/font/mapfile.h  \
 	luatexdir/font/pkin.c  \
 	luatexdir/font/sfnt.c  \
 	luatexdir/font/sfnt.h  \
@@ -1190,11 +1191,15 @@ libluatex_a_SOURCES = \
 	luatexdir/image/epdf.h  \
 	luatexdir/image/image.h  \
 	luatexdir/image/pdftoepdf.cc  \
+	luatexdir/image/pdftoepdf.h  \
 	luatexdir/image/writeimg.c  \
+	luatexdir/image/writeimg.h  \
 	luatexdir/image/writejbig2.c  \
 	luatexdir/image/writejbig2.h  \
 	luatexdir/image/writejpg.c  \
+	luatexdir/image/writejpg.h  \
 	luatexdir/image/writepng.c  \
+	luatexdir/image/writepng.h  \
 	luatexdir/lang/hnjalloc.c  \
 	luatexdir/lang/hnjalloc.h  \
 	luatexdir/lang/hyphen.c  \
@@ -1228,7 +1233,9 @@ libluatex_a_SOURCES = \
     mplibdir/lmplib.c \
 	luatexdir/nodes.h \
 	luatexdir/pdf/pagetree.c \
+	luatexdir/pdf/pagetree.h \
 	luatexdir/pdf/pdfpage.c \
+	luatexdir/pdf/pdfpage.h \
 	luatexdir/primitive.h \
 	luatexdir/ptexmac.h \
 	luatexdir/tex/filename.c  \
@@ -1251,6 +1258,7 @@ libluatex_a_SOURCES = \
 	luatexdir/utils/synctex.h \
 	luatexdir/utils/synctex.c \
 	luatexdir/utils/utils.c \
+	luatexdir/utils/utils.h \
 	luatexdir/utils/writezip.c
 
 EXTRA_libluatex_a_SOURCES = luatexdir/font/macnames.c
