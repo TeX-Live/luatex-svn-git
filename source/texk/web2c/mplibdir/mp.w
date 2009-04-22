@@ -1,4 +1,4 @@
-% $Id: mp.w 974 2009-04-21 15:31:17Z taco $
+% $Id: mp.w 976 2009-04-22 07:55:33Z taco $
 %
 % Copyright 2008 Taco Hoekwater.
 %
@@ -17867,8 +17867,14 @@ of the save stack, as described earlier.)
       mp->cur_exp=mp_get_avail(mp);
       mp_info(mp->cur_exp)=q+hash_end; mp->cur_type=mp_token_list; 
       goto DONE;
+    } else {
+      if (mp->int_type[q]==mp_internal_type)
+        mp->int_type[q] = mp_known;
     }
     mp_back_input(mp);
+  } else {
+    if (mp->int_type[q]==mp_internal_type)
+      mp->int_type[q] = mp_known;
   }
   mp->cur_exp=mp->internal[q];
   if (mp->int_type[q]==mp_string_type)
