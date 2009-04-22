@@ -1,4 +1,4 @@
-% $Id: mp.w 930 2009-04-17 13:51:12Z taco $
+% $Id: mp.w 974 2009-04-21 15:31:17Z taco $
 %
 % Copyright 2008 Taco Hoekwater.
 %
@@ -89,13 +89,13 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d default_banner "This is MetaPost, Version 1.120" /* printed when \MP\ starts */
+@d default_banner "This is MetaPost, Version 1.200" /* printed when \MP\ starts */
 @d true 1
 @d false 0
 
 @(mpmp.h@>=
-#define metapost_version "1.120"
-#define metapost_magic (('M'*256) + 'P')*65536 + 1120
+#define metapost_version "1.200"
+#define metapost_magic (('M'*256) + 'P')*65536 + 1200
 #define metapost_old_magic (('M'*256) + 'P')*65536 + 1080
 
 @ The external library header for \MP\ is |mplib.h|. It contains a
@@ -282,6 +282,7 @@ MP mp_initialize (MP_options *opt) {
   } else {
     mp->history=mp_spotless;
   }
+  @<Fix up |mp->internal[mp_job_name]|@>;
   return mp;
 }
 
@@ -662,6 +663,9 @@ int file_line_error_style; /* configuration parameter */
 @ @<Allocate or initialize ...@>=
 mp->file_line_error_style = (opt->file_line_error_style>0 ? true : false);
 mp->long_name = NULL;
+
+@ @<Dealloc variables@>=
+mp_xfree(mp->long_name);
 
 @ \MP's file-opening procedures return |false| if no file identified by
 |name_of_file| could be opened.
@@ -1477,6 +1481,21 @@ static boolean mp_str_eq_buf (MP mp,str_number s, integer k) {
   j=mp->str_start[s];
   while ( j<str_stop(s) ) { 
     if ( mp->str_pool[j++]!=mp->buffer[k++] ) 
+      return false;
+  }
+  return true;
+}
+
+@ This routine compares a pool string with a sequence of characters
+of equal length.
+
+@c 
+static boolean mp_str_eq_cstr (MP mp,str_number s, char *k) {
+  /* test equality of strings */
+  pool_pointer j; /* running index */
+  j=mp->str_start[s];
+  while ( j<str_stop(s) ) { 
+    if ( mp->str_pool[j++]!=*k++ ) 
       return false;
   }
   return true;
@@ -3996,10 +4015,12 @@ void mp_do_snprintf (char *str, int size, const char *format, ...) {
      if (*fmt=='%') {
        fw=0;
        pad=0;
+     RESTART:
        fmt++;
        switch(*fmt) {
        case '0':
          pad=1;
+         goto RESTART;
          break;
        case '1':
        case '2':
@@ -4010,9 +4031,10 @@ void mp_do_snprintf (char *str, int size, const char *format, ...) {
        case '7':
        case '8':
        case '9':
-          assert(fw==0);
-          fw = *fmt-'0';
-          break;
+         assert(fw==0);
+         fw = *fmt-'0';
+         goto RESTART;
+         break;
        case 's':
          {
            char *s = va_arg(ap, char *);
@@ -4022,10 +4044,18 @@ void mp_do_snprintf (char *str, int size, const char *format, ...) {
            }
          }
          break;
+       case 'c':
+         {
+           int s = va_arg(ap, int);
+           *res = s;
+           if (size-->0) res++;
+         }
+         break;
        case 'i':
        case 'd':
          {
-           char *s = mp_itoa(va_arg(ap, int));
+           char *sstart, *s = mp_itoa(va_arg(ap, int));
+           sstart = s;
            if (fw) {
               int ffw = fw-strlen(s);
               while (ffw-->0) {
@@ -4038,12 +4068,14 @@ void mp_do_snprintf (char *str, int size, const char *format, ...) {
                *res = *s++;
                if (size-->0) res++;
              }
+             mp_xfree(sstart);
            }
          }
          break;
        case 'u':
          {
-           char *s = mp_utoa(va_arg(ap, unsigned));
+           char *sstart, *s = mp_utoa(va_arg(ap, unsigned));
+           sstart = s;
            if (fw) {
               int ffw = fw-strlen(s);
               while (ffw-->0) {
@@ -4056,6 +4088,7 @@ void mp_do_snprintf (char *str, int size, const char *format, ...) {
                *res = *s++;
                if (size-->0) res++;
              }
+             mp_xfree(sstart);
            }
          }
          break;
@@ -4894,7 +4927,6 @@ values they test for.
 @d false_code 31 /* operation code for \.{false} */
 @d null_picture_code 32 /* operation code for \.{nullpicture} */
 @d null_pen_code 33 /* operation code for \.{nullpen} */
-@d job_name_op 34 /* operation code for \.{jobname} */
 @d read_string_op 35 /* operation code for \.{readstring} */
 @d pen_circle 36 /* operation code for \.{pencircle} */
 @d normal_deviate 37 /* operation code for \.{normaldeviate} */
@@ -4992,6 +5024,7 @@ values they test for.
 @d arc_time_of 128 /* operation code for \.{arctime} */
 @d mp_version 129 /* operation code for \.{mpversion} */
 @d envelope_of 130 /* operation code for \.{envelope} */
+@d glyph_infont 131 /* operation code for \.{glyph} */
 
 @c static void mp_print_op (MP mp,quarterword c) { 
   if (c<=mp_numeric_type ) {
@@ -5002,7 +5035,6 @@ values they test for.
     case false_code:mp_print(mp, "false"); break;
     case null_picture_code:mp_print(mp, "nullpicture"); break;
     case null_pen_code:mp_print(mp, "nullpen"); break;
-    case job_name_op:mp_print(mp, "jobname"); break;
     case read_string_op:mp_print(mp, "readstring"); break;
     case pen_circle:mp_print(mp, "pencircle"); break;
     case normal_deviate:mp_print(mp, "normaldeviate"); break;
@@ -5098,6 +5130,7 @@ values they test for.
     case arc_time_of:mp_print(mp, "arctime"); break;
     case mp_version:mp_print(mp, "mpversion"); break;
     case envelope_of:mp_print(mp, "envelope"); break;
+    case glyph_infont:mp_print(mp, "glyph"); break;
     default: mp_print(mp, ".."); break;
     }
   }
@@ -5110,6 +5143,8 @@ fuss with. Every such parameter has an identifying code number, defined here.
 enum mp_given_internal {
   mp_output_template=1, /* a string set up by \&{outputtemplate} */
   mp_output_format, /* the output format set up by \&{outputformat} */
+  mp_job_name, /* the perceived jobname, as set up from the options stucture, 
+                  the name of the input file, or by \&{jobname}  */
   mp_tracing_titles, /* show titles online when they appear */
   mp_tracing_equations, /* show each variable when it becomes known */
   mp_tracing_capsules, /* show capsules too */
@@ -5126,6 +5161,8 @@ enum mp_given_internal {
   mp_month, /* the current month (e.g., 3 $\equiv$ March) */
   mp_day, /* the current day of the month */
   mp_time, /* the number of minutes past midnight when this job started */
+  mp_hour, /* the number of hours past midnight when this job started */
+  mp_minute, /* the number of minutes in that hour when this job started */
   mp_char_code, /* the number of the next character to be output */
   mp_char_ext, /* the extension code of the next character to be output */
   mp_char_wd, /* the width of the next character to be output */
@@ -5178,6 +5215,7 @@ memset(mp->int_type,0,(mp->max_internal+1) * sizeof(int));
 }
 mp->int_type[mp_output_format]=mp_string_type;
 mp->int_type[mp_output_template]=mp_string_type;
+mp->int_type[mp_job_name]=mp_string_type;
 mp->troff_mode=(opt->troff_mode>0 ? true : false);
 
 @ @<Exported function ...@>=
@@ -5227,6 +5265,10 @@ mp_primitive(mp, "day",internal_quantity,mp_day);
 @:mp_day_}{\&{day} primitive@>
 mp_primitive(mp, "time",internal_quantity,mp_time);
 @:time_}{\&{time} primitive@>
+mp_primitive(mp, "hour",internal_quantity,mp_hour);
+@:hour_}{\&{hour} primitive@>
+mp_primitive(mp, "minute",internal_quantity,mp_minute);
+@:minute_}{\&{minute} primitive@>
 mp_primitive(mp, "charcode",internal_quantity,mp_char_code);
 @:mp_char_code_}{\&{charcode} primitive@>
 mp_primitive(mp, "charext",internal_quantity,mp_char_ext);
@@ -5273,6 +5315,8 @@ mp_primitive(mp, "outputtemplate",internal_quantity,mp_output_template);
 @:mp_output_template_}{\&{outputtemplate} primitive@>
 mp_primitive(mp, "outputformat",internal_quantity,mp_output_format);
 @:mp_output_format_}{\&{outputformat} primitive@>
+mp_primitive(mp, "jobname",internal_quantity,mp_job_name);
+@:mp_job_name_}{\&{jobname} primitive@>
 
 @ Colors can be specified in four color models. In the special
 case of |no_model|, MetaPost does not output any color operator to
@@ -5322,6 +5366,8 @@ mp->int_name[mp_year]=xstrdup("year");
 mp->int_name[mp_month]=xstrdup("month");
 mp->int_name[mp_day]=xstrdup("day");
 mp->int_name[mp_time]=xstrdup("time");
+mp->int_name[mp_hour]=xstrdup("hour");
+mp->int_name[mp_minute]=xstrdup("minute");
 mp->int_name[mp_char_code]=xstrdup("charcode");
 mp->int_name[mp_char_ext]=xstrdup("charext");
 mp->int_name[mp_char_wd]=xstrdup("charwd");
@@ -5345,6 +5391,7 @@ mp->int_name[mp_gtroffmode]=xstrdup("troffmode");
 mp->int_name[mp_restore_clip_color]=xstrdup("restoreclipcolor");
 mp->int_name[mp_output_template]=xstrdup("outputtemplate");
 mp->int_name[mp_output_format]=xstrdup("outputformat");
+mp->int_name[mp_job_name]=xstrdup("jobname");
 
 @ The following procedure, which is called just before \MP\ initializes its
 input and output, establishes the initial values of the date and time.
@@ -5359,6 +5406,8 @@ static void mp_fix_date_and_time (MP mp) {
   struct tm *tmptr = localtime (&aclock);
   mp->internal[mp_time]=
       (tmptr->tm_hour*60+tmptr->tm_min)*unity; /* minutes since midnight */
+  mp->internal[mp_hour]= (tmptr->tm_hour)*unity; /* hours since midnight */
+  mp->internal[mp_minute]= (tmptr->tm_min)*unity; /* minutes since the hour */
   mp->internal[mp_day]=(tmptr->tm_mday)*unity; /* fourth day of the month */
   mp->internal[mp_month]=(tmptr->tm_mon+1)*unity; /* seventh month of the year */
   mp->internal[mp_year]=(tmptr->tm_year+1900)*unity; /* Anno Domini */
@@ -5588,6 +5637,24 @@ eq_type(frozen_right_delimiter)=right_delimiter;
 @ @<Check the ``constant'' values...@>=
 if ( hash_end+mp->max_internal>max_halfword ) mp->bad=17;
 
+@ The value of |hash_prime| should be roughly 85\pct! of |hash_size|, and it
+should be a prime number.  The theory of hashing tells us to expect fewer
+than two table probes, on the average, when the search is successful.
+[See J.~S. Vitter, {\sl Journal of the ACM\/ \bf30} (1983), 231--258.]
+@^Vitter, Jeffrey Scott@>
+
+@c
+static integer mp_compute_hash (MP mp, const char *s, int l) {
+  integer k;
+  integer h = *s;
+  for (k=1;k<l;k++){ 
+    h=h+h+(*(s+k));
+    while ( h>=mp->hash_prime ) h=h-mp->hash_prime;
+  }
+  return h;
+}
+
+
 @ Here is the subroutine that searches the hash table for an identifier
 that matches a given string of length~|l| appearing in |buffer[j..
 (j+l-1)]|. If the identifier is not found, it is inserted; hence it
@@ -5642,19 +5709,9 @@ incr(mp->st_count);
 break;
 }
 
+@  @<Compute the hash code |h|@>=
+h=mp_compute_hash(mp, (char *)mp->buffer+j, l)
 
-@ The value of |hash_prime| should be roughly 85\pct! of |hash_size|, and it
-should be a prime number.  The theory of hashing tells us to expect fewer
-than two table probes, on the average, when the search is successful.
-[See J.~S. Vitter, {\sl Journal of the ACM\/ \bf30} (1983), 231--258.]
-@^Vitter, Jeffrey Scott@>
-
-@<Compute the hash code |h|@>=
-h=mp->buffer[j];
-for (k=j+1;k<j+l;k++){ 
-  h=h+h+mp->buffer[k];
-  while ( h>=mp->hash_prime ) h=h-mp->hash_prime;
-}
 
 @ @<Search |eqtb| for equivalents equal to |p|@>=
 for (q=1;q<=hash_end;q++) { 
@@ -7272,6 +7329,22 @@ static mp_knot *mp_export_knot (MP mp,pointer p) {
   gr_originator(q) = (unsigned char)mp_originator(p);
   return q;
 }
+static pointer mp_import_knot (MP mp, mp_knot *q) {
+  pointer p; /* the copy */
+  if (q==NULL)
+     return null;
+  p=mp_get_node(mp, knot_node_size);
+  mp_left_type(p) =  gr_left_type(q);
+  mp_right_type(p) = gr_right_type(q);
+  mp_x_coord(p) =    gr_x_coord(q);
+  mp_y_coord(p) =    gr_y_coord(q);
+  mp_left_x(p) =     gr_left_x(q);
+  mp_left_y(p) =     gr_left_y(q);
+  mp_right_x(p) =    gr_right_x(q);
+  mp_right_y(p) =    gr_right_y(q);
+  mp_originator(p) = gr_originator(q);
+  return p;
+}
 
 @ The |export_knot_list| routine therefore also makes a clone 
 of a given path.
@@ -7291,6 +7364,21 @@ static mp_knot *mp_export_knot_list (MP mp, pointer p) {
   }
   gr_next_knot(qq)=q;
   return q;
+}
+static pointer mp_import_knot_list (MP mp, mp_knot *q) {
+  mp_knot *qq; /* for list manipulation */
+  pointer p, pp; /* for list manipulation */
+  if (q==NULL)
+     return null;
+  p=mp_import_knot(mp, q);
+  pp=p; qq=gr_link(q);
+  while ( qq!=q ) { 
+    mp_link(pp)=mp_import_knot(mp, qq);
+    qq=gr_next_knot(qq);
+    pp=mp_link(pp);
+  }
+  mp_link(pp)=p;
+  return p;
 }
 
 
@@ -16309,9 +16397,11 @@ void mp_ptr_scan_file (MP mp,  char *s) {
 }
 
 
-@ The global variable |job_name| contains the file name that was first
-\&{input} by the user. This name is extended by `\.{.log}' and `\.{ps}' and
-`\.{.mem}' and `\.{.tfm}' in order to make the names of \MP's output files.
+@ The option variable |job_name| contains the file name that was first
+\&{input} by the user. This name is used to initialize the |job_name| global
+as well as the |mp_job_name| internal, and is extended by `\.{.log}' and 
+`\.{ps}' and `\.{.mem}' and `\.{.tfm}' in order to make the names of \MP's 
+output files.
 
 @<Glob...@>=
 boolean log_opened; /* has the transcript file been opened? */
@@ -16339,6 +16429,17 @@ if (opt->noninteractive && opt->ini_version) {
   }
 }
 mp->log_opened=false;
+
+@ Cannot do this earlier because at the |@<Allocate or ...@>|, the string
+pool is not yet initialized.
+
+@<Fix up |mp->internal[mp_job_name]|@>=
+if (mp->job_name != NULL) {
+  if (mp->internal[mp_job_name]!=0)
+    delete_str_ref(mp->internal[mp_job_name]);
+  mp->internal[mp_job_name]=mp_rts(mp,mp->job_name);
+}
+
 
 @ @<Dealloc variables@>=
 xfree(mp->job_name);
@@ -16382,7 +16483,11 @@ void mp_prompt_file_name (MP mp, const char * s, const char * e) ;
 	print_err("I can\'t write on file `");
 @.I can't write on file x@>
   }
-  mp_print_file_name(mp, mp->cur_name,mp->cur_area,mp->cur_ext); 
+  if (strcmp(s,"file name for output")==0) {
+    mp_print(mp, mp->output_file); 
+  } else {
+    mp_print_file_name(mp, mp->cur_name,mp->cur_area,mp->cur_ext); 
+  }
   mp_print(mp, "'.");
   if (strcmp(e,"")==0) 
 	mp_show_context(mp);
@@ -16428,6 +16533,7 @@ it catch up to what has previously been printed on the terminal.
   old_setting=mp->selector;
   if ( mp->job_name==NULL ) {
      mp->job_name=xstrdup("mpout");
+     @<Fix up |mp->internal[mp_job_name]|@>;
   }
   mp_pack_job_name(mp,".log");
   while ( ! mp_a_open_out(mp, &mp->log_file, mp_filetype_log) ) {
@@ -16442,7 +16548,7 @@ it catch up to what has previously been printed on the terminal.
     mp_print_nl(mp, "**");
 @.**@>
     l=mp->input_stack[0].limit_field-1; /* last position of first line */
-    for (k=0;k<=l;k++) mp_print_str(mp, mp->buffer[k]);
+    for (k=1;k<=l;k++) mp_print_str(mp, mp->buffer[k]);
     mp_print_ln(mp); /* now the transcript file contains the first line of input */
   }
   mp->selector=old_setting+2; /* |log_only| or |term_and_log| */
@@ -16482,8 +16588,9 @@ this file.
   mp_print_char(mp, xord(' ')); 
   mp_print_int(mp, mp_round_unscaled(mp, mp->internal[mp_year])); 
   mp_print_char(mp, xord(' '));
-  m=mp_round_unscaled(mp, mp->internal[mp_time]);
-  mp_print_dd(mp, m / 60); mp_print_char(mp, xord(':')); mp_print_dd(mp, m % 60);
+  mp_print_dd(mp, mp_round_unscaled(mp, mp->internal[mp_hour]));
+  mp_print_char(mp, xord(':')); 
+  mp_print_dd(mp, mp_round_unscaled(mp, mp->internal[mp_minute]));
 }
 
 @ The |try_extension| function tries to open an input file determined by
@@ -16526,6 +16633,7 @@ when an `\.{input}' command is being processed.
   fname = xstrdup(mp->name_of_file);
   if ( mp->job_name==NULL ) {
     mp->job_name=xstrdup(mp->cur_name); 
+    @<Fix up |mp->internal[mp_job_name]|@>;
     mp_open_log_file(mp);
   } /* |open_log_file| doesn't |show_context|, so |limit|
         and |loc| needn't be set to meaningful values yet */
@@ -16632,7 +16740,7 @@ int mp_run_make_mpx (MP mp, char *origname, char *mtxname) {
 origname = mp_xstrdup(mp,mp->name_of_file);
 *(origname+strlen(origname)-1)=0; /* drop the x */
 if (!(mp->run_make_mpx)(mp, origname, mp->name_of_file))
-  goto NOT_FOUND 
+  goto NOT_FOUND
 
 @ @<Explain that the \.{MPX} file can't be read and |succumb|@>=
 if ( mp->interaction==mp_error_stop_mode ) wake_up_terminal;
@@ -16645,6 +16753,7 @@ help4("The two files given above are one of your source files",
   "and an auxiliary file I need to read to find out what your",
   "btex..etex blocks mean. If you don't know why I had trouble,",
   "try running it manually through MPtoTeX, TeX, and DVItoMP");
+xfree(origname);
 succumb;
 
 @ The last file-opening commands are for files accessed via the \&{readfrom}
@@ -17762,6 +17871,8 @@ of the save stack, as described earlier.)
     mp_back_input(mp);
   }
   mp->cur_exp=mp->internal[q];
+  if (mp->int_type[q]==mp_string_type)
+    add_str_ref(mp->cur_exp);
   mp->cur_type=mp->int_type[q];
 }
 
@@ -18723,8 +18834,6 @@ mp_primitive(mp, "nullpicture",nullary,null_picture_code);
 @:null_picture_}{\&{nullpicture} primitive@>
 mp_primitive(mp, "nullpen",nullary,null_pen_code);
 @:null_pen_}{\&{nullpen} primitive@>
-mp_primitive(mp, "jobname",nullary,job_name_op);
-@:job_name_}{\&{jobname} primitive@>
 mp_primitive(mp, "readstring",nullary,read_string_op);
 @:read_string_}{\&{readstring} primitive@>
 mp_primitive(mp, "pencircle",nullary,pen_circle);
@@ -18915,6 +19024,8 @@ mp_primitive(mp, "intersectiontimes",tertiary_binary,intersect);
 @:intersection_times_}{\&{intersectiontimes} primitive@>
 mp_primitive(mp, "envelope",primary_binary,envelope_of);
 @:envelope_}{\&{envelope} primitive@>
+mp_primitive(mp, "glyph",primary_binary,glyph_infont);
+@:glyph_infont_}{\&{envelope} primitive@>
 
 @ @<Cases of |print_cmd...@>=
 case nullary:
@@ -18956,10 +19067,6 @@ static void mp_do_nullary (MP mp,quarterword c) {
     break;
   case pen_circle: 
     mp->cur_type=mp_pen_type; mp->cur_exp=mp_get_pen_circle(mp, unity);
-    break;
-  case job_name_op:  
-    if ( mp->job_name==NULL ) mp_open_log_file(mp);
-    mp->cur_type=mp_string_type; mp->cur_exp=rts(mp->job_name);
     break;
   case mp_version: 
     mp->cur_type=mp_string_type; 
@@ -21402,6 +21509,14 @@ case envelope_of:
   else
     mp_set_up_envelope(mp, p);
   break;
+case glyph_infont:
+  if ( (mp_type(p) != mp_string_type &&
+        mp_type(p) != mp_known) || (mp->cur_type != mp_string_type) )
+    mp_bad_binary(mp, p,glyph_infont);
+  else
+    mp_set_up_glyph_infont(mp, p);
+  break;
+  break;
 
 @ @<Declare binary action...@>=
 static void mp_set_up_offset (MP mp,pointer p) { 
@@ -21435,6 +21550,44 @@ static void mp_set_up_envelope (MP mp,pointer p) {
     miterlim=mp->internal[mp_miterlimit];
   mp->cur_exp = mp_make_envelope(mp, q, value(p), ljoin,lcap,miterlim);
   mp->cur_type = mp_path_type;
+}
+
+
+@ This is pretty straightfoward. The one silly thing is that
+the output of |mp_ps_do_font_charstring| has to be un-exported.
+
+@<Declare binary action...@>=
+static void mp_set_up_glyph_infont (MP mp, pointer p) {
+  mp_edge_object *h = NULL;
+  mp_ps_font *f = NULL;
+  char *n = mp_str(mp, mp->cur_exp);
+  f = mp_ps_font_parse(mp, mp_find_font(mp, n));
+  if (f!=NULL) {
+    if (mp_type(p) == mp_known) {
+      int v = mp_round_unscaled(mp,value(p));
+      if (v<0 || v>255) {
+        print_err ("glyph index too high (");
+        mp_print_int(mp,v);
+        mp_print(mp,")");
+        mp_error(mp);
+      } else {
+        h = mp_ps_font_charstring (mp,f,v);
+      }
+    } else {
+      n = mp_str(mp, value(p));
+      delete_str_ref(value(p));
+      h = mp_ps_do_font_charstring (mp,f,n);
+      free(n);
+    }
+    mp_ps_font_free(mp,f);
+  }
+  if (h!=NULL) {
+    mp->cur_exp=mp_gr_unexport(mp, h); 
+  } else {
+    mp->cur_exp=mp_get_node(mp, edge_header_size); 
+    mp_init_edges(mp, mp->cur_exp); 
+  }
+  mp->cur_type=mp_picture_type;
 }
 
 @ @<Declare binary action...@>=
@@ -21506,7 +21659,7 @@ case intersect:
 
 @ @<Additional cases of bin...@>=
 case in_font:
-  if ( (mp->cur_type!=mp_string_type)||(mp_type(p)!=mp_string_type)) 
+  if ( (mp->cur_type!=mp_string_type)||mp_type(p)!=mp_string_type) 
     mp_bad_binary(mp, p,in_font);
   else { mp_do_infont(mp, p); binary_return; }
   break;
@@ -22171,6 +22324,66 @@ int mp_run (MP mp) {
   }
   return mp->history;
 }
+
+@ This function allows setting of internals from an external
+source (like the command line or a controlling application).
+
+It accepts two |char *|'s, even for numeric assignments when
+it calls |atoi| to get an integer from the start of the string.
+
+@c
+void mp_set_internal (MP mp, char *n, char *v, int isstring) {
+  integer l = strlen(n);
+  char err[256];
+  char *errid = NULL;
+  if (l>0) {
+    integer h = mp_compute_hash(mp, n,l);
+    pointer p = h+hash_base; /* we start searching here */
+    while (true) { 
+      if (text(p)>0 && length(text(p))==l && 
+	  mp_str_eq_cstr(mp, text(p),n)) {
+        if (eq_type(p)==internal_quantity) {
+          if (mp->int_type[equiv(p)]==mp_internal_type) {
+            mp->int_type[equiv(p)] = (isstring ? mp_string_type : mp_known);
+          }
+	  if ((mp->int_type[equiv(p)]==mp_string_type) && (isstring)) {
+            mp->internal[equiv(p)] = mp_rts(mp,v);
+          } else if ((mp->int_type[equiv(p)]==mp_known) && (!isstring)) {
+            scaled test = (scaled)atoi(v);
+            if (test>16383 ) {
+               errid = "value is too large";
+            } else if (test<-16383) {
+               errid = "value is too small";
+            } else {
+               mp->internal[equiv(p)] =  test*unity;
+            }
+          } else {
+            errid = "value has the wrong type";
+          }
+        } else {
+          errid = "variable is not an internal";
+        }
+        break;
+      }
+      if ( mp_next(p)==0 ) {
+        errid = "variable does not exist";
+        break;
+      }
+      p=mp_next(p);
+    }
+  }
+  if (errid != NULL) {
+    if (isstring) {
+      mp_snprintf(err,256,"%s=\"%s\": %s, assignment ignored.",n,v, errid);
+    } else {
+      mp_snprintf(err,256,"%s=%d: %s, assignment ignored.",n,atoi(v),errid);
+    }
+    mp_warn(mp,err);
+  }
+}
+
+@ @<Exported function headers@>=
+void mp_set_internal (MP mp, char *n, char *v, int isstring);
 
 @ For |mp_execute|, we need to define a structure to store the
 redirected input and output. This structure holds the five relevant
@@ -23820,7 +24033,9 @@ mp->start_sym=0;
 @d err_message_code 1
 @d err_help_code 2
 @d filename_template_code 3
-@d print_with_leading_zeroes(A)  g = mp->pool_ptr;
+@d print_with_leading_zeroes(A,B)  do {
+              integer g = mp->pool_ptr;
+              integer f = (B);
               mp_print_int(mp, (A)); g = mp->pool_ptr-g;
               if ( f>g ) {
                 mp->pool_ptr = mp->pool_ptr - g;
@@ -23830,7 +24045,8 @@ mp->start_sym=0;
                   };
                 mp_print_int(mp, (A));
               };
-              f = 0
+              f = 0;
+          } while (0)
 
 @<Put each...@>=
 mp_primitive(mp, "message",message_command,message_code);
@@ -25576,13 +25792,22 @@ etcetera to make it worthwile to move the code to |psout.w|.
 void mp_open_output_file (MP mp) ;
 
 @ @c 
+static void mp_append_to_template (MP mp, integer ff, integer c) {
+  if (mp->int_type[c]==mp_string_type) {
+    char *ss = str(mp->internal[c]);
+    mp_print(mp,ss);
+    mp_xfree(ss);
+  } else if (mp->int_type[c]==mp_known) {
+    integer cc = mp_round_unscaled(mp, mp->internal[c]);
+    print_with_leading_zeroes(cc, ff);
+  }
+}
 static char *mp_set_output_file_name (MP mp, integer c) {
   char *ss = NULL; /* filename extension proposal */  
   char *nn = NULL; /* temp string  for str() */
   unsigned old_setting; /* previous |selector| setting */
   pool_pointer i; /*  indexes into |filename_template|  */
-  integer cc; /* a temporary integer for template building  */
-  integer f,g=0; /* field widths */
+  integer f; /* field width */
   if ( mp->job_name==NULL ) mp_open_log_file(mp);
   if ( mp->internal[mp_output_template]==0) { 
     char *s; /* a file extension derived from |c| */
@@ -25595,48 +25820,108 @@ static char *mp_set_output_file_name (MP mp, integer c) {
     ss = xstrdup(mp->name_of_file);
   } else { /* initializations */
     str_number s, n; /* a file extension derived from |c| */
+    scaled saved_char_code = mp->internal[mp_char_code];
+    mp->internal[mp_char_code] = (c*unity);
+    if (mp->internal[mp_job_name]==0) {
+      if ( mp->job_name==NULL ) {
+         mp->job_name=xstrdup("mpout");
+      }
+      @<Fix up |mp->internal[mp_job_name]|@>;
+    }
     old_setting=mp->selector; 
     mp->selector=new_string;
-    f = 0;
     i = mp->str_start[mp->internal[mp_output_template]];
     n = null_str; /* initialize */
     while ( i<str_stop(mp->internal[mp_output_template]) ) {
+       f=0;
        if ( mp->str_pool[i]=='%' ) {
       CONTINUE:
         incr(i);
         if ( i<str_stop(mp->internal[mp_output_template]) ) {
-          if ( mp->str_pool[i]=='j' ) {
-            mp_print(mp, mp->job_name);
-          } else if ( mp->str_pool[i]=='o' ) {
-             { char *s;
-               s = str(mp->internal[mp_output_format]);
-               mp_print(mp, s);
-               mp_xfree(s);
-             }
-          } else if ( mp->str_pool[i]=='d' ) {
-             cc= mp_round_unscaled(mp, mp->internal[mp_day]);
-             print_with_leading_zeroes(cc);
-          } else if ( mp->str_pool[i]=='m' ) {
-             cc= mp_round_unscaled(mp, mp->internal[mp_month]);
-             print_with_leading_zeroes(cc);
-          } else if ( mp->str_pool[i]=='y' ) {
-             cc= mp_round_unscaled(mp, mp->internal[mp_year]);
-             print_with_leading_zeroes(cc);
-          } else if ( mp->str_pool[i]=='H' ) {
-             cc= mp_round_unscaled(mp, mp->internal[mp_time]) / 60;
-             print_with_leading_zeroes(cc);
-          }  else if ( mp->str_pool[i]=='M' ) {
-             cc= mp_round_unscaled(mp, mp->internal[mp_time]) % 60;
-             print_with_leading_zeroes(cc);
-          } else if ( mp->str_pool[i]=='c' ) {
-            if ( c<0 ) mp_print(mp, "ps");
-            else print_with_leading_zeroes(c);
-          } else if ( (mp->str_pool[i]>='0') && 
-                      (mp->str_pool[i]<='9') ) {
+          switch (mp->str_pool[i]) {
+	  case 'j':
+ 	    mp_append_to_template(mp,f,mp_job_name); 
+	    break;
+	  case 'c': 
+	    mp_append_to_template(mp,f,mp_char_code); 
+            break;
+	  case 'o': 
+	    mp_append_to_template(mp,f,mp_output_format); 
+            break;
+	  case 'd': 
+	    mp_append_to_template(mp,f,mp_day); 
+            break;
+	  case 'm': 
+	    mp_append_to_template(mp,f,mp_month); 
+            break;
+	  case 'y': 
+	    mp_append_to_template(mp,f,mp_year); 
+            break;
+	  case 'H': 
+	    mp_append_to_template(mp,f,mp_hour); 
+            break;
+	  case 'M': 
+	    mp_append_to_template(mp,f,mp_minute); 
+            break;
+          case '{':
+	    {
+	      /* look up a name */
+              integer l=0;
+              integer frst = i+1;
+	      while ( i<str_stop(mp->internal[mp_output_template]) ) {
+                i++;
+	        if (mp->str_pool[i] == '}')
+                  break;
+                l++;
+              }
+              if (l>0) {
+                integer h = mp_compute_hash(mp, (char *)(mp->str_pool+frst),l);
+                pointer p=h+hash_base; /* we start searching here */
+	        char *id = xmalloc(mp, (l+1));
+                strncpy(id,(char *)(mp->str_pool+frst),l);
+	        *(id+l)=0;
+	        while (true)  { 
+	     	  if (text(p)>0 && length(text(p))==l && 
+	              mp_str_eq_cstr(mp, text(p),id)) {
+                    if (eq_type(p)==internal_quantity) {
+         	      mp_append_to_template(mp,f,equiv(p)); 
+                    } else {
+		      char err[256];
+                      mp_snprintf(err,256,
+                       "requested identifier (%s) in outputtemplate is not an internal.",id);
+                      mp_warn(mp,err);
+                    }
+                    break;
+                  }
+                  if ( mp_next(p)==0 ) {
+                    char err[256];
+                    mp_snprintf(err,256,
+                      "requested identifier (%s) in outputtemplate not found.",id);
+                    mp_warn(mp,err);
+                    break;
+                  }
+                  p=mp_next(p);
+                }
+                free(id);
+              }
+            }
+	    break;
+	  case '0': case '1': case '2': case '3': case '4': 
+	  case '5': case '6': case '7': case '8': case '9':
             if ( (f<10)  )
               f = (f*10) + mp->str_pool[i]-'0';
             goto CONTINUE;
-          } else {
+	    break;
+          case '%':
+            mp_print_str(mp, mp->str_pool[i]);
+	    break;
+          default:
+            {
+              char err[256];
+              mp_snprintf(err,256,
+                "requested format (%c) in outputtemplate is unknown.",mp->str_pool[i]);
+              mp_warn(mp,err);
+            }
             mp_print_str(mp, mp->str_pool[i]);
           }
         }
@@ -25649,6 +25934,7 @@ static char *mp_set_output_file_name (MP mp, integer c) {
       incr(i);
     }
     s = mp_make_string(mp);
+    mp->internal[mp_char_code] = saved_char_code;
     mp->selector= old_setting;
     if (length(n)==0) {
        n=s;
@@ -25657,7 +25943,7 @@ static char *mp_set_output_file_name (MP mp, integer c) {
     ss = str(s);
     nn = str(n);
     mp_pack_file_name(mp, nn,"",ss);
-    free(nn);
+    mp_xfree(nn);
     delete_str_ref(n);
     delete_str_ref(s);
   }
@@ -25668,7 +25954,7 @@ static char * mp_get_output_file_name (MP mp) {
   char *f;
   char *saved_name;  /* saved |name_of_file| */
   saved_name = xstrdup(mp->name_of_file);
-  f = xstrdup(mp_set_output_file_name(mp, mp_round_unscaled(mp, mp->internal[mp_char_code])));
+  f = mp_set_output_file_name(mp, mp_round_unscaled(mp, mp->internal[mp_char_code]));
   mp_pack_file_name(mp, saved_name,NULL,NULL);
   free(saved_name);
   return f;
@@ -25980,8 +26266,56 @@ struct mp_edge_object *mp_gr_export(MP mp, pointer h) {
   return hh;
 }
 
+@ This function is only used for the |glyph| operator, so 
+it takes quite a few shortcuts for cases that cannot appear
+in the output of |mp_ps_font_charstring|.
+
+@c
+pointer mp_gr_unexport(MP mp, struct mp_edge_object *hh) {
+  pointer h; /* the edge object */
+  pointer ph, pn; /* for adding items */
+  mp_graphic_object *p; /* the current graphical object */
+  h = mp_get_node(mp, edge_header_size);
+  mp_init_edges(mp, h);
+  ph = dummy_loc(h); 
+  p = hh->body;
+  minx_val(h) = hh->minx;
+  miny_val(h) = hh->miny;
+  maxx_val(h) = hh->maxx;
+  maxy_val(h) = hh->maxy;
+  while ( p!=NULL ) { 
+    switch (gr_type(p)) {
+    case mp_fill_code: 
+      if ( gr_pen_p((mp_fill_object *)p)==NULL ) {
+        pn = mp_new_fill_node (mp, null);
+  	    mp_path_p(pn) = mp_import_knot_list(mp,gr_path_p((mp_fill_object *)p));
+        if (mp_new_turn_cycles(mp, mp_path_p(pn))<0) {
+          mp_color_model(pn)=mp_grey_model;
+          grey_val(pn) = unity;
+        }
+        mp_link(ph) = pn;
+        ph = mp_link(ph);
+      }
+      break;
+    case mp_stroked_code:
+    case mp_text_code: 
+    case mp_start_clip_code: 
+    case mp_stop_clip_code: 
+    case mp_start_bounds_code:
+    case mp_stop_bounds_code:
+    case mp_special_code:  
+      break;
+    } /* all cases are enumerated */
+    p=p->next;
+  }
+  mp_gr_toss_objects(hh);
+  return h;
+}
+
+
 @ @<Declarations@>=
-static struct mp_edge_object *mp_gr_export(MP mp, int h);
+static struct mp_edge_object *mp_gr_export(MP mp, pointer h);
+static pointer mp_gr_unexport(MP mp, struct mp_edge_object *h);
 
 @ This function is now nearly trivial.
 
@@ -26018,6 +26352,7 @@ void mp_shipout_backend (MP mp, pointer h) {
                  (mp->internal[mp_procset]/65536), 
                  false);
   }
+  mp_xfree(s);
   mp_gr_toss_objects(hh);
 }
 

@@ -1,10 +1,12 @@
+## Makefile.am for the TeX Live subdirectory texk/
+##
+## Copyright (C) 2009 Peter Breitenlohner <tex-live@tug.org>
+## You may freely use, modify and/or distribute this file.
 ##
 ACLOCAL_AMFLAGS = -I ../m4
 
 SUBDIRS = dummy . $(SUBTEXK)
 DIST_SUBDIRS = dummy $(DIST_SUBTEXK)
-
-EXTRA_DIST = README.orig
 
 ## just in case a subdirectory has added directories
 dist-hook:

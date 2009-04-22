@@ -124,7 +124,6 @@ then
     --disable-mf  \
     --disable-mmafm \
     --disable-mmpfb \
-    --disable-mp  \
     --disable-musixflx \
     --disable-otfinfo \
     --disable-otftotfm  \

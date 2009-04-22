@@ -34,12 +34,12 @@ build_triplet = @build@
 host_triplet = @host@
 @OMFONTS_TRUE@am__append_1 = omegafonts
 EXTRA_PROGRAMS = $(am__EXEEXT_1) tex$(EXEEXT) mf$(EXEEXT) \
-	mf-nowin$(EXEEXT) newmpost$(EXEEXT) luatex$(EXEEXT) \
+	mf-nowin$(EXEEXT) mpost$(EXEEXT) luatex$(EXEEXT) \
 	luatangle$(EXEEXT)
 bin_PROGRAMS = tangle$(EXEEXT) ctangle$(EXEEXT) $(am__EXEEXT_2) \
 	ctie$(EXEEXT) cweave$(EXEEXT) tie$(EXEEXT) $(am__EXEEXT_3) \
-	$(am__EXEEXT_4) $(am__EXEEXT_5) newmpost$(EXEEXT) \
-	$(am__EXEEXT_6)
+	$(am__EXEEXT_4) $(am__EXEEXT_5) $(am__EXEEXT_6) \
+	$(am__EXEEXT_7)
 noinst_PROGRAMS = tangleboot$(EXEEXT) ctangleboot$(EXEEXT)
 check_PROGRAMS = md5main$(EXEEXT)
 DIST_COMMON = README $(am__configure_deps) $(dist_check_SCRIPTS) \
@@ -53,10 +53,21 @@ DIST_COMMON = README $(am__configure_deps) $(dist_check_SCRIPTS) \
 	$(srcdir)/am/bootstrap.am $(srcdir)/am/cweb.am \
 	$(srcdir)/am/texmf.am $(srcdir)/am/web.am $(srcdir)/c-auto.in \
 	$(srcdir)/etexdir/am/etex.am $(srcdir)/libmd5/am/md5.am \
+	$(srcdir)/luatexdir/am/liblua51.am \
+	$(srcdir)/luatexdir/am/libluatex.am \
+	$(srcdir)/luatexdir/am/libzzip.am \
+	$(srcdir)/luatexdir/am/luafontforge.am \
+	$(srcdir)/luatexdir/am/luamisc.am \
+	$(srcdir)/luatexdir/am/luasocket.am \
+	$(srcdir)/luatexdir/am/luatangle.am \
 	$(srcdir)/luatexdir/am/luatex.am $(srcdir)/mpdir/am/mp.am \
+	$(srcdir)/mplibdir/am/libmplib.am \
 	$(srcdir)/mplibdir/am/mplib.am \
 	$(srcdir)/omegaware/am/omegaware.am \
+	$(srcdir)/pdftexdir/am/libpdftex.am \
 	$(srcdir)/pdftexdir/am/pdftex.am \
+	$(srcdir)/pdftexdir/am/pdftosrc.am \
+	$(srcdir)/pdftexdir/am/ttf2afm.am \
 	$(srcdir)/synctexdir/am/synctex.am \
 	$(srcdir)/xetexdir/am/xetex.am $(top_srcdir)/configure \
 	$(top_srcdir)/luatexdir/luafontloader/ff-config.in \
@@ -72,20 +83,27 @@ DIST_COMMON = README $(am__configure_deps) $(dist_check_SCRIPTS) \
 @TEX_TRUE@am__append_3 = tex
 @MF_TRUE@am__append_4 = mf
 @MFN_TRUE@@MF_TRUE@am__append_5 = mf-nowin
-@LUATEX_TRUE@am__append_6 = luatex luatangle
-@MINGW32_FALSE@am__append_7 = -DLUA_USE_POSIX
+@MP_TRUE@am__append_6 = mpost
+@LUATEX_TRUE@am__append_7 = luatex luatangle
 @LUATEX_TRUE@am__append_8 = luatexdir/luatangle.test
+@MINGW32_FALSE@am__append_9 = -DLUA_USE_POSIX
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/../../m4/kpse-asm.m4 \
 	$(top_srcdir)/../../m4/kpse-common.m4 \
 	$(top_srcdir)/../../m4/kpse-cross.m4 \
 	$(top_srcdir)/../../m4/kpse-cxx-hack.m4 \
+	$(top_srcdir)/../../m4/kpse-fontconfig-flags.m4 \
+	$(top_srcdir)/../../m4/kpse-freetype2-flags.m4 \
+	$(top_srcdir)/../../m4/kpse-graphite-flags.m4 \
+	$(top_srcdir)/../../m4/kpse-icu-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-kpathsea-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-lex.m4 \
 	$(top_srcdir)/../../m4/kpse-libpng-flags.m4 \
+	$(top_srcdir)/../../m4/kpse-macos-framework.m4 \
 	$(top_srcdir)/../../m4/kpse-obsdcompat-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-socket-libs.m4 \
+	$(top_srcdir)/../../m4/kpse-teckit-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-web2c.m4 \
 	$(top_srcdir)/../../m4/kpse-win32.m4 \
 	$(top_srcdir)/../../m4/kpse-xpdf-flags.m4 \
@@ -163,10 +181,10 @@ am_libluamisc_a_OBJECTS = libluamisc_a-lfs.$(OBJEXT) \
 	libluamisc_a-lpeg.$(OBJEXT) libluamisc_a-clocks.$(OBJEXT) \
 	libluamisc_a-core_profiler.$(OBJEXT) \
 	libluamisc_a-function_meter.$(OBJEXT) \
+	libluamisc_a-stack.$(OBJEXT) \
 	libluamisc_a-lua50_profiler.$(OBJEXT) \
-	libluamisc_a-stack.$(OBJEXT) libluamisc_a-luazip.$(OBJEXT) \
-	libluamisc_a-lgzip.$(OBJEXT) libluamisc_a-lzlib.$(OBJEXT) \
-	libluamisc_a-slnunico.$(OBJEXT)
+	libluamisc_a-luazip.$(OBJEXT) libluamisc_a-lgzip.$(OBJEXT) \
+	libluamisc_a-lzlib.$(OBJEXT) libluamisc_a-slnunico.$(OBJEXT)
 libluamisc_a_OBJECTS = $(am_libluamisc_a_OBJECTS)
 libluasocket_a_AR = $(AR) $(ARFLAGS)
 libluasocket_a_LIBADD =
@@ -212,10 +230,10 @@ am_libluatex_a_OBJECTS = libluatex_a-dofont.$(OBJEXT) \
 	libluatex_a-luatex.$(OBJEXT) libluatex_a-luatoken.$(OBJEXT) \
 	libluatex_a-texluac.$(OBJEXT) libluatex_a-makecpool.$(OBJEXT) \
 	libluatex_a-managed-sa.$(OBJEXT) \
-	libluatex_a-mathcodes.$(OBJEXT) libluatex_a-lmplib.$(OBJEXT) \
-	libluatex_a-pagetree.$(OBJEXT) libluatex_a-pdfpage.$(OBJEXT) \
-	libluatex_a-filename.$(OBJEXT) libluatex_a-linebreak.$(OBJEXT) \
-	libluatex_a-math.$(OBJEXT) libluatex_a-mlist.$(OBJEXT) \
+	libluatex_a-mathcodes.$(OBJEXT) libluatex_a-pagetree.$(OBJEXT) \
+	libluatex_a-pdfpage.$(OBJEXT) libluatex_a-filename.$(OBJEXT) \
+	libluatex_a-linebreak.$(OBJEXT) libluatex_a-math.$(OBJEXT) \
+	libluatex_a-mlist.$(OBJEXT) \
 	libluatex_a-postlinebreak.$(OBJEXT) \
 	libluatex_a-primitive.$(OBJEXT) \
 	libluatex_a-texdeffont.$(OBJEXT) \
@@ -223,7 +241,7 @@ am_libluatex_a_OBJECTS = libluatex_a-dofont.$(OBJEXT) \
 	libluatex_a-textoken.$(OBJEXT) libluatex_a-textcodes.$(OBJEXT) \
 	libluatex_a-avl.$(OBJEXT) libluatex_a-avlstuff.$(OBJEXT) \
 	libluatex_a-synctex.$(OBJEXT) libluatex_a-utils.$(OBJEXT) \
-	libluatex_a-writezip.$(OBJEXT)
+	libluatex_a-writezip.$(OBJEXT) libluatex_a-lmplib.$(OBJEXT)
 libluatex_a_OBJECTS = $(am_libluatex_a_OBJECTS)
 libmd5_a_AR = $(AR) $(ARFLAGS)
 libmd5_a_LIBADD =
@@ -237,12 +255,15 @@ nodist_libmf_a_OBJECTS = $(am__objects_1) libmf_a-mf-pool.$(OBJEXT)
 libmf_a_OBJECTS = $(nodist_libmf_a_OBJECTS)
 libmplib_a_AR = $(AR) $(ARFLAGS)
 libmplib_a_LIBADD =
-am__objects_2 = libmplib_a-mp.$(OBJEXT) libmplib_a-psout.$(OBJEXT) \
-	libmplib_a-svgout.$(OBJEXT) libmplib_a-memio.$(OBJEXT) \
-	libmplib_a-tfmin.$(OBJEXT)
-am__objects_3 = libmplib_a-avl.$(OBJEXT)
-am_libmplib_a_OBJECTS = $(am__objects_2) $(am__objects_3)
-libmplib_a_OBJECTS = $(am_libmplib_a_OBJECTS)
+am_libmplib_a_OBJECTS = libmplib_a-avl.$(OBJEXT)
+am__objects_2 = libmplib_a-mp.$(OBJEXT)
+am__objects_3 = libmplib_a-psout.$(OBJEXT)
+am__objects_4 = libmplib_a-svgout.$(OBJEXT)
+nodist_libmplib_a_OBJECTS = libmplib_a-memio.$(OBJEXT) \
+	libmplib_a-tfmin.$(OBJEXT) $(am__objects_2) $(am__objects_3) \
+	$(am__objects_4)
+libmplib_a_OBJECTS = $(am_libmplib_a_OBJECTS) \
+	$(nodist_libmplib_a_OBJECTS)
 libzzip_a_AR = $(AR) $(ARFLAGS)
 libzzip_a_LIBADD =
 am_libzzip_a_OBJECTS = libzzip_a-dir.$(OBJEXT) libzzip_a-err.$(OBJEXT) \
@@ -261,7 +282,8 @@ am__EXEEXT_1 = bibtex$(EXEEXT) dvicopy$(EXEEXT) dvitomp$(EXEEXT) \
 @TEX_TRUE@am__EXEEXT_3 = tex$(EXEEXT)
 @MF_TRUE@am__EXEEXT_4 = mf$(EXEEXT)
 @MFN_TRUE@@MF_TRUE@am__EXEEXT_5 = mf-nowin$(EXEEXT)
-@LUATEX_TRUE@am__EXEEXT_6 = luatex$(EXEEXT) luatangle$(EXEEXT)
+@MP_TRUE@am__EXEEXT_6 = mpost$(EXEEXT)
+@LUATEX_TRUE@am__EXEEXT_7 = luatex$(EXEEXT) luatangle$(EXEEXT)
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS) $(noinst_PROGRAMS)
@@ -315,8 +337,8 @@ nodist_luatangle_OBJECTS = luatangle.$(OBJEXT)
 luatangle_OBJECTS = $(nodist_luatangle_OBJECTS)
 luatangle_LDADD = $(LDADD)
 luatangle_DEPENDENCIES = $(proglib) $(am__DEPENDENCIES_1)
-am__objects_4 = luatex-luatexini.$(OBJEXT) luatex-luatex0.$(OBJEXT)
-nodist_luatex_OBJECTS = $(am__objects_4) luatex-luatex-pool.$(OBJEXT) \
+am__objects_5 = luatex-luatexini.$(OBJEXT) luatex-luatex0.$(OBJEXT)
+nodist_luatex_OBJECTS = $(am__objects_5) luatex-luatex-pool.$(OBJEXT) \
 	luatex-luatexextra.$(OBJEXT)
 luatex_OBJECTS = $(nodist_luatex_OBJECTS)
 am__DEPENDENCIES_2 = libluatex.a libff.a libluamisc.a libzzip.a \
@@ -342,9 +364,9 @@ nodist_mft_OBJECTS = mft.$(OBJEXT)
 mft_OBJECTS = $(nodist_mft_OBJECTS)
 mft_LDADD = $(LDADD)
 mft_DEPENDENCIES = $(proglib) $(am__DEPENDENCIES_1)
-am__objects_5 = newmpost-mpost.$(OBJEXT) newmpost-mpxout.$(OBJEXT)
-am_newmpost_OBJECTS = $(am__objects_5)
-newmpost_OBJECTS = $(am_newmpost_OBJECTS)
+am__objects_6 = mpost-mpxout.$(OBJEXT)
+nodist_mpost_OBJECTS = mpost-mpost.$(OBJEXT) $(am__objects_6)
+mpost_OBJECTS = $(nodist_mpost_OBJECTS)
 nodist_patgen_OBJECTS = patgen.$(OBJEXT)
 patgen_OBJECTS = $(nodist_patgen_OBJECTS)
 patgen_LDADD = $(LDADD)
@@ -373,9 +395,9 @@ nodist_tangleboot_OBJECTS = tangleboot.$(OBJEXT)
 tangleboot_OBJECTS = $(nodist_tangleboot_OBJECTS)
 tangleboot_LDADD = $(LDADD)
 tangleboot_DEPENDENCIES = $(proglib) $(am__DEPENDENCIES_1)
-am__objects_6 = tex-texini.$(OBJEXT) tex-tex0.$(OBJEXT) \
+am__objects_7 = tex-texini.$(OBJEXT) tex-tex0.$(OBJEXT) \
 	tex-tex1.$(OBJEXT) tex-tex2.$(OBJEXT)
-nodist_tex_OBJECTS = $(am__objects_6) tex-tex-pool.$(OBJEXT) \
+nodist_tex_OBJECTS = $(am__objects_7) tex-tex-pool.$(OBJEXT) \
 	tex-texextra.$(OBJEXT)
 tex_OBJECTS = $(nodist_tex_OBJECTS)
 tex_DEPENDENCIES = $(am__DEPENDENCIES_3) $(am__DEPENDENCIES_1)
@@ -424,29 +446,30 @@ SOURCES = $(libff_a_SOURCES) $(liblua51_a_SOURCES) \
 	$(libluasocket_a_SOURCES) $(libluatex_a_SOURCES) \
 	$(EXTRA_libluatex_a_SOURCES) $(libmd5_a_SOURCES) \
 	$(nodist_libmf_a_SOURCES) $(libmplib_a_SOURCES) \
-	$(libzzip_a_SOURCES) $(nodist_bibtex_SOURCES) \
-	$(nodist_ctangle_SOURCES) $(nodist_ctangleboot_SOURCES) \
-	$(nodist_ctie_SOURCES) $(nodist_cweave_SOURCES) \
-	$(nodist_dvicopy_SOURCES) $(nodist_dvitomp_SOURCES) \
-	$(nodist_dvitype_SOURCES) $(gftodvi_SOURCES) \
-	$(nodist_gftodvi_SOURCES) $(nodist_gftopk_SOURCES) \
-	$(nodist_gftype_SOURCES) $(nodist_luatangle_SOURCES) \
-	$(nodist_luatex_SOURCES) $(nodist_EXTRA_luatex_SOURCES) \
-	$(md5main_SOURCES) $(nodist_mf_SOURCES) \
-	$(nodist_mf_nowin_SOURCES) $(nodist_mft_SOURCES) \
-	$(newmpost_SOURCES) $(nodist_patgen_SOURCES) \
-	$(nodist_pktogf_SOURCES) $(nodist_pktype_SOURCES) \
-	$(nodist_pltotf_SOURCES) $(nodist_pooltype_SOURCES) \
-	$(nodist_tangle_SOURCES) $(nodist_tangleboot_SOURCES) \
-	$(nodist_tex_SOURCES) $(nodist_tftopl_SOURCES) \
-	$(nodist_tie_SOURCES) $(nodist_vftovp_SOURCES) \
-	$(nodist_vptovf_SOURCES) $(nodist_weave_SOURCES)
+	$(nodist_libmplib_a_SOURCES) $(libzzip_a_SOURCES) \
+	$(nodist_bibtex_SOURCES) $(nodist_ctangle_SOURCES) \
+	$(nodist_ctangleboot_SOURCES) $(nodist_ctie_SOURCES) \
+	$(nodist_cweave_SOURCES) $(nodist_dvicopy_SOURCES) \
+	$(nodist_dvitomp_SOURCES) $(nodist_dvitype_SOURCES) \
+	$(gftodvi_SOURCES) $(nodist_gftodvi_SOURCES) \
+	$(nodist_gftopk_SOURCES) $(nodist_gftype_SOURCES) \
+	$(nodist_luatangle_SOURCES) $(nodist_luatex_SOURCES) \
+	$(nodist_EXTRA_luatex_SOURCES) $(md5main_SOURCES) \
+	$(nodist_mf_SOURCES) $(nodist_mf_nowin_SOURCES) \
+	$(nodist_mft_SOURCES) $(nodist_mpost_SOURCES) \
+	$(nodist_patgen_SOURCES) $(nodist_pktogf_SOURCES) \
+	$(nodist_pktype_SOURCES) $(nodist_pltotf_SOURCES) \
+	$(nodist_pooltype_SOURCES) $(nodist_tangle_SOURCES) \
+	$(nodist_tangleboot_SOURCES) $(nodist_tex_SOURCES) \
+	$(nodist_tftopl_SOURCES) $(nodist_tie_SOURCES) \
+	$(nodist_vftovp_SOURCES) $(nodist_vptovf_SOURCES) \
+	$(nodist_weave_SOURCES)
 DIST_SOURCES = $(libff_a_SOURCES) $(liblua51_a_SOURCES) \
 	$(libluamisc_a_SOURCES) $(EXTRA_libluamisc_a_SOURCES) \
 	$(libluasocket_a_SOURCES) $(libluatex_a_SOURCES) \
 	$(EXTRA_libluatex_a_SOURCES) $(libmd5_a_SOURCES) \
 	$(libmplib_a_SOURCES) $(libzzip_a_SOURCES) $(gftodvi_SOURCES) \
-	$(md5main_SOURCES) $(newmpost_SOURCES)
+	$(md5main_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-dvi-recursive install-exec-recursive \
@@ -505,7 +528,18 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
+FONTCONFIG_INCLUDES = @FONTCONFIG_INCLUDES@
+FONTCONFIG_LIBS = @FONTCONFIG_LIBS@
+FREETYPE2_DEPEND = @FREETYPE2_DEPEND@
+FREETYPE2_INCLUDES = @FREETYPE2_INCLUDES@
+FREETYPE2_LIBS = @FREETYPE2_LIBS@
+GRAPHITE_DEPEND = @GRAPHITE_DEPEND@
+GRAPHITE_INCLUDES = @GRAPHITE_INCLUDES@
+GRAPHITE_LIBS = @GRAPHITE_LIBS@
 GREP = @GREP@
+ICU_DEPEND = @ICU_DEPEND@
+ICU_INCLUDES = @ICU_INCLUDES@
+ICU_LIBS = @ICU_LIBS@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -557,6 +591,9 @@ SHELL = @SHELL@
 STRIP = @STRIP@
 TANGLE = @TANGLE@
 TANGLEBOOT = @TANGLEBOOT@
+TECKIT_DEPEND = @TECKIT_DEPEND@
+TECKIT_INCLUDES = @TECKIT_INCLUDES@
+TECKIT_LIBS = @TECKIT_LIBS@
 TIE = @TIE@
 VERSION = @VERSION@
 WEB2CVERSION = @WEB2CVERSION@
@@ -606,11 +643,13 @@ htmldir = @htmldir@
 includedir = @includedir@
 infodir = @infodir@
 install_sh = @install_sh@
+ipc_socketlibs = @ipc_socketlibs@
 libdir = @libdir@
 libexecdir = @libexecdir@
 localedir = @localedir@
 localstatedir = @localstatedir@
 lt_ECHO = @lt_ECHO@
+lua_socketlibs = @lua_socketlibs@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
@@ -620,7 +659,6 @@ program_transform_name = @program_transform_name@
 psdir = @psdir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
-socketlibs = @socketlibs@
 srcdir = @srcdir@
 subdirs = @subdirs@
 sysconfdir = @sysconfdir@
@@ -643,31 +681,29 @@ dist_check_SCRIPTS = tangle.test luatexdir/luatangle.test \
 TESTS = tangle.test tiedir/tie.test $(am__append_8) libmd5/md5.test
 EXTRA_LIBRARIES = libmf.a libmplib.a liblua51.a libzzip.a \
 	libluasocket.a libluamisc.a libff.a libluatex.a libmd5.a
-
-# only used by luatex, perhaps should not be mentioned here
 EXTRA_DIST = PROJECTS cftests config.h cpascal.h help.h tangle.web \
 	tangle.ch tangleboot.p cwebdir ctangleboot.c cwebboot.c \
 	$(web_programs:=.web) $(web_programs:=.ch) ctiedir tiedir \
 	lib/mfmpi386.asm lib/mfmpw32.c lib/texmfmp.c texmfmem.h \
 	texmfmp-help.h texmfmp.h $(tex_ch_srcs) lib/texmfmp.c \
 	tmf-pool.h mf.web mf-binpool.ch mf.ch mftalk.h lib/texmfmp.c \
-	tmf-pool.h $(libmplib_web) mplibdir/lmplib.c $(luatex_sources) \
-	luatexdir/luatex.defines luatexdir/luatexextra.in \
-	luatexdir/ptexlib.h $(luatangle_sources) \
-	luatexdir/lua51/Makefile luatexdir/lua51/lua.c \
-	luatexdir/lua51/luac.c luatexdir/lua51/liolib.c \
-	luatexdir/lua51/print.c luatexdir/zziplib/COPYING.LIB \
-	luatexdir/zziplib/ChangeLog luatexdir/zziplib/README \
-	luatexdir/zziplib/TODO luatexdir/zziplib/zziplib.spec \
-	luatexdir/zziplib/Makefile.am luatexdir/zziplib/Makefile.in \
-	luatexdir/zziplib/Makefile.mk luatexdir/zziplib/SDL \
-	luatexdir/zziplib/aclocal.m4 luatexdir/zziplib/bins \
-	luatexdir/zziplib/config.h.in luatexdir/zziplib/configure \
-	luatexdir/zziplib/configure.ac luatexdir/zziplib/docs \
-	luatexdir/zziplib/m4 luatexdir/zziplib/msvc6 \
-	luatexdir/zziplib/msvc7 luatexdir/zziplib/msvc8 \
-	luatexdir/zziplib/test luatexdir/zziplib/uses \
-	luatexdir/zziplib/zzip/Makefile \
+	tmf-pool.h $(mpost_web) $(libmplib_web) mplibdir/lmplib.c \
+	$(luatex_sources) luatexdir/luatex.defines \
+	luatexdir/luatexextra.in luatexdir/ptexlib.h \
+	$(luatangle_sources) luatexdir/lua51/Makefile \
+	luatexdir/lua51/liolib.c luatexdir/lua51/lua.c \
+	luatexdir/lua51/luac.c luatexdir/lua51/print.c \
+	luatexdir/zziplib/COPYING.LIB luatexdir/zziplib/ChangeLog \
+	luatexdir/zziplib/README luatexdir/zziplib/TODO \
+	luatexdir/zziplib/zziplib.spec luatexdir/zziplib/Makefile.am \
+	luatexdir/zziplib/Makefile.in luatexdir/zziplib/Makefile.mk \
+	luatexdir/zziplib/SDL luatexdir/zziplib/aclocal.m4 \
+	luatexdir/zziplib/bins luatexdir/zziplib/config.h.in \
+	luatexdir/zziplib/configure luatexdir/zziplib/configure.ac \
+	luatexdir/zziplib/docs luatexdir/zziplib/m4 \
+	luatexdir/zziplib/msvc6 luatexdir/zziplib/msvc7 \
+	luatexdir/zziplib/msvc8 luatexdir/zziplib/test \
+	luatexdir/zziplib/uses luatexdir/zziplib/zzip/Makefile \
 	luatexdir/zziplib/zzip/Makefile.am \
 	luatexdir/zziplib/zzip/Makefile.in \
 	luatexdir/zziplib/zzip/_msvc.h \
@@ -781,11 +817,12 @@ DISTCLEANFILES = $(EXTRA_LIBRARIES) tangle.c tangle.h tangle.p \
 	$(web_programs:=-web2c) ctie.c cweave.c tie.c tie.outc \
 	tie.outm $(nodist_tex_SOURCES) tex-final.ch tex-web2c tex.p \
 	tex.pool tex-tangle $(nodist_libmf_a_SOURCES) mfextra.c \
-	mf-final.ch mf-web2c mf.p mf.pool mf-tangle $(newmpost_c_h) \
-	mpost-ctangle $(libmplib_c_h) mplib-ctangle \
-	$(nodist_luatex_SOURCES) luatex-web2c luatex.p luatex.pool \
-	luatex-tangle luatexdir/luatex.version luatangle.c luatangle.h \
-	luatangle.p cftest.p
+	mf-final.ch mf-web2c mf.p mf.pool mf-tangle \
+	$(nodist_mpost_SOURCES) mpxout-ctangle \
+	$(nodist_libmplib_a_SOURCES) mp-ctangle psout-ctangle \
+	svgout-ctangle $(nodist_luatex_SOURCES) luatex-web2c luatex.p \
+	luatex.pool luatex-tangle luatexdir/luatex.version luatangle.c \
+	luatangle.h luatangle-web2c luatangle.p cftest.p
 CLEANFILES = 
 web2c = srcdir=$(srcdir) $(SHELL) $(srcdir)/web2c/convert
 makecpool = ./web2c/makecpool
@@ -832,7 +869,7 @@ nodist_ctie_SOURCES = ctie.c
 nodist_cweave_SOURCES = cweave.c cweb.c
 nodist_tie_SOURCES = tie.c
 tex_CPPFLAGS = 
-tex_LDADD = $(LDADD) $(socketlibs)
+tex_LDADD = $(LDADD) $(ipc_socketlibs)
 tex_c_h = texini.c tex0.c tex1.c tex2.c texcoerce.h texd.h
 nodist_tex_SOURCES = $(tex_c_h) tex-pool.c texextra.c
 tex_ch_srcs = \
@@ -852,18 +889,22 @@ mf_x_libs = $(X_LIBS) $(x_tool_libs) $(X_PRE_LIBS) $(x_ext_lib) $(wlibs) $(X_EXT
 mf_c_h = mfini.c mf0.c mf1.c mfcoerce.h mfd.h
 nodist_libmf_a_SOURCES = $(mf_c_h) mf-pool.c
 libmf_a_CPPFLAGS = -DMETA_FONT
-newmpost_c_h = mpost.c mpxout.c
-newmpost_web = mplibdir/mpost.w mplibdir/mpxout.w
-newmpost_CPPFLAGS = -I. -I$(srcdir)/mplibdir
-newmpost_DEPENDENCIES = libmplib.a
-newmpost_LDADD = libmplib.a $(KPATHSEA_LIBS) -lm
-newmpost_SOURCES = $(newmpost_c_h)
-libmplib_c_h = mp.c mplib.h mpmp.h mppsout.h psout.c mplibps.h svgout.c memio.c tfmin.c
-libmplib_true_c = mplibdir/avl.h mplibdir/avl.c 
-libmplib_web = $(libmplib_true_c) mplibdir/mp.w mplibdir/psout.w \
-	mplibdir/svgout.w mplibdir/memio.w mplibdir/tfmin.w
-libmplib_a_CPPFLAGS = -I. -I$(srcdir)/mplibdir
-libmplib_a_SOURCES = $(libmplib_c_h) $(libmplib_true_c)
+mp_ctangle = CWEBINPUTS=$(srcdir)/mplibdir $(ctangle)
+mpost_CPPFLAGS = -I$(srcdir)/mplibdir
+mpost_DEPENDENCIES = libmplib.a
+mpost_LDADD = libmplib.a $(KPATHSEA_LIBS) -lm
+nodist_mpost_SOURCES = mpost.c $(mpxout_c_h)
+mpxout_c_h = mpxout.c mpxout.h
+mpost_web = mplibdir/mpost.w mplibdir/mpxout.w
+libmplib_a_CPPFLAGS = -I$(srcdir)/mplibdir
+libmplib_a_SOURCES = mplibdir/avl.h mplibdir/avl.c
+nodist_libmplib_a_SOURCES = memio.c tfmin.c $(mp_c_h) $(psout_c_h) \
+	$(svgout_c_h)
+mp_c_h = mp.c mplib.h mpmp.h
+psout_c_h = mppsout.h psout.c mplibps.h
+svgout_c_h = mplibsvg.h mpsvgout.h svgout.c
+libmplib_web = mplibdir/mp.w mplibdir/psout.w mplibdir/svgout.w \
+	mplibdir/memio.w mplibdir/tfmin.w
 nodist_EXTRA_luatex_SOURCES = dummy.cxx
 luatex_tangle = WEBINPUTS=$(srcdir)/luatexdir $(buildenv) $(LUATANGLE)
 luatex_CPPFLAGS = $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(XPDF_INCLUDES) \
@@ -875,13 +916,14 @@ luatex_ldadd = libluatex.a libff.a libluamisc.a libzzip.a \
 	$(XPDF_LIBS) $(OBSDCOMPAT_LIBS) libmd5.a libmplib.a
 luatex_LDADD = $(luatex_ldadd) $(LDADD) $(socketlibs)
 luatex_DEPENDENCIES = $(proglib) libluatex.a $(LIBPNG_DEPEND) \
-	$(ZLIB_DEPEND) $(XPDF_DEPEND) $(OBSDCOMPAT_DEPEND) libmd5.a
+	$(ZLIB_DEPEND) $(XPDF_DEPEND) $(OBSDCOMPAT_DEPEND) libmd5.a \
+	libmplib.a
 luatex_c_h = luatexini.c luatex0.c luatexcoerce.h luatexd.h
 nodist_luatex_SOURCES = $(luatex_c_h) luatex-pool.c luatexextra.c luatexdir/luatexextra.h
 luatex_sources = luatexdir/luatex.web luatexdir/luatex.ch
 nodist_luatangle_SOURCES = luatangle.c luatangle.h
 luatangle_sources = luatexdir/luatangle.web luatexdir/luatangle.ch
-liblua51_a_CPPFLAGS = -I$(top_srcdir)/luatexdir/lua51 $(am__append_7)
+liblua51_a_CPPFLAGS = -I$(top_srcdir)/luatexdir/lua51 $(am__append_9)
 liblua51_a_SOURCES = \
 	luatexdir/lua51/lapi.c \
 	luatexdir/lua51/lapi.h \
@@ -1020,16 +1062,16 @@ libluamisc_a_SOURCES = \
 	luatexdir/luamd5/md5.h \
 	luatexdir/luamd5/md5lib.c \
 	luatexdir/luapeg/lpeg.c \
+	luatexdir/luaprofiler/clocks.c \
 	luatexdir/luaprofiler/clocks.h \
-    luatexdir/luaprofiler/core_profiler.h \
-    luatexdir/luaprofiler/function_meter.h  \
-    luatexdir/luaprofiler/luaprofiler.h  \
-    luatexdir/luaprofiler/stack.h \
-    luatexdir/luaprofiler/clocks.c \
 	luatexdir/luaprofiler/core_profiler.c \
+	luatexdir/luaprofiler/core_profiler.h \
 	luatexdir/luaprofiler/function_meter.c \
-	luatexdir/luaprofiler/lua50_profiler.c \
+	luatexdir/luaprofiler/function_meter.h \
+	luatexdir/luaprofiler/luaprofiler.h \
 	luatexdir/luaprofiler/stack.c \
+	luatexdir/luaprofiler/stack.h \
+	luatexdir/luaprofiler/lua50_profiler.c \
 	luatexdir/luazip/src/luazip.c \
 	luatexdir/luazip/src/luazip.h \
 	luatexdir/luazlib/lgzip.c \
@@ -1047,107 +1089,107 @@ libff_a_CPPFLAGS = \
 	-I$(top_srcdir)/luatexdir/luafontloader/fontforge/fontforge
 
 libff_a_SOURCES = \
-    luatexdir/luafontloader/fontforge/Unicode/ArabicForms.c \
-    luatexdir/luafontloader/fontforge/Unicode/alphabet.c \
-    luatexdir/luafontloader/fontforge/Unicode/backtrns.c \
-    luatexdir/luafontloader/fontforge/Unicode/char.c \
-    luatexdir/luafontloader/fontforge/Unicode/cjk.c \
-    luatexdir/luafontloader/fontforge/Unicode/combiners.h \
-    luatexdir/luafontloader/fontforge/Unicode/dump.c \
-    luatexdir/luafontloader/fontforge/Unicode/gwwiconv.c \
-    luatexdir/luafontloader/fontforge/Unicode/memory.c \
-    luatexdir/luafontloader/fontforge/Unicode/ucharmap.c \
-    luatexdir/luafontloader/fontforge/Unicode/unialt.c \
-    luatexdir/luafontloader/fontforge/Unicode/ustring.c \
-    luatexdir/luafontloader/fontforge/Unicode/utype.c \
-    luatexdir/luafontloader/fontforge/fontforge/PfEd.h \
-    luatexdir/luafontloader/fontforge/fontforge/autohint.c \
-    luatexdir/luafontloader/fontforge/fontforge/baseviews.h \
-    luatexdir/luafontloader/fontforge/fontforge/clipnoui.c \
-    luatexdir/luafontloader/fontforge/fontforge/configure-pfaedit.h \
-    luatexdir/luafontloader/fontforge/fontforge/cvundoes.c \
-    luatexdir/luafontloader/fontforge/fontforge/dumppfa.c \
-    luatexdir/luafontloader/fontforge/fontforge/edgelist.h \
-    luatexdir/luafontloader/fontforge/fontforge/edgelist2.h \
-    luatexdir/luafontloader/fontforge/fontforge/encoding.c \
-    luatexdir/luafontloader/fontforge/fontforge/encoding.h \
-    luatexdir/luafontloader/fontforge/fontforge/featurefile.c \
-    luatexdir/luafontloader/fontforge/fontforge/fontforgevw.h \
-    luatexdir/luafontloader/fontforge/fontforge/fontviewbase.c \
-    luatexdir/luafontloader/fontforge/fontforge/fvcomposit.c \
-    luatexdir/luafontloader/fontforge/fontforge/fvfonts.c \
-    luatexdir/luafontloader/fontforge/fontforge/libffstamp.h \
-    luatexdir/luafontloader/fontforge/fontforge/libstamp.pre \
-    luatexdir/luafontloader/fontforge/fontforge/lookups.c \
-    luatexdir/luafontloader/fontforge/fontforge/lookups.h \
-    luatexdir/luafontloader/fontforge/fontforge/macbinary.c \
-    luatexdir/luafontloader/fontforge/fontforge/macenc.c \
-    luatexdir/luafontloader/fontforge/fontforge/mathconstants.c \
-    luatexdir/luafontloader/fontforge/fontforge/mm.c \
-    luatexdir/luafontloader/fontforge/fontforge/mm.h \
-    luatexdir/luafontloader/fontforge/fontforge/namelist.c \
-    luatexdir/luafontloader/fontforge/fontforge/noprefs.c \
-    luatexdir/luafontloader/fontforge/fontforge/nouiutil.c \
-    luatexdir/luafontloader/fontforge/fontforge/parsepfa.c \
-    luatexdir/luafontloader/fontforge/fontforge/parsettf.c \
-    luatexdir/luafontloader/fontforge/fontforge/parsettfatt.c \
-    luatexdir/luafontloader/fontforge/fontforge/parsettfvar.c \
-    luatexdir/luafontloader/fontforge/fontforge/pfaedit.h \
-    luatexdir/luafontloader/fontforge/fontforge/plugins.h \
-    luatexdir/luafontloader/fontforge/fontforge/psfont.h \
-    luatexdir/luafontloader/fontforge/fontforge/psread.c \
-    luatexdir/luafontloader/fontforge/fontforge/pua.c \
-    luatexdir/luafontloader/fontforge/fontforge/python.c \
-    luatexdir/luafontloader/fontforge/fontforge/scripting.h \
-    luatexdir/luafontloader/fontforge/fontforge/sd.h \
-    luatexdir/luafontloader/fontforge/fontforge/sfd1.c \
-    luatexdir/luafontloader/fontforge/fontforge/sfd1.h \
-    luatexdir/luafontloader/fontforge/fontforge/splinechar.c \
-    luatexdir/luafontloader/fontforge/fontforge/splinefill.c \
-    luatexdir/luafontloader/fontforge/fontforge/splinefont.c \
-    luatexdir/luafontloader/fontforge/fontforge/splinefont.h \
-    luatexdir/luafontloader/fontforge/fontforge/splineorder2.c \
-    luatexdir/luafontloader/fontforge/fontforge/splineoverlap.c \
-    luatexdir/luafontloader/fontforge/fontforge/splinerefigure.c \
-    luatexdir/luafontloader/fontforge/fontforge/splinesave.c \
-    luatexdir/luafontloader/fontforge/fontforge/splinesaveafm.c \
-    luatexdir/luafontloader/fontforge/fontforge/splinestroke.c \
-    luatexdir/luafontloader/fontforge/fontforge/splineutil.c \
-    luatexdir/luafontloader/fontforge/fontforge/splineutil2.c \
-    luatexdir/luafontloader/fontforge/fontforge/start.c \
-    luatexdir/luafontloader/fontforge/fontforge/stemdb.c \
-    luatexdir/luafontloader/fontforge/fontforge/stemdb.h \
-    luatexdir/luafontloader/fontforge/fontforge/tottf.c \
-    luatexdir/luafontloader/fontforge/fontforge/tottfaat.c \
-    luatexdir/luafontloader/fontforge/fontforge/tottfgpos.c \
-    luatexdir/luafontloader/fontforge/fontforge/ttf.h \
-    luatexdir/luafontloader/fontforge/fontforge/ttfspecial.c \
-    luatexdir/luafontloader/fontforge/fontforge/uiinterface.h \
-    luatexdir/luafontloader/fontforge/fontforge/unicoderange.h \
-    luatexdir/luafontloader/fontforge/fontforge/views.h \
-    luatexdir/luafontloader/fontforge/gutils/fsys.c \
-    luatexdir/luafontloader/fontforge/gutils/gwwintl.c \
-    luatexdir/luafontloader/fontforge/inc/basics.h \
-    luatexdir/luafontloader/fontforge/inc/chardata.h \
-    luatexdir/luafontloader/fontforge/inc/charset.h \
-    luatexdir/luafontloader/fontforge/inc/dynamic.h \
-    luatexdir/luafontloader/fontforge/inc/fileutil.h \
-    luatexdir/luafontloader/fontforge/inc/gdraw.h \
-    luatexdir/luafontloader/fontforge/inc/gfile.h \
-    luatexdir/luafontloader/fontforge/inc/ggadget.h \
-    luatexdir/luafontloader/fontforge/inc/gicons.h \
-    luatexdir/luafontloader/fontforge/inc/gimage.h \
-    luatexdir/luafontloader/fontforge/inc/gio.h \
-    luatexdir/luafontloader/fontforge/inc/gkeysym.h \
-    luatexdir/luafontloader/fontforge/inc/gprogress.h \
-    luatexdir/luafontloader/fontforge/inc/gresource.h \
-    luatexdir/luafontloader/fontforge/inc/gwidget.h \
-    luatexdir/luafontloader/fontforge/inc/gwwiconv.h \
-    luatexdir/luafontloader/fontforge/inc/intl.h \
-    luatexdir/luafontloader/fontforge/inc/ustring.h \
-    luatexdir/luafontloader/fontforge/inc/utype.h \
-    luatexdir/luafontloader/src/ffdummies.c \
-    luatexdir/luafontloader/src/luafflib.c
+	luatexdir/luafontloader/fontforge/Unicode/ArabicForms.c \
+	luatexdir/luafontloader/fontforge/Unicode/alphabet.c \
+	luatexdir/luafontloader/fontforge/Unicode/backtrns.c \
+	luatexdir/luafontloader/fontforge/Unicode/char.c \
+	luatexdir/luafontloader/fontforge/Unicode/cjk.c \
+	luatexdir/luafontloader/fontforge/Unicode/combiners.h \
+	luatexdir/luafontloader/fontforge/Unicode/dump.c \
+	luatexdir/luafontloader/fontforge/Unicode/gwwiconv.c \
+	luatexdir/luafontloader/fontforge/Unicode/memory.c \
+	luatexdir/luafontloader/fontforge/Unicode/ucharmap.c \
+	luatexdir/luafontloader/fontforge/Unicode/unialt.c \
+	luatexdir/luafontloader/fontforge/Unicode/ustring.c \
+	luatexdir/luafontloader/fontforge/Unicode/utype.c \
+	luatexdir/luafontloader/fontforge/fontforge/PfEd.h \
+	luatexdir/luafontloader/fontforge/fontforge/autohint.c \
+	luatexdir/luafontloader/fontforge/fontforge/baseviews.h \
+	luatexdir/luafontloader/fontforge/fontforge/clipnoui.c \
+	luatexdir/luafontloader/fontforge/fontforge/configure-pfaedit.h \
+	luatexdir/luafontloader/fontforge/fontforge/cvundoes.c \
+	luatexdir/luafontloader/fontforge/fontforge/dumppfa.c \
+	luatexdir/luafontloader/fontforge/fontforge/edgelist.h \
+	luatexdir/luafontloader/fontforge/fontforge/edgelist2.h \
+	luatexdir/luafontloader/fontforge/fontforge/encoding.c \
+	luatexdir/luafontloader/fontforge/fontforge/encoding.h \
+	luatexdir/luafontloader/fontforge/fontforge/featurefile.c \
+	luatexdir/luafontloader/fontforge/fontforge/fontforgevw.h \
+	luatexdir/luafontloader/fontforge/fontforge/fontviewbase.c \
+	luatexdir/luafontloader/fontforge/fontforge/fvcomposit.c \
+	luatexdir/luafontloader/fontforge/fontforge/fvfonts.c \
+	luatexdir/luafontloader/fontforge/fontforge/libffstamp.h \
+	luatexdir/luafontloader/fontforge/fontforge/libstamp.pre \
+	luatexdir/luafontloader/fontforge/fontforge/lookups.c \
+	luatexdir/luafontloader/fontforge/fontforge/lookups.h \
+	luatexdir/luafontloader/fontforge/fontforge/macbinary.c \
+	luatexdir/luafontloader/fontforge/fontforge/macenc.c \
+	luatexdir/luafontloader/fontforge/fontforge/mathconstants.c \
+	luatexdir/luafontloader/fontforge/fontforge/mm.c \
+	luatexdir/luafontloader/fontforge/fontforge/mm.h \
+	luatexdir/luafontloader/fontforge/fontforge/namelist.c \
+	luatexdir/luafontloader/fontforge/fontforge/noprefs.c \
+	luatexdir/luafontloader/fontforge/fontforge/nouiutil.c \
+	luatexdir/luafontloader/fontforge/fontforge/parsepfa.c \
+	luatexdir/luafontloader/fontforge/fontforge/parsettf.c \
+	luatexdir/luafontloader/fontforge/fontforge/parsettfatt.c \
+	luatexdir/luafontloader/fontforge/fontforge/parsettfvar.c \
+	luatexdir/luafontloader/fontforge/fontforge/pfaedit.h \
+	luatexdir/luafontloader/fontforge/fontforge/plugins.h \
+	luatexdir/luafontloader/fontforge/fontforge/psfont.h \
+	luatexdir/luafontloader/fontforge/fontforge/psread.c \
+	luatexdir/luafontloader/fontforge/fontforge/pua.c \
+	luatexdir/luafontloader/fontforge/fontforge/python.c \
+	luatexdir/luafontloader/fontforge/fontforge/scripting.h \
+	luatexdir/luafontloader/fontforge/fontforge/sd.h \
+	luatexdir/luafontloader/fontforge/fontforge/sfd1.c \
+	luatexdir/luafontloader/fontforge/fontforge/sfd1.h \
+	luatexdir/luafontloader/fontforge/fontforge/splinechar.c \
+	luatexdir/luafontloader/fontforge/fontforge/splinefill.c \
+	luatexdir/luafontloader/fontforge/fontforge/splinefont.c \
+	luatexdir/luafontloader/fontforge/fontforge/splinefont.h \
+	luatexdir/luafontloader/fontforge/fontforge/splineorder2.c \
+	luatexdir/luafontloader/fontforge/fontforge/splineoverlap.c \
+	luatexdir/luafontloader/fontforge/fontforge/splinerefigure.c \
+	luatexdir/luafontloader/fontforge/fontforge/splinesave.c \
+	luatexdir/luafontloader/fontforge/fontforge/splinesaveafm.c \
+	luatexdir/luafontloader/fontforge/fontforge/splinestroke.c \
+	luatexdir/luafontloader/fontforge/fontforge/splineutil.c \
+	luatexdir/luafontloader/fontforge/fontforge/splineutil2.c \
+	luatexdir/luafontloader/fontforge/fontforge/start.c \
+	luatexdir/luafontloader/fontforge/fontforge/stemdb.c \
+	luatexdir/luafontloader/fontforge/fontforge/stemdb.h \
+	luatexdir/luafontloader/fontforge/fontforge/tottf.c \
+	luatexdir/luafontloader/fontforge/fontforge/tottfaat.c \
+	luatexdir/luafontloader/fontforge/fontforge/tottfgpos.c \
+	luatexdir/luafontloader/fontforge/fontforge/ttf.h \
+	luatexdir/luafontloader/fontforge/fontforge/ttfspecial.c \
+	luatexdir/luafontloader/fontforge/fontforge/uiinterface.h \
+	luatexdir/luafontloader/fontforge/fontforge/unicoderange.h \
+	luatexdir/luafontloader/fontforge/fontforge/views.h \
+	luatexdir/luafontloader/fontforge/gutils/fsys.c \
+	luatexdir/luafontloader/fontforge/gutils/gwwintl.c \
+	luatexdir/luafontloader/fontforge/inc/basics.h \
+	luatexdir/luafontloader/fontforge/inc/chardata.h \
+	luatexdir/luafontloader/fontforge/inc/charset.h \
+	luatexdir/luafontloader/fontforge/inc/dynamic.h \
+	luatexdir/luafontloader/fontforge/inc/fileutil.h \
+	luatexdir/luafontloader/fontforge/inc/gdraw.h \
+	luatexdir/luafontloader/fontforge/inc/gfile.h \
+	luatexdir/luafontloader/fontforge/inc/ggadget.h \
+	luatexdir/luafontloader/fontforge/inc/gicons.h \
+	luatexdir/luafontloader/fontforge/inc/gimage.h \
+	luatexdir/luafontloader/fontforge/inc/gio.h \
+	luatexdir/luafontloader/fontforge/inc/gkeysym.h \
+	luatexdir/luafontloader/fontforge/inc/gprogress.h \
+	luatexdir/luafontloader/fontforge/inc/gresource.h \
+	luatexdir/luafontloader/fontforge/inc/gwidget.h \
+	luatexdir/luafontloader/fontforge/inc/gwwiconv.h \
+	luatexdir/luafontloader/fontforge/inc/intl.h \
+	luatexdir/luafontloader/fontforge/inc/ustring.h \
+	luatexdir/luafontloader/fontforge/inc/utype.h \
+	luatexdir/luafontloader/src/ffdummies.c \
+	luatexdir/luafontloader/src/luafflib.c
 
 libluatex_a_DEPENDENCIES = libff.a
 libluatex_a_CPPFLAGS = $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) \
@@ -1155,82 +1197,81 @@ libluatex_a_CPPFLAGS = $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) \
 	-Iluatexdir -I$(srcdir)/luatexdir -I$(srcdir)/luatexdir/lua51 \
 	-DpdfTeX
 libluatex_a_SOURCES = \
-	luatexdir/commands.h  \
-	luatexdir/font/dofont.c  \
-	luatexdir/font/luatexfont.h  \
-	luatexdir/font/luafont.c  \
-	luatexdir/font/mapfile.c  \
-	luatexdir/font/mapfile.h  \
-	luatexdir/font/pkin.c  \
-	luatexdir/font/sfnt.c  \
-	luatexdir/font/sfnt.h  \
-	luatexdir/font/subfont.c  \
-	luatexdir/font/texfont.c  \
-	luatexdir/font/texfont.h  \
-	luatexdir/font/tfmofm.c  \
-	luatexdir/font/tounicode.c  \
-	luatexdir/font/tt_glyf.c  \
-	luatexdir/font/tt_glyf.h  \
-	luatexdir/font/tt_table.c  \
-	luatexdir/font/tt_table.h  \
-	luatexdir/font/vfovf.c  \
-	luatexdir/font/vfpacket.c  \
-	luatexdir/font/writecff.c  \
-	luatexdir/font/writecff.h  \
-	luatexdir/font/writeenc.c  \
-	luatexdir/font/writefont.c  \
-	luatexdir/font/writet1.c  \
-	luatexdir/font/writet3.c  \
-	luatexdir/font/writettf.c  \
-	luatexdir/font/writettf.h  \
-	luatexdir/font/writetype0.c  \
-	luatexdir/font/writetype2.c  \
-	luatexdir/get_svnversion.sh  \
+	luatexdir/commands.h \
+	luatexdir/font/dofont.c \
+	luatexdir/font/luatexfont.h \
+	luatexdir/font/luafont.c \
+	luatexdir/font/mapfile.c \
+	luatexdir/font/mapfile.h \
+	luatexdir/font/pkin.c \
+	luatexdir/font/sfnt.c \
+	luatexdir/font/sfnt.h \
+	luatexdir/font/subfont.c \
+	luatexdir/font/texfont.c \
+	luatexdir/font/texfont.h \
+	luatexdir/font/tfmofm.c \
+	luatexdir/font/tounicode.c \
+	luatexdir/font/tt_glyf.c \
+	luatexdir/font/tt_glyf.h \
+	luatexdir/font/tt_table.c \
+	luatexdir/font/tt_table.h \
+	luatexdir/font/vfovf.c \
+	luatexdir/font/vfpacket.c \
+	luatexdir/font/writecff.c \
+	luatexdir/font/writecff.h \
+	luatexdir/font/writeenc.c \
+	luatexdir/font/writefont.c \
+	luatexdir/font/writet1.c \
+	luatexdir/font/writet3.c \
+	luatexdir/font/writettf.c \
+	luatexdir/font/writettf.h \
+	luatexdir/font/writetype0.c \
+	luatexdir/font/writetype2.c \
+	luatexdir/get_svnversion.sh \
 	luatexdir/hyphen.h \
-	luatexdir/image/epdf.c  \
-	luatexdir/image/epdf.h  \
-	luatexdir/image/image.h  \
-	luatexdir/image/pdftoepdf.cc  \
-	luatexdir/image/pdftoepdf.h  \
-	luatexdir/image/writeimg.c  \
-	luatexdir/image/writeimg.h  \
-	luatexdir/image/writejbig2.c  \
-	luatexdir/image/writejbig2.h  \
-	luatexdir/image/writejpg.c  \
-	luatexdir/image/writejpg.h  \
-	luatexdir/image/writepng.c  \
-	luatexdir/image/writepng.h  \
-	luatexdir/lang/hnjalloc.c  \
-	luatexdir/lang/hnjalloc.h  \
-	luatexdir/lang/hyphen.c  \
-	luatexdir/lang/texlang.c  \
-	luatexdir/lua/lcallbacklib.c  \
-	luatexdir/lua/lfontlib.c  \
-	luatexdir/lua/limglib.c  \
-	luatexdir/lua/lkpselib.c  \
-	luatexdir/lua/llanglib.c  \
-	luatexdir/lua/llualib.c  \
-	luatexdir/lua/lnodelib.c  \
-	luatexdir/lua/loslibext.c  \
-	luatexdir/lua/liolib.c  \
-	luatexdir/lua/lpdflib.c  \
-	luatexdir/lua/lstatslib.c  \
-	luatexdir/lua/ltexiolib.c  \
-	luatexdir/lua/ltexlib.c  \
-	luatexdir/lua/ltokenlib.c  \
-	luatexdir/lua/luainit.c  \
-	luatexdir/lua/luanode.c  \
-	luatexdir/lua/luastuff.c  \
-	luatexdir/lua/luatex.c  \
-	luatexdir/lua/luatoken.c  \
-	luatexdir/lua/texluac.c  \
+	luatexdir/image/epdf.c \
+	luatexdir/image/epdf.h \
+	luatexdir/image/image.h \
+	luatexdir/image/pdftoepdf.cc \
+	luatexdir/image/pdftoepdf.h \
+	luatexdir/image/writeimg.c \
+	luatexdir/image/writeimg.h \
+	luatexdir/image/writejbig2.c \
+	luatexdir/image/writejbig2.h \
+	luatexdir/image/writejpg.c \
+	luatexdir/image/writejpg.h \
+	luatexdir/image/writepng.c \
+	luatexdir/image/writepng.h \
+	luatexdir/lang/hnjalloc.c \
+	luatexdir/lang/hnjalloc.h \
+	luatexdir/lang/hyphen.c \
+	luatexdir/lang/texlang.c \
+	luatexdir/lua/lcallbacklib.c \
+	luatexdir/lua/lfontlib.c \
+	luatexdir/lua/limglib.c \
+	luatexdir/lua/lkpselib.c \
+	luatexdir/lua/llanglib.c \
+	luatexdir/lua/llualib.c \
+	luatexdir/lua/lnodelib.c \
+	luatexdir/lua/loslibext.c \
+	luatexdir/lua/liolib.c \
+	luatexdir/lua/lpdflib.c \
+	luatexdir/lua/lstatslib.c \
+	luatexdir/lua/ltexiolib.c \
+	luatexdir/lua/ltexlib.c \
+	luatexdir/lua/ltokenlib.c \
+	luatexdir/lua/luainit.c \
+	luatexdir/lua/luanode.c \
+	luatexdir/lua/luastuff.c \
+	luatexdir/lua/luatex.c \
+	luatexdir/lua/luatoken.c \
+	luatexdir/lua/texluac.c \
 	luatexdir/luatex-api.h \
 	luatexdir/luatex.h \
 	luatexdir/makecpool.c \
 	luatexdir/managed-sa.c \
 	luatexdir/managed-sa.h \
 	luatexdir/mathcodes.c \
-    mplibdir/lmplib.c \
 	luatexdir/nodes.h \
 	luatexdir/pdf/pagetree.c \
 	luatexdir/pdf/pagetree.h \
@@ -1238,16 +1279,16 @@ libluatex_a_SOURCES = \
 	luatexdir/pdf/pdfpage.h \
 	luatexdir/primitive.h \
 	luatexdir/ptexmac.h \
-	luatexdir/tex/filename.c  \
-	luatexdir/tex/linebreak.c  \
-	luatexdir/tex/math.c  \
-	luatexdir/tex/mlist.c  \
-	luatexdir/tex/postlinebreak.c  \
-	luatexdir/tex/primitive.c  \
-	luatexdir/tex/texdeffont.c  \
-	luatexdir/tex/texnodes.c  \
-	luatexdir/tex/texpdf.c  \
-	luatexdir/tex/textoken.c  \
+	luatexdir/tex/filename.c \
+	luatexdir/tex/linebreak.c \
+	luatexdir/tex/math.c \
+	luatexdir/tex/mlist.c \
+	luatexdir/tex/postlinebreak.c \
+	luatexdir/tex/primitive.c \
+	luatexdir/tex/texdeffont.c \
+	luatexdir/tex/texnodes.c \
+	luatexdir/tex/texpdf.c \
+	luatexdir/tex/textoken.c \
 	luatexdir/texmath.h \
 	luatexdir/textcodes.c \
 	luatexdir/tokens.h \
@@ -1259,7 +1300,8 @@ libluatex_a_SOURCES = \
 	luatexdir/utils/synctex.c \
 	luatexdir/utils/utils.c \
 	luatexdir/utils/utils.h \
-	luatexdir/utils/writezip.c
+	luatexdir/utils/writezip.c \
+	mplibdir/lmplib.c
 
 EXTRA_libluatex_a_SOURCES = luatexdir/font/macnames.c
 libmd5_a_CPPFLAGS = -I$(srcdir)/libmd5
@@ -1274,7 +1316,7 @@ all: c-auto.h ff-config.h
 .SUFFIXES: .c .cc .cxx .lo .o .obj
 am--refresh:
 	@:
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/am/bootstrap.am $(srcdir)/am/web.am $(srcdir)/am/cweb.am $(srcdir)/am/texmf.am $(srcdir)/mpdir/am/mp.am $(srcdir)/mplibdir/am/mplib.am $(srcdir)/etexdir/am/etex.am $(srcdir)/pdftexdir/am/pdftex.am $(srcdir)/luatexdir/am/luatex.am $(srcdir)/xetexdir/am/xetex.am $(srcdir)/omegaware/am/omegaware.am $(srcdir)/alephdir/am/aleph.am $(srcdir)/synctexdir/am/synctex.am $(srcdir)/libmd5/am/md5.am $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/am/bootstrap.am $(srcdir)/am/web.am $(srcdir)/am/cweb.am $(srcdir)/am/texmf.am $(srcdir)/mpdir/am/mp.am $(srcdir)/mplibdir/am/mplib.am $(srcdir)/mplibdir/am/libmplib.am $(srcdir)/etexdir/am/etex.am $(srcdir)/pdftexdir/am/pdftex.am $(srcdir)/pdftexdir/am/libpdftex.am $(srcdir)/pdftexdir/am/ttf2afm.am $(srcdir)/pdftexdir/am/pdftosrc.am $(srcdir)/luatexdir/am/luatex.am $(srcdir)/luatexdir/am/luatangle.am $(srcdir)/luatexdir/am/liblua51.am $(srcdir)/luatexdir/am/libzzip.am $(srcdir)/luatexdir/am/luasocket.am $(srcdir)/luatexdir/am/luamisc.am $(srcdir)/luatexdir/am/luafontforge.am $(srcdir)/luatexdir/am/libluatex.am $(srcdir)/xetexdir/am/xetex.am $(srcdir)/omegaware/am/omegaware.am $(srcdir)/alephdir/am/aleph.am $(srcdir)/synctexdir/am/synctex.am $(srcdir)/libmd5/am/md5.am $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -1468,9 +1510,9 @@ mf-nowin$(EXEEXT): $(mf_nowin_OBJECTS) $(mf_nowin_DEPENDENCIES)
 mft$(EXEEXT): $(mft_OBJECTS) $(mft_DEPENDENCIES) 
 	@rm -f mft$(EXEEXT)
 	$(LINK) $(mft_OBJECTS) $(mft_LDADD) $(LIBS)
-newmpost$(EXEEXT): $(newmpost_OBJECTS) $(newmpost_DEPENDENCIES) 
-	@rm -f newmpost$(EXEEXT)
-	$(LINK) $(newmpost_OBJECTS) $(newmpost_LDADD) $(LIBS)
+mpost$(EXEEXT): $(mpost_OBJECTS) $(mpost_DEPENDENCIES) 
+	@rm -f mpost$(EXEEXT)
+	$(LINK) $(mpost_OBJECTS) $(mpost_LDADD) $(LIBS)
 patgen$(EXEEXT): $(patgen_OBJECTS) $(patgen_DEPENDENCIES) 
 	@rm -f patgen$(EXEEXT)
 	$(LINK) $(patgen_OBJECTS) $(patgen_LDADD) $(LIBS)
@@ -1750,8 +1792,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mf-mfextra.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mf_nowin-mfextra.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mft.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/newmpost-mpost.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/newmpost-mpxout.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpost-mpost.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpost-mpxout.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/patgen.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pktogf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pktype.Po@am__quote@
@@ -3108,20 +3150,6 @@ libluamisc_a-function_meter.obj: luatexdir/luaprofiler/function_meter.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluamisc_a-function_meter.obj `if test -f 'luatexdir/luaprofiler/function_meter.c'; then $(CYGPATH_W) 'luatexdir/luaprofiler/function_meter.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luaprofiler/function_meter.c'; fi`
 
-libluamisc_a-lua50_profiler.o: luatexdir/luaprofiler/lua50_profiler.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluamisc_a-lua50_profiler.o -MD -MP -MF $(DEPDIR)/libluamisc_a-lua50_profiler.Tpo -c -o libluamisc_a-lua50_profiler.o `test -f 'luatexdir/luaprofiler/lua50_profiler.c' || echo '$(srcdir)/'`luatexdir/luaprofiler/lua50_profiler.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluamisc_a-lua50_profiler.Tpo $(DEPDIR)/libluamisc_a-lua50_profiler.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luaprofiler/lua50_profiler.c' object='libluamisc_a-lua50_profiler.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluamisc_a-lua50_profiler.o `test -f 'luatexdir/luaprofiler/lua50_profiler.c' || echo '$(srcdir)/'`luatexdir/luaprofiler/lua50_profiler.c
-
-libluamisc_a-lua50_profiler.obj: luatexdir/luaprofiler/lua50_profiler.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluamisc_a-lua50_profiler.obj -MD -MP -MF $(DEPDIR)/libluamisc_a-lua50_profiler.Tpo -c -o libluamisc_a-lua50_profiler.obj `if test -f 'luatexdir/luaprofiler/lua50_profiler.c'; then $(CYGPATH_W) 'luatexdir/luaprofiler/lua50_profiler.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luaprofiler/lua50_profiler.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluamisc_a-lua50_profiler.Tpo $(DEPDIR)/libluamisc_a-lua50_profiler.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luaprofiler/lua50_profiler.c' object='libluamisc_a-lua50_profiler.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluamisc_a-lua50_profiler.obj `if test -f 'luatexdir/luaprofiler/lua50_profiler.c'; then $(CYGPATH_W) 'luatexdir/luaprofiler/lua50_profiler.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luaprofiler/lua50_profiler.c'; fi`
-
 libluamisc_a-stack.o: luatexdir/luaprofiler/stack.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluamisc_a-stack.o -MD -MP -MF $(DEPDIR)/libluamisc_a-stack.Tpo -c -o libluamisc_a-stack.o `test -f 'luatexdir/luaprofiler/stack.c' || echo '$(srcdir)/'`luatexdir/luaprofiler/stack.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluamisc_a-stack.Tpo $(DEPDIR)/libluamisc_a-stack.Po
@@ -3135,6 +3163,20 @@ libluamisc_a-stack.obj: luatexdir/luaprofiler/stack.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luaprofiler/stack.c' object='libluamisc_a-stack.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluamisc_a-stack.obj `if test -f 'luatexdir/luaprofiler/stack.c'; then $(CYGPATH_W) 'luatexdir/luaprofiler/stack.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luaprofiler/stack.c'; fi`
+
+libluamisc_a-lua50_profiler.o: luatexdir/luaprofiler/lua50_profiler.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluamisc_a-lua50_profiler.o -MD -MP -MF $(DEPDIR)/libluamisc_a-lua50_profiler.Tpo -c -o libluamisc_a-lua50_profiler.o `test -f 'luatexdir/luaprofiler/lua50_profiler.c' || echo '$(srcdir)/'`luatexdir/luaprofiler/lua50_profiler.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluamisc_a-lua50_profiler.Tpo $(DEPDIR)/libluamisc_a-lua50_profiler.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luaprofiler/lua50_profiler.c' object='libluamisc_a-lua50_profiler.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluamisc_a-lua50_profiler.o `test -f 'luatexdir/luaprofiler/lua50_profiler.c' || echo '$(srcdir)/'`luatexdir/luaprofiler/lua50_profiler.c
+
+libluamisc_a-lua50_profiler.obj: luatexdir/luaprofiler/lua50_profiler.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluamisc_a-lua50_profiler.obj -MD -MP -MF $(DEPDIR)/libluamisc_a-lua50_profiler.Tpo -c -o libluamisc_a-lua50_profiler.obj `if test -f 'luatexdir/luaprofiler/lua50_profiler.c'; then $(CYGPATH_W) 'luatexdir/luaprofiler/lua50_profiler.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luaprofiler/lua50_profiler.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluamisc_a-lua50_profiler.Tpo $(DEPDIR)/libluamisc_a-lua50_profiler.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luaprofiler/lua50_profiler.c' object='libluamisc_a-lua50_profiler.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluamisc_a-lua50_profiler.obj `if test -f 'luatexdir/luaprofiler/lua50_profiler.c'; then $(CYGPATH_W) 'luatexdir/luaprofiler/lua50_profiler.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luaprofiler/lua50_profiler.c'; fi`
 
 libluamisc_a-luazip.o: luatexdir/luazip/src/luazip.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluamisc_a-luazip.o -MD -MP -MF $(DEPDIR)/libluamisc_a-luazip.Tpo -c -o libluamisc_a-luazip.o `test -f 'luatexdir/luazip/src/luazip.c' || echo '$(srcdir)/'`luatexdir/luazip/src/luazip.c
@@ -4130,20 +4172,6 @@ libluatex_a-mathcodes.obj: luatexdir/mathcodes.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-mathcodes.obj `if test -f 'luatexdir/mathcodes.c'; then $(CYGPATH_W) 'luatexdir/mathcodes.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/mathcodes.c'; fi`
 
-libluatex_a-lmplib.o: mplibdir/lmplib.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-lmplib.o -MD -MP -MF $(DEPDIR)/libluatex_a-lmplib.Tpo -c -o libluatex_a-lmplib.o `test -f 'mplibdir/lmplib.c' || echo '$(srcdir)/'`mplibdir/lmplib.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-lmplib.Tpo $(DEPDIR)/libluatex_a-lmplib.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='mplibdir/lmplib.c' object='libluatex_a-lmplib.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-lmplib.o `test -f 'mplibdir/lmplib.c' || echo '$(srcdir)/'`mplibdir/lmplib.c
-
-libluatex_a-lmplib.obj: mplibdir/lmplib.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-lmplib.obj -MD -MP -MF $(DEPDIR)/libluatex_a-lmplib.Tpo -c -o libluatex_a-lmplib.obj `if test -f 'mplibdir/lmplib.c'; then $(CYGPATH_W) 'mplibdir/lmplib.c'; else $(CYGPATH_W) '$(srcdir)/mplibdir/lmplib.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-lmplib.Tpo $(DEPDIR)/libluatex_a-lmplib.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='mplibdir/lmplib.c' object='libluatex_a-lmplib.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-lmplib.obj `if test -f 'mplibdir/lmplib.c'; then $(CYGPATH_W) 'mplibdir/lmplib.c'; else $(CYGPATH_W) '$(srcdir)/mplibdir/lmplib.c'; fi`
-
 libluatex_a-pagetree.o: luatexdir/pdf/pagetree.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-pagetree.o -MD -MP -MF $(DEPDIR)/libluatex_a-pagetree.Tpo -c -o libluatex_a-pagetree.o `test -f 'luatexdir/pdf/pagetree.c' || echo '$(srcdir)/'`luatexdir/pdf/pagetree.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-pagetree.Tpo $(DEPDIR)/libluatex_a-pagetree.Po
@@ -4396,6 +4424,20 @@ libluatex_a-writezip.obj: luatexdir/utils/writezip.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-writezip.obj `if test -f 'luatexdir/utils/writezip.c'; then $(CYGPATH_W) 'luatexdir/utils/writezip.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/writezip.c'; fi`
 
+libluatex_a-lmplib.o: mplibdir/lmplib.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-lmplib.o -MD -MP -MF $(DEPDIR)/libluatex_a-lmplib.Tpo -c -o libluatex_a-lmplib.o `test -f 'mplibdir/lmplib.c' || echo '$(srcdir)/'`mplibdir/lmplib.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-lmplib.Tpo $(DEPDIR)/libluatex_a-lmplib.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='mplibdir/lmplib.c' object='libluatex_a-lmplib.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-lmplib.o `test -f 'mplibdir/lmplib.c' || echo '$(srcdir)/'`mplibdir/lmplib.c
+
+libluatex_a-lmplib.obj: mplibdir/lmplib.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-lmplib.obj -MD -MP -MF $(DEPDIR)/libluatex_a-lmplib.Tpo -c -o libluatex_a-lmplib.obj `if test -f 'mplibdir/lmplib.c'; then $(CYGPATH_W) 'mplibdir/lmplib.c'; else $(CYGPATH_W) '$(srcdir)/mplibdir/lmplib.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-lmplib.Tpo $(DEPDIR)/libluatex_a-lmplib.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='mplibdir/lmplib.c' object='libluatex_a-lmplib.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-lmplib.obj `if test -f 'mplibdir/lmplib.c'; then $(CYGPATH_W) 'mplibdir/lmplib.c'; else $(CYGPATH_W) '$(srcdir)/mplibdir/lmplib.c'; fi`
+
 libluatex_a-macnames.o: luatexdir/font/macnames.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-macnames.o -MD -MP -MF $(DEPDIR)/libluatex_a-macnames.Tpo -c -o libluatex_a-macnames.o `test -f 'luatexdir/font/macnames.c' || echo '$(srcdir)/'`luatexdir/font/macnames.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-macnames.Tpo $(DEPDIR)/libluatex_a-macnames.Po
@@ -4480,6 +4522,48 @@ libmf_a-mf-pool.obj: mf-pool.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmf_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmf_a-mf-pool.obj `if test -f 'mf-pool.c'; then $(CYGPATH_W) 'mf-pool.c'; else $(CYGPATH_W) '$(srcdir)/mf-pool.c'; fi`
 
+libmplib_a-avl.o: mplibdir/avl.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-avl.o -MD -MP -MF $(DEPDIR)/libmplib_a-avl.Tpo -c -o libmplib_a-avl.o `test -f 'mplibdir/avl.c' || echo '$(srcdir)/'`mplibdir/avl.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmplib_a-avl.Tpo $(DEPDIR)/libmplib_a-avl.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='mplibdir/avl.c' object='libmplib_a-avl.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-avl.o `test -f 'mplibdir/avl.c' || echo '$(srcdir)/'`mplibdir/avl.c
+
+libmplib_a-avl.obj: mplibdir/avl.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-avl.obj -MD -MP -MF $(DEPDIR)/libmplib_a-avl.Tpo -c -o libmplib_a-avl.obj `if test -f 'mplibdir/avl.c'; then $(CYGPATH_W) 'mplibdir/avl.c'; else $(CYGPATH_W) '$(srcdir)/mplibdir/avl.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmplib_a-avl.Tpo $(DEPDIR)/libmplib_a-avl.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='mplibdir/avl.c' object='libmplib_a-avl.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-avl.obj `if test -f 'mplibdir/avl.c'; then $(CYGPATH_W) 'mplibdir/avl.c'; else $(CYGPATH_W) '$(srcdir)/mplibdir/avl.c'; fi`
+
+libmplib_a-memio.o: memio.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-memio.o -MD -MP -MF $(DEPDIR)/libmplib_a-memio.Tpo -c -o libmplib_a-memio.o `test -f 'memio.c' || echo '$(srcdir)/'`memio.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmplib_a-memio.Tpo $(DEPDIR)/libmplib_a-memio.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='memio.c' object='libmplib_a-memio.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-memio.o `test -f 'memio.c' || echo '$(srcdir)/'`memio.c
+
+libmplib_a-memio.obj: memio.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-memio.obj -MD -MP -MF $(DEPDIR)/libmplib_a-memio.Tpo -c -o libmplib_a-memio.obj `if test -f 'memio.c'; then $(CYGPATH_W) 'memio.c'; else $(CYGPATH_W) '$(srcdir)/memio.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmplib_a-memio.Tpo $(DEPDIR)/libmplib_a-memio.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='memio.c' object='libmplib_a-memio.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-memio.obj `if test -f 'memio.c'; then $(CYGPATH_W) 'memio.c'; else $(CYGPATH_W) '$(srcdir)/memio.c'; fi`
+
+libmplib_a-tfmin.o: tfmin.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-tfmin.o -MD -MP -MF $(DEPDIR)/libmplib_a-tfmin.Tpo -c -o libmplib_a-tfmin.o `test -f 'tfmin.c' || echo '$(srcdir)/'`tfmin.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmplib_a-tfmin.Tpo $(DEPDIR)/libmplib_a-tfmin.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tfmin.c' object='libmplib_a-tfmin.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-tfmin.o `test -f 'tfmin.c' || echo '$(srcdir)/'`tfmin.c
+
+libmplib_a-tfmin.obj: tfmin.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-tfmin.obj -MD -MP -MF $(DEPDIR)/libmplib_a-tfmin.Tpo -c -o libmplib_a-tfmin.obj `if test -f 'tfmin.c'; then $(CYGPATH_W) 'tfmin.c'; else $(CYGPATH_W) '$(srcdir)/tfmin.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmplib_a-tfmin.Tpo $(DEPDIR)/libmplib_a-tfmin.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tfmin.c' object='libmplib_a-tfmin.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-tfmin.obj `if test -f 'tfmin.c'; then $(CYGPATH_W) 'tfmin.c'; else $(CYGPATH_W) '$(srcdir)/tfmin.c'; fi`
+
 libmplib_a-mp.o: mp.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-mp.o -MD -MP -MF $(DEPDIR)/libmplib_a-mp.Tpo -c -o libmplib_a-mp.o `test -f 'mp.c' || echo '$(srcdir)/'`mp.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmplib_a-mp.Tpo $(DEPDIR)/libmplib_a-mp.Po
@@ -4521,48 +4605,6 @@ libmplib_a-svgout.obj: svgout.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='svgout.c' object='libmplib_a-svgout.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-svgout.obj `if test -f 'svgout.c'; then $(CYGPATH_W) 'svgout.c'; else $(CYGPATH_W) '$(srcdir)/svgout.c'; fi`
-
-libmplib_a-memio.o: memio.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-memio.o -MD -MP -MF $(DEPDIR)/libmplib_a-memio.Tpo -c -o libmplib_a-memio.o `test -f 'memio.c' || echo '$(srcdir)/'`memio.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmplib_a-memio.Tpo $(DEPDIR)/libmplib_a-memio.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='memio.c' object='libmplib_a-memio.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-memio.o `test -f 'memio.c' || echo '$(srcdir)/'`memio.c
-
-libmplib_a-memio.obj: memio.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-memio.obj -MD -MP -MF $(DEPDIR)/libmplib_a-memio.Tpo -c -o libmplib_a-memio.obj `if test -f 'memio.c'; then $(CYGPATH_W) 'memio.c'; else $(CYGPATH_W) '$(srcdir)/memio.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmplib_a-memio.Tpo $(DEPDIR)/libmplib_a-memio.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='memio.c' object='libmplib_a-memio.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-memio.obj `if test -f 'memio.c'; then $(CYGPATH_W) 'memio.c'; else $(CYGPATH_W) '$(srcdir)/memio.c'; fi`
-
-libmplib_a-tfmin.o: tfmin.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-tfmin.o -MD -MP -MF $(DEPDIR)/libmplib_a-tfmin.Tpo -c -o libmplib_a-tfmin.o `test -f 'tfmin.c' || echo '$(srcdir)/'`tfmin.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmplib_a-tfmin.Tpo $(DEPDIR)/libmplib_a-tfmin.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tfmin.c' object='libmplib_a-tfmin.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-tfmin.o `test -f 'tfmin.c' || echo '$(srcdir)/'`tfmin.c
-
-libmplib_a-tfmin.obj: tfmin.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-tfmin.obj -MD -MP -MF $(DEPDIR)/libmplib_a-tfmin.Tpo -c -o libmplib_a-tfmin.obj `if test -f 'tfmin.c'; then $(CYGPATH_W) 'tfmin.c'; else $(CYGPATH_W) '$(srcdir)/tfmin.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmplib_a-tfmin.Tpo $(DEPDIR)/libmplib_a-tfmin.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tfmin.c' object='libmplib_a-tfmin.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-tfmin.obj `if test -f 'tfmin.c'; then $(CYGPATH_W) 'tfmin.c'; else $(CYGPATH_W) '$(srcdir)/tfmin.c'; fi`
-
-libmplib_a-avl.o: mplibdir/avl.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-avl.o -MD -MP -MF $(DEPDIR)/libmplib_a-avl.Tpo -c -o libmplib_a-avl.o `test -f 'mplibdir/avl.c' || echo '$(srcdir)/'`mplibdir/avl.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmplib_a-avl.Tpo $(DEPDIR)/libmplib_a-avl.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='mplibdir/avl.c' object='libmplib_a-avl.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-avl.o `test -f 'mplibdir/avl.c' || echo '$(srcdir)/'`mplibdir/avl.c
-
-libmplib_a-avl.obj: mplibdir/avl.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-avl.obj -MD -MP -MF $(DEPDIR)/libmplib_a-avl.Tpo -c -o libmplib_a-avl.obj `if test -f 'mplibdir/avl.c'; then $(CYGPATH_W) 'mplibdir/avl.c'; else $(CYGPATH_W) '$(srcdir)/mplibdir/avl.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmplib_a-avl.Tpo $(DEPDIR)/libmplib_a-avl.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='mplibdir/avl.c' object='libmplib_a-avl.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-avl.obj `if test -f 'mplibdir/avl.c'; then $(CYGPATH_W) 'mplibdir/avl.c'; else $(CYGPATH_W) '$(srcdir)/mplibdir/avl.c'; fi`
 
 libzzip_a-dir.o: luatexdir/zziplib/zzip/dir.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libzzip_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libzzip_a-dir.o -MD -MP -MF $(DEPDIR)/libzzip_a-dir.Tpo -c -o libzzip_a-dir.o `test -f 'luatexdir/zziplib/zzip/dir.c' || echo '$(srcdir)/'`luatexdir/zziplib/zzip/dir.c
@@ -4816,33 +4858,33 @@ mf_nowin-mfextra.obj: mfextra.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mf_nowin_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o mf_nowin-mfextra.obj `if test -f 'mfextra.c'; then $(CYGPATH_W) 'mfextra.c'; else $(CYGPATH_W) '$(srcdir)/mfextra.c'; fi`
 
-newmpost-mpost.o: mpost.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(newmpost_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT newmpost-mpost.o -MD -MP -MF $(DEPDIR)/newmpost-mpost.Tpo -c -o newmpost-mpost.o `test -f 'mpost.c' || echo '$(srcdir)/'`mpost.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/newmpost-mpost.Tpo $(DEPDIR)/newmpost-mpost.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='mpost.c' object='newmpost-mpost.o' libtool=no @AMDEPBACKSLASH@
+mpost-mpost.o: mpost.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mpost_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT mpost-mpost.o -MD -MP -MF $(DEPDIR)/mpost-mpost.Tpo -c -o mpost-mpost.o `test -f 'mpost.c' || echo '$(srcdir)/'`mpost.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/mpost-mpost.Tpo $(DEPDIR)/mpost-mpost.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='mpost.c' object='mpost-mpost.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(newmpost_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o newmpost-mpost.o `test -f 'mpost.c' || echo '$(srcdir)/'`mpost.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mpost_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o mpost-mpost.o `test -f 'mpost.c' || echo '$(srcdir)/'`mpost.c
 
-newmpost-mpost.obj: mpost.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(newmpost_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT newmpost-mpost.obj -MD -MP -MF $(DEPDIR)/newmpost-mpost.Tpo -c -o newmpost-mpost.obj `if test -f 'mpost.c'; then $(CYGPATH_W) 'mpost.c'; else $(CYGPATH_W) '$(srcdir)/mpost.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/newmpost-mpost.Tpo $(DEPDIR)/newmpost-mpost.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='mpost.c' object='newmpost-mpost.obj' libtool=no @AMDEPBACKSLASH@
+mpost-mpost.obj: mpost.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mpost_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT mpost-mpost.obj -MD -MP -MF $(DEPDIR)/mpost-mpost.Tpo -c -o mpost-mpost.obj `if test -f 'mpost.c'; then $(CYGPATH_W) 'mpost.c'; else $(CYGPATH_W) '$(srcdir)/mpost.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/mpost-mpost.Tpo $(DEPDIR)/mpost-mpost.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='mpost.c' object='mpost-mpost.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(newmpost_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o newmpost-mpost.obj `if test -f 'mpost.c'; then $(CYGPATH_W) 'mpost.c'; else $(CYGPATH_W) '$(srcdir)/mpost.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mpost_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o mpost-mpost.obj `if test -f 'mpost.c'; then $(CYGPATH_W) 'mpost.c'; else $(CYGPATH_W) '$(srcdir)/mpost.c'; fi`
 
-newmpost-mpxout.o: mpxout.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(newmpost_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT newmpost-mpxout.o -MD -MP -MF $(DEPDIR)/newmpost-mpxout.Tpo -c -o newmpost-mpxout.o `test -f 'mpxout.c' || echo '$(srcdir)/'`mpxout.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/newmpost-mpxout.Tpo $(DEPDIR)/newmpost-mpxout.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='mpxout.c' object='newmpost-mpxout.o' libtool=no @AMDEPBACKSLASH@
+mpost-mpxout.o: mpxout.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mpost_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT mpost-mpxout.o -MD -MP -MF $(DEPDIR)/mpost-mpxout.Tpo -c -o mpost-mpxout.o `test -f 'mpxout.c' || echo '$(srcdir)/'`mpxout.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/mpost-mpxout.Tpo $(DEPDIR)/mpost-mpxout.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='mpxout.c' object='mpost-mpxout.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(newmpost_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o newmpost-mpxout.o `test -f 'mpxout.c' || echo '$(srcdir)/'`mpxout.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mpost_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o mpost-mpxout.o `test -f 'mpxout.c' || echo '$(srcdir)/'`mpxout.c
 
-newmpost-mpxout.obj: mpxout.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(newmpost_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT newmpost-mpxout.obj -MD -MP -MF $(DEPDIR)/newmpost-mpxout.Tpo -c -o newmpost-mpxout.obj `if test -f 'mpxout.c'; then $(CYGPATH_W) 'mpxout.c'; else $(CYGPATH_W) '$(srcdir)/mpxout.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/newmpost-mpxout.Tpo $(DEPDIR)/newmpost-mpxout.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='mpxout.c' object='newmpost-mpxout.obj' libtool=no @AMDEPBACKSLASH@
+mpost-mpxout.obj: mpxout.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mpost_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT mpost-mpxout.obj -MD -MP -MF $(DEPDIR)/mpost-mpxout.Tpo -c -o mpost-mpxout.obj `if test -f 'mpxout.c'; then $(CYGPATH_W) 'mpxout.c'; else $(CYGPATH_W) '$(srcdir)/mpxout.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/mpost-mpxout.Tpo $(DEPDIR)/mpost-mpxout.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='mpxout.c' object='mpost-mpxout.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(newmpost_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o newmpost-mpxout.obj `if test -f 'mpxout.c'; then $(CYGPATH_W) 'mpxout.c'; else $(CYGPATH_W) '$(srcdir)/mpxout.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mpost_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o mpost-mpxout.obj `if test -f 'mpxout.c'; then $(CYGPATH_W) 'mpxout.c'; else $(CYGPATH_W) '$(srcdir)/mpxout.c'; fi`
 
 tex-texini.o: texini.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tex_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT tex-texini.o -MD -MP -MF $(DEPDIR)/tex-texini.Tpo -c -o tex-texini.o `test -f 'texini.c' || echo '$(srcdir)/'`texini.c
@@ -5564,6 +5606,10 @@ $(web2c_programs): $(web2c_common) ${srcdir}/web2c/*.[chly]
 @LIBPNG_RULE@
 @XPDF_RULE@
 @OBSDCOMPAT_RULE@
+@GRAPHITE_RULE@
+@FREETYPE2_RULE@
+@TECKIT_RULE@
+@ICU_RULE@
 
 .PRECIOUS: %.ch %.p %.c
 tangle.c tangle.h: tangle-web2c
@@ -5785,24 +5831,44 @@ mf-final.ch: $(TIE) mf.web mf.ch mf-binpool.ch
 mf-pool.c: mf.pool $(makecpool) tmf-pool.h
 	$(makecpool) mf.pool $(srcdir)/tmf-pool.h >$@ || rm -f $@
 
-$(newmpost_c_h): mpost-ctangle libmplib.a
-mpost-ctangle: ctangle$(EXEEXT) $(newmpost_web)
-	CWEBINPUTS=$(srcdir)/mplibdir $(ctangle) mpost.w
-	CWEBINPUTS=$(srcdir)/mplibdir $(ctangle) mpxout.w
-	echo timestamp >$@
-	touch $(newmpost_c_h)
+mpost.c: ctangle$(EXEEXT) mplibdir/mpost.w
+	$(mp_ctangle) mpost.w
 
-$(libmplib_c_h): mplib-ctangle  $(libmplib_true_c)
-mplib-ctangle: ctangle$(EXEEXT) $(libmplib_web)
-	CWEBINPUTS=$(srcdir)/mplibdir $(ctangle) mp.w
-	CWEBINPUTS=$(srcdir)/mplibdir $(ctangle) psout.w
-	CWEBINPUTS=$(srcdir)/mplibdir $(ctangle) svgout.w
-	CWEBINPUTS=$(srcdir)/mplibdir $(ctangle) tfmin.w
-	CWEBINPUTS=$(srcdir)/mplibdir $(ctangle) memio.w
+$(mpxout_c_h): mpxout-ctangle
+mpxout-ctangle: ctangle$(EXEEXT) mplibdir/mpxout.w
+	$(mp_ctangle) mpxout.w
 	echo timestamp >$@
-	touch $(libmplib_c_h)
+	touch $(mpxout_c_h)
 
-$(luatex_OBJECTS): libmplib.a
+$(mpost_OBJECTS): $(nodist_mpost_SOURCES) libmplib.a
+
+memio.c: ctangle$(EXEEXT) mplibdir/memio.w
+	$(mp_ctangle) memio.w
+
+tfmin.c: ctangle$(EXEEXT) mplibdir/tfmin.w
+	$(mp_ctangle) tfmin.w
+
+$(mp_c_h): mp-ctangle
+mp-ctangle: ctangle$(EXEEXT) mplibdir/mp.w
+	$(mp_ctangle) mp.w
+	echo timestamp >$@
+	touch $(mp_c_h)
+
+$(psout_c_h): psout-ctangle
+psout-ctangle: ctangle$(EXEEXT) mplibdir/psout.w
+	$(mp_ctangle) psout.w
+	echo timestamp >$@
+	touch $(psout_c_h)
+
+$(svgout_c_h): svgout-ctangle
+svgout-ctangle: ctangle$(EXEEXT) mplibdir/svgout.w
+	$(mp_ctangle) svgout.w
+	echo timestamp >$@
+	touch $(svgout_c_h)
+
+$(libmplib_a_OBJECTS): $(nodist_libmplib_a_SOURCES)
+
+$(luatex_OBJECTS): libluatex.a libmplib.a
 $(luatex_c_h): luatex-web2c
 luatex-web2c: luatex.p $(web2c_texmf) luatexdir/luatex.defines
 	$(web2c) luatex
@@ -5824,10 +5890,25 @@ luatexdir/luatex.version: luatexdir/luatex.web
 luatexdir/luatexextra.h: luatexdir/luatexextra.in luatexdir/luatex.version
 	sed -e s/LUATEX-VERSION/`cat luatexdir/luatex.version`/ \
 	  $(srcdir)/luatexdir/luatexextra.in >$@
-luatangle.c luatangle.h: $(web2c_common) $(web2c_programs) luatangle.p
+luatangle.c luatangle.h: luatangle-web2c
+luatangle-web2c: $(web2c_common) $(web2c_programs) luatangle.p
 	$(web2c) luatangle
+	echo timestamp >$@
+	touch luatangle.c luatangle.h
 luatangle.p: tangle$(EXEEXT) $(luatangle_sources)
 	WEBINPUTS=$(srcdir)/luatexdir $(buildenv) $(TANGLE) luatangle luatangle
+
+$(libzzip_a_OBJECTS): liblua51.a
+
+$(libluasocket_a_OBJECTS): libzzip.a 
+
+$(libluamisc_a_OBJECTS): libluasocket.a
+
+$(libff_a_OBJECTS): libluamisc.a
+
+$(libluatex_a_OBJECTS): libff.a $(luatex_c_h) luatexdir/luatexextra.h
+
+$(libluatex_a_OBJECTS): libff.a
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
