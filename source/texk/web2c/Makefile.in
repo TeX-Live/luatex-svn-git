@@ -649,7 +649,6 @@ libexecdir = @libexecdir@
 localedir = @localedir@
 localstatedir = @localstatedir@
 lt_ECHO = @lt_ECHO@
-lua_socketlibs = @lua_socketlibs@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
@@ -659,6 +658,7 @@ program_transform_name = @program_transform_name@
 psdir = @psdir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
+socketlibs = @socketlibs@
 srcdir = @srcdir@
 subdirs = @subdirs@
 sysconfdir = @sysconfdir@
@@ -5906,7 +5906,7 @@ $(libluamisc_a_OBJECTS): libluasocket.a
 
 $(libff_a_OBJECTS): libluamisc.a
 
-$(libluatex_a_OBJECTS): libff.a $(luatex_c_h) luatexdir/luatexextra.h
+$(libluatex_a_OBJECTS): libff.a $(nodist_luatex_SOURCES)
 
 $(libluatex_a_OBJECTS): libff.a
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

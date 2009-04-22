@@ -36,7 +36,7 @@ extern int make_vf_table(lua_State * L, char *name, scaled s);
 
 static int get_fontid (void)
 {
-  if (max_font_id()==0) {
+  if (font_tables==NULL || font_tables[0]==NULL) {
     create_null_font();
   }
   return new_font();
