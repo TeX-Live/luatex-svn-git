@@ -22,7 +22,7 @@
 
 \setvariables
   [document]
-  [beta=0.39.0]
+  [beta=0.40.0]
 
 \starttext
 
@@ -98,7 +98,7 @@ the possibility to execute lua code via \type{\directlua}, but
 \LUATEX\ also adds functionality via new \TEX-side primitives.
 
 However, starting with beta \type{0.39.0}, most of that functionality
-will be hidden by default. When \LUATEX\ 0.39.0 starts up in
+will be hidden by default. When \LUATEX\ 0.40.0 starts up in
 \quote{iniluatex} mode (\type{luatex -ini}), it defines only the
 primitive commands known by \TEX82 and the one extra command
 \type{\directlua}.
@@ -1803,7 +1803,7 @@ will define a whole series of csnames like \type{\Omegatextdir},
 instead of creating the doubly-prefixed \type{\OmegaOmegaVersion}.
 
 Starting with version 0.39.0 (and this is why the above two functions
-are needed), \LUATEX\ in \type{--ini} mode will contain only the \TEX82
+are needed), \LUATEX\ in \type{--ini} mode contains only the \TEX82
 primitives and \type{\directlua}, no extra primitives {\bf at all}.
 
 So, if you want to have all the new functionality available using
@@ -6539,7 +6539,8 @@ The top|-|level keys in the table are as follows:
                                                                         reference, don't cache any lua data for this font.
                                                                         \type{renew}: don't store the table reference, but
                                                                         save a reference to the table that is created at the
-                                                                        first access to one of its fields in font.fonts. \NC\NR
+                                                                        first access to one of its fields in font.fonts. 
+                                                                        (new in 0.40.0, before that caching was always \type{yes})\NC\NR
 \stoptabulate
 
 The key \type{name} is always required. The keys \type{stretch},
