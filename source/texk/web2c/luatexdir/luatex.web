@@ -17602,7 +17602,7 @@ if post_callback_id>0 then
 end;
 
 @ @<(\pdfTeX) Ship box |p| out@>=
-if box_dir(p) <> page_direction then
+if shipping_page and (box_dir(p) <> page_direction) then
   pdf_warning("\shipout", "\pagedir != \bodydir; \box255 may be placed wrongly on the page.", true, true);
 @<Update the values of |max_h| and |max_v|; but if the page is too large,
   |goto done|@>;
