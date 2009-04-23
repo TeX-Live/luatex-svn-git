@@ -15592,6 +15592,7 @@ accurary.
 @ @<Set init...@>=
 one_hundred_inch := 7227 * 65536; {exact, 473628672}
 one_inch := (one_hundred_inch + 50) div 100; {rounded to 4736287}
+one_true_inch := one_inch;
 one_hundred_bp := one_hundred_inch div 72; {exact, 6578176}
 one_bp := (one_hundred_bp + 50) div 100; {rounded to 65782}
 ten_pow[0] := 1;
