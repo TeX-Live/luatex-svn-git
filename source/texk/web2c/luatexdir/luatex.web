@@ -7115,6 +7115,12 @@ if (mag<=0)or(mag>32768) then
   help1("The magnification ratio must be between 1 and 32768.");
   int_error(mag); geq_word_define(int_base+mag_code,1000);
   end;
+if (mag_set=0) and (mag<>mag_set) then begin
+  if mag<>1000 then
+    one_true_inch:=xn_over_d(one_hundred_inch,10,mag)
+  else
+    one_true_inch:=one_inch;
+end;
 mag_set:=mag;
 end;
 
@@ -13913,10 +13919,6 @@ if total_pages=0 then
 @^preamble of \.{DVI} file@>
   dvi_four(25400000); dvi_four(473628672); {conversion ratio for sp}
   prepare_mag; dvi_four(mag); {magnification factor is frozen}
-  if mag<>1000 then
-    one_true_inch:=xn_over_d(one_hundred_inch,10,mag)
-  else
-    one_true_inch:=one_inch;
   old_setting:=selector; selector:=new_string;
   print(" LuaTeX output "); print_int(year); print_char(".");
   print_two(month); print_char("."); print_two(day);
@@ -17616,10 +17618,6 @@ done:
 
 @ @<Initialize variables as |pdf_ship_out| begins@>=
 prepare_mag;
-if mag<>1000 then
-  one_true_inch:=xn_over_d(one_hundred_inch,10,mag)
-else
-  one_true_inch:=one_inch;
 temp_ptr:=p;
 pdf_last_resources := pdf_new_objnum;
 @<Reset resource lists@>;
@@ -24298,19 +24296,19 @@ might be necessary.  Good first step.}
   end
 else if (p>=dimen_base)and(p<eqtb_size) then begin
   if p=(dimen_base+page_left_offset_code) then begin
-    n:=cur_val - one_inch;
+    n:=cur_val - one_true_inch;
     word_define(dimen_base+h_offset_code, n);
     end
   else if p=(dimen_base+h_offset_code) then begin
-    n:=cur_val + one_inch;
+    n:=cur_val + one_true_inch;
     word_define(dimen_base+page_left_offset_code, n);
     end
   else if p=(dimen_base+page_top_offset_code) then begin
-    n:=cur_val - one_inch;
+    n:=cur_val - one_true_inch;
     word_define(dimen_base+v_offset_code, n);
     end
   else if p=(dimen_base+v_offset_code) then begin
-    n:=cur_val + one_inch;
+    n:=cur_val + one_true_inch;
     word_define(dimen_base+page_top_offset_code, n);
     end;
   word_define(p,cur_val);
