@@ -22577,7 +22577,7 @@ static char *mplib_read_ascii_file(MP mp, void *ff, size_t * size)
         if (s == NULL)
             return NULL;
         while (c != EOF && c != '\n' && c != '\r') {
-            if (len == lim) {
+            if (len >= (lim-1)) {
                 s = xrealloc(s, (lim + (lim >> 2)),1);
                 if (s == NULL)
                     return NULL;
