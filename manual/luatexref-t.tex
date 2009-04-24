@@ -1795,7 +1795,7 @@ control sequences \type{\LuaTeXformatname} is currently undefined.
 Second example:
 
 \starttyping
-  tex.enableprimitives('Omega',tex.primitives ('omega'))
+  tex.enableprimitives('Omega',tex.extraprimitives ('omega'))
 \stoptyping
 
 will define a whole series of csnames like \type{\Omegatextdir},
@@ -1811,7 +1811,7 @@ their default names, as it is now, you will have to add
 
 \starttyping
   \expandafter\ifx\csname directlua\endcsname \relax \else
-     \directlua {tex.enableprimitives('',tex.primitives ())}
+     \directlua {tex.enableprimitives('',tex.extraprimitives ())}
   \fi
 \stoptyping
 
