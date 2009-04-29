@@ -1320,7 +1320,7 @@ void set_math_char(mathcodeval mval)
           case 3: subtype(p) = rel_noad_type; break;
           case 4: subtype(p) = open_noad_type; break;
           case 5: subtype(p) = close_noad_type; break;
-          case 6: subtype(p) = inner_noad_type; break;
+          case 6: subtype(p) = punct_noad_type; break;
           }
         }
         vlink(tail) = p;
