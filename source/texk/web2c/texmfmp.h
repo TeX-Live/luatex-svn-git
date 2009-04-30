@@ -45,6 +45,13 @@ typedef void* voidpointer;
 #endif
 #endif
 
+/* Executing shell commands.  */
+extern void mk_shellcmdlist (char *);
+extern void init_shell_escape (void);
+extern int shell_cmd_is_allowed (char **cmd, char **safecmd, char **cmdname);
+extern int runsystem (char *cmd);
+
+
 #ifndef luaTeX /* everything */
 
 /* Some things are the same except for the name.  */
@@ -110,12 +117,6 @@ extern boolean open_in_or_pipe P3H(FILE **, int, const_string fopen_mode);
 extern boolean open_out_or_pipe P2H(FILE **, const_string fopen_mode);
 extern void close_file_or_pipe P1H(FILE *);
 #endif
-
-/* Executing shell commands.  */
-extern void mk_shellcmdlist (char *);
-extern void init_shell_escape (void);
-extern int shell_cmd_is_allowed (char **cmd, char **safecmd, char **cmdname);
-extern int runsystem (char *cmd);
 
 /* All but the Omega family use this. */
 #if !defined(Aleph)
