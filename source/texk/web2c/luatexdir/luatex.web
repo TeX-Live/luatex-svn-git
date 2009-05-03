@@ -14809,24 +14809,22 @@ for the DVI origin depending on the |page_direction|.}
 dvi_direction:=page_direction;
 case box_direction(dvi_direction) of
 dir_TL_,dir_LT_: begin
-  cur.h := page_left_offset;
-  cur.v := page_top_offset;
+  cur.h := h_offset;
+  cur.v := v_offset;
   end;
 dir_TR_,dir_RT_: begin
-  cur.h := cur_page_size.h - page_right_offset;
-  cur.v := page_top_offset;
+  cur.h := cur_page_size.h - page_right_offset - one_true_inch;
+  cur.v := v_offset;
   end;
 dir_BL_,dir_LB_: begin
-  cur.h := page_left_offset;
-  cur.v := cur_page_size.v - page_bottom_offset;
+  cur.h := h_offset;
+  cur.v := cur_page_size.v - page_bottom_offset - one_true_inch;
   end;
 dir_RB_,dir_BR_: begin
-  cur.h := cur_page_size.h - page_right_offset;
-  cur.v := cur_page_size.v - page_bottom_offset;
+  cur.h := cur_page_size.h - page_right_offset - one_true_inch;
+  cur.v := cur_page_size.v - page_bottom_offset - one_true_inch;
   end;
 end;
-cur.h := cur.h - one_true_inch; {correct for DVI origin}
-cur.v := cur.v - one_true_inch;
 {The movement is actually done within the upright page coordinate system.}
 dvi_direction := dir_TL_; {only temporarily for this adjustment}
 synch_pos_with_cur; box_pos := pos; {keep track on page}
@@ -17665,24 +17663,22 @@ if is_shipping_page then begin
     dvi_direction:=page_direction;
     case box_direction(dvi_direction) of
     dir_TL_,dir_LT_: begin
-      cur.h := page_left_offset;
-      cur.v := page_top_offset;
+      cur.h := h_offset;
+      cur.v := v_offset;
       end;
     dir_TR_,dir_RT_: begin
-      cur.h := cur_page_size.h - page_right_offset;
-      cur.v := page_top_offset;
+      cur.h := cur_page_size.h - page_right_offset - one_true_inch;
+      cur.v := v_offset;
       end;
     dir_BL_,dir_LB_: begin
-      cur.h := page_left_offset;
-      cur.v := cur_page_size.v - page_bottom_offset;
+      cur.h := h_offset;
+      cur.v := cur_page_size.v - page_bottom_offset - one_true_inch;
       end;
     dir_RB_,dir_BR_: begin
-      cur.h := cur_page_size.h - page_right_offset;
-      cur.v := cur_page_size.v - page_bottom_offset;
+      cur.h := cur_page_size.h - page_right_offset - one_true_inch;
+      cur.v := cur_page_size.v - page_bottom_offset - one_true_inch;
       end;
     end;
-    cur.h := cur.h - one_true_inch; {correct for DVI origin}
-    cur.v := cur.v - one_true_inch;
     {The movement is actually done within the upright page coordinate system.}
     dvi_direction := dir_TL_; {only temporarily for this adjustment}
     synch_pos_with_cur; box_pos := pos; {keep track on page}
