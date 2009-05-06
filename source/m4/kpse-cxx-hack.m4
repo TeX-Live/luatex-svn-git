@@ -1,4 +1,4 @@
-# Public macros for the teTeX / TeX Live (TL) tree.
+# Public macros for the TeX Live (TL) tree.
 # Copyright (C) 2002 Olaf Weber <olaf@infovore.xs4all.nl>
 # Copyright (C) 2009 Peter Breitenlohner <tex-live@tug.org>
 #
@@ -41,7 +41,7 @@ if test "x$kpse_cv_cxx_hack" = xok; then
 set -- $CXX \"\$[]@\" $CXX_HACK_LIBS
 echo \"\$[]0:\" \"\$[]@\"
 exec \"\$[]@\""
-  AC_CONFIG_FILES([CXXLD.sh:Makefile.in],
+  AC_CONFIG_FILES([CXXLD.sh:README],
                   [echo "$cxxld_sh" >CXXLD.sh; chmod +x CXXLD.sh],
                   [cxxld_sh='$cxxld_sh'])
 else

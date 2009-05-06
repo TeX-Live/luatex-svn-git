@@ -1,4 +1,4 @@
-# Private macros for the teTeX / TeX Live (TL) tree.
+# Private macros for the TeX Live (TL) tree.
 # Copyright (C) 2009 Peter Breitenlohner <tex-live@tug.org>
 #
 # This file is free software; the copyright holder
@@ -45,6 +45,7 @@ AC_REQUIRE([KPSE_T1LIB_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_FREETYPE_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_FREETYPE2_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_GD_SYSTEM_FLAGS])[]dnl
+AC_REQUIRE([KPSE_XPDF_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_GRAPHITE_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_TECKIT_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_KPATHSEA_SYSTEM_FLAGS])[]dnl

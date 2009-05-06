@@ -45,13 +45,6 @@ typedef void* voidpointer;
 #endif
 #endif
 
-/* Executing shell commands.  */
-extern void mk_shellcmdlist (char *);
-extern void init_shell_escape (void);
-extern int shell_cmd_is_allowed (char **cmd, char **safecmd, char **cmdname);
-extern int runsystem (char *cmd);
-
-
 #ifndef luaTeX /* everything */
 
 /* Some things are the same except for the name.  */
@@ -112,11 +105,17 @@ extern boolean openinnameok P1H(const_string);
 extern boolean openoutnameok P1H(const_string);
 
 /* pdfTeX uses these for pipe support */
-#if defined(pdfTeX) || defined(pdfeTeX) || defined (luaTeX)
+#if defined(pdfTeX)
 extern boolean open_in_or_pipe P3H(FILE **, int, const_string fopen_mode);
 extern boolean open_out_or_pipe P2H(FILE **, const_string fopen_mode);
 extern void close_file_or_pipe P1H(FILE *);
 #endif
+
+/* Executing shell commands.  */
+extern void mk_shellcmdlist (char *);
+extern void init_shell_escape (void);
+extern int shell_cmd_is_allowed (char **cmd, char **safecmd, char **cmdname);
+extern int runsystem (char *cmd);
 
 /* All but the Omega family use this. */
 #if !defined(Aleph)
@@ -207,7 +206,7 @@ extern void setupboundvariable P3H(integer *, const_string, integer);
 /* These defines reroute the file i/o calls to the new pipe-enabled 
    functions in texmfmp.c*/
 
-#if defined(pdfTeX) || defined(pdfeTeX)
+#if defined(pdfTeX)
 #undef aopenin
 #undef aopenout
 #undef aclose
@@ -384,6 +383,12 @@ extern boolean openoutnameok P1H(const_string);
 extern boolean open_in_or_pipe P3H(FILE **, int, const_string fopen_mode);
 extern boolean open_out_or_pipe P2H(FILE **, const_string fopen_mode);
 extern void close_file_or_pipe P1H(FILE *);
+
+/* Executing shell commands.  */
+extern void mk_shellcmdlist (char *);
+extern void init_shell_escape (void);
+extern int shell_cmd_is_allowed (char **cmd, char **safecmd, char **cmdname);
+extern int runsystem (char *cmd);
 
 #ifndef GLUERATIO_TYPE
 #define GLUERATIO_TYPE double

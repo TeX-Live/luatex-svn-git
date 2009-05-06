@@ -1,4 +1,4 @@
-# Private macros for the teTeX / TeX Live (TL) tree.
+# Private macros for the TeX Live (TL) tree.
 # Copyright (C) 2009 Peter Breitenlohner <tex-live@tug.org>
 #
 # This file is free software; the copyright holder
@@ -9,7 +9,7 @@
 
 # KPSE_SETUP(TOP-LEVEL)
 # ---------------------
-# Initialize path prefix kpse_TL to top-level teTeX / TeX Live (TL) directory.
+# Initialize path prefix kpse_TL to top-level TeX Live (TL) directory.
 # Sinclude all withenable.ac files providing:
 #   configure options --with-system-LIB, --with-LIB-includes, and --with-LIB-libdir
 #     for libraries
@@ -23,8 +23,30 @@ AC_ARG_ENABLE([all-pkgs],
               AS_HELP_STRING([--disable-all-pkgs],
                              [do not build packages unless explicitly enabled]))[]dnl
 test "x$enable_all_pkgs" = xno || enable_all_pkgs=yes
-KPSE_ENABLE_CXX_HACK
+AC_ARG_ENABLE([native-texlive-build],
+              AS_HELP_STRING([--disable-native-texlive-build],
+                             [do not build for the TeX Live binary distribution]))[]dnl
+AS_CASE([$enable_native_texlive_build],
+        [yes | no], [:],
+        [enable_native_texlive_build=yes
+         ac_configure_args="$ac_configure_args '--enable-native-texlive-build'"])
+if test "x$enable_native_texlive_build" = xyes; then
+  AS_CASE([$enable_multiplatform],
+          [yes | no], [:],
+          [enable_multiplatform=yes
+           ac_configure_args="$ac_configure_args '--enable-multiplatform'"])
+  AS_CASE([$enable_cxx_runtime_hack],
+          [yes | no], [:],
+          [enable_cxx_runtime_hack=yes
+           ac_configure_args="$ac_configure_args '--enable-cxx-runtime-hack'"])
+  AS_CASE([$enable_shared],
+          [yes | no], [:],
+          [enable_shared=no
+           ac_configure_args="$ac_configure_args '--disable-shared'"])
+fi
 KPSE_OPTIONS
+KPSE_ENABLE_CXX_HACK
+KPSE_LIBS_PREPARE
 KPSE_WEB2C_PREPARE
 m4_sinclude(kpse_TL[ac/withenable.ac])
 m4_sinclude(kpse_TL[utils/ac/withenable.ac])
@@ -36,56 +58,46 @@ m4_sinclude(kpse_TL[libs/ac/withenable.ac])
 KPSE_FOR_PKGS([libs], [m4_sinclude(kpse_TL[libs/]Kpse_Pkg[/ac/withenable.ac])])
 ]) # KPSE_SETUP
 
-# KPSE_WITH_PROG(PROG, REQUIRED-LIBS, OPTIONS, [COMMENT])
-# -------------------------------------------------------
-# Provide the configure option --enable-PROG if the option `without' is
+# KPSE_ENABLE_PROG(PROG, REQUIRED-LIBS, OPTIONS, [COMMENT])
+# ---------------------------------------------------------
+# Provide the configure option --enable-PROG if the option `disable' is
 # specified, or -disable-PROG otherwise.
 # Define the list of libraries required from the TL tree (if any).
-# Options: 
-#          without - do not build by default
-AC_DEFUN([KPSE_WITH_PROG],
-[m4_pushdef([Kpse_with], m4_if(m4_index([ $3 ], [ without ]), [-1], [yes], [no]))[]dnl
+# Options:
+#          disable - do not build by default
+AC_DEFUN([KPSE_ENABLE_PROG],
+[m4_pushdef([Kpse_enable], m4_if(m4_index([ $3 ], [ disable ]), [-1], [yes], [no]))[]dnl
 AC_ARG_ENABLE([$1],
-              AS_HELP_STRING([[--]m4_if(Kpse_with, [yes], [dis], [en])[able-$1]],
-                              m4_if(Kpse_with, [yes],
+              AS_HELP_STRING([[--]m4_if(Kpse_enable, [yes], [dis], [en])[able-$1]],
+                              m4_if(Kpse_enable, [yes],
                                     [do not ])[build the $1 ]m4_ifval([$4],
                                                                       [($4) ])[package]))[]dnl
 case $enable_[]AS_TR_SH($1) in #(
   yes|no);; #(
-  *) enable_[]AS_TR_SH($1)=m4_if(Kpse_with, [yes], [$enable_all_pkgs], [no])
+  *) enable_[]AS_TR_SH($1)=m4_if(Kpse_enable, [yes], [$enable_all_pkgs], [no])
      AC_MSG_NOTICE([Assuming `--enable-$1=$enable_]AS_TR_SH($1)['])
      ac_configure_args="$ac_configure_args '--enable-$1=$enable_[]AS_TR_SH($1)'";;
 esac
-m4_popdef([Kpse_with])[]dnl
+m4_popdef([Kpse_enable])[]dnl
 m4_ifval([$2], [
 test "x$enable_[]AS_TR_SH($1)" = xno || {
 AC_FOREACH([Kpse_Lib], [$2], [  need_[]AS_TR_SH(Kpse_Lib)=yes
 ])}
 ])[]dnl m4_ifval
-]) # KPSE_WITH_PROG
+]) # KPSE_ENABLE_PROG
 
-# KPSE_WITH_LIB(LIB, REQUIRED-LIBS, OPTIONS, [COMMENT-SYS],
-                [COMMENT-INC], [COMMENT-LIB])
+# KPSE_WITH_LIB(LIB, REQUIRED-LIBS, OPTIONS)
 # ---------------------------------------------------------
 # Unless the option `tree' is specified, provide the configure options
 # --with-system-LIB, --with-LIB-includes, and --with-LIB-libdir.
 # Define the list of libraries required from the TL tree (if any).
-# Options: 
+# Options:
 #          tree - only use library from the TL tree
-# The last three arguments are optional additions to the help texts.
 #
 # At the top-level we build a (reversed) list of potential system libraries.
 AC_DEFUN([KPSE_WITH_LIB],
 [m4_if(m4_index([ $3 ], [ tree ]), [-1],
-[AC_ARG_WITH([system-$1],
-             [AS_HELP_STRING([--with-system-$1],
-                             [use installed $1 headers and library]m4_ifval([$4], [ ($4)]))])[]dnl
-AC_ARG_WITH([$1-includes],
-            [AS_HELP_STRING([--with-$1-includes=DIR],
-                            [$1 headers installed in DIR]m4_ifval([$5], [ ($5)]))])[]dnl
-AC_ARG_WITH([$1-libdir],
-            [AS_HELP_STRING([--with-$1-libdir=DIR],
-                            [$1 library installed in DIR]m4_ifval([$6], [ ($6)]))])[]dnl
+[KPSE_]AS_TR_CPP([$1])[_OPTIONS([with-system])[]dnl
 if test "x$with_system_[]AS_TR_SH($1)" = x; then
   if test -f $srcdir/kpse_TL[]m4_if([$1], [kpathsea], [texk], [libs])/$1/configure; then
     AC_MSG_NOTICE([Assuming `$1' headers and library from TL tree])
