@@ -32,7 +32,7 @@ AC_DEFUN([KPSE_XPDF_OPTIONS],
 # ----------------------
 AC_DEFUN([KPSE_XPDF_SYSTEM_FLAGS],
 [AC_REQUIRE([_KPSE_CHECK_PKG_CONFIG])[]dnl
-if $PKG_CONFIG poppler --atleast-version=0.10; then
+if $PKG_CONFIG poppler --atleast-version=0.8; then
   POPPLER_VERSION='-DPOPPLER_VERSION=\"'`$PKG_CONFIG poppler --modversion`'\"'
   XPDF_INCLUDES=`$PKG_CONFIG poppler --cflags`
   XPDF_INCLUDES=`echo $XPDF_INCLUDES`
