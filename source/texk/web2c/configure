@@ -23756,7 +23756,7 @@ if test "${with_system_xpdf+set}" = set; then
   withval=$with_system_xpdf;
 fi
 if test "x$with_system_xpdf" = xyes; then
-  if $PKG_CONFIG poppler --atleast-version=0.10; then
+  if $PKG_CONFIG poppler --atleast-version=0.8; then
   POPPLER_VERSION='-DPOPPLER_VERSION=\"'`$PKG_CONFIG poppler --modversion`'\"'
   XPDF_INCLUDES=`$PKG_CONFIG poppler --cflags`
   XPDF_INCLUDES=`echo $XPDF_INCLUDES`
