@@ -42,8 +42,8 @@
 #include "png.h"
 #ifdef POPPLER_VERSION
 #define xpdfString "poppler"
-#define xpdfVersion POPPLER_VERSION
 #include "poppler-config.h"
+#define xpdfVersion POPPLER_VERSION
 #else
 #define xpdfString "xpdf"
 #include "xpdf/config.h"        /* just to get the xpdf version */
