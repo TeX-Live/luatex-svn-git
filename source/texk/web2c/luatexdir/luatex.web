@@ -249,9 +249,9 @@ known as `\eTeX'.
 @d pdftex_revision=="0" { \.{\\pdftexrevision} }
 @d pdftex_version_string=='-2.00.0' {current \pdfTeX\ version}
 @#
-@d luatex_version==40 { \.{\\luatexversion} }
-@d luatex_revision=="1" { \.{\\luatexrevision} }
-@d luatex_version_string=='beta-0.40.1' {current \LuaTeX\ version}
+@d luatex_version==41 { \.{\\luatexversion} }
+@d luatex_revision=="0" { \.{\\luatexrevision} }
+@d luatex_version_string=='beta-0.41.0' {current \LuaTeX\ version}
 @d luatex_date_info==-extra_version_info { the compile date is negated }
 @d luatex_svnversion=='$Id$'
    {for long --version information, as proposed by Peter M\"unster}
@@ -5413,7 +5413,8 @@ primitive_tex("errhelp",assign_toks,err_help_loc,local_base);
 primitive_pdftex("pdfpagesattr",assign_toks,pdf_pages_attr_loc,local_base);
 @!@:pdf_pages_attr_}{\.{\\pdfpagesattr} primitive@>
 primitive_pdftex("pdfpageattr",assign_toks,pdf_page_attr_loc,local_base);
-@!@:pdf_page_attr_}{\.{\\pdfpageattr} primitive@>
+@!@:pdf_page_attr_}{\.{\\pdfpageattmooi
+r} primitive@>
 primitive_pdftex("pdfpageresources",assign_toks,pdf_page_resources_loc,local_base);
 @!@:pdf_page_resources_}{\.{\\pdfpageresources} primitive@>
 primitive_pdftex("pdfpkmode",assign_toks,pdf_pk_mode_loc,local_base);
