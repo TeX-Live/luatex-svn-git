@@ -682,8 +682,9 @@ ac_subst_files=''
 ac_user_opts='
 enable_option_checking
 enable_all_pkgs
-enable_cxx_runtime_hack
+enable_native_texlive_build
 enable_multiplatform
+enable_cxx_runtime_hack
 enable_web2c
 with_editor
 enable_auto_core
@@ -719,6 +720,7 @@ enable_mkocp_default
 enable_mkofm_default
 enable_mktexfmt_default
 enable_mktextex_default
+with_system_xpdf
 with_system_libpng
 with_libpng_includes
 with_libpng_libdir
@@ -1372,9 +1374,11 @@ Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --disable-all-pkgs      do not build packages unless explicitly enabled
-  --enable-cxx-runtime-hack  link C++ runtime statically
+  --disable-native-texlive-build
+                          do not build for the TeX Live binary distribution
   --enable-multiplatform  put executables into bin/PLATFORM and libraries into
                           lib/PLATFORM
+  --enable-cxx-runtime-hack  link C++ runtime statically
   --disable-web2c         do not build the web2c (TeX & Co.) package
   --enable-auto-core        cause TeX&MF to dump core, given a certain
                             filename
@@ -1420,6 +1424,8 @@ Optional Packages:
                           kpathsea headers installed in DIR
   --with-kpathsea-libdir=DIR
                           kpathsea library installed in DIR
+  --with-system-xpdf      use installed poppler headers and library instead of
+                          xpdf (requires pkg-config)
   --with-system-libpng    use installed libpng headers and library
   --with-libpng-includes=DIR
                           libpng headers installed in DIR
@@ -2001,11 +2007,36 @@ if test "${enable_all_pkgs+set}" = set; then
   enableval=$enable_all_pkgs;
 fi
 test "x$enable_all_pkgs" = xno || enable_all_pkgs=yes
-# Check whether --enable-cxx-runtime-hack was given.
-if test "${enable_cxx_runtime_hack+set}" = set; then
-  enableval=$enable_cxx_runtime_hack;
+# Check whether --enable-native-texlive-build was given.
+if test "${enable_native_texlive_build+set}" = set; then
+  enableval=$enable_native_texlive_build;
 fi
+case $enable_native_texlive_build in
+  yes | no) : ;;
+  *) enable_native_texlive_build=yes
+         ac_configure_args="$ac_configure_args '--enable-native-texlive-build'" ;;
+esac
 
+if test "x$enable_native_texlive_build" = xyes; then
+  case $enable_multiplatform in
+  yes | no) : ;;
+  *) enable_multiplatform=yes
+           ac_configure_args="$ac_configure_args '--enable-multiplatform'" ;;
+esac
+
+  case $enable_cxx_runtime_hack in
+  yes | no) : ;;
+  *) enable_cxx_runtime_hack=yes
+           ac_configure_args="$ac_configure_args '--enable-cxx-runtime-hack'" ;;
+esac
+
+  case $enable_shared in
+  yes | no) : ;;
+  *) enable_shared=no
+           ac_configure_args="$ac_configure_args '--disable-shared'" ;;
+esac
+
+fi
 # Check whether --enable-multiplatform was given.
 if test "${enable_multiplatform+set}" = set; then
   enableval=$enable_multiplatform;
@@ -2020,6 +2051,12 @@ if test "x$enable_multiplatform" = xyes; then
     ac_configure_args="$ac_configure_args '--libdir=$libdir'"
   fi
 fi
+
+# Check whether --enable-cxx-runtime-hack was given.
+if test "${enable_cxx_runtime_hack+set}" = set; then
+  enableval=$enable_cxx_runtime_hack;
+fi
+
 
 
 ## ac/withenable.ac: configure.ac fragment for the TeX Live top-level
@@ -2333,6 +2370,23 @@ esac
 
 ## libs/xpdf/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/xpdf/
 ## configure options and TL libraries required for xpdf
+
+# Check whether --with-system-xpdf was given.
+if test "${with_system_xpdf+set}" = set; then
+  withval=$with_system_xpdf;
+fi
+if test "x$with_system_xpdf" = x; then
+  if test -f $srcdir/../libs/xpdf/configure; then
+    { $as_echo "$as_me:$LINENO: Assuming \`xpdf' headers and library from TL tree" >&5
+$as_echo "$as_me: Assuming \`xpdf' headers and library from TL tree" >&6;}
+    with_system_xpdf=no
+  else
+    { $as_echo "$as_me:$LINENO: Assuming installed \`xpdf' headers and library" >&5
+$as_echo "$as_me: Assuming installed \`xpdf' headers and library" >&6;}
+    with_system_xpdf=yes
+  fi
+  ac_configure_args="$ac_configure_args '--with-system-xpdf=$with_system_xpdf'"
+fi
 
 
 
