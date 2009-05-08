@@ -43,9 +43,6 @@ static const char _svn_version[] =
  *   SELFAUTOLOC  SELFAUTODIR  SELFAUTOPARENT  progname
  *
  */
-extern void mk_shellcmdlist(char *v);
-extern int shell_cmd_is_allowed(char **cmd, char **safecmd, char **cmdname);
-extern void init_shell_escape(void);
 
 extern string normalize_quotes(const_string name, const_string mesg);
 

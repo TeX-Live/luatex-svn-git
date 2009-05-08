@@ -49,11 +49,11 @@ DIST_COMMON = README $(am__configure_deps) $(dist_check_SCRIPTS) \
 	$(srcdir)/../../build-aux/install-sh \
 	$(srcdir)/../../build-aux/ltmain.sh \
 	$(srcdir)/../../build-aux/missing $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(srcdir)/alephdir/am/aleph.am \
-	$(srcdir)/am/bootstrap.am $(srcdir)/am/cweb.am \
-	$(srcdir)/am/texmf.am $(srcdir)/am/web.am $(srcdir)/c-auto.in \
-	$(srcdir)/etexdir/am/etex.am $(srcdir)/libmd5/am/md5.am \
-	$(srcdir)/luatexdir/am/liblua51.am \
+	$(srcdir)/Makefile.in $(srcdir)/README \
+	$(srcdir)/alephdir/am/aleph.am $(srcdir)/am/bootstrap.am \
+	$(srcdir)/am/cweb.am $(srcdir)/am/texmf.am $(srcdir)/am/web.am \
+	$(srcdir)/c-auto.in $(srcdir)/etexdir/am/etex.am \
+	$(srcdir)/libmd5/am/md5.am $(srcdir)/luatexdir/am/liblua51.am \
 	$(srcdir)/luatexdir/am/libluatex.am \
 	$(srcdir)/luatexdir/am/libzzip.am \
 	$(srcdir)/luatexdir/am/luafontforge.am \
@@ -120,8 +120,8 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = c-auto.h ff-config.h
-CONFIG_CLEAN_FILES = mpware/Makefile omegafonts/Makefile otps/Makefile \
-	window/Makefile
+CONFIG_CLEAN_FILES = CXXLD.sh mpware/Makefile omegafonts/Makefile \
+	otps/Makefile window/Makefile
 ARFLAGS = cru
 libff_a_AR = $(AR) $(ARFLAGS)
 libff_a_LIBADD =
@@ -533,6 +533,7 @@ FONTCONFIG_LIBS = @FONTCONFIG_LIBS@
 FREETYPE2_DEPEND = @FREETYPE2_DEPEND@
 FREETYPE2_INCLUDES = @FREETYPE2_INCLUDES@
 FREETYPE2_LIBS = @FREETYPE2_LIBS@
+FT2_CONFIG = @FT2_CONFIG@
 GRAPHITE_DEPEND = @GRAPHITE_DEPEND@
 GRAPHITE_INCLUDES = @GRAPHITE_INCLUDES@
 GRAPHITE_LIBS = @GRAPHITE_LIBS@
@@ -584,6 +585,7 @@ PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PKG_CONFIG = @PKG_CONFIG@
 RANLIB = @RANLIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
@@ -649,6 +651,7 @@ libexecdir = @libexecdir@
 localedir = @localedir@
 localstatedir = @localstatedir@
 lt_ECHO = @lt_ECHO@
+lua_socketlibs = @lua_socketlibs@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
@@ -658,7 +661,6 @@ program_transform_name = @program_transform_name@
 psdir = @psdir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
-socketlibs = @socketlibs@
 srcdir = @srcdir@
 subdirs = @subdirs@
 sysconfdir = @sysconfdir@
@@ -687,8 +689,8 @@ EXTRA_DIST = PROJECTS cftests config.h cpascal.h help.h tangle.web \
 	lib/mfmpi386.asm lib/mfmpw32.c lib/texmfmp.c texmfmem.h \
 	texmfmp-help.h texmfmp.h $(tex_ch_srcs) lib/texmfmp.c \
 	tmf-pool.h mf.web mf-binpool.ch mf.ch mftalk.h lib/texmfmp.c \
-	tmf-pool.h $(mpost_web) $(libmplib_web) mplibdir/lmplib.c \
-	$(luatex_sources) luatexdir/luatex.defines \
+	tmf-pool.h mplibdir/ChangeLog $(mpost_web) $(libmplib_web) \
+	mplibdir/lmplib.c $(luatex_sources) luatexdir/luatex.defines \
 	luatexdir/luatexextra.in luatexdir/ptexlib.h \
 	$(luatangle_sources) luatexdir/lua51/Makefile \
 	luatexdir/lua51/liolib.c luatexdir/lua51/lua.c \
@@ -825,12 +827,16 @@ DISTCLEANFILES = $(EXTRA_LIBRARIES) tangle.c tangle.h tangle.p \
 	luatangle.h luatangle-web2c luatangle.p cftest.p
 CLEANFILES = 
 web2c = srcdir=$(srcdir) $(SHELL) $(srcdir)/web2c/convert
-makecpool = ./web2c/makecpool
-web2c_common = web2c/convert web2c/common.defines
-web2c_programs = web2c/fixwrites web2c/splitup web2c/web2c $(makecpool)
-web2c_texmf = $(web2c_common) $(web2c_programs) \
-              web2c/texmf.defines web2c/coerce.h
+makecpool = web2c/makecpool
 
+# Additional dependencies:
+web2c_common = web2c/convert web2c/common.defines
+# When cross-compiling, EXEEXT for the build and hosts system may differ.
+# Thus we depend on the auxiliary files web2c/stamp-*.
+web2c_stamps = web2c/stamp-fixwrites web2c/stamp-splitup web2c/stamp-web2c
+makecpool_stamp = web2c/stamp-makecpool
+web2c_depend = $(web2c_common) $(web2c_stamps)
+web2c_texmf = $(web2c_depend) web2c/texmf.defines web2c/coerce.h
 LDADD = $(proglib) $(KPATHSEA_LIBS)
 buildenv = TEXMFCNF=$(srcdir)/../kpathsea
 tangle = WEBINPUTS=.:$(srcdir) $(buildenv) $(TANGLE)
@@ -869,7 +875,11 @@ nodist_ctie_SOURCES = ctie.c
 nodist_cweave_SOURCES = cweave.c cweb.c
 nodist_tie_SOURCES = tie.c
 tex_CPPFLAGS = 
+
+# With --enable-ipc, TeX may need to link with -lsocket.
 tex_LDADD = $(LDADD) $(ipc_socketlibs)
+
+# TeX C sources
 tex_c_h = texini.c tex0.c tex1.c tex2.c texcoerce.h texd.h
 nodist_tex_SOURCES = $(tex_c_h) tex-pool.c texextra.c
 tex_ch_srcs = \
@@ -886,6 +896,8 @@ mf_LDADD = libmf.a $(LDADD) $(windowlib) $(mf_x_libs)
 @MFN_TRUE@mf_nowin_LDADD = libmf.a $(LDADD) $(windowlib)
 windowlib = window/libwindow.a
 mf_x_libs = $(X_LIBS) $(x_tool_libs) $(X_PRE_LIBS) $(x_ext_lib) $(wlibs) $(X_EXTRA_LIBS)
+
+# Metafont C sources
 mf_c_h = mfini.c mf0.c mf1.c mfcoerce.h mfd.h
 nodist_libmf_a_SOURCES = $(mf_c_h) mf-pool.c
 libmf_a_CPPFLAGS = -DMETA_FONT
@@ -914,7 +926,7 @@ luatex_CPPFLAGS = $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(XPDF_INCLUDES) \
 luatex_ldadd = libluatex.a libff.a libluamisc.a libzzip.a \
 	libluasocket.a liblua51.a $(LIBPNG_LIBS) $(ZLIB_LIBS) \
 	$(XPDF_LIBS) $(OBSDCOMPAT_LIBS) libmd5.a libmplib.a
-luatex_LDADD = $(luatex_ldadd) $(LDADD) $(socketlibs)
+luatex_LDADD = $(luatex_ldadd) $(LDADD) $(lua_socketlibs)
 luatex_DEPENDENCIES = $(proglib) libluatex.a $(LIBPNG_DEPEND) \
 	$(ZLIB_DEPEND) $(XPDF_DEPEND) $(OBSDCOMPAT_DEPEND) libmd5.a \
 	libmplib.a
@@ -1373,6 +1385,8 @@ stamp-h2: $(top_srcdir)/luatexdir/luafontloader/ff-config.in $(top_builddir)/con
 
 distclean-hdr:
 	-rm -f c-auto.h stamp-h1 ff-config.h stamp-h2
+CXXLD.sh: $(top_builddir)/config.status $(srcdir)/README
+	cd $(top_builddir) && $(SHELL) ./config.status $@
 mpware/Makefile: $(top_builddir)/config.status $(top_srcdir)/mpware/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 omegafonts/Makefile: $(top_builddir)/config.status $(top_srcdir)/omegafonts/Makefile.in
@@ -5598,8 +5612,14 @@ dist-hook:
 $(proglib): $(KPATHSEA_DEPEND) ${srcdir}/lib/*.c
 	cd lib && $(MAKE) $(AM_MAKEFLAGS)
 
-$(web2c_programs): $(web2c_common) ${srcdir}/web2c/*.[chly]
-	cd web2c && $(MAKE) $(AM_MAKEFLAGS)
+web2c/stamp-fixwrites: $(web2c_common) ${srcdir}/web2c/*.[chly]
+	cd web2c && $(MAKE) $(AM_MAKEFLAGS) stamp-fixwrites
+web2c/stamp-splitup: $(web2c_common) ${srcdir}/web2c/*.[chly]
+	cd web2c && $(MAKE) $(AM_MAKEFLAGS) stamp-splitup
+web2c/stamp-web2c: $(web2c_common) ${srcdir}/web2c/*.[chly]
+	cd web2c && $(MAKE) $(AM_MAKEFLAGS) stamp-web2c
+web2c/stamp-makecpool: $(web2c_common) ${srcdir}/web2c/makecpool.c
+	cd web2c && $(MAKE) $(AM_MAKEFLAGS) stamp-makecpool
 
 @KPATHSEA_RULE@
 @ZLIB_RULE@
@@ -5617,6 +5637,10 @@ tangle-web2c: tangle.p
 	$(web2c) tangle
 	echo timestamp >$@
 	touch tangle.c tangle.h
+# tangle.p is a special case, since it is needed to compile itself.  We
+# convert and compile the (distributed) tangleboot.p to make a tangle
+# which we use to make the other programs.  We depend on tangleboot, even
+# though we might not use it.
 tangle.p: tangleboot$(EXEEXT) tangle.web tangle.ch
 	WEBINPUTS=.:$(srcdir) $(tangleboot) tangle tangle
 tangle.web:
@@ -5629,10 +5653,14 @@ tangle.web:
 	@echo "In any case, you can get it from" >&2
 	@echo "ftp://ftp.tug.org/tex/web.tar.gz." >&2
 	false
-tangleboot.c tangleboot.h: stamp-tangle $(web2c_programs) $(web2c_common)
+tangleboot.c tangleboot.h: stamp-tangle $(web2c_depend)
 	$(web2c) tangleboot
+# tangleboot.p is in the distribution
 stamp-tangle: tangleboot.p
 	date >stamp-tangle
+# This is not run unless tangle.web or tangle.ch is changed.
+# Only try to run ./tangle if it actually exists, otherwise
+# just touch tangleboot.p and build tangle.
 tangleboot.p: tangle.web tangle.ch
 	if [ -r $(TANGLE) ] || [ -r $(TANGLE).exe ]; then \
 	  $(tangle) tangle tangle; \
@@ -5644,12 +5672,19 @@ tangleboot.p: tangle.web tangle.ch
 	fi
 	date >stamp-tangle
 	$(MAKE) $(AM_MAKEFLAGS) tangle$(EXEEXT)
+# ctangle.c is a special case, since it is needed to compile itself.
+# We depend on ctangleboot, even though we might not use it.
 ctangle.c: ctangleboot$(EXEEXT) cwebdir/ctangle.w cwebdir/ctang-w2c.ch
 	CWEBINPUTS=$(srcdir)/cwebdir $(ctangleboot) ctangle ctang-w2c
 cweb.c: ctangleboot$(EXEEXT) cwebdir/common.w cwebdir/comm-w2c.ch
 	CWEBINPUTS=$(srcdir)/cwebdir $(ctangleboot) common comm-w2c cweb.c
+# ctangleboot.c and cwebboot.c are in the distribution
 stamp-ctangle: ctangleboot.c cwebboot.c
 	date >stamp-ctangle
+# This is not run unless one of the cwebdir/* files is changed.
+# Only try to run ./ctangle if it actually exists, otherwise
+# just touch ctangleboot.c and/or cwebboot.c and build ctangle.
+# We must serialize this.
 ctangleboot.c: cwebboot.c cwebdir/ctangle.w cwebdir/ctang-w2c.ch
 	if [ -r $(CTANGLE) ] || [ -r $(CTANGLE).exe ]; then \
 	  CWEBINPUTS=$(srcdir)/cwebdir $(ctangle) ctangle ctang-w2c; \
@@ -5671,119 +5706,119 @@ cwebboot.c: cwebdir/common.w cwebdir/comm-w2c.ch
 	  cp $(srcdir)/cwebboot.c .; \
 	fi
 bibtex.c bibtex.h: bibtex-web2c
-bibtex-web2c: $(web2c_common) $(web2c_programs) web2c/cvtbib.sed bibtex.p
+bibtex-web2c: $(web2c_depend) web2c/cvtbib.sed bibtex.p
 	$(web2c) bibtex
 	echo timestamp >$@
 	touch bibtex.c bibtex.h
 bibtex.p: tangle$(EXEEXT) bibtex.web bibtex.ch
 	$(tangle) bibtex bibtex
 dvicopy.c dvicopy.h: dvicopy-web2c
-dvicopy-web2c: $(web2c_common) $(web2c_programs) dvicopy.p
+dvicopy-web2c: $(web2c_depend) dvicopy.p
 	$(web2c) dvicopy
 	echo timestamp >$@
 	touch dvicopy.c dvicopy.h
 dvicopy.p: tangle$(EXEEXT) dvicopy.web dvicopy.ch
 	$(tangle) dvicopy dvicopy
 dvitomp.c dvitomp.h: dvitomp-web2c
-dvitomp-web2c: $(web2c_common) $(web2c_programs) dvitomp.p
+dvitomp-web2c: $(web2c_depend) dvitomp.p
 	$(web2c) dvitomp
 	echo timestamp >$@
 	touch dvitomp.c dvitomp.h
 dvitomp.p: tangle$(EXEEXT) dvitomp.web dvitomp.ch
 	$(tangle) dvitomp dvitomp
 dvitype.c dvitype.h: dvitype-web2c
-dvitype-web2c: $(web2c_common) $(web2c_programs) dvitype.p
+dvitype-web2c: $(web2c_depend) dvitype.p
 	$(web2c) dvitype
 	echo timestamp >$@
 	touch dvitype.c dvitype.h
 dvitype.p: tangle$(EXEEXT) dvitype.web dvitype.ch
 	$(tangle) dvitype dvitype
 gftodvi.c gftodvi.h: gftodvi-web2c
-gftodvi-web2c: $(web2c_common) $(web2c_programs) gftodvi.p
+gftodvi-web2c: $(web2c_depend) gftodvi.p
 	$(web2c) gftodvi
 	echo timestamp >$@
 	touch gftodvi.c gftodvi.h
 gftodvi.p: tangle$(EXEEXT) gftodvi.web gftodvi.ch
 	$(tangle) gftodvi gftodvi
 gftopk.c gftopk.h: gftopk-web2c
-gftopk-web2c: $(web2c_common) $(web2c_programs) gftopk.p
+gftopk-web2c: $(web2c_depend) gftopk.p
 	$(web2c) gftopk
 	echo timestamp >$@
 	touch gftopk.c gftopk.h
 gftopk.p: tangle$(EXEEXT) gftopk.web gftopk.ch
 	$(tangle) gftopk gftopk
 gftype.c gftype.h: gftype-web2c
-gftype-web2c: $(web2c_common) $(web2c_programs) gftype.p
+gftype-web2c: $(web2c_depend) gftype.p
 	$(web2c) gftype
 	echo timestamp >$@
 	touch gftype.c gftype.h
 gftype.p: tangle$(EXEEXT) gftype.web gftype.ch
 	$(tangle) gftype gftype
 mft.c mft.h: mft-web2c
-mft-web2c: $(web2c_common) $(web2c_programs) mft.p
+mft-web2c: $(web2c_depend) mft.p
 	$(web2c) mft
 	echo timestamp >$@
 	touch mft.c mft.h
 mft.p: tangle$(EXEEXT) mft.web mft.ch
 	$(tangle) mft mft
 patgen.c patgen.h: patgen-web2c
-patgen-web2c: $(web2c_common) $(web2c_programs) patgen.p
+patgen-web2c: $(web2c_depend) patgen.p
 	$(web2c) patgen
 	echo timestamp >$@
 	touch patgen.c patgen.h
 patgen.p: tangle$(EXEEXT) patgen.web patgen.ch
 	$(tangle) patgen patgen
 pktogf.c pktogf.h: pktogf-web2c
-pktogf-web2c: $(web2c_common) $(web2c_programs) pktogf.p
+pktogf-web2c: $(web2c_depend) pktogf.p
 	$(web2c) pktogf
 	echo timestamp >$@
 	touch pktogf.c pktogf.h
 pktogf.p: tangle$(EXEEXT) pktogf.web pktogf.ch
 	$(tangle) pktogf pktogf
 pktype.c pktype.h: pktype-web2c
-pktype-web2c: $(web2c_common) $(web2c_programs) pktype.p
+pktype-web2c: $(web2c_depend) pktype.p
 	$(web2c) pktype
 	echo timestamp >$@
 	touch pktype.c pktype.h
 pktype.p: tangle$(EXEEXT) pktype.web pktype.ch
 	$(tangle) pktype pktype
 pltotf.c pltotf.h: pltotf-web2c
-pltotf-web2c: $(web2c_common) $(web2c_programs) pltotf.p
+pltotf-web2c: $(web2c_depend) pltotf.p
 	$(web2c) pltotf
 	echo timestamp >$@
 	touch pltotf.c pltotf.h
 pltotf.p: tangle$(EXEEXT) pltotf.web pltotf.ch
 	$(tangle) pltotf pltotf
 pooltype.c pooltype.h: pooltype-web2c
-pooltype-web2c: $(web2c_common) $(web2c_programs) pooltype.p
+pooltype-web2c: $(web2c_depend) pooltype.p
 	$(web2c) pooltype
 	echo timestamp >$@
 	touch pooltype.c pooltype.h
 pooltype.p: tangle$(EXEEXT) pooltype.web pooltype.ch
 	$(tangle) pooltype pooltype
 tftopl.c tftopl.h: tftopl-web2c
-tftopl-web2c: $(web2c_common) $(web2c_programs) tftopl.p
+tftopl-web2c: $(web2c_depend) tftopl.p
 	$(web2c) tftopl
 	echo timestamp >$@
 	touch tftopl.c tftopl.h
 tftopl.p: tangle$(EXEEXT) tftopl.web tftopl.ch
 	$(tangle) tftopl tftopl
 vftovp.c vftovp.h: vftovp-web2c
-vftovp-web2c: $(web2c_common) $(web2c_programs) vftovp.p
+vftovp-web2c: $(web2c_depend) vftovp.p
 	$(web2c) vftovp
 	echo timestamp >$@
 	touch vftovp.c vftovp.h
 vftovp.p: tangle$(EXEEXT) vftovp.web vftovp.ch
 	$(tangle) vftovp vftovp
 vptovf.c vptovf.h: vptovf-web2c
-vptovf-web2c: $(web2c_common) $(web2c_programs) vptovf.p
+vptovf-web2c: $(web2c_depend) vptovf.p
 	$(web2c) vptovf
 	echo timestamp >$@
 	touch vptovf.c vptovf.h
 vptovf.p: tangle$(EXEEXT) vptovf.web vptovf.ch
 	$(tangle) vptovf vptovf
 weave.c weave.h: weave-web2c
-weave-web2c: $(web2c_common) $(web2c_programs) weave.p
+weave-web2c: $(web2c_depend) weave.p
 	$(web2c) weave
 	echo timestamp >$@
 	touch weave.c weave.h
@@ -5796,40 +5831,53 @@ cweave.c: ctangle$(EXEEXT) cwebdir/cweave.w cwebdir/cweav-w2c.ch
 tie.c: ctangle$(EXEEXT) tiedir/tie.w tiedir/tie-w2c.ch
 	CWEBINPUTS=$(srcdir)/tiedir $(ctangle) tie.w tie-w2c.ch
 $(tex_c_h): tex-web2c
+
 tex-web2c: tex.p $(web2c_texmf)
 	$(web2c) tex
 	: $(synctex_convert_tex)
 	echo timestamp >$@
 	touch $(tex_c_h)
+
+tex-pool.c: tex.pool $(makecpool_stamp) tmf-pool.h
+	$(makecpool) tex.pool $(srcdir)/tmf-pool.h >$@ || rm -f $@
+
 texextra.c: lib/texmfmp.c texd.h
 	sed s/TEX-OR-MF-OR-MP/tex/ $(srcdir)/lib/texmfmp.c >$@
+
+# Tangling TeX
 tex.p tex.pool: tex-tangle
-tex-tangle: $(TANGLE) tex.web tex-final.ch
+tex-tangle: tangle$(EXEEXT) tex.web tex-final.ch
 	$(tangle) tex.web tex-final.ch
 	echo timestamp >$@
 	touch tex.p tex.pool
-tex-pool.c: tex.pool $(makecpool) tmf-pool.h
-	$(makecpool) tex.pool $(srcdir)/tmf-pool.h >$@ || rm -f $@
-tex-final.ch: $(TIE) $(tex_ch_srcs)
+
+tex-final.ch: tie$(EXEEXT) $(tex_ch_srcs)
 	$(tie) -c $@ $(tex_ch_srcs)
 $(windowlib): mfd.h $(srcdir)/window/*.c
 	cd window && $(MAKE) $(AM_MAKEFLAGS) libwindow.a
+
 $(mf_c_h): mf-web2c
 mf-web2c: mf.p $(web2c_texmf) web2c/cvtmf1.sed web2c/cvtmf2.sed
 	$(web2c) mf
 	echo timestamp >$@
 	touch $(mf_c_h)
+
+mf-pool.c: mf.pool $(makecpool_stamp) tmf-pool.h
+	$(makecpool) mf.pool $(srcdir)/tmf-pool.h >$@ || rm -f $@
+
 mfextra.c: lib/texmfmp.c mfd.h
 	sed s/TEX-OR-MF-OR-MP/mf/ $(srcdir)/lib/texmfmp.c >$@
+
+# Tangling Metafont
 mf.p mf.pool: mf-tangle
-mf-tangle: $(TANGLE) mf.web mf-final.ch
+mf-tangle: tangle$(EXEEXT) mf.web mf-final.ch
 	$(tangle) mf.web mf-final.ch
 	echo timestamp >$@
 	touch mf.p mf.pool
-mf-final.ch: $(TIE) mf.web mf.ch mf-binpool.ch
+
+# Generate mf-final.ch
+mf-final.ch: tie$(EXEEXT) mf.web mf.ch mf-binpool.ch
 	$(tie) -c $@ mf.web mf.ch mf-binpool.ch
-mf-pool.c: mf.pool $(makecpool) tmf-pool.h
-	$(makecpool) mf.pool $(srcdir)/tmf-pool.h >$@ || rm -f $@
 
 mpost.c: ctangle$(EXEEXT) mplibdir/mpost.w
 	$(mp_ctangle) mpost.w
@@ -5881,7 +5929,7 @@ luatex-tangle: luatangle$(EXEEXT) $(luatex_sources)
 	$(luatex_tangle) --underlines luatex luatex
 	echo timestamp >$@
 	touch luatex.p luatex.pool
-luatex-pool.c: luatex.pool $(makecpool) luatexdir/ptexlib.h luatexd.h
+luatex-pool.c: luatex.pool $(makecpool_stamp) luatexdir/ptexlib.h luatexd.h
 	$(makecpool) luatex.pool luatexdir/ptexlib.h >$@ || rm -f $@
 luatexdir/luatex.version: luatexdir/luatex.web
 	$(mkdir_p) luatexdir
@@ -5891,7 +5939,7 @@ luatexdir/luatexextra.h: luatexdir/luatexextra.in luatexdir/luatex.version
 	sed -e s/LUATEX-VERSION/`cat luatexdir/luatex.version`/ \
 	  $(srcdir)/luatexdir/luatexextra.in >$@
 luatangle.c luatangle.h: luatangle-web2c
-luatangle-web2c: $(web2c_common) $(web2c_programs) luatangle.p
+luatangle-web2c: $(web2c_depend) luatangle.p
 	$(web2c) luatangle
 	echo timestamp >$@
 	touch luatangle.c luatangle.h

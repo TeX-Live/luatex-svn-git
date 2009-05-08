@@ -33,8 +33,6 @@ static const char _svn_version[] =
 #  define MKDIR(a,b) mkdir(a,b)
 #endif
 
-extern int shell_cmd_is_allowed(char **cmd, char **safecmd, char **cmdname);
-
 /* An attempt to figure out the basic platform, does not
   care about niceties like version numbers yet,
   and ignores platforms where luatex is unlikely to 

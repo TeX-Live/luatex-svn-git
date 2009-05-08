@@ -27,8 +27,6 @@
 #define IO_INPUT	1
 #define IO_OUTPUT	2
 
-extern int shell_cmd_is_allowed(char **cmd, char **safecmd, char **cmdname);
-
 static const char *const fnames[] = { "input", "output" };
 
 

@@ -616,8 +616,13 @@ AC_SUBST([am__tar])
 AC_SUBST([am__untar])
 ]) # _AM_PROG_TAR
 
+m4_include([../m4/kpse-common.m4])
 m4_include([../m4/kpse-cxx-hack.m4])
+m4_include([../m4/kpse-kpathsea-flags.m4])
+m4_include([../m4/kpse-libpng-flags.m4])
 m4_include([../m4/kpse-options.m4])
 m4_include([../m4/kpse-pkgs.m4])
 m4_include([../m4/kpse-setup.m4])
 m4_include([../m4/kpse-web2c.m4])
+m4_include([../m4/kpse-xpdf-flags.m4])
+m4_include([../m4/kpse-zlib-flags.m4])
