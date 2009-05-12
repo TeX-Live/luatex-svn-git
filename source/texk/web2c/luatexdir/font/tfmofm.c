@@ -508,12 +508,45 @@ open_tfm_file(char *nom, unsigned char **tfm_buf, integer * tfm_siz)
    of \TeX\ between computers.
 */
 
-#define store_scaled(zz)            \
-  { fget; a=fbyte; fget; b=fbyte;                                       \
-    fget; c=fbyte; fget; d=fbyte;                                       \
-    sw=(((((d*z)>>8)+(c*z))>>8)+(b*z)) / beta;                          \
-    if (a==0) { zz=sw; } else if (a==255) { zz=sw-alpha; } else tfm_abort;  \
+#define store_scaled(zz)                                                   \
+  { fget; a=fbyte; fget; b=fbyte;                                          \
+    fget; c=fbyte; fget; d=fbyte;                                          \
+    sw=(((((d*z)>>8)+(c*z))>>8)+(b*z)) / beta;                             \
+    if (a==0) { zz=sw; } else if (a==255) { zz=sw-alpha; } else tfm_abort; \
   }
+
+scaled store_scaled_f(scaled sq, scaled z_in)
+{
+    scaled a, b, c, d, sw;
+    integer alpha, beta;        /* beta:1..16 */
+    static scaled z = 0;
+    /* @<Replace |z| by $|z|^\prime$ and compute $\alpha,\beta$@>; */
+    if (z_in != z || z == 0) {
+        z = z_in;
+        alpha = 16;
+        while (z >= 0x800000) {
+            z = z / 2;
+            alpha = alpha + alpha;
+        }
+        beta = 256 / alpha;
+        alpha = alpha * z;
+    }
+
+    d = sq % 256;
+    sq = (sq - d) / 256;
+    c = sq % 256;
+    sq = (sq - c) / 256;
+    b = sq % 256;
+    sq = (sq - b) / 256;
+    a = sq;
+    sw = (((((d * z) >> 8) + (c * z)) >> 8) + (b * z)) / beta;
+    if (a == 0)
+        return sw;
+    else if (a == 255)
+        return (sw - alpha);
+    else
+        pdf_error(maketexstring("vf"), maketexstring("vf scaling"));
+}
 
 #define  check_existence(z)                                             \
   { check_byte_range(z);                                                \
