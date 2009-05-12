@@ -518,11 +518,11 @@ open_tfm_file(char *nom, unsigned char **tfm_buf, integer * tfm_siz)
 scaled store_scaled_f(scaled sq, scaled z_in)
 {
     scaled a, b, c, d, sw;
-    integer alpha, beta;        /* beta:1..16 */
-    static scaled z = 0;
+    static integer alpha, beta; /* beta:1..16 */
+    static scaled z, z_prev = 0;
     /* @<Replace |z| by $|z|^\prime$ and compute $\alpha,\beta$@>; */
-    if (z_in != z || z == 0) {
-        z = z_in;
+    if (z_in != z_prev || z_prev == 0) {
+        z = z_prev = z_in;
         alpha = 16;
         while (z >= 0x800000) {
             z = z / 2;
