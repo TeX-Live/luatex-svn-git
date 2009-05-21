@@ -744,9 +744,6 @@ static void add_dict(cff_dict * dict,
     if (dict_operator[id].opname == NULL || argtype < 0) {
         *status = CFF_CFF_ERROR_PARSE_CFF_ERROR;
         return;
-    } else if (stack_top < 1) {
-        *status = CFF_CFF_ERROR_STACK_UNDERFLOW;
-        return;
     }
 
     if (dict->count >= dict->max) {
@@ -761,22 +758,32 @@ static void add_dict(cff_dict * dict,
     if (argtype == CFF_TYPE_NUMBER ||
         argtype == CFF_TYPE_BOOLEAN ||
         argtype == CFF_TYPE_SID || argtype == CFF_TYPE_OFFSET) {
+        /* check for underflow here, as exactly one operand is expected */
+        if (stack_top < 1) {
+	    *status = CFF_CFF_ERROR_STACK_UNDERFLOW;
+	    return;
+	}
         stack_top--;
         (dict->entries)[dict->count].count = 1;
         (dict->entries)[dict->count].values = xcalloc(1, sizeof(double));
         (dict->entries)[dict->count].values[0] = arg_stack[stack_top];
+	dict->count += 1;
     } else {
-        (dict->entries)[dict->count].count = stack_top;
-        (dict->entries)[dict->count].values =
-            xcalloc(stack_top, sizeof(double));
-        while (stack_top > 0) {
-            stack_top--;
-            (dict->entries)[dict->count].values[stack_top] =
-                arg_stack[stack_top];
-        }
+        /* just ignore operator if there were no operands provided;
+	   don't treat this as underflow (e.g. StemSnapV in TemporaLGCUni-Italic.otf) */
+        if (stack_top > 0) {
+	    (dict->entries)[dict->count].count = stack_top;
+	    (dict->entries)[dict->count].values =
+	        xcalloc(stack_top, sizeof(double));
+	    while (stack_top > 0) {
+                stack_top--;
+		(dict->entries)[dict->count].values[stack_top] =
+                    arg_stack[stack_top];
+	    }
+	    dict->count += 1;	    
+	}
     }
 
-    dict->count += 1;
     *data += 1;
 
     return;
