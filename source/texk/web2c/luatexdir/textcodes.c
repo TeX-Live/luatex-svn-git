@@ -263,6 +263,7 @@ void initex_cat_codes(int h)
     set_cat_code(h, '%', comment_cmd, 1);
     set_cat_code(h, 127, invalid_char_cmd, 1);
     set_cat_code(h, 0, ignore_cmd, 1);
+    set_cat_code(h, 0xFEFF, ignore_cmd, 1);
     for (k = 'A'; k <= 'Z'; k++) {
         set_cat_code(h, k, letter_cmd, 1);
         set_cat_code(h, k + 'a' - 'A', letter_cmd, 1);
