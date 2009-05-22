@@ -2393,6 +2393,7 @@ void make_radical(pointer q)
             vlink(x) = r;
             y = x;
         }
+        math_list(degree(q)) = null; /* for \Uroot ..{<list>}{} */
         flush_node(degree(q));
     }
     p = hpack(y, 0, additional);
