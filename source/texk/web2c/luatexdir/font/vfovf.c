@@ -220,7 +220,7 @@ vf_def_font(internal_font_number f, unsigned char *vf_buffer, integer * vf_cr)
     k = k * 256 + vf_buffer[(*vf_cr)];
     (*vf_cr)++;
 
-    fs = sqxfw(k, font_size(f));
+    fs = store_scaled_f(k, font_size(f));
 
     k = vf_buffer[(*vf_cr)];
     (*vf_cr)++;
@@ -745,7 +745,7 @@ void do_vf(internal_font_number f)
                 bad_vf("invalid character code");
             }
             vf_read(4, k);
-            tfm_width = sqxfw(k, font_size(f));
+            tfm_width = store_scaled_f(k, font_size(f));
         } else {
             packet_length = cmd;
             vf_byte(cc);
@@ -753,13 +753,12 @@ void do_vf(internal_font_number f)
                 bad_vf("invalid character code");
             }
             vf_read(3, k);
-            tfm_width = sqxfw(k, font_size(f));
+            tfm_width = store_scaled_f(k, font_size(f));
         }
         if (packet_length < 0)
             bad_vf("negative packet length");
         if (tfm_width != char_width(f, cc)) {
-            /* precisely 'one off' errors are rampant */
-            if (abs(tfm_width - char_width(f, cc)) > 1) {
+            if (tfm_width != char_width(f, cc)) {
                 print_nlp();
                 print_string("character width mismatch in font ");
                 print_string(font_name(f));
@@ -1126,7 +1125,7 @@ int make_vf_table(lua_State * L, char *cnom, scaled atsize)
         vf_byte(cs.b3);
 
         vf_read(4, k);
-        fs = sqxfw(k, atsize);
+        fs = store_scaled_f(k, atsize);
         lua_pushstring(L, "size");
         lua_pushnumber(L, fs);
         lua_rawset(L, -3);
@@ -1216,7 +1215,7 @@ int make_vf_table(lua_State * L, char *cnom, scaled atsize)
                 case set_rule:
                     vf_read(4, h);
                     vf_read(4, v);
-                    make_command2("rule", sqxfw(h, atsize), sqxfw(v, atsize),
+                    make_command2("rule", store_scaled_f(h, atsize), store_scaled_f(v, atsize),
                                   k);
                     packet_length -= 8;
                     break;
@@ -1224,7 +1223,7 @@ int make_vf_table(lua_State * L, char *cnom, scaled atsize)
                     vf_read(4, h);
                     vf_read(4, v);
                     make_command0("push", k);
-                    make_command2("rule", sqxfw(h, atsize), sqxfw(v, atsize),
+                    make_command2("rule", store_scaled_f(h, atsize), store_scaled_f(v, atsize),
                                   k);
                     make_command0("pop", k);
                     packet_length -= 8;
@@ -1260,7 +1259,7 @@ int make_vf_table(lua_State * L, char *cnom, scaled atsize)
                 case right3:
                 case right4:
                     vf_read((cmd - right1 + 1), i);
-                    make_command1("right", sqxfw(i, atsize), k);
+                    make_command1("right", store_scaled_f(i, atsize), k);
                     packet_length -= (cmd - right1 + 1);
                     break;
                 case w1:
@@ -1268,7 +1267,7 @@ int make_vf_table(lua_State * L, char *cnom, scaled atsize)
                 case w3:
                 case w4:
                     vf_read((cmd - w1 + 1), w);
-                    make_command1("right", sqxfw(w, atsize), k);
+                    make_command1("right", store_scaled_f(w, atsize), k);
                     packet_length -= (cmd - w1 + 1);
                     break;
                 case x1:
@@ -1276,7 +1275,7 @@ int make_vf_table(lua_State * L, char *cnom, scaled atsize)
                 case x3:
                 case x4:
                     vf_read((cmd - x1 + 1), x);
-                    make_command1("right", sqxfw(x, atsize), k);
+                    make_command1("right", store_scaled_f(x, atsize), k);
                     packet_length -= (cmd - x1 + 1);
                     break;
                 case down1:
@@ -1284,7 +1283,7 @@ int make_vf_table(lua_State * L, char *cnom, scaled atsize)
                 case down3:
                 case down4:
                     vf_read((cmd - down1 + 1), i);
-                    make_command1("down", sqxfw(i, atsize), k);
+                    make_command1("down", store_scaled_f(i, atsize), k);
                     packet_length -= (cmd - down1 + 1);
                     break;
                 case y1:
@@ -1292,7 +1291,7 @@ int make_vf_table(lua_State * L, char *cnom, scaled atsize)
                 case y3:
                 case y4:
                     vf_read((cmd - y1 + 1), y);
-                    make_command1("down", sqxfw(y, atsize), k);
+                    make_command1("down", store_scaled_f(y, atsize), k);
                     packet_length -= (cmd - y1 + 1);
                     break;
                 case z1:
@@ -1300,7 +1299,7 @@ int make_vf_table(lua_State * L, char *cnom, scaled atsize)
                 case z3:
                 case z4:
                     vf_read((cmd - z1 + 1), z);
-                    make_command1("down", sqxfw(z, atsize), k);
+                    make_command1("down", store_scaled_f(z, atsize), k);
                     packet_length -= (cmd - z1 + 1);
                     break;
                 case xxx1:
@@ -1325,16 +1324,16 @@ int make_vf_table(lua_State * L, char *cnom, scaled atsize)
                     free(s);
                     break;
                 case w0:
-                    make_command1("right", sqxfw(w, atsize), k);
+                    make_command1("right", store_scaled_f(w, atsize), k);
                     break;
                 case x0:
-                    make_command1("right", sqxfw(x, atsize), k);
+                    make_command1("right", store_scaled_f(x, atsize), k);
                     break;
                 case y0:
-                    make_command1("down", sqxfw(y, atsize), k);
+                    make_command1("down", store_scaled_f(y, atsize), k);
                     break;
                 case z0:
-                    make_command1("down", sqxfw(z, atsize), k);
+                    make_command1("down", store_scaled_f(z, atsize), k);
                     break;
                 case nop:
                     break;
