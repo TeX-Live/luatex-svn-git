@@ -1,7 +1,7 @@
 /* vfovf.c
-   
+
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -23,7 +23,8 @@
 #include "luatexfont.h"
 
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+    "$URL$";
 
 /* this is a hack! */
 #define font_max 5000
@@ -128,40 +129,51 @@ boolean auto_expand_vf(internal_font_number f); /* forward */
 
 /* get a byte from\.{VF} file */
 
-#define vf_byte(a) { real_eight_bits vf_tmp_b;    \
-    if (vf_cur>=vf_size) {        \
-      pdftex_fail("unexpected eof on virtual font");  \
-    }             \
-    vf_tmp_b = vf_buffer[vf_cur++] ; a = vf_tmp_b; }
+#define vf_byte(a)                                     \
+{                                                      \
+    real_eight_bits vf_tmp_b;                          \
+    if (vf_cur >= vf_size) {                           \
+        pdftex_fail("unexpected eof on virtual font"); \
+    }                                                  \
+    vf_tmp_b = vf_buffer[vf_cur++];                    \
+    a = vf_tmp_b;                                      \
+}
 
-
-#define vf_replace_z() {      \
-    vf_alpha=16;        \
-  while (vf_z>=040000000) {     \
-    vf_z= vf_z / 2;       \
-    vf_alpha += vf_alpha;     \
-  }           \
-  vf_beta=256 / vf_alpha;     \
-  vf_alpha=vf_alpha*vf_z; }
+#define vf_replace_z()                           \
+{                                                \
+    vf_alpha = 16;                               \
+    while (vf_z >= 040000000) {                  \
+        vf_z = vf_z / 2;                         \
+        vf_alpha += vf_alpha;                    \
+    }                                            \
+    vf_beta = 256 / vf_alpha;                    \
+    vf_alpha = vf_alpha * vf_z;                  \
+}
 
 /* read |k| bytes as an integer from \.{VF} file */
 
-#define vf_read(k,l) {  integer itmp = 0, dtmp = k, jtmp = 0;   \
-    while (dtmp > 0) {              \
-      vf_byte(jtmp);              \
-      if ((dtmp==(integer)k) && jtmp>127)              \
-  jtmp = jtmp - 256;            \
-      itmp  = itmp*256 + jtmp;            \
-      decr(dtmp);             \
-    }                 \
-    l = itmp; }
+#define vf_read(k, l)                            \
+{                                                \
+    integer itmp = 0, dtmp = k, jtmp = 0;        \
+    while (dtmp > 0) {                           \
+        vf_byte(jtmp);                           \
+        if ((dtmp == (integer) k) && jtmp > 127) \
+            jtmp = jtmp - 256;                   \
+        itmp = itmp * 256 + jtmp;                \
+        decr(dtmp);                              \
+    }                                            \
+    l = itmp;                                    \
+}
 
-#define vf_read_u(k,l) {  unsigned int dtmp=k, itmp = 0, jtmp = 0;  \
-    while (dtmp-- > 0) {            \
-      vf_byte(jtmp);            \
-      itmp  = itmp*256 + jtmp;          \
-    }               \
-    l = itmp; }
+#define vf_read_u(k, l)                          \
+{                                                \
+    unsigned int dtmp = k, itmp = 0, jtmp = 0;   \
+    while (dtmp-- > 0) {                         \
+        vf_byte(jtmp);                           \
+        itmp = itmp * 256 + jtmp;                \
+    }                                            \
+    l = itmp;                                    \
+}
 
 void pdf_check_vf_cur_val(void)
 {
@@ -752,7 +764,7 @@ void do_vf(internal_font_number f)
             if (!char_exists(f, cc)) {
                 bad_vf("invalid character code");
             }
-            vf_read(3, k);
+            vf_read_u(3, k);    /* cf. vftovp.web, line 1028 */
             tfm_width = store_scaled_f(k, font_size(f));
         }
         if (packet_length < 0)
@@ -1171,7 +1183,7 @@ int make_vf_table(lua_State * L, char *cnom, scaled atsize)
         } else {
             packet_length = cmd;
             vf_byte(cc);
-            vf_read(3, tfm_width);
+            vf_read_u(3, tfm_width);
         }
         if (packet_length < 0)
             lua_bad_vf("negative packet length");
@@ -1388,7 +1400,7 @@ int make_vf_table(lua_State * L, char *cnom, scaled atsize)
 }
 
 
-/* This function is called from |do_vf|, and fixes up the virtual data 
+/* This function is called from |do_vf|, and fixes up the virtual data
    inside an auto-expanded virtual font */
 
 boolean auto_expand_vf(internal_font_number f)
@@ -1557,7 +1569,7 @@ letter_space_font(halfword u, internal_font_number f, integer e)
        vf_packet_base[k] = new_vf_packet(k);
 
        for (c=font_bc(k);c<=font_ec(k);c++) {
-       string_room(17); 
+       string_room(17);
        append_fnt_set(f);
        append_packet(right1 + 3);
        append_packet(tmp_b0);
