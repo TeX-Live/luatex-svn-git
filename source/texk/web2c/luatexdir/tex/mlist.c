@@ -2566,6 +2566,9 @@ void do_make_math_accent(pointer q, internal_font_number f, integer c,
             }
         } else {                /* new skewchar madness for bot accents */
             s = char_bot_accent(cur_f, cur_c);
+            if (s == 0) {            /* better than nothing: */
+              s = char_top_accent(cur_f, cur_c);
+            }
             if (s != 0) {
                 s_is_absolute = true;
             }
