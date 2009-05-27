@@ -151,6 +151,7 @@ boolean auto_expand_vf(internal_font_number f); /* forward */
 }
 
 /* read |k| bytes as an integer from \.{VF} file */
+/* beware: the vf_read() macro differs from vf_read() in vftovp.web for 1...3 byte words */
 
 #define vf_read(k, l)                            \
 {                                                \
@@ -351,16 +352,20 @@ int open_vf_file(char *fn, unsigned char **vbuffer, integer * vsize)
 /* life is easier if all internal font commands are fnt4 and
    all character commands are set4 or put4 */
 
-#define append_fnt_set(k) {     \
-    assert(k>0) ;       \
-    append_packet(packet_font_code);    \
-    append_four(k); }
+#define append_fnt_set(k)            \
+{                                    \
+    assert(k > 0);                   \
+    append_packet(packet_font_code); \
+    append_four(k);                  \
+}
 
-#define append_four(k) {      \
-    append_packet((k&0xFF000000)>>24);    \
-    append_packet((k&0x00FF0000)>>16);    \
-    append_packet((k&0x0000FF00)>>8);   \
-    append_packet((k&0x000000FF));  }
+#define append_four(k)                     \
+{                                          \
+    append_packet((k & 0xFF000000) >> 24); \
+    append_packet((k & 0x00FF0000) >> 16); \
+    append_packet((k & 0x0000FF00) >> 8);  \
+    append_packet((k & 0x000000FF));       \
+}
 
 /* some of these things happen twice, adding a define is simplest */
 
@@ -376,14 +381,17 @@ int open_vf_file(char *fn, unsigned char **vbuffer, integer * vsize)
       print_string(font_name(f));         \
       print_string(".vf ignored "); } }
 
-#define test_dsize() {  int read_tmp; vf_read(4,read_tmp);    \
-    if ((read_tmp / 16) != font_dsize(f)) {       \
-      print_nlp();              \
-      print_string("design size mismatch in font ");      \
-      print_string(font_name(f));         \
-      print_string(".vf ignored");          \
-    } }
-
+#define test_dsize()                                   \
+{                                                      \
+    int read_tmp;                                      \
+    vf_read(4, read_tmp);                              \
+    if ((read_tmp / 16) != font_dsize(f)) {            \
+        print_nlp();                                   \
+        print_string("design size mismatch in font "); \
+        print_string(font_name(f));                    \
+        print_string(".vf ignored");                   \
+    }                                                  \
+}
 
 int count_packet_bytes(real_eight_bits * vf_buf, int cur_bute, int count)
 {
@@ -715,7 +723,7 @@ void do_vf(internal_font_number f)
     save_cur_byte = vf_cur;
     vf_byte(cmd);
     while ((cmd >= fnt_def1) && (cmd <= (fnt_def1 + 3))) {
-        vf_read((cmd - fnt_def1 + 1), junk);
+        vf_read_u((cmd - fnt_def1 + 1), junk);
         vf_read(4, junk);
         vf_read(4, junk);
         vf_read(4, junk);
