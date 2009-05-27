@@ -493,7 +493,7 @@ static void
 place_glyph(pdfstructure * p, scaledpos * pos, internal_font_number f,
             integer c)
 {
-    int move;
+    boolean move;
     if (f != p->f_cur || is_textmode(p) || is_pagemode(p)) {
         goto_textmode(p);
         if (f != p->f_cur)
