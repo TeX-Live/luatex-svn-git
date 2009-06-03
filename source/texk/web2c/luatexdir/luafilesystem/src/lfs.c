@@ -72,16 +72,21 @@ typedef struct dir_data {
 #endif
 } dir_data;
 
+/* Experimental CYGWIN support */
+#if defined (_WIN32)
+#define lfs_setmode(L,file,m)   ((void)L, _setmode(_fileno(file), m))
+#elif defined (__CYGWIN__)
+#define lfs_setmode(L,file,m)   ((void)L, setmode(fileno(file), m))
+#else
+#define lfs_setmode(L,file,m)   ((void)((void)file,m),  \
+		 luaL_error(L, LUA_QL("setmode") " not supported on this platform"), -1)
+#endif
+
 
 #ifdef _WIN32
-#define lfs_setmode(L,file,m)   ((void)L, _setmode(_fileno(file), m))
 #define STAT_STRUCT struct _stati64
 #define STAT_FUNC _stati64
 #else
-#define _O_TEXT               0
-#define _O_BINARY             0
-#define lfs_setmode(L,file,m)   ((void)((void)file,m),  \
-		 luaL_error(L, LUA_QL("setmode") " not supported on this platform"), -1)
 #ifdef HAVE_STAT64
 #define STAT_STRUCT struct stat64
 #define STAT_FUNC stat64
@@ -92,6 +97,7 @@ typedef struct dir_data {
 #define LSTAT_FUNC lstat
 #endif
 #endif
+
 
 /*
 ** This function changes the working (current) directory
@@ -190,7 +196,7 @@ static int _file_lock (lua_State *L, FILE *fh, const char *mode, const long star
 	return (code != -1);
 }
 
-#ifdef _WIN32
+#if defined (_WIN32) || defined (__CYGWIN__)
 static int lfs_g_setmode (lua_State *L, FILE *f, int arg) {
   static const int mode[] = {_O_TEXT, _O_BINARY};
   static const char *const modenames[] = {"text", "binary", NULL};
