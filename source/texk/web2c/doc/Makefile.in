@@ -62,7 +62,7 @@ am__aclocal_m4_deps = $(top_srcdir)/../../m4/kpse-asm.m4 \
 	$(top_srcdir)/ac/web2c.ac $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
-mkinstalldirs = $(install_sh) -d
+mkinstalldirs = $(SHELL) $(top_srcdir)/../../build-aux/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/c-auto.h $(top_builddir)/ff-config.h
 CONFIG_CLEAN_FILES =
 SOURCES =
@@ -142,6 +142,7 @@ KPATHSEA_DEPEND = @KPATHSEA_DEPEND@
 KPATHSEA_INCLUDES = @KPATHSEA_INCLUDES@
 KPATHSEA_LIBS = @KPATHSEA_LIBS@
 KPATHSEA_PATHS_H = @KPATHSEA_PATHS_H@
+KPSEWHICH = @KPSEWHICH@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LEX = @LEX@
@@ -265,7 +266,6 @@ x_ext_lib = @x_ext_lib@
 x_tool_libs = @x_tool_libs@
 info_TEXINFOS = web2c.texi
 web2c_TEXINFOS = install.texi ref.txi
-EXTRA_DIST = ref.tex texinfo.bst Makefile.in.orig
 all: all-am
 
 .SUFFIXES:

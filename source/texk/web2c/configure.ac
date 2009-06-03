@@ -19,7 +19,7 @@ dnl get these features if you are willing to hack the sources. If not,
 dnl it'll take a good argument to convince me to invest the time to make
 dnl them configurable.
 dnl
-m4_define([web2_version], [7.5.7])
+m4_define([web2_version], [2009])
 AC_INIT([Web2C], web2_version(), [tex-k@tug.org])
 AC_PREREQ([2.63])
 dnl 
@@ -32,7 +32,6 @@ AC_CONFIG_MACRO_DIR([../../m4])
 
 WEB2CVERSION=web2_version()
 AC_SUBST([WEB2CVERSION])
-AC_DEFINE_UNQUOTED([WEB2CVERSION], [" (Web2C $WEB2CVERSION)"])
 
 dnl Common code for all programs using libkpathsea.
 KPSE_COMMON([web2c programs])
@@ -43,6 +42,15 @@ KPSE_CXX_HACK
 dnl Include additional code for web2c.
 KPSE_WEB2C_PREPARE
 m4_include([ac/web2c.ac])
+
+AS_CASE([$with_tex_banner],
+        [''|yes|no], [with_tex_banner="Web2C $WEB2CVERSION"],
+        [AS_IF([echo "$with_tex_banner" | grep -v "$WEB2CVERSION" >/dev/null],
+               [AC_MSG_ERROR([Bad `--with-tex-banner=$with_tex_banner' version string (must contain ` $WEB2CVERSION')])])])
+AC_DEFINE_UNQUOTED([WEB2CVERSION], [" ($with_tex_banner)"])
+
+dnl For tests
+AC_CHECK_PROGS([KPSEWHICH], [kpsewhich], [false])
 
 KPSE_ASM_UNDERSCORE
 
@@ -84,14 +92,22 @@ if test "x$enable_ipc" = xyes; then
    AC_DEFINE([IPC], 1, [tex: Define to enable --ipc.])
 fi
 # We may need additional libraries for luaTeX.
-# On Solaris -lnsl for gethostbyname() and -lrt for nanosleep().
+# On Solaris -lnsl for gethostbyname(), -lrt for nanosleep(),
+# and maybe -lresolv for inet_aton().
 lua_socketlibs=$socketlibs
 if test "x$kpse_cv_have_win32" = xno; then
   kpse_save_LIBS=$LIBS
   AC_SEARCH_LIBS([gethostbyname], [nsl])
+  AC_SEARCH_LIBS([inet_aton], [resolv])
   LIBS=$kpse_save_LIBS
   AC_SEARCH_LIBS([nanosleep], [rt])
   LIBS=$kpse_save_LIBS
+  AS_CASE([$ac_cv_search_inet_aton],
+          ["none required"], [],
+          [no], [AS_IF([test "x$enable_luatex" = xyes],
+                       [AC_MSG_WARN([Sorry, no inet_aton(): can not build luaTeX])
+                        enable_luatex=no])],
+              [lua_socketlibs="$lua_socketlibs $ac_cv_search_inet_aton"])
   AS_CASE([$ac_cv_search_gethostbyname],
           ["none required"], [],
           [no], [AS_IF([test "x$enable_luatex" = xyes],
@@ -109,11 +125,10 @@ AC_SUBST([lua_socketlibs])
 AC_SUBST([ipc_socketlibs])
 
 KPSE_CHECK_FRAMEWORK([Carbon], [ATSUStyle style])
-AS_IF([test "x$kpse_cv_have_Carbon" = xno],
-      [KPSE_FONTCONFIG_FLAGS
-       AS_IF([test "x$enable_xetex:$kpse_cv_have_fontconfig" = xyes:no],
-             [AC_MSG_WARN([Sorry, can not build XeTeX without fontconfig])
-              enable_xetex=no])])
+KPSE_FONTCONFIG_FLAGS
+AS_IF([test "x$enable_xetex:$kpse_cv_have_Carbon:$kpse_cv_have_fontconfig" = xyes:no:no],
+      [AC_MSG_WARN([Sorry, can not build XeTeX without Carbon framework or fontconfig])
+       enable_xetex=no])
 AM_CONDITIONAL([XETEX_MACOSX], [test "x$kpse_cv_have_Carbon" = xyes])
 AM_CONDITIONAL([XETEX_GRAPHITE], [test "x$with_graphite" != xno])
 
@@ -128,7 +143,7 @@ AS_IF([test "x$enable_aleph:$enable_xetex" = xno:no],
 AM_CONDITIONAL([OTANGLE],
                [test "x$enable_otangle" = xyes])[]dnl
 
-AM_CONDITIONAL([OMFONTS], [true])
+AM_CONDITIONAL([OMFONTS], [test "x$enable_omfonts" != xno])
 
 AM_CONDITIONAL([MF], [test "x$enable_mf" != xno])
 AM_CONDITIONAL([MFN], [test "x$enable_mf_nowin" != xno])
@@ -338,8 +353,7 @@ fi
 AC_CONFIG_SUBDIRS([web2c])
 
 AC_CONFIG_FILES([Makefile doc/Makefile lib/Makefile man/Makefile
-                 mpware/Makefile omegafonts/Makefile otps/Makefile
-                 window/Makefile])
+                 omegafonts/Makefile otps/Makefile window/Makefile])
 
 dnl The subdirectory web2c must be configured for the build system.
 dnl Can not share the cache file with the subdirectory!

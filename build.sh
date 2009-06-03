@@ -158,7 +158,8 @@ then
     --without-system-t1lib \
     --disable-shared    \
     --disable-largefile \
-    || exit 1 
+    --disable-ipc \
+   || exit 1 
 fi
 
 $MAKE

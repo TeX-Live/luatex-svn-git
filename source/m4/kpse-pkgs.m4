@@ -63,6 +63,7 @@ psutils
 t1utils
 tpic2pdftex
 vlna
+xindy
 ])]) # KPSE_UTILS_PKGS
 
 # KPSE_TEXK_PKGS()
@@ -81,7 +82,6 @@ dtl
 dvi2tty
 dvidvi
 dviljk
-dvipdfm
 dvipdfmx
 dvipng
 dvipos

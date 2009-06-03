@@ -1,4 +1,4 @@
-% $Id: psout.w 1066 2009-06-01 07:41:07Z taco $
+% $Id: psout.w 1084 2009-06-03 07:40:57Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
