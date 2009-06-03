@@ -674,7 +674,7 @@ void synctex_vlist(halfword this_box)
     synctex_ctxt.line = SYNCTEX_LINE_MODEL(this_box,box_node_size);
     pos = synch_p_with_c(cur);
 	synctex_ctxt.curh = pos.h;
-	synctex_ctxt.curv = cur_page_size.v - pos.v;
+	synctex_ctxt.curv = cur_page_size.v - ((SYNCTEX_OFFSET_IS_PDF != 0) ? 0 : 4736287) - pos.v;
     synctex_record_vlist(this_box);
 }
 
@@ -700,7 +700,7 @@ void synctex_tsilv(halfword this_box)
     synctex_ctxt.line = SYNCTEX_LINE_MODEL(this_box,box_node_size);
     pos = synch_p_with_c(cur);
 	synctex_ctxt.curh = pos.h;
-	synctex_ctxt.curv = cur_page_size.v - pos.v;
+	synctex_ctxt.curv = cur_page_size.v - ((SYNCTEX_OFFSET_IS_PDF != 0) ? 0 : 4736287) - pos.v;
     synctex_ctxt.recorder = NULL;
     synctex_record_tsilv(this_box);
 }
@@ -725,7 +725,7 @@ void synctex_void_vlist(halfword p, halfword this_box)
     synctex_ctxt.line = SYNCTEX_LINE_MODEL(p,box_node_size);
     pos = synch_p_with_c(cur);
 	synctex_ctxt.curh = pos.h;
-	synctex_ctxt.curv = cur_page_size.v - pos.v;
+	synctex_ctxt.curv = cur_page_size.v - ((SYNCTEX_OFFSET_IS_PDF != 0) ? 0 : 4736287) - pos.v;
     synctex_ctxt.recorder = NULL;   /*  reset  */
     synctex_record_void_vlist(p);
 }
@@ -751,7 +751,7 @@ void synctex_hlist(halfword this_box)
     synctex_ctxt.line = SYNCTEX_LINE_MODEL(this_box,box_node_size);
     pos = synch_p_with_c(cur);
 	synctex_ctxt.curh = pos.h;
-	synctex_ctxt.curv = cur_page_size.v - pos.v;
+	synctex_ctxt.curv = cur_page_size.v - ((SYNCTEX_OFFSET_IS_PDF != 0) ? 0 : 4736287) - pos.v;
     synctex_ctxt.recorder = NULL;   /*  reset  */
     synctex_record_hlist(this_box);
 }
@@ -778,7 +778,7 @@ void synctex_tsilh(halfword this_box)
     synctex_ctxt.line = SYNCTEX_LINE_MODEL(this_box,box_node_size);
     pos = synch_p_with_c(cur);
 	synctex_ctxt.curh = pos.h;
-	synctex_ctxt.curv = cur_page_size.v - pos.v;
+	synctex_ctxt.curv = cur_page_size.v - ((SYNCTEX_OFFSET_IS_PDF != 0) ? 0 : 4736287) - pos.v;
     synctex_ctxt.recorder = NULL;   /*  reset  */
     synctex_record_tsilh(this_box);
 }
@@ -808,7 +808,7 @@ void synctex_void_hlist(halfword p, halfword this_box)
     synctex_ctxt.line = SYNCTEX_LINE_MODEL(p,box_node_size);
     pos = synch_p_with_c(cur);
 	synctex_ctxt.curh = pos.h;
-	synctex_ctxt.curv = cur_page_size.v - pos.v;
+	synctex_ctxt.curv = cur_page_size.v - ((SYNCTEX_OFFSET_IS_PDF != 0) ? 0 : 4736287) - pos.v;
     synctex_ctxt.recorder = NULL;   /*  reset  */
     synctex_record_void_hlist(p);
 }
@@ -858,7 +858,7 @@ void synctex_math(halfword p, halfword this_box)
     synctex_ctxt.line = SYNCTEX_LINE_MODEL(p,medium_node_size);
     pos = synch_p_with_c(cur);
 	synctex_ctxt.curh = pos.h;
-	synctex_ctxt.curv = cur_page_size.v - pos.v;
+	synctex_ctxt.curv = cur_page_size.v - ((SYNCTEX_OFFSET_IS_PDF != 0) ? 0 : 4736287) - pos.v;
     synctex_ctxt.recorder = NULL;/*  no need to record once more  */
     synctex_math_recorder(p);/*  always record synchronously  */
 }
@@ -893,7 +893,7 @@ void synctex_horizontal_rule_or_glue(halfword p, halfword this_box)
 	synctex_ctxt.node = p;
         pos = synch_p_with_c(cur);
 	synctex_ctxt.curh = pos.h;
-	synctex_ctxt.curv = cur_page_size.v - pos.v;
+	synctex_ctxt.curv = cur_page_size.v - ((SYNCTEX_OFFSET_IS_PDF != 0) ? 0 : 4736287) - pos.v;
 	synctex_ctxt.recorder = NULL;
 	switch(SYNCTEX_TYPE(p)) {
 		case rule_node:
