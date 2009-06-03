@@ -34,6 +34,8 @@
 #include "ptexlib.h"
 #include "luatex-api.h"
 
+#define noDEBUG
+
 static const char _svn_version[] =
     "$Id$ $URL$";
 
@@ -1225,6 +1227,11 @@ boolean font_shareable(internal_font_number f, internal_font_number k)
                 &&same_font_name(k, pdf_font_blink(f)))) {
             ret = 1;
         }
+#ifdef DEBUG
+    printf("font_shareable(%d:%s:%s,%d:%s:%s): => %d\n", 
+           f, font_filename(f), font_fullname(f), 
+           k, font_filename(k), font_fullname(k), ret);
+#endif
     }
     return ret;
 }
