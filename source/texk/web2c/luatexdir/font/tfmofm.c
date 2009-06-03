@@ -1,6 +1,6 @@
 /* tfmofm.c
    
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -557,6 +557,7 @@ scaled store_scaled_f(scaled sq, scaled z_in)
         return (sw - alpha);
     else
         pdf_error(maketexstring("vf"), maketexstring("vf scaling"));
+        return sw; /* not reached, just to make the compiler happy */
 }
 
 #define  check_existence(z)                                             \
