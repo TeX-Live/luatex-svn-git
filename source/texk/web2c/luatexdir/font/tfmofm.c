@@ -375,8 +375,7 @@ additional parameter information, which is explained later.
           xfree(xligs);  xfree(xkerns); return 1; }
 
 
-int
-open_tfm_file(char *nom, unsigned char **tfm_buf, integer * tfm_siz)
+int open_tfm_file(char *nom, unsigned char **tfm_buf, integer * tfm_siz)
 {
     boolean res;                /* was the callback successful? */
     boolean opened;             /* was |tfm_file| successfully opened? */
@@ -557,7 +556,7 @@ scaled store_scaled_f(scaled sq, scaled z_in)
         return (sw - alpha);
     else
         pdf_error(maketexstring("vf"), maketexstring("vf scaling"));
-        return sw; /* not reached, just to make the compiler happy */
+    return sw;                  /* not reached, just to make the compiler happy */
 }
 
 #define  check_existence(z)                                             \
