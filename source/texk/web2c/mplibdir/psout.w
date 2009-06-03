@@ -1,6 +1,6 @@
-% $Id: psout.w 963 2009-04-21 13:35:03Z taco $
+% $Id: psout.w 1084 2009-06-03 07:40:57Z taco $
 %
-% Copyright 2008 Taco Hoekwater.
+% Copyright 2008-2009 Taco Hoekwater.
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU Lesser General Public License as published by
@@ -1307,7 +1307,7 @@ static int check_fm_entry (MP mp, fm_entry * fm, boolean warn) {
             mp->selector = save_selector;
             mp->ps->fm_file = NULL;
         }
-        mp_xfree(n);
+        /* mp_xfree(n); */
         break;
     case MAPLINE:
         fm_scan_line (mp);
@@ -2022,6 +2022,7 @@ static boolean str_suffix (const char *begin_buf, const char *end_buf,
         size_t last_ptr_index;
         last_ptr_index = (size_t)(mp->ps->T##_ptr - mp->ps->T##_array);
         mp->ps->T##_limit *= 2;
+        mp->ps->T##_limit += s;
         if ((size_t)(mp->ps->T##_ptr - mp->ps->T##_array + (n)) > mp->ps->T##_limit)
             mp->ps->T##_limit = (size_t)(mp->ps->T##_ptr - mp->ps->T##_array + (n));
         mp->ps->T##_array = mp_xrealloc(mp,mp->ps->T##_array,mp->ps->T##_limit, sizeof(T##_entry));
@@ -3509,6 +3510,19 @@ boolean cs_parse (MP mp, mp_ps_font *f, const char *cs_name, int subr);
       q->next = f->p;
     }
   }
+  if (f->p!=NULL) {
+    mp_knot *r, *rr;
+    r = gr_path_p((mp_fill_object *)f->p); 
+    rr = r;
+    if (r && r->x_coord == f->pp->x_coord &&  r->y_coord == f->pp->y_coord ) {
+      while ( rr->next != f->pp) 
+        rr = rr->next;
+      rr->next = r;
+      r->left_x = f->pp->left_x;
+      r->left_y = f->pp->left_y;
+      mp_xfree(f->pp);
+    }
+  }
   f->p = NULL;
   f->pp = NULL;
 } while (0)
@@ -4366,11 +4380,11 @@ static void mp_mark_string_chars (MP mp,font_number f, char *s, size_t l) ;
 void mp_mark_string_chars (MP mp,font_number f, char *s, size_t l) {
   integer b; /* |char_base[f]| */
   int bc,ec; /* only characters between these bounds are marked */
-  char *k; /* an index into string |s| */
+  unsigned char *k; /* an index into string |s| */
   b=mp->char_base[f];
   bc=(int)mp->font_bc[f];
   ec=(int)mp->font_ec[f];
-  k=s;
+  k=(unsigned char *)s;
   while (l-->0){ 
     if ( (*k>=bc)&&(*k<=ec) )
       mp->font_info[b+*k].qqqq.b3=mp_used;

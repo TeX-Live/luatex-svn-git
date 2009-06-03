@@ -921,11 +921,12 @@ enable_native_texlive_build
 enable_multiplatform
 enable_cxx_runtime_hack
 enable_web2c
+with_tex_banner
 with_editor
 enable_auto_core
 enable_dump_share
-enable_fmtutil
 enable_ipc
+enable_omfonts
 enable_tex
 enable_etex
 enable_aleph
@@ -1631,8 +1632,10 @@ Optional Features:
   --enable-auto-core        cause TeX&MF to dump core, given a certain
                             filename
   --disable-dump-share      make fmt/base/mem files architecture-dependent
-  --enable-fmtutil          use fmtutil for build dumps
-  --enable-ipc              enable TeX's --ipc option, i.e., pipe to a program
+  --disable-ipc             disable TeX's --ipc option, i.e., pipe to a
+                            program
+  --disable-omfonts         do not compile and install omfonts (use Web2C
+                            versions)
   --disable-tex             do not compile and install TeX
   --enable-etex             compile and install e-TeX
   --disable-aleph           do not compile and install Aleph
@@ -1640,7 +1643,8 @@ Optional Features:
   --disable-luatex          do not compile and install luaTeX
   --disable-xetex           do not compile and install XeTeX
   --disable-mf              do not build METAFONT
-  --enable-mf-nowin         build a separate non-windows-capable METAFONT
+  --disable-mf-nowin        do not build a separate non-windows-capable
+                            METAFONT
   --enable-epsfwin          include EPSF pseudo window support
   --enable-hp2627win        include HP 2627 window support
   --enable-mftalkwin        include mftalk (generic server) window support
@@ -1673,8 +1677,9 @@ Optional Features:
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+  --with-tex-banner=STR   version string appended to banner lines [Web2C YEAR]
   --with-editor=CMD       invoke CMD from the `e' option [vi +%d %s]
-  --with-mf-x-toolkit     Use X toolkit for METAFONT
+  --without-mf-x-toolkit  do not use X toolkit for METAFONT
   --with-system-kpathsea  use installed kpathsea headers and library
   --with-kpathsea-includes=DIR
                           kpathsea headers installed in DIR
@@ -2336,19 +2341,22 @@ fi
 
 
 
-## ac/withenable.ac: configure.ac fragment for the TeX Live top-level
-
-## utils/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory utils/
-
-
-
-
-
-
+case $with_x in
+  yes | no) : ;;
+  *) with_x=yes
+         { $as_echo "$as_me:$LINENO: Assuming \`--with-x'" >&5
+$as_echo "$as_me: Assuming \`--with-x'" >&6;}
+         ac_configure_args="$ac_configure_args '--with-x'" ;;
+esac
 
 
 
-## texk/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/
+
+
+
+
+
+
 
 ## texk/web2c/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/web2c/
 ## configure options and TL libraries required for web2c
@@ -2372,6 +2380,11 @@ test "x$enable_web2c" = xno || {
 ## texk/web2c/ac/web2c.ac: configure.ac fragment for the TeX Live subdirectory texk/web2c/
 ## configure options for TeX and MF
 
+# Check whether --with-tex-banner was given.
+if test "${with_tex_banner+set}" = set; then
+  withval=$with_tex_banner;
+fi
+
 # Check whether --with-editor was given.
 if test "${with_editor+set}" = set; then
   withval=$with_editor;
@@ -2384,14 +2397,14 @@ fi
 if test "${enable_dump_share+set}" = set; then
   enableval=$enable_dump_share;
 fi
-# Check whether --enable-fmtutil was given.
-if test "${enable_fmtutil+set}" = set; then
-  enableval=$enable_fmtutil;
-fi
 ## configure options for TeX
 # Check whether --enable-ipc was given.
 if test "${enable_ipc+set}" = set; then
   enableval=$enable_ipc;
+fi
+# Check whether --enable-omfonts was given.
+if test "${enable_omfonts+set}" = set; then
+  enableval=$enable_omfonts;
 fi
 # Check whether --enable-tex was given.
 if test "${enable_tex+set}" = set; then
@@ -2549,7 +2562,6 @@ fi
 
 
 
-
 ## texk/kpathsea/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/kpathsea/
 ## configure options and TL libraries required for kpathsea
 
@@ -2649,8 +2661,6 @@ case $enable_mktextex_default in
   *) enable_mktextex_default=no ;;
 esac
 
-
-## libs/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/
 
 
 
@@ -4810,13 +4820,13 @@ if test "${lt_cv_nm_interface+set}" = set; then
 else
   lt_cv_nm_interface="BSD nm"
   echo "int some_variable = 0;" > conftest.$ac_ext
-  (eval echo "\"\$as_me:4813: $ac_compile\"" >&5)
+  (eval echo "\"\$as_me:4823: $ac_compile\"" >&5)
   (eval "$ac_compile" 2>conftest.err)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:4816: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
+  (eval echo "\"\$as_me:4826: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
   (eval "$NM \"conftest.$ac_objext\"" 2>conftest.err > conftest.out)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:4819: output\"" >&5)
+  (eval echo "\"\$as_me:4829: output\"" >&5)
   cat conftest.out >&5
   if $GREP 'External.*some_variable' conftest.out > /dev/null; then
     lt_cv_nm_interface="MS dumpbin"
@@ -6022,7 +6032,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 6025 "configure"' > conftest.$ac_ext
+  echo '#line 6035 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -8069,11 +8079,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8072: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8082: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:8076: \$? = $ac_status" >&5
+   echo "$as_me:8086: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8408,11 +8418,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8411: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8421: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:8415: \$? = $ac_status" >&5
+   echo "$as_me:8425: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8513,11 +8523,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8516: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8526: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8520: \$? = $ac_status" >&5
+   echo "$as_me:8530: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -8568,11 +8578,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8571: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8581: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8575: \$? = $ac_status" >&5
+   echo "$as_me:8585: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -11368,7 +11378,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 11371 "configure"
+#line 11381 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -11464,7 +11474,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 11467 "configure"
+#line 11477 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -17860,11 +17870,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17863: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17873: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:17867: \$? = $ac_status" >&5
+   echo "$as_me:17877: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -17959,11 +17969,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17962: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17972: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:17966: \$? = $ac_status" >&5
+   echo "$as_me:17976: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -18011,11 +18021,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:18014: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:18024: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:18018: \$? = $ac_status" >&5
+   echo "$as_me:18028: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -19112,7 +19122,7 @@ $as_echo "no" >&6; }
 fi
 
   if test "x$ac_ct_FT2_CONFIG" = x; then
-    FT2_CONFIG=":"
+    FT2_CONFIG="false"
   else
     case $cross_compiling:$ac_tool_warned in
 yes:)
@@ -19126,9 +19136,13 @@ else
   FT2_CONFIG="$ac_cv_prog_FT2_CONFIG"
 fi
 
-if test -n `$FT2_CONFIG --ftversion 2>/dev/null`; then
+if $FT2_CONFIG --ftversion >/dev/null 2>&1; then
   FREETYPE2_INCLUDES=`$FT2_CONFIG --cflags`
   FREETYPE2_LIBS=`$FT2_CONFIG --libs`
+elif test "x$need_freetype2:$with_freetype2_xpdf" = 'xyes:yes'; then
+  { { $as_echo "$as_me:$LINENO: error: did not find freetype-config required for system freetype2 library" >&5
+$as_echo "$as_me: error: did not find freetype-config required for system freetype2 library" >&2;}
+   { (exit 1); exit 1; }; }
 fi
 
 if test "x$with_gd_includes" != x && test "x$with_gd_includes" != xyes; then
@@ -19231,12 +19245,14 @@ else
   PKG_CONFIG="$ac_cv_prog_PKG_CONFIG"
 fi
 
-if $PKG_CONFIG poppler --atleast-version=0.8; then
+if $PKG_CONFIG poppler --atleast-version=0.10; then
   POPPLER_VERSION='-DPOPPLER_VERSION=\"'`$PKG_CONFIG poppler --modversion`'\"'
-  XPDF_INCLUDES=`$PKG_CONFIG poppler --cflags`
-  XPDF_INCLUDES=`echo $XPDF_INCLUDES`
-  XPDF_INCLUDES="$POPPLER_VERSION $XPDF_INCLUDES $XPDF_INCLUDES/goo"
+  XPDF_INCLUDES="$POPPLER_VERSION `$PKG_CONFIG poppler --cflags`"
   XPDF_LIBS=`$PKG_CONFIG poppler --libs`
+elif test "x$need_xpdf:$with_system_xpdf" = 'xyes:yes'; then
+  { { $as_echo "$as_me:$LINENO: error: did not find poppler-0.10 or better" >&5
+$as_echo "$as_me: error: did not find poppler-0.10 or better" >&2;}
+   { (exit 1); exit 1; }; }
 fi
 
 if test "x$with_graphite_includes" != x && test "x$with_graphite_includes" != xyes; then
@@ -19907,7 +19923,7 @@ fi
 done
 
 
-for ac_header in gtypes.h
+for ac_header in goo/gtypes.h
 do
 as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then

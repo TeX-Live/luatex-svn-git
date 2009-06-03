@@ -5,10 +5,10 @@
 # new script to build luatex binaries
 # ----------
 # Options:
-#       --make      : only make, no make distclean; configure
-#       --parallel  : make -j 2 -l 3.0
-#       --nostrip   : do not strip binary
-#       --mingw     : crosscompile for mingw32 from i-386linux
+#      --make      : only make, no make distclean; configure
+#      --parallel  : make -j 2 -l 3.0
+#      --nostrip   : do not strip binary
+#      --mingw     : crosscompile for mingw32 from i-386linux
       
 
 # try to find gnu make; we may need it
@@ -158,7 +158,8 @@ then
     --without-system-t1lib \
     --disable-shared    \
     --disable-largefile \
-    || exit 1 
+    --disable-ipc \
+   || exit 1 
 fi
 
 $MAKE

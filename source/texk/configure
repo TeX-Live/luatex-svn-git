@@ -686,11 +686,12 @@ enable_native_texlive_build
 enable_multiplatform
 enable_cxx_runtime_hack
 enable_web2c
+with_tex_banner
 with_editor
 enable_auto_core
 enable_dump_share
-enable_fmtutil
 enable_ipc
+enable_omfonts
 enable_tex
 enable_etex
 enable_aleph
@@ -743,7 +744,6 @@ dtl
 dvi2tty
 dvidvi
 dviljk
-dvipdfm
 dvipdfmx
 dvipng
 dvipos
@@ -1402,8 +1402,10 @@ Optional Features:
   --enable-auto-core        cause TeX&MF to dump core, given a certain
                             filename
   --disable-dump-share      make fmt/base/mem files architecture-dependent
-  --enable-fmtutil          use fmtutil for build dumps
-  --enable-ipc              enable TeX's --ipc option, i.e., pipe to a program
+  --disable-ipc             disable TeX's --ipc option, i.e., pipe to a
+                            program
+  --disable-omfonts         do not compile and install omfonts (use Web2C
+                            versions)
   --disable-tex             do not compile and install TeX
   --enable-etex             compile and install e-TeX
   --disable-aleph           do not compile and install Aleph
@@ -1411,7 +1413,8 @@ Optional Features:
   --disable-luatex          do not compile and install luaTeX
   --disable-xetex           do not compile and install XeTeX
   --disable-mf              do not build METAFONT
-  --enable-mf-nowin         build a separate non-windows-capable METAFONT
+  --disable-mf-nowin        do not build a separate non-windows-capable
+                            METAFONT
   --enable-epsfwin          include EPSF pseudo window support
   --enable-hp2627win        include HP 2627 window support
   --enable-mftalkwin        include mftalk (generic server) window support
@@ -1436,8 +1439,9 @@ Optional Features:
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+  --with-tex-banner=STR   version string appended to banner lines [Web2C YEAR]
   --with-editor=CMD       invoke CMD from the `e' option [vi +%d %s]
-  --with-mf-x-toolkit     Use X toolkit for METAFONT
+  --without-mf-x-toolkit  do not use X toolkit for METAFONT
   --with-system-kpathsea  use installed kpathsea headers and library
   --with-kpathsea-includes=DIR
                           kpathsea headers installed in DIR
@@ -2078,19 +2082,22 @@ fi
 
 
 
-## ac/withenable.ac: configure.ac fragment for the TeX Live top-level
-
-## utils/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory utils/
-
-
-
-
-
-
+case $with_x in
+  yes | no) : ;;
+  *) with_x=yes
+         { $as_echo "$as_me:$LINENO: Assuming \`--with-x'" >&5
+$as_echo "$as_me: Assuming \`--with-x'" >&6;}
+         ac_configure_args="$ac_configure_args '--with-x'" ;;
+esac
 
 
 
-## texk/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/
+
+
+
+
+
+
 
 ## texk/web2c/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/web2c/
 ## configure options and TL libraries required for web2c
@@ -2114,6 +2121,11 @@ test "x$enable_web2c" = xno || {
 ## texk/web2c/ac/web2c.ac: configure.ac fragment for the TeX Live subdirectory texk/web2c/
 ## configure options for TeX and MF
 
+# Check whether --with-tex-banner was given.
+if test "${with_tex_banner+set}" = set; then
+  withval=$with_tex_banner;
+fi
+
 # Check whether --with-editor was given.
 if test "${with_editor+set}" = set; then
   withval=$with_editor;
@@ -2126,14 +2138,14 @@ fi
 if test "${enable_dump_share+set}" = set; then
   enableval=$enable_dump_share;
 fi
-# Check whether --enable-fmtutil was given.
-if test "${enable_fmtutil+set}" = set; then
-  enableval=$enable_fmtutil;
-fi
 ## configure options for TeX
 # Check whether --enable-ipc was given.
 if test "${enable_ipc+set}" = set; then
   enableval=$enable_ipc;
+fi
+# Check whether --enable-omfonts was given.
+if test "${enable_omfonts+set}" = set; then
+  enableval=$enable_omfonts;
 fi
 # Check whether --enable-tex was given.
 if test "${enable_tex+set}" = set; then
@@ -2291,7 +2303,6 @@ fi
 
 
 
-
 ## texk/kpathsea/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/kpathsea/
 ## configure options and TL libraries required for kpathsea
 
@@ -2381,8 +2392,6 @@ case $enable_mktextex_default in
   *) enable_mktextex_default=no ;;
 esac
 
-
-## libs/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/
 
 
 
@@ -3127,16 +3136,6 @@ if test -x $srcdir/dviljk/configure; then
   DIST_SUBTEXK="$DIST_SUBTEXK dviljk"
   if false; then
     subdirs="$subdirs dviljk"
-
-  fi
-fi
-
-
-if test -x $srcdir/dvipdfm/configure; then
-  test "x$enable_dvipdfm" = xno || SUBTEXK="$SUBTEXK dvipdfm"
-  DIST_SUBTEXK="$DIST_SUBTEXK dvipdfm"
-  if false; then
-    subdirs="$subdirs dvipdfm"
 
   fi
 fi

@@ -27,8 +27,11 @@ tex_LDADD = $(LDADD) $(ipc_socketlibs)
 # TeX C sources
 tex_c_h = texini.c tex0.c tex1.c tex2.c texcoerce.h texd.h
 nodist_tex_SOURCES = $(tex_c_h) tex-pool.c texextra.c
-$(tex_c_h): tex-web2c
 
+# We must create texd.h before building the tex_OBJECTS.
+$(tex_OBJECTS): texd.h
+
+$(tex_c_h): tex-web2c
 tex-web2c: tex.p $(web2c_texmf)
 	$(web2c) tex
 	: $(synctex_convert_tex)
@@ -61,6 +64,25 @@ EXTRA_DIST += $(tex_ch_srcs) lib/texmfmp.c tmf-pool.h
 
 DISTCLEANFILES += $(nodist_tex_SOURCES) tex-final.ch tex-web2c \
 	tex.p tex.pool tex-tangle
+
+## TeX Tests
+##
+tex_tests = trip.test
+
+EXTRA_DIST += $(tex_tests)
+
+if TEX
+TESTS += $(tex_tests)
+check_PROGRAMS += dvitype pltotf tftopl
+endif TEX
+
+.PHONY: trip-clean
+clean-local:: trip-clean
+## trip.test
+trip-clean:
+	rm -f trip.tfm trip.pl trip.tex trip.fmt tripin.fot tripin.log
+	rm -f trip.fot trip.log trip.dvi trip.typ tripos.tex 8terminal.tex
+	rm -rf tfm
 
 ## Metafont
 ##
@@ -103,6 +125,9 @@ mf_c_h = mfini.c mf0.c mf1.c mfcoerce.h mfd.h
 nodist_libmf_a_SOURCES = $(mf_c_h) mf-pool.c
 libmf_a_CPPFLAGS = -DMETA_FONT
 
+# We must create mfd.h before building the libmf_a_OBJECTS.
+$(libmf_a_OBJECTS): mfd.h
+
 $(mf_c_h): mf-web2c
 mf-web2c: mf.p $(web2c_texmf) web2c/cvtmf1.sed web2c/cvtmf2.sed
 	$(web2c) mf
@@ -130,4 +155,76 @@ EXTRA_DIST += mf.web mf-binpool.ch mf.ch mftalk.h lib/texmfmp.c tmf-pool.h
 
 DISTCLEANFILES += $(nodist_libmf_a_SOURCES) mfextra.c mf-final.ch mf-web2c \
 	mf.p mf.pool mf-tangle
+
+## Metafont Tests
+##
+mf_tests = trap.test
+
+EXTRA_DIST += $(mf_tests)
+
+if MF
+TESTS += $(mf_tests)
+check_PROGRAMS += gftype tftopl
+endif MF
+
+.PHONY: trap-clean
+clean-local:: trap-clean
+## trap.test
+trap-clean:
+	rm -f trap.mf trap.base
+	rm -f mftrapin.fot mftrapin.log
+	rm -f mftrap.fot mftrap.log mftrap.tfm
+	rm -f mftrap.pl trap.72270gf trap.typ
+
+## Test data
+##
+EXTRA_DIST += \
+	triptrap/README \
+	triptrap/mftrap.diffs \
+	triptrap/mftrap.fot \
+	triptrap/mftrap.log \
+	triptrap/mftrap.pl \
+	triptrap/mftrap1.in \
+	triptrap/mftrap2.in \
+	triptrap/mftrapin.log \
+	triptrap/mptrap.diffs \
+	triptrap/mptrap.fot \
+	triptrap/mptrap.log \
+	triptrap/mptrap.pl \
+	triptrap/mptrap.readme \
+	triptrap/mptrap1.in \
+	triptrap/mptrap2.in \
+	triptrap/mptrapin.log \
+	triptrap/mtrap.0 \
+	triptrap/mtrap.1 \
+	triptrap/mtrap.log \
+	triptrap/mtrap.mp \
+	triptrap/texmf.cnf \
+	triptrap/trap.148 \
+	triptrap/trap.149 \
+	triptrap/trap.150 \
+	triptrap/trap.151 \
+	triptrap/trap.197 \
+	triptrap/trap.200 \
+	triptrap/trap.5 \
+	triptrap/trap.6 \
+	triptrap/trap.mf \
+	triptrap/trap.mp \
+	triptrap/trap.mpx \
+	triptrap/trap.typ \
+	triptrap/trapf.pl \
+	triptrap/trapman.tex \
+	triptrap/trip.diffs \
+	triptrap/trip.fot \
+	triptrap/trip.log \
+	triptrap/trip.pl \
+	triptrap/trip.tex \
+	triptrap/trip.typ \
+	triptrap/trip1.in \
+	triptrap/trip2.in \
+	triptrap/tripin.log \
+	triptrap/tripman.tex \
+	triptrap/tripos.tex \
+	triptrap/writeo \
+	triptrap/writeo.2
 

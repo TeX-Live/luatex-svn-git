@@ -34,9 +34,10 @@ EXTRA_DIST +=  $(XPDF_TREE)-foolabs
 ##
 EXTRA_DIST +=  $(XPDF_TREE)-PATCHES
 
-## in case of an SVN repository
+# in case of an SVN repository
 dist-hook:
 	rm -rf `find $(distdir)/$(XPDF_TREE) -name .svn`
+	rm -f $(distdir)/$(XPDF_TREE)/install-sh
 
 SUBDIRS = goo fofi xpdf
 

@@ -32,7 +32,6 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@OMFONTS_TRUE@am__append_1 = omegafonts
 EXTRA_PROGRAMS = $(am__EXEEXT_1) tex$(EXEEXT) mf$(EXEEXT) \
 	mf-nowin$(EXEEXT) mpost$(EXEEXT) luatex$(EXEEXT) \
 	luatangle$(EXEEXT)
@@ -41,14 +40,20 @@ bin_PROGRAMS = tangle$(EXEEXT) ctangle$(EXEEXT) $(am__EXEEXT_2) \
 	$(am__EXEEXT_4) $(am__EXEEXT_5) $(am__EXEEXT_6) \
 	$(am__EXEEXT_7)
 noinst_PROGRAMS = tangleboot$(EXEEXT) ctangleboot$(EXEEXT)
-check_PROGRAMS = md5main$(EXEEXT)
-DIST_COMMON = README $(am__configure_deps) $(dist_check_SCRIPTS) \
-	$(dist_man_MANS) $(srcdir)/../../build-aux/config.guess \
+check_PROGRAMS = $(am__EXEEXT_8) $(am__EXEEXT_9) $(am__EXEEXT_10) \
+	md5main$(EXEEXT)
+TESTS = tangle.test $(am__EXEEXT_13) ctiedir/ctie.test \
+	cwebdir/cweave.test tiedir/tie.test $(am__append_4) \
+	$(am__append_8) $(am__append_11) $(am__append_14) \
+	libmd5/md5.test
+DIST_COMMON = README $(am__configure_deps) $(dist_man_MANS) \
+	$(srcdir)/../../build-aux/config.guess \
 	$(srcdir)/../../build-aux/config.sub \
 	$(srcdir)/../../build-aux/depcomp \
 	$(srcdir)/../../build-aux/install-sh \
 	$(srcdir)/../../build-aux/ltmain.sh \
-	$(srcdir)/../../build-aux/missing $(srcdir)/Makefile.am \
+	$(srcdir)/../../build-aux/missing \
+	$(srcdir)/../../build-aux/mkinstalldirs $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/README \
 	$(srcdir)/alephdir/am/aleph.am $(srcdir)/am/bootstrap.am \
 	$(srcdir)/am/cweb.am $(srcdir)/am/texmf.am $(srcdir)/am/web.am \
@@ -60,7 +65,7 @@ DIST_COMMON = README $(am__configure_deps) $(dist_check_SCRIPTS) \
 	$(srcdir)/luatexdir/am/luamisc.am \
 	$(srcdir)/luatexdir/am/luasocket.am \
 	$(srcdir)/luatexdir/am/luatangle.am \
-	$(srcdir)/luatexdir/am/luatex.am $(srcdir)/mpdir/am/mp.am \
+	$(srcdir)/luatexdir/am/luatex.am \
 	$(srcdir)/mplibdir/am/libmplib.am \
 	$(srcdir)/mplibdir/am/mplib.am \
 	$(srcdir)/omegaware/am/omegaware.am \
@@ -71,22 +76,29 @@ DIST_COMMON = README $(am__configure_deps) $(dist_check_SCRIPTS) \
 	$(srcdir)/synctexdir/am/synctex.am \
 	$(srcdir)/xetexdir/am/xetex.am $(top_srcdir)/configure \
 	$(top_srcdir)/luatexdir/luafontloader/ff-config.in \
-	$(top_srcdir)/mpware/Makefile.in \
 	$(top_srcdir)/omegafonts/Makefile.in \
 	$(top_srcdir)/otps/Makefile.in \
 	$(top_srcdir)/window/Makefile.in ../../build-aux/config.guess \
 	../../build-aux/config.sub ../../build-aux/depcomp \
 	../../build-aux/install-sh ../../build-aux/ltmain.sh \
-	../../build-aux/missing ../../build-aux/texinfo.tex \
-	../../build-aux/ylwrap AUTHORS ChangeLog INSTALL NEWS
-@WEB_TRUE@am__append_2 = $(web_programs)
+	../../build-aux/missing ../../build-aux/mkinstalldirs \
+	../../build-aux/texinfo.tex ../../build-aux/ylwrap AUTHORS \
+	ChangeLog INSTALL NEWS
+@WEB_TRUE@am__append_1 = $(web_programs)
+@WEB_TRUE@am__append_2 = $(web_tests)
 @TEX_TRUE@am__append_3 = tex
-@MF_TRUE@am__append_4 = mf
-@MFN_TRUE@@MF_TRUE@am__append_5 = mf-nowin
-@MP_TRUE@am__append_6 = mpost
-@LUATEX_TRUE@am__append_7 = luatex luatangle
-@LUATEX_TRUE@am__append_8 = luatexdir/luatangle.test
-@MINGW32_FALSE@am__append_9 = -DLUA_USE_POSIX
+@TEX_TRUE@am__append_4 = $(tex_tests)
+@TEX_TRUE@am__append_5 = dvitype pltotf tftopl
+@MF_TRUE@am__append_6 = mf
+@MFN_TRUE@@MF_TRUE@am__append_7 = mf-nowin
+@MF_TRUE@am__append_8 = $(mf_tests)
+@MF_TRUE@am__append_9 = gftype tftopl
+@MP_TRUE@am__append_10 = mpost
+@MP_TRUE@am__append_11 = $(mp_tests)
+@MP_TRUE@am__append_12 = pltotf tftopl
+@LUATEX_TRUE@am__append_13 = luatex luatangle
+@LUATEX_TRUE@am__append_14 = luatexdir/luatangle.test
+@MINGW32_FALSE@am__append_15 = -DLUA_USE_POSIX
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/../../m4/kpse-asm.m4 \
@@ -118,10 +130,10 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
-mkinstalldirs = $(install_sh) -d
+mkinstalldirs = $(SHELL) $(top_srcdir)/../../build-aux/mkinstalldirs
 CONFIG_HEADER = c-auto.h ff-config.h
-CONFIG_CLEAN_FILES = CXXLD.sh mpware/Makefile omegafonts/Makefile \
-	otps/Makefile window/Makefile
+CONFIG_CLEAN_FILES = CXXLD.sh omegafonts/Makefile otps/Makefile \
+	window/Makefile
 ARFLAGS = cru
 libff_a_AR = $(AR) $(ARFLAGS)
 libff_a_LIBADD =
@@ -273,11 +285,11 @@ am_libzzip_a_OBJECTS = libzzip_a-dir.$(OBJEXT) libzzip_a-err.$(OBJEXT) \
 	libzzip_a-stat.$(OBJEXT) libzzip_a-write.$(OBJEXT) \
 	libzzip_a-zip.$(OBJEXT)
 libzzip_a_OBJECTS = $(am_libzzip_a_OBJECTS)
-am__EXEEXT_1 = bibtex$(EXEEXT) dvicopy$(EXEEXT) dvitomp$(EXEEXT) \
-	dvitype$(EXEEXT) gftodvi$(EXEEXT) gftopk$(EXEEXT) \
-	gftype$(EXEEXT) mft$(EXEEXT) patgen$(EXEEXT) pktogf$(EXEEXT) \
-	pktype$(EXEEXT) pltotf$(EXEEXT) pooltype$(EXEEXT) \
-	tftopl$(EXEEXT) vftovp$(EXEEXT) vptovf$(EXEEXT) weave$(EXEEXT)
+am__EXEEXT_1 = bibtex$(EXEEXT) dvicopy$(EXEEXT) dvitype$(EXEEXT) \
+	gftodvi$(EXEEXT) gftopk$(EXEEXT) gftype$(EXEEXT) mft$(EXEEXT) \
+	patgen$(EXEEXT) pktogf$(EXEEXT) pktype$(EXEEXT) \
+	pltotf$(EXEEXT) pooltype$(EXEEXT) tftopl$(EXEEXT) \
+	vftovp$(EXEEXT) vptovf$(EXEEXT) weave$(EXEEXT)
 @WEB_TRUE@am__EXEEXT_2 = $(am__EXEEXT_1)
 @TEX_TRUE@am__EXEEXT_3 = tex$(EXEEXT)
 @MF_TRUE@am__EXEEXT_4 = mf$(EXEEXT)
@@ -286,6 +298,10 @@ am__EXEEXT_1 = bibtex$(EXEEXT) dvicopy$(EXEEXT) dvitomp$(EXEEXT) \
 @LUATEX_TRUE@am__EXEEXT_7 = luatex$(EXEEXT) luatangle$(EXEEXT)
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
+@TEX_TRUE@am__EXEEXT_8 = dvitype$(EXEEXT) pltotf$(EXEEXT) \
+@TEX_TRUE@	tftopl$(EXEEXT)
+@MF_TRUE@am__EXEEXT_9 = gftype$(EXEEXT) tftopl$(EXEEXT)
+@MP_TRUE@am__EXEEXT_10 = pltotf$(EXEEXT) tftopl$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS) $(noinst_PROGRAMS)
 nodist_bibtex_OBJECTS = bibtex.$(OBJEXT)
 bibtex_OBJECTS = $(nodist_bibtex_OBJECTS)
@@ -312,10 +328,6 @@ nodist_dvicopy_OBJECTS = dvicopy.$(OBJEXT)
 dvicopy_OBJECTS = $(nodist_dvicopy_OBJECTS)
 dvicopy_LDADD = $(LDADD)
 dvicopy_DEPENDENCIES = $(proglib) $(am__DEPENDENCIES_1)
-nodist_dvitomp_OBJECTS = dvitomp.$(OBJEXT)
-dvitomp_OBJECTS = $(nodist_dvitomp_OBJECTS)
-dvitomp_LDADD = $(LDADD)
-dvitomp_DEPENDENCIES = $(proglib) $(am__DEPENDENCIES_1)
 nodist_dvitype_OBJECTS = dvitype.$(OBJEXT)
 dvitype_OBJECTS = $(nodist_dvitype_OBJECTS)
 dvitype_LDADD = $(LDADD)
@@ -450,20 +462,19 @@ SOURCES = $(libff_a_SOURCES) $(liblua51_a_SOURCES) \
 	$(nodist_bibtex_SOURCES) $(nodist_ctangle_SOURCES) \
 	$(nodist_ctangleboot_SOURCES) $(nodist_ctie_SOURCES) \
 	$(nodist_cweave_SOURCES) $(nodist_dvicopy_SOURCES) \
-	$(nodist_dvitomp_SOURCES) $(nodist_dvitype_SOURCES) \
-	$(gftodvi_SOURCES) $(nodist_gftodvi_SOURCES) \
-	$(nodist_gftopk_SOURCES) $(nodist_gftype_SOURCES) \
-	$(nodist_luatangle_SOURCES) $(nodist_luatex_SOURCES) \
-	$(nodist_EXTRA_luatex_SOURCES) $(md5main_SOURCES) \
-	$(nodist_mf_SOURCES) $(nodist_mf_nowin_SOURCES) \
-	$(nodist_mft_SOURCES) $(nodist_mpost_SOURCES) \
-	$(nodist_patgen_SOURCES) $(nodist_pktogf_SOURCES) \
-	$(nodist_pktype_SOURCES) $(nodist_pltotf_SOURCES) \
-	$(nodist_pooltype_SOURCES) $(nodist_tangle_SOURCES) \
-	$(nodist_tangleboot_SOURCES) $(nodist_tex_SOURCES) \
-	$(nodist_tftopl_SOURCES) $(nodist_tie_SOURCES) \
-	$(nodist_vftovp_SOURCES) $(nodist_vptovf_SOURCES) \
-	$(nodist_weave_SOURCES)
+	$(nodist_dvitype_SOURCES) $(gftodvi_SOURCES) \
+	$(nodist_gftodvi_SOURCES) $(nodist_gftopk_SOURCES) \
+	$(nodist_gftype_SOURCES) $(nodist_luatangle_SOURCES) \
+	$(nodist_luatex_SOURCES) $(nodist_EXTRA_luatex_SOURCES) \
+	$(md5main_SOURCES) $(nodist_mf_SOURCES) \
+	$(nodist_mf_nowin_SOURCES) $(nodist_mft_SOURCES) \
+	$(nodist_mpost_SOURCES) $(nodist_patgen_SOURCES) \
+	$(nodist_pktogf_SOURCES) $(nodist_pktype_SOURCES) \
+	$(nodist_pltotf_SOURCES) $(nodist_pooltype_SOURCES) \
+	$(nodist_tangle_SOURCES) $(nodist_tangleboot_SOURCES) \
+	$(nodist_tex_SOURCES) $(nodist_tftopl_SOURCES) \
+	$(nodist_tie_SOURCES) $(nodist_vftovp_SOURCES) \
+	$(nodist_vptovf_SOURCES) $(nodist_weave_SOURCES)
 DIST_SOURCES = $(libff_a_SOURCES) $(liblua51_a_SOURCES) \
 	$(libluamisc_a_SOURCES) $(EXTRA_libluamisc_a_SOURCES) \
 	$(libluasocket_a_SOURCES) $(libluatex_a_SOURCES) \
@@ -484,7 +495,13 @@ RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = doc lib man mpware web2c . window omegafonts otps
+am__EXEEXT_11 = bibtex.test dvicopy.test dvitype.test gftodvi.test \
+	gftopk.test gftype.test mft.test patgen.test pktogf.test \
+	pktype.test pltotf.test pooltype.test tftopl.test vftovp.test \
+	vptovf.test weave.test
+am__EXEEXT_12 = $(am__EXEEXT_11)
+@WEB_TRUE@am__EXEEXT_13 = $(am__EXEEXT_12)
+DIST_SUBDIRS = $(SUBDIRS)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -550,6 +567,7 @@ KPATHSEA_DEPEND = @KPATHSEA_DEPEND@
 KPATHSEA_INCLUDES = @KPATHSEA_INCLUDES@
 KPATHSEA_LIBS = @KPATHSEA_LIBS@
 KPATHSEA_PATHS_H = @KPATHSEA_PATHS_H@
+KPSEWHICH = @KPSEWHICH@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LEX = @LEX@
@@ -674,25 +692,59 @@ x_tool_libs = @x_tool_libs@
 ACLOCAL_AMFLAGS = -I ../../m4
 INCLUDES = -I$(top_builddir)/.. $(KPATHSEA_INCLUDES)
 version = $(WEB2CVERSION)
-SUBDIRS = doc lib man mpware web2c . window $(am__append_1) otps
+SUBDIRS = doc lib man web2c . window omegafonts otps
 proglib = lib/lib.a
 dist_man_MANS = 
 nodist_man_MANS = ctiedir/ctie.1 tiedir/tie.1
-dist_check_SCRIPTS = tangle.test luatexdir/luatangle.test \
-	libmd5/md5.test
-TESTS = tangle.test tiedir/tie.test $(am__append_8) libmd5/md5.test
 EXTRA_LIBRARIES = libmf.a libmplib.a liblua51.a libzzip.a \
 	libluasocket.a libluamisc.a libff.a libluatex.a libmd5.a
 EXTRA_DIST = PROJECTS cftests config.h cpascal.h help.h tangle.web \
 	tangle.ch tangleboot.p cwebdir ctangleboot.c cwebboot.c \
-	$(web_programs:=.web) $(web_programs:=.ch) ctiedir tiedir \
-	lib/mfmpi386.asm lib/mfmpw32.c lib/texmfmp.c texmfmem.h \
-	texmfmp-help.h texmfmp.h $(tex_ch_srcs) lib/texmfmp.c \
-	tmf-pool.h mf.web mf-binpool.ch mf.ch mftalk.h lib/texmfmp.c \
-	tmf-pool.h mplibdir/ChangeLog $(mpost_web) $(libmplib_web) \
-	mplibdir/lmplib.c $(luatex_sources) luatexdir/luatex.defines \
-	luatexdir/luatexextra.in luatexdir/ptexlib.h \
-	$(luatangle_sources) luatexdir/lua51/Makefile \
+	tangle.test $(web_programs:=.web) $(web_programs:=.ch) \
+	$(web_tests) tests/Cherokee.pl tests/OCherokee.ovp \
+	tests/allbib.aux tests/allbib.tex tests/apalike.bst \
+	tests/batch.tex tests/check.log tests/cmr10.600gf \
+	tests/cmr10.pk tests/cmr10.pl tests/cmr10.tfm tests/cmr7.tfm \
+	tests/cmr8.tfm tests/cmti10.tfm tests/cmtt10.tfm \
+	tests/cmtt8.tfm tests/dict tests/eight.tex tests/end.tex \
+	tests/exampl.aux tests/exampl.tex tests/gray.tfm \
+	tests/hello.tex tests/io.mf tests/just.texi tests/label.mp \
+	tests/label.mpx tests/level1.opl tests/logo8.tfm \
+	tests/longtfm.tex tests/magic.tex tests/memtest.tex \
+	tests/mltextst.tex tests/mptest.mp tests/mptest.mpx \
+	tests/one.two.mf tests/one.two.mp tests/one.two.tex \
+	tests/online.mf tests/openout.mp tests/openout.tex \
+	tests/pagenum.dvi tests/pagenum.tex tests/patgen.in \
+	tests/patterns tests/plain.mft tests/pplr.dvi tests/pplr.tfm \
+	tests/ptmr.dvi tests/ptmr.tfm tests/ptmr.vf tests/ptmr.vpl \
+	tests/rpsyr.tfm tests/rptmr.tfm tests/story.dvi \
+	tests/testex.err tests/testex.mp tests/testex.tex \
+	tests/translate tests/uno.dos tests/write18.tex \
+	tests/xampl.bib ctiedir tiedir lib/mfmpi386.asm lib/mfmpw32.c \
+	lib/texmfmp.c texmfmem.h texmfmp-help.h texmfmp.h \
+	$(tex_ch_srcs) lib/texmfmp.c tmf-pool.h $(tex_tests) mf.web \
+	mf-binpool.ch mf.ch mftalk.h lib/texmfmp.c tmf-pool.h \
+	$(mf_tests) triptrap/README triptrap/mftrap.diffs \
+	triptrap/mftrap.fot triptrap/mftrap.log triptrap/mftrap.pl \
+	triptrap/mftrap1.in triptrap/mftrap2.in triptrap/mftrapin.log \
+	triptrap/mptrap.diffs triptrap/mptrap.fot triptrap/mptrap.log \
+	triptrap/mptrap.pl triptrap/mptrap.readme triptrap/mptrap1.in \
+	triptrap/mptrap2.in triptrap/mptrapin.log triptrap/mtrap.0 \
+	triptrap/mtrap.1 triptrap/mtrap.log triptrap/mtrap.mp \
+	triptrap/texmf.cnf triptrap/trap.148 triptrap/trap.149 \
+	triptrap/trap.150 triptrap/trap.151 triptrap/trap.197 \
+	triptrap/trap.200 triptrap/trap.5 triptrap/trap.6 \
+	triptrap/trap.mf triptrap/trap.mp triptrap/trap.mpx \
+	triptrap/trap.typ triptrap/trapf.pl triptrap/trapman.tex \
+	triptrap/trip.diffs triptrap/trip.fot triptrap/trip.log \
+	triptrap/trip.pl triptrap/trip.tex triptrap/trip.typ \
+	triptrap/trip1.in triptrap/trip2.in triptrap/tripin.log \
+	triptrap/tripman.tex triptrap/tripos.tex triptrap/writeo \
+	triptrap/writeo.2 mplibdir/ChangeLog $(mpost_web) $(mp_tests) \
+	$(libmplib_web) mplibdir/lmplib.c $(luatex_sources) \
+	luatexdir/luatex.defines luatexdir/luatexextra.in \
+	luatexdir/ptexlib.h luatexdir/luatex.mk $(luatangle_sources) \
+	luatexdir/luatangle.test luatexdir/lua51/Makefile \
 	luatexdir/lua51/liolib.c luatexdir/lua51/lua.c \
 	luatexdir/lua51/luac.c luatexdir/lua51/print.c \
 	luatexdir/zziplib/COPYING.LIB luatexdir/zziplib/ChangeLog \
@@ -705,7 +757,7 @@ EXTRA_DIST = PROJECTS cftests config.h cpascal.h help.h tangle.web \
 	luatexdir/zziplib/docs luatexdir/zziplib/m4 \
 	luatexdir/zziplib/msvc6 luatexdir/zziplib/msvc7 \
 	luatexdir/zziplib/msvc8 luatexdir/zziplib/test \
-	luatexdir/zziplib/uses luatexdir/zziplib/zzip/Makefile \
+	luatexdir/zziplib/zzip/Makefile \
 	luatexdir/zziplib/zzip/Makefile.am \
 	luatexdir/zziplib/zzip/Makefile.in \
 	luatexdir/zziplib/zzip/_msvc.h \
@@ -809,18 +861,26 @@ EXTRA_DIST = PROJECTS cftests config.h cpascal.h help.h tangle.web \
 	luatexdir/luafontloader/fontforge/plugins/Makefile.in \
 	luatexdir/ChangeLog luatexdir/NEWS luatexdir/README \
 	luatexdir/change-files.txt luatexdir/font/subfont.txt \
-	luatexdir/Makefile.in luatexdir/luatex.mk \
-	luatexdir/luatexlib.mk fmtutil.in Makefile.in.orig \
-	configure.in.orig
+	libmd5/md5.test fmtutil.in Makefile.in.orig configure.in.orig \
+	metapost.mk
 DISTCLEANFILES = $(EXTRA_LIBRARIES) tangle.c tangle.h tangle.p \
 	tangle-web2c stamp-tangle tangleboot.c tangleboot.h ctangle.c \
 	cweb.c stamp-ctangle cftest.p $(web_programs:=.c) \
 	$(web_programs:=.h) $(web_programs:=.p) \
-	$(web_programs:=-web2c) ctie.c cweave.c tie.c tie.outc \
-	tie.outm $(nodist_tex_SOURCES) tex-final.ch tex-web2c tex.p \
-	tex.pool tex-tangle $(nodist_libmf_a_SOURCES) mfextra.c \
-	mf-final.ch mf-web2c mf.p mf.pool mf-tangle \
-	$(nodist_mpost_SOURCES) mpxout-ctangle \
+	$(web_programs:=-web2c) tests/xexampl.aux tests/xexampl.bbl \
+	tests/xexampl.blg tests/xstory.dvi tests/xpplr.dvi \
+	tests/xstory.dvityp tests/xpagenum.typ cmr10.dvi \
+	tests/xcmr10.dvi cmr10.pk tests/xcmr10.pk tests/xcmr10.gft1 \
+	tests/xcmr10.gft2 io.tex tests/io.tex tests/xpatout pattmp.4 \
+	cmr10.gf tests/xcmr10.600gf tests/xcmr10.pktyp \
+	tests/xcmr10.tfm tests/xtexpool.typ tests/xcmr10.pl \
+	tests/xptmr.vpl tests/xptmr.tfm tests/xptmr.vf pooltype.tex \
+	ctie.c cweave.c tie.c ctie.outc ctie.outm common.tex \
+	common.scn common.idx tie.outc tie.outm $(nodist_tex_SOURCES) \
+	tex-final.ch tex-web2c tex.p tex.pool tex-tangle \
+	$(nodist_libmf_a_SOURCES) mfextra.c mf-final.ch mf-web2c mf.p \
+	mf.pool mf-tangle $(nodist_mpost_SOURCES) mpxout-ctangle \
+	ptmr.mpx tests/xptmr.mpx tests/xstory.mpx \
 	$(nodist_libmplib_a_SOURCES) mp-ctangle psout-ctangle \
 	svgout-ctangle $(nodist_luatex_SOURCES) luatex-web2c luatex.p \
 	luatex.pool luatex-tangle luatexdir/luatex.version luatangle.c \
@@ -845,17 +905,19 @@ otangle = WEBINPUTS=.:$(srcdir) $(buildenv) $(OTANGLE)
 ctangle = $(buildenv) $(CTANGLE)
 ctangleboot = $(buildenv) $(CTANGLEBOOT)
 tie = WEBINPUTS=.:$(srcdir) $(buildenv) $(TIE)
+DIFF = diff
+DIFFFLAGS = 
+TESTS_ENVIRONMENT = DIFF='$(DIFF)' DIFFFLAGS='$(DIFFFLAGS)' LN_S='$(LN_S)' KPSEWHICH='$(KPSEWHICH)'
 dumpenv = TEXMFCNF=../kpathsea
 nodist_tangle_SOURCES = tangle.c tangle.h
 nodist_tangleboot_SOURCES = tangleboot.c tangleboot.h
 nodist_ctangle_SOURCES = ctangle.c cweb.c
 nodist_ctangleboot_SOURCES = ctangleboot.c cwebboot.c
-web_programs = bibtex dvicopy dvitomp dvitype gftodvi gftopk gftype mft \
+web_programs = bibtex dvicopy dvitype gftodvi gftopk gftype mft \
 	patgen pktogf pktype pltotf pooltype tftopl vftovp vptovf weave
 
 nodist_bibtex_SOURCES = bibtex.c bibtex.h
 nodist_dvicopy_SOURCES = dvicopy.c dvicopy.h
-nodist_dvitomp_SOURCES = dvitomp.c dvitomp.h
 nodist_dvitype_SOURCES = dvitype.c dvitype.h
 nodist_gftodvi_SOURCES = gftodvi.c gftodvi.h
 gftodvi_SOURCES = gftodmem.h
@@ -871,6 +933,7 @@ nodist_tftopl_SOURCES = tftopl.c tftopl.h
 nodist_vftovp_SOURCES = vftovp.c vftovp.h
 nodist_vptovf_SOURCES = vptovf.c vptovf.h
 nodist_weave_SOURCES = weave.c weave.h
+web_tests = $(web_programs:=.test)
 nodist_ctie_SOURCES = ctie.c
 nodist_cweave_SOURCES = cweave.c cweb.c
 nodist_tie_SOURCES = tie.c
@@ -888,6 +951,7 @@ tex_ch_srcs = \
 	$(tex_ch_synctex) \
 	tex-binpool.ch
 
+tex_tests = trip.test
 nodist_mf_SOURCES = mfextra.c
 mf_CPPFLAGS = $(X_CFLAGS)
 mf_LDADD = libmf.a $(LDADD) $(windowlib) $(mf_x_libs)
@@ -901,6 +965,7 @@ mf_x_libs = $(X_LIBS) $(x_tool_libs) $(X_PRE_LIBS) $(x_ext_lib) $(wlibs) $(X_EXT
 mf_c_h = mfini.c mf0.c mf1.c mfcoerce.h mfd.h
 nodist_libmf_a_SOURCES = $(mf_c_h) mf-pool.c
 libmf_a_CPPFLAGS = -DMETA_FONT
+mf_tests = trap.test
 mp_ctangle = CWEBINPUTS=$(srcdir)/mplibdir $(ctangle)
 mpost_CPPFLAGS = -I$(srcdir)/mplibdir
 mpost_DEPENDENCIES = libmplib.a
@@ -908,6 +973,7 @@ mpost_LDADD = libmplib.a $(KPATHSEA_LIBS) -lm
 nodist_mpost_SOURCES = mpost.c $(mpxout_c_h)
 mpxout_c_h = mpxout.c mpxout.h
 mpost_web = mplibdir/mpost.w mplibdir/mpxout.w
+mp_tests = mplibdir/dvitomp.test mplibdir/mptrap.test
 libmplib_a_CPPFLAGS = -I$(srcdir)/mplibdir
 libmplib_a_SOURCES = mplibdir/avl.h mplibdir/avl.c
 nodist_libmplib_a_SOURCES = memio.c tfmin.c $(mp_c_h) $(psout_c_h) \
@@ -935,7 +1001,7 @@ nodist_luatex_SOURCES = $(luatex_c_h) luatex-pool.c luatexextra.c luatexdir/luat
 luatex_sources = luatexdir/luatex.web luatexdir/luatex.ch
 nodist_luatangle_SOURCES = luatangle.c luatangle.h
 luatangle_sources = luatexdir/luatangle.web luatexdir/luatangle.ch
-liblua51_a_CPPFLAGS = -I$(top_srcdir)/luatexdir/lua51 $(am__append_9)
+liblua51_a_CPPFLAGS = -I$(top_srcdir)/luatexdir/lua51 $(am__append_15)
 liblua51_a_SOURCES = \
 	luatexdir/lua51/lapi.c \
 	luatexdir/lua51/lapi.h \
@@ -1328,7 +1394,7 @@ all: c-auto.h ff-config.h
 .SUFFIXES: .c .cc .cxx .lo .o .obj
 am--refresh:
 	@:
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/am/bootstrap.am $(srcdir)/am/web.am $(srcdir)/am/cweb.am $(srcdir)/am/texmf.am $(srcdir)/mpdir/am/mp.am $(srcdir)/mplibdir/am/mplib.am $(srcdir)/mplibdir/am/libmplib.am $(srcdir)/etexdir/am/etex.am $(srcdir)/pdftexdir/am/pdftex.am $(srcdir)/pdftexdir/am/libpdftex.am $(srcdir)/pdftexdir/am/ttf2afm.am $(srcdir)/pdftexdir/am/pdftosrc.am $(srcdir)/luatexdir/am/luatex.am $(srcdir)/luatexdir/am/luatangle.am $(srcdir)/luatexdir/am/liblua51.am $(srcdir)/luatexdir/am/libzzip.am $(srcdir)/luatexdir/am/luasocket.am $(srcdir)/luatexdir/am/luamisc.am $(srcdir)/luatexdir/am/luafontforge.am $(srcdir)/luatexdir/am/libluatex.am $(srcdir)/xetexdir/am/xetex.am $(srcdir)/omegaware/am/omegaware.am $(srcdir)/alephdir/am/aleph.am $(srcdir)/synctexdir/am/synctex.am $(srcdir)/libmd5/am/md5.am $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/am/bootstrap.am $(srcdir)/am/web.am $(srcdir)/am/cweb.am $(srcdir)/am/texmf.am $(srcdir)/mplibdir/am/mplib.am $(srcdir)/mplibdir/am/libmplib.am $(srcdir)/etexdir/am/etex.am $(srcdir)/pdftexdir/am/pdftex.am $(srcdir)/pdftexdir/am/libpdftex.am $(srcdir)/pdftexdir/am/ttf2afm.am $(srcdir)/pdftexdir/am/pdftosrc.am $(srcdir)/luatexdir/am/luatex.am $(srcdir)/luatexdir/am/luatangle.am $(srcdir)/luatexdir/am/liblua51.am $(srcdir)/luatexdir/am/libzzip.am $(srcdir)/luatexdir/am/luasocket.am $(srcdir)/luatexdir/am/luamisc.am $(srcdir)/luatexdir/am/luafontforge.am $(srcdir)/luatexdir/am/libluatex.am $(srcdir)/xetexdir/am/xetex.am $(srcdir)/omegaware/am/omegaware.am $(srcdir)/alephdir/am/aleph.am $(srcdir)/synctexdir/am/synctex.am $(srcdir)/libmd5/am/md5.am $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -1386,8 +1452,6 @@ stamp-h2: $(top_srcdir)/luatexdir/luafontloader/ff-config.in $(top_builddir)/con
 distclean-hdr:
 	-rm -f c-auto.h stamp-h1 ff-config.h stamp-h2
 CXXLD.sh: $(top_builddir)/config.status $(srcdir)/README
-	cd $(top_builddir) && $(SHELL) ./config.status $@
-mpware/Makefile: $(top_builddir)/config.status $(top_srcdir)/mpware/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 omegafonts/Makefile: $(top_builddir)/config.status $(top_srcdir)/omegafonts/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
@@ -1491,9 +1555,6 @@ cweave$(EXEEXT): $(cweave_OBJECTS) $(cweave_DEPENDENCIES)
 dvicopy$(EXEEXT): $(dvicopy_OBJECTS) $(dvicopy_DEPENDENCIES) 
 	@rm -f dvicopy$(EXEEXT)
 	$(LINK) $(dvicopy_OBJECTS) $(dvicopy_LDADD) $(LIBS)
-dvitomp$(EXEEXT): $(dvitomp_OBJECTS) $(dvitomp_DEPENDENCIES) 
-	@rm -f dvitomp$(EXEEXT)
-	$(LINK) $(dvitomp_OBJECTS) $(dvitomp_LDADD) $(LIBS)
 dvitype$(EXEEXT): $(dvitype_OBJECTS) $(dvitype_DEPENDENCIES) 
 	@rm -f dvitype$(EXEEXT)
 	$(LINK) $(dvitype_OBJECTS) $(dvitype_LDADD) $(LIBS)
@@ -1581,7 +1642,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cweb.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cwebboot.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dvicopy.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dvitomp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dvitype.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gftodvi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gftopk.Po@am__quote@
@@ -5482,8 +5542,7 @@ distcleancheck: distclean
 	       $(distcleancheck_listfiles) ; \
 	       exit 1; } >&2
 check-am: all-am
-	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS) \
-	  $(dist_check_SCRIPTS)
+	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS)
 	$(MAKE) $(AM_MAKEFLAGS) check-TESTS
 check: check-recursive
 all-am: Makefile $(PROGRAMS) $(MANS) c-auto.h ff-config.h
@@ -5518,10 +5577,12 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+@LUATEX_FALSE@@MP_FALSE@install-exec-hook:
+@LUATEX_FALSE@@MP_FALSE@uninstall-hook:
 clean: clean-recursive
 
 clean-am: clean-binPROGRAMS clean-checkPROGRAMS clean-generic \
-	clean-libtool clean-noinstPROGRAMS mostlyclean-am
+	clean-libtool clean-local clean-noinstPROGRAMS mostlyclean-am
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
@@ -5545,6 +5606,8 @@ install-data-am: install-man
 install-dvi: install-dvi-recursive
 
 install-exec-am: install-binPROGRAMS
+	@$(NORMAL_INSTALL)
+	$(MAKE) $(AM_MAKEFLAGS) install-exec-hook
 
 install-html: install-html-recursive
 
@@ -5579,39 +5642,45 @@ ps: ps-recursive
 ps-am:
 
 uninstall-am: uninstall-binPROGRAMS uninstall-man
+	@$(NORMAL_INSTALL)
+	$(MAKE) $(AM_MAKEFLAGS) uninstall-hook
 
 uninstall-man: uninstall-man1
 
 .MAKE: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) install-am \
-	install-strip
+	install-exec-am install-strip uninstall-am
 
 .PHONY: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) CTAGS GTAGS \
 	all all-am am--refresh check check-TESTS check-am clean \
 	clean-binPROGRAMS clean-checkPROGRAMS clean-generic \
-	clean-libtool clean-noinstPROGRAMS ctags ctags-recursive dist \
-	dist-all dist-bzip2 dist-gzip dist-hook dist-lzma dist-shar \
-	dist-tarZ dist-xz dist-zip distcheck distclean \
-	distclean-compile distclean-generic distclean-hdr \
+	clean-libtool clean-local clean-noinstPROGRAMS ctags \
+	ctags-recursive dist dist-all dist-bzip2 dist-gzip dist-hook \
+	dist-lzma dist-shar dist-tarZ dist-xz dist-zip distcheck \
+	distclean distclean-compile distclean-generic distclean-hdr \
 	distclean-libtool distclean-tags distcleancheck distdir \
 	distuninstallcheck dvi dvi-am html html-am info info-am \
 	install install-am install-binPROGRAMS install-data \
 	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-man install-man1 install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs installdirs-am \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
-	pdf pdf-am ps ps-am tags tags-recursive uninstall uninstall-am \
-	uninstall-binPROGRAMS uninstall-man uninstall-man1
+	install-exec-am install-exec-hook install-html install-html-am \
+	install-info install-info-am install-man install-man1 \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-recursive \
+	uninstall uninstall-am uninstall-binPROGRAMS uninstall-hook \
+	uninstall-man uninstall-man1
 
 
+# in case of an SVN repository
 dist-hook:
 	rm -rf `find $(distdir) -name .svn`
 
+# Rebuild $(proglib)
 $(proglib): $(KPATHSEA_DEPEND) ${srcdir}/lib/*.c
 	cd lib && $(MAKE) $(AM_MAKEFLAGS)
 
+# Rebuild Web2C programs
 web2c/stamp-fixwrites: $(web2c_common) ${srcdir}/web2c/*.[chly]
 	cd web2c && $(MAKE) $(AM_MAKEFLAGS) stamp-fixwrites
 web2c/stamp-splitup: $(web2c_common) ${srcdir}/web2c/*.[chly]
@@ -5679,6 +5748,7 @@ ctangle.c: ctangleboot$(EXEEXT) cwebdir/ctangle.w cwebdir/ctang-w2c.ch
 cweb.c: ctangleboot$(EXEEXT) cwebdir/common.w cwebdir/comm-w2c.ch
 	CWEBINPUTS=$(srcdir)/cwebdir $(ctangleboot) common comm-w2c cweb.c
 # ctangleboot.c and cwebboot.c are in the distribution
+$(ctangleboot_OBJECTS): stamp-ctangle
 stamp-ctangle: ctangleboot.c cwebboot.c
 	date >stamp-ctangle
 # This is not run unless one of the cwebdir/* files is changed.
@@ -5687,8 +5757,7 @@ stamp-ctangle: ctangleboot.c cwebboot.c
 # We must serialize this.
 ctangleboot.c: cwebboot.c cwebdir/ctangle.w cwebdir/ctang-w2c.ch
 	if [ -r $(CTANGLE) ] || [ -r $(CTANGLE).exe ]; then \
-	  CWEBINPUTS=$(srcdir)/cwebdir $(ctangle) ctangle ctang-w2c; \
-	  mv ctangle.c ctangleboot.c; \
+	  CWEBINPUTS=$(srcdir)/cwebdir $(ctangle) ctangle ctang-w2c ctangleboot.c; \
 	elif [ -r ctangleboot.c ]; then \
 	  touch ctangleboot.c; \
 	else \
@@ -5698,8 +5767,7 @@ ctangleboot.c: cwebboot.c cwebdir/ctangle.w cwebdir/ctang-w2c.ch
 	$(MAKE) $(AM_MAKEFLAGS) ctangle$(EXEEXT)
 cwebboot.c: cwebdir/common.w cwebdir/comm-w2c.ch
 	if [ -r $(CTANGLE) ] || [ -r $(CTANGLE).exe ]; then \
-	  CWEBINPUTS=$(srcdir)/cwebdir $(ctangle) common comm-w2c cweb.c; \
-	  mv cweb.c cwebboot.c; \
+	  CWEBINPUTS=$(srcdir)/cwebdir $(ctangle) common comm-w2c cwebboot.c; \
 	elif [ -r cwebboot.c ]; then \
 	  touch cwebboot.c; \
 	else \
@@ -5719,13 +5787,6 @@ dvicopy-web2c: $(web2c_depend) dvicopy.p
 	touch dvicopy.c dvicopy.h
 dvicopy.p: tangle$(EXEEXT) dvicopy.web dvicopy.ch
 	$(tangle) dvicopy dvicopy
-dvitomp.c dvitomp.h: dvitomp-web2c
-dvitomp-web2c: $(web2c_depend) dvitomp.p
-	$(web2c) dvitomp
-	echo timestamp >$@
-	touch dvitomp.c dvitomp.h
-dvitomp.p: tangle$(EXEEXT) dvitomp.web dvitomp.ch
-	$(tangle) dvitomp dvitomp
 dvitype.c dvitype.h: dvitype-web2c
 dvitype-web2c: $(web2c_depend) dvitype.p
 	$(web2c) dvitype
@@ -5830,8 +5891,11 @@ cweave.c: ctangle$(EXEEXT) cwebdir/cweave.w cwebdir/cweav-w2c.ch
 	CWEBINPUTS=$(srcdir)/cwebdir $(ctangle) cweave cweav-w2c
 tie.c: ctangle$(EXEEXT) tiedir/tie.w tiedir/tie-w2c.ch
 	CWEBINPUTS=$(srcdir)/tiedir $(ctangle) tie.w tie-w2c.ch
-$(tex_c_h): tex-web2c
 
+# We must create texd.h before building the tex_OBJECTS.
+$(tex_OBJECTS): texd.h
+
+$(tex_c_h): tex-web2c
 tex-web2c: tex.p $(web2c_texmf)
 	$(web2c) tex
 	: $(synctex_convert_tex)
@@ -5853,8 +5917,18 @@ tex-tangle: tangle$(EXEEXT) tex.web tex-final.ch
 
 tex-final.ch: tie$(EXEEXT) $(tex_ch_srcs)
 	$(tie) -c $@ $(tex_ch_srcs)
+
+.PHONY: trip-clean
+clean-local:: trip-clean
+trip-clean:
+	rm -f trip.tfm trip.pl trip.tex trip.fmt tripin.fot tripin.log
+	rm -f trip.fot trip.log trip.dvi trip.typ tripos.tex 8terminal.tex
+	rm -rf tfm
 $(windowlib): mfd.h $(srcdir)/window/*.c
 	cd window && $(MAKE) $(AM_MAKEFLAGS) libwindow.a
+
+# We must create mfd.h before building the libmf_a_OBJECTS.
+$(libmf_a_OBJECTS): mfd.h
 
 $(mf_c_h): mf-web2c
 mf-web2c: mf.p $(web2c_texmf) web2c/cvtmf1.sed web2c/cvtmf2.sed
@@ -5879,6 +5953,14 @@ mf-tangle: tangle$(EXEEXT) mf.web mf-final.ch
 mf-final.ch: tie$(EXEEXT) mf.web mf.ch mf-binpool.ch
 	$(tie) -c $@ mf.web mf.ch mf-binpool.ch
 
+.PHONY: trap-clean
+clean-local:: trap-clean
+trap-clean:
+	rm -f trap.mf trap.base
+	rm -f mftrapin.fot mftrapin.log
+	rm -f mftrap.fot mftrap.log mftrap.tfm
+	rm -f mftrap.pl trap.72270gf trap.typ
+
 mpost.c: ctangle$(EXEEXT) mplibdir/mpost.w
 	$(mp_ctangle) mpost.w
 
@@ -5889,6 +5971,26 @@ mpxout-ctangle: ctangle$(EXEEXT) mplibdir/mpxout.w
 	touch $(mpxout_c_h)
 
 $(mpost_OBJECTS): $(nodist_mpost_SOURCES) libmplib.a
+
+# Double-colon rules since we do something similar in luatexdir (maybe others).
+@MP_TRUE@install-exec-hook::
+@MP_TRUE@	cd $(DESTDIR)$(bindir) && rm -f dvitomp$(EXEEXT) \
+@MP_TRUE@	  && $(LN_S) mpost$(EXEEXT) dvitomp$(EXEEXT)
+@MP_TRUE@uninstall-hook::
+@MP_TRUE@	rm -f $(DESTDIR)$(bindir)/dvitomp$(EXEEXT)
+
+.PHONY: mptrap-clean
+clean-local:: mptrap-clean
+mptrap-clean:
+	rm -f mtrap.mp mtrap.mem trapf.tfm
+	rm -f mtrap.log mtrap.0 mtrap.1 writeo writeo.log writeo.2
+	rm -f trap.mp trap.mpx mptrapin.fot mptrapin.log
+	rm -f mptrap.fot mptrap.log mptrap.tfm
+	rm -f trap.ps trap.mem trap.0 trap.5 trap.6 trap.95 trap.96 trap.97
+	rm -f trap.98 trap.99 trap.100 trap.101 trap.102 trap.103 trap.104
+	rm -f trap.105 trap.106 trap.107 trap.108 trap.109 trap.148
+	rm -f trap.149 trap.150 trap.151 trap.197 trap.200
+	rm -f mptrap.pl
 
 memio.c: ctangle$(EXEEXT) mplibdir/memio.w
 	$(mp_ctangle) memio.w
@@ -5938,6 +6040,16 @@ luatexdir/luatex.version: luatexdir/luatex.web
 luatexdir/luatexextra.h: luatexdir/luatexextra.in luatexdir/luatex.version
 	sed -e s/LUATEX-VERSION/`cat luatexdir/luatex.version`/ \
 	  $(srcdir)/luatexdir/luatexextra.in >$@
+
+# Double-colon rules since we do something similar in mplibdir (maybe others).
+@LUATEX_TRUE@install-exec-hook::
+@LUATEX_TRUE@	cd $(DESTDIR)$(bindir) && rm -f texlua$(EXEEXT) \
+@LUATEX_TRUE@	  && $(LN_S) luatex$(EXEEXT) texlua$(EXEEXT)
+@LUATEX_TRUE@	cd $(DESTDIR)$(bindir) && rm -f texluac$(EXEEXT) \
+@LUATEX_TRUE@	  && $(LN_S) luatex$(EXEEXT) texluac$(EXEEXT)
+@LUATEX_TRUE@uninstall-hook::
+@LUATEX_TRUE@	rm -f $(DESTDIR)$(bindir)/texlua$(EXEEXT)
+@LUATEX_TRUE@	rm -f $(DESTDIR)$(bindir)/texluac$(EXEEXT)
 luatangle.c luatangle.h: luatangle-web2c
 luatangle-web2c: $(web2c_depend) luatangle.p
 	$(web2c) luatangle

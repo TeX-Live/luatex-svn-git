@@ -1,3 +1,73 @@
+2009-06-03  Karl Berry  <karl@tug.org>
+
+	* configure.ac (with_tex_banner): use echo|grep for check
+	instead of test -z ..., since we don't want to risk nested "quotes".
+
+2009-06-01  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Update version number to 2009.
+
+	* configure.ac, ac/web2c.ac (--with-tex-banner):
+	allow to specify the string appended to banner lines instead of
+	the current default 'Web2C 2009'.
+	This string must contain the current Web2C version number.
+
+2009-05-29  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac, ac/web2c.ac (enable_omfonts): allow to choose
+	between Web2C versions of ofm2opl&Co and symlinks to omfonts.
+
+2009-05-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* help.h (DVITOMPHELP): remove help for obsolete Web2C version.
+	* help.h (LUATANGLEHELP): sort in alphabetically.
+	* texmfmp-help.h (MPHELP): remove help for obsolete Web2C version.	
+
+2009-05-27  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac, ac/web2c.ac (enable_ipc): default is enabled.
+
+2009-05-25  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* mp.ch, mp.web, mpdir/, mpware/: removed (old MetaPost).
+	* Makefile.am, configure.ac: removed old MetaPost and mpware.
+	* dvitomp.ch, dvitomp.test, dvitomp.web: removed.
+	* am/web.am: removed dvitomp.
+
+2009-05-23  Karl Berry  <karl@tug.org>
+
+	* tex.ch (pool_size): increase default to 200000, so pdftex -ini
+	can start up without texmf.cnf.  From Thanh.
+
+2009-05-19  Karl Berry  <karl@tug.org>
+
+	* tex.ch (max_font_max): increase to 9000.
+	(hash_size): increase to 15000.
+	(Their sum is supposed to stay <29000.)
+
+2009-05-18  Karl Berry  <karl@tug.org>
+
+	* cpascal.h (getline): #define to web2c_getline,
+	to try to avoid conflict with a newly broken POSIX and glibc.
+	Report from Gabriele Balducci via Taco, tlbuild mail
+	17 May 2009 17:56:54.
+
+2009-05-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* vftovp.ch: Send print_real to stderr.
+
+2009-05-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* trap.test (new): Shell script for TRAP tests.
+
+2009-05-11  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* trip.test (new): Shell script for TRIP test.
+
+2009-05-11  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* bibtex.test, ... (new): Shell scripts for 'make check' tests.
+
 2009-05-07  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* ac/web2c.ac, configure.ac: Remove --enable-fmtutil option.
@@ -28,6 +98,10 @@
 
 	* configure.ac: With the new luatex, what used to be 
 	luatexdir/luafontforge/ is now luatexdir/luafontloader/.
+
+2009-03-20  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Adapt to TL2009 build system.
 
 2009-03-08  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
@@ -92,7 +166,7 @@
 
 	* luatexdir/luatex.mk (install-exec): install texlua symlink.
 
-x2008-05-31  Karl Berry  <karl@tug.org>
+2008-05-31  Karl Berry  <karl@tug.org>
 
 	* Makefile.in (install-programs): stupidly forgot to install
 	$(basic_engines).

@@ -2726,7 +2726,7 @@ processing.
 By \type{img.immediatewrite(a)} a \PDF\ object number is
 allocated, and the image file for image \type{a} is written out
 immediately into the \PDF\ file as an image stream object (like
-with \tex{immediate\pdfximage}). The object number of the image
+with \tex{immediate}\tex{pdfximage}). The object number of the image
 stream dictionary is then available by the \type{objnum} key. No
 \type{pdf_refximage} whatsit node is generated. You will need a
 \luatex{img.write(a)} or \luatex{img.node(a)} call to let the
@@ -4006,7 +4006,11 @@ standalone \type{kpsewhich} program:
 'pdftex config'
 'lig files'
 'texmfscripts'
-'lua'
+'lua',
+'font feature files',
+'cid maps',
+'mlbib',
+'mlbst',
 \stoptyping
 \stopsimplecolumns
 

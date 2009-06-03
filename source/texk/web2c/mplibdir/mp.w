@@ -1,6 +1,6 @@
-% $Id: mp.w 999 2009-04-29 09:05:32Z taco $
+ $Id: mp.w 1084 2009-06-03 07:40:57Z taco $
 %
-% Copyright 2008 Taco Hoekwater.
+% Copyright 2008-2009 Taco Hoekwater.
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU Lesser General Public License as published by
@@ -89,13 +89,13 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d default_banner "This is MetaPost, Version 1.200" /* printed when \MP\ starts */
+@d default_banner "This is MetaPost, Version 1.202" /* printed when \MP\ starts */
 @d true 1
 @d false 0
 
 @(mpmp.h@>=
-#define metapost_version "1.200"
-#define metapost_magic (('M'*256) + 'P')*65536 + 1200
+#define metapost_version "1.202"
+#define metapost_magic (('M'*256) + 'P')*65536 + 1202
 #define metapost_old_magic (('M'*256) + 'P')*65536 + 1080
 
 @ The external library header for \MP\ is |mplib.h|. It contains a
@@ -838,7 +838,7 @@ static void mp_reallocate_buffer(MP mp, size_t l) {
     mp_confusion(mp,"buffer size"); /* can't happen (I hope) */
   }
   buffer = xmalloc((l+1),sizeof(ASCII_code));
-  memcpy(buffer,mp->buffer,(mp->buf_size+1));
+  (void)memcpy(buffer,mp->buffer,(mp->buf_size+1));
   xfree(mp->buffer);
   mp->buffer = buffer ;
   mp->buf_size = l;
@@ -876,8 +876,7 @@ static boolean mp_input_ln (MP mp, void *f ) {
         mp_reallocate_buffer(mp,(mp->buf_size+(mp->buf_size>>2)));
       }
     }
-    memcpy((mp->buffer+mp->first),s,size);
-    /* while ( mp->buffer[mp->last]==' ' ) mp->last--; */
+    (void)memcpy((mp->buffer+mp->first),s,size);
   } 
   free(s);
   return true;
@@ -909,7 +908,7 @@ initialization.
     mp->term_in = (mp->open_file)(mp,"terminal", "r", mp_filetype_terminal);
     if (mp->command_line!=NULL) {
       mp->last = strlen(mp->command_line);
-      strncpy((char *)mp->buffer,mp->command_line,mp->last);
+      (void)memcpy((void *)mp->buffer,(void *)mp->command_line,mp->last);
       xfree(mp->command_line);
     } else {
 	  mp->last = 0;
@@ -1115,7 +1114,7 @@ char * mp_str (MP mp, str_number ss) {
   } else {
     len = (size_t)length(ss);
     s = xmalloc(len+1,sizeof(char));
-    strncpy(s,(char *)(mp->str_pool+(mp->str_start[ss])),len);
+    (void)memcpy(s,(char *)(mp->str_pool+(mp->str_start[ss])),len);
     s[len] = 0;
     return (char *)s;
   }
@@ -3154,8 +3153,12 @@ and truncation operations.
 
 @<Internal library declarations@>=
 #define mp_floor_scaled(M,i) ((i)&(-65536))
-#define mp_round_unscaled(M,i) (i>0 ? (((i/32768)+1)/2) : (((i/32768)-1)/2))
-#define mp_round_fraction(M,i) (i>0 ? (((i/2048)+1)/2) : (((i/2048)-1)/2))
+
+#define mp_round_unscaled(M,x) (x>=0100000 ? 1+((x-0100000) / 0200000) \
+  : ( x>=-0100000 ? 0 : -(1+((-(x+1)-0100000) / 0200000))))
+
+#define mp_round_fraction(M,x) (x>=2048 ? 1+((x-2048) / 4096) \
+  : ( x>=-2048 ? 0 : -(1+((-(x+1)-2048) / 4096))))
 
 
 @* \[8] Algebraic and transcendental functions.
@@ -4502,7 +4505,7 @@ void mp_check_mem (MP mp,boolean print_locs ) {
   if ( print_locs ) {
     @<Print newly busy locations@>;
   }
-  memcpy(mp->was_free,mp->free, sizeof(char)*(mp->mem_end+1));
+  (void)memcpy(mp->was_free,mp->free, sizeof(char)*(mp->mem_end+1));
   mp->was_mem_end=mp->mem_end; 
   mp->was_lo_max=mp->lo_mem_max; 
   mp->was_hi_min=mp->hi_mem_min;
@@ -4851,7 +4854,7 @@ static void mp_print_type (MP mp,quarterword t) ;
 @ @<Basic printing procedures@>=
 void mp_print_type (MP mp,quarterword t) { 
   switch (t) {
-  case mp_vacuous:mp_print(mp, "mp_vacuous"); break;
+  case mp_vacuous:mp_print(mp, "vacuous"); break;
   case mp_boolean_type:mp_print(mp, "boolean"); break;
   case mp_unknown_boolean:mp_print(mp, "unknown boolean"); break;
   case mp_string_type:mp_print(mp, "string"); break;
@@ -8816,6 +8819,8 @@ if ( arc>0 ) {
   n = arc / (arc0 - arc);
   arc = arc - n*(arc0 - arc);
   if ( t_tot > (el_gordo / (n+1)) ) { 
+        mp->arith_error = true;
+        check_arith;
 	return el_gordo;
   }
   t_tot = (n + 1)*t_tot;
@@ -13805,8 +13810,8 @@ actions.
 { mp->input_ptr=0; mp->max_in_stack=0;
   mp->in_open=0; mp->open_parens=0; mp->max_buf_stack=0;
   mp->param_ptr=0; mp->max_param_stack=0;
-  mp->first=1;
-  start=1; iindex=0; line=0; name=is_term;
+  mp->first=0;
+  start=0; iindex=0; line=0; name=is_term;
   mp->mpx_name[0]=absent;
   mp->force_eof=false;
   if ( ! mp_init_terminal(mp) ) mp_jump_out(mp);
@@ -14926,6 +14931,36 @@ static void mp_begin_iteration (MP mp);
 static void mp_resume_iteration (MP mp);
 static void mp_stop_iteration (MP mp);
 
+@ A recursion depth counter is used to discover infinite recursions.
+(Near) infinite recursion is a problem because it translates into 
+C function calls that eat up the available call stack. A better solution
+would be to depend on signal trapping, but that is problematic when
+Metapost is used as a library. 
+
+@<Global...@>=
+int expand_depth_count; /* current expansion depth */
+int expand_depth; /* current expansion depth */
+
+@ The limit is set at |10000|, which should be enough to allow 
+normal usages of metapost while preventing the most obvious 
+crashes on most all operating systems, but the value can be
+raised if the runtime system allows a larger C stack.
+@^system dependencies@>
+
+@<Set initial...@>=
+mp->expand_depth=10000;
+
+@ Even better would be if the system allows
+discovery of the amount of space available on the call stack.
+@^system dependencies@>
+
+@c
+static void mp_check_expansion_depth (MP mp ){
+  if (mp->expand_depth_count>=mp->expand_depth) {
+    mp_overflow(mp, "expansion depth", mp->expand_depth);
+  }
+}
+
 @ An auxiliary subroutine called |expand| is used by |get_x_next|
 when it has to do exotic expansion commands.
 
@@ -14934,6 +14969,8 @@ static void mp_expand (MP mp) {
   pointer p; /* for list manipulation */
   size_t k; /* something that we hope is |<=buf_size| */
   pool_pointer j; /* index into |str_pool| */
+  mp->expand_depth_count++;
+  mp_check_expansion_depth(mp);
   if ( mp->internal[mp_tracing_commands]>unity ) 
     if ( mp->cur_cmd!=defined_macro )
       show_cur_cmd_mod;
@@ -14972,6 +15009,7 @@ static void mp_expand (MP mp) {
    mp_macro_call(mp, mp->cur_mod,null,mp->cur_sym);
    break;
   }; /* there are no other cases */
+  mp->expand_depth_count--;
 }
 
 @ @<Scold the user...@>=
@@ -16158,7 +16196,7 @@ boolean mp_more_name (MP mp, ASCII_code c) {
 
 @d copy_pool_segment(A,B,C) { 
       A = xmalloc(C+1,sizeof(char)); 
-      strncpy(A,(char *)(mp->str_pool+B),C);  
+      (void)memcpy(A,(char *)(mp->str_pool+B),C);  
       A[C] = 0;}
 
 @c
@@ -16293,7 +16331,9 @@ boolean mp_open_mem_file (MP mp) {
     return true;
   if (mp_xstrcmp(mp->mem_name, "plain")) {
     wake_up_terminal;
-    wterm_ln("Sorry, I can\'t find that mem file; will try PLAIN.");
+    wterm_ln("Sorry, I can\'t find the '");
+    wterm(mp->mem_name);
+    wterm("' mem file; will try 'plain'.");
 @.Sorry, I can't find...@>
     update_terminal;
     /* now pull out all the stops: try for the system \.{plain} file */
@@ -16303,7 +16343,7 @@ boolean mp_open_mem_file (MP mp) {
       return true;
   }
   wake_up_terminal;
-  wterm_ln("I can\'t find the PLAIN mem file!\n");
+  wterm_ln("I can't find the 'plain' mem file!\n");
 @.I can't find PLAIN...@>
 @.plain@>
   return false;
@@ -16528,6 +16568,8 @@ it catch up to what has previously been printed on the terminal.
   integer m; /* the current month */
   const char *months="JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC"; 
     /* abbreviations of month names */
+  if (mp->log_opened)
+    return;
   old_setting=mp->selector;
   if ( mp->job_name==NULL ) {
      mp->job_name=xstrdup("mpout");
@@ -16546,7 +16588,7 @@ it catch up to what has previously been printed on the terminal.
     mp_print_nl(mp, "**");
 @.**@>
     l=mp->input_stack[0].limit_field-1; /* last position of first line */
-    for (k=1;k<=l;k++) mp_print_str(mp, mp->buffer[k]);
+    for (k=0;k<=l;k++) mp_print_str(mp, mp->buffer[k]);
     mp_print_ln(mp); /* now the transcript file contains the first line of input */
   }
   mp->selector=old_setting+2; /* |log_only| or |term_and_log| */
@@ -16632,6 +16674,8 @@ when an `\.{input}' command is being processed.
   if ( mp->job_name==NULL ) {
     mp->job_name=xstrdup(mp->cur_name); 
     @<Fix up |mp->internal[mp_job_name]|@>;
+  }
+  if (!mp->log_opened) {
     mp_open_log_file(mp);
   } /* |open_log_file| doesn't |show_context|, so |limit|
         and |loc| needn't be set to meaningful values yet */
@@ -16686,7 +16730,7 @@ with the current input file.
 
 @c void mp_start_mpx_input (MP mp) {
   char *origname = NULL; /* a copy of nameoffile */
-  mp_pack_file_name(mp, in_name, in_area, ".mpx");
+  mp_pack_file_name(mp, in_name, "", ".mpx");
   @<Try to make sure |name_of_file| refers to a valid \.{MPX} file and
     |goto not_found| if there is a problem@>;
   mp_begin_file_reading(mp);
@@ -17096,7 +17140,7 @@ void mp_print_exp (MP mp,pointer p, quarterword verbosity) {
 
 @ @<Print an abbreviated value of |v| with format depending on |t|@>=
 switch (t) {
-case mp_vacuous:mp_print(mp, "mp_vacuous"); break;
+case mp_vacuous:mp_print(mp, "vacuous"); break;
 case mp_boolean_type:
   if ( v==true_code ) mp_print(mp, "true"); else mp_print(mp, "false");
   break;
@@ -19302,13 +19346,19 @@ static void mp_pair_to_path (MP mp) {
   mp->cur_type=mp_path_type;
 }
 
-@ 
-@d pict_color_type(A) ((mp_link(dummy_loc(mp->cur_exp))!=null) &&
-         (has_color(mp_link(dummy_loc(mp->cur_exp)))) &&
-         ((mp_color_model(mp_link(dummy_loc(mp->cur_exp)))==A)
-         ||
-         ((mp_color_model(mp_link(dummy_loc(mp->cur_exp)))==mp_uninitialized_model) &&
-         (mp->internal[mp_default_color_model]/unity)==(A))))
+@ This complicated if test makes sure that any |bounds| or |clip|
+picture objects that get passed into \&{within} do not raise an 
+error when queried using the color part primitives (this is needed
+for backward compatibility) .
+
+@d cur_pic_item mp_link(dummy_loc(mp->cur_exp))
+@d pict_color_type(A) ((cur_pic_item!=null) &&
+         ((!has_color(cur_pic_item)) 
+          ||
+         (((mp_color_model(cur_pic_item)==A)
+          ||
+          ((mp_color_model(cur_pic_item)==mp_uninitialized_model) &&
+           (mp->internal[mp_default_color_model]/unity)==(A))))))
 
 @<Additional cases of unary operators@>=
 case x_part:
@@ -19348,7 +19398,7 @@ case black_part:
   else mp_bad_unary(mp, c);
   break;
 case grey_part: 
-  if ( mp->cur_type==mp_known ) mp->cur_exp=value(c);
+  if ( mp->cur_type==mp_known ) ; /* mp->cur_exp=mp->cur_exp */
   else if ( mp->cur_type==mp_picture_type ) {
     if pict_color_type(mp_grey_model) mp_take_pict_part(mp, c);
     else mp_bad_color_part(mp, c);
@@ -19944,7 +19994,7 @@ static scaled mp_turn_cycles_wrapper (MP mp,pointer c) {
   } else {
     nval = mp_new_turn_cycles(mp, c);
     oval = mp_turn_cycles(mp, c);
-    if ( nval!=oval ) {
+    if ( nval!=oval && mp->internal[mp_tracing_choices]>(2*unity)) {
       saved_t_o=mp->internal[mp_tracing_online];
       mp->internal[mp_tracing_online]=unity;
       mp_begin_diagnostic(mp);
@@ -21142,12 +21192,15 @@ since the \ps\ output procedures will try to compensate for the transformation
 we are applying to |mp_pen_p(q)|.  Since this compensation is based on the square
 root of the determinant, |sqdet| is the appropriate factor.
 
+We pass the mptrap test only if |dash_scale| is not adjusted, nowadays
+(backend is changed?)
+
 @<Transform |mp_pen_p(q)|, making sure...@>=
 if ( mp_pen_p(q)!=null ) {
   sx=mp->tx; sy=mp->ty;
   mp->tx=0; mp->ty=0;
   mp_do_pen_trans(mp, mp_pen_p(q));
-  if ( ((mp_type(q)==mp_stroked_code)&&(mp_dash_p(q)!=null)) )
+  if ( sqdet !=0 && ((mp_type(q)==mp_stroked_code)&&(mp_dash_p(q)!=null)) )
     dash_scale(q)=mp_take_scaled(mp, dash_scale(q),sqdet);
   if ( ! pen_is_elliptical(mp_pen_p(q)) )
     if ( sgndet<0 )
@@ -21364,10 +21417,10 @@ static void mp_cat (MP mp,pointer p) {
     }
     mp->max_pool_ptr=needed; 
   }
-  memcpy(mp->str_pool+mp->pool_ptr, mp->str_pool+mp->str_start[a],(size_t)k);
+  (void)memcpy(mp->str_pool+mp->pool_ptr, mp->str_pool+mp->str_start[a],(size_t)k);
   mp->pool_ptr+=k; 
   k=length(b);
-  memcpy(mp->str_pool+mp->pool_ptr, mp->str_pool+mp->str_start[b],(size_t)k);
+  (void)memcpy(mp->str_pool+mp->pool_ptr, mp->str_pool+mp->str_start[b],(size_t)k);
   mp->pool_ptr+=k;
   mp->cur_exp=mp_make_string(mp); delete_str_ref(b);
 }
@@ -23627,7 +23680,9 @@ else if ( mp->cur_type==mp_cmykcolor_type )
 else if ( mp->cur_type==mp_known )
    @<Transfer a greyscale from the current expression to object~|cp|@>
 else if ( mp->cur_exp==false_code )
-   @<Transfer a noncolor from the current expression to object~|cp|@>;
+   @<Transfer a noncolor from the current expression to object~|cp|@>
+else if ( mp->cur_exp==true_code )
+   @<Transfer no color from the current expression to object~|cp|@>;
 }
 
 @ @<Transfer a rgbcolor from the current expression to object~|cp|@>=
@@ -23685,6 +23740,16 @@ yellow_val(cp)=0;
 black_val(cp)=0;
 grey_val(cp)=0;
 mp_color_model(cp)=mp_no_model;
+}
+
+@ @<Transfer no color from the current expression to object~|cp|@>=
+{
+cyan_val(cp)=0;
+magenta_val(cp)=0;
+yellow_val(cp)=0;
+black_val(cp)=0;
+grey_val(cp)=0;
+mp_color_model(cp)=mp_uninitialized_model;
 }
 
 @ @<Make |cp| a colored object in object list~|p|@>=
@@ -24913,12 +24978,13 @@ We may need to cancel skips that span more than 127 lig/kern steps.
 @ The header could contain ASCII zeroes, so can't use |strdup|.
 
 @<Store a list of header bytes@>=
+j--;
 do {  
   if ( j>=mp->header_size ) {
     size_t l = (size_t)(mp->header_size + (mp->header_size/4));
     char *t = xmalloc(l,1);
     memset(t,0,l); 
-    memcpy(t,mp->header_byte,(size_t)mp->header_size);
+    (void)memcpy(t,mp->header_byte,(size_t)mp->header_size);
     xfree (mp->header_byte);
     mp->header_byte = t;
     mp->header_size = (int)l;
@@ -25848,7 +25914,11 @@ static char *mp_set_output_file_name (MP mp, integer c) {
  	    mp_append_to_template(mp,f,mp_job_name); 
 	    break;
 	  case 'c': 
-	    mp_append_to_template(mp,f,mp_char_code); 
+            if (mp->internal[mp_char_code]<0) {
+                mp_print(mp,"ps");
+            } else {
+                mp_append_to_template(mp,f,mp_char_code); 
+            }
             break;
 	  case 'o': 
 	    mp_append_to_template(mp,f,mp_output_format); 
@@ -25883,13 +25953,20 @@ static char *mp_set_output_file_name (MP mp, integer c) {
                 integer h = mp_compute_hash(mp, (char *)(mp->str_pool+frst),l);
                 pointer p=h+hash_base; /* we start searching here */
 	        char *id = xmalloc(mp, (l+1));
-                strncpy(id,(char *)(mp->str_pool+frst),l);
+                (void)memcpy(id,(char *)(mp->str_pool+frst),l);
 	        *(id+l)=0;
 	        while (true)  { 
 	     	  if (text(p)>0 && length(text(p))==l && 
 	              mp_str_eq_cstr(mp, text(p),id)) {
                     if (eq_type(p)==internal_quantity) {
-         	      mp_append_to_template(mp,f,equiv(p)); 
+		      if (equiv(p)==mp_output_template) {
+    		        char err[256];
+                        mp_snprintf(err,256,
+                           "The appearance of outputtemplate inside outputtemplate is ignored.");
+                        mp_warn(mp,err);
+                      } else {
+	         	mp_append_to_template(mp,f,equiv(p)); 
+	              }
                     } else {
 		      char err[256];
                       mp_snprintf(err,256,
@@ -26278,11 +26355,12 @@ in the output of |mp_ps_font_charstring|.
 @c
 pointer mp_gr_unexport(MP mp, struct mp_edge_object *hh) {
   pointer h; /* the edge object */
-  pointer ph, pn; /* for adding items */
+  pointer ph, pn, pt; /* for adding items */
   mp_graphic_object *p; /* the current graphical object */
   h = mp_get_node(mp, edge_header_size);
   mp_init_edges(mp, h);
   ph = dummy_loc(h); 
+  pt = ph;
   p = hh->body;
   minx_val(h) = hh->minx;
   miny_val(h) = hh->miny;
@@ -26293,13 +26371,18 @@ pointer mp_gr_unexport(MP mp, struct mp_edge_object *hh) {
     case mp_fill_code: 
       if ( gr_pen_p((mp_fill_object *)p)==NULL ) {
         pn = mp_new_fill_node (mp, null);
-  	    mp_path_p(pn) = mp_import_knot_list(mp,gr_path_p((mp_fill_object *)p));
+        mp_path_p(pn) = mp_import_knot_list(mp,gr_path_p((mp_fill_object *)p));
+        mp_color_model(pn)=mp_grey_model;
         if (mp_new_turn_cycles(mp, mp_path_p(pn))<0) {
-          mp_color_model(pn)=mp_grey_model;
           grey_val(pn) = unity;
+          mp_link(pt) = pn;
+          pt = mp_link(pt);
+        } else {
+          mp_link(pn) = mp_link(ph);
+          mp_link(ph) = pn;
+          if (ph==pt)
+            pt=pn;
         }
-        mp_link(ph) = pn;
-        ph = mp_link(ph);
       }
       break;
     case mp_stroked_code:

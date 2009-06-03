@@ -79,7 +79,11 @@ static const int filetypes[] = {
     kpse_pdftex_config_format,
     kpse_lig_format,
     kpse_texmfscripts_format,
-    kpse_lua_format
+    kpse_lua_format,
+    kpse_fea_format,
+    kpse_cid_format,
+    kpse_mlbib_format,
+    kpse_mlbst_format
 };
 
 static const char *const filetypenames[] = {
@@ -135,6 +139,10 @@ static const char *const filetypenames[] = {
     "lig files",
     "texmfscripts",
     "lua",
+    "font feature files",
+    "cid maps",
+    "mlbib",
+    "mlbst",
     NULL
 };
 

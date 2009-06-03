@@ -598,7 +598,7 @@ typedef enum { packet_char_code,
     packet_end_code
 } packet_command_codes;
 
-extern scaled sqxfw(scaled sq, integer fw);
+extern scaled store_scaled_f(scaled sq, integer fw);
 
 extern void do_vf_packet(internal_font_number vf_f, integer c);
 extern int vf_packet_bytes(charinfo * co);

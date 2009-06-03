@@ -1,6 +1,6 @@
 /* Some definitions that get appended to the `coerce.h' file that web2c
    outputs.  */
-/* $Id: coerce.h 7719 2008-04-29 08:03:54Z thoekwater $ */
+/* $Id: coerce.h 13098 2009-05-15 13:07:46Z peter $ */
 
 /* The C compiler ignores most unnecessary casts (i.e., casts of
    something to its own type).  However, for structures, it doesn't.
@@ -20,6 +20,11 @@
 #ifdef	eq_destroy
 #undef	eq_destroy
 #define	eq_destroy(x)	zeq_destroy(x)
+#endif
+
+#ifdef  synch_p_with_c
+#undef  synch_p_with_c
+#define synch_p_with_c(x) zsynch_p_with_c(x)
 #endif
 
 #else /* luaTeX */

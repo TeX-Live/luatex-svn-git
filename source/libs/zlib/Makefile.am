@@ -15,17 +15,15 @@ ACLOCAL_AMFLAGS = -I ../../m4
 ## Thus nodist_* for all files in $(ZLIB_TREE).
 EXTRA_DIST = $(ZLIB_TREE)
 
-## in case of an SVN repository
+# in case of an SVN repository
 dist-hook:
 	rm -rf `find $(distdir)/$(ZLIB_TREE) -name .svn`
+	rm -f $(distdir)/$(ZLIB_TREE)/zconf.h
 
 INCLUDES = -I$(top_srcdir)/$(ZLIB_TREE)
 AM_CPPFLAGS = $(ZLIB_DEFINES)
 
-if build
 noinst_LIBRARIES = libz.a
-endif build
-EXTRA_LIBRARIES = libz.a
 
 nodist_libz_a_SOURCES = \
 	$(ZLIB_TREE)/adler32.c \

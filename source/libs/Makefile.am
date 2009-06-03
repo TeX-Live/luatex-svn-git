@@ -3,12 +3,14 @@
 ## Copyright (C) 2009 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 ##
-ACLOCAL_AMFLAGS = -I ../m4
+## Use 'aclocal --force' (for "computed m4_sinclude")
+##
+ACLOCAL_AMFLAGS = -I ../m4 --force
 
 SUBDIRS = dummy . $(SUBLIBS)
 DIST_SUBDIRS = dummy $(DIST_SUBLIBS)
 
-## just in case a subdirectory has added directories
+# just in case a subdirectory has added directories
 dist-hook:
 	rm -rf `find $(distdir) -name .svn`
 
@@ -20,13 +22,13 @@ DISTCLEANFILES = $(noinst_DATA)
 all-local: sublibs
 
 .PHONY: sublibs
-## We must configure all libs subdirs since 'make dist' needs the Makefile.
-## For those not required for the current set of configure options
-## we append '--disable-build' so they can skip tests that would
-## fail because other libraries were not built.
-
-## Sequentially configure and optionally build all libs subdirs;
-## code inspired by automake's way to handle recursive targets.
+# We must configure all libs subdirs since 'make dist' needs the Makefile.
+# For those not required for the current set of configure options
+# we append '--disable-build' so they can skip tests that would
+# fail because other libraries were not built.
+#
+# Sequentially configure and optionally build all libs subdirs;
+# code inspired by automake's way to handle recursive targets.
 sublibs: $(noinst_DATA)
 	@failcom='exit 1'; \
 	for f in x $$MAKEFLAGS; do \

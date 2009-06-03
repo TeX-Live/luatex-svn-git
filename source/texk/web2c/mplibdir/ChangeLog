@@ -1,3 +1,35 @@
+2009-06-03  Taco Hoekwater <taco@elvenkind.com>
+	    
+	    * Released version of MPLib 1.202
+	
+2009-05-30  Peter Breitenlohner <peb@mppmu.mpg.de>
+
+	* am/mplib.am (install-exec-hook, uninstall-hook):
+	avoid dangling symlinks.
+
+2009-05-25  Peter Breitenlohner <peb@mppmu.mpg.de>
+
+	* dvitomp.test (new): Shell script to test dvitomp.
+	* am/mplib.am: Added dvitomp.test.
+
+2009-05-25  Peter Breitenlohner <peb@mppmu.mpg.de>
+
+	* am/.am (install-exec-hook, uninstall-hook): new targets
+	to (un)install dvitomp symlink.
+
+2009-05-13  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	    * mptrap.test (new): Shell script for MPTRAP test.
+	    * am/mplib.am: Added MPTRAP test.
+
+2009-05-11  Taco Hoekwater <taco@elvenkind.com>
+	    
+	    * Released version of MPLib 1.200
+
+2009-05-08  Taco Hoekwater <taco@elvenkind.com>
+	    
+	    * Recent MPlib updates
+
 2009-04-22  Taco Hoekwater <taco@elvenkind.com>
 
-        * Import of MPlib version 1.200 
+	    * Import of MPlib version 1.200 

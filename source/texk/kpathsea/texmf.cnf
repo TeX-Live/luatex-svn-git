@@ -4,8 +4,8 @@
 % If you modify this original file, YOUR CHANGES WILL BE LOST when it is
 % updated.  Instead, put your changes -- and only your changes, not an
 % entire copy of the full texmf.cnf! -- in ../../texmf.cnf.  That is, if
-% this file is installed in /some/path/to/texlive/2008/texmf/web2c/texmf.cnf,
-% add your custom settings to /some/path/to/texlive/2008/texmf.cnf.
+% this file is installed in /some/path/to/texlive/2009/texmf/web2c/texmf.cnf,
+% add your custom settings to /some/path/to/texlive/2009/texmf.cnf.
 % 
 % What follows is a super-summary of what this .cnf file can
 % contain. Please read the Kpathsea manual for more information.
@@ -27,18 +27,20 @@
 % right-hand side. For environment variables, use FOO_PROGRAM.
 %
 % Which file formats use which paths for searches is described in the
-% various programs' and the Kpathsea documentation.
+% various programs' and the Kpathsea documentation (http://tug.org/kpathsea).
 %
 % // means to search subdirectories (recursively).
 % A leading !! means to look only in the ls-R db, never on the disk.
 % In this file, either ; or : can be used to separate path components.
 % A leading/trailing/doubled path separator in the paths will be
 %   expanded into the compile-time default. Probably not what you want.
-%   
+%
+
 % Brace notation is supported, for example: /usr/local/{mytex,othertex}
 % expands to /usr/local/mytex:/usr/local/othertex.  You can use the path
 % separator as well as the comma for this: /usr/local/{mytex:othertex}
-% also expands to /usr/local/mytex:/usr/local/othertex.
+% also expands to /usr/local/mytex:/usr/local/othertex.  We make
+% extensive use of this.
 
 %  Part 1: Search paths and directories.
 
@@ -55,9 +57,6 @@ TEXMFMAIN = $SELFAUTOPARENT/texmf
 
 % The main distribution tree:
 TEXMFDIST = $SELFAUTOPARENT/texmf-dist
-
-% Our documentation-only tree, arranged by language:
-TEXMFDOC = $SELFAUTOPARENT/texmf-doc
 
 % A place for local additions to a "standard" texmf tree.
 % This tree is not used for local configuration maintained by
@@ -90,7 +89,7 @@ TEXMFHOME = ~/texmf
 %   TEXMFVAR = $TEXMFMAIN
 % For using a separate tree:
 %   TEXMFVAR = ~/.texmf-var  # teTeX 3.0 default
-TEXMFVAR = ~/.texlive2008/texmf-var
+TEXMFVAR = ~/.texlive2009/texmf-var
 
 % TEXMFCONFIG, where texconfig stores configuration data.
 % With teTeX-3.0 or later, this must be set.
@@ -100,7 +99,7 @@ TEXMFVAR = ~/.texlive2008/texmf-var
 %   TEXMFCONFIG = ~/.texmf-config  # teTeX 3.0 default
 % For using a separate tree:
 %   TEXMFCONFIG = $SELFAUTOPARENT/texmf-config
-TEXMFCONFIG = ~/.texlive2008/texmf-config
+TEXMFCONFIG = ~/.texlive2009/texmf-config
 
 % Now, list all the texmf trees. If you have multiple trees you can
 % use shell brace notation, like this:
@@ -133,18 +132,17 @@ VARTEXFONTS = $TEXMFVAR/fonts
 
 % Where to look for ls-R files.  There need not be an ls-R in the
 % directories in this path, but if there is one, Kpathsea will use it.
-% By default, this is only the !! elements of TEXMF, plus texmf-doc, so
-% that mktexlsr does not create ls-R files in the non-!! elements --
-% because if an ls-R is present, it will be used, and the disk will not
-% be searched.  This is arguably a bug in kpathsea, but we will not
-% think about it now.
+% By default, this is only the !! elements of TEXMF, so that mktexlsr
+% does not create ls-R files in the non-!! elements -- because if an
+% ls-R is present, it will be used, and the disk will not be searched.
+% This is arguably a bug in kpathsea.
 %
-TEXMFDBS = {!!$TEXMFSYSCONFIG,!!$TEXMFSYSVAR,!!$TEXMFMAIN,!!$TEXMFLOCAL,!!$TEXMFDIST,!!$TEXMFDOC}
+TEXMFDBS = {!!$TEXMFSYSCONFIG,!!$TEXMFSYSVAR,!!$TEXMFMAIN,!!$TEXMFLOCAL,!!$TEXMFDIST}
 
 % On some systems, there will be a system tree which contains all the font
 % files that may be created as well as the formats.  For example
 %   TEXMFVAR = /var/lib/texmf
-% is used on many Linux systems.  In this case, set VARTEXFONTS like this
+% is used in many distros.  In this case, set VARTEXFONTS like this
 % VARTEXFONTS = $TEXMFVAR/fonts
 % and do not mention it in TEXMFDBS (but _do_ mention TEXMFVAR).
 %
@@ -223,7 +221,7 @@ TEXINPUTS.pdfxtex       = .;$TEXMF/tex/{plain,generic,}//
 TEXINPUTS.lualatex      = .;$TEXMF/tex/{lualatex,latex,generic,}//
 TEXINPUTS.luatex        = .;$TEXMF/tex/{luatex,plain,generic,}//
 TEXINPUTS.pdflualatex   = .;$TEXMF/tex/{lualatex,latex,generic,}//
-TEXINPUTS.pdfluatex     = .;$TEXMF/tex/{lualatex,latex,generic,}//
+TEXINPUTS.pdfluatex     = .;$TEXMF/tex/{luatex,plain,generic,}//
 
 % XeTeX.
 TEXINPUTS.xelatex       = .;$TEXMF/tex/{xelatex,latex,generic,}//
@@ -280,8 +278,7 @@ MFBASES = .;$TEXMF/web2c{/$engine,}
 MPMEMS = .;$TEXMF/web2c{/$engine,}
 %
 % As of 2008, pool files don't exist any more (the strings are compiled
-% into the binaries), but just in case something expects to find these
-% settings:
+% into the binaries), but just in case something expects to find these:
 TEXPOOL = .;$TEXMF/web2c
 MFPOOL = ${TEXPOOL}
 MPPOOL = ${TEXPOOL}
@@ -318,12 +315,13 @@ MISCFONTS = .;$TEXMF/fonts/misc//
 % map file syntax the definition can be simplified again.
 TEXFONTMAPS = .;$TEXMF/fonts/map/{$progname,pdftex,dvips,}//
 
-% BibTeX bibliographies and style files.
+% BibTeX bibliographies and style files.  bibtex8 also uses these.
 BIBINPUTS = .;$TEXMF/bibtex/bib//
 BSTINPUTS = .;$TEXMF/bibtex/{bst,csf}//
-% For bibtex8. Do we really need to repeat the BIBINPUTS setting?
-BIBINPUTS.bibtex8 =             .;$TEXMF/bibtex/{bib,}//
-BSTINPUTS.bibtex8 =             .;$TEXMF/bibtex/{bst,csf,}//
+
+% MlBibTeX.
+MLBIBINPUTS = .;$TEXMF/bibtex/bib/{mlbib,}//
+MLBSTINPUTS = .;$TEXMF/bibtex/{mlbst,bst}//
 
 % MFT style files.
 MFTINPUTS = .;$TEXMF/mft//
@@ -374,6 +372,12 @@ SFDFONTS = .;$TEXMF/fonts/sfd//
 % OpenType outline fonts.
 OPENTYPEFONTS = .;$TEXMF/fonts/opentype//
 
+% OpenType feature files (.fea).
+FONTFEATURES=.;$TEXMF/fonts/fea//
+
+% .cid and .cidmap
+FONTCIDMAPS=.;$TEXMF/fonts/cid//
+
 % pdftex config files:
 PDFTEXCONFIG = .;$TEXMF/pdftex/{$progname,}//
 
@@ -387,21 +391,15 @@ MPSUPPORT = .;$TEXMF/metapost/support
 MIMELIBDIR = $SELFAUTOPARENT/etc
 MAILCAPLIBDIR = $SELFAUTOPARENT/etc
 
-% Default settings for fontconfig library, used by Win32 versions of
-% xetex/xdvipdfmx (note that fontconfig on Linux/Unix-like systems
-% will ignore settings in this file)
+% Default settings for fontconfig library, used by Windows versions of
+% xetex/xdvipdfmx.  On Unixish systems, fontconfig ignores this.
 FONTCONFIG_FILE=fonts.conf
 FONTCONFIG_PATH=$TEXMFSYSVAR/fonts/conf
 FC_CACHEDIR=$TEXMFSYSVAR/fonts/cache
 
-% TeX documentation and source files, for use with kpsewhich.
-% TeX Live has a separate hierarchy with just documentation, texmf-doc,
-% in addition to the doc files in the other hierarchies.
-% Also, find the English documentation first -- better than random, when
-% there are name collisions.
-% Also, find things from man pages first, same reason.
-TEXMFDOCDIR = $TEXMFDOC/doc{/english,}
-TEXDOCS = .;$TEXMF/doc{/man,}//;$TEXMFDOCDIR//
+% TeX documentation and source files, for use with kpsewhich (and texdoc).
+% Find non-man pages first, better than random in case of conflict.
+TEXDOCS = .;$TEXMF/doc{,/man}//
 TEXSOURCES = .;$TEXMF/source//
 
 % Web and CWeb input paths.
@@ -497,7 +495,7 @@ shell_escape_commands = \
 bibtex,convert,dvips,epstopdf,epspdf,etex,fc-match,gnuplot,\
 kpsewhich,latex,luatex,lualatex,makeindex,mpost,\
 pdfcrop,pdflatex,pdfluatex,ps2pdf,ps4pdf,pstopdf,pygmentize,\
-tex,texexec,texmfstart\
+tex,texexec,texmfstart,ulqda\
 
 % plain TeX should remain unenhanced.
 shell_escape.tex = f
@@ -605,11 +603,10 @@ extra_mem_bot.context = 4000000
 % Must be >= 20000 and <= 4000000 (without tex.ch changes).
 font_mem_size = 3000000
 
-% Total number of fonts. Must be >= 50 and <= 5000 (without tex.ch changes).
-font_max = 5000
+% Total number of fonts. Must be >= 50 and <= 9000 (without tex.ch changes).
+font_max = 9000
 
-% Extra space for the hash table of control sequences (which allows 10K
-% names as distributed).
+% Extra space for the hash table of control sequences.
 hash_extra = 50000
 
 % Max number of characters in all strings, including all error messages,
