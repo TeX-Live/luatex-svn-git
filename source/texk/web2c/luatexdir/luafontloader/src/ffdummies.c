@@ -37,7 +37,7 @@ static void LUAUI_IError(const char *format,...) {
 static void LUAUI__LogError(const char *format,va_list ap) {
     char buffer[400], *str;
     vsnprintf(buffer,sizeof(buffer),format,ap);
-    str = (char *)buffer;
+    str = xstrdup((char *)buffer);
     gww_errors = realloc(gww_errors, (gww_error_count+2)*sizeof(char *));
     if (gww_errors==NULL) {
 	  perror("memory allocation failed");
