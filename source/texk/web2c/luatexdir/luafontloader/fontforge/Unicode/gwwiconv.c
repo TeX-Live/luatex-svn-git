@@ -238,6 +238,7 @@ return( (size_t) -1 );			/* Incomplete multi-byte sequence */
 		} else
 return( (size_t) -1 );
 	    }
+#ifdef TO_CJK_ICONV
 	} else if ( cd->to==e_johab || cd->to==e_big5 || cd->to==e_big5hkscs ) {
 	    struct charmap2 *table = cd->to==e_johab ? &johab_from_unicode :
 				     cd->to==e_big5  ? &big5_from_unicode :
@@ -270,6 +271,8 @@ return( (size_t) -1 );
 		} else
 return( (size_t) -1 );
 	    }
+#endif
+#ifdef TO_CJK_ICONV
 	} else if ( cd->to==e_wansung || cd->to==e_jisgbpk ) {
 	    struct charmap2 *table = cd->to==e_wansung ? &ksc5601_from_unicode :
 			&gb2312_from_unicode;
@@ -301,6 +304,8 @@ return( (size_t) -1 );
 		} else
 return( (size_t) -1 );
 	    }
+#endif
+#ifdef TO_CJK_ICONV
 	} else if ( cd->to==e_sjis ) {
 	    unsigned char *plane1;
 	    unsigned short *plane;
@@ -337,6 +342,7 @@ return( (size_t) -1 );
 		} else
 return( (size_t) -1 );
 	    }
+#endif
 	} else if ( cd->to==e_utf8 ) {
 	    while ( *inlen>1 && *outlen>0 ) {
 		unichar_t uch;
@@ -413,6 +419,7 @@ return( (size_t) -1 );			/* Incomplete multi-byte sequence */
 		} else
 return( (size_t) -1 );
 	    }
+#ifdef TO_CJK_ICONV
 	} else if ( cd->to==e_johab || cd->to==e_big5 || cd->to==e_big5hkscs ) {
 	    struct charmap2 *table = cd->to==e_johab ? &johab_from_unicode :
 				     cd->to==e_big5  ? &big5_from_unicode :
@@ -445,6 +452,8 @@ return( (size_t) -1 );
 		} else
 return( (size_t) -1 );
 	    }
+#endif
+#ifdef TO_CJK_ICONV
 	} else if ( cd->to==e_wansung || cd->to==e_jisgbpk ) {
 	    struct charmap2 *table = cd->to==e_wansung ? &ksc5601_from_unicode :
 			&gb2312_from_unicode;
@@ -476,6 +485,8 @@ return( (size_t) -1 );
 		} else
 return( (size_t) -1 );
 	    }
+#endif
+#ifdef TO_CJK_ICONV
 	} else if ( cd->to==e_sjis ) {
 	    unsigned char *plane1;
 	    unsigned short *plane;
@@ -512,6 +523,7 @@ return( (size_t) -1 );
 		} else
 return( (size_t) -1 );
 	    }
+#endif
 	} else if ( cd->to==e_utf8 ) {
 	    while ( *inlen>1 && *outlen>0 ) {
 		int uch;
