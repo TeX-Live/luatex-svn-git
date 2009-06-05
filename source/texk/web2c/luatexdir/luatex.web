@@ -5413,8 +5413,7 @@ primitive_tex("errhelp",assign_toks,err_help_loc,local_base);
 primitive_pdftex("pdfpagesattr",assign_toks,pdf_pages_attr_loc,local_base);
 @!@:pdf_pages_attr_}{\.{\\pdfpagesattr} primitive@>
 primitive_pdftex("pdfpageattr",assign_toks,pdf_page_attr_loc,local_base);
-@!@:pdf_page_attr_}{\.{\\pdfpageattmooi
-r} primitive@>
+@!@:pdf_page_attr_}{\.{\\pdfpageattr} primitive@>
 primitive_pdftex("pdfpageresources",assign_toks,pdf_page_resources_loc,local_base);
 @!@:pdf_page_resources_}{\.{\\pdfpageresources} primitive@>
 primitive_pdftex("pdfpkmode",assign_toks,pdf_pk_mode_loc,local_base);
@@ -21284,7 +21283,7 @@ node $r_j$ is followed by |r@t$_{j+1}$@>=vlink(r@t$_j$@>)|; and if there are
 each node in this list refers to an insertion number; for example, `\.{\\insert
 250}' would correspond to a node whose |subtype| is |qi(250)|
 (the same as the |subtype| field of the relevant |ins_node|). These |subtype|
-fields are in increasing order, and |subtype(page_ins_head)=65535, so
+fields are in increasing order, and |subtype(page_ins_head)=65535|, so
 |page_ins_head| serves as a convenient sentinel
 at the end of the list. A record is present for each insertion number that
 appears in the current page.
@@ -21484,7 +21483,7 @@ last_glue:=max_halfword; last_penalty:=0; last_kern:=0;
 last_node_type:=-1;
 page_depth:=0; page_max_depth:=0
 
-@ At certain times box \outputbox is supposed to be void (i.e., |null|),
+@ At certain times box \.{\\outputbox} is supposed to be void (i.e., |null|),
 or an insertion box is supposed to be ready to accept a vertical list.
 If not, an error message is printed, and the following subroutine
 flushes the unwanted contents, reporting them to the user.
@@ -23280,7 +23279,7 @@ begin if cur_cmd=vadjust then cur_val:=output_box
 else  begin scan_register_num;
   if cur_val=output_box then
     begin print_err("You can't "); print_esc("insert"); print_int(output_box);
-@.You can't \\insert\outputbox@>
+@.You can't \\insert\\outputbox@>
     help1("I'm changing to \insert0; box \outputbox is special.");
     error; cur_val:=0;
     end;
