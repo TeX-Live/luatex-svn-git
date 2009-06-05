@@ -11839,7 +11839,7 @@ if callback_defined(start_run_callback)=0 then begin
 @.**@>
   l:=input_stack[0].limit_field; {last position of first line}
   if buffer[l]=end_line_char then decr(l); { TODO: multichar endlinechar}
-  for k:=1 to l do print(buffer[k]);
+  for k:=1 to l do print_char(buffer[k]);
   print_ln; {now the transcript file contains the first line of input}
   end;
 flush_loggable_info; {should be done always}
@@ -11900,7 +11900,7 @@ if tracefilenames then begin
   if term_offset+length(name)>max_print_line-2 then print_ln
   else if (term_offset>0)or(file_offset>0) then print_char(" ");
   print_char("(");
-  slow_print(name);
+  print_file_name(0,name,0);
 end;
 incr(open_parens);
 update_terminal;
