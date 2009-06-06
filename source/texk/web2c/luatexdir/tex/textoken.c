@@ -216,7 +216,7 @@ boolean scan_keyword(char *s)
     pointer p;                  /* tail of the backup list */
     pointer q;                  /* new node being added to the token list via |store_new_token| */
     char *k;                    /* index into |str_pool| */
-    pointer save_cur_cs = cur_cs;    
+    pointer save_cur_cs = cur_cs;
     if (strlen(s) == 1) {
         /* @<Get the next non-blank non-call token@>; */
         do {
@@ -225,7 +225,7 @@ boolean scan_keyword(char *s)
         if ((cur_cs == 0) && ((cur_chr == *s) || (cur_chr == *s - 'a' + 'A'))) {
             return true;
         } else {
-	    cur_cs = save_cur_cs;
+            cur_cs = save_cur_cs;
             back_input();
             return false;
         }
@@ -249,7 +249,7 @@ boolean scan_keyword(char *s)
                 } else {
                     back_input();
                 }
-		cur_cs = save_cur_cs;
+                cur_cs = save_cur_cs;
                 return false;
             }
         }

@@ -165,10 +165,10 @@ void scan_file_name(void)
         if ((cur_chr == ' ') && (state != token_list) && (loc > limit)
             && !quoted_filename)
             break;
-        if (cur_chr>127) {
+        if (cur_chr > 127) {
             unsigned char *bytes;
-            unsigned char thebytes[5] = {0};
-            utf8_idpb((char *)thebytes, cur_chr); 
+            unsigned char thebytes[5] = { 0 };
+            utf8_idpb((char *) thebytes, cur_chr);
             bytes = thebytes;
             while (*bytes) {
                 if (!more_name(*bytes))
