@@ -223,7 +223,7 @@ integer get_post_exhyphen_char(integer n)
 
 void load_patterns(struct tex_language *lang, unsigned char *buffer)
 {
-  if (lang == NULL || buffer == NULL || strlen((char *)buffer) == 0)
+    if (lang == NULL || buffer == NULL || strlen((char *) buffer) == 0)
         return;
     if (lang->patterns == NULL) {
         lang->patterns = hnj_hyphen_new();

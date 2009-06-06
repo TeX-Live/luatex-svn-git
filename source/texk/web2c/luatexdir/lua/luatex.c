@@ -251,7 +251,7 @@ static gzFile gz_fmtfile = NULL;
 void do_zdump(char *p, int item_size, int nitems, FILE * out_file)
 {
     int err;
-    (void)out_file;
+    (void) out_file;
     if (nitems == 0)
         return;
     if (gzwrite(gz_fmtfile, (void *) p, item_size * nitems) !=
@@ -265,7 +265,7 @@ void do_zdump(char *p, int item_size, int nitems, FILE * out_file)
 void do_zundump(char *p, int item_size, int nitems, FILE * in_file)
 {
     int err;
-    (void)in_file;
+    (void) in_file;
     if (nitems == 0)
         return;
     if (gzread(gz_fmtfile, (void *) p, item_size * nitems) <= 0) {
@@ -325,7 +325,7 @@ boolean zopen_w_output(FILE ** f, const_string fopen_mode)
 
 void zwclose(FILE * f)
 {
-    (void)f;
+    (void) f;
     gzclose(gz_fmtfile);
 }
 

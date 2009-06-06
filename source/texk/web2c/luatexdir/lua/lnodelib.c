@@ -1093,11 +1093,11 @@ static void lua_nodelib_getfield_whatsit(lua_State * L, int n, int field)
                 lua_pushnumber(L, pdf_literal_mode(n));
                 break;
             case 5:
-  	        if (pdf_literal_type(n)==lua_refid_literal) {
-		  lua_rawgeti(Luas, LUA_REGISTRYINDEX, pdf_literal_data(n));
-	        } else {
-		  tokenlist_to_luastring(L, pdf_literal_data(n));
-		}
+                if (pdf_literal_type(n) == lua_refid_literal) {
+                    lua_rawgeti(Luas, LUA_REGISTRYINDEX, pdf_literal_data(n));
+                } else {
+                    tokenlist_to_luastring(L, pdf_literal_data(n));
+                }
                 break;
             default:
                 lua_pushnil(L);
@@ -2166,11 +2166,11 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
             if (ini_version) {
                 pdf_literal_data(n) = nodelib_gettoks(L, 3);
             } else {
-                lua_pushvalue(L,3);
-                pdf_literal_data(n) = luaL_ref(L,LUA_REGISTRYINDEX);
-	        pdf_literal_type(n) = lua_refid_literal; 
+                lua_pushvalue(L, 3);
+                pdf_literal_data(n) = luaL_ref(L, LUA_REGISTRYINDEX);
+                pdf_literal_type(n) = lua_refid_literal;
             }
-	    break;
+            break;
         default:
             return nodelib_cantset(L, field, n);
         }
