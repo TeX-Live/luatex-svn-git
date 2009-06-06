@@ -107,7 +107,7 @@ static int u_strlen(register unichar_t * str)
 
 #endif
 
-#define noVERBOSE
+#define VERBOSE
 
 #define MAX_TEX_LANGUAGES  32768
 
@@ -247,7 +247,12 @@ void load_tex_patterns(int curlang, halfword head)
 }
 
 
-#define STORE_CHAR(x) { word[w] = x ; if (w<MAX_WORD_LEN) w++; }
+#define STORE_CHAR(x) do {						\
+    int xx = get_lc_code(x);						\
+    if (xx==0) xx = 0xFFFE;						\
+    word[w] = xx;							\
+    if (w<MAX_WORD_LEN) w++;						\
+  } while (0)
 
 /* todo change this! */
 
@@ -852,7 +857,7 @@ void hnj_hyphenation(halfword head, halfword tail)
                clang == char_lang(r) &&
                (lchar = get_lc_code(character(r))) > 0) {
             wordlen++;
-            hy = utf8_idpb(hy, character(r));
+            hy = utf8_idpb(hy, lchar);
             /* this should not be needed  any more */
             /*if (vlink(r)!=null) alink(vlink(r))=r; */
             end_word = r;
