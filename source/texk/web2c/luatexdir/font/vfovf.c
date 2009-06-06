@@ -1235,16 +1235,16 @@ int make_vf_table(lua_State * L, char *cnom, scaled atsize)
                 case set_rule:
                     vf_read(4, h);
                     vf_read(4, v);
-                    make_command2("rule", store_scaled_f(h, atsize), store_scaled_f(v, atsize),
-                                  k);
+                    make_command2("rule", store_scaled_f(h, atsize),
+                                  store_scaled_f(v, atsize), k);
                     packet_length -= 8;
                     break;
                 case put_rule:
                     vf_read(4, h);
                     vf_read(4, v);
                     make_command0("push", k);
-                    make_command2("rule", store_scaled_f(h, atsize), store_scaled_f(v, atsize),
-                                  k);
+                    make_command2("rule", store_scaled_f(h, atsize),
+                                  store_scaled_f(v, atsize), k);
                     make_command0("pop", k);
                     packet_length -= 8;
                     break;

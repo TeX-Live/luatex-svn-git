@@ -148,11 +148,12 @@ charinfo *get_charinfo(internal_font_number f, integer c)
         if (!glyph) {
 
             glyph = ++font_tables[f]->charinfo_count;
-            if (glyph>=(unsigned)font_tables[f]->charinfo_size) {
-                font_bytes += (16*sizeof(charinfo));
+            if (glyph >= (unsigned) font_tables[f]->charinfo_size) {
+                font_bytes += (16 * sizeof(charinfo));
                 do_realloc(font_tables[f]->charinfo, (glyph + 16), charinfo);
-                memset(&(font_tables[f]->charinfo[glyph]), 0, (16*sizeof(charinfo)));
-                font_tables[f]->charinfo_size += 16;                
+                memset(&(font_tables[f]->charinfo[glyph]), 0,
+                       (16 * sizeof(charinfo)));
+                font_tables[f]->charinfo_size += 16;
             }
             font_tables[f]->charinfo[glyph].ef = 1000;  /* init */
             set_sa_item(font_tables[f]->characters, c, glyph, 1);       /* 1= global */
@@ -180,7 +181,7 @@ void set_charinfo(internal_font_number f, integer c, charinfo * ci)
 {
     sa_tree_item glyph;
     if (proper_char_index(c)) {
-      glyph = get_sa_item(font_tables[f]->characters, c);
+        glyph = get_sa_item(font_tables[f]->characters, c);
         if (glyph) {
             font_tables[f]->charinfo[glyph] = *ci;
         } else {
@@ -1228,9 +1229,9 @@ boolean font_shareable(internal_font_number f, internal_font_number k)
             ret = 1;
         }
 #ifdef DEBUG
-    printf("font_shareable(%d:%s:%s,%d:%s:%s): => %d\n", 
-           f, font_filename(f), font_fullname(f), 
-           k, font_filename(k), font_fullname(k), ret);
+        printf("font_shareable(%d:%s:%s,%d:%s:%s): => %d\n",
+               f, font_filename(f), font_fullname(f),
+               k, font_filename(k), font_fullname(k), ret);
 #endif
     }
     return ret;
