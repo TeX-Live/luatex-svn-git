@@ -262,6 +262,15 @@
 @define function read_ocp_file();
 @define function read_data_file();
 
+@define function read_ocp_info();
+@define procedure init_null_ocp;
+@define function ocp_name();
+@define function ocp_area();
+@define function ocp_external();
+@define function ocp_external_arg();
+@define function ocp_state_base();
+@define function ocp_table_base();
+
 @define var ocp_tables;
 
 @define procedure allocate_ocp_table ();

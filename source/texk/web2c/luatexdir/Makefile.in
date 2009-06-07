@@ -99,6 +99,7 @@ lua/limglib.o \
 lang/hnjalloc.o \
 lang/hyphen.o \
 lang/texlang.o \
+ocp/readocp.o \
 pdf/pdfpage.o \
 pdf/pagetree.o \
 tex/linebreak.o \
