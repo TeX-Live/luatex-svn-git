@@ -13767,7 +13767,7 @@ if is_char_node(p) then
   if x_displace(p)<>0 then cur.h := cur.h + x_displace(p);
   if y_displace(p)<>0 then cur.v := cur.v - y_displace(p);
   synch_pos_with_cur; f:=font(p); c:=character(p);
-  ci := char_info_short(f,c);
+  ci := get_charinfo_short(f,c);
   if f<>dvi_f then @<Change font |dvi_f| to |f|@>;
   c_ht:=charinfo_height(ci);
   c_dp:=charinfo_depth(ci);
@@ -16200,7 +16200,7 @@ ci: charinfo_short;
 save, save_box_pos: scaledpos;
 save_direction: integer;
 begin
-  ci := char_info_short(ffi,c);
+  ci := get_charinfo_short(ffi,c);
   c_ht:=charinfo_height(ci);
   c_dp:=charinfo_depth(ci);
   c_wd:=charinfo_width(ci);

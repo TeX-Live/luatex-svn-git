@@ -114,7 +114,7 @@ extern extinfo *copy_variants(extinfo * o);
 extern extinfo *new_variant(int glyph, int startconnect, int endconnect,
                             int advance, int repeater);
 
-extern charinfo_short char_info_short(internal_font_number f, integer c);
+extern charinfo_short get_charinfo_short(internal_font_number f, integer c);
 
 
 

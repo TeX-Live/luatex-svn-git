@@ -1653,7 +1653,7 @@ print(" (format="); print(job_name); print_char(" ");
 @x
 @p begin @!{|start_here|}
 @y
-@d const_chk(#)==begin if # < inf_@&# then # := inf_@&# else
+@d const_chk(#)==begin if # < inf@&_@&# then # := inf@&_@&# else
                          if # > sup_@&# then # := sup_@&# end
 
 {|setup_bound_var| stuff duplicated in \.{mf.ch}.}

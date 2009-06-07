@@ -323,7 +323,7 @@ charinfo *char_info(internal_font_number f, integer c)
     return &(font_tables[f]->charinfo[0]);
 }
 
-charinfo_short char_info_short(internal_font_number f, integer c)
+charinfo_short get_charinfo_short(internal_font_number f, integer c)
 {
     charinfo_short s;
     charinfo *i;
