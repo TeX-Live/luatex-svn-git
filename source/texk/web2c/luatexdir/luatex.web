@@ -12210,7 +12210,7 @@ the ocp.
 @!internal_ocp_number=ocp_base..ocp_biggest;
 @!ocp_index=integer;
 
-@<Glob...@>=
+@ @<Glob...@>=
 @!ocp_ptr:internal_ocp_number; {largest internal ocp number in use}
 
 @ $\Omega$ always knows at least one ocp, namely the null ocp.
