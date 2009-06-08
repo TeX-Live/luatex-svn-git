@@ -12218,7 +12218,7 @@ It does nothing.
 
 @
 @<Initialize table...@>=
-init_null_ocp;
+init_null_ocp("","nullocp");
 
 @ @<Put each...@>=
 primitive_omega("nullocp", set_ocp, null_ocp,0);

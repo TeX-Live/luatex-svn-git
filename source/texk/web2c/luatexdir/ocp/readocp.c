@@ -27,13 +27,13 @@ static unsigned char *ocp_buffer = NULL; /* byte buffer for ocp files */
 static integer ocp_size = 0; /* total size of the ocp file */
 static integer ocp_cur = 0; /* index into |ocp_buffer| */
 
-void init_null_ocp (void) 
+void init_null_ocp (str_number a, str_number n) 
 {
   ocp_ptr=null_ocp;
   allocate_ocp_table(null_ocp,17);
   ocp_file_size(null_ocp)=17;
-  ocp_name(null_ocp)=maketexstring("nullocp"); 
-  ocp_area(null_ocp)=get_nullstr();
+  ocp_name(null_ocp)=n; 
+  ocp_area(null_ocp)=a;
   ocp_external(null_ocp)=0; 
   ocp_external_arg(null_ocp)=0;
   ocp_input(null_ocp)=1; 

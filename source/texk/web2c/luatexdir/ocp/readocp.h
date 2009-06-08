@@ -56,6 +56,6 @@ typedef enum {
 extern internal_ocp_number read_ocp_info(pointer u, str_number nom, str_number aire, str_number ext,
 					 boolean external_ocp);
 
-extern void init_null_ocp (void) ;
+extern void init_null_ocp (str_number a, str_number n) ;
 
 #endif

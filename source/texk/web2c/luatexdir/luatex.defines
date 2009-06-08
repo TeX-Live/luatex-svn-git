@@ -263,7 +263,7 @@
 @define function read_data_file();
 
 @define function read_ocp_info();
-@define procedure init_null_ocp;
+@define procedure init_null_ocp();
 @define function ocp_name();
 @define function ocp_area();
 @define function ocp_external();
