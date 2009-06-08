@@ -41,12 +41,12 @@
 
 #include "png.h"
 #ifdef POPPLER_VERSION
-#define xpdfString "poppler"
-#include "poppler-config.h"
-#define xpdfVersion POPPLER_VERSION
+#  define xpdfString "poppler"
+#  include "poppler-config.h"
+#  define xpdfVersion POPPLER_VERSION
 #else
-#define xpdfString "xpdf"
-#include "xpdf/config.h"        /* just to get the xpdf version */
+#  define xpdfString "xpdf"
+#  include "xpdf/config.h"      /* just to get the xpdf version */
 #endif
 
 static const char __svn_version[] =

@@ -32,7 +32,7 @@ struct avl_table *fe_tree = NULL;
 
 static int comp_fe_entry(const void *pa, const void *pb, void *p)
 {
-    (void)p;
+    (void) p;
     return strcmp(((const fe_entry *) pa)->name, ((const fe_entry *) pb)->name);
 }
 
@@ -165,7 +165,7 @@ static void destroy_fe_entry(void *pa, void *pb)
 {
     fe_entry *p;
     int i;
-    (void)pb;
+    (void) pb;
     p = (fe_entry *) pa;
     xfree(p->name);
     if (p->glyph_names != NULL)

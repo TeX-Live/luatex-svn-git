@@ -530,6 +530,7 @@ void lua_initialize(int ac, char **av)
     }
     /* now run the file */
     if (startup_filename != NULL) {
+        char *v1;
         /* hide the 'tex' and 'pdf' table */
         tex_table_id = hide_lua_table(Luas, "tex");
         token_table_id = hide_lua_table(Luas, "token");
@@ -585,7 +586,7 @@ void lua_initialize(int ac, char **av)
         get_lua_boolean("texconfig", "halt_on_error", &haltonerrorp);
 
         /* restrictedshell */
-        char *v1 = NULL;
+        v1 = NULL;
         get_lua_string("texconfig", "shell_escape", &v1);
         if (v1) {
             if (*v1 == 't' || *v1 == 'y' || *v1 == '1') {
@@ -625,9 +626,9 @@ void lua_initialize(int ac, char **av)
     }
 }
 
-void
-check_texconfig_init (void) {
-    if (Luas!=NULL) {
+void check_texconfig_init(void)
+{
+    if (Luas != NULL) {
         lua_getglobal(Luas, "texconfig");
         if (lua_istable(Luas, -1)) {
             lua_getfield(Luas, -1, "init");
@@ -635,7 +636,8 @@ check_texconfig_init (void) {
                 int i = lua_pcall(Luas, 0, 0, 0);
                 if (i != 0) {
                     /* Can't be more precise here, called before TeX initialization  */
-                    fprintf(stderr, "This went wrong: %s\n", lua_tostring(Luas, -1));
+                    fprintf(stderr, "This went wrong: %s\n",
+                            lua_tostring(Luas, -1));
                     error();
                 }
             }
@@ -643,20 +645,20 @@ check_texconfig_init (void) {
     }
 }
 
-void write_svnversion(char *v) 
-{       
+void write_svnversion(char *v)
+{
     char *a_head, *n;
     char *a = strdup(v);
     size_t l = strlen("$Id: luatex.web ");
     if (a != NULL) {
         a_head = a;
-        if (strlen(a)>l)
-            a+=l;
+        if (strlen(a) > l)
+            a += l;
         n = a;
-        while (*n!='\0' && *n!=' ')
+        while (*n != '\0' && *n != ' ')
             n++;
         *n = '\0';
-        fprintf(stdout, " luatex.web >= v%s",  a);
-        free (a_head);
+        fprintf(stdout, " luatex.web >= v%s", a);
+        free(a_head);
     }
 }

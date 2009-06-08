@@ -61,8 +61,8 @@ static void calc_k2(pdfstructure * p)
         lround(pdf2double(p->hz) * pdf2double(p->ext) * exp10_arr[p->tm[0].e]);
     p->k2 =
         exp10_arr[e_tj +
-              p->cw.e] / (exp10_arr[p->pdf.h.e] * pdf2double(p->fs) *
-                          pdf2double(p->tm[0]));
+                  p->cw.e] / (exp10_arr[p->pdf.h.e] * pdf2double(p->fs) *
+                              pdf2double(p->tm[0]));
 }
 
 void pdf_page_init()
@@ -92,7 +92,7 @@ void pdf_page_init()
     setpdffloat(p->cm[4], 0, decimal_digits);   /* horizontal movement on page */
     setpdffloat(p->cm[5], 0, decimal_digits);   /* vertical movement on page */
     /* for placement inside BT...ET */
-    setpdffloat(p->tm[0], exp10_arr[6], 6); /* mantissa holds HZ expand * ExtendFont */
+    setpdffloat(p->tm[0], exp10_arr[6], 6);     /* mantissa holds HZ expand * ExtendFont */
     setpdffloat(p->tm[1], 0, 0);
     setpdffloat(p->tm[2], 0, 3);        /* mantissa holds SlantFont, 0 = default */
     setpdffloat(p->tm[3], 1, 0);

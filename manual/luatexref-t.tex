@@ -3561,11 +3561,14 @@ end
 
 The returned node is the head of the list that will be added to the
 main vertical list, the boolean argument is true if this paragraph is
-interrupted by a following math display.
+interrupted by a following math display. 
 
 If you return something that is not a \type{<node>}, \LUATEX\ will
 apply the internal linebreak algorithm on the list that starts at
-\type{<head>}.
+\type{<head>}. Otherwise, the \type{<node>} you return is supposed 
+to be the head of a list of nodes that are all allowed in vertical
+mode, and the last of those has to represent a hbox. Failure to do
+so will result in a fatal error.
 
 Setting this  callback to \type{false} is possible, but dangerous,
 because it is possible you will end up in an unfixable

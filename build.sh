@@ -159,6 +159,7 @@ then
     --disable-shared    \
     --disable-largefile \
     --disable-ipc \
+    --without-mf-x-toolkit --without-x \
    || exit 1 
 fi
 

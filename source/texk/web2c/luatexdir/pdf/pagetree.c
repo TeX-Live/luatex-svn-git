@@ -62,7 +62,7 @@ typedef struct divert_list_entry_ {
 
 static int comp_divert_list_entry(const void *pa, const void *pb, void *p)
 {
-    (void)p;
+    (void) p;
     if (((const divert_list_entry *) pa)->divnum >
         ((const divert_list_entry *) pb)->divnum)
         return 1;

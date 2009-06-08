@@ -189,10 +189,10 @@ static int do_getstat(lua_State * L, int i)
         lua_pushboolean(L, g());
         break;
     case 'n':
-        if (*(halfword *) (stats[i].value)!=0)
-          lua_nodelib_push_fast(L, *(halfword *) (stats[i].value));
+        if (*(halfword *) (stats[i].value) != 0)
+            lua_nodelib_push_fast(L, *(halfword *) (stats[i].value));
         else
-          lua_pushnil(L);
+            lua_pushnil(L);
         break;
     case 'b':
         lua_pushboolean(L, *(integer *) (stats[i].value));
@@ -219,7 +219,7 @@ static int getstats(lua_State * L)
 
 static int setstats(lua_State * L)
 {
-    (void)L;
+    (void) L;
     return 0;
 }
 

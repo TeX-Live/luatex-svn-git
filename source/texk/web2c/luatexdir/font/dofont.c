@@ -50,8 +50,7 @@ static char *font_error_message(pointer u, char *nom, scaled s)
     return str;
 }
 
-static int
-do_define_font(integer f, char *cnom, scaled s, integer natural_dir)
+static int do_define_font(integer f, char *cnom, scaled s, integer natural_dir)
 {
 
     boolean res;                /* was the callback successful? */
@@ -115,7 +114,7 @@ do_define_font(integer f, char *cnom, scaled s, integer natural_dir)
                 return 0;
             }
         }
-    } else if (callback_id==0) {
+    } else if (callback_id == 0) {
         res = read_tfm_info(f, cnom, s);
         if (res) {
             set_hyphen_char(f, get_default_hyphen_char());
