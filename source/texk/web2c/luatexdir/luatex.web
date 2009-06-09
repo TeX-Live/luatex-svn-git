@@ -9247,7 +9247,7 @@ else  begin back_input; scan_font_ident;
 
 @ @<Fetch a math font identifier@>=
 begin scan_char_num; cur_val1:=fam_fnt(cur_val,m);
-  scanned_result(cur_val1)(int_val);
+  scanned_result(font_id_base+cur_val1)(ident_val);
   end
 
 @ @<Fetch a math param@>=
