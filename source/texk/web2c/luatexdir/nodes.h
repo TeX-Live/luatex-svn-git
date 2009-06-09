@@ -113,6 +113,11 @@ extern halfword do_set_attribute(halfword p, int i, int val);
 #  define shrink_order(a)   subtype((a)+3)
 #  define glue_ref_count(a) vlink((a)+3)
 
+#  define width_offset 2
+#  define depth_offset 3
+#  define height_offset 4
+#  define list_offset 6
+
 typedef enum {
     cond_math_glue = 98,        /* special |subtype| to suppress glue in the next node */
     mu_glue,                    /* |subtype| for math glue */
@@ -770,6 +775,12 @@ typedef enum {
 #  define begin_point     end_span+span_node_size
 #  define end_point       begin_point+glyph_node_size
 #  define var_mem_stat_max (end_point+glyph_node_size-1)
+
+#define stretching 1
+#define shrinking 2
+
+#define is_running(A) ((A)==null_flag) /* tests for a running dimension */
+
 
 
 #endif

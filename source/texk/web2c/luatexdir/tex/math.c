@@ -41,17 +41,10 @@ static const char _svn_version[] =
 #define space_factor  aux.hh.lhfield
 #define incompleat_noad aux.cint
 
-#define stretching 1
-#define shrinking 2
-
 #define append_char(A) str_pool[pool_ptr++]=(A)
 #define flush_char pool_ptr--   /* forget the last character in the pool */
 #define cur_length (pool_ptr - str_start_macro(str_ptr))
 #define saved(A) save_stack[save_ptr+(A)].cint
-
-#define vmode 1
-#define hmode (vmode+max_command_cmd+1)
-#define mmode (hmode+max_command_cmd+1)
 
 #define cur_fam int_par(param_cur_fam_code)
 #define text_direction zeqtb[static_int_base + param_text_direction_code].cint

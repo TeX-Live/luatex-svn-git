@@ -34,9 +34,6 @@ static const char _svn_version[] =
 #define cur_length (pool_ptr - str_start_macro(str_ptr))
 #define flush_char() pool_ptr--
 
-#define stretching 1
-#define shrinking 2
-
 #define adjust_pre subtype
 
 typedef enum {

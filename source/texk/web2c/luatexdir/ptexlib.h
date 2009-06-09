@@ -55,6 +55,8 @@ extern double rint(double x);
 
 #  include "ocp/readocp.h"
 
+#  include "tex/align.h"
+
 /**********************************************************************/
 
 typedef short shalfword;

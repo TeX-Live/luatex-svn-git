@@ -907,3 +907,14 @@
 @define function id_lookup();
 
 @define procedure tex_def_font();
+
+{ alignments }
+
+@define procedure initialize_alignments;
+@define procedure init_align;
+@define procedure align_peek;
+@define function fin_col;
+@define procedure fin_row;
+@define const span_code;
+@define const cr_code;
+@define const cr_cr_code;

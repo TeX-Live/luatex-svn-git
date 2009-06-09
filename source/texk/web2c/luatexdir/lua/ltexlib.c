@@ -223,10 +223,6 @@ void luacstring_close(int n)
 
 /* local (static) versions */
 
-#define width_offset 1
-#define depth_offset 2
-#define height_offset 3
-
 #define check_index_range(j,s)						\
   if (j<0 || j > 65535) {							\
     lua_pushfstring(L, "incorrect index value %d for tex.%s()", (int)j, s); \

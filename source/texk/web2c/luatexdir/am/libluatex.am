@@ -101,6 +101,8 @@ libluatex_a_SOURCES = \
 	luatexdir/pdf/pdfpage.h \
 	luatexdir/primitive.h \
 	luatexdir/ptexmac.h \
+	luatexdir/tex/align.c \
+	luatexdir/tex/align.h \
 	luatexdir/tex/filename.c \
 	luatexdir/tex/linebreak.c \
 	luatexdir/tex/math.c \

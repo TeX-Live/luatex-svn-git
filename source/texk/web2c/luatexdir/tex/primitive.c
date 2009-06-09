@@ -39,7 +39,6 @@ static const char _svn_version[] =
 #define hash_is_full (hash_used==hash_base)     /* test if all positions are occupied */
 #define hash_size 65536
 
-#define span_code 1114113
 #define unless_code 32          /* amount added for `\.{\\unless}' prefix */
 #define protected_token 0x1C00001       /* $2^{21}\cdot|end_match|+1$ */
 #define offset_ocp_name 1
