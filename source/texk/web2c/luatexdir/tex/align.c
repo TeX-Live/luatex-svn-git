@@ -299,7 +299,7 @@ void get_preamble_token (void) {
         }
     }
     if (cur_cmd==endv_cmd) 
-        fatal_error("(interwoven alignment preambles are not allowed)");
+        fatal_error(maketexstring("(interwoven alignment preambles are not allowed)"));
     if ((cur_cmd==assign_glue_cmd)&&(cur_chr=static_glue_base+param_tab_skip_code)) {
         scan_optional_equals(); scan_glue(glue_val_level);
         if (int_par(param_global_defs_code)>0) 
@@ -512,7 +512,7 @@ to another alignment is being scanned, or when no alignment preamble is active.
 
 void insert_vj_template (void) {
     if ((scanner_status==aligning)||(cur_align==null))
-        fatal_error("(interwoven alignment preambles are not allowed)");
+        fatal_error(maketexstring("(interwoven alignment preambles are not allowed)"));
     cur_cmd=extra_info(cur_align); extra_info(cur_align)=cur_chr;
     if (cur_cmd==omit_cmd) 
         begin_token_list(omit_template,v_template);
@@ -561,7 +561,7 @@ boolean fin_col (void) {
     q=vlink(cur_align);
     if (q==null) tconfusion("endv");
     if (align_state<500000)
-        fatal_error("(interwoven alignment preambles are not allowed)");
+        fatal_error(maketexstring("(interwoven alignment preambles are not allowed)"));
     p=vlink(q);
     /* If the preamble list has been traversed, check that the row has ended */
     if ((p==null)&&(extra_info(cur_align)<cr_code)) {
