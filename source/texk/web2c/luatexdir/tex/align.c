@@ -300,7 +300,7 @@ void get_preamble_token (void) {
     }
     if (cur_cmd==endv_cmd) 
         fatal_error(maketexstring("(interwoven alignment preambles are not allowed)"));
-    if ((cur_cmd==assign_glue_cmd)&&(cur_chr=static_glue_base+param_tab_skip_code)) {
+    if ((cur_cmd==assign_glue_cmd)&&(cur_chr==static_glue_base+param_tab_skip_code)) {
         scan_optional_equals(); scan_glue(glue_val_level);
         if (int_par(param_global_defs_code)>0) 
             geq_define(static_glue_base+param_tab_skip_code,glue_ref_cmd,cur_val);
