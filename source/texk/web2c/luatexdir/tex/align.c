@@ -45,7 +45,7 @@ void init_col(void);
 #define float(A) (double)(A) /* convert from |glue_ratio| to type |real| */
 #define unfloat(A) (integer)(A) /* convert from |real| to type |glue_ratio| */
 
-#define every_cr          get_equiv(param_every_cr_code)
+#define every_cr          loc_par(param_every_cr_code)
 #define display_indent    dimen_par(param_display_indent_code)
 #define max_depth         dimen_par(param_max_depth_code)
 #define pdf_ignored_dimen dimen_par(param_pdf_ignored_dimen_code)
