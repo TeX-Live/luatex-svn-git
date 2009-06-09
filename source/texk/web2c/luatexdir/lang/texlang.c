@@ -107,7 +107,7 @@ static int u_strlen(register unichar_t * str)
 
 #endif
 
-#define VERBOSE
+#define noVERBOSE
 
 #define MAX_TEX_LANGUAGES  32768
 
