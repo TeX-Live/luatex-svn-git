@@ -413,6 +413,16 @@ pointer id_lookup(integer j, integer l)
     pointer p;                  /* index in |hash| array */
 
     h = compute_hash((char *) (buffer + j), l, hash_prime);
+#ifdef VERBOSE
+    {
+        unsigned char *todo = xmalloc(l+2);
+        strncpy(todo,(buffer + j), l);
+        todo[l]='\0';
+        todo[l+1]='\0';
+        fprintf(stdout,"id_lookup(%s)\n",todo);
+        free(todo);
+    }
+#endif
     p = h + hash_base;          /* we start searching here; note that |0<=h<hash_prime| */
     while (1) {
         if (text(p) > 0)
