@@ -1,4 +1,13 @@
 ==============================================================
+Luatex beta-0.40.5 was released 20090610
+==============================================================
+
+* One of the internal print functions accidentally encoded its
+  argument string to UTF-8 even though it was already UTF-8.
+
+* Some of the log and terminal UTF-8 output was gibberish.
+
+==============================================================
 Luatex beta-0.40.4 was released 20090609
 ==============================================================
 
