@@ -1762,7 +1762,7 @@ scaled divide_scaled_n(double sd, double md, double n)
 
 void tprint(char *s)
 {
-    unsigned char *ss = s;
+    char *ss = s;
     while (*ss)
         print_char(*ss++);
 }
