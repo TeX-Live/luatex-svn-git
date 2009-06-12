@@ -16216,7 +16216,7 @@ begin
   dir_BL_: begin
       case font_direction(dvi_direction) of
       dir__LL, dir__LR: pos_down((c_ht - c_dp) div 2);
-      dir__LT: pos_up(c_dp);
+      dir__LT: ;
       dir__LB: pos_down(c_ht);
       endcases;
     end;
@@ -16224,7 +16224,7 @@ begin
       pos_left(c_wd);
       case font_direction(dvi_direction) of
       dir__RL, dir__RR: pos_down((c_ht - c_dp) div 2);
-      dir__RT: pos_up(c_dp);
+      dir__RT: ;
       dir__RB: pos_down(c_ht);
       endcases;
     end;
