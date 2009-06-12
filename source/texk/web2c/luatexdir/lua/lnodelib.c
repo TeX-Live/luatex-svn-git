@@ -2235,7 +2235,7 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
             pdf_annot_objnum(n) = lua_tointeger(L, 3);
             break;
         case 8:
-            pdf_annot_data(n) = nodelib_getstring(L, 3);
+            pdf_annot_data(n) = nodelib_gettoks(L, 3);
             break;
         default:
             return nodelib_cantset(L, field, n);
@@ -2256,7 +2256,7 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
             pdf_link_objnum(n) = lua_tointeger(L, 3);
             break;
         case 8:
-            pdf_link_attr(n) = nodelib_getstring(L, 3);
+            pdf_link_attr(n) = nodelib_gettoks(L, 3);
             break;
         case 9:
             pdf_link_action(n) = nodelib_getaction(L, 3);
