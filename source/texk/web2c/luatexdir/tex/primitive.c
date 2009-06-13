@@ -41,8 +41,6 @@ static const char _svn_version[] =
 
 #define unless_code 32          /* amount added for `\.{\\unless}' prefix */
 #define protected_token 0x1C00001       /* $2^{21}\cdot|end_match|+1$ */
-#define offset_ocp_name 1
-#define ocp_name(A) ocp_tables[(A)][offset_ocp_name]
 
 #define skip_base      get_skip_base()
 #define mu_skip_base   get_mu_skip_base()
@@ -415,11 +413,11 @@ pointer id_lookup(integer j, integer l)
     h = compute_hash((char *) (buffer + j), l, hash_prime);
 #ifdef VERBOSE
     {
-        unsigned char *todo = xmalloc(l+2);
-        strncpy(todo,(buffer + j), l);
-        todo[l]='\0';
-        todo[l+1]='\0';
-        fprintf(stdout,"id_lookup(%s)\n",todo);
+        unsigned char *todo = xmalloc(l + 2);
+        strncpy(todo, (buffer + j), l);
+        todo[l] = '\0';
+        todo[l + 1] = '\0';
+        fprintf(stdout, "id_lookup(%s)\n", todo);
         free(todo);
     }
 #endif

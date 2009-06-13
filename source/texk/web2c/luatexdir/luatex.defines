@@ -271,14 +271,63 @@
 @define function ocp_state_base();
 @define function ocp_table_base();
 
+@define procedure run_ocp;
+@define procedure initialize_ocp_buffers();
+@define procedure active_compile;
+@define procedure print_active_ocps;
+
 @define var ocp_tables;
 
+@define const null_ocp;
+@define const null_ocp_list;
+
+@define procedure new_ocp();
+@define function is_last_ocp();
+@define procedure  add_ocp_stack();
+@define procedure dump_active_ocp_info;
+@define procedure undump_active_ocp_info;
+@define var active_min_ptr;
+@define var active_max_ptr;
+
 @define procedure allocate_ocp_table ();
-@define procedure dump_ocp_table ();
-@define procedure undump_ocp_table ();
-@define procedure run_external_ocp ();
+@define procedure dump_ocp_info;
+@define procedure undump_ocp_info;
+@define procedure scan_ocp_ident;
 
 @define function  copy_font_info();
+
+@define procedure initialize_init_ocplists;
+@define procedure initialize_ocplist_arrays();
+@define procedure dump_ocplist_info;
+@define procedure undump_ocplist_info;
+
+@define function  make_ocp_list_node();
+@define function  make_ocp_lstack_node() ;
+@define function  copy_ocp_lstack();
+@define function  copy_ocp_list();
+@define function  ocp_ensure_lstack();
+
+@define const add_before_op;
+@define const add_after_op;
+@define const remove_before_op;
+@define const remove_after_op;
+
+@define procedure ocp_apply_add();
+@define procedure ocp_apply_remove();
+
+@define procedure print_ocp_lstack();
+@define procedure print_ocp_list();
+@define function scan_ocp_list;
+@define function read_ocp_list;
+
+@define procedure scan_ocp_list_ident;
+@define procedure new_ocp_list();
+@define procedure do_push_ocp_list() ;
+@define procedure do_pop_ocp_list() ;
+@define procedure do_clear_ocp_lists();
+
+
+
 
 { 'texfont' library definitions }
 

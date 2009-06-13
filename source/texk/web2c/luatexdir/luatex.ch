@@ -1114,30 +1114,6 @@ if name=str_ptr-1 then {we can conserve string pool space now}
 @z
 
 @x
-@!ocp_list_info:array[ocp_list_index] of memory_word;
-  {the big collection of ocp list data}
-@!ocp_listmem_ptr:ocp_list_index; {first unused word of |ocp_list_info|}
-@!ocp_listmem_run_ptr:ocp_list_index; {temp unused word of |ocp_list_info|}
-@!ocp_lstack_info:array[ocp_lstack_index] of memory_word;
-  {the big collection of ocp lstack data}
-@!ocp_lstackmem_ptr:ocp_lstack_index; {first unused word of |ocp_lstack_info|}
-@!ocp_lstackmem_run_ptr:ocp_lstack_index; {temp unused word of |ocp_lstack_info|}
-@!ocp_list_ptr:internal_ocp_list_number; {largest internal ocp list number in use}
-@!ocp_list_list:array[internal_ocp_list_number] of ocp_list_index;
-@y
-@!ocp_list_info:^memory_word;
-  {the big collection of ocp list data}
-@!ocp_listmem_ptr:ocp_list_index; {first unused word of |ocp_list_info|}
-@!ocp_listmem_run_ptr:ocp_list_index; {temp unused word of |ocp_list_info|}
-@!ocp_lstack_info:^memory_word;
-  {the big collection of ocp lstack data}
-@!ocp_lstackmem_ptr:ocp_lstack_index; {first unused word of |ocp_lstack_info|}
-@!ocp_lstackmem_run_ptr:ocp_lstack_index; {temp unused word of |ocp_lstack_info|}
-@!ocp_list_ptr:internal_ocp_list_number; {largest internal ocp list number in use}
-@!ocp_list_list:^ocp_list_index;
-@z
-
-@x
 @!dvi_buf:array[dvi_index] of real_eight_bits; {buffer for \.{DVI} output}
 @!half_buf:dvi_index; {half of |dvi_buf_size|}
 @!dvi_limit:dvi_index; {end of the current half buffer}
@@ -1555,83 +1531,6 @@ make_pdftex_banner
 @z
 
 @x
-for k:=0 to active_max_ptr-1 do dump_wd(active_info[k]);
-if active_max_ptr>0 then begin
-  print_ln; print_int(active_max_ptr); print(" words of active ocps");
-  end;
-
-@ @<Undump the active ocp information@>=
-undump_size(0)(active_mem_size)('active start point')(active_min_ptr);
-undump_size(0)(active_mem_size)('active mem size')(active_max_ptr);
-for k:=0 to active_max_ptr-1 do undump_wd(active_info[k]);
-@y
-if active_max_ptr>0 then
-  dump_things(active_info[0], active_max_ptr);
-if active_max_ptr>0 then begin
-  print_ln; print_int(active_max_ptr); print(" words of active ocps");
-  end;
-
-@ @<Undump the active ocp information@>=
-undump_size(0)(active_mem_size)('active start point')(active_min_ptr);
-undump_size(0)(active_mem_size)('active mem size')(active_max_ptr);
-if active_max_ptr>0 then
-  undump_things(active_info[0], active_max_ptr);
-@z
-
-@x
-@ @<Dump the ocp list information@>=
-dump_int(ocp_listmem_ptr);
-for k:=0 to ocp_listmem_ptr-1 do dump_wd(ocp_list_info[k]);
-dump_int(ocp_list_ptr);
-for k:=null_ocp_list to ocp_list_ptr do begin
-  dump_int(ocp_list_list[k]);
-  if null_ocp_list<>ocp_list_ptr then begin
-    print_nl("\ocplist"); 
-    print_esc(ocp_list_id_text(k)); 
-    print_char("=");
-    print_ocp_list(ocp_list_list[k]);
-    end;
-  end;
-dump_int(ocp_lstackmem_ptr);
-for k:=0 to ocp_lstackmem_ptr-1 do dump_wd(ocp_lstack_info[k])
-@y
-@ @<Dump the ocp list information@>=
-dump_int(ocp_listmem_ptr);
-dump_things(ocp_list_info[0], ocp_listmem_ptr);
-dump_int(ocp_list_ptr);
-dump_things(ocp_list_list[null_ocp_list], ocp_list_ptr+1-null_ocp_list);
-for k:=null_ocp_list to ocp_list_ptr do begin
-  if null_ocp_list<>ocp_list_ptr then begin
-    print_nl("\ocplist"); 
-    print_esc(ocp_list_id_text(k)); 
-    print_char("=");
-    print_ocp_list(ocp_list_list[k]);
-    end;
-  end;
-dump_int(ocp_lstackmem_ptr);
-dump_things(ocp_lstack_info[0], ocp_lstackmem_ptr)
-@z
-
-@x
-@ @<Undump the ocp list information@>=
-undump_size(1)(1000000)('ocp list mem size')(ocp_listmem_ptr);
-for k:=0 to ocp_listmem_ptr-1 do undump_wd(ocp_list_info[k]);
-undump_size(ocp_list_base)(ocp_list_biggest)('ocp list max')(ocp_list_ptr);
-for k:=null_ocp_list to ocp_list_ptr do
-  undump_int(ocp_list_list[k]);
-undump_size(1)(1000000)('ocp lstack mem size')(ocp_lstackmem_ptr);
-for k:=0 to ocp_lstackmem_ptr-1 do undump_wd(ocp_lstack_info[k])
-@y
-@ @<Undump the ocp list information@>=
-undump_size(1)(1000000)('ocp list mem size')(ocp_listmem_ptr);
-undump_things(ocp_list_info[0], ocp_listmem_ptr);
-undump_size(0)(1000000)('ocp list max')(ocp_list_ptr);
-undump_things(ocp_list_list[null_ocp_list], ocp_list_ptr+1-null_ocp_list);
-undump_size(0)(1000000)('ocp lstack mem size')(ocp_lstackmem_ptr);
-undump_things(ocp_lstack_info[0], ocp_lstackmem_ptr)
-@z
-
-@x
 undump(batch_mode)(error_stop_mode)(interaction);
 @y
 undump(batch_mode)(error_stop_mode)(interaction);
@@ -1731,17 +1630,8 @@ begin @!{|start_here|}
   full_source_filename_stack:=xmallocarray (str_number, max_in_open);
   param_stack:=xmallocarray (halfword, param_size);
   dvi_buf:=xmallocarray (real_eight_bits, dvi_buf_size);
-  ocp_list_info:=xmallocarray (memory_word, ocp_list_size);
-  memset(ocp_list_info,0,sizeof(memory_word)* ocp_list_size);
-  ocp_lstack_info:=xmallocarray (memory_word, ocp_list_size);
-  memset(ocp_lstack_info,0,sizeof(memory_word)* ocp_list_size);
-  ocp_list_list:=xmallocarray (ocp_list_index, ocp_list_size);
-  otp_init_input_buf:=xmallocarray (quarterword, ocp_buf_size);
-  otp_input_buf:=xmallocarray (quarterword, ocp_buf_size);
-  otp_output_buf:=xmallocarray (quarterword, ocp_buf_size);
-  otp_stack_buf:=xmallocarray (quarterword, ocp_stack_size);
-  otp_calcs:=xmallocarray (halfword, ocp_stack_size);
-  otp_states:=xmallocarray (halfword, ocp_stack_size);
+  initialize_ocplist_arrays(ocp_list_size);
+  initialize_ocp_buffers(ocp_buf_size, ocp_stack_size);
   obj_tab:=xmallocarray (obj_entry, inf_obj_tab_size); {will grow dynamically}
   obj_offset(0):=0;
   pdf_mem:=xmallocarray (integer, inf_pdf_mem_size); {will grow dynamically}
@@ -1963,52 +1853,6 @@ selector:=old_setting;
 @y
 @!grp_stack : ^save_pointer; {initial |cur_boundary|}
 @!if_stack : ^pointer; {initial |cond_ptr|}
-@z
-
-@x
-@!otp_init_input_buf:array[0..20000] of quarterword;
-
-@!otp_input_start:halfword;
-@!otp_input_last:halfword;
-@!otp_input_end:halfword;
-@!otp_input_buf:array[0..20000] of quarterword;
-
-@!otp_output_end:halfword;
-@!otp_output_buf:array[0..20000] of quarterword;
-
-@!otp_stack_used:halfword;
-@!otp_stack_last:halfword;
-@!otp_stack_new:halfword;
-@!otp_stack_buf:array[0..1000] of quarterword;
-
-@!otp_pc:halfword;
-
-@!otp_calc_ptr:halfword;
-@!otp_calcs:array[0..1000] of halfword;
-@!otp_state_ptr:halfword;
-@!otp_states:array[0..1000] of halfword;
-@y
-@!otp_init_input_buf:^quarterword;
-
-@!otp_input_start:halfword;
-@!otp_input_last:halfword;
-@!otp_input_end:halfword;
-@!otp_input_buf:^quarterword;
-
-@!otp_output_end:halfword;
-@!otp_output_buf:^quarterword;
-
-@!otp_stack_used:halfword;
-@!otp_stack_last:halfword;
-@!otp_stack_new:halfword;
-@!otp_stack_buf:^quarterword;
-
-@!otp_pc:halfword;
-
-@!otp_calc_ptr:halfword;
-@!otp_calcs:^halfword;
-@!otp_state_ptr:halfword;
-@!otp_states:^halfword;
 @z
 
 @x

@@ -93,8 +93,14 @@ libluatex_a_SOURCES = \
 	luatexdir/managed-sa.h \
 	luatexdir/mathcodes.c \
 	luatexdir/nodes.h \
+	luatexdir/ocp/ocp.c \
+	luatexdir/ocp/ocp.h \
+	luatexdir/ocp/ocplist.c \
+	luatexdir/ocp/ocplist.h \
 	luatexdir/ocp/readocp.c \
 	luatexdir/ocp/readocp.h \
+	luatexdir/ocp/runocp.c \
+	luatexdir/ocp/runocp.h \
 	luatexdir/pdf/pagetree.c \
 	luatexdir/pdf/pagetree.h \
 	luatexdir/pdf/pdfpage.c \

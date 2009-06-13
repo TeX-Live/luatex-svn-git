@@ -30,15 +30,6 @@ extern int readbinfile(FILE * f, unsigned char **b, integer * s);
 #define read_ocp_file  readbinfile
 #define read_data_file readbinfile
 
-extern int **ocp_tables;
-
-extern void allocate_ocp_table();
-extern void dump_ocp_table();
-extern void undump_ocp_table();
-
-extern void run_external_ocp();
-extern void b_test_in();
-
 /* Additions to texmfmp.h for pdfTeX */
 
 /* mark a char in font */

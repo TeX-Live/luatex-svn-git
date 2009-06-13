@@ -53,6 +53,9 @@ extern double rint(double x);
 #  include "image/writejbig2.h"
 #  include "image/pdftoepdf.h"
 
+#  include "ocp/ocp.h"
+#  include "ocp/ocplist.h"
+#  include "ocp/runocp.h"
 #  include "ocp/readocp.h"
 
 #  include "tex/align.h"

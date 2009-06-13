@@ -21,43 +21,41 @@
 
 #ifndef READOCP_H
 
-#define READOCP_H 1
+#  define READOCP_H 1
 
-#define ocp_base 0
-#define null_ocp ocp_base
-
-#define ocp_info(A,B) ocp_tables[(A)][(B)]
+#  define ocp_info(A,B) ocp_tables[(A)][(B)]
 
 typedef enum {
-  offset_ocp_file_size=0,
-  offset_ocp_name,
-  offset_ocp_area,
-  offset_ocp_external,
-  offset_ocp_external_arg,
-  offset_ocp_input,
-  offset_ocp_output,
-  offset_ocp_no_tables,
-  offset_ocp_no_states,
-  offset_ocp_table_base,
-  offset_ocp_state_base,
-  offset_ocp_info /* 11 */
+    offset_ocp_file_size = 0,
+    offset_ocp_name,
+    offset_ocp_area,
+    offset_ocp_external,
+    offset_ocp_external_arg,
+    offset_ocp_input,
+    offset_ocp_output,
+    offset_ocp_no_tables,
+    offset_ocp_no_states,
+    offset_ocp_table_base,
+    offset_ocp_state_base,
+    offset_ocp_info             /* 11 */
 } ocp_offsets;
 
-#define ocp_file_size(A) ocp_info(A,offset_ocp_file_size)
-#define ocp_name(A) ocp_info(A,offset_ocp_name)
-#define ocp_area(A) ocp_info(A,offset_ocp_area)
-#define ocp_external(A) ocp_info(A,offset_ocp_external)
-#define ocp_external_arg(A) ocp_info(A,offset_ocp_external_arg)
-#define ocp_input(A) ocp_info(A,offset_ocp_input)
-#define ocp_output(A) ocp_info(A,offset_ocp_output)
-#define ocp_no_tables(A) ocp_info(A,offset_ocp_no_tables)
-#define ocp_no_states(A) ocp_info(A,offset_ocp_no_states)
-#define ocp_table_base(A) ocp_info(A,offset_ocp_table_base)
-#define ocp_state_base(A) ocp_info(A,offset_ocp_state_base)
+#  define ocp_file_size(A) ocp_info(A,offset_ocp_file_size)
+#  define ocp_name(A) ocp_info(A,offset_ocp_name)
+#  define ocp_area(A) ocp_info(A,offset_ocp_area)
+#  define ocp_external(A) ocp_info(A,offset_ocp_external)
+#  define ocp_external_arg(A) ocp_info(A,offset_ocp_external_arg)
+#  define ocp_input(A) ocp_info(A,offset_ocp_input)
+#  define ocp_output(A) ocp_info(A,offset_ocp_output)
+#  define ocp_no_tables(A) ocp_info(A,offset_ocp_no_tables)
+#  define ocp_no_states(A) ocp_info(A,offset_ocp_no_states)
+#  define ocp_table_base(A) ocp_info(A,offset_ocp_table_base)
+#  define ocp_state_base(A) ocp_info(A,offset_ocp_state_base)
 
-extern internal_ocp_number read_ocp_info(pointer u, str_number nom, str_number aire, str_number ext,
-					 boolean external_ocp);
+extern internal_ocp_number read_ocp_info(pointer u, str_number nom,
+                                         str_number aire, str_number ext,
+                                         boolean external_ocp);
 
-extern void init_null_ocp (str_number a, str_number n) ;
+extern void init_null_ocp(str_number a, str_number n);
 
 #endif

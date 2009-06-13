@@ -525,8 +525,6 @@ in production versions of \TeX.
 @!pool_name='TeXformats:TEX.POOL                     ';
   {string of length |file_name_size|; tells where the string pool appears}
 @.TeXformats@>
-@!active_mem_size=50000; {number of words of |active_info| for active ocps}
-@!ocp_maxint=@"10000000;
 
 
 @ Like the preceding parameters, the following quantities can be changed
@@ -544,14 +542,10 @@ emphasize this distinction.
   than |min_quarterword|}
 @d hash_size=65536 {maximum number of control sequences; it should be at most
   about |(fix_mem_max-fix_mem_min)/10|}
-@d ocp_base=0 {smallest internal ocp number; must not be less
-  than |min_quarterword|}
-@d ocp_biggest=32767 {the real biggest ocp}
-@d number_ocps=ocp_biggest-ocp_base+1
-@d ocp_list_base=0 {smallest internal ocp list number; must not be less
-  than |min_quarterword|}
-@d ocp_list_biggest=32727 {the real biggest ocp list}
-@d number_ocp_lists=ocp_list_biggest-ocp_list_base+1
+@d ocp_base=0 
+@d number_ocps=32768
+@d ocp_list_base=0
+@d number_ocp_lists=32768
 @d max_active_ocp_lists=32768
 @d biggest_reg=65535 {the largest allowed register number; must be |<=max_quarterword|}
 @d number_regs=65536 {|biggest_reg+1|}
@@ -565,8 +559,7 @@ emphasize this distinction.
 @d special_char=1114113 {2097153} {|biggest_char+2|}
 @d number_chars=1114112 {2097152} {|biggest_char+1|}
 @d string_offset=2097152
-@d font_biggest=5535 {the real biggest font}
-@d number_fonts=font_biggest-font_base+1
+@d number_fonts=5535-font_base+1
 @d biggest_lang=32767
 @d too_big_lang=32768
 @d text_size=0 {size code for the largest size in a family}
@@ -2603,17 +2596,6 @@ help2("If you really absolutely need more capacity,")@/
   ("you can ask a wizard to enlarge me.");
 succumb;
 end;
-
-procedure overflow_ocp_buf_size;
-begin
-overflow("ocp_buf_size",ocp_buf_size);
-end;
-
-procedure overflow_ocp_stack_size;
-begin
-overflow("ocp_stack_size",ocp_stack_size);
-end;
-
 
 @ The program might sometime run completely amok, at which point there is
 no choice but to stop. If no previous error has been detected, that's bad
@@ -5423,8 +5405,6 @@ packages, not in \TeX\ itself, so that global interchange of formats is
 possible.
 
 @d null_font==font_base
-@d null_ocp==ocp_base
-@d null_ocp_list==ocp_list_base
 @d var_code==7 {math code meaning ``use the current family''}
 
 @<Initialize table entries...@>=
@@ -6401,9 +6381,6 @@ A global boolean variable called |no_new_control_sequence| is set to
 @d text(#) == hash[#].rh {string number for control sequence name}
 @d hash_is_full == (hash_used=hash_base) {test if all positions are occupied}
 @d font_id_text(#) == text(font_id_base+#) {a frozen font identifier's name}
-@d ocp_id_text(#) == text(ocp_id_base+#) {a frozen ocp identifier's name}
-@d ocp_list_id_text(#) == text(ocp_list_id_base+#)
-   {a frozen ocp list identifier's name}
 
 @<Glob...@>=
 @!hash: array[hash_base..undefined_control_sequence-1] of two_halves;
@@ -7944,6 +7921,12 @@ new level (having, initially, the same properties as the old).
   incr(input_ptr);
   end
 
+@p procedure do_push_input;
+begin
+push_input;
+end;
+
+
 @ And of course what goes up must come down.
 
 @d pop_input==@t@> {leave an input level, re-enter the old}
@@ -9018,7 +9001,6 @@ procedures are also declared at this point.
 @t\4\4@>@<Declare procedures that scan restricted classes of integers@>@;
 @t\4\4@>@<Declare \eTeX\ procedures for scanning@>@;
 @t\4\4@>@<Declare procedures that scan font-related stuff@>
-@t\4\4@>@<Declare procedures that scan ocp-related stuff@>
 
 @ \TeX\ doesn't know exactly what to expect when
 |scan_something_internal| begins.  For example, an integer or
@@ -11628,17 +11610,14 @@ of the occurrences of area and extension delimiters:
 system area called |TEX_area|. Font metric files whose areas are not given
 explicitly are assumed to appear in a standard system area called
 |TEX_font_area|.  $\Omega$'s compiled translation process files whose areas
-are not given explicitly are assumed to appear in a standard system area
-called |OMEGA_ocp_area|.  These system area names will, of course, vary
-from place to place.
+are not given explicitly are assumed to appear in a standard system area. 
+These system area names will, of course, vary from place to place.
 @^system dependencies@>
 
 @d TEX_area=="TeXinputs:"
 @.TeXinputs@>
 @d TEX_font_area=="TeXfonts:"
 @.TeXfonts@>
-@d OMEGA_ocp_area=="OmegaOCPs:"
-@.OmegaOCPs@>
 
 @ Another system-dependent routine is needed to convert three internal
 \TeX\ strings
@@ -12074,141 +12053,11 @@ begin if tracing_lost_chars>0 then
  end;
 end;
 
-@
-@<Types...@>=
-@!active_index=0..active_mem_size;
-
-@
-@d active_ocp(#)==active_info[#].hh.b0
-@d active_counter(#)==active_info[#].hh.b1
-@d active_lstack_no(#)==active_info[#+1].sc
-
-@<Glob...@>=
-@!active_info:array[active_index] of memory_word;
-@!active_min_ptr:active_index; {first unused word of |active_info|}
-@!active_max_ptr:active_index; {last unused word of |active_info|}
-@!active_real:active_index;
-@!holding:array[active_index] of ocp_list_index;
-
-@
-@<Initialize table...@>=
-active_min_ptr:=0;
-active_real:=0;
-
-@
-@p
-function is_last_ocp(llstack_no:scaled; counter:integer):integer;
-begin
-active_min_ptr:=equiv(ocp_active_min_ptr_base);
-active_max_ptr:=equiv(ocp_active_max_ptr_base);
-active_real:=active_min_ptr;
-while (active_real < active_max_ptr) and
-      (active_lstack_no(active_real) < llstack_no) do begin
-  active_real:=active_real+2;
-  end;
-while (active_real < active_max_ptr) and
-      (active_lstack_no(active_real) = llstack_no) and
-      (active_counter(active_real) <= counter) do begin
-  active_real:=active_real+2;
-  end;
-is_last_ocp := (active_real=active_max_ptr);
-end;
-
-procedure print_active_ocps;
-var i:integer;
-begin
-print_nl("Active ocps: [");
-i:=active_min_ptr;
-while i<active_max_ptr do begin
-  print("(");
-  print_scaled(active_lstack_no(i));
-  print(",");
-  print_int(active_counter(i));
-  print(",");
-  print_esc(ocp_id_text(active_ocp(i)));
-  print(")");
-  if i<>(active_max_ptr-2) then print(",");
-  i:=i+2;
-  end;
-print("]");
-end;
-
-procedure add_ocp_stack(min_index:integer; min_value:scaled);
-var p:ocp_lstack_index;
-    llstack_no:scaled;
-    counter:integer;
-        m:scaled;
-begin
-m:=min_value; { TH: whatever this is ..}
-p:=ocp_list_lstack(holding[min_index]);
-llstack_no:=ocp_list_lstack_no(holding[min_index]);
-counter:=0;
-while not (is_null_ocp_lstack(p)) do begin
-  active_ocp(active_max_ptr):=ocp_lstack_ocp(p);
-  active_counter(active_max_ptr):=counter;
-  active_lstack_no(active_max_ptr):=llstack_no;
-  p:=ocp_lstack_lnext(p);
-  active_max_ptr:=active_max_ptr+2;
-  incr(counter);  {no overflow problem}
-  end;
-end;
-
-procedure active_compile;
-var i:integer;
-    min_index:integer;
-    min_stack_ocp:scaled;
-    old_min:scaled;
-    max_active:integer;
-    stack_value:scaled;
-begin
-active_min_ptr:=active_max_ptr;
-min_stack_ocp:=ocp_maxint;
-max_active:=equiv(ocp_active_number_base)-1;
-min_index:=max_active; {TH I hope ... }
-for i:=max_active downto 0 do begin
-  holding[i]:=ocp_list_list[equiv(ocp_active_base+i)];
-  stack_value:=ocp_list_lstack_no(holding[i]);
-  if stack_value<min_stack_ocp then begin
-    min_index:=i;
-    min_stack_ocp:=stack_value;
-    end;
-  end;
-while min_stack_ocp<ocp_maxint do begin
-  add_ocp_stack(min_index, min_stack_ocp);
-  old_min:=min_stack_ocp;
-  min_stack_ocp:=ocp_maxint;
-  for i:=max_active downto 0 do begin
-    stack_value:=ocp_list_lstack_no(holding[i]);
-    while old_min=stack_value do begin
-      holding[i]:=ocp_list_lnext(holding[i]);
-      stack_value:=ocp_list_lstack_no(holding[i]);
-      end;
-    if stack_value<min_stack_ocp then begin
-      min_index:=i;
-      min_stack_ocp:=stack_value;
-      end;
-    end;
-  end;
-end;
-
 @ Here we begin the \.{OCP} handling.
-
-When the user defines \.{\\ocp\\f}, say, \TeX\ assigns an internal number
-to the user's ocp~\.{\\f}. Adding this number to |ocp_id_base| gives the
-|eqtb| location of a ``frozen'' control sequence that will always select
-the ocp.
-
-@<Types...@>=
-@!internal_ocp_number=ocp_base..ocp_biggest;
-@!ocp_index=integer;
-
-@ @<Glob...@>=
-@!ocp_ptr:internal_ocp_number; {largest internal ocp number in use}
 
 @ $\Omega$ always knows at least one ocp, namely the null ocp.
 It does nothing.
 
-@
 @<Initialize table...@>=
 init_null_ocp("","nullocp");
 
@@ -12220,90 +12069,11 @@ geq_define(ocp_active_number_base, data, 0);
 geq_define(ocp_active_min_ptr_base, data, 0);
 geq_define(ocp_active_max_ptr_base, data, 0);
 
-@ Of course we want to define macros that suppress the detail of how ocp
-information is actually packed, so that we don't have to write things like
-$$\hbox{|ocp_info[k+ocp_info[j+ocp_state_base[i]]]|}$$
-too often. The \.{WEB} definitions here make |ocp_state_entry(i)(j)(k)|
-(|ocp_table_entry(i)(j)(k)|) the |k|-th word in the |j|-th state (table)
-of the |i|-th ocp.
-@^inner loop@>
-
-@d ocp_state_end(#)==#]
-@d ocp_state_one(#)==#*2]+ocp_state_end
-@d ocp_state_entry(#)==ocp_tables[#,ocp_tables[#,ocp_state_base(#)+ocp_state_one
-
-@d ocp_state_no_end(#)==#*2+1]
-@d ocp_state_no(#)==ocp_tables[#,ocp_state_base(#)+ocp_state_no_end
-
-@d ocp_table_end(#)==#]
-@d ocp_table_one(#)==#*2]+ocp_table_end
-@d ocp_table_entry(#)==ocp_tables[#,ocp_tables[#,ocp_table_base(#)+ocp_table_one
-
-@d ocp_table_no_end(#)==#*2+1]
-@d ocp_table_no(#)==ocp_tables[#,ocp_table_base(#)+ocp_table_no_end
-
-@ Before we forget about the format of these tables, let's deal with
-$\Omega$'s basic scanning routine related to ocp information.
-
-@<Declare procedures that scan ocp-related stuff@>=
-procedure scan_ocp_ident;
-var f:internal_ocp_number;
-begin @<Get the next non-blank non-call...@>;
-if cur_cmd=set_ocp then f:=cur_chr
-else  begin print_err("Missing ocp identifier");
-@.Missing ocp identifier@>
-  help2("I was looking for a control sequence whose")@/
-  ("current meaning has been defined by \ocp.");
-  back_error; f:=null_ocp;
-  end;
-cur_val:=f;
-end;
-
-
 @ Here we begin the \.{OCP} list handling.
-
-
-@<Types...@>=
-@!internal_ocp_list_number=ocp_list_base..ocp_list_biggest;
-@!ocp_list_index=integer; {index into |ocp_list_info|}
-@!ocp_lstack_index=integer; {index into |ocp_lstack_info|}
-
-@ Here now is the array of ocp arrays.
-@d ocp_list_lnext(#)==ocp_list_info[#].hh.b0
-@d ocp_list_lstack(#)==ocp_list_info[#].hh.b1
-@d ocp_list_lstack_no(#)==ocp_list_info[#+1].sc
-@d ocp_lstack_lnext(#)==ocp_lstack_info[#].hh.b0
-@d ocp_lstack_ocp(#)==ocp_lstack_info[#].hh.b1
-@d make_null_ocp_list==make_ocp_list_node(0,ocp_maxint,0)
-@d is_null_ocp_list(#)==ocp_list_lstack_no(#)=ocp_maxint
-@d make_null_ocp_lstack==0
-@d is_null_ocp_lstack(#)==#=0
-@d add_before_op=1
-@d add_after_op=2
-@d remove_before_op=3
-@d remove_after_op=4
-
-@<Glob...@>=
-@!ocp_list_info:array[ocp_list_index] of memory_word;
-  {the big collection of ocp list data}
-@!ocp_listmem_ptr:ocp_list_index; {first unused word of |ocp_list_info|}
-@!ocp_listmem_run_ptr:ocp_list_index; {temp unused word of |ocp_list_info|}
-@!ocp_lstack_info:array[ocp_lstack_index] of memory_word;
-  {the big collection of ocp lstack data}
-@!ocp_lstackmem_ptr:ocp_lstack_index; {first unused word of |ocp_lstack_info|}
-@!ocp_lstackmem_run_ptr:ocp_lstack_index; {temp unused word of |ocp_lstack_info|}
-@!ocp_list_ptr:internal_ocp_list_number; {largest internal ocp list number in use}
-@!ocp_list_list:array[internal_ocp_list_number] of ocp_list_index;
 
 @
 @<Initialize table...@>=
-ocp_listmem_ptr:=2;
-ocp_list_lstack(0):=0;
-ocp_list_lstack_no(0):=ocp_maxint;
-ocp_list_lnext(0):=0;
-ocp_list_ptr:=null_ocp_list;
-ocp_list_list[null_ocp_list]:=0;
-ocp_lstackmem_ptr:=1;
+initialize_init_ocplists;
 
 @ $\Omega$ always knows at least one ocp list, namely the null ocp list.
 
@@ -12312,133 +12082,8 @@ primitive_omega("nullocplist", set_ocp_list, null_ocp_list,0);
 text(frozen_null_ocp_list) := "nullocplist";
 eqtb[frozen_null_ocp_list] := eqtb[cur_val];
 
-@ @p function make_ocp_list_node(llstack:ocp_lstack_index;
-                                 llstack_no:scaled;
-                                 llnext:ocp_list_index):ocp_list_index;
-var p:ocp_list_index;
-begin
-p:=ocp_listmem_run_ptr;
-ocp_list_lstack(p):=llstack;
-ocp_list_lstack_no(p):=llstack_no;
-ocp_list_lnext(p):=llnext;
-ocp_listmem_run_ptr:=ocp_listmem_run_ptr+2;
-if ocp_listmem_run_ptr>=ocp_list_size then
-  overflow("ocp_list_size",ocp_list_size);
-make_ocp_list_node:=p;
-end;
-
-function make_ocp_lstack_node(locp:internal_ocp_number;
-                              llnext:ocp_lstack_index) : ocp_lstack_index;
-var p:ocp_lstack_index;
-begin
-p:=ocp_lstackmem_run_ptr;
-ocp_lstack_ocp(p):=locp;
-ocp_lstack_lnext(p):=llnext;
-incr(ocp_lstackmem_run_ptr);
-if ocp_lstackmem_run_ptr>=ocp_stack_size then
-  overflow("ocp_stack_size",ocp_stack_size);
-make_ocp_lstack_node:=p;
-end;
-
-function copy_ocp_lstack(llstack:ocp_lstack_index):ocp_lstack_index;
-var result:ocp_lstack_index;
-begin
-if is_null_ocp_lstack(llstack) then
-  result:=make_null_ocp_lstack
-else
-  result:=make_ocp_lstack_node(ocp_lstack_ocp(llstack),
-                               copy_ocp_lstack(ocp_lstack_lnext(llstack)));
-copy_ocp_lstack:=result;
-end;
-
-function copy_ocp_list(list:ocp_list_index):ocp_list_index;
-var result:ocp_list_index;
-begin
-if is_null_ocp_list(list) then
-  result:=make_null_ocp_list
-else
-  result:=make_ocp_list_node(copy_ocp_lstack(ocp_list_lstack(list)),
-                             ocp_list_lstack_no(list),
-                             copy_ocp_list(ocp_list_lnext(list)));
-copy_ocp_list:=result;
-end;
-
-function ocp_ensure_lstack(list:ocp_list_index; llstack_no:scaled):
-   ocp_list_index;
-var p:ocp_list_index;
-    q:ocp_list_index;
-begin
-p:=list;
-if is_null_ocp_list(p) then begin
-  ocp_list_lstack_no(p) := llstack_no;
-  ocp_list_lnext(p) := make_null_ocp_list;
-  end
-else if ocp_list_lstack_no(p) > llstack_no then begin
-  ocp_list_lnext(p):=
-    make_ocp_list_node(ocp_list_lstack(p),
-                       ocp_list_lstack_no(p),
-                       ocp_list_lnext(p));
-  ocp_list_lstack(p):=0;
-  ocp_list_lstack_no(p):=llstack_no;
-  end
-else begin
-  q:=ocp_list_lnext(p);
-  while (not (is_null_ocp_list(q))) and
-         ocp_list_lstack_no(q) <= llstack_no do begin
-    p:=q; q:=ocp_list_lnext(q);
-    end;
-  if ocp_list_lstack_no(p) < llstack_no then begin
-    ocp_list_lnext(p) := make_ocp_list_node(0, llstack_no, q);
-    p := ocp_list_lnext(p);
-    end;
-  end;
-ocp_ensure_lstack := p;
-end;
-
-procedure ocp_apply_add(list_entry:ocp_list_index;
-                        lbefore:boolean;
-                        locp:internal_ocp_number);
-var p:ocp_lstack_index;
-    q:ocp_lstack_index;
-begin
-p := ocp_list_lstack(list_entry);
-if lbefore or (p=0) then begin
-  ocp_list_lstack(list_entry) := make_ocp_lstack_node(locp, p);
-  end
-else begin
-  q:=ocp_lstack_lnext(p);
-  while q<>0 do begin
-    p:=q; q:=ocp_lstack_lnext(q);
-    end;
-  ocp_lstack_lnext(p):=make_ocp_lstack_node(locp,0);
-  end;
-end;
-
-procedure ocp_apply_remove(list_entry:ocp_list_index;
-                           lbefore:boolean);
-var p:ocp_lstack_index;
-    q:ocp_lstack_index;
-    r:ocp_lstack_index;
-begin
-p := ocp_list_lstack(list_entry);
-if p=0 then begin
-  print_err("warning: stack entry already empty"); print_ln
-  end
-else begin
-  q := ocp_lstack_lnext(p);
-  if lbefore or (q=0) then
-    ocp_list_lstack(list_entry) := q
-  else begin
-    r:=ocp_lstack_lnext(q);
-    while r <> 0 do begin
-      p:=q; q:=r; r:=ocp_lstack_lnext(r);
-      end;
-    ocp_lstack_lnext(p) := 0;
-    end
-  end;
-end;
-
-procedure scan_scaled; {sets |cur_val| to a scaled value}
+@ 
+@p procedure scan_scaled; {sets |cur_val| to a scaled value}
 label done, done1, done2, found, not_found, attach_fraction;
 var negative:boolean; {should the answer be negated?}
 @!f:integer; {numerator of a fraction whose denominator is $2^{16}$}
@@ -12463,105 +12108,6 @@ begin print_err("Stack number too large"); error;
 end;
 if negative then negate(cur_val);
 end;
-
-procedure print_ocp_lstack(lstack_entry:ocp_lstack_index);
-var p:ocp_lstack_index;
-begin
-p:=lstack_entry;
-while (p<>0) do begin
-  print_esc(ocp_id_text(ocp_lstack_ocp(p)));
-  p:=ocp_lstack_lnext(p);
-  if (p<>0) then print(",");
-  end;
-end;
-
-procedure print_ocp_list(list_entry:ocp_list_index);
-var p:ocp_list_index;
-begin
-print("["); p:=list_entry;
-while not (is_null_ocp_list(p)) do begin
-  print("(");
-  print_scaled(ocp_list_lstack_no(p));
-  print(" : ");
-  print_ocp_lstack(ocp_list_lstack(p));
-  print(")");
-  p:=ocp_list_lnext(p);
-  if not (is_null_ocp_list(p)) then print(", ");
-  end;
-print("]");
-end;
-
-function scan_ocp_list: ocp_list_index;
-var llstack_no:scaled;
-    lop:quarterword;
-    lstack_entry:ocp_list_index;
-    other_list:ocp_list_index;
-    ocp_ident:internal_ocp_number;
-    result:ocp_list_index;
-begin
-get_r_token;
-if cur_cmd = set_ocp_list then
-  result := copy_ocp_list(ocp_list_list[cur_chr])
-else if cur_cmd <> ocp_list_op then begin
-  print_err("Bad ocp list specification");
-@.Bad ocp list specification@>
-  help1("I was looking for a ocp list specification.");
-  error;
-  result := make_null_ocp_list;
-  end
-else begin
-  lop:=cur_chr;
-  scan_scaled; llstack_no:=cur_val;
-  if (llstack_no<=0) or (llstack_no>=ocp_maxint) then begin
-    print_err("Stack numbers must be between 0 and 4096 (exclusive)");
-    error;
-    result := make_null_ocp_list;
-    end
-  else begin
-    if lop <= add_after_op then begin
-      scan_ocp_ident; ocp_ident:=cur_val;
-      end;
-    other_list:=scan_ocp_list;
-    lstack_entry:=ocp_ensure_lstack(other_list, llstack_no);
-    if lop <= add_after_op then
-      ocp_apply_add(lstack_entry, (lop=add_before_op), ocp_ident)
-    else
-      ocp_apply_remove(lstack_entry, (lop=remove_before_op));
-    result:=other_list;
-    end;
-  end;
-scan_ocp_list:=result;
-end;
-
-function read_ocp_list: internal_ocp_list_number;
-var f:internal_ocp_list_number;
-    g:internal_ocp_list_number;
-begin
-g:=null_ocp_list;
-f:=ocp_list_ptr+1;
-ocp_listmem_run_ptr:=ocp_listmem_ptr;
-ocp_lstackmem_run_ptr:=ocp_lstackmem_ptr;
-ocp_list_list[f]:=scan_ocp_list;
-ocp_list_ptr:=f;
-ocp_listmem_ptr:=ocp_listmem_run_ptr;
-ocp_lstackmem_ptr:=ocp_lstackmem_run_ptr;
-g:=f;
-read_ocp_list:=g;
-end;
-
-procedure scan_ocp_list_ident;
-var f:internal_ocp_list_number;
-begin @<Get the next non-blank non-call...@>;
-if cur_cmd=set_ocp_list then f:=cur_chr
-else  begin print_err("Missing ocp list identifier");
-@.Missing ocp list identifier@>
-  help2("I was looking for a control sequence whose")@/
-  ("current meaning has been defined by \ocplist.");
-  back_error; f:=null_ocp_list;
-  end;
-cur_val:=f;
-end;
-
 
 @* \[31] Device-independent file format.
 The most important output produced by a run of \TeX\ is the ``device
@@ -14677,6 +14223,21 @@ end;
 function get_nullfont: internal_font_number;
 begin
     get_nullfont := null_font;
+end;
+
+function get_ocp_active_number_base: integer;
+begin
+    get_ocp_active_number_base := ocp_active_number_base;
+end;
+
+function get_ocp_id_base: integer;
+begin
+    get_ocp_id_base := ocp_id_base;
+end;
+
+function get_ocp_list_id_base: integer;
+begin
+    get_ocp_list_id_base := ocp_list_id_base;
 end;
 
 function get_luatexversion: integer;
@@ -21011,7 +20572,7 @@ consideration of the other cases until later.
 @t\4@>@<Declare the procedure called |handle_right_brace|@>@;
 procedure main_control; {governs \TeX's activities}
 label big_switch,reswitch,continue,exit;
-var@!t,k:integer; {general-purpose temporary variables}
+var@!t:integer; {general-purpose temporary variable}
 p:pointer; {for whatsit nodes and testing whether an auto kern should be inserted}
 chr_stack:integer; { to temporarily save an |cur_chr| to be appended }
 mval:mathcodeval; { to build up an argument to |set_math_char| }
@@ -24273,9 +23834,7 @@ begin @<If dumping is not allowed, abort@>;
 @<Dump the dynamic memory@>;
 @<Dump the table of equivalents@>;
 @<Dump the font information@>;
-@<Dump the active ocp information@>;
 @<Dump the ocp information@>;
-@<Dump the ocp list information@>;
 @<Dump the hyphenation tables@>;
 @<Dump pdftex data@>;
 @<Dump a couple more things and the closing check word@>;
@@ -24307,9 +23866,7 @@ begin @<Undump constants for consistency check@>;
 @<Undump the dynamic memory@>;
 @<Undump the table of equivalents@>;
 @<Undump the font information@>;
-@<Undump the active ocp information@>;
 @<Undump the ocp information@>;
-@<Undump the ocp list information@>;
 @<Undump the hyphenation tables@>;
 @<Undump pdftex data@>;
 @<Undump a couple more things and the closing check word@>;
@@ -24585,69 +24142,15 @@ end
 begin undump_font(k);@/
 end
 
-@ @<Dump the active ocp information@>=
-dump_int(active_min_ptr);
-dump_int(active_max_ptr);
-for k:=0 to active_max_ptr-1 do dump_wd(active_info[k]);
-if active_max_ptr>0 then begin
-  print_ln; print_int(active_max_ptr); print(" words of active ocps");
-  end;
-
-@ @<Undump the active ocp information@>=
-undump_size(0)(active_mem_size)('active start point')(active_min_ptr);
-undump_size(0)(active_mem_size)('active mem size')(active_max_ptr);
-for k:=0 to active_max_ptr-1 do undump_wd(active_info[k]);
-
 @ @<Dump the ocp information@>=
-dump_int(ocp_ptr);
-for k:=null_ocp to ocp_ptr do
-  @<Dump the array info for internal ocp number |k|@>;
-if ocp_ptr-ocp_base>0 then begin
-  print_ln; print_int(ocp_ptr-ocp_base); print(" preloaded ocp");
-  if ocp_ptr<>ocp_base+1 then print_char("s");
-  end
+dump_active_ocp_info;
+dump_ocp_info;
+dump_ocplist_info;
 
 @ @<Undump the ocp information@>=
-undump_size(ocp_base)(ocp_biggest)('ocp max')(ocp_ptr);
-for k:=null_ocp to ocp_ptr do
-  @<Undump the array info for internal ocp number |k|@>
-
-@ @<Dump the array info for internal ocp number |k|@>=
-begin dump_ocp_table(k);
-if ocp_ptr-ocp_base>0 then begin
-  print_nl("\ocp"); print_esc(ocp_id_text(k)); print_char("=");
-  print_file_name(ocp_name(k),ocp_area(k),"");
-  end;
-end
-
-@ @<Undump the array info for internal ocp number |k|@>=
-begin undump_ocp_table(k);
-end
-
-@ @<Dump the ocp list information@>=
-dump_int(ocp_listmem_ptr);
-for k:=0 to ocp_listmem_ptr-1 do dump_wd(ocp_list_info[k]);
-dump_int(ocp_list_ptr);
-for k:=null_ocp_list to ocp_list_ptr do begin
-  dump_int(ocp_list_list[k]);
-  if null_ocp_list<>ocp_list_ptr then begin
-    print_nl("\ocplist");
-    print_esc(ocp_list_id_text(k));
-    print_char("=");
-    print_ocp_list(ocp_list_list[k]);
-    end;
-  end;
-dump_int(ocp_lstackmem_ptr);
-for k:=0 to ocp_lstackmem_ptr-1 do dump_wd(ocp_lstack_info[k])
-
-@ @<Undump the ocp list information@>=
-undump_size(1)(1000000)('ocp list mem size')(ocp_listmem_ptr);
-for k:=0 to ocp_listmem_ptr-1 do undump_wd(ocp_list_info[k]);
-undump_size(ocp_list_base)(ocp_list_biggest)('ocp list max')(ocp_list_ptr);
-for k:=null_ocp_list to ocp_list_ptr do
-  undump_int(ocp_list_list[k]);
-undump_size(1)(1000000)('ocp lstack mem size')(ocp_lstackmem_ptr);
-for k:=0 to ocp_lstackmem_ptr-1 do undump_wd(ocp_lstack_info[k])
+undump_active_ocp_info;
+undump_ocp_info;
+undump_ocplist_info;
 
 @ This is done in C
 
@@ -29710,696 +29213,14 @@ end;
 
 @* \[54] $\Omega$ changes.
 
-@ Here we do the main work required for reading and interpreting
-  $\Omega$ Compiled Translation Processes.
-
-@ Here are all the instructions in our mini-assembler.
-@d otp_right_output=1
-@d otp_right_num=2
-@d otp_right_char=3
-@d otp_right_lchar=4
-@d otp_right_some=5
-
-@d otp_pback_output=6
-@d otp_pback_num=7
-@d otp_pback_char=8
-@d otp_pback_lchar=9
-@d otp_pback_some=10
-
-@d otp_add=11
-@d otp_sub=12
-@d otp_mult=13
-@d otp_div=14
-@d otp_mod=15
-@d otp_lookup=16
-@d otp_push_num=17
-@d otp_push_char=18
-@d otp_push_lchar=19
-
-@d otp_state_change=20
-@d otp_state_push=21
-@d otp_state_pop=22
-
-@d otp_left_start=23
-@d otp_left_return=24
-@d otp_left_backup=25
-
-@d otp_goto=26
-@d otp_goto_ne=27
-@d otp_goto_eq=28
-@d otp_goto_lt=29
-@d otp_goto_le=30
-@d otp_goto_gt=31
-@d otp_goto_ge=32
-@d otp_goto_no_advance=33
-@d otp_goto_beg=34
-@d otp_goto_end=35
-
-@d otp_stop=36
-
-@
-@<Glob...@>=
-@!otp_init_input_start:halfword;
-@!otp_init_input_last:halfword;
-@!otp_init_input_end:halfword;
-@!otp_i:halfword;
-@!otp_init_input_buf:array[0..20000] of quarterword;
-
-@!otp_input_start:halfword;
-@!otp_input_last:halfword;
-@!otp_input_end:halfword;
-@!otp_input_buf:array[0..20000] of quarterword;
-
-@!otp_output_end:halfword;
-@!otp_output_buf:array[0..20000] of quarterword;
-
-@!otp_stack_used:halfword;
-@!otp_stack_last:halfword;
-@!otp_stack_new:halfword;
-@!otp_stack_buf:array[0..1000] of quarterword;
-
-@!otp_pc:halfword;
-
-@!otp_calc_ptr:halfword;
-@!otp_calcs:array[0..1000] of halfword;
-@!otp_state_ptr:halfword;
-@!otp_states:array[0..1000] of halfword;
-
-@!otp_input_char:halfword;
-@!otp_calculated_char:halfword;
-@!otp_no_input_chars:halfword;
-
-@!otp_instruction:halfword;
-@!otp_instr:halfword;
-@!otp_arg:halfword;
-@!otp_first_arg:halfword;
-@!otp_second_arg:halfword;
-
-@!otp_input_ocp:halfword;
-@!otp_counter:halfword;
-
-@!otp_finished:boolean;
-@!otp_ext_str:integer;
-@!otp_ext_str_arg:integer;
-@!otp_ext_i:integer;
-
-@
-@<Initialize table...@>=
-
 @
 @<Create a buffer with character |cur_chr| and the following
   characters (if~any) and then apply the current active OCP filter
   to this buffer@>=
 begin
-@<Read in the buffer for treatment@>;
-@<Apply the OCP to the input buffer@>;
-@<Place the output buffer back on the stream@>;
+run_ocp;
 goto big_switch;
 end;
-
-@ The OTP input buffer is an array of 16-bit values.
-In the future, the range |@"D800| \dots |@"DFFF| will be used for
-surrogate pairs, so it cannot be used for simple 16-bit values
-like it is in Omega, so a future incompatibility with Aleph is
-unavoidable.
-
-@<Read in the buffer for treatment@>=
-begin
-otp_init_input_end:=0;
-while (cur_cmd=letter) or (cur_cmd=other_char) or
-      (cur_cmd=char_given) or (cur_cmd=spacer) do begin
-  incr(otp_init_input_end);
-  if otp_init_input_end >ocp_buf_size then
-    overflow_ocp_buf_size;
-  { |cur_chr| can cover the full range |0..0x10FFFF| }
-  if cur_chr<@"10000 then
-    otp_init_input_buf[otp_init_input_end]:=cur_chr
-  else begin
-    otp_init_input_buf[otp_init_input_end]:=((cur_chr - @"10000) div @"400) + @"D800;
-    incr(otp_init_input_end);
-    if otp_init_input_end >ocp_buf_size then
-      overflow_ocp_buf_size;
-    otp_init_input_buf[otp_init_input_end]:=((cur_chr - @"10000) mod @"400) + @"DC00;
-    end;
-  get_token;
-  if (cur_cmd<>letter) and (cur_cmd<>other_char) and
-     (cur_cmd<>char_given) then begin
-    x_token;
-    if (cur_cmd=char_num) then begin
-      scan_char_num; cur_cmd:=other_char; cur_chr:=cur_val;
-      end;
-    end;
-  end;
-back_input;
-otp_input_end:=otp_init_input_end;
-for otp_i:=0 to otp_init_input_end do begin
-  otp_input_buf[otp_i]:=otp_init_input_buf[otp_i];
-  end;
-end
-
-@
-@<Apply the OCP to the input buffer@>=
-begin
-otp_input_ocp:=active_ocp(active_real);
-if otp_input_ocp=0 then begin
-  print_err("Null ocp being used: all input lost");
-  error;
-  otp_output_end:=0;
-  end
-else if ocp_external(otp_input_ocp)=0 then begin
-  otp_input_start:=0;
-  otp_input_last:=0;
-  otp_stack_used:=0;
-  otp_stack_last:=0;
-  otp_stack_new:=0;
-  otp_output_end:=0;
-  otp_pc:=0;
-  otp_finished:=false;
-  otp_calc_ptr:=0;
-  otp_calcs[otp_calc_ptr]:=0;
-  otp_state_ptr:=0;
-  otp_states[otp_state_ptr]:=0;
-  while not otp_finished do
-    @<Run the OTP program@>;
-  end
-else begin
-  k:=0;
-  if nameoffile then libcfree (nameoffile);
-  otp_ext_str:=ocp_external(otp_input_ocp);
-  otp_ext_str_arg:=ocp_external_arg(otp_input_ocp);
-  nameoffile := xmalloc (4 + length(otp_ext_str) + length(otp_ext_str_arg));
-  for otp_ext_i:=str_start_macro(otp_ext_str) to
-         str_start_macro(otp_ext_str)+length(otp_ext_str)-1 do
-    append_to_name(str_pool[otp_ext_i]);
-  append_to_name(" ");
-  for otp_ext_i:=str_start_macro(otp_ext_str_arg) to
-         str_start_macro(otp_ext_str_arg)+length(otp_ext_str_arg)-1 do
-    append_to_name(str_pool[otp_ext_i]);
-  nameoffile[length(otp_ext_str)+length(otp_ext_str_arg)+2]:=0;
-  run_external_ocp(nameoffile);
-  end
-end
-
-@ The OTP output buffer is an array of 16-bit values. To convert back
-to the |buffer| it has to be re-encoded into UTF-8. An incompatibility
-with Aleph is unavoidable here: The range |@"D800| \dots |@"DFFF| is
-used for surrogate pairs, not for simple 16-bit values.
-
-@<Place the output buffer back on the stream@>=
-begin
-if (first+otp_output_end)>=ocp_buf_size then
-  overflow_ocp_buf_size;
-push_input;
-current_ocp_lstack:=active_lstack_no(active_real);
-current_ocp_no:=active_counter(active_real);
-state:=mid_line;
-start:=first;
-last:=start;
-loc:=start;
-line_catcode_table:=DEFAULT_CAT_TABLE; line_partial:=false;
-for otp_counter:=1 to otp_output_end do begin
-    { convert back to utf-8 }
-        t := otp_output_buf[otp_counter];
-        if otp_counter < otp_output_end then begin
-            if ((t>=@"D800) and (t<@"DC00)) then begin
-                if (otp_output_buf[otp_counter+1]>=@"DC00)
-                    and (otp_output_buf[otp_counter+1]<@"E000) then begin
-                    incr(otp_counter);
-                    t := (t-@"D800) * @"400 + (otp_output_buf[otp_counter]-@"DC00) + @"10000;
-                end
-                else if ((t>=@"DC00) and (t<@"E000)) then
-                    if (otp_output_buf[otp_counter+1]>=@"D800)
-                        and (otp_output_buf[otp_counter+1]<@"DC00) then begin
-                        incr(otp_counter);
-                        t := (otp_output_buf[otp_counter]-@"D800) * @"400 + (t-@"DC00) + @"10000;
-                    end;
-            end;
-        end;
-    if t <= @"7F then
-      buffer[last]:= t
-    else if t<=@"7FF then begin
-      buffer[last]:=@"C0 + t div @"40;
-      incr(last);
-      if last=buf_size-2 then
-        @<Report overflow of the input buffer, and abort@>;
-      buffer[last]:=@"80 + t mod @"40;
-      end
-    else if t<=@"FFFF then      begin
-      buffer[last]:=@"E0 + t div @"1000;
-      incr(last);
-      if last=buf_size-2 then
-        @<Report overflow of the input buffer, and abort@>;
-      buffer[last]:=@"80 + (t mod @"1000) div @"40;
-      incr(last);
-      if last=buf_size-2 then
-        @<Report overflow of the input buffer, and abort@>;
-      buffer[last]:=@"80 + (t mod @"1000) mod @"40;
-      end
-    else begin
-      buffer[last]:=@"F0 + t div @"40000;
-      incr(last);
-      if last=buf_size-2 then
-        @<Report overflow of the input buffer, and abort@>;
-      buffer[last]:=@"80 + (t mod @"40000) div @"1000;
-      incr(last);
-      if last=buf_size-2 then
-        @<Report overflow of the input buffer, and abort@>;
-      buffer[last]:=@"80 + ((t mod @"40000) mod @"1000) div @"40;
-      incr(last);
-      if last=buf_size-2 then
-        @<Report overflow of the input buffer, and abort@>;
-      buffer[last]:=@"80 + ((t mod @"40000) mod @"1000) mod @"40;
-      end;
-    incr(last);
-    if last=buf_size-2 then
-      @<Report overflow of the input buffer, and abort@>;
-  end;
-limit:=last-1;
-if (t>@"FFFF) then decr(limit);
-if (t>@"7FF)  then decr(limit);
-if (t>@"7F)   then decr(limit);
-first:=last;
-end
-
-@
-@d otp_cur_state==otp_states[otp_state_ptr]
-@d otp_set_instruction==begin
-if otp_pc>=ocp_state_no(otp_input_ocp)(otp_cur_state) then begin
-  print_err("bad OCP program -- PC not valid");
-  succumb;
-  end;
-otp_instruction:=ocp_state_entry(otp_input_ocp)(otp_cur_state)(otp_pc);
-otp_instr:=otp_instruction div @"1000000;
-otp_arg:=otp_instruction mod @"1000000;
-end
-
-@<Run the OTP program@>=
-begin
-otp_set_instruction;
-case otp_instr of
-  @<Run the |otp_right| instructions@>;
-  @<Run the |otp_pback| instructions@>;
-  @<Run the arithmetic instructions@>;
-  @<Run the |otp_state| instructions@>;
-  @<Run the |otp_left| instructions@>;
-  @<Run the |otp_goto| instructions@>;
-  @<Run the |otp_stop| instruction@>;
-  othercases begin
-    print_err("bad OCP program -- unknown instruction");
-    succumb;
-    end
-  endcases;
-end
-
-@
-
-@d otp_check_char(#)==
-if (1>#) or (#>otp_no_input_chars) then begin
-  print_err("right hand side of OCP expression is bad");
-  succumb;
-  end
-
-@d otp_get_char(#)==begin
-otp_check_char(#);
-if #>otp_stack_last then begin
-  otp_calculated_char:=otp_input_buf[otp_input_start+#-otp_stack_last];
-  end
-else begin
-  otp_calculated_char:=otp_stack_buf[#];
-  end;
-end
-
-@<Run the |otp_right| instructions@>=
-  otp_right_output: begin
-    incr(otp_output_end);
-    if otp_output_end >ocp_buf_size then
-      overflow_ocp_buf_size;
-    otp_output_buf[otp_output_end]:=otp_calcs[otp_calc_ptr];
-    decr(otp_calc_ptr);
-    incr(otp_pc);
-    end;
-  otp_right_num: begin
-    incr(otp_output_end);
-    if otp_output_end >ocp_buf_size then
-      overflow_ocp_buf_size;
-    otp_output_buf[otp_output_end]:=otp_arg;
-    incr(otp_pc);
-    end;
-  otp_right_char: begin
-    otp_get_char(otp_arg);
-    incr(otp_output_end);
-    if otp_output_end >ocp_buf_size then
-      overflow_ocp_buf_size;
-    otp_output_buf[otp_output_end]:=otp_calculated_char;
-    incr(otp_pc);
-    end;
-  otp_right_lchar: begin
-    otp_get_char(otp_no_input_chars-otp_arg);
-    incr(otp_output_end);
-    if otp_output_end >ocp_buf_size then
-      overflow_ocp_buf_size;
-    otp_output_buf[otp_output_end]:=otp_calculated_char;
-    incr(otp_pc);
-    end;
-  otp_right_some: begin
-    otp_first_arg:=otp_arg+1;
-    incr(otp_pc);
-    otp_set_instruction;
-    otp_second_arg:=otp_no_input_chars-otp_arg;
-    for otp_counter:=otp_first_arg to otp_second_arg do begin
-      otp_get_char(otp_counter);
-      incr(otp_output_end);
-      if otp_output_end >ocp_buf_size then
-        overflow_ocp_buf_size;
-      otp_output_buf[otp_output_end]:=otp_calculated_char;
-      end;
-    incr(otp_pc);
-    end
-
-@
-@<Run the |otp_pback| instructions@>=
-  otp_pback_output: begin
-    incr(otp_stack_new);
-    if otp_stack_new >= ocp_stack_size then
-      overflow_ocp_stack_size;
-    otp_stack_buf[otp_stack_new]:=otp_calcs[otp_calc_ptr];
-    decr(otp_calc_ptr);
-    incr(otp_pc);
-    end;
-  otp_pback_num: begin
-    incr(otp_stack_new);
-    if otp_stack_new >= ocp_stack_size then
-      overflow_ocp_stack_size;
-    otp_stack_buf[otp_stack_new]:=otp_arg;
-    incr(otp_pc);
-    end;
-  otp_pback_char: begin
-    otp_get_char(otp_arg);
-    incr(otp_stack_new);
-    if otp_stack_new >= ocp_stack_size then
-      overflow_ocp_stack_size;
-    otp_stack_buf[otp_stack_new]:=otp_calculated_char;
-    incr(otp_pc);
-    end;
-  otp_pback_lchar: begin
-    otp_get_char(otp_no_input_chars-otp_arg);
-    incr(otp_stack_new);
-    if otp_stack_new >= ocp_stack_size then
-      overflow_ocp_stack_size;
-    otp_stack_buf[otp_stack_new]:=otp_calculated_char;
-    incr(otp_pc);
-    end;
-  otp_pback_some: begin
-    otp_first_arg:=otp_arg+1;
-    incr(otp_pc);
-    otp_set_instruction;
-    otp_second_arg:=otp_no_input_chars-otp_arg;
-    for otp_counter:=otp_first_arg to otp_second_arg do begin
-      otp_get_char(otp_counter);
-      incr(otp_stack_new);
-      if otp_stack_new >= ocp_stack_size then
-        overflow_ocp_stack_size;
-      otp_stack_buf[otp_stack_new]:=otp_calculated_char;
-      end;
-    incr(otp_pc);
-    end
-
-@
-@<Run the arithmetic instructions@>=
-  otp_add: begin
-    otp_calcs[otp_calc_ptr-1] :=
-      otp_calcs[otp_calc_ptr-1] + otp_calcs[otp_calc_ptr];
-    incr(otp_pc);
-    decr(otp_calc_ptr);
-    end;
-  otp_sub: begin
-    otp_calcs[otp_calc_ptr-1] :=
-      otp_calcs[otp_calc_ptr-1] - otp_calcs[otp_calc_ptr];
-    incr(otp_pc);
-    decr(otp_calc_ptr);
-    end;
-  otp_mult: begin
-    otp_calcs[otp_calc_ptr-1] :=
-      otp_calcs[otp_calc_ptr-1] * otp_calcs[otp_calc_ptr];
-    incr(otp_pc);
-    decr(otp_calc_ptr);
-    end;
-  otp_div: begin
-    otp_calcs[otp_calc_ptr-1] :=
-      otp_calcs[otp_calc_ptr-1] div otp_calcs[otp_calc_ptr];
-    incr(otp_pc);
-    decr(otp_calc_ptr);
-    end;
-  otp_mod: begin
-    otp_calcs[otp_calc_ptr-1] :=
-      otp_calcs[otp_calc_ptr-1] mod otp_calcs[otp_calc_ptr];
-    incr(otp_pc);
-    decr(otp_calc_ptr);
-    end;
-  otp_lookup: begin
-    if otp_calcs[otp_calc_ptr]>=
-       ocp_table_no(otp_input_ocp)(otp_calcs[otp_calc_ptr-1]) then begin
-      print_err("bad OCP program -- table index not valid");
-      succumb;
-      end;
-    otp_calcs[otp_calc_ptr-1]:=
-    ocp_table_entry(otp_input_ocp)(otp_calcs[otp_calc_ptr-1])
-                   (otp_calcs[otp_calc_ptr]);
-    incr(otp_pc);
-    decr(otp_calc_ptr);
-    end;
-  otp_push_num: begin
-    incr(otp_calc_ptr);
-    if otp_calc_ptr >= ocp_stack_size then
-      overflow_ocp_stack_size;
-    otp_calcs[otp_calc_ptr]:=otp_arg;
-    incr(otp_pc);
-    end;
-  otp_push_char: begin
-    otp_get_char(otp_arg);
-    incr(otp_calc_ptr);
-    if otp_calc_ptr >= ocp_stack_size then
-      overflow_ocp_stack_size;
-    otp_calcs[otp_calc_ptr]:=otp_calculated_char;
-    incr(otp_pc);
-    end;
-  otp_push_lchar: begin
-    otp_get_char(otp_no_input_chars-otp_arg);
-    incr(otp_calc_ptr);
-    if otp_calc_ptr >= ocp_stack_size then
-      overflow_ocp_stack_size;
-    otp_calcs[otp_calc_ptr]:=otp_calculated_char;
-    incr(otp_pc);
-    end
-
-@
-@<Run the |otp_state| instructions@>=
-  otp_state_change: begin
-    otp_input_start:=otp_input_last;
-    for otp_counter:=1 to (otp_stack_new-otp_stack_used) do begin
-      otp_stack_buf[otp_counter] :=
-        otp_stack_buf[otp_counter+otp_stack_used];
-      end;
-    otp_stack_new:=otp_stack_new-otp_stack_used;
-    otp_stack_last:=otp_stack_new;
-    otp_stack_used:=0;
-    otp_states[otp_state_ptr]:=otp_arg;
-    otp_pc:=0;
-    end;
-  otp_state_push: begin
-    otp_input_start:=otp_input_last;
-    for otp_counter:=1 to (otp_stack_new-otp_stack_used) do begin
-      otp_stack_buf[otp_counter] :=
-        otp_stack_buf[otp_counter+otp_stack_used];
-      end;
-    otp_stack_new:=otp_stack_new-otp_stack_used;
-    otp_stack_last:=otp_stack_new;
-    otp_stack_used:=0;
-    incr(otp_state_ptr);
-    if otp_state_ptr >= ocp_stack_size then
-      overflow_ocp_stack_size;
-    otp_states[otp_state_ptr]:=otp_arg;
-    otp_pc:=0;
-    end;
-  otp_state_pop: begin
-    otp_input_start:=otp_input_last;
-    for otp_counter:=1 to (otp_stack_new-otp_stack_used) do begin
-      otp_stack_buf[otp_counter] :=
-        otp_stack_buf[otp_counter+otp_stack_used];
-      end;
-    otp_stack_new:=otp_stack_new-otp_stack_used;
-    otp_stack_last:=otp_stack_new;
-    otp_stack_used:=0;
-    if otp_state_ptr>0 then decr(otp_state_ptr);
-    otp_pc:=0;
-    end
-
-@
-@<Run the |otp_left| instructions@>=
-  otp_left_start: begin
-    otp_input_start:=otp_input_last;
-    otp_input_last:=otp_input_start;
-    otp_stack_used:=0;
-    if (otp_stack_last=0) and (otp_input_last>=otp_input_end) then
-      otp_finished:=true
-    else if (otp_stack_used < otp_stack_last) then begin
-      incr(otp_stack_used); {no overflow problem}
-      otp_input_char:=otp_stack_buf[otp_stack_used];
-      otp_no_input_chars:=1;
-      incr(otp_pc);
-      end
-    else begin
-      incr(otp_input_last); {no overflow problem}
-      otp_input_char:=otp_input_buf[otp_input_last];
-      otp_no_input_chars:=1;
-      incr(otp_pc);
-      end;
-    end;
-  otp_left_return: begin
-    otp_input_last:=otp_input_start;
-    otp_stack_used:=0;
-    if (otp_stack_used < otp_stack_last) then begin
-      incr(otp_stack_used); {no overflow problem}
-      otp_input_char:=otp_stack_buf[otp_stack_used];
-      otp_no_input_chars:=1;
-      incr(otp_pc);
-      end
-    else begin
-      incr(otp_input_last); {no overflow problem}
-      otp_input_char:=otp_input_buf[otp_input_last];
-      otp_no_input_chars:=1;
-      incr(otp_pc);
-      end;
-    end;
-  otp_left_backup: begin
-    if otp_input_start < otp_input_last then begin
-      decr(otp_input_last); otp_input_char:=otp_input_buf[otp_input_last];
-      end
-    else begin
-      decr(otp_stack_used); otp_input_char:=otp_stack_buf[otp_stack_used];
-      end;
-    decr(otp_no_input_chars);
-    incr(otp_pc);
-    end
-
-@
-@<Run the |otp_goto| instructions@>=
-  otp_goto: begin
-    otp_pc:=otp_arg;
-    end;
-  otp_goto_ne: begin
-    otp_first_arg:=otp_arg;
-    incr(otp_pc);
-    otp_set_instruction;
-    if otp_input_char <> otp_first_arg then begin
-      otp_pc:=otp_arg;
-      end
-    else begin
-      incr(otp_pc);
-      end;
-    end;
-  otp_goto_eq: begin
-    otp_first_arg:=otp_arg;
-    incr(otp_pc);
-    otp_set_instruction;
-    if otp_input_char = otp_first_arg then begin
-      otp_pc:=otp_arg;
-      end
-    else begin
-      incr(otp_pc);
-      end;
-    end;
-  otp_goto_lt: begin
-    otp_first_arg:=otp_arg;
-    incr(otp_pc);
-    otp_set_instruction;
-    if otp_input_char < otp_first_arg then begin
-      otp_pc:=otp_arg;
-      end
-    else begin
-      incr(otp_pc);
-      end;
-   end;
-  otp_goto_le: begin
-    otp_first_arg:=otp_arg;
-    incr(otp_pc);
-    otp_set_instruction;
-    if otp_input_char <= otp_first_arg then begin
-      otp_pc:=otp_arg;
-      end
-    else begin
-      incr(otp_pc);
-      end;
-    end;
-  otp_goto_gt: begin
-    otp_first_arg:=otp_arg;
-    incr(otp_pc);
-    otp_set_instruction;
-    if otp_input_char > otp_first_arg then begin
-      otp_pc:=otp_arg;
-      end
-    else begin
-      incr(otp_pc);
-      end;
-    end;
-  otp_goto_ge: begin
-    otp_first_arg:=otp_arg;
-    incr(otp_pc);
-    otp_set_instruction;
-    if otp_input_char >= otp_first_arg then begin
-      otp_pc:=otp_arg;
-      end
-    else begin
-      incr(otp_pc);
-      end;
-    end;
-  otp_goto_no_advance: begin
-    if (otp_stack_used < otp_stack_last) then begin
-      incr(otp_stack_used); {no overflow problem}
-      otp_input_char:=otp_stack_buf[otp_stack_used];
-      incr(otp_no_input_chars); {no overflow problem}
-      incr(otp_pc);
-      end
-    else if otp_input_last>=otp_input_end then begin
-      otp_pc:=otp_arg;
-      end
-    else begin
-      incr(otp_input_last); {no overflow problem}
-      otp_input_char:=otp_input_buf[otp_input_last];
-      incr(otp_no_input_chars); {no overflow problem}
-      incr(otp_pc);
-      end;
-    end;
-  otp_goto_beg: begin
-    if otp_input_last=0 then begin
-      otp_pc:=otp_arg;
-      end
-    else begin
-      incr(otp_pc);
-      end;
-    end;
-  otp_goto_end: begin
-    if otp_input_last>=otp_input_end then begin
-      otp_pc:=otp_arg;
-      end
-    else begin
-      incr(otp_pc);
-      end;
-    end
-
-@
-@<Run the |otp_stop| instruction@>=
-  otp_stop: begin
-    otp_input_start:=otp_input_last;
-    for otp_counter:=1 to (otp_stack_new-otp_stack_used) do begin
-      otp_stack_buf[otp_counter] :=
-        otp_stack_buf[otp_counter+otp_stack_used];
-      end;
-    otp_stack_new:=otp_stack_new-otp_stack_used;
-    otp_stack_last:=otp_stack_new;
-    otp_stack_used:=0;
-    otp_pc:=0;
-    end
 
 @ @<Put each...@>=
 primitive_omega("ocp", def_ocp, 0,0);
@@ -30437,130 +29258,6 @@ ocp_trace_level: begin scan_optional_equals; scan_int;
   if cur_val<>0 then cur_val:=1;
   define(ocp_trace_level_base, data, cur_val);
   end;
-
-@ @<Declare subprocedures for |prefixed_command|@>=
-procedure new_ocp(@!a:small_number);
-label common_ending;
-var u:pointer; {user's ocp identifier}
-@!f:internal_ocp_number; {runs through existing ocps}
-@!t:str_number; {name for the frozen ocp identifier}
-@!flushable_string:str_number; {string not yet referenced}
-@!external_ocp:boolean; {external binary file}
-begin if job_name=0 then open_log_file;
-  {avoid confusing \.{texput} with the ocp name}
-@.texput@>
-if cur_chr=1 then external_ocp:=true
-else external_ocp:=false;
-get_r_token; u:=cur_cs;
-if u>=hash_base then t:=text(u) else t:="OCP";
-define(u,set_ocp,null_ocp); scan_optional_equals; scan_file_name;
-@<If this ocp has already been loaded, set |f| to the internal
-  ocp number and |goto common_ending|@>;
-f:=read_ocp_info(u,cur_name,cur_area,cur_ext,external_ocp);
-common_ending:
-equiv(u):=f; eqtb[ocp_id_base+f] := eqtb[u];
-text(ocp_id_base+f) := t;
-if equiv(ocp_trace_level_base)=1 then begin
-  print_nl(""); print_esc("ocp"); print_esc(t); print("="); print(cur_name);
-  end;
-end;
-
-@ When the user gives a new identifier to a ocp that was previously loaded,
-the new name becomes the ocp identifier of record. OCP names `\.{xyz}' and
-`\.{XYZ}' are considered to be different.
-
-@<If this ocp has already been loaded...@>=
-flushable_string:=str_ptr-1;
-for f:=ocp_base+1 to ocp_ptr do
-  if str_eq_str(ocp_name(f),cur_name)and str_eq_str(ocp_area(f),cur_area) then
-    begin
-    if cur_name=flushable_string then begin
-      flush_string; cur_name:=ocp_name(f);
-      end;
-    goto common_ending
-    end
-
-@ @<Declare subprocedures for |prefixed_command|@>=
-procedure new_ocp_list(@!a:small_number);
-var u:pointer; {user's ocp list identifier}
-@!f:internal_ocp_list_number; {runs through existing ocp lists}
-@!t:str_number; {name for the frozen ocp list identifier}
-begin if job_name=0 then open_log_file;
-  {avoid confusing \.{texput} with the ocp list name}
-@.texput@>
-get_r_token; u:=cur_cs;
-if u>=hash_base then t:=text(u) else t:="OCPLIST";
-define(u,set_ocp_list,null_ocp_list); scan_optional_equals;
-f:=read_ocp_list;
-    equiv(u) := f; eqtb[ocp_list_id_base+f] := eqtb[u];
-    text(ocp_list_id_base+f) := t;
-if equiv(ocp_trace_level_base)=1 then begin
-  print_nl(""); print_esc("ocplist"); print_esc(t); print("=");
-  print_ocp_list(ocp_list_list[f]);
-  end;
-end;
-
-@ @<Declare subprocedures for |prefixed_command|@>=
-procedure do_push_ocp_list(@!a:small_number);
-var ocp_list_no:halfword;
-    old_number:halfword;
-    i:integer;
-begin
-scan_ocp_list_ident; ocp_list_no:=cur_val;
-old_number:=equiv(ocp_active_number_base);
-define(ocp_active_base+old_number, data, ocp_list_no);
-define(ocp_active_number_base, data, (old_number+1));
-
-if equiv(ocp_trace_level_base)=1 then begin
-  print_nl("New active ocp list: {");
-  for i:=old_number downto 0 do begin
-    print_esc(ocp_list_id_text(equiv(ocp_active_base+i)));
-    print("="); print_ocp_list(ocp_list_list[equiv(ocp_active_base+i)]);
-    if i<>0 then print(",");
-    end;
-  print("}");
-  end;
-
-active_compile;
-define(ocp_active_min_ptr_base, data, active_min_ptr);
-define(ocp_active_max_ptr_base, data, active_max_ptr);
-end;
-
-@ @<Declare subprocedures for |prefixed_command|@>=
-procedure do_pop_ocp_list(@!a:small_number);
-var old_number:halfword;
-    i:integer;
-begin
-old_number:=equiv(ocp_active_number_base);
-if old_number=0 then begin
-  print_err("No active ocp lists to be popped");
-  end
-else
-  define(ocp_active_number_base, data, (old_number-1));
-
-if equiv(ocp_trace_level_base)=1 then begin
-  print_nl("New active ocp list: {");
-  for i:=(old_number-2) downto 0 do begin
-    print_esc(ocp_list_id_text(equiv(ocp_active_base+i)));
-    print("="); print_ocp_list(ocp_list_list[equiv(ocp_active_base+i)]);
-    if i<>0 then print(",");
-    end;
-  print("}");
-  end;
-
-active_compile;
-define(ocp_active_min_ptr_base, data, active_min_ptr);
-define(ocp_active_max_ptr_base, data, active_max_ptr);
-end;
-
-@ @<Declare subprocedures for |prefixed_command|@>=
-procedure do_clear_ocp_lists(@!a:small_number);
-begin
-define(ocp_active_number_base, data, 0);
-active_compile;
-define(ocp_active_min_ptr_base, data, active_min_ptr);
-define(ocp_active_max_ptr_base, data, active_max_ptr);
-end;
 
 
 @* \[54/SyncTeX] The {\sl Synchronize \TeX nology}.
