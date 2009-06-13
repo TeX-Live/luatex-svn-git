@@ -121,6 +121,36 @@ static int l_immediateobj(lua_State * L)
     return 1;
 }
 
+static int l_reserveobj(lua_State * L)
+{
+    int n;
+    const char *st;
+    n = lua_gettop(L);
+    switch (n) {
+    case 0:
+        incr(pdf_obj_count);
+        pdf_create_obj(obj_type_others, 0);
+        pdf_last_obj = obj_ptr;
+        break;
+    case 1:
+        if (!lua_isstring(L, -1))
+            luaL_error(L, "pdf.reserveobj needs optional string value");
+        st = (char *) lua_tostring(L, -1);
+        if (strcmp(st, "annot") == 0) {
+            pdf_create_obj(obj_type_others, 0);
+            pdf_last_annot = obj_ptr;
+        } else {
+            luaL_error(L, "pdf.reserveobj optional string must be \"annot\"");
+        }
+        lua_pop(L, 1);
+        break;
+    default:
+        luaL_error(L, "pdf.reserveobj needs max. 1 parameter");
+    }
+    lua_pushinteger(L, obj_ptr);
+    return 1;
+}
+
 static int getpdf(lua_State * L)
 {
     char *st;
@@ -145,6 +175,7 @@ static int setpdf(lua_State * L)
 static const struct luaL_reg pdflib[] = {
     {"print", luapdfprint},
     {"immediateobj", l_immediateobj},
+    {"reserveobj", l_reserveobj},
     {NULL, NULL}                /* sentinel */
 };
 
