@@ -1,5 +1,5 @@
 /* lpdflib.c
-   
+
    Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -122,6 +122,9 @@ static int l_immediateobj(lua_State * L)
     size_t buflen, len1, len2, len3;
     unsigned char *buf;
     const char *st1 = NULL, *st2 = NULL, *st3 = NULL;
+    incr(pdf_obj_count);
+    pdf_create_obj(obj_type_obj, pdf_obj_count);
+    pdf_last_obj = obj_ptr;
     n = lua_gettop(L);
     switch (n) {
     case 0:
@@ -130,9 +133,6 @@ static int l_immediateobj(lua_State * L)
     case 1:                    /* original case unchanged */
         if (!lua_isstring(L, 1))
             luaL_error(L, "pdf.immediateobj() 1st argument must be string");
-        incr(pdf_obj_count);
-        pdf_create_obj(obj_type_obj, pdf_obj_count);
-        pdf_last_obj = obj_ptr;
         pdf_begin_obj(obj_ptr, 1);
         st1 = lua_tolstring(L, 1, &len1);
         buf_to_pdfbuf_macro(st1, len1);
@@ -148,9 +148,6 @@ static int l_immediateobj(lua_State * L)
             luaL_error(L, "pdf.immediateobj() 2nd argument must be string");
         st1 = (char *) lua_tolstring(L, 1, &len1);
         st2 = (char *) lua_tolstring(L, 2, &len2);
-        incr(pdf_obj_count);
-        pdf_create_obj(obj_type_obj, pdf_obj_count);
-        pdf_last_obj = obj_ptr;
         if (len1 == 4 && strcmp(st1, "file") == 0) {
             if (n == 3)
                 luaL_error(L,
@@ -187,6 +184,75 @@ static int l_immediateobj(lua_State * L)
         break;
     default:
         luaL_error(L, "pdf.immediateobj() allows max. 3 arguments");
+    }
+    lua_pushinteger(L, obj_ptr);
+    return 1;
+}
+
+/**********************************************************************/
+/* DANGER! these macros should go into some common header file */
+
+#define pdfmem_obj_size        4
+#define obj_data_ptr           obj_aux  /* pointer to |pdf_mem| */
+#define obj_obj_data(a)        pdf_mem[obj_data_ptr(a) + 0]     /* object data */
+#define obj_obj_is_stream(a)   pdf_mem[obj_data_ptr(a) + 1]     /* will this object be written as a stream instead of a dictionary? */
+#define obj_obj_stream_attr(a) pdf_mem[obj_data_ptr(a) + 2]     /* additional object attributes for streams */
+#define obj_obj_is_file(a)     pdf_mem[obj_data_ptr(a) + 3]     /* data should be read from an external file? */
+
+static int l_obj(lua_State * L)
+{
+    int n;
+    unsigned i;
+    integer k;
+    size_t len1, len2, len3;
+    const char *st1 = NULL;
+    incr(pdf_obj_count);
+    pdf_create_obj(obj_type_obj, pdf_obj_count);
+    pdf_last_obj = k = obj_ptr;
+    obj_data_ptr(k) = pdf_get_mem(pdfmem_obj_size);
+    obj_obj_is_stream(k) = 0;
+    obj_obj_stream_attr(k) = 0;
+    obj_obj_is_file(k) = 0;
+    n = lua_gettop(L);
+    switch (n) {
+    case 0:
+        luaL_error(L, "pdf.obj() needs at least one argument");
+        break;
+    case 1:
+        if (!lua_isstring(L, 1))
+            luaL_error(L, "pdf.obj() 1st argument must be string");
+        obj_obj_data(k) = tokenlist_from_lua(L);
+        break;
+    case 2:
+    case 3:
+        if (!lua_isstring(L, 1))
+            luaL_error(L, "pdf.obj() 1st argument must be string");
+        if (!lua_isstring(L, 2))
+            luaL_error(L, "pdf.obj() 2nd argument must be string");
+        st1 = (char *) lua_tolstring(L, 1, &len1);
+        if (len1 == 4 && strcmp(st1, "file") == 0) {
+            if (n == 3)
+                luaL_error(L, "pdf.obj() 3rd argument forbidden in file mode");
+            obj_obj_is_file(k) = 1;
+        } else {
+            if (n == 3) {       /* write attr text */
+                if (!lua_isstring(L, 3))
+                    luaL_error(L, "pdf.obj() 3rd argument must be string");
+                obj_obj_stream_attr(k) = tokenlist_from_lua(L);
+                lua_pop(L, 1);
+            }
+            if (len1 == 6 && strcmp(st1, "stream") == 0) {
+                obj_obj_is_stream(k) = 1;
+            } else if (len1 == 10 && strcmp(st1, "streamfile") == 0) {
+                obj_obj_is_stream(k) = 1;
+                obj_obj_is_file(k) = 1;
+            } else
+                luaL_error(L, "pdf.obj() invalid argument");
+        }
+        obj_obj_data(k) = tokenlist_from_lua(L);
+        break;
+    default:
+        luaL_error(L, "pdf.obj() allows max. 3 arguments");
     }
     lua_pushinteger(L, obj_ptr);
     return 1;
@@ -247,6 +313,7 @@ static int setpdf(lua_State * L)
 static const struct luaL_reg pdflib[] = {
     {"print", luapdfprint},
     {"immediateobj", l_immediateobj},
+    {"obj", l_obj},
     {"reserveobj", l_reserveobj},
     {NULL, NULL}                /* sentinel */
 };
