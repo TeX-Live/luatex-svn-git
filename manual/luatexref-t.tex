@@ -2447,7 +2447,6 @@ Without the \type{target} argument, writes all given strings to the same
 location(s) \TEX\ writes messages to at this moment. If
 \tex{batchmode} is in effect, it writes only to the log,
 otherwise  it writes to the log and the terminal.
-
 The optional \type{target} can be one of three possibilities:
 \type{term}, \type{log} or \type {term and log}.
 
@@ -2467,18 +2466,26 @@ This function behaves like \luatex{texio.write}, but make sure that the given st
 appear at the beginning of a new line. You can pass a single empty string
 if you only want to move to the next line.
 
+/**********************************************************************/
+
 \section{The \luatex{pdf} library}
 
-This table contains the current \type{h} and \type{v} values that
-define the location on the output page. The values can be queried
-and set using scaled points as units.
+This contains variables and functions that are related to the \PDF\ backend.
+
+\subsubsubject{\luatex{pdf.h}, \luatex{pdf.v}}
+
+The current \type{h} and \type{v} values
+that define the location on the output page.
+The values can be queried and set using scaled points as units.
 
 \starttyping
 pdf.v
 pdf.h
 \stoptyping
 
-The associated function calls are
+\subsubsubject{\luatex{pdf.seth()}, \luatex{pdf.setv()}}
+
+The function calls associated with \type{pdf.h} and \type{pdf.v} are
 
 \startfunctioncall
 pdf.setv(<number> n)
@@ -2487,12 +2494,12 @@ pdf.seth(<number> n)
 <number> n = pdf.geth()
 \stopfunctioncall
 
-It also holds a print function to write stuff to the \PDF\ document
-that can be used from within a \tex{latelua} argument. This function
-is not to be used inside \tex{directlua} unless you know {\it
-exactly} what you are doing.
+\subsubsubject{\luatex{pdf.print()}}
 
-\subsubsubject{\luatex{pdf.print}}
+A print function to write stuff to the \PDF\ document
+that can be used from within a \tex{latelua} argument.
+This function is not to be used inside \tex{directlua}
+unless you know {\it exactly} what you are doing.
 
 \startfunctioncall
 pdf.print(<string> s)
@@ -2501,6 +2508,45 @@ pdf.print(<string> type, <string> s)
 
 The optional parameter can be used to mimic the behavior of
 \tex{pdfliteral}: the \type{type} is \type{direct} or \type{page}.
+
+\subsubsubject{\luatex{pdf.immediateobj()}}
+
+This function creates a \PDF\ object
+and immediately write it to the \PDF\ file.
+It is modelled after \PDFTEX's \tex{immediate}\tex{pdfobj} primitives.
+All function variants return the object number
+of the newly generated object.
+
+\startfunctioncall
+n = pdf.immediateobj(<string> objtext)
+n = pdf.immediateobj("file", <string> filename)
+n = pdf.immediateobj("stream", <string> streamtext {, <string> attrtext})
+n = pdf.immediateobj("streamfile", <string> filename, {, <string> attrtext})
+\stopfunctioncall
+
+The 1st version puts the \type{objtext} raw into an object.
+Only the object wrapper is automatically generated,
+but any internal structure (like \type{<< >>} dictionary markers)
+needs to provided by the user.
+The 2nd version with keyword \type{"file"} as 1st argument
+puts the contents of the file with name \type{filename} raw into the object.
+The 3rd version with keyword \type{"stream"} creates a stream object
+and puts the \type{streamtext} raw into the stream.
+The stream length is automatically calculated.
+The optional \type{attrtext} goes into the dictionary of that object.
+The 4th version with keyword \type{"streamfile"} does the same as the 3rd one,
+it just reads the stream data raw from a file.
+
+\subsubsubject{\luatex{pdf.reserveobj()}}
+
+This function creates an empty \PDF\ object and returns its number.
+
+\startfunctioncall
+n = pdf.reserveobj()
+n = pdf.reserveobj("annot")
+\stopfunctioncall
+
+/**********************************************************************/
 
 \section{The \luatex{img} library}
 
