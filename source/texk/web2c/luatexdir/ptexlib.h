@@ -59,6 +59,7 @@ extern double rint(double x);
 #  include "ocp/readocp.h"
 
 #  include "tex/align.h"
+#  include "tex/inputstack.h"
 
 /**********************************************************************/
 

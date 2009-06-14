@@ -110,6 +110,8 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/align.c \
 	luatexdir/tex/align.h \
 	luatexdir/tex/filename.c \
+	luatexdir/tex/inputstack.c \
+	luatexdir/tex/inputstack.h \
 	luatexdir/tex/linebreak.c \
 	luatexdir/tex/math.c \
 	luatexdir/tex/mlist.c \
