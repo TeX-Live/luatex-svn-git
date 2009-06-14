@@ -58,7 +58,7 @@ void init_col(void);
 
 #define max_quarterword 65535
 
-static const char _svn_version[] = "$Id $ $URL$";
+static const char _svn_version[] = "$Id$ $URL$";
 
 /*
 It's sort of a miracle whenever \.{\\halign} and \.{\\valign} work, because
