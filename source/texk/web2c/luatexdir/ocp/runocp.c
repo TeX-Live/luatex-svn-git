@@ -22,7 +22,8 @@
 
 #include "commands.h"
 
-static const char _svn_version[] = "$Id$ $URL$";
+static const char _svn_version[] =
+    "$Id$ $URL$";
 
 #define text(a) hash[(a)].rh
 #define define(A,B,C) do { if (a>=4) geq_define(A,B,C); else eq_define(A,B,C); } while (0)
