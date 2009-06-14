@@ -2537,6 +2537,30 @@ The optional \type{attrtext} goes into the dictionary of that object.
 The 4th version with keyword \type{"streamfile"} does the same as the 3rd one,
 it just reads the stream data raw from a file.
 
+\subsubsubject{\luatex{pdf.obj()}}
+
+This function creates a \PDF\ object,
+which is written to the \PDF\ file only when referenced.
+It is modelled after \PDFTEX's \tex{pdfobj} primitive.
+All function variants return the object number
+of the newly generated object.
+
+\startfunctioncall
+n = pdf.obj(<string> objtext)
+n = pdf.obj("file", <string> filename)
+n = pdf.obj("stream", <string> streamtext {, <string> attrtext})
+n = pdf.obj("streamfile", <string> filename, {, <string> attrtext})
+\stopfunctioncall
+
+Not yet implemented:
+
+\startfunctioncall
+n = pdf.obj(<integer> n, <string> objtext)
+n = pdf.obj(<integer> n, "file", <string> filename)
+n = pdf.obj(<integer> n, "stream", <string> streamtext {, <string> attrtext})
+n = pdf.obj(<integer> n, "streamfile", <string> filename, {, <string> attrtext})
+\stopfunctioncall
+
 \subsubsubject{\luatex{pdf.reserveobj()}}
 
 This function creates an empty \PDF\ object and returns its number.
