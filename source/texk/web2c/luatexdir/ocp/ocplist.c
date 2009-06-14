@@ -23,7 +23,7 @@
 #include "primitive.h"
 #include "tokens.h"
 
-static const char _svn_version[] = "$Id $ $URL $";
+static const char _svn_version[] = "$Id$ $URL$";
 
 memory_word *ocp_list_info;     /* the big collection of ocp list data */
 ocp_list_index ocp_listmem_ptr; /* first unused word of |ocp_list_info| */
