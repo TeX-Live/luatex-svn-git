@@ -15337,7 +15337,8 @@ if not callback_defined(read_pk_file_callback) then begin
     end;
 set_job_id(year, month, day, time);
 if (pdf_unique_resname > 0) and (pdf_resname_prefix = 0) then
-    pdf_resname_prefix := get_resname_prefix
+    pdf_resname_prefix := get_resname_prefix;
+pdf_page_init
 
 @ @<Check that variables for \.{PDF} output are unchanged@>=
 if fixed_pdf_minor_version <> pdf_minor_version then
