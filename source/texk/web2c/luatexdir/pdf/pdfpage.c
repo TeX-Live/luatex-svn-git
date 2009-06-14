@@ -362,6 +362,7 @@ void pdf_end_string_nl()
 
 static void goto_pagemode(pdfstructure * p)
 {
+    assert(p != NULL);
     if (!is_pagemode(p)) {
         if (is_charmode(p))
             end_charmode(p);

@@ -40,6 +40,13 @@ static int findcurh(lua_State * L)
     return 1;
 }
 
+#define buf_to_pdfbuf_macro(s, l)                    \
+for (i = 0; i < (l); i++) {                          \
+    if (i % 16 == 0)                                 \
+        pdfroom(16);                                 \
+    pdf_buf[pdf_ptr++] = ((unsigned char *) (s))[i]; \
+}
+
 int luapdfprint(lua_State * L)
 {
     int n;
@@ -91,19 +98,8 @@ int luapdfprint(lua_State * L)
         assert(0);
     }
     st = lua_tolstring(L, n, &len);
-    for (i = 0; i < len; i++) {
-        if (i % 16 == 0)
-            pdfroom(16);
-        pdf_buf[pdf_ptr++] = st[i];
-    }
+    buf_to_pdfbuf_macro(st, len);
     return 0;
-}
-
-#define buf_to_pdfbuf_macro(s, l)           \
-for (i = 0; i < (l); i++) {                 \
-    if (i % 16 == 0)                        \
-        pdfroom(16);                        \
-    pdf_buf[pdf_ptr++] = ((char *) (s))[i]; \
 }
 
 unsigned char *fread_to_buf(lua_State * L, char *filename, size_t * len)
