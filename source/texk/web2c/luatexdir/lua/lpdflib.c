@@ -129,7 +129,7 @@ static int l_immediateobj(lua_State * L)
         break;
     case 1:                    /* original case unchanged */
         if (!lua_isstring(L, 1))
-            luaL_error(L, "pdf.immediateobj() 1 1st argument must be string");
+            luaL_error(L, "pdf.immediateobj() 1st argument must be string");
         incr(pdf_obj_count);
         pdf_create_obj(obj_type_obj, pdf_obj_count);
         pdf_last_obj = obj_ptr;
