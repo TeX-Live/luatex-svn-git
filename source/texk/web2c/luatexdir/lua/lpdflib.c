@@ -204,7 +204,7 @@ static int l_obj(lua_State * L)
     int n;
     unsigned i;
     integer k;
-    size_t len1, len2, len3;
+    size_t len1;
     const char *st1 = NULL;
     incr(pdf_obj_count);
     pdf_create_obj(obj_type_obj, pdf_obj_count);
