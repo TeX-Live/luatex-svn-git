@@ -967,3 +967,92 @@
 @define const span_code;
 @define const cr_code;
 @define const cr_cr_code;
+
+{input stacks }
+
+@define type in_state_record;
+
+@define var in_open;
+@define var open_parens;
+@define var input_file;
+@define var line;
+@define var line_stack;
+@define var source_filename_stack;
+@define var full_source_filename_stack;
+
+@define var input_stack;
+@define var input_ptr;
+@define var max_in_stack;
+@define var cur_input;
+
+@define var iloc;
+@define var istate;
+@define var iindex;
+@define var istart;
+@define var ilimit;
+@define var nofilter;
+@define var iname;
+@define var synctex_tag;
+@define var current_ocp_lstack;
+@define var current_ocp_no;
+@define var line_catcode_table;
+@define var line_partial;
+
+@define var mid_line;
+@define var skip_blanks;
+@define var new_line;
+
+@define var terminal_input;
+@define var cur_file;
+
+@define const skipping;
+@define const defining;
+@define const matching;
+@define const aligning;
+@define const absorbing;
+
+@define var scanner_status;
+@define var warning_index;
+@define var def_ref;
+
+@define var token_list;
+@define var token_type;
+@define var param_start;
+
+@define const parameter;
+@define const u_template;
+@define const v_template;
+@define const backed_up;
+@define const inserted;
+@define const macro;
+@define const output_text;
+@define const every_par_text;
+@define const every_math_text;
+@define const every_display_text;
+@define const every_hbox_text;
+@define const every_vbox_text;
+@define const every_job_text;
+@define const every_cr_text;
+@define const mark_text;
+@define const eTeX_text_offset;
+@define const every_eof_text;
+@define const write_text;
+
+@define var param_stack;
+@define var param_ptr;
+@define var max_param_stack;
+@define var align_state;
+@define var base_ptr;
+
+@define @field name_field;
+@define @field loc_field;
+@define @field state_field;
+@define @field index_field;
+@define @field limit_field;
+
+@define procedure runaway;
+@define procedure set_trick_count;
+@define procedure show_context;
+
+@define procedure push_input;
+@define procedure pop_input;

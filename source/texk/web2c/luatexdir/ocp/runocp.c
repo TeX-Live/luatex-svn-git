@@ -89,21 +89,6 @@ typedef enum {
     otp_stop = 36
 } otp_command_codes;
 
-#define state cur_input.state_field
-#define index cur_input.index_field
-#define start cur_input.start_field
-#define limit cur_input.limit_field
-#define nofilter cur_input.nofilter_field
-#define name cur_input.name_field
-#define synctex_tag cur_input.synctex_tag_field
-#define current_ocp_lstack cur_input.ocp_lstack_field
-#define current_ocp_no cur_input.ocp_no_field
-#define line_catcode_table cur_input.cattable_field
-#define line_partial cur_input.partial_field
-#define loc cur_input.loc_field
-
-#define mid_line 1
-
 #define check_buffer() do {						\
     if (last==buf_size-2) {						\
       check_buffer_overflow(buf_size+4);				\
@@ -814,13 +799,13 @@ void run_ocp(void)
 
     if ((first + otp_output_end) >= ocp_buf_size)
         overflow_ocp_buf_size();
-    do_push_input();
+    push_input();
     current_ocp_lstack = active_lstack_no(active_real);
     current_ocp_no = active_counter(active_real);
-    state = mid_line;
-    start = first;
-    last = start;
-    loc = start;
+    istate = mid_line;
+    istart = first;
+    last = istart;
+    iloc = istart;
     line_catcode_table = DEFAULT_CAT_TABLE;
     line_partial = false;
     for (otp_counter = 1; otp_counter <= otp_output_end; otp_counter++) {
@@ -874,13 +859,13 @@ void run_ocp(void)
         incr(last);
         check_buffer();
     }
-    limit = last - 1;
+    ilimit = last - 1;
     if (t > 0xFFFF)
-        decr(limit);
+        decr(ilimit);
     if (t > 0x7FF)
-        decr(limit);
+        decr(ilimit);
     if (t > 0x7F)
-        decr(limit);
+        decr(ilimit);
     first = last;
 
 }

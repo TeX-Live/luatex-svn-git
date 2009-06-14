@@ -45,7 +45,7 @@ char *getbanner(void)
 char *getfilename(void)
 {
     integer t;
-    t = get_current_name();
+    t = iname;
     if (t > (1 << 21))
         return makecstring(t);
     else
@@ -128,7 +128,7 @@ static struct statistic stats[] = {
     {"largest_used_mark", 'g', &biggest_used_mark},
 
     {"filename", 'S', &getfilename},
-    {"inputid", 'G', &get_current_name},
+    {"inputid", 'g', &(iname)},
     {"linenumber", 'g', &line},
     {"lasterrorstring", 'S', &getlasterror},
 

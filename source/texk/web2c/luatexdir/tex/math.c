@@ -484,16 +484,16 @@ const char *math_param_names[] = {
     "relopenspacing", "relclosespacing", "relpunctspacing", "relinnerspacing",
     "openordspacing", "openopspacing", "openbinspacing", "openrelspacing",
     "openopenspacing", "openclosespacing", "openpunctspacing",
-        "openinnerspacing",
+    "openinnerspacing",
     "closeordspacing", "closeopspacing", "closebinspacing", "closerelspacing",
     "closeopenspacing", "closeclosespacing", "closepunctspacing",
-        "closeinnerspacing",
+    "closeinnerspacing",
     "punctordspacing", "punctopspacing", "punctbinspacing", "punctrelspacing",
     "punctopenspacing", "punctclosespacing", "punctpunctspacing",
-        "punctinnerspacing",
+    "punctinnerspacing",
     "innerordspacing", "inneropspacing", "innerbinspacing", "innerrelspacing",
     "inneropenspacing", "innerclosespacing", "innerpunctspacing",
-        "innerinnerspacing",
+    "innerinnerspacing",
     NULL
 };
 

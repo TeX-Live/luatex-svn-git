@@ -459,9 +459,9 @@ will return with |last > first|.
 label exit;
 begin t_open_in;
 if last > first then
-  begin loc := first;
-  while (loc < last) and (buffer[loc]=' ') do incr(loc);
-  if loc < last then
+  begin iloc := first;
+  while (iloc < last) and (buffer[iloc]=' ') do incr(iloc);
+  if iloc < last then
     begin init_terminal := true; goto exit;
     end;
   end;
@@ -815,64 +815,10 @@ if (hash_offset<0)or(hash_offset>hash_base) then bad:=42;
 @z
 
 @x
-@!input_stack : array[0..stack_size] of in_state_record;
+incr(in_open); push_input; iindex:=in_open;
 @y
-@!input_stack : ^in_state_record;
-@z
-
-@x
-@!input_file : array[1..max_in_open] of alpha_file;
-@!line : integer; {current line number in the current source file}
-@!line_stack : array[1..max_in_open] of integer;
-@y
-@!input_file : ^alpha_file;
-@!line : integer; {current line number in the current source file}
-@!line_stack : ^integer;
-@!source_filename_stack : ^str_number;
-@!full_source_filename_stack : ^str_number;
-@z
-
-@x
-  begin print_nl("Runaway ");
-@.Runaway...@>
-  case scanner_status of
-  defining: begin print("definition"); p:=def_ref;
-    end;
-  matching: begin print("argument"); p:=temp_token_head;
-    end;
-  aligning: begin print("preamble"); p:=hold_token_head;
-    end;
-  absorbing: begin print("text"); p:=def_ref;
-    end;
-  end; {there are no other cases}
-@y
-  begin
-@.Runaway...@>
-  case scanner_status of
-  defining: begin print_nl("Runaway definition"); p:=def_ref;
-    end;
-  matching: begin print_nl("Runaway argument"); p:=temp_token_head;
-    end;
-  aligning: begin print_nl("Runaway preamble"); p:=hold_token_head;
-    end;
-  absorbing: begin print_nl("Runaway text"); p:=def_ref;
-    end;
-  end; {there are no other cases}
-@z
-
-@x
-@!param_stack:array [0..param_size] of pointer;
-  {token list pointers for parameters}
-@y
-@!param_stack: ^pointer;
-  {token list pointers for parameters}
-@z
-
-@x
-incr(in_open); push_input; index:=in_open;
-@y
-incr(in_open); push_input; index:=in_open;
-source_filename_stack[index]:=0;full_source_filename_stack[index]:=0;
+incr(in_open); push_input; iindex:=in_open;
+source_filename_stack[iindex]:=0;full_source_filename_stack[iindex]:=0;
 @z
 
 @x
@@ -992,13 +938,13 @@ nameoffile[namelength+1]:=0;
 @z
 
 @x
-  pack_buffered_name(0,loc,j-1); {try first without the system file area}
+  pack_buffered_name(0,iloc,j-1); {try first without the system file area}
   if w_open_in(fmt_file) then goto found;
-  pack_buffered_name(format_area_length,loc,j-1);
+  pack_buffered_name(format_area_length,iloc,j-1);
     {now try the system format file area}
   if w_open_in(fmt_file) then goto found;
 @y
-  pack_buffered_name(0,loc,j-1); {Kpathsea does everything}
+  pack_buffered_name(0,iloc,j-1); {Kpathsea does everything}
   if w_open_in(fmt_file) then goto found;
 @z
 
@@ -1087,15 +1033,15 @@ end
 @z
 
 @x
-name:=a_make_name_string(cur_file);
+iname:=a_make_name_string(cur_file);
 @y
-name:=a_make_name_string(cur_file);
-source_filename_stack[in_open]:=name;
+iname:=a_make_name_string(cur_file);
+source_filename_stack[in_open]:=iname;
 full_source_filename_stack[in_open]:=makefullnamestring;
-if name=str_ptr-1 then {we can try to conserve string pool space now}
-  begin temp_str:=search_string(name);
+if iname=str_ptr-1 then {we can try to conserve string pool space now}
+  begin temp_str:=search_string(iname);
   if temp_str>0 then
-    begin name:=temp_str; flush_string;
+    begin iname:=temp_str; flush_string;
     end;
   end;
 @z
@@ -1107,8 +1053,8 @@ if name=str_ptr-1 then {we can try to conserve string pool space now}
 @z
 
 @x
-if name=str_ptr-1 then {we can conserve string pool space now}
-  begin flush_string; name:=cur_name;
+if iname=str_ptr-1 then {we can conserve string pool space now}
+  begin flush_string; iname:=cur_name;
   end;
 @y
 @z
@@ -1743,9 +1689,9 @@ if (edit_name_start<>0) and (interaction>batch_mode) then
 @z
 
 @x
-if (format_ident=0)or(buffer[loc]="&") then
+if (format_ident=0)or(buffer[iloc]="&") then
 @y
-if (format_ident=0)or(buffer[loc]="&")or dump_line then
+if (format_ident=0)or(buffer[iloc]="&")or dump_line then
 @z
 
 @x
@@ -1931,7 +1877,7 @@ begin
   else begin
     print_nl (""); print (full_source_filename_stack[level]); print (":");
     if level=in_open then print_int (line)
-    else print_int (line_stack[index+1-(in_open-level)]);
+    else print_int (line_stack[iindex+1-(in_open-level)]);
     print (": ");
   end;
 end;

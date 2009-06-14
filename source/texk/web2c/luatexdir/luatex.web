@@ -1002,7 +1002,7 @@ begin
   file_ok:=true;
   if n=0 then begin
     texinputtype := 1; {Tell |open_input| we are \.{\\input}.}
-    input_file_callback_id[index] := 0;
+    input_file_callback_id[iindex] := 0;
     end
   else begin
     texinputtype:=0;
@@ -1025,7 +1025,7 @@ begin
       if k>0 then begin
         lua_a_open_in := true;
         if n=0 then
-          input_file_callback_id[index] := k
+          input_file_callback_id[iindex] := k
         else
           read_file_callback_id[n] := k;
         end
@@ -1145,14 +1145,14 @@ var ret:boolean;
     callback_id:integer;
 begin
 if n=0 then
-  callback_id:=input_file_callback_id[index]
+  callback_id:=input_file_callback_id[iindex]
 else
   callback_id:=read_file_callback_id[n];
 if callback_id>0 then begin
   ret:=run_saved_callback(callback_id,'close','->');
   destroy_saved_callback(callback_id);
   if n=0 then
-    input_file_callback_id[index] := 0
+    input_file_callback_id[iindex] := 0
   else
     read_file_callback_id[n] := 0;
   end
@@ -1255,7 +1255,7 @@ var lua_result:boolean;
         bypass_p:boolean;
 begin
 if n=0 then
-  callback_id:=input_file_callback_id[index]
+  callback_id:=input_file_callback_id[iindex]
 else
   callback_id:=read_file_callback_id[n];
 if callback_id>0 then begin
@@ -1398,8 +1398,6 @@ before a non-blank line comes in. The prompt is `\.{**}' instead of the
 later `\.*' because the meaning is slightly different: `\.{\\input}' need
 not be typed immediately after~`\.{**}'.)
 
-@d loc==cur_input.loc_field {location of first unread character in |buffer|}
-
 @ The following program does the required initialization
 without retrieving a possible command line.
 It should be clear how to modify this routine to deal with command lines,
@@ -1418,9 +1416,9 @@ then {this shouldn't happen}
 @.End of file on the terminal@>
     init_terminal:=false; return;
     end;
-  loc:=first;
-  while (loc<last)and(buffer[loc]=" ") do incr(loc);
-  if loc<last then
+  iloc:=first;
+  while (iloc<last)and(buffer[iloc]=" ") do incr(iloc);
+  if iloc<last then
     begin init_terminal:=true;
     return; {return unless the line was all blank}
     end;
@@ -2475,13 +2473,13 @@ to be familiar with \TeX's input stacks.
 begin begin_file_reading; {enter a new syntactic level for terminal input}
 {now |state=mid_line|, so an initial blank space will count as a blank}
 if last>first+1 then
-  begin loc:=first+1; buffer[first]:=" ";
+  begin iloc:=first+1; buffer[first]:=" ";
   end
-else  begin prompt_input("insert>"); loc:=first;
+else  begin prompt_input("insert>"); iloc:=first;
 @.insert>@>
   end;
 first:=last;
-cur_input.limit_field:=last-1; {no |end_line_char| ends this line}
+ilimit:=last-1; {no |end_line_char| ends this line}
 return;
 end
 
@@ -3482,7 +3480,6 @@ a right brace. We will define some procedures later that try to help
 pinpoint the trouble.
 
 @p @<Declare the procedure called |show_token_list|@>@/
-@<Declare the procedure called |runaway|@>
 
 @ The function |get_avail| returns a pointer to a new one-word node whose
 |link| field is null. However, \TeX\ will halt if there is no more room left.
@@ -4838,7 +4835,22 @@ The math field is used by various bits and pieces in |math.c|
   @!math_style_field: integer;
   end;
 
-@ @d mode==cur_list.mode_field {current mode}
+@ This implementation of
+\TeX\ uses two different conventions for representing sequential stacks.
+@^stack conventions@>@^conventions for representing stacks@>
+
+\yskip\hangg 1) If there is frequent access to the top entry, and if the
+stack is essentially never empty, then the top entry is kept in a global
+variable (even better would be a machine register), and the other entries
+appear in the array $\\{stack}[0\to(\\{ptr}-1)]$. The
+semantic stack is handled this way.
+
+\yskip\hangg 2) If there is infrequent top access, the entire stack contents
+are in the array $\\{stack}[0\to(\\{ptr}-1)]$. For example, the |save_stack|
+is treated this way, as we have seen.
+
+
+@d mode==cur_list.mode_field {current mode}
 @d head==cur_list.head_field {header node of current list}
 @d tail==cur_list.tail_field {final node on current list}
 @d eTeX_aux==cur_list.eTeX_aux_field {auxiliary data for \eTeX}
@@ -7361,543 +7373,8 @@ end_diagnostic(false);
 end;
 
 @* \[22] Input stacks and states.
-This implementation of
-\TeX\ uses two different conventions for representing sequential stacks.
-@^stack conventions@>@^conventions for representing stacks@>
 
-\yskip\hangg 1) If there is frequent access to the top entry, and if the
-stack is essentially never empty, then the top entry is kept in a global
-variable (even better would be a machine register), and the other entries
-appear in the array $\\{stack}[0\to(\\{ptr}-1)]$. For example, the
-semantic stack described above is handled this way, and so is the input
-stack that we are about to study.
-
-\yskip\hangg 2) If there is infrequent top access, the entire stack contents
-are in the array $\\{stack}[0\to(\\{ptr}-1)]$. For example, the |save_stack|
-is treated this way, as we have seen.
-
-\yskip\noindent
-The state of \TeX's input mechanism appears in the input stack, whose
-entries are records with six fields, called |state|, |index|, |start|, |loc|,
-|limit|, and |name|. This stack is maintained with
-convention~(1), so it is declared in the following way:
-
-@<Types...@>=
-@!in_state_record = record
-  @!state_field, @!index_field: quarterword;
-  @!start_field,@!loc_field, @!limit_field, @!name_field,
-  @!ocp_lstack_field: halfword; {used for omega translation processes}
-  @!ocp_no_field: halfword; {used for omega translation processes}
-  @!synctex_tag_field: integer; {stack the tag of the current file}
-  @!cattable_field: integer; {category table used by the current line (see textoken.c)}
-  @!partial_field: boolean; {is the current line partial? (see textoken.c)}
-  @!nofilter_field: boolean; {used by token filtering}
-  end;
-
-@ @<Glob...@>=
-@!input_stack : array[0..stack_size] of in_state_record;
-@!input_ptr : 0..stack_size; {first unused location of |input_stack|}
-@!max_in_stack: 0..stack_size; {largest value of |input_ptr| when pushing}
-@!cur_input : in_state_record;
-  {the ``top'' input state, according to convention (1)}
-
-@ We've already defined the special variable |loc==cur_input.loc_field|
-in our discussion of basic input-output routines. The other components of
-|cur_input| are defined in the same way:
-
-@d state==cur_input.state_field {current scanner state}
-@d index==cur_input.index_field {reference for buffer information}
-@d start==cur_input.start_field {starting position in |buffer|}
-@d limit==cur_input.limit_field {end of current line in |buffer|}
-@d nofilter==cur_input.nofilter_field {is token filtering explicitly disallowed?}
-@d name==cur_input.name_field {name of the current file}
-@d synctex_tag==cur_input.synctex_tag_field {{\sl Sync\TeX} tag of the current file}
-@d current_ocp_lstack==cur_input.ocp_lstack_field {name of the current ocp}
-@d current_ocp_no==cur_input.ocp_no_field {name of the current ocp}
-@d line_catcode_table==cur_input.cattable_field
-@d line_partial==cur_input.partial_field
-
-@ Let's look more closely now at the control variables
-(|state|,~|index|,~|start|,~|loc|,~|limit|,~|name|),
-assuming that \TeX\ is reading a line of characters that have been input
-from some file or from the user's terminal. There is an array called
-|buffer| that acts as a stack of all lines of characters that are
-currently being read from files, including all lines on subsidiary
-levels of the input stack that are not yet completed. \TeX\ will return to
-the other lines when it is finished with the present input file.
-
-(Incidentally, on a machine with byte-oriented addressing, it might be
-appropriate to combine |buffer| with the |str_pool| array,
-letting the buffer entries grow downward from the top of the string pool
-and checking that these two tables don't bump into each other.)
-
-The line we are currently working on begins in position |start| of the
-buffer; the next character we are about to read is |buffer[loc]|; and
-|limit| is the location of the last character present.  If |loc>limit|,
-the line has been completely read. Usually |buffer[limit]| is the
-|end_line_char|, denoting the end of a line, but this is not
-true if the current line is an insertion that was entered on the user's
-terminal in response to an error message.
-
-The |name| variable is a string number that designates the name of
-the current file, if we are reading a text file. It is zero if we
-are reading from the terminal; it is |n+1| if we are reading from
-input stream |n|, where |0<=n<=16|. (Input stream 16 stands for
-an invalid stream number; in such cases the input is actually from
-the terminal, under control of the procedure |read_toks|.)
-Finally |18<=name<=20| indicates that we are reading a pseudo file
-created by the \.{\\scantokens} or \.{\\scantextokens} command.
-
-The |state| variable has one of three values, when we are scanning such
-files:
-$$\baselineskip 15pt\vbox{\halign{#\hfil\cr
-1) |state=mid_line| is the normal state.\cr
-2) |state=skip_blanks| is like |mid_line|, but blanks are ignored.\cr
-3) |state=new_line| is the state at the beginning of a line.\cr}}$$
-These state values are assigned numeric codes so that if we add the state
-code to the next character's command code, we get distinct values. For
-example, `|mid_line+spacer|' stands for the case that a blank
-space character occurs in the middle of a line when it is not being
-ignored; after this case is processed, the next value of |state| will
-be |skip_blanks|.
-
-@d mid_line=1 {|state| code when scanning a line of characters}
-@d skip_blanks=2+max_char_code {|state| code when ignoring blanks}
-@d new_line=3+max_char_code+max_char_code {|state| code at start of line}
-
-@ Additional information about the current line is available via the
-|index| variable, which counts how many lines of characters are present
-in the buffer below the current level. We have |index=0| when reading
-from the terminal and prompting the user for each line; then if the user types,
-e.g., `\.{\\input paper}', we will have |index=1| while reading
-the file \.{paper.tex}. However, it does not follow that |index| is the
-same as the input stack pointer, since many of the levels on the input
-stack may come from token lists. For example, the instruction `\.{\\input
-paper}' might occur in a token list.
-
-The global variable |in_open| is equal to the |index|
-value of the highest non-token-list level. Thus, the number of partially read
-lines in the buffer is |in_open+1|, and we have |in_open=index|
-when we are not reading a token list.
-
-If we are not currently reading from the terminal, or from an input
-stream, we are reading from the file variable |input_file[index]|. We use
-the notation |terminal_input| as a convenient abbreviation for |name=0|,
-and |cur_file| as an abbreviation for |input_file[index]|.
-
-The global variable |line| contains the line number in the topmost
-open file, for use in error messages. If we are not reading from
-the terminal, |line_stack[index]| holds the line number for the
-enclosing level, so that |line| can be restored when the current
-file has been read. Line numbers should never be negative, since the
-negative of the current line number is used to identify the user's output
-routine in the |mode_line| field of the semantic nest entries.
-
-If more information about the input state is needed, it can be
-included in small arrays like those shown here. For example,
-the current page or segment number in the input file might be
-put into a variable |@!page|, maintained for enclosing levels in
-`\ignorespaces|@!page_stack:array[1..max_in_open] of integer|\unskip'
-by analogy with |line_stack|.
-@^system dependencies@>
-
-@d terminal_input==(name=0) {are we reading from the terminal?}
-@d cur_file==input_file[index] {the current |alpha_file| variable}
-
-@<Glob...@>=
-@!in_open : 0..max_in_open; {the number of lines in the buffer, less one}
-@!open_parens : 0..max_in_open; {the number of open text files}
-@!input_file : array[1..max_in_open] of alpha_file;
-@!line : integer; {current line number in the current source file}
-@!line_stack : array[1..max_in_open] of integer;
-
-@ Users of \TeX\ sometimes forget to balance left and right braces properly,
-and one of the ways \TeX\ tries to spot such errors is by considering an
-input file as broken into subfiles by control sequences that
-are declared to be \.{\\outer}.
-
-A variable called |scanner_status| tells \TeX\ whether or not to complain
-when a subfile ends. This variable has six possible values:
-
-\yskip\hang|normal|, means that a subfile can safely end here without incident.
-
-\yskip\hang|skipping|, means that a subfile can safely end here, but not a file,
-because we're reading past some conditional text that was not selected.
-
-\yskip\hang|defining|, means that a subfile shouldn't end now because a
-macro is being defined.
-
-\yskip\hang|matching|, means that a subfile shouldn't end now because a
-macro is being used and we are searching for the end of its arguments.
-
-\yskip\hang|aligning|, means that a subfile shouldn't end now because we are
-not finished with the preamble of an \.{\\halign} or \.{\\valign}.
-
-\yskip\hang|absorbing|, means that a subfile shouldn't end now because we are
-reading a balanced token list for \.{\\message}, \.{\\write}, etc.
-
-\yskip\noindent
-If the |scanner_status| is not |normal|, the variable |warning_index| points
-to the |eqtb| location for the relevant control sequence name to print
-in an error message.
-
-@d skipping=1 {|scanner_status| when passing conditional text}
-@d defining=2 {|scanner_status| when reading a macro definition}
-@d matching=3 {|scanner_status| when reading macro arguments}
-@d aligning=4 {|scanner_status| when reading an alignment preamble}
-@d absorbing=5 {|scanner_status| when reading a balanced text}
-
-@<Glob...@>=
-@!scanner_status : normal..absorbing; {can a subfile end now?}
-@!warning_index : pointer; {identifier relevant to non-|normal| scanner status}
-@!def_ref : pointer; {reference count of token list being defined}
-
-@ Here is a procedure that uses |scanner_status| to print a warning message
-when a subfile has ended, and at certain other crucial times:
-
-@<Declare the procedure called |runaway|@>=
-procedure runaway;
-var p:pointer; {head of runaway list}
-begin p:=null;
-  if scanner_status>skipping then
-  begin print_nl("Runaway ");
-@.Runaway...@>
-  case scanner_status of
-  defining: begin print("definition"); p:=def_ref;
-    end;
-  matching: begin print("argument"); p:=temp_token_head;
-    end;
-  aligning: begin print("preamble"); p:=hold_token_head;
-    end;
-  absorbing: begin print("text"); p:=def_ref;
-    end;
-  end; {there are no other cases}
-  print_char("?");print_ln; show_token_list(link(p),null,error_line-10);
-  end;
-end;
-
-@ However, all this discussion about input state really applies only to the
-case that we are inputting from a file. There is another important case,
-namely when we are currently getting input from a token list. In this case
-|state=token_list|, and the conventions about the other state variables
-are different:
-
-\yskip\hang|loc| is a pointer to the current node in the token list, i.e.,
-the node that will be read next. If |loc=null|, the token list has been
-fully read.
-
-\yskip\hang|start| points to the first node of the token list; this node
-may or may not contain a reference count, depending on the type of token
-list involved.
-
-\yskip\hang|token_type|, which takes the place of |index| in the
-discussion above, is a code number that explains what kind of token list
-is being scanned.
-
-\yskip\hang|name| points to the |eqtb| address of the control sequence
-being expanded, if the current token list is a macro.
-
-\yskip\hang|param_start|, which takes the place of |limit|, tells where
-the parameters of the current macro begin in the |param_stack|, if the
-current token list is a macro.
-
-\yskip\noindent The |token_type| can take several values, depending on
-where the current token list came from:
-
-\yskip\hang|parameter|, if a parameter is being scanned;
-
-\hang|u_template|, if the \<u_j> part of an alignment
-template is being scanned;
-
-\hang|v_template|, if the \<v_j> part of an alignment
-template is being scanned;
-
-\hang|backed_up|, if the token list being scanned has been inserted as
-`to be read again'.
-
-\hang|inserted|, if the token list being scanned has been inserted as
-the text expansion of a \.{\\count} or similar variable;
-
-\hang|macro|, if a user-defined control sequence is being scanned;
-
-\hang|output_text|, if an \.{\\output} routine is being scanned;
-
-\hang|every_par_text|, if the text of \.{\\everypar} is being scanned;
-
-\hang|every_math_text|, if the text of \.{\\everymath} is being scanned;
-
-\hang|every_display_text|, if the text of \.{\\everydisplay} is being scanned;
-
-\hang|every_hbox_text|, if the text of \.{\\everyhbox} is being scanned;
-
-\hang|every_vbox_text|, if the text of \.{\\everyvbox} is being scanned;
-
-\hang|every_job_text|, if the text of \.{\\everyjob} is being scanned;
-
-\hang|every_cr_text|, if the text of \.{\\everycr} is being scanned;
-
-\hang|mark_text|, if the text of a \.{\\mark} is being scanned;
-
-\hang|write_text|, if the text of a \.{\\write} is being scanned.
-
-\yskip\noindent
-The codes for |output_text|, |every_par_text|, etc., are equal to a constant
-plus the corresponding codes for token list parameters |output_routine_loc|,
-|every_par_loc|, etc.  The token list begins with a reference count if and
-only if |token_type>=macro|.
-@^reference counts@>
-
-Since \eTeX's additional token list parameters precede |toks_base|, the
-corresponding token types must precede |write_text|.
-
-@d token_list=0 {|state| code when scanning a token list}
-@d token_type==index {type of current token list}
-@d param_start==limit {base of macro parameters in |param_stack|}
-@d parameter=0 {|token_type| code for parameter}
-@d u_template=1 {|token_type| code for \<u_j> template}
-@d v_template=2 {|token_type| code for \<v_j> template}
-@d backed_up=3 {|token_type| code for text to be reread}
-@d inserted=4 {|token_type| code for inserted texts}
-@d macro=5 {|token_type| code for defined control sequences}
-@d output_text=6 {|token_type| code for output routines}
-@d every_par_text=7 {|token_type| code for \.{\\everypar}}
-@d every_math_text=8 {|token_type| code for \.{\\everymath}}
-@d every_display_text=9 {|token_type| code for \.{\\everydisplay}}
-@d every_hbox_text=10 {|token_type| code for \.{\\everyhbox}}
-@d every_vbox_text=11 {|token_type| code for \.{\\everyvbox}}
-@d every_job_text=12 {|token_type| code for \.{\\everyjob}}
-@d every_cr_text=13 {|token_type| code for \.{\\everycr}}
-@d mark_text=14 {|token_type| code for \.{\\topmark}, etc.}
-@#
-@d eTeX_text_offset=output_routine_loc-output_text
-@d every_eof_text=every_eof_loc-eTeX_text_offset
-  {|token_type| code for \.{\\everyeof}}
-@#
-@d write_text=etex_toks-eTeX_text_offset {|token_type| code for \.{\\write}}
-
-@ The |param_stack| is an auxiliary array used to hold pointers to the token
-lists for parameters at the current level and subsidiary levels of input.
-This stack is maintained with convention (2), and it grows at a different
-rate from the others.
-
-@<Glob...@>=
-@!param_stack:array [0..param_size] of pointer;
-  {token list pointers for parameters}
-@!param_ptr:0..param_size; {first unused entry in |param_stack|}
-@!max_param_stack:integer;
-  {largest value of |param_ptr|, will be |<=param_size+9|}
-
-@ The input routines must also interact with the processing of
-\.{\\halign} and \.{\\valign}, since the appearance of tab marks and
-\.{\\cr} in certain places is supposed to trigger the beginning of special
-\<v_j> template text in the scanner. This magic is accomplished by an
-|align_state| variable that is increased by~1 when a `\.{\char'173}' is
-scanned and decreased by~1 when a `\.{\char'175}' is scanned. The |align_state|
-is nonzero during the \<u_j> template, after which it is set to zero; the
-\<v_j> template begins when a tab mark or \.{\\cr} occurs at a time that
-|align_state=0|.
-
-@<Glob...@>=
-@!align_state:integer; {group level with respect to current alignment}
-
-@ Thus, the ``current input state'' can be very complicated indeed; there
-can be many levels and each level can arise in a variety of ways. The
-|show_context| procedure, which is used by \TeX's error-reporting routine to
-print out the current input state on all levels down to the most recent
-line of characters from an input file, illustrates most of these conventions.
-The global variable |base_ptr| contains the lowest level that was
-displayed by this procedure.
-
-@<Glob...@>=
-@!base_ptr:0..stack_size; {shallowest level shown by |show_context|}
-
-@ The status at each level is indicated by printing two lines, where the first
-line indicates what was read so far and the second line shows what remains
-to be read. The context is cropped, if necessary, so that the first line
-contains at most |half_error_line| characters, and the second contains
-at most |error_line|. Non-current input levels whose |token_type| is
-`|backed_up|' are shown only if they have not been fully read.
-
-@p procedure show_context; {prints where the scanner is}
-label done;
-var old_setting:0..max_selector; {saved |selector| setting}
-@!nn:integer; {number of contexts shown so far, less one}
-@!bottom_line:boolean; {have we reached the final context to be shown?}
-@<Local variables for formatting calculations@>@/
-begin base_ptr:=input_ptr; input_stack[base_ptr]:=cur_input;
-  {store current state}
-nn:=-1; bottom_line:=false;
-loop@+begin cur_input:=input_stack[base_ptr]; {enter into the context}
-  if (state<>token_list) then
-    if (name>21) or (base_ptr=0) then bottom_line:=true;
-  if (base_ptr=input_ptr)or bottom_line or(nn<error_context_lines) then
-    @<Display the current context@>
-  else if nn=error_context_lines then
-    begin print_nl("..."); incr(nn); {omitted if |error_context_lines<0|}
-    end;
-  if bottom_line then goto done;
-  decr(base_ptr);
-  end;
-done: cur_input:=input_stack[input_ptr]; {restore original state}
-end;
-
-@ @<Display the current context@>=
-begin if (base_ptr=input_ptr) or (state<>token_list) or
-   (token_type<>backed_up) or (loc<>null) then
-    {we omit backed-up token lists that have already been read}
-  begin tally:=0; {get ready to count characters}
-  old_setting:=selector;
-  if current_ocp_lstack>0 then
-  begin print_nl("OCP stack "); print_scaled(current_ocp_lstack);
-        print(" entry "); print_int(current_ocp_no); print(":");
-    @<Pseudoprint the line@>;
-  end
-  else if state<>token_list then
-    begin @<Print location of current line@>;
-    @<Pseudoprint the line@>;
-    end
-  else  begin @<Print type of token list@>;
-    @<Pseudoprint the token list@>;
-    end;
-  selector:=old_setting; {stop pseudoprinting}
-  @<Print two lines using the tricky pseudoprinted information@>;
-  incr(nn);
-  end;
-end
-
-@ This routine should be changed, if necessary, to give the best possible
-indication of where the current line resides in the input file.
-For example, on some systems it is best to print both a page and line number.
-@^system dependencies@>
-
-@<Print location of current line@>=
-if name<=17 then
-  if terminal_input then
-    if base_ptr=0 then print_nl("<*>") else print_nl("<insert> ")
-  else  begin print_nl("<read ");
-    if name=17 then print_char("*")@+else print_int(name-1);
-@.*\relax@>
-    print_char(">");
-    end
-else if index<>in_open then {input from a pseudo file}
-  begin print_nl("l."); print_int(line_stack[index+1]);
-  end
-else  begin print_nl("l."); print_int(line);
-  end;
-print_char(" ")
-
-@ @<Print type of token list@>=
-case token_type of
-parameter: print_nl("<argument> ");
-u_template,v_template: print_nl("<template> ");
-backed_up: if loc=null then print_nl("<recently read> ")
-  else print_nl("<to be read again> ");
-inserted: print_nl("<inserted text> ");
-macro: begin print_ln; print_cs(name);
-  end;
-output_text: print_nl("<output> ");
-every_par_text: print_nl("<everypar> ");
-every_math_text: print_nl("<everymath> ");
-every_display_text: print_nl("<everydisplay> ");
-every_hbox_text: print_nl("<everyhbox> ");
-every_vbox_text: print_nl("<everyvbox> ");
-every_job_text: print_nl("<everyjob> ");
-every_cr_text: print_nl("<everycr> ");
-mark_text: print_nl("<mark> ");
-every_eof_text: print_nl("<everyeof> ");
-write_text: print_nl("<write> ");
-othercases print_nl("?") {this should never happen}
-endcases
-
-@ Here it is necessary to explain a little trick. We don't want to store a long
-string that corresponds to a token list, because that string might take up
-lots of memory; and we are printing during a time when an error message is
-being given, so we dare not do anything that might overflow one of \TeX's
-tables. So `pseudoprinting' is the answer: We enter a mode of printing
-that stores characters into a buffer of length |error_line|, where character
-$k+1$ is placed into \hbox{|trick_buf[k mod error_line]|} if
-|k<trick_count|, otherwise character |k| is dropped. Initially we set
-|tally:=0| and |trick_count:=1000000|; then when we reach the
-point where transition from line 1 to line 2 should occur, we
-set |first_count:=tally| and |trick_count:=@tmax@>(error_line,
-tally+1+error_line-half_error_line)|. At the end of the
-pseudoprinting, the values of |first_count|, |tally|, and
-|trick_count| give us all the information we need to print the two lines,
-and all of the necessary text is in |trick_buf|.
-
-Namely, let |l| be the length of the descriptive information that appears
-on the first line. The length of the context information gathered for that
-line is |k=first_count|, and the length of the context information
-gathered for line~2 is $m=\min(|tally|, |trick_count|)-k$. If |l+k<=h|,
-where |h=half_error_line|, we print |trick_buf[0..k-1]| after the
-descriptive information on line~1, and set |n:=l+k|; here |n| is the
-length of line~1. If $l+k>h$, some cropping is necessary, so we set |n:=h|
-and print `\.{...}' followed by
-$$\hbox{|trick_buf[(l+k-h+3)..k-1]|,}$$
-where subscripts of |trick_buf| are circular modulo |error_line|. The
-second line consists of |n|~spaces followed by |trick_buf[k..(k+m-1)]|,
-unless |n+m>error_line|; in the latter case, further cropping is done.
-This is easier to program than to explain.
-
-@<Local variables for formatting...@>=
-@!i:0..buf_size; {index into |buffer|}
-@!j:0..buf_size; {end of current line in |buffer|}
-@!l:0..half_error_line; {length of descriptive information on line 1}
-@!m:integer; {context information gathered for line 2}
-@!n:0..error_line; {length of line 1}
-@!p: integer; {starting or ending place in |trick_buf|}
-@!q: integer; {temporary index}
-
-@ The following code sets up the print routines so that they will gather
-the desired information.
-
-@d begin_pseudoprint==
-  begin l:=tally; tally:=0; selector:=pseudo;
-  trick_count:=1000000;
-  end
-@d set_trick_count==
-  begin first_count:=tally;
-  trick_count:=tally+1+error_line-half_error_line;
-  if trick_count<error_line then trick_count:=error_line;
-  end
-
-@ And the following code uses the information after it has been gathered.
-
-@<Print two lines using the tricky pseudoprinted information@>=
-if trick_count=1000000 then set_trick_count;
-  {|set_trick_count| must be performed}
-if tally<trick_count then m:=tally-first_count
-else m:=trick_count-first_count; {context on line 2}
-if l+first_count<=half_error_line then
-  begin p:=0; n:=l+first_count;
-  end
-else  begin print("..."); p:=l+first_count-half_error_line+3;
-  n:=half_error_line;
-  end;
-for q:=p to first_count-1 do print_char(trick_buf[q mod error_line]);
-print_ln;
-for q:=1 to n do print_char(" "); {print |n| spaces to begin line~2}
-if m+n<=error_line then p:=first_count+m else p:=first_count+(error_line-n-3);
-for q:=first_count to p-1 do print_char(trick_buf[q mod error_line]);
-if m+n>error_line then print("...")
-
-@ But the trick is distracting us from our current goal, which is to
-understand the input state. So let's concentrate on the data structures that
-are being pseudoprinted as we finish up the |show_context| procedure.
-
-@<Pseudoprint the line@>=
-begin_pseudoprint;
-if buffer[limit]=end_line_char then j:=limit
-else j:=limit+1; {determine the effective end of the line}
-if j>0 then for i:=start to j-1 do
-  begin if i=loc then set_trick_count;
-  print_char(buffer[i]);
-  end
-
-@ @<Pseudoprint the token list@>=
-begin_pseudoprint;
-if token_type<macro then show_token_list(start,loc,100000)
-else show_token_list(link(start),loc,100000) {avoid reference count}
+Input stack structures are now defined in C.
 
 @ Here is the missing piece of |show_token_list| that is activated when the
 token beginning line~2 is about to be shown:
@@ -7905,33 +7382,6 @@ token beginning line~2 is about to be shown:
 @<Do magic computation@>=set_trick_count
 
 @* \[23] Maintaining the input stacks.
-The following subroutines change the input status in commonly needed ways.
-
-First comes |push_input|, which stores the current state and creates a
-new level (having, initially, the same properties as the old).
-
-@d push_input==@t@> {enter a new input level, save the old}
-  begin if input_ptr>max_in_stack then
-    begin max_in_stack:=input_ptr;
-    if input_ptr=stack_size then overflow("input stack size",stack_size);
-@:TeX capacity exceeded input stack size}{\quad input stack size@>
-    end;
-  input_stack[input_ptr]:=cur_input; {stack the record}
-  nofilter:=false;
-  incr(input_ptr);
-  end
-
-@p procedure do_push_input;
-begin
-push_input;
-end;
-
-
-@ And of course what goes up must come down.
-
-@d pop_input==@t@> {leave an input level, re-enter the old}
-  begin decr(input_ptr); cur_input:=input_stack[input_ptr];
-  end
 
 @ Here is a procedure that starts a new level of token-list input, given
 a token list |p| and its type |t|. If |t=macro|, the calling routine should
@@ -7941,23 +7391,21 @@ set |name| and |loc|.
 @d ins_list(#)==begin_token_list(#,inserted) {inserts a simple token list}
 
 @p procedure begin_token_list(@!p:pointer;@!t:quarterword);
-begin push_input; state:=token_list; start:=p; token_type:=t;
+begin push_input; istate:=token_list; istart:=p; token_type:=t;
 if t>=macro then {the token list starts with a reference count}
   begin add_token_ref(p);
   if t=macro then param_start:=param_ptr
-  else  begin loc:=link(p);
+  else  begin iloc:=link(p);
     if tracing_macros>1 then
       begin begin_diagnostic; print_nl("");
-      case t of
-      mark_text:print_esc("mark");
-      write_text:print_esc("write");
-      othercases print_cmd_chr(assign_toks,t-output_text+output_routine_loc)
-      endcases;@/
+      if t=mark_text then print_esc("mark") else
+      if t=write_text then print_esc("write")
+      else print_cmd_chr(assign_toks,t-output_text+output_routine_loc);
       print("->"); token_show(p); end_diagnostic(false);
       end;
     end;
   end
-else loc:=p;
+else iloc:=p;
 end;
 
 @ When a token list has been fully scanned, the following computations
@@ -7967,8 +7415,8 @@ to be equal to either |backed_up| or |inserted| about 2/3 of the time.
 
 @p procedure end_token_list; {leave a token-list input level}
 begin if token_type>=backed_up then {token list to be deleted}
-  begin if token_type<=inserted then flush_list(start)
-  else  begin delete_token_ref(start); {update reference count}
+  begin if token_type<=inserted then flush_list(istart)
+  else  begin delete_token_ref(istart); {update reference count}
     if token_type=macro then {parameters must be flushed}
       while param_ptr>param_start do
         begin decr(param_ptr);
@@ -7995,21 +7443,21 @@ so it has been slightly optimized for speed.
 
 @p procedure back_input; {undoes one token of input}
 var p:pointer; {a token list of length one}
-begin while (state=token_list)and(loc=null)and(token_type<>v_template) do
+begin while (istate=token_list)and(iloc=null)and(token_type<>v_template) do
   end_token_list; {conserve stack space}
 p:=get_avail; info(p):=cur_tok;
 if cur_tok<right_brace_limit then begin
   if cur_tok<left_brace_limit then decr(align_state)
   else incr(align_state);
   end;
-push_input; state:=token_list; start:=p; token_type:=backed_up;
-loc:=p; {that was |back_list(p)|, without procedure overhead}
+push_input; istate:=token_list; istart:=p; token_type:=backed_up;
+iloc:=p; {that was |back_list(p)|, without procedure overhead}
 end;
 
 @ @<Insert token |p| into \TeX's input@>=
 begin t:=cur_tok; cur_tok:=p;
 if a then
-  begin p:=get_avail; info(p):=cur_tok; link(p):=loc; loc:=p; start:=p;
+  begin p:=get_avail; info(p):=cur_tok; link(p):=iloc; iloc:=p; istart:=p;
   if cur_tok<right_brace_limit then begin
     if cur_tok<left_brace_limit then decr(align_state)
     else incr(align_state);
@@ -8045,11 +7493,11 @@ begin if in_open=max_in_open then overflow("text input levels",max_in_open);
 @:TeX capacity exceeded text input levels}{\quad text input levels@>
 if first=buf_size then check_buffer_overflow(first);
 @:TeX capacity exceeded buffer size}{\quad buffer size@>
-incr(in_open); push_input; index:=in_open;
-eof_seen[index]:=false;
-grp_stack[index]:=cur_boundary; if_stack[index]:=cond_ptr;
-line_stack[index]:=line; start:=first; state:=mid_line;
-name:=0; {|terminal_input| is now |true|}
+incr(in_open); push_input; iindex:=in_open;
+eof_seen[iindex]:=false;
+grp_stack[iindex]:=cur_boundary; if_stack[iindex]:=cond_ptr;
+line_stack[iindex]:=line; istart:=first; istate:=mid_line;
+iname:=0; {|terminal_input| is now |true|}
 line_catcode_table:=DEFAULT_CAT_TABLE; line_partial:=false;
 @<Prepare terminal input {\sl Sync\TeX} information@>;
 end;
@@ -8058,10 +7506,10 @@ end;
 is finished:
 
 @p procedure end_file_reading;
-begin first:=start; line:=line_stack[index];
-if (name>=18)and(name<=20) then pseudo_close else
-if name=21 then luacstring_close(index) else
-if name>17 then lua_a_close_in(cur_file,0); {forget it}
+begin first:=istart; line:=line_stack[iindex];
+if (iname>=18)and(iname<=20) then pseudo_close else
+if iname=21 then luacstring_close(iindex) else
+if iname>17 then lua_a_close_in(cur_file,0); {forget it}
 pop_input; decr(in_open);
 end;
 
@@ -8070,8 +7518,8 @@ inserted `\.{\\show}' commands, the following routine removes completed
 error-inserted lines from memory.
 
 @p procedure clear_for_error_prompt;
-begin while (state<>token_list)and terminal_input and@|
-  (input_ptr>0)and(loc>limit) do end_file_reading;
+begin while (istate<>token_list)and terminal_input and@|
+  (input_ptr>0)and(iloc>ilimit) do end_file_reading;
 print_ln; clear_terminal;
 end;
 
@@ -8085,13 +7533,13 @@ grp_stack[0]:=0; if_stack[0]:=null;
 param_ptr:=0; max_param_stack:=0;
 first:=buf_size; repeat buffer[first]:=0; decr(first); until first=0;
 scanner_status:=normal; warning_index:=null; first:=1;
-state:=new_line; start:=1; index:=0; line:=0; name:=0;
+istate:=new_line; istart:=1; iindex:=0; line:=0; iname:=0;
 current_ocp_lstack:=0; current_ocp_no:=0; nofilter:=false;
 force_eof:=false; luacstrings :=0;
 line_catcode_table:=DEFAULT_CAT_TABLE; line_partial:=false;
 align_state:=1000000;@/
 if not init_terminal then goto final_end;
-limit:=last; first:=last+1; {|init_terminal| has set |loc| and |last|}
+ilimit:=last; first:=last+1; {|init_terminal| has set |loc| and |last|}
 end
 
 @* \[24] Getting the next token.
@@ -8159,16 +7607,16 @@ used instead of the line in the file.
 
 @p procedure firm_up_the_line;
 var k:0..buf_size; {an index into |buffer|}
-begin limit:=last;
+begin ilimit:=last;
 if pausing>0 then if interaction>nonstop_mode then
   begin wake_up_terminal; print_ln;
-  if start<limit then for k:=start to limit-1 do print(buffer[k]);
-  first:=limit; prompt_input("=>"); {wait for user response}
+  if istart<ilimit then for k:=istart to ilimit-1 do print(buffer[k]);
+  first:=ilimit; prompt_input("=>"); {wait for user response}
 @.=>@>
   if last>first then
     begin for k:=first to last-1 do {move line down in buffer}
-      buffer[k+start-first]:=buffer[k];
-    limit:=start+last-first;
+      buffer[k+istart-first]:=buffer[k];
+    ilimit:=istart+last-first;
     end;
   end;
 end;
@@ -8321,7 +7769,7 @@ get_token; scanner_status:=save_scanner_status; t:=cur_tok;
 back_input; {now |start| and |loc| point to the backed-up token |t|}
 if t>=cs_token_flag then
   begin p:=get_avail; info(p):=cs_token_flag+frozen_dont_expand;
-  link(p):=loc; start:=p; loc:=p;
+  link(p):=iloc; istart:=p; iloc:=p;
   end;
 end
 
@@ -8361,7 +7809,7 @@ if cur_cs<>undefined_primitive then begin
   else begin
     back_input; { now |loc| and |start| point to a one-item list }
     p:=get_avail; info(p):=cs_token_flag+frozen_primitive;
-    link(p):=loc; loc:=p; start:=p;
+    link(p):=iloc; iloc:=p; istart:=p;
     end;
   end
 else begin
@@ -8731,9 +8179,9 @@ all token lists that have recently been depleted. Then a user macro that ends
 with a call to itself will not require unbounded stack space.
 
 @<Feed the macro body and its parameters to the scanner@>=
-while (state=token_list)and(loc=null)and(token_type<>v_template) do
+while (istate=token_list)and(iloc=null)and(token_type<>v_template) do
   end_token_list; {conserve stack space}
-begin_token_list(ref_count,macro); name:=warning_index; loc:=link(r);
+begin_token_list(ref_count,macro); iname:=warning_index; iloc:=link(r);
 if n>0 then
   begin if param_ptr+n>max_param_stack then
     begin max_param_stack:=param_ptr+n;
@@ -11084,14 +10532,14 @@ cur_val:=def_ref; scanner_status:=normal; align_state:=s;
 end;
 
 @ @<Input and store tokens from the next line of the file@>=
-begin_file_reading; name:=m+1;
+begin_file_reading; iname:=m+1;
 if read_open[m]=closed then @<Input for \.{\\read} from the terminal@>
 else if read_open[m]=just_open then @<Input the first line of |read_file[m]|@>
 else @<Input the next line of |read_file[m]|@>;
-limit:=last;
-if end_line_char_inactive then decr(limit)
-else  buffer[limit]:=end_line_char;
-first:=limit+1; loc:=start; state:=new_line;@/
+ilimit:=last;
+if end_line_char_inactive then decr(ilimit)
+else  buffer[ilimit]:=end_line_char;
+first:=ilimit+1; iloc:=istart; istate:=new_line;@/
 @<Handle \.{\\readline} and |goto done|@>;@/
 loop@+  begin get_token;
   if cur_tok=0 then goto done;
@@ -11701,13 +11149,13 @@ contains the first line of input in |buffer[loc..(last-1)]|, where
 function open_fmt_file:boolean;
 label found,exit;
 var j:0..buf_size; {the first space after the format file name}
-begin j:=loc;
-if buffer[loc]="&" then
-  begin incr(loc); j:=loc; buffer[last]:=" ";
+begin j:=iloc;
+if buffer[iloc]="&" then
+  begin incr(iloc); j:=iloc; buffer[last]:=" ";
   while buffer[j]<>" " do incr(j);
-  pack_buffered_name(0,loc,j-1); {try first without the system file area}
+  pack_buffered_name(0,iloc,j-1); {try first without the system file area}
   if w_open_in(fmt_file) then goto found;
-  pack_buffered_name(format_area_length,loc,j-1);
+  pack_buffered_name(format_area_length,iloc,j-1);
     {now try the system format file area}
   if w_open_in(fmt_file) then goto found;
   wake_up_terminal;
@@ -11724,7 +11172,7 @@ if not w_open_in(fmt_file) then
 @.plain@>
   open_fmt_file:=false; return;
   end;
-found:loc:=j; open_fmt_file:=true;
+found:iloc:=j; open_fmt_file:=true;
 exit:end;
 
 @ Operating systems often make it possible to determine the exact name (and
@@ -11862,22 +11310,22 @@ loop@+  begin begin_file_reading; {set up |cur_file| and new level of input}
   end;
 done:
 cur_file := name_file_pointer;
-name:=a_make_name_string(cur_file);
+iname:=a_make_name_string(cur_file);
 if job_name=0 then
   begin job_name:=cur_name; open_log_file;
   end; {|open_log_file| doesn't |show_context|, so |limit|
     and |loc| needn't be set to meaningful values yet}
 if tracefilenames then begin
-  if term_offset+length(name)>max_print_line-2 then print_ln
+  if term_offset+length(iname)>max_print_line-2 then print_ln
   else if (term_offset>0)or(file_offset>0) then print_char(" ");
   print_char("(");
-  print_file_name(0,name,0);
+  print_file_name(0,iname,0);
 end;
 incr(open_parens);
 update_terminal;
-state:=new_line;
-if name=str_ptr-1 then {we can conserve string pool space now}
-  begin flush_string; name:=cur_name;
+istate:=new_line;
+if iname=str_ptr-1 then {we can conserve string pool space now}
+  begin flush_string; iname:=cur_name;
   end;
 @<Prepare new file {\sl Sync\TeX} information@>;
 @<Read the first line of the new file@>;
@@ -11893,9 +11341,9 @@ contain a single blank line.
 begin line:=1;
 if lua_input_ln(cur_file,0,false) then do_nothing;
 firm_up_the_line;
-if end_line_char_inactive then decr(limit)
-else  buffer[limit]:=end_line_char;
-first:=limit+1; loc:=start;
+if end_line_char_inactive then decr(ilimit)
+else  buffer[ilimit]:=end_line_char;
+first:=ilimit+1; iloc:=istart;
 end
 
 @* \[30] Font metric data and OCPS.
@@ -14367,12 +13815,6 @@ begin
   a:=0;
   define(cur_font_loc,data,f);
 end;
-
-function get_current_name: str_number;
-begin
-  get_current_name:= name;
-end;
-
 
 @ Helper for debugging purposes
 
@@ -20481,7 +19923,7 @@ end
 in internal vertical mode, and \TeX\ will do the following:
 
 @<Resume the page builder after an output routine has come to an end@>=
-begin if (loc<>null) or
+begin if (iloc<>null) or
  ((token_type<>output_text)and(token_type<>backed_up)) then
   @<Recover from an unbalanced output routine@>;
 end_token_list; {conserve stack space in case more outputs are triggered}
@@ -20507,7 +19949,7 @@ begin print_err("Unbalanced output routine");
 help2("Your sneaky output routine has problematic {'s and/or }'s.")@/
 ("I can't handle that very well; good luck."); error;
 repeat get_token;
-until loc=null;
+until iloc=null;
 end {loops forever if reading from a file, since |null=min_halfword<=0|}
 
 @ @<Ensure that box |output_box| is empty after output@>=
@@ -24514,7 +23956,7 @@ i:halfword; { for looping marks }
 begin c:=cur_chr;
 if job_name=0 then open_log_file;
 while input_ptr>0 do
-  if state=token_list then end_token_list@+else end_file_reading;
+  if istate=token_list then end_token_list@+else end_file_reading;
 while open_parens>0 do
   begin
         if tracefilenames then print(" )");
@@ -24580,28 +24022,28 @@ But when we finish this part of the program, \TeX\ is ready to call on the
 @<Get the first line...@>=
 begin @<Initialize the input routines@>;
 @<Enable \eTeX, if requested@>@;@/
-if (format_ident=0)or(buffer[loc]="&") then
+if (format_ident=0)or(buffer[iloc]="&") then
   begin if format_ident<>0 then initialize; {erase preloaded format}
   if not open_fmt_file then goto final_end;
   if not load_fmt_file then
     begin w_close(fmt_file); goto final_end;
     end;
   w_close(fmt_file);
-  while (loc<limit)and(buffer[loc]=" ") do incr(loc);
+  while (iloc<ilimit)and(buffer[iloc]=" ") do incr(iloc);
   end;
 if (pdf_output_option <> 0) then pdf_output := pdf_output_value;
 if (pdf_draftmode_option <> 0) then pdf_draftmode := pdf_draftmode_value;
 pdf_init_map_file('pdftex.map');
 if false then wterm_ln('entering extended mode');
-if end_line_char_inactive then decr(limit)
-else  buffer[limit]:=end_line_char;
+if end_line_char_inactive then decr(ilimit)
+else  buffer[ilimit]:=end_line_char;
 fix_date_and_time;@/
 random_seed :=(microseconds*1000)+(epochseconds mod 1000000);@/
 init_randoms(random_seed);@/
 initialize_math;
 @<Initialize the print |selector|...@>;
 check_texconfig_init;
-if (loc<limit)and(get_cat_code(cat_code_table,buffer[loc])<>escape) then start_input;
+if (iloc<ilimit)and(get_cat_code(cat_code_table,buffer[iloc])<>escape) then start_input;
   {\.{\\input} assumed}
 @<DIR: Initialize |text_dir_ptr|@>;
 end
@@ -27513,7 +26955,7 @@ is a run-time switch.
 @!init if format_ident=" (INITEX)" then
   begin no_new_control_sequence:=false;
   @<Generate all \eTeX\ primitives@>@;
-  if buffer[loc]="*" then incr(loc);
+  if buffer[iloc]="*" then incr(iloc);
   end;
 tini@;@/
 if not no_new_control_sequence then {just entered extended mode ?}
@@ -28080,7 +27522,7 @@ primitive_luatex("scantextokens",input,3,0);
 
 @ @<Cases for |input|@>=
 else if cur_chr=2 then pseudo_start
-else if cur_chr=3 then begin pseudo_start; name := 19; end
+else if cur_chr=3 then begin pseudo_start; iname := 19; end
 
 @ The global variable |pseudo_files| is used to maintain a stack of
 pseudo files.  The |pseudo_lines| field of each pseudo file points to
@@ -28127,8 +27569,8 @@ end;
 procedure lua_string_start;
 begin
 begin_file_reading; {set up |cur_file| and new level of input}
-line:=0; limit:=start; loc:=limit+1; {force line read}
-name:=21; luacstring_start(index);
+line:=0; ilimit:=istart; iloc:=ilimit+1; {force line read}
+iname:=21; luacstring_start(iindex);
 end;
 
 @ @<Convert string |s| into a new pseudo file@>=
@@ -28138,14 +27580,14 @@ vlink(p):=pseudo_files; pseudo_files:=p
 
 @ @<Initiate input from new pseudo file@>=
 begin_file_reading; {set up |cur_file| and new level of input}
-line:=0; limit:=start; loc:=limit+1; {force line read}
+line:=0; ilimit:=istart; iloc:=ilimit+1; {force line read}
 if tracing_scan_tokens>0 then
   begin if term_offset>max_print_line-3 then print_ln
   else if (term_offset>0)or(file_offset>0) then print_char(" ");
-  name:=20; print("( "); incr(open_parens); update_terminal;
+  iname:=20; print("( "); incr(open_parens); update_terminal;
   end
 else begin
-  name:=18;
+  iname:=18;
   @<Prepare pseudo file {\sl Sync\TeX} information@>;
 end
 
@@ -28198,8 +27640,8 @@ primitive_etex("readline",read_to_cs,1,0);@/
 
 @ @<Handle \.{\\readline} and |goto done|@>=
 if j=1 then
-  begin while loc<=limit do {current line not yet finished}
-    begin cur_chr:=buffer[loc]; incr(loc);
+  begin while iloc<=ilimit do {current line not yet finished}
+    begin cur_chr:=buffer[iloc]; incr(iloc);
     if cur_chr=" " then cur_tok:=space_token
     @+else cur_tok:=cur_chr+other_token;
     store_new_token(cur_tok);

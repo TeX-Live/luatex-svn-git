@@ -162,7 +162,7 @@ void scan_file_name(void)
         /* If |cur_chr| is a space and we're not scanning a token list, check
            whether we're at the end of the buffer. Otherwise we end up adding
            spurious spaces to file names in some cases. */
-        if ((cur_chr == ' ') && (state != token_list) && (loc > limit)
+        if ((cur_chr == ' ') && (istate != token_list) && (iloc > ilimit)
             && !quoted_filename)
             break;
         if (cur_chr > 127) {

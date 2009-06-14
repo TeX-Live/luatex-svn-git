@@ -26,12 +26,6 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-#define skipping 1              /* |scanner_status| when passing conditional text */
-#define defining 2              /* |scanner_status| when reading a macro definition */
-#define matching 3              /* |scanner_status| when reading macro arguments */
-#define aligning 4              /* |scanner_status| when reading an alignment preamble */
-#define absorbing 5             /* |scanner_status| when reading a balanced text */
-
 #define right_brace_token 0x400000      /* $2^{21}\cdot|right_brace|$ */
 
 #define cat_code_table int_par(param_cat_code_table_code)
@@ -47,14 +41,9 @@ static const char _svn_version[] =
 #define eq_type(a)  zeqtb[a].hh.u.B0
 #define equiv(a)    zeqtb[a].hh.v.RH
 
-/* leave an input level, re-enter the old */
-#define pop_input() cur_input=input_stack[--input_ptr]
-
 #define nonstop_mode 1
 
-#define terminal_input (name==0)        /* are we reading from the terminal? */
 #define special_char 1114113    /* |biggest_char+2| */
-#define cur_file input_file[index]      /* the current |alpha_file| variable */
 
 #define no_expand_flag special_char     /*this characterizes a special variant of |relax| */
 
@@ -420,7 +409,7 @@ void check_outer_validity(void)
         /* An outer control sequence that occurs in a \.{\\read} will not be reread,
            since the error recovery for \.{\\read} is not very powerful. */
         if (cur_cs != 0) {
-            if ((state == token_list) || (name < 1) || (name > 17)) {
+            if ((istate == token_list) || (iname < 1) || (iname > 17)) {
                 p = get_avail();
                 info(p) = cs_token_flag + cur_cs;
                 begin_token_list(p, backed_up); /* prepare to read the control sequence again */
@@ -525,8 +514,8 @@ void check_outer_validity(void)
 static boolean get_next_file(void)
 {
   SWITCH:
-    if (loc <= limit) {         /* current line not yet finished */
-        do_buffer_to_unichar(cur_chr, loc);
+    if (iloc <= ilimit) {       /* current line not yet finished */
+        do_buffer_to_unichar(cur_chr, iloc);
 
       RESWITCH:
         if (detokenized_line()) {
@@ -545,7 +534,7 @@ static boolean get_next_file(void)
            apart from each other by |max_char_code+1|, so we can add a character's
            command code to the state to get a single number that characterizes both.
          */
-        switch (state + cur_cmd) {
+        switch (istate + cur_cmd) {
         case mid_line + ignore_cmd:
         case skip_blanks + ignore_cmd:
         case new_line + ignore_cmd:
@@ -556,7 +545,7 @@ static boolean get_next_file(void)
         case mid_line + escape_cmd:
         case new_line + escape_cmd:
         case skip_blanks + escape_cmd: /* @<Scan a control sequence ...@>; */
-            state = scan_control_sequence();
+            istate = scan_control_sequence();
             if (cur_cmd >= outer_call_cmd)
                 check_outer_validity();
             break;
@@ -566,7 +555,7 @@ static boolean get_next_file(void)
             cur_cs = active_to_cs(cur_chr, false);
             cur_cmd = eq_type(cur_cs);
             cur_chr = equiv(cur_cs);
-            state = mid_line;
+            istate = mid_line;
             if (cur_cmd >= outer_call_cmd)
                 check_outer_validity();
             break;
@@ -576,7 +565,7 @@ static boolean get_next_file(void)
             if (process_sup_mark())
                 goto RESWITCH;
             else
-                state = mid_line;
+                istate = mid_line;
             break;
         case mid_line + invalid_char_cmd:
         case new_line + invalid_char_cmd:
@@ -585,7 +574,7 @@ static boolean get_next_file(void)
             return false;       /* because state may be token_list now */
             break;
         case mid_line + spacer_cmd:    /* @<Enter |skip_blanks| state, emit a space@>; */
-            state = skip_blanks;
+            istate = skip_blanks;
             cur_chr = ' ';
             break;
         case mid_line + car_ret_cmd:   /* @<Finish line, emit a space@>; */
@@ -595,7 +584,7 @@ static boolean get_next_file(void)
                be treated alike when macro parameters are being matched. We do this
                since such characters are indistinguishable on most computer terminal displays.
              */
-            loc = limit + 1;
+            iloc = ilimit + 1;
             cur_cmd = spacer_cmd;
             cur_chr = ' ';
             break;
@@ -603,11 +592,11 @@ static boolean get_next_file(void)
         case mid_line + comment_cmd:
         case new_line + comment_cmd:
         case skip_blanks + comment_cmd:        /* @<Finish line, |goto switch|@>; */
-            loc = limit + 1;
+            iloc = ilimit + 1;
             goto SWITCH;
             break;
         case new_line + car_ret_cmd:   /* @<Finish line, emit a \.{\\par}@>; */
-            loc = limit + 1;
+            iloc = ilimit + 1;
             cur_cs = par_loc;
             cur_cmd = eq_type(cur_cs);
             cur_chr = equiv(cur_cs);
@@ -616,13 +605,13 @@ static boolean get_next_file(void)
             break;
         case skip_blanks + left_brace_cmd:
         case new_line + left_brace_cmd:
-            state = mid_line;   /* fall through */
+            istate = mid_line;  /* fall through */
         case mid_line + left_brace_cmd:
             align_state++;
             break;
         case skip_blanks + right_brace_cmd:
         case new_line + right_brace_cmd:
-            state = mid_line;   /* fall through */
+            istate = mid_line;  /* fall through */
         case mid_line + right_brace_cmd:
             align_state--;
             break;
@@ -648,7 +637,7 @@ static boolean get_next_file(void)
                case new_line    + letter:
                case new_line    + other_char:     
              */
-            state = mid_line;
+            istate = mid_line;
             break;
         }
     } else {
@@ -656,8 +645,8 @@ static boolean get_next_file(void)
             pop_input();
             return false;
         }
-        if (name != 21)
-            state = new_line;
+        if (iname != 21)
+            istate = new_line;
 
         /*
            @<Move to next line of file,
@@ -711,63 +700,64 @@ static boolean get_next_file(void)
 
 static boolean process_sup_mark(void)
 {
-    if (cur_chr == buffer[loc]) {
+    if (cur_chr == buffer[iloc]) {
         int c, cc;
-        if (loc < limit) {
-            if ((cur_chr == buffer[loc + 1]) && (cur_chr == buffer[loc + 2])
-                && (cur_chr == buffer[loc + 3]) && (cur_chr == buffer[loc + 4])
-                && ((loc + 10) <= limit)) {
+        if (iloc < ilimit) {
+            if ((cur_chr == buffer[iloc + 1]) && (cur_chr == buffer[iloc + 2])
+                && (cur_chr == buffer[iloc + 3])
+                && (cur_chr == buffer[iloc + 4])
+                && ((iloc + 10) <= ilimit)) {
                 int ccc, cccc, ccccc, cccccc;   /* constituents of a possible expanded code */
-                c = buffer[loc + 5];
-                cc = buffer[loc + 6];
-                ccc = buffer[loc + 7];
-                cccc = buffer[loc + 8];
-                ccccc = buffer[loc + 9];
-                cccccc = buffer[loc + 10];
+                c = buffer[iloc + 5];
+                cc = buffer[iloc + 6];
+                ccc = buffer[iloc + 7];
+                cccc = buffer[iloc + 8];
+                ccccc = buffer[iloc + 9];
+                cccccc = buffer[iloc + 10];
                 if ((is_hex(c)) && (is_hex(cc)) && (is_hex(ccc))
                     && (is_hex(cccc))
                     && (is_hex(ccccc)) && (is_hex(cccccc))) {
-                    loc = loc + 11;
+                    iloc = iloc + 11;
                     six_hex_to_cur_chr;
                     return true;
                 }
             }
-            if ((cur_chr == buffer[loc + 1]) && (cur_chr == buffer[loc + 2])
-                && (cur_chr == buffer[loc + 3]) && ((loc + 8) <= limit)) {
+            if ((cur_chr == buffer[iloc + 1]) && (cur_chr == buffer[iloc + 2])
+                && (cur_chr == buffer[iloc + 3]) && ((iloc + 8) <= ilimit)) {
                 int ccc, cccc, ccccc;   /* constituents of a possible expanded code */
-                c = buffer[loc + 4];
-                cc = buffer[loc + 5];
-                ccc = buffer[loc + 6];
-                cccc = buffer[loc + 7];
-                ccccc = buffer[loc + 8];
+                c = buffer[iloc + 4];
+                cc = buffer[iloc + 5];
+                ccc = buffer[iloc + 6];
+                cccc = buffer[iloc + 7];
+                ccccc = buffer[iloc + 8];
                 if ((is_hex(c)) && (is_hex(cc)) && (is_hex(ccc))
                     && (is_hex(cccc)) && (is_hex(ccccc))) {
-                    loc = loc + 9;
+                    iloc = iloc + 9;
                     five_hex_to_cur_chr;
                     return true;
                 }
             }
-            if ((cur_chr == buffer[loc + 1]) && (cur_chr == buffer[loc + 2])
-                && ((loc + 6) <= limit)) {
+            if ((cur_chr == buffer[iloc + 1]) && (cur_chr == buffer[iloc + 2])
+                && ((iloc + 6) <= ilimit)) {
                 int ccc, cccc;  /* constituents of a possible expanded code */
-                c = buffer[loc + 3];
-                cc = buffer[loc + 4];
-                ccc = buffer[loc + 5];
-                cccc = buffer[loc + 6];
+                c = buffer[iloc + 3];
+                cc = buffer[iloc + 4];
+                ccc = buffer[iloc + 5];
+                cccc = buffer[iloc + 6];
                 if ((is_hex(c)) && (is_hex(cc)) && (is_hex(ccc))
                     && (is_hex(cccc))) {
-                    loc = loc + 7;
+                    iloc = iloc + 7;
                     four_hex_to_cur_chr;
                     return true;
                 }
             }
-            c = buffer[loc + 1];
+            c = buffer[iloc + 1];
             if (c < 0200) {     /* yes we have an expanded char */
-                loc = loc + 2;
-                if (is_hex(c) && loc <= limit) {
-                    cc = buffer[loc];
+                iloc = iloc + 2;
+                if (is_hex(c) && iloc <= ilimit) {
+                    cc = buffer[iloc];
                     if (is_hex(cc)) {
-                        incr(loc);
+                        incr(iloc);
                         hex_to_cur_chr;
                         return true;
                     }
@@ -788,7 +778,7 @@ static boolean process_sup_mark(void)
    The program that scans a control sequence has been written carefully
    in order to avoid the blowups that might otherwise occur if a malicious
    user tried something like `\.{\\catcode\'15=0}'. The algorithm might
-   look at |buffer[limit+1]|, but it never looks at |buffer[limit+2]|.
+   look at |buffer[ilimit+1]|, but it never looks at |buffer[ilimit+2]|.
 
    If expanded characters like `\.{\^\^A}' or `\.{\^\^df}'
    appear in or just following
@@ -801,15 +791,15 @@ static boolean check_expanded_code(integer * kk);       /* below */
 static int scan_control_sequence(void)
 {
     int retval = mid_line;
-    if (loc > limit) {
+    if (iloc > ilimit) {
         cur_cs = null_cs;       /* |state| is irrelevant in this case */
     } else {
         register int cat;       /* |cat_code(cur_chr)|, usually */
         while (1) {
-            integer k = loc;
+            integer k = iloc;
             do_buffer_to_unichar(cur_chr, k);
             do_get_cat_code(cat);
-            if (cat != letter_cmd || k > limit) {
+            if (cat != letter_cmd || k > ilimit) {
                 retval = (cat == spacer_cmd ? skip_blanks : mid_line);
                 if (cat == sup_mark_cmd && check_expanded_code(&k))     /* @<If an expanded...@>; */
                     continue;
@@ -818,7 +808,7 @@ static int scan_control_sequence(void)
                 do {
                     do_buffer_to_unichar(cur_chr, k);
                     do_get_cat_code(cat);
-                } while (cat == letter_cmd && k <= limit);
+                } while (cat == letter_cmd && k <= ilimit);
 
                 if (cat == sup_mark_cmd && check_expanded_code(&k))     /* @<If an expanded...@>; */
                     continue;
@@ -832,8 +822,8 @@ static int scan_control_sequence(void)
                         decr(k);
                 }               /* now |k| points to first nonletter */
             }
-            cur_cs = id_lookup(loc, k - loc);
-            loc = k;
+            cur_cs = id_lookup(iloc, k - iloc);
+            iloc = k;
             break;
         }
     }
@@ -843,7 +833,7 @@ static int scan_control_sequence(void)
 }
 
 /* Whenever we reach the following piece of code, we will have
-   |cur_chr=buffer[k-1]| and |k<=limit+1| and |cat=get_cat_code(cat_code_table,cur_chr)|. If an
+   |cur_chr=buffer[k-1]| and |k<=ilimit+1| and |cat=get_cat_code(cat_code_table,cur_chr)|. If an
    expanded code like \.{\^\^A} or \.{\^\^df} appears in |buffer[(k-1)..(k+1)]|
    or |buffer[(k-1)..(k+2)]|, we
    will store the corresponding code in |buffer[k-1]| and shift the rest of
@@ -856,13 +846,13 @@ static boolean check_expanded_code(integer * kk)
     int k = *kk;
     int d = 1;                  /* number of excess characters in an expanded code */
     int c, cc, ccc, cccc, ccccc, cccccc;        /* constituents of a possible expanded code */
-    if (buffer[k] == cur_chr && k < limit) {
+    if (buffer[k] == cur_chr && k < ilimit) {
         if ((cur_chr == buffer[k + 1]) && (cur_chr == buffer[k + 2])
-            && ((k + 6) <= limit)) {
+            && ((k + 6) <= ilimit)) {
             d = 4;
-            if ((cur_chr == buffer[k + 3]) && ((k + 8) <= limit))
+            if ((cur_chr == buffer[k + 3]) && ((k + 8) <= ilimit))
                 d = 5;
-            if ((cur_chr == buffer[k + 4]) && ((k + 10) <= limit))
+            if ((cur_chr == buffer[k + 4]) && ((k + 10) <= ilimit))
                 d = 6;
             c = buffer[k + d - 1];
             cc = buffer[k + d];
@@ -887,7 +877,7 @@ static boolean check_expanded_code(integer * kk)
             c = buffer[k + 1];
             if (c < 0200) {
                 d = 1;
-                if (is_hex(c) && (k + 2) <= limit) {
+                if (is_hex(c) && (k + 2) <= ilimit) {
                     cc = buffer[k + 2];
                     if (is_hex(c) && is_hex(cc)) {
                         d = 2;
@@ -932,8 +922,8 @@ static boolean check_expanded_code(integer * kk)
             buffer[k - 1] = 0x80 + ((cur_chr % 0x40000) % 0x1000) % 0x40;
         }
         l = k;
-        limit = limit - d;
-        while (l <= limit) {
+        ilimit = ilimit - d;
+        while (l <= ilimit) {
             buffer[l] = buffer[l + d];
             l++;
         }
@@ -961,28 +951,28 @@ static boolean check_expanded_code(integer * kk)
 static next_line_retval next_line(void)
 {
     boolean inhibit_eol = false;        /* a way to end a pseudo file without trailing space */
-    if (name > 17) {
+    if (iname > 17) {
         /* @<Read next line of file into |buffer|, or |goto restart| if the file has ended@> */
         incr(line);
-        first = start;
+        first = istart;
         if (!force_eof) {
-            if (name <= 20) {
+            if (iname <= 20) {
                 if (pseudo_input()) {   /* not end of file */
-                    firm_up_the_line(); /* this sets |limit| */
+                    firm_up_the_line(); /* this sets |ilimit| */
                     line_catcode_table = DEFAULT_CAT_TABLE;
-                    if ((name == 19) && (pseudo_lines(pseudo_files) == null))
+                    if ((iname == 19) && (pseudo_lines(pseudo_files) == null))
                         inhibit_eol = true;
-                } else if ((every_eof != null) && !eof_seen[index]) {
-                    limit = first - 1;
-                    eof_seen[index] = true;     /* fake one empty line */
-                    if (name != 19)
+                } else if ((every_eof != null) && !eof_seen[iindex]) {
+                    ilimit = first - 1;
+                    eof_seen[iindex] = true;    /* fake one empty line */
+                    if (iname != 19)
                         begin_token_list(every_eof, every_eof_text);
                     return next_line_restart;
                 } else {
                     force_eof = true;
                 }
             } else {
-                if (name == 21) {
+                if (iname == 21) {
                     if (luacstring_input()) {   /* not end of strings  */
                         firm_up_the_line();
                         line_catcode_table = luacstring_cattable();
@@ -991,17 +981,17 @@ static next_line_retval next_line(void)
                             || line_catcode_table == NO_CAT_TABLE)
                             inhibit_eol = true;
                         if (!line_partial)
-                            state = new_line;
+                            istate = new_line;
                     } else {
                         force_eof = true;
                     }
                 } else {
                     if (lua_input_ln(cur_file, 0, true)) {      /* not end of file */
-                        firm_up_the_line();     /* this sets |limit| */
+                        firm_up_the_line();     /* this sets |ilimit| */
                         line_catcode_table = DEFAULT_CAT_TABLE;
-                    } else if ((every_eof != null) && (!eof_seen[index])) {
-                        limit = first - 1;
-                        eof_seen[index] = true; /* fake one empty line */
+                    } else if ((every_eof != null) && (!eof_seen[iindex])) {
+                        ilimit = first - 1;
+                        eof_seen[iindex] = true;        /* fake one empty line */
                         begin_token_list(every_eof, every_eof_text);
                         return next_line_restart;
                     } else {
@@ -1014,17 +1004,17 @@ static next_line_retval next_line(void)
             if (tracing_nesting > 0)
                 if ((grp_stack[in_open] != cur_boundary)
                     || (if_stack[in_open] != cond_ptr))
-                    if (!((name == 19) || (name = 21)))
+                    if (!((iname == 19) || (iname = 21)))
                         file_warning(); /* give warning for some unfinished groups and/or conditionals */
-            if ((name > 21) || (name == 20)) {
+            if ((iname > 21) || (iname == 20)) {
                 if (tracefilenames)
                     print_char(')');
                 open_parens--;
                 /* update_terminal(); *//* show user that file has been read */
             }
             force_eof = false;
-            if (name == 21 ||   /* lua input */
-                name == 19) {   /* \scantextokens */
+            if (iname == 21 ||  /* lua input */
+                iname == 19) {  /* \scantextokens */
                 end_file_reading();
             } else {
                 end_file_reading();
@@ -1033,11 +1023,11 @@ static next_line_retval next_line(void)
             return next_line_restart;
         }
         if (inhibit_eol || end_line_char_inactive)
-            limit--;
+            ilimit--;
         else
-            buffer[limit] = end_line_char;
-        first = limit + 1;
-        loc = start;            /* ready to read */
+            buffer[ilimit] = end_line_char;
+        first = ilimit + 1;
+        iloc = istart;          /* ready to read */
     } else {
         if (!terminal_input) {  /* \.{\\read} line has ended */
             cur_cmd = 0;
@@ -1052,20 +1042,20 @@ static next_line_retval next_line(void)
             open_log_file();
         if (interaction > nonstop_mode) {
             if (end_line_char_inactive)
-                limit++;
-            if (limit == start) {       /* previous line was empty */
+                ilimit++;
+            if (ilimit == istart) {     /* previous line was empty */
                 tprint_nl("(Please type a command or say `\\end')");
             }
             print_ln();
-            first = start;
+            first = istart;
             prompt_input((str_number) '*');     /* input on-line into |buffer| */
-            limit = last;
+            ilimit = last;
             if (end_line_char_inactive)
-                limit--;
+                ilimit--;
             else
-                buffer[limit] = end_line_char;
-            first = limit + 1;
-            loc = start;
+                buffer[ilimit] = end_line_char;
+            first = ilimit + 1;
+            iloc = istart;
         } else {
             fatal_error(maketexstring
                         ("*** (job aborted, no legal \\end found)"));
@@ -1084,8 +1074,8 @@ static next_line_retval next_line(void)
 static boolean get_next_tokenlist(void)
 {
     register halfword t;        /* a token */
-    t = info(loc);
-    loc = link(loc);            /* move to next */
+    t = info(iloc);
+    iloc = link(iloc);          /* move to next */
     if (t >= cs_token_flag) {   /* a control sequence token */
         cur_cs = t - cs_token_flag;
         cur_cmd = eq_type(cur_cs);
@@ -1093,10 +1083,10 @@ static boolean get_next_tokenlist(void)
             if (cur_cmd == dont_expand_cmd) {   /* @<Get the next token, suppressing expansion@> */
                 /* The present point in the program is reached only when the |expand|
                    routine has inserted a special marker into the input. In this special
-                   case, |info(loc)| is known to be a control sequence token, and |link(loc)=null|.
+                   case, |info(iloc)| is known to be a control sequence token, and |link(iloc)=null|.
                  */
-                cur_cs = info(loc) - cs_token_flag;
-                loc = null;
+                cur_cs = info(iloc) - cs_token_flag;
+                iloc = null;
                 cur_cmd = eq_type(cur_cs);
                 if (cur_cmd > max_command_cmd) {
                     cur_cmd = relax_cmd;
@@ -1138,12 +1128,12 @@ void get_next(void)
 {
   RESTART:
     cur_cs = 0;
-    if (state != token_list) {
+    if (istate != token_list) {
         /* Input from external file, |goto restart| if no input found */
         if (!get_next_file())
             goto RESTART;
     } else {
-        if (loc == null) {
+        if (iloc == null) {
             end_token_list();
             goto RESTART;       /* list exhausted, resume previous level */
         } else if (!get_next_tokenlist()) {
@@ -1162,11 +1152,11 @@ void get_token_lua(void)
     register int callback_id;
     callback_id = callback_defined(token_filter_callback);
     if (callback_id > 0) {
-        while (state == token_list && loc == null && index != v_template)
+        while (istate == token_list && iloc == null && iindex != v_template)
             end_token_list();
         /* there is some stuff we don't want to see inside the callback */
-        if (!(state == token_list &&
-              ((nofilter == true) || (index == backed_up && loc != null)))) {
+        if (!(istate == token_list &&
+              ((nofilter == true) || (iindex == backed_up && iloc != null)))) {
             do_get_token_lua(callback_id);
             return;
         }

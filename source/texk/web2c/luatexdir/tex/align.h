@@ -18,7 +18,7 @@
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 #ifndef ALIGN_H
-#define ALIGN_H 1
+#  define ALIGN_H 1
 
 /* We enter `\.{\\span}' into |eqtb| with |tab_mark| as its command code,
 and with |span_code| as the command modifier. This makes \TeX\ interpret it
@@ -34,21 +34,19 @@ The |get_x_token| routine converts the first into the second, which has |endv|
 as its command code.
 */
 
-#define span_code 1114113 /*  {|biggest_char+2|} */
-#define cr_code (span_code+1) /* distinct from |span_code| and from any character */
-#define cr_cr_code (cr_code+1) /* this distinguishes \.{\\crcr} from \.{\\cr} */
+#  define span_code 1114113     /*  {|biggest_char+2|} */
+#  define cr_code (span_code+1) /* distinct from |span_code| and from any character */
+#  define cr_cr_code (cr_code+1)/* this distinguishes \.{\\crcr} from \.{\\cr} */
 
 
-extern void init_align (void);
-extern void initialize_alignments (void) ;
+extern void init_align(void);
+extern void initialize_alignments(void);
 
-extern boolean fin_col (void) ;
-extern void fin_row (void);
+extern boolean fin_col(void);
+extern void fin_row(void);
 
-extern void align_peek (void) ;
-extern void insert_vj_template (void) ;
+extern void align_peek(void);
+extern void insert_vj_template(void);
 
 
 #endif
-
-

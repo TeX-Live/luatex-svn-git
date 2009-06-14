@@ -40,9 +40,9 @@ void init_col(void);
 
 #define saved(A) save_stack[save_ptr+(A)].cint
 
-#define set_glue_ratio_zero(A)  A=0.0 /* store the representation of zero ratio */
-#define set_glue_ratio_one(A)  A=1.0 /* store the representation of unit ratio */
-#define float(A) (double)(A) /* convert from |glue_ratio| to type |real| */
+#define set_glue_ratio_zero(A)  A=0.0   /* store the representation of zero ratio */
+#define set_glue_ratio_one(A)  A=1.0    /* store the representation of unit ratio */
+#define float(A) (double)(A)    /* convert from |glue_ratio| to type |real| */
 #define unfloat(A) (integer)(A) /* convert from |real| to type |glue_ratio| */
 
 #define every_cr          loc_par(param_every_cr_code)
@@ -56,11 +56,9 @@ void init_col(void);
      cur_list.tail_field = (B);                                         \
    } while (0)
 
-#define aligning 4 /* scanner status */
 #define max_quarterword 65535
 
-static const char _svn_version[] =
-    "$Id $ $URL$";
+static const char _svn_version[] = "$Id $ $URL$";
 
 /*
 It's sort of a miracle whenever \.{\\halign} and \.{\\valign} work, because
@@ -201,10 +199,10 @@ is necessary to store information about what to do when a template ends.
 This information is called the |extra_info| field.
 */
 
-#define u_part(A) vlink((A)+depth_offset) /* pointer to \<u_j> token list */
-#define v_part(A) vinfo((A)+depth_offset) /* pointer to \<v_j> token list */
-#define span_ptr(A) vinfo((A)+1) /* column spanning list */
-#define extra_info(A) vinfo((A)+list_offset) /* info to remember during template */
+#define u_part(A) vlink((A)+depth_offset)       /* pointer to \<u_j> token list */
+#define v_part(A) vinfo((A)+depth_offset)       /* pointer to \<v_j> token list */
+#define span_ptr(A) vinfo((A)+1)        /* column spanning list */
+#define extra_info(A) vinfo((A)+list_offset)    /* info to remember during template */
 
 /*
 Alignments can occur within alignments, so a small stack is used to access
@@ -226,14 +224,14 @@ when they have to be pushed down, they are stored in 6-word nodes, and
 |align_ptr| points to the topmost such node.
 */
 
-#define preamble vlink(align_head) /* the current preamble list */
+#define preamble vlink(align_head)      /* the current preamble list */
 
-pointer cur_align = null; /* current position in preamble list */
-pointer cur_span = null; /* start of currently spanned columns in preamble list */
-pointer cur_loop = null; /* place to copy when extending a periodic preamble */
-pointer align_ptr = null; /* most recently pushed-down alignment stack node */
-pointer cur_head = null, cur_tail = null; /* adjustment list pointers */
-pointer cur_pre_head = null, cur_pre_tail = null; /* pre-adjustment list pointers */
+pointer cur_align = null;       /* current position in preamble list */
+pointer cur_span = null;        /* start of currently spanned columns in preamble list */
+pointer cur_loop = null;        /* place to copy when extending a periodic preamble */
+pointer align_ptr = null;       /* most recently pushed-down alignment stack node */
+pointer cur_head = null, cur_tail = null;       /* adjustment list pointers */
+pointer cur_pre_head = null, cur_pre_tail = null;       /* pre-adjustment list pointers */
 
 /* The |align_state| and |preamble| variables are initialized elsewhere. */
 
@@ -241,27 +239,39 @@ pointer cur_pre_head = null, cur_pre_tail = null; /* pre-adjustment list pointer
 called |push_alignment| and |pop_alignment|.
 */
 
-void push_alignment (void) {
-    pointer p; /* the new alignment stack node */
-    p=new_node(align_stack_node,0);
-    vinfo(p+1)=align_ptr;       vlink(p+1)=cur_align;
-    vinfo(p+2)=preamble;        vlink(p+2)=cur_span;
-    vinfo(p+3)=cur_loop;        vlink(p+3)=align_state;
-    vinfo(p+4)=cur_head;        vlink(p+4)=cur_tail;
-    vinfo(p+5)=cur_pre_head;    vlink(p+5)=cur_pre_tail;
-    align_ptr=p;
-    cur_head=new_node(temp_node,0);
+void push_alignment(void)
+{
+    pointer p;                  /* the new alignment stack node */
+    p = new_node(align_stack_node, 0);
+    vinfo(p + 1) = align_ptr;
+    vlink(p + 1) = cur_align;
+    vinfo(p + 2) = preamble;
+    vlink(p + 2) = cur_span;
+    vinfo(p + 3) = cur_loop;
+    vlink(p + 3) = align_state;
+    vinfo(p + 4) = cur_head;
+    vlink(p + 4) = cur_tail;
+    vinfo(p + 5) = cur_pre_head;
+    vlink(p + 5) = cur_pre_tail;
+    align_ptr = p;
+    cur_head = new_node(temp_node, 0);
 }
 
-void pop_alignment (void) {
-    pointer p; /* the top alignment stack node */
+void pop_alignment(void)
+{
+    pointer p;                  /* the top alignment stack node */
     flush_node(cur_head);
-    p=align_ptr;
-    cur_pre_tail=vlink(p+5); cur_pre_head=vinfo(p+5);
-    cur_tail    =vlink(p+4); cur_head    =vinfo(p+4);
-    align_state =vlink(p+3); cur_loop    =vinfo(p+3);
-    cur_span    =vlink(p+2); preamble    =vinfo(p+2);
-    cur_align   =vlink(p+1); align_ptr   =vinfo(p+1);
+    p = align_ptr;
+    cur_pre_tail = vlink(p + 5);
+    cur_pre_head = vinfo(p + 5);
+    cur_tail = vlink(p + 4);
+    cur_head = vinfo(p + 4);
+    align_state = vlink(p + 3);
+    cur_loop = vinfo(p + 3);
+    cur_span = vlink(p + 2);
+    preamble = vinfo(p + 2);
+    cur_align = vlink(p + 1);
+    align_ptr = vinfo(p + 1);
     flush_node(p);
 }
 
@@ -289,23 +299,30 @@ tabskip glue (locally).
 
 */
 
-void get_preamble_token (void) {
-  RESTART: 
+void get_preamble_token(void)
+{
+  RESTART:
     get_token();
-    while ((cur_chr==span_code)&&(cur_cmd==tab_mark_cmd)) {
-        get_token(); /* this token will be expanded once */
-        if (cur_cmd>max_command_cmd) {
-            expand(); get_token();
+    while ((cur_chr == span_code) && (cur_cmd == tab_mark_cmd)) {
+        get_token();            /* this token will be expanded once */
+        if (cur_cmd > max_command_cmd) {
+            expand();
+            get_token();
         }
     }
-    if (cur_cmd==endv_cmd) 
-        fatal_error(maketexstring("(interwoven alignment preambles are not allowed)"));
-    if ((cur_cmd==assign_glue_cmd)&&(cur_chr==static_glue_base+param_tab_skip_code)) {
-        scan_optional_equals(); scan_glue(glue_val_level);
-        if (int_par(param_global_defs_code)>0) 
-            geq_define(static_glue_base+param_tab_skip_code,glue_ref_cmd,cur_val);
-        else 
-            eq_define(static_glue_base+param_tab_skip_code,glue_ref_cmd,cur_val);
+    if (cur_cmd == endv_cmd)
+        fatal_error(maketexstring
+                    ("(interwoven alignment preambles are not allowed)"));
+    if ((cur_cmd == assign_glue_cmd)
+        && (cur_chr == static_glue_base + param_tab_skip_code)) {
+        scan_optional_equals();
+        scan_glue(glue_val_level);
+        if (int_par(param_global_defs_code) > 0)
+            geq_define(static_glue_base + param_tab_skip_code, glue_ref_cmd,
+                       cur_val);
+        else
+            eq_define(static_glue_base + param_tab_skip_code, glue_ref_cmd,
+                      cur_val);
         goto RESTART;
     }
 }
@@ -320,103 +337,136 @@ information into the preamble list.
 @^preamble@>
 */
 
-void init_align (void) {
+void init_align(void)
+{
     /* label done, done1, done2, continue; */
-    pointer save_cs_ptr; /* |warning_index| value for error messages */
-    pointer p,r; /* for short-term temporary use */
-    save_cs_ptr=cur_cs; /* \.{\\halign} or \.{\\valign}, usually */
-    push_alignment(); align_state=-1000000; /* enter a new alignment level */
+    pointer save_cs_ptr;        /* |warning_index| value for error messages */
+    pointer p, r;               /* for short-term temporary use */
+    save_cs_ptr = cur_cs;       /* \.{\\halign} or \.{\\valign}, usually */
+    push_alignment();
+    align_state = -1000000;     /* enter a new alignment level */
 
     /* When \.{\\halign} is used as a displayed formula, there should be
        no other pieces of mlists present. */
 
-    if ((cur_list.mode_field==mmode)&&((cur_list.tail_field!=cur_list.head_field)||(incompleat_noad!=null))) {
-        char *hlp[] = { "Displays can use special alignments (like \\eqalignno)",
-                        "only if nothing but the alignment itself is between $$'s.",
-                        "So I've deleted the formulas that preceded this alignment.",
-                         NULL };
+    if ((cur_list.mode_field == mmode)
+        && ((cur_list.tail_field != cur_list.head_field)
+            || (incompleat_noad != null))) {
+        char *hlp[] =
+            { "Displays can use special alignments (like \\eqalignno)",
+            "only if nothing but the alignment itself is between $$'s.",
+            "So I've deleted the formulas that preceded this alignment.",
+            NULL
+        };
         tex_error("Improper \\halign inside $$'s", hlp);
         flush_math();
     }
-    push_nest(); /* enter a new semantic level */
+    push_nest();                /* enter a new semantic level */
     /* In vertical modes, |prev_depth| already has the correct value. But
        if we are in |mmode| (displayed formula mode), we reach out to the
        enclosing vertical mode for the |prev_depth| value that produces the
        correct baseline calculations. */
-    if (cur_list.mode_field==mmode) {
-        cur_list.mode_field=-vmode; prev_depth=nest[nest_ptr-2].aux_field.cint;
-    } else if (cur_list.mode_field>0) { 
-        cur_list.mode_field = -(cur_list.mode_field); 
+    if (cur_list.mode_field == mmode) {
+        cur_list.mode_field = -vmode;
+        prev_depth = nest[nest_ptr - 2].aux_field.cint;
+    } else if (cur_list.mode_field > 0) {
+        cur_list.mode_field = -(cur_list.mode_field);
     }
-    scan_spec(align_group,false);
+    scan_spec(align_group, false);
     /* Scan the preamble */
-    preamble=null; cur_align=align_head; cur_loop=null; scanner_status=aligning;
-    warning_index=save_cs_ptr; align_state=-1000000;
+    preamble = null;
+    cur_align = align_head;
+    cur_loop = null;
+    scanner_status = aligning;
+    warning_index = save_cs_ptr;
+    align_state = -1000000;
     /* at this point, |cur_cmd=left_brace| */
     while (true) {
         /* Append the current tabskip glue to the preamble list */
-        r=new_param_glue(param_tab_skip_code); vlink(cur_align)=r;
-        cur_align=vlink(cur_align);
+        r = new_param_glue(param_tab_skip_code);
+        vlink(cur_align) = r;
+        cur_align = vlink(cur_align);
 
-        if (cur_cmd==car_ret_cmd) break; /* \.{\\cr} ends the preamble */
+        if (cur_cmd == car_ret_cmd)
+            break;              /* \.{\\cr} ends the preamble */
 
         /* Scan preamble text until |cur_cmd| is |tab_mark| or |car_ret */
         /* Scan the template \<u_j>, putting the resulting token list in |hold_token_head| */
         /* Spaces are eliminated from the beginning of a template. */
 
-        p=hold_token_head; link(p)=null;
+        p = hold_token_head;
+        link(p) = null;
         while (1) {
             get_preamble_token();
-            if (cur_cmd==mac_param_cmd) break;
-            if ((cur_cmd<=car_ret_cmd)&&(cur_cmd>=tab_mark_cmd)&&(align_state==-1000000)) {
-                if ((p==hold_token_head)&&(cur_loop==null)&&(cur_cmd==tab_mark_cmd)) {
-                    cur_loop=cur_align;
-                } else  {
-                    char *hlp[] = {"There should be exactly one # between &'s, when an",
-                                 "\\halign or \\valign is being set up. In this case you had",
-                                 "none, so I've put one in; maybe that will work.",
-                                  NULL };
+            if (cur_cmd == mac_param_cmd)
+                break;
+            if ((cur_cmd <= car_ret_cmd) && (cur_cmd >= tab_mark_cmd)
+                && (align_state == -1000000)) {
+                if ((p == hold_token_head) && (cur_loop == null)
+                    && (cur_cmd == tab_mark_cmd)) {
+                    cur_loop = cur_align;
+                } else {
+                    char *hlp[] =
+                        { "There should be exactly one # between &'s, when an",
+                        "\\halign or \\valign is being set up. In this case you had",
+                        "none, so I've put one in; maybe that will work.",
+                        NULL
+                    };
                     back_input();
                     tex_error("Missing # inserted in alignment preamble", hlp);
                     break;
                 }
-            } else if ((cur_cmd!=spacer_cmd)||(p!=hold_token_head)) {
-                r=get_avail(); link(p)=r; p=link(p); info(p)=cur_tok;
+            } else if ((cur_cmd != spacer_cmd) || (p != hold_token_head)) {
+                r = get_avail();
+                link(p) = r;
+                p = link(p);
+                info(p) = cur_tok;
             }
         }
-        r=new_node(align_record_node,0); vlink(cur_align)=r;
-        cur_align=vlink(cur_align); /* a new alignrecord */
-        span_ptr(cur_align)=end_span; width(cur_align)=null_flag;
-        u_part(cur_align)=link(hold_token_head);
+        r = new_node(align_record_node, 0);
+        vlink(cur_align) = r;
+        cur_align = vlink(cur_align);   /* a new alignrecord */
+        span_ptr(cur_align) = end_span;
+        width(cur_align) = null_flag;
+        u_part(cur_align) = link(hold_token_head);
         /* Scan the template \<v_j>, putting the resulting token list in |hold_token_head| */
 
-        p=hold_token_head; link(p)=null;
-        while (1)  {
-        CONTINUE: 
+        p = hold_token_head;
+        link(p) = null;
+        while (1) {
+          CONTINUE:
             get_preamble_token();
-            if ((cur_cmd<=car_ret_cmd)&&(cur_cmd>=tab_mark_cmd)&&(align_state==-1000000)) 
+            if ((cur_cmd <= car_ret_cmd) && (cur_cmd >= tab_mark_cmd)
+                && (align_state == -1000000))
                 break;
-            if (cur_cmd==mac_param_cmd) {
-                char *hlp[] = { "There should be exactly one # between &'s, when an",
-                                "\\halign or \\valign is being set up. In this case you had",
-                                "more than one, so I'm ignoring all but the first.",
-                                NULL };
+            if (cur_cmd == mac_param_cmd) {
+                char *hlp[] =
+                    { "There should be exactly one # between &'s, when an",
+                    "\\halign or \\valign is being set up. In this case you had",
+                    "more than one, so I'm ignoring all but the first.",
+                    NULL
+                };
                 tex_error("Only one # is allowed per tab", hlp);
                 goto CONTINUE;
             }
-            r=get_avail(); link(p)=r; p=link(p); info(p)=cur_tok;
+            r = get_avail();
+            link(p) = r;
+            p = link(p);
+            info(p) = cur_tok;
         }
-        r=get_avail(); link(p)=r; p=link(p);
-        info(p)=end_template_token; /* put \.{\\endtemplate} at the end */
+        r = get_avail();
+        link(p) = r;
+        p = link(p);
+        info(p) = end_template_token;   /* put \.{\\endtemplate} at the end */
 
-        v_part(cur_align)=link(hold_token_head);
+        v_part(cur_align) = link(hold_token_head);
     }
-    scanner_status=normal;
+    scanner_status = normal;
 
     new_save_level(align_group);
-    if (every_cr!=null) 
-        begin_token_list(every_cr,every_cr_text);
-    align_peek(); /* look for \.{\\noalign} or \.{\\omit} */
+    if (every_cr != null)
+        begin_token_list(every_cr, every_cr_text);
+    align_peek();               /* look for \.{\\noalign} or \.{\\omit} */
 }
 
 /*
@@ -431,20 +481,25 @@ the right thing; it either gets a new row started, or gets a \.{\\noalign}
 started, or finishes off the alignment.
 */
 
-void align_peek (void) {
-  RESTART: 
-    align_state=1000000;
-    do { get_x_or_protected(); } while (cur_cmd==spacer_cmd);
-    if (cur_cmd==no_align_cmd) {
-        scan_left_brace(); new_save_level(no_align_group);
-        if (cur_list.mode_field==-vmode)  normal_paragraph();
-    } else if (cur_cmd==right_brace_cmd) {
+void align_peek(void)
+{
+  RESTART:
+    align_state = 1000000;
+    do {
+        get_x_or_protected();
+    } while (cur_cmd == spacer_cmd);
+    if (cur_cmd == no_align_cmd) {
+        scan_left_brace();
+        new_save_level(no_align_group);
+        if (cur_list.mode_field == -vmode)
+            normal_paragraph();
+    } else if (cur_cmd == right_brace_cmd) {
         fin_align();
-    } else if ((cur_cmd==car_ret_cmd)&&(cur_chr==cr_cr_code)) {
-        goto RESTART; /* ignore \.{\\crcr} */
-    } else { 
-        init_row(); /* start a new row */
-        init_col(); /* start a new column and replace what we peeked at */
+    } else if ((cur_cmd == car_ret_cmd) && (cur_chr == cr_cr_code)) {
+        goto RESTART;           /* ignore \.{\\crcr} */
+    } else {
+        init_row();             /* start a new row */
+        init_col();             /* start a new column and replace what we peeked at */
     }
 }
 
@@ -454,14 +509,16 @@ next column or group of columns will begin. A new semantic level is
 entered, so that the columns will generate a list for subsequent packaging.
 */
 
-void init_span (pointer p) {
+void init_span(pointer p)
+{
     push_nest();
-    if (cur_list.mode_field==-hmode) {
-        space_factor=1000;
-    } else { 
-        prev_depth=pdf_ignored_dimen; normal_paragraph();
+    if (cur_list.mode_field == -hmode) {
+        space_factor = 1000;
+    } else {
+        prev_depth = pdf_ignored_dimen;
+        normal_paragraph();
     }
-    cur_span=p;
+    cur_span = p;
 }
 
 /*
@@ -472,12 +529,19 @@ The |space_factor| and |prev_depth| are not used on this semantic level,
 but we clear them to zero just to be tidy.
 */
 
-void init_row (void) {
-    push_nest(); cur_list.mode_field=(-hmode-vmode)-cur_list.mode_field;
-    if (cur_list.mode_field==-hmode) space_factor=0; else prev_depth=0;
+void init_row(void)
+{
+    push_nest();
+    cur_list.mode_field = (-hmode - vmode) - cur_list.mode_field;
+    if (cur_list.mode_field == -hmode)
+        space_factor = 0;
+    else
+        prev_depth = 0;
     tail_append(new_glue(glue_ptr(preamble)));
-    subtype(cur_list.tail_field)=param_tab_skip_code+1;
-    cur_align=vlink(preamble); cur_tail=cur_head; cur_pre_tail=cur_pre_head;
+    subtype(cur_list.tail_field) = param_tab_skip_code + 1;
+    cur_align = vlink(preamble);
+    cur_tail = cur_head;
+    cur_pre_tail = cur_pre_head;
     init_span(cur_align);
 }
 
@@ -490,13 +554,15 @@ this time.  We remain in the same mode, and start the template if it is
 called for.
 */
 
-void init_col (void) {
-    extra_info(cur_align)=cur_cmd;
-    if (cur_cmd==omit_cmd) 
-        align_state=0;
+void init_col(void)
+{
+    extra_info(cur_align) = cur_cmd;
+    if (cur_cmd == omit_cmd)
+        align_state = 0;
     else {
-        back_input(); begin_token_list(u_part(cur_align),u_template);
-    } /* now |align_state=1000000| */
+        back_input();
+        begin_token_list(u_part(cur_align), u_template);
+    }                           /* now |align_state=1000000| */
 }
 
 /*
@@ -510,15 +576,18 @@ This part of the program had better not be activated when the preamble
 to another alignment is being scanned, or when no alignment preamble is active.
 */
 
-void insert_vj_template (void) {
-    if ((scanner_status==aligning)||(cur_align==null))
-        fatal_error(maketexstring("(interwoven alignment preambles are not allowed)"));
-    cur_cmd=extra_info(cur_align); extra_info(cur_align)=cur_chr;
-    if (cur_cmd==omit_cmd) 
-        begin_token_list(omit_template,v_template);
-    else 
-        begin_token_list(v_part(cur_align),v_template);
-    align_state=1000000;
+void insert_vj_template(void)
+{
+    if ((scanner_status == aligning) || (cur_align == null))
+        fatal_error(maketexstring
+                    ("(interwoven alignment preambles are not allowed)"));
+    cur_cmd = extra_info(cur_align);
+    extra_info(cur_align) = cur_chr;
+    if (cur_cmd == omit_cmd)
+        begin_token_list(omit_template, v_template);
+    else
+        begin_token_list(v_part(cur_align), v_template);
+    align_state = 1000000;
 }
 
 /* Determine the stretch order */
@@ -549,101 +618,143 @@ that makes them happen. This routine returns |true| if a row as well as a
 column has been finished.
 */
 
-boolean fin_col (void) {
-    pointer p;  /* the alignrecord after the current one */
-    pointer q,r; /* temporary pointers for list manipulation */
-    pointer s; /* a new span node */
-    pointer u; /* a new unset box */
-    scaled w; /* natural width */
-    unsigned char o; /* order of infinity */
-    halfword n; /* span counter */
-    if (cur_align==null) tconfusion("endv");
-    q=vlink(cur_align);
-    if (q==null) tconfusion("endv");
-    if (align_state<500000)
-        fatal_error(maketexstring("(interwoven alignment preambles are not allowed)"));
-    p=vlink(q);
+boolean fin_col(void)
+{
+    pointer p;                  /* the alignrecord after the current one */
+    pointer q, r;               /* temporary pointers for list manipulation */
+    pointer s;                  /* a new span node */
+    pointer u;                  /* a new unset box */
+    scaled w;                   /* natural width */
+    unsigned char o;            /* order of infinity */
+    halfword n;                 /* span counter */
+    if (cur_align == null)
+        tconfusion("endv");
+    q = vlink(cur_align);
+    if (q == null)
+        tconfusion("endv");
+    if (align_state < 500000)
+        fatal_error(maketexstring
+                    ("(interwoven alignment preambles are not allowed)"));
+    p = vlink(q);
     /* If the preamble list has been traversed, check that the row has ended */
-    if ((p==null)&&(extra_info(cur_align)<cr_code)) {
-        if (cur_loop!=null) {
+    if ((p == null) && (extra_info(cur_align) < cr_code)) {
+        if (cur_loop != null) {
             /* Lengthen the preamble periodically */
-            r=new_node(align_record_node,0); vlink(q)=r; p=vlink(q); /* a new alignrecord */
-            span_ptr(p)=end_span; width(p)=null_flag; cur_loop=vlink(cur_loop);
+            r = new_node(align_record_node, 0);
+            vlink(q) = r;
+            p = vlink(q);       /* a new alignrecord */
+            span_ptr(p) = end_span;
+            width(p) = null_flag;
+            cur_loop = vlink(cur_loop);
 
             /* Copy the templates from node |cur_loop| into node |p| */
-            q=hold_token_head; r=u_part(cur_loop);
-            while (r!=null) {
-                s=get_avail(); link(q)=s; q=link(q); info(q)=info(r); r=link(r);
+            q = hold_token_head;
+            r = u_part(cur_loop);
+            while (r != null) {
+                s = get_avail();
+                link(q) = s;
+                q = link(q);
+                info(q) = info(r);
+                r = link(r);
             }
-            link(q)=null; u_part(p)=link(hold_token_head);
-            q=hold_token_head; r=v_part(cur_loop);
-            while (r!=null) {
-                s=get_avail(); link(q)=s; q=link(q); info(q)=info(r); r=link(r);
+            link(q) = null;
+            u_part(p) = link(hold_token_head);
+            q = hold_token_head;
+            r = v_part(cur_loop);
+            while (r != null) {
+                s = get_avail();
+                link(q) = s;
+                q = link(q);
+                info(q) = info(r);
+                r = link(r);
             }
-            link(q)=null; v_part(p)=link(hold_token_head);
+            link(q) = null;
+            v_part(p) = link(hold_token_head);
 
-            cur_loop=vlink(cur_loop);
-            r=new_glue(glue_ptr(cur_loop)); vlink(p)=r;
-        }  else  {
-            char *hlp[] = {"You have given more \\span or & marks than there were",
-                           "in the preamble to the \\halign or \\valign now in progress.",
-                           "So I'll assume that you meant to type \\cr instead.",
-                           NULL } ;
-            extra_info(cur_align)=cr_code; 
+            cur_loop = vlink(cur_loop);
+            r = new_glue(glue_ptr(cur_loop));
+            vlink(p) = r;
+        } else {
+            char *hlp[] =
+                { "You have given more \\span or & marks than there were",
+                "in the preamble to the \\halign or \\valign now in progress.",
+                "So I'll assume that you meant to type \\cr instead.",
+                NULL
+            };
+            extra_info(cur_align) = cr_code;
             tex_error("Extra alignment tab has been changed to \\cr", hlp);
         }
     }
-    if (extra_info(cur_align)!=span_code) {
-        unsave(); new_save_level(align_group);
+    if (extra_info(cur_align) != span_code) {
+        unsave();
+        new_save_level(align_group);
         /* Package an unset box for the current column and record its width */
-        if (cur_list.mode_field==-hmode) {
-            adjust_tail=cur_tail; pre_adjust_tail=cur_pre_tail;
-            u=filtered_hpack(cur_list.head_field,cur_list.tail_field,0,additional,align_set_group); w=width(u);
-            cur_tail=adjust_tail; adjust_tail=null;
-            cur_pre_tail=pre_adjust_tail; pre_adjust_tail=null;
+        if (cur_list.mode_field == -hmode) {
+            adjust_tail = cur_tail;
+            pre_adjust_tail = cur_pre_tail;
+            u = filtered_hpack(cur_list.head_field, cur_list.tail_field, 0,
+                               additional, align_set_group);
+            w = width(u);
+            cur_tail = adjust_tail;
+            adjust_tail = null;
+            cur_pre_tail = pre_adjust_tail;
+            pre_adjust_tail = null;
         } else {
-            u=filtered_vpackage(vlink(cur_list.head_field),0,additional,0,align_set_group); w=height(u);
+            u = filtered_vpackage(vlink(cur_list.head_field), 0, additional, 0,
+                                  align_set_group);
+            w = height(u);
         }
-        n=min_quarterword; /* this represents a span count of 1 */
-        if (cur_span!=cur_align) {
+        n = min_quarterword;    /* this represents a span count of 1 */
+        if (cur_span != cur_align) {
             /* Update width entry for spanned columns */
-            q=cur_span;
-            do { incr(n); q=vlink(vlink(q)); } while (q!=cur_align);
-            if (n>max_quarterword)  tconfusion("too many spans"); /* this can happen, but won't */
-            q=cur_span;
-            while (span_span(span_ptr(q))<n) {
-                q=span_ptr(q);
+            q = cur_span;
+            do {
+                incr(n);
+                q = vlink(vlink(q));
+            } while (q != cur_align);
+            if (n > max_quarterword)
+                tconfusion("too many spans");   /* this can happen, but won't */
+            q = cur_span;
+            while (span_span(span_ptr(q)) < n) {
+                q = span_ptr(q);
             }
-            if (span_span(span_ptr(q))>n) {
-                s=new_span_node(span_ptr(q),n,w);
-                span_ptr(q)=s;
-            } else if (width(span_ptr(q))<w) {
-                width(span_ptr(q))=w;
+            if (span_span(span_ptr(q)) > n) {
+                s = new_span_node(span_ptr(q), n, w);
+                span_ptr(q) = s;
+            } else if (width(span_ptr(q)) < w) {
+                width(span_ptr(q)) = w;
             }
 
-        } else if (w>width(cur_align)) {
-            width(cur_align)=w;
+        } else if (w > width(cur_align)) {
+            width(cur_align) = w;
         }
-        type(u)=unset_node; span_count(u)=n;
+        type(u) = unset_node;
+        span_count(u) = n;
         determine_stretch_order();
-        glue_order(u)=o; glue_stretch(u)=total_stretch[o];
+        glue_order(u) = o;
+        glue_stretch(u) = total_stretch[o];
         determine_shrink_order();
-        glue_sign(u)=o; glue_shrink(u)=total_shrink[o];
-        pop_nest(); vlink(cur_list.tail_field)=u; cur_list.tail_field=u;
+        glue_sign(u) = o;
+        glue_shrink(u) = total_shrink[o];
+        pop_nest();
+        vlink(cur_list.tail_field) = u;
+        cur_list.tail_field = u;
 
         /* Copy the tabskip glue between columns */
         tail_append(new_glue(glue_ptr(vlink(cur_align))));
-        subtype(cur_list.tail_field)=param_tab_skip_code+1;
+        subtype(cur_list.tail_field) = param_tab_skip_code + 1;
 
-        if (extra_info(cur_align)>=cr_code) {
+        if (extra_info(cur_align) >= cr_code) {
             return true;
         }
         init_span(p);
     }
-    align_state=1000000;
-    do { get_x_or_protected(); } while (cur_cmd==spacer_cmd);
-    cur_align=p;
-    init_col(); 
+    align_state = 1000000;
+    do {
+        get_x_or_protected();
+    } while (cur_cmd == spacer_cmd);
+    cur_align = p;
+    init_col();
     return false;
 }
 
@@ -668,7 +779,7 @@ The |new_span_node| function is defined in |texnodes.c|.
 */
 
 #ifndef span_span
-#define span_span(A) vlink((A)+1) /* that is normally |alink| */
+#  define span_span(A) vlink((A)+1)     /* that is normally |alink| */
 #endif
 
 /*
@@ -678,25 +789,32 @@ contains the unset boxes for the columns, separated by the tabskip glue.
 Everything will be set later.
 */
 
-void fin_row (void) {
-     pointer p; /* the new unset box */
-     if (cur_list.mode_field==-hmode) {
-         p=filtered_hpack(cur_list.head_field,cur_list.tail_field,0,additional,fin_row_group);
-         pop_nest();
-         if (cur_pre_head != cur_pre_tail)
-             append_list(cur_pre_head,cur_pre_tail);
-         append_to_vlist(p);
-         if (cur_head != cur_tail)
-             append_list(cur_head,cur_tail);
-     } else {
-         p=filtered_vpackage(vlink(cur_list.head_field),0,additional,max_depth,fin_row_group);
-         pop_nest(); vlink(cur_list.tail_field)=p; cur_list.tail_field=p; space_factor=1000;
-     }
-     type(p)=unset_node; glue_stretch(p)=0;
-     if (every_cr!=null) 
-         begin_token_list(every_cr,every_cr_text);
-     align_peek();
-     /* note that |glue_shrink(p)=0| since |glue_shrink==shift_amount| */
+void fin_row(void)
+{
+    pointer p;                  /* the new unset box */
+    if (cur_list.mode_field == -hmode) {
+        p = filtered_hpack(cur_list.head_field, cur_list.tail_field, 0,
+                           additional, fin_row_group);
+        pop_nest();
+        if (cur_pre_head != cur_pre_tail)
+            append_list(cur_pre_head, cur_pre_tail);
+        append_to_vlist(p);
+        if (cur_head != cur_tail)
+            append_list(cur_head, cur_tail);
+    } else {
+        p = filtered_vpackage(vlink(cur_list.head_field), 0, additional,
+                              max_depth, fin_row_group);
+        pop_nest();
+        vlink(cur_list.tail_field) = p;
+        cur_list.tail_field = p;
+        space_factor = 1000;
+    }
+    type(p) = unset_node;
+    glue_stretch(p) = 0;
+    if (every_cr != null)
+        begin_token_list(every_cr, every_cr_text);
+    align_peek();
+    /* note that |glue_shrink(p)=0| since |glue_shrink==shift_amount| */
 }
 
 /*
@@ -705,21 +823,24 @@ sigh of relief that memory hasn't overflowed. All the unset boxes will now be
 set so that the columns line up, taking due account of spanned columns.
 */
 
-void fin_align (void) {
-    pointer p,q,r,s,u,v,rr; /* registers for the list operations */
-    scaled t,w; /* width of column */
-    scaled o; /* shift offset for unset boxes */
-    halfword n; /* matching span amount */
-    scaled rule_save; /* temporary storage for |overfull_rule| */
-    memory_word aux_save; /* temporary storage for |aux| */
-    if (cur_group!=align_group) tconfusion("align1");
-    unsave(); /* that |align_group| was for individual entries */
-    if (cur_group!=align_group) tconfusion("align0");
-    unsave(); /* that |align_group| was for the whole alignment */
-    if (nest[nest_ptr-1].mode_field==mmode)  
-        o=display_indent;
-    else 
-        o=0;
+void fin_align(void)
+{
+    pointer p, q, r, s, u, v, rr;       /* registers for the list operations */
+    scaled t, w;                /* width of column */
+    scaled o;                   /* shift offset for unset boxes */
+    halfword n;                 /* matching span amount */
+    scaled rule_save;           /* temporary storage for |overfull_rule| */
+    memory_word aux_save;       /* temporary storage for |aux| */
+    if (cur_group != align_group)
+        tconfusion("align1");
+    unsave();                   /* that |align_group| was for individual entries */
+    if (cur_group != align_group)
+        tconfusion("align0");
+    unsave();                   /* that |align_group| was for the whole alignment */
+    if (nest[nest_ptr - 1].mode_field == mmode)
+        o = display_indent;
+    else
+        o = 0;
     /* Go through the preamble list, determining the column widths and
      * changing the alignrecords to dummy unset boxes 
      */
@@ -747,50 +868,68 @@ Then $w_2=w_{22}$. Then replace $w_{3j}$ by $\max(w_{3j},w_{2j}-t_2-w_2)$
 for all $j>2$; and so on. If any $w_j$ turns out to be $-\infty$, its
 value is changed to zero and so is the next tabskip.
 */
-    q=vlink(preamble);
+    q = vlink(preamble);
     do {
-        flush_list(u_part(q)); flush_list(v_part(q));
-        p=vlink(vlink(q));
-        if (width(q)==null_flag) {
+        flush_list(u_part(q));
+        flush_list(v_part(q));
+        p = vlink(vlink(q));
+        if (width(q) == null_flag) {
             /* Nullify |width(q)| and the tabskip glue following this column */
-             width(q)=0; r=vlink(q); s=glue_ptr(r);
-             if (s!=zero_glue) {
-                 add_glue_ref(zero_glue); delete_glue_ref(s);
-                 glue_ptr(r)=zero_glue;
-             }
+            width(q) = 0;
+            r = vlink(q);
+            s = glue_ptr(r);
+            if (s != zero_glue) {
+                add_glue_ref(zero_glue);
+                delete_glue_ref(s);
+                glue_ptr(r) = zero_glue;
+            }
         }
-        if (span_ptr(q)!=end_span) {
+        if (span_ptr(q) != end_span) {
             /* Merge the widths in the span nodes of |q| with those of |p|,
                destroying the span nodes of |q| */
             /*
-              Merging of two span-node lists is a typical exercise in the manipulation of
-              linearly linked data structures. The essential invariant in the following
-              |repeat| loop is that we want to dispense with node |r|, in |q|'s list,
-              and |u| is its successor; all nodes of |p|'s list up to and including |s|
-              have been processed, and the successor of |s| matches |r| or precedes |r|
-              or follows |r|, according as |link(r)=n| or |link(r)>n| or |link(r)<n|.
-            */
-            t=width(q)+width(glue_ptr(vlink(q)));
-            r=span_ptr(q); s=end_span; span_ptr(s)=p; n=min_quarterword+1;
+               Merging of two span-node lists is a typical exercise in the manipulation of
+               linearly linked data structures. The essential invariant in the following
+               |repeat| loop is that we want to dispense with node |r|, in |q|'s list,
+               and |u| is its successor; all nodes of |p|'s list up to and including |s|
+               have been processed, and the successor of |s| matches |r| or precedes |r|
+               or follows |r|, according as |link(r)=n| or |link(r)>n| or |link(r)<n|.
+             */
+            t = width(q) + width(glue_ptr(vlink(q)));
+            r = span_ptr(q);
+            s = end_span;
+            span_ptr(s) = p;
+            n = min_quarterword + 1;
             do {
-                width(r)=width(r)-t; u=span_ptr(r);
-                while (span_span(r)>n) {
-                    s=span_ptr(s); n=span_span(span_ptr(s))+1;
+                width(r) = width(r) - t;
+                u = span_ptr(r);
+                while (span_span(r) > n) {
+                    s = span_ptr(s);
+                    n = span_span(span_ptr(s)) + 1;
                 }
-                if (span_span(r)<n) {
-                    span_ptr(r)=span_ptr(s); span_ptr(s)=r; decr(span_span(r)); s=r;
-                } else  {
-                    if (width(r)>width(span_ptr(s))) 
-                        width(span_ptr(s))=width(r);
+                if (span_span(r) < n) {
+                    span_ptr(r) = span_ptr(s);
+                    span_ptr(s) = r;
+                    decr(span_span(r));
+                    s = r;
+                } else {
+                    if (width(r) > width(span_ptr(s)))
+                        width(span_ptr(s)) = width(r);
                     flush_node(r);
                 }
-                r=u;
-            } while (r!=end_span);
+                r = u;
+            } while (r != end_span);
         }
-        type(q)=unset_node; span_count(q)=min_quarterword; height(q)=0;
-        depth(q)=0; glue_order(q)=normal; glue_sign(q)=normal;
-        glue_stretch(q)=0; glue_shrink(q)=0; q=p;
-    } while (q!=null);
+        type(q) = unset_node;
+        span_count(q) = min_quarterword;
+        height(q) = 0;
+        depth(q) = 0;
+        glue_order(q) = normal;
+        glue_sign(q) = normal;
+        glue_stretch(q) = 0;
+        glue_shrink(q) = 0;
+        q = p;
+    } while (q != null);
 
     /* Package the preamble list, to determine the actual tabskip glue amounts,
        and let |p| point to this prototype box */
@@ -799,148 +938,196 @@ value is changed to zero and so is the next tabskip.
        column sizes. In case of \.{\\valign}, we change the widths to heights,
        so that a correct error message will be produced if the alignment is
        overfull or underfull.
-    */
+     */
 
-    save_ptr=save_ptr-2; pack_begin_line=-cur_list.ml_field;
-    if (cur_list.mode_field==-vmode) {
-        rule_save=overfull_rule;
-        overfull_rule=0; /* prevent rule from being packaged */
-        p=hpack(preamble,saved(1),saved(0));
-        overfull_rule=rule_save;
+    save_ptr = save_ptr - 2;
+    pack_begin_line = -cur_list.ml_field;
+    if (cur_list.mode_field == -vmode) {
+        rule_save = overfull_rule;
+        overfull_rule = 0;      /* prevent rule from being packaged */
+        p = hpack(preamble, saved(1), saved(0));
+        overfull_rule = rule_save;
     } else {
-        q=vlink(preamble);
-        do { 
-            height(q)=width(q); width(q)=0; q=vlink(vlink(q));
-        } while (q!=null);
-        p=filtered_vpackage(preamble,saved(1),saved(0),max_depth,preamble_group);
-        q=vlink(preamble);
-        do { 
-            width(q)=height(q); height(q)=0; q=vlink(vlink(q));
-        } while (q!=null);
+        q = vlink(preamble);
+        do {
+            height(q) = width(q);
+            width(q) = 0;
+            q = vlink(vlink(q));
+        } while (q != null);
+        p = filtered_vpackage(preamble, saved(1), saved(0), max_depth,
+                              preamble_group);
+        q = vlink(preamble);
+        do {
+            width(q) = height(q);
+            height(q) = 0;
+            q = vlink(vlink(q));
+        } while (q != null);
     }
-    pack_begin_line=0;
+    pack_begin_line = 0;
 
     /* Set the glue in all the unset boxes of the current list */
-    q=vlink(cur_list.head_field); s=cur_list.head_field;
-    while (q!=null) {
+    q = vlink(cur_list.head_field);
+    s = cur_list.head_field;
+    while (q != null) {
         if (!is_char_node(q)) {
-            if (type(q)==unset_node) {
+            if (type(q) == unset_node) {
                 /* Set the unset box |q| and the unset boxes in it */
                 /* The unset box |q| represents a row that contains one or more unset boxes,
-                   depending on how soon \.{\\cr} occurred in that row.*/
+                   depending on how soon \.{\\cr} occurred in that row. */
 
-                if (cur_list.mode_field==-vmode) {
-                    type(q)=hlist_node; width(q)=width(p);
+                if (cur_list.mode_field == -vmode) {
+                    type(q) = hlist_node;
+                    width(q) = width(p);
                 } else {
-                    type(q)=vlist_node; height(q)=height(p);
+                    type(q) = vlist_node;
+                    height(q) = height(p);
                 }
-                glue_order(q)=glue_order(p); glue_sign(q)=glue_sign(p);
-                glue_set(q)=glue_set(p); shift_amount(q)=o;
-                r=vlink(list_ptr(q)); s=vlink(list_ptr(p));
+                glue_order(q) = glue_order(p);
+                glue_sign(q) = glue_sign(p);
+                glue_set(q) = glue_set(p);
+                shift_amount(q) = o;
+                r = vlink(list_ptr(q));
+                s = vlink(list_ptr(p));
                 do {
                     /* Set the glue in node |r| and change it from an unset node */
                     /* A box made from spanned columns will be followed by tabskip glue nodes and
                        by empty boxes as if there were no spanning. This permits perfect alignment
                        of subsequent entries, and it prevents values that depend on floating point
                        arithmetic from entering into the dimensions of any boxes.
-                    */
-                    n=span_count(r); t=width(s); w=t; u=hold_head;
-                    while (n>min_quarterword) {
+                     */
+                    n = span_count(r);
+                    t = width(s);
+                    w = t;
+                    u = hold_head;
+                    while (n > min_quarterword) {
                         decr(n);
                         /* Append tabskip glue and an empty box to list |u|,
                            and update |s| and |t| as the prototype nodes are passed */
 
-                        s=vlink(s); v=glue_ptr(s); vlink(u)=new_glue(v); u=vlink(u);
-                        subtype(u)=param_tab_skip_code+1; t=t+width(v);
-                        if (glue_sign(p)==stretching) {
-                            if (stretch_order(v)==glue_order(p))
-                                t=t+round(float(glue_set(p))*stretch(v));
-                        } else if (glue_sign(p)==shrinking) {
-                            if (shrink_order(v)==glue_order(p))
-                                t=t-round(float(glue_set(p))*shrink(v));
+                        s = vlink(s);
+                        v = glue_ptr(s);
+                        vlink(u) = new_glue(v);
+                        u = vlink(u);
+                        subtype(u) = param_tab_skip_code + 1;
+                        t = t + width(v);
+                        if (glue_sign(p) == stretching) {
+                            if (stretch_order(v) == glue_order(p))
+                                t = t + round(float (glue_set(p)) * stretch(v));
+                        } else if (glue_sign(p) == shrinking) {
+                            if (shrink_order(v) == glue_order(p))
+                                t = t - round(float (glue_set(p)) * shrink(v));
                         }
-                        s=vlink(s); rr=new_null_box(); vlink(u)=rr; u=vlink(u); t=t+width(s);
-                        if (cur_list.mode_field==-vmode) {
-                            width(u)=width(s);
+                        s = vlink(s);
+                        rr = new_null_box();
+                        vlink(u) = rr;
+                        u = vlink(u);
+                        t = t + width(s);
+                        if (cur_list.mode_field == -vmode) {
+                            width(u) = width(s);
                         } else {
-                            type(u)=vlist_node; height(u)=width(s);
+                            type(u) = vlist_node;
+                            height(u) = width(s);
                         }
 
                     }
-                    if (cur_list.mode_field==-vmode) {
+                    if (cur_list.mode_field == -vmode) {
                         /* Make the unset node |r| into an |hlist_node| of width |w|,
                            setting the glue as if the width were |t| */
 
-                        height(r)=height(q); depth(r)=depth(q);
-                        if (t==width(r)) {
-                            glue_sign(r)=normal; glue_order(r)=normal;
+                        height(r) = height(q);
+                        depth(r) = depth(q);
+                        if (t == width(r)) {
+                            glue_sign(r) = normal;
+                            glue_order(r) = normal;
                             set_glue_ratio_zero(glue_set(r));
-                        } else if (t>width(r)) {
-                            glue_sign(r)=stretching;
-                            if (glue_stretch(r)==0) 
+                        } else if (t > width(r)) {
+                            glue_sign(r) = stretching;
+                            if (glue_stretch(r) == 0)
                                 set_glue_ratio_zero(glue_set(r));
-                            else 
-                                glue_set(r)=unfloat((t-width(r))/glue_stretch(r));
-                        } else  {
-                            glue_order(r)=glue_sign(r); glue_sign(r)=shrinking;
-                            if (glue_shrink(r)==0)
+                            else
+                                glue_set(r) =
+                                    unfloat((t - width(r)) / glue_stretch(r));
+                        } else {
+                            glue_order(r) = glue_sign(r);
+                            glue_sign(r) = shrinking;
+                            if (glue_shrink(r) == 0)
                                 set_glue_ratio_zero(glue_set(r));
-                            else if ((glue_order(r)==normal)&&(width(r)-t>glue_shrink(r)))
+                            else if ((glue_order(r) == normal)
+                                     && (width(r) - t > glue_shrink(r)))
                                 set_glue_ratio_one(glue_set(r));
-                            else 
-                                glue_set(r)=unfloat((width(r)-t)/glue_shrink(r));
+                            else
+                                glue_set(r) =
+                                    unfloat((width(r) - t) / glue_shrink(r));
                         }
-                        width(r)=w; type(r)=hlist_node;
+                        width(r) = w;
+                        type(r) = hlist_node;
 
                     } else {
                         /* Make the unset node |r| into a |vlist_node| of height |w|,
                            setting the glue as if the height were |t| */
 
-                        width(r)=width(q);
-                        if (t==height(r)) {
-                            glue_sign(r)=normal; glue_order(r)=normal;
+                        width(r) = width(q);
+                        if (t == height(r)) {
+                            glue_sign(r) = normal;
+                            glue_order(r) = normal;
                             set_glue_ratio_zero(glue_set(r));
-                        } else if (t>height(r)) {
-                            glue_sign(r)=stretching;
-                            if (glue_stretch(r)==0) 
+                        } else if (t > height(r)) {
+                            glue_sign(r) = stretching;
+                            if (glue_stretch(r) == 0)
                                 set_glue_ratio_zero(glue_set(r));
-                            else 
-                                glue_set(r)=unfloat((t-height(r))/glue_stretch(r));
+                            else
+                                glue_set(r) =
+                                    unfloat((t - height(r)) / glue_stretch(r));
                         } else {
-                            glue_order(r)=glue_sign(r); glue_sign(r)=shrinking;
-                            if (glue_shrink(r)==0) 
+                            glue_order(r) = glue_sign(r);
+                            glue_sign(r) = shrinking;
+                            if (glue_shrink(r) == 0)
                                 set_glue_ratio_zero(glue_set(r));
-                            else if ((glue_order(r)==normal)&&(height(r)-t>glue_shrink(r)))
+                            else if ((glue_order(r) == normal)
+                                     && (height(r) - t > glue_shrink(r)))
                                 set_glue_ratio_one(glue_set(r));
-                            else 
-                                glue_set(r)=unfloat((height(r)-t)/glue_shrink(r));
+                            else
+                                glue_set(r) =
+                                    unfloat((height(r) - t) / glue_shrink(r));
                         }
-                        height(r)=w; type(r)=vlist_node;
+                        height(r) = w;
+                        type(r) = vlist_node;
 
                     }
-                    shift_amount(r)=0;
-                    if (u!=hold_head)  { /* append blank boxes to account for spanned nodes */
-                        vlink(u)=vlink(r); vlink(r)=vlink(hold_head); r=u;
+                    shift_amount(r) = 0;
+                    if (u != hold_head) {       /* append blank boxes to account for spanned nodes */
+                        vlink(u) = vlink(r);
+                        vlink(r) = vlink(hold_head);
+                        r = u;
                     }
 
-                    r=vlink(vlink(r)); s=vlink(vlink(s));
-                } while (r!=null);
+                    r = vlink(vlink(r));
+                    s = vlink(vlink(s));
+                } while (r != null);
 
-            } else if (type(q)==rule_node) {
+            } else if (type(q) == rule_node) {
                 /* Make the running dimensions in rule |q| extend to the
                    boundaries of the alignment */
-                if (is_running(width(q)))  width(q)=width(p);
-                if (is_running(height(q)))  height(q)=height(p);
-                if (is_running(depth(q))) depth(q)=depth(p);
-                if (o!=0) {
-                    r=vlink(q); vlink(q)=null; q=hpack(q,0,additional);
-                    shift_amount(q)=o; vlink(q)=r; vlink(s)=q;
+                if (is_running(width(q)))
+                    width(q) = width(p);
+                if (is_running(height(q)))
+                    height(q) = height(p);
+                if (is_running(depth(q)))
+                    depth(q) = depth(p);
+                if (o != 0) {
+                    r = vlink(q);
+                    vlink(q) = null;
+                    q = hpack(q, 0, additional);
+                    shift_amount(q) = o;
+                    vlink(q) = r;
+                    vlink(s) = q;
                 }
             }
         }
-        s=q; q=vlink(q);
+        s = q;
+        q = vlink(q);
     }
-    flush_node_list(p); 
+    flush_node_list(p);
     pop_alignment();
     /* Insert the \(c)current list into its environment */
     /* We now have a completed alignment, in the list that starts at |cur_list.head_field|
@@ -948,18 +1135,22 @@ value is changed to zero and so is the next tabskip.
        it. (In case the enclosing mode is |mmode|, for displayed formulas,
        we will need to insert glue before and after the display; that part of the
        program will be deferred until we're more familiar with such operations.) 
-    */
-    aux_save=cur_list.aux_field; p=vlink(cur_list.head_field); q=cur_list.tail_field; pop_nest();
-    if (cur_list.mode_field==mmode) {
-        finish_display_alignment(p,q,aux_save);
-    } else { 
-        cur_list.aux_field=aux_save; vlink(cur_list.tail_field)=p;
-        if (p!=null) 
-            cur_list.tail_field=q;
-        if (cur_list.mode_field==vmode) {
-            if (!output_active) 
-                lua_node_filter_s(buildpage_filter_callback,"alignment");
-           build_page();
+     */
+    aux_save = cur_list.aux_field;
+    p = vlink(cur_list.head_field);
+    q = cur_list.tail_field;
+    pop_nest();
+    if (cur_list.mode_field == mmode) {
+        finish_display_alignment(p, q, aux_save);
+    } else {
+        cur_list.aux_field = aux_save;
+        vlink(cur_list.tail_field) = p;
+        if (p != null)
+            cur_list.tail_field = q;
+        if (cur_list.mode_field == vmode) {
+            if (!output_active)
+                lua_node_filter_s(buildpage_filter_callback, "alignment");
+            build_page();
         }
     }
 }
@@ -970,10 +1161,9 @@ The token list |omit_template| just referred to is a constant token
 list that contains the special control sequence \.{\\endtemplate} only.
 */
 
-void initialize_alignments (void) {
-  info(omit_template)=end_template_token; /* |link(omit_template)=null| */
-  span_span(end_span)=max_quarterword+1; 
-  span_ptr(end_span)=null;
+void initialize_alignments(void)
+{
+    info(omit_template) = end_template_token;   /* |link(omit_template)=null| */
+    span_span(end_span) = max_quarterword + 1;
+    span_ptr(end_span) = null;
 }
-
-
