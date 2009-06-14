@@ -728,7 +728,7 @@ void run_external_ocp(char *external_ocp_name)
 
 void run_ocp(void)
 {
-    integer t;
+    integer t = 0;
     halfword otp_i;
     halfword otp_counter;
     /* The OTP input buffer is an array of 16-bit values.
