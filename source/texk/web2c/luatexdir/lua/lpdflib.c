@@ -202,7 +202,6 @@ static int l_immediateobj(lua_State * L)
 static int l_obj(lua_State * L)
 {
     int n;
-    unsigned i;
     integer k;
     size_t len1;
     const char *st1 = NULL;
