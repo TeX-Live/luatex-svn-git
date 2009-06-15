@@ -175,7 +175,7 @@ read_ocp_info(pointer u, str_number nom, str_number aire, str_number ext,
         if (callback_id > 0) {
             res =
                 run_callback(callback_id, "S->S", (char *) (nameoffile + 1),
-                             cnam);
+                             &cnam);
             if ((res) && (cnam != NULL) && (strlen(cnam) > 0)) {
                 xfree(nameoffile);
                 namelength = strlen(cnam);
