@@ -43,8 +43,6 @@ static const char _svn_version[] =
 
 #define nonstop_mode 1
 
-#define special_char 1114113    /* |biggest_char+2| */
-
 #define no_expand_flag special_char     /*this characterizes a special variant of |relax| */
 
 #define detokenized_line() (line_catcode_table==NO_CAT_TABLE)
@@ -64,7 +62,7 @@ extern void insert_vj_template(void);
 
 boolean str_eq_cstr(str_number r, char *s, size_t l)
 {
-    if (l != (size_t) length(r))
+    if (l != (size_t) str_length(r))
         return false;
     return (strncmp((const char *) (str_pool + str_start_macro(r)), s, l) == 0);
 }
@@ -323,7 +321,7 @@ halfword active_to_cs(int curchr, int force)
 
 /* TODO this function should listen to \.{\\escapechar} */
 
-#define is_active_cs(a) (length(a)>3 &&                               \
+#define is_active_cs(a) (str_length(a)>3 &&                               \
                          (str_pool[str_start_macro(a)]   == 0xEF) &&  \
                          (str_pool[str_start_macro(a)+1] == 0xBF) &&  \
                          (str_pool[str_start_macro(a)+2] == 0xBF))
@@ -1099,8 +1097,8 @@ static boolean get_next_tokenlist(void)
         }
         cur_chr = equiv(cur_cs);
     } else {
-        cur_cmd = t >> string_offset_bits;      /* cur_cmd=t / string_offset; */
-        cur_chr = t & (string_offset - 1);      /* cur_chr=t % string_offset; */
+        cur_cmd = t >> STRING_OFFSET_BITS;      /* cur_cmd=t / string_offset; */
+        cur_chr = t & (STRING_OFFSET - 1);      /* cur_chr=t % string_offset; */
         switch (cur_cmd) {
         case left_brace_cmd:
             align_state++;

@@ -60,6 +60,7 @@ extern double rint(double x);
 
 #  include "tex/align.h"
 #  include "tex/inputstack.h"
+#  include "tex/stringpool.h"
 
 /**********************************************************************/
 

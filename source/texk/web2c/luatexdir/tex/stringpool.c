@@ -1,6 +1,6 @@
-/* tokens.h
+/* stringpool.c
    
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -17,16 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id$ */
+#include "luatex-api.h"
+#include <ptexlib.h>
 
-#define token_list 0
-#define cs_token_flag 0x1FFFFFFF
-
-#undef link                     /* defined by cpascal.h */
-#define info(a)    fixmem[(a)].hhlh
-#define link(a)    fixmem[(a)].hhrh
-
-#define store_new_token(a) { q=get_avail(); link(p)=q; info(q)=(a); p=q; }
-#define free_avail(a)      { link((a))=avail; avail=(a); decr(dyn_used); }
-
-extern void make_token_table(lua_State * L, int cmd, int chr, int cs);
+static const char _svn_version[] = "$Id$ $URL$";

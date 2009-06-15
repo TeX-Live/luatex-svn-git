@@ -117,6 +117,8 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/mlist.c \
 	luatexdir/tex/postlinebreak.c \
 	luatexdir/tex/primitive.c \
+	luatexdir/tex/stringpool.c \
+	luatexdir/tex/stringpool.h \
 	luatexdir/tex/texdeffont.c \
 	luatexdir/tex/texnodes.c \
 	luatexdir/tex/texpdf.c \

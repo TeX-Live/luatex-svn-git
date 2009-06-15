@@ -24,11 +24,6 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-#define number_chars 1114112
-#define string_offset 2097152
-#define str_start_macro(a) str_start[(a) - string_offset]
-#define str_length(a) (str_start_macro((a)+1)-str_start_macro(a))       /* the number of characters  in string number (a) */
-
 #define is_hex_char isxdigit
 
 /* output a byte to PDF buffer without checking of overflow */
