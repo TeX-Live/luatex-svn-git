@@ -57,8 +57,8 @@ extern in_state_record cur_input;       /* the ``top'' input state */
 #  define  iname cur_input.name_field   /* name of the current file  */
 #  define  nofilter cur_input.nofilter_field    /* is token filtering explicitly disallowed? */
 #  define  synctex_tag cur_input.synctex_tag_field      /* tag of the current file */
-#  define  current_ocp_lstack cur_input.ocp_lstack_field/* name of the current ocp */
-#  define  current_ocp_no cur_input.ocp_no_field/* name of the current ocp */
+#  define  current_ocp_lstack cur_input.ocp_lstack_field        /* name of the current ocp */
+#  define  current_ocp_no cur_input.ocp_no_field        /* name of the current ocp */
 #  define  line_catcode_table cur_input.cattable_field
 #  define  line_partial cur_input.partial_field
 

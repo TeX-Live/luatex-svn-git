@@ -38,7 +38,7 @@ as its command code.
 
 #  define span_code 1114113     /*  {|biggest_char+2|} */
 #  define cr_code (span_code+1) /* distinct from |span_code| and from any character */
-#  define cr_cr_code (cr_code+1)/* this distinguishes \.{\\crcr} from \.{\\cr} */
+#  define cr_cr_code (cr_code+1)        /* this distinguishes \.{\\crcr} from \.{\\cr} */
 
 
 extern void init_align(void);
