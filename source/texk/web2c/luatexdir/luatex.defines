@@ -1056,3 +1056,13 @@
 
 @define procedure push_input;
 @define procedure pop_input;
+
+{ pdf generation }
+
+@define function pdf_get_mem();
+@define const inf_pdf_mem_size;
+@define const sup_pdf_mem_size;
+@define var pdf_mem_size;
+@define var pdf_mem;
+@define var pdf_mem_ptr;
+

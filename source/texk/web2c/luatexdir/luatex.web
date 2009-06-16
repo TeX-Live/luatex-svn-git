@@ -13863,43 +13863,6 @@ while p<>null do
   update_terminal;
 end;
 
-@ Sometimes it is neccesary to allocate memory for PDF output that cannot
-be deallocated then, so we use |pdf_mem| for this purpose.
-
-@<Constants...@>=
-@!inf_pdf_mem_size = 10000; {min size of the |pdf_mem| array}
-@!sup_pdf_mem_size = 10000000; {max size of the |pdf_mem| array}
-
-@ @<Glob...@>=
-@!pdf_mem_size: integer;
-@!pdf_mem: ^integer;
-@!pdf_mem_ptr: integer;
-
-@ @<Set init...@>=
-pdf_mem_ptr := 1; {the first word is not used so we can use zero as a value for testing
-whether a pointer to |pdf_mem| is valid}
-pdf_mem_size := inf_pdf_mem_size; {allocated size of |pdf_mem| array}
-
-@ We use |pdf_get_mem| to allocate memory in |pdf_mem|
-
-@p function pdf_get_mem(s: integer): integer; {allocate |s| words in |pdf_mem|}
-var a: integer;
-begin
-    if s > sup_pdf_mem_size - pdf_mem_ptr then
-        overflow("PDF memory size (pdf_mem_size)", pdf_mem_size);
-    if pdf_mem_ptr + s > pdf_mem_size then begin
-        a := 0.2 * pdf_mem_size;
-        if pdf_mem_ptr + s > pdf_mem_size + a then
-            pdf_mem_size := pdf_mem_ptr + s
-        else if pdf_mem_size < sup_pdf_mem_size - a then
-            pdf_mem_size := pdf_mem_size + a
-        else
-            pdf_mem_size := sup_pdf_mem_size;
-        pdf_mem := xreallocarray(pdf_mem, integer, pdf_mem_size);
-    end;
-    pdf_get_mem := pdf_mem_ptr;
-    pdf_mem_ptr := pdf_mem_ptr + s;
-end;
 
 @* \[32b] \pdfTeX\ output low-level subroutines.
 We use the similiar subroutines to handle the output buffer for

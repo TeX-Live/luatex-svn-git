@@ -103,6 +103,8 @@ libluatex_a_SOURCES = \
 	luatexdir/ocp/runocp.h \
 	luatexdir/pdf/pagetree.c \
 	luatexdir/pdf/pagetree.h \
+	luatexdir/pdf/pdfgen.c \
+	luatexdir/pdf/pdfgen.h \
 	luatexdir/pdf/pdfpage.c \
 	luatexdir/pdf/pdfpage.h \
 	luatexdir/primitive.h \
