@@ -273,8 +273,9 @@ void pdf_flush(void)
         }
         pdf_ptr = 0;
         if (saved_pdf_gone > pdf_gone)
-            pdf_error("file size",
-                      "File size exceeds architectural limits (pdf_gone wraps around)");
+            pdf_error(maketexstring("file size"),
+                      maketexstring
+                      ("File size exceeds architectural limits (pdf_gone wraps around)"));
     }
 }
 
@@ -719,7 +720,7 @@ static boolean str_in_cstr(str_number s, char *r, unsigned i)
 
 void pdf_literal(str_number s, integer literal_mode, boolean warn)
 {
-    pool_pointer j;             /* current character code position */
+    pool_pointer j = 0;         /* current character code position, initialized to make the compiler happy */
     if (s > STRING_OFFSET) {    /* needed for |out_save| */
         j = str_start_macro(s);
         if (literal_mode == scan_special) {
