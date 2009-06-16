@@ -1,4 +1,5 @@
 /* Produced by texiweb from libavl.w. */
+/* *INDENT-OFF* */
 
 /* libavl - library for manipulation of binary trees.
    Copyright (C) 1998-2002, 2004 Free Software Foundation, Inc.
@@ -792,3 +793,4 @@ void *(avl_assert_delete) (struct avl_table * table, void *item) {
     assert(p != NULL);
     return p;
 }
+/* *INDENT-ON* */
