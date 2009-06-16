@@ -570,14 +570,6 @@
 @define procedure pdf_end_string_nl;
 @define procedure pdf_print_charwidth();
 
-{functions from texpdf.c }
-
-@define procedure pdf_print_char();
-@define procedure pdf_print();
-@define procedure pdf_print_int();
-@define procedure pdf_print_real();
-@define procedure pdf_print_str();
-
 {functions from textoken.c }
 
 @define function get_next;
@@ -1059,10 +1051,75 @@
 
 { pdf generation }
 
+@define procedure initialize_pdfgen;
 @define function pdf_get_mem();
 @define const inf_pdf_mem_size;
 @define const sup_pdf_mem_size;
 @define var pdf_mem_size;
 @define var pdf_mem;
 @define var pdf_mem_ptr;
+
+@define const pdf_op_buf_size;
+@define const inf_pdf_os_buf_size;
+@define const sup_pdf_os_buf_size;
+@define const pdf_os_max_objs;
+
+@define var pdf_offset;
+
+@define const no_zip;
+@define const zip_writing;
+@define const zip_finish;
+
+@define var pdf_file; 
+@define var pdf_buf; 
+@define var pdf_buf_size; 
+@define var pdf_ptr; 
+@define var pdf_op_buf; 
+@define var pdf_os_buf; 
+@define var pdf_os_buf_size; 
+@define var pdf_os_objnum; 
+@define var pdf_os_objoff; 
+@define var pdf_os_objidx; 
+@define var pdf_os_cntr; 
+@define var pdf_op_ptr; 
+@define var pdf_os_ptr; 
+@define var pdf_os_mode; 
+@define var pdf_os_enable; 
+@define var pdf_os_cur_objnum; 
+@define var pdf_gone; 
+@define var pdf_save_offset; 
+@define var zip_write_state; 
+@define var fixed_pdf_minor_version; 
+@define var fixed_pdf_minor_version_set; 
+@define var fixed_pdf_objcompresslevel; 
+@define var fixed_pdfoutput; 
+@define var fixed_pdfoutput_set; 
+@define var fixed_gamma;
+@define var fixed_image_gamma;
+@define var fixed_image_hicolor;
+@define var fixed_image_apply_gamma;
+@define var fixed_pdf_draftmode; 
+@define var pdf_page_group_val;
+@define var epochseconds;
+@define var microseconds;
+@define var page_divert_val;
+
+@define procedure pdf_flush;
+
+@define procedure pdf_quick_out();
+@define procedure pdf_out();
+
+@define procedure check_pdfminorversion;
+@define procedure ensure_pdf_open;
+
+@define const pdf_new_line_char;
+
+@define procedure pdf_print_nl;
+@define procedure pdf_print_ln();
+@define procedure pdf_print_int_ln();
+@define procedure pdf_print_char();
+@define procedure pdf_print();
+@define procedure pdf_print_int();
+@define procedure pdf_print_real();
+@define procedure pdf_print_str();
 

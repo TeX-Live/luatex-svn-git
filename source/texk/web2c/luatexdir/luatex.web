@@ -13865,93 +13865,9 @@ end;
 
 
 @* \[32b] \pdfTeX\ output low-level subroutines.
-We use the similiar subroutines to handle the output buffer for
-PDF output. When compress is used, the state of writing to buffer
-is held in |zip_write_state|. We must write the header of PDF
-output file in initialization to ensure that it will be the first
-written bytes.
-
-@<Constants...@>=
-@!pdf_op_buf_size = 16384; {size of the PDF output buffer}
-@!inf_pdf_os_buf_size = 1; {initial value of |pdf_os_buf_size|}
-@!sup_pdf_os_buf_size = 5000000; {arbitrary upper hard limit of |pdf_os_buf_size|}
-@!pdf_os_max_objs = 100; {maximum number of objects in object stream}
-
-@ The following macros are similar as for \.{DVI} buffer handling
-
-@d pdf_offset == (pdf_gone + pdf_ptr) {the file offset of last byte in PDF
-buffer that |pdf_ptr| points to}
-
-@d no_zip == 0 {no \.{ZIP} compression}
-@d zip_writing == 1 {\.{ZIP} compression being used}
-@d zip_finish == 2 {finish \.{ZIP} compression}
-
-@d pdf_quick_out(#) == {output a byte to PDF buffer without checking of
-overflow}
-begin
-    pdf_buf[pdf_ptr] := #;
-    incr(pdf_ptr);
-end
-
-@d pdf_out(#) == {do the same as |pdf_quick_out| and flush the PDF
-buffer if necessary}
-begin
-    pdf_room(1);
-    pdf_quick_out(#);
-end
-
-@<Glob...@>=
-@!pdf_file: byte_file; {the PDF output file}
-@!pdf_buf: ^real_eight_bits; {pointer to the PDF output buffer or PDF object stream buffer}
-@!pdf_buf_size: integer; {end of PDF output buffer or PDF object stream buffer}
-@!pdf_ptr: longinteger; {pointer to the first unused byte in the PDF buffer or object stream buffer}
-@!pdf_op_buf: ^real_eight_bits; {the PDF output buffer}
-@!pdf_os_buf: ^real_eight_bits; {the PDF object stream buffer}
-@!pdf_os_buf_size: integer; {current size of the PDF object stream buffer, grows dynamically}
-@!pdf_os_objnum: ^integer; {array of object numbers within object stream}
-@!pdf_os_objoff: ^integer; {array of object offsets within object stream}
-@!pdf_os_objidx: pointer; {pointer into |pdf_os_objnum| and |pdf_os_objoff|}
-@!pdf_os_cntr: integer; {counter for object stream objects}
-@!pdf_op_ptr: integer; {store for PDF buffer |pdf_ptr| while inside object streams}
-@!pdf_os_ptr: integer; {store for object stream |pdf_ptr| while outside object streams}
-@!pdf_os_mode: boolean; {true if producing object stream}
-@!pdf_os_enable: boolean; {true if object streams are globally enabled}
-@!pdf_os_cur_objnum: integer; {number of current object stream object}
-@!pdf_gone: longinteger; {number of bytes that were flushed to output}
-@!pdf_save_offset: longinteger; {to save |pdf_offset|}
-@!zip_write_state: integer; {which state of compression we are in}
-@!fixed_pdf_minor_version: integer; {fixed minor part of the PDF version}
-@!fixed_pdf_minor_version_set: boolean; {flag if the PDF version has been set}
-@!fixed_pdf_objcompresslevel: integer; {fixed level for activating PDF object streams}
-@!fixed_pdfoutput: integer; {fixed output format}
-@!fixed_pdfoutput_set: boolean; {|fixed_pdfoutput| has been set?}
-@!fixed_gamma: integer;
-@!fixed_image_gamma: integer;
-@!fixed_image_hicolor: boolean;
-@!fixed_image_apply_gamma: integer;
-@!fixed_pdf_draftmode: integer; {fixed \\pdfdraftmode}
-@!pdf_page_group_val: integer;
-@!epochseconds: integer;
-@!microseconds: integer;
-@!page_divert_val: integer;
 
 @ @<Set init...@>=
-pdf_gone := 0;
-pdf_os_mode := false;
-pdf_ptr := 0;
-pdf_op_ptr := 0;
-pdf_os_ptr := 0;
-pdf_os_cur_objnum := 0;
-pdf_os_cntr := 0;
-pdf_buf_size := pdf_op_buf_size;
-pdf_os_buf_size := inf_pdf_os_buf_size;
-pdf_buf := pdf_op_buf;
-pdf_seek_write_length := false;
-zip_write_state := no_zip;
-fixed_pdf_minor_version_set := false;
-fixed_pdfoutput_set := false;
-pdf_page_group_val := -1;
-page_divert_val := 0;
+initialize_pdfgen;
 
 @ @p
 function fix_int(val, min, max: integer): integer;
@@ -13964,144 +13880,7 @@ begin
         fix_int := val;
 end;
 
-@ This ensures that |pdfminorversion| is set only before any bytes have
-been written to the generated \.{PDF} file. Here also all variables for
-\.{PDF} output are initialized, the \.{PDF} file is opened by |ensure_pdf_open|,
-and the \.{PDF} header is written.
-
-@p procedure check_pdfminorversion;
-begin
-    fix_pdfoutput;
-    pdfassert(fixed_pdfoutput > 0);
-    if not fixed_pdf_minor_version_set then begin
-        fixed_pdf_minor_version_set := true;
-        @<Initialize variables for \.{PDF} output@>;
-        @<Write \.{PDF} header@>;
-    end
-    else begin
-        @<Check that variables for \.{PDF} output are unchanged@>;
-    end;
-    if fixed_pdf_draftmode <> 0 then begin
-        pdf_compress_level := 0; {re-fix it, might have been changed inbetween}
-        fixed_pdf_objcompresslevel := 0;
-    end;
-end;
-
-@ @<Initialize variables for \.{PDF} output@>=
-prepare_mag;
-if (pdf_minor_version < 0) or (pdf_minor_version > 9) then begin
-    print_err("LuaTeX error (illegal pdfminorversion)");
-    print_ln;
-    help2 ("The pdfminorversion must be between 0 and 9.")@/
-        ("I changed this to 4.");
-    int_error (pdf_minor_version);
-    pdf_minor_version := 4;
-end;
-fixed_pdf_minor_version := pdf_minor_version;
-fixed_decimal_digits    := fix_int(pdf_decimal_digits, 0, 4);
-fixed_gamma             := fix_int(pdf_gamma, 0, 1000000);
-fixed_image_gamma       := fix_int(pdf_image_gamma, 0, 1000000);
-fixed_image_hicolor     := fix_int(pdf_image_hicolor, 0, 1);
-fixed_image_apply_gamma := fix_int(pdf_image_apply_gamma, 0, 1);
-fixed_pdf_objcompresslevel := fix_int(pdf_objcompresslevel, 0, 3);
-fixed_pdf_draftmode     := fix_int(pdf_draftmode, 0, 1);
-fixed_inclusion_copy_font:= fix_int(pdf_inclusion_copy_font, 0, 1);
-fixed_replace_font      := fix_int(pdf_replace_font, 0, 1);
-fixed_pk_resolution     := fix_int(pdf_pk_resolution, 72, 8000);
-if (fixed_pdf_minor_version >= 5) and (fixed_pdf_objcompresslevel > 0) then
-    pdf_os_enable := true
-else begin
-    if fixed_pdf_objcompresslevel > 0 then begin
-        pdf_warning("Object streams",
-                    "\pdfobjcompresslevel > 0 requires \pdfminorversion > 4. Object streams disabled now.", true, true);
-        fixed_pdf_objcompresslevel := 0;
-    end;
-    pdf_os_enable := false;
-end;
-if pdf_pk_resolution = 0 then {if not set from format file or by user}
-    pdf_pk_resolution := pk_dpi; {take it from \.{texmf.cnf}}
-pk_scale_factor :=
-    divide_scaled(72, fixed_pk_resolution, 5 + fixed_decimal_digits);
-if not callback_defined(read_pk_file_callback) then begin
-    if pdf_pk_mode <> null then begin
-        kpseinitprog('PDFTEX', fixed_pk_resolution,
-                     makecstring(tokens_to_string(pdf_pk_mode)), nil);
-        flush_string;
-    end else
-        kpseinitprog('PDFTEX', fixed_pk_resolution, nil, nil);
-    if not kpsevarvalue('MKTEXPK') then
-         kpsesetprogramenabled (kpsepkformat, 1, kpsesrccmdline);
-    end;
-set_job_id(year, month, day, time);
-if (pdf_unique_resname > 0) and (pdf_resname_prefix = 0) then
-    pdf_resname_prefix := get_resname_prefix;
-pdf_page_init
-
-@ @<Check that variables for \.{PDF} output are unchanged@>=
-if fixed_pdf_minor_version <> pdf_minor_version then
-    pdf_error("setup",
-              "\pdfminorversion cannot be changed after data is written to the PDF file");
-if fixed_pdf_draftmode <> pdf_draftmode then
-    pdf_error("setup",
-              "\pdfdraftmode cannot be changed after data is written to the PDF file");
-
-@ @<Write \.{PDF} header@>=
-ensure_pdf_open;
-pdf_print("%PDF-1.");
-pdf_print_int_ln(fixed_pdf_minor_version);
-pdf_print("%");
-pdf_out(208); {'P' + 128}
-pdf_out(212); {'T' + 128}
-pdf_out(197); {'E' + 128}
-pdf_out(216); {'X' + 128}
-pdf_print_nl;
-
-@ Checks that we have a name for the generated PDF file and that it's open.
-
-@p procedure ensure_pdf_open;
-begin
-    if output_file_name <> 0 then
-        return;
-    if job_name = 0 then
-        open_log_file;
-    pack_job_name('.pdf');
-    if fixed_pdf_draftmode = 0 then
-        while not lua_b_open_out(pdf_file) do
-            prompt_file_name('file name for output','.pdf');
-    pdf_file:=name_file_pointer;
-    output_file_name := b_make_name_string(pdf_file);
-end;
-
-@ The PDF buffer is flushed by calling |pdf_flush|, which checks the
-variable |zip_write_state| and will compress the buffer before flushing if
-neccesary. We call |pdf_begin_stream| to begin a stream  and |pdf_end_stream|
-to finish it. The stream contents will be compressed if compression is turn on.
-
-@p procedure pdf_flush; {flush out the |pdf_buf|}
-var saved_pdf_gone : longinteger;
-begin
-    if not pdf_os_mode then begin
-        saved_pdf_gone := pdf_gone;
-        case zip_write_state of
-            no_zip: if pdf_ptr > 0 then begin
-                if fixed_pdf_draftmode = 0 then write_pdf(0, pdf_ptr - 1);
-                pdf_gone := pdf_gone + pdf_ptr;
-                pdf_last_byte := pdf_buf[pdf_ptr - 1];
-            end;
-            zip_writing:
-                if fixed_pdf_draftmode = 0 then write_zip(false);
-            zip_finish: begin
-                if fixed_pdf_draftmode = 0 then write_zip(true);
-                zip_write_state := no_zip;
-            end;
-        end;
-        pdf_ptr := 0;
-        if saved_pdf_gone > pdf_gone then
-            pdf_error("file size", "File size exceeds architectural limits (pdf_gone wraps around)");
-    end;
-end;
-
-procedure pdf_begin_stream; {begin a stream}
+@ @p procedure pdf_begin_stream; {begin a stream}
 begin
     pdf_print_ln("/Length           ");
     pdf_seek_write_length := true; {fill in length at |pdf_end_stream| call}
@@ -14138,30 +13917,7 @@ begin
     pdf_end_obj;
 end;
 
-@ Basic printing procedures for PDF output are very similiar to \TeX\ basic
-printing ones but the output is going to PDF buffer. Subroutines with
-suffix |_ln| append a new-line character to the PDF output.
-
-@d pdf_new_line_char == 10 {new-line character for UNIX platforms}
-
-@d pdf_print_nl == {output a new-line character to PDF buffer}
-pdf_out(pdf_new_line_char)
-
-@d pdf_print_ln(#) == {print out a string to PDF buffer followed by
-a new-line character}
-begin
-    pdf_print(#);
-    pdf_print_nl;
-end
-
-@d pdf_print_int_ln(#) == {print out an integer to PDF buffer followed by
-a new-line character}
-begin
-    pdf_print_int(#);
-    pdf_print_nl;
-end
-
-@<Declare procedures that need to be declared forward for \pdfTeX@>=
+@ @<Declare procedures that need to be declared forward for \pdfTeX@>=
 procedure pdf_error(t, p: str_number);
 begin
     normalize_selector;
@@ -14767,6 +14523,7 @@ pdf_box_spec_crop   := 2;
 pdf_box_spec_bleed  := 3;
 pdf_box_spec_trim   := 4;
 pdf_box_spec_art    := 5;
+pdf_seek_write_length := false;
 
 @ Here we implement subroutines for work with objects and related things.
 Some of them are used in former parts too, so we need to declare them
