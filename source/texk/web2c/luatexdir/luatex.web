@@ -10027,7 +10027,7 @@ pdf_font_name_code, pdf_font_objnum_code, pdf_font_size_code: begin
     if c <> pdf_font_size_code then begin
         pdf_check_vf_cur_val;
         if not font_used(cur_val) then
-            pdf_init_font_cur_val;
+            pdf_init_font(cur_val);
     end;
 end;
 pdf_page_ref_code: begin
@@ -13912,25 +13912,6 @@ begin
     if history=spotless then history:=warning_issued;
 end;
 
-function str_in_str(s, r: str_number; i: integer): boolean;
-  {test equality of strings}
-label not_found; {loop exit}
-var j, k: pool_pointer; {running indices}
-begin
-    str_in_str := false;
-    if length(s) < i + length(r) then
-        return;
-    j := i + str_start_macro(s);
-    k := str_start_macro(r);
-    while (j < str_start_macro(s + 1)) and (k < str_start_macro(r + 1)) do begin
-        if str_pool[j] <> str_pool[k] then
-            return;
-        incr(j);
-        incr(k);
-    end;
-    str_in_str := true;
-end;
-
 function tokens_to_string(p: pointer): str_number; {return a string from tokens
 list}
 var old_setting:integer;
@@ -13951,163 +13932,9 @@ end;
 
 @* \[32c] PDF page description.
 
-@<Glob...@>=
-@!fixed_pk_resolution: integer;
-@!fixed_decimal_digits: integer;
-@!fixed_gen_tounicode: integer;
-@!fixed_inclusion_copy_font: integer;
-@!fixed_replace_font: integer;
-@!pk_scale_factor: integer;
-@!pdf_output_option: integer;
-@!pdf_output_value: integer;
-@!pdf_draftmode_option: integer;
-@!pdf_draftmode_value: integer;
+This is now in pdfgen.c.
 
-@ @p
-procedure pdf_use_font(f: internal_font_number; fontnum: integer);
-{mark |f| as a used font; set |font_used(f)|, |pdf_font_size(f)| and |pdf_font_num(f)|}
-begin
-    set_pdf_font_size(f,font_size(f));
-    set_font_used(f,true);
-    pdfassert((fontnum > 0) or ((fontnum < 0) and (pdf_font_num(-fontnum) > 0)));
-    set_pdf_font_num(f,fontnum);
-    if pdf_move_chars > 0 then begin
-        pdf_warning(0,"Primitive \pdfmovechars is obsolete.",true, true);
-        pdf_move_chars := 0; {warn only once}
-    end;
-end;
-
-@ To set PDF font we need to find out fonts with the same name, because \TeX\
-can load the same font several times for various sizes. For such fonts we
-define only one font resource. The array |pdf_font_num| holds the object
-number of font resource. A negative value of an entry of |pdf_font_num|
-indicates that the corresponding font shares the font resource with the font
-
-@d pdf_print_resname_prefix ==
-if pdf_resname_prefix <> 0 then
-    pdf_print(pdf_resname_prefix)
-
-@p procedure pdf_init_font(f: internal_font_number);
-{create a font object}
-var k, b: internal_font_number;
-    i: integer;
-begin
-    pdfassert(not font_used(f));
-
-    {if |f| is auto expanded then ensure the base font is initialized}
-    if pdf_font_auto_expand(f) and (pdf_font_blink(f) <> null_font) then begin
-        b := pdf_font_blink(f);
-            {TODO: reinstate this check. disabled because wide fonts font have fmentries}
-        if false and (not hasfmentry(b)) then
-            pdf_error("font expansion", "auto expansion is only possible with scalable fonts");
-        if not font_used(b) then
-            pdf_init_font(b);
-        set_font_map(f,font_map(b));
-    end;
-
-    {check whether |f| can share the font object with some |k|: we have 2 cases
-    here: 1) |f| and |k| have the same tfm name (so they have been loaded at
-    different sizes, eg 'cmr10' and 'cmr10 at 11pt'); 2) |f| has been auto
-    expanded from |k|}
-    if hasfmentry(f) or true then begin
-        i := head_tab[obj_type_font];
-        while i <> 0 do begin
-            k := obj_info(i);
-            if font_shareable(f,k) then
-            begin
-                pdfassert(pdf_font_num(k) <> 0);
-                if pdf_font_num(k) < 0 then
-                    pdf_use_font(f, pdf_font_num(k))
-                else
-                    pdf_use_font(f, -k);
-                return;
-            end;
-            i := obj_link(i);
-        end;
-    end;
-
-    {create a new font object for |f|}
-    pdf_create_obj(obj_type_font, f);
-    pdf_use_font(f, obj_ptr);
-end;
-
-procedure pdf_init_font_cur_val;
-begin
-    pdf_init_font(cur_val);
-end;
-
-function pdf_set_font(f: internal_font_number): internal_font_number;
-{set the actual font on PDF page}
-label found, found1;
-var p: pointer;
-    k: internal_font_number;
-begin
-    if not font_used(f) then
-        pdf_init_font(f);
-    set_ff(f); {set |ff| to the tfm number of the font sharing the font object
-                with |f|; |ff| is either |f| or some font with the same tfm name
-                at different size and/or expansion}
-    k := ff;
-    p := pdf_font_list;
-    while p <> null do begin
-        set_ff(info(p));
-        if ff = k then
-            goto found;
-        p := link(p);
-    end;
-    pdf_append_list(f)(pdf_font_list); {|f| not found in |pdf_font_list|, append it now}
-found:
-    pdf_set_font := k;
-end;
-
-@ @p
-procedure literal(s: str_number; literal_mode: integer; warn: boolean);
-var j: pool_pointer; {current character code position}
-begin
-    if s>string_offset then begin { needed for |out_save| }
-      j:=str_start_macro(s);
-      if literal_mode = scan_special then begin
-        if not (str_in_str(s, "PDF:", 0) or str_in_str(s, "pdf:", 0)) then begin
-            if warn and not (str_in_str(s, "SRC:", 0)
-                or str_in_str(s, "src:", 0)
-                or (length(s) = 0)) then
-                    print_nl("Non-PDF special ignored!");
-            return;
-        end;
-        j := j + length("PDF:");
-        if str_in_str(s, "direct:", length("PDF:")) then begin
-            j := j + length("direct:");
-            literal_mode := direct_always; end
-        else if str_in_str(s, "page:", length("PDF:")) then begin
-            j := j + length("page:");
-            literal_mode := direct_page; end
-        else
-            literal_mode := set_origin;
-      end;
-    end;
-    case literal_mode of
-    set_origin: begin
-        pdf_goto_pagemode;
-        synch_pos_with_cur;
-        pdf_set_pos(pos.h, pos.v);
-        end;
-    direct_page:
-        pdf_goto_pagemode;
-    direct_always:
-        pdf_end_string_nl;
-    othercases confusion("literal1")
-    endcases;
-    if s>string_offset then
-      while j<str_start_macro(s+1) do begin
-       pdf_out(str_pool[j]);
-       incr(j);
-      end
-    else
-      pdf_out(s);
-    pdf_print_nl;
-end;
-
-procedure latelua(s: pointer; r: pointer);
+@p procedure latelua(s: pointer; r: pointer);
 var b: pool_pointer; {current character code position}
 begin
     b := pool_ptr;
@@ -14875,7 +14702,6 @@ end;
 @ @<Declare procedures that need to be declared forward for \pdfTeX@>=
 procedure pdf_check_vf_cur_val; forward;
 procedure pdf_create_font_obj; forward;
-procedure pdf_init_font_cur_val; forward;
 procedure scan_pdf_ext_toks; forward;
 
 @ Here come some subroutines to deal with expanded fonts for HZ-algorithm.
@@ -15166,7 +14992,7 @@ begin
       show_token_list(link(pdf_literal_data(p)),null,pool_size-pool_ptr);
       selector:=old_setting;
       s := make_string;
-      literal(s, pdf_literal_mode(p), false);
+      pdf_literal(s, pdf_literal_mode(p), false);
       flush_str(s);
       end
     else begin
@@ -15216,7 +15042,7 @@ begin
         else
             literal_mode := colorstackpush(stack_no, s);
         if length(s) > 0 then
-            literal(s, literal_mode, false);
+            pdf_literal(s, literal_mode, false);
         flush_str(s);
         return;
     end;
@@ -15226,7 +15052,7 @@ begin
     endcases;
     if cur_length > 0 then begin
         s := make_string;
-        literal(s, literal_mode, false);
+        pdf_literal(s, literal_mode, false);
         flush_str(s);
     end
 end;
@@ -15246,7 +15072,7 @@ begin
             literal_mode := colorstackcurrent(i);
             if cur_length > 0 then begin
                 s := make_string;
-                literal(s, literal_mode, false);
+                pdf_literal(s, literal_mode, false);
                 flush_str(s);
             end;
         end;
@@ -15274,7 +15100,7 @@ begin
     append_char("c");
     append_char("m");
     s := make_string;
-    literal(s, set_origin, false);
+    pdf_literal(s, set_origin, false);
     flush_str(s);
 end;
 
@@ -15282,14 +15108,14 @@ procedure pdf_out_save;
 begin
     synch_pos_with_cur;
     checkpdfsave(pos);
-    literal("q", set_origin, false);
+    pdf_literal("q", set_origin, false);
 end;
 
 procedure pdf_out_restore;
 begin
     synch_pos_with_cur;
     checkpdfrestore(pos);
-    literal("Q", set_origin, false);
+    pdf_literal("Q", set_origin, false);
 end;
 
 procedure pdf_special(p: pointer);
@@ -15300,7 +15126,7 @@ begin
     show_token_list(link(write_tokens(p)),null,pool_size-pool_ptr);
     selector:=old_setting;
     s := make_string;
-    literal(s, scan_special, true);
+    pdf_literal(s, scan_special, true);
     flush_str(s);
 end;
 

@@ -41,6 +41,7 @@ static const char __svn_version[] =
 #define pdf_pk_mode              int_par(param_pdf_pk_mode_code)
 #define pdf_unique_resname       int_par(param_pdf_unique_resname_code)
 #define pdf_compress_level       int_par(param_pdf_compress_level_code)
+#define pdf_move_chars           int_par(param_pdf_move_chars_code)
 
 /*
 Sometimes it is neccesary to allocate memory for PDF output that cannot
@@ -547,7 +548,8 @@ scaled one_bp = ((7227 * 65536) / 72 + 50) / 100;
 /* $10^0..10^9$ */
 integer ten_pow[10] =
     { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000,
-1000000000 };
+    1000000000
+};
 
 /*
 The function |divide_scaled| divides |s| by |m| using |dd| decimal
@@ -593,4 +595,175 @@ void pdf_print_mag_bp(scaled s)
     if (int_par(param_mag_code) != 1000)
         s = round_xn_over_d(s, int_par(param_mag_code), 1000);
     pdf_print_bp(s);
+}
+
+integer fixed_pk_resolution;
+integer fixed_decimal_digits;
+integer fixed_gen_tounicode;
+integer fixed_inclusion_copy_font;
+integer fixed_replace_font;
+integer pk_scale_factor;
+integer pdf_output_option;
+integer pdf_output_value;
+integer pdf_draftmode_option;
+integer pdf_draftmode_value;
+
+/* mark |f| as a used font; set |font_used(f)|, |pdf_font_size(f)| and |pdf_font_num(f)| */
+void pdf_use_font(internal_font_number f, integer fontnum)
+{
+    set_pdf_font_size(f, font_size(f));
+    set_font_used(f, true);
+    assert((fontnum > 0) || ((fontnum < 0) && (pdf_font_num(-fontnum) > 0)));
+    set_pdf_font_num(f, fontnum);
+    if (pdf_move_chars > 0) {
+        pdf_warning(0, maketexstring("Primitive \\pdfmovechars is obsolete."),
+                    true, true);
+        pdf_move_chars = 0;     /* warn only once */
+    }
+}
+
+/*
+To set PDF font we need to find out fonts with the same name, because \TeX\
+can load the same font several times for various sizes. For such fonts we
+define only one font resource. The array |pdf_font_num| holds the object
+number of font resource. A negative value of an entry of |pdf_font_num|
+indicates that the corresponding font shares the font resource with the font
+*/
+
+/* create a font object */
+void pdf_init_font(internal_font_number f)
+{
+    internal_font_number k, b;
+    integer i;
+    assert(!font_used(f));
+
+    /* if |f| is auto expanded then ensure the base font is initialized */
+    if (pdf_font_auto_expand(f) && (pdf_font_blink(f) != null_font)) {
+        b = pdf_font_blink(f);
+        /* TODO: reinstate this check. disabled because wide fonts font have fmentries */
+        if (false && (!hasfmentry(b)))
+            pdf_error(maketexstring("font expansion"),
+                      maketexstring
+                      ("auto expansion is only possible with scalable fonts"));
+        if (!font_used(b))
+            pdf_init_font(b);
+        set_font_map(f, font_map(b));
+    }
+
+    /* check whether |f| can share the font object with some |k|: we have 2 cases
+       here: 1) |f| and |k| have the same tfm name (so they have been loaded at
+       different sizes, eg 'cmr10' and 'cmr10 at 11pt'); 2) |f| has been auto
+       expanded from |k|
+     */
+    if (hasfmentry(f) || true) {
+        i = head_tab[obj_type_font];
+        while (i != 0) {
+            k = obj_info(i);
+            if (font_shareable(f, k)) {
+                assert(pdf_font_num(k) != 0);
+                if (pdf_font_num(k) < 0)
+                    pdf_use_font(f, pdf_font_num(k));
+                else
+                    pdf_use_font(f, -k);
+                return;
+            }
+            i = obj_link(i);
+        }
+    }
+    /* create a new font object for |f| */
+    pdf_create_obj(obj_type_font, f);
+    pdf_use_font(f, obj_ptr);
+}
+
+
+/* set the actual font on PDF page */
+internal_font_number pdf_set_font(internal_font_number f)
+{
+    pointer p;
+    internal_font_number k;
+    if (!font_used(f))
+        pdf_init_font(f);
+    set_ff(f);                  /* set |ff| to the tfm number of the font sharing the font object
+                                   with |f|; |ff| is either |f| or some font with the same tfm name
+                                   at different size and/or expansion */
+    k = ff;
+    p = pdf_font_list;
+    while (p != null) {
+        set_ff(fixmem[(p)].hhlh);       /* info(p) */
+        if (ff == k)
+            goto FOUND;
+        p = fixmem[(p)].hhrh;   /* link(p) */
+    }
+    pdf_append_list(f, pdf_font_list);  /* |f| not found in |pdf_font_list|, append it now */
+  FOUND:
+    return k;
+}
+
+/* test equality of start of strings */
+static boolean str_in_cstr(str_number s, char *r, unsigned i)
+{
+    pool_pointer j;             /* running indices */
+    unsigned char *k;
+    if ((unsigned) str_length(s) < i + strlen(r))
+        return false;
+    j = i + str_start_macro(s);
+    k = (unsigned char *) r;
+    while ((j < str_start_macro(s + 1)) && (*k)) {
+        if (str_pool[j] != *k)
+            return false;
+        j++;
+        k++;
+    }
+    return true;
+}
+
+void pdf_literal(str_number s, integer literal_mode, boolean warn)
+{
+    pool_pointer j;             /* current character code position */
+    if (s > STRING_OFFSET) {    /* needed for |out_save| */
+        j = str_start_macro(s);
+        if (literal_mode == scan_special) {
+            if (!(str_in_cstr(s, "PDF:", 0) || str_in_cstr(s, "pdf:", 0))) {
+                if (warn
+                    &&
+                    ((!(str_in_cstr(s, "SRC:", 0) || str_in_cstr(s, "src:", 0)))
+                     || (str_length(s) == 0)))
+                    tprint_nl("Non-PDF special ignored!");
+                return;
+            }
+            j = j + strlen("PDF:");
+            if (str_in_cstr(s, "direct:", strlen("PDF:"))) {
+                j = j + strlen("direct:");
+                literal_mode = direct_always;
+            } else if (str_in_cstr(s, "page:", strlen("PDF:"))) {
+                j = j + strlen("page:");
+                literal_mode = direct_page;
+            } else {
+                literal_mode = set_origin;
+            }
+        }
+    }
+    switch (literal_mode) {
+    case set_origin:
+        pdf_goto_pagemode();
+        synch_p_with_c(cur);
+        pdf_set_pos(pos.h, pos.v);
+        break;
+    case direct_page:
+        pdf_goto_pagemode();
+        break;
+    case direct_always:
+        pdf_end_string_nl();
+        break;
+    default:
+        tconfusion("literal1");
+        break;
+    }
+    if (s > STRING_OFFSET) {
+        while (j < str_start_macro(s + 1))
+            pdf_out(str_pool[j++]);
+    } else {
+        pdf_out(s);
+    }
+    pdf_print_nl();
 }

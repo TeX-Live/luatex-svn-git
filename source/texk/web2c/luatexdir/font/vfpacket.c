@@ -212,7 +212,7 @@ void do_vf_packet(internal_font_number vf_f, integer c)
                 append_pool_char(do_packet_byte());
             }
             s = make_string();
-            literal(s, scan_special, false);
+            pdf_literal(s, scan_special, false);
             flush_str(s);
             break;
         case packet_image_code:

@@ -1136,3 +1136,22 @@
 @define function round_xn_over_d();
 @define procedure pdf_print_bp();
 @define procedure pdf_print_mag_bp();
+
+
+@define var fixed_pk_resolution;
+@define var fixed_decimal_digits;
+@define var fixed_gen_tounicode;
+@define var fixed_inclusion_copy_font;
+@define var fixed_replace_font;
+@define var pk_scale_factor;
+@define var pdf_output_option;
+@define var pdf_output_value;
+@define var pdf_draftmode_option;
+@define var pdf_draftmode_value;
+
+@define procedure pdf_print_resname_prefix;
+@define procedure pdf_use_font();
+@define procedure pdf_init_font();
+@define function pdf_set_font();
+
+@define procedure pdf_literal();

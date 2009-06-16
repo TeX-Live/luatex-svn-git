@@ -297,12 +297,6 @@ void free_image_dict(image_dict * p)
 
 /**********************************************************************/
 
-void pdf_print_resname_prefix()
-{
-    if (pdf_resname_prefix != 0)
-        pdf_printf(makecstring(pdf_resname_prefix));
-}
-
 void read_img(image_dict * idict, integer pdf_minor_version,
               integer pdf_inclusion_errorlevel)
 {

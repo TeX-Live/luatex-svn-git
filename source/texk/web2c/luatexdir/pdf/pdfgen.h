@@ -154,4 +154,34 @@ extern scaled round_xn_over_d(scaled x, integer n, integer d);
 extern void pdf_print_bp(scaled s);
 extern void pdf_print_mag_bp(scaled s);
 
+extern integer fixed_pk_resolution;
+extern integer fixed_decimal_digits;
+extern integer fixed_gen_tounicode;
+extern integer fixed_inclusion_copy_font;
+extern integer fixed_replace_font;
+extern integer pk_scale_factor;
+extern integer pdf_output_option;
+extern integer pdf_output_value;
+extern integer pdf_draftmode_option;
+extern integer pdf_draftmode_value;
+
+#  define pdf_append_list(A,B) append_ptr(B,A)
+#  define set_ff(A)  do {                         \
+        if (pdf_font_num(A) < 0)                \
+            ff = -pdf_font_num(A);              \
+        else                                    \
+            ff = A;                             \
+    } while (0)
+
+#  define pdf_print_resname_prefix() do {         \
+        if (pdf_resname_prefix != 0)            \
+            pdf_print(pdf_resname_prefix);      \
+    } while (0)
+
+extern void pdf_use_font(internal_font_number f, integer fontnum);
+extern void pdf_init_font(internal_font_number f);
+extern internal_font_number pdf_set_font(internal_font_number f);
+
+extern void pdf_literal(str_number s, integer literal_mode, boolean warn);
+
 #endif
