@@ -374,13 +374,6 @@ void run_mlist_to_hlist(pointer p, integer m_style, boolean penalties);
 void fixup_math_parameters(integer fam_id, integer size_id, integer f,
                            integer lvl);
 
-/* tex/texpdf.c */
-void pdf_print_char(internal_font_number f, integer c);
-void pdf_print(str_number n);
-void pdf_print_str(str_number n);
-void pdf_print_int(longinteger n);
-void pdf_print_real(integer m, integer d);
-
 /* tex/textoken.c */
 
 #  define  NO_CAT_TABLE      -2

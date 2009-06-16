@@ -123,7 +123,6 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/stringpool.h \
 	luatexdir/tex/texdeffont.c \
 	luatexdir/tex/texnodes.c \
-	luatexdir/tex/texpdf.c \
 	luatexdir/tex/textoken.c \
 	luatexdir/texmath.h \
 	luatexdir/textcodes.c \

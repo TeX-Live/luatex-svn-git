@@ -29,4 +29,10 @@ extern integer pdf_mem_size;
 extern integer *pdf_mem;
 extern integer pdf_mem_ptr;
 
+extern void pdf_print_char(internal_font_number f, integer cc);
+extern void pdf_print(str_number s);
+extern void pdf_print_int(longinteger n);
+extern void pdf_print_real(integer m, integer d);
+extern void pdf_print_str(str_number s);
+
 #endif
