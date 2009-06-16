@@ -53,97 +53,100 @@ integer *pdf_mem;
    whether a pointer to |pdf_mem| is valid  */
 integer pdf_mem_ptr = 1;
 
-byte_file        pdf_file; /* the PDF output file */
-real_eight_bits *pdf_buf; /* pointer to the PDF output buffer or PDF object stream buffer */
-integer          pdf_buf_size=pdf_op_buf_size; /* end of PDF output buffer or PDF object stream buffer */
-longinteger      pdf_ptr=0; /* pointer to the first unused byte in the PDF buffer or object stream buffer */
-real_eight_bits *pdf_op_buf; /* the PDF output buffer */
-real_eight_bits *pdf_os_buf; /* the PDF object stream buffer */
-integer          pdf_os_buf_size=inf_pdf_os_buf_size; /* current size of the PDF object stream buffer, grows dynamically */
-integer         *pdf_os_objnum; /* array of object numbers within object stream */
-integer         *pdf_os_objoff; /* array of object offsets within object stream */
-halfword         pdf_os_objidx; /* pointer into |pdf_os_objnum| and |pdf_os_objoff| */
-integer          pdf_os_cntr=0; /* counter for object stream objects */
-integer          pdf_op_ptr=0; /* store for PDF buffer |pdf_ptr| while inside object streams */
-integer          pdf_os_ptr=0; /* store for object stream |pdf_ptr| while outside object streams */
-boolean          pdf_os_mode=false; /* true if producing object stream */
-boolean          pdf_os_enable; /* true if object streams are globally enabled */
-integer          pdf_os_cur_objnum=0; /* number of current object stream object */
-longinteger      pdf_gone=0; /* number of bytes that were flushed to output */
-longinteger      pdf_save_offset; /* to save |pdf_offset| */
-integer zip_write_state=no_zip; /* which state of compression we are in */
-integer fixed_pdf_minor_version; /* fixed minor part of the PDF version */
-boolean fixed_pdf_minor_version_set=false; /* flag if the PDF version has been set */
-integer fixed_pdf_objcompresslevel; /* fixed level for activating PDF object streams */
-integer fixed_pdfoutput; /* fixed output format */
-boolean fixed_pdfoutput_set=false; /* |fixed_pdfoutput| has been set? */
+byte_file pdf_file;             /* the PDF output file */
+real_eight_bits *pdf_buf;       /* pointer to the PDF output buffer or PDF object stream buffer */
+integer pdf_buf_size = pdf_op_buf_size; /* end of PDF output buffer or PDF object stream buffer */
+longinteger pdf_ptr = 0;        /* pointer to the first unused byte in the PDF buffer or object stream buffer */
+real_eight_bits *pdf_op_buf;    /* the PDF output buffer */
+real_eight_bits *pdf_os_buf;    /* the PDF object stream buffer */
+integer pdf_os_buf_size = inf_pdf_os_buf_size;  /* current size of the PDF object stream buffer, grows dynamically */
+integer *pdf_os_objnum;         /* array of object numbers within object stream */
+integer *pdf_os_objoff;         /* array of object offsets within object stream */
+halfword pdf_os_objidx;         /* pointer into |pdf_os_objnum| and |pdf_os_objoff| */
+integer pdf_os_cntr = 0;        /* counter for object stream objects */
+integer pdf_op_ptr = 0;         /* store for PDF buffer |pdf_ptr| while inside object streams */
+integer pdf_os_ptr = 0;         /* store for object stream |pdf_ptr| while outside object streams */
+boolean pdf_os_mode = false;    /* true if producing object stream */
+boolean pdf_os_enable;          /* true if object streams are globally enabled */
+integer pdf_os_cur_objnum = 0;  /* number of current object stream object */
+longinteger pdf_gone = 0;       /* number of bytes that were flushed to output */
+longinteger pdf_save_offset;    /* to save |pdf_offset| */
+integer zip_write_state = no_zip;       /* which state of compression we are in */
+integer fixed_pdf_minor_version;        /* fixed minor part of the PDF version */
+boolean fixed_pdf_minor_version_set = false;    /* flag if the PDF version has been set */
+integer fixed_pdf_objcompresslevel;     /* fixed level for activating PDF object streams */
+integer fixed_pdfoutput;        /* fixed output format */
+boolean fixed_pdfoutput_set = false;    /* |fixed_pdfoutput| has been set? */
 integer fixed_gamma;
 integer fixed_image_gamma;
 boolean fixed_image_hicolor;
 integer fixed_image_apply_gamma;
-integer fixed_pdf_draftmode; /* fixed \\pdfdraftmode */
-integer pdf_page_group_val=-1;
+integer fixed_pdf_draftmode;    /* fixed \\pdfdraftmode */
+integer pdf_page_group_val = -1;
 integer epochseconds;
 integer microseconds;
-integer page_divert_val=0;
+integer page_divert_val = 0;
 
-void initialize_pdfgen (void)
+void initialize_pdfgen(void)
 {
     pdf_buf = pdf_op_buf;
 }
 
-void initialize_pdf_output (void)
+void initialize_pdf_output(void)
 {
     if ((pdf_minor_version < 0) || (pdf_minor_version > 9)) {
-        char *hlp[] = 
-            { "The pdfminorversion must be between 0 and 9.",
-              "I changed this to 4.", NULL };
-        char msg [256];
-        snprintf(msg,255, "LuaTeX error (illegal pdfminorversion %d)", (int)pdf_minor_version);
-        tex_error(msg,hlp);
+        char *hlp[] = { "The pdfminorversion must be between 0 and 9.",
+            "I changed this to 4.", NULL
+        };
+        char msg[256];
+        snprintf(msg, 255, "LuaTeX error (illegal pdfminorversion %d)",
+                 (int) pdf_minor_version);
+        tex_error(msg, hlp);
         pdf_minor_version = 4;
     }
     fixed_pdf_minor_version = pdf_minor_version;
-    fixed_decimal_digits    = fix_int(pdf_decimal_digits, 0, 4);
-    fixed_gamma             = fix_int(pdf_gamma, 0, 1000000);
-    fixed_image_gamma       = fix_int(pdf_image_gamma, 0, 1000000);
-    fixed_image_hicolor     = fix_int(pdf_image_hicolor, 0, 1);
+    fixed_decimal_digits = fix_int(pdf_decimal_digits, 0, 4);
+    fixed_gamma = fix_int(pdf_gamma, 0, 1000000);
+    fixed_image_gamma = fix_int(pdf_image_gamma, 0, 1000000);
+    fixed_image_hicolor = fix_int(pdf_image_hicolor, 0, 1);
     fixed_image_apply_gamma = fix_int(pdf_image_apply_gamma, 0, 1);
     fixed_pdf_objcompresslevel = fix_int(pdf_objcompresslevel, 0, 3);
-    fixed_pdf_draftmode     = fix_int(pdf_draftmode, 0, 1);
+    fixed_pdf_draftmode = fix_int(pdf_draftmode, 0, 1);
     fixed_inclusion_copy_font = fix_int(pdf_inclusion_copy_font, 0, 1);
-    fixed_replace_font      = fix_int(pdf_replace_font, 0, 1);
-    fixed_pk_resolution     = fix_int(pdf_pk_resolution, 72, 8000);
+    fixed_replace_font = fix_int(pdf_replace_font, 0, 1);
+    fixed_pk_resolution = fix_int(pdf_pk_resolution, 72, 8000);
     if ((fixed_pdf_minor_version >= 5) && (fixed_pdf_objcompresslevel > 0)) {
         pdf_os_enable = true;
     } else {
-        if (fixed_pdf_objcompresslevel > 0 ) {
+        if (fixed_pdf_objcompresslevel > 0) {
             pdf_warning(maketexstring("Object streams"),
-                        maketexstring("\\pdfobjcompresslevel > 0 requires \\pdfminorversion > 4. Object streams disabled now."), true, true);
+                        maketexstring
+                        ("\\pdfobjcompresslevel > 0 requires \\pdfminorversion > 4. Object streams disabled now."),
+                        true, true);
             fixed_pdf_objcompresslevel = 0;
         }
         pdf_os_enable = false;
     }
-    if (pdf_pk_resolution == 0)  /* if not set from format file or by user */
-        pdf_pk_resolution = pk_dpi; /* take it from \.{texmf.cnf} */
-    pk_scale_factor = divide_scaled(72, fixed_pk_resolution, 5 + fixed_decimal_digits);
+    if (pdf_pk_resolution == 0) /* if not set from format file or by user */
+        pdf_pk_resolution = pk_dpi;     /* take it from \.{texmf.cnf} */
+    pk_scale_factor =
+        divide_scaled(72, fixed_pk_resolution, 5 + fixed_decimal_digits);
     if (!callback_defined(read_pk_file_callback)) {
-        if (pdf_pk_mode !=  null) {
+        if (pdf_pk_mode != null) {
             kpseinitprog("PDFTEX", fixed_pk_resolution,
                          makecstring(tokens_to_string(pdf_pk_mode)), nil);
             flush_string();
         } else {
             kpseinitprog("PDFTEX", fixed_pk_resolution, nil, nil);
         }
-        if (!kpsevarvalue("MKTEXPK")) 
-            kpsesetprogramenabled (kpsepkformat, 1, kpsesrccmdline);
+        if (!kpsevarvalue("MKTEXPK"))
+            kpsesetprogramenabled(kpsepkformat, 1, kpsesrccmdline);
     }
-    set_job_id(int_par(param_year_code), 
-               int_par(param_month_code), 
-               int_par(param_day_code), 
-               int_par(param_time_code));
+    set_job_id(int_par(param_year_code),
+               int_par(param_month_code),
+               int_par(param_day_code), int_par(param_time_code));
 
-    if ((pdf_unique_resname > 0) && (pdf_resname_prefix == 0) )
+    if ((pdf_unique_resname > 0) && (pdf_resname_prefix == 0))
         pdf_resname_prefix = get_resname_prefix();
     pdf_page_init();
 }
@@ -182,7 +185,7 @@ been written to the generated \.{PDF} file. Here also all variables for
 and the \.{PDF} header is written.
 */
 
-void check_pdfminorversion (void) 
+void check_pdfminorversion(void)
 {
     fix_pdfoutput();
     assert(fixed_pdfoutput > 0);
@@ -193,8 +196,7 @@ void check_pdfminorversion (void)
         initialize_pdf_output();
         /* Write \.{PDF} header */
         ensure_pdf_open();
-        pdf_puts("%PDF-1.");
-        pdf_print_int_ln(fixed_pdf_minor_version);
+        pdf_printf("%%PDF-1.%d\n", (int) fixed_pdf_minor_version);
         pdf_out('%');
         pdf_out('P' + 128);
         pdf_out('T' + 128);
@@ -206,10 +208,12 @@ void check_pdfminorversion (void)
         /* Check that variables for \.{PDF} output are unchanged */
         if (fixed_pdf_minor_version != pdf_minor_version)
             pdf_error(maketexstring("setup"),
-                      maketexstring("\\pdfminorversion cannot be changed after data is written to the PDF file"));
-        if (fixed_pdf_draftmode != pdf_draftmode) 
+                      maketexstring
+                      ("\\pdfminorversion cannot be changed after data is written to the PDF file"));
+        if (fixed_pdf_draftmode != pdf_draftmode)
             pdf_error(maketexstring("setup"),
-                      maketexstring("\\pdfdraftmode cannot be changed after data is written to the PDF file"));
+                      maketexstring
+                      ("\\pdfdraftmode cannot be changed after data is written to the PDF file"));
 
     }
     if (fixed_pdf_draftmode != 0) {
@@ -220,18 +224,18 @@ void check_pdfminorversion (void)
 
 /* Checks that we have a name for the generated PDF file and that it's open. */
 
-void ensure_pdf_open (void) 
+void ensure_pdf_open(void)
 {
     if (output_file_name != 0)
         return;
-    if (job_name == 0) 
+    if (job_name == 0)
         open_log_file();
     pack_job_name(".pdf");
     if (fixed_pdf_draftmode == 0) {
         while (!lua_b_open_out(pdf_file))
-            prompt_file_name("file name for output",".pdf");
+            prompt_file_name("file name for output", ".pdf");
     }
-    pdf_file=name_file_pointer;
+    pdf_file = name_file_pointer;
     output_file_name = make_name_string();
 }
 
@@ -242,29 +246,34 @@ neccesary. We call |pdf_begin_stream| to begin a stream  and |pdf_end_stream|
 to finish it. The stream contents will be compressed if compression is turn on.
 */
 
-void pdf_flush (void) { /* flush out the |pdf_buf| */
+void pdf_flush(void)
+{                               /* flush out the |pdf_buf| */
     longinteger saved_pdf_gone;
     if (!pdf_os_mode) {
         saved_pdf_gone = pdf_gone;
         switch (zip_write_state) {
-        case no_zip: 
+        case no_zip:
             if (pdf_ptr > 0) {
-                if (fixed_pdf_draftmode == 0) write_pdf(0, pdf_ptr - 1);
+                if (fixed_pdf_draftmode == 0)
+                    write_pdf(0, pdf_ptr - 1);
                 pdf_gone = pdf_gone + pdf_ptr;
                 pdf_last_byte = pdf_buf[pdf_ptr - 1];
             }
             break;
         case zip_writing:
-            if (fixed_pdf_draftmode == 0) write_zip(false);
+            if (fixed_pdf_draftmode == 0)
+                write_zip(false);
             break;
-        case zip_finish: 
-            if (fixed_pdf_draftmode == 0) write_zip(true);
+        case zip_finish:
+            if (fixed_pdf_draftmode == 0)
+                write_zip(true);
             zip_write_state = no_zip;
             break;
         }
         pdf_ptr = 0;
         if (saved_pdf_gone > pdf_gone)
-            pdf_error("file size", "File size exceeds architectural limits (pdf_gone wraps around)");
+            pdf_error("file size",
+                      "File size exceeds architectural limits (pdf_gone wraps around)");
     }
 }
 
@@ -280,18 +289,19 @@ void pdf_os_get_os_buf(integer s)
         a = 0.2 * pdf_os_buf_size;
         if (pdf_ptr + s > pdf_os_buf_size + a)
             pdf_os_buf_size = pdf_ptr + s;
-        else if (pdf_os_buf_size < sup_pdf_os_buf_size - a) 
+        else if (pdf_os_buf_size < sup_pdf_os_buf_size - a)
             pdf_os_buf_size = pdf_os_buf_size + a;
         else
             pdf_os_buf_size = sup_pdf_os_buf_size;
-        pdf_os_buf = xreallocarray(pdf_os_buf, real_eight_bits, pdf_os_buf_size);
+        pdf_os_buf =
+            xreallocarray(pdf_os_buf, real_eight_bits, pdf_os_buf_size);
         pdf_buf = pdf_os_buf;
         pdf_buf_size = pdf_os_buf_size;
     }
 }
 
 /* make sure that there are at least |n| bytes free in PDF buffer */
-void pdf_room(integer n) 
+void pdf_room(integer n)
 {
     if (pdf_os_mode && (n + pdf_ptr > pdf_buf_size))
         pdf_os_get_os_buf(n);
@@ -466,3 +476,121 @@ void pdf_print_str(str_number s)
     pdf_print(s);               /* it was a hex string after all  */
 }
 
+
+/* begin a stream */
+void pdf_begin_stream(void)
+{
+    pdf_printf("/Length           \n");
+    pdf_seek_write_length = true;       /* fill in length at |pdf_end_stream| call */
+    pdf_stream_length_offset = pdf_offset - 11;
+    pdf_stream_length = 0;
+    pdf_last_byte = 0;
+    if (pdf_compress_level > 0) {
+        pdf_printf("/Filter /FlateDecode\n");
+        pdf_printf(">>\n");
+        pdf_printf("stream\n");
+        pdf_flush();
+        zip_write_state = zip_writing;
+    } else {
+        pdf_printf(">>\n");
+        pdf_printf("stream\n");
+        pdf_save_offset = pdf_offset;
+    }
+}
+
+/* end a stream */
+void pdf_end_stream(void)
+{
+    if (zip_write_state == zip_writing)
+        zip_write_state = zip_finish;
+    else
+        pdf_stream_length = pdf_offset - pdf_save_offset;
+    pdf_flush();
+    if (pdf_seek_write_length)
+        write_stream_length(pdf_stream_length, pdf_stream_length_offset);
+    pdf_seek_write_length = false;
+    if (pdf_last_byte != pdf_new_line_char)
+        pdf_out(pdf_new_line_char);
+    pdf_printf("endstream\n");
+    pdf_end_obj();
+}
+
+void pdf_remove_last_space(void)
+{
+    if ((pdf_ptr > 0) && (pdf_buf[pdf_ptr - 1] == ' '))
+        decr(pdf_ptr);
+}
+
+
+/*
+To print |scaled| value to PDF output we need some subroutines to ensure
+accurary.
+*/
+
+#define max_integer 0x7FFFFFFF  /* $2^{31}-1$ */
+
+/* scaled value corresponds to 100in, exact, 473628672 */
+scaled one_hundred_inch = 7227 * 65536;
+
+/* scaled value corresponds to 1in (rounded to 4736287) */
+scaled one_inch = (7227 * 65536 + 50) / 100;
+
+    /* scaled value corresponds to 1truein (rounded!) */
+scaled one_true_inch = (7227 * 65536 + 50) / 100;
+
+/* scaled value corresponds to 100bp */
+scaled one_hundred_bp = (7227 * 65536) / 72;
+
+/* scaled value corresponds to 1bp (rounded to 65782) */
+scaled one_bp = ((7227 * 65536) / 72 + 50) / 100;
+
+/* $10^0..10^9$ */
+integer ten_pow[10] =
+    { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000,
+1000000000 };
+
+/*
+The function |divide_scaled| divides |s| by |m| using |dd| decimal
+digits of precision. It is defined in C because it is a good candidate
+for optimizations that are not possible in pascal.
+*/
+
+scaled round_xn_over_d(scaled x, integer n, integer d)
+{
+    boolean positive;           /* was |x>=0|? */
+    nonnegative_integer t, u, v;        /* intermediate quantities */
+    if (x >= 0) {
+        positive = true;
+    } else {
+        x = -(x);
+        positive = false;
+    }
+    t = (x % 0100000) * n;
+    u = (x / 0100000) * n + (t / 0100000);
+    v = (u % d) * 0100000 + (t % 0100000);
+    if (u / d >= 0100000)
+        arith_error = true;
+    else
+        u = 0100000 * (u / d) + (v / d);
+    v = v % d;
+    if (2 * v >= d)
+        u++;
+    if (positive)
+        return u;
+    else
+        return (-u);
+}
+
+void pdf_print_bp(scaled s)
+{                               /* print scaled as |bp| */
+    pdf_print_real(divide_scaled(s, one_hundred_bp, fixed_decimal_digits + 2),
+                   fixed_decimal_digits);
+}
+
+void pdf_print_mag_bp(scaled s)
+{                               /* take |mag| into account */
+    prepare_mag();
+    if (int_par(param_mag_code) != 1000)
+        s = round_xn_over_d(s, int_par(param_mag_code), 1000);
+    pdf_print_bp(s);
+}

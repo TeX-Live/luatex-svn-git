@@ -1124,3 +1124,15 @@
 @define procedure pdf_print_real();
 @define procedure pdf_print_str();
 
+@define procedure pdf_begin_stream;
+@define procedure pdf_end_stream;
+@define procedure pdf_remove_last_space;
+
+@define const one_inch;
+@define var one_true_inch;
+@define var one_hundred_inch;
+@define const one_bp;
+
+@define function round_xn_over_d();
+@define procedure pdf_print_bp();
+@define procedure pdf_print_mag_bp();

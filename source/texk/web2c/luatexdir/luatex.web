@@ -13880,43 +13880,6 @@ begin
         fix_int := val;
 end;
 
-@ @p procedure pdf_begin_stream; {begin a stream}
-begin
-    pdf_print_ln("/Length           ");
-    pdf_seek_write_length := true; {fill in length at |pdf_end_stream| call}
-    pdf_stream_length_offset := pdf_offset - 11;
-    pdf_stream_length := 0;
-    pdf_last_byte := 0;
-    if pdf_compress_level > 0 then begin
-        pdf_print_ln("/Filter /FlateDecode");
-        pdf_print_ln(">>");
-        pdf_print_ln("stream");
-        pdf_flush;
-        zip_write_state := zip_writing;
-    end
-    else begin
-        pdf_print_ln(">>");
-        pdf_print_ln("stream");
-        pdf_save_offset := pdf_offset;
-    end;
-end;
-
-procedure pdf_end_stream; {end a stream}
-begin
-    if zip_write_state = zip_writing then
-        zip_write_state := zip_finish
-    else
-        pdf_stream_length := pdf_offset - pdf_save_offset;
-    pdf_flush;
-    if pdf_seek_write_length then
-        write_stream_length(pdf_stream_length, pdf_stream_length_offset);
-    pdf_seek_write_length := false;
-    if pdf_last_byte <> pdf_new_line_char then
-        pdf_out(pdf_new_line_char);
-    pdf_print_ln("endstream");
-    pdf_end_obj;
-end;
-
 @ @<Declare procedures that need to be declared forward for \pdfTeX@>=
 procedure pdf_error(t, p: str_number);
 begin
@@ -13947,12 +13910,6 @@ begin
     if append_nl then
         print_ln;
     if history=spotless then history:=warning_issued;
-end;
-
-procedure remove_last_space;
-begin
-    if (pdf_ptr > 0) and (pdf_buf[pdf_ptr - 1] = 32) then
-        decr(pdf_ptr);
 end;
 
 function str_in_str(s, r: str_number; i: integer): boolean;
@@ -13987,71 +13944,10 @@ begin
     tokens_to_string := last_tokens_string;
 end;
 
-
-@ To print |scaled| value to PDF output we need some subroutines to ensure
-accurary.
-
-@d max_integer == @"7FFFFFFF {$2^{31}-1$}
+@  This are more generally useful
 @d call_func(#) == begin if # <> 0 then do_nothing end
+@d max_integer == @"7FFFFFFF {$2^{31}-1$}
 
-
-@<Glob...@>=
-@!one_hundred_inch: scaled; {scaled value corresponds to 100in}
-@!one_inch: scaled; {scaled value corresponds to 1in (rounded!)}
-@!one_true_inch: scaled; {scaled value corresponds to 1truein (rounded!)}
-@!one_hundred_bp: scaled; {scaled value corresponds to 100bp}
-@!one_bp: scaled; {scaled value corresponds to 1bp (rounded!)}
-@!ten_pow: array[0..9] of integer; {$10^0..10^9$}
-
-@ @<Set init...@>=
-one_hundred_inch := 7227 * 65536; {exact, 473628672}
-one_inch := (one_hundred_inch + 50) div 100; {rounded to 4736287}
-one_true_inch := one_inch;
-one_hundred_bp := one_hundred_inch div 72; {exact, 6578176}
-one_bp := (one_hundred_bp + 50) div 100; {rounded to 65782}
-ten_pow[0] := 1;
-for i := 1 to 9 do
-    ten_pow[i] := 10*ten_pow[i - 1];
-
-@ The function |divide_scaled| divides |s| by |m| using |dd| decimal
-digits of precision. It is defined in C because it is a good candidate
-for optimizations that are not possible in pascal.
-
-@<Declare procedures that need to be declared forward for \pdfTeX@>=
-function round_xn_over_d(@!x:scaled; @!n,@!d:integer):scaled;
-var positive:boolean; {was |x>=0|?}
-@!t,@!u,@!v:nonnegative_integer; {intermediate quantities}
-begin if x>=0 then positive:=true
-else  begin negate(x); positive:=false;
-  end;
-t:=(x mod @'100000)*n;
-u:=(x div @'100000)*n+(t div @'100000);
-v:=(u mod d)*@'100000 + (t mod @'100000);
-if u div d>=@'100000 then arith_error:=true
-else u:=@'100000*(u div d) + (v div d);
-v := v mod d;
-if 2*v >= d then
-    incr(u);
-if positive then
-    round_xn_over_d := u
-else
-    round_xn_over_d := -u;
-end;
-
-@ @p
-procedure pdf_print_bp(s: scaled); {print scaled as |bp|}
-begin
-    pdf_print_real(divide_scaled(s, one_hundred_bp, fixed_decimal_digits + 2),
-                   fixed_decimal_digits);
-end;
-
-procedure pdf_print_mag_bp(s: scaled); {take |mag| into account}
-begin
-    prepare_mag;
-    if mag <> 1000 then
-        s := round_xn_over_d(s, mag, 1000);
-    pdf_print_bp(s);
-end;
 
 @* \[32c] PDF page description.
 
@@ -16720,7 +16616,7 @@ if head_tab[obj_type_thread] <> 0 then begin
         pdf_print(" 0 R ");
         k := obj_link(k);
     end;
-    remove_last_space;
+    pdf_remove_last_space;
     pdf_print_ln("]");
     pdf_end_obj;
     k := head_tab[obj_type_thread];
@@ -17003,7 +16899,7 @@ if is_names then begin
         incr(j);
         incr(k);
     until (j = name_tree_kids_max) or (k = pdf_dest_names_ptr);
-    remove_last_space;
+    pdf_remove_last_space;
     pdf_print_ln("]");
     obj_aux(l) := dest_names[k - 1].objname;
     if k = pdf_dest_names_ptr then begin
@@ -17022,7 +16918,7 @@ else begin
         obj_aux(l) := obj_aux(k);
         k := obj_link(k);
     until (j = name_tree_kids_max) or (k = b) or (obj_link(k) = 0);
-    remove_last_space;
+    pdf_remove_last_space;
     pdf_print_ln("]");
     if k = b then
         b := 0;

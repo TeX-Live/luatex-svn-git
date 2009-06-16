@@ -231,7 +231,7 @@ static void write_pages(pages_entry * p, int parent)
     pdf_printf("/Count %d\n/Kids [", (int) p->number_of_pages);
     for (i = 0; i < p->number_of_kids; i++)
         pdf_printf("%d 0 R ", (int) p->kids[i]);
-    remove_last_space();
+    pdf_remove_last_space();
     pdf_printf("]\n");
     pdf_end_dict();
 }
