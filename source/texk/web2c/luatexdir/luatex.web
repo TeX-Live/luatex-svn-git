@@ -13949,36 +13949,6 @@ begin
     if history=spotless then history:=warning_issued;
 end;
 
-procedure pdf_os_get_os_buf(s: integer); {check that |s| bytes more
-fit into |pdf_os_buf|; increase it if required}
-var a: integer;
-begin
-    if s > sup_pdf_os_buf_size - pdf_ptr then
-        overflow("PDF object stream buffer", pdf_os_buf_size);
-    if pdf_ptr + s > pdf_os_buf_size then begin
-        a := 0.2 * pdf_os_buf_size;
-        if pdf_ptr + s > pdf_os_buf_size + a then
-            pdf_os_buf_size := pdf_ptr + s
-        else if pdf_os_buf_size < sup_pdf_os_buf_size - a then
-            pdf_os_buf_size := pdf_os_buf_size + a
-        else
-            pdf_os_buf_size := sup_pdf_os_buf_size;
-        pdf_os_buf := xreallocarray(pdf_os_buf, real_eight_bits, pdf_os_buf_size);
-        pdf_buf := pdf_os_buf;
-        pdf_buf_size := pdf_os_buf_size;
-    end;
-end;
-
-procedure pdf_room(n: integer); {make sure that there are at least |n| bytes free in PDF buffer}
-begin
-    if pdf_os_mode and (n + pdf_ptr > pdf_buf_size) then
-        pdf_os_get_os_buf(n)
-    else if not pdf_os_mode and (n > pdf_buf_size) then
-        overflow("PDF output buffer", pdf_op_buf_size)
-    else if not pdf_os_mode and (n + pdf_ptr > pdf_buf_size) then
-        pdf_flush;
-end;
-
 procedure remove_last_space;
 begin
     if (pdf_ptr > 0) and (pdf_buf[pdf_ptr - 1] = 32) then

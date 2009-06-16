@@ -548,25 +548,25 @@ static void writeseghdr(FILEINFO * fip, SEGINFO * sip)
     /* 7.2.3 Segment header flags */
     /* 7.2.4 Referred-to segment count and retention flags */
     for (i = 0; i < 5 + sip->fieldlen; i++)
-        pdfout(ygetc(fip->file));
+        pdf_out(ygetc(fip->file));
     /* 7.2.5 Referred-to segment numbers */
     for (i = 0; i < sip->countofrefered; i++) {
         switch (sip->segnumwidth) {
         case 1:
             referedseg = ygetc(fip->file);
-            pdfout(referedseg);
+            pdf_out(referedseg);
             break;
         case 2:
             referedseg = read2bytes(fip->file);
-            pdfout((referedseg >> 8) & 0xff);
-            pdfout(referedseg & 0xff);
+            pdf_out((referedseg >> 8) & 0xff);
+            pdf_out(referedseg & 0xff);
             break;
         case 4:
             referedseg = read4bytes(fip->file);
-            pdfout((referedseg >> 24) & 0xff);
-            pdfout((referedseg >> 16) & 0xff);
-            pdfout((referedseg >> 8) & 0xff);
-            pdfout(referedseg & 0xff);
+            pdf_out((referedseg >> 24) & 0xff);
+            pdf_out((referedseg >> 16) & 0xff);
+            pdf_out((referedseg >> 8) & 0xff);
+            pdf_out(referedseg & 0xff);
             break;
         }
         if (fip->page0.last != NULL && !sip->refers)
@@ -578,13 +578,13 @@ static void writeseghdr(FILEINFO * fip, SEGINFO * sip)
     if (sip->pageassocsizeflag)
         for (i = 0; i < 3; i++) {
             (void) ygetc(fip->file);
-            pdfout(0);
+            pdf_out(0);
         }
     (void) ygetc(fip->file);
-    pdfout((sip->segpage > 0) ? 1 : 0);
+    pdf_out((sip->segpage > 0) ? 1 : 0);
     /* 7.2.7 Segment data length */
     for (i = 0; i < 4; i++)
-        pdfout(ygetc(fip->file));
+        pdf_out(ygetc(fip->file));
     /* ---- at end of segment header ---- */
 }
 
@@ -766,7 +766,7 @@ static void wr_jbig2(FILEINFO * fip, unsigned long page)
             writeseghdr(fip, sip);
             xfseeko(fip->file, sip->datastart, SEEK_SET, fip->filepath);
             for (i = sip->datastart; i < sip->dataend; i++)
-                pdfout(ygetc(fip->file));
+                pdf_out(ygetc(fip->file));
         }
     }
     pdf_end_stream();

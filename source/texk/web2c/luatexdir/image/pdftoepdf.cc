@@ -293,7 +293,7 @@ static void copyName(char *s)
     for (; *s != 0; s++) {
         if (isdigit(*s) || isupper(*s) || islower(*s) || *s == '_' ||
             *s == '.' || *s == '-' || *s == '+')
-            pdfout(*s);
+            pdf_out(*s);
         else
             pdf_printf("#%.2X", *s & 0xFF);
     }
@@ -365,7 +365,7 @@ static void copyStream(Stream * str)
     int c;
     str->reset();
     while ((c = str->getChar()) != EOF) {
-        pdfout(c);
+        pdf_out(c);
         pdf_last_byte = c;
     }
 }
@@ -564,7 +564,7 @@ static void copyObject(Object * obj)
                 else if (c < 0x20 || c > 0x7F)
                     pdf_printf("\\%03o", c);
                 else
-                    pdfout(c);
+                    pdf_out(c);
             }
             pdf_puts(")");
         } else {

@@ -167,23 +167,6 @@ void make_subset_tag(fd_entry * fd)
              j);
 }
 
-void pdf_puts(const char *s)
-{
-    pdfroom(strlen(s) + 1);
-    while (*s)
-        pdf_buf[pdf_ptr++] = *s++;
-}
-
-__attribute__ ((format(printf, 1, 2)))
-void pdf_printf(const char *fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    vsnprintf(print_buf, PRINTF_BUF_SIZE, fmt, args);
-    pdf_puts(print_buf);
-    va_end(args);
-}
-
 str_number maketexstring(const char *s)
 {
     if (s == NULL || *s == 0)
@@ -537,7 +520,7 @@ void write_stream_length(integer length, longinteger offset)
     if (fixed_pdf_draftmode == 0) {
         xfseeko(pdf_file, (off_t) offset, SEEK_SET, jobname_cstr);
         fprintf(pdf_file, "%li", (long int) length);
-        xfseeko(pdf_file, (off_t) pdfoffset(), SEEK_SET, jobname_cstr);
+        xfseeko(pdf_file, (off_t) pdf_offset, SEEK_SET, jobname_cstr);
     }
 }
 

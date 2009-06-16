@@ -274,7 +274,7 @@ void write_jpg(image_dict * idict)
     }
     pdf_puts("/Filter /DCTDecode\n>>\nstream\n");
     for (l = img_jpg_ptr(idict)->length, f = img_file(idict); l > 0; l--)
-        pdfout(xgetc(f));
+        pdf_out(xgetc(f));
     pdf_end_stream();
     close_and_cleanup_jpg(idict);
 }

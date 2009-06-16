@@ -143,7 +143,7 @@ void read_png_info(image_dict * idict, img_readtype_e readtype)
     k = info_p->rowbytes;                                \
     while(k > 0) {                                       \
         l = (k > pdf_buf_size)? pdf_buf_size : k;        \
-                pdfroom(l);                              \
+                pdf_room(l);                              \
                 for (j = 0; j < l; j++) {                \
                   outmac;                                \
                 }                                        \
@@ -157,7 +157,7 @@ void read_png_info(image_dict * idict, img_readtype_e readtype)
             k = info_p->rowbytes;                        \
             while(k > 0) {                               \
                 l = (k > pdf_buf_size)? pdf_buf_size : k;\
-                pdfroom(l);                              \
+                pdf_room(l);                              \
                 for (j = 0; j < l; j++) {                \
                   outmac;                                \
                 }                                        \
@@ -202,7 +202,7 @@ static void write_png_palette(image_dict * idict)
         pdf_begin_dict(palette_objnum, 0);
         pdf_begin_stream();
         for (i = 0; (unsigned) i < info_p->num_palette; i++) {
-            pdfroom(3);
+            pdf_room(3);
             pdf_buf[pdf_ptr++] = info_p->palette[i].red;
             pdf_buf[pdf_ptr++] = info_p->palette[i].green;
             pdf_buf[pdf_ptr++] = info_p->palette[i].blue;
@@ -301,7 +301,7 @@ static void write_png_gray_alpha(image_dict * idict)
     pdf_begin_stream();
     for (i = 0; i < smask_size; i++) {
         if (i % 8 == 0)
-            pdfroom(8);
+            pdf_room(8);
         pdf_buf[pdf_ptr++] = smask[i];
         if (bitdepth == 16)
             i++;
@@ -401,7 +401,7 @@ static void write_png_rgb_alpha(image_dict * idict)
         pdf_begin_stream();
         for (i = 0; i < smask_size; i++) {
             if (i % 8 == 0)
-                pdfroom(8);
+                pdf_room(8);
             pdf_buf[pdf_ptr++] = smask[i];
             if (bitdepth == 16)
                 i++;
@@ -486,7 +486,7 @@ static void copy_png(image_dict * idict)
             idat = 1;
             while (len > 0) {
                 i = (len > pdf_buf_size) ? pdf_buf_size : len;
-                pdfroom(i);
+                pdf_room(i);
                 fread(&pdf_buf[pdf_ptr], 1, i, fp);
                 pdf_ptr += i;
                 len -= i;
@@ -587,7 +587,7 @@ void write_png(image_dict * idict)
             pdf_begin_dict(palette_objnum, 0);
             pdf_begin_stream();
             for (i = 0; (unsigned) i < info_p->num_palette; i++) {
-                pdfroom(3);
+                pdf_room(3);
                 pdf_buf[pdf_ptr++] = info_p->palette[i].red;
                 pdf_buf[pdf_ptr++] = info_p->palette[i].green;
                 pdf_buf[pdf_ptr++] = info_p->palette[i].blue;

@@ -1105,6 +1105,7 @@
 @define var page_divert_val;
 
 @define procedure pdf_flush;
+@define procedure pdf_room();
 
 @define procedure pdf_quick_out();
 @define procedure pdf_out();

@@ -30,9 +30,6 @@ void fb_flush(void);
 void fb_putchar(eight_bits b);
 void fb_seek(integer);
 void make_subset_tag(fd_entry *);
-void pdf_puts(const char *);
-__attribute__ ((format(printf, 1, 2)))
-void pdf_printf(const char *, ...);
 str_number maketexstring(const char *);
 str_number maketexlstring(const char *, size_t);
 void print_string(char *j);

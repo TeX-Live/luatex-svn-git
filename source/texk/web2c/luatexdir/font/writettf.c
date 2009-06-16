@@ -1393,7 +1393,7 @@ void writettf(fd_entry * fd)
     name_buf = NULL;
     ttf_read_font();
 
-    pdf_save_offset = pdfoffset();
+    pdf_save_offset = pdf_offset;
     pdf_flush();
 
     if (is_subsetted(fd_cur->fm)) {

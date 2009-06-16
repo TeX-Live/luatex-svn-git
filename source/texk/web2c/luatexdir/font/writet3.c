@@ -206,13 +206,13 @@ static boolean writepk(internalfontnumber f)
         row = cd.raster;
         for (i = 0; i < cd.cheight; i++) {
             for (j = 0; j < rw - 1; j++) {
-                pdfout(*row / 256);
-                pdfout(*row % 256);
+                pdf_out(*row / 256);
+                pdf_out(*row % 256);
                 row++;
             }
-            pdfout(*row / 256);
+            pdf_out(*row / 256);
             if (2 * rw == cw)
-                pdfout(*row % 256);
+                pdf_out(*row % 256);
             row++;
         }
         pdf_puts("\nEI\nQ\n");

@@ -93,6 +93,8 @@ extern integer          page_divert_val;
 extern void initialize_pdf_output (void);
 
 extern void pdf_flush(void);
+extern void pdf_os_get_os_buf(integer s);
+extern void pdf_room(integer n) ;
 
 extern void check_pdfminorversion (void) ;
 extern void ensure_pdf_open (void) ;
@@ -102,7 +104,6 @@ extern void ensure_pdf_open (void) ;
 
 /* do the same as |pdf_quick_out| and flush the PDF buffer if necessary */
 #define pdf_out(A) do { pdf_room(1); pdf_quick_out(A); } while (0)
-
 
 /*
 Basic printing procedures for PDF output are very similiar to \TeX\ basic
@@ -127,6 +128,8 @@ suffix |_ln| append a new-line character to the PDF output.
         pdf_print_nl();                         \
     } while (0)
 
+extern void pdf_puts(const char *);
+extern __attribute__ ((format(printf, 1, 2))) void pdf_printf(const char *, ...);
 
 extern void pdf_print_char(internal_font_number f, integer cc);
 extern void pdf_print(str_number s);

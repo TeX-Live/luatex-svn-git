@@ -43,7 +43,7 @@ static int findcurh(lua_State * L)
 #define buf_to_pdfbuf_macro(s, l)                    \
 for (i = 0; i < (l); i++) {                          \
     if (i % 16 == 0)                                 \
-        pdfroom(16);                                 \
+        pdf_room(16);                                 \
     pdf_buf[pdf_ptr++] = ((unsigned char *) (s))[i]; \
 }
 

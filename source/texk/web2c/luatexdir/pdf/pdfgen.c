@@ -25,6 +25,22 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
+/* interface definitions for eqtb locations */
+
+#define pdf_minor_version        int_par(param_pdf_minor_version_code)
+#define pdf_decimal_digits       int_par(param_pdf_decimal_digits_code)
+#define pdf_gamma                int_par(param_pdf_gamma_code)
+#define pdf_image_gamma          int_par(param_pdf_image_gamma_code)
+#define pdf_image_hicolor        int_par(param_pdf_image_hicolor_code)
+#define pdf_image_apply_gamma    int_par(param_pdf_image_apply_gamma_code)
+#define pdf_objcompresslevel     int_par(param_pdf_objcompresslevel_code)
+#define pdf_draftmode            int_par(param_pdf_draftmode_code)
+#define pdf_inclusion_copy_font  int_par(param_pdf_inclusion_copy_font_code)
+#define pdf_replace_font         int_par(param_pdf_replace_font_code)
+#define pdf_pk_resolution        int_par(param_pdf_pk_resolution_code)
+#define pdf_pk_mode              int_par(param_pdf_pk_mode_code)
+#define pdf_unique_resname       int_par(param_pdf_unique_resname_code)
+#define pdf_compress_level       int_par(param_pdf_compress_level_code)
 
 /*
 Sometimes it is neccesary to allocate memory for PDF output that cannot
@@ -75,21 +91,6 @@ void initialize_pdfgen (void)
 {
     pdf_buf = pdf_op_buf;
 }
-
-#define pdf_minor_version        int_par(param_pdf_minor_version_code)
-#define pdf_decimal_digits       int_par(param_pdf_decimal_digits_code)
-#define pdf_gamma                int_par(param_pdf_gamma_code)
-#define pdf_image_gamma          int_par(param_pdf_image_gamma_code)
-#define pdf_image_hicolor        int_par(param_pdf_image_hicolor_code)
-#define pdf_image_apply_gamma    int_par(param_pdf_image_apply_gamma_code)
-#define pdf_objcompresslevel     int_par(param_pdf_objcompresslevel_code)
-#define pdf_draftmode            int_par(param_pdf_draftmode_code)
-#define pdf_inclusion_copy_font  int_par(param_pdf_inclusion_copy_font_code)
-#define pdf_replace_font         int_par(param_pdf_replace_font_code)
-#define pdf_pk_resolution        int_par(param_pdf_pk_resolution_code)
-#define pdf_pk_mode              int_par(param_pdf_pk_mode_code)
-#define pdf_unique_resname       int_par(param_pdf_unique_resname_code)
-#define pdf_compress_level       int_par(param_pdf_compress_level_code)
 
 void initialize_pdf_output (void)
 {
@@ -192,7 +193,7 @@ void check_pdfminorversion (void)
         initialize_pdf_output();
         /* Write \.{PDF} header */
         ensure_pdf_open();
-        pdf_print(maketexstring("%PDF-1."));
+        pdf_puts("%PDF-1.");
         pdf_print_int_ln(fixed_pdf_minor_version);
         pdf_out('%');
         pdf_out('P' + 128);
@@ -267,6 +268,38 @@ void pdf_flush (void) { /* flush out the |pdf_buf| */
     }
 }
 
+/* low-level buffer checkers */
+
+/* check that |s| bytes more fit into |pdf_os_buf|; increase it if required */
+void pdf_os_get_os_buf(integer s)
+{
+    integer a;
+    if (s > sup_pdf_os_buf_size - pdf_ptr)
+        overflow(maketexstring("PDF object stream buffer"), pdf_os_buf_size);
+    if (pdf_ptr + s > pdf_os_buf_size) {
+        a = 0.2 * pdf_os_buf_size;
+        if (pdf_ptr + s > pdf_os_buf_size + a)
+            pdf_os_buf_size = pdf_ptr + s;
+        else if (pdf_os_buf_size < sup_pdf_os_buf_size - a) 
+            pdf_os_buf_size = pdf_os_buf_size + a;
+        else
+            pdf_os_buf_size = sup_pdf_os_buf_size;
+        pdf_os_buf = xreallocarray(pdf_os_buf, real_eight_bits, pdf_os_buf_size);
+        pdf_buf = pdf_os_buf;
+        pdf_buf_size = pdf_os_buf_size;
+    }
+}
+
+/* make sure that there are at least |n| bytes free in PDF buffer */
+void pdf_room(integer n) 
+{
+    if (pdf_os_mode && (n + pdf_ptr > pdf_buf_size))
+        pdf_os_get_os_buf(n);
+    else if ((!pdf_os_mode) && (n > pdf_buf_size))
+        overflow(maketexstring("PDF output buffer"), pdf_op_buf_size);
+    else if ((!pdf_os_mode) && (n + pdf_ptr > pdf_buf_size))
+        pdf_flush();
+}
 
 
 #define is_hex_char isxdigit
@@ -304,6 +337,26 @@ void pdf_print_char(internal_font_number f, integer cc)
     }
     pdf_print_escaped(c);
 }
+
+void pdf_puts(const char *s)
+{
+    pdf_room(strlen(s) + 1);
+    while (*s)
+        pdf_buf[pdf_ptr++] = *s++;
+}
+
+static char pdf_printf_buf[PRINTF_BUF_SIZE];
+
+__attribute__ ((format(printf, 1, 2)))
+void pdf_printf(const char *fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(pdf_printf_buf, PRINTF_BUF_SIZE, fmt, args);
+    pdf_puts(pdf_printf_buf);
+    va_end(args);
+}
+
 
 /* print out a string to PDF buffer */
 

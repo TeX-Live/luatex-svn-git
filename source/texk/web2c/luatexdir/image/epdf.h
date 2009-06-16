@@ -47,6 +47,9 @@ extern "C" {
 #include "image.h"
 #include "../utils/avlstuff.h"
 
+    extern void pdf_room(integer);
+#define pdf_out(A) do { pdf_room(1); pdf_buf[pdf_ptr++] = A; } while (0)
+
     extern void unrefPdfDocument(char *);
 
     extern integer epdf_page_box;

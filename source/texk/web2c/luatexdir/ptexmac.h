@@ -67,26 +67,6 @@
 #  define obj_type_thread  8    /* index of linked list of num article threads */
 #  define head_tab_max     obj_type_thread      /* max index of |head_tab| */
 
-#  define pdfroom(n) do {                                    \
-    if ((unsigned)(n + pdf_ptr) > (unsigned)pdf_buf_size) {  \
-        if (pdf_os_mode)                                     \
-            zpdf_os_get_os_buf(n);                           \
-        else {                                               \
-            if ((unsigned)(n) > (unsigned)pdf_buf_size)      \
-                pdftex_fail("PDF output buffer overflowed"); \
-            else                                             \
-                pdf_flush();                                 \
-        }                                                    \
-    }                                                        \
-} while (0)
-
-#  define pdfout(c)  do {   \
-    pdfroom(1);             \
-    pdf_buf[pdf_ptr++] = c; \
-} while (0)
-
-#  define pdfoffset()     (pdf_gone + pdf_ptr)
-
 /**********************************************************************/
 
 #  define PRINTF_BUF_SIZE     1024
