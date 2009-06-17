@@ -48,6 +48,7 @@ extern double rint(double x);
 #  include "pdf/pagetree.h"
 #  include "pdf/pdfgen.h"
 #  include "pdf/pdfpage.h"
+#  include "pdf/pdftables.h"
 #  include "font/luatexfont.h"
 #  include "font/mapfile.h"
 #  include "utils/utils.h"

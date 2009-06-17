@@ -107,6 +107,8 @@ libluatex_a_SOURCES = \
 	luatexdir/pdf/pdfgen.h \
 	luatexdir/pdf/pdfpage.c \
 	luatexdir/pdf/pdfpage.h \
+	luatexdir/pdf/pdftables.c \
+	luatexdir/pdf/pdftables.h \
 	luatexdir/primitive.h \
 	luatexdir/ptexmac.h \
 	luatexdir/tex/align.c \

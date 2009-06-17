@@ -246,7 +246,8 @@ am_libluatex_a_OBJECTS = libluatex_a-dofont.$(OBJEXT) \
 	libluatex_a-ocplist.$(OBJEXT) libluatex_a-readocp.$(OBJEXT) \
 	libluatex_a-runocp.$(OBJEXT) libluatex_a-pagetree.$(OBJEXT) \
 	libluatex_a-pdfgen.$(OBJEXT) libluatex_a-pdfpage.$(OBJEXT) \
-	libluatex_a-align.$(OBJEXT) libluatex_a-filename.$(OBJEXT) \
+	libluatex_a-pdftables.$(OBJEXT) libluatex_a-align.$(OBJEXT) \
+	libluatex_a-filename.$(OBJEXT) \
 	libluatex_a-inputstack.$(OBJEXT) \
 	libluatex_a-linebreak.$(OBJEXT) libluatex_a-math.$(OBJEXT) \
 	libluatex_a-mlist.$(OBJEXT) \
@@ -1370,6 +1371,8 @@ libluatex_a_SOURCES = \
 	luatexdir/pdf/pdfgen.h \
 	luatexdir/pdf/pdfpage.c \
 	luatexdir/pdf/pdfpage.h \
+	luatexdir/pdf/pdftables.c \
+	luatexdir/pdf/pdftables.h \
 	luatexdir/primitive.h \
 	luatexdir/ptexmac.h \
 	luatexdir/tex/align.c \
@@ -1824,6 +1827,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pagetree.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pdfgen.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pdfpage.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pdftables.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pdftoepdf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pkin.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-postlinebreak.Po@am__quote@
@@ -4370,6 +4374,20 @@ libluatex_a-pdfpage.obj: luatexdir/pdf/pdfpage.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfpage.c' object='libluatex_a-pdfpage.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfpage.obj `if test -f 'luatexdir/pdf/pdfpage.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfpage.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfpage.c'; fi`
+
+libluatex_a-pdftables.o: luatexdir/pdf/pdftables.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-pdftables.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdftables.Tpo -c -o libluatex_a-pdftables.o `test -f 'luatexdir/pdf/pdftables.c' || echo '$(srcdir)/'`luatexdir/pdf/pdftables.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-pdftables.Tpo $(DEPDIR)/libluatex_a-pdftables.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdftables.c' object='libluatex_a-pdftables.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdftables.o `test -f 'luatexdir/pdf/pdftables.c' || echo '$(srcdir)/'`luatexdir/pdf/pdftables.c
+
+libluatex_a-pdftables.obj: luatexdir/pdf/pdftables.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-pdftables.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdftables.Tpo -c -o libluatex_a-pdftables.obj `if test -f 'luatexdir/pdf/pdftables.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdftables.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdftables.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-pdftables.Tpo $(DEPDIR)/libluatex_a-pdftables.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdftables.c' object='libluatex_a-pdftables.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdftables.obj `if test -f 'luatexdir/pdf/pdftables.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdftables.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdftables.c'; fi`
 
 libluatex_a-align.o: luatexdir/tex/align.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-align.o -MD -MP -MF $(DEPDIR)/libluatex_a-align.Tpo -c -o libluatex_a-align.o `test -f 'luatexdir/tex/align.c' || echo '$(srcdir)/'`luatexdir/tex/align.c
