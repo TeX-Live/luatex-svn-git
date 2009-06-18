@@ -50,12 +50,12 @@ ASCII code for a period, while \.{WEB} will convert a string like \.{"hello"}
 into some integer greater than~|STRING_OFFSET|.
 */
 
-packed_ASCII_code *str_pool; /* the characters */
-pool_pointer *str_start; /* the starting pointers */
-pool_pointer pool_ptr; /* first unused position in |str_pool| */
-str_number str_ptr; /* number of the current string being created */
-pool_pointer init_pool_ptr; /* the starting value of |pool_ptr| */
-str_number init_str_ptr; /* the starting value of |str_ptr| */
+packed_ASCII_code *str_pool;    /* the characters */
+pool_pointer *str_start;        /* the starting pointers */
+pool_pointer pool_ptr;          /* first unused position in |str_pool| */
+str_number str_ptr;             /* number of the current string being created */
+pool_pointer init_pool_ptr;     /* the starting value of |pool_ptr| */
+str_number init_str_ptr;        /* the starting value of |str_ptr| */
 
 
 /*
@@ -67,14 +67,14 @@ value.
 
 
 /* current string enters the pool */
-str_number make_string (void) 
+str_number make_string(void)
 {
-    if (str_ptr==(max_strings+STRING_OFFSET))
+    if (str_ptr == (max_strings + STRING_OFFSET))
         overflow(maketexstring("number of strings"),
-		 max_strings-init_str_ptr);
-    incr(str_ptr); 
-    str_start_macro(str_ptr)=pool_ptr;
-    return (str_ptr-1);
+                 max_strings - init_str_ptr);
+    incr(str_ptr);
+    str_start_macro(str_ptr) = pool_ptr;
+    return (str_ptr - 1);
 }
 
 
@@ -94,50 +94,51 @@ of the |buffer|.
   } while (0)
 
 
-static integer buffer_to_unichar(integer k) 
+static integer buffer_to_unichar(integer k)
 {
-    integer a; /* a utf char */
-    integer b; /* a utf nibble */
+    integer a;                  /* a utf char */
+    integer b;                  /* a utf nibble */
     char *hlp[] = {
         "A funny symbol that I can't read has just been input.",
-	"Just continue, I'll change it to 0xFFFD.",
-	NULL };
+        "Just continue, I'll change it to 0xFFFD.",
+        NULL
+    };
     b = buffer[k];
-    if (b<0x80) {
+    if (b < 0x80) {
         a = b;
-    } else if (b>=0xF8) {
+    } else if (b >= 0xF8) {
         /* the 5- and 6-byte UTF-8 sequences generate integers 
-	   that are outside of the valid UCS range, and therefore
-	   unsupported 
-	*/
+           that are outside of the valid UCS range, and therefore
+           unsupported 
+         */
         test_sequence_byte(-1);
-    } else if (b>=0xF0) {
-        a = (b-0xF0) * 64;
-	b = buffer[k+1];
-	test_sequence_byte(b);
-	a = (a + (b-128)) * 64;
-	b = buffer[k+2];
-	test_sequence_byte(b);
-	a = (a + (b-128)) * 64;
-	b = buffer[k+3];
-	test_sequence_byte(b);
-	a = a + (b-128);
-    } else if (b>=0xE0) {
-        a = (b-0xE0) * 64;
-	b = buffer[k+1];
-	test_sequence_byte(b);
-	a = (a + (b-128)) * 64;
-	b = buffer[k+2];
-	test_sequence_byte(b);
-	a = a + (b-128);
-    } else if (b>=0xC0) {
-        a = (b-0xC0) * 64;
-	b = buffer[k+1];
-	test_sequence_byte(b);
-	a = a + (b-128);
-    } else { 
-      /* This is an encoding error */
-      test_sequence_byte(-1);
+    } else if (b >= 0xF0) {
+        a = (b - 0xF0) * 64;
+        b = buffer[k + 1];
+        test_sequence_byte(b);
+        a = (a + (b - 128)) * 64;
+        b = buffer[k + 2];
+        test_sequence_byte(b);
+        a = (a + (b - 128)) * 64;
+        b = buffer[k + 3];
+        test_sequence_byte(b);
+        a = a + (b - 128);
+    } else if (b >= 0xE0) {
+        a = (b - 0xE0) * 64;
+        b = buffer[k + 1];
+        test_sequence_byte(b);
+        a = (a + (b - 128)) * 64;
+        b = buffer[k + 2];
+        test_sequence_byte(b);
+        a = a + (b - 128);
+    } else if (b >= 0xC0) {
+        a = (b - 0xC0) * 64;
+        b = buffer[k + 1];
+        test_sequence_byte(b);
+        a = a + (b - 128);
+    } else {
+        /* This is an encoding error */
+        test_sequence_byte(-1);
     }
     return a;
 }
@@ -152,19 +153,20 @@ it tends to return |true| about 80 percent of the time.
 */
 
 boolean str_eq_buf(str_number s, integer k)
-{   /* test equality of strings */
-    integer a; /* a unicode character */
-    if (s<STRING_OFFSET) {
+{                               /* test equality of strings */
+    integer a;                  /* a unicode character */
+    if (s < STRING_OFFSET) {
         a = buffer_to_unichar(k);
-	if (a!=s) 
-	  return false;
+        if (a != s)
+            return false;
     } else {
         pool_pointer j = str_start_macro(s);
-	while (j<str_start_macro(s+1)) {
-            if (str_pool[j]!=buffer[k])
-	        return false;
-	    incr(j); incr(k);
-	}
+        while (j < str_start_macro(s + 1)) {
+            if (str_pool[j] != buffer[k])
+                return false;
+            incr(j);
+            incr(k);
+        }
     }
     return true;
 }
@@ -175,37 +177,39 @@ and it does not assume that they have the same length.
 */
 
 boolean str_eq_str(str_number s, str_number t)
-{ /* test equality of strings */
-  integer a = 0; /* a utf char */  
-  if (s<STRING_OFFSET) {
-    if (t>=STRING_OFFSET) {
-      if (s<=0x7F && (str_length(t)==1) && str_pool[str_start_macro(t)]==s)
-	return true;
-      a = pool_to_unichar(str_start_macro(t));
-      if (a!=s) 
-	return false;
+{                               /* test equality of strings */
+    integer a = 0;              /* a utf char */
+    if (s < STRING_OFFSET) {
+        if (t >= STRING_OFFSET) {
+            if (s <= 0x7F && (str_length(t) == 1)
+                && str_pool[str_start_macro(t)] == s)
+                return true;
+            a = pool_to_unichar(str_start_macro(t));
+            if (a != s)
+                return false;
+        } else {
+            if (t != s)
+                return false;
+        }
+    } else if (t < STRING_OFFSET) {
+        if (t <= 0x7F && (str_length(s) == 1)
+            && str_pool[str_start_macro(s)] == t)
+            return true;
+        a = pool_to_unichar(str_start_macro(s));
+        if (a != t)
+            return false;
     } else {
-      if (t!=s) 
-	return false;
+        pool_pointer j, k;      /* running indices */
+        if (str_length(s) != str_length(t))
+            return false;
+        j = str_start_macro(s);
+        k = str_start_macro(t);
+        while (j < str_start_macro(s + 1)) {
+            if (str_pool[j++] != str_pool[k++])
+                return false;
+        }
     }
-  } else if (t<STRING_OFFSET) {
-    if (t<=0x7F && (str_length(s)==1) && str_pool[str_start_macro(s)]==t)
-      return true;
-    a = pool_to_unichar(str_start_macro(s));
-    if (a!=t) 
-      return false;
-  } else {
-    pool_pointer j,k; /* running indices */
-    if (str_length(s)!=str_length(t)) 
-      return false;
-    j=str_start_macro(s); 
-    k=str_start_macro(t);
-    while (j<str_start_macro(s+1)) {
-      if (str_pool[j++]!=str_pool[k++]) 
-	return false;
-    }
-  }
-  return true;
+    return true;
 }
 
 /*
@@ -223,18 +227,20 @@ between characters and strings.
 
 
 /* initializes the string pool, but returns |false| if something goes wrong */
-boolean get_strings_started (void) 
+boolean get_strings_started(void)
 {
-    str_number g; /* garbage */
-     pool_ptr=0; str_ptr=STRING_OFFSET; str_start[0]=0;
-     /* Read the other strings from the \.{TEX.POOL} file and return |true|,
-	or give an error message and return |false| */
-     g = loadpoolstrings((pool_size-string_vacancies));
-     if (g==0) {
-         fprintf(stdout,"! You have to increase POOLSIZE.\n");
-	 return false;
-     }
-     return true;
+    str_number g;               /* garbage */
+    pool_ptr = 0;
+    str_ptr = STRING_OFFSET;
+    str_start[0] = 0;
+    /* Read the other strings from the \.{TEX.POOL} file and return |true|,
+       or give an error message and return |false| */
+    g = loadpoolstrings((pool_size - string_vacancies));
+    if (g == 0) {
+        fprintf(stdout, "! You have to increase POOLSIZE.\n");
+        return false;
+    }
+    return true;
 }
 
 /* Declare additional routines for string recycling */
@@ -248,24 +254,24 @@ boolean get_strings_started (void)
    given string and returns either 0 or the found string number.
 */
 
-str_number search_string(str_number search) 
+str_number search_string(str_number search)
 {
-  str_number s; /* running index */
-  integer len; /* length of searched string */
-  len=str_length(search);
-  if (len==0) {
-    return get_nullstr();
-  } else {
-    s=search-1;  /* start search with newest string below |s|; |search>1|! */
-    while (s>=STRING_OFFSET)  {
-      /* first |string_offset| strings depend on implementation!! */
-      if (str_length(s)==len)
-	if (str_eq_str(s,search))
-	  return s;
-      s--;
+    str_number s;               /* running index */
+    integer len;                /* length of searched string */
+    len = str_length(search);
+    if (len == 0) {
+        return get_nullstr();
+    } else {
+        s = search - 1;         /* start search with newest string below |s|; |search>1|! */
+        while (s >= STRING_OFFSET) {
+            /* first |string_offset| strings depend on implementation!! */
+            if (str_length(s) == len)
+                if (str_eq_str(s, search))
+                    return s;
+            s--;
+        }
     }
-  }
-  return 0;
+    return 0;
 }
 
 /*
@@ -276,16 +282,15 @@ returned.  Be cautious, you can not apply |flush_string| to a replaced
 string!
 */
 
-str_number slow_make_string (void)
+str_number slow_make_string(void)
 {
-  str_number s; /* result of |search_string| */
-  str_number t; /* new string */
-  t=make_string(); 
-  s=search_string(t);
-  if (s>0) {
-    flush_string();
-    return s;
-  }
-  return t;
+    str_number s;               /* result of |search_string| */
+    str_number t;               /* new string */
+    t = make_string();
+    s = search_string(t);
+    if (s > 0) {
+        flush_string();
+        return s;
+    }
+    return t;
 }
-

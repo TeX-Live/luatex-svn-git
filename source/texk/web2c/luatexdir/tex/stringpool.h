@@ -65,7 +65,7 @@ extern str_number init_str_ptr;
 
 #define str_room(A) check_pool_overflow((pool_ptr+(A)))
 
-#define flush_char() decr(pool_ptr) /* forget the last character in the pool */
+#define flush_char() decr(pool_ptr)     /* forget the last character in the pool */
 
 /* To destroy the most recently made string, we say |flush_string|. */
 
@@ -74,10 +74,10 @@ extern str_number init_str_ptr;
      pool_ptr=str_start_macro(str_ptr);				\
    } while (0)
 
-extern str_number make_string (void);
+extern str_number make_string(void);
 extern boolean str_eq_buf(str_number s, integer k);
 extern boolean str_eq_str(str_number s, str_number t);
-extern boolean get_strings_started (void) ;
+extern boolean get_strings_started(void);
 
-extern str_number search_string(str_number search) ;
-extern str_number slow_make_string (void);
+extern str_number search_string(str_number search);
+extern str_number slow_make_string(void);
