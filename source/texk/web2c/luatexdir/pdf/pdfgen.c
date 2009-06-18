@@ -579,10 +579,14 @@ void pdf_print_bp(scaled s)
 
 void pdf_print_mag_bp(scaled s)
 {                               /* take |mag| into account */
+    pdffloat a;
     prepare_mag();
     if (int_par(param_mag_code) != 1000)
-        s = round_xn_over_d(s, int_par(param_mag_code), 1000);
-    pdf_print_bp(s);
+        a.m = lround(s * (long) int_par(param_mag_code) / 1000.0 * pstruct->k1);
+    else
+        a.m = lround(s * pstruct->k1);
+    a.e = fixed_decimal_digits;
+    print_pdffloat(&a);
 }
 
 integer fixed_pk_resolution;
