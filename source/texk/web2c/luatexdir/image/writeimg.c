@@ -297,8 +297,8 @@ void free_image_dict(image_dict * p)
 
 /**********************************************************************/
 
-void read_img(image_dict * idict, integer pdf_minor_version,
-              integer pdf_inclusion_errorlevel)
+void read_img(image_dict * idict, integer minor_version,
+              integer inclusion_errorlevel)
 {
     char *filepath;
     int callback_id;
@@ -325,7 +325,7 @@ void read_img(image_dict * idict, integer pdf_minor_version,
     /* read image */
     switch (img_type(idict)) {
     case IMG_TYPE_PDF:
-        read_pdf_info(idict, pdf_minor_version, pdf_inclusion_errorlevel);
+        read_pdf_info(idict, minor_version, inclusion_errorlevel);
         img_group_ref(idict) = epdf_lastGroupObjectNum;
         break;
     case IMG_TYPE_PNG:
@@ -335,10 +335,10 @@ void read_img(image_dict * idict, integer pdf_minor_version,
         read_jpg_info(idict, IMG_CLOSEINBETWEEN);
         break;
     case IMG_TYPE_JBIG2:
-        if (pdf_minor_version < 4) {
+        if (minor_version < 4) {
             pdftex_fail
                 ("JBIG2 images only possible with at least PDF 1.4; you are generating PDF 1.%i",
-                 (int) pdf_minor_version);
+                 (int) minor_version);
         }
         read_jbig2_info(idict);
         break;
@@ -804,7 +804,7 @@ void undumpimagemeta(integer pdfversion, integer pdfinclusionerrorlevel)
 integer read_image(integer objnum, integer index, str_number filename,
                    integer page_num, str_number page_name, str_number attr,
                    integer colorspace, integer page_box,
-                   integer pdf_minor_version, integer pdf_inclusion_errorlevel)
+                   integer minor_version, integer inclusion_errorlevel)
 {
     image_dict *idict;
     image *a = new_image();
@@ -826,7 +826,7 @@ integer read_image(integer objnum, integer index, str_number filename,
     if (attr != 0)
         img_attr(idict) = xstrdup(makecstring(attr));
     img_pagebox(idict) = page_box;
-    read_img(idict, pdf_minor_version, pdf_inclusion_errorlevel);
+    read_img(idict, minor_version, inclusion_errorlevel);
     img_unset_scaled(a);
     return img_arrayidx(a);
 }
