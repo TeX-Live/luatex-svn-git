@@ -66,7 +66,7 @@ static void calc_k2(pdfstructure * p)
 void pdf_page_init()
 {
     pdfstructure *p;
-    int i, decimal_digits = fixed_decimal_digits;
+    int decimal_digits = fixed_decimal_digits;
     if (pstruct == NULL)
         pstruct = new_pdfstructure();
     p = pstruct;
