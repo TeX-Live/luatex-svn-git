@@ -770,7 +770,6 @@ void do_pdf_font(integer font_objnum, internalfontnumber f)
      * only) there are more than 256 separate glyphs used. But for
      * now, just assume the user knows what he is doing;
      */
-    fprintf("\ndo_pdf_font(%d,%d)\n", (int)font_objnum,(int)f);
     if (!font_has_subset(f))
         return;
 
