@@ -584,10 +584,6 @@ typedef enum {
 #  define local_par_dir(a)         vinfo((a)+5)
 
 
-#  define pdf_literal_data(a)  vlink((a)+2)
-#  define pdf_literal_mode(a)  type((a)+2)
-#  define pdf_literal_type(a)  subtype((a)+2)
-
 /* type of literal data */
 #  define lua_refid_literal      1      /* not a |normal| string */
 
@@ -597,6 +593,7 @@ typedef enum {
     set_origin = 0,
     direct_page,
     direct_always,
+    scan_special,
 } ctm_transform_modes;
 
 
@@ -610,10 +607,28 @@ typedef enum {
 #  define pdf_dest_node_size 8
 #  define pdf_thread_node_size 8
 
+/*
+when a whatsit node representing annotation is created, words |1..3| are
+width, height and depth of this annotation; after shipping out words |1..4|
+are rectangle specification of annotation. For whatsit node representing
+destination |pdf_ann_left| and |pdf_ann_top| are used for some types of destinations
+*/
+
+/* coordinates of destinations/threads/annotations (in whatsit node) */
+#  define pdf_ann_left(a)      varmem[(a) + 2].cint
+#  define pdf_ann_top(a)       varmem[(a) + 3].cint
+#  define pdf_ann_right(a)     varmem[(a) + 4].cint
+#  define pdf_ann_bottom(a)    varmem[(a) + 5].cint
+
 #  define pdf_width(a)         varmem[(a) + 2].cint
 #  define pdf_height(a)        varmem[(a) + 3].cint
 #  define pdf_depth(a)         varmem[(a) + 4].cint
 
+#  define pdf_literal_data(a)  vlink((a)+2)
+#  define pdf_literal_mode(a)  type((a)+2)
+#  define pdf_literal_type(a)  subtype((a)+2)
+
+#  define pdf_ximage_idx(a)    vinfo((a) + 5) /* image index in array */ /* replaces next? */
 #  define pdf_ximage_objnum(a) vinfo((a) + 5)   /* this will be removed soon */
 #  define pdf_ximage_ref(a)    vinfo((a) + 5)
 #  define pdf_xform_objnum(a)  vinfo((a) + 5)

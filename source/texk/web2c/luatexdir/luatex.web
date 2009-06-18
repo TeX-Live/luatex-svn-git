@@ -12386,7 +12386,6 @@ var base_line: scaled; {the baseline coordinate for this box}
 c_wd,c_ht,c_dp: scaled;
   {the real width, height and depth of the character}
 w: scaled; { temporary value for directional width calculation }
-dir_nest: integer; { for tracking nested direction nodes }
 edge_v: scaled;
 edge_h: scaled;
 effective_horizontal: scaled;
@@ -12410,9 +12409,7 @@ dir_ptr,dir_tmp:pointer;
 @!edge:scaled; {right edge of sub-box or leader space}
 @!glue_temp:real; {glue value before rounding}
 @!cur_glue:real; {glue seen so far}
-@!save_cur_glue:real; { saved version, for direction switch }
 @!cur_g:scaled; {rounded equivalent of |cur_glue| times the glue ratio}
-@!save_cur_g:scaled; { saved version, for direction switch }
 begin cur_g:=0; cur_glue:=float_constant(0);
 this_box:=temp_ptr; g_order:=glue_order(this_box);
 g_sign:=glue_sign(this_box); p:=list_ptr(this_box);
@@ -13645,6 +13642,11 @@ end;
 
 This is now in pdfgen.c.
 
+@ data structure for \.{\\latelua}
+
+@d late_lua_data           == write_tokens {data}
+@d late_lua_name(#)        == vlink(#+3) {name}
+
 @p procedure latelua(s: pointer; r: pointer);
 var b: pool_pointer; {current character code position}
 begin
@@ -13660,646 +13662,22 @@ begin
     end;
 end;
 
+@ @p
+procedure do_late_lua(p: pointer);
+begin
+   if not doing_leaders then begin
+      expand_late_lua(p);
+      latelua(def_ref, late_lua_name(p));
+      flush_list(def_ref);
+    end;
+end;
+
+
 @* \[32d] The cross-reference table.
-
-The cross-reference table |obj_tab| is an array of |obj_tab_size| of
-|obj_entry|. Each entry contains five integer fields and represents an object
-in PDF file whose object number is the index of this entry in |obj_tab|.
-Objects in |obj_tab| maybe linked into list; objects in such a linked list have
-the same type.
-
-@<Types...@>=
-@!obj_entry = record@;@/
-    int0, int1: integer;
-    int2: longinteger;
-    int3, int4: integer;
-end;
-
-@ The first field contains information representing identifier of this object.
-It is usally a number for most of object types, but it may be a string number
-for named destination or named thread.
-
-The second field of |obj_entry| contains link to the next
-object in |obj_tab| if this object is linked in a list.
-
-The third field holds the byte offset of the object in the output PDF file,
-or its byte offset within an object stream. As long as the object is not
-written, this field is used for flags about the write status of the object;
-then it has a negative value.
-
-The fourth field holds the object number of the object stream, into which
-the object is included.
-
-The last field usually represents the pointer to some auxiliary data
-structure depending on the object type; however it may be used as a counter as
-well.
-
-@d obj_info(#) == obj_tab[#].int0 {information representing identifier of this object}
-@d obj_link(#) == obj_tab[#].int1 {link to the next entry in linked list}
-@d obj_offset(#) == obj_tab[#].int2 {negative (flags), or byte offset for this object in PDF output file, or object stream number for this object}
-@d obj_os_idx(#) == obj_tab[#].int3 {index of this object in object stream}
-@d obj_aux(#) == obj_tab[#].int4 {auxiliary pointer}
-
-@d set_obj_fresh(#) == obj_offset(#) := -2
-@d set_obj_scheduled(#) == if intcast(obj_offset(#)) = -2 then obj_offset(#) := -1
-@d is_obj_scheduled(#) == (intcast(obj_offset(#)) > -2)
-@d is_obj_written(#) == (intcast(obj_offset(#)) > -1)
-
-@# {types of objects}
-@d obj_type_others              == 0 {objects which are not linked in any list}
-@d obj_type_page                == 1 {index of linked list of Page objects}
-@d obj_type_font                == 2 {index of linked list of Fonts objects}
-@d obj_type_outline             == 3 {index of linked list of outline objects}
-@d obj_type_dest                == 4 {index of linked list of destination objects}
-@d obj_type_obj                 == 5 {index of linked list of raw objects}
-@d obj_type_xform               == 6 {index of linked list of XObject forms}
-@d obj_type_ximage              == 7 {index of linked list of XObject image}
-@d obj_type_thread              == 8 {index of linked list of num article threads}
-@d head_tab_max                 == obj_type_thread {max index of |head_tab|}
-
-@# {max number of kids for balanced trees}
-@d name_tree_kids_max      == 6 {max number of kids of node of name tree for
-name destinations}
-
-@# {when a whatsit node representing annotation is created, words |1..3| are
-width, height and depth of this annotation; after shipping out words |1..4|
-are rectangle specification of annotation. For whatsit node representing
-destination |pdf_ann_left| and |pdf_ann_top| are used for some types of destinations}
-
-@# {coordinates of destinations/threads/annotations (in whatsit node)}
-@d pdf_ann_left(#)         == vmem(# + 2).sc
-@d pdf_ann_top(#)          == vmem(# + 3).sc
-@d pdf_ann_right(#)        == vmem(# + 4).sc
-@d pdf_ann_bottom(#)       == vmem(# + 5).sc
-
-@# {dimension of destinations/threads/annotations (in whatsit node)}
-@d pdf_width(#)            == vmem(# + 2).sc
-@d pdf_height(#)           == vmem(# + 3).sc
-@d pdf_depth(#)            == vmem(# + 4).sc
-
-@# {data structure for \.{\\pdfliteral}}
-@d pdf_literal_data(#)     == vlink(#+2) {data}
-@d pdf_literal_mode(#)     == type(#+2) {mode of resetting the text matrix
-                              while writing data to the page stream}
-@d pdf_literal_type(#)     == subtype(#+2) {indicates whether data is a |str_number| or
-                               something else}
-@# {modes of setting the current transformation matrix (CTM)}
-@d set_origin              == 0 {end text (ET) if needed, set CTM to current point}
-@d direct_page             == 1 {end text (ET) if needed, but don't change the CTM}
-@d direct_always           == 2 {don't end text, don't change the CTM}
-@d scan_special            == 3 {look into special text}
-
-@# {data structure for \.{\\pdfcolorstack}}
-@d pdf_colorstack_stack(#)  == vlink(#+2) {stack number}
-@d pdf_colorstack_cmd(#)    == vinfo(#+2) {command: set, push, pop, current}
-@d pdf_colorstack_data(#)   == vlink(#+3) {data}
-
-@# {color stack commands}
-@d colorstack_set          == 0
-@d colorstack_push         == 1
-@d colorstack_data         == 1 { last value where data field is set }
-@d colorstack_pop          == 2
-@d colorstack_current      == 3
-
-@# {data structure for \.{\\pdfsetmatrix}}
-@d pdf_setmatrix_data(#)   == vlink(#+2) {data}
-
-@# {data structure for \.{\\pdfsave}}
-
-@# {data structure for \.{\\pdfrestore}}
-
-@# {data structure for \.{\\latelua}}
-@d late_lua_data           == write_tokens {data}
-@d late_lua_name(#)        == vlink(#+3) {name}
-
-@# {data structure for \.{\\pdfobj} and \.{\\pdfrefobj}}
-@d pdf_obj_objnum(#)       == vinfo(# + 2) {number of the raw object}
-@d obj_data_ptr            == obj_aux {pointer to |pdf_mem|}
-@d pdfmem_obj_size         == 4 {size of memory in |pdf_mem| which |obj_data_ptr| holds}
-@d obj_obj_data(#)         == pdf_mem[obj_data_ptr(#) + 0] {object data}
-@d obj_obj_is_stream(#)    == pdf_mem[obj_data_ptr(#) + 1] {will this object
-                              be written as a stream instead of a dictionary?}
-@d obj_obj_stream_attr(#)  == pdf_mem[obj_data_ptr(#) + 2] {additional
-                              object attributes for streams}
-@d obj_obj_is_file(#)      == pdf_mem[obj_data_ptr(#) + 3] {data should be
-                              read from an external file?}
-
-@# {data structure for \.{\\pdfxform} and \.{\\pdfrefxform}}
-@d pdfmem_xform_size       == 6 {size of memory in |pdf_mem| which
-                              |obj_data_ptr| holds}
-
-@d pdf_xform_objnum(#)     == vinfo(# + 4) {object number}
-@d obj_xform_width(#)      == pdf_mem[obj_data_ptr(#) + 0]
-@d obj_xform_height(#)     == pdf_mem[obj_data_ptr(#) + 1]
-@d obj_xform_depth(#)      == pdf_mem[obj_data_ptr(#) + 2]
-@d obj_xform_box(#)        == pdf_mem[obj_data_ptr(#) + 3] {this field holds
-                              pointer to the corresponding box}
-@d obj_xform_attr(#)       == pdf_mem[obj_data_ptr(#) + 4] {additional xform
-                              attributes}
-@d obj_xform_resources(#)  == pdf_mem[obj_data_ptr(#) + 5] {additional xform
-                              Resources}
-
-@# {data structure for \.{\\pdfximage} and \.{\\pdfrefximage}}
-@d pdf_ximage_idx(#)       == vinfo(# + 5) {image index in array}
-
-@# {data structure of annotations; words 1..4 represent the coordinates of
-    the annotation}
-@d obj_annot_ptr           == obj_aux {pointer to corresponding whatsit node}
-@d pdf_annot_data(#)       == vinfo(# + 6) {raw data of general annotations}
-@d pdf_link_attr(#)        == vinfo(# + 6) {attributes of link annotations}
-@d pdf_link_action(#)      == vlink(# + 6) {pointer to action structure}
-@d pdf_annot_objnum(#)     == vmem(# + 7).int {object number of corresponding object}
-@d pdf_link_objnum(#)      == vmem(# + 7).int {object number of corresponding object}
-
-@# {types of actions}
-@d pdf_action_page         == 0 {GoTo action}
-@d pdf_action_goto         == 1 {GoTo action}
-@d pdf_action_thread       == 2 {Thread action}
-@d pdf_action_user         == 3 {user-defined action}
-
-@# {data structure of actions}
-@d pdf_action_type(#)      == type(#+1) {action type}
-@d pdf_action_named_id(#)  == subtype(#+1) {identifier is type of name}
-@d pdf_action_id(#)        == vlink(#+1) {destination/thread name identifier}
-@d pdf_action_file(#)      == vinfo(# + 2) {file name for external action}
-@d pdf_action_new_window(#) == vlink(# + 2) {open a new window?}
-@d pdf_action_tokens(#)    == vinfo(# + 3) {specification of GoTo page or user action}
-@d pdf_action_refcount(#)  == vlink(# + 3) {counter of references to this action}
-
-@# {data structure of outlines; it's not able to write out outline entries
-before all outline entries are defined, so memory allocated for outline
-entries can't not be deallocated and will stay in memory. For this reason we
-will store data of outline entries in |pdf_mem| instead of |mem|}
-@d pdfmem_outline_size     == 8 {size of memory in |pdf_mem| which
-                                  |obj_outline_ptr| points to}
-@d obj_outline_count        == obj_info{count of all opened children}
-@d obj_outline_ptr          == obj_aux {pointer to |pdf_mem|}
-@d obj_outline_title(#)     == pdf_mem[obj_outline_ptr(#)]
-@d obj_outline_parent(#)    == pdf_mem[obj_outline_ptr(#) + 1]
-@d obj_outline_prev(#)      == pdf_mem[obj_outline_ptr(#) + 2]
-@d obj_outline_next(#)      == pdf_mem[obj_outline_ptr(#) + 3]
-@d obj_outline_first(#)     == pdf_mem[obj_outline_ptr(#) + 4]
-@d obj_outline_last(#)      == pdf_mem[obj_outline_ptr(#) + 5]
-@d obj_outline_action_objnum(#) == pdf_mem[obj_outline_ptr(#) + 6] {object number of
-action}
-@d obj_outline_attr(#)      == pdf_mem[obj_outline_ptr(#) + 7]
-
-@# {types of destinations}
-@d pdf_dest_xyz             == 0
-@d pdf_dest_fit             == 1
-@d pdf_dest_fith            == 2
-@d pdf_dest_fitv            == 3
-@d pdf_dest_fitb            == 4
-@d pdf_dest_fitbh           == 5
-@d pdf_dest_fitbv           == 6
-@d pdf_dest_fitr            == 7
-
-@# {data structure of destinations}
-@d obj_dest_ptr             == obj_aux {pointer to |pdf_dest_node|}
-@d pdf_dest_type(#)          == type(# + 6) {type of destination}
-@d pdf_dest_named_id(#)      == subtype(# + 6) {is named identifier?}
-@d pdf_dest_id(#)            == vlink(# + 6) {destination identifier}
-@d pdf_dest_xyz_zoom(#)      == vinfo(# + 7) {zoom factor for |destxyz| destination}
-@d pdf_dest_objnum(#)        == vlink(# + 7) {object number of corresponding
-object}
-
-@# {data structure of threads; words 1..4 represent the coordinates of the
-    corners}
-@d pdf_thread_named_id(#)    == subtype(# + 6) {is a named identifier}
-@d pdf_thread_id(#)          == vlink(# + 6) {thread identifier}
-@d pdf_thread_attr(#)        == vinfo(# + 7) {attributes of thread}
-@d obj_thread_first          == obj_aux {pointer to the first bead}
-
-@# {data structure of beads}
-@d pdfmem_bead_size         == 5 {size of memory in |pdf_mem| which
-                                  |obj_bead_ptr| points to}
-@d obj_bead_ptr             == obj_aux {pointer to |pdf_mem|}
-@d obj_bead_rect(#)         == pdf_mem[obj_bead_ptr(#)]
-@d obj_bead_page(#)         == pdf_mem[obj_bead_ptr(#) + 1]
-@d obj_bead_next(#)         == pdf_mem[obj_bead_ptr(#) + 2]
-@d obj_bead_prev(#)         == pdf_mem[obj_bead_ptr(#) + 3]
-@d obj_bead_attr(#)         == pdf_mem[obj_bead_ptr(#) + 4]
-@d obj_bead_data            == obj_bead_rect {pointer to the corresponding
-whatsit node; |obj_bead_rect| is needed only when the bead rectangle has
-been written out and after that |obj_bead_data| is not needed any more
-so we can use this field for both}
-
-@<Constants...@>=
-@!inf_obj_tab_size = 1000; {min size of the cross-reference table for PDF output}
-@!sup_obj_tab_size = 8388607; {max size of the cross-reference table for PDF output}
-@!inf_dest_names_size = 1000; {min size of the destination names table for PDF output}
-@!sup_dest_names_size = 131072; {max size of the destination names table for PDF output}
-@!inf_pk_dpi = 72; {min PK pixel density value from \.{texmf.cnf}}
-@!sup_pk_dpi = 8000; {max PK pixel density value from \.{texmf.cnf}}
-@!pdf_objtype_max = head_tab_max;
-
-@ @<Glob...@>=
-@!obj_tab_size:integer;
-@!obj_tab:^obj_entry;
-@!head_tab: array[1..head_tab_max] of integer;
-@!pages_tail: integer;
-@!obj_ptr: integer; {user objects counter}
-@!sys_obj_ptr: integer; {system objects counter, including object streams}
-@!pdf_last_pages: integer; {pointer to most recently generated pages object}
-@!pdf_last_page: integer; {pointer to most recently generated page object}
-@!pdf_last_stream: integer; {pointer to most recently generated stream}
-@!pdf_stream_length: longinteger; {length of most recently generated stream}
-@!pdf_stream_length_offset: longinteger; {file offset of the last stream length}
-@!pdf_seek_write_length: boolean; {flag whether to seek back and write \.{/Length}}
-@!pdf_last_byte: integer; {byte most recently written to PDF file; for \.{endstream} in new line}
-@!pdf_append_list_arg: integer; {for use with |pdf_append_list|}
-@!ff: integer; {for use with |set_ff|}
-@!pdf_box_spec_media: integer;
-@!pdf_box_spec_crop: integer;
-@!pdf_box_spec_bleed: integer;
-@!pdf_box_spec_trim: integer;
-@!pdf_box_spec_art: integer;
-
-@ @<Set init...@>=
-obj_ptr := 0;
-sys_obj_ptr := 0;
-obj_tab_size := inf_obj_tab_size; {allocated size of |obj_tab| array}
-dest_names_size := inf_dest_names_size; {allocated size of |dest_names| array}
-for k := 1 to head_tab_max do
-    head_tab[k] := 0;
-pdf_box_spec_media  := 1;
-pdf_box_spec_crop   := 2;
-pdf_box_spec_bleed  := 3;
-pdf_box_spec_trim   := 4;
-pdf_box_spec_art    := 5;
-pdf_seek_write_length := false;
-
-@ Here we implement subroutines for work with objects and related things.
-Some of them are used in former parts too, so we need to declare them
-forward.
-
-@d pdf_append_list_end(#) == # := append_ptr(#, pdf_append_list_arg); end
-@d pdf_append_list(#) == begin pdf_append_list_arg := #; pdf_append_list_end
-@d set_ff(#) == begin
-    if pdf_font_num(#) < 0 then
-        ff := -pdf_font_num(#)
-    else
-        ff := #;
-end
-
-@<Declare procedures that need to be declared forward for \pdfTeX@>=
-procedure append_dest_name(s: str_number; n: integer);
-var a: integer;
-begin
-    if pdf_dest_names_ptr = sup_dest_names_size then
-        overflow("number of destination names (dest_names_size)", dest_names_size);
-    if pdf_dest_names_ptr = dest_names_size then begin
-        a := 0.2 * dest_names_size;
-        if dest_names_size < sup_dest_names_size - a then
-            dest_names_size := dest_names_size + a
-        else
-            dest_names_size := sup_dest_names_size;
-        dest_names := xreallocarray(dest_names, dest_name_entry, dest_names_size);
-    end;
-    dest_names[pdf_dest_names_ptr].objname := s;
-    dest_names[pdf_dest_names_ptr].objnum := n;
-    incr(pdf_dest_names_ptr);
-end;
-
-procedure pdf_create_obj(t, i: integer); {create an object with type |t| and
-identifier |i|}
-label done;
-var a, p, q: integer;
-begin
-    if sys_obj_ptr = sup_obj_tab_size then
-        overflow("indirect objects table size", obj_tab_size);
-    if sys_obj_ptr = obj_tab_size then begin
-        a := 0.2 * obj_tab_size;
-        if obj_tab_size < sup_obj_tab_size - a then
-            obj_tab_size := obj_tab_size + a
-        else
-            obj_tab_size := sup_obj_tab_size;
-        obj_tab := xreallocarray(obj_tab, obj_entry, obj_tab_size);
-    end;
-    incr(sys_obj_ptr);
-    obj_ptr := sys_obj_ptr;
-    obj_info(obj_ptr) := i;
-    set_obj_fresh(obj_ptr);
-    obj_aux(obj_ptr) := 0;
-    avl_put_obj(obj_ptr, t);
-    if t = obj_type_page then begin
-        p := head_tab[t];
-        {find the right position to insert newly created object}@/
-        if (p = 0) or (obj_info(p) < i) then begin
-            obj_link(obj_ptr) := p;
-            head_tab[t] := obj_ptr;
-        end
-        else begin
-            while p <> 0 do begin
-                if obj_info(p) < i then
-                    goto done;
-                q := p;
-                p := obj_link(p);
-            end;
-done:
-            obj_link(q) := obj_ptr;
-            obj_link(obj_ptr) := p;
-        end;
-    end
-    else if t <> obj_type_others then begin
-        obj_link(obj_ptr) := head_tab[t];
-        head_tab[t] := obj_ptr;
-        if (t = obj_type_dest) and (i < 0) then
-            append_dest_name(-obj_info(obj_ptr), obj_ptr);
-    end;
-end;
-
-function pdf_new_objnum: integer; {create a new object and return its number}
-begin
-    pdf_create_obj(obj_type_others, 0);
-    pdf_new_objnum := obj_ptr;
-end;
-
-procedure pdf_os_switch(pdf_os: boolean); {switch between PDF stream and object stream mode}
-begin
-    if pdf_os and pdf_os_enable then begin
-        if not pdf_os_mode then begin {back up PDF stream variables}
-            pdf_op_ptr := pdf_ptr;
-            pdf_ptr := pdf_os_ptr;
-            pdf_buf := pdf_os_buf;
-            pdf_buf_size := pdf_os_buf_size;
-            pdf_os_mode := true; {switch to object stream}
-        end;
-    end else begin
-        if pdf_os_mode then begin {back up object stream variables}
-            pdf_os_ptr := pdf_ptr;
-            pdf_ptr := pdf_op_ptr;
-            pdf_buf := pdf_op_buf;
-            pdf_buf_size := pdf_op_buf_size;
-            pdf_os_mode := false; {switch to PDF stream}
-        end;
-    end;
-end;
-
-procedure pdf_os_prepare_obj(i: integer; pdf_os_level: integer); {create new \.{/ObjStm} object
-if required, and set up cross reference info}
-begin
-    pdf_os_switch((pdf_os_level > 0) and (fixed_pdf_objcompresslevel >= pdf_os_level));
-    if pdf_os_mode then begin
-        if pdf_os_cur_objnum = 0 then begin
-            pdf_os_cur_objnum := pdf_new_objnum;
-            decr(obj_ptr); {object stream is not accessible to user}
-            incr(pdf_os_cntr); {only for statistics}
-            pdf_os_objidx := 0;
-            pdf_ptr := 0; {start fresh object stream}
-        end else
-            incr(pdf_os_objidx);
-        obj_os_idx(i) := pdf_os_objidx;
-        obj_offset(i) := pdf_os_cur_objnum;
-        pdf_os_objnum[pdf_os_objidx] := i;
-        pdf_os_objoff[pdf_os_objidx] := pdf_ptr;
-    end else begin
-        obj_offset(i) := pdf_offset;
-        obj_os_idx(i) := -1; {mark it as not included in object stream}
-    end;
-end;
-
-procedure pdf_begin_obj(i: integer; pdf_os_level: integer); {begin a PDF object}
-begin
-    check_pdfminorversion;
-    pdf_os_prepare_obj(i, pdf_os_level);
-    if not pdf_os_mode then begin
-        pdf_print_int(i);
-        pdf_print_ln(" 0 obj");
-    end else if pdf_compress_level = 0 then begin
-        pdf_print("% "); {debugging help}
-        pdf_print_int(i);
-        pdf_print_ln(" 0 obj");
-    end;
-end;
-
-procedure pdf_new_obj(t, i: integer; pdf_os: integer); {begin a new PDF object}
-begin
-    pdf_create_obj(t, i);
-    pdf_begin_obj(obj_ptr, pdf_os);
-end;
-
-procedure pdf_end_obj; {end a PDF object}
-begin
-    if pdf_os_mode then begin
-        if pdf_os_objidx = pdf_os_max_objs - 1 then
-            pdf_os_write_objstream;
-    end else
-        pdf_print_ln("endobj"); {end a PDF object}
-end;
-
-procedure pdf_begin_dict(i: integer; pdf_os_level: integer); {begin a PDF dictionary object}
-begin
-    check_pdfminorversion;
-    pdf_os_prepare_obj(i, pdf_os_level);
-    if not pdf_os_mode then begin
-        pdf_print_int(i);
-        pdf_print(" 0 obj ");
-    end else if pdf_compress_level = 0 then begin
-        pdf_print("% "); {debugging help}
-        pdf_print_int(i);
-        pdf_print_ln(" 0 obj");
-    end;
-    pdf_print_ln("<<");
-end;
-
-procedure pdf_new_dict(t, i: integer; pdf_os: integer); {begin a new PDF dictionary object}
-begin
-    pdf_create_obj(t, i);
-    pdf_begin_dict(obj_ptr, pdf_os);
-end;
-
-procedure pdf_end_dict; {end a PDF dictionary object}
-begin
-    if pdf_os_mode then begin
-        pdf_print_ln(">>");
-        if pdf_os_objidx = pdf_os_max_objs - 1 then
-            pdf_os_write_objstream;
-    end else
-        pdf_print_ln(">> endobj");
-end;
-
-@ Write out an accumulated object stream.
-First the object number and byte offset pairs are generated
-and appended to the ready buffered object stream.
-By this the value of \.{/First} can be calculated.
-Then a new \.{/ObjStm} object is generated, and everything is
-copied to the PDF output buffer, where also compression is done.
-When calling this procedure, |pdf_os_mode| must be |true|.
-
-@<Declare procedures that need to be declared forward for \pdfTeX@>=
-procedure pdf_os_write_objstream;
-var i, j, p, q: pointer;
-begin
-    if pdf_os_cur_objnum = 0 then {no object stream started}
-        return;
-    p := pdf_ptr;
-    i := 0;
-    j := 0;
-    while i <= pdf_os_objidx do begin {assemble object number and byte offset pairs}
-        pdf_print_int(pdf_os_objnum[i]);
-        pdf_print(" ");
-        pdf_print_int(pdf_os_objoff[i]);
-        if j = 9 then begin {print out in groups of ten for better readability}
-            pdf_out(pdf_new_line_char);
-            j := 0;
-        end else begin
-            pdf_print(" ");
-            incr(j);
-        end;
-        incr(i);
-    end;
-    pdf_buf[pdf_ptr - 1] := pdf_new_line_char; {no risk of flush, as we are in |pdf_os_mode|}
-    q := pdf_ptr;
-    pdf_begin_dict(pdf_os_cur_objnum, 0); {switch to PDF stream writing}
-    pdf_print_ln("/Type /ObjStm");
-    pdf_print("/N ");
-    pdf_print_int_ln(pdf_os_objidx + 1);
-    pdf_print("/First ");
-    pdf_print_int_ln(q - p);
-    pdf_begin_stream;
-    pdf_room(q - p); {should always fit into the PDF output buffer}
-    i := p;
-    while i < q do begin {write object number and byte offset pairs}
-        pdf_quick_out(pdf_os_buf[i]);
-        incr(i);
-    end;
-    i := 0;
-    while i < p do begin
-        q := i + pdf_buf_size;
-        if q > p then q := p;
-        pdf_room(q - i);
-        while i < q do begin {write the buffered objects}
-            pdf_quick_out(pdf_os_buf[i]);
-            incr(i);
-        end;
-    end;
-    pdf_end_stream;
-    pdf_os_cur_objnum := 0; {to force object stream generation next time}
-end;
-
-@ @<Declare procedures that need to be declared forward for \pdfTeX@>=
-function append_ptr(p: pointer; i: integer): pointer; {appends a pointer with
-info |i| to the end of linked list with head |p|}
-var q: pointer;
-begin
-    append_ptr := p;
-    fast_get_avail(q);
-    info(q) := i;
-    link(q) := null;
-    if p = null then begin
-        append_ptr := q;
-        return;
-    end;
-    while link(p) <> null do
-        p := link(p);
-    link(p) := q;
-end;
-
-function pdf_lookup_list(p: pointer; i: integer): pointer; {looks up for pointer
-with info |i| in list |p|}
-begin
-    pdf_lookup_list := null;
-    while p <> null do begin
-        if info(p) = i then begin
-            pdf_lookup_list := p;
-            return;
-        end;
-        p := link(p);
-    end;
-end;
 
 @ @<Glob...@>=
 @!pdf_image_procset: integer; {collection of image types used in current page/form}
 @!pdf_text_procset: boolean; {mask of used ProcSet's in the current page/form}
-
-@ Subroutines to print out various PDF objects
-
-@p procedure pdf_print_fw_int(n: longinteger; w: integer); {print out an integer with
-fixed width; used for outputting cross-reference table}
-var k: integer; {$0\le k\le23$}
-begin
-    k := 0;
-    repeat dig[k] := n mod 10; n := n div 10; incr(k);
-    until k = w;
-    pdf_room(k);
-    while k > 0 do begin
-        decr(k);
-        pdf_quick_out("0" + dig[k]);
-    end;
-end;
-
-procedure pdf_out_bytes(n: longinteger; w: integer); {print out an integer as
-a number of bytes; used for outputting \.{/XRef} cross-reference stream}
-var k: integer;
-byte: array[0..7] of integer; {digits in a number being output}
-begin
-    k := 0;
-    repeat byte[k] := n mod 256; n := n div 256; incr(k);
-    until k = w;
-    pdf_room(k);
-    while k > 0 do begin
-        decr(k);
-        pdf_quick_out(byte[k]);
-    end;
-end;
-
-procedure pdf_int_entry(s: str_number; v: integer); {print out an entry in
-dictionary with integer value to PDF buffer}
-begin
-    pdf_out("/");
-    pdf_print(s);
-    pdf_out(" ");
-    pdf_print_int(v);
-end;
-
-procedure pdf_int_entry_ln(s: str_number; v: integer);
-begin
-    pdf_int_entry(s, v);
-    pdf_print_nl;
-end;
-
-procedure pdf_indirect(s: str_number; o: integer); {print out an indirect
-entry in dictionary}
-begin
-    pdf_out("/");
-    pdf_print(s);
-    pdf_out(" ");
-    pdf_print_int(o);
-    pdf_print(" 0 R");
-end;
-
-procedure pdf_indirect_ln(s: str_number; o: integer);
-begin
-    pdf_indirect(s, o);
-    pdf_print_nl;
-end;
-
-procedure pdf_print_str_ln(s: str_number); {print out |s| as string in PDF
-output}
-begin
-    pdf_print_str(s);
-    pdf_print_nl;
-end;
-
-procedure pdf_str_entry(s, v: str_number); {print out an entry in
-dictionary with string value to PDF buffer}
-begin
-    if v = 0 then
-        return;
-    pdf_out("/");
-    pdf_print(s);
-    pdf_out(" ");
-    pdf_print_str(v);
-end;
-
-procedure pdf_str_entry_ln(s, v: str_number);
-begin
-    if v = 0 then
-        return;
-    pdf_str_entry(s, v);
-    pdf_print_nl;
-end;
 
 @* \[32e] Font processing.
 
@@ -14688,694 +14066,7 @@ last_tokens_string := 0;
 @ Reading VF files is done in C, using the procedure |do_vf()|
 
 @* \[32f] PDF shipping out.
-To ship out a \TeX\ box to PDF page description we need to implement
-|pdf_hlist_out|, |pdf_vlist_out| and |pdf_ship_out|, which are equivalent to
-the \TeX' original |hlist_out|, |vlist_out| and |ship_out| resp. But first we
-need to declare some procedures needed in |pdf_hlist_out| and |pdf_vlist_out|.
 
-@<Declare procedures needed in |pdf_hlist_out|, |pdf_vlist_out|@>=
-procedure pdf_out_literal(p:pointer);
-var old_setting:0..max_selector; {holds print |selector|}
-    s: str_number;
-begin
-    if pdf_literal_type(p)=normal then begin
-      old_setting:=selector; selector:=new_string;
-      show_token_list(link(pdf_literal_data(p)),null,pool_size-pool_ptr);
-      selector:=old_setting;
-      s := make_string;
-      pdf_literal(s, pdf_literal_mode(p), false);
-      flush_str(s);
-      end
-    else begin
-      pdfassert(pdf_literal_mode(p)<>scan_special);
-      case pdf_literal_mode(p) of
-      set_origin: begin
-        pdf_goto_pagemode;
-        synch_pos_with_cur;
-        pdf_set_pos(pos.h, pos.v);
-        end;
-      direct_page:
-        pdf_goto_pagemode;
-      direct_always:
-        pdf_end_string_nl;
-      othercases confusion("literal1")
-      endcases;
-      lua_pdf_literal(pdf_literal_data(p));
-      end;
-end;
-
-procedure pdf_out_colorstack(p:pointer);
-var old_setting: 0..max_selector; {holds print |selector|}
-    s: str_number;
-    cmd: integer;
-    stack_no: integer;
-    literal_mode: integer;
-begin
-    cmd := pdf_colorstack_cmd(p);
-    stack_no := pdf_colorstack_stack(p);
-    literal_mode := 0;
-    if stack_no >= colorstackused then begin
-        print_nl("");
-        print("Color stack ");
-        print_int(stack_no);
-        print(" is not initialized for use!");
-        print_nl("");
-        return;
-    end;
-    case cmd of
-    colorstack_set, colorstack_push: begin
-        old_setting:=selector; selector:=new_string;
-        show_token_list(link(pdf_colorstack_data(p)),null,pool_size-pool_ptr);
-        selector:=old_setting;
-        s := make_string;
-        if cmd = colorstack_set then
-            literal_mode := colorstackset(stack_no, s)
-        else
-            literal_mode := colorstackpush(stack_no, s);
-        if length(s) > 0 then
-            pdf_literal(s, literal_mode, false);
-        flush_str(s);
-        return;
-    end;
-    colorstack_pop: literal_mode := colorstackpop(stack_no);
-    colorstack_current: literal_mode := colorstackcurrent(stack_no);
-    othercases do_nothing
-    endcases;
-    if cur_length > 0 then begin
-        s := make_string;
-        pdf_literal(s, literal_mode, false);
-        flush_str(s);
-    end
-end;
-
-procedure pdf_out_colorstack_startpage;
-var i: integer;
-    max: integer;
-    start_status: integer;
-    literal_mode: integer;
-    s: str_number;
-begin
-    i := 0;
-    max := colorstackused;
-    while i < max do begin
-        start_status := colorstackskippagestart(i);
-        if start_status = 0 then begin
-            literal_mode := colorstackcurrent(i);
-            if cur_length > 0 then begin
-                s := make_string;
-                pdf_literal(s, literal_mode, false);
-                flush_str(s);
-            end;
-        end;
-        incr(i);
-    end;
-end;
-
-procedure pdf_out_setmatrix(p:pointer);
-var old_setting:0..max_selector; {holds print |selector|}
-    s: str_number;
-begin
-    old_setting:=selector; selector:=new_string;
-    show_token_list(link(pdf_setmatrix_data(p)),null,pool_size-pool_ptr);
-    selector:=old_setting;
-    str_room(7);
-    str_pool[pool_ptr] := 0; { make C string for pdfsetmatrix }
-    synch_pos_with_cur;
-    pdfsetmatrix(str_start_macro(str_ptr), pos);
-    str_room(7);
-    append_char(" ");
-    append_char("0");
-    append_char(" ");
-    append_char("0");
-    append_char(" ");
-    append_char("c");
-    append_char("m");
-    s := make_string;
-    pdf_literal(s, set_origin, false);
-    flush_str(s);
-end;
-
-procedure pdf_out_save;
-begin
-    synch_pos_with_cur;
-    checkpdfsave(pos);
-    pdf_literal("q", set_origin, false);
-end;
-
-procedure pdf_out_restore;
-begin
-    synch_pos_with_cur;
-    checkpdfrestore(pos);
-    pdf_literal("Q", set_origin, false);
-end;
-
-procedure pdf_special(p: pointer);
-var old_setting:0..max_selector; {holds print |selector|}
-    s: str_number;
-begin
-    old_setting:=selector; selector:=new_string;
-    show_token_list(link(write_tokens(p)),null,pool_size-pool_ptr);
-    selector:=old_setting;
-    s := make_string;
-    pdf_literal(s, scan_special, true);
-    flush_str(s);
-end;
-
-procedure do_late_lua(p: pointer);
-begin
-   if not doing_leaders then begin
-      expand_late_lua(p);
-      latelua(def_ref, late_lua_name(p));
-      flush_list(def_ref);
-    end;
-end;
-
-procedure pdf_print_toks(p: pointer); {print tokens list |p|}
-var s: str_number;
-begin
-    s := tokens_to_string(p);
-    if length(s) > 0 then
-        pdf_print(s);
-    flush_str(s);
-end;
-
-procedure pdf_print_toks_ln(p: pointer); {print tokens list |p|}
-var s: str_number;
-begin
-    s := tokens_to_string(p);
-    if length(s) > 0 then begin
-        pdf_print_ln(s);
-    end;
-    flush_str(s);
-end;
-
-@ Similiar to |vlist_out|, |pdf_vlist_out| needs to be declared forward
-
-@p procedure@?pdf_vlist_out; forward;
-
-@ The implementation of procedure |pdf_hlist_out| is similiar to |hlist_out|
-
-@p @t\4@>@<Declare procedures needed in |pdf_hlist_out|, |pdf_vlist_out|@>@t@>@/
-
-procedure pdf_hlist_out; {output an |hlist_node| box}
-label move_past, fin_rule, next_p;
-var base_line: scaled; {the baseline coordinate for this box}
-w: scaled; { temporary value for directional width calculation }
-dir_nest: integer; { for tracking nested direction nodes }
-edge_v: scaled;
-edge_h: scaled;
-effective_horizontal: scaled;
-basepoint_horizontal: scaled;
-basepoint_vertical: scaled;
-save_direction: integer;
-dvi_ptr,dir_ptr,dir_tmp:pointer;
-@!left_edge: scaled; {the left coordinate for this box}
-@!save_h: scaled; {what |cur.h| should pop to}
-@!save_box_pos: scaledpos; {what |box_pos| should pop to}
-@!this_box: pointer; {pointer to containing box}
-@!g_order: glue_ord; {applicable order of infinity for glue}
-@!g_sign: normal..shrinking; {selects type of glue}
-@!p,q:pointer; {current position in the hlist}
-@!leader_box:pointer; {the leader box being replicated}
-@!leader_wd:scaled; {width of leader box being replicated}
-@!lx:scaled; {extra space between leader boxes}
-@!outer_doing_leaders:boolean; {were we doing leaders?}
-@!edge:scaled; {right edge of sub-box or leader space}
-@!prev_p:pointer; {one step behind |p|}
-@!glue_temp:real; {glue value before rounding}
-@!cur_glue:real; {glue seen so far}
-@!save_cur_glue:real; { saved version, for direction switch }
-@!cur_g:scaled; {rounded equivalent of |cur_glue| times the glue ratio}
-@!save_cur_g:scaled; { saved version, for direction switch }
-@!i: small_number; {index to scan |pdf_link_stack|}
-begin cur_g:=0; cur_glue:=float_constant(0);
-this_box:=temp_ptr; g_order:=glue_order(this_box);
-g_sign:=glue_sign(this_box); p:=list_ptr(this_box);
-set_to_zero(cur); box_pos:=pos;
-save_direction:=dvi_direction;
-dvi_direction:=box_dir(this_box);
-dvi_ptr:=0;  lx:=0;
-@<DIR: Initialize |dir_ptr| for |ship_out|@>;
-incr(cur_s);
-base_line:=cur.v;
-left_edge:=cur.h;
-prev_p:=this_box+list_offset;
-@<Create link annotations for the current hbox if needed@>;
-@<Start hlist {\sl Sync\TeX} information record@>;
-while p<>null do
-    @<Output node |p| for |pdf_hlist_out| and move to the next node,
-    maintaining the condition |cur.v=base_line|@>;
-@<Finish hlist {\sl Sync\TeX} information record@>;
-decr(cur_s);
-dvi_direction:=save_direction;
-@<DIR: Reset |dir_ptr|@>;
-end;
-
-@ @<Create link annotations for the current hbox if needed@>=
-for i := 1 to pdf_link_stack_ptr do begin
-    pdfassert(is_running(pdf_width(pdf_link_stack[i].link_node)));
-    if (pdf_link_stack[i].nesting_level = cur_s) then
-        append_link(this_box, left_edge, base_line, i);
-end
-
-@
-
-@d pos_right(#) == pos.h := pos.h + (#)
-@d pos_left(#)  == pos.h := pos.h - (#)
-@d pos_up(#)    == pos.v := pos.v + (#)
-@d pos_down(#)  == pos.v := pos.v - (#)
-
-@<Output node |p| for |pdf_hlist_out|...@>=
-begin
-if is_char_node(p) then begin
-  repeat
-    if x_displace(p)<>0 then cur.h := cur.h + x_displace(p);
-    if y_displace(p)<>0 then cur.v := cur.v - y_displace(p);
-    output_one_char(font(p), character(p));
-    if x_displace(p)<>0 then cur.h := cur.h - x_displace(p);
-    if y_displace(p)<>0 then cur.v := cur.v + y_displace(p);
-    p:=vlink(p);
-  until not is_char_node(p);
-  @<Record current point {\sl Sync\TeX} information@>;
-end
-else @<Output the non-|char_node| |p| for |pdf_hlist_out|
-    and move to the next node@>;
-end
-
-@ @<Output the non-|char_node| |p| for |pdf_hlist_out|...@>=
-begin case type(p) of
-hlist_node_case,vlist_node_case:@<(\pdfTeX) Output a box in an hlist@>;
-disc_node_case: if vlink(no_break(p))<>null then if subtype(p)<>select_disc then begin 
-  q:=tail_of_list (vlink(no_break(p))); {TODO, this should be a tlink}
-  vlink(q):=vlink(p);
-  q:=vlink(no_break(p));
-  vlink(no_break(p)):=null;
-  vlink(p):=q;
-  end;
-rule_node_case: begin
-  if not (dir_orthogonal(dir_primary[rule_dir(p)])(dir_primary[dvi_direction]))
-    then begin
-    rule_ht:=height(p); rule_dp:=depth(p); rule_wd:=width(p);
-    end
-  else begin
-    rule_ht:=width(p) div 2;
-    rule_dp:=width(p) div 2;
-    rule_wd:=height(p)+depth(p);
-    end;
-  goto fin_rule;
-  end;
-whatsit_node_case: @<Output the whatsit node |p| in |pdf_hlist_out|@>;
-glue_node_case: @<(\pdfTeX) Move right or output leaders@>;
-margin_kern_node_case: cur.h := cur.h + width(p);
-kern_node_case: begin
-  @<Record |kern_node| {\sl Sync\TeX} information@>;
-  cur.h := cur.h + width(p);
-  end;
-math_node_case: begin
-  @<Record |math_node| {\sl Sync\TeX} information@>;
-  cur.h := cur.h + surround(p);
-  end;
-othercases do_nothing
-endcases;@/
-goto next_p;
-fin_rule: @<(\pdfTeX) Output a rule in an hlist@>;
-move_past: begin
-  cur.h := cur.h + rule_wd;
-  @<Record horizontal |rule_node| or |glue_node| {\sl Sync\TeX} information@>;
-  end;
-next_p:prev_p:=p; p:=vlink(p);
-end
-
-@ @<(\pdfTeX) Output a box in an hlist@>=
-begin
-if not (dir_orthogonal(dir_primary[box_dir(p)])(dir_primary[dvi_direction]))
-  then begin
-  effective_horizontal:=width(p);
-  basepoint_vertical:=0;
-  if dir_opposite(dir_secondary[box_dir(p)])(dir_secondary[dvi_direction]) then
-    basepoint_horizontal:=width(p)
-  else
-    basepoint_horizontal:=0;
-  end
-else begin
-  effective_horizontal:=height(p)+depth(p);
-  if not is_mirrored(box_dir(p)) then
-    if dir_eq(dir_primary[box_dir(p)])(dir_secondary[dvi_direction]) then
-      basepoint_horizontal:=height(p)
-    else
-      basepoint_horizontal:=depth(p)
-  else
-    if dir_eq(dir_primary[box_dir(p)])(dir_secondary[dvi_direction]) then
-      basepoint_horizontal:=depth(p)
-    else
-      basepoint_horizontal:=height(p);
-  if dir_eq(dir_secondary[box_dir(p)])(dir_primary[dvi_direction]) then
-    basepoint_vertical:= -(width(p) div 2)
-  else
-    basepoint_vertical:= (width(p) div 2);
-  end;
-if not is_mirrored(dvi_direction) then
-  basepoint_vertical := basepoint_vertical + shift_amount(p)
-    {shift the box `down'}
-else
-  basepoint_vertical := basepoint_vertical - shift_amount(p);
-    {shift the box `up'}
-if list_ptr(p)=null then begin
-  @<Record void list {\sl Sync\TeX} information@>;
-  cur.h:=cur.h + effective_horizontal;
-  end
-else begin
-  temp_ptr:=p; edge:=cur.h; cur.h:=cur.h + basepoint_horizontal;
-  edge_v:=cur.v; cur.v:=base_line + basepoint_vertical;
-  synch_pos_with_cur;
-  save_box_pos:=box_pos;
-  if type(p)=vlist_node then pdf_vlist_out@+else pdf_hlist_out;
-  box_pos:=save_box_pos;
-  cur.h:=edge+effective_horizontal; cur.v:=base_line;
-  end
-end
-
-@ @<(\pdfTeX) Output a rule in an hlist@>=
-if is_running(rule_ht) then rule_ht:=height(this_box);
-if is_running(rule_dp) then rule_dp:=depth(this_box);
-if ((rule_ht+rule_dp)>0)and(rule_wd>0) then begin {we don't output empty rules}
-  synch_pos_with_cur;
-  case box_direction(dvi_direction) of
-  dir_TL_: pdf_place_rule(pos.h,           pos.v - rule_dp, rule_wd,           rule_ht + rule_dp);
-  dir_BL_: pdf_place_rule(pos.h,           pos.v - rule_ht, rule_wd,           rule_ht + rule_dp);
-  dir_TR_: pdf_place_rule(pos.h - rule_wd, pos.v - rule_dp, rule_wd,           rule_ht + rule_dp);
-  dir_BR_: pdf_place_rule(pos.h - rule_wd, pos.v - rule_ht, rule_wd,           rule_ht + rule_dp);
-  dir_LT_: pdf_place_rule(pos.h - rule_ht, pos.v - rule_wd, rule_ht + rule_dp, rule_wd);
-  dir_RT_: pdf_place_rule(pos.h - rule_dp, pos.v - rule_wd, rule_ht + rule_dp, rule_wd);
-  dir_LB_: pdf_place_rule(pos.h - rule_ht, pos.v,           rule_ht + rule_dp, rule_wd);
-  dir_RB_: pdf_place_rule(pos.h - rule_dp, pos.v,           rule_ht + rule_dp, rule_wd);
-  end;
-end
-
-@ @<(\pdfTeX) Move right or output leaders@>=
-begin g:=glue_ptr(p); rule_wd:=width(g)-cur_g;
-if g_sign<>normal then
-  begin if g_sign=stretching then
-    begin if stretch_order(g)=g_order then
-      begin cur_glue:=cur_glue+stretch(g);
-      vet_glue(float(glue_set(this_box))*cur_glue);
-@^real multiplication@>
-      cur_g:=round(glue_temp);
-      end;
-    end
-  else if shrink_order(g)=g_order then
-      begin cur_glue:=cur_glue-shrink(g);
-      vet_glue(float(glue_set(this_box))*cur_glue);
-      cur_g:=round(glue_temp);
-      end;
-  end;
-rule_wd:=rule_wd+cur_g;
-if subtype(p)>=a_leaders then
-  @<(\pdfTeX) Output leaders in an hlist, |goto fin_rule| if a rule
-    or to |next_p| if done@>;
-goto move_past;
-end
-
-@ @<(\pdfTeX) Output leaders in an hlist...@>=
-begin leader_box:=leader_ptr(p);
-if type(leader_box)=rule_node then
-  begin rule_ht:=height(leader_box); rule_dp:=depth(leader_box);
-  goto fin_rule;
-  end;
-if not (dir_orthogonal(dir_primary[box_dir(leader_box)])(dir_primary[dvi_direction]))
-  then leader_wd:=width(leader_box)
-else
-  leader_wd:=height(leader_box)+depth(leader_box);
-if (leader_wd>0)and(rule_wd>0) then
-  begin rule_wd:=rule_wd+10; {compensate for floating-point rounding}
-  edge:=cur.h+rule_wd; lx:=0;
-  @<Let |cur.h| be the position of the first box, and set |leader_wd+lx|
-    to the spacing between corresponding parts of boxes@>;
-  while cur.h+leader_wd<=edge do
-    @<(\pdfTeX) Output a leader box at |cur.h|,
-      then advance |cur.h| by |leader_wd+lx|@>;
-  cur.h:=edge-10; goto next_p;
-  end;
-end
-
-@ @<(\pdfTeX) Output a leader box at |cur.h|, ...@>=
-begin
-if not (dir_orthogonal(dir_primary[box_dir(leader_box)])(dir_primary[dvi_direction]))
-  then begin
-  basepoint_vertical:=0;
- if dir_opposite(dir_secondary[box_dir(leader_box)])(dir_secondary[dvi_direction]) then begin
-    basepoint_horizontal:=width(leader_box)
-    end
-  else
-    basepoint_horizontal:=0;
-  end
-else begin
-  if not is_mirrored(box_dir(leader_box)) then
-    if dir_eq(dir_primary[box_dir(leader_box)])(dir_secondary[dvi_direction]) then
-      basepoint_horizontal:=height(leader_box)
-    else
-      basepoint_horizontal:=depth(leader_box)
-  else
-    if dir_eq(dir_primary[box_dir(leader_box)])(dir_secondary[dvi_direction]) then
-      basepoint_horizontal:=depth(leader_box)
-    else
-      basepoint_horizontal:=height(leader_box);
-  if dir_eq(dir_secondary[box_dir(leader_box)])(dir_primary[dvi_direction]) then
-    basepoint_vertical:= -(width(leader_box) div 2)
-  else
-    basepoint_vertical:= (width(leader_box) div 2);
-  end;
-if not is_mirrored(dvi_direction) then
-  basepoint_vertical := basepoint_vertical + shift_amount(leader_box)
-    {shift the box `down'}
-else
-  basepoint_vertical := basepoint_vertical - shift_amount(leader_box);
-    {shift the box `up'}
-temp_ptr:=leader_box;
-edge_h:=cur.h; cur.h:=cur.h + basepoint_horizontal;
-edge_v:=cur.v; cur.v:=base_line + basepoint_vertical;
-synch_pos_with_cur;
-save_box_pos:=box_pos;
-outer_doing_leaders:=doing_leaders; doing_leaders:=true;
-if type(leader_box)=vlist_node then pdf_vlist_out@+else pdf_hlist_out;
-doing_leaders:=outer_doing_leaders;
-box_pos:=save_box_pos;
-cur.h:=edge_h+leader_wd+lx; cur.v:=base_line;
-end
-
-@ The |pdf_vlist_out| routine is similar to |pdf_hlist_out|, but a bit simpler.
-@p procedure pdf_vlist_out; {output a |pdf_vlist_node| box}
-label move_past, fin_rule, next_p;
-var left_edge: scaled; {the left coordinate for this box}
-@!top_edge: scaled; {the top coordinate for this box}
-@!save_v: scaled; {what |cur.v| should pop to}
-@!save_box_pos: scaledpos; {what |box_pos| should pop to}
-@!this_box: pointer; {pointer to containing box}
-@!g_order: glue_ord; {applicable order of infinity for glue}
-@!g_sign: normal..shrinking; {selects type of glue}
-@!p:pointer; {current position in the vlist}
-@!leader_box:pointer; {the leader box being replicated}
-@!leader_ht:scaled; {height of leader box being replicated}
-@!lx:scaled; {extra space between leader boxes}
-@!outer_doing_leaders:boolean; {were we doing leaders?}
-@!edge:scaled; {bottom boundary of leader space}
-@!glue_temp:real; {glue value before rounding}
-@!cur_glue:real; {glue seen so far}
-@!cur_g:scaled; {rounded equivalent of |cur_glue| times the glue ratio}
-@!save_direction: integer;
-@!effective_vertical: scaled;
-@!basepoint_horizontal: scaled;
-@!basepoint_vertical: scaled;
-@!edge_v: scaled;
-begin cur_g:=0; cur_glue:=float_constant(0);
-this_box:=temp_ptr; g_order:=glue_order(this_box);
-g_sign:=glue_sign(this_box); p:=list_ptr(this_box);
-{pdfassert(p<>0);}
-set_to_zero(cur); box_pos:=pos;
-{|writeln(''); writeln('vlist_out: left edge: ', cur.h:1 , '');|}
-save_direction:=dvi_direction;
-dvi_direction:=box_dir(this_box);
-incr(cur_s);
-left_edge:=cur.h;
-@<Start vlist {\sl Sync\TeX} information record@>;
-cur.v:=cur.v-height(this_box); top_edge:=cur.v;
-@<Create thread for the current vbox if needed@>;
-while p<>null do
-    @<Output node |p| for |pdf_vlist_out| and move to the next node,
-    maintaining the condition |cur.h=left_edge|@>;
-@<Finish vlist {\sl Sync\TeX} information record@>;
-decr(cur_s);
-dvi_direction:=save_direction;
-end;
-
-@ @<Create thread for the current vbox if needed@>=
-if (last_thread <> null) and is_running(pdf_thread_dp) and
-    (pdf_thread_level = cur_s) then
-    append_thread(this_box, left_edge, top_edge + height(this_box))
-
-@ @<Output node |p| for |pdf_vlist_out|...@>=
-begin if is_char_node(p) then confusion("pdfvlistout")
-@:this can't happen pdfvlistout}{\quad pdfvlistout@>
-else @<Output the non-|char_node| |p| for |pdf_vlist_out|@>;
-next_p:p:=vlink(p);
-end
-
-@ @<Output the non-|char_node| |p| for |pdf_vlist_out|@>=
-begin case type(p) of
-hlist_node_case,vlist_node_case:@<(\pdfTeX) Output a box in a vlist@>;
-rule_node_case: begin
-  if not (dir_orthogonal(dir_primary[rule_dir(p)])(dir_primary[dvi_direction]))
-    then begin
-    rule_ht:=height(p); rule_dp:=depth(p); rule_wd:=width(p);
-    end
-  else begin
-    rule_ht:=width(p) div 2;
-    rule_dp:=width(p) div 2;
-    rule_wd:=height(p)+depth(p);
-    end;
-  goto fin_rule;
-  end;
-whatsit_node_case: @<Output the whatsit node |p| in |pdf_vlist_out|@>;
-glue_node_case: @<(\pdfTeX) Move down or output leaders@>;
-kern_node_case:cur.v := cur.v + width(p);
-othercases do_nothing
-endcases;@/
-goto next_p;
-fin_rule: @<(\pdfTeX) Output a rule in a vlist, |goto next_p|@>;
-move_past: cur.v := cur.v + rule_ht;
-end
-
-@ TODO: the direct test to switch between |width(p)| and |-width(p)|
-is definately wrong, because it does not nest properly. But at least
-it fixes a very obvious problem that otherwise occured with
-\.{\\pardir TLT} in a document with \.{\\bodydir TRT}, and so it
-will have to do for now.
-
-@<(\pdfTeX) Output a box in a vlist@>=
-begin
-if not (dir_orthogonal(dir_primary[box_dir(p)])(dir_primary[dvi_direction]))
-  then begin
-  effective_vertical:=height(p)+depth(p);
-  if (type(p)=hlist_node) and is_mirrored(box_dir(p)) then
-    basepoint_vertical:=depth(p)
-  else
-    basepoint_vertical:=height(p);
-  if dir_opposite(dir_secondary[box_dir(p)])(dir_secondary[dvi_direction]) then
-    basepoint_horizontal:=width(p)
-  else
-    basepoint_horizontal:=0;
-  end
-else begin
-  effective_vertical:=width(p);
-  if not is_mirrored(box_dir(p)) then
-    if dir_eq(dir_primary[box_dir(p)])(dir_secondary[dvi_direction]) then
-      basepoint_horizontal:=height(p)
-    else
-      basepoint_horizontal:=depth(p)
-  else
-    if dir_eq(dir_primary[box_dir(p)])(dir_secondary[dvi_direction]) then
-      basepoint_horizontal:=depth(p)
-    else
-      basepoint_horizontal:=height(p);
-  if dir_eq(dir_secondary[box_dir(p)])(dir_primary[dvi_direction]) then
-    basepoint_vertical:=0
-  else
-    basepoint_vertical:=width(p);
-  end;
-basepoint_horizontal := basepoint_horizontal + shift_amount(p);
-  {shift the box `right'}
-if list_ptr(p)=null then begin
-  cur.v:=cur.v+effective_vertical;
-  @<Record void list {\sl Sync\TeX} information@>;
-  end
-else begin
-  edge_v:=cur.v;
-  cur.h:=left_edge + basepoint_horizontal;
-  cur.v:=cur.v + basepoint_vertical;
-  synch_pos_with_cur;
-  save_box_pos:=box_pos;
-  temp_ptr:=p;
-  if type(p)=vlist_node then pdf_vlist_out@+else pdf_hlist_out;
-  box_pos:=save_box_pos;
-  cur.h:=left_edge; cur.v:=edge_v + effective_vertical;
-  end
-end
-
-@ @<(\pdfTeX) Output a rule in a vlist...@>=
-if is_running(rule_wd) then rule_wd:=width(this_box);
-rule_ht:=rule_ht+rule_dp; {this is the rule thickness}
-if (rule_ht>0)and(rule_wd>0) then begin {we don't output empty rules}
-  synch_pos_with_cur;
-  case box_direction(dvi_direction) of
-  dir_TL_: pdf_place_rule(pos.h,           pos.v - rule_ht, rule_wd, rule_ht);
-  dir_BL_: pdf_place_rule(pos.h,           pos.v,           rule_wd, rule_ht);
-  dir_TR_: pdf_place_rule(pos.h - rule_wd, pos.v - rule_ht, rule_wd, rule_ht);
-  dir_BR_: pdf_place_rule(pos.h - rule_wd, pos.v,           rule_wd, rule_ht);
-  dir_LT_: pdf_place_rule(pos.h,           pos.v - rule_wd, rule_ht, rule_wd);
-  dir_RT_: pdf_place_rule(pos.h - rule_ht, pos.v - rule_wd, rule_ht, rule_wd);
-  dir_LB_: pdf_place_rule(pos.h,           pos.v,           rule_ht, rule_wd);
-  dir_RB_: pdf_place_rule(pos.h - rule_ht, pos.v,           rule_ht, rule_wd);
-  end;
-  cur.v := cur.v + rule_ht;
-end;
-goto next_p
-
-@ @<(\pdfTeX) Move down or output leaders@>=
-begin g:=glue_ptr(p); rule_ht:=width(g)-cur_g;
-if g_sign<>normal then
-  begin if g_sign=stretching then
-    begin if stretch_order(g)=g_order then
-      begin cur_glue:=cur_glue+stretch(g);
-      vet_glue(float(glue_set(this_box))*cur_glue);
-@^real multiplication@>
-      cur_g:=round(glue_temp);
-      end;
-    end
-  else if shrink_order(g)=g_order then
-      begin cur_glue:=cur_glue-shrink(g);
-      vet_glue(float(glue_set(this_box))*cur_glue);
-      cur_g:=round(glue_temp);
-      end;
-  end;
-rule_ht:=rule_ht+cur_g;
-if subtype(p)>=a_leaders then
-  @<(\pdfTeX) Output leaders in a vlist, |goto fin_rule| if a rule
-    or to |next_p| if done@>;
-goto move_past;
-end
-
-@ @<(\pdfTeX) Output leaders in a vlist...@>=
-begin leader_box:=leader_ptr(p);
-if type(leader_box)=rule_node then
-  begin rule_wd:=width(leader_box); rule_dp:=0;
-  goto fin_rule;
-  end;
-leader_ht:=height(leader_box)+depth(leader_box);
-if (leader_ht>0)and(rule_ht>0) then
-  begin rule_ht:=rule_ht+10; {compensate for floating-point rounding}
-  edge:=cur.v+rule_ht; lx:=0;
-  @<Let |cur.v| be the position of the first box, and set |leader_ht+lx|
-    to the spacing between corresponding parts of boxes@>;
-  while cur.v+leader_ht<=edge do
-    @<(\pdfTeX) Output a leader box at |cur.v|,
-      then advance |cur.v| by |leader_ht+lx|@>;
-  cur.v:=edge-10; goto next_p;
-  end;
-end
-
-@ @<(\pdfTeX) Output a leader box at |cur.v|, ...@>=
-begin cur.h:=left_edge+shift_amount(leader_box);
-cur.v:=cur.v+height(leader_box); save_v:=cur.v;
-synch_pos_with_cur;
-save_box_pos:=box_pos;
-temp_ptr:=leader_box;
-outer_doing_leaders:=doing_leaders; doing_leaders:=true;
-if type(leader_box)=vlist_node then pdf_vlist_out@+else pdf_hlist_out;
-doing_leaders:=outer_doing_leaders;
-box_pos:=save_box_pos;
-cur.h:=left_edge;
-cur.v:=save_v-height(leader_box)+leader_ht+lx;
-end
 
 @ |fix_pdfoutput| freezes |fixed_pdfoutput| as soon as anything has been written
 to the output file, be it \.{PDF} or \.{DVI}.
@@ -15479,7 +14170,7 @@ if not shipping_page then begin
 end
 else begin
     pdf_last_page := get_obj(obj_type_page, total_pages + 1, 0);
-    obj_aux(pdf_last_page) := 1; {mark that this page has been created}
+    set_obj_aux(pdf_last_page, 1); {mark that this page has been created}
     pdf_new_dict(obj_type_others, 0, 0);
     pdf_last_stream := obj_ptr;
     @<Reset PDF mark lists@>;
@@ -15595,7 +14286,8 @@ pdf_print_ln("/Type /XObject");
 pdf_print_ln("/Subtype /Form");
 if obj_xform_attr(pdf_cur_form) <> null then begin
     pdf_print_toks_ln(obj_xform_attr(pdf_cur_form));
-    delete_toks(obj_xform_attr(pdf_cur_form));
+    delete_token_ref(obj_xform_attr(pdf_cur_form));
+    set_obj_xform_attr(pdf_cur_form, null);
 end;
 pdf_print("/BBox [");
 pdf_print_bp(-form_margin); pdf_print(" ");
@@ -15666,14 +14358,13 @@ end
 else begin
     if obj_xform_resources(pdf_cur_form) <> null then begin
         pdf_print_toks_ln(obj_xform_resources(pdf_cur_form));
-        delete_toks(obj_xform_resources(pdf_cur_form));
+        delete_token_ref(obj_xform_resources(pdf_cur_form));
+        set_obj_xform_resources(pdf_cur_form, null);
     end;
 end
 
 @ In the end of shipping out a page we reset all the lists holding objects
 have been created during the page shipping.
-
-@d delete_toks(#) == begin delete_token_ref(#); # := null; end
 
 @<Flush resource lists@>=
 flush_list(pdf_font_list);
@@ -15794,75 +14485,6 @@ if pdf_bead_list <> null then begin
     pdf_print_ln("]");
 end
 
-@ @<Declare procedures needed in |pdf_hlist_out|, |pdf_vlist_out|@>=
-procedure pdf_write_obj(n: integer); {write a raw PDF object}
-var s: str_number;
-    f: byte_file;
-    data_size:integer; {total size of the data file}
-    data_cur:integer; {index into |data_buffer|}
-    data_buffer:^real_eight_bits; {byte buffer for data files}
-    file_opened:boolean;
-    k:integer;
-    res:boolean;
-        fnam: str_number;
-    callback_id:integer;
-begin
-    s := tokens_to_string(obj_obj_data(n));
-    delete_toks(obj_obj_data(n));
-    if obj_obj_is_stream(n) > 0 then begin
-        pdf_begin_dict(n, 0);
-        if obj_obj_stream_attr(n) <> null then begin
-            pdf_print_toks_ln(obj_obj_stream_attr(n));
-            delete_toks(obj_obj_stream_attr(n));
-        end;
-        pdf_begin_stream;
-    end
-    else
-        pdf_begin_obj(n, 1);
-    if obj_obj_is_file(n) > 0 then begin
-        data_size:=0; data_cur:=0; data_buffer:=0;
-        pack_file_name(s,"","");
-            callback_id:=callback_defined(find_data_file_callback);
-            if callback_id>0 then begin
-          res := run_callback(callback_id,'S->s',stringcast(nameoffile+1),addressof(fnam));
-              if (res)and(fnam<>0)and(length(fnam)>0) then begin
-                @<Fixup |nameoffile| after callback@>;
-                        end;
-          end;
-                callback_id:=callback_defined(read_data_file_callback);
-        if callback_id>0 then begin
-          file_opened := false;
-          res := run_callback(callback_id,'S->bSd',stringcast(nameoffile+1),
-                  addressof(file_opened), addressof(data_buffer),addressof(data_size));
-          if not file_opened then pdf_error("ext5", "cannot open file for embedding");
-          end
-        else begin
-          if not tex_b_open_in(f) then
-             pdf_error("ext5", "cannot open file for embedding");
-          res := read_data_file(f,addressof(data_buffer),addressof(data_size));
-          b_close(f);
-        end;
-        if not data_size then pdf_error("ext5", "empty file for embedding");
-        if not res       then pdf_error("ext5", "error reading file for embedding");
-        print("<<");
-        print(s);
-        while data_cur<data_size do begin
-            pdf_out(data_buffer[data_cur]);
-            incr(data_cur);
-            end;
-            if data_buffer<>0 then libcfree(data_buffer);
-        print(">>");
-    end
-    else if obj_obj_is_stream(n) > 0 then
-        pdf_print(s)
-    else
-        pdf_print_ln(s);
-    if obj_obj_is_stream(n) > 0 then
-        pdf_end_stream
-    else
-        pdf_end_obj;
-    flush_str(s);
-end;
 
 @ @<Write out pending raw objects@>=
 if pdf_obj_list <> null then begin
@@ -15912,13 +14534,6 @@ pdf_xform_list := save_xform_list;
 pdf_ximage_list := save_ximage_list;
 pdf_text_procset := save_text_procset;
 pdf_image_procset := save_image_procset
-
-@ @<Declare procedures needed in |pdf_hlist_out|, |pdf_vlist_out|@>=
-procedure pdf_write_image(n: integer); {write an image}
-begin
-    pdf_begin_dict(n, 0);
-    if fixed_pdf_draftmode = 0 then write_image(obj_data_ptr(n));
-end;
 
 @ @<Write out pending images@>=
 if pdf_ximage_list <> null then begin
@@ -15983,89 +14598,8 @@ while k <> null do begin
 end
 
 @ @<Write out PDF mark destinations@>=
-if pdf_dest_list <> null then begin
-    k := pdf_dest_list;
-    while k <> null do begin
-        if is_obj_written(info(k)) then
-            pdf_error("ext5",
-                "destination has been already written (this shouldn't happen)")
-        else begin
-            i := obj_dest_ptr(info(k));
-            if pdf_dest_named_id(i) > 0 then begin
-                pdf_begin_dict(info(k), 1);
-                pdf_print("/D ");
-            end
-            else
-                pdf_begin_obj(info(k), 1);
-            pdf_out("["); pdf_print_int(pdf_last_page); pdf_print(" 0 R ");
-            case pdf_dest_type(i) of
-            pdf_dest_xyz: begin
-                pdf_print("/XYZ ");
-                pdf_print_mag_bp(pdf_ann_left(i)); pdf_out(" ");
-                pdf_print_mag_bp(pdf_ann_top(i)); pdf_out(" ");
-                if pdf_dest_xyz_zoom(i) = null then
-                    pdf_print("null")
-                else begin
-                    pdf_print_int(pdf_dest_xyz_zoom(i) div 1000);
-                    pdf_out(".");
-                    pdf_print_int((pdf_dest_xyz_zoom(i) mod 1000));
-                end;
-            end;
-            pdf_dest_fit:
-                pdf_print("/Fit");
-            pdf_dest_fith: begin
-                pdf_print("/FitH ");
-                pdf_print_mag_bp(pdf_ann_top(i));
-            end;
-            pdf_dest_fitv: begin
-                pdf_print("/FitV ");
-                pdf_print_mag_bp(pdf_ann_left(i));
-            end;
-            pdf_dest_fitb:
-                pdf_print("/FitB");
-            pdf_dest_fitbh: begin
-                pdf_print("/FitBH ");
-                pdf_print_mag_bp(pdf_ann_top(i));
-            end;
-            pdf_dest_fitbv: begin
-                pdf_print("/FitBV ");
-                pdf_print_mag_bp(pdf_ann_left(i));
-            end;
-            pdf_dest_fitr: begin
-                pdf_print("/FitR ");
-                pdf_print_rect_spec(i);
-            end;
-            othercases pdf_error("ext5", "unknown dest type");
-            endcases;
-            pdf_print_ln("]");
-            if pdf_dest_named_id(i) > 0 then
-                pdf_end_dict
-            else
-                pdf_end_obj;
-        end;
-        k := link(k);
-    end;
-end
+write_out_pdf_mark_destinations;
 
-@ @<Declare procedures needed in |pdf_hlist_out|, |pdf_vlist_out|@>=
-procedure pdf_print_rect_spec(r: pointer); {prints a rect spec}
-begin
-    pdf_print_mag_bp(pdf_ann_left(r));
-    pdf_out(" ");
-    pdf_print_mag_bp(pdf_ann_bottom(r));
-    pdf_out(" ");
-    pdf_print_mag_bp(pdf_ann_right(r));
-    pdf_out(" ");
-    pdf_print_mag_bp(pdf_ann_top(r));
-end;
-
-procedure pdf_rectangle(r:pointer); {output a rectangle specification to PDF file}
-begin
-    prepare_mag;
-    pdf_print("/Rect [");
-    pdf_print_rect_spec(r);
-    pdf_print_ln("]");
-end;
 
 @ @<Write out PDF bead rectangle specifications@>=
 if pdf_bead_list <> null then begin
@@ -16078,7 +14612,7 @@ if pdf_bead_list <> null then begin
         if subtype(i) = pdf_thread_data_node then {thanh says it mis be destroyed here}
             flush_node(i);
         pdf_print_ln("]");
-        obj_bead_rect(info(k)) := obj_ptr; {rewrite |obj_bead_data|}
+        set_obj_bead_rect(info(k),obj_ptr); {rewrite |obj_bead_data|}
         pdf_end_obj;
         k := link(k);
     end;
@@ -16097,7 +14631,7 @@ if pdf_first_outline <> 0 then begin
         a := open_subentries(l);
         if obj_outline_count(l) > 0 then
             k := k + a;
-        obj_outline_parent(l) := obj_ptr;
+        set_obj_outline_parent(l, obj_ptr);
         l := obj_outline_next(l);
     until l = 0;
     pdf_print_ln("/Type /Outlines");
@@ -16136,7 +14670,8 @@ while k <> 0 do begin
         pdf_int_entry_ln("Count", obj_outline_count(k));
     if obj_outline_attr(k) <> 0 then begin
         pdf_print_toks_ln(obj_outline_attr(k));
-        delete_toks(obj_outline_attr(k));
+        delete_token_ref(obj_outline_attr(k));
+        set_obj_outline_attr(k, null);
     end;
     pdf_end_dict;
     k := obj_link(k);
@@ -16396,10 +14931,10 @@ repeat
             names_head := l;
             names_tail := l;
         end else begin
-            obj_link(names_tail) := l;
+            set_obj_link(names_tail, l);
             names_tail := l;
         end;
-        obj_link(names_tail) := 0;
+        set_obj_link(names_tail, 0);
         @<Output the current node in this level@>;
     until b = 0;
     if k = l then begin
@@ -16414,7 +14949,8 @@ if (dests <> 0) or (pdf_names_toks <> null) then begin
         pdf_indirect_ln("Dests", dests);
     if pdf_names_toks <> null then begin
         pdf_print_toks_ln(pdf_names_toks);
-        delete_toks(pdf_names_toks);
+        delete_token_ref(pdf_names_toks);
+        pdf_names_toks := null;
     end;
     pdf_end_dict;
     names_tree := obj_ptr;
@@ -16426,7 +14962,7 @@ else
 pdf_begin_dict(l, 1);
 j := 0;
 if is_names then begin
-    obj_info(l) := dest_names[k].objname;
+    set_obj_info(l, dest_names[k].objname);
     pdf_print("/Names [");
     repeat
         pdf_print_str(dest_names[k].objname);
@@ -16438,7 +14974,7 @@ if is_names then begin
     until (j = name_tree_kids_max) or (k = pdf_dest_names_ptr);
     pdf_remove_last_space;
     pdf_print_ln("]");
-    obj_aux(l) := dest_names[k - 1].objname;
+    set_obj_aux(l, dest_names[k - 1].objname);
     if k = pdf_dest_names_ptr then begin
         is_names := false;
         k := names_head;
@@ -16446,13 +14982,13 @@ if is_names then begin
     end;
 end
 else begin
-    obj_info(l) := obj_info(k);
+    set_obj_info(l, obj_info(k));
     pdf_print("/Kids [");
     repeat
         pdf_print_int(k);
         pdf_print(" 0 R ");
         incr(j);
-        obj_aux(l) := obj_aux(k);
+        set_obj_aux(l, obj_aux(k));
         k := obj_link(k);
     until (j = name_tree_kids_max) or (k = b) or (obj_link(k) = 0);
     pdf_remove_last_space;
@@ -16480,7 +15016,8 @@ if names_tree <> 0 then
     pdf_indirect_ln("Names", names_tree);
 if pdf_catalog_toks <> null then begin
     pdf_print_toks_ln(pdf_catalog_toks);
-    delete_toks(pdf_catalog_toks);
+    delete_token_ref(pdf_catalog_toks);
+    pdf_catalog_toks:=null;
 end;
 if pdf_catalog_openaction <> 0 then
     pdf_indirect_ln("OpenAction", pdf_catalog_openaction);
@@ -16539,7 +15076,8 @@ begin
             pdf_print_ln(s);
         end;
         flush_str(s);
-        delete_toks(pdf_info_toks);
+        delete_token_ref(pdf_info_toks);
+        pdf_info_toks := null;
     end;
     if not creator_given then
         pdf_str_entry_ln("Creator", "TeX");
@@ -16579,10 +15117,10 @@ l := 0;
 set_obj_fresh(l); {null object at begin of list of free objects}
 for k := 1 to sys_obj_ptr do
     if not is_obj_written(k) then begin
-        obj_link(l) := k;
+        set_obj_link(l,k);
         l := k;
     end;
-obj_link(l) := 0
+set_obj_link(l, 0)
 
 @ @<Output the |obj_tab|@>=
 @<Build a linked list of free objects@>;
@@ -16625,7 +15163,8 @@ pdf_indirect_ln("Root", root);
 pdf_indirect_ln("Info", obj_ptr - 1);
 if pdf_trailer_toks <> null then begin
     pdf_print_toks_ln(pdf_trailer_toks);
-    delete_toks(pdf_trailer_toks);
+    delete_token_ref(pdf_trailer_toks);
+    pdf_trailer_toks := null;
 end;
 print_ID(output_file_name);
 pdf_print_nl;
@@ -16658,7 +15197,8 @@ if not pdf_os_enable then begin
     pdf_indirect_ln("Info", sys_obj_ptr);
     if pdf_trailer_toks <> null then begin
         pdf_print_toks_ln(pdf_trailer_toks);
-        delete_toks(pdf_trailer_toks);
+        delete_token_ref(pdf_trailer_toks);
+        pdf_trailer_toks := null;
     end;
     print_ID(output_file_name);
     pdf_print_ln(" >>");
@@ -22747,10 +21287,10 @@ dump_int(obj_tab_size);
 dump_int(obj_ptr);
 dump_int(sys_obj_ptr);
 for k:=1 to sys_obj_ptr do begin
-  dump_int(obj_tab[k].int0);
-  dump_int(obj_tab[k].int1);
-  dump_int(obj_tab[k].int3);
-  dump_int(obj_tab[k].int4);
+  dump_int(obj_info(k));
+  dump_int(obj_link(k));
+  dump_int(obj_os_idx(k));
+  dump_int(obj_aux(k));
   end;
 print_ln; print_int(sys_obj_ptr); print(" indirect objects");
 dump_int(pdf_obj_count);
@@ -22781,11 +21321,11 @@ undump_int(obj_tab_size);
 undump_int(obj_ptr);
 undump_int(sys_obj_ptr);
 for k:=1 to sys_obj_ptr do begin
-  undump_int(obj_tab[k].int0);
-  undump_int(obj_tab[k].int1);
-  obj_tab[k].int2 := -1;
-  undump_int(obj_tab[k].int3);
-  undump_int(obj_tab[k].int4);
+  undump_int(obj_info(k));
+  undump_int(obj_link(k));
+  set_obj_offset(k,-1);
+  undump_int(obj_os_idx(k));
+  undump_int(obj_aux(k));
   end;
 undump_int(pdf_obj_count);
 undump_int(pdf_xform_count);
@@ -23676,14 +22216,14 @@ begin
     check_pdfoutput("\pdfliteral", true);
     new_whatsit(pdf_literal_node);
     if scan_keyword('direct') then
-        pdf_literal_mode(tail) := direct_always
+        set_pdf_literal_mode(tail,direct_always)
     else if scan_keyword('page') then
-        pdf_literal_mode(tail) := direct_page
+        set_pdf_literal_mode(tail,direct_page)
     else
-        pdf_literal_mode(tail) := set_origin;
+        set_pdf_literal_mode(tail,set_origin);
     scan_pdf_ext_toks;
-    pdf_literal_type(tail) := normal;
-    pdf_literal_data(tail) := def_ref;
+    set_pdf_literal_type(tail, normal);
+    set_pdf_literal_data(tail, def_ref);
 end
 
 @ @<Implement \.{\\pdfcolorstack}@>=
@@ -23726,12 +22266,12 @@ begin
     end;
     if i >= 0 then begin
         new_whatsit(pdf_colorstack_node);
-        pdf_colorstack_stack(tail) := cur_val;
-        pdf_colorstack_cmd(tail)   := i;
-            pdf_colorstack_data(tail)  := null;
+        set_pdf_colorstack_stack(tail, cur_val);
+        set_pdf_colorstack_cmd(tail, i);
+        set_pdf_colorstack_data(tail, null);
         if i <= colorstack_data then begin
             scan_pdf_ext_toks;
-            pdf_colorstack_data(tail) := def_ref;
+            set_pdf_colorstack_data(tail,def_ref);
         end;
     end
     else begin
@@ -23749,7 +22289,7 @@ begin
     check_pdfoutput("\pdfsetmatrix", true);
     new_whatsit(pdf_setmatrix_node);
     scan_pdf_ext_toks;
-    pdf_setmatrix_data(tail) := def_ref;
+    set_pdf_setmatrix_data(tail, def_ref);
 end
 
 @ @<Implement \.{\\pdfsave}@>=
@@ -23815,24 +22355,24 @@ begin
             pdf_create_obj(obj_type_obj, pdf_obj_count);
             k := obj_ptr;
         end;
-        obj_data_ptr(k) := pdf_get_mem(pdfmem_obj_size);
+        set_obj_data_ptr(k, pdf_get_mem(pdfmem_obj_size));
         if scan_keyword('stream') then begin
-            obj_obj_is_stream(k) := 1;
+            set_obj_obj_is_stream(k, 1);
             if scan_keyword('attr') then begin
                 scan_pdf_ext_toks;
-                obj_obj_stream_attr(k) := def_ref;
+                set_obj_obj_stream_attr(k, def_ref);
             end
             else
-                obj_obj_stream_attr(k) := null;
+                set_obj_obj_stream_attr(k, null);
         end
         else
-            obj_obj_is_stream(k) := 0;
+            set_obj_obj_is_stream(k, 0);
         if scan_keyword('file') then
-            obj_obj_is_file(k) := 1
+            set_obj_obj_is_file(k, 1)
         else
-            obj_obj_is_file(k) := 0;
+            set_obj_obj_is_file(k, 0);
         scan_pdf_ext_toks;
-        obj_obj_data(k) := def_ref;
+        set_obj_obj_data(k, def_ref);
         pdf_last_obj := k;
     end;
 end
@@ -23873,7 +22413,7 @@ begin
     scan_int;
     pdf_check_obj(obj_type_obj, cur_val);
     new_whatsit(pdf_refobj_node);
-    pdf_obj_objnum(tail) := cur_val;
+    set_pdf_obj_objnum(tail, cur_val);
 end
 
 @ \.{\\pdfxform} and \.{\\pdfrefxform} are similiar to \.{\\pdfobj} and
@@ -23888,28 +22428,28 @@ begin
     incr(pdf_xform_count);
     pdf_create_obj(obj_type_xform, pdf_xform_count);
     k := obj_ptr;
-    obj_data_ptr(k) := pdf_get_mem(pdfmem_xform_size);
+    set_obj_data_ptr(k, pdf_get_mem(pdfmem_xform_size));
     if scan_keyword('attr') then begin
         scan_pdf_ext_toks;
-        obj_xform_attr(k) := def_ref;
+        set_obj_xform_attr(k,def_ref);
     end
     else
-        obj_xform_attr(k) := null;
+        set_obj_xform_attr(k,null);
     if scan_keyword('resources') then begin
         scan_pdf_ext_toks;
-        obj_xform_resources(k) := def_ref;
+        set_obj_xform_resources(k,def_ref);
     end
     else
-        obj_xform_resources(k) := null;
+        set_obj_xform_resources(k,null);
     scan_int;
         p:=box(cur_val);
     if p = null then
         pdf_error("ext1", "\pdfxform cannot be used with a void box");
-    obj_xform_width(k) := width(p);
-    obj_xform_height(k) := height(p);
-    obj_xform_depth(k) := depth(p);
-    obj_xform_box(k) := p; {save pointer to the box}
-        box(cur_val):=null;
+    set_obj_xform_width(k, width(p));
+    set_obj_xform_height(k, height(p));
+    set_obj_xform_depth(k, depth(p));
+    set_obj_xform_box(k, p); {save pointer to the box}
+    box(cur_val):=null;
     pdf_last_xform := k;
 end
 
@@ -23919,10 +22459,10 @@ begin
     scan_int;
     pdf_check_obj(obj_type_xform, cur_val);
     new_whatsit(pdf_refxform_node);
-    pdf_xform_objnum(tail) := cur_val;
-    pdf_width(tail) := obj_xform_width(cur_val);
-    pdf_height(tail) := obj_xform_height(cur_val);
-    pdf_depth(tail) := obj_xform_depth(cur_val);
+    set_pdf_xform_objnum(tail, cur_val);
+    set_pdf_width(tail,obj_xform_width(cur_val));
+    set_pdf_height(tail,obj_xform_height(cur_val));
+    set_pdf_depth(tail,obj_xform_depth(cur_val));
 end
 
 @ \.{\\pdfximage} and \.{\\pdfrefximage} are similiar to \.{\\pdfxform} and
@@ -24049,7 +22589,7 @@ begin
     ref := read_image(k, pdf_ximage_count, s, page, named, attr, colorspace, pagebox,
                       pdf_minor_version, pdf_inclusion_errorlevel);
     flush_str(s);
-    obj_data_ptr(k) := ref;
+    set_obj_data_ptr(k, ref);
     if named <> 0 then flush_str(named);
     set_image_dimensions(ref, img_wd, img_ht, img_dp);
     if attr <> 0 then flush_str(attr);
@@ -24073,10 +22613,10 @@ begin
     pdf_check_obj(obj_type_ximage, cur_val);
     new_whatsit(pdf_refximage_node);
     j := obj_data_ptr(cur_val);
-    pdf_ximage_idx(tail) := j;
-    pdf_width(tail) := image_width(j);
-    pdf_height(tail) := image_height(j);
-    pdf_depth(tail) := image_depth(j);
+    set_pdf_ximage_idx(tail, j);
+    set_pdf_width(tail, image_width(j));
+    set_pdf_height(tail, image_height(j));
+    set_pdf_depth(tail, image_depth(j));
 end
 
 @ The following function finds object with identifier |i| and type |t|.
@@ -24120,7 +22660,7 @@ begin
             pdf_create_obj(t, i);
         r := obj_ptr;
         if t = obj_type_dest then
-            obj_dest_ptr(r) := null;
+            set_obj_dest_ptr(r,null);
     end;
     if s <> 0 then
         flush_str(s);
@@ -24147,38 +22687,38 @@ begin
     p := new_node(action_node,0);
     scan_action := p;
     if scan_keyword('user') then
-        pdf_action_type(p) := pdf_action_user
+        set_pdf_action_type(p, pdf_action_user)
     else if scan_keyword('goto') then
-        pdf_action_type(p) := pdf_action_goto
+        set_pdf_action_type(p, pdf_action_goto)
     else if scan_keyword('thread') then
-        pdf_action_type(p) := pdf_action_thread
+        set_pdf_action_type(p, pdf_action_thread)
     else
         pdf_error("ext1", "action type missing");
     if pdf_action_type(p) = pdf_action_user then begin
         scan_pdf_ext_toks;
-        pdf_action_tokens(p) := def_ref;
+        set_pdf_action_tokens(p, def_ref);
         return;
     end;
     if scan_keyword('file') then begin
         scan_pdf_ext_toks;
-        pdf_action_file(p) := def_ref;
+        set_pdf_action_file(p, def_ref);
     end;
     if scan_keyword('page') then begin
         if pdf_action_type(p) <> pdf_action_goto then
             pdf_error("ext1", "only GoTo action can be used with `page'");
-        pdf_action_type(p) := pdf_action_page;
+        set_pdf_action_type(p, pdf_action_page);
         scan_int;
         if cur_val <= 0 then
             pdf_error("ext1", "page number must be positive");
-        pdf_action_id(p) := cur_val;
-        pdf_action_named_id(p) := 0;
+        set_pdf_action_id(p, cur_val);
+        set_pdf_action_named_id(p, 0);
         scan_pdf_ext_toks;
-        pdf_action_tokens(p) := def_ref;
+        set_pdf_action_tokens(p, def_ref);
     end
     else if scan_keyword('name') then begin
         scan_pdf_ext_toks;
-        pdf_action_named_id(p) := 1;
-        pdf_action_id(p) := def_ref;
+        set_pdf_action_named_id(p, 1);
+        set_pdf_action_id(p, def_ref);
     end
     else if scan_keyword('num') then begin
         if (pdf_action_type(p) = pdf_action_goto) and
@@ -24188,19 +22728,19 @@ begin
         scan_int;
         if cur_val <= 0 then
             pdf_error("ext1", "num identifier must be positive");
-        pdf_action_named_id(p) := 0;
-        pdf_action_id(p) := cur_val;
+        set_pdf_action_named_id(p, 0);
+        set_pdf_action_id(p, cur_val);
     end
     else
         pdf_error("ext1", "identifier type missing");
     if scan_keyword('newwindow') then begin
-        pdf_action_new_window(p) := 1;
+        set_pdf_action_new_window(p, 1);
         @<Scan an optional space@>; end
     else if scan_keyword('nonewwindow') then begin
-        pdf_action_new_window(p) := 2;
+        set_pdf_action_new_window(p, 2);
         @<Scan an optional space@>; end
     else
-        pdf_action_new_window(p) := 0;
+        set_pdf_action_new_window(p, 0);
     if (pdf_action_new_window(p) > 0) and
         (((pdf_action_type(p) <> pdf_action_goto) and
           (pdf_action_type(p) <> pdf_action_page)) or
@@ -24214,16 +22754,16 @@ annotation}
 begin
     new_whatsit(w);
     scan_alt_rule; {scans |<rule spec>| to |alt_rule|}
-    pdf_width(tail) := width(alt_rule);
-    pdf_height(tail) := height(alt_rule);
-    pdf_depth(tail) := depth(alt_rule);
+    set_pdf_width(tail, width(alt_rule));
+    set_pdf_height(tail, height(alt_rule));
+    set_pdf_depth(tail, depth(alt_rule));
     if (w = pdf_thread_node) or (w = pdf_start_thread_node) then begin
         if scan_keyword('attr') then begin
             scan_pdf_ext_toks;
-            pdf_thread_attr(tail) := def_ref;
+            set_pdf_thread_attr(tail, def_ref);
         end
         else
-            pdf_thread_attr(tail) := null;
+            set_pdf_thread_attr(tail, null);
     end;
 end;
 
@@ -24246,9 +22786,9 @@ begin
         else
             k := pdf_new_objnum;
         new_annot_whatsit(pdf_annot_node);
-        pdf_annot_objnum(tail) := k;
+        set_pdf_annot_objnum(tail, k);
         scan_pdf_ext_toks;
-        pdf_annot_data(tail) := def_ref;
+        set_pdf_annot_data(tail,def_ref);
         pdf_last_annot := k;
     end
 end
@@ -24264,13 +22804,14 @@ begin
         pdf_error("ext1", "\pdfstartlink cannot be used in vertical mode");
     k := pdf_new_objnum;
     new_annot_whatsit(pdf_start_link_node);
-            pdf_link_attr(tail) := null;
+            set_pdf_link_attr(tail, null);
         if scan_keyword('attr') then begin
             scan_pdf_ext_toks;
-            pdf_link_attr(tail) := def_ref;
+            set_pdf_link_attr(tail, def_ref);
         end;
-    r := scan_action; pdf_link_action(tail) := r;
-    pdf_link_objnum(tail) := k;
+    r := scan_action;
+    set_pdf_link_action(tail, r);
+    set_pdf_link_objnum(tail, k);
     pdf_last_link := k;
     {N.B.: although it is possible to set |obj_annot_ptr(k) := tail| here, it
      is not safe if nodes are later copied/destroyed/moved; a better place
@@ -24323,30 +22864,30 @@ begin
     delete_action_ref(p);
     pdf_create_obj(obj_type_outline, 0);
     k := obj_ptr;
-    obj_outline_ptr(k) := pdf_get_mem(pdfmem_outline_size);
-    obj_outline_action_objnum(k) := j;
-    obj_outline_count(k) := i;
+    set_obj_outline_ptr(k, pdf_get_mem(pdfmem_outline_size));
+    set_obj_outline_action_objnum(k,j);
+    set_obj_outline_count(k, i);
     pdf_new_obj(obj_type_others, 0, 1);
     pdf_print_str_ln(tokens_to_string(q));
     flush_str(last_tokens_string);
     delete_token_ref(q);
     pdf_end_obj;
-    obj_outline_title(k) := obj_ptr;
-    obj_outline_prev(k) := 0;
-    obj_outline_next(k) := 0;
-    obj_outline_first(k) := 0;
-    obj_outline_last(k) := 0;
-    obj_outline_parent(k) := pdf_parent_outline;
-    obj_outline_attr(k) := r;
+    set_obj_outline_title(k, obj_ptr);
+    set_obj_outline_prev(k, 0);
+    set_obj_outline_next(k, 0);
+    set_obj_outline_first(k, 0);
+    set_obj_outline_last(k, 0);
+    set_obj_outline_parent(k, pdf_parent_outline);
+    set_obj_outline_attr(k, r);
     if pdf_first_outline = 0 then
         pdf_first_outline :=  k;
     if pdf_last_outline = 0 then begin
         if pdf_parent_outline <> 0 then
-            obj_outline_first(pdf_parent_outline) := k;
+            set_obj_outline_first(pdf_parent_outline, k);
     end
     else begin
-        obj_outline_next(pdf_last_outline) := k;
-        obj_outline_prev(k) := pdf_last_outline;
+        set_obj_outline_next(pdf_last_outline, k);
+        set_obj_outline_prev(k, pdf_last_outline);
     end;
     pdf_last_outline := k;
     if obj_outline_count(k) <> 0 then begin
@@ -24358,7 +22899,7 @@ begin
     begin
         j := pdf_last_outline;
         repeat
-            obj_outline_last(pdf_parent_outline) := j;
+            set_obj_outline_last(pdf_parent_outline, j);
             j := pdf_parent_outline;
             pdf_parent_outline := obj_outline_parent(pdf_parent_outline);
         until (pdf_parent_outline = 0) or
@@ -24371,27 +22912,6 @@ begin
             pdf_last_outline := obj_outline_next(pdf_last_outline);
     end;
 end
-
-@ When a destination is created we need to check whether another destination
-with the same identifier already exists and give a warning if needed.
-
-@<Declare procedures needed in |pdf_hlist_out|, |pdf_vlist_out|@>=
-procedure warn_dest_dup(id: integer; byname: small_number; s1, s2: str_number);
-begin
-    pdf_warning(s1, "destination with the same identifier (", false, false);
-    if byname > 0 then begin
-        print("name");
-        print_mark(id);
-    end
-    else begin
-        print("num");
-        print_int(id);
-    end;
-    print(") ");
-    print(s2);
-    print_ln;
-    show_context;
-end;
 
 @ Notice that |scan_keyword| doesn't care if two words have same prefix; so
 we should be careful when scan keywords with same prefix. The main rule: if
@@ -24409,49 +22929,49 @@ begin
             pdf_error("ext1", "num identifier must be positive");
         if cur_val > max_halfword then
             pdf_error("ext1", "number too big");
-        pdf_dest_id(tail) := cur_val;
-        pdf_dest_named_id(tail) := 0;
+        set_pdf_dest_id(tail, cur_val);
+        set_pdf_dest_named_id(tail, 0);
     end
     else if scan_keyword('name') then begin
         scan_pdf_ext_toks;
-        pdf_dest_id(tail) := def_ref;
-        pdf_dest_named_id(tail) := 1;
+        set_pdf_dest_id(tail, def_ref);
+        set_pdf_dest_named_id(tail, 1);
     end
     else
         pdf_error("ext1", "identifier type missing");
     if scan_keyword('xyz') then begin
-        pdf_dest_type(tail) := pdf_dest_xyz;
+        set_pdf_dest_type(tail, pdf_dest_xyz);
         if scan_keyword('zoom') then begin
             scan_int;
             if cur_val > max_halfword then
                 pdf_error("ext1", "number too big");
-            pdf_dest_xyz_zoom(tail) := cur_val;
+            set_pdf_dest_xyz_zoom(tail, cur_val);
         end
         else
-            pdf_dest_xyz_zoom(tail) := null;
+            set_pdf_dest_xyz_zoom(tail, null);
     end
     else if scan_keyword('fitbh') then
-        pdf_dest_type(tail) := pdf_dest_fitbh
+        set_pdf_dest_type(tail, pdf_dest_fitbh)
     else if scan_keyword('fitbv') then
-        pdf_dest_type(tail) := pdf_dest_fitbv
+        set_pdf_dest_type(tail, pdf_dest_fitbv)
     else if scan_keyword('fitb') then
-        pdf_dest_type(tail) := pdf_dest_fitb
+        set_pdf_dest_type(tail, pdf_dest_fitb)
     else if scan_keyword('fith') then
-        pdf_dest_type(tail) := pdf_dest_fith
+        set_pdf_dest_type(tail, pdf_dest_fith)
     else if scan_keyword('fitv') then
-        pdf_dest_type(tail) := pdf_dest_fitv
+        set_pdf_dest_type(tail, pdf_dest_fitv)
     else if scan_keyword('fitr') then
-        pdf_dest_type(tail) := pdf_dest_fitr
+        set_pdf_dest_type(tail, pdf_dest_fitr)
     else if scan_keyword('fit') then
-        pdf_dest_type(tail) := pdf_dest_fit
+        set_pdf_dest_type(tail, pdf_dest_fit)
     else
         pdf_error("ext1", "destination type missing");
     @<Scan an optional space@>;
     if pdf_dest_type(tail) = pdf_dest_fitr then begin
         scan_alt_rule; {scans |<rule spec>| to |alt_rule|}
-        pdf_width(tail) := width(alt_rule);
-        pdf_height(tail) := height(alt_rule);
-        pdf_depth(tail) := depth(alt_rule);
+        set_pdf_width(tail, width(alt_rule));
+        set_pdf_height(tail, height(alt_rule));
+        set_pdf_depth(tail, depth(alt_rule));
     end;
     if pdf_dest_named_id(tail) <> 0 then begin
         i := tokens_to_string(pdf_dest_id(tail));
@@ -24478,13 +22998,13 @@ begin
             pdf_error("ext1", "num identifier must be positive");
         if cur_val > max_halfword then
             pdf_error("ext1", "number too big");
-        pdf_thread_id(tail) := cur_val;
-        pdf_thread_named_id(tail) := 0;
+        set_pdf_thread_id(tail, cur_val);
+        set_pdf_thread_named_id(tail, 0);
     end
     else if scan_keyword('name') then begin
         scan_pdf_ext_toks;
-        pdf_thread_id(tail) := def_ref;
-        pdf_thread_named_id(tail) := 1;
+        set_pdf_thread_id(tail, def_ref);
+        set_pdf_thread_named_id(tail, 1);
     end
     else
         pdf_error("ext1", "identifier type missing");
@@ -25226,8 +23746,7 @@ end
 begin
   if dir_dir(p)>=0 then begin
     push_dir_node(p);
-    @<(PDF) Calculate the needed width to the matching |enddir|, and store it in |w|, as
-        well as in the enddir's |dir_dvi_h|@>;
+    calculate_width_to_enddir(p, cur_glue,  cur_g, this_box, addressof(w), addressof(temp_ptr));
     if (dir_opposite(dir_secondary[dir_dir(dir_ptr)])(dir_secondary[dvi_direction]))
     or (dir_eq(dir_secondary[dir_dir(dir_ptr)])(dir_secondary[dvi_direction]))
     then begin
@@ -25256,102 +23775,6 @@ begin
       dvi_direction:=0;
   end
 end
-
-@ This code scans forward to the ending |dir_node| while keeping
-track of the needed width in |w|. When it finds the node that will end
-this segment, it stores the accumulated with in the |dir_dvi_h| field
-of that end node, so that when that node is found later in the
-processing, the correct glue correction can be applied.
-
-@p
-function simple_advance_width(p:halfword):scaled;
-var q:halfword;
-@!w:scaled;
-begin
-  q:=p; w:=0;
-  while (q<>null) and (vlink(q)<>null) do begin
-    q:=vlink(q);
-    if is_char_node(q) then begin
-      w:=w+glyph_width(q);
-      end
-    else begin
-      case type(q) of
-      hlist_node_case,vlist_node_case,rule_node_case,
-      margin_kern_node_case,kern_node_case:
-        w:=w+width(q);
-      disc_node_case: if vlink(no_break(q))<>null then begin
-        w:=w+simple_advance_width(no_break(q));
-        end;
-      othercases do_nothing;
-      endcases;
-    end;
-  end;
-  simple_advance_width:=w;
-end;
-
-
-@ @<(PDF) Calculate the needed width to the matching |enddir|...@>=
-begin
-  q:=p; w:=0;
-  save_cur_g:=cur_g;
-  save_cur_glue:=cur_glue;
-  { to me, it looks like the next is needed. but Aleph doesn't do that,
-   so let us not do it either }
-  {|w:=w-cur_g; cur_glue:=0;|}
-  dir_nest:=1;
-  while (q<>null) and (vlink(q)<>null) do begin
-        q:=vlink(q);
-    if is_char_node(q) then begin
-      w:=w+glyph_width(q); {TODO no vertical support for now}
-      end
-    else begin
-      case type(q) of
-      hlist_node_case,vlist_node_case,rule_node_case,
-      margin_kern_node_case,kern_node_case:w:=w+width(q);
-      glue_node_case: begin
-        g:=glue_ptr(q);
-        w:=w+width(g)-cur_g;
-        if g_sign<>normal then
-          begin if g_sign=stretching then
-            begin if stretch_order(g)=g_order then
-              begin cur_glue:=cur_glue+stretch(g);
-              vet_glue(float(glue_set(this_box))*cur_glue);
-              cur_g:=round(glue_temp);
-              end;
-            end
-          else if shrink_order(g)=g_order then
-             begin cur_glue:=cur_glue-shrink(g);
-             vet_glue(float(glue_set(this_box))*cur_glue);
-             cur_g:=round(glue_temp);
-             end;
-          end;
-        w:=w+cur_g;
-        end;
-      disc_node_case: if vlink(no_break(q))<>null then begin
-        w:=w+simple_advance_width(no_break(q));
-        end;
-      math_node_case: w:=w+surround(q);
-      whatsit_node_case: begin
-        if subtype(q)=dir_node then begin
-          if dir_dir(q)>=0 then incr(dir_nest) else decr(dir_nest);
-          if dir_nest=0 then begin
-            dir_dvi_h(q) := w;
-            temp_ptr := q;
-            q:=null;
-            end;
-          end
-        else if (subtype(q) = pdf_refxform_node) or
-                (subtype(q) = pdf_refximage_node) then
-         w:=w+pdf_width(q);
-      end;
-      othercases do_nothing;
-      endcases;
-    end;
-  end;
-  cur_g:=save_cur_g;
-  cur_glue:=save_cur_glue;
-end
-
 
 @ Shipping out PDF marks.
 
@@ -25386,7 +23809,6 @@ thread}
 @!pdf_catalog_openaction: integer;
 @!pdf_names_toks: pointer; {additional keys of Names dictionary}
 @!pdf_dest_names_ptr: integer; {first unused position in |dest_names|}
-@!dest_names_size: integer; {maximum number of names in name tree of PDF output file}
 @!dest_names: ^dest_name_entry;
 @!pk_dpi: integer; {PK pixel density value from \.{texmf.cnf}}
 @!image_orig_x, image_orig_y: integer; {origin of cropped PDF images}
@@ -25406,655 +23828,8 @@ pdf_names_toks := null;
 pdf_catalog_openaction := 0;
 pdf_trailer_toks := null;
 
-@ The following procedures are needed for outputing whatsit nodes for
-\pdfTeX{}.
-
-@<Declare procedures needed in |pdf_hlist_out|, |pdf_vlist_out|@>=
-procedure write_action(p: pointer); {write an action specification}
-var s: str_number;
-    d: integer;
-begin d:=0;
-    if pdf_action_type(p) = pdf_action_user then begin
-        pdf_print_toks_ln(pdf_action_tokens(p));
-        return;
-    end;
-    pdf_print("<< ");
-    if pdf_action_file(p) <> null then begin
-        pdf_print("/F ");
-        s := tokens_to_string(pdf_action_file(p));
-        if (str_pool[str_start_macro(s)] = 40) and
-           (str_pool[str_start_macro(s) + length(s) - 1] = 41) then
-            pdf_print(s)
-        else begin
-            pdf_print_str(s);
-        end;
-        flush_str(s);
-        pdf_print(" ");
-        if pdf_action_new_window(p) > 0 then begin
-            pdf_print("/NewWindow ");
-            if pdf_action_new_window(p) = 1 then
-                pdf_print("true ")
-            else
-                pdf_print("false ");
-        end;
-    end;
-    case pdf_action_type(p) of
-    pdf_action_page: begin
-        if pdf_action_file(p) = null then begin
-            pdf_print("/S /GoTo /D [");
-            pdf_print_int(get_obj(obj_type_page, pdf_action_id(p), false));
-            pdf_print(" 0 R");
-        end
-        else begin
-            pdf_print("/S /GoToR /D [");
-            pdf_print_int(pdf_action_id(p) - 1);
-        end;
-        pdf_out(" ");
-        pdf_print(tokens_to_string(pdf_action_tokens(p)));
-        flush_str(last_tokens_string);
-        pdf_out("]");
-    end;
-    pdf_action_goto: begin
-        if pdf_action_file(p) = null then begin
-            pdf_print("/S /GoTo ");
-            d := get_obj(obj_type_dest, pdf_action_id(p),
-                         pdf_action_named_id(p));
-        end
-        else
-            pdf_print("/S /GoToR ");
-        if pdf_action_named_id(p) > 0 then begin
-            pdf_str_entry("D", tokens_to_string(pdf_action_id(p)));
-            flush_str(last_tokens_string);
-        end
-        else if pdf_action_file(p) = null then
-            pdf _indirect("D", d)
-        else
-            pdf_error("ext4", "`goto' option cannot be used with both `file' and `num'");
-    end;
-    pdf_action_thread: begin
-        pdf_print("/S /Thread ");
-        if pdf_action_file(p) = null then
-            d := get_obj(obj_type_thread, pdf_action_id(p),
-                         pdf_action_named_id(p));
-        if pdf_action_named_id(p) > 0 then begin
-            pdf_str_entry("D", tokens_to_string(pdf_action_id(p)));
-            flush_str(last_tokens_string);
-        end
-        else if pdf_action_file(p) = null then
-            pdf_indirect("D", d)
-        else
-            pdf_int_entry("D", pdf_action_id(p));
-    end;
-    endcases;
-    pdf_print_ln(" >>");
-end;
-
-procedure set_rect_dimens(p, parent_box: pointer; x, y, wd, ht, dp, margin: scaled);
-var ll, ur, pos_ll, pos_ur, tmp: scaledpos;
-begin
-    ll.h := cur.h;
-    if is_running(dp) then
-        ll.v := y + depth(parent_box)
-    else
-        ll.v := cur.v + dp;
-    if is_running(wd) then
-        ur.h := x + width(parent_box)
-    else
-        ur.h := cur.h + wd;
-    if is_running(ht) then
-        ur.v := y - height(parent_box)
-    else
-        ur.v := cur.v - ht;
-    pos_ll := synch_p_with_c(ll);
-    pos_ur := synch_p_with_c(ur);
-    if pos_ll.h > pos_ur.h then begin
-        tmp.h := pos_ll.h; pos_ll.h := pos_ur.h; pos_ur.h := tmp.h; end;
-    if pos_ll.v > pos_ur.v then begin
-        tmp.v := pos_ll.v; pos_ll.v := pos_ur.v; pos_ur.v := tmp.v; end;
-    if is_shipping_page and matrixused then begin
-        matrixtransformrect(pos_ll.h, pos_ll.v, pos_ur.h, pos_ur.v);
-        pos_ll.h := getllx;
-        pos_ll.v := getlly;
-        pos_ur.h := geturx;
-        pos_ur.v := getury;
-    end;
-    pdf_ann_left(p) := pos_ll.h - margin;
-    pdf_ann_bottom(p) := pos_ll.v - margin;
-    pdf_ann_right(p) := pos_ur.h + margin;
-    pdf_ann_top(p) := pos_ur.v + margin;
-end;
-
-procedure do_annot(p, parent_box: pointer; x, y: scaled);
-begin
-    if not is_shipping_page then
-        pdf_error("ext4", "annotations cannot be inside an XForm");
-    if doing_leaders then
-        return;
-    if is_obj_scheduled(pdf_annot_objnum(p)) then
-        pdf_annot_objnum(p) := pdf_new_objnum;
-    set_rect_dimens(p, parent_box, x, y,
-                    pdf_width(p), pdf_height(p), pdf_depth(p), 0);
-    obj_annot_ptr(pdf_annot_objnum(p)) := p;
-    pdf_append_list(pdf_annot_objnum(p))(pdf_annot_list);
-    set_obj_scheduled(pdf_annot_objnum(p));
-end;
-
-@ To implement nested link annotations, we need a stack to hold copy of
-|pdf_start_link_node|'s that are being written out, together with their box
-nesting level.
-
-@d pdf_link_stack_top == pdf_link_stack[pdf_link_stack_ptr]
-
-@<Constants...@>=
-@!pdf_max_link_level = 10; {maximum depth of link nesting}
-
-@ @<Types...@>=
-@!pdf_link_stack_record = record
-    nesting_level: integer;
-    link_node: pointer; {holds a copy of the corresponding |pdf_start_link_node|}
-    ref_link_node: pointer; {points to original |pdf_start_link_node|, or a
-                             copy of |link_node| created by |append_link| in
-                             case of multi-line link}
-end;
-
-@ @<Glob...@>=
-@!pdf_link_stack: array[1..pdf_max_link_level] of pdf_link_stack_record;
-@!pdf_link_stack_ptr: small_number;
-
-@ @<Set init...@>=
-pdf_link_stack_ptr := 0;
-
-@ @<Declare procedures needed in |pdf_hlist_out|, |pdf_vlist_out|@>=
-procedure push_link_level(p: pointer);
-begin
-    if pdf_link_stack_ptr >= pdf_max_link_level then
-        overflow("pdf link stack size", pdf_max_link_level);
-    pdfassert((type(p) = whatsit_node) and (subtype(p) = pdf_start_link_node));
-    incr(pdf_link_stack_ptr);
-    pdf_link_stack_top.nesting_level := cur_s;
-    pdf_link_stack_top.link_node := copy_node_list(p);
-    pdf_link_stack_top.ref_link_node := p;
-end;
-
-procedure pop_link_level;
-begin
-    pdfassert(pdf_link_stack_ptr > 0);
-    flush_node_list(pdf_link_stack_top.link_node);
-    decr(pdf_link_stack_ptr);
-end;
-
-procedure do_link(p, parent_box: pointer; x, y: scaled);
-begin
-    if not is_shipping_page then
-        pdf_error("ext4", "link annotations cannot be inside an XForm");
-    pdfassert(type(parent_box) = hlist_node);
-    if is_obj_scheduled(pdf_link_objnum(p)) then
-        pdf_link_objnum(p) := pdf_new_objnum;
-    push_link_level(p);
-    set_rect_dimens(p, parent_box, x, y,
-                    pdf_width(p), pdf_height(p), pdf_depth(p),
-                    pdf_link_margin);
-    obj_annot_ptr(pdf_link_objnum(p)) := p; {the reference for the pdf annot object
-                                             must be set here}
-    pdf_append_list(pdf_link_objnum(p))(pdf_link_list);
-    set_obj_scheduled(pdf_link_objnum(p));
-end;
-
-procedure end_link;
-var p: pointer;
-tmp1, tmp2: scaledpos;
-begin
-    if pdf_link_stack_ptr < 1 then
-        pdf_error("ext4", "pdf_link_stack empty, \pdfendlink used without \pdfstartlink?");
-    if pdf_link_stack_top.nesting_level <> cur_s then
-        pdf_error("ext4", "\pdfendlink ended up in different nesting level than \pdfstartlink");
-
-    {N.B.: test for running link must be done on |link_node| and not |ref_link_node|,
-     as |ref_link_node| can be set by |do_link| or |append_link| already}
-
-    if is_running(pdf_width(pdf_link_stack_top.link_node)) then begin
-        p := pdf_link_stack_top.ref_link_node;
-        if is_shipping_page and matrixused then begin
-            matrixrecalculate(cur.h + pdf_link_margin);
-            pdf_ann_left(p)   := getllx - pdf_link_margin;
-            pdf_ann_top(p)    := cur_page_size.v - getury - pdf_link_margin;
-            pdf_ann_right(p)  := geturx + pdf_link_margin;
-            pdf_ann_bottom(p) := cur_page_size.v - getlly + pdf_link_margin;
-        end
-        else begin
-            tmp1.h := cur.h; tmp1.v := cur.v;
-            tmp2 := synch_p_with_c(tmp1);
-            case box_direction(dvi_direction) of
-            dir_TL_, dir_BL_: pdf_ann_right(p)  := tmp2.h + pdf_link_margin;
-            dir_TR_, dir_BR_: pdf_ann_left(p)   := tmp2.h - pdf_link_margin;
-            dir_LT_, dir_RT_: pdf_ann_bottom(p) := tmp2.v - pdf_link_margin;
-            dir_LB_, dir_RB_: pdf_ann_top(p)    := tmp2.v + pdf_link_margin;
-            endcases;
-        end;
-    end;
-    pop_link_level;
-end;
-
-@ For ``running'' annotations we must append a new node when the end of
-annotation is in other box than its start. The new created node is identical to
-corresponding whatsit node representing the start of annotation,  but its
-|info| field is |max_halfword|. We set |info| field just before destroying the
-node, in order to use |flush_node_list| to do the job.
-
-@<Declare procedures needed in |pdf_hlist_out|, |pdf_vlist_out|@>=
-procedure append_link(parent_box: pointer; x, y: scaled; i: small_number); {append a new
-pdf annot to |pdf_link_list|}
-var p: pointer;
-begin
-    pdfassert(type(parent_box) = hlist_node);
-    p := copy_node(pdf_link_stack[i].link_node);
-    pdf_link_stack[i].ref_link_node := p;
-    subtype(p) := pdf_link_data_node; { this node is not a normal link node}
-    set_rect_dimens(p, parent_box, x, y,
-                    pdf_width(p), pdf_height(p), pdf_depth(p),
-                    pdf_link_margin);
-    pdf_create_obj(obj_type_others, 0);
-    obj_annot_ptr(obj_ptr) := p;
-    pdf_append_list(obj_ptr)(pdf_link_list);
-end;
-
-@ Threads are handled in similar way as link annotations.
-
-@<Declare procedures needed in |pdf_hlist_out|, |pdf_vlist_out|@>=
-procedure append_bead(p: pointer);
-var a, b, c, t: integer;
-begin
-    if not is_shipping_page then
-        pdf_error("ext4", "threads cannot be inside an XForm");
-    t := get_obj(obj_type_thread, pdf_thread_id(p), pdf_thread_named_id(p));
-    b := pdf_new_objnum;
-    obj_bead_ptr(b) := pdf_get_mem(pdfmem_bead_size);
-    obj_bead_page(b) := pdf_last_page;
-    obj_bead_data(b) := p;
-    if pdf_thread_attr(p) <> null then
-        obj_bead_attr(b) := tokens_to_string(pdf_thread_attr(p))
-    else
-        obj_bead_attr(b) := 0;
-    if obj_thread_first(t) = 0 then begin
-        obj_thread_first(t) := b;
-        obj_bead_next(b) := b;
-        obj_bead_prev(b) := b;
-    end
-    else begin
-        a := obj_thread_first(t);
-        c := obj_bead_prev(a);
-        obj_bead_prev(b) := c;
-        obj_bead_next(b) := a;
-        obj_bead_prev(a) := b;
-        obj_bead_next(c) := b;
-    end;
-    pdf_append_list(b)(pdf_bead_list);
-end;
-
-procedure do_thread(p, parent_box: pointer; x, y: scaled);
-begin
-    if doing_leaders then
-        return;
-    if subtype(p) = pdf_start_thread_node then begin
-        pdf_thread_wd := pdf_width(p);
-        pdf_thread_ht := pdf_height(p);
-        pdf_thread_dp := pdf_depth(p);
-        pdf_last_thread_id := pdf_thread_id(p);
-        pdf_last_thread_named_id := (pdf_thread_named_id(p) > 0);
-        if pdf_last_thread_named_id then
-            add_token_ref(pdf_thread_id(p));
-        pdf_thread_level := cur_s;
-    end;
-    set_rect_dimens(p, parent_box, x, y,
-                    pdf_width(p), pdf_height(p), pdf_depth(p),
-                    pdf_thread_margin);
-    append_bead(p);
-    last_thread := p;
-end;
-
-procedure append_thread(parent_box: pointer; x, y: scaled);
-var p: pointer;
-begin
-    p := new_node(whatsit_node,pdf_thread_data_node);
-    pdf_width(p) := pdf_thread_wd;
-    pdf_height(p) := pdf_thread_ht;
-    pdf_depth(p) := pdf_thread_dp;
-    pdf_thread_attr(p) := null;
-    pdf_thread_id(p) := pdf_last_thread_id;
-    if pdf_last_thread_named_id then begin
-        add_token_ref(pdf_thread_id(p));
-        pdf_thread_named_id(p) := 1;
-    end
-    else
-        pdf_thread_named_id(p) := 0;
-    set_rect_dimens(p, parent_box, x, y,
-                    pdf_width(p), pdf_height(p), pdf_depth(p),
-                    pdf_thread_margin);
-    append_bead(p);
-    last_thread := p;
-end;
-
-procedure end_thread;
-var tmp1, tmp2: scaledpos;
-begin
-    if pdf_thread_level <> cur_s then
-        pdf_error("ext4", "\pdfendthread ended up in different nesting level than \pdfstartthread");
-    if is_running(pdf_thread_dp) and (last_thread <> null) then begin
-        tmp1.h := cur.h; tmp1.v := cur.v;
-        tmp2 := synch_p_with_c(tmp1);
-        case box_direction(dvi_direction) of
-        dir_TL_, dir_TR_: pdf_ann_bottom(last_thread) := tmp2.v - pdf_thread_margin;
-        dir_BL_, dir_BR_: pdf_ann_top(last_thread)    := tmp2.v + pdf_thread_margin;
-        dir_LT_, dir_LB_: pdf_ann_right(last_thread)  := tmp2.h + pdf_thread_margin;
-        dir_RT_, dir_RB_: pdf_ann_left(last_thread)   := tmp2.h - pdf_thread_margin;
-        endcases;
-        end;
-    if pdf_last_thread_named_id then
-        delete_token_ref(pdf_last_thread_id);
-    last_thread := null;
-end;
-
-function open_subentries(p: pointer): integer;
-var k, c: integer;
-    l, r: integer;
-begin
-    k := 0;
-    if obj_outline_first(p) <> 0 then begin
-        l := obj_outline_first(p);
-        repeat
-            incr(k);
-            c := open_subentries(l);
-            if obj_outline_count(l) > 0 then
-                k := k + c;
-            obj_outline_parent(l) := p;
-            r := obj_outline_next(l);
-            if r = 0 then
-                obj_outline_last(p) := l;
-            l := r;
-        until l = 0;
-    end;
-    if obj_outline_count(p) > 0 then
-        obj_outline_count(p) := k
-    else
-        obj_outline_count(p) := -k;
-    open_subentries := k;
-end;
-
-procedure do_dest(p, parent_box: pointer; x, y: scaled);
-var k: integer;
-tmp1, tmp2: scaledpos;
-begin
-    if not is_shipping_page then
-        pdf_error("ext4", "destinations cannot be inside an XForm");
-    if doing_leaders then
-        return;
-    k := get_obj(obj_type_dest, pdf_dest_id(p), pdf_dest_named_id(p));
-    if obj_dest_ptr(k) <> null then begin
-        warn_dest_dup(pdf_dest_id(p), pdf_dest_named_id(p),
-                      "ext4", "has been already used, duplicate ignored");
-        return;
-    end;
-    obj_dest_ptr(k) := p;
-    pdf_append_list(k)(pdf_dest_list);
-    case pdf_dest_type(p) of
-    pdf_dest_xyz:
-        if matrixused then
-            set_rect_dimens(p, parent_box, x, y,
-                            pdf_width(p), pdf_height(p), pdf_depth(p),
-                            pdf_dest_margin)
-        else begin
-        tmp1.h := cur.h; tmp1.v := cur.v;
-        tmp2 := synch_p_with_c(tmp1);
-        pdf_ann_left(p) := tmp2.h;
-        pdf_ann_top(p) := tmp2.v;
-    end;
-    pdf_dest_fith,
-    pdf_dest_fitbh:
-        if matrixused then
-            set_rect_dimens(p, parent_box, x, y,
-                            pdf_width(p), pdf_height(p), pdf_depth(p),
-                            pdf_dest_margin)
-        else begin
-        tmp1.h := cur.h; tmp1.v := cur.v;
-        tmp2 := synch_p_with_c(tmp1);
-        pdf_ann_top(p) := tmp2.v;
-        end;
-    pdf_dest_fitv,
-    pdf_dest_fitbv:
-        if matrixused then
-            set_rect_dimens(p, parent_box, x, y,
-                            pdf_width(p), pdf_height(p), pdf_depth(p),
-                            pdf_dest_margin)
-        else begin
-        tmp1.h := cur.h; tmp1.v := cur.v;
-        tmp2 := synch_p_with_c(tmp1);
-        pdf_ann_left(p) := tmp2.h;
-        end;
-    pdf_dest_fit,
-    pdf_dest_fitb:
-        do_nothing;
-    pdf_dest_fitr:
-        set_rect_dimens(p, parent_box, x, y,
-                        pdf_width(p), pdf_height(p), pdf_depth(p),
-                        pdf_dest_margin);
-    endcases;
-end;
-
-procedure output_form(p: pointer);
-begin
-    pdf_goto_pagemode;
-    pdf_place_form(pos.h, pos.v, obj_info(pdf_xform_objnum(p)));
-    if pdf_lookup_list(pdf_xform_list, pdf_xform_objnum(p)) = null then
-        pdf_append_list(pdf_xform_objnum(p))(pdf_xform_list);
-end;
-
-procedure output_image(idx: integer);
-begin
-    pdf_goto_pagemode;
-    out_image(idx, pos.h, pos.v);
-    if pdf_lookup_list(pdf_ximage_list, image_objnum(idx)) = null then
-        pdf_append_list(image_objnum(idx))(pdf_ximage_list);
-end;
-
-@ @<Output the whatsit node |p| in |pdf_vlist_out|@>=
-case subtype(p) of
-pdf_literal_node:
-    pdf_out_literal(p);
-pdf_colorstack_node:
-    pdf_out_colorstack(p);
-pdf_setmatrix_node:
-    pdf_out_setmatrix(p);
-pdf_save_node:
-    pdf_out_save;
-pdf_restore_node:
-    pdf_out_restore;
-late_lua_node:
-    do_late_lua(p);
-pdf_refobj_node:
-    if not is_obj_scheduled(pdf_obj_objnum(p)) then begin
-        pdf_append_list(pdf_obj_objnum(p))(pdf_obj_list);
-        set_obj_scheduled(pdf_obj_objnum(p));
-    end;
-pdf_refxform_node:
-    @<Output a Form node in a vlist@>;
-pdf_refximage_node:
-    @<Output an Image node in a vlist@>;
-pdf_annot_node:
-    do_annot(p, this_box, left_edge, top_edge + height(this_box));
-pdf_start_link_node:
-    pdf_error("ext4", "\pdfstartlink ended up in vlist");
-pdf_end_link_node:
-    pdf_error("ext4", "\pdfendlink ended up in vlist");
-pdf_dest_node:
-    do_dest(p, this_box, left_edge, top_edge + height(this_box));
-pdf_thread_node,
-pdf_start_thread_node:
-    do_thread(p, this_box, left_edge, top_edge + height(this_box));
-pdf_end_thread_node:
-    end_thread;
-pdf_save_pos_node:
-    @<Save current position@>;
-special_node:
-    pdf_special(p);
-othercases out_what(p);
-endcases
-
 @ @<Glob...@>=
 @!is_shipping_page: boolean; {set to |shipping_page| when |pdf_ship_out| starts}
-
-@ @<Output an Image node in a vlist@>=
-begin cur.h:=left_edge;
-  synch_pos_with_cur;
-  case box_direction(dvi_direction) of
-  dir_TL_: begin
-    pos_down(pdf_height(p)+pdf_depth(p));
-    end;
-  dir_TR_: begin
-    pos_left(pdf_width(p));
-    pos_down(pdf_height(p)+pdf_depth(p));
-    end;
-  dir_BL_: begin
-    end;
-  dir_BR_: begin
-    pos_left(pdf_width(p));
-    end;
-  dir_LT_: begin
-    pos_down(pdf_width(p));
-    end;
-  dir_RT_: begin
-    pos_left(pdf_height(p)+pdf_depth(p));
-    pos_down(pdf_width(p));
-    end;
-  dir_LB_: begin
-    end;
-  dir_RB_: begin
-    pos_left(pdf_height(p)+pdf_depth(p));
-    end;
-  othercases
-  endcases;
-  output_image(pdf_ximage_idx(p));
-  cur.v:=cur.v+pdf_height(p)+pdf_depth(p);
-end
-
-@ @<Output a Form node in a vlist@>=
-begin
-  cur.h:=left_edge;
-  synch_pos_with_cur;
-  case box_direction(dvi_direction) of
-  dir_TL_: begin
-    pos_down(pdf_height(p)+pdf_depth(p));
-    end;
-  dir_TR_: begin
-    pos_left(pdf_width(p));
-    pos_down(pdf_height(p)+pdf_depth(p));
-    end;
-  othercases
-  endcases;
-  output_form(p);
-  cur.v:=cur.v+pdf_height(p)+pdf_depth(p);
-end
-
-@ @<Output the whatsit node |p| in |pdf_hlist_out|@>=
-case subtype(p) of
-pdf_literal_node:
-    pdf_out_literal(p);
-pdf_colorstack_node:
-    pdf_out_colorstack(p);
-pdf_setmatrix_node:
-    pdf_out_setmatrix(p);
-pdf_save_node:
-    pdf_out_save;
-pdf_restore_node:
-    pdf_out_restore;
-late_lua_node:
-    do_late_lua(p);
-pdf_refobj_node:
-    if not is_obj_scheduled(pdf_obj_objnum(p)) then begin
-        pdf_append_list(pdf_obj_objnum(p))(pdf_obj_list);
-        set_obj_scheduled(pdf_obj_objnum(p));
-    end;
-pdf_refxform_node:
-    @<Output a Form node in a hlist@>;
-pdf_refximage_node:
-    @<Output an Image node in a hlist@>;
-pdf_annot_node:
-    do_annot(p, this_box, left_edge, base_line);
-pdf_start_link_node:
-    do_link(p, this_box, left_edge, base_line);
-pdf_end_link_node:
-    end_link;
-pdf_dest_node:
-    do_dest(p, this_box, left_edge, base_line);
-pdf_thread_node:
-    do_thread(p, this_box, left_edge, base_line);
-pdf_start_thread_node:
-    pdf_error("ext4", "\pdfstartthread ended up in hlist");
-pdf_end_thread_node:
-    pdf_error("ext4", "\pdfendthread ended up in hlist");
-pdf_save_pos_node:
-    @<Save current position@>;
-special_node:
-    pdf_special(p);
-othercases if subtype(p)<>dir_node then out_what(p)
-else @<Output a reflection instruction if the direction has changed@>;
-endcases
-
-@ @<Output an Image node in a hlist@>=
-begin
-  cur.v:=base_line;
-  synch_pos_with_cur;
-  case box_direction(dvi_direction) of
-  dir_TL_: begin
-    pos_down(pdf_depth(p));
-    end;
-  dir_TR_: begin
-    pos_left(pdf_width(p));
-    pos_down(pdf_depth(p));
-    end;
-  dir_BL_: begin
-    pos_down(pdf_height(p));
-    end;
-  dir_BR_: begin
-    pos_left(pdf_width(p));
-    pos_down(pdf_height(p));
-    end;
-  dir_LT_: begin
-    pos_left(pdf_height(p));
-    pos_down(pdf_width(p));
-    end;
-  dir_RT_: begin
-    pos_left(pdf_depth(p));
-    pos_down(pdf_width(p));
-    end;
-  dir_LB_: begin
-    pos_left(pdf_height(p));
-    end;
-  dir_RB_: begin
-    pos_left(pdf_depth(p));
-    end;
-  othercases
-  endcases;
-  output_image(pdf_ximage_idx(p));
-  edge:=cur.h+pdf_width(p); cur.h:=edge;
-end
-
-@ @<Output a Form node in a hlist@>=
-begin
-  cur.v:=base_line;
-  synch_pos_with_cur;
-  case box_direction(dvi_direction) of
-  dir_TL_: begin
-    pos_down(pdf_depth(p));
-    end;
-  dir_TR_: begin
-    pos_down(pdf_depth(p));
-    pos_left(pdf_width(p));
-    end;
-  othercases
-  endcases;
-  output_form(p);
-  edge:=cur.h+pdf_width(p); cur.h:=edge;
-end
 
 @* \[53a] The extended features of \eTeX.
 The program has two modes of operation:  (1)~In \TeX\ compatibility mode

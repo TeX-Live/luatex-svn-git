@@ -100,11 +100,11 @@ extern "C" {
     extern void tex_printf(const char *, ...);
     extern void write_epdf(image_dict *);
     extern void write_additional_epdf_objects(void);
-    extern void zpdf_begin_dict(integer, bool);
-    extern void zpdf_begin_obj(integer, bool);
-    extern void zpdf_create_obj(integer, integer);
-    extern void zpdf_new_dict(integer, integer, bool);
-    extern void zpdf_os_get_os_buf(integer);
+    extern void pdf_begin_dict(integer, bool);
+    extern void pdf_begin_obj(integer, bool);
+    extern void pdf_create_obj(integer, integer);
+    extern void pdf_new_dict(integer, integer, bool);
+    extern void pdf_os_get_os_buf(integer);
 
 /* epdf.c */
     extern void epdf_mark_glyphs(struct fd_entry *, char *);

@@ -628,7 +628,6 @@ void write_fontdictionary(fo_entry * fo)
                 write_tounicode(fo->fd->builtin_glyph_names, fo->fm->tfm_name);
         }
     }
-
     pdf_begin_dict(fo->fo_objnum, 1);
     pdf_puts("/Type /Font\n");
     pdf_puts("/Subtype /");
@@ -771,6 +770,7 @@ void do_pdf_font(integer font_objnum, internalfontnumber f)
      * only) there are more than 256 separate glyphs used. But for
      * now, just assume the user knows what he is doing;
      */
+    fprintf("\ndo_pdf_font(%d,%d)\n", (int)font_objnum,(int)f);
     if (!font_has_subset(f))
         return;
 

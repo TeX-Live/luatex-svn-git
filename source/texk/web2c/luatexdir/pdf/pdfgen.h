@@ -165,7 +165,11 @@ extern integer pdf_output_value;
 extern integer pdf_draftmode_option;
 extern integer pdf_draftmode_value;
 
-#  define pdf_append_list(A,B) B=append_ptr(B,A)
+#  define pdf_append_list(A,B) do {             \
+        if (B==0) B=append_ptr(B,A);            \
+        else      (void)append_ptr(B,A);        \
+    } while (0)
+
 #  define set_ff(A)  do {                         \
         if (pdf_font_num(A) < 0)                \
             ff = -pdf_font_num(A);              \

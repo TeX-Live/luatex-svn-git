@@ -627,15 +627,15 @@ static void writeRefs()
             xref->fetch(r->ref.num, r->ref.gen, &obj1);
             if (r->type == objFont) {
                 assert(!obj1.isStream());
-                zpdf_begin_obj(r->num, 2);      // \pdfobjcompresslevel = 2 is for this
+                pdf_begin_obj(r->num, 2);      // \pdfobjcompresslevel = 2 is for this
                 copyFontDict(&obj1, r);
                 pdf_puts("\n");
                 pdf_end_obj();
             } else if (r->type != objFontDesc) {        // /FontDescriptor is written via write_fontdescriptor()
                 if (obj1.isStream())
-                    zpdf_begin_obj(r->num, 0);
+                    pdf_begin_obj(r->num, 0);
                 else
-                    zpdf_begin_obj(r->num, 2);  // \pdfobjcompresslevel = 2 is for this
+                    pdf_begin_obj(r->num, 2);  // \pdfobjcompresslevel = 2 is for this
                 copyObject(&obj1);
                 pdf_puts("\n");
                 pdf_end_obj();
@@ -1053,7 +1053,7 @@ void epdf_check_mem()
 void write_additional_epdf_objects(void)
 {
     if ((epdf_lastGroupObjectNum > 0) && !groupIsIndirect) {
-        zpdf_begin_obj(epdf_lastGroupObjectNum, 2);
+        pdf_begin_obj(epdf_lastGroupObjectNum, 2);
         copyObject(&lastGroup);
         pdf_end_obj();
     }

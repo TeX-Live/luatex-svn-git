@@ -582,8 +582,6 @@ extern int find_font_id(char *nom, scaled s);
 
 /* for and from vfpacket.c */
 
-#  define scan_special 3 /* look into special text */   /* this is a hack */
-
 typedef enum { packet_char_code,
     packet_font_code,
     packet_pop_code,

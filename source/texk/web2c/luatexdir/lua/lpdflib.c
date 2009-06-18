@@ -189,15 +189,6 @@ static int l_immediateobj(lua_State * L)
     return 1;
 }
 
-/**********************************************************************/
-/* DANGER! these macros should go into some common header file */
-
-#define pdfmem_obj_size        4
-#define obj_data_ptr           obj_aux  /* pointer to |pdf_mem| */
-#define obj_obj_data(a)        pdf_mem[obj_data_ptr(a) + 0]     /* object data */
-#define obj_obj_is_stream(a)   pdf_mem[obj_data_ptr(a) + 1]     /* will this object be written as a stream instead of a dictionary? */
-#define obj_obj_stream_attr(a) pdf_mem[obj_data_ptr(a) + 2]     /* additional object attributes for streams */
-#define obj_obj_is_file(a)     pdf_mem[obj_data_ptr(a) + 3]     /* data should be read from an external file? */
 
 static int l_obj(lua_State * L)
 {

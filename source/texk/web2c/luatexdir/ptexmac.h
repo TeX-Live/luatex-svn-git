@@ -48,25 +48,6 @@
 #  define max_integer      0x7FFFFFFF
 #  define max_dimen        0x3FFFFFFF
 
-#  define obj_info(a)      obj_tab[(a)].int0
-#  define obj_link(a)      obj_tab[(a)].int1
-#  define obj_offset(a)    obj_tab[(a)].int2
-#  define obj_os_idx(a)    obj_tab[(a)].int3
-#  define obj_aux(a)       obj_tab[(a)].int4
-#  define obj_data_ptr     obj_aux
-
-/* types of objects */
-#  define obj_type_others  0    /* objects which are not linked in any list */
-#  define obj_type_page    1    /* index of linked list of Page objects */
-#  define obj_type_font    2    /* index of linked list of Fonts objects */
-#  define obj_type_outline 3    /* index of linked list of outline objects */
-#  define obj_type_dest    4    /* index of linked list of destination objects */
-#  define obj_type_obj     5    /* index of linked list of raw objects */
-#  define obj_type_xform   6    /* index of linked list of XObject forms */
-#  define obj_type_ximage  7    /* index of linked list of XObject image */
-#  define obj_type_thread  8    /* index of linked list of num article threads */
-#  define head_tab_max     obj_type_thread      /* max index of |head_tab| */
-
 /**********************************************************************/
 
 #  define PRINTF_BUF_SIZE     1024

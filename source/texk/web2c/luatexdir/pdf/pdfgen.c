@@ -25,24 +25,6 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
-/* interface definitions for eqtb locations */
-
-#define pdf_minor_version        int_par(param_pdf_minor_version_code)
-#define pdf_decimal_digits       int_par(param_pdf_decimal_digits_code)
-#define pdf_gamma                int_par(param_pdf_gamma_code)
-#define pdf_image_gamma          int_par(param_pdf_image_gamma_code)
-#define pdf_image_hicolor        int_par(param_pdf_image_hicolor_code)
-#define pdf_image_apply_gamma    int_par(param_pdf_image_apply_gamma_code)
-#define pdf_objcompresslevel     int_par(param_pdf_objcompresslevel_code)
-#define pdf_draftmode            int_par(param_pdf_draftmode_code)
-#define pdf_inclusion_copy_font  int_par(param_pdf_inclusion_copy_font_code)
-#define pdf_replace_font         int_par(param_pdf_replace_font_code)
-#define pdf_pk_resolution        int_par(param_pdf_pk_resolution_code)
-#define pdf_pk_mode              int_par(param_pdf_pk_mode_code)
-#define pdf_unique_resname       int_par(param_pdf_unique_resname_code)
-#define pdf_compress_level       int_par(param_pdf_compress_level_code)
-#define pdf_move_chars           int_par(param_pdf_move_chars_code)
-
 /*
 Sometimes it is neccesary to allocate memory for PDF output that cannot
 be deallocated then, so we use |pdf_mem| for this purpose.
@@ -650,7 +632,6 @@ void pdf_init_font(internal_font_number f)
             pdf_init_font(b);
         set_font_map(f, font_map(b));
     }
-
     /* check whether |f| can share the font object with some |k|: we have 2 cases
        here: 1) |f| and |k| have the same tfm name (so they have been loaded at
        different sizes, eg 'cmr10' and 'cmr10 at 11pt'); 2) |f| has been auto
@@ -690,10 +671,10 @@ internal_font_number pdf_set_font(internal_font_number f)
     k = ff;
     p = pdf_font_list;
     while (p != null) {
-        set_ff(fixmem[(p)].hhlh);       /* info(p) */
+        set_ff(fixmem[p].hhlh); /* info(p) */
         if (ff == k)
             goto FOUND;
-        p = fixmem[(p)].hhrh;   /* link(p) */
+        p = fixmem[p].hhrh;     /* link(p) */
     }
     pdf_append_list(f, pdf_font_list);  /* |f| not found in |pdf_font_list|, append it now */
   FOUND:

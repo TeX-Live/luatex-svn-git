@@ -1179,3 +1179,318 @@
 @define function pdf_set_font();
 
 @define procedure pdf_literal();
+
+@define const colorstack_set;
+@define const colorstack_push;
+@define const colorstack_pop;
+@define const colorstack_current;
+@define const colorstack_data;
+@define function pdf_colorstack_stack();
+@define function pdf_colorstack_cmd();
+@define function pdf_colorstack_data();
+@define procedure set_pdf_colorstack_stack();
+@define procedure set_pdf_colorstack_cmd();
+@define procedure set_pdf_colorstack_data();
+
+@define function pdf_xform_objnum();
+@define procedure set_pdf_xform_objnum();
+
+@define function pdf_ximage_idx();
+@define function pdf_ximage_objnum();
+@define function pdf_ximage_ref();
+@define procedure set_pdf_ximage_idx();
+@define procedure set_pdf_ximage_objnum();
+@define procedure set_pdf_ximage_ref();
+
+
+@define function pdf_literal_mode();
+@define function pdf_literal_data();
+@define function pdf_literal_type();
+@define procedure set_pdf_literal_mode();
+@define procedure set_pdf_literal_data();
+@define procedure set_pdf_literal_type();
+
+@define function pdf_setmatrix_data();
+@define procedure set_pdf_setmatrix_data();
+
+@define function pdf_obj_objnum();
+@define procedure set_pdf_obj_objnum();
+
+@define type obj_entry;
+
+@define function obj_info();
+@define function obj_link();
+@define function obj_offset();
+@define function obj_os_idx();
+@define function obj_aux();
+@define procedure set_obj_info();
+@define procedure set_obj_link();
+@define procedure set_obj_offset();
+@define procedure set_obj_os_idx();
+@define procedure set_obj_aux();
+
+@define procedure set_obj_fresh();
+@define procedure set_obj_scheduled();
+@define function is_obj_scheduled();
+@define function is_obj_written();
+
+@define const obj_type_others;
+@define const obj_type_page;
+@define const obj_type_font;
+@define const obj_type_outline;
+@define const obj_type_dest;
+@define const obj_type_obj;
+@define const obj_type_xform;
+@define const obj_type_ximage;
+@define const obj_type_thread;
+
+@define const direct_always;
+@define const direct_page;
+@define const set_origin;
+
+@define var head_tab_max;
+@define const name_tree_kids_max;
+
+@define function obj_data_ptr();
+@define const pdfmem_obj_size;
+
+@define function obj_obj_data();
+@define function obj_obj_is_stream();
+@define function obj_obj_stream_attr();
+@define function obj_obj_is_file();
+
+@define procedure set_obj_obj_data();
+@define procedure set_obj_obj_is_stream();
+@define procedure set_obj_obj_stream_attr();
+@define procedure set_obj_obj_is_file();
+
+@define const pdfmem_xform_size;
+
+@define function obj_xform_width();
+@define function obj_xform_height();
+@define function obj_xform_depth();
+@define function obj_xform_box();
+@define function obj_xform_attr();
+@define function obj_xform_resources();
+@define function obj_annot_ptr();
+@define procedure set_obj_xform_width();
+@define procedure set_obj_xform_height();
+@define procedure set_obj_xform_depth();
+@define procedure set_obj_xform_box();
+@define procedure set_obj_xform_attr();
+@define procedure set_obj_xform_resources();
+@define procedure set_obj_annot_ptr();
+
+@define function pdf_annot_data();
+@define function pdf_annot_objnum();
+@define function pdf_link_action();
+@define function pdf_link_attr();
+@define function pdf_link_objnum();
+
+@define procedure set_pdf_annot_data();
+@define procedure set_pdf_annot_objnum();
+@define procedure set_pdf_link_action();
+@define procedure set_pdf_link_attr();
+@define procedure set_pdf_link_objnum();
+
+@define function pdf_thread_named_id();
+@define function pdf_thread_id();
+@define function pdf_thread_attr();
+
+@define procedure set_pdf_thread_named_id();
+@define procedure set_pdf_thread_id();
+@define procedure set_pdf_thread_attr();
+
+@define function pdf_dest_type();
+@define function pdf_dest_named_id();
+@define function pdf_dest_id();
+@define function pdf_dest_xyz_zoom();
+@define function pdf_dest_objnum();
+
+@define procedure set_pdf_dest_type();
+@define procedure set_pdf_dest_named_id();
+@define procedure set_pdf_dest_id();
+@define procedure set_pdf_dest_xyz_zoom();
+@define procedure set_pdf_dest_objnum();
+
+
+@define function pdf_width();
+@define function pdf_depth();
+@define function pdf_height();
+
+@define procedure set_pdf_width();
+@define procedure set_pdf_depth();
+@define procedure set_pdf_height();
+
+@define const pdf_action_page;
+@define const pdf_action_goto;
+@define const pdf_action_thread;
+@define const pdf_action_user;
+
+@define function pdf_action_type();
+@define function pdf_action_named_id();
+@define function pdf_action_id();
+@define function pdf_action_file();
+@define function pdf_action_new_window();
+@define function pdf_action_tokens();
+@define function pdf_action_refcount();
+
+@define procedure set_pdf_action_type();
+@define procedure set_pdf_action_named_id();
+@define procedure set_pdf_action_id();
+@define procedure set_pdf_action_file();
+@define procedure set_pdf_action_new_window();
+@define procedure set_pdf_action_tokens();
+@define procedure set_pdf_action_refcount();
+
+@define const pdfmem_outline_size;
+
+@define function obj_outline_count();
+@define function obj_outline_ptr();
+@define function obj_outline_title();
+@define function obj_outline_parent();
+@define function obj_outline_prev();
+@define function obj_outline_next();
+@define function obj_outline_first();
+@define function obj_outline_last();
+@define function obj_outline_action_objnum();
+@define function obj_outline_attr();
+
+@define procedure set_obj_outline_count();
+@define procedure set_obj_outline_ptr();
+@define procedure set_obj_outline_title();
+@define procedure set_obj_outline_parent();
+@define procedure set_obj_outline_prev();
+@define procedure set_obj_outline_next();
+@define procedure set_obj_outline_first();
+@define procedure set_obj_outline_last();
+@define procedure set_obj_outline_action_objnum();
+@define procedure set_obj_outline_attr();
+
+
+@define const pdf_dest_xyz;
+@define const pdf_dest_fit;
+@define const pdf_dest_fith;
+@define const pdf_dest_fitv;
+@define const pdf_dest_fitb;
+@define const pdf_dest_fitbh;
+@define const pdf_dest_fitbv;
+@define const pdf_dest_fitr;
+
+@define function obj_dest_ptr();
+@define procedure set_obj_dest_ptr();
+@define function obj_thread_first();
+
+@define procedure set_obj_bead_rect();
+@define procedure set_obj_data_ptr();
+
+@define const pdfmem_bead_size;
+
+@define function obj_bead_ptr();
+@define function obj_bead_rect();
+@define function obj_bead_page();
+@define function obj_bead_next();
+@define function obj_bead_prev();
+@define function obj_bead_attr();
+@define function obj_bead_data();
+
+@define const inf_obj_tab_size;
+@define const sup_obj_tab_size;
+@define const inf_dest_names_size;
+@define const sup_dest_names_size;
+@define const inf_pk_dpi;
+@define const sup_pk_dpi;
+@define var pdf_objtype_max;
+
+@define var obj_tab_size;
+@define var obj_tab;
+@define var head_tab;
+@define var pages_tail;
+@define var obj_ptr;
+@define var sys_obj_ptr;
+@define var pdf_last_pages;
+@define var pdf_last_page;
+@define var pdf_last_stream;
+@define var pdf_stream_length;
+@define var pdf_stream_length_offset;
+@define var pdf_seek_write_length;
+@define var pdf_last_byte;
+@define var pdf_box_spec_media;
+@define var pdf_box_spec_crop;
+@define var pdf_box_spec_bleed;
+@define var pdf_box_spec_trim;
+@define var pdf_box_spec_art;
+@define var dest_names_size;
+
+@define procedure set_ff();
+
+@define var ff;
+
+@define procedure append_dest_name();
+@define procedure pdf_create_obj();
+@define function  pdf_new_objnum  ;
+@define procedure pdf_os_switch() ;
+@define procedure pdf_os_prepare_obj() ;
+@define procedure pdf_begin_obj() ;
+@define procedure pdf_new_obj() ;
+@define procedure pdf_end_obj ;
+@define procedure pdf_begin_dict();
+@define procedure pdf_new_dict();
+@define procedure pdf_end_dict ;
+@define procedure pdf_os_write_objstream ;
+@define function append_ptr() ;
+@define function pdf_lookup_list() ;
+@define procedure pdf_print_fw_int() ;
+@define procedure pdf_out_bytes();
+@define procedure pdf_int_entry();
+@define procedure pdf_int_entry_ln();
+@define procedure pdf_indirect() ;
+@define procedure pdf_indirect_ln();
+@define procedure pdf_print_str_ln() ;
+@define procedure pdf_str_entry ();
+@define procedure pdf_str_entry_ln();
+@define procedure pdf_out_literal () ;
+@define procedure pdf_out_colorstack(); 
+@define procedure pdf_out_colorstack_startpage ;
+@define procedure pdf_out_setmatrix();
+@define procedure pdf_out_save ;
+@define procedure pdf_out_restore ;
+@define procedure pdf_special() ;
+@define procedure pdf_print_toks();
+@define procedure pdf_print_toks_ln();
+@define procedure output_form() ;
+@define procedure output_image();
+
+@define procedure pos_right();
+@define procedure pos_left();
+@define procedure pos_up();
+@define procedure pos_down();
+
+@define procedure pdf_hlist_out;
+@define procedure pdf_vlist_out;
+
+@define procedure pdf_print_rect_spec();
+@define procedure pdf_rectangle();
+@define procedure pdf_write_image();
+@define procedure pdf_write_obj();
+
+@define procedure write_action();
+@define procedure set_rect_dimens();
+@define procedure do_annot();
+@define procedure do_dest();
+
+@define procedure calculate_width_to_enddir();
+@define procedure write_out_pdf_mark_destinations;
+
+@define procedure push_link_level();
+@define procedure pop_link_level;
+@define procedure warn_dest_dup();
+@define procedure do_link();
+@define procedure end_link;
+@define procedure append_link();
+
+@define procedure append_bead();
+@define procedure do_thread();
+@define procedure append_thread();
+@define procedure end_thread;
+@define function open_subentries() ;

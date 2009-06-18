@@ -1556,7 +1556,7 @@ begin @!{|start_here|}
   initialize_ocplist_arrays(ocp_list_size);
   initialize_ocp_buffers(ocp_buf_size, ocp_stack_size);
   obj_tab:=xmallocarray (obj_entry, inf_obj_tab_size); {will grow dynamically}
-  obj_offset(0):=0;
+  set_obj_offset(0,0);
   pdf_mem:=xmallocarray (integer, inf_pdf_mem_size); {will grow dynamically}
   dest_names:=xmallocarray (dest_name_entry, inf_dest_names_size); {will grow dynamically}
   pdf_op_buf:=xmallocarray (real_eight_bits, pdf_op_buf_size);
