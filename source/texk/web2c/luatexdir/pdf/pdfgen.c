@@ -566,10 +566,15 @@ scaled round_xn_over_d(scaled x, integer n, integer d)
         return (-u);
 }
 
+#define lround(a) (long) floor((a) + 0.5)
+
 void pdf_print_bp(scaled s)
 {                               /* print scaled as |bp| */
-    pdf_print_real(divide_scaled(s, one_hundred_bp, fixed_decimal_digits + 2),
-                   fixed_decimal_digits);
+    pdffloat a;
+    assert(pstruct != NULL);
+    a.m = lround(s * pstruct->k1);
+    a.e = fixed_decimal_digits;
+    print_pdffloat(&a);
 }
 
 void pdf_print_mag_bp(scaled s)
