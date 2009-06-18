@@ -58,7 +58,31 @@
 @define var varmem;
 @define var var_mem_max;
 @define procedure check_buffer_overflow();
-@define procedure check_pool_overflow();
+
+{ strings }
+
+@define var str_pool;
+@define var str_start;
+@define var pool_ptr;
+@define var str_ptr;
+@define var init_pool_ptr;
+@define var init_str_ptr;
+
+@define function str_start_macro();
+@define function str_length();
+@define var cur_length;
+@define procedure append_char();
+@define procedure str_room();
+@define procedure flush_char;
+@define procedure flush_string;
+@define function make_string;
+@define function str_eq_buf();
+@define function str_eq_str();
+@define function get_strings_started;
+@define function search_string();
+@define function slow_make_string;
+
+{ }
 
 @define function new_ligkern();
 @define function make_lang_data();

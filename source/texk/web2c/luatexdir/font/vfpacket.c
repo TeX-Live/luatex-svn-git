@@ -206,10 +206,10 @@ void do_vf_packet(internal_font_number vf_f, integer c)
             break;
         case packet_special_code:
             packet_number(k);
-            string_room(k);
+            str_room(k);
             while (k > 0) {
                 k--;
-                append_pool_char(do_packet_byte());
+                append_char(do_packet_byte());
             }
             s = make_string();
             pdf_literal(s, scan_special, false);

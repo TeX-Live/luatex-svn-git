@@ -30,10 +30,6 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-#define append_char(A) str_pool[pool_ptr++]=(A)
-#define cur_length (pool_ptr - str_start_macro(str_ptr))
-#define flush_char() pool_ptr--
-
 #define adjust_pre subtype
 
 typedef enum {

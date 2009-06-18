@@ -474,29 +474,6 @@ if last > first then
 @z
 
 @x
-@!str_pool:packed array[pool_pointer] of packed_ASCII_code; {the characters}
-@!str_start : array[str_number] of pool_pointer; {the starting pointers}
-@y
-@!str_pool: ^packed_ASCII_code; {the characters}
-@!str_start : ^pool_pointer; {the starting pointers}
-@z
-
-@x
-@p @!init function get_strings_started:boolean; {initializes the string pool,
-@y
-@p @t\4@>@<Declare additional routines for string recycling@>@/
-
-@!init function get_strings_started:boolean; {initializes the string pool,
-@z
-
-@x
-would like string @'32 to be the single character @'32 instead of the
-@y
-would like string @'32 to be printed as the single character @'32
-instead of the
-@z
-
-@x
 @!trick_buf:array[0..error_line] of packed_ASCII_code; {circular buffer for
 @y
 @!trick_buf:array[0..ssup_error_line] of packed_ASCII_code; {circular buffer for
@@ -1897,54 +1874,6 @@ if (cur_val<0)or((cur_val>15)and(cur_val<>18)) then
     ("I changed this one to zero."); int_error(cur_val); cur_val:=0;
   end;
 end;
-
-@* \[54/web2c-string] The string recycling routines.  \TeX{} uses 2
-upto 4 {\it new\/} strings when scanning a filename in an \.{\\input},
-\.{\\openin}, or \.{\\openout} operation.  These strings are normally
-lost because the reference to them are not saved after finishing the
-operation.  |search_string| searches through the string pool for the
-given string and returns either 0 or the found string number.
-
-@<Declare additional routines for string recycling@>=
-function search_string(@!search:str_number):str_number;
-label found;
-var result: str_number;
-@!s: str_number; {running index}
-@!len: integer; {length of searched string}
-begin result:=0; len:=length(search);
-if len=0 then  {trivial case}
-  begin result:=""; goto found;
-  end
-else  begin s:=search-1;  {start search with newest string below |s|; |search>1|!}
-  while s>=string_offset do  {first |string_offset| strings depend on implementation!!}
-    begin if length(s)=len then
-      if str_eq_str(s,search) then
-        begin result:=s; goto found;
-        end;
-    decr(s);
-    end;
-  end;
-found:search_string:=result;
-end;
-
-@ The following routine is a variant of |make_string|.  It searches
-the whole string pool for a string equal to the string currently built
-and returns a found string.  Otherwise a new string is created and
-returned.  Be cautious, you can not apply |flush_string| to a replaced
-string!
-
-@<Declare additional routines for string recycling@>=
-function slow_make_string : str_number;
-label exit;
-var s: str_number; {result of |search_string|}
-@!t: str_number; {new string}
-begin t:=make_string; s:=search_string(t);
-if s>0 then
-  begin flush_string; slow_make_string:=s; return;
-  end;
-slow_make_string:=t;
-exit:end;
-
 
 @* \[54] System-dependent changes.
 @z
