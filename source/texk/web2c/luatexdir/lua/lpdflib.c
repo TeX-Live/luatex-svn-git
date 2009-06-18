@@ -43,7 +43,7 @@ static int findcurh(lua_State * L)
 #define buf_to_pdfbuf_macro(s, l)                    \
 for (i = 0; i < (l); i++) {                          \
     if (i % 16 == 0)                                 \
-        pdf_room(16);                                 \
+        pdf_room(16);                                \
     pdf_buf[pdf_ptr++] = ((unsigned char *) (s))[i]; \
 }
 
@@ -160,7 +160,7 @@ static int l_immediateobj(lua_State * L)
             xfree(buf);
             pdf_end_obj();
         } else {
-            pdf_begin_dict(obj_ptr, 1);
+            pdf_begin_dict(obj_ptr, 0); /* 0 = not an object stream candidate! */
             if (n == 3) {       /* write attr text */
                 if (!lua_isstring(L, 3))
                     luaL_error(L,
