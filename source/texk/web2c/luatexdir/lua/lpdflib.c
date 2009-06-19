@@ -124,9 +124,9 @@ static int l_immediateobj(lua_State * L)
     unsigned char *buf;
     const char *st1 = NULL, *st2 = NULL, *st3 = NULL;
     n = lua_gettop(L);
-    if (n>0 && lua_type(L, 1) == LUA_TNUMBER) {
+    if (n > 0 && lua_type(L, 1) == LUA_TNUMBER) {
         first_arg++;
-        k = lua_tonumber(L,1);
+        k = lua_tonumber(L, 1);
         n--;
     } else {
         incr(pdf_obj_count);
@@ -151,10 +151,10 @@ static int l_immediateobj(lua_State * L)
     case 3:
         if (!lua_isstring(L, first_arg))
             luaL_error(L, "pdf.immediateobj() 1st argument must be string");
-        if (!lua_isstring(L, (first_arg+1)))
+        if (!lua_isstring(L, (first_arg + 1)))
             luaL_error(L, "pdf.immediateobj() 2nd argument must be string");
         st1 = (char *) lua_tolstring(L, first_arg, &len1);
-        st2 = (char *) lua_tolstring(L, (first_arg+1), &len2);
+        st2 = (char *) lua_tolstring(L, (first_arg + 1), &len2);
         if (len1 == 4 && strcmp(st1, "file") == 0) {
             if (n == 3)
                 luaL_error(L,
@@ -167,12 +167,12 @@ static int l_immediateobj(lua_State * L)
             xfree(buf);
             pdf_end_obj();
         } else {
-            pdf_begin_dict(k, 0); /* 0 = not an object stream candidate! */
+            pdf_begin_dict(k, 0);       /* 0 = not an object stream candidate! */
             if (n == 3) {       /* write attr text */
-                if (!lua_isstring(L, (first_arg+2)))
+                if (!lua_isstring(L, (first_arg + 2)))
                     luaL_error(L,
                                "pdf.immediateobj() 3rd argument must be string");
-                st3 = (char *) lua_tolstring(L, (first_arg+2), &len3);
+                st3 = (char *) lua_tolstring(L, (first_arg + 2), &len3);
                 buf_to_pdfbuf_macro(st3, len3);
                 if (st3[len3 - 1] != '\n')
                     pdf_puts("\n");
@@ -204,9 +204,9 @@ static int l_obj(lua_State * L)
     size_t len1;
     const char *st1 = NULL;
     n = lua_gettop(L);
-    if (n>0 && lua_type(L, 1) == LUA_TNUMBER) {
+    if (n > 0 && lua_type(L, 1) == LUA_TNUMBER) {
         first_arg++;
-        k = lua_tonumber(L,1);
+        k = lua_tonumber(L, 1);
         n--;
     } else {
         incr(pdf_obj_count);
@@ -230,7 +230,7 @@ static int l_obj(lua_State * L)
     case 3:
         if (!lua_isstring(L, first_arg))
             luaL_error(L, "pdf.obj() 1st argument must be string");
-        if (!lua_isstring(L, (first_arg+1)))
+        if (!lua_isstring(L, (first_arg + 1)))
             luaL_error(L, "pdf.obj() 2nd argument must be string");
         st1 = (char *) lua_tolstring(L, first_arg, &len1);
         if (len1 == 4 && strcmp(st1, "file") == 0) {
@@ -239,7 +239,7 @@ static int l_obj(lua_State * L)
             obj_obj_is_file(k) = 1;
         } else {
             if (n == 3) {       /* write attr text */
-                if (!lua_isstring(L, (first_arg+2)))
+                if (!lua_isstring(L, (first_arg + 2)))
                     luaL_error(L, "pdf.obj() 3rd argument must be string");
                 obj_obj_stream_attr(k) = tokenlist_from_lua(L);
                 lua_pop(L, 1);

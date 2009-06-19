@@ -82,8 +82,8 @@ void initialize_pdf_output(void)
             "I changed this to 4.", NULL
         };
         char msg[256];
-        (void)snprintf(msg, 255, "LuaTeX error (illegal pdfminorversion %d)",
-                       (int) pdf_minor_version);
+        (void) snprintf(msg, 255, "LuaTeX error (illegal pdfminorversion %d)",
+                        (int) pdf_minor_version);
         tex_error(msg, hlp);
         pdf_minor_version = 4;
     }
@@ -346,7 +346,7 @@ void pdf_printf(const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    (void)vsnprintf(pdf_printf_buf, PRINTF_BUF_SIZE, fmt, args);
+    (void) vsnprintf(pdf_printf_buf, PRINTF_BUF_SIZE, fmt, args);
     pdf_puts(pdf_printf_buf);
     va_end(args);
 }
@@ -464,6 +464,7 @@ void pdf_print_str(str_number s)
 /* begin a stream */
 void pdf_begin_stream(void)
 {
+    assert(pdf_os_mode == false);
     pdf_printf("/Length           \n");
     pdf_seek_write_length = true;       /* fill in length at |pdf_end_stream| call */
     pdf_stream_length_offset = pdf_offset - 11;
