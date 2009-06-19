@@ -117,24 +117,31 @@ unsigned char *fread_to_buf(lua_State * L, char *filename, size_t * len)
 
 static int l_immediateobj(lua_State * L)
 {
-    int n;
+    int n, first_arg = 1;
     unsigned i;
+    integer k;
     size_t buflen, len1, len2, len3;
     unsigned char *buf;
     const char *st1 = NULL, *st2 = NULL, *st3 = NULL;
-    incr(pdf_obj_count);
-    pdf_create_obj(obj_type_obj, pdf_obj_count);
-    pdf_last_obj = obj_ptr;
     n = lua_gettop(L);
+    if (n>0 && lua_type(L, 1) == LUA_TNUMBER) {
+        first_arg++;
+        k = lua_tonumber(L,1);
+        n--;
+    } else {
+        incr(pdf_obj_count);
+        pdf_create_obj(obj_type_obj, pdf_obj_count);
+        pdf_last_obj = k = obj_ptr;
+    }
     switch (n) {
     case 0:
         luaL_error(L, "pdf.immediateobj() needs at least one argument");
         break;
     case 1:                    /* original case unchanged */
-        if (!lua_isstring(L, 1))
+        if (!lua_isstring(L, first_arg))
             luaL_error(L, "pdf.immediateobj() 1st argument must be string");
-        pdf_begin_obj(obj_ptr, 1);
-        st1 = lua_tolstring(L, 1, &len1);
+        pdf_begin_obj(k, 1);
+        st1 = lua_tolstring(L, first_arg, &len1);
         buf_to_pdfbuf_macro(st1, len1);
         if (st1[len1 - 1] != '\n')
             pdf_puts("\n");
@@ -142,17 +149,17 @@ static int l_immediateobj(lua_State * L)
         break;
     case 2:
     case 3:
-        if (!lua_isstring(L, 1))
+        if (!lua_isstring(L, first_arg))
             luaL_error(L, "pdf.immediateobj() 1st argument must be string");
-        if (!lua_isstring(L, 2))
+        if (!lua_isstring(L, (first_arg+1)))
             luaL_error(L, "pdf.immediateobj() 2nd argument must be string");
-        st1 = (char *) lua_tolstring(L, 1, &len1);
-        st2 = (char *) lua_tolstring(L, 2, &len2);
+        st1 = (char *) lua_tolstring(L, first_arg, &len1);
+        st2 = (char *) lua_tolstring(L, (first_arg+1), &len2);
         if (len1 == 4 && strcmp(st1, "file") == 0) {
             if (n == 3)
                 luaL_error(L,
                            "pdf.immediateobj() 3rd argument forbidden in file mode");
-            pdf_begin_obj(obj_ptr, 1);
+            pdf_begin_obj(k, 1);
             buf = fread_to_buf(L, (char *) st2, &buflen);
             buf_to_pdfbuf_macro(buf, buflen);
             if (buf[buflen - 1] != '\n')
@@ -160,12 +167,12 @@ static int l_immediateobj(lua_State * L)
             xfree(buf);
             pdf_end_obj();
         } else {
-            pdf_begin_dict(obj_ptr, 0); /* 0 = not an object stream candidate! */
+            pdf_begin_dict(k, 0); /* 0 = not an object stream candidate! */
             if (n == 3) {       /* write attr text */
-                if (!lua_isstring(L, 3))
+                if (!lua_isstring(L, (first_arg+2)))
                     luaL_error(L,
                                "pdf.immediateobj() 3rd argument must be string");
-                st3 = (char *) lua_tolstring(L, 3, &len3);
+                st3 = (char *) lua_tolstring(L, (first_arg+2), &len3);
                 buf_to_pdfbuf_macro(st3, len3);
                 if (st3[len3 - 1] != '\n')
                     pdf_puts("\n");
@@ -185,48 +192,54 @@ static int l_immediateobj(lua_State * L)
     default:
         luaL_error(L, "pdf.immediateobj() allows max. 3 arguments");
     }
-    lua_pushinteger(L, obj_ptr);
+    lua_pushinteger(L, k);
     return 1;
 }
 
 
 static int l_obj(lua_State * L)
 {
-    int n;
+    int n, first_arg = 1;
     integer k;
     size_t len1;
     const char *st1 = NULL;
-    incr(pdf_obj_count);
-    pdf_create_obj(obj_type_obj, pdf_obj_count);
-    pdf_last_obj = k = obj_ptr;
+    n = lua_gettop(L);
+    if (n>0 && lua_type(L, 1) == LUA_TNUMBER) {
+        first_arg++;
+        k = lua_tonumber(L,1);
+        n--;
+    } else {
+        incr(pdf_obj_count);
+        pdf_create_obj(obj_type_obj, pdf_obj_count);
+        pdf_last_obj = k = obj_ptr;
+    }
     obj_data_ptr(k) = pdf_get_mem(pdfmem_obj_size);
     obj_obj_is_stream(k) = 0;
     obj_obj_stream_attr(k) = 0;
     obj_obj_is_file(k) = 0;
-    n = lua_gettop(L);
     switch (n) {
     case 0:
         luaL_error(L, "pdf.obj() needs at least one argument");
         break;
     case 1:
-        if (!lua_isstring(L, 1))
+        if (!lua_isstring(L, first_arg))
             luaL_error(L, "pdf.obj() 1st argument must be string");
         obj_obj_data(k) = tokenlist_from_lua(L);
         break;
     case 2:
     case 3:
-        if (!lua_isstring(L, 1))
+        if (!lua_isstring(L, first_arg))
             luaL_error(L, "pdf.obj() 1st argument must be string");
-        if (!lua_isstring(L, 2))
+        if (!lua_isstring(L, (first_arg+1)))
             luaL_error(L, "pdf.obj() 2nd argument must be string");
-        st1 = (char *) lua_tolstring(L, 1, &len1);
+        st1 = (char *) lua_tolstring(L, first_arg, &len1);
         if (len1 == 4 && strcmp(st1, "file") == 0) {
             if (n == 3)
                 luaL_error(L, "pdf.obj() 3rd argument forbidden in file mode");
             obj_obj_is_file(k) = 1;
         } else {
             if (n == 3) {       /* write attr text */
-                if (!lua_isstring(L, 3))
+                if (!lua_isstring(L, (first_arg+2)))
                     luaL_error(L, "pdf.obj() 3rd argument must be string");
                 obj_obj_stream_attr(k) = tokenlist_from_lua(L);
                 lua_pop(L, 1);
@@ -244,7 +257,7 @@ static int l_obj(lua_State * L)
     default:
         luaL_error(L, "pdf.obj() allows max. 3 arguments");
     }
-    lua_pushinteger(L, obj_ptr);
+    lua_pushinteger(L, k);
     return 1;
 }
 

@@ -2537,6 +2537,16 @@ The optional \type{attrtext} goes into the dictionary of that object.
 The 4th version with keyword \type{"streamfile"} does the same as the 3rd one,
 it just reads the stream data raw from a file.
 
+An optional first argument can be given to make the function use a 
+previously reserved \PDF\ object.
+
+\startfunctioncall
+n = pdf.immediateobj(<integer n>, <string> objtext)
+n = pdf.immediateobj(<integer n>, "file", <string> filename)
+n = pdf.immediateobj(<integer n>, "stream", <string> streamtext {, <string> attrtext})
+n = pdf.immediateobj(<integer n>, "streamfile", <string> filename, {, <string> attrtext})
+\stopfunctioncall
+
 \subsubsubject{\luatex{pdf.obj()}}
 
 This function creates a \PDF\ object,
@@ -2552,7 +2562,8 @@ n = pdf.obj("stream", <string> streamtext {, <string> attrtext})
 n = pdf.obj("streamfile", <string> filename, {, <string> attrtext})
 \stopfunctioncall
 
-Not yet implemented:
+An optional first argument can be given to make the function use a 
+previously reserved \PDF\ object.
 
 \startfunctioncall
 n = pdf.obj(<integer> n, <string> objtext)

@@ -1618,51 +1618,7 @@ from that value. This allows byte-oriented output to things like
 \.{\\specials} and \.{\\pdfliterals}. Todo: Perhaps it would be useful
 to do the same substraction while typesetting.
 
-@d print_lc_hex(#)==l:=#;
-   if l<10 then print_char(l+"0") else print_char(l-10+"a");
-
 @<Basic print...@>=
-function pool_to_unichar(@!t:pool_pointer):ASCII_code;
-var a,result:@!ASCII_code; {a utf char}
-b:@!quarterword; { a utf nibble}
-begin
-    b := str_pool[t];
-    if b<=@"7F then
-      a := b
-    else if b>=@"F0 then begin
-          a := (b-@"F0) * 64;
-          b := str_pool[t+1];
-          a := (a + (b-128)) * 64;
-          b := str_pool[t+2];
-          a := (a + (b-128)) * 64;
-          b := str_pool[t+3];
-          a := a + (b-128);
-      end
-    else if b>=@"E0 then begin
-          a := (b-@"E0) * 64;
-          b := str_pool[t+1];
-          a := (a + (b-128)) * 64;
-          b := str_pool[t+2];
-          a := a + (b-128);
-      end
-    else if b>=@"C0 then begin
-          a := (b-@"C0) * 64;
-          b := str_pool[t+1];
-          a := a + (b-128);
-      end
-    else begin  { NI: this is an encoding error }
-          wlog_ln('! Pool contains an invalid utf-8 sequence');
-          wterm_ln('! Pool contains an invalid utf-8 sequence');
-@.Text line contains...@>
-          help2("A funny symbol somehow ended up in the string pool.")@/
-           ("Just continue, I'll change it to 0xFFFD.");@/
-      deletions_allowed:=false; error; deletions_allowed:=true;
-      a:=@"FFFD;
-      end;
-result := a;
-pool_to_unichar := result;
-end ;
-
 procedure print(@!s:integer); {prints string |s|}
 label exit;
 var j:pool_pointer; {current character code position}
