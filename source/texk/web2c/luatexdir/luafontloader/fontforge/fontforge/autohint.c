@@ -101,10 +101,12 @@ void FindBlues( SplineFont *sf, int layer, real blues[14], real otherblues[10]) 
 		     (enc>=0x391 && enc<=0x3f3 ) ||
 		     (enc>=0x400 && enc<=0x4e9 ) )) {
 		/* no accented characters (or ligatures) */
+#ifndef LUA_FF_LIB
 		if ( unicode_alternates[enc>>8]!=NULL &&
 			(upt =unicode_alternates[enc>>8][enc&0xff])!=NULL &&
 			upt[1]!='\0' )
     continue;
+#endif
 		SplineCharFindBounds(sf->glyphs[i],&b);
 		if ( b.miny==0 && b.maxy==0 )
     continue;
@@ -262,10 +264,12 @@ void FindBlues( SplineFont *sf, int layer, real blues[14], real otherblues[10]) 
 		 (enc>=0x391 && enc<=0x3f3 ) ||
 		 (enc>=0x400 && enc<=0x4e9 ) )) {
 	    /* no accented characters (or ligatures) */
+#ifndef LUA_FF_LIB
 	    if ( unicode_alternates[enc>>8]!=NULL &&
 		    (upt =unicode_alternates[enc>>8][enc&0xff])!=NULL &&
 		    upt[1]!='\0' )
     continue;
+#endif
 	    SplineCharFindBounds(sf->glyphs[i],&b);
 	    if ( b.miny==0 && b.maxy==0 )
     continue;

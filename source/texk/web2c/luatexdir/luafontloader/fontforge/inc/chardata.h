@@ -72,4 +72,3 @@ extern struct charmap2 johab_from_unicode;
 extern const unichar_t unicode_from_gb2312[];
 extern struct charmap2 gb2312_from_unicode;
 
-extern const unichar_t *const * const unicode_alternates[];

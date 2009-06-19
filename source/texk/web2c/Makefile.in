@@ -141,23 +141,22 @@ am_libff_a_OBJECTS = libff_a-ArabicForms.$(OBJEXT) \
 	libff_a-alphabet.$(OBJEXT) libff_a-char.$(OBJEXT) \
 	libff_a-cjk.$(OBJEXT) libff_a-gwwiconv.$(OBJEXT) \
 	libff_a-memory.$(OBJEXT) libff_a-ucharmap.$(OBJEXT) \
-	libff_a-unialt.$(OBJEXT) libff_a-ustring.$(OBJEXT) \
-	libff_a-utype.$(OBJEXT) libff_a-autohint.$(OBJEXT) \
-	libff_a-clipnoui.$(OBJEXT) libff_a-cvundoes.$(OBJEXT) \
-	libff_a-dumppfa.$(OBJEXT) libff_a-encoding.$(OBJEXT) \
-	libff_a-featurefile.$(OBJEXT) libff_a-fontviewbase.$(OBJEXT) \
-	libff_a-fvcomposit.$(OBJEXT) libff_a-fvfonts.$(OBJEXT) \
-	libff_a-lookups.$(OBJEXT) libff_a-macbinary.$(OBJEXT) \
-	libff_a-macenc.$(OBJEXT) libff_a-mathconstants.$(OBJEXT) \
-	libff_a-mm.$(OBJEXT) libff_a-namelist.$(OBJEXT) \
-	libff_a-noprefs.$(OBJEXT) libff_a-nouiutil.$(OBJEXT) \
-	libff_a-parsepfa.$(OBJEXT) libff_a-parsettf.$(OBJEXT) \
-	libff_a-parsettfatt.$(OBJEXT) libff_a-parsettfvar.$(OBJEXT) \
-	libff_a-psread.$(OBJEXT) libff_a-pua.$(OBJEXT) \
-	libff_a-python.$(OBJEXT) libff_a-sfd1.$(OBJEXT) \
-	libff_a-splinechar.$(OBJEXT) libff_a-splinefill.$(OBJEXT) \
-	libff_a-splinefont.$(OBJEXT) libff_a-splineorder2.$(OBJEXT) \
-	libff_a-splineoverlap.$(OBJEXT) \
+	libff_a-ustring.$(OBJEXT) libff_a-utype.$(OBJEXT) \
+	libff_a-autohint.$(OBJEXT) libff_a-clipnoui.$(OBJEXT) \
+	libff_a-cvundoes.$(OBJEXT) libff_a-dumppfa.$(OBJEXT) \
+	libff_a-encoding.$(OBJEXT) libff_a-featurefile.$(OBJEXT) \
+	libff_a-fontviewbase.$(OBJEXT) libff_a-fvcomposit.$(OBJEXT) \
+	libff_a-fvfonts.$(OBJEXT) libff_a-lookups.$(OBJEXT) \
+	libff_a-macbinary.$(OBJEXT) libff_a-macenc.$(OBJEXT) \
+	libff_a-mathconstants.$(OBJEXT) libff_a-mm.$(OBJEXT) \
+	libff_a-namelist.$(OBJEXT) libff_a-noprefs.$(OBJEXT) \
+	libff_a-nouiutil.$(OBJEXT) libff_a-parsepfa.$(OBJEXT) \
+	libff_a-parsettf.$(OBJEXT) libff_a-parsettfatt.$(OBJEXT) \
+	libff_a-parsettfvar.$(OBJEXT) libff_a-psread.$(OBJEXT) \
+	libff_a-pua.$(OBJEXT) libff_a-python.$(OBJEXT) \
+	libff_a-sfd1.$(OBJEXT) libff_a-splinechar.$(OBJEXT) \
+	libff_a-splinefill.$(OBJEXT) libff_a-splinefont.$(OBJEXT) \
+	libff_a-splineorder2.$(OBJEXT) libff_a-splineoverlap.$(OBJEXT) \
 	libff_a-splinerefigure.$(OBJEXT) libff_a-splinesave.$(OBJEXT) \
 	libff_a-splinesaveafm.$(OBJEXT) libff_a-splinestroke.$(OBJEXT) \
 	libff_a-splineutil.$(OBJEXT) libff_a-splineutil2.$(OBJEXT) \
@@ -1181,7 +1180,6 @@ libff_a_SOURCES = \
 	luatexdir/luafontloader/fontforge/Unicode/gwwiconv.c \
 	luatexdir/luafontloader/fontforge/Unicode/memory.c \
 	luatexdir/luafontloader/fontforge/Unicode/ucharmap.c \
-	luatexdir/luafontloader/fontforge/Unicode/unialt.c \
 	luatexdir/luafontloader/fontforge/Unicode/ustring.c \
 	luatexdir/luafontloader/fontforge/Unicode/utype.c \
 	luatexdir/luafontloader/fontforge/fontforge/PfEd.h \
@@ -1722,7 +1720,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-tottfgpos.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-ttfspecial.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-ucharmap.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-unialt.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-ustring.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-utype.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua51_a-lapi.Po@am__quote@
@@ -2035,20 +2032,6 @@ libff_a-ucharmap.obj: luatexdir/luafontloader/fontforge/Unicode/ucharmap.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontloader/fontforge/Unicode/ucharmap.c' object='libff_a-ucharmap.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-ucharmap.obj `if test -f 'luatexdir/luafontloader/fontforge/Unicode/ucharmap.c'; then $(CYGPATH_W) 'luatexdir/luafontloader/fontforge/Unicode/ucharmap.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontloader/fontforge/Unicode/ucharmap.c'; fi`
-
-libff_a-unialt.o: luatexdir/luafontloader/fontforge/Unicode/unialt.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-unialt.o -MD -MP -MF $(DEPDIR)/libff_a-unialt.Tpo -c -o libff_a-unialt.o `test -f 'luatexdir/luafontloader/fontforge/Unicode/unialt.c' || echo '$(srcdir)/'`luatexdir/luafontloader/fontforge/Unicode/unialt.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-unialt.Tpo $(DEPDIR)/libff_a-unialt.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontloader/fontforge/Unicode/unialt.c' object='libff_a-unialt.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-unialt.o `test -f 'luatexdir/luafontloader/fontforge/Unicode/unialt.c' || echo '$(srcdir)/'`luatexdir/luafontloader/fontforge/Unicode/unialt.c
-
-libff_a-unialt.obj: luatexdir/luafontloader/fontforge/Unicode/unialt.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-unialt.obj -MD -MP -MF $(DEPDIR)/libff_a-unialt.Tpo -c -o libff_a-unialt.obj `if test -f 'luatexdir/luafontloader/fontforge/Unicode/unialt.c'; then $(CYGPATH_W) 'luatexdir/luafontloader/fontforge/Unicode/unialt.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontloader/fontforge/Unicode/unialt.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-unialt.Tpo $(DEPDIR)/libff_a-unialt.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontloader/fontforge/Unicode/unialt.c' object='libff_a-unialt.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-unialt.obj `if test -f 'luatexdir/luafontloader/fontforge/Unicode/unialt.c'; then $(CYGPATH_W) 'luatexdir/luafontloader/fontforge/Unicode/unialt.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontloader/fontforge/Unicode/unialt.c'; fi`
 
 libff_a-ustring.o: luatexdir/luafontloader/fontforge/Unicode/ustring.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-ustring.o -MD -MP -MF $(DEPDIR)/libff_a-ustring.Tpo -c -o libff_a-ustring.o `test -f 'luatexdir/luafontloader/fontforge/Unicode/ustring.c' || echo '$(srcdir)/'`luatexdir/luafontloader/fontforge/Unicode/ustring.c
