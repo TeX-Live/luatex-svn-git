@@ -113,6 +113,8 @@ libluatex_a_SOURCES = \
 	luatexdir/ptexmac.h \
 	luatexdir/tex/align.c \
 	luatexdir/tex/align.h \
+	luatexdir/tex/directions.c \
+	luatexdir/tex/directions.h \
 	luatexdir/tex/filename.c \
 	luatexdir/tex/inputstack.c \
 	luatexdir/tex/inputstack.h \

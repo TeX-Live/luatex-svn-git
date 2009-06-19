@@ -38,20 +38,6 @@ static const char __svn_version[] =
 #define float_cast (real)
 #define set_to_zero(A) { A.h = 0; A.v = 0; }
 
-#define box_direction(A) (A / 4)
-#define dir_TL_ 0
-#define dir_TR_ 1
-#define dir_LT_ 2
-#define dir_LB_ 3
-#define dir_BL_ 4
-#define dir_BR_ 5
-#define dir_RT_ 6
-#define dir_RB_ 7
-#define dir_opposite(A,B) ((((A)+2) % 4)==((B) % 4))
-#define is_mirrored(A) (dir_opposite(dir_primary[(A)],dir_tertiary[(A)]))
-#define dir_eq(A,B) ((A)==(B))
-
-
 /* Here is the first block of globals */
 
 integer obj_tab_size = inf_obj_tab_size;        /* allocated size of |obj_tab| array */

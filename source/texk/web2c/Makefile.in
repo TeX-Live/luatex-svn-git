@@ -247,6 +247,7 @@ am_libluatex_a_OBJECTS = libluatex_a-dofont.$(OBJEXT) \
 	libluatex_a-runocp.$(OBJEXT) libluatex_a-pagetree.$(OBJEXT) \
 	libluatex_a-pdfgen.$(OBJEXT) libluatex_a-pdfpage.$(OBJEXT) \
 	libluatex_a-pdftables.$(OBJEXT) libluatex_a-align.$(OBJEXT) \
+	libluatex_a-directions.$(OBJEXT) \
 	libluatex_a-filename.$(OBJEXT) \
 	libluatex_a-inputstack.$(OBJEXT) \
 	libluatex_a-linebreak.$(OBJEXT) libluatex_a-math.$(OBJEXT) \
@@ -1377,6 +1378,8 @@ libluatex_a_SOURCES = \
 	luatexdir/ptexmac.h \
 	luatexdir/tex/align.c \
 	luatexdir/tex/align.h \
+	luatexdir/tex/directions.c \
+	luatexdir/tex/directions.h \
 	luatexdir/tex/filename.c \
 	luatexdir/tex/inputstack.c \
 	luatexdir/tex/inputstack.h \
@@ -1787,6 +1790,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-align.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-avl.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-avlstuff.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-directions.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-dofont.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-epdf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-filename.Po@am__quote@
@@ -4402,6 +4406,20 @@ libluatex_a-align.obj: luatexdir/tex/align.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/align.c' object='libluatex_a-align.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-align.obj `if test -f 'luatexdir/tex/align.c'; then $(CYGPATH_W) 'luatexdir/tex/align.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/align.c'; fi`
+
+libluatex_a-directions.o: luatexdir/tex/directions.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-directions.o -MD -MP -MF $(DEPDIR)/libluatex_a-directions.Tpo -c -o libluatex_a-directions.o `test -f 'luatexdir/tex/directions.c' || echo '$(srcdir)/'`luatexdir/tex/directions.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-directions.Tpo $(DEPDIR)/libluatex_a-directions.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/directions.c' object='libluatex_a-directions.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-directions.o `test -f 'luatexdir/tex/directions.c' || echo '$(srcdir)/'`luatexdir/tex/directions.c
+
+libluatex_a-directions.obj: luatexdir/tex/directions.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-directions.obj -MD -MP -MF $(DEPDIR)/libluatex_a-directions.Tpo -c -o libluatex_a-directions.obj `if test -f 'luatexdir/tex/directions.c'; then $(CYGPATH_W) 'luatexdir/tex/directions.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/directions.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-directions.Tpo $(DEPDIR)/libluatex_a-directions.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/directions.c' object='libluatex_a-directions.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-directions.obj `if test -f 'luatexdir/tex/directions.c'; then $(CYGPATH_W) 'luatexdir/tex/directions.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/directions.c'; fi`
 
 libluatex_a-filename.o: luatexdir/tex/filename.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-filename.o -MD -MP -MF $(DEPDIR)/libluatex_a-filename.Tpo -c -o libluatex_a-filename.o `test -f 'luatexdir/tex/filename.c' || echo '$(srcdir)/'`luatexdir/tex/filename.c

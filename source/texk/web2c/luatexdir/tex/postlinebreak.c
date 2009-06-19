@@ -42,22 +42,6 @@ point to a glue node, penalty node, explicit kern node, or math node.
 
 */
 
-static halfword do_push_dir_node(halfword p, halfword a)
-{
-    halfword n;
-    n = copy_node(a);
-    vlink(n) = p;
-    return n;
-}
-
-static halfword do_pop_dir_node(halfword p)
-{
-    halfword n = vlink(p);
-    flush_node(p);
-    return n;
-}
-
-
 /* The total number of lines that will be set by |post_line_break|
 is |best_line-prev_graf-1|. The last breakpoint is specified by
 |break_node(best_bet)|, and this passive node points to the other breakpoints

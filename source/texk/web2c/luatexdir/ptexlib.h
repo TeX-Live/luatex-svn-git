@@ -61,6 +61,7 @@ extern double rint(double x);
 #  include "ocp/readocp.h"
 
 #  include "tex/align.h"
+#  include "tex/directions.h"
 #  include "tex/inputstack.h"
 #  include "tex/stringpool.h"
 
@@ -145,32 +146,6 @@ extern halfword compound_word_break(halfword t, int clang);
 extern halfword new_ligkern(halfword head, halfword tail);
 extern halfword handle_ligaturing(halfword head, halfword tail);
 extern halfword handle_kerning(halfword head, halfword tail);
-
-#  define push_dir(a)                           \
-  { dir_tmp=new_dir((a));                       \
-    vlink(dir_tmp)=dir_ptr; dir_ptr=dir_tmp;    \
-    dir_ptr=dir_tmp;                            \
-  }
-
-#  define push_dir_node(a)                      \
-  { dir_tmp=new_node(whatsit_node,dir_node);    \
-    dir_dir(dir_tmp)=dir_dir((a));              \
-    dir_level(dir_tmp)=dir_level((a));          \
-    dir_dvi_h(dir_tmp)=dir_dvi_h((a));          \
-    dir_dvi_ptr(dir_tmp)=dir_dvi_ptr((a));      \
-    vlink(dir_tmp)=dir_ptr; dir_ptr=dir_tmp;    \
-  }
-
-#  define pop_dir_node()                        \
-  { dir_tmp=dir_ptr;                            \
-    dir_ptr=vlink(dir_tmp);                     \
-    flush_node(dir_tmp);                        \
-  }
-
-#  define dir_parallel(a,b) (((a) % 2)==((b) % 2))
-#  define dir_orthogonal(a,b) (((a) % 2)!=((b) % 2))
-
-#  define is_rotated(a) dir_parallel(dir_secondary[(a)],dir_tertiary[(a)])
 
 void initialize_active(void);
 
@@ -384,7 +359,6 @@ extern boolean str_eq_cstr(str_number, char *, size_t);
 void get_next(void);
 extern void check_outer_validity(void);
 boolean scan_keyword(char *);
-void scan_direction(void);
 halfword active_to_cs(int, int);
 void get_token_lua(void);
 int get_char_cat_code(int);

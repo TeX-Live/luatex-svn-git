@@ -8677,21 +8677,12 @@ applications of |scan_int| that have already been made inside of
 @d dir_R=3
 @d dir_eq_end(#)==(#)
 @d dir_eq(#)==(#)=dir_eq_end
-@d dir_ne_end(#)==(#)
-@d dir_ne(#)==(#)<>dir_ne_end
 @d dir_opposite_end(#)==((#) mod 4)
 @d dir_opposite(#)==(((#)+2) mod 4)=dir_opposite_end
 @d dir_parallel_end(#)==((#) mod 2)
 @d dir_parallel(#)==((#) mod 2)=dir_parallel_end
 @d dir_orthogonal_end(#)==(# mod 2)
 @d dir_orthogonal(#)==((#) mod 2)<>dir_orthogonal_end
-@d dir_next_end(#)==((#) mod 4)
-@d dir_next(#)==(((#)+3) mod 4)=dir_next_end
-@d dir_prev_end(#)==((#) mod 4)
-@d dir_prev(#)==(((#)+1) mod 4)=dir_prev_end
-
-@d dir_horizontal(#)==(((#)=dir_L) or ((#)=dir_R))
-@d dir_vertical(#)==(((#)=dir_T) or ((#)=dir_B))
 
 {box directions}
 @d dir_TL_=0

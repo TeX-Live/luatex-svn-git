@@ -245,51 +245,6 @@ boolean scan_keyword(char *s)
     return true;
 }
 
-/* |scan_direction| has to be defined here because luatangle will output 
-   a character constant when it sees a string literal of length 1 */
-
-#define dir_T 0
-#define dir_L 1
-#define dir_B 2
-#define dir_R 3
-
-#define scan_single_dir(A) do {                     \
-        if (scan_keyword("T")) A=dir_T;             \
-        else if (scan_keyword("L")) A=dir_L;        \
-        else if (scan_keyword("B")) A=dir_B;        \
-        else if (scan_keyword("R")) A=dir_R;        \
-        else {                                      \
-            tex_error("Bad direction", NULL);       \
-            cur_val=0;                              \
-            return;                                 \
-        }                                           \
-    } while (0)
-
-void scan_direction(void)
-{
-    integer d1, d2, d3;
-    get_x_token();
-    if (cur_cmd == assign_dir_cmd) {
-        cur_val = zeqtb[cur_chr].cint;
-        return;
-    } else {
-        back_input();
-    }
-    scan_single_dir(d1);
-    scan_single_dir(d2);
-    if (dir_parallel(d1, d2)) {
-        tex_error("Bad direction", NULL);
-        cur_val = 0;
-        return;
-    }
-    scan_single_dir(d3);
-    get_x_token();
-    if (cur_cmd != spacer_cmd)
-        back_input();
-    cur_val = d1 * 8 + dir_rearrange[d2] * 4 + d3;
-}
-
-
 /* We can not return |undefined_control_sequence| under some conditions
  * (inside |shift_case|, for example). This needs thinking.
  */
