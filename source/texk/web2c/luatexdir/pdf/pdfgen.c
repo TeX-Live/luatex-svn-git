@@ -82,8 +82,8 @@ void initialize_pdf_output(void)
             "I changed this to 4.", NULL
         };
         char msg[256];
-        snprintf(msg, 255, "LuaTeX error (illegal pdfminorversion %d)",
-                 (int) pdf_minor_version);
+        (void)snprintf(msg, 255, "LuaTeX error (illegal pdfminorversion %d)",
+                       (int) pdf_minor_version);
         tex_error(msg, hlp);
         pdf_minor_version = 4;
     }
@@ -346,7 +346,7 @@ void pdf_printf(const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    vsnprintf(pdf_printf_buf, PRINTF_BUF_SIZE, fmt, args);
+    (void)vsnprintf(pdf_printf_buf, PRINTF_BUF_SIZE, fmt, args);
     pdf_puts(pdf_printf_buf);
     va_end(args);
 }
@@ -737,7 +737,7 @@ void pdf_literal(str_number s, integer literal_mode, boolean warn)
     switch (literal_mode) {
     case set_origin:
         pdf_goto_pagemode();
-        synch_p_with_c(cur);
+        pos = synch_p_with_c(cur);
         pdf_set_pos(pos.h, pos.v);
         break;
     case direct_page:
