@@ -36,6 +36,10 @@
 # include <ieeefp.h>		/* Solaris defines isnan in ieeefp rather than math.h */
 #endif
 
+int THdo_hint_guessing = 0;
+int THdo_set_reversing = 0;
+int THdo_catagorize = 0;
+
 typedef struct _io {
     char *macro, *start;
     FILE *ps, *fog;
@@ -4072,7 +4076,8 @@ SplineChar *PSCharStringToSplines(uint8 *type1, int len, struct pscontext *conte
   done:
     if ( pcsp!=0 )
 	LogError( _("end of subroutine reached with no return in %s\n"), name );
-    SCCatagorizePoints(ret);
+    if (THdo_catagorize) 
+      SCCatagorizePoints(ret);
 
     ret->hstem = HintsAppend(ret->hstem,activeh); activeh=NULL;
     ret->vstem = HintsAppend(ret->vstem,activev); activev=NULL;
@@ -4097,26 +4102,29 @@ SplineChar *PSCharStringToSplines(uint8 *type1, int len, struct pscontext *conte
 	    SplineMake3(cur->last,cur->first);
 	    cur->last = cur->first;
 	}
-
     /* Oh, I see. PS and TT disagree on which direction to use, so Fontographer*/
     /*  chose the TT direction and we must reverse postscript */
-    for ( cur = ret->layers[ly_fore].splines; cur!=NULL; cur = cur->next )
+    if (THdo_set_reversing) {
+      for ( cur = ret->layers[ly_fore].splines; cur!=NULL; cur = cur->next )
 	SplineSetReverse(cur);
+    }
     if ( ret->hstem==NULL && ret->vstem==NULL )
 	ret->manualhints = false;
     if ( !is_type2 && context->instance_count!=0 ) {
 	UnblendFree(ret->hstem);
 	UnblendFree(ret->vstem);
     }
-    ret->hstem = HintCleanup(ret->hstem,true,context->instance_count);
-    ret->vstem = HintCleanup(ret->vstem,true,context->instance_count);
-    SCGuessHHintInstancesList(ret,ly_fore);
-    SCGuessVHintInstancesList(ret,ly_fore);
-    ret->hconflicts = StemListAnyConflicts(ret->hstem);
-    ret->vconflicts = StemListAnyConflicts(ret->vstem);
-    if ( context->instance_count==1 && !ret->hconflicts && !ret->vconflicts )
+    if (THdo_hint_guessing) {
+      ret->hstem = HintCleanup(ret->hstem,true,context->instance_count);
+      ret->vstem = HintCleanup(ret->vstem,true,context->instance_count);
+      SCGuessHHintInstancesList(ret,ly_fore);
+      SCGuessVHintInstancesList(ret,ly_fore);
+      ret->hconflicts = StemListAnyConflicts(ret->hstem);
+      ret->vconflicts = StemListAnyConflicts(ret->vstem);
+      if ( context->instance_count==1 && !ret->hconflicts && !ret->vconflicts )
 	SCClearHintMasks(ret,ly_fore,false);
-    HintsRenumber(ret);
+      HintsRenumber(ret);
+    }
     if ( name!=NULL && strcmp(name,".notdef")!=0 )
 	ret->widthset = true;
 return( ret );
