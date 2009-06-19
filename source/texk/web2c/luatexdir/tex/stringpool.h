@@ -81,3 +81,4 @@ extern boolean get_strings_started(void);
 
 extern str_number search_string(str_number search);
 extern str_number slow_make_string(void);
+extern integer pool_to_unichar(pool_pointer t);

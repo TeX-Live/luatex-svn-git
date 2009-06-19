@@ -81,6 +81,7 @@
 @define function get_strings_started;
 @define function search_string();
 @define function slow_make_string;
+@define function pool_to_unichar();
 
 { }
 

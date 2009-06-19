@@ -143,6 +143,44 @@ static integer buffer_to_unichar(integer k)
     return a;
 }
 
+integer pool_to_unichar(pool_pointer t)
+{
+    integer a; /* a utf char */
+    integer b; /* a utf nibble */
+    b = str_pool[t];
+    if (b<=0x7F) {
+        a = b;
+    } else if (b>=0xF0) {
+        a = (b-0xF0) * 64;
+        b = str_pool[t+1];
+        a = (a + (b-128)) * 64;
+        b = str_pool[t+2];
+        a = (a + (b-128)) * 64;
+        b = str_pool[t+3];
+        a = a + (b-128);
+    } else if (b>=0xE0) {
+        a = (b-0xE0) * 64;
+        b = str_pool[t+1];
+        a = (a + (b-128)) * 64;
+        b = str_pool[t+2];
+        a = a + (b-128);
+    } else if (b>=0xC0) {
+        a = (b-0xC0) * 64;
+        b = str_pool[t+1];
+        a = a + (b-128);
+    } else { /* NI: this is an encoding error  */
+        char *hlp[] = 
+            { "A funny symbol somehow ended up in the string pool.",
+              "Just continue, I'll change it to 0xFFFD.",
+              NULL };
+        deletions_allowed = false; 
+        tex_error("! Pool contains an invalid utf-8 sequence" , hlp); 
+        deletions_allowed = true;
+        return 0xFFFD;
+    }
+    return a;
+}
+
 
 /*
 The following subroutine compares string |s| with another string of the
