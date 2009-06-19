@@ -237,11 +237,12 @@ void pdf_begin_dict(integer i, integer pdf_os_level)
     check_pdfminorversion();
     pdf_os_prepare_obj(i, pdf_os_level);
     if (!pdf_os_mode) {
-        pdf_printf("%d 0 obj\n", (int) i);
-    } else if (pdf_compress_level == 0) {
+        pdf_printf("%d 0 obj <<\n", (int) i);
+    } else {
+      if (pdf_compress_level == 0)
         pdf_printf("%% %d 0 obj\n", (int) i);   /* debugging help */
+      pdf_printf("<<\n");
     }
-    pdf_printf("<<\n");
 }
 
 /* begin a new PDF dictionary object */
