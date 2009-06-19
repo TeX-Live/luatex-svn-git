@@ -4129,6 +4129,7 @@ static int umodenc(int enc,int modtype, struct ttfinfo *info) {
 return( -1 );
     if ( modtype<=1 /* Unicode */ ) {
 	/* No conversion needed, already unicode */;
+#ifdef FROM_CJK_ICONV
     } else if ( modtype==2 /* SJIS */ ) {
 	if ( enc<=127 ) {
 	    /* Latin */
@@ -4186,6 +4187,10 @@ return( -1 );
 	    enc = unicode_from_johab[enc-0x8400];
 	else if ( enc>0x100 )
 	    enc = badencoding(info);
+#else
+    } else {
+	    enc = badencoding(info);
+#endif
     }
     if ( enc==0 )
 	enc = -1;

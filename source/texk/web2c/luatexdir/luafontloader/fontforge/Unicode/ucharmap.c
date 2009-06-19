@@ -75,6 +75,7 @@ unichar_t *encoding2u_strncpy(unichar_t *uto, const char *_from, int n, enum enc
 		fprintf( stderr, "Unexpected encoding %d, I'll pretend it's latin1\n", cs );
 	    }
 return( encoding2u_strncpy(uto,_from,n,e_iso8859_1));
+#ifdef FROM_CJK_ICONV
 	  case e_johab: case e_big5: case e_big5hkscs:
 	    if ( cs==e_big5 ) {
 		offset = 0xa100;
@@ -141,6 +142,7 @@ return( encoding2u_strncpy(uto,_from,n,e_iso8859_1));
 		--n;
 	    }
 	  break;
+#endif
 	}
     } else if ( cs==e_unicode ) {
 	unichar_t *ufrom = (unichar_t *) from;

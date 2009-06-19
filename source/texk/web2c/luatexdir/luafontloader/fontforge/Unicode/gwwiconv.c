@@ -114,12 +114,14 @@ static enum encoding name_to_enc(const char *encname) {
 	{ "mac", e_mac },
 	{ "Macintosh", e_mac },
 	{ "MS-ANSI", e_win },
+#ifdef FROM_CJK_ICONV
 	{ "EUC-KR", e_wansung },
 	{ "johab", e_johab },
 	{ "EUC-CN", e_jisgbpk },
 	{ "big5", e_big5 },
 	{ "big5hkscs", e_big5hkscs },
 	{ "Sjis", e_sjis },
+#endif
 	{ "UTF-8", e_utf8 },
 	{ "UTF8", e_utf8 },
 	{ NULL }};
@@ -590,6 +592,7 @@ return( (size_t) -1 );
 		*outlen -= sizeof(unichar_t);
 		++char_cnt;
 	    }
+#ifdef FROM_CJK_ICONV
 	} else if ( cd->from==e_johab || cd->from==e_big5 || cd->from==e_big5hkscs ) {
 	    int offset;
 	    if ( cd->from==e_big5 ) {
@@ -672,6 +675,7 @@ return( (size_t) -1 );
 		*outlen -= sizeof(unichar_t);
 		++char_cnt;
 	    }
+#endif
 	} else if ( cd->from==e_utf8 ) {
 	    while ( *inlen>0 && *outlen>sizeof(unichar_t) ) {
 		unsigned char *ipt = (unsigned char *) *inbuf;
@@ -742,6 +746,7 @@ return( (size_t) -1 );
 		*outlen -= sizeof(unichar_t);
 		++char_cnt;
 	    }
+#ifdef FROM_CJK_ICONV
 	} else if ( cd->from==e_wansung || cd->from==e_jisgbpk ) {
 	    table  = cd->from==e_jisgbpk   ? unicode_from_gb2312 :
 		      unicode_from_ksc5601 ;
@@ -865,6 +870,7 @@ return( (size_t) -1 );
 		*outlen -= sizeof(unichar_t);
 		++char_cnt;
 	    }
+#endif
 	} else if ( cd->from==e_utf8 ) {
 	    while ( *inlen>0 && *outlen>sizeof(unichar_t) ) {
 		unsigned char *ipt = (unsigned char *) *inbuf;
