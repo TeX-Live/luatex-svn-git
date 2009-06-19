@@ -138,9 +138,8 @@ ARFLAGS = cru
 libff_a_AR = $(AR) $(ARFLAGS)
 libff_a_LIBADD =
 am_libff_a_OBJECTS = libff_a-ArabicForms.$(OBJEXT) \
-	libff_a-alphabet.$(OBJEXT) libff_a-backtrns.$(OBJEXT) \
-	libff_a-char.$(OBJEXT) libff_a-cjk.$(OBJEXT) \
-	libff_a-dump.$(OBJEXT) libff_a-gwwiconv.$(OBJEXT) \
+	libff_a-alphabet.$(OBJEXT) libff_a-char.$(OBJEXT) \
+	libff_a-cjk.$(OBJEXT) libff_a-gwwiconv.$(OBJEXT) \
 	libff_a-memory.$(OBJEXT) libff_a-ucharmap.$(OBJEXT) \
 	libff_a-unialt.$(OBJEXT) libff_a-ustring.$(OBJEXT) \
 	libff_a-utype.$(OBJEXT) libff_a-autohint.$(OBJEXT) \
@@ -1176,11 +1175,9 @@ libff_a_CPPFLAGS = \
 libff_a_SOURCES = \
 	luatexdir/luafontloader/fontforge/Unicode/ArabicForms.c \
 	luatexdir/luafontloader/fontforge/Unicode/alphabet.c \
-	luatexdir/luafontloader/fontforge/Unicode/backtrns.c \
 	luatexdir/luafontloader/fontforge/Unicode/char.c \
 	luatexdir/luafontloader/fontforge/Unicode/cjk.c \
 	luatexdir/luafontloader/fontforge/Unicode/combiners.h \
-	luatexdir/luafontloader/fontforge/Unicode/dump.c \
 	luatexdir/luafontloader/fontforge/Unicode/gwwiconv.c \
 	luatexdir/luafontloader/fontforge/Unicode/memory.c \
 	luatexdir/luafontloader/fontforge/Unicode/ucharmap.c \
@@ -1675,12 +1672,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-ArabicForms.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-alphabet.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-autohint.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-backtrns.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-char.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-cjk.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-clipnoui.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-cvundoes.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-dump.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-dumppfa.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-encoding.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libff_a-featurefile.Po@am__quote@
@@ -1971,20 +1966,6 @@ libff_a-alphabet.obj: luatexdir/luafontloader/fontforge/Unicode/alphabet.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-alphabet.obj `if test -f 'luatexdir/luafontloader/fontforge/Unicode/alphabet.c'; then $(CYGPATH_W) 'luatexdir/luafontloader/fontforge/Unicode/alphabet.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontloader/fontforge/Unicode/alphabet.c'; fi`
 
-libff_a-backtrns.o: luatexdir/luafontloader/fontforge/Unicode/backtrns.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-backtrns.o -MD -MP -MF $(DEPDIR)/libff_a-backtrns.Tpo -c -o libff_a-backtrns.o `test -f 'luatexdir/luafontloader/fontforge/Unicode/backtrns.c' || echo '$(srcdir)/'`luatexdir/luafontloader/fontforge/Unicode/backtrns.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-backtrns.Tpo $(DEPDIR)/libff_a-backtrns.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontloader/fontforge/Unicode/backtrns.c' object='libff_a-backtrns.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-backtrns.o `test -f 'luatexdir/luafontloader/fontforge/Unicode/backtrns.c' || echo '$(srcdir)/'`luatexdir/luafontloader/fontforge/Unicode/backtrns.c
-
-libff_a-backtrns.obj: luatexdir/luafontloader/fontforge/Unicode/backtrns.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-backtrns.obj -MD -MP -MF $(DEPDIR)/libff_a-backtrns.Tpo -c -o libff_a-backtrns.obj `if test -f 'luatexdir/luafontloader/fontforge/Unicode/backtrns.c'; then $(CYGPATH_W) 'luatexdir/luafontloader/fontforge/Unicode/backtrns.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontloader/fontforge/Unicode/backtrns.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-backtrns.Tpo $(DEPDIR)/libff_a-backtrns.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontloader/fontforge/Unicode/backtrns.c' object='libff_a-backtrns.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-backtrns.obj `if test -f 'luatexdir/luafontloader/fontforge/Unicode/backtrns.c'; then $(CYGPATH_W) 'luatexdir/luafontloader/fontforge/Unicode/backtrns.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontloader/fontforge/Unicode/backtrns.c'; fi`
-
 libff_a-char.o: luatexdir/luafontloader/fontforge/Unicode/char.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-char.o -MD -MP -MF $(DEPDIR)/libff_a-char.Tpo -c -o libff_a-char.o `test -f 'luatexdir/luafontloader/fontforge/Unicode/char.c' || echo '$(srcdir)/'`luatexdir/luafontloader/fontforge/Unicode/char.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-char.Tpo $(DEPDIR)/libff_a-char.Po
@@ -2012,20 +1993,6 @@ libff_a-cjk.obj: luatexdir/luafontloader/fontforge/Unicode/cjk.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontloader/fontforge/Unicode/cjk.c' object='libff_a-cjk.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-cjk.obj `if test -f 'luatexdir/luafontloader/fontforge/Unicode/cjk.c'; then $(CYGPATH_W) 'luatexdir/luafontloader/fontforge/Unicode/cjk.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontloader/fontforge/Unicode/cjk.c'; fi`
-
-libff_a-dump.o: luatexdir/luafontloader/fontforge/Unicode/dump.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-dump.o -MD -MP -MF $(DEPDIR)/libff_a-dump.Tpo -c -o libff_a-dump.o `test -f 'luatexdir/luafontloader/fontforge/Unicode/dump.c' || echo '$(srcdir)/'`luatexdir/luafontloader/fontforge/Unicode/dump.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-dump.Tpo $(DEPDIR)/libff_a-dump.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontloader/fontforge/Unicode/dump.c' object='libff_a-dump.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-dump.o `test -f 'luatexdir/luafontloader/fontforge/Unicode/dump.c' || echo '$(srcdir)/'`luatexdir/luafontloader/fontforge/Unicode/dump.c
-
-libff_a-dump.obj: luatexdir/luafontloader/fontforge/Unicode/dump.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-dump.obj -MD -MP -MF $(DEPDIR)/libff_a-dump.Tpo -c -o libff_a-dump.obj `if test -f 'luatexdir/luafontloader/fontforge/Unicode/dump.c'; then $(CYGPATH_W) 'luatexdir/luafontloader/fontforge/Unicode/dump.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontloader/fontforge/Unicode/dump.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libff_a-dump.Tpo $(DEPDIR)/libff_a-dump.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luafontloader/fontforge/Unicode/dump.c' object='libff_a-dump.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libff_a-dump.obj `if test -f 'luatexdir/luafontloader/fontforge/Unicode/dump.c'; then $(CYGPATH_W) 'luatexdir/luafontloader/fontforge/Unicode/dump.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontloader/fontforge/Unicode/dump.c'; fi`
 
 libff_a-gwwiconv.o: luatexdir/luafontloader/fontforge/Unicode/gwwiconv.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libff_a-gwwiconv.o -MD -MP -MF $(DEPDIR)/libff_a-gwwiconv.Tpo -c -o libff_a-gwwiconv.o `test -f 'luatexdir/luafontloader/fontforge/Unicode/gwwiconv.c' || echo '$(srcdir)/'`luatexdir/luafontloader/fontforge/Unicode/gwwiconv.c

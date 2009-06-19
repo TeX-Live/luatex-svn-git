@@ -22,11 +22,9 @@ libff_a_CPPFLAGS = \
 libff_a_SOURCES = \
 	luatexdir/luafontloader/fontforge/Unicode/ArabicForms.c \
 	luatexdir/luafontloader/fontforge/Unicode/alphabet.c \
-	luatexdir/luafontloader/fontforge/Unicode/backtrns.c \
 	luatexdir/luafontloader/fontforge/Unicode/char.c \
 	luatexdir/luafontloader/fontforge/Unicode/cjk.c \
 	luatexdir/luafontloader/fontforge/Unicode/combiners.h \
-	luatexdir/luafontloader/fontforge/Unicode/dump.c \
 	luatexdir/luafontloader/fontforge/Unicode/gwwiconv.c \
 	luatexdir/luafontloader/fontforge/Unicode/memory.c \
 	luatexdir/luafontloader/fontforge/Unicode/ucharmap.c \
