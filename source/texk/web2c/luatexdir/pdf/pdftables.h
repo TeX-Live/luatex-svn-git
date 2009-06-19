@@ -325,6 +325,7 @@ extern integer open_subentries(halfword p);
 #  define pdf_objcompresslevel     int_par(param_pdf_objcompresslevel_code)
 #  define pdf_draftmode            int_par(param_pdf_draftmode_code)
 #  define pdf_inclusion_copy_font  int_par(param_pdf_inclusion_copy_font_code)
+#  define pdf_inclusion_errorlevel int_par(param_pdf_inclusion_errorlevel_code)
 #  define pdf_replace_font         int_par(param_pdf_replace_font_code)
 #  define pdf_pk_resolution        int_par(param_pdf_pk_resolution_code)
 #  define pdf_pk_mode              int_par(param_pdf_pk_mode_code)
@@ -395,3 +396,7 @@ extern integer open_subentries(halfword p);
 #  define set_obj_bead_rect(A,B) obj_bead_rect(A)=B
 #  define set_obj_xform_resources(A,B) obj_xform_resources(A)=B
 #endif
+
+void dump_pdftex_data (void);
+void undump_pdftex_data (void);
+

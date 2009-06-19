@@ -635,9 +635,6 @@
 @define procedure set_image_dimensions();
 @define procedure out_image();
 
-@define procedure dumpimagemeta;
-@define procedure undumpimagemeta();
-
 { functions from lua/limglib.c }
 
 { functions from writet3.c }
@@ -1083,6 +1080,8 @@
 @define var pdf_mem_size;
 @define var pdf_mem;
 @define var pdf_mem_ptr;
+@define procedure dump_pdftex_data;
+@define procedure undump_pdftex_data;
 
 @define const pdf_op_buf_size;
 @define const inf_pdf_os_buf_size;

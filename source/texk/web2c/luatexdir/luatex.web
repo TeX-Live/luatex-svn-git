@@ -21214,90 +21214,19 @@ undump_active_ocp_info;
 undump_ocp_info;
 undump_ocplist_info;
 
-@ This is done in C
-
-@<Dump the hyphenation tables@>=
+@ @<Dump the hyphenation tables@>=
 dump_language_data
 
 @ @<Undump the hyphenation tables@>=
 undump_language_data
 
-@ Store some of the pdftex data structures in the format. The idea here is
-to ensure that any data structures referenced from pdftex-specific whatsit
-nodes are retained. For the sake of simplicity and speed, all the filled parts
-of |pdf_mem| and |obj_tab| are retained, in the present implementation. We also
-retain three of the linked lists that start from |head_tab|, so that it is
-possible to, say, load an image in the \.{INITEX} run and then reference it in a
-\.{VIRTEX} run that uses the dumped format.
+@ @<Dump pdftex data@>=
+dump_pdftex_data
 
-@<Dump pdftex data@>=
-begin
-dumpimagemeta; {the image information array }
-dump_int(pdf_mem_size);
-dump_int(pdf_mem_ptr);
-for k:=1 to pdf_mem_ptr-1 do begin
-  dump_int(pdf_mem[k]);
-  end;
-print_ln; print_int(pdf_mem_ptr-1); print(" words of pdf memory");
-dump_int(obj_tab_size);
-dump_int(obj_ptr);
-dump_int(sys_obj_ptr);
-for k:=1 to sys_obj_ptr do begin
-  dump_int(obj_info(k));
-  dump_int(obj_link(k));
-  dump_int(obj_os_idx(k));
-  dump_int(obj_aux(k));
-  end;
-print_ln; print_int(sys_obj_ptr); print(" indirect objects");
-dump_int(pdf_obj_count);
-dump_int(pdf_xform_count);
-dump_int(pdf_ximage_count);
-dump_int(head_tab[obj_type_obj]);
-dump_int(head_tab[obj_type_xform]);
-dump_int(head_tab[obj_type_ximage]);
-dump_int(pdf_last_obj);
-dump_int(pdf_last_xform);
-dump_int(pdf_last_ximage);
-end
+@ @<Undump pdftex data@>=
+undump_pdftex_data
 
-@ And restoring the pdftex data structures from the format. The
-two function arguments to |undumpimagemeta| have been restored
-already in an earlier module.
-
-@<Undump pdftex data@>=
-begin
-undumpimagemeta(pdf_minor_version,pdf_inclusion_errorlevel);  {the image information array }
-undump_int(pdf_mem_size);
-pdf_mem := xreallocarray(pdf_mem, integer, pdf_mem_size);
-undump_int(pdf_mem_ptr);
-for k:=1 to pdf_mem_ptr-1 do begin
-  undump_int(pdf_mem[k]);
-  end;
-undump_int(obj_tab_size);
-undump_int(obj_ptr);
-undump_int(sys_obj_ptr);
-for k:=1 to sys_obj_ptr do begin
-  undump_int(obj_info(k));
-  undump_int(obj_link(k));
-  set_obj_offset(k,-1);
-  undump_int(obj_os_idx(k));
-  undump_int(obj_aux(k));
-  end;
-undump_int(pdf_obj_count);
-undump_int(pdf_xform_count);
-undump_int(pdf_ximage_count);
-undump_int(head_tab[obj_type_obj]);
-undump_int(head_tab[obj_type_xform]);
-undump_int(head_tab[obj_type_ximage]);
-undump_int(pdf_last_obj);
-undump_int(pdf_last_xform);
-undump_int(pdf_last_ximage);
-end
-
-
-@ This is also done in C
-
-@<Dump the lua bytecodes@>=
+@ @<Dump the lua bytecodes@>=
 dump_luac_registers;
 
 @ @<Undump the lua bytecodes@>=

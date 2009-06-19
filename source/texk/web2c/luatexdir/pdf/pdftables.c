@@ -2403,3 +2403,85 @@ void pdf_vlist_out(void)
     decr(cur_s);
     dvi_direction = save_direction;
 }
+
+
+/*
+Store some of the pdftex data structures in the format. The idea here is
+to ensure that any data structures referenced from pdftex-specific whatsit
+nodes are retained. For the sake of simplicity and speed, all the filled parts
+of |pdf_mem| and |obj_tab| are retained, in the present implementation. We also
+retain three of the linked lists that start from |head_tab|, so that it is
+possible to, say, load an image in the \.{INITEX} run and then reference it in a
+\.{VIRTEX} run that uses the dumped format.
+*/
+
+void dump_pdftex_data (void)
+{
+    integer k;
+    dumpimagemeta(); /* the image information array */
+    dump_int(pdf_mem_size);
+    dump_int(pdf_mem_ptr);
+    for (k=1;k<=pdf_mem_ptr-1;k++) 
+        dump_int(pdf_mem[k]);
+    print_ln(); 
+    print_int(pdf_mem_ptr-1); 
+    tprint(" words of pdf memory");
+    dump_int(obj_tab_size);
+    dump_int(obj_ptr);
+    dump_int(sys_obj_ptr);
+    for (k=1;k<=sys_obj_ptr;k++) {
+        dump_int(obj_info(k));
+        dump_int(obj_link(k));
+        dump_int(obj_os_idx(k));
+        dump_int(obj_aux(k));
+    }
+    print_ln(); 
+    print_int(sys_obj_ptr); 
+    tprint(" indirect objects");
+    dump_int(pdf_obj_count);
+    dump_int(pdf_xform_count);
+    dump_int(pdf_ximage_count);
+    dump_int(head_tab[obj_type_obj]);
+    dump_int(head_tab[obj_type_xform]);
+    dump_int(head_tab[obj_type_ximage]);
+    dump_int(pdf_last_obj);
+    dump_int(pdf_last_xform);
+    dump_int(pdf_last_ximage);
+}
+
+/*
+And restoring the pdftex data structures from the format. The
+two function arguments to |undumpimagemeta| have been restored
+already in an earlier module.
+*/
+
+void undump_pdftex_data (void)
+{
+    integer k;
+    undumpimagemeta(pdf_minor_version,pdf_inclusion_errorlevel);  /* the image information array */
+    undump_int(pdf_mem_size);
+    pdf_mem = xreallocarray(pdf_mem, integer, pdf_mem_size);
+    undump_int(pdf_mem_ptr);
+    for (k=1;k<=pdf_mem_ptr-1;k++)
+        undump_int(pdf_mem[k]);
+    undump_int(obj_tab_size);
+    undump_int(obj_ptr);
+    undump_int(sys_obj_ptr);
+    for (k=1;k<=sys_obj_ptr;k++) {
+        undump_int(obj_info(k));
+        undump_int(obj_link(k));
+        set_obj_offset(k,-1);
+        undump_int(obj_os_idx(k));
+        undump_int(obj_aux(k));
+    }
+    undump_int(pdf_obj_count);
+    undump_int(pdf_xform_count);
+    undump_int(pdf_ximage_count);
+    undump_int(head_tab[obj_type_obj]);
+    undump_int(head_tab[obj_type_xform]);
+    undump_int(head_tab[obj_type_ximage]);
+    undump_int(pdf_last_obj);
+    undump_int(pdf_last_xform);
+    undump_int(pdf_last_ximage);
+}
+
