@@ -691,7 +691,7 @@ void calculate_width_to_enddir(halfword p, real cur_glue, scaled cur_g,
 {
     int dir_nest = 1;
     halfword q = p;
-    scaled w = *setw;
+    scaled w = 0;
     halfword temp_ptr = *settemp_ptr;
     halfword g;                 /* this is normally a global variable, but that is just too hideous */
     /* to me, it looks like the next is needed. but Aleph doesn't do that, so let us not do it either */
