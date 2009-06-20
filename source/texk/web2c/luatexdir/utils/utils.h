@@ -25,18 +25,25 @@
 
 #  define overflow_string(a,b) { overflow(maketexstring(a),b); flush_str(last_tex_string); }
 
+extern char *job_id_string;
+
 integer fb_offset(void);
 void fb_flush(void);
 void fb_putchar(eight_bits b);
 void fb_seek(integer);
+void fb_free(void);
+
 void make_subset_tag(fd_entry *);
+
 str_number maketexstring(const char *);
+
 str_number maketexlstring(const char *, size_t);
-void print_string(char *j);
-void append_string(char *s);
+
 __attribute__ ((format(printf, 1, 2)))
 void tex_printf(const char *, ...);
+
 void remove_pdffile(void);
+
 __attribute__ ((noreturn, format(printf, 1, 2)))
 void pdftex_fail(const char *, ...);
 __attribute__ ((format(printf, 1, 2)))
@@ -52,19 +59,9 @@ size_t xfwrite(void *, size_t size, size_t nmemb, FILE *);
 int xfflush(FILE *);
 int xgetc(FILE *);
 int xputc(int, FILE *);
-void write_stream_length(integer, longinteger);
 scaled ext_xn_over_d(scaled, scaled, scaled);
-void libpdffinish(void);
-char *convertStringToPDFString(const char *in, int len);
-void escapestring(poolpointer in);
-void escapename(poolpointer in);
 void escapehex(poolpointer in);
 void unescapehex(poolpointer in);
-void print_ID(str_number);
-void init_start_time();
-void print_creation_date();
-void print_mod_date();
-void getcreationdate(void);
 char *makecfilename(str_number s);
 char *stripzeros(char *);
 void initversionstring(char **versions);
@@ -75,32 +72,9 @@ extern str_number last_tex_string;
 extern char *cur_file_name;
 extern size_t last_ptr_index;
 
-/**********************************************************************/
-/* color stack and matrix transformation support */
-
-int newcolorstack(integer s, integer literal_mode, boolean pagestart);
-int colorstackused();
-integer colorstackset(int colstack_no, integer s);
-integer colorstackpush(int colstack_no, integer s);
-integer colorstackpop(int colstack_no);
-integer colorstackcurrent(int colstack_no);
-integer colorstackskippagestart(int colstack_no);
-void checkpdfsave(scaledpos pos);
-void checkpdfrestore(scaledpos pos);
-void pdfshipoutbegin(boolean shipping_page);
-void pdfshipoutend(boolean shipping_page);
-void pdfsetmatrix(poolpointer in, scaledpos pos);
-scaled getllx();
-scaled getlly();
-scaled geturx();
-scaled getury();
 void tconfusion(char *s);
 void tprint(char *s);
 void tprint_nl(char *s);
 void tprint_esc(char *s);
-void matrixtransformpoint(scaled x, scaled y);
-void matrixtransformrect(scaled llx, scaled lly, scaled urx, scaled ury);
-boolean matrixused();
-void matrixrecalculate(scaled urx);
 
 #endif                          /* UTILS_H */

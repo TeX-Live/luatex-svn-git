@@ -24,6 +24,30 @@
 
 #  define set_pdf_setmatrix_data(A,B) pdf_setmatrix_data(A)=B
 
+typedef struct {
+    double a;
+    double b;
+    double c;
+    double d;
+    double e;
+    double f;
+} matrix_entry;
+
+extern matrix_entry *matrix_stack;
+extern int matrix_stack_size;
+extern int matrix_stack_used;
+
+
+void pdfsetmatrix(poolpointer in, scaledpos pos);
+scaled getllx();
+scaled getlly();
+scaled geturx();
+scaled getury();
+void matrixtransformpoint(scaled x, scaled y);
+void matrixtransformrect(scaled llx, scaled lly, scaled urx, scaled ury);
+boolean matrixused();
+void matrixrecalculate(scaled urx);
+
 extern void pdf_out_setmatrix(halfword p);
 
 #endif

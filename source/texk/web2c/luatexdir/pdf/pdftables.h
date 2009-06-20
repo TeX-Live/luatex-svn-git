@@ -150,6 +150,11 @@ extern void set_rect_dimens(halfword p, halfword parent_box,
                             scaled x, scaled y, scaled wd, scaled ht, scaled dp,
                             scaled margin);
 
+extern void libpdffinish(void);
+
+extern void pdfshipoutbegin(boolean shipping_page);
+extern void pdfshipoutend(boolean shipping_page);
+
 extern void dump_pdftex_data(void);
 extern void undump_pdftex_data(void);
 

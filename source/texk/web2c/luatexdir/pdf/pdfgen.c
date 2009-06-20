@@ -20,10 +20,18 @@
 #include "ptexlib.h"
 #include <ctype.h>
 #include "commands.h"
+#include "md5.h"
 
 static const char __svn_version[] =
     "$Id$"
     "$URL$";
+
+#define check_nprintf(size_get, size_want) \
+    if ((unsigned)(size_get) >= (unsigned)(size_want)) \
+        pdftex_fail ("snprintf failed: file %s, line %d", __FILE__, __LINE__);
+
+static char *jobname_cstr = NULL;
+
 
 /*
 Sometimes it is neccesary to allocate memory for PDF output that cannot
@@ -942,4 +950,409 @@ void pdf_end_obj(void)
     } else {
         pdf_printf("endobj\n"); /* end a PDF object */
     }
+}
+
+
+void write_stream_length(integer length, longinteger offset)
+{
+    if (jobname_cstr == NULL)
+        jobname_cstr = xstrdup(makecstring(job_name));
+    if (fixed_pdf_draftmode == 0) {
+        xfseeko(pdf_file, (off_t) offset, SEEK_SET, jobname_cstr);
+        fprintf(pdf_file, "%li", (long int) length);
+        xfseeko(pdf_file, (off_t) pdf_offset, SEEK_SET, jobname_cstr);
+    }
+}
+
+
+/* Converts any string given in in in an allowed PDF string which can be
+ * handled by printf et.al.: \ is escaped to \\, parenthesis are escaped and
+ * control characters are octal encoded.
+ * This assumes that the string does not contain any already escaped
+ * characters!
+ */
+char *convertStringToPDFString(const char *in, int len)
+{
+    static char pstrbuf[MAX_PSTRING_LEN];
+    char *out = pstrbuf;
+    int i, j, k;
+    char buf[5];
+    j = 0;
+    for (i = 0; i < len; i++) {
+        check_buf(j + sizeof(buf), MAX_PSTRING_LEN);
+        if (((unsigned char) in[i] < '!') || ((unsigned char) in[i] > '~')) {
+            /* convert control characters into oct */
+            k = snprintf(buf, sizeof(buf),
+                         "\\%03o", (unsigned int) (unsigned char) in[i]);
+            check_nprintf(k, sizeof(buf));
+            out[j++] = buf[0];
+            out[j++] = buf[1];
+            out[j++] = buf[2];
+            out[j++] = buf[3];
+        } else if ((in[i] == '(') || (in[i] == ')')) {
+            /* escape paranthesis */
+            out[j++] = '\\';
+            out[j++] = in[i];
+        } else if (in[i] == '\\') {
+            /* escape backslash */
+            out[j++] = '\\';
+            out[j++] = '\\';
+        } else {
+            /* copy char :-) */
+            out[j++] = in[i];
+        }
+    }
+    out[j] = '\0';
+    return pstrbuf;
+}
+
+/* Converts any string given in in in an allowed PDF string which is
+ * hexadecimal encoded;
+ * sizeof(out) should be at least lin*2+1.
+ */
+
+static void convertStringToHexString(const char *in, char *out, int lin)
+{
+    int i, j, k;
+    char buf[3];
+    j = 0;
+    for (i = 0; i < lin; i++) {
+        k = snprintf(buf, sizeof(buf),
+                     "%02X", (unsigned int) (unsigned char) in[i]);
+        check_nprintf(k, sizeof(buf));
+        out[j++] = buf[0];
+        out[j++] = buf[1];
+    }
+    out[j] = '\0';
+}
+
+
+/* Converts any string given in in in an allowed PDF string which can be
+ * handled by printf et.al.: \ is escaped to \\, parenthesis are escaped and
+ * control characters are octal encoded.
+ * This assumes that the string does not contain any already escaped
+ * characters!
+ *
+ * See escapename for parameter description.
+ */
+void escapestring(poolpointer in)
+{
+    const poolpointer out = pool_ptr;
+    unsigned char ch;
+    int i;
+    while (in < out) {
+        if (pool_ptr + 4 >= pool_size) {
+            pool_ptr = pool_size;
+            /* error by str_toks that calls str_room(1) */
+            return;
+        }
+
+        ch = (unsigned char) str_pool[in++];
+
+        if ((ch < '!') || (ch > '~')) {
+            /* convert control characters into oct */
+            i = snprintf((char *) &str_pool[pool_ptr], 5,
+                         "\\%.3o", (unsigned int) ch);
+            check_nprintf(i, 5);
+            pool_ptr += i;
+            continue;
+        }
+        if ((ch == '(') || (ch == ')') || (ch == '\\')) {
+            /* escape parenthesis and backslash */
+            str_pool[pool_ptr++] = '\\';
+        }
+        /* copy char :-) */
+        str_pool[pool_ptr++] = ch;
+    }
+}
+
+/* Convert any given string in a PDF name using escaping mechanism
+   of PDF 1.2. The result does not include the leading slash.
+
+   PDF specification 1.6, section 3.2.6 "Name Objects" explains:
+   <blockquote>
+    Beginning with PDF 1.2, any character except null (character code 0) may
+    be included in a name by writing its 2-digit hexadecimal code, preceded
+    by the number sign character (#); see implementation notes 3 and 4 in
+    Appendix H. This syntax is required to represent any of the delimiter or
+    white-space characters or the number sign character itself; it is
+    recommended but not required for characters whose codes are outside the
+    range 33 (!) to 126 (~).
+   </blockquote>
+   The following table shows the conversion that are done by this
+   function:
+     code      result   reason
+     -----------------------------------
+     0         ignored  not allowed
+     1..32     escaped  must for white-space:
+                          9 (tab), 10 (lf), 12 (ff), 13 (cr), 32 (space)
+                        recommended for the other control characters
+     35        escaped  escape char "#"
+     37        escaped  delimiter "%"
+     40..41    escaped  delimiters "(" and ")"
+     47        escaped  delimiter "/"
+     60        escaped  delimiter "<"
+     62        escaped  delimiter ">"
+     91        escaped  delimiter "["
+     93        escaped  delimiter "]"
+     123       escaped  delimiter "{"
+     125       escaped  delimiter "}"
+     127..255  escaped  recommended
+     else      copy     regular characters
+
+   Parameter "in" is a pointer into the string pool where
+   the input string is located. The output string is written
+   as temporary string right after the input string.
+   Thus at the begin of the procedure the global variable
+   "pool_ptr" points to the start of the output string and
+   after the end when the procedure returns.
+*/
+void escapename(poolpointer in)
+{
+    const poolpointer out = pool_ptr;
+    unsigned char ch;
+    int i;
+
+    while (in < out) {
+        if (pool_ptr + 3 >= pool_size) {
+            pool_ptr = pool_size;
+            /* error by str_toks that calls str_room(1) */
+            return;
+        }
+
+        ch = (unsigned char) str_pool[in++];
+
+        if ((ch >= 1 && ch <= 32) || ch >= 127) {
+            /* escape */
+            i = snprintf((char *) &str_pool[pool_ptr], 4,
+                         "#%.2X", (unsigned int) ch);
+            check_nprintf(i, 4);
+            pool_ptr += i;
+            continue;
+        }
+        switch (ch) {
+        case 0:
+            /* ignore */
+            break;
+        case 35:
+        case 37:
+        case 40:
+        case 41:
+        case 47:
+        case 60:
+        case 62:
+        case 91:
+        case 93:
+        case 123:
+        case 125:
+            /* escape */
+            i = snprintf((char *) &str_pool[pool_ptr], 4,
+                         "#%.2X", (unsigned int) ch);
+            check_nprintf(i, 4);
+            pool_ptr += i;
+            break;
+        default:
+            /* copy */
+            str_pool[pool_ptr++] = ch;
+        }
+    }
+}
+
+/* Compute the ID string as per PDF1.4 9.3:
+  <blockquote>
+    File identifers are defined by the optional ID entry in a PDF file's
+    trailer dictionary (see Section 3.4.4, "File Trailer"; see also
+    implementation note 105 in Appendix H). The value of this entry is an
+    array of two strings. The first string is a permanent identifier based
+    on the contents of the file at the time it was originally created, and
+    does not change when the file is incrementally updated. The second
+    string is a changing identifier based on the file's contents at the
+    time it was last updated. When a file is first written, both
+    identifiers are set to the same value. If both identifiers match when a
+    file reference is resolved, it is very likely that the correct file has
+    been found; if only the first identifier matches, then a different
+    version of the correct file has been found.
+        To help ensure the uniqueness of file identifiers, it is recommend
+    that they be computed using a message digest algorithm such as MD5
+    (described in Internet RFC 1321, The MD5 Message-Digest Algorithm; see
+    the Bibliography), using the following information (see implementation
+    note 106 in Appendix H):
+    - The current time
+    - A string representation of the file's location, usually a pathname
+    - The size of the file in bytes
+    - The values of all entries in the file's document information
+      dictionary (see Section 9.2.1,  Document Information Dictionary )
+  </blockquote>
+  This stipulates only that the two IDs must be identical when the file is
+  created and that they should be reasonably unique. Since it's difficult
+  to get the file size at this point in the execution of pdfTeX and
+  scanning the info dict is also difficult, we start with a simpler
+  implementation using just the first two items.
+ */
+void print_ID(str_number filename)
+{
+    time_t t;
+    size_t size;
+    char time_str[32];
+    md5_state_t state;
+    md5_byte_t digest[16];
+    char id[64];
+    char *file_name;
+    char pwd[4096];
+    /* start md5 */
+    md5_init(&state);
+    /* get the time */
+    t = time(NULL);
+    size = strftime(time_str, sizeof(time_str), "%Y%m%dT%H%M%SZ", gmtime(&t));
+    md5_append(&state, (const md5_byte_t *) time_str, size);
+    /* get the file name */
+    if (getcwd(pwd, sizeof(pwd)) == NULL)
+        pdftex_fail("getcwd() failed (%s), (path too long?)", strerror(errno));
+    file_name = makecstring(filename);
+    md5_append(&state, (const md5_byte_t *) pwd, strlen(pwd));
+    md5_append(&state, (const md5_byte_t *) "/", 1);
+    md5_append(&state, (const md5_byte_t *) file_name, strlen(file_name));
+    /* finish md5 */
+    md5_finish(&state, digest);
+    /* write the IDs */
+    convertStringToHexString((char *) digest, id, 16);
+    pdf_printf("/ID [<%s> <%s>]", id, id);
+}
+
+/* Print the /CreationDate entry.
+
+  PDF Reference, third edition says about the expected date format:
+  <blockquote>
+    3.8.2 Dates
+
+      PDF defines a standard date format, which closely follows that of
+      the international standard ASN.1 (Abstract Syntax Notation One),
+      defined in ISO/IEC 8824 (see the Bibliography). A date is a string
+      of the form
+
+        (D:YYYYMMDDHHmmSSOHH'mm')
+
+      where
+
+        YYYY is the year
+        MM is the month
+        DD is the day (01-31)
+        HH is the hour (00-23)
+        mm is the minute (00-59)
+        SS is the second (00-59)
+        O is the relationship of local time to Universal Time (UT),
+          denoted by one of the characters +, -, or Z (see below)
+        HH followed by ' is the absolute value of the offset from UT
+          in hours (00-23)
+        mm followed by ' is the absolute value of the offset from UT
+          in minutes (00-59)
+
+      The apostrophe character (') after HH and mm is part of the syntax.
+      All fields after the year are optional. (The prefix D:, although also
+      optional, is strongly recommended.) The default values for MM and DD
+      are both 01; all other numerical fields default to zero values.  A plus
+      sign (+) as the value of the O field signifies that local time is
+      later than UT, a minus sign (-) that local time is earlier than UT,
+      and the letter Z that local time is equal to UT. If no UT information
+      is specified, the relationship of the specified time to UT is
+      considered to be unknown. Whether or not the time zone is known, the
+      rest of the date should be specified in local time.
+
+      For example, December 23, 1998, at 7:52 PM, U.S. Pacific Standard
+      Time, is represented by the string
+
+        D:199812231952-08'00'
+  </blockquote>
+
+  The main difficulty is get the time zone offset. strftime() does this in ISO
+  C99 (e.g. newer glibc) with %z, but we have to work with other systems (e.g.
+  Solaris 2.5).
+*/
+
+static time_t start_time = 0;
+#define TIME_STR_SIZE 30
+static char start_time_str[TIME_STR_SIZE];      /* minimum size for time_str is 24: "D:YYYYmmddHHMMSS+HH'MM'" */
+
+static void makepdftime(time_t t, char *time_str)
+{
+    struct tm lt, gmt;
+    size_t size;
+    int i, off, off_hours, off_mins;
+
+    /* get the time */
+    lt = *localtime(&t);
+    size = strftime(time_str, TIME_STR_SIZE, "D:%Y%m%d%H%M%S", &lt);
+    /* expected format: "YYYYmmddHHMMSS" */
+    if (size == 0) {
+        /* unexpected, contents of time_str is undefined */
+        time_str[0] = '\0';
+        return;
+    }
+
+    /* correction for seconds: %S can be in range 00..61,
+       the PDF reference expects 00..59,
+       therefore we map "60" and "61" to "59" */
+    if (time_str[14] == '6') {
+        time_str[14] = '5';
+        time_str[15] = '9';
+        time_str[16] = '\0';    /* for safety */
+    }
+
+    /* get the time zone offset */
+    gmt = *gmtime(&t);
+
+    /* this calculation method was found in exim's tod.c */
+    off = 60 * (lt.tm_hour - gmt.tm_hour) + lt.tm_min - gmt.tm_min;
+    if (lt.tm_year != gmt.tm_year) {
+        off += (lt.tm_year > gmt.tm_year) ? 1440 : -1440;
+    } else if (lt.tm_yday != gmt.tm_yday) {
+        off += (lt.tm_yday > gmt.tm_yday) ? 1440 : -1440;
+    }
+
+    if (off == 0) {
+        time_str[size++] = 'Z';
+        time_str[size] = 0;
+    } else {
+        off_hours = off / 60;
+        off_mins = abs(off - off_hours * 60);
+        i = snprintf(&time_str[size], 9, "%+03d'%02d'", off_hours, off_mins);
+        check_nprintf(i, 9);
+    }
+}
+
+void init_start_time()
+{
+    if (start_time == 0) {
+        start_time = time((time_t *) NULL);
+        makepdftime(start_time, start_time_str);
+    }
+}
+
+void print_creation_date()
+{
+    init_start_time();
+    pdf_printf("/CreationDate (%s)\n", start_time_str);
+}
+
+void print_mod_date()
+{
+    init_start_time();
+    pdf_printf("/ModDate (%s)\n", start_time_str);
+}
+
+void getcreationdate()
+{
+    /* put creation date on top of string pool and update pool_ptr */
+    size_t len = strlen(start_time_str);
+
+    init_start_time();
+
+    if ((unsigned) (pool_ptr + len) >= (unsigned) pool_size) {
+        pool_ptr = pool_size;
+        /* error by str_toks that calls str_room(1) */
+        return;
+    }
+
+    memcpy(&str_pool[pool_ptr], start_time_str, len);
+    pool_ptr += len;
 }

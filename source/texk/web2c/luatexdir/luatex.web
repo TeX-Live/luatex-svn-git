@@ -9866,7 +9866,7 @@ etex_code: print(eTeX_version_string);
 omega_code: print(Omega_version_string);
 aleph_code: print(Aleph_version_string);
 font_name_code: begin
-  append_string(font_name(cur_val));
+  print(tex_font_name(cur_val));
   if font_size(cur_val)<>font_dsize(cur_val) then
     begin print(" at "); print_scaled(font_size(cur_val));
     print("pt");
@@ -9978,7 +9978,7 @@ begin
   job_name_code:          print(job_name);
   math_style_code:        print_math_style;
   font_name_code: begin
-    append_string(font_name(i));
+    print(tex_font_name(i));
     if font_size(i)<>font_dsize(i) then
       begin print(" at "); print_scaled(font_size(i));
       print("pt");

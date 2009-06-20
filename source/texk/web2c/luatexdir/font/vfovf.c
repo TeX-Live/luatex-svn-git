@@ -98,11 +98,11 @@ static const char _svn_version[] =
 
 /* go out \.{VF} processing with an error message */
 #define bad_vf(a) { xfree(vf_buffer); print_nlp();  \
-    print_string("Error in processing VF font (");  \
-    print_string(font_name(f));       \
-    print_string(".vf): ");       \
-    print_string(a);          \
-    print_string(", virtual font will be ignored"); \
+    tprint("Error in processing VF font (");  \
+    tprint(font_name(f));       \
+    tprint(".vf): ");       \
+    tprint(a);          \
+    tprint(", virtual font will be ignored"); \
     print_ln();  return; }
 
 #define lua_bad_vf(a) { xfree(vf_buffer);   \
@@ -190,16 +190,16 @@ vf_local_font_warning(internal_font_number f, internal_font_number k, char *s,
                       integer a, integer b)
 {
     print_nlp();
-    print_string(s);
-    print_string(" in local font ");
-    print_string(font_name(k));
-    print_string(" (");
+    tprint(s);
+    tprint(" in local font ");
+    tprint(font_name(k));
+    tprint(" (");
     print_int(b);
-    print_string(" != ");
+    tprint(" != ");
     print_int(a);
-    print_string(") in virtual font ");
-    print_string(font_name(f));
-    print_string(".vf ignored.");
+    tprint(") in virtual font ");
+    tprint(font_name(f));
+    tprint(".vf ignored.");
 }
 
 
@@ -377,9 +377,9 @@ int open_vf_file(char *fn, unsigned char **vbuffer, integer * vsize)
   ((tmp_b0 != font_check_0(f)) || (tmp_b1 != font_check_1(f)) ||  \
    (tmp_b2 != font_check_2(f)) || (tmp_b3 != font_check_3(f)))) { \
       print_nlp();              \
-      print_string("checksum mismatch in font ");     \
-      print_string(font_name(f));         \
-      print_string(".vf ignored "); } }
+      tprint("checksum mismatch in font ");     \
+      tprint(font_name(f));         \
+      tprint(".vf ignored "); } }
 
 #define test_dsize()                                   \
 {                                                      \
@@ -387,9 +387,9 @@ int open_vf_file(char *fn, unsigned char **vbuffer, integer * vsize)
     vf_read(4, read_tmp);                              \
     if ((read_tmp / 16) != font_dsize(f)) {            \
         print_nlp();                                   \
-        print_string("design size mismatch in font "); \
-        print_string(font_name(f));                    \
-        print_string(".vf ignored");                   \
+        tprint("design size mismatch in font "); \
+        tprint(font_name(f));                    \
+        tprint(".vf ignored");                   \
     }                                                  \
 }
 
@@ -780,9 +780,9 @@ void do_vf(internal_font_number f)
         if (tfm_width != char_width(f, cc)) {
             if (tfm_width != char_width(f, cc)) {
                 print_nlp();
-                print_string("character width mismatch in font ");
-                print_string(font_name(f));
-                print_string(".vf ignored");
+                tprint("character width mismatch in font ");
+                tprint(font_name(f));
+                tprint(".vf ignored");
             }
         }
         k = count_packet_bytes(vf_buffer, vf_cur, packet_length);
@@ -1449,7 +1449,7 @@ str_number expand_font_name(internal_font_number f, integer e)
     int old_setting;
     old_setting = selector;
     selector = new_string;
-    print_string(font_name(f));
+    tprint(font_name(f));
     if (e > 0) {
         print_char('+');
     }

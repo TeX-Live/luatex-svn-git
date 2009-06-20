@@ -217,6 +217,43 @@ void set_rect_dimens(halfword p, halfword parent_box, scaled x, scaled y,
     pdf_ann_top(p) = pos_ur.v + margin;
 }
 
+/* temp here */
+
+void pdfshipoutbegin(boolean shipping_page)
+{
+    pos_stack_used = 0;         /* start with empty stack */
+
+    page_mode = shipping_page;
+    if (shipping_page) {
+        colorstackpagestart();
+    }
+}
+
+void pdfshipoutend(boolean shipping_page)
+{
+    if (pos_stack_used > 0) {
+        pdftex_fail("%u unmatched \\pdfsave after %s shipout",
+                    (unsigned int) pos_stack_used,
+                    ((shipping_page) ? "page" : "form"));
+    }
+}
+
+void libpdffinish()
+{
+    fb_free();
+    xfree(job_id_string);
+    fm_free();
+    t1_free();
+    enc_free();
+    epdf_free();
+    ttf_free();
+    sfd_free();
+    glyph_unicode_free();
+    zip_free();
+}
+
+
+
 /*
 Store some of the pdftex data structures in the format. The idea here is
 to ensure that any data structures referenced from pdftex-specific whatsit

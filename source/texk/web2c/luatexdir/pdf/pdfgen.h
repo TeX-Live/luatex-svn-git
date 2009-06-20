@@ -203,8 +203,20 @@ extern void pdf_end_dict(void);
 
 extern void pdf_os_write_objstream(void);
 
+extern void write_stream_length(integer, longinteger);
+extern char *convertStringToPDFString(const char *in, int len);
+extern void escapestring(pool_pointer in);
+extern void escapename(pool_pointer in);
+
+extern void print_ID(str_number);
+extern void init_start_time();
+extern void print_creation_date();
+extern void print_mod_date();
+extern void getcreationdate(void);
+
 extern void pdf_use_font(internal_font_number f, integer fontnum);
 extern void pdf_init_font(internal_font_number f);
 extern internal_font_number pdf_set_font(internal_font_number f);
+
 
 #endif

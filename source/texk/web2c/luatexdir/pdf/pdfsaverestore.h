@@ -22,6 +22,18 @@
 #ifndef PDFSAVERESTORE_H
 #  define PDFSAVERESTORE_H
 
+/* stack for positions of \pdfsave */
+typedef struct {
+    scaledpos pos;
+    int matrix_stack;
+} pos_entry;
+extern pos_entry *pos_stack;    /* the stack */
+extern int pos_stack_size;      /* initially empty */
+extern int pos_stack_used;      /* used entries */
+
+
+extern void checkpdfsave(scaledpos pos);
+extern void checkpdfrestore(scaledpos pos);
 
 extern void pdf_out_save(void);
 extern void pdf_out_restore(void);

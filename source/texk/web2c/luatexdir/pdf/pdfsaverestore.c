@@ -19,9 +19,49 @@
 
 #include "ptexlib.h"
 
-static const char __svn_version[] =
-    "$Id$"
-    "$URL$";
+pos_entry *pos_stack = 0;       /* the stack */
+int pos_stack_size = 0;         /* initially empty */
+int pos_stack_used = 0;         /* used entries */
+
+void checkpdfsave(scaledpos pos)
+{
+    pos_entry *new_stack;
+
+    if (pos_stack_used >= pos_stack_size) {
+        pos_stack_size += STACK_INCREMENT;
+        new_stack = xtalloc(pos_stack_size, pos_entry);
+        memcpy((void *) new_stack, (void *) pos_stack,
+               pos_stack_used * sizeof(pos_entry));
+        xfree(pos_stack);
+        pos_stack = new_stack;
+    }
+    pos_stack[pos_stack_used].pos.h = pos.h;
+    pos_stack[pos_stack_used].pos.v = pos.v;
+    if (page_mode) {
+        pos_stack[pos_stack_used].matrix_stack = matrix_stack_used;
+    }
+    pos_stack_used++;
+}
+
+void checkpdfrestore(scaledpos pos)
+{
+    scaledpos diff;
+    if (pos_stack_used == 0) {
+        pdftex_warn("%s", "\\pdfrestore: missing \\pdfsave");
+        return;
+    }
+    pos_stack_used--;
+    diff.h = pos.h - pos_stack[pos_stack_used].pos.h;
+    diff.v = pos.v - pos_stack[pos_stack_used].pos.v;
+    if (diff.h != 0 || diff.v != 0) {
+        pdftex_warn("Misplaced \\pdfrestore by (%dsp, %dsp)", (int) diff.h,
+                    (int) diff.v);
+    }
+    if (page_mode) {
+        matrix_stack_used = pos_stack[pos_stack_used].matrix_stack;
+    }
+}
+
 
 void pdf_out_save(void)
 {
