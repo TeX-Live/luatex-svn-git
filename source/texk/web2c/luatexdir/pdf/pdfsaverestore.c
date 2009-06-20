@@ -19,6 +19,8 @@
 
 #include "ptexlib.h"
 
+static const char __svn_version[] = "$Id$" "$URL$";
+
 void pdf_out_save(void)
 {
     pos = synch_p_with_c(cur);

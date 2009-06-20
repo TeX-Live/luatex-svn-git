@@ -19,6 +19,7 @@
 
 #include "ptexlib.h"
 
+static const char __svn_version[] = "$Id$" "$URL$";
 
 /* write an action specification */
 void write_action(halfword p)
