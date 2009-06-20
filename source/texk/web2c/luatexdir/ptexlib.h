@@ -54,6 +54,7 @@ extern double rint(double x);
 #  include "pdf/pdfannot.h"
 #  include "pdf/pdfcolorstack.h"
 #  include "pdf/pdfdest.h"
+#  include "pdf/pdffont.h"
 #  include "pdf/pdfimage.h"
 #  include "pdf/pdflink.h"
 #  include "pdf/pdflistout.h"
@@ -62,6 +63,7 @@ extern double rint(double x);
 #  include "pdf/pdfoutline.h"
 #  include "pdf/pdfsaverestore.h"
 #  include "pdf/pdfsetmatrix.h"
+#  include "pdf/pdfshipout.h"
 #  include "pdf/pdfthread.h"
 #  include "pdf/pdfxform.h"
 

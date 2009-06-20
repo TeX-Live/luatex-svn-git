@@ -111,6 +111,8 @@ libluatex_a_SOURCES = \
 	luatexdir/pdf/pdfcolorstack.h \
 	luatexdir/pdf/pdfdest.c \
 	luatexdir/pdf/pdfdest.h \
+	luatexdir/pdf/pdffont.c \
+	luatexdir/pdf/pdffont.h \
 	luatexdir/pdf/pdfgen.c \
 	luatexdir/pdf/pdfgen.h \
 	luatexdir/pdf/pdfimage.c \
@@ -131,6 +133,8 @@ libluatex_a_SOURCES = \
 	luatexdir/pdf/pdfsaverestore.h \
 	luatexdir/pdf/pdfsetmatrix.c \
 	luatexdir/pdf/pdfsetmatrix.h \
+	luatexdir/pdf/pdfshipout.c \
+	luatexdir/pdf/pdfshipout.h \
 	luatexdir/pdf/pdftables.c \
 	luatexdir/pdf/pdftables.h \
 	luatexdir/pdf/pdfthread.c \
