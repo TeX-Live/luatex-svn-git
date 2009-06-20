@@ -19,7 +19,9 @@
 
 #include "ptexlib.h"
 
-static const char __svn_version[] = "$Id$" "$URL$";
+static const char __svn_version[] =
+    "$Id$"
+    "$URL$";
 
 void pdf_out_setmatrix(halfword p)
 {

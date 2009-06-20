@@ -19,7 +19,9 @@
 
 #include "ptexlib.h"
 
-static const char __svn_version[] = "$Id$" "$URL$";
+static const char __svn_version[] =
+    "$Id$"
+    "$URL$";
 
 /* write a raw PDF object */
 void pdf_write_obj(integer n)

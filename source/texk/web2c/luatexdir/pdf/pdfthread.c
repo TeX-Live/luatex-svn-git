@@ -21,7 +21,9 @@
 
 #include "commands.h"
 
-static const char __svn_version[] = "$Id$" "$URL$";
+static const char __svn_version[] =
+    "$Id$"
+    "$URL$";
 
 #define info(A) fixmem[(A)].hhlh
 

@@ -21,7 +21,9 @@
 
 #include "commands.h"
 
-static const char __svn_version[] = "$Id$" "$URL$";
+static const char __svn_version[] =
+    "$Id$"
+    "$URL$";
 
 #define pdf_link_margin          dimen_par(param_pdf_link_margin_code)
 
