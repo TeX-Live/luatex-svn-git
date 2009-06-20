@@ -32,6 +32,7 @@ static const char __svn_version[] =
 
 static char *jobname_cstr = NULL;
 
+str_number pdf_resname_prefix = 0;      /* global prefix of resources name */
 
 /*
 Sometimes it is neccesary to allocate memory for PDF output that cannot

@@ -28,6 +28,7 @@
 extern integer pdf_mem_size;
 extern integer *pdf_mem;
 extern integer pdf_mem_ptr;
+extern str_number pdf_resname_prefix;
 
 extern void initialize_pdfgen(void);
 

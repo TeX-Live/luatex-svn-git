@@ -176,10 +176,8 @@ boolean auto_expand_vf(internal_font_number f); /* forward */
     l = itmp;                                    \
 }
 
-void pdf_check_vf_cur_val(void)
+void pdf_check_vf(internal_font_number f)
 {
-    internal_font_number f;
-    f = cur_val;
     if (font_type(f) == virtual_font_type)
         pdf_error(maketexstring("font"),
                   maketexstring("command cannot be used with virtual font"));

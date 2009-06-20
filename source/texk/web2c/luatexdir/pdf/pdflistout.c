@@ -33,7 +33,6 @@ static const char __svn_version[] =
   } while (0)
 #define float_round round
 #define float_cast (real)
-#define set_to_zero(A) { A.h = 0; A.v = 0; }
 
 
 /*

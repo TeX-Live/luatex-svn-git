@@ -506,6 +506,7 @@
 @define procedure vf_expand_local_fonts();
 @define function letter_space_font();
 @define function read_font_info();
+@define procedure pdf_check_vf();
 
 @define function get_tag_code();
 @define function get_lp_code();
@@ -1494,3 +1495,21 @@
 @define procedure append_thread();
 @define procedure end_thread;
 @define function open_subentries() ;
+
+{ pdf fonts }
+
+@define procedure output_one_char();
+@define procedure copy_expand_params();
+@define function tfm_lookup();
+@define function load_expand_font();
+@define function get_expand_font();
+@define function expand_font();
+@define function fix_expand_value();
+
+@define procedure set_expand_params();
+@define procedure read_expand_font;
+@define procedure new_letterspaced_font();
+@define procedure make_font_copy() ;
+@define procedure pdf_include_chars;
+@define procedure glyph_to_unicode;
+

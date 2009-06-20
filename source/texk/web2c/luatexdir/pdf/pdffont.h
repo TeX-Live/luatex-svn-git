@@ -22,5 +22,29 @@
 #ifndef PDFFONT_H
 #  define PDFFONT_H
 
+extern void output_one_char(internal_font_number ffi, integer c);
+
+#  define non_existent_path "///..."
+
+typedef integer *fm_entry_ptr;
+
+extern void copy_expand_params(internal_font_number k, internal_font_number f,
+                               integer e);
+extern internal_font_number tfm_lookup(str_number s, scaled fs);
+extern internal_font_number load_expand_font(internal_font_number f, integer e);
+extern integer fix_expand_value(internal_font_number f, integer e);
+extern internal_font_number get_expand_font(internal_font_number f, integer e);
+extern internal_font_number expand_font(internal_font_number f, integer e);
+
+extern void set_expand_params(internal_font_number f, boolean auto_expand,
+                              integer stretch_limit, integer shrink_limit,
+                              integer font_step, integer expand_ratio);
+
+extern void read_expand_font(void);
+extern void new_letterspaced_font(small_number a);
+extern void make_font_copy(small_number a);
+
+extern void pdf_include_chars(void);
+extern void glyph_to_unicode(void);
 
 #endif
