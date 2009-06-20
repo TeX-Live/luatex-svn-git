@@ -6141,18 +6141,6 @@ function get_suppress_fontnotfound_error:boolean;
 begin
   get_suppress_fontnotfound_error := suppress_fontnotfound_error;
 end;
-function get_pdf_image_resolution:integer;
-begin
-  get_pdf_image_resolution := pdf_image_resolution;
-end;
-function get_pdf_minor_version:integer;
-begin
-  get_pdf_minor_version := pdf_minor_version;
-end;
-function get_pdf_inclusion_errorlevel:integer;
-begin
-  get_pdf_inclusion_errorlevel := pdf_inclusion_errorlevel;
-end;
 
 @ @<Set init...@>=
 no_new_control_sequence:=true; {new identifiers are usually forbidden}

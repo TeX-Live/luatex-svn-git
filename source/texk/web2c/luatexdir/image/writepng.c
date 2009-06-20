@@ -22,6 +22,10 @@
 #include "ptexlib.h"
 #include "image.h"
 
+#include "commands.h"
+
+#define pdf_compress_level int_par(param_pdf_compress_level_code)
+
 static const char _svn_version[] =
     "$Id$ "
     "$URL$";
@@ -661,7 +665,7 @@ void write_additional_png_objects(void)
             /* create new group object */
             transparent_page_group_was_written = true;
             pdf_begin_obj(transparent_page_group, 2);
-            if (get_pdf_compress_level() == 0) {
+            if (pdf_compress_level == 0) {
                 pdf_puts("%PTEX Group needed for transparent pngs\n");
             }
             pdf_puts

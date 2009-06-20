@@ -21,6 +21,9 @@
 #include "ptexlib.h"
 #include "zlib.h"
 #include <assert.h>
+#include "commands.h"
+
+#define pdf_compress_level int_par(param_pdf_compress_level_code)
 
 static const char __svn_version[] =
     "$Id$ $URL$";
@@ -38,7 +41,7 @@ void write_zip(boolean finish)
 {
     int err;
     static int level_old = 0;
-    int level = get_pdf_compress_level();
+    int level = pdf_compress_level;
     assert(level > 0);
     cur_file_name = NULL;
     if (pdf_stream_length == 0) {

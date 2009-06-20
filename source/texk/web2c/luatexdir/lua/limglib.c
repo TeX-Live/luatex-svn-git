@@ -25,6 +25,11 @@
 #include <ptexlib.h>
 #include "../luatex-api.h"
 
+#include "commands.h"
+
+#define pdf_inclusion_errorlevel int_par(param_pdf_inclusion_errorlevel_code)
+#define pdf_minor_version int_par(param_pdf_minor_version_code)
+
 static const char _svn_version[] =
     "$Id$ "
     "$URL$";
@@ -545,8 +550,8 @@ static void read_scale_img(lua_State * L, image * a)
              * it's needed as several fixed_* parameters are used early,
              * e. g. by read_png_info(). */
             check_pdfminorversion();
-            read_img(ad, get_pdf_minor_version(),
-                     get_pdf_inclusion_errorlevel());
+            read_img(ad, pdf_minor_version,
+                     pdf_inclusion_errorlevel);
             img_unset_scaled(a);
         }
     }

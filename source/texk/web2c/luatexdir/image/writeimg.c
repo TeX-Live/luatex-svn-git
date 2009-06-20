@@ -32,6 +32,10 @@
 #include <../lua51/lua.h>
 #include <../lua51/lauxlib.h>
 
+#include "commands.h"
+
+#define pdf_image_resolution int_par(param_pdf_image_resolution_code)
+
 static const char _svn_version[] =
     "$Id$ "
     "$URL$";
@@ -396,7 +400,7 @@ void scale_img(image * img)
         w = x;
         h = y;
     } else {
-        default_res = fix_int(get_pdf_image_resolution(), 0, 65535);
+        default_res = fix_int(pdf_image_resolution, 0, 65535);
         if (default_res > 0 && (xr == 0 || yr == 0)) {
             xr = default_res;
             yr = default_res;
