@@ -691,71 +691,255 @@ internal_font_number pdf_set_font(internal_font_number f)
     return k;
 }
 
-/* test equality of start of strings */
-static boolean str_in_cstr(str_number s, char *r, unsigned i)
+/* Subroutines to print out various PDF objects */
+
+/* print out an integer with fixed width; used for outputting cross-reference table */
+void pdf_print_fw_int(longinteger n, integer w)
 {
-    pool_pointer j;             /* running indices */
-    unsigned char *k;
-    if ((unsigned) str_length(s) < i + strlen(r))
-        return false;
-    j = i + str_start_macro(s);
-    k = (unsigned char *) r;
-    while ((j < str_start_macro(s + 1)) && (*k)) {
-        if (str_pool[j] != *k)
-            return false;
-        j++;
+    integer k;                  /* $0\le k\le23$ */
+    k = 0;
+    do {
+        dig[k] = n % 10;
+        n = n / 10;
         k++;
-    }
-    return true;
+    } while (k != w);
+    pdf_room(k);
+    while (k-- > 0)
+        pdf_quick_out('0' + dig[k]);
 }
 
-void pdf_literal(str_number s, integer literal_mode, boolean warn)
+/* print out an integer as a number of bytes; used for outputting \.{/XRef} cross-reference stream */
+void pdf_out_bytes(longinteger n, integer w)
 {
-    pool_pointer j = 0;         /* current character code position, initialized to make the compiler happy */
-    if (s > STRING_OFFSET) {    /* needed for |out_save| */
-        j = str_start_macro(s);
-        if (literal_mode == scan_special) {
-            if (!(str_in_cstr(s, "PDF:", 0) || str_in_cstr(s, "pdf:", 0))) {
-                if (warn
-                    &&
-                    ((!(str_in_cstr(s, "SRC:", 0) || str_in_cstr(s, "src:", 0)))
-                     || (str_length(s) == 0)))
-                    tprint_nl("Non-PDF special ignored!");
-                return;
-            }
-            j = j + strlen("PDF:");
-            if (str_in_cstr(s, "direct:", strlen("PDF:"))) {
-                j = j + strlen("direct:");
-                literal_mode = direct_always;
-            } else if (str_in_cstr(s, "page:", strlen("PDF:"))) {
-                j = j + strlen("page:");
-                literal_mode = direct_page;
-            } else {
-                literal_mode = set_origin;
-            }
+    integer k;
+    integer bytes[8];           /* digits in a number being output */
+    k = 0;
+    do {
+        bytes[k] = n % 256;
+        n = n / 256;
+        k++;
+    } while (k != w);
+    pdf_room(k);
+    while (k-- > 0)
+        pdf_quick_out(bytes[k]);
+}
+
+/* print out an entry in dictionary with integer value to PDF buffer */
+
+void pdf_int_entry(str_number s, integer v)
+{
+    pdf_out('/');
+    pdf_print(s);
+    pdf_out(' ');
+    pdf_print_int(v);
+}
+
+void pdf_int_entry_ln(str_number s, integer v)
+{
+    pdf_int_entry(s, v);
+    pdf_print_nl();
+}
+
+
+/* print out an indirect entry in dictionary */
+void pdf_indirect(str_number s, integer o)
+{
+    pdf_out('/');
+    pdf_print(s);
+    pdf_printf(" %d 0 R", (int) o);
+}
+
+void pdf_indirect_ln(str_number s, integer o)
+{
+    pdf_indirect(s, o);
+    pdf_print_nl();
+}
+
+/* print out |s| as string in PDF output */
+
+void pdf_print_str_ln(str_number s)
+{
+    pdf_print_str(s);
+    pdf_print_nl();
+}
+
+/* print out an entry in dictionary with string value to PDF buffer */
+
+void pdf_str_entry(str_number s, str_number v)
+{
+    if (v == 0)
+        return;
+    pdf_out('/');
+    pdf_print(s);
+    pdf_out(' ');
+    pdf_print_str(v);
+}
+
+void pdf_str_entry_ln(str_number s, str_number v)
+{
+    if (v == 0)
+        return;
+    pdf_str_entry(s, v);
+    pdf_print_nl();
+}
+
+void pdf_print_toks(halfword p)
+{
+    str_number s = tokens_to_string(p);
+    if (str_length(s) > 0)
+        pdf_print(s);
+    flush_str(s);
+}
+
+
+void pdf_print_toks_ln(halfword p)
+{
+    str_number s = tokens_to_string(p);
+    if (str_length(s) > 0)
+        pdf_print_ln(s);
+    flush_str(s);
+}
+
+/* prints a rect spec */
+void pdf_print_rect_spec(halfword r)
+{
+    pdf_print_mag_bp(pdf_ann_left(r));
+    pdf_out(' ');
+    pdf_print_mag_bp(pdf_ann_bottom(r));
+    pdf_out(' ');
+    pdf_print_mag_bp(pdf_ann_right(r));
+    pdf_out(' ');
+    pdf_print_mag_bp(pdf_ann_top(r));
+}
+
+/* output a rectangle specification to PDF file */
+void pdf_rectangle(halfword r)
+{
+    prepare_mag();
+    pdf_printf("/Rect [");
+    pdf_print_rect_spec(r);
+    pdf_printf("]\n");
+}
+
+
+/* begin a PDF dictionary object */
+void pdf_begin_dict(integer i, integer pdf_os_level)
+{
+    check_pdfminorversion();
+    pdf_os_prepare_obj(i, pdf_os_level);
+    if (!pdf_os_mode) {
+        pdf_printf("%d 0 obj <<\n", (int) i);
+    } else {
+        if (pdf_compress_level == 0)
+            pdf_printf("%% %d 0 obj\n", (int) i);       /* debugging help */
+        pdf_printf("<<\n");
+    }
+}
+
+/* begin a new PDF dictionary object */
+void pdf_new_dict(integer t, integer i, integer pdf_os)
+{
+    pdf_create_obj(t, i);
+    pdf_begin_dict(obj_ptr, pdf_os);
+}
+
+/* end a PDF dictionary object */
+void pdf_end_dict(void)
+{
+    if (pdf_os_mode) {
+        pdf_printf(">>\n");
+        if (pdf_os_objidx == pdf_os_max_objs - 1)
+            pdf_os_write_objstream();
+    } else {
+        pdf_printf(">> endobj\n");
+    }
+}
+
+
+/*
+Write out an accumulated object stream.
+First the object number and byte offset pairs are generated
+and appended to the ready buffered object stream.
+By this the value of \.{/First} can be calculated.
+Then a new \.{/ObjStm} object is generated, and everything is
+copied to the PDF output buffer, where also compression is done.
+When calling this procedure, |pdf_os_mode| must be |true|.
+*/
+
+void pdf_os_write_objstream(void)
+{
+    halfword i, j, p, q;
+    if (pdf_os_cur_objnum == 0) /* no object stream started */
+        return;
+    p = pdf_ptr;
+    i = 0;
+    j = 0;
+    while (i <= pdf_os_objidx) {        /* assemble object number and byte offset pairs */
+        pdf_printf("%d %d", (int) pdf_os_objnum[i], (int) pdf_os_objoff[i]);
+        if (j == 9) {           /* print out in groups of ten for better readability */
+            pdf_out(pdf_new_line_char);
+            j = 0;
+        } else {
+            pdf_printf(" ");
+            incr(j);
+        }
+        incr(i);
+    }
+    pdf_buf[pdf_ptr - 1] = pdf_new_line_char;   /* no risk of flush, as we are in |pdf_os_mode| */
+    q = pdf_ptr;
+    pdf_begin_dict(pdf_os_cur_objnum, 0);       /* switch to PDF stream writing */
+    pdf_printf("/Type /ObjStm\n");
+    pdf_printf("/N %d\n", (int) (pdf_os_objidx + 1));
+    pdf_printf("/First %d\n", (int) (q - p));
+    pdf_begin_stream();
+    pdf_room(q - p);            /* should always fit into the PDF output buffer */
+    i = p;
+    while (i < q) {             /* write object number and byte offset pairs */
+        pdf_quick_out(pdf_os_buf[i]);
+        incr(i);
+    }
+    i = 0;
+    while (i < p) {
+        q = i + pdf_buf_size;
+        if (q > p)
+            q = p;
+        pdf_room(q - i);
+        while (i < q) {         /* write the buffered objects */
+            pdf_quick_out(pdf_os_buf[i]);
+            incr(i);
         }
     }
-    switch (literal_mode) {
-    case set_origin:
-        pdf_goto_pagemode();
-        pos = synch_p_with_c(cur);
-        pdf_set_pos(pos.h, pos.v);
-        break;
-    case direct_page:
-        pdf_goto_pagemode();
-        break;
-    case direct_always:
-        pdf_end_string_nl();
-        break;
-    default:
-        tconfusion("literal1");
-        break;
+    pdf_end_stream();
+    pdf_os_cur_objnum = 0;      /* to force object stream generation next time */
+}
+
+/* begin a PDF object */
+void pdf_begin_obj(integer i, integer pdf_os_level)
+{
+    check_pdfminorversion();
+    pdf_os_prepare_obj(i, pdf_os_level);
+    if (!pdf_os_mode) {
+        pdf_printf("%d 0 obj\n", (int) i);
+    } else if (pdf_compress_level == 0) {
+        pdf_printf("%% %d 0 obj\n", (int) i);   /* debugging help */
     }
-    if (s > STRING_OFFSET) {
-        while (j < str_start_macro(s + 1))
-            pdf_out(str_pool[j++]);
+}
+
+/* begin a new PDF object */
+void pdf_new_obj(integer t, integer i, integer pdf_os)
+{
+    pdf_create_obj(t, i);
+    pdf_begin_obj(obj_ptr, pdf_os);
+}
+
+
+/* end a PDF object */
+void pdf_end_obj(void)
+{
+    if (pdf_os_mode) {
+        if (pdf_os_objidx == pdf_os_max_objs - 1)
+            pdf_os_write_objstream();
     } else {
-        pdf_out(s);
+        pdf_printf("endobj\n"); /* end a PDF object */
     }
-    pdf_print_nl();
 }

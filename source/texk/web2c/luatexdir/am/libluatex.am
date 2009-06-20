@@ -103,12 +103,40 @@ libluatex_a_SOURCES = \
 	luatexdir/ocp/runocp.h \
 	luatexdir/pdf/pagetree.c \
 	luatexdir/pdf/pagetree.h \
+	luatexdir/pdf/pdfaction.c \
+	luatexdir/pdf/pdfaction.h \
+	luatexdir/pdf/pdfannot.c \
+	luatexdir/pdf/pdfannot.h \
+	luatexdir/pdf/pdfcolorstack.c \
+	luatexdir/pdf/pdfcolorstack.h \
+	luatexdir/pdf/pdfdest.c \
+	luatexdir/pdf/pdfdest.h \
 	luatexdir/pdf/pdfgen.c \
 	luatexdir/pdf/pdfgen.h \
+	luatexdir/pdf/pdfimage.c \
+	luatexdir/pdf/pdfimage.h \
+	luatexdir/pdf/pdflink.c \
+	luatexdir/pdf/pdflink.h \
+	luatexdir/pdf/pdflistout.c \
+	luatexdir/pdf/pdflistout.h \
+	luatexdir/pdf/pdfliteral.c \
+	luatexdir/pdf/pdfliteral.h \
+	luatexdir/pdf/pdfobj.c \
+	luatexdir/pdf/pdfobj.h \
+	luatexdir/pdf/pdfoutline.c \
+	luatexdir/pdf/pdfoutline.h \
 	luatexdir/pdf/pdfpage.c \
 	luatexdir/pdf/pdfpage.h \
+	luatexdir/pdf/pdfsaverestore.c \
+	luatexdir/pdf/pdfsaverestore.h \
+	luatexdir/pdf/pdfsetmatrix.c \
+	luatexdir/pdf/pdfsetmatrix.h \
 	luatexdir/pdf/pdftables.c \
 	luatexdir/pdf/pdftables.h \
+	luatexdir/pdf/pdfthread.c \
+	luatexdir/pdf/pdfthread.h \
+	luatexdir/pdf/pdfxform.c \
+	luatexdir/pdf/pdfxform.h \
 	luatexdir/primitive.h \
 	luatexdir/ptexmac.h \
 	luatexdir/tex/align.c \

@@ -165,11 +165,6 @@ extern integer pdf_output_value;
 extern integer pdf_draftmode_option;
 extern integer pdf_draftmode_value;
 
-#  define pdf_append_list(A,B) do {             \
-        if (B==0) B=append_ptr(B,A);            \
-        else      (void)append_ptr(B,A);        \
-    } while (0)
-
 #  define set_ff(A)  do {                         \
         if (pdf_font_num(A) < 0)                \
             ff = -pdf_font_num(A);              \
@@ -182,10 +177,34 @@ extern integer pdf_draftmode_value;
             pdf_print(pdf_resname_prefix);      \
     } while (0)
 
+extern void pdf_print_fw_int(longinteger n, integer w);
+extern void pdf_out_bytes(longinteger n, integer w);
+extern void pdf_int_entry(str_number s, integer v);
+extern void pdf_int_entry_ln(str_number s, integer v);
+extern void pdf_indirect(str_number s, integer o);
+extern void pdf_indirect_ln(str_number s, integer o);
+extern void pdf_print_str_ln(str_number s);
+extern void pdf_str_entry(str_number s, str_number v);
+extern void pdf_str_entry_ln(str_number s, str_number v);
+
+extern void pdf_print_toks(halfword p);
+extern void pdf_print_toks_ln(halfword p);
+
+extern void pdf_print_rect_spec(halfword r);
+extern void pdf_rectangle(halfword r);
+
+extern void pdf_begin_obj(integer i, integer pdf_os_level);
+extern void pdf_new_obj(integer t, integer i, integer pdf_os);
+extern void pdf_end_obj(void);
+
+extern void pdf_begin_dict(integer i, integer pdf_os_level);
+extern void pdf_new_dict(integer t, integer i, integer pdf_os);
+extern void pdf_end_dict(void);
+
+extern void pdf_os_write_objstream(void);
+
 extern void pdf_use_font(internal_font_number f, integer fontnum);
 extern void pdf_init_font(internal_font_number f);
 extern internal_font_number pdf_set_font(internal_font_number f);
-
-extern void pdf_literal(str_number s, integer literal_mode, boolean warn);
 
 #endif
