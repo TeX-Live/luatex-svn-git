@@ -208,7 +208,7 @@ internal_font_number letter_space_font(halfword u, internal_font_number f,
                                        integer e);
 internal_font_number auto_expand_font(internal_font_number f, integer e);
 str_number expand_font_name(internal_font_number f, integer e);
-void pdf_check_vf_cur_val(void);
+void pdf_check_vf(internal_font_number f);
 internal_font_number copy_font_info(internal_font_number f);
 
 /* writet3.c */
