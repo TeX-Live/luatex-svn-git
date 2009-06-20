@@ -13302,16 +13302,9 @@ pdf_draftmode := 0;
 @ The subroutines define the corresponding macros so we can use them
 in C.
 
-@d flushable(#) == (# = str_ptr - 1)
-
 @d is_valid_char(#) == char_exists(f,#)
 
-@p function get_pdf_compress_level: integer;
-begin
-    get_pdf_compress_level := pdf_compress_level;
-end;
-
-function get_nullfont: internal_font_number;
+@p function get_nullfont: internal_font_number;
 begin
     get_nullfont := null_font;
 end;
@@ -13364,11 +13357,6 @@ end;
 function get_nullcs: pointer;
 begin
     get_nullcs := null_cs;
-end;
-
-function get_nullptr: pointer;
-begin
-    get_nullptr := null;
 end;
 
 function get_tex_int(code: integer): integer;
@@ -22490,6 +22478,8 @@ end
   in |pdf_ship_out| (to check whether a Page object already exists) so we need
   to declare it together with subroutines needed in |pdf_hlist_out| and
   |pdf_vlist_out|.
+
+@d flushable(#) == (# = str_ptr - 1)
 
 @<Declare procedures that need to be declared forward for \pdfTeX@>=
 function find_obj(t, i: integer; byname: boolean): integer;
