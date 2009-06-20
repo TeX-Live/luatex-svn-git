@@ -17,6 +17,10 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
+static const char __svn_version[] =
+    "$Id$ "
+    "$URL$";
+
 #include "ptexlib.h"
 
 pos_entry *pos_stack = 0;       /* the stack */
