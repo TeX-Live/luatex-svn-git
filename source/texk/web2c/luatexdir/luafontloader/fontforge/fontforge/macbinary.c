@@ -1155,7 +1155,7 @@ return( sf );
     spt = strrchr(buffer,'/')+1;
     for ( pt=spt; *pt; ++pt )
 	if ( isupper( *pt ))
-	  *pt = *pt  - 'A' + 'a'; /* tolower() */
+	    *pt = tolower( *pt );
     dpt = strchr(spt,'.');
     if ( dpt==NULL ) dpt = spt+strlen(spt);
     if ( dpt-spt>8 || strlen(dpt)>4 ) {

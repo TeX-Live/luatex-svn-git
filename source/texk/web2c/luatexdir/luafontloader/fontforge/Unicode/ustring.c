@@ -47,7 +47,6 @@ return(ch1-ch2);
 return( 0 );
 }
 
-#if 0
 long uc_strmatch(const unichar_t *str1, const char *str2) {
     long ch1, ch2;
     for (;;) {
@@ -82,7 +81,6 @@ return(ch1-ch2);
     }
 return( 0 );
 }
-#endif
 
 long u_strcmp(const unichar_t *str1,const unichar_t *str2) {
     long ch1, ch2;
@@ -103,7 +101,6 @@ return(ch1-ch2);
 return( 0 );
 }
 
-#if 0
 long u_strmatch(const unichar_t *str1, const unichar_t *str2) {
     long ch1, ch2;
     for (;;) {
@@ -114,7 +111,6 @@ long u_strmatch(const unichar_t *str1, const unichar_t *str2) {
 return(ch1-ch2);
     }
 }
-#endif
 
 void cu_strcpy(char *to, const unichar_t *from) {
     register unichar_t ch;
@@ -244,7 +240,6 @@ return((unichar_t *) lpt);
 return( NULL );
 }
 
-#if 0
 unichar_t *uc_strstrmatch(const unichar_t *longer, const char *substr) {
     long ch1, ch2;
     const unichar_t *lpt, *str1; const unsigned char *str2;
@@ -282,7 +277,6 @@ return((unichar_t *) lpt);
     }
 return( NULL );
 }
-#endif
 
 unichar_t *u_copyn(const unichar_t *pt, long n) {
     unichar_t *res;
@@ -442,7 +436,6 @@ unsigned long u_strtoul(const unichar_t *str, unichar_t **ptr, int base) {
 return( val );
 }
 
-#if 0
 unichar_t *cu_strstartmatch(const char *key,const unichar_t *str) {
     if ( key && str ) {
 	while( *key ) {
@@ -467,7 +460,6 @@ return( (unichar_t *) full );
 return(NULL);
     }
 }
-#endif
 
 char *u_to_c(const unichar_t *ubuf) {
     static char buf[400];

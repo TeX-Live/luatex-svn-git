@@ -40,7 +40,6 @@ return(NULL);
     }
 }
 
-#if 0
 char *strstartmatch(const char *initial, const char *full) {
     int ch1, ch2;
     for (;;) {
@@ -53,7 +52,6 @@ return( (char *) full );
 return(NULL);
     }
 }
-#endif
 
 int strmatch(const char *str1, const char *str2) {
     int ch1, ch2;
