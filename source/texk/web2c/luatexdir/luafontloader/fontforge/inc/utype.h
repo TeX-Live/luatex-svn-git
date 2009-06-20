@@ -47,15 +47,18 @@
 #define ____TOUCHING	0x100000
 #define ____COMBININGPOSMASK	0x1fff00
 
-extern const unsigned short ____tolower[];
 #if 0
+extern const unsigned short ____tolower[];
 extern const unsigned short ____toupper[];
 #endif
 extern const unsigned int  ____utype[];
 
-#define tolower(ch) (____tolower[(ch)+1])
 #if 0
+#define tolower(ch) (____tolower[(ch)+1])
 #define toupper(ch) (____toupper[(ch)+1])
+#else
+/* ASCII style */
+#define tolower(ch) (ch+'A'-'a')
 #endif
 #define islower(ch) (____utype[(ch)+1]&____L)
 #define isupper(ch) (____utype[(ch)+1]&____U)
