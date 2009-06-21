@@ -21182,75 +21182,7 @@ end;
 @ @<Implement \.{\\pdfoutline}@>=
 begin
     check_pdfoutput("\pdfoutline", true);
-    if scan_keyword('attr') then begin
-        scan_pdf_ext_toks;
-        r := def_ref;
-    end
-    else
-        r := 0;
-    p := scan_action;
-    if scan_keyword('count') then begin
-        scan_int;
-        i := cur_val;
-    end
-    else
-        i := 0;
-    scan_pdf_ext_toks;
-    q := def_ref;
-    pdf_new_obj(obj_type_others, 0, 1);
-    j := obj_ptr;
-    write_action(p);
-    pdf_end_obj;
-    delete_action_ref(p);
-    pdf_create_obj(obj_type_outline, 0);
-    k := obj_ptr;
-    set_obj_outline_ptr(k, pdf_get_mem(pdfmem_outline_size));
-    set_obj_outline_action_objnum(k,j);
-    set_obj_outline_count(k, i);
-    pdf_new_obj(obj_type_others, 0, 1);
-    pdf_print_str_ln(tokens_to_string(q));
-    flush_str(last_tokens_string);
-    delete_token_ref(q);
-    pdf_end_obj;
-    set_obj_outline_title(k, obj_ptr);
-    set_obj_outline_prev(k, 0);
-    set_obj_outline_next(k, 0);
-    set_obj_outline_first(k, 0);
-    set_obj_outline_last(k, 0);
-    set_obj_outline_parent(k, pdf_parent_outline);
-    set_obj_outline_attr(k, r);
-    if pdf_first_outline = 0 then
-        pdf_first_outline :=  k;
-    if pdf_last_outline = 0 then begin
-        if pdf_parent_outline <> 0 then
-            set_obj_outline_first(pdf_parent_outline, k);
-    end
-    else begin
-        set_obj_outline_next(pdf_last_outline, k);
-        set_obj_outline_prev(k, pdf_last_outline);
-    end;
-    pdf_last_outline := k;
-    if obj_outline_count(k) <> 0 then begin
-        pdf_parent_outline := k;
-        pdf_last_outline := 0;
-    end
-    else if (pdf_parent_outline <> 0) and
-    (outline_list_count(k) = abs(obj_outline_count(pdf_parent_outline))) then
-    begin
-        j := pdf_last_outline;
-        repeat
-            set_obj_outline_last(pdf_parent_outline, j);
-            j := pdf_parent_outline;
-            pdf_parent_outline := obj_outline_parent(pdf_parent_outline);
-        until (pdf_parent_outline = 0) or
-        (outline_list_count(j) < abs(obj_outline_count(pdf_parent_outline)));
-        if pdf_parent_outline = 0 then
-            pdf_last_outline := pdf_first_outline
-        else
-            pdf_last_outline := obj_outline_first(pdf_parent_outline);
-        while obj_outline_next(pdf_last_outline) <> 0 do
-            pdf_last_outline := obj_outline_next(pdf_last_outline);
-    end;
+    scan_pdfoutline;
 end
 
 @ Notice that |scan_keyword| doesn't care if two words have same prefix; so
