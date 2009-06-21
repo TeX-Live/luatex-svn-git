@@ -650,7 +650,8 @@ void write_fontdictionary(fo_entry * fo)
         pdf_printf("/Encoding %i 0 R\n", (int) fo->fe->fe_objnum);
     if (fo->tounicode_objnum != 0)
         pdf_printf("/ToUnicode %i 0 R\n", (int) fo->tounicode_objnum);
-    if (pdf_font_attr(fo->tex_font) != get_nullstr()) {
+    if (pdf_font_attr(fo->tex_font) != get_nullstr() &&
+	pdf_font_attr(fo->tex_font) != 0) {
         pdf_print(pdf_font_attr(fo->tex_font));
         pdf_puts("\n");
     }
