@@ -21193,72 +21193,7 @@ order from the longest one to the shortest one.
 @<Implement \.{\\pdfdest}@>=
 begin
     check_pdfoutput("\pdfdest", true);
-    q := tail;
-    new_whatsit(pdf_dest_node);
-    if scan_keyword('num') then begin
-        scan_int;
-        if cur_val <= 0 then
-            pdf_error("ext1", "num identifier must be positive");
-        if cur_val > max_halfword then
-            pdf_error("ext1", "number too big");
-        set_pdf_dest_id(tail, cur_val);
-        set_pdf_dest_named_id(tail, 0);
-    end
-    else if scan_keyword('name') then begin
-        scan_pdf_ext_toks;
-        set_pdf_dest_id(tail, def_ref);
-        set_pdf_dest_named_id(tail, 1);
-    end
-    else
-        pdf_error("ext1", "identifier type missing");
-    if scan_keyword('xyz') then begin
-        set_pdf_dest_type(tail, pdf_dest_xyz);
-        if scan_keyword('zoom') then begin
-            scan_int;
-            if cur_val > max_halfword then
-                pdf_error("ext1", "number too big");
-            set_pdf_dest_xyz_zoom(tail, cur_val);
-        end
-        else
-            set_pdf_dest_xyz_zoom(tail, null);
-    end
-    else if scan_keyword('fitbh') then
-        set_pdf_dest_type(tail, pdf_dest_fitbh)
-    else if scan_keyword('fitbv') then
-        set_pdf_dest_type(tail, pdf_dest_fitbv)
-    else if scan_keyword('fitb') then
-        set_pdf_dest_type(tail, pdf_dest_fitb)
-    else if scan_keyword('fith') then
-        set_pdf_dest_type(tail, pdf_dest_fith)
-    else if scan_keyword('fitv') then
-        set_pdf_dest_type(tail, pdf_dest_fitv)
-    else if scan_keyword('fitr') then
-        set_pdf_dest_type(tail, pdf_dest_fitr)
-    else if scan_keyword('fit') then
-        set_pdf_dest_type(tail, pdf_dest_fit)
-    else
-        pdf_error("ext1", "destination type missing");
-    @<Scan an optional space@>;
-    if pdf_dest_type(tail) = pdf_dest_fitr then begin
-        scan_alt_rule; {scans |<rule spec>| to |alt_rule|}
-        set_pdf_width(tail, width(alt_rule));
-        set_pdf_height(tail, height(alt_rule));
-        set_pdf_depth(tail, depth(alt_rule));
-    end;
-    if pdf_dest_named_id(tail) <> 0 then begin
-        i := tokens_to_string(pdf_dest_id(tail));
-        k := find_obj(obj_type_dest, i, true);
-        flush_str(i);
-    end
-    else
-        k := find_obj(obj_type_dest, pdf_dest_id(tail), false);
-    if (k <> 0) and (obj_dest_ptr(k) <> null) then begin
-        warn_dest_dup(pdf_dest_id(tail), pdf_dest_named_id(tail),
-                      "ext4", "has been already used, duplicate ignored");
-        flush_node_list(tail);
-        tail := q;
-        vlink(q) := null;
-    end;
+    scan_pdfdest;
 end
 
 @ @<Declare procedures needed in |do_ext...@>=

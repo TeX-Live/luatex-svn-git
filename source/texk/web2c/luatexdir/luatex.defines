@@ -1416,7 +1416,7 @@
 
 @define procedure write_action();
 @define procedure calculate_width_to_enddir();
-@define procedure warn_dest_dup();
+@define procedure scan_pdfdest;
 
 @define var dest_names_size;
 
