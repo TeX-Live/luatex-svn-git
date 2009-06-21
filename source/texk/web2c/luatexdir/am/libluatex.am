@@ -18,6 +18,8 @@ libluatex_a_CPPFLAGS += -DpdfTeX
 
 libluatex_a_SOURCES = \
 	luatexdir/commands.h \
+	luatexdir/dvi/dvigen.c \
+	luatexdir/dvi/dvigen.h \
 	luatexdir/font/dofont.c \
 	luatexdir/font/luatexfont.h \
 	luatexdir/font/luafont.c \

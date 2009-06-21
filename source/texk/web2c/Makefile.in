@@ -211,16 +211,17 @@ am_libluasocket_a_OBJECTS = libluasocket_a-auxiliar.$(OBJEXT) \
 libluasocket_a_OBJECTS = $(am_libluasocket_a_OBJECTS)
 libluatex_a_AR = $(AR) $(ARFLAGS)
 libluatex_a_LIBADD =
-am_libluatex_a_OBJECTS = libluatex_a-dofont.$(OBJEXT) \
-	libluatex_a-luafont.$(OBJEXT) libluatex_a-mapfile.$(OBJEXT) \
-	libluatex_a-pkin.$(OBJEXT) libluatex_a-sfnt.$(OBJEXT) \
-	libluatex_a-subfont.$(OBJEXT) libluatex_a-texfont.$(OBJEXT) \
-	libluatex_a-tfmofm.$(OBJEXT) libluatex_a-tounicode.$(OBJEXT) \
-	libluatex_a-tt_glyf.$(OBJEXT) libluatex_a-tt_table.$(OBJEXT) \
-	libluatex_a-vfovf.$(OBJEXT) libluatex_a-vfpacket.$(OBJEXT) \
-	libluatex_a-writecff.$(OBJEXT) libluatex_a-writeenc.$(OBJEXT) \
-	libluatex_a-writefont.$(OBJEXT) libluatex_a-writet1.$(OBJEXT) \
-	libluatex_a-writet3.$(OBJEXT) libluatex_a-writettf.$(OBJEXT) \
+am_libluatex_a_OBJECTS = libluatex_a-dvigen.$(OBJEXT) \
+	libluatex_a-dofont.$(OBJEXT) libluatex_a-luafont.$(OBJEXT) \
+	libluatex_a-mapfile.$(OBJEXT) libluatex_a-pkin.$(OBJEXT) \
+	libluatex_a-sfnt.$(OBJEXT) libluatex_a-subfont.$(OBJEXT) \
+	libluatex_a-texfont.$(OBJEXT) libluatex_a-tfmofm.$(OBJEXT) \
+	libluatex_a-tounicode.$(OBJEXT) libluatex_a-tt_glyf.$(OBJEXT) \
+	libluatex_a-tt_table.$(OBJEXT) libluatex_a-vfovf.$(OBJEXT) \
+	libluatex_a-vfpacket.$(OBJEXT) libluatex_a-writecff.$(OBJEXT) \
+	libluatex_a-writeenc.$(OBJEXT) libluatex_a-writefont.$(OBJEXT) \
+	libluatex_a-writet1.$(OBJEXT) libluatex_a-writet3.$(OBJEXT) \
+	libluatex_a-writettf.$(OBJEXT) \
 	libluatex_a-writetype0.$(OBJEXT) \
 	libluatex_a-writetype2.$(OBJEXT) libluatex_a-epdf.$(OBJEXT) \
 	libluatex_a-pdftoepdf.$(OBJEXT) libluatex_a-writeimg.$(OBJEXT) \
@@ -1288,6 +1289,8 @@ libluatex_a_CPPFLAGS = $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) \
 	-DpdfTeX
 libluatex_a_SOURCES = \
 	luatexdir/commands.h \
+	luatexdir/dvi/dvigen.c \
+	luatexdir/dvi/dvigen.h \
 	luatexdir/font/dofont.c \
 	luatexdir/font/luatexfont.h \
 	luatexdir/font/luafont.c \
@@ -1826,6 +1829,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-avlstuff.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-directions.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-dofont.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-dvigen.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-epdf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-filename.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-hnjalloc.Po@am__quote@
@@ -3560,6 +3564,20 @@ libluasocket_a-udp.obj: luatexdir/luasocket/src/udp.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/luasocket/src/udp.c' object='libluasocket_a-udp.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluasocket_a-udp.obj `if test -f 'luatexdir/luasocket/src/udp.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/udp.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/udp.c'; fi`
+
+libluatex_a-dvigen.o: luatexdir/dvi/dvigen.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-dvigen.o -MD -MP -MF $(DEPDIR)/libluatex_a-dvigen.Tpo -c -o libluatex_a-dvigen.o `test -f 'luatexdir/dvi/dvigen.c' || echo '$(srcdir)/'`luatexdir/dvi/dvigen.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-dvigen.Tpo $(DEPDIR)/libluatex_a-dvigen.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/dvi/dvigen.c' object='libluatex_a-dvigen.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-dvigen.o `test -f 'luatexdir/dvi/dvigen.c' || echo '$(srcdir)/'`luatexdir/dvi/dvigen.c
+
+libluatex_a-dvigen.obj: luatexdir/dvi/dvigen.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-dvigen.obj -MD -MP -MF $(DEPDIR)/libluatex_a-dvigen.Tpo -c -o libluatex_a-dvigen.obj `if test -f 'luatexdir/dvi/dvigen.c'; then $(CYGPATH_W) 'luatexdir/dvi/dvigen.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/dvi/dvigen.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-dvigen.Tpo $(DEPDIR)/libluatex_a-dvigen.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/dvi/dvigen.c' object='libluatex_a-dvigen.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-dvigen.obj `if test -f 'luatexdir/dvi/dvigen.c'; then $(CYGPATH_W) 'luatexdir/dvi/dvigen.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/dvi/dvigen.c'; fi`
 
 libluatex_a-dofont.o: luatexdir/font/dofont.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-dofont.o -MD -MP -MF $(DEPDIR)/libluatex_a-dofont.Tpo -c -o libluatex_a-dofont.o `test -f 'luatexdir/font/dofont.c' || echo '$(srcdir)/'`luatexdir/font/dofont.c
