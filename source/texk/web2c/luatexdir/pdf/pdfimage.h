@@ -22,8 +22,12 @@
 #ifndef PDFIMAGE_H
 #  define PDFIMAGE_H
 
+extern halfword alt_rule;
+
 extern void output_image(integer idx);
 extern void pdf_write_image(integer n);
+extern void scan_image(void);
+extern void scan_alt_rule (void) ;
 
 #  define set_pdf_ximage_idx(A,B) pdf_ximage_idx(A)=B
 

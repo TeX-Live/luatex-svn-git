@@ -1412,16 +1412,20 @@
 @define procedure pos_down();
 
 @define procedure pdf_write_image();
+@define procedure scan_image;
+
 @define procedure pdf_write_obj();
 
 @define procedure write_action();
+@define function scan_action;
+
 @define procedure calculate_width_to_enddir();
 @define procedure scan_pdfdest;
 
 @define procedure scan_thread_id;
-@define function scan_action;
 @define var dest_names_size;
 @define procedure new_annot_whatsit();
+
 
 { pdf fonts }
 
