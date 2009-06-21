@@ -19,6 +19,7 @@
 
 #include "ptexlib.h"
 #include "luatex-api.h"
+#include "commands.h"
 
 static const char __svn_version[] =
     "$Id$"
@@ -49,6 +50,89 @@ integer open_subentries(halfword p)
     else
         obj_outline_count(p) = -k;
     return k;
+}
+
+/* read an action specification */
+halfword scan_action (void) 
+{
+  integer p;
+  p = new_node(action_node,0);
+  if (scan_keyword("user"))
+    set_pdf_action_type(p, pdf_action_user);
+  else if (scan_keyword("goto"))
+    set_pdf_action_type(p, pdf_action_goto);
+  else if (scan_keyword("thread"))
+    set_pdf_action_type(p, pdf_action_thread);
+  else
+    pdf_error(maketexstring("ext1"), 
+	      maketexstring("action type missing"));
+
+  if (pdf_action_type(p) == pdf_action_user) {
+    scan_pdf_ext_toks();
+    set_pdf_action_tokens(p, def_ref);
+    return p;
+  }
+  if (scan_keyword("file")) {
+    scan_pdf_ext_toks();
+    set_pdf_action_file(p, def_ref);
+  }
+  if (scan_keyword("page")) {
+    if (pdf_action_type(p) != pdf_action_goto)
+      pdf_error(maketexstring("ext1"), maketexstring("only GoTo action can be used with `page'"));
+    set_pdf_action_type(p, pdf_action_page);
+    scan_int();
+    if (cur_val <= 0)
+      pdf_error(maketexstring("ext1"), maketexstring("page number must be positive"));
+    set_pdf_action_id(p, cur_val);
+    set_pdf_action_named_id(p, 0);
+    scan_pdf_ext_toks();
+    set_pdf_action_tokens(p, def_ref);
+  } else if (scan_keyword("name")) {
+    scan_pdf_ext_toks();
+    set_pdf_action_named_id(p, 1);
+    set_pdf_action_id(p, def_ref);
+  } else if (scan_keyword("num")) {
+    if ((pdf_action_type(p) == pdf_action_goto) &&
+	(pdf_action_file(p) != null))
+      pdf_error(maketexstring("ext1"),
+		maketexstring("`goto' option cannot be used with both `file' and `num'"));
+    scan_int();
+    if (cur_val <= 0)
+      pdf_error(maketexstring("ext1"), maketexstring("num identifier must be positive"));
+    set_pdf_action_named_id(p, 0);
+    set_pdf_action_id(p, cur_val);
+  } else {
+    pdf_error(maketexstring("ext1"), maketexstring("identifier type missing"));
+  }  
+  if (scan_keyword("newwindow")) {
+    set_pdf_action_new_window(p, 1);
+    /* Scan an optional space */
+    get_x_token(); if (cur_cmd!=spacer_cmd) back_input();
+  } else if (scan_keyword("nonewwindow")) {
+    set_pdf_action_new_window(p, 2);
+    /* Scan an optional space */
+    get_x_token(); if (cur_cmd!=spacer_cmd) back_input();
+  } else {
+    set_pdf_action_new_window(p, 0);
+  }
+  if ((pdf_action_new_window(p) > 0) &&
+        (((pdf_action_type(p) != pdf_action_goto) &&
+          (pdf_action_type(p) != pdf_action_page)) ||
+         (pdf_action_file(p) == null)))
+    pdf_error(maketexstring("ext1"),
+	      maketexstring("`newwindow'/`nonewwindow' must be used with `goto' and `file' option"));
+  return p;
+}
+ 
+/* return number of outline entries in the same level with |p| */
+integer outline_list_count( pointer p)
+{ 
+  integer k = 1;
+  while (obj_outline_prev(p) != 0) {
+    incr(k);
+    p = obj_outline_prev(p);
+  }
+  return k;
 }
 
 void scan_pdfoutline(void)

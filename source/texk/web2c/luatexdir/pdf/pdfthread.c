@@ -229,3 +229,27 @@ void out_thread(integer t)
         a = obj_bead_next(a);
     } while (a != b);
 }
+
+
+void scan_thread_id (void)
+{
+  if (scan_keyword("num")) {
+    scan_int();
+    if (cur_val <= 0 )
+      pdf_error(maketexstring("ext1"), 
+		maketexstring("num identifier must be positive"));
+    if (cur_val > max_halfword)
+      pdf_error(maketexstring("ext1"), 
+		maketexstring("number too big"));
+    set_pdf_thread_id(cur_list.tail_field, cur_val);
+    set_pdf_thread_named_id(cur_list.tail_field, 0);
+  } else if (scan_keyword("name")) {
+    scan_pdf_ext_toks();
+    set_pdf_thread_id(cur_list.tail_field, def_ref);
+    set_pdf_thread_named_id(cur_list.tail_field, 1);
+  } else {
+    pdf_error(maketexstring("ext1"), 
+	      maketexstring("identifier type missing"));
+  }
+}
+

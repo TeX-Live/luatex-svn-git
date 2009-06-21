@@ -39,3 +39,22 @@ void do_annot(halfword p, halfword parent_box, scaled x, scaled y)
     pdf_append_list(pdf_annot_objnum(p), pdf_annot_list);
     set_obj_scheduled(pdf_annot_objnum(p));
 }
+
+/* create a new whatsit node for annotation */
+void new_annot_whatsit( small_number w) 
+{
+  new_whatsit(w);
+  scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
+  set_pdf_width(cur_list.tail_field, width(alt_rule));
+  set_pdf_height(cur_list.tail_field, height(alt_rule));
+  set_pdf_depth(cur_list.tail_field, depth(alt_rule));
+  if ((w == pdf_thread_node) || (w == pdf_start_thread_node)) {
+    if (scan_keyword("attr")) {
+      scan_pdf_ext_toks();
+      set_pdf_thread_attr(cur_list.tail_field, def_ref);
+    } else {
+      set_pdf_thread_attr(cur_list.tail_field, null);
+    }
+  }
+}
+

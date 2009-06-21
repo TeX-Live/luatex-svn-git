@@ -21019,94 +21019,6 @@ begin
      get_microinterval := ((s-epochseconds)*65536)  + (((m-microseconds)/100)*65536)/10000;
 end;
 
-
-@ @<Declare procedures needed in |do_ext...@>=
-function scan_action: pointer; {read an action specification}
-var p: integer;
-begin
-    p := new_node(action_node,0);
-    scan_action := p;
-    if scan_keyword('user') then
-        set_pdf_action_type(p, pdf_action_user)
-    else if scan_keyword('goto') then
-        set_pdf_action_type(p, pdf_action_goto)
-    else if scan_keyword('thread') then
-        set_pdf_action_type(p, pdf_action_thread)
-    else
-        pdf_error("ext1", "action type missing");
-    if pdf_action_type(p) = pdf_action_user then begin
-        scan_pdf_ext_toks;
-        set_pdf_action_tokens(p, def_ref);
-        return;
-    end;
-    if scan_keyword('file') then begin
-        scan_pdf_ext_toks;
-        set_pdf_action_file(p, def_ref);
-    end;
-    if scan_keyword('page') then begin
-        if pdf_action_type(p) <> pdf_action_goto then
-            pdf_error("ext1", "only GoTo action can be used with `page'");
-        set_pdf_action_type(p, pdf_action_page);
-        scan_int;
-        if cur_val <= 0 then
-            pdf_error("ext1", "page number must be positive");
-        set_pdf_action_id(p, cur_val);
-        set_pdf_action_named_id(p, 0);
-        scan_pdf_ext_toks;
-        set_pdf_action_tokens(p, def_ref);
-    end
-    else if scan_keyword('name') then begin
-        scan_pdf_ext_toks;
-        set_pdf_action_named_id(p, 1);
-        set_pdf_action_id(p, def_ref);
-    end
-    else if scan_keyword('num') then begin
-        if (pdf_action_type(p) = pdf_action_goto) and
-            (pdf_action_file(p) <> null) then
-            pdf_error("ext1",
-                "`goto' option cannot be used with both `file' and `num'");
-        scan_int;
-        if cur_val <= 0 then
-            pdf_error("ext1", "num identifier must be positive");
-        set_pdf_action_named_id(p, 0);
-        set_pdf_action_id(p, cur_val);
-    end
-    else
-        pdf_error("ext1", "identifier type missing");
-    if scan_keyword('newwindow') then begin
-        set_pdf_action_new_window(p, 1);
-        @<Scan an optional space@>; end
-    else if scan_keyword('nonewwindow') then begin
-        set_pdf_action_new_window(p, 2);
-        @<Scan an optional space@>; end
-    else
-        set_pdf_action_new_window(p, 0);
-    if (pdf_action_new_window(p) > 0) and
-        (((pdf_action_type(p) <> pdf_action_goto) and
-          (pdf_action_type(p) <> pdf_action_page)) or
-         (pdf_action_file(p) = null)) then
-            pdf_error("ext1",
-                "`newwindow'/`nonewwindow' must be used with `goto' and `file' option");
-end;
-
-procedure new_annot_whatsit(w: small_number); {create a new whatsit node for
-annotation}
-begin
-    new_whatsit(w);
-    scan_alt_rule; {scans |<rule spec>| to |alt_rule|}
-    set_pdf_width(tail, width(alt_rule));
-    set_pdf_height(tail, height(alt_rule));
-    set_pdf_depth(tail, depth(alt_rule));
-    if (w = pdf_thread_node) or (w = pdf_start_thread_node) then begin
-        if scan_keyword('attr') then begin
-            scan_pdf_ext_toks;
-            set_pdf_thread_attr(tail, def_ref);
-        end
-        else
-            set_pdf_thread_attr(tail, null);
-    end;
-end;
-
 @ @<Glob...@>=
 @!pdf_last_annot: integer;
 
@@ -21166,56 +21078,17 @@ begin
     new_whatsit(pdf_end_link_node);
 end
 
-@ @<Declare procedures needed in |do_ext...@>=
-function outline_list_count(p: pointer): integer; {return number of outline
-entries in the same level with |p|}
-var k: integer;
-begin
-    k := 1;
-    while obj_outline_prev(p) <> 0 do begin
-        incr(k);
-        p := obj_outline_prev(p);
-    end;
-    outline_list_count := k;
-end;
-
 @ @<Implement \.{\\pdfoutline}@>=
 begin
     check_pdfoutput("\pdfoutline", true);
     scan_pdfoutline;
 end
 
-@ Notice that |scan_keyword| doesn't care if two words have same prefix; so
-we should be careful when scan keywords with same prefix. The main rule: if
-there are two or more keywords with the same prefix, then always test in
-order from the longest one to the shortest one.
-
-@<Implement \.{\\pdfdest}@>=
+@ @<Implement \.{\\pdfdest}@>=
 begin
     check_pdfoutput("\pdfdest", true);
     scan_pdfdest;
 end
-
-@ @<Declare procedures needed in |do_ext...@>=
-procedure scan_thread_id;
-begin
-    if scan_keyword('num') then begin
-        scan_int;
-        if cur_val <= 0 then
-            pdf_error("ext1", "num identifier must be positive");
-        if cur_val > max_halfword then
-            pdf_error("ext1", "number too big");
-        set_pdf_thread_id(tail, cur_val);
-        set_pdf_thread_named_id(tail, 0);
-    end
-    else if scan_keyword('name') then begin
-        scan_pdf_ext_toks;
-        set_pdf_thread_id(tail, def_ref);
-        set_pdf_thread_named_id(tail, 1);
-    end
-    else
-        pdf_error("ext1", "identifier type missing");
-end;
 
 @ @<Implement \.{\\pdfthread}@>=
 begin
