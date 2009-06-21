@@ -64,8 +64,8 @@ with the same identifier already exists and give a warning if needed.
 
 void warn_dest_dup(integer id, small_number byname, char *s1, char *s2)
 {
-    pdf_warning(maketexstring(s1), 
-		maketexstring("destination with the same identifier ("),
+    pdf_warning(maketexstring(s1),
+                maketexstring("destination with the same identifier ("),
                 false, false);
     if (byname > 0) {
         tprint("name");
@@ -228,82 +228,83 @@ void write_out_pdf_mark_destinations(void)
 }
 
 
-void scan_pdfdest (void) 
+void scan_pdfdest(void)
 {
-  halfword q;
-  integer k;
-  str_number i;
-  q = cur_list.tail_field;
-  new_whatsit(pdf_dest_node);
-  if (scan_keyword("num")) {
-    scan_int();
-    if (cur_val <= 0)
-      pdf_error(maketexstring("ext1"), 
-		maketexstring("num identifier must be positive"));
-    if (cur_val > max_halfword)
-      pdf_error(maketexstring("ext1"),
-		maketexstring("number too big"));
-    set_pdf_dest_id(cur_list.tail_field, cur_val);
-    set_pdf_dest_named_id(cur_list.tail_field, 0);
-  } else if (scan_keyword("name")) {
-    scan_pdf_ext_toks();
-    set_pdf_dest_id(cur_list.tail_field, def_ref);
-    set_pdf_dest_named_id(cur_list.tail_field, 1);
-  } else {
-    pdf_error(maketexstring("ext1"), 
-	      maketexstring("identifier type missing"));
-  }
-  if (scan_keyword("xyz")) {
-    set_pdf_dest_type(cur_list.tail_field, pdf_dest_xyz);
-    if (scan_keyword("zoom")) {
-      scan_int();
-      if (cur_val > max_halfword)
-	pdf_error(maketexstring("ext1"), 
-		  maketexstring("number too big"));
-      set_pdf_dest_xyz_zoom(cur_list.tail_field, cur_val);
+    halfword q;
+    integer k;
+    str_number i;
+    q = cur_list.tail_field;
+    new_whatsit(pdf_dest_node);
+    if (scan_keyword("num")) {
+        scan_int();
+        if (cur_val <= 0)
+            pdf_error(maketexstring("ext1"),
+                      maketexstring("num identifier must be positive"));
+        if (cur_val > max_halfword)
+            pdf_error(maketexstring("ext1"), maketexstring("number too big"));
+        set_pdf_dest_id(cur_list.tail_field, cur_val);
+        set_pdf_dest_named_id(cur_list.tail_field, 0);
+    } else if (scan_keyword("name")) {
+        scan_pdf_ext_toks();
+        set_pdf_dest_id(cur_list.tail_field, def_ref);
+        set_pdf_dest_named_id(cur_list.tail_field, 1);
     } else {
-      set_pdf_dest_xyz_zoom(cur_list.tail_field, null);
+        pdf_error(maketexstring("ext1"),
+                  maketexstring("identifier type missing"));
     }
-  } else if (scan_keyword("fitbh")) {
-    set_pdf_dest_type(cur_list.tail_field, pdf_dest_fitbh);
-  } else if (scan_keyword("fitbv")) {
-    set_pdf_dest_type(cur_list.tail_field, pdf_dest_fitbv);
-  } else if (scan_keyword("fitb")) {
-    set_pdf_dest_type(cur_list.tail_field, pdf_dest_fitb);
-  } else if (scan_keyword("fith")) {
-    set_pdf_dest_type(cur_list.tail_field, pdf_dest_fith);
-  } else if (scan_keyword("fitv")) {
-    set_pdf_dest_type(cur_list.tail_field, pdf_dest_fitv);
-  } else if (scan_keyword("fitr")) {
-    set_pdf_dest_type(cur_list.tail_field, pdf_dest_fitr);
-  } else if (scan_keyword("fit")) {
-    set_pdf_dest_type(cur_list.tail_field, pdf_dest_fit);
-  } else {
-    pdf_error(maketexstring("ext1"), 
-	      maketexstring("destination type missing"));
-  }
-  /* Scan an optional space */
-  get_x_token(); if (cur_cmd!=spacer_cmd) back_input();
-  
-  if (pdf_dest_type(cur_list.tail_field) == pdf_dest_fitr) {
-    scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
-    set_pdf_width(cur_list.tail_field, width(alt_rule));
-    set_pdf_height(cur_list.tail_field, height(alt_rule));
-    set_pdf_depth(cur_list.tail_field, depth(alt_rule));
-  }
-  if (pdf_dest_named_id(cur_list.tail_field) != 0) {
-    i = tokens_to_string(pdf_dest_id(cur_list.tail_field));
-    k = find_obj(obj_type_dest, i, true);
-    flush_str(i);
-  } else {
-    k = find_obj(obj_type_dest, pdf_dest_id(cur_list.tail_field), false);
-  }
-  if ((k != 0) && (obj_dest_ptr(k) != null)) {
-    warn_dest_dup(pdf_dest_id(cur_list.tail_field),
-		  pdf_dest_named_id(cur_list.tail_field),
-		  "ext4", "has been already used, duplicate ignored");
-    flush_node_list(cur_list.tail_field);
-    cur_list.tail_field = q;
-    vlink(q) = null;
-  }
+    if (scan_keyword("xyz")) {
+        set_pdf_dest_type(cur_list.tail_field, pdf_dest_xyz);
+        if (scan_keyword("zoom")) {
+            scan_int();
+            if (cur_val > max_halfword)
+                pdf_error(maketexstring("ext1"),
+                          maketexstring("number too big"));
+            set_pdf_dest_xyz_zoom(cur_list.tail_field, cur_val);
+        } else {
+            set_pdf_dest_xyz_zoom(cur_list.tail_field, null);
+        }
+    } else if (scan_keyword("fitbh")) {
+        set_pdf_dest_type(cur_list.tail_field, pdf_dest_fitbh);
+    } else if (scan_keyword("fitbv")) {
+        set_pdf_dest_type(cur_list.tail_field, pdf_dest_fitbv);
+    } else if (scan_keyword("fitb")) {
+        set_pdf_dest_type(cur_list.tail_field, pdf_dest_fitb);
+    } else if (scan_keyword("fith")) {
+        set_pdf_dest_type(cur_list.tail_field, pdf_dest_fith);
+    } else if (scan_keyword("fitv")) {
+        set_pdf_dest_type(cur_list.tail_field, pdf_dest_fitv);
+    } else if (scan_keyword("fitr")) {
+        set_pdf_dest_type(cur_list.tail_field, pdf_dest_fitr);
+    } else if (scan_keyword("fit")) {
+        set_pdf_dest_type(cur_list.tail_field, pdf_dest_fit);
+    } else {
+        pdf_error(maketexstring("ext1"),
+                  maketexstring("destination type missing"));
+    }
+    /* Scan an optional space */
+    get_x_token();
+    if (cur_cmd != spacer_cmd)
+        back_input();
+
+    if (pdf_dest_type(cur_list.tail_field) == pdf_dest_fitr) {
+        scan_alt_rule();        /* scans |<rule spec>| to |alt_rule| */
+        set_pdf_width(cur_list.tail_field, width(alt_rule));
+        set_pdf_height(cur_list.tail_field, height(alt_rule));
+        set_pdf_depth(cur_list.tail_field, depth(alt_rule));
+    }
+    if (pdf_dest_named_id(cur_list.tail_field) != 0) {
+        i = tokens_to_string(pdf_dest_id(cur_list.tail_field));
+        k = find_obj(obj_type_dest, i, true);
+        flush_str(i);
+    } else {
+        k = find_obj(obj_type_dest, pdf_dest_id(cur_list.tail_field), false);
+    }
+    if ((k != 0) && (obj_dest_ptr(k) != null)) {
+        warn_dest_dup(pdf_dest_id(cur_list.tail_field),
+                      pdf_dest_named_id(cur_list.tail_field),
+                      "ext4", "has been already used, duplicate ignored");
+        flush_node_list(cur_list.tail_field);
+        cur_list.tail_field = q;
+        vlink(q) = null;
+    }
 }

@@ -19,7 +19,7 @@
 
 #include "ptexlib.h"
 
-#include "luatex-api.h" /* for tokenlist_to_cstring */
+#include "luatex-api.h"         /* for tokenlist_to_cstring */
 
 static const char __svn_version[] =
     "$Id$"
@@ -59,11 +59,12 @@ void write_action(halfword p)
             pdf_printf("/S /GoToR /D [");
             pdf_print_int(pdf_action_id(p) - 1);
         }
-	{
-	  char *tokstr = tokenlist_to_cstring(pdf_action_tokens(p), true, NULL);
-	  pdf_printf(" %s]", tokstr);
-	  xfree(tokstr);
-	}
+        {
+            char *tokstr =
+                tokenlist_to_cstring(pdf_action_tokens(p), true, NULL);
+            pdf_printf(" %s]", tokstr);
+            xfree(tokstr);
+        }
         break;
     case pdf_action_goto:
         if (pdf_action_file(p) == null) {
@@ -74,7 +75,7 @@ void write_action(halfword p)
             pdf_printf("/S /GoToR ");
         }
         if (pdf_action_named_id(p) > 0) {
-	    char *tokstr = tokenlist_to_cstring(pdf_action_id(p), true, NULL);
+            char *tokstr = tokenlist_to_cstring(pdf_action_id(p), true, NULL);
             pdf_str_entry("D", tokstr);
             xfree(tokstr);
         } else if (pdf_action_file(p) == null) {
@@ -91,7 +92,8 @@ void write_action(halfword p)
             d = get_obj(obj_type_thread, pdf_action_id(p),
                         pdf_action_named_id(p));
             if (pdf_action_named_id(p) > 0) {
-	        char *tokstr = tokenlist_to_cstring(pdf_action_id(p), true, NULL);
+                char *tokstr =
+                    tokenlist_to_cstring(pdf_action_id(p), true, NULL);
                 pdf_str_entry("D", tokstr);
                 xfree(tokstr);
             } else if (pdf_action_file(p) == null) {

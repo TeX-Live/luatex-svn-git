@@ -180,7 +180,7 @@ extern integer pdf_draftmode_value;
 
 extern void pdf_print_fw_int(longinteger n, integer w);
 extern void pdf_out_bytes(longinteger n, integer w);
-extern void pdf_int_entry(char  *s, integer v);
+extern void pdf_int_entry(char *s, integer v);
 extern void pdf_int_entry_ln(char *s, integer v);
 extern void pdf_indirect(char *s, integer o);
 extern void pdf_indirect_ln(char *s, integer o);

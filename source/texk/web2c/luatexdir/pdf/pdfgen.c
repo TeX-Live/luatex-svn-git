@@ -22,7 +22,7 @@
 #include "commands.h"
 #include "md5.h"
 
-#include "luatex-api.h" /* for tokenlist_to_cstring */
+#include "luatex-api.h"         /* for tokenlist_to_cstring */
 
 static const char __svn_version[] =
     "$Id$"
@@ -127,8 +127,8 @@ void initialize_pdf_output(void)
         divide_scaled(72, fixed_pk_resolution, 5 + fixed_decimal_digits);
     if (!callback_defined(read_pk_file_callback)) {
         if (pdf_pk_mode != null) {
-	    char *s = tokenlist_to_cstring(pdf_pk_mode, true, NULL);
-            kpseinitprog("PDFTEX", fixed_pk_resolution,s , nil);
+            char *s = tokenlist_to_cstring(pdf_pk_mode, true, NULL);
+            kpseinitprog("PDFTEX", fixed_pk_resolution, s, nil);
             xfree(s);
         } else {
             kpseinitprog("PDFTEX", fixed_pk_resolution, nil, nil);
@@ -439,28 +439,28 @@ void pdf_print_real(integer m, integer d)
 void pdf_print_str(char *s)
 {
     char *orig = s;
-    int l = strlen(s)-1; /* last string index */
-    if (l<0) {
+    int l = strlen(s) - 1;      /* last string index */
+    if (l < 0) {
         pdf_printf("()");
         return;
     }
     /* the next is not really safe, the string could be "(a)xx(b)" */
     if ((s[0] == '(') && (s[l] == ')')) {
-        pdf_printf("%s",s);
+        pdf_printf("%s", s);
         return;
     }
-    if ((s[0] != '<') || (s[l] != '>') || odd((l+1))) {
+    if ((s[0] != '<') || (s[l] != '>') || odd((l + 1))) {
         pdf_printf("(%s)", s);
         return;
     }
     s++;
     while (is_hex_char(*s))
-      s++;
-    if (s!=orig+l) {
+        s++;
+    if (s != orig + l) {
         pdf_printf("(%s)", orig);
         return;
     }
-    pdf_printf("%s", orig);               /* it was a hex string after all  */
+    pdf_printf("%s", orig);     /* it was a hex string after all  */
 }
 
 
@@ -782,7 +782,7 @@ void pdf_str_entry_ln(char *s, char *v)
 void pdf_print_toks(halfword p)
 {
     integer len = 0;
-    char *s = tokenlist_to_cstring(p,true,&len);
+    char *s = tokenlist_to_cstring(p, true, &len);
     if (len > 0)
         pdf_printf("%s", s);
     xfree(s);

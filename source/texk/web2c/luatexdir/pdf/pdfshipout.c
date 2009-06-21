@@ -20,7 +20,7 @@
 #include "ptexlib.h"
 
 #include "commands.h"
-#include "luatex-api.h" /* for tokenlist_to_cstring */
+#include "luatex-api.h"         /* for tokenlist_to_cstring */
 #include "tokens.h"             /* for link and info */
 
 #define count(A) zeqtb[count_base+(A)].cint
@@ -783,7 +783,7 @@ defined which value is choosen by an application.  Therefore the keys
 
 boolean substr_of_str(char *s, char *t)
 {
-    if (strstr(t,s)==NULL)
+    if (strstr(t, s) == NULL)
         return false;
     return true;
 }
@@ -801,7 +801,7 @@ void pdf_print_info(integer luatex_version, str_number luatex_revision)
     moddate_given = false;
     trapped_given = false;
     if (pdf_info_toks != 0) {
-      s = tokenlist_to_cstring(pdf_info_toks, true, &len);
+        s = tokenlist_to_cstring(pdf_info_toks, true, &len);
         creator_given = substr_of_str("/Creator", s);
         producer_given = substr_of_str("/Producer", s);
         creationdate_given = substr_of_str("/CreationDate", s);
@@ -821,7 +821,7 @@ void pdf_print_info(integer luatex_version, str_number luatex_revision)
     }
     if (pdf_info_toks != null) {
         if (len > 0) {
-   	    pdf_printf("%s\n", s);
+            pdf_printf("%s\n", s);
             xfree(s);
         }
         delete_token_ref(pdf_info_toks);
@@ -978,25 +978,20 @@ void finish_pdf_file(integer luatex_version, str_number luatex_revision)
                             pdf_last_outline = k;
                     }
                     pdf_begin_dict(k, 1);
-                    pdf_indirect_ln("Title",obj_outline_title(k));
+                    pdf_indirect_ln("Title", obj_outline_title(k));
                     pdf_indirect_ln("A", obj_outline_action_objnum(k));
                     if (obj_outline_parent(k) != 0)
                         pdf_indirect_ln("Parent", obj_outline_parent(k));
                     if (obj_outline_prev(k) != 0)
-                        pdf_indirect_ln("Prev",
-                                        obj_outline_prev(k));
+                        pdf_indirect_ln("Prev", obj_outline_prev(k));
                     if (obj_outline_next(k) != 0)
-                        pdf_indirect_ln("Next",
-                                        obj_outline_next(k));
+                        pdf_indirect_ln("Next", obj_outline_next(k));
                     if (obj_outline_first(k) != 0)
-                        pdf_indirect_ln("First",
-                                        obj_outline_first(k));
+                        pdf_indirect_ln("First", obj_outline_first(k));
                     if (obj_outline_last(k) != 0)
-                        pdf_indirect_ln("Last",
-                                        obj_outline_last(k));
+                        pdf_indirect_ln("Last", obj_outline_last(k));
                     if (obj_outline_count(k) != 0)
-                        pdf_int_entry_ln("Count",
-                                         obj_outline_count(k));
+                        pdf_int_entry_ln("Count", obj_outline_count(k));
                     if (obj_outline_attr(k) != 0) {
                         pdf_print_toks_ln(obj_outline_attr(k));
                         delete_token_ref(obj_outline_attr(k));
@@ -1051,15 +1046,14 @@ void finish_pdf_file(integer luatex_version, str_number luatex_revision)
                         set_obj_info(l, dest_names[k].objname);
                         pdf_printf("/Names [");
                         do {
-      			    pdf_print_str(makecstring(dest_names[k].objname)) ;
+                            pdf_print_str(makecstring(dest_names[k].objname));
                             pdf_out(' ');
                             pdf_print_int(dest_names[k].objnum);
                             pdf_printf(" 0 R ");
                             incr(j);
                             incr(k);
-                        } while (!
-                                 ((j == name_tree_kids_max)
-                                  || (k == pdf_dest_names_ptr)));
+                        } while (!((j == name_tree_kids_max)
+                                   || (k == pdf_dest_names_ptr)));
                         pdf_remove_last_space();
                         pdf_printf("]\n");
                         set_obj_aux(l, dest_names[k - 1].objname);
@@ -1077,9 +1071,8 @@ void finish_pdf_file(integer luatex_version, str_number luatex_revision)
                             incr(j);
                             set_obj_aux(l, obj_aux(k));
                             k = obj_link(k);
-                        } while (!
-                                 ((j == name_tree_kids_max) || (k == b)
-                                  || (obj_link(k) == 0)));
+                        } while (!((j == name_tree_kids_max) || (k == b)
+                                   || (obj_link(k) == 0)));
                         pdf_remove_last_space();
                         pdf_printf("]\n");
                         if (k == b)
@@ -1154,8 +1147,7 @@ void finish_pdf_file(integer luatex_version, str_number luatex_revision)
                 pdf_catalog_toks = null;
             }
             if (pdf_catalog_openaction != 0)
-                pdf_indirect_ln("OpenAction",
-                                pdf_catalog_openaction);
+                pdf_indirect_ln("OpenAction", pdf_catalog_openaction);
             pdf_end_dict();
 
             pdf_print_info(luatex_version, luatex_revision);    /* last candidate for object stream */
