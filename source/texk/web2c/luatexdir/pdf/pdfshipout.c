@@ -20,6 +20,7 @@
 #include "ptexlib.h"
 
 #include "commands.h"
+#include "luatex-api.h" /* for tokenlist_to_cstring */
 #include "tokens.h"             /* for link and info */
 
 #define count(A) zeqtb[count_base+(A)].cint
@@ -343,7 +344,7 @@ void pdf_ship_out(halfword p, boolean shipping_page)
         pdf_printf("]\n");
         pdf_printf("/FormType 1\n");
         pdf_printf("/Matrix [1 0 0 1 0 0]\n");
-        pdf_indirect_ln(maketexstring("Resources"), pdf_last_resources);
+        pdf_indirect_ln("Resources", pdf_last_resources);
 
     } else {
         pdf_last_page = get_obj(obj_type_page, total_pages + 1, 0);
@@ -394,8 +395,8 @@ void pdf_ship_out(halfword p, boolean shipping_page)
         pdf_begin_dict(pdf_last_page, 1);
         pdf_last_pages = pdf_do_page_divert(pdf_last_page, page_divert_val);
         pdf_printf("/Type /Page\n");
-        pdf_indirect_ln(maketexstring("Contents"), pdf_last_stream);
-        pdf_indirect_ln(maketexstring("Resources"), pdf_last_resources);
+        pdf_indirect_ln("Contents", pdf_last_stream);
+        pdf_indirect_ln("Resources", pdf_last_resources);
         pdf_printf("/MediaBox [0 0 ");
         pdf_print_mag_bp(cur_page_size.h);
         pdf_out(' ');
@@ -403,7 +404,7 @@ void pdf_ship_out(halfword p, boolean shipping_page)
         pdf_printf("]\n");
         if (pdf_page_attr != null)
             pdf_print_toks_ln(pdf_page_attr);
-        pdf_indirect_ln(maketexstring("Parent"), pdf_last_pages);
+        pdf_indirect_ln("Parent", pdf_last_pages);
         if (pdf_page_group_val > 0) {
             pdf_printf("/Group %d 0 R\n", (int) pdf_page_group_val);
             pdf_page_group_val = -1;
@@ -780,33 +781,19 @@ defined which value is choosen by an application.  Therefore the keys
 |pdf_info_toks| converted to a string does not contain these key strings.
 */
 
-boolean substr_of_str(str_number s, str_number t)
+boolean substr_of_str(char *s, char *t)
 {
-    pool_pointer j, k, kk;      /* running indices */
-    k = str_start_macro(t);
-    while (k < str_start_macro(t + 1) - str_length(s)) {
-        j = str_start_macro(s);
-        kk = k;
-        while (j < str_start_macro(s + 1)) {
-            if (str_pool[j] != str_pool[kk])
-                goto CONTINUE;
-            incr(j);
-            incr(kk);
-        }
-        return true;
-      CONTINUE:
-        incr(k);
-    }
-    return false;
+    if (strstr(t,s)==NULL)
+        return false;
+    return true;
 }
-
 
 void pdf_print_info(integer luatex_version, str_number luatex_revision)
 {                               /* print info object */
-    str_number s;
     boolean creator_given, producer_given, creationdate_given, moddate_given,
         trapped_given;
-    s = get_nullstr();
+    char *s = NULL;
+    integer len = 0;
     pdf_new_dict(obj_type_others, 0, 3);        /* keep Info readable unless explicitely forced */
     creator_given = false;
     producer_given = false;
@@ -814,12 +801,12 @@ void pdf_print_info(integer luatex_version, str_number luatex_revision)
     moddate_given = false;
     trapped_given = false;
     if (pdf_info_toks != 0) {
-        s = tokens_to_string(pdf_info_toks);
-        creator_given = substr_of_str(maketexstring("/Creator"), s);
-        producer_given = substr_of_str(maketexstring("/Producer"), s);
-        creationdate_given = substr_of_str(maketexstring("/CreationDate"), s);
-        moddate_given = substr_of_str(maketexstring("/ModDate"), s);
-        trapped_given = substr_of_str(maketexstring("/Trapped"), s);
+      s = tokenlist_to_cstring(pdf_info_toks, true, &len);
+        creator_given = substr_of_str("/Creator", s);
+        producer_given = substr_of_str("/Producer", s);
+        creationdate_given = substr_of_str("/CreationDate", s);
+        moddate_given = substr_of_str("/ModDate", s);
+        trapped_given = substr_of_str("/Trapped", s);
     }
     if (!producer_given) {
         /* Print the Producer key */
@@ -833,15 +820,15 @@ void pdf_print_info(integer luatex_version, str_number luatex_revision)
 
     }
     if (pdf_info_toks != null) {
-        if (str_length(s) > 0) {
-            pdf_print_ln(s);
+        if (len > 0) {
+   	    pdf_printf("%s\n", s);
+            xfree(s);
         }
-        flush_str(s);
         delete_token_ref(pdf_info_toks);
         pdf_info_toks = null;
     }
     if (!creator_given)
-        pdf_str_entry_ln(maketexstring("Creator"), maketexstring("TeX"));
+        pdf_str_entry_ln("Creator", "TeX");
     if (!creationdate_given) {
         print_creation_date();
     }
@@ -851,7 +838,7 @@ void pdf_print_info(integer luatex_version, str_number luatex_revision)
     if (!trapped_given) {
         pdf_printf("/Trapped /False\n");
     }
-    pdf_str_entry_ln(maketexstring("PTEX.Fullbanner"), pdftex_banner);
+    pdf_str_entry_ln("PTEX.Fullbanner", makecstring(pdftex_banner));
     pdf_end_dict();
 }
 
@@ -976,9 +963,9 @@ void finish_pdf_file(integer luatex_version, str_number luatex_revision)
                     l = obj_outline_next(l);
                 } while (l != 0);
                 pdf_printf("/Type /Outlines\n");
-                pdf_indirect_ln(maketexstring("First"), pdf_first_outline);
-                pdf_indirect_ln(maketexstring("Last"), pdf_last_outline);
-                pdf_int_entry_ln(maketexstring("Count"), k);
+                pdf_indirect_ln("First", pdf_first_outline);
+                pdf_indirect_ln("Last", pdf_last_outline);
+                pdf_int_entry_ln("Count", k);
                 pdf_end_dict();
                 /* Output PDF outline entries */
 
@@ -991,27 +978,24 @@ void finish_pdf_file(integer luatex_version, str_number luatex_revision)
                             pdf_last_outline = k;
                     }
                     pdf_begin_dict(k, 1);
-                    pdf_indirect_ln(maketexstring("Title"),
-                                    obj_outline_title(k));
-                    pdf_indirect_ln(maketexstring("A"),
-                                    obj_outline_action_objnum(k));
+                    pdf_indirect_ln("Title",obj_outline_title(k));
+                    pdf_indirect_ln("A", obj_outline_action_objnum(k));
                     if (obj_outline_parent(k) != 0)
-                        pdf_indirect_ln(maketexstring("Parent"),
-                                        obj_outline_parent(k));
+                        pdf_indirect_ln("Parent", obj_outline_parent(k));
                     if (obj_outline_prev(k) != 0)
-                        pdf_indirect_ln(maketexstring("Prev"),
+                        pdf_indirect_ln("Prev",
                                         obj_outline_prev(k));
                     if (obj_outline_next(k) != 0)
-                        pdf_indirect_ln(maketexstring("Next"),
+                        pdf_indirect_ln("Next",
                                         obj_outline_next(k));
                     if (obj_outline_first(k) != 0)
-                        pdf_indirect_ln(maketexstring("First"),
+                        pdf_indirect_ln("First",
                                         obj_outline_first(k));
                     if (obj_outline_last(k) != 0)
-                        pdf_indirect_ln(maketexstring("Last"),
+                        pdf_indirect_ln("Last",
                                         obj_outline_last(k));
                     if (obj_outline_count(k) != 0)
-                        pdf_int_entry_ln(maketexstring("Count"),
+                        pdf_int_entry_ln("Count",
                                          obj_outline_count(k));
                     if (obj_outline_attr(k) != 0) {
                         pdf_print_toks_ln(obj_outline_attr(k));
@@ -1067,7 +1051,7 @@ void finish_pdf_file(integer luatex_version, str_number luatex_revision)
                         set_obj_info(l, dest_names[k].objname);
                         pdf_printf("/Names [");
                         do {
-                            pdf_print_str(dest_names[k].objname);
+      			    pdf_print_str(makecstring(dest_names[k].objname)) ;
                             pdf_out(' ');
                             pdf_print_int(dest_names[k].objnum);
                             pdf_printf(" 0 R ");
@@ -1102,9 +1086,9 @@ void finish_pdf_file(integer luatex_version, str_number luatex_revision)
                             b = 0;
                     }
                     pdf_printf("/Limits [");
-                    pdf_print_str(obj_info(l));
+                    pdf_print_str(makecstring(obj_info(l)));
                     pdf_out(' ');
-                    pdf_print_str(obj_aux(l));
+                    pdf_print_str(makecstring(obj_aux(l)));
                     pdf_printf("]\n");
                     pdf_end_dict();
 
@@ -1118,7 +1102,7 @@ void finish_pdf_file(integer luatex_version, str_number luatex_revision)
             if ((dests != 0) || (pdf_names_toks != null)) {
                 pdf_new_dict(obj_type_others, 0, 1);
                 if (dests != 0)
-                    pdf_indirect_ln(maketexstring("Dests"), dests);
+                    pdf_indirect_ln("Dests", dests);
                 if (pdf_names_toks != null) {
                     pdf_print_toks_ln(pdf_names_toks);
                     delete_token_ref(pdf_names_toks);
@@ -1157,20 +1141,20 @@ void finish_pdf_file(integer luatex_version, str_number luatex_revision)
             pdf_new_dict(obj_type_others, 0, 1);
             root = obj_ptr;
             pdf_printf("/Type /Catalog\n");
-            pdf_indirect_ln(maketexstring("Pages"), pdf_last_pages);
+            pdf_indirect_ln("Pages", pdf_last_pages);
             if (threads != 0)
-                pdf_indirect_ln(maketexstring("Threads"), threads);
+                pdf_indirect_ln("Threads", threads);
             if (outlines != 0)
-                pdf_indirect_ln(maketexstring("Outlines"), outlines);
+                pdf_indirect_ln("Outlines", outlines);
             if (names_tree != 0)
-                pdf_indirect_ln(maketexstring("Names"), names_tree);
+                pdf_indirect_ln("Names", names_tree);
             if (pdf_catalog_toks != null) {
                 pdf_print_toks_ln(pdf_catalog_toks);
                 delete_token_ref(pdf_catalog_toks);
                 pdf_catalog_toks = null;
             }
             if (pdf_catalog_openaction != 0)
-                pdf_indirect_ln(maketexstring("OpenAction"),
+                pdf_indirect_ln("OpenAction",
                                 pdf_catalog_openaction);
             pdf_end_dict();
 
@@ -1197,12 +1181,12 @@ void finish_pdf_file(integer luatex_version, str_number luatex_revision)
                 pdf_printf("/Index [0 ");
                 pdf_print_int(obj_ptr);
                 pdf_printf("]\n");
-                pdf_int_entry_ln(maketexstring("Size"), obj_ptr);
+                pdf_int_entry_ln("Size", obj_ptr);
                 pdf_printf("/W [1 ");
                 pdf_print_int(xref_offset_width);
                 pdf_printf(" 1]\n");
-                pdf_indirect_ln(maketexstring("Root"), root);
-                pdf_indirect_ln(maketexstring("Info"), obj_ptr - 1);
+                pdf_indirect_ln("Root", root);
+                pdf_indirect_ln("Info", obj_ptr - 1);
                 if (pdf_trailer_toks != null) {
                     pdf_print_toks_ln(pdf_trailer_toks);
                     delete_token_ref(pdf_trailer_toks);
@@ -1256,9 +1240,9 @@ void finish_pdf_file(integer luatex_version, str_number luatex_revision)
             if (!pdf_os_enable) {
                 pdf_printf("trailer\n");
                 pdf_printf("<< ");
-                pdf_int_entry_ln(maketexstring("Size"), sys_obj_ptr + 1);
-                pdf_indirect_ln(maketexstring("Root"), root);
-                pdf_indirect_ln(maketexstring("Info"), sys_obj_ptr);
+                pdf_int_entry_ln("Size", sys_obj_ptr + 1);
+                pdf_indirect_ln("Root", root);
+                pdf_indirect_ln("Info", sys_obj_ptr);
                 if (pdf_trailer_toks != null) {
                     pdf_print_toks_ln(pdf_trailer_toks);
                     delete_token_ref(pdf_trailer_toks);

@@ -138,7 +138,7 @@ extern void pdf_print_char(internal_font_number f, integer cc);
 extern void pdf_print(str_number s);
 extern void pdf_print_int(longinteger n);
 extern void pdf_print_real(integer m, integer d);
-extern void pdf_print_str(str_number s);
+extern void pdf_print_str(char *s);
 
 extern void pdf_begin_stream(void);
 extern void pdf_end_stream(void);
@@ -180,13 +180,13 @@ extern integer pdf_draftmode_value;
 
 extern void pdf_print_fw_int(longinteger n, integer w);
 extern void pdf_out_bytes(longinteger n, integer w);
-extern void pdf_int_entry(str_number s, integer v);
-extern void pdf_int_entry_ln(str_number s, integer v);
-extern void pdf_indirect(str_number s, integer o);
-extern void pdf_indirect_ln(str_number s, integer o);
-extern void pdf_print_str_ln(str_number s);
-extern void pdf_str_entry(str_number s, str_number v);
-extern void pdf_str_entry_ln(str_number s, str_number v);
+extern void pdf_int_entry(char  *s, integer v);
+extern void pdf_int_entry_ln(char *s, integer v);
+extern void pdf_indirect(char *s, integer o);
+extern void pdf_indirect_ln(char *s, integer o);
+extern void pdf_print_str_ln(char *s);
+extern void pdf_str_entry(char *s, char *v);
+extern void pdf_str_entry_ln(char *s, char *v);
 
 extern void pdf_print_toks(halfword p);
 extern void pdf_print_toks_ln(halfword p);

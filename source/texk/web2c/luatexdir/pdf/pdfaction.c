@@ -19,6 +19,8 @@
 
 #include "ptexlib.h"
 
+#include "luatex-api.h" /* for tokenlist_to_cstring */
+
 static const char __svn_version[] =
     "$Id$"
     "$URL$";
@@ -26,7 +28,7 @@ static const char __svn_version[] =
 /* write an action specification */
 void write_action(halfword p)
 {
-    str_number s;
+    char *s;
     integer d = 0;
     if (pdf_action_type(p) == pdf_action_user) {
         pdf_print_toks_ln(pdf_action_tokens(p));
@@ -35,14 +37,9 @@ void write_action(halfword p)
     pdf_printf("<< ");
     if (pdf_action_file(p) != null) {
         pdf_printf("/F ");
-        s = tokens_to_string(pdf_action_file(p));
-        if ((str_pool[str_start_macro(s)] == 40) &&
-            (str_pool[str_start_macro(s) + str_length(s) - 1] == 41)) {
-            pdf_print(s);
-        } else {
-            pdf_print_str(s);
-        }
-        flush_str(s);
+        s = tokenlist_to_cstring(pdf_action_file(p), true, NULL);
+        pdf_print_str(s);
+        xfree(s);
         pdf_printf(" ");
         if (pdf_action_new_window(p) > 0) {
             pdf_printf("/NewWindow ");
@@ -62,10 +59,11 @@ void write_action(halfword p)
             pdf_printf("/S /GoToR /D [");
             pdf_print_int(pdf_action_id(p) - 1);
         }
-        pdf_out(' ');
-        pdf_print(tokens_to_string(pdf_action_tokens(p)));
-        flush_str(last_tokens_string);
-        pdf_out(']');
+	{
+	  char *tokstr = tokenlist_to_cstring(pdf_action_tokens(p), true, NULL);
+	  pdf_printf(" %s]", tokstr);
+	  xfree(tokstr);
+	}
         break;
     case pdf_action_goto:
         if (pdf_action_file(p) == null) {
@@ -76,10 +74,11 @@ void write_action(halfword p)
             pdf_printf("/S /GoToR ");
         }
         if (pdf_action_named_id(p) > 0) {
-            pdf_str_entry('D', tokens_to_string(pdf_action_id(p)));
-            flush_str(last_tokens_string);
+	    char *tokstr = tokenlist_to_cstring(pdf_action_id(p), true, NULL);
+            pdf_str_entry("D", tokstr);
+            xfree(tokstr);
         } else if (pdf_action_file(p) == null) {
-            pdf_indirect('D', d);
+            pdf_indirect("D", d);
         } else {
             pdf_error(maketexstring("ext4"),
                       maketexstring
@@ -92,12 +91,13 @@ void write_action(halfword p)
             d = get_obj(obj_type_thread, pdf_action_id(p),
                         pdf_action_named_id(p));
             if (pdf_action_named_id(p) > 0) {
-                pdf_str_entry('D', tokens_to_string(pdf_action_id(p)));
-                flush_str(last_tokens_string);
+	        char *tokstr = tokenlist_to_cstring(pdf_action_id(p), true, NULL);
+                pdf_str_entry("D", tokstr);
+                xfree(tokstr);
             } else if (pdf_action_file(p) == null) {
-                pdf_indirect('D', d);
+                pdf_indirect("D", d);
             } else {
-                pdf_int_entry('D', pdf_action_id(p));
+                pdf_int_entry("D", pdf_action_id(p));
             }
         }
         break;

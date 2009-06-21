@@ -22,6 +22,8 @@
 #include "commands.h"
 #include "md5.h"
 
+#include "luatex-api.h" /* for tokenlist_to_cstring */
+
 static const char __svn_version[] =
     "$Id$"
     "$URL$";
@@ -125,9 +127,9 @@ void initialize_pdf_output(void)
         divide_scaled(72, fixed_pk_resolution, 5 + fixed_decimal_digits);
     if (!callback_defined(read_pk_file_callback)) {
         if (pdf_pk_mode != null) {
-            kpseinitprog("PDFTEX", fixed_pk_resolution,
-                         makecstring(tokens_to_string(pdf_pk_mode)), nil);
-            flush_string();
+	    char *s = tokenlist_to_cstring(pdf_pk_mode, true, NULL);
+            kpseinitprog("PDFTEX", fixed_pk_resolution,s , nil);
+            xfree(s);
         } else {
             kpseinitprog("PDFTEX", fixed_pk_resolution, nil, nil);
         }
@@ -434,39 +436,31 @@ void pdf_print_real(integer m, integer d)
 
 /* print out |s| as string in PDF output */
 
-void pdf_print_str(str_number s)
+void pdf_print_str(char *s)
 {
-    pool_pointer i, j;
-    i = str_start_macro(s);
-    j = str_start_macro(s + 1) - 1;
-    if (i > j) {
-        pdf_room(2);
-        pdf_quick_out('(');
-        pdf_quick_out(')');
+    char *orig = s;
+    int l = strlen(s)-1; /* last string index */
+    if (l<0) {
+        pdf_printf("()");
         return;
     }
     /* the next is not really safe, the string could be "(a)xx(b)" */
-    if ((str_pool[i] == '(') && (str_pool[j] == ')')) {
-        pdf_print(s);
+    if ((s[0] == '(') && (s[l] == ')')) {
+        pdf_printf("%s",s);
         return;
     }
-    if ((str_pool[i] != '<') || (str_pool[j] != '>') || odd(str_length(s))) {
-        pdf_out('(');
-        pdf_print(s);
-        pdf_out(')');
+    if ((s[0] != '<') || (s[l] != '>') || odd((l+1))) {
+        pdf_printf("(%s)", s);
         return;
     }
-    i++;
-    j--;
-    while (i < j) {
-        if (!is_hex_char(str_pool[i++])) {
-            pdf_out('(');
-            pdf_print(s);
-            pdf_out(')');
-            return;
-        }
+    s++;
+    while (is_hex_char(*s))
+      s++;
+    if (s!=orig+l) {
+        pdf_printf("(%s)", orig);
+        return;
     }
-    pdf_print(s);               /* it was a hex string after all  */
+    pdf_printf("%s", orig);               /* it was a hex string after all  */
 }
 
 
@@ -735,30 +729,25 @@ void pdf_out_bytes(longinteger n, integer w)
 
 /* print out an entry in dictionary with integer value to PDF buffer */
 
-void pdf_int_entry(str_number s, integer v)
+void pdf_int_entry(char *s, integer v)
 {
-    pdf_out('/');
-    pdf_print(s);
-    pdf_out(' ');
+    pdf_printf("/%s ", s);
     pdf_print_int(v);
 }
 
-void pdf_int_entry_ln(str_number s, integer v)
+void pdf_int_entry_ln(char *s, integer v)
 {
     pdf_int_entry(s, v);
     pdf_print_nl();
 }
 
-
 /* print out an indirect entry in dictionary */
-void pdf_indirect(str_number s, integer o)
+void pdf_indirect(char *s, integer o)
 {
-    pdf_out('/');
-    pdf_print(s);
-    pdf_printf(" %d 0 R", (int) o);
+    pdf_printf("/%s %d 0 R", s, (int) o);
 }
 
-void pdf_indirect_ln(str_number s, integer o)
+void pdf_indirect_ln(char *s, integer o)
 {
     pdf_indirect(s, o);
     pdf_print_nl();
@@ -766,7 +755,7 @@ void pdf_indirect_ln(str_number s, integer o)
 
 /* print out |s| as string in PDF output */
 
-void pdf_print_str_ln(str_number s)
+void pdf_print_str_ln(char *s)
 {
     pdf_print_str(s);
     pdf_print_nl();
@@ -774,17 +763,15 @@ void pdf_print_str_ln(str_number s)
 
 /* print out an entry in dictionary with string value to PDF buffer */
 
-void pdf_str_entry(str_number s, str_number v)
+void pdf_str_entry(char *s, char *v)
 {
     if (v == 0)
         return;
-    pdf_out('/');
-    pdf_print(s);
-    pdf_out(' ');
+    pdf_printf("/%s ", s);
     pdf_print_str(v);
 }
 
-void pdf_str_entry_ln(str_number s, str_number v)
+void pdf_str_entry_ln(char *s, char *v)
 {
     if (v == 0)
         return;
@@ -794,19 +781,21 @@ void pdf_str_entry_ln(str_number s, str_number v)
 
 void pdf_print_toks(halfword p)
 {
-    str_number s = tokens_to_string(p);
-    if (str_length(s) > 0)
-        pdf_print(s);
-    flush_str(s);
+    integer len = 0;
+    char *s = tokenlist_to_cstring(p,true,&len);
+    if (len > 0)
+        pdf_printf("%s", s);
+    xfree(s);
 }
 
 
 void pdf_print_toks_ln(halfword p)
 {
-    str_number s = tokens_to_string(p);
-    if (str_length(s) > 0)
-        pdf_print_ln(s);
-    flush_str(s);
+    integer len = 0;
+    char *s = tokenlist_to_cstring(p, true, &len);
+    if (len > 0)
+        pdf_printf("%s\n", s);
+    xfree(s);
 }
 
 /* prints a rect spec */

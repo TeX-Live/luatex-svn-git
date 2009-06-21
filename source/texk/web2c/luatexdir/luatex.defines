@@ -1403,7 +1403,8 @@
 @define procedure pdf_new_dict();
 @define procedure pdf_end_dict ;
 @define function append_ptr() ;
-@define procedure pdf_print_str_ln() ;
+
+@define procedure scan_pdfoutline;
 
 @define procedure pos_right();
 @define procedure pos_left();

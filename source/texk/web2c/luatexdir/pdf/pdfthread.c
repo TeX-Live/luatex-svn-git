@@ -173,10 +173,10 @@ void pdf_fix_thread(integer t)
     print_ln();
     pdf_new_dict(obj_type_others, 0, 0);
     a = obj_ptr;
-    pdf_indirect_ln(maketexstring("T"), t);
-    pdf_indirect_ln(maketexstring("V"), a);
-    pdf_indirect_ln(maketexstring("N"), a);
-    pdf_indirect_ln(maketexstring("P"), head_tab[obj_type_page]);
+    pdf_indirect_ln("T", t);
+    pdf_indirect_ln("V", a);
+    pdf_indirect_ln("N", a);
+    pdf_indirect_ln("P", head_tab[obj_type_page]);
     pdf_printf("/R [0 0 ");
     pdf_print_bp(page_width);
     pdf_out(' ');
@@ -187,7 +187,7 @@ void pdf_fix_thread(integer t)
     pdf_printf("/I << \n");
     thread_title(t);
     pdf_printf(">>\n");
-    pdf_indirect_ln(maketexstring("F"), a);
+    pdf_indirect_ln("F", a);
     pdf_end_dict();
 }
 
@@ -215,16 +215,16 @@ void out_thread(integer t)
         thread_title(t);
         pdf_printf(">>\n");
     }
-    pdf_indirect_ln(maketexstring("F"), a);
+    pdf_indirect_ln("F", a);
     pdf_end_dict();
     do {
         pdf_begin_dict(a, 1);
         if (a == b)
-            pdf_indirect_ln(maketexstring("T"), t);
-        pdf_indirect_ln(maketexstring("V"), obj_bead_prev(a));
-        pdf_indirect_ln(maketexstring("N"), obj_bead_next(a));
-        pdf_indirect_ln(maketexstring("P"), obj_bead_page(a));
-        pdf_indirect_ln(maketexstring("R"), obj_bead_rect(a));
+            pdf_indirect_ln("T", t);
+        pdf_indirect_ln("V", obj_bead_prev(a));
+        pdf_indirect_ln("N", obj_bead_next(a));
+        pdf_indirect_ln("P", obj_bead_page(a));
+        pdf_indirect_ln("R", obj_bead_rect(a));
         pdf_end_dict();
         a = obj_bead_next(a);
     } while (a != b);
