@@ -38,7 +38,7 @@ void make_subset_tag(fd_entry *);
 str_number maketexstring(const char *);
 
 str_number maketexlstring(const char *, size_t);
-
+void append_string(char *s);
 __attribute__ ((format(printf, 1, 2)))
 void tex_printf(const char *, ...);
 

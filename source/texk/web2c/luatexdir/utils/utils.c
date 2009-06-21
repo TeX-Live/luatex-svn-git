@@ -190,6 +190,17 @@ str_number maketexlstring(const char *s, size_t l)
     return last_tex_string;
 }
 
+/* append a C string to a TeX string */
+void append_string(char *s)
+{
+    if (s == NULL || *s == 0)
+        return;
+    check_buf(pool_ptr + strlen(s), pool_size);
+    while (*s)
+        str_pool[pool_ptr++] = *s++;
+    return;
+}
+
 __attribute__ ((format(printf, 1, 2)))
 void tex_printf(const char *fmt, ...)
 {
