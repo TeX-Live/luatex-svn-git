@@ -28,6 +28,10 @@ static const char __svn_version[] =
 #define info(A) fixmem[(A)].hhlh
 
 #define pdf_thread_margin        dimen_par(param_pdf_thread_margin_code)
+#define page_width dimen_par(param_page_width_code)
+#define page_height dimen_par(param_page_height_code)
+
+
 
 /* Threads are handled in similar way as link annotations */
 
@@ -137,4 +141,91 @@ void end_thread(void)
     if (pdf_last_thread_named_id)
         delete_token_ref(pdf_last_thread_id);
     last_thread = null;
+}
+
+/* The following function are needed for outputing article thread. */
+
+void thread_title(integer t)
+{
+    pdf_printf("/Title (");
+    if (obj_info(t) < 0)
+        pdf_print(-obj_info(t));
+    else
+        pdf_print_int(obj_info(t));
+    pdf_printf(")\n");
+}
+
+void pdf_fix_thread(integer t)
+{
+    halfword a;
+    pdf_warning(maketexstring("thread"),
+                maketexstring("destination "), false, false);
+    if (obj_info(t) < 0) {
+        tprint("name{");
+        print(-obj_info(t));
+        tprint("}");
+    } else {
+        tprint("num");
+        print_int(obj_info(t));
+    }
+    tprint(" has been referenced but does not exist, replaced by a fixed one");
+    print_ln();
+    print_ln();
+    pdf_new_dict(obj_type_others, 0, 0);
+    a = obj_ptr;
+    pdf_indirect_ln(maketexstring("T"), t);
+    pdf_indirect_ln(maketexstring("V"), a);
+    pdf_indirect_ln(maketexstring("N"), a);
+    pdf_indirect_ln(maketexstring("P"), head_tab[obj_type_page]);
+    pdf_printf("/R [0 0 ");
+    pdf_print_bp(page_width);
+    pdf_out(' ');
+    pdf_print_bp(page_height);
+    pdf_printf("]\n");
+    pdf_end_dict();
+    pdf_begin_dict(t, 1);
+    pdf_printf("/I << \n");
+    thread_title(t);
+    pdf_printf(">>\n");
+    pdf_indirect_ln(maketexstring("F"), a);
+    pdf_end_dict();
+}
+
+void out_thread(integer t)
+{
+    halfword a, b;
+    integer last_attr;
+    if (obj_thread_first(t) == 0) {
+        pdf_fix_thread(t);
+        return;
+    }
+    pdf_begin_dict(t, 1);
+    a = obj_thread_first(t);
+    b = a;
+    last_attr = 0;
+    do {
+        if (obj_bead_attr(a) != 0)
+            last_attr = obj_bead_attr(a);
+        a = obj_bead_next(a);
+    } while (a != b);
+    if (last_attr != 0) {
+        pdf_print_ln(last_attr);
+    } else {
+        pdf_printf("/I << \n");
+        thread_title(t);
+        pdf_printf(">>\n");
+    }
+    pdf_indirect_ln(maketexstring("F"), a);
+    pdf_end_dict();
+    do {
+        pdf_begin_dict(a, 1);
+        if (a == b)
+            pdf_indirect_ln(maketexstring("T"), t);
+        pdf_indirect_ln(maketexstring("V"), obj_bead_prev(a));
+        pdf_indirect_ln(maketexstring("N"), obj_bead_next(a));
+        pdf_indirect_ln(maketexstring("P"), obj_bead_page(a));
+        pdf_indirect_ln(maketexstring("R"), obj_bead_rect(a));
+        pdf_end_dict();
+        a = obj_bead_next(a);
+    } while (a != b);
 }

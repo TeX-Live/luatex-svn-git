@@ -1513,3 +1513,9 @@
 @define procedure pdf_include_chars;
 @define procedure glyph_to_unicode;
 
+{ pdf ship }
+
+@define procedure fix_pdfoutput;
+@define procedure pdf_ship_out();
+@define procedure finish_pdf_file();
+

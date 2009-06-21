@@ -22,5 +22,9 @@
 #ifndef PDFSHIPOUT_H
 #  define PDFSHIPOUT_H
 
+extern void fix_pdfoutput(void);
+extern void pdf_ship_out(halfword p, boolean shipping_page);
+extern void print_pdf_pages_attr(void);
+extern void finish_pdf_file(integer maj, str_number min);
 
 #endif
