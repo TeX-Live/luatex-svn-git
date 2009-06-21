@@ -200,10 +200,8 @@ boolean str_eq_buf(str_number s, integer k)
     } else {
         pool_pointer j = str_start_macro(s);
         while (j < str_start_macro(s + 1)) {
-            if (str_pool[j] != buffer[k])
+            if (str_pool[j++] != buffer[k++])
                 return false;
-            incr(j);
-            incr(k);
         }
     }
     return true;
