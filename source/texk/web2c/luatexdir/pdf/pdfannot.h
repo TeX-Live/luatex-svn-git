@@ -30,6 +30,6 @@
 #  define set_pdf_annot_data(A,B) pdf_annot_data(A)=B
 
 extern void do_annot(halfword p, halfword parent_box, scaled x, scaled y);
-extern void new_annot_whatsit( small_number w) ;
+extern void new_annot_whatsit(small_number w);
 
 #endif

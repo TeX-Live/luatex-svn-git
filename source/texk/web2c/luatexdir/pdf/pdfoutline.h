@@ -53,7 +53,7 @@ will store data of outline entries in |pdf_mem| instead of |mem|
 #  define set_obj_outline_attr(A,B) obj_outline_attr(A)=B
 
 extern integer open_subentries(halfword p);
-extern halfword scan_action (void) ;
+extern halfword scan_action(void);
 extern void scan_pdfoutline(void);
 
 #endif
