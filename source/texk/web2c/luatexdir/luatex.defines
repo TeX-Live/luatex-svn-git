@@ -594,7 +594,6 @@
 @define procedure pdf_page_init;
 @define procedure pdf_set_pos();
 @define procedure pdf_end_string_nl;
-@define procedure pdf_print_charwidth();
 
 {functions from textoken.c }
 
@@ -1084,11 +1083,6 @@
 @define procedure dump_pdftex_data;
 @define procedure undump_pdftex_data;
 
-@define const pdf_op_buf_size;
-@define const inf_pdf_os_buf_size;
-@define const sup_pdf_os_buf_size;
-@define const pdf_os_max_objs;
-
 @define var pdf_offset;
 
 @define const no_zip;
@@ -1099,31 +1093,27 @@
 @define var pdf_buf; 
 @define var pdf_buf_size; 
 @define var pdf_ptr; 
-@define var pdf_op_buf; 
-@define var pdf_os_buf; 
-@define var pdf_os_buf_size; 
-@define var pdf_os_objnum; 
-@define var pdf_os_objoff; 
-@define var pdf_os_objidx; 
-@define var pdf_os_cntr; 
-@define var pdf_op_ptr; 
-@define var pdf_os_ptr; 
-@define var pdf_os_mode; 
-@define var pdf_os_enable; 
-@define var pdf_os_cur_objnum; 
+@define var pdf_op_buf;
+@define var pdf_os_buf;
+@define var pdf_os_buf_size;
+@define var pdf_os_objnum;
+@define var pdf_os_objoff;
+@define var pdf_os_objidx;
+@define var pdf_os_cntr;
+@define var pdf_op_ptr;
+@define var pdf_os_ptr;
+@define var pdf_os_mode;
+@define var pdf_os_enable;
+@define var pdf_os_cur_objnum;
+@define const pdf_op_buf_size;
+@define const inf_pdf_os_buf_size;
+@define const sup_pdf_os_buf_size;
+@define const pdf_os_max_objs;
 @define var pdf_gone; 
 @define var pdf_save_offset; 
 @define var zip_write_state; 
-@define var fixed_pdf_minor_version; 
-@define var fixed_pdf_minor_version_set; 
-@define var fixed_pdf_objcompresslevel; 
 @define var fixed_pdfoutput; 
 @define var fixed_pdfoutput_set; 
-@define var fixed_gamma;
-@define var fixed_image_gamma;
-@define var fixed_image_hicolor;
-@define var fixed_image_apply_gamma;
-@define var fixed_pdf_draftmode; 
 @define var pdf_page_group_val;
 @define var epochseconds;
 @define var microseconds;
@@ -1141,13 +1131,6 @@
 @define const pdf_new_line_char;
 
 @define procedure pdf_print_nl;
-@define procedure pdf_print_ln();
-@define procedure pdf_print_int_ln();
-@define procedure pdf_print_char();
-@define procedure pdf_print();
-@define procedure pdf_print_int();
-@define procedure pdf_print_real();
-@define procedure pdf_print_str();
 
 @define procedure pdf_begin_stream;
 @define procedure pdf_end_stream;
@@ -1159,9 +1142,6 @@
 @define const one_bp;
 
 @define function round_xn_over_d();
-@define procedure pdf_print_bp();
-@define procedure pdf_print_mag_bp();
-
 
 @define var fixed_pk_resolution;
 @define var fixed_decimal_digits;
@@ -1174,7 +1154,6 @@
 @define var pdf_draftmode_option;
 @define var pdf_draftmode_value;
 
-@define procedure pdf_print_resname_prefix;
 @define procedure pdf_use_font();
 @define procedure pdf_init_font();
 @define function pdf_set_font();
@@ -1380,20 +1359,9 @@
 
 @define function obj_dest_ptr();
 @define procedure set_obj_dest_ptr();
-@define function obj_thread_first();
-
-@define procedure set_obj_bead_rect();
 @define procedure set_obj_data_ptr();
 
 @define const pdfmem_bead_size;
-
-@define function obj_bead_ptr();
-@define function obj_bead_rect();
-@define function obj_bead_page();
-@define function obj_bead_next();
-@define function obj_bead_prev();
-@define function obj_bead_attr();
-@define function obj_bead_data();
 
 @define const inf_obj_tab_size;
 @define const sup_obj_tab_size;
@@ -1421,92 +1389,39 @@
 @define var pdf_box_spec_bleed;
 @define var pdf_box_spec_trim;
 @define var pdf_box_spec_art;
-@define var dest_names_size;
 
 @define procedure set_ff();
 
 @define var ff;
 
-@define procedure append_dest_name();
 @define procedure pdf_create_obj();
 @define function  pdf_new_objnum  ;
-@define procedure pdf_os_switch() ;
-@define procedure pdf_os_prepare_obj() ;
 @define procedure pdf_begin_obj() ;
 @define procedure pdf_new_obj() ;
 @define procedure pdf_end_obj ;
 @define procedure pdf_begin_dict();
 @define procedure pdf_new_dict();
 @define procedure pdf_end_dict ;
-@define procedure pdf_os_write_objstream ;
 @define function append_ptr() ;
-@define function pdf_lookup_list() ;
-@define procedure pdf_print_fw_int() ;
-@define procedure pdf_out_bytes();
-@define procedure pdf_int_entry();
-@define procedure pdf_int_entry_ln();
-@define procedure pdf_indirect() ;
-@define procedure pdf_indirect_ln();
 @define procedure pdf_print_str_ln() ;
-@define procedure pdf_str_entry ();
-@define procedure pdf_str_entry_ln();
-@define procedure pdf_out_literal () ;
-@define procedure pdf_out_colorstack(); 
-@define procedure pdf_out_colorstack_startpage ;
-@define procedure pdf_out_setmatrix();
-@define procedure pdf_out_save ;
-@define procedure pdf_out_restore ;
-@define procedure pdf_special() ;
-@define procedure pdf_print_toks();
-@define procedure pdf_print_toks_ln();
-@define procedure output_form() ;
-@define procedure output_image();
 
 @define procedure pos_right();
 @define procedure pos_left();
 @define procedure pos_up();
 @define procedure pos_down();
 
-@define procedure pdf_hlist_out;
-@define procedure pdf_vlist_out;
-
-@define procedure pdf_print_rect_spec();
-@define procedure pdf_rectangle();
 @define procedure pdf_write_image();
 @define procedure pdf_write_obj();
 
 @define procedure write_action();
-@define procedure set_rect_dimens();
-@define procedure do_annot();
-@define procedure do_dest();
-
 @define procedure calculate_width_to_enddir();
-@define procedure write_out_pdf_mark_destinations;
-
-@define procedure push_link_level();
-@define procedure pop_link_level;
 @define procedure warn_dest_dup();
-@define procedure do_link();
-@define procedure end_link;
-@define procedure append_link();
 
-@define procedure append_bead();
-@define procedure do_thread();
-@define procedure append_thread();
-@define procedure end_thread;
-@define function open_subentries() ;
+@define var dest_names_size;
 
 { pdf fonts }
 
-@define procedure output_one_char();
-@define procedure copy_expand_params();
-@define function tfm_lookup();
-@define function load_expand_font();
-@define function get_expand_font();
 @define function expand_font();
-@define function fix_expand_value();
-
-@define procedure set_expand_params();
 @define procedure read_expand_font;
 @define procedure new_letterspaced_font();
 @define procedure make_font_copy() ;
