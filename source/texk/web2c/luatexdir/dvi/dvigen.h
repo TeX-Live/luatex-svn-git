@@ -28,7 +28,7 @@ extern scaled max_h;
 extern integer max_push;
 extern integer last_bop;
 extern integer dead_cycles;
-extern boolean doing_leaders; 
+extern boolean doing_leaders;
 extern integer c, f;
 extern integer oval, ocmd;
 extern scaled rule_ht, rule_dp, rule_wd;
@@ -36,10 +36,10 @@ extern halfword g;
 extern integer lq, lr;
 extern integer cur_s;
 
-typedef int dvi_index; /* an index into the output buffer */
+typedef int dvi_index;          /* an index into the output buffer */
 
 extern int dvi_buf_size;
-extern real_eight_bits *dvi_buf; /* 0 is unused */
+extern real_eight_bits *dvi_buf;        /* 0 is unused */
 extern dvi_index half_buf;
 extern dvi_index dvi_limit;
 extern dvi_index dvi_ptr;
@@ -51,44 +51,44 @@ To put a byte in the buffer without paying the cost of invoking a procedure
 each time, we use the macro |dvi_out|.
 */
 
-#define dvi_out(A) do {				\
+#  define dvi_out(A) do {				\
     dvi_buf[dvi_ptr++]=A;			\
     if (dvi_ptr==dvi_limit) dvi_swap();		\
   } while (0)
 
 
-extern void dvi_swap (void) ;
+extern void dvi_swap(void);
 extern void dvi_four(integer x);
 extern void dvi_pop(integer l);
-extern void out_cmd (void) ;
-extern void dvi_font_def(internal_font_number f) ;
+extern void out_cmd(void);
+extern void dvi_font_def(internal_font_number f);
 
-#define dvi_set(A,B)  do {			 \
+#  define dvi_set(A,B)  do {			 \
     synch_dvi_with_pos();			 \
     oval=A; ocmd=set1; out_cmd(); dvi.h += (B);	 \
   } while (0)
 
-#define dvi_put(A)  do {			\
+#  define dvi_put(A)  do {			\
     synch_dvi_with_pos();			\
     oval=A; ocmd=put1; out_cmd();		\
   } while (0)
 
-#define dvi_set_rule(A,B)  do {			\
+#  define dvi_set_rule(A,B)  do {			\
     synch_dvi_with_pos();			\
     dvi_out(set_rule); dvi_four(A);		\
     dvi_four(B); dvi.h += (B);			\
   } while (0)
 
-#define dvi_put_rule(A,B)  do {	      \
+#  define dvi_put_rule(A,B)  do {	      \
     synch_dvi_with_pos();	      \
     dvi_out(put_rule);		      \
     dvi_four(A); dvi_four(B);	      \
 } while (0)
 
 
-#define location(A) varmem[(A)+1].cint
+#  define location(A) varmem[(A)+1].cint
 
-extern halfword down_ptr, right_ptr; /* heads of the down and right stacks */
+extern halfword down_ptr, right_ptr;    /* heads of the down and right stacks */
 
 /*
 The |vinfo| fields in the entries of the down stack or the right stack
@@ -118,12 +118,12 @@ since the intervening $8_z$'s are enclosed in parentheses.
 */
 
 typedef enum {
-  y_here=1, /* |vinfo| when the movement entry points to a |y| command */
-  z_here=2, /* |vinfo| when the movement entry points to a |z| command */
-  yz_OK=3, /* |vinfo| corresponding to an unconstrained \\{down} command */
-  y_OK=4, /* |vinfo| corresponding to a \\{down} that can't become a |z| */
-  z_OK=5, /* |vinfo| corresponding to a \\{down} that can't become a |y| */
-  d_fixed=6, /* |vinfo| corresponding to a \\{down} that can't change */
+    y_here = 1,                 /* |vinfo| when the movement entry points to a |y| command */
+    z_here = 2,                 /* |vinfo| when the movement entry points to a |z| command */
+    yz_OK = 3,                  /* |vinfo| corresponding to an unconstrained \\{down} command */
+    y_OK = 4,                   /* |vinfo| corresponding to a \\{down} that can't become a |z| */
+    z_OK = 5,                   /* |vinfo| corresponding to a \\{down} that can't become a |y| */
+    d_fixed = 6,                /* |vinfo| corresponding to a \\{down} that can't change */
 } movement_codes;
 
 /* As we search through the stack, we are in one of three states,
@@ -132,9 +132,9 @@ typedef enum {
    multiples of 6, so that they can be added to the |info| fields for quick
    decision-making. */
 
-#define none_seen 0 /* no |y_here| or |z_here| nodes have been encountered yet */
-#define y_seen 6 /* we have seen |y_here| but not |z_here| */
-#define z_seen 12 /* we have seen |z_here| but not |y_here| */
+#  define none_seen 0           /* no |y_here| or |z_here| nodes have been encountered yet */
+#  define y_seen 6              /* we have seen |y_here| but not |z_here| */
+#  define z_seen 12             /* we have seen |z_here| but not |y_here| */
 
 extern void movement(scaled w, eight_bits o);
 extern void prune_movements(integer l);
@@ -165,27 +165,27 @@ this is essentially the depth of |push| commands in the \.{DVI} output.
 */
 
 typedef struct scaledpos_ {
-   scaled h;
-   scaled v;
+    scaled h;
+    scaled v;
 } scaledpos;
 
-#define synch_h() do {				\
+#  define synch_h() do {				\
     if (pos.h != dvi.h) {			\
       movement(pos.h - dvi.h, right1);		\
       dvi.h = pos.h;				\
     }						\
   } while (0)
 
-#define synch_v() do {				\
+#  define synch_v() do {				\
     if (pos.v != dvi.v) {			\
       movement(dvi.v - pos.v, down1);		\
       dvi.v = pos.v;				\
     }						\
   } while (0)
 
-#define synch_dvi_with_pos() do { synch_h(); synch_v(); } while (0)
+#  define synch_dvi_with_pos() do { synch_h(); synch_v(); } while (0)
 
-#define synch_pos_with_cur() do {					\
+#  define synch_pos_with_cur() do {					\
     switch (box_direction(dvi_direction)) {				\
     case dir_TL_: pos.h = box_pos.h + cur.h; pos.v = box_pos.v - cur.v; break; \
     case dir_TR_: pos.h = box_pos.h - cur.h; pos.v = box_pos.v - cur.v; break; \
@@ -198,12 +198,12 @@ typedef struct scaledpos_ {
     }									\
   } while (0)
 
-#define synch_dvi_with_cur()  do {		\
+#  define synch_dvi_with_cur()  do {		\
     synch_pos_with_cur();			\
     synch_dvi_with_pos();			\
   } while (0)
 
-#define set_to_zero(A) do { A.h = 0; A.v = 0; } while (0)
+#  define set_to_zero(A) do { A.h = 0; A.v = 0; } while (0)
 
 extern scaledpos synch_p_with_c(scaledpos cur);
 
@@ -214,39 +214,36 @@ extern scaledpos dvi;
 extern internal_font_number dvi_f;
 extern scaledpos cur_page_size; /* width and height of page being shipped */
 
-extern integer get_cur_v (void);
-extern integer get_cur_h (void);
+extern integer get_cur_v(void);
+extern integer get_cur_h(void);
 
 /* This is a cacheing attempt */
 
-#define charinfo_width(A) A.ci_wd
-#define charinfo_height(A) A.ci_ht
-#define charinfo_depth(A) A.ci_dp
+#  define charinfo_width(A) A.ci_wd
+#  define charinfo_height(A) A.ci_ht
+#  define charinfo_depth(A) A.ci_dp
 
 typedef struct charinfo_short_ {
-  scaled ci_wd;
-  scaled ci_ht;
-  scaled ci_dp;
+    scaled ci_wd;
+    scaled ci_ht;
+    scaled ci_dp;
 } charinfo_short;
 
-#define billion 1000000000.0
-#define vet_glue(A) do { glue_temp=A;		\
+#  define billion 1000000000.0
+#  define vet_glue(A) do { glue_temp=A;		\
     if (glue_temp>billion)			\
       glue_temp=billion;			\
     else if (glue_temp<-billion)		\
       glue_temp=-billion;			\
   } while (0)
 
-#define float_round round
-#define float_cast (real)
+#  define float_round round
+#  define float_cast (real)
 
-extern void hlist_out (void);
-extern void vlist_out (void);
+extern void hlist_out(void);
+extern void vlist_out(void);
 extern void special_out(halfword p);
-extern void dvi_ship_out(halfword p) ;
-extern void finish_dvi_file (int version, int revision);
+extern void dvi_ship_out(halfword p);
+extern void finish_dvi_file(int version, int revision);
 
 #endif
-
-
-

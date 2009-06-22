@@ -1280,18 +1280,21 @@ void finish_pdf_file(integer luatex_version, str_number luatex_revision)
         if (log_opened) {
             fprintf(log_file,
                     "\nPDF statistics: %d PDF objects out of %d (max. %d)\n",
-                    (int)obj_ptr, (int)obj_tab_size, (int)sup_obj_tab_size);
+                    (int) obj_ptr, (int) obj_tab_size, (int) sup_obj_tab_size);
             if (pdf_os_cntr > 0) {
                 fprintf(log_file,
                         " %d compressed objects within %d object stream%s\n",
-                        (int)((pdf_os_cntr - 1) * pdf_os_max_objs + pdf_os_objidx +
-                         1), (int)pdf_os_cntr, (pdf_os_cntr > 1 ? "s" : ""));
+                        (int) ((pdf_os_cntr - 1) * pdf_os_max_objs +
+                               pdf_os_objidx + 1), (int) pdf_os_cntr,
+                        (pdf_os_cntr > 1 ? "s" : ""));
             }
             fprintf(log_file, " %d named destinations out of %d (max. %d)\n",
-                    (int)pdf_dest_names_ptr, (int)dest_names_size, (int)sup_dest_names_size);
+                    (int) pdf_dest_names_ptr, (int) dest_names_size,
+                    (int) sup_dest_names_size);
             fprintf(log_file,
                     " %d words of extra memory for PDF output out of %d (max. %d)\n",
-                    (int)pdf_mem_ptr, (int)pdf_mem_size, (int)sup_pdf_mem_size);
+                    (int) pdf_mem_ptr, (int) pdf_mem_size,
+                    (int) sup_pdf_mem_size);
         }
     }
 }

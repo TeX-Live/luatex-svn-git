@@ -361,36 +361,36 @@ file. Parameters |i|, |num|, |den|, |mag|, |k|, and |x| are explained below.
 \yskip\noindent Commands 250--255 are undefined at the present time.
 */
 
-#define set_char_0  0 /* typeset character 0 and move right */
-#define set1  128 /* typeset a character and move right */
-#define set_rule  132 /* typeset a rule and move right */
-#define put1    133 /* typeset a character without moving */
-#define put_rule  137 /* typeset a rule */
-#define nop  138 /* no operation */
-#define bop  139 /* beginning of page */
-#define eop  140 /* ending of page */
-#define push  141 /* save the current positions */
-#define pop  142 /* restore previous positions */
-#define right1    143 /* move right */
-#define right4    146 /* move right, 4 bytes */
-#define w0  147 /* move right by |w| */
-#define w1  148 /* move right and set |w| */
-#define x0  152 /* move right by |x| */
-#define x1  153 /* move right and set |x| */
-#define down1  157 /* move down */
-#define down4  160 /* move down, 4 bytes */
-#define y0  161 /* move down by |y| */
-#define y1  162 /* move down and set |y| */
-#define z0  166 /* move down by |z| */
-#define z1  167 /* move down and set |z| */
-#define fnt_num_0  171 /* set current font to 0 */
-#define fnt1  235 /* set current font */
-#define xxx1  239 /* extension to \.{DVI} primitives */
-#define xxx4  242 /* potentially long extension to \.{DVI} primitives */
-#define fnt_def1  243 /* define the meaning of a font number */
-#define pre  247 /* preamble */
-#define post  248 /* postamble beginning */
-#define post_post  249 /* postamble ending */
+#define set_char_0  0           /* typeset character 0 and move right */
+#define set1  128               /* typeset a character and move right */
+#define set_rule  132           /* typeset a rule and move right */
+#define put1    133             /* typeset a character without moving */
+#define put_rule  137           /* typeset a rule */
+#define nop  138                /* no operation */
+#define bop  139                /* beginning of page */
+#define eop  140                /* ending of page */
+#define push  141               /* save the current positions */
+#define pop  142                /* restore previous positions */
+#define right1    143           /* move right */
+#define right4    146           /* move right, 4 bytes */
+#define w0  147                 /* move right by |w| */
+#define w1  148                 /* move right and set |w| */
+#define x0  152                 /* move right by |x| */
+#define x1  153                 /* move right and set |x| */
+#define down1  157              /* move down */
+#define down4  160              /* move down, 4 bytes */
+#define y0  161                 /* move down by |y| */
+#define y1  162                 /* move down and set |y| */
+#define z0  166                 /* move down by |z| */
+#define z1  167                 /* move down and set |z| */
+#define fnt_num_0  171          /* set current font to 0 */
+#define fnt1  235               /* set current font */
+#define xxx1  239               /* extension to \.{DVI} primitives */
+#define xxx4  242               /* potentially long extension to \.{DVI} primitives */
+#define fnt_def1  243           /* define the meaning of a font number */
+#define pre  247                /* preamble */
+#define post  248               /* postamble beginning */
+#define post_post  249          /* postamble ending */
 
 /*
 The preamble contains basic information about the file as a whole. As
@@ -424,7 +424,7 @@ Finally, |k| and |x| allow the \.{DVI} writer to include a comment, which is not
 interpreted further. The length of comment |x| is |k|, where |0<=k<256|.
 */
 
-#define id_byte 2 /* identifies the kind of \.{DVI} files described here */
+#define id_byte 2               /* identifies the kind of \.{DVI} files described here */
 
 /*
 Font definitions for a given font number |k| contain further parameters
@@ -578,19 +578,19 @@ values of these variables are not needed during recursive calls.
 @^recursion@>
 */
 
-integer total_pages=0; /* the number of pages that have been shipped out */
-scaled max_v=0; /* maximum height-plus-depth of pages shipped so far */
-scaled max_h=0; /* maximum width of pages shipped so far */
-integer max_push=0; /* deepest nesting of |push| commands encountered so far */
-integer last_bop=-1; /* location of previous |bop| in the \.{DVI} output */
-integer dead_cycles=0; /* recent outputs that didn't ship anything out */
-boolean doing_leaders=false; /* are we inside a leader box? */
-integer c, f; /* character and font in current |char_node| */
-integer oval, ocmd; /* used by |out_cmd| for generating |set|, |fnt| and |fnt_def| commands */
-scaled rule_ht, rule_dp, rule_wd; /* size of current rule being output */
-pointer g; /* current glue specification */
-integer lq, lr; /* quantities used in calculations for leaders */
-integer cur_s=-1; /* current depth of output box nesting, initially $-1$ */
+integer total_pages = 0;        /* the number of pages that have been shipped out */
+scaled max_v = 0;               /* maximum height-plus-depth of pages shipped so far */
+scaled max_h = 0;               /* maximum width of pages shipped so far */
+integer max_push = 0;           /* deepest nesting of |push| commands encountered so far */
+integer last_bop = -1;          /* location of previous |bop| in the \.{DVI} output */
+integer dead_cycles = 0;        /* recent outputs that didn't ship anything out */
+boolean doing_leaders = false;  /* are we inside a leader box? */
+integer c, f;                   /* character and font in current |char_node| */
+integer oval, ocmd;             /* used by |out_cmd| for generating |set|, |fnt| and |fnt_def| commands */
+scaled rule_ht, rule_dp, rule_wd;       /* size of current rule being output */
+pointer g;                      /* current glue specification */
+integer lq, lr;                 /* quantities used in calculations for leaders */
+integer cur_s = -1;             /* current depth of output box nesting, initially $-1$ */
 
 /*
 @ The \.{DVI} bytes are output to a buffer instead of being written directly
@@ -628,13 +628,13 @@ Initially the buffer is all in one piece; we will output half of it only
 after it first fills up.
 */
 
-int dvi_buf_size = 800;  /* size of the output buffer; must be a multiple of 8 */
-real_eight_bits *dvi_buf; /* buffer for \.{DVI} output */
-dvi_index half_buf = 0; /* half of |dvi_buf_size| */
-dvi_index dvi_limit = 0; /* end of the current half buffer */
-dvi_index dvi_ptr = 0; /* the next available buffer address */
-integer dvi_offset = 0; /* |dvi_buf_size| times the number of times the output buffer has been fully emptied */
-integer dvi_gone = 0; /* the number of bytes already output to |dvi_file| */
+int dvi_buf_size = 800;         /* size of the output buffer; must be a multiple of 8 */
+real_eight_bits *dvi_buf;       /* buffer for \.{DVI} output */
+dvi_index half_buf = 0;         /* half of |dvi_buf_size| */
+dvi_index dvi_limit = 0;        /* end of the current half buffer */
+dvi_index dvi_ptr = 0;          /* the next available buffer address */
+integer dvi_offset = 0;         /* |dvi_buf_size| times the number of times the output buffer has been fully emptied */
+integer dvi_gone = 0;           /* the number of bytes already output to |dvi_file| */
 
 /*
 The actual output of |dvi_buf[a..b]| to |dvi_file| is performed by calling
@@ -651,21 +651,24 @@ output an array of words with one system call.
 
 void write_dvi(dvi_index a, dvi_index b)
 {
-  dvi_index k;
-  for (k=a;k<=b;k++) 
-    fputc(dvi_buf[k],dvi_file);
+    dvi_index k;
+    for (k = a; k <= b; k++)
+        fputc(dvi_buf[k], dvi_file);
 }
 
 /* outputs half of the buffer */
-void dvi_swap (void) 
+void dvi_swap(void)
 {
-  if (dvi_limit==dvi_buf_size) {
-    write_dvi(0,half_buf-1); dvi_limit=half_buf;
-    dvi_offset=dvi_offset+dvi_buf_size; dvi_ptr=0;
-  } else { 
-    write_dvi(half_buf,dvi_buf_size-1); dvi_limit=dvi_buf_size;
-  }
-  dvi_gone=dvi_gone+half_buf;
+    if (dvi_limit == dvi_buf_size) {
+        write_dvi(0, half_buf - 1);
+        dvi_limit = half_buf;
+        dvi_offset = dvi_offset + dvi_buf_size;
+        dvi_ptr = 0;
+    } else {
+        write_dvi(half_buf, dvi_buf_size - 1);
+        dvi_limit = dvi_buf_size;
+    }
+    dvi_gone = dvi_gone + half_buf;
 }
 
 /*
@@ -675,16 +678,18 @@ without risking arithmetic overflow.
 
 void dvi_four(integer x)
 {
-  if (x>=0) {
-    dvi_out(x / 0100000000);
-  } else  { 
-    x=x+010000000000;
-    x=x+010000000000;
-    dvi_out((x / 0100000000) + 128);
-  }
-  x=x % 0100000000; dvi_out(x / 0200000);
-  x=x % 0200000; dvi_out(x / 0400);
-  dvi_out(x % 0400);
+    if (x >= 0) {
+        dvi_out(x / 0100000000);
+    } else {
+        x = x + 010000000000;
+        x = x + 010000000000;
+        dvi_out((x / 0100000000) + 128);
+    }
+    x = x % 0100000000;
+    dvi_out(x / 0200000);
+    x = x % 0200000;
+    dvi_out(x / 0400);
+    dvi_out(x % 0400);
 }
 
 /*
@@ -696,10 +701,10 @@ following the old |push| that matches the new |pop|.
 
 void dvi_pop(integer l)
 {
-  if ((l==dvi_offset+dvi_ptr)&&(dvi_ptr>0)) 
-    decr(dvi_ptr);
-  else 
-    dvi_out(pop);
+    if ((l == dvi_offset + dvi_ptr) && (dvi_ptr > 0))
+        decr(dvi_ptr);
+    else
+        dvi_out(pop);
 }
 
 /*
@@ -708,62 +713,62 @@ more than 256 different fonts per job, so the right font definition
 command must be selected.
 */
 
-void out_cmd (void) 
+void out_cmd(void)
 {
-  if ((oval<0x100)&&(oval>=0)) {
-    if ((ocmd!=set1)||(oval>127)) {
-      if ((ocmd==fnt1)&&(oval<64)) 
-	oval += fnt_num_0; 
-      else 
-	dvi_out(ocmd);
-    }
-  } else {
-    if ((oval<0x10000)&&(oval>=0)) {
-      dvi_out(ocmd+1);
-    } else {
-      if ((oval<0x1000000)&&(oval>=0)) {
-	dvi_out(ocmd+2);
-      } else {
-	dvi_out(ocmd+3);
-	if (oval>=0) {
-	  dvi_out(oval / 0x1000000);
-	} else  {
-	  oval += 0x40000000; 
-	  oval += 0x40000000;
-	  dvi_out((oval / 0x1000000) + 128); 
-	  oval=oval % 0x1000000;
+    if ((oval < 0x100) && (oval >= 0)) {
+        if ((ocmd != set1) || (oval > 127)) {
+            if ((ocmd == fnt1) && (oval < 64))
+                oval += fnt_num_0;
+            else
+                dvi_out(ocmd);
         }
-	dvi_out(oval / 0x10000); 
-	oval=oval % 0x10000;
-      }
-      dvi_out(oval / 0x10000); 
-      oval=oval % 0x10000;
+    } else {
+        if ((oval < 0x10000) && (oval >= 0)) {
+            dvi_out(ocmd + 1);
+        } else {
+            if ((oval < 0x1000000) && (oval >= 0)) {
+                dvi_out(ocmd + 2);
+            } else {
+                dvi_out(ocmd + 3);
+                if (oval >= 0) {
+                    dvi_out(oval / 0x1000000);
+                } else {
+                    oval += 0x40000000;
+                    oval += 0x40000000;
+                    dvi_out((oval / 0x1000000) + 128);
+                    oval = oval % 0x1000000;
+                }
+                dvi_out(oval / 0x10000);
+                oval = oval % 0x10000;
+            }
+            dvi_out(oval / 0x10000);
+            oval = oval % 0x10000;
+        }
+        dvi_out(oval / 0x100);
+        oval = oval % 0x100;
     }
-    dvi_out(oval / 0x100); 
-    oval=oval % 0x100;
-  }
-  dvi_out(oval);
+    dvi_out(oval);
 }
 
-void dvi_font_def(internal_font_number f) 
+void dvi_font_def(internal_font_number f)
 {
-  unsigned char *fa;
-  oval=f-1; ocmd= fnt_def1; 
-  out_cmd();
-  dvi_out(font_check_0(f));
-  dvi_out(font_check_1(f));
-  dvi_out(font_check_2(f));
-  dvi_out(font_check_3(f));
-  dvi_four(font_size(f));
-  dvi_four(font_dsize(f));
-  dvi_out(0); /* |font_area(f)| is unused */
-  dvi_out(strlen(font_name(f)));
-  /* Output the font name whose internal number is |f| */
-  fa = font_name(f);
-  while (*fa != '\0') {
-    int a = *fa;
-    dvi_out(a); fa++;
-  }
+    char *fa;
+    oval = f - 1;
+    ocmd = fnt_def1;
+    out_cmd();
+    dvi_out(font_check_0(f));
+    dvi_out(font_check_1(f));
+    dvi_out(font_check_2(f));
+    dvi_out(font_check_3(f));
+    dvi_four(font_size(f));
+    dvi_four(font_dsize(f));
+    dvi_out(0);                 /* |font_area(f)| is unused */
+    dvi_out(strlen(font_name(f)));
+    /* Output the font name whose internal number is |f| */
+    fa = font_name(f);
+    while (*fa != '\0') {
+        dvi_out(*fa++);
+    }
 }
 
 /*
@@ -830,9 +835,9 @@ on the stack; and the |vinfo| field encodes the options for possible change
 in the \.{DVI} command.
 */
 
-#define location(A) varmem[(A)+1].cint /* \.{DVI} byte number for a movement command */
+#define location(A) varmem[(A)+1].cint  /* \.{DVI} byte number for a movement command */
 
-halfword down_ptr = null, right_ptr = null; /* heads of the down and right stacks */
+halfword down_ptr = null, right_ptr = null;     /* heads of the down and right stacks */
 
 /*
 Here is a subroutine that produces a \.{DVI} command for some specified
@@ -844,134 +849,163 @@ and |z1-down1=x1-right1|.
 
 void movement(scaled w, eight_bits o)
 {
-  small_number mstate; /* have we seen a |y| or |z|? */
-  halfword p, q; /* current and top nodes on the stack */
-  integer k; /* index into |dvi_buf|, modulo |dvi_buf_size| */
-  if (false) { /* TODO: HUH? */
-    q=new_node(movement_node,0); /* new node for the top of the stack */
-    width(q)=w; location(q)=dvi_offset+dvi_ptr;
-    if (o==down1) {
-      vlink(q)=down_ptr; down_ptr=q;
-    } else {
-      vlink(q)=right_ptr; right_ptr=q;
-    }
-    /* Look at the other stack entries until deciding what sort of \.{DVI} command
-       to generate; |goto found| if node |p| is a ``hit'' */
-    p=vlink(q); mstate=none_seen;
-    while (p!=null) {
-      if (width(p)==w) {
-	/* Consider a node with matching width;|goto found| if it's a hit */
-	/* We might find a valid hit in a |y| or |z| byte that is already gone
-	   from the buffer. But we can't change bytes that are gone forever; ``the
-	   moving finger writes, $\ldots\,\,$.'' */
+    small_number mstate;        /* have we seen a |y| or |z|? */
+    halfword p, q;              /* current and top nodes on the stack */
+    integer k;                  /* index into |dvi_buf|, modulo |dvi_buf_size| */
+    if (false) {                /* TODO: HUH? */
+        q = new_node(movement_node, 0); /* new node for the top of the stack */
+        width(q) = w;
+        location(q) = dvi_offset + dvi_ptr;
+        if (o == down1) {
+            vlink(q) = down_ptr;
+            down_ptr = q;
+        } else {
+            vlink(q) = right_ptr;
+            right_ptr = q;
+        }
+        /* Look at the other stack entries until deciding what sort of \.{DVI} command
+           to generate; |goto found| if node |p| is a ``hit'' */
+        p = vlink(q);
+        mstate = none_seen;
+        while (p != null) {
+            if (width(p) == w) {
+                /* Consider a node with matching width;|goto found| if it's a hit */
+                /* We might find a valid hit in a |y| or |z| byte that is already gone
+                   from the buffer. But we can't change bytes that are gone forever; ``the
+                   moving finger writes, $\ldots\,\,$.'' */
 
-	switch (mstate+vinfo(p)) {
-	case none_seen+yz_OK:
-	case none_seen+y_OK:
-	case z_seen+yz_OK:
-	case z_seen+y_OK:
-	  if (location(p)<dvi_gone) {
-	    goto NOT_FOUND;
-	  } else {
-	    /* Change buffered instruction to |y| or |w| and |goto found| */
-	    k=location(p)-dvi_offset;
-	    if (k<0) k=k+dvi_buf_size;
-	    dvi_buf[k]=dvi_buf[k]+y1-down1;
-	    vinfo(p)=y_here; goto FOUND;
-	  }
-	  break;
-	case none_seen+z_OK:
-	case y_seen+yz_OK:
-	case y_seen+z_OK:
-	  if (location(p)<dvi_gone) {
-	    goto NOT_FOUND;
-	  } else {
-	    /* Change buffered instruction to |z| or |x| and |goto found| */
-	    k=location(p)-dvi_offset;
-	    if (k<0) k=k+dvi_buf_size;
-	    dvi_buf[k]=dvi_buf[k]+z1-down1;
-	    vinfo(p)=z_here; goto FOUND;
-	  }
-	  break;
-	case none_seen+y_here:
-	case none_seen+z_here:
-	case y_seen+z_here:
-	case z_seen+y_here: 
-	  goto FOUND;
-	  break;
-	default:
-	  break;
-	}
-      } else {
-	switch (mstate+vinfo(p)) {
-	case none_seen+y_here: mstate=y_seen; break;
-	case none_seen+z_here: mstate=z_seen; break;
-	case y_seen+z_here:
-	case z_seen+y_here: goto NOT_FOUND; break;
-	default: break;
-	}
-      }
-      p=vlink(p);
+                switch (mstate + vinfo(p)) {
+                case none_seen + yz_OK:
+                case none_seen + y_OK:
+                case z_seen + yz_OK:
+                case z_seen + y_OK:
+                    if (location(p) < dvi_gone) {
+                        goto NOT_FOUND;
+                    } else {
+                        /* Change buffered instruction to |y| or |w| and |goto found| */
+                        k = location(p) - dvi_offset;
+                        if (k < 0)
+                            k = k + dvi_buf_size;
+                        dvi_buf[k] = dvi_buf[k] + y1 - down1;
+                        vinfo(p) = y_here;
+                        goto FOUND;
+                    }
+                    break;
+                case none_seen + z_OK:
+                case y_seen + yz_OK:
+                case y_seen + z_OK:
+                    if (location(p) < dvi_gone) {
+                        goto NOT_FOUND;
+                    } else {
+                        /* Change buffered instruction to |z| or |x| and |goto found| */
+                        k = location(p) - dvi_offset;
+                        if (k < 0)
+                            k = k + dvi_buf_size;
+                        dvi_buf[k] = dvi_buf[k] + z1 - down1;
+                        vinfo(p) = z_here;
+                        goto FOUND;
+                    }
+                    break;
+                case none_seen + y_here:
+                case none_seen + z_here:
+                case y_seen + z_here:
+                case z_seen + y_here:
+                    goto FOUND;
+                    break;
+                default:
+                    break;
+                }
+            } else {
+                switch (mstate + vinfo(p)) {
+                case none_seen + y_here:
+                    mstate = y_seen;
+                    break;
+                case none_seen + z_here:
+                    mstate = z_seen;
+                    break;
+                case y_seen + z_here:
+                case z_seen + y_here:
+                    goto NOT_FOUND;
+                    break;
+                default:
+                    break;
+                }
+            }
+            p = vlink(p);
+        }
     }
-  }
- NOT_FOUND:
-  /* Generate a |down| or |right| command for |w| and |return| */
-  if (abs(w)>=040000000) {
-    dvi_out(o+3); /* |down4| or |right4| */
-    dvi_four(w); return;
-  }
-  if (abs(w)>=0100000) {
-    dvi_out(o+2); /* |down3| or |right3| */
-    if (w<0) w=w+0100000000;
-    dvi_out(w / 0200000); w=w % 0200000;
-    goto TWO;
-  }
-  if (abs(w)>=0200) {
-    dvi_out(o+1); /* |down2| or |right2| */
-    if (w<0)  w=w+0200000;
-    goto TWO;
-  }
-  dvi_out(o); /* |down1| or |right1| */
-  if (w<0)
-    w=w+0400;
-  goto ONE;
- TWO: 
-  dvi_out(w / 0400);
- ONE: 
-  dvi_out(w % 0400); 
-  return;
-FOUND: 
-  /* Generate a |y0| or |z0| command in order to reuse a previous appearance of~|w| */
-  /* The program below removes movement nodes that are introduced after a |push|,
-     before it outputs the corresponding |pop|. */
-  /*
-    When the |movement| procedure gets to the label |found|, the value of
-    |vinfo(p)| will be either |y_here| or |z_here|. If it is, say, |y_here|,
-    the procedure generates a |y0| command (or a |w0| command), and marks
-    all |vinfo| fields between |q| and |p| so that |y| is not OK in that range.
-  */
-  vinfo(q)=vinfo(p);
-  if (vinfo(q)==y_here) {
-    dvi_out(o+y0-down1); /* |y0| or |w0| */
-    while (vlink(q)!=p) {
-      q=vlink(q);
-      switch (vinfo(q)) {
-      case yz_OK: vinfo(q)=z_OK; break;
-      case y_OK: vinfo(q)=d_fixed; break;
-      default: break;
-      }
+  NOT_FOUND:
+    /* Generate a |down| or |right| command for |w| and |return| */
+    if (abs(w) >= 040000000) {
+        dvi_out(o + 3);         /* |down4| or |right4| */
+        dvi_four(w);
+        return;
     }
-  } else  {
-    dvi_out(o+z0-down1); /* |z0| or |x0| */
-    while (vlink(q)!=p) {
-      q=vlink(q);
-      switch (vinfo(q)) {
-      case yz_OK: vinfo(q)=y_OK; break;
-      case z_OK: vinfo(q)=d_fixed; break;
-      default: break;
-      }
+    if (abs(w) >= 0100000) {
+        dvi_out(o + 2);         /* |down3| or |right3| */
+        if (w < 0)
+            w = w + 0100000000;
+        dvi_out(w / 0200000);
+        w = w % 0200000;
+        goto TWO;
     }
-  }
+    if (abs(w) >= 0200) {
+        dvi_out(o + 1);         /* |down2| or |right2| */
+        if (w < 0)
+            w = w + 0200000;
+        goto TWO;
+    }
+    dvi_out(o);                 /* |down1| or |right1| */
+    if (w < 0)
+        w = w + 0400;
+    goto ONE;
+  TWO:
+    dvi_out(w / 0400);
+  ONE:
+    dvi_out(w % 0400);
+    return;
+  FOUND:
+    /* Generate a |y0| or |z0| command in order to reuse a previous appearance of~|w| */
+    /* The program below removes movement nodes that are introduced after a |push|,
+       before it outputs the corresponding |pop|. */
+    /*
+       When the |movement| procedure gets to the label |found|, the value of
+       |vinfo(p)| will be either |y_here| or |z_here|. If it is, say, |y_here|,
+       the procedure generates a |y0| command (or a |w0| command), and marks
+       all |vinfo| fields between |q| and |p| so that |y| is not OK in that range.
+     */
+    vinfo(q) = vinfo(p);
+    if (vinfo(q) == y_here) {
+        dvi_out(o + y0 - down1);        /* |y0| or |w0| */
+        while (vlink(q) != p) {
+            q = vlink(q);
+            switch (vinfo(q)) {
+            case yz_OK:
+                vinfo(q) = z_OK;
+                break;
+            case y_OK:
+                vinfo(q) = d_fixed;
+                break;
+            default:
+                break;
+            }
+        }
+    } else {
+        dvi_out(o + z0 - down1);        /* |z0| or |x0| */
+        while (vlink(q) != p) {
+            q = vlink(q);
+            switch (vinfo(q)) {
+            case yz_OK:
+                vinfo(q) = y_OK;
+                break;
+            case z_OK:
+                vinfo(q) = d_fixed;
+                break;
+            default:
+                break;
+            }
+        }
+    }
 }
 
 /*
@@ -985,42 +1019,46 @@ except that some |vinfo|'s may have become more restrictive.
 /* delete movement nodes with |location>=l| */
 void prune_movements(integer l)
 {
-  pointer p; /* node being deleted */
-  while (down_ptr!=null) {
-    if (location(down_ptr)<l) 
-      break;
-    p=down_ptr; down_ptr=vlink(p); flush_node(p);
-  }
-  while (right_ptr!=null) {
-    if (location(right_ptr)<l) 
-      return;
-    p=right_ptr; right_ptr=vlink(p); flush_node(p);
-  }
+    pointer p;                  /* node being deleted */
+    while (down_ptr != null) {
+        if (location(down_ptr) < l)
+            break;
+        p = down_ptr;
+        down_ptr = vlink(p);
+        flush_node(p);
+    }
+    while (right_ptr != null) {
+        if (location(right_ptr) < l)
+            return;
+        p = right_ptr;
+        right_ptr = vlink(p);
+        flush_node(p);
+    }
 }
 
 scaledpos synch_p_with_c(scaledpos cur)
 {
-  scaledpos pos;
-  synch_pos_with_cur();
-  return pos;
+    scaledpos pos;
+    synch_pos_with_cur();
+    return pos;
 }
 
-scaledpos cur; /* \TeX\ position relative to origin of the surrounding box, in box coordinate system */
-scaledpos box_pos; /* position of box origin in page coordinates */
-scaledpos pos; /* global position on page, in $\rm sp$, from lower left page corner */
-scaledpos dvi; /* a \.{DVI} position in page coordinates, in sync with DVI file */
-internal_font_number dvi_f; /* the current font */
+scaledpos cur;                  /* \TeX\ position relative to origin of the surrounding box, in box coordinate system */
+scaledpos box_pos;              /* position of box origin in page coordinates */
+scaledpos pos;                  /* global position on page, in $\rm sp$, from lower left page corner */
+scaledpos dvi;                  /* a \.{DVI} position in page coordinates, in sync with DVI file */
+internal_font_number dvi_f;     /* the current font */
 
-scaledpos cur_page_size; 
+scaledpos cur_page_size;
 
-integer get_cur_v (void)
+integer get_cur_v(void)
 {
-  return (cur_page_size.v - cur.v);
+    return (cur_page_size.v - cur.v);
 }
 
-integer get_cur_h (void)
+integer get_cur_h(void)
 {
-  return cur.h;
+    return cur.h;
 }
 
 
@@ -1043,791 +1081,951 @@ on \TeX's run-time stack corresponds to the values of |h| and |v|
 that a \.{DVI}-reading program will push onto its coordinate stack.
 */
 
-void hlist_out (void) /* output an |hlist_node| box */
-{
-  scaled base_line; /* the baseline coordinate for this box */
-  scaled c_wd,c_ht,c_dp;  /* the real width, height and depth of the character */
-  scaled w; /*  temporary value for directional width calculation  */
-  scaled edge_v;
-  scaled edge_h;
-  scaled effective_horizontal;
-  scaled basepoint_horizontal;
-  scaled basepoint_vertical;
-  integer save_direction;
-  pointer dir_ptr,dir_tmp;
-  scaled left_edge; /* the left coordinate for this box */
-  scaled save_h; /* what |cur.h| should pop to */
-  scaledpos save_dvi; /* what |dvi| should pop to */
-  scaledpos save_box_pos; /* what |box_pos| should pop to */
-  pointer this_box; /* pointer to containing box */
-  glue_ord g_order; /* applicable order of infinity for glue */
-  int g_sign; /* selects type of glue */
-  pointer p,q; /* current position in the hlist */
-  integer save_loc; /* \.{DVI} byte location upon entry */
-  pointer leader_box; /* the leader box being replicated */
-  scaled leader_wd; /* width of leader box being replicated */
-  scaled lx; /* extra space between leader boxes */
-  boolean outer_doing_leaders; /* were we doing leaders? */
-  scaled edge; /* right edge of sub-box or leader space */
-  real glue_temp; /* glue value before rounding */
-  real cur_glue; /* glue seen so far */
-  scaled cur_g; /* rounded equivalent of |cur_glue| times the glue ratio */
-  charinfo_short ci; /* this is a caching attempt */
-  cur_g=0; cur_glue=0.0;
-  this_box=temp_ptr; g_order=glue_order(this_box);
-  g_sign=glue_sign(this_box); p=list_ptr(this_box);
-  set_to_zero(cur); box_pos=pos;
-  save_direction=dvi_direction;
-  dvi_direction=box_dir(this_box);
-  /* DIR: Initialize |dir_ptr| for |ship_out| */
-  { dir_ptr=null; push_dir(dvi_direction); dir_dvi_ptr(dir_ptr)=dvi_ptr; }
-  incr(cur_s);
-  if (cur_s>0) dvi_out(push);
-  if (cur_s>max_push) max_push=cur_s;
-  save_loc=dvi_offset+dvi_ptr; base_line=cur.v; left_edge=cur.h;
-  /* Start hlist {\sl Sync\TeX} information record */
-  synctex_hlist(this_box);
-  while (p!=null) {
-    /* Output node |p| for |hlist_out| and move to the next node,
-       maintaining the condition |cur.v=base_line| */
-    /*
-      We ought to give special care to the efficiency of one part of |hlist_out|,
-      since it belongs to \TeX's inner loop. When a |char_node| is encountered,
-      we save a little time by processing several nodes in succession until
-      reaching a non-|char_node|.
-      @^inner loop@>
-    */
-
-    if (is_char_node(p)) {
-      do {
-	if (x_displace(p)!=0) cur.h = cur.h + x_displace(p);
-	if (y_displace(p)!=0) cur.v = cur.v - y_displace(p);
-	synch_pos_with_cur(); f=font(p); c=character(p);
-	ci = get_charinfo_short(f,c);
-	if (f!=dvi_f) {
-	  /* Change font |dvi_f| to |f| */
-	  if (!font_used(f)) {
-	    dvi_font_def(f); set_font_used(f,true);
-	  }
-	  oval=f-1; ocmd=fnt1; out_cmd();
-	  dvi_f=f;
-	}
-	c_ht=charinfo_height(ci);
-	c_dp=charinfo_depth(ci);
-	c_wd=charinfo_width(ci);
-	if (font_natural_dir(f)!=-1) {
-	  switch (font_direction(dvi_direction)) {
-	  case dir__LT: case dir__LB: 
-	    dvi_set(c,c_wd);
-	    break;
-	  case dir__RT: case dir__RB: 
-	    dvi_put(c);
-	    break;
-	  case dir__TL: case dir__TR:
-	  case dir__BL: case dir__BR: 
-	    c_wd = c_ht + c_dp;
-	    dvi_put(c);
-	    break;
-	  case dir__LL: 
-	    pos_right(c_wd);
-	    dvi_put(c);
-	    break;
-	  case dir__RR: 
-	    pos_left(c_wd);
-	    dvi_put(c);
-	    break;
-	  case dir__LR:
-	    dvi_set(c,c_wd);
-	    break;
-	  case dir__RL:
-	    dvi_put(c);
-	    break;
-	  case dir__TT:
-	    c_wd = c_ht + c_dp;
-	    pos_down(c_wd);
-	    dvi_put(c);
-	    break;
-	  case dir__TB: 
-	    c_wd = c_ht + c_dp;
-	    dvi_put(c);
-	    break;
-	  case dir__BT:
-	    c_wd = c_ht + c_dp;
-	    dvi_put(c);
-	    break;
-	  case dir__BB: 
-	    c_wd = c_ht + c_dp;
-	    pos_up(c_wd);
-	    dvi_put(c);
-	    break;
-	  }
-	} else {
-	  switch (font_direction(dvi_direction)) {
-	  case dir__LT:
-	    dvi_set(c,c_wd);
-	    break;
-	  case dir__LB: 
-	    pos_down(c_ht);
-	    dvi_set(c,c_wd);
-	    break;
-	  case dir__RT:
-	    pos_left(c_wd);
-	    dvi_put(c);
-	    break;
-	  case dir__RB:
-	    pos_down(c_ht);
-	    pos_left(c_wd);
-	    dvi_put(c);
-	    break;
-	  case dir__TL:
-	    pos_down(c_ht);
-	    pos_left(c_wd);
-	    dvi_put(c);
-	    c_wd = c_ht + c_dp;
-	    break;
-	  case dir__TR:
-	    pos_down(c_ht);
-	    dvi_put(c);
-	    c_wd = c_ht + c_dp;
-	    break;
-	  case dir__BL: 
-	    pos_left(c_wd);
-	    pos_up(c_dp);
-	    dvi_put(c);
-	    c_wd = c_ht + c_dp;
-	    break;
-	  case dir__BR: 
-	    pos_up(c_dp);
-	    dvi_put(c);
-	    c_wd = c_ht + c_dp;
-	    break;
-	  case dir__LL: case dir__LR: 
-	    pos_down((c_ht - c_dp) / 2);
-	    dvi_set(c,c_wd);
-	    break;
-	  case dir__RL: case dir__RR: 
-	    pos_left(c_wd);
-	    pos_down((c_ht - c_dp) / 2);
-	    dvi_put(c);
-	    break;
-	  case dir__TT: case dir__TB: 
-	    pos_down(c_ht);
-	    pos_left(c_wd / 2);
-	    dvi_put(c);
-	    c_wd=c_ht + c_dp;
-	    break;
-	  case dir__BT: case dir__BB: 
-	    pos_up(c_dp);
-	    pos_left(c_wd / 2);
-	    dvi_put(c);
-	    c_wd = c_ht + c_dp;
-	    break;
-	  }
-	}
-	if (x_displace(p)!=0) cur.h = cur.h - x_displace(p);
-	if (y_displace(p)!=0) cur.v = cur.v + y_displace(p);
-	cur.h=cur.h+c_wd;
-	p=vlink(p);
-      } while (is_char_node(p));
-      /* Record current point {\sl Sync\TeX} information */
-      synctex_current();
-    } else {
-      /* Output the non-|char_node| |p| for |hlist_out|
-	 and move to the next node */
-
-      switch(type(p)) {
-      case hlist_node:
-      case vlist_node:
-	/* Output a box in an hlist */
-
-	if (!(dir_orthogonal(dir_primary[box_dir(p)],dir_primary[dvi_direction]))) {
-	  effective_horizontal=width(p);
-	  basepoint_vertical=0;
-	  if (dir_opposite(dir_secondary[box_dir(p)],dir_secondary[dvi_direction])) 
-	    basepoint_horizontal=width(p);
-	  else
-	    basepoint_horizontal=0;
-	} else {
-	  effective_horizontal=height(p)+depth(p);
-	  if (!is_mirrored(box_dir(p))) {
-	    if (dir_eq(dir_primary[box_dir(p)],dir_secondary[dvi_direction]))
-	      basepoint_horizontal=height(p);
-	    else
-	      basepoint_horizontal=depth(p);
-	  } else {
-	    if (dir_eq(dir_primary[box_dir(p)],dir_secondary[dvi_direction]))
-	      basepoint_horizontal=depth(p);
-	    else
-	      basepoint_horizontal=height(p);
-	  }
-	  if (dir_eq(dir_secondary[box_dir(p)],dir_primary[dvi_direction]))
-	    basepoint_vertical= -(width(p) / 2);
-	  else
-	    basepoint_vertical = (width(p) / 2);
-	}
-	if (!is_mirrored(dvi_direction))
-	  basepoint_vertical = basepoint_vertical + shift_amount(p);  /* shift the box `down' */
-	else
-	  basepoint_vertical = basepoint_vertical - shift_amount(p); /* shift the box `up' */
-	if (list_ptr(p)==null) {
-	  /* Record void list {\sl Sync\TeX} information */
-	  if (type(p)==vlist_node)
-	    synctex_void_vlist(p,this_box);
-	  else
-	    synctex_void_hlist(p,this_box);
-
-	  cur.h =cur.h + effective_horizontal;
-	} else {
-	  temp_ptr=p; edge=cur.h; cur.h=cur.h + basepoint_horizontal;
-	  edge_v=cur.v; cur.v=base_line + basepoint_vertical;
-	  synch_dvi_with_cur(); save_dvi=dvi;
-	  save_box_pos=box_pos;
-	  if (type(p)==vlist_node) vlist_out(); else hlist_out();
-	  dvi=save_dvi;
-	  box_pos=save_box_pos;
-	  cur.h=edge+effective_horizontal; cur.v=base_line;
-	}
-	break;
-      case rule_node: 
-	if (!(dir_orthogonal(dir_primary[rule_dir(p)],dir_primary[dvi_direction]))) {
-	  rule_ht=height(p); rule_dp=depth(p); rule_wd=width(p);
-	} else {
-	  rule_ht=width(p) / 2;
-	  rule_dp=width(p) / 2;
-	  rule_wd=height(p)+depth(p);
-	}
-	goto FIN_RULE;
-	break;
-      case whatsit_node: 
-	/* Output the whatsit node |p| in an hlist */
-	if (subtype(p)!=dir_node) {
-	  out_what(p);
-	} else {
-	  /* Output a reflection instruction if the direction has changed */
-	  if (dir_dir(p)>=0) {
-	    push_dir_node(p);
-	    calculate_width_to_enddir(p, cur_glue,  cur_g, this_box, &w, &temp_ptr);
-	    if ((dir_opposite(dir_secondary[dir_dir(dir_ptr)],dir_secondary[dvi_direction]))
-		|| (dir_eq(dir_secondary[dir_dir(dir_ptr)],dir_secondary[dvi_direction]))) {
-	      dir_cur_h(temp_ptr) = cur.h + w;
-	      if (dir_opposite(dir_secondary[dir_dir(dir_ptr)],dir_secondary[dvi_direction]))
-		cur.h = cur.h + w;
-	    } else {
-		dir_cur_h(temp_ptr) = cur.h;
-	    }
-	    dir_cur_v(temp_ptr) = cur.v;
-	    dir_box_pos_h(temp_ptr) = box_pos.h;
-	    dir_box_pos_v(temp_ptr) = box_pos.v;
-	    synch_pos_with_cur(); /* no need for |synch_dvi_with_cur|, as there is no DVI grouping */
-	    box_pos = pos; /* fake a nested |hlist_out| */
-	    set_to_zero(cur);
-	    dvi_direction=dir_dir(dir_ptr);
-	  } else {
-	    pop_dir_node();
-	    box_pos.h = dir_box_pos_h(p);
-	    box_pos.v = dir_box_pos_v(p);
-	    cur.h = dir_cur_h(p);
-	    cur.v = dir_cur_v(p);
-	    if (dir_ptr!=null)
-	      dvi_direction=dir_dir(dir_ptr);
-	    else
-	      dvi_direction=0;
-	  }
-	}
-
-	break;
-      case glue_node: 
-        /* Move right or output leaders */
-	g=glue_ptr(p); rule_wd=width(g)-cur_g;
-	if (g_sign!=normal) {
-	  if (g_sign==stretching) {
-	    if (stretch_order(g)==g_order) {
-	      cur_glue=cur_glue+stretch(g);
-	      vet_glue(float_cast(glue_set(this_box))*cur_glue);
-	      cur_g=float_round(glue_temp);
-	    }
-	  } else if (shrink_order(g)==g_order) {
-	    cur_glue=cur_glue-shrink(g);
-	    vet_glue(float_cast(glue_set(this_box))*cur_glue);
-	    cur_g=float_round(glue_temp);
-	  }
-	}
-	rule_wd=rule_wd+cur_g;
-	if (subtype(p)>=a_leaders) {
-	  /* Output leaders in an hlist, |goto fin_rule| if a rule
-	     or to |next_p| if done */
-	  leader_box=leader_ptr(p);
-	  if (type(leader_box)==rule_node) {
-	    rule_ht=height(leader_box); rule_dp=depth(leader_box);
-	    goto FIN_RULE;
-	  }
-	  if (!(dir_orthogonal(dir_primary[box_dir(leader_box)],dir_primary[dvi_direction])))
-	    leader_wd=width(leader_box);
-	  else
-	    leader_wd=height(leader_box)+depth(leader_box);
-	  if ((leader_wd>0)&&(rule_wd>0)) {
-	    rule_wd=rule_wd+10; /* compensate for floating-point rounding */
-	    edge=cur.h+rule_wd; lx=0;
-	    /* Let |cur.h| be the position of the first box, and set |leader_wd+lx|
-	       to the spacing between corresponding parts of boxes */
-	    /* The calculations related to leaders require a bit of care. First, in the
-	       case of |a_leaders| (aligned leaders), we want to move |cur.h| to
-	       |left_edge| plus the smallest multiple of |leader_wd| for which the result
-	       is not less than the current value of |cur.h|; i.e., |cur.h| should become
-	       $|left_edge|+|leader_wd|\times\lceil
-	       (|cur.h|-|left_edge|)/|leader_wd|\rceil$.  The program here should work in
-	       all cases even though some implementations of \PASCAL\ give nonstandard
-	       results for the |div| operation when |cur.h| is less than |left_edge|.
-	       
-	       In the case of |c_leaders| (centered leaders), we want to increase |cur.h|
-	       by half of the excess space not occupied by the leaders; and in the
-	       case of |x_leaders| (expanded leaders) we increase |cur.h|
-	       by $1/(q+1)$ of this excess space, where $q$ is the number of times the
-	       leader box will be replicated. Slight inaccuracies in the division might
-	       accumulate; half of this rounding error is placed at each end of the leaders. */
-
-	    if (subtype(p)==a_leaders) {
-	      save_h=cur.h;
-	      cur.h=left_edge+leader_wd*((cur.h-left_edge) / leader_wd);
-	      if (cur.h<save_h) cur.h=cur.h+leader_wd;
-	    } else { 
-	      lq=rule_wd / leader_wd; /* the number of box copies */
-	      lr=rule_wd % leader_wd; /* the remaining space */
-	      if (subtype(p)==c_leaders) {
-		cur.h=cur.h+(lr / 2);
-	      } else {
-		lx=lr / (lq+1);
-		cur.h=cur.h+((lr-(lq-1)*lx) / 2);
-	      }
-	    }
-	    while (cur.h+leader_wd<=edge) {
-	      /* Output a leader box at |cur.h|,
-		 then advance |cur.h| by |leader_wd+lx| */
-	      /* The `\\{synch}' operations here are intended to decrease the number of
-		 bytes needed to specify horizontal and vertical motion in the \.{DVI} output. */
-
-	      if (!(dir_orthogonal(dir_primary[box_dir(leader_box)],dir_primary[dvi_direction]))) {
-		basepoint_vertical=0;
-		if (dir_opposite(dir_secondary[box_dir(leader_box)],dir_secondary[dvi_direction]))
-		  basepoint_horizontal=width(leader_box);
-		else
-		  basepoint_horizontal=0;
-	      } else {
-		if (!is_mirrored(box_dir(leader_box))) {
-		  if (dir_eq(dir_primary[box_dir(leader_box)],dir_secondary[dvi_direction]))
-		    basepoint_horizontal=height(leader_box);
-		  else
-		    basepoint_horizontal=depth(leader_box);
-		} else {
-		  if (dir_eq(dir_primary[box_dir(leader_box)],dir_secondary[dvi_direction]))
-		    basepoint_horizontal=depth(leader_box);
-		  else
-		    basepoint_horizontal=height(leader_box);
-		}
-		if (dir_eq(dir_secondary[box_dir(leader_box)],dir_primary[dvi_direction]))
-		  basepoint_vertical = -(width(leader_box) / 2);
-		else
-		  basepoint_vertical = (width(leader_box) / 2);
-	      }
-	      if (!is_mirrored(dvi_direction))
-		basepoint_vertical = basepoint_vertical + shift_amount(leader_box); /* shift the box `down' */
-	      else
-		basepoint_vertical = basepoint_vertical - shift_amount(leader_box); /* shift the box `up' */
-	      temp_ptr=leader_box;
-	      edge_h=cur.h; cur.h=cur.h + basepoint_horizontal;
-	      edge_v=cur.v; cur.v=base_line + basepoint_vertical;
-	      synch_dvi_with_cur(); save_dvi=dvi;
-	      save_box_pos=box_pos;
-	      outer_doing_leaders=doing_leaders; doing_leaders=true;
-	      if (type(leader_box)==vlist_node) vlist_out(); else hlist_out();
-	      doing_leaders=outer_doing_leaders;
-	      box_pos=save_box_pos;
-	      dvi=save_dvi;
-	      cur.h=edge_h+leader_wd+lx; 
-	      cur.v=base_line;
-	    }
-	    cur.h=edge-10; goto NEXT_P;
-	  }
-	}
-	goto MOVE_PAST;
-	break;
-      case disc_node: 
-	if (vlink(no_break(p))!=null) {
-	  if (subtype(p)!=select_disc) {
-	    vlink(tlink(no_break(p)))=vlink(p);
-	    q=vlink(no_break(p));
-	    vlink(no_break(p))=null;
-	    vlink(p)=q;
-	  }
-	}
-	break;
-      case margin_kern_node:
-	cur.h=cur.h+width(p);
-	break;
-      case kern_node: 
-	/* Record |kern_node| {\sl Sync\TeX} information */
-	synctex_kern(p,this_box);
-	cur.h=cur.h+width(p);
-	break;
-      case math_node: 
-        /* Record |math_node| {\sl Sync\TeX} information */
-	synctex_math(p,this_box);
-	cur.h=cur.h+surround(p);
-	break;
-      default:
-	break;
-      }
-      goto NEXT_P;
-    FIN_RULE: 
-      /* Output a rule in an hlist */
-      if (is_running(rule_ht)) rule_ht=height(this_box);
-      if (is_running(rule_dp)) rule_dp=depth(this_box);
-      rule_ht=rule_ht+rule_dp; /* this is the rule thickness */
-      if ((rule_ht>0)&&(rule_wd>0)) { /* we don't output empty rules */
-	cur.v=base_line+rule_dp; synch_pos_with_cur();
-	switch (box_direction(dvi_direction)) {
-	case dir_TL_:
-	  dvi_set_rule(rule_ht,rule_wd);
-	  break;
-	case dir_BL_:
-	  pos_down(rule_ht);
-	  dvi_set_rule(rule_ht,rule_wd);
-	  break;
-	case dir_TR_: 
-	  pos_left(rule_wd);
-	  dvi_put_rule(rule_ht,rule_wd);
-	  break;
-	case dir_BR_:
-	  pos_left(rule_wd);
-	  pos_down(rule_ht);
-	  dvi_put_rule(rule_ht,rule_wd);
-	  break;
-	case dir_LT_:
-	  pos_down(rule_wd);
-	  pos_left(rule_ht);
-	  dvi_set_rule(rule_wd,rule_ht);
-	  break;
-	case dir_RT_: 
-	  pos_down(rule_wd);
-	  dvi_put_rule(rule_wd,rule_ht);
-	  break;
-	case dir_LB_:
-	  pos_left(rule_ht);
-	  dvi_set_rule(rule_wd,rule_ht);
-	  break;
-	case dir_RB_:
-	  dvi_put_rule(rule_wd,rule_ht);
-	  break;
-	}
-	cur.v=base_line;
-      }
-MOVE_PAST: 
-      cur.h=cur.h+rule_wd;
-      /* Record horizontal |rule_node| or |glue_node| {\sl Sync\TeX} information */
-      synctex_horizontal_rule_or_glue(p,this_box);
-NEXT_P:
-      p=vlink(p);
+void hlist_out(void)
+{                               /* output an |hlist_node| box */
+    scaled base_line;           /* the baseline coordinate for this box */
+    scaled c_wd, c_ht, c_dp;    /* the real width, height and depth of the character */
+    scaled w;                   /*  temporary value for directional width calculation  */
+    scaled edge_v;
+    scaled edge_h;
+    scaled effective_horizontal;
+    scaled basepoint_horizontal;
+    scaled basepoint_vertical;
+    integer save_direction;
+    pointer dir_ptr, dir_tmp;
+    scaled left_edge;           /* the left coordinate for this box */
+    scaled save_h;              /* what |cur.h| should pop to */
+    scaledpos save_dvi;         /* what |dvi| should pop to */
+    scaledpos save_box_pos;     /* what |box_pos| should pop to */
+    pointer this_box;           /* pointer to containing box */
+    glue_ord g_order;           /* applicable order of infinity for glue */
+    int g_sign;                 /* selects type of glue */
+    pointer p, q;               /* current position in the hlist */
+    integer save_loc;           /* \.{DVI} byte location upon entry */
+    pointer leader_box;         /* the leader box being replicated */
+    scaled leader_wd;           /* width of leader box being replicated */
+    scaled lx;                  /* extra space between leader boxes */
+    boolean outer_doing_leaders;        /* were we doing leaders? */
+    scaled edge;                /* right edge of sub-box or leader space */
+    real glue_temp;             /* glue value before rounding */
+    real cur_glue;              /* glue seen so far */
+    scaled cur_g;               /* rounded equivalent of |cur_glue| times the glue ratio */
+    charinfo_short ci;          /* this is a caching attempt */
+    cur_g = 0;
+    cur_glue = 0.0;
+    this_box = temp_ptr;
+    g_order = glue_order(this_box);
+    g_sign = glue_sign(this_box);
+    p = list_ptr(this_box);
+    set_to_zero(cur);
+    box_pos = pos;
+    save_direction = dvi_direction;
+    dvi_direction = box_dir(this_box);
+    /* DIR: Initialize |dir_ptr| for |ship_out| */
+    {
+        dir_ptr = null;
+        push_dir(dvi_direction);
+        dir_dvi_ptr(dir_ptr) = dvi_ptr;
     }
-  }
-  /* Finish hlist {\sl Sync\TeX} information record */
-  synctex_tsilh(this_box);
-  prune_movements(save_loc);
-  if (cur_s>0) dvi_pop(save_loc);
-  decr(cur_s);
-  dvi_direction=save_direction;
-  /* DIR: Reset |dir_ptr| */
-  while (dir_ptr!=null) pop_dir_node();
+    incr(cur_s);
+    if (cur_s > 0)
+        dvi_out(push);
+    if (cur_s > max_push)
+        max_push = cur_s;
+    save_loc = dvi_offset + dvi_ptr;
+    base_line = cur.v;
+    left_edge = cur.h;
+    /* Start hlist {\sl Sync\TeX} information record */
+    synctex_hlist(this_box);
+    while (p != null) {
+        /* Output node |p| for |hlist_out| and move to the next node,
+           maintaining the condition |cur.v=base_line| */
+        /*
+           We ought to give special care to the efficiency of one part of |hlist_out|,
+           since it belongs to \TeX's inner loop. When a |char_node| is encountered,
+           we save a little time by processing several nodes in succession until
+           reaching a non-|char_node|.
+           @^inner loop@>
+         */
+
+        if (is_char_node(p)) {
+            do {
+                if (x_displace(p) != 0)
+                    cur.h = cur.h + x_displace(p);
+                if (y_displace(p) != 0)
+                    cur.v = cur.v - y_displace(p);
+                synch_pos_with_cur();
+                f = font(p);
+                c = character(p);
+                ci = get_charinfo_short(f, c);
+                if (f != dvi_f) {
+                    /* Change font |dvi_f| to |f| */
+                    if (!font_used(f)) {
+                        dvi_font_def(f);
+                        set_font_used(f, true);
+                    }
+                    oval = f - 1;
+                    ocmd = fnt1;
+                    out_cmd();
+                    dvi_f = f;
+                }
+                c_ht = charinfo_height(ci);
+                c_dp = charinfo_depth(ci);
+                c_wd = charinfo_width(ci);
+                if (font_natural_dir(f) != -1) {
+                    switch (font_direction(dvi_direction)) {
+                    case dir__LT:
+                    case dir__LB:
+                        dvi_set(c, c_wd);
+                        break;
+                    case dir__RT:
+                    case dir__RB:
+                        dvi_put(c);
+                        break;
+                    case dir__TL:
+                    case dir__TR:
+                    case dir__BL:
+                    case dir__BR:
+                        c_wd = c_ht + c_dp;
+                        dvi_put(c);
+                        break;
+                    case dir__LL:
+                        pos_right(c_wd);
+                        dvi_put(c);
+                        break;
+                    case dir__RR:
+                        pos_left(c_wd);
+                        dvi_put(c);
+                        break;
+                    case dir__LR:
+                        dvi_set(c, c_wd);
+                        break;
+                    case dir__RL:
+                        dvi_put(c);
+                        break;
+                    case dir__TT:
+                        c_wd = c_ht + c_dp;
+                        pos_down(c_wd);
+                        dvi_put(c);
+                        break;
+                    case dir__TB:
+                        c_wd = c_ht + c_dp;
+                        dvi_put(c);
+                        break;
+                    case dir__BT:
+                        c_wd = c_ht + c_dp;
+                        dvi_put(c);
+                        break;
+                    case dir__BB:
+                        c_wd = c_ht + c_dp;
+                        pos_up(c_wd);
+                        dvi_put(c);
+                        break;
+                    }
+                } else {
+                    switch (font_direction(dvi_direction)) {
+                    case dir__LT:
+                        dvi_set(c, c_wd);
+                        break;
+                    case dir__LB:
+                        pos_down(c_ht);
+                        dvi_set(c, c_wd);
+                        break;
+                    case dir__RT:
+                        pos_left(c_wd);
+                        dvi_put(c);
+                        break;
+                    case dir__RB:
+                        pos_down(c_ht);
+                        pos_left(c_wd);
+                        dvi_put(c);
+                        break;
+                    case dir__TL:
+                        pos_down(c_ht);
+                        pos_left(c_wd);
+                        dvi_put(c);
+                        c_wd = c_ht + c_dp;
+                        break;
+                    case dir__TR:
+                        pos_down(c_ht);
+                        dvi_put(c);
+                        c_wd = c_ht + c_dp;
+                        break;
+                    case dir__BL:
+                        pos_left(c_wd);
+                        pos_up(c_dp);
+                        dvi_put(c);
+                        c_wd = c_ht + c_dp;
+                        break;
+                    case dir__BR:
+                        pos_up(c_dp);
+                        dvi_put(c);
+                        c_wd = c_ht + c_dp;
+                        break;
+                    case dir__LL:
+                    case dir__LR:
+                        pos_down((c_ht - c_dp) / 2);
+                        dvi_set(c, c_wd);
+                        break;
+                    case dir__RL:
+                    case dir__RR:
+                        pos_left(c_wd);
+                        pos_down((c_ht - c_dp) / 2);
+                        dvi_put(c);
+                        break;
+                    case dir__TT:
+                    case dir__TB:
+                        pos_down(c_ht);
+                        pos_left(c_wd / 2);
+                        dvi_put(c);
+                        c_wd = c_ht + c_dp;
+                        break;
+                    case dir__BT:
+                    case dir__BB:
+                        pos_up(c_dp);
+                        pos_left(c_wd / 2);
+                        dvi_put(c);
+                        c_wd = c_ht + c_dp;
+                        break;
+                    }
+                }
+                if (x_displace(p) != 0)
+                    cur.h = cur.h - x_displace(p);
+                if (y_displace(p) != 0)
+                    cur.v = cur.v + y_displace(p);
+                cur.h = cur.h + c_wd;
+                p = vlink(p);
+            } while (is_char_node(p));
+            /* Record current point {\sl Sync\TeX} information */
+            synctex_current();
+        } else {
+            /* Output the non-|char_node| |p| for |hlist_out|
+               and move to the next node */
+
+            switch (type(p)) {
+            case hlist_node:
+            case vlist_node:
+                /* Output a box in an hlist */
+
+                if (!
+                    (dir_orthogonal
+                     (dir_primary[box_dir(p)], dir_primary[dvi_direction]))) {
+                    effective_horizontal = width(p);
+                    basepoint_vertical = 0;
+                    if (dir_opposite
+                        (dir_secondary[box_dir(p)],
+                         dir_secondary[dvi_direction]))
+                        basepoint_horizontal = width(p);
+                    else
+                        basepoint_horizontal = 0;
+                } else {
+                    effective_horizontal = height(p) + depth(p);
+                    if (!is_mirrored(box_dir(p))) {
+                        if (dir_eq
+                            (dir_primary[box_dir(p)],
+                             dir_secondary[dvi_direction]))
+                            basepoint_horizontal = height(p);
+                        else
+                            basepoint_horizontal = depth(p);
+                    } else {
+                        if (dir_eq
+                            (dir_primary[box_dir(p)],
+                             dir_secondary[dvi_direction]))
+                            basepoint_horizontal = depth(p);
+                        else
+                            basepoint_horizontal = height(p);
+                    }
+                    if (dir_eq
+                        (dir_secondary[box_dir(p)], dir_primary[dvi_direction]))
+                        basepoint_vertical = -(width(p) / 2);
+                    else
+                        basepoint_vertical = (width(p) / 2);
+                }
+                if (!is_mirrored(dvi_direction))
+                    basepoint_vertical = basepoint_vertical + shift_amount(p);  /* shift the box `down' */
+                else
+                    basepoint_vertical = basepoint_vertical - shift_amount(p);  /* shift the box `up' */
+                if (list_ptr(p) == null) {
+                    /* Record void list {\sl Sync\TeX} information */
+                    if (type(p) == vlist_node)
+                        synctex_void_vlist(p, this_box);
+                    else
+                        synctex_void_hlist(p, this_box);
+
+                    cur.h = cur.h + effective_horizontal;
+                } else {
+                    temp_ptr = p;
+                    edge = cur.h;
+                    cur.h = cur.h + basepoint_horizontal;
+                    edge_v = cur.v;
+                    cur.v = base_line + basepoint_vertical;
+                    synch_dvi_with_cur();
+                    save_dvi = dvi;
+                    save_box_pos = box_pos;
+                    if (type(p) == vlist_node)
+                        vlist_out();
+                    else
+                        hlist_out();
+                    dvi = save_dvi;
+                    box_pos = save_box_pos;
+                    cur.h = edge + effective_horizontal;
+                    cur.v = base_line;
+                }
+                break;
+            case rule_node:
+                if (!
+                    (dir_orthogonal
+                     (dir_primary[rule_dir(p)], dir_primary[dvi_direction]))) {
+                    rule_ht = height(p);
+                    rule_dp = depth(p);
+                    rule_wd = width(p);
+                } else {
+                    rule_ht = width(p) / 2;
+                    rule_dp = width(p) / 2;
+                    rule_wd = height(p) + depth(p);
+                }
+                goto FIN_RULE;
+                break;
+            case whatsit_node:
+                /* Output the whatsit node |p| in an hlist */
+                if (subtype(p) != dir_node) {
+                    out_what(p);
+                } else {
+                    /* Output a reflection instruction if the direction has changed */
+                    if (dir_dir(p) >= 0) {
+                        push_dir_node(p);
+                        calculate_width_to_enddir(p, cur_glue, cur_g, this_box,
+                                                  &w, &temp_ptr);
+                        if ((dir_opposite
+                             (dir_secondary[dir_dir(dir_ptr)],
+                              dir_secondary[dvi_direction]))
+                            ||
+                            (dir_eq
+                             (dir_secondary[dir_dir(dir_ptr)],
+                              dir_secondary[dvi_direction]))) {
+                            dir_cur_h(temp_ptr) = cur.h + w;
+                            if (dir_opposite
+                                (dir_secondary[dir_dir(dir_ptr)],
+                                 dir_secondary[dvi_direction]))
+                                cur.h = cur.h + w;
+                        } else {
+                            dir_cur_h(temp_ptr) = cur.h;
+                        }
+                        dir_cur_v(temp_ptr) = cur.v;
+                        dir_box_pos_h(temp_ptr) = box_pos.h;
+                        dir_box_pos_v(temp_ptr) = box_pos.v;
+                        synch_pos_with_cur();   /* no need for |synch_dvi_with_cur|, as there is no DVI grouping */
+                        box_pos = pos;  /* fake a nested |hlist_out| */
+                        set_to_zero(cur);
+                        dvi_direction = dir_dir(dir_ptr);
+                    } else {
+                        pop_dir_node();
+                        box_pos.h = dir_box_pos_h(p);
+                        box_pos.v = dir_box_pos_v(p);
+                        cur.h = dir_cur_h(p);
+                        cur.v = dir_cur_v(p);
+                        if (dir_ptr != null)
+                            dvi_direction = dir_dir(dir_ptr);
+                        else
+                            dvi_direction = 0;
+                    }
+                }
+
+                break;
+            case glue_node:
+                /* Move right or output leaders */
+                g = glue_ptr(p);
+                rule_wd = width(g) - cur_g;
+                if (g_sign != normal) {
+                    if (g_sign == stretching) {
+                        if (stretch_order(g) == g_order) {
+                            cur_glue = cur_glue + stretch(g);
+                            vet_glue(float_cast(glue_set(this_box)) * cur_glue);
+                            cur_g = float_round(glue_temp);
+                        }
+                    } else if (shrink_order(g) == g_order) {
+                        cur_glue = cur_glue - shrink(g);
+                        vet_glue(float_cast(glue_set(this_box)) * cur_glue);
+                        cur_g = float_round(glue_temp);
+                    }
+                }
+                rule_wd = rule_wd + cur_g;
+                if (subtype(p) >= a_leaders) {
+                    /* Output leaders in an hlist, |goto fin_rule| if a rule
+                       or to |next_p| if done */
+                    leader_box = leader_ptr(p);
+                    if (type(leader_box) == rule_node) {
+                        rule_ht = height(leader_box);
+                        rule_dp = depth(leader_box);
+                        goto FIN_RULE;
+                    }
+                    if (!
+                        (dir_orthogonal
+                         (dir_primary[box_dir(leader_box)],
+                          dir_primary[dvi_direction])))
+                        leader_wd = width(leader_box);
+                    else
+                        leader_wd = height(leader_box) + depth(leader_box);
+                    if ((leader_wd > 0) && (rule_wd > 0)) {
+                        rule_wd = rule_wd + 10; /* compensate for floating-point rounding */
+                        edge = cur.h + rule_wd;
+                        lx = 0;
+                        /* Let |cur.h| be the position of the first box, and set |leader_wd+lx|
+                           to the spacing between corresponding parts of boxes */
+                        /* The calculations related to leaders require a bit of care. First, in the
+                           case of |a_leaders| (aligned leaders), we want to move |cur.h| to
+                           |left_edge| plus the smallest multiple of |leader_wd| for which the result
+                           is not less than the current value of |cur.h|; i.e., |cur.h| should become
+                           $|left_edge|+|leader_wd|\times\lceil
+                           (|cur.h|-|left_edge|)/|leader_wd|\rceil$.  The program here should work in
+                           all cases even though some implementations of \PASCAL\ give nonstandard
+                           results for the |div| operation when |cur.h| is less than |left_edge|.
+
+                           In the case of |c_leaders| (centered leaders), we want to increase |cur.h|
+                           by half of the excess space not occupied by the leaders; and in the
+                           case of |x_leaders| (expanded leaders) we increase |cur.h|
+                           by $1/(q+1)$ of this excess space, where $q$ is the number of times the
+                           leader box will be replicated. Slight inaccuracies in the division might
+                           accumulate; half of this rounding error is placed at each end of the leaders. */
+
+                        if (subtype(p) == a_leaders) {
+                            save_h = cur.h;
+                            cur.h =
+                                left_edge +
+                                leader_wd * ((cur.h - left_edge) / leader_wd);
+                            if (cur.h < save_h)
+                                cur.h = cur.h + leader_wd;
+                        } else {
+                            lq = rule_wd / leader_wd;   /* the number of box copies */
+                            lr = rule_wd % leader_wd;   /* the remaining space */
+                            if (subtype(p) == c_leaders) {
+                                cur.h = cur.h + (lr / 2);
+                            } else {
+                                lx = lr / (lq + 1);
+                                cur.h = cur.h + ((lr - (lq - 1) * lx) / 2);
+                            }
+                        }
+                        while (cur.h + leader_wd <= edge) {
+                            /* Output a leader box at |cur.h|,
+                               then advance |cur.h| by |leader_wd+lx| */
+                            /* The `\\{synch}' operations here are intended to decrease the number of
+                               bytes needed to specify horizontal and vertical motion in the \.{DVI} output. */
+
+                            if (!
+                                (dir_orthogonal
+                                 (dir_primary[box_dir(leader_box)],
+                                  dir_primary[dvi_direction]))) {
+                                basepoint_vertical = 0;
+                                if (dir_opposite
+                                    (dir_secondary[box_dir(leader_box)],
+                                     dir_secondary[dvi_direction]))
+                                    basepoint_horizontal = width(leader_box);
+                                else
+                                    basepoint_horizontal = 0;
+                            } else {
+                                if (!is_mirrored(box_dir(leader_box))) {
+                                    if (dir_eq
+                                        (dir_primary[box_dir(leader_box)],
+                                         dir_secondary[dvi_direction]))
+                                        basepoint_horizontal =
+                                            height(leader_box);
+                                    else
+                                        basepoint_horizontal =
+                                            depth(leader_box);
+                                } else {
+                                    if (dir_eq
+                                        (dir_primary[box_dir(leader_box)],
+                                         dir_secondary[dvi_direction]))
+                                        basepoint_horizontal =
+                                            depth(leader_box);
+                                    else
+                                        basepoint_horizontal =
+                                            height(leader_box);
+                                }
+                                if (dir_eq
+                                    (dir_secondary[box_dir(leader_box)],
+                                     dir_primary[dvi_direction]))
+                                    basepoint_vertical =
+                                        -(width(leader_box) / 2);
+                                else
+                                    basepoint_vertical =
+                                        (width(leader_box) / 2);
+                            }
+                            if (!is_mirrored(dvi_direction))
+                                basepoint_vertical = basepoint_vertical + shift_amount(leader_box);     /* shift the box `down' */
+                            else
+                                basepoint_vertical = basepoint_vertical - shift_amount(leader_box);     /* shift the box `up' */
+                            temp_ptr = leader_box;
+                            edge_h = cur.h;
+                            cur.h = cur.h + basepoint_horizontal;
+                            edge_v = cur.v;
+                            cur.v = base_line + basepoint_vertical;
+                            synch_dvi_with_cur();
+                            save_dvi = dvi;
+                            save_box_pos = box_pos;
+                            outer_doing_leaders = doing_leaders;
+                            doing_leaders = true;
+                            if (type(leader_box) == vlist_node)
+                                vlist_out();
+                            else
+                                hlist_out();
+                            doing_leaders = outer_doing_leaders;
+                            box_pos = save_box_pos;
+                            dvi = save_dvi;
+                            cur.h = edge_h + leader_wd + lx;
+                            cur.v = base_line;
+                        }
+                        cur.h = edge - 10;
+                        goto NEXT_P;
+                    }
+                }
+                goto MOVE_PAST;
+                break;
+            case disc_node:
+                if (vlink(no_break(p)) != null) {
+                    if (subtype(p) != select_disc) {
+                        vlink(tlink(no_break(p))) = vlink(p);
+                        q = vlink(no_break(p));
+                        vlink(no_break(p)) = null;
+                        vlink(p) = q;
+                    }
+                }
+                break;
+            case margin_kern_node:
+                cur.h = cur.h + width(p);
+                break;
+            case kern_node:
+                /* Record |kern_node| {\sl Sync\TeX} information */
+                synctex_kern(p, this_box);
+                cur.h = cur.h + width(p);
+                break;
+            case math_node:
+                /* Record |math_node| {\sl Sync\TeX} information */
+                synctex_math(p, this_box);
+                cur.h = cur.h + surround(p);
+                break;
+            default:
+                break;
+            }
+            goto NEXT_P;
+          FIN_RULE:
+            /* Output a rule in an hlist */
+            if (is_running(rule_ht))
+                rule_ht = height(this_box);
+            if (is_running(rule_dp))
+                rule_dp = depth(this_box);
+            rule_ht = rule_ht + rule_dp;        /* this is the rule thickness */
+            if ((rule_ht > 0) && (rule_wd > 0)) {       /* we don't output empty rules */
+                cur.v = base_line + rule_dp;
+                synch_pos_with_cur();
+                switch (box_direction(dvi_direction)) {
+                case dir_TL_:
+                    dvi_set_rule(rule_ht, rule_wd);
+                    break;
+                case dir_BL_:
+                    pos_down(rule_ht);
+                    dvi_set_rule(rule_ht, rule_wd);
+                    break;
+                case dir_TR_:
+                    pos_left(rule_wd);
+                    dvi_put_rule(rule_ht, rule_wd);
+                    break;
+                case dir_BR_:
+                    pos_left(rule_wd);
+                    pos_down(rule_ht);
+                    dvi_put_rule(rule_ht, rule_wd);
+                    break;
+                case dir_LT_:
+                    pos_down(rule_wd);
+                    pos_left(rule_ht);
+                    dvi_set_rule(rule_wd, rule_ht);
+                    break;
+                case dir_RT_:
+                    pos_down(rule_wd);
+                    dvi_put_rule(rule_wd, rule_ht);
+                    break;
+                case dir_LB_:
+                    pos_left(rule_ht);
+                    dvi_set_rule(rule_wd, rule_ht);
+                    break;
+                case dir_RB_:
+                    dvi_put_rule(rule_wd, rule_ht);
+                    break;
+                }
+                cur.v = base_line;
+            }
+          MOVE_PAST:
+            cur.h = cur.h + rule_wd;
+            /* Record horizontal |rule_node| or |glue_node| {\sl Sync\TeX} information */
+            synctex_horizontal_rule_or_glue(p, this_box);
+          NEXT_P:
+            p = vlink(p);
+        }
+    }
+    /* Finish hlist {\sl Sync\TeX} information record */
+    synctex_tsilh(this_box);
+    prune_movements(save_loc);
+    if (cur_s > 0)
+        dvi_pop(save_loc);
+    decr(cur_s);
+    dvi_direction = save_direction;
+    /* DIR: Reset |dir_ptr| */
+    while (dir_ptr != null)
+        pop_dir_node();
 }
 
 
 /* The |vlist_out| routine is similar to |hlist_out|, but a bit simpler */
 
-void vlist_out (void) 
-{ /* output a |vlist_node| box */
+void vlist_out(void)
+{                               /* output a |vlist_node| box */
 
-  scaled left_edge; /* the left coordinate for this box */
-  scaled top_edge; /* the top coordinate for this box */
-  scaled save_v; /* what |cur.v| should pop to */
-  scaledpos save_dvi; /* what |dvi| should pop to */
-  scaledpos save_box_pos; /* what |box_pos| should pop to */
-  pointer this_box; /* pointer to containing box */
-  glue_ord g_order; /* applicable order of infinity for glue */
-  int g_sign; /* selects type of glue */
-  pointer p; /* current position in the vlist */
-  integer save_loc; /* \.{DVI} byte location upon entry */
-  pointer leader_box; /* the leader box being replicated */
-  scaled leader_ht; /* height of leader box being replicated */
-  scaled lx; /* extra space between leader boxes */
-  boolean outer_doing_leaders; /* were we doing leaders? */
-  scaled edge; /* bottom boundary of leader space */
-  real glue_temp; /* glue value before rounding */
-  real cur_glue; /* glue seen so far */
-  scaled cur_g; /* rounded equivalent of |cur_glue| times the glue ratio */
-  integer save_direction;
-  scaled effective_vertical;
-  scaled basepoint_horizontal;
-  scaled basepoint_vertical;
-  scaled edge_v;
-  cur_g=0; cur_glue=0.0;
-  this_box=temp_ptr; g_order=glue_order(this_box);
-  g_sign=glue_sign(this_box); p=list_ptr(this_box);
-  set_to_zero(cur); box_pos=pos;
-  save_direction=dvi_direction;
-  dvi_direction=box_dir(this_box);
-  incr(cur_s);
-  if (cur_s>0) dvi_out(push);
-  if (cur_s>max_push) max_push=cur_s;
-  save_loc=dvi_offset+dvi_ptr; left_edge=cur.h;
-  /* Start vlist {\sl Sync\TeX} information record */
-  synctex_vlist(this_box);
-  cur.v=cur.v-height(this_box);
-  top_edge=cur.v;
-  while (p!=null) {
-    /* Output node |p| for |vlist_out| and move to the next node,
-       maintaining the condition |cur.h=left_edge| */
-    if (is_char_node(p)) {
-      print_font_and_char(p); tconfusion("vlistout");
-    } else {
-      /* Output the non-|char_node| |p| for |vlist_out| */
-      switch (type(p)) {
-      case hlist_node:
-      case vlist_node:
-	/* Output a box in a vlist */
-	/* The |synch_v| here allows the \.{DVI} output to use one-byte commands
-	   for adjusting |v| in most cases, since the baselineskip distance will
-	   usually be constant. */
-	if (!(dir_orthogonal(dir_primary[box_dir(p)],dir_primary[dvi_direction]))) {
-	  effective_vertical=height(p)+depth(p);
-	  if ((type(p)==hlist_node) && is_mirrored(box_dir(p))) 
-	    basepoint_vertical=depth(p);
-	  else
-	    basepoint_vertical=height(p);
-	  if (dir_opposite(dir_secondary[box_dir(p)],dir_secondary[dvi_direction]))
-	    basepoint_horizontal=width(p);
-	  else
-	    basepoint_horizontal=0;
-	} else {
-	  effective_vertical=width(p);
-	  if (!is_mirrored(box_dir(p))) {
-	    if (dir_eq(dir_primary[box_dir(p)],dir_secondary[dvi_direction]))
-	      basepoint_horizontal=height(p);
-	    else
-	      basepoint_horizontal=depth(p);
-	  } else {
-	    if (dir_eq(dir_primary[box_dir(p)],dir_secondary[dvi_direction]))
-	      basepoint_horizontal=depth(p);
-	    else
-	      basepoint_horizontal=height(p);
-	    if (dir_eq(dir_secondary[box_dir(p)],dir_primary[dvi_direction]))
-	      basepoint_vertical=0;
-	    else
-	      basepoint_vertical=width(p);
-	  }
-	}
-	basepoint_horizontal = basepoint_horizontal + shift_amount(p); /* shift the box `right' */
-	if (list_ptr(p)==null) {
-	  cur.v=cur.v+effective_vertical;
-	  /* Record void list {\sl Sync\TeX} information */
-	  if (type(p)==vlist_node)
-	    synctex_void_vlist(p,this_box);
-	  else
-	    synctex_void_hlist(p,this_box);
+    scaled left_edge;           /* the left coordinate for this box */
+    scaled top_edge;            /* the top coordinate for this box */
+    scaled save_v;              /* what |cur.v| should pop to */
+    scaledpos save_dvi;         /* what |dvi| should pop to */
+    scaledpos save_box_pos;     /* what |box_pos| should pop to */
+    pointer this_box;           /* pointer to containing box */
+    glue_ord g_order;           /* applicable order of infinity for glue */
+    int g_sign;                 /* selects type of glue */
+    pointer p;                  /* current position in the vlist */
+    integer save_loc;           /* \.{DVI} byte location upon entry */
+    pointer leader_box;         /* the leader box being replicated */
+    scaled leader_ht;           /* height of leader box being replicated */
+    scaled lx;                  /* extra space between leader boxes */
+    boolean outer_doing_leaders;        /* were we doing leaders? */
+    scaled edge;                /* bottom boundary of leader space */
+    real glue_temp;             /* glue value before rounding */
+    real cur_glue;              /* glue seen so far */
+    scaled cur_g;               /* rounded equivalent of |cur_glue| times the glue ratio */
+    integer save_direction;
+    scaled effective_vertical;
+    scaled basepoint_horizontal;
+    scaled basepoint_vertical;
+    scaled edge_v;
+    cur_g = 0;
+    cur_glue = 0.0;
+    this_box = temp_ptr;
+    g_order = glue_order(this_box);
+    g_sign = glue_sign(this_box);
+    p = list_ptr(this_box);
+    set_to_zero(cur);
+    box_pos = pos;
+    save_direction = dvi_direction;
+    dvi_direction = box_dir(this_box);
+    incr(cur_s);
+    if (cur_s > 0)
+        dvi_out(push);
+    if (cur_s > max_push)
+        max_push = cur_s;
+    save_loc = dvi_offset + dvi_ptr;
+    left_edge = cur.h;
+    /* Start vlist {\sl Sync\TeX} information record */
+    synctex_vlist(this_box);
+    cur.v = cur.v - height(this_box);
+    top_edge = cur.v;
+    while (p != null) {
+        /* Output node |p| for |vlist_out| and move to the next node,
+           maintaining the condition |cur.h=left_edge| */
+        if (is_char_node(p)) {
+            print_font_and_char(p);
+            tconfusion("vlistout");
+        } else {
+            /* Output the non-|char_node| |p| for |vlist_out| */
+            switch (type(p)) {
+            case hlist_node:
+            case vlist_node:
+                /* Output a box in a vlist */
+                /* The |synch_v| here allows the \.{DVI} output to use one-byte commands
+                   for adjusting |v| in most cases, since the baselineskip distance will
+                   usually be constant. */
+                if (!
+                    (dir_orthogonal
+                     (dir_primary[box_dir(p)], dir_primary[dvi_direction]))) {
+                    effective_vertical = height(p) + depth(p);
+                    if ((type(p) == hlist_node) && is_mirrored(box_dir(p)))
+                        basepoint_vertical = depth(p);
+                    else
+                        basepoint_vertical = height(p);
+                    if (dir_opposite
+                        (dir_secondary[box_dir(p)],
+                         dir_secondary[dvi_direction]))
+                        basepoint_horizontal = width(p);
+                    else
+                        basepoint_horizontal = 0;
+                } else {
+                    effective_vertical = width(p);
+                    if (!is_mirrored(box_dir(p))) {
+                        if (dir_eq
+                            (dir_primary[box_dir(p)],
+                             dir_secondary[dvi_direction]))
+                            basepoint_horizontal = height(p);
+                        else
+                            basepoint_horizontal = depth(p);
+                    } else {
+                        if (dir_eq
+                            (dir_primary[box_dir(p)],
+                             dir_secondary[dvi_direction]))
+                            basepoint_horizontal = depth(p);
+                        else
+                            basepoint_horizontal = height(p);
+                        if (dir_eq
+                            (dir_secondary[box_dir(p)],
+                             dir_primary[dvi_direction]))
+                            basepoint_vertical = 0;
+                        else
+                            basepoint_vertical = width(p);
+                    }
+                }
+                basepoint_horizontal = basepoint_horizontal + shift_amount(p);  /* shift the box `right' */
+                if (list_ptr(p) == null) {
+                    cur.v = cur.v + effective_vertical;
+                    /* Record void list {\sl Sync\TeX} information */
+                    if (type(p) == vlist_node)
+                        synctex_void_vlist(p, this_box);
+                    else
+                        synctex_void_hlist(p, this_box);
 
-	} else {
-	  edge_v=cur.v;
-	  cur.h=left_edge + basepoint_horizontal;
-	  cur.v=cur.v + basepoint_vertical;
-	  synch_dvi_with_cur(); save_dvi=dvi;
-	  save_box_pos=box_pos;
-	  temp_ptr=p;
-	  if (type(p)==vlist_node) vlist_out(); else hlist_out();
-	  dvi=save_dvi;
-	  box_pos=save_box_pos;
-	  cur.h=left_edge; cur.v=edge_v + effective_vertical;
-	}
-	break;
-      case rule_node:
-	if (!(dir_orthogonal(dir_primary[rule_dir(p)],dir_primary[dvi_direction]))) {
-	  rule_ht=height(p); rule_dp=depth(p); rule_wd=width(p);
-	} else {
-	  rule_ht=width(p) / 2;
-	  rule_dp=width(p) / 2;
-	  rule_wd=height(p)+depth(p);
-	}
-	goto FIN_RULE;
-	break;
-      case whatsit_node: 
-	/* Output the whatsit node |p| in a vlist */
-	out_what(p);
-	break;
-      case glue_node: 
-	/* Move down or output leaders */
-	g=glue_ptr(p); rule_ht=width(g)-cur_g;
-	if (g_sign!=normal) {
-	  if (g_sign==stretching) {
-	    if (stretch_order(g)==g_order) {
-	      cur_glue=cur_glue+stretch(g);
-	      vet_glue(float_cast(glue_set(this_box))*cur_glue);
-	      cur_g=float_round(glue_temp);
-	    }
-	  }  else if (shrink_order(g)==g_order) {
-	    cur_glue=cur_glue-shrink(g);
-	    vet_glue(float_cast(glue_set(this_box))*cur_glue);
-	    cur_g=float_round(glue_temp);
-	  }
-	}
-	rule_ht=rule_ht+cur_g;
-	if (subtype(p)>=a_leaders) {
-	  /* Output leaders in a vlist, |goto fin_rule| if a rule
-	     or to |next_p| if done */
-	  leader_box=leader_ptr(p);
-	  if (type(leader_box)==rule_node) {
-	    rule_wd=width(leader_box); rule_dp=0;
-	    goto FIN_RULE;
-	  }
-	  if (!(dir_orthogonal(dir_primary[box_dir(leader_box)],dir_primary[dvi_direction])))
-	    leader_ht=height(leader_box)+depth(leader_box);
-	  else
-	    leader_ht=width(leader_box);
-	  if ((leader_ht>0)&&(rule_ht>0)) {
-	    rule_ht=rule_ht+10; /* compensate for floating-point rounding */
-	    edge=cur.v+rule_ht; lx=0;
-	    /* Let |cur.v| be the position of the first box, and set |leader_ht+lx|
-	       to the spacing between corresponding parts of boxes */
-	    if (subtype(p)==a_leaders) {
-	      save_v=cur.v;
-	      cur.v=top_edge+leader_ht*((cur.v-top_edge) / leader_ht);
-	      if (cur.v<save_v) cur.v=cur.v+leader_ht;
-	    } else  {
-	      lq=rule_ht / leader_ht; /* the number of box copies */
-	      lr=rule_ht % leader_ht; /* the remaining space */
-	      if (subtype(p)==c_leaders) {
-		cur.v=cur.v+(lr / 2);
-	      }  else {
-		lx=lr / (lq+1);
-		cur.v=cur.v+((lr-(lq-1)*lx) / 2);
-	      }
-	    }
+                } else {
+                    edge_v = cur.v;
+                    cur.h = left_edge + basepoint_horizontal;
+                    cur.v = cur.v + basepoint_vertical;
+                    synch_dvi_with_cur();
+                    save_dvi = dvi;
+                    save_box_pos = box_pos;
+                    temp_ptr = p;
+                    if (type(p) == vlist_node)
+                        vlist_out();
+                    else
+                        hlist_out();
+                    dvi = save_dvi;
+                    box_pos = save_box_pos;
+                    cur.h = left_edge;
+                    cur.v = edge_v + effective_vertical;
+                }
+                break;
+            case rule_node:
+                if (!
+                    (dir_orthogonal
+                     (dir_primary[rule_dir(p)], dir_primary[dvi_direction]))) {
+                    rule_ht = height(p);
+                    rule_dp = depth(p);
+                    rule_wd = width(p);
+                } else {
+                    rule_ht = width(p) / 2;
+                    rule_dp = width(p) / 2;
+                    rule_wd = height(p) + depth(p);
+                }
+                goto FIN_RULE;
+                break;
+            case whatsit_node:
+                /* Output the whatsit node |p| in a vlist */
+                out_what(p);
+                break;
+            case glue_node:
+                /* Move down or output leaders */
+                g = glue_ptr(p);
+                rule_ht = width(g) - cur_g;
+                if (g_sign != normal) {
+                    if (g_sign == stretching) {
+                        if (stretch_order(g) == g_order) {
+                            cur_glue = cur_glue + stretch(g);
+                            vet_glue(float_cast(glue_set(this_box)) * cur_glue);
+                            cur_g = float_round(glue_temp);
+                        }
+                    } else if (shrink_order(g) == g_order) {
+                        cur_glue = cur_glue - shrink(g);
+                        vet_glue(float_cast(glue_set(this_box)) * cur_glue);
+                        cur_g = float_round(glue_temp);
+                    }
+                }
+                rule_ht = rule_ht + cur_g;
+                if (subtype(p) >= a_leaders) {
+                    /* Output leaders in a vlist, |goto fin_rule| if a rule
+                       or to |next_p| if done */
+                    leader_box = leader_ptr(p);
+                    if (type(leader_box) == rule_node) {
+                        rule_wd = width(leader_box);
+                        rule_dp = 0;
+                        goto FIN_RULE;
+                    }
+                    if (!
+                        (dir_orthogonal
+                         (dir_primary[box_dir(leader_box)],
+                          dir_primary[dvi_direction])))
+                        leader_ht = height(leader_box) + depth(leader_box);
+                    else
+                        leader_ht = width(leader_box);
+                    if ((leader_ht > 0) && (rule_ht > 0)) {
+                        rule_ht = rule_ht + 10; /* compensate for floating-point rounding */
+                        edge = cur.v + rule_ht;
+                        lx = 0;
+                        /* Let |cur.v| be the position of the first box, and set |leader_ht+lx|
+                           to the spacing between corresponding parts of boxes */
+                        if (subtype(p) == a_leaders) {
+                            save_v = cur.v;
+                            cur.v =
+                                top_edge +
+                                leader_ht * ((cur.v - top_edge) / leader_ht);
+                            if (cur.v < save_v)
+                                cur.v = cur.v + leader_ht;
+                        } else {
+                            lq = rule_ht / leader_ht;   /* the number of box copies */
+                            lr = rule_ht % leader_ht;   /* the remaining space */
+                            if (subtype(p) == c_leaders) {
+                                cur.v = cur.v + (lr / 2);
+                            } else {
+                                lx = lr / (lq + 1);
+                                cur.v = cur.v + ((lr - (lq - 1) * lx) / 2);
+                            }
+                        }
 
-	    while (cur.v+leader_ht<=edge) {
-	      /* Output a leader box at |cur.v|, then advance |cur.v| by |leader_ht+lx| */
+                        while (cur.v + leader_ht <= edge) {
+                            /* Output a leader box at |cur.v|, then advance |cur.v| by |leader_ht+lx| */
 
-	      /* When we reach this part of the program, |cur.v| indicates the top of a
-		 leader box, not its baseline. */
+                            /* When we reach this part of the program, |cur.v| indicates the top of a
+                               leader box, not its baseline. */
 
-	      if (!(dir_orthogonal(dir_primary[box_dir(leader_box)],dir_primary[dvi_direction]))) {
-		effective_vertical=height(leader_box)+depth(leader_box);
-		if ((type(leader_box)==hlist_node) && is_mirrored(box_dir(leader_box)))
-		  basepoint_vertical=depth(leader_box);
-		else
-		  basepoint_vertical=height(leader_box);
-		if (dir_opposite(dir_secondary[box_dir(leader_box)],dir_secondary[dvi_direction]))
-		  basepoint_horizontal=width(leader_box);
-		else
-		  basepoint_horizontal=0;
-	      } else {
-		effective_vertical=width(leader_box);
-		if (!is_mirrored(box_dir(leader_box))) {
-		  if (dir_eq(dir_primary[box_dir(leader_box)],dir_secondary[dvi_direction]))
-		    basepoint_horizontal=height(leader_box);
-		  else
-		    basepoint_horizontal=depth(leader_box);
-		} else {
-		  if (dir_eq(dir_primary[box_dir(leader_box)],dir_secondary[dvi_direction])) 
-		    basepoint_horizontal=depth(leader_box);
-		  else
-		    basepoint_horizontal=height(leader_box);
-		}
-		if (dir_eq(dir_secondary[box_dir(leader_box)],dir_primary[dvi_direction]))
-		  basepoint_vertical = width(leader_box);
-		else
-		  basepoint_vertical = 0;
-	      }
-	      basepoint_horizontal = basepoint_horizontal + shift_amount(leader_box); 
-	      /* shift the box `right' */
-	      temp_ptr=leader_box;
-	      cur.h=left_edge + basepoint_horizontal;
-	      edge_v=cur.v ;
-	      cur.v=cur.v + basepoint_vertical;
-	      synch_dvi_with_cur(); save_dvi=dvi;
-	      save_box_pos=box_pos;
-	      outer_doing_leaders=doing_leaders; doing_leaders=true;
-	      if (type(leader_box)==vlist_node) vlist_out(); else hlist_out();
-	      doing_leaders=outer_doing_leaders;
-	      box_pos=save_box_pos;
-	      dvi=save_dvi;
-	      cur.h=left_edge; cur.v=edge_v+leader_ht+lx;
-	    }
-	    cur.v=edge-10; goto NEXT_P;
-	  }
-	  goto MOVE_PAST;
-	}
-	break;
-      case kern_node:
-	cur.v=cur.v+width(p);
-	break;
-      default:
-	break;
-      }
-      goto NEXT_P;
+                            if (!
+                                (dir_orthogonal
+                                 (dir_primary[box_dir(leader_box)],
+                                  dir_primary[dvi_direction]))) {
+                                effective_vertical =
+                                    height(leader_box) + depth(leader_box);
+                                if ((type(leader_box) == hlist_node)
+                                    && is_mirrored(box_dir(leader_box)))
+                                    basepoint_vertical = depth(leader_box);
+                                else
+                                    basepoint_vertical = height(leader_box);
+                                if (dir_opposite
+                                    (dir_secondary[box_dir(leader_box)],
+                                     dir_secondary[dvi_direction]))
+                                    basepoint_horizontal = width(leader_box);
+                                else
+                                    basepoint_horizontal = 0;
+                            } else {
+                                effective_vertical = width(leader_box);
+                                if (!is_mirrored(box_dir(leader_box))) {
+                                    if (dir_eq
+                                        (dir_primary[box_dir(leader_box)],
+                                         dir_secondary[dvi_direction]))
+                                        basepoint_horizontal =
+                                            height(leader_box);
+                                    else
+                                        basepoint_horizontal =
+                                            depth(leader_box);
+                                } else {
+                                    if (dir_eq
+                                        (dir_primary[box_dir(leader_box)],
+                                         dir_secondary[dvi_direction]))
+                                        basepoint_horizontal =
+                                            depth(leader_box);
+                                    else
+                                        basepoint_horizontal =
+                                            height(leader_box);
+                                }
+                                if (dir_eq
+                                    (dir_secondary[box_dir(leader_box)],
+                                     dir_primary[dvi_direction]))
+                                    basepoint_vertical = width(leader_box);
+                                else
+                                    basepoint_vertical = 0;
+                            }
+                            basepoint_horizontal =
+                                basepoint_horizontal + shift_amount(leader_box);
+                            /* shift the box `right' */
+                            temp_ptr = leader_box;
+                            cur.h = left_edge + basepoint_horizontal;
+                            edge_v = cur.v;
+                            cur.v = cur.v + basepoint_vertical;
+                            synch_dvi_with_cur();
+                            save_dvi = dvi;
+                            save_box_pos = box_pos;
+                            outer_doing_leaders = doing_leaders;
+                            doing_leaders = true;
+                            if (type(leader_box) == vlist_node)
+                                vlist_out();
+                            else
+                                hlist_out();
+                            doing_leaders = outer_doing_leaders;
+                            box_pos = save_box_pos;
+                            dvi = save_dvi;
+                            cur.h = left_edge;
+                            cur.v = edge_v + leader_ht + lx;
+                        }
+                        cur.v = edge - 10;
+                        goto NEXT_P;
+                    }
+                    goto MOVE_PAST;
+                }
+                break;
+            case kern_node:
+                cur.v = cur.v + width(p);
+                break;
+            default:
+                break;
+            }
+            goto NEXT_P;
 
-    FIN_RULE: 
-      /* Output a rule in a vlist, |goto next_p| */
-      if (is_running(rule_wd)) rule_wd=width(this_box);
-      rule_ht=rule_ht+rule_dp; /* this is the rule thickness */
-      cur.v=cur.v+rule_ht;
-      if ((rule_ht>0)&&(rule_wd>0)) { /* we don't output empty rules */
-	synch_pos_with_cur();
-	switch(box_direction(dvi_direction)) {
-	case dir_TL_: 
-	  dvi_put_rule(rule_ht,rule_wd);
-	  break;
-	case dir_BL_: 
-	  pos_down(rule_ht);
-	  dvi_put_rule(rule_ht,rule_wd);
-	  break;
-	case dir_TR_:
-	  pos_left(rule_wd);
-	  dvi_set_rule(rule_ht,rule_wd);
-	  break;
-	case dir_BR_: 
-	  pos_down(rule_ht);
-	  pos_left(rule_wd);
-	  dvi_set_rule(rule_ht,rule_wd);
-	  break;
-	case dir_LT_:
-	  pos_down(rule_wd);
-	  pos_left(rule_ht);
-	  dvi_set_rule(rule_wd,rule_ht);
-	  break;
-	case dir_RT_: 
-	  pos_down(rule_wd);
-	  dvi_put_rule(rule_wd,rule_ht);
-	  break;
-	case dir_LB_:
-	  pos_left(rule_ht);
-	  dvi_set_rule(rule_wd,rule_ht);
-	  break;
-	case dir_RB_:
-	  dvi_put_rule(rule_wd,rule_ht);
-	  break;
-	}
-      }
-      goto NEXT_P;
+          FIN_RULE:
+            /* Output a rule in a vlist, |goto next_p| */
+            if (is_running(rule_wd))
+                rule_wd = width(this_box);
+            rule_ht = rule_ht + rule_dp;        /* this is the rule thickness */
+            cur.v = cur.v + rule_ht;
+            if ((rule_ht > 0) && (rule_wd > 0)) {       /* we don't output empty rules */
+                synch_pos_with_cur();
+                switch (box_direction(dvi_direction)) {
+                case dir_TL_:
+                    dvi_put_rule(rule_ht, rule_wd);
+                    break;
+                case dir_BL_:
+                    pos_down(rule_ht);
+                    dvi_put_rule(rule_ht, rule_wd);
+                    break;
+                case dir_TR_:
+                    pos_left(rule_wd);
+                    dvi_set_rule(rule_ht, rule_wd);
+                    break;
+                case dir_BR_:
+                    pos_down(rule_ht);
+                    pos_left(rule_wd);
+                    dvi_set_rule(rule_ht, rule_wd);
+                    break;
+                case dir_LT_:
+                    pos_down(rule_wd);
+                    pos_left(rule_ht);
+                    dvi_set_rule(rule_wd, rule_ht);
+                    break;
+                case dir_RT_:
+                    pos_down(rule_wd);
+                    dvi_put_rule(rule_wd, rule_ht);
+                    break;
+                case dir_LB_:
+                    pos_left(rule_ht);
+                    dvi_set_rule(rule_wd, rule_ht);
+                    break;
+                case dir_RB_:
+                    dvi_put_rule(rule_wd, rule_ht);
+                    break;
+                }
+            }
+            goto NEXT_P;
 
-    MOVE_PAST: 
-      cur.v=cur.v+rule_ht;
+          MOVE_PAST:
+            cur.v = cur.v + rule_ht;
 
-    NEXT_P:
-      p=vlink(p);
+          NEXT_P:
+            p = vlink(p);
+        }
     }
-  }
-  /* Finish vlist {\sl Sync\TeX} information record */
-  synctex_tsilv(this_box);
-  prune_movements(save_loc);
-  if (cur_s>0) dvi_pop(save_loc);
-  decr(cur_s);
-  dvi_direction=save_direction;
+    /* Finish vlist {\sl Sync\TeX} information record */
+    synctex_tsilv(this_box);
+    prune_movements(save_loc);
+    if (cur_s > 0)
+        dvi_pop(save_loc);
+    decr(cur_s);
+    dvi_direction = save_direction;
 }
 
 /*
@@ -1835,36 +2033,40 @@ Here's an example of how these conventions are used. Whenever it is time to
 ship out a box of stuff, we shall use the macro |ensure_dvi_open|.
 */
 
-void ensure_dvi_open(void) 
+void ensure_dvi_open(void)
 {
-  if (output_file_name==0) {
-    if (job_name==0) open_log_file();
-    pack_job_name(".dvi");
-    while (!lua_b_open_out(dvi_file)) 
-      prompt_file_name("file name for output",".dvi");
-    dvi_file=name_file_pointer   ;
-    output_file_name=make_name_string();
-  }
+    if (output_file_name == 0) {
+        if (job_name == 0)
+            open_log_file();
+        pack_job_name(".dvi");
+        while (!lua_b_open_out(dvi_file))
+            prompt_file_name("file name for output", ".dvi");
+        dvi_file = name_file_pointer;
+        output_file_name = make_name_string();
+    }
 }
 
 
 void special_out(halfword p)
 {
-  int old_setting; /* holds print |selector| */
-  pool_pointer k; /* index into |str_pool| */
-  synch_dvi_with_cur();
-  old_setting=selector; selector=new_string;
-  show_token_list(link(write_tokens(p)),null,pool_size-pool_ptr);
-  selector=old_setting;
-  str_room(1);
-  if (cur_length<256) {
-    dvi_out(xxx1); dvi_out(cur_length);
-  } else { 
-    dvi_out(xxx4); dvi_four(cur_length);
-  }
-  for (k=str_start_macro(str_ptr);k<=pool_ptr-1;k++) 
-    dvi_out(str_pool[k]);
-  pool_ptr=str_start_macro(str_ptr); /* erase the string */
+    int old_setting;            /* holds print |selector| */
+    pool_pointer k;             /* index into |str_pool| */
+    synch_dvi_with_cur();
+    old_setting = selector;
+    selector = new_string;
+    show_token_list(link(write_tokens(p)), null, pool_size - pool_ptr);
+    selector = old_setting;
+    str_room(1);
+    if (cur_length < 256) {
+        dvi_out(xxx1);
+        dvi_out(cur_length);
+    } else {
+        dvi_out(xxx4);
+        dvi_four(cur_length);
+    }
+    for (k = str_start_macro(str_ptr); k <= pool_ptr - 1; k++)
+        dvi_out(str_pool[k]);
+    pool_ptr = str_start_macro(str_ptr);        /* erase the string */
 }
 
 
@@ -1874,216 +2076,263 @@ The |hlist_out| and |vlist_out| procedures are now complete, so we are
 ready for the |dvi_ship_out| routine that gets them started in the first place.
 */
 
-void dvi_ship_out(halfword p) 
-{ 
-  /* output the box |p| */
-  integer page_loc; /* location of the current |bop| */
-  int j,k; /* indices to first ten count registers */
-  pool_pointer s; /* index into |str_pool| */
-  int old_setting; /* saved |selector| setting */
-  integer pre_callback_id;
-  integer post_callback_id;
-  boolean ret;
-  integer count_base = get_count_base();
+void dvi_ship_out(halfword p)
+{
+    /* output the box |p| */
+    integer page_loc;           /* location of the current |bop| */
+    int j, k;                   /* indices to first ten count registers */
+    pool_pointer s;             /* index into |str_pool| */
+    int old_setting;            /* saved |selector| setting */
+    integer pre_callback_id;
+    integer post_callback_id;
+    boolean ret;
+    integer count_base = get_count_base();
 
-  if (half_buf==0) {
-    half_buf = dvi_buf_size / 2;
-    dvi_limit = dvi_buf_size;
-  }
-  /* Start sheet {\sl Sync\TeX} information record */
-  pdf_output_value=pdf_output; /* {\sl Sync\TeX}: we assume that |pdf_output| is properly set up */
-  synctex_sheet(mag);
-
-  pre_callback_id=callback_defined(start_page_number_callback);
-  post_callback_id=callback_defined(stop_page_number_callback);
-  if ((tracing_output>0)&&(pre_callback_id==0)) {
-    tprint_nl(""); print_ln();
-    tprint("Completed box being shipped out");
-  }
-  if (pre_callback_id>0) {
-    ret=run_callback(pre_callback_id,"->");
-  } else if (pre_callback_id==0) {
-    if (term_offset>max_print_line-9) 
-      print_ln();
-    else if ((term_offset>0)||(file_offset>0)) 
-      print_char(' ');
-    print_char('['); j=9;
-    while ((count(j)==0)&&(j>0)) decr(j);
-    for (k=0;k<=j;k++) {
-      print_int(count(k));
-      if (k<j) print_char('.');
+    if (half_buf == 0) {
+        half_buf = dvi_buf_size / 2;
+        dvi_limit = dvi_buf_size;
     }
-  }
-  if ((tracing_output>0)&&(post_callback_id==0)) {
-    print_char(']');
-    begin_diagnostic(); show_box(p); end_diagnostic(true);
-  }
-  /* Ship box |p| out */
-  if (box_dir(p) != page_direction) 
-    pdf_warning(maketexstring("\\shipout"), 
-		maketexstring("\\pagedir != \\bodydir; "
-			      "\\box255 may be placed wrongly on the page."), true, true);
-  /* Update the values of |max_h| and |max_v|; but if the page is too large,
-     |goto done| */
-  /* Sometimes the user will generate a huge page because other error messages
-     are being ignored. Such pages are not output to the \.{dvi} file, since they
-     may confuse the printing software. */
-  if ((height(p)>max_dimen)||(depth(p)>max_dimen)||
-      (height(p)+depth(p)+v_offset>max_dimen)||(width(p)+h_offset>max_dimen)) {
-    char *hlp[] = {"The page just created is more than 18 feet tall or",
-		   "more than 18 feet wide, so I suspect something went wrong.",
-		   NULL};
-    tex_error("Huge page cannot be shipped out", hlp);
-    if( tracing_output<=0) {
-      begin_diagnostic();
-      tprint_nl("The following box has been deleted:");
-      show_box(p);
-      end_diagnostic(true);
-    }
-    goto DONE;
-  }
-  if (height(p)+depth(p)+v_offset>max_v) max_v=height(p)+depth(p)+v_offset;
-  if (width(p)+h_offset>max_h) max_h=width(p)+h_offset;
+    /* Start sheet {\sl Sync\TeX} information record */
+    pdf_output_value = pdf_output;      /* {\sl Sync\TeX}: we assume that |pdf_output| is properly set up */
+    synctex_sheet(mag);
 
-  /* Initialize variables as |ship_out| begins */
-  set_to_zero(dvi); set_to_zero(cur); dvi_f=null_font;
-  /* Calculate DVI page dimensions and margins */
-  if (page_width > 0) {
-    cur_page_size.h = page_width;
-  } else {
+    pre_callback_id = callback_defined(start_page_number_callback);
+    post_callback_id = callback_defined(stop_page_number_callback);
+    if ((tracing_output > 0) && (pre_callback_id == 0)) {
+        tprint_nl("");
+        print_ln();
+        tprint("Completed box being shipped out");
+    }
+    if (pre_callback_id > 0) {
+        ret = run_callback(pre_callback_id, "->");
+    } else if (pre_callback_id == 0) {
+        if (term_offset > max_print_line - 9)
+            print_ln();
+        else if ((term_offset > 0) || (file_offset > 0))
+            print_char(' ');
+        print_char('[');
+        j = 9;
+        while ((count(j) == 0) && (j > 0))
+            decr(j);
+        for (k = 0; k <= j; k++) {
+            print_int(count(k));
+            if (k < j)
+                print_char('.');
+        }
+    }
+    if ((tracing_output > 0) && (post_callback_id == 0)) {
+        print_char(']');
+        begin_diagnostic();
+        show_box(p);
+        end_diagnostic(true);
+    }
+    /* Ship box |p| out */
+    if (box_dir(p) != page_direction)
+        pdf_warning(maketexstring("\\shipout"),
+                    maketexstring("\\pagedir != \\bodydir; "
+                                  "\\box255 may be placed wrongly on the page."),
+                    true, true);
+    /* Update the values of |max_h| and |max_v|; but if the page is too large,
+       |goto done| */
+    /* Sometimes the user will generate a huge page because other error messages
+       are being ignored. Such pages are not output to the \.{dvi} file, since they
+       may confuse the printing software. */
+    if ((height(p) > max_dimen) || (depth(p) > max_dimen) ||
+        (height(p) + depth(p) + v_offset > max_dimen)
+        || (width(p) + h_offset > max_dimen)) {
+        char *hlp[] = { "The page just created is more than 18 feet tall or",
+            "more than 18 feet wide, so I suspect something went wrong.",
+            NULL
+        };
+        tex_error("Huge page cannot be shipped out", hlp);
+        if (tracing_output <= 0) {
+            begin_diagnostic();
+            tprint_nl("The following box has been deleted:");
+            show_box(p);
+            end_diagnostic(true);
+        }
+        goto DONE;
+    }
+    if (height(p) + depth(p) + v_offset > max_v)
+        max_v = height(p) + depth(p) + v_offset;
+    if (width(p) + h_offset > max_h)
+        max_h = width(p) + h_offset;
+
+    /* Initialize variables as |ship_out| begins */
+    set_to_zero(dvi);
+    set_to_zero(cur);
+    dvi_f = null_font;
+    /* Calculate DVI page dimensions and margins */
+    if (page_width > 0) {
+        cur_page_size.h = page_width;
+    } else {
+        switch (box_direction(dvi_direction)) {
+        case dir_TL_:
+        case dir_BL_:
+            cur_page_size.h = width(p) + 2 * page_left_offset;
+            break;
+        case dir_TR_:
+        case dir_BR_:
+            cur_page_size.h = width(p) + 2 * page_right_offset;
+            break;
+        case dir_LT_:
+        case dir_LB_:
+            cur_page_size.h = height(p) + depth(p) + 2 * page_left_offset;
+            break;
+        case dir_RT_:
+        case dir_RB_:
+            cur_page_size.h = height(p) + depth(p) + 2 * page_right_offset;
+        }
+    }
+    if (page_height > 0) {
+        cur_page_size.v = page_height;
+    } else {
+        switch (box_direction(dvi_direction)) {
+        case dir_TL_:
+        case dir_TR_:
+            cur_page_size.v = height(p) + depth(p) + 2 * page_top_offset;
+            break;
+        case dir_BL_:
+        case dir_BR_:
+            cur_page_size.v = height(p) + depth(p) + 2 * page_bottom_offset;
+            break;
+        case dir_LT_:
+        case dir_RT_:
+            cur_page_size.v = width(p) + 2 * page_top_offset;
+            break;
+        case dir_LB_:
+        case dir_RB_:
+            cur_page_size.v = width(p) + 2 * page_bottom_offset;
+        }
+    }
+    ensure_dvi_open();
+    if (total_pages == 0) {
+        dvi_out(pre);
+        dvi_out(id_byte);       /* output the preamble */
+        dvi_four(25400000);
+        dvi_four(473628672);    /* conversion ratio for sp */
+        prepare_mag();
+        dvi_four(mag);          /* magnification factor is frozen */
+        if (output_comment) {
+            l = strlen(output_comment);
+            dvi_out(l);
+            for (s = 0; s <= l - 1; s++)
+                dvi_out(output_comment[s]);
+        } else {                /* the default code is unchanged */
+            old_setting = selector;
+            selector = new_string;
+            tprint(" LuaTeX output ");
+            print_int(int_par(param_year_code));
+            print_char('.');
+            print_two(int_par(param_month_code));
+            print_char('.');
+            print_two(int_par(param_day_code));
+            print_char(':');
+            print_two(int_par(param_time_code) / 60);
+            print_two(int_par(param_time_code) % 60);
+            selector = old_setting;
+            dvi_out(cur_length);
+            for (s = str_start_macro(str_ptr); s <= pool_ptr - 1; s++)
+                dvi_out(str_pool[s]);
+            pool_ptr = str_start_macro(str_ptr);        /* flush the current string */
+        }
+    }
+    page_loc = dvi_offset + dvi_ptr;
+    dvi_out(bop);
+    for (k = 0; k <= 9; k++)
+        dvi_four(count(k));
+    dvi_four(last_bop);
+    last_bop = page_loc;
+    /* Think in upright page/paper coordinates): First preset |pos.h| and |pos.v| to the DVI origin. */
+    pos.h = one_true_inch;
+    pos.v = cur_page_size.v - one_true_inch;
+    box_pos = pos;
+    dvi = pos;
+    /* Then calculate |cur.h| and |cur.v| within the upright coordinate system
+       for the DVI origin depending on the |page_direction|. */
+    dvi_direction = page_direction;
     switch (box_direction(dvi_direction)) {
-    case dir_TL_: case dir_BL_: 
-      cur_page_size.h = width(p) + 2 * page_left_offset;
-      break;
-    case dir_TR_: case dir_BR_: 
-      cur_page_size.h = width(p) + 2 * page_right_offset;
-      break;
-    case dir_LT_: case dir_LB_: 
-      cur_page_size.h = height(p) + depth(p) + 2 * page_left_offset;
-      break;
-    case dir_RT_: case dir_RB_: 
-      cur_page_size.h = height(p) + depth(p) + 2 * page_right_offset;
+    case dir_TL_:
+    case dir_LT_:
+        cur.h = h_offset;
+        cur.v = v_offset;
+        break;
+    case dir_TR_:
+    case dir_RT_:
+        cur.h = cur_page_size.h - page_right_offset - one_true_inch;
+        cur.v = v_offset;
+        break;
+    case dir_BL_:
+    case dir_LB_:
+        cur.h = h_offset;
+        cur.v = cur_page_size.v - page_bottom_offset - one_true_inch;
+        break;
+    case dir_RB_:
+    case dir_BR_:
+        cur.h = cur_page_size.h - page_right_offset - one_true_inch;
+        cur.v = cur_page_size.v - page_bottom_offset - one_true_inch;
+        break;
     }
-  }
-  if (page_height > 0) {
-    cur_page_size.v = page_height;
-  } else {
-    switch (box_direction(dvi_direction)) {
-    case dir_TL_: case dir_TR_: 
-      cur_page_size.v = height(p) + depth(p) + 2 * page_top_offset;
-      break;
-    case dir_BL_: case dir_BR_: 
-      cur_page_size.v = height(p) + depth(p) + 2 * page_bottom_offset;
-      break;
-    case dir_LT_: case dir_RT_: 
-      cur_page_size.v = width(p) + 2 * page_top_offset;
-      break;
-    case dir_LB_: case dir_RB_: 
-      cur_page_size.v = width(p) + 2 * page_bottom_offset;
-    }
-  }
-  ensure_dvi_open();
-  if (total_pages==0) {
-    dvi_out(pre); dvi_out(id_byte); /* output the preamble */
-    dvi_four(25400000); dvi_four(473628672); /* conversion ratio for sp */
-    prepare_mag(); dvi_four(mag); /* magnification factor is frozen */
-    if (output_comment) {
-      l=strlen(output_comment); dvi_out(l);
-      for (s=0;s<=l-1;s++)
-	dvi_out(output_comment[s]);
-    } else { /* the default code is unchanged */
-      old_setting=selector; selector=new_string;
-      tprint(" LuaTeX output "); 
-      print_int(int_par(param_year_code)); print_char('.');
-      print_two(int_par(param_month_code)); print_char('.'); 
-      print_two(int_par(param_day_code)); print_char(':'); 
-      print_two(int_par(param_time_code) / 60);
-      print_two(int_par(param_time_code) % 60);
-      selector=old_setting; dvi_out(cur_length);
-      for (s=str_start_macro(str_ptr);s<=pool_ptr-1;s++) 
-	dvi_out(str_pool[s]);
-      pool_ptr=str_start_macro(str_ptr); /* flush the current string */
-    }
-  }
-  page_loc=dvi_offset+dvi_ptr;
-  dvi_out(bop);
-  for (k=0;k<=9;k++) 
-    dvi_four(count(k));
-  dvi_four(last_bop); last_bop=page_loc;
-  /* Think in upright page/paper coordinates): First preset |pos.h| and |pos.v| to the DVI origin. */
-  pos.h = one_true_inch;
-  pos.v = cur_page_size.v - one_true_inch;
-  box_pos = pos; dvi = pos;
-  /* Then calculate |cur.h| and |cur.v| within the upright coordinate system
-     for the DVI origin depending on the |page_direction|. */
-  dvi_direction=page_direction;
-  switch (box_direction(dvi_direction)) {
-  case dir_TL_: case dir_LT_: 
-    cur.h = h_offset;
-    cur.v = v_offset;
-    break;
-  case dir_TR_: case dir_RT_:
-    cur.h = cur_page_size.h - page_right_offset - one_true_inch;
-    cur.v = v_offset;
-    break;
-  case dir_BL_: case dir_LB_: 
-    cur.h = h_offset;
-    cur.v = cur_page_size.v - page_bottom_offset - one_true_inch;
-    break;
-  case dir_RB_: case dir_BR_:
-    cur.h = cur_page_size.h - page_right_offset - one_true_inch;
-    cur.v = cur_page_size.v - page_bottom_offset - one_true_inch;
-    break;
-  }
-  /* The movement is actually done within the upright page coordinate system. */
-  dvi_direction = dir_TL_; /* only temporarily for this adjustment */
-  synch_pos_with_cur(); box_pos = pos; /* keep track on page */
-  /* Then switch to page box coordinate system; do |height(p)| movement. */
-  dvi_direction = page_direction;
-  cur.h = 0;
-  cur.v = height(p);
-  synch_pos_with_cur();
-  /* Now we are at the point on the page where the origin of the page box should go. */
-  temp_ptr=p;
-  if (type(p)==vlist_node) vlist_out(); else hlist_out();
-  dvi_out(eop); incr(total_pages); cur_s=-1;
+    /* The movement is actually done within the upright page coordinate system. */
+    dvi_direction = dir_TL_;    /* only temporarily for this adjustment */
+    synch_pos_with_cur();
+    box_pos = pos;              /* keep track on page */
+    /* Then switch to page box coordinate system; do |height(p)| movement. */
+    dvi_direction = page_direction;
+    cur.h = 0;
+    cur.v = height(p);
+    synch_pos_with_cur();
+    /* Now we are at the point on the page where the origin of the page box should go. */
+    temp_ptr = p;
+    if (type(p) == vlist_node)
+        vlist_out();
+    else
+        hlist_out();
+    dvi_out(eop);
+    incr(total_pages);
+    cur_s = -1;
 #ifdef IPC
-  if (ipcon>0) {
-    if (dvi_limit==half_buf) {
-      write_dvi(half_buf, dvi_buf_size-1);
-      flush_dvi();
-      dvi_gone=dvi_gone+half_buf;
+    if (ipcon > 0) {
+        if (dvi_limit == half_buf) {
+            write_dvi(half_buf, dvi_buf_size - 1);
+            flush_dvi();
+            dvi_gone = dvi_gone + half_buf;
+        }
+        if (dvi_ptr > 0) {
+            write_dvi(0, dvi_ptr - 1);
+            flush_dvi();
+            dvi_offset = dvi_offset + dvi_ptr;
+            dvi_gone = dvi_gone + dvi_ptr;
+        }
+        dvi_ptr = 0;
+        dvi_limit = dvi_buf_size;
+        ipcpage(dvi_gone);
     }
-    if (dvi_ptr>0) {
-      write_dvi(0, dvi_ptr-1);
-      flush_dvi();
-      dvi_offset=dvi_offset+dvi_ptr; 
-      dvi_gone=dvi_gone+dvi_ptr;
+#endif                          /* IPC */
+  DONE:
+    if ((tracing_output <= 0) && (post_callback_id == 0))
+        print_char(']');
+    dead_cycles = 0;
+    /* Flush the box from memory, showing statistics if requested */
+    if ((tracing_stats > 1) && (pre_callback_id == 0)) {
+        tprint_nl("Memory usage before: ");
+        print_int(var_used);
+        print_char('&');
+        print_int(dyn_used);
+        print_char(';');
     }
-    dvi_ptr=0; dvi_limit=dvi_buf_size;
-    ipcpage(dvi_gone);
-  }
-#endif /* IPC */
- DONE:
-  if ((tracing_output<=0)&&(post_callback_id==0))
-    print_char(']');
-  dead_cycles=0;
-  /* Flush the box from memory, showing statistics if requested */
-  if ((tracing_stats>1)&&(pre_callback_id==0)) {
-    tprint_nl("Memory usage before: ");
-    print_int(var_used); print_char('&');
-    print_int(dyn_used); print_char(';');
-  }
-  flush_node_list(p);
-  if ((tracing_stats>1)&&(post_callback_id==0)) {
-    tprint(" after: ");
-    print_int(var_used); print_char('&');
-    print_int(dyn_used); print_ln();
-  }
-  if (post_callback_id>0) 
-    ret=run_callback(post_callback_id,"->");
-  /* Finish sheet {\sl Sync\TeX} information record */
-  synctex_teehs();
+    flush_node_list(p);
+    if ((tracing_stats > 1) && (post_callback_id == 0)) {
+        tprint(" after: ");
+        print_int(var_used);
+        print_char('&');
+        print_int(dyn_used);
+        print_ln();
+    }
+    if (post_callback_id > 0)
+        ret = run_callback(post_callback_id, "->");
+    /* Finish sheet {\sl Sync\TeX} information record */
+    synctex_teehs();
 }
 
 /*
@@ -2093,72 +2342,85 @@ If |total_pages>=65536|, the \.{DVI} file will lie. And if
 |max_push>=65536|, the user deserves whatever chaos might ensue.
 */
 
-void finish_dvi_file (int version, int revision)
+void finish_dvi_file(int version, int revision)
 {
-  integer k;
-  boolean res;
-  integer callback_id = callback_defined(stop_run_callback);
-  (void)version;
-  (void)revision;
-  while (cur_s>-1) {
-    if (cur_s>0) {
-      dvi_out(pop);
+    integer k;
+    boolean res;
+    integer callback_id = callback_defined(stop_run_callback);
+    (void) version;
+    (void) revision;
+    while (cur_s > -1) {
+        if (cur_s > 0) {
+            dvi_out(pop);
+        } else {
+            dvi_out(eop);
+            incr(total_pages);
+        }
+        decr(cur_s);
+    }
+    if (total_pages == 0) {
+        if (callback_id == 0)
+            tprint_nl("No pages of output.");
+        else if (callback_id > 0)
+            res = run_callback(callback_id, "->");
     } else {
-      dvi_out(eop); incr(total_pages);
-    }
-    decr(cur_s);
-  }
-  if (total_pages==0) {
-    if (callback_id==0) 
-      tprint_nl("No pages of output.");
-    else if (callback_id>0)
-      res=run_callback(callback_id,"->");
-  } else  {
-    dvi_out(post); /* beginning of the postamble */
-    dvi_four(last_bop); last_bop=dvi_offset+dvi_ptr-5; /* |post| location */
-    dvi_four(25400000); dvi_four(473628672); /* conversion ratio for sp */
-    prepare_mag(); dvi_four(mag); /* magnification factor */
-    dvi_four(max_v); dvi_four(max_h);
-    dvi_out(max_push / 256); dvi_out(max_push % 256);
-    dvi_out((total_pages / 256) % 256); dvi_out(total_pages % 256);
-    /* Output the font definitions for all fonts that were used */
-    k = max_font_id();
-    while (k>0) {
-      if (font_used(k)) {
-	dvi_font_def(k);
-      }
-      decr(k);
-    }
+        dvi_out(post);          /* beginning of the postamble */
+        dvi_four(last_bop);
+        last_bop = dvi_offset + dvi_ptr - 5;    /* |post| location */
+        dvi_four(25400000);
+        dvi_four(473628672);    /* conversion ratio for sp */
+        prepare_mag();
+        dvi_four(mag);          /* magnification factor */
+        dvi_four(max_v);
+        dvi_four(max_h);
+        dvi_out(max_push / 256);
+        dvi_out(max_push % 256);
+        dvi_out((total_pages / 256) % 256);
+        dvi_out(total_pages % 256);
+        /* Output the font definitions for all fonts that were used */
+        k = max_font_id();
+        while (k > 0) {
+            if (font_used(k)) {
+                dvi_font_def(k);
+            }
+            decr(k);
+        }
 
-    dvi_out(post_post); 
-    dvi_four(last_bop); 
-    dvi_out(id_byte);
+        dvi_out(post_post);
+        dvi_four(last_bop);
+        dvi_out(id_byte);
 #ifndef IPC
-    k=4+((dvi_buf_size-dvi_ptr) % 4); /* the number of 223's */
+        k = 4 + ((dvi_buf_size - dvi_ptr) % 4); /* the number of 223's */
 #else
-    k=7-((3+dvi_offset+dvi_ptr) % 4); /* the number of 223's */
+        k = 7 - ((3 + dvi_offset + dvi_ptr) % 4);       /* the number of 223's */
 #endif
 
-    while (k>0) {
-      dvi_out(223); decr(k);
-    }
-    /* Empty the last bytes out of |dvi_buf| */
-    /* Here is how we clean out the buffer when \TeX\ is all through; |dvi_ptr|
-       will be a multiple of~4. */
-    if (dvi_limit==half_buf) 
-      write_dvi(half_buf,dvi_buf_size-1);
-    if (dvi_ptr>0) 
-      write_dvi(0,dvi_ptr-1);
+        while (k > 0) {
+            dvi_out(223);
+            decr(k);
+        }
+        /* Empty the last bytes out of |dvi_buf| */
+        /* Here is how we clean out the buffer when \TeX\ is all through; |dvi_ptr|
+           will be a multiple of~4. */
+        if (dvi_limit == half_buf)
+            write_dvi(half_buf, dvi_buf_size - 1);
+        if (dvi_ptr > 0)
+            write_dvi(0, dvi_ptr - 1);
 
-    if (callback_id==0) {
-      tprint_nl("Output written on "); print_file_name(0,output_file_name,0);
-      tprint(" ("); print_int(total_pages); tprint(" page");
-      if (total_pages!=1)  print_char('s');
-      tprint(", "); print_int(dvi_offset+dvi_ptr); tprint(" bytes).");
-    } else if (callback_id>0) {
-      res=run_callback(callback_id,"->");
+        if (callback_id == 0) {
+            tprint_nl("Output written on ");
+            print_file_name(0, output_file_name, 0);
+            tprint(" (");
+            print_int(total_pages);
+            tprint(" page");
+            if (total_pages != 1)
+                print_char('s');
+            tprint(", ");
+            print_int(dvi_offset + dvi_ptr);
+            tprint(" bytes).");
+        } else if (callback_id > 0) {
+            res = run_callback(callback_id, "->");
+        }
+        b_close(dvi_file);
     }
-    b_close(dvi_file);
-  }
 }
-

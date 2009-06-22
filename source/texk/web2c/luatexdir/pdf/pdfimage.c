@@ -130,7 +130,7 @@ void scan_image(void)
         pagebox = pdf_pagebox;
     scan_pdf_ext_toks();
     s = tokenlist_to_cstring(def_ref, true, NULL);
-    assert (s!=NULL);
+    assert(s != NULL);
     delete_token_ref(def_ref);
     if (pagebox == 0)           /* no pagebox specification given */
         pagebox = pdf_box_spec_crop;
