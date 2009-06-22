@@ -5251,10 +5251,7 @@ that will be defined later.
 @d pdf_image_resolution_code = pdftex_first_integer_code + 4 {default image resolution}
 @d pdf_pk_resolution_code    = pdftex_first_integer_code + 5 {default resolution of PK font}
 @d pdf_unique_resname_code   = pdftex_first_integer_code + 6 {generate unique names for resouces}
-@d pdf_option_always_use_pdfpagebox_code = pdftex_first_integer_code + 7 {if the PDF inclusion should always use a specific PDF page box}
-@d pdf_option_pdf_inclusion_errorlevel_code = pdftex_first_integer_code + 8 {if the PDF inclusion should treat pdfs newer than |pdf_minor_version| as an error}
 @d pdf_minor_version_code = pdftex_first_integer_code + 9 {fractional part of the PDF version produced}
-@d pdf_force_pagebox_code = pdftex_first_integer_code + 10 {if the PDF inclusion should always use a specific PDF page box}
 @d pdf_pagebox_code = pdftex_first_integer_code + 11 {default pagebox to use for PDF inclusion}
 @d pdf_inclusion_errorlevel_code = pdftex_first_integer_code + 12 {if the PDF inclusion should treat pdfs newer than |pdf_minor_version| as an error}
 @d pdf_gamma_code            = pdftex_first_integer_code + 13
@@ -5383,10 +5380,7 @@ that will be defined later.
 @d pdf_image_resolution == int_par(pdf_image_resolution_code)
 @d pdf_pk_resolution    == int_par(pdf_pk_resolution_code)
 @d pdf_unique_resname   == int_par(pdf_unique_resname_code)
-@d pdf_option_always_use_pdfpagebox == int_par(pdf_option_always_use_pdfpagebox_code)
-@d pdf_option_pdf_inclusion_errorlevel == int_par(pdf_option_pdf_inclusion_errorlevel_code)
 @d pdf_minor_version == int_par(pdf_minor_version_code)
-@d pdf_force_pagebox == int_par(pdf_force_pagebox_code)
 @d pdf_pagebox == int_par(pdf_pagebox_code)
 @d pdf_inclusion_errorlevel == int_par(pdf_inclusion_errorlevel_code)
 @d pdf_gamma            == int_par(pdf_gamma_code)
@@ -5501,10 +5495,7 @@ pdf_move_chars_code:       print_esc("pdfmovechars");
 pdf_image_resolution_code: print_esc("pdfimageresolution");
 pdf_pk_resolution_code:    print_esc("pdfpkresolution");
 pdf_unique_resname_code:   print_esc("pdfuniqueresname");
-pdf_option_always_use_pdfpagebox_code: print_esc("pdfoptionalwaysusepdfpagebox");
-pdf_option_pdf_inclusion_errorlevel_code: print_esc("pdfoptionpdfinclusionerrorlevel");
 pdf_minor_version_code: print_esc("pdfminorversion");
-pdf_force_pagebox_code: print_esc("pdfforcepagebox");
 pdf_pagebox_code: print_esc("pdfpagebox");
 pdf_inclusion_errorlevel_code: print_esc("pdfinclusionerrorlevel");
 pdf_gamma_code:            print_esc("pdfgamma");
@@ -5668,14 +5659,8 @@ primitive_pdftex("pdfuniqueresname",assign_int,int_base+pdf_unique_resname_code,
 @!@:pdf_unique_resname_}{\.{\\pdfuniqueresname} primitive@>
 primitive_pdftex("pdfoptionpdfminorversion",assign_int,int_base+pdf_minor_version_code,int_base);@/
 @!@:pdf_minor_version_}{\.{\\pdfoptionpdfminorversion} primitive@>
-primitive_pdftex("pdfoptionalwaysusepdfpagebox",assign_int,int_base+pdf_option_always_use_pdfpagebox_code,int_base);@/
-@!@:pdf_option_always_use_pdfpagebox_}{\.{\\pdfoptionalwaysusepdfpagebox} primitive@>
-primitive_pdftex("pdfoptionpdfinclusionerrorlevel",assign_int,int_base+pdf_option_pdf_inclusion_errorlevel_code,int_base);@/
-@!@:pdf_option_pdf_inclusion_errorlevel_}{\.{\\pdfoptionpdfinclusionerrorlevel} primitive@>
 primitive_pdftex("pdfminorversion",assign_int,int_base+pdf_minor_version_code,int_base);@/
 @!@:pdf_minor_version_}{\.{\\pdfminorversion} primitive@>
-primitive_pdftex("pdfforcepagebox",assign_int,int_base+pdf_force_pagebox_code,int_base);@/
-@!@:pdf_force_pagebox_}{\.{\\pdfforcepagebox} primitive@>
 primitive_pdftex("pdfpagebox",assign_int,int_base+pdf_pagebox_code,int_base);@/
 @!@:pdf_pagebox_}{\.{\\pdfpagebox} primitive@>
 primitive_pdftex("pdfinclusionerrorlevel",assign_int,int_base+pdf_inclusion_errorlevel_code,int_base);@/

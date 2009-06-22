@@ -25,9 +25,6 @@ static const char __svn_version[] =
     "$URL$";
 
 #define pdf_pagebox int_par(param_pdf_pagebox_code)
-#define pdf_force_pagebox int_par(param_pdf_force_pagebox_code)
-#define pdf_option_always_use_pdfpagebox int_par(param_pdf_option_always_use_pdfpagebox_code)
-#define pdf_option_pdf_inclusion_errorlevel int_par(param_pdf_option_pdf_inclusion_errorlevel_code)
 
 halfword alt_rule = null;
 
@@ -134,33 +131,6 @@ void scan_image(void)
     scan_pdf_ext_toks();
     s = tokens_to_string(def_ref);
     delete_token_ref(def_ref);
-    if (pdf_option_always_use_pdfpagebox != 0) {
-        pdf_warning(maketexstring("PDF inclusion"),
-                    maketexstring
-                    ("Primitive \\pdfoptionalwaysusepdfpagebox is obsolete; "
-                     "use \\pdfpagebox instead."), true, true);
-        pdf_force_pagebox = pdf_option_always_use_pdfpagebox;
-        pdf_option_always_use_pdfpagebox = 0;   /* warn once */
-        warn_pdfpagebox = false;
-    }
-    if (pdf_option_pdf_inclusion_errorlevel != 0) {
-        pdf_warning(maketexstring("PDF inclusion"),
-                    maketexstring
-                    ("Primitive \\pdfoptionpdfinclusionerrorlevel is obsolete; "
-                     "use \\pdfinclusionerrorlevel instead."), true, true);
-        pdf_inclusion_errorlevel = pdf_option_pdf_inclusion_errorlevel;
-        pdf_option_pdf_inclusion_errorlevel = 0;        /* warn once */
-    }
-    if (pdf_force_pagebox > 0) {
-        if (warn_pdfpagebox) {
-            pdf_warning(maketexstring("PDF inclusion"),
-                        maketexstring
-                        ("Primitive \\pdfforcepagebox is obsolete; "
-                         "use \\pdfpagebox instead."), true, true);
-            warn_pdfpagebox = false;
-        }
-        pagebox = pdf_force_pagebox;
-    }
     if (pagebox == 0)           /* no pagebox specification given */
         pagebox = pdf_box_spec_crop;
     ref =
