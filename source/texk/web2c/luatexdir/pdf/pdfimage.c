@@ -19,6 +19,7 @@
 
 #include "ptexlib.h"
 #include "commands.h"
+#include "luatex-api.h"
 
 static const char __svn_version[] =
     "$Id$"
@@ -93,9 +94,8 @@ void scan_alt_rule(void)
 void scan_image(void)
 {
     integer k, img_wd, img_ht, img_dp, ref;
-    str_number named, attr;
-    str_number s;
     integer page, pagebox, colorspace;
+    char *named = NULL, *attr = NULL, *s = NULL;
     incr(pdf_ximage_count);
     pdf_create_obj(obj_type_ximage, pdf_ximage_count);
     k = obj_ptr;
@@ -109,12 +109,12 @@ void scan_image(void)
     colorspace = 0;
     if (scan_keyword("attr")) {
         scan_pdf_ext_toks();
-        attr = tokens_to_string(def_ref);
+        attr = tokenlist_to_cstring(def_ref, true, NULL);
         delete_token_ref(def_ref);
     }
     if (scan_keyword("named")) {
         scan_pdf_ext_toks();
-        named = tokens_to_string(def_ref);
+        named = tokenlist_to_cstring(def_ref, true, NULL);
         delete_token_ref(def_ref);
         page = 0;
     } else if (scan_keyword("page")) {
@@ -129,20 +129,21 @@ void scan_image(void)
     if (pagebox == 0)
         pagebox = pdf_pagebox;
     scan_pdf_ext_toks();
-    s = tokens_to_string(def_ref);
+    s = tokenlist_to_cstring(def_ref, true, NULL);
+    assert (s!=NULL);
     delete_token_ref(def_ref);
     if (pagebox == 0)           /* no pagebox specification given */
         pagebox = pdf_box_spec_crop;
     ref =
         read_image(k, pdf_ximage_count, s, page, named, attr, colorspace,
                    pagebox, pdf_minor_version, pdf_inclusion_errorlevel);
-    flush_str(s);
+    xfree(s);
     set_obj_data_ptr(k, ref);
-    if (named != 0)
-        flush_str(named);
+    if (named != NULL)
+        xfree(named);
     set_image_dimensions(ref, img_wd, img_ht, img_dp);
-    if (attr != 0)
-        flush_str(attr);
+    if (attr != NULL)
+        xfree(attr);
     scale_image(ref);
     pdf_last_ximage = k;
     pdf_last_ximage_pages = image_pages(ref);

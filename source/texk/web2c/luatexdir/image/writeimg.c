@@ -805,8 +805,8 @@ void undumpimagemeta(integer pdfversion, integer pdfinclusionerrorlevel)
 /**********************************************************************/
 /* stuff to be accessible from TeX */
 
-integer read_image(integer objnum, integer index, str_number filename,
-                   integer page_num, str_number page_name, str_number attr,
+integer read_image(integer objnum, integer index, char *filename,
+                   integer page_num, char *page_name, char *attr,
                    integer colorspace, integer page_box,
                    integer minor_version, integer inclusion_errorlevel)
 {
@@ -823,12 +823,12 @@ integer read_image(integer objnum, integer index, str_number filename,
     img_pagenum(idict) = page_num;
     /* img_totalpages set by read_img() */
     if (page_name != 0)
-        img_pagename(idict) = xstrdup(makecstring(page_name));
-    cur_file_name = makecfilename(filename);
+        img_pagename(idict) = xstrdup(page_name);
+    cur_file_name = filename;
     assert(cur_file_name != NULL);
-    img_filename(idict) = xstrdup(cur_file_name);
+    img_filename(idict) = xstrdup(filename);
     if (attr != 0)
-        img_attr(idict) = xstrdup(makecstring(attr));
+        img_attr(idict) = xstrdup(attr);
     img_pagebox(idict) = page_box;
     read_img(idict, minor_version, inclusion_errorlevel);
     img_unset_scaled(a);

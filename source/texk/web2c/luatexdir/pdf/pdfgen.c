@@ -781,7 +781,7 @@ void pdf_str_entry_ln(char *s, char *v)
 
 void pdf_print_toks(halfword p)
 {
-    integer len = 0;
+    int len = 0;
     char *s = tokenlist_to_cstring(p, true, &len);
     if (len > 0)
         pdf_printf("%s", s);
@@ -791,7 +791,7 @@ void pdf_print_toks(halfword p)
 
 void pdf_print_toks_ln(halfword p)
 {
-    integer len = 0;
+    int len = 0;
     char *s = tokenlist_to_cstring(p, true, &len);
     if (len > 0)
         pdf_printf("%s\n", s);
