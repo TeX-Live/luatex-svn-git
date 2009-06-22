@@ -23,18 +23,6 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
-
-/* WEB macros */
-
-#define billion 1000000000.0
-#define vet_glue(A) do { glue_temp=A;                   \
-    if (glue_temp>billion) glue_temp=billion;           \
-    else if (glue_temp<-billion) glue_temp=-billion;    \
-  } while (0)
-#define float_round round
-#define float_cast (real)
-
-
 /*
 This code scans forward to the ending |dir_node| while keeping
 track of the needed width in |w|. When it finds the node that will end

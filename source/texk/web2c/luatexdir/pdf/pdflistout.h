@@ -22,8 +22,6 @@
 #ifndef PDFLISTOUT_H
 #  define PDFLISTOUT_H
 
-#  define set_to_zero(A) { A.h = 0; A.v = 0; }
-
 /* a few small helpers */
 #  define pos_right(A) pos.h = pos.h + (A)
 #  define pos_left(A)  pos.h = pos.h - (A)

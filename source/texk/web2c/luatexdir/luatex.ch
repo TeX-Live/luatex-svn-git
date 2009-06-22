@@ -946,13 +946,6 @@ nameoffile[namelength+1]:=0;
 @z
 
 @x
-@d ensure_dvi_open==if output_file_name=0 then
-@y
-@d log_name == texmf_log_name
-@d ensure_dvi_open==if output_file_name=0 then
-@z
-
-@x
 @!months:packed array [1..36] of char; {abbreviations of month names}
 @y
 @!months:^char;
@@ -1034,95 +1027,6 @@ if iname=str_ptr-1 then {we can conserve string pool space now}
   begin flush_string; iname:=cur_name;
   end;
 @y
-@z
-
-@x
-@!dvi_buf:array[dvi_index] of real_eight_bits; {buffer for \.{DVI} output}
-@!half_buf:dvi_index; {half of |dvi_buf_size|}
-@!dvi_limit:dvi_index; {end of the current half buffer}
-@!dvi_ptr:dvi_index; {the next available buffer address}
-@y
-@!dvi_buf:^real_eight_bits; {buffer for \.{DVI} output}
-@!half_buf:integer; {half of |dvi_buf_size|}
-@!dvi_limit:integer; {end of the current half buffer}
-@!dvi_ptr:integer; {the next available buffer address}
-@z
-
-@x
-@p procedure write_dvi(@!a,@!b:dvi_index);
-var k:dvi_index;
-begin for k:=a to b do write(dvi_file,dvi_buf[k]);
-end;
-@y
-In C, we use a macro to call |fwrite| or |write| directly, writing all
-the bytes in one shot.  Much better even than writing four
-bytes at a time.
-@z
-
-@x
-  old_setting:=selector; selector:=new_string;
-@y
-if output_comment then
-  begin l:=strlen(output_comment); dvi_out(l);
-  for s:=0 to l-1 do dvi_out(output_comment[s]);
-  end
-else begin {the default code is unchanged}
-  old_setting:=selector; selector:=new_string;
-@z
-
-@x
-  pool_ptr:=str_start_macro(str_ptr); {flush the current string}
-@y
-  pool_ptr:=str_start_macro(str_ptr); {flush the current string}
-end;
-@z
-
-@x
-dvi_out(eop); incr(total_pages); cur_s:=-1;
-@y
-dvi_out(eop); incr(total_pages); cur_s:=-1;
-ifdef ('IPC')
-if ipcon>0 then
-  begin if dvi_limit=half_buf then
-    begin write_dvi(half_buf, dvi_buf_size-1);
-    flush_dvi;
-    dvi_gone:=dvi_gone+half_buf;
-    end;
-  if dvi_ptr>0 then
-    begin write_dvi(0, dvi_ptr-1);
-    flush_dvi;
-    dvi_offset:=dvi_offset+dvi_ptr; dvi_gone:=dvi_gone+dvi_ptr;
-    end;
-  dvi_ptr:=0; dvi_limit:=dvi_buf_size;
-  ipcpage(dvi_gone);
-  end;
-endif ('IPC');
-@z
-
-@x
-  k:=4+((dvi_buf_size-dvi_ptr) mod 4); {the number of 223's}
-@y
-ifdef ('IPC')
-  k:=7-((3+dvi_offset+dvi_ptr) mod 4); {the number of 223's}
-endif ('IPC')
-ifndef ('IPC')
-  k:=4+((dvi_buf_size-dvi_ptr) mod 4); {the number of 223's}
-endifn ('IPC')
-@z
-
-@x
-    print_nl("Output written on "); slow_print(output_file_name);
-@y
-    print_nl("Output written on "); print_file_name(0, output_file_name, 0);
-@z
-
-@x
-    print(" ("); print_int(total_pages); print(" page");
-    if total_pages<>1 then print_char("s");
-@y
-    print(" ("); print_int(total_pages);
-    if total_pages<>1 then print(" pages")
-    else print(" page");
 @z
 
 @x
@@ -1631,9 +1535,9 @@ write_svnversion(luatex_svnversion);
 @z
 
 @x
-     slow_print(log_name); print_char(".");
+     slow_print(texmf_log_name); print_char(".");
 @y
-     print_file_name(0, log_name, 0); print_char(".");
+     print_file_name(0, texmf_log_name, 0); print_char(".");
 @z
 
 @x

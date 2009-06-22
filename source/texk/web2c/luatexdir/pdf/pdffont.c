@@ -27,9 +27,6 @@ static const char __svn_version[] =
 
 #define text(A) hash[(A)].rh
 #define font_id_text(A) text(font_id_base+(A))  /* a frozen font identifier's name */
-#define charinfo_width(A) (A).ci_wd
-#define charinfo_height(A) (A).ci_ht
-#define charinfo_depth(A) (A).ci_dp
 #define define(A,B,C) do { if (a>=4) geq_define(A,B,C); else eq_define(A,B,C); } while (0)
 
 

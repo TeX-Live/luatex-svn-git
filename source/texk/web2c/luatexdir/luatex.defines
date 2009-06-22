@@ -1442,3 +1442,18 @@
 @define procedure pdf_ship_out();
 @define procedure finish_pdf_file();
 
+{ dvi ship }
+
+@define procedure out_what(); {web trick}
+
+@define @field h;
+@define @field v;
+@define var cur;
+@define var pos;
+@define var dvi_buf;
+@define var dead_cycles;
+@define var doing_leaders;
+
+@define procedure special_out();
+@define procedure dvi_ship_out();
+@define procedure finish_dvi_file();
