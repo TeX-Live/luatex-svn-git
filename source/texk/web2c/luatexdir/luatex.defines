@@ -1450,6 +1450,7 @@
 @define @field v;
 @define var cur;
 @define var pos;
+@define var dvi_buf_size;
 @define var dvi_buf;
 @define var dead_cycles;
 @define var doing_leaders;

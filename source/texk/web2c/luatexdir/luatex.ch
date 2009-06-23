@@ -385,7 +385,6 @@ tini@/
 @!nest_size:integer; {maximum number of semantic levels simultaneously active}
 @!save_size:integer; {space for saving values outside of current group; must be
   at most |max_halfword|}
-@!dvi_buf_size:integer; {size of the output buffer; must be a multiple of 8}
 @!expand_depth:integer; {limits recursive calls of the |expand| procedure}
 @!parsefirstlinep:cinttype; {parse the first line for options}
 @!filelineerrorstylep:cinttype; {format messages as file:line:error}
