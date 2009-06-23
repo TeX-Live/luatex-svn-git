@@ -44,7 +44,7 @@ integer image_objnum(integer);
 integer image_pages(integer);
 integer image_width(integer);
 integer img_to_array(image *);
-integer read_image(integer, integer, char *, integer, char *,
+integer read_image(PDF, integer, integer, char *, integer, char *,
                    char *, integer, integer, integer, integer);
 void check_pdfstream_dict(image_dict *);
 void dumpimagemeta(void);
@@ -54,11 +54,11 @@ void init_image(image *);
 void new_img_pdfstream_struct(image_dict *);
 void out_image(PDF, integer, scaled, scaled);
 void pdf_print_resname_prefix(void);
-void read_img(image_dict *, integer, integer);
+void read_img(PDF, image_dict *, integer, integer);
 void scale_image(integer);
 void scale_img(image *);
 void set_image_dimensions(integer, integer, integer, integer);
-void undumpimagemeta(integer, integer);
+void undumpimagemeta(PDF, integer, integer);
 void update_image_procset(integer);
 void write_image(PDF, integer);
 void write_img(PDF, image_dict *);

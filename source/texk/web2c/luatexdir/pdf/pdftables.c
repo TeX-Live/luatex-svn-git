@@ -121,10 +121,10 @@ void pdf_os_switch(boolean pdf_os)
 }
 
 /* create new \.{/ObjStm} object if required, and set up cross reference info */
-void pdf_os_prepare_obj(integer i, integer pdf_os_level)
+void pdf_os_prepare_obj(PDF pdf, integer i, integer pdf_os_level)
 {
     pdf_os_switch(((pdf_os_level > 0)
-                   && (fixed_pdf_objcompresslevel >= pdf_os_level)));
+                   && (pdf->objcompresslevel >= pdf_os_level)));
     if (pdf_os_mode) {
         if (pdf_os_cur_objnum == 0) {
             pdf_os_cur_objnum = pdf_new_objnum();
@@ -304,10 +304,10 @@ two function arguments to |undumpimagemeta| have been restored
 already in an earlier module.
 */
 
-void undump_pdftex_data(void)
+void undump_pdftex_data(PDF pdf)
 {
     integer k;
-    undumpimagemeta(pdf_minor_version, pdf_inclusion_errorlevel);       /* the image information array */
+    undumpimagemeta(pdf,pdf_minor_version, pdf_inclusion_errorlevel);       /* the image information array */
     undump_int(pdf_mem_size);
     pdf_mem = xreallocarray(pdf_mem, integer, pdf_mem_size);
     undump_int(pdf_mem_ptr);

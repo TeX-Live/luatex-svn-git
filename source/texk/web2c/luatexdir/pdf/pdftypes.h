@@ -28,6 +28,19 @@
 
 typedef struct pdf_output_file_ {
     FILE *file;  /* the PDF output file */
+    int gamma;
+    int image_gamma;
+    int image_hicolor; /* boolean */
+    int image_apply_gamma;
+    int draftmode;
+    int pk_resolution;
+    int decimal_digits;
+    int gen_tounicode;
+    int inclusion_copy_font;
+    int replace_font;
+    int minor_version;        /* fixed minor part of the PDF version */
+    int minor_version_set;    /* flag if the PDF version has been set */
+    int objcompresslevel;     /* fixed level for activating PDF object streams */
 } pdf_output_file;
 
 typedef pdf_output_file *PDF;

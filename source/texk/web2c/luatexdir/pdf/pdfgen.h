@@ -78,22 +78,27 @@ extern integer pdf_os_cur_objnum;
 extern longinteger pdf_gone;
 extern longinteger pdf_save_offset;
 extern integer zip_write_state;
-extern integer fixed_pdf_minor_version;
-extern boolean fixed_pdf_minor_version_set;
-extern integer fixed_pdf_objcompresslevel;
-extern integer fixed_pdfoutput;
-extern boolean fixed_pdfoutput_set;
-extern integer fixed_gamma;
-extern integer fixed_image_gamma;
-extern boolean fixed_image_hicolor;
-extern integer fixed_image_apply_gamma;
-extern integer fixed_pdf_draftmode;
 extern integer pdf_page_group_val;
 extern integer epochseconds;
 extern integer microseconds;
 extern integer page_divert_val;
+extern integer pk_scale_factor;
+extern integer pdf_output_option;
+extern integer pdf_output_value;
+extern integer pdf_draftmode_option;
+extern integer pdf_draftmode_value;
 
-extern void initialize_pdf_output(void);
+extern integer fixed_pdfoutput;
+extern boolean fixed_pdfoutput_set;
+
+extern scaled one_hundred_inch;
+extern scaled one_inch;
+extern scaled one_true_inch;
+extern scaled one_hundred_bp;
+extern scaled one_bp;
+extern integer ten_pow[10];
+
+extern void initialize_pdf_output(PDF);
 
 extern void pdf_flush(PDF);
 extern void pdf_os_get_os_buf(integer s);
@@ -145,26 +150,8 @@ extern void pdf_begin_stream(PDF);
 extern void pdf_end_stream(PDF);
 extern void pdf_remove_last_space(PDF);
 
-extern scaled one_hundred_inch;
-extern scaled one_inch;
-extern scaled one_true_inch;
-extern scaled one_hundred_bp;
-extern scaled one_bp;
-extern integer ten_pow[10];
-
 extern void pdf_print_bp(PDF,scaled);
 extern void pdf_print_mag_bp(PDF,scaled);
-
-extern integer fixed_pk_resolution;
-extern integer fixed_decimal_digits;
-extern integer fixed_gen_tounicode;
-extern integer fixed_inclusion_copy_font;
-extern integer fixed_replace_font;
-extern integer pk_scale_factor;
-extern integer pdf_output_option;
-extern integer pdf_output_value;
-extern integer pdf_draftmode_option;
-extern integer pdf_draftmode_value;
 
 #  define set_ff(A)  do {                         \
         if (pdf_font_num(A) < 0)                \

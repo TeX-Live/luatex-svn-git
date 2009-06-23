@@ -72,25 +72,25 @@ static void update_bbox(integer llx, integer lly, integer urx, integer ury,
     }
 }
 
-static integer get_pk_font_scale(internalfontnumber f)
+static integer get_pk_font_scale(internalfontnumber f, int precision)
 {
     return
         divide_scaled(pk_scale_factor,
                       divide_scaled(pdf_font_size(f), one_hundred_bp,
-                                    fixed_decimal_digits + 2), 0);
+                                    precision + 2), 0);
 }
 
-static integer pk_char_width(internalfontnumber f, scaled w)
+static integer pk_char_width(internalfontnumber f, scaled w, int precision)
 {
     return
         divide_scaled(divide_scaled(w, pdf_font_size(f), 7),
-                      get_pk_font_scale(f), 0);
+                      get_pk_font_scale(f, precision), 0);
 }
 
-scaled get_pk_char_width(internalfontnumber f, scaled w)
+static scaled get_pk_char_width(internalfontnumber f, scaled w, int precision)
 {
-    return (get_pk_font_scale(f) / 100000.0) *
-        (pk_char_width(f, w) / 100.0) * pdf_font_size(f);
+    return (get_pk_font_scale(f, precision) / 100000.0) *
+        (pk_char_width(f, w, precision) / 100.0) * pdf_font_size(f);
 }
 
 static boolean writepk(PDF pdf, internal_font_number f)
@@ -117,13 +117,13 @@ static boolean writepk(PDF pdf, internal_font_number f)
     callback_id = callback_defined(find_pk_file_callback);
 
     if (callback_id > 0) {
-        dpi = round(fixed_pk_resolution *
+        dpi = round(pdf->pk_resolution *
                     (((float) pdf_font_size(f)) / font_dsize(f)));
         /* <base>.dpi/<fontname>.<tdpi>pk */
         cur_file_name = font_name(f);
         mallocsize = strlen(cur_file_name) + 24 + 9;
         name = xmalloc(mallocsize);
-        snprintf(name, mallocsize, "%ddpi/%s.%dpk", (int) fixed_pk_resolution,
+        snprintf(name, mallocsize, "%ddpi/%s.%dpk", (int) pdf->pk_resolution,
                  cur_file_name, (int) dpi);
         if (run_callback(callback_id, "S->S", name, &ftemp)) {
             if (ftemp != NULL && strlen(ftemp)) {
@@ -135,9 +135,9 @@ static boolean writepk(PDF pdf, internal_font_number f)
     } else {
         dpi =
             kpse_magstep_fix(round
-                             (fixed_pk_resolution *
+                             (pdf->pk_resolution *
                               (((float) pdf_font_size(f)) / font_dsize(f))),
-                             fixed_pk_resolution, NULL);
+                             pdf->pk_resolution, NULL);
         cur_file_name = font_name(f);
         name = kpse_find_pk(cur_file_name, (unsigned) dpi, &font_ret);
         if (name == NULL ||
@@ -174,7 +174,7 @@ static boolean writepk(PDF pdf, internal_font_number f)
         if (!pdf_char_marked(f, cd.charcode))
             continue;
         t3_char_widths[cd.charcode] =
-            pk_char_width(f, get_charwidth(f, cd.charcode));
+            pk_char_width(f, get_charwidth(f, cd.charcode),pdf->decimal_digits);
         if (cd.cwidth < 1 || cd.cheight < 1) {
             cd.xescape = cd.cwidth = round(t3_char_widths[cd.charcode] / 100.0);
             cd.cheight = 1;
@@ -270,7 +270,7 @@ void writet3(PDF pdf, int objnum, internalfontnumber f)
         pdf_puts(pdf,"\n");
     }
     if (is_pk_font) {
-        pk_font_scale = get_pk_font_scale(f);
+        pk_font_scale = get_pk_font_scale(f,pdf->decimal_digits);
         pdf_puts(pdf,"/FontMatrix [");
         pdf_print_real(pdf, pk_font_scale, 5);
         pdf_puts(pdf," 0 0 ");

@@ -46,7 +46,7 @@ static void close_and_cleanup_png(image_dict * idict)
     img_png_ptr(idict) = NULL;
 }
 
-void read_png_info(image_dict * idict, img_readtype_e readtype)
+void read_png_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
 {
     double gamma;
     png_structp png_p;
@@ -76,20 +76,20 @@ void read_png_info(image_dict * idict, img_readtype_e readtype)
         png_set_tRNS_to_alpha(png_p);
     }
     /* alpha channel support  */
-    if (fixed_pdf_minor_version < 4 && png_p->color_type | PNG_COLOR_MASK_ALPHA)
+    if (pdf->minor_version < 4 && png_p->color_type | PNG_COLOR_MASK_ALPHA)
         png_set_strip_alpha(png_p);
     /* 16bit depth support */
-    if (fixed_pdf_minor_version < 5)
-        fixed_image_hicolor = 0;
-    if (info_p->bit_depth == 16 && !fixed_image_hicolor)
+    if (pdf->minor_version < 5)
+        pdf->image_hicolor = 0;
+    if ((info_p->bit_depth == 16) && (pdf->image_hicolor == 0))
         png_set_strip_16(png_p);
     /* gamma support */
-    if (fixed_image_apply_gamma) {
+    if (pdf->image_apply_gamma) {
         if (png_get_gAMA(png_p, info_p, &gamma))
-            png_set_gamma(png_p, (fixed_gamma / 1000.0), gamma);
+            png_set_gamma(png_p, (pdf->gamma / 1000.0), gamma);
         else
-            png_set_gamma(png_p, (fixed_gamma / 1000.0),
-                          (1000.0 / fixed_image_gamma));
+            png_set_gamma(png_p, (pdf->gamma / 1000.0),
+                          (1000.0 / pdf->image_gamma));
     }
     /* reset structure */
     png_read_update_info(png_p, info_p);
@@ -269,7 +269,7 @@ static void write_png_gray_alpha(PDF pdf, image_dict * idict)
     pdf_begin_stream(pdf);
     if (info_p->interlace_type == PNG_INTERLACE_NONE) {
         row = xtalloc(info_p->rowbytes, png_byte);
-        if ((info_p->bit_depth == 16) && fixed_image_hicolor) {
+        if ((info_p->bit_depth == 16) && (pdf->image_hicolor!=0)) {
             write_noninterlaced(write_gray_pixel_16(r));
         } else {
             write_noninterlaced(write_gray_pixel_8(r));
@@ -283,7 +283,7 @@ static void write_png_gray_alpha(PDF pdf, image_dict * idict)
         for (i = 0; (unsigned) i < info_p->height; i++)
             rows[i] = xtalloc(info_p->rowbytes, png_byte);
         png_read_image(png_p, rows);
-        if ((info_p->bit_depth == 16) && fixed_image_hicolor) {
+        if ((info_p->bit_depth == 16) && (pdf->image_hicolor!=0)) {
             write_interlaced(write_gray_pixel_16(row));
         } else {
             write_interlaced(write_gray_pixel_8(row));
@@ -368,7 +368,7 @@ static void write_png_rgb_alpha(PDF pdf, image_dict * idict)
     pdf_begin_stream(pdf);
     if (info_p->interlace_type == PNG_INTERLACE_NONE) {
         row = xtalloc(info_p->rowbytes, png_byte);
-        if ((info_p->bit_depth == 16) && fixed_image_hicolor) {
+        if ((info_p->bit_depth == 16) && (pdf->image_hicolor!=0)) {
             write_noninterlaced(write_rgb_pixel_16(r));
         } else {
             write_noninterlaced(write_rgb_pixel_8(r));
@@ -382,7 +382,7 @@ static void write_png_rgb_alpha(PDF pdf, image_dict * idict)
         for (i = 0; (unsigned) i < info_p->height; i++)
             rows[i] = xtalloc(info_p->rowbytes, png_byte);
         png_read_image(png_p, rows);
-        if ((info_p->bit_depth == 16) && fixed_image_hicolor) {
+        if ((info_p->bit_depth == 16) && (pdf->image_hicolor!=0)) {
             write_interlaced(write_rgb_pixel_16(row));
         } else {
             write_interlaced(write_rgb_pixel_8(row));
@@ -511,14 +511,14 @@ static void copy_png(PDF pdf, image_dict * idict)
     } while (endflag == false);
 }
 
-static void reopen_png(image_dict * idict)
+static void reopen_png(PDF pdf, image_dict * idict)
 {
     integer width, height, xres, yres;
     width = img_xsize(idict);   /* do consistency check */
     height = img_ysize(idict);
     xres = img_xres(idict);
     yres = img_yres(idict);
-    read_png_info(idict, IMG_KEEPOPEN);
+    read_png_info(pdf, idict, IMG_KEEPOPEN);
     if (width != img_xsize(idict) || height != img_ysize(idict)
         || xres != img_xres(idict) || yres != img_yres(idict))
         pdftex_fail("writepng: image dimensions have changed");
@@ -536,12 +536,12 @@ void write_png(PDF pdf, image_dict * idict)
     assert(idict != NULL);
     last_png_needs_page_group = false;
     if (img_file(idict) == NULL)
-        reopen_png(idict);
+        reopen_png(pdf, idict);
     assert(img_png_ptr(idict) != NULL);
     png_p = img_png_png_ptr(idict);
     info_p = img_png_info_ptr(idict);
-    if (fixed_pdf_minor_version < 5)
-        fixed_image_hicolor = 0;
+    if (pdf->minor_version < 5)
+        pdf->image_hicolor = 0;
     pdf_puts(pdf,"/Type /XObject\n/Subtype /Image\n");
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
         pdf_printf(pdf,"%s\n", img_attr(idict));
@@ -550,20 +550,20 @@ void write_png(PDF pdf, image_dict * idict)
                (int) info_p->height, (int) info_p->bit_depth);
     pdf_puts(pdf,"/ColorSpace ");
     checked_gamma = 1.0;
-    if (fixed_image_apply_gamma) {
+    if (pdf->image_apply_gamma) {
         if (png_get_gAMA(png_p, info_p, &gamma)) {
-            checked_gamma = (fixed_gamma / 1000.0) * gamma;
+            checked_gamma = (pdf->gamma / 1000.0) * gamma;
         } else {
             checked_gamma =
-                (fixed_gamma / 1000.0) * (1000.0 / fixed_image_gamma);
+                (pdf->gamma / 1000.0) * (1000.0 / pdf->image_gamma);
         }
     }
     /* the switching between |info_p| and |png_p| queries has been trial and error.
      */
-    if (fixed_pdf_minor_version > 1 && info_p->interlace_type == PNG_INTERLACE_NONE && (png_p->transformations == 0 || png_p->transformations == 0x2000)        /* gamma */
+    if (pdf->minor_version > 1 && info_p->interlace_type == PNG_INTERLACE_NONE && (png_p->transformations == 0 || png_p->transformations == 0x2000)        /* gamma */
         &&!(png_p->color_type == PNG_COLOR_TYPE_GRAY_ALPHA ||
             png_p->color_type == PNG_COLOR_TYPE_RGB_ALPHA)
-        && (fixed_image_hicolor || (png_p->bit_depth <= 8))
+        && ((pdf->image_hicolor!=0) || (png_p->bit_depth <= 8))
         && (checked_gamma <= 1.01 && checked_gamma > 0.99)
         ) {
         if (img_colorspace(idict) != 0) {
@@ -601,7 +601,7 @@ void write_png(PDF pdf, image_dict * idict)
     } else {
         if (0) {
             tex_printf(" PNG copy skipped because: ");
-            if (fixed_image_apply_gamma &&
+            if ((pdf->image_apply_gamma!=0) &&
                 (checked_gamma > 1.01 || checked_gamma < 0.99))
                 tex_printf("gamma delta=%lf ", checked_gamma);
             if (png_p->transformations != PNG_TRANSFORM_IDENTITY)
@@ -610,8 +610,8 @@ void write_png(PDF pdf, image_dict * idict)
                 && (info_p->color_type != PNG_COLOR_TYPE_RGB)
                 && (info_p->color_type != PNG_COLOR_TYPE_PALETTE))
                 tex_printf("colortype ");
-            if (fixed_pdf_minor_version <= 1)
-                tex_printf("version=%d ", (int) fixed_pdf_minor_version);
+            if (pdf->minor_version <= 1)
+                tex_printf("version=%d ", pdf->minor_version);
             if (info_p->interlace_type != PNG_INTERLACE_NONE)
                 tex_printf("interlaced ");
             if (info_p->bit_depth > 8)
@@ -627,7 +627,7 @@ void write_png(PDF pdf, image_dict * idict)
             write_png_gray(pdf,idict);
             break;
         case PNG_COLOR_TYPE_GRAY_ALPHA:
-            if (fixed_pdf_minor_version >= 4) {
+            if (pdf->minor_version >= 4) {
                 write_png_gray_alpha(pdf,idict);
                 last_png_needs_page_group = true;
             } else
@@ -637,7 +637,7 @@ void write_png(PDF pdf, image_dict * idict)
             write_png_rgb(pdf,idict);
             break;
         case PNG_COLOR_TYPE_RGB_ALPHA:
-            if (fixed_pdf_minor_version >= 4) {
+            if (pdf->minor_version >= 4) {
                 write_png_rgb_alpha(pdf,idict);
                 last_png_needs_page_group = true;
             } else

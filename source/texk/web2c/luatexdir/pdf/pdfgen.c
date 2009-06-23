@@ -67,27 +67,31 @@ integer pdf_os_cur_objnum = 0;  /* number of current object stream object */
 longinteger pdf_gone = 0;       /* number of bytes that were flushed to output */
 longinteger pdf_save_offset;    /* to save |pdf_offset| */
 integer zip_write_state = no_zip;       /* which state of compression we are in */
-integer fixed_pdf_minor_version;        /* fixed minor part of the PDF version */
-boolean fixed_pdf_minor_version_set = false;    /* flag if the PDF version has been set */
-integer fixed_pdf_objcompresslevel;     /* fixed level for activating PDF object streams */
+
 integer fixed_pdfoutput;        /* fixed output format */
 boolean fixed_pdfoutput_set = false;    /* |fixed_pdfoutput| has been set? */
-integer fixed_gamma;
-integer fixed_image_gamma;
-boolean fixed_image_hicolor;
-integer fixed_image_apply_gamma;
-integer fixed_pdf_draftmode;    /* fixed \\pdfdraftmode */
+
 integer pdf_page_group_val = -1;
 integer epochseconds;
 integer microseconds;
 integer page_divert_val = 0;
+integer pk_scale_factor;
+integer pdf_output_option;
+integer pdf_output_value;
+integer pdf_draftmode_option;
+integer pdf_draftmode_value;
+
 
 void initialize_pdfgen(void)
 {
+    if (static_pdf==NULL) {
+        static_pdf = xmalloc(sizeof(pdf_output_file));
+        memset(static_pdf, 0, sizeof(pdf_output_file));
+    }
     pdf_buf = pdf_op_buf;
 }
 
-void initialize_pdf_output(void)
+void initialize_pdf_output(PDF pdf)
 {
     if ((pdf_minor_version < 0) || (pdf_minor_version > 9)) {
         char *hlp[] = { "The pdfminorversion must be between 0 and 9.",
@@ -99,40 +103,40 @@ void initialize_pdf_output(void)
         tex_error(msg, hlp);
         pdf_minor_version = 4;
     }
-    fixed_pdf_minor_version = pdf_minor_version;
-    fixed_decimal_digits = fix_int(pdf_decimal_digits, 0, 4);
-    fixed_gamma = fix_int(pdf_gamma, 0, 1000000);
-    fixed_image_gamma = fix_int(pdf_image_gamma, 0, 1000000);
-    fixed_image_hicolor = fix_int(pdf_image_hicolor, 0, 1);
-    fixed_image_apply_gamma = fix_int(pdf_image_apply_gamma, 0, 1);
-    fixed_pdf_objcompresslevel = fix_int(pdf_objcompresslevel, 0, 3);
-    fixed_pdf_draftmode = fix_int(pdf_draftmode, 0, 1);
-    fixed_inclusion_copy_font = fix_int(pdf_inclusion_copy_font, 0, 1);
-    fixed_replace_font = fix_int(pdf_replace_font, 0, 1);
-    fixed_pk_resolution = fix_int(pdf_pk_resolution, 72, 8000);
-    if ((fixed_pdf_minor_version >= 5) && (fixed_pdf_objcompresslevel > 0)) {
+    pdf->minor_version = pdf_minor_version;
+    pdf->decimal_digits = fix_int(pdf_decimal_digits, 0, 4);
+    pdf->gamma = fix_int(pdf_gamma, 0, 1000000);
+    pdf->image_gamma = fix_int(pdf_image_gamma, 0, 1000000);
+    pdf->image_hicolor = fix_int(pdf_image_hicolor, 0, 1);
+    pdf->image_apply_gamma = fix_int(pdf_image_apply_gamma, 0, 1);
+    pdf->objcompresslevel = fix_int(pdf_objcompresslevel, 0, 3);
+    pdf->draftmode = fix_int(pdf_draftmode, 0, 1);
+    pdf->inclusion_copy_font = fix_int(pdf_inclusion_copy_font, 0, 1);
+    pdf->replace_font = fix_int(pdf_replace_font, 0, 1);
+    pdf->pk_resolution = fix_int(pdf_pk_resolution, 72, 8000);
+    if ((pdf->minor_version >= 5) && (pdf->objcompresslevel > 0)) {
         pdf_os_enable = true;
     } else {
-        if (fixed_pdf_objcompresslevel > 0) {
+        if (pdf->objcompresslevel > 0) {
             pdf_warning(maketexstring("Object streams"),
                         maketexstring
                         ("\\pdfobjcompresslevel > 0 requires \\pdfminorversion > 4. Object streams disabled now."),
                         true, true);
-            fixed_pdf_objcompresslevel = 0;
+            pdf->objcompresslevel = 0;
         }
         pdf_os_enable = false;
     }
     if (pdf_pk_resolution == 0) /* if not set from format file or by user */
         pdf_pk_resolution = pk_dpi;     /* take it from \.{texmf.cnf} */
     pk_scale_factor =
-        divide_scaled(72, fixed_pk_resolution, 5 + fixed_decimal_digits);
+        divide_scaled(72, pdf->pk_resolution, 5 + pdf->decimal_digits);
     if (!callback_defined(read_pk_file_callback)) {
         if (pdf_pk_mode != null) {
             char *s = tokenlist_to_cstring(pdf_pk_mode, true, NULL);
-            kpseinitprog("PDFTEX", fixed_pk_resolution, s, nil);
+            kpseinitprog("PDFTEX", pdf->pk_resolution, s, nil);
             xfree(s);
         } else {
-            kpseinitprog("PDFTEX", fixed_pk_resolution, nil, nil);
+            kpseinitprog("PDFTEX", pdf->pk_resolution, nil, nil);
         }
         if (!kpsevarvalue("MKTEXPK"))
             kpsesetprogramenabled(kpsepkformat, 1, kpsesrccmdline);
@@ -143,7 +147,7 @@ void initialize_pdf_output(void)
 
     if ((pdf_unique_resname > 0) && (pdf_resname_prefix == 0))
         pdf_resname_prefix = get_resname_prefix();
-    pdf_page_init();
+    pdf_page_init(pdf);
 }
 
 /*
@@ -183,19 +187,21 @@ and the \.{PDF} header is written.
 void check_pdfminorversion(PDF pdf)
 {
     if (pdf==NULL) {
+        assert(static_pdf==NULL);
         static_pdf = xmalloc(sizeof(pdf_output_file));
+        memset(static_pdf, 0, sizeof(pdf_output_file));
         pdf = static_pdf;
     }
     fix_pdfoutput();
     assert(fixed_pdfoutput > 0);
-    if (!fixed_pdf_minor_version_set) {
-        fixed_pdf_minor_version_set = true;
+    if (!pdf->minor_version_set) {
+        pdf->minor_version_set = true;
         /* Initialize variables for \.{PDF} output */
         prepare_mag();
-        initialize_pdf_output();
+        initialize_pdf_output(pdf);
         /* Write \.{PDF} header */
         ensure_pdf_open(pdf);
-        pdf_printf(pdf,"%%PDF-1.%d\n", (int) fixed_pdf_minor_version);
+        pdf_printf(pdf,"%%PDF-1.%d\n", pdf->minor_version);
         pdf_out(pdf,'%');
         pdf_out(pdf,'P' + 128);
         pdf_out(pdf,'T' + 128);
@@ -205,19 +211,19 @@ void check_pdfminorversion(PDF pdf)
 
     } else {
         /* Check that variables for \.{PDF} output are unchanged */
-        if (fixed_pdf_minor_version != pdf_minor_version)
+        if (pdf->minor_version != pdf_minor_version)
             pdf_error(maketexstring("setup"),
                       maketexstring
                       ("\\pdfminorversion cannot be changed after data is written to the PDF file"));
-        if (fixed_pdf_draftmode != pdf_draftmode)
+        if (pdf->draftmode != pdf_draftmode)
             pdf_error(maketexstring("setup"),
                       maketexstring
                       ("\\pdfdraftmode cannot be changed after data is written to the PDF file"));
 
     }
-    if (fixed_pdf_draftmode != 0) {
+    if (pdf->draftmode != 0) {
         pdf_compress_level = 0; /* re-fix it, might have been changed inbetween */
-        fixed_pdf_objcompresslevel = 0;
+        pdf->objcompresslevel = 0;
     }
 }
 
@@ -230,7 +236,7 @@ void ensure_pdf_open(PDF pdf)
     if (job_name == 0)
         open_log_file();
     pack_job_name(".pdf");
-    if (fixed_pdf_draftmode == 0) {
+    if (pdf->draftmode == 0) {
         while (!lua_b_open_out(pdf->file))
             prompt_file_name("file name for output", ".pdf");
     }
@@ -262,18 +268,18 @@ void pdf_flush(PDF pdf)
         switch (zip_write_state) {
         case no_zip:
             if (pdf_ptr > 0) {
-                if (fixed_pdf_draftmode == 0)
+                if (pdf->draftmode == 0)
                     write_pdf(pdf,0, pdf_ptr - 1);
                 pdf_gone = pdf_gone + pdf_ptr;
                 pdf_last_byte = pdf_buf[pdf_ptr - 1];
             }
             break;
         case zip_writing:
-            if (fixed_pdf_draftmode == 0)
+            if (pdf->draftmode == 0)
                 write_zip(pdf, false);
             break;
         case zip_finish:
-            if (fixed_pdf_draftmode == 0)
+            if (pdf->draftmode == 0)
                 write_zip(pdf, true);
             zip_write_state = no_zip;
             break;
@@ -592,7 +598,7 @@ void pdf_print_bp(PDF pdf, scaled s)
     pdffloat a;
     assert(pstruct != NULL);
     a.m = lround(s * pstruct->k1);
-    a.e = fixed_decimal_digits;
+    a.e = pdf->decimal_digits;
     print_pdffloat(pdf, &a);
 }
 
@@ -604,20 +610,9 @@ void pdf_print_mag_bp(PDF pdf, scaled s)
         a.m = lround(s * (long) int_par(param_mag_code) / 1000.0 * pstruct->k1);
     else
         a.m = lround(s * pstruct->k1);
-    a.e = fixed_decimal_digits;
+    a.e = pdf->decimal_digits;
     print_pdffloat(pdf, &a);
 }
-
-integer fixed_pk_resolution;
-integer fixed_decimal_digits;
-integer fixed_gen_tounicode;
-integer fixed_inclusion_copy_font;
-integer fixed_replace_font;
-integer pk_scale_factor;
-integer pdf_output_option;
-integer pdf_output_value;
-integer pdf_draftmode_option;
-integer pdf_draftmode_value;
 
 /* mark |f| as a used font; set |font_used(f)|, |pdf_font_size(f)| and |pdf_font_num(f)| */
 void pdf_use_font(internal_font_number f, integer fontnum)
@@ -839,7 +834,7 @@ void pdf_rectangle(PDF pdf, halfword r)
 void pdf_begin_dict(PDF pdf, integer i, integer pdf_os_level)
 {
     check_pdfminorversion(pdf);
-    pdf_os_prepare_obj(i, pdf_os_level);
+    pdf_os_prepare_obj(pdf,i, pdf_os_level);
     if (!pdf_os_mode) {
         pdf_printf(pdf, "%d 0 obj <<\n", (int) i);
     } else {
@@ -930,7 +925,7 @@ void pdf_os_write_objstream(PDF pdf)
 void pdf_begin_obj(PDF pdf, integer i, integer pdf_os_level)
 {
     check_pdfminorversion(pdf);
-    pdf_os_prepare_obj(i, pdf_os_level);
+    pdf_os_prepare_obj(pdf, i, pdf_os_level);
     if (!pdf_os_mode) {
         pdf_printf(pdf, "%d 0 obj\n", (int) i);
     } else if (pdf_compress_level == 0) {
@@ -962,7 +957,7 @@ void write_stream_length(PDF pdf, integer length, longinteger offset)
 {
     if (jobname_cstr == NULL)
         jobname_cstr = xstrdup(makecstring(job_name));
-    if (fixed_pdf_draftmode == 0) {
+    if (pdf->draftmode == 0) {
         xfseeko(pdf->file, (off_t) offset, SEEK_SET, jobname_cstr);
         fprintf(pdf->file, "%li", (long int) length);
         xfseeko(pdf->file, (off_t) pdf_offset, SEEK_SET, jobname_cstr);
@@ -1364,10 +1359,11 @@ void getcreationdate(void)
 
 void remove_pdffile(PDF pdf)
 {
-    if (!kpathsea_debug && output_file_name && !fixed_pdf_draftmode) {
-        if (pdf!=NULL)
+    if (pdf!=NULL) {
+        if (!kpathsea_debug && output_file_name && (pdf->draftmode!=0)) {
             xfclose(pdf->file, makecstring(output_file_name));
-        remove(makecstring(output_file_name));
+            remove(makecstring(output_file_name));
+        }
     }
 }
 

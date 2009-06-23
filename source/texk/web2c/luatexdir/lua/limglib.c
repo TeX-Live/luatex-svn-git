@@ -550,7 +550,8 @@ static void read_scale_img(lua_State * L, image * a)
              * it's needed as several fixed_* parameters are used early,
              * e. g. by read_png_info(). */
             check_pdfminorversion(static_pdf);
-            read_img(ad, pdf_minor_version,
+            read_img(static_pdf,
+                     ad, pdf_minor_version,
                      pdf_inclusion_errorlevel);
             img_unset_scaled(a);
         }

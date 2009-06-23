@@ -136,7 +136,7 @@ extern integer ff;
 extern void pdf_create_obj(integer t, integer i);
 extern integer pdf_new_objnum(void);
 extern void pdf_os_switch(boolean pdf_os);
-extern void pdf_os_prepare_obj(integer i, integer pdf_os_level);
+extern void pdf_os_prepare_obj(PDF pdf, integer i, integer pdf_os_level);
 
 #  define pdf_append_list(A,B) do {             \
         if (B==0) B=append_ptr(B,A);            \
@@ -156,7 +156,7 @@ extern void pdfshipoutbegin(boolean shipping_page);
 extern void pdfshipoutend(boolean shipping_page);
 
 extern void dump_pdftex_data(void);
-extern void undump_pdftex_data(void);
+extern void undump_pdftex_data(PDF pdf);
 
 #  define set_pdf_width(A,B) pdf_width(A)=B
 #  define set_pdf_height(A,B) pdf_height(A)=B

@@ -63,10 +63,10 @@ static void calc_k2(pdfstructure * p)
                             pdf2double(p->tm[0]));
 }
 
-void pdf_page_init()
+void pdf_page_init(PDF pdf)
 {
     pdfstructure *p;
-    int decimal_digits = fixed_decimal_digits;
+    int decimal_digits = pdf->decimal_digits;
     if (pstruct == NULL)
         pstruct = new_pdfstructure();
     p = pstruct;

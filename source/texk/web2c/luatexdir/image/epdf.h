@@ -71,11 +71,8 @@ extern "C" {
     extern integer pdf_buf_size;
     extern integer pdf_os_mode;
     extern eight_bits pdf_last_byte;
-    extern integer fixed_inclusion_copy_font;
 
     extern char notdef[];
-
-    extern integer fixed_replace_font;
 
     extern int is_subsetable(struct fm_entry *);
     extern struct fm_entry *lookup_fontmap(char *);

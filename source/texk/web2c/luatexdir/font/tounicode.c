@@ -319,7 +319,7 @@ integer write_tounicode(PDF pdf, char **glyph_names, char *name)
     assert(strlen(name) + strlen(builtin_suffix) < SMALL_BUF_SIZE);
     if (glyph_unicode_tree == NULL) {
         /*pdftex_warn("no GlyphToUnicode entry has been inserted yet!"); */
-        fixed_gen_tounicode = 0;
+        pdf->gen_tounicode = 0;
         return 0;
     }
     strcpy(buf, name);

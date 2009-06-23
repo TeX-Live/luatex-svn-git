@@ -26,7 +26,7 @@ extern halfword alt_rule;
 
 extern void output_image(PDF pdf, integer idx);
 extern void pdf_write_image(PDF pdf, integer n);
-extern void scan_image(void);
+extern void scan_image(PDF pdf);
 extern void scan_alt_rule(void);
 
 #  define set_pdf_ximage_idx(A,B) pdf_ximage_idx(A)=B

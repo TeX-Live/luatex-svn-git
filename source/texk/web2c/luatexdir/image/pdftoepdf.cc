@@ -410,7 +410,7 @@ static void copyFont(PDF pdf, char *tag, Object * fontRef)
     }
     // Only handle included Type1 (and Type1C) fonts; anything else will be copied.
     // Type1C fonts are replaced by Type1 fonts, if REPLACE_TYPE1C is true.
-    if (!fixed_inclusion_copy_font && fontRef->fetch(xref, &fontdict)->isDict()
+    if ((pdf->inclusion_copy_font!=0) && fontRef->fetch(xref, &fontdict)->isDict()
         && fontdict->dictLookup("Subtype", &subtype)->isName()
         && !strcmp(subtype->getName(), "Type1")
         && fontdict->dictLookup("BaseFont", &basefont)->isName()

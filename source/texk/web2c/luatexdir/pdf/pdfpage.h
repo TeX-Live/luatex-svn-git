@@ -75,8 +75,8 @@ extern pdfstructure *pstruct;
 /**********************************************************************/
 
 boolean calc_pdfpos(pdfstructure * p, scaledpos * pos);
-void pdf_page_init();
 
+void pdf_page_init(PDF pdf);
 void pdf_end_string_nl(PDF pdf);
 void pdf_goto_pagemode(PDF pdf);
 void pdf_place_form(PDF pdf, scaled h, scaled v, integer i);

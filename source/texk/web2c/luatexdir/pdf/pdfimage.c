@@ -45,7 +45,7 @@ void output_image(PDF pdf, integer idx)
 void pdf_write_image(PDF pdf, integer n)
 {
     pdf_begin_dict(pdf, n, 0);
-    if (fixed_pdf_draftmode == 0)
+    if (pdf->draftmode == 0)
         write_image(pdf, obj_data_ptr(n));
 }
 
@@ -91,7 +91,7 @@ void scan_alt_rule(void)
     }
 }
 
-void scan_image(void)
+void scan_image(PDF pdf)
 {
     integer k, img_wd, img_ht, img_dp, ref;
     integer page, pagebox, colorspace;
@@ -135,7 +135,8 @@ void scan_image(void)
     if (pagebox == 0)           /* no pagebox specification given */
         pagebox = pdf_box_spec_crop;
     ref =
-        read_image(k, pdf_ximage_count, s, page, named, attr, colorspace,
+        read_image(pdf,
+                   k, pdf_ximage_count, s, page, named, attr, colorspace,
                    pagebox, pdf_minor_version, pdf_inclusion_errorlevel);
     xfree(s);
     set_obj_data_ptr(k, ref);

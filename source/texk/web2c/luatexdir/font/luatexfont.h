@@ -214,7 +214,6 @@ internal_font_number copy_font_info(internal_font_number f);
 /* writet3.c */
 extern FILE *t3_file;
 void writet3(PDF, int, internalfontnumber);
-scaled get_pk_char_width(internalfontnumber, scaled);
 
 extern unsigned char *t3_buffer;
 extern integer t3_size;

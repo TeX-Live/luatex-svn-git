@@ -17572,7 +17572,7 @@ undump_language_data
 dump_pdftex_data
 
 @ @<Undump pdftex data@>=
-undump_pdftex_data
+undump_pdftex_data(static_pdf)
 
 @ @<Dump the lua bytecodes@>=
 dump_luac_registers;
@@ -18688,7 +18688,7 @@ end
 begin
     check_pdfoutput("\pdfximage", true);
     check_pdfminorversion(static_pdf);
-    scan_image;
+    scan_image(static_pdf);
 end
 
 @ @<Implement \.{\\pdfrefximage}@>=

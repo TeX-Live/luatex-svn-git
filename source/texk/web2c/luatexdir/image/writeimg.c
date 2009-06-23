@@ -301,7 +301,8 @@ void free_image_dict(image_dict * p)
 
 /**********************************************************************/
 
-void read_img(image_dict * idict, integer minor_version,
+void read_img(PDF pdf, 
+              image_dict * idict, integer minor_version,
               integer inclusion_errorlevel)
 {
     char *filepath;
@@ -334,10 +335,10 @@ void read_img(image_dict * idict, integer minor_version,
         img_group_ref(idict) = epdf_lastGroupObjectNum;
         break;
     case IMG_TYPE_PNG:
-        read_png_info(idict, IMG_CLOSEINBETWEEN);
+        read_png_info(static_pdf, idict, IMG_CLOSEINBETWEEN);
         break;
     case IMG_TYPE_JPG:
-        read_jpg_info(idict, IMG_CLOSEINBETWEEN);
+        read_jpg_info(static_pdf, idict, IMG_CLOSEINBETWEEN);
         break;
     case IMG_TYPE_JBIG2:
         if (minor_version < 4) {
@@ -750,12 +751,13 @@ void dumpimagemeta(void)
     }
 }
 
-void undumpimagemeta(integer pdfversion, integer pdfinclusionerrorlevel)
+void undumpimagemeta(PDF pdf, integer pdfversion, integer pdfinclusionerrorlevel)
 {
     int cur_image, i;
     image *img;
     image_dict *idict;
 
+    assert (pdf!=NULL);
     undumpinteger(img_limit);
 
     img_array = xtalloc(img_limit, img_entry);
@@ -799,14 +801,15 @@ void undumpimagemeta(integer pdfversion, integer pdfinclusionerrorlevel)
         default:
             pdftex_fail("unknown type of image");
         }
-        read_img(idict, pdfversion, pdfinclusionerrorlevel);
+        read_img(pdf, idict, pdfversion, pdfinclusionerrorlevel);
     }
 }
 
 /**********************************************************************/
 /* stuff to be accessible from TeX */
 
-integer read_image(integer objnum, integer index, char *filename,
+integer read_image(PDF pdf,
+                   integer objnum, integer index, char *filename,
                    integer page_num, char *page_name, char *attr,
                    integer colorspace, integer page_box,
                    integer minor_version, integer inclusion_errorlevel)
@@ -831,7 +834,7 @@ integer read_image(integer objnum, integer index, char *filename,
     if (attr != 0)
         img_attr(idict) = xstrdup(attr);
     img_pagebox(idict) = page_box;
-    read_img(idict, minor_version, inclusion_errorlevel);
+    read_img(pdf, idict, minor_version, inclusion_errorlevel);
     img_unset_scaled(a);
     return img_arrayidx(a);
 }

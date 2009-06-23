@@ -319,7 +319,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
             break;
         }
     }
-    pdf_page_init();
+    pdf_page_init(pdf);
 
     if (!shipping_page) {
         pdf_begin_dict(pdf,pdf_cur_form, 0);
@@ -880,7 +880,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version, str_number luatex_revision
         if (pdf_gone > 0)
             garbage_warning();
     } else {
-        if (fixed_pdf_draftmode == 0) {
+        if (pdf->draftmode == 0) {
             pdf_flush(pdf);        /* to make sure that the output file name has been already created */
             flush_jbig2_page0_objects(pdf);        /* flush page 0 objects from JBIG2 images, if any */
             /* Check for non-existing pages */
@@ -934,7 +934,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version, str_number luatex_revision
                     }
                 }
             }
-            fixed_gen_tounicode = pdf_gen_tounicode;
+            pdf->gen_tounicode = pdf_gen_tounicode;
             k = head_tab[obj_type_font];
             while (k != 0) {
                 f = obj_info(k);
@@ -1267,7 +1267,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version, str_number luatex_revision
             }
         }
         libpdffinish();
-        if (fixed_pdf_draftmode == 0)
+        if (pdf->draftmode == 0)
             b_close(pdf->file);
         else
             pdf_warning(0,
