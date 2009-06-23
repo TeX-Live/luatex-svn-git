@@ -19,6 +19,9 @@
 
 /* $Id$ */
 
+#ifndef STRINGPOOL_H
+#  define STRINGPOOL_H
+
 extern packed_ASCII_code *str_pool;
 extern pool_pointer *str_start;
 extern pool_pointer pool_ptr;
@@ -26,14 +29,14 @@ extern str_number str_ptr;
 extern pool_pointer init_pool_ptr;
 extern str_number init_str_ptr;
 
-#define STRING_OFFSET 0x200000
-#define STRING_OFFSET_BITS 21
+#  define STRING_OFFSET 0x200000
+#  define STRING_OFFSET_BITS 21
 
-#define str_start_macro(a) str_start[(a) - STRING_OFFSET]
+#  define str_start_macro(a) str_start[(a) - STRING_OFFSET]
 
-#define biggest_char 1114111
-#define number_chars 1114112
-#define special_char 1114113    /* |biggest_char+2| */
+#  define biggest_char 1114111
+#  define number_chars 1114112
+#  define special_char 1114113  /* |biggest_char+2| */
 
 /*
   Several of the elementary string operations are performed using
@@ -43,11 +46,11 @@ extern str_number init_str_ptr;
   a simple macro that computes the length of a string.
 */
 
-#define str_length(a) (str_start_macro((a)+1)-str_start_macro(a))
+#  define str_length(a) (str_start_macro((a)+1)-str_start_macro(a))
 
 /* The length of the current string is called |cur_length|: */
 
-#define cur_length (pool_ptr - str_start_macro(str_ptr))
+#  define cur_length (pool_ptr - str_start_macro(str_ptr))
 
 /* Strings are created by appending character codes to |str_pool|.
    The |append_char| macro, defined here, does not check to see if the
@@ -61,15 +64,15 @@ extern str_number init_str_ptr;
 */
 
 /* put |ASCII_code| \# at the end of |str_pool| */
-#define append_char(A) str_pool[pool_ptr++]=(A)
+#  define append_char(A) str_pool[pool_ptr++]=(A)
 
-#define str_room(A) check_pool_overflow((pool_ptr+(A)))
+#  define str_room(A) check_pool_overflow((pool_ptr+(A)))
 
-#define flush_char() decr(pool_ptr)     /* forget the last character in the pool */
+#  define flush_char() decr(pool_ptr)   /* forget the last character in the pool */
 
 /* To destroy the most recently made string, we say |flush_string|. */
 
-#define flush_string() do {					\
+#  define flush_string() do {					\
      decr(str_ptr);						\
      pool_ptr=str_start_macro(str_ptr);				\
    } while (0)
@@ -82,3 +85,5 @@ extern boolean get_strings_started(void);
 extern str_number search_string(str_number search);
 extern str_number slow_make_string(void);
 extern integer pool_to_unichar(pool_pointer t);
+
+#endif
