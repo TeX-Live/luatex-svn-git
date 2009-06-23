@@ -46,6 +46,7 @@ extern double rint(double x);
 #  include "image/writeimg.h"
 #  include "openbsd-compat.h"
 #  include "dvi/dvigen.h"
+#  include "pdf/pdftypes.h"
 #  include "pdf/pagetree.h"
 #  include "pdf/pdfgen.h"
 #  include "pdf/pdfpage.h"

@@ -141,6 +141,7 @@ libluatex_a_SOURCES = \
 	luatexdir/pdf/pdftables.h \
 	luatexdir/pdf/pdfthread.c \
 	luatexdir/pdf/pdfthread.h \
+	luatexdir/pdf/pdftypes.h \
 	luatexdir/pdf/pdfxform.c \
 	luatexdir/pdf/pdfxform.h \
 	luatexdir/primitive.h \
