@@ -25,8 +25,8 @@
 
 #  include "image.h"
 
-void flush_jbig2_page0_objects();
+void flush_jbig2_page0_objects(PDF);
 void read_jbig2_info(image_dict *);
-void write_jbig2(image_dict *);
+void write_jbig2(PDF, image_dict *);
 
 #endif                          /* WRITEJBIG"_H */

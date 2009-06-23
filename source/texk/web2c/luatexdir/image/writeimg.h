@@ -52,7 +52,7 @@ void free_image_dict(image_dict * p);
 void init_image_dict(image_dict *);
 void init_image(image *);
 void new_img_pdfstream_struct(image_dict *);
-void out_image(integer, scaled, scaled);
+void out_image(PDF, integer, scaled, scaled);
 void pdf_print_resname_prefix(void);
 void read_img(image_dict *, integer, integer);
 void scale_image(integer);
@@ -60,8 +60,8 @@ void scale_img(image *);
 void set_image_dimensions(integer, integer, integer, integer);
 void undumpimagemeta(integer, integer);
 void update_image_procset(integer);
-void write_image(integer);
-void write_img(image_dict *);
-void write_pdfstream(image_dict *);
+void write_image(PDF, integer);
+void write_img(PDF, image_dict *);
+void write_pdfstream(PDF, image_dict *);
 
 #endif                          /* WRITEIMG_H */

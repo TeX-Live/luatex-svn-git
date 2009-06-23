@@ -27,12 +27,6 @@
 
 extern char *job_id_string;
 
-integer fb_offset(void);
-void fb_flush(void);
-void fb_putchar(eight_bits b);
-void fb_seek(integer);
-void fb_free(void);
-
 void make_subset_tag(fd_entry *);
 
 str_number maketexstring(const char *);
@@ -42,14 +36,12 @@ void append_string(char *s);
 __attribute__ ((format(printf, 1, 2)))
 void tex_printf(const char *, ...);
 
-void remove_pdffile(void);
-
 __attribute__ ((noreturn, format(printf, 1, 2)))
 void pdftex_fail(const char *, ...);
 __attribute__ ((format(printf, 1, 2)))
 void pdftex_warn(const char *, ...);
-void tex_error(char *msg, char **hlp);
 void garbage_warning(void);
+void tex_error(char *msg, char **hlp);
 char *makecstring(integer);
 char *makeclstring(integer, size_t *);
 void set_job_id(int, int, int, int);

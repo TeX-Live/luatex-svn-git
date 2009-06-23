@@ -23,6 +23,30 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
+static void latelua (PDF pdf, halfword s,  halfword r)
+{
+    pool_pointer b; /* current character code position */
+    b = pool_ptr;
+    luacall(s,r);
+    if (b<pool_ptr) {
+        pdf_goto_pagemode(pdf);
+        while (b<pool_ptr) {
+            pdf_out(pdf,str_pool[b]);
+            incr(b);
+        }
+        pdf_print_nl(pdf);
+    }
+}
+
+static void do_late_lua (PDF pdf, halfword p) 
+{
+    if (!doing_leaders) {
+        expand_macros_in_tokenlist(p);
+        latelua(pdf, def_ref, late_lua_name(p));
+        flush_list(def_ref);
+    }
+}
+
 /*
 This code scans forward to the ending |dir_node| while keeping
 track of the needed width in |w|. When it finds the node that will end
@@ -141,7 +165,7 @@ void calculate_width_to_enddir(halfword p, real cur_glue, scaled cur_g,
 
 /* The implementation of procedure |pdf_hlist_out| is similiar to |hlist_out| */
 
-void pdf_hlist_out(void)
+void pdf_hlist_out(PDF pdf)
 {
     /*label move_past, fin_rule, next_p; */
     scaled base_line;           /* the baseline coordinate for this box */
@@ -209,7 +233,7 @@ void pdf_hlist_out(void)
                     cur.h = cur.h + x_displace(p);
                 if (y_displace(p) != 0)
                     cur.v = cur.v - y_displace(p);
-                output_one_char(font(p), character(p));
+                output_one_char(pdf, font(p), character(p));
                 if (x_displace(p) != 0)
                     cur.h = cur.h - x_displace(p);
                 if (y_displace(p) != 0)
@@ -281,9 +305,9 @@ void pdf_hlist_out(void)
                     pos = synch_p_with_c(cur);
                     save_box_pos = box_pos;
                     if (type(p) == vlist_node)
-                        pdf_vlist_out();
+                        pdf_vlist_out(pdf);
                     else
-                        pdf_hlist_out();
+                        pdf_hlist_out(pdf);
                     box_pos = save_box_pos;
                     cur.h = edge + effective_horizontal;
                     cur.v = base_line;
@@ -319,22 +343,22 @@ void pdf_hlist_out(void)
 
                 switch (subtype(p)) {
                 case pdf_literal_node:
-                    pdf_out_literal(p);
+                    pdf_out_literal(pdf, p);
                     break;
                 case pdf_colorstack_node:
-                    pdf_out_colorstack(p);
+                    pdf_out_colorstack(pdf, p);
                     break;
                 case pdf_setmatrix_node:
-                    pdf_out_setmatrix(p);
+                    pdf_out_setmatrix(pdf, p);
                     break;
                 case pdf_save_node:
-                    pdf_out_save();
+                    pdf_out_save(pdf);
                     break;
                 case pdf_restore_node:
-                    pdf_out_restore();
+                    pdf_out_restore(pdf);
                     break;
                 case late_lua_node:
-                    do_late_lua(p);
+                    do_late_lua(pdf, p);
                     break;
                 case pdf_refobj_node:
                     if (!is_obj_scheduled(pdf_obj_objnum(p))) {
@@ -355,7 +379,7 @@ void pdf_hlist_out(void)
                         pos_left(pdf_width(p));
                         break;
                     }
-                    output_form(p);
+                    output_form(pdf, p);
                     edge = cur.h + pdf_width(p);
                     cur.h = edge;
                     break;
@@ -393,7 +417,7 @@ void pdf_hlist_out(void)
                         pos_left(pdf_depth(p));
                         break;
                     }
-                    output_image(pdf_ximage_idx(p));
+                    output_image(pdf, pdf_ximage_idx(p));
                     edge = cur.h + pdf_width(p);
                     cur.h = edge;
                     break;
@@ -429,7 +453,7 @@ void pdf_hlist_out(void)
                     pdf_last_y_pos = pos.v;
                     break;
                 case special_node:
-                    pdf_special(p);
+                    pdf_special(pdf, p);
                     break;
                 case dir_node:
                     /* Output a reflection instruction if the direction has changed */
@@ -598,9 +622,9 @@ void pdf_hlist_out(void)
                             outer_doing_leaders = doing_leaders;
                             doing_leaders = true;
                             if (type(leader_box) == vlist_node)
-                                pdf_vlist_out();
+                                pdf_vlist_out(pdf);
                             else
-                                pdf_hlist_out();
+                                pdf_hlist_out(pdf);
                             doing_leaders = outer_doing_leaders;
                             box_pos = save_box_pos;
                             cur.h = edge_h + leader_wd + lx;
@@ -640,28 +664,28 @@ void pdf_hlist_out(void)
                 /* *INDENT-OFF* */
                 switch (box_direction(dvi_direction)) {
                 case dir_TL_: 
-                    pdf_place_rule(pos.h,           pos.v - rule_dp, rule_wd,           rule_ht + rule_dp);
+                    pdf_place_rule(pdf,pos.h,           pos.v - rule_dp, rule_wd,           rule_ht + rule_dp);
                     break;
                 case dir_BL_: 
-                    pdf_place_rule(pos.h,           pos.v - rule_ht, rule_wd,           rule_ht + rule_dp);
+                    pdf_place_rule(pdf,pos.h,           pos.v - rule_ht, rule_wd,           rule_ht + rule_dp);
                     break;
                 case dir_TR_: 
-                    pdf_place_rule(pos.h - rule_wd, pos.v - rule_dp, rule_wd,           rule_ht + rule_dp);
+                    pdf_place_rule(pdf,pos.h - rule_wd, pos.v - rule_dp, rule_wd,           rule_ht + rule_dp);
                     break;
                 case dir_BR_: 
-                    pdf_place_rule(pos.h - rule_wd, pos.v - rule_ht, rule_wd,           rule_ht + rule_dp);
+                    pdf_place_rule(pdf,pos.h - rule_wd, pos.v - rule_ht, rule_wd,           rule_ht + rule_dp);
                     break;
                 case dir_LT_:
-                    pdf_place_rule(pos.h - rule_ht, pos.v - rule_wd, rule_ht + rule_dp, rule_wd);
+                    pdf_place_rule(pdf,pos.h - rule_ht, pos.v - rule_wd, rule_ht + rule_dp, rule_wd);
                     break;
                 case dir_RT_: 
-                    pdf_place_rule(pos.h - rule_dp, pos.v - rule_wd, rule_ht + rule_dp, rule_wd);
+                    pdf_place_rule(pdf,pos.h - rule_dp, pos.v - rule_wd, rule_ht + rule_dp, rule_wd);
                     break;
                 case dir_LB_: 
-                    pdf_place_rule(pos.h - rule_ht, pos.v,           rule_ht + rule_dp, rule_wd);
+                    pdf_place_rule(pdf,pos.h - rule_ht, pos.v,           rule_ht + rule_dp, rule_wd);
                     break;
                 case dir_RB_: 
-                    pdf_place_rule(pos.h - rule_dp, pos.v,           rule_ht + rule_dp, rule_wd);
+                    pdf_place_rule(pdf,pos.h - rule_dp, pos.v,           rule_ht + rule_dp, rule_wd);
                     break;
                 }
                 /* *INDENT-ON* */
@@ -691,7 +715,7 @@ void pdf_hlist_out(void)
 
 /* The |pdf_vlist_out| routine is similar to |pdf_hlist_out|, but a bit simpler. */
 
-void pdf_vlist_out(void)
+void pdf_vlist_out(PDF pdf)
 {
     scaled left_edge;           /* the left coordinate for this box */
     scaled top_edge;            /* the top coordinate for this box */
@@ -807,9 +831,9 @@ void pdf_vlist_out(void)
                     save_box_pos = box_pos;
                     temp_ptr = p;
                     if (type(p) == vlist_node)
-                        pdf_vlist_out();
+                        pdf_vlist_out(pdf);
                     else
-                        pdf_hlist_out();
+                        pdf_hlist_out(pdf);
                     box_pos = save_box_pos;
                     cur.h = left_edge;
                     cur.v = edge_v + effective_vertical;
@@ -833,22 +857,22 @@ void pdf_vlist_out(void)
                 /* Output the whatsit node |p| in |pdf_vlist_out| */
                 switch (subtype(p)) {
                 case pdf_literal_node:
-                    pdf_out_literal(p);
+                    pdf_out_literal(pdf, p);
                     break;
                 case pdf_colorstack_node:
-                    pdf_out_colorstack(p);
+                    pdf_out_colorstack(pdf, p);
                     break;
                 case pdf_setmatrix_node:
-                    pdf_out_setmatrix(p);
+                    pdf_out_setmatrix(pdf, p);
                     break;
                 case pdf_save_node:
-                    pdf_out_save();
+                    pdf_out_save(pdf);
                     break;
                 case pdf_restore_node:
-                    pdf_out_restore();
+                    pdf_out_restore(pdf);
                     break;
                 case late_lua_node:
-                    do_late_lua(p);
+                    do_late_lua(pdf, p);
                     break;
                 case pdf_refobj_node:
                     if (!is_obj_scheduled(pdf_obj_objnum(p))) {
@@ -871,7 +895,7 @@ void pdf_vlist_out(void)
                     default:
                         break;
                     }
-                    output_form(p);
+                    output_form(pdf, p);
                     cur.v = cur.v + pdf_height(p) + pdf_depth(p);
                     break;
                 case pdf_refximage_node:
@@ -906,7 +930,7 @@ void pdf_vlist_out(void)
                     default:
                         break;
                     }
-                    output_image(pdf_ximage_idx(p));
+                    output_image(pdf, pdf_ximage_idx(p));
                     cur.v = cur.v + pdf_height(p) + pdf_depth(p);
                     break;
                 case pdf_annot_node:
@@ -941,7 +965,7 @@ void pdf_vlist_out(void)
                     pdf_last_y_pos = pos.v;
                     break;
                 case special_node:
-                    pdf_special(p);
+                    pdf_special(pdf, p);
                     break;
                 default:
                     out_what(p);
@@ -1012,9 +1036,9 @@ void pdf_vlist_out(void)
                             outer_doing_leaders = doing_leaders;
                             doing_leaders = true;
                             if (type(leader_box) == vlist_node)
-                                pdf_vlist_out();
+                                pdf_vlist_out(pdf);
                             else
-                                pdf_hlist_out();
+                                pdf_hlist_out(pdf);
                             doing_leaders = outer_doing_leaders;
                             box_pos = save_box_pos;
                             cur.h = left_edge;
@@ -1044,28 +1068,28 @@ void pdf_vlist_out(void)
                 /* *INDENT-OFF* */
                 switch (box_direction(dvi_direction)) {
                 case dir_TL_: 
-                    pdf_place_rule(pos.h,           pos.v - rule_ht, rule_wd, rule_ht);
+                    pdf_place_rule(pdf,pos.h,           pos.v - rule_ht, rule_wd, rule_ht);
                     break;
                 case dir_BL_: 
-                    pdf_place_rule(pos.h,           pos.v,           rule_wd, rule_ht);
+                    pdf_place_rule(pdf,pos.h,           pos.v,           rule_wd, rule_ht);
                     break;
                 case dir_TR_: 
-                    pdf_place_rule(pos.h - rule_wd, pos.v - rule_ht, rule_wd, rule_ht);
+                    pdf_place_rule(pdf,pos.h - rule_wd, pos.v - rule_ht, rule_wd, rule_ht);
                     break;
                 case dir_BR_: 
-                    pdf_place_rule(pos.h - rule_wd, pos.v,           rule_wd, rule_ht);
+                    pdf_place_rule(pdf,pos.h - rule_wd, pos.v,           rule_wd, rule_ht);
                     break;
                 case dir_LT_: 
-                    pdf_place_rule(pos.h,           pos.v - rule_wd, rule_ht, rule_wd);
+                    pdf_place_rule(pdf,pos.h,           pos.v - rule_wd, rule_ht, rule_wd);
                     break;
                 case dir_RT_: 
-                    pdf_place_rule(pos.h - rule_ht, pos.v - rule_wd, rule_ht, rule_wd);
+                    pdf_place_rule(pdf,pos.h - rule_ht, pos.v - rule_wd, rule_ht, rule_wd);
                     break;
                 case dir_LB_: 
-                    pdf_place_rule(pos.h,           pos.v,           rule_ht, rule_wd);
+                    pdf_place_rule(pdf,pos.h,           pos.v,           rule_ht, rule_wd);
                     break;
                 case dir_RB_: 
-                    pdf_place_rule(pos.h - rule_ht, pos.v,           rule_ht, rule_wd);
+                    pdf_place_rule(pdf,pos.h - rule_ht, pos.v,           rule_ht, rule_wd);
                     break;
                 }
                 /* *INDENT-ON* */

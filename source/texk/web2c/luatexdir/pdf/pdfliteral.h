@@ -27,9 +27,8 @@
 #  define set_pdf_literal_type(A,B) pdf_literal_type(A)=B
 #  define set_pdf_literal_data(A,B) pdf_literal_data(A)=B
 
-extern void pdf_literal(str_number s, integer literal_mode, boolean warn);
-
-extern void pdf_special(halfword p);
-extern void pdf_out_literal(halfword p);
+extern void pdf_literal(PDF pdf, str_number s, integer literal_mode, boolean warn);
+extern void pdf_special(PDF pdf, halfword p);
+extern void pdf_out_literal(PDF pdf, halfword p);
 
 #endif

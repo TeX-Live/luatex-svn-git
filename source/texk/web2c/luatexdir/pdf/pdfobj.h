@@ -40,7 +40,7 @@
 #  define set_obj_obj_data(A,B) obj_obj_data(A)=B
 #  define set_pdf_obj_objnum(A,B) pdf_obj_objnum(A)=B
 
-extern void pdf_write_obj(integer n);
+extern void pdf_write_obj(PDF pdf, integer n);
 
 
 #endif

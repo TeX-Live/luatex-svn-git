@@ -24,7 +24,7 @@ static const char __svn_version[] =
     "$URL$";
 
 /* write a raw PDF object */
-void pdf_write_obj(integer n)
+void pdf_write_obj(PDF pdf, integer n)
 {
     str_number s;
     byte_file f;
@@ -40,15 +40,15 @@ void pdf_write_obj(integer n)
     delete_token_ref(obj_obj_data(n));
     obj_obj_data(n) = null;
     if (obj_obj_is_stream(n) > 0) {
-        pdf_begin_dict(n, 0);
+        pdf_begin_dict(pdf, n, 0);
         if (obj_obj_stream_attr(n) != null) {
-            pdf_print_toks_ln(obj_obj_stream_attr(n));
+            pdf_print_toks_ln(pdf, obj_obj_stream_attr(n));
             delete_token_ref(obj_obj_stream_attr(n));
             obj_obj_stream_attr(n) = null;
         }
-        pdf_begin_stream();
+        pdf_begin_stream(pdf);
     } else {
-        pdf_begin_obj(n, 1);
+        pdf_begin_obj(pdf, n, 1);
     }
     if (obj_obj_is_file(n) > 0) {
         data_size = 0;
@@ -100,20 +100,20 @@ void pdf_write_obj(integer n)
         tprint("<<");
         print(s);
         while (data_cur < data_size) {
-            pdf_out(data_buffer[data_cur]);
+            pdf_out(pdf, data_buffer[data_cur]);
             incr(data_cur);
         }
         if (data_buffer != 0)
             xfree(data_buffer);
         tprint(">>");
     } else if (obj_obj_is_stream(n) > 0) {
-        pdf_print(s);
+        pdf_print(pdf, s);
     } else {
-        pdf_print_ln(s);
+        pdf_print_ln(pdf, s);
     }
     if (obj_obj_is_stream(n) > 0)
-        pdf_end_stream();
+        pdf_end_stream(pdf);
     else
-        pdf_end_obj();
+        pdf_end_obj(pdf);
     flush_str(s);
 }

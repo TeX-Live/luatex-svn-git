@@ -40,7 +40,7 @@ integer colorstackcurrent(int colstack_no);
 integer colorstackskippagestart(int colstack_no);
 void colorstackpagestart(void);
 
-extern void pdf_out_colorstack(halfword p);
-extern void pdf_out_colorstack_startpage(void);
+extern void pdf_out_colorstack(PDF pdf, halfword p);
+extern void pdf_out_colorstack_startpage(PDF pdf);
 
 #endif

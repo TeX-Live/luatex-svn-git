@@ -300,7 +300,7 @@ integer colorstackskippagestart(int colstack_no)
 }
 
 
-void pdf_out_colorstack(halfword p)
+void pdf_out_colorstack(PDF pdf, halfword p)
 {
     integer old_setting;
     str_number s;
@@ -332,7 +332,7 @@ void pdf_out_colorstack(halfword p)
         else
             literal_mode = colorstackpush(stack_no, s);
         if (str_length(s) > 0)
-            pdf_literal(s, literal_mode, false);
+            pdf_literal(pdf, s, literal_mode, false);
         flush_str(s);
         return;
         break;
@@ -347,12 +347,12 @@ void pdf_out_colorstack(halfword p)
     }
     if (cur_length > 0) {
         s = make_string();
-        pdf_literal(s, literal_mode, false);
+        pdf_literal(pdf, s, literal_mode, false);
         flush_str(s);
     }
 }
 
-void pdf_out_colorstack_startpage(void)
+void pdf_out_colorstack_startpage(PDF pdf)
 {
     integer i;
     integer max;
@@ -367,7 +367,7 @@ void pdf_out_colorstack_startpage(void)
             literal_mode = colorstackcurrent(i);
             if (cur_length > 0) {
                 s = make_string();
-                pdf_literal(s, literal_mode, false);
+                pdf_literal(pdf, s, literal_mode, false);
                 flush_str(s);
             }
         }

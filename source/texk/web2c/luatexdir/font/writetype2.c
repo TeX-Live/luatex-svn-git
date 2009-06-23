@@ -28,7 +28,7 @@ static const char _svn_version[] =
     "$Id$ $URL$";
 
 /* forward*/
-void make_tt_subset(fd_entry * fd, unsigned char *buffer, integer buflen);
+void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, integer buflen);
 
 unsigned long cidtogid_obj = 0;
 
@@ -129,7 +129,7 @@ void pdf_release_obj(pdf_obj * stream)
 };
 
 
-void writetype2(fd_entry * fd)
+void writetype2(PDF pdf, fd_entry * fd)
 {
     int callback_id;
     int file_opened = 0;
@@ -142,7 +142,7 @@ void writetype2(fd_entry * fd)
     assert(is_truetype(fd_cur->fm));
 
     if (!is_subsetted(fd_cur->fm)) {
-        writettf(fd);
+        writettf(pdf,fd);
         return;
     }
 
@@ -192,7 +192,7 @@ void writetype2(fd_entry * fd)
 
     /* here is the real work */
 
-    make_tt_subset(fd, ttf_buffer, ttf_size);
+    make_tt_subset(pdf, fd, ttf_buffer, ttf_size);
 
     /*xfree (dir_tab); */
     xfree(ttf_buffer);
@@ -271,7 +271,7 @@ unsigned long ttc_read_offset(sfnt * sfont, int ttc_idx)
 
 extern int ff_get_ttc_index(char *ffname, char *psname);        /* libs/luafontforge/src/luafflib.c */
 
-void make_tt_subset(fd_entry * fd, unsigned char *buffer, integer buflen)
+void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, integer buflen)
 {
 
     long i, cid;
@@ -388,15 +388,15 @@ void make_tt_subset(fd_entry * fd, unsigned char *buffer, integer buflen)
     /* squeeze in the cidgidmap */
     if (cidtogidmap != NULL) {
         cidtogid_obj = pdf_new_objnum();
-        pdf_begin_dict(cidtogid_obj, 0);
-        pdf_printf("/Length %i\n", ((last_cid + 1) * 2));
-        pdf_end_dict();
-        pdf_printf("stream\n");
-        pdf_room((last_cid + 1) * 2);
+        pdf_begin_dict(pdf, cidtogid_obj, 0);
+        pdf_printf(pdf, "/Length %i\n", ((last_cid + 1) * 2));
+        pdf_end_dict(pdf);
+        pdf_printf(pdf, "stream\n");
+        pdf_room(pdf,(last_cid + 1) * 2);
         for (i = 0; i < ((int) (last_cid + 1) * 2); i++) {
             pdf_buf[pdf_ptr++] = cidtogidmap[i];
         }
-        pdf_printf("\nendstream\n");
+        pdf_printf(pdf, "\nendstream\n");
     }
 
     /* the tff subset */

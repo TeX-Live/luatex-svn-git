@@ -267,14 +267,14 @@ int visible_last_node_type(int n)
     return last_known_node + 1;
 }
 
-void lua_pdf_literal(int i)
+void lua_pdf_literal(PDF pdf, int i)
 {
     char *s = NULL;
     size_t l = 0;
     lua_rawgeti(Luas, LUA_REGISTRYINDEX, i);
     s = (char *) lua_tolstring(Luas, -1, &l);
     while (l--) {
-        pdf_room(1);
+        pdf_room(pdf,1);
         pdf_buf[pdf_ptr++] = *s++;
     }
     pdf_buf[pdf_ptr++] = 10;    /* pdf_print_nl */

@@ -549,7 +549,7 @@ static void read_scale_img(lua_State * L, image * a)
              * already the PDF file only for image file scanning; but 
              * it's needed as several fixed_* parameters are used early,
              * e. g. by read_png_info(). */
-            check_pdfminorversion();
+            check_pdfminorversion(static_pdf);
             read_img(ad, pdf_minor_version,
                      pdf_inclusion_errorlevel);
             img_unset_scaled(a);
@@ -633,9 +633,9 @@ static void write_image_or_node(lua_State * L, wrtype_e writetype)
         new_tail_append(n);
         break;                  /* image */
     case WR_IMMEDIATEWRITE:
-        check_pdfminorversion();        /* does initialization stuff */
-        pdf_begin_dict(img_objnum(ad), 0);
-        write_img(ad);
+        check_pdfminorversion(static_pdf);        /* does initialization stuff */
+        pdf_begin_dict(static_pdf, img_objnum(ad), 0);
+        write_img(static_pdf, ad);
         break;                  /* image */
     case WR_NODE:              /* image */
         lua_pop(L, 1);          /* - */
@@ -735,7 +735,8 @@ void vf_out_image(unsigned i)
     a = *aa;
     setup_image(L, a, WR_VF_IMG);       /* image ... */
     assert(img_is_refered(a));
-    output_image(img_arrayidx(a));
+    assert(static_pdf!=NULL);
+    output_image(static_pdf, img_arrayidx(a));
     lua_pop(L, 1);              /* ... */
 }
 

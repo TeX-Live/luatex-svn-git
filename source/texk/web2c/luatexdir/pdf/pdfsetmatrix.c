@@ -212,7 +212,7 @@ void matrixrecalculate(scaled urx)
     matrixtransformrect(last_llx, last_lly, urx, last_ury);
 }
 
-void pdf_out_setmatrix(halfword p)
+void pdf_out_setmatrix(PDF pdf, halfword p)
 {
     integer old_setting;        /* holds print |selector| */
     str_number s;
@@ -234,6 +234,6 @@ void pdf_out_setmatrix(halfword p)
     append_char('c');
     append_char('m');
     s = make_string();
-    pdf_literal(s, set_origin, false);
+    pdf_literal(pdf, s, set_origin, false);
     flush_str(s);
 }

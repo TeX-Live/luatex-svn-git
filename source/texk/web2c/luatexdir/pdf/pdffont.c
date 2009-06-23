@@ -44,7 +44,7 @@ The |has_packet()| C macro checks for this condition.
 
 /* The following code typesets a character to PDF output */
 
-void output_one_char(internal_font_number ffi, integer c)
+void output_one_char(PDF pdf, internal_font_number ffi, integer c)
 {
     scaled c_wd, c_ht, c_dp;    /* the real width, height and depth of the character */
     charinfo_short ci;
@@ -175,12 +175,12 @@ void output_one_char(internal_font_number ffi, integer c)
         save_direction = dvi_direction;
         dvi_direction = dir_TL_;        /* local virtual font coordinate system */
         set_to_zero(cur);
-        do_vf_packet(ffi, c);
+        do_vf_packet(pdf, ffi, c);
         dvi_direction = save_direction;
         box_pos = save_box_pos;
         cur = save;
     } else {
-        pdf_place_glyph(ffi, c);
+        pdf_place_glyph(pdf, ffi, c);
     }
     switch (box_direction(dvi_direction)) {
     case dir_TL_:

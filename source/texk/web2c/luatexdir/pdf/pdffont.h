@@ -22,7 +22,7 @@
 #ifndef PDFFONT_H
 #  define PDFFONT_H
 
-extern void output_one_char(internal_font_number ffi, integer c);
+extern void output_one_char(PDF pdf, internal_font_number ffi, integer c);
 
 #  define non_existent_path "///..."
 

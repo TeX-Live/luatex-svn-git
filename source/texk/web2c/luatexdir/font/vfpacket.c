@@ -123,7 +123,7 @@ char *packet_command_names[] = {
 };
 
 
-void do_vf_packet(internal_font_number vf_f, integer c)
+void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
 {
     internal_font_number lf;
     charinfo *co;
@@ -179,10 +179,10 @@ void do_vf_packet(internal_font_number vf_f, integer c)
                 char_warning(lf, k);
             } else {
                 if (has_packet(lf, k))
-                    do_vf_packet(lf, k);
+                    do_vf_packet(pdf, lf, k);
                 else {
                     pos = synch_p_with_c(cur);
-                    pdf_place_glyph(lf, k);
+                    pdf_place_glyph(pdf, lf, k);
                 }
             }
             cur.h = cur.h + char_width(lf, k);
@@ -192,7 +192,7 @@ void do_vf_packet(internal_font_number vf_f, integer c)
             packet_scaled(rule_wd, fs_f);
             if ((rule_wd > 0) && (rule_ht > 0)) {
                 pos = synch_p_with_c(cur);
-                pdf_place_rule(pos.h, pos.v, rule_wd, rule_ht);
+                pdf_place_rule(pdf, pos.h, pos.v, rule_wd, rule_ht);
             }
             cur.h = cur.h + rule_wd;
             break;
@@ -212,7 +212,7 @@ void do_vf_packet(internal_font_number vf_f, integer c)
                 append_char(do_packet_byte());
             }
             s = make_string();
-            pdf_literal(s, scan_special, false);
+            pdf_literal(pdf, s, scan_special, false);
             flush_str(s);
             break;
         case packet_image_code:
@@ -223,7 +223,7 @@ void do_vf_packet(internal_font_number vf_f, integer c)
         case packet_node_code:
             packet_number(k);
             temp_ptr = k;
-            pdf_hlist_out();
+            pdf_hlist_out(pdf);
             break;
         case packet_nop_code:
             break;

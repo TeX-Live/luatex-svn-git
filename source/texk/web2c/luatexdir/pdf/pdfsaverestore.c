@@ -27,7 +27,7 @@ pos_entry *pos_stack = 0;       /* the stack */
 int pos_stack_size = 0;         /* initially empty */
 int pos_stack_used = 0;         /* used entries */
 
-void checkpdfsave(scaledpos pos)
+static void checkpdfsave(scaledpos pos)
 {
     pos_entry *new_stack;
 
@@ -47,7 +47,7 @@ void checkpdfsave(scaledpos pos)
     pos_stack_used++;
 }
 
-void checkpdfrestore(scaledpos pos)
+static void checkpdfrestore(scaledpos pos)
 {
     scaledpos diff;
     if (pos_stack_used == 0) {
@@ -67,16 +67,16 @@ void checkpdfrestore(scaledpos pos)
 }
 
 
-void pdf_out_save(void)
+void pdf_out_save(PDF pdf)
 {
     pos = synch_p_with_c(cur);
     checkpdfsave(pos);
-    pdf_literal('q', set_origin, false);
+    pdf_literal(pdf, 'q', set_origin, false);
 }
 
-void pdf_out_restore(void)
+void pdf_out_restore(PDF pdf)
 {
     pos = synch_p_with_c(cur);
     checkpdfrestore(pos);
-    pdf_literal('Q', set_origin, false);
+    pdf_literal(pdf, 'Q', set_origin, false);
 }

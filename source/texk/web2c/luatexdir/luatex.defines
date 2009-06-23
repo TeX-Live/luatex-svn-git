@@ -113,7 +113,6 @@
 @define function get_pre_exhyphen_char();
 @define function get_post_exhyphen_char();
 
-
 { macros from luatex.h }
 @define function pdf_char_marked();
 @define function tex_b_open_in();
@@ -581,6 +580,8 @@
 @define function geturx;
 @define function getury;
 
+@define var static_pdf;
+
 {functions from pdf/pagetree.c }
 @define function pdf_do_page_divert();
 @define procedure pdf_do_page_undivert();
@@ -590,7 +591,7 @@
 @define procedure pdf_place_rule();
 @define procedure pdf_place_glyph();
 @define procedure pdf_place_form();
-@define procedure pdf_goto_pagemode;
+@define procedure pdf_goto_pagemode();
 @define procedure pdf_page_init;
 @define procedure pdf_set_pos();
 @define procedure pdf_end_string_nl;
@@ -698,7 +699,6 @@
 @define function b_open_out ();
 
 @define procedure write_dvi ();
-@define procedure write_pdf ();
 @define procedure write_ln ();
 
 @define procedure recorder_change_filename ();
@@ -1089,7 +1089,6 @@
 @define const zip_writing;
 @define const zip_finish;
 
-@define var pdf_file; 
 @define var pdf_buf; 
 @define var pdf_buf_size; 
 @define var pdf_ptr; 
@@ -1125,7 +1124,7 @@
 @define procedure pdf_quick_out();
 @define procedure pdf_out();
 
-@define procedure check_pdfminorversion;
+@define procedure check_pdfminorversion();
 @define procedure ensure_pdf_open;
 
 @define const pdf_new_line_char;
@@ -1398,13 +1397,13 @@
 @define function  pdf_new_objnum  ;
 @define procedure pdf_begin_obj() ;
 @define procedure pdf_new_obj() ;
-@define procedure pdf_end_obj ;
+@define procedure pdf_end_obj();
 @define procedure pdf_begin_dict();
 @define procedure pdf_new_dict();
 @define procedure pdf_end_dict ;
 @define function append_ptr() ;
 
-@define procedure scan_pdfoutline;
+@define procedure scan_pdfoutline();
 
 @define procedure pos_right();
 @define procedure pos_left();
@@ -1441,6 +1440,7 @@
 @define procedure fix_pdfoutput;
 @define procedure pdf_ship_out();
 @define procedure finish_pdf_file();
+@define procedure remove_pdffile();
 
 { dvi ship }
 

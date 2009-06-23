@@ -33,20 +33,20 @@ static boolean warn_pdfpagebox = true;
 
 #define scan_normal_dimen() scan_dimen(false,false,false)
 
-void output_image(integer idx)
+void output_image(PDF pdf, integer idx)
 {
-    pdf_goto_pagemode();
-    out_image(idx, pos.h, pos.v);
+    pdf_goto_pagemode(pdf);
+    out_image(pdf, idx, pos.h, pos.v);
     if (pdf_lookup_list(pdf_ximage_list, image_objnum(idx)) == null)
         pdf_append_list(image_objnum(idx), pdf_ximage_list);
 }
 
 /* write an image */
-void pdf_write_image(integer n)
+void pdf_write_image(PDF pdf, integer n)
 {
-    pdf_begin_dict(n, 0);
+    pdf_begin_dict(pdf, n, 0);
     if (fixed_pdf_draftmode == 0)
-        write_image(obj_data_ptr(n));
+        write_image(pdf, obj_data_ptr(n));
 }
 
 /* scans PDF pagebox specification */

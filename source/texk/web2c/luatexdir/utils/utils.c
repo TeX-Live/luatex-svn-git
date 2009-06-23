@@ -67,52 +67,11 @@ extern KPSEDLL string kpathsea_version_string;  /* from kpathsea/version.c */
 
 size_t last_ptr_index;          /* for use with alloc_array */
 
-/* define fb_ptr, fb_array & fb_limit */
-typedef char fb_entry;
-define_array(fb);
+extern PDF static_pdf;
 
 /* define char_ptr, char_array & char_limit */
 typedef char char_entry;
 define_array(char);
-
-integer fb_offset(void)
-{
-    return fb_ptr - fb_array;
-}
-
-void fb_seek(integer offset)
-{
-    fb_ptr = fb_array + offset;
-}
-
-void fb_putchar(eight_bits b)
-{
-    alloc_array(fb, 1, SMALL_ARRAY_SIZE);
-    *fb_ptr++ = b;
-}
-
-void fb_flush(void)
-{
-    fb_entry *p;
-    integer n;
-    for (p = fb_array; p < fb_ptr;) {
-        n = pdf_buf_size - pdf_ptr;
-        if (fb_ptr - p < n)
-            n = fb_ptr - p;
-        memcpy(pdf_buf + pdf_ptr, p, (unsigned) n);
-        pdf_ptr += n;
-        if (pdf_ptr == pdf_buf_size)
-            pdf_flush();
-        p += n;
-    }
-    fb_ptr = fb_array;
-}
-
-void fb_free(void)
-{
-    xfree(fb_array);
-}
-
 
 #define SUBSET_TAG_LENGTH 6
 void make_subset_tag(fd_entry * fd)
@@ -212,14 +171,6 @@ void tex_printf(const char *fmt, ...)
     va_end(args);
 }
 
-void remove_pdffile(void)
-{
-    if (!kpathsea_debug && output_file_name && !fixed_pdf_draftmode) {
-        xfclose(pdf_file, makecstring(output_file_name));
-        remove(makecstring(output_file_name));
-    }
-}
-
 /* pdftex_fail may be called when a buffer overflow has happened/is
    happening, therefore may not call mktexstring.  However, with the
    current implementation it appears that error messages are misleading,
@@ -245,7 +196,7 @@ void pdftex_fail(const char *fmt, ...)
     tprint(print_buf);
     va_end(args);
     print_ln();
-    remove_pdffile();
+    remove_pdffile(static_pdf);
     tprint(" ==> Fatal error occurred, no output PDF file produced!");
     print_ln();
     if (kpathsea_debug) {
@@ -272,6 +223,12 @@ void pdftex_warn(const char *fmt, ...)
     tprint(print_buf);
     va_end(args);
     print_ln();
+}
+
+void garbage_warning(void)
+{
+    pdftex_warn("dangling objects discarded, no output file produced.");
+    remove_pdffile(static_pdf);
 }
 
 void tex_error(char *msg, char **hlp)
@@ -317,12 +274,6 @@ void tex_error(char *msg, char **hlp)
         flush_str(bb);
     if (aa)
         flush_str(aa);
-}
-
-void garbage_warning(void)
-{
-    pdftex_warn("dangling objects discarded, no output file produced.");
-    remove_pdffile();
 }
 
 char *makecstring(integer s)

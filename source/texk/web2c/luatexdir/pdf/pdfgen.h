@@ -25,6 +25,8 @@
 #  define inf_pdf_mem_size 10000        /* min size of the |pdf_mem| array */
 #  define sup_pdf_mem_size 10000000     /* max size of the |pdf_mem| array */
 
+extern PDF static_pdf;
+
 extern integer pdf_mem_size;
 extern integer *pdf_mem;
 extern integer pdf_mem_ptr;
@@ -58,7 +60,6 @@ typedef enum {
     zip_finish = 2              /* finish \.{ZIP} compression */
 } zip_write_states;
 
-extern byte_file pdf_file;
 extern real_eight_bits *pdf_buf;
 extern integer pdf_buf_size;
 extern longinteger pdf_ptr;
@@ -94,18 +95,18 @@ extern integer page_divert_val;
 
 extern void initialize_pdf_output(void);
 
-extern void pdf_flush(void);
+extern void pdf_flush(PDF);
 extern void pdf_os_get_os_buf(integer s);
-extern void pdf_room(integer n);
+extern void pdf_room(PDF, integer);
 
-extern void check_pdfminorversion(void);
-extern void ensure_pdf_open(void);
+extern void check_pdfminorversion(PDF);
+extern void ensure_pdf_open(PDF);
 
  /* output a byte to PDF buffer without checking of overflow */
-#  define pdf_quick_out(A) pdf_buf[pdf_ptr++]=A
+#  define pdf_quick_out(pdf,A) pdf_buf[pdf_ptr++]=A
 
 /* do the same as |pdf_quick_out| and flush the PDF buffer if necessary */
-#  define pdf_out(A) do { pdf_room(1); pdf_quick_out(A); } while (0)
+#  define pdf_out(pdf,A) do { pdf_room(pdf,1); pdf_quick_out(pdf,A); } while (0)
 
 /*
 Basic printing procedures for PDF output are very similiar to \TeX\ basic
@@ -116,33 +117,33 @@ suffix |_ln| append a new-line character to the PDF output.
 #  define pdf_new_line_char 10  /* new-line character for UNIX platforms */
 
 /* output a new-line character to PDF buffer */
-#  define pdf_print_nl() pdf_out(pdf_new_line_char)
+#  define pdf_print_nl(pdf) pdf_out(pdf,pdf_new_line_char)
 
 /* print out a string to PDF buffer followed by a new-line character */
-#  define pdf_print_ln(A) do {                    \
-        pdf_print(A);                           \
-        pdf_print_nl();                         \
+#  define pdf_print_ln(pdf,A) do {                 \
+        pdf_print(pdf,A);                          \
+        pdf_print_nl(pdf);                         \
     } while (0)
 
 /* print out an integer to PDF buffer followed by a new-line character */
-#  define pdf_print_int_ln(A) do {                \
-        pdf_print_int(A);                       \
-        pdf_print_nl();                         \
+#  define pdf_print_int_ln(pdf,A) do {            \
+        pdf_print_int(pdf,A);                     \
+        pdf_print_nl(pdf);                        \
     } while (0)
 
-extern void pdf_puts(const char *);
-extern __attribute__ ((format(printf, 1, 2)))
-void pdf_printf(const char *, ...);
+extern void pdf_puts(PDF, const char *);
+extern __attribute__ ((format(printf, 2, 3)))
+void pdf_printf(PDF, const char *, ...);
 
-extern void pdf_print_char(internal_font_number f, integer cc);
-extern void pdf_print(str_number s);
-extern void pdf_print_int(longinteger n);
-extern void pdf_print_real(integer m, integer d);
-extern void pdf_print_str(char *s);
+extern void pdf_print_char(PDF, internal_font_number, integer);
+extern void pdf_print(PDF, str_number);
+extern void pdf_print_int(PDF, longinteger);
+extern void pdf_print_real(PDF, integer, integer);
+extern void pdf_print_str(PDF, char *);
 
-extern void pdf_begin_stream(void);
-extern void pdf_end_stream(void);
-extern void pdf_remove_last_space(void);
+extern void pdf_begin_stream(PDF);
+extern void pdf_end_stream(PDF);
+extern void pdf_remove_last_space(PDF);
 
 extern scaled one_hundred_inch;
 extern scaled one_inch;
@@ -151,9 +152,8 @@ extern scaled one_hundred_bp;
 extern scaled one_bp;
 extern integer ten_pow[10];
 
-extern scaled round_xn_over_d(scaled x, integer n, integer d);
-extern void pdf_print_bp(scaled s);
-extern void pdf_print_mag_bp(scaled s);
+extern void pdf_print_bp(PDF,scaled);
+extern void pdf_print_mag_bp(PDF,scaled);
 
 extern integer fixed_pk_resolution;
 extern integer fixed_decimal_digits;
@@ -173,51 +173,66 @@ extern integer pdf_draftmode_value;
             ff = A;                             \
     } while (0)
 
-#  define pdf_print_resname_prefix() do {         \
+#  define pdf_print_resname_prefix(pdf) do {    \
         if (pdf_resname_prefix != 0)            \
-            pdf_print(pdf_resname_prefix);      \
+            pdf_print(pdf,pdf_resname_prefix);  \
     } while (0)
 
-extern void pdf_print_fw_int(longinteger n, integer w);
-extern void pdf_out_bytes(longinteger n, integer w);
-extern void pdf_int_entry(char *s, integer v);
-extern void pdf_int_entry_ln(char *s, integer v);
-extern void pdf_indirect(char *s, integer o);
-extern void pdf_indirect_ln(char *s, integer o);
-extern void pdf_print_str_ln(char *s);
-extern void pdf_str_entry(char *s, char *v);
-extern void pdf_str_entry_ln(char *s, char *v);
+extern void pdf_print_fw_int(PDF, longinteger, integer);
+extern void pdf_out_bytes(PDF, longinteger, integer);
+extern void pdf_int_entry(PDF, char *, integer);
+extern void pdf_int_entry_ln(PDF, char *, integer);
+extern void pdf_indirect(PDF, char *, integer);
+extern void pdf_indirect_ln(PDF, char *, integer);
+extern void pdf_print_str_ln(PDF, char *);
+extern void pdf_str_entry(PDF, char *, char *);
+extern void pdf_str_entry_ln(PDF, char *, char *);
 
-extern void pdf_print_toks(halfword p);
-extern void pdf_print_toks_ln(halfword p);
+extern void pdf_print_toks(PDF, halfword);
+extern void pdf_print_toks_ln(PDF, halfword);
 
-extern void pdf_print_rect_spec(halfword r);
-extern void pdf_rectangle(halfword r);
+extern void pdf_print_rect_spec(PDF, halfword);
+extern void pdf_rectangle(PDF, halfword);
 
-extern void pdf_begin_obj(integer i, integer pdf_os_level);
-extern void pdf_new_obj(integer t, integer i, integer pdf_os);
-extern void pdf_end_obj(void);
+extern void pdf_begin_obj(PDF, integer, integer);
+extern void pdf_new_obj(PDF, integer, integer, integer);
+extern void pdf_end_obj(PDF);
 
-extern void pdf_begin_dict(integer i, integer pdf_os_level);
-extern void pdf_new_dict(integer t, integer i, integer pdf_os);
-extern void pdf_end_dict(void);
+extern void pdf_begin_dict(PDF, integer, integer);
+extern void pdf_new_dict(PDF, integer, integer, integer);
+extern void pdf_end_dict(PDF);
 
-extern void pdf_os_write_objstream(void);
+extern void pdf_os_write_objstream(PDF);
 
-extern void write_stream_length(integer, longinteger);
+extern void write_stream_length(PDF, integer, longinteger);
+
+extern void print_creation_date(PDF);
+extern void print_mod_date(PDF);
+extern void print_ID(PDF, str_number);
+
+extern void remove_pdffile(PDF);
+
+extern integer fb_offset(void);
+extern void fb_flush(PDF);
+extern void fb_putchar(eight_bits);
+extern void fb_seek(integer);
+extern void fb_free(void);
+
+extern void write_zip(PDF, boolean);
+extern void zip_free(void);
+
+/* functions that do not output stuff */
+
+extern scaled round_xn_over_d(scaled x, integer n, integer d);
 extern char *convertStringToPDFString(const char *in, int len);
 extern void escapestring(pool_pointer in);
 extern void escapename(pool_pointer in);
 
-extern void print_ID(str_number);
-extern void init_start_time();
-extern void print_creation_date();
-extern void print_mod_date();
+extern void init_start_time(void);
 extern void getcreationdate(void);
 
 extern void pdf_use_font(internal_font_number f, integer fontnum);
 extern void pdf_init_font(internal_font_number f);
 extern internal_font_number pdf_set_font(internal_font_number f);
-
 
 #endif

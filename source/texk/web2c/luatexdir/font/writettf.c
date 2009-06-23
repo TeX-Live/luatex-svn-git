@@ -1328,7 +1328,7 @@ static void ttf_copy_font(void)
     ttf_write_dirtab();
 }
 
-void writettf(fd_entry * fd)
+void writettf(PDF pdf, fd_entry * fd)
 {
     int callback_id;
     int file_opened = 0;
@@ -1394,7 +1394,7 @@ void writettf(fd_entry * fd)
     ttf_read_font();
 
     pdf_save_offset = pdf_offset;
-    pdf_flush();
+    pdf_flush(pdf);
 
     if (is_subsetted(fd_cur->fm)) {
         ttf_copy_encoding();

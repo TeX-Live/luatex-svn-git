@@ -25,10 +25,10 @@
 
 #  include "image.h"
 
-void read_pdf_info(image_dict *, integer, integer);
+void read_pdf_info(PDF, image_dict *, integer, integer);
 void unrefPdfDocument(char *);
-void write_additional_epdf_objects(void);
-void write_epdf(image_dict *);
+void write_additional_epdf_objects(PDF);
+void write_epdf(PDF, image_dict *);
 void epdf_check_mem(void);
 
 /* epdf.c --- this should go in an own header file */

@@ -22,5 +22,14 @@
 #ifndef PDFTYPES_H
 #  define PDFTYPES_H
 
+/* 
+ *  this stucture holds everything that is needed for the actual pdf generation 
+ */
+
+typedef struct pdf_output_file_ {
+    FILE *file;  /* the PDF output file */
+} pdf_output_file;
+
+typedef pdf_output_file *PDF;
 
 #endif

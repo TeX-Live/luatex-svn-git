@@ -39,6 +39,8 @@ extern double rint(double x);
 /* pdftexlib macros */
 #  include "ptexmac.h"
 
+#  include "pdf/pdftypes.h"
+
 /* synctex */
 #  include "utils/synctex.h"
 
@@ -46,7 +48,6 @@ extern double rint(double x);
 #  include "image/writeimg.h"
 #  include "openbsd-compat.h"
 #  include "dvi/dvigen.h"
-#  include "pdf/pdftypes.h"
 #  include "pdf/pagetree.h"
 #  include "pdf/pdfgen.h"
 #  include "pdf/pdfpage.h"
@@ -102,10 +103,6 @@ extern void print_file_name(str_number, str_number, str_number);
 
 /* lua/luainit.c */
 extern void write_svnversion(char *a);
-
-/* utils/writezip.c */
-extern void write_zip(boolean);
-extern void zip_free(void);
 
 /**********************************************************************/
 
@@ -247,7 +244,7 @@ void lua_node_filter_s(int filterid, char *extrainfo);
 int lua_linebreak_callback(int is_broken, halfword head_node,
                            halfword * new_head);
 
-void lua_pdf_literal(int i);
+void lua_pdf_literal(PDF pdf, int i);
 void copy_pdf_literal(pointer r, pointer p);
 void free_pdf_literal(pointer p);
 void show_pdf_literal(pointer p);

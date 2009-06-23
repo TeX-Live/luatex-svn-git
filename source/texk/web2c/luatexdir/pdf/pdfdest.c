@@ -148,7 +148,7 @@ void do_dest(halfword p, halfword parent_box, scaled x, scaled y)
     }
 }
 
-void write_out_pdf_mark_destinations(void)
+void write_out_pdf_mark_destinations(PDF pdf)
 {
     halfword k;
     if (pdf_dest_list != null) {
@@ -162,65 +162,65 @@ void write_out_pdf_mark_destinations(void)
                 integer i;
                 i = obj_dest_ptr(info(k));
                 if (pdf_dest_named_id(i) > 0) {
-                    pdf_begin_dict(info(k), 1);
-                    pdf_printf("/D ");
+                    pdf_begin_dict(pdf, info(k), 1);
+                    pdf_printf(pdf,"/D ");
                 } else {
-                    pdf_begin_obj(info(k), 1);
+                    pdf_begin_obj(pdf, info(k), 1);
                 }
-                pdf_out('[');
-                pdf_print_int(pdf_last_page);
-                pdf_printf(" 0 R ");
+                pdf_out(pdf, '[');
+                pdf_print_int(pdf, pdf_last_page);
+                pdf_printf(pdf," 0 R ");
                 switch (pdf_dest_type(i)) {
                 case pdf_dest_xyz:
-                    pdf_printf("/XYZ ");
-                    pdf_print_mag_bp(pdf_ann_left(i));
-                    pdf_out(' ');
-                    pdf_print_mag_bp(pdf_ann_top(i));
-                    pdf_out(' ');
+                    pdf_printf(pdf,"/XYZ ");
+                    pdf_print_mag_bp(pdf, pdf_ann_left(i));
+                    pdf_out(pdf, ' ');
+                    pdf_print_mag_bp(pdf, pdf_ann_top(i));
+                    pdf_out(pdf, ' ');
                     if (pdf_dest_xyz_zoom(i) == null) {
-                        pdf_printf("null");
+                        pdf_printf(pdf,"null");
                     } else {
-                        pdf_print_int(pdf_dest_xyz_zoom(i) / 1000);
-                        pdf_out('.');
-                        pdf_print_int((pdf_dest_xyz_zoom(i) % 1000));
+                        pdf_print_int(pdf, pdf_dest_xyz_zoom(i) / 1000);
+                        pdf_out(pdf, '.');
+                        pdf_print_int(pdf, (pdf_dest_xyz_zoom(i) % 1000));
                     }
                     break;
                 case pdf_dest_fit:
-                    pdf_printf("/Fit");
+                    pdf_printf(pdf,"/Fit");
                     break;
                 case pdf_dest_fith:
-                    pdf_printf("/FitH ");
-                    pdf_print_mag_bp(pdf_ann_top(i));
+                    pdf_printf(pdf,"/FitH ");
+                    pdf_print_mag_bp(pdf, pdf_ann_top(i));
                     break;
                 case pdf_dest_fitv:
-                    pdf_printf("/FitV ");
-                    pdf_print_mag_bp(pdf_ann_left(i));
+                    pdf_printf(pdf,"/FitV ");
+                    pdf_print_mag_bp(pdf, pdf_ann_left(i));
                     break;
                 case pdf_dest_fitb:
-                    pdf_printf("/FitB");
+                    pdf_printf(pdf,"/FitB");
                     break;
                 case pdf_dest_fitbh:
-                    pdf_printf("/FitBH ");
-                    pdf_print_mag_bp(pdf_ann_top(i));
+                    pdf_printf(pdf,"/FitBH ");
+                    pdf_print_mag_bp(pdf, pdf_ann_top(i));
                     break;
                 case pdf_dest_fitbv:
-                    pdf_printf("/FitBV ");
-                    pdf_print_mag_bp(pdf_ann_left(i));
+                    pdf_printf(pdf,"/FitBV ");
+                    pdf_print_mag_bp(pdf, pdf_ann_left(i));
                     break;
                 case pdf_dest_fitr:
-                    pdf_printf("/FitR ");
-                    pdf_print_rect_spec(i);
+                    pdf_printf(pdf,"/FitR ");
+                    pdf_print_rect_spec(pdf, i);
                     break;
                 default:
                     pdf_error(maketexstring("ext5"),
                               maketexstring("unknown dest type"));
                     break;
                 }
-                pdf_printf("]\n");
+                pdf_printf(pdf,"]\n");
                 if (pdf_dest_named_id(i) > 0)
-                    pdf_end_dict();
+                    pdf_end_dict(pdf);
                 else
-                    pdf_end_obj();
+                    pdf_end_obj(pdf);
             }
             k = fixmem[k].hhrh;
         }

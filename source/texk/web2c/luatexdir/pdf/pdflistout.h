@@ -32,7 +32,7 @@ extern scaled simple_advance_width(halfword p);
 extern void calculate_width_to_enddir(halfword p, real cur_glue, scaled cur_g,
                                       halfword this_box, scaled * setw,
                                       halfword * settemp_ptr);
-extern void pdf_hlist_out(void);
-extern void pdf_vlist_out(void);
+extern void pdf_hlist_out(PDF pdf);
+extern void pdf_vlist_out(PDF pdf);
 
 #endif

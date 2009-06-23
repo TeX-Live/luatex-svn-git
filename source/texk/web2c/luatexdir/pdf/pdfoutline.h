@@ -54,6 +54,6 @@ will store data of outline entries in |pdf_mem| instead of |mem|
 
 extern integer open_subentries(halfword p);
 extern halfword scan_action(void);
-extern void scan_pdfoutline(void);
+extern void scan_pdfoutline(PDF pdf);
 
 #endif

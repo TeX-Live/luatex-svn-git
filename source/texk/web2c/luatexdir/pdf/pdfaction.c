@@ -26,60 +26,60 @@ static const char __svn_version[] =
     "$URL$";
 
 /* write an action specification */
-void write_action(halfword p)
+void write_action(PDF pdf, halfword p)
 {
     char *s;
     integer d = 0;
     if (pdf_action_type(p) == pdf_action_user) {
-        pdf_print_toks_ln(pdf_action_tokens(p));
+        pdf_print_toks_ln(pdf, pdf_action_tokens(p));
         return;
     }
-    pdf_printf("<< ");
+    pdf_printf(pdf,"<< ");
     if (pdf_action_file(p) != null) {
-        pdf_printf("/F ");
+        pdf_printf(pdf,"/F ");
         s = tokenlist_to_cstring(pdf_action_file(p), true, NULL);
-        pdf_print_str(s);
+        pdf_print_str(pdf, s);
         xfree(s);
-        pdf_printf(" ");
+        pdf_printf(pdf," ");
         if (pdf_action_new_window(p) > 0) {
-            pdf_printf("/NewWindow ");
+            pdf_printf(pdf,"/NewWindow ");
             if (pdf_action_new_window(p) == 1)
-                pdf_printf("true ");
+                pdf_printf(pdf,"true ");
             else
-                pdf_printf("false ");
+                pdf_printf(pdf,"false ");
         }
     }
     switch (pdf_action_type(p)) {
     case pdf_action_page:
         if (pdf_action_file(p) == null) {
-            pdf_printf("/S /GoTo /D [");
-            pdf_print_int(get_obj(obj_type_page, pdf_action_id(p), false));
-            pdf_printf(" 0 R");
+            pdf_printf(pdf,"/S /GoTo /D [");
+            pdf_print_int(pdf, get_obj(obj_type_page, pdf_action_id(p), false));
+            pdf_printf(pdf," 0 R");
         } else {
-            pdf_printf("/S /GoToR /D [");
-            pdf_print_int(pdf_action_id(p) - 1);
+            pdf_printf(pdf,"/S /GoToR /D [");
+            pdf_print_int(pdf, pdf_action_id(p) - 1);
         }
         {
             char *tokstr =
                 tokenlist_to_cstring(pdf_action_tokens(p), true, NULL);
-            pdf_printf(" %s]", tokstr);
+            pdf_printf(pdf," %s]", tokstr);
             xfree(tokstr);
         }
         break;
     case pdf_action_goto:
         if (pdf_action_file(p) == null) {
-            pdf_printf("/S /GoTo ");
+            pdf_printf(pdf,"/S /GoTo ");
             d = get_obj(obj_type_dest, pdf_action_id(p),
                         pdf_action_named_id(p));
         } else {
-            pdf_printf("/S /GoToR ");
+            pdf_printf(pdf,"/S /GoToR ");
         }
         if (pdf_action_named_id(p) > 0) {
             char *tokstr = tokenlist_to_cstring(pdf_action_id(p), true, NULL);
-            pdf_str_entry("D", tokstr);
+            pdf_str_entry(pdf, "D", tokstr);
             xfree(tokstr);
         } else if (pdf_action_file(p) == null) {
-            pdf_indirect("D", d);
+            pdf_indirect(pdf, "D", d);
         } else {
             pdf_error(maketexstring("ext4"),
                       maketexstring
@@ -87,22 +87,22 @@ void write_action(halfword p)
         }
         break;
     case pdf_action_thread:
-        pdf_printf("/S /Thread ");
+        pdf_printf(pdf,"/S /Thread ");
         if (pdf_action_file(p) == null) {
             d = get_obj(obj_type_thread, pdf_action_id(p),
                         pdf_action_named_id(p));
             if (pdf_action_named_id(p) > 0) {
                 char *tokstr =
                     tokenlist_to_cstring(pdf_action_id(p), true, NULL);
-                pdf_str_entry("D", tokstr);
+                pdf_str_entry(pdf, "D", tokstr);
                 xfree(tokstr);
             } else if (pdf_action_file(p) == null) {
-                pdf_indirect("D", d);
+                pdf_indirect(pdf, "D", d);
             } else {
-                pdf_int_entry("D", pdf_action_id(p));
+                pdf_int_entry(pdf, "D", pdf_action_id(p));
             }
         }
         break;
     }
-    pdf_printf(" >>\n");
+    pdf_printf(pdf," >>\n");
 }

@@ -24,10 +24,10 @@ static const char __svn_version[] =
     "$URL$";
 
 
-void output_form(halfword p)
+void output_form(PDF pdf, halfword p)
 {
-    pdf_goto_pagemode();
-    pdf_place_form(pos.h, pos.v, obj_info(pdf_xform_objnum(p)));
+    pdf_goto_pagemode(pdf);
+    pdf_place_form(pdf, pos.h, pos.v, obj_info(pdf_xform_objnum(p)));
     if (pdf_lookup_list(pdf_xform_list, pdf_xform_objnum(p)) == null)
         pdf_append_list(pdf_xform_objnum(p), pdf_xform_list);
 }

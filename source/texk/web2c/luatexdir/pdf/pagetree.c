@@ -218,33 +218,33 @@ void pdf_do_page_undivert(integer divnum, integer curdivnum)
 
 /* write a /Pages object */
 
-static void write_pages(pages_entry * p, int parent)
+static void write_pages(PDF pdf, pages_entry * p, int parent)
 {
     int i;
     assert(p != NULL);
-    pdf_begin_dict(p->objnum, 1);
-    pdf_printf("/Type /Pages\n");
+    pdf_begin_dict(pdf, p->objnum, 1);
+    pdf_printf(pdf,"/Type /Pages\n");
     if (parent == 0)            /* it's root */
-        print_pdf_pages_attr();
+        print_pdf_pages_attr(pdf);
     else
-        pdf_printf("/Parent %d 0 R\n", parent);
-    pdf_printf("/Count %d\n/Kids [", (int) p->number_of_pages);
+        pdf_printf(pdf,"/Parent %d 0 R\n", parent);
+    pdf_printf(pdf,"/Count %d\n/Kids [", (int) p->number_of_pages);
     for (i = 0; i < p->number_of_kids; i++)
-        pdf_printf("%d 0 R ", (int) p->kids[i]);
-    pdf_remove_last_space();
-    pdf_printf("]\n");
-    pdf_end_dict();
+        pdf_printf(pdf,"%d 0 R ", (int) p->kids[i]);
+    pdf_remove_last_space(pdf);
+    pdf_printf(pdf,"]\n");
+    pdf_end_dict(pdf);
 }
 
 /* loop over all /Pages objects, output them, create their parents,
  * recursing bottom up, return the /Pages root object number */
 
-static integer output_pages_list(pages_entry * pe)
+static integer output_pages_list(PDF pdf, pages_entry * pe)
 {
     pages_entry *p, *q, *r;
     assert(pe != NULL);
     if (pe->next == NULL) {     /* everything fits into one pages_entry */
-        write_pages(pe, 0);     /* --> /Pages root found */
+        write_pages(pdf, pe, 0);     /* --> /Pages root found */
         return pe->objnum;
     }
     q = r = new_pages_entry();  /* one level higher needed */
@@ -255,15 +255,15 @@ static integer output_pages_list(pages_entry * pe)
         }
         q->kids[q->number_of_kids++] = p->objnum;
         q->number_of_pages += p->number_of_pages;
-        write_pages(p, q->objnum);
+        write_pages(pdf, p, q->objnum);
     }
-    return output_pages_list(r);        /* recurse through next higher level */
+    return output_pages_list(pdf, r);        /* recurse through next higher level */
 }
 
-integer output_pages_tree()
+integer output_pages_tree(PDF pdf)
 {
     divert_list_entry *d;
     pdf_do_page_undivert(0, 0); /* concatenate all diversions into diversion 0 */
     d = get_divert_list(0);     /* get diversion 0 */
-    return output_pages_list(d->first);
+    return output_pages_list(pdf, d->first);
 }

@@ -45,6 +45,6 @@
 #  define set_obj_xform_attr(A,B) obj_xform_attr(A)=B
 #  define set_obj_xform_resources(A,B) obj_xform_resources(A)=B
 
-extern void output_form(halfword p);
+extern void output_form(PDF pdf, halfword p);
 
 #endif

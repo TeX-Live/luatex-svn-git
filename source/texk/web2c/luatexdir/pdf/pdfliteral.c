@@ -23,7 +23,7 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
-void pdf_special(halfword p)
+void pdf_special(PDF pdf, halfword p)
 {
     integer old_setting;        /* holds print |selector| */
     str_number s;
@@ -32,7 +32,7 @@ void pdf_special(halfword p)
     show_token_list(fixmem[(write_tokens(p))].hhrh, null, pool_size - pool_ptr);
     selector = old_setting;
     s = make_string();
-    pdf_literal(s, scan_special, true);
+    pdf_literal(pdf, s, scan_special, true);
     flush_str(s);
 }
 
@@ -44,7 +44,7 @@ the \TeX' original |hlist_out|, |vlist_out| and |ship_out| resp. But first we
 need to declare some procedures needed in |pdf_hlist_out| and |pdf_vlist_out|.
 */
 
-void pdf_out_literal(halfword p)
+void pdf_out_literal(PDF pdf, halfword p)
 {
     integer old_setting;        /* holds print |selector| */
     str_number s;
@@ -55,27 +55,27 @@ void pdf_out_literal(halfword p)
                         pool_size - pool_ptr);
         selector = old_setting;
         s = make_string();
-        pdf_literal(s, pdf_literal_mode(p), false);
+        pdf_literal(pdf, s, pdf_literal_mode(p), false);
         flush_str(s);
     } else {
         assert(pdf_literal_mode(p) != scan_special);
         switch (pdf_literal_mode(p)) {
         case set_origin:
-            pdf_goto_pagemode();
+            pdf_goto_pagemode(pdf);
             pos = synch_p_with_c(cur);
-            pdf_set_pos(pos.h, pos.v);
+            pdf_set_pos(pdf, pos.h, pos.v);
             break;
         case direct_page:
-            pdf_goto_pagemode();
+            pdf_goto_pagemode(pdf);
             break;
         case direct_always:
-            pdf_end_string_nl();
+            pdf_end_string_nl(pdf);
             break;
         default:
             tconfusion("literal1");
             break;
         }
-        lua_pdf_literal(pdf_literal_data(p));
+        lua_pdf_literal(pdf, pdf_literal_data(p));
     }
 }
 
@@ -97,7 +97,7 @@ static boolean str_in_cstr(str_number s, char *r, unsigned i)
     return true;
 }
 
-void pdf_literal(str_number s, integer literal_mode, boolean warn)
+void pdf_literal(PDF pdf, str_number s, integer literal_mode, boolean warn)
 {
     pool_pointer j = 0;         /* current character code position, initialized to make the compiler happy */
     if (s > STRING_OFFSET) {    /* needed for |out_save| */
@@ -125,15 +125,15 @@ void pdf_literal(str_number s, integer literal_mode, boolean warn)
     }
     switch (literal_mode) {
     case set_origin:
-        pdf_goto_pagemode();
+        pdf_goto_pagemode(pdf);
         pos = synch_p_with_c(cur);
-        pdf_set_pos(pos.h, pos.v);
+        pdf_set_pos(pdf, pos.h, pos.v);
         break;
     case direct_page:
-        pdf_goto_pagemode();
+        pdf_goto_pagemode(pdf);
         break;
     case direct_always:
-        pdf_end_string_nl();
+        pdf_end_string_nl(pdf);
         break;
     default:
         tconfusion("literal1");
@@ -141,9 +141,9 @@ void pdf_literal(str_number s, integer literal_mode, boolean warn)
     }
     if (s > STRING_OFFSET) {
         while (j < str_start_macro(s + 1))
-            pdf_out(str_pool[j++]);
+            pdf_out(pdf, str_pool[j++]);
     } else {
-        pdf_out(s);
+        pdf_out(pdf, s);
     }
-    pdf_print_nl();
+    pdf_print_nl(pdf);
 }

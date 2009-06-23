@@ -48,6 +48,6 @@ void matrixtransformrect(scaled llx, scaled lly, scaled urx, scaled ury);
 boolean matrixused();
 void matrixrecalculate(scaled urx);
 
-extern void pdf_out_setmatrix(halfword p);
+extern void pdf_out_setmatrix(PDF pdf, halfword p);
 
 #endif

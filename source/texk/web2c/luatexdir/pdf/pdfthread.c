@@ -145,17 +145,17 @@ void end_thread(void)
 
 /* The following function are needed for outputing article thread. */
 
-void thread_title(integer t)
+void thread_title(PDF pdf, integer t)
 {
-    pdf_printf("/Title (");
+    pdf_printf(pdf,"/Title (");
     if (obj_info(t) < 0)
-        pdf_print(-obj_info(t));
+        pdf_print(pdf, -obj_info(t));
     else
-        pdf_print_int(obj_info(t));
-    pdf_printf(")\n");
+        pdf_print_int(pdf, obj_info(t));
+    pdf_printf(pdf,")\n");
 }
 
-void pdf_fix_thread(integer t)
+void pdf_fix_thread(PDF pdf, integer t)
 {
     halfword a;
     pdf_warning(maketexstring("thread"),
@@ -171,35 +171,35 @@ void pdf_fix_thread(integer t)
     tprint(" has been referenced but does not exist, replaced by a fixed one");
     print_ln();
     print_ln();
-    pdf_new_dict(obj_type_others, 0, 0);
+    pdf_new_dict(pdf, obj_type_others, 0, 0);
     a = obj_ptr;
-    pdf_indirect_ln("T", t);
-    pdf_indirect_ln("V", a);
-    pdf_indirect_ln("N", a);
-    pdf_indirect_ln("P", head_tab[obj_type_page]);
-    pdf_printf("/R [0 0 ");
-    pdf_print_bp(page_width);
-    pdf_out(' ');
-    pdf_print_bp(page_height);
-    pdf_printf("]\n");
-    pdf_end_dict();
-    pdf_begin_dict(t, 1);
-    pdf_printf("/I << \n");
-    thread_title(t);
-    pdf_printf(">>\n");
-    pdf_indirect_ln("F", a);
-    pdf_end_dict();
+    pdf_indirect_ln(pdf,"T", t);
+    pdf_indirect_ln(pdf,"V", a);
+    pdf_indirect_ln(pdf,"N", a);
+    pdf_indirect_ln(pdf,"P", head_tab[obj_type_page]);
+    pdf_printf(pdf,"/R [0 0 ");
+    pdf_print_bp(pdf, page_width);
+    pdf_out(pdf, ' ');
+    pdf_print_bp(pdf, page_height);
+    pdf_printf(pdf,"]\n");
+    pdf_end_dict(pdf);
+    pdf_begin_dict(pdf, t, 1);
+    pdf_printf(pdf,"/I << \n");
+    thread_title(pdf, t);
+    pdf_printf(pdf,">>\n");
+    pdf_indirect_ln(pdf,"F", a);
+    pdf_end_dict(pdf);
 }
 
-void out_thread(integer t)
+void out_thread(PDF pdf, integer t)
 {
     halfword a, b;
     integer last_attr;
     if (obj_thread_first(t) == 0) {
-        pdf_fix_thread(t);
+        pdf_fix_thread(pdf, t);
         return;
     }
-    pdf_begin_dict(t, 1);
+    pdf_begin_dict(pdf, t, 1);
     a = obj_thread_first(t);
     b = a;
     last_attr = 0;
@@ -209,23 +209,23 @@ void out_thread(integer t)
         a = obj_bead_next(a);
     } while (a != b);
     if (last_attr != 0) {
-        pdf_print_ln(last_attr);
+        pdf_print_ln(pdf, last_attr);
     } else {
-        pdf_printf("/I << \n");
-        thread_title(t);
-        pdf_printf(">>\n");
+        pdf_printf(pdf,"/I << \n");
+        thread_title(pdf, t);
+        pdf_printf(pdf,">>\n");
     }
-    pdf_indirect_ln("F", a);
-    pdf_end_dict();
+    pdf_indirect_ln(pdf,"F", a);
+    pdf_end_dict(pdf);
     do {
-        pdf_begin_dict(a, 1);
+        pdf_begin_dict(pdf, a, 1);
         if (a == b)
-            pdf_indirect_ln("T", t);
-        pdf_indirect_ln("V", obj_bead_prev(a));
-        pdf_indirect_ln("N", obj_bead_next(a));
-        pdf_indirect_ln("P", obj_bead_page(a));
-        pdf_indirect_ln("R", obj_bead_rect(a));
-        pdf_end_dict();
+            pdf_indirect_ln(pdf,"T", t);
+        pdf_indirect_ln(pdf,"V", obj_bead_prev(a));
+        pdf_indirect_ln(pdf,"N", obj_bead_next(a));
+        pdf_indirect_ln(pdf,"P", obj_bead_page(a));
+        pdf_indirect_ln(pdf,"R", obj_bead_rect(a));
+        pdf_end_dict(pdf);
         a = obj_bead_next(a);
     } while (a != b);
 }

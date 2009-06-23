@@ -50,10 +50,10 @@ extern void append_bead(halfword p);
 extern void do_thread(halfword parent_box, halfword p, scaled x, scaled y);
 extern void append_thread(halfword parent_box, scaled x, scaled y);
 extern void end_thread(void);
-
-extern void thread_title(integer t);
-extern void pdf_fix_thread(integer t);
-extern void out_thread(integer t);
 extern void scan_thread_id(void);
+
+extern void thread_title(PDF pdf, integer t);
+extern void pdf_fix_thread(PDF pdf, integer t);
+extern void out_thread(PDF pdf, integer t);
 
 #endif

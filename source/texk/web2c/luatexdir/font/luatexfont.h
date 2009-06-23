@@ -141,10 +141,10 @@ typedef struct {
 #  include "texfont.h"
 
 /* tounicode.c */
-integer write_cid_tounicode(fo_entry * fo, internalfontnumber f);
+integer write_cid_tounicode(PDF,fo_entry *, internal_font_number);
 void glyph_unicode_free(void);
 void def_tounicode(str_number, str_number);
-integer write_tounicode(char **, char *);
+integer write_tounicode(PDF, char **, char *);
 
 /* vfpacket.c */
 void replace_packet_fonts(internal_font_number f, integer * old_fontid,
@@ -158,7 +158,7 @@ void writetype1w(fd_entry * fd);
 void writetype0(fd_entry * fd);
 
 /* writefont.c */
-void do_pdf_font(integer, internalfontnumber);
+void do_pdf_font(PDF, integer, internalfontnumber);
 fd_entry *lookup_fd_entry(char *, integer, integer);
 fd_entry *new_fd_entry(void);
 void write_fontstuff();
@@ -175,7 +175,7 @@ void t1_free(void);
 extern integer t1_length1, t1_length2, t1_length3;
 
 /* writetype2.c */
-void writetype2(fd_entry * fd);
+void writetype2(PDF, fd_entry *);
 extern unsigned long cidtogid_obj;
 pdf_obj *pdf_new_stream(void);
 void pdf_add_stream(pdf_obj * stream, unsigned char *buf, long len);
@@ -188,10 +188,10 @@ boolean handle_subfont_fm(fm_entry *, int);
 /* writeenc.c */
 fe_entry *get_fe_entry(char *);
 void enc_free(void);
-void write_fontencodings(void);
+void write_fontencodings(PDF pdf);
 
 /* writettf.c */
-void writettf(fd_entry *);
+void writettf(PDF, fd_entry *);
 void writeotf(fd_entry *);
 void ttf_free(void);
 extern integer ttf_length;
@@ -213,7 +213,7 @@ internal_font_number copy_font_info(internal_font_number f);
 
 /* writet3.c */
 extern FILE *t3_file;
-void writet3(int, internalfontnumber);
+void writet3(PDF, int, internalfontnumber);
 scaled get_pk_char_width(internalfontnumber, scaled);
 
 extern unsigned char *t3_buffer;

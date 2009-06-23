@@ -26,7 +26,7 @@
 #  include "image.h"
 
 void read_png_info(image_dict *, img_readtype_e);
-void write_additional_png_objects(void);
-void write_png(image_dict *);
+void write_additional_png_objects(PDF);
+void write_png(PDF, image_dict *);
 
 #endif                          /* WRITEPNG_H */
