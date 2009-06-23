@@ -22,6 +22,10 @@
 #define token_list 0
 #define cs_token_flag 0x1FFFFFFF
 
+#define left_brace_token 0x200000   /* $2^{21}\cdot|left_brace|$ */
+#define right_brace_token 0x400000      /* $2^{21}\cdot|right_brace|$ */
+
+
 #undef link                     /* defined by cpascal.h */
 #define info(a)    fixmem[(a)].hhlh
 #define link(a)    fixmem[(a)].hhrh

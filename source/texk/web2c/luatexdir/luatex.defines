@@ -1457,3 +1457,5 @@
 @define procedure special_out();
 @define procedure dvi_ship_out();
 @define procedure finish_dvi_file();
+
+@define procedure expand_macros_in_tokenlist();

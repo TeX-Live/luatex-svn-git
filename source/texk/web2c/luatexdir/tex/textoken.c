@@ -26,8 +26,6 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-#define right_brace_token 0x400000      /* $2^{21}\cdot|right_brace|$ */
-
 #define cat_code_table int_par(param_cat_code_table_code)
 #define tracing_nesting int_par(param_tracing_nesting_code)
 #define end_line_char int_par(param_end_line_char_code)

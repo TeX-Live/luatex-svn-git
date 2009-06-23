@@ -242,7 +242,12 @@ typedef struct charinfo_short_ {
 
 extern void hlist_out(void);
 extern void vlist_out(void);
+
+extern void expand_macros_in_tokenlist (halfword p) ;
+extern void write_out(halfword p);
+extern void out_what(halfword p);
 extern void special_out(halfword p);
+
 extern void dvi_ship_out(halfword p);
 extern void finish_dvi_file(int version, int revision);
 
