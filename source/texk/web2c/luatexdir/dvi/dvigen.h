@@ -38,7 +38,7 @@ extern integer cur_s;
 
 typedef int dvi_index;          /* an index into the output buffer */
 
-extern int dvi_buf_size;
+extern integer dvi_buf_size;
 extern real_eight_bits *dvi_buf;        /* 0 is unused */
 extern dvi_index half_buf;
 extern dvi_index dvi_limit;
