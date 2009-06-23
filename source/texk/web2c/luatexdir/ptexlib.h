@@ -84,6 +84,7 @@ extern double rint(double x);
 #  include "tex/directions.h"
 #  include "tex/inputstack.h"
 #  include "tex/stringpool.h"
+#  include "tex/printing.h"
 
 /**********************************************************************/
 
