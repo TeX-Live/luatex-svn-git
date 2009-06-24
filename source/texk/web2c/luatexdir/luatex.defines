@@ -1084,27 +1084,10 @@
 @define const zip_writing;
 @define const zip_finish;
 
-@define var pdf_buf; 
-@define var pdf_buf_size; 
-@define var pdf_ptr; 
-@define var pdf_op_buf;
-@define var pdf_os_buf;
-@define var pdf_os_buf_size;
 @define var pdf_os_objnum;
 @define var pdf_os_objoff;
-@define var pdf_os_objidx;
-@define var pdf_os_cntr;
-@define var pdf_op_ptr;
-@define var pdf_os_ptr;
-@define var pdf_os_mode;
-@define var pdf_os_enable;
-@define var pdf_os_cur_objnum;
-@define const pdf_op_buf_size;
-@define const inf_pdf_os_buf_size;
-@define const sup_pdf_os_buf_size;
 @define const pdf_os_max_objs;
-@define var pdf_gone; 
-@define var pdf_save_offset; 
+
 @define var zip_write_state; 
 @define var fixed_pdfoutput; 
 @define var fixed_pdfoutput_set; 
@@ -1113,9 +1096,7 @@
 @define var microseconds;
 @define var page_divert_val;
 
-@define procedure pdf_flush;
 @define procedure pdf_room();
-
 @define procedure pdf_quick_out();
 @define procedure pdf_out();
 

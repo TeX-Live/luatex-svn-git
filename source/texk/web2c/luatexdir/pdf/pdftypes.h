@@ -22,12 +22,20 @@
 #ifndef PDFTYPES_H
 #  define PDFTYPES_H
 
-/* 
- *  this stucture holds everything that is needed for the actual pdf generation 
+/* This stucture holds everything that is needed for the actual pdf generation.
+
+Because this structure interfaces with C++, it is not wise to use |boolean|
+here (C++ has a boolean type built-in that is not compatible). Also, I have
+plans to convert the backend code into a C library for use with e.g. standalone
+lua. Together, this means that it is best only to use the standard C types and
+the types explicitly defined in this header, and stay away from types like 
+|integer| and |eight_bits| that are used elsewhere in the \LUATEX\ sources.
+
  */
 
 typedef struct pdf_output_file_ {
     FILE *file;  /* the PDF output file */
+    /* generation parameters */
     int gamma;
     int image_gamma;
     int image_hicolor; /* boolean */
@@ -41,6 +49,21 @@ typedef struct pdf_output_file_ {
     int minor_version;        /* fixed minor part of the PDF version */
     int minor_version_set;    /* flag if the PDF version has been set */
     int objcompresslevel;     /* fixed level for activating PDF object streams */
+
+    /* output file buffering  */
+    unsigned char *op_buf;    /* the PDF output buffer */
+    int op_buf_size;          /* output buffer size (static) */
+    int op_ptr;               /* store for PDF buffer |pdf_ptr| while inside object streams */
+    unsigned char *os_buf;    /* the PDF object stream buffer */
+    int os_buf_size;          /* current size of the PDF object stream buffer, grows dynamically */
+    int os_ptr;               /* store for object stream |pdf_ptr| while outside object streams */
+
+    unsigned char *buf;   /* pointer to the PDF output buffer or PDF object stream buffer */
+    int buf_size;         /* end of PDF output buffer or PDF object stream buffer */
+    int ptr;              /* pointer to the first unused byte in the PDF buffer or object stream buffer */
+    off_t save_offset;    /* to save |pdf_offset| */
+    off_t gone;           /* number of bytes that were flushed to output */
+    
 } pdf_output_file;
 
 typedef pdf_output_file *PDF;

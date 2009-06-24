@@ -394,7 +394,7 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, integer bufle
         pdf_printf(pdf, "stream\n");
         pdf_room(pdf,(last_cid + 1) * 2);
         for (i = 0; i < ((int) (last_cid + 1) * 2); i++) {
-            pdf_buf[pdf_ptr++] = cidtogidmap[i];
+            pdf_quick_out(pdf,cidtogidmap[i]);
         }
         pdf_printf(pdf, "\nendstream\n");
     }

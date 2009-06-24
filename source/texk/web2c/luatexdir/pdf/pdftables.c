@@ -98,54 +98,6 @@ integer pdf_new_objnum(void)
     return obj_ptr;
 }
 
-/* switch between PDF stream and object stream mode */
-void pdf_os_switch(boolean pdf_os)
-{
-    if (pdf_os && pdf_os_enable) {
-        if (!pdf_os_mode) {     /* back up PDF stream variables */
-            pdf_op_ptr = pdf_ptr;
-            pdf_ptr = pdf_os_ptr;
-            pdf_buf = pdf_os_buf;
-            pdf_buf_size = pdf_os_buf_size;
-            pdf_os_mode = true; /* switch to object stream */
-        }
-    } else {
-        if (pdf_os_mode) {      /* back up object stream variables */
-            pdf_os_ptr = pdf_ptr;
-            pdf_ptr = pdf_op_ptr;
-            pdf_buf = pdf_op_buf;
-            pdf_buf_size = pdf_op_buf_size;
-            pdf_os_mode = false;        /* switch to PDF stream */
-        }
-    }
-}
-
-/* create new \.{/ObjStm} object if required, and set up cross reference info */
-void pdf_os_prepare_obj(PDF pdf, integer i, integer pdf_os_level)
-{
-    pdf_os_switch(((pdf_os_level > 0)
-                   && (pdf->objcompresslevel >= pdf_os_level)));
-    if (pdf_os_mode) {
-        if (pdf_os_cur_objnum == 0) {
-            pdf_os_cur_objnum = pdf_new_objnum();
-            decr(obj_ptr);      /* object stream is not accessible to user */
-            incr(pdf_os_cntr);  /* only for statistics */
-            pdf_os_objidx = 0;
-            pdf_ptr = 0;        /* start fresh object stream */
-        } else {
-            incr(pdf_os_objidx);
-        }
-        obj_os_idx(i) = pdf_os_objidx;
-        obj_offset(i) = pdf_os_cur_objnum;
-        pdf_os_objnum[pdf_os_objidx] = i;
-        pdf_os_objoff[pdf_os_objidx] = pdf_ptr;
-    } else {
-        obj_offset(i) = pdf_offset;
-        obj_os_idx(i) = -1;     /* mark it as not included in object stream */
-    }
-}
-
-
 /* TODO: it is fairly horrible that this uses token memory */
 
 /* appends a pointer with info |i| to the end of linked list with head |p| */

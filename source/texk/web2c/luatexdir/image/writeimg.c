@@ -330,15 +330,15 @@ void read_img(PDF pdf,
     /* read image */
     switch (img_type(idict)) {
     case IMG_TYPE_PDF:
-        assert(static_pdf!=NULL); /* TODO! */
-        read_pdf_info(static_pdf, idict, minor_version, inclusion_errorlevel);
+        assert(pdf!=NULL); /* TODO! */
+        read_pdf_info(pdf, idict, minor_version, inclusion_errorlevel);
         img_group_ref(idict) = epdf_lastGroupObjectNum;
         break;
     case IMG_TYPE_PNG:
-        read_png_info(static_pdf, idict, IMG_CLOSEINBETWEEN);
+        read_png_info(pdf, idict, IMG_CLOSEINBETWEEN);
         break;
     case IMG_TYPE_JPG:
-        read_jpg_info(static_pdf, idict, IMG_CLOSEINBETWEEN);
+        read_jpg_info(pdf, idict, IMG_CLOSEINBETWEEN);
         break;
     case IMG_TYPE_JBIG2:
         if (minor_version < 4) {

@@ -274,10 +274,9 @@ void lua_pdf_literal(PDF pdf, int i)
     lua_rawgeti(Luas, LUA_REGISTRYINDEX, i);
     s = (char *) lua_tolstring(Luas, -1, &l);
     while (l--) {
-        pdf_room(pdf,1);
-        pdf_buf[pdf_ptr++] = *s++;
+        pdf_out(pdf,*s++);
     }
-    pdf_buf[pdf_ptr++] = 10;    /* pdf_print_nl */
+    pdf_out(pdf,10);    /* pdf_print_nl */
     lua_pop(Luas, 1);
 }
 

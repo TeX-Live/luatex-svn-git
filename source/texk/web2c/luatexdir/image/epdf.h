@@ -49,7 +49,7 @@ extern "C" {
 #include "../pdf/pdftypes.h"
 
     extern void pdf_room(PDF, integer);
-#define pdf_out(B,A) do { pdf_room(B,1); pdf_buf[pdf_ptr++] = A; } while (0)
+#define pdf_out(B,A) do { pdf_room(B,1); B->buf[B->ptr++] = A; } while (0)
 
     extern void unrefPdfDocument(char *);
 
@@ -64,11 +64,8 @@ extern "C" {
     extern integer pdf_box_spec_art;
 
     extern longinteger pdf_stream_length;
-    extern longinteger pdf_ptr;
     extern integer pool_ptr;
     typedef unsigned char eight_bits;
-    extern eight_bits *pdf_buf;
-    extern integer pdf_buf_size;
     extern integer pdf_os_mode;
     extern eight_bits pdf_last_byte;
 

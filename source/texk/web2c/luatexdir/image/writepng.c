@@ -123,22 +123,22 @@ void read_png_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
 }
 
 #define write_gray_pixel_16(r)                           \
-  if (j % 4 == 0||j % 4 == 1) pdf_buf[pdf_ptr++] = *r++; \
+    if (j % 4 == 0||j % 4 == 1) pdf_quick_out(pdf,*r++); \
   else                        smask[smask_ptr++] = *r++
 
 #define write_gray_pixel_8(r)                   \
-    if (j % 2 == 0)  pdf_buf[pdf_ptr++] = *r++; \
+    if (j % 2 == 0)  pdf_quick_out(pdf,*r++);   \
     else             smask[smask_ptr++] = *r++
 
 #define write_rgb_pixel_16(r)                                  \
-    if (!(j % 8 == 6||j % 8 == 7)) pdf_buf[pdf_ptr++]  = *r++; \
+    if (!(j % 8 == 6||j % 8 == 7)) pdf_quick_out(pdf,*r++);    \
     else                           smask[smask_ptr++] = *r++
 
 #define write_rgb_pixel_8(r)                   \
-    if (j % 4 != 3) pdf_buf[pdf_ptr++] = *r++; \
+    if (j % 4 != 3) pdf_quick_out(pdf,*r++);   \
     else            smask[smask_ptr++] = *r++
 
-#define write_simple_pixel(r)    pdf_buf[pdf_ptr++] = *r++
+#define write_simple_pixel(r)    pdf_quick_out(pdf,*r++)
 
 #define write_noninterlaced(outmac)                      \
     for (i = 0; i < (int)info_p->height; i++) {          \
@@ -146,7 +146,7 @@ void read_png_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
     r = row;                                             \
     k = info_p->rowbytes;                                \
     while(k > 0) {                                       \
-        l = (k > pdf_buf_size)? pdf_buf_size : k;        \
+        l = (k > pdf->buf_size)? pdf->buf_size : k;      \
                 pdf_room(pdf,l);                         \
                 for (j = 0; j < l; j++) {                \
                   outmac;                                \
@@ -160,7 +160,7 @@ void read_png_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
             row = rows[i];                               \
             k = info_p->rowbytes;                        \
             while(k > 0) {                               \
-                l = (k > pdf_buf_size)? pdf_buf_size : k;\
+                l = (k > pdf->buf_size)?pdf->buf_size: k;\
                 pdf_room(pdf,l);                         \
                 for (j = 0; j < l; j++) {                \
                   outmac;                                \
@@ -207,9 +207,9 @@ static void write_png_palette(PDF pdf, image_dict * idict)
         pdf_begin_stream(pdf);
         for (i = 0; (unsigned) i < info_p->num_palette; i++) {
             pdf_room(pdf,3);
-            pdf_buf[pdf_ptr++] = info_p->palette[i].red;
-            pdf_buf[pdf_ptr++] = info_p->palette[i].green;
-            pdf_buf[pdf_ptr++] = info_p->palette[i].blue;
+            pdf_quick_out(pdf,info_p->palette[i].red);
+            pdf_quick_out(pdf,info_p->palette[i].green);
+            pdf_quick_out(pdf,info_p->palette[i].blue);
         }
         pdf_end_stream(pdf);
     }
@@ -306,7 +306,7 @@ static void write_png_gray_alpha(PDF pdf, image_dict * idict)
     for (i = 0; i < smask_size; i++) {
         if (i % 8 == 0)
             pdf_room(pdf,8);
-        pdf_buf[pdf_ptr++] = smask[i];
+        pdf_quick_out(pdf,smask[i]);
         if (bitdepth == 16)
             i++;
     }
@@ -406,7 +406,7 @@ static void write_png_rgb_alpha(PDF pdf, image_dict * idict)
         for (i = 0; i < smask_size; i++) {
             if (i % 8 == 0)
                 pdf_room(pdf,8);
-            pdf_buf[pdf_ptr++] = smask[i];
+            pdf_quick_out(pdf,smask[i]);
             if (bitdepth == 16)
                 i++;
         }
@@ -489,10 +489,10 @@ static void copy_png(PDF pdf, image_dict * idict)
                 pdftex_fail("writepng: IDAT chunk sequence broken");
             idat = 1;
             while (len > 0) {
-                i = (len > pdf_buf_size) ? pdf_buf_size : len;
+                i = (len > pdf->buf_size) ? pdf->buf_size : len;
                 pdf_room(pdf,i);
-                fread(&pdf_buf[pdf_ptr], 1, i, fp);
-                pdf_ptr += i;
+                fread(&pdf->buf[pdf->ptr], 1, i, fp);
+                pdf->ptr += i;
                 len -= i;
             }
             if (fseek(fp, 4, SEEK_CUR) != 0)
@@ -592,9 +592,9 @@ void write_png(PDF pdf, image_dict * idict)
             pdf_begin_stream(pdf);
             for (i = 0; (unsigned) i < info_p->num_palette; i++) {
                 pdf_room(pdf,3);
-                pdf_buf[pdf_ptr++] = info_p->palette[i].red;
-                pdf_buf[pdf_ptr++] = info_p->palette[i].green;
-                pdf_buf[pdf_ptr++] = info_p->palette[i].blue;
+                pdf_quick_out(pdf,info_p->palette[i].red);
+                pdf_quick_out(pdf,info_p->palette[i].green);
+                pdf_quick_out(pdf,info_p->palette[i].blue);
             }
             pdf_end_stream(pdf);
         }

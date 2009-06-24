@@ -62,6 +62,21 @@ char *luatexrevision(void)
     return makecstring(get_luatexrevision());
 }
 
+static lua_Number get_pdf_gone (void)
+{
+    if (static_pdf!=NULL)
+        return (lua_Number)static_pdf->gone;
+    return (lua_Number)0;
+}
+
+static lua_Number get_pdf_ptr (void)
+{
+    if (static_pdf!=NULL)
+        return (lua_Number)static_pdf->ptr;
+    return (lua_Number)0;
+}
+
+
 extern int luabytecode_max;
 extern int luabytecode_bytes;
 static int luastate_max = 1;    /* fixed value */
@@ -70,8 +85,8 @@ extern int callback_count;
 extern int saved_callback_count;
 
 static struct statistic stats[] = {
-    {"pdf_gone", 'g', &pdf_gone},
-    {"pdf_ptr", 'g', &pdf_ptr},
+    {"pdf_gone", 'G', &get_pdf_gone},
+    {"pdf_ptr", 'G', &get_pdf_ptr},
     {"dvi_gone", 'g', &dvi_offset},
     {"dvi_ptr", 'g', &dvi_ptr},
     {"total_pages", 'g', &total_pages},
@@ -143,7 +158,6 @@ static struct statistic stats[] = {
     {"best_page_break", 'n', &best_page_break},
     {NULL, 0, 0}
 };
-
 
 static int stats_name_to_id(char *name)
 {

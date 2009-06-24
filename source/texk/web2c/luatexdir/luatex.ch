@@ -1462,8 +1462,6 @@ begin @!{|start_here|}
   set_obj_offset(0,0);
   pdf_mem:=xmallocarray (integer, inf_pdf_mem_size); {will grow dynamically}
   dest_names:=xmallocarray (dest_name_entry, inf_dest_names_size); {will grow dynamically}
-  pdf_op_buf:=xmallocarray (real_eight_bits, pdf_op_buf_size);
-  pdf_os_buf:=xmallocarray (real_eight_bits, inf_pdf_os_buf_size); {will grow dynamically}
   pdf_os_objnum:=xmallocarray (integer, pdf_os_max_objs);
   pdf_os_objoff:=xmallocarray (integer, pdf_os_max_objs);
 @+Init

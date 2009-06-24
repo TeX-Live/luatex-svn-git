@@ -33,6 +33,7 @@ extern integer pdf_mem_ptr;
 extern str_number pdf_resname_prefix;
 
 extern void initialize_pdfgen(void);
+extern PDF initialize_pdf(void);
 
 extern integer pdf_get_mem(integer s);
 
@@ -44,39 +45,33 @@ output file in initialization to ensure that it will be the first
 written bytes.
 */
 
-#  define pdf_op_buf_size 16384 /* size of the PDF output buffer */
+#  define inf_pdf_op_buf_size 16384 /* size of the PDF output buffer */
+#  define sup_pdf_op_buf_size 16384 /* size of the PDF output buffer */
 #  define inf_pdf_os_buf_size 1 /* initial value of |pdf_os_buf_size| */
 #  define sup_pdf_os_buf_size 5000000   /* arbitrary upper hard limit of |pdf_os_buf_size| */
 #  define pdf_os_max_objs 100   /* maximum number of objects in object stream */
 
 /* The following macros are similar as for \.{DVI} buffer handling */
 
-#  define pdf_offset (pdf_gone + pdf_ptr)
+#  define pdf_offset(pdf) (pdf->gone + pdf->ptr)
                                         /* the file offset of last byte in PDF
                                            buffer that |pdf_ptr| points to */
+#  define pdf_save_offset(pdf) pdf->save_offset=(pdf->gone + pdf->ptr)
+#  define pdf_saved_offset(pdf) pdf->save_offset
+
 typedef enum {
     no_zip = 0,                 /* no \.{ZIP} compression */
     zip_writing = 1,            /* \.{ZIP} compression being used */
     zip_finish = 2              /* finish \.{ZIP} compression */
 } zip_write_states;
 
-extern real_eight_bits *pdf_buf;
-extern integer pdf_buf_size;
-extern longinteger pdf_ptr;
-extern real_eight_bits *pdf_op_buf;
-extern real_eight_bits *pdf_os_buf;
-extern integer pdf_os_buf_size;
 extern integer *pdf_os_objnum;
 extern integer *pdf_os_objoff;
 extern halfword pdf_os_objidx;
 extern integer pdf_os_cntr;
-extern integer pdf_op_ptr;
-extern integer pdf_os_ptr;
 extern boolean pdf_os_mode;
 extern boolean pdf_os_enable;
 extern integer pdf_os_cur_objnum;
-extern longinteger pdf_gone;
-extern longinteger pdf_save_offset;
 extern integer zip_write_state;
 extern integer pdf_page_group_val;
 extern integer epochseconds;
@@ -101,14 +96,22 @@ extern integer ten_pow[10];
 extern void initialize_pdf_output(PDF);
 
 extern void pdf_flush(PDF);
-extern void pdf_os_get_os_buf(integer s);
 extern void pdf_room(PDF, integer);
 
-extern void check_pdfminorversion(PDF);
+#define check_pdfminorversion(A) do {          \
+    if (A==NULL) {                             \
+      static_pdf = initialize_pdf();           \
+      A = static_pdf;                          \
+    }                                          \
+    do_check_pdfminorversion(A);               \
+  } while (0)
+    
+extern void do_check_pdfminorversion(PDF);
+
 extern void ensure_pdf_open(PDF);
 
  /* output a byte to PDF buffer without checking of overflow */
-#  define pdf_quick_out(pdf,A) pdf_buf[pdf_ptr++]=A
+#  define pdf_quick_out(pdf,A) pdf->buf[pdf->ptr++]=A
 
 /* do the same as |pdf_quick_out| and flush the PDF buffer if necessary */
 #  define pdf_out(pdf,A) do { pdf_room(pdf,1); pdf_quick_out(pdf,A); } while (0)
@@ -189,6 +192,8 @@ extern void pdf_begin_dict(PDF, integer, integer);
 extern void pdf_new_dict(PDF, integer, integer, integer);
 extern void pdf_end_dict(PDF);
 
+extern void pdf_os_switch(PDF pdf, boolean pdf_os);
+extern void pdf_os_prepare_obj(PDF pdf, integer i, integer pdf_os_level);
 extern void pdf_os_write_objstream(PDF);
 
 extern void write_stream_length(PDF, integer, longinteger);

@@ -877,7 +877,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version, str_number luatex_revision
         } else if (callback_id > 0) {
             res = run_callback(callback_id, "->");
         }
-        if (pdf_gone > 0)
+        if (pdf->gone > 0)
             garbage_warning();
     } else {
         if (pdf->draftmode == 0) {
@@ -1153,10 +1153,10 @@ void finish_pdf_file(PDF pdf, integer luatex_version, str_number luatex_revision
             pdf_print_info(pdf, luatex_version, luatex_revision);    /* last candidate for object stream */
 
             if (pdf_os_enable) {
-                pdf_os_switch(true);
+                pdf_os_switch(pdf,true);
                 pdf_os_write_objstream(pdf);
                 pdf_flush(pdf);
-                pdf_os_switch(false);
+                pdf_os_switch(pdf,false);
                 /* Output the cross-reference stream dictionary */
                 pdf_new_dict(pdf,obj_type_others, 0, 0);
                 if ((obj_offset(sys_obj_ptr) / 256) > 16777215)
@@ -1210,7 +1210,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version, str_number luatex_revision
                 /* Build a linked list of free objects */
                 build_free_object_list();
 
-                pdf_save_offset = pdf_offset;
+                pdf_save_offset(pdf);
                 pdf_printf(pdf,"xref\n");
                 pdf_printf(pdf,"0 ");
                 pdf_print_int_ln(pdf,obj_ptr + 1);
@@ -1247,7 +1247,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version, str_number luatex_revision
             if (pdf_os_enable)
                 pdf_print_int_ln(pdf,obj_offset(sys_obj_ptr));
             else
-                pdf_print_int_ln(pdf,pdf_save_offset);
+                pdf_print_int_ln(pdf,pdf_saved_offset(pdf));
             pdf_printf(pdf,"%%%%EOF\n");
 
             pdf_flush(pdf);
@@ -1260,7 +1260,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version, str_number luatex_revision
                 if (total_pages != 1)
                     print_char('s');
                 tprint(", ");
-                print_int(pdf_offset);
+                print_int(pdf_offset(pdf));
                 tprint(" bytes).");
             } else if (callback_id > 0) {
                 res = run_callback(callback_id, "->");
