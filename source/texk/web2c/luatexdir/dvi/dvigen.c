@@ -28,7 +28,7 @@ static const char __svn_version[] =
 #include "commands.h"
 #include "tokens.h"
 
-#define mode cur_list.mode_field /* current mode */
+#define mode cur_list.mode_field        /* current mode */
 
 #define pdf_output int_par(param_pdf_output_code)
 #define mag int_par(param_mag_code)
@@ -1042,8 +1042,8 @@ void prune_movements(integer l)
 scaledpos synch_p_with_c(scaledpos cur)
 {
     scaledpos pos;
-    pos.h = 0; /* FIXME: init is only done to silence a compiler warning */
-    pos.v = 0; /* FIXME: init is only done to silence a compiler warning */
+    pos.h = 0;                  /* FIXME: init is only done to silence a compiler warning */
+    pos.v = 0;                  /* FIXME: init is only done to silence a compiler warning */
     synch_pos_with_cur();
     return pos;
 }
@@ -1706,7 +1706,7 @@ void vlist_out(void)
     integer save_direction;
     scaled effective_vertical;
     scaled basepoint_horizontal;
-    scaled basepoint_vertical = 0; /* FIXME: init is only done to silence a compiler warning */
+    scaled basepoint_vertical = 0;      /* FIXME: init is only done to silence a compiler warning */
     scaled edge_v;
     cur_g = 0;
     cur_glue = 0.0;
@@ -2087,105 +2087,120 @@ single page, the stack would overflow.
 /* TODO: keep track of this value */
 #define end_write_token cs_token_flag+end_write
 
-void expand_macros_in_tokenlist (halfword p) 
+void expand_macros_in_tokenlist(halfword p)
 {
-  integer old_mode; /* saved |mode| */
-  pointer q, r; /* temporary variables for list manipulation */
-  integer end_write = get_nullcs() + 1 + get_hash_size();   /* hashbase=nullcs+1 */
-  end_write += 8; /* end_write=frozen_control_sequence+8 */
-  q=get_avail(); 
-  info(q)=right_brace_token+'}';
-  r=get_avail(); link(q)=r; info(r)=end_write_token; 
-  begin_token_list(q,inserted);
-  begin_token_list(write_tokens(p),write_text);
-  q=get_avail(); info(q)=left_brace_token+'{'; 
-  begin_token_list(q,inserted);
-  /* now we're ready to scan
-     `\.\{$\langle\,$token list$\,\rangle$\.{\} \\endwrite}' */
-  old_mode=mode; mode=0;
-  /* disable \.{\\prevdepth}, \.{\\spacefactor}, \.{\\lastskip}, \.{\\prevgraf} */
-  cur_cs=write_loc; q=scan_toks(false,true); /* expand macros, etc. */
-  get_token();
-  if (cur_tok!=end_write_token) {
-    /* Recover from an unbalanced write command */
-    char *hlp[] = {
-      "On this page there's a \\write with fewer real {'s than }'s.",
-      "I can't handle that very well; good luck.", NULL }; 
-    tex_error("Unbalanced write command", hlp);
-    do { get_token(); } while (cur_tok!=end_write_token);
-  }
-  mode=old_mode;
-  end_token_list(); /* conserve stack space */
+    integer old_mode;           /* saved |mode| */
+    pointer q, r;               /* temporary variables for list manipulation */
+    integer end_write = get_nullcs() + 1 + get_hash_size();     /* hashbase=nullcs+1 */
+    end_write += 8;             /* end_write=frozen_control_sequence+8 */
+    q = get_avail();
+    info(q) = right_brace_token + '}';
+    r = get_avail();
+    link(q) = r;
+    info(r) = end_write_token;
+    begin_token_list(q, inserted);
+    begin_token_list(write_tokens(p), write_text);
+    q = get_avail();
+    info(q) = left_brace_token + '{';
+    begin_token_list(q, inserted);
+    /* now we're ready to scan
+       `\.\{$\langle\,$token list$\,\rangle$\.{\} \\endwrite}' */
+    old_mode = mode;
+    mode = 0;
+    /* disable \.{\\prevdepth}, \.{\\spacefactor}, \.{\\lastskip}, \.{\\prevgraf} */
+    cur_cs = write_loc;
+    q = scan_toks(false, true); /* expand macros, etc. */
+    get_token();
+    if (cur_tok != end_write_token) {
+        /* Recover from an unbalanced write command */
+        char *hlp[] = {
+            "On this page there's a \\write with fewer real {'s than }'s.",
+            "I can't handle that very well; good luck.", NULL
+        };
+        tex_error("Unbalanced write command", hlp);
+        do {
+            get_token();
+        } while (cur_tok != end_write_token);
+    }
+    mode = old_mode;
+    end_token_list();           /* conserve stack space */
 }
 
 void write_out(halfword p)
 {
-  int old_setting; /* holds print |selector| */
-  int j; /* write stream number */
-  integer d; /* number of characters in incomplete current string */
-  boolean clobbered; /* system string is ok? */
-  integer ret; /* return value from |runsystem| */
-  expand_macros_in_tokenlist(p) ;
-  old_setting=selector; j=write_stream(p);
-  if (j==18) {
-    selector = new_string;
-  } else if (write_open[j]) {
-    selector=j;
-  } else { /* write to the terminal if file isn't open */
-    if ((j==17)&&(selector==term_and_log)) 
-      selector=log_only;
-    tprint_nl("");
-  }
-  token_show(def_ref); 
-  print_ln();
-  flush_list(def_ref); 
-  if (j==18) {
-    if (tracing_online<=0) 
-      selector=log_only;  /* Show what we're doing in the log file. */
-    else 
-      selector=term_and_log;  /* Show what we're doing. */
-    /* If the log file isn't open yet, we can only send output to the terminal.
-       Calling |open_log_file| from here seems to result in bad data in the log.
-    */
-    if (!log_opened) 
-      selector=term_only;
-    tprint_nl("runsystem(");
-    for (d=0;d<=cur_length-1;d++) {
-      /* |print| gives up if passed |str_ptr|, so do it by hand. */
-      print_char(str_pool[str_start_macro(str_ptr)+d]);
+    int old_setting;            /* holds print |selector| */
+    int j;                      /* write stream number */
+    integer d;                  /* number of characters in incomplete current string */
+    boolean clobbered;          /* system string is ok? */
+    integer ret;                /* return value from |runsystem| */
+    expand_macros_in_tokenlist(p);
+    old_setting = selector;
+    j = write_stream(p);
+    if (j == 18) {
+        selector = new_string;
+    } else if (write_open[j]) {
+        selector = j;
+    } else {                    /* write to the terminal if file isn't open */
+        if ((j == 17) && (selector == term_and_log))
+            selector = log_only;
+        tprint_nl("");
     }
-    tprint(")...");
-    if (shellenabledp) {
-      str_room(1); append_char(0); /* Append a null byte to the expansion. */
-      clobbered=false;
-      for (d=0;d<=cur_length-1;d++) { /* Convert to external character set. */
-        if ((str_pool[str_start_macro(str_ptr)+d]==0) && (d<cur_length-1))
-	  clobbered=true;
-	/* minimal checking: NUL not allowed in argument string of |system|() */
-      }
-      if (clobbered) {
-	tprint("clobbered");
-      } else {
-	/* We have the command.  See if we're allowed to execute it,
-	   and report in the log.  We don't check the actual exit status of
-	   the command, or do anything with the output. */
-	ret = runsystem(stringcast(addressof(str_pool[str_start_macro(str_ptr)])));
-	if (ret == -1) 
-	  tprint("quotation error in system command");
-	else if (ret == 0)
-	  tprint("disabled (restricted)");
-	else if (ret == 1) 
-	  tprint("executed");
-	else if (ret == 2) 
-	  tprint("executed (allowed)");
-      } 
-    } else {
-      tprint("disabled"); /* |shellenabledp| false */
+    token_show(def_ref);
+    print_ln();
+    flush_list(def_ref);
+    if (j == 18) {
+        if (tracing_online <= 0)
+            selector = log_only;        /* Show what we're doing in the log file. */
+        else
+            selector = term_and_log;    /* Show what we're doing. */
+        /* If the log file isn't open yet, we can only send output to the terminal.
+           Calling |open_log_file| from here seems to result in bad data in the log.
+         */
+        if (!log_opened)
+            selector = term_only;
+        tprint_nl("runsystem(");
+        for (d = 0; d <= cur_length - 1; d++) {
+            /* |print| gives up if passed |str_ptr|, so do it by hand. */
+            print_char(str_pool[str_start_macro(str_ptr) + d]);
+        }
+        tprint(")...");
+        if (shellenabledp) {
+            str_room(1);
+            append_char(0);     /* Append a null byte to the expansion. */
+            clobbered = false;
+            for (d = 0; d <= cur_length - 1; d++) {     /* Convert to external character set. */
+                if ((str_pool[str_start_macro(str_ptr) + d] == 0)
+                    && (d < cur_length - 1))
+                    clobbered = true;
+                /* minimal checking: NUL not allowed in argument string of |system|() */
+            }
+            if (clobbered) {
+                tprint("clobbered");
+            } else {
+                /* We have the command.  See if we're allowed to execute it,
+                   and report in the log.  We don't check the actual exit status of
+                   the command, or do anything with the output. */
+                ret =
+                    runsystem(stringcast
+                              (addressof(str_pool[str_start_macro(str_ptr)])));
+                if (ret == -1)
+                    tprint("quotation error in system command");
+                else if (ret == 0)
+                    tprint("disabled (restricted)");
+                else if (ret == 1)
+                    tprint("executed");
+                else if (ret == 2)
+                    tprint("executed (allowed)");
+            }
+        } else {
+            tprint("disabled"); /* |shellenabledp| false */
+        }
+        print_char('.');
+        tprint_nl("");
+        print_ln();
+        pool_ptr = str_start_macro(str_ptr);    /* erase the string */
     }
-    print_char('.'); tprint_nl(""); print_ln();
-    pool_ptr=str_start_macro(str_ptr);  /* erase the string */
-  }
-  selector=old_setting;
+    selector = old_setting;
 }
 
 
@@ -2197,58 +2212,58 @@ The |out_what| procedure takes care of outputting whatsit nodes for
 
 void out_what(halfword p)
 {
-  int j; /* write stream number */
-  switch (subtype(p)) {
-  case open_node:
-  case write_node:
-  case close_node:
-    /* Do some work that has been queued up for \.{\\write} */
-    /* We don't implement \.{\\write} inside of leaders. (The reason is that
-       the number of times a leader box appears might be different in different
-       implementations, due to machine-dependent rounding in the glue calculations.)
-       @^leaders@> */
-    if (!doing_leaders) {
-      j=write_stream(p);
-      if (subtype(p)==write_node) {
-	write_out(p);
-      } else {
-	if (write_open[j]) 
-	  lua_a_close_out(write_file[j]);
-	if (subtype(p)==close_node) {
-	  write_open[j]=false;
-	} else if (j<16) {
-	   cur_name=open_name(p);
-	   cur_area=open_area(p);
-	   cur_ext=open_ext(p);
-	   if (cur_ext==get_nullstr())
-	     cur_ext=maketexstring(".tex");
-	   pack_file_name(cur_name,cur_area,cur_ext);
-	   while (!lua_a_open_out(write_file[j],(j+1)))
-	     prompt_file_name("output file name",".tex");
-	   write_file[j]= name_file_pointer;
-	   write_open[j]=true;
-	}
-      }
+    int j;                      /* write stream number */
+    switch (subtype(p)) {
+    case open_node:
+    case write_node:
+    case close_node:
+        /* Do some work that has been queued up for \.{\\write} */
+        /* We don't implement \.{\\write} inside of leaders. (The reason is that
+           the number of times a leader box appears might be different in different
+           implementations, due to machine-dependent rounding in the glue calculations.)
+           @^leaders@> */
+        if (!doing_leaders) {
+            j = write_stream(p);
+            if (subtype(p) == write_node) {
+                write_out(p);
+            } else {
+                if (write_open[j])
+                    lua_a_close_out(write_file[j]);
+                if (subtype(p) == close_node) {
+                    write_open[j] = false;
+                } else if (j < 16) {
+                    cur_name = open_name(p);
+                    cur_area = open_area(p);
+                    cur_ext = open_ext(p);
+                    if (cur_ext == get_nullstr())
+                        cur_ext = maketexstring(".tex");
+                    pack_file_name(cur_name, cur_area, cur_ext);
+                    while (!lua_a_open_out(write_file[j], (j + 1)))
+                        prompt_file_name("output file name", ".tex");
+                    write_file[j] = name_file_pointer;
+                    write_open[j] = true;
+                }
+            }
+        }
+        break;
+    case special_node:
+        special_out(p);
+        break;
+    case pdf_save_pos_node:
+        /* Save current position */
+        synch_pos_with_cur();
+        pdf_last_x_pos = pos.h;
+        pdf_last_y_pos = pos.v;
+        break;
+    case local_par_node:
+    case cancel_boundary_node:
+    case user_defined_node:
+        break;
+    default:
+        tconfusion("ext4");
+        /* those will be pdf extension nodes in dvi mode, most likely */
+        break;
     }
-    break;
-  case special_node:
-    special_out(p);
-    break;
-  case pdf_save_pos_node:
-    /* Save current position */
-    synch_pos_with_cur();
-    pdf_last_x_pos = pos.h;
-    pdf_last_y_pos = pos.v;
-    break;
-  case local_par_node:
-  case cancel_boundary_node: 
-  case user_defined_node:
-    break;
-  default: 
-    tconfusion("ext4");
-    /* those will be pdf extension nodes in dvi mode, most likely */
-    break;
-  }
 }
 
 
