@@ -1042,6 +1042,8 @@ void prune_movements(integer l)
 scaledpos synch_p_with_c(scaledpos cur)
 {
     scaledpos pos;
+    pos.h = 0; /* FIXME: init is only done to silence a compiler warning */
+    pos.v = 0; /* FIXME: init is only done to silence a compiler warning */
     synch_pos_with_cur();
     return pos;
 }
@@ -1093,7 +1095,7 @@ void hlist_out(void)
     scaled edge_h;
     scaled effective_horizontal;
     scaled basepoint_horizontal;
-    scaled basepoint_vertical;
+    scaled basepoint_vertical = 0;
     integer save_direction;
     pointer dir_ptr, dir_tmp;
     scaled left_edge;           /* the left coordinate for this box */
@@ -1704,7 +1706,7 @@ void vlist_out(void)
     integer save_direction;
     scaled effective_vertical;
     scaled basepoint_horizontal;
-    scaled basepoint_vertical;
+    scaled basepoint_vertical = 0; /* FIXME: init is only done to silence a compiler warning */
     scaled edge_v;
     cur_g = 0;
     cur_glue = 0.0;
