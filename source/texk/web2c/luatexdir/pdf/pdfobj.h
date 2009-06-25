@@ -40,12 +40,12 @@
 #  define set_obj_obj_data(A,B) obj_obj_data(A)=B
 #  define set_pdf_obj_objnum(A,B) pdf_obj_objnum(A)=B
 
-extern halfword pdf_obj_list; /* list of objects in the current page */
-extern integer pdf_obj_count; /* counter of objects */
+extern halfword pdf_obj_list;   /* list of objects in the current page */
+extern integer pdf_obj_count;   /* counter of objects */
 extern integer pdf_last_obj;
 
 
 extern void pdf_write_obj(PDF pdf, integer n);
-extern void scan_obj (void) ;
+extern void scan_obj(void);
 
 #endif

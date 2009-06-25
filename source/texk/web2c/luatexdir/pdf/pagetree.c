@@ -223,16 +223,16 @@ static void write_pages(PDF pdf, pages_entry * p, int parent)
     int i;
     assert(p != NULL);
     pdf_begin_dict(pdf, p->objnum, 1);
-    pdf_printf(pdf,"/Type /Pages\n");
+    pdf_printf(pdf, "/Type /Pages\n");
     if (parent == 0)            /* it's root */
         print_pdf_pages_attr(pdf);
     else
-        pdf_printf(pdf,"/Parent %d 0 R\n", parent);
-    pdf_printf(pdf,"/Count %d\n/Kids [", (int) p->number_of_pages);
+        pdf_printf(pdf, "/Parent %d 0 R\n", parent);
+    pdf_printf(pdf, "/Count %d\n/Kids [", (int) p->number_of_pages);
     for (i = 0; i < p->number_of_kids; i++)
-        pdf_printf(pdf,"%d 0 R ", (int) p->kids[i]);
+        pdf_printf(pdf, "%d 0 R ", (int) p->kids[i]);
     pdf_remove_last_space(pdf);
-    pdf_printf(pdf,"]\n");
+    pdf_printf(pdf, "]\n");
     pdf_end_dict(pdf);
 }
 
@@ -244,7 +244,7 @@ static integer output_pages_list(PDF pdf, pages_entry * pe)
     pages_entry *p, *q, *r;
     assert(pe != NULL);
     if (pe->next == NULL) {     /* everything fits into one pages_entry */
-        write_pages(pdf, pe, 0);     /* --> /Pages root found */
+        write_pages(pdf, pe, 0);        /* --> /Pages root found */
         return pe->objnum;
     }
     q = r = new_pages_entry();  /* one level higher needed */
@@ -257,7 +257,7 @@ static integer output_pages_list(PDF pdf, pages_entry * pe)
         q->number_of_pages += p->number_of_pages;
         write_pages(pdf, p, q->objnum);
     }
-    return output_pages_list(pdf, r);        /* recurse through next higher level */
+    return output_pages_list(pdf, r);   /* recurse through next higher level */
 }
 
 integer output_pages_tree(PDF pdf)

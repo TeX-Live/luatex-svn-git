@@ -378,7 +378,7 @@ static void goto_textmode(PDF pdf, pdfstructure * p)
     };
     if (!is_textmode(p)) {
         if (is_pagemode(p)) {
-            set_pos(pdf, p, &origin);        /* reset to page origin */
+            set_pos(pdf, p, &origin);   /* reset to page origin */
             begin_text(pdf, p);
         } else {
             if (is_charmode(p))
@@ -484,7 +484,7 @@ static void set_font(PDF pdf, pdfstructure * p)
 /**********************************************************************/
 
 static void
-place_glyph(PDF pdf, 
+place_glyph(PDF pdf,
             pdfstructure * p, scaledpos * pos, internal_font_number f,
             integer c)
 {
@@ -524,7 +524,7 @@ place_glyph(PDF pdf,
     }
     if (is_chararraymode(p))
         begin_charmode(pdf, p);
-    pdf_print_char(pdf, f, c);       /* this also does pdf_mark_char() */
+    pdf_print_char(pdf, f, c);  /* this also does pdf_mark_char() */
     p->cw.m += pdf_char_width(p, p->f_pdf, c);  /* aka adv_char_width() */
 }
 

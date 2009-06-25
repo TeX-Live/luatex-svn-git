@@ -45,8 +45,8 @@ output file in initialization to ensure that it will be the first
 written bytes.
 */
 
-#  define inf_pdf_op_buf_size 16384 /* size of the PDF output buffer */
-#  define sup_pdf_op_buf_size 16384 /* size of the PDF output buffer */
+#  define inf_pdf_op_buf_size 16384     /* size of the PDF output buffer */
+#  define sup_pdf_op_buf_size 16384     /* size of the PDF output buffer */
 #  define inf_pdf_os_buf_size 1 /* initial value of |pdf_os_buf_size| */
 #  define sup_pdf_os_buf_size 5000000   /* arbitrary upper hard limit of |pdf_os_buf_size| */
 #  define pdf_os_max_objs 100   /* maximum number of objects in object stream */
@@ -87,14 +87,14 @@ extern void initialize_pdf_output(PDF);
 extern void pdf_flush(PDF);
 extern void pdf_room(PDF, integer);
 
-#define check_pdfminorversion(A) do {          \
+#  define check_pdfminorversion(A) do {          \
     if (A==NULL) {                             \
       static_pdf = initialize_pdf();           \
       A = static_pdf;                          \
     }                                          \
     do_check_pdfminorversion(A);               \
   } while (0)
-    
+
 extern void do_check_pdfminorversion(PDF);
 
 extern void ensure_pdf_open(PDF);
@@ -142,8 +142,8 @@ extern void pdf_begin_stream(PDF);
 extern void pdf_end_stream(PDF);
 extern void pdf_remove_last_space(PDF);
 
-extern void pdf_print_bp(PDF,scaled);
-extern void pdf_print_mag_bp(PDF,scaled);
+extern void pdf_print_bp(PDF, scaled);
+extern void pdf_print_mag_bp(PDF, scaled);
 
 #  define set_ff(A)  do {                         \
         if (pdf_font_num(A) < 0)                \

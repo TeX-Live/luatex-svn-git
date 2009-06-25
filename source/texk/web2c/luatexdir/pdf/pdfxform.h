@@ -47,7 +47,7 @@
 
 extern halfword pdf_xform_list; /* list of forms in the current page */
 extern integer pdf_xform_count; /* counter of forms */
-extern integer pdf_cur_form; /* the form being output */
+extern integer pdf_cur_form;    /* the form being output */
 
 extern void output_form(PDF pdf, halfword p);
 

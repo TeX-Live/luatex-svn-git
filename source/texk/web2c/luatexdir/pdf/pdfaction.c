@@ -34,45 +34,45 @@ void write_action(PDF pdf, halfword p)
         pdf_print_toks_ln(pdf, pdf_action_tokens(p));
         return;
     }
-    pdf_printf(pdf,"<< ");
+    pdf_printf(pdf, "<< ");
     if (pdf_action_file(p) != null) {
-        pdf_printf(pdf,"/F ");
+        pdf_printf(pdf, "/F ");
         s = tokenlist_to_cstring(pdf_action_file(p), true, NULL);
         pdf_print_str(pdf, s);
         xfree(s);
-        pdf_printf(pdf," ");
+        pdf_printf(pdf, " ");
         if (pdf_action_new_window(p) > 0) {
-            pdf_printf(pdf,"/NewWindow ");
+            pdf_printf(pdf, "/NewWindow ");
             if (pdf_action_new_window(p) == 1)
-                pdf_printf(pdf,"true ");
+                pdf_printf(pdf, "true ");
             else
-                pdf_printf(pdf,"false ");
+                pdf_printf(pdf, "false ");
         }
     }
     switch (pdf_action_type(p)) {
     case pdf_action_page:
         if (pdf_action_file(p) == null) {
-            pdf_printf(pdf,"/S /GoTo /D [");
+            pdf_printf(pdf, "/S /GoTo /D [");
             pdf_print_int(pdf, get_obj(obj_type_page, pdf_action_id(p), false));
-            pdf_printf(pdf," 0 R");
+            pdf_printf(pdf, " 0 R");
         } else {
-            pdf_printf(pdf,"/S /GoToR /D [");
+            pdf_printf(pdf, "/S /GoToR /D [");
             pdf_print_int(pdf, pdf_action_id(p) - 1);
         }
         {
             char *tokstr =
                 tokenlist_to_cstring(pdf_action_tokens(p), true, NULL);
-            pdf_printf(pdf," %s]", tokstr);
+            pdf_printf(pdf, " %s]", tokstr);
             xfree(tokstr);
         }
         break;
     case pdf_action_goto:
         if (pdf_action_file(p) == null) {
-            pdf_printf(pdf,"/S /GoTo ");
+            pdf_printf(pdf, "/S /GoTo ");
             d = get_obj(obj_type_dest, pdf_action_id(p),
                         pdf_action_named_id(p));
         } else {
-            pdf_printf(pdf,"/S /GoToR ");
+            pdf_printf(pdf, "/S /GoToR ");
         }
         if (pdf_action_named_id(p) > 0) {
             char *tokstr = tokenlist_to_cstring(pdf_action_id(p), true, NULL);
@@ -87,7 +87,7 @@ void write_action(PDF pdf, halfword p)
         }
         break;
     case pdf_action_thread:
-        pdf_printf(pdf,"/S /Thread ");
+        pdf_printf(pdf, "/S /Thread ");
         if (pdf_action_file(p) == null) {
             d = get_obj(obj_type_thread, pdf_action_id(p),
                         pdf_action_named_id(p));
@@ -104,5 +104,5 @@ void write_action(PDF pdf, halfword p)
         }
         break;
     }
-    pdf_printf(pdf," >>\n");
+    pdf_printf(pdf, " >>\n");
 }

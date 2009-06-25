@@ -86,6 +86,6 @@ void pdf_print_charwidth(PDF pdf, internal_font_number f, int i);
 void pdf_print_cm(PDF pdf, pdffloat * cm);
 void pdf_set_pos(PDF pdf, scaled h, scaled v);
 void pos_finish(PDF pdf, pdfstructure * p);
-void print_pdffloat(PDF pdf, pdffloat *f);
+void print_pdffloat(PDF pdf, pdffloat * f);
 
 #endif

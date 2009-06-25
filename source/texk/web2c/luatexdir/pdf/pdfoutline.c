@@ -31,29 +31,29 @@ entries can't not be deallocated and will stay in memory. For this reason we
 will store data of outline entries in |pdf_mem| instead of |mem|
 */
 
-#  define pdfmem_outline_size      8    /* size of memory in |pdf_mem| which |obj_outline_ptr| points to */
+#define pdfmem_outline_size      8      /* size of memory in |pdf_mem| which |obj_outline_ptr| points to */
 
-#  define obj_outline_count         obj_info    /* count of all opened children */
-#  define obj_outline_ptr           obj_aux     /* pointer to |pdf_mem| */
-#  define obj_outline_title(A)      pdf_mem[obj_outline_ptr(A)]
-#  define obj_outline_parent(A)     pdf_mem[obj_outline_ptr(A) + 1]
-#  define obj_outline_prev(A)       pdf_mem[obj_outline_ptr(A) + 2]
-#  define obj_outline_next(A)       pdf_mem[obj_outline_ptr(A) + 3]
-#  define obj_outline_first(A)      pdf_mem[obj_outline_ptr(A) + 4]
-#  define obj_outline_last(A)       pdf_mem[obj_outline_ptr(A) + 5]
-#  define obj_outline_action_objnum(A)  pdf_mem[obj_outline_ptr(A) + 6] /* object number of action */
-#  define obj_outline_attr(A)       pdf_mem[obj_outline_ptr(A) + 7]
+#define obj_outline_count         obj_info      /* count of all opened children */
+#define obj_outline_ptr           obj_aux       /* pointer to |pdf_mem| */
+#define obj_outline_title(A)      pdf_mem[obj_outline_ptr(A)]
+#define obj_outline_parent(A)     pdf_mem[obj_outline_ptr(A) + 1]
+#define obj_outline_prev(A)       pdf_mem[obj_outline_ptr(A) + 2]
+#define obj_outline_next(A)       pdf_mem[obj_outline_ptr(A) + 3]
+#define obj_outline_first(A)      pdf_mem[obj_outline_ptr(A) + 4]
+#define obj_outline_last(A)       pdf_mem[obj_outline_ptr(A) + 5]
+#define obj_outline_action_objnum(A)  pdf_mem[obj_outline_ptr(A) + 6]   /* object number of action */
+#define obj_outline_attr(A)       pdf_mem[obj_outline_ptr(A) + 7]
 
-#  define set_obj_outline_ptr(A,B) obj_outline_ptr(A)=B
-#  define set_obj_outline_action_objnum(A,B) obj_outline_action_objnum(A)=B
-#  define set_obj_outline_count(A,B) obj_outline_count(A)=B
-#  define set_obj_outline_title(A,B) obj_outline_title(A)=B
-#  define set_obj_outline_prev(A,B) obj_outline_prev(A)=B
-#  define set_obj_outline_next(A,B) obj_outline_next(A)=B
-#  define set_obj_outline_first(A,B) obj_outline_first(A)=B
-#  define set_obj_outline_last(A,B) obj_outline_last(A)=B
-#  define set_obj_outline_parent(A,B) obj_outline_parent(A)=B
-#  define set_obj_outline_attr(A,B) obj_outline_attr(A)=B
+#define set_obj_outline_ptr(A,B) obj_outline_ptr(A)=B
+#define set_obj_outline_action_objnum(A,B) obj_outline_action_objnum(A)=B
+#define set_obj_outline_count(A,B) obj_outline_count(A)=B
+#define set_obj_outline_title(A,B) obj_outline_title(A)=B
+#define set_obj_outline_prev(A,B) obj_outline_prev(A)=B
+#define set_obj_outline_next(A,B) obj_outline_next(A)=B
+#define set_obj_outline_first(A,B) obj_outline_first(A)=B
+#define set_obj_outline_last(A,B) obj_outline_last(A)=B
+#define set_obj_outline_parent(A,B) obj_outline_parent(A)=B
+#define set_obj_outline_attr(A,B) obj_outline_attr(A)=B
 
 
 static integer pdf_first_outline = 0;
@@ -259,11 +259,12 @@ void scan_pdfoutline(PDF pdf)
 /* In the end we must flush PDF objects that cannot be written out
    immediately after shipping out pages. */
 
-integer print_outlines (PDF pdf) {
-    integer k,l,a;
+integer print_outlines(PDF pdf)
+{
+    integer k, l, a;
     integer outlines;
     if (pdf_first_outline != 0) {
-        pdf_new_dict(pdf,obj_type_others, 0, 1);
+        pdf_new_dict(pdf, obj_type_others, 0, 1);
         outlines = obj_ptr;
         l = pdf_first_outline;
         k = 0;
@@ -275,13 +276,13 @@ integer print_outlines (PDF pdf) {
             set_obj_outline_parent(l, obj_ptr);
             l = obj_outline_next(l);
         } while (l != 0);
-        pdf_printf(pdf,"/Type /Outlines\n");
-        pdf_indirect_ln(pdf,"First", pdf_first_outline);
-        pdf_indirect_ln(pdf,"Last", pdf_last_outline);
-        pdf_int_entry_ln(pdf,"Count", k);
+        pdf_printf(pdf, "/Type /Outlines\n");
+        pdf_indirect_ln(pdf, "First", pdf_first_outline);
+        pdf_indirect_ln(pdf, "Last", pdf_last_outline);
+        pdf_int_entry_ln(pdf, "Count", k);
         pdf_end_dict(pdf);
         /* Output PDF outline entries */
-        
+
         k = head_tab[obj_type_outline];
         while (k != 0) {
             if (obj_outline_parent(k) == pdf_parent_outline) {
@@ -290,23 +291,23 @@ integer print_outlines (PDF pdf) {
                 if (obj_outline_next(k) == 0)
                     pdf_last_outline = k;
             }
-            pdf_begin_dict(pdf,k, 1);
-            pdf_indirect_ln(pdf,"Title", obj_outline_title(k));
-            pdf_indirect_ln(pdf,"A", obj_outline_action_objnum(k));
+            pdf_begin_dict(pdf, k, 1);
+            pdf_indirect_ln(pdf, "Title", obj_outline_title(k));
+            pdf_indirect_ln(pdf, "A", obj_outline_action_objnum(k));
             if (obj_outline_parent(k) != 0)
-                pdf_indirect_ln(pdf,"Parent", obj_outline_parent(k));
+                pdf_indirect_ln(pdf, "Parent", obj_outline_parent(k));
             if (obj_outline_prev(k) != 0)
-                pdf_indirect_ln(pdf,"Prev", obj_outline_prev(k));
+                pdf_indirect_ln(pdf, "Prev", obj_outline_prev(k));
             if (obj_outline_next(k) != 0)
-                pdf_indirect_ln(pdf,"Next", obj_outline_next(k));
+                pdf_indirect_ln(pdf, "Next", obj_outline_next(k));
             if (obj_outline_first(k) != 0)
-                pdf_indirect_ln(pdf,"First", obj_outline_first(k));
+                pdf_indirect_ln(pdf, "First", obj_outline_first(k));
             if (obj_outline_last(k) != 0)
-                pdf_indirect_ln(pdf,"Last", obj_outline_last(k));
+                pdf_indirect_ln(pdf, "Last", obj_outline_last(k));
             if (obj_outline_count(k) != 0)
-                pdf_int_entry_ln(pdf,"Count", obj_outline_count(k));
+                pdf_int_entry_ln(pdf, "Count", obj_outline_count(k));
             if (obj_outline_attr(k) != 0) {
-                pdf_print_toks_ln(pdf,obj_outline_attr(k));
+                pdf_print_toks_ln(pdf, obj_outline_attr(k));
                 delete_token_ref(obj_outline_attr(k));
                 set_obj_outline_attr(k, null);
             }

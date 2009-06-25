@@ -23,12 +23,12 @@
 #  define PDFSHIPOUT_H
 
 extern integer page_divert_val;
-extern halfword pdf_info_toks; /* additional keys of Info dictionary */
-extern halfword pdf_catalog_toks; /* additional keys of Catalog dictionary */
+extern halfword pdf_info_toks;  /* additional keys of Info dictionary */
+extern halfword pdf_catalog_toks;       /* additional keys of Catalog dictionary */
 extern halfword pdf_catalog_openaction;
 extern halfword pdf_names_toks; /* additional keys of Names dictionary */
-extern halfword pdf_trailer_toks; /* additional keys of Trailer dictionary */
-extern boolean is_shipping_page; /* set to |shipping_page| when |pdf_ship_out| starts */
+extern halfword pdf_trailer_toks;       /* additional keys of Trailer dictionary */
+extern boolean is_shipping_page;        /* set to |shipping_page| when |pdf_ship_out| starts */
 
 extern void fix_pdfoutput(void);
 extern void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page);

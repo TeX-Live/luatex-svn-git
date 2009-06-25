@@ -25,8 +25,8 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
-halfword pdf_obj_list; /* list of objects in the current page */
-integer pdf_obj_count; /* counter of objects */
+halfword pdf_obj_list;          /* list of objects in the current page */
+integer pdf_obj_count;          /* counter of objects */
 integer pdf_last_obj;
 
 
@@ -133,12 +133,14 @@ void pdf_write_obj(PDF pdf, integer n)
    immediately. Objects referenced in the current page are appended into
    |pdf_obj_list|. */
 
-void scan_obj (void) 
+void scan_obj(void)
 {
     integer k;
     if (scan_keyword("reserveobjnum")) {
         /* Scan an optional space */
-        get_x_token(); if (cur_cmd!=spacer_cmd) back_input();
+        get_x_token();
+        if (cur_cmd != spacer_cmd)
+            back_input();
         incr(pdf_obj_count);
         pdf_create_obj(obj_type_obj, pdf_obj_count);
         pdf_last_obj = obj_ptr;
@@ -148,11 +150,12 @@ void scan_obj (void)
             scan_int();
             k = cur_val;
             if ((k <= 0) || (k > obj_ptr) || (obj_data_ptr(k) != 0)) {
-                pdf_warning(maketexstring("\\pdfobj"), 
-                            maketexstring("invalid object number being ignored"), 
-                            true, true);
-                pdf_retval = -1; /* signal the problem */
-                k = -1; /* will be generated again */
+                pdf_warning(maketexstring("\\pdfobj"),
+                            maketexstring
+                            ("invalid object number being ignored"), true,
+                            true);
+                pdf_retval = -1;        /* signal the problem */
+                k = -1;         /* will be generated again */
             }
         }
         if (k < 0) {
@@ -172,7 +175,7 @@ void scan_obj (void)
         } else {
             set_obj_obj_is_stream(k, 0);
         }
-        if (scan_keyword("file")) 
+        if (scan_keyword("file"))
             set_obj_obj_is_file(k, 1);
         else
             set_obj_obj_is_file(k, 0);

@@ -29,7 +29,7 @@ static const char __svn_version[] =
 #define font_id_text(A) text(font_id_base+(A))  /* a frozen font identifier's name */
 #define define(A,B,C) do { if (a>=4) geq_define(A,B,C); else eq_define(A,B,C); } while (0)
 
-integer pk_dpi; /* PK pixel density value from \.{texmf.cnf} */
+integer pk_dpi;                 /* PK pixel density value from \.{texmf.cnf} */
 
 /*
 As \pdfTeX{} should also act as a back-end driver, it needs to support virtual

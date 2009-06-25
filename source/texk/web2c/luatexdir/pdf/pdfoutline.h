@@ -24,7 +24,6 @@
 
 extern halfword scan_action(void);
 extern void scan_pdfoutline(PDF pdf);
-extern integer print_outlines (PDF pdf);
+extern integer print_outlines(PDF pdf);
 
 #endif
-

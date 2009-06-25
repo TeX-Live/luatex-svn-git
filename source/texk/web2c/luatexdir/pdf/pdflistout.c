@@ -23,22 +23,22 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
-static void latelua (PDF pdf, halfword s,  halfword r)
+static void latelua(PDF pdf, halfword s, halfword r)
 {
-    pool_pointer b; /* current character code position */
+    pool_pointer b;             /* current character code position */
     b = pool_ptr;
-    luacall(s,r);
-    if (b<pool_ptr) {
+    luacall(s, r);
+    if (b < pool_ptr) {
         pdf_goto_pagemode(pdf);
-        while (b<pool_ptr) {
-            pdf_out(pdf,str_pool[b]);
+        while (b < pool_ptr) {
+            pdf_out(pdf, str_pool[b]);
             incr(b);
         }
         pdf_print_nl(pdf);
     }
 }
 
-static void do_late_lua (PDF pdf, halfword p) 
+static void do_late_lua(PDF pdf, halfword p)
 {
     if (!doing_leaders) {
         expand_macros_in_tokenlist(p);

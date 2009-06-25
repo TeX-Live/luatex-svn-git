@@ -23,7 +23,7 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
-halfword pdf_annot_list; /* list of annotations in the current page */
+halfword pdf_annot_list;        /* list of annotations in the current page */
 
 void do_annot(halfword p, halfword parent_box, scaled x, scaled y)
 {

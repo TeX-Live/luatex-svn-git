@@ -52,12 +52,12 @@ static const char __svn_version[] =
 
 integer page_divert_val;
 
-halfword pdf_info_toks; /* additional keys of Info dictionary */
-halfword pdf_catalog_toks; /* additional keys of Catalog dictionary */
+halfword pdf_info_toks;         /* additional keys of Info dictionary */
+halfword pdf_catalog_toks;      /* additional keys of Catalog dictionary */
 halfword pdf_catalog_openaction;
-halfword pdf_names_toks; /* additional keys of Names dictionary */
-halfword pdf_trailer_toks; /* additional keys of Trailer dictionary */
-boolean is_shipping_page; /* set to |shipping_page| when |pdf_ship_out| starts */
+halfword pdf_names_toks;        /* additional keys of Names dictionary */
+halfword pdf_trailer_toks;      /* additional keys of Trailer dictionary */
+boolean is_shipping_page;       /* set to |shipping_page| when |pdf_ship_out| starts */
 
 /*
 |fix_pdfoutput| freezes |fixed_pdfoutput| as soon as anything has been written
@@ -331,34 +331,34 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     pdf_page_init(pdf);
 
     if (!shipping_page) {
-        pdf_begin_dict(pdf,pdf_cur_form, 0);
+        pdf_begin_dict(pdf, pdf_cur_form, 0);
         pdf_last_stream = pdf_cur_form;
 
         /* Write out Form stream header */
-        pdf_printf(pdf,"/Type /XObject\n");
-        pdf_printf(pdf,"/Subtype /Form\n");
+        pdf_printf(pdf, "/Type /XObject\n");
+        pdf_printf(pdf, "/Subtype /Form\n");
         if (obj_xform_attr(pdf_cur_form) != null) {
-            pdf_print_toks_ln(pdf,obj_xform_attr(pdf_cur_form));
+            pdf_print_toks_ln(pdf, obj_xform_attr(pdf_cur_form));
             delete_token_ref(obj_xform_attr(pdf_cur_form));
             set_obj_xform_attr(pdf_cur_form, null);
         }
-        pdf_printf(pdf,"/BBox [");
-        pdf_print_bp(pdf,-form_margin);
-        pdf_out(pdf,' ');
-        pdf_print_bp(pdf,-form_margin);
-        pdf_out(pdf,' ');
-        pdf_print_bp(pdf,cur_page_size.h + form_margin);
-        pdf_out(pdf,' ');
-        pdf_print_bp(pdf,cur_page_size.v + form_margin);
-        pdf_printf(pdf,"]\n");
-        pdf_printf(pdf,"/FormType 1\n");
-        pdf_printf(pdf,"/Matrix [1 0 0 1 0 0]\n");
-        pdf_indirect_ln(pdf,"Resources", pdf_last_resources);
+        pdf_printf(pdf, "/BBox [");
+        pdf_print_bp(pdf, -form_margin);
+        pdf_out(pdf, ' ');
+        pdf_print_bp(pdf, -form_margin);
+        pdf_out(pdf, ' ');
+        pdf_print_bp(pdf, cur_page_size.h + form_margin);
+        pdf_out(pdf, ' ');
+        pdf_print_bp(pdf, cur_page_size.v + form_margin);
+        pdf_printf(pdf, "]\n");
+        pdf_printf(pdf, "/FormType 1\n");
+        pdf_printf(pdf, "/Matrix [1 0 0 1 0 0]\n");
+        pdf_indirect_ln(pdf, "Resources", pdf_last_resources);
 
     } else {
         pdf_last_page = get_obj(obj_type_page, total_pages + 1, 0);
         set_obj_aux(pdf_last_page, 1);  /* mark that this page has been created */
-        pdf_new_dict(pdf,obj_type_others, 0, 0);
+        pdf_new_dict(pdf, obj_type_others, 0, 0);
         pdf_last_stream = obj_ptr;
         /* Reset PDF mark lists */
         pdf_annot_list = null;
@@ -373,9 +373,9 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         prepare_mag();
         if (mag != 1000) {
             pdf_print_real(pdf, mag, 3);
-            pdf_printf(pdf," 0 0 ");
+            pdf_printf(pdf, " 0 0 ");
             pdf_print_real(pdf, mag, 3);
-            pdf_printf(pdf," 0 0 cm\n");
+            pdf_printf(pdf, " 0 0 cm\n");
         }
     }
     pdfshipoutbegin(shipping_page);
@@ -400,39 +400,39 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     if (shipping_page) {
         /* Write out page object */
 
-        pdf_begin_dict(pdf,pdf_last_page, 1);
+        pdf_begin_dict(pdf, pdf_last_page, 1);
         pdf_last_pages = pdf_do_page_divert(pdf_last_page, page_divert_val);
-        pdf_printf(pdf,"/Type /Page\n");
-        pdf_indirect_ln(pdf,"Contents", pdf_last_stream);
-        pdf_indirect_ln(pdf,"Resources", pdf_last_resources);
-        pdf_printf(pdf,"/MediaBox [0 0 ");
-        pdf_print_mag_bp(pdf,cur_page_size.h);
-        pdf_out(pdf,' ');
-        pdf_print_mag_bp(pdf,cur_page_size.v);
-        pdf_printf(pdf,"]\n");
+        pdf_printf(pdf, "/Type /Page\n");
+        pdf_indirect_ln(pdf, "Contents", pdf_last_stream);
+        pdf_indirect_ln(pdf, "Resources", pdf_last_resources);
+        pdf_printf(pdf, "/MediaBox [0 0 ");
+        pdf_print_mag_bp(pdf, cur_page_size.h);
+        pdf_out(pdf, ' ');
+        pdf_print_mag_bp(pdf, cur_page_size.v);
+        pdf_printf(pdf, "]\n");
         if (pdf_page_attr != null)
-            pdf_print_toks_ln(pdf,pdf_page_attr);
-        pdf_indirect_ln(pdf,"Parent", pdf_last_pages);
+            pdf_print_toks_ln(pdf, pdf_page_attr);
+        pdf_indirect_ln(pdf, "Parent", pdf_last_pages);
         if (pdf_page_group_val > 0) {
-            pdf_printf(pdf,"/Group %d 0 R\n", (int) pdf_page_group_val);
+            pdf_printf(pdf, "/Group %d 0 R\n", (int) pdf_page_group_val);
             pdf_page_group_val = -1;
         }
         /* Generate array of annotations or beads in page */
         if ((pdf_annot_list != null) || (pdf_link_list != null)) {
-            pdf_printf(pdf,"/Annots [ ");
+            pdf_printf(pdf, "/Annots [ ");
             k = pdf_annot_list;
             while (k != null) {
-                pdf_print_int(pdf,info(k));
-                pdf_printf(pdf," 0 R ");
+                pdf_print_int(pdf, info(k));
+                pdf_printf(pdf, " 0 R ");
                 k = link(k);
             }
             k = pdf_link_list;
             while (k != null) {
-                pdf_print_int(pdf,info(k));
-                pdf_printf(pdf," 0 R ");
+                pdf_print_int(pdf, info(k));
+                pdf_printf(pdf, " 0 R ");
                 k = link(k);
             }
-            pdf_printf(pdf,"]\n");
+            pdf_printf(pdf, "]\n");
         }
         print_beads_list(pdf);
         pdf_end_dict(pdf);
@@ -444,7 +444,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         k = pdf_obj_list;
         while (k != null) {
             if (!is_obj_written(info(k)))
-                pdf_write_obj(pdf,info(k));
+                pdf_write_obj(pdf, info(k));
             k = link(k);
         }
     }
@@ -503,9 +503,9 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
             k = pdf_annot_list;
             while (k != null) {
                 i = obj_annot_ptr(info(k));     /* |i| points to |pdf_annot_node| */
-                pdf_begin_dict(pdf,info(k), 1);
-                pdf_printf(pdf,"/Type /Annot\n");
-                pdf_print_toks_ln(pdf,pdf_annot_data(i));
+                pdf_begin_dict(pdf, info(k), 1);
+                pdf_printf(pdf, "/Type /Annot\n");
+                pdf_print_toks_ln(pdf, pdf_annot_data(i));
                 pdf_rectangle(pdf, i);
                 pdf_end_dict(pdf);
                 k = link(k);
@@ -517,15 +517,15 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
             k = pdf_link_list;
             while (k != null) {
                 i = obj_annot_ptr(info(k));
-                pdf_begin_dict(pdf,info(k), 1);
-                pdf_printf(pdf,"/Type /Annot\n");
+                pdf_begin_dict(pdf, info(k), 1);
+                pdf_printf(pdf, "/Type /Annot\n");
                 if (pdf_action_type(pdf_link_action(i)) != pdf_action_user)
-                    pdf_printf(pdf,"/Subtype /Link\n");
+                    pdf_printf(pdf, "/Subtype /Link\n");
                 if (pdf_link_attr(i) != null)
-                    pdf_print_toks_ln(pdf,pdf_link_attr(i));
+                    pdf_print_toks_ln(pdf, pdf_link_attr(i));
                 pdf_rectangle(pdf, i);
                 if (pdf_action_type(pdf_link_action(i)) != pdf_action_user)
-                    pdf_printf(pdf,"/A ");
+                    pdf_printf(pdf, "/A ");
                 write_action(pdf, pdf_link_action(i));
                 pdf_end_dict(pdf);
                 k = link(k);
@@ -549,14 +549,14 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
 
     }
     /* Write out resources dictionary */
-    pdf_begin_dict(pdf,pdf_last_resources, 1);
+    pdf_begin_dict(pdf, pdf_last_resources, 1);
     /* Print additional resources */
     if (shipping_page) {
         if (pdf_page_resources != null)
-            pdf_print_toks_ln(pdf,pdf_page_resources);
+            pdf_print_toks_ln(pdf, pdf_page_resources);
     } else {
         if (obj_xform_resources(pdf_cur_form) != null) {
-            pdf_print_toks_ln(pdf,obj_xform_resources(pdf_cur_form));
+            pdf_print_toks_ln(pdf, obj_xform_resources(pdf_cur_form));
             delete_token_ref(obj_xform_resources(pdf_cur_form));
             set_obj_xform_resources(pdf_cur_form, null);
         }
@@ -564,60 +564,60 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
 
     /* Generate font resources */
     if (pdf_font_list != null) {
-        pdf_printf(pdf,"/Font << ");
+        pdf_printf(pdf, "/Font << ");
         k = pdf_font_list;
         while (k != null) {
-            pdf_printf(pdf,"/F");
+            pdf_printf(pdf, "/F");
             set_ff(info(k));
-            pdf_print_int(pdf,ff);
+            pdf_print_int(pdf, ff);
             pdf_print_resname_prefix(pdf);
-            pdf_out(pdf,' ');
-            pdf_print_int(pdf,pdf_font_num(ff));
-            pdf_printf(pdf," 0 R ");
+            pdf_out(pdf, ' ');
+            pdf_print_int(pdf, pdf_font_num(ff));
+            pdf_printf(pdf, " 0 R ");
             k = link(k);
         }
-        pdf_printf(pdf,">>\n");
+        pdf_printf(pdf, ">>\n");
         pdf_text_procset = true;
     }
 
     /* Generate XObject resources */
     if ((pdf_xform_list != null) || (pdf_ximage_list != null)) {
-        pdf_printf(pdf,"/XObject << ");
+        pdf_printf(pdf, "/XObject << ");
         k = pdf_xform_list;
         while (k != null) {
-            pdf_printf(pdf,"/Fm");
-            pdf_print_int(pdf,obj_info(info(k)));
+            pdf_printf(pdf, "/Fm");
+            pdf_print_int(pdf, obj_info(info(k)));
             pdf_print_resname_prefix(pdf);
-            pdf_out(pdf,' ');
-            pdf_print_int(pdf,info(k));
-            pdf_printf(pdf," 0 R ");
+            pdf_out(pdf, ' ');
+            pdf_print_int(pdf, info(k));
+            pdf_printf(pdf, " 0 R ");
             k = link(k);
         }
         k = pdf_ximage_list;
         while (k != null) {
-            pdf_printf(pdf,"/Im");
-            pdf_print_int(pdf,image_index(obj_data_ptr(info(k))));
+            pdf_printf(pdf, "/Im");
+            pdf_print_int(pdf, image_index(obj_data_ptr(info(k))));
             pdf_print_resname_prefix(pdf);
-            pdf_out(pdf,' ');
-            pdf_print_int(pdf,info(k));
-            pdf_printf(pdf," 0 R ");
+            pdf_out(pdf, ' ');
+            pdf_print_int(pdf, info(k));
+            pdf_printf(pdf, " 0 R ");
             update_image_procset(obj_data_ptr(info(k)));
             k = link(k);
         }
-        pdf_printf(pdf,">>\n");
+        pdf_printf(pdf, ">>\n");
     }
 
     /* Generate ProcSet */
-    pdf_printf(pdf,"/ProcSet [ /PDF");
+    pdf_printf(pdf, "/ProcSet [ /PDF");
     if (pdf_text_procset)
-        pdf_printf(pdf," /Text");
+        pdf_printf(pdf, " /Text");
     if (check_image_b(pdf_image_procset))
-        pdf_printf(pdf," /ImageB");
+        pdf_printf(pdf, " /ImageB");
     if (check_image_c(pdf_image_procset))
-        pdf_printf(pdf," /ImageC");
+        pdf_printf(pdf, " /ImageC");
     if (check_image_i(pdf_image_procset))
-        pdf_printf(pdf," /ImageI");
-    pdf_printf(pdf," ]\n");
+        pdf_printf(pdf, " /ImageI");
+    pdf_printf(pdf, " ]\n");
 
     pdf_end_dict(pdf);
 
@@ -634,7 +634,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         /* Flush PDF mark lists */
         flush_list(pdf_annot_list);
         flush_list(pdf_link_list);
-        flush_dest_list(); 
+        flush_dest_list();
         flush_beads_list();
     }
 
@@ -716,16 +716,16 @@ void pdf_fix_dest(PDF pdf, integer k)
     print_ln();
     print_ln();
     pdf_begin_obj(pdf, k, 1);
-    pdf_out(pdf,'[');
-    pdf_print_int(pdf,head_tab[obj_type_page]);
-    pdf_printf(pdf," 0 R /Fit]\n");
+    pdf_out(pdf, '[');
+    pdf_print_int(pdf, head_tab[obj_type_page]);
+    pdf_printf(pdf, " 0 R /Fit]\n");
     pdf_end_obj(pdf);
 }
 
 void print_pdf_pages_attr(PDF pdf)
 {
     if (pdf_pages_attr != null)
-        pdf_print_toks_ln(pdf,pdf_pages_attr);
+        pdf_print_toks_ln(pdf, pdf_pages_attr);
 }
 
 /*
@@ -748,7 +748,7 @@ void pdf_print_info(PDF pdf, integer luatex_version, str_number luatex_revision)
         trapped_given;
     char *s = NULL;
     int len = 0;
-    pdf_new_dict(pdf,obj_type_others, 0, 3);        /* keep Info readable unless explicitely forced */
+    pdf_new_dict(pdf, obj_type_others, 0, 3);   /* keep Info readable unless explicitely forced */
     creator_given = false;
     producer_given = false;
     creationdate_given = false;
@@ -764,25 +764,25 @@ void pdf_print_info(PDF pdf, integer luatex_version, str_number luatex_revision)
     }
     if (!producer_given) {
         /* Print the Producer key */
-        pdf_printf(pdf,"/Producer (LuaTeX-");
-        pdf_print_int(pdf,luatex_version / 100);
-        pdf_out(pdf,'.');
-        pdf_print_int(pdf,luatex_version % 100);
-        pdf_out(pdf,'.');
+        pdf_printf(pdf, "/Producer (LuaTeX-");
+        pdf_print_int(pdf, luatex_version / 100);
+        pdf_out(pdf, '.');
+        pdf_print_int(pdf, luatex_version % 100);
+        pdf_out(pdf, '.');
         pdf_print(pdf, luatex_revision);
-        pdf_printf(pdf,")\n");
+        pdf_printf(pdf, ")\n");
 
     }
     if (pdf_info_toks != null) {
         if (len > 0) {
-            pdf_printf(pdf,"%s\n", s);
+            pdf_printf(pdf, "%s\n", s);
             xfree(s);
         }
         delete_token_ref(pdf_info_toks);
         pdf_info_toks = null;
     }
     if (!creator_given)
-        pdf_str_entry_ln(pdf,"Creator", "TeX");
+        pdf_str_entry_ln(pdf, "Creator", "TeX");
     if (!creationdate_given) {
         print_creation_date(pdf);
     }
@@ -790,9 +790,9 @@ void pdf_print_info(PDF pdf, integer luatex_version, str_number luatex_revision)
         print_mod_date(pdf);
     }
     if (!trapped_given) {
-        pdf_printf(pdf,"/Trapped /False\n");
+        pdf_printf(pdf, "/Trapped /False\n");
     }
-    pdf_str_entry_ln(pdf,"PTEX.Fullbanner", makecstring(pdftex_banner));
+    pdf_str_entry_ln(pdf, "PTEX.Fullbanner", makecstring(pdftex_banner));
     pdf_end_dict(pdf);
 }
 
@@ -816,7 +816,8 @@ Now the finish of PDF output file. At this moment all Page objects
 are already written completely to PDF output file.
 */
 
-void finish_pdf_file(PDF pdf, integer luatex_version, str_number luatex_revision)
+void finish_pdf_file(PDF pdf, integer luatex_version,
+                     str_number luatex_revision)
 {
     boolean is_names;           /* flag for name tree output: is it Names or Kids? */
     boolean res;
@@ -835,8 +836,8 @@ void finish_pdf_file(PDF pdf, integer luatex_version, str_number luatex_revision
             garbage_warning();
     } else {
         if (pdf->draftmode == 0) {
-            pdf_flush(pdf);        /* to make sure that the output file name has been already created */
-            flush_jbig2_page0_objects(pdf);        /* flush page 0 objects from JBIG2 images, if any */
+            pdf_flush(pdf);     /* to make sure that the output file name has been already created */
+            flush_jbig2_page0_objects(pdf);     /* flush page 0 objects from JBIG2 images, if any */
             /* Check for non-existing pages */
             k = head_tab[obj_type_page];
             while (obj_aux(k) == 0) {
@@ -937,22 +938,23 @@ void finish_pdf_file(PDF pdf, integer luatex_version, str_number luatex_revision
                     }
                     set_obj_link(names_tail, 0);
                     /* Output the current node in this level */
-                    pdf_begin_dict(pdf,l, 1);
+                    pdf_begin_dict(pdf, l, 1);
                     j = 0;
                     if (is_names) {
                         set_obj_info(l, dest_names[k].objname);
-                        pdf_printf(pdf,"/Names [");
+                        pdf_printf(pdf, "/Names [");
                         do {
-                            pdf_print_str(pdf, makecstring(dest_names[k].objname));
-                            pdf_out(pdf,' ');
-                            pdf_print_int(pdf,dest_names[k].objnum);
-                            pdf_printf(pdf," 0 R ");
+                            pdf_print_str(pdf,
+                                          makecstring(dest_names[k].objname));
+                            pdf_out(pdf, ' ');
+                            pdf_print_int(pdf, dest_names[k].objnum);
+                            pdf_printf(pdf, " 0 R ");
                             incr(j);
                             incr(k);
                         } while (!((j == name_tree_kids_max)
                                    || (k == pdf_dest_names_ptr)));
                         pdf_remove_last_space(pdf);
-                        pdf_printf(pdf,"]\n");
+                        pdf_printf(pdf, "]\n");
                         set_obj_aux(l, dest_names[k - 1].objname);
                         if (k == pdf_dest_names_ptr) {
                             is_names = false;
@@ -961,25 +963,25 @@ void finish_pdf_file(PDF pdf, integer luatex_version, str_number luatex_revision
                         }
                     } else {
                         set_obj_info(l, obj_info(k));
-                        pdf_printf(pdf,"/Kids [");
+                        pdf_printf(pdf, "/Kids [");
                         do {
-                            pdf_print_int(pdf,k);
-                            pdf_printf(pdf," 0 R ");
+                            pdf_print_int(pdf, k);
+                            pdf_printf(pdf, " 0 R ");
                             incr(j);
                             set_obj_aux(l, obj_aux(k));
                             k = obj_link(k);
                         } while (!((j == name_tree_kids_max) || (k == b)
                                    || (obj_link(k) == 0)));
                         pdf_remove_last_space(pdf);
-                        pdf_printf(pdf,"]\n");
+                        pdf_printf(pdf, "]\n");
                         if (k == b)
                             b = 0;
                     }
-                    pdf_printf(pdf,"/Limits [");
+                    pdf_printf(pdf, "/Limits [");
                     pdf_print_str(pdf, makecstring(obj_info(l)));
-                    pdf_out(pdf,' ');
+                    pdf_out(pdf, ' ');
                     pdf_print_str(pdf, makecstring(obj_aux(l)));
-                    pdf_printf(pdf,"]\n");
+                    pdf_printf(pdf, "]\n");
                     pdf_end_dict(pdf);
 
                 } while (b != 0);
@@ -990,11 +992,11 @@ void finish_pdf_file(PDF pdf, integer luatex_version, str_number luatex_revision
             } while (true);
           DONE1:
             if ((dests != 0) || (pdf_names_toks != null)) {
-                pdf_new_dict(pdf,obj_type_others, 0, 1);
+                pdf_new_dict(pdf, obj_type_others, 0, 1);
                 if (dests != 0)
-                    pdf_indirect_ln(pdf,"Dests", dests);
+                    pdf_indirect_ln(pdf, "Dests", dests);
                 if (pdf_names_toks != null) {
-                    pdf_print_toks_ln(pdf,pdf_names_toks);
+                    pdf_print_toks_ln(pdf, pdf_names_toks);
                     delete_token_ref(pdf_names_toks);
                     pdf_names_toks = null;
                 }
@@ -1008,15 +1010,15 @@ void finish_pdf_file(PDF pdf, integer luatex_version, str_number luatex_revision
             if (head_tab[obj_type_thread] != 0) {
                 pdf_new_obj(pdf, obj_type_others, 0, 1);
                 threads = obj_ptr;
-                pdf_out(pdf,'[');
+                pdf_out(pdf, '[');
                 k = head_tab[obj_type_thread];
                 while (k != 0) {
-                    pdf_print_int(pdf,k);
-                    pdf_printf(pdf," 0 R ");
+                    pdf_print_int(pdf, k);
+                    pdf_printf(pdf, " 0 R ");
                     k = obj_link(k);
                 }
                 pdf_remove_last_space(pdf);
-                pdf_printf(pdf,"]\n");
+                pdf_printf(pdf, "]\n");
                 pdf_end_obj(pdf);
                 k = head_tab[obj_type_thread];
                 while (k != 0) {
@@ -1028,34 +1030,34 @@ void finish_pdf_file(PDF pdf, integer luatex_version, str_number luatex_revision
             }
 
             /* Output the catalog object */
-            pdf_new_dict(pdf,obj_type_others, 0, 1);
+            pdf_new_dict(pdf, obj_type_others, 0, 1);
             root = obj_ptr;
-            pdf_printf(pdf,"/Type /Catalog\n");
-            pdf_indirect_ln(pdf,"Pages", pdf_last_pages);
+            pdf_printf(pdf, "/Type /Catalog\n");
+            pdf_indirect_ln(pdf, "Pages", pdf_last_pages);
             if (threads != 0)
-                pdf_indirect_ln(pdf,"Threads", threads);
+                pdf_indirect_ln(pdf, "Threads", threads);
             if (outlines != 0)
-                pdf_indirect_ln(pdf,"Outlines", outlines);
+                pdf_indirect_ln(pdf, "Outlines", outlines);
             if (names_tree != 0)
-                pdf_indirect_ln(pdf,"Names", names_tree);
+                pdf_indirect_ln(pdf, "Names", names_tree);
             if (pdf_catalog_toks != null) {
-                pdf_print_toks_ln(pdf,pdf_catalog_toks);
+                pdf_print_toks_ln(pdf, pdf_catalog_toks);
                 delete_token_ref(pdf_catalog_toks);
                 pdf_catalog_toks = null;
             }
             if (pdf_catalog_openaction != 0)
-                pdf_indirect_ln(pdf,"OpenAction", pdf_catalog_openaction);
+                pdf_indirect_ln(pdf, "OpenAction", pdf_catalog_openaction);
             pdf_end_dict(pdf);
 
-            pdf_print_info(pdf, luatex_version, luatex_revision);    /* last candidate for object stream */
+            pdf_print_info(pdf, luatex_version, luatex_revision);       /* last candidate for object stream */
 
             if (pdf->os_enable) {
-                pdf_os_switch(pdf,true);
+                pdf_os_switch(pdf, true);
                 pdf_os_write_objstream(pdf);
                 pdf_flush(pdf);
-                pdf_os_switch(pdf,false);
+                pdf_os_switch(pdf, false);
                 /* Output the cross-reference stream dictionary */
-                pdf_new_dict(pdf,obj_type_others, 0, 0);
+                pdf_new_dict(pdf, obj_type_others, 0, 0);
                 if ((obj_offset(sys_obj_ptr) / 256) > 16777215)
                     xref_offset_width = 5;
                 else if (obj_offset(sys_obj_ptr) > 16777215)
@@ -1066,18 +1068,18 @@ void finish_pdf_file(PDF pdf, integer luatex_version, str_number luatex_revision
                     xref_offset_width = 2;
                 /* Build a linked list of free objects */
                 build_free_object_list();
-                pdf_printf(pdf,"/Type /XRef\n");
-                pdf_printf(pdf,"/Index [0 ");
-                pdf_print_int(pdf,obj_ptr);
-                pdf_printf(pdf,"]\n");
-                pdf_int_entry_ln(pdf,"Size", obj_ptr);
-                pdf_printf(pdf,"/W [1 ");
-                pdf_print_int(pdf,xref_offset_width);
-                pdf_printf(pdf," 1]\n");
-                pdf_indirect_ln(pdf,"Root", root);
-                pdf_indirect_ln(pdf,"Info", obj_ptr - 1);
+                pdf_printf(pdf, "/Type /XRef\n");
+                pdf_printf(pdf, "/Index [0 ");
+                pdf_print_int(pdf, obj_ptr);
+                pdf_printf(pdf, "]\n");
+                pdf_int_entry_ln(pdf, "Size", obj_ptr);
+                pdf_printf(pdf, "/W [1 ");
+                pdf_print_int(pdf, xref_offset_width);
+                pdf_printf(pdf, " 1]\n");
+                pdf_indirect_ln(pdf, "Root", root);
+                pdf_indirect_ln(pdf, "Info", obj_ptr - 1);
                 if (pdf_trailer_toks != null) {
-                    pdf_print_toks_ln(pdf,pdf_trailer_toks);
+                    pdf_print_toks_ln(pdf, pdf_trailer_toks);
                     delete_token_ref(pdf_trailer_toks);
                     pdf_trailer_toks = null;
                 }
@@ -1086,17 +1088,17 @@ void finish_pdf_file(PDF pdf, integer luatex_version, str_number luatex_revision
                 pdf_begin_stream(pdf);
                 for (k = 0; k <= sys_obj_ptr; k++) {
                     if (!is_obj_written(k)) {   /* a free object */
-                        pdf_out(pdf,0);
-                        pdf_out_bytes(pdf,obj_link(k), xref_offset_width);
-                        pdf_out(pdf,255);
+                        pdf_out(pdf, 0);
+                        pdf_out_bytes(pdf, obj_link(k), xref_offset_width);
+                        pdf_out(pdf, 255);
                     } else if (obj_os_idx(k) == -1) {   /* object not in object stream */
-                        pdf_out(pdf,1);
-                        pdf_out_bytes(pdf,obj_offset(k), xref_offset_width);
-                        pdf_out(pdf,0);
+                        pdf_out(pdf, 1);
+                        pdf_out_bytes(pdf, obj_offset(k), xref_offset_width);
+                        pdf_out(pdf, 0);
                     } else {    /* object in object stream */
-                        pdf_out(pdf,2);
-                        pdf_out_bytes(pdf,obj_offset(k), xref_offset_width);
-                        pdf_out(pdf,obj_os_idx(k));
+                        pdf_out(pdf, 2);
+                        pdf_out_bytes(pdf, obj_offset(k), xref_offset_width);
+                        pdf_out(pdf, obj_os_idx(k));
                     }
                 }
                 pdf_end_stream(pdf);
@@ -1108,18 +1110,18 @@ void finish_pdf_file(PDF pdf, integer luatex_version, str_number luatex_revision
                 build_free_object_list();
 
                 pdf_save_offset(pdf);
-                pdf_printf(pdf,"xref\n");
-                pdf_printf(pdf,"0 ");
-                pdf_print_int_ln(pdf,obj_ptr + 1);
-                pdf_print_fw_int(pdf,obj_link(0), 10);
-                pdf_printf(pdf," 65535 f \n");
+                pdf_printf(pdf, "xref\n");
+                pdf_printf(pdf, "0 ");
+                pdf_print_int_ln(pdf, obj_ptr + 1);
+                pdf_print_fw_int(pdf, obj_link(0), 10);
+                pdf_printf(pdf, " 65535 f \n");
                 for (k = 1; k <= obj_ptr; k++) {
                     if (!is_obj_written(k)) {
-                        pdf_print_fw_int(pdf,obj_link(k), 10);
-                        pdf_printf(pdf," 00000 f \n");
+                        pdf_print_fw_int(pdf, obj_link(k), 10);
+                        pdf_printf(pdf, " 00000 f \n");
                     } else {
-                        pdf_print_fw_int(pdf,obj_offset(k), 10);
-                        pdf_printf(pdf," 00000 n \n");
+                        pdf_print_fw_int(pdf, obj_offset(k), 10);
+                        pdf_printf(pdf, " 00000 n \n");
                     }
                 }
 
@@ -1127,25 +1129,25 @@ void finish_pdf_file(PDF pdf, integer luatex_version, str_number luatex_revision
 
             /* Output the trailer */
             if (!pdf->os_enable) {
-                pdf_printf(pdf,"trailer\n");
-                pdf_printf(pdf,"<< ");
-                pdf_int_entry_ln(pdf,"Size", sys_obj_ptr + 1);
-                pdf_indirect_ln(pdf,"Root", root);
-                pdf_indirect_ln(pdf,"Info", sys_obj_ptr);
+                pdf_printf(pdf, "trailer\n");
+                pdf_printf(pdf, "<< ");
+                pdf_int_entry_ln(pdf, "Size", sys_obj_ptr + 1);
+                pdf_indirect_ln(pdf, "Root", root);
+                pdf_indirect_ln(pdf, "Info", sys_obj_ptr);
                 if (pdf_trailer_toks != null) {
-                    pdf_print_toks_ln(pdf,pdf_trailer_toks);
+                    pdf_print_toks_ln(pdf, pdf_trailer_toks);
                     delete_token_ref(pdf_trailer_toks);
                     pdf_trailer_toks = null;
                 }
                 print_ID(pdf, output_file_name);
-                pdf_printf(pdf," >>\n");
+                pdf_printf(pdf, " >>\n");
             }
-            pdf_printf(pdf,"startxref\n");
+            pdf_printf(pdf, "startxref\n");
             if (pdf->os_enable)
-                pdf_print_int_ln(pdf,obj_offset(sys_obj_ptr));
+                pdf_print_int_ln(pdf, obj_offset(sys_obj_ptr));
             else
-                pdf_print_int_ln(pdf,pdf_saved_offset(pdf));
-            pdf_printf(pdf,"%%%%EOF\n");
+                pdf_print_int_ln(pdf, pdf_saved_offset(pdf));
+            pdf_printf(pdf, "%%%%EOF\n");
 
             pdf_flush(pdf);
             if (callback_id == 0) {

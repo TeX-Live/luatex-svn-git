@@ -23,9 +23,9 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
-halfword pdf_xform_list; /* list of forms in the current page */
-integer pdf_xform_count; /* counter of forms */
-integer pdf_cur_form; /* the form being output */
+halfword pdf_xform_list;        /* list of forms in the current page */
+integer pdf_xform_count;        /* counter of forms */
+integer pdf_cur_form;           /* the form being output */
 
 void output_form(PDF pdf, halfword p)
 {

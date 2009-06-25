@@ -28,8 +28,8 @@ static const char __svn_version[] =
 #define info(A) fixmem[(A)].hhlh
 #define pdf_dest_margin          dimen_par(param_pdf_dest_margin_code)
 
-halfword pdf_dest_list; /* list of destinations in the current page */
-integer pdf_dest_names_ptr; /* first unused position in |dest_names| */
+halfword pdf_dest_list;         /* list of destinations in the current page */
+integer pdf_dest_names_ptr;     /* first unused position in |dest_names| */
 dest_name_entry *dest_names;
 
 integer dest_names_size = inf_dest_names_size;  /* maximum number of names in name tree of PDF output file */
@@ -40,8 +40,9 @@ Some of them are used in former parts too, so we need to declare them
 forward.
 */
 
-void init_dest_names (void) {
-    dest_names = xmallocarray (dest_name_entry, inf_dest_names_size); /* will grow dynamically */
+void init_dest_names(void)
+{
+    dest_names = xmallocarray(dest_name_entry, inf_dest_names_size);    /* will grow dynamically */
 }
 
 void append_dest_name(str_number s, integer n)
@@ -170,22 +171,22 @@ void write_out_pdf_mark_destinations(PDF pdf)
                 i = obj_dest_ptr(info(k));
                 if (pdf_dest_named_id(i) > 0) {
                     pdf_begin_dict(pdf, info(k), 1);
-                    pdf_printf(pdf,"/D ");
+                    pdf_printf(pdf, "/D ");
                 } else {
                     pdf_begin_obj(pdf, info(k), 1);
                 }
                 pdf_out(pdf, '[');
                 pdf_print_int(pdf, pdf_last_page);
-                pdf_printf(pdf," 0 R ");
+                pdf_printf(pdf, " 0 R ");
                 switch (pdf_dest_type(i)) {
                 case pdf_dest_xyz:
-                    pdf_printf(pdf,"/XYZ ");
+                    pdf_printf(pdf, "/XYZ ");
                     pdf_print_mag_bp(pdf, pdf_ann_left(i));
                     pdf_out(pdf, ' ');
                     pdf_print_mag_bp(pdf, pdf_ann_top(i));
                     pdf_out(pdf, ' ');
                     if (pdf_dest_xyz_zoom(i) == null) {
-                        pdf_printf(pdf,"null");
+                        pdf_printf(pdf, "null");
                     } else {
                         pdf_print_int(pdf, pdf_dest_xyz_zoom(i) / 1000);
                         pdf_out(pdf, '.');
@@ -193,29 +194,29 @@ void write_out_pdf_mark_destinations(PDF pdf)
                     }
                     break;
                 case pdf_dest_fit:
-                    pdf_printf(pdf,"/Fit");
+                    pdf_printf(pdf, "/Fit");
                     break;
                 case pdf_dest_fith:
-                    pdf_printf(pdf,"/FitH ");
+                    pdf_printf(pdf, "/FitH ");
                     pdf_print_mag_bp(pdf, pdf_ann_top(i));
                     break;
                 case pdf_dest_fitv:
-                    pdf_printf(pdf,"/FitV ");
+                    pdf_printf(pdf, "/FitV ");
                     pdf_print_mag_bp(pdf, pdf_ann_left(i));
                     break;
                 case pdf_dest_fitb:
-                    pdf_printf(pdf,"/FitB");
+                    pdf_printf(pdf, "/FitB");
                     break;
                 case pdf_dest_fitbh:
-                    pdf_printf(pdf,"/FitBH ");
+                    pdf_printf(pdf, "/FitBH ");
                     pdf_print_mag_bp(pdf, pdf_ann_top(i));
                     break;
                 case pdf_dest_fitbv:
-                    pdf_printf(pdf,"/FitBV ");
+                    pdf_printf(pdf, "/FitBV ");
                     pdf_print_mag_bp(pdf, pdf_ann_left(i));
                     break;
                 case pdf_dest_fitr:
-                    pdf_printf(pdf,"/FitR ");
+                    pdf_printf(pdf, "/FitR ");
                     pdf_print_rect_spec(pdf, i);
                     break;
                 default:
@@ -223,7 +224,7 @@ void write_out_pdf_mark_destinations(PDF pdf)
                               maketexstring("unknown dest type"));
                     break;
                 }
-                pdf_printf(pdf,"]\n");
+                pdf_printf(pdf, "]\n");
                 if (pdf_dest_named_id(i) > 0)
                     pdf_end_dict(pdf);
                 else
@@ -316,12 +317,12 @@ void scan_pdfdest(void)
     }
 }
 
-void reset_dest_list (void)
+void reset_dest_list(void)
 {
     pdf_dest_list = null;
 }
 
-void flush_dest_list (void)
+void flush_dest_list(void)
 {
     flush_list(pdf_dest_list);
 }
@@ -352,6 +353,3 @@ void sort_dest_names(integer l, integer r)
     if (i < r)
         sort_dest_names(i, r);
 }
-
-
-

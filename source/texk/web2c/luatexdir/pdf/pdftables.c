@@ -99,7 +99,7 @@ void pdf_create_obj(integer t, integer i)
    to declare it together with subroutines needed in |pdf_hlist_out| and
    |pdf_vlist_out|.
 */
-  
+
 integer find_obj(integer t, integer i, boolean byname)
 {
     return avl_find_obj(t, i, byname);
@@ -126,7 +126,7 @@ integer get_obj(integer t, integer i, boolean byname)
         }
         r = obj_ptr;
         if (t == obj_type_dest)
-            set_obj_dest_ptr(r,null);
+            set_obj_dest_ptr(r, null);
     }
     if (s != 0)
         flush_str(s);
@@ -301,7 +301,7 @@ already in an earlier module.
 void undump_pdftex_data(PDF pdf)
 {
     integer k;
-    undumpimagemeta(pdf,pdf_minor_version, pdf_inclusion_errorlevel);       /* the image information array */
+    undumpimagemeta(pdf, pdf_minor_version, pdf_inclusion_errorlevel);  /* the image information array */
     undump_int(pdf_mem_size);
     pdf_mem = xreallocarray(pdf_mem, integer, pdf_mem_size);
     undump_int(pdf_mem_ptr);

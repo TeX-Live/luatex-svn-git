@@ -28,7 +28,7 @@
 
 #  define pdf_max_link_level  10        /* maximum depth of link nesting */
 
-extern halfword pdf_link_list; /* list of link annotations in the current page */
+extern halfword pdf_link_list;  /* list of link annotations in the current page */
 
 typedef struct pdf_link_stack_record {
     integer nesting_level;

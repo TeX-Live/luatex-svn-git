@@ -27,7 +27,7 @@ static const char __svn_version[] =
 
 #define pdf_link_margin          dimen_par(param_pdf_link_margin_code)
 
-halfword pdf_link_list; /* list of link annotations in the current page */
+halfword pdf_link_list;         /* list of link annotations in the current page */
 
 
 /*
