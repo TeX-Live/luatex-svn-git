@@ -411,7 +411,7 @@ char *get_resname_prefix(void)
 /* "^_`abcdefghijklmnopqrstuvwxyz|~"; */
     static char name_str[] =
         "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    char prefix[7];             /* make a tag of 6 chars long */
+    static char prefix[7];      /* make a tag of 6 chars long */
     unsigned long crc;
     short i;
     size_t base = strlen(name_str);
@@ -421,7 +421,7 @@ char *get_resname_prefix(void)
         prefix[i] = name_str[crc % base];
         crc /= base;
     }
-    prefix[6] = 0;
+    prefix[6] = '\0';
     return prefix;
 }
 
