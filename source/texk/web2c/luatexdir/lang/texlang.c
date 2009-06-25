@@ -247,12 +247,10 @@ void load_tex_patterns(int curlang, halfword head)
 }
 
 
-#define STORE_CHAR(x) do {						\
-    int xx = get_lc_code(x);						\
-    if (xx==0) xx = 0xFFFE;						\
-    word[w] = xx;							\
-    if (w<MAX_WORD_LEN) w++;						\
-  } while (0)
+#define STORE_CHAR(x) do {                          \
+        word[w] = x;                                \
+        if (w<MAX_WORD_LEN) w++;                    \
+    } while (0)
 
 /* todo change this! */
 
