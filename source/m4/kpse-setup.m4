@@ -17,7 +17,8 @@
 #   additional program specific configure options (if any)
 #   library dependencies for programs and libraries
 AC_DEFUN([KPSE_SETUP],
-[m4_define([kpse_TL], [$1])[]dnl
+[AC_REQUIRE([_KPSE_MSG_WARN_PREPARE])[]dnl
+m4_define([kpse_TL], [$1])[]dnl
 m4_define([kpse_indent_26], [28])[]dnl
 AC_ARG_ENABLE([all-pkgs],
               AS_HELP_STRING([--disable-all-pkgs],
@@ -39,11 +40,19 @@ if test "x$enable_native_texlive_build" = xyes; then
           [yes | no], [:],
           [enable_cxx_runtime_hack=yes
            ac_configure_args="$ac_configure_args '--enable-cxx-runtime-hack'"])
-  AS_CASE([$enable_shared],
-          [yes | no], [:],
-          [enable_shared=no
-           ac_configure_args="$ac_configure_args '--disable-shared'"])
 fi
+AS_CASE([$enable_shared],
+        [no], [:],
+        [yes ], [AS_IF([test "x$enable_native_texlive_build" = xyes],
+                       [AC_MSG_ERROR([you can not use a shared Kpathsea library for a native TeX Live build])])],
+        [enable_shared=no
+         ac_configure_args="$ac_configure_args '--disable-shared'"])
+dnl Automatically pass this option to all subdirectories.
+AS_CASE([$enable_texlive_build],
+        [yes], [:],
+        [no], [AC_MSG_ERROR([you can not configure the TeX Live tree with `--disable-texlive-build'])],
+        [enable_texlive_build=yes
+         ac_configure_args="$ac_configure_args '--enable-texlive-build'"])
 KPSE_OPTIONS
 KPSE_ENABLE_CXX_HACK
 KPSE_LIBS_PREPARE
@@ -156,6 +165,7 @@ AC_DEFUN([KPSE_CHECK_LIB],
   LIBS="$AS_TR_CPP($1)_LIBS $LIBS"
   AC_CHECK_FUNCS([$2], , [syslib_status=no])
   AC_CHECK_HEADERS([$3], , [syslib_status=no])
+  syslib_used=yes
 fi
 ]) # KPSE_CHECK_LIB
 

@@ -1,20 +1,16 @@
-$Id: README 13363 2009-05-22 00:09:24Z karl $
+$Id: README 13865 2009-06-21 23:42:52Z karl $
 Copyright 2005, 2006, 2007, 2008, 2009 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
 Extra utilities we (optionally) compile for TeX Live.
 See comments in ../texk/README.
 
-asymptote 1.73 - checked 19may09
-  http://superb-east.dl.sourceforge.net/sourceforge/asymptote/asymptote-1.73.src.tgz
-  make GCLIB_CHECK=:  if the make check of gc fails.
-  make CFLAGS="-g -DBROKEN_COMPILER"   if redefinition of solvedKnot3.
+asymptote 1.77 - checked 22jun09
+  get from CTAN, to include prebuilt doc.
+  see http://tug.org/texlive/build.html#asymptote
 
 dialog 1.1-20080819 - checked 20mar09
   ftp://invisible-island.net/dialog/dialog.tar.gz
-
-gzip - (old, not built) only here so we have the sources for the Windows
-  binaries we distribute.
 
 pdfopen 0.5 - checked 26nov06
   (really xpdfopen)

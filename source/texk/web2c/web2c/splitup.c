@@ -2,7 +2,7 @@
    and it produces several .c and .h files in the current directory
    as its output.
 
-   $Id: splitup.c 12570 2009-03-30 11:13:40Z peter $
+   $Id: splitup.c 13921 2009-06-23 16:27:41Z peter $
 
    Tim Morgan  September 19, 1987.  */
 
@@ -58,12 +58,13 @@ FILE *out, *ini, *temp;
  * `true' else `false'.  We also keep up with the #ifdef/#endif nesting
  * so we know when it's safe to finish writing the current file.
  */
-int
-read_line P1H(void)
+static int
+read_line (void)
 {
   if (fgets (buffer, sizeof (buffer), stdin) == NULL)
     return false;
   if (strncmp (buffer, "#ifdef", 6) == 0
+      || strncmp (buffer, "#if 1", 5) == 0
       || strncmp (buffer, "#ifndef", 7) == 0)
     {
       ++ifdef_nesting;
@@ -76,7 +77,7 @@ read_line P1H(void)
 }
 
 int
-main P2C(int, argc, string *, argv)
+main (int argc, string *argv)
 {
   string coerce;
   unsigned coerce_len;

@@ -2,9 +2,10 @@
    implement the predefined Pascal round function.  Public domain. */
 
 #include "config.h"
+#include "lib.h"
 
 integer
-zround P1C(double, r)
+zround (double r)
 {
   integer i;
 

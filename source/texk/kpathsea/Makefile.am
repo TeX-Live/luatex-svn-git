@@ -10,6 +10,7 @@ SUBDIRS = . doc man
 EXTRA_DIST = BUGS HIER PROJECTS README.CONFIGURE
 
 INCLUDES = -I$(top_builddir)/.. -I$(top_srcdir)/..
+AM_CFLAGS = $(WARNING_CFLAGS)
 
 lib_LTLIBRARIES = libkpathsea.la
 
@@ -49,7 +50,6 @@ libkpathsea_la_SOURCES = \
 	line.c \
 	magstep.c \
 	make-suffix.c \
-	mingw32.c \
 	path-elt.c \
 	pathsearch.c \
 	proginit.c \
@@ -82,7 +82,11 @@ libkpathsea_la_SOURCES = \
 	xstat.c \
 	xstrdup.c
 
-$(libkpathsea_la_SOURCES): paths.h
+if MINGW32
+libkpathsea_la_SOURCES += mingw32.c
+endif MINGW32
+
+$(libkpathsea_la_OBJECTS): paths.h kpathsea.h
 
 EXTRA_DIST += \
 	putenv.c \
@@ -94,6 +98,7 @@ kpseincludedir = ${includedir}/kpathsea
 
 nodist_kpseinclude_HEADERS = \
 	c-auto.h \
+	kpathsea.h \
 	paths.h
 
 kpseinclude_HEADERS = \
@@ -112,7 +117,6 @@ kpseinclude_HEADERS = \
 	c-stat.h \
 	c-std.h \
 	c-unistd.h \
-	c-vararg.h \
 	cnf.h \
 	concatn.h \
 	config.h \
@@ -124,7 +128,6 @@ kpseinclude_HEADERS = \
 	fontmap.h \
 	getopt.h \
 	hash.h \
-	kpathsea.h \
 	lib.h \
 	line.h \
 	magstep.h \
@@ -147,8 +150,6 @@ kpseinclude_HEADERS = \
 	variable.h \
 	xopendir.h \
 	xstat.h
-
-$(kpseinclude_HEADERS): paths.h
 
 ## First null out comments and leading/trailing whitespace, then remove
 ## lines that define invalid C identifiers, then remove blank lines and
@@ -209,9 +210,20 @@ stamp-paths: texmf.cnf
 	  cp paths.tmp paths.h; \
 	fi
 	rm -f paths.tmp
-	date >stamp-paths
+	date >$@
 
-DISTCLEANFILES = paths.h stamp-paths
+kpathsea.h: paths.h
+	rm -f $@
+	echo '/* This is a generated file */' >$@
+	echo '/* collecting all kpathsea headers. */' >>$@
+	echo '#include <kpathsea/config.h>' >>$@
+	echo '#include <kpathsea/c-auto.h>' >>$@
+	echo '#include <kpathsea/paths.h>' >>$@
+	(cd $(srcdir) && ls -1 *.h) \
+	  | grep -v '\(config\|paths\|kpathsea\|mingw32\|win32lib\)\.h' \
+	  | sed -e 's,^,#include <kpathsea/,' -e s',$$,>,' >>$@
+
+DISTCLEANFILES = paths.h stamp-paths kpathsea.h
 
 ## The programs
 bin_PROGRAMS = kpseaccess kpsereadlink kpsestat kpsewhich

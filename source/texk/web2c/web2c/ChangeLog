@@ -1,3 +1,26 @@
+2009-06-23  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* native/config.h: #include <stdarg.h>, not <kpathsea/c-vararg.h>.
+
+	* coerce.h, fixwrites.c, kps.c, main.c, splitup.c, web2c-lexer.l,
+	web2c-parser.y, web2c.h: use ANSI C function definitions and
+	prototypes instead of P[1-9][CH] macros.
+
+	* web2c-parser.y (do_proc_args): generate ANSI C function
+	definitions without AA macros.
+	(gen_function_head): replace '#ifdef HAVE_PROTOTYPES' by '#if 1',
+	but keep unused code, otherwise splitup might create less files.
+	* splitup.c (read_line): handle '#if 1".
+
+2009-06-09  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (AM_CFLAGS): enable compiler warnings.
+	* fixwrites.c (advance_cp): declare as static.
+	* main.c (hash): declare as static.
+	* splitup.c (read_line): declare as static.
+	* web2c-lexer.l (yywrap): declare as static.
+	* web2c.h: re-add declaration of get_result_type().
+
 2009-05-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* convert: remove all references to mp.
