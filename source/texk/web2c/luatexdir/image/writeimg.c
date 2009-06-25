@@ -731,6 +731,7 @@ void dumpimagemeta(void)
         dumpinteger(img_color(idict));
         dumpinteger(img_width(img));
         dumpinteger(img_height(img));
+        dumpinteger(img_depth(img));
         dumpinteger(img_xres(idict));
         dumpinteger(img_yres(idict));
         dumpinteger(img_totalpages(idict));
@@ -774,6 +775,7 @@ void undumpimagemeta(PDF pdf, integer pdfversion, integer pdfinclusionerrorlevel
         undumpinteger(img_color(idict));
         undumpinteger(img_width(img));
         undumpinteger(img_height(img));
+        undumpinteger(img_depth(img));
         undumpinteger(img_xres(idict));
         undumpinteger(img_yres(idict));
         undumpinteger(img_totalpages(idict));
