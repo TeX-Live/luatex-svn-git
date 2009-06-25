@@ -413,9 +413,9 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         if (pdf_page_attr != null)
             pdf_print_toks_ln(pdf, pdf_page_attr);
         pdf_indirect_ln(pdf, "Parent", pdf_last_pages);
-        if (pdf_page_group_val > 0) {
-            pdf_printf(pdf, "/Group %d 0 R\n", (int) pdf_page_group_val);
-            pdf_page_group_val = -1;
+        if (pdf->img_page_group_val > 0) {
+            pdf_printf(pdf, "/Group %d 0 R\n", pdf->img_page_group_val);
+            pdf->img_page_group_val = 0;
         }
         /* Generate array of annotations or beads in page */
         if ((pdf_annot_list != null) || (pdf_link_list != null)) {

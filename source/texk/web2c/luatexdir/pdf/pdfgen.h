@@ -65,8 +65,6 @@ typedef enum {
     zip_finish = 2              /* finish \.{ZIP} compression */
 } zip_write_states;
 
-extern integer pdf_page_group_val;
-
 extern integer pdf_output_option;
 extern integer pdf_output_value;
 extern integer pdf_draftmode_option;

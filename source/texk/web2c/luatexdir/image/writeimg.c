@@ -487,8 +487,8 @@ void out_img(PDF pdf, image * img, pdfstructure * p, scaledpos * pos)
         /* added from web for 1.40.8 */
         if (img_type(idict) == IMG_TYPE_PNG) {
             groupref = img_group_ref(idict);
-            if ((groupref > 0) && (pdf_page_group_val < 1))
-                pdf_page_group_val = groupref;
+            if ((groupref > 0) && (pdf->img_page_group_val == 0))
+                pdf->img_page_group_val = groupref;
         }
         /* /added from web */
         a[0] /= one_hundred_bp;
@@ -564,8 +564,8 @@ void out_img(PDF pdf, image * img, pdfstructure * p, scaledpos * pos)
     cm[4] = p->cm[4];
     cm[5] = p->cm[5];
     pdf_goto_pagemode(pdf);
-    if (pdf_page_group_val < 1)
-        pdf_page_group_val = img_group_ref(idict);      /* added from web for 1.40.8 */
+    if (pdf->img_page_group_val == 0)
+        pdf->img_page_group_val = img_group_ref(idict);      /* added from web for 1.40.8 */
     pdf_printf(pdf,"q\n");
     pdf_print_cm(pdf, cm);
     pdf_printf(pdf,"/Im");

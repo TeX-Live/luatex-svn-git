@@ -54,8 +54,6 @@ integer pdf_mem_ptr = 1;
 integer fixed_pdfoutput;        /* fixed output format */
 boolean fixed_pdfoutput_set = false;    /* |fixed_pdfoutput| has been set? */
 
-integer pdf_page_group_val = -1;
-
 /* commandline interface */
 integer pdf_output_option;
 integer pdf_output_value;
