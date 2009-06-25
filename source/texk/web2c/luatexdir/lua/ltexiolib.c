@@ -27,7 +27,7 @@ typedef void (*texio_printer) (str_number s);
 
 static char *loggable_info = NULL;
 
-static boolean get_selector_value(lua_State * L, int i, char *l)
+static boolean get_selector_value(lua_State * L, int i, int *l)
 {
     boolean r = false;
     if (lua_isstring(L, i)) {
@@ -56,7 +56,7 @@ static int do_texio_print(lua_State * L, texio_printer printfunction)
     size_t k;
     int i = 1;
     str_number u = 0;
-    char save_selector = selector;
+    int save_selector = selector;
     int n = lua_gettop(L);
     if (n == 0 || !lua_isstring(L, -1)) {
         lua_pushstring(L, "no string to print");
@@ -94,7 +94,7 @@ static void do_texio_ini_print(lua_State * L, char *extra)
 {
     char *s;
     int i = 1;
-    char l = term_and_log;
+    int l = term_and_log;
     int n = lua_gettop(L);
     if (n > 1) {
         if (get_selector_value(L, i, &l))
@@ -124,7 +124,7 @@ static int texio_print(lua_State * L)
         do_texio_ini_print(L, "");
         return 0;
     }
-    return do_texio_print(L, zprint);
+    return do_texio_print(L, print);
 }
 
 static int texio_printnl(lua_State * L)
@@ -133,7 +133,7 @@ static int texio_printnl(lua_State * L)
         do_texio_ini_print(L, "\n");
         return 0;
     }
-    return do_texio_print(L, zprint_nl);
+    return do_texio_print(L, print_nl);
 }
 
 /* at the point this function is called, the selector is log_only */

@@ -65,8 +65,5 @@ extern char *cur_file_name;
 extern size_t last_ptr_index;
 
 void tconfusion(char *s);
-void tprint(char *s);
-void tprint_nl(char *s);
-void tprint_esc(char *s);
 
 #endif                          /* UTILS_H */

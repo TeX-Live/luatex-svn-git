@@ -314,16 +314,6 @@ static int get_cur_cs(lua_State * L)
     while (*v) { Print_char(*v); v++; }                         \
   }
 
-#define single_letter(a) (str_length(a)==1)||                       \
-  ((str_length(a)==4)&&(str_pool[str_start_macro(a)]>=0xF0))||      \
-  ((str_length(a)==3)&&(str_pool[str_start_macro(a)]>=0xE0))||      \
-  ((str_length(a)==2)&&(str_pool[str_start_macro(a)]>=0xC0))
-
-#define is_active_cs(a) (str_length(a)>3 &&                               \
-                         (str_pool[str_start_macro(a)]   == 0xEF) &&  \
-                         (str_pool[str_start_macro(a)+1] == 0xBF) &&  \
-                         (str_pool[str_start_macro(a)+2] == 0xBF))
-
 #define is_cat_letter(a)                                                \
   (get_char_cat_code(pool_to_unichar(str_start_macro(a))) == 11)
 

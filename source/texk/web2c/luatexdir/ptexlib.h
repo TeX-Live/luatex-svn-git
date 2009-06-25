@@ -106,15 +106,6 @@ extern void write_svnversion(char *a);
 
 /**********************************************************************/
 
-typedef enum {
-    no_print = 16,
-    term_only = 17,
-    log_only = 18,
-    term_and_log = 19,
-    pseudo = 20,
-    new_string = 21
-} selector_settings;
-
 /* language stuff */
 
 typedef struct _lang_variables {

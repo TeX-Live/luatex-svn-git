@@ -1431,3 +1431,56 @@
 @define procedure finish_dvi_file();
 
 @define procedure expand_macros_in_tokenlist();
+
+{ printing }
+
+@define const no_print;
+@define const term_only;
+@define const log_only;
+@define const term_and_log;
+@define const pseudo;
+@define const new_string;
+@define const ssup_error_line;
+
+@define var max_selector;
+@define var log_file; 
+@define var selector;
+@define var dig;
+@define var tally;
+@define var term_offset;
+@define var file_offset;
+@define var trick_buf;
+@define var trick_count;
+@define var first_count;
+@define var inhibit_par_tokens;
+
+@define procedure wterm();
+@define procedure wterm_ln();
+@define procedure wterm_ln2();
+@define procedure wterm_cr;
+@define procedure wlog_cr;
+@define procedure fprintf();
+
+@define procedure print_ln;
+@define procedure print_char();
+@define procedure print();
+@define procedure print_nl();
+@define procedure print_nlp;
+@define procedure slow_print();
+@define procedure print_banner();
+@define procedure log_banner();
+@define procedure print_version_banner;
+@define procedure print_esc();
+@define procedure print_the_digs();
+@define procedure print_int();
+@define procedure print_two();
+@define procedure print_hex();
+@define procedure print_roman_int();
+@define procedure print_current_string;
+@define procedure print_font_name();
+
+@define procedure print_cs();
+@define procedure sprint_cs();
+@define function is_active_cs();
+@define function active_cs_value();
+@define function single_letter();

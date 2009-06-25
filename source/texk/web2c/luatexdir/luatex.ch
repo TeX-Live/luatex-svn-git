@@ -137,7 +137,6 @@ versions of the program.
   {string of length |file_name_size|; tells where the string pool appears}
 @y
 @d file_name_size == max_halfword-1 { has to be big enough to force namelength into integer }
-@d ssup_error_line = 255
 @d ssup_max_strings == 262143
 {Larger values than 65536 cause the arrays consume much more memory.}
 
@@ -473,12 +472,6 @@ if last > first then
 @z
 
 @x
-@!trick_buf:array[0..error_line] of packed_ASCII_code; {circular buffer for
-@y
-@!trick_buf:array[0..ssup_error_line] of packed_ASCII_code; {circular buffer for
-@z
-
-@x
 @d error_stop_mode=3 {stops at every opportunity to interact}
 @y
 @d error_stop_mode=3 {stops at every opportunity to interact}
@@ -759,19 +752,6 @@ hash_high:=0;
 @z
 
 @x
-else if p>=undefined_control_sequence then print_esc("IMPOSSIBLE.")
-@y
-else if ((p>=undefined_control_sequence)and(p<=eqtb_size))or(p>eqtb_top) then
-  print_esc("IMPOSSIBLE.")
-@z
-
-@x
-else if (text(p)<0)or(text(p)>=str_ptr) then print_esc("NONEXISTENT.")
-@y
-else if (text(p)>=str_ptr) then print_esc("NONEXISTENT.")
-@z
-
-@x
 @!save_stack : array[0..save_size] of memory_word;
 @y
 @!save_stack : ^memory_word;
@@ -850,20 +830,20 @@ In C, the default paths are specified separately.
 
 @x
 @d append_to_name(#)==begin c:=#; incr(k);
-  if k<=file_name_size then nameoffile[k]:=xchr[c];
+  if k<=file_name_size then nameoffile[k]:=c;
   end
 @y
 @d append_to_name(#)==begin c:=#; if not (c="""") then begin incr(k);
-  if k<=file_name_size then nameoffile[k]:=xchr[c];
+  if k<=file_name_size then nameoffile[k]:=c;
   end end
 @z
 
 @x
-for j:=str_start_macro(a) to str_start_macro(a+1)-1 do append_to_name(so(str_pool[j]));
+for j:=str_start_macro(a) to str_start_macro(a+1)-1 do append_to_name(str_pool[j]);
 @y
 if nameoffile then libcfree (nameoffile);
 nameoffile:= xmallocarray (packed_ASCII_code, length(a)+length(n)+length(e)+1);
-for j:=str_start_macro(a) to str_start_macro(a+1)-1 do append_to_name(so(str_pool[j]));
+for j:=str_start_macro(a) to str_start_macro(a+1)-1 do append_to_name(str_pool[j]);
 @z
 
 @x
@@ -925,32 +905,6 @@ nameoffile[namelength+1]:=0;
 @z
 
 @x
-  wterm_ln('Sorry, I can''t find that format;',' will try PLAIN.');
-@y
-  wterm ('Sorry, I can''t find the format `');
-  fputs (stringcast(nameoffile + 1), stdout);
-  wterm ('''; will try `');
-  fputs (TEX_format_default + 1, stdout);
-  wterm_ln ('''.');
-@z
-
-@x
-  wterm_ln('I can''t find the PLAIN format file!');
-@.I can't find PLAIN...@>
-@y
-  wterm ('I can''t find the format file `');
-  fputs (TEX_format_default + 1, stdout);
-  wterm_ln ('''!');
-@.I can't find the format...@>
-@z
-
-@x
-@!months:packed array [1..36] of char; {abbreviations of month names}
-@y
-@!months:^char;
-@z
-
-@x
 if job_name=0 then job_name:="texput";
 @.texput@>
 @y
@@ -958,41 +912,6 @@ if job_name=0 then job_name:=getjobname("texput");
 @.texput@>
 pack_job_name('.fls');
 recorder_change_filename(stringcast(nameoffile+1));
-@z
-
-@x
-slow_print(format_ident); print("  ");
-@y
-wlog(versionstring);
-slow_print(format_ident); print("  ");
-@z
-
-@x
-months:='JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC';
-@y
-months := ' JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC';
-@z
-
-@x
-end
-@y
-if shellenabledp then begin
-  wlog_cr;
-  wlog(' ');
-  if restrictedshell then begin
-    wlog('restricted ');
-  end;
-  wlog('\write18 enabled.')
-  end;
-if filelineerrorstylep then begin
-  wlog_cr;
-  wlog(' file:line:error style messages enabled.')
-  end;
-if parsefirstlinep then begin
-  wlog_cr;
-  wlog(' %&-line parsing enabled.');
-  end;
-end
 @z
 
 @x
@@ -1184,7 +1103,8 @@ undump_things(format_engine[0], x);
 format_engine[x-1]:=0; {force string termination, just in case}
 if strcmp(stringcast(engine_name), stringcast(format_engine)) then
   begin wake_up_terminal;
-  wterm_ln('---! ', stringcast(nameoffile+1), ' was written by ', format_engine);
+  wterm_cr;
+  fprintf(term_out,'---! %s was written by %s',stringcast(nameoffile+1), format_engine);
   libcfree(format_engine);
   goto bad_fmt;
 end;
@@ -1193,7 +1113,8 @@ undump_int(x);
 format_debug('string pool checksum')(x);
 if x<>@$ then begin {check that strings are the same}
   wake_up_terminal;
-  wterm_ln('---! ', stringcast(nameoffile+1), ' was written by an older version');
+  wterm_cr;
+  fprintf(term_out,'---! %s was written by an older version',stringcast(nameoffile+1));
   goto bad_fmt;
 end;
 undump_int(x);
@@ -1508,30 +1429,6 @@ end {|main_body|};
 @z
 
 @x
-  if format_ident=0 then wterm_ln(' (no format preloaded)')
-  else  begin slow_print(format_ident); print_ln;
-    end;
-@y
-  wterm(versionstring);
-  if format_ident>0 then slow_print(format_ident);
-  print_ln;
-  if shellenabledp then begin
-    wterm(' ');
-    if restrictedshell then begin
-      wterm('restricted ');
-    end;
-    wterm_ln('\write18 enabled.');
-  end;
-@z
-
-@x
-write_svnversion(luatex_svnversion);
-@y
-wterm(versionstring);
-write_svnversion(luatex_svnversion);
-@z
-
-@x
      slow_print(texmf_log_name); print_char(".");
 @y
      print_file_name(0, texmf_log_name, 0); print_char(".");
@@ -1544,14 +1441,6 @@ write_svnversion(luatex_svnversion);
 print_ln;
 if (edit_name_start<>0) and (interaction>batch_mode) then
   calledit(str_pool,edit_name_start,edit_name_length,edit_line);
-@z
-
-@x
-  wlog_ln(' ',cs_count:1,' multiletter control sequences out of ',
-    hash_size:1);@/
-@y
-  wlog_ln(' ',cs_count:1,' multiletter control sequences out of ',
-    hash_size:1, '+', hash_extra:1);@/
 @z
 
 @x

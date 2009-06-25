@@ -38,3 +38,8 @@
 #define INI_PROGRAM "luainitex"
 #define VIR_PROGRAM "luavirtex"
 #define TEXMFENGINENAME "luatex"
+
+/* this counteracts the macro definition in cpascal.h */
+#undef Xchr
+#define Xchr(a) a
+
