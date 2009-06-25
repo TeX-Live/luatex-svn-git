@@ -93,14 +93,14 @@ scaled_whd scan_alt_rule(void)
 
 void scan_image(PDF pdf)
 {
-scaled_whd alt_rule;
+    scaled_whd alt_rule;
     integer k, ref;
     integer page, pagebox, colorspace;
     char *named = NULL, *attr = NULL, *s = NULL;
     incr(pdf_ximage_count);
     pdf_create_obj(obj_type_ximage, pdf_ximage_count);
     k = obj_ptr;
-    alt_rule= scan_alt_rule();            /* scans |<rule spec>| to |alt_rule| */
+    alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
     attr = 0;
     named = 0;
     page = 1;
@@ -140,7 +140,7 @@ scaled_whd alt_rule;
     set_obj_data_ptr(k, ref);
     if (named != NULL)
         xfree(named);
-    set_image_dimensions(ref, alt_rule.w, alt_rule.h, alt_rule.d);
+    set_image_dimensions(ref, alt_rule);
     if (attr != NULL)
         xfree(attr);
     scale_image(ref);

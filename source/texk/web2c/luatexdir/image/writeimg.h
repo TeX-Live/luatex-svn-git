@@ -23,6 +23,7 @@
 #ifndef WRITEIMG_H
 #  define WRITEIMG_H
 
+#  include "../dvi/dvigen.h"    /* for scaled_whd only */
 #  include "image.h"
 
 typedef image *img_entry;
@@ -43,7 +44,7 @@ void out_image(PDF, integer, scaled, scaled);
 void pdf_print_resname_prefix(void);
 void read_img(PDF, image_dict *, integer, integer);
 void scale_img(image *);
-void set_image_dimensions(integer, integer, integer, integer);
+void set_image_dimensions(integer, scaled_whd);
 void undumpimagemeta(PDF, integer, integer);
 void write_img(PDF, image_dict *);
 void write_pdfstream(PDF, image_dict *);

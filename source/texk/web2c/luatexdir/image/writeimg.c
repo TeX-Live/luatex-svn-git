@@ -838,12 +838,12 @@ integer read_image(PDF pdf,
     return img_arrayidx(a);
 }
 
-void set_image_dimensions(integer ref, integer wd, integer ht, integer dp)
+void set_image_dimensions(integer ref, scaled_whd dim)
 {
     image *a = img_array[ref];
-    img_width(a) = wd;
-    img_height(a) = ht;
-    img_depth(a) = dp;
+    img_width(a) = dim.w;
+    img_height(a) = dim.h;
+    img_depth(a) = dim.d;
 }
 
 void out_image(PDF pdf, integer ref, scaled hpos, scaled vpos)
