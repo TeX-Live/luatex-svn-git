@@ -15454,6 +15454,10 @@ function is_dim_assign(cmd:halfword):boolean;
 begin
   is_dim_assign := (cmd=assign_dimen);
 end;
+function is_toks_assign(cmd:halfword):boolean;
+begin
+  is_toks_assign := (cmd=assign_toks);
+end;
 
 @ @<Declare subprocedures for |prefixed_command|@>=
 procedure assign_internal_value(a:small_number;p:halfword;cur_val:integer);
@@ -15522,6 +15526,8 @@ else if (p>=dimen_base)and(p<eqtb_size) then begin
     end;
   word_define(p,cur_val);
   end
+else if (p>=local_base)and(p<toks_base) then {internal locals }
+  define(p,call,cur_val)
 else
   confusion("assign internal value");
 end;

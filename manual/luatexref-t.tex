@@ -1310,7 +1310,12 @@ tex.thinmuskip
 
 \subsubsection{Tokenlist parameters}
 
-All tokenlist parameters are read|-|only and return a \LUA\ string.
+The tokenlist parameters accept and return \LUA\ strings. \LUA\ strings are
+converted to and from token lists using \tex{the}\tex{toks} style
+expansion: all category codes are either space (10) or other (12).
+It follows that assigning to some of these, like \quote{tex.output},
+is actually useless, but it feels bad to make exceptions in view
+of a coming extension that will accept full-blown token strings.
 
 \startcolumns[n=3]
 \starttyping
@@ -1330,6 +1335,7 @@ tex.pdfpagesattr
 tex.pdfpkmode
 \stoptyping
 \stopcolumns
+
 
 \subsection{Convert commands}
 
