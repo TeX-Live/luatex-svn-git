@@ -159,6 +159,27 @@ typedef struct {
 #  define img_unset_bbox(N)     (img_flags(N) &= ~F_FLAG_BBOX)
 #  define img_is_bbox(N)        ((img_flags(N) & F_FLAG_BBOX) != 0)
 
+#  define scale_image(a)        scale_img(img_array[a])
+
+#  define write_image(a, b)     write_img((a), img_dict(img_array[b]));
+#  define image_pages(a)        img_totalpages(img_dict(img_array[a]))
+#  define image_colordepth(a)   img_colordepth(img_dict(img_array[a]))
+#  define image_group_ref(a)    img_group_ref(img_dict(img_array[a]))
+
+#  define epdf_xsize(a)         img_xsize(img_dict(img_array[a]))
+#  define epdf_ysize(a)         img_ysize(img_dict(img_array[a]))
+#  define epdf_orig_x(a)        img_xorig(img_dict(img_array[a]))
+#  define epdf_orig_y(a)        img_yorig(img_dict(img_array[a]))
+#  define is_pdf_image(a)       (img_type(img_dict(img_array[a])) == IMG_TYPE_PDF)
+#  define is_png_image(a)       (img_type(img_dict(img_array[a])) == IMG_TYPE_PNG)
+#  define update_image_procset(a) (pdf_image_procset |= img_color(img_dict(img_array[a])))
+#  define check_image_b(a)      ((a) & IMAGE_COLOR_B)
+#  define check_image_c(a)      ((a) & IMAGE_COLOR_C)
+#  define check_image_i(a)      ((a) & IMAGE_COLOR_I)
+
+#  define image_objnum(a)       img_objnum(img_dict(img_array[a]))
+#  define image_index(a)        img_index(img_dict(img_array[a]))
+
 /**********************************************************************/
 
 typedef struct {
@@ -196,5 +217,9 @@ typedef struct {
 #  define is_wd_running(N)      (img_width(N) == null_flag)
 #  define is_ht_running(N)      (img_height(N) == null_flag)
 #  define is_dp_running(N)      (img_depth(N) == null_flag)
+
+#  define image_width(a)        img_width(img_array[a])
+#  define image_height(a)       img_height(img_array[a])
+#  define image_depth(a)        img_depth(img_array[a])
 
 #endif                          /* IMAGE_H */

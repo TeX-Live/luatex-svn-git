@@ -647,7 +647,6 @@ void write_pdfstream(PDF pdf, image_dict * idict)
 
 /**********************************************************************/
 
-typedef image *img_entry;
 /* define img_ptr, img_array, & img_limit */
 /* avoid use of size_t */
 img_entry *img_ptr, *img_array = NULL;
@@ -847,11 +846,6 @@ void set_image_dimensions(integer ref, integer wd, integer ht, integer dp)
     img_depth(a) = dp;
 }
 
-void scale_image(integer ref)
-{
-    scale_img(img_array[ref]);
-}
-
 void out_image(PDF pdf, integer ref, scaled hpos, scaled vpos)
 {
     image *a = img_array[ref];
@@ -859,101 +853,4 @@ void out_image(PDF pdf, integer ref, scaled hpos, scaled vpos)
     pos.h = hpos;
     pos.v = vpos;
     out_img(pdf, a, pstruct, &pos);
-}
-
-void write_image(PDF pdf, integer ref)
-{
-    write_img(pdf, img_dict(img_array[ref]));
-}
-
-integer image_pages(integer ref)
-{
-    return img_totalpages(img_dict(img_array[ref]));
-}
-
-integer image_colordepth(integer ref)
-{
-    return img_colordepth(img_dict(img_array[ref]));
-}
-
-integer image_group_ref(integer ref)
-{
-    return img_group_ref(img_dict(img_array[ref]));
-}
-
-/* The following five functions are for \pdfximagebbox */
-
-integer epdf_xsize(integer ref)
-{
-    return img_xsize(img_dict(img_array[ref]));
-}
-
-integer epdf_ysize(integer ref)
-{
-    return img_ysize(img_dict(img_array[ref]));
-}
-
-integer epdf_orig_x(integer ref)
-{
-    return img_xorig(img_dict(img_array[ref]));
-}
-
-integer epdf_orig_y(integer ref)
-{
-    return img_yorig(img_dict(img_array[ref]));
-}
-
-boolean is_pdf_image(integer ref)
-{
-    return img_type(img_dict(img_array[ref])) == IMG_TYPE_PDF;
-}
-
-boolean is_png_image(integer ref)
-{
-    return img_type(img_dict(img_array[ref])) == IMG_TYPE_PNG;
-}
-
-integer image_objnum(integer ref)
-{
-    return img_objnum(img_dict(img_array[ref]));
-}
-
-integer image_index(integer ref)
-{
-    return img_index(img_dict(img_array[ref]));
-}
-
-integer image_width(integer ref)
-{
-    return img_width(img_array[ref]);
-}
-
-integer image_height(integer ref)
-{
-    return img_height(img_array[ref]);
-}
-
-integer image_depth(integer ref)
-{
-    return img_depth(img_array[ref]);
-}
-
-void update_image_procset(integer ref)
-{
-    pdf_image_procset |= img_color(img_dict(img_array[ref]));
-}
-
-boolean check_image_b(integer procset)
-{
-    return procset & IMAGE_COLOR_B;
-}
-
-boolean check_image_c(integer procset)
-{
-    return procset & IMAGE_COLOR_C;
-}
-
-boolean check_image_i(integer procset)
-{
-    return procset & IMAGE_COLOR_I;
 }
