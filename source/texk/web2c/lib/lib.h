@@ -4,6 +4,8 @@
 #ifndef LIB_LIB_H
 #define LIB_LIB_H
 
+#define eof web2c_eof
+
 /* basechsuffix.c */
 extern string basenamechangesuffix (const_string, const_string, const_string);
 
