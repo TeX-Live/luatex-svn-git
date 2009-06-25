@@ -27,10 +27,10 @@ halfword pdf_xform_list;        /* list of forms in the current page */
 integer pdf_xform_count;        /* counter of forms */
 integer pdf_cur_form;           /* the form being output */
 
-void output_form(PDF pdf, halfword p)
+void output_form(PDF pdf, halfword p, scaledpos pos)
 {
     pdf_goto_pagemode(pdf);
-    pdf_place_form(pdf, pos.h, pos.v, obj_info(pdf_xform_objnum(p)));
+    pdf_place_form(pdf, obj_info(pdf_xform_objnum(p)), pos);
     if (pdf_lookup_list(pdf_xform_list, pdf_xform_objnum(p)) == null)
         pdf_append_list(pdf_xform_objnum(p), pdf_xform_list);
 }

@@ -40,7 +40,6 @@ void free_image_dict(image_dict * p);
 void init_image_dict(image_dict *);
 void init_image(image *);
 void new_img_pdfstream_struct(image_dict *);
-void out_image(PDF, integer, scaled, scaled);
 void pdf_print_resname_prefix(void);
 void read_img(PDF, image_dict *, integer, integer);
 void scale_img(image *);

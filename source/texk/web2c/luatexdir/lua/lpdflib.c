@@ -86,7 +86,7 @@ int luapdfprint(lua_State * L)
     case (set_origin):
         pdf_goto_pagemode(static_pdf);
         pos = synch_p_with_c(cur);
-        pdf_set_pos(static_pdf,pos.h, pos.v);
+        pdf_set_pos(static_pdf, pos);
         break;
     case (direct_page):
         pdf_goto_pagemode(static_pdf);
@@ -98,7 +98,7 @@ int luapdfprint(lua_State * L)
         assert(0);
     }
     st = lua_tolstring(L, n, &len);
-    buf_to_pdfbuf_macro(static_pdf,st, len);
+    buf_to_pdfbuf_macro(static_pdf, st, len);
     return 0;
 }
 
@@ -143,7 +143,7 @@ static int l_immediateobj(lua_State * L)
             luaL_error(L, "pdf.immediateobj() 1st argument must be string");
         pdf_begin_obj(static_pdf, k, 1);
         st1 = lua_tolstring(L, first_arg, &len1);
-        buf_to_pdfbuf_macro(static_pdf,st1, len1);
+        buf_to_pdfbuf_macro(static_pdf, st1, len1);
         if (st1[len1 - 1] != '\n')
             pdf_puts(static_pdf, "\n");
         pdf_end_obj(static_pdf);
@@ -162,28 +162,28 @@ static int l_immediateobj(lua_State * L)
                            "pdf.immediateobj() 3rd argument forbidden in file mode");
             pdf_begin_obj(static_pdf, k, 1);
             buf = fread_to_buf(L, (char *) st2, &buflen);
-            buf_to_pdfbuf_macro(static_pdf,buf, buflen);
+            buf_to_pdfbuf_macro(static_pdf, buf, buflen);
             if (buf[buflen - 1] != '\n')
                 pdf_puts(static_pdf, "\n");
             xfree(buf);
             pdf_end_obj(static_pdf);
         } else {
-            pdf_begin_dict(static_pdf, k, 0);       /* 0 = not an object stream candidate! */
+            pdf_begin_dict(static_pdf, k, 0);   /* 0 = not an object stream candidate! */
             if (n == 3) {       /* write attr text */
                 if (!lua_isstring(L, (first_arg + 2)))
                     luaL_error(L,
                                "pdf.immediateobj() 3rd argument must be string");
                 st3 = (char *) lua_tolstring(L, (first_arg + 2), &len3);
-                buf_to_pdfbuf_macro(static_pdf,st3, len3);
+                buf_to_pdfbuf_macro(static_pdf, st3, len3);
                 if (st3[len3 - 1] != '\n')
                     pdf_puts(static_pdf, "\n");
             }
             pdf_begin_stream(static_pdf);
             if (len1 == 6 && strcmp(st1, "stream") == 0) {
-                buf_to_pdfbuf_macro(static_pdf,st2, len2);
+                buf_to_pdfbuf_macro(static_pdf, st2, len2);
             } else if (len1 == 10 && strcmp(st1, "streamfile") == 0) {
                 buf = fread_to_buf(L, (char *) st2, &buflen);
-                buf_to_pdfbuf_macro(static_pdf,buf, buflen);
+                buf_to_pdfbuf_macro(static_pdf, buf, buflen);
                 xfree(buf);
             } else
                 luaL_error(L, "pdf.immediateobj() invalid argument");
@@ -214,7 +214,7 @@ static int l_obj(lua_State * L)
         pdf_create_obj(obj_type_obj, pdf_obj_count);
         pdf_last_obj = k = obj_ptr;
     }
-    set_obj_data_ptr(k, pdf_get_mem(static_pdf,pdfmem_obj_size));
+    set_obj_data_ptr(k, pdf_get_mem(static_pdf, pdfmem_obj_size));
     set_obj_obj_is_stream(static_pdf, k, 0);
     set_obj_obj_stream_attr(static_pdf, k, 0);
     set_obj_obj_is_file(static_pdf, k, 0);
@@ -246,7 +246,7 @@ static int l_obj(lua_State * L)
                 lua_pop(L, 1);
             }
             if (len1 == 6 && strcmp(st1, "stream") == 0) {
-                set_obj_obj_is_stream(static_pdf,k,1);
+                set_obj_obj_is_stream(static_pdf, k, 1);
             } else if (len1 == 10 && strcmp(st1, "streamfile") == 0) {
                 set_obj_obj_is_stream(static_pdf, k, 1);
                 set_obj_obj_is_file(static_pdf, k, 1);

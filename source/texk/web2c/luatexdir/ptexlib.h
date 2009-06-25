@@ -340,7 +340,7 @@ int visible_last_node_type(int n);
 void print_node_mem_stats(void);
 
 /* lua/limglib.c */
-void vf_out_image(unsigned i);
+void vf_out_image(unsigned i, scaledpos pos);
 
 /* lua/ltexiolib.c */
 void flush_loggable_info(void);

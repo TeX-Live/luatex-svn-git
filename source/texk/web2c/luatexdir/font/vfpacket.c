@@ -218,7 +218,7 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
         case packet_image_code:
             packet_number(k);
             pos = synch_p_with_c(cur);
-            vf_out_image(k);
+            vf_out_image(k, pos);
             break;
         case packet_node_code:
             packet_number(k);

@@ -26,7 +26,7 @@ extern halfword pdf_ximage_list;        /* list of images in the current page */
 extern integer pdf_ximage_count;        /* counter of images */
 extern integer image_orig_x, image_orig_y;      /* origin of cropped PDF images */
 
-extern void output_image(PDF pdf, integer idx);
+extern void output_image(PDF pdf, integer idx, scaledpos pos);
 extern void pdf_write_image(PDF pdf, integer n);
 extern void scan_image(PDF pdf);
 extern scaled_whd scan_alt_rule(void);

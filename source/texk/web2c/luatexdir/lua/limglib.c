@@ -727,7 +727,7 @@ static const struct luaL_Reg imglib[] = {
 
 /**********************************************************************/
 
-void vf_out_image(unsigned i)
+void vf_out_image(unsigned i, scaledpos pos)
 {
     image *a, **aa;
     lua_State *L = Luas;        /* ... */
@@ -737,7 +737,7 @@ void vf_out_image(unsigned i)
     setup_image(L, a, WR_VF_IMG);       /* image ... */
     assert(img_is_refered(a));
     assert(static_pdf!=NULL);
-    output_image(static_pdf, img_arrayidx(a));
+    output_image(static_pdf, img_arrayidx(a), pos);
     lua_pop(L, 1);              /* ... */
 }
 

@@ -457,7 +457,7 @@ void scale_img(image * img)
     img_set_scaled(img);
 }
 
-void out_img(PDF pdf, image * img, pdfstructure * p, scaledpos * pos)
+void out_img(PDF pdf, image * img, pdfstructure * p, scaledpos pos)
 {
     float a[6];                 /* transformation matrix */
     float xoff, yoff, tmp;
@@ -533,8 +533,8 @@ void out_img(PDF pdf, image * img, pdfstructure * p, scaledpos * pos)
     a[1] *= ht + dp;
     a[2] *= wd;
     a[3] *= ht + dp;
-    a[4] = pos->h - xoff;
-    a[5] = pos->v - yoff;
+    a[4] = pos.h - xoff;
+    a[5] = pos.v - yoff;
     k = img_transform(img) + img_rotation(idict);
     if ((img_transform(img) & 7) > 3)
         k++;
@@ -560,7 +560,7 @@ void out_img(PDF pdf, image * img, pdfstructure * p, scaledpos * pos)
     setpdffloat(cm[3], round(a[3]), r);
     tmppos.h = round(a[4]);
     tmppos.v = round(a[5]);
-    (void) calc_pdfpos(p, &tmppos);
+    (void) calc_pdfpos(p, tmppos);
     cm[4] = p->cm[4];
     cm[5] = p->cm[5];
     pdf_goto_pagemode(pdf);
@@ -844,13 +844,4 @@ void set_image_dimensions(integer ref, scaled_whd dim)
     img_width(a) = dim.w;
     img_height(a) = dim.h;
     img_depth(a) = dim.d;
-}
-
-void out_image(PDF pdf, integer ref, scaled hpos, scaled vpos)
-{
-    image *a = img_array[ref];
-    scaledpos pos;
-    pos.h = hpos;
-    pos.v = vpos;
-    out_img(pdf, a, pstruct, &pos);
 }

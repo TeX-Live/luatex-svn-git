@@ -63,7 +63,7 @@ void pdf_out_literal(PDF pdf, halfword p)
         case set_origin:
             pdf_goto_pagemode(pdf);
             pos = synch_p_with_c(cur);
-            pdf_set_pos(pdf, pos.h, pos.v);
+            pdf_set_pos(pdf, pos);
             break;
         case direct_page:
             pdf_goto_pagemode(pdf);
@@ -127,7 +127,7 @@ void pdf_literal(PDF pdf, str_number s, integer literal_mode, boolean warn)
     case set_origin:
         pdf_goto_pagemode(pdf);
         pos = synch_p_with_c(cur);
-        pdf_set_pos(pdf, pos.h, pos.v);
+        pdf_set_pos(pdf, pos);
         break;
     case direct_page:
         pdf_goto_pagemode(pdf);

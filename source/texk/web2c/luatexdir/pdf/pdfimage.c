@@ -33,10 +33,10 @@ integer image_orig_x, image_orig_y;     /* origin of cropped PDF images */
 
 #define scan_normal_dimen() scan_dimen(false,false,false)
 
-void output_image(PDF pdf, integer idx)
+void output_image(PDF pdf, integer idx, scaledpos pos)
 {
     pdf_goto_pagemode(pdf);
-    out_image(pdf, idx, pos.h, pos.v);
+    out_image(pdf, idx, pos);
     if (pdf_lookup_list(pdf_ximage_list, image_objnum(idx)) == null)
         pdf_append_list(image_objnum(idx), pdf_ximage_list);
 }

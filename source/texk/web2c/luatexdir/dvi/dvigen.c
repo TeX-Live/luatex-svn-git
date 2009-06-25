@@ -2213,6 +2213,7 @@ The |out_what| procedure takes care of outputting whatsit nodes for
 void out_what(halfword p)
 {
     int j;                      /* write stream number */
+    scaledpos pos;
     switch (subtype(p)) {
     case open_node:
     case write_node:
@@ -2251,7 +2252,7 @@ void out_what(halfword p)
         break;
     case pdf_save_pos_node:
         /* Save current position */
-        synch_pos_with_cur();
+        pos = synch_p_with_c(cur);
         pdf_last_x_pos = pos.h;
         pdf_last_y_pos = pos.v;
         break;
