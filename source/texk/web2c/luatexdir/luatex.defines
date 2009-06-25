@@ -611,26 +611,16 @@
 @define procedure do_pdf_font();
 
 { functions from image/writeimg.c }
-@define function check_image_b();
-@define function check_image_c();
-@define function check_image_i();
 @define function epdf_xsize();
 @define function epdf_ysize();
 @define function epdf_orig_x();
 @define function epdf_orig_y();
-@define function image_pages();
-@define function image_colordepth();
-@define function image_index();
 @define function image_width();
 @define function image_height();
 @define function image_depth();
-@define function image_objnum();
 @define function is_pdf_image();
-@define function is_png_image();
 @define function read_image();
-@define procedure update_image_procset();
 @define procedure write_image();
-@define procedure scale_image();
 @define procedure set_image_dimensions();
 @define procedure out_image();
 
