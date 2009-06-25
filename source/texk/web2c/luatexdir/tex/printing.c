@@ -376,7 +376,7 @@ void print_version_banner (void)
 {
   fprintf(term_out,"%s",BANNER); /* todo: get the extra info in here */
   fprintf(term_out,versionstring);
-  write_svnversion(luatex_svnversion);
+  /* write_svnversion(luatex_svnversion); */
 }
 
 /*

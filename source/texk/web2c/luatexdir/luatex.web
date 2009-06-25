@@ -515,7 +515,6 @@ in production versions of \TeX.
 @!pool_name='TeXformats:TEX.POOL                     ';
   {string of length |file_name_size|; tells where the string pool appears}
 @.TeXformats@>
-@!luatex_svnversion='$Id$';
 @!luatex_version_string='beta-0.41.0';
 
 @ Like the preceding parameters, the following quantities can be changed
