@@ -22,19 +22,15 @@
 #ifndef PDFGEN_H
 #  define PDFGEN_H
 
-#  define inf_pdf_mem_size 10000        /* min size of the |pdf_mem| array */
-#  define sup_pdf_mem_size 10000000     /* max size of the |pdf_mem| array */
+#  define inf_pdf_mem_size 10000        /* min size of the |mem| array */
+#  define sup_pdf_mem_size 10000000     /* max size of the |mem| array */
 
 extern PDF static_pdf;
-
-extern integer pdf_mem_size;
-extern integer *pdf_mem;
-extern integer pdf_mem_ptr;
 
 extern void initialize_pdfgen(void);
 extern PDF initialize_pdf(void);
 
-extern integer pdf_get_mem(integer s);
+extern integer pdf_get_mem(PDF pdf, integer s);
 
 /*
 We use the similiar subroutines to handle the output buffer for

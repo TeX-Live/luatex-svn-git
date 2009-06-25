@@ -28,54 +28,55 @@ static const char __svn_version[] =
 /* Data structure of outlines; it's not able to write out outline entries
 before all outline entries are defined, so memory allocated for outline
 entries can't not be deallocated and will stay in memory. For this reason we
-will store data of outline entries in |pdf_mem| instead of |mem|
+will store data of outline entries in |pdf->mem| instead of |mem|
 */
 
-#define pdfmem_outline_size      8      /* size of memory in |pdf_mem| which |obj_outline_ptr| points to */
+#define pdfmem_outline_size      8      /* size of memory in |pdf->mem| which |obj_outline_ptr| points to */
 
 #define obj_outline_count         obj_info      /* count of all opened children */
-#define obj_outline_ptr           obj_aux       /* pointer to |pdf_mem| */
-#define obj_outline_title(A)      pdf_mem[obj_outline_ptr(A)]
-#define obj_outline_parent(A)     pdf_mem[obj_outline_ptr(A) + 1]
-#define obj_outline_prev(A)       pdf_mem[obj_outline_ptr(A) + 2]
-#define obj_outline_next(A)       pdf_mem[obj_outline_ptr(A) + 3]
-#define obj_outline_first(A)      pdf_mem[obj_outline_ptr(A) + 4]
-#define obj_outline_last(A)       pdf_mem[obj_outline_ptr(A) + 5]
-#define obj_outline_action_objnum(A)  pdf_mem[obj_outline_ptr(A) + 6]   /* object number of action */
-#define obj_outline_attr(A)       pdf_mem[obj_outline_ptr(A) + 7]
-
-#define set_obj_outline_ptr(A,B) obj_outline_ptr(A)=B
-#define set_obj_outline_action_objnum(A,B) obj_outline_action_objnum(A)=B
 #define set_obj_outline_count(A,B) obj_outline_count(A)=B
-#define set_obj_outline_title(A,B) obj_outline_title(A)=B
-#define set_obj_outline_prev(A,B) obj_outline_prev(A)=B
-#define set_obj_outline_next(A,B) obj_outline_next(A)=B
-#define set_obj_outline_first(A,B) obj_outline_first(A)=B
-#define set_obj_outline_last(A,B) obj_outline_last(A)=B
-#define set_obj_outline_parent(A,B) obj_outline_parent(A)=B
-#define set_obj_outline_attr(A,B) obj_outline_attr(A)=B
+#define obj_outline_ptr           obj_aux       /* pointer to |pdf->mem| */
+#define set_obj_outline_ptr(A,B) obj_outline_ptr(A)=B
+
+#define obj_outline_title(pdf,A)      pdf->mem[obj_outline_ptr(A)]
+#define obj_outline_parent(pdf,A)     pdf->mem[obj_outline_ptr(A) + 1]
+#define obj_outline_prev(pdf,A)       pdf->mem[obj_outline_ptr(A) + 2]
+#define obj_outline_next(pdf,A)       pdf->mem[obj_outline_ptr(A) + 3]
+#define obj_outline_first(pdf,A)      pdf->mem[obj_outline_ptr(A) + 4]
+#define obj_outline_last(pdf,A)       pdf->mem[obj_outline_ptr(A) + 5]
+#define obj_outline_action_objnum(pdf,A)  pdf->mem[obj_outline_ptr(A) + 6]   /* object number of action */
+#define obj_outline_attr(pdf,A)       pdf->mem[obj_outline_ptr(A) + 7]
+
+#define set_obj_outline_action_objnum(pdf,A,B) obj_outline_action_objnum(pdf,A)=B
+#define set_obj_outline_title(pdf,A,B) obj_outline_title(pdf,A)=B
+#define set_obj_outline_prev(pdf,A,B) obj_outline_prev(pdf,A)=B
+#define set_obj_outline_next(pdf,A,B) obj_outline_next(pdf,A)=B
+#define set_obj_outline_first(pdf,A,B) obj_outline_first(pdf,A)=B
+#define set_obj_outline_last(pdf,A,B) obj_outline_last(pdf,A)=B
+#define set_obj_outline_parent(pdf,A,B) obj_outline_parent(pdf,A)=B
+#define set_obj_outline_attr(pdf,A,B) obj_outline_attr(pdf,A)=B
 
 
 static integer pdf_first_outline = 0;
 static integer pdf_last_outline = 0;
 static integer pdf_parent_outline = 0;
 
-static integer open_subentries(halfword p)
+static integer open_subentries(PDF pdf, halfword p)
 {
     integer k, c;
     integer l, r;
     k = 0;
-    if (obj_outline_first(p) != 0) {
-        l = obj_outline_first(p);
+    if (obj_outline_first(pdf,p) != 0) {
+        l = obj_outline_first(pdf,p);
         do {
             incr(k);
-            c = open_subentries(l);
+            c = open_subentries(pdf,l);
             if (obj_outline_count(l) > 0)
                 k = k + c;
-            obj_outline_parent(l) = p;
-            r = obj_outline_next(l);
+            obj_outline_parent(pdf,l) = p;
+            r = obj_outline_next(pdf,l);
             if (r == 0)
-                obj_outline_last(p) = l;
+                obj_outline_last(pdf,p) = l;
             l = r;
         } while (l != 0);
     }
@@ -169,12 +170,12 @@ halfword scan_action(void)
 }
 
 /* return number of outline entries in the same level with |p| */
-static integer outline_list_count(pointer p)
+static integer outline_list_count(PDF pdf, pointer p)
 {
     integer k = 1;
-    while (obj_outline_prev(p) != 0) {
+    while (obj_outline_prev(pdf,p) != 0) {
         incr(k);
-        p = obj_outline_prev(p);
+        p = obj_outline_prev(pdf,p);
     }
     return k;
 }
@@ -205,8 +206,8 @@ void scan_pdfoutline(PDF pdf)
     delete_action_ref(p);
     pdf_create_obj(obj_type_outline, 0);
     k = obj_ptr;
-    set_obj_outline_ptr(k, pdf_get_mem(pdfmem_outline_size));
-    set_obj_outline_action_objnum(k, j);
+    set_obj_outline_ptr(k, pdf_get_mem(pdf, pdfmem_outline_size));
+    set_obj_outline_action_objnum(pdf,k, j);
     set_obj_outline_count(k, i);
     pdf_new_obj(pdf, obj_type_others, 0, 1);
     {
@@ -216,43 +217,43 @@ void scan_pdfoutline(PDF pdf)
     }
     delete_token_ref(q);
     pdf_end_obj(pdf);
-    set_obj_outline_title(k, obj_ptr);
-    set_obj_outline_prev(k, 0);
-    set_obj_outline_next(k, 0);
-    set_obj_outline_first(k, 0);
-    set_obj_outline_last(k, 0);
-    set_obj_outline_parent(k, pdf_parent_outline);
-    set_obj_outline_attr(k, r);
+    set_obj_outline_title(pdf,k, obj_ptr);
+    set_obj_outline_prev(pdf,k, 0);
+    set_obj_outline_next(pdf,k, 0);
+    set_obj_outline_first(pdf,k, 0);
+    set_obj_outline_last(pdf,k, 0);
+    set_obj_outline_parent(pdf,k, pdf_parent_outline);
+    set_obj_outline_attr(pdf,k, r);
     if (pdf_first_outline == 0)
         pdf_first_outline = k;
     if (pdf_last_outline == 0) {
         if (pdf_parent_outline != 0)
-            set_obj_outline_first(pdf_parent_outline, k);
+            set_obj_outline_first(pdf,pdf_parent_outline, k);
     } else {
-        set_obj_outline_next(pdf_last_outline, k);
-        set_obj_outline_prev(k, pdf_last_outline);
+        set_obj_outline_next(pdf,pdf_last_outline, k);
+        set_obj_outline_prev(pdf,k, pdf_last_outline);
     }
     pdf_last_outline = k;
     if (obj_outline_count(k) != 0) {
         pdf_parent_outline = k;
         pdf_last_outline = 0;
     } else if ((pdf_parent_outline != 0) &&
-               (outline_list_count(k) ==
+               (outline_list_count(pdf,k) ==
                 abs(obj_outline_count(pdf_parent_outline)))) {
         j = pdf_last_outline;
         do {
-            set_obj_outline_last(pdf_parent_outline, j);
+            set_obj_outline_last(pdf,pdf_parent_outline, j);
             j = pdf_parent_outline;
-            pdf_parent_outline = obj_outline_parent(pdf_parent_outline);
+            pdf_parent_outline = obj_outline_parent(pdf,pdf_parent_outline);
         } while (!((pdf_parent_outline == 0) ||
-                   (outline_list_count(j) <
+                   (outline_list_count(pdf,j) <
                     abs(obj_outline_count(pdf_parent_outline)))));
         if (pdf_parent_outline == 0)
             pdf_last_outline = pdf_first_outline;
         else
-            pdf_last_outline = obj_outline_first(pdf_parent_outline);
-        while (obj_outline_next(pdf_last_outline) != 0)
-            pdf_last_outline = obj_outline_next(pdf_last_outline);
+            pdf_last_outline = obj_outline_first(pdf,pdf_parent_outline);
+        while (obj_outline_next(pdf,pdf_last_outline) != 0)
+            pdf_last_outline = obj_outline_next(pdf,pdf_last_outline);
     }
 }
 
@@ -270,11 +271,11 @@ integer print_outlines(PDF pdf)
         k = 0;
         do {
             incr(k);
-            a = open_subentries(l);
+            a = open_subentries(pdf,l);
             if (obj_outline_count(l) > 0)
                 k = k + a;
-            set_obj_outline_parent(l, obj_ptr);
-            l = obj_outline_next(l);
+            set_obj_outline_parent(pdf,l, obj_ptr);
+            l = obj_outline_next(pdf,l);
         } while (l != 0);
         pdf_printf(pdf, "/Type /Outlines\n");
         pdf_indirect_ln(pdf, "First", pdf_first_outline);
@@ -285,31 +286,31 @@ integer print_outlines(PDF pdf)
 
         k = head_tab[obj_type_outline];
         while (k != 0) {
-            if (obj_outline_parent(k) == pdf_parent_outline) {
-                if (obj_outline_prev(k) == 0)
+            if (obj_outline_parent(pdf,k) == pdf_parent_outline) {
+                if (obj_outline_prev(pdf,k) == 0)
                     pdf_first_outline = k;
-                if (obj_outline_next(k) == 0)
+                if (obj_outline_next(pdf,k) == 0)
                     pdf_last_outline = k;
             }
             pdf_begin_dict(pdf, k, 1);
-            pdf_indirect_ln(pdf, "Title", obj_outline_title(k));
-            pdf_indirect_ln(pdf, "A", obj_outline_action_objnum(k));
-            if (obj_outline_parent(k) != 0)
-                pdf_indirect_ln(pdf, "Parent", obj_outline_parent(k));
-            if (obj_outline_prev(k) != 0)
-                pdf_indirect_ln(pdf, "Prev", obj_outline_prev(k));
-            if (obj_outline_next(k) != 0)
-                pdf_indirect_ln(pdf, "Next", obj_outline_next(k));
-            if (obj_outline_first(k) != 0)
-                pdf_indirect_ln(pdf, "First", obj_outline_first(k));
-            if (obj_outline_last(k) != 0)
-                pdf_indirect_ln(pdf, "Last", obj_outline_last(k));
+            pdf_indirect_ln(pdf, "Title", obj_outline_title(pdf,k));
+            pdf_indirect_ln(pdf, "A", obj_outline_action_objnum(pdf,k));
+            if (obj_outline_parent(pdf,k) != 0)
+                pdf_indirect_ln(pdf, "Parent", obj_outline_parent(pdf,k));
+            if (obj_outline_prev(pdf,k) != 0)
+                pdf_indirect_ln(pdf, "Prev", obj_outline_prev(pdf,k));
+            if (obj_outline_next(pdf,k) != 0)
+                pdf_indirect_ln(pdf, "Next", obj_outline_next(pdf,k));
+            if (obj_outline_first(pdf,k) != 0)
+                pdf_indirect_ln(pdf, "First", obj_outline_first(pdf,k));
+            if (obj_outline_last(pdf,k) != 0)
+                pdf_indirect_ln(pdf, "Last", obj_outline_last(pdf,k));
             if (obj_outline_count(k) != 0)
                 pdf_int_entry_ln(pdf, "Count", obj_outline_count(k));
-            if (obj_outline_attr(k) != 0) {
-                pdf_print_toks_ln(pdf, obj_outline_attr(k));
-                delete_token_ref(obj_outline_attr(k));
-                set_obj_outline_attr(k, null);
+            if (obj_outline_attr(pdf,k) != 0) {
+                pdf_print_toks_ln(pdf, obj_outline_attr(pdf,k));
+                delete_token_ref(obj_outline_attr(pdf,k));
+                set_obj_outline_attr(pdf,k, null);
             }
             pdf_end_dict(pdf);
             k = obj_link(k);

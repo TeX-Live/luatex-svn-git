@@ -27,36 +27,43 @@
 #  define obj_thread_first           obj_aux    /* pointer to the first bead */
 
 /* data structure of beads */
-#  define pdfmem_bead_size          5   /* size of memory in |pdf_mem| which  |obj_bead_ptr| points to */
-
-#  define obj_bead_ptr              obj_aux     /* pointer to |pdf_mem| */
-#  define obj_bead_rect(A)          pdf_mem[obj_bead_ptr(A)]
-#  define obj_bead_page(A)          pdf_mem[obj_bead_ptr(A) + 1]
-#  define obj_bead_next(A)          pdf_mem[obj_bead_ptr(A) + 2]
-#  define obj_bead_prev(A)          pdf_mem[obj_bead_ptr(A) + 3]
-#  define obj_bead_attr(A)          pdf_mem[obj_bead_ptr(A) + 4]
-#  define set_obj_bead_rect(A,B) obj_bead_rect(A)=B
+#  define pdfmem_bead_size          5   /* size of memory in |pdf->mem| which  |obj_bead_ptr| points to */
 
 #  define set_pdf_thread_attr(A,B) pdf_thread_attr(A)=B
 #  define set_pdf_thread_id(A,B) pdf_thread_id(A)=B
 #  define set_pdf_thread_named_id(A,B) pdf_thread_named_id(A)=B
 
+#  define obj_bead_ptr              obj_aux     /* pointer to |pdf->mem| */
+#  define obj_bead_rect(pdf,A)          pdf->mem[obj_bead_ptr(A)]
+#  define obj_bead_page(pdf,A)          pdf->mem[obj_bead_ptr(A) + 1]
+#  define obj_bead_next(pdf,A)          pdf->mem[obj_bead_ptr(A) + 2]
+#  define obj_bead_prev(pdf,A)          pdf->mem[obj_bead_ptr(A) + 3]
+#  define obj_bead_attr(pdf,A)          pdf->mem[obj_bead_ptr(A) + 4]
+
+#  define set_obj_bead_rect(pdf,A,B) obj_bead_rect(pdf,A)=B
+#  define set_obj_bead_page(pdf,A,B) obj_bead_page(pdf,A)=B
+#  define set_obj_bead_next(pdf,A,B) obj_bead_next(pdf,A)=B
+#  define set_obj_bead_prev(pdf,A,B) obj_bead_prev(pdf,A)=B
+#  define set_obj_bead_attr(pdf,A,B) obj_bead_attr(pdf,A)=B
+
+
 /* pointer to the corresponding whatsit node; |obj_bead_rect| is needed only when the bead
    rectangle has been written out and after that |obj_bead_data| is not needed any more
    so we can use this field for both */
 #  define obj_bead_data             obj_bead_rect
+#  define set_obj_bead_data         set_obj_bead_rect
 
-extern void append_bead(halfword p);
-extern void do_thread(halfword parent_box, halfword p, scaled x, scaled y);
-extern void append_thread(halfword parent_box, scaled x, scaled y);
-extern void end_thread(void);
+extern void append_bead(PDF pdf, halfword p);
+extern void do_thread(PDF pdf, halfword parent_box, halfword p, scaled x, scaled y);
+extern void append_thread(PDF pdf, halfword parent_box, scaled x, scaled y);
+extern void end_thread(PDF pdf);
 extern void scan_thread_id(void);
 
 extern void thread_title(PDF pdf, integer t);
 extern void pdf_fix_thread(PDF pdf, integer t);
 extern void out_thread(PDF pdf, integer t);
 
-extern void check_running_thread(halfword this_box, scaledpos cur);
+extern void check_running_thread(PDF pdf, halfword this_box, scaledpos cur);
 extern void reset_thread_lists(void);
 extern void print_beads_list(PDF pdf);
 extern void print_bead_rectangles(PDF pdf);

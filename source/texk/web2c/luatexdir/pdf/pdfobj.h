@@ -24,21 +24,22 @@
 
 /* data structure for \.{\\pdfobj} and \.{\\pdfrefobj} */
 
-#  define pdfmem_obj_size          4    /* size of memory in |pdf_mem| which |obj_data_ptr| holds */
+#  define set_pdf_obj_objnum(A,B) pdf_obj_objnum(A)=B
 
-#  define obj_obj_data(A)          pdf_mem[obj_data_ptr(A) + 0] /* object data */
-#  define obj_obj_is_stream(A)     pdf_mem[obj_data_ptr(A) + 1] /* will this object
-                                                                   be written as a stream instead of a dictionary? */
-#  define obj_obj_stream_attr(A)   pdf_mem[obj_data_ptr(A) + 2] /* additional
-                                                                   object attributes for streams */
-#  define obj_obj_is_file(A)       pdf_mem[obj_data_ptr(A) + 3] /* data should be
+
+#  define pdfmem_obj_size          4    /* size of memory in |mem| which |obj_data_ptr| holds */
+
+#  define obj_obj_data(pdf,A)          pdf->mem[obj_data_ptr(A) + 0] /* object data */
+#  define obj_obj_is_stream(pdf,A)     pdf->mem[obj_data_ptr(A) + 1] /* will this object
+                                                                        be written as a stream instead of a dictionary? */
+#  define obj_obj_stream_attr(pdf,A)   pdf->mem[obj_data_ptr(A) + 2] /* additional object attributes for streams */
+#  define obj_obj_is_file(pdf,A)       pdf->mem[obj_data_ptr(A) + 3] /* data should be
                                                                    read from an external file? */
 
-#  define set_obj_obj_is_stream(A,B) obj_obj_is_stream(A)=B
-#  define set_obj_obj_stream_attr(A,B) obj_obj_stream_attr(A)=B
-#  define set_obj_obj_is_file(A,B) obj_obj_is_file(A)=B
-#  define set_obj_obj_data(A,B) obj_obj_data(A)=B
-#  define set_pdf_obj_objnum(A,B) pdf_obj_objnum(A)=B
+#  define set_obj_obj_is_stream(pdf,A,B) obj_obj_is_stream(pdf,A)=B
+#  define set_obj_obj_stream_attr(pdf,A,B) obj_obj_stream_attr(pdf,A)=B
+#  define set_obj_obj_is_file(pdf,A,B) obj_obj_is_file(pdf,A)=B
+#  define set_obj_obj_data(pdf,A,B) obj_obj_data(pdf,A)=B
 
 extern halfword pdf_obj_list;   /* list of objects in the current page */
 extern integer pdf_obj_count;   /* counter of objects */
@@ -46,6 +47,6 @@ extern integer pdf_last_obj;
 
 
 extern void pdf_write_obj(PDF pdf, integer n);
-extern void scan_obj(void);
+extern void scan_obj(PDF pdf);
 
 #endif

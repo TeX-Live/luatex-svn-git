@@ -91,6 +91,21 @@ static lua_Number get_pdf_os_objidx (void)
     return (lua_Number)0;
 }
 
+static lua_Number get_pdf_mem_size (void)
+{
+    if (static_pdf!=NULL)
+        return (lua_Number)static_pdf->mem_size;
+    return (lua_Number)0;
+}
+
+static lua_Number get_pdf_mem_ptr (void)
+{
+    if (static_pdf!=NULL)
+        return (lua_Number)static_pdf->mem_ptr;
+    return (lua_Number)0;
+}
+
+
 
 
 extern int luabytecode_max;
@@ -153,8 +168,8 @@ static struct statistic stats[] = {
     {"pdf_os_objidx", 'N', &get_pdf_os_objidx},
     {"pdf_dest_names_ptr", 'g', &pdf_dest_names_ptr},
     {"dest_names_size", 'g', &dest_names_size},
-    {"pdf_mem_ptr", 'g', &pdf_mem_ptr},
-    {"pdf_mem_size", 'g', &pdf_mem_size},
+    {"pdf_mem_ptr", 'N', &get_pdf_mem_ptr},
+    {"pdf_mem_size", 'N', &get_pdf_mem_size},
 
     {"largest_used_mark", 'g', &biggest_used_mark},
 

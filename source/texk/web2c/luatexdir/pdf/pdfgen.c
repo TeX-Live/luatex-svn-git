@@ -38,17 +38,6 @@ PDF static_pdf = NULL;
 
 static char *jobname_cstr = NULL;
 
-/*
-Sometimes it is neccesary to allocate memory for PDF output that cannot
-be deallocated then, so we use |pdf_mem| for this purpose.
-*/
-
-integer pdf_mem_size = inf_pdf_mem_size;        /* allocated size of |pdf_mem| array */
-integer *pdf_mem;
-/* the first word is not used so we can use zero as a value for testing
-   whether a pointer to |pdf_mem| is valid  */
-integer pdf_mem_ptr = 1;
-
 integer fixed_pdfoutput;        /* fixed output format */
 boolean fixed_pdfoutput_set = false;    /* |fixed_pdfoutput| has been set? */
 
@@ -73,6 +62,14 @@ PDF initialize_pdf(void)
 
     pdf->buf_size = pdf->op_buf_size;
     pdf->buf = pdf->op_buf;
+
+    /* Sometimes it is neccesary to allocate memory for PDF output that cannot
+       be deallocated then, so we use |mem| for this purpose. */
+    pdf->mem_size = inf_pdf_mem_size;        /* allocated size of |mem| array */
+    pdf->mem = xmalloc(pdf->mem_size * sizeof (int)) ;
+    pdf->mem_ptr = 1; /* the first word is not used so we can use zero as a value for testing
+                         whether a pointer to |mem| is valid  */
+
     return pdf;
 }
 
@@ -141,28 +138,28 @@ void initialize_pdf_output(PDF pdf)
 }
 
 /*
-  We use |pdf_get_mem| to allocate memory in |pdf_mem|
+  We use |pdf_get_mem| to allocate memory in |mem|
 */
 
-integer pdf_get_mem(integer s)
-{                               /* allocate |s| words in |pdf_mem| */
+integer pdf_get_mem(PDF pdf, integer s)
+{                               /* allocate |s| words in |mem| */
     integer a;
     integer ret;
-    if (s > sup_pdf_mem_size - pdf_mem_ptr)
-        overflow(maketexstring("PDF memory size (pdf_mem_size)"), pdf_mem_size);
-    if (pdf_mem_ptr + s > pdf_mem_size) {
-        a = 0.2 * pdf_mem_size;
-        if (pdf_mem_ptr + s > pdf_mem_size + a) {
-            pdf_mem_size = pdf_mem_ptr + s;
-        } else if (pdf_mem_size < sup_pdf_mem_size - a) {
-            pdf_mem_size = pdf_mem_size + a;
+    if (s > sup_pdf_mem_size - pdf->mem_ptr)
+        overflow(maketexstring("PDF memory size (pdf_mem_size)"), pdf->mem_size);
+    if (pdf->mem_ptr + s > pdf->mem_size) {
+        a = 0.2 * pdf->mem_size;
+        if (pdf->mem_ptr + s > pdf->mem_size + a) {
+            pdf->mem_size = pdf->mem_ptr + s;
+        } else if (pdf->mem_size < sup_pdf_mem_size - a) {
+            pdf->mem_size = pdf->mem_size + a;
         } else {
-            pdf_mem_size = sup_pdf_mem_size;
+            pdf->mem_size = sup_pdf_mem_size;
         }
-        pdf_mem = xreallocarray(pdf_mem, integer, pdf_mem_size);
+        pdf->mem = xreallocarray(pdf->mem, int, pdf->mem_size);
     }
-    ret = pdf_mem_ptr;
-    pdf_mem_ptr = pdf_mem_ptr + s;
+    ret = pdf->mem_ptr;
+    pdf->mem_ptr = pdf->mem_ptr + s;
     return ret;
 }
 

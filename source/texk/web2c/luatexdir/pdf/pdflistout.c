@@ -434,7 +434,7 @@ void pdf_hlist_out(PDF pdf)
                     do_dest(p, this_box, left_edge, base_line);
                     break;
                 case pdf_thread_node:
-                    do_thread(p, this_box, left_edge, base_line);
+                    do_thread(pdf, p, this_box, left_edge, base_line);
                     break;
                 case pdf_start_thread_node:
                     pdf_error(maketexstring("ext4"),
@@ -756,7 +756,7 @@ void pdf_vlist_out(PDF pdf)
     cur.v = cur.v - height(this_box);
     top_edge = cur.v;
     /* Create thread for the current vbox if needed */
-    check_running_thread(this_box, cur);
+    check_running_thread(pdf, this_box, cur);
 
     while (p != null) {
         if (is_char_node(p)) {
@@ -950,11 +950,11 @@ void pdf_vlist_out(PDF pdf)
                     break;
                 case pdf_thread_node:
                 case pdf_start_thread_node:
-                    do_thread(p, this_box, left_edge,
+                    do_thread(pdf, p, this_box, left_edge,
                               top_edge + height(this_box));
                     break;
                 case pdf_end_thread_node:
-                    end_thread();
+                    end_thread(pdf);
                     break;
                 case pdf_save_pos_node:
                     /* Save current position */

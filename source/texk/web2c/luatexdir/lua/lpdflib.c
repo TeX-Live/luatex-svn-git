@@ -214,10 +214,10 @@ static int l_obj(lua_State * L)
         pdf_create_obj(obj_type_obj, pdf_obj_count);
         pdf_last_obj = k = obj_ptr;
     }
-    obj_data_ptr(k) = pdf_get_mem(pdfmem_obj_size);
-    obj_obj_is_stream(k) = 0;
-    obj_obj_stream_attr(k) = 0;
-    obj_obj_is_file(k) = 0;
+    set_obj_data_ptr(k, pdf_get_mem(static_pdf,pdfmem_obj_size));
+    set_obj_obj_is_stream(static_pdf, k, 0);
+    set_obj_obj_stream_attr(static_pdf, k, 0);
+    set_obj_obj_is_file(static_pdf, k, 0);
     switch (n) {
     case 0:
         luaL_error(L, "pdf.obj() needs at least one argument");
@@ -225,7 +225,7 @@ static int l_obj(lua_State * L)
     case 1:
         if (!lua_isstring(L, first_arg))
             luaL_error(L, "pdf.obj() 1st argument must be string");
-        obj_obj_data(k) = tokenlist_from_lua(L);
+        set_obj_obj_data(static_pdf, k, tokenlist_from_lua(L));
         break;
     case 2:
     case 3:
@@ -237,23 +237,23 @@ static int l_obj(lua_State * L)
         if (len1 == 4 && strcmp(st1, "file") == 0) {
             if (n == 3)
                 luaL_error(L, "pdf.obj() 3rd argument forbidden in file mode");
-            obj_obj_is_file(k) = 1;
+            set_obj_obj_is_file(static_pdf, k, 1);
         } else {
             if (n == 3) {       /* write attr text */
                 if (!lua_isstring(L, (first_arg + 2)))
                     luaL_error(L, "pdf.obj() 3rd argument must be string");
-                obj_obj_stream_attr(k) = tokenlist_from_lua(L);
+                set_obj_obj_stream_attr(static_pdf, k, tokenlist_from_lua(L));
                 lua_pop(L, 1);
             }
             if (len1 == 6 && strcmp(st1, "stream") == 0) {
-                obj_obj_is_stream(k) = 1;
+                set_obj_obj_is_stream(static_pdf,k,1);
             } else if (len1 == 10 && strcmp(st1, "streamfile") == 0) {
-                obj_obj_is_stream(k) = 1;
-                obj_obj_is_file(k) = 1;
+                set_obj_obj_is_stream(static_pdf, k, 1);
+                set_obj_obj_is_file(static_pdf, k, 1);
             } else
                 luaL_error(L, "pdf.obj() invalid argument");
         }
-        obj_obj_data(k) = tokenlist_from_lua(L);
+        set_obj_obj_data(static_pdf, k, tokenlist_from_lua(L));
         break;
     default:
         luaL_error(L, "pdf.obj() allows max. 3 arguments");

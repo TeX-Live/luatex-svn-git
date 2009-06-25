@@ -44,7 +44,7 @@ static halfword pdf_bead_list = 0;      /* list of thread beads in the current p
 
 /* Threads are handled in similar way as link annotations */
 
-void append_bead(halfword p)
+void append_bead(PDF pdf, halfword p)
 {
     integer a, b, c, t;
     if (!is_shipping_page)
@@ -52,29 +52,29 @@ void append_bead(halfword p)
                   maketexstring("threads cannot be inside an XForm"));
     t = get_obj(obj_type_thread, pdf_thread_id(p), pdf_thread_named_id(p));
     b = pdf_new_objnum();
-    obj_bead_ptr(b) = pdf_get_mem(pdfmem_bead_size);
-    obj_bead_page(b) = pdf_last_page;
-    obj_bead_data(b) = p;
+    obj_bead_ptr(b) = pdf_get_mem(pdf, pdfmem_bead_size);
+    set_obj_bead_page(pdf,b,pdf_last_page);
+    set_obj_bead_data(pdf, b, p);
     if (pdf_thread_attr(p) != null)
-        obj_bead_attr(b) = tokens_to_string(pdf_thread_attr(p));
+        set_obj_bead_attr(pdf, b, tokens_to_string(pdf_thread_attr(p)));
     else
-        obj_bead_attr(b) = 0;
+        set_obj_bead_attr(pdf, b, 0);
     if (obj_thread_first(t) == 0) {
         obj_thread_first(t) = b;
-        obj_bead_next(b) = b;
-        obj_bead_prev(b) = b;
+        set_obj_bead_next(pdf,b, b);
+        set_obj_bead_prev(pdf,b, b);
     } else {
         a = obj_thread_first(t);
-        c = obj_bead_prev(a);
-        obj_bead_prev(b) = c;
-        obj_bead_next(b) = a;
-        obj_bead_prev(a) = b;
-        obj_bead_next(c) = b;
+        c = obj_bead_prev(pdf, a);
+        set_obj_bead_prev(pdf, b, c);
+        set_obj_bead_next(pdf, b, a);
+        set_obj_bead_prev(pdf, a, b);
+        set_obj_bead_next(pdf, c, b);
     }
     pdf_append_list(b, pdf_bead_list);
 }
 
-void do_thread(halfword parent_box, halfword p, scaled x, scaled y)
+void do_thread(PDF pdf, halfword parent_box, halfword p, scaled x, scaled y)
 {
     if (doing_leaders)
         return;
@@ -91,11 +91,11 @@ void do_thread(halfword parent_box, halfword p, scaled x, scaled y)
     set_rect_dimens(p, parent_box, x, y,
                     pdf_width(p), pdf_height(p), pdf_depth(p),
                     pdf_thread_margin);
-    append_bead(p);
+    append_bead(pdf, p);
     last_thread = p;
 }
 
-void append_thread(halfword parent_box, scaled x, scaled y)
+void append_thread(PDF pdf, halfword parent_box, scaled x, scaled y)
 {
     halfword p;
     p = new_node(whatsit_node, pdf_thread_data_node);
@@ -113,13 +113,14 @@ void append_thread(halfword parent_box, scaled x, scaled y)
     set_rect_dimens(p, parent_box, x, y,
                     pdf_width(p), pdf_height(p), pdf_depth(p),
                     pdf_thread_margin);
-    append_bead(p);
+    append_bead(pdf,p);
     last_thread = p;
 }
 
-void end_thread(void)
+void end_thread(PDF pdf)
 {
     scaledpos tmp1, tmp2;
+    (void)pdf; /* for later */
     if (pdf_thread_level != cur_s)
         pdf_error(maketexstring("ext4"),
                   maketexstring
@@ -213,9 +214,9 @@ void out_thread(PDF pdf, integer t)
     b = a;
     last_attr = 0;
     do {
-        if (obj_bead_attr(a) != 0)
-            last_attr = obj_bead_attr(a);
-        a = obj_bead_next(a);
+        if (obj_bead_attr(pdf, a) != 0)
+            last_attr = obj_bead_attr(pdf, a);
+        a = obj_bead_next(pdf, a);
     } while (a != b);
     if (last_attr != 0) {
         pdf_print_ln(pdf, last_attr);
@@ -230,12 +231,12 @@ void out_thread(PDF pdf, integer t)
         pdf_begin_dict(pdf, a, 1);
         if (a == b)
             pdf_indirect_ln(pdf, "T", t);
-        pdf_indirect_ln(pdf, "V", obj_bead_prev(a));
-        pdf_indirect_ln(pdf, "N", obj_bead_next(a));
-        pdf_indirect_ln(pdf, "P", obj_bead_page(a));
-        pdf_indirect_ln(pdf, "R", obj_bead_rect(a));
+        pdf_indirect_ln(pdf, "V", obj_bead_prev(pdf, a));
+        pdf_indirect_ln(pdf, "N", obj_bead_next(pdf, a));
+        pdf_indirect_ln(pdf, "P", obj_bead_page(pdf, a));
+        pdf_indirect_ln(pdf, "R", obj_bead_rect(pdf, a));
         pdf_end_dict(pdf);
-        a = obj_bead_next(a);
+        a = obj_bead_next(pdf, a);
     } while (a != b);
 }
 
@@ -261,11 +262,11 @@ void scan_thread_id(void)
     }
 }
 
-void check_running_thread(halfword this_box, scaledpos cur)
+void check_running_thread(PDF pdf, halfword this_box, scaledpos cur)
 {
     if ((last_thread != null) && is_running(pdf_thread_dp)
         && (pdf_thread_level == cur_s))
-        append_thread(this_box, cur.h, cur.v + height(this_box));
+        append_thread(pdf, this_box, cur.h, cur.v + height(this_box));
 }
 
 void reset_thread_lists(void)
@@ -297,12 +298,12 @@ void print_bead_rectangles(PDF pdf)
         while (k != null) {
             pdf_new_obj(pdf, obj_type_others, 0, 1);
             pdf_out(pdf, '[');
-            i = obj_bead_data(info(k)); /* pointer to a whatsit or whatsit-like node */
+            i = obj_bead_data(pdf, info(k)); /* pointer to a whatsit or whatsit-like node */
             pdf_print_rect_spec(pdf, i);
             if (subtype(i) == pdf_thread_data_node)     /* thanh says it mis be destroyed here */
                 flush_node(i);
             pdf_printf(pdf, "]\n");
-            set_obj_bead_rect(info(k), obj_ptr);        /* rewrite |obj_bead_data| */
+            set_obj_bead_rect(pdf, info(k), obj_ptr);        /* rewrite |obj_bead_data| */
             pdf_end_obj(pdf);
             k = link(k);
         }

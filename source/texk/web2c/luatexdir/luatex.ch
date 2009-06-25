@@ -1357,7 +1357,6 @@ begin @!{|start_here|}
   const_chk (strings_free);
   const_chk (hash_extra);
   const_chk (obj_tab_size);
-  const_chk (pdf_mem_size);
   const_chk (pk_dpi);
   if error_line > ssup_error_line then error_line := ssup_error_line;
 
@@ -1380,7 +1379,6 @@ begin @!{|start_here|}
   initialize_ocp_buffers(ocp_buf_size, ocp_stack_size);
   obj_tab:=xmallocarray (obj_entry, inf_obj_tab_size); {will grow dynamically}
   set_obj_offset(0,0);
-  pdf_mem:=xmallocarray (integer, inf_pdf_mem_size); {will grow dynamically}
   init_dest_names;
 @+Init
   fixmem:=xmallocarray (smemory_word, fix_mem_init+1);

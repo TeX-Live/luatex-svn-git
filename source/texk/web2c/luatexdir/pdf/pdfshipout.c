@@ -337,10 +337,10 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         /* Write out Form stream header */
         pdf_printf(pdf, "/Type /XObject\n");
         pdf_printf(pdf, "/Subtype /Form\n");
-        if (obj_xform_attr(pdf_cur_form) != null) {
-            pdf_print_toks_ln(pdf, obj_xform_attr(pdf_cur_form));
-            delete_token_ref(obj_xform_attr(pdf_cur_form));
-            set_obj_xform_attr(pdf_cur_form, null);
+        if (obj_xform_attr(pdf, pdf_cur_form) != null) {
+            pdf_print_toks_ln(pdf, obj_xform_attr(pdf, pdf_cur_form));
+            delete_token_ref(obj_xform_attr(pdf, pdf_cur_form));
+            set_obj_xform_attr(pdf, pdf_cur_form, null);
         }
         pdf_printf(pdf, "/BBox [");
         pdf_print_bp(pdf, -form_margin);
@@ -470,7 +470,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
 
                 reset_resource_lists();
                 save_cur_page_size = cur_page_size;
-                pdf_ship_out(pdf, obj_xform_box(pdf_cur_form), false);
+                pdf_ship_out(pdf, obj_xform_box(pdf, pdf_cur_form), false);
                 cur_page_size = save_cur_page_size;
 
                 /* Restore resource lists */
@@ -555,10 +555,10 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         if (pdf_page_resources != null)
             pdf_print_toks_ln(pdf, pdf_page_resources);
     } else {
-        if (obj_xform_resources(pdf_cur_form) != null) {
-            pdf_print_toks_ln(pdf, obj_xform_resources(pdf_cur_form));
-            delete_token_ref(obj_xform_resources(pdf_cur_form));
-            set_obj_xform_resources(pdf_cur_form, null);
+        if (obj_xform_resources(pdf, pdf_cur_form) != null) {
+            pdf_print_toks_ln(pdf, obj_xform_resources(pdf, pdf_cur_form));
+            delete_token_ref(obj_xform_resources(pdf, pdf_cur_form));
+            set_obj_xform_resources(pdf, pdf_cur_form, null);
         }
     }
 
@@ -1192,7 +1192,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version,
                     (int) sup_dest_names_size);
             fprintf(log_file,
                     " %d words of extra memory for PDF output out of %d (max. %d)\n",
-                    (int) pdf_mem_ptr, (int) pdf_mem_size,
+                    (int) pdf->mem_ptr, (int) pdf->mem_size,
                     (int) sup_pdf_mem_size);
         }
     }

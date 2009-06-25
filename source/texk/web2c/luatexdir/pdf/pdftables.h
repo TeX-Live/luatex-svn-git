@@ -67,7 +67,7 @@ well.
 #  define obj_os_idx(A) obj_tab[(A)].int3
                                         /* index of this object in object stream */
 #  define obj_aux(A)  obj_tab[(A)].int4 /* auxiliary pointer */
-#  define obj_data_ptr             obj_aux      /* pointer to |pdf_mem| */
+#  define obj_data_ptr             obj_aux      /* pointer to |pdf->mem| */
 
 #  define set_obj_link(A,B) obj_link(A)=B
 #  define set_obj_info(A,B) obj_info(A)=B
@@ -155,7 +155,7 @@ extern void libpdffinish(void);
 extern void pdfshipoutbegin(boolean shipping_page);
 extern void pdfshipoutend(boolean shipping_page);
 
-extern void dump_pdftex_data(void);
+extern void dump_pdftex_data(PDF pdf);
 extern void undump_pdftex_data(PDF pdf);
 
 #  define set_pdf_width(A,B) pdf_width(A)=B

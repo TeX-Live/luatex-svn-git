@@ -1066,14 +1066,9 @@
 
 { pdf generation }
 
-@define procedure initialize_pdfgen;
 @define function pdf_get_mem();
-@define const inf_pdf_mem_size;
-@define const sup_pdf_mem_size;
-@define var pdf_mem_size;
-@define var pdf_mem;
-@define var pdf_mem_ptr;
-@define procedure dump_pdftex_data;
+@define procedure initialize_pdfgen;
+@define procedure dump_pdftex_data();
 @define procedure undump_pdftex_data();
 
 @define var pdf_offset;
@@ -1191,16 +1186,6 @@
 
 @define function obj_data_ptr();
 @define const pdfmem_obj_size;
-
-@define function obj_obj_data();
-@define function obj_obj_is_stream();
-@define function obj_obj_stream_attr();
-@define function obj_obj_is_file();
-
-@define procedure set_obj_obj_data();
-@define procedure set_obj_obj_is_stream();
-@define procedure set_obj_obj_stream_attr();
-@define procedure set_obj_obj_is_file();
 
 @define const pdfmem_xform_size;
 
@@ -1369,7 +1354,7 @@
 @define var pdf_info_toks;
 @define var pdf_trailer_toks;
 
-@define procedure scan_obj;
+@define procedure scan_obj();
 
 { pdf fonts }
 

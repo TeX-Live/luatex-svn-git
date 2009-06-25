@@ -252,22 +252,24 @@ void libpdffinish(void)
 Store some of the pdftex data structures in the format. The idea here is
 to ensure that any data structures referenced from pdftex-specific whatsit
 nodes are retained. For the sake of simplicity and speed, all the filled parts
-of |pdf_mem| and |obj_tab| are retained, in the present implementation. We also
+of |pdf->mem| and |obj_tab| are retained, in the present implementation. We also
 retain three of the linked lists that start from |head_tab|, so that it is
 possible to, say, load an image in the \.{INITEX} run and then reference it in a
 \.{VIRTEX} run that uses the dumped format.
 */
 
-void dump_pdftex_data(void)
+void dump_pdftex_data(PDF pdf)
 {
-    integer k;
+    integer k, x;
     dumpimagemeta();            /* the image information array */
-    dump_int(pdf_mem_size);
-    dump_int(pdf_mem_ptr);
-    for (k = 1; k <= pdf_mem_ptr - 1; k++)
-        dump_int(pdf_mem[k]);
+    dump_int(pdf->mem_size);
+    dump_int(pdf->mem_ptr);
+    for (k = 1; k <= pdf->mem_ptr - 1; k++) {
+        x = pdf->mem[k];
+        dump_int(x);
+    }
     print_ln();
-    print_int(pdf_mem_ptr - 1);
+    print_int(pdf->mem_ptr - 1);
     tprint(" words of pdf memory");
     dump_int(obj_tab_size);
     dump_int(obj_ptr);
@@ -300,13 +302,15 @@ already in an earlier module.
 
 void undump_pdftex_data(PDF pdf)
 {
-    integer k;
+    integer k, x;
     undumpimagemeta(pdf, pdf_minor_version, pdf_inclusion_errorlevel);  /* the image information array */
-    undump_int(pdf_mem_size);
-    pdf_mem = xreallocarray(pdf_mem, integer, pdf_mem_size);
-    undump_int(pdf_mem_ptr);
-    for (k = 1; k <= pdf_mem_ptr - 1; k++)
-        undump_int(pdf_mem[k]);
+    undump_int(pdf->mem_size);
+    pdf->mem = xreallocarray(pdf->mem, int, pdf->mem_size);
+    undump_int(pdf->mem_ptr);
+    for (k = 1; k <= pdf->mem_ptr - 1; k++) {
+        undump_int(x);
+        pdf->mem[k] = (int)x;
+    }
     undump_int(obj_tab_size);
     undump_int(obj_ptr);
     undump_int(sys_obj_ptr);

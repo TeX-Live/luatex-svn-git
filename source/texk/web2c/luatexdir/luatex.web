@@ -16978,7 +16978,7 @@ dump_language_data
 undump_language_data
 
 @ @<Dump pdftex data@>=
-dump_pdftex_data
+dump_pdftex_data(static_pdf)
 
 @ @<Undump pdftex data@>=
 undump_pdftex_data(static_pdf)
@@ -17921,7 +17921,7 @@ end
 @ @<Implement \.{\\pdfobj}@>=
 begin
     check_pdfoutput("\pdfobj", true);
-    scan_obj;
+    scan_obj(static_pdf);
 end
 
 @ We need to check whether the referenced object exists.
@@ -17975,27 +17975,27 @@ begin
     incr(pdf_xform_count);
     pdf_create_obj(obj_type_xform, pdf_xform_count);
     k := obj_ptr;
-    set_obj_data_ptr(k, pdf_get_mem(pdfmem_xform_size));
+    set_obj_data_ptr(k, pdf_get_mem(static_pdf, pdfmem_xform_size));
     if scan_keyword('attr') then begin
         scan_pdf_ext_toks;
-        set_obj_xform_attr(k,def_ref);
+        set_obj_xform_attr(static_pdf, k,def_ref);
     end
     else
-        set_obj_xform_attr(k,null);
+        set_obj_xform_attr(static_pdf, k,null);
     if scan_keyword('resources') then begin
         scan_pdf_ext_toks;
-        set_obj_xform_resources(k,def_ref);
+        set_obj_xform_resources(static_pdf, k,def_ref);
     end
     else
-        set_obj_xform_resources(k,null);
+        set_obj_xform_resources(static_pdf, k,null);
     scan_int;
         p:=box(cur_val);
     if p = null then
         pdf_error("ext1", "\pdfxform cannot be used with a void box");
-    set_obj_xform_width(k, width(p));
-    set_obj_xform_height(k, height(p));
-    set_obj_xform_depth(k, depth(p));
-    set_obj_xform_box(k, p); {save pointer to the box}
+    set_obj_xform_width(static_pdf, k, width(p));
+    set_obj_xform_height(static_pdf, k, height(p));
+    set_obj_xform_depth(static_pdf, k, depth(p));
+    set_obj_xform_box(static_pdf, k, p); {save pointer to the box}
     box(cur_val):=null;
     pdf_last_xform := k;
 end
@@ -18007,9 +18007,9 @@ begin
     pdf_check_obj(obj_type_xform, cur_val);
     new_whatsit(pdf_refxform_node);
     set_pdf_xform_objnum(tail, cur_val);
-    set_pdf_width(tail,obj_xform_width(cur_val));
-    set_pdf_height(tail,obj_xform_height(cur_val));
-    set_pdf_depth(tail,obj_xform_depth(cur_val));
+    set_pdf_width(tail,obj_xform_width(static_pdf, cur_val));
+    set_pdf_height(tail,obj_xform_height(static_pdf, cur_val));
+    set_pdf_depth(tail,obj_xform_depth(static_pdf, cur_val));
 end
 
 @ \.{\\pdfximage} and \.{\\pdfrefximage} are similiar to \.{\\pdfxform} and
@@ -18420,7 +18420,7 @@ if cur_cmd=extension then begin
         pdf_xform_code: begin
             do_extension; {scan form and set |pdf_last_xform|}
             pdf_cur_form := pdf_last_xform;
-            pdf_ship_out(static_pdf, obj_xform_box(pdf_last_xform), false);
+            pdf_ship_out(static_pdf, obj_xform_box(static_pdf, pdf_last_xform), false);
         end;
         pdf_ximage_code: begin
             do_extension; {scan image and set |pdf_last_ximage|}
