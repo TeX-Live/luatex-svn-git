@@ -474,7 +474,7 @@ const char *math_param_names[] = {
     "fractionrule", "fractionnumvgap", "fractionnumup",
     "fractiondenomvgap", "fractiondenomdown", "fractiondelsize",
     "limitabovevgap", "limitabovebgap", "limitabovekern",
-    "limitdownvgap", "limitdownbgap", "limitdownkern",
+    "limitbelowvgap", "limitbelowbgap", "limitbelowkern",
     "underdelimitervgap", "underdelimiterbgap",
     "overdelimitervgap", "overdelimiterbgap",
     "subshiftdrop", "supshiftdrop", "subshiftdown",
