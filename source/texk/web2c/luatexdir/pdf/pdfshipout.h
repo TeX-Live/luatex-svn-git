@@ -35,4 +35,6 @@ extern void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page);
 extern void print_pdf_pages_attr(PDF pdf);
 extern void finish_pdf_file(PDF pdf, integer maj, str_number min);
 
+extern boolean str_less_str(str_number s1, str_number s2);
+
 #endif
