@@ -241,6 +241,7 @@ void scan_pdfdest(void)
     halfword q;
     integer k;
     str_number i;
+    scaled_whd alt_rule;
     q = cur_list.tail_field;
     new_whatsit(pdf_dest_node);
     if (scan_keyword("num")) {
@@ -295,10 +296,10 @@ void scan_pdfdest(void)
         back_input();
 
     if (pdf_dest_type(cur_list.tail_field) == pdf_dest_fitr) {
-        scan_alt_rule();        /* scans |<rule spec>| to |alt_rule| */
-        set_pdf_width(cur_list.tail_field, width(alt_rule));
-        set_pdf_height(cur_list.tail_field, height(alt_rule));
-        set_pdf_depth(cur_list.tail_field, depth(alt_rule));
+        alt_rule = scan_alt_rule();        /* scans |<rule spec>| to |alt_rule| */
+        set_pdf_width(cur_list.tail_field, alt_rule.w);
+        set_pdf_height(cur_list.tail_field, alt_rule.h);
+        set_pdf_depth(cur_list.tail_field, alt_rule.d);
     }
     if (pdf_dest_named_id(cur_list.tail_field) != 0) {
         i = tokens_to_string(pdf_dest_id(cur_list.tail_field));

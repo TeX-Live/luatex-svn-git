@@ -169,6 +169,12 @@ typedef struct scaledpos_ {
     scaled v;
 } scaledpos;
 
+typedef struct scaled_whd_ {
+    scaled w;                   /* width */
+    scaled h;                   /* height */
+    scaled d;                   /* depth */
+} scaled_whd;
+
 #  define synch_h() do {				\
     if (pos.h != dvi.h) {			\
       movement(pos.h - dvi.h, right1);		\

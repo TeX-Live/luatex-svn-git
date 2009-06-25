@@ -31,8 +31,6 @@ halfword pdf_ximage_list;       /* list of images in the current page */
 integer pdf_ximage_count;       /* counter of images */
 integer image_orig_x, image_orig_y;     /* origin of cropped PDF images */
 
-halfword alt_rule = null;
-
 #define scan_normal_dimen() scan_dimen(false,false,false)
 
 void output_image(PDF pdf, integer idx)
@@ -68,43 +66,41 @@ integer scan_pdf_box_spec(void)
 }
 
 /* scans rule spec to |alt_rule| */
-void scan_alt_rule(void)
+scaled_whd scan_alt_rule(void)
 {
-    if (alt_rule == null)
-        alt_rule = new_rule();
-    width(alt_rule) = null_flag;
-    height(alt_rule) = null_flag;
-    depth(alt_rule) = null_flag;
+    scaled_whd alt_rule;
+    alt_rule.w = null_flag;
+    alt_rule.h = null_flag;
+    alt_rule.d = null_flag;
   RESWITCH:
     if (scan_keyword("width")) {
         scan_normal_dimen();
-        width(alt_rule) = cur_val;
+        alt_rule.w = cur_val;
         goto RESWITCH;
     }
     if (scan_keyword("height")) {
         scan_normal_dimen();
-        height(alt_rule) = cur_val;
+        alt_rule.h = cur_val;
         goto RESWITCH;
     }
     if (scan_keyword("depth")) {
         scan_normal_dimen();
-        depth(alt_rule) = cur_val;
+        alt_rule.d = cur_val;
         goto RESWITCH;
     }
+    return alt_rule;
 }
 
 void scan_image(PDF pdf)
 {
-    integer k, img_wd, img_ht, img_dp, ref;
+scaled_whd alt_rule;
+    integer k, ref;
     integer page, pagebox, colorspace;
     char *named = NULL, *attr = NULL, *s = NULL;
     incr(pdf_ximage_count);
     pdf_create_obj(obj_type_ximage, pdf_ximage_count);
     k = obj_ptr;
-    scan_alt_rule();            /* scans |<rule spec>| to |alt_rule| */
-    img_wd = width(alt_rule);
-    img_ht = height(alt_rule);
-    img_dp = depth(alt_rule);
+    alt_rule= scan_alt_rule();            /* scans |<rule spec>| to |alt_rule| */
     attr = 0;
     named = 0;
     page = 1;
@@ -144,7 +140,7 @@ void scan_image(PDF pdf)
     set_obj_data_ptr(k, ref);
     if (named != NULL)
         xfree(named);
-    set_image_dimensions(ref, img_wd, img_ht, img_dp);
+    set_image_dimensions(ref, alt_rule.w, alt_rule.h, alt_rule.d);
     if (attr != NULL)
         xfree(attr);
     scale_image(ref);
