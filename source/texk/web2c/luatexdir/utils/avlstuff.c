@@ -19,7 +19,6 @@
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 #include "ptexlib.h"
-#include <kpathsea/c-vararg.h>
 #include <kpathsea/c-proto.h>
 #include "avl.h"
 
@@ -168,7 +167,7 @@ static void destroy_oentry(void *pa, void *pb)
     xfree(p);
 }
 
-void PdfObjTree_free()
+void PdfObjTree_free(void)
 {
     int i;
 

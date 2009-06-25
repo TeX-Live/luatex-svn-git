@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/.  */
 /* The stuff from the path searching library.  */
 #include <kpathsea/config.h>
 #include <web2c/c-auto.h>
-#include <kpathsea/c-vararg.h>
+#include <stdarg.h>
 
 /* How to open a binary file.  */
 #include <kpathsea/c-fopen.h>
@@ -105,15 +105,15 @@ typedef off_t longinteger;
 
 /* strtol.c */
 #ifndef HAVE_STRTOL
-extern long strtol P3H(const char *, char **, int);
+extern long strtol (const char *, char **, int);
 #endif
 
 /* From uexit.c.  This is here because the lib/ and web2c/ routines
    themselves can use it, but they don't need cpascal.h.  */
-extern void uexit P1H(int status);
+extern void uexit (int status);
 
 /* usage.c */
-extern void usage P1H(const_string progname);
-extern void usagehelp P2H(const_string *message, const_string bug_email);
+extern void usage (const_string progname);
+extern void usagehelp (const_string *message, const_string bug_email);
 
 #endif /* not WEB2C_CONFIG_H */

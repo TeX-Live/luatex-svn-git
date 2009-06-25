@@ -242,9 +242,8 @@ AC_CACHE_CHECK([whether the compiler accepts prototypes],
                                                 [[extern void foo(int i,...);]])],
                                [kb_cv_c_prototypes=yes],
                                [kb_cv_c_prototypes=no])])
-if test "$kb_cv_c_prototypes" = yes; then
-  AC_DEFINE([HAVE_PROTOTYPES], 1,
-            [Define to 1 if your compiler understands prototypes.])
+if test "x$kb_cv_c_prototypes" = xno; then
+  AC_MSG_ERROR([Sorry, your compiler does not understand prototypes.])
 fi
 dnl
 dnl This is a GNU libc invention.
@@ -260,6 +259,9 @@ if test "$kb_cv_var_program_inv_name" = yes; then
             [Define to 1 if you are using GNU libc or otherwise have global variables
              `program_invocation_name' and `program_invocation_short_name'.])
 fi
+dnl
+dnl Enable flags for compiler warnings
+KPSE_COMPILER_WARNINGS
 ]) # KPSE_COMMON
 
 # KPSE_MSG_ERROR(PACKAGE, ERROR, [EXIT-STATUS = 1])
@@ -278,6 +280,26 @@ $2])],
        [AC_MSG_ERROR([$2], m4_default([$3], 1))])
 ]) # KPSE_MSG_ERROR
 
+# KPSE_MSG_WARN(PROBLEM)
+# ----------------------
+# Same as AC_MSG_WARN, but terminate if `--disable-missing' was given.
+AC_DEFUN([KPSE_MSG_WARN],
+[AC_REQUIRE([_KPSE_MSG_WARN_PREPARE])[]dnl
+AC_MSG_WARN([$1])
+AS_IF([test "x$enable_missing" = xno],
+      [AC_MSG_ERROR([terminating.])])
+]) # KPSE_MSG_WARN
+
+# _KPSE_MSG_WARN_PREPARE
+# ----------------------
+# Internal subroutine.
+AC_DEFUN([_KPSE_MSG_WARN_PREPARE],
+[AC_ARG_ENABLE([missing],
+               AS_HELP_STRING([--disable-missing],
+                              [terminate if a requested program or feature must
+                               be disabled, e.g., due to missing libraries]))[]dnl
+]) # _KPSE_MSG_WARN_PREPARE
+
 # _KPSE_CHECK_PKG_CONFIG
 # ----------------------
 # Check for pkg-config
@@ -285,3 +307,4 @@ AC_DEFUN([_KPSE_CHECK_PKG_CONFIG],
 [AC_REQUIRE([AC_CANONICAL_HOST])[]dnl
 AC_CHECK_TOOL([PKG_CONFIG], [pkg-config], [false])[]dnl
 ]) # _KPSE_CHECK_PKG_CONFIG
+

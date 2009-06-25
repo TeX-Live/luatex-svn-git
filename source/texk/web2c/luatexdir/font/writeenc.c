@@ -36,7 +36,7 @@ static int comp_fe_entry(const void *pa, const void *pb, void *p)
     return strcmp(((const fe_entry *) pa)->name, ((const fe_entry *) pb)->name);
 }
 
-fe_entry *new_fe_entry()
+fe_entry *new_fe_entry(void)
 {
     fe_entry *fe;
     fe = xtalloc(1, fe_entry);
@@ -176,7 +176,7 @@ static void destroy_fe_entry(void *pa, void *pb)
     xfree(p);
 }
 
-void enc_free()
+void enc_free(void)
 {
     if (fe_tree != NULL)
         avl_destroy(fe_tree, destroy_fe_entry);

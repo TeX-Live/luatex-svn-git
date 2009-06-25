@@ -32,7 +32,7 @@ extern boolean page_mode;
 #  define STACK_INCREMENT 8
 
 int newcolorstack(integer s, integer literal_mode, boolean pagestart);
-int colorstackused();
+int colorstackused(void);
 integer colorstackset(int colstack_no, integer s);
 integer colorstackpush(int colstack_no, integer s);
 integer colorstackpop(int colstack_no);

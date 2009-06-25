@@ -121,7 +121,7 @@ static void delete_ff_entry(ff_entry * ff)
     xfree(ff);
 }
 
-static fm_entry *dummy_fm_entry()
+static fm_entry *dummy_fm_entry(void)
 {
     static const fm_entry const_fm_entry;
     return (fm_entry *) & const_fm_entry;
@@ -167,7 +167,7 @@ static int comp_ff_entry(const void *pa, const void *pb, void *p)
                   ((const ff_entry *) pb)->ff_name);
 }
 
-static void create_avl_trees()
+static void create_avl_trees(void)
 {
     assert(tfm_tree == NULL);
     tfm_tree = avl_create(comp_fm_entry_tfm, NULL, &avl_xallocator);
@@ -414,7 +414,7 @@ int check_std_t1font(char *s)
 
 /**********************************************************************/
 
-static void fm_scan_line()
+static void fm_scan_line(void)
 {
     int a, b, c, j, u = 0, v = 0;
     float d;
@@ -575,7 +575,7 @@ static void fm_scan_line()
 
 /**********************************************************************/
 
-void fm_read_info()
+void fm_read_info(void)
 {
     int callback_id;
     int file_opened = 0;

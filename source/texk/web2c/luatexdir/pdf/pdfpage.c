@@ -43,7 +43,7 @@ pdfstructure *pstruct = NULL;
 
 /**********************************************************************/
 
-static pdfstructure *new_pdfstructure()
+static pdfstructure *new_pdfstructure(void)
 {
     return xmalloc(sizeof(pdfstructure));
 }

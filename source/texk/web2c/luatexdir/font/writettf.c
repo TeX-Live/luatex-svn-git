@@ -1129,7 +1129,7 @@ static void ttf_reindex_glyphs(void)
     }
 }
 
-static void ttf_write_head()
+static void ttf_write_head(void)
 {
     dirtab_entry *tab;
     tab = ttf_seek_tab("head", 0);

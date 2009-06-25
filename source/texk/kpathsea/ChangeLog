@@ -1,3 +1,42 @@
+2009-06-23  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* concatn.[ch], tex-file.[ch]: use ANSI C function declarations
+	and prototypes instead of PVAR?[CH] macros.
+	#include <stdarg.h>, not #include <kpathsea/c-vararg.h>.
+
+	* c-vararg.h (removed): no longer used.
+	* kpathsea.h (removed): no longer distributed.
+	* Makefile.am: remove c-vararg.h, rebuild kpathsea.h.
+
+	* c-proto.h: assume HAVE_PROTOTYPES, remove AA, P?[CH] macros.
+
+2009-06-22  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* getopt.c (_getopt_internal):
+	explicit braces to avoid ambiguous 'else'.
+
+2009-06-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am: enable compiler warnings.
+	* kpathsea.c (KPATHSEA_CAN_FREE): disable not yet used code.
+	(str_llist_free, cache_free): declare as static, not yet used.
+	(kpathsea_finish): avoid warning about not yet used variables.
+	* tex-glyph.c (try_size): avoid uninitialized warning.
+	* mingw32.c: avoid unused static variable.
+
+2009-06-15  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf (TEXINPUTS.jadetex,pdfjadetex): search latex, not plain.
+	Thus we find the latex fonttext.cfg before cslatex's, and thus
+	we can build the format using latex.ltx, and thus
+	we can avoid & in fmtutil.cnf, and thus
+	we can avoid painful infinite loops on failure, or something.
+	http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=427562
+
+2009-06-10  Karl Berry  <karl@tug.org>
+
+	* ac/web2c.ac (mktexfmt): default to yes.
+
 2009-06-02  Karl Berry  <karl@tug.org>
 
 	* types.h (kpse_file_format_type): add kpse_mlbib_format,

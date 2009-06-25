@@ -30,12 +30,12 @@ int matrix_stack_size = 0;
 int matrix_stack_used = 0;
 
 
-boolean matrixused()
+boolean matrixused(void)
 {
     return matrix_stack_used > 0;
 }
 
-void matrix_stack_room()
+void matrix_stack_room(void)
 {
     matrix_entry *new_stack;
 
@@ -132,22 +132,22 @@ static scaled ret_lly;
 static scaled ret_urx;
 static scaled ret_ury;
 
-scaled getllx()
+scaled getllx(void)
 {
     return ret_llx;
 }
 
-scaled getlly()
+scaled getlly(void)
 {
     return ret_lly;
 }
 
-scaled geturx()
+scaled geturx(void)
 {
     return ret_urx;
 }
 
-scaled getury()
+scaled getury(void)
 {
     return ret_ury;
 }

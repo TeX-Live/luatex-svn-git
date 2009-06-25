@@ -79,7 +79,7 @@ static int colstacks_used = 0;
     procedure calls.
 */
 #define init_colorstacks() if (colstacks_size == 0) colstacks_first_init();
-void colstacks_first_init()
+void colstacks_first_init(void)
 {
     colstacks_size = STACK_INCREMENT;
     colstacks = xtalloc(colstacks_size, colstack_type);

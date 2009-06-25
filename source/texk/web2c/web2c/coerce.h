@@ -1,6 +1,6 @@
 /* Some definitions that get appended to the `coerce.h' file that web2c
    outputs.  */
-/* $Id: coerce.h 13098 2009-05-15 13:07:46Z peter $ */
+/* $Id: coerce.h 13921 2009-06-23 16:27:41Z peter $ */
 
 /* The C compiler ignores most unnecessary casts (i.e., casts of
    something to its own type).  However, for structures, it doesn't.
@@ -49,7 +49,7 @@
 /* And we use the opportunity to declare a few functions that could not be
    declared in texmfmp.h, because they need typedefs not yet known at that
    point.  */
-extern strnumber getjobname P1H(strnumber);
+extern strnumber getjobname (strnumber);
 
 #ifdef MP
 /* MP defined poolASCIIcode instead of packedASCIIcode, sigh. */
@@ -59,19 +59,19 @@ typedef poolASCIIcode packedASCIIcode;
 /* XeTeX redefines "ASCII" types.... */
 typedef packedUTF16code packedASCIIcode;
 #endif
-extern void calledit P4H(packedASCIIcode *, poolpointer, integer, integer);
+extern void calledit (packedASCIIcode *, poolpointer, integer, integer);
 
 #ifdef MF
-extern void blankrectangle P4H(screencol, screencol, screenrow, screenrow);
-extern void paintrow P4H(screenrow, pixelcolor, transspec, screencol);
+extern void blankrectangle (screencol, screencol, screenrow, screenrow);
+extern void paintrow (screenrow, pixelcolor, transspec, screencol);
 #endif
 
 #ifdef TeX
 /* Prototypes for source-specials functions... */
 extern strnumber makefullnamestring();
-extern boolean isnewsource P2H(strnumber, int);
-extern poolpointer makesrcspecial P2H(strnumber, int);
-extern void remembersourceinfo P2H(strnumber, int);
+extern boolean isnewsource (strnumber, int);
+extern poolpointer makesrcspecial (strnumber, int);
+extern void remembersourceinfo (strnumber, int);
 #endif
 
 #ifdef luaTeX

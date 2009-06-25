@@ -1,4 +1,4 @@
-$Id: README 13019 2009-05-09 12:32:03Z peter $
+$Id: README 13688 2009-06-10 00:15:24Z karl $
 Public domain.  Originally created by Karl Berry, 2005.
 
 Libraries we compile for TeX Live.
@@ -19,7 +19,7 @@ icu - as with graphite-engine, modified for xetex
 
 jpeg - ?
 
-libpng 1.2.36 - http://www.libpng.org/ - used by many
+libpng 1.2.37 - http://www.libpng.org/ - used by many
 
 md5 - used by pdftex, provenance unknown
 

@@ -526,7 +526,7 @@ static void clear_dict(
 
 
 
-HyphenDict* hnj_hyphen_new() {
+HyphenDict* hnj_hyphen_new(void) {
   HyphenDict* dict = hnj_malloc (sizeof(HyphenDict));
   init_dict(dict);
   return dict;

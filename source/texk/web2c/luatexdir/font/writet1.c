@@ -19,7 +19,6 @@
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 #include "ptexlib.h"
-#include <kpathsea/c-vararg.h>
 #include <kpathsea/c-proto.h>
 #include <string.h>
 #include "luatex-api.h"
@@ -1073,7 +1072,7 @@ static void t1_include(void)
     if (subr >= subr_size || subr < 0) \
         pdftex_fail("Subrs array: entry index out of range (%i)",  subr);
 
-static const char **check_cs_token_pair()
+static const char **check_cs_token_pair(void)
 {
     const char **p = (const char **) cs_token_pairs_list;
     for (; p[0] != NULL; ++p)
@@ -1808,7 +1807,7 @@ void writet1(fd_entry * fd)
     xfree(t1_buffer);
 }
 
-void t1_free()
+void t1_free(void)
 {
     xfree(t1_line_array);
     xfree(t1_buf_array);

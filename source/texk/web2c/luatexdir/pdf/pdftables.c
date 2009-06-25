@@ -232,7 +232,7 @@ void pdfshipoutend(boolean shipping_page)
     }
 }
 
-void libpdffinish()
+void libpdffinish(void)
 {
     fb_free();
     xfree(job_id_string);

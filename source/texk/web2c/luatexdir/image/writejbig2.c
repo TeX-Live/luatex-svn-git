@@ -247,7 +247,7 @@ static LIST *litem_append(LIST * lp)
 
 /**********************************************************************/
 
-static FILEINFO *new_fileinfo()
+static FILEINFO *new_fileinfo(void)
 {
     FILEINFO *fip;
     fip = xtalloc(1, FILEINFO);
@@ -265,7 +265,7 @@ static FILEINFO *new_fileinfo()
     return fip;
 }
 
-static PAGEINFO *new_pageinfo()
+static PAGEINFO *new_pageinfo(void)
 {
     PAGEINFO *pip;
     pip = xtalloc(1, PAGEINFO);

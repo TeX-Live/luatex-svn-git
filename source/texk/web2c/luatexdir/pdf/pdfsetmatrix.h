@@ -39,13 +39,13 @@ extern int matrix_stack_used;
 
 
 void pdfsetmatrix(poolpointer in, scaledpos pos);
-scaled getllx();
-scaled getlly();
-scaled geturx();
-scaled getury();
+scaled getllx(void);
+scaled getlly(void);
+scaled geturx(void);
+scaled getury(void);
 void matrixtransformpoint(scaled x, scaled y);
 void matrixtransformrect(scaled llx, scaled lly, scaled urx, scaled ury);
-boolean matrixused();
+boolean matrixused(void);
 void matrixrecalculate(scaled urx);
 
 extern void pdf_out_setmatrix(PDF pdf, halfword p);

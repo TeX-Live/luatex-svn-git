@@ -200,7 +200,7 @@ void init_image(image * p)
     img_dictref(p) = LUA_NOREF;
 }
 
-image *new_image()
+image *new_image(void)
 {
     image *p = xtalloc(1, image);
     init_image(p);
@@ -241,7 +241,7 @@ void init_image_dict(image_dict * p)
     img_png_ptr(p) = NULL;      /* union */
 }
 
-image_dict *new_image_dict()
+image_dict *new_image_dict(void)
 {
     image_dict *p = xtalloc(1, image_dict);
     init_image_dict(p);

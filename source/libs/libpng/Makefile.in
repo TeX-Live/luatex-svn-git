@@ -46,6 +46,7 @@ DIST_COMMON = README $(am__configure_deps) \
 	../../build-aux/texinfo.tex ../../build-aux/ylwrap ChangeLog
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/../../m4/kpse-common.m4 \
+	$(top_srcdir)/../../m4/kpse-warnings.m4 \
 	$(top_srcdir)/../../m4/kpse-zlib-flags.m4 \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -145,6 +146,7 @@ SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 VERSION = @VERSION@
+WARNING_CFLAGS = @WARNING_CFLAGS@
 ZLIB_DEPEND = @ZLIB_DEPEND@
 ZLIB_INCLUDES = @ZLIB_INCLUDES@
 ZLIB_LIBS = @ZLIB_LIBS@
@@ -194,6 +196,7 @@ ACLOCAL_AMFLAGS = -I ../../m4
 EXTRA_DIST = $(LIBPNG_TREE)
 INCLUDES = -I$(top_srcdir)/$(LIBPNG_TREE) $(ZLIB_INCLUDES)
 AM_CPPFLAGS = $(LIBPNG_DEFINES)
+AM_CFLAGS = $(WARNING_CFLAGS)
 noinst_LIBRARIES = libpng.a
 nodist_libpng_a_SOURCES = \
 	$(LIBPNG_TREE)/png.c \
@@ -728,6 +731,10 @@ dist-lzma: distdir
 	tardir=$(distdir) && $(am__tar) | lzma -9 -c >$(distdir).tar.lzma
 	$(am__remove_distdir)
 
+dist-xz: distdir
+	tardir=$(distdir) && $(am__tar) | xz -c >$(distdir).tar.xz
+	$(am__remove_distdir)
+
 dist-tarZ: distdir
 	tardir=$(distdir) && $(am__tar) | compress -c >$(distdir).tar.Z
 	$(am__remove_distdir)
@@ -757,6 +764,8 @@ distcheck: dist
 	  bunzip2 -c $(distdir).tar.bz2 | $(am__untar) ;;\
 	*.tar.lzma*) \
 	  unlzma -c $(distdir).tar.lzma | $(am__untar) ;;\
+	*.tar.xz*) \
+	  xz -dc $(distdir).tar.xz | $(am__untar) ;;\
 	*.tar.Z*) \
 	  uncompress -c $(distdir).tar.Z | $(am__untar) ;;\
 	*.shar.gz*) \
@@ -913,7 +922,7 @@ uninstall-am:
 .PHONY: CTAGS GTAGS all all-am am--refresh check check-TESTS check-am \
 	clean clean-checkPROGRAMS clean-generic clean-noinstLIBRARIES \
 	ctags dist dist-all dist-bzip2 dist-gzip dist-hook dist-lzma \
-	dist-shar dist-tarZ dist-zip distcheck distclean \
+	dist-shar dist-tarZ dist-xz dist-zip distcheck distclean \
 	distclean-compile distclean-generic distclean-hdr \
 	distclean-tags distcleancheck distdir distuninstallcheck dvi \
 	dvi-am html html-am info info-am install install-am \
