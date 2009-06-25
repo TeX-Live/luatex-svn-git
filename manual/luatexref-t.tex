@@ -1569,7 +1569,7 @@ stackvgap           stacknumup         stackdenomdown
 fractionrule        fractionnumvgap    fractionnumup
 fractiondenomvgap   fractiondenomdown  fractiondelsize
 limitabovevgap      limitabovebgap     limitabovekern
-limitdownvgap       limitdownbgap      limitdownkern
+limitbelowvgap      limitbelowbgap     limitbelowkern
 underdelimitervgap  underdelimiterbgap
 overdelimitervgap   overdelimiterbgap
 subshiftdrop        supshiftdrop       subshiftdown
@@ -5821,7 +5821,7 @@ font dimension parameter. For math fonts, this should be set to zero.
 \starttabulate[|l|l|l|p|]
 \NC \bf variable                \NC \bf style             \NC \bf default value opentype               \NC \bf default value tfm \NC\NR
 \NC \tex{Umathaxis}             \NC --                    \NC AxisHeight                               \NC axis_height \NC\NR
-\NC \tex{Umathoperatorsize}     \NC D, D'                 \NC MinimumDisplayOperatorHeight             \NC $^6$ \NC\NR
+\NC \tex{Umathoperatorsize}     \NC D, D'                 \NC DisplayOperatorMinHeight             \NC $^6$ \NC\NR
 \NC \tex{Umathfractiondelsize}  \NC D, D'                 \NC 0$^1$                                    \NC delim1 \NC\NR
 \NC "                           \NC T, T', S, S', SS, SS' \NC 0$^1$                                    \NC delim2 \NC\NR
 \NC \tex{Umathfractiondenomdown}\NC D, D'                 \NC FractionDenominatorDisplayStyleShiftDown \NC denom1 \NC\NR
