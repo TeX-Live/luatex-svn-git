@@ -2728,7 +2728,7 @@ allocated, and the image file for image \type{a} is written out
 immediately into the \PDF\ file as an image stream object (like
 with \tex{immediate}\tex{pdfximage}). The object number of the image
 stream dictionary is then available by the \type{objnum} key. No
-\type{pdf_refximage} whatsit node is generated. You will need a
+\type{pdf_refximage} whatsit node is generated. You will need an
 \luatex{img.write(a)} or \luatex{img.node(a)} call to let the
 image appear on the page, or reference it by another trick; else
 you will have a dangling image object in the \PDF\ file.
