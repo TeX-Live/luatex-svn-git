@@ -176,7 +176,6 @@ libluatex_a_SOURCES = \
 	luatexdir/utils/synctex.c \
 	luatexdir/utils/utils.c \
 	luatexdir/utils/utils.h \
-	luatexdir/utils/writezip.c \
 	mplibdir/lmplib.c
 
 ## included by luatexdir/font/writettf.c
