@@ -91,6 +91,48 @@ void pdf_create_obj(integer t, integer i)
     }
 }
 
+/* The following function finds object with identifier |i| and type |t|.
+   |i < 0| indicates that |-i| should be treated as a string number. If no
+   such object exists then it will be created. This function is used mainly to
+   find destination for link annotations and outlines; however it is also used
+   in |pdf_ship_out| (to check whether a Page object already exists) so we need
+   to declare it together with subroutines needed in |pdf_hlist_out| and
+   |pdf_vlist_out|.
+*/
+  
+integer find_obj(integer t, integer i, boolean byname)
+{
+    return avl_find_obj(t, i, byname);
+}
+
+
+integer get_obj(integer t, integer i, boolean byname)
+{
+    integer r;
+    str_number s;
+    if (byname > 0) {
+        s = tokens_to_string(i);
+        r = find_obj(t, s, true);
+    } else {
+        s = 0;
+        r = find_obj(t, i, false);
+    }
+    if (r == 0) {
+        if (byname > 0) {
+            pdf_create_obj(t, -s);
+            s = 0;
+        } else {
+            pdf_create_obj(t, i);
+        }
+        r = obj_ptr;
+        if (t == obj_type_dest)
+            set_obj_dest_ptr(r,null);
+    }
+    if (s != 0)
+        flush_str(s);
+    return r;
+}
+
 /* create a new object and return its number */
 integer pdf_new_objnum(void)
 {

@@ -756,9 +756,7 @@ void pdf_vlist_out(PDF pdf)
     cur.v = cur.v - height(this_box);
     top_edge = cur.v;
     /* Create thread for the current vbox if needed */
-    if ((last_thread != null) && is_running(pdf_thread_dp)
-        && (pdf_thread_level == cur_s))
-        append_thread(this_box, left_edge, top_edge + height(this_box));
+    check_running_thread(this_box, cur);
 
     while (p != null) {
         if (is_char_node(p)) {

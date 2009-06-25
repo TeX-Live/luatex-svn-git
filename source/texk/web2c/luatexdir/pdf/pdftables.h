@@ -134,6 +134,8 @@ extern integer pdf_box_spec_art;
 extern integer ff;
 
 extern void pdf_create_obj(integer t, integer i);
+extern integer find_obj(integer t, integer i, boolean byname);
+extern integer get_obj(integer t, integer i, boolean byname);
 extern integer pdf_new_objnum(void);
 
 #  define pdf_append_list(A,B) do {             \

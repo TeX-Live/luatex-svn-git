@@ -870,14 +870,16 @@ void process_map_item(char *s, int type)
 
 void pdfmapfile(integer t)
 {
-    process_map_item(makecstring(tokens_to_string(t)), MAPFILE);
-    flush_str(last_tokens_string);
+    char *s = tokenlist_to_cstring(t,true,NULL);
+    process_map_item(s, MAPFILE);
+    free(s);
 }
 
 void pdfmapline(integer t)
 {
-    process_map_item(makecstring(tokens_to_string(t)), MAPLINE);
-    flush_str(last_tokens_string);
+    char *s = tokenlist_to_cstring(t,true,NULL);
+    process_map_item(s, MAPLINE);
+    free(s);
 }
 
 void pdf_init_map_file(string map_name)

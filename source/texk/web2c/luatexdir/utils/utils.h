@@ -26,6 +26,8 @@
 #  define overflow_string(a,b) { overflow(maketexstring(a),b); flush_str(last_tex_string); }
 
 extern char *job_id_string;
+extern integer epochseconds;
+extern integer microseconds;
 
 void make_subset_tag(fd_entry *);
 

@@ -72,25 +72,19 @@ static void update_bbox(integer llx, integer lly, integer urx, integer ury,
     }
 }
 
-static integer get_pk_font_scale(internalfontnumber f, int precision)
+static integer get_pk_font_scale(internalfontnumber f, int precision, int scale_factor)
 {
     return
-        divide_scaled(pk_scale_factor,
+        divide_scaled(scale_factor,
                       divide_scaled(pdf_font_size(f), one_hundred_bp,
                                     precision + 2), 0);
 }
 
-static integer pk_char_width(internalfontnumber f, scaled w, int precision)
+static integer pk_char_width(internalfontnumber f, scaled w, int precision, int scale_factor)
 {
     return
         divide_scaled(divide_scaled(w, pdf_font_size(f), 7),
-                      get_pk_font_scale(f, precision), 0);
-}
-
-static scaled get_pk_char_width(internalfontnumber f, scaled w, int precision)
-{
-    return (get_pk_font_scale(f, precision) / 100000.0) *
-        (pk_char_width(f, w, precision) / 100.0) * pdf_font_size(f);
+                      get_pk_font_scale(f, precision, scale_factor), 0);
 }
 
 static boolean writepk(PDF pdf, internal_font_number f)
@@ -174,7 +168,8 @@ static boolean writepk(PDF pdf, internal_font_number f)
         if (!pdf_char_marked(f, cd.charcode))
             continue;
         t3_char_widths[cd.charcode] =
-            pk_char_width(f, get_charwidth(f, cd.charcode),pdf->decimal_digits);
+            pk_char_width(f, get_charwidth(f, cd.charcode), 
+                          pdf->decimal_digits, pdf->pk_scale_factor);
         if (cd.cwidth < 1 || cd.cheight < 1) {
             cd.xescape = cd.cwidth = round(t3_char_widths[cd.charcode] / 100.0);
             cd.cheight = 1;
@@ -270,7 +265,7 @@ void writet3(PDF pdf, int objnum, internalfontnumber f)
         pdf_puts(pdf,"\n");
     }
     if (is_pk_font) {
-        pk_font_scale = get_pk_font_scale(f,pdf->decimal_digits);
+        pk_font_scale = get_pk_font_scale(f,pdf->decimal_digits, pdf->pk_scale_factor);
         pdf_puts(pdf,"/FontMatrix [");
         pdf_print_real(pdf, pk_font_scale, 5);
         pdf_puts(pdf," 0 0 ");

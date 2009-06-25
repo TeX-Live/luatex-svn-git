@@ -45,6 +45,10 @@
 #  define set_obj_xform_attr(A,B) obj_xform_attr(A)=B
 #  define set_obj_xform_resources(A,B) obj_xform_resources(A)=B
 
+extern halfword pdf_xform_list; /* list of forms in the current page */
+extern integer pdf_xform_count; /* counter of forms */
+extern integer pdf_cur_form; /* the form being output */
+
 extern void output_form(PDF pdf, halfword p);
 
 #endif

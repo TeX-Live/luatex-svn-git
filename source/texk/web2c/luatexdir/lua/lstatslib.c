@@ -34,6 +34,7 @@ extern char *ptexbanner;
 extern void lua_nodelib_push_fast(lua_State * L, halfword n);
 
 typedef char *(*charfunc) (void);
+typedef lua_Number(*numfunc) (void);
 typedef integer(*intfunc) (void);
 
 char *getbanner(void)
@@ -76,6 +77,21 @@ static lua_Number get_pdf_ptr (void)
     return (lua_Number)0;
 }
 
+static lua_Number get_pdf_os_cntr (void)
+{
+    if (static_pdf!=NULL)
+        return (lua_Number)static_pdf->os_cntr;
+    return (lua_Number)0;
+}
+
+static lua_Number get_pdf_os_objidx (void)
+{
+    if (static_pdf!=NULL)
+        return (lua_Number)static_pdf->os_idx;
+    return (lua_Number)0;
+}
+
+
 
 extern int luabytecode_max;
 extern int luabytecode_bytes;
@@ -85,8 +101,8 @@ extern int callback_count;
 extern int saved_callback_count;
 
 static struct statistic stats[] = {
-    {"pdf_gone", 'G', &get_pdf_gone},
-    {"pdf_ptr", 'G', &get_pdf_ptr},
+    {"pdf_gone", 'N', &get_pdf_gone},
+    {"pdf_ptr", 'N', &get_pdf_ptr},
     {"dvi_gone", 'g', &dvi_offset},
     {"dvi_ptr", 'g', &dvi_ptr},
     {"total_pages", 'g', &total_pages},
@@ -133,8 +149,8 @@ static struct statistic stats[] = {
     /* pdf stats */
     {"obj_ptr", 'g', &obj_ptr},
     {"obj_tab_size", 'g', &obj_tab_size},
-    {"pdf_os_cntr", 'g', &pdf_os_cntr},
-    {"pdf_os_objidx", 'g', &pdf_os_objidx},
+    {"pdf_os_cntr", 'N', &get_pdf_os_cntr},
+    {"pdf_os_objidx", 'N', &get_pdf_os_objidx},
     {"pdf_dest_names_ptr", 'g', &pdf_dest_names_ptr},
     {"dest_names_size", 'g', &dest_names_size},
     {"pdf_mem_ptr", 'g', &pdf_mem_ptr},
@@ -175,6 +191,7 @@ static int do_getstat(lua_State * L, int i)
     char *st;
     charfunc f;
     intfunc g;
+    numfunc n;
     int str;
     t = stats[i].type;
     switch (t) {
@@ -190,6 +207,10 @@ static int do_getstat(lua_State * L, int i)
         } else {
             lua_pushnil(L);
         }
+        break;
+    case 'N':
+        n = stats[i].value;
+        lua_pushnumber(L, n());
         break;
     case 'G':
         g = stats[i].value;

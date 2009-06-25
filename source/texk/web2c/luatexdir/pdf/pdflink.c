@@ -27,6 +27,9 @@ static const char __svn_version[] =
 
 #define pdf_link_margin          dimen_par(param_pdf_link_margin_code)
 
+halfword pdf_link_list; /* list of link annotations in the current page */
+
+
 /*
 To implement nested link annotations, we need a stack to hold copy of
 |pdf_start_link_node|'s that are being written out, together with their box

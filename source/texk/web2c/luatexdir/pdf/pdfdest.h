@@ -35,6 +35,11 @@ typedef enum {
     pdf_dest_fitr = 7
 } pdf_destination_types;
 
+typedef struct dest_name_entry_ {
+    str_number objname; /* destination name */
+    integer objnum; /* destination object number */
+} dest_name_entry;
+
 /* max number of kids for balanced trees */
 #  define name_tree_kids_max 6  /* max number of kids of node of name tree for name destinations */
 
@@ -52,6 +57,10 @@ typedef enum {
 #  define sup_dest_names_size 131072    /* max size of the destination names table for PDF output */
 
 extern integer dest_names_size;
+extern integer pdf_dest_names_ptr;
+extern dest_name_entry *dest_names;
+
+extern integer dest_names_size;  /* maximum number of names in name tree of PDF output file */
 
 extern void append_dest_name(str_number s, integer n);
 extern void do_dest(halfword p, halfword parent_box, scaled x, scaled y);
@@ -59,5 +68,9 @@ extern void warn_dest_dup(integer id, small_number byname, char *s1, char *s2);
 
 extern void write_out_pdf_mark_destinations(PDF);
 extern void scan_pdfdest(void);
+extern void init_dest_names (void);
+extern void reset_dest_list (void);
+extern void flush_dest_list (void);
+extern void sort_dest_names(integer l, integer r);
 
 #endif

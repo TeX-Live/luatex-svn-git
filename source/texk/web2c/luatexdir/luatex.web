@@ -10861,6 +10861,7 @@ end;
 function tokens_to_string(p: pointer): str_number; {return a string from tokens
 list}
 var old_setting:integer;
+last_tokens_string:str_number;
 begin
     if selector = new_string then
         pdf_error("tokens", "tokens_to_string() called while selector = new_string");
@@ -10895,11 +10896,6 @@ This is now in pdfgen.c.
 
 @ @<Glob...@>=
 @!pdf_font_list: pointer; {list of used fonts in current page}
-@!last_tokens_string: str_number; {the number of the most recently string
-created by |tokens_to_string|}
-
-@ @<Set init...@>=
-last_tokens_string := 0;
 
 @* \[32f] PDF shipping out.
 
@@ -17916,61 +17912,10 @@ begin
     late_lua_data(tail) := def_ref;
 end
 
-@ The \.{\\pdfobj} primitive is used to create a ``raw'' object in the PDF
-  output file. The object contents will be hold in memory and will be written
-  out only when the object is referenced by \.{\\pdfrefobj}. When \.{\\pdfobj}
-  is used with \.{\\immediate}, the object contents will be written out
-  immediately. Objects referenced in the current page are appended into
-  |pdf_obj_list|.
-
-@<Glob...@>=
-@!pdf_last_obj: integer;
-
 @ @<Implement \.{\\pdfobj}@>=
 begin
     check_pdfoutput("\pdfobj", true);
-    if scan_keyword('reserveobjnum') then begin
-        @<Scan an optional space@>;
-        incr(pdf_obj_count);
-        pdf_create_obj(obj_type_obj, pdf_obj_count);
-        pdf_last_obj := obj_ptr;
-    end
-    else begin
-        k := -1;
-        if scan_keyword('useobjnum') then begin
-            scan_int;
-            k := cur_val;
-            if (k <= 0) or (k > obj_ptr) or (obj_data_ptr(k) <> 0) then begin
-                pdf_warning("\pdfobj", "invalid object number being ignored", true, true);
-                pdf_retval := -1; {signal the problem}
-                k := -1; {will be generated again}
-            end;
-        end;
-        if k < 0 then begin
-            incr(pdf_obj_count);
-            pdf_create_obj(obj_type_obj, pdf_obj_count);
-            k := obj_ptr;
-        end;
-        set_obj_data_ptr(k, pdf_get_mem(pdfmem_obj_size));
-        if scan_keyword('stream') then begin
-            set_obj_obj_is_stream(k, 1);
-            if scan_keyword('attr') then begin
-                scan_pdf_ext_toks;
-                set_obj_obj_stream_attr(k, def_ref);
-            end
-            else
-                set_obj_obj_stream_attr(k, null);
-        end
-        else
-            set_obj_obj_is_stream(k, 0);
-        if scan_keyword('file') then
-            set_obj_obj_is_file(k, 1)
-        else
-            set_obj_obj_is_file(k, 0);
-        scan_pdf_ext_toks;
-        set_obj_obj_data(k, def_ref);
-        pdf_last_obj := k;
-    end;
+    scan_obj;
 end
 
 @ We need to check whether the referenced object exists.
@@ -18090,66 +18035,15 @@ begin
     set_pdf_depth(tail, image_depth(j));
 end
 
-@ The following function finds object with identifier |i| and type |t|.
-  |i < 0| indicates that |-i| should be treated as a string number. If no
-  such object exists then it will be created. This function is used mainly to
-  find destination for link annotations and outlines; however it is also used
-  in |pdf_ship_out| (to check whether a Page object already exists) so we need
-  to declare it together with subroutines needed in |pdf_hlist_out| and
-  |pdf_vlist_out|.
+@ 
 
 @d flushable(#) == (# = str_ptr - 1)
 
 @<Declare procedures that need to be declared forward for \pdfTeX@>=
-function find_obj(t, i: integer; byname: boolean): integer;
-begin
-    find_obj := avl_find_obj(t, i, byname);
-end;
-
 procedure flush_str(s: str_number); {flush a string if possible}
 begin
     if flushable(s) then
         flush_string;
-end;
-
-function get_obj(t, i: integer; byname: boolean): integer;
-var r: integer;
-    s: str_number;
-begin
-    if byname > 0 then begin
-        s := tokens_to_string(i);
-        r := find_obj(t, s, true);
-    end
-    else begin
-        s := 0;
-        r := find_obj(t, i, false);
-    end;
-    if r = 0 then begin
-        if byname > 0 then begin
-            pdf_create_obj(t, -s);
-            s := 0;
-        end
-        else
-            pdf_create_obj(t, i);
-        r := obj_ptr;
-        if t = obj_type_dest then
-            set_obj_dest_ptr(r,null);
-    end;
-    if s <> 0 then
-        flush_str(s);
-    get_obj := r;
-end;
-
-function get_microinterval:integer;
-var s,@!m:integer; {seconds and microseconds}
-begin
-   seconds_and_micros(s,m);
-   if (s-epochseconds)>32767 then
-     get_microinterval := max_integer
-   else if (microseconds>m)  then
-     get_microinterval := ((s-1-epochseconds)*65536)+ (((m+1000000-microseconds)/100)*65536)/10000
-   else
-     get_microinterval := ((s-epochseconds)*65536)  + (((m-microseconds)/100)*65536)/10000;
 end;
 
 @ @<Glob...@>=
@@ -18680,60 +18574,6 @@ end
 begin
 text_dir_ptr:=new_dir(0);
 end
-
-@ Shipping out PDF marks.
-
-@<Types...@>=
-dest_name_entry = record
-    objname: str_number; {destination name}
-    objnum: integer; {destination object number}
-end;
-
-@ @<Glob...@>=
-@!pdf_obj_list: pointer; {list of objects in the current page}
-@!pdf_xform_list: pointer; {list of forms in the current page}
-@!pdf_ximage_list: pointer; {list of images in the current page}
-@!last_thread: pointer; {pointer to the last thread}
-@!pdf_thread_ht, pdf_thread_dp, pdf_thread_wd: scaled; {dimensions of the last
-thread}
-@!pdf_last_thread_id: halfword; {identifier of the last thread}
-@!pdf_last_thread_named_id: boolean; {is identifier of the last thread named}
-@!pdf_thread_level: integer; {depth of nesting of box containing the last thread}
-@!pdf_annot_list: pointer; {list of annotations in the current page}
-@!pdf_link_list: pointer; {list of link annotations in the current page}
-@!pdf_dest_list: pointer; {list of destinations in the current page}
-@!pdf_bead_list: pointer; {list of thread beads in the current page}
-@!pdf_obj_count: integer; {counter of objects}
-@!pdf_xform_count: integer; {counter of forms}
-@!pdf_ximage_count: integer; {counter of images}
-@!pdf_cur_form: integer; {the form being output}
-@!pdf_first_outline, pdf_last_outline, pdf_parent_outline: integer;
-@!pdf_info_toks: pointer; {additional keys of Info dictionary}
-@!pdf_catalog_toks: pointer; {additional keys of Catalog dictionary}
-@!pdf_catalog_openaction: integer;
-@!pdf_names_toks: pointer; {additional keys of Names dictionary}
-@!pdf_dest_names_ptr: integer; {first unused position in |dest_names|}
-@!dest_names: ^dest_name_entry;
-@!pk_dpi: integer; {PK pixel density value from \.{texmf.cnf}}
-@!image_orig_x, image_orig_y: integer; {origin of cropped PDF images}
-@!pdf_trailer_toks: pointer; {additional keys of Trailer dictionary}
-
-@ @<Set init...@>=
-pdf_first_outline:= 0;
-pdf_last_outline:= 0;
-pdf_parent_outline:= 0;
-pdf_obj_count := 0;
-pdf_xform_count := 0;
-pdf_ximage_count := 0;
-pdf_dest_names_ptr := 0;
-pdf_info_toks := null;
-pdf_catalog_toks := null;
-pdf_names_toks := null;
-pdf_catalog_openaction := 0;
-pdf_trailer_toks := null;
-
-@ @<Glob...@>=
-@!is_shipping_page: boolean; {set to |shipping_page| when |pdf_ship_out| starts}
 
 @* \[53a] The extended features of \eTeX.
 The program has two modes of operation:  (1)~In \TeX\ compatibility mode

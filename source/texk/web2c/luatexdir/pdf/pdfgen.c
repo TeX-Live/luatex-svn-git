@@ -51,24 +51,12 @@ integer *pdf_mem;
    whether a pointer to |pdf_mem| is valid  */
 integer pdf_mem_ptr = 1;
 
-integer *pdf_os_objnum;         /* array of object numbers within object stream */
-integer *pdf_os_objoff;         /* array of object offsets within object stream */
-halfword pdf_os_objidx;         /* pointer into |pdf_os_objnum| and |pdf_os_objoff| */
-integer pdf_os_cntr = 0;        /* counter for object stream objects */
-boolean pdf_os_mode = false;    /* true if producing object stream */
-boolean pdf_os_enable;          /* true if object streams are globally enabled */
-integer pdf_os_cur_objnum = 0;  /* number of current object stream object */
-
-integer zip_write_state = no_zip;       /* which state of compression we are in */
-
 integer fixed_pdfoutput;        /* fixed output format */
 boolean fixed_pdfoutput_set = false;    /* |fixed_pdfoutput| has been set? */
 
 integer pdf_page_group_val = -1;
-integer epochseconds;
-integer microseconds;
-integer page_divert_val = 0;
-integer pk_scale_factor;
+
+/* commandline interface */
 integer pdf_output_option;
 integer pdf_output_value;
 integer pdf_draftmode_option;
@@ -81,6 +69,7 @@ PDF initialize_pdf (void)
     pdf = xmalloc(sizeof(pdf_output_file));
     memset(pdf, 0, sizeof(pdf_output_file));
 
+    pdf->os_obj = xmalloc (pdf_os_max_objs * sizeof(os_obj_data));
     pdf->os_buf_size = inf_pdf_os_buf_size;
     pdf->os_buf  = xmalloc(pdf->os_buf_size * sizeof(unsigned char));
     pdf->op_buf_size = inf_pdf_op_buf_size;
@@ -120,7 +109,7 @@ void initialize_pdf_output(PDF pdf)
     pdf->replace_font = fix_int(pdf_replace_font, 0, 1);
     pdf->pk_resolution = fix_int(pdf_pk_resolution, 72, 8000);
     if ((pdf->minor_version >= 5) && (pdf->objcompresslevel > 0)) {
-        pdf_os_enable = true;
+        pdf->os_enable = true;
     } else {
         if (pdf->objcompresslevel > 0) {
             pdf_warning(maketexstring("Object streams"),
@@ -129,11 +118,11 @@ void initialize_pdf_output(PDF pdf)
                         true, true);
             pdf->objcompresslevel = 0;
         }
-        pdf_os_enable = false;
+        pdf->os_enable = false;
     }
-    if (pdf_pk_resolution == 0) /* if not set from format file or by user */
-        pdf_pk_resolution = pk_dpi;     /* take it from \.{texmf.cnf} */
-    pk_scale_factor =
+    if (pdf->pk_resolution == 0) /* if not set from format file or by user */
+        pdf->pk_resolution = pk_dpi;     /* take it from \.{texmf.cnf} */
+    pdf->pk_scale_factor =
         divide_scaled(72, pdf->pk_resolution, 5 + pdf->decimal_digits);
     if (!callback_defined(read_pk_file_callback)) {
         if (pdf_pk_mode != null) {
@@ -262,9 +251,9 @@ static void write_pdf(PDF pdf, integer a, int b)
 void pdf_flush(PDF pdf)
 {                               /* flush out the |pdf_buf| */
     off_t saved_pdf_gone;
-    if (!pdf_os_mode) {
+    if (!pdf->os_mode) {
         saved_pdf_gone = pdf->gone;
-        switch (zip_write_state) {
+        switch (pdf->zip_write_state) {
         case no_zip:
             if (pdf->ptr > 0) {
                 if (pdf->draftmode == 0)
@@ -280,7 +269,7 @@ void pdf_flush(PDF pdf)
         case zip_finish:
             if (pdf->draftmode == 0)
                 write_zip(pdf, true);
-            zip_write_state = no_zip;
+            pdf->zip_write_state = no_zip;
             break;
         }
         pdf->ptr = 0;
@@ -295,21 +284,21 @@ void pdf_flush(PDF pdf)
 /* switch between PDF stream and object stream mode */
 void pdf_os_switch(PDF pdf, boolean pdf_os)
 {
-    if (pdf_os && pdf_os_enable) {
-        if (!pdf_os_mode) {     /* back up PDF stream variables */
+    if (pdf_os && pdf->os_enable) {
+        if (!pdf->os_mode) {     /* back up PDF stream variables */
             pdf->op_ptr = pdf->ptr;
             pdf->ptr = pdf->os_ptr;
             pdf->buf = pdf->os_buf;
             pdf->buf_size = pdf->os_buf_size;
-            pdf_os_mode = true; /* switch to object stream */
+            pdf->os_mode = true; /* switch to object stream */
         }
     } else {
-        if (pdf_os_mode) {      /* back up object stream variables */
+        if (pdf->os_mode) {      /* back up object stream variables */
             pdf->os_ptr = pdf->ptr;
             pdf->ptr = pdf->op_ptr;
             pdf->buf = pdf->op_buf;
             pdf->buf_size = pdf->op_buf_size;
-            pdf_os_mode = false;        /* switch to PDF stream */
+            pdf->os_mode = false;        /* switch to PDF stream */
         }
     }
 }
@@ -319,20 +308,20 @@ void pdf_os_prepare_obj(PDF pdf, integer i, integer pdf_os_level)
 {
     pdf_os_switch(pdf,((pdf_os_level > 0)
                    && (pdf->objcompresslevel >= pdf_os_level)));
-    if (pdf_os_mode) {
-        if (pdf_os_cur_objnum == 0) {
-            pdf_os_cur_objnum = pdf_new_objnum();
+    if (pdf->os_mode) {
+        if (pdf->os_cur_objnum == 0) {
+            pdf->os_cur_objnum = pdf_new_objnum();
             decr(obj_ptr);      /* object stream is not accessible to user */
-            incr(pdf_os_cntr);  /* only for statistics */
-            pdf_os_objidx = 0;
+            incr(pdf->os_cntr);  /* only for statistics */
+            pdf->os_idx = 0;
             pdf->ptr = 0;        /* start fresh object stream */
         } else {
-            incr(pdf_os_objidx);
+            incr(pdf->os_idx);
         }
-        obj_os_idx(i) = pdf_os_objidx;
-        obj_offset(i) = pdf_os_cur_objnum;
-        pdf_os_objnum[pdf_os_objidx] = i;
-        pdf_os_objoff[pdf_os_objidx] = pdf->ptr;
+        obj_os_idx(i) = pdf->os_idx;
+        obj_offset(i) = pdf->os_cur_objnum;
+        pdf->os_obj[pdf->os_idx].num = i;
+        pdf->os_obj[pdf->os_idx].off = pdf->ptr;
     } else {
         obj_offset(i) = pdf_offset(pdf);
         obj_os_idx(i) = -1;     /* mark it as not included in object stream */
@@ -364,11 +353,11 @@ static void pdf_os_get_os_buf(PDF pdf, integer s)
 /* make sure that there are at least |n| bytes free in PDF buffer */
 void pdf_room(PDF pdf, integer n)
 {
-    if (pdf_os_mode && (n + pdf->ptr > pdf->buf_size))
+    if (pdf->os_mode && (n + pdf->ptr > pdf->buf_size))
       pdf_os_get_os_buf(pdf, n);
-    else if ((!pdf_os_mode) && (n > pdf->buf_size))
+    else if ((!pdf->os_mode) && (n > pdf->buf_size))
         overflow(maketexstring("PDF output buffer"), pdf->op_buf_size);
-    else if ((!pdf_os_mode) && (n + pdf->ptr > pdf->buf_size))
+    else if ((!pdf->os_mode) && (n + pdf->ptr > pdf->buf_size))
         pdf_flush(pdf);
 }
 
@@ -531,7 +520,7 @@ void pdf_print_str(PDF pdf, char *s)
 /* begin a stream */
 void pdf_begin_stream(PDF pdf)
 {
-    assert(pdf_os_mode == false);
+    assert(pdf->os_mode == false);
     pdf_printf(pdf,"/Length           \n");
     pdf_seek_write_length = true;       /* fill in length at |pdf_end_stream| call */
     pdf_stream_length_offset = pdf_offset(pdf) - 11;
@@ -542,7 +531,7 @@ void pdf_begin_stream(PDF pdf)
         pdf_printf(pdf,">>\n");
         pdf_printf(pdf,"stream\n");
         pdf_flush(pdf);
-        zip_write_state = zip_writing;
+        pdf->zip_write_state = zip_writing;
     } else {
         pdf_printf(pdf,">>\n");
         pdf_printf(pdf,"stream\n");
@@ -553,8 +542,8 @@ void pdf_begin_stream(PDF pdf)
 /* end a stream */
 void pdf_end_stream(PDF pdf)
 {
-    if (zip_write_state == zip_writing)
-        zip_write_state = zip_finish;
+    if (pdf->zip_write_state == zip_writing)
+        pdf->zip_write_state = zip_finish;
     else
       pdf_stream_length = pdf_offset(pdf) - pdf_saved_offset(pdf);
     pdf_flush(pdf);
@@ -878,7 +867,7 @@ void pdf_begin_dict(PDF pdf, integer i, integer pdf_os_level)
 {
     check_pdfminorversion(pdf);
     pdf_os_prepare_obj(pdf,i, pdf_os_level);
-    if (!pdf_os_mode) {
+    if (!pdf->os_mode) {
         pdf_printf(pdf, "%d 0 obj <<\n", (int) i);
     } else {
         if (pdf_compress_level == 0)
@@ -897,9 +886,9 @@ void pdf_new_dict(PDF pdf, integer t, integer i, integer pdf_os)
 /* end a PDF dictionary object */
 void pdf_end_dict(PDF pdf)
 {
-    if (pdf_os_mode) {
+    if (pdf->os_mode) {
         pdf_printf(pdf, ">>\n");
-        if (pdf_os_objidx == pdf_os_max_objs - 1)
+        if (pdf->os_idx == pdf_os_max_objs - 1)
             pdf_os_write_objstream(pdf);
     } else {
         pdf_printf(pdf, ">> endobj\n");
@@ -920,13 +909,13 @@ When calling this procedure, |pdf_os_mode| must be |true|.
 void pdf_os_write_objstream(PDF pdf)
 {
     halfword i, j, p, q;
-    if (pdf_os_cur_objnum == 0) /* no object stream started */
+    if (pdf->os_cur_objnum == 0) /* no object stream started */
         return;
     p = pdf->ptr;
     i = 0;
     j = 0;
-    while (i <= pdf_os_objidx) {        /* assemble object number and byte offset pairs */
-        pdf_printf(pdf, "%d %d", (int) pdf_os_objnum[i], (int) pdf_os_objoff[i]);
+    while (i <= pdf->os_idx) {        /* assemble object number and byte offset pairs */
+        pdf_printf(pdf, "%d %d", (int) pdf->os_obj[i].num, (int) pdf->os_obj[i].off);
         if (j == 9) {           /* print out in groups of ten for better readability */
             pdf_out(pdf, pdf_new_line_char);
             j = 0;
@@ -938,9 +927,9 @@ void pdf_os_write_objstream(PDF pdf)
     }
     pdf->buf[pdf->ptr - 1] = pdf_new_line_char;   /* no risk of flush, as we are in |pdf_os_mode| */
     q = pdf->ptr;
-    pdf_begin_dict(pdf, pdf_os_cur_objnum, 0);       /* switch to PDF stream writing */
+    pdf_begin_dict(pdf, pdf->os_cur_objnum, 0);       /* switch to PDF stream writing */
     pdf_printf(pdf, "/Type /ObjStm\n");
-    pdf_printf(pdf, "/N %d\n", (int) (pdf_os_objidx + 1));
+    pdf_printf(pdf, "/N %d\n", (int) (pdf->os_idx + 1));
     pdf_printf(pdf, "/First %d\n", (int) (q - p));
     pdf_begin_stream(pdf);
     pdf_room(pdf, q - p);            /* should always fit into the PDF output buffer */
@@ -961,7 +950,7 @@ void pdf_os_write_objstream(PDF pdf)
         }
     }
     pdf_end_stream(pdf);
-    pdf_os_cur_objnum = 0;      /* to force object stream generation next time */
+    pdf->os_cur_objnum = 0;      /* to force object stream generation next time */
 }
 
 /* begin a PDF object */
@@ -969,7 +958,7 @@ void pdf_begin_obj(PDF pdf, integer i, integer pdf_os_level)
 {
     check_pdfminorversion(pdf);
     pdf_os_prepare_obj(pdf, i, pdf_os_level);
-    if (!pdf_os_mode) {
+    if (!pdf->os_mode) {
         pdf_printf(pdf, "%d 0 obj\n", (int) i);
     } else if (pdf_compress_level == 0) {
         pdf_printf(pdf, "%% %d 0 obj\n", (int) i);   /* debugging help */
@@ -987,8 +976,8 @@ void pdf_new_obj(PDF pdf, integer t, integer i, integer pdf_os)
 /* end a PDF object */
 void pdf_end_obj(PDF pdf)
 {
-    if (pdf_os_mode) {
-        if (pdf_os_objidx == pdf_os_max_objs - 1)
+    if (pdf->os_mode) {
+        if (pdf->os_idx == pdf_os_max_objs - 1)
             pdf_os_write_objstream(pdf);
     } else {
         pdf_printf(pdf, "endobj\n"); /* end a PDF object */

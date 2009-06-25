@@ -27,9 +27,11 @@ static const char __svn_version[] =
 
 #define pdf_pagebox int_par(param_pdf_pagebox_code)
 
-halfword alt_rule = null;
+halfword pdf_ximage_list; /* list of images in the current page */
+integer pdf_ximage_count; /* counter of images */
+integer image_orig_x, image_orig_y; /* origin of cropped PDF images */
 
-static boolean warn_pdfpagebox = true;
+halfword alt_rule = null;
 
 #define scan_normal_dimen() scan_dimen(false,false,false)
 

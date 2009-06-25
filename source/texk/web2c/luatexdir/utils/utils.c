@@ -64,10 +64,13 @@ char *job_id_string = NULL;
 extern string ptexbanner;       /* from web2c/lib/texmfmp.c */
 extern string versionstring;    /* from web2c/lib/version.c */
 extern KPSEDLL string kpathsea_version_string;  /* from kpathsea/version.c */
+integer epochseconds;
+integer microseconds;
 
 size_t last_ptr_index;          /* for use with alloc_array */
 
 extern PDF static_pdf;
+
 
 /* define char_ptr, char_array & char_limit */
 typedef char char_entry;

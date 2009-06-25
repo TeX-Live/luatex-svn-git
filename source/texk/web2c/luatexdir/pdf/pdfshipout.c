@@ -50,6 +50,15 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
+integer page_divert_val;
+
+halfword pdf_info_toks; /* additional keys of Info dictionary */
+halfword pdf_catalog_toks; /* additional keys of Catalog dictionary */
+halfword pdf_catalog_openaction;
+halfword pdf_names_toks; /* additional keys of Names dictionary */
+halfword pdf_trailer_toks; /* additional keys of Trailer dictionary */
+boolean is_shipping_page; /* set to |shipping_page| when |pdf_ship_out| starts */
+
 /*
 |fix_pdfoutput| freezes |fixed_pdfoutput| as soon as anything has been written
 to the output file, be it \.{PDF} or \.{DVI}.
@@ -354,9 +363,8 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         /* Reset PDF mark lists */
         pdf_annot_list = null;
         pdf_link_list = null;
-        pdf_dest_list = null;
-        pdf_bead_list = null;
-        last_thread = null;
+        reset_dest_list();
+        reset_thread_lists();
     }
     /* Start stream of page/form contents */
     pdf_begin_stream(pdf);
@@ -426,17 +434,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
             }
             pdf_printf(pdf,"]\n");
         }
-        if (pdf_bead_list != null) {
-            k = pdf_bead_list;
-            pdf_printf(pdf,"/B [ ");
-            while (k != null) {
-                pdf_print_int(pdf,info(k));
-                pdf_printf(pdf," 0 R ");
-                k = link(k);
-            }
-            pdf_printf(pdf,"]\n");
-        }
-
+        print_beads_list(pdf);
         pdf_end_dict(pdf);
 
     }
@@ -546,23 +544,8 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
 
         /* Write out PDF mark destinations */
         write_out_pdf_mark_destinations(pdf);
-
         /* Write out PDF bead rectangle specifications */
-        if (pdf_bead_list != null) {
-            k = pdf_bead_list;
-            while (k != null) {
-                pdf_new_obj(pdf,obj_type_others, 0, 1);
-                pdf_out(pdf,'[');
-                i = obj_bead_data(info(k));     /* pointer to a whatsit or whatsit-like node */
-                pdf_print_rect_spec(pdf, i);
-                if (subtype(i) == pdf_thread_data_node) /* thanh says it mis be destroyed here */
-                    flush_node(i);
-                pdf_printf(pdf,"]\n");
-                set_obj_bead_rect(info(k), obj_ptr);    /* rewrite |obj_bead_data| */
-                pdf_end_obj(pdf);
-                k = link(k);
-            }
-        }
+        print_bead_rectangles(pdf);
 
     }
     /* Write out resources dictionary */
@@ -651,8 +634,8 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         /* Flush PDF mark lists */
         flush_list(pdf_annot_list);
         flush_list(pdf_link_list);
-        flush_list(pdf_dest_list);
-        flush_list(pdf_bead_list);
+        flush_dest_list(); 
+        flush_beads_list();
     }
 
   DONE:
@@ -709,35 +692,6 @@ boolean str_less_str(str_number s1, str_number s2)
     else
         return false;
 }
-
-void sort_dest_names(integer l, integer r)
-{                               /* sorts |dest_names| by names */
-    integer i, j;
-    str_number s;
-    dest_name_entry e;
-    i = l;
-    j = r;
-    s = dest_names[(l + r) / 2].objname;
-    do {
-        while (str_less_str(dest_names[i].objname, s))
-            incr(i);
-        while (str_less_str(s, dest_names[j].objname))
-            decr(j);
-        if (i <= j) {
-            e = dest_names[i];
-            dest_names[i] = dest_names[j];
-            dest_names[j] = e;
-            incr(i);
-            decr(j);
-        }
-    } while (i <= j);
-    if (l < j)
-        sort_dest_names(l, j);
-    if (i < r)
-        sort_dest_names(i, r);
-}
-
-
 
 /*
 Destinations that have been referenced but don't exists have
@@ -866,7 +820,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version, str_number luatex_revision
 {
     boolean is_names;           /* flag for name tree output: is it Names or Kids? */
     boolean res;
-    integer a, b, i, j, k, l;
+    integer b, i, j, k, l;
     integer root, outlines, threads, names_tree, dests;
     integer xref_offset_width, names_head, names_tail;
     integer callback_id = callback_defined(stop_run_callback);
@@ -946,64 +900,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version, str_number luatex_revision
 
             pdf_last_pages = output_pages_tree(pdf);
             /* Output outlines */
-            /* In the end we must flush PDF objects that cannot be written out
-               immediately after shipping out pages. */
-
-            if (pdf_first_outline != 0) {
-                pdf_new_dict(pdf,obj_type_others, 0, 1);
-                outlines = obj_ptr;
-                l = pdf_first_outline;
-                k = 0;
-                do {
-                    incr(k);
-                    a = open_subentries(l);
-                    if (obj_outline_count(l) > 0)
-                        k = k + a;
-                    set_obj_outline_parent(l, obj_ptr);
-                    l = obj_outline_next(l);
-                } while (l != 0);
-                pdf_printf(pdf,"/Type /Outlines\n");
-                pdf_indirect_ln(pdf,"First", pdf_first_outline);
-                pdf_indirect_ln(pdf,"Last", pdf_last_outline);
-                pdf_int_entry_ln(pdf,"Count", k);
-                pdf_end_dict(pdf);
-                /* Output PDF outline entries */
-
-                k = head_tab[obj_type_outline];
-                while (k != 0) {
-                    if (obj_outline_parent(k) == pdf_parent_outline) {
-                        if (obj_outline_prev(k) == 0)
-                            pdf_first_outline = k;
-                        if (obj_outline_next(k) == 0)
-                            pdf_last_outline = k;
-                    }
-                    pdf_begin_dict(pdf,k, 1);
-                    pdf_indirect_ln(pdf,"Title", obj_outline_title(k));
-                    pdf_indirect_ln(pdf,"A", obj_outline_action_objnum(k));
-                    if (obj_outline_parent(k) != 0)
-                        pdf_indirect_ln(pdf,"Parent", obj_outline_parent(k));
-                    if (obj_outline_prev(k) != 0)
-                        pdf_indirect_ln(pdf,"Prev", obj_outline_prev(k));
-                    if (obj_outline_next(k) != 0)
-                        pdf_indirect_ln(pdf,"Next", obj_outline_next(k));
-                    if (obj_outline_first(k) != 0)
-                        pdf_indirect_ln(pdf,"First", obj_outline_first(k));
-                    if (obj_outline_last(k) != 0)
-                        pdf_indirect_ln(pdf,"Last", obj_outline_last(k));
-                    if (obj_outline_count(k) != 0)
-                        pdf_int_entry_ln(pdf,"Count", obj_outline_count(k));
-                    if (obj_outline_attr(k) != 0) {
-                        pdf_print_toks_ln(pdf,obj_outline_attr(k));
-                        delete_token_ref(obj_outline_attr(k));
-                        set_obj_outline_attr(k, null);
-                    }
-                    pdf_end_dict(pdf);
-                    k = obj_link(k);
-                }
-
-            } else {
-                outlines = 0;
-            }
+            outlines = print_outlines(pdf);
 
             /* Output name tree */
             /* The name tree is very similiar to Pages tree so its construction should be
@@ -1152,7 +1049,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version, str_number luatex_revision
 
             pdf_print_info(pdf, luatex_version, luatex_revision);    /* last candidate for object stream */
 
-            if (pdf_os_enable) {
+            if (pdf->os_enable) {
                 pdf_os_switch(pdf,true);
                 pdf_os_write_objstream(pdf);
                 pdf_flush(pdf);
@@ -1229,7 +1126,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version, str_number luatex_revision
             }
 
             /* Output the trailer */
-            if (!pdf_os_enable) {
+            if (!pdf->os_enable) {
                 pdf_printf(pdf,"trailer\n");
                 pdf_printf(pdf,"<< ");
                 pdf_int_entry_ln(pdf,"Size", sys_obj_ptr + 1);
@@ -1244,7 +1141,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version, str_number luatex_revision
                 pdf_printf(pdf," >>\n");
             }
             pdf_printf(pdf,"startxref\n");
-            if (pdf_os_enable)
+            if (pdf->os_enable)
                 pdf_print_int_ln(pdf,obj_offset(sys_obj_ptr));
             else
                 pdf_print_int_ln(pdf,pdf_saved_offset(pdf));
@@ -1281,12 +1178,12 @@ void finish_pdf_file(PDF pdf, integer luatex_version, str_number luatex_revision
             fprintf(log_file,
                     "\nPDF statistics: %d PDF objects out of %d (max. %d)\n",
                     (int) obj_ptr, (int) obj_tab_size, (int) sup_obj_tab_size);
-            if (pdf_os_cntr > 0) {
+            if (pdf->os_cntr > 0) {
                 fprintf(log_file,
                         " %d compressed objects within %d object stream%s\n",
-                        (int) ((pdf_os_cntr - 1) * pdf_os_max_objs +
-                               pdf_os_objidx + 1), (int) pdf_os_cntr,
-                        (pdf_os_cntr > 1 ? "s" : ""));
+                        (int) ((pdf->os_cntr - 1) * pdf_os_max_objs +
+                               pdf->os_idx + 1), (int) pdf->os_cntr,
+                        (pdf->os_cntr > 1 ? "s" : ""));
             }
             fprintf(log_file, " %d named destinations out of %d (max. %d)\n",
                     (int) pdf_dest_names_ptr, (int) dest_names_size,

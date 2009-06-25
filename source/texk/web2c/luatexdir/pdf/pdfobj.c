@@ -19,9 +19,17 @@
 
 #include "ptexlib.h"
 
+#include "commands.h"
+
 static const char __svn_version[] =
     "$Id$"
     "$URL$";
+
+halfword pdf_obj_list; /* list of objects in the current page */
+integer pdf_obj_count; /* counter of objects */
+integer pdf_last_obj;
+
+
 
 /* write a raw PDF object */
 void pdf_write_obj(PDF pdf, integer n)
@@ -116,4 +124,60 @@ void pdf_write_obj(PDF pdf, integer n)
     else
         pdf_end_obj(pdf);
     flush_str(s);
+}
+
+/* The \.{\\pdfobj} primitive is used to create a ``raw'' object in the PDF
+   output file. The object contents will be hold in memory and will be written
+   out only when the object is referenced by \.{\\pdfrefobj}. When \.{\\pdfobj}
+   is used with \.{\\immediate}, the object contents will be written out
+   immediately. Objects referenced in the current page are appended into
+   |pdf_obj_list|. */
+
+void scan_obj (void) 
+{
+    integer k;
+    if (scan_keyword("reserveobjnum")) {
+        /* Scan an optional space */
+        get_x_token(); if (cur_cmd!=spacer_cmd) back_input();
+        incr(pdf_obj_count);
+        pdf_create_obj(obj_type_obj, pdf_obj_count);
+        pdf_last_obj = obj_ptr;
+    } else {
+        k = -1;
+        if (scan_keyword("useobjnum")) {
+            scan_int();
+            k = cur_val;
+            if ((k <= 0) || (k > obj_ptr) || (obj_data_ptr(k) != 0)) {
+                pdf_warning(maketexstring("\\pdfobj"), 
+                            maketexstring("invalid object number being ignored"), 
+                            true, true);
+                pdf_retval = -1; /* signal the problem */
+                k = -1; /* will be generated again */
+            }
+        }
+        if (k < 0) {
+            incr(pdf_obj_count);
+            pdf_create_obj(obj_type_obj, pdf_obj_count);
+            k = obj_ptr;
+        }
+        set_obj_data_ptr(k, pdf_get_mem(pdfmem_obj_size));
+        if (scan_keyword("stream")) {
+            set_obj_obj_is_stream(k, 1);
+            if (scan_keyword("attr")) {
+                scan_pdf_ext_toks();
+                set_obj_obj_stream_attr(k, def_ref);
+            } else {
+                set_obj_obj_stream_attr(k, null);
+            }
+        } else {
+            set_obj_obj_is_stream(k, 0);
+        }
+        if (scan_keyword("file")) 
+            set_obj_obj_is_file(k, 1);
+        else
+            set_obj_obj_is_file(k, 0);
+        scan_pdf_ext_toks();
+        set_obj_obj_data(k, def_ref);
+        pdf_last_obj = k;
+    }
 }

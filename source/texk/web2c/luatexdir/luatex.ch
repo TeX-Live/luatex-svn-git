@@ -1358,7 +1358,6 @@ begin @!{|start_here|}
   const_chk (hash_extra);
   const_chk (obj_tab_size);
   const_chk (pdf_mem_size);
-  const_chk (dest_names_size);
   const_chk (pk_dpi);
   if error_line > ssup_error_line then error_line := ssup_error_line;
 
@@ -1382,9 +1381,7 @@ begin @!{|start_here|}
   obj_tab:=xmallocarray (obj_entry, inf_obj_tab_size); {will grow dynamically}
   set_obj_offset(0,0);
   pdf_mem:=xmallocarray (integer, inf_pdf_mem_size); {will grow dynamically}
-  dest_names:=xmallocarray (dest_name_entry, inf_dest_names_size); {will grow dynamically}
-  pdf_os_objnum:=xmallocarray (integer, pdf_os_max_objs);
-  pdf_os_objoff:=xmallocarray (integer, pdf_os_max_objs);
+  init_dest_names;
 @+Init
   fixmem:=xmallocarray (smemory_word, fix_mem_init+1);
   memset (voidcast(fixmem), 0, (fix_mem_init+1)*sizeof(smemory_word));

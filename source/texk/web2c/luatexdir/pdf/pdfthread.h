@@ -56,4 +56,10 @@ extern void thread_title(PDF pdf, integer t);
 extern void pdf_fix_thread(PDF pdf, integer t);
 extern void out_thread(PDF pdf, integer t);
 
+extern void check_running_thread (halfword this_box, scaledpos cur) ;
+extern void reset_thread_lists(void);
+extern void print_beads_list (PDF pdf);
+extern void print_bead_rectangles (PDF pdf);
+extern void flush_beads_list(void);
+
 #endif

@@ -28,6 +28,8 @@ extern void output_one_char(PDF pdf, internal_font_number ffi, integer c);
 
 typedef integer *fm_entry_ptr;
 
+extern integer pk_dpi; /* PK pixel density value from \.{texmf.cnf} */
+
 extern void copy_expand_params(internal_font_number k, internal_font_number f,
                                integer e);
 extern internal_font_number tfm_lookup(str_number s, scaled fs);

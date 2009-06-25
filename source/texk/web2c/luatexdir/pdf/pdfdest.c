@@ -28,6 +28,10 @@ static const char __svn_version[] =
 #define info(A) fixmem[(A)].hhlh
 #define pdf_dest_margin          dimen_par(param_pdf_dest_margin_code)
 
+halfword pdf_dest_list; /* list of destinations in the current page */
+integer pdf_dest_names_ptr; /* first unused position in |dest_names| */
+dest_name_entry *dest_names;
+
 integer dest_names_size = inf_dest_names_size;  /* maximum number of names in name tree of PDF output file */
 
 /*
@@ -36,6 +40,9 @@ Some of them are used in former parts too, so we need to declare them
 forward.
 */
 
+void init_dest_names (void) {
+    dest_names = xmallocarray (dest_name_entry, inf_dest_names_size); /* will grow dynamically */
+}
 
 void append_dest_name(str_number s, integer n)
 {
@@ -308,3 +315,43 @@ void scan_pdfdest(void)
         vlink(q) = null;
     }
 }
+
+void reset_dest_list (void)
+{
+    pdf_dest_list = null;
+}
+
+void flush_dest_list (void)
+{
+    flush_list(pdf_dest_list);
+}
+
+void sort_dest_names(integer l, integer r)
+{                               /* sorts |dest_names| by names */
+    integer i, j;
+    str_number s;
+    dest_name_entry e;
+    i = l;
+    j = r;
+    s = dest_names[(l + r) / 2].objname;
+    do {
+        while (str_less_str(dest_names[i].objname, s))
+            incr(i);
+        while (str_less_str(s, dest_names[j].objname))
+            decr(j);
+        if (i <= j) {
+            e = dest_names[i];
+            dest_names[i] = dest_names[j];
+            dest_names[j] = e;
+            incr(i);
+            decr(j);
+        }
+    } while (i <= j);
+    if (l < j)
+        sort_dest_names(l, j);
+    if (i < r)
+        sort_dest_names(i, r);
+}
+
+
+
