@@ -942,7 +942,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version, str_number luatex_revision
                 do_pdf_font(pdf, k, f);
                 k = obj_link(k);
             }
-            write_fontstuff();
+            write_fontstuff(pdf);
 
             pdf_last_pages = output_pages_tree(pdf);
             /* Output outlines */
