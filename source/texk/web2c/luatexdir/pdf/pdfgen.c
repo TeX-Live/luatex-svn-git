@@ -38,8 +38,6 @@ PDF static_pdf = NULL;
 
 static char *jobname_cstr = NULL;
 
-str_number pdf_resname_prefix = 0;      /* global prefix of resources name */
-
 /*
 Sometimes it is neccesary to allocate memory for PDF output that cannot
 be deallocated then, so we use |pdf_mem| for this purpose.
@@ -137,8 +135,8 @@ void initialize_pdf_output(PDF pdf)
                int_par(param_month_code),
                int_par(param_day_code), int_par(param_time_code));
 
-    if ((pdf_unique_resname > 0) && (pdf_resname_prefix == 0))
-        pdf_resname_prefix = get_resname_prefix();
+    if ((pdf_unique_resname > 0) && (pdf->resname_prefix == NULL))
+        pdf->resname_prefix = get_resname_prefix();
     pdf_page_init(pdf);
 }
 

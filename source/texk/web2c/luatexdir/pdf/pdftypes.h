@@ -80,9 +80,9 @@ typedef struct pdf_output_file_ {
     int pk_scale_factor;        /* this is just a preprocessed value that depends on 
                                    |pk_resolution| and |decimal_digits| */
 
-    int img_page_group_val ;    /* page group information pointer from included pdf or png images */
-
-
+    int img_page_group_val;     /* page group information pointer from included pdf or png images */
+    char *resname_prefix;       /* global prefix of resources name */
+    
 } pdf_output_file;
 
 typedef pdf_output_file *PDF;

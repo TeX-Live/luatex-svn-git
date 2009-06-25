@@ -30,7 +30,6 @@ extern PDF static_pdf;
 extern integer pdf_mem_size;
 extern integer *pdf_mem;
 extern integer pdf_mem_ptr;
-extern str_number pdf_resname_prefix;
 
 extern void initialize_pdfgen(void);
 extern PDF initialize_pdf(void);
@@ -150,9 +149,9 @@ extern void pdf_print_mag_bp(PDF, scaled);
             ff = A;                             \
     } while (0)
 
-#  define pdf_print_resname_prefix(pdf) do {    \
-        if (pdf_resname_prefix != 0)            \
-            pdf_print(pdf,pdf_resname_prefix);  \
+#  define pdf_print_resname_prefix(pdf) do {        \
+        if (pdf->resname_prefix != NULL)            \
+            pdf_puts(pdf,pdf->resname_prefix);      \
     } while (0)
 
 extern void pdf_print_fw_int(PDF, longinteger, integer);

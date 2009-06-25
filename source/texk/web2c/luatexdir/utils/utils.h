@@ -48,7 +48,7 @@ char *makecstring(integer);
 char *makeclstring(integer, size_t *);
 void set_job_id(int, int, int, int);
 void make_pdftex_banner(void);
-str_number get_resname_prefix(void);
+char *get_resname_prefix(void);
 size_t xfwrite(void *, size_t size, size_t nmemb, FILE *);
 int xfflush(FILE *);
 int xgetc(FILE *);

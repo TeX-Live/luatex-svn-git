@@ -404,7 +404,7 @@ void make_pdftex_banner(void)
     pdftexbanner_init = true;
 }
 
-str_number get_resname_prefix(void)
+char *get_resname_prefix(void)
 {
 /*     static char name_str[] = */
 /* "!\"$&'*+,-.0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\\" */
@@ -422,7 +422,7 @@ str_number get_resname_prefix(void)
         crc /= base;
     }
     prefix[6] = 0;
-    return maketexstring(prefix);
+    return prefix;
 }
 
 size_t xfwrite(void *ptr, size_t size, size_t nmemb, FILE * stream)
