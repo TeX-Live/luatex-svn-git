@@ -375,7 +375,6 @@ void pdf_room(PDF pdf, integer n)
 
 void pdf_print_char(PDF pdf, internal_font_number f, integer cc)
 {
-    register int c;
     pdf_mark_char(f, cc);
     if (font_encodingbytes(f) == 2) {
         char hex[5];
