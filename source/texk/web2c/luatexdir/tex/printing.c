@@ -224,7 +224,7 @@ to do the same substraction while typesetting.
 
 void print(integer s)
 {                               /* prints string |s| */
-    pool_pointer j;             /* current character code position */
+    pool_pointer j,l;             /* current character code position */
     if (s >= str_ptr) {
         /* this can't happen */
         print_char('?');
@@ -272,11 +272,11 @@ void print(integer s)
         return;
     }
     j = str_start_macro(s);
-    while (j < str_start_macro(s + 1)) {
+    l = str_start_macro(s + 1);
+    while (j < l) {
         /* 0x110000 in utf=8: 0xF4 0x90 0x80 0x80  */
         /* I don't bother checking the last two bytes explicitly */
-        if ((j < str_start_macro(s + 4)) &&
-            (str_pool[j] == 0xF4) && (str_pool[j + 1] == 0x90)) {
+        if ((j < l-4) && (str_pool[j] == 0xF4) && (str_pool[j + 1] == 0x90)) {
             int c = (str_pool[j + 2] - 128) * 64 + (str_pool[j + 3] - 128);
             assert(c >= 0 && c < 256);
             print_char(c);
