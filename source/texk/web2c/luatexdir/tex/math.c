@@ -645,7 +645,7 @@ void print_subsidiary_data(pointer p, ASCII_code c)
                 break;
             }
         }
-        flush_char();             /* remove |c| from the recursion history */
+        flush_char();           /* remove |c| from the recursion history */
     }
 }
 

@@ -2319,16 +2319,16 @@ void show_whatsit_node(integer p)
         break;
     case pdf_refobj_node:
         tprint_esc("pdfrefobj");
-        if (obj_obj_is_stream(static_pdf,pdf_obj_objnum(p)) > 0) {
-            if (obj_obj_stream_attr(static_pdf,pdf_obj_objnum(p)) != null) {
+        if (obj_obj_is_stream(static_pdf, pdf_obj_objnum(p)) > 0) {
+            if (obj_obj_stream_attr(static_pdf, pdf_obj_objnum(p)) != null) {
                 tprint(" attr");
-                print_mark(obj_obj_stream_attr(static_pdf,pdf_obj_objnum(p)));
+                print_mark(obj_obj_stream_attr(static_pdf, pdf_obj_objnum(p)));
             }
             tprint(" stream");
         }
-        if (obj_obj_is_file(static_pdf,pdf_obj_objnum(p)) > 0)
+        if (obj_obj_is_file(static_pdf, pdf_obj_objnum(p)) > 0)
             tprint(" file");
-        print_mark(obj_obj_data(static_pdf,pdf_obj_objnum(p)));
+        print_mark(obj_obj_data(static_pdf, pdf_obj_objnum(p)));
         break;
     case pdf_refxform_node:
         tprint_esc("pdfrefxform");

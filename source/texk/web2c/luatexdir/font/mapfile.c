@@ -870,14 +870,14 @@ void process_map_item(char *s, int type)
 
 void pdfmapfile(integer t)
 {
-    char *s = tokenlist_to_cstring(t,true,NULL);
+    char *s = tokenlist_to_cstring(t, true, NULL);
     process_map_item(s, MAPFILE);
     free(s);
 }
 
 void pdfmapline(integer t)
 {
-    char *s = tokenlist_to_cstring(t,true,NULL);
+    char *s = tokenlist_to_cstring(t, true, NULL);
     process_map_item(s, MAPLINE);
     free(s);
 }

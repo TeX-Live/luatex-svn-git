@@ -20,7 +20,9 @@
 #include "ptexlib.h"
 #include "commands.h"
 
-static const char __svn_version[] = "$Id$" "$URL$";
+static const char __svn_version[] =
+    "$Id$"
+    "$URL$";
 
 /* |scan_direction| has to be defined here because luatangle will output 
    a character constant when it sees a string literal of length 1 */

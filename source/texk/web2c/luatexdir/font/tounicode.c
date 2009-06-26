@@ -331,7 +331,7 @@ integer write_tounicode(PDF pdf, char **glyph_names, char *name)
     objnum = pdf_new_objnum();
     pdf_begin_dict(pdf, objnum, 0);
     pdf_begin_stream(pdf);
-    pdf_printf(pdf,"%%!PS-Adobe-3.0 Resource-CMap\n"
+    pdf_printf(pdf, "%%!PS-Adobe-3.0 Resource-CMap\n"
                "%%%%DocumentNeededResources: ProcSet (CIDInit)\n"
                "%%%%IncludeResource: ProcSet (CIDInit)\n"
                "%%%%BeginResource: CMap (TeX-%s-0)\n"
@@ -399,16 +399,16 @@ integer write_tounicode(PDF pdf, char **glyph_names, char *name)
     else
         subrange_count = bfrange_count;
     bfrange_count -= subrange_count;
-    pdf_printf(pdf,"%i beginbfrange\n", subrange_count);
+    pdf_printf(pdf, "%i beginbfrange\n", subrange_count);
     for (j = 0; j < subrange_count; j++) {
         while (range_size[i] <= 1 && i < 256)
             i++;
         assert(i < 256);
-        pdf_printf(pdf,"<%02X> <%02X> <%s>\n", i, i + range_size[i] - 1,
+        pdf_printf(pdf, "<%02X> <%02X> <%s>\n", i, i + range_size[i] - 1,
                    utf16be_str(gtab[i].code));
         i += range_size[i];
     }
-    pdf_printf(pdf,"endbfrange\n");
+    pdf_printf(pdf, "endbfrange\n");
     if (bfrange_count > 0)
         goto write_bfrange;
 
@@ -420,7 +420,7 @@ integer write_tounicode(PDF pdf, char **glyph_names, char *name)
     else
         subrange_count = bfchar_count;
     bfchar_count -= subrange_count;
-    pdf_printf(pdf,"%i beginbfchar\n", subrange_count);
+    pdf_printf(pdf, "%i beginbfchar\n", subrange_count);
     for (j = 0; j < subrange_count; j++) {
         while (i < 256) {
             if (range_size[i] > 1)
@@ -433,12 +433,12 @@ integer write_tounicode(PDF pdf, char **glyph_names, char *name)
         assert(i < 256 && gtab[i].code != UNI_UNDEF);
         if (gtab[i].code == UNI_STRING || gtab[i].code == UNI_EXTRA_STRING) {
             assert(gtab[i].unicode_seq != NULL);
-            pdf_printf(pdf,"<%02X> <%s>\n", i, gtab[i].unicode_seq);
+            pdf_printf(pdf, "<%02X> <%s>\n", i, gtab[i].unicode_seq);
         } else
-            pdf_printf(pdf,"<%02X> <%s>\n", i, utf16be_str(gtab[i].code));
+            pdf_printf(pdf, "<%02X> <%s>\n", i, utf16be_str(gtab[i].code));
         i++;
     }
-    pdf_printf(pdf,"endbfchar\n");
+    pdf_printf(pdf, "endbfchar\n");
     if (bfchar_count > 0)
         goto write_bfchar;
 
@@ -448,7 +448,7 @@ integer write_tounicode(PDF pdf, char **glyph_names, char *name)
             xfree(gtab[i].unicode_seq);
     }
 
-    pdf_printf(pdf,"endcmap\n"
+    pdf_printf(pdf, "endcmap\n"
                "CMapName currentdict /CMap defineresource pop\n"
                "end\n" "end\n" "%%%%EndResource\n" "%%%%EOF\n");
     pdf_end_stream(pdf);
@@ -472,9 +472,9 @@ integer write_cid_tounicode(PDF pdf, fo_entry * fo, internalfontnumber f)
             fo->fd->fontname);
 
     objnum = pdf_new_objnum();
-    pdf_begin_dict(pdf,objnum, 0);
+    pdf_begin_dict(pdf, objnum, 0);
     pdf_begin_stream(pdf);
-    pdf_printf(pdf,"%%!PS-Adobe-3.0 Resource-CMap\n"
+    pdf_printf(pdf, "%%!PS-Adobe-3.0 Resource-CMap\n"
                "%%%%DocumentNeededResources: ProcSet (CIDInit)\n"
                "%%%%IncludeResource: ProcSet (CIDInit)\n"
                "%%%%BeginResource: CMap (TeX-%s-0)\n"
@@ -553,16 +553,16 @@ integer write_cid_tounicode(PDF pdf, fo_entry * fo, internalfontnumber f)
     else
         subrange_count = bfrange_count;
     bfrange_count -= subrange_count;
-    pdf_printf(pdf,"%i beginbfrange\n", subrange_count);
+    pdf_printf(pdf, "%i beginbfrange\n", subrange_count);
     for (j = 0; j < subrange_count; j++) {
         while (range_size[i] <= 1 && i < 65536)
             i++;
         assert(i < 65536);
-        pdf_printf(pdf,"<%04X> <%04X> <%s>\n", i, i + range_size[i] - 1,
+        pdf_printf(pdf, "<%04X> <%04X> <%s>\n", i, i + range_size[i] - 1,
                    utf16be_str(gtab[i].code));
         i += range_size[i];
     }
-    pdf_printf(pdf,"endbfrange\n");
+    pdf_printf(pdf, "endbfrange\n");
     if (bfrange_count > 0)
         goto write_bfrange;
 
@@ -574,7 +574,7 @@ integer write_cid_tounicode(PDF pdf, fo_entry * fo, internalfontnumber f)
     else
         subrange_count = bfchar_count;
     bfchar_count -= subrange_count;
-    pdf_printf(pdf,"%i beginbfchar\n", subrange_count);
+    pdf_printf(pdf, "%i beginbfchar\n", subrange_count);
     for (j = 0; j < subrange_count; j++) {
         while (i < 65536) {
             if (range_size[i] > 1)
@@ -587,12 +587,12 @@ integer write_cid_tounicode(PDF pdf, fo_entry * fo, internalfontnumber f)
         assert(i < 65536 && gtab[i].code != UNI_UNDEF);
         if (gtab[i].code == UNI_STRING || gtab[i].code == UNI_EXTRA_STRING) {
             assert(gtab[i].unicode_seq != NULL);
-            pdf_printf(pdf,"<%04X> <%s>\n", i, gtab[i].unicode_seq);
+            pdf_printf(pdf, "<%04X> <%s>\n", i, gtab[i].unicode_seq);
         } else
-            pdf_printf(pdf,"<%04X> <%s>\n", i, utf16be_str(gtab[i].code));
+            pdf_printf(pdf, "<%04X> <%s>\n", i, utf16be_str(gtab[i].code));
         i++;
     }
-    pdf_printf(pdf,"endbfchar\n");
+    pdf_printf(pdf, "endbfchar\n");
     if (bfchar_count > 0)
         goto write_bfchar;
 
@@ -602,7 +602,7 @@ integer write_cid_tounicode(PDF pdf, fo_entry * fo, internalfontnumber f)
             xfree(gtab[i].unicode_seq);
     }
 
-    pdf_printf(pdf,"endcmap\n"
+    pdf_printf(pdf, "endcmap\n"
                "CMapName currentdict /CMap defineresource pop\n"
                "end\n" "end\n" "%%%%EndResource\n" "%%%%EOF\n");
     pdf_end_stream(pdf);

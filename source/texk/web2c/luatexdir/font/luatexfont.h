@@ -141,7 +141,7 @@ typedef struct {
 #  include "texfont.h"
 
 /* tounicode.c */
-integer write_cid_tounicode(PDF,fo_entry *, internal_font_number);
+integer write_cid_tounicode(PDF, fo_entry *, internal_font_number);
 void glyph_unicode_free(void);
 void def_tounicode(str_number, str_number);
 integer write_tounicode(PDF, char **, char *);

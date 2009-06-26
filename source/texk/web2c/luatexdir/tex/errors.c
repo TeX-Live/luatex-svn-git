@@ -22,4 +22,3 @@
 static const char __svn_version[] =
     "$Id$"
     "$URL$";
-

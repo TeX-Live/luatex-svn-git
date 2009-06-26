@@ -28,7 +28,8 @@ static const char _svn_version[] =
     "$Id$ $URL$";
 
 /* forward*/
-void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, integer buflen);
+void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer,
+                    integer buflen);
 
 unsigned long cidtogid_obj = 0;
 
@@ -142,7 +143,7 @@ void writetype2(PDF pdf, fd_entry * fd)
     assert(is_truetype(fd_cur->fm));
 
     if (!is_subsetted(fd_cur->fm)) {
-        writettf(pdf,fd);
+        writettf(pdf, fd);
         return;
     }
 
@@ -271,7 +272,8 @@ unsigned long ttc_read_offset(sfnt * sfont, int ttc_idx)
 
 extern int ff_get_ttc_index(char *ffname, char *psname);        /* libs/luafontforge/src/luafflib.c */
 
-void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, integer buflen)
+void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer,
+                    integer buflen)
 {
 
     long i, cid;
@@ -392,9 +394,9 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, integer bufle
         pdf_printf(pdf, "/Length %i\n", ((last_cid + 1) * 2));
         pdf_end_dict(pdf);
         pdf_printf(pdf, "stream\n");
-        pdf_room(pdf,(last_cid + 1) * 2);
+        pdf_room(pdf, (last_cid + 1) * 2);
         for (i = 0; i < ((int) (last_cid + 1) * 2); i++) {
-            pdf_quick_out(pdf,cidtogidmap[i]);
+            pdf_quick_out(pdf, cidtogidmap[i]);
         }
         pdf_printf(pdf, "\nendstream\n");
     }
