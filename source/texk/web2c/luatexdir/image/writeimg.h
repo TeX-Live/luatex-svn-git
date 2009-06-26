@@ -25,6 +25,7 @@
 
 #  include "../dvi/dvigen.h"    /* for scaled_whd only */
 #  include "image.h"
+#  include "../pdf/pdfpage.h"
 
 typedef image *img_entry;
 img_entry *img_array;
@@ -47,5 +48,6 @@ void set_image_dimensions(integer, scaled_whd);
 void undumpimagemeta(PDF, integer, integer);
 void write_img(PDF, image_dict *);
 void write_pdfstream(PDF, image_dict *);
+void out_img(PDF, image *, pdfstructure *, scaledpos);
 
 #endif                          /* WRITEIMG_H */
