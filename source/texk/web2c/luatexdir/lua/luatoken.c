@@ -334,18 +334,20 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
     int alloci = 1024;
     int i = 0;
     p = pp;
-    if (p == null || link(p) == null) {
+    if (p == null) {
         if (siz != NULL)
             *siz = 0;
         return NULL;
     }
     ret = xmalloc(alloci);
     p = link(p);                /* skip refcount */
-    if (null_cs == 0) {
-        null_cs = get_nullcs();
-        eqtb_size = get_eqtb_size();
+    if (p!=null) {
+        if (null_cs == 0) {
+            null_cs = get_nullcs();
+            eqtb_size = get_eqtb_size();
+        }
+        e = get_escape_char();
     }
-    e = get_escape_char();
     while (p != null) {
         if (p < fix_mem_min || p > fix_mem_end) {
             Print_esc("CLOBBERED.");
@@ -444,7 +446,7 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
         }
         p = link(p);
     }
-    ret[i] = 0;
+    ret[i] = '\0';
     if (siz != NULL)
         *siz = i;
     return ret;
