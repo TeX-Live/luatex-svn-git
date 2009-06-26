@@ -378,17 +378,18 @@ void pdf_print_char(PDF pdf, internal_font_number f, integer cc)
     register int c;
     pdf_mark_char(f, cc);
     if (font_encodingbytes(f) == 2) {
-        register int chari;
-        chari = char_index(f, cc);
-        c = chari >> 8;
-        pdf_print_escaped(c);
-        c = chari & 0xFF;
+        char hex[5];
+        snprintf(hex,5,"%04X", char_index(f, cc));
+        pdf_room(pdf, 4);
+        pdf_quick_out(pdf, hex[0]);
+        pdf_quick_out(pdf, hex[1]);
+        pdf_quick_out(pdf, hex[2]);
+        pdf_quick_out(pdf, hex[3]);
     } else {
         if (cc > 255)
             return;
-        c = cc;
+        pdf_print_escaped(cc);
     }
-    pdf_print_escaped(c);
 }
 
 void pdf_puts(PDF pdf, const char *s)

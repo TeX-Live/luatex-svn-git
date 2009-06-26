@@ -68,6 +68,7 @@ typedef struct {
     internal_font_number f_pdf; /* /F* font number, of unexpanded base font! */
     writing_mode wmode;         /* PDF writing mode WMode (horizontal/vertical) */
     pos_mode mode;              /* current positioning mode */
+    boolean ishex;              /* Whether the current char string is <> or () */
 } pdfstructure;
 
 extern pdfstructure *pstruct;

@@ -308,17 +308,27 @@ static void end_text(PDF pdf, pdfstructure * p)
     p->mode = PMODE_PAGE;
 }
 
-static void begin_charmode(PDF pdf, pdfstructure * p)
+static void begin_charmode(PDF pdf, internal_font_number f, pdfstructure * p)
 {
     assert(is_chararraymode(p));
-    pdf_printf(pdf, "(");
+    if (font_encodingbytes(f)==2) {
+        p->ishex = true;
+        pdf_printf(pdf, "<");
+    } else {
+        pdf_printf(pdf, "(");
+    }
     p->mode = PMODE_CHAR;
 }
 
 static void end_charmode(PDF pdf, pdfstructure * p)
 {
     assert(is_charmode(p));
-    pdf_printf(pdf, ")");
+    if (p->ishex) {
+        p->ishex = false;
+        pdf_printf(pdf, ">");
+    } else {
+        pdf_printf(pdf, ")");
+    }
     p->mode = PMODE_CHARARRAY;
 }
 
@@ -518,7 +528,7 @@ place_glyph(PDF pdf,
         }
     }
     if (is_chararraymode(p))
-        begin_charmode(pdf, p);
+        begin_charmode(pdf, f, p);
     pdf_print_char(pdf, f, c);  /* this also does pdf_mark_char() */
     p->cw.m += pdf_char_width(p, p->f_pdf, c);  /* aka adv_char_width() */
 }
