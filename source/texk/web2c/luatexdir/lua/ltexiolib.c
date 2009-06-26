@@ -23,7 +23,7 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-typedef void (*texio_printer) (str_number s);
+typedef void (*texio_printer) (char *);
 
 static char *loggable_info = NULL;
 
@@ -51,11 +51,8 @@ static boolean get_selector_value(lua_State * L, int i, int *l)
 
 static int do_texio_print(lua_State * L, texio_printer printfunction)
 {
-    str_number texs;
     char *s;
-    size_t k;
     int i = 1;
-    str_number u = 0;
     int save_selector = selector;
     int n = lua_gettop(L);
     if (n == 0 || !lua_isstring(L, -1)) {
@@ -70,23 +67,16 @@ static int do_texio_print(lua_State * L, texio_printer printfunction)
         && selector != term_and_log) {
         normalize_selector();   /* sets selector */
     }
-    /* just in case there is a string in progress */
-    if (str_start[str_ptr - 0x200000] < pool_ptr)
-        u = make_string();
     for (; i <= n; i++) {
         if (lua_isstring(L, i)) {
-            s = (char *) lua_tolstring(L, i, &k);
-            texs = maketexlstring(s, k);
-            printfunction(texs);
-            flush_str(texs);
+            s = (char *) lua_tostring(L, i);
+            printfunction(s);
         } else {
             lua_pushstring(L, "argument is not a string");
             lua_error(L);
         }
     }
     selector = save_selector;
-    if (u != 0)
-        str_ptr--;
     return 0;
 }
 
@@ -124,7 +114,7 @@ static int texio_print(lua_State * L)
         do_texio_ini_print(L, "");
         return 0;
     }
-    return do_texio_print(L, print);
+    return do_texio_print(L, tprint);
 }
 
 static int texio_printnl(lua_State * L)
@@ -133,7 +123,7 @@ static int texio_printnl(lua_State * L)
         do_texio_ini_print(L, "\n");
         return 0;
     }
-    return do_texio_print(L, print_nl);
+    return do_texio_print(L, tprint_nl);
 }
 
 /* at the point this function is called, the selector is log_only */
