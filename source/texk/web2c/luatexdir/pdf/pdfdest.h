@@ -41,7 +41,7 @@ typedef struct dest_name_entry_ {
 } dest_name_entry;
 
 /* max number of kids for balanced trees */
-#  define name_tree_kids_max 6  /* max number of kids of node of name tree for name destinations */
+#  define name_tree_kids_max 32  /* max number of kids of node of name tree for name destinations */
 
 /* data structure of destinations */
 
