@@ -95,6 +95,7 @@ void pdf_page_init(PDF pdf)
     p->f_pdf = null_font;
     p->wmode = WMODE_H;
     p->mode = PMODE_PAGE;
+    p->ishex = false;
     calc_k1(p);
 }
 
@@ -315,6 +316,7 @@ static void begin_charmode(PDF pdf, internal_font_number f, pdfstructure * p)
         p->ishex = true;
         pdf_printf(pdf, "<");
     } else {
+        p->ishex = false;
         pdf_printf(pdf, "(");
     }
     p->mode = PMODE_CHAR;
