@@ -44,21 +44,21 @@ void pdf_write_obj(PDF pdf, integer n)
     boolean res;
     str_number fnam;
     integer callback_id;
-    s = tokens_to_string(obj_obj_data(pdf,n));
-    delete_token_ref(obj_obj_data(pdf,n));
-    set_obj_obj_data(pdf,n,null);
-    if (obj_obj_is_stream(pdf,n) > 0) {
+    s = tokens_to_string(obj_obj_data(pdf, n));
+    delete_token_ref(obj_obj_data(pdf, n));
+    set_obj_obj_data(pdf, n, null);
+    if (obj_obj_is_stream(pdf, n) > 0) {
         pdf_begin_dict(pdf, n, 0);
-        if (obj_obj_stream_attr(pdf,n) != null) {
-            pdf_print_toks_ln(pdf, obj_obj_stream_attr(pdf,n));
-            delete_token_ref(obj_obj_stream_attr(pdf,n));
-            set_obj_obj_stream_attr(pdf,n, null);
+        if (obj_obj_stream_attr(pdf, n) != null) {
+            pdf_print_toks_ln(pdf, obj_obj_stream_attr(pdf, n));
+            delete_token_ref(obj_obj_stream_attr(pdf, n));
+            set_obj_obj_stream_attr(pdf, n, null);
         }
         pdf_begin_stream(pdf);
     } else {
         pdf_begin_obj(pdf, n, 1);
     }
-    if (obj_obj_is_file(pdf,n) > 0) {
+    if (obj_obj_is_file(pdf, n) > 0) {
         data_size = 0;
         data_cur = 0;
         data_buffer = 0;
@@ -114,12 +114,12 @@ void pdf_write_obj(PDF pdf, integer n)
         if (data_buffer != 0)
             xfree(data_buffer);
         tprint(">>");
-    } else if (obj_obj_is_stream(pdf,n) > 0) {
+    } else if (obj_obj_is_stream(pdf, n) > 0) {
         pdf_print(pdf, s);
     } else {
         pdf_print_ln(pdf, s);
     }
-    if (obj_obj_is_stream(pdf,n) > 0)
+    if (obj_obj_is_stream(pdf, n) > 0)
         pdf_end_stream(pdf);
     else
         pdf_end_obj(pdf);
@@ -163,24 +163,24 @@ void scan_obj(PDF pdf)
             pdf_create_obj(obj_type_obj, pdf_obj_count);
             k = obj_ptr;
         }
-        set_obj_data_ptr(k, pdf_get_mem(pdf,pdfmem_obj_size));
+        set_obj_data_ptr(k, pdf_get_mem(pdf, pdfmem_obj_size));
         if (scan_keyword("stream")) {
-            set_obj_obj_is_stream(pdf,k, 1);
+            set_obj_obj_is_stream(pdf, k, 1);
             if (scan_keyword("attr")) {
                 scan_pdf_ext_toks();
-                set_obj_obj_stream_attr(pdf,k, def_ref);
+                set_obj_obj_stream_attr(pdf, k, def_ref);
             } else {
-                set_obj_obj_stream_attr(pdf,k, null);
+                set_obj_obj_stream_attr(pdf, k, null);
             }
         } else {
-            set_obj_obj_is_stream(pdf,k, 0);
+            set_obj_obj_is_stream(pdf, k, 0);
         }
         if (scan_keyword("file"))
-            set_obj_obj_is_file(pdf,k, 1);
+            set_obj_obj_is_file(pdf, k, 1);
         else
-            set_obj_obj_is_file(pdf,k, 0);
+            set_obj_obj_is_file(pdf, k, 0);
         scan_pdf_ext_toks();
-        set_obj_obj_data(pdf,k, def_ref);
+        set_obj_obj_data(pdf, k, def_ref);
         pdf_last_obj = k;
     }
 }

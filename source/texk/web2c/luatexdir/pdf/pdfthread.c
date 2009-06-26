@@ -53,7 +53,7 @@ void append_bead(PDF pdf, halfword p)
     t = get_obj(obj_type_thread, pdf_thread_id(p), pdf_thread_named_id(p));
     b = pdf_new_objnum();
     obj_bead_ptr(b) = pdf_get_mem(pdf, pdfmem_bead_size);
-    set_obj_bead_page(pdf,b,pdf_last_page);
+    set_obj_bead_page(pdf, b, pdf_last_page);
     set_obj_bead_data(pdf, b, p);
     if (pdf_thread_attr(p) != null)
         set_obj_bead_attr(pdf, b, tokens_to_string(pdf_thread_attr(p)));
@@ -61,8 +61,8 @@ void append_bead(PDF pdf, halfword p)
         set_obj_bead_attr(pdf, b, 0);
     if (obj_thread_first(t) == 0) {
         obj_thread_first(t) = b;
-        set_obj_bead_next(pdf,b, b);
-        set_obj_bead_prev(pdf,b, b);
+        set_obj_bead_next(pdf, b, b);
+        set_obj_bead_prev(pdf, b, b);
     } else {
         a = obj_thread_first(t);
         c = obj_bead_prev(pdf, a);
@@ -113,14 +113,14 @@ void append_thread(PDF pdf, halfword parent_box, scaled x, scaled y)
     set_rect_dimens(p, parent_box, x, y,
                     pdf_width(p), pdf_height(p), pdf_depth(p),
                     pdf_thread_margin);
-    append_bead(pdf,p);
+    append_bead(pdf, p);
     last_thread = p;
 }
 
 void end_thread(PDF pdf)
 {
     scaledpos tmp1, tmp2;
-    (void)pdf; /* for later */
+    (void) pdf;                 /* for later */
     if (pdf_thread_level != cur_s)
         pdf_error(maketexstring("ext4"),
                   maketexstring
@@ -298,12 +298,12 @@ void print_bead_rectangles(PDF pdf)
         while (k != null) {
             pdf_new_obj(pdf, obj_type_others, 0, 1);
             pdf_out(pdf, '[');
-            i = obj_bead_data(pdf, info(k)); /* pointer to a whatsit or whatsit-like node */
+            i = obj_bead_data(pdf, info(k));    /* pointer to a whatsit or whatsit-like node */
             pdf_print_rect_spec(pdf, i);
             if (subtype(i) == pdf_thread_data_node)     /* thanh says it mis be destroyed here */
                 flush_node(i);
             pdf_printf(pdf, "]\n");
-            set_obj_bead_rect(pdf, info(k), obj_ptr);        /* rewrite |obj_bead_data| */
+            set_obj_bead_rect(pdf, info(k), obj_ptr);   /* rewrite |obj_bead_data| */
             pdf_end_obj(pdf);
             k = link(k);
         }

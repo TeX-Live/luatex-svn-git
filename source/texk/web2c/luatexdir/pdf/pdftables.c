@@ -309,7 +309,7 @@ void undump_pdftex_data(PDF pdf)
     undump_int(pdf->mem_ptr);
     for (k = 1; k <= pdf->mem_ptr - 1; k++) {
         undump_int(x);
-        pdf->mem[k] = (int)x;
+        pdf->mem[k] = (int) x;
     }
     undump_int(obj_tab_size);
     undump_int(obj_ptr);

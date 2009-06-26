@@ -65,10 +65,10 @@ PDF initialize_pdf(void)
 
     /* Sometimes it is neccesary to allocate memory for PDF output that cannot
        be deallocated then, so we use |mem| for this purpose. */
-    pdf->mem_size = inf_pdf_mem_size;        /* allocated size of |mem| array */
-    pdf->mem = xmalloc(pdf->mem_size * sizeof (int)) ;
-    pdf->mem_ptr = 1; /* the first word is not used so we can use zero as a value for testing
-                         whether a pointer to |mem| is valid  */
+    pdf->mem_size = inf_pdf_mem_size;   /* allocated size of |mem| array */
+    pdf->mem = xmalloc(pdf->mem_size * sizeof(int));
+    pdf->mem_ptr = 1;           /* the first word is not used so we can use zero as a value for testing
+                                   whether a pointer to |mem| is valid  */
 
     return pdf;
 }
@@ -146,7 +146,8 @@ integer pdf_get_mem(PDF pdf, integer s)
     integer a;
     integer ret;
     if (s > sup_pdf_mem_size - pdf->mem_ptr)
-        overflow(maketexstring("PDF memory size (pdf_mem_size)"), pdf->mem_size);
+        overflow(maketexstring("PDF memory size (pdf_mem_size)"),
+                 pdf->mem_size);
     if (pdf->mem_ptr + s > pdf->mem_size) {
         a = 0.2 * pdf->mem_size;
         if (pdf->mem_ptr + s > pdf->mem_size + a) {

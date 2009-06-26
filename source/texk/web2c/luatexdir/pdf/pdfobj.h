@@ -29,12 +29,12 @@
 
 #  define pdfmem_obj_size          4    /* size of memory in |mem| which |obj_data_ptr| holds */
 
-#  define obj_obj_data(pdf,A)          pdf->mem[obj_data_ptr(A) + 0] /* object data */
-#  define obj_obj_is_stream(pdf,A)     pdf->mem[obj_data_ptr(A) + 1] /* will this object
-                                                                        be written as a stream instead of a dictionary? */
-#  define obj_obj_stream_attr(pdf,A)   pdf->mem[obj_data_ptr(A) + 2] /* additional object attributes for streams */
-#  define obj_obj_is_file(pdf,A)       pdf->mem[obj_data_ptr(A) + 3] /* data should be
-                                                                   read from an external file? */
+#  define obj_obj_data(pdf,A)          pdf->mem[obj_data_ptr(A) + 0]    /* object data */
+#  define obj_obj_is_stream(pdf,A)     pdf->mem[obj_data_ptr(A) + 1]    /* will this object
+                                                                           be written as a stream instead of a dictionary? */
+#  define obj_obj_stream_attr(pdf,A)   pdf->mem[obj_data_ptr(A) + 2]    /* additional object attributes for streams */
+#  define obj_obj_is_file(pdf,A)       pdf->mem[obj_data_ptr(A) + 3]    /* data should be
+                                                                           read from an external file? */
 
 #  define set_obj_obj_is_stream(pdf,A,B) obj_obj_is_stream(pdf,A)=B
 #  define set_obj_obj_stream_attr(pdf,A,B) obj_obj_stream_attr(pdf,A)=B

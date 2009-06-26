@@ -82,9 +82,9 @@ typedef struct pdf_output_file_ {
 
     int img_page_group_val;     /* page group information pointer from included pdf or png images */
     char *resname_prefix;       /* global prefix of resources name */
-    
-    int mem_size;        /* allocated size of |mem| array */
-    int *mem; 
+
+    int mem_size;               /* allocated size of |mem| array */
+    int *mem;
     int mem_ptr;
 
 } pdf_output_file;
