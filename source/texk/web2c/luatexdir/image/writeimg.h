@@ -30,6 +30,10 @@
 typedef image *img_entry;
 img_entry *img_array;
 
+extern halfword pdf_ximage_list;        /* list of images in the current page */
+extern integer pdf_ximage_count;        /* counter of images */
+extern integer image_orig_x, image_orig_y;      /* origin of cropped PDF images */
+
 image_dict *new_image_dict(void);
 image *new_image(void);
 integer img_to_array(image *);
@@ -43,11 +47,15 @@ void init_image(image *);
 void new_img_pdfstream_struct(image_dict *);
 void pdf_print_resname_prefix(void);
 void read_img(PDF, image_dict *, integer, integer);
+scaled_whd scan_alt_rule(void);
+void scan_image(PDF pdf);
 void scale_img(image *);
+#  define scale_image(a)        scale_img(img_array[a])
 void set_image_dimensions(integer, scaled_whd);
 void undumpimagemeta(PDF, integer, integer);
 void write_img(PDF, image_dict *);
+#  define write_image(a, b)     write_img((a), img_dict(img_array[b]));
+void pdf_write_image(PDF pdf, integer n);
 void write_pdfstream(PDF, image_dict *);
-void out_img(PDF, image *, pdfstructure *, scaledpos);
 
 #endif                          /* WRITEIMG_H */

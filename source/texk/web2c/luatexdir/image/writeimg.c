@@ -22,6 +22,7 @@
 #include "ptexlib.h"
 #include <kpathsea/c-auto.h>
 #include <kpathsea/c-memstr.h>
+#include "luatex-api.h"         /* for tokenlist_to_cstring */
 
 #include "image.h"
 #include "writejpg.h"
@@ -35,6 +36,13 @@
 #include "commands.h"
 
 #define pdf_image_resolution int_par(param_pdf_image_resolution_code)
+#define scan_normal_dimen() scan_dimen(false,false,false)
+
+#define pdf_pagebox int_par(param_pdf_pagebox_code)
+
+halfword pdf_ximage_list;       /* list of images in the current page */
+integer pdf_ximage_count;       /* counter of images */
+integer image_orig_x, image_orig_y;     /* origin of cropped PDF images */
 
 static const char _svn_version[] =
     "$Id$ "
@@ -301,7 +309,7 @@ void free_image_dict(image_dict * p)
 
 /**********************************************************************/
 
-void read_img(PDF pdf, 
+void read_img(PDF pdf,
               image_dict * idict, integer minor_version,
               integer inclusion_errorlevel)
 {
@@ -330,7 +338,7 @@ void read_img(PDF pdf,
     /* read image */
     switch (img_type(idict)) {
     case IMG_TYPE_PDF:
-        assert(pdf!=NULL); /* TODO! */
+        assert(pdf != NULL);    /* TODO! */
         read_pdf_info(pdf, idict, minor_version, inclusion_errorlevel);
         img_group_ref(idict) = epdf_lastGroupObjectNum;
         break;
@@ -354,6 +362,37 @@ void read_img(PDF pdf,
     cur_file_name = NULL;
     if (img_state(idict) < DICT_FILESCANNED)
         img_state(idict) = DICT_FILESCANNED;
+}
+
+integer read_image(PDF pdf,
+                   integer objnum, integer index, char *filename,
+                   integer page_num, char *page_name, char *attr,
+                   integer colorspace, integer page_box,
+                   integer minor_version, integer inclusion_errorlevel)
+{
+    image_dict *idict;
+    image *a = new_image();
+    assert(img_arrayidx(a) == -1);
+    img_arrayidx(a) = img_to_array(a);
+    idict = img_dict(a) = new_image_dict();
+    assert(idict != NULL);
+    img_objnum(idict) = objnum;
+    img_index(idict) = index;
+    /* img_xsize, img_ysize, img_xres, img_yres set by read_img() */
+    img_colorspace(idict) = colorspace;
+    img_pagenum(idict) = page_num;
+    /* img_totalpages set by read_img() */
+    if (page_name != 0)
+        img_pagename(idict) = xstrdup(page_name);
+    cur_file_name = filename;
+    assert(cur_file_name != NULL);
+    img_filename(idict) = xstrdup(filename);
+    if (attr != 0)
+        img_attr(idict) = xstrdup(attr);
+    img_pagebox(idict) = page_box;
+    read_img(pdf, idict, minor_version, inclusion_errorlevel);
+    img_unset_scaled(a);
+    return img_arrayidx(a);
 }
 
 // Within scale_img() only image width and height matter;
@@ -457,125 +496,6 @@ void scale_img(image * img)
     img_set_scaled(img);
 }
 
-void out_img(PDF pdf, image * img, pdfstructure * p, scaledpos pos)
-{
-    float a[6];                 /* transformation matrix */
-    float xoff, yoff, tmp;
-    int r;                      /* number of digits after the decimal point */
-    int k;
-    scaled wd, ht, dp;
-    scaledpos tmppos;
-    pdffloat cm[6];
-    image_dict *idict;
-    integer groupref;           /* added from web for 1.40.8 */
-    assert(img != 0);
-    idict = img_dict(img);
-    assert(idict != 0);
-    wd = img_width(img);
-    ht = img_height(img);
-    dp = img_depth(img);
-    a[0] = a[3] = 1.0e6;
-    a[1] = a[2] = 0;
-    if (img_type(idict) == IMG_TYPE_PDF
-        || img_type(idict) == IMG_TYPE_PDFSTREAM) {
-        a[0] /= img_xsize(idict);
-        a[3] /= img_ysize(idict);
-        xoff = (float) img_xorig(idict) / img_xsize(idict);
-        yoff = (float) img_yorig(idict) / img_ysize(idict);
-        r = 6;
-    } else {
-        /* added from web for 1.40.8 */
-        if (img_type(idict) == IMG_TYPE_PNG) {
-            groupref = img_group_ref(idict);
-            if ((groupref > 0) && (pdf->img_page_group_val == 0))
-                pdf->img_page_group_val = groupref;
-        }
-        /* /added from web */
-        a[0] /= one_hundred_bp;
-        a[3] = a[0];
-        xoff = yoff = 0;
-        r = 4;
-    }
-    if ((img_transform(img) & 7) > 3) { // mirror cases
-        a[0] *= -1;
-        xoff *= -1;
-    }
-    switch ((img_transform(img) + img_rotation(idict)) & 3) {
-    case 0:                    /* no transform */
-        break;
-    case 1:                    /* rot. 90 deg. (counterclockwise) */
-        a[1] = a[0];
-        a[2] = -a[3];
-        a[3] = a[0] = 0;
-        tmp = yoff;
-        yoff = xoff;
-        xoff = -tmp;
-        break;
-    case 2:                    /* rot. 180 deg. (counterclockwise) */
-        a[0] *= -1;
-        a[3] *= -1;
-        xoff *= -1;
-        yoff *= -1;
-        break;
-    case 3:                    /* rot. 270 deg. (counterclockwise) */
-        a[1] = -a[0];
-        a[2] = a[3];
-        a[3] = a[0] = 0;
-        tmp = yoff;
-        yoff = -xoff;
-        xoff = tmp;
-        break;
-    default:;
-    }
-    xoff *= wd;
-    yoff *= ht + dp;
-    a[0] *= wd;
-    a[1] *= ht + dp;
-    a[2] *= wd;
-    a[3] *= ht + dp;
-    a[4] = pos.h - xoff;
-    a[5] = pos.v - yoff;
-    k = img_transform(img) + img_rotation(idict);
-    if ((img_transform(img) & 7) > 3)
-        k++;
-    switch (k & 3) {
-    case 0:                    /* no transform */
-        break;
-    case 1:                    /* rot. 90 deg. (counterclockwise) */
-        a[4] += wd;
-        break;
-    case 2:                    /* rot. 180 deg. */
-        a[4] += wd;
-        a[5] += ht + dp;
-        break;
-    case 3:                    /* rot. 270 deg. */
-        a[5] += ht + dp;
-        break;
-    default:;
-    }
-    /* the following is a kludge, TODO: use pdfpage.c functions */
-    setpdffloat(cm[0], round(a[0]), r);
-    setpdffloat(cm[1], round(a[1]), r);
-    setpdffloat(cm[2], round(a[2]), r);
-    setpdffloat(cm[3], round(a[3]), r);
-    tmppos.h = round(a[4]);
-    tmppos.v = round(a[5]);
-    (void) calc_pdfpos(p, tmppos);
-    cm[4] = p->cm[4];
-    cm[5] = p->cm[5];
-    pdf_goto_pagemode(pdf);
-    if (pdf->img_page_group_val == 0)
-        pdf->img_page_group_val = img_group_ref(idict);      /* added from web for 1.40.8 */
-    pdf_printf(pdf,"q\n");
-    pdf_print_cm(pdf, cm);
-    pdf_printf(pdf,"/Im");
-    pdf_print_int(pdf, img_index(idict));
-    pdf_print_resname_prefix(pdf);
-    pdf_printf(pdf," Do\nQ\n");
-    if (img_state(idict) < DICT_OUTIMG)
-        img_state(idict) = DICT_OUTIMG;
-}
-
 void write_img(PDF pdf, image_dict * idict)
 {
     assert(idict != NULL);
@@ -584,13 +504,13 @@ void write_img(PDF pdf, image_dict * idict)
             tex_printf(" <%s", img_filepath(idict));
         switch (img_type(idict)) {
         case IMG_TYPE_PNG:
-            write_png(pdf,idict);
+            write_png(pdf, idict);
             break;
         case IMG_TYPE_JPG:
-            write_jpg(pdf,idict);
+            write_jpg(pdf, idict);
             break;
         case IMG_TYPE_JBIG2:
-            write_jbig2(pdf,idict);
+            write_jbig2(pdf, idict);
             break;
         case IMG_TYPE_PDF:
             write_epdf(pdf, idict);
@@ -616,6 +536,14 @@ void write_img(PDF pdf, image_dict * idict)
         img_state(idict) = DICT_WRITTEN;
 }
 
+/* write an image */
+void pdf_write_image(PDF pdf, integer n)
+{
+    pdf_begin_dict(pdf, n, 0);
+    if (pdf->draftmode == 0)
+        write_image(pdf, obj_data_ptr(n));
+}
+
 /**********************************************************************/
 
 void check_pdfstream_dict(image_dict * idict)
@@ -631,14 +559,14 @@ void write_pdfstream(PDF pdf, image_dict * idict)
     char s[256];
     assert(img_pdfstream_ptr(idict) != NULL);
     assert(img_is_bbox(idict));
-    pdf_puts(pdf,"/Type /XObject\n/Subtype /Form\n");
+    pdf_puts(pdf, "/Type /XObject\n/Subtype /Form\n");
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
-        pdf_printf(pdf,"%s\n", img_attr(idict));
-    pdf_puts(pdf,"/FormType 1\n");
+        pdf_printf(pdf, "%s\n", img_attr(idict));
+    pdf_puts(pdf, "/FormType 1\n");
     sprintf(s, "/BBox [%.8f %.8f %.8f %.8f]\n", int2bp(img_bbox(idict)[0]),
             int2bp(img_bbox(idict)[1]), int2bp(img_bbox(idict)[2]),
             int2bp(img_bbox(idict)[3]));
-    pdf_printf(pdf,stripzeros(s));
+    pdf_printf(pdf, stripzeros(s));
     pdf_begin_stream(pdf);
     if (img_pdfstream_stream(idict) != NULL)
         pdf_puts(pdf, img_pdfstream_stream(idict));
@@ -750,13 +678,14 @@ void dumpimagemeta(void)
     }
 }
 
-void undumpimagemeta(PDF pdf, integer pdfversion, integer pdfinclusionerrorlevel)
+void undumpimagemeta(PDF pdf, integer pdfversion,
+                     integer pdfinclusionerrorlevel)
 {
     int cur_image, i;
     image *img;
     image_dict *idict;
 
-    assert (pdf!=NULL);
+    assert(pdf != NULL);
     undumpinteger(img_limit);
 
     img_array = xtalloc(img_limit, img_entry);
@@ -804,38 +733,46 @@ void undumpimagemeta(PDF pdf, integer pdfversion, integer pdfinclusionerrorlevel
     }
 }
 
-/**********************************************************************/
-/* stuff to be accessible from TeX */
-
-integer read_image(PDF pdf,
-                   integer objnum, integer index, char *filename,
-                   integer page_num, char *page_name, char *attr,
-                   integer colorspace, integer page_box,
-                   integer minor_version, integer inclusion_errorlevel)
+/* scans PDF pagebox specification */
+integer scan_pdf_box_spec(void)
 {
-    image_dict *idict;
-    image *a = new_image();
-    assert(img_arrayidx(a) == -1);
-    img_arrayidx(a) = img_to_array(a);
-    idict = img_dict(a) = new_image_dict();
-    assert(idict != NULL);
-    img_objnum(idict) = objnum;
-    img_index(idict) = index;
-    /* img_xsize, img_ysize, img_xres, img_yres set by read_img() */
-    img_colorspace(idict) = colorspace;
-    img_pagenum(idict) = page_num;
-    /* img_totalpages set by read_img() */
-    if (page_name != 0)
-        img_pagename(idict) = xstrdup(page_name);
-    cur_file_name = filename;
-    assert(cur_file_name != NULL);
-    img_filename(idict) = xstrdup(filename);
-    if (attr != 0)
-        img_attr(idict) = xstrdup(attr);
-    img_pagebox(idict) = page_box;
-    read_img(pdf, idict, minor_version, inclusion_errorlevel);
-    img_unset_scaled(a);
-    return img_arrayidx(a);
+    if (scan_keyword("mediabox"))
+        return pdf_box_spec_media;
+    else if (scan_keyword("cropbox"))
+        return pdf_box_spec_crop;
+    else if (scan_keyword("bleedbox"))
+        return pdf_box_spec_bleed;
+    else if (scan_keyword("trimbox"))
+        return pdf_box_spec_trim;
+    else if (scan_keyword("artbox"))
+        return pdf_box_spec_art;
+    return 0;
+}
+
+/* scans rule spec to |alt_rule| */
+scaled_whd scan_alt_rule(void)
+{
+    scaled_whd alt_rule;
+    alt_rule.w = null_flag;
+    alt_rule.h = null_flag;
+    alt_rule.d = null_flag;
+  RESWITCH:
+    if (scan_keyword("width")) {
+        scan_normal_dimen();
+        alt_rule.w = cur_val;
+        goto RESWITCH;
+    }
+    if (scan_keyword("height")) {
+        scan_normal_dimen();
+        alt_rule.h = cur_val;
+        goto RESWITCH;
+    }
+    if (scan_keyword("depth")) {
+        scan_normal_dimen();
+        alt_rule.d = cur_val;
+        goto RESWITCH;
+    }
+    return alt_rule;
 }
 
 void set_image_dimensions(integer ref, scaled_whd dim)
@@ -844,4 +781,62 @@ void set_image_dimensions(integer ref, scaled_whd dim)
     img_width(a) = dim.w;
     img_height(a) = dim.h;
     img_depth(a) = dim.d;
+}
+
+void scan_image(PDF pdf)
+{
+    scaled_whd alt_rule;
+    integer k, ref;
+    integer page, pagebox, colorspace;
+    char *named = NULL, *attr = NULL, *s = NULL;
+    incr(pdf_ximage_count);
+    pdf_create_obj(obj_type_ximage, pdf_ximage_count);
+    k = obj_ptr;
+    alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
+    attr = 0;
+    named = 0;
+    page = 1;
+    colorspace = 0;
+    if (scan_keyword("attr")) {
+        scan_pdf_ext_toks();
+        attr = tokenlist_to_cstring(def_ref, true, NULL);
+        delete_token_ref(def_ref);
+    }
+    if (scan_keyword("named")) {
+        scan_pdf_ext_toks();
+        named = tokenlist_to_cstring(def_ref, true, NULL);
+        delete_token_ref(def_ref);
+        page = 0;
+    } else if (scan_keyword("page")) {
+        scan_int();
+        page = cur_val;
+    }
+    if (scan_keyword("colorspace")) {
+        scan_int();
+        colorspace = cur_val;
+    }
+    pagebox = scan_pdf_box_spec();
+    if (pagebox == 0)
+        pagebox = pdf_pagebox;
+    scan_pdf_ext_toks();
+    s = tokenlist_to_cstring(def_ref, true, NULL);
+    assert(s != NULL);
+    delete_token_ref(def_ref);
+    if (pagebox == 0)           /* no pagebox specification given */
+        pagebox = pdf_box_spec_crop;
+    ref =
+        read_image(pdf,
+                   k, pdf_ximage_count, s, page, named, attr, colorspace,
+                   pagebox, pdf_minor_version, pdf_inclusion_errorlevel);
+    xfree(s);
+    set_obj_data_ptr(k, ref);
+    if (named != NULL)
+        xfree(named);
+    set_image_dimensions(ref, alt_rule);
+    if (attr != NULL)
+        xfree(attr);
+    scale_image(ref);
+    pdf_last_ximage = k;
+    pdf_last_ximage_pages = image_pages(ref);
+    pdf_last_ximage_colordepth = image_colordepth(ref);
 }

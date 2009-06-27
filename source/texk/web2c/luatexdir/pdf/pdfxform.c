@@ -18,6 +18,7 @@
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 #include "ptexlib.h"
+#include "pdfpage.h"
 
 static const char __svn_version[] =
     "$Id$"
@@ -33,4 +34,19 @@ void output_form(PDF pdf, halfword p, scaledpos pos)
     pdf_place_form(pdf, obj_info(pdf_xform_objnum(p)), pos);
     if (pdf_lookup_list(pdf_xform_list, pdf_xform_objnum(p)) == null)
         pdf_append_list(pdf_xform_objnum(p), pdf_xform_list);
+}
+
+static void place_form(PDF pdf, pdfstructure * p, integer i, scaledpos pos)
+{
+    pdf_goto_pagemode(pdf);
+    pdf_printf(pdf, "q\n");
+    pdf_set_pos_temp(pdf, pos);
+    pdf_printf(pdf, "/Fm%d", (int) i);
+    pdf_print_resname_prefix(pdf);
+    pdf_printf(pdf, " Do\nQ\n");
+}
+
+void pdf_place_form(PDF pdf, integer i, scaledpos pos)
+{
+    place_form(pdf, pstruct, i, pos);
 }

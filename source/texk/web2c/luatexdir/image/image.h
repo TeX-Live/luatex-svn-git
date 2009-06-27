@@ -159,10 +159,6 @@ typedef struct {
 #  define img_unset_bbox(N)     (img_flags(N) &= ~F_FLAG_BBOX)
 #  define img_is_bbox(N)        ((img_flags(N) & F_FLAG_BBOX) != 0)
 
-#  define scale_image(a)        scale_img(img_array[a])
-#  define write_image(a, b)     write_img((a), img_dict(img_array[b]));
-#  define out_image(a, b, c)    out_img((a), img_array[b], pstruct, (c));
-
 #  define image_pages(a)        img_totalpages(img_dict(img_array[a]))
 #  define image_colordepth(a)   img_colordepth(img_dict(img_array[a]))
 #  define image_group_ref(a)    img_group_ref(img_dict(img_array[a]))

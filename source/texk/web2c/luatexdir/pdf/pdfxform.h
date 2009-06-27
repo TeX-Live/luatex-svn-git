@@ -51,5 +51,6 @@ extern integer pdf_xform_count; /* counter of forms */
 extern integer pdf_cur_form;    /* the form being output */
 
 extern void output_form(PDF pdf, halfword p, scaledpos pos);
+void pdf_place_form(PDF pdf, integer i, scaledpos pos);
 
 #endif
