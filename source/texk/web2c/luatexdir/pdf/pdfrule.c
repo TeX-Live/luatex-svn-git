@@ -22,7 +22,7 @@
 
 static const char __svn_version[] =
     "$Id$"
-    "$URL: http://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/pdf/pdfrule.c $";
+    "$URL$";
 
 void pdf_place_rule(PDF pdf, scaled h, scaled v, scaled wd, scaled ht)
 {
