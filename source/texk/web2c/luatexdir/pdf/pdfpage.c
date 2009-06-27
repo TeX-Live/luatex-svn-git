@@ -396,48 +396,6 @@ static void goto_textmode(PDF pdf)
 
 /**********************************************************************/
 
-void pdf_place_rule(PDF pdf, scaled h, scaled v, scaled wd, scaled ht)
-{
-    pdfpos dim;
-    scaledpos pos;
-    pos.h = h;
-    pos.v = v;
-    pdfstructure *p = pdf->pstruct;
-    pdf_goto_pagemode(pdf);
-    dim.h.m = lround(wd * p->k1);
-    dim.h.e = p->pdf.h.e;
-    dim.v.m = lround(ht * p->k1);
-    dim.v.e = p->pdf.v.e;
-    pdf_printf(pdf, "q\n");
-    if (ht <= one_bp) {
-        pos.v += lround(0.5 * ht);
-        pdf_set_pos_temp(pdf, pos);
-        pdf_printf(pdf, "[]0 d 0 J ");
-        print_pdffloat(pdf, &(dim.v));
-        pdf_printf(pdf, " w 0 0 m ");
-        print_pdffloat(pdf, &(dim.h));
-        pdf_printf(pdf, " 0 l S\n");
-    } else if (wd <= one_bp) {
-        pos.h += lround(0.5 * wd);
-        pdf_set_pos_temp(pdf, pos);
-        pdf_printf(pdf, "[]0 d 0 J ");
-        print_pdffloat(pdf, &(dim.h));
-        pdf_printf(pdf, " w 0 0 m 0 ");
-        print_pdffloat(pdf, &(dim.v));
-        pdf_printf(pdf, " l S\n");
-    } else {
-        pdf_set_pos_temp(pdf, pos);
-        pdf_printf(pdf, "0 0 ");
-        print_pdffloat(pdf, &(dim.h));
-        pdf_printf(pdf, " ");
-        print_pdffloat(pdf, &(dim.v));
-        pdf_printf(pdf, " re f\n");
-    }
-    pdf_printf(pdf, "Q\n");
-}
-
-/**********************************************************************/
-
 static void setup_fontparameters(pdfstructure * p, internal_font_number f)
 {
     p->f_cur = f;

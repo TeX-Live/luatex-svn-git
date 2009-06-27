@@ -24,6 +24,7 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
+#if 0
 /* not useful yet, selected stuff from pdfpage.c should go here, TODO... */
 
 void pdf_place_glyph(PDF pdf, scaledpos pos, internal_font_number f, integer c)
@@ -70,3 +71,4 @@ void pdf_place_glyph(PDF pdf, scaledpos pos, internal_font_number f, integer c)
     pdf_print_char(pdf, f, c);  /* this also does pdf_mark_char() */
     p->cw.m += pdf_char_width(p, p->f_pdf, c);  /* aka adv_char_width() */
 }
+#endif

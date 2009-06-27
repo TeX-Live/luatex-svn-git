@@ -117,6 +117,8 @@ libluatex_a_SOURCES = \
 	luatexdir/pdf/pdffont.h \
 	luatexdir/pdf/pdfgen.c \
 	luatexdir/pdf/pdfgen.h \
+	luatexdir/pdf/pdfglyph.c \
+	luatexdir/pdf/pdfglyph.h \
 	luatexdir/pdf/pdfimage.c \
 	luatexdir/pdf/pdfimage.h \
 	luatexdir/pdf/pdflink.c \
@@ -131,6 +133,8 @@ libluatex_a_SOURCES = \
 	luatexdir/pdf/pdfoutline.h \
 	luatexdir/pdf/pdfpage.c \
 	luatexdir/pdf/pdfpage.h \
+	luatexdir/pdf/pdfrule.c \
+	luatexdir/pdf/pdfrule.h \
 	luatexdir/pdf/pdfsaverestore.c \
 	luatexdir/pdf/pdfsaverestore.h \
 	luatexdir/pdf/pdfsetmatrix.c \
