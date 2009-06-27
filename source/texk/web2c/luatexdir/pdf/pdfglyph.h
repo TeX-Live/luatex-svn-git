@@ -22,4 +22,6 @@
 #ifndef PDFGLYPH_H
 #  define PDFGLYPH_H
 
+void pdf_place_glyph(PDF pdf, scaledpos pos, internal_font_number f, integer c);
+
 #endif
