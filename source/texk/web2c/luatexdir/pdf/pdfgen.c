@@ -69,7 +69,7 @@ PDF initialize_pdf(void)
     pdf->mem = xmalloc(pdf->mem_size * sizeof(int));
     pdf->mem_ptr = 1;           /* the first word is not used so we can use zero as a value for testing
                                    whether a pointer to |mem| is valid  */
-    pdf->pstruct == NULL;
+    pdf->pstruct = NULL;
 
     return pdf;
 }
