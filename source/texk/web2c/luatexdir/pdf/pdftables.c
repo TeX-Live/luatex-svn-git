@@ -52,7 +52,7 @@ void pdf_create_obj(integer t, integer i)
 {
     integer a, p, q;
     if (sys_obj_ptr == sup_obj_tab_size)
-        overflow(maketexstring("indirect objects table size"), obj_tab_size);
+        overflow("indirect objects table size", obj_tab_size);
     if (sys_obj_ptr == obj_tab_size) {
         a = 0.2 * obj_tab_size;
         if (obj_tab_size < sup_obj_tab_size - a)

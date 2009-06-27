@@ -94,7 +94,7 @@ void undump_luac_registers(void)
     if (luabytecode_max >= 0) {
         i = (luabytecode_max + 1);
         if ((int) (UINT_MAX32 / sizeof(bytecode) + 1) <= i) {
-            lua_fatal_error(maketexstring("Corrupt format file"));
+            lua_fatal_error("Corrupt format file");
         }
         lua_bytecode_registers = xmalloc(i * sizeof(bytecode));
         luabytecode_bytes = i * sizeof(bytecode);

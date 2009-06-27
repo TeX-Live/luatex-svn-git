@@ -147,7 +147,7 @@ integer pdf_get_mem(PDF pdf, integer s)
     integer a;
     integer ret;
     if (s > sup_pdf_mem_size - pdf->mem_ptr)
-        overflow(maketexstring("PDF memory size (pdf_mem_size)"),
+        overflow("PDF memory size (pdf_mem_size)",
                  pdf->mem_size);
     if (pdf->mem_ptr + s > pdf->mem_size) {
         a = 0.2 * pdf->mem_size;
@@ -330,7 +330,7 @@ static void pdf_os_get_os_buf(PDF pdf, integer s)
 {
     integer a;
     if (s > sup_pdf_os_buf_size - pdf->ptr)
-        overflow(maketexstring("PDF object stream buffer"), pdf->os_buf_size);
+        overflow("PDF object stream buffer", pdf->os_buf_size);
     if (pdf->ptr + s > pdf->os_buf_size) {
         a = 0.2 * pdf->os_buf_size;
         if (pdf->ptr + s > pdf->os_buf_size + a)
@@ -352,7 +352,7 @@ void pdf_room(PDF pdf, integer n)
     if (pdf->os_mode && (n + pdf->ptr > pdf->buf_size))
         pdf_os_get_os_buf(pdf, n);
     else if ((!pdf->os_mode) && (n > pdf->buf_size))
-        overflow(maketexstring("PDF output buffer"), pdf->op_buf_size);
+        overflow("PDF output buffer", pdf->op_buf_size);
     else if ((!pdf->os_mode) && (n + pdf->ptr > pdf->buf_size))
         pdf_flush(pdf);
 }

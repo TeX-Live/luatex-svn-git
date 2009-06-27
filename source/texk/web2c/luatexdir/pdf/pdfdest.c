@@ -49,7 +49,7 @@ void append_dest_name(str_number s, integer n)
 {
     integer a;
     if (pdf_dest_names_ptr == sup_dest_names_size)
-        overflow(maketexstring("number of destination names (dest_names_size)"),
+        overflow("number of destination names (dest_names_size)",
                  dest_names_size);
     if (pdf_dest_names_ptr == dest_names_size) {
         a = 0.2 * dest_names_size;

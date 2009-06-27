@@ -472,69 +472,6 @@ if last > first then
 @z
 
 @x
-@d error_stop_mode=3 {stops at every opportunity to interact}
-@y
-@d error_stop_mode=3 {stops at every opportunity to interact}
-@d unspecified_mode=4 {extra value for command-line switch}
-@z
-
-@x
-  print_nl("! "); print(#);
-@y
-  if filelineerrorstylep then print_file_line
-  else print_nl("! ");
-  print(#);
-@z
-
-@x
-@!interaction:batch_mode..error_stop_mode; {current level of interaction}
-@y
-@!interaction:batch_mode..error_stop_mode; {current level of interaction}
-@!interactionoption:batch_mode..unspecified_mode; {set from command line}
-@z
-
-@x
-@ @<Set init...@>=interaction:=error_stop_mode;
-@y
-@ @<Set init...@>=if interactionoption=unspecified_mode then
-  interaction:=error_stop_mode
-else
-  interaction:=interactionoption;
-@z
-
-@x
-@<Error hand...@>=
-procedure jump_out;
-begin goto end_of_TEX;
-end;
-@y
-@d do_final_end==begin
-   update_terminal;
-   ready_already:=0;
-   if (history <> spotless) and (history <> warning_issued) then
-       uexit(1)
-   else
-       uexit(0);
-   end
-
-@<Error hand...@>=
-procedure jump_out;
-begin
-close_files_and_terminate;
-do_final_end;
-end;
-@z
-
-@x
-show_context;
-@y
-show_context;
-if (haltonerrorp) then begin
-  history:=fatal_error_stop; jump_out;
-end;
-@z
-
-@x
 |remainder|, holds the remainder after a division.
 
 @<Glob...@>=
@@ -974,24 +911,6 @@ if indented then begin
 @z
 
 @x
-begin print_err("Extra "); print_esc("endcsname");
-@.Extra \\endcsname@>
-help1("I'm ignoring this, since I wasn't doing a \csname.");
-@y
-begin
-if cur_chr = 10 then
-begin
-  print_err("Extra "); print_esc("endmubyte");
-@.Extra \\endmubyte@>
-  help1("I'm ignoring this, since I wasn't doing a \mubyte.");
-end else begin
-  print_err("Extra "); print_esc("endcsname");
-@.Extra \\endcsname@>
-  help1("I'm ignoring this, since I wasn't doing a \csname.");
-end;
-@z
-
-@x
 if (cur_cs=0)or(cur_cs>frozen_control_sequence) then
 @y
 if (cur_cs=0)or(cur_cs>eqtb_top)or
@@ -1014,9 +933,9 @@ print(s); update_terminal;
 @z
 
 @x
-begin print_err(""); slow_print(s);
+begin print_err(''); slow_print(s);
 @y
-begin print_err(""); print(s);
+begin print_err(''); print(s);
 @z
 
 @x
@@ -1430,15 +1349,6 @@ end {|main_body|};
 @z
 
 @x
-  end;
-@y
-  end;
-print_ln;
-if (edit_name_start<>0) and (interaction>batch_mode) then
-  calledit(str_pool,edit_name_start,edit_name_length,edit_line);
-@z
-
-@x
   begin @!init for i:=0 to biggest_used_mark do begin
 @y
   begin @!Init for i:=0 to biggest_used_mark do begin
@@ -1590,10 +1500,10 @@ additional route |scan_four_bit_int_or_18| which is the same as
 procedure scan_four_bit_int_or_18;
 begin scan_int;
 if (cur_val<0)or((cur_val>15)and(cur_val<>18)) then
-  begin print_err("Bad number");
+  begin print_err('Bad number');
 @.Bad number@>
-  help2("Since I expected to read a number between 0 and 15,")@/
-    ("I changed this one to zero."); int_error(cur_val); cur_val:=0;
+  help2('Since I expected to read a number between 0 and 15,',
+    'I changed this one to zero.'); int_error(cur_val); cur_val:=0;
   end;
 end;
 

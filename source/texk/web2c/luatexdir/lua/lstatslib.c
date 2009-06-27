@@ -55,7 +55,7 @@ char *getfilename(void)
 
 char *getlasterror(void)
 {
-    return makecstring(last_error);
+    return last_error;
 }
 
 char *luatexrevision(void)

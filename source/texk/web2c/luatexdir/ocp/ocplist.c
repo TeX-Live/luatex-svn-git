@@ -75,7 +75,7 @@ ocp_list_index make_ocp_list_node(ocp_lstack_index llstack,
     ocp_list_lnext(p) = llnext;
     ocp_listmem_run_ptr = ocp_listmem_run_ptr + 2;
     if (ocp_listmem_run_ptr >= ocp_list_size)
-        overflow(maketexstring("ocp_list_size"), ocp_list_size);
+        overflow("ocp_list_size", ocp_list_size);
     return p;
 }
 
@@ -88,7 +88,7 @@ ocp_lstack_index make_ocp_lstack_node(internal_ocp_number locp,
     ocp_lstack_lnext(p) = llnext;
     incr(ocp_lstackmem_run_ptr);
     if (ocp_lstackmem_run_ptr >= ocp_stack_size)
-        overflow(maketexstring("ocp_stack_size"), ocp_stack_size);
+        overflow("ocp_stack_size", ocp_stack_size);
     return p;
 }
 
@@ -164,7 +164,7 @@ void ocp_apply_remove(ocp_list_index list_entry, boolean lbefore)
     ocp_lstack_index r;
     p = ocp_list_lstack(list_entry);
     if (p == 0) {
-        do_print_err(maketexstring("warning: stack entry already empty"));
+        print_err("warning: stack entry already empty");
         print_ln();
     } else {
         q = ocp_lstack_lnext(p);

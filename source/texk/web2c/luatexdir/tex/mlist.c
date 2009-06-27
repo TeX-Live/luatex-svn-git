@@ -2337,7 +2337,7 @@ void make_vcenter(pointer q)
     scaled delta;               /* its height plus depth */
     v = math_list(nucleus(q));
     if (type(v) != vlist_node)
-        tconfusion("vcenter");  /* this can't happen vcenter */
+        confusion("vcenter");  /* this can't happen vcenter */
     delta = height(v) + depth(v);
     height(v) = math_axis(cur_size) + half(delta);
     depth(v) = delta - height(v);
@@ -3088,7 +3088,7 @@ scaled math_kern_at(internal_font_number f, integer c, int side, int v)
     } else if (side == bottom_right_kern) {
         kerns_heights = co->bottom_right_math_kern_array;
     } else {
-        tconfusion("math_kern_at");
+        confusion("math_kern_at");
         kerns_heights = NULL;   /* not reached */
     }
 #ifdef DEBUG
@@ -3159,7 +3159,7 @@ find_math_kern(internal_font_number l_f, integer l_c,
         return (krn);
 
     } else {
-        tconfusion("find_math_kern");
+        confusion("find_math_kern");
     }
     return 0;                   /* not reached */
 }
@@ -3578,7 +3578,7 @@ pointer math_spacing_glue(int l_type, int r_type, int mstyle)
     /* *INDENT-ON* */
     }
     if (x < 0) {
-        tconfusion("mathspacing");
+        confusion("mathspacing");
     }
     if (x != 0) {
         pointer y;
@@ -3809,7 +3809,7 @@ void mlist_to_hlist(void)
             goto DONE_WITH_NODE;
             break;
         default:
-            tconfusion("mlist1");       /* this can't happen mlist1 */
+            confusion("mlist1");       /* this can't happen mlist1 */
         }
         /* When we get to the following part of the program, we have ``fallen through''
            from cases that did not lead to |check_dimensions| or |done_with_noad| or
@@ -3858,7 +3858,7 @@ void mlist_to_hlist(void)
             reset_attributes(p, node_attr(nucleus(q)));
             break;
         default:
-            tconfusion("mlist2");       /* this can't happen mlist2 */
+            confusion("mlist2");       /* this can't happen mlist2 */
         }
         if ((subscr(q) == null) && (supscr(q) == null)) {
             assign_new_hlist(q, p);
@@ -3971,7 +3971,7 @@ void mlist_to_hlist(void)
             goto NEXT_NODE;
             break;
         default:
-            tconfusion("mlist3");       /* this can't happen mlist3 */
+            confusion("mlist3");       /* this can't happen mlist3 */
         }
         /* Append inter-element spacing based on |r_type| and |t| */
         if (r_type > 0) {       /* not the first noad */

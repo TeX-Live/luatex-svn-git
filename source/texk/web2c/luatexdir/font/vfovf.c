@@ -965,8 +965,7 @@ void do_vf(internal_font_number f)
                     break;
                 case push:
                     if (stack_level == vf_stack_size) {
-                        overflow_string("virtual font stack size",
-                                        vf_stack_size);
+                        overflow("virtual font stack size", vf_stack_size);
                     } else {
                         vf_stack[stack_level].stack_w = w;
                         vf_stack[stack_level].stack_x = x;
@@ -1357,8 +1356,7 @@ int make_vf_table(lua_State * L, char *cnom, scaled atsize)
                     break;
                 case push:
                     if (stack_level == vf_stack_size) {
-                        overflow_string("virtual font stack size",
-                                        vf_stack_size);
+                        overflow("virtual font stack size", vf_stack_size);
                     } else {
                         vf_stack[stack_level].stack_w = w;
                         vf_stack[stack_level].stack_x = x;

@@ -246,35 +246,35 @@ void write_jpg(PDF pdf, image_dict * idict)
     if (img_file(idict) == NULL)
         reopen_jpg(pdf, idict);
     assert(img_jpg_ptr(idict) != NULL);
-    pdf_puts(pdf,"/Type /XObject\n/Subtype /Image\n");
+    pdf_puts(pdf, "/Type /XObject\n/Subtype /Image\n");
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
-        pdf_printf(pdf,"%s\n", img_attr(idict));
-    pdf_printf(pdf,"/Width %i\n/Height %i\n/BitsPerComponent %i\n/Length %i\n",
+        pdf_printf(pdf, "%s\n", img_attr(idict));
+    pdf_printf(pdf, "/Width %i\n/Height %i\n/BitsPerComponent %i\n/Length %i\n",
                (int) img_xsize(idict),
                (int) img_ysize(idict),
                (int) img_colordepth(idict), (int) img_jpg_ptr(idict)->length);
-    pdf_puts(pdf,"/ColorSpace ");
+    pdf_puts(pdf, "/ColorSpace ");
     if (img_colorspace(idict) != 0) {
-        pdf_printf(pdf,"%i 0 R\n", (int) img_colorspace(idict));
+        pdf_printf(pdf, "%i 0 R\n", (int) img_colorspace(idict));
     } else {
         switch (img_jpg_color(idict)) {
         case JPG_GRAY:
-            pdf_puts(pdf,"/DeviceGray\n");
+            pdf_puts(pdf, "/DeviceGray\n");
             break;
         case JPG_RGB:
-            pdf_puts(pdf,"/DeviceRGB\n");
+            pdf_puts(pdf, "/DeviceRGB\n");
             break;
         case JPG_CMYK:
-            pdf_puts(pdf,"/DeviceCMYK\n/Decode [1 0 1 0 1 0 1 0]\n");
+            pdf_puts(pdf, "/DeviceCMYK\n/Decode [1 0 1 0 1 0 1 0]\n");
             break;
         default:
             pdftex_fail("Unsupported color space %i",
                         (int) img_jpg_color(idict));
         }
     }
-    pdf_puts(pdf,"/Filter /DCTDecode\n>>\nstream\n");
+    pdf_puts(pdf, "/Filter /DCTDecode\n>>\nstream\n");
     for (l = img_jpg_ptr(idict)->length, f = img_file(idict); l > 0; l--)
-        pdf_out(pdf,xgetc(f));
+        pdf_out(pdf, xgetc(f));
     pdf_end_stream(pdf);
     close_and_cleanup_jpg(idict);
 }

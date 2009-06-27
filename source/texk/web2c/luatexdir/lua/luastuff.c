@@ -381,7 +381,6 @@ void luatex_load_init(int s, LoadS * ls)
 lua_State *luatex_error(lua_State * L, int is_fatal)
 {
 
-    str_number s;
     const char *luaerr;
     size_t len = 0;
     char *err = NULL;
@@ -394,16 +393,13 @@ lua_State *luatex_error(lua_State * L, int is_fatal)
         /* Normally a memory error from lua. 
            The pool may overflow during the maketexlstring(), but we 
            are crashing anyway so we may as well abort on the pool size */
-        s = maketexlstring(err, len);
-        lua_fatal_error(s);
+        lua_fatal_error(err);
         /* never reached */
         xfree(err);
         lua_close(L);
         return (lua_State *) NULL;
     } else {
-        s = maketexlstring(err, len);
-        lua_norm_error(s);
-        flush_str(s);
+        lua_norm_error(err);
         xfree(err);
         return L;
     }

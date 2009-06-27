@@ -993,7 +993,7 @@ void flush_node(halfword p)
             break;
 
         default:
-            tconfusion("ext3");
+            confusion("ext3");
             return;
 
         }
@@ -1110,14 +1110,14 @@ static int test_count = 1;
     if (!(b>=0 && b<c)) {                                               \
       fprintf(stdout,"For node p:=%d, 0<=%d<%d (l.%d,r.%d)\n",          \
               (int)a, (int)b, (int)c, __LINE__,test_count);             \
-      tconfusion("dorangetest");                                        \
+      confusion("dorangetest");                                        \
     } } while (0)
 
 #define dotest(a,b,c) do {                                              \
     if (b!=c) {                                                         \
       fprintf(stdout,"For node p:=%d, %d==%d (l.%d,r.%d)\n",            \
               (int)a, (int)b, (int)c, __LINE__,test_count);             \
-      tconfusion("dotest");                                             \
+      confusion("dotest");                                             \
     } } while (0)
 
 #define check_action_ref(a)     { dorangetest(p,a,var_mem_max); }
@@ -1201,7 +1201,7 @@ void check_node(halfword p)
             case 'd':
                 break;
             default:
-                tconfusion("extuser");
+                confusion("extuser");
                 break;
             }
             break;
@@ -1222,7 +1222,7 @@ void check_node(halfword p)
         case local_par_node:
             break;
         default:
-            tconfusion("ext3");
+            confusion("ext3");
         }
         break;
     case margin_kern_node:
@@ -1466,14 +1466,14 @@ void init_node_mem(halfword t)
 
     varmem = (memory_word *) realloc((void *) varmem, sizeof(memory_word) * t);
     if (varmem == NULL) {
-        overflow_string("node memory size", var_mem_max);
+        overflow("node memory size", var_mem_max);
     }
     memset((void *) (varmem), 0, t * sizeof(memory_word));
 
 #ifndef NDEBUG
     varmem_sizes = (char *) realloc(varmem_sizes, sizeof(char) * t);
     if (varmem_sizes == NULL) {
-        overflow_string("node memory size", var_mem_max);
+        overflow("node memory size", var_mem_max);
     }
     memset((void *) varmem_sizes, 0, sizeof(char) * t);
 #endif
@@ -1711,7 +1711,7 @@ halfword slow_get_node(integer s)
             (memory_word *) realloc((void *) varmem,
                                     sizeof(memory_word) * (var_mem_max + x));
         if (varmem == NULL) {
-            overflow_string("node memory size", var_mem_max);
+            overflow("node memory size", var_mem_max);
         }
         memset((void *) (varmem + var_mem_max), 0, x * sizeof(memory_word));
 
@@ -1719,7 +1719,7 @@ halfword slow_get_node(integer s)
         varmem_sizes =
             (char *) realloc(varmem_sizes, sizeof(char) * (var_mem_max + x));
         if (varmem_sizes == NULL) {
-            overflow_string("node memory size", var_mem_max);
+            overflow("node memory size", var_mem_max);
         }
         memset((void *) (varmem_sizes + var_mem_max), 0, x * sizeof(char));
 #endif
@@ -2289,7 +2289,7 @@ void show_whatsit_node(integer p)
             tprint(" current");
             break;
         default:
-            tconfusion("pdfcolorstack");
+            confusion("pdfcolorstack");
             break;
         }
         if (pdf_colorstack_cmd(p) <= colorstack_data)

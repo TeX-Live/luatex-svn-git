@@ -38,35 +38,29 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void *
-hnj_malloc (int size)
+void *hnj_malloc(int size)
 {
-  void *p;
+    void *p;
 
-  p = malloc (size);
-  if (p == NULL)
-    {
-      fprintf (stderr, "can't allocate %d bytes\n", size);
-      exit (1);
+    p = malloc(size);
+    if (p == NULL) {
+        fprintf(stderr, "can't allocate %d bytes\n", size);
+        exit(1);
     }
-  return p;
+    return p;
 }
 
-void *
-hnj_realloc (void *p, int size)
+void *hnj_realloc(void *p, int size)
 {
-  p = realloc (p, size);
-  if (p == NULL)
-    {
-      fprintf (stderr, "can't allocate %d bytes\n", size);
-      exit (1);
+    p = realloc(p, size);
+    if (p == NULL) {
+        fprintf(stderr, "can't allocate %d bytes\n", size);
+        exit(1);
     }
-  return p;
+    return p;
 }
 
-void
-hnj_free (void *p)
+void hnj_free(void *p)
 {
-  free (p);
+    free(p);
 }
-

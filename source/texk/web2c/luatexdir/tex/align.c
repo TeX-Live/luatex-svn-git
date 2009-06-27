@@ -312,8 +312,7 @@ void get_preamble_token(void)
         }
     }
     if (cur_cmd == endv_cmd)
-        fatal_error(maketexstring
-                    ("(interwoven alignment preambles are not allowed)"));
+        fatal_error("(interwoven alignment preambles are not allowed)");
     if ((cur_cmd == assign_glue_cmd)
         && (cur_chr == static_glue_base + param_tab_skip_code)) {
         scan_optional_equals();
@@ -580,8 +579,7 @@ to another alignment is being scanned, or when no alignment preamble is active.
 void insert_vj_template(void)
 {
     if ((scanner_status == aligning) || (cur_align == null))
-        fatal_error(maketexstring
-                    ("(interwoven alignment preambles are not allowed)"));
+        fatal_error("(interwoven alignment preambles are not allowed)");
     cur_cmd = extra_info(cur_align);
     extra_info(cur_align) = cur_chr;
     if (cur_cmd == omit_cmd)
@@ -629,13 +627,12 @@ boolean fin_col(void)
     unsigned char o;            /* order of infinity */
     halfword n;                 /* span counter */
     if (cur_align == null)
-        tconfusion("endv");
+        confusion("endv");
     q = vlink(cur_align);
     if (q == null)
-        tconfusion("endv");
+        confusion("endv");
     if (align_state < 500000)
-        fatal_error(maketexstring
-                    ("(interwoven alignment preambles are not allowed)"));
+        fatal_error("(interwoven alignment preambles are not allowed)");
     p = vlink(q);
     /* If the preamble list has been traversed, check that the row has ended */
     if ((p == null) && (extra_info(cur_align) < cr_code)) {
@@ -714,7 +711,7 @@ boolean fin_col(void)
                 q = vlink(vlink(q));
             } while (q != cur_align);
             if (n > max_quarterword)
-                tconfusion("too many spans");   /* this can happen, but won't */
+                confusion("too many spans");   /* this can happen, but won't */
             q = cur_span;
             while (span_span(span_ptr(q)) < n) {
                 q = span_ptr(q);
@@ -833,10 +830,10 @@ void fin_align(void)
     scaled rule_save;           /* temporary storage for |overfull_rule| */
     memory_word aux_save;       /* temporary storage for |aux| */
     if (cur_group != align_group)
-        tconfusion("align1");
+        confusion("align1");
     unsave();                   /* that |align_group| was for individual entries */
     if (cur_group != align_group)
-        tconfusion("align0");
+        confusion("align0");
     unsave();                   /* that |align_group| was for the whole alignment */
     if (nest[nest_ptr - 1].mode_field == mmode)
         o = display_indent;

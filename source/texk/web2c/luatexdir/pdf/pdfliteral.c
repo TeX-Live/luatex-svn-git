@@ -72,7 +72,7 @@ void pdf_out_literal(PDF pdf, halfword p)
             pdf_end_string_nl(pdf);
             break;
         default:
-            tconfusion("literal1");
+            confusion("literal1");
             break;
         }
         lua_pdf_literal(pdf, pdf_literal_data(p));
@@ -136,7 +136,7 @@ void pdf_literal(PDF pdf, str_number s, integer literal_mode, boolean warn)
         pdf_end_string_nl(pdf);
         break;
     default:
-        tconfusion("literal1");
+        confusion("literal1");
         break;
     }
     if (s > STRING_OFFSET) {

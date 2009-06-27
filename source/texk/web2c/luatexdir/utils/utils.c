@@ -234,51 +234,6 @@ void garbage_warning(void)
     remove_pdffile(static_pdf);
 }
 
-void tex_error(char *msg, char **hlp)
-{
-    str_number aa = 0, bb = 0, cc = 0, dd = 0, ee = 0;
-    int k = 0;
-    if (hlp != NULL) {
-        while (hlp[k] != NULL)
-            k++;
-        if (k > 0)
-            aa = maketexstring(hlp[0]);
-        if (k > 1)
-            bb = maketexstring(hlp[1]);
-        if (k > 2)
-            cc = maketexstring(hlp[2]);
-        if (k > 3)
-            dd = maketexstring(hlp[3]);
-        if (k > 4)
-            ee = maketexstring(hlp[4]);
-    }
-    do_print_err(maketexstring(msg));
-    flush_str(last_tex_string);
-
-/* *INDENT-OFF* */
-    switch (k) {
-    case 0: dohelp0(); break;
-    case 1: dohelp1(aa); break;
-    case 2: dohelp2(aa, bb); break;
-    case 3: dohelp3(aa, bb, cc); break;
-    case 4: dohelp4(aa, bb, cc, dd); break;
-    case 5: dohelp5(aa, bb, cc, dd, ee); break;
-    }
-/* *INDENT-ON* */
-    error();
-
-    if (ee)
-        flush_str(ee);
-    if (dd)
-        flush_str(dd);
-    if (cc)
-        flush_str(cc);
-    if (bb)
-        flush_str(bb);
-    if (aa)
-        flush_str(aa);
-}
-
 char *makecstring(integer s)
 {
     size_t l;
@@ -726,13 +681,6 @@ scaled divide_scaled_n(double sd, double md, double n)
     return (scaled) di;
 }
 
-
-/* C print interface */
-
-void tconfusion(char *s)
-{
-    confusion(maketexstring(s));
-}
 
 #ifdef MSVC
 

@@ -410,7 +410,8 @@ static void copyFont(PDF pdf, char *tag, Object * fontRef)
     }
     // Only handle included Type1 (and Type1C) fonts; anything else will be copied.
     // Type1C fonts are replaced by Type1 fonts, if REPLACE_TYPE1C is true.
-    if ((pdf->inclusion_copy_font!=0) && fontRef->fetch(xref, &fontdict)->isDict()
+    if ((pdf->inclusion_copy_font != 0)
+        && fontRef->fetch(xref, &fontdict)->isDict()
         && fontdict->dictLookup("Subtype", &subtype)->isName()
         && !strcmp(subtype->getName(), "Type1")
         && fontdict->dictLookup("BaseFont", &basefont)->isName()
@@ -436,7 +437,7 @@ static void copyFont(PDF pdf, char *tag, Object * fontRef)
         gfont = GfxFont::makeFont(xref, tag, fontRef->getRef(),
                                   fontdict->getDict());
         pdf_printf(pdf, " %d 0 R ", addFont(fontRef->getRef(), fd,
-                                       addEncoding(gfont)));
+                                            addEncoding(gfont)));
     } else {
         copyName(pdf, tag);
         pdf_puts(pdf, " ");
@@ -602,7 +603,7 @@ static void copyObject(PDF pdf, Object * obj)
         copyStream(pdf, obj->getStream()->getUndecodedStream());
         if (pdf_last_byte != '\n')
             pdf_puts(pdf, "\n");
-        pdf_puts(pdf, "endstream");  // can't simply write pdf_end_stream()
+        pdf_puts(pdf, "endstream");     // can't simply write pdf_end_stream()
     } else if (obj->isRef()) {
         ref = obj->getRef();
         if (ref.num == 0) {
@@ -610,7 +611,7 @@ static void copyObject(PDF pdf, Object * obj)
                 ("PDF inclusion: reference to invalid object"
                  " (is the included pdf broken?)");
         } else
-          pdf_printf(pdf, "%d 0 R", addOther(ref));
+            pdf_printf(pdf, "%d 0 R", addOther(ref));
     } else {
         pdftex_fail("PDF inclusion: type <%s> cannot be copied",
                     obj->getTypeName());
@@ -627,7 +628,7 @@ static void writeRefs(PDF pdf)
             xref->fetch(r->ref.num, r->ref.gen, &obj1);
             if (r->type == objFont) {
                 assert(!obj1.isStream());
-                pdf_begin_obj(pdf, r->num, 2);      // \pdfobjcompresslevel = 2 is for this
+                pdf_begin_obj(pdf, r->num, 2);  // \pdfobjcompresslevel = 2 is for this
                 copyFontDict(pdf, &obj1, r);
                 pdf_puts(pdf, "\n");
                 pdf_end_obj(pdf);
@@ -635,7 +636,7 @@ static void writeRefs(PDF pdf)
                 if (obj1.isStream())
                     pdf_begin_obj(pdf, r->num, 0);
                 else
-                    pdf_begin_obj(pdf, r->num, 2);  // \pdfobjcompresslevel = 2 is for this
+                    pdf_begin_obj(pdf, r->num, 2);      // \pdfobjcompresslevel = 2 is for this
                 copyObject(pdf, &obj1);
                 pdf_puts(pdf, "\n");
                 pdf_end_obj(pdf);
@@ -698,7 +699,7 @@ static PDFRectangle *get_pagebox(Page * page, integer pagebox_spec)
 // Returns the page number.
 
 void
-read_pdf_info(PDF pdf, 
+read_pdf_info(PDF pdf,
               image_dict * idict, integer minor_pdf_version_wanted,
               integer pdf_inclusion_errorlevel)
 {
@@ -847,21 +848,22 @@ static void write_epdf1(PDF pdf, image_dict * idict)
     PDFRectangle *pagebox;
     float bbox[4];
     // write the Page header
-    pdf_puts(pdf,"/Type /XObject\n/Subtype /Form\n");
+    pdf_puts(pdf, "/Type /XObject\n/Subtype /Form\n");
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
-        pdf_printf(pdf,"%s\n", img_attr(idict));
-    pdf_puts(pdf,"/FormType 1\n");
+        pdf_printf(pdf, "%s\n", img_attr(idict));
+    pdf_puts(pdf, "/FormType 1\n");
 
     // write additional information
-    pdf_printf(pdf,"/%s.FileName (%s)\n", pdfkeyprefix,
+    pdf_printf(pdf, "/%s.FileName (%s)\n", pdfkeyprefix,
                convertStringToPDFString(pdf_doc->file_path,
                                         strlen(pdf_doc->file_path)));
-    pdf_printf(pdf,"/%s.PageNumber %i\n", pdfkeyprefix, (int) img_pagenum(idict));
+    pdf_printf(pdf, "/%s.PageNumber %i\n", pdfkeyprefix,
+               (int) img_pagenum(idict));
     pdf_doc->doc->getDocInfoNF(&info);
     if (info.isRef()) {
         // the info dict must be indirect (PDF Ref p. 61)
-        pdf_printf(pdf,"/%s.InfoDict ", pdfkeyprefix);
-        pdf_printf(pdf,"%d 0 R\n", addOther(info.getRef()));
+        pdf_printf(pdf, "/%s.InfoDict ", pdfkeyprefix);
+        pdf_printf(pdf, "%d 0 R\n", addOther(info.getRef()));
     }
     if (img_is_bbox(idict)) {
         bbox[0] = int2bp(img_bbox(idict)[0]);
@@ -878,7 +880,7 @@ static void write_epdf1(PDF pdf, image_dict * idict)
     }
     sprintf(s, "/BBox [%.8f %.8f %.8f %.8f]\n", bbox[0], bbox[1], bbox[2],
             bbox[3]);
-    pdf_puts(pdf,stripzeros(s));
+    pdf_puts(pdf, stripzeros(s));
     // The /Matrix calculation is replaced by transforms in out_img().
 
     // write the page Group if it's there
@@ -886,27 +888,27 @@ static void write_epdf1(PDF pdf, image_dict * idict)
         if (page->getGroup() != NULL) {
             initDictFromDict(lastGroup, page->getGroup());
             if (lastGroup->dictGetLength() > 0) {
-                pdf_puts(pdf,"/Group ");
+                pdf_puts(pdf, "/Group ");
                 groupIsIndirect = lastGroup->isRef();
-                pdf_printf(pdf,"%d 0 R", (int) epdf_lastGroupObjectNum);
-                pdf_puts(pdf,"\n");
+                pdf_printf(pdf, "%d 0 R", (int) epdf_lastGroupObjectNum);
+                pdf_puts(pdf, "\n");
             }
         }
     }
     // write the page Metadata if it's there
     if (page->getMetadata() != NULL) {
         metadata->initStream(page->getMetadata());
-        pdf_puts(pdf,"/Metadata ");
-        copyObject(pdf,&metadata);
-        pdf_puts(pdf,"\n");
+        pdf_puts(pdf, "/Metadata ");
+        copyObject(pdf, &metadata);
+        pdf_puts(pdf, "\n");
     }
     // write the page PieceInfo if it's there
     if (page->getPieceInfo() != NULL) {
         initDictFromDict(pieceinfo, page->getPieceInfo());
         if (pieceinfo->dictGetLength() > 0) {
-            pdf_puts(pdf,"/PieceInfo ");
-            copyObject(pdf,&pieceinfo);
-            pdf_puts(pdf,"\n");
+            pdf_puts(pdf, "/PieceInfo ");
+            copyObject(pdf, &pieceinfo);
+            pdf_puts(pdf, "\n");
         }
     }
     // copy LastModified (needed when PieceInfo is there)
@@ -918,9 +920,9 @@ static void write_epdf1(PDF pdf, image_dict * idict)
     if (page->getSeparationInfo() != NULL) {
         initDictFromDict(separationInfo, page->getSeparationInfo());
         if (separationInfo->dictGetLength() > 0) {
-            pdf_puts(pdf,"/SeparationInfo ");
-            copyObject(pdf,&separationInfo);
-            pdf_puts(pdf,"\n");
+            pdf_puts(pdf, "/SeparationInfo ");
+            copyObject(pdf, &separationInfo);
+            pdf_puts(pdf, "\n");
         }
     }
     // write the Resources dictionary
@@ -936,18 +938,18 @@ static void write_epdf1(PDF pdf, image_dict * idict)
         if (!obj1->isDict())
             pdftex_fail("PDF inclusion: invalid resources dict type <%s>",
                         obj1->getTypeName());
-        pdf_puts(pdf,"/Resources <<\n");
+        pdf_puts(pdf, "/Resources <<\n");
         for (i = 0, l = obj1->dictGetLength(); i < l; ++i) {
             obj1->dictGetVal(i, &obj2);
             key = obj1->dictGetKey(i);
             if (strcmp("Font", key) == 0)
-                copyFontResources(pdf,&obj2);
+                copyFontResources(pdf, &obj2);
             else if (strcmp("ProcSet", key) == 0)
-                copyProcSet(pdf,&obj2);
+                copyProcSet(pdf, &obj2);
             else
-                copyOtherResources(pdf,&obj2, key);
+                copyOtherResources(pdf, &obj2, key);
         }
-        pdf_puts(pdf,">>\n");
+        pdf_puts(pdf, ">>\n");
     }
     // write the page contents
     page->getContents(&contents);
@@ -967,19 +969,19 @@ static void write_epdf1(PDF pdf, image_dict * idict)
         }
         contents->streamGetDict()->lookup("Length", &obj1);
         assert(!obj1->isNull());
-        pdf_puts(pdf,"/Length ");
-        copyObject(pdf,&obj1);
-        pdf_puts(pdf,"\n");
+        pdf_puts(pdf, "/Length ");
+        copyObject(pdf, &obj1);
+        pdf_puts(pdf, "\n");
         contents->streamGetDict()->lookup("Filter", &obj1);
         if (!obj1->isNull()) {
-            pdf_puts(pdf,"/Filter ");
-            copyObject(pdf,&obj1);
-            pdf_puts(pdf,"\n");
+            pdf_puts(pdf, "/Filter ");
+            copyObject(pdf, &obj1);
+            pdf_puts(pdf, "\n");
             contents->streamGetDict()->lookup("DecodeParms", &obj1);
             if (!obj1->isNull()) {
-                pdf_puts(pdf,"/DecodeParms ");
-                copyObject(pdf,&obj1);
-                pdf_puts(pdf,"\n");
+                pdf_puts(pdf, "/DecodeParms ");
+                copyObject(pdf, &obj1);
+                pdf_puts(pdf, "\n");
             }
         }
         pdf_puts(pdf, ">>\nstream\n");

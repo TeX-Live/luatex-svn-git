@@ -43,7 +43,7 @@ integer pdf_link_stack_ptr = 0;
 void push_link_level(halfword p)
 {
     if (pdf_link_stack_ptr >= pdf_max_link_level)
-        overflow(maketexstring("pdf link stack size"), pdf_max_link_level);
+        overflow("pdf link stack size", pdf_max_link_level);
     assert(((type(p) == whatsit_node) && (subtype(p) == pdf_start_link_node)));
     incr(pdf_link_stack_ptr);
     pdf_link_stack[pdf_link_stack_ptr].nesting_level = cur_s;

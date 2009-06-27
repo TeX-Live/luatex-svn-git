@@ -325,7 +325,6 @@ procedure initialize; {this procedure gets things started properly}
   begin @<Initialize whatever \TeX\ might access@>@;
   end;@#
 @t\4@>@<Basic printing procedures@>@/
-@t\4@>@<Error handling procedures@>@/
 
 @ Here is a workaround for the unfortunate limitation of WEB2C that
 doesn't know how to deal with symbolic case labels.
@@ -1294,19 +1293,12 @@ assuming that the |selector| setting is either |term_only| or |term_and_log|.
 The input is placed into locations |first| through |last-1| of the
 |buffer| array, and echoed on the transcript file if appropriate.
 
-This procedure is never called when |interaction<scroll_mode|.
-
-@<Basic print...@>=
-procedure prompt_input(s:str_number);
-begin wake_up_terminal; print(s); term_input;
-end;
-
 @
 @p procedure term_input; {gets a line from the terminal}
 var k:0..buf_size; {index into |buffer|}
 begin update_terminal; {now the user sees the prompt for sure}
 if not input_ln(term_in,true)
-then fatal_error("End of file on the terminal!");
+then fatal_error('End of file on the terminal!');
 @.End of file on the terminal@>
 term_offset:=0; {the user's line ended with \<\rm return>}
 decr(selector); {prepare to echo the input}
@@ -1315,495 +1307,15 @@ print_ln; incr(selector); {restore previous status}
 end;
 
 @* \[6] Reporting errors.
-When something anomalous is detected, \TeX\ typically does something like this:
-$$\vbox{\halign{#\hfil\cr
-|print_err("Something anomalous has been detected");|\cr
-|help3("This is the first line of my offer to help.")|\cr
-|("This is the second line. I'm trying to")|\cr
-|("explain the best way for you to proceed.");|\cr
-|error;|\cr}}$$
-A two-line help message would be given using |help2|, etc.; these informal
-helps should use simple vocabulary that complements the words used in the
-official error message that was printed. (Outside the U.S.A., the help
-messages should preferably be translated into the local vernacular. Each
-line of help is at most 60 characters long, in the present implementation,
-so that |max_print_line| will not be exceeded.)
-
-The |print_err| procedure supplies a `\.!' before the official message,
-and makes sure that the terminal is awake if a stop is going to occur.
-The |error| procedure supplies a `\..' after the official message, then it
-shows the location of the error; and if |interaction=error_stop_mode|,
-it also enters into a dialog with the user, during which time the help
-message may be printed.
-@^system dependencies@>
-
-@ The global variable |interaction| has four settings, representing increasing
-amounts of user interaction:
-
-@d batch_mode=0 {omits all stops and omits terminal output}
-@d nonstop_mode=1 {omits all stops}
-@d scroll_mode=2 {omits error stops}
-@d error_stop_mode=3 {stops at every opportunity to interact}
-@d print_err(#)==begin if interaction=error_stop_mode then wake_up_terminal;
-  print_nl("! "); print(#);
-  last_error:=#; end
-@d print_warn(#)==begin if interaction=error_stop_mode then wake_up_terminal;
-  if prepend_nl then begin print_nl(""); print_ln end;
-  print_nl(#);
-  end
-
-@<Glob...@>=
-@!interaction:batch_mode..error_stop_mode; {current level of interaction}
-@!last_error:str_number;
-
-@ @<Set init...@>=interaction:=error_stop_mode;
-
-@ \TeX\ is careful not to call |error| when the print |selector| setting
-might be unusual. The only possible values of |selector| at the time of
-error messages are
-
-\yskip\hang|no_print| (when |interaction=batch_mode|
-  and |log_file| not yet open);
-
-\hang|term_only| (when |interaction>batch_mode| and |log_file| not yet open);
-
-\hang|log_only| (when |interaction=batch_mode| and |log_file| is open);
-
-\hang|term_and_log| (when |interaction>batch_mode| and |log_file| is open).
-
-@<Initialize the print |selector| based on |interaction|@>=
-if interaction=batch_mode then selector:=no_print@+else selector:=term_only
-
-@ A global variable |deletions_allowed| is set |false| if the |get_next|
-routine is active when |error| is called; this ensures that |get_next|
-and related routines like |get_token| will never be called recursively.
-A similar interlock is provided by |set_box_allowed|.
-@^recursion@>
-
-The global variable |history| records the worst level of error that
-has been detected. It has four possible values: |spotless|, |warning_issued|,
-|error_message_issued|, and |fatal_error_stop|.
-
-Another global variable, |error_count|, is increased by one when an
-|error| occurs without an interactive dialog, and it is reset to zero at
-the end of every paragraph.  If |error_count| reaches 100, \TeX\ decides
-that there is no point in continuing further.
-
-@d spotless=0 {|history| value when nothing has been amiss yet}
-@d warning_issued=1 {|history| value when |begin_diagnostic| has been called}
-@d error_message_issued=2 {|history| value when |error| has been called}
-@d fatal_error_stop=3 {|history| value when termination was premature}
-
-@<Glob...@>=
-@!deletions_allowed:boolean; {is it safe for |error| to call |get_token|?}
-@!set_box_allowed:boolean; {is it safe to do a \.{\\setbox} assignment?}
-@!history:spotless..fatal_error_stop; {has the source input been clean so far?}
-@!error_count:-1..100; {the number of scrolled errors since the
-  last paragraph ended}
-
-@ The value of |history| is initially |fatal_error_stop|, but it will
-be changed to |spotless| if \TeX\ survives the initialization process.
-
-@<Set init...@>=
-deletions_allowed:=true; set_box_allowed:=true;
-error_count:=0; {|history| is initialized elsewhere}
-
-@ Since errors can be detected almost anywhere in \TeX, we want to declare the
-error procedures near the beginning of the program. But the error procedures
-in turn use some other procedures, which need to be declared |forward|
-before we get to |error| itself.
-
-It is possible for |error| to be called recursively if some error arises
-when |get_token| is being used to delete a token, and/or if some fatal error
-occurs while \TeX\ is trying to fix a non-fatal one. But such recursion
-@^recursion@>
-is never more than two levels deep.
-
-@<Error handling...@>=
-procedure@?normalize_selector; forward;@t\2@>@/
-procedure@?get_token; forward;@t\2@>@/
-procedure@?term_input; forward;@t\2@>@/
-procedure@?show_context; forward;@t\2@>@/
-procedure@?begin_file_reading; forward;@t\2@>@/
-procedure@?open_log_file; forward;@t\2@>@/
-procedure@?close_files_and_terminate; forward;@t\2@>@/
-procedure@?clear_for_error_prompt; forward;@t\2@>@/
-procedure@?give_err_help; forward;@t\2@>@/
-@t\4\hskip-\fontdimen2\font@>@;@+@!debug@+procedure@?debug_help;
-  forward;@;@+gubed
-
-@ Individual lines of help are recorded in the array |help_line|, which
-contains entries in positions |0..(help_ptr-1)|. They should be printed
-in reverse order, i.e., with |help_line[0]| appearing last.
-
-@d hlp1(#)==help_line[0]:=#;@+end
-@d hlp2(#)==help_line[1]:=#; hlp1
-@d hlp3(#)==help_line[2]:=#; hlp2
-@d hlp4(#)==help_line[3]:=#; hlp3
-@d hlp5(#)==help_line[4]:=#; hlp4
-@d hlp6(#)==help_line[5]:=#; hlp5
-@d help0==help_ptr:=0 {sometimes there might be no help}
-@d help1==@+begin help_ptr:=1; hlp1 {use this with one help line}
-@d help2==@+begin help_ptr:=2; hlp2 {use this with two help lines}
-@d help3==@+begin help_ptr:=3; hlp3 {use this with three help lines}
-@d help4==@+begin help_ptr:=4; hlp4 {use this with four help lines}
-@d help5==@+begin help_ptr:=5; hlp5 {use this with five help lines}
-@d help6==@+begin help_ptr:=6; hlp6 {use this with six help lines}
-
-@p
-procedure dohelp5 (@!a,b,c,d,e:str_number);
-begin
-  help5(a)(b)(c)(d)(e);
-end;
-@#
-procedure dohelp4 (@!a,b,c,d:str_number);
-begin
-  help4(a)(b)(c)(d);
-end;
-@#
-procedure dohelp3 (@!a,b,c:str_number);
-begin
-  help3(a)(b)(c);
-end;
-@#
-procedure dohelp2 (@!a,b:str_number);
-begin
-  help2(a)(b);
-end;
-@#
-procedure dohelp1 (@!a:str_number);
-begin
-  help1(a);
-end;
-@#
-procedure dohelp0;
-begin
-  help0;
-end;
-@#
-procedure do_print_err (s:str_number);
-begin
-  print_err(s);
-end;
-
-@ @<Glob...@>=
-@!help_line:array[0..5] of str_number; {helps for the next |error|}
-@!help_ptr:0..6; {the number of help lines present}
-@!use_err_help:boolean; {should the |err_help| list be shown?}
 
 @ @<Set init...@>=
-help_ptr:=0; use_err_help:=false;
+initialize_errors;
 
-@ The |jump_out| procedure just cuts across all active procedure levels and
-goes to |end_of_TEX|. This is the only nontrivial |@!goto| statement in the
-whole program. It is used when there is no recovery from a particular error.
-
-Some \PASCAL\ compilers do not implement non-local |goto| statements.
-@^system dependencies@>
-In such cases the body of |jump_out| should simply be
-`|close_files_and_terminate|;\thinspace' followed by a call on some system
-procedure that quietly terminates the program.
-
-@<Error hand...@>=
-procedure jump_out;
-begin goto end_of_TEX;
-end;
-
-@ Here now is the general |error| routine.
-
-@<Error hand...@>=
-procedure error; {completes the job of error reporting}
-label continue,exit;
-var c:ASCII_code; {what the user types}
-callback_id:integer;
-@!s1,@!s2,@!s3,@!s4:integer;
-  {used to save global variables when deleting tokens}
-@!t:boolean;
-begin if history<error_message_issued then history:=error_message_issued;
-print_char(".");
-callback_id := callback_defined(show_error_hook_callback) ;
-if callback_id>0 then t := run_callback(callback_id,'->');
-show_context;
-if interaction=error_stop_mode then @<Get user's advice and |return|@>;
-incr(error_count);
-if error_count=100 then
-  begin print_nl("(That makes 100 errors; please try again.)");
-@.That makes 100 errors...@>
-  history:=fatal_error_stop; jump_out;
-  end;
-@<Put help message on the transcript file@>;
-exit:end;
-
-@ @<Get user's advice...@>=
-loop@+begin continue: clear_for_error_prompt; prompt_input("? ");
-@.?\relax@>
-  if last=first then return;
-  c:=buffer[first];
-  if c>="a" then c:=c+"A"-"a"; {convert to uppercase}
-  @<Interpret code |c| and |return| if done@>;
-  end
-
-@ It is desirable to provide an `\.E' option here that gives the user
-an easy way to return from \TeX\ to the system editor, with the offending
-line ready to be edited. But such an extension requires some system
-wizardry, so the present implementation simply types out the name of the
-file that should be
-edited and the relevant line number.
-@^system dependencies@>
-
-There is a secret `\.D' option available when the debugging routines haven't
-been commented~out.
-@^debugging@>
-
-@<Interpret code |c| and |return| if done@>=
-case c of
-"0","1","2","3","4","5","6","7","8","9": if deletions_allowed then
-  @<Delete \(c)|c-"0"| tokens and |goto continue|@>;
-@t\4\4@>@;@+@!debug "D": begin debug_help; goto continue;@+end;@+gubed@/
-"E": if base_ptr>0 then
-  begin print_nl("You want to edit file ");
-@.You want to edit file x@>
-  slow_print(input_stack[base_ptr].name_field);
-  print(" at line "); print_int(line);
-  interaction:=scroll_mode; jump_out;
-  end;
-"H": @<Print the help information and |goto continue|@>;
-"I":@<Introduce new material from the terminal and |return|@>;
-"Q","R","S":@<Change the interaction level and |return|@>;
-"X":begin interaction:=scroll_mode; jump_out;
-  end;
-othercases do_nothing
-endcases;@/
-@<Print the menu of available options@>
-
-@ @<Print the menu...@>=
-begin print("Type <return> to proceed, S to scroll future error messages,");@/
-@.Type <return> to proceed...@>
-print_nl("R to run without stopping, Q to run quietly,");@/
-print_nl("I to insert something, ");
-if base_ptr>0 then print("E to edit your file,");
-if deletions_allowed then
-  print_nl("1 or ... or 9 to ignore the next 1 to 9 tokens of input,");
-print_nl("H for help, X to quit.");
-end
-
-@ Here the author of \TeX\ apologizes for making use of the numerical
-relation between |"Q"|, |"R"|, |"S"|, and the desired interaction settings
-|batch_mode|, |nonstop_mode|, |scroll_mode|.
-@^Knuth, Donald Ervin@>
-
-@<Change the interaction...@>=
-begin error_count:=0; interaction:=batch_mode+c-"Q";
-print("OK, entering ");
-case c of
-"Q":begin print_esc("batchmode"); decr(selector);
-  end;
-"R":print_esc("nonstopmode");
-"S":print_esc("scrollmode");
-end; {there are no other cases}
-print("..."); print_ln; update_terminal; return;
-end
-
-@ When the following code is executed, |buffer[(first+1)..(last-1)]| may
-contain the material inserted by the user; otherwise another prompt will
-be given. In order to understand this part of the program fully, you need
-to be familiar with \TeX's input stacks.
-
-@<Introduce new material...@>=
-begin begin_file_reading; {enter a new syntactic level for terminal input}
-{now |state=mid_line|, so an initial blank space will count as a blank}
-if last>first+1 then
-  begin iloc:=first+1; buffer[first]:=" ";
-  end
-else  begin prompt_input("insert>"); iloc:=first;
-@.insert>@>
-  end;
-first:=last;
-ilimit:=last-1; {no |end_line_char| ends this line}
-return;
-end
-
-@ We allow deletion of up to 99 tokens at a time.
-
-@<Delete \(c)|c-"0"| tokens...@>=
-begin s1:=cur_tok; s2:=cur_cmd; s3:=cur_chr; s4:=align_state;
-align_state:=1000000; OK_to_interrupt:=false;
-if (last>first+1) and (buffer[first+1]>="0")and(buffer[first+1]<="9") then
-  c:=c*10+buffer[first+1]-"0"*11
-else c:=c-"0";
-while c>0 do
-  begin get_token; {one-level recursive call of |error| is possible}
-  decr(c);
-  end;
-cur_tok:=s1; cur_cmd:=s2; cur_chr:=s3; align_state:=s4; OK_to_interrupt:=true;
-help2("I have just deleted some text, as you asked.")@/
-("You can now delete more, or insert, or whatever.");
-show_context; goto continue;
-end
-
-@ @<Print the help info...@>=
-begin if use_err_help then
-  begin give_err_help; use_err_help:=false;
-  end
-else  begin if help_ptr=0 then
-    help2("Sorry, I don't know how to help in this situation.")@/
-    @t\kern1em@>("Maybe you should try asking a human?");
-  repeat decr(help_ptr); print(help_line[help_ptr]); print_ln;
-  until help_ptr=0;
-  end;
-help4("Sorry, I already gave what help I could...")@/
-  ("Maybe you should try asking a human?")@/
-  ("An error might have occurred before I noticed any problems.")@/
-  ("``If all else fails, read the instructions.''");@/
-goto continue;
-end
-
-@ @<Put help message on the transcript file@>=
-if interaction>batch_mode then decr(selector); {avoid terminal output}
-if use_err_help then
-  begin print_ln; give_err_help;
-  end
-else while help_ptr>0 do
-  begin decr(help_ptr); print_nl(help_line[help_ptr]);
-  end;
-print_ln;
-if interaction>batch_mode then incr(selector); {re-enable terminal output}
-print_ln
-
-@ A dozen or so error messages end with a parenthesized integer, so we
-save a teeny bit of program space by declaring the following procedure:
-
-@p procedure int_error(@!n:integer);
-begin print(" ("); print_int(n); print_char(")"); error;
-end;
-
-@ In anomalous cases, the print selector might be in an unknown state;
-the following subroutine is called to fix things just enough to keep
-running a bit longer.
-
-@p procedure normalize_selector;
-begin if log_opened then selector:=term_and_log
-else selector:=term_only;
-if job_name=0 then open_log_file;
-if interaction=batch_mode then decr(selector);
-end;
-
-@ The following procedure prints \TeX's last words before dying.
-
-@d succumb==begin if interaction=error_stop_mode then
-    interaction:=scroll_mode; {no more interaction}
-  if log_opened then error;
-  @!debug if interaction>batch_mode then debug_help;@+gubed@;@/
-  history:=fatal_error_stop; jump_out; {irrecoverable error}
-  end
-
-@<Error hand...@>=
-procedure fatal_error(@!s:str_number); {prints |s|, and that's it}
-begin normalize_selector;@/
-print_err("Emergency stop"); help1(s); succumb;
-@.Emergency stop@>
-end;
-
-@ Here is the most dreaded error message.
-
-@<Error hand...@>=
-procedure lua_norm_error(@!s:str_number); {lua found a problem}
-var saved_new_line_char: integer;
-begin
-saved_new_line_char:=new_line_char;
-new_line_char:=10;
-print_err("LuaTeX error "); print(s);
-help2("The lua interpreter ran into a problem, so the")@/
-  ("remainder of this lua chunk will be ignored.");
-error;
-new_line_char:=saved_new_line_char;
-end;
-
-procedure lua_fatal_error(@!s:str_number); {lua found a problem}
-begin new_line_char:=10; normalize_selector;
-print_err("LuaTeX fatal error "); print(s);
-succumb;
-end;
-
-procedure overflow(@!s:str_number;@!n:integer); {stop due to finiteness}
-begin normalize_selector;
-print_err("TeX capacity exceeded, sorry [");
-@.TeX capacity exceeded ...@>
-print(s); print_char("="); print_int(n); print_char("]");
-help2("If you really absolutely need more capacity,")@/
-  ("you can ask a wizard to enlarge me.");
-succumb;
-end;
-
-@ The program might sometime run completely amok, at which point there is
-no choice but to stop. If no previous error has been detected, that's bad
-news; a message is printed that is really intended for the \TeX\
-maintenance person instead of the user (unless the user has been
-particularly diabolical).  The index entries for `this can't happen' may
-help to pinpoint the problem.
-@^dry rot@>
-
-@<Error hand...@>=
-procedure confusion(@!s:str_number);
-  {consistency check violated; |s| tells where}
-begin normalize_selector;
-if history<error_message_issued then
-  begin print_err("This can't happen ("); print(s); print_char(")");
-@.This can't happen@>
-  help1("I'm broken. Please show this to someone who can fix can fix");
-  end
-else  begin print_err("I can't go on meeting you like this");
-@.I can't go on...@>
-  help2("One of your faux pas seems to have wounded me deeply...")@/
-    ("in fact, I'm barely conscious. Please fix it and try again.");
-  end;
-succumb;
-end;
-
-@ Users occasionally want to interrupt \TeX\ while it's running.
-If the \PASCAL\ runtime system allows this, one can implement
-a routine that sets the global variable |interrupt| to some nonzero value
-when such an interrupt is signalled. Otherwise there is probably at least
-a way to make |interrupt| nonzero using the \PASCAL\ debugger.
-@^system dependencies@>
-@^debugging@>
-
-@<Global...@>=
-@!interrupt:integer; {should \TeX\ pause for instructions?}
-@!OK_to_interrupt:boolean; {should interrupts be observed?}
+@ @<Global...@>=
 @!static_int_base:integer; {C version of |int_base|}
 @!static_glue_base:integer; {C version of |glue_base|}
 @!static_dimen_base:integer; {C version of |dimen_base|}
 @!static_local_base:integer; {C version of |local_base|}
-
-@ @p procedure check_interrupt;
-begin
-if interrupt<>0 then pause_for_instructions;
-end;
-
-
-@ @<Set init...@>=
-interrupt:=0; OK_to_interrupt:=true;
-
-@ When an interrupt has been detected, the program goes into its
-highest interaction level and lets the user have nearly the full flexibility of
-the |error| routine.  \TeX\ checks for interrupts only at times when it is
-safe to do this.
-
-@p procedure pause_for_instructions;
-begin if OK_to_interrupt then
-  begin interaction:=error_stop_mode;
-  if (selector=log_only)or(selector=no_print) then
-    incr(selector);
-  print_err("Interruption");
-@.Interruption@>
-  help3("You rang?")@/
-  ("Try to insert some instructions for me (e.g.,`I\showlists'),")@/
-  ("unless you just want to quit by typing `X'.");
-  deletions_allowed:=false; error; deletions_allowed:=true;
-  interrupt:=0;
-  end;
-end;
 
 @* \[7] Arithmetic with scaled dimensions.
 The principal computations performed by \TeX\ are done entirely in terms of
@@ -2128,7 +1640,7 @@ begin if p>=0 then negative:=false
 else  begin negate(p); negative:=true;
   end;
 if q<=0 then
-  begin debug if q=0 then confusion("/");@;@+gubed@;@/
+  begin debug if q=0 then confusion(' /');@;@+gubed@;@/
 @:this can't happen /}{\quad \./@>
   negate(q); negative:=not negative;
   end;
@@ -2273,11 +1785,11 @@ y:=y+spec_log[k]; x:=x-z;
 end
 
 @ @<Handle non-positive logarithm@>=
-begin print_err("Logarithm of ");
+begin print_err('Logarithm of ');
 @.Logarithm...replaced by 0@>
 print_scaled(x); print(" has been replaced by 0");
-help2("Since I don't take logs of non-positive numbers,")@/
-  ("I'm zeroing this one. Proceed, with fingers crossed.");
+help2('Since I don''t take logs of non-positive numbers,',
+  'I''m zeroing this one. Proceed, with fingers crossed.');
 error; m_log:=0;
 end
 
@@ -2643,7 +2155,7 @@ else  begin
   fixmem := fixmemcast(realloc(fixmem,sizeof(smemory_word)*(fix_mem_max+t+1)));
   if fixmem=NULL then
     begin runaway; {if memory is exhausted, display possible runaway text}
-    overflow("token memory size",fix_mem_max);
+    overflow('token memory size',fix_mem_max);
       {quit; all one-word nodes are busy}
 @:TeX capacity exceeded main memory size}{\quad main memory size@>
     end;
@@ -4074,7 +3586,7 @@ a new (empty) list is begun; it does not change |mode| or |aux|.
 @p procedure push_nest; {enter a new semantic level, save the old}
 begin if nest_ptr>max_nest_stack then
   begin max_nest_stack:=nest_ptr;
-  if nest_ptr=nest_size then overflow("semantic nest size",nest_size);
+  if nest_ptr=nest_size then overflow('semantic nest size',nest_size);
 @:TeX capacity exceeded semantic nest size}{\quad semantic nest size@>
   end;
 nest[nest_ptr]:=cur_list; {stack the record}
@@ -5891,7 +5403,7 @@ get by with testing for overflow in only a few places.
 
 @d check_full_save_stack==if save_ptr>max_save_stack then
   begin max_save_stack:=save_ptr;
-  if max_save_stack>save_size-8 then overflow("save size",save_size);
+  if max_save_stack>save_size-8 then overflow('save size',save_size);
 @:TeX capacity exceeded save size}{\quad save size@>
   end
 
@@ -5917,7 +5429,7 @@ begin check_full_save_stack;
 saved(0):=line; incr(save_ptr);
 save_type(save_ptr):=level_boundary; save_level(save_ptr):=cur_group;
 save_index(save_ptr):=cur_boundary;
-if cur_level=max_quarterword then overflow("grouping levels",
+if cur_level=max_quarterword then overflow('grouping levels',
 @:TeX capacity exceeded grouping levels}{\quad grouping levels@>
   max_quarterword-min_quarterword);
   {quit if |(cur_level+1)| is too big to be stored in |eqtb|}
@@ -6052,7 +5564,7 @@ if cur_level>level_one then
   begin decr(cur_level);
   @<Clear off top level from |save_stack|@>;
   end
-else confusion("curlevel"); {|unsave| is not used when |cur_group=bottom_level|}
+else confusion('curlevel'); {|unsave| is not used when |cur_group=bottom_level|}
 @:this can't happen curlevel}{\quad curlevel@>
 attr_list_cache:=cache_disabled;
 end;
@@ -6127,18 +5639,18 @@ for magnification.
 
 @p procedure prepare_mag;
 begin if (mag_set>0)and(mag<>mag_set) then
-  begin print_err("Incompatible magnification ("); print_int(mag);
+  begin print_err('Incompatible magnification ('); print_int(mag);
 @.Incompatible magnification@>
   print(");"); print_nl(" the previous value will be retained");
-  help2("I can handle only one magnification ratio per job. So I've")@/
-  ("reverted to the magnification you used earlier on this run.");@/
+  help2('I can handle only one magnification ratio per job. So I''ve',
+        'reverted to the magnification you used earlier on this run.');@/
   int_error(mag_set);
   geq_word_define(int_base+mag_code,mag_set); {|mag:=mag_set|}
   end;
 if (mag<=0)or(mag>32768) then
-  begin print_err("Illegal magnification has been changed to 1000");@/
+  begin print_err('Illegal magnification has been changed to 1000');@/
 @.Illegal magnification...@>
-  help1("The magnification ratio must be between 1 and 32768.");
+  help1('The magnification ratio must be between 1 and 32768.');
   int_error(mag); geq_word_define(int_base+mag_code,1000);
   end;
 if (mag_set=0) and (mag<>mag_set) then begin
@@ -6471,7 +5983,7 @@ begin if token_type>=backed_up then {token list to be deleted}
   end
 else if token_type=u_template then begin
   if align_state>500000 then align_state:=0
-  else fatal_error("(interwoven alignment preambles are not allowed)");
+  else fatal_error('(interwoven alignment preambles are not allowed)');
 @.interwoven alignment preambles...@>
   end;
 pop_input;
@@ -6534,7 +6046,7 @@ or |limit| or |line|.
 @^system dependencies@>
 
 @p procedure begin_file_reading;
-begin if in_open=max_in_open then overflow("text input levels",max_in_open);
+begin if in_open=max_in_open then overflow('text input levels',max_in_open);
 @:TeX capacity exceeded text input levels}{\quad text input levels@>
 if first=buf_size then check_buffer_overflow(first);
 @:TeX capacity exceeded buffer size}{\quad buffer size@>
@@ -6656,7 +6168,7 @@ begin ilimit:=last;
 if pausing>0 then if interaction>nonstop_mode then
   begin wake_up_terminal; print_ln;
   if istart<ilimit then for k:=istart to ilimit-1 do print(buffer[k]);
-  first:=ilimit; prompt_input("=>"); {wait for user response}
+  first:=ilimit; prompt_input('=>'); {wait for user response}
 @.=>@>
   if last>first then
     begin for k:=first to last-1 do {move line down in buffer}
@@ -6756,7 +6268,7 @@ var t:halfword; {token that is being ``expanded after''}
 @!save_scanner_status:small_number; {temporary storage of |scanner_status|}
 begin
 incr(expand_depth_count);
-if expand_depth_count>=expand_depth then overflow("expansion depth",expand_depth);
+if expand_depth_count>=expand_depth then overflow('expansion depth',expand_depth);
 cv_backup:=cur_val; cvl_backup:=cur_val_level; radix_backup:=radix;
 co_backup:=cur_order; backup_backup:=link(backup_head);
 reswitch:
@@ -6858,9 +6370,9 @@ if cur_cs<>undefined_primitive then begin
     end;
   end
 else begin
-  print_err("Missing primitive name");
-  help2("The control sequence marked <to be read again> does not")@/
-    ("represent any known primitive.");
+  print_err('Missing primitive name');
+  help2('The control sequence marked <to be read again> does not',
+    'represent any known primitive.');
   back_error;
   end;
 end
@@ -6892,13 +6404,13 @@ goto restart;
 end
 
 @ @<Complain about an undefined macro@>=
-begin print_err("Undefined control sequence");
+begin print_err('Undefined control sequence');
 @.Undefined control sequence@>
-help5("The control sequence at the end of the top line")@/
-("of your error message was never \def'ed. If you have")@/
-("misspelled it (e.g., `\hobx'), type `I' and the correct")@/
-("spelling (e.g., `I\hbox'). Otherwise just continue,")@/
-("and I'll forget about whatever was undefined.");
+help5('The control sequence at the end of the top line',
+'of your error message was never \def''ed. If you have',
+'misspelled it (e.g., `\hobx''), type `I'' and the correct',
+'spelling (e.g., `I\hbox''). Otherwise just continue,',
+'and I''ll forget about whatever was undefined.');
 error;
 end
 
@@ -6930,10 +6442,10 @@ cur_tok:=cur_cs+cs_token_flag; back_input;
 end
 
 @ @<Complain about missing \.{\\endcsname}@>=
-begin print_err("Missing "); print_esc("endcsname"); print(" inserted");
+begin print_err('Missing '); print_esc("endcsname"); print(" inserted");
 @.Missing \\endcsname...@>
-help2("The control sequence marked <to be read again> should")@/
-  ("not appear between \csname and \endcsname.");
+help2('The control sequence marked <to be read again> should',
+  'not appear between \csname and \endcsname.');
 back_error;
 end
 
@@ -7231,7 +6743,7 @@ if n>0 then
   begin if param_ptr+n>max_param_stack then
     begin max_param_stack:=param_ptr+n;
     if max_param_stack>param_size then
-      overflow("parameter stack size",param_size);
+      overflow('parameter stack size',param_size);
 @:TeX capacity exceeded parameter stack size}{\quad parameter stack size@>
     end;
   for m:=0 to n-1 do param_stack[param_ptr+m]:=pstack[m];
@@ -7312,15 +6824,15 @@ else goto continue;
 end
 
 @ @<Report an extra right brace and |goto continue|@>=
-begin back_input; print_err("Argument of "); sprint_cs(warning_index);
+begin back_input; print_err('Argument of '); sprint_cs(warning_index);
 @.Argument of \\x has...@>
 print(" has an extra }");
-help6("I've run across a `}' that doesn't seem to match anything.")@/
-  ("For example, `\def\a#1{...}' and `\a}' would produce")@/
-  ("this error. If you simply proceed now, the `\par' that")@/
-  ("I've just inserted will cause me to report a runaway")@/
-  ("argument that might be the root of the problem. But if")@/
-  ("your `}' was spurious, just type `2' and it will go away.");
+help6('I''ve run across a `}'' that doesn''t seem to match anything.',
+  'For example, `\def\a#1{...}'' and `\a}'' would produce',
+  'this error. If you simply proceed now, the `\par'' that',
+  'I''ve just inserted will cause me to report a runaway',
+  'argument that might be the root of the problem. But if',
+  'your `}'' was spurious, just type `2'' and it will go away.');
 incr(align_state); long_state:=call; cur_tok:=par_token; ins_error;
 goto continue;
 end {a white lie; the \.{\\par} won't always trigger a runaway}
@@ -7329,12 +6841,12 @@ end {a white lie; the \.{\\par} won't always trigger a runaway}
 
 @<Report a runaway argument and abort@>=
 begin if long_state=call then
-  begin runaway; print_err("Paragraph ended before ");
+  begin runaway; print_err('Paragraph ended before ');
 @.Paragraph ended before...@>
   sprint_cs(warning_index); print(" was complete");
-  help3("I suspect you've forgotten a `}', causing me to apply this")@/
-    ("control sequence to too much text. How can we recover?")@/
-    ("My plan is to forget the whole thing and hope for the best.");
+  help3('I suspect you''ve forgotten a `}'', causing me to apply this',
+    'control sequence to too much text. How can we recover?',
+    'My plan is to forget the whole thing and hope for the best.');
   back_error;
   end;
 pstack[n]:=link(temp_token_head); align_state:=align_state-unbalance;
@@ -7378,13 +6890,13 @@ if s<>r then begin
   end
 
 @ @<Report an improper use...@>=
-begin print_err("Use of "); sprint_cs(warning_index);
+begin print_err('Use of '); sprint_cs(warning_index);
 @.Use of x doesn't match...@>
 print(" doesn't match its definition");
-help4("If you say, e.g., `\def\a1{...}', then you must always")@/
-  ("put `1' after `\a', since control sequence names are")@/
-  ("made up of letters only. The macro here has not been")@/
-  ("followed by the required stuff, so I'm ignoring it.");
+help4('If you say, e.g., `\def\a1{...}'', then you must always',
+  'put `1'' after `\a'', since control sequence names are',
+  'made up of letters only. The macro here has not been',
+  'followed by the required stuff, so I''m ignoring it.');
 error; return;
 end
 
@@ -7443,12 +6955,12 @@ appear before the |left_brace|.
 @p procedure scan_left_brace; {reads a mandatory |left_brace|}
 begin @<Get the next non-blank non-relax non-call token@>;
 if cur_cmd<>left_brace then
-  begin print_err("Missing { inserted");
+  begin print_err('Missing { inserted');
 @.Missing \{ inserted@>
-  help4("A left brace was mandatory here, so I've put one in.")@/
-    ("You might want to delete and/or insert some corrections")@/
-    ("so that I will find a matching right brace soon.")@/
-    ("(If you're confused by all this, try typing `I}' now.)");
+  help4('A left brace was mandatory here, so I''ve put one in.',
+    'You might want to delete and/or insert some corrections',
+    'so that I will find a matching right brace soon.',
+    'If you''re confused by all this, try typing `I}'' now.');
   back_error; cur_tok:=left_brace_token+"{"; cur_cmd:=left_brace;
   cur_chr:="{"; incr(align_state);
   end;
@@ -7474,9 +6986,9 @@ until cur_cmd<>spacer
 are being switched.
 
 @p procedure mu_error;
-begin print_err("Incompatible glue units");
+begin print_err('Incompatible glue units');
 @.Incompatible glue units@>
-help1("I'm going to assume that 1mu=1pt when they're mixed.");
+help1('I''m going to assume that 1mu=1pt when they''re mixed.');
 error;
 end;
 
@@ -7694,11 +7206,11 @@ end
 
 @ @<Fetch a token list...@>=
 if level<>tok_val then
-  begin print_err("Missing number, treated as zero");
+  begin print_err('Missing number, treated as zero');
 @.Missing number...@>
-  help3("A number should have been here; I inserted `0'.")@/
-    ("(If you can't figure out why I needed to see a number,")@/
-    ("look up `weird error' in the index to The TeXbook.)");
+  help3('A number should have been here; I inserted `0''.',
+    '(If you can''t figure out why I needed to see a number,',
+    'look up `weird error'' in the index to The TeXbook.)');
 @:TeXbook}{\sl The \TeX book@>
   back_error; scanned_result(0)(dimen_val);
   end
@@ -7720,9 +7232,9 @@ begin scan_char_num; cur_val1:=fam_fnt(cur_val,m);
 @ @<Fetch a math param@>=
 begin cur_val1:=cur_chr; get_token;
   if cur_cmd<>math_style then
-    begin print_err("Missing math style, treated as \\displaystyle");
+    begin print_err('Missing math style, treated as \displaystyle');
 @.Missing number...@>
-    help1("A style should have been here; I inserted `\\displaystyle'.");
+    help1('A style should have been here; I inserted `\displaystyle''.');
     cur_val:=display_style;
     back_error;
     end
@@ -7842,13 +7354,13 @@ primitive_pdftex("pdflastlink",last_item,pdf_last_link_code,0);@/
 
 @ @<Fetch the |space_factor| or the |prev_depth|@>=
 if abs(mode)<>m then
-  begin print_err("Improper "); print_cmd_chr(set_aux,m);
+  begin print_err('Improper '); print_cmd_chr(set_aux,m);
 @.Improper \\spacefactor@>
 @.Improper \\prevdepth@>
-  help4("You can refer to \spacefactor only in horizontal mode;")@/
-    ("you can refer to \prevdepth only in vertical mode; and")@/
-    ("neither of these is meaningful inside \write. So")@/
-    ("I'm forgetting what you said and using zero instead.");
+  help4('You can refer to \spacefactor only in horizontal mode;',
+    'you can refer to \prevdepth only in vertical mode; and',
+    'neither of these is meaningful inside \write. So',
+    'I''m forgetting what you said and using zero instead.');
   error;
   if level<>tok_val then scanned_result(0)(dimen_val)
   else scanned_result(0)(int_val);
@@ -7991,19 +7503,19 @@ cur_val_level:=m;
 end
 
 @ @<Complain that \.{\\the} can't do this; give zero result@>=
-begin print_err("You can't use `"); print_cmd_chr(cur_cmd,cur_chr);
+begin print_err('You can''t use `'); print_cmd_chr(cur_cmd,cur_chr);
 @.You can't use x after ...@>
 print("' after "); print_esc("the");
-help1("I'm forgetting what you said and using zero instead.");
+help1('I''m forgetting what you said and using zero instead.');
 error;
 if level<>tok_val then scanned_result(0)(dimen_val)
 else scanned_result(0)(int_val);
 end
 
 @ @<Complain that |texlib| can't do this; give zero result@>=
-begin print_err("You can't use `"); print_cmd_chr(cmd,m);
+begin print_err('You can''t use `'); print_cmd_chr(cmd,m);
 print("' as tex library index");
-help1("I'm forgetting what you said and using zero instead.");
+help1('I''m forgetting what you said and using zero instead.');
 error;
 if level<>tok_val then scanned_result(0)(dimen_val)
 else scanned_result(0)(int_val);
@@ -8103,19 +7615,19 @@ applications of |scan_int| that have already been made inside of
 procedure scan_register_num;
 begin scan_int;
 if (cur_val<0)or(cur_val>biggest_reg) then
-  begin print_err("Bad register code");
+  begin print_err('Bad register code');
 @.Bad register code@>
-  help2("A register number must be between 0 and 65535.")@/
-    ("I changed this one to zero."); int_error(cur_val); cur_val:=0;
+  help2('A register number must be between 0 and 65535.',
+    'I changed this one to zero.'); int_error(cur_val); cur_val:=0;
   end;
 end;
 procedure scan_mark_num;
 begin scan_int;
 if (cur_val<0)or(cur_val>biggest_mark) then
-  begin print_err("Bad marks code");
+  begin print_err('Bad marks code');
 @.Bad marks code@>
-  help2("A marks class must be between 0 and 65535.")@/
-    ("I changed this one to zero."); int_error(cur_val); cur_val:=0;
+  help2('A marks class must be between 0 and 65535.',
+    'I changed this one to zero.'); int_error(cur_val); cur_val:=0;
   end;
 end;
 
@@ -8123,10 +7635,10 @@ end;
 procedure scan_char_num;
 begin scan_int;
 if (cur_val<0)or(cur_val>biggest_char) then
-  begin print_err("Bad character code");
+  begin print_err('Bad character code');
 @.Bad character code@>
-  help2("A character number must be between 0 and biggest_char.")@/
-    ("I changed this one to zero."); int_error(cur_val); cur_val:=0;
+  help2('A character number must be between 0 and biggest_char.',
+    'I changed this one to zero.'); int_error(cur_val); cur_val:=0;
   end;
 end;
 
@@ -8137,19 +7649,19 @@ will be needed later.
 procedure scan_four_bit_int;
 begin scan_int;
 if (cur_val<0)or(cur_val>15) then
-  begin print_err("Bad number");
+  begin print_err('Bad number');
 @.Bad number@>
-  help2("Since I expected to read a number between 0 and 15,")@/
-    ("I changed this one to zero."); int_error(cur_val); cur_val:=0;
+  help2('Since I expected to read a number between 0 and 15,',
+    'I changed this one to zero.'); int_error(cur_val); cur_val:=0;
   end;
 end;
 procedure scan_math_family_int;
 begin scan_int;
 if (cur_val<0)or(cur_val>255) then
-  begin print_err("Bad number");
+  begin print_err('Bad number');
 @.Bad number@>
-  help2("Since I expected to read a number between 0 and 255,")@/
-    ("I changed this one to zero."); int_error(cur_val); cur_val:=0;
+  help2('Since I expected to read a number between 0 and 255,',
+    'I changed this one to zero.'); int_error(cur_val); cur_val:=0;
   end;
 end;
 
@@ -8157,19 +7669,19 @@ end;
 procedure scan_real_fifteen_bit_int;
 begin scan_int;
 if (cur_val<0)or(cur_val>@'77777) then
-  begin print_err("Bad mathchar");
+  begin print_err('Bad mathchar');
 @.Bad mathchar@>
-  help2("A mathchar number must be between 0 and 32767.")@/
-    ("I changed this one to zero."); int_error(cur_val); cur_val:=0;
+  help2('A mathchar number must be between 0 and 32767.',
+    'I changed this one to zero.'); int_error(cur_val); cur_val:=0;
   end;
 end;
 procedure scan_fifteen_bit_int;
 begin scan_int;
 if (cur_val<0)or(cur_val>@'77777) then
-  begin print_err("Bad mathchar");
+  begin print_err('Bad mathchar');
 @.Bad mathchar@>
-  help2("A mathchar number must be between 0 and 32767.")@/
-    ("I changed this one to zero."); int_error(cur_val); cur_val:=0;
+  help2('A mathchar number must be between 0 and 32767.',
+    'I changed this one to zero.'); int_error(cur_val); cur_val:=0;
   end;
 cur_val := ((cur_val div @"1000) * @"1000000) +
            (((cur_val mod @"1000) div @"100) * @"10000) +
@@ -8178,10 +7690,10 @@ end;
 procedure scan_big_fifteen_bit_int;
 begin scan_int;
 if (cur_val<0)or(cur_val>@"7FFFFFF) then
-  begin print_err("Bad extended mathchar");
+  begin print_err('Bad extended mathchar');
 @.Bad mathchar@>
-  help2("An extended mathchar number must be between 0 and ""7FFFFFF.")@/
-    ("I changed this one to zero."); int_error(cur_val); cur_val:=0;
+  help2('An extended mathchar number must be between 0 and "7FFFFFF.',
+    'I changed this one to zero.'); int_error(cur_val); cur_val:=0;
   end;
 end;
 
@@ -8190,10 +7702,10 @@ end;
 procedure scan_twenty_seven_bit_int;
 begin scan_int;
 if (cur_val<0)or(cur_val>@'777777777) then
-  begin print_err("Bad delimiter code");
+  begin print_err('Bad delimiter code');
 @.Bad delimiter code@>
-  help2("A numeric delimiter code must be between 0 and 2^{27}-1.")@/
-    ("I changed this one to zero."); int_error(cur_val); cur_val:=0;
+  help2('A numeric delimiter code must be between 0 and 2^{27}-1.',
+    'I changed this one to zero.'); int_error(cur_val); cur_val:=0;
   end;
 end;
 
@@ -8201,18 +7713,18 @@ procedure scan_fifty_one_bit_int;
 var iiii:integer;
 begin scan_int;
 if (cur_val<0)or(cur_val>@'777777777) then
-  begin print_err("Bad delimiter code");
+  begin print_err('Bad delimiter code');
 @.Bad delimiter code@>
-  help2("A numeric delimiter (first part) must be between 0 and 2^{27}-1.")
-    ("I changed this one to zero."); int_error(cur_val); cur_val:=0;
+  help2('A numeric delimiter (first part) must be between 0 and 2^{27}-1.',
+    'I changed this one to zero.'); int_error(cur_val); cur_val:=0;
   end;
 iiii:=cur_val;
 scan_int;
 if (cur_val<0)or(cur_val>@"FFFFFF) then
-  begin print_err("Bad delimiter code");
+  begin print_err('Bad delimiter code');
 @.Bad delimiter code@>
-help2("A numeric delimiter (second part) must be between 0 and 2^{24}-1.")@/
-    ("I changed this one to zero."); int_error(cur_val); cur_val:=0;
+help2('A numeric delimiter (second part) must be between 0 and 2^{24}-1.',
+    'I changed this one to zero.'); int_error(cur_val); cur_val:=0;
   end;
 cur_val1:=cur_val;
 cur_val:=iiii;
@@ -8326,10 +7838,10 @@ else begin {the value of a csname in this context is its name}
     cur_val:=too_big_char;
 end;
 if cur_val>biggest_char then
-  begin print_err("Improper alphabetic constant");
+  begin print_err('Improper alphabetic constant');
 @.Improper alphabetic constant@>
-  help2("A one-character control sequence belongs after a ` mark.")@/
-    ("So I'm essentially inserting \0 here.");
+  help2('A one-character control sequence belongs after a ` mark.',
+    'So I''m essentially inserting \0 here.');
   cur_val:="0"; back_error;
   end
 else @<Scan an optional space@>;
@@ -8370,10 +7882,10 @@ loop@+  begin if (cur_tok<zero_token+radix)and(cur_tok>=zero_token)and
   vacuous:=false;
   if (cur_val>=m)and((cur_val>m)or(d>7)or(radix<>10)) then
     begin if OK_so_far then
-      begin print_err("Number too big");
+      begin print_err('Number too big');
 @.Number too big@>
-      help2("I can only go up to 2147483647='17777777777=""7FFFFFFF,")@/
-        ("so I'm using that number instead of yours.");
+      help2('I can only go up to 2147483647=''17777777777="7FFFFFFF,',
+        'so I''m using that number instead of yours.');
       error; cur_val:=infinity; OK_so_far:=false;
       end;
     end
@@ -8383,11 +7895,11 @@ loop@+  begin if (cur_tok<zero_token+radix)and(cur_tok>=zero_token)and
 done:
 
 @ @<Express astonishment...@>=
-begin print_err("Missing number, treated as zero");
+begin print_err('Missing number, treated as zero');
 @.Missing number...@>
-help3("A number should have been here; I inserted `0'.")@/
-  ("(If you can't figure out why I needed to see a number,")@/
-  ("look up `weird error' in the index to The TeXbook.)");
+help3('A number should have been here; I inserted `0''.',
+  '(If you can''t figure out why I needed to see a number,',
+  'look up `weird error'' in the index to The TeXbook.)');
 @:TeXbook}{\sl The \TeX book@>
 back_error;
 end
@@ -8568,12 +8080,12 @@ not_found:
 begin
 if scan_keyword('mu') then goto attach_fraction
 @.mu@>
-else  begin print_err("Illegal unit of measure ("); print("mu inserted)");
+else  begin print_err('Illegal unit of measure ('); print("mu inserted)");
 @.Illegal unit of measure@>
-  help4("The unit of measurement in math glue must be mu.")@/
-    ("To recover gracefully from this error, it's best to")@/
-    ("delete the erroneous units; e.g., type `2' to delete")@/
-    ("two letters. (See Chapter 27 of The TeXbook.)");
+  help4('The unit of measurement in math glue must be mu.',
+    'To recover gracefully from this error, it''s best to',
+    'delete the erroneous units; e.g., type `2'' to delete',
+    'two letters. (See Chapter 27 of The TeXbook.)');
 @:TeXbook}{\sl The \TeX book@>
   error; goto attach_fraction;
   end;
@@ -8636,24 +8148,24 @@ cur_val:=cur_val+(f div @'200000); f:=f mod @'200000;
 done2:
 
 @ @<Complain about unknown unit...@>=
-begin print_err("Illegal unit of measure ("); print("pt inserted)");
+begin print_err('Illegal unit of measure ('); print("pt inserted)");
 @.Illegal unit of measure@>
-help6("Dimensions can be in units of em, ex, in, pt, pc,")@/
-  ("cm, mm, dd, cc, nd, nc, bp, or sp; but yours is a new one!")@/
-  ("I'll assume that you meant to say pt, for printer's points.")@/
-  ("To recover gracefully from this error, it's best to")@/
-  ("delete the erroneous units; e.g., type `2' to delete")@/
-  ("two letters. (See Chapter 27 of The TeXbook.)");
+help6('Dimensions can be in units of em, ex, in, pt, pc,',
+  'cm, mm, dd, cc, nd, nc, bp, or sp; but yours is a new one!',
+  'I''ll assume that you meant to say pt, for printer''s points.',
+  'To recover gracefully from this error, it''s best to',
+  'delete the erroneous units; e.g., type `2'' to delete',
+  'two letters. (See Chapter 27 of The TeXbook.)');
 @:TeXbook}{\sl The \TeX book@>
 error; goto done2;
 end
 
 
 @ @<Report that this dimension is out of range@>=
-begin print_err("Dimension too large");
+begin print_err('Dimension too large');
 @.Dimension too large@>
-help2("I can't work with sizes bigger than about 19 feet.")@/
-  ("Continue and I'll use the largest value I can.");@/
+help2('I can''t work with sizes bigger than about 19 feet.',
+  'Continue and I''ll use the largest value I can.');@/
 error; cur_val:=max_dimen; arith_error:=false;
 end
 
@@ -9113,10 +8625,10 @@ pdf_colorstack_init_code:
     flush_str(s);
     cur_val_level := int_val;
     if cur_val < 0 then begin
-        print_err("Too many color stacks");
+        print_err('Too many color stacks');
 @.Too many color stacks@>
-        help2("The number of color stacks is limited to 32768.")@/
-        ("I'll use the default color stack 0 here.");
+        help2('The number of color stacks is limited to 32768.',
+        'I''ll use the default color stack 0 here.');
         error;
         cur_val := 0;
        restore_cur_string;
@@ -9446,10 +8958,10 @@ if cur_cmd=right_brace then
 done: end
 
 @ @<Express shock...@>=
-begin print_err("Missing { inserted"); incr(align_state);
+begin print_err('Missing { inserted'); incr(align_state);
 @.Missing \{ inserted@>
-help2("Where was the left brace? You said something like `\def\a}',")@/
-  ("which I'm going to interpret as `\def\a{}'."); error; goto found;
+help2('Where was the left brace? You said something like `\def\a}'',',
+  'which I''m going to interpret as `\def\a{}''.'); error; goto found;
 end
 
 @ @<If the next character is a parameter number...@>=
@@ -9460,16 +8972,16 @@ if cur_cmd=left_brace then
   goto done;
   end;
 if t=zero_token+9 then
-  begin print_err("You already have nine parameters");
+  begin print_err('You already have nine parameters');
 @.You already have nine...@>
-  help1("I'm going to ignore the # sign you just used."); error;
+  help1('I''m going to ignore the # sign you just used.'); error;
   end
 else  begin incr(t);
   if cur_tok<>t then
-    begin print_err("Parameters must be numbered consecutively");
+    begin print_err('Parameters must be numbered consecutively');
 @.Parameters...consecutively@>
-    help2("I've inserted the digit you should have used after the #.")@/
-      ("Type `1' to delete what you did use."); back_error;
+    help2('I''ve inserted the digit you should have used after the #.',
+      'Type `1'' to delete what you did use.'); back_error;
     end;
   cur_tok:=s;
   end;
@@ -9515,12 +9027,12 @@ begin s:=cur_tok;
 if xpand then get_x_token else get_token;
 if cur_cmd<>mac_param then begin
   if (cur_tok<=zero_token)or(cur_tok>t) then
-    begin print_err("Illegal parameter number in definition of ");
+    begin print_err('Illegal parameter number in definition of ');
 @.Illegal parameter number...@>
     sprint_cs(warning_index);
-    help3("You meant to type ## instead of #, right?")@/
-    ("Or maybe a } was forgotten somewhere earlier, and things")@/
-    ("are all screwed up? I'm going to assume that you meant ##.");
+    help3('You meant to type ## instead of #, right?',
+    'Or maybe a } was forgotten somewhere earlier, and things',
+    'are all screwed up? I''m going to assume that you meant ##.');
     back_error; cur_tok:=s;
     end
   else cur_tok:=out_param_token-"0"+cur_chr;
@@ -9594,11 +9106,11 @@ will not be given in the case of multi-line input.
 
 @<Input for \.{\\read} from the terminal@>=
 if interaction>nonstop_mode then
-  if n<0 then prompt_input("")
+  if n<0 then prompt_input('')
   else  begin wake_up_terminal;
-    print_ln; sprint_cs(r); prompt_input("="); n:=-1;
+    print_ln; sprint_cs(r); prompt_input(' ='); n:=-1;
     end
-else fatal_error("*** (cannot \read from terminal in nonstop modes)")
+else fatal_error('*** (cannot \read from terminal in nonstop modes)')
 @.cannot \\read@>
 
 @ The first line of a file must be treated specially, since |lua_input_ln|
@@ -9619,9 +9131,9 @@ begin if not lua_input_ln(read_file[m],(m+1),true) then
   begin lua_a_close_in(read_file[m],(m+1)); read_open[m]:=closed;
   if align_state<>1000000 then
     begin runaway;
-    print_err("File ended within "); print_esc("read");
+    print_err('File ended within '); print_esc("read");
 @.File ended within \\read@>
-    help1("This \read has unbalanced braces.");
+    help1('This \read has unbalanced braces.');
     align_state:=1000000; error;
     end;
   end;
@@ -9795,7 +9307,7 @@ label exit;
 var q:pointer;
 begin if p=cond_ptr then if_limit:=l {that's the easy case}
 else  begin q:=cond_ptr;
-  loop@+  begin if q=null then confusion("if");
+  loop@+  begin if q=null then confusion('if');
 @:this can't happen if}{\quad if@>
     if vlink(q)=p then
       begin if_limit_type(q):=l; return;
@@ -9845,9 +9357,9 @@ logic is needed.
 loop@+  begin pass_text;
   if cond_ptr=save_cond_ptr then
     begin if cur_chr<>or_code then goto common_ending;
-    print_err("Extra "); print_esc("or");
+    print_err('Extra '); print_esc("or");
 @.Extra \\or@>
-    help1("I'm ignoring this; it doesn't match any \if.");
+    help1('I''m ignoring this; it doesn''t match any \if.');
     error;
     end
   else if cur_chr=fi_code then @<Pop the condition stack@>;
@@ -9902,10 +9414,10 @@ begin if this_if=if_int_code then scan_int@+else scan_normal_dimen;
 n:=cur_val; @<Get the next non-blank non-call...@>;
 if (cur_tok>=other_token+"<")and(cur_tok<=other_token+">") then
   r:=cur_tok-other_token
-else  begin print_err("Missing = inserted for ");
+else  begin print_err('Missing = inserted for ');
 @.Missing = inserted@>
   print_cmd_chr(if_test,this_if);
-  help1("I was expecting to see `<', `=', or `>'. Didn't.");
+  help1('I was expecting to see `<'', `='', or `>''. Didn''t.');
   back_error; r:="=";
   end;
 if this_if=if_int_code then scan_int@+else scan_normal_dimen;
@@ -10014,11 +9526,11 @@ code, which is actually part of |expand|. It comes into play when
 begin if tracing_ifs>0 then if tracing_commands<=1 then show_cur_cmd_chr;
 if cur_chr>if_limit then
   if if_limit=if_code then insert_relax {condition not yet evaluated}
-  else  begin print_err("Extra "); print_cmd_chr(fi_or_else,cur_chr);
+  else  begin print_err('Extra '); print_cmd_chr(fi_or_else,cur_chr);
 @.Extra \\or@>
 @.Extra \\else@>
 @.Extra \\fi@>
-    help1("I'm ignoring this; it doesn't match any \if.");
+    help1('I''m ignoring this; it doesn''t match any \if.');
     error;
     end
 else  begin while cur_chr<>fi_code do pass_text; {skip to \.{\\fi}}
@@ -10422,10 +9934,10 @@ else if cur_cmd=def_family then begin
   m:=cur_chr; scan_math_family_int; f:=fam_fnt(cur_val,m);
   set_font_touched(f,1);
   end
-else  begin print_err("Missing font identifier");
+else  begin print_err('Missing font identifier');
 @.Missing font identifier@>
-  help2("I was looking for a control sequence whose")@/
-  ("current meaning has been defined by \font.");
+  help2('I was looking for a control sequence whose',
+  'current meaning has been defined by \font.');
   back_error; f:=null_font;
   end;
 cur_val:=f;
@@ -10478,12 +9990,12 @@ exit:
 end;
 
 @ @<Issue a font parameter error message, and return@>=
-begin print_err("Font "); print_esc(font_id_text(f));
+begin print_err('Font '); print_esc(font_id_text(f));
   print(" has only "); print_int(font_params(f));
   print(" fontdimen parameters");
 @.Font x has only...@>
-  help2("To increase the number of font parameters, you must")@/
-    ("use \fontdimen immediately after the \font is loaded.");
+  help2('To increase the number of font parameters, you must',
+    'use \fontdimen immediately after the \font is loaded.');
   error;
   return;
 end
@@ -10576,7 +10088,7 @@ if cur_val<0 then {in this case |f=0|}
 if cur_val>@'40000 then arith_error:=true
 else cur_val := cur_val*unity +f;
 if arith_error or(abs(cur_val)>=@'10000000000) then
-begin print_err("Stack number too large"); error;
+begin print_err('Stack number too large'); error;
 end;
 if negative then negate(cur_val);
 end;
@@ -10830,7 +10342,7 @@ end;
 procedure pdf_error(t, p: str_number);
 begin
     normalize_selector;
-    print_err("LuaTeX error");
+    print_err('LuaTeX error');
     if t <> 0 then begin
         print(" (");
         print(t);
@@ -11727,7 +11239,7 @@ begin
 end;
 
 @ @<Examine node |p| in the vlist, taking account of its effect...@>=
-begin if is_char_node(p) then confusion("vpack")
+begin if is_char_node(p) then confusion('vpack')
 @:this can't happen vpack}{\quad vpack@>
 else  case type(p) of
   hlist_node_case,vlist_node_case,rule_node_case,unset_node_case:
@@ -12052,10 +11564,10 @@ if callback_id>0 then begin
       while vlink(just_box)<>null do
          just_box := vlink(just_box);
     if (just_box=null)or(type(just_box) <> hlist_node) then begin
-      help3("A linebreaking routine should return a non-empty list of nodes")
-           ("and the last one of those has to be a \\hbox.")
-           ("Sorry, I cannot recover from this.");
-      print_err("Invalid linebreak_filter");
+      help3('A linebreaking routine should return a non-empty list of nodes',
+           'and the last one of those has to be a \hbox.',
+           'Sorry, I cannot recover from this.');
+      print_err('Invalid linebreak_filter');
       succumb;
       end
     end
@@ -12198,7 +11710,7 @@ while p<>null do
       end
     else flush_node_list(q);
     end;
-  othercases confusion("pruning")
+  othercases confusion('pruning')
 @:this can't happen pruning}{\quad pruning@>
   endcases;
 prune_page_top:=vlink(temp_head);
@@ -12302,7 +11814,7 @@ kern_node_case: begin if vlink(p)=null then t:=penalty_node
   end;
 penalty_node_case: pi:=penalty(p);
 mark_node_case,ins_node_case: goto not_found;
-othercases confusion("vertbreak")
+othercases confusion('vertbreak')
 @:this can't happen vertbreak}{\quad vertbreak@>
 endcases
 
@@ -12344,12 +11856,12 @@ else  begin q:=glue_ptr(p);
   active_height[7]:=active_height[7]+shrink(q);
   if (shrink_order(q)<>normal)and(shrink(q)<>0) then
     begin@t@>@;@/
-    print_err("Infinite glue shrinkage found in box being split");@/
+    print_err('Infinite glue shrinkage found in box being split');@/
 @.Infinite glue shrinkage...@>
-    help4("The box you are \vsplitting contains some infinitely")@/
-      ("shrinkable glue, e.g., `\vss' or `\vskip 0pt minus 1fil'.")@/
-      ("Such glue doesn't belong there; but you can safely proceed,")@/
-      ("since the offensive shrinkability has been made finite.");
+    help4('The box you are \vsplitting contains some infinitely',
+      'shrinkable glue, e.g., `\vss'' or `\vskip 0pt minus 1fil''.',
+      'Such glue doesn''t belong there; but you can safely proceed,',
+      'since the offensive shrinkability has been made finite.');
     error; r:=new_spec(q); shrink_order(r):=normal; delete_glue_ref(q);
     glue_ptr(p):=r; q:=r;
     end;
@@ -12402,11 +11914,11 @@ if v=null then
   begin vsplit:=null; return;
   end;
 if type(v)<>vlist_node then
-  begin print_err(""); print_esc("vsplit"); print(" needs a ");
+  begin print_err(''); print_esc("vsplit"); print(" needs a ");
   print_esc("vbox");
 @:vsplit_}{\.{\\vsplit needs a \\vbox}@>
-  help2("The box you are trying to split is an \hbox.")@/
-  ("I can't split such a box, so I'll leave it alone.");
+  help2('The box you are trying to split is an \hbox.',
+  'I can''t split such a box, so I''ll leave it alone.');
   error; vsplit:=null; return;
   end
 
@@ -12715,11 +12227,11 @@ does not contain an \.{\\hbox}.
 var p:pointer; {the box register contents}
 begin p:=box(n);
 if p<>null then if type(p)=hlist_node then
-  begin print_err("Insertions can only be added to a vbox");
+  begin print_err('Insertions can only be added to a vbox');
 @.Insertions can only...@>
-  help3("Tut tut: You're trying to \insert into a")@/
-    ("\box register that now contains an \hbox.")@/
-    ("Proceed, and I'll discard its present contents.");
+  help3('Tut tut: You''re trying to \insert into a',
+    '\box register that now contains an \hbox.',
+    'Proceed, and I''ll discard its present contents.');
   box_error(n);
   end;
 end;
@@ -12829,7 +12341,7 @@ kern_node_case: if page_contents<box_there then goto done1
 penalty_node_case: if page_contents<box_there then goto done1@+else pi:=penalty(p);
 mark_node_case: goto contribute;
 ins_node_case: @<Append an insertion to the current page and |goto contribute|@>;
-othercases confusion("page")
+othercases confusion('page')
 @:this can't happen page}{\quad page@>
 endcases
 
@@ -12880,12 +12392,12 @@ else
   page_shrink:=page_shrink+shrink(q);
   if (shrink_order(q)<>normal)and(shrink(q)<>0) then
     begin@t@>@;@/
-    print_err("Infinite glue shrinkage found on current page");@/
+    print_err('Infinite glue shrinkage found on current page');@/
 @.Infinite glue shrinkage...@>
-    help4("The page about to be output contains some infinitely")@/
-      ("shrinkable glue, e.g., `\vss' or `\vskip 0pt minus 1fil'.")@/
-      ("Such glue doesn't belong there; but you can safely proceed,")@/
-      ("since the offensive shrinkability has been made finite.");
+    help4('The page about to be output contains some infinitely',
+      'shrinkable glue, e.g., `\vss'' or `\vskip 0pt minus 1fil''.',
+      'Such glue doesn''t belong there; but you can safely proceed,',
+      'since the offensive shrinkability has been made finite.');
     error;
     r:=new_spec(q); shrink_order(r):=normal; delete_glue_ref(q);
     glue_ptr(p):=r; q:=r;
@@ -12988,12 +12500,12 @@ else
   page_so_far[2+stretch_order(q)]:=@|page_so_far[2+stretch_order(q)]+stretch(q);@/
 page_shrink:=page_shrink+shrink(q);
 if (shrink_order(q)<>normal)and(shrink(q)<>0) then
-  begin print_err("Infinite glue shrinkage inserted from "); print_esc("skip");
+  begin print_err('Infinite glue shrinkage inserted from '); print_esc("skip");
 @.Infinite glue shrinkage...@>
   print_int(n);
-  help3("The correction glue for page breaking with insertions")@/
-    ("must have finite shrinkability. But you may proceed,")@/
-    ("since the offensive shrinkability has been made finite.");
+  help3('The correction glue for page breaking with insertions',
+    'must have finite shrinkability. But you may proceed,',
+    'since the offensive shrinkability has been made finite.');
   error;
   end;
 end
@@ -13125,10 +12637,10 @@ split_top_skip:=save_split_top_skip;
 
 @ @<Ensure that box |output_box| is empty before output@>=
 if box(output_box)<>null then
-  begin print_err(""); print_esc("box"); print_int(output_box); print(" is not void");
+  begin print_err(''); print_esc("box"); print_int(output_box); print(" is not void");
 @:box\\outputbox}{\.{\\box\\outputbox is not void}@>
-  help2("You shouldn't use \box\outputbox except in \output routines.")@/
-    ("Proceed, and I'll discard its present contents.");
+  help2('You shouldn''t use \box\outputbox except in \output routines.',
+    'Proceed, and I''ll discard its present contents.');
   box_error(output_box);
   end
 
@@ -13269,12 +12781,12 @@ ship_out(box(output_box)); box(output_box):=null;
 end
 
 @ @<Explain that too many dead cycles have occurred in a row@>=
-begin print_err("Output loop---"); print_int(dead_cycles);
+begin print_err('Output loop---'); print_int(dead_cycles);
 @.Output loop...@>
 print(" consecutive dead cycles");
-help3("I've concluded that your \output is awry; it never does a")@/
-("\shipout, so I'm shipping \box\outputbox out myself. Next time")@/
-("increase \maxdeadcycles if you want me to be more patient!"); error;
+help3('I''ve concluded that your \output is awry; it never does a',
+'\shipout, so I''m shipping \box\outputbox out myself. Next time',
+'increase \maxdeadcycles if you want me to be more patient!'); error;
 end
 
 @ @<Fire up the user's output routine and |return|@>=
@@ -13312,22 +12824,22 @@ pop_nest; check_filter('after_output'); build_page;
 end
 
 @ @<Recover from an unbalanced output routine@>=
-begin print_err("Unbalanced output routine");
+begin print_err('Unbalanced output routine');
 @.Unbalanced output routine@>
-help2("Your sneaky output routine has problematic {'s and/or }'s.")@/
-("I can't handle that very well; good luck."); error;
+help2('Your sneaky output routine has problematic {''s and/or }''s.',
+'I can''t handle that very well; good luck.'); error;
 repeat get_token;
 until iloc=null;
 end {loops forever if reading from a file, since |null=min_halfword<=0|}
 
 @ @<Ensure that box |output_box| is empty after output@>=
 if box(output_box)<>null then
-  begin print_err("Output routine didn't use all of ");
+  begin print_err('Output routine didn''t use all of ');
   print_esc("box"); print_int(output_box);
 @.Output routine didn't use...@>
-  help3("Your \output commands should empty \box\outputbox,")@/
-    ("e.g., by saying `\shipout\box\outputbox'.")@/
-    ("Proceed; I'll discard its present contents.");
+  help3('Your \output commands should empty \box\outputbox,',
+    'e.g., by saying `\shipout\box\outputbox''.',
+    'Proceed; I''ll discard its present contents.');
   box_error(output_box);
   end
 
@@ -13647,10 +13159,10 @@ hmode+xmath_given: begin
 @ @<Declare action...@>=
 procedure insert_dollar_sign;
 begin back_input; cur_tok:=math_shift_token+"$";
-print_err("Missing $ inserted");
+print_err('Missing $ inserted');
 @.Missing \$ inserted@>
-help2("I've inserted a begin-math/end-math symbol since I think")@/
-("you left one out. Proceed, with fingers crossed."); ins_error;
+help2('I''ve inserted a begin-math/end-math symbol since I think',
+'you left one out. Proceed, with fingers crossed.'); ins_error;
 end;
 
 @ When erroneous situations arise, \TeX\ usually issues an error message
@@ -13671,7 +13183,7 @@ is illegal in the current mode; it identifies these things symbolically.
 
 @<Declare action...@>=
 procedure you_cant;
-begin print_err("You can't use `");
+begin print_err('You can''t use `');
 @.You can't use x in y mode@>
 print_cmd_chr(cur_cmd,cur_chr);
 print("' in "); print_mode(mode);
@@ -13680,10 +13192,10 @@ end;
 @ @<Declare act...@>=
 procedure report_illegal_case;
 begin you_cant;
-help4("Sorry, but I'm not programmed to handle this case;")@/
-("I'll just pretend that you didn't ask for it.")@/
-("If you're in the wrong mode, you might be able to")@/
-("return to the right one by typing `I}' or `I$' or `I\par'.");@/
+help4('Sorry, but I''m not programmed to handle this case;',
+'I''ll just pretend that you didn''t ask for it.',
+'If you''re in the wrong mode, you might be able to',
+'return to the right one by typing `I}'' or `I$'' or `I\par''.');@/
 error;
 end;
 
@@ -13900,15 +13412,15 @@ var p,q:pointer; {inserted token}
 begin if cur_group=bottom_level then
   @<Drop current token and complain that it was unmatched@>
 else  begin back_input; p:=get_avail; link(temp_token_head):=p;
-  print_err("Missing ");
+  print_err('Missing ');
   @<Prepare to insert a token that matches |cur_group|,
     and print what it is@>;
   print(" inserted"); ins_list(link(temp_token_head));
-  help5("I've inserted something that you may have forgotten.")@/
-  ("(See the <inserted text> above.)")@/
-  ("With luck, this will get me unwedged. But if you")@/
-  ("really didn't forget anything, try typing `2' now; then")@/
-  ("my insertion and my current dilemma will both disappear.");
+  help5('I''ve inserted something that you may have forgotten.',
+  '(See the <inserted text> above.)',
+  'With luck, this will get me unwedged. But if you',
+  'really didn''t forget anything, try typing `2'' now; then',
+  'my insertion and my current dilemma will both disappear.');
   error;
   end;
 end;
@@ -13935,9 +13447,9 @@ othercases begin info(p):=right_brace_token+"}"; print_char("}");
 endcases
 
 @ @<Drop current token and complain that it was unmatched@>=
-begin print_err("Extra "); print_cmd_chr(cur_cmd,cur_chr);
+begin print_err('Extra '); print_cmd_chr(cur_cmd,cur_chr);
 @.Extra x@>
-help1("Things are pretty mixed up, but I think the worst is over.");@/
+help1('Things are pretty mixed up, but I think the worst is over.');@/
 error;
 end
 
@@ -13974,33 +13486,33 @@ simple_group: begin
       @<LOCAL: Add local paragraph node@>;
     end
   end;
-bottom_level: begin print_err("Too many }'s");
+bottom_level: begin print_err('Too many }''s');
 @.Too many \}'s@>
-  help2("You've closed more groups than you opened.")@/
-  ("Such booboos are generally harmless, so keep going."); error;
+  help2('You''ve closed more groups than you opened.',
+  'Such booboos are generally harmless, so keep going.'); error;
   end;
 semi_simple_group,math_shift_group,math_left_group: extra_right_brace;
 @t\4@>@<Cases of |handle_right_brace| where a |right_brace| triggers
   a delayed action@>@;
-othercases confusion("rightbrace")
+othercases confusion('rightbrace')
 @:this can't happen rightbrace}{\quad rightbrace@>
 endcases;
 end;
 
 @ @<Declare act...@>=
 procedure extra_right_brace;
-begin print_err("Extra }, or forgotten ");
+begin print_err('Extra }, or forgotten ');
 @.Extra \}, or forgotten x@>
 case cur_group of
 semi_simple_group: print_esc("endgroup");
 math_shift_group: print_char("$");
 math_left_group: print_esc("right");
 end;@/
-help5("I've deleted a group-closing symbol because it seems to be")@/
-("spurious, as in `$x}$'. But perhaps the } is legitimate and")@/
-("you forgot something else, as in `\hbox{$x}'. In such cases")@/
-("the way to recover is to insert both the forgotten and the")@/
-("deleted material, e.g., by typing `I$}'."); error;
+help5('I''ve deleted a group-closing symbol because it seems to be',
+'spurious, as in `$x}$''. But perhaps the } is legitimate and',
+'you forgot something else, as in `\hbox{$x}''. In such cases',
+'the way to recover is to insert both the forgotten and the',
+'deleted material, e.g., by typing `I$}''.'); error;
 incr(align_state);
 end;
 
@@ -14176,11 +13688,11 @@ if ((cur_cmd=hskip)and(abs(mode)<>vmode))or@|
   begin append_glue; subtype(tail):=box_context-(leader_flag-a_leaders);
   leader_ptr(tail):=cur_box;
   end
-else  begin print_err("Leaders not followed by proper glue");
+else  begin print_err('Leaders not followed by proper glue');
 @.Leaders not followed by...@>
-  help3("You should say `\leaders <box or rule><hskip or vskip>'.")@/
-  ("I found the <box or rule>, but there's no suitable")@/
-  ("<hskip or vskip>, so I'm ignoring these leaders."); back_error;
+  help3('You should say `\leaders <box or rule><hskip or vskip>''.',
+  'I found the <box or rule>, but there''s no suitable',
+  '<hskip or vskip>, so I''m ignoring these leaders.'); back_error;
   flush_node_list(cur_box);
   end;
 end
@@ -14216,12 +13728,12 @@ since |head| is a one-word node.
 @<If the current list ends with a box node, delete it...@>=
 begin cur_box:=null;
 if abs(mode)=mmode then
-  begin you_cant; help1("Sorry; this \lastbox will be void."); error;
+  begin you_cant; help1('Sorry; this \lastbox will be void.'); error;
   end
 else if (mode=vmode)and(head=tail) then
   begin you_cant;
-  help2("Sorry...I usually can't take things from the current page.")@/
-    ("This \lastbox will therefore be void."); error;
+  help2('Sorry...I usually can''t take things from the current page.',
+    'This \lastbox will therefore be void.'); error;
   end
 else  begin if not is_char_node(tail) then
     if (type(tail)=hlist_node)or(type(tail)=vlist_node) then
@@ -14248,10 +13760,10 @@ done:end
 begin scan_register_num; n:=cur_val;
 if not scan_keyword('to') then
 @.to@>
-  begin print_err("Missing `to' inserted");
+  begin print_err('Missing `to'' inserted');
 @.Missing `to' inserted@>
-  help2("I'm working on `\vsplit<box number> to <dimen>';")@/
-  ("will look for the <dimen> next."); error;
+  help2('I''m working on `\vsplit<box number> to <dimen>'';',
+ 'will look for the <dimen> next.'); error;
   end;
 scan_normal_dimen;
 cur_box:=vsplit(n,cur_val);
@@ -14296,11 +13808,11 @@ else if (box_context>=leader_flag)and((cur_cmd=hrule)or(cur_cmd=vrule)) then
   begin cur_box:=scan_rule_spec; box_end(box_context);
   end
 else  begin@t@>@;@/
-  print_err("A <box> was supposed to be here");@/
+  print_err('A <box> was supposed to be here');@/
 @.A <box> was supposed to...@>
-  help3("I was expecting to see \hbox or \vbox or \copy or \box or")@/
-  ("something like that. So you might find something missing in")@/
-  ("your output. But keep trying; you can fix this later."); back_error;
+  help3('I was expecting to see \hbox or \vbox or \copy or \box or',
+  'something like that. So you might find something missing in',
+  'your output. But keep trying; you can fix this later.'); back_error;
   end;
 end;
 
@@ -14445,11 +13957,11 @@ hmode+stop,hmode+vskip,hmode+hrule,hmode+un_vbox,hmode+halign: head_for_vmode;
 procedure head_for_vmode;
 begin if mode<0 then
   if cur_cmd<>hrule then off_save
-  else  begin print_err("You can't use `");
+  else  begin print_err('You can''t use `');
     print_esc("hrule"); print("' here except with leaders");
 @.You can't use \\hrule...@>
-    help2("To put a horizontal rule in an hbox or an alignment,")@/
-      ("you should use \leaders or \hrulefill (see The TeXbook).");
+    help2('To put a horizontal rule in an hbox or an alignment,',
+      'you should use \leaders or \hrulefill (see The TeXbook).');
     error;
     end
 else  begin back_input; cur_tok:=par_token; back_input; token_type:=inserted;
@@ -14490,9 +14002,9 @@ procedure begin_insert_or_adjust;
 begin if cur_cmd=vadjust then cur_val:=output_box
 else  begin scan_register_num;
   if cur_val=output_box then
-    begin print_err("You can't "); print_esc("insert"); print_int(output_box);
+    begin print_err('You can''t '); print_esc("insert"); print_int(output_box);
 @.You can't \\insert\\outputbox@>
-    help1("I'm changing to \insert0; box \outputbox is special.");
+    help1('I''m changing to \insert0; box \outputbox is special.');
     error; cur_val:=0;
     end;
   end;
@@ -14601,12 +14113,15 @@ exit:end;
 @ @<Apologize for inability to do the operation...@>=
 begin if (cur_chr<>glue_node)or(last_glue<>max_halfword) then
   begin you_cant;
-  help2("Sorry...I usually can't take things from the current page.")@/
-    ("Try `I\vskip-\lastskip' instead.");
-  if cur_chr=kern_node then help_line[0]:=
-    ("Try `I\kern-\lastkern' instead.")
-  else if cur_chr<>glue_node then help_line[0]:=@|
-    ("Perhaps you can make the output routine do it.");
+  if cur_chr=kern_node then
+    help2('Sorry...I usually can''t take things from the current page.',
+     'Try `I\kern-\lastkern'' instead.')
+  else if cur_chr<>glue_node then
+    help2('Sorry...I usually can''t take things from the current page.',
+     'Perhaps you can make the output routine do it.')
+  else
+    help2('Sorry...I usually can''t take things from the current page.',
+      'Try `I\vskip-\lastskip'' instead.');
   error;
   end;
 end
@@ -14644,11 +14159,11 @@ c:=cur_chr; scan_register_num; p:=box(cur_val);
 if p=null then return;
 if (abs(mode)=mmode)or((abs(mode)=vmode)and(type(p)<>vlist_node))or@|
    ((abs(mode)=hmode)and(type(p)<>hlist_node)) then
-  begin print_err("Incompatible list can't be unboxed");
+  begin print_err('Incompatible list can''t be unboxed');
 @.Incompatible list...@>
-  help3("Sorry, Pandora. (You sneaky devil.)")@/
-  ("I refuse to unbox an \hbox in vertical mode or vice versa.")@/
-  ("And I can't open any boxes in math mode.");@/
+  help3('Sorry, Pandora. (You sneaky devil.)',
+  'I refuse to unbox an \hbox in vertical mode or vice versa.',
+  'And I can''t open any boxes in math mode.');@/
   error; return;
   end;
 if c=copy_code then begin s:=copy_node_list(list_ptr(p)); vlink(tail):=s; end
@@ -14804,10 +14319,10 @@ exit:end;
 
 @ @<Attach list |p| to the current...@>=
 begin if (n>0)and(abs(mode)=mmode) then
-  begin print_err("Illegal math "); print_esc("discretionary");
+  begin print_err('Illegal math '); print_esc("discretionary");
 @.Illegal math \\disc...@>
-  help2("Sorry: The third part of a discretionary break must be")@/
-  ("empty, in math formulas. I had to delete your third part.");
+  help2('Sorry: The third part of a discretionary break must be',
+  'empty, in math formulas. I had to delete your third part.');
   flush_node_list(p); error;
   end
 else begin
@@ -14827,9 +14342,9 @@ q:=head; p:=vlink(q); n:=0;
 while p<>null do
   begin if not is_char_node(p) then
     if type(p)>rule_node then if type(p)<>kern_node then
-      begin print_err("Improper discretionary list");
+      begin print_err('Improper discretionary list');
 @.Improper discretionary list@>
-      help1("Discretionary lists must contain only boxes and kerns.");@/
+      help1('Discretionary lists must contain only boxes and kerns.');@/
       error;
       begin_diagnostic;
       print_nl("The following discretionary sublist has been deleted:");
@@ -14926,38 +14441,38 @@ begin if abs(align_state)>2 then
   @<Express consternation over the fact that no alignment is in progress@>
 else  begin back_input;
   if align_state<0 then
-    begin print_err("Missing { inserted");
+    begin print_err('Missing { inserted');
 @.Missing \{ inserted@>
     incr(align_state); cur_tok:=left_brace_token+"{";
     end
-  else  begin print_err("Missing } inserted");
+  else  begin print_err('Missing } inserted');
 @.Missing \} inserted@>
     decr(align_state); cur_tok:=right_brace_token+"}";
     end;
-  help3("I've put in what seems to be necessary to fix")@/
-    ("the current column of the current alignment.")@/
-    ("Try to go on, since this might almost work."); ins_error;
+  help3('I''ve put in what seems to be necessary to fix',
+    'the current column of the current alignment.',
+    'Try to go on, since this might almost work.'); ins_error;
   end;
 end;
 
 @ @<Express consternation...@>=
-begin print_err("Misplaced "); print_cmd_chr(cur_cmd,cur_chr);
+begin print_err('Misplaced '); print_cmd_chr(cur_cmd,cur_chr);
 @.Misplaced \&@>
 @.Misplaced \\span@>
 @.Misplaced \\cr@>
 if cur_tok=tab_token+"&" then
-  begin help6("I can't figure out why you would want to use a tab mark")@/
-  ("here. If you just want an ampersand, the remedy is")@/
-  ("simple: Just type `I\&' now. But if some right brace")@/
-  ("up above has ended a previous alignment prematurely,")@/
-  ("you're probably due for more error messages, and you")@/
-  ("might try typing `S' now just to see what is salvageable.");
+  begin help6('I can''t figure out why you would want to use a tab mark',
+  'here. If you just want an ampersand, the remedy is',
+  'simple: Just type `I\&'' now. But if some right brace',
+  'up above has ended a previous alignment prematurely,',
+  'you''re probably due for more error messages, and you',
+  'might try typing `S'' now just to see what is salvageable.');
   end
-else  begin help5("I can't figure out why you would want to use a tab mark")@/
-  ("or \cr or \span just now. If something like a right brace")@/
-  ("up above has ended a previous alignment prematurely,")@/
-  ("you're probably due for more error messages, and you")@/
-  ("might try typing `S' now just to see what is salvageable.");
+else  begin help5('I can''t figure out why you would want to use a tab mark',
+  'or \cr or \span just now. If something like a right brace',
+  'up above has ended a previous alignment prematurely,',
+  'you''re probably due for more error messages, and you',
+  'might try typing `S'' now just to see what is salvageable.');
   end;
 error;
 end
@@ -14967,16 +14482,16 @@ and \.{\\omit} are allowed also after `\.{\\noalign\{...\}}'.
 
 @<Declare act...@>=
 procedure no_align_error;
-begin print_err("Misplaced "); print_esc("noalign");
+begin print_err('Misplaced '); print_esc("noalign");
 @.Misplaced \\noalign@>
-help2("I expect to see \noalign only after the \cr of")@/
-  ("an alignment. Proceed, and I'll ignore this case."); error;
+help2('I expect to see \noalign only after the \cr of',
+  'an alignment. Proceed, and I''ll ignore this case.'); error;
 end;
 procedure omit_error;
-begin print_err("Misplaced "); print_esc("omit");
+begin print_err('Misplaced '); print_esc("omit");
 @.Misplaced \\omit@>
-help2("I expect to see \omit only after tab marks or the \cr of")@/
-  ("an alignment. Proceed, and I'll ignore this case."); error;
+help2('I expect to see \omit only after tab marks or the \cr of',
+  'an alignment. Proceed, and I''ll ignore this case.'); error;
 end;
 
 @ We've now covered most of the abuses of \.{\\halign} and \.{\\valign}.
@@ -15005,7 +14520,7 @@ while (input_stack[base_ptr].index_field<>v_template) and
 if (input_stack[base_ptr].index_field<>v_template) or
       (input_stack[base_ptr].loc_field<>null) or
       (input_stack[base_ptr].state_field<>token_list) then
-  fatal_error("(interwoven alignment preambles are not allowed)");
+  fatal_error('(interwoven alignment preambles are not allowed)');
 @.interwoven alignment preambles...@>
  if cur_group=align_group then
   begin line_break_context:=align_group; end_graf;
@@ -15016,9 +14531,9 @@ end;
 
 @ @<Cases of |handle_right_brace|...@>=
 align_group: begin back_input; cur_tok:=cs_token_flag+frozen_cr;
-  print_err("Missing "); print_esc("cr"); print(" inserted");
+  print_err('Missing '); print_esc("cr"); print(" inserted");
 @.Missing \\cr inserted@>
-  help1("I'm guessing that you meant to end an alignment here.");
+  help1('I''m guessing that you meant to end an alignment here.');
   ins_error;
   end;
 
@@ -15033,9 +14548,9 @@ any_mode(end_cs_name): cs_error;
 
 @ @<Declare act...@>=
 procedure cs_error;
-begin print_err("Extra "); print_esc("endcsname");
+begin print_err('Extra '); print_esc("endcsname");
 @.Extra \\endcsname@>
-help1("I'm ignoring this, since I wasn't doing a \csname.");
+help1('I''m ignoring this, since I wasn''t doing a \csname.');
 error;
 end;
 
@@ -15361,17 +14876,18 @@ while cur_cmd=prefix do
 @<Adjust \(f)for the setting of \.{\\globaldefs}@>;
 case cur_cmd of
 @t\4@>@<Assignments@>@;
-othercases confusion("prefix")
+othercases confusion('prefix')
 @:this can't happen prefix}{\quad prefix@>
 endcases;
 done: @<Insert a token saved by \.{\\afterassignment}, if any@>;
 exit:end;
 
 @ @<Discard erroneous...@>=
-begin print_err("You can't use a prefix with `");
+begin print_err('You can''t use a prefix with `');
 @.You can't use a prefix with x@>
 print_cmd_chr(cur_cmd,cur_chr); print_char("'");
-help1("I'll pretend you didn't say \long or \outer or \global or \protected.");
+help2('I''ll pretend you didn''t say \long or \outer or \global or',
+'\protected.');
 back_error; return;
 end
 
@@ -15381,11 +14897,11 @@ if a>=8 then
   end
 else j:=0;
 if (cur_cmd<>def)and((a mod 4<>0)or(j<>0)) then
-  begin print_err("You can't use `"); print_esc("long"); print("' or `");
+  begin print_err('You can''t use `'); print_esc("long"); print("' or `");
   print_esc("outer"); print("' with `");
 @.You can't use \\long...@>
   print_cmd_chr(cur_cmd,cur_chr); print_char("'");
-  help1("I'll pretend you didn't say \long or \outer here.");
+  help1('I''ll pretend you didn''t say \long or \outer here.');
   error;
   end
 
@@ -15428,13 +14944,13 @@ label restart;
 begin restart: repeat get_token;
 until cur_tok<>space_token;
 if (cur_cs=0)or(cur_cs>frozen_control_sequence) then
-  begin print_err("Missing control sequence inserted");
+  begin print_err('Missing control sequence inserted');
 @.Missing control...@>
-  help5("Please don't say `\def cs{...}', say `\def\cs{...}'.")@/
-  ("I've inserted an inaccessible control sequence so that your")@/
-  ("definition will be completed without mixing me up too badly.")@/
-  ("You can recover graciously from this error, if you're")@/
-  ("careful; see exercise 27.2 in The TeXbook.");
+  help5('Please don''t say `\def cs{...}'', say `\def\cs{...}''.',
+  'I''ve inserted an inaccessible control sequence so that your',
+  'definition will be completed without mixing me up too badly.',
+  'You can recover graciously from this error, if you''re',
+  'careful; see exercise 27.2 in The TeXbook.');
 @:TeXbook}{\sl The \TeX book@>
   if cur_cs=0 then back_input;
   cur_tok:=cs_token_flag+frozen_protection; ins_error; goto restart;
@@ -15470,20 +14986,20 @@ if (p>=int_base)and(p<attribute_base) then begin
         word_define(p,cur_val);
       end
     else begin
-      print_err("Invalid \catcode table");
-      help2("You can only switch to a \catcode table that is initialized")
-           ("using \savecatcodetable or \initcatcodetable, or to table 0");
+      print_err('Invalid \catcode table');
+      help2('You can only switch to a \catcode table that is initialized',
+           'using \savecatcodetable or \initcatcodetable, or to table 0');
       error;
       end;
     end
   else if (p=(int_base+output_box_code)and((cur_val>65535)or(cur_val<0))) then begin
-    print_err("Invalid \outputbox");
-    help1("The value for \outputbox has to be between 0 and 65535.");
+    print_err('Invalid \outputbox');
+    help1('The value for \outputbox has to be between 0 and 65535.');
     error;
     end
   else if ((p=new_line_char)and((cur_val>127)or(cur_val<0))) then begin
-    print_err("Invalid \newlinechar");
-    help1("The value for \newlinechar has to be between 0 and 127.");
+    print_err('Invalid \newlinechar');
+    help1('The value for \newlinechar has to be between 0 and 127.');
     error;
     end
   else if p=end_line_char then begin
@@ -15529,7 +15045,7 @@ else if (p>=dimen_base)and(p<eqtb_size) then begin
 else if (p>=local_base)and(p<toks_base) then {internal locals }
   define(p,call,cur_val)
 else
-  confusion("assign internal value");
+  confusion('assign internal value');
 end;
 
 
@@ -15663,10 +15179,10 @@ shorthand_def: begin n:=cur_chr; get_r_token; p:=cur_cs;
 read_to_cs: begin j:=cur_chr; scan_int; n:=cur_val;
   if not scan_keyword('to') then
 @.to@>
-    begin print_err("Missing `to' inserted");
+    begin print_err('Missing `to'' inserted');
 @.Missing `to'...@>
-    help2("You should have said `\read<number> to \cs'.")@/
-    ("I'm going to look for the \cs now."); error;
+    help2('You should have said `\read<number> to \cs''.',
+    'I''m going to look for the \cs now.'); error;
     end;
   get_r_token;
   p:=cur_cs; read_toks(n,p,j); define(p,call,cur_val);
@@ -15897,11 +15413,11 @@ primitive_luatex("Udelcodenum",extdef_del_code,del_code_base+2,del_code_base);
 following program is careful to check each case properly.
 
 @d check_def_code(#)== if ((cur_val<0)and(p<#))or(cur_val>n) then
-      begin print_err("Invalid code ("); print_int(cur_val);
+      begin print_err('Invalid code ('); print_int(cur_val);
       if p<# then print("), should be in the range 0..")
       else print("), should be at most ");
       print_int(n);
-      help1("I'm going to use 0 instead of that illegal code value.");@/
+      help1('I''m going to use 0 instead of that illegal code value.');@/
       error; cur_val:=0;
      end
 @.Invalid code@>
@@ -15979,9 +15495,9 @@ def_family: begin p:=cur_chr; scan_math_family_int; cur_val1:=cur_val;
   end;
 set_math_param: begin p:=cur_chr; get_token;
    if cur_cmd<>math_style then begin
-   print_err("Missing math style, treated as \displaystyle");
+   print_err('Missing math style, treated as \displaystyle');
 @.Missing number...@>
-    help1("A style should have been here; I inserted `\displaystyle'.");
+    help1('A style should have been here; I inserted `\displaystyle''.');
     cur_val1:=display_style;
     back_error;
     end
@@ -16025,10 +15541,10 @@ if q<multiply then @<Compute result of |register| or
     |advance|, put it in |cur_val|@>
 else @<Compute result of |multiply| or |divide|, put it in |cur_val|@>;
 if arith_error then
-  begin print_err("Arithmetic overflow");
+  begin print_err('Arithmetic overflow');
 @.Arithmetic overflow@>
-  help2("I can't carry out that multiplication or division,")@/
-    ("since the result is out of range.");
+  help2('I can''t carry out that multiplication or division,',
+    'since the result is out of range.');
   if p>=glue_val then delete_glue_ref(cur_val);
   error; return;
   end;
@@ -16057,10 +15573,10 @@ if q<>register then
     begin l:=cur_chr; p:=cur_cmd-assign_int; goto found;
     end;
   if cur_cmd<>register then
-    begin print_err("You can't use `"); print_cmd_chr(cur_cmd,cur_chr);
+    begin print_err('You can''t use `'); print_cmd_chr(cur_cmd,cur_chr);
 @.You can't use x after ...@>
     print("' after "); print_cmd_chr(q,0);
-    help1("I'm forgetting what you said and not changing anything.");
+    help1('I''m forgetting what you said and not changing anything.');
     error; return;
     end;
   end;
@@ -16131,10 +15647,10 @@ set_box: begin scan_register_num;
   if global then n:=global_box_flag+cur_val@+else n:=box_flag+cur_val;
   scan_optional_equals;
   if set_box_allowed then scan_box(n)
-  else begin print_err("Improper "); print_esc("setbox");
+  else begin print_err('Improper '); print_esc("setbox");
 @.Improper \\setbox@>
-    help2("Sorry, \setbox is not allowed after \halign in a display,")@/
-    ("or between \accent and an accented character."); error;
+    help2('Sorry, \setbox is not allowed after \halign in a display,',
+    'or between \accent and an accented character.'); error;
     end;
   end;
 
@@ -16163,9 +15679,9 @@ else  begin c:=cur_chr; scan_optional_equals;
     end
   else  begin scan_int;
     if (cur_val<=0)or(cur_val>32767) then
-      begin print_err("Bad space factor");
+      begin print_err('Bad space factor');
 @.Bad space factor@>
-      help1("I allow only values in the range 1..32767 here.");
+      help1('I allow only values in the range 1..32767 here.');
       int_error(cur_val);
       end
     else space_factor:=cur_val;
@@ -16180,9 +15696,9 @@ begin nest[nest_ptr]:=cur_list; p:=nest_ptr;
 while abs(nest[p].mode_field)<>vmode do decr(p);
 scan_optional_equals; scan_int;
 if cur_val<0 then
-  begin print_err("Bad "); print_esc("prevgraf");
+  begin print_err('Bad '); print_esc("prevgraf");
 @.Bad \\prevgraf@>
-  help1("I allow only nonnegative values here.");
+  help1('I allow only nonnegative values here.');
   int_error(cur_val);
   end
 else  begin nest[p].pg_field:=cur_val; cur_list:=nest[nest_ptr];
@@ -16336,8 +15852,7 @@ set_interaction: new_interaction;
 procedure new_interaction;
 begin print_ln;
 interaction:=cur_chr;
-@<Initialize the print |selector| based on |interaction|@>;
-if log_opened then selector:=selector+2;
+fixup_selector(log_opened);
 end;
 
 @ The \.{\\afterassignment} command puts a token into the global
@@ -16449,15 +15964,15 @@ give a verbose explanation only once.
 @ @<Set init...@>=long_help_seen:=false;
 
 @ @<Print string |s| as an error message@>=
-begin print_err(""); slow_print(s);
+begin print_err(''); slow_print(s);
 if err_help<>null then use_err_help:=true
-else if long_help_seen then help1("(That was another \errmessage.)")
+else if long_help_seen then help1('(That was another \errmessage.)')
 else  begin if interaction<error_stop_mode then long_help_seen:=true;
-  help4("This error message was generated by an \errmessage")@/
-  ("command, so I can't give any explicit help.")@/
-  ("Pretend that you're Hercule Poirot: Examine all clues,")@/
+  help4('This error message was generated by an \errmessage',
+  'command, so I can''t give any explicit help.',
+  'Pretend that you''re Hercule Poirot: Examine all clues,',
+  'and deduce the truth by order and method.');
 @^Poirot, Hercule@>
-  ("and deduce the truth by order and method.");
   end;
 error; use_err_help:=false;
 end
@@ -16562,16 +16077,16 @@ common_ending: if interaction<error_stop_mode then
   end
 else if tracing_online>0 then
   begin@t@>@;@/
-  help3("This isn't an error message; I'm just \showing something.")@/
-  ("Type `I\show...' to show more (e.g., \show\cs,")@/
-  ("\showthe\count10, \showbox255, \showlists).");
+  help3('This isn''t an error message; I''m just \showing something.',
+  'Type `I\show...'' to show more (e.g., \show\cs,',
+  '\showthe\count10, \showbox255, \showlists).');
   end
 else  begin@t@>@;@/
-  help5("This isn't an error message; I'm just \showing something.")@/
-  ("Type `I\show...' to show more (e.g., \show\cs,")@/
-  ("\showthe\count10, \showbox255, \showlists).")@/
-  ("And type `I\tracingonline=1\show...' to show boxes and")@/
-  ("lists on your terminal as well as in the transcript file.");
+  help5('This isn''t an error message; I''m just \showing something.',
+  'Type `I\show...'' to show more (e.g., \show\cs,',
+  '\showthe\count10, \showbox255, \showlists).',
+  'And type `I\tracingonline=1\show...'' to show boxes and',
+  'lists on your terminal as well as in the transcript file.');
   end;
 error;
 end;
@@ -16601,7 +16116,7 @@ flush_list(link(temp_token_head)); goto common_ending;
 end
 
 @ @<Complete a potentially long \.{\\show} command@>=
-end_diagnostic(true); print_err("OK");
+end_diagnostic(true); print_err('OK');
 @.OK@>
 if selector=term_and_log then if tracing_online<=0 then
   begin selector:=term_only; print(" (see the transcript file)");
@@ -16704,9 +16219,9 @@ the |xeq_level| array is constant and it need not be dumped.
 
 @<If dumping is not allowed, abort@>=
 if save_ptr<>0 then
-  begin print_err("You can't dump inside a group");
+  begin print_err('You can''t dump inside a group');
 @.You can't dump...@>
-  help1("`{...\dump}' is a no-no."); succumb;
+  help1('`{...\dump}'' is a no-no.'); succumb;
   end
 
 @ Format files consist of |memory_word| items, and we use the following
@@ -17144,7 +16659,7 @@ if not fixed_pdfoutput_set then {else there will be an infinite loop in error ca
 if fixed_pdfoutput > 0 then begin
     if history = fatal_error_stop then begin
         remove_pdffile(static_pdf);
-        print_err(" ==> Fatal error occurred, no output PDF file produced!")
+        print_err(' ==> Fatal error occurred, no output PDF file produced!')
     end
     else begin
 	finish_pdf_file(static_pdf, luatex_version, luatex_revision);
@@ -17162,6 +16677,7 @@ if log_opened then
      print_nl("Transcript written on ");
 @.Transcript written...@>
      slow_print(texmf_log_name); print_char(".");
+     print_ln;
     end;
   lua_a_close_out(log_file);
   end;
@@ -17302,7 +16818,7 @@ fix_date_and_time;@/
 random_seed :=(microseconds*1000)+(epochseconds mod 1000000);@/
 init_randoms(random_seed);@/
 initialize_math;
-@<Initialize the print |selector|...@>;
+fixup_selector(log_opened);
 check_texconfig_init;
 if (iloc<ilimit)and(get_cat_code(cat_code_table,buffer[iloc])<>escape) then start_input;
   {\.{\\input} assumed}
@@ -17704,7 +17220,7 @@ begin case cur_chr of
   set_random_seed_code: @<Implement \.{\\pdfsetrandomseed}@>;
   pdf_glyph_to_unicode_code: @<Implement \.{\\pdfglyphtounicode}@>;
   late_lua_node: @<Implement \.{\\latelua}@>;
-othercases confusion("ext1")
+othercases confusion('ext1')
 @:this can't happen ext1}{\quad ext1@>
 endcases;
 end;
@@ -17830,20 +17346,20 @@ begin
     {Scan and check the stack number and store in |cur_val|}
     scan_int;
     if cur_val >= colorstackused then begin
-        print_err("Unknown color stack number ");
+        print_err('Unknown color stack number ');
         print_int(cur_val);
 @.Unknown color stack@>
-        help3("Allocate and initialize a color stack with \\pdfcolorstackinit.")@/
-        ("I'll use default color stack 0 here.")@/
-        ("Proceed, with fingers crossed.");
+        help3('Allocate and initialize a color stack with \pdfcolorstackinit.',
+        'I''ll use default color stack 0 here.',
+        'Proceed, with fingers crossed.');
         error;
         cur_val := 0;
     end;
     if cur_val < 0 then begin
-        print_err("Invalid negative color stack number");
+        print_err('Invalid negative color stack number');
 @.Invalid negative color stack number@>
-        help2("I'll use default color stack 0 here.")@/
-        ("Proceed, with fingers crossed.");
+        help2('I''ll use default color stack 0 here.',
+        'Proceed, with fingers crossed.');
         error;
         cur_val := 0;
     end;
@@ -17873,11 +17389,11 @@ begin
         end;
     end
     else begin
-        print_err("Color stack action is missing");
+        print_err('Color stack action is missing');
 @.Color stack action is missing@>
-        help3("The expected actions for \pdfcolorstack:")@/
-        ("    set, push, pop, current")@/
-        ("I'll ignore the color stack command.");
+        help3('The expected actions for \pdfcolorstack:',
+        '    set, push, pop, current',
+        'I''ll ignore the color stack command.');
         error;
     end
 end
@@ -18237,13 +17753,13 @@ end
 begin
   scan_int;
   if (cur_val<0)or(cur_val>@"FFFF) then begin
-        print_err("Invalid \catcode table");
-        help1("All \catcode table ids must be between 0 and 0xFFFF");
+        print_err('Invalid \catcode table');
+        help1('All \catcode table ids must be between 0 and 0xFFFF');
         error;
     end
   else begin if cur_val=cat_code_table then begin
-      print_err("Invalid \catcode table");
-          help1("You cannot overwrite the current \catcode table");
+      print_err('Invalid \catcode table');
+          help1('You cannot overwrite the current \catcode table');
       error;
       end
     else
@@ -18255,13 +17771,13 @@ end
 begin
   scan_int;
   if (cur_val<0)or(cur_val>@"FFFF) then begin
-        print_err("Invalid \catcode table");
-        help1("All \catcode table ids must be between 0 and 0xFFFF");
+        print_err('Invalid \catcode table');
+        help1('All \catcode table ids must be between 0 and 0xFFFF');
         error;
     end
   else begin if cur_val=cat_code_table then begin
-    print_err("Invalid \catcode table");
-        help1("You cannot overwrite the current \catcode table");
+    print_err('Invalid \catcode table');
+        help1('You cannot overwrite the current \catcode table');
         error;
     end
   else
@@ -19149,10 +18665,10 @@ procedure@?new_interaction; forward;@t\2@>
 @ @<Cases for |alter_integer|@>=
 else if c=2 then
   begin if (cur_val<batch_mode)or(cur_val>error_stop_mode) then
-    begin print_err("Bad interaction mode");
+    begin print_err('Bad interaction mode');
 @.Bad interaction mode@>
-    help2("Modes are 0=batch, 1=nonstop, 2=scroll, and")@/
-    ("3=errorstop. Proceed, and I'll ignore this case.");
+    help2('Modes are 0=batch, 1=nonstop, 2=scroll, and',
+    '3=errorstop. Proceed, and I''ll ignore this case.');
     int_error(cur_val);
     end
   else  begin cur_chr:=cur_val; new_interaction;
@@ -19335,10 +18851,10 @@ begin get_token;
 if (cur_cmd=if_test)and(cur_chr<>if_case_code) then
   begin cur_chr:=cur_chr+unless_code; goto reswitch;
   end;
-print_err("You can't use `"); print_esc("unless"); print("' before `");
+print_err('You can''t use `'); print_esc("unless"); print("' before `");
 @.You can't use \\unless...@>
 print_cmd_chr(cur_cmd,cur_chr); print_char("'");
-help1("Continue, and I'll forget that it ever happened.");
+help1('Continue, and I''ll forget that it ever happened.');
 back_error;
 end
 
@@ -19430,10 +18946,10 @@ if_abs_dim_code, if_abs_num_code: begin
   @<Get the next non-blank non-call...@>;
   if (cur_tok>=other_token+"<")and(cur_tok<=other_token+">") then
     r:=cur_tok-other_token
-  else  begin print_err("Missing = inserted for ");
+  else  begin print_err('Missing = inserted for ');
   @.Missing = inserted@>
     print_cmd_chr(if_test,this_if);
-    help1("I was expecting to see `<', `=', or `>'. Didn't.");
+    help1('I was expecting to see `<'', `='', or `>''. Didn''t.');
     back_error; r:="=";
     end;
   if this_if=if_abs_num_code then scan_int@+else scan_normal_dimen;
@@ -19656,10 +19172,10 @@ var a,@!b:boolean; {saved values of |arith_error|}
 begin l:=cur_val_level; a:=arith_error; b:=false; p:=null;
 @<Scan and evaluate an expression |e| of type |l|@>;
 if b then
-  begin print_err("Arithmetic overflow");
+  begin print_err('Arithmetic overflow');
 @.Arithmetic overflow@>
-  help2("I can't evaluate this expression,")@/
-    ("since the result is out of range.");
+  help2('I can''t evaluate this expression,',
+    'since the result is out of range.');
   error;
   if l>=glue_val then
     begin delete_glue_ref(e); e:=zero_glue; add_glue_ref(e);
@@ -19707,9 +19223,9 @@ else  begin o:=expr_none;
     begin if cur_cmd<>relax then back_input;
     end
   else if cur_tok<>other_token+")" then
-    begin print_err("Missing ) inserted for expression");
+    begin print_err('Missing ) inserted for expression');
 @.Missing ) inserted@>
-    help1("I was expecting to see `+', `-', `*', `/', or `)'. Didn't.");
+    help1('I was expecting to see `+'', `-'', `*'', `/'', or `)''. Didn''t.');
     back_error;
     end;
   end
@@ -20319,12 +19835,12 @@ equiv(ocp_trace_level_base):=0;
 
 @ @<Assignments@>=
 set_ocp: begin
-  print_err("To use ocps, use the "); print_esc("pushocplist");
+  print_err('To use ocps, use the '); print_esc("pushocplist");
   print(" primitive");print_ln
   end;
 def_ocp: new_ocp(a);
 set_ocp_list: begin
-  print_err("To use ocp lists, use the ");
+  print_err('To use ocp lists, use the ');
   print_esc("pushocplist"); print(" primitive");print_ln
   end;
 def_ocp_list: new_ocp_list(a);
@@ -20332,7 +19848,7 @@ push_ocp_list: do_push_ocp_list(a);
 pop_ocp_list: do_pop_ocp_list(a);
 clear_ocp_lists: do_clear_ocp_lists(a);
 ocp_list_op: begin
-  print_err("To build ocp lists, use the ");
+  print_err('To build ocp lists, use the ');
   print_esc("ocplist"); print(" primitive"); print_ln
   end;
 ocp_trace_level: begin scan_optional_equals; scan_int;

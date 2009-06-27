@@ -999,7 +999,7 @@ static next_line_retval next_line(void)
             }
             print_ln();
             first = istart;
-            prompt_input((str_number) '*');     /* input on-line into |buffer| */
+            prompt_input("*");     /* input on-line into |buffer| */
             ilimit = last;
             if (end_line_char_inactive)
                 ilimit--;
@@ -1008,8 +1008,7 @@ static next_line_retval next_line(void)
             first = ilimit + 1;
             iloc = istart;
         } else {
-            fatal_error(maketexstring
-                        ("*** (job aborted, no legal \\end found)"));
+            fatal_error("*** (job aborted, no legal \\end found)");
             /* nonstop mode, which is intended for overnight batch processing,
                never waits for on-line input */
         }

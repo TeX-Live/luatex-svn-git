@@ -530,7 +530,7 @@ void ext_post_line_break(boolean d,
         }
     } while (cur_p != null);
     if ((cur_line != best_line) || (vlink(temp_head) != null))
-        tconfusion("line breaking");
+        confusion("line breaking");
     cur_list.pg_field = best_line - 1;  /* prevgraf */
     cur_list.dirs_field = dir_ptr;      /* dir_save */
     dir_ptr = null;

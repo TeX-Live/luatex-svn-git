@@ -188,12 +188,12 @@ integer otp_ext_i;
 
 void overflow_ocp_buf_size(void)
 {
-    overflow(maketexstring("ocp_buf_size"), ocp_buf_size);
+    overflow("ocp_buf_size", ocp_buf_size);
 }
 
 void overflow_ocp_stack_size(void)
 {
-    overflow(maketexstring("ocp_stack_size"), ocp_stack_size);
+    overflow("ocp_stack_size", ocp_stack_size);
 }
 
 void run_otp(void)
@@ -1022,7 +1022,7 @@ void do_pop_ocp_list(small_number a)
         ocp_list_id_base = get_ocp_list_id_base();
     old_number = equiv(ocp_active_number_base);
     if (old_number == 0) {
-        do_print_err(maketexstring("No active ocp lists to be popped"));
+        print_err("No active ocp lists to be popped");
     } else {
         define(ocp_active_number_base, data_cmd, (old_number - 1));
         if (ocp_trace_level == 1) {

@@ -633,3 +633,12 @@ void sprint_cs(pointer p)
             print_esc(t);
     }
 }
+
+
+/* This procedure is never called when |interaction<scroll_mode|. */
+
+void prompt_input(char *s)
+{
+    wake_up_terminal(); tprint(s); term_input();
+}
+

@@ -548,25 +548,25 @@ static void writeseghdr(PDF pdf, FILEINFO * fip, SEGINFO * sip)
     /* 7.2.3 Segment header flags */
     /* 7.2.4 Referred-to segment count and retention flags */
     for (i = 0; i < 5 + sip->fieldlen; i++)
-        pdf_out(pdf,ygetc(fip->file));
+        pdf_out(pdf, ygetc(fip->file));
     /* 7.2.5 Referred-to segment numbers */
     for (i = 0; i < sip->countofrefered; i++) {
         switch (sip->segnumwidth) {
         case 1:
             referedseg = ygetc(fip->file);
-            pdf_out(pdf,referedseg);
+            pdf_out(pdf, referedseg);
             break;
         case 2:
             referedseg = read2bytes(fip->file);
-            pdf_out(pdf,(referedseg >> 8) & 0xff);
-            pdf_out(pdf,referedseg & 0xff);
+            pdf_out(pdf, (referedseg >> 8) & 0xff);
+            pdf_out(pdf, referedseg & 0xff);
             break;
         case 4:
             referedseg = read4bytes(fip->file);
-            pdf_out(pdf,(referedseg >> 24) & 0xff);
-            pdf_out(pdf,(referedseg >> 16) & 0xff);
-            pdf_out(pdf,(referedseg >> 8) & 0xff);
-            pdf_out(pdf,referedseg & 0xff);
+            pdf_out(pdf, (referedseg >> 24) & 0xff);
+            pdf_out(pdf, (referedseg >> 16) & 0xff);
+            pdf_out(pdf, (referedseg >> 8) & 0xff);
+            pdf_out(pdf, referedseg & 0xff);
             break;
         }
         if (fip->page0.last != NULL && !sip->refers)
@@ -578,13 +578,13 @@ static void writeseghdr(PDF pdf, FILEINFO * fip, SEGINFO * sip)
     if (sip->pageassocsizeflag)
         for (i = 0; i < 3; i++) {
             (void) ygetc(fip->file);
-            pdf_out(pdf,0);
+            pdf_out(pdf, 0);
         }
     (void) ygetc(fip->file);
-    pdf_out(pdf,(sip->segpage > 0) ? 1 : 0);
+    pdf_out(pdf, (sip->segpage > 0) ? 1 : 0);
     /* 7.2.7 Segment data length */
     for (i = 0; i < 4; i++)
-        pdf_out(pdf,ygetc(fip->file));
+        pdf_out(pdf, ygetc(fip->file));
     /* ---- at end of segment header ---- */
 }
 
@@ -734,29 +734,31 @@ static void wr_jbig2(PDF pdf, FILEINFO * fip, unsigned long page)
     if (page > 0) {
         pip = find_pageinfo(&(fip->pages), page);
         assert(pip != NULL);
-        pdf_puts(pdf,"/Type /XObject\n/Subtype /Image\n");
-        pdf_printf(pdf,"/Width %i\n", pip->width);
-        pdf_printf(pdf,"/Height %i\n", pip->height);
-        pdf_puts(pdf,"/ColorSpace /DeviceGray\n");
-        pdf_puts(pdf,"/BitsPerComponent 1\n");
-        pdf_printf(pdf,"/Length %lu\n", getstreamlen(pip->segments.first, true));
-        pdf_puts(pdf,"/Filter [/JBIG2Decode]\n");
+        pdf_puts(pdf, "/Type /XObject\n/Subtype /Image\n");
+        pdf_printf(pdf, "/Width %i\n", pip->width);
+        pdf_printf(pdf, "/Height %i\n", pip->height);
+        pdf_puts(pdf, "/ColorSpace /DeviceGray\n");
+        pdf_puts(pdf, "/BitsPerComponent 1\n");
+        pdf_printf(pdf, "/Length %lu\n",
+                   getstreamlen(pip->segments.first, true));
+        pdf_puts(pdf, "/Filter [/JBIG2Decode]\n");
         if (fip->page0.last != NULL) {
             if (fip->pdfpage0objnum == 0) {
                 pdf_create_obj(0, 0);
                 fip->pdfpage0objnum = obj_ptr;
             }
-            pdf_printf(pdf,"/DecodeParms [<< /JBIG2Globals %lu 0 R >>]\n",
+            pdf_printf(pdf, "/DecodeParms [<< /JBIG2Globals %lu 0 R >>]\n",
                        fip->pdfpage0objnum);
         }
     } else {
         pip = find_pageinfo(&(fip->page0), page);
         assert(pip != NULL);
         pdf_begin_dict(pdf, fip->pdfpage0objnum, 0);
-        pdf_printf(pdf,"/Length %lu\n", getstreamlen(pip->segments.first, false));
+        pdf_printf(pdf, "/Length %lu\n",
+                   getstreamlen(pip->segments.first, false));
     }
-    pdf_puts(pdf,">>\n");
-    pdf_puts(pdf,"stream\n");
+    pdf_puts(pdf, ">>\n");
+    pdf_puts(pdf, "stream\n");
     fip->file = xfopen(fip->filepath, FOPEN_RBIN_MODE);
     for (slip = pip->segments.first; slip != NULL; slip = slip->next) { /* loop over page segments */
         sip = slip->d;
@@ -766,7 +768,7 @@ static void wr_jbig2(PDF pdf, FILEINFO * fip, unsigned long page)
             writeseghdr(pdf, fip, sip);
             xfseeko(fip->file, sip->datastart, SEEK_SET, fip->filepath);
             for (i = sip->datastart; i < sip->dataend; i++)
-                pdf_out(pdf,ygetc(fip->file));
+                pdf_out(pdf, ygetc(fip->file));
         }
     }
     pdf_end_stream(pdf);
@@ -835,7 +837,7 @@ void write_jbig2(PDF pdf, image_dict * idict)
     img_file(idict) = NULL;
 }
 
-void flush_jbig2_page0_objects(PDF pdf )
+void flush_jbig2_page0_objects(PDF pdf)
 {
     FILEINFO *fip;
     struct avl_traverser t;

@@ -643,7 +643,7 @@ void add_to_widths(halfword s, integer line_break_dir,
             case disc_node:    /* TH temp */
                 break;
             default:
-                tconfusion("add_disc_widths");
+                confusion("add_disc_widths");
             }
         }
         s = vlink(s);
@@ -694,7 +694,7 @@ void sub_from_widths(halfword s, integer line_break_dir,
             case disc_node:    /* TH temp */
                 break;
             default:
-                tconfusion("sub_disc_widths");
+                confusion("sub_disc_widths");
                 break;
             }
         }
@@ -1706,7 +1706,7 @@ ext_do_line_break(boolean d,
                 }
             }
             if (cur_p == null) {        /* TODO */
-                tconfusion("linebreak_tail");
+                confusion("linebreak_tail");
             }
             /* Determine legal breaks: As we move through the hlist, we need to keep
                the |active_width| array up to date, so that the badness of individual
@@ -1892,7 +1892,7 @@ ext_do_line_break(boolean d,
                 break;
             default:
                 fprintf(stdout, "\ntype=%d", type(cur_p));
-                tconfusion("paragraph");
+                confusion("paragraph");
             }
             cur_p = vlink(cur_p);
             while (cur_p == null && nest_index > 0) {

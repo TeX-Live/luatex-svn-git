@@ -25,6 +25,10 @@
 #  define term_in stdin
 #  define term_out stdout
 
+#define clear_terminal()
+#define update_terminal() fflush(term_out)
+#define wake_up_terminal() fflush(term_out)
+
 typedef enum {
     no_print = 16,              /* |selector| setting that makes data disappear */
     term_only = 17,             /* printing is destined for the terminal only */
@@ -84,6 +88,9 @@ extern void sprint_cs(pointer p);
 extern void tprint(char *s);
 extern void tprint_nl(char *s);
 extern void tprint_esc(char *s);
+
+extern void prompt_input(char *s);
+
 
 #  define single_letter(A)					\
   ((str_length(A)==1)||						\

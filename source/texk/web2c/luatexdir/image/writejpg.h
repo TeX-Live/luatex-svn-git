@@ -26,6 +26,6 @@
 #  include "image.h"
 
 void read_jpg_info(PDF, image_dict *, img_readtype_e);
-void write_jpg(PDF,image_dict *);
+void write_jpg(PDF, image_dict *);
 
 #endif                          /* WRITEJPG_H */

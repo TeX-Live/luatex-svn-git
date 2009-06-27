@@ -1734,7 +1734,7 @@ void vlist_out(void)
            maintaining the condition |cur.h=left_edge| */
         if (is_char_node(p)) {
             print_font_and_char(p);
-            tconfusion("vlistout");
+            confusion("vlistout");
         } else {
             /* Output the non-|char_node| |p| for |vlist_out| */
             switch (type(p)) {
@@ -2261,7 +2261,7 @@ void out_what(halfword p)
     case user_defined_node:
         break;
     default:
-        tconfusion("ext4");
+        confusion("ext4");
         /* those will be pdf extension nodes in dvi mode, most likely */
         break;
     }

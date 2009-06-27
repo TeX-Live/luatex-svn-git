@@ -1430,6 +1430,60 @@
 
 @define procedure print_cs();
 @define procedure sprint_cs();
+@define procedure prompt_input();
 @define function is_active_cs();
 @define function active_cs_value();
 @define function single_letter();
+
+{ error handling }
+
+@define const batch_mode;
+@define const nonstop_mode;
+@define const scroll_mode;
+@define const error_stop_mode;
+@define const unspecified_mode;
+
+@define var interaction;
+@define var interactionoption;
+@define var last_error;
+
+@define procedure initialize_errors;
+@define procedure print_err();
+@define procedure print_warn();
+@define procedure fixup_selector();
+
+@define const spotless;
+@define const warning_issued;
+@define const error_message_issued;
+@define const fatal_error_stop;
+
+@define var use_err_help;
+@define var deletions_allowed;
+@define var set_box_allowed;
+@define var history;
+@define var error_count;
+@define var interrupt;
+@define var OK_to_interrupt; 
+
+
+@define procedure help0;
+@define procedure help1();
+@define procedure help2();
+@define procedure help3();
+@define procedure help4();
+@define procedure help5();
+@define procedure help6();
+
+@define procedure do_final_end ;
+@define procedure jump_out ;
+@define procedure error ;
+@define procedure int_error() ;
+@define procedure normalize_selector ;
+@define procedure succumb ;
+@define procedure fatal_error();
+@define procedure lua_norm_error();
+@define procedure lua_fatal_error();
+@define procedure overflow();
+@define procedure confusion();
+@define procedure check_interrupt ;
+@define procedure pause_for_instructions ;

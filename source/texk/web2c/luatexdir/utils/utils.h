@@ -23,8 +23,6 @@
 #ifndef UTILS_H
 #  define UTILS_H
 
-#  define overflow_string(a,b) { overflow(maketexstring(a),b); flush_str(last_tex_string); }
-
 extern char *job_id_string;
 extern integer epochseconds;
 extern integer microseconds;
@@ -43,7 +41,6 @@ void pdftex_fail(const char *, ...);
 __attribute__ ((format(printf, 1, 2)))
 void pdftex_warn(const char *, ...);
 void garbage_warning(void);
-void tex_error(char *msg, char **hlp);
 char *makecstring(integer);
 char *makeclstring(integer, size_t *);
 void set_job_id(int, int, int, int);
@@ -65,7 +62,5 @@ extern void check_pool_overflow(int wsize);
 extern str_number last_tex_string;
 extern char *cur_file_name;
 extern size_t last_ptr_index;
-
-void tconfusion(char *s);
 
 #endif                          /* UTILS_H */

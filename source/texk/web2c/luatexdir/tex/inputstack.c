@@ -393,7 +393,7 @@ void push_input(void)
     if (input_ptr > max_in_stack) {
         max_in_stack = input_ptr;
         if (input_ptr == stack_size)
-            overflow(maketexstring("input stack size"), stack_size);
+            overflow("input stack size", stack_size);
     }
     input_stack[input_ptr] = cur_input; /* stack the record */
     nofilter = false;

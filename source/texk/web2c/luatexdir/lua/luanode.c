@@ -316,7 +316,7 @@ void show_pdf_literal(pointer p)
         tprint(" direct");
         break;
     default:
-        tconfusion("literal2");
+        confusion("literal2");
         break;
     }
     if (pdf_literal_type(p) == normal) {

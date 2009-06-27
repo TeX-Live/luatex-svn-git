@@ -158,7 +158,7 @@ pointer prim_lookup(str_number s)
                     if (prim_text(p) > 0) {
                         do {    /* search for an empty location in |prim| */
                             if (prim_is_full)
-                                overflow_string("primitive size", prim_size);
+                                overflow("primitive size", prim_size);
                             decr(prim_used);
                         } while (prim_text(prim_used) != 0);
                         prim_next(p) = prim_used;
@@ -329,7 +329,7 @@ primitive(str_number ss, quarterword c, halfword o, halfword off,
     assert(o >= off);
     if (ss < STRING_OFFSET) {
         if (ss > 127)
-            tconfusion("prim"); /* should be ASCII */
+            confusion("prim"); /* should be ASCII */
         append_char(ss);
         s = make_string();
     } else {
@@ -368,7 +368,7 @@ static halfword insert_id(halfword p, unsigned char *j, pool_pointer l)
         } else {
             do {
                 if (hash_is_full)
-                    overflow_string("hash size", hash_size + hash_extra);
+                    overflow("hash size", hash_size + hash_extra);
                 decr(hash_used);
             } while (text(hash_used) != 0);     /* search for an empty location in |hash| */
             next(p) = hash_used;

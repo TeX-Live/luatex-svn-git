@@ -632,7 +632,7 @@ int get_charinfo_math_kerns(charinfo * ci, int id)
     } else if (id == top_right_kern) {
         k = ci->top_right_math_kerns;
     } else {
-        tconfusion("get_charinfo_math_kerns");
+        confusion("get_charinfo_math_kerns");
     }
     return k;
 }
@@ -668,7 +668,7 @@ void add_charinfo_math_kern(charinfo * ci, int id, scaled ht, scaled krn)
         ci->top_right_math_kern_array[(2 * (k)) + 1] = krn;
         ci->top_right_math_kerns++;
     } else {
-        tconfusion("add_charinfo_math_kern");
+        confusion("add_charinfo_math_kern");
     }
 }
 

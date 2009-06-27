@@ -1027,7 +1027,7 @@ delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
            the top of bit 21 can't be used as it contains invalid USV's
          */
         if (doclass) {          /* such a primitive doesn't exist */
-            tconfusion("xetexnum_mathcode");
+            confusion("xetexnum_mathcode");
         }
         scan_int();
         msfam = (cur_val / 0x200000);
@@ -1041,7 +1041,7 @@ delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
         mlchr = 0;
     } else {
         /* something's gone wrong */
-        tconfusion("unknown_extcode");
+        confusion("unknown_extcode");
     }
     d.origin_value = extcode;
     d.class_value = mcls;
@@ -1125,7 +1125,7 @@ mathcodeval scan_mathchar(int extcode)
         }
     } else {
         /* something's gone wrong */
-        tconfusion("unknown_extcode");
+        confusion("unknown_extcode");
     }
     d.class_value = mcls;
     d.family_value = mfam;
@@ -1238,7 +1238,7 @@ int scan_math(pointer p, int mstyle)
         else if (cur_chr == 3)
             mval = scan_mathchar(xetexnum_mathcode);
         else
-            tconfusion("scan_math");
+            confusion("scan_math");
         break;
     case math_given_cmd:
         mval = mathchar_from_integer(cur_chr, tex_mathcode);
@@ -1257,7 +1257,7 @@ int scan_math(pointer p, int mstyle)
         else if (cur_chr == 2)
             mval = scan_delimiter_as_mathchar(xetex_mathcode);
         else
-            tconfusion("scan_math");
+            confusion("scan_math");
         break;
     default:
         /* The pointer |p| is placed on |save_stack| while a complex subformula
@@ -1413,14 +1413,14 @@ void scan_delimiter(pointer p, integer r)
             else if (cur_chr == 2)      /* \Udelimiter */
                 dval = do_scan_extdef_del_code(xetex_mathcode, true);
             else
-                tconfusion("scan_delimiter1");
+                confusion("scan_delimiter1");
             break;
         default:
             dval.small_family_value = -1;
             break;
         }
     } else {
-        tconfusion("scan_delimiter2");
+        confusion("scan_delimiter2");
     }
     if (p == null)
         return;
@@ -1473,7 +1473,7 @@ void math_radical(void)
     else if (chr_code == 7)     /* \Udelimiterover */
         scan_delimiter(left_delimiter(tail), xetex_mathcode);
     else
-        tconfusion("math_radical");
+        confusion("math_radical");
     if (chr_code == 3) {
         /* the trick with the |vlink(q)| is used by |scan_math| 
            to decide whether it needs to go on */
@@ -1522,7 +1522,7 @@ void math_ac(void)
         t = scan_mathchar(xetex_mathcode);
         b = scan_mathchar(xetex_mathcode);
     } else {
-        tconfusion("math_ac");
+        confusion("math_ac");
     }
     if (!(t.character_value == 0 && t.family_value == 0)) {
         q = new_node(math_char_node, 0);
@@ -1728,7 +1728,7 @@ pointer fin_mlist(pointer p)
             q = math_list(numerator(incompleat_noad));
             if ((type(q) != fence_noad) || (subtype(q) != left_noad_side)
                 || (delim_ptr == null))
-                tconfusion("right");    /* this can't happen */
+                confusion("right");    /* this can't happen */
             math_list(numerator(incompleat_noad)) = vlink(delim_ptr);
             vlink(delim_ptr) = incompleat_noad;
             vlink(incompleat_noad) = p;
@@ -1984,7 +1984,7 @@ void after_math(void)
 void resume_after_display(void)
 {
     if (cur_group != math_shift_group)
-        tconfusion("display");
+        confusion("display");
     unsave_math();
     prev_graf = prev_graf + 3;
     push_nest();

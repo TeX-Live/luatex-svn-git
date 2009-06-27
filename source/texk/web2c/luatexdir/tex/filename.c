@@ -31,14 +31,6 @@ static const char _svn_version[] =
 extern char *utf8_idpb(char *w, unsigned int i);
 
 
-#define wake_up_terminal() ;
-#define clear_terminal() ;
-
-#define batch_mode 0            /* omits all stops and omits terminal output */
-#define nonstop_mode 1          /* omits all stops */
-#define scroll_mode 2           /* omits error stops */
-#define error_stop_mode 3       /* stops at every opportunity to interact */
-
 /*
   In order to isolate the system-dependent aspects of file names, the
   @^system dependencies@>
@@ -110,7 +102,7 @@ static boolean more_name(ASCII_code c)
 static void end_name(void)
 {
     if (str_ptr + 3 > (max_strings + STRING_OFFSET))
-        overflow_string("number of strings", max_strings - init_str_ptr);
+        overflow("number of strings", max_strings - init_str_ptr);
     /* @:TeX capacity exceeded number of strings}{\quad number of strings@> */
 
     if (area_delimiter == 0) {
@@ -208,7 +200,6 @@ void prompt_file_name(char *s, char *e)
     int k;                      /* index into |buffer| */
     str_number saved_cur_name;  /* to catch empty terminal input */
     char prompt[256];
-    str_number texprompt;
     char *ar, *na, *ex;
     saved_cur_name = cur_name;
     if (interaction == scroll_mode) {
@@ -225,20 +216,15 @@ void prompt_file_name(char *s, char *e)
     free(ar);
     free(na);
     free(ex);
-    texprompt = maketexstring((char *) prompt);
-    do_print_err(texprompt);
-    flush_str(texprompt);
+    print_err(prompt);
     if ((strcmp(e, ".tex") == 0) || (strcmp(e, "") == 0))
         show_context();
     tprint_nl("Please type another ");  /*@.Please type...@> */
     tprint(s);
     if (interaction < scroll_mode)
-        fatal_error(maketexstring
-                    ("*** (job aborted, file error in nonstop mode)"));
+        fatal_error("*** (job aborted, file error in nonstop mode)");
     clear_terminal();
-    texprompt = maketexstring(": ");
-    prompt_input(texprompt);
-    flush_str(texprompt);
+    prompt_input(": ");
     begin_name();
     k = first;
     while ((buffer[k] == ' ') && (k < last))

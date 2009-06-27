@@ -137,8 +137,7 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
 
     packet_cur_s++;
     if (packet_cur_s >= packet_max_recursion)
-        overflow_string("max level recursion of virtual fonts",
-                        packet_max_recursion);
+        overflow("max level recursion of virtual fonts", packet_max_recursion);
     save_cur = cur;
 
     lf = 0;                     /* for -Wall */
