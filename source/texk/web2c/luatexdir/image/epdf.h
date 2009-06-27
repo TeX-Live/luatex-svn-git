@@ -65,9 +65,8 @@ extern "C" {
 
     extern longinteger pdf_stream_length;
     extern integer pool_ptr;
-    typedef unsigned char eight_bits;
     extern integer pdf_os_mode;
-    extern eight_bits pdf_last_byte;
+    extern integer pdf_last_byte;
 
     extern char notdef[];
 
