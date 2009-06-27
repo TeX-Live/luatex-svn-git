@@ -40,8 +40,6 @@
 
 #define pdf_pagebox int_par(param_pdf_pagebox_code)
 
-halfword pdf_ximage_list;       /* list of images in the current page */
-integer pdf_ximage_count;       /* counter of images */
 integer image_orig_x, image_orig_y;     /* origin of cropped PDF images */
 
 static const char _svn_version[] =

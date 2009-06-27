@@ -417,7 +417,7 @@ void pdf_hlist_out(PDF pdf)
                         pos_left(pdf_depth(p));
                         break;
                     }
-                    output_image(pdf, pdf_ximage_idx(p), pos);
+                    pdf_place_image(pdf, pdf_ximage_idx(p), pos);
                     edge = cur.h + pdf_width(p);
                     cur.h = edge;
                     break;
@@ -928,7 +928,7 @@ void pdf_vlist_out(PDF pdf)
                     default:
                         break;
                     }
-                    output_image(pdf, pdf_ximage_idx(p), pos);
+                    pdf_place_image(pdf, pdf_ximage_idx(p), pos);
                     cur.v = cur.v + pdf_height(p) + pdf_depth(p);
                     break;
                 case pdf_annot_node:

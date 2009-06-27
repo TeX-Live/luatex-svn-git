@@ -30,8 +30,6 @@
 typedef image *img_entry;
 img_entry *img_array;
 
-extern halfword pdf_ximage_list;        /* list of images in the current page */
-extern integer pdf_ximage_count;        /* counter of images */
 extern integer image_orig_x, image_orig_y;      /* origin of cropped PDF images */
 
 image_dict *new_image_dict(void);

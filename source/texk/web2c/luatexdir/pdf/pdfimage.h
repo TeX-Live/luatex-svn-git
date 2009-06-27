@@ -22,9 +22,11 @@
 #ifndef PDFIMAGE_H
 #  define PDFIMAGE_H
 
-void out_img(PDF, image *, scaledpos);
-#  define out_image(a, b, c)    out_img((a), img_array[b], (c));
-void output_image(PDF pdf, integer idx, scaledpos pos);
+extern halfword pdf_ximage_list;        /* list of images in the current page */
+extern integer pdf_ximage_count;        /* counter of images */
+
+void place_img(PDF, image *, scaledpos);
+void pdf_place_image(PDF pdf, integer idx, scaledpos pos);
 
 #  define set_pdf_ximage_idx(A, B) pdf_ximage_idx(A) = B
 

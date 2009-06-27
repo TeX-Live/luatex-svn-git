@@ -551,8 +551,7 @@ static void read_scale_img(lua_State * L, image * a)
              * e. g. by read_png_info(). */
             check_pdfminorversion(static_pdf);
             read_img(static_pdf,
-                     ad, pdf_minor_version,
-                     pdf_inclusion_errorlevel);
+                     ad, pdf_minor_version, pdf_inclusion_errorlevel);
             img_unset_scaled(a);
         }
     }
@@ -634,7 +633,7 @@ static void write_image_or_node(lua_State * L, wrtype_e writetype)
         new_tail_append(n);
         break;                  /* image */
     case WR_IMMEDIATEWRITE:
-        check_pdfminorversion(static_pdf);        /* does initialization stuff */
+        check_pdfminorversion(static_pdf);      /* does initialization stuff */
         pdf_begin_dict(static_pdf, img_objnum(ad), 0);
         write_img(static_pdf, ad);
         break;                  /* image */
@@ -736,8 +735,8 @@ void vf_out_image(unsigned i, scaledpos pos)
     a = *aa;
     setup_image(L, a, WR_VF_IMG);       /* image ... */
     assert(img_is_refered(a));
-    assert(static_pdf!=NULL);
-    output_image(static_pdf, img_arrayidx(a), pos);
+    assert(static_pdf != NULL);
+    pdf_place_image(static_pdf, img_arrayidx(a), pos);
     lua_pop(L, 1);              /* ... */
 }
 

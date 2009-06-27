@@ -25,7 +25,10 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
-void out_img(PDF pdf, image * img, scaledpos pos)
+halfword pdf_ximage_list;       /* list of images in the current page */
+integer pdf_ximage_count;       /* counter of images */
+
+void place_img(PDF pdf, image * img, scaledpos pos)
 {
     float a[6];                 /* transformation matrix */
     float xoff, yoff, tmp;
@@ -146,10 +149,10 @@ void out_img(PDF pdf, image * img, scaledpos pos)
         img_state(idict) = DICT_OUTIMG;
 }
 
-void output_image(PDF pdf, integer idx, scaledpos pos)
+void pdf_place_image(PDF pdf, integer idx, scaledpos pos)
 {
     pdf_goto_pagemode(pdf);
-    out_image(pdf, idx, pos);
+    place_img(pdf, img_array[idx], pos);
     if (pdf_lookup_list(pdf_ximage_list, image_objnum(idx)) == null)
         pdf_append_list(image_objnum(idx), pdf_ximage_list);
 }
