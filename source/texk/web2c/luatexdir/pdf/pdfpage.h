@@ -22,22 +22,6 @@
 #ifndef PDFPAGE_H
 #  define PDFPAGE_H
 
-typedef struct {
-    long m;                     /* mantissa (significand) */
-    int e;                      /* exponent * -1 */
-} pdffloat;
-
-typedef struct {
-    pdffloat h;
-    pdffloat v;
-} pdfpos;
-
-typedef enum { PMODE_NONE, PMODE_PAGE, PMODE_TEXT, PMODE_CHARARRAY,
-    PMODE_CHAR
-} pos_mode;
-
-typedef enum { WMODE_H, WMODE_V } writing_mode; /* []TJ runs horizontal or vertical */
-
 #  define is_pagemode(p)      ((p)->mode == PMODE_PAGE)
 #  define is_textmode(p)      ((p)->mode == PMODE_TEXT)
 #  define is_chararraymode(p) ((p)->mode == PMODE_CHARARRAY)
@@ -50,29 +34,6 @@ typedef enum { WMODE_H, WMODE_V } writing_mode; /* []TJ runs horizontal or verti
 #    undef hz
 #  endif
 
-typedef struct {
-    pdfpos pdf;                 /* pos. on page (PDF page raster) */
-    pdfpos pdf_bt_pos;          /* pos. at begin of BT-ET group (PDF page raster) */
-    pdfpos pdf_tj_pos;          /* pos. at begin of TJ array (PDF page raster) */
-    pdffloat cw;                /* pos. within [(..)..]TJ array (glyph raster);
-                                   cw.e = fractional digits in /Widths array */
-    pdffloat tj_delta;          /* rel. movement in [(..)..]TJ array (glyph raster) */
-    pdffloat fs;                /* font size in PDF units */
-    pdffloat hz;                /* HZ expansion factor */
-    pdffloat ext;               /* ExtendFont factor */
-    pdffloat cm[6];             /* cm array */
-    pdffloat tm[6];             /* Tm array */
-    double k1;                  /* conv. factor from TeX sp to PDF page raster */
-    double k2;                  /* conv. factor from PDF page raster to TJ array raster */
-    internal_font_number f_cur; /* TeX font number */
-    internal_font_number f_pdf; /* /F* font number, of unexpanded base font! */
-    writing_mode wmode;         /* PDF writing mode WMode (horizontal/vertical) */
-    pos_mode mode;              /* current positioning mode */
-    boolean ishex;              /* Whether the current char string is <> or () */
-} pdfstructure;
-
-extern pdfstructure *pstruct;
-
 /**********************************************************************/
 
 boolean calc_pdfpos(pdfstructure * p, scaledpos pos);
@@ -80,7 +41,7 @@ boolean calc_pdfpos(pdfstructure * p, scaledpos pos);
 void pdf_page_init(PDF pdf);
 void pdf_end_string_nl(PDF pdf);
 void pdf_goto_pagemode(PDF pdf);
-void pdf_place_glyph(PDF pdf, internal_font_number f, integer c);
+void pdf_place_glyph(PDF pdf, scaledpos pos, internal_font_number f, integer c);
 void pdf_place_rule(PDF pdf, scaled h, scaled v, scaled wd, scaled ht);
 void pdf_print_charwidth(PDF pdf, internal_font_number f, int i);
 void pdf_print_cm(PDF pdf, pdffloat * cm);

@@ -38,6 +38,45 @@ typedef struct os_obj_data_ {
     int off;
 } os_obj_data;
 
+typedef struct {
+    long m;                     /* mantissa (significand) */
+    int e;                      /* exponent * -1 */
+} pdffloat;
+
+typedef struct {
+    pdffloat h;
+    pdffloat v;
+} pdfpos;
+
+typedef enum { PMODE_NONE, PMODE_PAGE, PMODE_TEXT, PMODE_CHARARRAY,
+    PMODE_CHAR
+} pos_mode;
+
+typedef enum { WMODE_H, WMODE_V } writing_mode; /* []TJ runs horizontal or vertical */
+
+#  define internal_font_number integer  /* TODO kludge */
+
+typedef struct {
+    pdfpos pdf;                 /* pos. on page (PDF page raster) */
+    pdfpos pdf_bt_pos;          /* pos. at begin of BT-ET group (PDF page raster) */
+    pdfpos pdf_tj_pos;          /* pos. at begin of TJ array (PDF page raster) */
+    pdffloat cw;                /* pos. within [(..)..]TJ array (glyph raster);
+                                   cw.e = fractional digits in /Widths array */
+    pdffloat tj_delta;          /* rel. movement in [(..)..]TJ array (glyph raster) */
+    pdffloat fs;                /* font size in PDF units */
+    pdffloat hz;                /* HZ expansion factor */
+    pdffloat ext;               /* ExtendFont factor */
+    pdffloat cm[6];             /* cm array */
+    pdffloat tm[6];             /* Tm array */
+    double k1;                  /* conv. factor from TeX sp to PDF page raster */
+    double k2;                  /* conv. factor from PDF page raster to TJ array raster */
+    internal_font_number f_cur; /* TeX font number */
+    internal_font_number f_pdf; /* /F* font number, of unexpanded base font! */
+    writing_mode wmode;         /* PDF writing mode WMode (horizontal/vertical) */
+    pos_mode mode;              /* current positioning mode */
+    int ishex;                  /* Whether the current char string is <> or () */
+} pdfstructure;
+
 typedef struct pdf_output_file_ {
     FILE *file;                 /* the PDF output file */
     /* generation parameters */
@@ -87,6 +126,7 @@ typedef struct pdf_output_file_ {
     int *mem;
     int mem_ptr;
 
+    pdfstructure *pstruct;      /* structure for positioning within page */
 } pdf_output_file;
 
 typedef pdf_output_file *PDF;

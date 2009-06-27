@@ -179,7 +179,7 @@ void output_one_char(PDF pdf, internal_font_number ffi, integer c)
         box_pos = save_box_pos;
         cur = save;
     } else {
-        pdf_place_glyph(pdf, ffi, c);
+        pdf_place_glyph(pdf, pos, ffi, c);
     }
     switch (box_direction(dvi_direction)) {
     case dir_TL_:

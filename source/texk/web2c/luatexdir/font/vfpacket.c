@@ -182,7 +182,7 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
                     do_vf_packet(pdf, lf, k);
                 else {
                     pos = synch_p_with_c(cur);
-                    pdf_place_glyph(pdf, lf, k);
+                    pdf_place_glyph(pdf, pos, lf, k);
                 }
             }
             cur.h = cur.h + char_width(lf, k);

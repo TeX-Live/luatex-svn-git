@@ -36,7 +36,7 @@ void output_form(PDF pdf, halfword p, scaledpos pos)
         pdf_append_list(pdf_xform_objnum(p), pdf_xform_list);
 }
 
-static void place_form(PDF pdf, pdfstructure * p, integer i, scaledpos pos)
+void pdf_place_form(PDF pdf, integer i, scaledpos pos)
 {
     pdf_goto_pagemode(pdf);
     pdf_printf(pdf, "q\n");
@@ -44,9 +44,4 @@ static void place_form(PDF pdf, pdfstructure * p, integer i, scaledpos pos)
     pdf_printf(pdf, "/Fm%d", (int) i);
     pdf_print_resname_prefix(pdf);
     pdf_printf(pdf, " Do\nQ\n");
-}
-
-void pdf_place_form(PDF pdf, integer i, scaledpos pos)
-{
-    place_form(pdf, pstruct, i, pos);
 }

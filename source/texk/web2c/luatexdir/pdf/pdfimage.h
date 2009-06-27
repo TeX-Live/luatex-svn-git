@@ -23,7 +23,7 @@
 #  define PDFIMAGE_H
 
 void out_img(PDF, image *, pdfstructure *, scaledpos);
-#define out_image(a, b, c)    out_img((a), img_array[b], pstruct, (c));
+#define out_image(a, b, c)    out_img((a), img_array[b], (a)->pstruct, (c));
 void output_image(PDF pdf, integer idx, scaledpos pos);
 
 #define set_pdf_ximage_idx(A, B) pdf_ximage_idx(A) = B

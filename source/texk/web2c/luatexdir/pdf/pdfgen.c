@@ -69,6 +69,7 @@ PDF initialize_pdf(void)
     pdf->mem = xmalloc(pdf->mem_size * sizeof(int));
     pdf->mem_ptr = 1;           /* the first word is not used so we can use zero as a value for testing
                                    whether a pointer to |mem| is valid  */
+    pdf->pstruct == NULL;
 
     return pdf;
 }
@@ -378,7 +379,7 @@ void pdf_print_char(PDF pdf, internal_font_number f, integer cc)
     pdf_mark_char(f, cc);
     if (font_encodingbytes(f) == 2) {
         char hex[5];
-        snprintf(hex,5,"%04X", char_index(f, cc));
+        snprintf(hex, 5, "%04X", char_index(f, cc));
         pdf_room(pdf, 4);
         pdf_quick_out(pdf, hex[0]);
         pdf_quick_out(pdf, hex[1]);
@@ -623,8 +624,9 @@ scaled round_xn_over_d(scaled x, integer n, integer d)
 void pdf_print_bp(PDF pdf, scaled s)
 {                               /* print scaled as |bp| */
     pdffloat a;
-    assert(pstruct != NULL);
-    a.m = lround(s * pstruct->k1);
+    pdfstructure *p = pdf->pstruct;
+    assert(p != NULL);
+    a.m = lround(s * p->k1);
     a.e = pdf->decimal_digits;
     print_pdffloat(pdf, &a);
 }
@@ -632,11 +634,12 @@ void pdf_print_bp(PDF pdf, scaled s)
 void pdf_print_mag_bp(PDF pdf, scaled s)
 {                               /* take |mag| into account */
     pdffloat a;
+    pdfstructure *p = pdf->pstruct;
     prepare_mag();
     if (int_par(param_mag_code) != 1000)
-        a.m = lround(s * (long) int_par(param_mag_code) / 1000.0 * pstruct->k1);
+        a.m = lround(s * (long) int_par(param_mag_code) / 1000.0 * p->k1);
     else
-        a.m = lround(s * pstruct->k1);
+        a.m = lround(s * p->k1);
     a.e = pdf->decimal_digits;
     print_pdffloat(pdf, &a);
 }
