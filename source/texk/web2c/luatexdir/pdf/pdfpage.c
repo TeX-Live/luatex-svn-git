@@ -41,11 +41,6 @@ static const char __svn_version[] =
 
 /**********************************************************************/
 
-static pdfstructure *new_pdfstructure(void)
-{
-    return xmalloc(sizeof(pdfstructure));
-}
-
 static void calc_k1(pdfstructure * p)
 {
     p->k1 = ten_pow[p->pdf.h.e] / one_bp;
@@ -64,9 +59,10 @@ static void calc_k2(pdfstructure * p)
 void pdf_page_init(PDF pdf)
 {
     pdfstructure *p;
+    assert(pdf != NULL);
     int decimal_digits = pdf->decimal_digits;
     if (pdf->pstruct == NULL)
-        pdf->pstruct = new_pdfstructure();
+        pdf->pstruct = xmalloc(sizeof(pdfstructure));
     p = pdf->pstruct;
     setpdffloat(p->pdf.h, 0, decimal_digits);
     setpdffloat(p->pdf.v, 0, decimal_digits);
