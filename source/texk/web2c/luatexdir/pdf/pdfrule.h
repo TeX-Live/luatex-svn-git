@@ -17,9 +17,11 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: pdfxform.h 2637 2009-06-27 10:09:48Z hhenkel $ */
+/* $Id$ */
 
 #ifndef PDFRULE_H
 #  define PDFRULE_H
+
+void pdf_place_rule(PDF pdf, scaled h, scaled v, scaled wd, scaled ht);
 
 #endif
