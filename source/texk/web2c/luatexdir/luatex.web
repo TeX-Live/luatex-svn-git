@@ -711,44 +711,13 @@ characters and \TeX's internal representation.
 @:TeXbook}{\sl The \TeX book@>
 
 @* \[3] Input and output.
-The bane of portability is the fact that different operating systems treat
-input and output quite differently, perhaps because computer scientists
-have not given sufficient attention to this problem. People have felt somehow
-that input and output are not part of ``real'' programming. Well, it is true
-that some kinds of programming are more fun than others. With existing
-input/output conventions being so diverse and so messy, the only sources of
-joy in such parts of the code are the rare occasions when one can find a
-way to make the program a little less bad than it might have been. We have
-two choices, either to attack I/O now and get it over with, or to postpone
-I/O until near the end. Neither prospect is very attractive, so let's
-get it over with.
 
-The basic operations we need to do are (1)~inputting and outputting of
-text, to or from a file or the user's terminal; (2)~inputting and
-outputting of eight-bit bytes, to or from a file; (3)~instructing the
-operating system to initiate (``open'') or to terminate (``close'') input or
-output from a specified file; (4)~testing whether the end of an input
-file has been reached.
-
-\TeX\ needs to deal with two kinds of files.
-We shall use the term |alpha_file| for a file that contains textual data,
-and the term |byte_file| for a file that contains eight-bit binary information.
-These two types turn out to be the same on many computers, but
-sometimes there is a significant distinction, so we shall be careful to
-distinguish between them. Standard protocols for transferring
-such files from computer to computer, via high-speed networks, are
-now becoming available to more and more communities of users.
-
-The program actually makes use also of a third kind of file, called a
-|word_file|, when dumping and reloading base information for its own
-initialization.  We shall define a word file later; but it will be possible
-for us to specify simple operations on word files before they are defined.
+@ Typedefs have to be here to avoid errors after tangling
 
 @<Types...@>=
-@!eight_bits=0..65535; {unsigned one-byte quantity}
-@!real_eight_bits=0..255; {unsigned one-byte quantity}
+@!eight_bits=0..255; {unsigned one-byte quantity}
 @!alpha_file=packed file of text_char; {files that contain textual data}
-@!byte_file=packed file of real_eight_bits; {files that contain binary data}
+@!byte_file=packed file of eight_bits; {files that contain binary data}
 
 @ Most of what we need to do with respect to input and output can be handled
 by the I/O facilities that are standard in \PASCAL, i.e., the routines
@@ -5893,7 +5862,7 @@ Therefore it will not be difficult to translate these algorithms into
 low-level languages that do not support recursion.
 
 @<Glob...@>=
-@!cur_cmd: eight_bits; {current command set by |get_next|}
+@!cur_cmd: integer; {current command set by |get_next|}
 @!cur_chr: halfword; {operand of current command}
 @!cur_cs: pointer; {control sequence found here, zero if none found}
 @!cur_tok: halfword; {packed representative of |cur_cmd| and |cur_chr|}
@@ -12211,7 +12180,7 @@ or an insertion box is supposed to be ready to accept a vertical list.
 If not, an error message is printed, and the following subroutine
 flushes the unwanted contents, reporting them to the user.
 
-@p procedure box_error(@!n:eight_bits);
+@p procedure box_error(@!n:integer);
 begin error; begin_diagnostic;
 print_nl("The following box has been deleted:");
 @.The following...deleted@>
@@ -12222,7 +12191,7 @@ end;
 @ The following procedure guarantees that a given box register
 does not contain an \.{\\hbox}.
 
-@p procedure ensure_vbox(@!n:eight_bits);
+@p procedure ensure_vbox(@!n:integer);
 var p:pointer; {the box register contents}
 begin p:=box(n);
 if p<>null then if type(p)=hlist_node then
@@ -13706,7 +13675,7 @@ procedure begin_box(@!box_context:integer);
 label exit, done;
 var @!p,@!q:pointer; {run through the current list}
 @!k:halfword; {0 or |vmode| or |hmode|}
-@!n:eight_bits; {a box number}
+@!n:integer; {a box number}
 begin case cur_chr of
 box_code: begin scan_register_num; cur_box:=box(cur_val);
   box(cur_val):=null; {the box becomes void, at the same level}
@@ -15724,7 +15693,7 @@ end;
 @ @<Declare subprocedures for |prefixed_command|@>=
 procedure alter_box_dimen;
 var c:small_number; {|width_offset| or |height_offset| or |depth_offset|}
-@!b:eight_bits; {box number}
+@!b:integer; {box number}
 begin c:=cur_chr; scan_register_num; b:=cur_val; scan_optional_equals;
 scan_normal_dimen;
 if box(b)<>null then vmem(box(b)+c).sc:=cur_val;

@@ -632,7 +632,7 @@ after it first fills up.
 */
 
 integer dvi_buf_size = 800;     /* size of the output buffer; must be a multiple of 8 */
-real_eight_bits *dvi_buf;       /* buffer for \.{DVI} output */
+eight_bits *dvi_buf;            /* buffer for \.{DVI} output */
 dvi_index half_buf = 0;         /* half of |dvi_buf_size| */
 dvi_index dvi_limit = 0;        /* end of the current half buffer */
 dvi_index dvi_ptr = 0;          /* the next available buffer address */

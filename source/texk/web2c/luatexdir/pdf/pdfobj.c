@@ -38,7 +38,7 @@ void pdf_write_obj(PDF pdf, integer n)
     byte_file f;
     integer data_size;          /* total size of the data file */
     integer data_cur;           /* index into |data_buffer| */
-    real_eight_bits *data_buffer;       /* byte buffer for data files */
+    eight_bits *data_buffer;       /* byte buffer for data files */
     boolean file_opened;
     integer k;
     boolean res;

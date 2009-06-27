@@ -70,7 +70,7 @@ static packet_stack_index packet_stack_ptr = 0; /* pointer into |packet_stack| *
 /* count the number of bytes in a command packet */
 int vf_packet_bytes(charinfo * co)
 {
-    real_eight_bits *vf_packets;
+    eight_bits *vf_packets;
     integer cur_packet_byte;
     unsigned k;
     int cmd;
@@ -128,7 +128,7 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
     internal_font_number lf;
     charinfo *co;
     scaledpos save_cur;
-    real_eight_bits *vf_packets;
+    eight_bits *vf_packets;
     integer cur_packet_byte;
     integer cmd, fs_f;
     scaled i;
@@ -243,7 +243,7 @@ integer *packet_local_fonts(internal_font_number f, integer * num)
     integer *lfs;
     charinfo *co;
 
-    real_eight_bits *vf_packets;
+    eight_bits *vf_packets;
     k = 0;
     for (c = font_bc(f); c <= font_ec(f); c++) {
         if (char_exists(f, c)) {
@@ -310,7 +310,7 @@ replace_packet_fonts(internal_font_number f, integer * old_fontid,
 {
     int c, cmd, cur_packet_byte, lf, k, l;
     charinfo *co;
-    real_eight_bits *vf_packets;
+    eight_bits *vf_packets;
 
     k = 0;
     for (c = font_bc(f); c <= font_ec(f); c++) {

@@ -58,7 +58,7 @@ typedef struct charinfo {
     char *name;                 /* postscript character name */
     liginfo *ligatures;         /* ligature items */
     kerninfo *kerns;            /* kern items */
-    real_eight_bits *packets;   /* virtual commands.  */
+    eight_bits *packets;        /* virtual commands.  */
     unsigned short index;       /* CID index */
     integer remainder;          /* spare value for odd items, could be union-ed with extensible */
     scaled width;               /* width */
@@ -430,7 +430,7 @@ extern void set_charinfo_name(charinfo * ci, char *val);
 extern void set_charinfo_tounicode(charinfo * ci, char *val);
 extern void set_charinfo_ligatures(charinfo * ci, liginfo * val);
 extern void set_charinfo_kerns(charinfo * ci, kerninfo * val);
-extern void set_charinfo_packets(charinfo * ci, real_eight_bits * val);
+extern void set_charinfo_packets(charinfo * ci, eight_bits * val);
 extern void set_charinfo_extensible(charinfo * ci, int a, int b, int c, int d);
 extern void set_charinfo_ef(charinfo * ci, scaled val);
 extern void set_charinfo_lp(charinfo * ci, scaled val);
@@ -459,7 +459,7 @@ extern char *get_charinfo_name(charinfo * ci);
 extern char *get_charinfo_tounicode(charinfo * ci);
 extern liginfo *get_charinfo_ligatures(charinfo * ci);
 extern kerninfo *get_charinfo_kerns(charinfo * ci);
-extern real_eight_bits *get_charinfo_packets(charinfo * ci);
+extern eight_bits *get_charinfo_packets(charinfo * ci);
 extern integer get_charinfo_ef(charinfo * ci);
 extern integer get_charinfo_rp(charinfo * ci);
 extern integer get_charinfo_lp(charinfo * ci);
@@ -523,7 +523,7 @@ extern scaled char_bot_accent(internal_font_number f, integer c);
 
 extern liginfo *char_ligatures(internal_font_number f, integer c);
 extern kerninfo *char_kerns(internal_font_number f, integer c);
-extern real_eight_bits *char_packets(internal_font_number f, integer c);
+extern eight_bits *char_packets(internal_font_number f, integer c);
 
 #  define has_lig(f,b)          (char_exists(f,b) &&( char_ligatures(f,b) != NULL))
 #  define has_kern(f,b)         (char_exists(f,b) && (char_kerns(f,b) != NULL))

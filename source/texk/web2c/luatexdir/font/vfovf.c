@@ -131,7 +131,7 @@ boolean auto_expand_vf(internal_font_number f); /* forward */
 
 #define vf_byte(a)                                     \
 {                                                      \
-    real_eight_bits vf_tmp_b;                          \
+  eight_bits vf_tmp_b;				       \
     if (vf_cur >= vf_size) {                           \
         pdftex_fail("unexpected eof on virtual font"); \
     }                                                  \
@@ -385,13 +385,13 @@ int open_vf_file(char *fn, unsigned char **vbuffer, integer * vsize)
     vf_read(4, read_tmp);                              \
     if ((read_tmp / 16) != font_dsize(f)) {            \
         print_nlp();                                   \
-        tprint("design size mismatch in font "); \
-        tprint(font_name(f));                    \
-        tprint(".vf ignored");                   \
+        tprint("design size mismatch in font ");       \
+        tprint(font_name(f));			       \
+        tprint(".vf ignored");			       \
     }                                                  \
 }
 
-int count_packet_bytes(real_eight_bits * vf_buf, int cur_bute, int count)
+int count_packet_bytes(eight_bits * vf_buf, int cur_bute, int count)
 {
     int k = 0;
     int ff = 0;
@@ -676,7 +676,7 @@ void do_vf(internal_font_number f)
     integer vf_alpha;           /* correction for negative values */
     char vf_beta;               /* divisor */
     integer vf_np;
-    real_eight_bits *vpackets;
+    eight_bits *vpackets;
     memory_word tmp_w;          /* accumulator */
     vf_stack_record vf_stack[256];
     integer junk;

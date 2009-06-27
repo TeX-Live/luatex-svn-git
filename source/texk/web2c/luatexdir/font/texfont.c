@@ -201,7 +201,7 @@ charinfo *copy_charinfo(charinfo * ci)
     int x;
     kerninfo *kern;
     liginfo *lig;
-    real_eight_bits *packet;
+    eight_bits *packet;
     charinfo *co = NULL;
     if (ci == NULL)
         return NULL;
@@ -570,7 +570,7 @@ void set_charinfo_kerns(charinfo * ci, kerninfo * val)
     dxfree(ci->kerns, val);
 }
 
-void set_charinfo_packets(charinfo * ci, real_eight_bits * val)
+void set_charinfo_packets(charinfo * ci, eight_bits * val)
 {
     dxfree(ci->packets, val);
 }
@@ -861,7 +861,7 @@ kerninfo *get_charinfo_kerns(charinfo * ci)
     return ci->kerns;
 }
 
-real_eight_bits *get_charinfo_packets(charinfo * ci)
+eight_bits *get_charinfo_packets(charinfo * ci)
 {
     return ci->packets;
 }
@@ -983,7 +983,7 @@ kerninfo *char_kerns(internal_font_number f, integer c)
     return get_charinfo_kerns(ci);
 }
 
-real_eight_bits *char_packets(internal_font_number f, integer c)
+eight_bits *char_packets(internal_font_number f, integer c)
 {
     charinfo *ci = char_info(f, c);
     return get_charinfo_packets(ci);
@@ -1574,7 +1574,7 @@ int undump_charinfo(int f)
     char *s = NULL;
     liginfo *lig = NULL;
     kerninfo *kern = NULL;
-    real_eight_bits *packet = NULL;
+    eight_bits *packet = NULL;
 
     undump_int(i);
     co = get_charinfo(f, i);

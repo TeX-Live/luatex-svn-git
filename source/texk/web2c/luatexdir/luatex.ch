@@ -1293,7 +1293,7 @@ begin @!{|start_here|}
   source_filename_stack:=xmallocarray (str_number, max_in_open);
   full_source_filename_stack:=xmallocarray (str_number, max_in_open);
   param_stack:=xmallocarray (halfword, param_size);
-  dvi_buf:=xmallocarray (real_eight_bits, dvi_buf_size);
+  dvi_buf:=xmallocarray (eight_bits, dvi_buf_size);
   initialize_ocplist_arrays(ocp_list_size);
   initialize_ocp_buffers(ocp_buf_size, ocp_stack_size);
   obj_tab:=xmallocarray (obj_entry, inf_obj_tab_size); {will grow dynamically}

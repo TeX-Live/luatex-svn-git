@@ -862,7 +862,7 @@ read_char_packets(lua_State * L, integer * l_fonts, charinfo * co, int atsize)
     size_t l;
     int cmd;
     char *s;
-    real_eight_bits *cpackets;
+    eight_bits *cpackets;
     int ff = 0;
     int np = 0;
     int max_f = 0;
