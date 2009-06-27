@@ -169,6 +169,8 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/stringpool.c \
 	luatexdir/tex/stringpool.h \
 	luatexdir/tex/texdeffont.c \
+	luatexdir/tex/texfileio.c \
+	luatexdir/tex/texfileio.h \
 	luatexdir/tex/texnodes.c \
 	luatexdir/tex/textoken.c \
 	luatexdir/texmath.h \

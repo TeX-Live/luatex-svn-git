@@ -660,7 +660,6 @@ are said to be of type |ASCII_code|, which is a subrange of the integers.
 
 @<Types...@>=
 @!ASCII_code=0..biggest_char; {eight-bit numbers}
-@!BMP_code=0..65535; {sixteen-bit numbers}
 
 @ The original \PASCAL\ compiler was designed in the late 60s, when six-bit
 character sets were common, so it did not make provision for lowercase
