@@ -28,20 +28,14 @@ halfword pdf_xform_list;        /* list of forms in the current page */
 integer pdf_xform_count;        /* counter of forms */
 integer pdf_cur_form;           /* the form being output */
 
-void output_form(PDF pdf, halfword p, scaledpos pos)
-{
-    pdf_goto_pagemode(pdf);
-    pdf_place_form(pdf, obj_info(pdf_xform_objnum(p)), pos);
-    if (pdf_lookup_list(pdf_xform_list, pdf_xform_objnum(p)) == null)
-        pdf_append_list(pdf_xform_objnum(p), pdf_xform_list);
-}
-
-void pdf_place_form(PDF pdf, integer i, scaledpos pos)
+void pdf_place_form(PDF pdf, integer objnum, scaledpos pos)
 {
     pdf_goto_pagemode(pdf);
     pdf_printf(pdf, "q\n");
     pdf_set_pos_temp(pdf, pos);
-    pdf_printf(pdf, "/Fm%d", (int) i);
+    pdf_printf(pdf, "/Fm%d", (int) obj_info(objnum));
     pdf_print_resname_prefix(pdf);
     pdf_printf(pdf, " Do\nQ\n");
+    if (pdf_lookup_list(pdf_xform_list, objnum) == null)
+        pdf_append_list(objnum, pdf_xform_list);
 }

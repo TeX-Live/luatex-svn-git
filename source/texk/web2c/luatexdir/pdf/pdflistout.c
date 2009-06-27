@@ -379,7 +379,7 @@ void pdf_hlist_out(PDF pdf)
                         pos_left(pdf_width(p));
                         break;
                     }
-                    output_form(pdf, p, pos);
+                    pdf_place_form(pdf, pdf_xform_objnum(p), pos);
                     edge = cur.h + pdf_width(p);
                     cur.h = edge;
                     break;
@@ -893,7 +893,7 @@ void pdf_vlist_out(PDF pdf)
                     default:
                         break;
                     }
-                    output_form(pdf, p, pos);
+                    pdf_place_form(pdf, pdf_xform_objnum(p), pos);
                     cur.v = cur.v + pdf_height(p) + pdf_depth(p);
                     break;
                 case pdf_refximage_node:
