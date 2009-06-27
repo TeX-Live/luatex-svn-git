@@ -24,8 +24,6 @@
 
 extern void output_one_char(PDF pdf, internal_font_number ffi, integer c);
 
-#  define non_existent_path "///..."
-
 typedef integer *fm_entry_ptr;
 
 extern integer pk_dpi;          /* PK pixel density value from \.{texmf.cnf} */

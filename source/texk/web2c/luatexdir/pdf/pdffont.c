@@ -215,16 +215,14 @@ internal_font_number tfm_lookup(str_number s, scaled fs)
     internal_font_number k;
     if (fs != 0) {
         for (k = 1; k <= max_font_id(); k++) {
-            if ((strcmp(font_area(k), non_existent_path) != 0)
-                && cmp_font_name(k, s) && (font_size(k) == fs)) {
+	  if (cmp_font_name(k, s) && (font_size(k) == fs)) {
                 flush_str(s);
                 return k;
             }
         }
     } else {
         for (k = 1; k <= max_font_id(); k++) {
-            if ((strcmp(font_area(k), non_existent_path) != 0)
-                && cmp_font_name(k, s)) {
+            if (cmp_font_name(k, s)) {
                 flush_string(); /* |font_name| */
                 flush_str(s);
                 return k;
