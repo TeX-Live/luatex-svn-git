@@ -25,10 +25,12 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
-void out_img(PDF pdf, image * img, pdfstructure * p, scaledpos pos)
+void out_img(PDF pdf, image * img, scaledpos pos)
 {
     float a[6];                 /* transformation matrix */
     float xoff, yoff, tmp;
+    pdfstructure *p = pdf->pstruct;
+    assert(p != NULL);
     int r;                      /* number of digits after the decimal point */
     int k;
     scaled wd, ht, dp;
