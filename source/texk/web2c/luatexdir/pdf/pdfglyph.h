@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: pdfrule.h 2642 2009-06-27 11:35:54Z oneiros $ */
+/* $Id$ */
 
 #ifndef PDFGLYPH_H
 #  define PDFGLYPH_H

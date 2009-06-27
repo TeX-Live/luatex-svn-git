@@ -21,8 +21,8 @@
 #include "pdfpage.h"
 
 static const char __svn_version[] =
-    "$Id: pdfrule.c 2645 2009-06-27 12:01:54Z oneiros $"
-    "$URL: http://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/pdf/pdfrule.c $";
+    "$Id$"
+    "$URL$";
 
 /* not useful yet, selected stuff from pdfpage.c should go here, TODO... */
 
