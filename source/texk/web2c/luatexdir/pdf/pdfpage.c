@@ -386,7 +386,7 @@ static void goto_textmode(PDF pdf)
     };
     if (!is_textmode(p)) {
         if (is_pagemode(p)) {
-            pdf_set_pos(pdf, origin);    /* reset to page origin */
+            pdf_set_pos(pdf, origin);   /* reset to page origin */
             begin_text(pdf);
         } else {
             if (is_charmode(p))

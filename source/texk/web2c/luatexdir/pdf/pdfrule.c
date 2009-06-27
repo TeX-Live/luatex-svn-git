@@ -63,4 +63,3 @@ void pdf_place_rule(PDF pdf, scaled h, scaled v, scaled wd, scaled ht)
     }
     pdf_printf(pdf, "Q\n");
 }
-
