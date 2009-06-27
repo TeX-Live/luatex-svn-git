@@ -719,526 +719,50 @@ characters and \TeX's internal representation.
 @!alpha_file=packed file of text_char; {files that contain textual data}
 @!byte_file=packed file of eight_bits; {files that contain binary data}
 
-@ Most of what we need to do with respect to input and output can be handled
-by the I/O facilities that are standard in \PASCAL, i.e., the routines
-called |get|, |put|, |eof|, and so on. But
-standard \PASCAL\ does not allow file variables to be associated with file
-names that are determined at run time, so it cannot be used to implement
-\TeX; some sort of extension to \PASCAL's ordinary |reset| and |rewrite|
-is crucial for our purposes. We shall assume that |nameoffile| is a variable
-of an appropriate type such that the \PASCAL\ run-time system being used to
-implement \TeX\ can open a file whose external name is specified by
-|nameoffile|.
-@^system dependencies@>
-
-@<Glob...@>=
-@!nameoffile:packed array[1..file_name_size] of char;@;@/
-  {on some systems this may be a \&{record} variable}
-@!namelength:0..file_name_size;@/{this many characters are actually
-  relevant in |nameoffile| (the rest are blank)}
-@!name_file_pointer:alpha_file;
-
-@ The \ph\ compiler with which the present version of \TeX\ was prepared has
-extended the rules of \PASCAL\ in a very convenient way. To open file~|f|,
-we can write
-$$\vbox{\halign{#\hfil\qquad&#\hfil\cr
-|reset(f,@t\\{name}@>,'/O')|&for input;\cr
-|rewrite(f,@t\\{name}@>,'/O')|&for output.\cr}}$$
-The `\\{name}' parameter, which is of type `{\bf packed array
-$[\langle\\{any}\rangle]$ of \\{char}}', stands for the name of
-the external file that is being opened for input or output.
-Blank spaces that might appear in \\{name} are ignored.
-
-The `\.{/O}' parameter tells the operating system not to issue its own
-error messages if something goes wrong. If a file of the specified name
-cannot be found, or if such a file cannot be opened for some other reason
-(e.g., someone may already be trying to write the same file), we will have
-|@!erstat(f)<>0| after an unsuccessful |reset| or |rewrite|.  This allows
-\TeX\ to undertake appropriate corrective action.
-@:PASCAL H}{\ph@>
-@^system dependencies@>
-
-\TeX's file-opening procedures return |false| if no file identified by
-|nameoffile| could be opened.
-
-@d reset_OK(#)==erstat(#)=0
-@d rewrite_OK(#)==erstat(#)=0
-
-@p function a_open_in(var f:alpha_file):boolean;
-  {open a text file for input}
-begin reset(f,nameoffile,'/O'); a_open_in:=reset_OK(f);
-end;
+@ @<Glob...@>=
+@!init
+@!ini_version:boolean; {are we \.{INITEX}?}
+@!dump_option:boolean; {was the dump name option used?}
+@!dump_line:boolean; {was a \.{\%\AM format} line seen?}
+tini@/
 @#
-function a_open_out(var f:alpha_file):boolean;
-  {open a text file for output}
-begin rewrite(f,nameoffile,'/O'); a_open_out:=rewrite_OK(f);
-end;
+@!bound_default:integer; {temporary for setup}
+@!bound_name:^char; {temporary for setup}
 @#
-function b_open_in(var f:byte_file):boolean;
-  {open a binary file for input}
-begin reset(f,nameoffile,'/O'); b_open_in:=reset_OK(f);
-end;
-@#
-function b_open_out(var f:byte_file):boolean;
-  {open a binary file for output}
-begin rewrite(f,nameoffile,'/O'); b_open_out:=rewrite_OK(f);
-end;
-@#
-function w_open_in(var f:word_file):boolean;
-  {open a word file for input}
-begin reset(f,nameoffile,'/O'); w_open_in:=reset_OK(f);
-end;
-@#
-function w_open_out(var f:word_file):boolean;
-  {open a word file for output}
-begin rewrite(f,nameoffile,'/O'); w_open_out:=rewrite_OK(f);
-end;
-
-@ When input files are opened via a callback, they will also be read using
-callbacks. for that purpose, the |open_read_file_callback| returns an
-integer to uniquely identify a callback table. This id replaces the file
-point |f| in this case, because the input does not have to be a file
-in the traditional sense.
-
-Signalling this fact is achieved by having two arrays of integers.
-
-@<Glob...@>=
-@!input_file_callback_id : ^integer;
-@!read_file_callback_id : array[0..16] of integer;
-
-@
-@p function lua_a_open_in(var f:alpha_file; n:quarterword):boolean;
-var k:integer; { a temporary value }
-  fnam:str_number; { string returned by find callback }
-  callback_id:integer;
-  file_ok:boolean; { the status so far }
-begin
-  file_ok:=true;
-  if n=0 then begin
-    texinputtype := 1; {Tell |open_input| we are \.{\\input}.}
-    input_file_callback_id[iindex] := 0;
-    end
-  else begin
-    texinputtype:=0;
-    read_file_callback_id[n] := 0;
-    end;
-  callback_id:=callback_defined(find_read_file_callback);
-  if callback_id>0 then begin
-    fnam:=0;
-    file_ok:=run_callback(callback_id,'dS->s',n,stringcast(nameoffile+1),addressof(fnam));
-    if (file_ok)and(fnam<>0)and(length(fnam)>0) then begin
-      @<Fixup |nameoffile| after callback@>;
-      end
-    else
-      file_ok:=false; {file not found}
-    end;
-  if file_ok then begin
-    callback_id:=callback_defined(open_read_file_callback);
-    if callback_id>0 then begin
-      k := run_and_save_callback(callback_id,'S->',stringcast(nameoffile+1));
-      if k>0 then begin
-        lua_a_open_in := true;
-        if n=0 then
-          input_file_callback_id[iindex] := k
-        else
-          read_file_callback_id[n] := k;
-        end
-      else
-        file_ok:=false; {read failed}
-      end
-    else begin {no read callback}
-      if openinnameok(stringcast(nameoffile+1)) then begin
-        lua_a_open_in := a_open_in(f,kpsetexformat);
-        name_file_pointer := f;
-        end
-      else
-        file_ok:=false; {open failed}
-      end;
-    end;
-  if not file_ok then begin
-    lua_a_open_in := false;
-    name_file_pointer := 0;
-    end;
-end;
-@#
-function lua_a_open_out(var f:alpha_file; n:quarterword):boolean;
-var test:boolean;
-  k:integer;
-  fnam:str_number;
-  callback_id:integer;
-begin
-  name_file_pointer := 0;
-  callback_id:=callback_defined(find_write_file_callback);
-  if callback_id>0 then begin
-    fnam:=0;
-    test:=run_callback(callback_id,'dS->s',n,stringcast(nameoffile+1),addressof(fnam));
-    if (test)and(fnam<>0)and(length(fnam)>0) then begin
-      @<Fixup |nameoffile| after callback@>;
-      lua_a_open_out := do_a_open_out(f);
-          name_file_pointer := f;
-      end
-    else
-      lua_a_open_out := false;
-    end
-  else begin
-        if openoutnameok(stringcast(nameoffile+1)) then begin
-      lua_a_open_out := a_open_out(f);
-      name_file_pointer := f;
-      end
-    else
-      lua_a_open_out := false;
-   end;
-end;
-function lua_b_open_out(var f:alpha_file):boolean;
-var test:boolean;
-  k:integer;
-  fnam:str_number;
-  callback_id:integer;
-begin
-  name_file_pointer := 0;
-  callback_id:=callback_defined(find_output_file_callback);
-  if callback_id>0 then begin
-    fnam:=0;
-    test:=run_callback(callback_id,'S->s',stringcast(nameoffile+1),addressof(fnam));
-    if (test)and(fnam<>0)and(length(fnam)>0) then begin
-      @<Fixup |nameoffile| after callback@>;
-      lua_b_open_out := do_b_open_out(f);
-          name_file_pointer := f;
-      end
-    else
-      lua_b_open_out := false;
-    end
-  else begin
-        if openoutnameok(stringcast(nameoffile+1)) then begin
-      lua_b_open_out := b_open_out(f);
-      name_file_pointer := f;
-      end
-    else
-      lua_b_open_out := false;
-   end;
-end;
-
-@
-@<Fixup |nameoffile| after callback@>=
-libcfree (nameoffile);
-nameoffile := xmallocarray (packed_ASCII_code, length(fnam)+2);
-for k:=str_start_macro(fnam) to str_start_macro(fnam+1)-1 do
-  nameoffile[k-str_start_macro(fnam)+1] := str_pool[k];
-nameoffile[length(fnam)+1]:=0;
-namelength := length(fnam);
-flush_string
-
-@ Files can be closed with the \ph\ routine `|close(f)|', which
-@:PASCAL H}{\ph@>
-@^system dependencies@>
-should be used when all input or output with respect to |f| has been completed.
-This makes |f| available to be opened again, if desired; and if |f| was used for
-output, the |close| operation makes the corresponding external file appear
-on the user's area, ready to be read.
-
-These procedures should not generate error messages if a file is
-being closed before it has been successfully opened.
-
-@p procedure a_close(var f:alpha_file); {close a text file}
-begin close(f);
-end;
-@#
-procedure b_close(var f:byte_file); {close a binary file}
-begin close(f);
-end;
-@#
-procedure w_close(var f:word_file); {close a word file}
-begin close(f);
-end;
-
-
-@
-
-@p procedure lua_a_close_in(var f:alpha_file; n:quarterword); {close a text file}
-var ret:boolean;
-    callback_id:integer;
-begin
-if n=0 then
-  callback_id:=input_file_callback_id[iindex]
-else
-  callback_id:=read_file_callback_id[n];
-if callback_id>0 then begin
-  ret:=run_saved_callback(callback_id,'close','->');
-  destroy_saved_callback(callback_id);
-  if n=0 then
-    input_file_callback_id[iindex] := 0
-  else
-    read_file_callback_id[n] := 0;
-  end
-else
-  a_close(f);
-end;
-@#
-procedure lua_a_close_out(var f:alpha_file); {close a text file}
-begin
-  a_close(f);
-end;
-
-
-@ Binary input and output are done with \PASCAL's ordinary |get| and |put|
-procedures, so we don't have to make any other special arrangements for
-binary~I/O. Text output is also easy to do with standard \PASCAL\ routines.
-The treatment of text input is more difficult, however, because
-of the necessary translation to |ASCII_code| values.
-\TeX's conventions should be efficient, and they should
-blend nicely with the user's operating environment.
-
-@ Input from text files is read one line at a time, using a routine called
-|lua_input_ln|. This function is defined in terms of global variables called
-|buffer|, |first|, and |last| that will be described in detail later; for
-now, it suffices for us to know that |buffer| is an array of |ASCII_code|
-values, and that |first| and |last| are indices into this array
-representing the beginning and ending of a line of text.
-
-@<Glob...@>=
-@!buffer:array[0..buf_size] of packed_ASCII_code; {lines of characters being read}
-@!first:0..buf_size; {the first unused position in |buffer|}
-@!last:0..buf_size; {end of the line just input to |buffer|}
-@!max_buf_stack:0..buf_size; {largest index used in |buffer|}
-
-@ The |lua_input_ln| function brings the next line of input from the specified
-file into available positions of the buffer array and returns the value
-|true|, unless the file has already been entirely read, in which case it
-returns |false| and sets |last:=first|.  In general, the |ASCII_code|
-numbers that represent the next line of the file are input into
-|buffer[first]|, |buffer[first+1]|, \dots, |buffer[last-1]|; and the
-global variable |last| is set equal to |first| plus the length of the
-line. Trailing blanks are removed from the line; thus, either |last=first|
-(in which case the line was entirely blank) or |buffer[last-1]<>" "|.
-
-An overflow error is given, however, if the normal actions of |lua_input_ln|
-would make |last>=buf_size|; this is done so that other parts of \TeX\
-can safely look at the contents of |buffer[last+1]| without overstepping
-the bounds of the |buffer| array. Upon entry to |lua_input_ln|, the condition
-|first<buf_size| will always hold, so that there is always room for an
-``empty'' line.
-
-The variable |max_buf_stack|, which is used to keep track of how large
-the |buf_size| parameter must be to accommodate the present job, is
-also kept up to date by |lua_input_ln|.
-
-If the |bypass_eoln| parameter is |true|, |lua_input_ln| will do a |get|
-before looking at the first character of the line; this skips over
-an |eoln| that was in |f^|. The procedure does not do a |get| when it
-reaches the end of the line; therefore it can be used to acquire input
-from the user's terminal as well as from ordinary text files.
-
-Standard \PASCAL\ says that a file should have |eoln| immediately
-before |eof|, but \TeX\ needs only a weaker restriction: If |eof|
-occurs in the middle of a line, the system function |eoln| should return
-a |true| result (even though |f^| will be undefined).
-
-Since the inner loop of |lua_input_ln| is part of \TeX's ``inner loop''---each
-character of input comes in at this place---it is wise to reduce system
-overhead by making use of special routines that read in an entire array
-of characters at once, if such routines are available. The following
-code uses standard \PASCAL\ to illustrate what needs to be done, but
-finer tuning is often possible at well-developed \PASCAL\ sites.
-@^inner loop@>
-
-@p function input_ln(var f:alpha_file;@!bypass_eoln:boolean):boolean;
-  {inputs the next line or returns |false|}
-var last_nonblank:0..buf_size; {|last| with trailing blanks removed}
-begin if bypass_eoln then if not eof(f) then get(f);
-  {input the first character of the line into |f^|}
-last:=first; {cf.\ Matthew 19\thinspace:\thinspace30}
-if eof(f) then input_ln:=false
-else  begin last_nonblank:=first;
-  while not eoln(f) do
-    begin if last>=max_buf_stack then
-      begin max_buf_stack:=last+1;
-      if max_buf_stack=buf_size then
-        @<Report overflow of the input buffer, and abort@>;
-      end;
-    buffer[last]:=f^; get(f); incr(last);
-    if buffer[last-1]<>" " then last_nonblank:=last;
-    end;
-  last:=last_nonblank; input_ln:=true;
-  end;
-end;
-
-function lua_input_ln(var f:alpha_file;n:quarterword;@!bypass_eoln:boolean):boolean;
-var lua_result:boolean;
-        last_ptr:integer;
-    callback_id:integer;
-        bypass_p:boolean;
-begin
-if n=0 then
-  callback_id:=input_file_callback_id[iindex]
-else
-  callback_id:=read_file_callback_id[n];
-if callback_id>0 then begin
-    last:=first;
-        last_ptr := first;
-    lua_result := run_saved_callback(callback_id,'reader','->l', addressof(last_ptr));
-        if (lua_result=true)and(last_ptr<>0) then begin
-          last := last_ptr;
-          if last>max_buf_stack then max_buf_stack:=last;
-          lua_input_ln := true;
-      @<Fix up the input buffer using callbacks@>;
-      end
-    else
-      lua_input_ln := false;
-    end
-  else begin
-    bypass_p := bypass_eoln; {this is for -Wextra}
-    lua_result := input_ln(f,bypass_p);
-        if lua_result=true then begin
-      lua_input_ln := true;
-      @<Fix up the input buffer using callbacks@>;
-      end
-    else
-      lua_input_ln := false;
-    end
-end;
-
-@
-@<Fix up the input buffer using callbacks@>=
-if last>=first then begin
-  callback_id := callback_defined(process_input_buffer_callback);
-  if callback_id>0 then begin
-    last_ptr := first;
-    lua_result := run_callback(callback_id, 'l->l', (last-first), addressof(last_ptr));
-    if (lua_result=true)and(last_ptr<>0) then begin
-          last := last_ptr;
-          if last>max_buf_stack then max_buf_stack:=last;
-      end;
-    end;
-  end
-
-
-
-@ The user's terminal acts essentially like other files of text, except
-that it is used both for input and for output. When the terminal is
-considered an input file, the file variable is called |term_in|, and when it
-is considered an output file the file variable is |term_out|.
-@^system dependencies@>
-
-@<Glob...@>=
-@!term_in:alpha_file; {the terminal as an input file}
-@!term_out:alpha_file; {the terminal as an output file}
-
-@ Here is how to open the terminal files
-in \ph. The `\.{/I}' switch suppresses the first |get|.
-@:PASCAL H}{\ph@>
-@^system dependencies@>
-
-@d t_open_in==reset(term_in,'TTY:','/O/I') {open the terminal for text input}
-@d t_open_out==rewrite(term_out,'TTY:','/O') {open the terminal for text output}
-
-@ Sometimes it is necessary to synchronize the input/output mixture that
-happens on the user's terminal, and three system-dependent
-procedures are used for this
-purpose. The first of these, |update_terminal|, is called when we want
-to make sure that everything we have output to the terminal so far has
-actually left the computer's internal buffers and been sent.
-The second, |clear_terminal|, is called when we wish to cancel any
-input that the user may have typed ahead (since we are about to
-issue an unexpected error message). The third, |wake_up_terminal|,
-is supposed to revive the terminal if the user has disabled it by
-some instruction to the operating system.  The following macros show how
-these operations can be specified in \ph:
-@:PASCAL H}{\ph@>
-@^system dependencies@>
-
-@d update_terminal == break(term_out) {empty the terminal output buffer}
-@d clear_terminal == break_in(term_in,true) {clear the terminal input buffer}
-@d wake_up_terminal == do_nothing {cancel the user's cancellation of output}
-
-@ We need a special routine to read the first line of \TeX\ input from
-the user's terminal. This line is different because it is read before we
-have opened the transcript file; there is sort of a ``chicken and
-egg'' problem here. If the user types `\.{\\input paper}' on the first
-line, or if some macro invoked by that line does such an \.{\\input},
-the transcript file will be named `\.{paper.log}'; but if no \.{\\input}
-commands are performed during the first line of terminal input, the transcript
-file will acquire its default name `\.{texput.log}'. (The transcript file
-will not contain error messages generated by the first line before the
-first \.{\\input} command.)
-@.texput@>
-
-The first line is even more special if we are lucky enough to have an operating
-system that treats \TeX\ differently from a run-of-the-mill \PASCAL\ object
-program. It's nice to let the user start running a \TeX\ job by typing
-a command line like `\.{tex paper}'; in such a case, \TeX\ will operate
-as if the first line of input were `\.{paper}', i.e., the first line will
-consist of the remainder of the command line, after the part that invoked
-\TeX.
-
-The first line is special also because it may be read before \TeX\ has
-input a format file. In such cases, normal error messages cannot yet
-be given. The following code uses concepts that will be explained later.
-(If the \PASCAL\ compiler does not support non-local |@!goto|\unskip, the
-@^system dependencies@>
-statement `|goto final_end|' should be replaced by something that
-quietly terminates the program.)
-
-@<Report overflow of the input buffer, and abort@>=
-if format_ident=0 then
-  begin writeln(term_out,'Buffer size exceeded!'); goto final_end;
-@.Buffer size exceeded@>
-  end
-else
-  check_buffer_overflow(buf_size+10) { need  a little bit more}
-
-@ Different systems have different ways to get started. But regardless of
-what conventions are adopted, the routine that initializes the terminal
-should satisfy the following specifications:
-
-\yskip\textindent{1)}It should open file |term_in| for input from the
-  terminal. (The file |term_out| will already be open for output to the
-  terminal.)
-
-\textindent{2)}If the user has given a command line, this line should be
-  considered the first line of terminal input. Otherwise the
-  user should be prompted with `\.{**}', and the first line of input
-  should be whatever is typed in response.
-
-\textindent{3)}The first line of input, which might or might not be a
-  command line, should appear in locations |first| to |last-1| of the
-  |buffer| array.
-
-\textindent{4)}The global variable |loc| should be set so that the
-  character to be read next by \TeX\ is in |buffer[loc]|. This
-  character should not be blank, and we should have |loc<last|.
-
-\yskip\noindent(It may be necessary to prompt the user several times
-before a non-blank line comes in. The prompt is `\.{**}' instead of the
-later `\.*' because the meaning is slightly different: `\.{\\input}' need
-not be typed immediately after~`\.{**}'.)
-
-@ The following program does the required initialization
-without retrieving a possible command line.
-It should be clear how to modify this routine to deal with command lines,
-if the system permits them.
-@^system dependencies@>
-
-@p function init_terminal:boolean; {gets the terminal input started}
-label exit;
-begin t_open_in;
-loop@+begin wake_up_terminal; write(term_out,'**'); update_terminal;
-@.**@>
-  if not input_ln(term_in,true)
-then {this shouldn't happen}
-    begin writeln(term_out);
-    write(term_out,'! End of file on the terminal... why?');
-@.End of file on the terminal@>
-    init_terminal:=false; return;
-    end;
-  iloc:=first;
-  while (iloc<last)and(buffer[iloc]=" ") do incr(iloc);
-  if iloc<last then
-    begin init_terminal:=true;
-    return; {return unless the line was all blank}
-    end;
-  writeln(term_out,'Please type the name of your input file.');
-  end;
-exit:end;
+@!error_line:integer; {width of context lines on terminal error messages}
+@!half_error_line:integer; {width of first lines of contexts in terminal
+  error messages; should be between 30 and |error_line-15|}
+@!max_print_line:integer;
+  {width of longest text lines output; should be at least 60}
+@!ocp_list_size:integer;
+@!ocp_buf_size:integer;
+@!ocp_stack_size:integer;
+@!max_strings:integer; {maximum number of strings; must not exceed |max_halfword|}
+@!strings_free:integer; {strings available after format loaded}
+@!string_vacancies:integer; {the minimum number of characters that should be
+  available for the user's control sequences and font names,
+  after \TeX's own error messages are stored}
+@!pool_size:integer; {maximum number of characters in strings, including all
+  error messages and help texts, and the names of all fonts and
+  control sequences; must exceed |string_vacancies| by the total
+  length of \TeX's own strings, which is currently about 23000}
+@!pool_free:integer;{pool space free after format loaded}
+@!font_k:integer; {loop variable for initialization}
+@!buf_size:integer; {maximum number of characters simultaneously present in
+  current lines of open files and in control sequences between
+  \.{\\csname} and \.{\\endcsname}; must not exceed |max_halfword|}
+@!stack_size:integer; {maximum number of simultaneous input sources}
+@!max_in_open:integer; {maximum number of input files and error insertions that
+  can be going on simultaneously}
+@!param_size:integer; {maximum number of simultaneous macro parameters}
+@!nest_size:integer; {maximum number of semantic levels simultaneously active}
+@!save_size:integer; {space for saving values outside of current group; must be
+  at most |max_halfword|}
+@!expand_depth:integer; {limits recursive calls of the |expand| procedure}
+@!parsefirstlinep:cinttype; {parse the first line for options}
+@!filelineerrorstylep:cinttype; {format messages as file:line:error}
+@!haltonerrorp:cinttype; {stop at first error}
+@!quoted_filename:boolean; {current filename is quoted}
 
 @* \[4] String handling.
 
@@ -1253,26 +777,8 @@ pool_pointer = integer;
 packed_ASCII_code = 0..255;
 
 
-
 @* \[5] On-line and off-line printing.
 
-@ Here is a procedure that asks the user to type a line of input,
-assuming that the |selector| setting is either |term_only| or |term_and_log|.
-The input is placed into locations |first| through |last-1| of the
-|buffer| array, and echoed on the transcript file if appropriate.
-
-@
-@p procedure term_input; {gets a line from the terminal}
-var k:0..buf_size; {index into |buffer|}
-begin update_terminal; {now the user sees the prompt for sure}
-if not input_ln(term_in,true)
-then fatal_error('End of file on the terminal!');
-@.End of file on the terminal@>
-term_offset:=0; {the user's line ended with \<\rm return>}
-decr(selector); {prepare to echo the input}
-if last<>first then for k:=first to last-1 do print(buffer[k]);
-print_ln; incr(selector); {restore previous status}
-end;
 
 @* \[6] Reporting errors.
 
@@ -9758,7 +9264,7 @@ begin old_setting:=selector;
 if job_name=0 then job_name:="texput";
 @.texput@>
 pack_job_name('.log');
-while not lua_a_open_out(addressof(log_file),0) do @<Try to get a different log file name@>;
+while not lua_a_open_out(log_file,0) do @<Try to get a different log file name@>;
 log_file := name_file_pointer;
 texmf_log_name:=a_make_name_string(log_file);
 selector:=log_only; log_opened:=true;

@@ -57,13 +57,14 @@ char * last_error;
 
 void print_err (char *s)
 { 
-	if (interaction==error_stop_mode)
-		wake_up_terminal();
-	if (filelineerrorstylep) 
-		print_file_line();
-	else tprint_nl("! ");
-	tprint(s);
-	last_error=s;
+    if (interaction==error_stop_mode) {
+        wake_up_terminal();
+    }
+    if (filelineerrorstylep) 
+        print_file_line();
+    else tprint_nl("! ");
+    tprint(s);
+    last_error=s;
 }
 
 /*

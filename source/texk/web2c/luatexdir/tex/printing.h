@@ -22,13 +22,6 @@
 #ifndef PRINTING_H
 #  define PRINTING_H
 
-#  define term_in stdin
-#  define term_out stdout
-
-#define clear_terminal()
-#define update_terminal() fflush(term_out)
-#define wake_up_terminal() fflush(term_out)
-
 typedef enum {
     no_print = 16,              /* |selector| setting that makes data disappear */
     term_only = 17,             /* printing is destined for the terminal only */

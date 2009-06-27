@@ -1490,3 +1490,30 @@
 
 {file io}
 
+@define var nameoffile;
+@define var namelength;
+@define var name_file_pointer;
+
+@define var input_file_callback_id ;
+@define var read_file_callback_id ;
+
+@define function lua_a_open_in ();
+@define function lua_a_open_out();
+@define function lua_b_open_out();
+@define procedure lua_a_close_in();
+@define procedure lua_a_close_out();
+
+@define var buffer;
+@define var first;
+@define var last;
+@define var max_buf_stack;
+
+@define function lua_input_ln();
+@define var term_in;
+@define var term_out;
+@define procedure t_open_out;
+@define procedure update_terminal;
+@define procedure clear_terminal;
+@define procedure wake_up_terminal;
+@define function init_terminal;
+@define procedure term_input;
