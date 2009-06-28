@@ -147,14 +147,14 @@ halfword append_ptr(halfword p, integer i)
 {
     halfword q;
     q = get_avail();
-    fixmem[q].hhrh = 0;         /* link */
-    fixmem[q].hhlh = i;         /* info */
+    token_link(q) = 0;         /* link */
+    token_info(q) = i;         /* info */
     if (p == 0) {
         return q;
     }
-    while (fixmem[p].hhrh != 0)
-        p = fixmem[p].hhrh;
-    fixmem[p].hhrh = q;
+    while (token_link(p) != 0)
+        p = token_link(p);
+    token_link(p) = q;
     return p;
 }
 
@@ -162,9 +162,9 @@ halfword append_ptr(halfword p, integer i)
 halfword pdf_lookup_list(halfword p, integer i)
 {
     while (p != null) {
-        if (fixmem[p].hhlh == i)
+        if (token_info(p) == i)
             return p;
-        p = fixmem[p].hhrh;
+        p = token_link(p);
     }
     return null;
 }

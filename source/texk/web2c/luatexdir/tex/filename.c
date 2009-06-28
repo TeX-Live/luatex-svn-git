@@ -19,7 +19,6 @@
 
 #include "luatex-api.h"
 #include <ptexlib.h>
-#include "tokens.h"
 #include "commands.h"
 
 

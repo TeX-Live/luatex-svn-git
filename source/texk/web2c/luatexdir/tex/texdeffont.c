@@ -20,7 +20,6 @@
 #include "luatex-api.h"
 #include <ptexlib.h>
 
-#include "tokens.h"
 #include "nodes.h"
 #include "commands.h"
 

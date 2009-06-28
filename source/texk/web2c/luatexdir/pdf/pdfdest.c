@@ -25,7 +25,6 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
-#define info(A) fixmem[(A)].hhlh
 #define pdf_dest_margin          dimen_par(param_pdf_dest_margin_code)
 
 halfword pdf_dest_list;         /* list of destinations in the current page */
@@ -162,18 +161,18 @@ void write_out_pdf_mark_destinations(PDF pdf)
     if (pdf_dest_list != null) {
         k = pdf_dest_list;
         while (k != null) {
-            if (is_obj_written(fixmem[k].hhlh)) {
+  	    if (is_obj_written(token_info(k))) {
                 pdf_error(maketexstring("ext5"),
                           maketexstring
                           ("destination has been already written (this shouldn't happen)"));
             } else {
                 integer i;
-                i = obj_dest_ptr(info(k));
+                i = obj_dest_ptr(token_info(k));
                 if (pdf_dest_named_id(i) > 0) {
-                    pdf_begin_dict(pdf, info(k), 1);
+                    pdf_begin_dict(pdf, token_info(k), 1);
                     pdf_printf(pdf, "/D ");
                 } else {
-                    pdf_begin_obj(pdf, info(k), 1);
+                    pdf_begin_obj(pdf, token_info(k), 1);
                 }
                 pdf_out(pdf, '[');
                 pdf_print_int(pdf, pdf_last_page);
@@ -230,7 +229,7 @@ void write_out_pdf_mark_destinations(PDF pdf)
                 else
                     pdf_end_obj(pdf);
             }
-            k = fixmem[k].hhrh;
+            k = token_link(k);
         }
     }
 }

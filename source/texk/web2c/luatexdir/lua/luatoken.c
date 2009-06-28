@@ -20,7 +20,6 @@
 #include "luatex-api.h"
 #include <ptexlib.h>
 
-#include "tokens.h"
 #include "commands.h"
 
 static const char _svn_version[] =
@@ -340,7 +339,7 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
         return NULL;
     }
     ret = xmalloc(alloci);
-    p = link(p);                /* skip refcount */
+    p = token_link(p);                /* skip refcount */
     if (p!=null) {
         if (null_cs == 0) {
             null_cs = get_nullcs();
@@ -353,7 +352,7 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
             Print_esc("CLOBBERED.");
             break;
         }
-        infop = info(p);
+        infop = token_info(p);
         if (infop >= cs_token_flag) {
             if (!(inhibit_par && infop == par_token)) {
                 q = infop - cs_token_flag;
@@ -444,7 +443,7 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
                 }
             }
         }
-        p = link(p);
+        p = token_link(p);
     }
     ret[i] = '\0';
     if (siz != NULL)
@@ -461,23 +460,23 @@ void tokenlist_to_lua(lua_State * L, int p)
     v = p;
     while (v != null && v < fix_mem_end) {
         i++;
-        v = link(v);
+        v = token_link(v);
     }
     i = 1;
     lua_createtable(L, i, 0);
     while (p != null && p < fix_mem_end) {
-        if (info(p) >= cs_token_flag) {
-            cs = info(p) - cs_token_flag;
+        if (token_info(p) >= cs_token_flag) {
+            cs = token_info(p) - cs_token_flag;
             cmd = zget_eq_type(cs);
             chr = zget_equiv(cs);
             make_token_table(L, cmd, chr, cs);
         } else {
-            cmd = info(p) / STRING_OFFSET;
-            chr = info(p) % STRING_OFFSET;
+            cmd = token_info(p) / STRING_OFFSET;
+            chr = token_info(p) % STRING_OFFSET;
             make_token_table(L, cmd, chr, 0);
         }
         lua_rawseti(L, -2, i++);
-        p = link(p);
+        p = token_link(p);
     }
 }
 
@@ -498,8 +497,8 @@ int tokenlist_from_lua(lua_State * L)
     size_t i, j;
     halfword p, q, r;
     r = get_avail();
-    info(r) = 0;                /* ref count */
-    link(r) = null;
+    token_info(r) = 0;                /* ref count */
+    token_link(r) = null;
     p = r;
     if (lua_istable(L, -1)) {
         j = lua_objlen(L, -1);
@@ -565,7 +564,7 @@ void do_get_token_lua(integer callback_id)
                     }
                 }
                 if (p != r) {
-                    p = link(r);
+                    p = token_link(r);
                     free_avail(r);
                     begin_token_list(p, inserted);
                     cur_input.nofilter_field = true;

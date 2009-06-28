@@ -24,10 +24,6 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-#undef link                     /* defined by cpascal.h */
-#define info(a)    fixmem[(a)].hhlh
-#define link(a)    fixmem[(a)].hhrh
-
 static char *group_code_names[] = {
     "",
     "simple",

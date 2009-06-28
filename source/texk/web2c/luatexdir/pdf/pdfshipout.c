@@ -21,7 +21,6 @@
 
 #include "commands.h"
 #include "luatex-api.h"         /* for tokenlist_to_cstring */
-#include "tokens.h"             /* for link and info */
 
 #define count(A) zeqtb[count_base+(A)].cint
 
@@ -422,15 +421,15 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
             pdf_printf(pdf, "/Annots [ ");
             k = pdf_annot_list;
             while (k != null) {
-                pdf_print_int(pdf, info(k));
+                pdf_print_int(pdf, token_info(k));
                 pdf_printf(pdf, " 0 R ");
-                k = link(k);
+                k = token_link(k);
             }
             k = pdf_link_list;
             while (k != null) {
-                pdf_print_int(pdf, info(k));
+                pdf_print_int(pdf, token_info(k));
                 pdf_printf(pdf, " 0 R ");
-                k = link(k);
+                k = token_link(k);
             }
             pdf_printf(pdf, "]\n");
         }
@@ -443,9 +442,9 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     if (pdf_obj_list != null) {
         k = pdf_obj_list;
         while (k != null) {
-            if (!is_obj_written(info(k)))
-                pdf_write_obj(pdf, info(k));
-            k = link(k);
+            if (!is_obj_written(token_info(k)))
+                pdf_write_obj(pdf, token_info(k));
+            k = token_link(k);
         }
     }
 
@@ -458,8 +457,8 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     if (pdf_xform_list != null) {
         k = pdf_xform_list;
         while (k != null) {
-            if (!is_obj_written(info(k))) {
-                pdf_cur_form = info(k);
+            if (!is_obj_written(token_info(k))) {
+                pdf_cur_form = token_info(k);
                 /* Save resource lists */
                 save_font_list = pdf_font_list;
                 save_obj_list = pdf_obj_list;
@@ -482,7 +481,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
                 pdf_image_procset = save_image_procset;
 
             }
-            k = link(k);
+            k = token_link(k);
         }
     }
 
@@ -490,9 +489,9 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     if (pdf_ximage_list != null) {
         k = pdf_ximage_list;
         while (k != null) {
-            if (!is_obj_written(info(k)))
-                pdf_write_image(pdf, info(k));
-            k = link(k);
+            if (!is_obj_written(token_info(k)))
+                pdf_write_image(pdf, token_info(k));
+            k = token_link(k);
         }
     }
 
@@ -502,13 +501,13 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         if (pdf_annot_list != null) {
             k = pdf_annot_list;
             while (k != null) {
-                i = obj_annot_ptr(info(k));     /* |i| points to |pdf_annot_node| */
-                pdf_begin_dict(pdf, info(k), 1);
+                i = obj_annot_ptr(token_info(k));     /* |i| points to |pdf_annot_node| */
+                pdf_begin_dict(pdf, token_info(k), 1);
                 pdf_printf(pdf, "/Type /Annot\n");
                 pdf_print_toks_ln(pdf, pdf_annot_data(i));
                 pdf_rectangle(pdf, i);
                 pdf_end_dict(pdf);
-                k = link(k);
+                k = token_link(k);
             }
         }
 
@@ -516,8 +515,8 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         if (pdf_link_list != null) {
             k = pdf_link_list;
             while (k != null) {
-                i = obj_annot_ptr(info(k));
-                pdf_begin_dict(pdf, info(k), 1);
+                i = obj_annot_ptr(token_info(k));
+                pdf_begin_dict(pdf, token_info(k), 1);
                 pdf_printf(pdf, "/Type /Annot\n");
                 if (pdf_action_type(pdf_link_action(i)) != pdf_action_user)
                     pdf_printf(pdf, "/Subtype /Link\n");
@@ -528,17 +527,17 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
                     pdf_printf(pdf, "/A ");
                 write_action(pdf, pdf_link_action(i));
                 pdf_end_dict(pdf);
-                k = link(k);
+                k = token_link(k);
             }
             /* Flush |pdf_start_link_node|'s created by |append_link| */
             k = pdf_link_list;
             while (k != null) {
-                i = obj_annot_ptr(info(k));
+                i = obj_annot_ptr(token_info(k));
                 /* nodes with |subtype = pdf_link_data_node| were created by |append_link| and
                    must be flushed here, as they are not linked in any list */
                 if (subtype(i) == pdf_link_data_node)
                     flush_node(i);
-                k = link(k);
+                k = token_link(k);
             }
         }
 
@@ -568,13 +567,13 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         k = pdf_font_list;
         while (k != null) {
             pdf_printf(pdf, "/F");
-            set_ff(info(k));
+            set_ff(token_info(k));
             pdf_print_int(pdf, ff);
             pdf_print_resname_prefix(pdf);
             pdf_out(pdf, ' ');
             pdf_print_int(pdf, pdf_font_num(ff));
             pdf_printf(pdf, " 0 R ");
-            k = link(k);
+            k = token_link(k);
         }
         pdf_printf(pdf, ">>\n");
         pdf_text_procset = true;
@@ -586,23 +585,23 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         k = pdf_xform_list;
         while (k != null) {
             pdf_printf(pdf, "/Fm");
-            pdf_print_int(pdf, obj_info(info(k)));
+            pdf_print_int(pdf, obj_info(token_info(k)));
             pdf_print_resname_prefix(pdf);
             pdf_out(pdf, ' ');
-            pdf_print_int(pdf, info(k));
+            pdf_print_int(pdf, token_info(k));
             pdf_printf(pdf, " 0 R ");
-            k = link(k);
+            k = token_link(k);
         }
         k = pdf_ximage_list;
         while (k != null) {
             pdf_printf(pdf, "/Im");
-            pdf_print_int(pdf, image_index(obj_data_ptr(info(k))));
+            pdf_print_int(pdf, image_index(obj_data_ptr(token_info(k))));
             pdf_print_resname_prefix(pdf);
             pdf_out(pdf, ' ');
-            pdf_print_int(pdf, info(k));
+            pdf_print_int(pdf, token_info(k));
             pdf_printf(pdf, " 0 R ");
-            update_image_procset(obj_data_ptr(info(k)));
-            k = link(k);
+            update_image_procset(obj_data_ptr(token_info(k)));
+            k = token_link(k);
         }
         pdf_printf(pdf, ">>\n");
     }

@@ -21,7 +21,6 @@
 #include <ptexlib.h>
 #include "nodes.h"
 #include "commands.h"
-#include "tokens.h"
 
 static const char _svn_version[] =
     "$Id$ $URL$";

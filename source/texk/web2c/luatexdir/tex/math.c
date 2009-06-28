@@ -24,8 +24,6 @@
 #include "commands.h"
 #include "managed-sa.h"
 
-#include "tokens.h"
-
 static const char _svn_version[] =
     "$Id$ "
     "$URL$";

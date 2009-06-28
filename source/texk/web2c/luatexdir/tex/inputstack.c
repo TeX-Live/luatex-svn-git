@@ -19,7 +19,6 @@
 
 #include "luatex-api.h"
 #include <ptexlib.h>
-#include "tokens.h"
 #include "commands.h"
 
 static const char _svn_version[] =
@@ -81,7 +80,7 @@ void runaway(void)
         }
         print_char('?');
         print_ln();
-        show_token_list(link(p), null, error_line - 10);
+        show_token_list(token_link(p), null, error_line - 10);
     }
 }
 
@@ -333,7 +332,7 @@ void show_context(void)
                     if (token_type < macro)
                         show_token_list(istart, iloc, 100000);
                     else
-                        show_token_list(link(istart), iloc, 100000);    /* avoid reference count */
+                        show_token_list(token_link(istart), iloc, 100000);    /* avoid reference count */
                 }
                 selector = old_setting; /* stop pseudoprinting */
                 /* Print two lines using the tricky pseudoprinted information */

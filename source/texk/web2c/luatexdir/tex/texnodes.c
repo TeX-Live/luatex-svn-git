@@ -19,10 +19,8 @@
 
 #include "luatex-api.h"
 #include <ptexlib.h>
-#include "nodes.h"
 #include "commands.h"
 
-#include "tokens.h"
 #undef name
 
 #define noDEBUG
@@ -54,10 +52,6 @@ int copy_error_seen = 0;
 
 halfword slow_get_node(integer s);      /* defined below */
 int copy_error(halfword p);     /* define below */
-
-#undef link                     /* defined by cpascal.h */
-#define info(a)    fixmem[(a)].hhlh
-#define link(a)    fixmem[(a)].hhrh
 
 #define fake_node 100
 #define fake_node_size 2

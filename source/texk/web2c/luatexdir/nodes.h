@@ -24,12 +24,6 @@
 #ifndef __NODES_H__
 #  define __NODES_H__
 
-/* these don't really belong here */
-
-#  define token_ref_count(a) info((a))  /* reference count preceding a token list */
-#  define add_token_ref(a) token_ref_count(a)++ /* new reference to a token list */
-
-
 /* these are in texlang.c */
 
 #  define set_vlink(a,b)  vlink(a)=b

@@ -724,10 +724,10 @@ internal_font_number pdf_set_font(internal_font_number f)
     k = ff;
     p = pdf_font_list;
     while (p != null) {
-        set_ff(fixmem[p].hhlh); /* info(p) */
+        set_ff(token_info(p)); /* info(p) */
         if (ff == k)
             goto FOUND;
-        p = fixmem[p].hhrh;     /* link(p) */
+        p = token_link(p);     /* link(p) */
     }
     pdf_append_list(f, pdf_font_list);  /* |f| not found in |pdf_font_list|, append it now */
   FOUND:

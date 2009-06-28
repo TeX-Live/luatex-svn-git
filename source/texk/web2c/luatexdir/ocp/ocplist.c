@@ -21,7 +21,6 @@
 #include "luatex-api.h"
 #include "commands.h"
 #include "primitive.h"
-#include "tokens.h"
 
 static const char _svn_version[] =
     "$Id$ $URL$";

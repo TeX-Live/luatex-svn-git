@@ -20,7 +20,6 @@
 #include "luatex-api.h"
 #include <ptexlib.h>
 
-#include "tokens.h"
 #include "commands.h"
 
 static const char _svn_version[] =
@@ -216,7 +215,7 @@ boolean scan_keyword(char *s)
         }
     } else {
         p = backup_head;
-        link(p) = null;
+        token_link(p) = null;
         k = s;
         while (*k) {
             get_x_token();      /* recursion is possible here */
@@ -227,10 +226,10 @@ boolean scan_keyword(char *s)
             } else if ((cur_cmd != spacer_cmd) || (p != backup_head)) {
                 if (p != backup_head) {
                     q = get_avail();
-                    info(q) = cur_tok;
-                    link(q) = null;
-                    link(p) = q;
-                    begin_token_list(link(backup_head), backed_up);
+                    token_info(q) = cur_tok;
+                    token_link(q) = null;
+                    token_link(p) = q;
+                    begin_token_list(token_link(backup_head), backed_up);
                 } else {
                     back_input();
                 }
@@ -238,7 +237,7 @@ boolean scan_keyword(char *s)
                 return false;
             }
         }
-        flush_list(link(backup_head));
+        flush_list(token_link(backup_head));
     }
     return true;
 }
@@ -362,7 +361,7 @@ void check_outer_validity(void)
         if (cur_cs != 0) {
             if ((istate == token_list) || (iname < 1) || (iname > 17)) {
                 p = get_avail();
-                info(p) = cs_token_flag + cur_cs;
+                token_info(p) = cs_token_flag + cur_cs;
                 begin_token_list(p, backed_up); /* prepare to read the control sequence again */
             }
             cur_cmd = spacer_cmd;
@@ -397,25 +396,25 @@ void check_outer_validity(void)
             switch (scanner_status) {
             case defining:
                 scannermsg = "definition";
-                info(p) = right_brace_token + '}';
+                token_info(p) = right_brace_token + '}';
                 break;
             case matching:
                 scannermsg = "use";
-                info(p) = par_token;
+                token_info(p) = par_token;
                 long_state = outer_call_cmd;
                 break;
             case aligning:
                 scannermsg = "preamble";
-                info(p) = right_brace_token + '}';
+                token_info(p) = right_brace_token + '}';
                 q = p;
                 p = get_avail();
-                link(p) = q;
-                info(p) = cs_token_flag + frozen_cr;
+                token_link(p) = q;
+                token_info(p) = cs_token_flag + frozen_cr;
                 align_state = -1000000;
                 break;
             case absorbing:
                 scannermsg = "text";
-                info(p) = right_brace_token + '}';
+                token_info(p) = right_brace_token + '}';
                 break;
             default:           /* can't happen */
                 scannermsg = "unknown";
@@ -1024,8 +1023,8 @@ static next_line_retval next_line(void)
 static boolean get_next_tokenlist(void)
 {
     register halfword t;        /* a token */
-    t = info(iloc);
-    iloc = link(iloc);          /* move to next */
+    t = token_info(iloc);
+    iloc = token_link(iloc);          /* move to next */
     if (t >= cs_token_flag) {   /* a control sequence token */
         cur_cs = t - cs_token_flag;
         cur_cmd = eq_type(cur_cs);
@@ -1033,9 +1032,9 @@ static boolean get_next_tokenlist(void)
             if (cur_cmd == dont_expand_cmd) {   /* @<Get the next token, suppressing expansion@> */
                 /* The present point in the program is reached only when the |expand|
                    routine has inserted a special marker into the input. In this special
-                   case, |info(iloc)| is known to be a control sequence token, and |link(iloc)=null|.
+                   case, |token_info(iloc)| is known to be a control sequence token, and |token_link(iloc)=null|.
                  */
-                cur_cs = info(iloc) - cs_token_flag;
+                cur_cs = token_info(iloc) - cs_token_flag;
                 iloc = null;
                 cur_cmd = eq_type(cur_cs);
                 if (cur_cmd > max_command_cmd) {

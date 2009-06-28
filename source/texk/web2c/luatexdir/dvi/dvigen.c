@@ -26,7 +26,6 @@ static const char __svn_version[] =
     "$URL$";
 
 #include "commands.h"
-#include "tokens.h"
 
 #define mode cur_list.mode_field        /* current mode */
 
@@ -2059,7 +2058,7 @@ void special_out(halfword p)
     synch_dvi_with_cur();
     old_setting = selector;
     selector = new_string;
-    show_token_list(link(write_tokens(p)), null, pool_size - pool_ptr);
+    show_token_list(token_link(write_tokens(p)), null, pool_size - pool_ptr);
     selector = old_setting;
     str_room(1);
     if (cur_length < 256) {
@@ -2094,14 +2093,14 @@ void expand_macros_in_tokenlist(halfword p)
     integer end_write = get_nullcs() + 1 + get_hash_size();     /* hashbase=nullcs+1 */
     end_write += 8;             /* end_write=frozen_control_sequence+8 */
     q = get_avail();
-    info(q) = right_brace_token + '}';
+    token_info(q) = right_brace_token + '}';
     r = get_avail();
-    link(q) = r;
-    info(r) = end_write_token;
+    token_link(q) = r;
+    token_info(r) = end_write_token;
     begin_token_list(q, inserted);
     begin_token_list(write_tokens(p), write_text);
     q = get_avail();
-    info(q) = left_brace_token + '{';
+    token_info(q) = left_brace_token + '{';
     begin_token_list(q, inserted);
     /* now we're ready to scan
        `\.\{$\langle\,$token list$\,\rangle$\.{\} \\endwrite}' */

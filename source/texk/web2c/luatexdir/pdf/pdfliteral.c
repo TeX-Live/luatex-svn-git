@@ -29,7 +29,7 @@ void pdf_special(PDF pdf, halfword p)
     str_number s;
     old_setting = selector;
     selector = new_string;
-    show_token_list(fixmem[(write_tokens(p))].hhrh, null, pool_size - pool_ptr);
+    show_token_list(token_link(write_tokens(p)), null, pool_size - pool_ptr);
     selector = old_setting;
     s = make_string();
     pdf_literal(pdf, s, scan_special, true);
@@ -51,7 +51,7 @@ void pdf_out_literal(PDF pdf, halfword p)
     if (pdf_literal_type(p) == normal) {
         old_setting = selector;
         selector = new_string;
-        show_token_list(fixmem[(pdf_literal_data(p))].hhrh, null,
+        show_token_list(token_link(pdf_literal_data(p)), null,
                         pool_size - pool_ptr);
         selector = old_setting;
         s = make_string();

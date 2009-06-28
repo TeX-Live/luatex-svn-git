@@ -26,11 +26,12 @@
 #define right_brace_token 0x400000      /* $2^{21}\cdot|right_brace|$ */
 
 
-#undef link                     /* defined by cpascal.h */
-#define info(a)    fixmem[(a)].hhlh
-#define link(a)    fixmem[(a)].hhrh
+#define token_info(a)    fixmem[(a)].hhlh
+#define token_link(a)    fixmem[(a)].hhrh
 
-#define store_new_token(a) { q=get_avail(); link(p)=q; info(q)=(a); p=q; }
-#define free_avail(a)      { link((a))=avail; avail=(a); decr(dyn_used); }
+#  define token_ref_count(a) token_info((a))  /* reference count preceding a token list */
+#  define add_token_ref(a)   token_ref_count(a)++ /* new reference to a token list */
+#  define store_new_token(a) { q=get_avail(); token_link(p)=q; token_info(q)=(a); p=q; }
+#  define free_avail(a)      { token_link((a))=avail; avail=(a); decr(dyn_used); }
 
-extern void make_token_table(lua_State * L, int cmd, int chr, int cs);
+extern void make_token_table(lua_State *L, int cmd, int chr, int cs);

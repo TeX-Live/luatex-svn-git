@@ -218,7 +218,7 @@ void pdf_out_setmatrix(PDF pdf, halfword p)
     str_number s;
     old_setting = selector;
     selector = new_string;
-    show_token_list(fixmem[(pdf_setmatrix_data(p))].hhrh, null,
+    show_token_list(token_link(pdf_setmatrix_data(p)), null,
                     pool_size - pool_ptr);
     selector = old_setting;
     str_room(7);

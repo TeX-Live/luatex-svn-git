@@ -36,9 +36,13 @@
 extern double rint(double x);
 #  endif
 
+#  include <../lua51/lua.h>
+
+
 /* pdftexlib macros */
 #  include "ptexmac.h"
 
+#  include "tokens.h"
 #  include "pdf/pdftypes.h"
 
 /* synctex */
@@ -382,8 +386,6 @@ int get_char_cat_code(int);
 void tex_def_font(small_number a);
 
 /* lcallbacklib.c */
-
-#  include <../lua51/lua.h>
 
 typedef enum {
     find_write_file_callback = 1,

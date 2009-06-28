@@ -25,10 +25,6 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
-#define info(A) fixmem[(A)].hhlh
-#undef link
-#define link(A) fixmem[(A)].hhrh
-
 #define pdf_thread_margin        dimen_par(param_pdf_thread_margin_code)
 #define page_width dimen_par(param_page_width_code)
 #define page_height dimen_par(param_page_height_code)
@@ -282,9 +278,9 @@ void print_beads_list(PDF pdf)
         k = pdf_bead_list;
         pdf_printf(pdf, "/B [ ");
         while (k != null) {
-            pdf_print_int(pdf, info(k));
+            pdf_print_int(pdf, token_info(k));
             pdf_printf(pdf, " 0 R ");
-            k = link(k);
+            k = token_link(k);
         }
         pdf_printf(pdf, "]\n");
     }
@@ -298,14 +294,14 @@ void print_bead_rectangles(PDF pdf)
         while (k != null) {
             pdf_new_obj(pdf, obj_type_others, 0, 1);
             pdf_out(pdf, '[');
-            i = obj_bead_data(pdf, info(k));    /* pointer to a whatsit or whatsit-like node */
+            i = obj_bead_data(pdf, token_info(k));    /* pointer to a whatsit or whatsit-like node */
             pdf_print_rect_spec(pdf, i);
             if (subtype(i) == pdf_thread_data_node)     /* thanh says it mis be destroyed here */
                 flush_node(i);
             pdf_printf(pdf, "]\n");
-            set_obj_bead_rect(pdf, info(k), obj_ptr);   /* rewrite |obj_bead_data| */
+            set_obj_bead_rect(pdf, token_info(k), obj_ptr);   /* rewrite |obj_bead_data| */
             pdf_end_obj(pdf);
-            k = link(k);
+            k = token_link(k);
         }
     }
 }

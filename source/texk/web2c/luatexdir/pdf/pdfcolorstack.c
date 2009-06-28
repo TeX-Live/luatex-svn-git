@@ -323,7 +323,7 @@ void pdf_out_colorstack(PDF pdf, halfword p)
     case colorstack_push:
         old_setting = selector;
         selector = new_string;
-        show_token_list(fixmem[(pdf_colorstack_data(p))].hhrh, null,
+        show_token_list(token_link(pdf_colorstack_data(p)), null,
                         pool_size - pool_ptr);
         selector = old_setting;
         s = make_string();

@@ -21,7 +21,6 @@
 #include <ptexlib.h>
 #include "nodes.h"
 #include "commands.h"
-#include "tokens.h"
 
 void fin_align(void);
 void init_row(void);
@@ -390,7 +389,7 @@ void init_align(void)
         /* Spaces are eliminated from the beginning of a template. */
 
         p = hold_token_head;
-        link(p) = null;
+        token_link(p) = null;
         while (1) {
             get_preamble_token();
             if (cur_cmd == mac_param_cmd)
@@ -413,9 +412,9 @@ void init_align(void)
                 }
             } else if ((cur_cmd != spacer_cmd) || (p != hold_token_head)) {
                 r = get_avail();
-                link(p) = r;
-                p = link(p);
-                info(p) = cur_tok;
+                token_link(p) = r;
+                p = token_link(p);
+                token_info(p) = cur_tok;
             }
         }
         r = new_node(align_record_node, 0);
@@ -423,11 +422,11 @@ void init_align(void)
         cur_align = vlink(cur_align);   /* a new alignrecord */
         span_ptr(cur_align) = end_span;
         width(cur_align) = null_flag;
-        u_part(cur_align) = link(hold_token_head);
+        u_part(cur_align) = token_link(hold_token_head);
         /* Scan the template \<v_j>, putting the resulting token list in |hold_token_head| */
 
         p = hold_token_head;
-        link(p) = null;
+        token_link(p) = null;
         while (1) {
           CONTINUE:
             get_preamble_token();
@@ -445,16 +444,16 @@ void init_align(void)
                 goto CONTINUE;
             }
             r = get_avail();
-            link(p) = r;
-            p = link(p);
-            info(p) = cur_tok;
+            token_link(p) = r;
+            p = token_link(p);
+            token_info(p) = cur_tok;
         }
         r = get_avail();
-        link(p) = r;
-        p = link(p);
-        info(p) = end_template_token;   /* put \.{\\endtemplate} at the end */
+        token_link(p) = r;
+        p = token_link(p);
+        token_info(p) = end_template_token;   /* put \.{\\endtemplate} at the end */
 
-        v_part(cur_align) = link(hold_token_head);
+        v_part(cur_align) = token_link(hold_token_head);
     }
     scanner_status = normal;
 
@@ -645,24 +644,24 @@ boolean fin_col(void)
             r = u_part(cur_loop);
             while (r != null) {
                 s = get_avail();
-                link(q) = s;
-                q = link(q);
-                info(q) = info(r);
-                r = link(r);
+                token_link(q) = s;
+                q = token_link(q);
+                token_info(q) = token_info(r);
+                r = token_link(r);
             }
-            link(q) = null;
-            u_part(p) = link(hold_token_head);
+            token_link(q) = null;
+            u_part(p) = token_link(hold_token_head);
             q = hold_token_head;
             r = v_part(cur_loop);
             while (r != null) {
                 s = get_avail();
-                link(q) = s;
-                q = link(q);
-                info(q) = info(r);
-                r = link(r);
+                token_link(q) = s;
+                q = token_link(q);
+                token_info(q) = token_info(r);
+                r = token_link(r);
             }
-            link(q) = null;
-            v_part(p) = link(hold_token_head);
+            token_link(q) = null;
+            v_part(p) = token_link(hold_token_head);
 
             cur_loop = vlink(cur_loop);
             r = new_glue(glue_ptr(cur_loop));
@@ -1156,7 +1155,7 @@ list that contains the special control sequence \.{\\endtemplate} only.
 
 void initialize_alignments(void)
 {
-    info(omit_template) = end_template_token;   /* |link(omit_template)=null| */
+    token_info(omit_template) = end_template_token;   /* |link(omit_template)=null| */
     span_span(end_span) = max_quarterword + 1;
     span_ptr(end_span) = null;
 }

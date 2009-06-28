@@ -22,7 +22,6 @@
 
 #include "commands.h"
 #include "primitive.h"
-#include "tokens.h"
 
 static const char _svn_version[] =
     "$Id$ $URL$";
@@ -580,7 +579,7 @@ void print_cmd_chr(quarterword cmd, halfword chr_code)
     case outer_call_cmd:
     case long_outer_call_cmd:
         n = cmd - call_cmd;
-        if (info(link(chr_code)) == protected_token)
+        if (token_info(token_link(chr_code)) == protected_token)
             n = n + 4;
         if (odd(n / 4))
             tprint_esc("protected");
