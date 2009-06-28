@@ -323,14 +323,14 @@ charinfo *char_info(internal_font_number f, integer c)
     return &(font_tables[f]->charinfo[0]);
 }
 
-charinfo_short get_charinfo_short(internal_font_number f, integer c)
+scaled_whd get_charinfo_whd(internal_font_number f, integer c)
 {
-    charinfo_short s;
+    scaled_whd s;
     charinfo *i;
     i = char_info(f, c);
-    s.ci_wd = i->width;
-    s.ci_dp = i->depth;
-    s.ci_ht = i->height;
+    s.wd = i->width;
+    s.dp = i->depth;
+    s.ht = i->height;
     return s;
 }
 

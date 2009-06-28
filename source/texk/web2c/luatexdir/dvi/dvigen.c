@@ -1088,7 +1088,6 @@ that a \.{DVI}-reading program will push onto its coordinate stack.
 void hlist_out(void)
 {                               /* output an |hlist_node| box */
     scaled base_line;           /* the baseline coordinate for this box */
-    scaled c_wd, c_ht, c_dp;    /* the real width, height and depth of the character */
     scaled w;                   /*  temporary value for directional width calculation  */
     scaled edge_v;
     scaled edge_h;
@@ -1114,7 +1113,7 @@ void hlist_out(void)
     real glue_temp;             /* glue value before rounding */
     real cur_glue;              /* glue seen so far */
     scaled cur_g;               /* rounded equivalent of |cur_glue| times the glue ratio */
-    charinfo_short ci;          /* this is a caching attempt */
+    scaled_whd ci;              /* the real width, height and depth of the character (this is a caching attempt) */
     cur_g = 0;
     cur_glue = 0.0;
     this_box = temp_ptr;
@@ -1161,7 +1160,7 @@ void hlist_out(void)
                 synch_pos_with_cur();
                 f = font(p);
                 c = character(p);
-                ci = get_charinfo_short(f, c);
+                ci = get_charinfo_whd(f, c);
                 if (f != dvi_f) {
                     /* Change font |dvi_f| to |f| */
                     if (!font_used(f)) {
@@ -1173,14 +1172,11 @@ void hlist_out(void)
                     out_cmd();
                     dvi_f = f;
                 }
-                c_ht = charinfo_height(ci);
-                c_dp = charinfo_depth(ci);
-                c_wd = charinfo_width(ci);
                 if (font_natural_dir(f) != -1) {
                     switch (font_direction(dvi_direction)) {
                     case dir__LT:
                     case dir__LB:
-                        dvi_set(c, c_wd);
+                        dvi_set(c, ci.wd);
                         break;
                     case dir__RT:
                     case dir__RB:
@@ -1190,106 +1186,106 @@ void hlist_out(void)
                     case dir__TR:
                     case dir__BL:
                     case dir__BR:
-                        c_wd = c_ht + c_dp;
+                        ci.wd = ci.ht + ci.dp;
                         dvi_put(c);
                         break;
                     case dir__LL:
-                        pos_right(c_wd);
+                        pos_right(ci.wd);
                         dvi_put(c);
                         break;
                     case dir__RR:
-                        pos_left(c_wd);
+                        pos_left(ci.wd);
                         dvi_put(c);
                         break;
                     case dir__LR:
-                        dvi_set(c, c_wd);
+                        dvi_set(c, ci.wd);
                         break;
                     case dir__RL:
                         dvi_put(c);
                         break;
                     case dir__TT:
-                        c_wd = c_ht + c_dp;
-                        pos_down(c_wd);
+                        ci.wd = ci.ht + ci.dp;
+                        pos_down(ci.wd);
                         dvi_put(c);
                         break;
                     case dir__TB:
-                        c_wd = c_ht + c_dp;
+                        ci.wd = ci.ht + ci.dp;
                         dvi_put(c);
                         break;
                     case dir__BT:
-                        c_wd = c_ht + c_dp;
+                        ci.wd = ci.ht + ci.dp;
                         dvi_put(c);
                         break;
                     case dir__BB:
-                        c_wd = c_ht + c_dp;
-                        pos_up(c_wd);
+                        ci.wd = ci.ht + ci.dp;
+                        pos_up(ci.wd);
                         dvi_put(c);
                         break;
                     }
                 } else {
                     switch (font_direction(dvi_direction)) {
                     case dir__LT:
-                        dvi_set(c, c_wd);
+                        dvi_set(c, ci.wd);
                         break;
                     case dir__LB:
-                        pos_down(c_ht);
-                        dvi_set(c, c_wd);
+                        pos_down(ci.ht);
+                        dvi_set(c, ci.wd);
                         break;
                     case dir__RT:
-                        pos_left(c_wd);
+                        pos_left(ci.wd);
                         dvi_put(c);
                         break;
                     case dir__RB:
-                        pos_down(c_ht);
-                        pos_left(c_wd);
+                        pos_down(ci.ht);
+                        pos_left(ci.wd);
                         dvi_put(c);
                         break;
                     case dir__TL:
-                        pos_down(c_ht);
-                        pos_left(c_wd);
+                        pos_down(ci.ht);
+                        pos_left(ci.wd);
                         dvi_put(c);
-                        c_wd = c_ht + c_dp;
+                        ci.wd = ci.ht + ci.dp;
                         break;
                     case dir__TR:
-                        pos_down(c_ht);
+                        pos_down(ci.ht);
                         dvi_put(c);
-                        c_wd = c_ht + c_dp;
+                        ci.wd = ci.ht + ci.dp;
                         break;
                     case dir__BL:
-                        pos_left(c_wd);
-                        pos_up(c_dp);
+                        pos_left(ci.wd);
+                        pos_up(ci.dp);
                         dvi_put(c);
-                        c_wd = c_ht + c_dp;
+                        ci.wd = ci.ht + ci.dp;
                         break;
                     case dir__BR:
-                        pos_up(c_dp);
+                        pos_up(ci.dp);
                         dvi_put(c);
-                        c_wd = c_ht + c_dp;
+                        ci.wd = ci.ht + ci.dp;
                         break;
                     case dir__LL:
                     case dir__LR:
-                        pos_down((c_ht - c_dp) / 2);
-                        dvi_set(c, c_wd);
+                        pos_down((ci.ht - ci.dp) / 2);
+                        dvi_set(c, ci.wd);
                         break;
                     case dir__RL:
                     case dir__RR:
-                        pos_left(c_wd);
-                        pos_down((c_ht - c_dp) / 2);
+                        pos_left(ci.wd);
+                        pos_down((ci.ht - ci.dp) / 2);
                         dvi_put(c);
                         break;
                     case dir__TT:
                     case dir__TB:
-                        pos_down(c_ht);
-                        pos_left(c_wd / 2);
+                        pos_down(ci.ht);
+                        pos_left(ci.wd / 2);
                         dvi_put(c);
-                        c_wd = c_ht + c_dp;
+                        ci.wd = ci.ht + ci.dp;
                         break;
                     case dir__BT:
                     case dir__BB:
-                        pos_up(c_dp);
-                        pos_left(c_wd / 2);
+                        pos_up(ci.dp);
+                        pos_left(ci.wd / 2);
                         dvi_put(c);
-                        c_wd = c_ht + c_dp;
+                        ci.wd = ci.ht + ci.dp;
                         break;
                     }
                 }
@@ -1297,7 +1293,7 @@ void hlist_out(void)
                     cur.h = cur.h - x_displace(p);
                 if (y_displace(p) != 0)
                     cur.v = cur.v + y_displace(p);
-                cur.h = cur.h + c_wd;
+                cur.h = cur.h + ci.wd;
                 p = vlink(p);
             } while (is_char_node(p));
             /* Record current point {\sl Sync\TeX} information */

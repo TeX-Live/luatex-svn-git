@@ -496,8 +496,6 @@
 @define procedure set_char_tag();
 @define function char_remainder();
 
-@define function get_charinfo_short();
-
 @define function has_packet();
 @define procedure do_vf_packet();
 @define function expand_font_name();

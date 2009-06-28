@@ -223,18 +223,6 @@ extern scaledpos cur_page_size; /* width and height of page being shipped */
 extern integer get_cur_v(void);
 extern integer get_cur_h(void);
 
-/* This is a cacheing attempt */
-
-#  define charinfo_width(A) A.ci_wd
-#  define charinfo_height(A) A.ci_ht
-#  define charinfo_depth(A) A.ci_dp
-
-typedef struct charinfo_short_ {
-    scaled ci_wd;
-    scaled ci_ht;
-    scaled ci_dp;
-} charinfo_short;
-
 #  define billion 1000000000.0
 #  define vet_glue(A) do { glue_temp=A;		\
     if (glue_temp>billion)			\

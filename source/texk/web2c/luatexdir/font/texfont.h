@@ -85,20 +85,6 @@ typedef struct charinfo {
     scaled *bottom_left_math_kern_array;
 } charinfo;
 
-
-/* this is for speed reasons, it is called from the web source
-   when more than two of the traditional four char values are needed 
-   at the same time. the structure |charinfo_short| is defined in 
-   web */
-
-#  ifndef luaTeX
-typedef struct charinfo_short {
-    scaled ci_wd;               /* width */
-    scaled ci_ht;               /* height */
-    scaled ci_dp;               /* depth */
-} charinfo_short;
-#  endif
-
 #  define EXT_NORMAL 0
 #  define EXT_REPEAT 1
 
@@ -114,7 +100,7 @@ extern extinfo *copy_variants(extinfo * o);
 extern extinfo *new_variant(int glyph, int startconnect, int endconnect,
                             int advance, int repeater);
 
-extern charinfo_short get_charinfo_short(internal_font_number f, integer c);
+extern scaled_whd get_charinfo_whd(internal_font_number f, integer c);
 
 
 
