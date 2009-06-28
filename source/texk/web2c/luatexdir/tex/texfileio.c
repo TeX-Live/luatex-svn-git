@@ -415,19 +415,19 @@ boolean init_terminal (void) /* gets the terminal input started */
 	wake_up_terminal(); 
 	fputs("**",term_out); 
 	update_terminal();
+	if (!input_ln(term_in,true)) {
+	  /* this shouldn't happen */
+	  fputs("! End of file on the terminal... why?\n", term_out);
+	  return false;
+	}
+	iloc=first;
+	while ((iloc<last)&&(buffer[iloc]==' '))
+	  incr(iloc);
+	if (iloc<last) {
+	  return true; /* return unless the line was all blank */
+	}
+	fputs("Please type the name of your input file.\n", term_out);
     }
-    if (!input_ln(term_in,true)) {
-	/* this shouldn't happen */
-	fputs("! End of file on the terminal... why?\n", term_out);
-	return false;
-    }
-    iloc=first;
-    while ((iloc<last)&&(buffer[iloc]==' '))
-	incr(iloc);
-    if (iloc<last) {
-	return true; /* return unless the line was all blank */
-    }
-    fputs("Please type the name of your input file.\n", term_out);
 }
 
 
