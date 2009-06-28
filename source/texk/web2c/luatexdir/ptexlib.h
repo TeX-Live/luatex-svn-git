@@ -90,6 +90,7 @@ extern double rint(double x);
 #  include "tex/stringpool.h"
 #  include "tex/printing.h"
 #  include "tex/texfileio.h"
+#  include "tex/arithmetic.h"
 
 /**********************************************************************/
 

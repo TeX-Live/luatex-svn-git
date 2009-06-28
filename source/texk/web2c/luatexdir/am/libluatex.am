@@ -152,6 +152,8 @@ libluatex_a_SOURCES = \
 	luatexdir/ptexmac.h \
 	luatexdir/tex/align.c \
 	luatexdir/tex/align.h \
+	luatexdir/tex/arithmetic.c \
+	luatexdir/tex/arithmetic.h \
 	luatexdir/tex/directions.c \
 	luatexdir/tex/directions.h \
 	luatexdir/tex/errors.c \

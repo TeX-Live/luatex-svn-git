@@ -259,8 +259,9 @@ am_libluatex_a_OBJECTS = libluatex_a-dvigen.$(OBJEXT) \
 	libluatex_a-pdfshipout.$(OBJEXT) \
 	libluatex_a-pdftables.$(OBJEXT) \
 	libluatex_a-pdfthread.$(OBJEXT) libluatex_a-pdfxform.$(OBJEXT) \
-	libluatex_a-align.$(OBJEXT) libluatex_a-directions.$(OBJEXT) \
-	libluatex_a-errors.$(OBJEXT) libluatex_a-filename.$(OBJEXT) \
+	libluatex_a-align.$(OBJEXT) libluatex_a-arithmetic.$(OBJEXT) \
+	libluatex_a-directions.$(OBJEXT) libluatex_a-errors.$(OBJEXT) \
+	libluatex_a-filename.$(OBJEXT) \
 	libluatex_a-inputstack.$(OBJEXT) \
 	libluatex_a-linebreak.$(OBJEXT) libluatex_a-math.$(OBJEXT) \
 	libluatex_a-mlist.$(OBJEXT) \
@@ -1428,6 +1429,8 @@ libluatex_a_SOURCES = \
 	luatexdir/ptexmac.h \
 	luatexdir/tex/align.c \
 	luatexdir/tex/align.h \
+	luatexdir/tex/arithmetic.c \
+	luatexdir/tex/arithmetic.h \
 	luatexdir/tex/directions.c \
 	luatexdir/tex/directions.h \
 	luatexdir/tex/errors.c \
@@ -1840,6 +1843,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluasocket_a-timeout.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluasocket_a-udp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-align.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-arithmetic.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-avl.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-avlstuff.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-directions.Po@am__quote@
@@ -4703,6 +4707,20 @@ libluatex_a-align.obj: luatexdir/tex/align.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/align.c' object='libluatex_a-align.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-align.obj `if test -f 'luatexdir/tex/align.c'; then $(CYGPATH_W) 'luatexdir/tex/align.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/align.c'; fi`
+
+libluatex_a-arithmetic.o: luatexdir/tex/arithmetic.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-arithmetic.o -MD -MP -MF $(DEPDIR)/libluatex_a-arithmetic.Tpo -c -o libluatex_a-arithmetic.o `test -f 'luatexdir/tex/arithmetic.c' || echo '$(srcdir)/'`luatexdir/tex/arithmetic.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-arithmetic.Tpo $(DEPDIR)/libluatex_a-arithmetic.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/arithmetic.c' object='libluatex_a-arithmetic.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-arithmetic.o `test -f 'luatexdir/tex/arithmetic.c' || echo '$(srcdir)/'`luatexdir/tex/arithmetic.c
+
+libluatex_a-arithmetic.obj: luatexdir/tex/arithmetic.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-arithmetic.obj -MD -MP -MF $(DEPDIR)/libluatex_a-arithmetic.Tpo -c -o libluatex_a-arithmetic.obj `if test -f 'luatexdir/tex/arithmetic.c'; then $(CYGPATH_W) 'luatexdir/tex/arithmetic.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/arithmetic.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-arithmetic.Tpo $(DEPDIR)/libluatex_a-arithmetic.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/arithmetic.c' object='libluatex_a-arithmetic.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-arithmetic.obj `if test -f 'luatexdir/tex/arithmetic.c'; then $(CYGPATH_W) 'luatexdir/tex/arithmetic.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/arithmetic.c'; fi`
 
 libluatex_a-directions.o: luatexdir/tex/directions.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-directions.o -MD -MP -MF $(DEPDIR)/libluatex_a-directions.Tpo -c -o libluatex_a-directions.o `test -f 'luatexdir/tex/directions.c' || echo '$(srcdir)/'`luatexdir/tex/directions.c
