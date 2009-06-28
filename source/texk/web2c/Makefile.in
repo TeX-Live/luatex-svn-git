@@ -1454,9 +1454,9 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/texfileio.h \
 	luatexdir/tex/texnodes.c \
 	luatexdir/tex/textoken.c \
+	luatexdir/tex/textoken.h \
 	luatexdir/texmath.h \
 	luatexdir/textcodes.c \
-	luatexdir/tokens.h \
 	luatexdir/utils/avl.c \
 	luatexdir/utils/avl.h \
 	luatexdir/utils/avlstuff.c \

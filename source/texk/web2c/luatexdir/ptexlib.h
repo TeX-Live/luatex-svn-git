@@ -42,7 +42,7 @@ extern double rint(double x);
 /* pdftexlib macros */
 #  include "ptexmac.h"
 
-#  include "tokens.h"
+#  include "tex/textoken.h"
 #  include "pdf/pdftypes.h"
 
 /* synctex */
