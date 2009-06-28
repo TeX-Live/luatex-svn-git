@@ -296,9 +296,9 @@ void scan_pdfdest(void)
 
     if (pdf_dest_type(cur_list.tail_field) == pdf_dest_fitr) {
         alt_rule = scan_alt_rule();     /* scans |<rule spec>| to |alt_rule| */
-        set_pdf_width(cur_list.tail_field, alt_rule.w);
-        set_pdf_height(cur_list.tail_field, alt_rule.h);
-        set_pdf_depth(cur_list.tail_field, alt_rule.d);
+        set_pdf_width(cur_list.tail_field, alt_rule.wd);
+        set_pdf_height(cur_list.tail_field, alt_rule.ht);
+        set_pdf_depth(cur_list.tail_field, alt_rule.dp);
     }
     if (pdf_dest_named_id(cur_list.tail_field) != 0) {
         i = tokens_to_string(pdf_dest_id(cur_list.tail_field));

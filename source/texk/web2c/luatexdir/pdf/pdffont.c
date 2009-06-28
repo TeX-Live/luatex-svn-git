@@ -50,9 +50,9 @@ void output_one_char(PDF pdf, internal_font_number ffi, integer c)
     scaledpos save, save_box_pos;
     integer save_direction;
     ci = get_charinfo_short(ffi, c);
-    dim.h = charinfo_height(ci);
-    dim.d = charinfo_depth(ci);
-    dim.w = charinfo_width(ci);
+    dim.ht = charinfo_height(ci);
+    dim.dp = charinfo_depth(ci);
+    dim.wd = charinfo_width(ci);
     pos = synch_p_with_c(cur);
 
     switch (box_direction(dvi_direction)) {
@@ -60,26 +60,26 @@ void output_one_char(PDF pdf, internal_font_number ffi, integer c)
         switch (font_direction(dvi_direction)) {
         case dir__LL:
         case dir__LR:
-            pos_down((dim.h - dim.d) / 2);
+            pos_down((dim.ht - dim.dp) / 2);
             break;
         case dir__LT:
             break;
         case dir__LB:
-            pos_down(dim.h);
+            pos_down(dim.ht);
             break;
         }
         break;
     case dir_TR_:
-        pos_left(dim.w);
+        pos_left(dim.wd);
         switch (font_direction(dvi_direction)) {
         case dir__RL:
         case dir__RR:
-            pos_down((dim.h - dim.d) / 2);
+            pos_down((dim.ht - dim.dp) / 2);
             break;
         case dir__RT:
             break;
         case dir__RB:
-            pos_down(dim.h);
+            pos_down(dim.ht);
             break;
         }
         break;
@@ -87,82 +87,82 @@ void output_one_char(PDF pdf, internal_font_number ffi, integer c)
         switch (font_direction(dvi_direction)) {
         case dir__LL:
         case dir__LR:
-            pos_down((dim.h - dim.d) / 2);
+            pos_down((dim.ht - dim.dp) / 2);
             break;
         case dir__LT:
             break;
         case dir__LB:
-            pos_down(dim.h);
+            pos_down(dim.ht);
             break;
         }
         break;
     case dir_BR_:
-        pos_left(dim.w);
+        pos_left(dim.wd);
         switch (font_direction(dvi_direction)) {
         case dir__RL:
         case dir__RR:
-            pos_down((dim.h - dim.d) / 2);
+            pos_down((dim.ht - dim.dp) / 2);
             break;
         case dir__RT:
             break;
         case dir__RB:
-            pos_down(dim.h);
+            pos_down(dim.ht);
             break;
         }
         break;
     case dir_LT_:
-        pos_down(dim.h);
+        pos_down(dim.ht);
         switch (font_direction(dvi_direction)) {
         case dir__TL:
-            pos_left(dim.w);
+            pos_left(dim.wd);
             break;
         case dir__TR:
             break;
         case dir__TB:
         case dir__TT:
-            pos_left(dim.w / 2);
+            pos_left(dim.wd / 2);
             break;
         }
         break;
     case dir_RT_:
-        pos_down(dim.h);
+        pos_down(dim.ht);
         switch (font_direction(dvi_direction)) {
         case dir__TL:
-            pos_left(dim.w);
+            pos_left(dim.wd);
             break;
         case dir__TR:
             break;
         case dir__TB:
         case dir__TT:
-            pos_left(dim.w / 2);
+            pos_left(dim.wd / 2);
             break;
         }
         break;
     case dir_LB_:
-        pos_up(dim.d);
+        pos_up(dim.dp);
         switch (font_direction(dvi_direction)) {
         case dir__BL:
-            pos_left(dim.w);
+            pos_left(dim.wd);
             break;
         case dir__BR:
             break;
         case dir__BB:
         case dir__BT:
-            pos_left(dim.w / 2);
+            pos_left(dim.wd / 2);
             break;
         }
         break;
     case dir_RB_:
-        pos_up(dim.d);
+        pos_up(dim.dp);
         switch (font_direction(dvi_direction)) {
         case dir__BL:
-            pos_left(dim.w);
+            pos_left(dim.wd);
             break;
         case dir__BR:
             break;
         case dir__BB:
         case dir__BT:
-            pos_left(dim.w / 2);
+            pos_left(dim.wd / 2);
             break;
         }
         break;
@@ -186,13 +186,13 @@ void output_one_char(PDF pdf, internal_font_number ffi, integer c)
     case dir_TR_:
     case dir_BL_:
     case dir_BR_:
-        cur.h = cur.h + dim.w;
+        cur.h = cur.h + dim.wd;
         break;
     case dir_LT_:
     case dir_RT_:
     case dir_LB_:
     case dir_RB_:
-        cur.h = cur.h + dim.h + dim.d;
+        cur.h = cur.h + dim.ht + dim.dp;
         break;
     }
 }

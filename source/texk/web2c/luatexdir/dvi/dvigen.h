@@ -170,9 +170,9 @@ typedef struct scaledpos_ {
 } scaledpos;
 
 typedef struct scaled_whd_ {
-    scaled w;                   /* width */
-    scaled h;                   /* height */
-    scaled d;                   /* depth */
+    scaled wd;                  /* TeX width */
+    scaled ht;                  /* TeX height */
+    scaled dp;                  /* TeX depth */
 } scaled_whd;
 
 #  define synch_h() do {				\

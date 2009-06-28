@@ -751,23 +751,23 @@ integer scan_pdf_box_spec(void)
 scaled_whd scan_alt_rule(void)
 {
     scaled_whd alt_rule;
-    alt_rule.w = null_flag;
-    alt_rule.h = null_flag;
-    alt_rule.d = null_flag;
+    alt_rule.wd = null_flag;
+    alt_rule.ht = null_flag;
+    alt_rule.dp = null_flag;
   RESWITCH:
     if (scan_keyword("width")) {
         scan_normal_dimen();
-        alt_rule.w = cur_val;
+        alt_rule.wd = cur_val;
         goto RESWITCH;
     }
     if (scan_keyword("height")) {
         scan_normal_dimen();
-        alt_rule.h = cur_val;
+        alt_rule.ht = cur_val;
         goto RESWITCH;
     }
     if (scan_keyword("depth")) {
         scan_normal_dimen();
-        alt_rule.d = cur_val;
+        alt_rule.dp = cur_val;
         goto RESWITCH;
     }
     return alt_rule;
@@ -776,9 +776,9 @@ scaled_whd scan_alt_rule(void)
 void set_image_dimensions(integer ref, scaled_whd dim)
 {
     image *a = img_array[ref];
-    img_width(a) = dim.w;
-    img_height(a) = dim.h;
-    img_depth(a) = dim.d;
+    img_width(a) = dim.wd;
+    img_height(a) = dim.ht;
+    img_depth(a) = dim.dp;
 }
 
 void scan_image(PDF pdf)
