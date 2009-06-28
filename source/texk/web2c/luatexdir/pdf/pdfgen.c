@@ -147,8 +147,7 @@ integer pdf_get_mem(PDF pdf, integer s)
     integer a;
     integer ret;
     if (s > sup_pdf_mem_size - pdf->mem_ptr)
-        overflow("PDF memory size (pdf_mem_size)",
-                 pdf->mem_size);
+        overflow("PDF memory size (pdf_mem_size)", pdf->mem_size);
     if (pdf->mem_ptr + s > pdf->mem_size) {
         a = 0.2 * pdf->mem_size;
         if (pdf->mem_ptr + s > pdf->mem_size + a) {
@@ -611,7 +610,7 @@ scaled round_xn_over_d(scaled x, integer n, integer d)
     else
         u = 0100000 * (u / d) + (v / d);
     v = v % d;
-    if (2 * v >= (nonnegative_integer)d)
+    if (2 * v >= (nonnegative_integer) d)
         u++;
     if (positive)
         return u;
@@ -724,10 +723,10 @@ internal_font_number pdf_set_font(internal_font_number f)
     k = ff;
     p = pdf_font_list;
     while (p != null) {
-        set_ff(token_info(p)); /* info(p) */
+        set_ff(token_info(p));  /* info(p) */
         if (ff == k)
             goto FOUND;
-        p = token_link(p);     /* link(p) */
+        p = token_link(p);      /* link(p) */
     }
     pdf_append_list(f, pdf_font_list);  /* |f| not found in |pdf_font_list|, append it now */
   FOUND:

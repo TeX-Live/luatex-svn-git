@@ -760,7 +760,7 @@ void pdf_vlist_out(PDF pdf)
 
     while (p != null) {
         if (is_char_node(p)) {
-            confusion("pdfvlistout");  /* this can't happen */
+            confusion("pdfvlistout");   /* this can't happen */
         } else {
             /* Output the non-|char_node| |p| for |pdf_vlist_out| */
 

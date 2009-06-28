@@ -147,8 +147,8 @@ halfword append_ptr(halfword p, integer i)
 {
     halfword q;
     q = get_avail();
-    token_link(q) = 0;         /* link */
-    token_info(q) = i;         /* info */
+    token_link(q) = 0;          /* link */
+    token_info(q) = i;          /* info */
     if (p == 0) {
         return q;
     }

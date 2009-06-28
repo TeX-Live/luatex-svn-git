@@ -161,7 +161,7 @@ void write_out_pdf_mark_destinations(PDF pdf)
     if (pdf_dest_list != null) {
         k = pdf_dest_list;
         while (k != null) {
-  	    if (is_obj_written(token_info(k))) {
+            if (is_obj_written(token_info(k))) {
                 pdf_error(maketexstring("ext5"),
                           maketexstring
                           ("destination has been already written (this shouldn't happen)"));

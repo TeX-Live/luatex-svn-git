@@ -501,7 +501,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         if (pdf_annot_list != null) {
             k = pdf_annot_list;
             while (k != null) {
-                i = obj_annot_ptr(token_info(k));     /* |i| points to |pdf_annot_node| */
+                i = obj_annot_ptr(token_info(k));       /* |i| points to |pdf_annot_node| */
                 pdf_begin_dict(pdf, token_info(k), 1);
                 pdf_printf(pdf, "/Type /Annot\n");
                 pdf_print_toks_ln(pdf, pdf_annot_data(i));
