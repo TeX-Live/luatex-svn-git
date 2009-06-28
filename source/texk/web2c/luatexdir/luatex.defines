@@ -1517,3 +1517,41 @@
 @define procedure wake_up_terminal;
 @define function init_terminal;
 @define procedure term_input;
+
+{ arithmetic }
+
+{define procedure incr();}
+{define procedure decr();}
+@define procedure negate();
+
+@define function half();
+@define const unity;
+@define const two;
+@define type nonnegative_integer;
+
+@define function round_decimals();
+@define procedure print_scaled();
+@define var arith_error;
+@define var tex_remainder;
+
+@define function mult_and_add();
+@define function nx_plus_y();
+@define function mult_integers();
+
+@define function x_over_n();
+@define function xn_over_d();
+
+@define var inf_bad;
+@define function badness();
+
+@define procedure set_glue_ratio_zero();
+@define procedure set_glue_ratio_one();
+@define function float_cast();
+@define function unfloat();
+@define function float_constant();
+
+@define var random_seed;
+
+@define procedure init_randoms();
+@define function unif_rand();
+@define function norm_rand;

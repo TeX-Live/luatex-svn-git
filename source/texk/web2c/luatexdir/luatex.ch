@@ -197,32 +197,9 @@ versions of the program.
 @z
 
 @x
-@d incr(#) == #:=#+1 {increase a variable by unity}
-@d decr(#) == #:=#-1 {decrease a variable by unity}
-@y
-@z
-
-@x
 @d text_char == char {the data type of characters in text files}
 @y
 @d text_char == ASCII_code {the data type of characters in text files}
-@z
-
-@x
-|remainder|, holds the remainder after a division.
-
-@<Glob...@>=
-@y
-|remainder|, holds the remainder after a division.
-
-@d remainder==tex_remainder
-
-@<Glob...@>=
-@z
-
-@x
-@!glue_ratio=real; {one-word representation of a glue expansion factor}
-@y
 @z
 
 @x

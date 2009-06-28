@@ -40,11 +40,6 @@ void init_col(void);
 
 #define saved(A) save_stack[save_ptr+(A)].cint
 
-#define set_glue_ratio_zero(A)  A=0.0   /* store the representation of zero ratio */
-#define set_glue_ratio_one(A)  A=1.0    /* store the representation of unit ratio */
-#define float(A) (double)(A)    /* convert from |glue_ratio| to type |real| */
-#define unfloat(A) (integer)(A) /* convert from |real| to type |glue_ratio| */
-
 #define every_cr          loc_par(param_every_cr_code)
 #define display_indent    dimen_par(param_display_indent_code)
 #define max_depth         dimen_par(param_max_depth_code)
@@ -1010,10 +1005,10 @@ value is changed to zero and so is the next tabskip.
                         t = t + width(v);
                         if (glue_sign(p) == stretching) {
                             if (stretch_order(v) == glue_order(p))
-                                t = t + round(float (glue_set(p)) * stretch(v));
+                                t = t + round(float_cast (glue_set(p)) * stretch(v));
                         } else if (glue_sign(p) == shrinking) {
                             if (shrink_order(v) == glue_order(p))
-                                t = t - round(float (glue_set(p)) * shrink(v));
+                                t = t - round(float_cast (glue_set(p)) * shrink(v));
                         }
                         s = vlink(s);
                         rr = new_null_box();

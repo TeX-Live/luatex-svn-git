@@ -611,7 +611,7 @@ scaled round_xn_over_d(scaled x, integer n, integer d)
     else
         u = 0100000 * (u / d) + (v / d);
     v = v % d;
-    if (2 * v >= d)
+    if (2 * v >= (nonnegative_integer)d)
         u++;
     if (positive)
         return u;

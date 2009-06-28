@@ -243,9 +243,6 @@ typedef struct charinfo_short_ {
       glue_temp=-billion;			\
   } while (0)
 
-#  define float_round round
-#  define float_cast (real)
-
 extern void hlist_out(void);
 extern void vlist_out(void);
 

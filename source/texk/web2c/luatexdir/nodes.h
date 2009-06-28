@@ -762,7 +762,6 @@ extern halfword raw_glyph_node(void);
 extern halfword new_glyph_node(void);
 extern int valid_node(halfword);
 
-#  define unity 0x10000
 typedef enum {
     normal_g = 0,
     sfi,
