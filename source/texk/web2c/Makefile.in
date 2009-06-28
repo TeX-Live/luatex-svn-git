@@ -264,7 +264,7 @@ am_libluatex_a_OBJECTS = libluatex_a-dvigen.$(OBJEXT) \
 	libluatex_a-filename.$(OBJEXT) \
 	libluatex_a-inputstack.$(OBJEXT) \
 	libluatex_a-linebreak.$(OBJEXT) libluatex_a-math.$(OBJEXT) \
-	libluatex_a-mlist.$(OBJEXT) \
+	libluatex_a-memoryword.$(OBJEXT) libluatex_a-mlist.$(OBJEXT) \
 	libluatex_a-postlinebreak.$(OBJEXT) \
 	libluatex_a-primitive.$(OBJEXT) libluatex_a-printing.$(OBJEXT) \
 	libluatex_a-stringpool.$(OBJEXT) \
@@ -1440,6 +1440,8 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/inputstack.h \
 	luatexdir/tex/linebreak.c \
 	luatexdir/tex/math.c \
+	luatexdir/tex/memoryword.c \
+	luatexdir/tex/memoryword.h \
 	luatexdir/tex/mlist.c \
 	luatexdir/tex/postlinebreak.c \
 	luatexdir/tex/primitive.c \
@@ -1883,6 +1885,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-mapfile.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-math.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-mathcodes.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-memoryword.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-mlist.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-ocp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-ocplist.Po@am__quote@
@@ -4805,6 +4808,20 @@ libluatex_a-math.obj: luatexdir/tex/math.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/math.c' object='libluatex_a-math.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-math.obj `if test -f 'luatexdir/tex/math.c'; then $(CYGPATH_W) 'luatexdir/tex/math.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/math.c'; fi`
+
+libluatex_a-memoryword.o: luatexdir/tex/memoryword.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-memoryword.o -MD -MP -MF $(DEPDIR)/libluatex_a-memoryword.Tpo -c -o libluatex_a-memoryword.o `test -f 'luatexdir/tex/memoryword.c' || echo '$(srcdir)/'`luatexdir/tex/memoryword.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-memoryword.Tpo $(DEPDIR)/libluatex_a-memoryword.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/memoryword.c' object='libluatex_a-memoryword.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-memoryword.o `test -f 'luatexdir/tex/memoryword.c' || echo '$(srcdir)/'`luatexdir/tex/memoryword.c
+
+libluatex_a-memoryword.obj: luatexdir/tex/memoryword.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-memoryword.obj -MD -MP -MF $(DEPDIR)/libluatex_a-memoryword.Tpo -c -o libluatex_a-memoryword.obj `if test -f 'luatexdir/tex/memoryword.c'; then $(CYGPATH_W) 'luatexdir/tex/memoryword.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/memoryword.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-memoryword.Tpo $(DEPDIR)/libluatex_a-memoryword.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/memoryword.c' object='libluatex_a-memoryword.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-memoryword.obj `if test -f 'luatexdir/tex/memoryword.c'; then $(CYGPATH_W) 'luatexdir/tex/memoryword.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/memoryword.c'; fi`
 
 libluatex_a-mlist.o: luatexdir/tex/mlist.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-mlist.o -MD -MP -MF $(DEPDIR)/libluatex_a-mlist.Tpo -c -o libluatex_a-mlist.o `test -f 'luatexdir/tex/mlist.c' || echo '$(srcdir)/'`luatexdir/tex/mlist.c

@@ -203,61 +203,6 @@ versions of the program.
 @z
 
 @x
-macros are simplified in the obvious way when |min_quarterword=0|.
-@^inner loop@>@^system dependencies@>
-
-@d qi(#)==#+min_quarterword
-  {to put an |eight_bits| item into a quarterword}
-@d qo(#)==#-min_quarterword
-  {to take an |eight_bits| item out of a quarterword}
-@d hi(#)==#+min_halfword
-  {to put a sixteen-bit item into a halfword}
-@d ho(#)==#-min_halfword
-  {to take a sixteen-bit item from a halfword}
-@y
-macros are simplified in the obvious way when |min_quarterword=0|.
-So they have been simplified here in the obvious way.
-@^inner loop@>@^system dependencies@>
-
-@d qi(#)==# {to put an |eight_bits| item into a quarterword}
-@d qo(#)==# {to take an |eight_bits| item from a quarterword}
-@d hi(#)==# {to put a sixteen-bit item into a halfword}
-@d ho(#)==# {to take a sixteen-bit item from a halfword}
-@z
-
-@x
-@!quarterword = min_quarterword..max_quarterword; {1/4 of a word}
-@!halfword=min_halfword..max_halfword; {1/2 of a word}
-@!two_choices = 1..2; {used when there are two variants in a record}
-@!four_choices = 1..4; {used when there are four variants in a record}
-@!two_halves = packed record@;@/
-  @!rh:halfword;
-  case two_choices of
-  1: (@!lh:halfword);
-  2: (@!b0:quarterword; @!b1:quarterword);
-  end;
-@!four_quarters = packed record@;@/
-  @!b0:quarterword;
-  @!b1:quarterword;
-  @!b2:quarterword;
-  @!b3:quarterword;
-  end;
-@!memory_word = record@;@/
-  case four_choices of
-  1: (@!int:integer);
-  2: (@!gr:glue_ratio);
-  3: (@!hh:two_halves);
-  4: (@!qqqq:four_quarters);
-  end;
-@y
-@!quarterword = min_quarterword..max_quarterword;
-@!halfword = min_halfword..max_halfword;
-@!two_choices = 1..2; {used when there are two variants in a record}
-@!four_choices = 1..4; {used when there are four variants in a record}
-@=#include "texmfmem.h";@>
-@z
-
-@x
 begin if m>0 then
   case m div (max_command+1) of
   0:print("vertical");

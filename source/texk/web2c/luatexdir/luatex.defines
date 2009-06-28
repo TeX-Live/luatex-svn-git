@@ -1555,3 +1555,8 @@
 @define procedure init_randoms();
 @define function unif_rand();
 @define function norm_rand;
+
+{ memory }
+
+@define type word_file;
+@define procedure print_word();
