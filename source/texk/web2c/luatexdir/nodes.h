@@ -622,7 +622,7 @@ destination |pdf_ann_left| and |pdf_ann_top| are used for some types of destinat
 #  define pdf_literal_mode(a)  type((a)+2)
 #  define pdf_literal_type(a)  subtype((a)+2)
 
-#  define pdf_ximage_idx(a)    vinfo((a) + 5) /* image index in array */ /* replaces next? */
+#  define pdf_ximage_idx(a)    vinfo((a) + 5) /* image index in array */        /* replaces next? */
 #  define pdf_ximage_objnum(a) vinfo((a) + 5)   /* this will be removed soon */
 #  define pdf_ximage_ref(a)    vinfo((a) + 5)
 #  define pdf_xform_objnum(a)  vinfo((a) + 5)
@@ -784,10 +784,10 @@ typedef enum {
 #  define end_point       begin_point+glyph_node_size
 #  define var_mem_stat_max (end_point+glyph_node_size-1)
 
-#define stretching 1
-#define shrinking 2
+#  define stretching 1
+#  define shrinking 2
 
-#define is_running(A) ((A)==null_flag) /* tests for a running dimension */
+#  define is_running(A) ((A)==null_flag)/* tests for a running dimension */
 
 
 
