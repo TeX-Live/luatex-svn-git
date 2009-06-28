@@ -770,7 +770,7 @@ format_debug('string pool checksum')(x);
 if x<>@$ then begin {check that strings are the same}
   wake_up_terminal;
   wterm_cr;
-  fprintf(term_out,'---! %s was written by an older version',stringcast(nameoffile+1));
+  fprintf(term_out,'---! %s was written by a different version',stringcast(nameoffile+1));
   goto bad_fmt;
 end;
 undump_int(x);
