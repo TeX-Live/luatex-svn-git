@@ -339,8 +339,8 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
         return NULL;
     }
     ret = xmalloc(alloci);
-    p = token_link(p);                /* skip refcount */
-    if (p!=null) {
+    p = token_link(p);          /* skip refcount */
+    if (p != null) {
         if (null_cs == 0) {
             null_cs = get_nullcs();
             eqtb_size = get_eqtb_size();
@@ -497,7 +497,7 @@ int tokenlist_from_lua(lua_State * L)
     size_t i, j;
     halfword p, q, r;
     r = get_avail();
-    token_info(r) = 0;                /* ref count */
+    token_info(r) = 0;          /* ref count */
     token_link(r) = null;
     p = r;
     if (lua_istable(L, -1)) {

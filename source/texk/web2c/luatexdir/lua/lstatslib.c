@@ -63,46 +63,46 @@ char *luatexrevision(void)
     return makecstring(get_luatexrevision());
 }
 
-static lua_Number get_pdf_gone (void)
+static lua_Number get_pdf_gone(void)
 {
-    if (static_pdf!=NULL)
-        return (lua_Number)static_pdf->gone;
-    return (lua_Number)0;
+    if (static_pdf != NULL)
+        return (lua_Number) static_pdf->gone;
+    return (lua_Number) 0;
 }
 
-static lua_Number get_pdf_ptr (void)
+static lua_Number get_pdf_ptr(void)
 {
-    if (static_pdf!=NULL)
-        return (lua_Number)static_pdf->ptr;
-    return (lua_Number)0;
+    if (static_pdf != NULL)
+        return (lua_Number) static_pdf->ptr;
+    return (lua_Number) 0;
 }
 
-static lua_Number get_pdf_os_cntr (void)
+static lua_Number get_pdf_os_cntr(void)
 {
-    if (static_pdf!=NULL)
-        return (lua_Number)static_pdf->os_cntr;
-    return (lua_Number)0;
+    if (static_pdf != NULL)
+        return (lua_Number) static_pdf->os_cntr;
+    return (lua_Number) 0;
 }
 
-static lua_Number get_pdf_os_objidx (void)
+static lua_Number get_pdf_os_objidx(void)
 {
-    if (static_pdf!=NULL)
-        return (lua_Number)static_pdf->os_idx;
-    return (lua_Number)0;
+    if (static_pdf != NULL)
+        return (lua_Number) static_pdf->os_idx;
+    return (lua_Number) 0;
 }
 
-static lua_Number get_pdf_mem_size (void)
+static lua_Number get_pdf_mem_size(void)
 {
-    if (static_pdf!=NULL)
-        return (lua_Number)static_pdf->mem_size;
-    return (lua_Number)0;
+    if (static_pdf != NULL)
+        return (lua_Number) static_pdf->mem_size;
+    return (lua_Number) 0;
 }
 
-static lua_Number get_pdf_mem_ptr (void)
+static lua_Number get_pdf_mem_ptr(void)
 {
-    if (static_pdf!=NULL)
-        return (lua_Number)static_pdf->mem_ptr;
-    return (lua_Number)0;
+    if (static_pdf != NULL)
+        return (lua_Number) static_pdf->mem_ptr;
+    return (lua_Number) 0;
 }
 
 

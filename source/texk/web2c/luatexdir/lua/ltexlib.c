@@ -749,8 +749,9 @@ int settex(lua_State * L)
                                       j);
             } else if (is_toks_assign(cur_cmd)) {
                 if (lua_isstring(L, i)) {
-                    j = tokenlist_from_lua(L); /* uses stack -1 */
-                    assign_internal_value((isglobal ? 4 : 0), zget_equiv(cur_cs), j);
+                    j = tokenlist_from_lua(L);  /* uses stack -1 */
+                    assign_internal_value((isglobal ? 4 : 0),
+                                          zget_equiv(cur_cs), j);
 
                 } else {
                     lua_pushstring(L, "unsupported value type");
