@@ -187,13 +187,13 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
             cur.h = cur.h + char_width(lf, k);
             break;
         case packet_rule_code:
-            packet_scaled(rule_ht, fs_f);
-            packet_scaled(rule_wd, fs_f);
-            if ((rule_wd > 0) && (rule_ht > 0)) {
+            packet_scaled(rule.ht, fs_f);
+            packet_scaled(rule.wd, fs_f);
+            if ((rule.wd > 0) && (rule.ht > 0)) {
                 pos = synch_p_with_c(cur);
-                pdf_place_rule(pdf, pos.h, pos.v, rule_wd, rule_ht);
+                pdf_place_rule(pdf, pos.h, pos.v, rule.wd, rule.ht);
             }
-            cur.h = cur.h + rule_wd;
+            cur.h = cur.h + rule.wd;
             break;
         case packet_right_code:
             packet_scaled(i, fs_f);

@@ -31,7 +31,6 @@ extern integer dead_cycles;
 extern boolean doing_leaders;
 extern integer c, f;
 extern integer oval, ocmd;
-extern scaled rule_ht, rule_dp, rule_wd;
 extern halfword g;
 extern integer lq, lr;
 extern integer cur_s;
@@ -174,6 +173,8 @@ typedef struct scaled_whd_ {
     scaled ht;                  /* TeX height */
     scaled dp;                  /* TeX depth */
 } scaled_whd;
+
+extern scaled_whd rule;
 
 #  define synch_h() do {				\
     if (pos.h != dvi.h) {			\

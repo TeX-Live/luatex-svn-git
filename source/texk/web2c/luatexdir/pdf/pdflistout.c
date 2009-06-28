@@ -328,13 +328,13 @@ void pdf_hlist_out(PDF pdf)
                 if (!
                     (dir_orthogonal
                      (dir_primary[rule_dir(p)], dir_primary[dvi_direction]))) {
-                    rule_ht = height(p);
-                    rule_dp = depth(p);
-                    rule_wd = width(p);
+                    rule.ht = height(p);
+                    rule.dp = depth(p);
+                    rule.wd = width(p);
                 } else {
-                    rule_ht = width(p) / 2;
-                    rule_dp = width(p) / 2;
-                    rule_wd = height(p) + depth(p);
+                    rule.ht = width(p) / 2;
+                    rule.dp = width(p) / 2;
+                    rule.wd = height(p) + depth(p);
                 }
                 goto FIN_RULE;
                 break;
@@ -507,7 +507,7 @@ void pdf_hlist_out(PDF pdf)
                 /* (\pdfTeX) Move right or output leaders */
 
                 g = glue_ptr(p);
-                rule_wd = width(g) - cur_g;
+                rule.wd = width(g) - cur_g;
                 if (g_sign != normal) {
                     if (g_sign == stretching) {
                         if (stretch_order(g) == g_order) {
@@ -521,14 +521,14 @@ void pdf_hlist_out(PDF pdf)
                         cur_g = float_round(glue_temp);
                     }
                 }
-                rule_wd = rule_wd + cur_g;
+                rule.wd = rule.wd + cur_g;
                 if (subtype(p) >= a_leaders) {
                     /* (\pdfTeX) Output leaders in an hlist, |goto fin_rule| if a rule
                        or to |next_p| if done */
                     leader_box = leader_ptr(p);
                     if (type(leader_box) == rule_node) {
-                        rule_ht = height(leader_box);
-                        rule_dp = depth(leader_box);
+                        rule.ht = height(leader_box);
+                        rule.dp = depth(leader_box);
                         goto FIN_RULE;
                     }
                     if (!
@@ -538,9 +538,9 @@ void pdf_hlist_out(PDF pdf)
                         leader_wd = width(leader_box);
                     else
                         leader_wd = height(leader_box) + depth(leader_box);
-                    if ((leader_wd > 0) && (rule_wd > 0)) {
-                        rule_wd = rule_wd + 10; /* compensate for floating-point rounding */
-                        edge = cur.h + rule_wd;
+                    if ((leader_wd > 0) && (rule.wd > 0)) {
+                        rule.wd = rule.wd + 10; /* compensate for floating-point rounding */
+                        edge = cur.h + rule.wd;
                         lx = 0;
                         /* Let |cur.h| be the position of the first box, and set |leader_wd+lx|
                            to the spacing between corresponding parts of boxes */
@@ -554,8 +554,8 @@ void pdf_hlist_out(PDF pdf)
                                 if (cur.h < save_h)
                                     cur.h = cur.h + leader_wd;
                             } else {
-                                lq = rule_wd / leader_wd;       /* the number of box copies */
-                                lr = rule_wd % leader_wd;       /* the remaining space */
+                                lq = rule.wd / leader_wd;       /* the number of box copies */
+                                lr = rule.wd % leader_wd;       /* the remaining space */
                                 if (subtype(p) == c_leaders) {
                                     cur.h = cur.h + (lr / 2);
                                 } else {
@@ -655,43 +655,43 @@ void pdf_hlist_out(PDF pdf)
             goto NEXTP;
           FIN_RULE:
             /* (\pdfTeX) Output a rule in an hlist */
-            if (is_running(rule_ht))
-                rule_ht = height(this_box);
-            if (is_running(rule_dp))
-                rule_dp = depth(this_box);
-            if (((rule_ht + rule_dp) > 0) && (rule_wd > 0)) {   /* we don't output empty rules */
+            if (is_running(rule.ht))
+                rule.ht = height(this_box);
+            if (is_running(rule.dp))
+                rule.dp = depth(this_box);
+            if (((rule.ht + rule.dp) > 0) && (rule.wd > 0)) {   /* we don't output empty rules */
                 pos = synch_p_with_c(cur);
                 /* *INDENT-OFF* */
                 switch (box_direction(dvi_direction)) {
                 case dir_TL_: 
-                    pdf_place_rule(pdf, pos.h,           pos.v - rule_dp, rule_wd,           rule_ht + rule_dp);
+                    pdf_place_rule(pdf, pos.h,           pos.v - rule.dp, rule.wd,           rule.ht + rule.dp);
                     break;
                 case dir_BL_: 
-                    pdf_place_rule(pdf, pos.h,           pos.v - rule_ht, rule_wd,           rule_ht + rule_dp);
+                    pdf_place_rule(pdf, pos.h,           pos.v - rule.ht, rule.wd,           rule.ht + rule.dp);
                     break;
                 case dir_TR_: 
-                    pdf_place_rule(pdf, pos.h - rule_wd, pos.v - rule_dp, rule_wd,           rule_ht + rule_dp);
+                    pdf_place_rule(pdf, pos.h - rule.wd, pos.v - rule.dp, rule.wd,           rule.ht + rule.dp);
                     break;
                 case dir_BR_: 
-                    pdf_place_rule(pdf, pos.h - rule_wd, pos.v - rule_ht, rule_wd,           rule_ht + rule_dp);
+                    pdf_place_rule(pdf, pos.h - rule.wd, pos.v - rule.ht, rule.wd,           rule.ht + rule.dp);
                     break;
                 case dir_LT_:
-                    pdf_place_rule(pdf, pos.h - rule_ht, pos.v - rule_wd, rule_ht + rule_dp, rule_wd);
+                    pdf_place_rule(pdf, pos.h - rule.ht, pos.v - rule.wd, rule.ht + rule.dp, rule.wd);
                     break;
                 case dir_RT_: 
-                    pdf_place_rule(pdf, pos.h - rule_dp, pos.v - rule_wd, rule_ht + rule_dp, rule_wd);
+                    pdf_place_rule(pdf, pos.h - rule.dp, pos.v - rule.wd, rule.ht + rule.dp, rule.wd);
                     break;
                 case dir_LB_: 
-                    pdf_place_rule(pdf, pos.h - rule_ht, pos.v,           rule_ht + rule_dp, rule_wd);
+                    pdf_place_rule(pdf, pos.h - rule.ht, pos.v,           rule.ht + rule.dp, rule.wd);
                     break;
                 case dir_RB_: 
-                    pdf_place_rule(pdf, pos.h - rule_dp, pos.v,           rule_ht + rule_dp, rule_wd);
+                    pdf_place_rule(pdf, pos.h - rule.dp, pos.v,           rule.ht + rule.dp, rule.wd);
                     break;
                 }
                 /* *INDENT-ON* */
             }
           MOVE_PAST:
-            cur.h = cur.h + rule_wd;
+            cur.h = cur.h + rule.wd;
             /* Record horizontal |rule_node| or |glue_node| {\sl Sync\TeX} information */
             synctex_horizontal_rule_or_glue(p, this_box);
           NEXTP:
@@ -841,13 +841,13 @@ void pdf_vlist_out(PDF pdf)
                 if (!
                     (dir_orthogonal
                      (dir_primary[rule_dir(p)], dir_primary[dvi_direction]))) {
-                    rule_ht = height(p);
-                    rule_dp = depth(p);
-                    rule_wd = width(p);
+                    rule.ht = height(p);
+                    rule.dp = depth(p);
+                    rule.wd = width(p);
                 } else {
-                    rule_ht = width(p) / 2;
-                    rule_dp = width(p) / 2;
-                    rule_wd = height(p) + depth(p);
+                    rule.ht = width(p) / 2;
+                    rule.dp = width(p) / 2;
+                    rule.wd = height(p) + depth(p);
                 }
                 goto FIN_RULE;
                 break;
@@ -973,7 +973,7 @@ void pdf_vlist_out(PDF pdf)
             case glue_node:
                 /* (\pdfTeX) Move down or output leaders */
                 g = glue_ptr(p);
-                rule_ht = width(g) - cur_g;
+                rule.ht = width(g) - cur_g;
                 if (g_sign != normal) {
                     if (g_sign == stretching) {
                         if (stretch_order(g) == g_order) {
@@ -987,19 +987,19 @@ void pdf_vlist_out(PDF pdf)
                         cur_g = float_round(glue_temp);
                     }
                 }
-                rule_ht = rule_ht + cur_g;
+                rule.ht = rule.ht + cur_g;
                 if (subtype(p) >= a_leaders) {
                     /* (\pdfTeX) Output leaders in a vlist, |goto fin_rule| if a rule or to |next_p| if done */
                     leader_box = leader_ptr(p);
                     if (type(leader_box) == rule_node) {
-                        rule_wd = width(leader_box);
-                        rule_dp = 0;
+                        rule.wd = width(leader_box);
+                        rule.dp = 0;
                         goto FIN_RULE;
                     }
                     leader_ht = height(leader_box) + depth(leader_box);
-                    if ((leader_ht > 0) && (rule_ht > 0)) {
-                        rule_ht = rule_ht + 10; /* compensate for floating-point rounding */
-                        edge = cur.v + rule_ht;
+                    if ((leader_ht > 0) && (rule.ht > 0)) {
+                        rule.ht = rule.ht + 10; /* compensate for floating-point rounding */
+                        edge = cur.v + rule.ht;
                         lx = 0;
                         /* Let |cur.v| be the position of the first box, and set |leader_ht+lx|
                            to the spacing between corresponding parts of boxes */
@@ -1012,8 +1012,8 @@ void pdf_vlist_out(PDF pdf)
                             if (cur.v < save_v)
                                 cur.v = cur.v + leader_ht;
                         } else {
-                            lq = rule_ht / leader_ht;   /* the number of box copies */
-                            lr = rule_ht % leader_ht;   /* the remaining space */
+                            lq = rule.ht / leader_ht;   /* the number of box copies */
+                            lr = rule.ht % leader_ht;   /* the remaining space */
                             if (subtype(p) == c_leaders) {
                                 cur.v = cur.v + (lr / 2);
                             } else {
@@ -1058,44 +1058,44 @@ void pdf_vlist_out(PDF pdf)
             goto NEXTP;
           FIN_RULE:
             /* (\pdfTeX) Output a rule in a vlist, |goto next_p| */
-            if (is_running(rule_wd))
-                rule_wd = width(this_box);
-            rule_ht = rule_ht + rule_dp;        /* this is the rule thickness */
-            if ((rule_ht > 0) && (rule_wd > 0)) {       /* we don't output empty rules */
+            if (is_running(rule.wd))
+                rule.wd = width(this_box);
+            rule.ht = rule.ht + rule.dp;        /* this is the rule thickness */
+            if ((rule.ht > 0) && (rule.wd > 0)) {       /* we don't output empty rules */
                 pos = synch_p_with_c(cur);
                 /* *INDENT-OFF* */
                 switch (box_direction(dvi_direction)) {
                 case dir_TL_: 
-                    pdf_place_rule(pdf, pos.h,           pos.v - rule_ht, rule_wd, rule_ht);
+                    pdf_place_rule(pdf, pos.h,           pos.v - rule.ht, rule.wd, rule.ht);
                     break;
                 case dir_BL_: 
-                    pdf_place_rule(pdf, pos.h,           pos.v,           rule_wd, rule_ht);
+                    pdf_place_rule(pdf, pos.h,           pos.v,           rule.wd, rule.ht);
                     break;
                 case dir_TR_: 
-                    pdf_place_rule(pdf, pos.h - rule_wd, pos.v - rule_ht, rule_wd, rule_ht);
+                    pdf_place_rule(pdf, pos.h - rule.wd, pos.v - rule.ht, rule.wd, rule.ht);
                     break;
                 case dir_BR_: 
-                    pdf_place_rule(pdf, pos.h - rule_wd, pos.v,           rule_wd, rule_ht);
+                    pdf_place_rule(pdf, pos.h - rule.wd, pos.v,           rule.wd, rule.ht);
                     break;
                 case dir_LT_: 
-                    pdf_place_rule(pdf, pos.h,           pos.v - rule_wd, rule_ht, rule_wd);
+                    pdf_place_rule(pdf, pos.h,           pos.v - rule.wd, rule.ht, rule.wd);
                     break;
                 case dir_RT_: 
-                    pdf_place_rule(pdf, pos.h - rule_ht, pos.v - rule_wd, rule_ht, rule_wd);
+                    pdf_place_rule(pdf, pos.h - rule.ht, pos.v - rule.wd, rule.ht, rule.wd);
                     break;
                 case dir_LB_: 
-                    pdf_place_rule(pdf, pos.h,           pos.v,           rule_ht, rule_wd);
+                    pdf_place_rule(pdf, pos.h,           pos.v,           rule.ht, rule.wd);
                     break;
                 case dir_RB_: 
-                    pdf_place_rule(pdf, pos.h - rule_ht, pos.v,           rule_ht, rule_wd);
+                    pdf_place_rule(pdf, pos.h - rule.ht, pos.v,           rule.ht, rule.wd);
                     break;
                 }
                 /* *INDENT-ON* */
-                cur.v = cur.v + rule_ht;
+                cur.v = cur.v + rule.ht;
             }
             goto NEXTP;
           MOVE_PAST:
-            cur.v = cur.v + rule_ht;
+            cur.v = cur.v + rule.ht;
           NEXTP:
             p = vlink(p);
         }

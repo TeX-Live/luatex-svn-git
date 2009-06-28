@@ -104,9 +104,9 @@ Tue Jul 1 15:23:00 UTC 2008
 #       define SYNCTEX_FREE(x) free(x)
 #   endif
 
-#define ruleht rule_ht
-#define ruledp rule_dp
-#define rulewd rule_wd
+#define ruleht rule.ht
+#define ruledp rule.dp
+#define rulewd rule.wd
 #define jobname job_name
 #define totalpages total_pages
 #define curinput cur_input
