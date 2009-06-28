@@ -363,8 +363,8 @@ void print_banner(char *v, int e)
 void log_banner(char *v, int e)
 {
     char *months[] = { "   ",
-        "JAN", "FEB", "MAR", "APR", "MAY", "JUN"
-            "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
+		       "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+		       "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
     };
     unsigned month = (unsigned) int_par(param_month_code);
     if (month > 12)
