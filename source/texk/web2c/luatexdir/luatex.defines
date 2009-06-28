@@ -1571,6 +1571,15 @@
 @define var fix_mem_max;
 @define var fix_mem_end;
 
+@define var garbage;        
+@define var temp_token_head;
+@define var hold_token_head;
+@define var omit_template;  
+@define var null_list;      
+@define var backup_head;    
+
+@define procedure initialize_tokens;
+
 @define var dyn_used;
 @define function token_info();
 @define function token_link();

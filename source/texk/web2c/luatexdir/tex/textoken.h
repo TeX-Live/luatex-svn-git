@@ -40,6 +40,15 @@ extern smemory_word *fixmem;
 extern halfword fix_mem_min;
 extern halfword fix_mem_max;
 
+extern halfword garbage;         /* head of a junk list, write only */
+extern halfword temp_token_head; /* head of a temporary list of some kind */
+extern halfword hold_token_head; /* head of a temporary list of another kind */
+extern halfword omit_template;   /* a constant token list */
+extern halfword null_list;       /* permanently empty list */
+extern halfword backup_head;     /* head of token list built by |scan_keyword| */
+
+extern void initialize_tokens (void);
+
 extern integer dyn_used;
 
 #define token_info(a)    fixmem[(a)].hhlh

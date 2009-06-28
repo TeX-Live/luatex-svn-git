@@ -92,6 +92,27 @@ integer var_used, dyn_used; /* how much memory is in use */
 halfword avail; /* head of the list of available one-word nodes */
 halfword fix_mem_end; /* the last one-word node used in |mem| */
 
+halfword garbage;         /* head of a junk list, write only */
+halfword temp_token_head; /* head of a temporary list of some kind */
+halfword hold_token_head; /* head of a temporary list of another kind */
+halfword omit_template;   /* a constant token list */
+halfword null_list;       /* permanently empty list */
+halfword backup_head;     /* head of token list built by |scan_keyword| */
+
+void initialize_tokens (void)
+{
+    halfword p;
+    avail=null; 
+    fix_mem_end=0;
+    p=get_avail(); temp_token_head=p; set_token_info(temp_token_head,0);
+    p=get_avail(); hold_token_head=p; set_token_info(hold_token_head,0);
+    p=get_avail(); omit_template=p;   set_token_info(omit_template,0);
+    p=get_avail(); null_list=p;       set_token_info(null_list,0);
+    p=get_avail(); backup_head=p;     set_token_info(backup_head,0);
+    p=get_avail(); garbage=p;         set_token_info(garbage,0);
+    dyn_used=0; /* initialize statistics */
+}
+
 /*
 The function |get_avail| returns a pointer to a new one-word node whose
 |link| field is null. However, \TeX\ will halt if there is no more room left.

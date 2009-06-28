@@ -1513,14 +1513,6 @@ page), |contrib_head| (list of insertion data for current page),
 |end_span| (tail of spanned-width lists).
 
 
-@<Glob...@>=
-garbage:pointer;         {head of a junk list, write only}
-temp_token_head:pointer; {head of a temporary list of some kind}
-hold_token_head:pointer; {head of a temporary list of another kind}
-omit_template:pointer;   {a constant token list}
-null_list:pointer;       {permanently empty list}
-backup_head:pointer;     {head of token list built by |scan_keyword|}
-
 @ The following code gets |mem| off to a good start, when \TeX\ is
 initializing itself the slow~way.
 
@@ -1528,24 +1520,10 @@ initializing itself the slow~way.
 @!k:integer; {index into |mem|, |eqtb|, etc.}
 
 @ @<Initialize table entries...@>=
-procedure init_link_heads;forward;
 init_node_mem(500);
-avail:=null; fix_mem_end:=0;
-init_list_heads;
+initialize_tokens;
 @<Initialize the special list heads and constant nodes@>;
 initialize_active;
-dyn_used:=0; {initialize statistics}
-
-@ @p procedure init_list_heads; {initialize token list heads}
-var p:halfword;
-begin
-p:=get_avail; temp_token_head:=p; set_token_info(temp_token_head,0);
-p:=get_avail; hold_token_head:=p; set_token_info(hold_token_head,0);
-p:=get_avail; omit_template:=p;   set_token_info(omit_template,0);
-p:=get_avail; null_list:=p;       set_token_info(null_list,0);
-p:=get_avail; backup_head:=p;     set_token_info(backup_head,0);
-p:=get_avail; garbage:=p;         set_token_info(garbage,0);
-end;
 
 @ @p
 @<Declare procedures that need to be declared forward for \pdfTeX@>
