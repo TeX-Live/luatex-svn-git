@@ -402,7 +402,7 @@ void log_banner(char *v, int e)
 
 void print_version_banner(void)
 {
-    fprintf(term_out, "%s", BANNER);    /* todo: get the extra info in here */
+  fprintf(term_out, "%s%s", BANNER, luatex_version_string); /* todo: get the extra info in here */
     fprintf(term_out, versionstring);
     /* write_svnversion(luatex_svnversion); */
 }
@@ -527,7 +527,7 @@ void print_roman_int(integer n)
     j = (char *) mystery;
     v = 1000;
     while (1) {
-        while (n >= v) {
+      while (n >= (int)v) {
             print_char(*j);
             n = n - v;
         }
