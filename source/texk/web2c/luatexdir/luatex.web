@@ -903,157 +903,12 @@ So they have been simplified here in the obvious way.
 @=#include "tex/memoryword.h";@>
 
 @* \[9] Dynamic memory allocation.
-The \TeX\ system does nearly all of its own memory allocation, so that it
-can readily be transported into environments that do not have automatic
-facilities for strings, garbage collection, etc., and so that it can be in
-control of what error messages the user receives. The dynamic storage
-requirements of \TeX\ are handled by providing two large arrays called
-|fixmem| and |varmem| in which consecutive blocks of words are used as
-nodes by the \TeX\ routines.
 
-Pointer variables are indices into this array, or into another array
-called |eqtb| that will be explained later. A pointer variable might
-also be a special flag that lies outside the bounds of |mem|, so we
-allow pointers to assume any |halfword| value. The minimum halfword
-value represents a null pointer. \TeX\ does not assume that |mem[null]| exists.
-
+@ 
 @d pointer==halfword {a flag or a location in |mem| or |eqtb|}
 @d null==0 {the null pointer}
-
-@<Glob...@>=
-@!temp_ptr:pointer; {a pointer variable for occasional emergency use}
-
-@ @<Types...@>=
-@!smemory_word = packed record@;@/
-  @!hhrh:halfword;
-  @!hhlh:halfword;
-  end;
-
-
-@ The |mem| array is divided into two items that are allocated separately;
-they grow until finding their ``natural'' size in a particular job.
-Locations in |varmem| are used for storing variable-length records
-consisting of two or more words each. This region
-is maintained using an algorithm similar to the one described in exercise
-2.5--19 of {\sl The Art of Computer Programming}. However, no size field
-appears in the allocated nodes; the program is responsible for knowing the
-relevant size when a node is freed. Locations in |fixmem| are used for storing
-one-word records; a conventional \.{AVAIL} stack is used for allocation
-in this array.
-
-Empirical tests show that the present implementation of \TeX\ tends to
-spend about 9\pct! of its running time allocating nodes, and about 6\pct!
-deallocating them after their use.
-
-@d fix_mem_init==10000
-
-@<Glob...@>=
-@!fixmem : ^smemory_word; {the big dynamic storage area}
-@!fix_mem_min : pointer; {the smallest location of one-word memory in use}
-@!fix_mem_max : pointer; {the largest location of one-word memory in use}
-
-@ In order to study the memory requirements of particular applications, it
-is possible to prepare a version of \TeX\ that keeps track of current and
-maximum memory usage. When code between the delimiters |@!stat| $\ldots$
-|tats| is not ``commented out,'' \TeX\ will run a bit slower but it will
-report these statistics when |tracing_stats| is sufficiently large.
-
-@<Glob...@>=
-@!var_used, @!dyn_used : integer; {how much memory is in use}
-
-@ Let's consider the one-word memory region first, since it's the
-simplest. The pointer variable |fix_mem_end| holds the highest-numbered location
-of |mem| that has ever been used. The free locations of |mem| that
-occur between |hi_mem_min| and |fix_mem_end|, inclusive, are of type
-|two_halves|, and we write |info(p)| and |link(p)| for the |lh|
-and |rh| fields of |mem[p]| when it is of this type. The single-word
-free locations form a linked list
-$$|avail|,\;\hbox{|link(avail)|},\;\hbox{|link(link(avail))|},\;\ldots$$
-terminated by |null|.
-
-@d mem(#) == fixmem[#]
-@d link(#) == mem(#).hhrh {the |link| field of a memory word}
-@d info(#) == mem(#).hhlh {the |info| field of a memory word}
-
-@<Glob...@>=
-@!avail : pointer; {head of the list of available one-word nodes}
-@!fix_mem_end : pointer; {the last one-word node used in |mem|}
-
-@ If memory is exhausted, it might mean that the user has forgotten
-a right brace. We will define some procedures later that try to help
-pinpoint the trouble.
-
-@p @<Declare the procedure called |show_token_list|@>@/
-
-@ The function |get_avail| returns a pointer to a new one-word node whose
-|link| field is null. However, \TeX\ will halt if there is no more room left.
-@^inner loop@>
-
-If the available-space list is empty, i.e., if |avail=null|,
-we try first to increase |fix_mem_end|. If that cannot be done, i.e., if
-|fix_mem_end=fix_mem_max|, we try to reallocate array |fixmem|.
-If, that doesn't work, we have to quit.
-
-@p function get_avail : pointer; {single-word node allocation}
-var p:pointer; {the new node being got}
-t:integer;
-begin p:=avail; {get top location in the |avail| stack}
-if p<>null then avail:=link(avail) {and pop it off}
-else if fix_mem_end<fix_mem_max then {or go into virgin territory}
-  begin incr(fix_mem_end); p:=fix_mem_end;
-  end
-else  begin
-  t:=(fix_mem_max/5);
-  fixmem := fixmemcast(realloc(fixmem,sizeof(smemory_word)*(fix_mem_max+t+1)));
-  if fixmem=NULL then
-    begin runaway; {if memory is exhausted, display possible runaway text}
-    overflow('token memory size',fix_mem_max);
-      {quit; all one-word nodes are busy}
-@:TeX capacity exceeded main memory size}{\quad main memory size@>
-    end;
-  memset (voidcast(fixmem+fix_mem_max+1),0,t*sizeof(smemory_word));
-  fix_mem_max:=fix_mem_max+t; incr(fix_mem_end); p:=fix_mem_end;
-  end;
-link(p):=null; {provide an oft-desired initialization of the new node}
-@!stat incr(dyn_used);@+tats@;{maintain statistics}
-get_avail:=p;
-end;
-
-@ Conversely, a one-word node is recycled by calling |free_avail|.
-This routine is part of \TeX's ``inner loop,'' so we want it to be fast.
-@^inner loop@>
-
-@d free_avail(#)== {single-word node liberation}
-  begin link(#):=avail; avail:=#;
-  @!stat decr(dyn_used);@+tats@/
-  end
-
-@ There's also a |fast_get_avail| routine, which saves the procedure-call
-overhead at the expense of extra programming. This routine is used in
-the places that would otherwise account for the most calls of |get_avail|.
-@^inner loop@>
-
-@d fast_get_avail(#)==@t@>@;@/
-  begin #:=avail; {avoid |get_avail| if possible, to save time}
-  if #=null then #:=get_avail
-  else  begin avail:=link(#); link(#):=null;
-    @!stat incr(dyn_used);@+tats@/
-    end;
-  end
-
-@ The procedure |flush_list(p)| frees an entire linked list of
-one-word nodes that starts at position |p|.
-@^inner loop@>
-
-@p procedure flush_list(@!p:pointer); {makes list of single-word nodes available}
-var @!q,@!r:pointer; {list traversers}
-begin if p<>null then
-  begin r:=p;
-  repeat q:=r; r:=link(r); @!stat decr(dyn_used);@+tats@/
-  until r=null; {now |q| is the last node on the list}
-  link(q):=avail; avail:=p;
-  end;
-end;
+@d link == token_link {the |link| field of a memory word}
+@d info == token_info {the |info| field of a memory word}
 
 @ The available-space list that keeps track of the variable-size portion
 of |mem| is a nonempty, doubly-linked circular list of empty nodes,
@@ -1063,6 +918,10 @@ pointed to by the roving pointer |rover|.
 @d vlink(#) == vmem(#).hh.rh {the |link| field of a memory word}
 @d vinfo(#) == vmem(#).hh.lh {the |info| field of a memory word}
 @d alink(#) == vlink(#+1) {backlink in doubly-linked list of empty nodes}
+
+@ @<Glob...@>=
+var_used:halfword;
+temp_ptr:pointer; {a pointer variable for occasional emergency use}
 
 @* \[10] Data structures for boxes and their friends.
 From the computer's standpoint, \TeX's chief mission is to create
@@ -1680,12 +1539,12 @@ dyn_used:=0; {initialize statistics}
 @ @p procedure init_list_heads; {initialize token list heads}
 var p:halfword;
 begin
-p:=get_avail; temp_token_head:=p; info(temp_token_head):=0;
-p:=get_avail; hold_token_head:=p; info(hold_token_head):=0;
-p:=get_avail; omit_template:=p;   info(omit_template):=0;
-p:=get_avail; null_list:=p;       info(null_list):=0;
-p:=get_avail; backup_head:=p;     info(backup_head):=0;
-p:=get_avail; garbage:=p;         info(garbage):=0;
+p:=get_avail; temp_token_head:=p; set_token_info(temp_token_head,0);
+p:=get_avail; hold_token_head:=p; set_token_info(hold_token_head,0);
+p:=get_avail; omit_template:=p;   set_token_info(omit_template,0);
+p:=get_avail; null_list:=p;       set_token_info(null_list,0);
+p:=get_avail; backup_head:=p;     set_token_info(backup_head,0);
+p:=get_avail; garbage:=p;         set_token_info(garbage,0);
 end;
 
 @ @p
@@ -1882,22 +1741,7 @@ storage, including all of its sublists. The recursive procedure
 |flush_node_list| does this for us.
 
 @ First, however, we shall consider two non-recursive procedures that do
-simpler tasks. The first of these, |delete_token_ref|, is called when
-a pointer to a token list's reference count is being removed. This means
-that the token list should disappear if the reference count was |null|,
-otherwise the count should be decreased by one.
-@^reference counts@>
-
-@d token_ref_count(#) == info(#) {reference count preceding a token list}
-
-@p procedure delete_token_ref(@!p:pointer); {|p| points to the reference count
-  of a token list that is losing one reference}
-begin pdfassert(token_ref_count(p)>=0);
-if token_ref_count(p)=0 then flush_list(p)
-else decr(token_ref_count(p));
-end;
-
-@ Similarly, |delete_glue_ref| is called when a pointer to a glue
+simpler tasks. |delete_glue_ref| is called when a pointer to a glue
 specification is being withdrawn.
 @^reference counts@>
 @d fast_delete_glue_ref(#)==@t@>@;@/
@@ -1934,7 +1778,6 @@ and the total number of memory addresses fits in a halfword.
 |save_stack| is made arbitrarily large, it would theoretically be possible
 to break \TeX\ by overflowing a reference count. But who would want to do that?)
 
-@d add_token_ref(#)==incr(token_ref_count(#)) {new reference to a token list}
 @d add_glue_ref(#)==incr(glue_ref_count(#)) {new reference to a glue spec}
 
 @p function tail_of_list (@!p:pointer):pointer;
@@ -4598,95 +4441,6 @@ the corresponding token list will have `\.\{' just before the `|end_match|'
 and also at the very end. The first `\.\{' is used to delimit the parameter; the
 second one keeps the first from disappearing.
 
-@ The procedure |show_token_list|, which prints a symbolic form of
-the token list that starts at a given node |p|, illustrates these
-conventions. The token list being displayed should not begin with a reference
-count. However, the procedure is intended to be robust, so that if the
-memory links are awry or if |p| is not really a pointer to a token list,
-nothing catastrophic will happen.
-
-An additional parameter |q| is also given; this parameter is either null
-or it points to a node in the token list where a certain magic computation
-takes place that will be explained later. (Basically, |q| is non-null when
-we are printing the two-line context information at the time of an error
-message; |q| marks the place corresponding to where the second line
-should begin.)
-
-For example, if |p| points to the node containing the first \.a in the
-token list above, then |show_token_list| will print the string
-$$\hbox{`\.{a\#1\#2\ \\b\ ->\#1\\-a\ \#\#1\#2\ \#2}';}$$
-and if |q| points to the node containing the second \.a,
-the magic computation will be performed just before the second \.a is printed.
-
-The generation will stop, and `\.{\\ETC.}' will be printed, if the length
-of printing exceeds a given limit~|l|. Anomalous entries are printed in the
-form of control sequences that are not followed by a blank space, e.g.,
-`\.{\\BAD.}'; this cannot be confused with actual control sequences because
-a real control sequence named \.{BAD} would come out `\.{\\BAD\ }'.
-
-@<Declare the procedure called |show_token_list|@>=
-procedure show_token_list(@!p,@!q:integer;@!l:integer);
-label exit;
-var m,@!c:integer; {pieces of a token}
-@!match_chr:ASCII_code; {character used in a `|match|'}
-@!n:ASCII_code; {the highest parameter number, as an ASCII digit}
-begin match_chr:="#"; n:="0"; tally:=0;
-while (p<>null) and (tally<l) do
-  begin if p=q then @<Do magic computation@>;
-  @<Display token |p|, and |return| if there are problems@>;
-  p:=link(p);
-  end;
-if p<>null then print_esc("ETC.");
-@.ETC@>
-exit:
-end;
-
-@ @<Display token |p|...@>=
-if (p<fix_mem_min) or (p>fix_mem_end) then
-  begin print_esc("CLOBBERED."); return;
-@.CLOBBERED@>
-  end;
-if info(p)>=cs_token_flag then begin
-  if not ((inhibit_par_tokens) and (info(p)=par_token)) then
-          print_cs(info(p)-cs_token_flag);
-  end
-else  begin m:=info(p) div string_offset; c:=info(p) mod string_offset;
-  if info(p)<0 then print_esc("BAD.")
-@.BAD@>
-  else @<Display the token $(|m|,|c|)$@>;
-  end
-
-@ The procedure usually ``learns'' the character code used for macro
-parameters by seeing one in a |match| command before it runs into any
-|out_param| commands.
-
-@<Display the token ...@>=
-case m of
-left_brace,right_brace,math_shift,tab_mark,sup_mark,sub_mark,spacer,
-  letter,other_char: print(c);
-mac_param: begin if not in_lua_escape then print(c); print(c);
-  end;
-out_param: begin print(match_chr);
-  if c<=9 then print_char(c+"0")
-  else  begin print_char("!"); return;
-    end;
-  end;
-match: begin match_chr:=c; print(c); incr(n); print_char(n);
-  if n>"9" then return;
-  end;
-end_match: if c=0 then print("->");
-@.->@>
-othercases print_esc("BAD.")
-@.BAD@>
-endcases
-
-@ Here's the way we sometimes want to display a token list, given a pointer
-to its reference count; the pointer may be null.
-
-@p procedure token_show(@!p:pointer);
-begin if p<>null then show_token_list(link(p),null,10000000);
-end;
-
 @ The |print_meaning| subroutine displays |cur_cmd| and |cur_chr| in
 symbolic form, including the expansion of a macro or mark.
 
@@ -4785,11 +4539,6 @@ end;
 
 Input stack structures are now defined in C.
 
-@ Here is the missing piece of |show_token_list| that is activated when the
-token beginning line~2 is about to be shown:
-
-@<Do magic computation@>=set_trick_count
-
 @* \[23] Maintaining the input stacks.
 
 @ Here is a procedure that starts a new level of token-list input, given
@@ -4854,7 +4603,7 @@ so it has been slightly optimized for speed.
 var p:pointer; {a token list of length one}
 begin while (istate=token_list)and(iloc=null)and(token_type<>v_template) do
   end_token_list; {conserve stack space}
-p:=get_avail; info(p):=cur_tok;
+p:=get_avail; set_token_info(p,cur_tok);
 if cur_tok<right_brace_limit then begin
   if cur_tok<left_brace_limit then decr(align_state)
   else incr(align_state);
@@ -4866,7 +4615,8 @@ end;
 @ @<Insert token |p| into \TeX's input@>=
 begin t:=cur_tok; cur_tok:=p;
 if a then
-  begin p:=get_avail; info(p):=cur_tok; link(p):=iloc; iloc:=p; istart:=p;
+  begin p:=get_avail; set_token_info(p,cur_tok); set_token_link(p,iloc); 
+  iloc:=p; istart:=p;
   if cur_tok<right_brace_limit then begin
     if cur_tok<left_brace_limit then decr(align_state)
     else incr(align_state);
@@ -5128,7 +4878,7 @@ if cur_cmd<call then @<Expand a nonmacro@>
 else if cur_cmd<end_template then macro_call
 else @<Insert a token containing |frozen_endv|@>;
 cur_val:=cv_backup; cur_val_level:=cvl_backup; radix:=radix_backup;
-cur_order:=co_backup; link(backup_head):=backup_backup;
+cur_order:=co_backup; set_token_link(backup_head,backup_backup);
 decr(expand_depth_count);
 end;
 
@@ -5177,8 +4927,8 @@ begin save_scanner_status:=scanner_status; scanner_status:=normal;
 get_token; scanner_status:=save_scanner_status; t:=cur_tok;
 back_input; {now |start| and |loc| point to the backed-up token |t|}
 if t>=cs_token_flag then
-  begin p:=get_avail; info(p):=cs_token_flag+frozen_dont_expand;
-  link(p):=iloc; istart:=p; iloc:=p;
+  begin p:=get_avail; set_token_info(p,cs_token_flag+frozen_dont_expand);
+  set_token_link(p,iloc); istart:=p; iloc:=p;
   end;
 end
 
@@ -5217,8 +4967,8 @@ if cur_cs<>undefined_primitive then begin
     end
   else begin
     back_input; { now |loc| and |start| point to a one-item list }
-    p:=get_avail; info(p):=cs_token_flag+frozen_primitive;
-    link(p):=iloc; iloc:=p; istart:=p;
+    p:=get_avail; set_token_info(p,cs_token_flag+frozen_primitive);
+    set_token_link(p,iloc); iloc:=p; istart:=p;
     end;
   end
 else begin
@@ -5269,13 +5019,6 @@ end
 @ The |expand| procedure and some other routines that construct token
 lists find it convenient to use the following macros, which are valid only if
 the variables |p| and |q| are reserved for token-list building.
-
-@d store_new_token(#)==begin q:=get_avail; link(p):=q; info(q):=#;
-  p:=q; {|link(p)| is |null|}
-  end
-@d fast_store_new_token(#)==begin fast_get_avail(q); link(p):=q; info(q):=#;
-  p:=q; {|link(p)| is |null|}
-  end
 
 @ @<Manufacture a control...@>=
 begin r:=get_avail; p:=r; {head of the list of characters}
@@ -5616,7 +5359,7 @@ a string that will delimit the next parameter.
 begin scanner_status:=matching; unbalance:=0;
 long_state:=eq_type(cur_cs);
 if long_state>=outer_call then long_state:=long_state-2;
-repeat link(temp_token_head):=null;
+repeat set_token_link(temp_token_head,null);
 if (info(r)>=end_match_token)or(info(r)<match_token) then s:=null
 else  begin match_chr:=info(r)-match_token; s:=link(r); r:=s;
   p:=temp_token_head; m:=0;
@@ -5774,7 +5517,7 @@ strip off the enclosing braces. That's why |rbrace_ptr| was introduced.
 
 @<Tidy up the parameter just scanned, and tuck it away@>=
 begin if (m=1)and(info(p)<right_brace_limit)and(p<>temp_token_head) then
-  begin link(rbrace_ptr):=null; free_avail(p);
+  begin set_token_link(rbrace_ptr,null); free_avail(p);
   p:=link(temp_token_head); pstack[n]:=link(p); free_avail(p);
   end
 else pstack[n]:=link(temp_token_head);
@@ -6857,7 +6600,8 @@ begin k:=0; p:=null; get_token; {|point_token| is being re-scanned}
 loop@+  begin get_x_token;
   if (cur_tok>zero_token+9)or(cur_tok<zero_token) then goto done1;
   if k<17 then {digits for |k>=17| cannot affect the result}
-    begin q:=get_avail; link(q):=p; info(q):=cur_tok-zero_token;
+    begin q:=get_avail; set_token_link(q,p); 
+    set_token_info(q,cur_tok-zero_token);
     p:=q; incr(k);
     end;
   end;
@@ -7133,7 +6877,7 @@ var p:pointer; {tail of the token list}
 @!t:halfword; {token being appended}
 @!k:pool_pointer; {index into |str_pool|}
 begin
-p:=temp_token_head; link(p):=null; k:=b;
+p:=temp_token_head; set_token_link(p,null); k:=b;
 while k<pool_ptr do
   begin t:=pool_to_unichar(k);
   if t=" " then t:=space_token
@@ -7160,7 +6904,7 @@ var p:pointer; {tail of the token list}
 @!t:halfword; {token being appended}
 @!k:pool_pointer; {index into |str_pool|}
 begin
-p:=temp_token_head; link(p):=null; k:=b;
+p:=temp_token_head; set_token_link(p,null); k:=b;
 while k<pool_ptr do
   begin t:=pool_to_unichar(k);
   if t=" " then t:=space_token
@@ -7236,7 +6980,7 @@ selector:=old_setting;
 end;
 
 @ @<Copy the token list@>=
-begin p:=temp_token_head; link(p):=null;
+begin p:=temp_token_head; set_token_link(p,null);
 if cur_val_level=ident_val then store_new_token(cs_token_flag+cur_val)
 else if cur_val<>null then
   begin r:=link(cur_val); {do not copy the reference count}
@@ -7785,7 +7529,7 @@ var t:halfword; {token representing the highest parameter number}
 @!hash_brace:halfword; {possible `\.{\#\{}' token}
 begin if macro_def then scanner_status:=defining
 @+else scanner_status:=absorbing;
-warning_index:=cur_cs; p:=get_avail; def_ref:=p; token_ref_count(def_ref):=0;
+warning_index:=cur_cs; p:=get_avail; def_ref:=p; set_token_ref_count(def_ref,0);
 p:=def_ref; hash_brace:=0; t:=zero_token;
 if macro_def then @<Scan and build the parameter part of the macro definition@>
 else scan_left_brace; {remove the compulsory left brace}
@@ -7867,7 +7611,7 @@ begin loop begin get_filtered_next;
   if cur_cmd<>the then expand
   else  begin q:=the_toks;
     if link(temp_token_head)<>null then
-      begin link(p):=link(temp_token_head); p:=q;
+      begin set_token_link(p,link(temp_token_head)); p:=q;
       end;
     end;
   end;
@@ -7921,7 +7665,7 @@ var p:pointer; {tail of the token list}
 @!s:integer; {saved value of |align_state|}
 @!m:small_number; {stream number}
 begin scanner_status:=defining; warning_index:=r;
-p:=get_avail; def_ref:=p; token_ref_count(def_ref):=0;
+p:=get_avail; def_ref:=p; set_token_ref_count(def_ref,0);
 p:=def_ref; {the reference count}
 store_new_token(end_match_token);
 if (n<0)or(n>15) then m:=16@+else m:=n;
@@ -10784,8 +10528,8 @@ else loop@+begin if type(p)=mark_node then begin
     if split_first_mark(mark_class(p))=null then
       begin split_first_mark(mark_class(p)):=mark_ptr(p);
       split_bot_mark(mark_class(p)):=split_first_mark(mark_class(p));
-      token_ref_count(split_first_mark(mark_class(p))):=@|
-        token_ref_count(split_first_mark(mark_class(p)))+2;
+      set_token_ref_count(split_first_mark(mark_class(p)),
+        token_ref_count(split_first_mark(mark_class(p)))+2);
       end
     else  begin delete_token_ref(split_bot_mark(mark_class(p)));
       split_bot_mark(mark_class(p)):=mark_ptr(p);
@@ -12263,7 +12007,7 @@ procedure off_save;
 var p,q:pointer; {inserted token}
 begin if cur_group=bottom_level then
   @<Drop current token and complain that it was unmatched@>
-else  begin back_input; p:=get_avail; link(temp_token_head):=p;
+else  begin back_input; p:=get_avail; set_token_link(temp_token_head,p);
   print_err('Missing ');
   @<Prepare to insert a token that matches |cur_group|,
     and print what it is@>;
@@ -12281,19 +12025,21 @@ end;
 
 @<Prepare to insert a token that matches |cur_group|...@>=
 case cur_group of
-semi_simple_group: begin info(p):=cs_token_flag+frozen_end_group;
+semi_simple_group: begin set_token_info(p,cs_token_flag+frozen_end_group);
   print_esc("endgroup");
 @.Missing \\endgroup inserted@>
   end;
-math_shift_group: begin info(p):=math_shift_token+"$"; print_char("$");
+math_shift_group: begin set_token_info(p,math_shift_token+"$"); 
+  print_char("$");
 @.Missing \$ inserted@>
   end;
-math_left_group: begin info(p):=cs_token_flag+frozen_right; q:=get_avail; link(p):=q;
-  p:=link(p); info(p):=other_token+"."; print_esc("right.");
+math_left_group: begin set_token_info(p,cs_token_flag+frozen_right); 
+  q:=get_avail; set_token_link(p,q);
+  p:=link(p); set_token_info(p,other_token+"."); print_esc("right.");
 @.Missing \\right\hbox{.} inserted@>
 @^null delimiter@>
   end;
-othercases begin info(p):=right_brace_token+"}"; print_char("}");
+othercases begin set_token_info(p,right_brace_token+"}"); print_char("}");
 @.Missing \} inserted@>
   end
 endcases
@@ -13916,8 +13662,8 @@ def: begin if odd(cur_chr)and not global and(global_defs>=0) then a:=a+4;
   e:=(cur_chr>=2); get_r_token; p:=cur_cs;
   q:=scan_toks(true,e);
   if j<>0 then
-    begin q:=get_avail; info(q):=j; link(q):=link(def_ref);
-    link(def_ref):=q;
+    begin q:=get_avail; set_token_info(q,j); set_token_link(q,link(def_ref));
+    set_token_link(def_ref,q);
     end;
   define(p,call+(a mod 4),def_ref);
   end;
@@ -14059,11 +13805,12 @@ toks_register,assign_toks: begin q:=cur_cs;
     begin define(p,undefined_cs,null); free_avail(def_ref);
     end
   else  begin if p=output_routine_loc then {enclose in curlies}
-      begin p:=get_avail; link(q):=p; p:=output_routine_loc;
-      q:=link(q);info(q):=right_brace_token+"}";
+      begin p:=get_avail; set_token_link(q,p); p:=output_routine_loc;
+      q:=link(q); set_token_info(q,right_brace_token+"}");
       q:=get_avail;
-      info(q):=left_brace_token+"{";
-      link(q):=link(def_ref); link(def_ref):=q;
+      set_token_info(q,left_brace_token+"{");
+      set_token_link(q,link(def_ref)); 
+      set_token_link(def_ref,q);
       end;
     define(p,call,def_ref);
     end;
@@ -14874,7 +14621,7 @@ if t<cs_token_flag then begin
     i:=get_uc_code(c)
   else
     i:=get_lc_code(c);
-  if i<>0 then info(p):=t-c+i;
+  if i<>0 then set_token_info(p,t-c+i);
   end
 else if is_active_cs(text(t-cs_token_flag)) then begin
   c:=active_cs_value(text(t-cs_token_flag));
@@ -14882,7 +14629,7 @@ else if is_active_cs(text(t-cs_token_flag)) then begin
      i:=get_uc_code(c)
   else
      i:= get_lc_code(c);
-  if i<>0 then info(p):=active_to_cs(i,true)+cs_token_flag;
+  if i<>0 then set_token_info(p,active_to_cs(i,true)+cs_token_flag);
 end
 
 @ We come finally to the last pieces missing from |main_control|, namely the
@@ -15175,7 +14922,7 @@ dump_int(fix_mem_min); dump_int(fix_mem_max);
 dump_int(fix_mem_end);
 dump_int(avail);
 dyn_used:=fix_mem_end+1;
-for k:=fix_mem_min to fix_mem_end do dump_wd(mem(k));
+for k:=fix_mem_min to fix_mem_end do dump_wd(fixmem[k]);
 x:=x+(fix_mem_end+1-fix_mem_min);
 p:=avail;
 while p<>null do
@@ -15197,7 +14944,7 @@ fixmem:= xmallocarray (smemory_word, fix_mem_max+1);
 memset (voidcast(fixmem),0,(fix_mem_max+1)*sizeof(smemory_word));
 undump_int(fix_mem_end);
 undump_int(avail);
-for k:=fix_mem_min to fix_mem_end do undump_wd(mem(k));
+for k:=fix_mem_min to fix_mem_end do undump_wd(fixmem[k]);
 undump_int(dyn_used)
 
 @ @<Dump the table of equivalents@>=
@@ -15724,7 +15471,7 @@ exit:end;
 gubed
 
 @ @<Numbered cases...@>=
-1: print_word(mem(n)); {display |mem[n]| in all forms}
+1: print_word(vmem(n)); {display |varmem[n]| in all forms}
 2: print_int(info(n));
 3: print_int(link(n));
 4: print_word(eqtb[n]);
@@ -16535,7 +16282,7 @@ begin
     p := q;
     while link(p) <> null do
         p := link(p);
-    link(p) := link(r);
+    set_token_link(p,link(r));
     free_avail(r);
     concat_tokens := q;
 end;
@@ -17419,7 +17166,7 @@ var s:normal..absorbing; {to save |scanner_status|}
 @!unbalance:halfword; {number of unmatched left braces}
 begin s:=scanner_status; w:=warning_index; d:=def_ref;
 scanner_status:=absorbing; warning_index:=cur_cs;
-p:=get_avail; def_ref:=p; token_ref_count(def_ref):=0; p:=def_ref;
+p:=get_avail; def_ref:=p; set_token_ref_count(def_ref,0); p:=def_ref;
 scan_left_brace; {remove the compulsory left brace}
 unbalance:=1;
 loop@+  begin get_token;
@@ -17433,7 +17180,7 @@ loop@+  begin get_token;
   end;
 found: q:=link(def_ref); free_avail(def_ref); {discard reference count}
 if q=null then cur_val:=temp_token_head @+ else cur_val:=p;
-link(temp_token_head):=q;
+set_token_link(temp_token_head,q);
 scanner_status:=s; warning_index:=w; def_ref:=d;
 end;
 
@@ -17464,7 +17211,7 @@ if odd(cur_chr) then
   begin c:=cur_chr; scan_general_text;
   if c=1 then the_toks:=cur_val
   else begin old_setting:=selector; selector:=new_string; b:=pool_ptr;
-    p:=get_avail; link(p):=link(temp_token_head);
+    p:=get_avail; set_token_link(p,link(temp_token_head));
     token_show(p); flush_list(p);
     selector:=old_setting; the_toks:=str_toks(b);
     end;
@@ -18579,8 +18326,8 @@ begin
   ref := get_avail;
   junk := str_toks(str_start_macro(s));
   pool_ptr := s_pool_ptr;
-  token_ref_count(ref) := 0;
-  link(ref) := link(temp_token_head);
+  set_token_ref_count(ref,0);
+  set_token_link(ref, link(temp_token_head));
   if global_defs>0 then  a:=4 else a:=0;
   define(j+toks_base,call,ref);
   flush_str(s);

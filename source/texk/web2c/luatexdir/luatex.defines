@@ -1560,3 +1560,35 @@
 
 @define type word_file;
 @define procedure print_word();
+
+{ tokens }
+
+@define type smemory_word;
+@define const fix_mem_init;
+
+@define var fixmem;
+@define var fix_mem_min;
+@define var fix_mem_max;
+@define var fix_mem_end;
+
+@define var dyn_used;
+@define function token_info();
+@define function token_link();
+@define procedure set_token_info();
+@define procedure set_token_link();
+
+@define function token_ref_count();
+@define procedure set_token_ref_count();
+@define procedure add_token_ref();
+
+@define var avail;
+
+@define function get_avail;
+@define procedure free_avail();
+@define procedure show_token_list();
+@define procedure token_show();
+
+@define procedure store_new_token();
+@define procedure fast_store_new_token();
+@define procedure delete_token_ref();
+@define procedure flush_list();

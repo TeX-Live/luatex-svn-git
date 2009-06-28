@@ -54,6 +54,238 @@ extern void insert_vj_template(void);
   } while (0)
 
 
+/* 
+The \TeX\ system does nearly all of its own memory allocation, so that it
+can readily be transported into environments that do not have automatic
+facilities for strings, garbage collection, etc., and so that it can be in
+control of what error messages the user receives. The dynamic storage
+requirements of \TeX\ are handled by providing two large arrays called
+|fixmem| and |varmem| in which consecutive blocks of words are used as
+nodes by the \TeX\ routines.
+
+Pointer variables are indices into this array, or into another array
+called |eqtb| that will be explained later. A pointer variable might
+also be a special flag that lies outside the bounds of |mem|, so we
+allow pointers to assume any |halfword| value. The minimum halfword
+value represents a null pointer. \TeX\ does not assume that |mem[null]| exists.
+*/
+
+/*
+Locations in |fixmem| are used for storing one-word records; a conventional 
+\.{AVAIL} stack is used for allocation in this array.
+*/
+
+smemory_word *fixmem ; /* the big dynamic storage area */
+halfword fix_mem_min; /* the smallest location of one-word memory in use */
+halfword fix_mem_max; /* the largest location of one-word memory in use */
+
+/*
+In order to study the memory requirements of particular applications, it
+is possible to prepare a version of \TeX\ that keeps track of current and
+maximum memory usage. When code between the delimiters |@!stat| $\ldots$
+|tats| is not ``commented out,'' \TeX\ will run a bit slower but it will
+report these statistics when |tracing_stats| is sufficiently large.
+*/
+
+integer var_used, dyn_used; /* how much memory is in use */
+
+halfword avail; /* head of the list of available one-word nodes */
+halfword fix_mem_end; /* the last one-word node used in |mem| */
+
+/*
+The function |get_avail| returns a pointer to a new one-word node whose
+|link| field is null. However, \TeX\ will halt if there is no more room left.
+@^inner loop@>
+
+If the available-space list is empty, i.e., if |avail=null|,
+we try first to increase |fix_mem_end|. If that cannot be done, i.e., if
+|fix_mem_end=fix_mem_max|, we try to reallocate array |fixmem|.
+If, that doesn't work, we have to quit.
+*/
+
+halfword get_avail (void) /* single-word node allocation */
+{
+    halfword p; /* the new node being got */
+    integer t;
+    p=avail; /* get top location in the |avail| stack */
+    if (p!=null) {
+	avail=token_link(avail); /* and pop it off */
+    } else if (fix_mem_end<fix_mem_max) { /* or go into virgin territory */
+	incr(fix_mem_end); 
+	p=fix_mem_end;
+    } else {
+	t=(fix_mem_max/5);
+	fixmem = fixmemcast(realloc(fixmem,sizeof(smemory_word)*(fix_mem_max+t+1)));
+	if (fixmem==NULL) {
+	    runaway(); /* if memory is exhausted, display possible runaway text */
+	    overflow("token memory size",fix_mem_max);
+	}
+	memset (voidcast(fixmem+fix_mem_max+1),0,t*sizeof(smemory_word));
+	fix_mem_max += t;
+	p = ++fix_mem_end;
+    }
+    token_link(p)=null; /* provide an oft-desired initialization of the new node */
+    incr(dyn_used); /* maintain statistics */
+    return p;
+}
+
+/*
+The procedure |flush_list(p)| frees an entire linked list of
+one-word nodes that starts at position |p|.
+@^inner loop@>
+*/
+
+void flush_list(halfword p) /* makes list of single-word nodes available */
+{
+    halfword q,r; /* list traversers */
+    if (p!=null) {
+	r=p;
+	do { 
+	    q=r; r=token_link(r); decr(dyn_used); 
+	} while (r!=null); /* now |q| is the last node on the list */
+	token_link(q)=avail; 
+	avail=p;
+    }
+}
+
+/*
+The procedure |show_token_list|, which prints a symbolic form of
+the token list that starts at a given node |p|, illustrates these
+conventions. The token list being displayed should not begin with a reference
+count. However, the procedure is intended to be robust, so that if the
+memory links are awry or if |p| is not really a pointer to a token list,
+nothing catastrophic will happen.
+
+An additional parameter |q| is also given; this parameter is either null
+or it points to a node in the token list where a certain magic computation
+takes place that will be explained later. (Basically, |q| is non-null when
+we are printing the two-line context information at the time of an error
+message; |q| marks the place corresponding to where the second line
+should begin.)
+
+For example, if |p| points to the node containing the first \.a in the
+token list above, then |show_token_list| will print the string
+$$\hbox{`\.{a\#1\#2\ \\b\ ->\#1\\-a\ \#\#1\#2\ \#2}';}$$
+and if |q| points to the node containing the second \.a,
+the magic computation will be performed just before the second \.a is printed.
+
+The generation will stop, and `\.{\\ETC.}' will be printed, if the length
+of printing exceeds a given limit~|l|. Anomalous entries are printed in the
+form of control sequences that are not followed by a blank space, e.g.,
+`\.{\\BAD.}'; this cannot be confused with actual control sequences because
+a real control sequence named \.{BAD} would come out `\.{\\BAD\ }'.
+*/
+
+void show_token_list(integer p, integer q, integer l)
+{
+    integer m, c; /* pieces of a token */
+    ASCII_code match_chr; /* character used in a `|match|' */
+    ASCII_code n; /* the highest parameter number, as an ASCII digit */
+    match_chr='#'; 
+    n='0'; 
+    tally=0;
+    while ((p!=null) && (tally<l)) {
+	if (p==q) {
+	    /* Do magic computation */
+	    set_trick_count();
+	}
+        /* Display token |p|, and |return| if there are problems */
+	if ((p<fix_mem_min) || (p>fix_mem_end)) {
+	    tprint_esc("CLOBBERED."); 
+	    return;
+	}
+	if (token_info(p)>=cs_token_flag) {
+	    if (! ((inhibit_par_tokens) && (token_info(p)==par_token)))
+		print_cs(token_info(p)-cs_token_flag);
+	} else {
+	    m=token_info(p) / STRING_OFFSET; 
+	    c=token_info(p) % STRING_OFFSET;
+	    if (token_info(p)<0) {
+		tprint_esc("BAD.");
+	    } else {
+		/* Display the token $(|m|,|c|)$ */
+		/* The procedure usually ``learns'' the character code used for macro
+		   parameters by seeing one in a |match| command before it runs into any
+		   |out_param| commands. */
+		switch (m) {
+		case left_brace_cmd: 
+		case right_brace_cmd:
+		case math_shift_cmd:
+		case tab_mark_cmd:
+		case sup_mark_cmd:
+		case sub_mark_cmd:
+		case spacer_cmd:
+		case letter_cmd:
+		case other_char_cmd: 
+		    print(c);
+		    break;
+		case mac_param_cmd:  
+		    if (!in_lua_escape) 
+			print(c); 
+		    print(c);
+		    break;
+		case out_param_cmd:
+		    print(match_chr);
+		    if (c<=9) {
+			print_char(c+'0');
+		    } else {
+			print_char('!'); 
+			return;
+		    }
+		    break;
+		case match_cmd: 
+		    match_chr=c; 
+		    print(c); 
+		    incr(n); 
+		    print_char(n);
+		    if (n>'9') return;
+		    break;
+		case end_match_cmd: 
+		    if (c==0) 
+			tprint("->");
+		    break;
+		default:
+		    tprint_esc("BAD.");
+		    break;
+		}
+	    }
+	}
+	p=token_link(p);
+    }
+    if (p!=null) 
+	tprint_esc("ETC.");
+}
+
+/*
+Here's the way we sometimes want to display a token list, given a pointer
+to its reference count; the pointer may be null.
+*/
+
+void token_show(halfword p)
+{
+    if (p!=null) 
+	show_token_list(token_link(p),null,10000000);
+}
+
+
+/* 
+|delete_token_ref|, is called when
+a pointer to a token list's reference count is being removed. This means
+that the token list should disappear if the reference count was |null|,
+otherwise the count should be decreased by one.
+@^reference counts@>
+*/
+
+void delete_token_ref(halfword p) /* |p| points to the reference count
+				     of a token list that is losing one reference */
+{
+    assert(token_ref_count(p)>=0);
+    if (token_ref_count(p)==0) 
+	flush_list(p);
+    else 
+	decr(token_ref_count(p));
+}
+
 
 /* string compare */
 
@@ -197,10 +429,10 @@ char *u2s(unsigned unic)
 
 boolean scan_keyword(char *s)
 {                               /* look for a given string */
-    pointer p;                  /* tail of the backup list */
-    pointer q;                  /* new node being added to the token list via |store_new_token| */
+    halfword p;                  /* tail of the backup list */
+    halfword q;                  /* new node being added to the token list via |store_new_token| */
     char *k;                    /* index into |str_pool| */
-    pointer save_cur_cs = cur_cs;
+    halfword save_cur_cs = cur_cs;
     if (strlen(s) == 1) {
         /* @<Get the next non-blank non-call token@>; */
         do {
@@ -279,7 +511,7 @@ halfword active_to_cs(int curchr, int force)
                          (str_pool[str_start_macro(a)+2] == 0xBF))
 
 
-char *cs_to_string(pointer p)
+char *cs_to_string(halfword p)
 {                               /* prints a control sequence */
     char *s;
     int k = 0;
@@ -346,8 +578,8 @@ static int frozen_control_sequence = 0;
 
 void check_outer_validity(void)
 {
-    pointer p;                  /* points to inserted token list */
-    pointer q;                  /* auxiliary pointer */
+    halfword p;                  /* points to inserted token list */
+    halfword q;                  /* auxiliary pointer */
     if (suppress_outer_error)
         return;
     if (frozen_control_sequence == 0) {

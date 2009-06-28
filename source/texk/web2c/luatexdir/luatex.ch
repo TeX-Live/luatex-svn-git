@@ -755,15 +755,15 @@ undump_things(str_pool[0], pool_ptr);
 @z
 
 @x
-for k:=fix_mem_min to fix_mem_end do dump_wd(mem(k));
+for k:=fix_mem_min to fix_mem_end do dump_wd(fixmem[k]);
 @y
-dump_things(mem(fix_mem_min), fix_mem_end-fix_mem_min+1);
+dump_things(fixmem[fix_mem_min], fix_mem_end-fix_mem_min+1);
 @z
 
 @x
-for k:=fix_mem_min to fix_mem_end do undump_wd(mem(k));
+for k:=fix_mem_min to fix_mem_end do undump_wd(fixmem[k]);
 @y
-undump_things (mem(fix_mem_min), fix_mem_end-fix_mem_min+1);
+undump_things (fixmem[fix_mem_min], fix_mem_end-fix_mem_min+1);
 @z
 
 @x
