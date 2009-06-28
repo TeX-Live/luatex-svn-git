@@ -51,89 +51,80 @@
 */
 
 
-typedef union
-{
-  struct
-  {
-#ifdef WORDS_BIGENDIAN
-    halfword RH, LH;
-#else
-    halfword LH, RH;
-#endif
-  } v;
+typedef union {
+    struct {
+#  ifdef WORDS_BIGENDIAN
+        halfword RH, LH;
+#  else
+        halfword LH, RH;
+#  endif
+    } v;
 
-  struct
-  { /* Make B0,B1 overlap the most significant bytes of LH.  */
-#ifdef WORDS_BIGENDIAN
-    halfword junk;
-    quarterword B0, B1;
-#else /* not WORDS_BIGENDIAN */
-  /* If 32-bit memory words, have to do something.  */
-    quarterword B1, B0;
-#endif /* LittleEndian */
-  } u;
+    struct {                    /* Make B0,B1 overlap the most significant bytes of LH.  */
+#  ifdef WORDS_BIGENDIAN
+        halfword junk;
+        quarterword B0, B1;
+#  else                         /* not WORDS_BIGENDIAN */
+        /* If 32-bit memory words, have to do something.  */
+        quarterword B1, B0;
+#  endif                        /* LittleEndian */
+    } u;
 } two_halves;
 
-typedef struct
-{
-  struct
-  {
-#ifdef WORDS_BIGENDIAN
-    quarterword B0, B1, B2, B3;
-#else
-    quarterword B3, B2, B1, B0;
-#endif
-  } u;
+typedef struct {
+    struct {
+#  ifdef WORDS_BIGENDIAN
+        quarterword B0, B1, B2, B3;
+#  else
+        quarterword B3, B2, B1, B0;
+#  endif
+    } u;
 } four_quarters;
 
-typedef struct
-{
-#ifdef WORDS_BIGENDIAN
-  integer CINT0, CINT1;
-#else
-  integer CINT1, CINT0;
-#endif
+typedef struct {
+#  ifdef WORDS_BIGENDIAN
+    integer CINT0, CINT1;
+#  else
+    integer CINT1, CINT0;
+#  endif
 } two_ints;
-  
-typedef struct
-{
-  glue_ratio GLUE;
+
+typedef struct {
+    glue_ratio GLUE;
 } glues;
 
-typedef union
-{
-  two_halves hh;
-  four_quarters qqqq;
-  two_ints ii;
-  glues gg;
+typedef union {
+    two_halves hh;
+    four_quarters qqqq;
+    two_ints ii;
+    glues gg;
 } memory_word;
 
-#define b0 u.B0
-#define b1 u.B1
-#define b2 u.B2
-#define b3 u.B3
+#  define b0 u.B0
+#  define b1 u.B1
+#  define b2 u.B2
+#  define b3 u.B3
 
-#define rh v.RH
-#define lhfield v.LH
+#  define rh v.RH
+#  define lhfield v.LH
 
-#define cint ii.CINT0
-#define cint1 ii.CINT1
+#  define cint ii.CINT0
+#  define cint1 ii.CINT1
 
-#define gr gg.GLUE
+#  define gr gg.GLUE
 
 /* the next five defines are needed for the prototypes in web2c's coerce.h */
 
-#define memoryword memory_word
-#define internalfontnumber internal_font_number
-#define strnumber str_number
-#define packedASCIIcode packed_ASCII_code
-#define poolpointer pool_pointer
+#  define memoryword memory_word
+#  define internalfontnumber internal_font_number
+#  define strnumber str_number
+#  define packedASCIIcode packed_ASCII_code
+#  define poolpointer pool_pointer
 
 typedef FILE *word_file;
 
-#ifdef DEBUG
+#  ifdef DEBUG
 extern procedure print_word(memory_word w);
-#endif
+#  endif
 
 #endif
-

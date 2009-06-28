@@ -75,9 +75,9 @@ Locations in |fixmem| are used for storing one-word records; a conventional
 \.{AVAIL} stack is used for allocation in this array.
 */
 
-smemory_word *fixmem ; /* the big dynamic storage area */
-halfword fix_mem_min; /* the smallest location of one-word memory in use */
-halfword fix_mem_max; /* the largest location of one-word memory in use */
+smemory_word *fixmem;           /* the big dynamic storage area */
+halfword fix_mem_min;           /* the smallest location of one-word memory in use */
+halfword fix_mem_max;           /* the largest location of one-word memory in use */
 
 /*
 In order to study the memory requirements of particular applications, it
@@ -87,30 +87,42 @@ maximum memory usage. When code between the delimiters |@!stat| $\ldots$
 report these statistics when |tracing_stats| is sufficiently large.
 */
 
-integer var_used, dyn_used; /* how much memory is in use */
+integer var_used, dyn_used;     /* how much memory is in use */
 
-halfword avail; /* head of the list of available one-word nodes */
-halfword fix_mem_end; /* the last one-word node used in |mem| */
+halfword avail;                 /* head of the list of available one-word nodes */
+halfword fix_mem_end;           /* the last one-word node used in |mem| */
 
-halfword garbage;         /* head of a junk list, write only */
-halfword temp_token_head; /* head of a temporary list of some kind */
-halfword hold_token_head; /* head of a temporary list of another kind */
-halfword omit_template;   /* a constant token list */
-halfword null_list;       /* permanently empty list */
-halfword backup_head;     /* head of token list built by |scan_keyword| */
+halfword garbage;               /* head of a junk list, write only */
+halfword temp_token_head;       /* head of a temporary list of some kind */
+halfword hold_token_head;       /* head of a temporary list of another kind */
+halfword omit_template;         /* a constant token list */
+halfword null_list;             /* permanently empty list */
+halfword backup_head;           /* head of token list built by |scan_keyword| */
 
-void initialize_tokens (void)
+void initialize_tokens(void)
 {
     halfword p;
-    avail=null; 
-    fix_mem_end=0;
-    p=get_avail(); temp_token_head=p; set_token_info(temp_token_head,0);
-    p=get_avail(); hold_token_head=p; set_token_info(hold_token_head,0);
-    p=get_avail(); omit_template=p;   set_token_info(omit_template,0);
-    p=get_avail(); null_list=p;       set_token_info(null_list,0);
-    p=get_avail(); backup_head=p;     set_token_info(backup_head,0);
-    p=get_avail(); garbage=p;         set_token_info(garbage,0);
-    dyn_used=0; /* initialize statistics */
+    avail = null;
+    fix_mem_end = 0;
+    p = get_avail();
+    temp_token_head = p;
+    set_token_info(temp_token_head, 0);
+    p = get_avail();
+    hold_token_head = p;
+    set_token_info(hold_token_head, 0);
+    p = get_avail();
+    omit_template = p;
+    set_token_info(omit_template, 0);
+    p = get_avail();
+    null_list = p;
+    set_token_info(null_list, 0);
+    p = get_avail();
+    backup_head = p;
+    set_token_info(backup_head, 0);
+    p = get_avail();
+    garbage = p;
+    set_token_info(garbage, 0);
+    dyn_used = 0;               /* initialize statistics */
 }
 
 /*
@@ -124,29 +136,31 @@ we try first to increase |fix_mem_end|. If that cannot be done, i.e., if
 If, that doesn't work, we have to quit.
 */
 
-halfword get_avail (void) /* single-word node allocation */
-{
-    halfword p; /* the new node being got */
+halfword get_avail(void)
+{                               /* single-word node allocation */
+    halfword p;                 /* the new node being got */
     integer t;
-    p=avail; /* get top location in the |avail| stack */
-    if (p!=null) {
-	avail=token_link(avail); /* and pop it off */
-    } else if (fix_mem_end<fix_mem_max) { /* or go into virgin territory */
-	incr(fix_mem_end); 
-	p=fix_mem_end;
+    p = avail;                  /* get top location in the |avail| stack */
+    if (p != null) {
+        avail = token_link(avail);      /* and pop it off */
+    } else if (fix_mem_end < fix_mem_max) {     /* or go into virgin territory */
+        incr(fix_mem_end);
+        p = fix_mem_end;
     } else {
-	t=(fix_mem_max/5);
-	fixmem = fixmemcast(realloc(fixmem,sizeof(smemory_word)*(fix_mem_max+t+1)));
-	if (fixmem==NULL) {
-	    runaway(); /* if memory is exhausted, display possible runaway text */
-	    overflow("token memory size",fix_mem_max);
-	}
-	memset (voidcast(fixmem+fix_mem_max+1),0,t*sizeof(smemory_word));
-	fix_mem_max += t;
-	p = ++fix_mem_end;
+        t = (fix_mem_max / 5);
+        fixmem =
+            fixmemcast(realloc
+                       (fixmem, sizeof(smemory_word) * (fix_mem_max + t + 1)));
+        if (fixmem == NULL) {
+            runaway();          /* if memory is exhausted, display possible runaway text */
+            overflow("token memory size", fix_mem_max);
+        }
+        memset(voidcast(fixmem + fix_mem_max + 1), 0, t * sizeof(smemory_word));
+        fix_mem_max += t;
+        p = ++fix_mem_end;
     }
-    token_link(p)=null; /* provide an oft-desired initialization of the new node */
-    incr(dyn_used); /* maintain statistics */
+    token_link(p) = null;       /* provide an oft-desired initialization of the new node */
+    incr(dyn_used);             /* maintain statistics */
     return p;
 }
 
@@ -156,16 +170,18 @@ one-word nodes that starts at position |p|.
 @^inner loop@>
 */
 
-void flush_list(halfword p) /* makes list of single-word nodes available */
-{
-    halfword q,r; /* list traversers */
-    if (p!=null) {
-	r=p;
-	do { 
-	    q=r; r=token_link(r); decr(dyn_used); 
-	} while (r!=null); /* now |q| is the last node on the list */
-	token_link(q)=avail; 
-	avail=p;
+void flush_list(halfword p)
+{                               /* makes list of single-word nodes available */
+    halfword q, r;              /* list traversers */
+    if (p != null) {
+        r = p;
+        do {
+            q = r;
+            r = token_link(r);
+            decr(dyn_used);
+        } while (r != null);    /* now |q| is the last node on the list */
+        token_link(q) = avail;
+        avail = p;
     }
 }
 
@@ -199,82 +215,83 @@ a real control sequence named \.{BAD} would come out `\.{\\BAD\ }'.
 
 void show_token_list(integer p, integer q, integer l)
 {
-    integer m, c; /* pieces of a token */
-    ASCII_code match_chr; /* character used in a `|match|' */
-    ASCII_code n; /* the highest parameter number, as an ASCII digit */
-    match_chr='#'; 
-    n='0'; 
-    tally=0;
-    while ((p!=null) && (tally<l)) {
-	if (p==q) {
-	    /* Do magic computation */
-	    set_trick_count();
-	}
+    integer m, c;               /* pieces of a token */
+    ASCII_code match_chr;       /* character used in a `|match|' */
+    ASCII_code n;               /* the highest parameter number, as an ASCII digit */
+    match_chr = '#';
+    n = '0';
+    tally = 0;
+    while ((p != null) && (tally < l)) {
+        if (p == q) {
+            /* Do magic computation */
+            set_trick_count();
+        }
         /* Display token |p|, and |return| if there are problems */
-	if ((p<fix_mem_min) || (p>fix_mem_end)) {
-	    tprint_esc("CLOBBERED."); 
-	    return;
-	}
-	if (token_info(p)>=cs_token_flag) {
-	    if (! ((inhibit_par_tokens) && (token_info(p)==par_token)))
-		print_cs(token_info(p)-cs_token_flag);
-	} else {
-	    m=token_info(p) / STRING_OFFSET; 
-	    c=token_info(p) % STRING_OFFSET;
-	    if (token_info(p)<0) {
-		tprint_esc("BAD.");
-	    } else {
-		/* Display the token $(|m|,|c|)$ */
-		/* The procedure usually ``learns'' the character code used for macro
-		   parameters by seeing one in a |match| command before it runs into any
-		   |out_param| commands. */
-		switch (m) {
-		case left_brace_cmd: 
-		case right_brace_cmd:
-		case math_shift_cmd:
-		case tab_mark_cmd:
-		case sup_mark_cmd:
-		case sub_mark_cmd:
-		case spacer_cmd:
-		case letter_cmd:
-		case other_char_cmd: 
-		    print(c);
-		    break;
-		case mac_param_cmd:  
-		    if (!in_lua_escape) 
-			print(c); 
-		    print(c);
-		    break;
-		case out_param_cmd:
-		    print(match_chr);
-		    if (c<=9) {
-			print_char(c+'0');
-		    } else {
-			print_char('!'); 
-			return;
-		    }
-		    break;
-		case match_cmd: 
-		    match_chr=c; 
-		    print(c); 
-		    incr(n); 
-		    print_char(n);
-		    if (n>'9') return;
-		    break;
-		case end_match_cmd: 
-		    if (c==0) 
-			tprint("->");
-		    break;
-		default:
-		    tprint_esc("BAD.");
-		    break;
-		}
-	    }
-	}
-	p=token_link(p);
+        if ((p < fix_mem_min) || (p > fix_mem_end)) {
+            tprint_esc("CLOBBERED.");
+            return;
+        }
+        if (token_info(p) >= cs_token_flag) {
+            if (!((inhibit_par_tokens) && (token_info(p) == par_token)))
+                print_cs(token_info(p) - cs_token_flag);
+        } else {
+            m = token_info(p) / STRING_OFFSET;
+            c = token_info(p) % STRING_OFFSET;
+            if (token_info(p) < 0) {
+                tprint_esc("BAD.");
+            } else {
+                /* Display the token $(|m|,|c|)$ */
+                /* The procedure usually ``learns'' the character code used for macro
+                   parameters by seeing one in a |match| command before it runs into any
+                   |out_param| commands. */
+                switch (m) {
+                case left_brace_cmd:
+                case right_brace_cmd:
+                case math_shift_cmd:
+                case tab_mark_cmd:
+                case sup_mark_cmd:
+                case sub_mark_cmd:
+                case spacer_cmd:
+                case letter_cmd:
+                case other_char_cmd:
+                    print(c);
+                    break;
+                case mac_param_cmd:
+                    if (!in_lua_escape)
+                        print(c);
+                    print(c);
+                    break;
+                case out_param_cmd:
+                    print(match_chr);
+                    if (c <= 9) {
+                        print_char(c + '0');
+                    } else {
+                        print_char('!');
+                        return;
+                    }
+                    break;
+                case match_cmd:
+                    match_chr = c;
+                    print(c);
+                    incr(n);
+                    print_char(n);
+                    if (n > '9')
+                        return;
+                    break;
+                case end_match_cmd:
+                    if (c == 0)
+                        tprint("->");
+                    break;
+                default:
+                    tprint_esc("BAD.");
+                    break;
+                }
+            }
+        }
+        p = token_link(p);
     }
-    if (p!=null) 
-	tprint_esc("ETC.");
+    if (p != null)
+        tprint_esc("ETC.");
 }
 
 /*
@@ -284,8 +301,8 @@ to its reference count; the pointer may be null.
 
 void token_show(halfword p)
 {
-    if (p!=null) 
-	show_token_list(token_link(p),null,10000000);
+    if (p != null)
+        show_token_list(token_link(p), null, 10000000);
 }
 
 
@@ -297,14 +314,14 @@ otherwise the count should be decreased by one.
 @^reference counts@>
 */
 
-void delete_token_ref(halfword p) /* |p| points to the reference count
-				     of a token list that is losing one reference */
-{
-    assert(token_ref_count(p)>=0);
-    if (token_ref_count(p)==0) 
-	flush_list(p);
-    else 
-	decr(token_ref_count(p));
+void delete_token_ref(halfword p)
+{                               /* |p| points to the reference count
+                                   of a token list that is losing one reference */
+    assert(token_ref_count(p) >= 0);
+    if (token_ref_count(p) == 0)
+        flush_list(p);
+    else
+        decr(token_ref_count(p));
 }
 
 
@@ -450,8 +467,8 @@ char *u2s(unsigned unic)
 
 boolean scan_keyword(char *s)
 {                               /* look for a given string */
-    halfword p;                  /* tail of the backup list */
-    halfword q;                  /* new node being added to the token list via |store_new_token| */
+    halfword p;                 /* tail of the backup list */
+    halfword q;                 /* new node being added to the token list via |store_new_token| */
     char *k;                    /* index into |str_pool| */
     halfword save_cur_cs = cur_cs;
     if (strlen(s) == 1) {
@@ -599,8 +616,8 @@ static int frozen_control_sequence = 0;
 
 void check_outer_validity(void)
 {
-    halfword p;                  /* points to inserted token list */
-    halfword q;                  /* auxiliary pointer */
+    halfword p;                 /* points to inserted token list */
+    halfword q;                 /* auxiliary pointer */
     if (suppress_outer_error)
         return;
     if (frozen_control_sequence == 0) {
@@ -1251,7 +1268,7 @@ static next_line_retval next_line(void)
             }
             print_ln();
             first = istart;
-            prompt_input("*");     /* input on-line into |buffer| */
+            prompt_input("*");  /* input on-line into |buffer| */
             ilimit = last;
             if (end_line_char_inactive)
                 ilimit--;
@@ -1277,7 +1294,7 @@ static boolean get_next_tokenlist(void)
 {
     register halfword t;        /* a token */
     t = token_info(iloc);
-    iloc = token_link(iloc);          /* move to next */
+    iloc = token_link(iloc);    /* move to next */
     if (t >= cs_token_flag) {   /* a control sequence token */
         cur_cs = t - cs_token_flag;
         cur_cmd = eq_type(cur_cs);

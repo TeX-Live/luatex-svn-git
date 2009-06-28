@@ -224,7 +224,7 @@ to do the same substraction while typesetting.
 
 void print(integer s)
 {                               /* prints string |s| */
-    pool_pointer j,l;             /* current character code position */
+    pool_pointer j, l;          /* current character code position */
     if (s >= str_ptr) {
         /* this can't happen */
         print_char('?');
@@ -276,7 +276,7 @@ void print(integer s)
     while (j < l) {
         /* 0x110000 in utf=8: 0xF4 0x90 0x80 0x80  */
         /* I don't bother checking the last two bytes explicitly */
-        if ((j < l-4) && (str_pool[j] == 0xF4) && (str_pool[j + 1] == 0x90)) {
+        if ((j < l - 4) && (str_pool[j] == 0xF4) && (str_pool[j + 1] == 0x90)) {
             int c = (str_pool[j + 2] - 128) * 64 + (str_pool[j + 3] - 128);
             assert(c >= 0 && c < 256);
             print_char(c);
@@ -363,8 +363,8 @@ void print_banner(char *v, int e)
 void log_banner(char *v, int e)
 {
     char *months[] = { "   ",
-		       "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
-		       "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
+        "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+        "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
     };
     unsigned month = (unsigned) int_par(param_month_code);
     if (month > 12)
@@ -402,7 +402,7 @@ void log_banner(char *v, int e)
 
 void print_version_banner(void)
 {
-  fprintf(term_out, "%s%s", BANNER, luatex_version_string); /* todo: get the extra info in here */
+    fprintf(term_out, "%s%s", BANNER, luatex_version_string);   /* todo: get the extra info in here */
     fprintf(term_out, versionstring);
     /* write_svnversion(luatex_svnversion); */
 }
@@ -527,7 +527,7 @@ void print_roman_int(integer n)
     j = (char *) mystery;
     v = 1000;
     while (1) {
-      while (n >= (int)v) {
+        while (n >= (int) v) {
             print_char(*j);
             n = n - v;
         }
@@ -639,6 +639,7 @@ void sprint_cs(pointer p)
 
 void prompt_input(char *s)
 {
-    wake_up_terminal(); tprint(s); term_input();
+    wake_up_terminal();
+    tprint(s);
+    term_input();
 }
-

@@ -451,7 +451,7 @@ void init_align(void)
         r = get_avail();
         token_link(p) = r;
         p = token_link(p);
-        token_info(p) = end_template_token;   /* put \.{\\endtemplate} at the end */
+        token_info(p) = end_template_token;     /* put \.{\\endtemplate} at the end */
 
         v_part(cur_align) = token_link(hold_token_head);
     }
@@ -705,7 +705,7 @@ boolean fin_col(void)
                 q = vlink(vlink(q));
             } while (q != cur_align);
             if (n > max_quarterword)
-                confusion("too many spans");   /* this can happen, but won't */
+                confusion("too many spans");    /* this can happen, but won't */
             q = cur_span;
             while (span_span(span_ptr(q)) < n) {
                 q = span_ptr(q);
@@ -1004,10 +1004,12 @@ value is changed to zero and so is the next tabskip.
                         t = t + width(v);
                         if (glue_sign(p) == stretching) {
                             if (stretch_order(v) == glue_order(p))
-                                t = t + round(float_cast (glue_set(p)) * stretch(v));
+                                t = t +
+                                    round(float_cast(glue_set(p)) * stretch(v));
                         } else if (glue_sign(p) == shrinking) {
                             if (shrink_order(v) == glue_order(p))
-                                t = t - round(float_cast (glue_set(p)) * shrink(v));
+                                t = t -
+                                    round(float_cast(glue_set(p)) * shrink(v));
                         }
                         s = vlink(s);
                         rr = new_null_box();
@@ -1155,7 +1157,7 @@ list that contains the special control sequence \.{\\endtemplate} only.
 
 void initialize_alignments(void)
 {
-    token_info(omit_template) = end_template_token;   /* |link(omit_template)=null| */
+    token_info(omit_template) = end_template_token;     /* |link(omit_template)=null| */
     span_span(end_span) = max_quarterword + 1;
     span_ptr(end_span) = null;
 }

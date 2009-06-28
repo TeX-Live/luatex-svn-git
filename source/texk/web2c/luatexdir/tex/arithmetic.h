@@ -24,10 +24,10 @@
 
 /* |incr| and |decr| are in texmfmp.h */
 
-/*#define incr(A) (A)++*/ /* increase a variable by unity */
-/*#define decr(A) (A)--*/ /* decrease a variable by unity */
+                          /*#define incr(A) (A)++*//* increase a variable by unity */
+                          /*#define decr(A) (A)--*//* decrease a variable by unity */
 
-#define negate(A) (A)=-(A) /* change the sign of a variable */
+#  define negate(A) (A)=-(A)    /* change the sign of a variable */
 
 extern integer half(integer x);
 
@@ -37,45 +37,42 @@ of $2^{-16}$. In other words, a binary point is assumed to be sixteen bit
 positions from the right end of a binary computer word.
 */
 
-#define unity 0200000 /* $2^{16}$, represents 1.00000 */
-#define two   0400000 /* $2^{17}$, represents 2.00000 */
+#  define unity 0200000         /* $2^{16}$, represents 1.00000 */
+#  define two   0400000         /* $2^{17}$, represents 2.00000 */
 
-typedef unsigned int nonnegative_integer; /* $0\L x<2^{31}$ */
+typedef unsigned int nonnegative_integer;       /* $0\L x<2^{31}$ */
 
 extern scaled round_decimals(int k);
 extern void print_scaled(scaled s);
 
-extern boolean arith_error; 
+extern boolean arith_error;
 extern scaled tex_remainder;
 
 extern scaled mult_and_add(integer n, scaled x, scaled y, scaled max_answer);
 
-#define nx_plus_y(A,B,C) mult_and_add((A),(B),(C),07777777777)
-#define mult_integers(A,B) mult_and_add((A),(B),0,017777777777)
+#  define nx_plus_y(A,B,C) mult_and_add((A),(B),(C),07777777777)
+#  define mult_integers(A,B) mult_and_add((A),(B),0,017777777777)
 
 extern scaled x_over_n(scaled x, integer n);
 extern scaled xn_over_d(scaled x, integer n, integer d);
 
-#define inf_bad 10000 /* infinitely bad value */
+#  define inf_bad 10000         /* infinitely bad value */
 
 extern halfword badness(scaled t, scaled s);
 
-#define set_glue_ratio_zero(A) (A)=0.0 /* store the representation of zero ratio */
-#define set_glue_ratio_one(A) (A)=1.0 /* store the representation of unit ratio */
-#define float_cast(A) (float)(A) /* convert from |glue_ratio| to type |real| */
-#define unfloat(A) (glue_ratio)(A) /* convert from |real| to type |glue_ratio| */
-#define float_constant(A) (float)A /* convert |integer| constant to |real| */
+#  define set_glue_ratio_zero(A) (A)=0.0/* store the representation of zero ratio */
+#  define set_glue_ratio_one(A) (A)=1.0 /* store the representation of unit ratio */
+#  define float_cast(A) (float)(A)      /* convert from |glue_ratio| to type |real| */
+#  define unfloat(A) (glue_ratio)(A)    /* convert from |real| to type |glue_ratio| */
+#  define float_constant(A) (float)A    /* convert |integer| constant to |real| */
 #  define float_round round
 
-extern void initialize_arithmetic (void);
+extern void initialize_arithmetic(void);
 
-extern scaled random_seed; /* the default random seed */
+extern scaled random_seed;      /* the default random seed */
 
 extern void init_randoms(integer seed);
 extern integer unif_rand(integer x);
-extern integer norm_rand (void);
+extern integer norm_rand(void);
 
 #endif
-
-
-

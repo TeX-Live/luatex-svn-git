@@ -73,7 +73,7 @@ implement \TeX\ can open a file whose external name is specified by
 */
 
 packed_ASCII_code *nameoffile;
-int namelength; /* this many characters are actually  relevant in |nameoffile| */
+int namelength;                 /* this many characters are actually  relevant in |nameoffile| */
 alpha_file name_file_pointer;
 
 /*
@@ -89,67 +89,70 @@ Signalling this fact is achieved by having two arrays of integers.
 integer *input_file_callback_id;
 integer read_file_callback_id[17];
 
-static void fixup_nameoffile (str_number fnam)
+static void fixup_nameoffile(str_number fnam)
 {
     integer k;
-    xfree (nameoffile);
+    xfree(nameoffile);
     namelength = str_length(fnam);
-    nameoffile = xmallocarray (packed_ASCII_code, namelength+2);
-    for (k=str_start_macro(fnam);k<=str_start_macro(fnam+1)-1;k++)
-	nameoffile[k-str_start_macro(fnam)+1] = str_pool[k];
-    nameoffile[namelength+1]=0;
+    nameoffile = xmallocarray(packed_ASCII_code, namelength + 2);
+    for (k = str_start_macro(fnam); k <= str_start_macro(fnam + 1) - 1; k++)
+        nameoffile[k - str_start_macro(fnam) + 1] = str_pool[k];
+    nameoffile[namelength + 1] = 0;
     flush_string();
 }
 
-boolean lua_a_open_in (alpha_file f, quarterword n)
+boolean lua_a_open_in(alpha_file f, quarterword n)
 {
-    str_number fnam; /* string returned by find callback */
+    str_number fnam;            /* string returned by find callback */
     integer callback_id;
-    boolean ret=true; /* return value */
-    boolean file_ok=true; /* the status so far  */
-    if (n==0) {
-	texinputtype = 1; /* Tell |open_input| we are \.{\\input}. */
-	input_file_callback_id[iindex] = 0;
+    boolean ret = true;         /* return value */
+    boolean file_ok = true;     /* the status so far  */
+    if (n == 0) {
+        texinputtype = 1;       /* Tell |open_input| we are \.{\\input}. */
+        input_file_callback_id[iindex] = 0;
     } else {
-	texinputtype=0;
-	read_file_callback_id[n] = 0;
+        texinputtype = 0;
+        read_file_callback_id[n] = 0;
     }
-    callback_id=callback_defined(find_read_file_callback);
-    if (callback_id>0) {
-	fnam=0;
-	file_ok=run_callback(callback_id,"dS->s",n,(char *)(nameoffile+1),&fnam);
-	if ((file_ok)&&(fnam!=0)&&(str_length(fnam)>0)) {
-	    /* Fixup |nameoffile| after callback */
-	    fixup_nameoffile(fnam);
-	} else {
-	    file_ok=false; /* file not found */
-	}
+    callback_id = callback_defined(find_read_file_callback);
+    if (callback_id > 0) {
+        fnam = 0;
+        file_ok =
+            run_callback(callback_id, "dS->s", n, (char *) (nameoffile + 1),
+                         &fnam);
+        if ((file_ok) && (fnam != 0) && (str_length(fnam) > 0)) {
+            /* Fixup |nameoffile| after callback */
+            fixup_nameoffile(fnam);
+        } else {
+            file_ok = false;    /* file not found */
+        }
     }
     if (file_ok) {
-	callback_id=callback_defined(open_read_file_callback);
-	if (callback_id>0) {
-	    k = run_and_save_callback(callback_id,"S->",(char *)(nameoffile+1));
-	    if (k>0) {
-		ret = true;
-		if (n==0)
-		    input_file_callback_id[iindex] = k;
-		else
-		    read_file_callback_id[n] = k;
-	    } else {
-		file_ok=false; /* read failed */
-	    }
-	} else  { /* no read callback */
-	    if (openinnameok((char *)(nameoffile+1))) {
-		ret = a_open_in(f,kpsetexformat);
-		name_file_pointer = f;
-	    } else {
-		file_ok=false; /* open failed */
-	    }
-	}
+        callback_id = callback_defined(open_read_file_callback);
+        if (callback_id > 0) {
+            k = run_and_save_callback(callback_id, "S->",
+                                      (char *) (nameoffile + 1));
+            if (k > 0) {
+                ret = true;
+                if (n == 0)
+                    input_file_callback_id[iindex] = k;
+                else
+                    read_file_callback_id[n] = k;
+            } else {
+                file_ok = false;        /* read failed */
+            }
+        } else {                /* no read callback */
+            if (openinnameok((char *) (nameoffile + 1))) {
+                ret = a_open_in(f, kpsetexformat);
+                name_file_pointer = f;
+            } else {
+                file_ok = false;        /* open failed */
+            }
+        }
     }
     if (!file_ok) {
-	name_file_pointer = 0;
-	ret = false;
+        name_file_pointer = 0;
+        ret = false;
     }
     return ret;
 }
@@ -161,21 +164,23 @@ boolean lua_a_open_out(alpha_file f, quarterword n)
     integer callback_id;
     boolean ret = false;
     name_file_pointer = 0;
-    callback_id=callback_defined(find_write_file_callback);
-    if (callback_id>0) {
-	fnam=0;
-	test=run_callback(callback_id,"dS->s",n,(char *)(nameoffile+1),&fnam);
-	if ((test)&&(fnam!=0)&&(str_length(fnam)>0)) {
-	    /* Fixup |nameoffile| after callback */
-	    fixup_nameoffile(fnam);
-	    ret = do_a_open_out(f);
-	    name_file_pointer = f;
-	}
+    callback_id = callback_defined(find_write_file_callback);
+    if (callback_id > 0) {
+        fnam = 0;
+        test =
+            run_callback(callback_id, "dS->s", n, (char *) (nameoffile + 1),
+                         &fnam);
+        if ((test) && (fnam != 0) && (str_length(fnam) > 0)) {
+            /* Fixup |nameoffile| after callback */
+            fixup_nameoffile(fnam);
+            ret = do_a_open_out(f);
+            name_file_pointer = f;
+        }
     } else {
-        if (openoutnameok((char *)(nameoffile+1))) {
-	    ret = a_open_out(f);
-	    name_file_pointer = f;
-	}
+        if (openoutnameok((char *) (nameoffile + 1))) {
+            ret = a_open_out(f);
+            name_file_pointer = f;
+        }
     }
     return ret;
 }
@@ -187,47 +192,48 @@ boolean lua_b_open_out(alpha_file f)
     integer callback_id;
     boolean ret = false;
     name_file_pointer = 0;
-    callback_id=callback_defined(find_output_file_callback);
-    if (callback_id>0) {
-	fnam=0;
-	test=run_callback(callback_id,"S->s",(char *)(nameoffile+1),&fnam);
-	if ((test)&&(fnam!=0)&&(str_length(fnam)>0)) {
-	    /* Fixup |nameoffile| after callback */
-	    fixup_nameoffile(fnam);
-	    ret = do_b_open_out(f);
-	    name_file_pointer = f;
-	}
+    callback_id = callback_defined(find_output_file_callback);
+    if (callback_id > 0) {
+        fnam = 0;
+        test =
+            run_callback(callback_id, "S->s", (char *) (nameoffile + 1), &fnam);
+        if ((test) && (fnam != 0) && (str_length(fnam) > 0)) {
+            /* Fixup |nameoffile| after callback */
+            fixup_nameoffile(fnam);
+            ret = do_b_open_out(f);
+            name_file_pointer = f;
+        }
     } else {
-        if (openoutnameok((char *)(nameoffile+1))) {
-	    ret = b_open_out(f);
-	    name_file_pointer = f;
-	}
+        if (openoutnameok((char *) (nameoffile + 1))) {
+            ret = b_open_out(f);
+            name_file_pointer = f;
+        }
     }
     return ret;
 }
 
-void lua_a_close_in(alpha_file f, quarterword n) /* close a text file */
-{
+void lua_a_close_in(alpha_file f, quarterword n)
+{                               /* close a text file */
     boolean ret;
     integer callback_id;
-    if (n==0) 
-	callback_id=input_file_callback_id[iindex];
+    if (n == 0)
+        callback_id = input_file_callback_id[iindex];
     else
-	callback_id=read_file_callback_id[n];
-    if (callback_id>0) {
-	ret=run_saved_callback(callback_id,"close","->");
-	destroy_saved_callback(callback_id);
-	if (n==0)
-	    input_file_callback_id[iindex] = 0;
-	else
-	    read_file_callback_id[n] = 0;
+        callback_id = read_file_callback_id[n];
+    if (callback_id > 0) {
+        ret = run_saved_callback(callback_id, "close", "->");
+        destroy_saved_callback(callback_id);
+        if (n == 0)
+            input_file_callback_id[iindex] = 0;
+        else
+            read_file_callback_id[n] = 0;
     } else {
-	a_close(f);
+        a_close(f);
     }
 }
 
-void lua_a_close_out(alpha_file f) /* close a text file */
-{
+void lua_a_close_out(alpha_file f)
+{                               /* close a text file */
     a_close(f);
 }
 
@@ -248,10 +254,10 @@ values, and that |first| and |last| are indices into this array
 representing the beginning and ending of a line of text.
 */
 
-packed_ASCII_code *buffer; /* lines of characters being read */
-integer first; /* the first unused position in |buffer| */
-integer last; /* end of the line just input to |buffer| */
-integer max_buf_stack; /* largest index used in |buffer| */
+packed_ASCII_code *buffer;      /* lines of characters being read */
+integer first;                  /* the first unused position in |buffer| */
+integer last;                   /* end of the line just input to |buffer| */
+integer max_buf_stack;          /* largest index used in |buffer| */
 
 /*
 The |lua_input_ln| function brings the next line of input from the specified
@@ -295,43 +301,48 @@ finer tuning is often possible at well-developed \PASCAL\ sites.
 @^inner loop@>
 */
 
-boolean lua_input_ln(alpha_file f,quarterword n, boolean bypass_eoln)
+boolean lua_input_ln(alpha_file f, quarterword n, boolean bypass_eoln)
 {
     boolean lua_result;
     integer last_ptr;
     integer callback_id;
-    (void)bypass_eoln; /* todo: variable can be removed */
-    if (n==0)
-	callback_id=input_file_callback_id[iindex];
+    (void) bypass_eoln;         /* todo: variable can be removed */
+    if (n == 0)
+        callback_id = input_file_callback_id[iindex];
     else
-	callback_id=read_file_callback_id[n];
-    if (callback_id>0) {
-	last=first;
+        callback_id = read_file_callback_id[n];
+    if (callback_id > 0) {
+        last = first;
         last_ptr = first;
-	lua_result = run_saved_callback(callback_id,"reader","->l", &last_ptr);
-        if ((lua_result==true)&&(last_ptr!=0)) {
-	    last = last_ptr;
-	    if (last>max_buf_stack) max_buf_stack=last;
-	} else {
-	    lua_result = false;
-	}
-    }  else {
-	lua_result = input_ln(f,bypass_eoln);
+        lua_result =
+            run_saved_callback(callback_id, "reader", "->l", &last_ptr);
+        if ((lua_result == true) && (last_ptr != 0)) {
+            last = last_ptr;
+            if (last > max_buf_stack)
+                max_buf_stack = last;
+        } else {
+            lua_result = false;
+        }
+    } else {
+        lua_result = input_ln(f, bypass_eoln);
     }
-    if (lua_result==true) {
-	/* Fix up the input buffer using callbacks */
-	if (last>=first) {
-	    callback_id = callback_defined(process_input_buffer_callback);
-	    if (callback_id>0) {
-		last_ptr = first;
-		lua_result = run_callback(callback_id, "l->l", (last-first), &last_ptr);
-		if ((lua_result==true)&&(last_ptr!=0)) {
-		    last = last_ptr;
-		    if (last>max_buf_stack) max_buf_stack=last;
-		}
-	    }
-	}
-	return true;
+    if (lua_result == true) {
+        /* Fix up the input buffer using callbacks */
+        if (last >= first) {
+            callback_id = callback_defined(process_input_buffer_callback);
+            if (callback_id > 0) {
+                last_ptr = first;
+                lua_result =
+                    run_callback(callback_id, "l->l", (last - first),
+                                 &last_ptr);
+                if ((lua_result == true) && (last_ptr != 0)) {
+                    last = last_ptr;
+                    if (last > max_buf_stack)
+                        max_buf_stack = last;
+                }
+            }
+        }
+        return true;
     }
     return false;
 }
@@ -400,33 +411,33 @@ will return with |last > first|.
 */
 
 
-boolean init_terminal (void) /* gets the terminal input started */
-{
+boolean init_terminal(void)
+{                               /* gets the terminal input started */
     t_open_in();
     if (last > first) {
-	iloc = first;
-	while ((iloc < last) && (buffer[iloc]==' ')) 
-	    incr(iloc);
-	if (iloc < last) {
-	    return true; 
-	}
+        iloc = first;
+        while ((iloc < last) && (buffer[iloc] == ' '))
+            incr(iloc);
+        if (iloc < last) {
+            return true;
+        }
     }
     while (1) {
-	wake_up_terminal(); 
-	fputs("**",term_out); 
-	update_terminal();
-	if (!input_ln(term_in,true)) {
-	  /* this shouldn't happen */
-	  fputs("! End of file on the terminal... why?\n", term_out);
-	  return false;
-	}
-	iloc=first;
-	while ((iloc<last)&&(buffer[iloc]==' '))
-	  incr(iloc);
-	if (iloc<last) {
-	  return true; /* return unless the line was all blank */
-	}
-	fputs("Please type the name of your input file.\n", term_out);
+        wake_up_terminal();
+        fputs("**", term_out);
+        update_terminal();
+        if (!input_ln(term_in, true)) {
+            /* this shouldn't happen */
+            fputs("! End of file on the terminal... why?\n", term_out);
+            return false;
+        }
+        iloc = first;
+        while ((iloc < last) && (buffer[iloc] == ' '))
+            incr(iloc);
+        if (iloc < last) {
+            return true;        /* return unless the line was all blank */
+        }
+        fputs("Please type the name of your input file.\n", term_out);
     }
 }
 
@@ -439,19 +450,18 @@ The input is placed into locations |first| through |last-1| of the
 |buffer| array, and echoed on the transcript file if appropriate.
 */
 
-void term_input (void) /* gets a line from the terminal */
-{
-    integer k; /* index into |buffer| */
-    update_terminal(); /* now the user sees the prompt for sure */
-    if (!input_ln(term_in,true)) 
-	fatal_error("End of file on the terminal!");
-    term_offset=0; /* the user's line ended with \<\rm return> */
-    decr(selector); /* prepare to echo the input */
-    if (last!=first) {
-	for (k=first;k<=last-1;k++) 
-	    print_char(buffer[k]);
+void term_input(void)
+{                               /* gets a line from the terminal */
+    integer k;                  /* index into |buffer| */
+    update_terminal();          /* now the user sees the prompt for sure */
+    if (!input_ln(term_in, true))
+        fatal_error("End of file on the terminal!");
+    term_offset = 0;            /* the user's line ended with \<\rm return> */
+    decr(selector);             /* prepare to echo the input */
+    if (last != first) {
+        for (k = first; k <= last - 1; k++)
+            print_char(buffer[k]);
     }
-    print_ln(); 
-    incr(selector); /* restore previous status */
+    print_ln();
+    incr(selector);             /* restore previous status */
 }
-

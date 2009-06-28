@@ -32,19 +32,26 @@ what type it is; so we print it in all modes.
 void print_word(memory_word w)
 {
     /* prints |w| in all ways */
-    print_int(w.cint); print_char(' ');
-    print_scaled(w.cint); print_char(' ');
-    print_scaled(round(unity*float_cast(w.gr))); 
+    print_int(w.cint);
+    print_char(' ');
+    print_scaled(w.cint);
+    print_char(' ');
+    print_scaled(round(unity * float_cast(w.gr)));
     print_ln();
-    print_int(w.hh.lhfield); print_char('='); 
-    print_int(w.hh.b0); print_char(':');
-    print_int(w.hh.b1); print_char(';'); 
-    print_int(w.hh.rh); print_char(' ');
-    print_int(w.qqqq.b0); print_char(':');
-    print_int(w.qqqq.b1); print_char(':');
-    print_int(w.qqqq.b2); print_char(':'); 
+    print_int(w.hh.lhfield);
+    print_char('=');
+    print_int(w.hh.b0);
+    print_char(':');
+    print_int(w.hh.b1);
+    print_char(';');
+    print_int(w.hh.rh);
+    print_char(' ');
+    print_int(w.qqqq.b0);
+    print_char(':');
+    print_int(w.qqqq.b1);
+    print_char(':');
+    print_int(w.qqqq.b2);
+    print_char(':');
     print_int(w.qqqq.b3);
 }
 #endif
-
-

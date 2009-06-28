@@ -23,13 +23,13 @@
 #  define TEXFILEIO_H
 
 extern packed_ASCII_code *nameoffile;
-extern int namelength; /* this many characters are actually  relevant in |nameoffile| */
+extern int namelength;          /* this many characters are actually  relevant in |nameoffile| */
 extern alpha_file name_file_pointer;
 
 extern integer *input_file_callback_id;
 extern integer read_file_callback_id[17];
 
-extern boolean lua_a_open_in (alpha_file f, quarterword n);
+extern boolean lua_a_open_in(alpha_file f, quarterword n);
 extern boolean lua_a_open_out(alpha_file f, quarterword n);
 extern boolean lua_b_open_out(alpha_file f);
 extern void lua_a_close_in(alpha_file f, quarterword n);
@@ -40,7 +40,7 @@ extern integer first;
 extern integer last;
 extern integer max_buf_stack;
 
-extern boolean lua_input_ln(alpha_file f,quarterword n, boolean bypass_eoln);
+extern boolean lua_input_ln(alpha_file f, quarterword n, boolean bypass_eoln);
 
 /*
 The user's terminal acts essentially like other files of text, except
@@ -50,8 +50,8 @@ is considered an output file the file variable is |term_out|.
 @^system dependencies@>
 */
 
-#define term_in stdin /* the terminal as an input file */
-#define term_out stdout /* the terminal as an output file */
+#  define term_in stdin         /* the terminal as an input file */
+#  define term_out stdout       /* the terminal as an output file */
 
 
 /*
@@ -60,7 +60,7 @@ Here is how to open the terminal files.  |t_open_out| does nothing.
 any command line arguments the user has provided.  It's defined in C.
 */
 
-#define t_open_out() /*  output already open for text output */
+#  define t_open_out()          /*  output already open for text output */
 
 /*
 Sometimes it is necessary to synchronize the input/output mixture that
@@ -80,11 +80,11 @@ to do nothing, since the user should control the terminal.
 @^system dependencies@>
 */
 
-#define update_terminal() fflush (term_out)
-#define clear_terminal() do { ; } while (0)
-#define wake_up_terminal() do { ; } while (0) /* cancel the user's cancellation of output */
+#  define update_terminal() fflush (term_out)
+#  define clear_terminal() do { ; } while (0)
+#  define wake_up_terminal() do { ; } while (0) /* cancel the user's cancellation of output */
 
-extern boolean init_terminal (void);
-extern void term_input (void);
+extern boolean init_terminal(void);
+extern void term_input(void);
 
 #endif

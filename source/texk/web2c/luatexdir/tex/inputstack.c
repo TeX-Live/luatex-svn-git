@@ -332,7 +332,7 @@ void show_context(void)
                     if (token_type < macro)
                         show_token_list(istart, iloc, 100000);
                     else
-                        show_token_list(token_link(istart), iloc, 100000);    /* avoid reference count */
+                        show_token_list(token_link(istart), iloc, 100000);      /* avoid reference count */
                 }
                 selector = old_setting; /* stop pseudoprinting */
                 /* Print two lines using the tricky pseudoprinted information */

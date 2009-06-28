@@ -328,7 +328,7 @@ primitive(str_number ss, quarterword c, halfword o, halfword off,
     assert(o >= off);
     if (ss < STRING_OFFSET) {
         if (ss > 127)
-            confusion("prim"); /* should be ASCII */
+            confusion("prim");  /* should be ASCII */
         append_char(ss);
         s = make_string();
     } else {

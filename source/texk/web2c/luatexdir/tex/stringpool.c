@@ -70,8 +70,7 @@ value.
 str_number make_string(void)
 {
     if (str_ptr == (max_strings + STRING_OFFSET))
-        overflow("number of strings",
-                 max_strings - init_str_ptr);
+        overflow("number of strings", max_strings - init_str_ptr);
     incr(str_ptr);
     str_start_macro(str_ptr) = pool_ptr;
     return (str_ptr - 1);

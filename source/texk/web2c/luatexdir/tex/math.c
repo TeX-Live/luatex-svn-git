@@ -1726,7 +1726,7 @@ pointer fin_mlist(pointer p)
             q = math_list(numerator(incompleat_noad));
             if ((type(q) != fence_noad) || (subtype(q) != left_noad_side)
                 || (delim_ptr == null))
-                confusion("right");    /* this can't happen */
+                confusion("right");     /* this can't happen */
             math_list(numerator(incompleat_noad)) = vlink(delim_ptr);
             vlink(delim_ptr) = incompleat_noad;
             vlink(incompleat_noad) = p;
