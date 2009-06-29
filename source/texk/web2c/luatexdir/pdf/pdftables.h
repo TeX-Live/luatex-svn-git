@@ -101,8 +101,6 @@ extern integer pdf_box_spec_bleed;
 extern integer pdf_box_spec_trim;
 extern integer pdf_box_spec_art;
 
-void PdfObjTree_free(PDF pdf);
-
 extern void pdf_create_obj(PDF pdf, integer t, integer i);
 extern integer find_obj(PDF pdf, integer t, integer i, boolean byname);
 extern integer get_obj(PDF pdf, integer t, integer i, boolean byname);

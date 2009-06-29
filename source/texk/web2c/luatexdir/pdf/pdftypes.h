@@ -137,6 +137,8 @@ typedef struct pdf_output_file_ {
     int obj_tab_size;           /* allocated size of |obj_tab| array */
     obj_entry *obj_tab;
     int head_tab[9];            /* heads of the object lists in |obj_tab| */
+    struct avl_table *obj_tree[9]; /* this is useful for finding the objects back */
+
     int pages_tail;
     int obj_ptr;                /* user objects counter */
     int sys_obj_ptr;            /* system objects counter, including object streams */
@@ -147,6 +149,9 @@ typedef struct pdf_output_file_ {
     off_t stream_length_offset; /* file offset of the last stream length */
     int seek_write_length;      /* flag whether to seek back and write \.{/Length} */
     int last_byte;              /* byte most recently written to PDF file; for \.{endstream} in new line */
+
+
+
 
 } pdf_output_file;
 

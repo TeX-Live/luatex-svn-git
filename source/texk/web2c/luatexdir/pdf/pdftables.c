@@ -31,10 +31,6 @@ integer pdf_box_spec_bleed = 3;
 integer pdf_box_spec_trim = 4;
 integer pdf_box_spec_art = 5;
 
-/* these come from avlstuff.c */
-
-static struct avl_table **PdfObjTree = NULL;
-
 /**********************************************************************/
 /* One AVL tree for each obj_type 0...pdf_objtype_max */
 
@@ -52,14 +48,18 @@ static int compare_info(const void *pa, const void *pb, void *param)
     (void) param;
     a = ((const oentry *) pa)->int0;
     b = ((const oentry *) pb)->int0;
+    if (a == 0 && b == 0)
+        return 0; /* this happens a lot */
     if (a < 0 && b < 0) {       /* string comparison */
-        if (a <= 2097152 && b <= 2097152) {
-            a += 2097152;
-            b += 2097152;
-            as = str_start[-a];
-            ae = str_start[-a + 1];     /* start of next string in pool */
-            bs = str_start[-b];
-            be = str_start[-b + 1];
+        a = -a;
+        b = -b;
+        if (a >= 2097152 && b >= 2097152) {
+            a -= 2097152;
+            b -= 2097152;
+            as = str_start[a];
+            ae = str_start[a + 1];     /* start of next string in pool */
+            bs = str_start[b];
+            be = str_start[b + 1];
             al = ae - as;
             bl = be - bs;
             if (al < bl)        /* compare first by string length */
@@ -73,8 +73,10 @@ static int compare_info(const void *pa, const void *pb, void *param)
                     return 1;
             }
         } else {
-            pdftex_fail
-                ("avlstuff.c: compare_items() for single characters: NI");
+            if (a < b)
+                return -1;
+            if (a > b)
+                return 1;
         }
     } else {                    /* integer comparison */
         if (a < b)
@@ -85,50 +87,20 @@ static int compare_info(const void *pa, const void *pb, void *param)
     return 0;
 }
 
-/**********************************************************************/
-/* cleaning up... */
-
-static void destroy_oentry(void *pa, void *pb)
-{
-    oentry *p = (oentry *) pa;
-    (void) pb;
-    xfree(p);
-}
-
-void PdfObjTree_free(PDF pdf)
-{
-    int i;
-    (void)pdf;
-    if (PdfObjTree == NULL)
-        return;
-    for (i = 0; i <= pdf_objtype_max; i++) {
-        if (PdfObjTree[i] != NULL)
-            avl_destroy(PdfObjTree[i], destroy_oentry);
-    }
-    xfree(PdfObjTree);
-    PdfObjTree = NULL;
-}
-
 void avl_put_obj(PDF pdf, integer objptr, integer t)
 {
     static void **pp;
     static oentry *oe;
-    int i;
 
-    if (PdfObjTree == NULL) {
-        PdfObjTree = xtalloc(pdf_objtype_max + 1, struct avl_table *);
-        for (i = 0; i <= pdf_objtype_max; i++)
-            PdfObjTree[i] = NULL;
-    }
-    if (PdfObjTree[t] == NULL) {
-        PdfObjTree[t] = avl_create(compare_info, NULL, &avl_xallocator);
-        if (PdfObjTree[t] == NULL)
-            pdftex_fail("avlstuff.c: avl_create() PdfObjTree failed");
+    if (pdf->obj_tree[t] == NULL) {
+        pdf->obj_tree[t] = avl_create(compare_info, NULL, &avl_xallocator);
+        if (pdf->obj_tree[t] == NULL)
+            pdftex_fail("avlstuff.c: avl_create() pdf->obj_tree failed");
     }
     oe = xtalloc(1, oentry);
     oe->int0 = obj_info(pdf, objptr);
     oe->objptr = objptr;        /* allows to relocate obj_tab */
-    pp = avl_probe(PdfObjTree[t], oe);
+    pp = avl_probe(pdf->obj_tree[t], oe);
     if (pp == NULL)
         pdftex_fail("avlstuff.c: avl_probe() out of memory in insertion");
 }
@@ -144,13 +116,16 @@ integer avl_find_obj(PDF pdf, integer t, integer i, integer byname)
         tmp.int0 = -i;
     else
         tmp.int0 = i;
-    if (PdfObjTree == NULL || PdfObjTree[t] == NULL)
+    if (pdf->obj_tree[t] == NULL)
         return 0;
-    p = (oentry *) avl_find(PdfObjTree[t], &tmp);
+    p = (oentry *) avl_find(pdf->obj_tree[t], &tmp);
     if (p == NULL)
         return 0;
     return p->objptr;
 }
+
+/**********************************************************************/
+
 
 /* create an object with type |t| and identifier |i| */
 void pdf_create_obj(PDF pdf, integer t, integer i)
