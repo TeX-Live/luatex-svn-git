@@ -6833,6 +6833,7 @@ p, q: pointer;
 @!s: str_number; {first temp string}
 @!sn: integer; {lua chunk name}
 @!u: str_number; {third temp string}
+@!ff: integer; {for use with |set_ff| }
 @!junk: pointer;
 begin
 c:=cur_chr;
@@ -7145,6 +7146,7 @@ end;
 function the_convert_string (c:halfword;i:integer):str_number;
 var old_setting:0..max_selector; {saved |selector| setting}
         is_known:boolean;
+        ff:integer; {for use with |set_ff| }
 begin
   old_setting:=selector;
   selector:=new_string;

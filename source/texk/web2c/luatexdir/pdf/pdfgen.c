@@ -36,9 +36,6 @@ static const char __svn_version[] =
 
 PDF static_pdf = NULL;
 
-
-integer ff;                     /* for use with |set_ff| */
-
 static char *jobname_cstr = NULL;
 
 integer fixed_pdfoutput;        /* fixed output format */
@@ -722,6 +719,8 @@ internal_font_number pdf_set_font(PDF pdf, internal_font_number f)
 {
     pointer p;
     internal_font_number k;
+    integer ff;                     /* for use with |set_ff| */
+
     if (!font_used(f))
         pdf_init_font(pdf, f);
     set_ff(f);                  /* set |ff| to the tfm number of the font sharing the font object

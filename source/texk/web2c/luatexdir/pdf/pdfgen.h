@@ -64,9 +64,6 @@ written bytes.
             ff = A;                             \
     } while (0)
 
-extern integer ff;
-
-
 typedef enum {
     no_zip = 0,                 /* no \.{ZIP} compression */
     zip_writing = 1,            /* \.{ZIP} compression being used */

@@ -109,7 +109,9 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     integer pre_callback_id;
     integer post_callback_id;
     boolean ret;
+    integer ff;                     /* for use with |set_ff| */
     integer count_base = get_count_base();
+
     /* Start sheet {\sl Sync\TeX} information record */
     pdf_output_value = pdf_output;      /* {\sl Sync\TeX}: we assume that |pdf_output| is properly set up */
     synctex_sheet(mag);
