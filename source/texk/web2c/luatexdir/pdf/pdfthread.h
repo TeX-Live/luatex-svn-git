@@ -34,11 +34,11 @@
 #  define set_pdf_thread_named_id(A,B) pdf_thread_named_id(A)=B
 
 #  define obj_bead_ptr              obj_aux     /* pointer to |pdf->mem| */
-#  define obj_bead_rect(pdf,A)          pdf->mem[obj_bead_ptr(A)]
-#  define obj_bead_page(pdf,A)          pdf->mem[obj_bead_ptr(A) + 1]
-#  define obj_bead_next(pdf,A)          pdf->mem[obj_bead_ptr(A) + 2]
-#  define obj_bead_prev(pdf,A)          pdf->mem[obj_bead_ptr(A) + 3]
-#  define obj_bead_attr(pdf,A)          pdf->mem[obj_bead_ptr(A) + 4]
+#  define obj_bead_rect(pdf,A)          pdf->mem[obj_bead_ptr(pdf,A)]
+#  define obj_bead_page(pdf,A)          pdf->mem[obj_bead_ptr(pdf,A) + 1]
+#  define obj_bead_next(pdf,A)          pdf->mem[obj_bead_ptr(pdf,A) + 2]
+#  define obj_bead_prev(pdf,A)          pdf->mem[obj_bead_ptr(pdf,A) + 3]
+#  define obj_bead_attr(pdf,A)          pdf->mem[obj_bead_ptr(pdf,A) + 4]
 
 #  define set_obj_bead_rect(pdf,A,B) obj_bead_rect(pdf,A)=B
 #  define set_obj_bead_page(pdf,A,B) obj_bead_page(pdf,A)=B

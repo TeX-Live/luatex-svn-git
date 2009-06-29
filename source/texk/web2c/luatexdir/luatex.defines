@@ -1268,16 +1268,12 @@
 @define procedure set_obj_dest_ptr();
 @define procedure set_obj_data_ptr();
 
-@define const inf_obj_tab_size;
-@define const sup_obj_tab_size;
 @define const inf_dest_names_size;
 @define const sup_dest_names_size;
 @define const inf_pk_dpi;
 @define const sup_pk_dpi;
 @define var pdf_objtype_max;
 
-@define var obj_tab_size;
-@define var obj_tab;
 @define var head_tab;
 @define var pages_tail;
 @define var obj_ptr;
@@ -1320,17 +1316,23 @@
 @define procedure pdf_write_image();
 @define procedure scan_image();
 
+@define procedure pdf_check_obj();
 @define procedure pdf_write_obj();
 
 @define procedure write_action();
 @define function scan_action;
 
 @define procedure calculate_width_to_enddir();
-@define procedure scan_pdfdest;
+@define procedure scan_pdfdest();
 
 @define procedure scan_thread_id;
 @define procedure init_dest_names;
 @define procedure new_annot_whatsit();
+@define procedure scan_annot();
+@define procedure scan_startlink();
+@define procedure scan_pdfxform();
+@define procedure scan_pdfrefxform();
+@define procedure scan_pdfcatalog();
 
 @define var pdf_last_obj;
 @define var pdf_xform_count;
@@ -1350,7 +1352,7 @@
 @define procedure read_expand_font;
 @define procedure new_letterspaced_font();
 @define procedure make_font_copy() ;
-@define procedure pdf_include_chars;
+@define procedure pdf_include_chars();
 @define procedure glyph_to_unicode;
 
 { pdf ship }

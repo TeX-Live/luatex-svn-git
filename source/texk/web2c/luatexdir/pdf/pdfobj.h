@@ -29,11 +29,11 @@
 
 #  define pdfmem_obj_size          4    /* size of memory in |mem| which |obj_data_ptr| holds */
 
-#  define obj_obj_data(pdf,A)          pdf->mem[obj_data_ptr(A) + 0]    /* object data */
-#  define obj_obj_is_stream(pdf,A)     pdf->mem[obj_data_ptr(A) + 1]    /* will this object
+#  define obj_obj_data(pdf,A)          pdf->mem[obj_data_ptr(pdf,A) + 0]    /* object data */
+#  define obj_obj_is_stream(pdf,A)     pdf->mem[obj_data_ptr(pdf,A) + 1]    /* will this object
                                                                            be written as a stream instead of a dictionary? */
-#  define obj_obj_stream_attr(pdf,A)   pdf->mem[obj_data_ptr(A) + 2]    /* additional object attributes for streams */
-#  define obj_obj_is_file(pdf,A)       pdf->mem[obj_data_ptr(A) + 3]    /* data should be
+#  define obj_obj_stream_attr(pdf,A)   pdf->mem[obj_data_ptr(pdf,A) + 2]    /* additional object attributes for streams */
+#  define obj_obj_is_file(pdf,A)       pdf->mem[obj_data_ptr(pdf,A) + 3]    /* data should be
                                                                            read from an external file? */
 
 #  define set_obj_obj_is_stream(pdf,A,B) obj_obj_is_stream(pdf,A)=B
@@ -45,7 +45,7 @@ extern halfword pdf_obj_list;   /* list of objects in the current page */
 extern integer pdf_obj_count;   /* counter of objects */
 extern integer pdf_last_obj;
 
-
+extern void pdf_check_obj(PDF pdf, integer t, integer n);
 extern void pdf_write_obj(PDF pdf, integer n);
 extern void scan_obj(PDF pdf);
 

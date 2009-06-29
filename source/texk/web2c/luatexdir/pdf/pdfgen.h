@@ -46,6 +46,9 @@ written bytes.
 #  define sup_pdf_os_buf_size 5000000   /* arbitrary upper hard limit of |pdf_os_buf_size| */
 #  define pdf_os_max_objs 100   /* maximum number of objects in object stream */
 
+#  define inf_obj_tab_size 1000 /* min size of the cross-reference table for PDF output */
+#  define sup_obj_tab_size 8388607      /* max size of the cross-reference table for PDF output */
+
 /* The following macros are similar as for \.{DVI} buffer handling */
 
 #  define pdf_offset(pdf) (pdf->gone + pdf->ptr)
@@ -53,6 +56,16 @@ written bytes.
                                            buffer that |pdf_ptr| points to */
 #  define pdf_save_offset(pdf) pdf->save_offset=(pdf->gone + pdf->ptr)
 #  define pdf_saved_offset(pdf) pdf->save_offset
+
+#  define set_ff(A)  do {                       \
+        if (pdf_font_num(A) < 0)                \
+            ff = -pdf_font_num(A);              \
+        else                                    \
+            ff = A;                             \
+    } while (0)
+
+extern integer ff;
+
 
 typedef enum {
     no_zip = 0,                 /* no \.{ZIP} compression */
@@ -206,7 +219,7 @@ extern void init_start_time(void);
 extern void getcreationdate(void);
 
 extern void pdf_use_font(internal_font_number f, integer fontnum);
-extern void pdf_init_font(internal_font_number f);
-extern internal_font_number pdf_set_font(internal_font_number f);
+extern void pdf_init_font(PDF pdf, internal_font_number f);
+extern internal_font_number pdf_set_font(PDF pdf, internal_font_number f);
 
 #endif

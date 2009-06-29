@@ -58,20 +58,20 @@ void pop_link_level(void)
     decr(pdf_link_stack_ptr);
 }
 
-void do_link(halfword p, halfword parent_box, scaled x, scaled y)
+void do_link(PDF pdf, halfword p, halfword parent_box, scaled x, scaled y)
 {
     if (!is_shipping_page)
         pdf_error(maketexstring("ext4"),
                   maketexstring("link annotations cannot be inside an XForm"));
     assert(type(parent_box) == hlist_node);
-    if (is_obj_scheduled(pdf_link_objnum(p)))
-        pdf_link_objnum(p) = pdf_new_objnum();
+    if (is_obj_scheduled(pdf, pdf_link_objnum(p)))
+        pdf_link_objnum(p) = pdf_new_objnum(pdf);
     push_link_level(p);
     set_rect_dimens(p, parent_box, x, y,
                     pdf_width(p), pdf_height(p), pdf_depth(p), pdf_link_margin);
-    obj_annot_ptr(pdf_link_objnum(p)) = p;      /* the reference for the pdf annot object must be set here */
+    obj_annot_ptr(pdf, pdf_link_objnum(p)) = p;      /* the reference for the pdf annot object must be set here */
     pdf_append_list(pdf_link_objnum(p), pdf_link_list);
-    set_obj_scheduled(pdf_link_objnum(p));
+    set_obj_scheduled(pdf, pdf_link_objnum(p));
 }
 
 void end_link(void)
@@ -135,7 +135,7 @@ node, in order to use |flush_node_list| to do the job.
 
 /* append a new pdf annot to |pdf_link_list| */
 
-void append_link(halfword parent_box, scaled x, scaled y, small_number i)
+void append_link(PDF pdf, halfword parent_box, scaled x, scaled y, small_number i)
 {
     halfword p;
     assert(type(parent_box) == hlist_node);
@@ -144,7 +144,30 @@ void append_link(halfword parent_box, scaled x, scaled y, small_number i)
     subtype(p) = pdf_link_data_node;    /* this node is not a normal link node */
     set_rect_dimens(p, parent_box, x, y,
                     pdf_width(p), pdf_height(p), pdf_depth(p), pdf_link_margin);
-    pdf_create_obj(obj_type_others, 0);
-    obj_annot_ptr(obj_ptr) = p;
-    pdf_append_list(obj_ptr, pdf_link_list);
+    pdf_create_obj(pdf, obj_type_others, 0);
+    obj_annot_ptr(pdf, pdf->obj_ptr) = p;
+    pdf_append_list(pdf->obj_ptr, pdf_link_list);
+}
+
+void scan_startlink (PDF pdf) 
+{
+    integer k;
+    halfword r;
+    if (abs(cur_list.mode_field) == vmode)
+        pdf_error(maketexstring("ext1"), 
+                  maketexstring("\\pdfstartlink cannot be used in vertical mode"));
+    k = pdf_new_objnum(pdf);
+    new_annot_whatsit(pdf_start_link_node);
+    set_pdf_link_attr(cur_list.tail_field, null);
+    if (scan_keyword("attr")) {
+        scan_pdf_ext_toks();
+        set_pdf_link_attr(cur_list.tail_field, def_ref);
+    }
+    r = scan_action();
+    set_pdf_link_action(cur_list.tail_field, r);
+    set_pdf_link_objnum(cur_list.tail_field, k);
+    pdf_last_link = k;
+    /* N.B.: although it is possible to set |obj_annot_ptr(k) := tail| here, it
+       is not safe if nodes are later copied/destroyed/moved; a better place
+       to do this is inside |do_link|, when the whatsit node is written out */
 }

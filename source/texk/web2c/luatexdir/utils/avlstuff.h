@@ -29,8 +29,5 @@ extern struct libavl_allocator avl_xallocator;
 
 int comp_int_entry(const void *, const void *, void *);
 int comp_string_entry(const void *, const void *, void *);
-integer avl_find_obj(integer, integer, integer);
-void avl_put_obj(integer, integer);
-void PdfObjTree_free(void);
 
 #endif                          /* AVLSTUFF_H */

@@ -54,8 +54,6 @@ typedef enum { PMODE_NONE, PMODE_PAGE, PMODE_TEXT, PMODE_CHARARRAY,
 
 typedef enum { WMODE_H, WMODE_V } writing_mode; /* []TJ runs horizontal or vertical */
 
-#  define internal_font_number integer  /* TODO kludge */
-
 typedef struct {
     pdfpos pdf;                 /* pos. on page (PDF page raster) */
     pdfpos pdf_bt_pos;          /* pos. at begin of BT-ET group (PDF page raster) */
@@ -70,12 +68,20 @@ typedef struct {
     pdffloat tm[6];             /* Tm array */
     double k1;                  /* conv. factor from TeX sp to PDF page raster */
     double k2;                  /* conv. factor from PDF page raster to TJ array raster */
-    internal_font_number f_cur; /* TeX font number */
-    internal_font_number f_pdf; /* /F* font number, of unexpanded base font! */
+    int f_cur;                  /* TeX font number */
+    int f_pdf;                  /* /F* font number, of unexpanded base font! */
     writing_mode wmode;         /* PDF writing mode WMode (horizontal/vertical) */
     pos_mode mode;              /* current positioning mode */
     int ishex;                  /* Whether the current char string is <> or () */
 } pdfstructure;
+
+typedef struct obj_entry_ {
+    integer int0;
+    integer int1;
+    off_t int2;
+    integer int3;
+    integer int4;
+} obj_entry;
 
 typedef struct pdf_output_file_ {
     FILE *file;                 /* the PDF output file */
@@ -127,6 +133,21 @@ typedef struct pdf_output_file_ {
     int mem_ptr;
 
     pdfstructure *pstruct;      /* structure for positioning within page */
+
+    int obj_tab_size;           /* allocated size of |obj_tab| array */
+    obj_entry *obj_tab;
+    int head_tab[9];            /* heads of the object lists in |obj_tab| */
+    int pages_tail;
+    int obj_ptr;                /* user objects counter */
+    int sys_obj_ptr;            /* system objects counter, including object streams */
+    int last_pages;             /* pointer to most recently generated pages object */
+    int last_page;              /* pointer to most recently generated page object */
+    int last_stream;            /* pointer to most recently generated stream */
+    off_t stream_length;        /* length of most recently generated stream */
+    off_t stream_length_offset; /* file offset of the last stream length */
+    int seek_write_length;      /* flag whether to seek back and write \.{/Length} */
+    int last_byte;              /* byte most recently written to PDF file; for \.{endstream} in new line */
+
 } pdf_output_file;
 
 typedef pdf_output_file *PDF;

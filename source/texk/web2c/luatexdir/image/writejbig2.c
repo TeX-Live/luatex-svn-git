@@ -744,8 +744,8 @@ static void wr_jbig2(PDF pdf, FILEINFO * fip, unsigned long page)
         pdf_puts(pdf, "/Filter [/JBIG2Decode]\n");
         if (fip->page0.last != NULL) {
             if (fip->pdfpage0objnum == 0) {
-                pdf_create_obj(0, 0);
-                fip->pdfpage0objnum = obj_ptr;
+                pdf_create_obj(pdf, 0, 0);
+                fip->pdfpage0objnum = pdf->obj_ptr;
             }
             pdf_printf(pdf, "/DecodeParms [<< /JBIG2Globals %lu 0 R >>]\n",
                        fip->pdfpage0objnum);

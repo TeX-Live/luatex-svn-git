@@ -539,7 +539,7 @@ void pdf_write_image(PDF pdf, integer n)
 {
     pdf_begin_dict(pdf, n, 0);
     if (pdf->draftmode == 0)
-        write_image(pdf, obj_data_ptr(n));
+        write_image(pdf, obj_data_ptr(pdf,n));
 }
 
 /**********************************************************************/
@@ -788,8 +788,8 @@ void scan_image(PDF pdf)
     integer page, pagebox, colorspace;
     char *named = NULL, *attr = NULL, *s = NULL;
     incr(pdf_ximage_count);
-    pdf_create_obj(obj_type_ximage, pdf_ximage_count);
-    k = obj_ptr;
+    pdf_create_obj(pdf,obj_type_ximage, pdf_ximage_count);
+    k = pdf->obj_ptr;
     alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
     attr = 0;
     named = 0;
@@ -827,7 +827,7 @@ void scan_image(PDF pdf)
                    k, pdf_ximage_count, s, page, named, attr, colorspace,
                    pagebox, pdf_minor_version, pdf_inclusion_errorlevel);
     xfree(s);
-    set_obj_data_ptr(k, ref);
+    set_obj_data_ptr(pdf, k, ref);
     if (named != NULL)
         xfree(named);
     set_image_dimensions(ref, alt_rule);

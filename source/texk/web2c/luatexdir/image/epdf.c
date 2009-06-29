@@ -27,7 +27,7 @@ static const char _svn_version[] =
     "$Id$ "
     "$URL$";
 
-fd_entry *epdf_create_fontdescriptor(fm_entry * fm, int stemV)
+fd_entry *epdf_create_fontdescriptor(fm_entry * fm, int stemV, int obj_num)
 {
     fd_entry *fd;
     if ((fd = lookup_fd_entry(fm->ff_name, fm->slant, fm->extend)) == NULL) {
@@ -35,7 +35,7 @@ fd_entry *epdf_create_fontdescriptor(fm_entry * fm, int stemV)
         fd = new_fd_entry();
         fd->fm = fm;
         register_fd_entry(fd);
-        fd->fd_objnum = pdf_new_objnum();
+        fd->fd_objnum = obj_num;
         assert(fm->ps_name != NULL);
         fd->fontname = xstrdup(fm->ps_name);    /* just fallback */
         // stemV must be copied

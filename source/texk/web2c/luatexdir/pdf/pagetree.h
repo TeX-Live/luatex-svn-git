@@ -23,7 +23,7 @@
 #  define PAGETREE_H
 
 integer output_pages_tree(PDF);
-integer pdf_do_page_divert(integer, integer);
+integer pdf_do_page_divert(PDF, integer, integer);
 void pdf_do_page_undivert(integer, integer);
 
 #endif

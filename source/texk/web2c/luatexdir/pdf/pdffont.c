@@ -454,7 +454,7 @@ void make_font_copy(small_number a)
 }
 
 
-void pdf_include_chars(void)
+void pdf_include_chars(PDF pdf)
 {
     str_number s;
     pool_pointer k;             /* running indices */
@@ -466,7 +466,7 @@ void pdf_include_chars(void)
                   maketexstring("invalid font identifier"));
     pdf_check_vf(cur_val);
     if (!font_used(f))
-        pdf_init_font(f);
+        pdf_init_font(pdf, f);
     scan_pdf_ext_toks();
     s = tokens_to_string(def_ref);
     delete_token_ref(def_ref);

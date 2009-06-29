@@ -56,10 +56,11 @@ void pdf_print_charwidth(PDF pdf, internal_font_number f, int i)
 
 /**********************************************************************/
 
-static void setup_fontparameters(pdfstructure * p, internal_font_number f)
+static void setup_fontparameters(PDF pdf, internal_font_number f)
 {
+    pdfstructure *p = pdf->pstruct;
     p->f_cur = f;
-    p->f_pdf = pdf_set_font(f);
+    p->f_pdf = pdf_set_font(pdf, f);
     p->tj_delta.e = p->cw.e - 1;        /* "- 1" makes less corrections inside []TJ */
     /* no need to be more precise than TeX (1sp) */
     while (p->tj_delta.e > 0
@@ -161,7 +162,7 @@ void pdf_place_glyph(PDF pdf, scaledpos pos, internal_font_number f, integer c)
     if (f != p->f_cur || is_textmode(p) || is_pagemode(p)) {
         pdf_goto_textmode(pdf);
         if (f != p->f_cur)
-            setup_fontparameters(p, f);
+            setup_fontparameters(pdf, f);
         set_font(pdf);
         set_textmatrix(pdf, pos);
         begin_chararray(pdf);

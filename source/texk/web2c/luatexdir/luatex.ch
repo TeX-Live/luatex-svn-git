@@ -874,7 +874,6 @@ begin @!{|start_here|}
   const_chk (max_strings);
   const_chk (strings_free);
   const_chk (hash_extra);
-  const_chk (obj_tab_size);
   const_chk (pk_dpi);
   if error_line > ssup_error_line then error_line := ssup_error_line;
 
@@ -895,8 +894,6 @@ begin @!{|start_here|}
   dvi_buf:=xmallocarray (eight_bits, dvi_buf_size);
   initialize_ocplist_arrays(ocp_list_size);
   initialize_ocp_buffers(ocp_buf_size, ocp_stack_size);
-  obj_tab:=xmallocarray (obj_entry, inf_obj_tab_size); {will grow dynamically}
-  set_obj_offset(0,0);
   init_dest_names;
 @+Init
   fixmem:=xmallocarray (smemory_word, fix_mem_init+1);

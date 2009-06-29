@@ -220,7 +220,7 @@ void pdf_hlist_out(PDF pdf)
     for (i = 1; i <= pdf_link_stack_ptr; i++) {
         assert(is_running(pdf_width(pdf_link_stack[i].link_node)));
         if (pdf_link_stack[i].nesting_level == cur_s)
-            append_link(this_box, left_edge, base_line, i);
+            append_link(pdf, this_box, left_edge, base_line, i);
     }
 
     /* Start hlist {\sl Sync\TeX} information record */
@@ -361,9 +361,9 @@ void pdf_hlist_out(PDF pdf)
                     do_late_lua(pdf, p);
                     break;
                 case pdf_refobj_node:
-                    if (!is_obj_scheduled(pdf_obj_objnum(p))) {
+                    if (!is_obj_scheduled(pdf ,pdf_obj_objnum(p))) {
                         pdf_append_list(pdf_obj_objnum(p), pdf_obj_list);
-                        set_obj_scheduled(pdf_obj_objnum(p));
+                        set_obj_scheduled(pdf, pdf_obj_objnum(p));
                     }
                     break;
                 case pdf_refxform_node:
@@ -422,16 +422,16 @@ void pdf_hlist_out(PDF pdf)
                     cur.h = edge;
                     break;
                 case pdf_annot_node:
-                    do_annot(p, this_box, left_edge, base_line);
+                    do_annot(pdf, p, this_box, left_edge, base_line);
                     break;
                 case pdf_start_link_node:
-                    do_link(p, this_box, left_edge, base_line);
+                    do_link(pdf, p, this_box, left_edge, base_line);
                     break;
                 case pdf_end_link_node:
                     end_link();
                     break;
                 case pdf_dest_node:
-                    do_dest(p, this_box, left_edge, base_line);
+                    do_dest(pdf, p, this_box, left_edge, base_line);
                     break;
                 case pdf_thread_node:
                     do_thread(pdf, p, this_box, left_edge, base_line);
@@ -873,9 +873,9 @@ void pdf_vlist_out(PDF pdf)
                     do_late_lua(pdf, p);
                     break;
                 case pdf_refobj_node:
-                    if (!is_obj_scheduled(pdf_obj_objnum(p))) {
+                    if (!is_obj_scheduled(pdf, pdf_obj_objnum(p))) {
                         pdf_append_list(pdf_obj_objnum(p), pdf_obj_list);
-                        set_obj_scheduled(pdf_obj_objnum(p));
+                        set_obj_scheduled(pdf, pdf_obj_objnum(p));
                     }
                     break;
                 case pdf_refxform_node:
@@ -932,7 +932,7 @@ void pdf_vlist_out(PDF pdf)
                     cur.v = cur.v + pdf_height(p) + pdf_depth(p);
                     break;
                 case pdf_annot_node:
-                    do_annot(p, this_box, left_edge,
+                    do_annot(pdf, p, this_box, left_edge,
                              top_edge + height(this_box));
                     break;
                 case pdf_start_link_node:
@@ -945,7 +945,7 @@ void pdf_vlist_out(PDF pdf)
                               maketexstring("\\pdfendlink ended up in vlist"));
                     break;
                 case pdf_dest_node:
-                    do_dest(p, this_box, left_edge,
+                    do_dest(pdf, p, this_box, left_edge,
                             top_edge + height(this_box));
                     break;
                 case pdf_thread_node:

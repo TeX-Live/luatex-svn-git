@@ -63,10 +63,7 @@ extern "C" {
     extern integer pdf_box_spec_trim;
     extern integer pdf_box_spec_art;
 
-    extern longinteger pdf_stream_length;
     extern integer pool_ptr;
-    extern integer pdf_os_mode;
-    extern integer pdf_last_byte;
 
     extern char notdef[];
 
@@ -74,7 +71,7 @@ extern "C" {
     extern struct fm_entry *lookup_fontmap(char *);
     extern integer get_fontfile(struct fm_entry *);
     extern integer get_fontname(struct fm_entry *);
-    extern integer pdf_new_objnum(void);
+    extern integer pdf_new_objnum(PDF);
     extern void read_pdf_info(PDF, image_dict *, integer, integer);
     extern void embed_whole_font(struct fd_entry *);
     extern void epdf_check_mem(void);
@@ -104,7 +101,7 @@ extern "C" {
 
 /* epdf.c */
     extern void epdf_mark_glyphs(struct fd_entry *, char *);
-    extern struct fd_entry *epdf_create_fontdescriptor(struct fm_entry *, int);
+    extern struct fd_entry *epdf_create_fontdescriptor(struct fm_entry *, int, int);
     extern int get_fd_objnum(struct fd_entry *);
     extern int get_fn_objnum(struct fd_entry *);
 
@@ -117,8 +114,4 @@ extern "C" {
 
 /* config.c */
     extern integer cfgpar(integer);
-
-/* avlstuff.c */
-    extern void avl_put_obj(integer, integer);
-    extern integer avl_find_obj(integer, integer, integer);
 }

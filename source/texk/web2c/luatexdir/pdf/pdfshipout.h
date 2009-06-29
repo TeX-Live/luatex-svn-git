@@ -37,4 +37,6 @@ extern void finish_pdf_file(PDF pdf, integer maj, str_number min);
 
 extern boolean str_less_str(str_number s1, str_number s2);
 
+extern void scan_pdfcatalog (PDF pdf) ;
+
 #endif

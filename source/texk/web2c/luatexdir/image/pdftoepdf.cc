@@ -231,30 +231,30 @@ static void initDictFromDict(PdfObject & obj, Dict * dict)
     }
 }
 
-static int addEncoding(GfxFont * gfont)
+static int addEncoding(GfxFont * gfont, int obj_num)
 {
     UsedEncoding *n;
     n = new UsedEncoding;
     n->next = encodingList;
     encodingList = n;
     n->font = gfont;
-    n->enc_objnum = pdf_new_objnum();
+    n->enc_objnum = obj_num;
     return n->enc_objnum;
 }
 
 #define addFont(ref, fd, enc_objnum) \
-        addInObj(objFont, ref, fd, enc_objnum)
+    addInObj(pdf,objFont, ref, fd, enc_objnum)
 
 // addFontDesc is only used to avoid writing the original FontDescriptor
 // from the PDF file.
 
 #define addFontDesc(ref, fd) \
-        addInObj(objFontDesc, ref, fd, 0)
+    addInObj(pdf, objFontDesc, ref, fd, 0)
 
 #define addOther(ref) \
-        addInObj(objOther, ref, NULL, 0)
+    addInObj(pdf, objOther, ref, NULL, 0)
 
-static int addInObj(InObjType type, Ref ref, fd_entry * fd, integer e)
+static int addInObj(PDF pdf, InObjType type, Ref ref, fd_entry * fd, integer e)
 {
     InObj *p, *q, *n = new InObj;
     if (ref.num == 0)
@@ -283,7 +283,7 @@ static int addInObj(InObjType type, Ref ref, fd_entry * fd, integer e)
     if (type == objFontDesc)
         n->num = get_fd_objnum(fd);
     else
-        n->num = pdf_new_objnum();
+        n->num = pdf_new_objnum(pdf);
     return n->num;
 }
 
@@ -366,7 +366,7 @@ static void copyStream(PDF pdf, Stream * str)
     str->reset();
     while ((c = str->getChar()) != EOF) {
         pdf_out(pdf, c);
-        pdf_last_byte = c;
+        pdf->last_byte = c;
     }
 }
 
@@ -426,7 +426,7 @@ static void copyFont(PDF pdf, char *tag, Object * fontRef)
         && (fontmap = lookup_fontmap(basefont->getName())) != NULL) {
         // copy the value of /StemV
         fontdesc->dictLookup("StemV", &stemV);
-        fd = epdf_create_fontdescriptor(fontmap, stemV->getInt());
+        fd = epdf_create_fontdescriptor(fontmap, stemV->getInt(), pdf_new_objnum(pdf));
         if (fontdesc->dictLookup("CharSet", &charset) &&
             charset->isString() && is_subsetable(fontmap))
             epdf_mark_glyphs(fd, charset->getString()->getCString());
@@ -437,7 +437,7 @@ static void copyFont(PDF pdf, char *tag, Object * fontRef)
         gfont = GfxFont::makeFont(xref, tag, fontRef->getRef(),
                                   fontdict->getDict());
         pdf_printf(pdf, " %d 0 R ", addFont(fontRef->getRef(), fd,
-                                            addEncoding(gfont)));
+                                            addEncoding(gfont, pdf_new_objnum(pdf))));
     } else {
         copyName(pdf, tag);
         pdf_puts(pdf, " ");
@@ -601,7 +601,7 @@ static void copyObject(PDF pdf, Object * obj)
         pdf_puts(pdf, ">>\n");
         pdf_puts(pdf, "stream\n");
         copyStream(pdf, obj->getStream()->getUndecodedStream());
-        if (pdf_last_byte != '\n')
+        if (pdf->last_byte != '\n')
             pdf_puts(pdf, "\n");
         pdf_puts(pdf, "endstream");     // can't simply write pdf_end_stream()
     } else if (obj->isRef()) {
@@ -816,7 +816,7 @@ read_pdf_info(PDF pdf,
             } else {
                 // make the group an indirect object; copying is done later
                 // by write_additional_epdf_objects after write_epdf
-                epdf_lastGroupObjectNum = pdf_new_objnum();
+                epdf_lastGroupObjectNum = pdf_new_objnum(pdf);
             }
             pdf_puts(pdf, "\n");
         }

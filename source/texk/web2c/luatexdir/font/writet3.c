@@ -187,7 +187,7 @@ static boolean writepk(PDF pdf, internal_font_number f)
         update_bbox(llx, lly, urx, ury, t3_glyph_num == 0);
         t3_glyph_num++;
         pdf_new_dict(pdf, 0, 0, 0);
-        t3_char_procs[cd.charcode] = obj_ptr;
+        t3_char_procs[cd.charcode] = pdf->obj_ptr;
         pdf_begin_stream(pdf);
         pdf_print_real(pdf, t3_char_widths[cd.charcode], 2);
         pdf_printf(pdf, " 0 %i %i %i %i d1\n",
@@ -283,9 +283,9 @@ void writet3(PDF pdf, int objnum, internalfontnumber f)
     pdf_printf(pdf, "/Resources << /ProcSet [ /PDF %s] >>\n",
                t3_image_used ? "/ImageB " : "");
     pdf_printf(pdf, "/FirstChar %i\n/LastChar %i\n", first_char, last_char);
-    wptr = pdf_new_objnum();
-    eptr = pdf_new_objnum();
-    cptr = pdf_new_objnum();
+    wptr = pdf_new_objnum(pdf);
+    eptr = pdf_new_objnum(pdf);
+    cptr = pdf_new_objnum(pdf);
     pdf_printf(pdf, "/Widths %i 0 R\n/Encoding %i 0 R\n/CharProcs %i 0 R\n",
                (int) wptr, (int) eptr, (int) cptr);
     pdf_end_dict(pdf);

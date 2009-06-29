@@ -72,7 +72,7 @@ static int comp_divert_list_entry(const void *pa, const void *pb, void *p)
     return 0;
 }
 
-static pages_entry *new_pages_entry(void)
+static pages_entry *new_pages_entry(PDF pdf)
 {
     pages_entry *p;
     int i;
@@ -81,8 +81,8 @@ static pages_entry *new_pages_entry(void)
     for (i = 0; i < PAGES_TREE_KIDSMAX; i++)
         p->kids[i] = 0;
     p->next = NULL;
-    pdf_create_obj(0, 0);
-    p->objnum = obj_ptr;
+    pdf_create_obj(pdf, 0, 0);
+    p->objnum = pdf->obj_ptr;
     return p;
 }
 
@@ -120,7 +120,7 @@ static divert_list_entry *get_divert_list(integer divnum)
 
 /* pdf_do_page_divert() returns the current /Parent object number */
 
-integer pdf_do_page_divert(integer objnum, integer divnum)
+integer pdf_do_page_divert(PDF pdf, integer objnum, integer divnum)
 {
     divert_list_entry *d;
     pages_entry *p;
@@ -135,7 +135,7 @@ integer pdf_do_page_divert(integer objnum, integer divnum)
     d = get_divert_list(divnum);
     if (d->first == NULL || d->last->number_of_kids == PAGES_TREE_KIDSMAX) {
         // append a new pages_entry
-        p = new_pages_entry();
+        p = new_pages_entry(pdf);
         if (d->first == NULL)
             d->first = p;
         else
@@ -247,10 +247,10 @@ static integer output_pages_list(PDF pdf, pages_entry * pe)
         write_pages(pdf, pe, 0);        /* --> /Pages root found */
         return pe->objnum;
     }
-    q = r = new_pages_entry();  /* one level higher needed */
+    q = r = new_pages_entry(pdf);  /* one level higher needed */
     for (p = pe; p != NULL; p = p->next) {
         if (q->number_of_kids == PAGES_TREE_KIDSMAX) {
-            q->next = new_pages_entry();
+            q->next = new_pages_entry(pdf);
             q = q->next;
         }
         q->kids[q->number_of_kids++] = p->objnum;

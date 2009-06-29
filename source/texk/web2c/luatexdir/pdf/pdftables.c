@@ -25,69 +25,174 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
-/* Here is the first block of globals */
-
-integer obj_tab_size = inf_obj_tab_size;        /* allocated size of |obj_tab| array */
-obj_entry *obj_tab;
-integer head_tab[(head_tab_max + 1)];   /* all zeroes */
-integer pages_tail;
-integer obj_ptr = 0;            /* user objects counter */
-integer sys_obj_ptr = 0;        /* system objects counter, including object streams */
-integer pdf_last_pages;         /* pointer to most recently generated pages object */
-integer pdf_last_page;          /* pointer to most recently generated page object */
-integer pdf_last_stream;        /* pointer to most recently generated stream */
-longinteger pdf_stream_length;  /* length of most recently generated stream */
-longinteger pdf_stream_length_offset;   /* file offset of the last stream length */
-boolean pdf_seek_write_length = false;  /* flag whether to seek back and write \.{/Length} */
-integer pdf_last_byte;          /* byte most recently written to PDF file; for \.{endstream} in new line */
-integer ff;                     /* for use with |set_ff| */
 integer pdf_box_spec_media = 1;
 integer pdf_box_spec_crop = 2;
 integer pdf_box_spec_bleed = 3;
 integer pdf_box_spec_trim = 4;
 integer pdf_box_spec_art = 5;
 
+/* these come from avlstuff.c */
+
+static struct avl_table **PdfObjTree = NULL;
+
+/**********************************************************************/
+/* One AVL tree for each obj_type 0...pdf_objtype_max */
+
+typedef struct oentry_ {
+    integer int0;
+    integer objptr;
+} oentry;
+
+/* AVL sort oentry into avl_table[] */
+
+static int compare_info(const void *pa, const void *pb, void *param)
+{
+    integer a, b;
+    int as, ae, bs, be, al, bl;
+    (void) param;
+    a = ((const oentry *) pa)->int0;
+    b = ((const oentry *) pb)->int0;
+    if (a < 0 && b < 0) {       /* string comparison */
+        if (a <= 2097152 && b <= 2097152) {
+            a += 2097152;
+            b += 2097152;
+            as = str_start[-a];
+            ae = str_start[-a + 1];     /* start of next string in pool */
+            bs = str_start[-b];
+            be = str_start[-b + 1];
+            al = ae - as;
+            bl = be - bs;
+            if (al < bl)        /* compare first by string length */
+                return -1;
+            if (al > bl)
+                return 1;
+            for (; as < ae; as++, bs++) {
+                if (str_pool[as] < str_pool[bs])
+                    return -1;
+                if (str_pool[as] > str_pool[bs])
+                    return 1;
+            }
+        } else {
+            pdftex_fail
+                ("avlstuff.c: compare_items() for single characters: NI");
+        }
+    } else {                    /* integer comparison */
+        if (a < b)
+            return -1;
+        if (a > b)
+            return 1;
+    }
+    return 0;
+}
+
+/**********************************************************************/
+/* cleaning up... */
+
+static void destroy_oentry(void *pa, void *pb)
+{
+    oentry *p = (oentry *) pa;
+    (void) pb;
+    xfree(p);
+}
+
+void PdfObjTree_free(PDF pdf)
+{
+    int i;
+    (void)pdf;
+    if (PdfObjTree == NULL)
+        return;
+    for (i = 0; i <= pdf_objtype_max; i++) {
+        if (PdfObjTree[i] != NULL)
+            avl_destroy(PdfObjTree[i], destroy_oentry);
+    }
+    xfree(PdfObjTree);
+    PdfObjTree = NULL;
+}
+
+void avl_put_obj(PDF pdf, integer objptr, integer t)
+{
+    static void **pp;
+    static oentry *oe;
+    int i;
+
+    if (PdfObjTree == NULL) {
+        PdfObjTree = xtalloc(pdf_objtype_max + 1, struct avl_table *);
+        for (i = 0; i <= pdf_objtype_max; i++)
+            PdfObjTree[i] = NULL;
+    }
+    if (PdfObjTree[t] == NULL) {
+        PdfObjTree[t] = avl_create(compare_info, NULL, &avl_xallocator);
+        if (PdfObjTree[t] == NULL)
+            pdftex_fail("avlstuff.c: avl_create() PdfObjTree failed");
+    }
+    oe = xtalloc(1, oentry);
+    oe->int0 = obj_info(pdf, objptr);
+    oe->objptr = objptr;        /* allows to relocate obj_tab */
+    pp = avl_probe(PdfObjTree[t], oe);
+    if (pp == NULL)
+        pdftex_fail("avlstuff.c: avl_probe() out of memory in insertion");
+}
+
+/* replacement for linear search pascal function "find_obj()" */
+
+integer avl_find_obj(PDF pdf, integer t, integer i, integer byname)
+{
+    static oentry *p;
+    static oentry tmp;
+
+    if (byname > 0)
+        tmp.int0 = -i;
+    else
+        tmp.int0 = i;
+    if (PdfObjTree == NULL || PdfObjTree[t] == NULL)
+        return 0;
+    p = (oentry *) avl_find(PdfObjTree[t], &tmp);
+    if (p == NULL)
+        return 0;
+    return p->objptr;
+}
+
 /* create an object with type |t| and identifier |i| */
-void pdf_create_obj(integer t, integer i)
+void pdf_create_obj(PDF pdf, integer t, integer i)
 {
     integer a, p, q;
-    if (sys_obj_ptr == sup_obj_tab_size)
-        overflow("indirect objects table size", obj_tab_size);
-    if (sys_obj_ptr == obj_tab_size) {
-        a = 0.2 * obj_tab_size;
-        if (obj_tab_size < sup_obj_tab_size - a)
-            obj_tab_size = obj_tab_size + a;
+    if (pdf->sys_obj_ptr == sup_obj_tab_size)
+        overflow("indirect objects table size", pdf->obj_tab_size);
+    if (pdf->sys_obj_ptr == pdf->obj_tab_size) {
+        a = 0.2 * pdf->obj_tab_size;
+        if (pdf->obj_tab_size < sup_obj_tab_size - a)
+            pdf->obj_tab_size = pdf->obj_tab_size + a;
         else
-            obj_tab_size = sup_obj_tab_size;
-        obj_tab = xreallocarray(obj_tab, obj_entry, obj_tab_size);
+            pdf->obj_tab_size = sup_obj_tab_size;
+        pdf->obj_tab = xreallocarray(pdf->obj_tab, obj_entry, pdf->obj_tab_size);
     }
-    incr(sys_obj_ptr);
-    obj_ptr = sys_obj_ptr;
-    obj_info(obj_ptr) = i;
-    set_obj_fresh(obj_ptr);
-    obj_aux(obj_ptr) = 0;
-    avl_put_obj(obj_ptr, t);
+    incr(pdf->sys_obj_ptr);
+    pdf->obj_ptr = pdf->sys_obj_ptr;
+    obj_info(pdf, pdf->obj_ptr) = i;
+    set_obj_fresh(pdf, pdf->obj_ptr);
+    obj_aux(pdf, pdf->obj_ptr) = 0;
+    avl_put_obj(pdf, pdf->obj_ptr, t);
     if (t == obj_type_page) {
-        p = head_tab[t];
+        p = pdf->head_tab[t];
         /* find the right position to insert newly created object */
-        if ((p == 0) || (obj_info(p) < i)) {
-            obj_link(obj_ptr) = p;
-            head_tab[t] = obj_ptr;
+        if ((p == 0) || (obj_info(pdf, p) < i)) {
+            obj_link(pdf, pdf->obj_ptr) = p;
+            pdf->head_tab[t] = pdf->obj_ptr;
         } else {
             while (p != 0) {
-                if (obj_info(p) < i)
+                if (obj_info(pdf, p) < i)
                     break;
                 q = p;
-                p = obj_link(p);
+                p = obj_link(pdf, p);
             }
-            obj_link(q) = obj_ptr;
-            obj_link(obj_ptr) = p;
+            obj_link(pdf, q) = pdf->obj_ptr;
+            obj_link(pdf, pdf->obj_ptr) = p;
         }
     } else if (t != obj_type_others) {
-        obj_link(obj_ptr) = head_tab[t];
-        head_tab[t] = obj_ptr;
+        obj_link(pdf, pdf->obj_ptr) = pdf->head_tab[t];
+        pdf->head_tab[t] = pdf->obj_ptr;
         if ((t == obj_type_dest) && (i < 0))
-            append_dest_name(-obj_info(obj_ptr), obj_ptr);
+            append_dest_name(-obj_info(pdf, pdf->obj_ptr), pdf->obj_ptr);
     }
 }
 
@@ -100,33 +205,33 @@ void pdf_create_obj(integer t, integer i)
    |pdf_vlist_out|.
 */
 
-integer find_obj(integer t, integer i, boolean byname)
+integer find_obj(PDF pdf, integer t, integer i, boolean byname)
 {
-    return avl_find_obj(t, i, byname);
+    return avl_find_obj(pdf, t, i, byname);
 }
 
 
-integer get_obj(integer t, integer i, boolean byname)
+integer get_obj(PDF pdf, integer t, integer i, boolean byname)
 {
     integer r;
     str_number s;
     if (byname > 0) {
         s = tokens_to_string(i);
-        r = find_obj(t, s, true);
+        r = find_obj(pdf, t, s, true);
     } else {
         s = 0;
-        r = find_obj(t, i, false);
+        r = find_obj(pdf ,t, i, false);
     }
     if (r == 0) {
         if (byname > 0) {
-            pdf_create_obj(t, -s);
+            pdf_create_obj(pdf, t, -s);
             s = 0;
         } else {
-            pdf_create_obj(t, i);
+            pdf_create_obj(pdf, t, i);
         }
-        r = obj_ptr;
+        r = pdf->obj_ptr;
         if (t == obj_type_dest)
-            set_obj_dest_ptr(r, null);
+            set_obj_dest_ptr(pdf, r, null);
     }
     if (s != 0)
         flush_str(s);
@@ -134,10 +239,10 @@ integer get_obj(integer t, integer i, boolean byname)
 }
 
 /* create a new object and return its number */
-integer pdf_new_objnum(void)
+integer pdf_new_objnum(PDF pdf)
 {
-    pdf_create_obj(obj_type_others, 0);
-    return obj_ptr;
+    pdf_create_obj(pdf, obj_type_others, 0);
+    return pdf->obj_ptr;
 }
 
 /* TODO: it is fairly horrible that this uses token memory */
@@ -271,24 +376,24 @@ void dump_pdftex_data(PDF pdf)
     print_ln();
     print_int(pdf->mem_ptr - 1);
     tprint(" words of pdf memory");
-    dump_int(obj_tab_size);
-    dump_int(obj_ptr);
-    dump_int(sys_obj_ptr);
-    for (k = 1; k <= sys_obj_ptr; k++) {
-        dump_int(obj_info(k));
-        dump_int(obj_link(k));
-        dump_int(obj_os_idx(k));
-        dump_int(obj_aux(k));
+    x = pdf->obj_tab_size; dump_int(x);
+    x = pdf->obj_ptr; dump_int(x);
+    x = pdf->sys_obj_ptr; dump_int(x);
+    for (k = 1; k <= pdf->sys_obj_ptr; k++) {
+        x = obj_info(pdf, k); dump_int(x);
+        x = obj_link(pdf, k); dump_int(x);
+        x = obj_os_idx(pdf, k); dump_int(x);
+        x = obj_aux(pdf,k); dump_int(x);
     }
     print_ln();
-    print_int(sys_obj_ptr);
+    print_int(pdf->sys_obj_ptr);
     tprint(" indirect objects");
     dump_int(pdf_obj_count);
     dump_int(pdf_xform_count);
     dump_int(pdf_ximage_count);
-    dump_int(head_tab[obj_type_obj]);
-    dump_int(head_tab[obj_type_xform]);
-    dump_int(head_tab[obj_type_ximage]);
+    x = pdf->head_tab[obj_type_obj]; dump_int(x);
+    x = pdf->head_tab[obj_type_xform]; dump_int(x);
+    x = pdf->head_tab[obj_type_ximage]; dump_int(x);
     dump_int(pdf_last_obj);
     dump_int(pdf_last_xform);
     dump_int(pdf_last_ximage);
@@ -311,22 +416,22 @@ void undump_pdftex_data(PDF pdf)
         undump_int(x);
         pdf->mem[k] = (int) x;
     }
-    undump_int(obj_tab_size);
-    undump_int(obj_ptr);
-    undump_int(sys_obj_ptr);
-    for (k = 1; k <= sys_obj_ptr; k++) {
-        undump_int(obj_info(k));
-        undump_int(obj_link(k));
-        set_obj_offset(k, -1);
-        undump_int(obj_os_idx(k));
-        undump_int(obj_aux(k));
+    undump_int(x); pdf->obj_tab_size = x;
+    undump_int(x); pdf->obj_ptr = x;
+    undump_int(x); pdf->sys_obj_ptr = x;
+    for (k = 1; k <= pdf->sys_obj_ptr; k++) {
+        undump_int(x); obj_info(pdf, k) = x;
+        undump_int(x); obj_link(pdf,k) = x;
+        set_obj_offset(pdf, k, -1);
+        undump_int(x); obj_os_idx(pdf, k) = x;
+        undump_int(x); obj_aux(pdf,k) = x;
     }
     undump_int(pdf_obj_count);
     undump_int(pdf_xform_count);
     undump_int(pdf_ximage_count);
-    undump_int(head_tab[obj_type_obj]);
-    undump_int(head_tab[obj_type_xform]);
-    undump_int(head_tab[obj_type_ximage]);
+    undump_int(x); pdf->head_tab[obj_type_obj] = x;
+    undump_int(x); pdf->head_tab[obj_type_xform] = x;
+    undump_int(x); pdf->head_tab[obj_type_ximage] = x;
     undump_int(pdf_last_obj);
     undump_int(pdf_last_xform);
     undump_int(pdf_last_ximage);

@@ -163,7 +163,7 @@ fd_entry *lookup_fd_entry(char *, integer, integer);
 fd_entry *new_fd_entry(void);
 void write_fontstuff(PDF);
 integer get_fd_objnum(fd_entry * fd);
-integer get_fn_objnum(fd_entry * fd);
+integer get_fn_objnum(PDF, fd_entry *);
 void embed_whole_font(fd_entry * fd);
 void register_fd_entry(fd_entry * fd);
 

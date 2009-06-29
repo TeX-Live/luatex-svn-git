@@ -287,10 +287,10 @@ integer get_fd_objnum(fd_entry * fd)
     return fd->fd_objnum;
 }
 
-integer get_fn_objnum(fd_entry * fd)
+integer get_fn_objnum(PDF pdf, fd_entry * fd)
 {
     if (fd->fn_objnum == 0)
-        fd->fn_objnum = pdf_new_objnum();
+        fd->fn_objnum = pdf_new_objnum(pdf);
     return fd->fn_objnum;
 }
 
@@ -395,7 +395,7 @@ static void write_charwidth_array(PDF pdf, fo_entry * fo, internalfontnumber f)
     struct avl_traverser t;
     assert(fo->tx_tree != NULL);
     assert(fo->cw_objnum == 0);
-    fo->cw_objnum = pdf_new_objnum();
+    fo->cw_objnum = pdf_new_objnum(pdf);
     pdf_begin_obj(pdf, fo->cw_objnum, 1);
     avl_t_init(&t, fo->tx_tree);
     fip = (int *) avl_t_first(&t, fo->tx_tree);
@@ -478,7 +478,7 @@ static void write_fontfile(PDF pdf, fd_entry * fd)
     if (!fd->ff_found)
         return;
     assert(fd->ff_objnum == 0);
-    fd->ff_objnum = pdf_new_objnum();
+    fd->ff_objnum = pdf_new_objnum(pdf);
     pdf_begin_dict(pdf, fd->ff_objnum, 0);      /* font file stream */
     if (is_cidkeyed(fd->fm)) {
         /* No subtype is used for TrueType-based OpenType fonts */
@@ -536,7 +536,7 @@ static void write_fontdescriptor(PDF pdf, fd_entry * fd)
     if (fd->fn_objnum != 0)
         write_fontname_object(pdf, fd);
     if (fd->fd_objnum == 0)
-        fd->fd_objnum = pdf_new_objnum();
+        fd->fd_objnum = pdf_new_objnum(pdf);
     pdf_begin_dict(pdf, fd->fd_objnum, 1);
     pdf_puts(pdf, "/Type /FontDescriptor\n");
     write_fontname(pdf, fd, "FontName");
@@ -703,7 +703,7 @@ void create_fontdictionary(PDF pdf, fm_entry * fm, integer font_objnum,
         fo->fe = get_fe_entry(fo->fm->encname); /* returns NULL if .enc file couldn't be opened */
         if (fo->fe != NULL && (is_type1(fo->fm) || is_opentype(fo->fm))) {
             if (fo->fe->fe_objnum == 0)
-                fo->fe->fe_objnum = pdf_new_objnum();   /* then it will be written out */
+                fo->fe->fe_objnum = pdf_new_objnum(pdf);   /* then it will be written out */
             /* mark encoding pairs used by TeX to optimize encoding vector */
             fo->fe->tx_tree = mark_chars(fo, fo->fe->tx_tree, f);
         }
@@ -918,7 +918,7 @@ static void write_cid_charwidth_array(PDF pdf, fo_entry * fo)
     struct avl_traverser t;
 
     assert(fo->cw_objnum == 0);
-    fo->cw_objnum = pdf_new_objnum();
+    fo->cw_objnum = pdf_new_objnum(pdf);
     pdf_begin_obj(pdf, fo->cw_objnum, 1);
     avl_t_init(&t, fo->fd->gl_tree);
     glyph = (glw_entry *) avl_t_first(&t, fo->fd->gl_tree);
@@ -990,7 +990,7 @@ void write_cid_fontdictionary(PDF pdf, fo_entry * fo, internalfontnumber f)
     pdf_puts(pdf, "/Subtype /Type0\n");
     pdf_puts(pdf, "/Encoding /Identity-H\n");
     write_fontname(pdf, fo->fd, "BaseFont");
-    i = pdf_new_objnum();
+    i = pdf_new_objnum(pdf);
     pdf_printf(pdf, "/DescendantFonts [%i 0 R]\n", i);
     /* todo: the ToUnicode CMap */
     if (fo->tounicode_objnum != 0)

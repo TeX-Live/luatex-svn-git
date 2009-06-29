@@ -44,7 +44,7 @@ extern void read_expand_font(void);
 extern void new_letterspaced_font(small_number a);
 extern void make_font_copy(small_number a);
 
-extern void pdf_include_chars(void);
+extern void pdf_include_chars(PDF);
 extern void glyph_to_unicode(void);
 
 #endif

@@ -19,26 +19,28 @@
 
 #include "ptexlib.h"
 
+#include "commands.h"
+
 static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
 halfword pdf_annot_list;        /* list of annotations in the current page */
 
-void do_annot(halfword p, halfword parent_box, scaled x, scaled y)
+void do_annot(PDF pdf, halfword p, halfword parent_box, scaled x, scaled y)
 {
     if (!is_shipping_page)
         pdf_error(maketexstring("ext4"),
                   maketexstring("annotations cannot be inside an XForm"));
     if (doing_leaders)
         return;
-    if (is_obj_scheduled(pdf_annot_objnum(p)))
-        pdf_annot_objnum(p) = pdf_new_objnum();
+    if (is_obj_scheduled(pdf, pdf_annot_objnum(p)))
+        pdf_annot_objnum(p) = pdf_new_objnum(pdf);
     set_rect_dimens(p, parent_box, x, y,
                     pdf_width(p), pdf_height(p), pdf_depth(p), 0);
-    obj_annot_ptr(pdf_annot_objnum(p)) = p;
+    obj_annot_ptr(pdf, pdf_annot_objnum(p)) = p;
     pdf_append_list(pdf_annot_objnum(p), pdf_annot_list);
-    set_obj_scheduled(pdf_annot_objnum(p));
+    set_obj_scheduled(pdf,pdf_annot_objnum(p));
 }
 
 /* create a new whatsit node for annotation */
@@ -57,5 +59,30 @@ void new_annot_whatsit(small_number w)
         } else {
             set_pdf_thread_attr(cur_list.tail_field, null);
         }
+    }
+}
+
+void scan_annot(PDF pdf)
+{
+    integer k;
+    if (scan_keyword("reserveobjnum")) {
+        pdf_last_annot = pdf_new_objnum(pdf);
+        /* Scan an optional space */
+        get_x_token(); if (cur_cmd!=spacer_cmd) back_input();
+    } else {
+        if (scan_keyword("useobjnum")) {
+            scan_int();
+            k= cur_val;
+            if ((k <= 0) || (k > pdf->obj_ptr) || (obj_annot_ptr(pdf, k) != 0))
+                pdf_error(maketexstring("ext1"), 
+                          maketexstring("invalid object number"));
+        } else {
+            k = pdf_new_objnum(pdf);
+        }
+        new_annot_whatsit(pdf_annot_node);
+        set_pdf_annot_objnum(cur_list.tail_field, k);
+        scan_pdf_ext_toks();
+        set_pdf_annot_data(cur_list.tail_field,def_ref);
+        pdf_last_annot = k;
     }
 }

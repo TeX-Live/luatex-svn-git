@@ -36,6 +36,9 @@ static const char __svn_version[] =
 
 PDF static_pdf = NULL;
 
+
+integer ff;                     /* for use with |set_ff| */
+
 static char *jobname_cstr = NULL;
 
 integer fixed_pdfoutput;        /* fixed output format */
@@ -70,6 +73,10 @@ PDF initialize_pdf(void)
     pdf->mem_ptr = 1;           /* the first word is not used so we can use zero as a value for testing
                                    whether a pointer to |mem| is valid  */
     pdf->pstruct = NULL;
+
+    pdf->obj_tab_size = inf_obj_tab_size;        /* allocated size of |obj_tab| array */
+    pdf->obj_tab = xmalloc(pdf->obj_tab_size * sizeof(obj_entry));
+    set_obj_offset(pdf,0,0);
 
     return pdf;
 }
@@ -253,7 +260,7 @@ void pdf_flush(PDF pdf)
                 if (pdf->draftmode == 0)
                     write_pdf(pdf, 0, pdf->ptr - 1);
                 pdf->gone += pdf->ptr;
-                pdf_last_byte = pdf->buf[pdf->ptr - 1];
+                pdf->last_byte = pdf->buf[pdf->ptr - 1];
             }
             break;
         case zip_writing:
@@ -304,21 +311,21 @@ void pdf_os_prepare_obj(PDF pdf, integer i, integer pdf_os_level)
                         && (pdf->objcompresslevel >= pdf_os_level)));
     if (pdf->os_mode) {
         if (pdf->os_cur_objnum == 0) {
-            pdf->os_cur_objnum = pdf_new_objnum();
-            decr(obj_ptr);      /* object stream is not accessible to user */
+            pdf->os_cur_objnum = pdf_new_objnum(pdf);
+            decr(pdf->obj_ptr);      /* object stream is not accessible to user */
             incr(pdf->os_cntr); /* only for statistics */
             pdf->os_idx = 0;
             pdf->ptr = 0;       /* start fresh object stream */
         } else {
             incr(pdf->os_idx);
         }
-        obj_os_idx(i) = pdf->os_idx;
-        obj_offset(i) = pdf->os_cur_objnum;
+        obj_os_idx(pdf,i) = pdf->os_idx;
+        obj_offset(pdf,i) = pdf->os_cur_objnum;
         pdf->os_obj[pdf->os_idx].num = i;
         pdf->os_obj[pdf->os_idx].off = pdf->ptr;
     } else {
-        obj_offset(i) = pdf_offset(pdf);
-        obj_os_idx(i) = -1;     /* mark it as not included in object stream */
+        obj_offset(pdf,i) = pdf_offset(pdf);
+        obj_os_idx(pdf,i) = -1;     /* mark it as not included in object stream */
     }
 }
 
@@ -378,7 +385,7 @@ void pdf_print_char(PDF pdf, internal_font_number f, integer cc)
     pdf_mark_char(f, cc);
     if (font_encodingbytes(f) == 2) {
         char hex[5];
-        snprintf(hex, 5, "%04X", char_index(f, cc));
+        snprintf(hex, 5, "%04X", (unsigned int)char_index(f, cc));
         pdf_room(pdf, 4);
         pdf_quick_out(pdf, hex[0]);
         pdf_quick_out(pdf, hex[1]);
@@ -517,10 +524,10 @@ void pdf_begin_stream(PDF pdf)
 {
     assert(pdf->os_mode == false);
     pdf_printf(pdf, "/Length           \n");
-    pdf_seek_write_length = true;       /* fill in length at |pdf_end_stream| call */
-    pdf_stream_length_offset = pdf_offset(pdf) - 11;
-    pdf_stream_length = 0;
-    pdf_last_byte = 0;
+    pdf->seek_write_length = true;       /* fill in length at |pdf_end_stream| call */
+    pdf->stream_length_offset = pdf_offset(pdf) - 11;
+    pdf->stream_length = 0;
+    pdf->last_byte = 0;
     if (pdf_compress_level > 0) {
         pdf_printf(pdf, "/Filter /FlateDecode\n");
         pdf_printf(pdf, ">>\n");
@@ -540,12 +547,12 @@ void pdf_end_stream(PDF pdf)
     if (pdf->zip_write_state == zip_writing)
         pdf->zip_write_state = zip_finish;
     else
-        pdf_stream_length = pdf_offset(pdf) - pdf_saved_offset(pdf);
+        pdf->stream_length = pdf_offset(pdf) - pdf_saved_offset(pdf);
     pdf_flush(pdf);
-    if (pdf_seek_write_length)
-        write_stream_length(pdf, pdf_stream_length, pdf_stream_length_offset);
-    pdf_seek_write_length = false;
-    if (pdf_last_byte != pdf_new_line_char)
+    if (pdf->seek_write_length)
+        write_stream_length(pdf, pdf->stream_length, pdf->stream_length_offset);
+    pdf->seek_write_length = false;
+    if (pdf->last_byte != pdf_new_line_char)
         pdf_out(pdf, pdf_new_line_char);
     pdf_printf(pdf, "endstream\n");
     pdf_end_obj(pdf);
@@ -666,7 +673,7 @@ indicates that the corresponding font shares the font resource with the font
 */
 
 /* create a font object */
-void pdf_init_font(internal_font_number f)
+void pdf_init_font(PDF pdf, internal_font_number f)
 {
     internal_font_number k, b;
     integer i;
@@ -681,7 +688,7 @@ void pdf_init_font(internal_font_number f)
                       maketexstring
                       ("auto expansion is only possible with scalable fonts"));
         if (!font_used(b))
-            pdf_init_font(b);
+            pdf_init_font(pdf,b);
         set_font_map(f, font_map(b));
     }
     /* check whether |f| can share the font object with some |k|: we have 2 cases
@@ -690,9 +697,9 @@ void pdf_init_font(internal_font_number f)
        expanded from |k|
      */
     if (hasfmentry(f) || true) {
-        i = head_tab[obj_type_font];
+        i = pdf->head_tab[obj_type_font];
         while (i != 0) {
-            k = obj_info(i);
+            k = obj_info(pdf, i);
             if (font_shareable(f, k)) {
                 assert(pdf_font_num(k) != 0);
                 if (pdf_font_num(k) < 0)
@@ -701,22 +708,22 @@ void pdf_init_font(internal_font_number f)
                     pdf_use_font(f, -k);
                 return;
             }
-            i = obj_link(i);
+            i = obj_link(pdf, i);
         }
     }
     /* create a new font object for |f| */
-    pdf_create_obj(obj_type_font, f);
-    pdf_use_font(f, obj_ptr);
+    pdf_create_obj(pdf, obj_type_font, f);
+    pdf_use_font(f, pdf->obj_ptr);
 }
 
 
 /* set the actual font on PDF page */
-internal_font_number pdf_set_font(internal_font_number f)
+internal_font_number pdf_set_font(PDF pdf, internal_font_number f)
 {
     pointer p;
     internal_font_number k;
     if (!font_used(f))
-        pdf_init_font(f);
+        pdf_init_font(pdf, f);
     set_ff(f);                  /* set |ff| to the tfm number of the font sharing the font object
                                    with |f|; |ff| is either |f| or some font with the same tfm name
                                    at different size and/or expansion */
@@ -876,8 +883,8 @@ void pdf_begin_dict(PDF pdf, integer i, integer pdf_os_level)
 /* begin a new PDF dictionary object */
 void pdf_new_dict(PDF pdf, integer t, integer i, integer pdf_os)
 {
-    pdf_create_obj(t, i);
-    pdf_begin_dict(pdf, obj_ptr, pdf_os);
+    pdf_create_obj(pdf, t, i);
+    pdf_begin_dict(pdf, pdf->obj_ptr, pdf_os);
 }
 
 /* end a PDF dictionary object */
@@ -966,8 +973,8 @@ void pdf_begin_obj(PDF pdf, integer i, integer pdf_os_level)
 /* begin a new PDF object */
 void pdf_new_obj(PDF pdf, integer t, integer i, integer pdf_os)
 {
-    pdf_create_obj(t, i);
-    pdf_begin_obj(pdf, obj_ptr, pdf_os);
+    pdf_create_obj(pdf, t, i);
+    pdf_begin_obj(pdf, pdf->obj_ptr, pdf_os);
 }
 
 
@@ -1455,7 +1462,7 @@ void write_zip(PDF pdf, boolean finish)
     int level = pdf_compress_level;
     assert(level > 0);
     cur_file_name = NULL;
-    if (pdf_stream_length == 0) {
+    if (pdf->stream_length == 0) {
         if (zipbuf == NULL) {
             zipbuf = xtalloc(ZIP_BUF_SIZE, char);
             c_stream.zalloc = (alloc_func) 0;
@@ -1482,7 +1489,7 @@ void write_zip(PDF pdf, boolean finish)
     for (;;) {
         if (c_stream.avail_out == 0) {
             pdf->gone += xfwrite(zipbuf, 1, ZIP_BUF_SIZE, pdf->file);
-            pdf_last_byte = zipbuf[ZIP_BUF_SIZE - 1];   /* not needed */
+            pdf->last_byte = zipbuf[ZIP_BUF_SIZE - 1];   /* not needed */
             c_stream.next_out = (Bytef *) zipbuf;
             c_stream.avail_out = ZIP_BUF_SIZE;
         }
@@ -1498,11 +1505,11 @@ void write_zip(PDF pdf, boolean finish)
             pdf->gone +=
                 xfwrite(zipbuf, 1, ZIP_BUF_SIZE - c_stream.avail_out,
                         pdf->file);
-            pdf_last_byte = zipbuf[ZIP_BUF_SIZE - c_stream.avail_out - 1];
+            pdf->last_byte = zipbuf[ZIP_BUF_SIZE - c_stream.avail_out - 1];
         }
         xfflush(pdf->file);
     }
-    pdf_stream_length = c_stream.total_out;
+    pdf->stream_length = c_stream.total_out;
 }
 
 void zip_free(void)

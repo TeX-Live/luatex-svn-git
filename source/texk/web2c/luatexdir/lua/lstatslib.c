@@ -106,6 +106,19 @@ static lua_Number get_pdf_mem_ptr(void)
 }
 
 
+static lua_Number get_obj_ptr(void)
+{
+    if (static_pdf != NULL)
+        return (lua_Number) static_pdf->obj_ptr;
+    return (lua_Number) 0;
+}
+
+static lua_Number get_obj_tab_size(void)
+{
+    if (static_pdf != NULL)
+        return (lua_Number) static_pdf->obj_tab_size;
+    return (lua_Number) 0;
+}
 
 
 extern int luabytecode_max;
@@ -162,8 +175,8 @@ static struct statistic stats[] = {
     {"buf_size", 'g', &buf_size},
     {"save_size", 'g', &save_size},
     /* pdf stats */
-    {"obj_ptr", 'g', &obj_ptr},
-    {"obj_tab_size", 'g', &obj_tab_size},
+    {"obj_ptr", 'N', &get_obj_ptr},
+    {"obj_tab_size", 'N', &get_obj_tab_size},
     {"pdf_os_cntr", 'N', &get_pdf_os_cntr},
     {"pdf_os_objidx", 'N', &get_pdf_os_objidx},
     {"pdf_dest_names_ptr", 'g', &pdf_dest_names_ptr},

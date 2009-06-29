@@ -6872,7 +6872,7 @@ pdf_font_name_code, pdf_font_objnum_code, pdf_font_size_code: begin
     if c <> pdf_font_size_code then begin
         pdf_check_vf(cur_val);
         if not font_used(cur_val) then
-            pdf_init_font(cur_val);
+            pdf_init_font(static_pdf, cur_val);
     end;
 end;
 pdf_page_ref_code: begin
@@ -6887,7 +6887,7 @@ left_margin_kern_code, right_margin_kern_code: begin
 end;
 pdf_xform_name_code: begin
     scan_int;
-    pdf_check_obj(obj_type_xform, cur_val);
+    pdf_check_obj(static_pdf,obj_type_xform, cur_val);
 end;
 pdf_creation_date_code:
   begin
@@ -7012,8 +7012,8 @@ lua_code:
 pdf_insert_ht_code: scan_register_num;
 pdf_ximage_bbox_code: begin
     scan_int;
-    pdf_check_obj(obj_type_ximage, cur_val);
-    i := obj_data_ptr(cur_val);
+    pdf_check_obj(static_pdf, obj_type_ximage, cur_val);
+    i := obj_data_ptr(static_pdf, cur_val);
     scan_int;
     j := cur_val;
     if (j < 1) or (j > 4) then
@@ -7066,7 +7066,7 @@ pdftex_banner_code: print(pdftex_banner);
 pdf_font_name_code, pdf_font_objnum_code: begin
     set_ff(cur_val);
     if c = pdf_font_name_code then
-        print_int(obj_info(pdf_font_num(ff)))
+        print_int(obj_info(static_pdf, pdf_font_num(ff)))
     else
         print_int(pdf_font_num(ff));
 end;
@@ -7074,7 +7074,7 @@ pdf_font_size_code: begin
     print_scaled(font_size(cur_val));
     print("pt");
 end;
-pdf_page_ref_code: print_int(get_obj(obj_type_page, cur_val, false));
+pdf_page_ref_code: print_int(get_obj(static_pdf, obj_type_page, cur_val, false));
 left_margin_kern_code: begin
     p := list_ptr(box(cur_val));
     if (p <> null) and (not is_char_node(p)) and
@@ -7103,7 +7103,7 @@ right_margin_kern_code: begin
         print("0");
     print("pt");
 end;
-pdf_xform_name_code: print_int(obj_info(cur_val));
+pdf_xform_name_code: print_int(obj_info(static_pdf, cur_val));
 pdf_colorstack_init_code: print_int(cur_val);
 uniform_deviate_code:     print_int(unif_rand(cur_val));
 normal_deviate_code:      print_int(norm_rand);
@@ -7172,12 +7172,12 @@ begin
       end;
     end;
   font_identifier_code:   print_font_identifier(i);
-  pdf_page_ref_code:      print_int(get_obj(obj_type_page, i, false));
-  pdf_xform_name_code:    print_int(obj_info(i));
+  pdf_page_ref_code:      print_int(get_obj(static_pdf, obj_type_page, i, false));
+  pdf_xform_name_code:    print_int(obj_info(static_pdf, i));
   pdf_font_name_code, pdf_font_objnum_code: begin
     set_ff(i);
     if c = pdf_font_name_code then
-        print_int(obj_info(pdf_font_num(ff)))
+        print_int(obj_info(static_pdf, pdf_font_num(ff)))
     else
         print_int(pdf_font_num(ff));
     end;
@@ -15448,7 +15448,7 @@ any_mode(extension):do_extension;
 @t\4@>@<Declare procedures needed in |do_extension|@>@;
 procedure do_extension;
 var i,@!j,@!k:integer; {all-purpose integers}
-@!p,@!r:pointer; {all-purpose pointers}
+@!p:pointer; {all-purpose pointer}
 @!sn:integer; {a potential lua state name}
 begin case cur_chr of
   open_node:@<Implement \.{\\openout}@>;
@@ -15730,21 +15730,11 @@ begin
     prev_rightmost := p;
 end;
 
-procedure pdf_check_obj(t, n: integer);
-var k: integer;
-begin
-    k := head_tab[t];
-    while (k <> 0) and (k <> n) do
-        k := obj_link(k);
-    if k = 0 then
-        pdf_error("ext1", "cannot find referenced object");
-end;
-
 @ @<Implement \.{\\pdfrefobj}@>=
 begin
     check_pdfoutput("\pdfrefobj", true);
     scan_int;
-    pdf_check_obj(obj_type_obj, cur_val);
+    pdf_check_obj(static_pdf, obj_type_obj, cur_val);
     new_whatsit(pdf_refobj_node);
     set_pdf_obj_objnum(tail, cur_val);
 end
@@ -15758,44 +15748,13 @@ end
 @ @<Implement \.{\\pdfxform}@>=
 begin
     check_pdfoutput("\pdfxform", true);
-    incr(pdf_xform_count);
-    pdf_create_obj(obj_type_xform, pdf_xform_count);
-    k := obj_ptr;
-    set_obj_data_ptr(k, pdf_get_mem(static_pdf, pdfmem_xform_size));
-    if scan_keyword('attr') then begin
-        scan_pdf_ext_toks;
-        set_obj_xform_attr(static_pdf, k,def_ref);
-    end
-    else
-        set_obj_xform_attr(static_pdf, k,null);
-    if scan_keyword('resources') then begin
-        scan_pdf_ext_toks;
-        set_obj_xform_resources(static_pdf, k,def_ref);
-    end
-    else
-        set_obj_xform_resources(static_pdf, k,null);
-    scan_int;
-        p:=box(cur_val);
-    if p = null then
-        pdf_error("ext1", "\pdfxform cannot be used with a void box");
-    set_obj_xform_width(static_pdf, k, width(p));
-    set_obj_xform_height(static_pdf, k, height(p));
-    set_obj_xform_depth(static_pdf, k, depth(p));
-    set_obj_xform_box(static_pdf, k, p); {save pointer to the box}
-    box(cur_val):=null;
-    pdf_last_xform := k;
+    scan_pdfxform(static_pdf, box_base);
 end
 
 @ @<Implement \.{\\pdfrefxform}@>=
 begin
     check_pdfoutput("\pdfrefxform", true);
-    scan_int;
-    pdf_check_obj(obj_type_xform, cur_val);
-    new_whatsit(pdf_refxform_node);
-    set_pdf_xform_objnum(tail, cur_val);
-    set_pdf_width(tail,obj_xform_width(static_pdf, cur_val));
-    set_pdf_height(tail,obj_xform_height(static_pdf, cur_val));
-    set_pdf_depth(tail,obj_xform_depth(static_pdf, cur_val));
+    scan_pdfrefxform(static_pdf);
 end
 
 @ \.{\\pdfximage} and \.{\\pdfrefximage} are similiar to \.{\\pdfxform} and
@@ -15818,9 +15777,9 @@ end
 begin
     check_pdfoutput("\pdfrefximage", true);
     scan_int;
-    pdf_check_obj(obj_type_ximage, cur_val);
+    pdf_check_obj(static_pdf, obj_type_ximage, cur_val);
     new_whatsit(pdf_refximage_node);
-    j := obj_data_ptr(cur_val);
+    j := obj_data_ptr(static_pdf, cur_val);
     set_pdf_ximage_idx(tail, j);
     set_pdf_width(tail, image_width(j));
     set_pdf_height(tail, image_height(j));
@@ -15844,24 +15803,7 @@ end;
 @ @<Implement \.{\\pdfannot}@>=
 begin
     check_pdfoutput("\pdfannot", true);
-    if scan_keyword('reserveobjnum') then begin
-        pdf_last_annot := pdf_new_objnum;
-        @<Scan an optional space@>; end
-    else begin
-        if scan_keyword('useobjnum') then begin
-            scan_int;
-            k := cur_val;
-            if (k <= 0) or (k > obj_ptr) or (obj_annot_ptr(k) <> 0) then
-                pdf_error("ext1", "invalid object number");
-        end
-        else
-            k := pdf_new_objnum;
-        new_annot_whatsit(pdf_annot_node);
-        set_pdf_annot_objnum(tail, k);
-        scan_pdf_ext_toks;
-        set_pdf_annot_data(tail,def_ref);
-        pdf_last_annot := k;
-    end
+    scan_annot(static_pdf);
 end
 
 @ pdflastlink needs an extra global variable
@@ -15871,22 +15813,7 @@ end
 @ @<Implement \.{\\pdfstartlink}@>=
 begin
     check_pdfoutput("\pdfstartlink", true);
-    if abs(mode) = vmode then
-        pdf_error("ext1", "\pdfstartlink cannot be used in vertical mode");
-    k := pdf_new_objnum;
-    new_annot_whatsit(pdf_start_link_node);
-            set_pdf_link_attr(tail, null);
-        if scan_keyword('attr') then begin
-            scan_pdf_ext_toks;
-            set_pdf_link_attr(tail, def_ref);
-        end;
-    r := scan_action;
-    set_pdf_link_action(tail, r);
-    set_pdf_link_objnum(tail, k);
-    pdf_last_link := k;
-    {N.B.: although it is possible to set |obj_annot_ptr(k) := tail| here, it
-     is not safe if nodes are later copied/destroyed/moved; a better place
-     to do this is inside |do_link|, when the whatsit node is written out}
+    scan_startlink(static_pdf);
 end
 
 @ @<Implement \.{\\pdfendlink}@>=
@@ -15906,7 +15833,7 @@ end
 @ @<Implement \.{\\pdfdest}@>=
 begin
     check_pdfoutput("\pdfdest", true);
-    scan_pdfdest;
+    scan_pdfdest(static_pdf);
 end
 
 @ @<Implement \.{\\pdfthread}@>=
@@ -15969,22 +15896,7 @@ end
 @ @<Implement \.{\\pdfcatalog}@>=
 begin
     check_pdfoutput("\pdfcatalog", false);
-    scan_pdf_ext_toks;
-    if pdf_output > 0 then
-        pdf_catalog_toks := concat_tokens(pdf_catalog_toks, def_ref);
-    if scan_keyword('openaction') then begin
-        if pdf_catalog_openaction <> 0 then
-            pdf_error("ext1", "duplicate of openaction")
-        else begin
-            p := scan_action;
-            pdf_new_obj(static_pdf, obj_type_others, 0, 1);
-            if pdf_output > 0 then
-                pdf_catalog_openaction := obj_ptr;
-            write_action(static_pdf, p);
-            pdf_end_obj(static_pdf);
-            delete_action_ref(p);
-        end;
-    end
+    scan_pdfcatalog(static_pdf);
 end
 
 @ @<Implement \.{\\pdfnames}@>=
@@ -16058,7 +15970,7 @@ end
 @ @<Implement \.{\\pdfincludechars}@>=
 begin
     check_pdfoutput("\pdfincludechars", true);
-    pdf_include_chars;
+    pdf_include_chars(static_pdf);
 end
 
 @ @<Implement \.{\\pdfglyphtounicode}@>=
@@ -16199,7 +16111,7 @@ if cur_cmd=extension then begin
     else case cur_chr of
         pdf_obj_code: begin
             do_extension; {scan object and set |pdf_last_obj|}
-            if obj_data_ptr(pdf_last_obj) = 0 then {this object has not been initialized yet}
+            if obj_data_ptr(static_pdf, pdf_last_obj) = 0 then {this object has not been initialized yet}
                 pdf_error("ext1", "`\pdfobj reserveobjnum' cannot be used with \immediate");
             pdf_write_obj(static_pdf, pdf_last_obj);
         end;

@@ -131,8 +131,8 @@ static int l_immediateobj(lua_State * L)
         n--;
     } else {
         incr(pdf_obj_count);
-        pdf_create_obj(obj_type_obj, pdf_obj_count);
-        pdf_last_obj = k = obj_ptr;
+        pdf_create_obj(static_pdf, obj_type_obj, pdf_obj_count);
+        pdf_last_obj = k = static_pdf->obj_ptr;
     }
     switch (n) {
     case 0:
@@ -211,10 +211,10 @@ static int l_obj(lua_State * L)
         n--;
     } else {
         incr(pdf_obj_count);
-        pdf_create_obj(obj_type_obj, pdf_obj_count);
-        pdf_last_obj = k = obj_ptr;
+        pdf_create_obj(static_pdf, obj_type_obj, pdf_obj_count);
+        pdf_last_obj = k = static_pdf->obj_ptr;
     }
-    set_obj_data_ptr(k, pdf_get_mem(static_pdf, pdfmem_obj_size));
+    set_obj_data_ptr(static_pdf,k, pdf_get_mem(static_pdf, pdfmem_obj_size));
     set_obj_obj_is_stream(static_pdf, k, 0);
     set_obj_obj_stream_attr(static_pdf, k, 0);
     set_obj_obj_is_file(static_pdf, k, 0);
@@ -271,16 +271,16 @@ static int l_reserveobj(lua_State * L)
     switch (n) {
     case 0:
         incr(pdf_obj_count);
-        pdf_create_obj(obj_type_obj, pdf_obj_count);
-        pdf_last_obj = obj_ptr;
+        pdf_create_obj(static_pdf, obj_type_obj, pdf_obj_count);
+        pdf_last_obj = static_pdf->obj_ptr;
         break;
     case 1:
         if (!lua_isstring(L, -1))
             luaL_error(L, "pdf.reserveobj() optional argument must be string");
         st = (char *) lua_tolstring(L, 1, &len);
         if (len == 5 && strcmp(st, "annot") == 0) {
-            pdf_create_obj(obj_type_others, 0);
-            pdf_last_annot = obj_ptr;
+            pdf_create_obj(static_pdf, obj_type_others, 0);
+            pdf_last_annot = static_pdf->obj_ptr;
         } else {
             luaL_error(L, "pdf.reserveobj() optional string must be \"annot\"");
         }
@@ -289,7 +289,7 @@ static int l_reserveobj(lua_State * L)
     default:
         luaL_error(L, "pdf.reserveobj() allows max. 1 argument");
     }
-    lua_pushinteger(L, obj_ptr);
+    lua_pushinteger(L, static_pdf->obj_ptr);
     return 1;
 }
 

@@ -30,6 +30,18 @@ integer pdf_obj_count;          /* counter of objects */
 integer pdf_last_obj;
 
 
+void pdf_check_obj(PDF pdf, integer t, integer n)
+{
+    integer k;
+    k = pdf->head_tab[t];
+    while ((k != 0) && (k != n))
+        k = obj_link(pdf, k);
+    if (k == 0) 
+        pdf_error(maketexstring("ext1"), 
+                  maketexstring("cannot find referenced object"));
+}
+
+
 
 /* write a raw PDF object */
 void pdf_write_obj(PDF pdf, integer n)
@@ -142,14 +154,14 @@ void scan_obj(PDF pdf)
         if (cur_cmd != spacer_cmd)
             back_input();
         incr(pdf_obj_count);
-        pdf_create_obj(obj_type_obj, pdf_obj_count);
-        pdf_last_obj = obj_ptr;
+        pdf_create_obj(pdf, obj_type_obj, pdf_obj_count);
+        pdf_last_obj = pdf->obj_ptr;
     } else {
         k = -1;
         if (scan_keyword("useobjnum")) {
             scan_int();
             k = cur_val;
-            if ((k <= 0) || (k > obj_ptr) || (obj_data_ptr(k) != 0)) {
+            if ((k <= 0) || (k > pdf->obj_ptr) || (obj_data_ptr(pdf, k) != 0)) {
                 pdf_warning(maketexstring("\\pdfobj"),
                             maketexstring
                             ("invalid object number being ignored"), true,
@@ -160,10 +172,10 @@ void scan_obj(PDF pdf)
         }
         if (k < 0) {
             incr(pdf_obj_count);
-            pdf_create_obj(obj_type_obj, pdf_obj_count);
-            k = obj_ptr;
+            pdf_create_obj(pdf, obj_type_obj, pdf_obj_count);
+            k = pdf->obj_ptr;
         }
-        set_obj_data_ptr(k, pdf_get_mem(pdf, pdfmem_obj_size));
+        set_obj_data_ptr(pdf, k, pdf_get_mem(pdf, pdfmem_obj_size));
         if (scan_keyword("stream")) {
             set_obj_obj_is_stream(pdf, k, 1);
             if (scan_keyword("attr")) {

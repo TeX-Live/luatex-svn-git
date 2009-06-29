@@ -53,7 +53,7 @@ void write_action(PDF pdf, halfword p)
     case pdf_action_page:
         if (pdf_action_file(p) == null) {
             pdf_printf(pdf, "/S /GoTo /D [");
-            pdf_print_int(pdf, get_obj(obj_type_page, pdf_action_id(p), false));
+            pdf_print_int(pdf, get_obj(pdf, obj_type_page, pdf_action_id(p), false));
             pdf_printf(pdf, " 0 R");
         } else {
             pdf_printf(pdf, "/S /GoToR /D [");
@@ -69,7 +69,7 @@ void write_action(PDF pdf, halfword p)
     case pdf_action_goto:
         if (pdf_action_file(p) == null) {
             pdf_printf(pdf, "/S /GoTo ");
-            d = get_obj(obj_type_dest, pdf_action_id(p),
+            d = get_obj(pdf, obj_type_dest, pdf_action_id(p),
                         pdf_action_named_id(p));
         } else {
             pdf_printf(pdf, "/S /GoToR ");
@@ -89,7 +89,7 @@ void write_action(PDF pdf, halfword p)
     case pdf_action_thread:
         pdf_printf(pdf, "/S /Thread ");
         if (pdf_action_file(p) == null) {
-            d = get_obj(obj_type_thread, pdf_action_id(p),
+            d = get_obj(pdf, obj_type_thread, pdf_action_id(p),
                         pdf_action_named_id(p));
             if (pdf_action_named_id(p) > 0) {
                 char *tokstr =

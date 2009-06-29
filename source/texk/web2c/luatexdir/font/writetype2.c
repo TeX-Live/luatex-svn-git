@@ -389,7 +389,7 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer,
 
     /* squeeze in the cidgidmap */
     if (cidtogidmap != NULL) {
-        cidtogid_obj = pdf_new_objnum();
+        cidtogid_obj = pdf_new_objnum(pdf);
         pdf_begin_dict(pdf, cidtogid_obj, 0);
         pdf_printf(pdf, "/Length %i\n", ((last_cid + 1) * 2));
         pdf_end_dict(pdf);

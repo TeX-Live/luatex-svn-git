@@ -88,7 +88,7 @@ void warn_dest_dup(integer id, small_number byname, char *s1, char *s2)
 }
 
 
-void do_dest(halfword p, halfword parent_box, scaled x, scaled y)
+void do_dest(PDF pdf, halfword p, halfword parent_box, scaled x, scaled y)
 {
     scaledpos tmp1, tmp2;
     integer k;
@@ -97,13 +97,13 @@ void do_dest(halfword p, halfword parent_box, scaled x, scaled y)
                   maketexstring("destinations cannot be inside an XForm"));
     if (doing_leaders)
         return;
-    k = get_obj(obj_type_dest, pdf_dest_id(p), pdf_dest_named_id(p));
-    if (obj_dest_ptr(k) != null) {
+    k = get_obj(pdf,obj_type_dest, pdf_dest_id(p), pdf_dest_named_id(p));
+    if (obj_dest_ptr(pdf,k) != null) {
         warn_dest_dup(pdf_dest_id(p), pdf_dest_named_id(p),
                       "ext4", "has been already used, duplicate ignored");
         return;
     }
-    obj_dest_ptr(k) = p;
+    obj_dest_ptr(pdf, k) = p;
     pdf_append_list(k, pdf_dest_list);
     switch (pdf_dest_type(p)) {
     case pdf_dest_xyz:
@@ -161,13 +161,13 @@ void write_out_pdf_mark_destinations(PDF pdf)
     if (pdf_dest_list != null) {
         k = pdf_dest_list;
         while (k != null) {
-            if (is_obj_written(token_info(k))) {
+            if (is_obj_written(pdf, token_info(k))) {
                 pdf_error(maketexstring("ext5"),
                           maketexstring
                           ("destination has been already written (this shouldn't happen)"));
             } else {
                 integer i;
-                i = obj_dest_ptr(token_info(k));
+                i = obj_dest_ptr(pdf, token_info(k));
                 if (pdf_dest_named_id(i) > 0) {
                     pdf_begin_dict(pdf, token_info(k), 1);
                     pdf_printf(pdf, "/D ");
@@ -175,7 +175,7 @@ void write_out_pdf_mark_destinations(PDF pdf)
                     pdf_begin_obj(pdf, token_info(k), 1);
                 }
                 pdf_out(pdf, '[');
-                pdf_print_int(pdf, pdf_last_page);
+                pdf_print_int(pdf, pdf->last_page);
                 pdf_printf(pdf, " 0 R ");
                 switch (pdf_dest_type(i)) {
                 case pdf_dest_xyz:
@@ -235,7 +235,7 @@ void write_out_pdf_mark_destinations(PDF pdf)
 }
 
 
-void scan_pdfdest(void)
+void scan_pdfdest(PDF pdf)
 {
     halfword q;
     integer k;
@@ -302,12 +302,12 @@ void scan_pdfdest(void)
     }
     if (pdf_dest_named_id(cur_list.tail_field) != 0) {
         i = tokens_to_string(pdf_dest_id(cur_list.tail_field));
-        k = find_obj(obj_type_dest, i, true);
+        k = find_obj(pdf, obj_type_dest, i, true);
         flush_str(i);
     } else {
-        k = find_obj(obj_type_dest, pdf_dest_id(cur_list.tail_field), false);
+        k = find_obj(pdf, obj_type_dest, pdf_dest_id(cur_list.tail_field), false);
     }
-    if ((k != 0) && (obj_dest_ptr(k) != null)) {
+    if ((k != 0) && (obj_dest_ptr(pdf,k) != null)) {
         warn_dest_dup(pdf_dest_id(cur_list.tail_field),
                       pdf_dest_named_id(cur_list.tail_field),
                       "ext4", "has been already used, duplicate ignored");

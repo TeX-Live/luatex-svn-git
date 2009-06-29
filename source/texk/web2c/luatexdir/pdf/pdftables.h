@@ -30,14 +30,6 @@ Objects in |obj_tab| maybe linked into list; objects in such a linked list have
 the same type.
 */
 
-typedef struct obj_entry {
-    integer int0;
-    integer int1;
-    longinteger int2;
-    integer int3;
-    integer int4;
-} obj_entry;
-
 /*
 The first field contains information representing identifier of this object.
 It is usally a number for most of object types, but it may be a string number
@@ -59,26 +51,26 @@ structure depending on the object type; however it may be used as a counter as
 well.
 */
 
-#  define obj_info(A)  obj_tab[(A)].int0        /* information representing identifier of this object */
-#  define obj_link(A)  obj_tab[(A)].int1        /* link to the next entry in linked list */
-#  define obj_offset(A) obj_tab[(A)].int2
+#  define obj_info(pdf,A)  pdf->obj_tab[(A)].int0        /* information representing identifier of this object */
+#  define obj_link(pdf,A)  pdf->obj_tab[(A)].int1        /* link to the next entry in linked list */
+#  define obj_offset(pdf,A) pdf->obj_tab[(A)].int2
                                         /* negative (flags), or byte offset for this object in PDF 
                                            output file, or object stream number for this object */
-#  define obj_os_idx(A) obj_tab[(A)].int3
+#  define obj_os_idx(pdf,A) pdf->obj_tab[(A)].int3
                                         /* index of this object in object stream */
-#  define obj_aux(A)  obj_tab[(A)].int4 /* auxiliary pointer */
+#  define obj_aux(pdf,A)  pdf->obj_tab[(A)].int4 /* auxiliary pointer */
 #  define obj_data_ptr             obj_aux      /* pointer to |pdf->mem| */
 
-#  define set_obj_link(A,B) obj_link(A)=B
-#  define set_obj_info(A,B) obj_info(A)=B
-#  define set_obj_offset(A,B) obj_offset(A)=B
-#  define set_obj_aux(A,B) obj_aux(A)=B
-#  define set_obj_data_ptr(A,B) obj_data_ptr(A)=B
+#  define set_obj_link(pdf,A,B) obj_link(pdf,A)=B
+#  define set_obj_info(pdf,A,B) obj_info(pdf,A)=B
+#  define set_obj_offset(pdf,A,B) obj_offset(pdf,A)=B
+#  define set_obj_aux(pdf,A,B) obj_aux(pdf,A)=B
+#  define set_obj_data_ptr(pdf,A,B) obj_data_ptr(pdf,A)=B
 
-#  define set_obj_fresh(A)      obj_offset((A))=-2
-#  define set_obj_scheduled(A)  if (intcast(obj_offset(A))==-2) obj_offset(A)=-1
-#  define is_obj_scheduled(A)  (intcast(obj_offset(A))>-2)
-#  define is_obj_written(A)    (intcast(obj_offset(A))>-1)
+#  define set_obj_fresh(pdf,A)      obj_offset(pdf,(A))=-2
+#  define set_obj_scheduled(pdf,A)  if (intcast(obj_offset(pdf,A))==-2) obj_offset(pdf,A)=-1
+#  define is_obj_scheduled(pdf,A)  (intcast(obj_offset(pdf,A))>-2)
+#  define is_obj_written(pdf,A)    (intcast(obj_offset(pdf,A))>-1)
 
 /* types of objects */
 typedef enum {
@@ -99,44 +91,22 @@ typedef enum {
     inside |nodes.h| */
 
 /* Some constants */
-#  define inf_obj_tab_size 1000 /* min size of the cross-reference table for PDF output */
-#  define sup_obj_tab_size 8388607      /* max size of the cross-reference table for PDF output */
 #  define inf_pk_dpi 72         /* min PK pixel density value from \.{texmf.cnf} */
 #  define sup_pk_dpi 8000       /* max PK pixel density value from \.{texmf.cnf} */
 #  define pdf_objtype_max head_tab_max
 
-extern integer obj_tab_size;
-extern obj_entry *obj_tab;
-extern integer head_tab[(head_tab_max + 1)];
-extern integer pages_tail;
-extern integer obj_ptr;
-extern integer sys_obj_ptr;
-extern integer pdf_last_pages;
-extern integer pdf_last_page;
-extern integer pdf_last_stream;
-extern longinteger pdf_stream_length;
-extern longinteger pdf_stream_length_offset;
-extern boolean pdf_seek_write_length;
-extern integer pdf_last_byte;
 extern integer pdf_box_spec_media;
 extern integer pdf_box_spec_crop;
 extern integer pdf_box_spec_bleed;
 extern integer pdf_box_spec_trim;
 extern integer pdf_box_spec_art;
 
-#  define set_ff(A)  do {                       \
-        if (pdf_font_num(A) < 0)                \
-            ff = -pdf_font_num(A);              \
-        else                                    \
-            ff = A;                             \
-    } while (0)
+void PdfObjTree_free(PDF pdf);
 
-extern integer ff;
-
-extern void pdf_create_obj(integer t, integer i);
-extern integer find_obj(integer t, integer i, boolean byname);
-extern integer get_obj(integer t, integer i, boolean byname);
-extern integer pdf_new_objnum(void);
+extern void pdf_create_obj(PDF pdf, integer t, integer i);
+extern integer find_obj(PDF pdf, integer t, integer i, boolean byname);
+extern integer get_obj(PDF pdf, integer t, integer i, boolean byname);
+extern integer pdf_new_objnum(PDF pdf);
 
 #  define pdf_append_list(A,B) do {             \
         if (B==0) B=append_ptr(B,A);            \

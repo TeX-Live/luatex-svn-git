@@ -28,14 +28,14 @@
 
 #  define set_pdf_xform_objnum(A,B) pdf_xform_objnum(A)=B
 
-#  define obj_xform_width(pdf,A)       pdf->mem[obj_data_ptr(A) + 0]
-#  define obj_xform_height(pdf,A)      pdf->mem[obj_data_ptr(A) + 1]
-#  define obj_xform_depth(pdf,A)       pdf->mem[obj_data_ptr(A) + 2]
-#  define obj_xform_box(pdf,A)         pdf->mem[obj_data_ptr(A) + 3]    /* this field holds
+#  define obj_xform_width(pdf,A)       pdf->mem[obj_data_ptr(pdf,A) + 0]
+#  define obj_xform_height(pdf,A)      pdf->mem[obj_data_ptr(pdf,A) + 1]
+#  define obj_xform_depth(pdf,A)       pdf->mem[obj_data_ptr(pdf,A) + 2]
+#  define obj_xform_box(pdf,A)         pdf->mem[obj_data_ptr(pdf,A) + 3]    /* this field holds
                                                                            pointer to the corresponding box */
-#  define obj_xform_attr(pdf,A)        pdf->mem[obj_data_ptr(A) + 4]    /* additional xform
+#  define obj_xform_attr(pdf,A)        pdf->mem[obj_data_ptr(pdf,A) + 4]    /* additional xform
                                                                            attributes */
-#  define obj_xform_resources(pdf,A)   pdf->mem[obj_data_ptr(A) + 5]    /* additional xform
+#  define obj_xform_resources(pdf,A)   pdf->mem[obj_data_ptr(pdf,A) + 5]    /* additional xform
                                                                            Resources */
 
 
@@ -51,5 +51,8 @@ extern integer pdf_xform_count; /* counter of forms */
 extern integer pdf_cur_form;    /* the form being output */
 
 void pdf_place_form(PDF pdf, integer i, scaledpos pos);
+
+void scan_pdfxform(PDF pdf, integer box_base);
+void scan_pdfrefxform(PDF pdf);
 
 #endif

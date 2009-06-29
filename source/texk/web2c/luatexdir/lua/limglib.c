@@ -595,7 +595,7 @@ const char *wrtype_s[] =
 
 extern void lua_nodelib_push_fast(lua_State * L, halfword n);
 
-static void setup_image(lua_State * L, image * a, wrtype_e writetype)
+static void setup_image(PDF pdf, lua_State * L, image * a, wrtype_e writetype)
 {
     image_dict *ad;
     assert(a != NULL);
@@ -607,10 +607,10 @@ static void setup_image(lua_State * L, image * a, wrtype_e writetype)
         img_arrayidx(a) = img_to_array(a);      /* now a is read-only */
     if (img_objnum(ad) == 0) {  /* latest needed just before out_img() */
         pdf_ximage_count++;
-        pdf_create_obj(obj_type_ximage, pdf_ximage_count);
-        img_objnum(ad) = obj_ptr;
+        pdf_create_obj(pdf, obj_type_ximage, pdf_ximage_count);
+        img_objnum(ad) = pdf->obj_ptr;
         img_index(ad) = pdf_ximage_count;
-        obj_data_ptr(obj_ptr) = img_arrayidx(a);
+        obj_data_ptr(pdf, pdf->obj_ptr) = img_arrayidx(a);
     }
 }
 
@@ -626,7 +626,7 @@ static void write_image_or_node(lua_State * L, wrtype_e writetype)
     aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);    /* image */
     a = *aa;
     ad = img_dict(a);
-    setup_image(L, a, writetype);
+    setup_image(static_pdf, L, a, writetype);
     switch (writetype) {
     case WR_WRITE:
         n = img_to_node(a, img_arrayidx(a));
@@ -733,7 +733,7 @@ void vf_out_image(unsigned i, scaledpos pos)
     lua_rawgeti(L, LUA_GLOBALSINDEX, i);        /* image ... */
     aa = (image **) luaL_checkudata(L, -1, TYPE_IMG);
     a = *aa;
-    setup_image(L, a, WR_VF_IMG);       /* image ... */
+    setup_image(static_pdf, L, a, WR_VF_IMG);       /* image ... */
     assert(img_is_refered(a));
     assert(static_pdf != NULL);
     pdf_place_image(static_pdf, img_arrayidx(a), pos);

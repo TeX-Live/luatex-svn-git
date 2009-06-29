@@ -46,7 +46,7 @@ typedef struct dest_name_entry_ {
 /* data structure of destinations */
 
 #  define obj_dest_ptr              obj_aux     /* pointer to |pdf_dest_node| */
-#  define set_obj_dest_ptr(A,B) obj_dest_ptr(A)=B
+#  define set_obj_dest_ptr(pdf,A,B) obj_dest_ptr(pdf,A)=B
 
 #  define set_pdf_dest_id(A,B) pdf_dest_id(A)=B
 #  define set_pdf_dest_named_id(A,B) pdf_dest_named_id(A)=B
@@ -63,11 +63,11 @@ extern dest_name_entry *dest_names;
 extern integer dest_names_size; /* maximum number of names in name tree of PDF output file */
 
 extern void append_dest_name(str_number s, integer n);
-extern void do_dest(halfword p, halfword parent_box, scaled x, scaled y);
+extern void do_dest(PDF pdf, halfword p, halfword parent_box, scaled x, scaled y);
 extern void warn_dest_dup(integer id, small_number byname, char *s1, char *s2);
 
 extern void write_out_pdf_mark_destinations(PDF);
-extern void scan_pdfdest(void);
+extern void scan_pdfdest(PDF);
 extern void init_dest_names(void);
 extern void reset_dest_list(void);
 extern void flush_dest_list(void);
