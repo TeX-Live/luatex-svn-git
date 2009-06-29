@@ -75,7 +75,7 @@ PDF initialize_pdf(void)
     pdf->pstruct = NULL;
 
     pdf->obj_tab_size = inf_obj_tab_size;        /* allocated size of |obj_tab| array */
-    pdf->obj_tab = xmalloc(pdf->obj_tab_size * sizeof(obj_entry));
+    pdf->obj_tab = xmalloc((pdf->obj_tab_size+1) * sizeof(obj_entry));
     set_obj_offset(pdf,0,0);
 
     return pdf;
