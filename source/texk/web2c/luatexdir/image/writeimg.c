@@ -195,13 +195,11 @@ void new_img_pdfstream_struct(image_dict * p)
 void init_image(image * p)
 {
     assert(p != NULL);
+    memset(p,0,sizeof(image));
     set_wd_running(p);
     set_ht_running(p);
     set_dp_running(p);
-    img_transform(p) = 0;
-    img_flags(p) = 0;
     img_unset_scaled(p);
-    img_dict(p) = NULL;
     img_arrayidx(p) = -1;       /* -1 = unused, used count from 0 */
     img_dictref(p) = LUA_NOREF;
 }
@@ -216,35 +214,12 @@ image *new_image(void)
 void init_image_dict(image_dict * p)
 {
     assert(p != NULL);
-    img_objnum(p) = 0;
-    img_index(p) = 0;
-    img_xsize(p) = 0;
-    img_ysize(p) = 0;
-    img_xorig(p) = 0;
-    img_yorig(p) = 0;
-    img_xres(p) = 0;
-    img_yres(p) = 0;
-    img_rotation(p) = 0;
-    img_colorspace(p) = 0;
-    img_group_ref(p) = 0;
-    img_totalpages(p) = 0;
+    memset(p,0,sizeof(image_dict));
     img_pagenum(p) = 1;
-    img_pagename(p) = NULL;
-    img_filename(p) = NULL;
-    img_filepath(p) = NULL;
-    img_attr(p) = NULL;
-    img_file(p) = NULL;
     img_type(p) = IMG_TYPE_NONE;
-    img_color(p) = 0;
-    img_colordepth(p) = 0;
     img_pagebox(p) = PDF_BOX_SPEC_MEDIA;
-    img_bbox(p)[0] = 0;
-    img_bbox(p)[1] = 0;
-    img_bbox(p)[2] = 0;
-    img_bbox(p)[3] = 0;
     img_unset_bbox(p);
     img_state(p) = DICT_NEW;
-    img_png_ptr(p) = NULL;      /* union */
 }
 
 image_dict *new_image_dict(void)
