@@ -2316,6 +2316,7 @@ void dvi_ship_out(halfword p)
     }
     if ((tracing_output > 0) && (post_callback_id == 0)) {
         print_char(']');
+        update_terminal();
         begin_diagnostic();
         show_box(p);
         end_diagnostic(true);
@@ -2504,8 +2505,10 @@ void dvi_ship_out(halfword p)
     }
 #endif                          /* IPC */
   DONE:
-    if ((tracing_output <= 0) && (post_callback_id == 0))
+    if ((tracing_output <= 0) && (post_callback_id == 0)) {
         print_char(']');
+        update_terminal();
+    }
     dead_cycles = 0;
     /* Flush the box from memory, showing statistics if requested */
     if ((tracing_stats > 1) && (pre_callback_id == 0)) {
