@@ -103,6 +103,7 @@ static void fixup_nameoffile(str_number fnam)
 
 boolean lua_a_open_in(alpha_file f, quarterword n)
 {
+    integer k;
     str_number fnam;            /* string returned by find callback */
     integer callback_id;
     boolean ret = true;         /* return value */
