@@ -56,6 +56,7 @@ extern halfword save_tail;
 
 extern void push_nest(void);
 extern void pop_nest(void);
+extern void initialize_nesting(void);
 
 extern void tail_append(halfword p);
 extern halfword pop_tail(void);
