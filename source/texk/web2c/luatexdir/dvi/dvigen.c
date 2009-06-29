@@ -2323,9 +2323,9 @@ void dvi_ship_out(halfword p)
     }
     /* Ship box |p| out */
     if (box_dir(p) != page_direction)
-        pdf_warning(maketexstring("\\shipout"),
-                    maketexstring("\\pagedir != \\bodydir; "
-                                  "\\box255 may be placed wrongly on the page."),
+        pdf_warning("\\shipout",
+                    "\\pagedir != \\bodydir; "
+                    "\\box255 may be placed wrongly on the page.",
                     true, true);
     /* Update the values of |max_h| and |max_v|; but if the page is too large,
        |goto done| */

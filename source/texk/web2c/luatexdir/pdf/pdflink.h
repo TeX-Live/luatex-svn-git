@@ -43,12 +43,13 @@ extern integer pdf_link_stack_ptr;
 
 extern void push_link_level(halfword p);
 extern void pop_link_level(void);
-extern void do_link(PDF pdf, halfword p, halfword parent_box, scaled x, scaled y);
+extern void do_link(PDF pdf, halfword p, halfword parent_box, scaled x,
+                    scaled y);
 extern void end_link(void);
 extern void append_link(PDF pdf, halfword parent_box, scaled x, scaled y,
                         small_number i);
 
-extern void scan_startlink (PDF pdf) ;
+extern void scan_startlink(PDF pdf);
 
 
 #endif

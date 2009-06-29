@@ -63,7 +63,8 @@ extern dest_name_entry *dest_names;
 extern integer dest_names_size; /* maximum number of names in name tree of PDF output file */
 
 extern void append_dest_name(str_number s, integer n);
-extern void do_dest(PDF pdf, halfword p, halfword parent_box, scaled x, scaled y);
+extern void do_dest(PDF pdf, halfword p, halfword parent_box, scaled x,
+                    scaled y);
 extern void warn_dest_dup(integer id, small_number byname, char *s1, char *s2);
 
 extern void write_out_pdf_mark_destinations(PDF);

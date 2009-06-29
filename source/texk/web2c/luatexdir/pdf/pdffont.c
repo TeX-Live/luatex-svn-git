@@ -303,8 +303,7 @@ internal_font_number expand_font(internal_font_number f, integer e)
     if (e == 0)
         return f;
     if (pdf_font_elink(f) == null_font)
-        pdf_error(maketexstring("font expansion"),
-                  maketexstring("uninitialized pdf_font_elink"));
+        pdf_error("font expansion", "uninitialized pdf_font_elink");
     return get_expand_font(f, e);
 }
 
@@ -331,12 +330,10 @@ void read_expand_font(void)
     scan_font_ident();
     f = cur_val;
     if (f == null_font)
-        pdf_error(maketexstring("font expansion"),
-                  maketexstring("invalid font identifier"));
+        pdf_error("font expansion", "invalid font identifier");
     if (pdf_font_blink(f) != null_font)
-        pdf_error(maketexstring("font expansion"),
-                  maketexstring
-                  ("\\pdffontexpand cannot be used this way (the base font has been expanded)"));
+        pdf_error("font expansion",
+                  "\\pdffontexpand cannot be used this way (the base font has been expanded)");
     scan_optional_equals();
     scan_int();
     stretch_limit = fix_int(cur_val, 0, 1000);
@@ -345,8 +342,7 @@ void read_expand_font(void)
     scan_int();
     font_step = fix_int(cur_val, 0, 100);
     if (font_step == 0)
-        pdf_error(maketexstring("font expansion"),
-                  maketexstring("invalid step"));
+        pdf_error("font expansion", "invalid step");
     stretch_limit = stretch_limit - stretch_limit % font_step;
     if (stretch_limit < 0)
         stretch_limit = 0;
@@ -354,8 +350,7 @@ void read_expand_font(void)
     if (shrink_limit < 0)
         shrink_limit = 0;
     if ((stretch_limit == 0) && (shrink_limit == 0))
-        pdf_error(maketexstring("font expansion"),
-                  maketexstring("invalid limit(s)"));
+        pdf_error("font expansion", "invalid limit(s)");
     auto_expand = false;
     if (scan_keyword("autoexpand")) {
         auto_expand = true;
@@ -367,39 +362,33 @@ void read_expand_font(void)
 
     /* check if the font can be expanded */
     if (pdf_font_expand_ratio(f) != 0)
-        pdf_error(maketexstring("font expansion"),
-                  maketexstring
-                  ("this font has been expanded by another font so it cannot be used now"));
+        pdf_error("font expansion",
+                  "this font has been expanded by another font so it cannot be used now");
     if (pdf_font_step(f) != 0) {
         /* this font has been expanded, ensure the expansion parameters are identical */
         if (pdf_font_step(f) != font_step)
-            pdf_error(maketexstring("font expansion"),
-                      maketexstring
-                      ("font has been expanded with different expansion step"));
+            pdf_error("font expansion",
+                      "font has been expanded with different expansion step");
 
         if (((pdf_font_stretch(f) == null_font) && (stretch_limit != 0)) ||
             ((pdf_font_stretch(f) != null_font)
              && (pdf_font_expand_ratio(pdf_font_stretch(f)) != stretch_limit)))
-            pdf_error(maketexstring("font expansion"),
-                      maketexstring
-                      ("font has been expanded with different stretch limit"));
+            pdf_error("font expansion",
+                      "font has been expanded with different stretch limit");
 
         if (((pdf_font_shrink(f) == null_font) && (shrink_limit != 0)) ||
             ((pdf_font_shrink(f) != null_font)
              && (-pdf_font_expand_ratio(pdf_font_shrink(f)) != shrink_limit)))
-            pdf_error(maketexstring("font expansion"),
-                      maketexstring
-                      ("font has been expanded with different shrink limit"));
+            pdf_error("font expansion",
+                      "font has been expanded with different shrink limit");
 
         if (pdf_font_auto_expand(f) != auto_expand)
-            pdf_error(maketexstring("font expansion"),
-                      maketexstring
-                      ("font has been expanded with different auto expansion value"));
+            pdf_error("font expansion",
+                      "font has been expanded with different auto expansion value");
     } else {
         if (font_used(f))
-            pdf_warning(maketexstring("font expansion"),
-                        maketexstring
-                        ("font should be expanded before its first use"), true,
+            pdf_warning("font expansion",
+                        "font should be expanded before its first use", true,
                         true);
         set_expand_params(f, auto_expand, stretch_limit, shrink_limit,
                           font_step, 0);
@@ -462,8 +451,7 @@ void pdf_include_chars(PDF pdf)
     scan_font_ident();
     f = cur_val;
     if (f == null_font)
-        pdf_error(maketexstring("font"),
-                  maketexstring("invalid font identifier"));
+        pdf_error("font", "invalid font identifier");
     pdf_check_vf(cur_val);
     if (!font_used(f))
         pdf_init_font(pdf, f);

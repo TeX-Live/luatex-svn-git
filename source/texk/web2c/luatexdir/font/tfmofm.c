@@ -555,7 +555,7 @@ scaled store_scaled_f(scaled sq, scaled z_in)
     else if (a == 255)
         return (sw - alpha);
     else
-        pdf_error(maketexstring("vf"), maketexstring("vf scaling"));
+        pdf_error("vf", "vf scaling");
     return sw;                  /* not reached, just to make the compiler happy */
 }
 

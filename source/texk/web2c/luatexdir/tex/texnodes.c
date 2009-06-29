@@ -73,11 +73,13 @@ char *node_fields_math[] = { "attr", "surround", NULL };
 char *node_fields_glue[] = { "attr", "spec", "leader", NULL };
 char *node_fields_kern[] = { "attr", "kern", NULL };
 char *node_fields_penalty[] = { "attr", "penalty", NULL };
+
 char *node_fields_unset[] =
     { "attr", "width", "depth", "height", "dir", "shrink",
     "glue_order", "glue_sign", "stretch", "span", "list", NULL
 };
 char *node_fields_margin_kern[] = { "attr", "width", "glyph", NULL };
+
 char *node_fields_glyph[] =
     { "attr", "char", "font", "lang", "left", "right", "uchyph",
     "components", "xoffset", "yoffset", NULL
@@ -121,6 +123,7 @@ char *node_fields_action[] = { "action_type", "named_id", "action_id",
     "file", "new_window", "data", "ref_count", NULL
 };
 char *node_fields_attribute[] = { "number", "value", NULL };
+
 char *node_fields_glue_spec[] = { "width", "stretch", "shrink",
     "stretch_order", "shrink_order", "ref_count", NULL
 };
@@ -152,12 +155,15 @@ char *node_fields_whatsit_pdf_start_link[] =
     "objnum", "link_attr", "action", NULL
 };
 char *node_fields_whatsit_pdf_end_link[] = { "attr", NULL };
+
 char *node_fields_whatsit_pdf_dest[] = { "attr", "width", "height", "depth",
     "named_id", "dest_id", "dest_type", "xyz_zoom", "objnum", NULL
 };
+
 char *node_fields_whatsit_pdf_thread[] = { "attr", "width", "height", "depth",
     "named_id", "thread_id", "thread_attr", NULL
 };
+
 char *node_fields_whatsit_pdf_start_thread[] =
     { "attr", "width", "height", "depth",
     "named_id", "thread_id", "thread_attr", NULL
@@ -2389,8 +2395,7 @@ void show_whatsit_node(integer p)
             }
             break;
         default:
-            pdf_error(maketexstring("displaying"),
-                      maketexstring("unknown action type"));
+            pdf_error("displaying", "unknown action type");
             break;
         }
         break;

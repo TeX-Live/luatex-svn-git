@@ -44,11 +44,10 @@ void append_bead(PDF pdf, halfword p)
 {
     integer a, b, c, t;
     if (!is_shipping_page)
-        pdf_error(maketexstring("ext4"),
-                  maketexstring("threads cannot be inside an XForm"));
+        pdf_error("ext4", "threads cannot be inside an XForm");
     t = get_obj(pdf, obj_type_thread, pdf_thread_id(p), pdf_thread_named_id(p));
     b = pdf_new_objnum(pdf);
-    obj_bead_ptr(pdf,b) = pdf_get_mem(pdf, pdfmem_bead_size);
+    obj_bead_ptr(pdf, b) = pdf_get_mem(pdf, pdfmem_bead_size);
     set_obj_bead_page(pdf, b, pdf->last_page);
     set_obj_bead_data(pdf, b, p);
     if (pdf_thread_attr(p) != null)
@@ -118,9 +117,8 @@ void end_thread(PDF pdf)
     scaledpos tmp1, tmp2;
     (void) pdf;                 /* for later */
     if (pdf_thread_level != cur_s)
-        pdf_error(maketexstring("ext4"),
-                  maketexstring
-                  ("\\pdfendthread ended up in different nesting level than \\pdfstartthread"));
+        pdf_error("ext4",
+                  "\\pdfendthread ended up in different nesting level than \\pdfstartthread");
     if (is_running(pdf_thread_dp) && (last_thread != null)) {
         tmp1.h = cur.h;
         tmp1.v = cur.v;
@@ -164,8 +162,7 @@ void thread_title(PDF pdf, integer t)
 void pdf_fix_thread(PDF pdf, integer t)
 {
     halfword a;
-    pdf_warning(maketexstring("thread"),
-                maketexstring("destination "), false, false);
+    pdf_warning("thread", "destination", false, false);
     if (obj_info(pdf, t) < 0) {
         tprint("name{");
         print(-obj_info(pdf, t));
@@ -242,10 +239,9 @@ void scan_thread_id(void)
     if (scan_keyword("num")) {
         scan_int();
         if (cur_val <= 0)
-            pdf_error(maketexstring("ext1"),
-                      maketexstring("num identifier must be positive"));
+            pdf_error("ext1", "num identifier must be positive");
         if (cur_val > max_halfword)
-            pdf_error(maketexstring("ext1"), maketexstring("number too big"));
+            pdf_error("ext1", "number too big");
         set_pdf_thread_id(cur_list.tail_field, cur_val);
         set_pdf_thread_named_id(cur_list.tail_field, 0);
     } else if (scan_keyword("name")) {
@@ -253,8 +249,7 @@ void scan_thread_id(void)
         set_pdf_thread_id(cur_list.tail_field, def_ref);
         set_pdf_thread_named_id(cur_list.tail_field, 1);
     } else {
-        pdf_error(maketexstring("ext1"),
-                  maketexstring("identifier type missing"));
+        pdf_error("ext1", "identifier type missing");
     }
 }
 
@@ -299,7 +294,7 @@ void print_bead_rectangles(PDF pdf)
             if (subtype(i) == pdf_thread_data_node)     /* thanh says it mis be destroyed here */
                 flush_node(i);
             pdf_printf(pdf, "]\n");
-            set_obj_bead_rect(pdf, token_info(k), pdf->obj_ptr);     /* rewrite |obj_bead_data| */
+            set_obj_bead_rect(pdf, token_info(k), pdf->obj_ptr);        /* rewrite |obj_bead_data| */
             pdf_end_obj(pdf);
             k = token_link(k);
         }

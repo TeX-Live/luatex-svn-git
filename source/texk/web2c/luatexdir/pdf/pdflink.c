@@ -61,15 +61,14 @@ void pop_link_level(void)
 void do_link(PDF pdf, halfword p, halfword parent_box, scaled x, scaled y)
 {
     if (!is_shipping_page)
-        pdf_error(maketexstring("ext4"),
-                  maketexstring("link annotations cannot be inside an XForm"));
+        pdf_error("ext4", "link annotations cannot be inside an XForm");
     assert(type(parent_box) == hlist_node);
     if (is_obj_scheduled(pdf, pdf_link_objnum(p)))
         pdf_link_objnum(p) = pdf_new_objnum(pdf);
     push_link_level(p);
     set_rect_dimens(p, parent_box, x, y,
                     pdf_width(p), pdf_height(p), pdf_depth(p), pdf_link_margin);
-    obj_annot_ptr(pdf, pdf_link_objnum(p)) = p;      /* the reference for the pdf annot object must be set here */
+    obj_annot_ptr(pdf, pdf_link_objnum(p)) = p; /* the reference for the pdf annot object must be set here */
     pdf_append_list(pdf_link_objnum(p), pdf_link_list);
     set_obj_scheduled(pdf, pdf_link_objnum(p));
 }
@@ -79,13 +78,11 @@ void end_link(void)
     halfword p;
     scaledpos tmp1, tmp2;
     if (pdf_link_stack_ptr < 1)
-        pdf_error(maketexstring("ext4"),
-                  maketexstring
-                  ("pdf_link_stack empty, \\pdfendlink used without \\pdfstartlink?"));
+        pdf_error("ext4",
+                  "pdf_link_stack empty, \\pdfendlink used without \\pdfstartlink?");
     if (pdf_link_stack[pdf_link_stack_ptr].nesting_level != cur_s)
-        pdf_error(maketexstring("ext4"),
-                  maketexstring
-                  ("\\pdfendlink ended up in different nesting level than \\pdfstartlink"));
+        pdf_error("ext4",
+                  "\\pdfendlink ended up in different nesting level than \\pdfstartlink");
 
     /* N.B.: test for running link must be done on |link_node| and not |ref_link_node|,
        as |ref_link_node| can be set by |do_link| or |append_link| already */
@@ -135,7 +132,8 @@ node, in order to use |flush_node_list| to do the job.
 
 /* append a new pdf annot to |pdf_link_list| */
 
-void append_link(PDF pdf, halfword parent_box, scaled x, scaled y, small_number i)
+void append_link(PDF pdf, halfword parent_box, scaled x, scaled y,
+                 small_number i)
 {
     halfword p;
     assert(type(parent_box) == hlist_node);
@@ -149,13 +147,12 @@ void append_link(PDF pdf, halfword parent_box, scaled x, scaled y, small_number 
     pdf_append_list(pdf->obj_ptr, pdf_link_list);
 }
 
-void scan_startlink (PDF pdf) 
+void scan_startlink(PDF pdf)
 {
     integer k;
     halfword r;
     if (abs(cur_list.mode_field) == vmode)
-        pdf_error(maketexstring("ext1"), 
-                  maketexstring("\\pdfstartlink cannot be used in vertical mode"));
+        pdf_error("ext1", "\\pdfstartlink cannot be used in vertical mode");
     k = pdf_new_objnum(pdf);
     new_annot_whatsit(pdf_start_link_node);
     set_pdf_link_attr(cur_list.tail_field, null);

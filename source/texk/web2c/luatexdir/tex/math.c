@@ -1569,6 +1569,7 @@ void append_choices(void)
     push_math(math_choice_group, display_style);
     scan_left_brace();
 }
+
 void build_choices(void)
 {
     pointer p;                  /* the current mlist */

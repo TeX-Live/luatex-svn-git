@@ -567,7 +567,7 @@ static int l_scan_image(lua_State * L)
         (void) l_new_image(L);  /* image --- if everything worked well */
     aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);    /* image */
     a = *aa;
-    check_pdfoutput(maketexstring("img.scan()"), true);
+    check_pdfoutput("img.scan()", true);
     flush_str(last_tex_string);
     read_scale_img(L, a);
     return 1;                   /* image */
@@ -600,7 +600,7 @@ static void setup_image(PDF pdf, lua_State * L, image * a, wrtype_e writetype)
     image_dict *ad;
     assert(a != NULL);
     ad = img_dict(a);
-    check_pdfoutput(maketexstring(wrtype_s[writetype]), true);
+    check_pdfoutput((char *)wrtype_s[writetype], true);
     flush_str(last_tex_string);
     read_scale_img(L, a);
     if (img_arrayidx(a) == -1)

@@ -101,7 +101,8 @@ extern "C" {
 
 /* epdf.c */
     extern void epdf_mark_glyphs(struct fd_entry *, char *);
-    extern struct fd_entry *epdf_create_fontdescriptor(struct fm_entry *, int, int);
+    extern struct fd_entry *epdf_create_fontdescriptor(struct fm_entry *, int,
+                                                       int);
     extern int get_fd_objnum(struct fd_entry *);
     extern int get_fn_objnum(struct fd_entry *);
 

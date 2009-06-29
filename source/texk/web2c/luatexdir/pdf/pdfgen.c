@@ -71,9 +71,9 @@ PDF initialize_pdf(void)
                                    whether a pointer to |mem| is valid  */
     pdf->pstruct = NULL;
 
-    pdf->obj_tab_size = inf_obj_tab_size;        /* allocated size of |obj_tab| array */
-    pdf->obj_tab = xmalloc((pdf->obj_tab_size+1) * sizeof(obj_entry));
-    set_obj_offset(pdf,0,0);
+    pdf->obj_tab_size = inf_obj_tab_size;       /* allocated size of |obj_tab| array */
+    pdf->obj_tab = xmalloc((pdf->obj_tab_size + 1) * sizeof(obj_entry));
+    set_obj_offset(pdf, 0, 0);
 
     return pdf;
 }
@@ -110,9 +110,8 @@ void initialize_pdf_output(PDF pdf)
         pdf->os_enable = true;
     } else {
         if (pdf->objcompresslevel > 0) {
-            pdf_warning(maketexstring("Object streams"),
-                        maketexstring
-                        ("\\pdfobjcompresslevel > 0 requires \\pdfminorversion > 4. Object streams disabled now."),
+            pdf_warning("Object streams",
+                        "\\pdfobjcompresslevel > 0 requires \\pdfminorversion > 4. Object streams disabled now.",
                         true, true);
             pdf->objcompresslevel = 0;
         }
@@ -198,13 +197,11 @@ void do_check_pdfminorversion(PDF pdf)
     } else {
         /* Check that variables for \.{PDF} output are unchanged */
         if (pdf->minor_version != pdf_minor_version)
-            pdf_error(maketexstring("setup"),
-                      maketexstring
-                      ("\\pdfminorversion cannot be changed after data is written to the PDF file"));
+            pdf_error("setup",
+                      "\\pdfminorversion cannot be changed after data is written to the PDF file");
         if (pdf->draftmode != pdf_draftmode)
-            pdf_error(maketexstring("setup"),
-                      maketexstring
-                      ("\\pdfdraftmode cannot be changed after data is written to the PDF file"));
+            pdf_error("setup",
+                      "\\pdfdraftmode cannot be changed after data is written to the PDF file");
 
     }
     if (pdf->draftmode != 0) {
@@ -272,9 +269,8 @@ void pdf_flush(PDF pdf)
         }
         pdf->ptr = 0;
         if (saved_pdf_gone > pdf->gone)
-            pdf_error(maketexstring("file size"),
-                      maketexstring
-                      ("File size exceeds architectural limits (pdf_gone wraps around)"));
+            pdf_error("file size",
+                      "File size exceeds architectural limits (pdf_gone wraps around)");
     }
 }
 
@@ -309,20 +305,20 @@ void pdf_os_prepare_obj(PDF pdf, integer i, integer pdf_os_level)
     if (pdf->os_mode) {
         if (pdf->os_cur_objnum == 0) {
             pdf->os_cur_objnum = pdf_new_objnum(pdf);
-            decr(pdf->obj_ptr);      /* object stream is not accessible to user */
+            decr(pdf->obj_ptr); /* object stream is not accessible to user */
             incr(pdf->os_cntr); /* only for statistics */
             pdf->os_idx = 0;
             pdf->ptr = 0;       /* start fresh object stream */
         } else {
             incr(pdf->os_idx);
         }
-        obj_os_idx(pdf,i) = pdf->os_idx;
-        obj_offset(pdf,i) = pdf->os_cur_objnum;
+        obj_os_idx(pdf, i) = pdf->os_idx;
+        obj_offset(pdf, i) = pdf->os_cur_objnum;
         pdf->os_obj[pdf->os_idx].num = i;
         pdf->os_obj[pdf->os_idx].off = pdf->ptr;
     } else {
-        obj_offset(pdf,i) = pdf_offset(pdf);
-        obj_os_idx(pdf,i) = -1;     /* mark it as not included in object stream */
+        obj_offset(pdf, i) = pdf_offset(pdf);
+        obj_os_idx(pdf, i) = -1;        /* mark it as not included in object stream */
     }
 }
 
@@ -382,7 +378,7 @@ void pdf_print_char(PDF pdf, internal_font_number f, integer cc)
     pdf_mark_char(f, cc);
     if (font_encodingbytes(f) == 2) {
         char hex[5];
-        snprintf(hex, 5, "%04X", (unsigned int)char_index(f, cc));
+        snprintf(hex, 5, "%04X", (unsigned int) char_index(f, cc));
         pdf_room(pdf, 4);
         pdf_quick_out(pdf, hex[0]);
         pdf_quick_out(pdf, hex[1]);
@@ -521,7 +517,7 @@ void pdf_begin_stream(PDF pdf)
 {
     assert(pdf->os_mode == false);
     pdf_printf(pdf, "/Length           \n");
-    pdf->seek_write_length = true;       /* fill in length at |pdf_end_stream| call */
+    pdf->seek_write_length = true;      /* fill in length at |pdf_end_stream| call */
     pdf->stream_length_offset = pdf_offset(pdf) - 11;
     pdf->stream_length = 0;
     pdf->last_byte = 0;
@@ -655,8 +651,7 @@ void pdf_use_font(internal_font_number f, integer fontnum)
     assert((fontnum > 0) || ((fontnum < 0) && (pdf_font_num(-fontnum) > 0)));
     set_pdf_font_num(f, fontnum);
     if (pdf_move_chars > 0) {
-        pdf_warning(0, maketexstring("Primitive \\pdfmovechars is obsolete."),
-                    true, true);
+        pdf_warning(NULL, "Primitive \\pdfmovechars is obsolete.", true, true);
         pdf_move_chars = 0;     /* warn only once */
     }
 }
@@ -681,11 +676,10 @@ void pdf_init_font(PDF pdf, internal_font_number f)
         b = pdf_font_blink(f);
         /* TODO: reinstate this check. disabled because wide fonts font have fmentries */
         if (false && (!hasfmentry(b)))
-            pdf_error(maketexstring("font expansion"),
-                      maketexstring
-                      ("auto expansion is only possible with scalable fonts"));
+            pdf_error("font expansion",
+                      "auto expansion is only possible with scalable fonts");
         if (!font_used(b))
-            pdf_init_font(pdf,b);
+            pdf_init_font(pdf, b);
         set_font_map(f, font_map(b));
     }
     /* check whether |f| can share the font object with some |k|: we have 2 cases
@@ -719,7 +713,7 @@ internal_font_number pdf_set_font(PDF pdf, internal_font_number f)
 {
     pointer p;
     internal_font_number k;
-    integer ff;                     /* for use with |set_ff| */
+    integer ff;                 /* for use with |set_ff| */
 
     if (!font_used(f))
         pdf_init_font(pdf, f);
@@ -1488,7 +1482,7 @@ void write_zip(PDF pdf, boolean finish)
     for (;;) {
         if (c_stream.avail_out == 0) {
             pdf->gone += xfwrite(zipbuf, 1, ZIP_BUF_SIZE, pdf->file);
-            pdf->last_byte = zipbuf[ZIP_BUF_SIZE - 1];   /* not needed */
+            pdf->last_byte = zipbuf[ZIP_BUF_SIZE - 1];  /* not needed */
             c_stream.next_out = (Bytef *) zipbuf;
             c_stream.avail_out = ZIP_BUF_SIZE;
         }
@@ -1516,5 +1510,51 @@ void zip_free(void)
     if (zipbuf != NULL) {
         check_err(deflateEnd(&c_stream), "deflateEnd");
         free(zipbuf);
+    }
+}
+
+void pdf_error(char *t, char *p)
+{
+    normalize_selector();
+    print_err("LuaTeX error");
+    if (t != NULL) {
+        tprint(" (");
+        tprint(t);
+        tprint(")");
+    }
+    tprint(": ");
+    if (p != NULL)
+        tprint(p);
+    succumb();
+}
+
+void pdf_warning(char *t, char *p, boolean prepend_nl, boolean append_nl)
+{
+    if (prepend_nl)
+        print_ln();
+    tprint("LuaTeX warning");
+    if (t != NULL) {
+        tprint(" (");
+        tprint(t);
+        tprint(")");
+    }
+    tprint(": ");
+    if (p != NULL)
+        tprint(p);
+    if (append_nl)
+        print_ln();
+    if (history == spotless)
+        history = warning_issued;
+}
+
+void check_pdfoutput(char *s, boolean is_error)
+{
+    if (int_par(param_pdf_output_code) <= 0) {
+        if (is_error)
+            pdf_error(s, "not allowed in DVI mode (\\pdfoutput <= 0)");
+        else
+            pdf_warning(s,
+                        "not allowed in DVI mode (\\pdfoutput <= 0); ignoring it",
+                        true, true);
     }
 }

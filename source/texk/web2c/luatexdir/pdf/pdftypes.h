@@ -137,7 +137,7 @@ typedef struct pdf_output_file_ {
     int obj_tab_size;           /* allocated size of |obj_tab| array */
     obj_entry *obj_tab;
     int head_tab[9];            /* heads of the object lists in |obj_tab| */
-    struct avl_table *obj_tree[9]; /* this is useful for finding the objects back */
+    struct avl_table *obj_tree[9];      /* this is useful for finding the objects back */
 
     int pages_tail;
     int obj_ptr;                /* user objects counter */

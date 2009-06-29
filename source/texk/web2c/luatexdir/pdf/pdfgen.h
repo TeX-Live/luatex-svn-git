@@ -219,4 +219,9 @@ extern void pdf_use_font(internal_font_number f, integer fontnum);
 extern void pdf_init_font(PDF pdf, internal_font_number f);
 extern internal_font_number pdf_set_font(PDF pdf, internal_font_number f);
 
+extern void pdf_error(char *t, char *p);
+extern void pdf_warning(char *t, char *p, boolean pr, boolean ap);
+extern void check_pdfoutput(char *s, boolean is_error);
+
+
 #endif

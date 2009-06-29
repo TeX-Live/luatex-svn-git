@@ -43,7 +43,7 @@ void pdf_place_form(PDF pdf, integer objnum, scaledpos pos)
 }
 
 /* todo: the trick with |box_base| is a cludge */
-void scan_pdfxform (PDF pdf, integer box_base)
+void scan_pdfxform(PDF pdf, integer box_base)
 {
     integer k;
     halfword p;
@@ -53,9 +53,9 @@ void scan_pdfxform (PDF pdf, integer box_base)
     set_obj_data_ptr(pdf, k, pdf_get_mem(pdf, pdfmem_xform_size));
     if (scan_keyword("attr")) {
         scan_pdf_ext_toks();
-        set_obj_xform_attr(pdf, k,def_ref);
+        set_obj_xform_attr(pdf, k, def_ref);
     } else {
-        set_obj_xform_attr(pdf, k,null);
+        set_obj_xform_attr(pdf, k, null);
     }
     if (scan_keyword("resources")) {
         scan_pdf_ext_toks();
@@ -64,26 +64,25 @@ void scan_pdfxform (PDF pdf, integer box_base)
         set_obj_xform_resources(pdf, k, null);
     }
     scan_int();
-    p=box(cur_val);
+    p = box(cur_val);
     if (p == null)
-        pdf_error(maketexstring("ext1"), 
-                  maketexstring("\\pdfxform cannot be used with a void box"));
+        pdf_error("ext1", "\\pdfxform cannot be used with a void box");
     set_obj_xform_width(pdf, k, width(p));
     set_obj_xform_height(pdf, k, height(p));
     set_obj_xform_depth(pdf, k, depth(p));
-    set_obj_xform_box(pdf, k, p); /* save pointer to the box */
+    set_obj_xform_box(pdf, k, p);       /* save pointer to the box */
     box(cur_val) = null;
     pdf_last_xform = k;
 }
 
 
-void scan_pdfrefxform (PDF pdf)
+void scan_pdfrefxform(PDF pdf)
 {
     scan_int();
     pdf_check_obj(pdf, obj_type_xform, cur_val);
     new_whatsit(pdf_refxform_node);
     set_pdf_xform_objnum(cur_list.tail_field, cur_val);
-    set_pdf_width(cur_list.tail_field,obj_xform_width(pdf, cur_val));
-    set_pdf_height(cur_list.tail_field,obj_xform_height(pdf, cur_val));
-    set_pdf_depth(cur_list.tail_field,obj_xform_depth(pdf, cur_val));
+    set_pdf_width(cur_list.tail_field, obj_xform_width(pdf, cur_val));
+    set_pdf_height(cur_list.tail_field, obj_xform_height(pdf, cur_val));
+    set_pdf_depth(cur_list.tail_field, obj_xform_depth(pdf, cur_val));
 }

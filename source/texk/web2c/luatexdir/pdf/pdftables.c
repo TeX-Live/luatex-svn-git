@@ -49,7 +49,7 @@ static int compare_info(const void *pa, const void *pb, void *param)
     a = ((const oentry *) pa)->int0;
     b = ((const oentry *) pb)->int0;
     if (a == 0 && b == 0)
-        return 0; /* this happens a lot */
+        return 0;               /* this happens a lot */
     if (a < 0 && b < 0) {       /* string comparison */
         a = -a;
         b = -b;
@@ -57,7 +57,7 @@ static int compare_info(const void *pa, const void *pb, void *param)
             a -= 2097152;
             b -= 2097152;
             as = str_start[a];
-            ae = str_start[a + 1];     /* start of next string in pool */
+            ae = str_start[a + 1];      /* start of next string in pool */
             bs = str_start[b];
             be = str_start[b + 1];
             al = ae - as;
@@ -139,7 +139,8 @@ void pdf_create_obj(PDF pdf, integer t, integer i)
             pdf->obj_tab_size = pdf->obj_tab_size + a;
         else
             pdf->obj_tab_size = sup_obj_tab_size;
-        pdf->obj_tab = xreallocarray(pdf->obj_tab, obj_entry, pdf->obj_tab_size);
+        pdf->obj_tab =
+            xreallocarray(pdf->obj_tab, obj_entry, pdf->obj_tab_size);
     }
     incr(pdf->sys_obj_ptr);
     pdf->obj_ptr = pdf->sys_obj_ptr;
@@ -195,7 +196,7 @@ integer get_obj(PDF pdf, integer t, integer i, boolean byname)
         r = find_obj(pdf, t, s, true);
     } else {
         s = 0;
-        r = find_obj(pdf ,t, i, false);
+        r = find_obj(pdf, t, i, false);
     }
     if (r == 0) {
         if (byname > 0) {
@@ -351,14 +352,21 @@ void dump_pdftex_data(PDF pdf)
     print_ln();
     print_int(pdf->mem_ptr - 1);
     tprint(" words of pdf memory");
-    x = pdf->obj_tab_size; dump_int(x);
-    x = pdf->obj_ptr; dump_int(x);
-    x = pdf->sys_obj_ptr; dump_int(x);
+    x = pdf->obj_tab_size;
+    dump_int(x);
+    x = pdf->obj_ptr;
+    dump_int(x);
+    x = pdf->sys_obj_ptr;
+    dump_int(x);
     for (k = 1; k <= pdf->sys_obj_ptr; k++) {
-        x = obj_info(pdf, k); dump_int(x);
-        x = obj_link(pdf, k); dump_int(x);
-        x = obj_os_idx(pdf, k); dump_int(x);
-        x = obj_aux(pdf,k); dump_int(x);
+        x = obj_info(pdf, k);
+        dump_int(x);
+        x = obj_link(pdf, k);
+        dump_int(x);
+        x = obj_os_idx(pdf, k);
+        dump_int(x);
+        x = obj_aux(pdf, k);
+        dump_int(x);
     }
     print_ln();
     print_int(pdf->sys_obj_ptr);
@@ -366,9 +374,12 @@ void dump_pdftex_data(PDF pdf)
     dump_int(pdf_obj_count);
     dump_int(pdf_xform_count);
     dump_int(pdf_ximage_count);
-    x = pdf->head_tab[obj_type_obj]; dump_int(x);
-    x = pdf->head_tab[obj_type_xform]; dump_int(x);
-    x = pdf->head_tab[obj_type_ximage]; dump_int(x);
+    x = pdf->head_tab[obj_type_obj];
+    dump_int(x);
+    x = pdf->head_tab[obj_type_xform];
+    dump_int(x);
+    x = pdf->head_tab[obj_type_ximage];
+    dump_int(x);
     dump_int(pdf_last_obj);
     dump_int(pdf_last_xform);
     dump_int(pdf_last_ximage);
@@ -391,22 +402,32 @@ void undump_pdftex_data(PDF pdf)
         undump_int(x);
         pdf->mem[k] = (int) x;
     }
-    undump_int(x); pdf->obj_tab_size = x;
-    undump_int(x); pdf->obj_ptr = x;
-    undump_int(x); pdf->sys_obj_ptr = x;
+    undump_int(x);
+    pdf->obj_tab_size = x;
+    undump_int(x);
+    pdf->obj_ptr = x;
+    undump_int(x);
+    pdf->sys_obj_ptr = x;
     for (k = 1; k <= pdf->sys_obj_ptr; k++) {
-        undump_int(x); obj_info(pdf, k) = x;
-        undump_int(x); obj_link(pdf,k) = x;
+        undump_int(x);
+        obj_info(pdf, k) = x;
+        undump_int(x);
+        obj_link(pdf, k) = x;
         set_obj_offset(pdf, k, -1);
-        undump_int(x); obj_os_idx(pdf, k) = x;
-        undump_int(x); obj_aux(pdf,k) = x;
+        undump_int(x);
+        obj_os_idx(pdf, k) = x;
+        undump_int(x);
+        obj_aux(pdf, k) = x;
     }
     undump_int(pdf_obj_count);
     undump_int(pdf_xform_count);
     undump_int(pdf_ximage_count);
-    undump_int(x); pdf->head_tab[obj_type_obj] = x;
-    undump_int(x); pdf->head_tab[obj_type_xform] = x;
-    undump_int(x); pdf->head_tab[obj_type_ximage] = x;
+    undump_int(x);
+    pdf->head_tab[obj_type_obj] = x;
+    undump_int(x);
+    pdf->head_tab[obj_type_xform] = x;
+    undump_int(x);
+    pdf->head_tab[obj_type_ximage] = x;
     undump_int(pdf_last_obj);
     undump_int(pdf_last_xform);
     undump_int(pdf_last_ximage);

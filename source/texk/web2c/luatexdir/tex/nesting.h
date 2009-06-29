@@ -32,7 +32,7 @@ extern void print_mode(integer m);
 extern void print_in_mode(integer m);
 extern integer get_mode_id(void);
 
-#  define ignore_depth -65536000/* magic dimension value to mean `ignore me' */
+#  define ignore_depth -65536000        /* magic dimension value to mean `ignore me' */
 
 typedef struct list_state_record_ {
     integer mode_field;

@@ -179,8 +179,8 @@ boolean auto_expand_vf(internal_font_number f); /* forward */
 void pdf_check_vf(internal_font_number f)
 {
     if (font_type(f) == virtual_font_type)
-        pdf_error(maketexstring("font"),
-                  maketexstring("command cannot be used with virtual font"));
+        pdf_error("font",
+                  "command cannot be used with virtual font");
 }
 
 static void

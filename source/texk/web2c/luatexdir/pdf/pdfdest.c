@@ -71,9 +71,7 @@ with the same identifier already exists and give a warning if needed.
 
 void warn_dest_dup(integer id, small_number byname, char *s1, char *s2)
 {
-    pdf_warning(maketexstring(s1),
-                maketexstring("destination with the same identifier ("),
-                false, false);
+    pdf_warning(s1, "destination with the same identifier (", false, false);
     if (byname > 0) {
         tprint("name");
         print_mark(id);
@@ -93,12 +91,11 @@ void do_dest(PDF pdf, halfword p, halfword parent_box, scaled x, scaled y)
     scaledpos tmp1, tmp2;
     integer k;
     if (!is_shipping_page)
-        pdf_error(maketexstring("ext4"),
-                  maketexstring("destinations cannot be inside an XForm"));
+        pdf_error("ext4", "destinations cannot be inside an XForm");
     if (doing_leaders)
         return;
-    k = get_obj(pdf,obj_type_dest, pdf_dest_id(p), pdf_dest_named_id(p));
-    if (obj_dest_ptr(pdf,k) != null) {
+    k = get_obj(pdf, obj_type_dest, pdf_dest_id(p), pdf_dest_named_id(p));
+    if (obj_dest_ptr(pdf, k) != null) {
         warn_dest_dup(pdf_dest_id(p), pdf_dest_named_id(p),
                       "ext4", "has been already used, duplicate ignored");
         return;
@@ -162,9 +159,8 @@ void write_out_pdf_mark_destinations(PDF pdf)
         k = pdf_dest_list;
         while (k != null) {
             if (is_obj_written(pdf, token_info(k))) {
-                pdf_error(maketexstring("ext5"),
-                          maketexstring
-                          ("destination has been already written (this shouldn't happen)"));
+                pdf_error("ext5",
+                          "destination has been already written (this shouldn't happen)");
             } else {
                 integer i;
                 i = obj_dest_ptr(pdf, token_info(k));
@@ -219,8 +215,7 @@ void write_out_pdf_mark_destinations(PDF pdf)
                     pdf_print_rect_spec(pdf, i);
                     break;
                 default:
-                    pdf_error(maketexstring("ext5"),
-                              maketexstring("unknown dest type"));
+                    pdf_error("ext5", "unknown dest type");
                     break;
                 }
                 pdf_printf(pdf, "]\n");
@@ -246,10 +241,9 @@ void scan_pdfdest(PDF pdf)
     if (scan_keyword("num")) {
         scan_int();
         if (cur_val <= 0)
-            pdf_error(maketexstring("ext1"),
-                      maketexstring("num identifier must be positive"));
+            pdf_error("ext1", "num identifier must be positive");
         if (cur_val > max_halfword)
-            pdf_error(maketexstring("ext1"), maketexstring("number too big"));
+            pdf_error("ext1", "number too big");
         set_pdf_dest_id(cur_list.tail_field, cur_val);
         set_pdf_dest_named_id(cur_list.tail_field, 0);
     } else if (scan_keyword("name")) {
@@ -257,16 +251,14 @@ void scan_pdfdest(PDF pdf)
         set_pdf_dest_id(cur_list.tail_field, def_ref);
         set_pdf_dest_named_id(cur_list.tail_field, 1);
     } else {
-        pdf_error(maketexstring("ext1"),
-                  maketexstring("identifier type missing"));
+        pdf_error("ext1", "identifier type missing");
     }
     if (scan_keyword("xyz")) {
         set_pdf_dest_type(cur_list.tail_field, pdf_dest_xyz);
         if (scan_keyword("zoom")) {
             scan_int();
             if (cur_val > max_halfword)
-                pdf_error(maketexstring("ext1"),
-                          maketexstring("number too big"));
+                pdf_error("ext1", "number too big");
             set_pdf_dest_xyz_zoom(cur_list.tail_field, cur_val);
         } else {
             set_pdf_dest_xyz_zoom(cur_list.tail_field, null);
@@ -286,8 +278,7 @@ void scan_pdfdest(PDF pdf)
     } else if (scan_keyword("fit")) {
         set_pdf_dest_type(cur_list.tail_field, pdf_dest_fit);
     } else {
-        pdf_error(maketexstring("ext1"),
-                  maketexstring("destination type missing"));
+        pdf_error("ext1", "destination type missing");
     }
     /* Scan an optional space */
     get_x_token();
@@ -305,9 +296,10 @@ void scan_pdfdest(PDF pdf)
         k = find_obj(pdf, obj_type_dest, i, true);
         flush_str(i);
     } else {
-        k = find_obj(pdf, obj_type_dest, pdf_dest_id(cur_list.tail_field), false);
+        k = find_obj(pdf, obj_type_dest, pdf_dest_id(cur_list.tail_field),
+                     false);
     }
-    if ((k != 0) && (obj_dest_ptr(pdf,k) != null)) {
+    if ((k != 0) && (obj_dest_ptr(pdf, k) != null)) {
         warn_dest_dup(pdf_dest_id(cur_list.tail_field),
                       pdf_dest_named_id(cur_list.tail_field),
                       "ext4", "has been already used, duplicate ignored");

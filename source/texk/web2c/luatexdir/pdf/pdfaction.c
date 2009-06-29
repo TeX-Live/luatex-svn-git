@@ -53,7 +53,8 @@ void write_action(PDF pdf, halfword p)
     case pdf_action_page:
         if (pdf_action_file(p) == null) {
             pdf_printf(pdf, "/S /GoTo /D [");
-            pdf_print_int(pdf, get_obj(pdf, obj_type_page, pdf_action_id(p), false));
+            pdf_print_int(pdf,
+                          get_obj(pdf, obj_type_page, pdf_action_id(p), false));
             pdf_printf(pdf, " 0 R");
         } else {
             pdf_printf(pdf, "/S /GoToR /D [");
@@ -81,9 +82,8 @@ void write_action(PDF pdf, halfword p)
         } else if (pdf_action_file(p) == null) {
             pdf_indirect(pdf, "D", d);
         } else {
-            pdf_error(maketexstring("ext4"),
-                      maketexstring
-                      ("`goto' option cannot be used with both `file' and `num'"));
+            pdf_error("ext4",
+                      "`goto' option cannot be used with both `file' and `num'");
         }
         break;
     case pdf_action_thread:

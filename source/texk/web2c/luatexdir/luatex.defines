@@ -1054,6 +1054,9 @@
 
 { pdf generation }
 
+@define procedure pdf_error();
+@define procedure check_pdfoutput();
+
 @define function pdf_get_mem();
 @define procedure initialize_pdfgen;
 @define procedure dump_pdftex_data();
@@ -1123,7 +1126,6 @@
 @define procedure set_pdf_ximage_idx();
 @define procedure set_pdf_ximage_objnum();
 @define procedure set_pdf_ximage_ref();
-
 
 @define function pdf_literal_mode();
 @define function pdf_literal_data();
@@ -1292,8 +1294,6 @@
 @define var pdf_box_spec_art;
 
 @define procedure set_ff();
-
-@define var ff;
 
 @define procedure pdf_create_obj();
 @define function get_obj();

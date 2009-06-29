@@ -361,7 +361,7 @@ void pdf_hlist_out(PDF pdf)
                     do_late_lua(pdf, p);
                     break;
                 case pdf_refobj_node:
-                    if (!is_obj_scheduled(pdf ,pdf_obj_objnum(p))) {
+                    if (!is_obj_scheduled(pdf, pdf_obj_objnum(p))) {
                         pdf_append_list(pdf_obj_objnum(p), pdf_obj_list);
                         set_obj_scheduled(pdf, pdf_obj_objnum(p));
                     }
@@ -437,14 +437,10 @@ void pdf_hlist_out(PDF pdf)
                     do_thread(pdf, p, this_box, left_edge, base_line);
                     break;
                 case pdf_start_thread_node:
-                    pdf_error(maketexstring("ext4"),
-                              maketexstring
-                              ("\\pdfstartthread ended up in hlist"));
+                    pdf_error("ext4", "\\pdfstartthread ended up in hlist");
                     break;
                 case pdf_end_thread_node:
-                    pdf_error(maketexstring("ext4"),
-                              maketexstring
-                              ("\\pdfendthread ended up in hlist"));
+                    pdf_error("ext4", "\\pdfendthread ended up in hlist");
                     break;
                 case pdf_save_pos_node:
                     /* Save current position */
@@ -936,13 +932,10 @@ void pdf_vlist_out(PDF pdf)
                              top_edge + height(this_box));
                     break;
                 case pdf_start_link_node:
-                    pdf_error(maketexstring("ext4"),
-                              maketexstring
-                              ("\\pdfstartlink ended up in vlist"));
+                    pdf_error("ext4", "\\pdfstartlink ended up in vlist");
                     break;
                 case pdf_end_link_node:
-                    pdf_error(maketexstring("ext4"),
-                              maketexstring("\\pdfendlink ended up in vlist"));
+                    pdf_error("ext4", "\\pdfendlink ended up in vlist");
                     break;
                 case pdf_dest_node:
                     do_dest(pdf, p, this_box, left_edge,

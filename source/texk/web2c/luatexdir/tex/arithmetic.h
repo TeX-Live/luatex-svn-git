@@ -24,8 +24,8 @@
 
 /* |incr| and |decr| are in texmfmp.h */
 
-                          /*#define incr(A) (A)++*//* increase a variable by unity */
-                          /*#define decr(A) (A)--*//* decrease a variable by unity */
+                                                   /*#define incr(A) (A)++ *//* increase a variable by unity */
+                                                   /*#define decr(A) (A)-- *//* decrease a variable by unity */
 
 #  define negate(A) (A)=-(A)    /* change the sign of a variable */
 
@@ -60,7 +60,7 @@ extern scaled xn_over_d(scaled x, integer n, integer d);
 
 extern halfword badness(scaled t, scaled s);
 
-#  define set_glue_ratio_zero(A) (A)=0.0/* store the representation of zero ratio */
+#  define set_glue_ratio_zero(A) (A)=0.0        /* store the representation of zero ratio */
 #  define set_glue_ratio_one(A) (A)=1.0 /* store the representation of unit ratio */
 #  define float_cast(A) (float)(A)      /* convert from |glue_ratio| to type |real| */
 #  define unfloat(A) (glue_ratio)(A)    /* convert from |real| to type |glue_ratio| */

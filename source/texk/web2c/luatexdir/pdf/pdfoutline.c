@@ -44,7 +44,7 @@ will store data of outline entries in |pdf->mem| instead of |mem|
 #define obj_outline_next(pdf,A)       pdf->mem[obj_outline_ptr(pdf,A) + 3]
 #define obj_outline_first(pdf,A)      pdf->mem[obj_outline_ptr(pdf,A) + 4]
 #define obj_outline_last(pdf,A)       pdf->mem[obj_outline_ptr(pdf,A) + 5]
-#define obj_outline_action_objnum(pdf,A)  pdf->mem[obj_outline_ptr(pdf,A) + 6]      /* object number of action */
+#define obj_outline_action_objnum(pdf,A)  pdf->mem[obj_outline_ptr(pdf,A) + 6]  /* object number of action */
 #define obj_outline_attr(pdf,A)       pdf->mem[obj_outline_ptr(pdf,A) + 7]
 
 #define set_obj_outline_action_objnum(pdf,A,B) obj_outline_action_objnum(pdf,A)=B
@@ -71,7 +71,7 @@ static integer open_subentries(PDF pdf, halfword p)
         do {
             incr(k);
             c = open_subentries(pdf, l);
-            if (obj_outline_count(pdf,l) > 0)
+            if (obj_outline_count(pdf, l) > 0)
                 k = k + c;
             obj_outline_parent(pdf, l) = p;
             r = obj_outline_next(pdf, l);
@@ -80,10 +80,10 @@ static integer open_subentries(PDF pdf, halfword p)
             l = r;
         } while (l != 0);
     }
-    if (obj_outline_count(pdf,p) > 0)
-        obj_outline_count(pdf,p) = k;
+    if (obj_outline_count(pdf, p) > 0)
+        obj_outline_count(pdf, p) = k;
     else
-        obj_outline_count(pdf,p) = -k;
+        obj_outline_count(pdf, p) = -k;
     return k;
 }
 
@@ -99,7 +99,7 @@ halfword scan_action(void)
     else if (scan_keyword("thread"))
         set_pdf_action_type(p, pdf_action_thread);
     else
-        pdf_error(maketexstring("ext1"), maketexstring("action type missing"));
+        pdf_error("ext1", "action type missing");
 
     if (pdf_action_type(p) == pdf_action_user) {
         scan_pdf_ext_toks();
@@ -112,14 +112,11 @@ halfword scan_action(void)
     }
     if (scan_keyword("page")) {
         if (pdf_action_type(p) != pdf_action_goto)
-            pdf_error(maketexstring("ext1"),
-                      maketexstring
-                      ("only GoTo action can be used with `page'"));
+            pdf_error("ext1", "only GoTo action can be used with `page'");
         set_pdf_action_type(p, pdf_action_page);
         scan_int();
         if (cur_val <= 0)
-            pdf_error(maketexstring("ext1"),
-                      maketexstring("page number must be positive"));
+            pdf_error("ext1", "page number must be positive");
         set_pdf_action_id(p, cur_val);
         set_pdf_action_named_id(p, 0);
         scan_pdf_ext_toks();
@@ -131,18 +128,15 @@ halfword scan_action(void)
     } else if (scan_keyword("num")) {
         if ((pdf_action_type(p) == pdf_action_goto) &&
             (pdf_action_file(p) != null))
-            pdf_error(maketexstring("ext1"),
-                      maketexstring
-                      ("`goto' option cannot be used with both `file' and `num'"));
+            pdf_error("ext1",
+                      "`goto' option cannot be used with both `file' and `num'");
         scan_int();
         if (cur_val <= 0)
-            pdf_error(maketexstring("ext1"),
-                      maketexstring("num identifier must be positive"));
+            pdf_error("ext1", "num identifier must be positive");
         set_pdf_action_named_id(p, 0);
         set_pdf_action_id(p, cur_val);
     } else {
-        pdf_error(maketexstring("ext1"),
-                  maketexstring("identifier type missing"));
+        pdf_error("ext1", "identifier type missing");
     }
     if (scan_keyword("newwindow")) {
         set_pdf_action_new_window(p, 1);
@@ -163,9 +157,8 @@ halfword scan_action(void)
         (((pdf_action_type(p) != pdf_action_goto) &&
           (pdf_action_type(p) != pdf_action_page)) ||
          (pdf_action_file(p) == null)))
-        pdf_error(maketexstring("ext1"),
-                  maketexstring
-                  ("`newwindow'/`nonewwindow' must be used with `goto' and `file' option"));
+        pdf_error("ext1",
+                  "`newwindow'/`nonewwindow' must be used with `goto' and `file' option");
     return p;
 }
 
@@ -206,9 +199,9 @@ void scan_pdfoutline(PDF pdf)
     delete_action_ref(p);
     pdf_create_obj(pdf, obj_type_outline, 0);
     k = pdf->obj_ptr;
-    set_obj_outline_ptr(pdf,k, pdf_get_mem(pdf, pdfmem_outline_size));
+    set_obj_outline_ptr(pdf, k, pdf_get_mem(pdf, pdfmem_outline_size));
     set_obj_outline_action_objnum(pdf, k, j);
-    set_obj_outline_count(pdf,k, i);
+    set_obj_outline_count(pdf, k, i);
     pdf_new_obj(pdf, obj_type_others, 0, 1);
     {
         char *s = tokenlist_to_cstring(q, true, NULL);
@@ -234,7 +227,7 @@ void scan_pdfoutline(PDF pdf)
         set_obj_outline_prev(pdf, k, pdf_last_outline);
     }
     pdf_last_outline = k;
-    if (obj_outline_count(pdf,k) != 0) {
+    if (obj_outline_count(pdf, k) != 0) {
         pdf_parent_outline = k;
         pdf_last_outline = 0;
     } else if ((pdf_parent_outline != 0) &&
@@ -272,7 +265,7 @@ integer print_outlines(PDF pdf)
         do {
             incr(k);
             a = open_subentries(pdf, l);
-            if (obj_outline_count(pdf,l) > 0)
+            if (obj_outline_count(pdf, l) > 0)
                 k = k + a;
             set_obj_outline_parent(pdf, l, pdf->obj_ptr);
             l = obj_outline_next(pdf, l);
@@ -305,7 +298,7 @@ integer print_outlines(PDF pdf)
                 pdf_indirect_ln(pdf, "First", obj_outline_first(pdf, k));
             if (obj_outline_last(pdf, k) != 0)
                 pdf_indirect_ln(pdf, "Last", obj_outline_last(pdf, k));
-            if (obj_outline_count(pdf,k) != 0)
+            if (obj_outline_count(pdf, k) != 0)
                 pdf_int_entry_ln(pdf, "Count", obj_outline_count(pdf, k));
             if (obj_outline_attr(pdf, k) != 0) {
                 pdf_print_toks_ln(pdf, obj_outline_attr(pdf, k));
@@ -313,7 +306,7 @@ integer print_outlines(PDF pdf)
                 set_obj_outline_attr(pdf, k, null);
             }
             pdf_end_dict(pdf);
-            k = obj_link(pdf,k);
+            k = obj_link(pdf, k);
         }
 
     } else {

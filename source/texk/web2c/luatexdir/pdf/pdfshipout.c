@@ -69,9 +69,8 @@ void fix_pdfoutput(void)
         fixed_pdfoutput = pdf_output;
         fixed_pdfoutput_set = true;
     } else if (fixed_pdfoutput != pdf_output) {
-        pdf_error(maketexstring("setup"),
-                  maketexstring
-                  ("\\pdfoutput can only be changed before anything is written to the output"));
+        pdf_error("setup",
+                  "\\pdfoutput can only be changed before anything is written to the output");
     }
 }
 
@@ -109,7 +108,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     integer pre_callback_id;
     integer post_callback_id;
     boolean ret;
-    integer ff;                     /* for use with |set_ff| */
+    integer ff;                 /* for use with |set_ff| */
     integer count_base = get_count_base();
 
     /* Start sheet {\sl Sync\TeX} information record */
@@ -146,7 +145,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         }
     }
     if ((tracing_output > 0) && (post_callback_id == 0) && shipping_page) {
-        print_char(']'); 
+        print_char(']');
         update_terminal();
         begin_diagnostic();
         show_box(p);
@@ -155,9 +154,8 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
 
     /* (\pdfTeX) Ship box |p| out */
     if (shipping_page && (box_dir(p) != page_direction))
-        pdf_warning(maketexstring("\\shipout"),
-                    maketexstring
-                    ("\\pagedir != \\bodydir; \\box255 may be placed wrongly on the page."),
+        pdf_warning("\\shipout",
+                    "\\pagedir != \\bodydir; \\box255 may be placed wrongly on the page.",
                     true, true);
     /* Update the values of |max_h| and |max_v|; but if the page is too large, |goto done| */
     /* todo: this can be shared with dvi output */
@@ -359,7 +357,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
 
     } else {
         pdf->last_page = get_obj(pdf, obj_type_page, total_pages + 1, 0);
-        set_obj_aux(pdf, pdf->last_page, 1);  /* mark that this page has been created */
+        set_obj_aux(pdf, pdf->last_page, 1);    /* mark that this page has been created */
         pdf_new_dict(pdf, obj_type_others, 0, 0);
         pdf->last_stream = pdf->obj_ptr;
         /* Reset PDF mark lists */
@@ -403,7 +401,8 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         /* Write out page object */
 
         pdf_begin_dict(pdf, pdf->last_page, 1);
-        pdf->last_pages = pdf_do_page_divert(pdf, pdf->last_page, page_divert_val);
+        pdf->last_pages =
+            pdf_do_page_divert(pdf, pdf->last_page, page_divert_val);
         pdf_printf(pdf, "/Type /Page\n");
         pdf_indirect_ln(pdf, "Contents", pdf->last_stream);
         pdf_indirect_ln(pdf, "Resources", pdf_last_resources);
@@ -504,7 +503,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         if (pdf_annot_list != null) {
             k = pdf_annot_list;
             while (k != null) {
-                i = obj_annot_ptr(pdf, token_info(k));       /* |i| points to |pdf_annot_node| */
+                i = obj_annot_ptr(pdf, token_info(k));  /* |i| points to |pdf_annot_node| */
                 pdf_begin_dict(pdf, token_info(k), 1);
                 pdf_printf(pdf, "/Type /Annot\n");
                 pdf_print_toks_ln(pdf, pdf_annot_data(i));
@@ -642,7 +641,8 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
 
   DONE:
     if ((tracing_output <= 0) && (post_callback_id == 0) && shipping_page) {
-        print_char(']'); update_terminal();
+        print_char(']');
+        update_terminal();
     }
     dead_cycles = 0;
 
@@ -706,14 +706,14 @@ void pdf_fix_dest(PDF pdf, integer k)
 {
     if (obj_dest_ptr(pdf, k) != null)
         return;
-    pdf_warning(maketexstring("dest"), get_nullstr(), false, false);
-    if (obj_info(pdf,k) < 0) {
+    pdf_warning("dest", NULL, false, false);
+    if (obj_info(pdf, k) < 0) {
         tprint("name{");
-        print(-obj_info(pdf,k));
+        print(-obj_info(pdf, k));
         tprint("}");
     } else {
         tprint("num");
-        print_int(obj_info(pdf,k));
+        print_int(obj_info(pdf, k));
     }
     tprint(" has been referenced but does not exist, replaced by a fixed one");
     print_ln();
@@ -804,7 +804,7 @@ void build_free_object_list(PDF pdf)
 {
     integer k, l;
     l = 0;
-    set_obj_fresh(pdf, l);           /* null object at begin of list of free objects */
+    set_obj_fresh(pdf, l);      /* null object at begin of list of free objects */
     for (k = 1; k <= pdf->sys_obj_ptr; k++) {
         if (!is_obj_written(pdf, k)) {
             set_obj_link(pdf, l, k);
@@ -844,8 +844,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version,
             /* Check for non-existing pages */
             k = pdf->head_tab[obj_type_page];
             while (obj_aux(pdf, k) == 0) {
-                pdf_warning(maketexstring("dest"), maketexstring("Page "),
-                            false, false);
+                pdf_warning("dest", "Page ", false, false);
                 print_int(obj_info(pdf, k));
                 tprint(" has been referenced but does not exist!");
                 print_ln();
@@ -879,8 +878,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version,
                                &&
                                (!str_eq_str
                                 (pdf_font_attr(i), pdf_font_attr(k)))) {
-                        pdf_warning(maketexstring("\\pdffontattr"),
-                                    maketexstring("fonts "), false, false);
+                        pdf_warning("\\pdffontattr", "fonts ", false, false);
                         print_font_identifier(i);
                         tprint(" and ");
                         print_font_identifier(k);
@@ -928,7 +926,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version,
             b = 0;
             do {
                 do {
-                    pdf_create_obj(pdf, obj_type_others, 0); /* create a new node */
+                    pdf_create_obj(pdf, obj_type_others, 0);    /* create a new node */
                     l = pdf->obj_ptr;
                     if (b == 0)
                         b = l;  /* first in this level */
@@ -1090,17 +1088,19 @@ void finish_pdf_file(PDF pdf, integer luatex_version,
                 pdf_print_nl(pdf);
                 pdf_begin_stream(pdf);
                 for (k = 0; k <= pdf->sys_obj_ptr; k++) {
-                    if (!is_obj_written(pdf, k)) {   /* a free object */
+                    if (!is_obj_written(pdf, k)) {      /* a free object */
                         pdf_out(pdf, 0);
                         pdf_out_bytes(pdf, obj_link(pdf, k), xref_offset_width);
                         pdf_out(pdf, 255);
-                    } else if (obj_os_idx(pdf, k) == -1) {   /* object not in object stream */
+                    } else if (obj_os_idx(pdf, k) == -1) {      /* object not in object stream */
                         pdf_out(pdf, 1);
-                        pdf_out_bytes(pdf, obj_offset(pdf, k), xref_offset_width);
+                        pdf_out_bytes(pdf, obj_offset(pdf, k),
+                                      xref_offset_width);
                         pdf_out(pdf, 0);
                     } else {    /* object in object stream */
                         pdf_out(pdf, 2);
-                        pdf_out_bytes(pdf, obj_offset(pdf, k), xref_offset_width);
+                        pdf_out_bytes(pdf, obj_offset(pdf, k),
+                                      xref_offset_width);
                         pdf_out(pdf, obj_os_idx(pdf, k));
                     }
                 }
@@ -1147,7 +1147,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version,
             }
             pdf_printf(pdf, "startxref\n");
             if (pdf->os_enable)
-                pdf_print_int_ln(pdf, obj_offset(pdf,pdf->sys_obj_ptr));
+                pdf_print_int_ln(pdf, obj_offset(pdf, pdf->sys_obj_ptr));
             else
                 pdf_print_int_ln(pdf, pdf_saved_offset(pdf));
             pdf_printf(pdf, "%%%%EOF\n");
@@ -1172,9 +1172,8 @@ void finish_pdf_file(PDF pdf, integer luatex_version,
         if (pdf->draftmode == 0)
             b_close(pdf->file);
         else
-            pdf_warning(0,
-                        maketexstring
-                        ("\\pdfdraftmode enabled, not changing output pdf"),
+            pdf_warning(NULL,
+                        "\\pdfdraftmode enabled, not changing output pdf",
                         true, true);
     }
 
@@ -1182,7 +1181,8 @@ void finish_pdf_file(PDF pdf, integer luatex_version,
         if (log_opened) {
             fprintf(log_file,
                     "\nPDF statistics: %d PDF objects out of %d (max. %d)\n",
-                    (int) pdf->obj_ptr, (int) pdf->obj_tab_size, (int) sup_obj_tab_size);
+                    (int) pdf->obj_ptr, (int) pdf->obj_tab_size,
+                    (int) sup_obj_tab_size);
             if (pdf->os_cntr > 0) {
                 fprintf(log_file,
                         " %d compressed objects within %d object stream%s\n",
@@ -1202,7 +1202,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version,
 }
 
 
-void scan_pdfcatalog (PDF pdf) 
+void scan_pdfcatalog(PDF pdf)
 {
     halfword p;
     scan_pdf_ext_toks();
@@ -1210,8 +1210,7 @@ void scan_pdfcatalog (PDF pdf)
         pdf_catalog_toks = concat_tokens(pdf_catalog_toks, def_ref);
     if (scan_keyword("openaction")) {
         if (pdf_catalog_openaction != 0) {
-            pdf_error(maketexstring("ext1"), 
-                      maketexstring("duplicate of openaction"));
+            pdf_error("ext1", "duplicate of openaction");
         } else {
             p = scan_action();
             pdf_new_obj(pdf, obj_type_others, 0, 1);

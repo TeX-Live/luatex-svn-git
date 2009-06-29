@@ -195,7 +195,7 @@ void new_img_pdfstream_struct(image_dict * p)
 void init_image(image * p)
 {
     assert(p != NULL);
-    memset(p,0,sizeof(image));
+    memset(p, 0, sizeof(image));
     set_wd_running(p);
     set_ht_running(p);
     set_dp_running(p);
@@ -214,7 +214,7 @@ image *new_image(void)
 void init_image_dict(image_dict * p)
 {
     assert(p != NULL);
-    memset(p,0,sizeof(image_dict));
+    memset(p, 0, sizeof(image_dict));
     img_pagenum(p) = 1;
     img_type(p) = IMG_TYPE_NONE;
     img_pagebox(p) = PDF_BOX_SPEC_MEDIA;
@@ -514,7 +514,7 @@ void pdf_write_image(PDF pdf, integer n)
 {
     pdf_begin_dict(pdf, n, 0);
     if (pdf->draftmode == 0)
-        write_image(pdf, obj_data_ptr(pdf,n));
+        write_image(pdf, obj_data_ptr(pdf, n));
 }
 
 /**********************************************************************/
@@ -763,7 +763,7 @@ void scan_image(PDF pdf)
     integer page, pagebox, colorspace;
     char *named = NULL, *attr = NULL, *s = NULL;
     incr(pdf_ximage_count);
-    pdf_create_obj(pdf,obj_type_ximage, pdf_ximage_count);
+    pdf_create_obj(pdf, obj_type_ximage, pdf_ximage_count);
     k = pdf->obj_ptr;
     alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
     attr = 0;

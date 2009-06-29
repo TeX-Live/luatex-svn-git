@@ -130,15 +130,14 @@ static short hlist_stack_level = 0;
 void push_node(halfword p)
 {
     if (hlist_stack_level >= max_hlist_stack)
-        pdf_error(maketexstring("push_node"), maketexstring("stack overflow"));
+        pdf_error("push_node", "stack overflow");
     hlist_stack[hlist_stack_level++] = p;
 }
 
 halfword pop_node(void)
 {
     if (hlist_stack_level <= 0) /* would point to some bug */
-        pdf_error(maketexstring("pop_node"),
-                  maketexstring("stack underflow (internal error)"));
+        pdf_error("pop_node", "stack underflow (internal error)");
     return hlist_stack[--hlist_stack_level];
 }
 
@@ -159,26 +158,23 @@ boolean check_expand_pars(internal_font_number f)
     if (cur_font_step < 0)
         cur_font_step = pdf_font_step(f);
     else if (cur_font_step != pdf_font_step(f))
-        pdf_error(maketexstring("font expansion"),
-                  maketexstring
-                  ("using fonts with different step of expansion in one paragraph is not allowed"));
+        pdf_error("font expansion",
+                  "using fonts with different step of expansion in one paragraph is not allowed");
     k = pdf_font_stretch(f);
     if (k != null_font) {
         if (max_stretch_ratio < 0)
             max_stretch_ratio = pdf_font_expand_ratio(k);
         else if (max_stretch_ratio != pdf_font_expand_ratio(k))
-            pdf_error(maketexstring("font expansion"),
-                      maketexstring
-                      ("using fonts with different limit of expansion in one paragraph is not allowed"));
+            pdf_error("font expansion",
+                      "using fonts with different limit of expansion in one paragraph is not allowed");
     }
     k = pdf_font_shrink(f);
     if (k != null_font) {
         if (max_shrink_ratio < 0)
             max_shrink_ratio = -pdf_font_expand_ratio(k);
         else if (max_shrink_ratio != -pdf_font_expand_ratio(k))
-            pdf_error(maketexstring("font expansion"),
-                      maketexstring
-                      ("using fonts with different limit of expansion in one paragraph is not allowed"));
+            pdf_error("font expansion",
+                      "using fonts with different limit of expansion in one paragraph is not allowed");
     }
     return true;
 }

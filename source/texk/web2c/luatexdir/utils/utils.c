@@ -649,10 +649,9 @@ scaled divide_scaled(scaled s, scaled m, integer dd)
         m = -m;
     }
     if (m == 0) {
-        pdf_error(maketexstring("arithmetic"),
-                  maketexstring("divided by zero"));
+        pdf_error("arithmetic", "divided by zero");
     } else if (m >= (max_integer / 10)) {
-        pdf_error(maketexstring("arithmetic"), maketexstring("number too big"));
+        pdf_error("arithmetic", "number too big");
     }
     q = s / m;
     r = s % m;

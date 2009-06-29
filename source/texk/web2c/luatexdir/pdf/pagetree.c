@@ -247,7 +247,7 @@ static integer output_pages_list(PDF pdf, pages_entry * pe)
         write_pages(pdf, pe, 0);        /* --> /Pages root found */
         return pe->objnum;
     }
-    q = r = new_pages_entry(pdf);  /* one level higher needed */
+    q = r = new_pages_entry(pdf);       /* one level higher needed */
     for (p = pe; p != NULL; p = p->next) {
         if (q->number_of_kids == PAGES_TREE_KIDSMAX) {
             q->next = new_pages_entry(pdf);

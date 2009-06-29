@@ -36,9 +36,8 @@ void pdf_check_obj(PDF pdf, integer t, integer n)
     k = pdf->head_tab[t];
     while ((k != 0) && (k != n))
         k = obj_link(pdf, k);
-    if (k == 0) 
-        pdf_error(maketexstring("ext1"), 
-                  maketexstring("cannot find referenced object"));
+    if (k == 0)
+        pdf_error("ext1", "cannot find referenced object");
 }
 
 
@@ -101,22 +100,18 @@ void pdf_write_obj(PDF pdf, integer n)
                              addressof(file_opened), addressof(data_buffer),
                              addressof(data_size));
             if (!file_opened)
-                pdf_error(maketexstring("ext5"),
-                          maketexstring("cannot open file for embedding"));
+                pdf_error("ext5", "cannot open file for embedding");
         } else {
             if (!tex_b_open_in(f))
-                pdf_error(maketexstring("ext5"),
-                          maketexstring("cannot open file for embedding"));
+                pdf_error("ext5", "cannot open file for embedding");
             res =
                 read_data_file(f, addressof(data_buffer), addressof(data_size));
             b_close(f);
         }
         if (!data_size)
-            pdf_error(maketexstring("ext5"),
-                      maketexstring("empty file for embedding"));
+            pdf_error("ext5", "empty file for embedding");
         if (!res)
-            pdf_error(maketexstring("ext5"),
-                      maketexstring("error reading file for embedding"));
+            pdf_error("ext5", "error reading file for embedding");
         tprint("<<");
         print(s);
         while (data_cur < data_size) {
@@ -162,10 +157,8 @@ void scan_obj(PDF pdf)
             scan_int();
             k = cur_val;
             if ((k <= 0) || (k > pdf->obj_ptr) || (obj_data_ptr(pdf, k) != 0)) {
-                pdf_warning(maketexstring("\\pdfobj"),
-                            maketexstring
-                            ("invalid object number being ignored"), true,
-                            true);
+                pdf_warning("\\pdfobj",
+                            "invalid object number being ignored", true, true);
                 pdf_retval = -1;        /* signal the problem */
                 k = -1;         /* will be generated again */
             }
