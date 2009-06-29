@@ -22,6 +22,46 @@
 #ifndef NESTING_H
 #  define NESTING_H
 
+#  define vmode 1               /* vertical mode */
+#  define hmode (vmode+max_command_cmd+1)
+                                        /* horizontal mode */
+#  define mmode (hmode+max_command_cmd+1)
+                                        /* math mode */
+
+extern void print_mode(integer m);
+extern void print_in_mode(integer m);
+extern integer get_mode_id(void);
+
+#  define ignore_depth -65536000/* magic dimension value to mean `ignore me' */
+
+typedef struct list_state_record_ {
+    integer mode_field;
+    halfword head_field;
+    halfword tail_field;
+    halfword eTeX_aux_field;
+    integer pg_field;
+    integer ml_field;
+    memory_word aux_field;
+    halfword dirs_field;
+    integer math_field;
+    integer math_style_field;
+} list_state_record;
+
+extern list_state_record *nest;
+extern int nest_ptr;
+extern int max_nest_stack;
+extern list_state_record cur_list;
+extern integer shown_mode;
+extern halfword save_tail;
+
+extern void push_nest(void);
+extern void pop_nest(void);
+
+extern void tail_append(halfword p);
+extern halfword pop_tail(void);
+
+
+extern void show_activities(void);
+
 
 #endif
-

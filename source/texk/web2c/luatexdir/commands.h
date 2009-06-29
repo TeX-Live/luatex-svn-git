@@ -185,11 +185,6 @@ typedef enum {
 #define last_cmd data_cmd
 } tex_command_code;
 
-#define vmode 1
-#define hmode (vmode+max_command_cmd+1)
-#define mmode (hmode+max_command_cmd+1)
-
-
 typedef enum {
     int_val_level = 0,          /* integer values */
     attr_val_level,             /* integer values */

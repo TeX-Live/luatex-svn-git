@@ -630,7 +630,7 @@ static void write_image_or_node(lua_State * L, wrtype_e writetype)
     switch (writetype) {
     case WR_WRITE:
         n = img_to_node(a, img_arrayidx(a));
-        new_tail_append(n);
+        tail_append(n);
         break;                  /* image */
     case WR_IMMEDIATEWRITE:
         check_pdfminorversion(static_pdf);      /* does initialization stuff */

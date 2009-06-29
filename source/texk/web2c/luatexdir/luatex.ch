@@ -202,57 +202,6 @@ versions of the program.
 @d text_char == ASCII_code {the data type of characters in text files}
 @z
 
-@x
-begin if m>0 then
-  case m div (max_command+1) of
-  0:print("vertical");
-  1:print("horizontal");
-  2:print("display math");
-  end
-else if m=0 then print("no")
-else  case (-m) div (max_command+1) of
-  0:print("internal vertical");
-  1:print("restricted horizontal");
-  2:print("math");
-  end;
-print(" mode");
-end;
-@y
-begin if m>0 then
-  case m div (max_command+1) of
-  0:print("vertical mode");
-  1:print("horizontal mode");
-  2:print("display math mode");
-  end
-else if m=0 then print("no mode")
-else  case (-m) div (max_command+1) of
-  0:print("internal vertical mode");
-  1:print("restricted horizontal mode");
-  2:print("math mode");
-  end;
-end;
-
-procedure print_in_mode(@!m:integer); {prints the mode represented by |m|}
-begin if m>0 then
-  case m div (max_command+1) of
-  0:print("' in vertical mode");
-  1:print("' in horizontal mode");
-  2:print("' in display math mode");
-  end
-else if m=0 then print("' in no mode")
-else  case (-m) div (max_command+1) of
-  0:print("' in internal vertical mode");
-  1:print("' in restricted horizontal mode");
-  2:print("' in math mode");
-  end;
-end;
-@z
-
-@x
-@!nest:array[0..nest_size] of list_state_record;
-@y
-@!nest:^list_state_record;
-@z
 
 @x
 @<Start a new current page@>;
@@ -261,15 +210,6 @@ end;
 page_contents:=empty; page_tail:=page_head; {|link(page_head):=null;|}@/
 last_glue:=max_halfword; last_penalty:=0; last_kern:=0;
 page_depth:=0; page_max_depth:=0;
-@z
-
-@x
-    print_int(nest[p].pg_field); print(" line");
-    if nest[p].pg_field<>1 then print_char("s");
-@y
-    print_int(nest[p].pg_field);
-    if nest[p].pg_field<>1 then print(" lines")
-    else print(" line");
 @z
 
 @x

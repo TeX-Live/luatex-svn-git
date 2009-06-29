@@ -451,10 +451,10 @@ static int lua_nodelib_append(lua_State * L)
     for (i = 1; i <= j; i++) {
         n = check_isnode(L, i);
         m = *n;
-        new_tail_append(m);
+        tail_append(m);
         while (vlink(m) != null) {
             m = vlink(m);
-            new_tail_append(m);
+            tail_append(m);
         }
     }
     return 0;

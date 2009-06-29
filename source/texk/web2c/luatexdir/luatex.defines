@@ -1599,3 +1599,32 @@
 @define procedure fast_store_new_token();
 @define procedure delete_token_ref();
 @define procedure flush_list();
+
+{ nesting }
+
+@define procedure print_mode();
+@define procedure print_in_mode();
+
+@define const ignore_depth;
+@define type list_state_record;
+@define @field mode_field;
+@define @field head_field;
+@define @field tail_field;
+@define @field eTeX_aux_field;
+@define @field pg_field;
+@define @field ml_field;
+@define @field aux_field;
+@define @field dirs_field;
+
+@define var nest;
+@define var nest_ptr;
+@define var max_nest_stack;
+@define var cur_list;
+@define var shown_mode;
+@define var save_tail;
+
+@define procedure push_nest;
+@define procedure pop_nest;
+@define procedure tail_append();
+@define procedure show_activities;
+
