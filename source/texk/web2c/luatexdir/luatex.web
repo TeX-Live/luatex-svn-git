@@ -3949,7 +3949,6 @@ procedure unsave; {pops the top level off the save stack}
 label done;
 var p:pointer; {position to be restored}
 @!l:quarterword; {saved level, if in fullword regions of |eqtb|}
-@!t:halfword; {saved value of |cur_tok|}
 @!a:boolean; {have we already processed an \.{\\aftergroup} ?}
 begin a:=false; l:=level_one; {just in case}
 unsave_math_codes(cur_level);
