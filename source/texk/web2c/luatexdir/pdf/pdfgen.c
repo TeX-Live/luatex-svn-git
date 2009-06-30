@@ -1247,10 +1247,14 @@ static z_stream c_stream;       /* compression stream */
 void write_zip(PDF pdf, boolean finish)
 {
     int err;
-    static int level_old = 0;
     int level = pdf->compress_level;
     assert(level > 0);
-    cur_file_name = NULL;
+    /* This was just to suppress the filename report in |pdftex_fail| 
+       but zlib errors are rare enough (especially now that the 
+       compress level is fixed) that I don't care about the slightly
+       ugly error message that could result. 
+    */
+    /* cur_file_name = NULL; */ 
     if (pdf->stream_length == 0) {
         if (zipbuf == NULL) {
             zipbuf = xtalloc(ZIP_BUF_SIZE, char);
@@ -1259,16 +1263,8 @@ void write_zip(PDF pdf, boolean finish)
             c_stream.opaque = (voidpf) 0;
             check_err(deflateInit(&c_stream, level), "deflateInit");
         } else {
-            if (level != level_old) {   /* \pdfcompresslevel change in mid document */
-                check_err(deflateEnd(&c_stream), "deflateEnd");
-                c_stream.zalloc = (alloc_func) 0;       /* these 3 lines no need, just to be safe */
-                c_stream.zfree = (free_func) 0;
-                c_stream.opaque = (voidpf) 0;
-                check_err(deflateInit(&c_stream, level), "deflateInit");
-            } else
-                check_err(deflateReset(&c_stream), "deflateReset");
+            check_err(deflateReset(&c_stream), "deflateReset");
         }
-        level_old = level;
         c_stream.next_out = (Bytef *) zipbuf;
         c_stream.avail_out = ZIP_BUF_SIZE;
     }
