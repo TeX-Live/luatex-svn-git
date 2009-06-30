@@ -3970,7 +3970,7 @@ loop@+begin decr(save_ptr);
   if save_type(save_ptr)=level_boundary then goto done;
   p:=save_index(save_ptr);
   if save_type(save_ptr)=insert_token then
-    @<Insert token |p| into \TeX's input@>
+    a := reinsert_token(a, p)
   else  begin if save_type(save_ptr)=restore_old_value then
       begin l:=save_level(save_ptr); decr(save_ptr);
       end
@@ -4059,22 +4059,8 @@ mag_set:=mag;
 end;
 
 @* \[20] Token lists.
-A \TeX\ token is either a character or a control sequence, and it is
-@^token@>
-represented internally in one of two ways: (1)~A character whose ASCII
-code number is |c| and whose command code is |m| is represented as the
-number $2^{21}m+c$; the command code is in the range |1<=m<=14|. (2)~A control
-sequence whose |eqtb| address is |p| is represented as the number
-|cs_token_flag+p|. Here |cs_token_flag=@t$2^{25}-1$@>| is larger than
-$2^{21}m+c$, yet it is small enough that |cs_token_flag+p< max_halfword|;
-thus, a token fits comfortably in a halfword.
 
-A token |t| represents a |left_brace| command if and only if
-|t<left_brace_limit|; it represents a |right_brace| command if and only if
-we have |left_brace_limit<=t<right_brace_limit|; and it represents a |match| or
-|end_match| command if and only if |match_token<=t<=end_match_token|.
-The following definitions take care of these token-oriented constants
-and a few others.
+@ Sigh. Of course these can't go away either...
 
 @d cs_token_flag==@"1FFFFFFF {amount added to the |eqtb| location in a
   token that stands for a control sequence; is a multiple of~$2^{21}$, less~1}
@@ -4095,63 +4081,6 @@ and a few others.
 @ @<Check the ``constant''...@>=
 if cs_token_flag+undefined_control_sequence>max_halfword then bad:=21;
 
-@ A token list is a singly linked list of one-word nodes in |mem|, where
-each word contains a token and a link. Macro definitions, output-routine
-definitions, marks, \.{\\write} texts, and a few other things
-are remembered by \TeX\ in the form
-of token lists, usually preceded by a node with a reference count in its
-|token_ref_count| field. The token stored in location |p| is called
-|info(p)|.
-
-Three special commands appear in the token lists of macro definitions.
-When |m=match|, it means that \TeX\ should scan a parameter
-for the current macro; when |m=end_match|, it means that parameter
-matching should end and \TeX\ should start reading the macro text; and
-when |m=out_param|, it means that \TeX\ should insert parameter
-number |c| into the text at this point.
-
-The enclosing \.{\char'173} and \.{\char'175} characters of a macro
-definition are omitted, but the final right brace of an output routine
-is included at the end of its token list.
-
-Here is an example macro definition that illustrates these conventions.
-After \TeX\ processes the text
-$$\.{\\def\\mac a\#1\#2 \\b \{\#1\\-a \#\#1\#2 \#2\}}$$
-the definition of \.{\\mac} is represented as a token list containing
-$$\def\,{\hskip2pt}
-\vbox{\halign{\hfil#\hfil\cr
-(reference count), |letter|\,\.a, |match|\,\#, |match|\,\#, |spacer|\,\.\ ,
-\.{\\b}, |end_match|,\cr
-|out_param|\,1, \.{\\-}, |letter|\,\.a, |spacer|\,\.\ , |mac_param|\,\#,
-|other_char|\,\.1,\cr
-|out_param|\,2, |spacer|\,\.\ , |out_param|\,2.\cr}}$$
-The procedure |scan_toks| builds such token lists, and |macro_call|
-does the parameter matching.
-@^reference counts@>
-
-Examples such as
-$$\.{\\def\\m\{\\def\\m\{a\}\ b\}}$$
-explain why reference counts would be needed even if \TeX\ had no \.{\\let}
-operation: When the token list for \.{\\m} is being read, the redefinition of
-\.{\\m} changes the |eqtb| entry before the token list has been fully
-consumed, so we dare not simply destroy a token list when its
-control sequence is being redefined.
-
-If the parameter-matching part of a definition ends with `\.{\#\{}',
-the corresponding token list will have `\.\{' just before the `|end_match|'
-and also at the very end. The first `\.\{' is used to delimit the parameter; the
-second one keeps the first from disappearing.
-
-@ The |print_meaning| subroutine displays |cur_cmd| and |cur_chr| in
-symbolic form, including the expansion of a macro or mark.
-
-@p procedure print_meaning;
-begin print_cmd_chr(cur_cmd,cur_chr);
-if cur_cmd>=call then
-  begin print_char(":"); print_ln; token_show(cur_chr);
-  end
-else  @<Show the meaning of a mark node@>;
-end;
 
 @* \[21] Introduction to the syntactic routines.
 Let's pause a moment now and try to look at the Big Picture.
@@ -4242,165 +4171,9 @@ Input stack structures are now defined in C.
 
 @* \[23] Maintaining the input stacks.
 
-@ Here is a procedure that starts a new level of token-list input, given
-a token list |p| and its type |t|. If |t=macro|, the calling routine should
-set |name| and |loc|.
+@ @<Initialize the input routines@>=
+initialize_inputstack;
 
-@d back_list(#)==begin_token_list(#,backed_up) {backs up a simple token list}
-@d ins_list(#)==begin_token_list(#,inserted) {inserts a simple token list}
-
-@p procedure begin_token_list(@!p:pointer;@!t:quarterword);
-begin push_input; istate:=token_list; istart:=p; token_type:=t;
-if t>=macro then {the token list starts with a reference count}
-  begin add_token_ref(p);
-  if t=macro then param_start:=param_ptr
-  else  begin iloc:=link(p);
-    if tracing_macros>1 then
-      begin begin_diagnostic; print_nl("");
-      if t=mark_text then print_esc("mark") else
-      if t=write_text then print_esc("write")
-      else print_cmd_chr(assign_toks,t-output_text+output_routine_loc);
-      print("->"); token_show(p); end_diagnostic(false);
-      end;
-    end;
-  end
-else iloc:=p;
-end;
-
-@ When a token list has been fully scanned, the following computations
-should be done as we leave that level of input. The |token_type| tends
-to be equal to either |backed_up| or |inserted| about 2/3 of the time.
-@^inner loop@>
-
-@p procedure end_token_list; {leave a token-list input level}
-begin if token_type>=backed_up then {token list to be deleted}
-  begin if token_type<=inserted then flush_list(istart)
-  else  begin delete_token_ref(istart); {update reference count}
-    if token_type=macro then {parameters must be flushed}
-      while param_ptr>param_start do
-        begin decr(param_ptr);
-        flush_list(param_stack[param_ptr]);
-        end;
-    end;
-  end
-else if token_type=u_template then begin
-  if align_state>500000 then align_state:=0
-  else fatal_error('(interwoven alignment preambles are not allowed)');
-@.interwoven alignment preambles...@>
-  end;
-pop_input;
-check_interrupt;
-end;
-
-@ Sometimes \TeX\ has read too far and wants to ``unscan'' what it has
-seen. The |back_input| procedure takes care of this by putting the token
-just scanned back into the input stream, ready to be read again. This
-procedure can be used only if |cur_tok| represents the token to be
-replaced. Some applications of \TeX\ use this procedure a lot,
-so it has been slightly optimized for speed.
-@^inner loop@>
-
-@p procedure back_input; {undoes one token of input}
-var p:pointer; {a token list of length one}
-begin while (istate=token_list)and(iloc=null)and(token_type<>v_template) do
-  end_token_list; {conserve stack space}
-p:=get_avail; set_token_info(p,cur_tok);
-if cur_tok<right_brace_limit then begin
-  if cur_tok<left_brace_limit then decr(align_state)
-  else incr(align_state);
-  end;
-push_input; istate:=token_list; istart:=p; token_type:=backed_up;
-iloc:=p; {that was |back_list(p)|, without procedure overhead}
-end;
-
-@ @<Insert token |p| into \TeX's input@>=
-begin t:=cur_tok; cur_tok:=p;
-if a then
-  begin p:=get_avail; set_token_info(p,cur_tok); set_token_link(p,iloc); 
-  iloc:=p; istart:=p;
-  if cur_tok<right_brace_limit then begin
-    if cur_tok<left_brace_limit then decr(align_state)
-    else incr(align_state);
-    end;
-  end
-else  begin back_input; a:=1; { etex is always on }
-  end;
-cur_tok:=t;
-end
-
-@ The |back_error| routine is used when we want to replace an offending token
-just before issuing an error message. This routine, like |back_input|,
-requires that |cur_tok| has been set. We disable interrupts during the
-call of |back_input| so that the help message won't be lost.
-
-@p procedure back_error; {back up one token and call |error|}
-begin OK_to_interrupt:=false; back_input; OK_to_interrupt:=true; error;
-end;
-@#
-procedure ins_error; {back up one inserted token and call |error|}
-begin OK_to_interrupt:=false; back_input; token_type:=inserted;
-OK_to_interrupt:=true; error;
-end;
-
-@ The |begin_file_reading| procedure starts a new level of input for lines
-of characters to be read from a file, or as an insertion from the
-terminal. It does not take care of opening the file, nor does it set |loc|
-or |limit| or |line|.
-@^system dependencies@>
-
-@p procedure begin_file_reading;
-begin if in_open=max_in_open then overflow('text input levels',max_in_open);
-@:TeX capacity exceeded text input levels}{\quad text input levels@>
-if first=buf_size then check_buffer_overflow(first);
-@:TeX capacity exceeded buffer size}{\quad buffer size@>
-incr(in_open); push_input; iindex:=in_open;
-eof_seen[iindex]:=false;
-grp_stack[iindex]:=cur_boundary; if_stack[iindex]:=cond_ptr;
-line_stack[iindex]:=line; istart:=first; istate:=mid_line;
-iname:=0; {|terminal_input| is now |true|}
-line_catcode_table:=DEFAULT_CAT_TABLE; line_partial:=false;
-@<Prepare terminal input {\sl Sync\TeX} information@>;
-end;
-
-@ Conversely, the variables must be downdated when such a level of input
-is finished:
-
-@p procedure end_file_reading;
-begin first:=istart; line:=line_stack[iindex];
-if (iname>=18)and(iname<=20) then pseudo_close else
-if iname=21 then luacstring_close(iindex) else
-if iname>17 then lua_a_close_in(cur_file,0); {forget it}
-pop_input; decr(in_open);
-end;
-
-@ In order to keep the stack from overflowing during a long sequence of
-inserted `\.{\\show}' commands, the following routine removes completed
-error-inserted lines from memory.
-
-@p procedure clear_for_error_prompt;
-begin while (istate<>token_list)and terminal_input and@|
-  (input_ptr>0)and(iloc>ilimit) do end_file_reading;
-print_ln; clear_terminal;
-end;
-
-@ To get \TeX's whole input mechanism going, we perform the following
-actions.
-
-@<Initialize the input routines@>=
-begin input_ptr:=0; max_in_stack:=0;
-in_open:=0; open_parens:=0; max_buf_stack:=0;
-grp_stack[0]:=0; if_stack[0]:=null;
-param_ptr:=0; max_param_stack:=0;
-first:=buf_size; repeat buffer[first]:=0; decr(first); until first=0;
-scanner_status:=normal; warning_index:=null; first:=1;
-istate:=new_line; istart:=1; iindex:=0; line:=0; iname:=0;
-current_ocp_lstack:=0; current_ocp_no:=0; nofilter:=false;
-force_eof:=false; luacstrings :=0;
-line_catcode_table:=DEFAULT_CAT_TABLE; line_partial:=false;
-align_state:=1000000;@/
-if not init_terminal then goto final_end;
-ilimit:=last; first:=last+1; {|init_terminal| has set |loc| and |last|}
-end
 
 @* \[24] Getting the next token.
 The heart of \TeX's input mechanism is the |get_next| procedure, which
@@ -17769,21 +17542,6 @@ else  begin if cur_val>penalty(equiv(m)) then cur_val:=penalty(equiv(m));
 cur_val_level:=int_val;
 end
 
-@ This is needed to get the relative order of the marks code correct
-
-@<Show the meaning of a mark node@>=
-if (cur_cmd=top_bot_mark)and(cur_chr<marks_code) then
-  begin print_char(":"); print_ln;
-  case cur_chr of
-    first_mark_code:       token_show(first_mark(0));
-    bot_mark_code:         token_show(bot_mark(0));
-    split_first_mark_code: token_show(split_first_mark(0));
-    split_bot_mark_code:   token_show(split_bot_mark(0));
-    othercases             token_show(top_mark(0));
-  endcases;
-end
-
-
 @ The lua interface needs some extra pascal functions. The functions
 themselves are quite boring, but they are handy because otherwise this
 internal stuff has to be accessed from C directly, where lots of the
@@ -18118,9 +17876,6 @@ input from the terminal or pseudo files.
 
 @ @<Prepare new file {\sl Sync\TeX} information@>=
 synctex_start_input; {Give control to the {\sl Sync\TeX} controller}
-
-@ @<Prepare terminal input {\sl Sync\TeX} information@>=
-synctex_tag:=0;
 
 @ @<Prepare pseudo file {\sl Sync\TeX} information@>=
 synctex_tag:=0;

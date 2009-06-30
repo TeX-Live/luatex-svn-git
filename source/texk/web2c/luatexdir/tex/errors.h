@@ -94,4 +94,7 @@ extern void pause_for_instructions(void);
 
 extern void tex_error(char *msg, char **hlp);
 
+extern void back_error (void);
+extern void ins_error (void);
+
 #endif

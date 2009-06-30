@@ -1052,6 +1052,18 @@
 @define procedure push_input;
 @define procedure pop_input;
 
+@define procedure back_list();
+@define procedure ins_list();
+
+@define procedure begin_token_list();
+@define procedure end_token_list;
+@define procedure back_input;
+@define function reinsert_token () ;
+@define procedure begin_file_reading;
+@define procedure end_file_reading; 
+@define procedure clear_for_error_prompt;
+@define procedure initialize_inputstack;
+
 { pdf generation }
 
 @define procedure pdf_error();
@@ -1488,6 +1500,9 @@
 @define procedure check_interrupt ;
 @define procedure pause_for_instructions ;
 
+@define procedure back_error;
+@define procedure ins_error;
+
 {file io}
 
 @define var nameoffile;
@@ -1577,6 +1592,7 @@
 @define var omit_template;  
 @define var null_list;      
 @define var backup_head;    
+@define procedure print_meaning;
 
 @define procedure initialize_tokens;
 

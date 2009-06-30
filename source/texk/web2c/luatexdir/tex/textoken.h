@@ -28,6 +28,20 @@
 
 #  define left_brace_token 0x200000     /* $2^{21}\cdot|left_brace|$ */
 #  define right_brace_token 0x400000    /* $2^{21}\cdot|right_brace|$ */
+#  define left_brace_token 0x200000     /* $2^{21}\cdot|left_brace|$ */
+#  define left_brace_limit 0x400000     /* $2^{21}\cdot(|left_brace|+1)$ */
+#  define right_brace_token 0x400000    /* $2^{21}\cdot|right_brace|$ */
+#  define right_brace_limit 0x600000    /* $2^{21}\cdot(|right_brace|+1)$ */
+#  define math_shift_token 0x600000     /* $2^{21}\cdot|math_shift|$ */
+#  define tab_token 0x800000            /* $2^{21}\cdot|tab_mark|$ */
+#  define out_param_token 0xA00000      /* $2^{21}\cdot|out_param|$ */
+#  define space_token 0x1400020         /* $2^{21}\cdot|spacer|+|" "|$ */
+#  define letter_token 0x1600000        /* $2^{21}\cdot|letter|$ */
+#  define other_token 0x1800000         /* $2^{21}\cdot|other_char|$ */
+#  define match_token 0x1A00000         /* $2^{21}\cdot|match|$ */
+#  define end_match_token 0x1C00000     /* $2^{21}\cdot|end_match|$ */
+#  define protected_token 0x1C00001     /* $2^{21}\cdot|end_match|+1$ */
+
 
 typedef struct smemory_word_ {
     halfword hhrh;
@@ -81,6 +95,7 @@ the places that would otherwise account for the most calls of |get_avail|.
     else  { avail=token_link((A)); token_link((A))=null; incr(dyn_used); } \
   } while (0)
 
+extern void print_meaning (void);
 
 extern void flush_list(halfword p);
 extern void show_token_list(integer p, integer q, integer l);

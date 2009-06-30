@@ -307,20 +307,6 @@ if (hash_offset<0)or(hash_offset>hash_base) then bad:=42;
 @z
 
 @x
-incr(in_open); push_input; iindex:=in_open;
-@y
-incr(in_open); push_input; iindex:=in_open;
-source_filename_stack[iindex]:=0;full_source_filename_stack[iindex]:=0;
-@z
-
-@x
-begin input_ptr:=0; max_in_stack:=0;
-@y
-begin input_ptr:=0; max_in_stack:=0;
-source_filename_stack[0]:=0;full_source_filename_stack[0]:=0;
-@z
-
-@x
 if_eof_code: begin scan_four_bit_int; b:=(read_open[cur_val]=closed);
   end;
 @y

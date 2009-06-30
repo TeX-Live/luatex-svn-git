@@ -398,3 +398,206 @@ void push_input(void)
     nofilter = false;
     incr(input_ptr);
 }
+
+/*
+Here is a procedure that starts a new level of token-list input, given
+a token list |p| and its type |t|. If |t=macro|, the calling routine should
+set |name| and |loc|.
+*/
+
+void begin_token_list(halfword p, quarterword t)
+{
+    push_input(); istate=token_list; istart=p; token_type=t;
+    if (t>=macro) { /* the token list starts with a reference count */
+	add_token_ref(p);
+	if (t==macro) {
+	    param_start=param_ptr;
+	} else {
+	    iloc=token_link(p);
+	    if (int_par(param_tracing_macros_code)>1) {
+		begin_diagnostic(); 
+		tprint_nl("");
+		if (t==mark_text) 
+		    tprint_esc("mark");
+		else if (t==write_text) 
+		    tprint_esc("write");
+		else 
+		    print_cmd_chr(assign_toks_cmd,t-output_text+loc_par(param_output_routine_code));
+		tprint("->"); 
+		token_show(p); 
+		end_diagnostic(false);
+	    }
+	}
+    } else {
+	iloc=p;
+    }
+}
+
+/*
+When a token list has been fully scanned, the following computations
+should be done as we leave that level of input. The |token_type| tends
+to be equal to either |backed_up| or |inserted| about 2/3 of the time.
+@^inner loop@>
+*/
+
+void end_token_list (void) /* leave a token-list input level */
+{
+    if (token_type>=backed_up) { /* token list to be deleted */
+	if (token_type<=inserted) {
+	    flush_list(istart);
+	} else {
+	    delete_token_ref(istart); /* update reference count */
+	    if (token_type==macro) { /* parameters must be flushed */
+		while (param_ptr>param_start) {
+		    decr(param_ptr);
+		    flush_list(param_stack[param_ptr]);
+		}
+	    }
+	}
+    } else if (token_type==u_template) {
+	if (align_state>500000) 
+	    align_state=0;
+	else 
+	    fatal_error("(interwoven alignment preambles are not allowed)");
+    }
+    pop_input();
+    check_interrupt();
+}
+
+/*
+Sometimes \TeX\ has read too far and wants to ``unscan'' what it has
+seen. The |back_input| procedure takes care of this by putting the token
+just scanned back into the input stream, ready to be read again. This
+procedure can be used only if |cur_tok| represents the token to be
+replaced. Some applications of \TeX\ use this procedure a lot,
+so it has been slightly optimized for speed.
+@^inner loop@>
+*/
+
+void back_input (void) /* undoes one token of input */
+{
+    halfword p; /* a token list of length one */
+    while ((istate==token_list)&&(iloc==null)&&(token_type!=v_template))
+	end_token_list(); /* conserve stack space */
+    p=get_avail(); 
+    set_token_info(p,cur_tok);
+    if (cur_tok<right_brace_limit) {
+	if (cur_tok<left_brace_limit) 
+	    decr(align_state);
+	else 
+	    incr(align_state);
+    }
+    push_input(); istate=token_list; istart=p; token_type=backed_up;
+    iloc=p; /* that was |back_list(p)|, without procedure overhead */
+}
+
+/* Insert token |p| into \TeX's input */
+int reinsert_token (boolean a, halfword pp) 
+{
+    halfword t;
+    t=cur_tok; 
+    cur_tok=pp;
+    if (a) {
+	halfword p;
+	p=get_avail(); 
+	set_token_info(p,cur_tok); 
+	set_token_link(p,iloc); 
+	iloc=p; 
+	istart=p;
+	if (cur_tok<right_brace_limit) {
+	    if (cur_tok<left_brace_limit) 
+		decr(align_state);
+	    else 
+		incr(align_state);
+	}
+    } else  {
+	back_input(); a=true; /* etex is always on */
+    }
+    cur_tok=t;
+    return a;
+}
+
+/*
+The |begin_file_reading| procedure starts a new level of input for lines
+of characters to be read from a file, or as an insertion from the
+terminal. It does not take care of opening the file, nor does it set |loc|
+or |limit| or |line|.
+@^system dependencies@>
+*/
+
+void begin_file_reading (void)
+{
+    if (in_open==max_in_open) 
+	overflow("text input levels",max_in_open);
+    if (first==buf_size) 
+	check_buffer_overflow(first);
+    incr(in_open); push_input(); iindex=in_open;
+    source_filename_stack[iindex]=0;
+    full_source_filename_stack[iindex]=0;
+    eof_seen[iindex]=false;
+    grp_stack[iindex]=cur_boundary; if_stack[iindex]=cond_ptr;
+    line_stack[iindex]=line; istart=first; istate=mid_line;
+    iname=0; /* |terminal_input| is now |true| */
+    line_catcode_table=DEFAULT_CAT_TABLE; line_partial=false;
+    /* Prepare terminal input {\sl Sync\TeX} information */
+    synctex_tag=0;
+}
+
+/*
+Conversely, the variables must be downdated when such a level of input
+is finished:
+*/
+
+void end_file_reading (void) 
+{ 
+    first=istart; line=line_stack[iindex];
+    if ((iname>=18)&&(iname<=20)) 
+	pseudo_close();
+    else if (iname==21) 
+	luacstring_close(iindex);
+    else if (iname>17) 
+	lua_a_close_in(cur_file,0); /* forget it */
+    pop_input(); 
+    decr(in_open);
+}
+
+/*
+In order to keep the stack from overflowing during a long sequence of
+inserted `\.{\\show}' commands, the following routine removes completed
+error-inserted lines from memory.
+*/
+
+void clear_for_error_prompt (void)
+{
+    while ((istate!=token_list)&&terminal_input
+	   &&(input_ptr>0)&&(iloc>ilimit)) 
+	end_file_reading();
+    print_ln(); 
+    clear_terminal();
+}
+
+/* To get \TeX's whole input mechanism going, we perform the following
+   actions. */
+
+void initialize_inputstack (void)
+{
+  input_ptr=0; max_in_stack=0;
+  source_filename_stack[0]=0;
+
+  full_source_filename_stack[0]=0;
+  in_open=0; open_parens=0; max_buf_stack=0;
+
+  grp_stack[0]=0; if_stack[0]=null;
+  param_ptr=0; max_param_stack=0;
+  first=buf_size; 
+  do { buffer[first]=0; decr(first); } while (first!=0);
+  scanner_status=normal; warning_index=null; first=1;
+  istate=new_line; istart=1; iindex=0; line=0; iname=0;
+  current_ocp_lstack=0; current_ocp_no=0; nofilter=false;
+  force_eof=false; luacstrings=0;
+  line_catcode_table=DEFAULT_CAT_TABLE; line_partial=false;
+  align_state=1000000;
+  if (!init_terminal()) 
+    succumb(); /* goto final_end; */
+  ilimit=last; first=last+1; /* |init_terminal| has set |loc| and |last| */
+}
