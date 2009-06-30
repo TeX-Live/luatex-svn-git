@@ -29,7 +29,6 @@
 #else
 #  define EX_SOFTWARE 70
 #endif
-#include <kpathsea/c-proto.h>
 #include <kpathsea/c-stat.h>
 #include <kpathsea/c-fopen.h>
 #include <string.h>
