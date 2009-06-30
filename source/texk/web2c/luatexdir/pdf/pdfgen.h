@@ -190,7 +190,7 @@ extern void write_stream_length(PDF, integer, longinteger);
 
 extern void print_creation_date(PDF);
 extern void print_mod_date(PDF);
-extern void print_ID(PDF, str_number);
+extern void print_ID(PDF, char *);
 
 extern void remove_pdffile(PDF);
 

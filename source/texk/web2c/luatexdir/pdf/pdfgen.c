@@ -165,23 +165,6 @@ void do_check_pdfminorversion(PDF pdf)
     }
 }
 
-/* Checks that we have a name for the generated PDF file and that it's open. */
-
-void ensure_pdf_open(PDF pdf)
-{
-    if (output_file_name != 0)
-        return;
-    if (job_name == 0)
-        open_log_file();
-    pack_job_name(".pdf");
-    if (pdf->draftmode == 0) {
-        while (!lua_b_open_out(pdf->file))
-            prompt_file_name("file name for output", ".pdf");
-    }
-    pdf->file = name_file_pointer;      /* hm ? */
-    output_file_name = make_name_string();
-}
-
 /*
 The PDF buffer is flushed by calling |pdf_flush|, which checks the
 variable |zip_write_state| and will compress the buffer before flushing if
@@ -1044,7 +1027,7 @@ static void convertStringToHexString(const char *in, char *out, int lin)
   scanning the info dict is also difficult, we start with a simpler
   implementation using just the first two items.
  */
-void print_ID(PDF pdf, str_number filename)
+void print_ID(PDF pdf, char *file_name)
 {
     time_t t;
     size_t size;
@@ -1052,7 +1035,6 @@ void print_ID(PDF pdf, str_number filename)
     md5_state_t state;
     md5_byte_t digest[16];
     char id[64];
-    char *file_name;
     char pwd[4096];
     /* start md5 */
     md5_init(&state);
@@ -1063,7 +1045,6 @@ void print_ID(PDF pdf, str_number filename)
     /* get the file name */
     if (getcwd(pwd, sizeof(pwd)) == NULL)
         pdftex_fail("getcwd() failed (%s), (path too long?)", strerror(errno));
-    file_name = makecstring(filename);
     md5_append(&state, (const md5_byte_t *) pwd, strlen(pwd));
     md5_append(&state, (const md5_byte_t *) "/", 1);
     md5_append(&state, (const md5_byte_t *) file_name, strlen(file_name));
@@ -1204,9 +1185,9 @@ char *getcreationdate(void)
 void remove_pdffile(PDF pdf)
 {
     if (pdf != NULL) {
-        if (!kpathsea_debug && output_file_name && (pdf->draftmode != 0)) {
-            xfclose(pdf->file, makecstring(output_file_name));
-            remove(makecstring(output_file_name));
+        if (!kpathsea_debug && pdf->file_name && (pdf->draftmode != 0)) {
+            xfclose(pdf->file, pdf->file_name);
+            remove(pdf->file_name);
         }
     }
 }

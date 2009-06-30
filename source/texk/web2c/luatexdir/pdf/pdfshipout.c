@@ -1084,7 +1084,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version,
                     delete_token_ref(pdf_trailer_toks);
                     pdf_trailer_toks = null;
                 }
-                print_ID(pdf, output_file_name);
+                print_ID(pdf, pdf->file_name);
                 pdf_print_nl(pdf);
                 pdf_begin_stream(pdf);
                 for (k = 0; k <= pdf->sys_obj_ptr; k++) {
@@ -1142,7 +1142,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version,
                     delete_token_ref(pdf_trailer_toks);
                     pdf_trailer_toks = null;
                 }
-                print_ID(pdf, output_file_name);
+                print_ID(pdf, pdf->file_name);
                 pdf_printf(pdf, " >>\n");
             }
             pdf_printf(pdf, "startxref\n");
@@ -1155,7 +1155,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version,
             pdf_flush(pdf);
             if (callback_id == 0) {
                 tprint_nl("Output written on ");
-                print_file_name(0, output_file_name, 0);
+                tprint(pdf->file_name);
                 tprint(" (");
                 print_int(total_pages);
                 tprint(" page");

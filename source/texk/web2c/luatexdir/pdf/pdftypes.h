@@ -84,7 +84,8 @@ typedef struct obj_entry_ {
 } obj_entry;
 
 typedef struct pdf_output_file_ {
-    FILE *file;                 /* the PDF output file */
+    FILE *file;                 /* the PDF output file handle */
+    char *file_name;            /* the PDF output file name */
     /* generation parameters */
     int gamma;
     int image_gamma;

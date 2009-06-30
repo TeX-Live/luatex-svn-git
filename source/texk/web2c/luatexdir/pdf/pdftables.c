@@ -353,6 +353,24 @@ void initialize_pdf_output(PDF pdf)
     pdf_page_init(pdf);
 }
 
+/* Checks that we have a name for the generated PDF file and that it's open. */
+
+void ensure_pdf_open(PDF pdf)
+{
+    if (pdf->file_name != NULL)
+        return;
+    if (job_name == 0)
+        open_log_file();
+    pack_job_name(".pdf");
+    if (pdf->draftmode == 0) {
+        while (!lua_b_open_out(pdf->file))
+            prompt_file_name("file name for output", ".pdf");
+    }
+    pdf->file = name_file_pointer;      /* hm ? */
+    pdf->file_name = xstrdup(makecstring(make_name_string()));
+}
+
+
 /* temp here */
 
 void pdfshipoutbegin(boolean shipping_page)
