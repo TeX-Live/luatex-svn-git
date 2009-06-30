@@ -117,4 +117,6 @@ extern void delete_token_ref(halfword p);
 
 extern void make_token_table(lua_State * L, int cmd, int chr, int cs);
 
+extern halfword string_to_toks (char *ss);
+
 #endif

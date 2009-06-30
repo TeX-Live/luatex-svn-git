@@ -404,6 +404,11 @@ void show_token_list(integer p, integer q, integer l)
         tprint_esc("ETC.");
 }
 
+#define do_buffer_to_unichar(a,b)  do {                         \
+        a = str2uni(buffer+b);                                  \
+        b += utf8_size(a);                                      \
+    } while (0)
+
 /*
 Here's the way we sometimes want to display a token list, given a pointer
 to its reference count; the pointer may be null.
@@ -473,90 +478,6 @@ typedef enum { next_line_ok, next_line_return,
 } next_line_retval;
 
 static next_line_retval next_line(void);        /* below */
-
-/* @^inner loop@>*/
-
-static void utf_error(void)
-{
-    char *hlp[] = { "A funny symbol that I can't read has just been input.",
-        "Just continue, I'll change it to 0xFFFD.",
-        NULL
-    };
-    deletions_allowed = false;
-    tex_error("Text line contains an invalid utf-8 sequence", hlp);
-    deletions_allowed = true;
-}
-
-#define do_buffer_to_unichar(a,b)  a = buffer[b] < 0x80 ? buffer[b++] : qbuffer_to_unichar(&b)
-
-static integer qbuffer_to_unichar(integer * k)
-{
-    register int ch;
-    int val = 0xFFFD;
-    unsigned char *text = buffer + *k;
-    if ((ch = *text++) < 0x80) {
-        val = ch;
-        *k += 1;
-    } else if (ch <= 0xbf) {    /* error */
-        *k += 1;
-    } else if (ch <= 0xdf) {
-        if (*text >= 0x80 && *text < 0xc0)
-            val = ((ch & 0x1f) << 6) | (*text++ & 0x3f);
-        *k += 2;
-    } else if (ch <= 0xef) {
-        if (*text >= 0x80 && *text < 0xc0 && text[1] >= 0x80 && text[1] < 0xc0) {
-            val =
-                ((ch & 0xf) << 12) | ((text[0] & 0x3f) << 6) | (text[1] & 0x3f);
-            *k += 3;
-        }
-    } else {
-        int w = (((ch & 0x7) << 2) | ((text[0] & 0x30) >> 4)) - 1, w2;
-        w = (w << 6) | ((text[0] & 0xf) << 2) | ((text[1] & 0x30) >> 4);
-        w2 = ((text[1] & 0xf) << 6) | (text[2] & 0x3f);
-        val = w * 0x400 + w2 + 0x10000;
-        if (*text < 0x80 || text[1] < 0x80 || text[2] < 0x80 ||
-            *text >= 0xc0 || text[1] >= 0xc0 || text[2] >= 0xc0)
-            val = 0xFFFD;
-        *k += 4;
-    }
-    if (val == 0xFFFD)
-        utf_error();
-    return (val);
-}
-
-/* This is a very basic helper */
-
-char *u2s(unsigned unic)
-{
-    char *buf = xmalloc(5);
-    char *pt = buf;
-    if (unic < 0x80)
-        *pt++ = unic;
-    else if (unic < 0x800) {
-        *pt++ = 0xc0 | (unic >> 6);
-        *pt++ = 0x80 | (unic & 0x3f);
-    } else if (unic >= 0x110000) {
-        *pt++ = unic - 0x110000;
-    } else if (unic < 0x10000) {
-        *pt++ = 0xe0 | (unic >> 12);
-        *pt++ = 0x80 | ((unic >> 6) & 0x3f);
-        *pt++ = 0x80 | (unic & 0x3f);
-    } else {
-        int u, z, y, x;
-        unsigned val = unic - 0x10000;
-        u = ((val & 0xf0000) >> 16) + 1;
-        z = (val & 0x0f000) >> 12;
-        y = (val & 0x00fc0) >> 6;
-        x = val & 0x0003f;
-        *pt++ = 0xf0 | (u >> 2);
-        *pt++ = 0x80 | ((u & 3) << 4) | z;
-        *pt++ = 0x80 | y;
-        *pt++ = 0x80 | x;
-    }
-    *pt = '\0';
-    return buf;
-}
-
 
 /* 
    In case you are getting bored, here is a slightly less trivial routine:
@@ -632,12 +553,12 @@ halfword active_to_cs(int curchr, int force)
     char *a, *b;
     char *utfbytes = xmalloc(10);
     int nncs = no_new_control_sequence;
-    a = u2s(0xFFFF);
+    a = (char *)uni2str(0xFFFF);
     utfbytes = strcpy(utfbytes, a);
     if (force)
         no_new_control_sequence = false;
     if (curchr > 0) {
-        b = u2s(curchr);
+        b = (char *)uni2str(curchr);
         utfbytes = strcat(utfbytes, b);
         free(b);
         curcs = string_lookup(utfbytes, strlen(utfbytes));
@@ -1493,4 +1414,26 @@ void get_token_lua(void)
     get_next();
 }
 
+
+
+/* changes the string |s| to a token list */
+halfword string_to_toks (char *ss)
+{
+    halfword p; /* tail of the token list */
+    halfword q; /* new node being added to the token list via |store_new_token| */
+    halfword t; /* token being appended */
+    char *s = ss, *se = ss+strlen(s);
+    p=temp_token_head; 
+    set_token_link(p,null); 
+    while (s<se) {
+        t = str2uni((unsigned char *)s);
+        s += utf8_size(t);
+        if (t==' ')  
+            t=space_token;
+        else 
+            t=other_token+t;
+        fast_store_new_token(t);
+    }
+    return token_link(temp_token_head);
+}
 

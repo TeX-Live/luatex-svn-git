@@ -77,19 +77,92 @@ str_number make_string(void)
 }
 
 
+static void utf_error(void)
+{
+    char *hlp[] = { "A funny symbol that I can't read has just been (re)read.",
+        "Just continue, I'll change it to 0xFFFD.",
+        NULL
+    };
+    deletions_allowed = false;
+    tex_error("String contains an invalid utf-8 sequence", hlp);
+    deletions_allowed = true;
+}
+
+unsigned str2uni(unsigned char *k)
+{
+    register int ch;
+    unsigned val = 0xFFFD;
+    unsigned char *text = k;
+    if ((ch = *text++) < 0x80) {
+        val = ch;
+    } else if (ch <= 0xbf) {    /* error */
+    } else if (ch <= 0xdf) {
+        if (*text >= 0x80 && *text < 0xc0)
+            val = ((ch & 0x1f) << 6) | (*text++ & 0x3f);
+    } else if (ch <= 0xef) {
+        if (*text >= 0x80 && *text < 0xc0 && text[1] >= 0x80 && text[1] < 0xc0) {
+            val =
+                ((ch & 0xf) << 12) | ((text[0] & 0x3f) << 6) | (text[1] & 0x3f);
+        }
+    } else {
+        int w = (((ch & 0x7) << 2) | ((text[0] & 0x30) >> 4)) - 1, w2;
+        w = (w << 6) | ((text[0] & 0xf) << 2) | ((text[1] & 0x30) >> 4);
+        w2 = ((text[1] & 0xf) << 6) | (text[2] & 0x3f);
+        val = w * 0x400 + w2 + 0x10000;
+        if (*text < 0x80 || text[1] < 0x80 || text[2] < 0x80 ||
+            *text >= 0xc0 || text[1] >= 0xc0 || text[2] >= 0xc0)
+            val = 0xFFFD;
+    }
+    if (val == 0xFFFD)
+        utf_error();
+    return (val);
+}
+
+/* This is a very basic helper */
+
+unsigned char *uni2str(unsigned unic)
+{
+    unsigned char *buf = xmalloc(5);
+    unsigned char *pt = buf;
+    if (unic < 0x80)
+        *pt++ = unic;
+    else if (unic < 0x800) {
+        *pt++ = 0xc0 | (unic >> 6);
+        *pt++ = 0x80 | (unic & 0x3f);
+    } else if (unic >= 0x110000) {
+        *pt++ = unic - 0x110000;
+    } else if (unic < 0x10000) {
+        *pt++ = 0xe0 | (unic >> 12);
+        *pt++ = 0x80 | ((unic >> 6) & 0x3f);
+        *pt++ = 0x80 | (unic & 0x3f);
+    } else {
+        int u, z, y, x;
+        unsigned val = unic - 0x10000;
+        u = ((val & 0xf0000) >> 16) + 1;
+        z = (val & 0x0f000) >> 12;
+        y = (val & 0x00fc0) >> 6;
+        x = val & 0x0003f;
+        *pt++ = 0xf0 | (u >> 2);
+        *pt++ = 0x80 | ((u & 3) << 4) | z;
+        *pt++ = 0x80 | y;
+        *pt++ = 0x80 | x;
+    }
+    *pt = '\0';
+    return buf;
+}
+
 /*
 |buffer_to_unichar| converts a sequence of bytes in the |buffer|
 into a unicode character value. It does not check for overflow
-of the |buffer|.
+of the |buffer|, but it is careful to check the validity of the 
+UTF-8 encoding.
 */
 
-#define test_sequence_byte(A) do {					\
-    if (((A)<0x80) || ((A)>=0xC0)) {					\
-      deletions_allowed=false;						\
-      tex_error("Text line contains an invalid UTF-8 sequence", hlp);	\
-      deletions_allowed=true;						\
-      return 0xFFFD;							\
-    }									\
+#define test_sequence_byte(A) do {                      \
+        if (((A)<0x80) || ((A)>=0xC0)) {                \
+            utf_error();                                \
+            return 0xFFFD;                              \
+        }                                               \
   } while (0)
 
 
@@ -97,11 +170,6 @@ static integer buffer_to_unichar(integer k)
 {
     integer a;                  /* a utf char */
     integer b;                  /* a utf nibble */
-    char *hlp[] = {
-        "A funny symbol that I can't read has just been input.",
-        "Just continue, I'll change it to 0xFFFD.",
-        NULL
-    };
     b = buffer[k];
     if (b < 0x80) {
         a = b;
@@ -144,40 +212,7 @@ static integer buffer_to_unichar(integer k)
 
 integer pool_to_unichar(pool_pointer t)
 {
-    integer a;                  /* a utf char */
-    integer b;                  /* a utf nibble */
-    b = str_pool[t];
-    if (b <= 0x7F) {
-        a = b;
-    } else if (b >= 0xF0) {
-        a = (b - 0xF0) * 64;
-        b = str_pool[t + 1];
-        a = (a + (b - 128)) * 64;
-        b = str_pool[t + 2];
-        a = (a + (b - 128)) * 64;
-        b = str_pool[t + 3];
-        a = a + (b - 128);
-    } else if (b >= 0xE0) {
-        a = (b - 0xE0) * 64;
-        b = str_pool[t + 1];
-        a = (a + (b - 128)) * 64;
-        b = str_pool[t + 2];
-        a = a + (b - 128);
-    } else if (b >= 0xC0) {
-        a = (b - 0xC0) * 64;
-        b = str_pool[t + 1];
-        a = a + (b - 128);
-    } else {                    /* NI: this is an encoding error  */
-        char *hlp[] = { "A funny symbol somehow ended up in the string pool.",
-            "Just continue, I'll change it to 0xFFFD.",
-            NULL
-        };
-        deletions_allowed = false;
-        tex_error("! Pool contains an invalid utf-8 sequence", hlp);
-        deletions_allowed = true;
-        return 0xFFFD;
-    }
-    return a;
+    return (integer)str2uni((unsigned char *)(str_pool+t));
 }
 
 
