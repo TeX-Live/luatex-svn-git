@@ -307,6 +307,7 @@ void initialize_pdf_output(PDF pdf)
         pdf_minor_version = 4;
     }
     pdf->minor_version = pdf_minor_version;
+    pdf->compress_level = pdf_compress_level;
     pdf->decimal_digits = fix_int(pdf_decimal_digits, 0, 4);
     pdf->gamma = fix_int(pdf_gamma, 0, 1000000);
     pdf->image_gamma = fix_int(pdf_image_gamma, 0, 1000000);

@@ -82,6 +82,7 @@ PDF initialize_pdf(void)
     pdf->image_hicolor = 1;
     pdf->image_apply_gamma = 0;
     pdf->objcompresslevel = 0;
+    pdf->compress_level = 0;
     pdf->draftmode = 0;
     pdf->inclusion_copy_font = 1;
     pdf->replace_font = 0;
@@ -159,7 +160,7 @@ void do_check_pdfminorversion(PDF pdf)
 
     }
     if (pdf->draftmode != 0) {
-        pdf_compress_level = 0; /* re-fix it, might have been changed inbetween */
+        pdf->compress_level = 0; /* re-fix it, might have been changed inbetween */
         pdf->objcompresslevel = 0;
     }
 }
@@ -476,7 +477,7 @@ void pdf_begin_stream(PDF pdf)
     pdf->stream_length_offset = pdf_offset(pdf) - 11;
     pdf->stream_length = 0;
     pdf->last_byte = 0;
-    if (pdf_compress_level > 0) {
+    if (pdf->compress_level > 0) {
         pdf_printf(pdf, "/Filter /FlateDecode\n");
         pdf_printf(pdf, ">>\n");
         pdf_printf(pdf, "stream\n");
@@ -823,7 +824,7 @@ void pdf_begin_dict(PDF pdf, integer i, integer pdf_os_level)
     if (!pdf->os_mode) {
         pdf_printf(pdf, "%d 0 obj <<\n", (int) i);
     } else {
-        if (pdf_compress_level == 0)
+        if (pdf->compress_level == 0)
             pdf_printf(pdf, "%% %d 0 obj\n", (int) i);  /* debugging help */
         pdf_printf(pdf, "<<\n");
     }
@@ -914,7 +915,7 @@ void pdf_begin_obj(PDF pdf, integer i, integer pdf_os_level)
     pdf_os_prepare_obj(pdf, i, pdf_os_level);
     if (!pdf->os_mode) {
         pdf_printf(pdf, "%d 0 obj\n", (int) i);
-    } else if (pdf_compress_level == 0) {
+    } else if (pdf->compress_level == 0) {
         pdf_printf(pdf, "%% %d 0 obj\n", (int) i);      /* debugging help */
     }
 }
@@ -1266,7 +1267,7 @@ void write_zip(PDF pdf, boolean finish)
 {
     int err;
     static int level_old = 0;
-    int level = pdf_compress_level;
+    int level = pdf->compress_level;
     assert(level > 0);
     cur_file_name = NULL;
     if (pdf->stream_length == 0) {
