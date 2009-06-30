@@ -6665,10 +6665,7 @@ pdf_xform_name_code: begin
 end;
 pdf_creation_date_code:
   begin
-    b := pool_ptr;
-    getcreationdate;
-    junk := str_toks(b);
-    ins_list(link(temp_token_head));
+    ins_list(string_to_toks(getcreationdate));
     return;
   end;
 job_name_code: if job_name=0 then open_log_file;

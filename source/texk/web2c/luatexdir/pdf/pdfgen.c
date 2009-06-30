@@ -1057,138 +1057,6 @@ static void convertStringToHexString(const char *in, char *out, int lin)
     out[j] = '\0';
 }
 
-
-/* Converts any string given in in in an allowed PDF string which can be
- * handled by printf et.al.: \ is escaped to \\, parenthesis are escaped and
- * control characters are octal encoded.
- * This assumes that the string does not contain any already escaped
- * characters!
- *
- * See escapename for parameter description.
- */
-void escapestring(pool_pointer in)
-{
-    const pool_pointer out = pool_ptr;
-    unsigned char ch;
-    int i;
-    while (in < out) {
-        if (pool_ptr + 4 >= pool_size) {
-            pool_ptr = pool_size;
-            /* error by str_toks that calls str_room(1) */
-            return;
-        }
-
-        ch = (unsigned char) str_pool[in++];
-
-        if ((ch < '!') || (ch > '~')) {
-            /* convert control characters into oct */
-            i = snprintf((char *) &str_pool[pool_ptr], 5,
-                         "\\%.3o", (unsigned int) ch);
-            check_nprintf(i, 5);
-            pool_ptr += i;
-            continue;
-        }
-        if ((ch == '(') || (ch == ')') || (ch == '\\')) {
-            /* escape parenthesis and backslash */
-            str_pool[pool_ptr++] = '\\';
-        }
-        /* copy char :-) */
-        str_pool[pool_ptr++] = ch;
-    }
-}
-
-/* Convert any given string in a PDF name using escaping mechanism
-   of PDF 1.2. The result does not include the leading slash.
-
-   PDF specification 1.6, section 3.2.6 "Name Objects" explains:
-   <blockquote>
-    Beginning with PDF 1.2, any character except null (character code 0) may
-    be included in a name by writing its 2-digit hexadecimal code, preceded
-    by the number sign character (#); see implementation notes 3 and 4 in
-    Appendix H. This syntax is required to represent any of the delimiter or
-    white-space characters or the number sign character itself; it is
-    recommended but not required for characters whose codes are outside the
-    range 33 (!) to 126 (~).
-   </blockquote>
-   The following table shows the conversion that are done by this
-   function:
-     code      result   reason
-     -----------------------------------
-     0         ignored  not allowed
-     1..32     escaped  must for white-space:
-                          9 (tab), 10 (lf), 12 (ff), 13 (cr), 32 (space)
-                        recommended for the other control characters
-     35        escaped  escape char "#"
-     37        escaped  delimiter "%"
-     40..41    escaped  delimiters "(" and ")"
-     47        escaped  delimiter "/"
-     60        escaped  delimiter "<"
-     62        escaped  delimiter ">"
-     91        escaped  delimiter "["
-     93        escaped  delimiter "]"
-     123       escaped  delimiter "{"
-     125       escaped  delimiter "}"
-     127..255  escaped  recommended
-     else      copy     regular characters
-
-   Parameter "in" is a pointer into the string pool where
-   the input string is located. The output string is written
-   as temporary string right after the input string.
-   Thus at the begin of the procedure the global variable
-   "pool_ptr" points to the start of the output string and
-   after the end when the procedure returns.
-*/
-void escapename(pool_pointer in)
-{
-    const pool_pointer out = pool_ptr;
-    unsigned char ch;
-    int i;
-
-    while (in < out) {
-        if (pool_ptr + 3 >= pool_size) {
-            pool_ptr = pool_size;
-            /* error by str_toks that calls str_room(1) */
-            return;
-        }
-
-        ch = (unsigned char) str_pool[in++];
-
-        if ((ch >= 1 && ch <= 32) || ch >= 127) {
-            /* escape */
-            i = snprintf((char *) &str_pool[pool_ptr], 4,
-                         "#%.2X", (unsigned int) ch);
-            check_nprintf(i, 4);
-            pool_ptr += i;
-            continue;
-        }
-        switch (ch) {
-        case 0:
-            /* ignore */
-            break;
-        case 35:
-        case 37:
-        case 40:
-        case 41:
-        case 47:
-        case 60:
-        case 62:
-        case 91:
-        case 93:
-        case 123:
-        case 125:
-            /* escape */
-            i = snprintf((char *) &str_pool[pool_ptr], 4,
-                         "#%.2X", (unsigned int) ch);
-            check_nprintf(i, 4);
-            pool_ptr += i;
-            break;
-        default:
-            /* copy */
-            str_pool[pool_ptr++] = ch;
-        }
-    }
-}
-
 /* Compute the ID string as per PDF1.4 9.3:
   <blockquote>
     File identifers are defined by the optional ID entry in a PDF file's
@@ -1371,21 +1239,10 @@ void print_mod_date(PDF pdf)
     pdf_printf(pdf, "/ModDate (%s)\n", start_time_str);
 }
 
-void getcreationdate(void)
+char *getcreationdate(void)
 {
-    /* put creation date on top of string pool and update pool_ptr */
-    size_t len = strlen(start_time_str);
-
     init_start_time();
-
-    if ((unsigned) (pool_ptr + len) >= (unsigned) pool_size) {
-        pool_ptr = pool_size;
-        /* error by str_toks that calls str_room(1) */
-        return;
-    }
-
-    memcpy(&str_pool[pool_ptr], start_time_str, len);
-    pool_ptr += len;
+    return start_time_str;
 }
 
 void remove_pdffile(PDF pdf)

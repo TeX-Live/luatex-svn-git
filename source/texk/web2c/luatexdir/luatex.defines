@@ -538,10 +538,8 @@
 
 { functions from utils/utils.c }
 @define procedure escapehex();
-@define procedure escapename();
-@define procedure escapestring();
 @define function ext_xn_over_d();
-@define procedure getcreationdate;
+@define function getcreationdate;
 @define function get_resname_prefix;
 @define function makecstring();
 
@@ -598,6 +596,7 @@
 @define function scan_keyword();
 @define procedure scan_direction;
 @define function active_to_cs();
+@define function string_to_toks();
 
 { functions from vfpacket.c }
 @define function new_vf_packet();

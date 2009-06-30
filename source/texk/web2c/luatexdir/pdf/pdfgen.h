@@ -209,11 +209,9 @@ extern void zip_free(void);
 
 extern scaled round_xn_over_d(scaled x, integer n, integer d);
 extern char *convertStringToPDFString(const char *in, int len);
-extern void escapestring(pool_pointer in);
-extern void escapename(pool_pointer in);
 
 extern void init_start_time(void);
-extern void getcreationdate(void);
+extern char *getcreationdate(void);
 
 extern void pdf_use_font(internal_font_number f, integer fontnum);
 extern void pdf_init_font(PDF pdf, internal_font_number f);
