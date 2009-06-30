@@ -125,6 +125,7 @@ extern void check_outer_validity(void);
 extern boolean scan_keyword(char *);
 extern halfword active_to_cs(int, int);
 extern void get_token_lua(void);
+halfword string_to_toks (char *);
 extern int get_char_cat_code(int);
 
 
