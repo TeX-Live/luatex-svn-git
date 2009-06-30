@@ -66,8 +66,6 @@ extern KPSEDLL string kpathsea_version_string;  /* from kpathsea/version.c */
 integer epochseconds;
 integer microseconds;
 
-size_t last_ptr_index;          /* for use with alloc_array */
-
 extern PDF static_pdf;
 
 
