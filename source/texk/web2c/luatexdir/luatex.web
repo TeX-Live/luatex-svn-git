@@ -6833,7 +6833,7 @@ font_name_code: begin
 pdftex_revision_code: print(pdftex_revision);
 luatex_revision_code: print(luatex_revision);
 luatex_date_code:   print_int(luatex_date_info);
-pdftex_banner_code: print(pdftex_banner);
+pdftex_banner_code: tprint(pdftex_banner);
 pdf_font_name_code, pdf_font_objnum_code: begin
     set_ff(cur_val);
     if c = pdf_font_name_code then
@@ -6930,7 +6930,7 @@ begin
   pdftex_revision_code:   print(pdftex_revision);
   luatex_revision_code:   print(luatex_revision);
   luatex_date_code:       print_int(luatex_date_info);
-  pdftex_banner_code:     print(pdftex_banner);
+  pdftex_banner_code:     tprint(pdftex_banner);
   normal_deviate_code:    print_int(norm_rand);
   uniform_deviate_code:   print_int(unif_rand(i));
   format_name_code:       print(format_name);
@@ -8461,9 +8461,6 @@ begin
     else
         dvi_ship_out(p);
 end;
-
-@ @<Glob...@>=
-@!pdftex_banner: str_number;   {the complete banner}
 
 @* \[33] Packaging.
 We're essentially done with the parts of \TeX\ that are concerned with

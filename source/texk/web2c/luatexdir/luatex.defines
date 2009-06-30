@@ -1422,10 +1422,12 @@
 @define procedure print_ln;
 @define procedure print_char();
 @define procedure print();
+@define procedure tprint();
 @define procedure print_nl();
 @define procedure print_nlp;
 @define procedure slow_print();
 @define procedure print_banner();
+@define var pdftex_banner;
 @define procedure log_banner();
 @define procedure print_version_banner;
 @define procedure print_esc();

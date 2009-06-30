@@ -795,7 +795,7 @@ void pdf_print_info(PDF pdf, integer luatex_version, str_number luatex_revision)
     if (!trapped_given) {
         pdf_printf(pdf, "/Trapped /False\n");
     }
-    pdf_str_entry_ln(pdf, "PTEX.Fullbanner", makecstring(pdftex_banner));
+    pdf_str_entry_ln(pdf, "PTEX.Fullbanner", pdftex_banner);
     pdf_end_dict(pdf);
 }
 

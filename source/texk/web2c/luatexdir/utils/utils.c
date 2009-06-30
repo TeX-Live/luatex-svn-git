@@ -302,14 +302,15 @@ char *makeclstring(integer s, size_t * len)
     return cstrbuf;
 }
 
+char *pdftex_banner = NULL;
+
 void make_pdftex_banner(void)
 {
-    static boolean pdftexbanner_init = false;
     char *s;
     size_t slen;
     int i;
 
-    if (pdftexbanner_init)
+    if (pdftex_banner != NULL)
         return;
 
     slen = SMALL_BUF_SIZE +
@@ -320,9 +321,7 @@ void make_pdftex_banner(void)
     i = snprintf(s, slen,
                  "%s%s %s", ptexbanner, versionstring, kpathsea_version_string);
     check_nprintf(i, slen);
-    pdftex_banner = maketexstring(s);
-    xfree(s);
-    pdftexbanner_init = true;
+    pdftex_banner = s;
 }
 
 size_t xfwrite(void *ptr, size_t size, size_t nmemb, FILE * stream)

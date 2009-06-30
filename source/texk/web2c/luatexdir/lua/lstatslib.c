@@ -42,6 +42,12 @@ char *getbanner(void)
     return ptexbanner;
 }
 
+char *get_pdftex_banner(void)
+{
+    return pdftex_banner;
+}
+
+
 /* hack, I really should implement the makecstring */
 char *getfilename(void)
 {
@@ -137,7 +143,7 @@ static struct statistic stats[] = {
     {"output_file_name", 's', &output_file_name},
     {"log_name", 's', &texmf_log_name}, /* weird */
     {"banner", 'S', &getbanner},
-    {"pdftex_banner", 's', &pdftex_banner},
+    {"pdftex_banner", 'S', &get_pdftex_banner},
     {"luatex_version", 'G', &get_luatexversion},
     {"luatex_revision", 'S', &luatexrevision},
     {"ini_version", 'b', &ini_version},

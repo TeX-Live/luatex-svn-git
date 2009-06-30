@@ -24,10 +24,6 @@
 
 #include "luatex-api.h"         /* for tokenlist_to_cstring */
 
-extern string ptexbanner;       /* from web2c/lib/texmfmp.c */
-extern string versionstring;    /* from web2c/lib/version.c */
-extern KPSEDLL string kpathsea_version_string;  /* from kpathsea/version.c */
-
 static const char __svn_version[] =
     "$Id$"
     "$URL$";
@@ -1388,18 +1384,17 @@ void set_job_id(PDF pdf, int year, int month, int day, int time)
 
     name_string = xstrdup(makecstring(job_name));
     format_string = xstrdup(makecstring(format_ident));
+    make_pdftex_banner();
     slen = SMALL_BUF_SIZE +
         strlen(name_string) +
         strlen(format_string) +
-        strlen(ptexbanner) +
-        strlen(versionstring) + strlen(kpathsea_version_string);
+        strlen(pdftex_banner);
     s = xtalloc(slen, char);
     /* The Web2c version string starts with a space.  */
     i = snprintf(s, slen,
-                 "%.4d/%.2d/%.2d %.2d:%.2d %s %s %s%s %s",
+                 "%.4d/%.2d/%.2d %.2d:%.2d %s %s %s",
                  year, month, day, time / 60, time % 60,
-                 name_string, format_string, ptexbanner,
-                 versionstring, kpathsea_version_string);
+                 name_string, format_string, pdftex_banner);
     check_nprintf(i, slen);
     pdf->job_id_string = xstrdup(s);
     xfree(s);

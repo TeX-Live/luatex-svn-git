@@ -25,6 +25,7 @@
 
 extern integer epochseconds;
 extern integer microseconds;
+extern char *pdftex_banner;
 
 void make_subset_tag(fd_entry *);
 
