@@ -634,6 +634,9 @@ char *cmd_chr_to_string(int cmd, int chr)
     return s;
 }
 
+
+
+
 /* Before getting into |get_next|, let's consider the subroutine that
    is called when an `\.{\\outer}' control sequence has been scanned or
    when the end of a file has been reached. These two cases are distinguished

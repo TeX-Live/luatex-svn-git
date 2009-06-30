@@ -369,19 +369,6 @@ void run_mlist_to_hlist(pointer p, integer m_style, boolean penalties);
 void fixup_math_parameters(integer fam_id, integer size_id, integer f,
                            integer lvl);
 
-/* tex/textoken.c */
-
-#  define  NO_CAT_TABLE      -2
-#  define  DEFAULT_CAT_TABLE -1
-
-extern boolean str_eq_cstr(str_number, char *, size_t);
-void get_next(void);
-extern void check_outer_validity(void);
-boolean scan_keyword(char *);
-halfword active_to_cs(int, int);
-void get_token_lua(void);
-int get_char_cat_code(int);
-
 /* tex/texdeffont.c */
 
 void tex_def_font(small_number a);

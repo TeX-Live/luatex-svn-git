@@ -42,7 +42,6 @@
 #  define end_match_token 0x1C00000     /* $2^{21}\cdot|end_match|$ */
 #  define protected_token 0x1C00001     /* $2^{21}\cdot|end_match|+1$ */
 
-
 typedef struct smemory_word_ {
     halfword hhrh;
     halfword hhlh;
@@ -117,6 +116,16 @@ extern void delete_token_ref(halfword p);
 
 extern void make_token_table(lua_State * L, int cmd, int chr, int cs);
 
-extern halfword string_to_toks (char *ss);
+#  define  NO_CAT_TABLE      -2
+#  define  DEFAULT_CAT_TABLE -1
+
+extern boolean str_eq_cstr(str_number, char *, size_t);
+extern void get_next(void);
+extern void check_outer_validity(void);
+extern boolean scan_keyword(char *);
+extern halfword active_to_cs(int, int);
+extern void get_token_lua(void);
+extern int get_char_cat_code(int);
+
 
 #endif
