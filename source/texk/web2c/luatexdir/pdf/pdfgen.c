@@ -73,8 +73,7 @@ PDF initialize_pdf(void)
 
     pdf->obj_tab_size = inf_obj_tab_size;       /* allocated size of |obj_tab| array */
     pdf->obj_tab = xmalloc((pdf->obj_tab_size + 1) * sizeof(obj_entry));
-    set_obj_offset(pdf, 0, 0);
-
+    memset(pdf->obj_tab,0,sizeof(obj_entry));
     return pdf;
 }
 
@@ -305,12 +304,12 @@ void pdf_os_prepare_obj(PDF pdf, integer i, integer pdf_os_level)
     if (pdf->os_mode) {
         if (pdf->os_cur_objnum == 0) {
             pdf->os_cur_objnum = pdf_new_objnum(pdf);
-            decr(pdf->obj_ptr); /* object stream is not accessible to user */
-            incr(pdf->os_cntr); /* only for statistics */
+            pdf->obj_ptr--; /* object stream is not accessible to user */
+            pdf->os_cntr++; /* only for statistics */
             pdf->os_idx = 0;
             pdf->ptr = 0;       /* start fresh object stream */
         } else {
-            incr(pdf->os_idx);
+            pdf->os_idx++;
         }
         obj_os_idx(pdf, i) = pdf->os_idx;
         obj_offset(pdf, i) = pdf->os_cur_objnum;
@@ -431,6 +430,7 @@ void pdf_print(PDF pdf, str_number s)
 void pdf_print_int(PDF pdf, longinteger n)
 {
     register integer k = 0;     /*  current digit; we assume that $|n|<10^{23}$ */
+    integer dig[24];
     if (n < 0) {
         pdf_out(pdf, '-');
         if (n < -0x7FFFFFFF) {  /* need to negate |n| more carefully */
@@ -443,7 +443,7 @@ void pdf_print_int(PDF pdf, longinteger n)
                 dig[0] = m;
             } else {
                 dig[0] = 0;
-                incr(n);
+                n++;
             }
         } else {
             n = -n;
@@ -554,7 +554,7 @@ void pdf_end_stream(PDF pdf)
 void pdf_remove_last_space(PDF pdf)
 {
     if ((pdf->ptr > 0) && (pdf->buf[pdf->ptr - 1] == ' '))
-        decr(pdf->ptr);
+        pdf->ptr--;
 }
 
 
@@ -595,7 +595,7 @@ for optimizations that are not possible in pascal.
 scaled round_xn_over_d(scaled x, integer n, integer d)
 {
     boolean positive;           /* was |x>=0|? */
-    nonnegative_integer t, u, v;        /* intermediate quantities */
+    unsigned t, u, v;        /* intermediate quantities */
     if (x >= 0) {
         positive = true;
     } else {
@@ -610,7 +610,7 @@ scaled round_xn_over_d(scaled x, integer n, integer d)
     else
         u = 0100000 * (u / d) + (v / d);
     v = v % d;
-    if (2 * v >= (nonnegative_integer) d)
+    if (2 * v >= (unsigned) d)
         u++;
     if (positive)
         return u;
@@ -711,7 +711,7 @@ void pdf_init_font(PDF pdf, internal_font_number f)
 /* set the actual font on PDF page */
 internal_font_number pdf_set_font(PDF pdf, internal_font_number f)
 {
-    pointer p;
+    halfword p;
     internal_font_number k;
     integer ff;                 /* for use with |set_ff| */
 
@@ -739,6 +739,7 @@ internal_font_number pdf_set_font(PDF pdf, internal_font_number f)
 void pdf_print_fw_int(PDF pdf, longinteger n, integer w)
 {
     integer k;                  /* $0\le k\le23$ */
+    integer dig[24];
     k = 0;
     do {
         dig[k] = n % 10;
@@ -919,9 +920,9 @@ void pdf_os_write_objstream(PDF pdf)
             j = 0;
         } else {
             pdf_printf(pdf, " ");
-            incr(j);
+            j++;
         }
-        incr(i);
+        i++;
     }
     pdf->buf[pdf->ptr - 1] = pdf_new_line_char; /* no risk of flush, as we are in |pdf_os_mode| */
     q = pdf->ptr;
@@ -934,7 +935,7 @@ void pdf_os_write_objstream(PDF pdf)
     i = p;
     while (i < q) {             /* write object number and byte offset pairs */
         pdf_quick_out(pdf, pdf->os_buf[i]);
-        incr(i);
+        i++;
     }
     i = 0;
     while (i < p) {
@@ -944,7 +945,7 @@ void pdf_os_write_objstream(PDF pdf)
         pdf_room(pdf, q - i);
         while (i < q) {         /* write the buffered objects */
             pdf_quick_out(pdf, pdf->os_buf[i]);
-            incr(i);
+            i++;
         }
     }
     pdf_end_stream(pdf);
@@ -1065,9 +1066,9 @@ static void convertStringToHexString(const char *in, char *out, int lin)
  *
  * See escapename for parameter description.
  */
-void escapestring(poolpointer in)
+void escapestring(pool_pointer in)
 {
-    const poolpointer out = pool_ptr;
+    const pool_pointer out = pool_ptr;
     unsigned char ch;
     int i;
     while (in < out) {
@@ -1137,9 +1138,9 @@ void escapestring(poolpointer in)
    "pool_ptr" points to the start of the output string and
    after the end when the procedure returns.
 */
-void escapename(poolpointer in)
+void escapename(pool_pointer in)
 {
-    const poolpointer out = pool_ptr;
+    const pool_pointer out = pool_ptr;
     unsigned char ch;
     int i;
 
@@ -1400,6 +1401,7 @@ void remove_pdffile(PDF pdf)
 /* define fb_ptr, fb_array & fb_limit */
 typedef char fb_entry;
 define_array(fb);
+
 integer fb_offset(void)
 {
     return fb_ptr - fb_array;
