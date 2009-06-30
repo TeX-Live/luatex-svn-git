@@ -540,7 +540,6 @@
 @define procedure escapehex();
 @define function ext_xn_over_d();
 @define function getcreationdate;
-@define function get_resname_prefix;
 @define function makecstring();
 
 @define procedure append_string();
@@ -550,7 +549,6 @@
 @define procedure printcreationdate;
 @define procedure printmoddate;
 @define procedure print_ID();
-@define procedure set_job_id();
 @define procedure unescapehex();
 @define procedure write_stream_length();
 @define procedure removepdffile;

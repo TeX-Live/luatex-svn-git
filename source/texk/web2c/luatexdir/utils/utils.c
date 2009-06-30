@@ -59,7 +59,6 @@ static const char __svn_version[] =
 char *cur_file_name = NULL;
 str_number last_tex_string;
 static char print_buf[PRINTF_BUF_SIZE];
-char *job_id_string = NULL;
 extern string ptexbanner;       /* from web2c/lib/texmfmp.c */
 extern string versionstring;    /* from web2c/lib/version.c */
 extern KPSEDLL string kpathsea_version_string;  /* from kpathsea/version.c */
@@ -303,36 +302,6 @@ char *makeclstring(integer s, size_t * len)
     return cstrbuf;
 }
 
-void set_job_id(int year, int month, int day, int time)
-{
-    char *name_string, *format_string, *s;
-    size_t slen;
-    int i;
-
-    if (job_id_string != NULL)
-        return;
-
-    name_string = xstrdup(makecstring(job_name));
-    format_string = xstrdup(makecstring(format_ident));
-    slen = SMALL_BUF_SIZE +
-        strlen(name_string) +
-        strlen(format_string) +
-        strlen(ptexbanner) +
-        strlen(versionstring) + strlen(kpathsea_version_string);
-    s = xtalloc(slen, char);
-    /* The Web2c version string starts with a space.  */
-    i = snprintf(s, slen,
-                 "%.4d/%.2d/%.2d %.2d:%.2d %s %s %s%s %s",
-                 year, month, day, time / 60, time % 60,
-                 name_string, format_string, ptexbanner,
-                 versionstring, kpathsea_version_string);
-    check_nprintf(i, slen);
-    job_id_string = xstrdup(s);
-    xfree(s);
-    xfree(name_string);
-    xfree(format_string);
-}
-
 void make_pdftex_banner(void)
 {
     static boolean pdftexbanner_init = false;
@@ -354,27 +323,6 @@ void make_pdftex_banner(void)
     pdftex_banner = maketexstring(s);
     xfree(s);
     pdftexbanner_init = true;
-}
-
-char *get_resname_prefix(void)
-{
-/*     static char name_str[] = */
-/* "!\"$&'*+,-.0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\\" */
-/* "^_`abcdefghijklmnopqrstuvwxyz|~"; */
-    static char name_str[] =
-        "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    static char prefix[7];      /* make a tag of 6 chars long */
-    unsigned long crc;
-    short i;
-    size_t base = strlen(name_str);
-    crc = crc32(0L, Z_NULL, 0);
-    crc = crc32(crc, (Bytef *) job_id_string, strlen(job_id_string));
-    for (i = 0; i < 6; i++) {
-        prefix[i] = name_str[crc % base];
-        crc /= base;
-    }
-    prefix[6] = '\0';
-    return prefix;
 }
 
 size_t xfwrite(void *ptr, size_t size, size_t nmemb, FILE * stream)

@@ -99,6 +99,7 @@ typedef struct pdf_output_file_ {
     int minor_version;          /* fixed minor part of the PDF version */
     int minor_version_set;      /* flag if the PDF version has been set */
     int objcompresslevel;       /* fixed level for activating PDF object streams */
+    char *job_id_string;        /* the full job string */
 
     /* output file buffering  */
     unsigned char *op_buf;      /* the PDF output buffer */

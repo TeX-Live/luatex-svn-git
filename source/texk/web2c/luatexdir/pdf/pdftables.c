@@ -292,6 +292,65 @@ void set_rect_dimens(halfword p, halfword parent_box, scaled x, scaled y,
     pdf_ann_top(p) = pos_ur.v + margin;
 }
 
+
+void initialize_pdf_output(PDF pdf)
+{
+    if ((pdf_minor_version < 0) || (pdf_minor_version > 9)) {
+        char *hlp[] = { "The pdfminorversion must be between 0 and 9.",
+            "I changed this to 4.", NULL
+        };
+        char msg[256];
+        (void) snprintf(msg, 255, "LuaTeX error (illegal pdfminorversion %d)",
+                        (int) pdf_minor_version);
+        tex_error(msg, hlp);
+        pdf_minor_version = 4;
+    }
+    pdf->minor_version = pdf_minor_version;
+    pdf->decimal_digits = fix_int(pdf_decimal_digits, 0, 4);
+    pdf->gamma = fix_int(pdf_gamma, 0, 1000000);
+    pdf->image_gamma = fix_int(pdf_image_gamma, 0, 1000000);
+    pdf->image_hicolor = fix_int(pdf_image_hicolor, 0, 1);
+    pdf->image_apply_gamma = fix_int(pdf_image_apply_gamma, 0, 1);
+    pdf->objcompresslevel = fix_int(pdf_objcompresslevel, 0, 3);
+    pdf->draftmode = fix_int(pdf_draftmode, 0, 1);
+    pdf->inclusion_copy_font = fix_int(pdf_inclusion_copy_font, 0, 1);
+    pdf->replace_font = fix_int(pdf_replace_font, 0, 1);
+    pdf->pk_resolution = fix_int(pdf_pk_resolution, 72, 8000);
+    if ((pdf->minor_version >= 5) && (pdf->objcompresslevel > 0)) {
+        pdf->os_enable = true;
+    } else {
+        if (pdf->objcompresslevel > 0) {
+            pdf_warning("Object streams",
+                        "\\pdfobjcompresslevel > 0 requires \\pdfminorversion > 4. Object streams disabled now.",
+                        true, true);
+            pdf->objcompresslevel = 0;
+        }
+        pdf->os_enable = false;
+    }
+    if (pdf->pk_resolution == 0)        /* if not set from format file or by user */
+        pdf->pk_resolution = pk_dpi;    /* take it from \.{texmf.cnf} */
+    pdf->pk_scale_factor =
+        divide_scaled(72, pdf->pk_resolution, 5 + pdf->decimal_digits);
+    if (!callback_defined(read_pk_file_callback)) {
+        if (pdf_pk_mode != null) {
+            char *s = tokenlist_to_cstring(pdf_pk_mode, true, NULL);
+            kpseinitprog("PDFTEX", pdf->pk_resolution, s, nil);
+            xfree(s);
+        } else {
+            kpseinitprog("PDFTEX", pdf->pk_resolution, nil, nil);
+        }
+        if (!kpsevarvalue("MKTEXPK"))
+            kpsesetprogramenabled(kpsepkformat, 1, kpsesrccmdline);
+    }
+    set_job_id(pdf, int_par(param_year_code),
+               int_par(param_month_code),
+               int_par(param_day_code), int_par(param_time_code));
+
+    if ((pdf_unique_resname > 0) && (pdf->resname_prefix == NULL))
+        pdf->resname_prefix = get_resname_prefix(pdf);
+    pdf_page_init(pdf);
+}
+
 /* temp here */
 
 void pdfshipoutbegin(boolean shipping_page)
@@ -316,7 +375,7 @@ void pdfshipoutend(boolean shipping_page)
 void libpdffinish(void)
 {
     fb_free();
-    xfree(job_id_string);
+    /* xfree(job_id_string); */
     fm_free();
     t1_free();
     enc_free();

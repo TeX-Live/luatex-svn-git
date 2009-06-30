@@ -120,6 +120,8 @@ extern void set_rect_dimens(halfword p, halfword parent_box,
 
 extern void libpdffinish(void);
 
+extern void initialize_pdf_output(PDF);
+
 extern void pdfshipoutbegin(boolean shipping_page);
 extern void pdfshipoutend(boolean shipping_page);
 

@@ -23,7 +23,6 @@
 #ifndef UTILS_H
 #  define UTILS_H
 
-extern char *job_id_string;
 extern integer epochseconds;
 extern integer microseconds;
 
@@ -43,9 +42,7 @@ void pdftex_warn(const char *, ...);
 void garbage_warning(void);
 char *makecstring(integer);
 char *makeclstring(integer, size_t *);
-void set_job_id(int, int, int, int);
 void make_pdftex_banner(void);
-char *get_resname_prefix(void);
 size_t xfwrite(void *, size_t size, size_t nmemb, FILE *);
 int xfflush(FILE *);
 int xgetc(FILE *);

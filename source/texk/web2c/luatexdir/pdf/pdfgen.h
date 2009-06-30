@@ -85,8 +85,6 @@ extern scaled one_hundred_bp;
 extern scaled one_bp;
 extern integer ten_pow[10];
 
-extern void initialize_pdf_output(PDF);
-
 extern void pdf_flush(PDF);
 extern void pdf_room(PDF, integer);
 
@@ -221,5 +219,7 @@ extern void pdf_error(char *t, char *p);
 extern void pdf_warning(char *t, char *p, boolean pr, boolean ap);
 extern void check_pdfoutput(char *s, boolean is_error);
 
+extern void set_job_id(PDF, int, int, int, int);
+extern char *get_resname_prefix(PDF);
 
 #endif

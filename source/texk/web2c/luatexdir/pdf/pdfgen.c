@@ -24,6 +24,10 @@
 
 #include "luatex-api.h"         /* for tokenlist_to_cstring */
 
+extern string ptexbanner;       /* from web2c/lib/texmfmp.c */
+extern string versionstring;    /* from web2c/lib/version.c */
+extern KPSEDLL string kpathsea_version_string;  /* from kpathsea/version.c */
+
 static const char __svn_version[] =
     "$Id$"
     "$URL$";
@@ -74,70 +78,25 @@ PDF initialize_pdf(void)
     pdf->obj_tab_size = inf_obj_tab_size;       /* allocated size of |obj_tab| array */
     pdf->obj_tab = xmalloc((pdf->obj_tab_size + 1) * sizeof(obj_entry));
     memset(pdf->obj_tab,0,sizeof(obj_entry));
+
+    pdf->minor_version = 4;
+    pdf->decimal_digits = 4;
+    pdf->gamma = 65536;
+    pdf->image_gamma = 65536;
+    pdf->image_hicolor = 1;
+    pdf->image_apply_gamma = 0;
+    pdf->objcompresslevel = 0;
+    pdf->draftmode = 0;
+    pdf->inclusion_copy_font = 1;
+    pdf->replace_font = 0;
+    pdf->pk_resolution = 0;
+    pdf->pk_scale_factor = 0;
     return pdf;
 }
 
 void initialize_pdfgen(void)
 {
     static_pdf = initialize_pdf();
-}
-
-void initialize_pdf_output(PDF pdf)
-{
-    if ((pdf_minor_version < 0) || (pdf_minor_version > 9)) {
-        char *hlp[] = { "The pdfminorversion must be between 0 and 9.",
-            "I changed this to 4.", NULL
-        };
-        char msg[256];
-        (void) snprintf(msg, 255, "LuaTeX error (illegal pdfminorversion %d)",
-                        (int) pdf_minor_version);
-        tex_error(msg, hlp);
-        pdf_minor_version = 4;
-    }
-    pdf->minor_version = pdf_minor_version;
-    pdf->decimal_digits = fix_int(pdf_decimal_digits, 0, 4);
-    pdf->gamma = fix_int(pdf_gamma, 0, 1000000);
-    pdf->image_gamma = fix_int(pdf_image_gamma, 0, 1000000);
-    pdf->image_hicolor = fix_int(pdf_image_hicolor, 0, 1);
-    pdf->image_apply_gamma = fix_int(pdf_image_apply_gamma, 0, 1);
-    pdf->objcompresslevel = fix_int(pdf_objcompresslevel, 0, 3);
-    pdf->draftmode = fix_int(pdf_draftmode, 0, 1);
-    pdf->inclusion_copy_font = fix_int(pdf_inclusion_copy_font, 0, 1);
-    pdf->replace_font = fix_int(pdf_replace_font, 0, 1);
-    pdf->pk_resolution = fix_int(pdf_pk_resolution, 72, 8000);
-    if ((pdf->minor_version >= 5) && (pdf->objcompresslevel > 0)) {
-        pdf->os_enable = true;
-    } else {
-        if (pdf->objcompresslevel > 0) {
-            pdf_warning("Object streams",
-                        "\\pdfobjcompresslevel > 0 requires \\pdfminorversion > 4. Object streams disabled now.",
-                        true, true);
-            pdf->objcompresslevel = 0;
-        }
-        pdf->os_enable = false;
-    }
-    if (pdf->pk_resolution == 0)        /* if not set from format file or by user */
-        pdf->pk_resolution = pk_dpi;    /* take it from \.{texmf.cnf} */
-    pdf->pk_scale_factor =
-        divide_scaled(72, pdf->pk_resolution, 5 + pdf->decimal_digits);
-    if (!callback_defined(read_pk_file_callback)) {
-        if (pdf_pk_mode != null) {
-            char *s = tokenlist_to_cstring(pdf_pk_mode, true, NULL);
-            kpseinitprog("PDFTEX", pdf->pk_resolution, s, nil);
-            xfree(s);
-        } else {
-            kpseinitprog("PDFTEX", pdf->pk_resolution, nil, nil);
-        }
-        if (!kpsevarvalue("MKTEXPK"))
-            kpsesetprogramenabled(kpsepkformat, 1, kpsesrccmdline);
-    }
-    set_job_id(int_par(param_year_code),
-               int_par(param_month_code),
-               int_par(param_day_code), int_par(param_time_code));
-
-    if ((pdf_unique_resname > 0) && (pdf->resname_prefix == NULL))
-        pdf->resname_prefix = get_resname_prefix();
-    pdf_page_init(pdf);
 }
 
 /*
@@ -1417,3 +1376,55 @@ void check_pdfoutput(char *s, boolean is_error)
                         true, true);
     }
 }
+
+void set_job_id(PDF pdf, int year, int month, int day, int time)
+{
+    char *name_string, *format_string, *s;
+    size_t slen;
+    int i;
+
+    if (pdf->job_id_string != NULL)
+        return;
+
+    name_string = xstrdup(makecstring(job_name));
+    format_string = xstrdup(makecstring(format_ident));
+    slen = SMALL_BUF_SIZE +
+        strlen(name_string) +
+        strlen(format_string) +
+        strlen(ptexbanner) +
+        strlen(versionstring) + strlen(kpathsea_version_string);
+    s = xtalloc(slen, char);
+    /* The Web2c version string starts with a space.  */
+    i = snprintf(s, slen,
+                 "%.4d/%.2d/%.2d %.2d:%.2d %s %s %s%s %s",
+                 year, month, day, time / 60, time % 60,
+                 name_string, format_string, ptexbanner,
+                 versionstring, kpathsea_version_string);
+    check_nprintf(i, slen);
+    pdf->job_id_string = xstrdup(s);
+    xfree(s);
+    xfree(name_string);
+    xfree(format_string);
+}
+
+char *get_resname_prefix(PDF pdf)
+{
+/*     static char name_str[] = */
+/* "!\"$&'*+,-.0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\\" */
+/* "^_`abcdefghijklmnopqrstuvwxyz|~"; */
+    static char name_str[] =
+        "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    static char prefix[7];      /* make a tag of 6 chars long */
+    unsigned long crc;
+    short i;
+    size_t base = strlen(name_str);
+    crc = crc32(0L, Z_NULL, 0);
+    crc = crc32(crc, (Bytef *) pdf->job_id_string, strlen(pdf->job_id_string));
+    for (i = 0; i < 6; i++) {
+        prefix[i] = name_str[crc % base];
+        crc /= base;
+    }
+    prefix[6] = '\0';
+    return prefix;
+}
+
