@@ -128,5 +128,21 @@ extern void get_token_lua(void);
 halfword string_to_toks (char *);
 extern int get_char_cat_code(int);
 
+/*
+|no_expand_flag| is a special character value that is inserted by
+|get_next| if it wants to suppress expansion.
+*/
+
+#define no_expand_flag special_char
+
+extern boolean end_line_char_inactive(void);
+
+extern halfword par_loc;
+extern halfword par_token;
+extern boolean force_eof;
+extern integer luacstrings;
+
+extern void firm_up_the_line (void);
+extern void get_token (void);
 
 #endif

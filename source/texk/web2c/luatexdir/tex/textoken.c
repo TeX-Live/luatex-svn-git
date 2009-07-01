@@ -25,6 +25,7 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
+#define pausing int_par(param_pausing_code)
 #define cat_code_table int_par(param_cat_code_table_code)
 #define tracing_nesting int_par(param_tracing_nesting_code)
 #define end_line_char int_par(param_end_line_char_code)
@@ -37,10 +38,6 @@ static const char _svn_version[] =
 #define eq_level(a) zeqtb[a].hh.u.B1
 #define eq_type(a)  zeqtb[a].hh.u.B0
 #define equiv(a)    zeqtb[a].hh.v.RH
-
-#define nonstop_mode 1
-
-#define no_expand_flag special_char     /*this characterizes a special variant of |relax| */
 
 #define detokenized_line() (line_catcode_table==NO_CAT_TABLE)
 
@@ -57,8 +54,10 @@ static const char _svn_version[] =
 #define split_first_mark(A) split_first_marks_array[(A)]
 #define split_bot_mark(A) split_bot_marks_array[(A)]
 
+static int frozen_control_sequence = 0; /* will be fetched from web */
 
-extern void insert_vj_template(void);
+#define frozen_cr (frozen_control_sequence+1)   /* permanent `\.{\\cr}' */
+#define frozen_fi (frozen_control_sequence+4)   /* permanent `\.{\\fi}' */
 
 #define do_get_cat_code(a) do {                                         \
     if (line_catcode_table!=DEFAULT_CAT_TABLE)                          \
@@ -574,12 +573,6 @@ halfword active_to_cs(int curchr, int force)
 
 /* TODO this function should listen to \.{\\escapechar} */
 
-#define is_active_cs(a) (str_length(a)>3 &&                               \
-                         (str_pool[str_start_macro(a)]   == 0xEF) &&  \
-                         (str_pool[str_start_macro(a)+1] == 0xBF) &&  \
-                         (str_pool[str_start_macro(a)+2] == 0xBF))
-
-
 char *cs_to_string(halfword p)
 {                               /* prints a control sequence */
     char *s;
@@ -634,6 +627,87 @@ char *cmd_chr_to_string(int cmd, int chr)
     return s;
 }
 
+/*
+The heart of \TeX's input mechanism is the |get_next| procedure, which
+we shall develop in the next few sections of the program. Perhaps we
+shouldn't actually call it the ``heart,'' however, because it really acts
+as \TeX's eyes and mouth, reading the source files and gobbling them up.
+And it also helps \TeX\ to regurgitate stored token lists that are to be
+processed again.
+@^eyes and mouth@>
+
+The main duty of |get_next| is to input one token and to set |cur_cmd|
+and |cur_chr| to that token's command code and modifier. Furthermore, if
+the input token is a control sequence, the |eqtb| location of that control
+sequence is stored in |cur_cs|; otherwise |cur_cs| is set to zero.
+
+Underlying this simple description is a certain amount of complexity
+because of all the cases that need to be handled.
+However, the inner loop of |get_next| is reasonably short and fast.
+
+When |get_next| is asked to get the next token of a \.{\\read} line,
+it sets |cur_cmd=cur_chr=cur_cs=0| in the case that no more tokens
+appear on that line. (There might not be any tokens at all, if the
+|end_line_char| has |ignore| as its catcode.)
+*/
+
+/*
+The value of |par_loc| is the |eqtb| address of `\.{\\par}'. This quantity
+is needed because a blank line of input is supposed to be exactly equivalent
+to the appearance of \.{\\par}; we must set |cur_cs:=par_loc|
+when detecting a blank line.
+*/
+
+halfword par_loc; /* location of `\.{\\par}' in |eqtb| */
+halfword par_token; /* token representing `\.{\\par}' */
+
+
+/*
+Parts |get_next| are executed more often than any other instructions of \TeX.
+@^mastication@>@^inner loop@>
+*/
+
+/*
+The global variable |force_eof| is normally |false|; it is set |true|
+by an \.{\\endinput} command. |luacstrings| is the number of lua print
+statements waiting to be input, it is changed by |luatokencall|.
+
+*/
+
+boolean force_eof; /* should the next \.{\\input} be aborted early? */
+integer luacstrings;  /* how many lua strings are waiting to be input? */
+
+/*
+If the user has set the |pausing| parameter to some positive value,
+and if nonstop mode has not been selected, each line of input is displayed
+on the terminal and the transcript file, followed by `\.{=>}'.
+\TeX\ waits for a response. If the response is simply |carriage_return|, the
+line is accepted as it stands, otherwise the line typed is
+used instead of the line in the file.
+*/
+
+void firm_up_the_line (void)
+{
+    integer k; /* an index into |buffer| */
+    ilimit=last;
+    if (pausing>0) {
+	if (interaction>nonstop_mode) {
+	    wake_up_terminal(); 
+	    print_ln();
+	    if (istart<ilimit) {
+		for (k=istart;k<=ilimit-1;k++)
+		    print_char(buffer[k]);
+	    }
+	    first=ilimit; 
+	    prompt_input("=>"); /* wait for user response */
+	    if (last>first) {
+		for (k=first;k<+last-1;k++) /* move line down in buffer */
+		    buffer[k+istart-first]=buffer[k];
+		ilimit=istart+last-first;
+	    }
+	}
+    }
+}
 
 
 
@@ -642,11 +716,6 @@ char *cmd_chr_to_string(int cmd, int chr)
    when the end of a file has been reached. These two cases are distinguished
    by |cur_cs|, which is zero at the end of a file.
 */
-
-static int frozen_control_sequence = 0;
-
-#define frozen_cr (frozen_control_sequence+1)   /* permanent `\.{\\cr}' */
-#define frozen_fi (frozen_control_sequence+4)   /* permanent `\.{\\fi}' */
 
 void check_outer_validity(void)
 {
@@ -1187,16 +1256,13 @@ static boolean check_expanded_code(integer * kk)
     return false;
 }
 
-#define end_line_char_inactive ((end_line_char<0)||(end_line_char>127))
+/* todo: this is a function because it is still used from the converted pascal.
+   once that is gone, it can be a #define again */
 
-/* The global variable |force_eof| is normally |false|; it is set |true|
-  by an \.{\\endinput} command.
-
- @<Glob...@>=
- @!force_eof:boolean; {should the next \.{\\input} be aborted early?}
-
-*/
-
+boolean end_line_char_inactive(void) 
+{
+    return ((end_line_char<0)||(end_line_char>127));
+}
 
 /* All of the easy branches of |get_next| have now been taken care of.
   There is one more branch.
@@ -1276,7 +1342,7 @@ static next_line_retval next_line(void)
             }
             return next_line_restart;
         }
-        if (inhibit_eol || end_line_char_inactive)
+        if (inhibit_eol || end_line_char_inactive())
             ilimit--;
         else
             buffer[ilimit] = end_line_char;
@@ -1295,7 +1361,7 @@ static next_line_retval next_line(void)
         if (selector < log_only)
             open_log_file();
         if (interaction > nonstop_mode) {
-            if (end_line_char_inactive)
+            if (end_line_char_inactive())
                 ilimit++;
             if (ilimit == istart) {     /* previous line was empty */
                 tprint_nl("(Please type a command or say `\\end')");
@@ -1304,7 +1370,7 @@ static next_line_retval next_line(void)
             first = istart;
             prompt_input("*");  /* input on-line into |buffer| */
             ilimit = last;
-            if (end_line_char_inactive)
+            if (end_line_char_inactive())
                 ilimit--;
             else
                 buffer[ilimit] = end_line_char;
@@ -1400,6 +1466,44 @@ void get_next(void)
     }
 }
 
+/*
+Since |get_next| is used so frequently in \TeX, it is convenient
+to define three related procedures that do a little more:
+
+\yskip\hang|get_token| not only sets |cur_cmd| and |cur_chr|, it
+also sets |cur_tok|, a packed halfword version of the current token.
+
+\yskip\hang|get_x_token|, meaning ``get an expanded token,'' is like
+|get_token|, but if the current token turns out to be a user-defined
+control sequence (i.e., a macro call), or a conditional,
+or something like \.{\\topmark} or \.{\\expandafter} or \.{\\csname},
+it is eliminated from the input by beginning the expansion of the macro
+or the evaluation of the conditional.
+
+\yskip\hang|x_token| is like |get_x_token| except that it assumes that
+|get_next| has already been called.
+
+\yskip\noindent
+In fact, these three procedures account for almost every use of |get_next|.
+
+@ No new control sequences will be defined except during a call of
+|get_token|, or when \.{\\csname} compresses a token list, because
+|no_new_control_sequence| is always |true| at other times.
+*/
+
+void get_token (void) /* sets |cur_cmd|, |cur_chr|, |cur_tok| */
+{
+    no_new_control_sequence=false; 
+    get_token_lua(); 
+    no_new_control_sequence=true;
+    if (cur_cs==0) 
+	cur_tok=(cur_cmd*STRING_OFFSET)+cur_chr;
+    else 
+	cur_tok=cs_token_flag+cur_cs;
+}
+
+
+
 void get_token_lua(void)
 {
     register int callback_id;
@@ -1416,7 +1520,6 @@ void get_token_lua(void)
     }
     get_next();
 }
-
 
 
 /* changes the string |s| to a token list */

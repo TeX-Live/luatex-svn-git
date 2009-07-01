@@ -1617,6 +1617,18 @@
 @define procedure delete_token_ref();
 @define procedure flush_list();
 
+@define const no_expand_flag;
+@define function end_line_char_inactive;
+
+@define var par_loc;
+@define var par_token;
+@define var force_eof;
+@define var luacstrings;
+
+@define procedure firm_up_the_line;
+@define procedure get_token;
+
+
 { nesting }
 
 @define procedure print_mode();

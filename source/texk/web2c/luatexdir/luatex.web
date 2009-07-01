@@ -4175,113 +4175,12 @@ initialize_inputstack;
 
 
 @* \[24] Getting the next token.
-The heart of \TeX's input mechanism is the |get_next| procedure, which
-we shall develop in the next few sections of the program. Perhaps we
-shouldn't actually call it the ``heart,'' however, because it really acts
-as \TeX's eyes and mouth, reading the source files and gobbling them up.
-And it also helps \TeX\ to regurgitate stored token lists that are to be
-processed again.
-@^eyes and mouth@>
-
-The main duty of |get_next| is to input one token and to set |cur_cmd|
-and |cur_chr| to that token's command code and modifier. Furthermore, if
-the input token is a control sequence, the |eqtb| location of that control
-sequence is stored in |cur_cs|; otherwise |cur_cs| is set to zero.
-
-Underlying this simple description is a certain amount of complexity
-because of all the cases that need to be handled.
-However, the inner loop of |get_next| is reasonably short and fast.
-
-When |get_next| is asked to get the next token of a \.{\\read} line,
-it sets |cur_cmd=cur_chr=cur_cs=0| in the case that no more tokens
-appear on that line. (There might not be any tokens at all, if the
-|end_line_char| has |ignore| as its catcode.)
-
-@ The value of |par_loc| is the |eqtb| address of `\.{\\par}'. This quantity
-is needed because a blank line of input is supposed to be exactly equivalent
-to the appearance of \.{\\par}; we must set |cur_cs:=par_loc|
-when detecting a blank line.
-
-@<Glob...@>=
-@!par_loc:pointer; {location of `\.{\\par}' in |eqtb|}
-@!par_token:halfword; {token representing `\.{\\par}'}
 
 @ @<Put each...@>=
 primitive_tex("par",par_end,too_big_char,too_big_char); {cf.\ |scan_file_name|}
 @!@:par_}{\.{\\par} primitive@>
 par_loc:=cur_val; par_token:=cs_token_flag+par_loc;
 
-@ The function |get_next| is now defined in |textoken.c|. Parts of
-this routine are executed more often than any other instructions of \TeX.
-@^mastication@>@^inner loop@>
-
-@ The global variable |force_eof| is normally |false|; it is set |true|
-by an \.{\\endinput} command. |luacstrings| is the number of lua print
-statements waiting to be input, it is changed by |luatokencall|.
-
-|no_expand_flag| is a special character value that is inserted by
-|get_next| if it wants to suppress expansion.
-
-@d no_expand_flag==special_char {this characterizes a special variant of |relax|}
-@d end_line_char_inactive==(end_line_char<0)or(end_line_char>127)
-
-
-@<Glob...@>=
-@!force_eof:boolean; {should the next \.{\\input} be aborted early?}
-@!luacstrings:integer;  {how many lua strings are waiting to be input?}
-
-@ If the user has set the |pausing| parameter to some positive value,
-and if nonstop mode has not been selected, each line of input is displayed
-on the terminal and the transcript file, followed by `\.{=>}'.
-\TeX\ waits for a response. If the response is simply |carriage_return|, the
-line is accepted as it stands, otherwise the line typed is
-used instead of the line in the file.
-
-@p procedure firm_up_the_line;
-var k:0..buf_size; {an index into |buffer|}
-begin ilimit:=last;
-if pausing>0 then if interaction>nonstop_mode then
-  begin wake_up_terminal; print_ln;
-  if istart<ilimit then for k:=istart to ilimit-1 do print(buffer[k]);
-  first:=ilimit; prompt_input('=>'); {wait for user response}
-@.=>@>
-  if last>first then
-    begin for k:=first to last-1 do {move line down in buffer}
-      buffer[k+istart-first]:=buffer[k];
-    ilimit:=istart+last-first;
-    end;
-  end;
-end;
-
-@ Since |get_next| is used so frequently in \TeX, it is convenient
-to define three related procedures that do a little more:
-
-\yskip\hang|get_token| not only sets |cur_cmd| and |cur_chr|, it
-also sets |cur_tok|, a packed halfword version of the current token.
-
-\yskip\hang|get_x_token|, meaning ``get an expanded token,'' is like
-|get_token|, but if the current token turns out to be a user-defined
-control sequence (i.e., a macro call), or a conditional,
-or something like \.{\\topmark} or \.{\\expandafter} or \.{\\csname},
-it is eliminated from the input by beginning the expansion of the macro
-or the evaluation of the conditional.
-
-\yskip\hang|x_token| is like |get_x_token| except that it assumes that
-|get_next| has already been called.
-
-\yskip\noindent
-In fact, these three procedures account for almost every use of |get_next|.
-
-@ No new control sequences will be defined except during a call of
-|get_token|, or when \.{\\csname} compresses a token list, because
-|no_new_control_sequence| is always |true| at other times.
-
-@p procedure get_token; {sets |cur_cmd|, |cur_chr|, |cur_tok|}
-begin no_new_control_sequence:=false; get_filtered_next; no_new_control_sequence:=true;
-@^inner loop@>
-if cur_cs=0 then cur_tok:=(cur_cmd*string_offset)+cur_chr
-else cur_tok:=cs_token_flag+cur_cs;
-end;
 
 @* \[25] Expanding the next token.
 Only a dozen or so command codes |>max_command| can possibly be returned by
