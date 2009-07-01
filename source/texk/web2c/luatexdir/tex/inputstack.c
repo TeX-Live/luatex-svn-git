@@ -598,6 +598,6 @@ void initialize_inputstack (void)
   line_catcode_table=DEFAULT_CAT_TABLE; line_partial=false;
   align_state=1000000;
   if (!init_terminal()) 
-    succumb(); /* goto final_end; */
+    exit(EXIT_FAILURE); /* goto final_end; */
   ilimit=last; first=last+1; /* |init_terminal| has set |loc| and |last| */
 }
