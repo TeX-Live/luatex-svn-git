@@ -539,7 +539,6 @@
 { functions from utils/utils.c }
 @define procedure escapehex();
 @define function ext_xn_over_d();
-@define function getcreationdate;
 @define function makecstring();
 
 @define procedure append_string();
@@ -1063,6 +1062,8 @@
 
 { pdf generation }
 
+@define procedure init_start_time();
+@define function getcreationdate();
 @define procedure pdf_error();
 @define procedure check_pdfoutput();
 

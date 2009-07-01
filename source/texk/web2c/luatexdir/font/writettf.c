@@ -28,9 +28,9 @@ static const char _svn_version[] =
 #define DEFAULT_NTABS       14
 #define NEW_CMAP_SIZE       2
 
-#define ttf_putchar     fb_putchar
-#define ttf_offset      fb_offset
-#define ttf_seek_outbuf fb_seek
+#define ttf_putchar(A)     fb_putchar(pdf,(A))
+#define ttf_offset()       fb_offset(pdf)
+#define ttf_seek_outbuf(A) fb_seek(pdf,(A))
 
            /* #define INFILE ttf_file */
 
@@ -98,7 +98,6 @@ integer ttf_length;
 
 #include "macnames.c"
 
-extern char *fb_array;          /* from luatexdir/utils.c */
 extern char charsetstr[];       /* from mpdir/psout.w */
 
 static const char *newtabnames[] = {
@@ -168,14 +167,14 @@ static unsigned char ttf_addchksm(unsigned char b)
     return b;
 }
 
-static TTF_ULONG ttf_getchksm(void)
+static TTF_ULONG ttf_getchksm(PDF pdf)
 {
     while (tab_length % 4 != 0)
         ttf_putchar(ttf_addchksm(0));   /* ttf_addchksm updates tab_length */
     return checksum;
 }
 
-long ttf_putnum(int s, long n)
+long ttf_putnum(PDF pdf, int s, long n)
 {
     long i = n;
     char buf[TTF_LONG_SIZE + 1], *p = buf;
@@ -211,7 +210,7 @@ static long ttf_funit(long n)
         return (n / upem) * 1000 + ((n % upem) * 1000) / upem;
 }
 
-static void ttf_ncopy(int n)
+static void ttf_ncopy(PDF pdf, int n)
 {
     while (n-- > 0)
         copy_byte();
@@ -697,7 +696,7 @@ static void ttf_read_font(void)
     ttf_read_name();
 }
 
-static void ttf_reset_chksm(dirtab_entry * tab)
+static void ttf_reset_chksm(PDF pdf, dirtab_entry * tab)
 {
     checksum = 0;
     tab_length = 0;
@@ -708,26 +707,26 @@ static void ttf_reset_chksm(dirtab_entry * tab)
 }
 
 
-static void ttf_set_chksm(dirtab_entry * tab)
+static void ttf_set_chksm(PDF pdf, dirtab_entry * tab)
 {
     tab->length = ttf_offset() - tab->offset;
-    tab->checksum = ttf_getchksm();
+    tab->checksum = ttf_getchksm(pdf);
 }
 
-static void ttf_copytab(const char *name)
+static void ttf_copytab(PDF pdf, const char *name)
 {
     long i;
     dirtab_entry *tab = ttf_seek_tab(name, 0);
-    ttf_reset_chksm(tab);
+    ttf_reset_chksm(pdf, tab);
     for (i = tab->length; i > 0; i--)
         copy_char();
-    ttf_set_chksm(tab);
+    ttf_set_chksm(pdf, tab);
 }
 
 #define BYTE_ENCODING_LENGTH  \
     ((256)*TTF_BYTE_SIZE + 3*TTF_USHORT_SIZE)
 
-static void ttf_byte_encoding(void)
+static void ttf_byte_encoding(PDF pdf)
 {
     ttfenc_entry *e;
     (void) put_ushort(0);       /* format number (0: byte encoding table) */
@@ -747,7 +746,7 @@ static void ttf_byte_encoding(void)
 
 #define TRIMMED_TABLE_MAP_LENGTH (TTF_USHORT_SIZE*(5 + (256)))
 
-static void ttf_trimmed_table_map(void)
+static void ttf_trimmed_table_map(PDF pdf)
 {
     ttfenc_entry *e;
     (void) put_ushort(6);       /* format number (6): trimmed table mapping */
@@ -761,7 +760,7 @@ static void ttf_trimmed_table_map(void)
 
 #define SEG_MAP_DELTA_LENGTH ((16 + (256))*TTF_USHORT_SIZE)
 
-static void ttf_seg_map_delta(void)
+static void ttf_seg_map_delta(PDF pdf)
 {
     ttfenc_entry *e;
     (void) put_ushort(4);       /* format number (4: segment mapping to delta values) */
@@ -798,13 +797,13 @@ static void ttf_select_cmap(void)
     new_cmap_tab[1].format = 4; /* segment mapping to delta */
 }
 
-static void ttf_write_cmap(void)
+static void ttf_write_cmap(PDF pdf)
 {
     cmap_entry *ce;
     long offset;
     dirtab_entry *tab = ttf_name_lookup("cmap", true);
     ttf_select_cmap();
-    ttf_reset_chksm(tab);
+    ttf_reset_chksm(pdf, tab);
     (void) put_ushort(0);       /* table version number (0) */
     (void) put_ushort(NEW_CMAP_SIZE);   /* number of encoding tables */
     offset = 2 * TTF_USHORT_SIZE + NEW_CMAP_SIZE * CMAP_ENTRY_LENGTH;
@@ -830,17 +829,17 @@ static void ttf_write_cmap(void)
     for (ce = new_cmap_tab; ce - new_cmap_tab < NEW_CMAP_SIZE; ce++) {
         switch (ce->format) {
         case 0:
-            ttf_byte_encoding();
+            ttf_byte_encoding(pdf);
             break;
         case 4:
-            ttf_seg_map_delta();
+            ttf_seg_map_delta(pdf);
             break;
         case 6:
-            ttf_trimmed_table_map();
+            ttf_trimmed_table_map(pdf);
             break;
         }
     }
-    ttf_set_chksm(tab);
+    ttf_set_chksm(pdf,tab);
 }
 
 static int prepend_subset_tags(int index, char *p)
@@ -866,7 +865,7 @@ static int prepend_subset_tags(int index, char *p)
 }
 
 
-static void ttf_write_name(void)
+static void ttf_write_name(PDF pdf)
 {
     int i, l;
     char *p;
@@ -902,7 +901,7 @@ static void ttf_write_name(void)
         new_name_buf = name_buf;
         new_name_buf_size = name_buf_size;
     }
-    ttf_reset_chksm(tab);
+    ttf_reset_chksm(pdf, tab);
     (void) put_ushort(0);       /* Format selector */
     (void) put_ushort(name_record_num);
     (void) put_ushort(3 * TTF_USHORT_SIZE +
@@ -917,12 +916,12 @@ static void ttf_write_name(void)
     }
     for (p = new_name_buf; p - new_name_buf < new_name_buf_size; p++)
         put_char(*p);
-    ttf_set_chksm(tab);
+    ttf_set_chksm(pdf, tab);
     if (new_name_buf != name_buf)
         xfree(new_name_buf);
 }
 
-static void ttf_write_dirtab(void)
+static void ttf_write_dirtab(PDF pdf)
 {
     dirtab_entry *tab;
     TTF_ULONG i, k;
@@ -952,7 +951,7 @@ static void ttf_write_dirtab(void)
     /* adjust checkSumAdjustment */
     tmp_ulong = 0;
     checksum = 0;
-    for (p = fb_array, i = 0; i < (unsigned) save_offset;) {
+    for (p = pdf->fb_array, i = 0; i < (unsigned) save_offset;) {
         tmp_ulong = (tmp_ulong << 8) + *p++;
         i++;
         if (i % 4 == 0) {
@@ -970,7 +969,7 @@ static void ttf_write_dirtab(void)
     ttf_seek_outbuf(save_offset);
 }
 
-static void ttf_write_glyf(void)
+static void ttf_write_glyf(PDF pdf)
 {
     long *id, k;
     TTF_USHORT idx;
@@ -978,13 +977,13 @@ static void ttf_write_glyf(void)
     dirtab_entry *tab = ttf_name_lookup("glyf", true);
     const long glyf_offset = tab->offset;
     const long new_glyf_offset = ttf_offset();
-    ttf_reset_chksm(tab);
+    ttf_reset_chksm(pdf, tab);
     for (id = glyph_index; id - glyph_index < new_glyphs_count; id++) {
         glyph_tab[*id].newoffset = ttf_offset() - new_glyf_offset;
         if (glyph_tab[*id].offset != glyph_tab[*id + 1].offset) {
             ttf_seek_off(glyf_offset + glyph_tab[*id].offset);
             k = copy_short();
-            ttf_ncopy(4 * TTF_FWORD_SIZE);
+            ttf_ncopy(pdf, 4 * TTF_FWORD_SIZE);
             if (k < 0) {
                 do {
                     flags = copy_ushort();
@@ -999,25 +998,25 @@ static void ttf_write_glyf(void)
                     }
                     (void) put_ushort(glyph_tab[idx].newindex);
                     if (flags & ARG_1_AND_2_ARE_WORDS)
-                        ttf_ncopy(2 * TTF_SHORT_SIZE);
+                        ttf_ncopy(pdf, 2 * TTF_SHORT_SIZE);
                     else
-                        ttf_ncopy(TTF_USHORT_SIZE);
+                        ttf_ncopy(pdf, TTF_USHORT_SIZE);
                     if (flags & WE_HAVE_A_SCALE)
-                        ttf_ncopy(TTF_F2DOT14_SIZE);
+                        ttf_ncopy(pdf, TTF_F2DOT14_SIZE);
                     else if (flags & WE_HAVE_AN_X_AND_Y_SCALE)
-                        ttf_ncopy(2 * TTF_F2DOT14_SIZE);
+                        ttf_ncopy(pdf ,2 * TTF_F2DOT14_SIZE);
                     else if (flags & WE_HAVE_A_TWO_BY_TWO)
-                        ttf_ncopy(4 * TTF_F2DOT14_SIZE);
+                        ttf_ncopy(pdf, 4 * TTF_F2DOT14_SIZE);
                 } while (flags & MORE_COMPONENTS);
                 if (flags & WE_HAVE_INSTRUCTIONS)
-                    ttf_ncopy(copy_ushort());
+                    ttf_ncopy(pdf, copy_ushort());
             } else
-                ttf_ncopy(glyph_tab[*id + 1].offset - glyph_tab[*id].offset -
+                ttf_ncopy(pdf, glyph_tab[*id + 1].offset - glyph_tab[*id].offset -
                           TTF_USHORT_SIZE - 4 * TTF_FWORD_SIZE);
         }
     }
     last_glyf_offset = ttf_offset() - new_glyf_offset;
-    ttf_set_chksm(tab);
+    ttf_set_chksm(pdf, tab);
 }
 
 static void ttf_reindex_glyphs(void)
@@ -1129,53 +1128,53 @@ static void ttf_reindex_glyphs(void)
     }
 }
 
-static void ttf_write_head(void)
+static void ttf_write_head(PDF pdf)
 {
     dirtab_entry *tab;
     tab = ttf_seek_tab("head", 0);
-    ttf_reset_chksm(tab);
-    ttf_ncopy(2 * TTF_FIXED_SIZE);
+    ttf_reset_chksm(pdf, tab);
+    ttf_ncopy(pdf, 2 * TTF_FIXED_SIZE);
     checkSumAdjustment_offset = ttf_offset();
     put_ulong(0);
     ttf_skip(TTF_ULONG_SIZE);   /* skip checkSumAdjustment */
-    ttf_ncopy(TTF_ULONG_SIZE + 2 * TTF_USHORT_SIZE + 16 +
+    ttf_ncopy(pdf, TTF_ULONG_SIZE + 2 * TTF_USHORT_SIZE + 16 +
               4 * TTF_FWORD_SIZE + 2 * TTF_USHORT_SIZE + TTF_SHORT_SIZE);
     if (is_subsetted(fd_cur->fm)) {
         (void) put_short(loca_format);
         (void) put_short(0);
     } else
-        ttf_ncopy(2 * TTF_SHORT_SIZE);
-    ttf_set_chksm(tab);
+        ttf_ncopy(pdf, 2 * TTF_SHORT_SIZE);
+    ttf_set_chksm(pdf, tab);
 }
 
-static void ttf_write_hhea(void)
+static void ttf_write_hhea(PDF pdf)
 {
     dirtab_entry *tab;
     tab = ttf_seek_tab("hhea", 0);
-    ttf_reset_chksm(tab);
-    ttf_ncopy(TTF_FIXED_SIZE + 3 * TTF_FWORD_SIZE + TTF_UFWORD_SIZE +
+    ttf_reset_chksm(pdf, tab);
+    ttf_ncopy(pdf, TTF_FIXED_SIZE + 3 * TTF_FWORD_SIZE + TTF_UFWORD_SIZE +
               3 * TTF_FWORD_SIZE + 8 * TTF_SHORT_SIZE);
     (void) put_ushort(new_glyphs_count);
-    ttf_set_chksm(tab);
+    ttf_set_chksm(pdf, tab);
 }
 
-static void ttf_write_htmx(void)
+static void ttf_write_htmx(PDF pdf)
 {
     long *id;
     dirtab_entry *tab = ttf_seek_tab("hmtx", 0);
-    ttf_reset_chksm(tab);
+    ttf_reset_chksm(pdf, tab);
     for (id = glyph_index; id - glyph_index < new_glyphs_count; id++) {
         put_ufword(glyph_tab[*id].advWidth);
         put_ufword(glyph_tab[*id].lsb);
     }
-    ttf_set_chksm(tab);
+    ttf_set_chksm(pdf, tab);
 }
 
-static void ttf_write_loca(void)
+static void ttf_write_loca(PDF pdf)
 {
     long *id;
     dirtab_entry *tab = ttf_seek_tab("loca", 0);
-    ttf_reset_chksm(tab);
+    ttf_reset_chksm(pdf, tab);
     loca_format = 0;
     if (last_glyf_offset >= 0x00020000 || (last_glyf_offset & 1))
         loca_format = 1;
@@ -1194,43 +1193,43 @@ static void ttf_write_loca(void)
             (void) put_ushort(glyph_tab[*id].newoffset / 2);
         (void) put_ushort(last_glyf_offset / 2);
     }
-    ttf_set_chksm(tab);
+    ttf_set_chksm(pdf, tab);
 }
 
-static void ttf_write_mapx(void)
+static void ttf_write_mapx(PDF pdf)
 {
     dirtab_entry *tab = ttf_seek_tab("maxp", TTF_FIXED_SIZE + TTF_USHORT_SIZE);
-    ttf_reset_chksm(tab);
+    ttf_reset_chksm(pdf, tab);
     put_fixed(0x00010000);
     (void) put_ushort(new_glyphs_count);
-    ttf_ncopy(13 * TTF_USHORT_SIZE);
-    ttf_set_chksm(tab);
+    ttf_ncopy(pdf, 13 * TTF_USHORT_SIZE);
+    ttf_set_chksm(pdf, tab);
 }
 
-static void ttf_write_OS2(void)
+static void ttf_write_OS2(PDF pdf)
 {
     dirtab_entry *tab = ttf_seek_tab("OS/2", 0);
     TTF_USHORT version;
-    ttf_reset_chksm(tab);
+    ttf_reset_chksm(pdf, tab);
     version = get_ushort();
     if (version > 3)
         pdftex_fail("unknown version of OS/2 table (%.4X)", version);
     (void) put_ushort(0x0001);  /* fix version to 1 */
-    ttf_ncopy(2 * TTF_USHORT_SIZE + 13 * TTF_SHORT_SIZE + 10 * TTF_BYTE_SIZE);
+    ttf_ncopy(pdf, 2 * TTF_USHORT_SIZE + 13 * TTF_SHORT_SIZE + 10 * TTF_BYTE_SIZE);
     ttf_skip(4 * TTF_ULONG_SIZE);       /* ulUnicodeRange 1--4 */
     put_ulong(0x00000003);      /* Basic Latin + Latin-1 Supplement (0x0000--0x00FF) */
     put_ulong(0x10000000);      /* Private Use (0xE000--0xF8FF) */
     put_ulong(0x00000000);
     put_ulong(0x00000000);
-    ttf_ncopy(4 * TTF_CHAR_SIZE + TTF_USHORT_SIZE);     /* achVendID + fsSelection */
+    ttf_ncopy(pdf, 4 * TTF_CHAR_SIZE + TTF_USHORT_SIZE);     /* achVendID + fsSelection */
     ttf_skip(2 * TTF_USHORT_SIZE);
     (void) put_ushort(0x0000);  /* usFirstCharIndex */
     (void) put_ushort(0xF0FF);  /* usLastCharIndex */
-    ttf_ncopy(5 * TTF_USHORT_SIZE);
+    ttf_ncopy(pdf, 5 * TTF_USHORT_SIZE);
     /* for version 0 the OS/2 table ends here, the rest is for version 1 */
     put_ulong(0x80000000);      /* Symbol Character Set---don't use any code page */
     put_ulong(0x00000000);
-    ttf_set_chksm(tab);
+    ttf_set_chksm(pdf, tab);
 }
 
 static boolean unsafe_name(char *s)
@@ -1242,20 +1241,20 @@ static boolean unsafe_name(char *s)
     return false;
 }
 
-static void ttf_write_post(void)
+static void ttf_write_post(PDF pdf)
 {
     dirtab_entry *tab = ttf_seek_tab("post", TTF_FIXED_SIZE);
     glyph_entry *glyph;
     char *s;
     long *id;
     int l;
-    ttf_reset_chksm(tab);
+    ttf_reset_chksm(pdf, tab);
     if (!fd_cur->write_ttf_glyph_names || post_format == 0x00030000) {
         put_fixed(0x00030000);
-        ttf_ncopy(TTF_FIXED_SIZE + 2 * TTF_FWORD_SIZE + 5 * TTF_ULONG_SIZE);
+        ttf_ncopy(pdf, TTF_FIXED_SIZE + 2 * TTF_FWORD_SIZE + 5 * TTF_ULONG_SIZE);
     } else {
         put_fixed(0x00020000);
-        ttf_ncopy(TTF_FIXED_SIZE + 2 * TTF_FWORD_SIZE + 5 * TTF_ULONG_SIZE);
+        ttf_ncopy(pdf, TTF_FIXED_SIZE + 2 * TTF_FWORD_SIZE + 5 * TTF_ULONG_SIZE);
         (void) put_ushort(new_glyphs_count);
         k = 0;
         for (id = glyph_index; id - glyph_index < new_glyphs_count; id++) {
@@ -1275,10 +1274,10 @@ static void ttf_write_post(void)
             }
         }
     }
-    ttf_set_chksm(tab);
+    ttf_set_chksm(pdf, tab);
 }
 
-static void ttf_init_font(int n)
+static void ttf_init_font(PDF pdf, int n)
 {
     int i, k;
     for (i = 1, k = 0; i <= n; i <<= 1, k++);
@@ -1290,42 +1289,42 @@ static void ttf_init_font(int n)
     ttf_seek_outbuf(TABDIR_OFF + n * 4 * TTF_ULONG_SIZE);
 }
 
-static void ttf_subset_font(void)
+static void ttf_subset_font(PDF pdf)
 {
-    ttf_init_font(new_ntabs);
+    ttf_init_font(pdf, new_ntabs);
     if (ttf_name_lookup("PCLT", false) != NULL)
-        ttf_copytab("PCLT");
+        ttf_copytab(pdf, "PCLT");
     if (ttf_name_lookup("fpgm", false) != NULL)
-        ttf_copytab("fpgm");
+        ttf_copytab(pdf, "fpgm");
     if (ttf_name_lookup("cvt ", false) != NULL)
-        ttf_copytab("cvt ");
+        ttf_copytab(pdf, "cvt ");
     if (ttf_name_lookup("prep", false) != NULL)
-        ttf_copytab("prep");
+        ttf_copytab(pdf, "prep");
     ttf_reindex_glyphs();
-    ttf_write_glyf();
-    ttf_write_loca();
-    ttf_write_OS2();
-    ttf_write_head();
-    ttf_write_hhea();
-    ttf_write_htmx();
-    ttf_write_mapx();
-    ttf_write_name();
-    ttf_write_post();
-    ttf_write_cmap();
-    ttf_write_dirtab();
+    ttf_write_glyf(pdf);
+    ttf_write_loca(pdf);
+    ttf_write_OS2(pdf);
+    ttf_write_head(pdf);
+    ttf_write_hhea(pdf);
+    ttf_write_htmx(pdf);
+    ttf_write_mapx(pdf);
+    ttf_write_name(pdf);
+    ttf_write_post(pdf);
+    ttf_write_cmap(pdf);
+    ttf_write_dirtab(pdf);
 }
 
-static void ttf_copy_font(void)
+static void ttf_copy_font(PDF pdf)
 {
     dirtab_entry *tab;
-    ttf_init_font(ntabs);
+    ttf_init_font(pdf, ntabs);
     for (tab = dir_tab; tab - dir_tab < ntabs; tab++) {
         if (strncmp(tab->tag, "head", 4) == 0)
-            ttf_write_head();
+            ttf_write_head(pdf);
         else
-            ttf_copytab(tab->tag);
+            ttf_copytab(pdf, tab->tag);
     }
-    ttf_write_dirtab();
+    ttf_write_dirtab(pdf);
 }
 
 void writettf(PDF pdf, fd_entry * fd)
@@ -1398,9 +1397,9 @@ void writettf(PDF pdf, fd_entry * fd)
 
     if (is_subsetted(fd_cur->fm)) {
         ttf_copy_encoding();
-        ttf_subset_font();
+        ttf_subset_font(pdf);
     } else
-        ttf_copy_font();
+        ttf_copy_font(pdf);
     ttf_length = ttf_offset();
 
     xfree(dir_tab);
@@ -1419,7 +1418,7 @@ void writettf(PDF pdf, fd_entry * fd)
     cur_file_name = NULL;
 }
 
-void do_writeotf(fd_entry * fd)
+void do_writeotf(PDF pdf, fd_entry * fd)
 {
     long i;
     dirtab_entry *tab;
@@ -1448,7 +1447,7 @@ void do_writeotf(fd_entry * fd)
         tex_printf(">>");
 }
 
-void writeotf(fd_entry * fd)
+void writeotf(PDF pdf, fd_entry * fd)
 {
     int callback_id;
     int file_opened = 0;
@@ -1494,7 +1493,7 @@ void writeotf(fd_entry * fd)
 
     cur_file_name = (char *) nameoffile + 1;
     fd_cur->ff_found = true;
-    do_writeotf(fd);
+    do_writeotf(pdf, fd);
     xfree(ttf_buffer);
     cur_file_name = NULL;
 }

@@ -1168,7 +1168,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version,
                 res = run_callback(callback_id, "->");
             }
         }
-        libpdffinish();
+        libpdffinish(pdf);
         if (pdf->draftmode == 0)
             b_close(pdf->file);
         else

@@ -392,10 +392,10 @@ void pdfshipoutend(boolean shipping_page)
     }
 }
 
-void libpdffinish(void)
+void libpdffinish(PDF pdf)
 {
-    fb_free();
-    /* xfree(job_id_string); */
+    fb_free(pdf);
+    xfree(pdf->job_id_string);
     fm_free();
     t1_free();
     enc_free();
@@ -403,7 +403,7 @@ void libpdffinish(void)
     ttf_free();
     sfd_free();
     glyph_unicode_free();
-    zip_free();
+    zip_free(pdf);
 }
 
 

@@ -458,20 +458,20 @@ static void write_fontfile(PDF pdf, fd_entry * fd)
     assert(is_included(fd->fm));
     if (is_cidkeyed(fd->fm)) {
         if (is_opentype(fd->fm))
-            writetype0(fd);
+            writetype0(pdf, fd);
         else if (is_truetype(fd->fm))
             writetype2(pdf, fd);
         else if (is_type1(fd->fm))
-            writetype1w(fd);
+            writetype1w(pdf, fd);
         else
             assert(0);
     } else {
         if (is_type1(fd->fm))
-            writet1(fd);
+            writet1(pdf, fd);
         else if (is_truetype(fd->fm))
             writettf(pdf, fd);
         else if (is_opentype(fd->fm))
-            writeotf(fd);
+            writeotf(pdf, fd);
         else
             assert(0);
     }

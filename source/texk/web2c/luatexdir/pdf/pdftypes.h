@@ -22,6 +22,8 @@
 #ifndef PDFTYPES_H
 #  define PDFTYPES_H
 
+#include <zlib.h>
+
 /* This stucture holds everything that is needed for the actual pdf generation.
 
 Because this structure interfaces with C++, it is not wise to use |boolean|
@@ -124,7 +126,20 @@ typedef struct pdf_output_file_ {
     off_t save_offset;          /* to save |pdf_offset| */
     off_t gone;                 /* number of bytes that were flushed to output */
 
+    char *printf_buf;           /* a scratch buffer for |pdf_printf| */
+
+    time_t start_time;          /* when this job started */
+    char *start_time_str;       /* minimum size for time_str is 24: "D:YYYYmmddHHMMSS+HH'MM'" */
+
+    /* define fb_ptr, fb_array & fb_limit */
+    char *fb_array;
+    char *fb_ptr;
+    size_t fb_limit;
+
+    char *zipbuf;
+    z_stream c_stream;          /* compression stream */
     int zip_write_state;        /* which state of compression we are in */
+
     int pk_scale_factor;        /* this is just a preprocessed value that depends on 
                                    |pk_resolution| and |decimal_digits| */
 

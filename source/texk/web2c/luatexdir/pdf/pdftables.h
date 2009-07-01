@@ -118,7 +118,7 @@ extern void set_rect_dimens(halfword p, halfword parent_box,
                             scaled x, scaled y, scaled wd, scaled ht, scaled dp,
                             scaled margin);
 
-extern void libpdffinish(void);
+extern void libpdffinish(PDF);
 
 extern void initialize_pdf_output(PDF);
 

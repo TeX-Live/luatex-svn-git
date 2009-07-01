@@ -151,11 +151,11 @@ void replace_packet_fonts(internal_font_number f, integer * old_fontid,
                           integer * new_fontid, int count);
 integer *packet_local_fonts(internal_font_number f, integer * num);
 
-/* writeccf.c */
-void writetype1w(fd_entry * fd);
+/* writecff.c */
+void writetype1w(PDF pdf, fd_entry * fd);
 
 /* writetype0.c */
-void writetype0(fd_entry * fd);
+void writetype0(PDF pdf, fd_entry * fd);
 
 /* writefont.c */
 void do_pdf_font(PDF, integer, internalfontnumber);
@@ -170,7 +170,7 @@ void register_fd_entry(fd_entry * fd);
 /* writet1.c */
 boolean t1_subset(char *, char *, unsigned char *);
 char **load_enc_file(char *);
-void writet1(fd_entry *);
+void writet1(PDF, fd_entry *);
 void t1_free(void);
 extern integer t1_length1, t1_length2, t1_length3;
 
@@ -192,7 +192,7 @@ void write_fontencodings(PDF pdf);
 
 /* writettf.c */
 void writettf(PDF, fd_entry *);
-void writeotf(fd_entry *);
+void writeotf(PDF, fd_entry *);
 void ttf_free(void);
 extern integer ttf_length;
 

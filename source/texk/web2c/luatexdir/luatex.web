@@ -6563,7 +6563,7 @@ pdf_xform_name_code: begin
 end;
 pdf_creation_date_code:
   begin
-    ins_list(string_to_toks(getcreationdate));
+    ins_list(string_to_toks(getcreationdate(static_pdf)));
     return;
   end;
 job_name_code: if job_name=0 then open_log_file;
@@ -15544,7 +15544,7 @@ end
 
 @ @<Set initial values of key variables@>=
   seconds_and_micros(epochseconds,microseconds);
-  init_start_time;
+  init_start_time(static_pdf);
 
 @ Negative random seed values are silently converted to positive ones
 

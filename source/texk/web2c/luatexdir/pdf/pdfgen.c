@@ -47,7 +47,6 @@ integer pdf_output_value;
 integer pdf_draftmode_option;
 integer pdf_draftmode_value;
 
-
 PDF initialize_pdf(void)
 {
     PDF pdf;
@@ -336,15 +335,16 @@ void pdf_puts(PDF pdf, const char *s)
         pdf_quick_out(pdf, *s++);
 }
 
-static char pdf_printf_buf[PRINTF_BUF_SIZE];
-
 __attribute__ ((format(printf, 2, 3)))
 void pdf_printf(PDF pdf, const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    (void) vsnprintf(pdf_printf_buf, PRINTF_BUF_SIZE, fmt, args);
-    pdf_puts(pdf, pdf_printf_buf);
+    if (pdf->printf_buf == NULL) {
+        pdf->printf_buf = xtalloc(PRINTF_BUF_SIZE, char);
+    }
+    (void) vsnprintf(pdf->printf_buf, PRINTF_BUF_SIZE, fmt, args);
+    pdf_puts(pdf, pdf->printf_buf);
     va_end(args);
 }
 
@@ -428,26 +428,30 @@ void pdf_print_str(PDF pdf, char *s)
     char *orig = s;
     int l = strlen(s) - 1;      /* last string index */
     if (l < 0) {
-        pdf_printf(pdf, "()");
+        pdf_puts(pdf, "()");
         return;
     }
     /* the next is not really safe, the string could be "(a)xx(b)" */
     if ((s[0] == '(') && (s[l] == ')')) {
-        pdf_printf(pdf, "%s", s);
+        pdf_puts(pdf, s);
         return;
     }
     if ((s[0] != '<') || (s[l] != '>') || odd((l + 1))) {
-        pdf_printf(pdf, "(%s)", s);
+        pdf_out(pdf,'(');
+        pdf_puts(pdf, s);
+        pdf_out(pdf,')');
         return;
     }
     s++;
     while (is_hex_char(*s))
         s++;
     if (s != orig + l) {
-        pdf_printf(pdf, "(%s)", orig);
+        pdf_out(pdf,'(');
+        pdf_puts(pdf, orig);
+        pdf_out(pdf,')');
         return;
     }
-    pdf_printf(pdf, "%s", orig);        /* it was a hex string after all  */
+    pdf_puts(pdf, orig); /* it was a hex string after all  */
 }
 
 
@@ -455,20 +459,20 @@ void pdf_print_str(PDF pdf, char *s)
 void pdf_begin_stream(PDF pdf)
 {
     assert(pdf->os_mode == false);
-    pdf_printf(pdf, "/Length           \n");
+    pdf_puts(pdf, "/Length           \n");
     pdf->seek_write_length = true;      /* fill in length at |pdf_end_stream| call */
     pdf->stream_length_offset = pdf_offset(pdf) - 11;
     pdf->stream_length = 0;
     pdf->last_byte = 0;
     if (pdf->compress_level > 0) {
-        pdf_printf(pdf, "/Filter /FlateDecode\n");
-        pdf_printf(pdf, ">>\n");
-        pdf_printf(pdf, "stream\n");
+        pdf_puts(pdf, "/Filter /FlateDecode\n");
+        pdf_puts(pdf, ">>\n");
+        pdf_puts(pdf, "stream\n");
         pdf_flush(pdf);
         pdf->zip_write_state = zip_writing;
     } else {
-        pdf_printf(pdf, ">>\n");
-        pdf_printf(pdf, "stream\n");
+        pdf_puts(pdf, ">>\n");
+        pdf_puts(pdf, "stream\n");
         pdf_save_offset(pdf);
     }
 }
@@ -486,7 +490,7 @@ void pdf_end_stream(PDF pdf)
     pdf->seek_write_length = false;
     if (pdf->last_byte != pdf_new_line_char)
         pdf_out(pdf, pdf_new_line_char);
-    pdf_printf(pdf, "endstream\n");
+    pdf_puts(pdf, "endstream\n");
     pdf_end_obj(pdf);
 }
 
@@ -793,9 +797,9 @@ void pdf_print_rect_spec(PDF pdf, halfword r)
 void pdf_rectangle(PDF pdf, halfword r)
 {
     prepare_mag();
-    pdf_printf(pdf, "/Rect [");
+    pdf_puts(pdf, "/Rect [");
     pdf_print_rect_spec(pdf, r);
-    pdf_printf(pdf, "]\n");
+    pdf_puts(pdf, "]\n");
 }
 
 
@@ -809,7 +813,7 @@ void pdf_begin_dict(PDF pdf, integer i, integer pdf_os_level)
     } else {
         if (pdf->compress_level == 0)
             pdf_printf(pdf, "%% %d 0 obj\n", (int) i);  /* debugging help */
-        pdf_printf(pdf, "<<\n");
+        pdf_puts(pdf, "<<\n");
     }
 }
 
@@ -824,11 +828,11 @@ void pdf_new_dict(PDF pdf, integer t, integer i, integer pdf_os)
 void pdf_end_dict(PDF pdf)
 {
     if (pdf->os_mode) {
-        pdf_printf(pdf, ">>\n");
+        pdf_puts(pdf, ">>\n");
         if (pdf->os_idx == pdf_os_max_objs - 1)
             pdf_os_write_objstream(pdf);
     } else {
-        pdf_printf(pdf, ">> endobj\n");
+        pdf_puts(pdf, ">> endobj\n");
     }
 }
 
@@ -858,7 +862,7 @@ void pdf_os_write_objstream(PDF pdf)
             pdf_out(pdf, pdf_new_line_char);
             j = 0;
         } else {
-            pdf_printf(pdf, " ");
+            pdf_out(pdf, ' ');
             j++;
         }
         i++;
@@ -866,7 +870,7 @@ void pdf_os_write_objstream(PDF pdf)
     pdf->buf[pdf->ptr - 1] = pdf_new_line_char; /* no risk of flush, as we are in |pdf_os_mode| */
     q = pdf->ptr;
     pdf_begin_dict(pdf, pdf->os_cur_objnum, 0); /* switch to PDF stream writing */
-    pdf_printf(pdf, "/Type /ObjStm\n");
+    pdf_puts(pdf, "/Type /ObjStm\n");
     pdf_printf(pdf, "/N %d\n", (int) (pdf->os_idx + 1));
     pdf_printf(pdf, "/First %d\n", (int) (q - p));
     pdf_begin_stream(pdf);
@@ -918,7 +922,7 @@ void pdf_end_obj(PDF pdf)
         if (pdf->os_idx == pdf_os_max_objs - 1)
             pdf_os_write_objstream(pdf);
     } else {
-        pdf_printf(pdf, "endobj\n");    /* end a PDF object */
+        pdf_puts(pdf, "endobj\n");    /* end a PDF object */
     }
 }
 
@@ -1105,15 +1109,15 @@ void print_ID(PDF pdf, char *file_name)
   Solaris 2.5).
 */
 
-static time_t start_time = 0;
-#define TIME_STR_SIZE 30
-static char start_time_str[TIME_STR_SIZE];      /* minimum size for time_str is 24: "D:YYYYmmddHHMMSS+HH'MM'" */
+#define TIME_STR_SIZE 30  /* minimum size for time_str is 24: "D:YYYYmmddHHMMSS+HH'MM'" */
 
-static void makepdftime(time_t t, char *time_str)
+static void makepdftime(PDF pdf)
 {
     struct tm lt, gmt;
     size_t size;
     int i, off, off_hours, off_mins;
+    time_t t = pdf->start_time;
+    char *time_str = pdf->start_time_str;
 
     /* get the time */
     lt = *localtime(&t);
@@ -1154,32 +1158,36 @@ static void makepdftime(time_t t, char *time_str)
         i = snprintf(&time_str[size], 9, "%+03d'%02d'", off_hours, off_mins);
         check_nprintf(i, 9);
     }
+    pdf->start_time = t;
 }
 
-void init_start_time(void)
+void init_start_time(PDF pdf)
 {
-    if (start_time == 0) {
-        start_time = time((time_t *) NULL);
-        makepdftime(start_time, start_time_str);
+    assert (pdf);       
+    if (pdf->start_time == 0) {
+        pdf->start_time = time((time_t *) NULL);
+        pdf->start_time_str = xtalloc(TIME_STR_SIZE, char); 
+        makepdftime(pdf);
     }
 }
 
 void print_creation_date(PDF pdf)
 {
-    init_start_time();
-    pdf_printf(pdf, "/CreationDate (%s)\n", start_time_str);
+    init_start_time(pdf);
+    pdf_printf(pdf, "/CreationDate (%s)\n", pdf->start_time_str);
 }
 
 void print_mod_date(PDF pdf)
 {
-    init_start_time();
-    pdf_printf(pdf, "/ModDate (%s)\n", start_time_str);
+    init_start_time(pdf);
+    pdf_printf(pdf, "/ModDate (%s)\n", pdf->start_time_str);
 }
 
-char *getcreationdate(void)
+char *getcreationdate(PDF pdf)
 {
-    init_start_time();
-    return start_time_str;
+    assert (pdf);       
+    init_start_time(pdf);
+    return pdf->start_time_str;
 }
 
 void remove_pdffile(PDF pdf)
@@ -1192,46 +1200,60 @@ void remove_pdffile(PDF pdf)
     }
 }
 
-/* define fb_ptr, fb_array & fb_limit */
-typedef char fb_entry;
-define_array(fb);
-
-integer fb_offset(void)
+static void realloc_fb (PDF pdf) 
 {
-    return fb_ptr - fb_array;
+    if (pdf->fb_array == NULL) {
+        pdf->fb_limit = SMALL_ARRAY_SIZE;
+        pdf->fb_array = xtalloc(pdf->fb_limit, char);
+        pdf->fb_ptr = pdf->fb_array;
+    } else if ((size_t)(pdf->fb_ptr - pdf->fb_array + 1) > pdf->fb_limit) {
+        size_t last_ptr_index = pdf->fb_ptr - pdf->fb_array;
+        pdf->fb_limit *= 2;
+        if ((size_t)(pdf->fb_ptr - pdf->fb_array + 1) > pdf->fb_limit)
+            pdf->fb_limit = pdf->fb_ptr - pdf->fb_array + 1;
+        xretalloc(pdf->fb_array, pdf->fb_limit, char);
+        pdf->fb_ptr = pdf->fb_array + last_ptr_index;
+    } 
 }
 
-void fb_seek(integer offset)
+integer fb_offset(PDF pdf)
 {
-    fb_ptr = fb_array + offset;
+    return pdf->fb_ptr -  pdf->fb_array;
 }
 
-void fb_putchar(eight_bits b)
+void fb_seek(PDF pdf, integer offset)
 {
-    alloc_array(fb, 1, SMALL_ARRAY_SIZE);
-    *fb_ptr++ = b;
+     pdf->fb_ptr =  pdf->fb_array + offset;
+}
+
+
+void fb_putchar(PDF pdf, eight_bits b)
+{
+    if ((size_t)(pdf->fb_ptr - pdf->fb_array + 1) > pdf->fb_limit)
+        realloc_fb(pdf);
+    *(pdf->fb_ptr)++ = b;
 }
 
 void fb_flush(PDF pdf)
 {
-    fb_entry *p;
+    char *p;
     integer n;
-    for (p = fb_array; p < fb_ptr;) {
+    for (p =  pdf->fb_array; p <  pdf->fb_ptr;) {
         n = pdf->buf_size - pdf->ptr;
-        if (fb_ptr - p < n)
-            n = fb_ptr - p;
+        if ( pdf->fb_ptr - p < n)
+            n =  pdf->fb_ptr - p;
         memcpy(pdf->buf + pdf->ptr, p, (unsigned) n);
         pdf->ptr += n;
         if (pdf->ptr == pdf->buf_size)
             pdf_flush(pdf);
         p += n;
     }
-    fb_ptr = fb_array;
+     pdf->fb_ptr =  pdf->fb_array;
 }
 
-void fb_free(void)
+void fb_free(PDF pdf)
 {
-    xfree(fb_array);
+    xfree( pdf->fb_array);
 }
 
 
@@ -1240,9 +1262,6 @@ void fb_free(void)
 #define check_err(f, fn)                        \
   if (f != Z_OK)                                \
     pdftex_fail("zlib: %s() failed (error code %d)", fn, f)
-
-static char *zipbuf = NULL;
-static z_stream c_stream;       /* compression stream */
 
 void write_zip(PDF pdf, boolean finish)
 {
@@ -1256,52 +1275,52 @@ void write_zip(PDF pdf, boolean finish)
     */
     /* cur_file_name = NULL; */ 
     if (pdf->stream_length == 0) {
-        if (zipbuf == NULL) {
-            zipbuf = xtalloc(ZIP_BUF_SIZE, char);
-            c_stream.zalloc = (alloc_func) 0;
-            c_stream.zfree = (free_func) 0;
-            c_stream.opaque = (voidpf) 0;
-            check_err(deflateInit(&c_stream, level), "deflateInit");
+        if (pdf->zipbuf == NULL) {
+            pdf->zipbuf = xtalloc(ZIP_BUF_SIZE, char);
+            pdf->c_stream.zalloc = (alloc_func) 0;
+            pdf->c_stream.zfree = (free_func) 0;
+            pdf->c_stream.opaque = (voidpf) 0;
+            check_err(deflateInit(&pdf->c_stream, level), "deflateInit");
         } else {
-            check_err(deflateReset(&c_stream), "deflateReset");
+            check_err(deflateReset(&pdf->c_stream), "deflateReset");
         }
-        c_stream.next_out = (Bytef *) zipbuf;
-        c_stream.avail_out = ZIP_BUF_SIZE;
+        pdf->c_stream.next_out = (Bytef *) pdf->zipbuf;
+        pdf->c_stream.avail_out = ZIP_BUF_SIZE;
     }
-    assert(zipbuf != NULL);
-    c_stream.next_in = pdf->buf;
-    c_stream.avail_in = pdf->ptr;
+    assert(pdf->zipbuf != NULL);
+    pdf->c_stream.next_in = pdf->buf;
+    pdf->c_stream.avail_in = pdf->ptr;
     for (;;) {
-        if (c_stream.avail_out == 0) {
-            pdf->gone += xfwrite(zipbuf, 1, ZIP_BUF_SIZE, pdf->file);
-            pdf->last_byte = zipbuf[ZIP_BUF_SIZE - 1];  /* not needed */
-            c_stream.next_out = (Bytef *) zipbuf;
-            c_stream.avail_out = ZIP_BUF_SIZE;
+        if (pdf->c_stream.avail_out == 0) {
+            pdf->gone += xfwrite(pdf->zipbuf, 1, ZIP_BUF_SIZE, pdf->file);
+            pdf->last_byte = pdf->zipbuf[ZIP_BUF_SIZE - 1];  /* not needed */
+            pdf->c_stream.next_out = (Bytef *) pdf->zipbuf;
+            pdf->c_stream.avail_out = ZIP_BUF_SIZE;
         }
-        err = deflate(&c_stream, finish ? Z_FINISH : Z_NO_FLUSH);
+        err = deflate(&pdf->c_stream, finish ? Z_FINISH : Z_NO_FLUSH);
         if (finish && err == Z_STREAM_END)
             break;
         check_err(err, "deflate");
-        if (!finish && c_stream.avail_in == 0)
+        if (!finish && pdf->c_stream.avail_in == 0)
             break;
     }
     if (finish) {
-        if (c_stream.avail_out < ZIP_BUF_SIZE) {        /* at least one byte has been output */
+        if (pdf->c_stream.avail_out < ZIP_BUF_SIZE) {        /* at least one byte has been output */
             pdf->gone +=
-                xfwrite(zipbuf, 1, ZIP_BUF_SIZE - c_stream.avail_out,
+                xfwrite(pdf->zipbuf, 1, ZIP_BUF_SIZE - pdf->c_stream.avail_out,
                         pdf->file);
-            pdf->last_byte = zipbuf[ZIP_BUF_SIZE - c_stream.avail_out - 1];
+            pdf->last_byte = pdf->zipbuf[ZIP_BUF_SIZE - pdf->c_stream.avail_out - 1];
         }
         xfflush(pdf->file);
     }
-    pdf->stream_length = c_stream.total_out;
+    pdf->stream_length = pdf->c_stream.total_out;
 }
 
-void zip_free(void)
+void zip_free(PDF pdf)
 {
-    if (zipbuf != NULL) {
-        check_err(deflateEnd(&c_stream), "deflateEnd");
-        free(zipbuf);
+    if (pdf->zipbuf != NULL) {
+        check_err(deflateEnd(&pdf->c_stream), "deflateEnd");
+        free(pdf->zipbuf);
     }
 }
 

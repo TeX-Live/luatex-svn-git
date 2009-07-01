@@ -194,22 +194,22 @@ extern void print_ID(PDF, char *);
 
 extern void remove_pdffile(PDF);
 
-extern integer fb_offset(void);
+extern integer fb_offset(PDF);
 extern void fb_flush(PDF);
-extern void fb_putchar(eight_bits);
-extern void fb_seek(integer);
-extern void fb_free(void);
+extern void fb_putchar(PDF, eight_bits);
+extern void fb_seek(PDF,integer);
+extern void fb_free(PDF);
 
 extern void write_zip(PDF, boolean);
-extern void zip_free(void);
+extern void zip_free(PDF);
 
 /* functions that do not output stuff */
 
 extern scaled round_xn_over_d(scaled x, integer n, integer d);
 extern char *convertStringToPDFString(const char *in, int len);
 
-extern void init_start_time(void);
-extern char *getcreationdate(void);
+extern void init_start_time(PDF);
+extern char *getcreationdate(PDF);
 
 extern void pdf_use_font(internal_font_number f, integer fontnum);
 extern void pdf_init_font(PDF pdf, internal_font_number f);

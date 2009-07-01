@@ -403,7 +403,7 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer,
 
     /* the tff subset */
     for (i = 0; i < (int) (fontfile->length); i++)
-        fb_putchar(fontfile->data[i]);
+        fb_putchar(pdf, fontfile->data[i]);
 
     pdf_release_obj(fontfile);
 

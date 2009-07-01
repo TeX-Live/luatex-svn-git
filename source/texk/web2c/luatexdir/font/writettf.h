@@ -74,7 +74,7 @@ typedef unsigned short TTF_F2DOT14;
 #  define get_ufword()    get_type(TTF_UFWORD)
 #  define get_f2dot14()   get_type(TTF_F2DOT14)
 
-#  define put_num(t,n)    ((t)ttf_putnum(t##_SIZE, n))
+#  define put_num(t,n)    ((t)ttf_putnum(pdf,t##_SIZE, n))
 
 #  define put_char(n)     (void)put_num(TTF_CHAR, n)
 #  define put_byte(n)     (void)put_num(TTF_BYTE, n)
@@ -171,6 +171,6 @@ extern FILE *ttf_file;
 #  define ttf_getchar()    ttf_buffer[ttf_curbyte++]
 #  define ttf_eof()        (ttf_curbyte>ttf_size)
 
-extern long ttf_putnum(int s, long n);
+extern long ttf_putnum(PDF pdf, int s, long n);
 extern long ttf_getnum(int s);
 #endif

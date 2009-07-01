@@ -2806,7 +2806,7 @@ long cff_pack_fdselect(cff_font * cff, card8 * dest, long destlen)
 /*
  * Create an instance of embeddable font.
  */
-static void write_fontfile(cff_font * cffont, char *fullname)
+static void write_fontfile(PDF pdf, cff_font * cffont, char *fullname)
 {
     cff_index *topdict, *fdarray, *private;
     unsigned char *dest;
@@ -2913,7 +2913,7 @@ static void write_fontfile(cff_font * cffont, char *fullname)
     cff_release_index(topdict);
 
     for (i = 0; i < offset; i++)
-        fb_putchar(dest[i]);
+        fb_putchar(pdf,dest[i]);
 
     /*fprintf(stdout," (%i/%i)",offset,cffont->stream_size); */
     xfree(dest);
@@ -2944,7 +2944,7 @@ static void write_fontfile(cff_font * cffont, char *fullname)
     gid++;                                                                     \
   }
 
-void write_cff(cff_font * cffont, fd_entry * fd)
+void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
 {
     cff_index *charstrings, *cs_idx;
 
@@ -3131,7 +3131,7 @@ void write_cff(cff_font * cffont, fd_entry * fd)
                  (double) cff_get_sid(cffont, (char *) "Identity"));
     cff_dict_set(cffont->topdict, "ROS", 2, 0.0);
 
-    write_fontfile(cffont, fullname);
+    write_fontfile(pdf, cffont, fullname);
     xfree(fullname);
     cff_close(cffont);
 
@@ -3205,7 +3205,7 @@ card16 cff_charsets_lookup(cff_font * cff, card16 cid)
 #define is_cidfont(a) ((a)->flag & FONTTYPE_CIDFONT)
 #define CID_MAX 65535
 
-void write_cid_cff(cff_font * cffont, fd_entry * fd)
+void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
 {
     cff_index *charstrings, *cs_idx;
 
@@ -3378,7 +3378,7 @@ void write_cid_cff(cff_font * cffont, fd_entry * fd)
         }
     }
 
-    write_fontfile(cffont, fullname);
+    write_fontfile(pdf, cffont, fullname);
     xfree(fullname);
     cff_close(cffont);
 
@@ -3391,7 +3391,7 @@ void write_cid_cff(cff_font * cffont, fd_entry * fd)
  */
 extern int ff_createcff(char *, unsigned char **, integer *);   /* libs/luafontforge/src/luafflib.c */
 
-void writetype1w(fd_entry * fd)
+void writetype1w(PDF pdf, fd_entry * fd)
 {
     cff_font *cff;
     int i;
@@ -3423,10 +3423,10 @@ void writetype1w(fd_entry * fd)
     if (tfm_size > 0) {
         cff = read_cff(tfm_buffer, tfm_size, 0);
         if (cff != NULL) {
-            write_cff(cff, fd);
+            write_cff(pdf, cff, fd);
         } else {
             for (i = 0; i < tfm_size; i++)
-                fb_putchar(tfm_buffer[i]);
+                fb_putchar(pdf,tfm_buffer[i]);
         }
         fd->ff_found = 1;
     } else {

@@ -24,7 +24,7 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-void writetype0(fd_entry * fd)
+void writetype0(PDF pdf, fd_entry * fd)
 {
     int callback_id;
     int file_opened = 0;
@@ -100,18 +100,18 @@ void writetype0(fd_entry * fd)
     cff = read_cff(ttf_buffer + ttf_curbyte, tab->length, 0);
     if (cff != NULL) {
         if (cff_is_cidfont(cff)) {
-            write_cid_cff(cff, fd_cur);
+            write_cid_cff(pdf, cff, fd_cur);
             /*
                for (i = tab->length; i > 0; i--)
                fb_putchar (ttf_getnum(1));
              */
         } else {
-            write_cff(cff, fd_cur);
+            write_cff(pdf, cff, fd_cur);
         }
     } else {
         /* not understood, just do a copy */
         for (i = tab->length; i > 0; i--)
-            fb_putchar(ttf_getnum(1));
+            fb_putchar(pdf, ttf_getnum(1));
     }
     xfree(dir_tab);
     xfree(ttf_buffer);

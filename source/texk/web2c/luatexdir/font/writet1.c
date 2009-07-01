@@ -31,8 +31,8 @@ static const char _svn_version[] =
 #define get_length3()    t1_length3 = fixedcontent? t1_offset() - t1_save_offset : 0
 #define save_offset()    t1_save_offset = t1_offset()
 
-#define t1_putchar          fb_putchar
-#define t1_offset           fb_offset
+#define t1_putchar(A)       fb_putchar(pdf,(A))
+#define t1_offset()         fb_offset(pdf)
 #define out_eexec_char      t1_putchar
 
 #define end_last_eexec_line() \
@@ -41,13 +41,12 @@ static const char _svn_version[] =
 #define embed_all_glyphs(tex_font)  fm_cur->all_glyphs
 #define extra_charset()     fm_cur->charset
 #define update_subset_tag() \
-    strncpy(fb_array + t1_fontname_offset, fm_cur->subset_tag, 6)
+    strncpy(pdf->fb_array + t1_fontname_offset, fm_cur->subset_tag, 6)
 #define fixedcontent        false
 
 integer t1_length1, t1_length2, t1_length3;
 static integer t1_save_offset;
 static integer t1_fontname_offset;
-extern char *fb_array;          /* from luatexdir/utils.c */
 
 static unsigned char *t1_buffer = NULL;
 static integer t1_size = 0;
@@ -546,7 +545,7 @@ static void t1_getline(void)
     alloc_array(t1_buf, t1_line_limit, t1_line_limit);
 }
 
-static void t1_putline(void)
+static void t1_putline(PDF pdf)
 {
     char *p = t1_line_array;
     if (t1_line_ptr - t1_line_array <= 1)
@@ -559,21 +558,21 @@ static void t1_putline(void)
             t1_putchar(*p++);
 }
 
-static void t1_puts(const char *s)
+static void t1_puts(PDF pdf, const char *s)
 {
     if (s != t1_line_array)
         strcpy(t1_line_array, s);
     t1_line_ptr = strend(t1_line_array);
-    t1_putline();
+    t1_putline(pdf);
 }
 
-__attribute__ ((format(printf, 1, 2)))
-static void t1_printf(const char *fmt, ...)
+__attribute__ ((format(printf, 2, 3)))
+static void t1_printf(PDF pdf, const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
     vsprintf(t1_line_array, fmt, args);
-    t1_puts(t1_line_array);
+    t1_puts(pdf, t1_line_array);
     va_end(args);
 }
 
@@ -613,7 +612,7 @@ static void t1_check_block_len(boolean decrypt)
     }
 }
 
-static void t1_start_eexec(void)
+static void t1_start_eexec(PDF pdf)
 {
     int i;
     assert(is_included(fd_cur->fm));
@@ -627,10 +626,10 @@ static void t1_start_eexec(void)
         *t1_line_ptr++ = 0;
     }
     t1_eexec_encrypt = true;
-    t1_putline();               /* to put the first four bytes */
+    t1_putline(pdf);               /* to put the first four bytes */
 }
 
-static void t1_stop_eexec(void)
+static void t1_stop_eexec(PDF pdf)
 {
     int c;
     assert(is_included(fd_cur->fm));
@@ -643,7 +642,7 @@ static void t1_stop_eexec(void)
         c = edecrypt(t1_getbyte());
         if (!(c == 10 || c == 13)) {
             if (last_hexbyte == 0)
-                t1_puts("00");
+                t1_puts(pdf, "00");
             else
                 pdftex_fail("unexpected data after eexec");
         }
@@ -754,7 +753,7 @@ static void t1_modify_italic(void)
     fd_cur->font_dim[ITALIC_ANGLE_CODE].set = true;
 }
 
-static void t1_scan_keys(void)
+static void t1_scan_keys(PDF pdf)
 {
     int i, k;
     char *p, *q, *r;
@@ -828,7 +827,7 @@ static void t1_scan_keys(void)
     fd_cur->font_dim[k].set = true;
 }
 
-static void t1_scan_param(void)
+static void t1_scan_param(PDF pdf)
 {
     static const char *lenIV = "/lenIV";
     if (!t1_scan || *t1_line_array != '/')
@@ -839,7 +838,7 @@ static void t1_scan_param(void)
             pdftex_fail("negative value of lenIV is not supported");
         return;
     }
-    t1_scan_keys();
+    t1_scan_keys(pdf);
 }
 
 static void copy_glyph_names(char **glyph_names, int a, int b)
@@ -981,13 +980,13 @@ char **t1_builtin_enc(void)
 }
 
 
-static void t1_check_end(void)
+static void t1_check_end(PDF pdf)
 {
     if (t1_eof())
         return;
     t1_getline();
     if (t1_prefix("{restore}"))
-        t1_putline();
+        t1_putline(pdf);
 }
 
 static boolean t1_open_fontfile(const char *open_name_prefix)
@@ -1034,35 +1033,35 @@ static boolean t1_open_fontfile(const char *open_name_prefix)
     return true;
 }
 
-static void t1_include(void)
+static void t1_include(PDF pdf)
 {
     do {
         t1_getline();
-        t1_scan_param();
-        t1_putline();
+        t1_scan_param(pdf);
+        t1_putline(pdf);
     }
     while (t1_in_eexec == 0);
-    t1_start_eexec();
+    t1_start_eexec(pdf);
     do {
         t1_getline();
-        t1_scan_param();
-        t1_putline();
+        t1_scan_param(pdf);
+        t1_putline(pdf);
     }
     while (!(t1_charstrings() || t1_subrs()));
     t1_cs = true;
     do {
         t1_getline();
-        t1_putline();
+        t1_putline(pdf);
     }
     while (!t1_end_eexec());
-    t1_stop_eexec();
+    t1_stop_eexec(pdf);
     if (fixedcontent) {         /* copy 512 zeros (not needed for PDF) */
         do {
             t1_getline();
-            t1_putline();
+            t1_putline(pdf);
         }
         while (!t1_cleartomark());
-        t1_check_end();         /* write "{restore}if" if found */
+        t1_check_end(pdf);         /* write "{restore}if" if found */
     }
     get_length3();
 }
@@ -1435,7 +1434,7 @@ void destroy_t1_glyph_tree(struct avl_table *gl_tree)
 
 /**********************************************************************/
 
-static void t1_subset_ascii_part(void)
+static void t1_subset_ascii_part(PDF pdf)
 {
     int j, *p;
     char *glyph, **gg, **glyph_names;
@@ -1446,8 +1445,8 @@ static void t1_subset_ascii_part(void)
     assert(fd_cur->gl_tree != NULL);
     t1_getline();
     while (!t1_prefix("/Encoding")) {
-        t1_scan_param();
-        t1_putline();
+        t1_scan_param(pdf);
+        t1_putline(pdf);
         t1_getline();
     }
     glyph_names = t1_builtin_enc();
@@ -1468,21 +1467,21 @@ static void t1_subset_ascii_part(void)
         }
         make_subset_tag(fd_cur);
         assert(t1_fontname_offset != 0);
-        strncpy(fb_array + t1_fontname_offset, fd_cur->subset_tag, 6);
+        strncpy(pdf->fb_array + t1_fontname_offset, fd_cur->subset_tag, 6);
     }
     /* now really all glyphs needed from this font are in the fd_cur->gl_tree */
     if (t1_encoding == ENC_STANDARD)
-        t1_puts("/Encoding StandardEncoding def\n");
+        t1_puts(pdf, "/Encoding StandardEncoding def\n");
     else {
         t1_puts
-            ("/Encoding 256 array\n0 1 255 {1 index exch /.notdef put} for\n");
+            (pdf, "/Encoding 256 array\n0 1 255 {1 index exch /.notdef put} for\n");
         gl_tree = create_t1_glyph_tree(glyph_names);
         avl_t_init(&t, fd_cur->gl_tree);
         j = 0;
         for (glyph = (char *) avl_t_first(&t, fd_cur->gl_tree); glyph != NULL;
              glyph = (char *) avl_t_next(&t)) {
             if ((gg = (char **) avl_find(gl_tree, &glyph)) != NULL) {
-                t1_printf("dup %i /%s put\n", (int) (gg - glyph_names), *gg);
+                t1_printf(pdf, "dup %i /%s put\n", (int) (gg - glyph_names), *gg);
                 j++;
             }
         }
@@ -1491,14 +1490,14 @@ static void t1_subset_ascii_part(void)
             /* We didn't mark anything for the Encoding array. */
             /* We add "dup 0 /.notdef put" for compatibility   */
             /* with Acrobat 5.0.                               */
-            t1_puts("dup 0 /.notdef put\n");
-        t1_puts("readonly def\n");
+            t1_puts(pdf, "dup 0 /.notdef put\n");
+        t1_puts(pdf, "readonly def\n");
     }
     do {
         t1_getline();
-        t1_scan_param();
+        t1_scan_param(pdf);
         if (!t1_prefix("/UniqueID"))    /* ignore UniqueID for subsetted fonts */
-            t1_putline();
+            t1_putline(pdf);
     }
     while (t1_in_eexec == 0);
 }
@@ -1525,15 +1524,15 @@ static void init_cs_entry(cs_entry * cs)
     cs->valid = false;
 }
 
-static void t1_read_subrs(void)
+static void t1_read_subrs(PDF pdf)
 {
     int i, s;
     cs_entry *ptr;
     t1_getline();
     while (!(t1_charstrings() || t1_subrs())) {
-        t1_scan_param();
+        t1_scan_param(pdf);
         if (!t1_prefix("/UniqueID"))    /* ignore UniqueID for subsetted fonts */
-            t1_putline();
+            t1_putline(pdf);
         t1_getline();
     }
   found:
@@ -1597,10 +1596,10 @@ static void t1_read_subrs(void)
     }
 }
 
-#define t1_subr_flush()  t1_flush_cs(true)
-#define t1_cs_flush()    t1_flush_cs(false)
+#define t1_subr_flush()  t1_flush_cs(pdf, true)
+#define t1_cs_flush()    t1_flush_cs(pdf, false)
 
-static void t1_flush_cs(boolean is_subr)
+static void t1_flush_cs(PDF pdf, boolean is_subr)
 {
     char *p;
     byte *r, *return_cs = NULL;
@@ -1631,7 +1630,7 @@ static void t1_flush_cs(boolean is_subr)
     sprintf(t1_line_ptr, "%u", count);
     strcat(t1_line_ptr, p);
     t1_line_ptr = eol(t1_line_array);
-    t1_putline();
+    t1_putline(pdf);
 
     cs_len = 0;                 /* for -Wall */
     /* create return_cs to replace unsused subr's */
@@ -1657,7 +1656,7 @@ static void t1_flush_cs(boolean is_subr)
             p = strend(t1_line_array);
             memcpy(p, ptr->data, ptr->len);
             t1_line_ptr = p + ptr->len;
-            t1_putline();
+            t1_putline(pdf);
         } else {
             /* replace unsused subr's by return_cs */
             if (is_subr) {
@@ -1666,10 +1665,10 @@ static void t1_flush_cs(boolean is_subr)
                 p = strend(t1_line_array);
                 memcpy(p, return_cs, cs_len);
                 t1_line_ptr = p + cs_len;
-                t1_putline();
+                t1_putline(pdf);
                 sprintf(t1_line_array, " %s", cs_token_pair[1]);
                 t1_line_ptr = eol(t1_line_array);
-                t1_putline();
+                t1_putline(pdf);
             }
         }
         xfree(ptr->data);
@@ -1678,7 +1677,7 @@ static void t1_flush_cs(boolean is_subr)
     }
     sprintf(t1_line_array, "%s", line_end);
     t1_line_ptr = eol(t1_line_array);
-    t1_putline();
+    t1_putline(pdf);
     if (is_subr)
         xfree(return_cs);
     xfree(tab);
@@ -1717,7 +1716,7 @@ static void t1_mark_glyphs(void)
 }
 
 
-static void t1_subset_charstrings(void)
+static void t1_subset_charstrings(PDF pdf)
 {
     cs_entry *ptr;
     cs_size_pos = strstr(t1_line_array, charstringname) + strlen(charstringname)
@@ -1749,34 +1748,34 @@ static void t1_subset_charstrings(void)
     t1_cs_flush();
 }
 
-static void t1_subset_end(void)
+static void t1_subset_end(PDF pdf)
 {
     if (t1_synthetic) {         /* copy to "dup /FontName get exch definefont pop" */
         while (!strstr(t1_line_array, "definefont")) {
             t1_getline();
-            t1_putline();
+            t1_putline(pdf);
         }
         while (!t1_end_eexec())
             t1_getline();       /* ignore the rest */
-        t1_putline();           /* write "mark currentfile closefile" */
+        t1_putline(pdf);           /* write "mark currentfile closefile" */
     } else
         while (!t1_end_eexec()) {       /* copy to "mark currentfile closefile" */
             t1_getline();
-            t1_putline();
+            t1_putline(pdf);
         }
-    t1_stop_eexec();
+    t1_stop_eexec(pdf);
     if (fixedcontent) {         /* copy 512 zeros (not needed for PDF) */
         while (!t1_cleartomark()) {
             t1_getline();
-            t1_putline();
+            t1_putline(pdf);
         }
         if (!t1_synthetic)      /* don't check "{restore}if" for synthetic fonts */
-            t1_check_end();     /* write "{restore}if" if found */
+            t1_check_end(pdf);     /* write "{restore}if" if found */
     }
     get_length3();
 }
 
-void writet1(fd_entry * fd)
+void writet1(PDF pdf, fd_entry * fd)
 {
     fd_cur = fd;                /* fd_cur is global inside writet1.c */
     assert(fd_cur->fm != NULL);
@@ -1787,7 +1786,7 @@ void writet1(fd_entry * fd)
     if (!is_subsetted(fd_cur->fm)) {    /* include entire font */
         if (!(fd->ff_found = t1_open_fontfile("<<")))
             return;
-        t1_include();
+        t1_include(pdf);
         t1_close_font_file(">>");
         xfree(t1_buffer);
         return;
@@ -1795,13 +1794,13 @@ void writet1(fd_entry * fd)
     /* partial downloading */
     if (!(fd->ff_found = t1_open_fontfile("<")))
         return;
-    t1_subset_ascii_part();
-    t1_start_eexec();
+    t1_subset_ascii_part(pdf);
+    t1_start_eexec(pdf);
     cc_init();
     cs_init();
-    t1_read_subrs();
-    t1_subset_charstrings();
-    t1_subset_end();
+    t1_read_subrs(pdf);
+    t1_subset_charstrings(pdf);
+    t1_subset_end(pdf);
     t1_close_font_file(">");
     xfree(t1_buffer);
 }
