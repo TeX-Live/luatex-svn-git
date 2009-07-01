@@ -81,29 +81,22 @@ extern "C" {
     extern void pdf_begin_stream(PDF);
     extern void pdf_end_obj(PDF);
     extern void pdf_end_stream(PDF);
-    extern void pdf_flush(PDF);
 
     __attribute__ ((noreturn, format(printf, 1, 2)))
     extern void pdftex_fail(const char *fmt, ...);
     __attribute__ ((format(printf, 1, 2)))
     extern void pdftex_warn(const char *fmt, ...);
-    __attribute__ ((format(printf, 1, 2)))
-    extern void tex_printf(const char *, ...);
 
     extern void write_epdf(PDF, image_dict *);
     extern void write_additional_epdf_objects(PDF);
-    extern void pdf_begin_dict(PDF, integer, bool);
     extern void pdf_begin_obj(PDF, integer, bool);
-    extern void pdf_create_obj(integer, integer);
-    extern void pdf_new_dict(PDF, integer, integer, bool);
-    extern void pdf_os_get_os_buf(integer);
 
 /* epdf.c */
     extern void epdf_mark_glyphs(struct fd_entry *, char *);
     extern struct fd_entry *epdf_create_fontdescriptor(struct fm_entry *, int,
                                                        int);
     extern int get_fd_objnum(struct fd_entry *);
-    extern int get_fn_objnum(struct fd_entry *);
+    extern int get_fn_objnum(PDF, struct fd_entry *);
 
 /* write_enc.c */
     extern void epdf_write_enc(PDF, char **, integer);
@@ -112,6 +105,4 @@ extern "C" {
     extern char *convertStringToPDFString(char *in, int len);
     extern char *stripzeros(char *a);
 
-/* config.c */
-    extern integer cfgpar(integer);
 }

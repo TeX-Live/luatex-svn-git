@@ -355,7 +355,7 @@ static void copyFontDict(PDF pdf, Object * obj, InObj * r)
     }
     // write new FontDescriptor, BaseFont, and Encoding
     pdf_printf(pdf, "/FontDescriptor %d 0 R\n", (int) get_fd_objnum(r->fd));
-    pdf_printf(pdf, "/BaseFont %d 0 R\n", (int) get_fn_objnum(r->fd));
+    pdf_printf(pdf, "/BaseFont %d 0 R\n", (int) get_fn_objnum(pdf, r->fd));
     pdf_printf(pdf, "/Encoding %d 0 R\n", (int) r->enc_objnum);
     pdf_puts(pdf, ">>");
 }
