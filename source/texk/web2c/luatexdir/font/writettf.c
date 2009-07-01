@@ -839,7 +839,7 @@ static void ttf_write_cmap(PDF pdf)
             break;
         }
     }
-    ttf_set_chksm(pdf,tab);
+    ttf_set_chksm(pdf, tab);
 }
 
 static int prepend_subset_tags(int index, char *p)
@@ -1004,14 +1004,15 @@ static void ttf_write_glyf(PDF pdf)
                     if (flags & WE_HAVE_A_SCALE)
                         ttf_ncopy(pdf, TTF_F2DOT14_SIZE);
                     else if (flags & WE_HAVE_AN_X_AND_Y_SCALE)
-                        ttf_ncopy(pdf ,2 * TTF_F2DOT14_SIZE);
+                        ttf_ncopy(pdf, 2 * TTF_F2DOT14_SIZE);
                     else if (flags & WE_HAVE_A_TWO_BY_TWO)
                         ttf_ncopy(pdf, 4 * TTF_F2DOT14_SIZE);
                 } while (flags & MORE_COMPONENTS);
                 if (flags & WE_HAVE_INSTRUCTIONS)
                     ttf_ncopy(pdf, copy_ushort());
             } else
-                ttf_ncopy(pdf, glyph_tab[*id + 1].offset - glyph_tab[*id].offset -
+                ttf_ncopy(pdf,
+                          glyph_tab[*id + 1].offset - glyph_tab[*id].offset -
                           TTF_USHORT_SIZE - 4 * TTF_FWORD_SIZE);
         }
     }
@@ -1215,13 +1216,14 @@ static void ttf_write_OS2(PDF pdf)
     if (version > 3)
         pdftex_fail("unknown version of OS/2 table (%.4X)", version);
     (void) put_ushort(0x0001);  /* fix version to 1 */
-    ttf_ncopy(pdf, 2 * TTF_USHORT_SIZE + 13 * TTF_SHORT_SIZE + 10 * TTF_BYTE_SIZE);
+    ttf_ncopy(pdf,
+              2 * TTF_USHORT_SIZE + 13 * TTF_SHORT_SIZE + 10 * TTF_BYTE_SIZE);
     ttf_skip(4 * TTF_ULONG_SIZE);       /* ulUnicodeRange 1--4 */
     put_ulong(0x00000003);      /* Basic Latin + Latin-1 Supplement (0x0000--0x00FF) */
     put_ulong(0x10000000);      /* Private Use (0xE000--0xF8FF) */
     put_ulong(0x00000000);
     put_ulong(0x00000000);
-    ttf_ncopy(pdf, 4 * TTF_CHAR_SIZE + TTF_USHORT_SIZE);     /* achVendID + fsSelection */
+    ttf_ncopy(pdf, 4 * TTF_CHAR_SIZE + TTF_USHORT_SIZE);        /* achVendID + fsSelection */
     ttf_skip(2 * TTF_USHORT_SIZE);
     (void) put_ushort(0x0000);  /* usFirstCharIndex */
     (void) put_ushort(0xF0FF);  /* usLastCharIndex */
@@ -1251,10 +1253,12 @@ static void ttf_write_post(PDF pdf)
     ttf_reset_chksm(pdf, tab);
     if (!fd_cur->write_ttf_glyph_names || post_format == 0x00030000) {
         put_fixed(0x00030000);
-        ttf_ncopy(pdf, TTF_FIXED_SIZE + 2 * TTF_FWORD_SIZE + 5 * TTF_ULONG_SIZE);
+        ttf_ncopy(pdf,
+                  TTF_FIXED_SIZE + 2 * TTF_FWORD_SIZE + 5 * TTF_ULONG_SIZE);
     } else {
         put_fixed(0x00020000);
-        ttf_ncopy(pdf, TTF_FIXED_SIZE + 2 * TTF_FWORD_SIZE + 5 * TTF_ULONG_SIZE);
+        ttf_ncopy(pdf,
+                  TTF_FIXED_SIZE + 2 * TTF_FWORD_SIZE + 5 * TTF_ULONG_SIZE);
         (void) put_ushort(new_glyphs_count);
         k = 0;
         for (id = glyph_index; id - glyph_index < new_glyphs_count; id++) {

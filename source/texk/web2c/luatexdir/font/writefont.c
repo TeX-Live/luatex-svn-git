@@ -703,7 +703,7 @@ void create_fontdictionary(PDF pdf, fm_entry * fm, integer font_objnum,
         fo->fe = get_fe_entry(fo->fm->encname); /* returns NULL if .enc file couldn't be opened */
         if (fo->fe != NULL && (is_type1(fo->fm) || is_opentype(fo->fm))) {
             if (fo->fe->fe_objnum == 0)
-                fo->fe->fe_objnum = pdf_new_objnum(pdf);   /* then it will be written out */
+                fo->fe->fe_objnum = pdf_new_objnum(pdf);        /* then it will be written out */
             /* mark encoding pairs used by TeX to optimize encoding vector */
             fo->fe->tx_tree = mark_chars(fo, fo->fe->tx_tree, f);
         }

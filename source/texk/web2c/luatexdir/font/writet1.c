@@ -626,7 +626,7 @@ static void t1_start_eexec(PDF pdf)
         *t1_line_ptr++ = 0;
     }
     t1_eexec_encrypt = true;
-    t1_putline(pdf);               /* to put the first four bytes */
+    t1_putline(pdf);            /* to put the first four bytes */
 }
 
 static void t1_stop_eexec(PDF pdf)
@@ -1061,7 +1061,7 @@ static void t1_include(PDF pdf)
             t1_putline(pdf);
         }
         while (!t1_cleartomark());
-        t1_check_end(pdf);         /* write "{restore}if" if found */
+        t1_check_end(pdf);      /* write "{restore}if" if found */
     }
     get_length3();
 }
@@ -1474,14 +1474,16 @@ static void t1_subset_ascii_part(PDF pdf)
         t1_puts(pdf, "/Encoding StandardEncoding def\n");
     else {
         t1_puts
-            (pdf, "/Encoding 256 array\n0 1 255 {1 index exch /.notdef put} for\n");
+            (pdf,
+             "/Encoding 256 array\n0 1 255 {1 index exch /.notdef put} for\n");
         gl_tree = create_t1_glyph_tree(glyph_names);
         avl_t_init(&t, fd_cur->gl_tree);
         j = 0;
         for (glyph = (char *) avl_t_first(&t, fd_cur->gl_tree); glyph != NULL;
              glyph = (char *) avl_t_next(&t)) {
             if ((gg = (char **) avl_find(gl_tree, &glyph)) != NULL) {
-                t1_printf(pdf, "dup %i /%s put\n", (int) (gg - glyph_names), *gg);
+                t1_printf(pdf, "dup %i /%s put\n", (int) (gg - glyph_names),
+                          *gg);
                 j++;
             }
         }
@@ -1757,7 +1759,7 @@ static void t1_subset_end(PDF pdf)
         }
         while (!t1_end_eexec())
             t1_getline();       /* ignore the rest */
-        t1_putline(pdf);           /* write "mark currentfile closefile" */
+        t1_putline(pdf);        /* write "mark currentfile closefile" */
     } else
         while (!t1_end_eexec()) {       /* copy to "mark currentfile closefile" */
             t1_getline();
@@ -1770,7 +1772,7 @@ static void t1_subset_end(PDF pdf)
             t1_putline(pdf);
         }
         if (!t1_synthetic)      /* don't check "{restore}if" for synthetic fonts */
-            t1_check_end(pdf);     /* write "{restore}if" if found */
+            t1_check_end(pdf);  /* write "{restore}if" if found */
     }
     get_length3();
 }
