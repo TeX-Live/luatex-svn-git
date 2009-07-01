@@ -75,8 +75,9 @@ void fix_pdfoutput(void)
 }
 
 
-void reset_resource_lists(void)
+void reset_resource_lists(PDF pdf)
 {
+    pdf->font_list = NULL;
     pdf_obj_list = null;
     pdf_xform_list = null;
     pdf_ximage_list = null;
@@ -183,7 +184,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     prepare_mag();
     temp_ptr = p;
     pdf_last_resources = pdf_new_objnum(pdf);
-    reset_resource_lists();
+    reset_resource_lists(pdf);
     dvi_direction = page_direction;
 
     /* Calculate PDF page dimensions and margins */
@@ -467,8 +468,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
                 save_ximage_list = pdf_ximage_list;
                 save_text_procset = pdf_text_procset;
                 save_image_procset = pdf_image_procset;
-
-                reset_resource_lists();
+                reset_resource_lists(pdf);
                 save_cur_page_size = cur_page_size;
                 pdf_ship_out(pdf, obj_xform_box(pdf, pdf_cur_form), false);
                 cur_page_size = save_cur_page_size;
