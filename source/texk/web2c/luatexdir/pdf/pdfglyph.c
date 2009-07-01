@@ -51,7 +51,7 @@ void pdf_print_charwidth(PDF pdf, internal_font_number f, int i)
     assert(pdf_font_blink(f) == null_font);     /* must use unexpanded font! */
     cw.m = pdf_char_width(p, f, i);
     cw.e = p->cw.e;
-    print_pdffloat(pdf, &cw);
+    print_pdffloat(pdf, cw);
 }
 
 /**********************************************************************/
@@ -83,7 +83,7 @@ static void set_font(PDF pdf)
     pdf_printf(pdf, "/F%d", (int) p->f_pdf);
     pdf_print_resname_prefix(pdf);
     pdf_printf(pdf, " ");
-    print_pdffloat(pdf, &(p->fs));
+    print_pdffloat(pdf, p->fs);
     pdf_printf(pdf, " Tf ");
 }
 
@@ -188,7 +188,7 @@ void pdf_place_glyph(PDF pdf, scaledpos pos, internal_font_number f, integer c)
             if (is_charmode(p))
                 end_charmode(pdf);
             assert(p->tj_delta.m != 0);
-            print_pdffloat(pdf, &(p->tj_delta));
+            print_pdffloat(pdf, p->tj_delta);
             p->cw.m -= p->tj_delta.m * ten_pow[p->cw.e - p->tj_delta.e];
         }
     }

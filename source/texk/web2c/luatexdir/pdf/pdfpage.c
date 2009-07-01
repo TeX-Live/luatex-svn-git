@@ -172,11 +172,11 @@ boolean calc_pdfpos(pdfstructure * p, scaledpos pos)
 
 /**********************************************************************/
 
-void print_pdffloat(PDF pdf, pdffloat * f)
+void print_pdffloat(PDF pdf, pdffloat f)
 {
     char a[24];
-    int e = f->e, i, j;
-    long l, m = f->m;
+    int e = f.e, i, j;
+    long l, m = f.m;
     if (m < 0) {
         pdf_printf(pdf, "-");
         m *= -1;
@@ -201,10 +201,10 @@ void print_pdf_matrix(PDF pdf, pdffloat * tm)
 {
     int i;
     for (i = 0; i < 5; i++) {
-        print_pdffloat(pdf, tm + i);
+        print_pdffloat(pdf, tm[i]);
         pdf_printf(pdf, " ");
     }
-    print_pdffloat(pdf, tm + i);
+    print_pdffloat(pdf, tm[i]);
 }
 
 void pdf_print_cm(PDF pdf, pdffloat * cm)

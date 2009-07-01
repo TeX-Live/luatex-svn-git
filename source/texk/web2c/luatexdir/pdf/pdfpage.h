@@ -44,7 +44,7 @@ void pdf_page_init(PDF pdf);
 void pdf_print_cm(PDF pdf, pdffloat * cm);
 void pdf_set_pos(PDF pdf, scaledpos pos);
 void pdf_set_pos_temp(PDF pdf, scaledpos pos);
-void print_pdffloat(PDF pdf, pdffloat * f);
+void print_pdffloat(PDF pdf, pdffloat f);
 void print_pdf_matrix(PDF pdf, pdffloat * tm);
 
 #endif

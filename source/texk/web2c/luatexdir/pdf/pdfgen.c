@@ -571,7 +571,7 @@ void pdf_print_bp(PDF pdf, scaled s)
     assert(p != NULL);
     a.m = lround(s * p->k1);
     a.e = pdf->decimal_digits;
-    print_pdffloat(pdf, &a);
+    print_pdffloat(pdf, a);
 }
 
 void pdf_print_mag_bp(PDF pdf, scaled s)
@@ -584,7 +584,7 @@ void pdf_print_mag_bp(PDF pdf, scaled s)
     else
         a.m = lround(s * p->k1);
     a.e = pdf->decimal_digits;
-    print_pdffloat(pdf, &a);
+    print_pdffloat(pdf, a);
 }
 
 void flush_object_list (pdf_object_list *pp)
