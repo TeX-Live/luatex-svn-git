@@ -412,23 +412,26 @@ static void copyFont(PDF pdf, char *tag, Object * fontRef)
     // Type1C fonts are replaced by Type1 fonts, if REPLACE_TYPE1C is true.
     if ((pdf->inclusion_copy_font != 0)
         && fontRef->fetch(xref, &fontdict)->isDict()
-        && fontdict->dictLookup((char *)"Subtype", &subtype)->isName()
+        && fontdict->dictLookup((char *) "Subtype", &subtype)->isName()
         && !strcmp(subtype->getName(), "Type1")
-        && fontdict->dictLookup((char *)"BaseFont", &basefont)->isName()
-        && fontdict->dictLookupNF((char *)"FontDescriptor", &fontdescRef)->isRef()
+        && fontdict->dictLookup((char *) "BaseFont", &basefont)->isName()
+        && fontdict->dictLookupNF((char *) "FontDescriptor",
+                                  &fontdescRef)->isRef()
         && fontdescRef->fetch(xref, &fontdesc)->isDict()
-        && (fontdesc->dictLookup((char *)"FontFile", &fontfile)->isStream()
+        && (fontdesc->dictLookup((char *) "FontFile", &fontfile)->isStream()
             || (REPLACE_TYPE1C
-                && fontdesc->dictLookup((char *)"FontFile3", &fontfile)->isStream()
-                && fontfile->streamGetDict()->lookup((char *)"Subtype",
+                && fontdesc->dictLookup((char *) "FontFile3",
+                                        &fontfile)->isStream()
+                && fontfile->streamGetDict()->lookup((char *) "Subtype",
                                                      &ffsubtype)->isName()
                 && !strcmp(ffsubtype->getName(), "Type1C")))
         && (fontmap = lookup_fontmap(basefont->getName())) != NULL) {
         // copy the value of /StemV
-        fontdesc->dictLookup((char *)"StemV", &stemV);
-        fd = epdf_create_fontdescriptor(fontmap, stemV->getInt(), pdf_new_objnum(pdf));
-        if (fontdesc->dictLookup((char *)"CharSet", &charset) &&
-            charset->isString() && is_subsetable(fontmap))
+        fontdesc->dictLookup((char *) "StemV", &stemV);
+        fd = epdf_create_fontdescriptor(fontmap, stemV->getInt(),
+                                        pdf_new_objnum(pdf));
+        if (fontdesc->dictLookup((char *) "CharSet", &charset)
+            && charset->isString() && is_subsetable(fontmap))
             epdf_mark_glyphs(fd, charset->getString()->getCString());
         else
             embed_whole_font(fd);
@@ -437,7 +440,8 @@ static void copyFont(PDF pdf, char *tag, Object * fontRef)
         gfont = GfxFont::makeFont(xref, tag, fontRef->getRef(),
                                   fontdict->getDict());
         pdf_printf(pdf, " %d 0 R ", addFont(fontRef->getRef(), fd,
-                                            addEncoding(gfont, pdf_new_objnum(pdf))));
+                                            addEncoding(gfont,
+                                                        pdf_new_objnum(pdf))));
     } else {
         copyName(pdf, tag);
         pdf_puts(pdf, " ");
@@ -963,21 +967,21 @@ static void write_epdf1(PDF pdf, image_dict * idict)
 
         // Variant B: copy stream without recompressing
         //
-        contents->streamGetDict()->lookup((char *)"F", &obj1);
+        contents->streamGetDict()->lookup((char *) "F", &obj1);
         if (!obj1->isNull()) {
             pdftex_fail("PDF inclusion: Unsupported external stream");
         }
-        contents->streamGetDict()->lookup((char *)"Length", &obj1);
+        contents->streamGetDict()->lookup((char *) "Length", &obj1);
         assert(!obj1->isNull());
         pdf_puts(pdf, "/Length ");
         copyObject(pdf, &obj1);
         pdf_puts(pdf, "\n");
-        contents->streamGetDict()->lookup((char *)"Filter", &obj1);
+        contents->streamGetDict()->lookup((char *) "Filter", &obj1);
         if (!obj1->isNull()) {
             pdf_puts(pdf, "/Filter ");
             copyObject(pdf, &obj1);
             pdf_puts(pdf, "\n");
-            contents->streamGetDict()->lookup((char *)"DecodeParms", &obj1);
+            contents->streamGetDict()->lookup((char *) "DecodeParms", &obj1);
             if (!obj1->isNull()) {
                 pdf_puts(pdf, "/DecodeParms ");
                 copyObject(pdf, &obj1);
