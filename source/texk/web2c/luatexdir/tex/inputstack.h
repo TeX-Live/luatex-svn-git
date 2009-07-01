@@ -331,18 +331,18 @@ extern void set_trick_count(void);
 
 extern void push_input(void);
 
-#define back_list(A) begin_token_list(A,backed_up) /* backs up a simple token list */
-#define ins_list(A) begin_token_list(A,inserted) /* inserts a simple token list */
+#  define back_list(A) begin_token_list(A,backed_up)    /* backs up a simple token list */
+#  define ins_list(A) begin_token_list(A,inserted)      /* inserts a simple token list */
 
 extern void begin_token_list(halfword p, quarterword t);
-extern void end_token_list (void);
-extern void back_input (void);
-extern int reinsert_token (boolean a, halfword pp) ;
-extern void begin_file_reading (void);
-extern void end_file_reading (void); 
-extern void clear_for_error_prompt (void);
+extern void end_token_list(void);
+extern void back_input(void);
+extern int reinsert_token(boolean a, halfword pp);
+extern void begin_file_reading(void);
+extern void end_file_reading(void);
+extern void clear_for_error_prompt(void);
 
-extern void initialize_inputstack (void);
+extern void initialize_inputstack(void);
 
 
 #endif

@@ -41,11 +41,11 @@ static const char _svn_version[] =
 
 #define detokenized_line() (line_catcode_table==NO_CAT_TABLE)
 
-#define top_mark_code 0 /* the mark in effect at the previous page break */
-#define first_mark_code 1 /* the first mark between |top_mark| and |bot_mark| */
-#define bot_mark_code 2 /* the mark in effect at the current page break */
+#define top_mark_code 0         /* the mark in effect at the previous page break */
+#define first_mark_code 1       /* the first mark between |top_mark| and |bot_mark| */
+#define bot_mark_code 2         /* the mark in effect at the current page break */
 #define split_first_mark_code 3 /* the first mark found by \.{\\vsplit} */
-#define split_bot_mark_code 4 /* the last mark found by \.{\\vsplit} */
+#define split_bot_mark_code 4   /* the last mark found by \.{\\vsplit} */
 #define marks_code 5
 
 #define top_mark(A) top_marks_array[(A)]
@@ -269,26 +269,36 @@ The |print_meaning| subroutine displays |cur_cmd| and |cur_chr| in
 symbolic form, including the expansion of a macro or mark.
 */
 
-void print_meaning (void)
+void print_meaning(void)
 {
-    print_cmd_chr(cur_cmd,cur_chr);
-    if (cur_cmd>=call_cmd) {
-	print_char(':'); 
-	print_ln(); 
-	token_show(cur_chr);
+    print_cmd_chr(cur_cmd, cur_chr);
+    if (cur_cmd >= call_cmd) {
+        print_char(':');
+        print_ln();
+        token_show(cur_chr);
     } else {
-	/* Show the meaning of a mark node */
-	if ((cur_cmd==top_bot_mark_cmd)&&(cur_chr<marks_code)) {
-	    print_char(':');
-	    print_ln();
-	    switch (cur_chr) {
-	    case first_mark_code:       token_show(first_mark(0));  break;
-	    case bot_mark_code:         token_show(bot_mark(0));  break;
-	    case split_first_mark_code: token_show(split_first_mark(0));  break;
-	    case split_bot_mark_code:   token_show(split_bot_mark(0));  break;
-	    default:                          token_show(top_mark(0)); break;
-	    }
-	}
+        /* Show the meaning of a mark node */
+        if ((cur_cmd == top_bot_mark_cmd) && (cur_chr < marks_code)) {
+            print_char(':');
+            print_ln();
+            switch (cur_chr) {
+            case first_mark_code:
+                token_show(first_mark(0));
+                break;
+            case bot_mark_code:
+                token_show(bot_mark(0));
+                break;
+            case split_first_mark_code:
+                token_show(split_first_mark(0));
+                break;
+            case split_bot_mark_code:
+                token_show(split_bot_mark(0));
+                break;
+            default:
+                token_show(top_mark(0));
+                break;
+            }
+        }
     }
 }
 
@@ -552,12 +562,12 @@ halfword active_to_cs(int curchr, int force)
     char *a, *b;
     char *utfbytes = xmalloc(10);
     int nncs = no_new_control_sequence;
-    a = (char *)uni2str(0xFFFF);
+    a = (char *) uni2str(0xFFFF);
     utfbytes = strcpy(utfbytes, a);
     if (force)
         no_new_control_sequence = false;
     if (curchr > 0) {
-        b = (char *)uni2str(curchr);
+        b = (char *) uni2str(curchr);
         utfbytes = strcat(utfbytes, b);
         free(b);
         curcs = string_lookup(utfbytes, strlen(utfbytes));
@@ -658,8 +668,8 @@ to the appearance of \.{\\par}; we must set |cur_cs:=par_loc|
 when detecting a blank line.
 */
 
-halfword par_loc; /* location of `\.{\\par}' in |eqtb| */
-halfword par_token; /* token representing `\.{\\par}' */
+halfword par_loc;               /* location of `\.{\\par}' in |eqtb| */
+halfword par_token;             /* token representing `\.{\\par}' */
 
 
 /*
@@ -674,8 +684,8 @@ statements waiting to be input, it is changed by |luatokencall|.
 
 */
 
-boolean force_eof; /* should the next \.{\\input} be aborted early? */
-integer luacstrings;  /* how many lua strings are waiting to be input? */
+boolean force_eof;              /* should the next \.{\\input} be aborted early? */
+integer luacstrings;            /* how many lua strings are waiting to be input? */
 
 /*
 If the user has set the |pausing| parameter to some positive value,
@@ -686,26 +696,26 @@ line is accepted as it stands, otherwise the line typed is
 used instead of the line in the file.
 */
 
-void firm_up_the_line (void)
+void firm_up_the_line(void)
 {
-    integer k; /* an index into |buffer| */
-    ilimit=last;
-    if (pausing>0) {
-	if (interaction>nonstop_mode) {
-	    wake_up_terminal(); 
-	    print_ln();
-	    if (istart<ilimit) {
-		for (k=istart;k<=ilimit-1;k++)
-		    print_char(buffer[k]);
-	    }
-	    first=ilimit; 
-	    prompt_input("=>"); /* wait for user response */
-	    if (last>first) {
-		for (k=first;k<+last-1;k++) /* move line down in buffer */
-		    buffer[k+istart-first]=buffer[k];
-		ilimit=istart+last-first;
-	    }
-	}
+    integer k;                  /* an index into |buffer| */
+    ilimit = last;
+    if (pausing > 0) {
+        if (interaction > nonstop_mode) {
+            wake_up_terminal();
+            print_ln();
+            if (istart < ilimit) {
+                for (k = istart; k <= ilimit - 1; k++)
+                    print_char(buffer[k]);
+            }
+            first = ilimit;
+            prompt_input("=>"); /* wait for user response */
+            if (last > first) {
+                for (k = first; k < +last - 1; k++)     /* move line down in buffer */
+                    buffer[k + istart - first] = buffer[k];
+                ilimit = istart + last - first;
+            }
+        }
     }
 }
 
@@ -1259,9 +1269,9 @@ static boolean check_expanded_code(integer * kk)
 /* todo: this is a function because it is still used from the converted pascal.
    once that is gone, it can be a #define again */
 
-boolean end_line_char_inactive(void) 
+boolean end_line_char_inactive(void)
 {
-    return ((end_line_char<0)||(end_line_char>127));
+    return ((end_line_char < 0) || (end_line_char > 127));
 }
 
 /* All of the easy branches of |get_next| have now been taken care of.
@@ -1491,15 +1501,15 @@ In fact, these three procedures account for almost every use of |get_next|.
 |no_new_control_sequence| is always |true| at other times.
 */
 
-void get_token (void) /* sets |cur_cmd|, |cur_chr|, |cur_tok| */
-{
-    no_new_control_sequence=false; 
-    get_token_lua(); 
-    no_new_control_sequence=true;
-    if (cur_cs==0) 
-	cur_tok=(cur_cmd*STRING_OFFSET)+cur_chr;
-    else 
-	cur_tok=cs_token_flag+cur_cs;
+void get_token(void)
+{                               /* sets |cur_cmd|, |cur_chr|, |cur_tok| */
+    no_new_control_sequence = false;
+    get_token_lua();
+    no_new_control_sequence = true;
+    if (cur_cs == 0)
+        cur_tok = (cur_cmd * STRING_OFFSET) + cur_chr;
+    else
+        cur_tok = cs_token_flag + cur_cs;
 }
 
 
@@ -1523,23 +1533,22 @@ void get_token_lua(void)
 
 
 /* changes the string |s| to a token list */
-halfword string_to_toks (char *ss)
+halfword string_to_toks(char *ss)
 {
-    halfword p; /* tail of the token list */
-    halfword q; /* new node being added to the token list via |store_new_token| */
-    halfword t; /* token being appended */
-    char *s = ss, *se = ss+strlen(s);
-    p=temp_token_head; 
-    set_token_link(p,null); 
-    while (s<se) {
-        t = str2uni((unsigned char *)s);
+    halfword p;                 /* tail of the token list */
+    halfword q;                 /* new node being added to the token list via |store_new_token| */
+    halfword t;                 /* token being appended */
+    char *s = ss, *se = ss + strlen(s);
+    p = temp_token_head;
+    set_token_link(p, null);
+    while (s < se) {
+        t = str2uni((unsigned char *) s);
         s += utf8_size(t);
-        if (t==' ')  
-            t=space_token;
-        else 
-            t=other_token+t;
+        if (t == ' ')
+            t = space_token;
+        else
+            t = other_token + t;
         fast_store_new_token(t);
     }
     return token_link(temp_token_head);
 }
-

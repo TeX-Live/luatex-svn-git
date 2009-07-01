@@ -21,8 +21,5 @@
 #include "commands.h"
 
 static const char _svn_version[] =
-    "$Id$" 
+    "$Id$"
     "$URL$";
-
-
-

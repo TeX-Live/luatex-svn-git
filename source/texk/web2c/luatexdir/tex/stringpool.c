@@ -212,7 +212,7 @@ static integer buffer_to_unichar(integer k)
 
 integer pool_to_unichar(pool_pointer t)
 {
-    return (integer)str2uni((unsigned char *)(str_pool+t));
+    return (integer) str2uni((unsigned char *) (str_pool + t));
 }
 
 

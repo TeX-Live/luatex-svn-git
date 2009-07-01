@@ -88,7 +88,7 @@ extern integer pool_to_unichar(pool_pointer t);
 
 extern unsigned char *uni2str(unsigned);
 extern unsigned str2uni(unsigned char *);
-#define utf8_size(a) (a>0xFFFF ? 4 : (a>0x7FF ? 3 : (a>0x7F? 2 : 1)))
+#  define utf8_size(a) (a>0xFFFF ? 4 : (a>0x7FF ? 3 : (a>0x7F? 2 : 1)))
 
 
 

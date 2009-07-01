@@ -33,12 +33,12 @@
 #  define right_brace_token 0x400000    /* $2^{21}\cdot|right_brace|$ */
 #  define right_brace_limit 0x600000    /* $2^{21}\cdot(|right_brace|+1)$ */
 #  define math_shift_token 0x600000     /* $2^{21}\cdot|math_shift|$ */
-#  define tab_token 0x800000            /* $2^{21}\cdot|tab_mark|$ */
+#  define tab_token 0x800000    /* $2^{21}\cdot|tab_mark|$ */
 #  define out_param_token 0xA00000      /* $2^{21}\cdot|out_param|$ */
-#  define space_token 0x1400020         /* $2^{21}\cdot|spacer|+|" "|$ */
+#  define space_token 0x1400020 /* $2^{21}\cdot|spacer|+|" "|$ */
 #  define letter_token 0x1600000        /* $2^{21}\cdot|letter|$ */
-#  define other_token 0x1800000         /* $2^{21}\cdot|other_char|$ */
-#  define match_token 0x1A00000         /* $2^{21}\cdot|match|$ */
+#  define other_token 0x1800000 /* $2^{21}\cdot|other_char|$ */
+#  define match_token 0x1A00000 /* $2^{21}\cdot|match|$ */
 #  define end_match_token 0x1C00000     /* $2^{21}\cdot|end_match|$ */
 #  define protected_token 0x1C00001     /* $2^{21}\cdot|end_match|+1$ */
 
@@ -94,7 +94,7 @@ the places that would otherwise account for the most calls of |get_avail|.
     else  { avail=token_link((A)); token_link((A))=null; incr(dyn_used); } \
   } while (0)
 
-extern void print_meaning (void);
+extern void print_meaning(void);
 
 extern void flush_list(halfword p);
 extern void show_token_list(integer p, integer q, integer l);
@@ -125,7 +125,7 @@ extern void check_outer_validity(void);
 extern boolean scan_keyword(char *);
 extern halfword active_to_cs(int, int);
 extern void get_token_lua(void);
-halfword string_to_toks (char *);
+halfword string_to_toks(char *);
 extern int get_char_cat_code(int);
 
 /*
@@ -133,7 +133,7 @@ extern int get_char_cat_code(int);
 |get_next| if it wants to suppress expansion.
 */
 
-#define no_expand_flag special_char
+#  define no_expand_flag special_char
 
 extern boolean end_line_char_inactive(void);
 
@@ -142,7 +142,7 @@ extern halfword par_token;
 extern boolean force_eof;
 extern integer luacstrings;
 
-extern void firm_up_the_line (void);
-extern void get_token (void);
+extern void firm_up_the_line(void);
+extern void get_token(void);
 
 #endif
