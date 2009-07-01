@@ -6695,16 +6695,7 @@ begin
     if cur_cmd<>left_brace then begin
       scan_register_num;
       if get_lua_name(cur_val) then
-        sn:=(cur_val-65536)
-      else begin
-        i:=tracing_online;
-        tracing_online:=1;
-        begin_diagnostic;
-        print_nl("Warning: support for multiple lua states has been dropped.");
-        print_nl("  Please stop using a number after \directlua and \latelua.");
-        end_diagnostic(true);
-        tracing_online:=i;
-        end;
+        sn:=(cur_val-65536);
       end;
 end
 
