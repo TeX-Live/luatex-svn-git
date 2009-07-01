@@ -2872,7 +2872,6 @@ pdf_output_code:           print_esc("pdfoutput");
 pdf_compress_level_code:   print_esc("pdfcompresslevel");
 pdf_objcompresslevel_code: print_esc("pdfobjcompresslevel");
 pdf_decimal_digits_code:   print_esc("pdfdecimaldigits");
-pdf_move_chars_code:       print_esc("pdfmovechars");
 pdf_image_resolution_code: print_esc("pdfimageresolution");
 pdf_pk_resolution_code:    print_esc("pdfpkresolution");
 pdf_unique_resname_code:   print_esc("pdfuniqueresname");
@@ -3030,8 +3029,6 @@ primitive_pdftex("pdfobjcompresslevel",assign_int,int_base+pdf_objcompresslevel_
 @!@:pdf_objcompresslevel_}{\.{\\pdfobjcompresslevel} primitive@>
 primitive_pdftex("pdfdecimaldigits",assign_int,int_base+pdf_decimal_digits_code,int_base);@/
 @!@:pdf_decimal_digits_}{\.{\\pdfdecimaldigits} primitive@>
-primitive_pdftex("pdfmovechars",assign_int,int_base+pdf_move_chars_code,int_base);@/
-@!@:pdf_move_chars_}{\.{\\pdfmovechars} primitive@>
 primitive_pdftex("pdfimageresolution",assign_int,int_base+pdf_image_resolution_code,int_base);@/
 @!@:pdf_image_resolution_}{\.{\\pdfimageresolution} primitive@>
 primitive_pdftex("pdfpkresolution",assign_int,int_base+pdf_pk_resolution_code,int_base);@/

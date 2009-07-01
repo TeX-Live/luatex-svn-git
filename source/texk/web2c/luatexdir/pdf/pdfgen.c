@@ -593,10 +593,6 @@ void pdf_use_font(internal_font_number f, integer fontnum)
     set_font_used(f, true);
     assert((fontnum > 0) || ((fontnum < 0) && (pdf_font_num(-fontnum) > 0)));
     set_pdf_font_num(f, fontnum);
-    if (pdf_move_chars > 0) {
-        pdf_warning(NULL, "Primitive \\pdfmovechars is obsolete.", true, true);
-        pdf_move_chars = 0;     /* warn only once */
-    }
 }
 
 /*
