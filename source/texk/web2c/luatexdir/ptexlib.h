@@ -44,6 +44,7 @@ extern double rint(double x);
 
 #  include "tex/textoken.h"
 #  include "tex/expand.h"
+#  include "tex/conditional.h"
 #  include "pdf/pdftypes.h"
 
 /* synctex */
