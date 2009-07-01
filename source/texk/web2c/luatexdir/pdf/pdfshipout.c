@@ -77,7 +77,6 @@ void fix_pdfoutput(void)
 
 void reset_resource_lists(void)
 {
-    pdf_font_list = null;
     pdf_obj_list = null;
     pdf_xform_list = null;
     pdf_ximage_list = null;
@@ -96,7 +95,7 @@ otherwise it will be a Page object.
 void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
 {                               /* output the box |p| */
     integer i, j, k;            /* general purpose accumulators */
-    halfword save_font_list;    /* to save |pdf_font_list| during flushing pending forms */
+    pdf_object_list *save_font_list;    /* to save |font_list| during flushing pending forms */
     halfword save_obj_list;     /* to save |pdf_obj_list| */
     halfword save_ximage_list;  /* to save |pdf_ximage_list| */
     halfword save_xform_list;   /* to save |pdf_xform_list| */
@@ -452,7 +451,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
 
     /* Write out pending forms */
     /* When flushing pending forms we need to save and restore resource lists
-       (|pdf_font_list|, |pdf_obj_list|, |pdf_xform_list| and |pdf_ximage_list|),
+       (|font_list|, |pdf_obj_list|, |pdf_xform_list| and |pdf_ximage_list|),
        which are also used by page shipping.
        Saving and restoring |cur_page_size| is needed for proper
        writing out pending PDF marks. */
@@ -462,7 +461,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
             if (!is_obj_written(pdf, token_info(k))) {
                 pdf_cur_form = token_info(k);
                 /* Save resource lists */
-                save_font_list = pdf_font_list;
+                save_font_list = pdf->font_list;
                 save_obj_list = pdf_obj_list;
                 save_xform_list = pdf_xform_list;
                 save_ximage_list = pdf_ximage_list;
@@ -475,7 +474,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
                 cur_page_size = save_cur_page_size;
 
                 /* Restore resource lists */
-                pdf_font_list = save_font_list;
+                pdf->font_list = save_font_list;
                 pdf_obj_list = save_obj_list;
                 pdf_xform_list = save_xform_list;
                 pdf_ximage_list = save_ximage_list;
@@ -564,18 +563,18 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     }
 
     /* Generate font resources */
-    if (pdf_font_list != null) {
+    if (pdf->font_list != NULL) {
+        pdf_object_list *kk = pdf->font_list;
         pdf_printf(pdf, "/Font << ");
-        k = pdf_font_list;
-        while (k != null) {
+        while (kk != NULL) {
             pdf_printf(pdf, "/F");
-            set_ff(token_info(k));
+            set_ff(kk->info);
             pdf_print_int(pdf, ff);
             pdf_print_resname_prefix(pdf);
             pdf_out(pdf, ' ');
             pdf_print_int(pdf, pdf_font_num(ff));
             pdf_printf(pdf, " 0 R ");
-            k = token_link(k);
+            kk = kk->link;
         }
         pdf_printf(pdf, ">>\n");
         pdf_text_procset = true;
@@ -626,7 +625,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     /* In the end of shipping out a page we reset all the lists holding objects
        have been created during the page shipping. */
     /* Flush resource lists */
-    flush_list(pdf_font_list);
+    flush_object_list(pdf->font_list); pdf->font_list = NULL;
     flush_list(pdf_obj_list);
     flush_list(pdf_xform_list);
     flush_list(pdf_ximage_list);

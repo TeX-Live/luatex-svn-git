@@ -54,6 +54,11 @@ typedef enum { PMODE_NONE, PMODE_PAGE, PMODE_TEXT, PMODE_CHARARRAY,
     PMODE_CHAR
 } pos_mode;
 
+typedef struct pdf_object_list_ {
+    int info;
+    struct pdf_object_list_ *link;
+} pdf_object_list;
+
 typedef enum { WMODE_H, WMODE_V } writing_mode; /* []TJ runs horizontal or vertical */
 
 typedef struct {
@@ -168,7 +173,7 @@ typedef struct pdf_output_file_ {
     int seek_write_length;      /* flag whether to seek back and write \.{/Length} */
     int last_byte;              /* byte most recently written to PDF file; for \.{endstream} in new line */
 
-
+    pdf_object_list *font_list; /* the pdf fonts */
 
 
 } pdf_output_file;

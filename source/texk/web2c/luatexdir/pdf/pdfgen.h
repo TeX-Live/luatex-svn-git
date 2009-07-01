@@ -194,6 +194,8 @@ extern void print_ID(PDF, char *);
 
 extern void remove_pdffile(PDF);
 
+extern void flush_object_list (pdf_object_list *pp);
+
 extern integer fb_offset(PDF);
 extern void fb_flush(PDF);
 extern void fb_putchar(PDF, eight_bits);

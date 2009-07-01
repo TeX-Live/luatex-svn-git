@@ -150,10 +150,10 @@ void do_check_pdfminorversion(PDF pdf)
 
     } else {
         /* Check that variables for \.{PDF} output are unchanged */
-        if (pdf->minor_version != pdf_minor_version)
+        if (pdf->minor_version != int_par(param_pdf_minor_version_code))
             pdf_error("setup",
                       "\\pdfminorversion cannot be changed after data is written to the PDF file");
-        if (pdf->draftmode != pdf_draftmode)
+        if (pdf->draftmode != int_par(param_pdf_draftmode_code))
             pdf_error("setup",
                       "\\pdfdraftmode cannot be changed after data is written to the PDF file");
 
@@ -650,11 +650,21 @@ void pdf_init_font(PDF pdf, internal_font_number f)
     pdf_use_font(f, pdf->obj_ptr);
 }
 
+void flush_object_list (pdf_object_list *pp)
+{
+    pdf_object_list *q, *p;
+    p = pp;
+    while (p != NULL) {
+        q = p;
+        p = p->link;
+        free(q);
+    }
+}
 
 /* set the actual font on PDF page */
 internal_font_number pdf_set_font(PDF pdf, internal_font_number f)
 {
-    halfword p;
+    pdf_object_list *p;
     internal_font_number k;
     integer ff;                 /* for use with |set_ff| */
 
@@ -664,15 +674,24 @@ internal_font_number pdf_set_font(PDF pdf, internal_font_number f)
                                    with |f|; |ff| is either |f| or some font with the same tfm name
                                    at different size and/or expansion */
     k = ff;
-    p = pdf_font_list;
-    while (p != null) {
-        set_ff(token_info(p));  /* info(p) */
-        if (ff == k)
-            goto FOUND;
-        p = token_link(p);      /* link(p) */
+    p = pdf->font_list;
+    if (pdf->font_list==NULL) {
+       /* |font_list| is empty, append |f| */
+        pdf->font_list = xmalloc(sizeof(pdf_object_list));
+        pdf->font_list->link = NULL; 
+        pdf->font_list->info = f;
+        return k;
     }
-    pdf_append_list(f, pdf_font_list);  /* |f| not found in |pdf_font_list|, append it now */
-  FOUND:
+    while (p != NULL) {
+        set_ff(p->info);
+        if (ff == k)
+            return k;
+        p = p->link;
+    }
+    /* |f| not found in |font_list|, append it now */
+    p = xmalloc(sizeof(pdf_object_list));
+    p->link = NULL;
+    p->info = f;
     return k;
 }
 

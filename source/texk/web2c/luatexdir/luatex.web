@@ -8342,9 +8342,6 @@ This is now in pdfgen.c.
 
 @* \[32e] Font processing.
 
-@ @<Glob...@>=
-@!pdf_font_list: pointer; {list of used fonts in current page}
-
 @* \[32f] PDF shipping out.
 
 @ Now we are ready to declare our new procedure |ship_out|.  It will call
