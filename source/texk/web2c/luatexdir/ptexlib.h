@@ -43,6 +43,7 @@ extern double rint(double x);
 #  include "ptexmac.h"
 
 #  include "tex/textoken.h"
+#  include "tex/expand.h"
 #  include "pdf/pdftypes.h"
 
 /* synctex */
