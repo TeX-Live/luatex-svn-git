@@ -24,6 +24,10 @@
 
 extern void output_one_char(PDF pdf, internal_font_number ffi, integer c);
 
+extern void pdf_use_font(internal_font_number f, integer fontnum);
+extern void pdf_init_font(PDF pdf, internal_font_number f);
+extern internal_font_number pdf_set_font(PDF pdf, internal_font_number f);
+
 typedef integer *fm_entry_ptr;
 
 extern integer pk_dpi;          /* PK pixel density value from \.{texmf.cnf} */

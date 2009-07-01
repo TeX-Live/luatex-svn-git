@@ -194,6 +194,10 @@ void pdf_place_glyph(PDF pdf, scaledpos pos, internal_font_number f, integer c)
     }
     if (is_chararraymode(p))
         begin_charmode(pdf, f, p);
-    pdf_print_char(pdf, f, c);  /* this also does pdf_mark_char() */
+    pdf_mark_char(f, c);
+    if (font_encodingbytes(f)==2)
+        pdf_print_wide_char(pdf, char_index(f, c)); 
+    else
+        pdf_print_char(pdf, c); 
     p->cw.m += pdf_char_width(p, p->f_pdf, c);  /* aka adv_char_width() */
 }

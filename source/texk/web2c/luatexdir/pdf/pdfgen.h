@@ -133,7 +133,8 @@ extern void pdf_puts(PDF, const char *);
 extern __attribute__ ((format(printf, 2, 3)))
 void pdf_printf(PDF, const char *, ...);
 
-extern void pdf_print_char(PDF, internal_font_number, integer);
+extern void pdf_print_char(PDF, int);
+extern void pdf_print_wide_char(PDF, int);
 extern void pdf_print(PDF, str_number);
 extern void pdf_print_int(PDF, longinteger);
 extern void pdf_print_real(PDF, integer, integer);
@@ -212,10 +213,6 @@ extern char *convertStringToPDFString(const char *in, int len);
 
 extern void init_start_time(PDF);
 extern char *getcreationdate(PDF);
-
-extern void pdf_use_font(internal_font_number f, integer fontnum);
-extern void pdf_init_font(PDF pdf, internal_font_number f);
-extern internal_font_number pdf_set_font(PDF pdf, internal_font_number f);
 
 extern void pdf_error(char *t, char *p);
 extern void pdf_warning(char *t, char *p, boolean pr, boolean ap);

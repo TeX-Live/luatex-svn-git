@@ -310,23 +310,24 @@ void pdf_room(PDF pdf, integer n)
     pdf_out(pdf,(c));                                                       \
   }
 
-void pdf_print_char(PDF pdf, internal_font_number f, integer cc)
+void pdf_print_char(PDF pdf, int c)
 {
-    pdf_mark_char(f, cc);
-    if (font_encodingbytes(f) == 2) {
-        char hex[5];
-        snprintf(hex, 5, "%04X", (unsigned int) char_index(f, cc));
-        pdf_room(pdf, 4);
-        pdf_quick_out(pdf, hex[0]);
-        pdf_quick_out(pdf, hex[1]);
-        pdf_quick_out(pdf, hex[2]);
-        pdf_quick_out(pdf, hex[3]);
-    } else {
-        if (cc > 255)
-            return;
-        pdf_print_escaped(cc);
-    }
+    if (c > 255)
+        return;
+    pdf_print_escaped(c);
 }
+
+void pdf_print_wide_char(PDF pdf, int c)
+{
+    char hex[5];
+    snprintf(hex, 5, "%04X", c);
+    pdf_room(pdf, 4);
+    pdf_quick_out(pdf, hex[0]);
+    pdf_quick_out(pdf, hex[1]);
+    pdf_quick_out(pdf, hex[2]);
+    pdf_quick_out(pdf, hex[3]);
+}
+
 
 void pdf_puts(PDF pdf, const char *s)
 {
@@ -586,66 +587,6 @@ void pdf_print_mag_bp(PDF pdf, scaled s)
     print_pdffloat(pdf, &a);
 }
 
-/* mark |f| as a used font; set |font_used(f)|, |pdf_font_size(f)| and |pdf_font_num(f)| */
-void pdf_use_font(internal_font_number f, integer fontnum)
-{
-    set_pdf_font_size(f, font_size(f));
-    set_font_used(f, true);
-    assert((fontnum > 0) || ((fontnum < 0) && (pdf_font_num(-fontnum) > 0)));
-    set_pdf_font_num(f, fontnum);
-}
-
-/*
-To set PDF font we need to find out fonts with the same name, because \TeX\
-can load the same font several times for various sizes. For such fonts we
-define only one font resource. The array |pdf_font_num| holds the object
-number of font resource. A negative value of an entry of |pdf_font_num|
-indicates that the corresponding font shares the font resource with the font
-*/
-
-/* create a font object */
-void pdf_init_font(PDF pdf, internal_font_number f)
-{
-    internal_font_number k, b;
-    integer i;
-    assert(!font_used(f));
-
-    /* if |f| is auto expanded then ensure the base font is initialized */
-    if (pdf_font_auto_expand(f) && (pdf_font_blink(f) != null_font)) {
-        b = pdf_font_blink(f);
-        /* TODO: reinstate this check. disabled because wide fonts font have fmentries */
-        if (false && (!hasfmentry(b)))
-            pdf_error("font expansion",
-                      "auto expansion is only possible with scalable fonts");
-        if (!font_used(b))
-            pdf_init_font(pdf, b);
-        set_font_map(f, font_map(b));
-    }
-    /* check whether |f| can share the font object with some |k|: we have 2 cases
-       here: 1) |f| and |k| have the same tfm name (so they have been loaded at
-       different sizes, eg 'cmr10' and 'cmr10 at 11pt'); 2) |f| has been auto
-       expanded from |k|
-     */
-    if (hasfmentry(f) || true) {
-        i = pdf->head_tab[obj_type_font];
-        while (i != 0) {
-            k = obj_info(pdf, i);
-            if (font_shareable(f, k)) {
-                assert(pdf_font_num(k) != 0);
-                if (pdf_font_num(k) < 0)
-                    pdf_use_font(f, pdf_font_num(k));
-                else
-                    pdf_use_font(f, -k);
-                return;
-            }
-            i = obj_link(pdf, i);
-        }
-    }
-    /* create a new font object for |f| */
-    pdf_create_obj(pdf, obj_type_font, f);
-    pdf_use_font(f, pdf->obj_ptr);
-}
-
 void flush_object_list (pdf_object_list *pp)
 {
     pdf_object_list *q, *p;
@@ -655,40 +596,6 @@ void flush_object_list (pdf_object_list *pp)
         p = p->link;
         free(q);
     }
-}
-
-/* set the actual font on PDF page */
-internal_font_number pdf_set_font(PDF pdf, internal_font_number f)
-{
-    pdf_object_list *p;
-    internal_font_number k;
-    integer ff;                 /* for use with |set_ff| */
-
-    if (!font_used(f))
-        pdf_init_font(pdf, f);
-    set_ff(f);                  /* set |ff| to the tfm number of the font sharing the font object
-                                   with |f|; |ff| is either |f| or some font with the same tfm name
-                                   at different size and/or expansion */
-    k = ff;
-    p = pdf->font_list;
-    if (pdf->font_list==NULL) {
-       /* |font_list| is empty, append |f| */
-        pdf->font_list = xmalloc(sizeof(pdf_object_list));
-        pdf->font_list->link = NULL; 
-        pdf->font_list->info = f;
-        return k;
-    }
-    while (p != NULL) {
-        set_ff(p->info);
-        if (ff == k)
-            return k;
-        p = p->link;
-    }
-    /* |f| not found in |font_list|, append it now */
-    p = xmalloc(sizeof(pdf_object_list));
-    p->link = NULL;
-    p->info = f;
-    return k;
 }
 
 /* Subroutines to print out various PDF objects */
