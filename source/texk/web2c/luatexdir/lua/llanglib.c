@@ -213,17 +213,18 @@ static int do_lang_clean(lua_State * L)
 
 static int do_lang_hyphenate(lua_State * L)
 {
-    halfword *h, *t;
+    halfword *h, *t, tt;
     h = check_isnode(L, 1);
     if (lua_isuserdata(L, 2)) {
         t = check_isnode(L, 2);
+        tt = *t;
         lua_pop(L, 1);
     } else {
-        t = h;
-        while (vlink(*t) != null)
-            *t = vlink(*t);
+        tt = *h;
+        while (vlink(tt) != null)
+            tt = vlink(tt);
     }
-    hnj_hyphenation(*h, *t);
+    hnj_hyphenation(*h, tt);
     lua_pushboolean(L, 1);
     return 1;
 }
