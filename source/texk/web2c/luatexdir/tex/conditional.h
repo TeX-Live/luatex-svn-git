@@ -23,4 +23,76 @@
 #  define CONDITIONAL_H
 
 
+#  define unless_code 32        /* amount added for `\.{\\unless}' prefix */
+
+typedef enum {
+    if_char_code = 0,           /*  `\.{\\if}' */
+    if_cat_code = 1,            /*  `\.{\\ifcat}' */
+    if_int_code = 2,            /*  `\.{\\ifnum}' */
+    if_dim_code = 3,            /*  `\.{\\ifdim}' */
+    if_odd_code = 4,            /*  `\.{\\ifodd}' */
+    if_vmode_code = 5,          /*  `\.{\\ifvmode}' */
+    if_hmode_code = 6,          /*  `\.{\\ifhmode}' */
+    if_mmode_code = 7,          /*  `\.{\\ifmmode}' */
+    if_inner_code = 8,          /*  `\.{\\ifinner}' */
+    if_void_code = 9,           /*  `\.{\\ifvoid}' */
+    if_hbox_code = 10,          /*  `\.{\\ifhbox}' */
+    if_vbox_code = 11,          /*  `\.{\\ifvbox}' */
+    ifx_code = 12,              /*  `\.{\\ifx}' */
+    if_eof_code = 13,           /*  `\.{\\ifeof}' */
+    if_true_code = 14,          /*  `\.{\\iftrue}' */
+    if_false_code = 15,         /*  `\.{\\iffalse}' */
+    if_case_code = 16,          /*  `\.{\\ifcase}' */
+    if_def_code = 17,           /* `\.{\\ifdefined}' */
+    if_cs_code = 18,            /* `\.{\\ifcsname}'  */
+    if_font_char_code = 19,     /* `\.{\\iffontchar}' */
+    if_in_csname_code = 20,     /* `\.{\\ifincsname}' */
+    if_primitive_code = 21,     /*  `\.{\\ifprimitive}' */
+    if_abs_num_code = 22,       /* `\.{\\ifabsnum}' */
+    if_abs_dim_code = 23,       /* `\.{\\ifabsdim}' */
+} if_type_codes;
+
+
+
+
+#  define if_limit_subtype(A) subtype((A)+1)
+#  define if_limit_type(A) type((A)+1)
+#  define if_line_field(A) vlink((A)+1)
+
+typedef enum {
+    if_code = 1,                /* code for \.{\\if...} being evaluated */
+    fi_code = 2,                /* code for \.{\\fi} */
+    else_code = 3,              /* code for \.{\\else} */
+    or_code = 4,                /* code for \.{\\or} */
+} else_type_codes;
+
+extern halfword cond_ptr;       /* top of the condition stack */
+extern int if_limit;            /* upper bound on |fi_or_else| codes */
+extern int cur_if;              /* type of conditional being worked on */
+extern integer if_line;         /* line where that conditional began */
+extern integer skip_line;       /* skipping began here */
+
+extern void pass_text(void);
+extern void push_condition_stack(void);
+extern void pop_condition_stack(void);
+extern void change_if_limit(int l, halfword p);
+
+extern void conditional(void);
+
+/*
+An active character will be treated as category 13 following
+\.{\\if\\noexpand} or following \.{\\ifcat\\noexpand}.
+*/
+
+#  define get_x_token_or_active_char() do {				\
+	get_x_token();							\
+	if (cur_cmd==relax_cmd && cur_chr==no_expand_flag) {		\
+	    if (is_active_cs(text(cur_cs))) {				\
+		cur_cmd=active_char_cmd;				\
+		cur_chr=active_cs_value(text(cur_tok-cs_token_flag));	\
+	    }								\
+	}								\
+    } while (0)
+
+
 #endif

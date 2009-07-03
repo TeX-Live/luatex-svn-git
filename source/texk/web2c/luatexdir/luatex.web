@@ -539,10 +539,6 @@ emphasize this distinction.
 @d biggest_reg=65535 {the largest allowed register number; must be |<=max_quarterword|}
 @d number_regs=65536 {|biggest_reg+1|}
 @d number_attrs=65536 {total numbeer of attributes}
-@d biggest_mark=65535 {the largest allowed marks class; must be |<=max_quarterword|}
-@d number_marks=65536 {|biggest_mark+1|}
-{using |2^20+2^16| characters instead of |2^21| saves 286MB on the virtual memory size
- of the running executable}
 @d biggest_char=1114111 {2097151} {the largest allowed character number; must be |<=max_halfword|}
 @d too_big_char=1114112 {2097152} {|biggest_char+1|}
 @d special_char=1114113 {2097153} {|biggest_char+2|}
@@ -3447,6 +3443,10 @@ function get_equiv(p:integer):halfword;
 begin
   get_equiv := equiv(p);
 end;
+function get_box_base:halfword;
+begin
+  get_box_base := box_base;
+end;
 function get_cs_text(cs:integer):str_number;
 begin if cs=null_cs then get_cs_text := "\csname\endcsname"
   else if (text(cs)<0)or(text(cs)>=str_ptr) then get_cs_text := ""
@@ -4180,173 +4180,6 @@ par_loc:=cur_val; par_token:=cs_token_flag+par_loc;
 
 
 @* \[25] Expanding the next token.
-Only a dozen or so command codes |>max_command| can possibly be returned by
-|get_next|; in increasing order, they are |undefined_cs|, |expand_after|,
-|no_expand|, |input|, |if_test|, |fi_or_else|, |cs_name|, |convert|, |the|,
-|top_bot_mark|, |call|, |long_call|, |outer_call|, |long_outer_call|, and
-|end_template|.{\emergencystretch=40pt\par}
-
-@ Sometimes, recursive calls to the following |expand| routine may
-cause exhaustion of the run-time calling stack, resulting in
-forced execution stops by the operating system. To diminish the chance
-of this happening, a counter is used to keep track of the recursion
-depth, in conjunction with a constant called |expand_depth|.
-
-Note that this does not catch all possible infinite recursion loops,
-just the ones that exhaust the application calling stack. The
-actual maximum value of |expand_depth| is outside of our control, but
-the initial setting of |100| should be enough to prevent problems.
-@^system dependencies@>
-
-@<Global...@>=
-expand_depth_count:integer;
-
-@ @<Initialize whatever ...@>=
-expand_depth_count:=0;
-
-@ The |expand| subroutine is used when |cur_cmd>max_command|. It removes a
-``call'' or a conditional or one of the other special operations just
-listed.  It follows that |expand| might invoke itself recursively. In all
-cases, |expand| destroys the current token, but it sets things up so that
-the next |get_next| will deliver the appropriate next token. The value of
-|cur_tok| need not be known when |expand| is called.
-
-Since several of the basic scanning routines communicate via global variables,
-their values are saved as local variables of |expand| so that
-recursive calls don't invalidate them.
-@^recursion@>
-
-@p@t\4@>@<Declare the procedure called |macro_call|@>@;@/
-@t\4@>@<Declare the procedure called |insert_relax|@>@;@/
-@t\4@>@<Declare \eTeX\ procedures for expanding@>@;@/
-procedure@?pass_text; forward;@t\2@>
-procedure@?start_input; forward;@t\2@>
-procedure@?conditional; forward;@t\2@>
-procedure@?get_x_token; forward;@t\2@>
-procedure@?conv_toks; forward;@t\2@>
-procedure@?ins_the_toks; forward;@t\2@>
-procedure expand;
-label reswitch;
-var t:halfword; {token that is being ``expanded after''}
-@!p,@!q,@!r:pointer; {for list manipulation}
-@!cur_ptr:pointer; { for a local token list pointer }
-@!j:0..buf_size; {index into |buffer|}
-@!s:ASCII_code; { a character }
-@!cv_backup:integer; {to save the global quantity |cur_val|}
-@!cvl_backup,@!radix_backup,@!co_backup:small_number;
-  {to save |cur_val_level|, etc.}
-@!backup_backup:pointer; {to save |link(backup_head)|}
-@!save_scanner_status:small_number; {temporary storage of |scanner_status|}
-begin
-incr(expand_depth_count);
-if expand_depth_count>=expand_depth then overflow('expansion depth',expand_depth);
-cv_backup:=cur_val; cvl_backup:=cur_val_level; radix_backup:=radix;
-co_backup:=cur_order; backup_backup:=link(backup_head);
-reswitch:
-if cur_cmd<call then @<Expand a nonmacro@>
-else if cur_cmd<end_template then macro_call
-else @<Insert a token containing |frozen_endv|@>;
-cur_val:=cv_backup; cur_val_level:=cvl_backup; radix:=radix_backup;
-cur_order:=co_backup; set_token_link(backup_head,backup_backup);
-decr(expand_depth_count);
-end;
-
-@ @<Glob...@>=
-@!is_in_csname: boolean;
-
-@ @<Set init...@>=
-is_in_csname := false;
-
-@ @<Expand a nonmacro@>=
-begin if tracing_commands>1 then show_cur_cmd_chr;
-case cur_cmd of
-top_bot_mark:@<Insert the \(a)appropriate mark text into the scanner@>;
-expand_after:if cur_chr=0 then @<Expand the token after the next token@>
-  else @<Negate a boolean conditional and |goto reswitch|@>;
-no_expand: if cur_chr=0 then @<Suppress expansion of the next token@>
-  else @<Implement \.{\\primitive}@>;
-cs_name:@<Manufacture a control sequence name@>;
-convert:conv_toks; {this procedure is discussed in Part 27 below}
-the:ins_the_toks; {this procedure is discussed in Part 27 below}
-if_test:conditional; {this procedure is discussed in Part 28 below}
-fi_or_else:@<Terminate the current conditional and skip to \.{\\fi}@>;
-input:@<Initiate or terminate input from a file@>;
-othercases @<Complain about an undefined macro@>
-endcases;
-end
-
-@ It takes only a little shuffling to do what \TeX\ calls \.{\\expandafter}.
-
-@<Expand the token after...@>=
-begin get_token; t:=cur_tok; get_token;
-if cur_cmd>max_command then expand@+else back_input;
-cur_tok:=t; back_input;
-end
-
-@ The implementation of \.{\\noexpand} is a bit trickier, because it is
-necessary to insert a special `|dont_expand|' marker into \TeX's reading
-mechanism.  This special marker is processed by |get_next|, but it does
-not slow down the inner loop.
-
-Since \.{\\outer} macros might arise here, we must also
-clear the |scanner_status| temporarily.
-
-@<Suppress expansion...@>=
-begin save_scanner_status:=scanner_status; scanner_status:=normal;
-get_token; scanner_status:=save_scanner_status; t:=cur_tok;
-back_input; {now |start| and |loc| point to the backed-up token |t|}
-if t>=cs_token_flag then
-  begin p:=get_avail; set_token_info(p,cs_token_flag+frozen_dont_expand);
-  set_token_link(p,iloc); istart:=p; iloc:=p;
-  end;
-end
-
-@ The \.{\\primitive} handling. If the primitive meaning of the next
-token is an expandable command, it suffices to replace the current
-token with the primitive one and restart |expand|.
-
-Otherwise, the token we just read has to be pushed back, as well
-as a token matching the internal form of \.{\\primitive}, that is
-sneaked in as an alternate form of |ignore_spaces|.
-@!@:primitive_}{\.{\\primitive} primitive (internalized)@>
-
-An implementation problem surfaces: There really is no |cur_cs|
-attached to the inserted primitive command, so it is safer to set
-|cur_cs| to zero.  |cur_tok| has a similar problem. And for the
-non-expanded branch, simply pushing back a token that matches the
-correct internal command does not work, because that approach would
-not survive roundtripping to a temporary file or even a token list.
-
-In a next version, it would be smart to create |frozen_| versions of
-all the primitives.  Then, this problem would not happen, at the
-expense of a few hundred extra control sequences.
-
-@<Implement \.{\\primitive}@>=
-begin save_scanner_status := scanner_status; scanner_status:=normal;
-get_token; scanner_status:=save_scanner_status;
-cur_cs := prim_lookup(text(cur_cs));
-if cur_cs<>undefined_primitive then begin
-  t:=get_prim_eq_type(cur_cs);
-  if t>max_command then begin
-    cur_cmd := t;
-    cur_chr := get_prim_equiv(cur_cs);
-    cur_tok := (cur_cmd*string_offset)+cur_chr;
-    cur_cs  := 0;
-    goto reswitch;
-    end
-  else begin
-    back_input; { now |loc| and |start| point to a one-item list }
-    p:=get_avail; set_token_info(p,cs_token_flag+frozen_primitive);
-    set_token_link(p,iloc); iloc:=p; istart:=p;
-    end;
-  end
-else begin
-  print_err('Missing primitive name');
-  help2('The control sequence marked <to be read again> does not',
-    'represent any known primitive.');
-  back_error;
-  end;
-end
 
 
 @ This block deals with unexpandable \.{\\primitive} appearing at a spot where
@@ -4374,91 +4207,6 @@ else begin
 goto restart;
 end
 
-@ @<Complain about an undefined macro@>=
-begin print_err('Undefined control sequence');
-@.Undefined control sequence@>
-help5('The control sequence at the end of the top line',
-'of your error message was never \def''ed. If you have',
-'misspelled it (e.g., `\hobx''), type `I'' and the correct',
-'spelling (e.g., `I\hbox''). Otherwise just continue,',
-'and I''ll forget about whatever was undefined.');
-error;
-end
-
-@ The |expand| procedure and some other routines that construct token
-lists find it convenient to use the following macros, which are valid only if
-the variables |p| and |q| are reserved for token-list building.
-
-@ @<Manufacture a control...@>=
-begin r:=get_avail; p:=r; {head of the list of characters}
-is_in_csname := true;
-repeat get_x_token;
-if cur_cs=0 then store_new_token(cur_tok);
-until cur_cs<>0;
-if cur_cmd<>end_cs_name then @<Complain about missing \.{\\endcsname}@>;
-is_in_csname := false;
-@<Look up the characters of list |r| in the hash table, and set |cur_cs|@>;
-flush_list(r);
-if eq_type(cur_cs)=undefined_cs then
-  begin eq_define(cur_cs,relax,too_big_char); {N.B.: The |save_stack| might change}
-  end; {the control sequence will now match `\.{\\relax}'}
-cur_tok:=cur_cs+cs_token_flag; back_input;
-end
-
-@ @<Complain about missing \.{\\endcsname}@>=
-begin print_err('Missing '); print_esc("endcsname"); print(" inserted");
-@.Missing \\endcsname...@>
-help2('The control sequence marked <to be read again> should',
-  'not appear between \csname and \endcsname.');
-back_error;
-end
-
-@ @<Look up the characters of list |r| in the hash table...@>=
-j:=first; p:=link(r);
-while p<>null do
-  begin if j>=max_buf_stack then
-    begin max_buf_stack:=j+4;
-    if max_buf_stack=buf_size then
-      check_buffer_overflow(max_buf_stack);
-@:TeX capacity exceeded buffer size}{\quad buffer size@>
-    end;
-  s := info(p) mod string_offset;
-  if s <= @"7F then begin
-    buffer[j]:=s; incr(j);
-    end
-  else if s<=@"7FF then begin
-    buffer[j]:=@"C0 + s div @"40; incr(j);
-    buffer[j]:=@"80 + s mod @"40; incr(j);
-    end
-  else if s<=@"FFFF then begin
-    buffer[j]:=@"E0 + s div @"1000; incr(j);
-    buffer[j]:=@"80 + (s mod @"1000) div @"40; incr(j);
-    buffer[j]:=@"80 + (s mod @"1000) mod @"40; incr(j);
-    end
-  else begin
-    buffer[j]:=@"F0 + s div @"40000;  incr(j);
-    buffer[j]:=@"80 + (s mod @"40000) div @"1000;  incr(j);
-    buffer[j]:=@"80 + ((s mod @"40000) mod @"1000) div @"40;  incr(j);
-    buffer[j]:=@"80 + ((s mod @"40000) mod @"1000) mod @"40;  incr(j);
-    end;
-  p:=link(p);
-  end;
-if j>first then
-  begin no_new_control_sequence:=false; cur_cs:=id_lookup(first,j-first);
-  no_new_control_sequence:=true;
-  end
-else if j=first then cur_cs:=null_cs {the list is empty}
-
-@ An |end_template| command is effectively changed to an |endv| command
-by the following code. (The reason for this is discussed below; the
-|frozen_end_template| at the end of the template has passed the
-|check_outer_validity| test, so its mission of error detection has been
-accomplished.)
-
-@<Insert a token containing |frozen_endv|@>=
-begin cur_tok:=cs_token_flag+frozen_endv; back_input;
-end
-
 @ The processing of \.{\\input} involves the |start_input| subroutine,
 which will be declared later; the processing of \.{\\endinput} is trivial.
 
@@ -4468,122 +4216,9 @@ primitive_tex("input",input,0,0);@/
 primitive_tex("endinput",input,1,0);@/
 @!@:end_input_}{\.{\\endinput} primitive@>
 
-@ @<Initiate or terminate input...@>=
-if cur_chr=1 then force_eof:=true
-@/@<Cases for |input|@>@/
-else if name_in_progress then insert_relax
-else start_input
-
-@ Sometimes the expansion looks too far ahead, so we want to insert
-a harmless \.{\\relax} into the user's input.
-
-@<Declare the procedure called |insert_relax|@>=
-procedure insert_relax;
-begin cur_tok:=cs_token_flag+cur_cs; back_input;
-cur_tok:=cs_token_flag+frozen_relax; back_input; token_type:=inserted;
-end;
-
-@ Here is a recursive procedure that is \TeX's usual way to get the
-next token of input. It has been slightly optimized to take account of
-common cases.
-
-@p procedure get_x_token; {sets |cur_cmd|, |cur_chr|, |cur_tok|,
-  and expands macros}
-label restart,done;
-begin restart: get_filtered_next;
-@^inner loop@>
-if cur_cmd<=max_command then goto done;
-if cur_cmd>=call then
-  if cur_cmd<end_template then macro_call
-  else  begin cur_cs:=frozen_endv; cur_cmd:=endv;
-    goto done; {|cur_chr=null_list|}
-    end
-else expand;
-goto restart;
-done: if cur_cs=0 then cur_tok:=(cur_cmd*string_offset)+cur_chr
-else cur_tok:=cs_token_flag+cur_cs;
-end;
-
-@ The |get_x_token| procedure is equivalent to two consecutive
-procedure calls: |get_next; x_token|.
-
-@p procedure x_token; {|get_x_token| without the initial |get_next|}
-begin while cur_cmd>max_command do
-  begin expand;
-  get_filtered_next;
-  end;
-if cur_cs=0 then cur_tok:=(cur_cmd*string_offset)+cur_chr
-else cur_tok:=cs_token_flag+cur_cs;
-end;
-
-@ The |get_filtered_next| procedure allows Lua code to mutate the
-output of |get_next| before \TeX\ looks at it. The implementation
-is in the C file |luatoken.c|.
-
-@d get_filtered_next==get_token_lua
-
-
-
-@ A control sequence that has been \.{\\def}'ed by the user is expanded by
-\TeX's |macro_call| procedure.
-
-Before we get into the details of |macro_call|, however, let's consider the
-treatment of primitives like \.{\\topmark}, since they are essentially
-macros without parameters. The token lists for such marks are kept in five
-global arrays of pointers; we refer to the individual entries of these
-arrays by symbolic macros |top_mark|, etc. The value of |top_mark(x)|, etc.
-is either |null| or a pointer to the reference count of a token list.
-
-The variable |biggest_used_mark| is an aid to try and keep the code
-somehwat efficient without too much extra work: it registers the
-highest mark class ever instantiated by the user, so the loops
-in |fire_up| and |vsplit| do not have to traverse the full range
-|0..biggest_mark|.
-
-@d top_mark_code=0 {the mark in effect at the previous page break}
-@d first_mark_code=1 {the first mark between |top_mark| and |bot_mark|}
-@d bot_mark_code=2 {the mark in effect at the current page break}
-@d split_first_mark_code=3 {the first mark found by \.{\\vsplit}}
-@d split_bot_mark_code=4 {the last mark found by \.{\\vsplit}}
-@#
-@d top_mark(#)==top_marks_array[#]
-@d first_mark(#)==first_marks_array[#]
-@d bot_mark(#)==bot_marks_array[#]
-@d split_first_mark(#)==split_first_marks_array[#]
-@d split_bot_mark(#)==split_bot_marks_array[#]
-@#
-@d delete_top_mark(#)==begin if top_mark(#)<>null then
-      delete_token_ref(top_mark(#)); top_mark(#):=null; end
-@d delete_bot_mark(#)==begin if bot_mark(#)<>null then
-      delete_token_ref(bot_mark(#)); bot_mark(#):=null; end
-@d delete_first_mark(#)==begin if first_mark(#)<>null then
-      delete_token_ref(first_mark(#)); first_mark(#):=null; end
-@d delete_split_first_mark(#)==begin if split_first_mark(#)<>null then
-      delete_token_ref(split_first_mark(#)); split_first_mark(#):=null; end
-@d delete_split_bot_mark(#)==begin if split_bot_mark(#)<>null then
-      delete_token_ref(split_bot_mark(#)); split_bot_mark(#):=null; end
-@#
-@d clear_marks_code=1
-@d marks_code=5
-@#
-
-@<Glob...@>=
-@!top_marks_array:array[0..biggest_mark] of pointer;
-@!first_marks_array:array[0..biggest_mark] of pointer;
-@!bot_marks_array:array[0..biggest_mark] of pointer;
-@!split_first_marks_array:array[0..biggest_mark] of pointer;
-@!split_bot_marks_array:array[0..biggest_mark] of pointer;
-biggest_used_mark:halfword;
 
 @ @<Set init...@>=
-biggest_used_mark:=0;
-for i:=0 to biggest_mark do begin
-  top_mark(i):=null;
-  first_mark(i):=null;
-  bot_mark(i):=null;
-  split_first_mark(i):=null;
-  split_bot_mark(i):=null;
-end;
+initialize_marks;
 
 @ @<Put each...@>=
 primitive_tex("topmark",top_bot_mark,top_mark_code,0);
@@ -4610,298 +4245,6 @@ primitive_etex("splitfirstmarks",top_bot_mark,split_first_mark_code+marks_code,0
 @!@:split_first_marks_}{\.{\\splitfirstmarks} primitive@>
 primitive_etex("splitbotmarks",top_bot_mark,split_bot_mark_code+marks_code,0);
 @!@:split_bot_marks_}{\.{\\splitbotmarks} primitive@>
-
-@ The following code is activated when |cur_cmd=top_bot_mark| and
-when |cur_chr| is a code like |top_mark_code|.
-
-@<Insert the \(a)appropriate mark text into the scanner@>=
-begin t:=cur_chr mod marks_code;
-if cur_chr>=marks_code then scan_mark_num@+else cur_val:=0;
-case t of
-  first_mark_code:       cur_ptr:=first_mark(cur_val);
-  bot_mark_code:         cur_ptr:=bot_mark(cur_val);
-  split_first_mark_code: cur_ptr:=split_first_mark(cur_val);
-  split_bot_mark_code:   cur_ptr:=split_bot_mark(cur_val);
-  othercases             cur_ptr:=top_mark(cur_val)
-endcases;
-if cur_ptr<>null then begin_token_list(cur_ptr,mark_text);
-end
-
-@ Now let's consider |macro_call| itself, which is invoked when \TeX\ is
-scanning a control sequence whose |cur_cmd| is either |call|, |long_call|,
-|outer_call|, or |long_outer_call|.  The control sequence definition
-appears in the token list whose reference count is in location |cur_chr|
-of |mem|.
-
-The global variable |long_state| will be set to |call| or to |long_call|,
-depending on whether or not the control sequence disallows \.{\\par}
-in its parameters. The |get_next| routine will set |long_state| to
-|outer_call| and emit \.{\\par}, if a file ends or if an \.{\\outer}
-control sequence occurs in the midst of an argument.
-
-@<Glob...@>=
-@!long_state:call..long_outer_call; {governs the acceptance of \.{\\par}}
-
-@ The parameters, if any, must be scanned before the macro is expanded.
-Parameters are token lists without reference counts. They are placed on
-an auxiliary stack called |pstack| while they are being scanned, since
-the |param_stack| may be losing entries during the matching process.
-(Note that |param_stack| can't be gaining entries, since |macro_call| is
-the only routine that puts anything onto |param_stack|, and it
-is not recursive.)
-
-@<Glob...@>=
-@!pstack:array[0..8] of pointer; {arguments supplied to a macro}
-
-@ After parameter scanning is complete, the parameters are moved to the
-|param_stack|. Then the macro body is fed to the scanner; in other words,
-|macro_call| places the defined text of the control sequence at the
-top of\/ \TeX's input stack, so that |get_next| will proceed to read it
-next.
-
-The global variable |cur_cs| contains the |eqtb| address of the control sequence
-being expanded, when |macro_call| begins. If this control sequence has not been
-declared \.{\\long}, i.e., if its command code in the |eq_type| field is
-not |long_call| or |long_outer_call|, its parameters are not allowed to contain
-the control sequence \.{\\par}. If an illegal \.{\\par} appears, the macro
-call is aborted, and the \.{\\par} will be rescanned.
-
-@<Declare the procedure called |macro_call|@>=
-procedure macro_call; {invokes a user-defined control sequence}
-label exit, continue, done, done1, found;
-var r:pointer; {current node in the macro's token list}
-@!p:pointer; {current node in parameter token list being built}
-@!q:pointer; {new node being put into the token list}
-@!s:pointer; {backup pointer for parameter matching}
-@!t:pointer; {cycle pointer for backup recovery}
-@!u,@!v:pointer; {auxiliary pointers for backup recovery}
-@!rbrace_ptr:pointer; {one step before the last |right_brace| token}
-@!n:small_number; {the number of parameters scanned}
-@!unbalance:halfword; {unmatched left braces in current parameter}
-@!m:halfword; {the number of tokens or groups (usually)}
-@!ref_count:pointer; {start of the token list}
-@!save_scanner_status:small_number; {|scanner_status| upon entry}
-@!save_warning_index:pointer; {|warning_index| upon entry}
-@!match_chr:ASCII_code; {character used in parameter}
-begin save_scanner_status:=scanner_status; save_warning_index:=warning_index;
-warning_index:=cur_cs; ref_count:=cur_chr; r:=link(ref_count); n:=0;
-p:=null; m:=0; rbrace_ptr:=null; match_chr:=0;
-if tracing_macros>0 then @<Show the text of the macro being expanded@>;
-if info(r)=protected_token then r:=link(r);
-if info(r)<>end_match_token then
-  @<Scan the parameters and make |link(r)| point to the macro body; but
-    |return| if an illegal \.{\\par} is detected@>;
-@<Feed the macro body and its parameters to the scanner@>;
-exit:scanner_status:=save_scanner_status; warning_index:=save_warning_index;
-end;
-
-@ Before we put a new token list on the input stack, it is wise to clean off
-all token lists that have recently been depleted. Then a user macro that ends
-with a call to itself will not require unbounded stack space.
-
-@<Feed the macro body and its parameters to the scanner@>=
-while (istate=token_list)and(iloc=null)and(token_type<>v_template) do
-  end_token_list; {conserve stack space}
-begin_token_list(ref_count,macro); iname:=warning_index; iloc:=link(r);
-if n>0 then
-  begin if param_ptr+n>max_param_stack then
-    begin max_param_stack:=param_ptr+n;
-    if max_param_stack>param_size then
-      overflow('parameter stack size',param_size);
-@:TeX capacity exceeded parameter stack size}{\quad parameter stack size@>
-    end;
-  for m:=0 to n-1 do param_stack[param_ptr+m]:=pstack[m];
-  param_ptr:=param_ptr+n;
-  end
-
-@ At this point, the reader will find it advisable to review the explanation
-of token list format that was presented earlier, since many aspects of that
-format are of importance chiefly in the |macro_call| routine.
-
-The token list might begin with a string of compulsory tokens before the
-first |match| or |end_match|. In that case the macro name is supposed to be
-followed by those tokens; the following program will set |s=null| to
-represent this restriction. Otherwise |s| will be set to the first token of
-a string that will delimit the next parameter.
-
-@<Scan the parameters and make |link(r)| point to the macro body...@>=
-begin scanner_status:=matching; unbalance:=0;
-long_state:=eq_type(cur_cs);
-if long_state>=outer_call then long_state:=long_state-2;
-repeat set_token_link(temp_token_head,null);
-if (info(r)>=end_match_token)or(info(r)<match_token) then s:=null
-else  begin match_chr:=info(r)-match_token; s:=link(r); r:=s;
-  p:=temp_token_head; m:=0;
-  end;
-@<Scan a parameter until its delimiter string has been found; or, if |s=null|,
-  simply scan the delimiter string@>;@/
-{now |info(r)| is a token whose command code is either |match| or |end_match|}
-until info(r)=end_match_token;
-end
-
-@ If |info(r)| is a |match| or |end_match| command, it cannot be equal to
-any token found by |get_token|. Therefore an undelimited parameter---i.e.,
-a |match| that is immediately followed by |match| or |end_match|---will
-always fail the test `|cur_tok=info(r)|' in the following algorithm.
-
-@<Scan a parameter until its delimiter string has been found; or, ...@>=
-continue: get_token; {set |cur_tok| to the next token of input}
-if cur_tok=info(r) then
-  @<Advance \(r)|r|; |goto found| if the parameter delimiter has been
-    fully matched, otherwise |goto continue|@>;
-@<Contribute the recently matched tokens to the current parameter, and
-  |goto continue| if a partial match is still in effect;
-  but abort if |s=null|@>;
-if cur_tok=par_token then if long_state<>long_call then
-  if not suppress_long_error then
-    @<Report a runaway argument and abort@>;
-if cur_tok<right_brace_limit then
-  if cur_tok<left_brace_limit then
-    @<Contribute an entire group to the current parameter@>
-  else @<Report an extra right brace and |goto continue|@>
-else @<Store the current token, but |goto continue| if it is
-   a blank space that would become an undelimited parameter@>;
-incr(m);
-if info(r)>end_match_token then goto continue;
-if info(r)<match_token then goto continue;
-found: if s<>null then @<Tidy up the parameter just scanned, and tuck it away@>
-
-@ @<Store the current token, but |goto continue| if it is...@>=
-begin if cur_tok=space_token then
-  if info(r)<=end_match_token then
-    if info(r)>=match_token then goto continue;
-store_new_token(cur_tok);
-end
-
-@ A slightly subtle point arises here: When the parameter delimiter ends
-with `\.{\#\{}', the token list will have a left brace both before and
-after the |end_match|\kern-.4pt. Only one of these should affect the
-|align_state|, but both will be scanned, so we must make a correction.
-
-@<Advance \(r)|r|; |goto found| if the parameter delimiter has been fully...@>=
-begin r:=link(r);
-if (info(r)>=match_token)and(info(r)<=end_match_token) then
-  begin if cur_tok<left_brace_limit then decr(align_state);
-  goto found;
-  end
-else goto continue;
-end
-
-@ @<Report an extra right brace and |goto continue|@>=
-begin back_input; print_err('Argument of '); sprint_cs(warning_index);
-@.Argument of \\x has...@>
-print(" has an extra }");
-help6('I''ve run across a `}'' that doesn''t seem to match anything.',
-  'For example, `\def\a#1{...}'' and `\a}'' would produce',
-  'this error. If you simply proceed now, the `\par'' that',
-  'I''ve just inserted will cause me to report a runaway',
-  'argument that might be the root of the problem. But if',
-  'your `}'' was spurious, just type `2'' and it will go away.');
-incr(align_state); long_state:=call; cur_tok:=par_token; ins_error;
-goto continue;
-end {a white lie; the \.{\\par} won't always trigger a runaway}
-
-@ If |long_state=outer_call|, a runaway argument has already been reported.
-
-@<Report a runaway argument and abort@>=
-begin if long_state=call then
-  begin runaway; print_err('Paragraph ended before ');
-@.Paragraph ended before...@>
-  sprint_cs(warning_index); print(" was complete");
-  help3('I suspect you''ve forgotten a `}'', causing me to apply this',
-    'control sequence to too much text. How can we recover?',
-    'My plan is to forget the whole thing and hope for the best.');
-  back_error;
-  end;
-pstack[n]:=link(temp_token_head); align_state:=align_state-unbalance;
-for m:=0 to n do flush_list(pstack[m]);
-return;
-end
-
-@ When the following code becomes active, we have matched tokens from |s| to
-the predecessor of |r|, and we have found that |cur_tok<>info(r)|. An
-interesting situation now presents itself: If the parameter is to be
-delimited by a string such as `\.{ab}', and if we have scanned `\.{aa}',
-we want to contribute one `\.a' to the current parameter and resume
-looking for a `\.b'. The program must account for such partial matches and
-for others that can be quite complex.  But most of the time we have |s=r|
-and nothing needs to be done.
-
-Incidentally, it is possible for \.{\\par} tokens to sneak in to certain
-parameters of non-\.{\\long} macros. For example, consider a case like
-`\.{\\def\\a\#1\\par!\{...\}}' where the first \.{\\par} is not followed
-by an exclamation point. In such situations it does not seem appropriate
-to prohibit the \.{\\par}, so \TeX\ keeps quiet about this bending of
-the rules.
-
-@<Contribute the recently matched tokens to the current parameter...@>=
-if s<>r then begin
-  if s=null then @<Report an improper use of the macro and abort@>
-  else  begin t:=s;
-    repeat store_new_token(info(t)); incr(m); u:=link(t); v:=s;
-    loop@+  begin if u=r then begin
-        if cur_tok<>info(v) then goto done
-        else  begin r:=link(v); goto continue;
-          end;
-        end;
-      if info(u)<>info(v) then goto done;
-      u:=link(u); v:=link(v);
-      end;
-    done: t:=link(t);
-    until t=r;
-    r:=s; {at this point, no tokens are recently matched}
-    end;
-  end
-
-@ @<Report an improper use...@>=
-begin print_err('Use of '); sprint_cs(warning_index);
-@.Use of x doesn't match...@>
-print(" doesn't match its definition");
-help4('If you say, e.g., `\def\a1{...}'', then you must always',
-  'put `1'' after `\a'', since control sequence names are',
-  'made up of letters only. The macro here has not been',
-  'followed by the required stuff, so I''m ignoring it.');
-error; return;
-end
-
-@ @<Contribute an entire group to the current parameter@>=
-begin unbalance:=1;
-@^inner loop@>
-loop@+  begin fast_store_new_token(cur_tok); get_token;
-  if cur_tok=par_token then if long_state<>long_call then
-    if not suppress_long_error then
-      @<Report a runaway argument and abort@>;
-  if cur_tok<right_brace_limit then begin
-    if cur_tok<left_brace_limit then incr(unbalance)
-    else  begin decr(unbalance);
-      if unbalance=0 then goto done1;
-      end;
-    end;
-  end;
-done1: rbrace_ptr:=p; store_new_token(cur_tok);
-end
-
-@ If the parameter consists of a single group enclosed in braces, we must
-strip off the enclosing braces. That's why |rbrace_ptr| was introduced.
-
-@<Tidy up the parameter just scanned, and tuck it away@>=
-begin if (m=1)and(info(p)<right_brace_limit)and(p<>temp_token_head) then
-  begin set_token_link(rbrace_ptr,null); free_avail(p);
-  p:=link(temp_token_head); pstack[n]:=link(p); free_avail(p);
-  end
-else pstack[n]:=link(temp_token_head);
-incr(n);
-if tracing_macros>0 then
-  begin begin_diagnostic; print_nl(match_chr); print_int(n);
-  print("<-"); show_token_list(pstack[n-1],null,1000);
-  end_diagnostic(false);
-  end;
-end
-
-@ @<Show the text of the macro being expanded@>=
-begin begin_diagnostic; print_ln; print_cs(warning_index);
-token_show(ref_count); end_diagnostic(false);
-end
 
 @* \[26] Basic scanning subroutines.
 Let's turn now to some procedures that \TeX\ calls upon frequently to digest
@@ -6961,7 +6304,7 @@ loop@+  begin if xpand then @<Expand the next part of the input@>
 expanding it further.
 
 @<Expand the next part of the input@>=
-begin loop begin get_filtered_next;
+begin loop begin get_token_lua;
   if cur_cmd>=call then
     if info(link(cur_chr))=protected_token then
       begin cur_cmd:=relax; cur_chr:=no_expand_flag;
@@ -7095,28 +6438,6 @@ begin if not lua_input_ln(read_file[m],(m+1),true) then
 end
 
 @* \[28] Conditional processing.
-We consider now the way \TeX\ handles various kinds of \.{\\if} commands.
-
-@d unless_code=32 {amount added for `\.{\\unless}' prefix}
-@#
-@d if_char_code=0 { `\.{\\if}' }
-@d if_cat_code=1 { `\.{\\ifcat}' }
-@d if_int_code=2 { `\.{\\ifnum}' }
-@d if_dim_code=3 { `\.{\\ifdim}' }
-@d if_odd_code=4 { `\.{\\ifodd}' }
-@d if_vmode_code=5 { `\.{\\ifvmode}' }
-@d if_hmode_code=6 { `\.{\\ifhmode}' }
-@d if_mmode_code=7 { `\.{\\ifmmode}' }
-@d if_inner_code=8 { `\.{\\ifinner}' }
-@d if_void_code=9 { `\.{\\ifvoid}' }
-@d if_hbox_code=10 { `\.{\\ifhbox}' }
-@d if_vbox_code=11 { `\.{\\ifvbox}' }
-@d ifx_code=12 { `\.{\\ifx}' }
-@d if_eof_code=13 { `\.{\\ifeof}' }
-@d if_true_code=14 { `\.{\\iftrue}' }
-@d if_false_code=15 { `\.{\\iffalse}' }
-@d if_case_code=16 { `\.{\\ifcase}' }
-@d if_primitive_code=21 { `\.{\\ifprimitive}' }
 
 @<Put each...@>=
 primitive_tex("if",if_test,if_char_code,0);
@@ -7158,39 +6479,6 @@ primitive_luatex("ifprimitive",if_test,if_primitive_code,0);
 primitive_pdftex("ifpdfprimitive",if_test,if_primitive_code,0);
 @!@:if_primitive_}{\.{\\ifpdfprimitive} primitive@>
 
-@ Conditions can be inside conditions, and this nesting has a stack
-that is independent of the |save_stack|.
-
-Four global variables represent the top of the condition stack:
-|cond_ptr| points to pushed-down entries, if any; |if_limit| specifies
-the largest code of a |fi_or_else| command that is syntactically legal;
-|cur_if| is the name of the current type of conditional; and |if_line|
-is the line number at which it began.
-
-If no conditions are currently in progress, the condition stack has the
-special state |cond_ptr=null|, |if_limit=normal|, |cur_if=0|, |if_line=0|.
-Otherwise |cond_ptr| points to a two-word node; the |type|, |subtype|, and
-|link| fields of the first word contain |if_limit|, |cur_if|, and
-|cond_ptr| at the next level, and the second word contains the
-corresponding |if_line|.
-
-@d if_limit_subtype(#)==subtype(#+1)
-@d if_limit_type(#)==type(#+1)
-@d if_line_field(#)==vlink(#+1)
-@d if_code=1 {code for \.{\\if...} being evaluated}
-@d fi_code=2 {code for \.{\\fi}}
-@d else_code=3 {code for \.{\\else}}
-@d or_code=4 {code for \.{\\or}}
-
-@<Glob...@>=
-@!cond_ptr:pointer; {top of the condition stack}
-@!if_limit:normal..or_code; {upper bound on |fi_or_else| codes}
-@!cur_if:small_number; {type of conditional being worked on}
-@!if_line:integer; {line where that conditional began}
-
-@ @<Set init...@>=
-cond_ptr:=null; if_limit:=normal; cur_if:=0; if_line:=0;
-
 @ @<Put each...@>=
 primitive_tex("fi",fi_or_else,fi_code,0);
 @!@:fi_}{\.{\\fi} primitive@>
@@ -7199,299 +6487,6 @@ primitive_tex("or",fi_or_else,or_code,0);
 @!@:or_}{\.{\\or} primitive@>
 primitive_tex("else",fi_or_else,else_code,0);
 @!@:else_}{\.{\\else} primitive@>
-
-@ When we skip conditional text, we keep track of the line number
-where skipping began, for use in error messages.
-
-@<Glob...@>=
-@!skip_line:integer; {skipping began here}
-
-@ Here is a procedure that ignores text until coming to an \.{\\or},
-\.{\\else}, or \.{\\fi} at level zero of $\.{\\if}\ldots\.{\\fi}$
-nesting. After it has acted, |cur_chr| will indicate the token that
-was found, but |cur_tok| will not be set (because this makes the
-procedure run faster).
-
-@p procedure pass_text;
-label done;
-var l:integer; {level of $\.{\\if}\ldots\.{\\fi}$ nesting}
-@!save_scanner_status:small_number; {|scanner_status| upon entry}
-begin save_scanner_status:=scanner_status; scanner_status:=skipping; l:=0;
-skip_line:=line;
-loop@+  begin get_filtered_next;
-  if cur_cmd=fi_or_else then
-    begin if l=0 then goto done;
-    if cur_chr=fi_code then decr(l);
-    end
-  else if cur_cmd=if_test then incr(l);
-  end;
-done: scanner_status:=save_scanner_status;
-if tracing_ifs>0 then show_cur_cmd_chr;
-end;
-
-@ When we begin to process a new \.{\\if}, we set |if_limit:=if_code|; then
-if\/ \.{\\or} or \.{\\else} or \.{\\fi} occurs before the current \.{\\if}
-condition has been evaluated, \.{\\relax} will be inserted.
-For example, a sequence of commands like `\.{\\ifvoid1\\else...\\fi}'
-would otherwise require something after the `\.1'.
-
-@<Push the condition stack@>=
-begin p:=new_node(if_node,0); vlink(p):=cond_ptr;
-if_limit_type(p):=if_limit;
-if_limit_subtype(p):=cur_if;
-if_line_field(p):=if_line;
-cond_ptr:=p; cur_if:=cur_chr; if_limit:=if_code; if_line:=line;
-end
-
-@ @<Pop the condition stack@>=
-begin if if_stack[in_open]=cond_ptr then if_warning;
-  {conditionals possibly not properly nested with files}
-p:=cond_ptr;
-if_line:=if_line_field(p);
-cur_if:=if_limit_subtype(p);
-if_limit:=if_limit_type(p);
-cond_ptr:=vlink(p);
-flush_node(p);
-end
-
-@ Here's a procedure that changes the |if_limit| code corresponding to
-a given value of |cond_ptr|.
-
-@p procedure change_if_limit(@!l:small_number;@!p:pointer);
-label exit;
-var q:pointer;
-begin if p=cond_ptr then if_limit:=l {that's the easy case}
-else  begin q:=cond_ptr;
-  loop@+  begin if q=null then confusion('if');
-@:this can't happen if}{\quad if@>
-    if vlink(q)=p then
-      begin if_limit_type(q):=l; return;
-      end;
-    q:=vlink(q);
-    end;
-  end;
-exit:end;
-
-@ A condition is started when the |expand| procedure encounters
-an |if_test| command; in that case |expand| reduces to |conditional|,
-which is a recursive procedure.
-@^recursion@>
-
-@p procedure conditional;
-label exit,common_ending;
-var b:boolean; {is the condition true?}
-@!r:"<"..">"; {relation to be evaluated}
-@!m,@!n,@!s:integer; {to be tested against the second operand}
-@!p,@!q:pointer; {for traversing token lists in \.{\\ifx} tests}
-@!save_scanner_status:small_number; {|scanner_status| upon entry}
-@!save_cond_ptr:pointer; {|cond_ptr| corresponding to this conditional}
-@!this_if:small_number; {type of this conditional}
-@!is_unless:boolean; {was this if preceded by `\.{\\unless}' ?}
-begin b:= false; {default is false, just in case}
-if tracing_ifs>0 then if tracing_commands<=1 then show_cur_cmd_chr;
-@<Push the condition stack@>;@+save_cond_ptr:=cond_ptr;
-is_unless:=(cur_chr>=unless_code); this_if:=cur_chr mod unless_code;@/
-@<Either process \.{\\ifcase} or set |b| to the value of a boolean condition@>;
-if is_unless then b:=not b;
-if tracing_commands>1 then @<Display the value of |b|@>;
-if b then
-  begin change_if_limit(else_code,save_cond_ptr);
-  return; {wait for \.{\\else} or \.{\\fi}}
-  end;
-@<Skip to \.{\\else} or \.{\\fi}, then |goto common_ending|@>;
-common_ending: if cur_chr=fi_code then @<Pop the condition stack@>
-else if_limit:=fi_code; {wait for \.{\\fi}}
-exit:end;
-
-@ In a construction like `\.{\\if\\iftrue abc\\else d\\fi}', the first
-\.{\\else} that we come to after learning that the \.{\\if} is false is
-not the \.{\\else} we're looking for. Hence the following curious
-logic is needed.
-
-@ @<Skip to \.{\\else} or \.{\\fi}...@>=
-loop@+  begin pass_text;
-  if cond_ptr=save_cond_ptr then
-    begin if cur_chr<>or_code then goto common_ending;
-    print_err('Extra '); print_esc("or");
-@.Extra \\or@>
-    help1('I''m ignoring this; it doesn''t match any \if.');
-    error;
-    end
-  else if cur_chr=fi_code then @<Pop the condition stack@>;
-  end
-
-@ @<Either process \.{\\ifcase} or set |b|...@>=
-case this_if of
-if_char_code, if_cat_code: @<Test if two characters match@>;
-if_int_code, if_dim_code: @<Test relation between integers or dimensions@>;
-if_odd_code: @<Test if an integer is odd@>;
-if_vmode_code: b:=(abs(mode)=vmode);
-if_hmode_code: b:=(abs(mode)=hmode);
-if_mmode_code: b:=(abs(mode)=mmode);
-if_inner_code: b:=(mode<0);
-if_void_code, if_hbox_code, if_vbox_code: @<Test box register status@>;
-ifx_code: @<Test if two tokens match@>;
-if_eof_code: begin scan_four_bit_int; b:=(read_open[cur_val]=closed);
-  end;
-if_true_code: b:=true;
-if_false_code: b:=false;
-@/@<Cases for |conditional|@>@/
-if_case_code: @<Select the appropriate case
-  and |return| or |goto common_ending|@>;
-if_primitive_code: begin
-  save_scanner_status:=scanner_status;
-  scanner_status:=normal;
-  get_filtered_next;
-  scanner_status:=save_scanner_status;
-  m := prim_lookup(text(cur_cs));
-  b :=((cur_cmd<>undefined_cs) and
-       (m<>undefined_primitive) and
-       (cur_cmd=get_prim_eq_type(m)) and
-       (cur_chr=get_prim_equiv(m)));
-  end;
-{there are no other cases, but for -Wall: }
-othercases
-  b:=false;
-endcases
-
-@ @<Display the value of |b|@>=
-begin begin_diagnostic;
-if b then print("{true}")@+else print("{false}");
-end_diagnostic(false);
-end
-
-@ Here we use the fact that |"<"|, |"="|, and |">"| are consecutive ASCII
-codes.
-@^ASCII code@>
-
-@<Test relation between integers or dimensions@>=
-begin if this_if=if_int_code then scan_int@+else scan_normal_dimen;
-n:=cur_val; @<Get the next non-blank non-call...@>;
-if (cur_tok>=other_token+"<")and(cur_tok<=other_token+">") then
-  r:=cur_tok-other_token
-else  begin print_err('Missing = inserted for ');
-@.Missing = inserted@>
-  print_cmd_chr(if_test,this_if);
-  help1('I was expecting to see `<'', `='', or `>''. Didn''t.');
-  back_error; r:="=";
-  end;
-if this_if=if_int_code then scan_int@+else scan_normal_dimen;
-case r of
-"<": b:=(n<cur_val);
-"=": b:=(n=cur_val);
-">": b:=(n>cur_val);
-othercases b:=false; {can't happen}
-end;
-end
-
-@ @<Test if an integer is odd@>=
-begin scan_int; b:=odd(cur_val);
-end
-
-@ @<Test box register status@>=
-begin scan_register_num; p:=box(cur_val);
-if this_if=if_void_code then b:=(p=null)
-else if p=null then b:=false
-else if this_if=if_hbox_code then b:=(type(p)=hlist_node)
-else b:=(type(p)=vlist_node);
-end
-
-@ An active character will be treated as category 13 following
-\.{\\if\\noexpand} or following \.{\\ifcat\\noexpand}.
-
-@d get_x_token_or_active_char==@t@>@;
-  begin get_x_token;
-  if cur_cmd=relax then if cur_chr=no_expand_flag then if is_active_cs(text(cur_cs)) then
-    begin cur_cmd:=active_char;
-    cur_chr:=active_cs_value(text(cur_tok-cs_token_flag));
-    end;
-  end
-
-@<Test if two characters match@>=
-begin get_x_token_or_active_char;
-if (cur_cmd>active_char)or(cur_chr>biggest_char) then {not a character}
-  begin m:=relax; n:=too_big_char;
-  end
-else  begin m:=cur_cmd; n:=cur_chr;
-  end;
-get_x_token_or_active_char;
-if (cur_cmd>active_char)or(cur_chr>biggest_char) then
-  begin cur_cmd:=relax; cur_chr:=too_big_char;
-  end;
-if this_if=if_char_code then b:=(n=cur_chr)@+else b:=(m=cur_cmd);
-end
-
-@ Note that `\.{\\ifx}' will declare two macros different if one is \\{long}
-or \\{outer} and the other isn't, even though the texts of the macros are
-the same.
-
-We need to reset |scanner_status|, since \.{\\outer} control sequences
-are allowed, but we might be scanning a macro definition or preamble.
-
-@<Test if two tokens match@>=
-begin save_scanner_status:=scanner_status; scanner_status:=normal;
-get_filtered_next; n:=cur_cs; p:=cur_cmd; q:=cur_chr;
-get_filtered_next; if cur_cmd<>p then b:=false
-else if cur_cmd<call then b:=(cur_chr=q)
-else @<Test if two macro texts match@>;
-scanner_status:=save_scanner_status;
-end
-
-@ Note also that `\.{\\ifx}' decides that macros \.{\\a} and \.{\\b} are
-different in examples like this:
-$$\vbox{\halign{\.{#}\hfil&\qquad\.{#}\hfil\cr
-  {}\\def\\a\{\\c\}&
-  {}\\def\\c\{\}\cr
-  {}\\def\\b\{\\d\}&
-  {}\\def\\d\{\}\cr}}$$
-
-@<Test if two macro texts match@>=
-begin p:=link(cur_chr); q:=link(equiv(n)); {omit reference counts}
-if p=q then b:=true
-else begin while (p<>null)and(q<>null) do
-    if info(p)<>info(q) then p:=null
-    else  begin p:=link(p); q:=link(q);
-      end;
-  b:=((p=null)and(q=null));
-  end;
-end
-
-@ @<Select the appropriate case and |return| or |goto common_ending|@>=
-begin scan_int; n:=cur_val; {|n| is the number of cases to pass}
-if tracing_commands>1 then
-  begin begin_diagnostic; print("{case "); print_int(n); print_char("}");
-  end_diagnostic(false);
-  end;
-while n<>0 do
-  begin pass_text;
-  if cond_ptr=save_cond_ptr then
-    if cur_chr=or_code then decr(n)
-    else goto common_ending
-  else if cur_chr=fi_code then @<Pop the condition stack@>;
-  end;
-change_if_limit(or_code,save_cond_ptr);
-return; {wait for \.{\\or}, \.{\\else}, or \.{\\fi}}
-end
-
-@ The processing of conditionals is complete except for the following
-code, which is actually part of |expand|. It comes into play when
-\.{\\or}, \.{\\else}, or \.{\\fi} is scanned.
-
-@<Terminate the current conditional and skip to \.{\\fi}@>=
-begin if tracing_ifs>0 then if tracing_commands<=1 then show_cur_cmd_chr;
-if cur_chr>if_limit then
-  if if_limit=if_code then insert_relax {condition not yet evaluated}
-  else  begin print_err('Extra '); print_cmd_chr(fi_or_else,cur_chr);
-@.Extra \\or@>
-@.Extra \\else@>
-@.Extra \\fi@>
-    help1('I''m ignoring this; it doesn''t match any \if.');
-    error;
-    end
-else  begin while cur_chr<>fi_code do pass_text; {skip to \.{\\fi}}
-  @<Pop the condition stack@>;
-  end;
-end
 
 @* \[29] File names.
 It's time now to fret about file names.  Besides the fact that different
@@ -9848,13 +8843,13 @@ p:=list_ptr(v);
 if p=q then list_ptr(v):=null
 else loop@+begin if type(p)=mark_node then begin
     if split_first_mark(mark_class(p))=null then
-      begin split_first_mark(mark_class(p)):=mark_ptr(p);
-      split_bot_mark(mark_class(p)):=split_first_mark(mark_class(p));
+      begin set_split_first_mark(mark_class(p),mark_ptr(p));
+      set_split_bot_mark(mark_class(p),split_first_mark(mark_class(p)));
       set_token_ref_count(split_first_mark(mark_class(p)),
         token_ref_count(split_first_mark(mark_class(p)))+2);
       end
     else  begin delete_token_ref(split_bot_mark(mark_class(p)));
-      split_bot_mark(mark_class(p)):=mark_ptr(p);
+      set_split_bot_mark(mark_class(p),mark_ptr(p));
       add_token_ref(split_bot_mark(mark_class(p)));
       end;
     end;
@@ -10467,7 +9462,7 @@ begin @<Set the value of |output_penalty|@>;
 for i:=0 to biggest_used_mark do begin
   if bot_mark(i)<>null then
     begin if top_mark(i)<>null then delete_token_ref(top_mark(i));
-    top_mark(i):=bot_mark(i); add_token_ref(top_mark(i));
+    set_top_mark(i,bot_mark(i)); add_token_ref(top_mark(i));
     delete_first_mark(i);
     end;
   end;
@@ -10476,7 +9471,7 @@ for i:=0 to biggest_used_mark do begin
   remaining nodes back on the contribution list@>;
 for i:=0 to biggest_used_mark do begin
   if (top_mark(i)<>null)and(first_mark(i)=null) then
-    begin first_mark(i):=top_mark(i); add_token_ref(top_mark(i));
+    begin set_first_mark(i,top_mark(i)); add_token_ref(top_mark(i));
     end;
   end;
 if output_routine<>null then begin
@@ -10534,11 +9529,11 @@ if box(output_box)<>null then
 
 @ @<Update the values of |first_mark| and |bot_mark|@>=
 begin if first_mark(mark_class(p))=null then
-  begin first_mark(mark_class(p)):=mark_ptr(p);
+  begin set_first_mark(mark_class(p),mark_ptr(p));
   add_token_ref(first_mark(mark_class(p)));
   end;
 if bot_mark(mark_class(p))<>null then delete_token_ref(bot_mark(mark_class(p)));
-bot_mark(mark_class(p)):=mark_ptr(p); add_token_ref(bot_mark(mark_class(p)));
+set_bot_mark(mark_class(p),mark_ptr(p)); add_token_ref(bot_mark(mark_class(p)));
 end;
 
 @ When the following code is executed, the current page runs from node
@@ -10979,7 +9974,7 @@ any_mode(ignore_spaces): begin
   else begin
     t:=scanner_status;
     scanner_status:=normal;
-    get_filtered_next;
+    get_token_lua;
     scanner_status:=t;
     cur_cs  := prim_lookup(text(cur_cs));
     if cur_cs<>undefined_primitive then begin
@@ -16476,10 +15471,6 @@ primitive_etex("scantokens",input,2,0);
 primitive_luatex("scantextokens",input,3,0);
 @!@:scan_tex_tokens_}{\.{\\scantextokens} primitive@>
 
-@ @<Cases for |input|@>=
-else if cur_chr=2 then pseudo_start
-else if cur_chr=3 then begin pseudo_start; iname := 19; end
-
 @ The global variable |pseudo_files| is used to maintain a stack of
 pseudo files.  The |pseudo_lines| field of each pseudo file points to
 a linked list of variable size nodes representing lines not yet
@@ -16494,10 +15485,7 @@ pseudo_files:=null;
 
 @ The |pseudo_start| procedure initiates reading from a pseudo file.
 
-@<Declare \eTeX\ procedures for ex...@>=
-procedure@?pseudo_start; forward;@t\2@>
-
-@ @<Declare \eTeX\ procedures for tok...@>=
+@<Declare \eTeX\ procedures for tok...@>=
 procedure pseudo_start;
 var old_setting:0..max_selector; {holds |selector| setting}
 @!s:str_number; {string to be converted into a pseudo file}
@@ -16605,17 +15593,7 @@ if j=1 then
   goto done;
   end
 
-@ Here we define the additional conditionals of \eTeX\ as well as the
-\.{\\unless} prefix.
-
-@d if_def_code=17 { `\.{\\ifdefined}' }
-@d if_cs_code=18 { `\.{\\ifcsname}' }
-@d if_font_char_code=19 { `\.{\\iffontchar}' }
-@d if_in_csname_code=20 { `\.{\\ifincsname}' }
-@d if_abs_num_code=22 { `\.{\\ifabsnum}' } { 21 = |if_primitive|}
-@d if_abs_dim_code=23 { `\.{\\ifabsdim}' }
-
-@<Generate all \eTeX...@>=
+@ @<Generate all \eTeX...@>=
 primitive_etex("unless",expand_after,1,0);@/
 @!@:unless_}{\.{\\unless} primitive@>
 primitive_etex("ifdefined",if_test,if_def_code,0);
@@ -16634,127 +15612,6 @@ primitive_pdftex("ifpdfabsnum",if_test,if_abs_num_code,0);
 @!@:if_abs_num_}{\.{\\ifpdfabsnum} primitive@>
 primitive_pdftex("ifpdfabsdim",if_test,if_abs_dim_code,0);
 @!@:if_abs_dim_}{\.{\\ifpdfabsdim} primitive@>
-
-@ The result of a boolean condition is reversed when the conditional is
-preceded by \.{\\unless}.
-
-@<Negate a boolean conditional and |goto reswitch|@>=
-begin get_token;
-if (cur_cmd=if_test)and(cur_chr<>if_case_code) then
-  begin cur_chr:=cur_chr+unless_code; goto reswitch;
-  end;
-print_err('You can''t use `'); print_esc("unless"); print("' before `");
-@.You can't use \\unless...@>
-print_cmd_chr(cur_cmd,cur_chr); print_char("'");
-help1('Continue, and I''ll forget that it ever happened.');
-back_error;
-end
-
-@ The conditional \.{\\ifdefined} tests if a control sequence is
-defined.
-
-We need to reset |scanner_status|, since \.{\\outer} control sequences
-are allowed, but we might be scanning a macro definition or preamble.
-
-@<Cases for |conditional|@>=
-if_def_code:begin save_scanner_status:=scanner_status;
-  scanner_status:=normal;
-  get_filtered_next; b:=(cur_cmd<>undefined_cs);
-  scanner_status:=save_scanner_status;
-  end;
-
-@ The conditional \.{\\ifcsname} is equivalent to \.{\{\\expandafter}
-\.{\}\\expandafter} \.{\\ifdefined} \.{\\csname}, except that no new
-control sequence will be entered into the hash table (once all tokens
-preceding the mandatory \.{\\endcsname} have been expanded).
-
-@<Cases for |conditional|@>=
-if_cs_code:begin n:=get_avail; p:=n; {head of the list of characters}
-  b:=false;
-  repeat get_x_token;
-  if cur_cs=0 then store_new_token(cur_tok);
-  until cur_cs<>0;
-  if cur_cmd<>end_cs_name then begin
-    if suppress_ifcsname_error then begin
-      repeat get_x_token;
-      until cur_cmd=end_cs_name;
-      end
-    else begin
-      @<Complain about missing \.{\\endcsname}@>;
-      @<Look up the characters of list |n| in the hash table, and set |cur_cs|@>;
-      b:=(eq_type(cur_cs)<>undefined_cs);
-      end;
-    end
-  else begin
-    @<Look up the characters of list |n| in the hash table, and set |cur_cs|@>;
-    b:=(eq_type(cur_cs)<>undefined_cs);
-    end;
-  flush_list(n);
-  end;
-
-@ @<Look up the characters of list |n| in the hash table...@>=
-m:=first; p:=link(n);
-while p<>null do
-  begin if m>=max_buf_stack then
-    begin max_buf_stack:=m+4;
-    if max_buf_stack=buf_size then
-      check_buffer_overflow(max_buf_stack);
-@:TeX capacity exceeded buffer size}{\quad buffer size@>
-    end;
-  s := info(p) mod string_offset;
-  if s <= @"7F then begin
-    buffer[m]:=s; incr(m);
-    end
-  else if s<=@"7FF then begin
-    buffer[m]:=@"C0 + s div @"40; incr(m);
-    buffer[m]:=@"80 + s mod @"40; incr(m);
-    end
-  else if s<=@"FFFF then begin
-    buffer[m]:=@"E0 + s div @"1000; incr(m);
-    buffer[m]:=@"80 + (s mod @"1000) div @"40; incr(m);
-    buffer[m]:=@"80 + (s mod @"1000) mod @"40; incr(m);
-    end
-  else begin
-    buffer[m]:=@"F0 + s div @"40000;  incr(m);
-    buffer[m]:=@"80 + (s mod @"40000) div @"1000;  incr(m);
-    buffer[m]:=@"80 + ((s mod @"40000) mod @"1000) div @"40;  incr(m);
-    buffer[m]:=@"80 + ((s mod @"40000) mod @"1000) mod @"40;  incr(m);
-    end;
-  p:=link(p);
-  end;
-if m>first then
-  cur_cs:=id_lookup(first,m-first) {|no_new_control_sequence| is |true|}
-else if m=first then cur_cs:=null_cs {the list is empty}
-
-@ The conditional \.{\\iffontchar} tests the existence of a character in
-a font.
-
-@<Cases for |conditional|@>=
-if_in_csname_code: b := is_in_csname;
-if_abs_dim_code, if_abs_num_code: begin
-  if this_if=if_abs_num_code then scan_int@+else scan_normal_dimen;
-  n:=cur_val;
-  if n < 0 then negate(n);
-  @<Get the next non-blank non-call...@>;
-  if (cur_tok>=other_token+"<")and(cur_tok<=other_token+">") then
-    r:=cur_tok-other_token
-  else  begin print_err('Missing = inserted for ');
-  @.Missing = inserted@>
-    print_cmd_chr(if_test,this_if);
-    help1('I was expecting to see `<'', `='', or `>''. Didn''t.');
-    back_error; r:="=";
-    end;
-  if this_if=if_abs_num_code then scan_int@+else scan_normal_dimen;
-  if cur_val < 0 then negate(cur_val);
-  case r of
-  "<": b:=(n<cur_val);
-  "=": b:=(n=cur_val);
-  ">": b:=(n>cur_val);
-  end;
-  end;
-if_font_char_code:begin scan_font_ident; n:=cur_val; scan_char_num;
-  b:=char_exists(n,cur_val);
-  end;
 
 @ The |protected| feature of \eTeX\ defines the \.{\\protected} prefix
 command for macro definitions.  Such macros are protected against

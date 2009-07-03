@@ -307,16 +307,6 @@ if (hash_offset<0)or(hash_offset>hash_base) then bad:=42;
 @z
 
 @x
-if_eof_code: begin scan_four_bit_int; b:=(read_open[cur_val]=closed);
-  end;
-@y
-if_eof_code: begin scan_four_bit_int_or_18;
-  if cur_val=18 then b:=not shellenabledp
-  else b:=(read_open[cur_val]=closed);
-  end;
-@z
-
-@x
 @ The file names we shall deal with for illustrative purposes have the
 following structure:  If the name contains `\.>' or `\.:', the file area
 consists of all characters up to and including the final such character;

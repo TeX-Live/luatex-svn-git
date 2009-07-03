@@ -1629,6 +1629,101 @@
 @define procedure firm_up_the_line;
 @define procedure get_token;
 
+{ expanding }
+
+@define var is_in_csname;
+@define procedure expand;
+@define procedure insert_relax;
+@define procedure get_x_token;
+@define procedure x_token;
+@define procedure complain_missing_csname;
+
+@define const top_mark_code;
+@define const first_mark_code;
+@define const bot_mark_code;
+@define const split_first_mark_code;
+@define const split_bot_mark_code;
+@define const marks_code;
+
+@define function top_mark();
+@define function first_mark();
+@define function bot_mark();
+@define function split_first_mark();
+@define function split_bot_mark();
+
+@define procedure set_top_mark();
+@define procedure set_first_mark();
+@define procedure set_bot_mark();
+@define procedure set_split_first_mark();
+@define procedure set_split_bot_mark();
+
+
+@define procedure delete_top_mark();
+@define procedure delete_bot_mark();
+@define procedure delete_first_mark();
+@define procedure delete_split_first_mark();
+@define procedure delete_split_bot_mark();
+
+@define const clear_marks_code;
+@define const biggest_mark;
+
+@define var biggest_used_mark;
+
+@define procedure initialize_marks;
+
+@define var long_state;
+@define var pstack;
+@define procedure macro_call;
+
+{ conditionals }
+
+
+@define const unless_code;
+@define const if_char_code;
+@define const if_cat_code;
+@define const if_int_code;
+@define const if_dim_code;
+@define const if_odd_code;
+@define const if_vmode_code;
+@define const if_hmode_code;
+@define const if_mmode_code;
+@define const if_inner_code;
+@define const if_void_code;
+@define const if_hbox_code;
+@define const if_vbox_code;
+@define const ifx_code;
+@define const if_eof_code;
+@define const if_true_code;
+@define const if_false_code;
+@define const if_case_code;
+@define const if_def_code;
+@define const if_cs_code;
+@define const if_font_char_code;
+@define const if_in_csname_code;
+@define const if_primitive_code;
+@define const if_abs_num_code;
+@define const if_abs_dim_code;
+
+@define function if_limit_subtype();
+@define function if_limit_type();
+@define function if_line_field();
+
+@define const if_code;
+@define const fi_code;
+@define const else_code;
+@define const or_code;
+
+@define var cond_ptr;
+@define var if_limit;
+@define var cur_if;
+@define var if_line;
+@define var skip_line;
+
+@define procedure pass_text;
+@define procedure push_condition_stack;
+@define procedure pop_condition_stack;
+@define procedure change_if_limit();
+@define procedure conditional;
 
 { nesting }
 

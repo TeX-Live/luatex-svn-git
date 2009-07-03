@@ -41,19 +41,6 @@ static const char _svn_version[] =
 
 #define detokenized_line() (line_catcode_table==NO_CAT_TABLE)
 
-#define top_mark_code 0         /* the mark in effect at the previous page break */
-#define first_mark_code 1       /* the first mark between |top_mark| and |bot_mark| */
-#define bot_mark_code 2         /* the mark in effect at the current page break */
-#define split_first_mark_code 3 /* the first mark found by \.{\\vsplit} */
-#define split_bot_mark_code 4   /* the last mark found by \.{\\vsplit} */
-#define marks_code 5
-
-#define top_mark(A) top_marks_array[(A)]
-#define first_mark(A) first_marks_array[(A)]
-#define bot_mark(A) bot_marks_array[(A)]
-#define split_first_mark(A) split_first_marks_array[(A)]
-#define split_bot_mark(A) split_bot_marks_array[(A)]
-
 static int frozen_control_sequence = 0; /* will be fetched from web */
 
 #define frozen_cr (frozen_control_sequence+1)   /* permanent `\.{\\cr}' */
