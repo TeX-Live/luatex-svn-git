@@ -1,5 +1,5 @@
 /* pdffont.c
-   
+ 
    Copyright 2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -46,137 +46,128 @@ The |has_packet()| C macro checks for this condition.
 void output_one_char(PDF pdf, internal_font_number ffi, integer c)
 {
     scaled_whd ci;              /* the real width, height and depth of the character */
-    scaledpos save, save_box_pos;
-    integer save_direction;
+    posstructure localpos = *(pdf->posstruct);  /* for the final transform */
     ci = get_charinfo_whd(ffi, c);
-    pos = synch_p_with_c(cur);
 
-    switch (box_direction(dvi_direction)) {
+    switch (box_direction(localpos.dir)) {
     case dir_TL_:
-        switch (font_direction(dvi_direction)) {
+        switch (font_direction(localpos.dir)) {
         case dir__LL:
         case dir__LR:
-            pos_down((ci.ht - ci.dp) / 2);
+            lpos_down((ci.ht - ci.dp) / 2);
             break;
         case dir__LT:
             break;
         case dir__LB:
-            pos_down(ci.ht);
+            lpos_down(ci.ht);
             break;
         }
         break;
     case dir_TR_:
-        pos_left(ci.wd);
-        switch (font_direction(dvi_direction)) {
+        lpos_left(ci.wd);
+        switch (font_direction(localpos.dir)) {
         case dir__RL:
         case dir__RR:
-            pos_down((ci.ht - ci.dp) / 2);
+            lpos_down((ci.ht - ci.dp) / 2);
             break;
         case dir__RT:
             break;
         case dir__RB:
-            pos_down(ci.ht);
+            lpos_down(ci.ht);
             break;
         }
         break;
     case dir_BL_:
-        switch (font_direction(dvi_direction)) {
+        switch (font_direction(localpos.dir)) {
         case dir__LL:
         case dir__LR:
-            pos_down((ci.ht - ci.dp) / 2);
+            lpos_down((ci.ht - ci.dp) / 2);
             break;
         case dir__LT:
             break;
         case dir__LB:
-            pos_down(ci.ht);
+            lpos_down(ci.ht);
             break;
         }
         break;
     case dir_BR_:
-        pos_left(ci.wd);
-        switch (font_direction(dvi_direction)) {
+        lpos_left(ci.wd);
+        switch (font_direction(localpos.dir)) {
         case dir__RL:
         case dir__RR:
-            pos_down((ci.ht - ci.dp) / 2);
+            lpos_down((ci.ht - ci.dp) / 2);
             break;
         case dir__RT:
             break;
         case dir__RB:
-            pos_down(ci.ht);
+            lpos_down(ci.ht);
             break;
         }
         break;
     case dir_LT_:
-        pos_down(ci.ht);
-        switch (font_direction(dvi_direction)) {
+        lpos_down(ci.ht);
+        switch (font_direction(localpos.dir)) {
         case dir__TL:
-            pos_left(ci.wd);
+            lpos_left(ci.wd);
             break;
         case dir__TR:
             break;
         case dir__TB:
         case dir__TT:
-            pos_left(ci.wd / 2);
+            lpos_left(ci.wd / 2);
             break;
         }
         break;
     case dir_RT_:
-        pos_down(ci.ht);
-        switch (font_direction(dvi_direction)) {
+        lpos_down(ci.ht);
+        switch (font_direction(localpos.dir)) {
         case dir__TL:
-            pos_left(ci.wd);
+            lpos_left(ci.wd);
             break;
         case dir__TR:
             break;
         case dir__TB:
         case dir__TT:
-            pos_left(ci.wd / 2);
+            lpos_left(ci.wd / 2);
             break;
         }
         break;
     case dir_LB_:
-        pos_up(ci.dp);
-        switch (font_direction(dvi_direction)) {
+        lpos_up(ci.dp);
+        switch (font_direction(localpos.dir)) {
         case dir__BL:
-            pos_left(ci.wd);
+            lpos_left(ci.wd);
             break;
         case dir__BR:
             break;
         case dir__BB:
         case dir__BT:
-            pos_left(ci.wd / 2);
+            lpos_left(ci.wd / 2);
             break;
         }
         break;
     case dir_RB_:
-        pos_up(ci.dp);
-        switch (font_direction(dvi_direction)) {
+        lpos_up(ci.dp);
+        switch (font_direction(localpos.dir)) {
         case dir__BL:
-            pos_left(ci.wd);
+            lpos_left(ci.wd);
             break;
         case dir__BR:
             break;
         case dir__BB:
         case dir__BT:
-            pos_left(ci.wd / 2);
+            lpos_left(ci.wd / 2);
             break;
         }
         break;
     }
-    if (has_packet(ffi, c)) {
-        save = cur;
-        save_box_pos = box_pos;
-        box_pos = pos;
-        save_direction = dvi_direction;
-        dvi_direction = dir_TL_;        /* local virtual font coordinate system */
-        set_to_zero(cur);
+    *(pdf->posstruct) = localpos;
+
+    if (has_packet(ffi, c))
         do_vf_packet(pdf, ffi, c);
-        dvi_direction = save_direction;
-        box_pos = save_box_pos;
-        cur = save;
-    } else {
-        pdf_place_glyph(pdf, pos, ffi, c);
-    }
+    else
+        pdf_place_glyph(pdf, ffi, c);
+
     switch (box_direction(dvi_direction)) {
     case dir_TL_:
     case dir_TR_:
@@ -192,8 +183,6 @@ void output_one_char(PDF pdf, internal_font_number ffi, integer c)
         break;
     }
 }
-
-
 
 /* mark |f| as a used font; set |font_used(f)|, |pdf_font_size(f)| and |pdf_font_num(f)| */
 void pdf_use_font(internal_font_number f, integer fontnum)
@@ -268,10 +257,10 @@ internal_font_number pdf_set_font(PDF pdf, internal_font_number f)
                                    with |f|; |ff| is either |f| or some font with the same tfm name
                                    at different size and/or expansion */
     k = ff;
-    if (pdf->font_list==NULL) {
-       /* |font_list| is empty, append |f| */
+    if (pdf->font_list == NULL) {
+        /* |font_list| is empty, append |f| */
         pdf->font_list = xmalloc(sizeof(pdf_object_list));
-        pdf->font_list->link = NULL; 
+        pdf->font_list->link = NULL;
         pdf->font_list->info = f;
         return k;
     }
@@ -285,7 +274,9 @@ internal_font_number pdf_set_font(PDF pdf, internal_font_number f)
     }
     /* |f| not found in |font_list|, append it now */
     p = xmalloc(sizeof(pdf_object_list));
-    q->link = p; p->link = NULL;  p->info = f;
+    q->link = p;
+    p->link = NULL;
+    p->info = f;
     return k;
 }
 

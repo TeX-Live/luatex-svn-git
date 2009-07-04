@@ -153,10 +153,11 @@ void end_chararray(PDF pdf)
 
 /**********************************************************************/
 
-void pdf_place_glyph(PDF pdf, scaledpos pos, internal_font_number f, integer c)
+void pdf_place_glyph(PDF pdf, internal_font_number f, integer c)
 {
     boolean move;
     pdfstructure *p = pdf->pstruct;
+    scaledpos pos = pdf->posstruct->pos;
     if (!char_exists(f, c))
         return;
     if (f != p->f_cur || is_textmode(p) || is_pagemode(p)) {
@@ -195,9 +196,9 @@ void pdf_place_glyph(PDF pdf, scaledpos pos, internal_font_number f, integer c)
     if (is_chararraymode(p))
         begin_charmode(pdf, f, p);
     pdf_mark_char(f, c);
-    if (font_encodingbytes(f)==2)
-        pdf_print_wide_char(pdf, char_index(f, c)); 
+    if (font_encodingbytes(f) == 2)
+        pdf_print_wide_char(pdf, char_index(f, c));
     else
-        pdf_print_char(pdf, c); 
+        pdf_print_char(pdf, c);
     p->cw.m += pdf_char_width(p, p->f_pdf, c);  /* aka adv_char_width() */
 }

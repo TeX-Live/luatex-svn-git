@@ -134,18 +134,27 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
     unsigned k;
     str_number s;
 
+    posstructure localpos;      /* the position structure local within this function */
+    posstructure *refpos;       /* the list origin pos. on the page, provided by the caller */
+
+    lf = 0;                     /* for -Wall */
     packet_cur_s++;
     if (packet_cur_s >= packet_max_recursion)
         overflow("max level recursion of virtual fonts", packet_max_recursion);
-    save_cur = cur;
-
-    lf = 0;                     /* for -Wall */
     co = get_charinfo(vf_f, c);
     vf_packets = get_charinfo_packets(co);
     if (vf_packets == NULL) {
         packet_cur_s--;
         return;
     }
+
+    refpos = pdf->posstruct;
+    pdf->posstruct = &localpos; /* use local structure for recursion */
+    localpos.dir = dir_TL_;     /* invariably for vf */
+
+    save_cur = cur;             /* TODO: make cur local */
+    set_to_zero(cur);
+
     cur_packet_byte = 0;
     fs_f = font_size(vf_f);
     while ((cmd = vf_packets[cur_packet_byte]) != packet_end_code) {
@@ -176,12 +185,12 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
             if (!char_exists(lf, k)) {
                 char_warning(lf, k);
             } else {
+                (void) new_synch_pos_with_cur(&localpos, refpos, cur);
                 if (has_packet(lf, k))
                     do_vf_packet(pdf, lf, k);
-                else {
-                    pos = synch_p_with_c(cur);
-                    pdf_place_glyph(pdf, pos, lf, k);
-                }
+                else
+                    pdf_place_glyph(pdf, lf, k);
+
             }
             cur.h = cur.h + char_width(lf, k);
             break;
@@ -189,7 +198,7 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
             packet_scaled(rule.ht, fs_f);
             packet_scaled(rule.wd, fs_f);
             if ((rule.wd > 0) && (rule.ht > 0)) {
-                pos = synch_p_with_c(cur);
+                pos = new_synch_pos_with_cur(&localpos, refpos, cur);
                 pdf_place_rule(pdf, pos.h, pos.v, rule.wd, rule.ht);
             }
             cur.h = cur.h + rule.wd;
@@ -210,17 +219,19 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
                 append_char(do_packet_byte());
             }
             s = make_string();
+            pos = new_synch_pos_with_cur(&localpos, refpos, cur);
             pdf_literal(pdf, s, scan_special, false);
             flush_str(s);
             break;
         case packet_image_code:
             packet_number(k);
-            pos = synch_p_with_c(cur);
+            pos = new_synch_pos_with_cur(&localpos, refpos, cur);
             vf_out_image(k, pos);
             break;
         case packet_node_code:
             packet_number(k);
             temp_ptr = k;
+            (void) new_synch_pos_with_cur(&localpos, refpos, cur);
             pdf_hlist_out(pdf);
             break;
         case packet_nop_code:
@@ -231,8 +242,8 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
     };
     cur = save_cur;
     packet_cur_s--;
+    pdf->posstruct = refpos;
 }
-
 
 integer *packet_local_fonts(internal_font_number f, integer * num)
 {
