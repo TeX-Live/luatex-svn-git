@@ -87,4 +87,50 @@ to do nothing, since the user should control the terminal.
 extern boolean init_terminal(void);
 extern void term_input(void);
 
+extern str_number cur_name;
+extern str_number cur_area;
+extern str_number cur_ext;
+extern pool_pointer area_delimiter;
+extern pool_pointer ext_delimiter;
+
+#  define append_to_name(A) do {				\
+	c=(A);						\
+	if (c!='"') {					\
+	    incr(k);					\
+	    if (k<=file_name_size) nameoffile[k]=c;	\
+	}						\
+    } while (0)
+
+extern void pack_file_name(str_number n, str_number a, str_number e);
+
+#  define file_name_size 512
+
+#  define format_area_length 0  /* length of its area part */
+#  define format_ext_length 4   /* length of its `\.{.fmt}' part */
+#  define format_extension ".fmt"
+                                /* the extension, as a constant */
+
+extern integer format_default_length;
+extern char *TEX_format_default;
+
+extern void pack_buffered_name(integer n, integer a, integer b);
+extern boolean open_fmt_file(void);
+
+#  define a_make_name_string(A) make_name_string()
+#  define b_make_name_string(A) make_name_string()
+#  define w_make_name_string(A) make_name_string()
+
+extern boolean name_in_progress;        /* is a file name being scanned? */
+extern str_number job_name;     /* principal file name */
+extern boolean log_opened;      /* has the transcript file been opened? */
+
+#  define pack_cur_name() pack_file_name(cur_name,cur_area,cur_ext)
+
+extern FILE *dvi_file;          /* the device-independent output goes here */
+extern str_number output_file_name;     /* full name of the output file */
+extern str_number texmf_log_name;       /* full name of the log file */
+
+extern void open_log_file(void);
+extern void start_input(void);
+
 #endif

@@ -1552,6 +1552,38 @@
 @define function init_terminal;
 @define procedure term_input;
 
+@define var cur_name;
+@define var cur_area;
+@define var cur_ext;
+@define var area_delimiter;
+@define var ext_delimiter;
+
+@define var file_name_size;
+@define var format_area_length;
+@define var format_ext_length;
+@define var format_extension;
+@define var format_default_length;
+@define var TEX_format_default;
+@define var name_in_progress;
+@define var job_name;
+@define var log_opened;
+@define var dvi_file;
+@define var output_file_name;
+@define var texmf_log_name;
+
+@define procedure append_to_name();
+@define procedure pack_file_name();
+@define procedure pack_buffered_name();
+@define function open_fmt_file;
+@define function a_make_name_string();
+@define function b_make_name_string();
+@define function w_make_name_string();
+@define procedure pack_cur_name;
+@define procedure open_log_file;
+@define procedure start_input;
+
+
+
 { arithmetic }
 
 {define procedure incr();}

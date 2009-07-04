@@ -19,9 +19,14 @@
 
 #include <ptexlib.h>
 
+#include "commands.h"
+
+
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
+
+#define end_line_char int_par(param_end_line_char_code)
 
 /*
 The bane of portability is the fact that different operating systems treat
@@ -465,4 +470,379 @@ void term_input(void)
     }
     print_ln();
     incr(selector);             /* restore previous status */
+}
+
+/*
+It's time now to fret about file names.  Besides the fact that different
+operating systems treat files in different ways, we must cope with the
+fact that completely different naming conventions are used by different
+groups of people. The following programs show what is required for one
+particular operating system; similar routines for other systems are not
+difficult to devise.
+@^fingers@>
+@^system dependencies@>
+
+\TeX\ assumes that a file name has three parts: the name proper; its
+``extension''; and a ``file area'' where it is found in an external file
+system.  The extension of an input file or a write file is assumed to be
+`\.{.tex}' unless otherwise specified; it is `\.{.log}' on the
+transcript file that records each run of \TeX; it is `\.{.tfm}' on the font
+metric files that describe characters in the fonts \TeX\ uses; it is
+`\.{.dvi}' on the output files that specify typesetting information; and it
+is `\.{.fmt}' on the format files written by \.{INITEX} to initialize \TeX.
+The file area can be arbitrary on input files, but files are usually
+output to the user's current area.  If an input file cannot be
+found on the specified area, \TeX\ will look for it on a special system
+area; this special area is intended for commonly used input files like
+\.{webmac.tex}.
+
+Simple uses of \TeX\ refer only to file names that have no explicit
+extension or area. For example, a person usually says `\.{\\input} \.{paper}'
+or `\.{\\font\\tenrm} \.= \.{helvetica}' instead of `\.{\\input}
+\.{paper.new}' or `\.{\\font\\tenrm} \.= \.{<csd.knuth>test}'. Simple file
+names are best, because they make the \TeX\ source files portable;
+whenever a file name consists entirely of letters and digits, it should be
+treated in the same way by all implementations of \TeX. However, users
+need the ability to refer to other files in their environment, especially
+when responding to error messages concerning unopenable files; therefore
+we want to let them use the syntax that appears in their favorite
+operating system.
+
+The following procedures don't allow spaces to be part of
+file names; but some users seem to like names that are spaced-out.
+System-dependent changes to allow such things should probably
+be made with reluctance, and only when an entire file name that
+includes spaces is ``quoted'' somehow.
+
+Here are the global values that file names will be scanned into.
+*/
+
+str_number cur_name;            /* name of file just scanned */
+str_number cur_area;            /* file area just scanned, or \.{""} */
+str_number cur_ext;             /* file extension just scanned, or \.{""} */
+
+/*
+The file names we shall deal with have the
+following structure:  If the name contains `\./' or `\.:'
+(for Amiga only), the file area
+consists of all characters up to and including the final such character;
+otherwise the file area is null.  If the remaining file name contains
+`\..', the file extension consists of all such characters from the last
+`\..' to the end, otherwise the file extension is null.
+
+We can scan such file names easily by using two global variables that keep track
+of the occurrences of area and extension delimiters:
+*/
+
+pool_pointer area_delimiter;    /* the most recent `\./', if any */
+pool_pointer ext_delimiter;     /* the relevant `\..', if any */
+
+/*
+Input files that can't be found in the user's area may appear in a standard
+system area called |TEX_area|. Font metric files whose areas are not given
+explicitly are assumed to appear in a standard system area called
+|TEX_font_area|.  $\Omega$'s compiled translation process files whose areas
+are not given explicitly are assumed to appear in a standard system area. 
+These system area names will, of course, vary from place to place.
+*/
+
+/*
+Another system-dependent routine is needed to convert three internal
+\TeX\ strings
+into the |nameoffile| value that is used to open files. The present code
+allows both lowercase and uppercase letters in the file name.
+*/
+
+void pack_file_name(str_number n, str_number a, str_number e)
+{
+    integer k;                  /* number of positions filled in |nameoffile| */
+    ASCII_code c;               /* character being packed */
+    pool_pointer j;             /* index into |str_pool| */
+    k = 0;
+    if (nameoffile)
+        xfree(nameoffile);
+    nameoffile =
+        xmallocarray(packed_ASCII_code,
+                     str_length(a) + str_length(n) + str_length(e) + 1);
+    for (j = str_start_macro(a); j <= str_start_macro(a + 1) - 1; j++)
+        append_to_name(str_pool[j]);
+    for (j = str_start_macro(n); j <= str_start_macro(n + 1) - 1; j++)
+        append_to_name(str_pool[j]);
+    for (j = str_start_macro(e); j <= str_start_macro(e + 1) - 1; j++)
+        append_to_name(str_pool[j]);
+    if (k <= file_name_size)
+        namelength = k;
+    else
+        namelength = file_name_size;
+    nameoffile[namelength + 1] = 0;
+}
+
+
+/*
+A messier routine is also needed, since format file names must be scanned
+before \TeX's string mechanism has been initialized. We shall use the
+global variable |TEX_format_default| to supply the text for default system areas
+and extensions related to format files.
+@^system dependencies@>
+
+Under {\mc UNIX} we don't give the area part, instead depending
+on the path searching that will happen during file opening.  Also, the
+length will be set in the main program.
+*/
+
+integer format_default_length;
+char *TEX_format_default;
+
+/*
+We set the name of the default format file and the length of that name
+in C, instead of Pascal, since we want them to depend on the name of the
+program.
+*/
+
+/*
+Here is the messy routine that was just mentioned. It sets |nameoffile|
+from the first |n| characters of |TEX_format_default|, followed by
+|buffer[a..b]|, followed by the last |format_ext_length| characters of
+|TEX_format_default|.
+
+We dare not give error messages here, since \TeX\ calls this routine before
+the |error| routine is ready to roll. Instead, we simply drop excess characters,
+since the error will be detected in another way when a strange file name
+isn't found.
+*/
+
+void pack_buffered_name(integer n, integer a, integer b)
+{
+    integer k;                  /* number of positions filled in |nameoffile| */
+    ASCII_code c;               /* character being packed */
+    integer j;                  /* index into |buffer| or |TEX_format_default| */
+    if (n + b - a + 1 + format_ext_length > file_name_size)
+        b = a + file_name_size - n - 1 - format_ext_length;
+    k = 0;
+    if (nameoffile)
+        xfree(nameoffile);
+    nameoffile =
+        xmallocarray(packed_ASCII_code,
+                     n + (b - a + 1) + format_ext_length + 1);
+    for (j = 1; j <= n; j++)
+        append_to_name(TEX_format_default[j]);
+    for (j = a; j <= b; j++)
+        append_to_name(buffer[j]);
+    for (j = format_default_length - format_ext_length + 1;
+         j <= format_default_length; j++)
+        append_to_name(TEX_format_default[j]);
+    if (k <= file_name_size)
+        namelength = k;
+    else
+        namelength = file_name_size;
+    nameoffile[namelength + 1] = 0;
+}
+
+/*
+Here is the only place we use |pack_buffered_name|. This part of the program
+becomes active when a ``virgin'' \TeX\ is trying to get going, just after
+the preliminary initialization, or when the user is substituting another
+format file by typing `\.\&' after the initial `\.{**}' prompt.  The buffer
+contains the first line of input in |buffer[loc..(last-1)]|, where
+|loc<last| and |buffer[loc]<>" "|.
+*/
+
+boolean open_fmt_file(void)
+{
+    int j;                      /* the first space after the format file name */
+    j = iloc;
+    if (buffer[iloc] == '&') {
+        incr(iloc);
+        j = iloc;
+        buffer[last] = ' ';
+        while (buffer[j] != ' ')
+            incr(j);
+        pack_buffered_name(0, iloc, j - 1);     /* Kpathsea does everything */
+        if (w_open_in(fmt_file))
+            goto FOUND;
+        wake_up_terminal();
+        fputs("Sorry, I can't find the format `", stdout);
+        fputs(stringcast(nameoffile + 1), stdout);
+        fputs("'; will try `", stdout);
+        fputs(TEX_format_default + 1, stdout);
+        fputs("'.", stdout);
+        wterm_cr();
+        update_terminal();
+    }
+    /* now pull out all the stops: try for the system \.{plain} file */
+    pack_buffered_name(format_default_length - format_ext_length, 1, 0);
+    if (!w_open_in(fmt_file)) {
+        wake_up_terminal();
+        fputs("I can't find the format file `", stdout);
+        fputs(TEX_format_default + 1, stdout);
+        fputs("'!", stdout);
+        wterm_cr();
+        return false;
+    }
+  FOUND:
+    iloc = j;
+    return true;
+}
+
+/*
+Operating systems often make it possible to determine the exact name (and
+possible version number) of a file that has been opened. The following routine,
+which simply makes a \TeX\ string from the value of |nameoffile|, should
+ideally be changed to deduce the full name of file~|f|, which is the file
+most recently opened, if it is possible to do this in a \PASCAL\ program.
+
+
+This routine might be called after string memory has overflowed, hence
+we dare not use `|str_room|'.
+*/
+
+/*
+The global variable |name_in_progress| is used to prevent recursive
+use of |scan_file_name|, since the |begin_name| and other procedures
+communicate via global variables. Recursion would arise only by
+devious tricks like `\.{\\input\\input f}'; such attempts at sabotage
+must be thwarted. Furthermore, |name_in_progress| prevents \.{\\input}
+@^recursion@>
+from being initiated when a font size specification is being scanned.
+
+Another global variable, |job_name|, contains the file name that was first
+\.{\\input} by the user. This name is extended by `\.{.log}' and `\.{.dvi}'
+and `\.{.fmt}' in the names of \TeX's output files.
+*/
+
+
+boolean name_in_progress;       /* is a file name being scanned? */
+str_number job_name;            /* principal file name */
+boolean log_opened;             /* has the transcript file been opened? */
+
+/*
+Initially |job_name=0|; it becomes nonzero as soon as the true name is known.
+We have |job_name=0| if and only if the `\.{log}' file has not been opened,
+except of course for a short time just after |job_name| has become nonzero.
+*/
+
+FILE *dvi_file;                 /* the device-independent output goes here */
+str_number output_file_name;    /* full name of the output file */
+str_number texmf_log_name;      /* full name of the log file */
+
+/*
+The |open_log_file| routine is used to open the transcript file and to help
+it catch up to what has previously been printed on the terminal.
+*/
+
+void open_log_file(void)
+{
+    int old_setting;            /* previous |selector| setting */
+    int k;                      /* index into |buffer| */
+    int l;                      /* end of first input line */
+    old_setting = selector;
+    if (job_name == 0)
+        job_name = getjobname(maketexstring("texput")); /* TODO */
+    pack_job_name(".fls");
+    recorder_change_filename(stringcast(nameoffile + 1));
+    pack_job_name(".log");
+    while (!lua_a_open_out(log_file, 0)) {
+        /* Try to get a different log file name */
+        /* Sometimes |open_log_file| is called at awkward moments when \TeX\ is
+           unable to print error messages or even to |show_context|.
+           The |prompt_file_name| routine can result in a |fatal_error|, but the |error|
+           routine will not be invoked because |log_opened| will be false.
+
+           The normal idea of |batch_mode| is that nothing at all should be written
+           on the terminal. However, in the unusual case that
+           no log file could be opened, we make an exception and allow
+           an explanatory message to be seen.
+
+           Incidentally, the program always refers to the log file as a `\.{transcript
+           file}', because some systems cannot use the extension `\.{.log}' for
+           this file.
+         */
+        selector = term_only;
+        prompt_file_name("transcript file name", ".log");
+    }
+    log_file = name_file_pointer;
+    texmf_log_name = a_make_name_string(log_file);
+    selector = log_only;
+    log_opened = true;
+    if (callback_defined(start_run_callback) == 0) {
+        /* Print the banner line, including the date and time */
+        log_banner(luatex_version_string, 0);   /* extra_version_info *//* TODO */
+
+        input_stack[input_ptr] = cur_input;     /* make sure bottom level is in memory */
+        tprint_nl("**");
+        l = input_stack[0].limit_field; /* last position of first line */
+        if (buffer[l] == end_line_char)
+            decr(l);            /* TODO: multichar endlinechar */
+        for (k = 1; k <= l; k++)
+            print_char(buffer[k]);
+        print_ln();             /* now the transcript file contains the first line of input */
+    }
+    flush_loggable_info();      /* should be done always */
+    selector = old_setting + 2; /* |log_only| or |term_and_log| */
+}
+
+/*
+Let's turn now to the procedure that is used to initiate file reading
+when an `\.{\\input}' command is being processed.
+*/
+
+void start_input(void)
+{                               /* \TeX\ will \.{\\input} something */
+    str_number temp_str;
+    scan_file_name();           /* set |cur_name| to desired file name */
+    pack_cur_name();
+    while (1) {
+        begin_file_reading();   /* set up |cur_file| and new level of input */
+        if (lua_a_open_in(cur_file, 0))
+            break;
+        end_file_reading();     /* remove the level that didn't work */
+        prompt_file_name("input file name", "");
+    }
+    cur_file = name_file_pointer;
+    iname = a_make_name_string(cur_file);
+    source_filename_stack[in_open] = iname;
+    full_source_filename_stack[in_open] = makefullnamestring();
+    if (iname == str_ptr - 1) { /* we can try to conserve string pool space now */
+        temp_str = search_string(iname);
+        if (temp_str > 0) {
+            iname = temp_str;
+            flush_string();
+        }
+    }
+    if (job_name == 0) {
+        job_name = getjobname(cur_name);
+        open_log_file();
+    }
+    /* |open_log_file| doesn't |show_context|, so |limit|
+       and |loc| needn't be set to meaningful values yet */
+    if (tracefilenames) {
+        if (term_offset + str_length(iname) > max_print_line - 2)
+            print_ln();
+        else if ((term_offset > 0) || (file_offset > 0))
+            print_char(' ');
+        print_char('(');
+        print_file_name(0, iname, 0);
+    }
+    incr(open_parens);
+    update_terminal();
+    istate = new_line;
+    /* Prepare new file {\sl Sync\TeX} information */
+    synctex_start_input();      /* Give control to the {\sl Sync\TeX} controller */
+
+    /* Read the first line of the new file */
+    /* Here we have to remember to tell the |lua_input_ln| routine not to
+       start with a |get|. If the file is empty, it is considered to
+       contain a single blank line. */
+
+    line = 1;
+    if (lua_input_ln(cur_file, 0, false)) {
+        ;
+    }
+    firm_up_the_line();
+    if (end_line_char_inactive())
+        decr(ilimit);
+    else
+        buffer[ilimit] = end_line_char;
+    first = ilimit + 1;
+    iloc = istart;
 }

@@ -510,11 +510,11 @@ in production versions of \TeX.
   at most |max_halfword|}
 @!dvi_buf_size=800; {size of the output buffer; must be a multiple of 8}
 @!expand_depth=10000; {limits recursive calls of the |expand| procedure}
-@!file_name_size=40; {file names shouldn't be longer than this}
 @!pool_name='TeXformats:TEX.POOL                     ';
   {string of length |file_name_size|; tells where the string pool appears}
 @.TeXformats@>
 @!luatex_version_string='beta-0.41.0';
+
 
 @ Like the preceding parameters, the following quantities can be changed
 at compile time to extend or reduce \TeX's capacity. But if they are changed,
@@ -6489,348 +6489,9 @@ primitive_tex("else",fi_or_else,else_code,0);
 @!@:else_}{\.{\\else} primitive@>
 
 @* \[29] File names.
-It's time now to fret about file names.  Besides the fact that different
-operating systems treat files in different ways, we must cope with the
-fact that completely different naming conventions are used by different
-groups of people. The following programs show what is required for one
-particular operating system; similar routines for other systems are not
-difficult to devise.
-@^fingers@>
-@^system dependencies@>
-
-\TeX\ assumes that a file name has three parts: the name proper; its
-``extension''; and a ``file area'' where it is found in an external file
-system.  The extension of an input file or a write file is assumed to be
-`\.{.tex}' unless otherwise specified; it is `\.{.log}' on the
-transcript file that records each run of \TeX; it is `\.{.tfm}' on the font
-metric files that describe characters in the fonts \TeX\ uses; it is
-`\.{.dvi}' on the output files that specify typesetting information; and it
-is `\.{.fmt}' on the format files written by \.{INITEX} to initialize \TeX.
-The file area can be arbitrary on input files, but files are usually
-output to the user's current area.  If an input file cannot be
-found on the specified area, \TeX\ will look for it on a special system
-area; this special area is intended for commonly used input files like
-\.{webmac.tex}.
-
-Simple uses of \TeX\ refer only to file names that have no explicit
-extension or area. For example, a person usually says `\.{\\input} \.{paper}'
-or `\.{\\font\\tenrm} \.= \.{helvetica}' instead of `\.{\\input}
-\.{paper.new}' or `\.{\\font\\tenrm} \.= \.{<csd.knuth>test}'. Simple file
-names are best, because they make the \TeX\ source files portable;
-whenever a file name consists entirely of letters and digits, it should be
-treated in the same way by all implementations of \TeX. However, users
-need the ability to refer to other files in their environment, especially
-when responding to error messages concerning unopenable files; therefore
-we want to let them use the syntax that appears in their favorite
-operating system.
-
-The following procedures don't allow spaces to be part of
-file names; but some users seem to like names that are spaced-out.
-System-dependent changes to allow such things should probably
-be made with reluctance, and only when an entire file name that
-includes spaces is ``quoted'' somehow.
-
-@ Here are the global values that file names will be scanned into.
-
-@<Glob...@>=
-@!cur_name:str_number; {name of file just scanned}
-@!cur_area:str_number; {file area just scanned, or \.{""}}
-@!cur_ext:str_number; {file extension just scanned, or \.{""}}
-
-@ The file names we shall deal with for illustrative purposes have the
-following structure:  If the name contains `\.>' or `\.:', the file area
-consists of all characters up to and including the final such character;
-otherwise the file area is null.  If the remaining file name contains
-`\..', the file extension consists of all such characters from the first
-remaining `\..' to the end, otherwise the file extension is null.
-@^system dependencies@>
-
-We can scan such file names easily by using two global variables that keep track
-of the occurrences of area and extension delimiters:
-
-@<Glob...@>=
-@!area_delimiter:pool_pointer; {the most recent `\.>' or `\.:', if any}
-@!ext_delimiter:pool_pointer; {the relevant `\..', if any}
-
-@ Input files that can't be found in the user's area may appear in a standard
-system area called |TEX_area|. Font metric files whose areas are not given
-explicitly are assumed to appear in a standard system area called
-|TEX_font_area|.  $\Omega$'s compiled translation process files whose areas
-are not given explicitly are assumed to appear in a standard system area. 
-These system area names will, of course, vary from place to place.
-@^system dependencies@>
-
-@d TEX_area=="TeXinputs:"
-@.TeXinputs@>
-@d TEX_font_area=="TeXfonts:"
-@.TeXfonts@>
-
-@ Another system-dependent routine is needed to convert three internal
-\TeX\ strings
-into the |nameoffile| value that is used to open files. The present code
-allows both lowercase and uppercase letters in the file name.
-@^system dependencies@>
-
-@d append_to_name(#)==begin c:=#; incr(k);
-  if k<=file_name_size then nameoffile[k]:=c;
-  end
-
-@p procedure pack_file_name(@!n,@!a,@!e:str_number);
-var k:integer; {number of positions filled in |nameoffile|}
-@!c: ASCII_code; {character being packed}
-@!j:pool_pointer; {index into |str_pool|}
-begin k:=0;
-for j:=str_start_macro(a) to str_start_macro(a+1)-1 do append_to_name(str_pool[j]);
-for j:=str_start_macro(n) to str_start_macro(n+1)-1 do append_to_name(str_pool[j]);
-for j:=str_start_macro(e) to str_start_macro(e+1)-1 do append_to_name(str_pool[j]);
-if k<=file_name_size then namelength:=k@+else namelength:=file_name_size;
-for k:=namelength+1 to file_name_size do nameoffile[k]:=' ';
-end;
-
-@ A messier routine is also needed, since format file names must be scanned
-before \TeX's string mechanism has been initialized. We shall use the
-global variable |TEX_format_default| to supply the text for default system areas
-and extensions related to format files.
-@^system dependencies@>
-
-@d format_default_length=20 {length of the |TEX_format_default| string}
-@d format_area_length=11 {length of its area part}
-@d format_ext_length=4 {length of its `\.{.fmt}' part}
-@d format_extension=='.fmt' {the extension, as a \.{WEB} constant}
-
-@<Glob...@>=
-@!TEX_format_default:packed array[1..format_default_length] of char;
-
-@ @<Set init...@>=
-TEX_format_default:='TeXformats:plain.fmt';
-@.TeXformats@>
-@.plain@>
-@^system dependencies@>
 
 @ @<Check the ``constant'' values for consistency@>=
 if format_default_length>file_name_size then bad:=31;
-
-@ Here is the messy routine that was just mentioned. It sets |nameoffile|
-from the first |n| characters of |TEX_format_default|, followed by
-|buffer[a..b]|, followed by the last |format_ext_length| characters of
-|TEX_format_default|.
-
-We dare not give error messages here, since \TeX\ calls this routine before
-the |error| routine is ready to roll. Instead, we simply drop excess characters,
-since the error will be detected in another way when a strange file name
-isn't found.
-@^system dependencies@>
-
-@p procedure pack_buffered_name(@!n:integer;@!a,@!b:integer);
-var k:integer; {number of positions filled in |nameoffile|}
-@!c: ASCII_code; {character being packed}
-@!j:integer; {index into |buffer| or |TEX_format_default|}
-begin if n+b-a+1+format_ext_length>file_name_size then
-  b:=a+file_name_size-n-1-format_ext_length;
-k:=0;
-for j:=1 to n do append_to_name(TEX_format_default[j]);
-for j:=a to b do append_to_name(buffer[j]);
-for j:=format_default_length-format_ext_length+1 to format_default_length do
-  append_to_name(TEX_format_default[j]);
-if k<=file_name_size then namelength:=k@+else namelength:=file_name_size;
-for k:=namelength+1 to file_name_size do nameoffile[k]:=' ';
-end;
-
-@ Here is the only place we use |pack_buffered_name|. This part of the program
-becomes active when a ``virgin'' \TeX\ is trying to get going, just after
-the preliminary initialization, or when the user is substituting another
-format file by typing `\.\&' after the initial `\.{**}' prompt.  The buffer
-contains the first line of input in |buffer[loc..(last-1)]|, where
-|loc<last| and |buffer[loc]<>" "|.
-
-@<Declare the function called |open_fmt_file|@>=
-function open_fmt_file:boolean;
-label found,exit;
-var j:0..buf_size; {the first space after the format file name}
-begin j:=iloc;
-if buffer[iloc]="&" then
-  begin incr(iloc); j:=iloc; buffer[last]:=" ";
-  while buffer[j]<>" " do incr(j);
-  pack_buffered_name(0,iloc,j-1); {try first without the system file area}
-  if w_open_in(fmt_file) then goto found;
-  pack_buffered_name(format_area_length,iloc,j-1);
-    {now try the system format file area}
-  if w_open_in(fmt_file) then goto found;
-  wake_up_terminal;
-  fputs ('Sorry, I can''t find the format `', stdout);
-  fputs (stringcast(nameoffile + 1), stdout);
-  fputs ('''; will try `', stdout);
-  fputs (TEX_format_default + 1, stdout);
-  fputs ('''.', stdout);
-  wterm_cr;
-@.Sorry, I can't find...@>
-  update_terminal;
-  end;
-  {now pull out all the stops: try for the system \.{plain} file}
-pack_buffered_name(format_default_length-format_ext_length,1,0);
-if not w_open_in(fmt_file) then
-  begin wake_up_terminal;
-  fputs ('I can''t find the format file `', stdout);
-  fputs (TEX_format_default + 1, stdout);
-  fputs ('''!', stdout);
-  wterm_cr;
-@.I can't find the format...@>
-@.plain@>
-  open_fmt_file:=false; return;
-  end;
-found:iloc:=j; open_fmt_file:=true;
-exit:end;
-
-@ Operating systems often make it possible to determine the exact name (and
-possible version number) of a file that has been opened. The following routine,
-which simply makes a \TeX\ string from the value of |nameoffile|, should
-ideally be changed to deduce the full name of file~|f|, which is the file
-most recently opened, if it is possible to do this in a \PASCAL\ program.
-@^system dependencies@>
-
-This routine might be called after string memory has overflowed, hence
-we dare not use `|str_room|'.
-
-@d a_make_name_string(#)==make_name_string
-@d b_make_name_string(#)==make_name_string
-@d w_make_name_string(#)==make_name_string
-
-
-@ The global variable |name_in_progress| is used to prevent recursive
-use of |scan_file_name|, since the |begin_name| and other procedures
-communicate via global variables. Recursion would arise only by
-devious tricks like `\.{\\input\\input f}'; such attempts at sabotage
-must be thwarted. Furthermore, |name_in_progress| prevents \.{\\input}
-@^recursion@>
-from being initiated when a font size specification is being scanned.
-
-Another global variable, |job_name|, contains the file name that was first
-\.{\\input} by the user. This name is extended by `\.{.log}' and `\.{.dvi}'
-and `\.{.fmt}' in the names of \TeX's output files.
-
-@<Glob...@>=
-@!name_in_progress:boolean; {is a file name being scanned?}
-@!job_name:str_number; {principal file name}
-@!log_opened:boolean; {has the transcript file been opened?}
-
-@ Initially |job_name=0|; it becomes nonzero as soon as the true name is known.
-We have |job_name=0| if and only if the `\.{log}' file has not been opened,
-except of course for a short time just after |job_name| has become nonzero.
-
-@d pack_cur_name==pack_file_name(cur_name,cur_area,cur_ext)
-
-@<Initialize the output routines@>=
-job_name:=0; name_in_progress:=false; log_opened:=false;
-
-@ @<Glob...@>=
-@!dvi_file: byte_file; {the device-independent output goes here}
-@!output_file_name: str_number; {full name of the output file}
-@!texmf_log_name:str_number; {full name of the log file}
-
-@ @<Initialize the output...@>=output_file_name:=0;
-
-@ The |open_log_file| routine is used to open the transcript file and to help
-it catch up to what has previously been printed on the terminal.
-
-@p procedure open_log_file;
-var old_setting:0..max_selector; {previous |selector| setting}
-@!k:0..buf_size; {index into |months| and |buffer|}
-@!l:0..buf_size; {end of first input line}
-begin old_setting:=selector;
-if job_name=0 then job_name:="texput";
-@.texput@>
-pack_job_name('.log');
-while not lua_a_open_out(log_file,0) do @<Try to get a different log file name@>;
-log_file := name_file_pointer;
-texmf_log_name:=a_make_name_string(log_file);
-selector:=log_only; log_opened:=true;
-if callback_defined(start_run_callback)=0 then begin
-  @<Print the banner line, including the date and time@>;
-  input_stack[input_ptr]:=cur_input; {make sure bottom level is in memory}
-  print_nl("**");
-@.**@>
-  l:=input_stack[0].limit_field; {last position of first line}
-  if buffer[l]=end_line_char then decr(l); { TODO: multichar endlinechar}
-  for k:=1 to l do print_char(buffer[k]);
-  print_ln; {now the transcript file contains the first line of input}
-  end;
-flush_loggable_info; {should be done always}
-selector:=old_setting+2; {|log_only| or |term_and_log|}
-end;
-
-@ Sometimes |open_log_file| is called at awkward moments when \TeX\ is
-unable to print error messages or even to |show_context|.
-The |prompt_file_name| routine can result in a |fatal_error|, but the |error|
-routine will not be invoked because |log_opened| will be false.
-
-The normal idea of |batch_mode| is that nothing at all should be written
-on the terminal. However, in the unusual case that
-no log file could be opened, we make an exception and allow
-an explanatory message to be seen.
-
-Incidentally, the program always refers to the log file as a `\.{transcript
-file}', because some systems cannot use the extension `\.{.log}' for
-this file.
-
-@<Try to get a different log file name@>=
-begin selector:=term_only;
-prompt_file_name('transcript file name','.log');
-end
-
-@ @<Print the banner...@>=
-log_banner(luatex_version_string,extra_version_info)
-
-@ Let's turn now to the procedure that is used to initiate file reading
-when an `\.{\\input}' command is being processed.
-
-@p procedure start_input; {\TeX\ will \.{\\input} something}
-label done;
-var temp_str:str_number;
-begin scan_file_name; {set |cur_name| to desired file name}
-{|if cur_ext="" then cur_ext:=".tex";|}
-pack_cur_name;
-loop@+  begin begin_file_reading; {set up |cur_file| and new level of input}
-  if lua_a_open_in(cur_file,0) then goto done;
-  end_file_reading; {remove the level that didn't work}
-  prompt_file_name('input file name','.tex');
-  end;
-done:
-cur_file := name_file_pointer;
-iname:=a_make_name_string(cur_file);
-if job_name=0 then
-  begin job_name:=cur_name; open_log_file;
-  end; {|open_log_file| doesn't |show_context|, so |limit|
-    and |loc| needn't be set to meaningful values yet}
-if tracefilenames then begin
-  if term_offset+length(iname)>max_print_line-2 then print_ln
-  else if (term_offset>0)or(file_offset>0) then print_char(" ");
-  print_char("(");
-  print_file_name(0,iname,0);
-end;
-incr(open_parens);
-update_terminal;
-istate:=new_line;
-if iname=str_ptr-1 then {we can conserve string pool space now}
-  begin flush_string; iname:=cur_name;
-  end;
-@<Prepare new file {\sl Sync\TeX} information@>;
-@<Read the first line of the new file@>;
-end;
-
-@ Here we have to remember to tell the |lua_input_ln| routine not to
-start with a |get|. If the file is empty, it is considered to
-contain a single blank line.
-@^system dependencies@>
-@^empty line at end of file@>
-
-@<Read the first line...@>=
-begin line:=1;
-if lua_input_ln(cur_file,0,false) then do_nothing;
-firm_up_the_line;
-if end_line_char_inactive then decr(ilimit)
-else  buffer[ilimit]:=end_line_char;
-first:=ilimit+1; iloc:=istart;
-end
 
 @* \[30] Font metric data and OCPS.
 \TeX\ gets its knowledge about fonts from font metric files, also called
@@ -11472,7 +11133,7 @@ incompatible with the present \TeX\ table sizes, etc.
   goto bad_fmt;
   end
 
-@p @t\4@>@<Declare the function called |open_fmt_file|@>@;
+@p 
 function load_fmt_file:boolean;
 label bad_fmt,exit;
 var j,@!k:integer; {all-purpose indices}
@@ -11904,7 +11565,6 @@ init_str_ptr:=str_ptr; init_pool_ptr:=pool_ptr; fix_date_and_time;
 tini@/
 ready_already:=314159;
 start_of_TEX: print_banner(luatex_version_string,extra_version_info);
-@<Initialize the output routines@>;
 @<Get the first line of input and prepare to start@>;
 history:=spotless; {ready to go!}
 @<Initialize synctex primitive@>
@@ -14939,9 +14599,6 @@ will update the current input state record accordingly.
 If the input comes from the terminal or a pseudo file, the |synctex_tag| is set to 0.
 It results in automatically disabling synchronization for material
 input from the terminal or pseudo files.
-
-@ @<Prepare new file {\sl Sync\TeX} information@>=
-synctex_start_input; {Give control to the {\sl Sync\TeX} controller}
 
 @ @<Prepare pseudo file {\sl Sync\TeX} information@>=
 synctex_tag:=0;
