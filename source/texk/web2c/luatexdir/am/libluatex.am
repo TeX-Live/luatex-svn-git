@@ -172,6 +172,8 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/mlist.c \
 	luatexdir/tex/nesting.c \
 	luatexdir/tex/nesting.h \
+	luatexdir/tex/packaging.c \
+	luatexdir/tex/packaging.h \
 	luatexdir/tex/postlinebreak.c \
 	luatexdir/tex/primitive.c \
 	luatexdir/tex/printing.c \

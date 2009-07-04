@@ -98,6 +98,7 @@ extern double rint(double x);
 #  include "tex/texfileio.h"
 #  include "tex/arithmetic.h"
 #  include "tex/nesting.h"
+#  include "tex/packaging.h"
 
 /**********************************************************************/
 

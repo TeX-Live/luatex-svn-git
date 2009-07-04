@@ -266,7 +266,7 @@ am_libluatex_a_OBJECTS = libluatex_a-dvigen.$(OBJEXT) \
 	libluatex_a-inputstack.$(OBJEXT) \
 	libluatex_a-linebreak.$(OBJEXT) libluatex_a-math.$(OBJEXT) \
 	libluatex_a-memoryword.$(OBJEXT) libluatex_a-mlist.$(OBJEXT) \
-	libluatex_a-nesting.$(OBJEXT) \
+	libluatex_a-nesting.$(OBJEXT) libluatex_a-packaging.$(OBJEXT) \
 	libluatex_a-postlinebreak.$(OBJEXT) \
 	libluatex_a-primitive.$(OBJEXT) libluatex_a-printing.$(OBJEXT) \
 	libluatex_a-stringpool.$(OBJEXT) \
@@ -1451,6 +1451,8 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/mlist.c \
 	luatexdir/tex/nesting.c \
 	luatexdir/tex/nesting.h \
+	luatexdir/tex/packaging.c \
+	luatexdir/tex/packaging.h \
 	luatexdir/tex/postlinebreak.c \
 	luatexdir/tex/primitive.c \
 	luatexdir/tex/printing.c \
@@ -1900,6 +1902,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-nesting.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-ocp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-ocplist.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-packaging.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pagetree.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pdfaction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pdfannot.Po@am__quote@
@@ -4889,6 +4892,20 @@ libluatex_a-nesting.obj: luatexdir/tex/nesting.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/nesting.c' object='libluatex_a-nesting.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-nesting.obj `if test -f 'luatexdir/tex/nesting.c'; then $(CYGPATH_W) 'luatexdir/tex/nesting.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/nesting.c'; fi`
+
+libluatex_a-packaging.o: luatexdir/tex/packaging.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-packaging.o -MD -MP -MF $(DEPDIR)/libluatex_a-packaging.Tpo -c -o libluatex_a-packaging.o `test -f 'luatexdir/tex/packaging.c' || echo '$(srcdir)/'`luatexdir/tex/packaging.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-packaging.Tpo $(DEPDIR)/libluatex_a-packaging.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/packaging.c' object='libluatex_a-packaging.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-packaging.o `test -f 'luatexdir/tex/packaging.c' || echo '$(srcdir)/'`luatexdir/tex/packaging.c
+
+libluatex_a-packaging.obj: luatexdir/tex/packaging.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-packaging.obj -MD -MP -MF $(DEPDIR)/libluatex_a-packaging.Tpo -c -o libluatex_a-packaging.obj `if test -f 'luatexdir/tex/packaging.c'; then $(CYGPATH_W) 'luatexdir/tex/packaging.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/packaging.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-packaging.Tpo $(DEPDIR)/libluatex_a-packaging.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/packaging.c' object='libluatex_a-packaging.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-packaging.obj `if test -f 'luatexdir/tex/packaging.c'; then $(CYGPATH_W) 'luatexdir/tex/packaging.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/packaging.c'; fi`
 
 libluatex_a-postlinebreak.o: luatexdir/tex/postlinebreak.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-postlinebreak.o -MD -MP -MF $(DEPDIR)/libluatex_a-postlinebreak.Tpo -c -o libluatex_a-postlinebreak.o `test -f 'luatexdir/tex/postlinebreak.c' || echo '$(srcdir)/'`luatexdir/tex/postlinebreak.c
