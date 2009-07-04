@@ -479,23 +479,24 @@ in |fire_up| and |vsplit| do not have to traverse the full range
 |0..biggest_mark|.
 */
 
-halfword top_marks_array[(biggest_mark+1)];
-halfword first_marks_array[(biggest_mark+1)];
-halfword bot_marks_array[(biggest_mark+1)];
-halfword split_first_marks_array[(biggest_mark+1)];
-halfword split_bot_marks_array[(biggest_mark+1)];
+halfword top_marks_array[(biggest_mark + 1)];
+halfword first_marks_array[(biggest_mark + 1)];
+halfword bot_marks_array[(biggest_mark + 1)];
+halfword split_first_marks_array[(biggest_mark + 1)];
+halfword split_bot_marks_array[(biggest_mark + 1)];
 halfword biggest_used_mark;
 
 
-void initialize_marks (void) {
+void initialize_marks(void)
+{
     int i;
-    biggest_used_mark=0;
-    for (i=0;i<=biggest_mark;i++) {
-	top_mark(i)=null;
-	first_mark(i)=null;
-	bot_mark(i)=null;
-	split_first_mark(i)=null;
-	split_bot_mark(i)=null;
+    biggest_used_mark = 0;
+    for (i = 0; i <= biggest_mark; i++) {
+        top_mark(i) = null;
+        first_mark(i) = null;
+        bot_mark(i) = null;
+        split_first_mark(i) = null;
+        split_bot_mark(i) = null;
     }
 }
 
@@ -514,7 +515,7 @@ control sequence occurs in the midst of an argument.
 */
 
 
-int long_state; /* governs the acceptance of \.{\\par} */
+int long_state;                 /* governs the acceptance of \.{\\par} */
 
 /*
 The parameters, if any, must be scanned before the macro is expanded.
@@ -526,7 +527,7 @@ the only routine that puts anything onto |param_stack|, and it
 is not recursive.)
 */
 
-halfword pstack[9]; /* arguments supplied to a macro */
+halfword pstack[9];             /* arguments supplied to a macro */
 
 /*
 After parameter scanning is complete, the parameters are moved to the
@@ -543,285 +544,294 @@ the control sequence \.{\\par}. If an illegal \.{\\par} appears, the macro
 call is aborted, and the \.{\\par} will be rescanned.
 */
 
-void macro_call (void) /* invokes a user-defined control sequence */
-{
-    halfword r; /* current node in the macro's token list */
-    halfword p = null; /* current node in parameter token list being built */
-    halfword q; /* new node being put into the token list */
-    halfword s ; /* backup pointer for parameter matching */
-    halfword t ; /* cycle pointer for backup recovery */
-    halfword u, v; /* auxiliary pointers for backup recovery */
+void macro_call(void)
+{                               /* invokes a user-defined control sequence */
+    halfword r;                 /* current node in the macro's token list */
+    halfword p = null;          /* current node in parameter token list being built */
+    halfword q;                 /* new node being put into the token list */
+    halfword s;                 /* backup pointer for parameter matching */
+    halfword t;                 /* cycle pointer for backup recovery */
+    halfword u, v;              /* auxiliary pointers for backup recovery */
     halfword rbrace_ptr = null; /* one step before the last |right_brace| token */
-    int n = 0; /* the number of parameters scanned */
-    halfword unbalance; /* unmatched left braces in current parameter */
-    halfword m = 0; /* the number of tokens or groups (usually) */
-    halfword ref_count; /* start of the token list */
-    int save_scanner_status = scanner_status; /* |scanner_status| upon entry */
-    halfword save_warning_index = warning_index; /* |warning_index| upon entry */
-    int match_chr = 0; /* character used in parameter */
-    warning_index=cur_cs; 
-    ref_count=cur_chr; 
-    r=token_link(ref_count); 
-    if (int_par(param_tracing_macros_code)>0) {
-	/* Show the text of the macro being expanded */
-	begin_diagnostic(); print_ln(); print_cs(warning_index);
-	token_show(ref_count); end_diagnostic(false);
+    int n = 0;                  /* the number of parameters scanned */
+    halfword unbalance;         /* unmatched left braces in current parameter */
+    halfword m = 0;             /* the number of tokens or groups (usually) */
+    halfword ref_count;         /* start of the token list */
+    int save_scanner_status = scanner_status;   /* |scanner_status| upon entry */
+    halfword save_warning_index = warning_index;        /* |warning_index| upon entry */
+    int match_chr = 0;          /* character used in parameter */
+    warning_index = cur_cs;
+    ref_count = cur_chr;
+    r = token_link(ref_count);
+    if (int_par(param_tracing_macros_code) > 0) {
+        /* Show the text of the macro being expanded */
+        begin_diagnostic();
+        print_ln();
+        print_cs(warning_index);
+        token_show(ref_count);
+        end_diagnostic(false);
     }
-    if (token_info(r)==protected_token)  
-	r=token_link(r);
-    if (token_info(r)!=end_match_token) {
-	/* Scan the parameters and make |link(r)| point to the macro body; but
-	   |return| if an illegal \.{\\par} is detected */
-	/* At this point, the reader will find it advisable to review the explanation
-	   of token list format that was presented earlier, since many aspects of that
-	   format are of importance chiefly in the |macro_call| routine.
+    if (token_info(r) == protected_token)
+        r = token_link(r);
+    if (token_info(r) != end_match_token) {
+        /* Scan the parameters and make |link(r)| point to the macro body; but
+           |return| if an illegal \.{\\par} is detected */
+        /* At this point, the reader will find it advisable to review the explanation
+           of token list format that was presented earlier, since many aspects of that
+           format are of importance chiefly in the |macro_call| routine.
 
-	   The token list might begin with a string of compulsory tokens before the
-	   first |match| or |end_match|. In that case the macro name is supposed to be
-	   followed by those tokens; the following program will set |s=null| to
-	   represent this restriction. Otherwise |s| will be set to the first token of
-	   a string that will delimit the next parameter.
-	*/
+           The token list might begin with a string of compulsory tokens before the
+           first |match| or |end_match|. In that case the macro name is supposed to be
+           followed by those tokens; the following program will set |s=null| to
+           represent this restriction. Otherwise |s| will be set to the first token of
+           a string that will delimit the next parameter.
+         */
 
-	scanner_status=matching; unbalance=0;
-	long_state=eq_type(cur_cs);
-	if (long_state>=outer_call_cmd) 
-	    long_state=long_state-2;
-	do {
-	    set_token_link(temp_token_head,null);
-	    if ((token_info(r)>=end_match_token)||(token_info(r)<match_token))  {
-		s=null;
-	    } else  {
-		match_chr=token_info(r)-match_token; 
-		s=token_link(r); 
-		r=s;
-		p=temp_token_head; 
-		m=0;
-	    }
-	    /* Scan a parameter until its delimiter string has been found; or, if |s=null|,
-	       simply scan the delimiter string@>; */
+        scanner_status = matching;
+        unbalance = 0;
+        long_state = eq_type(cur_cs);
+        if (long_state >= outer_call_cmd)
+            long_state = long_state - 2;
+        do {
+            set_token_link(temp_token_head, null);
+            if ((token_info(r) >= end_match_token)
+                || (token_info(r) < match_token)) {
+                s = null;
+            } else {
+                match_chr = token_info(r) - match_token;
+                s = token_link(r);
+                r = s;
+                p = temp_token_head;
+                m = 0;
+            }
+            /* Scan a parameter until its delimiter string has been found; or, if |s=null|,
+               simply scan the delimiter string@>; */
 
-	    /* If |info(r)| is a |match| or |end_match| command, it cannot be equal to
-	       any token found by |get_token|. Therefore an undelimited parameter---i.e.,
-	       a |match| that is immediately followed by |match| or |end_match|---will
-	       always fail the test `|cur_tok=info(r)|' in the following algorithm. */
-	CONTINUE: 
-	    get_token(); /* set |cur_tok| to the next token of input */
-	    if (cur_tok==token_info(r)) {
-		/* Advance \(r)|r|; |goto found| if the parameter delimiter has been
-		   fully matched, otherwise |goto continue| */
-		/* A slightly subtle point arises here: When the parameter delimiter ends
-		   with `\.{\#\{}', the token list will have a left brace both before and
-		   after the |end_match|\kern-.4pt. Only one of these should affect the
-		   |align_state|, but both will be scanned, so we must make a correction.
-		*/
-		r=token_link(r);
-		if ((token_info(r)>=match_token)&&(token_info(r)<=end_match_token)) {
-		    if (cur_tok<left_brace_limit) 
-			decr(align_state);
-		    goto FOUND;
-		} else {
-		    goto CONTINUE;
-		}
+            /* If |info(r)| is a |match| or |end_match| command, it cannot be equal to
+               any token found by |get_token|. Therefore an undelimited parameter---i.e.,
+               a |match| that is immediately followed by |match| or |end_match|---will
+               always fail the test `|cur_tok=info(r)|' in the following algorithm. */
+          CONTINUE:
+            get_token();        /* set |cur_tok| to the next token of input */
+            if (cur_tok == token_info(r)) {
+                /* Advance \(r)|r|; |goto found| if the parameter delimiter has been
+                   fully matched, otherwise |goto continue| */
+                /* A slightly subtle point arises here: When the parameter delimiter ends
+                   with `\.{\#\{}', the token list will have a left brace both before and
+                   after the |end_match|\kern-.4pt. Only one of these should affect the
+                   |align_state|, but both will be scanned, so we must make a correction.
+                 */
+                r = token_link(r);
+                if ((token_info(r) >= match_token)
+                    && (token_info(r) <= end_match_token)) {
+                    if (cur_tok < left_brace_limit)
+                        decr(align_state);
+                    goto FOUND;
+                } else {
+                    goto CONTINUE;
+                }
 
-      	    }
-	    /* Contribute the recently matched tokens to the current parameter, and
-	       |goto continue| if a partial match is still in effect; but abort if |s=null| */
+            }
+            /* Contribute the recently matched tokens to the current parameter, and
+               |goto continue| if a partial match is still in effect; but abort if |s=null| */
 
-	    /* When the following code becomes active, we have matched tokens from |s| to
-	       the predecessor of |r|, and we have found that |cur_tok<>info(r)|. An
-	       interesting situation now presents itself: If the parameter is to be
-	       delimited by a string such as `\.{ab}', and if we have scanned `\.{aa}',
-	       we want to contribute one `\.a' to the current parameter and resume
-	       looking for a `\.b'. The program must account for such partial matches and
-	       for others that can be quite complex.  But most of the time we have |s=r|
-	       and nothing needs to be done.
-	       
-	       Incidentally, it is possible for \.{\\par} tokens to sneak in to certain
-	       parameters of non-\.{\\long} macros. For example, consider a case like
-	       `\.{\\def\\a\#1\\par!\{...\}}' where the first \.{\\par} is not followed
-	       by an exclamation point. In such situations it does not seem appropriate
-	       to prohibit the \.{\\par}, so \TeX\ keeps quiet about this bending of
-	       the rules. */
+            /* When the following code becomes active, we have matched tokens from |s| to
+               the predecessor of |r|, and we have found that |cur_tok<>info(r)|. An
+               interesting situation now presents itself: If the parameter is to be
+               delimited by a string such as `\.{ab}', and if we have scanned `\.{aa}',
+               we want to contribute one `\.a' to the current parameter and resume
+               looking for a `\.b'. The program must account for such partial matches and
+               for others that can be quite complex.  But most of the time we have |s=r|
+               and nothing needs to be done.
 
-	    if (s!=r) {
-		if (s==null) {
-		    /* Report an improper use of the macro and abort */
-		    print_err("Use of "); 
-		    sprint_cs(warning_index);
-		    tprint(" doesn't match its definition");
-		    help4("If you say, e.g., `\\def\\a1{...}', then you must always",
-			  "put `1' after `\\a', since control sequence names are",
-			  "made up of letters only. The macro here has not been",
-			  "followed by the required stuff, so I'm ignoring it.");
-		    error(); 
-		    goto EXIT;
+               Incidentally, it is possible for \.{\\par} tokens to sneak in to certain
+               parameters of non-\.{\\long} macros. For example, consider a case like
+               `\.{\\def\\a\#1\\par!\{...\}}' where the first \.{\\par} is not followed
+               by an exclamation point. In such situations it does not seem appropriate
+               to prohibit the \.{\\par}, so \TeX\ keeps quiet about this bending of
+               the rules. */
 
-		} else  { 
-		    t=s;
-		    do {
-			store_new_token(token_info(t)); 
-			incr(m); 
-			u=token_link(t); 
-			v=s;
-			while (1)  {
-			    if (u==r) {
-				if (cur_tok!=token_info(v)) {
-				    goto DONE;
-				} else  {
-				    r=token_link(v); 
-				    goto CONTINUE;
-				}
-			    }
-			    if (token_info(u)!=token_info(v))
-				goto DONE;
-			    u=token_link(u); 
-			    v=token_link(v);
-			}
-		    DONE: 
-			t=token_link(t);
-		    } while (t!=r);
-		    r=s; /* at this point, no tokens are recently matched */
-		}
-	    }
+            if (s != r) {
+                if (s == null) {
+                    /* Report an improper use of the macro and abort */
+                    print_err("Use of ");
+                    sprint_cs(warning_index);
+                    tprint(" doesn't match its definition");
+                    help4
+                        ("If you say, e.g., `\\def\\a1{...}', then you must always",
+                         "put `1' after `\\a', since control sequence names are",
+                         "made up of letters only. The macro here has not been",
+                         "followed by the required stuff, so I'm ignoring it.");
+                    error();
+                    goto EXIT;
 
-	    if (cur_tok==par_token)
-		if (long_state!=long_call_cmd)
-		    if (!int_par(param_suppress_long_error_code)) {			
-			goto RUNAWAY;
-		    }
-	    if (cur_tok<right_brace_limit) {
-		if (cur_tok<left_brace_limit) {
-		    /* Contribute an entire group to the current parameter */
-		    unbalance=1;
-		    while (1) {
-			fast_store_new_token(cur_tok);
-			get_token();
-			if (cur_tok==par_token) {
-			    if (long_state!=long_call_cmd) {
-				if (!int_par(param_suppress_long_error_code)) {
-				    goto RUNAWAY;
-				    
-				}
-			    }
-			}
-			if (cur_tok<right_brace_limit) {
-			    if (cur_tok<left_brace_limit) {
-				incr(unbalance);
-			    } else { 
-				decr(unbalance);
-				if (unbalance==0) break;
-			    }
-			}
-		    }
-		    rbrace_ptr=p;
-		    store_new_token(cur_tok);
+                } else {
+                    t = s;
+                    do {
+                        store_new_token(token_info(t));
+                        incr(m);
+                        u = token_link(t);
+                        v = s;
+                        while (1) {
+                            if (u == r) {
+                                if (cur_tok != token_info(v)) {
+                                    goto DONE;
+                                } else {
+                                    r = token_link(v);
+                                    goto CONTINUE;
+                                }
+                            }
+                            if (token_info(u) != token_info(v))
+                                goto DONE;
+                            u = token_link(u);
+                            v = token_link(v);
+                        }
+                      DONE:
+                        t = token_link(t);
+                    } while (t != r);
+                    r = s;      /* at this point, no tokens are recently matched */
+                }
+            }
 
-		}  else {
-		    /* Report an extra right brace and |goto continue| */
-		    back_input(); 
-		    print_err("Argument of ");
-		    sprint_cs(warning_index);
-		    tprint(" has an extra }");
-		    help6("I've run across a `}' that doesn't seem to match anything.",
-			  "For example, `\\def\\a#1{...}' and `\\a}' would produce",
-			  "this error. If you simply proceed now, the `\\par' that",
-			  "I've just inserted will cause me to report a runaway",
-			  "argument that might be the root of the problem. But if",
-			  "your `}' was spurious, just type `2' and it will go away.");
-		    incr(align_state); 
-		    long_state=call_cmd; 
-		    cur_tok=par_token; 
-		    ins_error();
-		    goto CONTINUE;
-		    /* a white lie; the \.{\\par} won't always trigger a runaway */
-		}
-	    } else {
-		/* Store the current token, but |goto continue| if it is
-		   a blank space that would become an undelimited parameter */
-		if (cur_tok==space_token)
-		    if (token_info(r)<=end_match_token)
-			if (token_info(r)>=match_token) 
-			    goto CONTINUE;
-		store_new_token(cur_tok);
-		
-	    }
-	    incr(m);
-	    if (token_info(r)>end_match_token) 
-		goto CONTINUE;
-	    if (token_info(r)<match_token) 
-		goto CONTINUE;
-	FOUND: 
-	    if (s!=null) {
-		/* Tidy up the parameter just scanned, and tuck it away */
-		/* If the parameter consists of a single group enclosed in braces, we must
-		   strip off the enclosing braces. That's why |rbrace_ptr| was introduced. */
-		if ((m==1)&&(token_info(p)<right_brace_limit)&&(p!=temp_token_head)) {
-		    set_token_link(rbrace_ptr,null); 
-		    free_avail(p);
-		    p=token_link(temp_token_head); 
-		    pstack[n]=token_link(p); 
-		    free_avail(p);
-		} else {
-		    pstack[n]=token_link(temp_token_head);
-		}
-		incr(n);
-		if (int_par(param_tracing_macros_code)>0) {
-		    begin_diagnostic(); 
-		    print_nl(match_chr); 
-		    print_int(n);
-		    tprint("<-"); 
-		    show_token_list(pstack[n-1],null,1000);
-		    end_diagnostic(false);
-		}
+            if (cur_tok == par_token)
+                if (long_state != long_call_cmd)
+                    if (!int_par(param_suppress_long_error_code)) {
+                        goto RUNAWAY;
+                    }
+            if (cur_tok < right_brace_limit) {
+                if (cur_tok < left_brace_limit) {
+                    /* Contribute an entire group to the current parameter */
+                    unbalance = 1;
+                    while (1) {
+                        fast_store_new_token(cur_tok);
+                        get_token();
+                        if (cur_tok == par_token) {
+                            if (long_state != long_call_cmd) {
+                                if (!int_par(param_suppress_long_error_code)) {
+                                    goto RUNAWAY;
 
-	    }
-	    
-	    /* now |info(r)| is a token whose command code is either |match| or |end_match| */
-	} while (token_info(r)!=end_match_token);
+                                }
+                            }
+                        }
+                        if (cur_tok < right_brace_limit) {
+                            if (cur_tok < left_brace_limit) {
+                                incr(unbalance);
+                            } else {
+                                decr(unbalance);
+                                if (unbalance == 0)
+                                    break;
+                            }
+                        }
+                    }
+                    rbrace_ptr = p;
+                    store_new_token(cur_tok);
+
+                } else {
+                    /* Report an extra right brace and |goto continue| */
+                    back_input();
+                    print_err("Argument of ");
+                    sprint_cs(warning_index);
+                    tprint(" has an extra }");
+                    help6
+                        ("I've run across a `}' that doesn't seem to match anything.",
+                         "For example, `\\def\\a#1{...}' and `\\a}' would produce",
+                         "this error. If you simply proceed now, the `\\par' that",
+                         "I've just inserted will cause me to report a runaway",
+                         "argument that might be the root of the problem. But if",
+                         "your `}' was spurious, just type `2' and it will go away.");
+                    incr(align_state);
+                    long_state = call_cmd;
+                    cur_tok = par_token;
+                    ins_error();
+                    goto CONTINUE;
+                    /* a white lie; the \.{\\par} won't always trigger a runaway */
+                }
+            } else {
+                /* Store the current token, but |goto continue| if it is
+                   a blank space that would become an undelimited parameter */
+                if (cur_tok == space_token)
+                    if (token_info(r) <= end_match_token)
+                        if (token_info(r) >= match_token)
+                            goto CONTINUE;
+                store_new_token(cur_tok);
+
+            }
+            incr(m);
+            if (token_info(r) > end_match_token)
+                goto CONTINUE;
+            if (token_info(r) < match_token)
+                goto CONTINUE;
+          FOUND:
+            if (s != null) {
+                /* Tidy up the parameter just scanned, and tuck it away */
+                /* If the parameter consists of a single group enclosed in braces, we must
+                   strip off the enclosing braces. That's why |rbrace_ptr| was introduced. */
+                if ((m == 1) && (token_info(p) < right_brace_limit)
+                    && (p != temp_token_head)) {
+                    set_token_link(rbrace_ptr, null);
+                    free_avail(p);
+                    p = token_link(temp_token_head);
+                    pstack[n] = token_link(p);
+                    free_avail(p);
+                } else {
+                    pstack[n] = token_link(temp_token_head);
+                }
+                incr(n);
+                if (int_par(param_tracing_macros_code) > 0) {
+                    begin_diagnostic();
+                    print_nl(match_chr);
+                    print_int(n);
+                    tprint("<-");
+                    show_token_list(pstack[n - 1], null, 1000);
+                    end_diagnostic(false);
+                }
+
+            }
+
+            /* now |info(r)| is a token whose command code is either |match| or |end_match| */
+        } while (token_info(r) != end_match_token);
 
     }
     /* Feed the macro body and its parameters to the scanner */
     /* Before we put a new token list on the input stack, it is wise to clean off
        all token lists that have recently been depleted. Then a user macro that ends
        with a call to itself will not require unbounded stack space. */
-    while ((istate==token_list)&&(iloc==null)&&(token_type!=v_template))
-	end_token_list(); /* conserve stack space */
-    begin_token_list(ref_count,macro); 
-    iname=warning_index; 
-    iloc=token_link(r);
-    if (n>0) {
-	if (param_ptr+n>max_param_stack) {
-	    max_param_stack=param_ptr+n;
-	    if (max_param_stack>param_size)
-		overflow("parameter stack size",param_size);
-	}
-	for (m=0;m<=n-1;m++) 
-	    param_stack[param_ptr+m]=pstack[m];
-	param_ptr=param_ptr+n;
+    while ((istate == token_list) && (iloc == null)
+           && (token_type != v_template))
+        end_token_list();       /* conserve stack space */
+    begin_token_list(ref_count, macro);
+    iname = warning_index;
+    iloc = token_link(r);
+    if (n > 0) {
+        if (param_ptr + n > max_param_stack) {
+            max_param_stack = param_ptr + n;
+            if (max_param_stack > param_size)
+                overflow("parameter stack size", param_size);
+        }
+        for (m = 0; m <= n - 1; m++)
+            param_stack[param_ptr + m] = pstack[m];
+        param_ptr = param_ptr + n;
     }
     goto EXIT;
- RUNAWAY:
+  RUNAWAY:
     /* Report a runaway argument and abort */
     /* If |long_state=outer_call|, a runaway argument has already been reported. */
-    if (long_state==call_cmd) {
-	runaway(); 
-	print_err("Paragraph ended before ");
-	sprint_cs(warning_index); 
-	tprint(" was complete");
-	help3("I suspect you've forgotten a `}', causing me to apply this",
-	      "control sequence to too much text. How can we recover?",
-	      "My plan is to forget the whole thing and hope for the best.");
-	back_error();
+    if (long_state == call_cmd) {
+        runaway();
+        print_err("Paragraph ended before ");
+        sprint_cs(warning_index);
+        tprint(" was complete");
+        help3("I suspect you've forgotten a `}', causing me to apply this",
+              "control sequence to too much text. How can we recover?",
+              "My plan is to forget the whole thing and hope for the best.");
+        back_error();
     }
-    pstack[n]=token_link(temp_token_head); 
-    align_state=align_state-unbalance;
-    for (m=0;m<=n;m++) 
-	flush_list(pstack[m]);
-    
- EXIT:
-    scanner_status=save_scanner_status; 
-    warning_index=save_warning_index;
+    pstack[n] = token_link(temp_token_head);
+    align_state = align_state - unbalance;
+    for (m = 0; m <= n; m++)
+        flush_list(pstack[m]);
+
+  EXIT:
+    scanner_status = save_scanner_status;
+    warning_index = save_warning_index;
 }
-
-

@@ -50,53 +50,53 @@ extern void x_token(void);
 #  define set_split_first_mark(A,B) split_first_mark(A)=(B)
 #  define set_split_bot_mark(A,B) split_bot_mark(A)=(B)
 
-#define delete_top_mark(A) do {			\
+#  define delete_top_mark(A) do {			\
      if (top_mark(A)!=null)			\
        delete_token_ref(top_mark(A));		\
      top_mark(A)=null;				\
    } while (0)
 
-#define delete_bot_mark(A) do {			\
+#  define delete_bot_mark(A) do {			\
      if (bot_mark(A)!=null)			\
        delete_token_ref(bot_mark(A));		\
      bot_mark(A)=null;				\
    } while (0)
 
-#define delete_first_mark(A) do {		\
+#  define delete_first_mark(A) do {		\
      if (first_mark(A)!=null)			\
        delete_token_ref(first_mark(A));		\
      first_mark(A)=null;			\
    } while (0)
 
-#define delete_split_first_mark(A) do {		\
+#  define delete_split_first_mark(A) do {		\
      if (split_first_mark(A)!=null)		\
        delete_token_ref(split_first_mark(A));	\
      split_first_mark(A)=null;			\
    } while (0)
 
-#define delete_split_bot_mark(A) do {		\
+#  define delete_split_bot_mark(A) do {		\
      if (split_bot_mark(A)!=null)		\
        delete_token_ref(split_bot_mark(A));	\
      split_bot_mark(A)=null;			\
 } while (0)
 
-#define clear_marks_code 1
+#  define clear_marks_code 1
 
-#define biggest_mark 65535
+#  define biggest_mark 65535
 
-extern halfword top_marks_array[(biggest_mark+1)];
-extern halfword first_marks_array[(biggest_mark+1)];
-extern halfword bot_marks_array[(biggest_mark+1)];
-extern halfword split_first_marks_array[(biggest_mark+1)];
-extern halfword split_bot_marks_array[(biggest_mark+1)];
+extern halfword top_marks_array[(biggest_mark + 1)];
+extern halfword first_marks_array[(biggest_mark + 1)];
+extern halfword bot_marks_array[(biggest_mark + 1)];
+extern halfword split_first_marks_array[(biggest_mark + 1)];
+extern halfword split_bot_marks_array[(biggest_mark + 1)];
 extern halfword biggest_used_mark;
 
 
-extern void initialize_marks (void) ;
+extern void initialize_marks(void);
 
 extern int long_state;
 extern halfword pstack[9];
-extern void macro_call (void);
+extern void macro_call(void);
 
 
 #endif
