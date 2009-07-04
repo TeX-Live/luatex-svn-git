@@ -62,8 +62,7 @@ void pdf_out_literal(PDF pdf, halfword p)
         switch (pdf_literal_mode(p)) {
         case set_origin:
             pdf_goto_pagemode(pdf);
-            pos = synch_p_with_c(cur);
-            pdf_set_pos(pdf, pos);
+            pdf_set_pos(pdf, pdf->posstruct->pos);
             break;
         case direct_page:
             pdf_goto_pagemode(pdf);
@@ -126,8 +125,7 @@ void pdf_literal(PDF pdf, str_number s, integer literal_mode, boolean warn)
     switch (literal_mode) {
     case set_origin:
         pdf_goto_pagemode(pdf);
-        pos = synch_p_with_c(cur);
-        pdf_set_pos(pdf, pos);
+        pdf_set_pos(pdf, pdf->posstruct->pos);
         break;
     case direct_page:
         pdf_goto_pagemode(pdf);

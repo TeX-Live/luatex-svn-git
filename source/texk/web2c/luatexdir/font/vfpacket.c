@@ -219,7 +219,7 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
                 append_char(do_packet_byte());
             }
             s = make_string();
-            pos = new_synch_pos_with_cur(&localpos, refpos, cur);
+            (void) new_synch_pos_with_cur(&localpos, refpos, cur);
             pdf_literal(pdf, s, scan_special, false);
             flush_str(s);
             break;

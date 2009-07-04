@@ -352,6 +352,7 @@ void pdf_hlist_out(PDF pdf)
 
                 switch (subtype(p)) {
                 case pdf_literal_node:
+                    (void) new_synch_pos_with_cur(&localpos, refpos, cur);
                     pdf_out_literal(pdf, p);
                     break;
                 case pdf_colorstack_node:
@@ -874,6 +875,7 @@ void pdf_vlist_out(PDF pdf)
                 /* Output the whatsit node |p| in |pdf_vlist_out| */
                 switch (subtype(p)) {
                 case pdf_literal_node:
+                    (void) new_synch_pos_with_cur(&localpos, refpos, cur);
                     pdf_out_literal(pdf, p);
                     break;
                 case pdf_colorstack_node:
