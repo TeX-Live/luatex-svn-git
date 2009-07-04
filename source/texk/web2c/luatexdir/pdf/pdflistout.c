@@ -671,35 +671,45 @@ void pdf_hlist_out(PDF pdf)
             if (is_running(rule.dp))
                 rule.dp = depth(this_box);
             if (((rule.ht + rule.dp) > 0) && (rule.wd > 0)) {   /* we don't output empty rules */
-                pos = new_synch_pos_with_cur(&localpos, refpos, cur);
-                /* *INDENT-OFF* */
+                (void) new_synch_pos_with_cur(&localpos, refpos, cur);
                 switch (box_direction(dvi_direction)) {
-                case dir_TL_: 
-                    pdf_place_rule(pdf, pos.h,           pos.v - rule.dp, rule.wd,           rule.ht + rule.dp);
+                case dir_TL_:
+                    lpos_down(rule.dp);
+                    pdf_place_rule(pdf, rule.wd, rule.ht + rule.dp);
                     break;
-                case dir_BL_: 
-                    pdf_place_rule(pdf, pos.h,           pos.v - rule.ht, rule.wd,           rule.ht + rule.dp);
+                case dir_BL_:
+                    lpos_down(rule.ht);
+                    pdf_place_rule(pdf, rule.wd, rule.ht + rule.dp);
                     break;
-                case dir_TR_: 
-                    pdf_place_rule(pdf, pos.h - rule.wd, pos.v - rule.dp, rule.wd,           rule.ht + rule.dp);
+                case dir_TR_:
+                    lpos_left(rule.wd);
+                    lpos_down(rule.dp);
+                    pdf_place_rule(pdf, rule.wd, rule.ht + rule.dp);
                     break;
-                case dir_BR_: 
-                    pdf_place_rule(pdf, pos.h - rule.wd, pos.v - rule.ht, rule.wd,           rule.ht + rule.dp);
+                case dir_BR_:
+                    lpos_left(rule.wd);
+                    lpos_down(rule.ht);
+                    pdf_place_rule(pdf, rule.wd, rule.ht + rule.dp);
                     break;
                 case dir_LT_:
-                    pdf_place_rule(pdf, pos.h - rule.ht, pos.v - rule.wd, rule.ht + rule.dp, rule.wd);
+                    lpos_left(rule.ht);
+                    lpos_down(rule.wd);
+                    pdf_place_rule(pdf, rule.ht + rule.dp, rule.wd);
                     break;
-                case dir_RT_: 
-                    pdf_place_rule(pdf, pos.h - rule.dp, pos.v - rule.wd, rule.ht + rule.dp, rule.wd);
+                case dir_RT_:
+                    lpos_left(rule.dp);
+                    lpos_down(rule.wd);
+                    pdf_place_rule(pdf, rule.ht + rule.dp, rule.wd);
                     break;
-                case dir_LB_: 
-                    pdf_place_rule(pdf, pos.h - rule.ht, pos.v,           rule.ht + rule.dp, rule.wd);
+                case dir_LB_:
+                    lpos_left(rule.ht);
+                    pdf_place_rule(pdf, rule.ht + rule.dp, rule.wd);
                     break;
-                case dir_RB_: 
-                    pdf_place_rule(pdf, pos.h - rule.dp, pos.v,           rule.ht + rule.dp, rule.wd);
+                case dir_RB_:
+                    lpos_left(rule.dp);
+                    pdf_place_rule(pdf, rule.ht + rule.dp, rule.wd);
                     break;
                 }
-                /* *INDENT-ON* */
             }
           MOVE_PAST:
             cur.h = cur.h + rule.wd;
@@ -1082,34 +1092,40 @@ void pdf_vlist_out(PDF pdf)
             rule.ht = rule.ht + rule.dp;        /* this is the rule thickness */
             if ((rule.ht > 0) && (rule.wd > 0)) {       /* we don't output empty rules */
                 pos = new_synch_pos_with_cur(&localpos, refpos, cur);
-                /* *INDENT-OFF* */
                 switch (box_direction(dvi_direction)) {
-                case dir_TL_: 
-                    pdf_place_rule(pdf, pos.h,           pos.v - rule.ht, rule.wd, rule.ht);
+                case dir_TL_:
+                    lpos_down(rule.ht);
+                    pdf_place_rule(pdf, rule.wd, rule.ht);
                     break;
-                case dir_BL_: 
-                    pdf_place_rule(pdf, pos.h,           pos.v,           rule.wd, rule.ht);
+                case dir_BL_:
+                    pdf_place_rule(pdf, rule.wd, rule.ht);
                     break;
-                case dir_TR_: 
-                    pdf_place_rule(pdf, pos.h - rule.wd, pos.v - rule.ht, rule.wd, rule.ht);
+                case dir_TR_:
+                    lpos_left(rule.wd);
+                    lpos_down(rule.ht);
+                    pdf_place_rule(pdf, rule.wd, rule.ht);
                     break;
-                case dir_BR_: 
-                    pdf_place_rule(pdf, pos.h - rule.wd, pos.v,           rule.wd, rule.ht);
+                case dir_BR_:
+                    lpos_left(rule.wd);
+                    pdf_place_rule(pdf, rule.wd, rule.ht);
                     break;
-                case dir_LT_: 
-                    pdf_place_rule(pdf, pos.h,           pos.v - rule.wd, rule.ht, rule.wd);
+                case dir_LT_:
+                    lpos_down(rule.wd);
+                    pdf_place_rule(pdf, rule.ht, rule.wd);
                     break;
-                case dir_RT_: 
-                    pdf_place_rule(pdf, pos.h - rule.ht, pos.v - rule.wd, rule.ht, rule.wd);
+                case dir_RT_:
+                    lpos_left(rule.ht);
+                    lpos_down(rule.wd);
+                    pdf_place_rule(pdf, rule.ht, rule.wd);
                     break;
-                case dir_LB_: 
-                    pdf_place_rule(pdf, pos.h,           pos.v,           rule.ht, rule.wd);
+                case dir_LB_:
+                    pdf_place_rule(pdf, rule.ht, rule.wd);
                     break;
-                case dir_RB_: 
-                    pdf_place_rule(pdf, pos.h - rule.ht, pos.v,           rule.ht, rule.wd);
+                case dir_RB_:
+                    lpos_left(rule.ht);
+                    pdf_place_rule(pdf, rule.ht, rule.wd);
                     break;
                 }
-                /* *INDENT-ON* */
                 cur.v = cur.v + rule.ht;
             }
             goto NEXTP;

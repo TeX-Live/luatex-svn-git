@@ -198,8 +198,8 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
             packet_scaled(rule.ht, fs_f);
             packet_scaled(rule.wd, fs_f);
             if ((rule.wd > 0) && (rule.ht > 0)) {
-                pos = new_synch_pos_with_cur(&localpos, refpos, cur);
-                pdf_place_rule(pdf, pos.h, pos.v, rule.wd, rule.ht);
+                (void) new_synch_pos_with_cur(&localpos, refpos, cur);
+                pdf_place_rule(pdf, rule.wd, rule.ht);
             }
             cur.h = cur.h + rule.wd;
             break;
