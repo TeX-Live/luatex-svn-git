@@ -87,10 +87,23 @@
 
 @define function new_ligkern();
 @define function make_lang_data();
-@define procedure ext_do_line_break();
+@define procedure line_break();
 @define procedure initialize_active;
 @define function cur_break();
 @define function break_node();
+
+@define var just_box;
+@define var paragraph_dir; 
+@define var line_break_dir;
+@define var line_break_context;
+@define var break_c_htdp;
+@define var temp_no_whatsits;
+@define var temp_no_dirs;
+@define var temporary_dir;
+@define var dir_ptr;
+@define var dir_tmp;
+@define var dir_rover;
+
 
 @define function divide_scaled();
 @define function divide_scaled_n();

@@ -20,9 +20,239 @@
 #include "luatex-api.h"
 #include <ptexlib.h>
 #include "nodes.h"
+#include "commands.h"
 
 static const char _svn_version[] =
     "$Id$ $URL$";
+
+#define etex_pen_base (get_toks_base()+number_regs) /* start of table of \eTeX's penalties */
+#define param_inter_line_penalties_code 0 /* additional penalties between lines */
+#define param_club_penalties_code 1 /* penalties for creating club lines */
+#define param_widow_penalties_code 2 /* penalties for creating widow lines */
+#define param_display_widow_penalties_code 3 /* ditto, just before a display */
+
+#define etex_pen(A) equiv(etex_pen_base+A)
+
+
+/*
+We come now to what is probably the most interesting algorithm of \TeX:
+the mechanism for choosing the ``best possible'' breakpoints that yield
+the individual lines of a paragraph. \TeX's line-breaking algorithm takes
+a given horizontal list and converts it to a sequence of boxes that are
+appended to the current vertical list. In the course of doing this, it
+creates a special data structure containing three kinds of records that are
+not used elsewhere in \TeX. Such nodes are created while a paragraph is
+being processed, and they are destroyed afterwards; thus, the other parts
+of \TeX\ do not need to know anything about how line-breaking is done.
+
+The method used here is based on an approach devised by Michael F. Plass and
+@^Plass, Michael Frederick@>
+@^Knuth, Donald Ervin@>
+the author in 1977, subsequently generalized and improved by the same two
+people in 1980. A detailed discussion appears in {\sl SOFTWARE---Practice
+\AM\ Experience \bf11} (1981), 1119--1184, where it is shown that the
+line-breaking problem can be regarded as a special case of the problem of
+computing the shortest path in an acyclic network. The cited paper includes
+numerous examples and describes the history of line breaking as it has been
+practiced by printers through the ages. The present implementation adds two
+new ideas to the algorithm of 1980: Memory space requirements are considerably
+reduced by using smaller records for inactive nodes than for active ones,
+and arithmetic overflow is avoided by using ``delta distances'' instead of
+keeping track of the total distance from the beginning of the paragraph to the
+current point.
+
+@ The |line_break| procedure should be invoked only in horizontal mode; it
+leaves that mode and places its output into the current vlist of the
+enclosing vertical mode (or internal vertical mode).
+There is one explicit parameter:  |d| is true for partial paragraphs
+preceding display math mode; in this case the amount of additional
+penalty inserted before the final line is |display_widow_penalty|
+instead of |widow_penalty|.
+
+There are also a number of implicit parameters: The hlist to be broken
+starts at |vlink(head)|, and it is nonempty. The value of |prev_graf| in the
+enclosing semantic level tells where the paragraph should begin in the
+sequence of line numbers, in case hanging indentation or \.{\\parshape}
+are in use; |prev_graf| is zero unless this paragraph is being continued
+after a displayed formula.  Other implicit parameters, such as the
+|par_shape_ptr| and various penalties to use for hyphenation, etc., appear
+in |eqtb|.
+
+After |line_break| has acted, it will have updated the current vlist and the
+value of |prev_graf|. Furthermore, the global variable |just_box| will
+point to the final box created by |line_break|, so that the width of this
+line can be ascertained when it is necessary to decide whether to use
+|above_display_skip| or |above_display_short_skip| before a displayed formula.
+*/
+
+halfword just_box; /* the |hlist_node| for the last line of the new paragraph */
+integer paragraph_dir; /* main direction of paragraph */
+integer line_break_dir; /* current direction within paragraph */
+integer line_break_context; /* the surrounding state for |line_break| calls */
+int break_c_htdp; /* height-depth entry in |char_info| */
+integer temp_no_whatsits; /* used when closing group */
+integer temp_no_dirs; /* used when closing group */
+integer temporary_dir;
+halfword dir_ptr, dir_tmp, dir_rover;
+
+/*
+In it's complete form, |line_break| is a rather lengthy
+procedure---sort of a small world unto itself---we must build it up
+little by little. Below you see only the general outline.
+
+The main task performed here is to move the list from |head| to
+|temp_head| and go into the enclosing semantic level. We also append
+the \.{\\parfillskip} glue to the end of the paragraph, removing a
+space (or other glue node) if it was there, since spaces usually
+precede blank lines and instances of `\.{\$\$}'. The |par_fill_skip|
+is preceded by an infinite penalty, so it will never be considered as
+a potential breakpoint.
+
+That code assumes that a |glue_node| and a |penalty_node| occupy the
+same number of |mem|~words.
+@^data structure assumptions@>
+
+Most other processing is delegated to external functions.
+*/
+
+static void ext_do_line_break(boolean d,
+                       int pretolerance,
+                       int tracing_paragraphs,
+                       int tolerance,
+                       scaled emergency_stretch,
+                       int looseness,
+                       int hyphen_penalty,
+                       int ex_hyphen_penalty,
+                       int pdf_adjust_spacing,
+                       halfword par_shape_ptr,
+                       int adj_demerits,
+                       int pdf_protrude_chars,
+                       int line_penalty,
+                       int last_line_fit,
+                       int double_hyphen_demerits,
+                       int final_hyphen_demerits,
+                       int hang_indent,
+                       int hsize,
+                       int hang_after,
+                       halfword left_skip,
+                       halfword right_skip,
+                       int pdf_each_line_height,
+                       int pdf_each_line_depth,
+                       int pdf_first_line_height,
+                       int pdf_last_line_depth,
+                       halfword inter_line_penalties_ptr,
+                       int inter_line_penalty,
+                       int club_penalty,
+                       halfword club_penalties_ptr,
+                       halfword display_widow_penalties_ptr,
+                       halfword widow_penalties_ptr,
+                       int display_widow_penalty,
+                       int widow_penalty,
+                       int broken_penalty, halfword final_par_glue,
+                       halfword pdf_ignored_dimen);
+
+
+
+void line_break(boolean d)
+{
+    halfword final_par_glue;
+    halfword start_of_par;
+    integer callback_id;
+    pack_begin_line=cur_list.ml_field; /* this is for over/underfull box messages */
+    vlink(temp_head)=vlink(cur_list.head_field);
+    new_hyphenation(temp_head, cur_list.tail_field);
+    if ((!is_char_node(vlink(cur_list.head_field))) && ((type(vlink(cur_list.head_field))==whatsit_node)
+					 && (subtype(vlink(cur_list.head_field))==local_par_node)))
+	paragraph_dir=local_par_dir(vlink(cur_list.head_field));
+    else
+	paragraph_dir=0;
+    line_break_dir=paragraph_dir;
+    cur_list.tail_field=new_ligkern(temp_head,cur_list.tail_field);
+    if (is_char_node(cur_list.tail_field)) {
+	tail_append(new_penalty(inf_penalty));
+    } else if (type(cur_list.tail_field)!=glue_node) {
+	tail_append(new_penalty(inf_penalty));
+    } else {
+	type(cur_list.tail_field)=penalty_node;
+	delete_glue_ref(glue_ptr(cur_list.tail_field));
+	if (leader_ptr(cur_list.tail_field)!=null) 
+	    flush_node_list(leader_ptr(cur_list.tail_field));
+	penalty(cur_list.tail_field)=inf_penalty;
+    }
+    final_par_glue=new_param_glue(param_par_fill_skip_code);
+    couple_nodes(cur_list.tail_field,final_par_glue);
+    lua_node_filter(pre_linebreak_filter_callback,
+		    line_break_context,temp_head,addressof(cur_list.tail_field));
+    last_line_fill=vlink(cur_list.tail_field);
+    pop_nest();
+    start_of_par=cur_list.tail_field;
+    callback_id=callback_defined(linebreak_filter_callback);
+    if (callback_id>0) {
+	callback_id = lua_linebreak_callback(d, temp_head, addressof(cur_list.tail_field));
+	if (callback_id>0) {
+	    just_box = cur_list.tail_field;
+	    if (just_box!=null) 
+		while (vlink(just_box)!=null)
+		    just_box = vlink(just_box);
+	    if ((just_box==null)||(type(just_box) != hlist_node)) {
+		help3("A linebreaking routine should return a non-empty list of nodes",
+		      "and the last one of those has to be a \\hbox.",
+		      "Sorry, I cannot recover from this.");
+		print_err("Invalid linebreak_filter");
+		succumb();
+	    }
+	} else {
+	    if (int_par(param_tracing_paragraphs_code)>0) {
+		begin_diagnostic();
+		tprint_nl("Lua linebreak_filter failed, reverting to default on line ");
+		print_int(line);
+		end_diagnostic(true);
+	    }
+	}
+    }
+    if (callback_id==0) {
+	ext_do_line_break(d, 
+			  int_par(param_pretolerance_code),
+			  int_par(param_tracing_paragraphs_code),
+			  int_par(param_tolerance_code),
+			  dimen_par(param_emergency_stretch_code),
+			  int_par(param_looseness_code),
+			  int_par(param_hyphen_penalty_code),
+			  int_par(param_ex_hyphen_penalty_code),
+			  int_par(param_pdf_adjust_spacing_code),
+			  loc_par(param_par_shape_code),
+			  int_par(param_adj_demerits_code),
+			  int_par(param_pdf_protrude_chars_code),
+			  int_par(param_line_penalty_code),
+			  int_par(param_last_line_fit_code),
+			  int_par(param_double_hyphen_demerits_code),
+			  int_par(param_final_hyphen_demerits_code),
+			  dimen_par(param_hang_indent_code),
+			  dimen_par(param_hsize_code),
+			  int_par(param_hang_after_code),
+			  glue_par(param_left_skip_code),
+			  glue_par(param_right_skip_code),
+			  dimen_par(param_pdf_each_line_height_code),
+			  dimen_par(param_pdf_each_line_depth_code),
+			  dimen_par(param_pdf_first_line_height_code),
+			  dimen_par(param_pdf_last_line_depth_code),
+			  etex_pen(param_inter_line_penalties_code),
+			  int_par(param_inter_line_penalty_code),
+			  int_par(param_club_penalty_code),
+			  etex_pen(param_club_penalties_code),
+			  etex_pen(param_display_widow_penalties_code),
+			  etex_pen(param_widow_penalties_code),
+			  int_par(param_display_widow_penalty_code),
+			  int_par(param_widow_penalty_code),
+			  int_par(param_broken_penalty_code), 
+			  final_par_glue,
+			  dimen_par(param_pdf_ignored_dimen_code));
+    }
+    lua_node_filter(post_linebreak_filter_callback,
+		    line_break_context,start_of_par,addressof(cur_list.tail_field));
+    pack_begin_line=0;
+}
+
 
 /* Glue nodes in a horizontal list that is being paragraphed are not supposed to
    include ``infinite'' shrinkability; that is why the algorithm maintains
@@ -38,7 +268,7 @@ static const char _svn_version[] =
 
 static boolean no_shrink_error_yet;     /*have we complained about infinite shrinkage? */
 
-halfword finite_shrink(halfword p)
+static halfword finite_shrink(halfword p)
 {                               /* recovers from infinite shrinkage */
     halfword q;                 /*new glue specification */
     char *hlp[] = {
@@ -127,28 +357,26 @@ static halfword hlist_stack[max_hlist_stack];
 /* fill level for |hlist_stack| */
 static short hlist_stack_level = 0;
 
-void push_node(halfword p)
+static void push_node(halfword p)
 {
     if (hlist_stack_level >= max_hlist_stack)
         pdf_error("push_node", "stack overflow");
     hlist_stack[hlist_stack_level++] = p;
 }
 
-halfword pop_node(void)
+static halfword pop_node(void)
 {
     if (hlist_stack_level <= 0) /* would point to some bug */
         pdf_error("pop_node", "stack underflow (internal error)");
     return hlist_stack[--hlist_stack_level];
 }
 
-#define null_font 0
-
 static integer max_stretch_ratio = 0;   /*maximal stretch ratio of expanded fonts */
 static integer max_shrink_ratio = 0;    /*maximal shrink ratio of expanded fonts */
 static integer cur_font_step = 0;       /*the current step of expanded fonts */
 
 
-boolean check_expand_pars(internal_font_number f)
+static boolean check_expand_pars(internal_font_number f)
 {
     internal_font_number k;
 
@@ -566,17 +794,10 @@ static integer line_diff;       /*the difference between the current line number
     }  \
   }
 
-#define inf_bad 10000           /* infinitely bad value */
-
 static boolean do_last_line_fit;        /* special algorithm for last line of paragraph? */
 static scaled fill_width[4];    /* infinite stretch components of  |par_fill_skip| */
 static scaled best_pl_short[4]; /* |shortfall|  corresponding to |minimal_demerits| */
 static scaled best_pl_glue[4];  /*corresponding glue stretch or shrink */
-
-#define awful_bad 07777777777   /* more than a billion demerits */
-
-#define before 0                /* |subtype| for math node that introduces a formula */
-#define after 1                 /* |subtype| for math node that winds up a formula */
 
 #define reset_disc_width(a) disc_width[(a)] = 0
 
@@ -602,8 +823,8 @@ static scaled best_pl_glue[4];  /*corresponding glue stretch or shrink */
  * only character nodes, kern nodes, and box or rule nodes. 
  */
 
-void add_to_widths(halfword s, integer line_break_dir,
-                   integer pdf_adjust_spacing, scaled * widths)
+static void add_to_widths(halfword s, integer line_break_dir,
+			  integer pdf_adjust_spacing, scaled * widths)
 {
     while (s != null) {
         if (is_char_node(s)) {
@@ -652,8 +873,8 @@ void add_to_widths(halfword s, integer line_break_dir,
  * with the |add_to_widths| function.
  */
 
-void sub_from_widths(halfword s, integer line_break_dir,
-                     integer pdf_adjust_spacing, scaled * widths)
+static void sub_from_widths(halfword s, integer line_break_dir,
+			    integer pdf_adjust_spacing, scaled * widths)
 {
     while (s != null) {
         /* @<Subtract the width of node |s| from |break_width|@>; */
@@ -913,10 +1134,6 @@ print_feasible_break(halfword cur_p, pointer r, halfword b, integer pi,
 
 #define total_font_stretch cur_active_width[8]
 #define total_font_shrink cur_active_width[9]
-
-#define left_side 0
-#define right_side 1
-
 
 #define cal_margin_kern_var(a) {  \
   character(cp) = character((a));  \
@@ -1472,7 +1689,7 @@ ext_try_break(integer pi,
     }
 }
 
-void
+static void
 ext_do_line_break(boolean d,
                   int pretolerance,
                   int tracing_paragraphs,

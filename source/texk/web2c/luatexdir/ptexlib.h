@@ -99,6 +99,8 @@ extern double rint(double x);
 #  include "tex/arithmetic.h"
 #  include "tex/nesting.h"
 #  include "tex/packaging.h"
+#  include "tex/linebreak.h"
+#  include "tex/postlinebreak.h"
 
 /**********************************************************************/
 
@@ -168,75 +170,6 @@ extern halfword compound_word_break(halfword t, int clang);
 extern halfword new_ligkern(halfword head, halfword tail);
 extern halfword handle_ligaturing(halfword head, halfword tail);
 extern halfword handle_kerning(halfword head, halfword tail);
-
-void initialize_active(void);
-
-halfword find_protchar_left(halfword l, boolean d);
-halfword find_protchar_right(halfword l, halfword r);
-
-void ext_do_line_break(boolean d,
-                       int pretolerance,
-                       int tracing_paragraphs,
-                       int tolerance,
-                       scaled emergency_stretch,
-                       int looseness,
-                       int hyphen_penalty,
-                       int ex_hyphen_penalty,
-                       int pdf_adjust_spacing,
-                       halfword par_shape_ptr,
-                       int adj_demerits,
-                       int pdf_protrude_chars,
-                       int line_penalty,
-                       int last_line_fit,
-                       int double_hyphen_demerits,
-                       int final_hyphen_demerits,
-                       int hang_indent,
-                       int hsize,
-                       int hang_after,
-                       halfword left_skip,
-                       halfword right_skip,
-                       int pdf_each_line_height,
-                       int pdf_each_line_depth,
-                       int pdf_first_line_height,
-                       int pdf_last_line_depth,
-                       halfword inter_line_penalties_ptr,
-                       int inter_line_penalty,
-                       int club_penalty,
-                       halfword club_penalties_ptr,
-                       halfword display_widow_penalties_ptr,
-                       halfword widow_penalties_ptr,
-                       int display_widow_penalty,
-                       int widow_penalty,
-                       int broken_penalty, halfword final_par_glue,
-                       halfword pdf_ignored_dimen);
-
-void ext_post_line_break(boolean d,
-                         int right_skip,
-                         int left_skip,
-                         int pdf_protrude_chars,
-                         halfword par_shape_ptr,
-                         int pdf_adjust_spacing,
-                         int pdf_each_line_height,
-                         int pdf_each_line_depth,
-                         int pdf_first_line_height,
-                         int pdf_last_line_depth,
-                         halfword inter_line_penalties_ptr,
-                         int inter_line_penalty,
-                         int club_penalty,
-                         halfword club_penalties_ptr,
-                         halfword display_widow_penalties_ptr,
-                         halfword widow_penalties_ptr,
-                         int display_widow_penalty,
-                         int widow_penalty,
-                         int broken_penalty,
-                         halfword final_par_glue,
-                         halfword best_bet,
-                         halfword last_special_line,
-                         scaled second_width,
-                         scaled second_indent,
-                         scaled first_width,
-                         scaled first_indent, halfword best_line,
-                         halfword pdf_ignored_dimen);
 
 halfword lua_hpack_filter(halfword head_node, scaled size, int pack_type,
                           int extrainfo);

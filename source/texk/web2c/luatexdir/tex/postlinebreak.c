@@ -20,6 +20,7 @@
 #include "luatex-api.h"
 #include <ptexlib.h>
 #include "nodes.h"
+#include "commands.h"
 
 static const char _svn_version[] =
     "$Id$ $URL$";
@@ -58,12 +59,6 @@ and begin direction instructions at the beginnings of lines.
 */
 
 #define next_break prev_break   /*new name for |prev_break| after links are reversed */
-
-#define append_list(a,b)                                                \
-  { vlink(cur_list.tail_field)=vlink((a)); cur_list.tail_field = b; }
-
-#define left_skip_code 7        /*glue at left of justified lines */
-#define right_skip_code 8       /*glue at right of justified lines */
 
 /* the ints are actually halfwords */
 void ext_post_line_break(boolean d,
@@ -188,7 +183,7 @@ void ext_post_line_break(boolean d,
         } else if (type(r) == glue_node) {
             delete_glue_ref(glue_ptr(r));
             glue_ptr(r) = right_skip;
-            subtype(r) = right_skip_code + 1;
+            subtype(r) = param_right_skip_code + 1;
             incr(glue_ref_count(right_skip));
             glue_break = true;
             /* |q| refers to the last node of the line */
@@ -333,7 +328,7 @@ void ext_post_line_break(boolean d,
            then we append |rightskip| after |q| now */
         if (!glue_break) {
             /* @<Put the \(r)\.{\\rightskip} glue after node |q|@>; */
-            halfword r = new_param_glue(right_skip_code);
+            halfword r = new_param_glue(param_right_skip_code);
             vlink(r) = vlink(q);
             vlink(q) = r;
             q = r;
@@ -379,7 +374,7 @@ void ext_post_line_break(boolean d,
             }
         };
         if (left_skip != zero_glue) {
-            r = new_param_glue(left_skip_code);
+            r = new_param_glue(param_left_skip_code);
             vlink(r) = q;
             q = r;
         }

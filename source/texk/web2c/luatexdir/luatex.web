@@ -7358,8 +7358,6 @@ Is done in C.
 
 @* \[37] Alignment.
 
-@ 
-
 @<Put each of \TeX's primitives into the hash table@>=
 primitive_tex("span",tab_mark,span_code,span_code);@/
 @!@:span_}{\.{\\span} primitive@>
@@ -7378,169 +7376,10 @@ eq_type(frozen_end_template):=end_template;
 initialize_alignments;
 
 @* \[38] Breaking paragraphs into lines.
-We come now to what is probably the most interesting algorithm of \TeX:
-the mechanism for choosing the ``best possible'' breakpoints that yield
-the individual lines of a paragraph. \TeX's line-breaking algorithm takes
-a given horizontal list and converts it to a sequence of boxes that are
-appended to the current vertical list. In the course of doing this, it
-creates a special data structure containing three kinds of records that are
-not used elsewhere in \TeX. Such nodes are created while a paragraph is
-being processed, and they are destroyed afterwards; thus, the other parts
-of \TeX\ do not need to know anything about how line-breaking is done.
 
-The method used here is based on an approach devised by Michael F. Plass and
-@^Plass, Michael Frederick@>
-@^Knuth, Donald Ervin@>
-the author in 1977, subsequently generalized and improved by the same two
-people in 1980. A detailed discussion appears in {\sl SOFTWARE---Practice
-\AM\ Experience \bf11} (1981), 1119--1184, where it is shown that the
-line-breaking problem can be regarded as a special case of the problem of
-computing the shortest path in an acyclic network. The cited paper includes
-numerous examples and describes the history of line breaking as it has been
-practiced by printers through the ages. The present implementation adds two
-new ideas to the algorithm of 1980: Memory space requirements are considerably
-reduced by using smaller records for inactive nodes than for active ones,
-and arithmetic overflow is avoided by using ``delta distances'' instead of
-keeping track of the total distance from the beginning of the paragraph to the
-current point.
-
-@ The |line_break| procedure should be invoked only in horizontal mode; it
-leaves that mode and places its output into the current vlist of the
-enclosing vertical mode (or internal vertical mode).
-There is one explicit parameter:  |d| is true for partial paragraphs
-preceding display math mode; in this case the amount of additional
-penalty inserted before the final line is |display_widow_penalty|
-instead of |widow_penalty|.
-
-There are also a number of implicit parameters: The hlist to be broken
-starts at |vlink(head)|, and it is nonempty. The value of |prev_graf| in the
-enclosing semantic level tells where the paragraph should begin in the
-sequence of line numbers, in case hanging indentation or \.{\\parshape}
-are in use; |prev_graf| is zero unless this paragraph is being continued
-after a displayed formula.  Other implicit parameters, such as the
-|par_shape_ptr| and various penalties to use for hyphenation, etc., appear
-in |eqtb|.
-
-After |line_break| has acted, it will have updated the current vlist and the
-value of |prev_graf|. Furthermore, the global variable |just_box| will
-point to the final box created by |line_break|, so that the width of this
-line can be ascertained when it is necessary to decide whether to use
-|above_display_skip| or |above_display_short_skip| before a displayed formula.
-
-@<Glob...@>=
-@!just_box:pointer; {the |hlist_node| for the last line of the new paragraph}
-@!paragraph_dir:integer; {main direction of paragraph}
-@!line_break_dir:integer; {current direction within paragraph}
-@!line_break_context:integer; {the surrounding state for |line_break| calls}
-@!break_c_htdp:quarterword; {height-depth entry in |char_info|}
-@!temp_no_whatsits:integer; {used when closing group}
-@!temp_no_dirs:integer; {used when closing group}
-@!temporary_dir:integer;
-@!dir_ptr,@!dir_tmp,@!dir_rover:pointer;
-
-@ @<Set init...@>=
-temp_no_whatsits:=0; temp_no_dirs:=0; temporary_dir:=0;
-dir_ptr:=null; dir_tmp:=null; dir_rover:=null;
-line_break_context := bottom_level;
-
-@ In it's complete form, |line_break| is a rather lengthy
-procedure---sort of a small world unto itself---we must build it up
-little by little. Below you see only the general outline.
-
-The main task performed here is to move the list from |head| to
-|temp_head| and go into the enclosing semantic level. We also append
-the \.{\\parfillskip} glue to the end of the paragraph, removing a
-space (or other glue node) if it was there, since spaces usually
-precede blank lines and instances of `\.{\$\$}'. The |par_fill_skip|
-is preceded by an infinite penalty, so it will never be considered as
-a potential breakpoint.
-
-That code assumes that a |glue_node| and a |penalty_node| occupy the
-same number of |mem|~words.
-@^data structure assumptions@>
-
-Most other processing is delegated to external functions.
-
-@p procedure line_break(@!d:boolean);
-var final_par_glue:pointer;
-start_of_par:pointer;
-callback_id:integer;
-begin pack_begin_line:=mode_line; {this is for over/underfull box messages}
-vlink(temp_head):=vlink(head);
-new_hyphenation(temp_head, tail);
-if (not is_char_node(vlink(head))) and ((type(vlink(head))=whatsit_node)
-   and (subtype(vlink(head))=local_par_node)) then
-  paragraph_dir:=local_par_dir(vlink(head))
-else
-  paragraph_dir:=0;
-line_break_dir:=paragraph_dir;
-tail:=new_ligkern(temp_head,tail);
-if is_char_node(tail) then tail_append(new_penalty(inf_penalty))
-else if type(tail)<>glue_node then tail_append(new_penalty(inf_penalty))
-else begin
-  type(tail):=penalty_node;
-  delete_glue_ref(glue_ptr(tail));
-  if leader_ptr(tail)<>null then
-    flush_node_list(leader_ptr(tail));
-  penalty(tail):=inf_penalty;
-  end;
-final_par_glue:=new_param_glue(par_fill_skip_code);
-couple_nodes(tail,final_par_glue);
-lua_node_filter(pre_linebreak_filter_callback,
-      line_break_context,temp_head,addressof(tail));
-last_line_fill:=vlink(tail);
-pop_nest;
-start_of_par:=tail;
-callback_id:=callback_defined(linebreak_filter_callback);
-if callback_id>0 then begin
-  callback_id := lua_linebreak_callback(d, temp_head, addressof(tail));
-  if callback_id>0 then begin
-    just_box := tail;
-    if just_box<>null then
-      while vlink(just_box)<>null do
-         just_box := vlink(just_box);
-    if (just_box=null)or(type(just_box) <> hlist_node) then begin
-      help3('A linebreaking routine should return a non-empty list of nodes',
-           'and the last one of those has to be a \hbox.',
-           'Sorry, I cannot recover from this.');
-      print_err('Invalid linebreak_filter');
-      succumb;
-      end
-    end
-  else begin
-    if tracing_paragraphs>0 then begin
-      begin_diagnostic;
-      print_nl("Lua linebreak_filter failed, reverting to default on line "); print_int(line);
-      end_diagnostic(true);
-    end;
-  end;
-end;
-if callback_id=0 then begin
-  ext_do_line_break(d,pretolerance,tracing_paragraphs,tolerance,emergency_stretch,
-                   looseness,hyphen_penalty,ex_hyphen_penalty,
-                   pdf_adjust_spacing, par_shape_ptr, adj_demerits,
-                   pdf_protrude_chars, line_penalty, last_line_fit,
-                   double_hyphen_demerits, final_hyphen_demerits,
-                   hang_indent, hsize, hang_after, left_skip, right_skip,
-                   pdf_each_line_height,pdf_each_line_depth,
-                   pdf_first_line_height, pdf_last_line_depth,
-                   inter_line_penalties_ptr, inter_line_penalty,
-                   club_penalty, club_penalties_ptr,
-                   display_widow_penalties_ptr,widow_penalties_ptr,
-                   display_widow_penalty, widow_penalty,
-                   broken_penalty, final_par_glue, pdf_ignored_dimen);
-end;
-lua_node_filter(post_linebreak_filter_callback,
-      line_break_context,start_of_par,addressof(tail));
-pack_begin_line:=0;
-end;
-@#
-@t\4@>@<Declare \eTeX\ procedures for use by |main_control|@>
+@p @<Declare \eTeX\ procedures for use by |main_control|@>
 
 @ It is possible that the user wants to interfere at some point.
-
-The choice between |check_head_filter| and |check_contrib_filter| is not
-quite clear to me yet, but it seems that the latter is the better choice.
 
 @d check_filter(#)==if not output_active then lua_node_filter_s(buildpage_filter_callback,#)
 
