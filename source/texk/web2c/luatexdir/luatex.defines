@@ -125,6 +125,13 @@
 @define function get_pre_exhyphen_char();
 @define function get_post_exhyphen_char();
 
+@define procedure new_hyph_exceptions;
+@define procedure new_patterns;
+@define procedure new_pre_hyphen_char;
+@define procedure new_post_hyphen_char;
+@define procedure new_pre_exhyphen_char;
+@define procedure new_post_exhyphen_char;
+
 { macros from luatex.h }
 @define function pdf_char_marked();
 @define function tex_b_open_in();
