@@ -172,6 +172,10 @@ void pdf_hlist_out(PDF pdf)
     scaled w;                   /*  temporary value for directional width calculation  */
     scaled edge_v;
     scaled edge_h;
+
+    posstructure localpos;      /* the position structure local within this function */
+    posstructure *refpos;       /* the list origin pos. on the page, provided by the caller */
+
     scaled effective_horizontal;
     scaled basepoint_horizontal;
     scaled basepoint_vertical;
@@ -179,7 +183,6 @@ void pdf_hlist_out(PDF pdf)
     halfword dvi_ptr, dir_ptr, dir_tmp;
     scaled left_edge;           /* the left coordinate for this box */
     scaled save_h;              /* what |cur.h| should pop to */
-    scaledpos save_box_pos;     /* what |box_pos| should pop to */
     halfword this_box;          /* pointer to containing box */
     integer g_order;            /* applicable order of infinity for glue */
     integer g_sign;             /* selects type of glue */
@@ -200,8 +203,14 @@ void pdf_hlist_out(PDF pdf)
     g_order = glue_order(this_box);
     g_sign = glue_sign(this_box);
     p = list_ptr(this_box);
+
+    refpos = pdf->posstruct;
+    pdf->posstruct = &localpos; /* use local structure for recursion */
+    localpos.dir = box_dir(this_box);
+
+    box_pos = refpos->pos;      /* all box_pos will go away */
     set_to_zero(cur);
-    box_pos = pos;
+
     save_direction = dvi_direction;
     dvi_direction = box_dir(this_box);
     dvi_ptr = 0;
@@ -302,13 +311,12 @@ void pdf_hlist_out(PDF pdf)
                     cur.h = cur.h + basepoint_horizontal;
                     edge_v = cur.v;
                     cur.v = base_line + basepoint_vertical;
-                    pos = synch_p_with_c(cur);
-                    save_box_pos = box_pos;
+                    (void) new_synch_pos_with_cur(&localpos, refpos, cur);
                     if (type(p) == vlist_node)
                         pdf_vlist_out(pdf);
                     else
                         pdf_hlist_out(pdf);
-                    box_pos = save_box_pos;
+                    box_pos = refpos->pos;      /* all box_pos will go away */
                     cur.h = edge + effective_horizontal;
                     cur.v = base_line;
                 }
@@ -369,54 +377,55 @@ void pdf_hlist_out(PDF pdf)
                 case pdf_refxform_node:
                     /* Output a Form node in a hlist */
                     cur.v = base_line;
-                    pos = synch_p_with_c(cur);
+                    (void) new_synch_pos_with_cur(&localpos, refpos, cur);
                     switch (box_direction(dvi_direction)) {
                     case dir_TL_:
-                        pos_down(pdf_depth(p));
+                        lpos_down(pdf_depth(p));
                         break;
                     case dir_TR_:
-                        pos_down(pdf_depth(p));
-                        pos_left(pdf_width(p));
+                        lpos_down(pdf_depth(p));
+                        lpos_left(pdf_width(p));
                         break;
                     }
-                    pdf_place_form(pdf, pdf_xform_objnum(p), pos);
+                    pdf_place_form(pdf, pdf_xform_objnum(p));
                     edge = cur.h + pdf_width(p);
                     cur.h = edge;
                     break;
                 case pdf_refximage_node:
                     /* Output an Image node in a hlist */
                     cur.v = base_line;
-                    pos = synch_p_with_c(cur);
+                    pos = new_synch_pos_with_cur(&localpos, refpos, cur);
                     switch (box_direction(dvi_direction)) {
                     case dir_TL_:
-                        pos_down(pdf_depth(p));
+                        lpos_down(pdf_depth(p));
                         break;
                     case dir_TR_:
-                        pos_left(pdf_width(p));
-                        pos_down(pdf_depth(p));
+                        lpos_left(pdf_width(p));
+                        lpos_down(pdf_depth(p));
                         break;
                     case dir_BL_:
-                        pos_down(pdf_height(p));
+                        lpos_down(pdf_height(p));
                         break;
                     case dir_BR_:
-                        pos_left(pdf_width(p));
-                        pos_down(pdf_height(p));
+                        lpos_left(pdf_width(p));
+                        lpos_down(pdf_height(p));
                         break;
                     case dir_LT_:
-                        pos_left(pdf_height(p));
-                        pos_down(pdf_width(p));
+                        lpos_left(pdf_height(p));
+                        lpos_down(pdf_width(p));
                         break;
                     case dir_RT_:
-                        pos_left(pdf_depth(p));
-                        pos_down(pdf_width(p));
+                        lpos_left(pdf_depth(p));
+                        lpos_down(pdf_width(p));
                         break;
                     case dir_LB_:
-                        pos_left(pdf_height(p));
+                        lpos_left(pdf_height(p));
                         break;
                     case dir_RB_:
-                        pos_left(pdf_depth(p));
+                        lpos_left(pdf_depth(p));
                         break;
                     }
+                    pos = localpos.pos;
                     pdf_place_image(pdf, pdf_ximage_idx(p), pos);
                     edge = cur.h + pdf_width(p);
                     cur.h = edge;
@@ -444,9 +453,9 @@ void pdf_hlist_out(PDF pdf)
                     break;
                 case pdf_save_pos_node:
                     /* Save current position */
-                    pos = synch_p_with_c(cur);
-                    pdf_last_x_pos = pos.h;
-                    pdf_last_y_pos = pos.v;
+                    (void) new_synch_pos_with_cur(&localpos, refpos, cur);
+                    pdf_last_x_pos = localpos.pos.h;
+                    pdf_last_y_pos = localpos.pos.v;
                     break;
                 case special_node:
                     pdf_special(pdf, p);
@@ -477,22 +486,26 @@ void pdf_hlist_out(PDF pdf)
                             dir_cur_h(temp_ptr) = cur.h;
                         }
                         dir_cur_v(temp_ptr) = cur.v;
-                        dir_box_pos_h(temp_ptr) = box_pos.h;
-                        dir_box_pos_v(temp_ptr) = box_pos.v;
-                        pos = synch_p_with_c(cur);      /* no need for |synch_dvi_with_cur|, as there is no DVI grouping */
-                        box_pos = pos;  /* fake a nested |hlist_out| */
+                        dir_box_pos_h(temp_ptr) = refpos->pos.h;
+                        dir_box_pos_v(temp_ptr) = refpos->pos.v;
+                        pos = new_synch_pos_with_cur(&localpos, refpos, cur);   /* no need for |synch_dvi_with_cur|, as there is no DVI grouping */
+                        refpos->pos = pos;      /* fake a nested |hlist_out| */
+                        box_pos = refpos->pos;
+                        localpos.dir = dir_dir(dir_ptr);
+                        dvi_direction = localpos.dir;
                         set_to_zero(cur);
-                        dvi_direction = dir_dir(dir_ptr);
                     } else {
                         pop_dir_node();
-                        box_pos.h = dir_box_pos_h(p);
-                        box_pos.v = dir_box_pos_v(p);
+                        refpos->pos.h = dir_box_pos_h(p);
+                        refpos->pos.v = dir_box_pos_v(p);
+                        box_pos = refpos->pos;
+                        if (dir_ptr != null)
+                            localpos.dir = dir_dir(dir_ptr);
+                        else
+                            localpos.dir = 0;
+                        dvi_direction = localpos.dir;
                         cur.h = dir_cur_h(p);
                         cur.v = dir_cur_v(p);
-                        if (dir_ptr != null)
-                            dvi_direction = dir_dir(dir_ptr);
-                        else
-                            dvi_direction = 0;
                     }
                     break;
                 default:
@@ -613,16 +626,16 @@ void pdf_hlist_out(PDF pdf)
                             cur.h = cur.h + basepoint_horizontal;
                             edge_v = cur.v;
                             cur.v = base_line + basepoint_vertical;
-                            pos = synch_p_with_c(cur);
-                            save_box_pos = box_pos;
+                            (void) new_synch_pos_with_cur(&localpos, refpos,
+                                                          cur);
                             outer_doing_leaders = doing_leaders;
                             doing_leaders = true;
                             if (type(leader_box) == vlist_node)
                                 pdf_vlist_out(pdf);
                             else
                                 pdf_hlist_out(pdf);
+                            box_pos = refpos->pos;
                             doing_leaders = outer_doing_leaders;
-                            box_pos = save_box_pos;
                             cur.h = edge_h + leader_wd + lx;
                             cur.v = base_line;
                         }
@@ -656,7 +669,7 @@ void pdf_hlist_out(PDF pdf)
             if (is_running(rule.dp))
                 rule.dp = depth(this_box);
             if (((rule.ht + rule.dp) > 0) && (rule.wd > 0)) {   /* we don't output empty rules */
-                pos = synch_p_with_c(cur);
+                pos = new_synch_pos_with_cur(&localpos, refpos, cur);
                 /* *INDENT-OFF* */
                 switch (box_direction(dvi_direction)) {
                 case dir_TL_: 
@@ -706,6 +719,7 @@ void pdf_hlist_out(PDF pdf)
         while (dir_ptr != null)
             pop_dir_node();
     }
+    pdf->posstruct = refpos;
 }
 
 
@@ -715,8 +729,11 @@ void pdf_vlist_out(PDF pdf)
 {
     scaled left_edge;           /* the left coordinate for this box */
     scaled top_edge;            /* the top coordinate for this box */
+
+    posstructure localpos;      /* the position structure local within this function */
+    posstructure *refpos;       /* the list origin pos. on the page, provided by the caller */
+
     scaled save_v;              /* what |cur.v| should pop to */
-    scaledpos save_box_pos;     /* what |box_pos| should pop to */
     halfword this_box;          /* pointer to containing box */
     glue_ord g_order;           /* applicable order of infinity for glue */
     integer g_sign;             /* selects type of glue */
@@ -740,8 +757,14 @@ void pdf_vlist_out(PDF pdf)
     g_order = glue_order(this_box);
     g_sign = glue_sign(this_box);
     p = list_ptr(this_box);
+
+    refpos = pdf->posstruct;
+    pdf->posstruct = &localpos; /* use local structure for recursion */
+    localpos.dir = box_dir(this_box);
+
+    box_pos = refpos->pos;
     set_to_zero(cur);
-    box_pos = pos;
+
     save_direction = dvi_direction;
     dvi_direction = box_dir(this_box);
     incr(cur_s);
@@ -821,14 +844,13 @@ void pdf_vlist_out(PDF pdf)
                     edge_v = cur.v;
                     cur.h = left_edge + basepoint_horizontal;
                     cur.v = cur.v + basepoint_vertical;
-                    pos = synch_p_with_c(cur);
-                    save_box_pos = box_pos;
+                    (void) new_synch_pos_with_cur(&localpos, refpos, cur);
                     temp_ptr = p;
                     if (type(p) == vlist_node)
                         pdf_vlist_out(pdf);
                     else
                         pdf_hlist_out(pdf);
-                    box_pos = save_box_pos;
+                    box_pos = refpos->pos;
                     cur.h = left_edge;
                     cur.v = edge_v + effective_vertical;
                 }
@@ -877,53 +899,54 @@ void pdf_vlist_out(PDF pdf)
                 case pdf_refxform_node:
                     /* Output a Form node in a vlist */
                     cur.h = left_edge;
-                    pos = synch_p_with_c(cur);
+                    (void) new_synch_pos_with_cur(&localpos, refpos, cur);
                     switch (box_direction(dvi_direction)) {
                     case dir_TL_:
-                        pos_down(pdf_height(p) + pdf_depth(p));
+                        lpos_down(pdf_height(p) + pdf_depth(p));
                         break;
                     case dir_TR_:
-                        pos_left(pdf_width(p));
-                        pos_down(pdf_height(p) + pdf_depth(p));
+                        lpos_left(pdf_width(p));
+                        lpos_down(pdf_height(p) + pdf_depth(p));
                         break;
                     default:
                         break;
                     }
-                    pdf_place_form(pdf, pdf_xform_objnum(p), pos);
+                    pdf_place_form(pdf, pdf_xform_objnum(p));
                     cur.v = cur.v + pdf_height(p) + pdf_depth(p);
                     break;
                 case pdf_refximage_node:
                     /* Output an Image node in a vlist */
                     cur.h = left_edge;
-                    pos = synch_p_with_c(cur);
+                    pos = new_synch_pos_with_cur(&localpos, refpos, cur);
                     switch (box_direction(dvi_direction)) {
                     case dir_TL_:
-                        pos_down(pdf_height(p) + pdf_depth(p));
+                        lpos_down(pdf_height(p) + pdf_depth(p));
                         break;
                     case dir_TR_:
-                        pos_left(pdf_width(p));
-                        pos_down(pdf_height(p) + pdf_depth(p));
+                        lpos_left(pdf_width(p));
+                        lpos_down(pdf_height(p) + pdf_depth(p));
                         break;
                     case dir_BL_:
                         break;
                     case dir_BR_:
-                        pos_left(pdf_width(p));
+                        lpos_left(pdf_width(p));
                         break;
                     case dir_LT_:
-                        pos_down(pdf_width(p));
+                        lpos_down(pdf_width(p));
                         break;
                     case dir_RT_:
-                        pos_left(pdf_height(p) + pdf_depth(p));
-                        pos_down(pdf_width(p));
+                        lpos_left(pdf_height(p) + pdf_depth(p));
+                        lpos_down(pdf_width(p));
                         break;
                     case dir_LB_:
                         break;
                     case dir_RB_:
-                        pos_left(pdf_height(p) + pdf_depth(p));
+                        lpos_left(pdf_height(p) + pdf_depth(p));
                         break;
                     default:
                         break;
                     }
+                    pos = localpos.pos;
                     pdf_place_image(pdf, pdf_ximage_idx(p), pos);
                     cur.v = cur.v + pdf_height(p) + pdf_depth(p);
                     break;
@@ -951,9 +974,9 @@ void pdf_vlist_out(PDF pdf)
                     break;
                 case pdf_save_pos_node:
                     /* Save current position */
-                    pos = synch_p_with_c(cur);
-                    pdf_last_x_pos = pos.h;
-                    pdf_last_y_pos = pos.v;
+                    (void) new_synch_pos_with_cur(&localpos, refpos, cur);
+                    pdf_last_x_pos = localpos.pos.h;
+                    pdf_last_y_pos = localpos.pos.v;
                     break;
                 case special_node:
                     pdf_special(pdf, p);
@@ -1021,8 +1044,8 @@ void pdf_vlist_out(PDF pdf)
                             cur.h = left_edge + shift_amount(leader_box);
                             cur.v = cur.v + height(leader_box);
                             save_v = cur.v;
-                            pos = synch_p_with_c(cur);
-                            save_box_pos = box_pos;
+                            (void) new_synch_pos_with_cur(&localpos, refpos,
+                                                          cur);
                             temp_ptr = leader_box;
                             outer_doing_leaders = doing_leaders;
                             doing_leaders = true;
@@ -1030,8 +1053,8 @@ void pdf_vlist_out(PDF pdf)
                                 pdf_vlist_out(pdf);
                             else
                                 pdf_hlist_out(pdf);
+                            box_pos = refpos->pos;
                             doing_leaders = outer_doing_leaders;
-                            box_pos = save_box_pos;
                             cur.h = left_edge;
                             cur.v =
                                 save_v - height(leader_box) + leader_ht + lx;
@@ -1055,7 +1078,7 @@ void pdf_vlist_out(PDF pdf)
                 rule.wd = width(this_box);
             rule.ht = rule.ht + rule.dp;        /* this is the rule thickness */
             if ((rule.ht > 0) && (rule.wd > 0)) {       /* we don't output empty rules */
-                pos = synch_p_with_c(cur);
+                pos = new_synch_pos_with_cur(&localpos, refpos, cur);
                 /* *INDENT-OFF* */
                 switch (box_direction(dvi_direction)) {
                 case dir_TL_: 
@@ -1098,4 +1121,5 @@ void pdf_vlist_out(PDF pdf)
 
     decr(cur_s);
     dvi_direction = save_direction;
+    pdf->posstruct = refpos;
 }

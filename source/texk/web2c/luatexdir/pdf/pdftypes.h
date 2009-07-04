@@ -22,7 +22,7 @@
 #ifndef PDFTYPES_H
 #  define PDFTYPES_H
 
-#include <zlib.h>
+#  include <zlib.h>
 
 /* This stucture holds everything that is needed for the actual pdf generation.
 
@@ -49,6 +49,18 @@ typedef struct {
     pdffloat h;
     pdffloat v;
 } pdfpos;
+
+#  define scaled integer
+
+typedef struct scaledpos_ {
+    scaled h;
+    scaled v;
+} scaledpos;
+
+typedef struct posstructure_ {
+    scaledpos pos;              /* position on the page */
+    int dir;                    /* direction of stuff to be put onto the page */
+} posstructure;
 
 typedef enum { PMODE_NONE, PMODE_PAGE, PMODE_TEXT, PMODE_CHARARRAY,
     PMODE_CHAR
@@ -155,7 +167,8 @@ typedef struct pdf_output_file_ {
     int *mem;
     int mem_ptr;
 
-    pdfstructure *pstruct;      /* structure for positioning within page */
+    pdfstructure *pstruct;      /* utity structure keeping position status in PDF page stream */
+    posstructure *posstruct;    /* structure for positioning within page */
 
     int obj_tab_size;           /* allocated size of |obj_tab| array */
     obj_entry *obj_tab;

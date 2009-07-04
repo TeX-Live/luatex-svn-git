@@ -30,11 +30,11 @@ halfword pdf_xform_list;        /* list of forms in the current page */
 integer pdf_xform_count;        /* counter of forms */
 integer pdf_cur_form;           /* the form being output */
 
-void pdf_place_form(PDF pdf, integer objnum, scaledpos pos)
+void pdf_place_form(PDF pdf, integer objnum)
 {
     pdf_goto_pagemode(pdf);
     pdf_printf(pdf, "q\n");
-    pdf_set_pos_temp(pdf, pos);
+    pdf_set_pos_temp(pdf, pdf->posstruct->pos);
     pdf_printf(pdf, "/Fm%d", (int) obj_info(pdf, objnum));
     pdf_print_resname_prefix(pdf);
     pdf_printf(pdf, " Do\nQ\n");

@@ -74,47 +74,47 @@ void pdf_page_init(PDF pdf)
 
 /**********************************************************************/
 
-#ifdef SYNCH_POS_WITH_CUR
-/* some time this will be needed */
-void synch_pos_with_cur(scaledpos * pos, scaledpos * cur, scaledpos * box_pos)
+scaledpos new_synch_pos_with_cur(posstructure * pos, posstructure * refpos,
+                                 scaledpos cur)
 {
-    switch (dvi_direction) {
+    switch (box_direction(pos->dir)) {
     case dir_TL_:
-        pos->h = box_pos->h + cur->h;
-        pos->v = box_pos->v - cur->v;
+        pos->pos.h = refpos->pos.h + cur.h;
+        pos->pos.v = refpos->pos.v - cur.v;
         break;
     case dir_TR_:
-        pos->h = box_pos->h - cur->h;
-        pos->v = box_pos->v - cur->v;
+        pos->pos.h = refpos->pos.h - cur.h;
+        pos->pos.v = refpos->pos.v - cur.v;
         break;
     case dir_BL_:
-        pos->h = box_pos->h + cur->h;
-        pos->v = box_pos->v + cur->v;
+        pos->pos.h = refpos->pos.h + cur.h;
+        pos->pos.v = refpos->pos.v + cur.v;
         break;
     case dir_BR_:
-        pos->h = box_pos->h - cur->h;
-        pos->v = box_pos->v + cur->v;
+        pos->pos.h = refpos->pos.h - cur.h;
+        pos->pos.v = refpos->pos.v + cur.v;
         break;
     case dir_LT_:
-        pos->h = box_pos->h + cur->v;
-        pos->v = box_pos->v - cur->h;
+        pos->pos.h = refpos->pos.h + cur.v;
+        pos->pos.v = refpos->pos.v - cur.h;
         break;
     case dir_RT_:
-        pos->h = box_pos->h - cur->v;
-        pos->v = box_pos->v - cur->h;
+        pos->pos.h = refpos->pos.h - cur.v;
+        pos->pos.v = refpos->pos.v - cur.h;
         break;
     case dir_LB_:
-        pos->h = box_pos->h + cur->v;
-        pos->v = box_pos->v + cur->h;
+        pos->pos.h = refpos->pos.h + cur.v;
+        pos->pos.v = refpos->pos.v + cur.h;
         break;
     case dir_RB_:
-        pos->h = box_pos->h - cur->v;
-        pos->v = box_pos->v + cur->h;
+        pos->pos.h = refpos->pos.h - cur.v;
+        pos->pos.v = refpos->pos.v + cur.h;
         break;
-    default:;
+    default:
+        assert(0);
     }
+    return pos->pos;
 }
-#endif
 
 /**********************************************************************/
 

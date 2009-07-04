@@ -70,6 +70,11 @@ PDF initialize_pdf(void)
                                    whether a pointer to |mem| is valid  */
     pdf->pstruct = NULL;
 
+    pdf->posstruct = xmalloc(sizeof(posstructure));
+    pdf->posstruct->pos.h = 0;
+    pdf->posstruct->pos.v = 0;
+    pdf->posstruct->dir = dir_TL_;
+
     pdf->obj_tab_size = inf_obj_tab_size;       /* allocated size of |obj_tab| array */
     pdf->obj_tab = xmalloc((pdf->obj_tab_size + 1) * sizeof(obj_entry));
     memset(pdf->obj_tab, 0, sizeof(obj_entry));

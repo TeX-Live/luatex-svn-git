@@ -330,6 +330,8 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     }
     pdf_page_init(pdf);
 
+    pdf->posstruct->pos = pos;
+
     if (!shipping_page) {
         pdf_begin_dict(pdf, pdf_cur_form, 0);
         pdf->last_stream = pdf_cur_form;
@@ -381,7 +383,6 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     pdfshipoutbegin(shipping_page);
     if (shipping_page)
         pdf_out_colorstack_startpage(pdf);
-
 
     if (type(p) == vlist_node)
         pdf_vlist_out(pdf);
@@ -625,7 +626,8 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     /* In the end of shipping out a page we reset all the lists holding objects
        have been created during the page shipping. */
     /* Flush resource lists */
-    flush_object_list(pdf->font_list); pdf->font_list = NULL;
+    flush_object_list(pdf->font_list);
+    pdf->font_list = NULL;
     flush_list(pdf_obj_list);
     flush_list(pdf_xform_list);
     flush_list(pdf_ximage_list);

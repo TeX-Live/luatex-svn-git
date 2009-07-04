@@ -50,7 +50,7 @@ extern halfword pdf_xform_list; /* list of forms in the current page */
 extern integer pdf_xform_count; /* counter of forms */
 extern integer pdf_cur_form;    /* the form being output */
 
-void pdf_place_form(PDF pdf, integer i, scaledpos pos);
+void pdf_place_form(PDF pdf, integer i);
 
 void scan_pdfxform(PDF pdf, integer box_base);
 void scan_pdfrefxform(PDF pdf);

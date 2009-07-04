@@ -28,6 +28,11 @@
 #  define pos_up(A)    pos.v = pos.v + (A)
 #  define pos_down(A)  pos.v = pos.v - (A)
 
+#  define lpos_right(A) localpos.pos.h = localpos.pos.h + (A)
+#  define lpos_left(A)  localpos.pos.h = localpos.pos.h - (A)
+#  define lpos_up(A)    localpos.pos.v = localpos.pos.v + (A)
+#  define lpos_down(A)  localpos.pos.v = localpos.pos.v - (A)
+
 extern scaled simple_advance_width(halfword p);
 extern void calculate_width_to_enddir(halfword p, real cur_glue, scaled cur_g,
                                       halfword this_box, scaled * setw,
