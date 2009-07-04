@@ -1,4 +1,4 @@
-/* packagin.c
+/* packaging.c
    
    Copyright 2009 Taco Hoekwater <taco@luatex.org>
 
@@ -1142,13 +1142,13 @@ void append_to_vlist(halfword b)
     halfword p;                 /* a new glue node */
     if (prev_depth > dimen_par(param_pdf_ignored_dimen_code)) {
         if ((type(b) == hlist_node) && is_mirrored(box_dir(b))) {
-            d = width(dimen_par(param_baseline_skip_code)) - prev_depth -
+            d = width(glue_par(param_baseline_skip_code)) - prev_depth -
                 depth(b);
         } else {
-            d = width(dimen_par(param_baseline_skip_code)) - prev_depth -
+            d = width(glue_par(param_baseline_skip_code)) - prev_depth -
                 height(b);
         }
-        if (d < dimen_par(param_line_skip_limit_code)) {
+        if (d < glue_par(param_line_skip_limit_code)) {
             p = new_param_glue(param_line_skip_code);
         } else {
             p = new_skip_param(param_baseline_skip_code);
