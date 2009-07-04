@@ -89,7 +89,6 @@
 @define function make_lang_data();
 @define procedure ext_do_line_break();
 @define procedure initialize_active;
-@define var prev_char_p;
 @define function cur_break();
 @define function break_node();
 
@@ -1753,3 +1752,70 @@
 @define procedure tail_append();
 @define procedure show_activities;
 
+{ packaging }
+
+@define const exactly;
+@define const additional;
+@define const cal_expand_ratio;
+@define const subst_ex_font;
+@define const substituted;
+
+@define var pack_direction;
+@define var spec_direction;
+@define var total_stretch;
+@define var total_shrink;
+@define var last_badness;
+@define var adjust_tail;
+@define var pre_adjust_tail;
+@define var font_expand_ratio;
+@define var last_leftmost_char;
+@define var last_rightmost_char;
+@define var next_char_p;
+@define var prev_char_p;
+@define var pack_begin_line;
+
+@define procedure scan_spec();
+@define procedure set_prev_char_p();
+@define function char_stretch();
+@define function char_shrink();
+@define function kern_stretch();
+@define function kern_shrink();
+@define procedure do_subst_font();
+@define function char_pw();
+@define function new_margin_kern();
+@define procedure update_adjust_list();
+@define function hpack();
+@define function filtered_hpack();
+
+@define function vpack();
+@define function vpackage();
+@define function filtered_vpackage();
+@define procedure append_to_vlist();
+
+@define function prune_page_top();
+@define var active_height;
+@define var cur_height;
+@define const awful_bad;
+@define const deplorable;
+@define var best_height_plus_depth;
+@define function vert_break();
+@define function vsplit();
+
+@define const box_code;
+@define const copy_code;
+@define const last_box_code;
+@define const vsplit_code;
+@define const vtop_code;
+
+@define var tail_page_disc;
+@define var page_disc;
+@define var split_disc;
+@define var disc_ptr;
+
+@define const box_flag;
+@define const global_box_flag;
+@define const max_global_box_flag;
+@define const ship_out_flag;
+@define const leader_flag;
+
+@define procedure begin_box();

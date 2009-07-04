@@ -247,6 +247,7 @@ typedef enum {
 #  define mark_class(a)    vinfo((a)+2)
 
 #  define adjust_node_size 3
+#  define adjust_pre       subtype
 #  define adjust_ptr(a)    vlink(a+2)
 
 #  define glyph_node_size 5
@@ -673,14 +674,6 @@ typedef enum {
 #  define user_node_value(a) vinfo((a)+3)
 
 #  define cancel_boundary_size   3
-
-typedef enum {
-    exactly = 0,                /*a box dimension is pre-specified */
-    additional,                 /*a box dimension is increased from the natural one */
-    cal_expand_ratio,           /* calculate amount for font expansion after breaking
-                                   paragraph into lines */
-    subst_ex_font               /* substitute fonts */
-} hpack_subtypes;
 
 #  define active_node_size 4    /*number of words in extended active nodes */
 #  define fitness subtype       /*|very_loose_fit..tight_fit| on final line for this break */
