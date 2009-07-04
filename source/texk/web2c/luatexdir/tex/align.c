@@ -45,11 +45,6 @@ void init_col(void);
 #define pdf_ignored_dimen dimen_par(param_pdf_ignored_dimen_code)
 #define overfull_rule     dimen_par(param_overfull_rule_code)
 
-#define append_list(A,B)  do {                                          \
-     vlink(cur_list.tail_field) = vlink((A));                           \
-     cur_list.tail_field = (B);                                         \
-   } while (0)
-
 #define max_quarterword 65535
 
 static const char _svn_version[] =
@@ -1040,7 +1035,7 @@ value is changed to zero and so is the next tabskip.
                                 set_glue_ratio_zero(glue_set(r));
                             else
                                 glue_set(r) =
-                                    unfloat((t - width(r)) / glue_stretch(r));
+   				    unfloat((double)(t - width(r)) / glue_stretch(r));
                         } else {
                             glue_order(r) = glue_sign(r);
                             glue_sign(r) = shrinking;
@@ -1051,7 +1046,7 @@ value is changed to zero and so is the next tabskip.
                                 set_glue_ratio_one(glue_set(r));
                             else
                                 glue_set(r) =
-                                    unfloat((width(r) - t) / glue_shrink(r));
+				    unfloat((double)(width(r) - t) / glue_shrink(r));
                         }
                         width(r) = w;
                         type(r) = hlist_node;
