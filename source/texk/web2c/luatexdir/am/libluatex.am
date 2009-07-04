@@ -50,7 +50,6 @@ libluatex_a_SOURCES = \
 	luatexdir/font/writetype0.c \
 	luatexdir/font/writetype2.c \
 	luatexdir/get_svnversion.sh \
-	luatexdir/hyphen.h \
 	luatexdir/image/epdf.c \
 	luatexdir/image/epdf.h \
 	luatexdir/image/image.h \
@@ -67,7 +66,9 @@ libluatex_a_SOURCES = \
 	luatexdir/lang/hnjalloc.c \
 	luatexdir/lang/hnjalloc.h \
 	luatexdir/lang/hyphen.c \
+	luatexdir/lang/hyphen.h \
 	luatexdir/lang/texlang.c \
+	luatexdir/lang/texlang.h \
 	luatexdir/lua/lcallbacklib.c \
 	luatexdir/lua/lfontlib.c \
 	luatexdir/lua/limglib.c \

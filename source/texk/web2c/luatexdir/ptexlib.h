@@ -89,6 +89,8 @@ extern double rint(double x);
 #  include "ocp/runocp.h"
 #  include "ocp/readocp.h"
 
+#  include "lang/texlang.h"
+
 #  include "tex/align.h"
 #  include "tex/directions.h"
 #  include "tex/errors.h"
@@ -120,52 +122,6 @@ extern void print_file_name(str_number, str_number, str_number);
 extern void write_svnversion(char *a);
 
 /**********************************************************************/
-
-/* language stuff */
-
-typedef struct _lang_variables {
-    int pre_hyphen_char;
-    int post_hyphen_char;
-    int pre_exhyphen_char;
-    int post_exhyphen_char;
-} lang_variables;
-
-#  include "hyphen.h"
-
-struct tex_language {
-    HyphenDict *patterns;
-    int exceptions;             /* lua registry pointer, should be replaced */
-    int id;
-    int pre_hyphen_char;
-    int post_hyphen_char;
-    int pre_exhyphen_char;
-    int post_exhyphen_char;
-};
-
-#  define MAX_WORD_LEN 256      /* in chars */
-
-extern struct tex_language *new_language(int n);
-extern struct tex_language *get_language(int n);
-extern void load_patterns(struct tex_language *lang, unsigned char *buf);
-extern void load_hyphenation(struct tex_language *lang, unsigned char *buf);
-extern int hyphenate_string(struct tex_language *lang, char *w, char **ret);
-
-extern void new_hyphenation(halfword h, halfword t);
-extern void clear_patterns(struct tex_language *lang);
-extern void clear_hyphenation(struct tex_language *lang);
-extern char *clean_hyphenation(char *buffer, char **cleaned);
-extern void hnj_hyphenation(halfword head, halfword tail);
-
-extern void set_pre_hyphen_char(integer lan, integer val);
-extern void set_post_hyphen_char(integer lan, integer val);
-extern integer get_pre_hyphen_char(integer lan);
-extern integer get_post_hyphen_char(integer lan);
-
-extern void set_pre_exhyphen_char(integer lan, integer val);
-extern void set_post_exhyphen_char(integer lan, integer val);
-extern integer get_pre_exhyphen_char(integer lan);
-extern integer get_post_exhyphen_char(integer lan);
-extern halfword compound_word_break(halfword t, int clang);
 
 extern halfword new_ligkern(halfword head, halfword tail);
 extern halfword handle_ligaturing(halfword head, halfword tail);
@@ -258,12 +214,6 @@ void unsave_math_codes(quarterword grouplevel);
 void initialize_math_codes(void);
 void dump_math_codes(void);
 void undump_math_codes(void);
-
-/* lang/texlang.c */
-
-void dump_language_data(void);
-void undump_language_data(void);
-char *exception_strings(struct tex_language *lang);
 
 /* lua/llualib.c */
 
