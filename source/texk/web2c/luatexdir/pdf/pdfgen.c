@@ -72,7 +72,7 @@ PDF initialize_pdf(void)
 
     pdf->obj_tab_size = inf_obj_tab_size;       /* allocated size of |obj_tab| array */
     pdf->obj_tab = xmalloc((pdf->obj_tab_size + 1) * sizeof(obj_entry));
-    memset(pdf->obj_tab,0,sizeof(obj_entry));
+    memset(pdf->obj_tab, 0, sizeof(obj_entry));
 
     pdf->minor_version = 4;
     pdf->decimal_digits = 4;
@@ -159,7 +159,7 @@ void do_check_pdfminorversion(PDF pdf)
 
     }
     if (pdf->draftmode != 0) {
-        pdf->compress_level = 0; /* re-fix it, might have been changed inbetween */
+        pdf->compress_level = 0;        /* re-fix it, might have been changed inbetween */
         pdf->objcompresslevel = 0;
     }
 }
@@ -242,8 +242,8 @@ void pdf_os_prepare_obj(PDF pdf, integer i, integer pdf_os_level)
     if (pdf->os_mode) {
         if (pdf->os_cur_objnum == 0) {
             pdf->os_cur_objnum = pdf_new_objnum(pdf);
-            pdf->obj_ptr--; /* object stream is not accessible to user */
-            pdf->os_cntr++; /* only for statistics */
+            pdf->obj_ptr--;     /* object stream is not accessible to user */
+            pdf->os_cntr++;     /* only for statistics */
             pdf->os_idx = 0;
             pdf->ptr = 0;       /* start fresh object stream */
         } else {
@@ -438,21 +438,21 @@ void pdf_print_str(PDF pdf, char *s)
         return;
     }
     if ((s[0] != '<') || (s[l] != '>') || odd((l + 1))) {
-        pdf_out(pdf,'(');
+        pdf_out(pdf, '(');
         pdf_puts(pdf, s);
-        pdf_out(pdf,')');
+        pdf_out(pdf, ')');
         return;
     }
     s++;
     while (is_hex_char(*s))
         s++;
     if (s != orig + l) {
-        pdf_out(pdf,'(');
+        pdf_out(pdf, '(');
         pdf_puts(pdf, orig);
-        pdf_out(pdf,')');
+        pdf_out(pdf, ')');
         return;
     }
-    pdf_puts(pdf, orig); /* it was a hex string after all  */
+    pdf_puts(pdf, orig);        /* it was a hex string after all  */
 }
 
 
@@ -539,7 +539,7 @@ for optimizations that are not possible in pascal.
 scaled round_xn_over_d(scaled x, integer n, integer d)
 {
     boolean positive;           /* was |x>=0|? */
-    unsigned t, u, v;        /* intermediate quantities */
+    unsigned t, u, v;           /* intermediate quantities */
     if (x >= 0) {
         positive = true;
     } else {
@@ -587,7 +587,7 @@ void pdf_print_mag_bp(PDF pdf, scaled s)
     print_pdffloat(pdf, a);
 }
 
-void flush_object_list (pdf_object_list *pp)
+void flush_object_list(pdf_object_list * pp)
 {
     pdf_object_list *q, *p;
     p = pp;
@@ -844,7 +844,7 @@ void pdf_end_obj(PDF pdf)
         if (pdf->os_idx == pdf_os_max_objs - 1)
             pdf_os_write_objstream(pdf);
     } else {
-        pdf_puts(pdf, "endobj\n");    /* end a PDF object */
+        pdf_puts(pdf, "endobj\n");      /* end a PDF object */
     }
 }
 
@@ -1031,7 +1031,7 @@ void print_ID(PDF pdf, char *file_name)
   Solaris 2.5).
 */
 
-#define TIME_STR_SIZE 30  /* minimum size for time_str is 24: "D:YYYYmmddHHMMSS+HH'MM'" */
+#define TIME_STR_SIZE 30        /* minimum size for time_str is 24: "D:YYYYmmddHHMMSS+HH'MM'" */
 
 static void makepdftime(PDF pdf)
 {
@@ -1085,10 +1085,10 @@ static void makepdftime(PDF pdf)
 
 void init_start_time(PDF pdf)
 {
-    assert (pdf);       
+    assert(pdf);
     if (pdf->start_time == 0) {
         pdf->start_time = time((time_t *) NULL);
-        pdf->start_time_str = xtalloc(TIME_STR_SIZE, char); 
+        pdf->start_time_str = xtalloc(TIME_STR_SIZE, char);
         makepdftime(pdf);
     }
 }
@@ -1107,7 +1107,7 @@ void print_mod_date(PDF pdf)
 
 char *getcreationdate(PDF pdf)
 {
-    assert (pdf);       
+    assert(pdf);
     init_start_time(pdf);
     return pdf->start_time_str;
 }
@@ -1122,36 +1122,36 @@ void remove_pdffile(PDF pdf)
     }
 }
 
-static void realloc_fb (PDF pdf) 
+static void realloc_fb(PDF pdf)
 {
     if (pdf->fb_array == NULL) {
         pdf->fb_limit = SMALL_ARRAY_SIZE;
         pdf->fb_array = xtalloc(pdf->fb_limit, char);
         pdf->fb_ptr = pdf->fb_array;
-    } else if ((size_t)(pdf->fb_ptr - pdf->fb_array + 1) > pdf->fb_limit) {
+    } else if ((size_t) (pdf->fb_ptr - pdf->fb_array + 1) > pdf->fb_limit) {
         size_t last_ptr_index = pdf->fb_ptr - pdf->fb_array;
         pdf->fb_limit *= 2;
-        if ((size_t)(pdf->fb_ptr - pdf->fb_array + 1) > pdf->fb_limit)
+        if ((size_t) (pdf->fb_ptr - pdf->fb_array + 1) > pdf->fb_limit)
             pdf->fb_limit = pdf->fb_ptr - pdf->fb_array + 1;
         xretalloc(pdf->fb_array, pdf->fb_limit, char);
         pdf->fb_ptr = pdf->fb_array + last_ptr_index;
-    } 
+    }
 }
 
 integer fb_offset(PDF pdf)
 {
-    return pdf->fb_ptr -  pdf->fb_array;
+    return pdf->fb_ptr - pdf->fb_array;
 }
 
 void fb_seek(PDF pdf, integer offset)
 {
-     pdf->fb_ptr =  pdf->fb_array + offset;
+    pdf->fb_ptr = pdf->fb_array + offset;
 }
 
 
 void fb_putchar(PDF pdf, eight_bits b)
 {
-    if ((size_t)(pdf->fb_ptr - pdf->fb_array + 1) > pdf->fb_limit)
+    if ((size_t) (pdf->fb_ptr - pdf->fb_array + 1) > pdf->fb_limit)
         realloc_fb(pdf);
     *(pdf->fb_ptr)++ = b;
 }
@@ -1160,22 +1160,22 @@ void fb_flush(PDF pdf)
 {
     char *p;
     integer n;
-    for (p =  pdf->fb_array; p <  pdf->fb_ptr;) {
+    for (p = pdf->fb_array; p < pdf->fb_ptr;) {
         n = pdf->buf_size - pdf->ptr;
-        if ( pdf->fb_ptr - p < n)
-            n =  pdf->fb_ptr - p;
+        if (pdf->fb_ptr - p < n)
+            n = pdf->fb_ptr - p;
         memcpy(pdf->buf + pdf->ptr, p, (unsigned) n);
         pdf->ptr += n;
         if (pdf->ptr == pdf->buf_size)
             pdf_flush(pdf);
         p += n;
     }
-     pdf->fb_ptr =  pdf->fb_array;
+    pdf->fb_ptr = pdf->fb_array;
 }
 
 void fb_free(PDF pdf)
 {
-    xfree( pdf->fb_array);
+    xfree(pdf->fb_array);
 }
 
 
@@ -1194,8 +1194,8 @@ void write_zip(PDF pdf, boolean finish)
        but zlib errors are rare enough (especially now that the 
        compress level is fixed) that I don't care about the slightly
        ugly error message that could result. 
-    */
-    /* cur_file_name = NULL; */ 
+     */
+    /* cur_file_name = NULL; */
     if (pdf->stream_length == 0) {
         if (pdf->zipbuf == NULL) {
             pdf->zipbuf = xtalloc(ZIP_BUF_SIZE, char);
@@ -1215,7 +1215,7 @@ void write_zip(PDF pdf, boolean finish)
     for (;;) {
         if (pdf->c_stream.avail_out == 0) {
             pdf->gone += xfwrite(pdf->zipbuf, 1, ZIP_BUF_SIZE, pdf->file);
-            pdf->last_byte = pdf->zipbuf[ZIP_BUF_SIZE - 1];  /* not needed */
+            pdf->last_byte = pdf->zipbuf[ZIP_BUF_SIZE - 1];     /* not needed */
             pdf->c_stream.next_out = (Bytef *) pdf->zipbuf;
             pdf->c_stream.avail_out = ZIP_BUF_SIZE;
         }
@@ -1227,11 +1227,12 @@ void write_zip(PDF pdf, boolean finish)
             break;
     }
     if (finish) {
-        if (pdf->c_stream.avail_out < ZIP_BUF_SIZE) {        /* at least one byte has been output */
+        if (pdf->c_stream.avail_out < ZIP_BUF_SIZE) {   /* at least one byte has been output */
             pdf->gone +=
                 xfwrite(pdf->zipbuf, 1, ZIP_BUF_SIZE - pdf->c_stream.avail_out,
                         pdf->file);
-            pdf->last_byte = pdf->zipbuf[ZIP_BUF_SIZE - pdf->c_stream.avail_out - 1];
+            pdf->last_byte =
+                pdf->zipbuf[ZIP_BUF_SIZE - pdf->c_stream.avail_out - 1];
         }
         xfflush(pdf->file);
     }
@@ -1305,9 +1306,7 @@ void set_job_id(PDF pdf, int year, int month, int day, int time)
     format_string = xstrdup(makecstring(format_ident));
     make_pdftex_banner();
     slen = SMALL_BUF_SIZE +
-        strlen(name_string) +
-        strlen(format_string) +
-        strlen(pdftex_banner);
+        strlen(name_string) + strlen(format_string) + strlen(pdftex_banner);
     s = xtalloc(slen, char);
     /* The Web2c version string starts with a space.  */
     i = snprintf(s, slen,
@@ -1341,4 +1340,3 @@ char *get_resname_prefix(PDF pdf)
     prefix[6] = '\0';
     return prefix;
 }
-
