@@ -47,6 +47,7 @@ scaled output_one_char(PDF pdf, internal_font_number ffi, integer c)
 {
     scaled_whd ci;              /* the real width, height and depth of the character */
     posstructure localpos = *(pdf->posstruct);  /* for the final transform */
+    scaled x;
     ci = get_charinfo_whd(ffi, c);
 
     switch (box_direction(localpos.dir)) {
@@ -173,15 +174,17 @@ scaled output_one_char(PDF pdf, internal_font_number ffi, integer c)
     case dir_TR_:
     case dir_BL_:
     case dir_BR_:
-        return ci.wd;           /* the horizontal movement (in box coordinate system) */
+        x = ci.wd;              /* the horizontal movement (in box coordinate system) */
         break;
     case dir_LT_:
     case dir_RT_:
     case dir_LB_:
     case dir_RB_:
-        return (ci.ht + ci.dp);
+        x = ci.ht + ci.dp;
         break;
+    default:;
     }
+    return x;
 }
 
 /* mark |f| as a used font; set |font_used(f)|, |pdf_font_size(f)| and |pdf_font_num(f)| */

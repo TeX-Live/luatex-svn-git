@@ -266,7 +266,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
             break;
         }
         /* The movement is actually done within the upright page coordinate system. */
-        dvi_direction = dir_TL_;        /* only temporarily for this adjustment */
+        dvi_direction = dir_TLT;        /* only temporarily for this adjustment */
         pos = synch_p_with_c(cur);
         box_pos = pos;          /* keep track on page */
         /* Then switch to page box coordinate system; do |height(p)| movement. */

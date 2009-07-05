@@ -59,6 +59,8 @@
 #  define dir__BB 14
 #  define dir__BR 15
 
+#  define dir_TLT  0
+
 #  define is_mirrored(A) (dir_opposite(dir_primary[(A)],dir_tertiary[(A)]))
 #  define font_direction(A) (A % 16)
 #  define box_direction(A) (A / 4)

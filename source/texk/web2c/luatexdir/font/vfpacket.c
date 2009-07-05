@@ -150,7 +150,7 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
 
     refpos = pdf->posstruct;
     pdf->posstruct = &localpos; /* use local structure for recursion */
-    localpos.dir = dir_TL_;     /* invariably for vf */
+    localpos.dir = dir_TLT;     /* invariably for vf */
 
     save_cur = cur;             /* TODO: make cur local */
     set_to_zero(cur);
