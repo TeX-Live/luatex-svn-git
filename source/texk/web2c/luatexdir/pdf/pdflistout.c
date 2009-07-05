@@ -396,7 +396,7 @@ void pdf_hlist_out(PDF pdf)
                 case pdf_refximage_node:
                     /* Output an Image node in a hlist */
                     cur.v = base_line;
-                    pos = new_synch_pos_with_cur(&localpos, refpos, cur);
+                    (void) new_synch_pos_with_cur(&localpos, refpos, cur);
                     switch (box_direction(dvi_direction)) {
                     case dir_TL_:
                         lpos_down(pdf_depth(p));
@@ -929,7 +929,7 @@ void pdf_vlist_out(PDF pdf)
                 case pdf_refximage_node:
                     /* Output an Image node in a vlist */
                     cur.h = left_edge;
-                    pos = new_synch_pos_with_cur(&localpos, refpos, cur);
+                    (void) new_synch_pos_with_cur(&localpos, refpos, cur);
                     switch (box_direction(dvi_direction)) {
                     case dir_TL_:
                         lpos_down(pdf_height(p) + pdf_depth(p));
@@ -1089,7 +1089,7 @@ void pdf_vlist_out(PDF pdf)
                 rule.wd = width(this_box);
             rule.ht = rule.ht + rule.dp;        /* this is the rule thickness */
             if ((rule.ht > 0) && (rule.wd > 0)) {       /* we don't output empty rules */
-                pos = new_synch_pos_with_cur(&localpos, refpos, cur);
+                (void) new_synch_pos_with_cur(&localpos, refpos, cur);
                 switch (box_direction(dvi_direction)) {
                 case dir_TL_:
                     lpos_down(rule.ht);
