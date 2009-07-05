@@ -1035,7 +1035,8 @@ value is changed to zero and so is the next tabskip.
                                 set_glue_ratio_zero(glue_set(r));
                             else
                                 glue_set(r) =
-   				    unfloat((double)(t - width(r)) / glue_stretch(r));
+                                    unfloat((double) (t - width(r)) /
+                                            glue_stretch(r));
                         } else {
                             glue_order(r) = glue_sign(r);
                             glue_sign(r) = shrinking;
@@ -1046,7 +1047,8 @@ value is changed to zero and so is the next tabskip.
                                 set_glue_ratio_one(glue_set(r));
                             else
                                 glue_set(r) =
-				    unfloat((double)(width(r) - t) / glue_shrink(r));
+                                    unfloat((double) (width(r) - t) /
+                                            glue_shrink(r));
                         }
                         width(r) = w;
                         type(r) = hlist_node;

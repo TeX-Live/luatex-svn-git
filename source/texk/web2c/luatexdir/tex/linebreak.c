@@ -25,11 +25,11 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-#define etex_pen_base (get_toks_base()+number_regs) /* start of table of \eTeX's penalties */
-#define param_inter_line_penalties_code 0 /* additional penalties between lines */
-#define param_club_penalties_code 1 /* penalties for creating club lines */
-#define param_widow_penalties_code 2 /* penalties for creating widow lines */
-#define param_display_widow_penalties_code 3 /* ditto, just before a display */
+#define etex_pen_base (get_toks_base()+number_regs)     /* start of table of \eTeX's penalties */
+#define param_inter_line_penalties_code 0       /* additional penalties between lines */
+#define param_club_penalties_code 1     /* penalties for creating club lines */
+#define param_widow_penalties_code 2    /* penalties for creating widow lines */
+#define param_display_widow_penalties_code 3    /* ditto, just before a display */
 
 #define etex_pen(A) equiv(etex_pen_base+A)
 
@@ -85,13 +85,13 @@ line can be ascertained when it is necessary to decide whether to use
 |above_display_skip| or |above_display_short_skip| before a displayed formula.
 */
 
-halfword just_box; /* the |hlist_node| for the last line of the new paragraph */
-integer paragraph_dir; /* main direction of paragraph */
-integer line_break_dir; /* current direction within paragraph */
-integer line_break_context; /* the surrounding state for |line_break| calls */
-int break_c_htdp; /* height-depth entry in |char_info| */
-integer temp_no_whatsits; /* used when closing group */
-integer temp_no_dirs; /* used when closing group */
+halfword just_box;              /* the |hlist_node| for the last line of the new paragraph */
+integer paragraph_dir;          /* main direction of paragraph */
+integer line_break_dir;         /* current direction within paragraph */
+integer line_break_context;     /* the surrounding state for |line_break| calls */
+int break_c_htdp;               /* height-depth entry in |char_info| */
+integer temp_no_whatsits;       /* used when closing group */
+integer temp_no_dirs;           /* used when closing group */
 integer temporary_dir;
 halfword dir_ptr, dir_tmp, dir_rover;
 
@@ -116,40 +116,40 @@ Most other processing is delegated to external functions.
 */
 
 static void ext_do_line_break(boolean d,
-                       int pretolerance,
-                       int tracing_paragraphs,
-                       int tolerance,
-                       scaled emergency_stretch,
-                       int looseness,
-                       int hyphen_penalty,
-                       int ex_hyphen_penalty,
-                       int pdf_adjust_spacing,
-                       halfword par_shape_ptr,
-                       int adj_demerits,
-                       int pdf_protrude_chars,
-                       int line_penalty,
-                       int last_line_fit,
-                       int double_hyphen_demerits,
-                       int final_hyphen_demerits,
-                       int hang_indent,
-                       int hsize,
-                       int hang_after,
-                       halfword left_skip,
-                       halfword right_skip,
-                       int pdf_each_line_height,
-                       int pdf_each_line_depth,
-                       int pdf_first_line_height,
-                       int pdf_last_line_depth,
-                       halfword inter_line_penalties_ptr,
-                       int inter_line_penalty,
-                       int club_penalty,
-                       halfword club_penalties_ptr,
-                       halfword display_widow_penalties_ptr,
-                       halfword widow_penalties_ptr,
-                       int display_widow_penalty,
-                       int widow_penalty,
-                       int broken_penalty, halfword final_par_glue,
-                       halfword pdf_ignored_dimen);
+                              int pretolerance,
+                              int tracing_paragraphs,
+                              int tolerance,
+                              scaled emergency_stretch,
+                              int looseness,
+                              int hyphen_penalty,
+                              int ex_hyphen_penalty,
+                              int pdf_adjust_spacing,
+                              halfword par_shape_ptr,
+                              int adj_demerits,
+                              int pdf_protrude_chars,
+                              int line_penalty,
+                              int last_line_fit,
+                              int double_hyphen_demerits,
+                              int final_hyphen_demerits,
+                              int hang_indent,
+                              int hsize,
+                              int hang_after,
+                              halfword left_skip,
+                              halfword right_skip,
+                              int pdf_each_line_height,
+                              int pdf_each_line_depth,
+                              int pdf_first_line_height,
+                              int pdf_last_line_depth,
+                              halfword inter_line_penalties_ptr,
+                              int inter_line_penalty,
+                              int club_penalty,
+                              halfword club_penalties_ptr,
+                              halfword display_widow_penalties_ptr,
+                              halfword widow_penalties_ptr,
+                              int display_widow_penalty,
+                              int widow_penalty,
+                              int broken_penalty, halfword final_par_glue,
+                              halfword pdf_ignored_dimen);
 
 
 
@@ -158,99 +158,106 @@ void line_break(boolean d)
     halfword final_par_glue;
     halfword start_of_par;
     integer callback_id;
-    pack_begin_line=cur_list.ml_field; /* this is for over/underfull box messages */
-    vlink(temp_head)=vlink(cur_list.head_field);
+    pack_begin_line = cur_list.ml_field;        /* this is for over/underfull box messages */
+    vlink(temp_head) = vlink(cur_list.head_field);
     new_hyphenation(temp_head, cur_list.tail_field);
-    if ((!is_char_node(vlink(cur_list.head_field))) && ((type(vlink(cur_list.head_field))==whatsit_node)
-					 && (subtype(vlink(cur_list.head_field))==local_par_node)))
-	paragraph_dir=local_par_dir(vlink(cur_list.head_field));
+    if ((!is_char_node(vlink(cur_list.head_field)))
+        && ((type(vlink(cur_list.head_field)) == whatsit_node)
+            && (subtype(vlink(cur_list.head_field)) == local_par_node)))
+        paragraph_dir = local_par_dir(vlink(cur_list.head_field));
     else
-	paragraph_dir=0;
-    line_break_dir=paragraph_dir;
-    cur_list.tail_field=new_ligkern(temp_head,cur_list.tail_field);
+        paragraph_dir = 0;
+    line_break_dir = paragraph_dir;
+    cur_list.tail_field = new_ligkern(temp_head, cur_list.tail_field);
     if (is_char_node(cur_list.tail_field)) {
-	tail_append(new_penalty(inf_penalty));
-    } else if (type(cur_list.tail_field)!=glue_node) {
-	tail_append(new_penalty(inf_penalty));
+        tail_append(new_penalty(inf_penalty));
+    } else if (type(cur_list.tail_field) != glue_node) {
+        tail_append(new_penalty(inf_penalty));
     } else {
-	type(cur_list.tail_field)=penalty_node;
-	delete_glue_ref(glue_ptr(cur_list.tail_field));
-	if (leader_ptr(cur_list.tail_field)!=null) 
-	    flush_node_list(leader_ptr(cur_list.tail_field));
-	penalty(cur_list.tail_field)=inf_penalty;
+        type(cur_list.tail_field) = penalty_node;
+        delete_glue_ref(glue_ptr(cur_list.tail_field));
+        if (leader_ptr(cur_list.tail_field) != null)
+            flush_node_list(leader_ptr(cur_list.tail_field));
+        penalty(cur_list.tail_field) = inf_penalty;
     }
-    final_par_glue=new_param_glue(param_par_fill_skip_code);
-    couple_nodes(cur_list.tail_field,final_par_glue);
+    final_par_glue = new_param_glue(param_par_fill_skip_code);
+    couple_nodes(cur_list.tail_field, final_par_glue);
     lua_node_filter(pre_linebreak_filter_callback,
-		    line_break_context,temp_head,addressof(cur_list.tail_field));
-    last_line_fill=vlink(cur_list.tail_field);
+                    line_break_context, temp_head,
+                    addressof(cur_list.tail_field));
+    last_line_fill = vlink(cur_list.tail_field);
     pop_nest();
-    start_of_par=cur_list.tail_field;
-    callback_id=callback_defined(linebreak_filter_callback);
-    if (callback_id>0) {
-	callback_id = lua_linebreak_callback(d, temp_head, addressof(cur_list.tail_field));
-	if (callback_id>0) {
-	    just_box = cur_list.tail_field;
-	    if (just_box!=null) 
-		while (vlink(just_box)!=null)
-		    just_box = vlink(just_box);
-	    if ((just_box==null)||(type(just_box) != hlist_node)) {
-		help3("A linebreaking routine should return a non-empty list of nodes",
-		      "and the last one of those has to be a \\hbox.",
-		      "Sorry, I cannot recover from this.");
-		print_err("Invalid linebreak_filter");
-		succumb();
-	    }
-	} else {
-	    if (int_par(param_tracing_paragraphs_code)>0) {
-		begin_diagnostic();
-		tprint_nl("Lua linebreak_filter failed, reverting to default on line ");
-		print_int(line);
-		end_diagnostic(true);
-	    }
-	}
+    start_of_par = cur_list.tail_field;
+    callback_id = callback_defined(linebreak_filter_callback);
+    if (callback_id > 0) {
+        callback_id =
+            lua_linebreak_callback(d, temp_head,
+                                   addressof(cur_list.tail_field));
+        if (callback_id > 0) {
+            just_box = cur_list.tail_field;
+            if (just_box != null)
+                while (vlink(just_box) != null)
+                    just_box = vlink(just_box);
+            if ((just_box == null) || (type(just_box) != hlist_node)) {
+                help3
+                    ("A linebreaking routine should return a non-empty list of nodes",
+                     "and the last one of those has to be a \\hbox.",
+                     "Sorry, I cannot recover from this.");
+                print_err("Invalid linebreak_filter");
+                succumb();
+            }
+        } else {
+            if (int_par(param_tracing_paragraphs_code) > 0) {
+                begin_diagnostic();
+                tprint_nl
+                    ("Lua linebreak_filter failed, reverting to default on line ");
+                print_int(line);
+                end_diagnostic(true);
+            }
+        }
     }
-    if (callback_id==0) {
-	ext_do_line_break(d, 
-			  int_par(param_pretolerance_code),
-			  int_par(param_tracing_paragraphs_code),
-			  int_par(param_tolerance_code),
-			  dimen_par(param_emergency_stretch_code),
-			  int_par(param_looseness_code),
-			  int_par(param_hyphen_penalty_code),
-			  int_par(param_ex_hyphen_penalty_code),
-			  int_par(param_pdf_adjust_spacing_code),
-			  loc_par(param_par_shape_code),
-			  int_par(param_adj_demerits_code),
-			  int_par(param_pdf_protrude_chars_code),
-			  int_par(param_line_penalty_code),
-			  int_par(param_last_line_fit_code),
-			  int_par(param_double_hyphen_demerits_code),
-			  int_par(param_final_hyphen_demerits_code),
-			  dimen_par(param_hang_indent_code),
-			  dimen_par(param_hsize_code),
-			  int_par(param_hang_after_code),
-			  glue_par(param_left_skip_code),
-			  glue_par(param_right_skip_code),
-			  dimen_par(param_pdf_each_line_height_code),
-			  dimen_par(param_pdf_each_line_depth_code),
-			  dimen_par(param_pdf_first_line_height_code),
-			  dimen_par(param_pdf_last_line_depth_code),
-			  etex_pen(param_inter_line_penalties_code),
-			  int_par(param_inter_line_penalty_code),
-			  int_par(param_club_penalty_code),
-			  etex_pen(param_club_penalties_code),
-			  etex_pen(param_display_widow_penalties_code),
-			  etex_pen(param_widow_penalties_code),
-			  int_par(param_display_widow_penalty_code),
-			  int_par(param_widow_penalty_code),
-			  int_par(param_broken_penalty_code), 
-			  final_par_glue,
-			  dimen_par(param_pdf_ignored_dimen_code));
+    if (callback_id == 0) {
+        ext_do_line_break(d,
+                          int_par(param_pretolerance_code),
+                          int_par(param_tracing_paragraphs_code),
+                          int_par(param_tolerance_code),
+                          dimen_par(param_emergency_stretch_code),
+                          int_par(param_looseness_code),
+                          int_par(param_hyphen_penalty_code),
+                          int_par(param_ex_hyphen_penalty_code),
+                          int_par(param_pdf_adjust_spacing_code),
+                          loc_par(param_par_shape_code),
+                          int_par(param_adj_demerits_code),
+                          int_par(param_pdf_protrude_chars_code),
+                          int_par(param_line_penalty_code),
+                          int_par(param_last_line_fit_code),
+                          int_par(param_double_hyphen_demerits_code),
+                          int_par(param_final_hyphen_demerits_code),
+                          dimen_par(param_hang_indent_code),
+                          dimen_par(param_hsize_code),
+                          int_par(param_hang_after_code),
+                          glue_par(param_left_skip_code),
+                          glue_par(param_right_skip_code),
+                          dimen_par(param_pdf_each_line_height_code),
+                          dimen_par(param_pdf_each_line_depth_code),
+                          dimen_par(param_pdf_first_line_height_code),
+                          dimen_par(param_pdf_last_line_depth_code),
+                          etex_pen(param_inter_line_penalties_code),
+                          int_par(param_inter_line_penalty_code),
+                          int_par(param_club_penalty_code),
+                          etex_pen(param_club_penalties_code),
+                          etex_pen(param_display_widow_penalties_code),
+                          etex_pen(param_widow_penalties_code),
+                          int_par(param_display_widow_penalty_code),
+                          int_par(param_widow_penalty_code),
+                          int_par(param_broken_penalty_code),
+                          final_par_glue,
+                          dimen_par(param_pdf_ignored_dimen_code));
     }
     lua_node_filter(post_linebreak_filter_callback,
-		    line_break_context,start_of_par,addressof(cur_list.tail_field));
-    pack_begin_line=0;
+                    line_break_context, start_of_par,
+                    addressof(cur_list.tail_field));
+    pack_begin_line = 0;
 }
 
 
@@ -824,7 +831,7 @@ static scaled best_pl_glue[4];  /*corresponding glue stretch or shrink */
  */
 
 static void add_to_widths(halfword s, integer line_break_dir,
-			  integer pdf_adjust_spacing, scaled * widths)
+                          integer pdf_adjust_spacing, scaled * widths)
 {
     while (s != null) {
         if (is_char_node(s)) {
@@ -874,7 +881,7 @@ static void add_to_widths(halfword s, integer line_break_dir,
  */
 
 static void sub_from_widths(halfword s, integer line_break_dir,
-			    integer pdf_adjust_spacing, scaled * widths)
+                            integer pdf_adjust_spacing, scaled * widths)
 {
     while (s != null) {
         /* @<Subtract the width of node |s| from |break_width|@>; */

@@ -22,23 +22,23 @@
 #ifndef LINEBREAK_H
 #  define LINEBREAK_H
 
-#define left_side 0
-#define right_side 1
+#  define left_side 0
+#  define right_side 1
 
-extern halfword just_box; /* the |hlist_node| for the last line of the new paragraph */
-extern integer paragraph_dir; /* main direction of paragraph */
-extern integer line_break_dir; /* current direction within paragraph */
-extern integer line_break_context; /* the surrounding state for |line_break| calls */
-extern int break_c_htdp; /* height-depth entry in |char_info| */
-extern integer temp_no_whatsits; /* used when closing group */
-extern integer temp_no_dirs; /* used when closing group */
+extern halfword just_box;       /* the |hlist_node| for the last line of the new paragraph */
+extern integer paragraph_dir;   /* main direction of paragraph */
+extern integer line_break_dir;  /* current direction within paragraph */
+extern integer line_break_context;      /* the surrounding state for |line_break| calls */
+extern int break_c_htdp;        /* height-depth entry in |char_info| */
+extern integer temp_no_whatsits;        /* used when closing group */
+extern integer temp_no_dirs;    /* used when closing group */
 extern integer temporary_dir;
 extern halfword dir_ptr, dir_tmp, dir_rover;
 
 extern void line_break(boolean d);
 
-#define inf_bad 10000           /* infinitely bad value */
-#define awful_bad 07777777777   /* more than a billion demerits */
+#  define inf_bad 10000         /* infinitely bad value */
+#  define awful_bad 07777777777 /* more than a billion demerits */
 
 void initialize_active(void);
 
@@ -46,5 +46,3 @@ halfword find_protchar_left(halfword l, boolean d);
 halfword find_protchar_right(halfword l, halfword r);
 
 #endif
-
-

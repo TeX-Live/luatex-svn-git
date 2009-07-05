@@ -723,7 +723,7 @@ halfword hpack(halfword p, scaled w, int m)
         glue_order(r) = o;
         glue_sign(r) = stretching;
         if (total_stretch[o] != 0) {
-	  glue_set(r) = unfloat((double)x / total_stretch[o]);
+            glue_set(r) = unfloat((double) x / total_stretch[o]);
         } else {
             glue_sign(r) = normal;
             set_glue_ratio_zero(glue_set(r));   /* there's nothing to stretch */
@@ -767,7 +767,7 @@ halfword hpack(halfword p, scaled w, int m)
         glue_order(r) = o;
         glue_sign(r) = shrinking;
         if (total_shrink[o] != 0) {
-	  glue_set(r) = unfloat((double)(-x) / total_shrink[o]);
+            glue_set(r) = unfloat((double) (-x) / total_shrink[o]);
         } else {
             glue_sign(r) = normal;
             set_glue_ratio_zero(glue_set(r));   /* there's nothing to shrink */
@@ -1029,7 +1029,7 @@ halfword vpackage(halfword p, scaled h, int m, scaled l)
         glue_order(r) = o;
         glue_sign(r) = stretching;
         if (total_stretch[o] != 0) {
-	  glue_set(r) = unfloat((double)x / total_stretch[o]);
+            glue_set(r) = unfloat((double) x / total_stretch[o]);
         } else {
             glue_sign(r) = normal;
             set_glue_ratio_zero(glue_set(r));   /* there's nothing to stretch */
@@ -1070,7 +1070,7 @@ halfword vpackage(halfword p, scaled h, int m, scaled l)
         glue_order(r) = o;
         glue_sign(r) = shrinking;
         if (total_shrink[o] != 0) {
-	  glue_set(r) = unfloat((double)(-x) / total_shrink[o]);
+            glue_set(r) = unfloat((double) (-x) / total_shrink[o]);
         } else {
             glue_sign(r) = normal;
             set_glue_ratio_zero(glue_set(r));   /* there's nothing to shrink */

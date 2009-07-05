@@ -24,7 +24,7 @@
 
 /* todo: check this macro, especially  values of alink() */
 
-#define append_list(A,B)  do {                                          \
+#  define append_list(A,B)  do {                                          \
      vlink(cur_list.tail_field) = vlink((A));                           \
      cur_list.tail_field = (B);                                         \
    } while (0)

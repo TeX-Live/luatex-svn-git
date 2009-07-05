@@ -71,7 +71,7 @@ extern halfword filtered_hpack(halfword p, halfword qt, scaled w, int m,
 
 extern integer pack_begin_line;
 
-#  define vpack(A,B,C) vpackage(A,B,C,max_dimen)/* special case of unconstrained depth */
+#  define vpack(A,B,C) vpackage(A,B,C,max_dimen)        /* special case of unconstrained depth */
 
 extern halfword vpackage(halfword p, scaled h, int m, scaled l);
 extern halfword filtered_vpackage(halfword p, scaled h, int m, scaled l,
@@ -139,7 +139,7 @@ where the latter two are used denote \.{\\vbox} and \.{\\hbox}, respectively.
 #  define number_regs 65536     /* todo, doesnt belong here */
 
 #  define box_flag 010000000000 /* context code for `\.{\\setbox0}' */
-#  define global_box_flag (box_flag+number_regs)/* context code for `\.{\\global\\setbox0}' */
+#  define global_box_flag (box_flag+number_regs)        /* context code for `\.{\\global\\setbox0}' */
 #  define max_global_box_flag (global_box_flag+number_regs)
 #  define ship_out_flag (max_global_box_flag+1) /* context code for `\.{\\shipout}' */
 #  define leader_flag ship_out_flag+1   /* context code for `\.{\\leaders}' */
