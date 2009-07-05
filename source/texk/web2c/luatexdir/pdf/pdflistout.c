@@ -243,7 +243,7 @@ void pdf_hlist_out(PDF pdf)
                 if (y_displace(p) != 0)
                     cur.v = cur.v - y_displace(p);
                 (void) new_synch_pos_with_cur(&localpos, refpos, cur);
-                output_one_char(pdf, font(p), character(p));
+                cur.h += output_one_char(pdf, font(p), character(p));
                 if (x_displace(p) != 0)
                     cur.h = cur.h - x_displace(p);
                 if (y_displace(p) != 0)

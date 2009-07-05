@@ -43,7 +43,7 @@ The |has_packet()| C macro checks for this condition.
 
 /* The following code typesets a character to PDF output */
 
-void output_one_char(PDF pdf, internal_font_number ffi, integer c)
+scaled output_one_char(PDF pdf, internal_font_number ffi, integer c)
 {
     scaled_whd ci;              /* the real width, height and depth of the character */
     posstructure localpos = *(pdf->posstruct);  /* for the final transform */
@@ -173,13 +173,13 @@ void output_one_char(PDF pdf, internal_font_number ffi, integer c)
     case dir_TR_:
     case dir_BL_:
     case dir_BR_:
-        cur.h = cur.h + ci.wd;
+        return ci.wd;           /* the horizontal movement (in box coordinate system) */
         break;
     case dir_LT_:
     case dir_RT_:
     case dir_LB_:
     case dir_RB_:
-        cur.h = cur.h + ci.ht + ci.dp;
+        return (ci.ht + ci.dp);
         break;
     }
 }
