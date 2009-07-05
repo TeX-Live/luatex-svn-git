@@ -181,6 +181,8 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/primitive.c \
 	luatexdir/tex/printing.c \
 	luatexdir/tex/printing.h \
+	luatexdir/tex/scanning.c \
+	luatexdir/tex/scanning.h \
 	luatexdir/tex/stringpool.c \
 	luatexdir/tex/stringpool.h \
 	luatexdir/tex/texdeffont.c \

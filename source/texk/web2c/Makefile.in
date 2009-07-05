@@ -269,6 +269,7 @@ am_libluatex_a_OBJECTS = libluatex_a-dvigen.$(OBJEXT) \
 	libluatex_a-nesting.$(OBJEXT) libluatex_a-packaging.$(OBJEXT) \
 	libluatex_a-postlinebreak.$(OBJEXT) \
 	libluatex_a-primitive.$(OBJEXT) libluatex_a-printing.$(OBJEXT) \
+	libluatex_a-scanning.$(OBJEXT) \
 	libluatex_a-stringpool.$(OBJEXT) \
 	libluatex_a-texdeffont.$(OBJEXT) \
 	libluatex_a-texfileio.$(OBJEXT) libluatex_a-texnodes.$(OBJEXT) \
@@ -1460,6 +1461,8 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/primitive.c \
 	luatexdir/tex/printing.c \
 	luatexdir/tex/printing.h \
+	luatexdir/tex/scanning.c \
+	luatexdir/tex/scanning.h \
 	luatexdir/tex/stringpool.c \
 	luatexdir/tex/stringpool.h \
 	luatexdir/tex/texdeffont.c \
@@ -1935,6 +1938,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-printing.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-readocp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-runocp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-scanning.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-sfnt.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-stringpool.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-subfont.Po@am__quote@
@@ -4951,6 +4955,20 @@ libluatex_a-printing.obj: luatexdir/tex/printing.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/printing.c' object='libluatex_a-printing.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-printing.obj `if test -f 'luatexdir/tex/printing.c'; then $(CYGPATH_W) 'luatexdir/tex/printing.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/printing.c'; fi`
+
+libluatex_a-scanning.o: luatexdir/tex/scanning.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-scanning.o -MD -MP -MF $(DEPDIR)/libluatex_a-scanning.Tpo -c -o libluatex_a-scanning.o `test -f 'luatexdir/tex/scanning.c' || echo '$(srcdir)/'`luatexdir/tex/scanning.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-scanning.Tpo $(DEPDIR)/libluatex_a-scanning.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/scanning.c' object='libluatex_a-scanning.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-scanning.o `test -f 'luatexdir/tex/scanning.c' || echo '$(srcdir)/'`luatexdir/tex/scanning.c
+
+libluatex_a-scanning.obj: luatexdir/tex/scanning.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-scanning.obj -MD -MP -MF $(DEPDIR)/libluatex_a-scanning.Tpo -c -o libluatex_a-scanning.obj `if test -f 'luatexdir/tex/scanning.c'; then $(CYGPATH_W) 'luatexdir/tex/scanning.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/scanning.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-scanning.Tpo $(DEPDIR)/libluatex_a-scanning.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/scanning.c' object='libluatex_a-scanning.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-scanning.obj `if test -f 'luatexdir/tex/scanning.c'; then $(CYGPATH_W) 'luatexdir/tex/scanning.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/scanning.c'; fi`
 
 libluatex_a-stringpool.o: luatexdir/tex/stringpool.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-stringpool.o -MD -MP -MF $(DEPDIR)/libluatex_a-stringpool.Tpo -c -o libluatex_a-stringpool.o `test -f 'luatexdir/tex/stringpool.c' || echo '$(srcdir)/'`luatexdir/tex/stringpool.c

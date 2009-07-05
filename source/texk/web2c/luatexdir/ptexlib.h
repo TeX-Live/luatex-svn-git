@@ -103,6 +103,7 @@ extern double rint(double x);
 #  include "tex/packaging.h"
 #  include "tex/linebreak.h"
 #  include "tex/postlinebreak.h"
+#  include "tex/scanning.h"
 
 /**********************************************************************/
 
