@@ -726,17 +726,16 @@ static const struct luaL_Reg imglib[] = {
 
 /**********************************************************************/
 
-void vf_out_image(unsigned i, scaledpos pos)
+void vf_out_image(PDF pdf, unsigned i)
 {
     image *a, **aa;
     lua_State *L = Luas;        /* ... */
     lua_rawgeti(L, LUA_GLOBALSINDEX, i);        /* image ... */
     aa = (image **) luaL_checkudata(L, -1, TYPE_IMG);
     a = *aa;
-    setup_image(static_pdf, L, a, WR_VF_IMG);       /* image ... */
+    setup_image(pdf, L, a, WR_VF_IMG);       /* image ... */
     assert(img_is_refered(a));
-    assert(static_pdf != NULL);
-    pdf_place_image(static_pdf, img_arrayidx(a), pos);
+    pdf_place_image(pdf, img_arrayidx(a));
     lua_pop(L, 1);              /* ... */
 }
 

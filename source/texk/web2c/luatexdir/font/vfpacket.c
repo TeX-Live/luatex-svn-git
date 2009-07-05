@@ -225,8 +225,8 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
             break;
         case packet_image_code:
             packet_number(k);
-            pos = new_synch_pos_with_cur(&localpos, refpos, cur);
-            vf_out_image(k, pos);
+            (void) new_synch_pos_with_cur(&localpos, refpos, cur);
+            vf_out_image(pdf, k);
             break;
         case packet_node_code:
             packet_number(k);

@@ -25,8 +25,8 @@
 extern halfword pdf_ximage_list;        /* list of images in the current page */
 extern integer pdf_ximage_count;        /* counter of images */
 
-void place_img(PDF, image *, scaledpos);
-void pdf_place_image(PDF pdf, integer idx, scaledpos pos);
+void place_img(PDF, image *);
+void pdf_place_image(PDF pdf, integer idx);
 
 #  define set_pdf_ximage_idx(A, B) pdf_ximage_idx(A) = B
 

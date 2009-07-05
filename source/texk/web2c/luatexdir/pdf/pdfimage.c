@@ -28,11 +28,12 @@ static const char __svn_version[] =
 halfword pdf_ximage_list;       /* list of images in the current page */
 integer pdf_ximage_count;       /* counter of images */
 
-void place_img(PDF pdf, image * img, scaledpos pos)
+void place_img(PDF pdf, image * img)
 {
     float a[6];                 /* transformation matrix */
     float xoff, yoff, tmp;
     pdfstructure *p = pdf->pstruct;
+    scaledpos pos = pdf->posstruct->pos;
     assert(p != NULL);
     int r;                      /* number of digits after the decimal point */
     int k;
@@ -149,10 +150,10 @@ void place_img(PDF pdf, image * img, scaledpos pos)
         img_state(idict) = DICT_OUTIMG;
 }
 
-void pdf_place_image(PDF pdf, integer idx, scaledpos pos)
+void pdf_place_image(PDF pdf, integer idx)
 {
     pdf_goto_pagemode(pdf);
-    place_img(pdf, img_array[idx], pos);
+    place_img(pdf, img_array[idx]);
     if (pdf_lookup_list(pdf_ximage_list, image_objnum(idx)) == null)
         pdf_append_list(image_objnum(idx), pdf_ximage_list);
 }
