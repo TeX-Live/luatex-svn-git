@@ -359,6 +359,7 @@ void pdf_hlist_out(PDF pdf)
                     pdf_out_colorstack(pdf, p);
                     break;
                 case pdf_setmatrix_node:
+                    (void) new_synch_pos_with_cur(&localpos, refpos, cur);
                     pdf_out_setmatrix(pdf, p);
                     break;
                 case pdf_save_node:

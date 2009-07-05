@@ -214,6 +214,7 @@ void matrixrecalculate(scaled urx)
 
 void pdf_out_setmatrix(PDF pdf, halfword p)
 {
+    scaledpos pos = pdf->posstruct->pos;
     integer old_setting;        /* holds print |selector| */
     str_number s;
     old_setting = selector;
@@ -223,7 +224,6 @@ void pdf_out_setmatrix(PDF pdf, halfword p)
     selector = old_setting;
     str_room(7);
     str_pool[pool_ptr] = 0;     /* make C string for pdfsetmatrix  */
-    pos = synch_p_with_c(cur);
     pdfsetmatrix(str_start_macro(str_ptr), pos);
     str_room(7);
     append_char(' ');
