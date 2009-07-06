@@ -91,10 +91,11 @@ extern void get_font_dimen(void);
 extern void scan_normal_glue(void);
 extern void scan_mu_glue(void);
 
-extern integer add_or_sub(integer x, integer y, integer max_answer, boolean negative);
+extern integer add_or_sub(integer x, integer y, integer max_answer,
+                          boolean negative);
 extern integer quotient(integer n, integer d);
 extern integer fract(integer x, integer n, integer d, integer max_answer);
-extern void scan_expr (void);
+extern void scan_expr(void);
 
 
 
