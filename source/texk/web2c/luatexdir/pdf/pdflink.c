@@ -76,10 +76,10 @@ void do_link(PDF pdf, halfword p, halfword parent_box, scaledpos cur_orig)
     set_obj_scheduled(pdf, pdf_link_objnum(p));
 }
 
-void end_link(void)
+void end_link(PDF pdf)
 {
     halfword p;
-    scaledpos tmp1, tmp2;
+    scaledpos pos = pdf->posstruct->pos;
     if (pdf_link_stack_ptr < 1)
         pdf_error("ext4",
                   "pdf_link_stack empty, \\pdfendlink used without \\pdfstartlink?");
@@ -99,25 +99,22 @@ void end_link(void)
             pdf_ann_right(p) = geturx() + pdf_link_margin;
             pdf_ann_bottom(p) = cur_page_size.v - getlly() + pdf_link_margin;
         } else {
-            tmp1.h = cur.h;
-            tmp1.v = cur.v;
-            tmp2 = synch_p_with_c(tmp1);
             switch (box_direction(dvi_direction)) {
             case dir_TL_:
             case dir_BL_:
-                pdf_ann_right(p) = tmp2.h + pdf_link_margin;
+                pdf_ann_right(p) = pos.h + pdf_link_margin;
                 break;
             case dir_TR_:
             case dir_BR_:
-                pdf_ann_left(p) = tmp2.h - pdf_link_margin;
+                pdf_ann_left(p) = pos.h - pdf_link_margin;
                 break;
             case dir_LT_:
             case dir_RT_:
-                pdf_ann_bottom(p) = tmp2.v - pdf_link_margin;
+                pdf_ann_bottom(p) = pos.v - pdf_link_margin;
                 break;
             case dir_LB_:
             case dir_RB_:
-                pdf_ann_top(p) = tmp2.v + pdf_link_margin;
+                pdf_ann_top(p) = pos.v + pdf_link_margin;
                 break;
             }
         }

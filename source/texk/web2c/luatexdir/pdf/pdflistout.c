@@ -447,7 +447,8 @@ void pdf_hlist_out(PDF pdf)
                     do_link(pdf, p, this_box, cur_orig);
                     break;
                 case pdf_end_link_node:
-                    end_link();
+                    (void) new_synch_pos_with_cur(&localpos, refpos, cur);
+                    end_link(pdf);
                     break;
                 case pdf_dest_node:
                     cur_orig.h = left_edge;
