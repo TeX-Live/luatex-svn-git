@@ -4194,7 +4194,6 @@ repeat get_x_token;
 until cur_cmd<>spacer
 
 @ @p
-@t\4\4@>@<Declare procedures that scan restricted classes of integers@>@;
 @t\4\4@>@<Declare \eTeX\ procedures for scanning@>@;
 @t\4\4@>@<Declare procedures that scan font-related stuff@>
 
