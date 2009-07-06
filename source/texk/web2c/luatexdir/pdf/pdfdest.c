@@ -88,7 +88,7 @@ void warn_dest_dup(integer id, small_number byname, char *s1, char *s2)
 
 void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur_orig)
 {
-    scaled_pos pos = pdf->posstruct->pos;
+    scaledpos pos = pdf->posstruct->pos;
     scaled_whd alt_rule;
     integer k;
     if (!is_shipping_page)
