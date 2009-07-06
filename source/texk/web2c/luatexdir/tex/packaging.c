@@ -1148,7 +1148,7 @@ void append_to_vlist(halfword b)
             d = width(glue_par(param_baseline_skip_code)) - prev_depth -
                 height(b);
         }
-        if (d < glue_par(param_line_skip_limit_code)) {
+        if (d < dimen_par(param_line_skip_limit_code)) {
             p = new_param_glue(param_line_skip_code);
         } else {
             p = new_skip_param(param_baseline_skip_code);

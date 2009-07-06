@@ -52,12 +52,12 @@ static const char _svn_version[] =
 #define level_one 1
 
 #define attribute(A) zeqtb[get_attribute_base()+(A)].hh.rh
-#define dimen(A) zeqtb[get_dimen_base()+(A)].hh.rh
+#define dimen(A) zeqtb[get_scaled_base()+(A)].hh.rh
 #undef skip
 #define skip(A) zeqtb[get_skip_base()+(A)].hh.rh
 #define mu_skip(A) zeqtb[get_mu_skip_base()+(A)].hh.rh
 #define count(A) zeqtb[get_count_base()+(A)].hh.rh
-#define box(A) zeqtb[get_box_base()+(A)].hh.rh
+#define box(A) equiv(get_box_base()+(A))
 
 /*
 Let's turn now to some procedures that \TeX\ calls upon frequently to digest
