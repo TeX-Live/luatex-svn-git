@@ -214,7 +214,7 @@ static int l_obj(lua_State * L)
         pdf_create_obj(static_pdf, obj_type_obj, pdf_obj_count);
         pdf_last_obj = k = static_pdf->obj_ptr;
     }
-    set_obj_data_ptr(static_pdf,k, pdf_get_mem(static_pdf, pdfmem_obj_size));
+    set_obj_data_ptr(static_pdf, k, pdf_get_mem(static_pdf, pdfmem_obj_size));
     set_obj_obj_is_stream(static_pdf, k, 0);
     set_obj_obj_stream_attr(static_pdf, k, 0);
     set_obj_obj_is_file(static_pdf, k, 0);

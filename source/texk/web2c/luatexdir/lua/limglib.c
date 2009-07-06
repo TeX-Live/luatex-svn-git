@@ -600,7 +600,7 @@ static void setup_image(PDF pdf, lua_State * L, image * a, wrtype_e writetype)
     image_dict *ad;
     assert(a != NULL);
     ad = img_dict(a);
-    check_pdfoutput((char *)wrtype_s[writetype], true);
+    check_pdfoutput((char *) wrtype_s[writetype], true);
     flush_str(last_tex_string);
     read_scale_img(L, a);
     if (img_arrayidx(a) == -1)
@@ -733,7 +733,7 @@ void vf_out_image(PDF pdf, unsigned i)
     lua_rawgeti(L, LUA_GLOBALSINDEX, i);        /* image ... */
     aa = (image **) luaL_checkudata(L, -1, TYPE_IMG);
     a = *aa;
-    setup_image(pdf, L, a, WR_VF_IMG);       /* image ... */
+    setup_image(pdf, L, a, WR_VF_IMG);  /* image ... */
     assert(img_is_refered(a));
     pdf_place_image(pdf, img_arrayidx(a));
     lua_pop(L, 1);              /* ... */
