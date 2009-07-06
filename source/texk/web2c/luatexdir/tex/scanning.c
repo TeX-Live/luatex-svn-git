@@ -690,7 +690,7 @@ void scan_something_internal(int level, boolean negative)
             /* Fetch a character code from some table */
             scan_char_num();
             cur_val1 = get_del_code_num(cur_val);
-            scanned_result(cur_val1, int_val_level);                
+            scanned_result(cur_val1, int_val_level);
             break;
         case extdef_math_code_cmd:
             /* Fetch an extended math code table value */
