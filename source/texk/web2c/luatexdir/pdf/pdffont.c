@@ -47,7 +47,7 @@ scaled output_one_char(PDF pdf, internal_font_number ffi, integer c)
 {
     scaled_whd ci;              /* the real width, height and depth of the character */
     posstructure localpos = *(pdf->posstruct);  /* for the final transform */
-    scaled x;
+    scaled x = 0;
     ci = get_charinfo_whd(ffi, c);
 
     switch (box_direction(localpos.dir)) {
