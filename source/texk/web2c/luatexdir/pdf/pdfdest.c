@@ -86,9 +86,10 @@ void warn_dest_dup(integer id, small_number byname, char *s1, char *s2)
 }
 
 
-void do_dest(PDF pdf, halfword p, halfword parent_box, scaled x, scaled y)
+void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur_orig)
 {
-    scaledpos tmp1, tmp2;
+    scaled_pos pos = pdf->posstruct->pos;
+    scaled_whd alt_rule;
     integer k;
     if (!is_shipping_page)
         pdf_error("ext4", "destinations cannot be inside an XForm");
@@ -102,53 +103,37 @@ void do_dest(PDF pdf, halfword p, halfword parent_box, scaled x, scaled y)
     }
     obj_dest_ptr(pdf, k) = p;
     pdf_append_list(k, pdf_dest_list);
+    alt_rule.wd = pdf_width(p);
+    alt_rule.ht = pdf_height(p);
+    alt_rule.dp = pdf_depth(p);
     switch (pdf_dest_type(p)) {
     case pdf_dest_xyz:
-        if (matrixused()) {
-            set_rect_dimens(p, parent_box, x, y,
-                            pdf_width(p), pdf_height(p), pdf_depth(p),
-                            pdf_dest_margin);
-        } else {
-            tmp1.h = cur.h;
-            tmp1.v = cur.v;
-            tmp2 = synch_p_with_c(tmp1);
-            pdf_ann_left(p) = tmp2.h;
-            pdf_ann_top(p) = tmp2.v;
+        if (matrixused())
+            set_rect_dimens(p, parent_box, cur_orig, alt_rule, pdf_dest_margin);
+        else {
+            pdf_ann_left(p) = pos.h;
+            pdf_ann_top(p) = pos.v;
         }
         break;
     case pdf_dest_fith:
     case pdf_dest_fitbh:
-        if (matrixused()) {
-            set_rect_dimens(p, parent_box, x, y,
-                            pdf_width(p), pdf_height(p), pdf_depth(p),
-                            pdf_dest_margin);
-        } else {
-            tmp1.h = cur.h;
-            tmp1.v = cur.v;
-            tmp2 = synch_p_with_c(tmp1);
-            pdf_ann_top(p) = tmp2.v;
-        }
+        if (matrixused())
+            set_rect_dimens(p, parent_box, cur_orig, alt_rule, pdf_dest_margin);
+        else
+            pdf_ann_top(p) = pos.v;
         break;
     case pdf_dest_fitv:
     case pdf_dest_fitbv:
-        if (matrixused()) {
-            set_rect_dimens(p, parent_box, x, y,
-                            pdf_width(p), pdf_height(p), pdf_depth(p),
-                            pdf_dest_margin);
-        } else {
-            tmp1.h = cur.h;
-            tmp1.v = cur.v;
-            tmp2 = synch_p_with_c(tmp1);
-            pdf_ann_left(p) = tmp2.h;
-        }
+        if (matrixused())
+            set_rect_dimens(p, parent_box, cur_orig, alt_rule, pdf_dest_margin);
+        else
+            pdf_ann_left(p) = pos.h;
         break;
     case pdf_dest_fit:
     case pdf_dest_fitb:
         break;
     case pdf_dest_fitr:
-        set_rect_dimens(p, parent_box, x, y,
-                        pdf_width(p), pdf_height(p), pdf_depth(p),
-                        pdf_dest_margin);
+        set_rect_dimens(p, parent_box, cur_orig, alt_rule, pdf_dest_margin);
     }
 }
 

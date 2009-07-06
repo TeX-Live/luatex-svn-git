@@ -58,16 +58,19 @@ void pop_link_level(void)
     decr(pdf_link_stack_ptr);
 }
 
-void do_link(PDF pdf, halfword p, halfword parent_box, scaled x, scaled y)
+void do_link(PDF pdf, halfword p, halfword parent_box, scaledpos cur_orig)
 {
+    scaled_whd alt_rule;
     if (!is_shipping_page)
         pdf_error("ext4", "link annotations cannot be inside an XForm");
     assert(type(parent_box) == hlist_node);
     if (is_obj_scheduled(pdf, pdf_link_objnum(p)))
         pdf_link_objnum(p) = pdf_new_objnum(pdf);
     push_link_level(p);
-    set_rect_dimens(p, parent_box, x, y,
-                    pdf_width(p), pdf_height(p), pdf_depth(p), pdf_link_margin);
+    alt_rule.wd = pdf_width(p);
+    alt_rule.ht = pdf_height(p);
+    alt_rule.dp = pdf_depth(p);
+    set_rect_dimens(p, parent_box, cur_orig, alt_rule, pdf_link_margin);
     obj_annot_ptr(pdf, pdf_link_objnum(p)) = p; /* the reference for the pdf annot object must be set here */
     pdf_append_list(pdf_link_objnum(p), pdf_link_list);
     set_obj_scheduled(pdf, pdf_link_objnum(p));
@@ -132,16 +135,19 @@ node, in order to use |flush_node_list| to do the job.
 
 /* append a new pdf annot to |pdf_link_list| */
 
-void append_link(PDF pdf, halfword parent_box, scaled x, scaled y,
+void append_link(PDF pdf, halfword parent_box, scaledpos cur_orig,
                  small_number i)
 {
     halfword p;
+    scaled_whd alt_rule;
     assert(type(parent_box) == hlist_node);
     p = copy_node(pdf_link_stack[(int) i].link_node);
     pdf_link_stack[(int) i].ref_link_node = p;
     subtype(p) = pdf_link_data_node;    /* this node is not a normal link node */
-    set_rect_dimens(p, parent_box, x, y,
-                    pdf_width(p), pdf_height(p), pdf_depth(p), pdf_link_margin);
+    alt_rule.wd = pdf_width(p);
+    alt_rule.ht = pdf_height(p);
+    alt_rule.dp = pdf_depth(p);
+    set_rect_dimens(p, parent_box, cur_orig, alt_rule, pdf_link_margin);
     pdf_create_obj(pdf, obj_type_others, 0);
     obj_annot_ptr(pdf, pdf->obj_ptr) = p;
     pdf_append_list(pdf->obj_ptr, pdf_link_list);

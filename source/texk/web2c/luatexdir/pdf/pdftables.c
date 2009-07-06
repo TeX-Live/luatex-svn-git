@@ -251,23 +251,23 @@ halfword pdf_lookup_list(halfword p, integer i)
     return null;
 }
 
-void set_rect_dimens(halfword p, halfword parent_box, scaled x, scaled y,
-                     scaled wd, scaled ht, scaled dp, scaled margin)
+void set_rect_dimens(halfword p, halfword parent_box, scaledpos cur_orig,
+                     scaled_whd alt_rule, scaled margin)
 {
     scaledpos ll, ur, pos_ll, pos_ur, tmp;
     ll.h = cur.h;
-    if (is_running(dp))
-        ll.v = y + depth(parent_box);
+    if (is_running(alt_rule.dp))
+        ll.v = cur_orig.v + depth(parent_box);
     else
-        ll.v = cur.v + dp;
-    if (is_running(wd))
-        ur.h = x + width(parent_box);
+        ll.v = cur.v + alt_rule.dp;
+    if (is_running(alt_rule.wd))
+        ur.h = cur_orig.h + width(parent_box);
     else
-        ur.h = cur.h + wd;
-    if (is_running(ht))
-        ur.v = y - height(parent_box);
+        ur.h = cur.h + alt_rule.wd;
+    if (is_running(alt_rule.ht))
+        ur.v = cur_orig.v - height(parent_box);
     else
-        ur.v = cur.v - ht;
+        ur.v = cur.v - alt_rule.ht;
     pos_ll = synch_p_with_c(ll);
     pos_ur = synch_p_with_c(ur);
     if (pos_ll.h > pos_ur.h) {

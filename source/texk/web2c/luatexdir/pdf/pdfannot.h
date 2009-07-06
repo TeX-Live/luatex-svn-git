@@ -31,8 +31,8 @@
 
 extern halfword pdf_annot_list; /* list of annotations in the current page */
 
-extern void do_annot(PDF pdf, halfword p, halfword parent_box, scaled x,
-                     scaled y);
+extern void do_annot(PDF pdf, halfword p, halfword parent_box,
+                     scaledpos cur_orig);
 extern void new_annot_whatsit(small_number w);
 
 extern void scan_annot(PDF pdf);

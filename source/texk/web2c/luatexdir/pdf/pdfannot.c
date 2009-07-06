@@ -27,16 +27,19 @@ static const char __svn_version[] =
 
 halfword pdf_annot_list;        /* list of annotations in the current page */
 
-void do_annot(PDF pdf, halfword p, halfword parent_box, scaled x, scaled y)
+void do_annot(PDF pdf, halfword p, halfword parent_box, scaledpos cur_orig)
 {
+    scaled_whd alt_rule;
     if (!is_shipping_page)
         pdf_error("ext4", "annotations cannot be inside an XForm");
     if (doing_leaders)
         return;
     if (is_obj_scheduled(pdf, pdf_annot_objnum(p)))
         pdf_annot_objnum(p) = pdf_new_objnum(pdf);
-    set_rect_dimens(p, parent_box, x, y,
-                    pdf_width(p), pdf_height(p), pdf_depth(p), 0);
+    alt_rule.wd = pdf_width(p);
+    alt_rule.ht = pdf_height(p);
+    alt_rule.dp = pdf_depth(p);
+    set_rect_dimens(p, parent_box, cur_orig, alt_rule, 0);
     obj_annot_ptr(pdf, pdf_annot_objnum(p)) = p;
     pdf_append_list(pdf_annot_objnum(p), pdf_annot_list);
     set_obj_scheduled(pdf, pdf_annot_objnum(p));

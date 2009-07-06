@@ -54,9 +54,9 @@
 #  define set_obj_bead_data         set_obj_bead_rect
 
 extern void append_bead(PDF pdf, halfword p);
-extern void do_thread(PDF pdf, halfword parent_box, halfword p, scaled x,
-                      scaled y);
-extern void append_thread(PDF pdf, halfword parent_box, scaled x, scaled y);
+extern void do_thread(PDF pdf, halfword parent_box, halfword p,
+                      scaledpos cur_orig);
+extern void append_thread(PDF pdf, halfword parent_box, scaledpos cur_orig);
 extern void end_thread(PDF pdf);
 extern void scan_thread_id(void);
 

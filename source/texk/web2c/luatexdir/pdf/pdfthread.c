@@ -69,8 +69,9 @@ void append_bead(PDF pdf, halfword p)
     pdf_append_list(b, pdf_bead_list);
 }
 
-void do_thread(PDF pdf, halfword parent_box, halfword p, scaled x, scaled y)
+void do_thread(PDF pdf, halfword parent_box, halfword p, scaledpos cur_orig)
 {
+    scaled_whd alt_rule;
     if (doing_leaders)
         return;
     if (subtype(p) == pdf_start_thread_node) {
@@ -83,16 +84,18 @@ void do_thread(PDF pdf, halfword parent_box, halfword p, scaled x, scaled y)
             add_token_ref(pdf_thread_id(p));
         pdf_thread_level = cur_s;
     }
-    set_rect_dimens(p, parent_box, x, y,
-                    pdf_width(p), pdf_height(p), pdf_depth(p),
-                    pdf_thread_margin);
+    alt_rule.wd = pdf_width(p);
+    alt_rule.ht = pdf_height(p);
+    alt_rule.dp = pdf_depth(p);
+    set_rect_dimens(p, parent_box, cur_orig, alt_rule, pdf_thread_margin);
     append_bead(pdf, p);
     last_thread = p;
 }
 
-void append_thread(PDF pdf, halfword parent_box, scaled x, scaled y)
+void append_thread(PDF pdf, halfword parent_box, scaledpos cur_orig)
 {
     halfword p;
+    scaled_whd alt_rule;
     p = new_node(whatsit_node, pdf_thread_data_node);
     pdf_width(p) = pdf_thread_wd;
     pdf_height(p) = pdf_thread_ht;
@@ -105,9 +108,10 @@ void append_thread(PDF pdf, halfword parent_box, scaled x, scaled y)
     } else {
         pdf_thread_named_id(p) = 0;
     }
-    set_rect_dimens(p, parent_box, x, y,
-                    pdf_width(p), pdf_height(p), pdf_depth(p),
-                    pdf_thread_margin);
+    alt_rule.wd = pdf_width(p);
+    alt_rule.ht = pdf_height(p);
+    alt_rule.dp = pdf_depth(p);
+    set_rect_dimens(p, parent_box, cur_orig, alt_rule, pdf_thread_margin);
     append_bead(pdf, p);
     last_thread = p;
 }
@@ -255,9 +259,12 @@ void scan_thread_id(void)
 
 void check_running_thread(PDF pdf, halfword this_box, scaledpos cur)
 {
+    scaledpos cur_orig;
+    cur_orig.h = cur.h;
+    cur_orig.v = cur.v + height(this_box);
     if ((last_thread != null) && is_running(pdf_thread_dp)
         && (pdf_thread_level == cur_s))
-        append_thread(pdf, this_box, cur.h, cur.v + height(this_box));
+        append_thread(pdf, this_box, cur_orig);
 }
 
 void reset_thread_lists(void)

@@ -196,6 +196,7 @@ void pdf_hlist_out(PDF pdf)
     real glue_temp;             /* glue value before rounding */
     real cur_glue;              /* glue seen so far */
     scaled cur_g;               /* rounded equivalent of |cur_glue| times the glue ratio */
+    scaledpos cur_orig;
     int i;                      /* index to scan |pdf_link_stack| */
     cur_g = 0;
     cur_glue = 0.0;
@@ -228,8 +229,11 @@ void pdf_hlist_out(PDF pdf)
     /* Create link annotations for the current hbox if needed */
     for (i = 1; i <= pdf_link_stack_ptr; i++) {
         assert(is_running(pdf_width(pdf_link_stack[i].link_node)));
-        if (pdf_link_stack[i].nesting_level == cur_s)
-            append_link(pdf, this_box, left_edge, base_line, i);
+        if (pdf_link_stack[i].nesting_level == cur_s) {
+            cur_orig.h = left_edge;
+            cur_orig.v = base_line;
+            append_link(pdf, this_box, cur_orig, i);
+        }
     }
 
     /* Start hlist {\sl Sync\TeX} information record */
@@ -433,19 +437,28 @@ void pdf_hlist_out(PDF pdf)
                     cur.h = edge;
                     break;
                 case pdf_annot_node:
-                    do_annot(pdf, p, this_box, left_edge, base_line);
+                    cur_orig.h = left_edge;
+                    cur_orig.v = base_line;
+                    do_annot(pdf, p, this_box, cur_orig);
                     break;
                 case pdf_start_link_node:
-                    do_link(pdf, p, this_box, left_edge, base_line);
+                    cur_orig.h = left_edge;
+                    cur_orig.v = base_line;
+                    do_link(pdf, p, this_box, cur_orig);
                     break;
                 case pdf_end_link_node:
                     end_link();
                     break;
                 case pdf_dest_node:
-                    do_dest(pdf, p, this_box, left_edge, base_line);
+                    cur_orig.h = left_edge;
+                    cur_orig.v = base_line;
+                    (void) new_synch_pos_with_cur(&localpos, refpos, cur);
+                    do_dest(pdf, p, this_box, cur_orig);
                     break;
                 case pdf_thread_node:
-                    do_thread(pdf, p, this_box, left_edge, base_line);
+                    cur_orig.h = left_edge;
+                    cur_orig.v = base_line;
+                    do_thread(pdf, p, this_box, cur_orig);
                     break;
                 case pdf_start_thread_node:
                     pdf_error("ext4", "\\pdfstartthread ended up in hlist");
@@ -758,6 +771,7 @@ void pdf_vlist_out(PDF pdf)
     real glue_temp;             /* glue value before rounding */
     real cur_glue;              /* glue seen so far */
     scaled cur_g;               /* rounded equivalent of |cur_glue| times the glue ratio */
+    scaledpos cur_orig;
     integer save_direction;
     scaled effective_vertical;
     scaled basepoint_horizontal;
@@ -963,8 +977,9 @@ void pdf_vlist_out(PDF pdf)
                     cur.v = cur.v + pdf_height(p) + pdf_depth(p);
                     break;
                 case pdf_annot_node:
-                    do_annot(pdf, p, this_box, left_edge,
-                             top_edge + height(this_box));
+                    cur_orig.h = left_edge;
+                    cur_orig.v = top_edge + height(this_box);
+                    do_annot(pdf, p, this_box, cur_orig);
                     break;
                 case pdf_start_link_node:
                     pdf_error("ext4", "\\pdfstartlink ended up in vlist");
@@ -973,13 +988,15 @@ void pdf_vlist_out(PDF pdf)
                     pdf_error("ext4", "\\pdfendlink ended up in vlist");
                     break;
                 case pdf_dest_node:
-                    do_dest(pdf, p, this_box, left_edge,
-                            top_edge + height(this_box));
+                    cur_orig.h = left_edge;
+                    cur_orig.v = top_edge + height(this_box);
+                    do_dest(pdf, p, this_box, cur_orig);
                     break;
                 case pdf_thread_node:
                 case pdf_start_thread_node:
-                    do_thread(pdf, p, this_box, left_edge,
-                              top_edge + height(this_box));
+                    cur_orig.h = left_edge;
+                    cur_orig.v = top_edge + height(this_box);
+                    do_thread(pdf, p, this_box, cur_orig);
                     break;
                 case pdf_end_thread_node:
                     end_thread(pdf);
