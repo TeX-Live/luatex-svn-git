@@ -2689,7 +2689,7 @@ void show_node_list(integer p)
                     if (subtype(p) != cond_math_glue) {
                         print_char(' ');
                         if (subtype(p) < cond_math_glue)
-			  print_spec(glue_ptr(p), NULL);
+                            print_spec(glue_ptr(p), NULL);
                         else
                             print_spec(glue_ptr(p), "mu");
                     }

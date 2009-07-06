@@ -33,56 +33,57 @@ typedef enum {
     tok_val_level,              /* token lists */
 } value_level_code;
 
-extern void scan_left_brace (void);
-extern void scan_optional_equals (void);
+extern void scan_left_brace(void);
+extern void scan_optional_equals(void);
 
-extern integer cur_val; /* value returned by numeric scanners */
-extern integer cur_val1; /* delcodes are sometimes 51 digits */
-extern int cur_val_level; /* the ``level'' of this value */
+extern integer cur_val;         /* value returned by numeric scanners */
+extern integer cur_val1;        /* delcodes are sometimes 51 digits */
+extern int cur_val_level;       /* the ``level'' of this value */
 
 extern void scan_something_simple(halfword cmd, halfword subitem);
 extern void scan_something_internal(int level, boolean negative);
 
-extern void scan_register_num (void);
-extern void scan_mark_num (void) ;
-extern void scan_char_num (void);
-extern void scan_four_bit_int (void);
-extern void scan_math_family_int (void);
-extern void scan_real_fifteen_bit_int (void);
-extern void scan_fifteen_bit_int (void);
-extern void scan_big_fifteen_bit_int (void);
-extern void scan_twenty_seven_bit_int (void);
-extern void scan_fifty_one_bit_int (void);
-extern void scan_string_argument (void);
+extern void scan_register_num(void);
+extern void scan_mark_num(void);
+extern void scan_char_num(void);
+extern void scan_four_bit_int(void);
+extern void scan_math_family_int(void);
+extern void scan_real_fifteen_bit_int(void);
+extern void scan_fifteen_bit_int(void);
+extern void scan_big_fifteen_bit_int(void);
+extern void scan_twenty_seven_bit_int(void);
+extern void scan_fifty_one_bit_int(void);
+extern void scan_string_argument(void);
 
-#define octal_token (other_token+'\'') /* apostrophe, indicates an octal constant */
-#define hex_token (other_token+'"') /* double quote, indicates a hex constant */
-#define alpha_token (other_token+'`') /* reverse apostrophe, precedes alpha constants */
-#define point_token (other_token+'.') /* decimal point */
-#define continental_point_token (other_token+',') /* decimal point, Eurostyle */
-#define infinity 017777777777 /* the largest positive value that \TeX\ knows */
-#define zero_token (other_token+'0') /* zero, the smallest digit */
-#define A_token (letter_token+'A') /* the smallest special hex digit */
-#define other_A_token (other_token+'A') /* special hex digit of type |other_char| */
+#  define octal_token (other_token+'\'')        /* apostrophe, indicates an octal constant */
+#  define hex_token (other_token+'"')   /* double quote, indicates a hex constant */
+#  define alpha_token (other_token+'`') /* reverse apostrophe, precedes alpha constants */
+#  define point_token (other_token+'.') /* decimal point */
+#  define continental_point_token (other_token+',')     /* decimal point, Eurostyle */
+#  define infinity 017777777777 /* the largest positive value that \TeX\ knows */
+#  define zero_token (other_token+'0')  /* zero, the smallest digit */
+#  define A_token (letter_token+'A')    /* the smallest special hex digit */
+#  define other_A_token (other_token+'A')
+                                        /* special hex digit of type |other_char| */
 
 extern int radix;
 
-extern void scan_int (void);
+extern void scan_int(void);
 
 extern int cur_order;
 
-#define scan_normal_dimen() scan_dimen(false,false,false)
+#  define scan_normal_dimen() scan_dimen(false,false,false)
 
 extern void scan_dimen(boolean mu, boolean inf, boolean shortcut);
 extern void scan_glue(int level);
-extern void scan_scaled (void);
+extern void scan_scaled(void);
 
-extern halfword the_toks (void);
-extern str_number the_scanned_result (void);
-extern void set_font_dimen (void);
-extern void get_font_dimen (void);
+extern halfword the_toks(void);
+extern str_number the_scanned_result(void);
+extern void set_font_dimen(void);
+extern void get_font_dimen(void);
 
-extern void scan_normal_glue (void);
-extern void scan_mu_glue (void);
+extern void scan_normal_glue(void);
+extern void scan_mu_glue(void);
 
 #endif
