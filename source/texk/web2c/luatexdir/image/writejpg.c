@@ -157,6 +157,13 @@ void read_jpg_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
                 break;
             }
         }
+        /* if either xres or yres is 0 but the other isn't, set it to the value of the other */
+        if ((img_xres(img) == 0) && (img_yres(img) != 0)) {
+            img_xres(img) = img_yres(img);
+        }
+        if ((img_yres(img) == 0) && (img_xres(img) != 0)) {
+            img_yres(img) = img_xres(img);
+        }
     }
     xfseek(img_file(idict), 0, SEEK_SET, img_filepath(idict));
     while (1) {
