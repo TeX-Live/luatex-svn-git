@@ -1849,7 +1849,7 @@ void get_font_dimen(void)
         }
     }
     cur_val = font_param(f, n);
-  EXIT:
+ EXIT:
     scanned_result(cur_val, dimen_val_level);
 }
 
@@ -1867,3 +1867,473 @@ void scan_mu_glue(void)
 {
     scan_glue(mu_val_level);
 }
+
+/* The |scan_expr| procedure scans and evaluates an expression. */
+
+/*
+Evaluating an expression is a recursive process:  When the left
+parenthesis of a subexpression is scanned we descend to the next level
+of recursion; the previous level is resumed with the matching right
+parenthesis.
+*/
+
+typedef enum {
+    expr_none=0,  /* \.( seen, or \.( $\langle\it expr\rangle$ \.) seen */
+    expr_add=1,   /* \.( $\langle\it expr\rangle$ \.+ seen */
+    expr_sub=2,   /* \.( $\langle\it expr\rangle$ \.- seen */
+    expr_mult=3,  /* $\langle\it term\rangle$ \.* seen */
+    expr_div=4,   /* $\langle\it term\rangle$ \./ seen */
+    expr_scale=5, /* $\langle\it term\rangle$ \.*  $\langle\it factor\rangle$ \./ seen */
+} expression_states;
+
+/*
+  We want to make sure that each term and (intermediate) result is in
+  the proper range.  Integer values must not exceed |infinity|
+  ($2^{31}-1$) in absolute value, dimensions must not exceed |max_dimen|
+  ($2^{30}-1$).  We avoid the absolute value of an integer, because this
+  might fail for the value $-2^{31}$ using 32-bit arithmetic.
+*/
+
+/* 
+   clear a number or dimension and set |arith_error| 
+*/
+
+#define num_error(A) do {			\
+	arith_error=true;			\
+	A=0;					\
+    } while (0)
+				     
+/* 
+   clear a glue spec and set |arith_error| 
+*/
+
+#define glue_error(A) do {				\
+	arith_error=true;				\
+	delete_glue_ref(A);				\
+	A=new_spec(zero_glue);				\
+    } while (0)
+
+
+#define normalize_glue(A) do {				\
+	if (stretch(A)==0) stretch_order(A)=normal;	\
+	if (shrink(A)==0) shrink_order(A)=normal;	\
+    } while (0)
+
+/*
+Parenthesized subexpressions can be inside expressions, and this
+nesting has a stack.  Seven local variables represent the top of the
+expression stack:  |p| points to pushed-down entries, if any; |l|
+specifies the type of expression currently beeing evaluated; |e| is the
+expression so far and |r| is the state of its evaluation; |t| is the
+term so far and |s| is the state of its evaluation; finally |n| is the
+numerator for a combined multiplication and division, if any.
+*/
+
+#define expr_type(A) type((A)+1)
+#define expr_state(A) subtype((A)+1)
+#define expr_e_field(A) vlink((A)+1) /* saved expression so far */
+#define expr_t_field(A) vlink((A)+2) /* saved term so far */
+#define expr_n_field(A) vinfo((A)+2) /* saved numerator */
+
+
+#define expr_add_sub(A,B,C) add_or_sub((A),(B),(C),(r==expr_sub))
+#define expr_a(A,B) expr_add_sub((A),(B),max_dimen)
+
+/*
+  The function |add_or_sub(x,y,max_answer,negative)| computes the sum
+  (for |negative=false|) or difference (for |negative=true|) of |x| and
+  |y|, provided the absolute value of the result does not exceed
+  |max_answer|.
+*/
+
+integer add_or_sub(integer x, integer y, integer max_answer, boolean negative)
+{
+    integer a; /* the answer */
+    if (negative) 
+	negate(y);
+    if (x>=0) {
+	if (y<=max_answer-x)  
+	    a=x+y;
+	else 
+	    num_error(a);
+    } else if (y>=-max_answer-x) {
+	a=x+y;
+    } else {
+	num_error(a);
+    }
+    return a;
+}
+
+
+#define expr_m(A) A = nx_plus_y((A),f,0)
+
+#define expr_d(A) A=quotient((A),f)
+
+/*
+The function |quotient(n,d)| computes the rounded quotient
+$q=\lfloor n/d+{1\over2}\rfloor$, when $n$ and $d$ are positive.
+*/
+
+integer quotient(integer n, integer d)
+{
+    boolean negative; /* should the answer be negated? */
+    integer a; /* the answer */
+    if (d==0) {
+	num_error(a);
+    } else {
+	if (d>0) {
+	    negative=false;
+	} else  {
+	    negate(d); 
+	    negative=true;
+	}
+	if (n<0) {
+	    negate(n); 
+	    negative=! negative;
+	}
+	a=n / d; 
+	n=n-a*d; 
+	d=n-d; /* avoid certain compiler optimizations! */
+	if (d+n>=0) 
+	    incr(a);
+	if (negative) 
+	    negate(a);
+    }
+    return a;
+}
+
+#define expr_s(A) A=fract((A),n,f,max_dimen)
+
+/*
+Finally, the function |fract(x,n,d,max_answer)| computes the integer
+$q=\lfloor xn/d+{1\over2}\rfloor$, when $x$, $n$, and $d$ are positive
+and the result does not exceed |max_answer|.  We can't use floating
+point arithmetic since the routine must produce identical results in all
+cases; and it would be too dangerous to multiply by~|n| and then divide
+by~|d|, in separate operations, since overflow might well occur.  Hence
+this subroutine simulates double precision arithmetic, somewhat
+analogous to \MF's |make_fraction| and |take_fraction| routines.
+*/
+
+integer fract(integer x, integer n, integer d, integer max_answer)
+{
+    boolean negative; /* should the answer be negated? */
+    integer a; /* the answer */
+    integer f; /* a proper fraction */
+    integer h; /* smallest integer such that |2*h>=d| */
+    integer r; /* intermediate remainder */
+    integer t; /* temp variable */
+    if (d==0) 
+	goto TOO_BIG;
+    a=0;
+    if (d>0) {
+	negative=false;
+    } else {
+	negate(d); negative=true;
+    }
+    if (x<0) {
+	negate(x); 
+	negative=!negative;
+    } else if (x==0) {
+	goto DONE;
+    }
+    if (n<0) {
+	negate(n); 
+	negative=!negative;
+    }
+    t=n / d;
+    if (t>max_answer / x )
+	goto TOO_BIG;
+    a=t*x; 
+    n=n-t*d;
+    if (n==0) 
+	goto FOUND;
+    t=x / d;
+    if (t>(max_answer-a) / n)
+	goto TOO_BIG;
+    a=a+t*n; 
+    x=x-t*d;
+    if (x==0)
+	goto FOUND;
+    if (x<n) {
+	t=x; 
+	x=n; 
+	n=t;
+    } /* now |0<n<=x<d| */
+    /* @<Compute \(f)$f=\lfloor xn/d+{1\over2}\rfloor$@>@; */
+    /* The loop here preserves the following invariant relations
+       between |f|, |x|, |n|, and~|r|:
+       (i)~$f+\lfloor(xn+(r+d))/d\rfloor=\lfloor x_0n_0/d+{1\over2}\rfloor$;
+       (ii)~|-d<=r<0<n<=x<d|, where $x_0$, $n_0$ are the original values of~$x$
+       and $n$. */
+    /* Notice that the computation specifies |(x-d)+x| instead of |(x+x)-d|,
+       because the latter could overflow. */
+    f=0; 
+    r=(d / 2)-d; 
+    h=-r;
+    while (1) {
+	if (odd(n)) {
+	    r=r+x;
+	    if (r>=0) {
+		r=r-d; 
+		incr(f);
+	    }
+	}
+	n = n / 2;
+	if (n==0) 
+	    break;
+	if (x<h) { 
+	    x=x+x;
+	} else { 
+	    t=x-d; 
+	    x=t+x; 
+	    f=f+n;
+	    if (x<n) {
+		if (x==0) 
+		    break;
+		t=x; 
+		x=n; 
+		n=t;
+	    }
+	}
+    }
+
+    if (f>(max_answer-a)) 
+	goto TOO_BIG;
+    a=a+f;
+ FOUND: 
+    if (negative) 
+	negate(a);
+    goto DONE;
+ TOO_BIG: 
+    num_error(a);
+ DONE: 
+    return a;
+}
+
+
+void scan_expr (void) /* scans and evaluates an expression */
+{
+    boolean a,b; /* saved values of |arith_error| */ 
+    int l; /* type of expression */
+    int r; /* state of expression so far */
+    int s; /* state of term so far */
+    int o; /* next operation or type of next factor */
+    integer e; /* expression so far */
+    integer t; /* term so far */
+    integer f; /* current factor */
+    integer n; /* numerator of combined multiplication and division */
+    halfword p; /* top of expression stack */
+    halfword q; /* for stack manipulations */
+    l=cur_val_level; 
+    a=arith_error; 
+    b=false; 
+    p=null;
+    /* Scan and evaluate an expression |e| of type |l| */
+ RESTART: 
+    r=expr_none; e=0; s=expr_none; t=0; n=0;
+ CONTINUE: 
+    if (s==expr_none) o=l; else o=int_val_level;
+    /* Scan a factor |f| of type |o| or start a subexpression */
+    /* Get the next non-blank non-call token */
+    do {
+        get_x_token();
+    } while (cur_cmd == spacer_cmd);
+
+    if (cur_tok==other_token+'(') {
+	/* Push the expression stack and |goto restart| */
+	q=new_node(expr_node,0); 
+	vlink(q)=p;
+	expr_type(q)=l; 
+	expr_state(q)=4*s+r;
+	expr_e_field(q)=e; 
+	expr_t_field(q)=t; 
+	expr_n_field(q)=n;
+	p=q; 
+	l=o; 
+	goto RESTART;
+    }
+    back_input();
+    if ((o==int_val_level)||(o==attr_val_level)) 
+	scan_int();
+    else if (o==dimen_val_level)
+	scan_normal_dimen();
+    else if (o==glue_val_level)
+	scan_normal_glue();
+    else 
+	scan_mu_glue();
+    f=cur_val;
+
+ FOUND: 
+    /* Scan the next operator and set |o| */
+    /* Get the next non-blank non-call token */
+    do {
+        get_x_token();
+    } while (cur_cmd == spacer_cmd);
+
+    if (cur_tok==other_token+'+') {
+	o=expr_add;
+    } else if (cur_tok==other_token+'-') {
+	o=expr_sub;
+    } else if (cur_tok==other_token+'*') {
+	o=expr_mult;
+    } else if (cur_tok==other_token+'/') {
+	o=expr_div;
+    } else { 
+	o=expr_none;
+	if (p==null) {
+	    if (cur_cmd!=relax_cmd) 
+		back_input();
+	} else if (cur_tok!=other_token+')') {
+	    print_err("Missing ) inserted for expression");
+	    help1("I was expecting to see `+', `-', `*', `/', or `)'. Didn't.");
+	    back_error();
+	}
+    }
+
+    arith_error=b;
+    /* Make sure that |f| is in the proper range */
+    if (((l==int_val_level)||(l==attr_val_level))||(s>expr_sub)) {
+	if ((f>infinity)||(f<-infinity)) 
+	    num_error(f);
+    } else if (l==dimen_val_level) {
+	if (abs(f)>max_dimen) 
+	    num_error(f);
+    } else {
+	if ((abs(width(f))>max_dimen)||
+	    (abs(stretch(f))>max_dimen)||
+	    (abs(shrink(f))>max_dimen)) 
+	    glue_error(f);
+    }
+
+    switch (s) {
+	/* Cases for evaluation of the current term */
+    case expr_none: 
+	/*
+	  Applying the factor |f| to the partial term |t| (with the operator
+	  |s|) is delayed until the next operator |o| has been scanned.  Here we
+	  handle the first factor of a partial term.  A glue spec has to be copied
+	  unless the next operator is a right parenthesis; this allows us later on
+	  to simply modify the glue components.
+	*/
+	if ((l>=glue_val_level)&&(o!=expr_none)) {
+	    t=new_spec(f); 
+	    delete_glue_ref(f); 
+	    normalize_glue(t);
+	} else {
+	    t=f;
+	}
+	break;
+    case expr_mult:
+	/* If a multiplication is followed by a division, the two operations are
+	   combined into a `scaling' operation.  Otherwise the term |t| is
+	   multiplied by the factor |f|. */
+	if (o==expr_div) {
+	    n=f; 
+	    o=expr_scale;
+	} else if ((l==int_val_level)||(l==attr_val_level)) {
+	    t=mult_integers(t,f);
+	} else if (l==dimen_val_level) {
+	    expr_m(t);
+	} else  {
+	    expr_m(width(t)); 
+	    expr_m(stretch(t)); 
+	    expr_m(shrink(t));
+	}
+	break;
+    case expr_div: 
+	/* Here we divide the term |t| by the factor |f| */
+	if (l<glue_val_level) {
+	    expr_d(t);
+	} else {
+	    expr_d(width(t)); 
+	    expr_d(stretch(t)); 
+	    expr_d(shrink(t));
+	}
+	break;
+    case expr_scale:
+	/* Here the term |t| is multiplied by the quotient $n/f$. */
+	if ((l==int_val_level)||(l==attr_val_level)) {
+	    t=fract(t,n,f,infinity);
+	} else if (l==dimen_val_level) {
+	    expr_s(t);
+	} else {
+	    expr_s(width(t)); 
+	    expr_s(stretch(t)); 
+	    expr_s(shrink(t));
+	}
+	break;
+
+    } /* there are no other cases */
+    if (o>expr_sub) {
+	s=o; 
+    } else {
+	/* Evaluate the current expression */
+	/* When a term |t| has been completed it is copied to, added to, or
+	   subtracted from the expression |e|. */
+	s=expr_none;
+	if (r==expr_none) {
+	    e=t;
+	} else if ((l==int_val_level)||(l==attr_val_level)) {
+	    e=expr_add_sub(e,t,infinity);
+	} else if (l==dimen_val_level) { 
+	    e=expr_a(e,t);
+	} else {
+	    /* Compute the sum or difference of two glue specs */
+	    /* We know that |stretch_order(e)>normal| implies |stretch(e)<>0| and
+	       |shrink_order(e)>normal| implies |shrink(e)<>0|. */
+	    width(e)=expr_a(width(e),width(t));
+	    if (stretch_order(e)==stretch_order(t)) {
+		stretch(e)=expr_a(stretch(e),stretch(t));
+	    } else if ((stretch_order(e)<stretch_order(t))&&(stretch(t)!=0)) {
+		stretch(e)=stretch(t); 
+		stretch_order(e)=stretch_order(t);
+	    }
+	    if (shrink_order(e)==shrink_order(t)) {
+		shrink(e)=expr_a(shrink(e),shrink(t));
+	    } else if ((shrink_order(e)<shrink_order(t))&&(shrink(t)!=0)) {
+		shrink(e)=shrink(t); 
+		shrink_order(e)=shrink_order(t);
+	    }
+	    delete_glue_ref(t); 
+	    normalize_glue(e);
+	}
+	r=o;
+    }
+    b=arith_error;
+    if (o!=expr_none) 
+	goto CONTINUE;
+    if (p!=null) {
+	/* Pop the expression stack and |goto found| */
+	f=e; 
+	q=p;
+	e=expr_e_field(q); 
+	t=expr_t_field(q); 
+	n=expr_n_field(q);
+	s=expr_state(q) / 4; 
+	r=expr_state(q) % 4;
+	l=expr_type(q); 
+	p=vlink(q); 
+	flush_node(q);
+	goto FOUND;
+    }
+
+    if (b) {
+	print_err("Arithmetic overflow");
+	help2("I can't evaluate this expression,",
+	      "since the result is out of range.");
+	error();
+	if (l>=glue_val_level) {
+	    delete_glue_ref(e); 
+	    e=zero_glue; 
+	    add_glue_ref(e);
+	} else {
+	    e=0;
+	}
+    }
+    arith_error=a; 
+    cur_val=e; 
+    cur_val_level=l;
+}
+
+

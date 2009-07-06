@@ -1469,6 +1469,8 @@
 @define procedure print_glue();
 @define procedure print_spec();
 
+@define procedure scan_expr;
+
 { error handling }
 
 @define const batch_mode;
