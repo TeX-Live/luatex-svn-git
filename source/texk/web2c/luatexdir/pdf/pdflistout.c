@@ -999,6 +999,7 @@ void pdf_vlist_out(PDF pdf)
                     do_thread(pdf, p, this_box, cur_orig);
                     break;
                 case pdf_end_thread_node:
+                    (void) new_synch_pos_with_cur(&localpos, refpos, cur);
                     end_thread(pdf);
                     break;
                 case pdf_save_pos_node:
