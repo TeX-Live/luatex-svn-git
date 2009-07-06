@@ -908,22 +908,6 @@ begin
   end;
 end;
 
-@ To be able to determine whether \.{\\write18} is enabled from within
-\TeX\ we also implement \.{\\eof18}.  We sort of cheat by having an
-additional route |scan_four_bit_int_or_18| which is the same as
-|scan_four_bit_int| except it also accepts the value 18.
-
-@<Declare procedures that scan restricted classes of integers@>=
-procedure scan_four_bit_int_or_18;
-begin scan_int;
-if (cur_val<0)or((cur_val>15)and(cur_val<>18)) then
-  begin print_err('Bad number');
-@.Bad number@>
-  help2('Since I expected to read a number between 0 and 15,',
-    'I changed this one to zero.'); int_error(cur_val); cur_val:=0;
-  end;
-end;
-
 @* \[54] System-dependent changes.
 @z
 

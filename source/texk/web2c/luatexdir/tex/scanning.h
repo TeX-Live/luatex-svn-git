@@ -43,17 +43,22 @@ extern int cur_val_level;       /* the ``level'' of this value */
 extern void scan_something_simple(halfword cmd, halfword subitem);
 extern void scan_something_internal(int level, boolean negative);
 
-extern void scan_register_num(void);
-extern void scan_mark_num(void);
-extern void scan_char_num(void);
-extern void scan_four_bit_int(void);
-extern void scan_math_family_int(void);
-extern void scan_real_fifteen_bit_int(void);
+
+extern void scan_limited_int(int max, char *name);
+
+#  define scan_register_num() scan_limited_int(65535,"register code")
+#  define scan_mark_num() scan_limited_int(65535,"marks code")
+#  define scan_char_num() scan_limited_int(biggest_char,"character code")
+#  define scan_four_bit_int() scan_limited_int(15,NULL)
+#  define scan_math_family_int() scan_limited_int(265,"math family")
+#  define scan_real_fifteen_bit_int() scan_limited_int(32767,"mathchar")
+#  define scan_big_fifteen_bit_int() scan_limited_int(0x7FFFFFF,"extended mathchar")
+#  define scan_twenty_seven_bit_int() scan_limited_int(0777777777,"delimiter code")
+
 extern void scan_fifteen_bit_int(void);
-extern void scan_big_fifteen_bit_int(void);
-extern void scan_twenty_seven_bit_int(void);
 extern void scan_fifty_one_bit_int(void);
 extern void scan_string_argument(void);
+extern void scan_four_bit_int_or_18(void);
 
 #  define octal_token (other_token+'\'')        /* apostrophe, indicates an octal constant */
 #  define hex_token (other_token+'"')   /* double quote, indicates a hex constant */

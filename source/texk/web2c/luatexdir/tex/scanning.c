@@ -900,76 +900,28 @@ It is nice to have routines that say what they do, so the original
 |scan_mark_num|. It may become split up even further in the future.
 */
 
-void scan_register_num(void)
-{
-    scan_int();
-    if ((cur_val < 0) || (cur_val > 65535)) {
-        print_err("Bad register code");
-        help2("A register number must be between 0 and 65535.",
-              "I changed this one to zero.");
-        int_error(cur_val);
-        cur_val = 0;
-    }
-}
+/* Many of the |restricted classes| routines are the essentially 
+the same except for the upper limit and the error message, so it makes
+sense to combine these all into one function. 
+*/
 
-void scan_mark_num(void)
+void scan_limited_int(int max, char *name)
 {
+    char hlp[80];
     scan_int();
-    if ((cur_val < 0) || (cur_val > 65535)) {
-        print_err("Bad marks code");
-        help2("A marks class must be between 0 and 65535.",
-              "I changed this one to zero.");
-        int_error(cur_val);
-        cur_val = 0;
-    }
-}
-
-void scan_char_num(void)
-{
-    scan_int();
-    if ((cur_val < 0) || (cur_val > biggest_char)) {
-        print_err("Bad character code");
-        help2("A character number must be between 0 and biggest_char.",
-              "I changed this one to zero.");
-        int_error(cur_val);
-        cur_val = 0;
-    }
-}
-
-/* While we're at it, we might as well deal with similar routines that
-   will be needed later. */
-
-void scan_four_bit_int(void)
-{
-    scan_int();
-    if ((cur_val < 0) || (cur_val > 15)) {
-        print_err("Bad number");
-        help2("Since I expected to read a number between 0 and 15,",
-              "I changed this one to zero.");
-        int_error(cur_val);
-        cur_val = 0;
-    }
-}
-
-void scan_math_family_int(void)
-{
-    scan_int();
-    if ((cur_val < 0) || (cur_val > 255)) {
-        print_err("Bad number");
-        help2("Since I expected to read a number between 0 and 255,",
-              "I changed this one to zero.");
-        int_error(cur_val);
-        cur_val = 0;
-    }
-}
-
-void scan_real_fifteen_bit_int(void)
-{
-    scan_int();
-    if ((cur_val < 0) || (cur_val > 077777)) {
-        print_err("Bad mathchar");
-        help2("A mathchar number must be between 0 and 32767.",
-              "I changed this one to zero.");
+    if ((cur_val < 0) || (cur_val > max)) {
+        if (name == NULL) {
+            snprintf(hlp, 80,
+                     "Since I expected to read a number between 0 and %d,",
+                     max);
+            print_err("Bad number");
+        } else {
+            char msg[80];
+            snprintf(hlp, 80, "A %s must be between 0 and %d.", name, max);
+            snprintf(msg, 80, "Bad %s", name);
+            print_err(msg);
+        }
+        help2(hlp, "I changed this one to zero.");
         int_error(cur_val);
         cur_val = 0;
     }
@@ -980,30 +932,6 @@ void scan_fifteen_bit_int(void)
     scan_real_fifteen_bit_int();
     cur_val = ((cur_val / 0x1000) * 0x1000000) +
         (((cur_val % 0x1000) / 0x100) * 0x10000) + (cur_val % 0x100);
-}
-
-void scan_big_fifteen_bit_int(void)
-{
-    scan_int();
-    if ((cur_val < 0) || (cur_val > 0x7FFFFFF)) {
-        print_err("Bad extended mathchar");
-        help2("An extended mathchar number must be between 0 and \"7FFFFFF.",
-              "I changed this one to zero.");
-        int_error(cur_val);
-        cur_val = 0;
-    }
-}
-
-void scan_twenty_seven_bit_int(void)
-{
-    scan_int();
-    if ((cur_val < 0) || (cur_val > 0777777777)) {
-        print_err("Bad delimiter code");
-        help2("A numeric delimiter code must be between 0 and 2^{27}-1.",
-              "I changed this one to zero.");
-        int_error(cur_val);
-        cur_val = 0;
-    }
 }
 
 void scan_fifty_one_bit_int(void)
@@ -1031,6 +959,27 @@ void scan_fifty_one_bit_int(void)
     cur_val1 = cur_val;
     cur_val = iiii;
 }
+
+/*
+To be able to determine whether \.{\\write18} is enabled from within
+\TeX\ we also implement \.{\\eof18}.  We sort of cheat by having an
+additional route |scan_four_bit_int_or_18| which is the same as
+|scan_four_bit_int| except it also accepts the value 18.
+*/
+
+void scan_four_bit_int_or_18(void)
+{
+    scan_int();
+    if ((cur_val < 0) || ((cur_val > 15) && (cur_val != 18))) {
+        print_err("Bad number");
+        help2("Since I expected to read a number between 0 and 15,",
+              "I changed this one to zero.");
+        int_error(cur_val);
+        cur_val = 0;
+    }
+}
+
+
 
 void scan_string_argument(void)
 {
