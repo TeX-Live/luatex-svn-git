@@ -188,6 +188,7 @@ void set_math_code(integer n,
 
 mathcodeval get_math_code(integer n);
 integer get_math_code_num(integer n);
+integer get_del_code_num(integer n);
 mathcodeval scan_mathchar(int extcode);
 mathcodeval scan_delimiter_as_mathchar(int extcode);
 

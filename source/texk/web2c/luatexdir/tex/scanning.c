@@ -664,7 +664,6 @@ void scan_something_internal(int level, boolean negative)
     if (!short_scan_something_internal(cur_cmd, cur_chr, level, negative)) {
         switch (cur_cmd) {
         case def_char_code_cmd:
-        case def_del_code_cmd:
             /* Fetch a character code from some table */
             scan_char_num();
             if (m == math_code_base) {
@@ -683,25 +682,21 @@ void scan_something_internal(int level, boolean negative)
                 cur_val1 =
                     get_cat_code(int_par(param_cat_code_table_code), cur_val);
                 scanned_result(cur_val1, int_val_level);
-            } else if (m < math_code_base) {
-                scanned_result(equiv(m + cur_val), int_val_level);
             } else {
-                scanned_result(zeqtb[m + cur_val].cint, int_val_level);
+                confusion("def_char");
             }
             break;
-        case extdef_math_code_cmd:
-        case extdef_del_code_cmd:
-            /* Fetch an ext character code from some table */
+        case def_del_code_cmd:
+            /* Fetch a character code from some table */
             scan_char_num();
-            if (m == math_code_base) {
-                cur_val1 = get_math_code_num(cur_val);
-                scanned_result(cur_val1, int_val_level);
-            } else if (m < math_code_base) {
-                scanned_result(equiv(m + cur_val), int_val_level);
-            } else {
-                /*  TODO: next line should not be possible, needs checking */
-                scanned_result(zeqtb[m + cur_val].cint, int_val_level);
-            }
+            cur_val1 = get_del_code_num(cur_val);
+            scanned_result(cur_val1, int_val_level);                
+            break;
+        case extdef_math_code_cmd:
+            /* Fetch an extended math code table value */
+            scan_char_num();
+            cur_val1 = get_math_code_num(cur_val);
+            scanned_result(cur_val1, int_val_level);
             break;
         case toks_register_cmd:
         case set_font_cmd:

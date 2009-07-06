@@ -390,6 +390,27 @@ delcodeval get_del_code(integer n)
     }
 }
 
+/* this really only works for old-style delcodes! */
+integer get_del_code_num(integer n)
+{
+    unsigned ret;
+    ret = get_sa_item(delcode_head, n);
+    if (ret == DELCODEDEFAULT) {
+        return -1;
+    } else {
+        delcodeval d = delcode_heap[ret];
+        if (d.origin_value == tex_mathcode) {
+            return (
+                (d.small_family_value*256 + d.small_character_value) * 4096 
+                + 
+                (d.large_family_value*256) + d.large_character_value);
+        } else {
+            return -1;
+        }
+    }
+}
+
+
 void initializedelcode(void)
 {
     delcode_head = new_sa_tree(DELCODESTACK, DELCODEDEFAULT);
