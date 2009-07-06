@@ -778,7 +778,7 @@ char *get_something_internal(int cur_cmd, int cur_code)
     int save_cur_val, save_cur_val_level;
     save_cur_val = cur_val;
     save_cur_val_level = cur_val_level;
-    zscan_something_simple(cur_cmd, cur_code);
+    scan_something_simple(cur_cmd, cur_code);
     texstr = the_scanned_result();
     cur_val = save_cur_val;
     cur_val_level = save_cur_val_level;
@@ -843,7 +843,7 @@ int do_scan_internal(lua_State * L, int cur_cmd, int cur_code)
     int save_cur_val, save_cur_val_level;
     save_cur_val = cur_val;
     save_cur_val_level = cur_val_level;
-    zscan_something_simple(cur_cmd, cur_code);
+    scan_something_simple(cur_cmd, cur_code);
 
     if (cur_val_level == int_val_level ||
         cur_val_level == dimen_val_level || cur_val_level == attr_val_level) {
@@ -1208,8 +1208,6 @@ int setlist(lua_State * L)
     }
     return 0;
 }
-
-#define infinity 2147483647
 
 static int do_integer_error(double m)
 {

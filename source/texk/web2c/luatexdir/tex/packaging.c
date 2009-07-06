@@ -767,7 +767,7 @@ halfword hpack(halfword p, scaled w, int m)
         glue_order(r) = o;
         glue_sign(r) = shrinking;
         if (total_shrink[o] != 0) {
-            glue_set(r) = unfloat((double) (-x) / total_shrink[o]);
+            glue_set(r) = unfloat((double) (-x) / (double)total_shrink[o]);
         } else {
             glue_sign(r) = normal;
             set_glue_ratio_zero(glue_set(r));   /* there's nothing to shrink */

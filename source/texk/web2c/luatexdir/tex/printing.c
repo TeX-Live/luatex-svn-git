@@ -643,3 +643,46 @@ void prompt_input(char *s)
     tprint(s);
     term_input();
 }
+
+/*
+Then there is a subroutine that prints glue stretch and shrink, possibly
+followed by the name of finite units:
+*/
+
+void print_glue(scaled d, integer order, char *s) /* prints a glue component */
+{
+    print_scaled(d);
+    if ((order<normal)||(order>filll)) {
+	tprint("foul");
+    } else if (order>normal) {
+	tprint("fi");
+	while (order>sfi) {
+	    print_char('l'); 
+	    decr(order);
+	}
+    } else if (s!=NULL) {
+	tprint(s);
+    }
+}
+
+/*  The next subroutine prints a whole glue specification */
+
+void print_spec(integer p, char *s) /* prints a glue specification */
+{
+    if (p<0) {
+	print_char('*');
+    } else  {
+	print_scaled(width(p));
+	if (s!=NULL) 
+	    tprint(s);
+	if (stretch(p)!=0) {
+	    tprint(" plus "); 
+	    print_glue(stretch(p),stretch_order(p),s);
+	}
+	if (shrink(p)!=0) {
+	    tprint(" minus "); 
+	    print_glue(shrink(p),shrink_order(p),s);
+	}
+    }
+}
+

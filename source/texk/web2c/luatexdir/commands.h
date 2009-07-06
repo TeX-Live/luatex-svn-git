@@ -186,17 +186,6 @@ typedef enum {
 } tex_command_code;
 
 typedef enum {
-    int_val_level = 0,          /* integer values */
-    attr_val_level,             /* integer values */
-    dimen_val_level,            /* dimension values */
-    glue_val_level,             /* glue specifications */
-    mu_val_level,               /* math glue specifications */
-    dir_val_level,              /* directions */
-    ident_val_level,            /* font identifier */
-    tok_val_level,              /* token lists */
-} value_level_code;
-
-typedef enum {
     above_code = 0,
     over_code = 1,
     atop_code = 2,

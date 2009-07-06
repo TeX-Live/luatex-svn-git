@@ -2594,11 +2594,11 @@ void show_node_list(integer p)
                     }
                     if (glue_stretch(p) != 0) {
                         tprint(", stretch ");
-                        print_glue(glue_stretch(p), glue_order(p), 0);
+                        print_glue(glue_stretch(p), glue_order(p), NULL);
                     }
                     if (glue_shrink(p) != 0) {
                         tprint(", shrink ");
-                        print_glue(glue_shrink(p), glue_sign(p), 0);
+                        print_glue(glue_shrink(p), glue_sign(p), NULL);
                     }
                 } else {
                     /*<Display the value of |glue_set(p)|@> */
@@ -2621,9 +2621,9 @@ void show_node_list(integer p)
                                 print_char('>');
                             else
                                 tprint("< -");
-                            print_glue(20000 * unity, glue_order(p), 0);
+                            print_glue(20000 * unity, glue_order(p), NULL);
                         } else {
-                            print_glue(round(unity * g), glue_order(p), 0);
+                            print_glue(round(unity * g), glue_order(p), NULL);
                         }
                     }
 
@@ -2652,7 +2652,7 @@ void show_node_list(integer p)
                 tprint(", natural size ");
                 print_scaled(height(p));
                 tprint("; split(");
-                print_spec(split_top_ptr(p), 0);
+                print_spec(split_top_ptr(p), NULL);
                 print_char(',');
                 print_scaled(depth(p));
                 tprint("); float cost ");
@@ -2672,7 +2672,7 @@ void show_node_list(integer p)
                     else if (subtype(p) == x_leaders)
                         print_char('x');
                     tprint("leaders ");
-                    print_spec(glue_ptr(p), 0);
+                    print_spec(glue_ptr(p), NULL);
                     node_list_display(leader_ptr(p));   /* recursive call */
                 } else {
                     tprint_esc("glue");
@@ -2689,9 +2689,9 @@ void show_node_list(integer p)
                     if (subtype(p) != cond_math_glue) {
                         print_char(' ');
                         if (subtype(p) < cond_math_glue)
-                            print_spec(glue_ptr(p), 0);
+			  print_spec(glue_ptr(p), NULL);
                         else
-                            print_spec(glue_ptr(p), maketexstring("mu"));
+                            print_spec(glue_ptr(p), "mu");
                     }
                 }
                 break;

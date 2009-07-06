@@ -99,4 +99,7 @@ extern void prompt_input(char *s);
 
 #  define active_cs_value(A) pool_to_unichar(str_start_macro(A)+3)
 
+extern void print_glue(scaled d, integer order, char *s); /* prints a glue component */
+extern void print_spec(integer p, char *s); /* prints a glue specification */
+
 #endif

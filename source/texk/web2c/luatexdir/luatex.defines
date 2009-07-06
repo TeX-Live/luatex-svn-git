@@ -1466,6 +1466,9 @@
 @define function active_cs_value();
 @define function single_letter();
 
+@define procedure print_glue();
+@define procedure print_spec();
+
 { error handling }
 
 @define const batch_mode;
@@ -1871,3 +1874,49 @@
 @define const leader_flag;
 
 @define procedure begin_box();
+
+{ scanning routines }
+
+@define const int_val_level;
+@define const attr_val_level;
+@define const dimen_val_level;
+@define const glue_val_level;
+@define const mu_val_level;
+@define const dir_val_level;
+@define const ident_val_level;
+@define const tok_val_level;
+
+@define const zero_token;
+@define const infinity;
+
+@define var cur_val;
+@define var cur_val1;
+@define var cur_val_level;
+
+@define var radix;
+@define var cur_order;
+
+@define procedure scan_something_internal();
+@define procedure scan_register_num;
+@define procedure scan_mark_num ;
+@define procedure scan_char_num;
+@define procedure scan_four_bit_int;
+@define procedure scan_math_family_int;
+@define procedure scan_real_fifteen_bit_int;
+@define procedure scan_fifteen_bit_int;
+@define procedure scan_big_fifteen_bit_int;
+@define procedure scan_twenty_seven_bit_int;
+@define procedure scan_fifty_one_bit_int;
+@define procedure scan_string_argument;
+@define procedure scan_int;
+@define procedure scan_normal_dimen;
+@define procedure scan_dimen();
+@define procedure scan_glue();
+@define procedure scan_scaled;
+@define function the_toks;
+
+@define procedure get_font_dimen;
+@define procedure set_font_dimen;
+
+@define procedure scan_normal_glue ;
+@define procedure scan_mu_glue ;
