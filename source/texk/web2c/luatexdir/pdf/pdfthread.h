@@ -54,9 +54,8 @@
 #  define set_obj_bead_data         set_obj_bead_rect
 
 extern void append_bead(PDF pdf, halfword p);
-extern void do_thread(PDF pdf, halfword parent_box, halfword p,
-                      scaledpos cur_orig);
-extern void append_thread(PDF pdf, halfword parent_box, scaledpos cur_orig);
+extern void do_thread(PDF pdf, halfword parent_box, halfword p, scaledpos cur);
+extern void append_thread(PDF pdf, halfword parent_box, scaledpos cur);
 extern void end_thread(PDF pdf);
 extern void scan_thread_id(void);
 
@@ -64,7 +63,8 @@ extern void thread_title(PDF pdf, integer t);
 extern void pdf_fix_thread(PDF pdf, integer t);
 extern void out_thread(PDF pdf, integer t);
 
-extern void check_running_thread(PDF pdf, halfword this_box, scaledpos cur);
+extern void check_running_thread(PDF pdf, halfword this_box,
+                                 posstructure * refpos, scaledpos cur);
 extern void reset_thread_lists(PDF pdf);
 extern void print_beads_list(PDF pdf);
 extern void print_bead_rectangles(PDF pdf);

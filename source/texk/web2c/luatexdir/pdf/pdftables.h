@@ -93,8 +93,8 @@ extern integer find_obj(PDF pdf, integer t, integer i, boolean byname);
 extern integer get_obj(PDF pdf, integer t, integer i, boolean byname);
 extern integer pdf_new_objnum(PDF pdf);
 
-extern void set_rect_dimens(halfword p, halfword parent_box, scaledpos cur_orig,
-                            scaled_whd alt_rule, scaled margin);
+extern void set_rect_dimens(PDF pdf, halfword p, halfword parent_box,
+                            scaledpos cur, scaled_whd alt_rule, scaled margin);
 
 extern void libpdffinish(PDF);
 

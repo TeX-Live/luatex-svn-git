@@ -85,7 +85,7 @@ void warn_dest_dup(integer id, small_number byname, char *s1, char *s2)
 }
 
 
-void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur_orig)
+void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
 {
     scaledpos pos = pdf->posstruct->pos;
     scaled_whd alt_rule;
@@ -108,7 +108,7 @@ void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur_orig)
     switch (pdf_dest_type(p)) {
     case pdf_dest_xyz:
         if (matrixused())
-            set_rect_dimens(p, parent_box, cur_orig, alt_rule, pdf_dest_margin);
+            set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_dest_margin);
         else {
             pdf_ann_left(p) = pos.h;
             pdf_ann_top(p) = pos.v;
@@ -117,14 +117,14 @@ void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur_orig)
     case pdf_dest_fith:
     case pdf_dest_fitbh:
         if (matrixused())
-            set_rect_dimens(p, parent_box, cur_orig, alt_rule, pdf_dest_margin);
+            set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_dest_margin);
         else
             pdf_ann_top(p) = pos.v;
         break;
     case pdf_dest_fitv:
     case pdf_dest_fitbv:
         if (matrixused())
-            set_rect_dimens(p, parent_box, cur_orig, alt_rule, pdf_dest_margin);
+            set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_dest_margin);
         else
             pdf_ann_left(p) = pos.h;
         break;
@@ -132,7 +132,7 @@ void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur_orig)
     case pdf_dest_fitb:
         break;
     case pdf_dest_fitr:
-        set_rect_dimens(p, parent_box, cur_orig, alt_rule, pdf_dest_margin);
+        set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_dest_margin);
     }
 }
 

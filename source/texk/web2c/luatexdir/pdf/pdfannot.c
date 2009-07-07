@@ -25,7 +25,7 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
-void do_annot(PDF pdf, halfword p, halfword parent_box, scaledpos cur_orig)
+void do_annot(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
 {
     scaled_whd alt_rule;
     if (!is_shipping_page)
@@ -37,7 +37,7 @@ void do_annot(PDF pdf, halfword p, halfword parent_box, scaledpos cur_orig)
     alt_rule.wd = pdf_width(p);
     alt_rule.ht = pdf_height(p);
     alt_rule.dp = pdf_depth(p);
-    set_rect_dimens(p, parent_box, cur_orig, alt_rule, 0);
+    set_rect_dimens(pdf, p, parent_box, cur, alt_rule, 0);
     obj_annot_ptr(pdf, pdf_annot_objnum(p)) = p;
     append_object_list(pdf, obj_type_annot, pdf_annot_objnum(p));
     set_obj_scheduled(pdf, pdf_annot_objnum(p));

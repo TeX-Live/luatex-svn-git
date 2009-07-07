@@ -67,7 +67,7 @@ void append_bead(PDF pdf, halfword p)
     append_object_list(pdf, obj_type_bead, b);
 }
 
-void do_thread(PDF pdf, halfword parent_box, halfword p, scaledpos cur_orig)
+void do_thread(PDF pdf, halfword parent_box, halfword p, scaledpos cur)
 {
     scaled_whd alt_rule;
     if (doing_leaders)
@@ -85,12 +85,12 @@ void do_thread(PDF pdf, halfword parent_box, halfword p, scaledpos cur_orig)
     alt_rule.wd = pdf_width(p);
     alt_rule.ht = pdf_height(p);
     alt_rule.dp = pdf_depth(p);
-    set_rect_dimens(p, parent_box, cur_orig, alt_rule, pdf_thread_margin);
+    set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_thread_margin);
     append_bead(pdf, p);
     last_thread = p;
 }
 
-void append_thread(PDF pdf, halfword parent_box, scaledpos cur_orig)
+void append_thread(PDF pdf, halfword parent_box, scaledpos cur)
 {
     halfword p;
     scaled_whd alt_rule;
@@ -109,7 +109,7 @@ void append_thread(PDF pdf, halfword parent_box, scaledpos cur_orig)
     alt_rule.wd = pdf_width(p);
     alt_rule.ht = pdf_height(p);
     alt_rule.dp = pdf_depth(p);
-    set_rect_dimens(p, parent_box, cur_orig, alt_rule, pdf_thread_margin);
+    set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_thread_margin);
     append_bead(pdf, p);
     last_thread = p;
 }
@@ -251,14 +251,14 @@ void scan_thread_id(void)
     }
 }
 
-void check_running_thread(PDF pdf, halfword this_box, scaledpos cur)
+void check_running_thread(PDF pdf, halfword this_box, posstructure * refpos,
+                          scaledpos cur)
 {
-    scaledpos cur_orig;
-    cur_orig.h = cur.h;
-    cur_orig.v = cur.v + height(this_box);
     if ((last_thread != null) && is_running(pdf_thread.dp)
-        && (pdf_thread_level == cur_s))
-        append_thread(pdf, this_box, cur_orig);
+        && (pdf_thread_level == cur_s)) {
+        (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
+        append_thread(pdf, this_box, cur);
+    }
 }
 
 void reset_thread_lists(PDF pdf)

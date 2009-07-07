@@ -222,25 +222,30 @@ integer pdf_new_objnum(PDF pdf)
     return pdf->obj_ptr;
 }
 
-void set_rect_dimens(halfword p, halfword parent_box, scaledpos cur_orig,
+void set_rect_dimens(PDF pdf, halfword p, halfword parent_box, scaledpos cur,
                      scaled_whd alt_rule, scaled margin)
 {
-    scaledpos ll, ur, pos_ll, pos_ur, tmp;
-    ll.h = cur.h;
+    scaledpos ll, ur;           /* positions relative to cur */
+    scaledpos pos_ll, pos_ur, tmp;
+    posstructure localpos;
+    localpos.dir = pdf->posstruct->dir;
+    ll.h = 0;                   /* pdf contains current point on page */
     if (is_running(alt_rule.dp))
-        ll.v = cur_orig.v + depth(parent_box);
+        ll.v = depth(parent_box) - cur.v;
     else
-        ll.v = cur.v + alt_rule.dp;
+        ll.v = alt_rule.dp;
     if (is_running(alt_rule.wd))
-        ur.h = cur_orig.h + width(parent_box);
+        ur.h = width(parent_box) - cur.h;
     else
-        ur.h = cur.h + alt_rule.wd;
+        ur.h = alt_rule.wd;
     if (is_running(alt_rule.ht))
-        ur.v = cur_orig.v - height(parent_box);
+        ur.v = -height(parent_box) + cur.v;
     else
-        ur.v = cur.v - alt_rule.ht;
-    pos_ll = synch_p_with_c(ll);
-    pos_ur = synch_p_with_c(ur);
+        ur.v = -alt_rule.ht;
+
+    pos_ll = new_synch_pos_with_cur(&localpos, pdf->posstruct, ll);
+    pos_ur = new_synch_pos_with_cur(&localpos, pdf->posstruct, ur);
+
     if (pos_ll.h > pos_ur.h) {
         tmp.h = pos_ll.h;
         pos_ll.h = pos_ur.h;

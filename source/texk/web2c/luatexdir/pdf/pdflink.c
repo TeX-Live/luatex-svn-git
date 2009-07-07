@@ -56,7 +56,7 @@ void pop_link_level(void)
     decr(pdf_link_stack_ptr);
 }
 
-void do_link(PDF pdf, halfword p, halfword parent_box, scaledpos cur_orig)
+void do_link(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
 {
     scaled_whd alt_rule;
     if (!is_shipping_page)
@@ -68,7 +68,7 @@ void do_link(PDF pdf, halfword p, halfword parent_box, scaledpos cur_orig)
     alt_rule.wd = pdf_width(p);
     alt_rule.ht = pdf_height(p);
     alt_rule.dp = pdf_depth(p);
-    set_rect_dimens(p, parent_box, cur_orig, alt_rule, pdf_link_margin);
+    set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_link_margin);
     obj_annot_ptr(pdf, pdf_link_objnum(p)) = p; /* the reference for the pdf annot object must be set here */
     append_object_list(pdf, obj_type_link, pdf_link_objnum(p));
     set_obj_scheduled(pdf, pdf_link_objnum(p));
@@ -130,8 +130,7 @@ node, in order to use |flush_node_list| to do the job.
 
 /* append a new pdf annot to |pdf_link_list| */
 
-void append_link(PDF pdf, halfword parent_box, scaledpos cur_orig,
-                 small_number i)
+void append_link(PDF pdf, halfword parent_box, scaledpos cur, small_number i)
 {
     halfword p;
     scaled_whd alt_rule;
@@ -142,7 +141,7 @@ void append_link(PDF pdf, halfword parent_box, scaledpos cur_orig,
     alt_rule.wd = pdf_width(p);
     alt_rule.ht = pdf_height(p);
     alt_rule.dp = pdf_depth(p);
-    set_rect_dimens(p, parent_box, cur_orig, alt_rule, pdf_link_margin);
+    set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_link_margin);
     pdf_create_obj(pdf, obj_type_others, 0);
     obj_annot_ptr(pdf, pdf->obj_ptr) = p;
     append_object_list(pdf, obj_type_link, pdf->obj_ptr);
