@@ -70,8 +70,6 @@ extern void warn_dest_dup(integer id, small_number byname, char *s1, char *s2);
 extern void write_out_pdf_mark_destinations(PDF);
 extern void scan_pdfdest(PDF);
 extern void init_dest_names(void);
-extern void reset_dest_list(void);
-extern void flush_dest_list(void);
 extern void sort_dest_names(integer l, integer r);
 
 #endif

@@ -54,6 +54,7 @@ static const char _svn_version[] =
 static int dumping = 1;         /* dump bytecodes? */
 static int stripping = 0;       /* strip debug information? */
 static char Output[] = { OUTPUT };      /* default output file name */
+
 static const char *output = Output;     /* actual output file name */
 static const char *progname = PROGNAME; /* actual program name */
 

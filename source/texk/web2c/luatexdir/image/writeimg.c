@@ -38,8 +38,6 @@
 #define pdf_image_resolution int_par(param_pdf_image_resolution_code)
 #define scan_normal_dimen() scan_dimen(false,false,false)
 
-#define pdf_pagebox int_par(param_pdf_pagebox_code)
-
 integer image_orig_x, image_orig_y;     /* origin of cropped PDF images */
 
 static const char _svn_version[] =
@@ -706,22 +704,6 @@ void undumpimagemeta(PDF pdf, integer pdfversion,
     }
 }
 
-/* scans PDF pagebox specification */
-integer scan_pdf_box_spec(void)
-{
-    if (scan_keyword("mediabox"))
-        return pdf_box_spec_media;
-    else if (scan_keyword("cropbox"))
-        return pdf_box_spec_crop;
-    else if (scan_keyword("bleedbox"))
-        return pdf_box_spec_bleed;
-    else if (scan_keyword("trimbox"))
-        return pdf_box_spec_trim;
-    else if (scan_keyword("artbox"))
-        return pdf_box_spec_art;
-    return 0;
-}
-
 /* scans rule spec to |alt_rule| */
 scaled_whd scan_alt_rule(void)
 {
@@ -754,62 +736,4 @@ void set_image_dimensions(integer ref, scaled_whd dim)
     img_width(a) = dim.wd;
     img_height(a) = dim.ht;
     img_depth(a) = dim.dp;
-}
-
-void scan_image(PDF pdf)
-{
-    scaled_whd alt_rule;
-    integer k, ref;
-    integer page, pagebox, colorspace;
-    char *named = NULL, *attr = NULL, *s = NULL;
-    incr(pdf_ximage_count);
-    pdf_create_obj(pdf, obj_type_ximage, pdf_ximage_count);
-    k = pdf->obj_ptr;
-    alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
-    attr = 0;
-    named = 0;
-    page = 1;
-    colorspace = 0;
-    if (scan_keyword("attr")) {
-        scan_pdf_ext_toks();
-        attr = tokenlist_to_cstring(def_ref, true, NULL);
-        delete_token_ref(def_ref);
-    }
-    if (scan_keyword("named")) {
-        scan_pdf_ext_toks();
-        named = tokenlist_to_cstring(def_ref, true, NULL);
-        delete_token_ref(def_ref);
-        page = 0;
-    } else if (scan_keyword("page")) {
-        scan_int();
-        page = cur_val;
-    }
-    if (scan_keyword("colorspace")) {
-        scan_int();
-        colorspace = cur_val;
-    }
-    pagebox = scan_pdf_box_spec();
-    if (pagebox == 0)
-        pagebox = pdf_pagebox;
-    scan_pdf_ext_toks();
-    s = tokenlist_to_cstring(def_ref, true, NULL);
-    assert(s != NULL);
-    delete_token_ref(def_ref);
-    if (pagebox == 0)           /* no pagebox specification given */
-        pagebox = pdf_box_spec_crop;
-    ref =
-        read_image(pdf,
-                   k, pdf_ximage_count, s, page, named, attr, colorspace,
-                   pagebox, pdf_minor_version, pdf_inclusion_errorlevel);
-    xfree(s);
-    set_obj_data_ptr(pdf, k, ref);
-    if (named != NULL)
-        xfree(named);
-    set_image_dimensions(ref, alt_rule);
-    if (attr != NULL)
-        xfree(attr);
-    scale_image(ref);
-    pdf_last_ximage = k;
-    pdf_last_ximage_pages = image_pages(ref);
-    pdf_last_ximage_colordepth = image_colordepth(ref);
 }

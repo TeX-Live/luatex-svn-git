@@ -606,10 +606,10 @@ static void setup_image(PDF pdf, lua_State * L, image * a, wrtype_e writetype)
     if (img_arrayidx(a) == -1)
         img_arrayidx(a) = img_to_array(a);      /* now a is read-only */
     if (img_objnum(ad) == 0) {  /* latest needed just before out_img() */
-        pdf_ximage_count++;
-        pdf_create_obj(pdf, obj_type_ximage, pdf_ximage_count);
+        pdf->ximage_count++;
+        pdf_create_obj(pdf, obj_type_ximage, pdf->ximage_count);
         img_objnum(ad) = pdf->obj_ptr;
-        img_index(ad) = pdf_ximage_count;
+        img_index(ad) = pdf->ximage_count;
         obj_data_ptr(pdf, pdf->obj_ptr) = img_arrayidx(a);
     }
 }

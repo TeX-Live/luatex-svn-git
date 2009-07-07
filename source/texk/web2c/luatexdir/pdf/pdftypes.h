@@ -102,6 +102,24 @@ typedef struct obj_entry_ {
     integer int4;
 } obj_entry;
 
+/* types of objects */
+typedef enum {
+    obj_type_others = 0,        /* objects which are not linked in any list */
+    obj_type_page = 1,          /* index of linked list of Page objects */
+    obj_type_font = 2,          /* index of linked list of Fonts objects */
+    obj_type_outline = 3,       /* index of linked list of outline objects */
+    obj_type_dest = 4,          /* index of linked list of destination objects */
+    obj_type_obj = 5,           /* index of linked list of raw objects */
+    obj_type_xform = 6,         /* index of linked list of XObject forms */
+    obj_type_ximage = 7,        /* index of linked list of XObject image */
+    obj_type_thread = 8,        /* index of linked list of num article threads */
+    /* |obj_type_thead| is the highest entry in |head_tab|, but there are a few
+       more linked lists that are handy: */
+    obj_type_link = 9,          /* index of linked list of link objects */
+    obj_type_bead = 10,         /* index of linked list of thread bead objects */
+    obj_type_annot = 11,        /* index of linked list of annotation objects */
+} pdf_obj_type;
+
 typedef struct pdf_output_file_ {
     FILE *file;                 /* the PDF output file handle */
     char *file_name;            /* the PDF output file name */
@@ -186,8 +204,17 @@ typedef struct pdf_output_file_ {
     int seek_write_length;      /* flag whether to seek back and write \.{/Length} */
     int last_byte;              /* byte most recently written to PDF file; for \.{endstream} in new line */
 
+    integer obj_count;
+    integer xform_count;
+    integer ximage_count;
     pdf_object_list *font_list; /* the pdf fonts */
-
+    pdf_object_list *obj_list;  /* the pdf raw objects */
+    pdf_object_list *xform_list;        /* the pdf forms */
+    pdf_object_list *ximage_list;       /* the pdf images */
+    pdf_object_list *dest_list; /* the pdf destinations */
+    pdf_object_list *link_list; /* the pdf links */
+    pdf_object_list *annot_list;        /* the pdf annotations */
+    pdf_object_list *bead_list; /* the thread beads */
 
 } pdf_output_file;
 

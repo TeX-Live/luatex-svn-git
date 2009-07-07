@@ -377,7 +377,8 @@ void pdf_hlist_out(PDF pdf)
                     break;
                 case pdf_refobj_node:
                     if (!is_obj_scheduled(pdf, pdf_obj_objnum(p))) {
-                        pdf_append_list(pdf_obj_objnum(p), pdf_obj_list);
+                        append_object_list(pdf, obj_type_obj,
+                                           pdf_obj_objnum(p));
                         set_obj_scheduled(pdf, pdf_obj_objnum(p));
                     }
                     break;
@@ -920,7 +921,8 @@ void pdf_vlist_out(PDF pdf)
                     break;
                 case pdf_refobj_node:
                     if (!is_obj_scheduled(pdf, pdf_obj_objnum(p))) {
-                        pdf_append_list(pdf_obj_objnum(p), pdf_obj_list);
+                        append_object_list(pdf, obj_type_obj,
+                                           pdf_obj_objnum(p));
                         set_obj_scheduled(pdf, pdf_obj_objnum(p));
                     }
                     break;

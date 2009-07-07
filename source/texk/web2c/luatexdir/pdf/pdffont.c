@@ -250,7 +250,7 @@ void pdf_init_font(PDF pdf, internal_font_number f)
 /* set the actual font on PDF page */
 internal_font_number pdf_set_font(PDF pdf, internal_font_number f)
 {
-    pdf_object_list *p, *q;
+    pdf_object_list *p;
     internal_font_number k;
     integer ff;                 /* for use with |set_ff| */
 
@@ -260,26 +260,15 @@ internal_font_number pdf_set_font(PDF pdf, internal_font_number f)
                                    with |f|; |ff| is either |f| or some font with the same tfm name
                                    at different size and/or expansion */
     k = ff;
-    if (pdf->font_list == NULL) {
-        /* |font_list| is empty, append |f| */
-        pdf->font_list = xmalloc(sizeof(pdf_object_list));
-        pdf->font_list->link = NULL;
-        pdf->font_list->info = f;
-        return k;
-    }
     p = pdf->font_list;
     while (p != NULL) {
         set_ff(p->info);
         if (ff == k)
             return k;
-        q = p;
         p = p->link;
     }
     /* |f| not found in |font_list|, append it now */
-    p = xmalloc(sizeof(pdf_object_list));
-    q->link = p;
-    p->link = NULL;
-    p->info = f;
+    append_object_list(pdf, obj_type_font, f);
     return k;
 }
 

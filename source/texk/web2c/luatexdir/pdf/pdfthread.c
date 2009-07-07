@@ -35,7 +35,6 @@ static scaled_whd pdf_thread = { 0, 0, 0 };
 static halfword pdf_last_thread_id = 0; /* identifier of the last thread */
 static boolean pdf_last_thread_named_id = false;        /* is identifier of the last thread named */
 static integer pdf_thread_level = 0;    /* depth of nesting of box containing the last thread */
-static halfword pdf_bead_list = 0;      /* list of thread beads in the current page */
 
 /* Threads are handled in similar way as link annotations */
 
@@ -65,7 +64,7 @@ void append_bead(PDF pdf, halfword p)
         set_obj_bead_prev(pdf, a, b);
         set_obj_bead_next(pdf, c, b);
     }
-    pdf_append_list(b, pdf_bead_list);
+    append_object_list(pdf, obj_type_bead, b);
 }
 
 void do_thread(PDF pdf, halfword parent_box, halfword p, scaledpos cur_orig)
@@ -262,22 +261,22 @@ void check_running_thread(PDF pdf, halfword this_box, scaledpos cur)
         append_thread(pdf, this_box, cur_orig);
 }
 
-void reset_thread_lists(void)
+void reset_thread_lists(PDF pdf)
 {
-    pdf_bead_list = null;
+    pdf->bead_list = NULL;
     last_thread = null;
 }
 
 void print_beads_list(PDF pdf)
 {
-    halfword k;
-    if (pdf_bead_list != null) {
-        k = pdf_bead_list;
+    pdf_object_list *k;
+    if (pdf->bead_list != NULL) {
+        k = pdf->bead_list;
         pdf_printf(pdf, "/B [ ");
-        while (k != null) {
-            pdf_print_int(pdf, token_info(k));
+        while (k != NULL) {
+            pdf_print_int(pdf, k->info);
             pdf_printf(pdf, " 0 R ");
-            k = token_link(k);
+            k = k->link;
         }
         pdf_printf(pdf, "]\n");
     }
@@ -285,25 +284,21 @@ void print_beads_list(PDF pdf)
 
 void print_bead_rectangles(PDF pdf)
 {
-    halfword i, k;
-    if (pdf_bead_list != null) {
-        k = pdf_bead_list;
-        while (k != null) {
+    halfword i;
+    pdf_object_list *k;
+    if (pdf->bead_list != NULL) {
+        k = pdf->bead_list;
+        while (k != NULL) {
             pdf_new_obj(pdf, obj_type_others, 0, 1);
             pdf_out(pdf, '[');
-            i = obj_bead_data(pdf, token_info(k));      /* pointer to a whatsit or whatsit-like node */
+            i = obj_bead_data(pdf, k->info);    /* pointer to a whatsit or whatsit-like node */
             pdf_print_rect_spec(pdf, i);
             if (subtype(i) == pdf_thread_data_node)     /* thanh says it mis be destroyed here */
                 flush_node(i);
             pdf_printf(pdf, "]\n");
-            set_obj_bead_rect(pdf, token_info(k), pdf->obj_ptr);        /* rewrite |obj_bead_data| */
+            set_obj_bead_rect(pdf, k->info, pdf->obj_ptr);      /* rewrite |obj_bead_data| */
             pdf_end_obj(pdf);
-            k = token_link(k);
+            k = k->link;
         }
     }
-}
-
-void flush_beads_list(void)
-{
-    flush_list(pdf_bead_list);
 }

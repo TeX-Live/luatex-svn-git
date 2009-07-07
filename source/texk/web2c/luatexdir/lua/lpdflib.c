@@ -130,8 +130,8 @@ static int l_immediateobj(lua_State * L)
         k = lua_tonumber(L, 1);
         n--;
     } else {
-        incr(pdf_obj_count);
-        pdf_create_obj(static_pdf, obj_type_obj, pdf_obj_count);
+        incr(static_pdf->obj_count);
+        pdf_create_obj(static_pdf, obj_type_obj, static_pdf->obj_count);
         pdf_last_obj = k = static_pdf->obj_ptr;
     }
     switch (n) {
@@ -210,8 +210,8 @@ static int l_obj(lua_State * L)
         k = lua_tonumber(L, 1);
         n--;
     } else {
-        incr(pdf_obj_count);
-        pdf_create_obj(static_pdf, obj_type_obj, pdf_obj_count);
+        incr(static_pdf->obj_count);
+        pdf_create_obj(static_pdf, obj_type_obj, static_pdf->obj_count);
         pdf_last_obj = k = static_pdf->obj_ptr;
     }
     set_obj_data_ptr(static_pdf, k, pdf_get_mem(static_pdf, pdfmem_obj_size));
@@ -270,8 +270,8 @@ static int l_reserveobj(lua_State * L)
     n = lua_gettop(L);
     switch (n) {
     case 0:
-        incr(pdf_obj_count);
-        pdf_create_obj(static_pdf, obj_type_obj, pdf_obj_count);
+        incr(static_pdf->obj_count);
+        pdf_create_obj(static_pdf, obj_type_obj, static_pdf->obj_count);
         pdf_last_obj = static_pdf->obj_ptr;
         break;
     case 1:

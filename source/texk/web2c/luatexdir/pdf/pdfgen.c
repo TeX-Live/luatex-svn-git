@@ -592,16 +592,102 @@ void pdf_print_mag_bp(PDF pdf, scaled s)
     print_pdffloat(pdf, a);
 }
 
-void flush_object_list(pdf_object_list * pp)
+#define set_p_or_return(a) do {                 \
+        p = a;                                  \
+        if (p==NULL) {                          \
+            a = item;                           \
+            return;                             \
+        }                                       \
+    } while (0)
+
+
+void append_object_list(PDF pdf, pdf_obj_type t, integer f)
+{
+    pdf_object_list *p;
+    pdf_object_list *item = xmalloc(sizeof(pdf_object_list));
+    item->link = NULL;
+    item->info = f;
+    switch (t) {
+    /* *INDENT-OFF* */
+    case obj_type_obj:    set_p_or_return(pdf->obj_list);    break;
+    case obj_type_font:   set_p_or_return(pdf->font_list);   break;
+    case obj_type_xform:  set_p_or_return(pdf->xform_list);  break;
+    case obj_type_ximage: set_p_or_return(pdf->ximage_list); break;
+    case obj_type_dest:   set_p_or_return(pdf->dest_list);   break;
+    case obj_type_link:   set_p_or_return(pdf->link_list);   break;
+    case obj_type_annot:  set_p_or_return(pdf->annot_list);  break;
+    case obj_type_bead:   set_p_or_return(pdf->bead_list);   break;
+    default:              assert(0);                         break;
+    /* *INDENT-ON* */
+    }
+    while (p->link != NULL)
+        p = p->link;
+    p->link = item;
+    return;
+}
+
+
+void flush_object_list(PDF pdf, pdf_obj_type t)
 {
     pdf_object_list *q, *p;
-    p = pp;
+    switch (t) {
+    /* *INDENT-OFF* */
+    case obj_type_obj:    p = pdf->obj_list; break;
+    case obj_type_font:   p = pdf->font_list; break;
+    case obj_type_xform:  p = pdf->xform_list; break;
+    case obj_type_ximage: p = pdf->ximage_list; break;
+    case obj_type_dest:   p = pdf->dest_list; break;
+    case obj_type_link:   p = pdf->link_list; break;
+    case obj_type_annot:  p = pdf->annot_list; break;
+    case obj_type_bead:   p = pdf->bead_list; break;
+    default:              return;  break;
+    /* *INDENT-ON* */
+    }
     while (p != NULL) {
         q = p;
         p = p->link;
         free(q);
     }
+    switch (t) {
+    /* *INDENT-OFF* */
+    case obj_type_obj:    pdf->obj_list = NULL; break;
+    case obj_type_font:   pdf->font_list = NULL; break;
+    case obj_type_xform:  pdf->xform_list = NULL; break;
+    case obj_type_ximage: pdf->ximage_list = NULL; break;
+    case obj_type_dest:   pdf->dest_list = NULL; break;
+    case obj_type_link:   pdf->link_list = NULL; break;
+    case obj_type_annot:  pdf->annot_list = NULL; break;
+    case obj_type_bead:   pdf->bead_list = NULL; break;
+    default:              break; /* cant happen */ 
+    /* *INDENT-ON* */
+    }
 }
+
+/* return zero on failure, or the object  */
+pdf_object_list *lookup_object_list(PDF pdf, pdf_obj_type t, integer f)
+{
+    pdf_object_list *p;
+    switch (t) {
+    /* *INDENT-OFF* */
+    case obj_type_obj:    p = pdf->obj_list; break;
+    case obj_type_font:   p = pdf->font_list; break;
+    case obj_type_xform:  p = pdf->xform_list; break;
+    case obj_type_ximage: p = pdf->ximage_list; break;
+    case obj_type_dest:   p = pdf->dest_list; break;
+    case obj_type_link:   p = pdf->link_list; break;
+    case obj_type_annot:  p = pdf->annot_list; break;
+    case obj_type_bead:   p = pdf->bead_list; break;
+    default:              return NULL;  break;  /* shouldnt happen */ 
+    /* *INDENT-ON* */
+    }
+    while (p != NULL) {
+        if (p->info == f)
+            return p;
+        p = p->link;
+    }
+    return NULL;
+}
+
 
 /* Subroutines to print out various PDF objects */
 

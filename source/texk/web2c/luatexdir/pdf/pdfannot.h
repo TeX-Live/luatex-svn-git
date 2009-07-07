@@ -29,8 +29,6 @@
 #  define set_pdf_annot_objnum(A,B) pdf_annot_objnum(A)=B
 #  define set_pdf_annot_data(A,B) pdf_annot_data(A)=B
 
-extern halfword pdf_annot_list; /* list of annotations in the current page */
-
 extern void do_annot(PDF pdf, halfword p, halfword parent_box,
                      scaledpos cur_orig);
 extern void new_annot_whatsit(small_number w);

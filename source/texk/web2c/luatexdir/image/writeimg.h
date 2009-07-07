@@ -46,7 +46,6 @@ void new_img_pdfstream_struct(image_dict *);
 void pdf_print_resname_prefix(void);
 void read_img(PDF, image_dict *, integer, integer);
 scaled_whd scan_alt_rule(void);
-void scan_image(PDF pdf);
 void scale_img(image *);
 #  define scale_image(a)        scale_img(img_array[a])
 void set_image_dimensions(integer, scaled_whd);

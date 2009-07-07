@@ -25,8 +25,6 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
-halfword pdf_annot_list;        /* list of annotations in the current page */
-
 void do_annot(PDF pdf, halfword p, halfword parent_box, scaledpos cur_orig)
 {
     scaled_whd alt_rule;
@@ -41,7 +39,7 @@ void do_annot(PDF pdf, halfword p, halfword parent_box, scaledpos cur_orig)
     alt_rule.dp = pdf_depth(p);
     set_rect_dimens(p, parent_box, cur_orig, alt_rule, 0);
     obj_annot_ptr(pdf, pdf_annot_objnum(p)) = p;
-    pdf_append_list(pdf_annot_objnum(p), pdf_annot_list);
+    append_object_list(pdf, obj_type_annot, pdf_annot_objnum(p));
     set_obj_scheduled(pdf, pdf_annot_objnum(p));
 }
 

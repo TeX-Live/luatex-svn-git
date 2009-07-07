@@ -25,10 +25,7 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
-halfword pdf_obj_list;          /* list of objects in the current page */
-integer pdf_obj_count;          /* counter of objects */
 integer pdf_last_obj;
-
 
 void pdf_check_obj(PDF pdf, integer t, integer n)
 {
@@ -148,8 +145,8 @@ void scan_obj(PDF pdf)
         get_x_token();
         if (cur_cmd != spacer_cmd)
             back_input();
-        incr(pdf_obj_count);
-        pdf_create_obj(pdf, obj_type_obj, pdf_obj_count);
+        incr(pdf->obj_count);
+        pdf_create_obj(pdf, obj_type_obj, pdf->obj_count);
         pdf_last_obj = pdf->obj_ptr;
     } else {
         k = -1;
@@ -164,8 +161,8 @@ void scan_obj(PDF pdf)
             }
         }
         if (k < 0) {
-            incr(pdf_obj_count);
-            pdf_create_obj(pdf, obj_type_obj, pdf_obj_count);
+            incr(pdf->obj_count);
+            pdf_create_obj(pdf, obj_type_obj, pdf->obj_count);
             k = pdf->obj_ptr;
         }
         set_obj_data_ptr(pdf, k, pdf_get_mem(pdf, pdfmem_obj_size));

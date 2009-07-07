@@ -72,19 +72,6 @@ well.
 #  define is_obj_scheduled(pdf,A)  (intcast(obj_offset(pdf,A))>-2)
 #  define is_obj_written(pdf,A)    (intcast(obj_offset(pdf,A))>-1)
 
-/* types of objects */
-typedef enum {
-    obj_type_others = 0,        /* objects which are not linked in any list */
-    obj_type_page = 1,          /* index of linked list of Page objects */
-    obj_type_font = 2,          /* index of linked list of Fonts objects */
-    obj_type_outline = 3,       /* index of linked list of outline objects */
-    obj_type_dest = 4,          /* index of linked list of destination objects */
-    obj_type_obj = 5,           /* index of linked list of raw objects */
-    obj_type_xform = 6,         /* index of linked list of XObject forms */
-    obj_type_ximage = 7,        /* index of linked list of XObject image */
-    obj_type_thread = 8         /* index of linked list of num article threads */
-} pdf_obj_types;
-
 #  define head_tab_max obj_type_thread  /* max index of |head_tab| */
 
 /*  NOTE: The data structure definitions for the nodes on the typesetting side are 
@@ -105,14 +92,6 @@ extern void pdf_create_obj(PDF pdf, integer t, integer i);
 extern integer find_obj(PDF pdf, integer t, integer i, boolean byname);
 extern integer get_obj(PDF pdf, integer t, integer i, boolean byname);
 extern integer pdf_new_objnum(PDF pdf);
-
-#  define pdf_append_list(A,B) do {             \
-        if (B==0) B=append_ptr(B,A);            \
-        else      (void)append_ptr(B,A);        \
-    } while (0)
-
-extern halfword append_ptr(halfword p, integer i);
-extern halfword pdf_lookup_list(halfword p, integer i);
 
 extern void set_rect_dimens(halfword p, halfword parent_box, scaledpos cur_orig,
                             scaled_whd alt_rule, scaled margin);

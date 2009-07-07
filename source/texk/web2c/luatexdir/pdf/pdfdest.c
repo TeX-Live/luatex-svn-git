@@ -27,7 +27,6 @@ static const char __svn_version[] =
 
 #define pdf_dest_margin          dimen_par(param_pdf_dest_margin_code)
 
-halfword pdf_dest_list;         /* list of destinations in the current page */
 integer pdf_dest_names_ptr;     /* first unused position in |dest_names| */
 dest_name_entry *dest_names;
 
@@ -102,7 +101,7 @@ void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur_orig)
         return;
     }
     obj_dest_ptr(pdf, k) = p;
-    pdf_append_list(k, pdf_dest_list);
+    append_object_list(pdf, obj_type_dest, k);
     alt_rule.wd = pdf_width(p);
     alt_rule.ht = pdf_height(p);
     alt_rule.dp = pdf_depth(p);
@@ -139,21 +138,21 @@ void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur_orig)
 
 void write_out_pdf_mark_destinations(PDF pdf)
 {
-    halfword k;
-    if (pdf_dest_list != null) {
-        k = pdf_dest_list;
-        while (k != null) {
-            if (is_obj_written(pdf, token_info(k))) {
+    pdf_object_list *k;
+    if (pdf->dest_list != NULL) {
+        k = pdf->dest_list;
+        while (k != NULL) {
+            if (is_obj_written(pdf, k->info)) {
                 pdf_error("ext5",
                           "destination has been already written (this shouldn't happen)");
             } else {
                 integer i;
-                i = obj_dest_ptr(pdf, token_info(k));
+                i = obj_dest_ptr(pdf, k->info);
                 if (pdf_dest_named_id(i) > 0) {
-                    pdf_begin_dict(pdf, token_info(k), 1);
+                    pdf_begin_dict(pdf, k->info, 1);
                     pdf_printf(pdf, "/D ");
                 } else {
-                    pdf_begin_obj(pdf, token_info(k), 1);
+                    pdf_begin_obj(pdf, k->info, 1);
                 }
                 pdf_out(pdf, '[');
                 pdf_print_int(pdf, pdf->last_page);
@@ -209,7 +208,7 @@ void write_out_pdf_mark_destinations(PDF pdf)
                 else
                     pdf_end_obj(pdf);
             }
-            k = token_link(k);
+            k = k->link;
         }
     }
 }
@@ -292,16 +291,6 @@ void scan_pdfdest(PDF pdf)
         cur_list.tail_field = q;
         vlink(q) = null;
     }
-}
-
-void reset_dest_list(void)
-{
-    pdf_dest_list = null;
-}
-
-void flush_dest_list(void)
-{
-    flush_list(pdf_dest_list);
 }
 
 void sort_dest_names(integer l, integer r)

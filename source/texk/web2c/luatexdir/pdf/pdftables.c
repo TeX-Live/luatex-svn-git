@@ -222,35 +222,6 @@ integer pdf_new_objnum(PDF pdf)
     return pdf->obj_ptr;
 }
 
-/* TODO: it is fairly horrible that this uses token memory */
-
-/* appends a pointer with info |i| to the end of linked list with head |p| */
-halfword append_ptr(halfword p, integer i)
-{
-    halfword q;
-    q = get_avail();
-    token_link(q) = 0;          /* link */
-    token_info(q) = i;          /* info */
-    if (p == 0) {
-        return q;
-    }
-    while (token_link(p) != 0)
-        p = token_link(p);
-    token_link(p) = q;
-    return p;
-}
-
-/* looks up for pointer with info |i| in list |p| */
-halfword pdf_lookup_list(halfword p, integer i)
-{
-    while (p != null) {
-        if (token_info(p) == i)
-            return p;
-        p = token_link(p);
-    }
-    return null;
-}
-
 void set_rect_dimens(halfword p, halfword parent_box, scaledpos cur_orig,
                      scaled_whd alt_rule, scaled margin)
 {
@@ -421,6 +392,7 @@ possible to, say, load an image in the \.{INITEX} run and then reference it in a
 void dump_pdftex_data(PDF pdf)
 {
     integer k, x;
+    pdf_object_list *l;
     dumpimagemeta();            /* the image information array */
     dump_int(pdf->mem_size);
     dump_int(pdf->mem_ptr);
@@ -450,9 +422,34 @@ void dump_pdftex_data(PDF pdf)
     print_ln();
     print_int(pdf->sys_obj_ptr);
     tprint(" indirect objects");
-    dump_int(pdf_obj_count);
-    dump_int(pdf_xform_count);
-    dump_int(pdf_ximage_count);
+    dump_int(pdf->obj_count);
+    dump_int(pdf->xform_count);
+    dump_int(pdf->ximage_count);
+    if (pdf->obj_list != NULL) {
+        l = pdf->obj_list;
+        while (l != NULL) {
+            dump_int(l->info);
+            l = l->link;
+        }
+    }
+    dump_int(0);                /* signal end of obj_list */
+    if (pdf->xform_list != NULL) {
+        l = pdf->xform_list;
+        while (l != NULL) {
+            dump_int(l->info);
+            l = l->link;
+        }
+    }
+    dump_int(0);                /* signal end of xform_list */
+    if (pdf->ximage_list != NULL) {
+        l = pdf->ximage_list;
+        while (l != NULL) {
+            dump_int(l->info);
+            l = l->link;
+        }
+    }
+    dump_int(0);                /* signal end of ximage_list */
+
     x = pdf->head_tab[obj_type_obj];
     dump_int(x);
     x = pdf->head_tab[obj_type_xform];
@@ -473,6 +470,7 @@ already in an earlier module.
 void undump_pdftex_data(PDF pdf)
 {
     integer k, x;
+    pdf_object_list *l;
     undumpimagemeta(pdf, pdf_minor_version, pdf_inclusion_errorlevel);  /* the image information array */
     undump_int(pdf->mem_size);
     pdf->mem = xreallocarray(pdf->mem, int, pdf->mem_size);
@@ -498,9 +496,31 @@ void undump_pdftex_data(PDF pdf)
         undump_int(x);
         obj_aux(pdf, k) = x;
     }
-    undump_int(pdf_obj_count);
-    undump_int(pdf_xform_count);
-    undump_int(pdf_ximage_count);
+
+    undump_int(x);
+    pdf->obj_count = x;
+    undump_int(x);
+    pdf->xform_count = x;
+    undump_int(x);
+    pdf->ximage_count = x;
+
+    /* todo : the next 3 loops can be done much more efficiently */
+    undump_int(x);
+    while (x != 0) {
+        append_object_list(pdf, obj_type_obj, x);
+        undump_int(x);
+    }
+    undump_int(x);
+    while (x != 0) {
+        append_object_list(pdf, obj_type_xform, x);
+        undump_int(x);
+    }
+    undump_int(x);
+    while (x != 0) {
+        append_object_list(pdf, obj_type_ximage, x);
+        undump_int(x);
+    }
+
     undump_int(x);
     pdf->head_tab[obj_type_obj] = x;
     undump_int(x);

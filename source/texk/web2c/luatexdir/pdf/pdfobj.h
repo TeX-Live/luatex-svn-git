@@ -41,8 +41,6 @@
 #  define set_obj_obj_is_file(pdf,A,B) obj_obj_is_file(pdf,A)=B
 #  define set_obj_obj_data(pdf,A,B) obj_obj_data(pdf,A)=B
 
-extern halfword pdf_obj_list;   /* list of objects in the current page */
-extern integer pdf_obj_count;   /* counter of objects */
 extern integer pdf_last_obj;
 
 extern void pdf_check_obj(PDF pdf, integer t, integer n);

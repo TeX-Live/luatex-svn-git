@@ -147,6 +147,13 @@ extern void pdf_remove_last_space(PDF);
 extern void pdf_print_bp(PDF, scaled);
 extern void pdf_print_mag_bp(PDF, scaled);
 
+
+/* This is for the resource lists */
+
+extern void append_object_list(PDF pdf, pdf_obj_type t, integer f);
+extern void flush_object_list(PDF pdf, pdf_obj_type t);
+extern pdf_object_list *lookup_object_list(PDF pdf, pdf_obj_type t, integer f);
+
 #  define set_ff(A)  do {                         \
         if (pdf_font_num(A) < 0)                \
             ff = -pdf_font_num(A);              \
@@ -194,8 +201,6 @@ extern void print_mod_date(PDF);
 extern void print_ID(PDF, char *);
 
 extern void remove_pdffile(PDF);
-
-extern void flush_object_list(pdf_object_list * pp);
 
 extern integer fb_offset(PDF);
 extern void fb_flush(PDF);

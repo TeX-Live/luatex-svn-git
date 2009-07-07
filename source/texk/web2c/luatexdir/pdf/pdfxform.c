@@ -26,8 +26,6 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
-halfword pdf_xform_list;        /* list of forms in the current page */
-integer pdf_xform_count;        /* counter of forms */
 integer pdf_cur_form;           /* the form being output */
 
 void pdf_place_form(PDF pdf, integer objnum)
@@ -38,8 +36,8 @@ void pdf_place_form(PDF pdf, integer objnum)
     pdf_printf(pdf, "/Fm%d", (int) obj_info(pdf, objnum));
     pdf_print_resname_prefix(pdf);
     pdf_printf(pdf, " Do\nQ\n");
-    if (pdf_lookup_list(pdf_xform_list, objnum) == null)
-        pdf_append_list(objnum, pdf_xform_list);
+    if (lookup_object_list(pdf, obj_type_xform, objnum) == NULL)
+        append_object_list(pdf, obj_type_xform, objnum);
 }
 
 /* todo: the trick with |box_base| is a cludge */
@@ -47,8 +45,8 @@ void scan_pdfxform(PDF pdf, integer box_base)
 {
     integer k;
     halfword p;
-    incr(pdf_xform_count);
-    pdf_create_obj(pdf, obj_type_xform, pdf_xform_count);
+    incr(pdf->xform_count);
+    pdf_create_obj(pdf, obj_type_xform, pdf->xform_count);
     k = pdf->obj_ptr;
     set_obj_data_ptr(pdf, k, pdf_get_mem(pdf, pdfmem_xform_size));
     if (scan_keyword("attr")) {
