@@ -79,3 +79,66 @@ halfword do_pop_dir_node(halfword p)
     flush_node(p);
     return n;
 }
+
+integer dvi_direction;
+int dir_primary[32];
+int dir_secondary[32];
+int dir_tertiary[32];
+int dir_rearrange[4];
+str_number dir_names[4];
+halfword text_dir_ptr;
+halfword text_dir_tmp;
+
+void initialize_directions(void)
+{
+    int k;
+    pack_direction = -1;
+    for (k = 0; k <= 7; k++) {
+        dir_primary[k] = dir_T;
+        dir_primary[k + 8] = dir_L;
+        dir_primary[k + 16] = dir_B;
+        dir_primary[k + 24] = dir_R;
+    }
+    for (k = 0; k <= 3; k++) {
+        dir_secondary[k] = dir_L;
+        dir_secondary[k + 4] = dir_R;
+        dir_secondary[k + 8] = dir_T;
+        dir_secondary[k + 12] = dir_B;
+
+        dir_secondary[k + 16] = dir_L;
+        dir_secondary[k + 20] = dir_R;
+        dir_secondary[k + 24] = dir_T;
+        dir_secondary[k + 28] = dir_B;
+    }
+    for (k = 0; k <= 7; k++) {
+        dir_tertiary[k * 4] = dir_T;
+        dir_tertiary[k * 4 + 1] = dir_L;
+        dir_tertiary[k * 4 + 2] = dir_B;
+        dir_tertiary[k * 4 + 3] = dir_R;
+    }
+    dir_rearrange[0] = 0;
+    dir_rearrange[1] = 0;
+    dir_rearrange[2] = 1;
+    dir_rearrange[3] = 1;
+    dir_names[0] = 'T';
+    dir_names[1] = 'L';
+    dir_names[2] = 'B';
+    dir_names[3] = 'R';
+}
+
+halfword new_dir(int s)
+{
+    halfword p;                 /* the new node */
+    p = new_node(whatsit_node, dir_node);
+    dir_dir(p) = s;
+    dir_dvi_ptr(p) = -1;
+    dir_level(p) = cur_level;
+    return p;
+}
+
+void print_dir(int d)
+{
+    print_char(dir_names[dir_primary[d]]);
+    print_char(dir_names[dir_secondary[d]]);
+    print_char(dir_names[dir_tertiary[d]]);
+}

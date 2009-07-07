@@ -1927,3 +1927,16 @@
 @define function scan_rule_spec;
 @define function scan_toks();
 
+{ directions }
+
+@define function is_mirrored();
+@define function is_rotated();
+@define function new_dir();
+@define procedure initialize_directions;
+@define procedure pop_dir_node;
+@define procedure push_dir_node();
+@define procedure push_dir();
+
+@define var text_dir_ptr;
+@define var text_dir_tmp;
+

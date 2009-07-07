@@ -69,17 +69,14 @@
 
 #  define push_dir(a)                           \
   { dir_tmp=new_dir((a));                       \
-    vlink(dir_tmp)=dir_ptr; dir_ptr=dir_tmp;    \
+    vlink(dir_tmp)=dir_ptr;			\
     dir_ptr=dir_tmp;                            \
   }
 
 #  define push_dir_node(a)                      \
-  { dir_tmp=new_node(whatsit_node,dir_node);    \
-    dir_dir(dir_tmp)=dir_dir((a));              \
-    dir_level(dir_tmp)=dir_level((a));          \
-    dir_dvi_h(dir_tmp)=dir_dvi_h((a));          \
-    dir_dvi_ptr(dir_tmp)=dir_dvi_ptr((a));      \
-    vlink(dir_tmp)=dir_ptr; dir_ptr=dir_tmp;    \
+   { dir_tmp=copy_node((a));			\
+     vlink(dir_tmp)=dir_ptr;			\
+     dir_ptr=dir_tmp;				\
   }
 
 #  define pop_dir_node()                        \
@@ -87,6 +84,19 @@
     dir_ptr=vlink(dir_tmp);                     \
     flush_node(dir_tmp);                        \
   }
+
+extern integer dvi_direction;
+extern int dir_primary[32];
+extern int dir_secondary[32];
+extern int dir_tertiary[32];
+extern int dir_rearrange[4];
+extern str_number dir_names[4];
+extern halfword text_dir_ptr;
+extern halfword text_dir_tmp;
+
+extern void initialize_directions(void);
+extern halfword new_dir(int s);
+extern void print_dir(int d);
 
 extern void scan_direction(void);
 

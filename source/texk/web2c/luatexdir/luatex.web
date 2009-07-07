@@ -1628,12 +1628,6 @@ begin if is_running(d) then print_char("*") else print_scaled(d);
 @.*\relax@>
 end;
 @#
-procedure print_dir(d:integer);
-begin
-print(dir_names[dir_primary[d]]);
-print(dir_names[dir_secondary[d]]);
-print(dir_names[dir_tertiary[d]]);
-end;
 
 
 @ We also need to declare some procedures that appear later in this
@@ -2011,8 +2005,6 @@ initialize_nesting;
 @<Start a new current page@>;
 
 @ @p @<LOCAL: Declare |make_local_par_node|@>;
-
-@ @p @<DIR: Declare |new_dir|@>;
 
 @* \[17] The table of equivalents.
 Now that we have studied the data structures for \TeX's semantic routines,
@@ -4311,59 +4303,6 @@ primitive_pdftex("pdflastlink",last_item,pdf_last_link_code,0);@/
 that were present at the moment when output was triggered.
 
 @d max_dimen==@'7777777777 {$2^{30}-1$}
-
-@ Our next goal is to write the |scan_int| procedure, which scans anything that
-\TeX\ treats as an integer. But first we might as well look at some simple
-applications of |scan_int| that have already been made inside of
-|scan_something_internal|.
-
-@
-@d dir_T=0
-@d dir_L=1
-@d dir_B=2
-@d dir_R=3
-@d dir_eq_end(#)==(#)
-@d dir_eq(#)==(#)=dir_eq_end
-@d dir_opposite_end(#)==((#) mod 4)
-@d dir_opposite(#)==(((#)+2) mod 4)=dir_opposite_end
-@d dir_parallel_end(#)==((#) mod 2)
-@d dir_parallel(#)==((#) mod 2)=dir_parallel_end
-@d dir_orthogonal_end(#)==(# mod 2)
-@d dir_orthogonal(#)==((#) mod 2)<>dir_orthogonal_end
-
-{box directions}
-@d dir_TL_=0
-@d dir_TR_=1
-@d dir_LT_=2
-@d dir_LB_=3
-@d dir_BL_=4
-@d dir_BR_=5
-@d dir_RT_=6
-@d dir_RB_=7
-
-{font directions}
-@d dir__LT= 0
-@d dir__LL= 1
-@d dir__LB= 2
-@d dir__LR= 3
-@d dir__RT= 4
-@d dir__RL= 5
-@d dir__RB= 6
-@d dir__RR= 7
-@d dir__TT= 8
-@d dir__TL= 9
-@d dir__TB=10
-@d dir__TR=11
-@d dir__BT=12
-@d dir__BL=13
-@d dir__BB=14
-@d dir__BR=15
-
-@d is_mirrored(#)==(dir_opposite(dir_primary[#])(dir_tertiary[#]))
-@d is_rotated(#)==(dir_parallel(dir_secondary[#])(dir_tertiary[#]))
-@d font_direction(#)==(# mod 16)
-@d box_direction(#)==(# div 4)
-
 
 @* \[27] Building token lists.
 The token lists for macros and for other things like \.{\\mark} and \.{\\output}
@@ -10419,50 +10358,10 @@ and both of these variables are always |false|.
 @!neg_wd:scaled;
 @!pos_wd:scaled;
 @!neg_ht:scaled;
-@!dvi_direction:integer;
-@!dir_primary:array[0..31] of 0..31;
-@!dir_secondary:array[0..31] of 0..31;
-@!dir_tertiary:array[0..31] of 0..31;
-@!dir_rearrange:array[0..3] of 0..31;
-@!dir_names:array[0..3] of str_number;
-@!text_dir_ptr:pointer;
-@!text_dir_tmp:pointer;
 
-@
-@<Set init...@>=
+@ @<Set init...@>=
 for k:=0 to 17 do write_open[k]:=false;
-pack_direction:=-1;
-for k:= 0 to 7 do begin
-  dir_primary  [k   ]:=dir_T;
-  dir_primary  [k+ 8]:=dir_L;
-  dir_primary  [k+16]:=dir_B;
-  dir_primary  [k+24]:=dir_R;
-  end;
-for k:= 0 to 3 do begin
-  dir_secondary[k   ]:=dir_L;
-  dir_secondary[k+ 4]:=dir_R;
-  dir_secondary[k+ 8]:=dir_T;
-  dir_secondary[k+12]:=dir_B;
-
-  dir_secondary[k+16]:=dir_L;
-  dir_secondary[k+20]:=dir_R;
-  dir_secondary[k+24]:=dir_T;
-  dir_secondary[k+28]:=dir_B;
-  end;
-for k:=0 to 7 do begin
-  dir_tertiary[k*4  ]:=dir_T;
-  dir_tertiary[k*4+1]:=dir_L;
-  dir_tertiary[k*4+2]:=dir_B;
-  dir_tertiary[k*4+3]:=dir_R;
-  end;
-dir_rearrange[0]:=0;
-dir_rearrange[1]:=0;
-dir_rearrange[2]:=1;
-dir_rearrange[3]:=1;
-dir_names[0]:="T";
-dir_names[1]:="L";
-dir_names[2]:="B";
-dir_names[3]:="R";
+initialize_directions;
 
 @ Extensions might introduce new command codes; but it's best to use
 |extension| with a modifier, whenever possible, so that |main_control|
@@ -11330,33 +11229,6 @@ dir_base+math_direction_code: begin scan_direction;
   eq_word_define(dir_base+math_direction_code,cur_val);
   end;
 end;
-
-@
-@d push_dir(#)==
-begin dir_tmp:=new_dir(#);
-vlink(dir_tmp):=dir_ptr;
-dir_ptr:=dir_tmp;
-end
-
-@d push_dir_node(#)==
-begin dir_tmp:=copy_node(#);
-vlink(dir_tmp):=dir_ptr;
-dir_ptr:=dir_tmp;
-end
-
-@d pop_dir_node==
-begin dir_tmp:=dir_ptr;
-dir_ptr:=vlink(dir_tmp);
-flush_node(dir_tmp);
-end
-
-@ @<DIR: Declare |new_dir|@>=
-function new_dir(s:small_number): pointer;
-var p:pointer; {the new node}
-begin p:=new_node(whatsit_node,dir_node);
-dir_dir(p):=s; dir_dvi_ptr(p):=-1;
-dir_level(p):=cur_level; new_dir:=p;
-end
 
 @ @<DIR: Add local dir node@>=
 tail_append(new_dir(text_direction))
