@@ -470,7 +470,6 @@ already in an earlier module.
 void undump_pdftex_data(PDF pdf)
 {
     integer k, x;
-    pdf_object_list *l;
     undumpimagemeta(pdf, pdf_minor_version, pdf_inclusion_errorlevel);  /* the image information array */
     undump_int(pdf->mem_size);
     pdf->mem = xreallocarray(pdf->mem, int, pdf->mem_size);
