@@ -59,6 +59,8 @@ static const char _svn_version[] =
 #define count(A) zeqtb[get_count_base()+(A)].hh.rh
 #define box(A) equiv(get_box_base()+(A))
 
+#define text_direction int_par(param_text_direction_code)
+#define body_direction int_par(param_body_direction_code)
 /*
 Let's turn now to some procedures that \TeX\ calls upon frequently to digest
 certain kinds of patterns in the input. Most of these are quite simple;
@@ -1851,6 +1853,320 @@ void get_font_dimen(void)
     cur_val = font_param(f, n);
   EXIT:
     scanned_result(cur_val, dimen_val_level);
+}
+
+/*
+Here's a similar procedure that returns a pointer to a rule node. This
+routine is called just after \TeX\ has seen \.{\\hrule} or \.{\\vrule};
+therefore |cur_cmd| will be either |hrule| or |vrule|. The idea is to store
+the default rule dimensions in the node, then to override them if
+`\.{height}' or `\.{width}' or `\.{depth}' specifications are
+found (in any order).
+*/
+
+halfword scan_rule_spec(void)
+{
+    halfword q;                 /* the rule node being created */
+    q = new_rule();             /* |width|, |depth|, and |height| all equal |null_flag| now */
+    if (cur_cmd == vrule_cmd) {
+        width(q) = default_rule;
+        rule_dir(q) = body_direction;
+    } else {
+        height(q) = default_rule;
+        depth(q) = 0;
+        rule_dir(q) = text_direction;
+    }
+  RESWITCH:
+    if (scan_keyword("width")) {
+        scan_normal_dimen();
+        width(q) = cur_val;
+        goto RESWITCH;
+    }
+    if (scan_keyword("height")) {
+        scan_normal_dimen();
+        height(q) = cur_val;
+        goto RESWITCH;
+    }
+    if (scan_keyword("depth")) {
+        scan_normal_dimen();
+        depth(q) = cur_val;
+        goto RESWITCH;
+    }
+    return q;
+}
+
+
+/* Declare procedures that scan font-related stuff */
+
+void scan_font_ident(void)
+{
+    internal_font_number f;
+    halfword m;
+    /* Get the next non-blank non-call... */
+    do {
+        get_x_token();
+    } while (cur_cmd == spacer_cmd);
+
+    if ((cur_cmd == def_font_cmd) || (cur_cmd == letterspace_font_cmd)
+        || (cur_cmd == pdf_copy_font_cmd)) {
+        f = get_cur_font();
+    } else if (cur_cmd == set_font_cmd) {
+        f = cur_chr;
+        set_font_touched(f, 1);
+    } else if (cur_cmd == def_family_cmd) {
+        m = cur_chr;
+        scan_math_family_int();
+        f = fam_fnt(cur_val, m);
+        set_font_touched(f, 1);
+    } else {
+        print_err("Missing font identifier");
+        help2("I was looking for a control sequence whose",
+              "current meaning has been defined by \\font.");
+        back_error();
+        f = null_font;
+    }
+    cur_val = f;
+}
+
+/* The |scan_general_text| procedure is much like |scan_toks(false,false)|,
+but will be invoked via |expand|, i.e., recursively. */
+
+/* The token list (balanced text) created by |scan_general_text| begins
+at |link(temp_token_head)| and ends at |cur_val|.  (If |cur_val=temp_token_head|,
+the list is empty.)
+*/
+
+void scan_general_text(void)
+{
+    int s;                      /* to save |scanner_status| */
+    halfword w;                 /* to save |warning_index| */
+    halfword d;                 /* to save |def_ref| */
+    halfword p;                 /* tail of the token list being built */
+    halfword q;                 /* new node being added to the token list via |store_new_token| */
+    halfword unbalance;         /* number of unmatched left braces */
+    s = scanner_status;
+    w = warning_index;
+    d = def_ref;
+    scanner_status = absorbing;
+    warning_index = cur_cs;
+    p = get_avail();
+    def_ref = p;
+    set_token_ref_count(def_ref, 0);
+    p = def_ref;
+    scan_left_brace();          /* remove the compulsory left brace */
+    unbalance = 1;
+    while (1) {
+        get_token();
+        if (cur_tok < right_brace_limit) {
+            if (cur_cmd < right_brace_cmd) {
+                incr(unbalance);
+            } else {
+                decr(unbalance);
+                if (unbalance == 0)
+                    break;
+            }
+        }
+        store_new_token(cur_tok);
+    }
+    q = token_link(def_ref);
+    free_avail(def_ref);        /* discard reference count */
+    if (q == null)
+        cur_val = temp_token_head;
+    else
+        cur_val = p;
+    set_token_link(temp_token_head, q);
+    scanner_status = s;
+    warning_index = w;
+    def_ref = d;
+}
+
+/*
+The |get_x_or_protected| procedure is like |get_x_token| except that
+protected macros are not expanded.
+*/
+
+void get_x_or_protected(void)
+{                               /* sets |cur_cmd|, |cur_chr|, |cur_tok|,
+                                   and expands non-protected macros */
+    while (1) {
+        get_token();
+        if (cur_cmd <= max_command_cmd)
+            return;
+        if ((cur_cmd >= call_cmd) && (cur_cmd < end_template_cmd)) {
+            if (token_info(token_link(cur_chr)) == protected_token)
+                return;
+        }
+        expand();
+    }
+}
+
+
+/* |scan_toks|. This function returns a pointer to the tail of a new token
+list, and it also makes |def_ref| point to the reference count at the
+head of that list.
+
+There are two boolean parameters, |macro_def| and |xpand|. If |macro_def|
+is true, the goal is to create the token list for a macro definition;
+otherwise the goal is to create the token list for some other \TeX\
+primitive: \.{\\mark}, \.{\\output}, \.{\\everypar}, \.{\\lowercase},
+\.{\\uppercase}, \.{\\message}, \.{\\errmessage}, \.{\\write}, or
+\.{\\special}. In the latter cases a left brace must be scanned next; this
+left brace will not be part of the token list, nor will the matching right
+brace that comes at the end. If |xpand| is false, the token list will
+simply be copied from the input using |get_token|. Otherwise all expandable
+tokens will be expanded until unexpandable tokens are left, except that
+the results of expanding `\.{\\the}' are not expanded further.
+If both |macro_def| and |xpand| are true, the expansion applies
+only to the macro body (i.e., to the material following the first
+|left_brace| character).
+
+The value of |cur_cs| when |scan_toks| begins should be the |eqtb|
+address of the control sequence to display in ``runaway'' error
+messages.
+*/
+
+halfword scan_toks(boolean macro_def, boolean xpand)
+{
+    halfword t;                 /* token representing the highest parameter number */
+    halfword s;                 /* saved token */
+    halfword p;                 /* tail of the token list being built */
+    halfword q;                 /* new node being added to the token list via |store_new_token| */
+    halfword unbalance;         /* number of unmatched left braces */
+    halfword hash_brace;        /* possible `\.{\#\{}' token */
+    if (macro_def)
+        scanner_status = defining;
+    else
+        scanner_status = absorbing;
+    warning_index = cur_cs;
+    p = get_avail();
+    def_ref = p;
+    set_token_ref_count(def_ref, 0);
+    p = def_ref;
+    hash_brace = 0;
+    t = zero_token;
+    if (macro_def) {
+        /* Scan and build the parameter part of the macro definition */
+        while (1) {
+            get_token();        /* set |cur_cmd|, |cur_chr|, |cur_tok| */
+            if (cur_tok < right_brace_limit)
+                break;
+            if (cur_cmd == mac_param_cmd) {
+                /* If the next character is a parameter number, make |cur_tok|
+                   a |match| token; but if it is a left brace, store
+                   `|left_brace|, |end_match|', set |hash_brace|, and |goto done|@>;
+                 */
+                s = match_token + cur_chr;
+                get_token();
+                if (cur_cmd == left_brace_cmd) {
+                    hash_brace = cur_tok;
+                    store_new_token(cur_tok);
+                    store_new_token(end_match_token);
+                    goto DONE;
+                }
+                if (t == zero_token + 9) {
+                    print_err("You already have nine parameters");
+                    help1("I'm going to ignore the # sign you just used.");
+                    error();
+                } else {
+                    incr(t);
+                    if (cur_tok != t) {
+                        print_err("Parameters must be numbered consecutively");
+                        help2
+                            ("I've inserted the digit you should have used after the #.",
+                             "Type `1' to delete what you did use.");
+                        back_error();
+                    }
+                    cur_tok = s;
+                }
+            }
+            store_new_token(cur_tok);
+        }
+        store_new_token(end_match_token);
+        if (cur_cmd == right_brace_cmd) {
+            /* Express shock at the missing left brace; |goto found| */
+            print_err("Missing { inserted");
+            incr(align_state);
+            help2
+                ("Where was the left brace? You said something like `\\def\\a}',",
+                 "which I'm going to interpret as `\\def\\a{}'.");
+            error();
+            goto FOUND;
+        }
+
+    } else {
+        scan_left_brace();      /* remove the compulsory left brace */
+    }
+  DONE:
+    /* Scan and build the body of the token list; |goto found| when finished */
+    unbalance = 1;
+    while (1) {
+        if (xpand) {
+            /* Expand the next part of the input */
+            /* Here we insert an entire token list created by |the_toks| without
+               expanding it further. */
+            while (1) {
+                get_token_lua();
+                if (cur_cmd >= call_cmd) {
+                    if (token_info(token_link(cur_chr)) == protected_token) {
+                        cur_cmd = relax_cmd;
+                        cur_chr = no_expand_flag;
+                    }
+                }
+                if (cur_cmd <= max_command_cmd)
+                    break;
+                if (cur_cmd != the_cmd) {
+                    expand();
+                } else {
+                    q = the_toks();
+                    if (token_link(temp_token_head) != null) {
+                        set_token_link(p, token_link(temp_token_head));
+                        p = q;
+                    }
+                }
+            }
+            x_token();
+
+        } else {
+            get_token();
+        }
+        if (cur_tok < right_brace_limit) {
+            if (cur_cmd < right_brace_cmd) {
+                incr(unbalance);
+            } else {
+                decr(unbalance);
+                if (unbalance == 0)
+                    goto FOUND;
+            }
+        } else if (cur_cmd == mac_param_cmd) {
+            if (macro_def) {
+                /* Look for parameter number or \.{\#\#} */
+                s = cur_tok;
+                if (xpand)
+                    get_x_token();
+                else
+                    get_token();
+                if (cur_cmd != mac_param_cmd) {
+                    if ((cur_tok <= zero_token) || (cur_tok > t)) {
+                        print_err("Illegal parameter number in definition of ");
+                        sprint_cs(warning_index);
+                        help3("You meant to type ## instead of #, right?",
+                              "Or maybe a } was forgotten somewhere earlier, and things",
+                              "are all screwed up? I''m going to assume that you meant ##.");
+                        back_error();
+                        cur_tok = s;
+                    } else {
+                        cur_tok = out_param_token - '0' + cur_chr;
+                    }
+                }
+            }
+        }
+        store_new_token(cur_tok);
+    }
+  FOUND:
+    scanner_status = normal;
+    if (hash_brace != 0)
+        store_new_token(hash_brace);
+    return p;
 }
 
 /*

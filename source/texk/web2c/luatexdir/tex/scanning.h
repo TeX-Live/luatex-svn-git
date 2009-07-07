@@ -88,6 +88,16 @@ extern str_number the_scanned_result(void);
 extern void set_font_dimen(void);
 extern void get_font_dimen(void);
 
+#  define default_rule 26214    /* 0.4\thinspace pt */
+
+extern halfword scan_rule_spec(void);
+
+extern void scan_font_ident(void);
+extern void scan_general_text(void);
+extern void get_x_or_protected(void);
+extern halfword scan_toks(boolean macrodef, boolean xpand);
+
+
 extern void scan_normal_glue(void);
 extern void scan_mu_glue(void);
 

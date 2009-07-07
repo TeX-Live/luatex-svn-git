@@ -4193,10 +4193,6 @@ until (cur_cmd<>spacer)and(cur_cmd<>relax)
 repeat get_x_token;
 until cur_cmd<>spacer
 
-@ @p
-@t\4\4@>@<Declare \eTeX\ procedures for scanning@>@;
-@t\4\4@>@<Declare procedures that scan font-related stuff@>
-
 @ The hash table is initialized with `\.{\\count}', `\.{\\attribute}',
 `\.{\\dimen}', `\.{\\skip}', and `\.{\\muskip}' all having |register|
 as their command code; they are distinguished by the |chr_code|, which
@@ -4368,45 +4364,6 @@ applications of |scan_int| that have already been made inside of
 @d font_direction(#)==(# mod 16)
 @d box_direction(#)==(# div 4)
 
-@ @<Scan an optional space@>=
-begin get_x_token; if cur_cmd<>spacer then back_input;
-end
-
-@ Here's a similar procedure that returns a pointer to a rule node. This
-routine is called just after \TeX\ has seen \.{\\hrule} or \.{\\vrule};
-therefore |cur_cmd| will be either |hrule| or |vrule|. The idea is to store
-the default rule dimensions in the node, then to override them if
-`\.{height}' or `\.{width}' or `\.{depth}' specifications are
-found (in any order).
-
-@d default_rule=26214 {0.4\thinspace pt}
-
-@p function scan_rule_spec:pointer;
-label reswitch;
-var q:pointer; {the rule node being created}
-begin q:=new_rule; {|width|, |depth|, and |height| all equal |null_flag| now}
-if cur_cmd=vrule then begin
-  width(q):=default_rule;
-  rule_dir(q):=body_direction;
-  end
-else begin
-  height(q):=default_rule; depth(q):=0;
-  rule_dir(q):=text_direction;
-end;
-reswitch: if scan_keyword('width') then
-@.width@>
-  begin scan_normal_dimen; width(q):=cur_val; goto reswitch;
-  end;
-if scan_keyword('height') then
-@.height@>
-  begin scan_normal_dimen; height(q):=cur_val; goto reswitch;
-  end;
-if scan_keyword('depth') then
-@.depth@>
-  begin scan_normal_dimen; depth(q):=cur_val; goto reswitch;
-  end;
-scan_rule_spec:=q;
-end;
 
 @* \[27] Building token lists.
 The token lists for macros and for other things like \.{\\mark} and \.{\\output}
@@ -4971,146 +4928,6 @@ begin
   selector:=old_setting;
 end;
 
-@ Now we can't postpone the difficulties any longer; we must bravely tackle
-|scan_toks|. This function returns a pointer to the tail of a new token
-list, and it also makes |def_ref| point to the reference count at the
-head of that list.
-
-There are two boolean parameters, |macro_def| and |xpand|. If |macro_def|
-is true, the goal is to create the token list for a macro definition;
-otherwise the goal is to create the token list for some other \TeX\
-primitive: \.{\\mark}, \.{\\output}, \.{\\everypar}, \.{\\lowercase},
-\.{\\uppercase}, \.{\\message}, \.{\\errmessage}, \.{\\write}, or
-\.{\\special}. In the latter cases a left brace must be scanned next; this
-left brace will not be part of the token list, nor will the matching right
-brace that comes at the end. If |xpand| is false, the token list will
-simply be copied from the input using |get_token|. Otherwise all expandable
-tokens will be expanded until unexpandable tokens are left, except that
-the results of expanding `\.{\\the}' are not expanded further.
-If both |macro_def| and |xpand| are true, the expansion applies
-only to the macro body (i.e., to the material following the first
-|left_brace| character).
-
-The value of |cur_cs| when |scan_toks| begins should be the |eqtb|
-address of the control sequence to display in ``runaway'' error
-messages.
-
-@p function scan_toks(@!macro_def,@!xpand:boolean):pointer;
-label found,done,done1,done2;
-var t:halfword; {token representing the highest parameter number}
-@!s:halfword; {saved token}
-@!p:pointer; {tail of the token list being built}
-@!q:pointer; {new node being added to the token list via |store_new_token|}
-@!unbalance:halfword; {number of unmatched left braces}
-@!hash_brace:halfword; {possible `\.{\#\{}' token}
-begin if macro_def then scanner_status:=defining
-@+else scanner_status:=absorbing;
-warning_index:=cur_cs; p:=get_avail; def_ref:=p; set_token_ref_count(def_ref,0);
-p:=def_ref; hash_brace:=0; t:=zero_token;
-if macro_def then @<Scan and build the parameter part of the macro definition@>
-else scan_left_brace; {remove the compulsory left brace}
-@<Scan and build the body of the token list; |goto found| when finished@>;
-found: scanner_status:=normal;
-if hash_brace<>0 then store_new_token(hash_brace);
-scan_toks:=p;
-end;
-
-@ @<Scan and build the parameter part...@>=
-begin loop begin get_token; {set |cur_cmd|, |cur_chr|, |cur_tok|}
-  if cur_tok<right_brace_limit then goto done1;
-  if cur_cmd=mac_param then
-    @<If the next character is a parameter number, make |cur_tok|
-      a |match| token; but if it is a left brace, store
-      `|left_brace|, |end_match|', set |hash_brace|, and |goto done|@>;
-  store_new_token(cur_tok);
-  end;
-done1: store_new_token(end_match_token);
-if cur_cmd=right_brace then
-  @<Express shock at the missing left brace; |goto found|@>;
-done: end
-
-@ @<Express shock...@>=
-begin print_err('Missing { inserted'); incr(align_state);
-@.Missing \{ inserted@>
-help2('Where was the left brace? You said something like `\def\a}'',',
-  'which I''m going to interpret as `\def\a{}''.'); error; goto found;
-end
-
-@ @<If the next character is a parameter number...@>=
-begin s:=match_token+cur_chr; get_token;
-if cur_cmd=left_brace then
-  begin hash_brace:=cur_tok;
-  store_new_token(cur_tok); store_new_token(end_match_token);
-  goto done;
-  end;
-if t=zero_token+9 then
-  begin print_err('You already have nine parameters');
-@.You already have nine...@>
-  help1('I''m going to ignore the # sign you just used.'); error;
-  end
-else  begin incr(t);
-  if cur_tok<>t then
-    begin print_err('Parameters must be numbered consecutively');
-@.Parameters...consecutively@>
-    help2('I''ve inserted the digit you should have used after the #.',
-      'Type `1'' to delete what you did use.'); back_error;
-    end;
-  cur_tok:=s;
-  end;
-end
-
-@ @<Scan and build the body of the token list; |goto found| when finished@>=
-unbalance:=1;
-loop@+  begin if xpand then @<Expand the next part of the input@>
-  else get_token;
-  if cur_tok<right_brace_limit then begin
-    if cur_cmd<right_brace then incr(unbalance)
-    else  begin decr(unbalance);
-      if unbalance=0 then goto found;
-      end;
-    end
-  else if cur_cmd=mac_param then
-    if macro_def then @<Look for parameter number or \.{\#\#}@>;
-  store_new_token(cur_tok);
-  end
-
-@ Here we insert an entire token list created by |the_toks| without
-expanding it further.
-
-@<Expand the next part of the input@>=
-begin loop begin get_token_lua;
-  if cur_cmd>=call then
-    if info(link(cur_chr))=protected_token then
-      begin cur_cmd:=relax; cur_chr:=no_expand_flag;
-      end;
-  if cur_cmd<=max_command then goto done2;
-  if cur_cmd<>the then expand
-  else  begin q:=the_toks;
-    if link(temp_token_head)<>null then
-      begin set_token_link(p,link(temp_token_head)); p:=q;
-      end;
-    end;
-  end;
-done2: x_token
-end
-
-@ @<Look for parameter number...@>=
-begin s:=cur_tok;
-if xpand then get_x_token else get_token;
-if cur_cmd<>mac_param then begin
-  if (cur_tok<=zero_token)or(cur_tok>t) then
-    begin print_err('Illegal parameter number in definition of ');
-@.Illegal parameter number...@>
-    sprint_cs(warning_index);
-    help3('You meant to type ## instead of #, right?',
-    'Or maybe a } was forgotten somewhere earlier, and things',
-    'are all screwed up? I''m going to assume that you meant ##.');
-    back_error; cur_tok:=s;
-    end
-  else cur_tok:=out_param_token-"0"+cur_chr;
-  end;
-end
-
 @ Another way to create a token list is via the \.{\\read} command. The
 sixteen files potentially usable for reading appear in the following
 global variables. The value of |read_open[n]| will be |closed| if
@@ -5297,32 +5114,6 @@ font_bytes:=0;
 primitive_tex("nullfont",set_font,null_font,0);
 @!@:null_font_}{\.{\\nullfont} primitive@>
 text(frozen_null_font):="nullfont"; eqtb[frozen_null_font]:=eqtb[cur_val];
-
-@ Before we forget about the format of these tables, let's deal with two
-of \TeX's basic scanning routines related to font information.
-
-@<Declare procedures that scan font-related stuff@>=
-procedure scan_font_ident;
-var f:internal_font_number;
-@!m:halfword;
-begin @<Get the next non-blank non-call...@>;
-if (cur_cmd=def_font) or (cur_cmd=letterspace_font) or (cur_cmd=pdf_copy_font) then f:=cur_font
-else if cur_cmd=set_font then begin
-  f:=cur_chr;
-  set_font_touched(f,1);
-  end
-else if cur_cmd=def_family then begin
-  m:=cur_chr; scan_math_family_int; f:=fam_fnt(cur_val,m);
-  set_font_touched(f,1);
-  end
-else  begin print_err('Missing font identifier');
-@.Missing font identifier@>
-  help2('I was looking for a control sequence whose',
-  'current meaning has been defined by \font.');
-  back_error; f:=null_font;
-  end;
-cur_val:=f;
-end;
 
 @ When \TeX\ wants to typeset a character that doesn't exist, the
 character node is not created; thus the output routine can assume
@@ -11986,46 +11777,6 @@ if i<>0 then begin
   else print_cmd_chr(leader_ship,i-(leader_flag-a_leaders));
   end
 
-@ The |scan_general_text| procedure is much like |scan_toks(false,false)|,
-but will be invoked via |expand|, i.e., recursively.
-@^recursion@>
-
-@<Declare \eTeX\ procedures for sc...@>=
-procedure@?scan_general_text; forward;@t\2@>
-
-@ The token list (balanced text) created by |scan_general_text| begins
-at |link(temp_token_head)| and ends at |cur_val|.  (If |cur_val=temp_token_head|,
-the list is empty.)
-
-@<Declare \eTeX\ procedures for tok...@>=
-procedure scan_general_text;
-label found;
-var s:normal..absorbing; {to save |scanner_status|}
-@!w:pointer; {to save |warning_index|}
-@!d:pointer; {to save |def_ref|}
-@!p:pointer; {tail of the token list being built}
-@!q:pointer; {new node being added to the token list via |store_new_token|}
-@!unbalance:halfword; {number of unmatched left braces}
-begin s:=scanner_status; w:=warning_index; d:=def_ref;
-scanner_status:=absorbing; warning_index:=cur_cs;
-p:=get_avail; def_ref:=p; set_token_ref_count(def_ref,0); p:=def_ref;
-scan_left_brace; {remove the compulsory left brace}
-unbalance:=1;
-loop@+  begin get_token;
-  if cur_tok<right_brace_limit then begin
-    if cur_cmd<right_brace then incr(unbalance)
-    else  begin decr(unbalance);
-      if unbalance=0 then goto found;
-      end;
-    end;
-  store_new_token(cur_tok);
-  end;
-found: q:=link(def_ref); free_avail(def_ref); {discard reference count}
-if q=null then cur_val:=temp_token_head @+ else cur_val:=p;
-set_token_link(temp_token_head,q);
-scanner_status:=s; warning_index:=w; def_ref:=d;
-end;
-
 @ The \.{\\showtokens} command displays a token list.
 
 @d show_tokens=5 { \.{\\showtokens} , must be odd! }
@@ -12260,21 +12011,6 @@ or during \.{\\write}.
 @<Generate all \eTeX...@>=
 primitive_etex("protected",prefix,8,0);
 @!@:protected_}{\.{\\protected} primitive@>
-
-@ The |get_x_or_protected| procedure is like |get_x_token| except that
-protected macros are not expanded.
-
-@<Declare \eTeX\ procedures for sc...@>=
-procedure get_x_or_protected; {sets |cur_cmd|, |cur_chr|, |cur_tok|,
-  and expands non-protected macros}
-label exit;
-begin loop@+begin get_token;
-  if cur_cmd<=max_command then return;
-  if (cur_cmd>=call)and(cur_cmd<end_template) then
-    if info(link(cur_chr))=protected_token then return;
-  expand;
-  end;
-exit:end;
 
 @ A group entered (or a conditional started) in one file may end in a
 different file.  Such slight anomalies, although perfectly legitimate,

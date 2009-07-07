@@ -1922,3 +1922,8 @@
 
 @define procedure scan_normal_glue ;
 @define procedure scan_mu_glue ;
+
+@define const default_rule;
+@define function scan_rule_spec;
+@define function scan_toks();
+
