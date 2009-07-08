@@ -169,7 +169,6 @@ void pdf_hlist_out(PDF pdf)
 {
     /*label move_past, fin_rule, next_p; */
     scaled w;                   /*  temporary value for directional width calculation  */
-    scaled edge_v;
     scaled edge_h;
 
     posstructure localpos;      /* the position structure local within this function */
@@ -303,7 +302,6 @@ void pdf_hlist_out(PDF pdf)
                     temp_ptr = p;
                     edge_h = cur.h;
                     cur.h += basepoint.h;
-                    edge_v = cur.v;
                     cur.v = basepoint.v;
                     (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     if (type(p) == vlist_node)
@@ -385,8 +383,7 @@ void pdf_hlist_out(PDF pdf)
                         break;
                     }
                     pdf_place_form(pdf, pdf_xform_objnum(p));
-                    edge = cur.h + pdf_width(p);
-                    cur.h = edge;
+                    cur.h += pdf_width(p);
                     break;
                 case pdf_refximage_node:
                     /* Output an Image node in a hlist */
@@ -422,8 +419,7 @@ void pdf_hlist_out(PDF pdf)
                         break;
                     }
                     pdf_place_image(pdf, pdf_ximage_idx(p));
-                    edge = cur.h + pdf_width(p);
-                    cur.h = edge;
+                    cur.h += pdf_width(p);
                     break;
                 case pdf_annot_node:
                     (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
@@ -612,7 +608,6 @@ void pdf_hlist_out(PDF pdf)
                             temp_ptr = leader_box;
                             edge_h = cur.h;
                             cur.h += basepoint.h;
-                            edge_v = cur.v;
                             cur.v = basepoint.v;
                             (void) new_synch_pos_with_cur(pdf->posstruct,
                                                           refpos, cur);
@@ -829,8 +824,8 @@ void pdf_vlist_out(PDF pdf)
                         synctex_void_hlist(p, this_box);
 
                 } else {
-                    edge_v = cur.v;
                     cur.h = basepoint.h;
+                    edge_v = cur.v;
                     cur.v += basepoint.v;
                     (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     temp_ptr = p;
