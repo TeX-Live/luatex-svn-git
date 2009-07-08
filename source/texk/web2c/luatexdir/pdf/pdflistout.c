@@ -339,30 +339,24 @@ void pdf_hlist_out(PDF pdf)
                 break;
             case whatsit_node:
                 /* Output the whatsit node |p| in |pdf_hlist_out| */
-
+                (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                 switch (subtype(p)) {
                 case pdf_literal_node:
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     pdf_out_literal(pdf, p);
                     break;
                 case pdf_colorstack_node:
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     pdf_out_colorstack(pdf, p);
                     break;
                 case pdf_setmatrix_node:
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     pdf_out_setmatrix(pdf, p);
                     break;
                 case pdf_save_node:
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     pdf_out_save(pdf);
                     break;
                 case pdf_restore_node:
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     pdf_out_restore(pdf);
                     break;
                 case late_lua_node:
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     do_late_lua(pdf, p);
                     break;
                 case pdf_refobj_node:
@@ -374,7 +368,6 @@ void pdf_hlist_out(PDF pdf)
                     break;
                 case pdf_refxform_node:
                     /* Output a Form node in a hlist */
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     switch (box_direction(localpos.dir)) {
                     case dir_TL_:
                         lpos_down(pdf_depth(p));
@@ -389,7 +382,6 @@ void pdf_hlist_out(PDF pdf)
                     break;
                 case pdf_refximage_node:
                     /* Output an Image node in a hlist */
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     switch (box_direction(localpos.dir)) {
                     case dir_TL_:
                         lpos_down(pdf_depth(p));
@@ -424,23 +416,18 @@ void pdf_hlist_out(PDF pdf)
                     cur.h += pdf_width(p);
                     break;
                 case pdf_annot_node:
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     do_annot(pdf, p, this_box, cur);
                     break;
                 case pdf_start_link_node:
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     do_link(pdf, p, this_box, cur);
                     break;
                 case pdf_end_link_node:
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     end_link(pdf);
                     break;
                 case pdf_dest_node:
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     do_dest(pdf, p, this_box, cur);
                     break;
                 case pdf_thread_node:
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     do_thread(pdf, p, this_box, cur);
                     break;
                 case pdf_start_thread_node:
@@ -450,12 +437,10 @@ void pdf_hlist_out(PDF pdf)
                     pdf_error("ext4", "\\pdfendthread ended up in hlist");
                     break;
                 case pdf_save_pos_node:
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     pdf_last_x_pos = localpos.pos.h;
                     pdf_last_y_pos = localpos.pos.v;
                     break;
                 case special_node:
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     pdf_special(pdf, p);
                     break;
                 case dir_node:
@@ -855,29 +840,24 @@ void pdf_vlist_out(PDF pdf)
                 break;
             case whatsit_node:
                 /* Output the whatsit node |p| in |pdf_vlist_out| */
+                (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                 switch (subtype(p)) {
                 case pdf_literal_node:
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     pdf_out_literal(pdf, p);
                     break;
                 case pdf_colorstack_node:
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     pdf_out_colorstack(pdf, p);
                     break;
                 case pdf_setmatrix_node:
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     pdf_out_setmatrix(pdf, p);
                     break;
                 case pdf_save_node:
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     pdf_out_save(pdf);
                     break;
                 case pdf_restore_node:
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     pdf_out_restore(pdf);
                     break;
                 case late_lua_node:
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     do_late_lua(pdf, p);
                     break;
                 case pdf_refobj_node:
@@ -889,7 +869,6 @@ void pdf_vlist_out(PDF pdf)
                     break;
                 case pdf_refxform_node:
                     /* Output a Form node in a vlist */
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     switch (box_direction(localpos.dir)) {
                     case dir_TL_:
                         lpos_down(pdf_height(p) + pdf_depth(p));
@@ -906,7 +885,6 @@ void pdf_vlist_out(PDF pdf)
                     break;
                 case pdf_refximage_node:
                     /* Output an Image node in a vlist */
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     switch (box_direction(localpos.dir)) {
                     case dir_TL_:
                         lpos_down(pdf_height(p) + pdf_depth(p));
@@ -939,7 +917,6 @@ void pdf_vlist_out(PDF pdf)
                     cur.v += pdf_height(p) + pdf_depth(p);
                     break;
                 case pdf_annot_node:
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     do_annot(pdf, p, this_box, cur);
                     break;
                 case pdf_start_link_node:
@@ -949,25 +926,20 @@ void pdf_vlist_out(PDF pdf)
                     pdf_error("ext4", "\\pdfendlink ended up in vlist");
                     break;
                 case pdf_dest_node:
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     do_dest(pdf, p, this_box, cur);
                     break;
                 case pdf_thread_node:
                 case pdf_start_thread_node:
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     do_thread(pdf, p, this_box, cur);
                     break;
                 case pdf_end_thread_node:
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     end_thread(pdf);
                     break;
                 case pdf_save_pos_node:
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     pdf_last_x_pos = localpos.pos.h;
                     pdf_last_y_pos = localpos.pos.v;
                     break;
                 case special_node:
-                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     pdf_special(pdf, p);
                     break;
                 default:
