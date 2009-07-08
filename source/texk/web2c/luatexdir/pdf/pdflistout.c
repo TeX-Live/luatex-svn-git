@@ -346,6 +346,7 @@ void pdf_hlist_out(PDF pdf)
                     pdf_out_literal(pdf, p);
                     break;
                 case pdf_colorstack_node:
+                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     pdf_out_colorstack(pdf, p);
                     break;
                 case pdf_setmatrix_node:
@@ -361,6 +362,7 @@ void pdf_hlist_out(PDF pdf)
                     pdf_out_restore(pdf);
                     break;
                 case late_lua_node:
+                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     do_late_lua(pdf, p);
                     break;
                 case pdf_refobj_node:
@@ -448,12 +450,12 @@ void pdf_hlist_out(PDF pdf)
                     pdf_error("ext4", "\\pdfendthread ended up in hlist");
                     break;
                 case pdf_save_pos_node:
-                    /* Save current position */
                     (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     pdf_last_x_pos = localpos.pos.h;
                     pdf_last_y_pos = localpos.pos.v;
                     break;
                 case special_node:
+                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     pdf_special(pdf, p);
                     break;
                 case dir_node:
@@ -502,7 +504,7 @@ void pdf_hlist_out(PDF pdf)
                     }
                     break;
                 default:
-                    out_what(p);
+                    out_what(p);        /* no transform needed here */
                 }
                 break;
             case glue_node:
@@ -859,9 +861,11 @@ void pdf_vlist_out(PDF pdf)
                     pdf_out_literal(pdf, p);
                     break;
                 case pdf_colorstack_node:
+                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     pdf_out_colorstack(pdf, p);
                     break;
                 case pdf_setmatrix_node:
+                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     pdf_out_setmatrix(pdf, p);
                     break;
                 case pdf_save_node:
@@ -873,6 +877,7 @@ void pdf_vlist_out(PDF pdf)
                     pdf_out_restore(pdf);
                     break;
                 case late_lua_node:
+                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     do_late_lua(pdf, p);
                     break;
                 case pdf_refobj_node:
@@ -957,16 +962,16 @@ void pdf_vlist_out(PDF pdf)
                     end_thread(pdf);
                     break;
                 case pdf_save_pos_node:
-                    /* Save current position */
                     (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     pdf_last_x_pos = localpos.pos.h;
                     pdf_last_y_pos = localpos.pos.v;
                     break;
                 case special_node:
+                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     pdf_special(pdf, p);
                     break;
                 default:
-                    out_what(p);
+                    out_what(p);        /* no transform needed here */
                     break;
                 }
                 break;
