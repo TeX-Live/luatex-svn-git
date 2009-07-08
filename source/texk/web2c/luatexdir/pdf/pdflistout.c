@@ -206,7 +206,6 @@ void pdf_hlist_out(PDF pdf)
     pdf->posstruct = &localpos; /* use local structure for recursion */
     localpos.dir = box_dir(this_box);
 
-    box_pos = refpos->pos;      /* all box_pos will go away */
     set_to_zero(cur);
 
     dvi_ptr = 0;
@@ -315,7 +314,6 @@ void pdf_hlist_out(PDF pdf)
                         pdf_vlist_out(pdf);
                     else
                         pdf_hlist_out(pdf);
-                    box_pos = refpos->pos;      /* all box_pos will go away */
                     cur.h = edge + effective_horizontal;
                     cur.v = base_line;
                 }
@@ -361,9 +359,11 @@ void pdf_hlist_out(PDF pdf)
                     pdf_out_setmatrix(pdf, p);
                     break;
                 case pdf_save_node:
+                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     pdf_out_save(pdf);
                     break;
                 case pdf_restore_node:
+                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     pdf_out_restore(pdf);
                     break;
                 case late_lua_node:
@@ -496,14 +496,12 @@ void pdf_hlist_out(PDF pdf)
                         dir_box_pos_v(temp_ptr) = refpos->pos.v;
                         pos = new_synch_pos_with_cur(pdf->posstruct, refpos, cur);      /* no need for |synch_dvi_with_cur|, as there is no DVI grouping */
                         refpos->pos = pos;      /* fake a nested |hlist_out| */
-                        box_pos = refpos->pos;
                         localpos.dir = dir_dir(dir_ptr);
                         set_to_zero(cur);
                     } else {
                         pop_dir_node();
                         refpos->pos.h = dir_box_pos_h(p);
                         refpos->pos.v = dir_box_pos_v(p);
-                        box_pos = refpos->pos;
                         if (dir_ptr != null)
                             localpos.dir = dir_dir(dir_ptr);
                         else
@@ -632,7 +630,6 @@ void pdf_hlist_out(PDF pdf)
                                 pdf_vlist_out(pdf);
                             else
                                 pdf_hlist_out(pdf);
-                            box_pos = refpos->pos;
                             doing_leaders = outer_doing_leaders;
                             cur.h = edge_h + leader_wd + lx;
                             cur.v = base_line;
@@ -767,7 +764,6 @@ void pdf_vlist_out(PDF pdf)
     pdf->posstruct = &localpos; /* use local structure for recursion */
     localpos.dir = box_dir(this_box);
 
-    box_pos = refpos->pos;
     set_to_zero(cur);
 
     incr(cur_s);
@@ -853,7 +849,6 @@ void pdf_vlist_out(PDF pdf)
                         pdf_vlist_out(pdf);
                     else
                         pdf_hlist_out(pdf);
-                    box_pos = refpos->pos;
                     cur.h = left_edge;
                     cur.v = edge_v + effective_vertical;
                 }
@@ -886,9 +881,11 @@ void pdf_vlist_out(PDF pdf)
                     pdf_out_setmatrix(pdf, p);
                     break;
                 case pdf_save_node:
+                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     pdf_out_save(pdf);
                     break;
                 case pdf_restore_node:
+                    (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     pdf_out_restore(pdf);
                     break;
                 case late_lua_node:
@@ -1058,7 +1055,6 @@ void pdf_vlist_out(PDF pdf)
                                 pdf_vlist_out(pdf);
                             else
                                 pdf_hlist_out(pdf);
-                            box_pos = refpos->pos;
                             doing_leaders = outer_doing_leaders;
                             cur.h = left_edge;
                             cur.v =

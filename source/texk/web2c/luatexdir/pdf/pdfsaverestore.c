@@ -69,14 +69,12 @@ static void checkpdfrestore(scaledpos pos)
 
 void pdf_out_save(PDF pdf)
 {
-    pos = synch_p_with_c(cur);
-    checkpdfsave(pos);
+    checkpdfsave(pdf->posstruct->pos);
     pdf_literal(pdf, 'q', set_origin, false);
 }
 
 void pdf_out_restore(PDF pdf)
 {
-    pos = synch_p_with_c(cur);
-    checkpdfrestore(pos);
+    checkpdfrestore(pdf->posstruct->pos);
     pdf_literal(pdf, 'Q', set_origin, false);
 }
