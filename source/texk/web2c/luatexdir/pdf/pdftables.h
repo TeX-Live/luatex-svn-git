@@ -51,7 +51,7 @@ structure depending on the object type; however it may be used as a counter as
 well.
 */
 
-#  define obj_info(pdf,A)  pdf->obj_tab[(A)].u.int0       /* information representing identifier of this object */
+#  define obj_info(pdf,A)  pdf->obj_tab[(A)].u.int0     /* information representing identifier of this object */
 #  define obj_start(pdf,A) pdf->obj_tab[(A)].u.str0
 #  define obj_link(pdf,A)  pdf->obj_tab[(A)].int1       /* link to the next entry in linked list */
 #  define obj_offset(pdf,A) pdf->obj_tab[(A)].int2
@@ -59,7 +59,7 @@ well.
                                            output file, or object stream number for this object */
 #  define obj_os_idx(pdf,A) pdf->obj_tab[(A)].int3
                                         /* index of this object in object stream */
-#  define obj_aux(pdf,A)  pdf->obj_tab[(A)].v.int4        /* auxiliary pointer */
+#  define obj_aux(pdf,A)  pdf->obj_tab[(A)].v.int4      /* auxiliary pointer */
 #  define obj_stop(pdf,A) pdf->obj_tab[(A)].v.str4
 
 #  define obj_data_ptr             obj_aux      /* pointer to |pdf->mem| */

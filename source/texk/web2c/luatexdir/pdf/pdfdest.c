@@ -36,7 +36,7 @@ forward.
 void init_dest_names(PDF pdf)
 {
     pdf->dest_names_size = inf_dest_names_size;
-    pdf->dest_names = xmallocarray(dest_name_entry, inf_dest_names_size);    /* will grow dynamically */
+    pdf->dest_names = xmallocarray(dest_name_entry, inf_dest_names_size);       /* will grow dynamically */
 }
 
 void append_dest_name(PDF pdf, char *s, integer n)
@@ -52,7 +52,8 @@ void append_dest_name(PDF pdf, char *s, integer n)
         else
             pdf->dest_names_size = sup_dest_names_size;
         pdf->dest_names =
-            xreallocarray(pdf->dest_names, dest_name_entry, pdf->dest_names_size);
+            xreallocarray(pdf->dest_names, dest_name_entry,
+                          pdf->dest_names_size);
     }
     pdf->dest_names[pdf->dest_names_ptr].objname = xstrdup(s);
     pdf->dest_names[pdf->dest_names_ptr].objnum = n;
@@ -290,16 +291,17 @@ void scan_pdfdest(PDF pdf)
 }
 
 /* sorts |dest_names| by names */
-static int dest_cmp (const void *a, const void *b)
+static int dest_cmp(const void *a, const void *b)
 {
-    dest_name_entry aa = *(dest_name_entry *)a;
-    dest_name_entry bb = *(dest_name_entry *)b;
-    return strcmp(aa.objname,bb.objname);
+    dest_name_entry aa = *(dest_name_entry *) a;
+    dest_name_entry bb = *(dest_name_entry *) b;
+    return strcmp(aa.objname, bb.objname);
 }
 
 void sort_dest_names(PDF pdf)
-{                               
-    qsort(pdf->dest_names, pdf->dest_names_ptr, sizeof(dest_name_entry), dest_cmp);
+{
+    qsort(pdf->dest_names, pdf->dest_names_ptr, sizeof(dest_name_entry),
+          dest_cmp);
 }
 
 /* 
@@ -308,15 +310,15 @@ storing of intermediate data in |obj_info| and |obj_aux| fields, which
 is further uglified by the fact that |obj_tab| entries do not accept char 
 pointers.
 */
-   
 
-integer output_name_tree (PDF pdf)
+
+integer output_name_tree(PDF pdf)
 {
-    boolean is_names = true;  /* flag for name tree output: is it Names or Kids? */
+    boolean is_names = true;    /* flag for name tree output: is it Names or Kids? */
     integer b = 0, j, l;
-    integer k = 0;            /* index of current child of |l|; if |k < pdf_dest_names_ptr|
-                                 then this is pointer to |dest_names| array;
-                                 otherwise it is the pointer to |obj_tab| (object number) */
+    integer k = 0;              /* index of current child of |l|; if |k < pdf_dest_names_ptr|
+                                   then this is pointer to |dest_names| array;
+                                   otherwise it is the pointer to |obj_tab| (object number) */
     integer dests = 0;
     integer names_head = 0, names_tail = 0;
     if (pdf->dest_names_ptr == 0) {
@@ -330,7 +332,7 @@ integer output_name_tree (PDF pdf)
             pdf_create_obj(pdf, obj_type_others, 0);    /* create a new node */
             l = pdf->obj_ptr;
             if (b == 0)
-                b = l;  /* first in this level */
+                b = l;          /* first in this level */
             if (names_head == 0) {
                 names_head = l;
                 names_tail = l;
@@ -355,7 +357,7 @@ integer output_name_tree (PDF pdf)
                 } while (j != name_tree_kids_max && k != pdf->dest_names_ptr);
                 pdf_remove_last_space(pdf);
                 pdf_printf(pdf, "]\n");
-                set_obj_stop(pdf, l, pdf->dest_names[k - 1].objname); /* for later */
+                set_obj_stop(pdf, l, pdf->dest_names[k - 1].objname);   /* for later */
                 if (k == pdf->dest_names_ptr) {
                     is_names = false;
                     k = names_head;
@@ -371,7 +373,8 @@ integer output_name_tree (PDF pdf)
                     set_obj_stop(pdf, l, obj_stop(pdf, k));
                     k = obj_link(pdf, k);
                     j++;
-                } while (j != name_tree_kids_max && k != b && obj_link(pdf, k) != 0);
+                } while (j != name_tree_kids_max && k != b
+                         && obj_link(pdf, k) != 0);
                 pdf_remove_last_space(pdf);
                 pdf_printf(pdf, "]\n");
                 if (k == b)
@@ -384,7 +387,7 @@ integer output_name_tree (PDF pdf)
             pdf_printf(pdf, "]\n");
             pdf_end_dict(pdf);
 
-            
+
         } while (b != 0);
 
         if (k == l) {
@@ -394,7 +397,7 @@ integer output_name_tree (PDF pdf)
 
     }
 
-DONE:
+  DONE:
     if ((dests != 0) || (pdf_names_toks != null)) {
         pdf_new_dict(pdf, obj_type_others, 0, 1);
         if (dests != 0)

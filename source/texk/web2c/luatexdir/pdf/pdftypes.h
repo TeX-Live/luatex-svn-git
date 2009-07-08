@@ -97,20 +97,20 @@ typedef struct {
 typedef struct obj_entry_ {
     union {
         integer int0;
-        char * str0;
+        char *str0;
     } u;
     integer int1;
     off_t int2;
     integer int3;
     union {
         integer int4;
-        char * str4;
+        char *str4;
     } v;
 } obj_entry;
 
 typedef struct dest_name_entry_ {
-    char *  objname;         /* destination name */
-    integer objnum;          /* destination object number */
+    char *objname;              /* destination name */
+    integer objnum;             /* destination object number */
 } dest_name_entry;
 
 
@@ -118,8 +118,8 @@ typedef struct dest_name_entry_ {
 
 typedef struct pdf_link_stack_record {
     integer nesting_level;
-    integer link_node;         /* holds a copy of the corresponding |pdf_start_link_node| */
-    integer ref_link_node;     /* points to original |pdf_start_link_node|, or a
+    integer link_node;          /* holds a copy of the corresponding |pdf_start_link_node| */
+    integer ref_link_node;      /* points to original |pdf_start_link_node|, or a
                                    copy of |link_node| created by |append_link| in
                                    case of multi-line link */
 } pdf_link_stack_record;
@@ -239,8 +239,8 @@ typedef struct pdf_output_file_ {
     pdf_object_list *annot_list;        /* the pdf annotations */
     pdf_object_list *bead_list; /* the thread beads */
 
-    integer image_procset; /* collection of image types used in current page/form */
-    int text_procset; /* mask of used ProcSet's in the current page/form */
+    integer image_procset;      /* collection of image types used in current page/form */
+    int text_procset;           /* mask of used ProcSet's in the current page/form */
 
     /* the variables from pdfdest */
     integer dest_names_size;

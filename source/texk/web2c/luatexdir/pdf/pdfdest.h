@@ -59,7 +59,7 @@ extern void write_out_pdf_mark_destinations(PDF);
 extern void scan_pdfdest(PDF);
 extern void init_dest_names(PDF);
 extern void sort_dest_names(PDF);
-extern integer output_name_tree (PDF);
+extern integer output_name_tree(PDF);
 
 
 #endif

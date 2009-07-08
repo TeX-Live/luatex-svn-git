@@ -51,10 +51,10 @@ char *get_pdftex_banner(void)
 char *getfilename(void)
 {
     integer t = 0;
-    int level=in_open;
-    while ((level>0)) {
+    int level = in_open;
+    while ((level > 0)) {
         t = input_stack[level--].name_field;
-        if (t>=STRING_OFFSET)
+        if (t >= STRING_OFFSET)
             break;
     }
     /* the outermost level could be terminal input, 
