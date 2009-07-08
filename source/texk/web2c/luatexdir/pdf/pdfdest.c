@@ -320,7 +320,6 @@ integer output_name_tree (PDF pdf)
     integer dests = 0;
     integer names_head = 0, names_tail = 0;
     char *fi = NULL, *li = NULL; 
-    char *ffl;
     if (pdf->dest_names_ptr == 0) {
         goto DONE;
     }
