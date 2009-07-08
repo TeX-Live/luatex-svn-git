@@ -50,7 +50,7 @@ char *get_pdftex_banner(void)
 
 char *getfilename(void)
 {
-    integer t;
+    integer t = 0;
     int level=in_open;
     while ((level>0)) {
         t = input_stack[level--].name_field;
