@@ -48,12 +48,18 @@ char *get_pdftex_banner(void)
 }
 
 
-/* hack, I really should implement the makecstring */
 char *getfilename(void)
 {
     integer t;
-    t = iname;
-    if (t > (1 << 21))
+    int level=in_open;
+    while ((level>0)) {
+        t = input_stack[level--].name_field;
+        if (t>=STRING_OFFSET)
+            break;
+    }
+    /* the outermost level could be terminal input, 
+       so this test is still needed */
+    if (t >= STRING_OFFSET)
         return makecstring(t);
     else
         return xstrdup("");
