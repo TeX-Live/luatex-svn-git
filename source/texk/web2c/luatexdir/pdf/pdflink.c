@@ -92,7 +92,7 @@ void end_link(PDF pdf)
             pdf_ann_right(p) = geturx() + pdf_link_margin;
             pdf_ann_bottom(p) = cur_page_size.v - getlly() + pdf_link_margin;
         } else {
-            switch (box_direction(dvi_direction)) {
+            switch (box_direction(pdf->posstruct->dir)) {
             case dir_TL_:
             case dir_BL_:
                 pdf_ann_right(p) = pos.h + pdf_link_margin;

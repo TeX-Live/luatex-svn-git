@@ -177,9 +177,7 @@ void pdf_hlist_out(PDF pdf)
     posstructure *refpos;       /* the list origin pos. on the page, provided by the caller */
 
     scaled effective_horizontal;
-    scaled basepoint_horizontal;
-    scaled basepoint_vertical;
-    integer save_direction;
+    scaledpos basepoint;
     halfword dvi_ptr, dir_ptr, dir_tmp;
     scaled left_edge;           /* the left coordinate for this box */
     scaled save_h;              /* what |cur.h| should pop to */
@@ -211,14 +209,12 @@ void pdf_hlist_out(PDF pdf)
     box_pos = refpos->pos;      /* all box_pos will go away */
     set_to_zero(cur);
 
-    save_direction = dvi_direction;
-    dvi_direction = box_dir(this_box);
     dvi_ptr = 0;
     lx = 0;
     /* Initialize |dir_ptr| for |ship_out| */
     {
         dir_ptr = null;
-        push_dir(dvi_direction);
+        push_dir(localpos.dir);
         dir_dvi_ptr(dir_ptr) = dvi_ptr;
     }
     incr(cur_s);
@@ -264,42 +260,42 @@ void pdf_hlist_out(PDF pdf)
 
                 if (!
                     (dir_orthogonal
-                     (dir_primary[box_dir(p)], dir_primary[dvi_direction]))) {
+                     (dir_primary[box_dir(p)], dir_primary[localpos.dir]))) {
                     effective_horizontal = width(p);
-                    basepoint_vertical = 0;
+                    basepoint.v = 0;
                     if (dir_opposite
                         (dir_secondary[box_dir(p)],
-                         dir_secondary[dvi_direction]))
-                        basepoint_horizontal = width(p);
+                         dir_secondary[localpos.dir]))
+                        basepoint.h = width(p);
                     else
-                        basepoint_horizontal = 0;
+                        basepoint.h = 0;
                 } else {
                     effective_horizontal = height(p) + depth(p);
                     if (!is_mirrored(box_dir(p))) {
                         if (dir_eq
                             (dir_primary[box_dir(p)],
-                             dir_secondary[dvi_direction]))
-                            basepoint_horizontal = height(p);
+                             dir_secondary[localpos.dir]))
+                            basepoint.h = height(p);
                         else
-                            basepoint_horizontal = depth(p);
+                            basepoint.h = depth(p);
                     } else {
                         if (dir_eq
                             (dir_primary[box_dir(p)],
-                             dir_secondary[dvi_direction]))
-                            basepoint_horizontal = depth(p);
+                             dir_secondary[localpos.dir]))
+                            basepoint.h = depth(p);
                         else
-                            basepoint_horizontal = height(p);
+                            basepoint.h = height(p);
                     }
                     if (dir_eq
-                        (dir_secondary[box_dir(p)], dir_primary[dvi_direction]))
-                        basepoint_vertical = -(width(p) / 2);
+                        (dir_secondary[box_dir(p)], dir_primary[localpos.dir]))
+                        basepoint.v = -(width(p) / 2);
                     else
-                        basepoint_vertical = (width(p) / 2);
+                        basepoint.v = (width(p) / 2);
                 }
-                if (!is_mirrored(dvi_direction))
-                    basepoint_vertical = basepoint_vertical + shift_amount(p);  /* shift the box `down' */
+                if (!is_mirrored(localpos.dir))
+                    basepoint.v = basepoint.v + shift_amount(p);        /* shift the box `down' */
                 else
-                    basepoint_vertical = basepoint_vertical - shift_amount(p);  /* shift the box `up' */
+                    basepoint.v = basepoint.v - shift_amount(p);        /* shift the box `up' */
                 if (list_ptr(p) == null) {
                     /* Record void list {\sl Sync\TeX} information */
                     if (type(p) == vlist_node)
@@ -311,9 +307,9 @@ void pdf_hlist_out(PDF pdf)
                 } else {
                     temp_ptr = p;
                     edge = cur.h;
-                    cur.h = cur.h + basepoint_horizontal;
+                    cur.h = cur.h + basepoint.h;
                     edge_v = cur.v;
-                    cur.v = base_line + basepoint_vertical;
+                    cur.v = base_line + basepoint.v;
                     (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     if (type(p) == vlist_node)
                         pdf_vlist_out(pdf);
@@ -338,7 +334,7 @@ void pdf_hlist_out(PDF pdf)
             case rule_node:
                 if (!
                     (dir_orthogonal
-                     (dir_primary[rule_dir(p)], dir_primary[dvi_direction]))) {
+                     (dir_primary[rule_dir(p)], dir_primary[localpos.dir]))) {
                     rule.ht = height(p);
                     rule.dp = depth(p);
                     rule.wd = width(p);
@@ -384,7 +380,7 @@ void pdf_hlist_out(PDF pdf)
                     /* Output a Form node in a hlist */
                     cur.v = base_line;
                     (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
-                    switch (box_direction(dvi_direction)) {
+                    switch (box_direction(localpos.dir)) {
                     case dir_TL_:
                         lpos_down(pdf_depth(p));
                         break;
@@ -401,7 +397,7 @@ void pdf_hlist_out(PDF pdf)
                     /* Output an Image node in a hlist */
                     cur.v = base_line;
                     (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
-                    switch (box_direction(dvi_direction)) {
+                    switch (box_direction(localpos.dir)) {
                     case dir_TL_:
                         lpos_down(pdf_depth(p));
                         break;
@@ -482,15 +478,15 @@ void pdf_hlist_out(PDF pdf)
 
                         if ((dir_opposite
                              (dir_secondary[dir_dir(dir_ptr)],
-                              dir_secondary[dvi_direction]))
+                              dir_secondary[localpos.dir]))
                             ||
                             (dir_eq
                              (dir_secondary[dir_dir(dir_ptr)],
-                              dir_secondary[dvi_direction]))) {
+                              dir_secondary[localpos.dir]))) {
                             dir_cur_h(temp_ptr) = cur.h + w;
                             if (dir_opposite
                                 (dir_secondary[dir_dir(dir_ptr)],
-                                 dir_secondary[dvi_direction]))
+                                 dir_secondary[localpos.dir]))
                                 cur.h = cur.h + w;
                         } else {
                             dir_cur_h(temp_ptr) = cur.h;
@@ -502,7 +498,6 @@ void pdf_hlist_out(PDF pdf)
                         refpos->pos = pos;      /* fake a nested |hlist_out| */
                         box_pos = refpos->pos;
                         localpos.dir = dir_dir(dir_ptr);
-                        dvi_direction = localpos.dir;
                         set_to_zero(cur);
                     } else {
                         pop_dir_node();
@@ -512,8 +507,7 @@ void pdf_hlist_out(PDF pdf)
                         if (dir_ptr != null)
                             localpos.dir = dir_dir(dir_ptr);
                         else
-                            localpos.dir = 0;
-                        dvi_direction = localpos.dir;
+                            localpos.dir = dir_TLT;
                         cur.h = dir_cur_h(p);
                         cur.v = dir_cur_v(p);
                     }
@@ -553,7 +547,7 @@ void pdf_hlist_out(PDF pdf)
                     if (!
                         (dir_orthogonal
                          (dir_primary[box_dir(leader_box)],
-                          dir_primary[dvi_direction])))
+                          dir_primary[localpos.dir])))
                         leader_wd = width(leader_box);
                     else
                         leader_wd = height(leader_box) + depth(leader_box);
@@ -590,52 +584,46 @@ void pdf_hlist_out(PDF pdf)
                             if (!
                                 (dir_orthogonal
                                  (dir_primary[box_dir(leader_box)],
-                                  dir_primary[dvi_direction]))) {
-                                basepoint_vertical = 0;
+                                  dir_primary[localpos.dir]))) {
+                                basepoint.v = 0;
                                 if (dir_opposite
                                     (dir_secondary[box_dir(leader_box)],
-                                     dir_secondary[dvi_direction]))
-                                    basepoint_horizontal = width(leader_box);
+                                     dir_secondary[localpos.dir]))
+                                    basepoint.h = width(leader_box);
                                 else
-                                    basepoint_horizontal = 0;
+                                    basepoint.h = 0;
                             } else {
                                 if (!is_mirrored(box_dir(leader_box))) {
                                     if (dir_eq
                                         (dir_primary[box_dir(leader_box)],
-                                         dir_secondary[dvi_direction]))
-                                        basepoint_horizontal =
-                                            height(leader_box);
+                                         dir_secondary[localpos.dir]))
+                                        basepoint.h = height(leader_box);
                                     else
-                                        basepoint_horizontal =
-                                            depth(leader_box);
+                                        basepoint.h = depth(leader_box);
                                 } else {
                                     if (dir_eq
                                         (dir_primary[box_dir(leader_box)],
-                                         dir_secondary[dvi_direction]))
-                                        basepoint_horizontal =
-                                            depth(leader_box);
+                                         dir_secondary[localpos.dir]))
+                                        basepoint.h = depth(leader_box);
                                     else
-                                        basepoint_horizontal =
-                                            height(leader_box);
+                                        basepoint.h = height(leader_box);
                                 }
                                 if (dir_eq
                                     (dir_secondary[box_dir(leader_box)],
-                                     dir_primary[dvi_direction]))
-                                    basepoint_vertical =
-                                        -(width(leader_box) / 2);
+                                     dir_primary[localpos.dir]))
+                                    basepoint.v = -(width(leader_box) / 2);
                                 else
-                                    basepoint_vertical =
-                                        (width(leader_box) / 2);
+                                    basepoint.v = (width(leader_box) / 2);
                             }
-                            if (!is_mirrored(dvi_direction))
-                                basepoint_vertical = basepoint_vertical + shift_amount(leader_box);     /* shift the box `down' */
+                            if (!is_mirrored(localpos.dir))
+                                basepoint.v = basepoint.v + shift_amount(leader_box);   /* shift the box `down' */
                             else
-                                basepoint_vertical = basepoint_vertical - shift_amount(leader_box);     /* shift the box `up' */
+                                basepoint.v = basepoint.v - shift_amount(leader_box);   /* shift the box `up' */
                             temp_ptr = leader_box;
                             edge_h = cur.h;
-                            cur.h = cur.h + basepoint_horizontal;
+                            cur.h = cur.h + basepoint.h;
                             edge_v = cur.v;
-                            cur.v = base_line + basepoint_vertical;
+                            cur.v = base_line + basepoint.v;
                             (void) new_synch_pos_with_cur(pdf->posstruct,
                                                           refpos, cur);
                             outer_doing_leaders = doing_leaders;
@@ -680,7 +668,7 @@ void pdf_hlist_out(PDF pdf)
                 rule.dp = depth(this_box);
             if (((rule.ht + rule.dp) > 0) && (rule.wd > 0)) {   /* we don't output empty rules */
                 (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
-                switch (box_direction(dvi_direction)) {
+                switch (box_direction(localpos.dir)) {
                 case dir_TL_:
                     lpos_down(rule.dp);
                     pdf_place_rule(pdf, rule.wd, rule.ht + rule.dp);
@@ -733,7 +721,6 @@ void pdf_hlist_out(PDF pdf)
     synctex_tsilh(this_box);
 
     decr(cur_s);
-    dvi_direction = save_direction;
     /* DIR: Reset |dir_ptr| */
     {
         while (dir_ptr != null)
@@ -766,10 +753,8 @@ void pdf_vlist_out(PDF pdf)
     real glue_temp;             /* glue value before rounding */
     real cur_glue;              /* glue seen so far */
     scaled cur_g;               /* rounded equivalent of |cur_glue| times the glue ratio */
-    integer save_direction;
     scaled effective_vertical;
-    scaled basepoint_horizontal;
-    scaled basepoint_vertical;
+    scaledpos basepoint;
     scaled edge_v;
     cur_g = 0;
     cur_glue = 0.0;
@@ -785,8 +770,6 @@ void pdf_vlist_out(PDF pdf)
     box_pos = refpos->pos;
     set_to_zero(cur);
 
-    save_direction = dvi_direction;
-    dvi_direction = box_dir(this_box);
     incr(cur_s);
     left_edge = cur.h;
     /* Start vlist {\sl Sync\TeX} information record */
@@ -816,42 +799,42 @@ void pdf_vlist_out(PDF pdf)
                  */
                 if (!
                     (dir_orthogonal
-                     (dir_primary[box_dir(p)], dir_primary[dvi_direction]))) {
+                     (dir_primary[box_dir(p)], dir_primary[localpos.dir]))) {
                     effective_vertical = height(p) + depth(p);
                     if ((type(p) == hlist_node) && is_mirrored(box_dir(p)))
-                        basepoint_vertical = depth(p);
+                        basepoint.v = depth(p);
                     else
-                        basepoint_vertical = height(p);
+                        basepoint.v = height(p);
                     if (dir_opposite
                         (dir_secondary[box_dir(p)],
-                         dir_secondary[dvi_direction]))
-                        basepoint_horizontal = width(p);
+                         dir_secondary[localpos.dir]))
+                        basepoint.h = width(p);
                     else
-                        basepoint_horizontal = 0;
+                        basepoint.h = 0;
                 } else {
                     effective_vertical = width(p);
                     if (!is_mirrored(box_dir(p))) {
                         if (dir_eq
                             (dir_primary[box_dir(p)],
-                             dir_secondary[dvi_direction]))
-                            basepoint_horizontal = height(p);
+                             dir_secondary[localpos.dir]))
+                            basepoint.h = height(p);
                         else
-                            basepoint_horizontal = depth(p);
+                            basepoint.h = depth(p);
                     } else {
                         if (dir_eq
                             (dir_primary[box_dir(p)],
-                             dir_secondary[dvi_direction]))
-                            basepoint_horizontal = depth(p);
+                             dir_secondary[localpos.dir]))
+                            basepoint.h = depth(p);
                         else
-                            basepoint_horizontal = height(p);
+                            basepoint.h = height(p);
                     }
                     if (dir_eq
-                        (dir_secondary[box_dir(p)], dir_primary[dvi_direction]))
-                        basepoint_vertical = 0;
+                        (dir_secondary[box_dir(p)], dir_primary[localpos.dir]))
+                        basepoint.v = 0;
                     else
-                        basepoint_vertical = width(p);
+                        basepoint.v = width(p);
                 }
-                basepoint_horizontal = basepoint_horizontal + shift_amount(p);  /* shift the box `right' */
+                basepoint.h = basepoint.h + shift_amount(p);    /* shift the box `right' */
                 if (list_ptr(p) == null) {
                     cur.v = cur.v + effective_vertical;
                     /* Record void list {\sl Sync\TeX} information */
@@ -862,8 +845,8 @@ void pdf_vlist_out(PDF pdf)
 
                 } else {
                     edge_v = cur.v;
-                    cur.h = left_edge + basepoint_horizontal;
-                    cur.v = cur.v + basepoint_vertical;
+                    cur.h = left_edge + basepoint.h;
+                    cur.v = cur.v + basepoint.v;
                     (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     temp_ptr = p;
                     if (type(p) == vlist_node)
@@ -878,7 +861,7 @@ void pdf_vlist_out(PDF pdf)
             case rule_node:
                 if (!
                     (dir_orthogonal
-                     (dir_primary[rule_dir(p)], dir_primary[dvi_direction]))) {
+                     (dir_primary[rule_dir(p)], dir_primary[localpos.dir]))) {
                     rule.ht = height(p);
                     rule.dp = depth(p);
                     rule.wd = width(p);
@@ -922,7 +905,7 @@ void pdf_vlist_out(PDF pdf)
                     /* Output a Form node in a vlist */
                     cur.h = left_edge;
                     (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
-                    switch (box_direction(dvi_direction)) {
+                    switch (box_direction(localpos.dir)) {
                     case dir_TL_:
                         lpos_down(pdf_height(p) + pdf_depth(p));
                         break;
@@ -940,7 +923,7 @@ void pdf_vlist_out(PDF pdf)
                     /* Output an Image node in a vlist */
                     cur.h = left_edge;
                     (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
-                    switch (box_direction(dvi_direction)) {
+                    switch (box_direction(localpos.dir)) {
                     case dir_TL_:
                         lpos_down(pdf_height(p) + pdf_depth(p));
                         break;
@@ -1101,7 +1084,7 @@ void pdf_vlist_out(PDF pdf)
             rule.ht = rule.ht + rule.dp;        /* this is the rule thickness */
             if ((rule.ht > 0) && (rule.wd > 0)) {       /* we don't output empty rules */
                 (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
-                switch (box_direction(dvi_direction)) {
+                switch (box_direction(localpos.dir)) {
                 case dir_TL_:
                     lpos_down(rule.ht);
                     pdf_place_rule(pdf, rule.wd, rule.ht);
@@ -1148,6 +1131,5 @@ void pdf_vlist_out(PDF pdf)
     synctex_tsilv(this_box);
 
     decr(cur_s);
-    dvi_direction = save_direction;
     pdf->posstruct = refpos;
 }

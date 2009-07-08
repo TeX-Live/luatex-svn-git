@@ -169,7 +169,7 @@ scaled output_one_char(PDF pdf, internal_font_number ffi, integer c)
     else
         pdf_place_glyph(pdf, ffi, c);
 
-    switch (box_direction(dvi_direction)) {
+    switch (box_direction(localpos.dir)) {
     case dir_TL_:
     case dir_TR_:
     case dir_BL_:

@@ -121,7 +121,7 @@ void end_thread(PDF pdf)
         pdf_error("ext4",
                   "\\pdfendthread ended up in different nesting level than \\pdfstartthread");
     if (is_running(pdf_thread.dp) && (last_thread != null)) {
-        switch (box_direction(dvi_direction)) {
+        switch (box_direction(pdf->posstruct->dir)) {
         case dir_TL_:
         case dir_TR_:
             pdf_ann_bottom(last_thread) = pos.v - pdf_thread_margin;
