@@ -56,11 +56,6 @@ will store data of outline entries in |pdf->mem| instead of |mem|
 #define set_obj_outline_parent(pdf,A,B) obj_outline_parent(pdf,A)=B
 #define set_obj_outline_attr(pdf,A,B) obj_outline_attr(pdf,A)=B
 
-
-static integer pdf_first_outline = 0;
-static integer pdf_last_outline = 0;
-static integer pdf_parent_outline = 0;
-
 static integer open_subentries(PDF pdf, halfword p)
 {
     integer k, c;
@@ -215,38 +210,38 @@ void scan_pdfoutline(PDF pdf)
     set_obj_outline_next(pdf, k, 0);
     set_obj_outline_first(pdf, k, 0);
     set_obj_outline_last(pdf, k, 0);
-    set_obj_outline_parent(pdf, k, pdf_parent_outline);
+    set_obj_outline_parent(pdf, k, pdf->parent_outline);
     set_obj_outline_attr(pdf, k, r);
-    if (pdf_first_outline == 0)
-        pdf_first_outline = k;
-    if (pdf_last_outline == 0) {
-        if (pdf_parent_outline != 0)
-            set_obj_outline_first(pdf, pdf_parent_outline, k);
+    if (pdf->first_outline == 0)
+        pdf->first_outline = k;
+    if (pdf->last_outline == 0) {
+        if (pdf->parent_outline != 0)
+            set_obj_outline_first(pdf, pdf->parent_outline, k);
     } else {
-        set_obj_outline_next(pdf, pdf_last_outline, k);
-        set_obj_outline_prev(pdf, k, pdf_last_outline);
+        set_obj_outline_next(pdf, pdf->last_outline, k);
+        set_obj_outline_prev(pdf, k, pdf->last_outline);
     }
-    pdf_last_outline = k;
+    pdf->last_outline = k;
     if (obj_outline_count(pdf, k) != 0) {
-        pdf_parent_outline = k;
-        pdf_last_outline = 0;
-    } else if ((pdf_parent_outline != 0) &&
+        pdf->parent_outline = k;
+        pdf->last_outline = 0;
+    } else if ((pdf->parent_outline != 0) &&
                (outline_list_count(pdf, k) ==
-                abs(obj_outline_count(pdf, pdf_parent_outline)))) {
-        j = pdf_last_outline;
+                abs(obj_outline_count(pdf, pdf->parent_outline)))) {
+        j = pdf->last_outline;
         do {
-            set_obj_outline_last(pdf, pdf_parent_outline, j);
-            j = pdf_parent_outline;
-            pdf_parent_outline = obj_outline_parent(pdf, pdf_parent_outline);
-        } while (!((pdf_parent_outline == 0) ||
+            set_obj_outline_last(pdf, pdf->parent_outline, j);
+            j = pdf->parent_outline;
+            pdf->parent_outline = obj_outline_parent(pdf, pdf->parent_outline);
+        } while (!((pdf->parent_outline == 0) ||
                    (outline_list_count(pdf, j) <
-                    abs(obj_outline_count(pdf, pdf_parent_outline)))));
-        if (pdf_parent_outline == 0)
-            pdf_last_outline = pdf_first_outline;
+                    abs(obj_outline_count(pdf, pdf->parent_outline)))));
+        if (pdf->parent_outline == 0)
+            pdf->last_outline = pdf->first_outline;
         else
-            pdf_last_outline = obj_outline_first(pdf, pdf_parent_outline);
-        while (obj_outline_next(pdf, pdf_last_outline) != 0)
-            pdf_last_outline = obj_outline_next(pdf, pdf_last_outline);
+            pdf->last_outline = obj_outline_first(pdf, pdf->parent_outline);
+        while (obj_outline_next(pdf, pdf->last_outline) != 0)
+            pdf->last_outline = obj_outline_next(pdf, pdf->last_outline);
     }
 }
 
@@ -257,10 +252,10 @@ integer print_outlines(PDF pdf)
 {
     integer k, l, a;
     integer outlines;
-    if (pdf_first_outline != 0) {
+    if (pdf->first_outline != 0) {
         pdf_new_dict(pdf, obj_type_others, 0, 1);
         outlines = pdf->obj_ptr;
-        l = pdf_first_outline;
+        l = pdf->first_outline;
         k = 0;
         do {
             incr(k);
@@ -271,19 +266,19 @@ integer print_outlines(PDF pdf)
             l = obj_outline_next(pdf, l);
         } while (l != 0);
         pdf_printf(pdf, "/Type /Outlines\n");
-        pdf_indirect_ln(pdf, "First", pdf_first_outline);
-        pdf_indirect_ln(pdf, "Last", pdf_last_outline);
+        pdf_indirect_ln(pdf, "First", pdf->first_outline);
+        pdf_indirect_ln(pdf, "Last", pdf->last_outline);
         pdf_int_entry_ln(pdf, "Count", k);
         pdf_end_dict(pdf);
         /* Output PDF outline entries */
 
         k = pdf->head_tab[obj_type_outline];
         while (k != 0) {
-            if (obj_outline_parent(pdf, k) == pdf_parent_outline) {
+            if (obj_outline_parent(pdf, k) == pdf->parent_outline) {
                 if (obj_outline_prev(pdf, k) == 0)
-                    pdf_first_outline = k;
+                    pdf->first_outline = k;
                 if (obj_outline_next(pdf, k) == 0)
-                    pdf_last_outline = k;
+                    pdf->last_outline = k;
             }
             pdf_begin_dict(pdf, k, 1);
             pdf_indirect_ln(pdf, "Title", obj_outline_title(pdf, k));

@@ -230,9 +230,14 @@ typedef struct pdf_output_file_ {
     integer image_procset; /* collection of image types used in current page/form */
     int text_procset; /* mask of used ProcSet's in the current page/form */
 
+    /* the variables from pdfdest */
     integer dest_names_size;
     integer dest_names_ptr;
     dest_name_entry *dest_names;
+    /* the (static) variables from pdfoutline */
+    integer first_outline;
+    integer last_outline;
+    integer parent_outline;
 
 } pdf_output_file;
 
