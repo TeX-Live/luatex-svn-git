@@ -95,11 +95,17 @@ typedef struct {
 } pdfstructure;
 
 typedef struct obj_entry_ {
-    integer int0;
+    union {
+        integer int0;
+        char * str0;
+    } u;
     integer int1;
     off_t int2;
     integer int3;
-    integer int4;
+    union {
+        integer int4;
+        char * str4;
+    } v;
 } obj_entry;
 
 typedef struct dest_name_entry_ {

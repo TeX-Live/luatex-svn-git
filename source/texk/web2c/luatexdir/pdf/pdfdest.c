@@ -319,7 +319,6 @@ integer output_name_tree (PDF pdf)
                                  otherwise it is the pointer to |obj_tab| (object number) */
     integer dests = 0;
     integer names_head = 0, names_tail = 0;
-    char *fi = NULL, *li = NULL; 
     if (pdf->dest_names_ptr == 0) {
         goto DONE;
     }
@@ -344,8 +343,7 @@ integer output_name_tree (PDF pdf)
             pdf_begin_dict(pdf, l, 1);
             j = 0;
             if (is_names) {
-                set_obj_info(pdf, l, maketexstring(pdf->dest_names[k].objname)); /* for later */
-                fi = pdf->dest_names[k].objname;
+                set_obj_start(pdf, l, pdf->dest_names[k].objname);
                 pdf_printf(pdf, "/Names [");
                 do {
                     pdf_print_str(pdf, pdf->dest_names[k].objname);
@@ -357,27 +355,20 @@ integer output_name_tree (PDF pdf)
                 } while (j != name_tree_kids_max && k != pdf->dest_names_ptr);
                 pdf_remove_last_space(pdf);
                 pdf_printf(pdf, "]\n");
-                set_obj_aux(pdf, l, maketexstring(pdf->dest_names[k - 1].objname)); /* for later */
-                li = pdf->dest_names[k-1].objname;
+                set_obj_stop(pdf, l, pdf->dest_names[k - 1].objname); /* for later */
                 if (k == pdf->dest_names_ptr) {
                     is_names = false;
                     k = names_head;
                     b = 0;
                 }
-                pdf_printf(pdf, "/Limits [");
-                pdf_print_str(pdf, fi);
-                pdf_out(pdf, ' ');
-                pdf_print_str(pdf, li);
-                pdf_printf(pdf, "]\n");
-                pdf_end_dict(pdf);
 
             } else {
-                set_obj_info(pdf, l, obj_info(pdf, k));
+                set_obj_start(pdf, l, obj_start(pdf, k));
                 pdf_printf(pdf, "/Kids [");
                 do {
                     pdf_print_int(pdf, k);
                     pdf_printf(pdf, " 0 R ");
-                    set_obj_aux(pdf, l, obj_aux(pdf, k));
+                    set_obj_stop(pdf, l, obj_stop(pdf, k));
                     k = obj_link(pdf, k);
                     j++;
                 } while (j != name_tree_kids_max && k != b && obj_link(pdf, k) != 0);
@@ -385,14 +376,14 @@ integer output_name_tree (PDF pdf)
                 pdf_printf(pdf, "]\n");
                 if (k == b)
                     b = 0;
-                pdf_printf(pdf, "/Limits [");
-                pdf_print_str(pdf, makecstring(obj_info(pdf, l)));
-                pdf_out(pdf, ' ');
-                pdf_print_str(pdf, makecstring(obj_aux(pdf, l)));
-                pdf_printf(pdf, "]\n");
-                pdf_end_dict(pdf);
-
             }
+            pdf_printf(pdf, "/Limits [");
+            pdf_print_str(pdf, obj_start(pdf, l));
+            pdf_out(pdf, ' ');
+            pdf_print_str(pdf, obj_stop(pdf, l));
+            pdf_printf(pdf, "]\n");
+            pdf_end_dict(pdf);
+
             
         } while (b != 0);
 
