@@ -113,6 +113,18 @@ typedef struct dest_name_entry_ {
     integer objnum;          /* destination object number */
 } dest_name_entry;
 
+
+#  define pdf_max_link_level  10        /* maximum depth of link nesting */
+
+typedef struct pdf_link_stack_record {
+    integer nesting_level;
+    integer link_node;         /* holds a copy of the corresponding |pdf_start_link_node| */
+    integer ref_link_node;     /* points to original |pdf_start_link_node|, or a
+                                   copy of |link_node| created by |append_link| in
+                                   case of multi-line link */
+} pdf_link_stack_record;
+
+
 /* types of objects */
 typedef enum {
     obj_type_others = 0,        /* objects which are not linked in any list */
@@ -238,6 +250,9 @@ typedef struct pdf_output_file_ {
     integer first_outline;
     integer last_outline;
     integer parent_outline;
+    /* the pdf link stack */
+    pdf_link_stack_record link_stack[(pdf_max_link_level + 1)];
+    integer link_stack_ptr;
 
 } pdf_output_file;
 

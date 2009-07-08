@@ -226,9 +226,9 @@ void pdf_hlist_out(PDF pdf)
     left_edge = cur.h;
     prev_p = this_box + list_offset;
     /* Create link annotations for the current hbox if needed */
-    for (i = 1; i <= pdf_link_stack_ptr; i++) {
-        assert(is_running(pdf_width(pdf_link_stack[i].link_node)));
-        if (pdf_link_stack[i].nesting_level == cur_s) {
+    for (i = 1; i <= pdf->link_stack_ptr; i++) {
+        assert(is_running(pdf_width(pdf->link_stack[i].link_node)));
+        if (pdf->link_stack[i].nesting_level == cur_s) {
             (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
             append_link(pdf, this_box, cur, i);
         }

@@ -27,33 +27,28 @@ static const char __svn_version[] =
 
 #define pdf_link_margin          dimen_par(param_pdf_link_margin_code)
 
-
 /*
 To implement nested link annotations, we need a stack to hold copy of
 |pdf_start_link_node|'s that are being written out, together with their box
 nesting level.
 */
 
-pdf_link_stack_record pdf_link_stack[(pdf_max_link_level + 1)];
-
-integer pdf_link_stack_ptr = 0;
-
-void push_link_level(halfword p)
+void push_link_level(PDF pdf, halfword p)
 {
-    if (pdf_link_stack_ptr >= pdf_max_link_level)
+    if (pdf->link_stack_ptr >= pdf_max_link_level)
         overflow("pdf link stack size", pdf_max_link_level);
     assert(((type(p) == whatsit_node) && (subtype(p) == pdf_start_link_node)));
-    incr(pdf_link_stack_ptr);
-    pdf_link_stack[pdf_link_stack_ptr].nesting_level = cur_s;
-    pdf_link_stack[pdf_link_stack_ptr].link_node = copy_node_list(p);
-    pdf_link_stack[pdf_link_stack_ptr].ref_link_node = p;
+    incr(pdf->link_stack_ptr);
+    pdf->link_stack[pdf->link_stack_ptr].nesting_level = cur_s;
+    pdf->link_stack[pdf->link_stack_ptr].link_node = copy_node_list(p);
+    pdf->link_stack[pdf->link_stack_ptr].ref_link_node = p;
 }
 
-void pop_link_level(void)
+void pop_link_level(PDF pdf)
 {
-    assert(pdf_link_stack_ptr > 0);
-    flush_node_list(pdf_link_stack[pdf_link_stack_ptr].link_node);
-    decr(pdf_link_stack_ptr);
+    assert(pdf->link_stack_ptr > 0);
+    flush_node_list(pdf->link_stack[pdf->link_stack_ptr].link_node);
+    decr(pdf->link_stack_ptr);
 }
 
 void do_link(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
@@ -64,7 +59,7 @@ void do_link(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
     assert(type(parent_box) == hlist_node);
     if (is_obj_scheduled(pdf, pdf_link_objnum(p)))
         pdf_link_objnum(p) = pdf_new_objnum(pdf);
-    push_link_level(p);
+    push_link_level(pdf, p);
     alt_rule.wd = pdf_width(p);
     alt_rule.ht = pdf_height(p);
     alt_rule.dp = pdf_depth(p);
@@ -78,18 +73,18 @@ void end_link(PDF pdf)
 {
     halfword p;
     scaledpos pos = pdf->posstruct->pos;
-    if (pdf_link_stack_ptr < 1)
+    if (pdf->link_stack_ptr < 1)
         pdf_error("ext4",
-                  "pdf_link_stack empty, \\pdfendlink used without \\pdfstartlink?");
-    if (pdf_link_stack[pdf_link_stack_ptr].nesting_level != cur_s)
+                  "pdf link_stack empty, \\pdfendlink used without \\pdfstartlink?");
+    if (pdf->link_stack[pdf->link_stack_ptr].nesting_level != cur_s)
         pdf_error("ext4",
                   "\\pdfendlink ended up in different nesting level than \\pdfstartlink");
 
     /* N.B.: test for running link must be done on |link_node| and not |ref_link_node|,
        as |ref_link_node| can be set by |do_link| or |append_link| already */
 
-    if (is_running(pdf_width(pdf_link_stack[pdf_link_stack_ptr].link_node))) {
-        p = pdf_link_stack[pdf_link_stack_ptr].ref_link_node;
+    if (is_running(pdf_width(pdf->link_stack[pdf->link_stack_ptr].link_node))) {
+        p = pdf->link_stack[pdf->link_stack_ptr].ref_link_node;
         if (is_shipping_page && matrixused()) {
             matrixrecalculate(cur.h + pdf_link_margin);
             pdf_ann_left(p) = getllx() - pdf_link_margin;
@@ -117,7 +112,7 @@ void end_link(PDF pdf)
             }
         }
     }
-    pop_link_level();
+    pop_link_level(pdf);
 }
 
 /*
@@ -135,8 +130,8 @@ void append_link(PDF pdf, halfword parent_box, scaledpos cur, small_number i)
     halfword p;
     scaled_whd alt_rule;
     assert(type(parent_box) == hlist_node);
-    p = copy_node(pdf_link_stack[(int) i].link_node);
-    pdf_link_stack[(int) i].ref_link_node = p;
+    p = copy_node(pdf->link_stack[(int) i].link_node);
+    pdf->link_stack[(int) i].ref_link_node = p;
     subtype(p) = pdf_link_data_node;    /* this node is not a normal link node */
     alt_rule.wd = pdf_width(p);
     alt_rule.ht = pdf_height(p);

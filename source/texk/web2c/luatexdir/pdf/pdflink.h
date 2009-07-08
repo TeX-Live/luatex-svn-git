@@ -26,21 +26,8 @@
 #  define set_pdf_link_action(A,B) pdf_link_action(A)=B
 #  define set_pdf_link_objnum(A,B) pdf_link_objnum(A)=B
 
-#  define pdf_max_link_level  10        /* maximum depth of link nesting */
-
-typedef struct pdf_link_stack_record {
-    integer nesting_level;
-    halfword link_node;         /* holds a copy of the corresponding |pdf_start_link_node| */
-    halfword ref_link_node;     /* points to original |pdf_start_link_node|, or a
-                                   copy of |link_node| created by |append_link| in
-                                   case of multi-line link */
-} pdf_link_stack_record;
-
-extern pdf_link_stack_record pdf_link_stack[(pdf_max_link_level + 1)];
-extern integer pdf_link_stack_ptr;
-
-extern void push_link_level(halfword p);
-extern void pop_link_level(void);
+extern void push_link_level(PDF pdf, halfword p);
+extern void pop_link_level(PDF pdf);
 extern void do_link(PDF pdf, halfword p, halfword parent_box, scaledpos cur);
 extern void end_link(PDF pdf);
 extern void append_link(PDF pdf, halfword parent_box, scaledpos cur,
