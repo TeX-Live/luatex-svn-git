@@ -365,20 +365,8 @@ void pdf_hlist_out(PDF pdf)
                     }
                     break;
                 case pdf_refxform_node:
-                    /* Output a Form node in a hlist */
-                    switch (box_direction(localpos.dir)) {
-                    case dir_TL_:
-                        lpos_down(pdf_depth(p));
-                        break;
-                    case dir_TR_:
-                        lpos_down(pdf_depth(p));
-                        lpos_left(pdf_width(p));
-                        break;
-                    }
-                    pdf_place_form(pdf, pdf_xform_objnum(p));
-                    cur.h += pdf_width(p);
-                    break;
                 case pdf_refximage_node:
+                    /* Output a Form node in a hlist */
                     /* Output an Image node in a hlist */
                     switch (box_direction(localpos.dir)) {
                     case dir_TL_:
@@ -410,7 +398,10 @@ void pdf_hlist_out(PDF pdf)
                         lpos_left(pdf_depth(p));
                         break;
                     }
-                    pdf_place_image(pdf, pdf_ximage_idx(p));
+                    if (subtype(p) == pdf_refximage_node)
+                        pdf_place_image(pdf, pdf_ximage_idx(p));
+                    else
+                        pdf_place_form(pdf, pdf_xform_objnum(p));
                     cur.h += pdf_width(p);
                     break;
                 case pdf_annot_node:
@@ -867,22 +858,8 @@ void pdf_vlist_out(PDF pdf)
                     }
                     break;
                 case pdf_refxform_node:
-                    /* Output a Form node in a vlist */
-                    switch (box_direction(localpos.dir)) {
-                    case dir_TL_:
-                        lpos_down(pdf_height(p) + pdf_depth(p));
-                        break;
-                    case dir_TR_:
-                        lpos_left(pdf_width(p));
-                        lpos_down(pdf_height(p) + pdf_depth(p));
-                        break;
-                    default:
-                        break;
-                    }
-                    pdf_place_form(pdf, pdf_xform_objnum(p));
-                    cur.v += pdf_height(p) + pdf_depth(p);
-                    break;
                 case pdf_refximage_node:
+                    /* Output a Form node in a vlist */
                     /* Output an Image node in a vlist */
                     switch (box_direction(localpos.dir)) {
                     case dir_TL_:
@@ -912,7 +889,10 @@ void pdf_vlist_out(PDF pdf)
                     default:
                         break;
                     }
-                    pdf_place_image(pdf, pdf_ximage_idx(p));
+                    if (subtype(p) == pdf_refximage_node)
+                        pdf_place_image(pdf, pdf_ximage_idx(p));
+                    else
+                        pdf_place_form(pdf, pdf_xform_objnum(p));
                     cur.v += pdf_height(p) + pdf_depth(p);
                     break;
                 case pdf_annot_node:
