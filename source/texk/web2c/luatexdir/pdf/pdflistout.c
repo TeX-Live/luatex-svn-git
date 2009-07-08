@@ -168,7 +168,6 @@ void calculate_width_to_enddir(halfword p, real cur_glue, scaled cur_g,
 void pdf_hlist_out(PDF pdf)
 {
     /*label move_past, fin_rule, next_p; */
-    scaled base_line;           /* the baseline coordinate for this box */
     scaled w;                   /*  temporary value for directional width calculation  */
     scaled edge_v;
     scaled edge_h;
@@ -179,7 +178,6 @@ void pdf_hlist_out(PDF pdf)
     scaled effective_horizontal;
     scaledpos basepoint;
     halfword dvi_ptr, dir_ptr, dir_tmp;
-    scaled left_edge;           /* the left coordinate for this box */
     scaled save_h;              /* what |cur.h| should pop to */
     halfword this_box;          /* pointer to containing box */
     integer g_order;            /* applicable order of infinity for glue */
@@ -206,8 +204,8 @@ void pdf_hlist_out(PDF pdf)
     pdf->posstruct = &localpos; /* use local structure for recursion */
     localpos.dir = box_dir(this_box);
 
-    set_to_zero(cur);
-
+    cur.h = 0;
+    cur.v = 0;
     dvi_ptr = 0;
     lx = 0;
     /* Initialize |dir_ptr| for |ship_out| */
@@ -217,8 +215,6 @@ void pdf_hlist_out(PDF pdf)
         dir_dvi_ptr(dir_ptr) = dvi_ptr;
     }
     incr(cur_s);
-    base_line = cur.v;
-    left_edge = cur.h;
     prev_p = this_box + list_offset;
     /* Create link annotations for the current hbox if needed */
     for (i = 1; i <= pdf->link_stack_ptr; i++) {
@@ -236,15 +232,15 @@ void pdf_hlist_out(PDF pdf)
         if (is_char_node(p)) {
             do {
                 if (x_displace(p) != 0)
-                    cur.h = cur.h + x_displace(p);
+                    cur.h += x_displace(p);
                 if (y_displace(p) != 0)
-                    cur.v = cur.v - y_displace(p);
+                    cur.v -= y_displace(p);
                 (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                 cur.h += output_one_char(pdf, font(p), character(p));
                 if (x_displace(p) != 0)
-                    cur.h = cur.h - x_displace(p);
+                    cur.h -= x_displace(p);
                 if (y_displace(p) != 0)
-                    cur.v = cur.v + y_displace(p);
+                    cur.v += y_displace(p);
                 p = vlink(p);
             } while (is_char_node(p));
             /* Record current point {\sl Sync\TeX} information */
@@ -302,20 +298,20 @@ void pdf_hlist_out(PDF pdf)
                     else
                         synctex_void_hlist(p, this_box);
 
-                    cur.h = cur.h + effective_horizontal;
+                    cur.h += effective_horizontal;
                 } else {
                     temp_ptr = p;
-                    edge = cur.h;
-                    cur.h = cur.h + basepoint.h;
+                    edge_h = cur.h;
+                    cur.h += basepoint.h;
                     edge_v = cur.v;
-                    cur.v = base_line + basepoint.v;
+                    cur.v = basepoint.v;
                     (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     if (type(p) == vlist_node)
                         pdf_vlist_out(pdf);
                     else
                         pdf_hlist_out(pdf);
-                    cur.h = edge + effective_horizontal;
-                    cur.v = base_line;
+                    cur.h = edge_h + effective_horizontal;
+                    cur.v = 0;
                 }
                 break;
             case disc_node:
@@ -378,7 +374,6 @@ void pdf_hlist_out(PDF pdf)
                     break;
                 case pdf_refxform_node:
                     /* Output a Form node in a hlist */
-                    cur.v = base_line;
                     (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     switch (box_direction(localpos.dir)) {
                     case dir_TL_:
@@ -395,7 +390,6 @@ void pdf_hlist_out(PDF pdf)
                     break;
                 case pdf_refximage_node:
                     /* Output an Image node in a hlist */
-                    cur.v = base_line;
                     (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     switch (box_direction(localpos.dir)) {
                     case dir_TL_:
@@ -487,7 +481,7 @@ void pdf_hlist_out(PDF pdf)
                             if (dir_opposite
                                 (dir_secondary[dir_dir(dir_ptr)],
                                  dir_secondary[localpos.dir]))
-                                cur.h = cur.h + w;
+                                cur.h += w;
                         } else {
                             dir_cur_h(temp_ptr) = cur.h;
                         }
@@ -497,7 +491,8 @@ void pdf_hlist_out(PDF pdf)
                         pos = new_synch_pos_with_cur(pdf->posstruct, refpos, cur);      /* no need for |synch_dvi_with_cur|, as there is no DVI grouping */
                         refpos->pos = pos;      /* fake a nested |hlist_out| */
                         localpos.dir = dir_dir(dir_ptr);
-                        set_to_zero(cur);
+                        cur.h = 0;
+                        cur.v = 0;
                     } else {
                         pop_dir_node();
                         refpos->pos.h = dir_box_pos_h(p);
@@ -558,20 +553,17 @@ void pdf_hlist_out(PDF pdf)
                         {
                             if (subtype(p) == a_leaders) {
                                 save_h = cur.h;
-                                cur.h =
-                                    left_edge +
-                                    leader_wd * ((cur.h - left_edge) /
-                                                 leader_wd);
+                                cur.h = leader_wd * (cur.h / leader_wd);
                                 if (cur.h < save_h)
-                                    cur.h = cur.h + leader_wd;
+                                    cur.h += leader_wd;
                             } else {
                                 lq = rule.wd / leader_wd;       /* the number of box copies */
                                 lr = rule.wd % leader_wd;       /* the remaining space */
                                 if (subtype(p) == c_leaders) {
-                                    cur.h = cur.h + (lr / 2);
+                                    cur.h += lr / 2;
                                 } else {
                                     lx = lr / (lq + 1);
-                                    cur.h = cur.h + ((lr - (lq - 1) * lx) / 2);
+                                    cur.h += (lr - (lq - 1) * lx) / 2;
                                 }
                             }
                         }
@@ -619,9 +611,9 @@ void pdf_hlist_out(PDF pdf)
                                 basepoint.v = basepoint.v - shift_amount(leader_box);   /* shift the box `up' */
                             temp_ptr = leader_box;
                             edge_h = cur.h;
-                            cur.h = cur.h + basepoint.h;
+                            cur.h += basepoint.h;
                             edge_v = cur.v;
-                            cur.v = base_line + basepoint.v;
+                            cur.v = basepoint.v;
                             (void) new_synch_pos_with_cur(pdf->posstruct,
                                                           refpos, cur);
                             outer_doing_leaders = doing_leaders;
@@ -632,7 +624,7 @@ void pdf_hlist_out(PDF pdf)
                                 pdf_hlist_out(pdf);
                             doing_leaders = outer_doing_leaders;
                             cur.h = edge_h + leader_wd + lx;
-                            cur.v = base_line;
+                            cur.v = 0;
                         }
                         cur.h = edge - 10;
                         goto NEXTP;
@@ -641,17 +633,17 @@ void pdf_hlist_out(PDF pdf)
                 goto MOVE_PAST;
                 break;
             case margin_kern_node:
-                cur.h = cur.h + width(p);
+                cur.h += width(p);
                 break;
             case kern_node:
                 /* Record |kern_node| {\sl Sync\TeX} information */
                 synctex_kern(p, this_box);
-                cur.h = cur.h + width(p);
+                cur.h += width(p);
                 break;
             case math_node:
                 /* Record |math_node| {\sl Sync\TeX} information */
                 synctex_math(p, this_box);
-                cur.h = cur.h + surround(p);
+                cur.h += surround(p);
                 break;
             default:
                 break;
@@ -705,7 +697,7 @@ void pdf_hlist_out(PDF pdf)
                 }
             }
           MOVE_PAST:
-            cur.h = cur.h + rule.wd;
+            cur.h += rule.wd;
             /* Record horizontal |rule_node| or |glue_node| {\sl Sync\TeX} information */
             synctex_horizontal_rule_or_glue(p, this_box);
           NEXTP:
@@ -731,7 +723,6 @@ void pdf_hlist_out(PDF pdf)
 
 void pdf_vlist_out(PDF pdf)
 {
-    scaled left_edge;           /* the left coordinate for this box */
     scaled top_edge;            /* the top coordinate for this box */
 
     posstructure localpos;      /* the position structure local within this function */
@@ -764,15 +755,13 @@ void pdf_vlist_out(PDF pdf)
     pdf->posstruct = &localpos; /* use local structure for recursion */
     localpos.dir = box_dir(this_box);
 
-    set_to_zero(cur);
-
+    cur.h = 0;
+    cur.v = -height(this_box);
+    top_edge = cur.v;
     incr(cur_s);
-    left_edge = cur.h;
     /* Start vlist {\sl Sync\TeX} information record */
     synctex_vlist(this_box);
 
-    cur.v = cur.v - height(this_box);
-    top_edge = cur.v;
     /* Create thread for the current vbox if needed */
     check_running_thread(pdf, this_box, refpos, cur);
 
@@ -832,7 +821,7 @@ void pdf_vlist_out(PDF pdf)
                 }
                 basepoint.h = basepoint.h + shift_amount(p);    /* shift the box `right' */
                 if (list_ptr(p) == null) {
-                    cur.v = cur.v + effective_vertical;
+                    cur.v += effective_vertical;
                     /* Record void list {\sl Sync\TeX} information */
                     if (type(p) == vlist_node)
                         synctex_void_vlist(p, this_box);
@@ -841,15 +830,15 @@ void pdf_vlist_out(PDF pdf)
 
                 } else {
                     edge_v = cur.v;
-                    cur.h = left_edge + basepoint.h;
-                    cur.v = cur.v + basepoint.v;
+                    cur.h = basepoint.h;
+                    cur.v += basepoint.v;
                     (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     temp_ptr = p;
                     if (type(p) == vlist_node)
                         pdf_vlist_out(pdf);
                     else
                         pdf_hlist_out(pdf);
-                    cur.h = left_edge;
+                    cur.h = 0;
                     cur.v = edge_v + effective_vertical;
                 }
                 break;
@@ -900,7 +889,6 @@ void pdf_vlist_out(PDF pdf)
                     break;
                 case pdf_refxform_node:
                     /* Output a Form node in a vlist */
-                    cur.h = left_edge;
                     (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     switch (box_direction(localpos.dir)) {
                     case dir_TL_:
@@ -914,11 +902,10 @@ void pdf_vlist_out(PDF pdf)
                         break;
                     }
                     pdf_place_form(pdf, pdf_xform_objnum(p));
-                    cur.v = cur.v + pdf_height(p) + pdf_depth(p);
+                    cur.v += pdf_height(p) + pdf_depth(p);
                     break;
                 case pdf_refximage_node:
                     /* Output an Image node in a vlist */
-                    cur.h = left_edge;
                     (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     switch (box_direction(localpos.dir)) {
                     case dir_TL_:
@@ -949,7 +936,7 @@ void pdf_vlist_out(PDF pdf)
                         break;
                     }
                     pdf_place_image(pdf, pdf_ximage_idx(p));
-                    cur.v = cur.v + pdf_height(p) + pdf_depth(p);
+                    cur.v += pdf_height(p) + pdf_depth(p);
                     break;
                 case pdf_annot_node:
                     (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
@@ -1028,23 +1015,23 @@ void pdf_vlist_out(PDF pdf)
                                 top_edge +
                                 leader_ht * ((cur.v - top_edge) / leader_ht);
                             if (cur.v < save_v)
-                                cur.v = cur.v + leader_ht;
+                                cur.v += leader_ht;
                         } else {
                             lq = rule.ht / leader_ht;   /* the number of box copies */
                             lr = rule.ht % leader_ht;   /* the remaining space */
                             if (subtype(p) == c_leaders) {
-                                cur.v = cur.v + (lr / 2);
+                                cur.v += lr / 2;
                             } else {
                                 lx = lr / (lq + 1);
-                                cur.v = cur.v + ((lr - (lq - 1) * lx) / 2);
+                                cur.v += (lr - (lq - 1) * lx) / 2;
                             }
                         }
 
                         while (cur.v + leader_ht <= edge) {
                             /* (\pdfTeX) Output a leader box at |cur.v|,
                                then advance |cur.v| by |leader_ht+lx| */
-                            cur.h = left_edge + shift_amount(leader_box);
-                            cur.v = cur.v + height(leader_box);
+                            cur.h = shift_amount(leader_box);
+                            cur.v += height(leader_box);
                             save_v = cur.v;
                             (void) new_synch_pos_with_cur(pdf->posstruct,
                                                           refpos, cur);
@@ -1056,7 +1043,7 @@ void pdf_vlist_out(PDF pdf)
                             else
                                 pdf_hlist_out(pdf);
                             doing_leaders = outer_doing_leaders;
-                            cur.h = left_edge;
+                            cur.h = 0;
                             cur.v =
                                 save_v - height(leader_box) + leader_ht + lx;
                         }
@@ -1067,7 +1054,7 @@ void pdf_vlist_out(PDF pdf)
                 goto MOVE_PAST;
                 break;
             case kern_node:
-                cur.v = cur.v + width(p);
+                cur.v += width(p);
                 break;
             default:
                 break;
@@ -1114,11 +1101,11 @@ void pdf_vlist_out(PDF pdf)
                     pdf_place_rule(pdf, rule.ht, rule.wd);
                     break;
                 }
-                cur.v = cur.v + rule.ht;
+                cur.v += rule.ht;
             }
             goto NEXTP;
           MOVE_PAST:
-            cur.v = cur.v + rule.ht;
+            cur.v += rule.ht;
           NEXTP:
             p = vlink(p);
         }
