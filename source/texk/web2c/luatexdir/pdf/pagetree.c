@@ -19,18 +19,6 @@
 
 #include "ptexlib.h"
 
-#include "openbsd-compat.h"
-#ifdef HAVE_ASPRINTF            /* asprintf is not defined in openbsd-compat.h, but in stdio.h */
-#  include <stdio.h>
-#endif
-
-#include "sys/types.h"
-#ifndef __MINGW32__
-#  include "sysexits.h"
-#else
-#  define EX_SOFTWARE 70
-#endif
-
 static const char __svn_version[] =
     "$Id$ "
     "$URL$";
