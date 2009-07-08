@@ -176,7 +176,7 @@ void pdf_hlist_out(PDF pdf)
 
     scaled effective_horizontal;
     scaledpos basepoint;
-    halfword dvi_ptr, dir_ptr, dir_tmp;
+    halfword dir_ptr, dir_tmp;
     scaled save_h;              /* what |cur.h| should pop to */
     halfword this_box;          /* pointer to containing box */
     integer g_order;            /* applicable order of infinity for glue */
@@ -205,14 +205,12 @@ void pdf_hlist_out(PDF pdf)
 
     cur.h = 0;
     cur.v = 0;
-    dvi_ptr = 0;
     lx = 0;
+
     /* Initialize |dir_ptr| for |ship_out| */
-    {
-        dir_ptr = null;
-        push_dir(localpos.dir);
-        dir_dvi_ptr(dir_ptr) = dvi_ptr;
-    }
+    dir_ptr = null;
+    push_dir(localpos.dir);     /* macro uses dir_tmp */
+
     incr(cur_s);
     prev_p = this_box + list_offset;
     /* Create link annotations for the current hbox if needed */
@@ -471,8 +469,10 @@ void pdf_hlist_out(PDF pdf)
                         dir_cur_v(temp_ptr) = cur.v;
                         dir_box_pos_h(temp_ptr) = refpos->pos.h;
                         dir_box_pos_v(temp_ptr) = refpos->pos.v;
-                        pos = new_synch_pos_with_cur(pdf->posstruct, refpos, cur);      /* no need for |synch_dvi_with_cur|, as there is no DVI grouping */
-                        refpos->pos = pos;      /* fake a nested |hlist_out| */
+                        /* no need for |synch_dvi_with_cur|, as there is no DVI grouping */
+                        /* fake a nested |hlist_out| */
+                        refpos->pos =
+                            new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
                         localpos.dir = dir_dir(dir_ptr);
                         cur.h = 0;
                         cur.v = 0;
@@ -693,10 +693,9 @@ void pdf_hlist_out(PDF pdf)
 
     decr(cur_s);
     /* DIR: Reset |dir_ptr| */
-    {
-        while (dir_ptr != null)
-            pop_dir_node();
-    }
+    while (dir_ptr != null)
+        pop_dir_node();
+
     pdf->posstruct = refpos;
 }
 
