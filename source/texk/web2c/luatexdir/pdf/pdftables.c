@@ -169,7 +169,7 @@ void pdf_create_obj(PDF pdf, integer t, integer i)
         obj_link(pdf, pdf->obj_ptr) = pdf->head_tab[t];
         pdf->head_tab[t] = pdf->obj_ptr;
         if ((t == obj_type_dest) && (i < 0))
-            append_dest_name(-obj_info(pdf, pdf->obj_ptr), pdf->obj_ptr);
+            append_dest_name(pdf, makecstring(-obj_info(pdf, pdf->obj_ptr)), pdf->obj_ptr);
     }
 }
 

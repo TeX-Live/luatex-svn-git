@@ -715,7 +715,6 @@ begin @!{|start_here|}
   dvi_buf:=xmallocarray (eight_bits, dvi_buf_size);
   initialize_ocplist_arrays(ocp_list_size);
   initialize_ocp_buffers(ocp_buf_size, ocp_stack_size);
-  init_dest_names;
 @+Init
   fixmem:=xmallocarray (smemory_word, fix_mem_init+1);
   memset (voidcast(fixmem), 0, (fix_mem_init+1)*sizeof(smemory_word));

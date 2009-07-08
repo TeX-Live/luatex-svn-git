@@ -102,6 +102,11 @@ typedef struct obj_entry_ {
     integer int4;
 } obj_entry;
 
+typedef struct dest_name_entry_ {
+    char *  objname;         /* destination name */
+    integer objnum;          /* destination object number */
+} dest_name_entry;
+
 /* types of objects */
 typedef enum {
     obj_type_others = 0,        /* objects which are not linked in any list */
@@ -218,6 +223,10 @@ typedef struct pdf_output_file_ {
 
     integer image_procset; /* collection of image types used in current page/form */
     int text_procset; /* mask of used ProcSet's in the current page/form */
+
+    integer dest_names_size;
+    integer dest_names_ptr;
+    dest_name_entry *dest_names;
 
 } pdf_output_file;
 

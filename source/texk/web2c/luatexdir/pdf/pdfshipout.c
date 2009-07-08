@@ -679,28 +679,6 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
 
 /* Finishing the PDF output file. */
 
-/* The following procedures sort the table of destination names */
-
-boolean str_less_str(str_number s1, str_number s2)
-{                               /* compare two strings */
-    pool_pointer c1, c2;
-    integer l, i;
-    c1 = str_start_macro(s1);
-    c2 = str_start_macro(s2);
-    if (str_length(s1) < str_length(s2))
-        l = str_length(s1);
-    else
-        l = str_length(s2);
-    i = 0;
-    while ((i < l) && (str_pool[c1 + i] == str_pool[c2 + i]))
-        incr(i);
-    if (((i < l) && (str_pool[c1 + i] < str_pool[c2 + i])) ||
-        ((i == l) && (str_length(s1) < str_length(s2))))
-        return true;
-    else
-        return false;
-}
-
 /*
 Destinations that have been referenced but don't exists have
 |obj_dest_ptr=null|. Leaving them undefined might cause troubles for
@@ -827,11 +805,10 @@ are already written completely to PDF output file.
 void finish_pdf_file(PDF pdf, integer luatex_version,
                      str_number luatex_revision)
 {
-    boolean is_names;           /* flag for name tree output: is it Names or Kids? */
     boolean res;
-    integer b, i, j, k, l;
-    integer root, outlines, threads, names_tree, dests;
-    integer xref_offset_width, names_head, names_tail;
+    integer i, j, k;
+    integer root, outlines, threads, names_tree;
+    integer xref_offset_width;
     integer callback_id = callback_defined(stop_run_callback);
 
     if (total_pages == 0) {
@@ -917,100 +894,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version,
                |k < pdf_dest_names_ptr| then |k| is index of leaf in |dest_names|; else
                |k| will be index in |obj_tab| of some intermediate node.
              */
-            if (pdf_dest_names_ptr == 0) {
-                dests = 0;
-                goto DONE1;
-            }
-            sort_dest_names(0, pdf_dest_names_ptr - 1);
-            names_head = 0;
-            names_tail = 0;
-            k = 0;              /* index of current child of |l|; if |k < pdf_dest_names_ptr|
-                                   then this is pointer to |dest_names| array;
-                                   otherwise it is the pointer to |obj_tab| (object number) */
-            is_names = true;    /* flag whether Names or Kids */
-            b = 0;
-            do {
-                do {
-                    pdf_create_obj(pdf, obj_type_others, 0);    /* create a new node */
-                    l = pdf->obj_ptr;
-                    if (b == 0)
-                        b = l;  /* first in this level */
-                    if (names_head == 0) {
-                        names_head = l;
-                        names_tail = l;
-                    } else {
-                        set_obj_link(pdf, names_tail, l);
-                        names_tail = l;
-                    }
-                    set_obj_link(pdf, names_tail, 0);
-                    /* Output the current node in this level */
-                    pdf_begin_dict(pdf, l, 1);
-                    j = 0;
-                    if (is_names) {
-                        set_obj_info(pdf, l, dest_names[k].objname);
-                        pdf_printf(pdf, "/Names [");
-                        do {
-                            pdf_print_str(pdf,
-                                          makecstring(dest_names[k].objname));
-                            pdf_out(pdf, ' ');
-                            pdf_print_int(pdf, dest_names[k].objnum);
-                            pdf_printf(pdf, " 0 R ");
-                            incr(j);
-                            incr(k);
-                        } while (!((j == name_tree_kids_max)
-                                   || (k == pdf_dest_names_ptr)));
-                        pdf_remove_last_space(pdf);
-                        pdf_printf(pdf, "]\n");
-                        set_obj_aux(pdf, l, dest_names[k - 1].objname);
-                        if (k == pdf_dest_names_ptr) {
-                            is_names = false;
-                            k = names_head;
-                            b = 0;
-                        }
-                    } else {
-                        set_obj_info(pdf, l, obj_info(pdf, k));
-                        pdf_printf(pdf, "/Kids [");
-                        do {
-                            pdf_print_int(pdf, k);
-                            pdf_printf(pdf, " 0 R ");
-                            incr(j);
-                            set_obj_aux(pdf, l, obj_aux(pdf, k));
-                            k = obj_link(pdf, k);
-                        } while (!((j == name_tree_kids_max) || (k == b)
-                                   || (obj_link(pdf, k) == 0)));
-                        pdf_remove_last_space(pdf);
-                        pdf_printf(pdf, "]\n");
-                        if (k == b)
-                            b = 0;
-                    }
-                    pdf_printf(pdf, "/Limits [");
-                    pdf_print_str(pdf, makecstring(obj_info(pdf, l)));
-                    pdf_out(pdf, ' ');
-                    pdf_print_str(pdf, makecstring(obj_aux(pdf, l)));
-                    pdf_printf(pdf, "]\n");
-                    pdf_end_dict(pdf);
-
-                } while (b != 0);
-                if (k == l) {
-                    dests = l;
-                    goto DONE1;
-                }
-            } while (true);
-          DONE1:
-            if ((dests != 0) || (pdf_names_toks != null)) {
-                pdf_new_dict(pdf, obj_type_others, 0, 1);
-                if (dests != 0)
-                    pdf_indirect_ln(pdf, "Dests", dests);
-                if (pdf_names_toks != null) {
-                    pdf_print_toks_ln(pdf, pdf_names_toks);
-                    delete_token_ref(pdf_names_toks);
-                    pdf_names_toks = null;
-                }
-                pdf_end_dict(pdf);
-                names_tree = pdf->obj_ptr;
-            } else {
-                names_tree = 0;
-            }
+            names_tree = output_name_tree(pdf);
 
             /* Output article threads */
             if (pdf->head_tab[obj_type_thread] != 0) {
@@ -1196,7 +1080,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version,
                         (pdf->os_cntr > 1 ? "s" : ""));
             }
             fprintf(log_file, " %d named destinations out of %d (max. %d)\n",
-                    (int) pdf_dest_names_ptr, (int) dest_names_size,
+                    (int) pdf->dest_names_ptr, (int) pdf->dest_names_size,
                     (int) sup_dest_names_size);
             fprintf(log_file,
                     " %d words of extra memory for PDF output out of %d (max. %d)\n",

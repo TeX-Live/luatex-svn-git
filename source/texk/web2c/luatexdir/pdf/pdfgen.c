@@ -92,6 +92,9 @@ PDF initialize_pdf(void)
     pdf->replace_font = 0;
     pdf->pk_resolution = 0;
     pdf->pk_scale_factor = 0;
+
+    init_dest_names(pdf);
+
     return pdf;
 }
 

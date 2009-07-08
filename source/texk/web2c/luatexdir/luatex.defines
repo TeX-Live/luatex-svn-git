@@ -1355,7 +1355,6 @@
 @define procedure scan_pdfdest();
 
 @define procedure scan_thread_id;
-@define procedure init_dest_names;
 @define procedure new_annot_whatsit();
 @define procedure scan_annot();
 @define procedure scan_startlink();

@@ -27,40 +27,36 @@ static const char __svn_version[] =
 
 #define pdf_dest_margin          dimen_par(param_pdf_dest_margin_code)
 
-integer pdf_dest_names_ptr;     /* first unused position in |dest_names| */
-dest_name_entry *dest_names;
-
-integer dest_names_size = inf_dest_names_size;  /* maximum number of names in name tree of PDF output file */
-
 /*
 Here we implement subroutines for work with objects and related things.
 Some of them are used in former parts too, so we need to declare them
 forward.
 */
 
-void init_dest_names(void)
+void init_dest_names(PDF pdf)
 {
-    dest_names = xmallocarray(dest_name_entry, inf_dest_names_size);    /* will grow dynamically */
+    pdf->dest_names_size = inf_dest_names_size;
+    pdf->dest_names = xmallocarray(dest_name_entry, inf_dest_names_size);    /* will grow dynamically */
 }
 
-void append_dest_name(str_number s, integer n)
+void append_dest_name(PDF pdf, char *s, integer n)
 {
     integer a;
-    if (pdf_dest_names_ptr == sup_dest_names_size)
+    if (pdf->dest_names_ptr == sup_dest_names_size)
         overflow("number of destination names (dest_names_size)",
-                 dest_names_size);
-    if (pdf_dest_names_ptr == dest_names_size) {
-        a = 0.2 * dest_names_size;
-        if (dest_names_size < sup_dest_names_size - a)
-            dest_names_size = dest_names_size + a;
+                 pdf->dest_names_size);
+    if (pdf->dest_names_ptr == pdf->dest_names_size) {
+        a = 0.2 * pdf->dest_names_size;
+        if (pdf->dest_names_size < sup_dest_names_size - a)
+            pdf->dest_names_size = pdf->dest_names_size + a;
         else
-            dest_names_size = sup_dest_names_size;
-        dest_names =
-            xreallocarray(dest_names, dest_name_entry, dest_names_size);
+            pdf->dest_names_size = sup_dest_names_size;
+        pdf->dest_names =
+            xreallocarray(pdf->dest_names, dest_name_entry, pdf->dest_names_size);
     }
-    dest_names[pdf_dest_names_ptr].objname = s;
-    dest_names[pdf_dest_names_ptr].objnum = n;
-    incr(pdf_dest_names_ptr);
+    pdf->dest_names[pdf->dest_names_ptr].objname = xstrdup(s);
+    pdf->dest_names[pdf->dest_names_ptr].objnum = n;
+    pdf->dest_names_ptr++;
 }
 
 /*
@@ -293,29 +289,134 @@ void scan_pdfdest(PDF pdf)
     }
 }
 
-void sort_dest_names(integer l, integer r)
-{                               /* sorts |dest_names| by names */
-    integer i, j;
-    str_number s;
-    dest_name_entry e;
-    i = l;
-    j = r;
-    s = dest_names[(l + r) / 2].objname;
-    do {
-        while (str_less_str(dest_names[i].objname, s))
-            incr(i);
-        while (str_less_str(s, dest_names[j].objname))
-            decr(j);
-        if (i <= j) {
-            e = dest_names[i];
-            dest_names[i] = dest_names[j];
-            dest_names[j] = e;
-            incr(i);
-            decr(j);
+/* sorts |dest_names| by names */
+static int dest_cmp (const void *a, const void *b)
+{
+    dest_name_entry aa = *(dest_name_entry *)a;
+    dest_name_entry bb = *(dest_name_entry *)b;
+    return strcmp(aa.objname,bb.objname);
+}
+
+void sort_dest_names(PDF pdf)
+{                               
+    qsort(pdf->dest_names, pdf->dest_names_ptr, sizeof(dest_name_entry), dest_cmp);
+}
+
+/* 
+Output the name tree. The tree nature of the destination list forces the
+storing of intermediate data in |obj_info| and |obj_aux| fields, which 
+is further uglified by the fact that |obj_tab| entries do not accept char 
+pointers.
+*/
+   
+
+integer output_name_tree (PDF pdf)
+{
+    boolean is_names = true;  /* flag for name tree output: is it Names or Kids? */
+    integer b = 0, j, l;
+    integer k = 0;            /* index of current child of |l|; if |k < pdf_dest_names_ptr|
+                                 then this is pointer to |dest_names| array;
+                                 otherwise it is the pointer to |obj_tab| (object number) */
+    integer dests = 0;
+    integer names_head = 0, names_tail = 0;
+    char *fi = NULL, *li = NULL; 
+    char *ffl;
+    if (pdf->dest_names_ptr == 0) {
+        goto DONE;
+    }
+    sort_dest_names(pdf);
+
+    while (true) {
+
+        do {
+            pdf_create_obj(pdf, obj_type_others, 0);    /* create a new node */
+            l = pdf->obj_ptr;
+            if (b == 0)
+                b = l;  /* first in this level */
+            if (names_head == 0) {
+                names_head = l;
+                names_tail = l;
+            } else {
+                set_obj_link(pdf, names_tail, l);
+                names_tail = l;
+            }
+            set_obj_link(pdf, names_tail, 0);
+            /* Output the current node in this level */
+            pdf_begin_dict(pdf, l, 1);
+            j = 0;
+            if (is_names) {
+                set_obj_info(pdf, l, maketexstring(pdf->dest_names[k].objname)); /* for later */
+                fi = pdf->dest_names[k].objname;
+                pdf_printf(pdf, "/Names [");
+                do {
+                    pdf_print_str(pdf, pdf->dest_names[k].objname);
+                    pdf_out(pdf, ' ');
+                    pdf_print_int(pdf, pdf->dest_names[k].objnum);
+                    pdf_printf(pdf, " 0 R ");
+                    j++;
+                    k++;
+                } while (j != name_tree_kids_max && k != pdf->dest_names_ptr);
+                pdf_remove_last_space(pdf);
+                pdf_printf(pdf, "]\n");
+                set_obj_aux(pdf, l, maketexstring(pdf->dest_names[k - 1].objname)); /* for later */
+                li = pdf->dest_names[k-1].objname;
+                if (k == pdf->dest_names_ptr) {
+                    is_names = false;
+                    k = names_head;
+                    b = 0;
+                }
+                pdf_printf(pdf, "/Limits [");
+                pdf_print_str(pdf, fi);
+                pdf_out(pdf, ' ');
+                pdf_print_str(pdf, li);
+                pdf_printf(pdf, "]\n");
+                pdf_end_dict(pdf);
+
+            } else {
+                set_obj_info(pdf, l, obj_info(pdf, k));
+                pdf_printf(pdf, "/Kids [");
+                do {
+                    pdf_print_int(pdf, k);
+                    pdf_printf(pdf, " 0 R ");
+                    set_obj_aux(pdf, l, obj_aux(pdf, k));
+                    k = obj_link(pdf, k);
+                    j++;
+                } while (j != name_tree_kids_max && k != b && obj_link(pdf, k) != 0);
+                pdf_remove_last_space(pdf);
+                pdf_printf(pdf, "]\n");
+                if (k == b)
+                    b = 0;
+                pdf_printf(pdf, "/Limits [");
+                pdf_print_str(pdf, makecstring(obj_info(pdf, l)));
+                pdf_out(pdf, ' ');
+                pdf_print_str(pdf, makecstring(obj_aux(pdf, l)));
+                pdf_printf(pdf, "]\n");
+                pdf_end_dict(pdf);
+
+            }
+            
+        } while (b != 0);
+
+        if (k == l) {
+            dests = l;
+            goto DONE;
         }
-    } while (i <= j);
-    if (l < j)
-        sort_dest_names(l, j);
-    if (i < r)
-        sort_dest_names(i, r);
+
+    }
+
+DONE:
+    if ((dests != 0) || (pdf_names_toks != null)) {
+        pdf_new_dict(pdf, obj_type_others, 0, 1);
+        if (dests != 0)
+            pdf_indirect_ln(pdf, "Dests", dests);
+        if (pdf_names_toks != null) {
+            pdf_print_toks_ln(pdf, pdf_names_toks);
+            delete_token_ref(pdf_names_toks);
+            pdf_names_toks = null;
+        }
+        pdf_end_dict(pdf);
+        return pdf->obj_ptr;
+    } else {
+        return 0;
+    }
 }
