@@ -81,8 +81,8 @@ void reset_resource_lists(PDF pdf)
     pdf->obj_list = NULL;
     pdf->xform_list = NULL;
     pdf->ximage_list = NULL;
-    pdf_text_procset = false;
-    pdf_image_procset = 0;
+    pdf->text_procset = false;
+    pdf->image_procset = 0;
 }
 
 
@@ -468,8 +468,8 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
                 save_obj_list = pdf->obj_list;
                 save_xform_list = pdf->xform_list;
                 save_ximage_list = pdf->ximage_list;
-                save_text_procset = pdf_text_procset;
-                save_image_procset = pdf_image_procset;
+                save_text_procset = pdf->text_procset;
+                save_image_procset = pdf->image_procset;
                 reset_resource_lists(pdf);
                 save_cur_page_size = cur_page_size;
                 pdf_ship_out(pdf, obj_xform_box(pdf, pdf_cur_form), false);
@@ -480,8 +480,8 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
                 pdf->obj_list = save_obj_list;
                 pdf->xform_list = save_xform_list;
                 pdf->ximage_list = save_ximage_list;
-                pdf_text_procset = save_text_procset;
-                pdf_image_procset = save_image_procset;
+                pdf->text_procset = save_text_procset;
+                pdf->image_procset = save_image_procset;
 
             }
             k = k->link;
@@ -579,7 +579,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
             k = k->link;
         }
         pdf_printf(pdf, ">>\n");
-        pdf_text_procset = true;
+        pdf->text_procset = true;
     }
 
     /* Generate XObject resources */
@@ -615,13 +615,13 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
 
     /* Generate ProcSet */
     pdf_printf(pdf, "/ProcSet [ /PDF");
-    if (pdf_text_procset)
+    if (pdf->text_procset)
         pdf_printf(pdf, " /Text");
-    if (check_image_b(pdf_image_procset))
+    if (check_image_b(pdf->image_procset))
         pdf_printf(pdf, " /ImageB");
-    if (check_image_c(pdf_image_procset))
+    if (check_image_c(pdf->image_procset))
         pdf_printf(pdf, " /ImageC");
-    if (check_image_i(pdf_image_procset))
+    if (check_image_i(pdf->image_procset))
         pdf_printf(pdf, " /ImageI");
     pdf_printf(pdf, " ]\n");
 

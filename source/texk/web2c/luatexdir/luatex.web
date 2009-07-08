@@ -5417,10 +5417,6 @@ This is now in pdfgen.c.
 
 @* \[32d] The cross-reference table.
 
-@ @<Glob...@>=
-@!pdf_image_procset: integer; {collection of image types used in current page/form}
-@!pdf_text_procset: boolean; {mask of used ProcSet's in the current page/form}
-
 @* \[32e] Font processing.
 
 @* \[32f] PDF shipping out.

@@ -216,6 +216,9 @@ typedef struct pdf_output_file_ {
     pdf_object_list *annot_list;        /* the pdf annotations */
     pdf_object_list *bead_list; /* the thread beads */
 
+    integer image_procset; /* collection of image types used in current page/form */
+    int text_procset; /* mask of used ProcSet's in the current page/form */
+
 } pdf_output_file;
 
 typedef pdf_output_file *PDF;
