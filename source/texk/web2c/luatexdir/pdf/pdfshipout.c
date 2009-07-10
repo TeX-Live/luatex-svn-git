@@ -1101,7 +1101,7 @@ void scan_pdfcatalog(PDF pdf)
         if (pdf_catalog_openaction != 0) {
             pdf_error("ext1", "duplicate of openaction");
         } else {
-            p = scan_action();
+            p = scan_action(pdf);
             pdf_new_obj(pdf, obj_type_others, 0, 1);
             if (pdf_output > 0)
                 pdf_catalog_openaction = pdf->obj_ptr;

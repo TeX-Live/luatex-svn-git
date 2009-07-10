@@ -22,7 +22,6 @@
 #ifndef PDFOUTLINE_H
 #  define PDFOUTLINE_H
 
-extern halfword scan_action(void);
 extern void scan_pdfoutline(PDF pdf);
 extern integer print_outlines(PDF pdf);
 

@@ -155,7 +155,7 @@ void scan_startlink(PDF pdf)
         scan_pdf_ext_toks();
         set_pdf_link_attr(cur_list.tail_field, def_ref);
     }
-    r = scan_action();
+    r = scan_action(pdf);
     set_pdf_link_action(cur_list.tail_field, r);
     set_pdf_link_objnum(cur_list.tail_field, k);
     pdf_last_link = k;
