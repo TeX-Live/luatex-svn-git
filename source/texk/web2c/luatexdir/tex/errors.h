@@ -97,4 +97,6 @@ extern void tex_error(char *msg, char **hlp);
 extern void back_error(void);
 extern void ins_error(void);
 
+extern void char_warning(internal_font_number f, integer c);
+
 #endif

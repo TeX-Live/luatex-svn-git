@@ -27,6 +27,9 @@ static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
+#define text(A) hash[(A)].rh
+#define font_id_text(A) text(get_font_id_base()+(A))
+
 #define wlog(A)      fputc(A,log_file)
 #define wterm(A)     fputc(A,term_out)
 
@@ -686,3 +689,236 @@ void print_spec(integer p, char *s)
         }
     }
 }
+
+/*
+We can reinforce our knowledge of the data structures just introduced
+by considering two procedures that display a list in symbolic form.
+The first of these, called |short_display|, is used in ``overfull box''
+messages to give the top-level description of a list. The other one,
+called |show_node_list|, prints a detailed description of exactly what
+is in the data structure.
+
+The philosophy of |short_display| is to ignore the fine points about exactly
+what is inside boxes, except that ligatures and discretionary breaks are
+expanded. As a result, |short_display| is a recursive procedure, but the
+recursion is never more than one level deep.
+@^recursion@>
+
+A global variable |font_in_short_display| keeps track of the font code that
+is assumed to be present when |short_display| begins; deviations from this
+font will be printed.
+*/
+
+integer font_in_short_display; /* an internal font number */
+
+/*
+Boxes, rules, inserts, whatsits, marks, and things in general that are
+sort of ``complicated'' are indicated only by printing `\.{[]}'.
+*/
+
+void print_font_identifier( internal_font_number f)
+{ 
+    str_number fonttext;
+    if (pdf_font_blink(f) == null_font)
+        fonttext = font_id_text(f);
+    else
+        fonttext = font_id_text(pdf_font_blink(f));
+    if (fonttext>0) {
+        print_esc(fonttext);
+    } else {
+        tprint_esc("FONT");
+        if (pdf_font_blink(f) == null_font)
+            print_int(f);
+        else
+            print_int(pdf_font_blink(f));
+    }
+    if (int_par(param_pdf_tracing_fonts_code) > 0) {
+	tprint(" (");
+        print_font_name(f);
+        if (font_size(f) != font_dsize(f)) {
+            tprint("@@");
+            print_scaled(font_size(f));
+            tprint("pt");
+        }
+        print_char(')');
+    } else if (pdf_font_expand_ratio(f) != 0) {
+	tprint(" (");
+	if (pdf_font_expand_ratio(f) > 0)
+	    print_char('+');
+	print_int(pdf_font_expand_ratio(f));
+	print_char(')');
+    }
+}
+
+void short_display(integer p) /* prints highlights of list |p| */
+{
+    while (p!=null) {
+	if (is_char_node(p)) {
+	    if (lig_ptr(p)!=null) {
+		short_display(lig_ptr(p));
+	    } else {
+		if (font(p)!=font_in_short_display) {
+		    if (!is_valid_font(font(p)))
+			print_char('*');
+		    else 
+			print_font_identifier(font(p));
+		    print_char(' '); 
+		    font_in_short_display=font(p);
+		}
+		print(character(p));
+	    }
+	}  else {
+	    /* Print a short indication of the contents of node |p| */
+	    print_short_node_contents(p);
+	}
+	p=vlink(p);
+    }
+}
+
+/*
+The |show_node_list| routine requires some auxiliary subroutines: one to
+print a font-and-character combination, one to print a token list without
+its reference count, and one to print a rule dimension.
+*/
+
+void print_font_and_char(integer p) /* prints |char_node| data */
+{
+    if (!is_valid_font(font(p))) 
+	print_char('*');
+    else 
+	print_font_identifier(font(p));
+    print_char(' '); 
+    print(character(p));
+}
+
+void print_mark(integer p) /* prints token list data in braces */
+{
+    print_char('{');
+    if ((p<fix_mem_min)||(p>fix_mem_end)) 
+	tprint_esc("CLOBBERED.");
+    else 
+	show_token_list(token_link(p),null,max_print_line-10);
+    print_char('}');
+}
+
+void print_rule_dimen(scaled d) /* prints dimension in rule node */
+{
+    if (is_running(d)) print_char('*'); else print_scaled(d);
+}
+
+/*
+Sometimes we need to convert \TeX's internal code numbers into symbolic
+form. The |print_skip_param| routine gives the symbolic name of a glue
+parameter.
+*/
+
+void print_skip_param(integer n)
+{
+    switch(n) {
+    case param_line_skip_code: tprint_esc("lineskip"); break;
+    case param_baseline_skip_code: tprint_esc("baselineskip"); break;
+    case param_par_skip_code: tprint_esc("parskip"); break;
+    case param_above_display_skip_code: tprint_esc("abovedisplayskip"); break;
+    case param_below_display_skip_code: tprint_esc("belowdisplayskip"); break;
+    case param_above_display_short_skip_code: tprint_esc("abovedisplayshortskip"); break;
+    case param_below_display_short_skip_code: tprint_esc("belowdisplayshortskip"); break;
+    case param_left_skip_code: tprint_esc("leftskip"); break;
+    case param_right_skip_code: tprint_esc("rightskip"); break;
+    case param_top_skip_code: tprint_esc("topskip"); break;
+    case param_split_top_skip_code: tprint_esc("splittopskip"); break;
+    case param_tab_skip_code: tprint_esc("tabskip"); break;
+    case param_space_skip_code: tprint_esc("spaceskip"); break;
+    case param_xspace_skip_code: tprint_esc("xspaceskip"); break;
+    case param_par_fill_skip_code: tprint_esc("parfillskip"); break;
+    case param_thin_mu_skip_code: tprint_esc("thinmuskip"); break;
+    case param_med_mu_skip_code: tprint_esc("medmuskip"); break;
+    case param_thick_mu_skip_code: tprint_esc("thickmuskip"); break;
+    default: tprint("[unknown glue parameter!]");
+    }
+}
+
+/*
+Since boxes can be inside of boxes, |show_node_list| is inherently recursive,
+@^recursion@>
+up to a given maximum number of levels.  The history of nesting is indicated
+by the current string, which will be printed at the beginning of each line;
+the length of this string, namely |cur_length|, is the depth of nesting.
+
+@ A global variable called |depth_threshold| is used to record the maximum
+depth of nesting for which |show_node_list| will show information.  If we
+have |depth_threshold=0|, for example, only the top level information will
+be given and no sublists will be traversed. Another global variable, called
+|breadth_max|, tells the maximum number of items to show at each level;
+|breadth_max| had better be positive, or you won't see anything.
+*/
+
+integer depth_threshold ; /* maximum nesting depth in box displays */
+integer breadth_max ; /* maximum number of items shown at the same list level */
+
+
+/* The recursive machinery is started by calling |show_box|. */
+
+void show_box(halfword p)
+{
+    /* Assign the values |depth_threshold:=show_box_depth| and
+       |breadth_max:=show_box_breadth| */
+    depth_threshold=int_par(param_show_box_depth_code);
+    breadth_max=int_par(param_show_box_breadth_code);
+
+    if (breadth_max<=0)
+	breadth_max=5;
+    if (pool_ptr+depth_threshold>=pool_size)
+	depth_threshold=pool_size-pool_ptr-1;
+    /* now there's enough room for prefix string */
+    show_node_list(p); /* the show starts at |p| */
+    print_ln();
+}
+
+
+/* Helper for debugging purposes */
+
+void short_display_n(integer p, integer m) /* prints highlights of list |p| */
+{ 
+    integer i = 0;
+    font_in_short_display=null_font;
+    if (p == null)
+	return;
+    while (p!=null) {
+	if (is_char_node(p)) {
+	    if (p<=max_halfword) {
+		if (font(p)!=font_in_short_display) {
+		    if (!is_valid_font(font(p)))
+			print_char('*');
+		    else 
+			print_font_identifier(font(p));
+		    print_char(' '); 
+		    font_in_short_display=font(p);
+		}
+		print(character(p));
+	    }
+	}  else {
+	    if ((type(p) == glue_node) ||
+		(type(p) == disc_node) ||
+		(type(p) == penalty_node) ||
+		((type(p) == kern_node) && (subtype(p) == explicit)))
+		incr(i);
+	    if (i >= m)
+		return;
+	    if (type(p) == disc_node) {
+		print_char('|');
+		short_display(vlink(pre_break(p)));
+		print_char('|');
+		short_display(vlink(post_break(p)));
+		print_char('|');
+	    } else {
+	        /* Print a short indication of the contents of node |p| */
+		print_short_node_contents(p);
+	    }
+	}
+	p=vlink(p);
+	if (p == null)
+	    return;
+    }
+    update_terminal();
+}
+

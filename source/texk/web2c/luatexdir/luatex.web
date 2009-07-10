@@ -1505,150 +1505,6 @@ initialize_active;
 @<Declare procedures that need to be declared forward for \pdfTeX@>
 
 @* \[12] Displaying boxes.
-We can reinforce our knowledge of the data structures just introduced
-by considering two procedures that display a list in symbolic form.
-The first of these, called |short_display|, is used in ``overfull box''
-messages to give the top-level description of a list. The other one,
-called |show_node_list|, prints a detailed description of exactly what
-is in the data structure.
-
-The philosophy of |short_display| is to ignore the fine points about exactly
-what is inside boxes, except that ligatures and discretionary breaks are
-expanded. As a result, |short_display| is a recursive procedure, but the
-recursion is never more than one level deep.
-@^recursion@>
-
-A global variable |font_in_short_display| keeps track of the font code that
-is assumed to be present when |short_display| begins; deviations from this
-font will be printed.
-
-@<Glob...@>=
-@!font_in_short_display:integer; {an internal font number}
-
-@ Boxes, rules, inserts, whatsits, marks, and things in general that are
-sort of ``complicated'' are indicated only by printing `\.{[]}'.
-
-@p
-procedure print_font_identifier(f: internal_font_number);
-var fonttext:str_number;
-begin
-    if pdf_font_blink(f) = null_font then
-        fonttext := font_id_text(f)
-    else
-        fonttext := font_id_text(pdf_font_blink(f));
-    if fonttext>0 then
-        print_esc(fonttext)
-    else begin
-        print_esc("FONT");
-        if pdf_font_blink(f) = null_font then
-            print_int(f)
-        else
-            print_int(pdf_font_blink(f));
-        end;
-    if pdf_tracing_fonts > 0 then begin
-        print(" (");
-        print_font_name(f);
-        if font_size(f) <> font_dsize(f) then begin
-            print("@@");
-            print_scaled(font_size(f));
-            print("pt");
-        end;
-        print(")");
-    end else
-        if pdf_font_expand_ratio(f) <> 0 then begin
-            print(" (");
-            if pdf_font_expand_ratio(f) > 0 then
-                print("+");
-            print_int(pdf_font_expand_ratio(f));
-            print(")");
-        end;
-end;
-
-procedure short_display(@!p:integer); {prints highlights of list |p|}
-begin while p<>null do
-  begin if is_char_node(p) then
-      begin if lig_ptr(p)<>null then
-           short_display(lig_ptr(p))
-        else begin
-          if font(p)<>font_in_short_display then
-          begin if not is_valid_font(font(p)) then
-            print_char("*")
-@.*\relax@>
-          else print_font_identifier(font(p));
-          print_char(" "); font_in_short_display:=font(p);
-          end;
-        print(qo(character(p)));
-      end;
-    end
-  else @<Print a short indication of the contents of node |p|@>;
-  p:=vlink(p);
-  end;
-end;
-
-@ @<Print a short indication of the contents of node |p|@>=
-print_short_node_contents(p)
-
-@ The |show_node_list| routine requires some auxiliary subroutines: one to
-print a font-and-character combination, one to print a token list without
-its reference count, and one to print a rule dimension.
-
-@p procedure print_font_and_char(@!p:integer); {prints |char_node| data}
-begin if not is_valid_font(font(p)) then print_char("*")
-@.*\relax@>
-  else print_font_identifier(font(p));
-  print_char(" "); print(character(p));
-end;
-@#
-procedure print_mark(@!p:integer); {prints token list data in braces}
-begin print_char("{");
-if (p<fix_mem_min)or(p>fix_mem_end) then print_esc("CLOBBERED.")
-else show_token_list(link(p),null,max_print_line-10);
-print_char("}");
-end;
-@#
-procedure print_rule_dimen(@!d:scaled); {prints dimension in rule node}
-begin if is_running(d) then print_char("*") else print_scaled(d);
-@.*\relax@>
-end;
-@#
-
-
-@ We also need to declare some procedures that appear later in this
-documentation.
-
-@p @<Declare the procedure called |print_skip_param|@>
-
-@ Since boxes can be inside of boxes, |show_node_list| is inherently recursive,
-@^recursion@>
-up to a given maximum number of levels.  The history of nesting is indicated
-by the current string, which will be printed at the beginning of each line;
-the length of this string, namely |cur_length|, is the depth of nesting.
-
-@ A global variable called |depth_threshold| is used to record the maximum
-depth of nesting for which |show_node_list| will show information.  If we
-have |depth_threshold=0|, for example, only the top level information will
-be given and no sublists will be traversed. Another global variable, called
-|breadth_max|, tells the maximum number of items to show at each level;
-|breadth_max| had better be positive, or you won't see anything.
-
-@<Glob...@>=
-@!depth_threshold : integer; {maximum nesting depth in box displays}
-@!breadth_max : integer; {maximum number of items shown at the same list level}
-
-
-@ The recursive machinery is started by calling |show_box|.
-@^recursion@>
-
-@p procedure show_box(@!p:pointer);
-begin @<Assign the values |depth_threshold:=show_box_depth| and
-  |breadth_max:=show_box_breadth|@>;
-if breadth_max<=0 then breadth_max:=5;
-if pool_ptr+depth_threshold>=pool_size then
-  depth_threshold:=pool_size-pool_ptr-1;
-  {now there's enough room for prefix string}
-show_node_list(p); {the show starts at |p|}
-print_ln;
-end;
 
 @* \[13] Destroying boxes.
 When we are done with a node list, we are obliged to return it to free
@@ -2188,35 +2044,6 @@ parameters have larger numbers than the others.
 static_local_base:=local_base;
 static_glue_base:=glue_base;
 
-@ Sometimes we need to convert \TeX's internal code numbers into symbolic
-form. The |print_skip_param| routine gives the symbolic name of a glue
-parameter.
-
-@<Declare the procedure called |print_skip_param|@>=
-procedure print_skip_param(@!n:integer);
-begin case n of
-line_skip_code: print_esc("lineskip");
-baseline_skip_code: print_esc("baselineskip");
-par_skip_code: print_esc("parskip");
-above_display_skip_code: print_esc("abovedisplayskip");
-below_display_skip_code: print_esc("belowdisplayskip");
-above_display_short_skip_code: print_esc("abovedisplayshortskip");
-below_display_short_skip_code: print_esc("belowdisplayshortskip");
-left_skip_code: print_esc("leftskip");
-right_skip_code: print_esc("rightskip");
-top_skip_code: print_esc("topskip");
-split_top_skip_code: print_esc("splittopskip");
-tab_skip_code: print_esc("tabskip");
-space_skip_code: print_esc("spaceskip");
-xspace_skip_code: print_esc("xspaceskip");
-par_fill_skip_code: print_esc("parfillskip");
-thin_mu_skip_code: print_esc("thinmuskip");
-med_mu_skip_code: print_esc("medmuskip");
-thick_mu_skip_code: print_esc("thickmuskip");
-othercases print("[unknown glue parameter!]")
-endcases;
-end;
-
 @ The symbolic names for glue parameters are put into \TeX's hash table
 by using the routine called |primitive|, defined below. Let us enter them
 now, so that we don't have to list all those parameter names anywhere else.
@@ -2720,11 +2547,6 @@ that will be defined later.
 @d suppress_long_error==int_par(suppress_long_error_code)
 @d suppress_ifcsname_error==int_par(suppress_ifcsname_error_code)
 @d synctex==int_par(synctex_code)
-
-@<Assign the values |depth_threshold:=show_box_depth|...@>=
-depth_threshold:=show_box_depth;
-breadth_max:=show_box_breadth
-
 
 @ @<Set init...@>=
 static_dimen_base:=dimen_base;
@@ -4488,36 +4310,6 @@ primitive_tex("nullfont",set_font,null_font,0);
 @!@:null_font_}{\.{\\nullfont} primitive@>
 text(frozen_null_font):="nullfont"; eqtb[frozen_null_font]:=eqtb[cur_val];
 
-@ When \TeX\ wants to typeset a character that doesn't exist, the
-character node is not created; thus the output routine can assume
-that characters exist when it sees them. The following procedure
-prints a warning message unless the user has suppressed it.
-
-@p procedure char_warning(@!f:internal_font_number;@!c:integer);
-var old_setting: integer; {saved value of |tracing_online|}
-    k:0..22; {index to current digit; we assume that $0\L n<16^{22}$}
-begin if tracing_lost_chars>0 then
- begin old_setting:=tracing_online;
- if tracing_lost_chars>1 then tracing_online:=1;
-  begin begin_diagnostic;
-  print_nl("Missing character: There is no ");
-@.Missing character@>
-  print(c); print(" (U+");
-  k:=0;
-  if c<16 then print_char('0');
-  if c<256 then print_char('0');
-  if c<4096 then print_char('0');
-  repeat dig[k]:=c mod 16; c:=c div 16; incr(k);
-  until c=0;
-  print_the_digs(k);
-  print(") in font ");
-  print_font_name(f);
-  print_char("!"); end_diagnostic(false);
-  end;
- tracing_online:=old_setting;
- end;
-end;
-
 @ Here we begin the \.{OCP} handling.
 
 @ $\Omega$ always knows at least one ocp, namely the null ocp.
@@ -4729,53 +4521,6 @@ var a:small_number;
 begin
   a:=0;
   define(cur_font_loc,data,f);
-end;
-
-@ Helper for debugging purposes
-
-@p procedure short_display_n(@!p, m:integer); {prints highlights of list |p|}
-var i: integer;
-begin
-i := 0;
-font_in_short_display:=null_font;
-if p = null then
-    return;
-while p<>null do
-  begin if is_char_node(p) then
-    begin if p<=max_halfword then
-      begin if font(p)<>font_in_short_display then
-        begin if not is_valid_font(font(p)) then
-          print_char("*")
-@.*\relax@>
-        else print_font_identifier(font(p));
-        print_char(" "); font_in_short_display:=font(p);
-        end;
-      print(qo(character(p)));
-      end;
-    end
-  else begin
-      if (type(p) = glue_node) or
-         (type(p) = disc_node) or
-         (type(p) = penalty_node) or
-         ((type(p) = kern_node) and (subtype(p) = explicit)) then
-         incr(i);
-      if i >= m then
-         return;
-      if (type(p) = disc_node) then begin
-          print("|");
-          short_display(vlink(pre_break(p)));
-          print("|");
-          short_display(vlink(post_break(p)));
-          print("|");
-        end
-        else
-            @<Print a short indication of the contents of node |p|@>;
-  end;
-  p:=vlink(p);
-  if p = null then
-      return;
-  end;
-  update_terminal;
 end;
 
 

@@ -829,6 +829,17 @@
 @define function active_cs_value();
 @define procedure print_spec();
 
+@define var font_in_short_display;
+@define procedure print_font_identifier();
+@define procedure short_display();
+@define procedure print_font_and_char();
+@define procedure print_mark();
+@define procedure print_rule_dimen();
+@define procedure print_skip_param();
+@define var depth_threshold;
+@define var breadth_max;
+@define procedure show_box();
+
 { error handling }
 
 @define const batch_mode;
@@ -843,6 +854,8 @@
 @define procedure initialize_errors;
 @define procedure print_err();
 @define procedure fixup_selector();
+
+@define procedure char_warning();
 
 @define const spotless;
 @define const warning_issued;

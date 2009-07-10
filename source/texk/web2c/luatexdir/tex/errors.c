@@ -580,3 +580,45 @@ void ins_error(void)
     OK_to_interrupt = true;
     error();
 }
+
+
+/*
+When \TeX\ wants to typeset a character that doesn't exist, the
+character node is not created; thus the output routine can assume
+that characters exist when it sees them. The following procedure
+prints a warning message unless the user has suppressed it.
+*/
+
+void char_warning(internal_font_number f, integer c)
+{
+    integer old_setting; /* saved value of |tracing_online| */
+    int k; /* index to current digit; we assume that $0\L n<16^{22}$ */
+    if (int_par(param_tracing_lost_chars_code)>0) {
+	old_setting=int_par(param_tracing_online_code);
+	if (int_par(param_tracing_lost_chars_code)>1) 
+	    int_par(param_tracing_online_code)=1;
+	begin_diagnostic();
+	tprint_nl("Missing character: There is no ");
+	print(c); 
+	tprint(" (U+");
+	k=0;
+	if (c<16) 
+	    print_char('0');
+	if (c<256) 
+	    print_char('0');
+	if (c<4096) 
+	    print_char('0');
+	do {
+	    dig[k]=c % 16; 
+	    c=c / 16; 
+	    incr(k);
+	} while  (c!=0);
+	print_the_digs(k);
+	tprint(") in font ");
+	print_font_name(f);
+	print_char('!');
+	end_diagnostic(false);
+	int_par(param_tracing_online_code)=old_setting;
+    }
+}
+
