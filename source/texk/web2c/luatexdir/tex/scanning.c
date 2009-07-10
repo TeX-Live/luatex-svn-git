@@ -448,7 +448,7 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                     cur_val = last_badness;
                     break;
                 case last_item_pdftex_version_code:
-                    cur_val = get_pdftexversion();
+		    cur_val = pdftex_version;
                     break;
                 case last_item_luatex_version_code:
                     cur_val = get_luatexversion();
@@ -487,22 +487,22 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                     cur_val = pdf_last_link;
                     break;
                 case last_item_Aleph_version_code:
-                    cur_val = get_Aleph_version();
+                    cur_val = Aleph_version;
                     break;
                 case last_item_Omega_version_code:
-                    cur_val = get_Omega_version();
+                    cur_val = Omega_version;
                     break;
                 case last_item_eTeX_version_code:
-                    cur_val = get_eTeX_version();
+                    cur_val = eTeX_version;
                     break;
                 case last_item_Aleph_minor_version_code:
-                    cur_val = get_Aleph_minor_version();
+                    cur_val = Aleph_minor_version;
                     break;
                 case last_item_Omega_minor_version_code:
-                    cur_val = get_Omega_minor_version();
+                    cur_val = Omega_minor_version;
                     break;
                 case last_item_eTeX_minor_version_code:
-                    cur_val = get_eTeX_minor_version();
+                    cur_val = eTeX_minor_version;
                     break;
                 case last_item_current_group_level_code:
                     cur_val = cur_level - level_one;

@@ -1005,6 +1005,15 @@
 @define procedure lua_string_start;
 @define procedure pseudo_close;
 
+@define function scan_lua_state;
+
+@define procedure initialize_read;
+@define procedure read_toks();
+@define var read_open;
+@define var read_file;
+@define const closed;
+@define const just_open;
+
 { expanding }
 
 @define procedure expand;

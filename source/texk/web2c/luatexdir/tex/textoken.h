@@ -149,4 +149,21 @@ extern halfword lua_str_toks(pool_pointer b);
 extern halfword str_toks(pool_pointer b);
 extern void ins_the_toks(void);
 
+extern integer scan_lua_state (void);
+extern void conv_toks (void);
+
+extern boolean in_lua_escape;
+extern boolean is_convert(halfword c);
+extern str_number the_convert_string (halfword c, integer i);
+
+#define closed 2 /* not open, or at end of file */
+#define just_open 1 /* newly opened, first line not yet read */
+
+extern FILE *read_file[16]; /* used for \.{\\read} */
+extern int read_open[17]; /* state of |read_file[n]| */
+
+extern void initialize_read (void);
+
+extern void read_toks(integer n, halfword r, halfword j);
+
 #endif
