@@ -294,7 +294,7 @@ void do_subst_font(halfword p, integer ex_ratio)
     internal_font_number f, k;
     halfword r;
     integer ef;
-    if (!(is_char_node(p) && (type(p) == disc_node))) {
+    if (type(p) == disc_node) {
         r = vlink(pre_break(p));
         while (r != null) {
             if (is_char_node(r))
