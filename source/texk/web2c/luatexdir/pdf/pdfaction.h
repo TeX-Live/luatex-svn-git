@@ -40,13 +40,13 @@ typedef enum {
 } pdf_window_type;
 
 
-#  define pdf_action_type(a)        type((a) + 1)      /* enum pdf_action_type */
-#  define pdf_action_named_id(a)    subtype((a) + 1)   /* boolean */
-#  define pdf_action_id(a)          vlink((a) + 1)     /* number or toks */
-#  define pdf_action_file(a)        vinfo((a) + 2)     /* toks */
-#  define pdf_action_new_window(a)  vlink((a) + 2)     /* enum pdf_window_type */
-#  define pdf_action_tokens(a)      vinfo((a) + 3)     /* toks */
-#  define pdf_action_refcount(a)    vlink((a) + 3)     /* number */
+#  define pdf_action_type(a)        type((a) + 1)       /* enum pdf_action_type */
+#  define pdf_action_named_id(a)    subtype((a) + 1)    /* boolean */
+#  define pdf_action_id(a)          vlink((a) + 1)      /* number or toks */
+#  define pdf_action_file(a)        vinfo((a) + 2)      /* toks */
+#  define pdf_action_new_window(a)  vlink((a) + 2)      /* enum pdf_window_type */
+#  define pdf_action_tokens(a)      vinfo((a) + 3)      /* toks */
+#  define pdf_action_refcount(a)    vlink((a) + 3)      /* number */
 
 /* increase count of references to this action. this is used to speed up copy_node() */
 
@@ -71,8 +71,8 @@ typedef enum {
 #  define set_pdf_action_named_id(A,B) pdf_action_named_id(A)=B
 #  define set_pdf_action_new_window(A,B) pdf_action_new_window(A)=B
 
-extern halfword scan_action (PDF pdf);
+extern halfword scan_action(PDF pdf);
 extern void write_action(PDF pdf, halfword p);
-extern void delete_action_node (halfword a);
+extern void delete_action_node(halfword a);
 
 #endif

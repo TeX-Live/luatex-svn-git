@@ -27,12 +27,12 @@ static const char __svn_version[] =
     "$URL$";
 
 
-halfword new_action_node (void)
+halfword new_action_node(void)
 {
     return new_node(action_node, 0);
 }
 
-void delete_action_node (halfword a)
+void delete_action_node(halfword a)
 {
     if (pdf_action_type(a) == pdf_action_user) {
         delete_token_ref(pdf_action_tokens(a));
@@ -52,7 +52,7 @@ void delete_action_node (halfword a)
 halfword scan_action(PDF pdf)
 {
     integer p;
-    (void)pdf;
+    (void) pdf;
     p = new_action_node();
     if (scan_keyword("user"))
         set_pdf_action_type(p, pdf_action_user);

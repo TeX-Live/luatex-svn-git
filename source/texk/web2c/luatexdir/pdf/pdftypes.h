@@ -264,11 +264,11 @@ typedef struct pdf_output_file_ {
     pdf_link_stack_record link_stack[(pdf_max_link_level + 1)];
     integer link_stack_ptr;
     /* the thread data */
-    integer last_thread ;        /* pointer to the last thread */
+    integer last_thread;        /* pointer to the last thread */
     scaled_whd thread;
-    integer last_thread_id; /* identifier of the last thread */
-    int last_thread_named_id;        /* is identifier of the last thread named */
-    integer thread_level;    /* depth of nesting of box containing the last thread */
+    integer last_thread_id;     /* identifier of the last thread */
+    int last_thread_named_id;   /* is identifier of the last thread named */
+    integer thread_level;       /* depth of nesting of box containing the last thread */
 
 } pdf_output_file;
 

@@ -53,13 +53,13 @@ static int compare_info(const void *pa, const void *pb, void *param)
 {
     const oentry *a, *b;
     (void) param;
-    a = (const oentry *)pa;
-    b = (const oentry *)pb;
+    a = (const oentry *) pa;
+    b = (const oentry *) pb;
     if (a->objtype == b->objtype) {
         if (a->objtype == avl_obj_int_type) {
             return ((a->int0 < b->int0 ? -1 : (a->int0 > b->int0 ? 1 : 0)));
-        } else { /* string type */
-            return strcmp(a->str0,b->str0);
+        } else {                /* string type */
+            return strcmp(a->str0, b->str0);
         }
     } else if (a->objtype == avl_obj_int_type) {
         return -1;
@@ -68,7 +68,7 @@ static int compare_info(const void *pa, const void *pb, void *param)
     }
 }
 
-void avl_put_obj (PDF pdf, integer t, oentry *oe)
+void avl_put_obj(PDF pdf, integer t, oentry * oe)
 {
     void **pp;
     if (pdf->obj_tree[t] == NULL) {
@@ -153,7 +153,7 @@ void pdf_create_obj(PDF pdf, integer t, integer i)
     obj_info(pdf, pdf->obj_ptr) = i;
     set_obj_fresh(pdf, pdf->obj_ptr);
     obj_aux(pdf, pdf->obj_ptr) = 0;
-    if (i<0) {
+    if (i < 0) {
         avl_put_str_obj(pdf, makecstring(-i), pdf->obj_ptr, t);
     } else {
         avl_put_int_obj(pdf, i, pdf->obj_ptr, t);
