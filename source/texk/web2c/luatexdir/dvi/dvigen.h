@@ -163,12 +163,6 @@ The depth of nesting of |hlist_out| and |vlist_out| is called |cur_s|;
 this is essentially the depth of |push| commands in the \.{DVI} output.
 */
 
-typedef struct scaled_whd_ {
-    scaled wd;                  /* TeX width */
-    scaled ht;                  /* TeX height */
-    scaled dp;                  /* TeX depth */
-} scaled_whd;
-
 extern scaled_whd rule;
 
 #  define synch_h() do {				\

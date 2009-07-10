@@ -29,13 +29,6 @@ static const char __svn_version[] =
 #define page_width dimen_par(param_page_width_code)
 #define page_height dimen_par(param_page_height_code)
 
-static halfword last_thread = 0;        /* pointer to the last thread */
-static scaled_whd pdf_thread = { 0, 0, 0 };
-
-static halfword pdf_last_thread_id = 0; /* identifier of the last thread */
-static boolean pdf_last_thread_named_id = false;        /* is identifier of the last thread named */
-static integer pdf_thread_level = 0;    /* depth of nesting of box containing the last thread */
-
 /* Threads are handled in similar way as link annotations */
 
 void append_bead(PDF pdf, halfword p)
@@ -73,21 +66,21 @@ void do_thread(PDF pdf, halfword parent_box, halfword p, scaledpos cur)
     if (doing_leaders)
         return;
     if (subtype(p) == pdf_start_thread_node) {
-        pdf_thread.wd = pdf_width(p);
-        pdf_thread.ht = pdf_height(p);
-        pdf_thread.dp = pdf_depth(p);
-        pdf_last_thread_id = pdf_thread_id(p);
-        pdf_last_thread_named_id = (pdf_thread_named_id(p) > 0);
-        if (pdf_last_thread_named_id)
+        pdf->thread.wd = pdf_width(p);
+        pdf->thread.ht = pdf_height(p);
+        pdf->thread.dp = pdf_depth(p);
+        pdf->last_thread_id = pdf_thread_id(p);
+        pdf->last_thread_named_id = (pdf_thread_named_id(p) > 0);
+        if (pdf->last_thread_named_id)
             add_token_ref(pdf_thread_id(p));
-        pdf_thread_level = cur_s;
+        pdf->thread_level = cur_s;
     }
     alt_rule.wd = pdf_width(p);
     alt_rule.ht = pdf_height(p);
     alt_rule.dp = pdf_depth(p);
     set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_thread_margin);
     append_bead(pdf, p);
-    last_thread = p;
+    pdf->last_thread = p;
 }
 
 void append_thread(PDF pdf, halfword parent_box, scaledpos cur)
@@ -95,12 +88,12 @@ void append_thread(PDF pdf, halfword parent_box, scaledpos cur)
     halfword p;
     scaled_whd alt_rule;
     p = new_node(whatsit_node, pdf_thread_data_node);
-    pdf_width(p) = pdf_thread.wd;
-    pdf_height(p) = pdf_thread.ht;
-    pdf_depth(p) = pdf_thread.dp;
+    pdf_width(p) = pdf->thread.wd;
+    pdf_height(p) = pdf->thread.ht;
+    pdf_depth(p) = pdf->thread.dp;
     pdf_thread_attr(p) = null;
-    pdf_thread_id(p) = pdf_last_thread_id;
-    if (pdf_last_thread_named_id) {
+    pdf_thread_id(p) = pdf->last_thread_id;
+    if (pdf->last_thread_named_id) {
         add_token_ref(pdf_thread_id(p));
         pdf_thread_named_id(p) = 1;
     } else {
@@ -111,38 +104,38 @@ void append_thread(PDF pdf, halfword parent_box, scaledpos cur)
     alt_rule.dp = pdf_depth(p);
     set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_thread_margin);
     append_bead(pdf, p);
-    last_thread = p;
+    pdf->last_thread = p;
 }
 
 void end_thread(PDF pdf)
 {
     scaledpos pos = pdf->posstruct->pos;
-    if (pdf_thread_level != cur_s)
+    if (pdf->thread_level != cur_s)
         pdf_error("ext4",
                   "\\pdfendthread ended up in different nesting level than \\pdfstartthread");
-    if (is_running(pdf_thread.dp) && (last_thread != null)) {
+    if (is_running(pdf->thread.dp) && (pdf->last_thread != null)) {
         switch (box_direction(pdf->posstruct->dir)) {
         case dir_TL_:
         case dir_TR_:
-            pdf_ann_bottom(last_thread) = pos.v - pdf_thread_margin;
+            pdf_ann_bottom(pdf->last_thread) = pos.v - pdf_thread_margin;
             break;
         case dir_BL_:
         case dir_BR_:
-            pdf_ann_top(last_thread) = pos.v + pdf_thread_margin;
+            pdf_ann_top(pdf->last_thread) = pos.v + pdf_thread_margin;
             break;
         case dir_LT_:
         case dir_LB_:
-            pdf_ann_right(last_thread) = pos.h + pdf_thread_margin;
+            pdf_ann_right(pdf->last_thread) = pos.h + pdf_thread_margin;
             break;
         case dir_RT_:
         case dir_RB_:
-            pdf_ann_left(last_thread) = pos.h - pdf_thread_margin;
+            pdf_ann_left(pdf->last_thread) = pos.h - pdf_thread_margin;
             break;
         }
     }
-    if (pdf_last_thread_named_id)
-        delete_token_ref(pdf_last_thread_id);
-    last_thread = null;
+    if (pdf->last_thread_named_id)
+        delete_token_ref(pdf->last_thread_id);
+    pdf->last_thread = null;
 }
 
 /* The following function are needed for outputing article thread. */
@@ -254,8 +247,8 @@ void scan_thread_id(void)
 void check_running_thread(PDF pdf, halfword this_box, posstructure * refpos,
                           scaledpos cur)
 {
-    if ((last_thread != null) && is_running(pdf_thread.dp)
-        && (pdf_thread_level == cur_s)) {
+    if ((pdf->last_thread != null) && is_running(pdf->thread.dp)
+        && (pdf->thread_level == cur_s)) {
         (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
         append_thread(pdf, this_box, cur);
     }
@@ -264,7 +257,7 @@ void check_running_thread(PDF pdf, halfword this_box, posstructure * refpos,
 void reset_thread_lists(PDF pdf)
 {
     pdf->bead_list = NULL;
-    last_thread = null;
+    pdf->last_thread = null;
 }
 
 void print_beads_list(PDF pdf)

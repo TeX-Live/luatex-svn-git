@@ -105,7 +105,6 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     integer save_text_procset;  /* to save |pdf_text_procset| */
     scaledpos save_cur_page_size;       /* to save |cur_page_size| during flushing pending forms */
     scaled form_margin;
-    integer pdf_last_resources; /* halfword to most recently generated Resources object */
     integer pre_callback_id;
     integer post_callback_id;
     boolean ret;
@@ -184,7 +183,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     /* Initialize variables as |pdf_ship_out| begins */
     prepare_mag();
     temp_ptr = p;
-    pdf_last_resources = pdf_new_objnum(pdf);
+    pdf->last_resources = pdf_new_objnum(pdf);
     reset_resource_lists(pdf);
     dvi_direction = page_direction;
 
@@ -356,7 +355,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         pdf_printf(pdf, "]\n");
         pdf_printf(pdf, "/FormType 1\n");
         pdf_printf(pdf, "/Matrix [1 0 0 1 0 0]\n");
-        pdf_indirect_ln(pdf, "Resources", pdf_last_resources);
+        pdf_indirect_ln(pdf, "Resources", pdf->last_resources);
 
     } else {
         pdf->last_page = get_obj(pdf, obj_type_page, total_pages + 1, 0);
@@ -407,7 +406,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
             pdf_do_page_divert(pdf, pdf->last_page, page_divert_val);
         pdf_printf(pdf, "/Type /Page\n");
         pdf_indirect_ln(pdf, "Contents", pdf->last_stream);
-        pdf_indirect_ln(pdf, "Resources", pdf_last_resources);
+        pdf_indirect_ln(pdf, "Resources", pdf->last_resources);
         pdf_printf(pdf, "/MediaBox [0 0 ");
         pdf_print_mag_bp(pdf, cur_page_size.h);
         pdf_out(pdf, ' ');
@@ -551,7 +550,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
 
     }
     /* Write out resources dictionary */
-    pdf_begin_dict(pdf, pdf_last_resources, 1);
+    pdf_begin_dict(pdf, pdf->last_resources, 1);
     /* Print additional resources */
     if (shipping_page) {
         if (pdf_page_resources != null)

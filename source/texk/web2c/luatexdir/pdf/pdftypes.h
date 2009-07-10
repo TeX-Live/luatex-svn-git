@@ -57,6 +57,12 @@ typedef struct scaledpos_ {
     scaled v;
 } scaledpos;
 
+typedef struct scaled_whd_ {
+    scaled wd;                  /* TeX width */
+    scaled ht;                  /* TeX height */
+    scaled dp;                  /* TeX depth */
+} scaled_whd;
+
 typedef struct posstructure_ {
     scaledpos pos;              /* position on the page */
     int dir;                    /* direction of stuff to be put onto the page */
@@ -227,6 +233,10 @@ typedef struct pdf_output_file_ {
     int seek_write_length;      /* flag whether to seek back and write \.{/Length} */
     int last_byte;              /* byte most recently written to PDF file; for \.{endstream} in new line */
 
+    integer last_resources;     /* halfword to most recently generated Resources object.
+                                   TH: this used to be a local in pdf_shipout, but I would like to 
+                                   be able to split that function into a pre- and post part */
+
     integer obj_count;
     integer xform_count;
     integer ximage_count;
@@ -253,6 +263,12 @@ typedef struct pdf_output_file_ {
     /* the pdf link stack */
     pdf_link_stack_record link_stack[(pdf_max_link_level + 1)];
     integer link_stack_ptr;
+    /* the thread data */
+    integer last_thread ;        /* pointer to the last thread */
+    scaled_whd thread;
+    integer last_thread_id; /* identifier of the last thread */
+    int last_thread_named_id;        /* is identifier of the last thread named */
+    integer thread_level;    /* depth of nesting of box containing the last thread */
 
 } pdf_output_file;
 
