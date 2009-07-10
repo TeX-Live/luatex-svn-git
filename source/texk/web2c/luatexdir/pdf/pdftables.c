@@ -35,8 +35,15 @@ integer pdf_box_spec_art = 5;
 /**********************************************************************/
 /* One AVL tree for each obj_type 0...pdf_objtype_max */
 
+typedef enum {
+    avl_obj_int_type,
+    avl_obj_string_type,
+} avl_obj_types;
+
 typedef struct oentry_ {
     integer int0;
+    char *str0;
+    int objtype;
     integer objptr;
 } oentry;
 
@@ -44,79 +51,77 @@ typedef struct oentry_ {
 
 static int compare_info(const void *pa, const void *pb, void *param)
 {
-    integer a, b;
-    int as, ae, bs, be, al, bl;
+    const oentry *a, *b;
     (void) param;
-    a = ((const oentry *) pa)->int0;
-    b = ((const oentry *) pb)->int0;
-    if (a == 0 && b == 0)
-        return 0;               /* this happens a lot */
-    if (a < 0 && b < 0) {       /* string comparison */
-        a = -a;
-        b = -b;
-        if (a >= 2097152 && b >= 2097152) {
-            a -= 2097152;
-            b -= 2097152;
-            as = str_start[a];
-            ae = str_start[a + 1];      /* start of next string in pool */
-            bs = str_start[b];
-            be = str_start[b + 1];
-            al = ae - as;
-            bl = be - bs;
-            if (al < bl)        /* compare first by string length */
-                return -1;
-            if (al > bl)
-                return 1;
-            for (; as < ae; as++, bs++) {
-                if (str_pool[as] < str_pool[bs])
-                    return -1;
-                if (str_pool[as] > str_pool[bs])
-                    return 1;
-            }
-        } else {
-            if (a < b)
-                return -1;
-            if (a > b)
-                return 1;
+    a = (const oentry *)pa;
+    b = (const oentry *)pb;
+    if (a->objtype == b->objtype) {
+        if (a->objtype == avl_obj_int_type) {
+            return ((a->int0 < b->int0 ? -1 : (a->int0 > b->int0 ? 1 : 0)));
+        } else { /* string type */
+            return strcmp(a->str0,b->str0);
         }
-    } else {                    /* integer comparison */
-        if (a < b)
-            return -1;
-        if (a > b)
-            return 1;
+    } else if (a->objtype == avl_obj_int_type) {
+        return -1;
+    } else {
+        return 1;
     }
-    return 0;
 }
 
-void avl_put_obj(PDF pdf, integer objptr, integer t)
+void avl_put_obj (PDF pdf, integer t, oentry *oe)
 {
-    static void **pp;
-    static oentry *oe;
-
+    void **pp;
     if (pdf->obj_tree[t] == NULL) {
         pdf->obj_tree[t] = avl_create(compare_info, NULL, &avl_xallocator);
         if (pdf->obj_tree[t] == NULL)
             pdftex_fail("avlstuff.c: avl_create() pdf->obj_tree failed");
     }
-    oe = xtalloc(1, oentry);
-    oe->int0 = obj_info(pdf, objptr);
-    oe->objptr = objptr;        /* allows to relocate obj_tab */
     pp = avl_probe(pdf->obj_tree[t], oe);
     if (pp == NULL)
         pdftex_fail("avlstuff.c: avl_probe() out of memory in insertion");
 }
 
-/* replacement for linear search pascal function "find_obj()" */
-
-integer avl_find_obj(PDF pdf, integer t, integer i, integer byname)
+void avl_put_int_obj(PDF pdf, integer int0, integer objptr, integer t)
 {
-    static oentry *p;
-    static oentry tmp;
+    oentry *oe;
+    oe = xtalloc(1, oentry);
+    oe->int0 = int0;
+    oe->objtype = avl_obj_int_type;
+    oe->objptr = objptr;
+    avl_put_obj(pdf, t, oe);
+}
 
-    if (byname > 0)
-        tmp.int0 = -i;
-    else
-        tmp.int0 = i;
+void avl_put_str_obj(PDF pdf, char *str0, integer objptr, integer t)
+{
+    oentry *oe;
+    oe = xtalloc(1, oentry);
+    oe->str0 = xstrdup(str0);
+    oe->objtype = avl_obj_string_type;
+    oe->objptr = objptr;
+    avl_put_obj(pdf, t, oe);
+}
+
+
+integer avl_find_int_obj(PDF pdf, integer t, integer i)
+{
+    oentry *p;
+    oentry tmp;
+    tmp.int0 = i;
+    tmp.objtype = avl_obj_int_type;
+    if (pdf->obj_tree[t] == NULL)
+        return 0;
+    p = (oentry *) avl_find(pdf->obj_tree[t], &tmp);
+    if (p == NULL)
+        return 0;
+    return p->objptr;
+}
+
+integer avl_find_str_obj(PDF pdf, integer t, char *i)
+{
+    oentry *p;
+    oentry tmp;
+    tmp.str0 = i;
+    tmp.objtype = avl_obj_string_type;
     if (pdf->obj_tree[t] == NULL)
         return 0;
     p = (oentry *) avl_find(pdf->obj_tree[t], &tmp);
@@ -148,7 +153,11 @@ void pdf_create_obj(PDF pdf, integer t, integer i)
     obj_info(pdf, pdf->obj_ptr) = i;
     set_obj_fresh(pdf, pdf->obj_ptr);
     obj_aux(pdf, pdf->obj_ptr) = 0;
-    avl_put_obj(pdf, pdf->obj_ptr, t);
+    if (i<0) {
+        avl_put_str_obj(pdf, makecstring(-i), pdf->obj_ptr, t);
+    } else {
+        avl_put_int_obj(pdf, i, pdf->obj_ptr, t);
+    }
     if (t == obj_type_page) {
         p = pdf->head_tab[t];
         /* find the right position to insert newly created object */
@@ -185,7 +194,11 @@ void pdf_create_obj(PDF pdf, integer t, integer i)
 
 integer find_obj(PDF pdf, integer t, integer i, boolean byname)
 {
-    return avl_find_obj(pdf, t, i, byname);
+
+    if (byname)
+        return avl_find_str_obj(pdf, t, makecstring(-i));
+    else
+        return avl_find_int_obj(pdf, t, i);
 }
 
 

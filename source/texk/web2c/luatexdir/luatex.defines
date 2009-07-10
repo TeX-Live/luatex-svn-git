@@ -640,10 +640,6 @@
 { functions from writezip.c }
 @define procedure write_zip();
 
-{ functions from avlstuff.c }
-@define procedure avl_put_obj();
-@define function avl_find_obj();
-
 { functions from tounicode.c }
 @define procedure def_tounicode();
 
@@ -1276,7 +1272,6 @@
 
 @define procedure set_ff();
 
-@define procedure pdf_create_obj();
 @define function get_obj();
 @define function  pdf_new_objnum  ;
 @define procedure pdf_begin_obj() ;
