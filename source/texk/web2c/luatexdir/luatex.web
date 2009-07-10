@@ -10543,32 +10543,6 @@ end
 @ @<Implement \.{\\pdffontexpand}@>=
     read_expand_font
 
-@ The following macros are needed for further manipulation with whatsit nodes
-for \pdfTeX{} extensions (copying, destroying etc.)
-
-@d add_action_ref(#) == incr(pdf_action_refcount(#)) {increase count of
-references to this action}
-
-@d delete_action_ref(#) == {decrease count of references to this
-action; free it if there is no reference to this action}
-begin
-    if pdf_action_refcount(#) = null then begin
-        if pdf_action_type(#) = pdf_action_user then
-            delete_token_ref(pdf_action_tokens(#))
-        else begin
-            if pdf_action_file(#) <> null then
-                delete_token_ref(pdf_action_file(#));
-            if pdf_action_type(#) = pdf_action_page then
-                delete_token_ref(pdf_action_tokens(#))
-            else if pdf_action_named_id(#) > 0 then
-                delete_token_ref(pdf_action_id(#));
-        end;
-        flush_node(#);
-    end
-    else
-        decr(pdf_action_refcount(#));
-end
-
 @ We have to check whether \.{\\pdfoutput} is set for using \pdfTeX{}
   extensions.
 @<Declare procedures needed in |do_ext...@>=
