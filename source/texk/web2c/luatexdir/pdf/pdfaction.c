@@ -27,12 +27,33 @@ static const char __svn_version[] =
     "$URL$";
 
 
+halfword new_action_node (void)
+{
+    return new_node(action_node, 0);
+}
+
+void delete_action_node (halfword a)
+{
+    if (pdf_action_type(a) == pdf_action_user) {
+        delete_token_ref(pdf_action_tokens(a));
+    } else {
+        if (pdf_action_file(a) != null)
+            delete_token_ref(pdf_action_file(a));
+        if (pdf_action_type(a) == pdf_action_page)
+            delete_token_ref(pdf_action_tokens(a));
+        else if (pdf_action_named_id(a) > 0)
+            delete_token_ref(pdf_action_id(a));
+    }
+    free_node(a, pdf_action_size);
+}
+
 /* read an action specification */
+
 halfword scan_action(PDF pdf)
 {
     integer p;
     (void)pdf;
-    p = new_node(action_node, 0);
+    p = new_action_node();
     if (scan_keyword("user"))
         set_pdf_action_type(p, pdf_action_user);
     else if (scan_keyword("goto"))
@@ -80,21 +101,21 @@ halfword scan_action(PDF pdf)
         pdf_error("ext1", "identifier type missing");
     }
     if (scan_keyword("newwindow")) {
-        set_pdf_action_new_window(p, 1);
+        set_pdf_action_new_window(p, pdf_window_new);
         /* Scan an optional space */
         get_x_token();
         if (cur_cmd != spacer_cmd)
             back_input();
     } else if (scan_keyword("nonewwindow")) {
-        set_pdf_action_new_window(p, 2);
+        set_pdf_action_new_window(p, pdf_window_nonew);
         /* Scan an optional space */
         get_x_token();
         if (cur_cmd != spacer_cmd)
             back_input();
     } else {
-        set_pdf_action_new_window(p, 0);
+        set_pdf_action_new_window(p, pdf_window_notset);
     }
-    if ((pdf_action_new_window(p) > 0) &&
+    if ((pdf_action_new_window(p) > pdf_window_notset) &&
         (((pdf_action_type(p) != pdf_action_goto) &&
           (pdf_action_type(p) != pdf_action_page)) ||
          (pdf_action_file(p) == null)))
@@ -119,9 +140,9 @@ void write_action(PDF pdf, halfword p)
         pdf_print_str(pdf, s);
         xfree(s);
         pdf_printf(pdf, " ");
-        if (pdf_action_new_window(p) > 0) {
+        if (pdf_action_new_window(p) > pdf_window_notset) {
             pdf_printf(pdf, "/NewWindow ");
-            if (pdf_action_new_window(p) == 1)
+            if (pdf_action_new_window(p) == pdf_window_new)
                 pdf_printf(pdf, "true ");
             else
                 pdf_printf(pdf, "false ");

@@ -905,7 +905,6 @@
 @define const split_up_node;
 @define const expr_node;
 @define const span_node;
-@define const action_node;
 @define const glue_spec_node;
 @define const temp_node;
 @define const align_stack_node;
@@ -1244,19 +1243,6 @@
 @define procedure set_pdf_thread_id();
 @define procedure set_pdf_thread_attr();
 
-@define function pdf_dest_type();
-@define function pdf_dest_named_id();
-@define function pdf_dest_id();
-@define function pdf_dest_xyz_zoom();
-@define function pdf_dest_objnum();
-
-@define procedure set_pdf_dest_type();
-@define procedure set_pdf_dest_named_id();
-@define procedure set_pdf_dest_id();
-@define procedure set_pdf_dest_xyz_zoom();
-@define procedure set_pdf_dest_objnum();
-
-
 @define function pdf_width();
 @define function pdf_depth();
 @define function pdf_height();
@@ -1265,42 +1251,8 @@
 @define procedure set_pdf_depth();
 @define procedure set_pdf_height();
 
-@define const pdf_action_page;
-@define const pdf_action_goto;
-@define const pdf_action_thread;
-@define const pdf_action_user;
-
-@define function pdf_action_type();
-@define function pdf_action_named_id();
-@define function pdf_action_id();
-@define function pdf_action_file();
-@define function pdf_action_new_window();
-@define function pdf_action_tokens();
-@define function pdf_action_refcount();
-
-@define procedure set_pdf_action_type();
-@define procedure set_pdf_action_named_id();
-@define procedure set_pdf_action_id();
-@define procedure set_pdf_action_file();
-@define procedure set_pdf_action_new_window();
-@define procedure set_pdf_action_tokens();
-@define procedure set_pdf_action_refcount();
-
-@define const pdf_dest_xyz;
-@define const pdf_dest_fit;
-@define const pdf_dest_fith;
-@define const pdf_dest_fitv;
-@define const pdf_dest_fitb;
-@define const pdf_dest_fitbh;
-@define const pdf_dest_fitbv;
-@define const pdf_dest_fitr;
-
-@define function obj_dest_ptr();
-@define procedure set_obj_dest_ptr();
 @define procedure set_obj_data_ptr();
 
-@define const inf_dest_names_size;
-@define const sup_dest_names_size;
 @define const inf_pk_dpi;
 @define const sup_pk_dpi;
 @define var pdf_objtype_max;

@@ -31,17 +31,25 @@ typedef enum {
     pdf_action_goto,
     pdf_action_thread,
     pdf_action_user
-} pdf_action_types;
+} pdf_action_type;
 
-#  define pdf_action_type(a)        type((a) + 1)
-#  define pdf_action_named_id(a)    subtype((a) + 1)
-#  define pdf_action_id(a)          vlink((a) + 1)
-#  define pdf_action_file(a)        vinfo((a) + 2)
-#  define pdf_action_new_window(a)  vlink((a) + 2)
-#  define pdf_action_tokens(a)      vinfo((a) + 3)
-#  define pdf_action_refcount(a)    vlink((a) + 3)
+typedef enum {
+    pdf_window_notset,
+    pdf_window_new,
+    pdf_window_nonew,
+} pdf_window_type;
 
-/*increase count of references to this action*/
+
+#  define pdf_action_type(a)        type((a) + 1)      /* enum pdf_action_type */
+#  define pdf_action_named_id(a)    subtype((a) + 1)   /* boolean */
+#  define pdf_action_id(a)          vlink((a) + 1)     /* number or toks */
+#  define pdf_action_file(a)        vinfo((a) + 2)     /* toks */
+#  define pdf_action_new_window(a)  vlink((a) + 2)     /* enum pdf_window_type */
+#  define pdf_action_tokens(a)      vinfo((a) + 3)     /* toks */
+#  define pdf_action_refcount(a)    vlink((a) + 3)     /* number */
+
+/* increase count of references to this action. this is used to speed up copy_node() */
+
 #  define add_action_ref(a) pdf_action_refcount((a))++
 
 /* decrease count of references to this
@@ -49,17 +57,7 @@ typedef enum {
 
 #  define delete_action_ref(a) {                                        \
         if (pdf_action_refcount(a) == null) {                           \
-            if (pdf_action_type(a) == pdf_action_user) {                \
-                delete_token_ref(pdf_action_tokens(a));                 \
-            } else {                                                    \
-                if (pdf_action_file(a) != null)                         \
-                    delete_token_ref(pdf_action_file(a));               \
-                if (pdf_action_type(a) == pdf_action_page)              \
-                    delete_token_ref(pdf_action_tokens(a));             \
-                else if (pdf_action_named_id(a) > 0)                    \
-                    delete_token_ref(pdf_action_id(a));                 \
-            }                                                           \
-            free_node(a, pdf_action_size);                              \
+            delete_action_node(a);                                      \
         } else {                                                        \
             decr(pdf_action_refcount(a));                               \
         }                                                               \
