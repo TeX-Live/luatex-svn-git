@@ -22,42 +22,27 @@
 
 { luatex.defines: additions for LuaTeX }
 
-@define function simple_advance_width(); 
-
 @define function new_node();
 @define function new_glyph_node;
 @define procedure flush_node();
 @define function copy_node();
-@define procedure couple_nodes();
 @define function copy_node_list();
 @define procedure flush_node_list();
-@define function string_to_pseudo();
-@define function do_set_attribute();
-@define function copy_attribute_list();
-@define procedure add_node_attr_ref();
 @define procedure replace_attribute_list();
-@define procedure update_attribute_cache;
 @define const UNUSED_ATTRIBUTE;
-
-@define function new_span_node();
 
 @define function sizeof();
 @define procedure memset();
-@define function realloc();
 @define function malloc();
 @define function voidcast();
-@define function fixmemcast();
 @define function varmemcast();
 @define type void;
 @define procedure init_node_mem();
 @define procedure print_node_mem_stats;
 @define procedure dump_node_mem;
 @define procedure undump_node_mem;
-@define function visible_last_node_type();
-@define var NULL;
 @define var varmem;
 @define var var_mem_max;
-@define procedure check_buffer_overflow();
 
 { strings }
 
@@ -71,17 +56,10 @@
 @define function str_start_macro();
 @define function str_length();
 @define var cur_length;
-@define procedure append_char();
 @define procedure str_room();
-@define procedure flush_char;
 @define procedure flush_string;
 @define function make_string;
-@define function str_eq_buf();
-@define function str_eq_str();
 @define function get_strings_started;
-@define function search_string();
-@define function slow_make_string;
-@define function pool_to_unichar();
 
 { }
 
@@ -89,14 +67,7 @@
 @define function make_lang_data();
 @define procedure line_break();
 @define procedure initialize_active;
-@define function cur_break();
-@define function break_node();
-
-@define var just_box;
-@define var paragraph_dir; 
-@define var line_break_dir;
 @define var line_break_context;
-@define var break_c_htdp;
 @define var temp_no_whatsits;
 @define var temp_no_dirs;
 @define var temporary_dir;
@@ -104,26 +75,11 @@
 @define var dir_tmp;
 @define var dir_rover;
 
-
-@define function divide_scaled();
-@define function divide_scaled_n();
-
-@define procedure new_hyphenation();
-@define procedure load_tex_hyphenation();
-@define procedure load_tex_patterns();
 @define procedure dump_language_data;
 @define procedure undump_language_data;
-@define function insert_discretionary();
-@define const select_disc;
 @define function compound_word_break();
-@define procedure set_pre_hyphen_char();
-@define procedure set_post_hyphen_char();
-@define procedure set_pre_exhyphen_char();
-@define procedure set_post_exhyphen_char();
 @define function get_pre_hyphen_char();
 @define function get_post_hyphen_char();
-@define function get_pre_exhyphen_char();
-@define function get_post_exhyphen_char();
 
 @define procedure new_hyph_exceptions;
 @define procedure new_patterns;
@@ -133,93 +89,22 @@
 @define procedure new_post_exhyphen_char;
 
 { macros from luatex.h }
-@define function pdf_char_marked();
-@define function tex_b_open_in();
-@define function vf_b_open_in ();
-@define procedure pdf_mark_char();
-@define procedure writepdf();
 @define procedure pdfassert();
 
-@define procedure luacall();
 @define procedure luatokencall();
-@define procedure closelua();
 @define function get_lua_name();
-
-{ for virtual file input }
-
-@define procedure luacstring_close();
-@define procedure luacstring_start();
-@define var DEFAULT_CAT_TABLE;
 
 { for callbacks }
 
 @define function  run_callback();
-@define function  run_and_save_callback();
-@define function  run_saved_callback();
-@define procedure destroy_saved_callback();
 @define function  callback_defined();
-@define function  callbackluaid();
-@define var find_write_file_callback;
-@define var find_output_file_callback;
-@define var find_image_file_callback;
-@define var find_format_file_callback;
-@define var find_read_file_callback;      
-@define var open_read_file_callback;
-@define var find_ocp_file_callback;
-@define var read_ocp_file_callback;
-@define var find_vf_file_callback;
-@define var read_vf_file_callback;
-@define var find_data_file_callback;
-@define var read_data_file_callback;
-@define var find_font_file_callback;
-@define var read_font_file_callback;
-@define var find_map_file_callback;
-@define var read_map_file_callback;
-@define var find_enc_file_callback;
-@define var read_enc_file_callback;
-@define var find_type1_file_callback;
-@define var read_type1_file_callback;
-@define var find_truetype_file_callback;
-@define var read_truetype_file_callback;
-@define var find_opentype_file_callback;
-@define var read_opentype_file_callback;
-@define var find_sfd_file_callback;
-@define var read_sfd_file_callback;
-@define var find_pk_file_callback;
-@define var read_pk_file_callback;
-@define var show_error_hook_callback;
-@define var process_input_buffer_callback;
-@define var start_page_number_callback;
-@define var stop_page_number_callback;
-@define var start_run_callback;
 @define var stop_run_callback;
-@define var define_font_callback;
-@define var token_filter_callback;
-@define var pre_linebreak_filter_callback;
-@define var linebreak_filter_callback;
-@define var post_linebreak_filter_callback;
 @define var buildpage_filter_callback;
-@define var hyphenate_callback;
-
-@define function lua_hyphenate_callback();
-@define function lua_linebreak_callback();
-
-@define procedure get_saved_lua_boolean();
-@define procedure get_saved_lua_number();
-@define procedure get_saved_lua_string();
-@define procedure get_lua_boolean();
 @define procedure get_lua_number();
-@define procedure get_lua_string();
-
 @define procedure get_token_lua;
 @define procedure lua_node_filter();
 @define procedure lua_node_filter_s();
-@define function lua_hpack_filter();
-@define function lua_vpack_filter();
-
 @define procedure check_texconfig_init;
-
-@define procedure lua_pdf_literal();
 
 { bits for extended char code access }
 
@@ -229,29 +114,19 @@
 @define const xetexnum_mathcode;
 
 @define type mathcodeval;
-@define @field origin_value;
 @define @field class_value;
 @define @field family_value;
 @define @field character_value;
 
-@define type delcodeval;
-@define @field small_family_value;
-@define @field small_character_value;
-@define @field large_family_value;
-@define @field large_character_value;
-
 @define function get_math_code();
-@define function get_math_code_num();
 @define procedure set_math_code();
 @define function get_del_code();
 @define procedure set_del_code();
-@define procedure show_mathcode_value();
 
 @define function scan_mathchar();
 @define function scan_delimiter_as_mathchar();
 @define function mathchar_from_integer();
 
-@define procedure init_math_fields;
 @define procedure setup_math_style;
 @define procedure print_math_style;
 
@@ -274,103 +149,46 @@
 @define procedure set_cat_code();
 
 @define function valid_catcode_table ();
-@define procedure clear_catcode_stack ();
 @define procedure copy_cat_codes ();
 @define procedure initex_cat_codes ();
 @define procedure unsave_cat_codes ();
 @define procedure unsave_text_codes ();
-@define procedure initializetextcodes;
 @define procedure free_text_codes;
-@define procedure dumptextcodes;
-@define procedure undumptextcodes;
-
-@define procedure dumpluacregisters;
-@define procedure undumpluacregisters;
-
-@define function do_a_open_out();
-@define function do_b_open_out();
-
-@define procedure flush_loggable_info;
 
 @define var extra_version_info;
-@define procedure write_svnversion();
 
 { bits and pieces from aleph }
 
-@define procedure btestin ;
-
-@define function readtfmfile();
-@define function next_vf_byte;
-@define function read_vf_file();
-@define function read_ocp_file();
-@define function read_data_file();
-
-@define function read_ocp_info();
 @define procedure init_null_ocp();
-@define function ocp_name();
-@define function ocp_area();
-@define function ocp_external();
-@define function ocp_external_arg();
-@define function ocp_state_base();
-@define function ocp_table_base();
-
 @define procedure run_ocp;
 @define procedure initialize_ocp_buffers();
-@define procedure active_compile;
-@define procedure print_active_ocps;
-
-@define var ocp_tables;
-
 @define const null_ocp;
 @define const null_ocp_list;
 
 @define procedure new_ocp();
 @define function is_last_ocp();
-@define procedure  add_ocp_stack();
 @define procedure dump_active_ocp_info;
 @define procedure undump_active_ocp_info;
 @define var active_min_ptr;
 @define var active_max_ptr;
 
-@define procedure allocate_ocp_table ();
 @define procedure dump_ocp_info;
 @define procedure undump_ocp_info;
-@define procedure scan_ocp_ident;
-
-@define function  copy_font_info();
 
 @define procedure initialize_init_ocplists;
 @define procedure initialize_ocplist_arrays();
 @define procedure dump_ocplist_info;
 @define procedure undump_ocplist_info;
 
-@define function  make_ocp_list_node();
-@define function  make_ocp_lstack_node() ;
-@define function  copy_ocp_lstack();
-@define function  copy_ocp_list();
-@define function  ocp_ensure_lstack();
-
 @define const add_before_op;
 @define const add_after_op;
 @define const remove_before_op;
 @define const remove_after_op;
 
-@define procedure ocp_apply_add();
-@define procedure ocp_apply_remove();
-
-@define procedure print_ocp_lstack();
-@define procedure print_ocp_list();
-@define function scan_ocp_list;
-@define function read_ocp_list;
-
-@define procedure scan_ocp_list_ident;
 @define procedure new_ocp_list();
 @define procedure do_push_ocp_list() ;
 @define procedure do_pop_ocp_list() ;
 @define procedure do_clear_ocp_lists();
-
-
-
 
 { 'texfont' library definitions }
 
@@ -378,30 +196,16 @@
 @define procedure undump_font ();
 @define function  is_valid_font();
 @define function  copy_font();
-@define function  scale_font();
 @define function  max_font_id;
 @define procedure set_max_font_id();
 
 @define function font_name();
 @define function font_area();
-@define function get_font_name();
-@define function get_font_area();
-@define function font_bc();
-@define function font_ec();
+@define function font_size();
 
 @define function tex_font_name();
 @define function tex_font_area();
-@define procedure set_tex_font_name();
 
-@define procedure set_pdf_font_size();
-@define procedure set_pdf_font_num();
-@define procedure set_pdf_font_blink();
-@define procedure set_pdf_font_elink();
-@define procedure set_pdf_font_expand_ratio();
-@define procedure set_pdf_font_shrink();
-@define procedure set_pdf_font_stretch();
-@define procedure set_pdf_font_step();
-@define procedure set_pdf_font_auto_expand();
 @define procedure set_pdf_font_attr();
 
 @define function pdf_font_size();
@@ -409,39 +213,10 @@
 @define function pdf_font_blink();
 @define function pdf_font_elink();
 @define function pdf_font_expand_ratio();
-@define function pdf_font_shrink();
-@define function pdf_font_stretch();
-@define function pdf_font_step();
-@define function pdf_font_auto_expand();
 @define function pdf_font_attr();
 
-@define function cmp_font_area();
-@define function cmp_font_name();
-@define function font_shareable();
-
-@define function fontglue();
-@define procedure setfontglue();
-
-@define function font_check_0();
-@define function font_check_1();
-@define function font_check_2();
-@define function font_check_3();
-
-@define function font_size();
-@define function font_slant();
-@define function font_extend();
 @define function font_used();
-@define procedure set_font_used();
-@define function font_touched();
-@define procedure set_font_touched();
-
 @define function font_dsize();
-@define function font_natural_dir();
-
-@define function font_params();
-@define function font_param();
-@define procedure set_font_params();
-@define procedure set_font_param();
 @define function slant();
 @define function quad();
 @define function x_height();
@@ -450,105 +225,37 @@
 @define function space_stretch();
 @define function space_shrink();
 
-@define function font_kerns();
-@define function font_kern_sc();
-@define procedure adjust_font_kern();
-
-@define function font_italics();
-@define function font_italic();
-@define procedure set_font_italic();
-
-@define function has_lig();
-@define function has_kern();
-
-@define type liginfo;
-
-@define function get_ligature();
-@define function is_valid_ligature();
-@define function lig_type();
-@define function lig_replacement();
-
-@define function is_ligature();
-@define function is_leftboundary();
-@define function is_rightboundary();
-
 @define procedure set_to_character();
 @define procedure set_to_glyph();
 @define procedure set_is_leftghost();
 @define procedure set_is_rightghost();
-
-@define var non_boundarychar;
-
-@define function ext_top();
-@define function ext_mid();
-@define function ext_bot();
-@define function ext_rep();
-
-@define var ext_tag;
-@define var list_tag;
-
-@define var virtual_font_type;
-@define function font_type();
-
-@define function font_format();
-@define function char_index();
-@define function font_cidregistry();
-@define function font_encodingbytes();
-
-@define function font_map();
-@define procedure set_font_map();
-
 
 @define function hyphen_char();
 @define function skew_char();
 @define procedure set_hyphen_char();
 @define procedure set_skew_char();
 @define function char_exists();
-
-@define function char_used();
-@define function char_name();
 @define function char_width();
 @define function char_height();
 @define function char_depth();
 @define function char_italic();
-@define function char_tag();
-@define procedure set_char_tag();
-@define function char_remainder();
-
-@define function has_packet();
-@define procedure do_vf_packet();
-@define function expand_font_name();
-@define function auto_expand_font();
-@define procedure vf_expand_local_fonts();
-@define function letter_space_font();
 @define function read_font_info();
 @define procedure pdf_check_vf();
 
-@define function get_tag_code();
-@define function get_lp_code();
-@define function get_rp_code();
-@define function get_ef_code();
 @define procedure set_tag_code();
 @define procedure set_lp_code();
 @define procedure set_rp_code();
 @define procedure set_ef_code();
-
-@define function test_no_ligatures();
 @define procedure set_no_ligatures();
 
-@define function get_kern();
-@define function charkern();
-
 { functions from mapfile.c }
-@define function hasfmentry();
-@define procedure checkextfm();
+
 @define procedure pdfmapfile();
 @define procedure pdfmapline();
 @define procedure pdf_init_map_file();
 
-@define procedure writefontstuff;
-
 {functions from filename.c }
+
 @define procedure pack_job_name();
 @define procedure prompt_file_name();
 @define procedure scan_file_name;
@@ -556,55 +263,14 @@
 @define procedure print_file_name();
 
 { functions from utils/utils.c }
-@define procedure escapehex();
-@define function ext_xn_over_d();
-@define function makecstring();
 
 @define procedure append_string();
-@define procedure matchstrings();
-@define procedure libpdffinish;
-@define procedure makepdftexbanner;
-@define procedure printcreationdate;
-@define procedure printmoddate;
-@define procedure print_ID();
-@define procedure unescapehex();
-@define procedure write_stream_length();
-@define procedure removepdffile;
-@define procedure garbagewarning;
 @define function newcolorstack();
-@define function colorstackset();
-@define function colorstackpush();
-@define function colorstackpop();
-@define function colorstackcurrent();
 @define function colorstackused;
-@define function colorstackskippagestart();
-@define procedure checkpdfsave();
-@define procedure checkpdfrestore();
-@define procedure pdfshipoutbegin();
-@define procedure pdfshipoutend();
+
 @define procedure pdfsetmatrix();
-@define procedure matrixtransformpoint();
-@define procedure matrixtransformrect();
-@define function matrixused;
-@define procedure matrixrecalculate();
-@define function getllx;
-@define function getlly;
-@define function geturx;
-@define function getury;
 
 @define var static_pdf;
-
-{functions from pdf/pagetree.c }
-@define function output_pages_tree;
-
-{ functions from pdf/pdfpage.c }
-@define procedure pdf_place_rule();
-@define procedure pdf_place_glyph();
-@define procedure pdf_place_form();
-@define procedure pdf_goto_pagemode();
-@define procedure pdf_page_init;
-@define procedure pdf_set_pos();
-@define procedure pdf_end_string_nl;
 
 {functions from textoken.c }
 
@@ -614,16 +280,8 @@
 @define function active_to_cs();
 @define function string_to_toks();
 
-{ functions from vfpacket.c }
-@define function new_vf_packet();
-@define function packet_byte;
-@define procedure start_packet();
-@define procedure store_packet();
-
-{ functions from writefont.c }
-@define procedure do_pdf_font();
-
 { functions from image/writeimg.c }
+
 @define function epdf_xsize();
 @define function epdf_ysize();
 @define function epdf_orig_x();
@@ -632,21 +290,7 @@
 @define function image_height();
 @define function image_depth();
 @define function is_pdf_image();
-@define function read_image();
 @define procedure write_image();
-@define procedure set_image_dimensions();
-@define procedure out_image();
-
-{ functions from writezip.c }
-@define procedure write_zip();
-
-{ functions from tounicode.c }
-@define procedure def_tounicode();
-
-{ functions from luatex.web }
-@define function auto_expand_vf();
-
-{ end of luatex.defines }
 
 {texmf.defines}
 
@@ -654,16 +298,7 @@
 @define type four_quarters;
 
 @define function input_ln ();
-@define function is_new_source ();
-@define function get_job_name ();
-@define function make_full_name_string;
-
 @define procedure seconds_and_micros ();
-@define function ocp_open_in ();
-@define function open_in_name_ok ();
-@define function open_out_name_ok ();
-
-@define function w_open_in ();
 @define function w_open_out ();
 
 @define procedure dump_hh ();
@@ -676,7 +311,6 @@
 @define procedure undump_qqqq ();
 @define procedure undump_things ();
 @define procedure undump_checked_things ();
-@define procedure undump_upper_check_things ();
 @define procedure undump_wd ();
 @define procedure w_close ();
 
@@ -686,39 +320,16 @@
 
 @define function a_open_in ();
 @define procedure a_close ();
-@define procedure b_close ();
-@define function a_open_out ();
-@define function b_open_out ();
-
-@define procedure write_dvi ();
-@define procedure write_ln ();
-
-@define procedure recorder_change_filename ();
 
 { functions from the synctex controller in synctex.c }
 
 @define procedure synctex_init_command;
 @define procedure synctex_start_input;
 @define procedure synctex_terminate();
-@define procedure synctex_sheet();
-@define procedure synctex_teehs;
-@define procedure synctex_vlist();
-@define procedure synctex_tsilv();
-@define procedure synctex_void_vlist();
-@define procedure synctex_hlist();
-@define procedure synctex_tsilh();
-@define procedure synctex_void_hlist();
-@define procedure synctex_math();
-@define procedure synctex_kern();
-@define procedure synctex_char();
-@define procedure synctex_node();
-@define procedure synctex_current;
-@define procedure synctex_horizontal_rule_or_glue();
 
 {math stuff}
 
 @define procedure initialize_math;
-@define procedure show_math_node();
 
 @define procedure scan_extdef_math_code();
 @define procedure scan_extdef_del_code();
@@ -741,14 +352,11 @@
 @define const inner_noad_type;
 @define const under_noad_type;
 @define const over_noad_type;
-@define const accent_noad;
-@define const vcenter_noad;
 
 @define const left_noad_side   ;
 @define const middle_noad_side ;
 @define const right_noad_side  ;
 
-@define procedure finish_display_alignment();
 @define function new_sub_box();
 @define function math_vcenter_group();
 @define procedure close_math_group();
@@ -764,10 +372,7 @@
 @define const cramped_script_script_style;
 
 @define procedure def_math_param();
-@define procedure print_math_param();
-@define function get_math_param();
 @define procedure math_char_in_text();
-
 
 @define const math_param_quad;
 @define const math_param_axis;
@@ -896,16 +501,9 @@
 @define const unset_node;
 @define const margin_kern_node;
 @define const glyph_node;
-@define const align_record_node;
 @define const inserting_node;
 @define const split_up_node;
-@define const expr_node;
-@define const span_node;
 @define const glue_spec_node;
-@define const temp_node;
-@define const align_stack_node;
-@define const movement_node;
-@define const if_node;
 @define const shape_node;
 
 @define const write_node_size;
@@ -930,13 +528,6 @@
 @define const align_head ;
 @define const end_span ;
 
-
-@define const tex_command;
-@define const etex_command;
-@define const aleph_command;
-@define const pdftex_command;
-@define const luatex_command;
-
 @define procedure primitive_tex();
 @define procedure primitive_etex();
 @define procedure primitive_aleph();
@@ -950,7 +541,6 @@
 @define procedure ini_init_primitives;
 @define procedure dump_primitives;
 @define procedure undump_primitives;
-@define function compute_pool_hash();
 
 @define const undefined_primitive;
 @define const hash_prime;
@@ -958,8 +548,6 @@
 @define function get_prim_eq_type();
 @define function get_prim_equiv();
 @define function prim_lookup();
-@define function id_lookup();
-
 @define procedure tex_def_font();
 
 { alignments }
@@ -1000,17 +588,8 @@
 @define var synctex_tag;
 @define var current_ocp_lstack;
 @define var current_ocp_no;
-@define var line_catcode_table;
-@define var line_partial;
-
-@define var mid_line;
-@define var skip_blanks;
 @define var new_line;
 
-@define var terminal_input;
-@define var cur_file;
-
-@define const skipping;
 @define const defining;
 @define const matching;
 @define const aligning;
@@ -1022,29 +601,19 @@
 
 @define var token_list;
 @define var token_type;
-@define var param_start;
 
 @define const parameter;
-@define const u_template;
 @define const v_template;
 @define const backed_up;
 @define const inserted;
 @define const macro;
 @define const output_text;
 @define const every_par_text;
-@define const every_math_text;
-@define const every_display_text;
-@define const every_hbox_text;
 @define const every_vbox_text;
 @define const every_job_text;
-@define const every_cr_text;
-@define const mark_text;
-@define const eTeX_text_offset;
-@define const every_eof_text;
 @define const write_text;
 
 @define var param_stack;
-@define var param_ptr;
 @define var max_param_stack;
 @define var align_state;
 @define var base_ptr;
@@ -1053,14 +622,10 @@
 @define @field loc_field;
 @define @field state_field;
 @define @field index_field;
-@define @field limit_field;
 
 @define procedure runaway;
 @define procedure set_trick_count;
 @define procedure show_context;
-
-@define procedure push_input;
-@define procedure pop_input;
 
 @define procedure back_list();
 @define procedure ins_list();
@@ -1071,7 +636,6 @@
 @define function reinsert_token () ;
 @define procedure begin_file_reading;
 @define procedure end_file_reading; 
-@define procedure clear_for_error_prompt;
 @define procedure initialize_inputstack;
 
 { pdf generation }
@@ -1081,52 +645,30 @@
 @define procedure pdf_error();
 @define procedure check_pdfoutput();
 
-@define function pdf_get_mem();
 @define procedure initialize_pdfgen;
 @define procedure dump_pdftex_data();
 @define procedure undump_pdftex_data();
 
-@define var pdf_offset;
-
-@define var zip_write_state; 
 @define var fixed_pdfoutput; 
 @define var fixed_pdfoutput_set; 
-@define var pdf_page_group_val;
 @define var epochseconds;
 @define var microseconds;
 
-@define procedure pdf_room();
-@define procedure pdf_quick_out();
 @define procedure pdf_out();
 
 @define procedure check_pdfminorversion();
-@define procedure ensure_pdf_open;
-
-@define const pdf_new_line_char;
-
-@define procedure pdf_print_nl;
-
-@define procedure pdf_begin_stream;
-@define procedure pdf_end_stream;
-@define procedure pdf_remove_last_space;
 
 @define const one_inch;
 @define var one_true_inch;
 @define var one_hundred_inch;
 @define const one_bp;
 
-@define function round_xn_over_d();
-
-@define var pk_scale_factor;
 @define var pdf_output_option;
 @define var pdf_output_value;
 @define var pdf_draftmode_option;
 @define var pdf_draftmode_value;
 
-@define procedure pdf_use_font();
 @define procedure pdf_init_font();
-@define function pdf_set_font();
-
 @define procedure pdf_literal();
 
 @define const colorstack_set;
@@ -1141,15 +683,8 @@
 @define procedure set_pdf_colorstack_cmd();
 @define procedure set_pdf_colorstack_data();
 
-@define function pdf_xform_objnum();
-@define procedure set_pdf_xform_objnum();
-
 @define function pdf_ximage_idx();
-@define function pdf_ximage_objnum();
-@define function pdf_ximage_ref();
 @define procedure set_pdf_ximage_idx();
-@define procedure set_pdf_ximage_objnum();
-@define procedure set_pdf_ximage_ref();
 
 @define function pdf_literal_mode();
 @define function pdf_literal_data();
@@ -1164,81 +699,20 @@
 @define function pdf_obj_objnum();
 @define procedure set_pdf_obj_objnum();
 
-@define type obj_entry;
-
 @define function obj_info();
-@define function obj_link();
-@define function obj_offset();
-@define function obj_os_idx();
-@define function obj_aux();
-@define procedure set_obj_info();
-@define procedure set_obj_link();
-@define procedure set_obj_offset();
-@define procedure set_obj_os_idx();
-@define procedure set_obj_aux();
-
-@define procedure set_obj_fresh();
-@define procedure set_obj_scheduled();
-@define function is_obj_scheduled();
-@define function is_obj_written();
-
-@define const obj_type_others;
 @define const obj_type_page;
-@define const obj_type_font;
-@define const obj_type_dest;
 @define const obj_type_obj;
 @define const obj_type_xform;
 @define const obj_type_ximage;
-@define const obj_type_thread;
 
 @define const direct_always;
 @define const direct_page;
 @define const set_origin;
 
-@define var head_tab_max;
-@define const name_tree_kids_max;
-
 @define function obj_data_ptr();
 @define const pdfmem_obj_size;
 
-@define const pdfmem_xform_size;
-
-@define function obj_xform_width();
-@define function obj_xform_height();
-@define function obj_xform_depth();
 @define function obj_xform_box();
-@define function obj_xform_attr();
-@define function obj_xform_resources();
-@define function obj_annot_ptr();
-@define procedure set_obj_xform_width();
-@define procedure set_obj_xform_height();
-@define procedure set_obj_xform_depth();
-@define procedure set_obj_xform_box();
-@define procedure set_obj_xform_attr();
-@define procedure set_obj_xform_resources();
-@define procedure set_obj_annot_ptr();
-
-@define function pdf_annot_data();
-@define function pdf_annot_objnum();
-@define procedure set_pdf_annot_data();
-@define procedure set_pdf_annot_objnum();
-
-@define function pdf_link_action();
-@define function pdf_link_attr();
-@define function pdf_link_objnum();
-
-@define procedure set_pdf_link_action();
-@define procedure set_pdf_link_attr();
-@define procedure set_pdf_link_objnum();
-
-@define function pdf_thread_named_id();
-@define function pdf_thread_id();
-@define function pdf_thread_attr();
-
-@define procedure set_pdf_thread_named_id();
-@define procedure set_pdf_thread_id();
-@define procedure set_pdf_thread_attr();
-
 @define function pdf_width();
 @define function pdf_depth();
 @define function pdf_height();
@@ -1247,47 +721,11 @@
 @define procedure set_pdf_depth();
 @define procedure set_pdf_height();
 
-@define procedure set_obj_data_ptr();
-
-@define const inf_pk_dpi;
-@define const sup_pk_dpi;
-@define var pdf_objtype_max;
-
-@define var head_tab;
-@define var pages_tail;
-@define var obj_ptr;
-@define var sys_obj_ptr;
-@define var pdf_last_pages;
-@define var pdf_last_page;
-@define var pdf_last_stream;
-@define var pdf_stream_length;
-@define var pdf_stream_length_offset;
-@define var pdf_seek_write_length;
-@define var pdf_last_byte;
-@define var pdf_box_spec_media;
-@define var pdf_box_spec_crop;
-@define var pdf_box_spec_bleed;
-@define var pdf_box_spec_trim;
-@define var pdf_box_spec_art;
-
 @define procedure set_ff();
 
 @define function get_obj();
-@define function  pdf_new_objnum  ;
-@define procedure pdf_begin_obj() ;
-@define procedure pdf_new_obj() ;
-@define procedure pdf_end_obj();
-@define procedure pdf_begin_dict();
-@define procedure pdf_new_dict();
-@define procedure pdf_end_dict ;
-@define function append_ptr() ;
 
 @define procedure scan_pdfoutline();
-
-@define procedure pos_right();
-@define procedure pos_left();
-@define procedure pos_up();
-@define procedure pos_down();
 
 @define procedure pdf_write_image();
 @define procedure scan_image();
@@ -1295,10 +733,6 @@
 @define procedure pdf_check_obj();
 @define procedure pdf_write_obj();
 
-@define procedure write_action();
-@define function scan_action;
-
-@define procedure calculate_width_to_enddir();
 @define procedure scan_pdfdest();
 
 @define procedure scan_thread_id;
@@ -1310,11 +744,10 @@
 @define procedure scan_pdfcatalog();
 
 @define var pdf_last_obj;
-@define var pdf_xform_count;
+@define const inf_pk_dpi;
+@define const sup_pk_dpi;
 @define var pk_dpi;
 @define var pdf_cur_form;
-@define var pdf_catalog_toks;
-@define var pdf_catalog_openaction;
 @define var pdf_names_toks;
 @define var pdf_info_toks;
 @define var pdf_trailer_toks;
@@ -1348,13 +781,9 @@
 @define var dvi_buf_size;
 @define var dvi_buf;
 @define var dead_cycles;
-@define var doing_leaders;
 
-@define procedure special_out();
 @define procedure dvi_ship_out();
 @define procedure finish_dvi_file();
-
-@define procedure expand_macros_in_tokenlist();
 
 { printing }
 
@@ -1373,14 +802,8 @@
 @define var tally;
 @define var term_offset;
 @define var file_offset;
-@define var trick_buf;
-@define var trick_count;
-@define var first_count;
-@define var inhibit_par_tokens;
 
 @define procedure wterm();
-@define procedure wterm_ln();
-@define procedure wterm_ln2();
 @define procedure wterm_cr;
 @define procedure wlog_cr;
 @define procedure fprintf();
@@ -1390,19 +813,13 @@
 @define procedure print();
 @define procedure tprint();
 @define procedure print_nl();
-@define procedure print_nlp;
 @define procedure slow_print();
 @define procedure print_banner();
 @define var pdftex_banner;
-@define procedure log_banner();
-@define procedure print_version_banner;
 @define procedure print_esc();
 @define procedure print_the_digs();
 @define procedure print_int();
-@define procedure print_two();
-@define procedure print_hex();
 @define procedure print_roman_int();
-@define procedure print_current_string;
 @define procedure print_font_name();
 
 @define procedure print_cs();
@@ -1410,12 +827,7 @@
 @define procedure prompt_input();
 @define function is_active_cs();
 @define function active_cs_value();
-@define function single_letter();
-
-@define procedure print_glue();
 @define procedure print_spec();
-
-@define procedure scan_expr;
 
 { error handling }
 
@@ -1427,20 +839,16 @@
 
 @define var interaction;
 @define var interactionoption;
-@define var last_error;
 
 @define procedure initialize_errors;
 @define procedure print_err();
-@define procedure print_warn();
 @define procedure fixup_selector();
 
 @define const spotless;
 @define const warning_issued;
-@define const error_message_issued;
 @define const fatal_error_stop;
 
 @define var use_err_help;
-@define var deletions_allowed;
 @define var set_box_allowed;
 @define var history;
 @define var error_count;
@@ -1457,18 +865,13 @@
 @define procedure help6();
 
 @define procedure do_final_end ;
-@define procedure jump_out ;
 @define procedure error ;
 @define procedure int_error() ;
-@define procedure normalize_selector ;
 @define procedure succumb ;
 @define procedure fatal_error();
-@define procedure lua_norm_error();
-@define procedure lua_fatal_error();
 @define procedure overflow();
 @define procedure confusion();
 @define procedure check_interrupt ;
-@define procedure pause_for_instructions ;
 
 @define procedure back_error;
 @define procedure ins_error;
@@ -1476,15 +879,11 @@
 {file io}
 
 @define var nameoffile;
-@define var namelength;
 @define var name_file_pointer;
 
 @define var input_file_callback_id ;
-@define var read_file_callback_id ;
 
 @define function lua_a_open_in ();
-@define function lua_a_open_out();
-@define function lua_b_open_out();
 @define procedure lua_a_close_in();
 @define procedure lua_a_close_out();
 
@@ -1498,36 +897,21 @@
 @define var term_out;
 @define procedure t_open_out;
 @define procedure update_terminal;
-@define procedure clear_terminal;
 @define procedure wake_up_terminal;
-@define function init_terminal;
-@define procedure term_input;
 
 @define var cur_name;
 @define var cur_area;
 @define var cur_ext;
-@define var area_delimiter;
-@define var ext_delimiter;
 
 @define var file_name_size;
-@define var format_area_length;
-@define var format_ext_length;
 @define var format_extension;
 @define var format_default_length;
-@define var TEX_format_default;
-@define var name_in_progress;
 @define var job_name;
 @define var log_opened;
 @define var dvi_file;
-@define var output_file_name;
 @define var texmf_log_name;
 
-@define procedure append_to_name();
-@define procedure pack_file_name();
-@define procedure pack_buffered_name();
 @define function open_fmt_file;
-@define function a_make_name_string();
-@define function b_make_name_string();
 @define function w_make_name_string();
 @define procedure pack_cur_name;
 @define procedure open_log_file;
@@ -1542,16 +926,10 @@
 @define procedure negate();
 
 @define function half();
-@define const unity;
 @define const two;
-@define type nonnegative_integer;
-
-@define function round_decimals();
 @define procedure print_scaled();
 @define var arith_error;
-@define var tex_remainder;
 
-@define function mult_and_add();
 @define function nx_plus_y();
 @define function mult_integers();
 
@@ -1560,11 +938,6 @@
 
 @define var inf_bad;
 @define function badness();
-
-@define procedure set_glue_ratio_zero();
-@define procedure set_glue_ratio_one();
-@define function float_cast();
-@define function unfloat();
 @define function float_constant();
 
 @define var random_seed;
@@ -1616,41 +989,27 @@
 @define procedure token_show();
 
 @define procedure store_new_token();
-@define procedure fast_store_new_token();
 @define procedure delete_token_ref();
 @define procedure flush_list();
 
-@define const no_expand_flag;
 @define function end_line_char_inactive;
 
 @define var par_loc;
 @define var par_token;
-@define var force_eof;
 @define var luacstrings;
-
-@define procedure firm_up_the_line;
 @define procedure get_token;
-
 @define function lua_str_toks();
 @define function str_toks();
-@define procedure ins_the_toks;
 
 @define var pseudo_files;
-@define procedure pseudo_from_string;
-@define procedure pseudo_start;
 @define procedure lua_string_start;
-@define function pseudo_input;
 @define procedure pseudo_close;
-
 
 { expanding }
 
-@define var is_in_csname;
 @define procedure expand;
-@define procedure insert_relax;
 @define procedure get_x_token;
 @define procedure x_token;
-@define procedure complain_missing_csname;
 
 @define const top_mark_code;
 @define const first_mark_code;
@@ -1668,9 +1027,6 @@
 @define procedure set_top_mark();
 @define procedure set_first_mark();
 @define procedure set_bot_mark();
-@define procedure set_split_first_mark();
-@define procedure set_split_bot_mark();
-
 
 @define procedure delete_top_mark();
 @define procedure delete_bot_mark();
@@ -1679,20 +1035,12 @@
 @define procedure delete_split_bot_mark();
 
 @define const clear_marks_code;
-@define const biggest_mark;
-
 @define var biggest_used_mark;
 
 @define procedure initialize_marks;
 
-@define var long_state;
-@define var pstack;
-@define procedure macro_call;
-
 { conditionals }
 
-
-@define const unless_code;
 @define const if_char_code;
 @define const if_cat_code;
 @define const if_int_code;
@@ -1731,12 +1079,7 @@
 @define var if_limit;
 @define var cur_if;
 @define var if_line;
-@define var skip_line;
 
-@define procedure pass_text;
-@define procedure push_condition_stack;
-@define procedure pop_condition_stack;
-@define procedure change_if_limit();
 @define procedure conditional;
 
 { nesting }
@@ -1760,7 +1103,6 @@
 @define var max_nest_stack;
 @define var cur_list;
 @define var shown_mode;
-@define var save_tail;
 
 @define procedure push_nest;
 @define procedure pop_nest;
@@ -1771,34 +1113,14 @@
 
 @define const exactly;
 @define const additional;
-@define const cal_expand_ratio;
-@define const subst_ex_font;
 @define const substituted;
 
 @define var pack_direction;
-@define var spec_direction;
-@define var total_stretch;
-@define var total_shrink;
-@define var last_badness;
 @define var adjust_tail;
 @define var pre_adjust_tail;
 @define var font_expand_ratio;
-@define var last_leftmost_char;
-@define var last_rightmost_char;
-@define var next_char_p;
-@define var prev_char_p;
-@define var pack_begin_line;
 
 @define procedure scan_spec();
-@define procedure set_prev_char_p();
-@define function char_stretch();
-@define function char_shrink();
-@define function kern_stretch();
-@define function kern_shrink();
-@define procedure do_subst_font();
-@define function char_pw();
-@define function new_margin_kern();
-@define procedure update_adjust_list();
 @define function hpack();
 @define function filtered_hpack();
 
@@ -1809,7 +1131,6 @@
 
 @define function prune_page_top();
 @define var active_height;
-@define var cur_height;
 @define const awful_bad;
 @define const deplorable;
 @define var best_height_plus_depth;
@@ -1829,7 +1150,6 @@
 
 @define const box_flag;
 @define const global_box_flag;
-@define const max_global_box_flag;
 @define const ship_out_flag;
 @define const leader_flag;
 
@@ -1842,58 +1162,36 @@
 @define const dimen_val_level;
 @define const glue_val_level;
 @define const mu_val_level;
-@define const dir_val_level;
-@define const ident_val_level;
-@define const tok_val_level;
 
-@define const zero_token;
 @define const infinity;
 
 @define var cur_val;
 @define var cur_val1;
 @define var cur_val_level;
-
-@define var radix;
 @define var cur_order;
 
-@define procedure scan_something_internal();
 @define procedure scan_register_num;
 @define procedure scan_mark_num ;
 @define procedure scan_char_num;
 @define procedure scan_four_bit_int;
 @define procedure scan_math_family_int;
-@define procedure scan_real_fifteen_bit_int;
-@define procedure scan_fifteen_bit_int;
-@define procedure scan_big_fifteen_bit_int;
-@define procedure scan_twenty_seven_bit_int;
-@define procedure scan_fifty_one_bit_int;
-@define procedure scan_string_argument;
 @define procedure scan_int;
 @define procedure scan_normal_dimen;
 @define procedure scan_dimen();
 @define procedure scan_glue();
-@define procedure scan_scaled;
 @define function the_toks;
 
 @define procedure get_font_dimen;
 @define procedure set_font_dimen;
 
-@define procedure scan_normal_glue ;
-@define procedure scan_mu_glue ;
-
-@define const default_rule;
 @define function scan_rule_spec;
 @define function scan_toks();
 
 { directions }
 
 @define function is_mirrored();
-@define function is_rotated();
 @define function new_dir();
 @define procedure initialize_directions;
-@define procedure pop_dir_node;
-@define procedure push_dir_node();
-@define procedure push_dir();
 
 @define var text_dir_ptr;
 @define var text_dir_tmp;
