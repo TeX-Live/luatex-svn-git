@@ -145,4 +145,8 @@ extern integer luacstrings;
 extern void firm_up_the_line(void);
 extern void get_token(void);
 
+extern halfword lua_str_toks(pool_pointer b);
+extern halfword str_toks(pool_pointer b);
+extern void ins_the_toks(void);
+
 #endif

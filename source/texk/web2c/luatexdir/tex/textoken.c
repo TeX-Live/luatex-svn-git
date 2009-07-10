@@ -1539,3 +1539,86 @@ halfword string_to_toks(char *ss)
     }
     return token_link(temp_token_head);
 }
+
+/*
+The token lists for macros and for other things like \.{\\mark} and \.{\\output}
+and \.{\\write} are produced by a procedure called |scan_toks|.
+
+Before we get into the details of |scan_toks|, let's consider a much
+simpler task, that of converting the current string into a token list.
+The |str_toks| function does this; it classifies spaces as type |spacer|
+and everything else as type |other_char|.
+
+The token list created by |str_toks| begins at |link(temp_token_head)| and ends
+at the value |p| that is returned. (If |p=temp_token_head|, the list is empty.)
+
+|lua_str_toks| is almost identical, but it also escapes the three
+symbols that |lua| considers special while scanning a literal string
+*/
+
+halfword lua_str_toks(pool_pointer b)
+{   /* changes the string |str_pool[b..pool_ptr]| to a token list */
+    halfword p; /* tail of the token list */
+    halfword q; /* new node being added to the token list via |store_new_token| */
+    halfword t; /* token being appended */
+    pool_pointer k; /* index into |str_pool| */
+    p=temp_token_head; 
+    set_token_link(p,null); 
+    k=b;
+    while (k<pool_ptr) {
+	t=pool_to_unichar(k);
+	k += utf8_size(t);
+	if (t==' ') {
+	    t=space_token;
+	} else {
+	    if ((t=='\\') || (t=='"') || (t=='\'') || (t==10) || (t==13)) 
+		fast_store_new_token(other_token+'\\');
+	    if (t==10)
+		t='n';
+	    if (t==13)
+		t='r';
+	    t=other_token+t;
+	}
+	fast_store_new_token(t);
+    }
+    pool_ptr=b;
+    return p;
+}
+
+/*
+Incidentally, the main reason for wanting |str_toks| is the function |the_toks|, 
+which has similar input/output characteristics.
+*/
+
+
+halfword str_toks(pool_pointer b)
+{   /* changes the string |str_pool[b..pool_ptr]| to a token list */
+    halfword p; /* tail of the token list */
+    halfword q; /* new node being added to the token list via |store_new_token| */
+    halfword t; /* token being appended */
+    pool_pointer k; /* index into |str_pool| */
+    p=temp_token_head; 
+    set_token_link(p,null); 
+    k=b;
+    while (k<pool_ptr) {
+	t=pool_to_unichar(k);
+	k += utf8_size(t);
+	if (t==' ') 
+	    t=space_token;
+	else 
+	    t=other_token+t;
+	fast_store_new_token(t);
+    }
+    pool_ptr=b; 
+    return p;
+}
+
+/* Here's part of the |expand| subroutine that we are now ready to complete: */
+
+void ins_the_toks (void)
+{
+    (void)the_toks();
+    ins_list(token_link(temp_token_head));
+}
+
+

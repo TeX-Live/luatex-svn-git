@@ -4305,79 +4305,6 @@ that were present at the moment when output was triggered.
 @d max_dimen==@'7777777777 {$2^{30}-1$}
 
 @* \[27] Building token lists.
-The token lists for macros and for other things like \.{\\mark} and \.{\\output}
-and \.{\\write} are produced by a procedure called |scan_toks|.
-
-Before we get into the details of |scan_toks|, let's consider a much
-simpler task, that of converting the current string into a token list.
-The |str_toks| function does this; it classifies spaces as type |spacer|
-and everything else as type |other_char|.
-
-The token list created by |str_toks| begins at |link(temp_token_head)| and ends
-at the value |p| that is returned. (If |p=temp_token_head|, the list is empty.)
-
-|lua_str_toks| is almost identical, but it also escapes the three
-symbols that |lua| considers special while scanning a literal string
-
-@d unicode_incr(#)==if str_pool[#]>=@"F0 then #:=#+4 else if str_pool[#]>=@"E0
-     then #:=#+3 else if str_pool[#]>=@"C0 then #:=#+2 else incr(#)
-
-
-@p @t\4@>@<Declare \eTeX\ procedures for token lists@>@;@/
-function lua_str_toks(@!b:pool_pointer):pointer;
-  {changes the string |str_pool[b..pool_ptr]| to a token list}
-var p:pointer; {tail of the token list}
-@!q:pointer; {new node being added to the token list via |store_new_token|}
-@!t:halfword; {token being appended}
-@!k:pool_pointer; {index into |str_pool|}
-begin
-p:=temp_token_head; set_token_link(p,null); k:=b;
-while k<pool_ptr do
-  begin t:=pool_to_unichar(k);
-  if t=" " then t:=space_token
-  else
-    begin
-     if (t="\") or (t="""") or (t="'") or (t=10) or (t=13) then
-          fast_store_new_token(other_token+"\");
-     if (t=10) then
-       t:="n";
-     if (t=13) then
-       t:="r";
-    t:=other_token+t;
-    end;
-  fast_store_new_token(t);
-  unicode_incr(k);
-  end;
-pool_ptr:=b; lua_str_toks:=p;
-end;
-
-function str_toks(@!b:pool_pointer):pointer;
-  {changes the string |str_pool[b..pool_ptr]| to a token list}
-var p:pointer; {tail of the token list}
-@!q:pointer; {new node being added to the token list via |store_new_token|}
-@!t:halfword; {token being appended}
-@!k:pool_pointer; {index into |str_pool|}
-begin
-p:=temp_token_head; set_token_link(p,null); k:=b;
-while k<pool_ptr do
-  begin t:=pool_to_unichar(k);
-  if t=" " then t:=space_token
-  else t:=other_token+t;
-  fast_store_new_token(t);
-  unicode_incr(k);
-  end;
-pool_ptr:=b; str_toks:=p;
-end;
-
-@ The main reason for wanting |str_toks| is the next function,
-|the_toks|, which has similar input/output characteristics.
-
-@ Here's part of the |expand| subroutine that we are now ready to complete:
-
-@p procedure ins_the_toks;
-var junk:pointer;
-begin junk:=the_toks; ins_list(link(temp_token_head));
-end;
 
 @ The primitives \.{\\number}, \.{\\romannumeral}, \.{\\string}, \.{\\meaning},
 \.{\\fontname}, and \.{\\jobname} are defined as follows.
@@ -10147,7 +10074,7 @@ if c=1 then
     end;
   for c:=last_box_code to vsplit_code do flush_node_list(disc_ptr[c]);
   if last_glue<>max_halfword then delete_glue_ref(last_glue);
-  @<Close the pseudo files@>;
+  while pseudo_files<>null do pseudo_close; {flush pseudo files}
   store_fmt_file; return;@+tini@/
   print_nl("(\dump is performed only by INITEX)"); return;
 @:dump_}{\.{\\dump...only by INITEX}@>
@@ -11729,113 +11656,6 @@ primitive_etex("scantokens",input,2,0);
 primitive_luatex("scantextokens",input,3,0);
 @!@:scan_tex_tokens_}{\.{\\scantextokens} primitive@>
 
-@ The global variable |pseudo_files| is used to maintain a stack of
-pseudo files.  The |pseudo_lines| field of each pseudo file points to
-a linked list of variable size nodes representing lines not yet
-processed: the |subtype| field contains the size of this node,
-all the following words contain ASCII codes.
-
-@<Glob...@>=
-@!pseudo_files:pointer; {stack of pseudo files}
-
-@ @<Set init...@>=
-pseudo_files:=null;
-
-@ The |pseudo_start| procedure initiates reading from a pseudo file.
-
-@<Declare \eTeX\ procedures for tok...@>=
-procedure pseudo_start;
-var old_setting:0..max_selector; {holds |selector| setting}
-@!s:str_number; {string to be converted into a pseudo file}
-@!p:pointer; {for list construction}
-begin scan_general_text;
-old_setting:=selector; selector:=new_string;
-token_show(temp_token_head); selector:=old_setting;
-flush_list(link(temp_token_head));
-str_room(1); s:=make_string;
-@<Convert string |s| into a new pseudo file@>;
-flush_string;
-@<Initiate input from new pseudo file@>;
-end;
-
-procedure pseudo_from_string;
-var @!s:str_number; {string to be converted into a pseudo file}
-@!p:pointer; {for list construction}
-begin
-s:=make_string;
-@<Convert string |s| into a new pseudo file@>;
-flush_string;
-@<Initiate input from new pseudo file@>;
-end;
-
-procedure lua_string_start;
-begin
-begin_file_reading; {set up |cur_file| and new level of input}
-line:=0; ilimit:=istart; iloc:=ilimit+1; {force line read}
-iname:=21; luacstring_start(iindex);
-end;
-
-@ @<Convert string |s| into a new pseudo file@>=
-str_pool[pool_ptr]:=" ";
-p:=string_to_pseudo(str_start_macro(s),pool_ptr,new_line_char);
-vlink(p):=pseudo_files; pseudo_files:=p
-
-@ @<Initiate input from new pseudo file@>=
-begin_file_reading; {set up |cur_file| and new level of input}
-line:=0; ilimit:=istart; iloc:=ilimit+1; {force line read}
-if tracing_scan_tokens>0 then
-  begin if term_offset>max_print_line-3 then print_ln
-  else if (term_offset>0)or(file_offset>0) then print_char(" ");
-  iname:=20; print("( "); incr(open_parens); update_terminal;
-  end
-else begin
-  iname:=18;
-  @<Prepare pseudo file {\sl Sync\TeX} information@>;
-end
-
-@ Here we read a line from the current pseudo file into |buffer|.
-
-@d pseudo_lines(#)==vlink(#+1)
-
-@<Declare \eTeX\ procedures for tr...@>=
-function pseudo_input: boolean; {inputs the next line or returns |false|}
-var p:pointer; {current line from pseudo file}
-@!sz:integer; {size of node |p|}
-@!w:four_quarters; {four ASCII codes}
-@!r:pointer; {loop index}
-begin last:=first; {cf.\ Matthew 19\thinspace:\thinspace30}
-p:=pseudo_lines(pseudo_files);
-if p=null then begin pseudo_input:=false; end
-else  begin pseudo_lines(pseudo_files):=vlink(p); sz:=subtype(p);
-  if 4*sz-3>=buf_size-last then
-     check_buffer_overflow(last+4*sz);
-  last:=first;
-  for r:=p+1 to p+sz-1 do
-    begin w:=vmem(r).qqqq;
-    buffer[last]:=w.b0; buffer[last+1]:=w.b1;
-    buffer[last+2]:=w.b2; buffer[last+3]:=w.b3;
-    last:=last+4;
-    end;
-  if last>=max_buf_stack then max_buf_stack:=last+1;
-  while (last>first)and(buffer[last-1]=" ") do decr(last);
-  flush_node(p);
-  pseudo_input:=true;
-  end;
-end;
-
-@ When we are done with a pseudo file we `close' it.
-
-@<Declare \eTeX\ procedures for tr...@>=
-procedure pseudo_close; {close the top level pseudo file}
-var p: pointer;
-begin p:=vlink(pseudo_files);
-flush_node(pseudo_files);
-pseudo_files:=p;
-end;
-
-@ @<Close the pseudo files@>=
-while pseudo_files<>null do pseudo_close; {flush pseudo files}
-
 @ @<Generate all \eTeX...@>=
 primitive_etex("readline",read_to_cs,1,0);@/
 @!@:read_line_}{\.{\\readline} primitive@>
@@ -12406,9 +12226,6 @@ will update the current input state record accordingly.
 If the input comes from the terminal or a pseudo file, the |synctex_tag| is set to 0.
 It results in automatically disabling synchronization for material
 input from the terminal or pseudo files.
-
-@ @<Prepare pseudo file {\sl Sync\TeX} information@>=
-synctex_tag:=0;
 
 @ @<Close {\sl Sync\TeX} file and write status@>=
 synctex_terminate(log_opened); {Let the {\sl Sync\TeX} controller close its files.}

@@ -637,3 +637,114 @@ void initialize_inputstack(void)
     ilimit = last;
     first = last + 1;           /* |init_terminal| has set |loc| and |last| */
 }
+
+
+
+/*
+The global variable |pseudo_files| is used to maintain a stack of
+pseudo files.  The |pseudo_lines| field of each pseudo file points to
+a linked list of variable size nodes representing lines not yet
+processed: the |subtype| field contains the size of this node,
+all the following words contain ASCII codes.
+*/
+
+halfword pseudo_files; /* stack of pseudo files */
+
+/* The |pseudo_start| procedure initiates reading from a pseudo file. */
+
+void pseudo_from_string (void)
+{
+    str_number s; /* string to be converted into a pseudo file */
+    halfword p; /* for list construction */
+    s=make_string();
+    /* Convert string |s| into a new pseudo file */
+    str_pool[pool_ptr]=' ';
+    p=string_to_pseudo(str_start_macro(s),pool_ptr,int_par(param_new_line_char_code));
+    vlink(p)=pseudo_files; 
+    pseudo_files=p;
+
+    flush_string();
+    /* Initiate input from new pseudo file */
+    begin_file_reading(); /* set up |cur_file| and new level of input */
+    line=0; ilimit=istart; iloc=ilimit+1; /* force line read */
+    if (int_par(param_tracing_scan_tokens_code)>0) {
+	if (term_offset>max_print_line-3) 
+	    print_ln();
+	else if ((term_offset>0)||(file_offset>0)) 
+	    print_char(' ');
+	iname=20; 
+	tprint("( "); 
+	incr(open_parens); 
+	update_terminal();
+    } else {
+	iname=18;
+    }
+    /* Prepare pseudo file {\sl Sync\TeX} information */
+    synctex_tag=0;
+}
+
+void pseudo_start (void)
+{
+    int old_setting; /* holds |selector| setting */
+    scan_general_text();
+    old_setting=selector; 
+    selector=new_string;
+    token_show(temp_token_head); 
+    selector=old_setting;
+    flush_list(token_link(temp_token_head));
+    str_room(1); 
+    pseudo_from_string();
+}
+
+void lua_string_start (void)
+{
+    begin_file_reading(); /* set up |cur_file| and new level of input */
+    line=0; ilimit=istart; iloc=ilimit+1; /* force line read */
+    iname=21; 
+    luacstring_start(iindex);
+}
+
+/* Here we read a line from the current pseudo file into |buffer|.*/
+
+boolean pseudo_input (void) /* inputs the next line or returns |false| */
+{
+    halfword p; /* current line from pseudo file */
+    integer sz; /* size of node |p| */
+    four_quarters w; /* four ASCII codes */
+    halfword r; /* loop index */
+    last=first; /* cf.\ Matthew 19\thinspace:\thinspace30 */
+    p=pseudo_lines(pseudo_files);
+    if (p==null) {
+	return false; 
+    } else {
+	pseudo_lines(pseudo_files)=vlink(p); 
+	sz=subtype(p);
+	if (4*sz-3>=buf_size-last)
+	    check_buffer_overflow(last+4*sz);
+	last=first;
+	for (r=p+1;r<=p+sz-1;r++) {
+	    w=varmem[r].qqqq;
+	    buffer[last]=w.b0; 
+	    buffer[last+1]=w.b1;
+	    buffer[last+2]=w.b2; 
+	    buffer[last+3]=w.b3;
+	    last += 4;
+	}
+	if (last>=max_buf_stack) 
+	    max_buf_stack=last+1;
+	while ((last>first)&&(buffer[last-1]==' ') )
+	    decr(last);
+	flush_node(p);
+    }
+    return true;
+}
+
+/* When we are done with a pseudo file we `close' it */
+
+void pseudo_close (void) /* close the top level pseudo file */
+{
+    halfword p;
+    p=vlink(pseudo_files);
+    flush_node(pseudo_files);
+    pseudo_files=p;
+}

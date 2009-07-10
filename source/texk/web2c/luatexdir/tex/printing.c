@@ -225,6 +225,7 @@ to do the same substraction while typesetting.
 void print(integer s)
 {                               /* prints string |s| */
     pool_pointer j, l;          /* current character code position */
+
     if (s >= str_ptr) {
         /* this can't happen */
         print_char('?');

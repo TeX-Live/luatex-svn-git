@@ -1684,6 +1684,18 @@
 @define procedure firm_up_the_line;
 @define procedure get_token;
 
+@define function lua_str_toks();
+@define function str_toks();
+@define procedure ins_the_toks;
+
+@define var pseudo_files;
+@define procedure pseudo_from_string;
+@define procedure pseudo_start;
+@define procedure lua_string_start;
+@define function pseudo_input;
+@define procedure pseudo_close;
+
+
 { expanding }
 
 @define var is_in_csname;
