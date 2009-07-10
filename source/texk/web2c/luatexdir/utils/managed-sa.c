@@ -19,7 +19,6 @@
 
 #include "luatex-api.h"
 #include <ptexlib.h>
-#include "managed-sa.h"
 
 static const char __svn_version[] =
     "$Id$ $URL$";

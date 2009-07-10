@@ -22,7 +22,6 @@
 
 #include "nodes.h"
 #include "commands.h"
-#include "managed-sa.h"
 
 static const char _svn_version[] =
     "$Id$ "

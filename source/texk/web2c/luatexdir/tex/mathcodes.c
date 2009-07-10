@@ -20,7 +20,6 @@
 #include "luatex-api.h"
 #include <ptexlib.h>
 
-#include "managed-sa.h"
 #include "commands.h"
 
 extern void rawset_sa_item(sa_tree head, integer n, integer v);

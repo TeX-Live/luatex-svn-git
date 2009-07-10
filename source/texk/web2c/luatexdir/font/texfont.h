@@ -30,8 +30,6 @@
 #ifndef TEXFONT_H
 #  define TEXFONT_H
 
-#  include "luatexdir/managed-sa.h"
-
 #  define pointer halfword
 
 typedef struct liginfo {

@@ -51,6 +51,7 @@ extern double rint(double x);
 #  include "utils/synctex.h"
 
 #  include "utils/avlstuff.h"
+#  include "utils/managed-sa.h"
 #  include "image/writeimg.h"
 #  include "openbsd-compat.h"
 #  include "dvi/dvigen.h"

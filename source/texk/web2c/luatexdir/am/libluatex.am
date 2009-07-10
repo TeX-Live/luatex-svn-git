@@ -49,7 +49,6 @@ libluatex_a_SOURCES = \
 	luatexdir/font/writettf.h \
 	luatexdir/font/writetype0.c \
 	luatexdir/font/writetype2.c \
-	luatexdir/get_svnversion.sh \
 	luatexdir/image/epdf.c \
 	luatexdir/image/epdf.h \
 	luatexdir/image/image.h \
@@ -92,9 +91,6 @@ libluatex_a_SOURCES = \
 	luatexdir/luatex-api.h \
 	luatexdir/luatex.h \
 	luatexdir/makecpool.c \
-	luatexdir/managed-sa.c \
-	luatexdir/managed-sa.h \
-	luatexdir/mathcodes.c \
 	luatexdir/nodes.h \
 	luatexdir/ocp/ocp.c \
 	luatexdir/ocp/ocp.h \
@@ -169,6 +165,7 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/linebreak.h \
 	luatexdir/tex/linebreak.c \
 	luatexdir/tex/math.c \
+	luatexdir/tex/mathcodes.c \
 	luatexdir/tex/memoryword.c \
 	luatexdir/tex/memoryword.h \
 	luatexdir/tex/mlist.c \
@@ -191,12 +188,14 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/texnodes.c \
 	luatexdir/tex/textoken.c \
 	luatexdir/tex/textoken.h \
+	luatexdir/tex/textcodes.c \
 	luatexdir/texmath.h \
-	luatexdir/textcodes.c \
 	luatexdir/utils/avl.c \
 	luatexdir/utils/avl.h \
 	luatexdir/utils/avlstuff.c \
 	luatexdir/utils/avlstuff.h \
+	luatexdir/utils/managed-sa.c \
+	luatexdir/utils/managed-sa.h \
 	luatexdir/utils/synctex.h \
 	luatexdir/utils/synctex.c \
 	luatexdir/utils/utils.c \
@@ -212,6 +211,5 @@ EXTRA_DIST += \
 	luatexdir/ChangeLog \
 	luatexdir/NEWS \
 	luatexdir/README \
-	luatexdir/change-files.txt \
 	luatexdir/font/subfont.txt
 
