@@ -94,6 +94,7 @@ PDF initialize_pdf(void)
     pdf->pk_scale_factor = 0;
 
     init_dest_names(pdf);
+    pdf->resources = NULL;
 
     return pdf;
 }
@@ -612,14 +613,14 @@ void append_object_list(PDF pdf, pdf_obj_type t, integer f)
     item->info = f;
     switch (t) {
     /* *INDENT-OFF* */
-    case obj_type_obj:    set_p_or_return(pdf->obj_list);    break;
-    case obj_type_font:   set_p_or_return(pdf->font_list);   break;
-    case obj_type_xform:  set_p_or_return(pdf->xform_list);  break;
-    case obj_type_ximage: set_p_or_return(pdf->ximage_list); break;
-    case obj_type_dest:   set_p_or_return(pdf->dest_list);   break;
-    case obj_type_link:   set_p_or_return(pdf->link_list);   break;
-    case obj_type_annot:  set_p_or_return(pdf->annot_list);  break;
-    case obj_type_bead:   set_p_or_return(pdf->bead_list);   break;
+    case obj_type_obj:    set_p_or_return(pdf->resources->obj_list);    break;
+    case obj_type_font:   set_p_or_return(pdf->resources->font_list);   break;
+    case obj_type_xform:  set_p_or_return(pdf->resources->xform_list);  break;
+    case obj_type_ximage: set_p_or_return(pdf->resources->ximage_list); break;
+    case obj_type_dest:   set_p_or_return(pdf->resources->dest_list);   break;
+    case obj_type_link:   set_p_or_return(pdf->resources->link_list);   break;
+    case obj_type_annot:  set_p_or_return(pdf->resources->annot_list);  break;
+    case obj_type_bead:   set_p_or_return(pdf->resources->bead_list);   break;
     default:              assert(0);                         break;
     /* *INDENT-ON* */
     }
@@ -635,14 +636,14 @@ void flush_object_list(PDF pdf, pdf_obj_type t)
     pdf_object_list *q, *p;
     switch (t) {
     /* *INDENT-OFF* */
-    case obj_type_obj:    p = pdf->obj_list; break;
-    case obj_type_font:   p = pdf->font_list; break;
-    case obj_type_xform:  p = pdf->xform_list; break;
-    case obj_type_ximage: p = pdf->ximage_list; break;
-    case obj_type_dest:   p = pdf->dest_list; break;
-    case obj_type_link:   p = pdf->link_list; break;
-    case obj_type_annot:  p = pdf->annot_list; break;
-    case obj_type_bead:   p = pdf->bead_list; break;
+    case obj_type_obj:    p = pdf->resources->obj_list; break;
+    case obj_type_font:   p = pdf->resources->font_list; break;
+    case obj_type_xform:  p = pdf->resources->xform_list; break;
+    case obj_type_ximage: p = pdf->resources->ximage_list; break;
+    case obj_type_dest:   p = pdf->resources->dest_list; break;
+    case obj_type_link:   p = pdf->resources->link_list; break;
+    case obj_type_annot:  p = pdf->resources->annot_list; break;
+    case obj_type_bead:   p = pdf->resources->bead_list; break;
     default:              return;  break;
     /* *INDENT-ON* */
     }
@@ -653,14 +654,14 @@ void flush_object_list(PDF pdf, pdf_obj_type t)
     }
     switch (t) {
     /* *INDENT-OFF* */
-    case obj_type_obj:    pdf->obj_list = NULL; break;
-    case obj_type_font:   pdf->font_list = NULL; break;
-    case obj_type_xform:  pdf->xform_list = NULL; break;
-    case obj_type_ximage: pdf->ximage_list = NULL; break;
-    case obj_type_dest:   pdf->dest_list = NULL; break;
-    case obj_type_link:   pdf->link_list = NULL; break;
-    case obj_type_annot:  pdf->annot_list = NULL; break;
-    case obj_type_bead:   pdf->bead_list = NULL; break;
+    case obj_type_obj:    pdf->resources->obj_list = NULL; break;
+    case obj_type_font:   pdf->resources->font_list = NULL; break;
+    case obj_type_xform:  pdf->resources->xform_list = NULL; break;
+    case obj_type_ximage: pdf->resources->ximage_list = NULL; break;
+    case obj_type_dest:   pdf->resources->dest_list = NULL; break;
+    case obj_type_link:   pdf->resources->link_list = NULL; break;
+    case obj_type_annot:  pdf->resources->annot_list = NULL; break;
+    case obj_type_bead:   pdf->resources->bead_list = NULL; break;
     default:              break; /* cant happen */ 
     /* *INDENT-ON* */
     }
@@ -672,14 +673,14 @@ pdf_object_list *lookup_object_list(PDF pdf, pdf_obj_type t, integer f)
     pdf_object_list *p;
     switch (t) {
     /* *INDENT-OFF* */
-    case obj_type_obj:    p = pdf->obj_list; break;
-    case obj_type_font:   p = pdf->font_list; break;
-    case obj_type_xform:  p = pdf->xform_list; break;
-    case obj_type_ximage: p = pdf->ximage_list; break;
-    case obj_type_dest:   p = pdf->dest_list; break;
-    case obj_type_link:   p = pdf->link_list; break;
-    case obj_type_annot:  p = pdf->annot_list; break;
-    case obj_type_bead:   p = pdf->bead_list; break;
+    case obj_type_obj:    p = pdf->resources->obj_list; break;
+    case obj_type_font:   p = pdf->resources->font_list; break;
+    case obj_type_xform:  p = pdf->resources->xform_list; break;
+    case obj_type_ximage: p = pdf->resources->ximage_list; break;
+    case obj_type_dest:   p = pdf->resources->dest_list; break;
+    case obj_type_link:   p = pdf->resources->link_list; break;
+    case obj_type_annot:  p = pdf->resources->annot_list; break;
+    case obj_type_bead:   p = pdf->resources->bead_list; break;
     default:              return NULL;  break;  /* shouldnt happen */ 
     /* *INDENT-ON* */
     }

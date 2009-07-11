@@ -254,17 +254,10 @@ void check_running_thread(PDF pdf, halfword this_box, posstructure * refpos,
     }
 }
 
-void reset_thread_lists(PDF pdf)
-{
-    pdf->bead_list = NULL;
-    pdf->last_thread = null;
-}
-
 void print_beads_list(PDF pdf)
 {
     pdf_object_list *k;
-    if (pdf->bead_list != NULL) {
-        k = pdf->bead_list;
+    if ((k = pdf->resources->bead_list) != NULL) {
         pdf_printf(pdf, "/B [ ");
         while (k != NULL) {
             pdf_print_int(pdf, k->info);
@@ -279,8 +272,7 @@ void print_bead_rectangles(PDF pdf)
 {
     halfword i;
     pdf_object_list *k;
-    if (pdf->bead_list != NULL) {
-        k = pdf->bead_list;
+    if ((k = pdf->resources->bead_list) != NULL) {
         while (k != NULL) {
             pdf_new_obj(pdf, obj_type_others, 0, 1);
             pdf_out(pdf, '[');

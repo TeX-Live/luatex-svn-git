@@ -260,7 +260,7 @@ internal_font_number pdf_set_font(PDF pdf, internal_font_number f)
                                    with |f|; |ff| is either |f| or some font with the same tfm name
                                    at different size and/or expansion */
     k = ff;
-    p = pdf->font_list;
+    p = pdf->resources->font_list;
     while (p != NULL) {
         set_ff(p->info);
         if (ff == k)

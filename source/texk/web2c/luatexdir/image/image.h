@@ -169,7 +169,7 @@ typedef struct {
 #  define epdf_orig_y(a)        img_yorig(img_dict(img_array[a]))
 #  define is_pdf_image(a)       (img_type(img_dict(img_array[a])) == IMG_TYPE_PDF)
 #  define is_png_image(a)       (img_type(img_dict(img_array[a])) == IMG_TYPE_PNG)
-#  define update_image_procset(a) (pdf->image_procset |= img_color(img_dict(img_array[a])))
+#  define update_image_procset(a) (pdf->resources->image_procset |= img_color(img_dict(img_array[a])))
 #  define check_image_b(a)      ((a) & IMAGE_COLOR_B)
 #  define check_image_c(a)      ((a) & IMAGE_COLOR_C)
 #  define check_image_i(a)      ((a) & IMAGE_COLOR_I)

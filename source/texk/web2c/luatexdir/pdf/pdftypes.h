@@ -149,6 +149,19 @@ typedef enum {
     obj_type_annot = 11,        /* index of linked list of annotation objects */
 } pdf_obj_type;
 
+typedef struct pdf_resource_struct_ {
+    pdf_object_list *obj_list;  /* |pdf_obj_list| */
+    pdf_object_list *font_list; /* |font_list| during flushing pending forms */
+    pdf_object_list *xform_list;        /* |pdf_xform_list| */
+    pdf_object_list *ximage_list;       /* |pdf_ximage_list| */
+    pdf_object_list *dest_list; /* the pdf destinations */
+    pdf_object_list *link_list; /* the pdf links */
+    pdf_object_list *annot_list;        /* the pdf annotations */
+    pdf_object_list *bead_list; /* the thread beads */
+    integer text_procset;       /* |pdf_text_procset| */
+    integer image_procset;      /* |pdf_image_procset| */
+} pdf_resource_struct;
+
 typedef struct pdf_output_file_ {
     FILE *file;                 /* the PDF output file handle */
     char *file_name;            /* the PDF output file name */
@@ -233,24 +246,15 @@ typedef struct pdf_output_file_ {
     int seek_write_length;      /* flag whether to seek back and write \.{/Length} */
     int last_byte;              /* byte most recently written to PDF file; for \.{endstream} in new line */
 
-    integer last_resources;     /* halfword to most recently generated Resources object.
-                                   TH: this used to be a local in pdf_shipout, but I would like to 
-                                   be able to split that function into a pre- and post part */
+    /* integer last_resources;     halfword to most recently generated Resources object.
+       TH: this used to be a local in pdf_shipout, but I would like to 
+       be able to split that function into a pre- and post part */
 
     integer obj_count;
     integer xform_count;
     integer ximage_count;
-    pdf_object_list *font_list; /* the pdf fonts */
-    pdf_object_list *obj_list;  /* the pdf raw objects */
-    pdf_object_list *xform_list;        /* the pdf forms */
-    pdf_object_list *ximage_list;       /* the pdf images */
-    pdf_object_list *dest_list; /* the pdf destinations */
-    pdf_object_list *link_list; /* the pdf links */
-    pdf_object_list *annot_list;        /* the pdf annotations */
-    pdf_object_list *bead_list; /* the thread beads */
 
-    integer image_procset;      /* collection of image types used in current page/form */
-    int text_procset;           /* mask of used ProcSet's in the current page/form */
+    pdf_resource_struct *resources;
 
     /* the variables from pdfdest */
     integer dest_names_size;

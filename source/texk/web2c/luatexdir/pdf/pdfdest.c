@@ -136,8 +136,7 @@ void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
 void write_out_pdf_mark_destinations(PDF pdf)
 {
     pdf_object_list *k;
-    if (pdf->dest_list != NULL) {
-        k = pdf->dest_list;
+    if ((k = pdf->resources->dest_list) != NULL) {
         while (k != NULL) {
             if (is_obj_written(pdf, k->info)) {
                 pdf_error("ext5",

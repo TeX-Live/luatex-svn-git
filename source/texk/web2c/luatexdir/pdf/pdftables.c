@@ -444,24 +444,21 @@ void dump_pdftex_data(PDF pdf)
     dump_int(pdf->obj_count);
     dump_int(pdf->xform_count);
     dump_int(pdf->ximage_count);
-    if (pdf->obj_list != NULL) {
-        l = pdf->obj_list;
+    if (pdf->resources != NULL && (l = pdf->resources->obj_list) != NULL) {
         while (l != NULL) {
             dump_int(l->info);
             l = l->link;
         }
     }
     dump_int(0);                /* signal end of obj_list */
-    if (pdf->xform_list != NULL) {
-        l = pdf->xform_list;
+    if (pdf->resources != NULL && (l = pdf->resources->xform_list) != NULL) {
         while (l != NULL) {
             dump_int(l->info);
             l = l->link;
         }
     }
     dump_int(0);                /* signal end of xform_list */
-    if (pdf->ximage_list != NULL) {
-        l = pdf->ximage_list;
+    if (pdf->resources != NULL && (l = pdf->resources->ximage_list) != NULL) {
         while (l != NULL) {
             dump_int(l->info);
             l = l->link;

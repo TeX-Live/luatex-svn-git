@@ -74,18 +74,19 @@ void fix_pdfoutput(void)
     }
 }
 
-
-void reset_resource_lists(PDF pdf)
+void reset_resource_lists(pdf_resource_struct * p)
 {
-    pdf->font_list = NULL;
-    pdf->obj_list = NULL;
-    pdf->xform_list = NULL;
-    pdf->ximage_list = NULL;
-    pdf->text_procset = false;
-    pdf->image_procset = 0;
+    p->obj_list = NULL;
+    p->font_list = NULL;
+    p->xform_list = NULL;
+    p->ximage_list = NULL;
+    p->dest_list = NULL;
+    p->link_list = NULL;
+    p->annot_list = NULL;
+    p->bead_list = NULL;
+    p->text_procset = false;
+    p->image_procset = 0;
 }
-
-
 
 /*
 |pdf_ship_out| is used instead of |ship_out| to shipout a box to PDF
@@ -97,19 +98,16 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
 {                               /* output the box |p| */
     integer i, j, kk;           /* general purpose accumulators */
     pdf_object_list *k;
-    pdf_object_list *save_font_list;    /* to save |font_list| during flushing pending forms */
-    pdf_object_list *save_obj_list;     /* to save |pdf_obj_list| */
-    pdf_object_list *save_ximage_list;  /* to save |pdf_ximage_list| */
-    pdf_object_list *save_xform_list;   /* to save |pdf_xform_list| */
-    integer save_image_procset; /* to save |pdf_image_procset| */
-    integer save_text_procset;  /* to save |pdf_text_procset| */
     scaledpos save_cur_page_size;       /* to save |cur_page_size| during flushing pending forms */
     scaled form_margin;
+    pdf_resource_struct resources;
     integer pre_callback_id;
     integer post_callback_id;
     boolean ret;
     integer ff;                 /* for use with |set_ff| */
+
     integer count_base = get_count_base();
+    integer last_resources;
 
     /* Start sheet {\sl Sync\TeX} information record */
     pdf_output_value = pdf_output;      /* {\sl Sync\TeX}: we assume that |pdf_output| is properly set up */
@@ -183,8 +181,9 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     /* Initialize variables as |pdf_ship_out| begins */
     prepare_mag();
     temp_ptr = p;
-    pdf->last_resources = pdf_new_objnum(pdf);
-    reset_resource_lists(pdf);
+    last_resources = pdf_new_objnum(pdf);
+    reset_resource_lists(&resources);
+    pdf->resources = &resources;
     dvi_direction = page_direction;
 
     /* Calculate PDF page dimensions and margins */
@@ -355,18 +354,14 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         pdf_printf(pdf, "]\n");
         pdf_printf(pdf, "/FormType 1\n");
         pdf_printf(pdf, "/Matrix [1 0 0 1 0 0]\n");
-        pdf_indirect_ln(pdf, "Resources", pdf->last_resources);
+        pdf_indirect_ln(pdf, "Resources", last_resources);
 
     } else {
         pdf->last_page = get_obj(pdf, obj_type_page, total_pages + 1, 0);
         set_obj_aux(pdf, pdf->last_page, 1);    /* mark that this page has been created */
         pdf_new_dict(pdf, obj_type_others, 0, 0);
         pdf->last_stream = pdf->obj_ptr;
-        /* Reset PDF mark lists */
-        pdf->annot_list = NULL;
-        pdf->link_list = NULL;
-        pdf->dest_list = NULL;
-        reset_thread_lists(pdf);
+        pdf->last_thread = null;
     }
     /* Start stream of page/form contents */
     pdf_begin_stream(pdf);
@@ -406,7 +401,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
             pdf_do_page_divert(pdf, pdf->last_page, page_divert_val);
         pdf_printf(pdf, "/Type /Page\n");
         pdf_indirect_ln(pdf, "Contents", pdf->last_stream);
-        pdf_indirect_ln(pdf, "Resources", pdf->last_resources);
+        pdf_indirect_ln(pdf, "Resources", last_resources);
         pdf_printf(pdf, "/MediaBox [0 0 ");
         pdf_print_mag_bp(pdf, cur_page_size.h);
         pdf_out(pdf, ' ');
@@ -420,15 +415,16 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
             pdf->img_page_group_val = 0;
         }
         /* Generate array of annotations or beads in page */
-        if ((pdf->annot_list != NULL) || (pdf->link_list != NULL)) {
+        if ((resources.annot_list != NULL)
+            || (resources.link_list != NULL)) {
             pdf_printf(pdf, "/Annots [ ");
-            k = pdf->annot_list;
+            k = resources.annot_list;
             while (k != NULL) {
                 pdf_print_int(pdf, k->info);
                 pdf_printf(pdf, " 0 R ");
                 k = k->link;
             }
-            k = pdf->link_list;
+            k = resources.link_list;
             while (k != NULL) {
                 pdf_print_int(pdf, k->info);
                 pdf_printf(pdf, " 0 R ");
@@ -442,8 +438,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     }
     /* Write out resource lists */
     /* Write out pending raw objects */
-    if (pdf->obj_list != NULL) {
-        k = pdf->obj_list;
+    if ((k = resources.obj_list) != NULL) {
         while (k != NULL) {
             if (!is_obj_written(pdf, k->info))
                 pdf_write_obj(pdf, k->info);
@@ -457,39 +452,22 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
        which are also used by page shipping.
        Saving and restoring |cur_page_size| is needed for proper
        writing out pending PDF marks. */
-    if (pdf->xform_list != NULL) {
-        k = pdf->xform_list;
+    if ((k = resources.xform_list) != NULL) {
         while (k != NULL) {
             if (!is_obj_written(pdf, k->info)) {
                 pdf_cur_form = k->info;
-                /* Save resource lists */
-                save_font_list = pdf->font_list;
-                save_obj_list = pdf->obj_list;
-                save_xform_list = pdf->xform_list;
-                save_ximage_list = pdf->ximage_list;
-                save_text_procset = pdf->text_procset;
-                save_image_procset = pdf->image_procset;
-                reset_resource_lists(pdf);
                 save_cur_page_size = cur_page_size;
                 pdf_ship_out(pdf, obj_xform_box(pdf, pdf_cur_form), false);
                 cur_page_size = save_cur_page_size;
-
                 /* Restore resource lists */
-                pdf->font_list = save_font_list;
-                pdf->obj_list = save_obj_list;
-                pdf->xform_list = save_xform_list;
-                pdf->ximage_list = save_ximage_list;
-                pdf->text_procset = save_text_procset;
-                pdf->image_procset = save_image_procset;
-
+                pdf->resources = &resources;
             }
             k = k->link;
         }
     }
 
     /* Write out pending images */
-    if (pdf->ximage_list != NULL) {
-        k = pdf->ximage_list;
+    if ((k = resources.ximage_list) != NULL) {
         while (k != NULL) {
             if (!is_obj_written(pdf, k->info))
                 pdf_write_image(pdf, k->info);
@@ -500,8 +478,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     if (shipping_page) {
         /* Write out pending PDF marks */
         /* Write out PDF annotations */
-        if (pdf->annot_list != NULL) {
-            k = pdf->annot_list;
+        if ((k = resources.annot_list) != NULL) {
             while (k != NULL) {
                 i = obj_annot_ptr(pdf, k->info);        /* |i| points to |pdf_annot_node| */
                 pdf_begin_dict(pdf, k->info, 1);
@@ -514,8 +491,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         }
 
         /* Write out PDF link annotations */
-        if (pdf->link_list != NULL) {
-            k = pdf->link_list;
+        if ((k = resources.link_list) != NULL) {
             while (k != NULL) {
                 i = obj_annot_ptr(pdf, k->info);
                 pdf_begin_dict(pdf, k->info, 1);
@@ -532,7 +508,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
                 k = k->link;
             }
             /* Flush |pdf_start_link_node|'s created by |append_link| */
-            k = pdf->link_list;
+            k = resources.link_list;
             while (k != NULL) {
                 i = obj_annot_ptr(pdf, k->info);
                 /* nodes with |subtype = pdf_link_data_node| were created by |append_link| and
@@ -550,7 +526,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
 
     }
     /* Write out resources dictionary */
-    pdf_begin_dict(pdf, pdf->last_resources, 1);
+    pdf_begin_dict(pdf, last_resources, 1);
     /* Print additional resources */
     if (shipping_page) {
         if (pdf_page_resources != null)
@@ -564,8 +540,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     }
 
     /* Generate font resources */
-    if (pdf->font_list != NULL) {
-        k = pdf->font_list;
+    if ((k = resources.font_list) != NULL) {
         pdf_printf(pdf, "/Font << ");
         while (k != NULL) {
             pdf_printf(pdf, "/F");
@@ -578,14 +553,14 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
             k = k->link;
         }
         pdf_printf(pdf, ">>\n");
-        pdf->text_procset = true;
+        resources.text_procset = true;
     }
 
     /* Generate XObject resources */
-    if ((pdf->xform_list != NULL) || (pdf->ximage_list != NULL)) {
+    if ((resources.xform_list != NULL)
+        || (resources.ximage_list != NULL)) {
         pdf_printf(pdf, "/XObject << ");
-        if (pdf->xform_list != NULL) {
-            k = pdf->xform_list;
+        if ((k = resources.xform_list) != NULL) {
             while (k != NULL) {
                 pdf_printf(pdf, "/Fm");
                 pdf_print_int(pdf, obj_info(pdf, k->info));
@@ -596,8 +571,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
                 k = k->link;
             }
         }
-        if (pdf->ximage_list != NULL) {
-            k = pdf->ximage_list;
+        if ((k = resources.ximage_list) != NULL) {
             while (k != null) {
                 pdf_printf(pdf, "/Im");
                 pdf_print_int(pdf, image_index(obj_data_ptr(pdf, k->info)));
@@ -614,18 +588,17 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
 
     /* Generate ProcSet */
     pdf_printf(pdf, "/ProcSet [ /PDF");
-    if (pdf->text_procset)
+    if (resources.text_procset)
         pdf_printf(pdf, " /Text");
-    if (check_image_b(pdf->image_procset))
+    if (check_image_b(resources.image_procset))
         pdf_printf(pdf, " /ImageB");
-    if (check_image_c(pdf->image_procset))
+    if (check_image_c(resources.image_procset))
         pdf_printf(pdf, " /ImageC");
-    if (check_image_i(pdf->image_procset))
+    if (check_image_i(resources.image_procset))
         pdf_printf(pdf, " /ImageI");
     pdf_printf(pdf, " ]\n");
 
     pdf_end_dict(pdf);
-
 
     /* In the end of shipping out a page we reset all the lists holding objects
        have been created during the page shipping. */
@@ -650,7 +623,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     }
     dead_cycles = 0;
 
-    /* Flush the box from memory, showing statistics if requested */
+    /* Flush the box from memory, sho.ing statistics if requested */
     /* todo: this can be shared with dvi */
     if ((tracing_stats > 1) && (pre_callback_id == 0)) {
         tprint_nl("Memory usage before: ");
