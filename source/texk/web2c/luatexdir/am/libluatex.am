@@ -151,6 +151,8 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/align.h \
 	luatexdir/tex/arithmetic.c \
 	luatexdir/tex/arithmetic.h \
+	luatexdir/tex/buildpage.c \
+	luatexdir/tex/buildpage.h \
 	luatexdir/tex/conditional.c \
 	luatexdir/tex/conditional.h \
 	luatexdir/tex/directions.c \
