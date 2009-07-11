@@ -4364,13 +4364,7 @@ pdf_draftmode := 0;
 @ The subroutines define the corresponding macros so we can use them
 in C.
 
-@d is_valid_char(#) == char_exists(f,#)
-
-@p function get_nullfont: internal_font_number;
-begin
-    get_nullfont := null_font;
-end;
-
+@p
 function get_ocp_active_number_base: integer;
 begin
     get_ocp_active_number_base := ocp_active_number_base;
@@ -4390,93 +4384,20 @@ function get_luatexversion: integer;
 begin
     get_luatexversion := luatex_version;
 end;
+
 function get_luatexrevision: str_number;
 begin
     get_luatexrevision := luatex_revision;
 end;
+
 function get_luatex_date_info: integer;
 begin
     get_luatex_date_info := luatex_date_info;
 end;
 
-function get_par_shape_ptr: halfword;
-begin
-    get_par_shape_ptr := par_shape_ptr;
-end;
-
-function get_escape_char: integer;
-begin
-    get_escape_char := escape_char;
-end;
-
-function get_undefined_control_sequence: integer;
-begin
-    get_undefined_control_sequence := undefined_control_sequence;
-end;
-
-function get_fontbase: internal_font_number;
-begin
-    get_fontbase := font_base;
-end;
-
 function get_nullcs: pointer;
 begin
     get_nullcs := null_cs;
-end;
-
-function get_tex_int(code: integer): integer;
-begin
-    get_tex_int := int_par(code);
-end;
-
-function get_tex_dimen(code: integer): scaled;
-begin
-    get_tex_dimen := dimen_par(code);
-end;
-
-
-function get_x_height(f: internal_font_number): scaled;
-begin
-    get_x_height := x_height(f);
-end;
-
-function get_charwidth(f: internal_font_number; c: integer): scaled;
-begin
-    if is_valid_char(c) then
-        get_charwidth := char_width(f,c)
-    else
-        get_charwidth := 0;
-end;
-
-function get_charheight(f: internal_font_number; c: integer): scaled;
-begin
-    if is_valid_char(c) then
-        get_charheight := char_height(f,c)
-    else
-        get_charheight := 0;
-end;
-
-function get_chardepth(f: internal_font_number; c: integer): scaled;
-begin
-    if is_valid_char(c) then
-        get_chardepth := char_depth(f,c)
-    else
-        get_chardepth := 0;
-end;
-
-function get_quad(f: internal_font_number): scaled;
-begin
-    get_quad := quad(f);
-end;
-
-function get_slant(f: internal_font_number): scaled;
-begin
-    get_slant := slant(f);
-end;
-
-function new_dummy_font: internal_font_number;
-begin
-    new_dummy_font := read_font_info(null_cs, "dummy", -1000, -1);
 end;
 
 function get_hash_size: integer;
@@ -4489,11 +4410,6 @@ begin
   get_eqtb_size:= eqtb_size;
 end;
 
-function get_hash_base: integer;
-begin
-  get_hash_base:= hash_base;
-end;
-
 function get_font_id_base: integer;
 begin
   get_font_id_base:= font_id_base;
@@ -4504,19 +4420,7 @@ begin
   get_cur_font:= cur_font;
 end;
 
-function get_default_hyphen_char:integer;
-begin
-  get_default_hyphen_char:=default_hyphen_char;
-end;
-
-function get_default_skew_char:integer;
-begin
-  get_default_skew_char:=default_skew_char;
-end;
-
-@ 
-
-@p procedure set_cur_font (f: internal_font_number);
+@ @p procedure set_cur_font (f: internal_font_number);
 var a:small_number;
 begin
   a:=0;

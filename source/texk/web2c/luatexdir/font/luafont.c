@@ -21,6 +21,7 @@
 #include <ptexlib.h>
 
 #include "nodes.h"
+#include "commands.h"
 
 static const char _svn_version[] =
     "$Id$ $URL$";
@@ -1497,9 +1498,9 @@ int font_from_lua(lua_State * L, int f)
         i = 1000;
     set_font_slant(f, i);
 
-    i = numeric_field(L, "hyphenchar", get_default_hyphen_char());
+    i = numeric_field(L, "hyphenchar", int_par(param_default_hyphen_char_code));
     set_hyphen_char(f, i);
-    i = numeric_field(L, "skewchar", get_default_skew_char());
+    i = numeric_field(L, "skewchar", int_par(param_default_skew_char_code));
     set_skew_char(f, i);
     i = boolean_field(L, "used", 0);
     set_font_used(f, i);

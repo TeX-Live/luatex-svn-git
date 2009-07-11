@@ -345,7 +345,7 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
             null_cs = get_nullcs();
             eqtb_size = get_eqtb_size();
         }
-        e = get_escape_char();
+        e = int_par(param_escape_char_code);
     }
     while (p != null) {
         if (p < fix_mem_min || p > fix_mem_end) {

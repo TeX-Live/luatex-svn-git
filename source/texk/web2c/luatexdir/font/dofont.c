@@ -20,6 +20,7 @@
 #include "ptexlib.h"
 
 #include "luatex-api.h"
+#include "commands.h"
 
 static const char _svn_version[] =
     "$Id$ $URL$";
@@ -117,8 +118,8 @@ static int do_define_font(integer f, char *cnom, scaled s, integer natural_dir)
     } else if (callback_id == 0) {
         res = read_tfm_info(f, cnom, s);
         if (res) {
-            set_hyphen_char(f, get_default_hyphen_char());
-            set_skew_char(f, get_default_skew_char());
+	  set_hyphen_char(f, int_par(param_default_hyphen_char_code));
+            set_skew_char(f, int_par(param_default_skew_char_code));
         }
     }
     if (res) {

@@ -587,4 +587,13 @@ extern int vf_packet_bytes(charinfo * co);
 
 charinfo *copy_charinfo(charinfo * ci);
 
+/* some bits of the old interface, used by e.g. writet3.c */
+
+#define get_x_height(f) x_height(f)
+#define get_quad(f) quad(f)
+#define get_slant(f) slant(f)
+#define get_charwidth(f,c) (char_exists(f,c) ? char_width(f,c) : 0)
+#define get_charheight(f,c) (char_exists(f,c) ? char_height(f,c) : 0)
+#define get_chardepth(f,c) (char_exists(f,c) ? char_depth(f,c) : 0)
+
 #endif                          /* TEXFONT_H */

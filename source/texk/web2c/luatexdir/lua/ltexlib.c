@@ -1030,7 +1030,7 @@ static int getpdfxformname(lua_State * L)
 int get_parshape(lua_State * L)
 {
     int n;
-    halfword par_shape_ptr = get_par_shape_ptr();
+    halfword par_shape_ptr = loc_par(param_par_shape_code);
     if (par_shape_ptr != 0) {
         int m = 1;
         n = vinfo(par_shape_ptr + 1);
