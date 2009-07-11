@@ -166,6 +166,8 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/inputstack.h \
 	luatexdir/tex/linebreak.h \
 	luatexdir/tex/linebreak.c \
+	luatexdir/tex/maincontrol.c \
+	luatexdir/tex/maincontrol.h \
 	luatexdir/tex/math.c \
 	luatexdir/tex/mathcodes.c \
 	luatexdir/tex/memoryword.c \

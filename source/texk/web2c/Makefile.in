@@ -264,7 +264,8 @@ am_libluatex_a_OBJECTS = libluatex_a-dvigen.$(OBJEXT) \
 	libluatex_a-directions.$(OBJEXT) libluatex_a-errors.$(OBJEXT) \
 	libluatex_a-expand.$(OBJEXT) libluatex_a-filename.$(OBJEXT) \
 	libluatex_a-inputstack.$(OBJEXT) \
-	libluatex_a-linebreak.$(OBJEXT) libluatex_a-math.$(OBJEXT) \
+	libluatex_a-linebreak.$(OBJEXT) \
+	libluatex_a-maincontrol.$(OBJEXT) libluatex_a-math.$(OBJEXT) \
 	libluatex_a-mathcodes.$(OBJEXT) \
 	libluatex_a-memoryword.$(OBJEXT) libluatex_a-mlist.$(OBJEXT) \
 	libluatex_a-nesting.$(OBJEXT) libluatex_a-packaging.$(OBJEXT) \
@@ -1446,6 +1447,8 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/inputstack.h \
 	luatexdir/tex/linebreak.h \
 	luatexdir/tex/linebreak.c \
+	luatexdir/tex/maincontrol.c \
+	luatexdir/tex/maincontrol.h \
 	luatexdir/tex/math.c \
 	luatexdir/tex/mathcodes.c \
 	luatexdir/tex/memoryword.c \
@@ -1900,6 +1903,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-luatex.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-luatoken.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-macnames.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-maincontrol.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-makecpool.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-managed-sa.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-mapfile.Po@am__quote@
@@ -4831,6 +4835,20 @@ libluatex_a-linebreak.obj: luatexdir/tex/linebreak.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/linebreak.c' object='libluatex_a-linebreak.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-linebreak.obj `if test -f 'luatexdir/tex/linebreak.c'; then $(CYGPATH_W) 'luatexdir/tex/linebreak.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/linebreak.c'; fi`
+
+libluatex_a-maincontrol.o: luatexdir/tex/maincontrol.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-maincontrol.o -MD -MP -MF $(DEPDIR)/libluatex_a-maincontrol.Tpo -c -o libluatex_a-maincontrol.o `test -f 'luatexdir/tex/maincontrol.c' || echo '$(srcdir)/'`luatexdir/tex/maincontrol.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-maincontrol.Tpo $(DEPDIR)/libluatex_a-maincontrol.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/maincontrol.c' object='libluatex_a-maincontrol.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-maincontrol.o `test -f 'luatexdir/tex/maincontrol.c' || echo '$(srcdir)/'`luatexdir/tex/maincontrol.c
+
+libluatex_a-maincontrol.obj: luatexdir/tex/maincontrol.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-maincontrol.obj -MD -MP -MF $(DEPDIR)/libluatex_a-maincontrol.Tpo -c -o libluatex_a-maincontrol.obj `if test -f 'luatexdir/tex/maincontrol.c'; then $(CYGPATH_W) 'luatexdir/tex/maincontrol.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/maincontrol.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-maincontrol.Tpo $(DEPDIR)/libluatex_a-maincontrol.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/maincontrol.c' object='libluatex_a-maincontrol.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-maincontrol.obj `if test -f 'luatexdir/tex/maincontrol.c'; then $(CYGPATH_W) 'luatexdir/tex/maincontrol.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/maincontrol.c'; fi`
 
 libluatex_a-math.o: luatexdir/tex/math.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-math.o -MD -MP -MF $(DEPDIR)/libluatex_a-math.Tpo -c -o libluatex_a-math.o `test -f 'luatexdir/tex/math.c' || echo '$(srcdir)/'`luatexdir/tex/math.c

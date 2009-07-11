@@ -127,6 +127,7 @@ extern double rint(double x);
 #  include "tex/postlinebreak.h"
 #  include "tex/scanning.h"
 #  include "tex/buildpage.h"
+#  include "tex/maincontrol.h"
 
 /**********************************************************************/
 
