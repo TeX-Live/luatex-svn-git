@@ -252,10 +252,6 @@ typedef enum {
 
 #  define page_ins_node_size 5
 
-#  define broken_ptr(a) vlink((a)+2)    /* an insertion for this class will break here if anywhere */
-#  define broken_ins(a) vinfo((a)+2)    /* this insertion might break at |broken_ptr| */
-#  define last_ins_ptr(a) vlink((a)+3)  /*the most recent insertion for this |subtype| */
-#  define best_ins_ptr(a) vinfo((a)+3)  /*the optimum most recent insertion */
 /* height = 4 */
 
 typedef enum {

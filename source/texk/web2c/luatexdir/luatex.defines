@@ -1220,3 +1220,41 @@
 @define var text_dir_ptr;
 @define var text_dir_tmp;
 
+{ building pages }
+
+@define const inserts_only;
+@define const box_there;
+
+@define var page_tail;
+@define var page_contents;
+@define var page_max_depth;
+@define var best_page_break;
+@define var least_page_cost;
+@define var best_size;
+
+@define function broken_ptr();
+@define function broken_ins();
+@define function last_ins_ptr();
+@define function best_ins_ptr();
+
+@define procedure initialize_buildpage;
+
+@define var page_goal;
+@define var page_total;
+@define var page_shrink;
+@define var page_depth;
+@define var page_so_far;
+@define var last_glue;
+@define var last_penalty;
+@define var last_kern;
+@define var last_node_type;
+@define var insert_penalties;
+@define var output_active;
+@define var contrib_tail;
+
+@define procedure print_totals;
+@define procedure freeze_page_specs();
+@define procedure build_page;
+@define procedure fire_up();
+@define procedure resume_after_output;
+
