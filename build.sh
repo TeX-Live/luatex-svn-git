@@ -9,6 +9,7 @@
 #      --parallel  : make -j 2 -l 3.0
 #      --nostrip   : do not strip binary
 #      --mingw     : crosscompile for mingw32 from i-386linux
+#      --ppc       : crosscompile for ppc
       
 
 # try to find gnu make; we may need it
@@ -43,6 +44,9 @@ while [ "$1" != "" ] ; do
   then PPCCROSS=TRUE ;
   elif [ "$1" = "--parallel" ] ;
   then MAKE="$MAKE -j $JOBS_IF_PARALLEL -l $MAX_LOAD_IF_PARALLEL" ;
+  else
+    echo "ERROR: invalid build.sh parameter: $1"
+    exit 1
   fi ;
   shift ;
 done
@@ -182,4 +186,3 @@ fi
 
 # show the results
 ls -l "$B"/texk/web2c/$LUATEXEXE
- 
