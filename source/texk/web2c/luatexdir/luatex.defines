@@ -1027,6 +1027,8 @@
 @define const closed;
 @define const just_open;
 
+@define function tokens_to_string();
+
 { expanding }
 
 @define procedure expand;

@@ -723,3 +723,12 @@ integer norm_rand(void)
     } while (ab_vs_cd(1024, l, x, x) < 0);
     return x;
 }
+
+/* This function could also be expressed as a macro, but it is a useful
+   breakpoint for debugging.
+*/
+
+integer fix_int (integer val, integer min, integer max)
+{
+    return ( val < min ? min : (val > max ? max : val));
+}

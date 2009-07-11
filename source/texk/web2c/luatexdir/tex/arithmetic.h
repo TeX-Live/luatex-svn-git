@@ -75,4 +75,6 @@ extern void init_randoms(integer seed);
 extern integer unif_rand(integer x);
 extern integer norm_rand(void);
 
+extern integer fix_int (integer val, integer min, integer max);
+
 #endif

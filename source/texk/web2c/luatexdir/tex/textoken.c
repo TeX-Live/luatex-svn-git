@@ -2188,3 +2188,15 @@ void read_toks(integer n, halfword r, halfword j)
 }
 
 
+
+str_number tokens_to_string (halfword p) /* return a string from tokens list */
+{
+    int old_setting;
+    if (selector == new_string)
+        pdf_error("tokens", "tokens_to_string() called while selector = new_string");
+    old_setting=selector; 
+    selector=new_string;
+    show_token_list(token_link(p),null,pool_size-pool_ptr);
+    selector=old_setting;
+    return make_string();
+}

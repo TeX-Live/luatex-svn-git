@@ -4433,32 +4433,6 @@ end;
 @ @<Set init...@>=
 initialize_pdfgen;
 
-@ @p
-function fix_int(val, min, max: integer): integer;
-begin
-    if val < min then
-        fix_int := min
-    else if val > max then
-        fix_int := max
-    else
-        fix_int := val;
-end;
-
-@ @<Declare procedures that need to be declared forward for \pdfTeX@>=
-function tokens_to_string(p: pointer): str_number; {return a string from tokens
-list}
-var old_setting:integer;
-last_tokens_string:str_number;
-begin
-    if selector = new_string then
-        pdf_error('tokens', 'tokens_to_string() called while selector = new_string');
-    old_setting:=selector; selector:=new_string;
-    show_token_list(link(p),null,pool_size-pool_ptr);
-    selector:=old_setting;
-    last_tokens_string := make_string;
-    tokens_to_string := last_tokens_string;
-end;
-
 @  This are more generally useful
 @d call_func(#) == begin if # <> 0 then do_nothing end
 @d max_integer == @"7FFFFFFF {$2^{31}-1$}
@@ -4467,11 +4441,6 @@ end;
 @* \[32c] PDF page description.
 
 This is now in pdfgen.c.
-
-@ data structure for \.{\\latelua}
-
-@d late_lua_data           == write_tokens {data}
-@d late_lua_name(#)        == vlink(#+3) {name}
 
 @* \[32d] The cross-reference table.
 
@@ -9775,6 +9744,10 @@ begin
     new_whatsit(pdf_restore_node);
 end
 
+@ data structure for \.{\\latelua}
+
+@d late_lua_data           == write_tokens {data}
+@d late_lua_name(#)        == vlink(#+3) {name}
 
 @ @<Implement \.{\\latelua}@>=
 begin

@@ -166,4 +166,6 @@ extern void initialize_read (void);
 
 extern void read_toks(integer n, halfword r, halfword j);
 
+extern str_number tokens_to_string (halfword p); /* return a string from tokens list */
+
 #endif
