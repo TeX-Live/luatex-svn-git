@@ -74,20 +74,6 @@ void fix_pdfoutput(void)
     }
 }
 
-void reset_resource_lists(pdf_resource_struct * p)
-{
-    p->obj_list = NULL;
-    p->font_list = NULL;
-    p->xform_list = NULL;
-    p->ximage_list = NULL;
-    p->dest_list = NULL;
-    p->link_list = NULL;
-    p->annot_list = NULL;
-    p->bead_list = NULL;
-    p->text_procset = false;
-    p->image_procset = 0;
-}
-
 /*
 |pdf_ship_out| is used instead of |ship_out| to shipout a box to PDF
  output. If |shipping_page| is not set then the output will be a Form object,

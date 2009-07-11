@@ -605,6 +605,22 @@ void pdf_print_mag_bp(PDF pdf, scaled s)
     } while (0)
 
 
+/**********************************************************************/
+
+void reset_resource_lists(pdf_resource_struct * p)
+{
+    p->obj_list = NULL;
+    p->font_list = NULL;
+    p->xform_list = NULL;
+    p->ximage_list = NULL;
+    p->dest_list = NULL;
+    p->link_list = NULL;
+    p->annot_list = NULL;
+    p->bead_list = NULL;
+    p->text_procset = false;
+    p->image_procset = 0;
+}
+
 void append_object_list(PDF pdf, pdf_obj_type t, integer f)
 {
     pdf_object_list *p;
@@ -629,7 +645,6 @@ void append_object_list(PDF pdf, pdf_obj_type t, integer f)
     p->link = item;
     return;
 }
-
 
 void flush_object_list(PDF pdf, pdf_obj_type t)
 {
@@ -692,6 +707,7 @@ pdf_object_list *lookup_object_list(PDF pdf, pdf_obj_type t, integer f)
     return NULL;
 }
 
+/**********************************************************************/
 
 /* Subroutines to print out various PDF objects */
 
