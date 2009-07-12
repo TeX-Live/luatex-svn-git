@@ -1558,31 +1558,32 @@ symbols that |lua| considers special while scanning a literal string
 */
 
 halfword lua_str_toks(pool_pointer b)
-{   /* changes the string |str_pool[b..pool_ptr]| to a token list */
-    halfword p; /* tail of the token list */
-    halfword q; /* new node being added to the token list via |store_new_token| */
-    halfword t; /* token being appended */
-    pool_pointer k; /* index into |str_pool| */
-    p=temp_token_head; 
-    set_token_link(p,null); 
-    k=b;
-    while (k<pool_ptr) {
-	t=pool_to_unichar(k);
-	k += utf8_size(t);
-	if (t==' ') {
-	    t=space_token;
-	} else {
-	    if ((t=='\\') || (t=='"') || (t=='\'') || (t==10) || (t==13)) 
-		fast_store_new_token(other_token+'\\');
-	    if (t==10)
-		t='n';
-	    if (t==13)
-		t='r';
-	    t=other_token+t;
-	}
-	fast_store_new_token(t);
+{                               /* changes the string |str_pool[b..pool_ptr]| to a token list */
+    halfword p;                 /* tail of the token list */
+    halfword q;                 /* new node being added to the token list via |store_new_token| */
+    halfword t;                 /* token being appended */
+    pool_pointer k;             /* index into |str_pool| */
+    p = temp_token_head;
+    set_token_link(p, null);
+    k = b;
+    while (k < pool_ptr) {
+        t = pool_to_unichar(k);
+        k += utf8_size(t);
+        if (t == ' ') {
+            t = space_token;
+        } else {
+            if ((t == '\\') || (t == '"') || (t == '\'') || (t == 10)
+                || (t == 13))
+                fast_store_new_token(other_token + '\\');
+            if (t == 10)
+                t = 'n';
+            if (t == 13)
+                t = 'r';
+            t = other_token + t;
+        }
+        fast_store_new_token(t);
     }
-    pool_ptr=b;
+    pool_ptr = b;
     return p;
 }
 
@@ -1593,32 +1594,32 @@ which has similar input/output characteristics.
 
 
 halfword str_toks(pool_pointer b)
-{   /* changes the string |str_pool[b..pool_ptr]| to a token list */
-    halfword p; /* tail of the token list */
-    halfword q; /* new node being added to the token list via |store_new_token| */
-    halfword t; /* token being appended */
-    pool_pointer k; /* index into |str_pool| */
-    p=temp_token_head; 
-    set_token_link(p,null); 
-    k=b;
-    while (k<pool_ptr) {
-	t=pool_to_unichar(k);
-	k += utf8_size(t);
-	if (t==' ') 
-	    t=space_token;
-	else 
-	    t=other_token+t;
-	fast_store_new_token(t);
+{                               /* changes the string |str_pool[b..pool_ptr]| to a token list */
+    halfword p;                 /* tail of the token list */
+    halfword q;                 /* new node being added to the token list via |store_new_token| */
+    halfword t;                 /* token being appended */
+    pool_pointer k;             /* index into |str_pool| */
+    p = temp_token_head;
+    set_token_link(p, null);
+    k = b;
+    while (k < pool_ptr) {
+        t = pool_to_unichar(k);
+        k += utf8_size(t);
+        if (t == ' ')
+            t = space_token;
+        else
+            t = other_token + t;
+        fast_store_new_token(t);
     }
-    pool_ptr=b; 
+    pool_ptr = b;
     return p;
 }
 
 /* Here's part of the |expand| subroutine that we are now ready to complete: */
 
-void ins_the_toks (void)
+void ins_the_toks(void)
 {
-    (void)the_toks();
+    (void) the_toks();
     ins_list(token_link(temp_token_head));
 }
 
@@ -1628,117 +1629,117 @@ void ins_the_toks (void)
    the code |c|. The function exists because lua code and tex code can
    both call it to convert something. */
 
-static boolean print_convert_string (halfword c, integer i)
+static boolean print_convert_string(halfword c, integer i)
 {
-    integer ff; /* for use with |set_ff| */
+    integer ff;                 /* for use with |set_ff| */
     boolean ret = true;
-    switch(c) {
-    case convert_number_code: 
-	print_int(i);
-	break;
-    case convert_roman_numeral_code: 
-	print_roman_int(i);
-	break;
-    case convert_etex_code: 
-	tprint(eTeX_version_string);
-	break;
-    case convert_omega_code: 
-	tprint(Omega_version_string);
-	break;
-    case convert_aleph_code: 
-	tprint(Aleph_version_string);
-	break;
-    case convert_pdftex_revision_code: 
-	tprint(pdftex_revision);
-	break;
-    case convert_luatex_revision_code: 
-	print(get_luatexrevision());
-	break;
+    switch (c) {
+    case convert_number_code:
+        print_int(i);
+        break;
+    case convert_roman_numeral_code:
+        print_roman_int(i);
+        break;
+    case convert_etex_code:
+        tprint(eTeX_version_string);
+        break;
+    case convert_omega_code:
+        tprint(Omega_version_string);
+        break;
+    case convert_aleph_code:
+        tprint(Aleph_version_string);
+        break;
+    case convert_pdftex_revision_code:
+        tprint(pdftex_revision);
+        break;
+    case convert_luatex_revision_code:
+        print(get_luatexrevision());
+        break;
     case convert_luatex_date_code:
-	print_int(get_luatex_date_info());
-	break;
+        print_int(get_luatex_date_info());
+        break;
     case convert_pdftex_banner_code:
-	tprint(pdftex_banner);
-	break;
-    case convert_uniform_deviate_code:     
-	print_int(unif_rand(i));
-	break;
-    case convert_normal_deviate_code:      
-	print_int(norm_rand());
-	break;
-    case convert_format_name_code: 
-	print(format_name);
-	break;
-    case convert_job_name_code: 
-	print(job_name);
-	break;
+        tprint(pdftex_banner);
+        break;
+    case convert_uniform_deviate_code:
+        print_int(unif_rand(i));
+        break;
+    case convert_normal_deviate_code:
+        print_int(norm_rand());
+        break;
+    case convert_format_name_code:
+        print(format_name);
+        break;
+    case convert_job_name_code:
+        print(job_name);
+        break;
     case convert_font_name_code:
-	append_string(font_name(i));
-	if (font_size(i)!=font_dsize(i)) {
-	    tprint(" at "); 
-	    print_scaled(font_size(i));
-	    tprint("pt");
-	}
-	break;
-    case convert_math_style_code:          
-	print_math_style();
-	break;
+        append_string(font_name(i));
+        if (font_size(i) != font_dsize(i)) {
+            tprint(" at ");
+            print_scaled(font_size(i));
+            tprint("pt");
+        }
+        break;
+    case convert_math_style_code:
+        print_math_style();
+        break;
     case convert_pdf_font_name_code:
-    case convert_pdf_font_objnum_code: 
-	set_ff(i);
-	if (c == convert_pdf_font_name_code)
-	    print_int(obj_info(static_pdf, pdf_font_num(ff)));
-	else
-	    print_int(pdf_font_num(ff));
-	break;
+    case convert_pdf_font_objnum_code:
+        set_ff(i);
+        if (c == convert_pdf_font_name_code)
+            print_int(obj_info(static_pdf, pdf_font_num(ff)));
+        else
+            print_int(pdf_font_num(ff));
+        break;
     case convert_pdf_font_size_code:
-	print_scaled(font_size(i));
-	tprint("pt");
-	break;
-    case convert_pdf_page_ref_code: 
-	print_int(get_obj(static_pdf, obj_type_page, i, false));
-	break;
-    case convert_pdf_xform_name_code: 
-	print_int(obj_info(static_pdf, i));
-	break;
-    case convert_Aleph_revision_code: 
-	tprint(Aleph_revision);
-	break;
-    case convert_Omega_revision_code: 
-	tprint(Omega_revision);
-	break;
-    case convert_eTeX_revision_code: 
-	tprint(eTeX_revision);
-	break;
+        print_scaled(font_size(i));
+        tprint("pt");
+        break;
+    case convert_pdf_page_ref_code:
+        print_int(get_obj(static_pdf, obj_type_page, i, false));
+        break;
+    case convert_pdf_xform_name_code:
+        print_int(obj_info(static_pdf, i));
+        break;
+    case convert_Aleph_revision_code:
+        tprint(Aleph_revision);
+        break;
+    case convert_Omega_revision_code:
+        tprint(Omega_revision);
+        break;
+    case convert_eTeX_revision_code:
+        tprint(eTeX_revision);
+        break;
     default:
-	ret = false;
-	break;
+        ret = false;
+        break;
     }
-    return ret;    
+    return ret;
 }
 
 
-integer scan_lua_state (void)
+integer scan_lua_state(void)
 {
     integer sn = 0;
     if (scan_keyword("name")) {
-	scan_pdf_ext_toks();
-	sn = def_ref;
+        scan_pdf_ext_toks();
+        sn = def_ref;
     }
     /* Parse optional lua state integer, or an instance name to be stored in |sn| */
     /* Get the next non-blank non-relax non-call token */
     do {
-	get_x_token();
+        get_x_token();
     } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
-    
-    back_input(); /* have to push it back, whatever it is  */
-    if (cur_cmd!=left_brace_cmd) {
-	scan_register_num();
-	if (get_lua_name(cur_val))
-	    sn=(cur_val-65536);
+
+    back_input();               /* have to push it back, whatever it is  */
+    if (cur_cmd != left_brace_cmd) {
+        scan_register_num();
+        if (get_lua_name(cur_val))
+            sn = (cur_val - 65536);
     }
     return sn;
-} 
+}
 
 /*
 The procedure |conv_toks| uses |str_toks| to insert the token list
@@ -1753,278 +1754,288 @@ we have to create a temporary string that is destroyed immediately after.
 #define save_cur_string() if (str_start_macro(str_ptr)<pool_ptr)  u=make_string()
 #define restore_cur_string() if (u!=0) { decr(str_ptr); u=0; }
 
-void conv_toks (void)
+void conv_toks(void)
 {
-    int old_setting; /* holds |selector| setting */
+    int old_setting;            /* holds |selector| setting */
     halfword p, q;
-    int save_scanner_status; /* |scanner_status| upon entry */
-    halfword save_def_ref; /* |def_ref| upon entry, important if inside `\.{\\message}' */
+    int save_scanner_status;    /* |scanner_status| upon entry */
+    halfword save_def_ref;      /* |def_ref| upon entry, important if inside `\.{\\message}' */
     halfword save_warning_index;
-    boolean bool; /* temp boolean */
-    pool_pointer b; /* base of temporary string */
-    str_number s; /* first temp string */
-    integer sn; /* lua chunk name */
-    str_number u=0; /* third temp string, will become non-nil if a string is already being built */
-    integer i=0; /* first temp integer */
-    integer j=0; /* second temp integer */
-    int c = cur_chr; /* desired type of conversion */
+    boolean bool;               /* temp boolean */
+    pool_pointer b;             /* base of temporary string */
+    str_number s;               /* first temp string */
+    integer sn;                 /* lua chunk name */
+    str_number u = 0;           /* third temp string, will become non-nil if a string is already being built */
+    integer i = 0;              /* first temp integer */
+    integer j = 0;              /* second temp integer */
+    int c = cur_chr;            /* desired type of conversion */
     /* Scan the argument for command |c| */
     switch (c) {
     case convert_number_code:
     case convert_roman_numeral_code:
-	scan_int();
-	break;
+        scan_int();
+        break;
     case convert_string_code:
-    case convert_meaning_code: 
-	save_scanner_status=scanner_status;
-	scanner_status=normal; 
-	get_token(); 
-	scanner_status=save_scanner_status;
-	break;
+    case convert_meaning_code:
+        save_scanner_status = scanner_status;
+        scanner_status = normal;
+        get_token();
+        scanner_status = save_scanner_status;
+        break;
     case convert_etex_code:
     case convert_omega_code:
     case convert_aleph_code:
-	break;
-    case convert_font_name_code: 
-	scan_font_ident();
-	break;
+        break;
+    case convert_font_name_code:
+        scan_font_ident();
+        break;
     case convert_pdftex_revision_code:
     case convert_luatex_revision_code:
     case convert_luatex_date_code:
-    case convert_pdftex_banner_code: 
-	break;
+    case convert_pdftex_banner_code:
+        break;
     case convert_pdf_font_name_code:
     case convert_pdf_font_objnum_code:
     case convert_pdf_font_size_code:
-	scan_font_ident();
-	if (cur_val == null_font)
-	    pdf_error("font", "invalid font identifier");
-	if (c != convert_pdf_font_size_code) {
-	    pdf_check_vf(cur_val);
-	    if (!font_used(cur_val))
-		pdf_init_font(static_pdf, cur_val);
-	}
-	break;
+        scan_font_ident();
+        if (cur_val == null_font)
+            pdf_error("font", "invalid font identifier");
+        if (c != convert_pdf_font_size_code) {
+            pdf_check_vf(cur_val);
+            if (!font_used(cur_val))
+                pdf_init_font(static_pdf, cur_val);
+        }
+        break;
     case convert_pdf_page_ref_code:
-	scan_int();
-	if (cur_val <= 0)
-	    pdf_error("pageref", "invalid page number");
-	break;
+        scan_int();
+        if (cur_val <= 0)
+            pdf_error("pageref", "invalid page number");
+        break;
     case convert_left_margin_kern_code:
     case convert_right_margin_kern_code:
-	scan_int();
-	if ((box(cur_val) == null) || (type(box(cur_val)) != hlist_node))
-	    pdf_error("marginkern", "a non-empty hbox expected");
-	break;
-    case convert_pdf_xform_name_code: 
-	scan_int();
-	pdf_check_obj(static_pdf,obj_type_xform, cur_val);
-	break;
+        scan_int();
+        if ((box(cur_val) == null) || (type(box(cur_val)) != hlist_node))
+            pdf_error("marginkern", "a non-empty hbox expected");
+        break;
+    case convert_pdf_xform_name_code:
+        scan_int();
+        pdf_check_obj(static_pdf, obj_type_xform, cur_val);
+        break;
     case convert_pdf_creation_date_code:
-	ins_list(string_to_toks(getcreationdate(static_pdf)));
-	return;
-	break;
-    case convert_format_name_code: 
-    case convert_job_name_code: 
-	if (job_name==0) 
-	    open_log_file();
-	break;
+        ins_list(string_to_toks(getcreationdate(static_pdf)));
+        return;
+        break;
+    case convert_format_name_code:
+    case convert_job_name_code:
+        if (job_name == 0)
+            open_log_file();
+        break;
     case convert_pdf_colorstack_init_code:
-	bool = scan_keyword("page");
-	if (scan_keyword("direct"))
-	    cur_val = direct_always;
-	else if (scan_keyword("page"))
-	    cur_val = direct_page;
-	else
-	    cur_val = set_origin;
-	save_scanner_status = scanner_status;
-	save_warning_index = warning_index;
-	save_def_ref = def_ref;
-	save_cur_string();
-	scan_pdf_ext_toks();
-	s = tokens_to_string(def_ref);
-	delete_token_ref(def_ref);
-	def_ref = save_def_ref;
-	warning_index = save_warning_index;
-	scanner_status = save_scanner_status;
-	cur_val = newcolorstack(s, cur_val, bool);
-	flush_str(s);
-	cur_val_level = int_val_level;
-	if (cur_val < 0) {
-	    print_err("Too many color stacks");
-	    help2("The number of color stacks is limited to 32768.",
-		  "I'll use the default color stack 0 here.");
-	    error();
-	    cur_val = 0;
-	    restore_cur_string();
-	}
-	break;
+        bool = scan_keyword("page");
+        if (scan_keyword("direct"))
+            cur_val = direct_always;
+        else if (scan_keyword("page"))
+            cur_val = direct_page;
+        else
+            cur_val = set_origin;
+        save_scanner_status = scanner_status;
+        save_warning_index = warning_index;
+        save_def_ref = def_ref;
+        save_cur_string();
+        scan_pdf_ext_toks();
+        s = tokens_to_string(def_ref);
+        delete_token_ref(def_ref);
+        def_ref = save_def_ref;
+        warning_index = save_warning_index;
+        scanner_status = save_scanner_status;
+        cur_val = newcolorstack(s, cur_val, bool);
+        flush_str(s);
+        cur_val_level = int_val_level;
+        if (cur_val < 0) {
+            print_err("Too many color stacks");
+            help2("The number of color stacks is limited to 32768.",
+                  "I'll use the default color stack 0 here.");
+            error();
+            cur_val = 0;
+            restore_cur_string();
+        }
+        break;
     case convert_uniform_deviate_code:
-	scan_int();
-	break;
+        scan_int();
+        break;
     case convert_normal_deviate_code:
-	break;
+        break;
     case convert_lua_escape_string_code:
-	/*  check if a string is already being built */
-	save_cur_string();
-	save_scanner_status = scanner_status;
-	save_def_ref = def_ref;
-	save_warning_index = warning_index;
-	scan_pdf_ext_toks();
-	bool = in_lua_escape;
-	in_lua_escape = true;
-	s = tokens_to_string(def_ref);
-	in_lua_escape=bool;
-	delete_token_ref(def_ref);
-	def_ref = save_def_ref;
-	warning_index = save_warning_index;
-	scanner_status = save_scanner_status;
-	(void)lua_str_toks(str_start_macro(s));
+        /*  check if a string is already being built */
+        save_cur_string();
+        save_scanner_status = scanner_status;
+        save_def_ref = def_ref;
+        save_warning_index = warning_index;
+        scan_pdf_ext_toks();
+        bool = in_lua_escape;
+        in_lua_escape = true;
+        s = tokens_to_string(def_ref);
+        in_lua_escape = bool;
+        delete_token_ref(def_ref);
+        def_ref = save_def_ref;
+        warning_index = save_warning_index;
+        scanner_status = save_scanner_status;
+        (void) lua_str_toks(str_start_macro(s));
         ins_list(token_link(temp_token_head));
-	flush_str(s);
+        flush_str(s);
         restore_cur_string();
-	return;
-	break;
+        return;
+        break;
     case convert_math_style_code:
-	break;
+        break;
     case convert_expanded_code:
-	save_scanner_status = scanner_status;
-	save_warning_index = warning_index;
-	save_def_ref = def_ref;
-	save_cur_string();
-	scan_pdf_ext_toks();
-	warning_index = save_warning_index;
-	scanner_status = save_scanner_status;
-	ins_list(token_link(def_ref));
-	def_ref = save_def_ref;
-	restore_cur_string();
-	return;
-	break;
+        save_scanner_status = scanner_status;
+        save_warning_index = warning_index;
+        save_def_ref = def_ref;
+        save_cur_string();
+        scan_pdf_ext_toks();
+        warning_index = save_warning_index;
+        scanner_status = save_scanner_status;
+        ins_list(token_link(def_ref));
+        def_ref = save_def_ref;
+        restore_cur_string();
+        return;
+        break;
     case convert_lua_code:
-	save_cur_string();
-	save_scanner_status = scanner_status;
-	save_def_ref = def_ref;
-	save_warning_index = warning_index;
-	sn = scan_lua_state();
-	scan_pdf_ext_toks();
-	s = def_ref;
-	warning_index = save_warning_index;
-	def_ref = save_def_ref;
-	scanner_status = save_scanner_status;
-	luacstrings = 0;
-	luatokencall(s,sn);
-	delete_token_ref(s);
-	restore_cur_string(); /* TODO: check this, was different */
-	if (luacstrings>0)
-	    lua_string_start();
-	return;
-	break;
-    case convert_pdf_insert_ht_code: 
-	scan_register_num();
-	break;
+        save_cur_string();
+        save_scanner_status = scanner_status;
+        save_def_ref = def_ref;
+        save_warning_index = warning_index;
+        sn = scan_lua_state();
+        scan_pdf_ext_toks();
+        s = def_ref;
+        warning_index = save_warning_index;
+        def_ref = save_def_ref;
+        scanner_status = save_scanner_status;
+        luacstrings = 0;
+        luatokencall(s, sn);
+        delete_token_ref(s);
+        restore_cur_string();   /* TODO: check this, was different */
+        if (luacstrings > 0)
+            lua_string_start();
+        return;
+        break;
+    case convert_pdf_insert_ht_code:
+        scan_register_num();
+        break;
     case convert_pdf_ximage_bbox_code:
-	scan_int();
-	pdf_check_obj(static_pdf, obj_type_ximage, cur_val);
-	i = obj_data_ptr(static_pdf, cur_val);
-	scan_int();
-	j = cur_val;
-	if ((j < 1) || (j > 4))
-	    pdf_error("pdfximagebbox", "invalid parameter");
-	break;
-    /* Cases of 'Scan the argument for command |c|' */
-    case convert_Aleph_revision_code: 
-    case convert_Omega_revision_code: 
-    case convert_eTeX_revision_code: 
-	break;
+        scan_int();
+        pdf_check_obj(static_pdf, obj_type_ximage, cur_val);
+        i = obj_data_ptr(static_pdf, cur_val);
+        scan_int();
+        j = cur_val;
+        if ((j < 1) || (j > 4))
+            pdf_error("pdfximagebbox", "invalid parameter");
+        break;
+        /* Cases of 'Scan the argument for command |c|' */
+    case convert_Aleph_revision_code:
+    case convert_Omega_revision_code:
+    case convert_eTeX_revision_code:
+        break;
     default:
-	confusion("convert"); 
-	break;
+        confusion("convert");
+        break;
     }
 
-    old_setting=selector; 
-    selector=new_string; 
-    b=pool_ptr;
+    old_setting = selector;
+    selector = new_string;
+    b = pool_ptr;
 
     /* Print the result of command |c| */
-    if (!print_convert_string(c,cur_val)) {
-	switch (c) {
-	case convert_string_code:
-	    if (cur_cs!=0) 
-		sprint_cs(cur_cs);
-	    else 
-		print(cur_chr);
-	    break;
-	case convert_meaning_code: 
-	    print_meaning();
-	    break;
-	case convert_left_margin_kern_code:
-	    p = list_ptr(box(cur_val));
-	    if ((p != null) && (!is_char_node(p)) &&
-		(type(p) == glue_node) && (subtype(p) == param_left_skip_code + 1))
-		p = vlink(p);
-	    if ((p != null) && (!is_char_node(p)) &&
-		(type(p) == margin_kern_node) && (subtype(p) == left_side))
-		print_scaled(width(p));
-	    else
-		print_char('0');
-	    tprint("pt");
-	    break;
-	case convert_right_margin_kern_code:
-	    q = list_ptr(box(cur_val));
-	    p = null;
-	    if (q != null) {
-		p = prev_rightmost(q, null);
-		if ((p != null) && (! is_char_node(p)) &&
-		    (type(p) == glue_node) && (subtype(p) == param_right_skip_code + 1))
-		    p = prev_rightmost(q, p);
-	    }
-	    if ((p != null) && (!is_char_node(p)) &&
-		(type(p) == margin_kern_node) && (subtype(p) == right_side))
-		print_scaled(width(p));
-	    else
-		print_char('0');
-	    tprint("pt");
-	    break;
-	case convert_pdf_colorstack_init_code: 
-	    print_int(cur_val);
-	    break;
-	case convert_pdf_insert_ht_code: 
-	    i = cur_val;
-	    p = page_ins_head;
-	    while (i >= subtype(vlink(p)))
-		p = vlink(p);
-	    if (subtype(p) == i) 
-		print_scaled(height(p));
-	    else
-		print_char('0');
-	    tprint("pt");
-	    break;
-	case convert_pdf_ximage_bbox_code:
-	    if (is_pdf_image(i)) {
-		switch (j) {
-		case 1: print_scaled(epdf_orig_x(i)); break;
-		case 2: print_scaled(epdf_orig_y(i)); break;
-		case 3: print_scaled(epdf_orig_x(i) + epdf_xsize(i)); break;
-		case 4: print_scaled(epdf_orig_y(i) + epdf_ysize(i)); break;
-		}
-	    } else {
-		print_scaled(0);
-	    }
-	    tprint("pt");
-	    break;
-	case convert_pdf_creation_date_code:
-	case convert_lua_escape_string_code:
-	case convert_lua_code:
-	case convert_expanded_code:
-	    break;
-	default:
-	    confusion("convert");
-	    break;
-	}
+    if (!print_convert_string(c, cur_val)) {
+        switch (c) {
+        case convert_string_code:
+            if (cur_cs != 0)
+                sprint_cs(cur_cs);
+            else
+                print(cur_chr);
+            break;
+        case convert_meaning_code:
+            print_meaning();
+            break;
+        case convert_left_margin_kern_code:
+            p = list_ptr(box(cur_val));
+            if ((p != null) && (!is_char_node(p)) &&
+                (type(p) == glue_node)
+                && (subtype(p) == param_left_skip_code + 1))
+                p = vlink(p);
+            if ((p != null) && (!is_char_node(p)) &&
+                (type(p) == margin_kern_node) && (subtype(p) == left_side))
+                print_scaled(width(p));
+            else
+                print_char('0');
+            tprint("pt");
+            break;
+        case convert_right_margin_kern_code:
+            q = list_ptr(box(cur_val));
+            p = null;
+            if (q != null) {
+                p = prev_rightmost(q, null);
+                if ((p != null) && (!is_char_node(p)) &&
+                    (type(p) == glue_node)
+                    && (subtype(p) == param_right_skip_code + 1))
+                    p = prev_rightmost(q, p);
+            }
+            if ((p != null) && (!is_char_node(p)) &&
+                (type(p) == margin_kern_node) && (subtype(p) == right_side))
+                print_scaled(width(p));
+            else
+                print_char('0');
+            tprint("pt");
+            break;
+        case convert_pdf_colorstack_init_code:
+            print_int(cur_val);
+            break;
+        case convert_pdf_insert_ht_code:
+            i = cur_val;
+            p = page_ins_head;
+            while (i >= subtype(vlink(p)))
+                p = vlink(p);
+            if (subtype(p) == i)
+                print_scaled(height(p));
+            else
+                print_char('0');
+            tprint("pt");
+            break;
+        case convert_pdf_ximage_bbox_code:
+            if (is_pdf_image(i)) {
+                switch (j) {
+                case 1:
+                    print_scaled(epdf_orig_x(i));
+                    break;
+                case 2:
+                    print_scaled(epdf_orig_y(i));
+                    break;
+                case 3:
+                    print_scaled(epdf_orig_x(i) + epdf_xsize(i));
+                    break;
+                case 4:
+                    print_scaled(epdf_orig_y(i) + epdf_ysize(i));
+                    break;
+                }
+            } else {
+                print_scaled(0);
+            }
+            tprint("pt");
+            break;
+        case convert_pdf_creation_date_code:
+        case convert_lua_escape_string_code:
+        case convert_lua_code:
+        case convert_expanded_code:
+            break;
+        default:
+            confusion("convert");
+            break;
+        }
     }
 
-    selector=old_setting; 
-    (void)str_toks(b); 
+    selector = old_setting;
+    (void) str_toks(b);
     ins_list(token_link(temp_token_head));
 }
 
@@ -2036,22 +2047,22 @@ boolean in_lua_escape;
 
 boolean is_convert(halfword c)
 {
-    return (c==convert_cmd);
+    return (c == convert_cmd);
 }
 
-str_number the_convert_string (halfword c, integer i)
+str_number the_convert_string(halfword c, integer i)
 {
-    int old_setting; /* saved |selector| setting */
+    int old_setting;            /* saved |selector| setting */
     str_number ret = 0;
-    old_setting=selector;
-    selector=new_string;
-    if (print_convert_string(c,i)) {
-	ret = make_string();
-    } else if (c==convert_font_identifier_code) {
-	print_font_identifier(i);
-	ret = make_string();
+    old_setting = selector;
+    selector = new_string;
+    if (print_convert_string(c, i)) {
+        ret = make_string();
+    } else if (c == convert_font_identifier_code) {
+        print_font_identifier(i);
+        ret = make_string();
     }
-    selector=old_setting;
+    selector = old_setting;
     return ret;
 }
 
@@ -2065,14 +2076,14 @@ and |normal| if it is open and ready to read the next line.
 */
 
 
-FILE *read_file[16]; /* used for \.{\\read} */
-int read_open[17]; /* state of |read_file[n]| */
+FILE *read_file[16];            /* used for \.{\\read} */
+int read_open[17];              /* state of |read_file[n]| */
 
-void initialize_read (void)
+void initialize_read(void)
 {
     int k;
-    for (k=0;k<=16;k++) 
-	read_open[k]=closed;
+    for (k = 0; k <= 16; k++)
+        read_open[k] = closed;
 }
 
 /*
@@ -2083,120 +2094,127 @@ to the control sequence that will receive this token list.
 
 void read_toks(integer n, halfword r, halfword j)
 {
-    halfword p; /* tail of the token list */
-    halfword q; /* new node being added to the token list via |store_new_token| */
-    integer s; /* saved value of |align_state| */
-    int m; /* stream number */
-    scanner_status=defining; 
-    warning_index=r;
-    p=get_avail(); 
-    def_ref=p; 
-    set_token_ref_count(def_ref,0);
-    p=def_ref; /* the reference count */
+    halfword p;                 /* tail of the token list */
+    halfword q;                 /* new node being added to the token list via |store_new_token| */
+    integer s;                  /* saved value of |align_state| */
+    int m;                      /* stream number */
+    scanner_status = defining;
+    warning_index = r;
+    p = get_avail();
+    def_ref = p;
+    set_token_ref_count(def_ref, 0);
+    p = def_ref;                /* the reference count */
     store_new_token(end_match_token);
-    if ((n<0)||(n>15))  m=16; else m=n;
-    s=align_state; 
-    align_state=1000000; /* disable tab marks, etc. */
+    if ((n < 0) || (n > 15))
+        m = 16;
+    else
+        m = n;
+    s = align_state;
+    align_state = 1000000;      /* disable tab marks, etc. */
     do {
-	/* Input and store tokens from the next line of the file */
-	begin_file_reading(); 
-	iname=m+1;
-	if (read_open[m]==closed) {
-	    /* Input for \.{\\read} from the terminal */
-	    /* Here we input on-line into the |buffer| array, prompting the user explicitly
-	       if |n>=0|.  The value of |n| is set negative so that additional prompts
-	       will not be given in the case of multi-line input. */
-	    if (interaction>nonstop_mode) {
-		if (n<0) {
-		    prompt_input("");
-		} else {
-		    wake_up_terminal();
-		    print_ln(); 
-		    sprint_cs(r); 
-		    prompt_input(" ="); 
-		    n=-1;
-		}
-	    } else {
-		fatal_error("*** (cannot \\read from terminal in nonstop modes)");
-	    }
+        /* Input and store tokens from the next line of the file */
+        begin_file_reading();
+        iname = m + 1;
+        if (read_open[m] == closed) {
+            /* Input for \.{\\read} from the terminal */
+            /* Here we input on-line into the |buffer| array, prompting the user explicitly
+               if |n>=0|.  The value of |n| is set negative so that additional prompts
+               will not be given in the case of multi-line input. */
+            if (interaction > nonstop_mode) {
+                if (n < 0) {
+                    prompt_input("");
+                } else {
+                    wake_up_terminal();
+                    print_ln();
+                    sprint_cs(r);
+                    prompt_input(" =");
+                    n = -1;
+                }
+            } else {
+                fatal_error
+                    ("*** (cannot \\read from terminal in nonstop modes)");
+            }
 
-	} else if (read_open[m]==just_open) {
-	    /* Input the first line of |read_file[m]| */
-	    /* The first line of a file must be treated specially, since |lua_input_ln|
-	       must be told not to start with |get|. */
-	    if (lua_input_ln(read_file[m],(m+1),false)) {
-		read_open[m]=normal;
-	    } else {
-		lua_a_close_in(read_file[m],(m+1)); 
-		read_open[m]=closed;
-	    }
+        } else if (read_open[m] == just_open) {
+            /* Input the first line of |read_file[m]| */
+            /* The first line of a file must be treated specially, since |lua_input_ln|
+               must be told not to start with |get|. */
+            if (lua_input_ln(read_file[m], (m + 1), false)) {
+                read_open[m] = normal;
+            } else {
+                lua_a_close_in(read_file[m], (m + 1));
+                read_open[m] = closed;
+            }
 
-	} else {
-	    /* Input the next line of |read_file[m]| */
-	    /*  An empty line is appended at the end of a |read_file|. */
-	    if (!lua_input_ln(read_file[m],(m+1),true)) {
-		lua_a_close_in(read_file[m],(m+1)); 
-		read_open[m]=closed;
-		if (align_state!=1000000) {
-		    runaway();
-		    print_err("File ended within \\read");
-		    help1("This \\read has unbalanced braces.");
-		    align_state=1000000; 
-		    error();
-		}
-	    }
+        } else {
+            /* Input the next line of |read_file[m]| */
+            /*  An empty line is appended at the end of a |read_file|. */
+            if (!lua_input_ln(read_file[m], (m + 1), true)) {
+                lua_a_close_in(read_file[m], (m + 1));
+                read_open[m] = closed;
+                if (align_state != 1000000) {
+                    runaway();
+                    print_err("File ended within \\read");
+                    help1("This \\read has unbalanced braces.");
+                    align_state = 1000000;
+                    error();
+                }
+            }
 
-	}
-	ilimit=last;
-	if (end_line_char_inactive()) 
-	    decr(ilimit);
-	else  
-	    buffer[ilimit]=int_par(param_end_line_char_code);
-	first=ilimit+1; 
-	iloc=istart; 
-	istate=new_line;
-	/* Handle \.{\\readline} and |goto done|; */
-	if (j==1) {
-	    while (iloc<=ilimit) { /* current line not yet finished */
-		cur_chr=buffer[iloc]; 
-		incr(iloc);
-		if (cur_chr==' ')  
-		    cur_tok=space_token;
-		else 
-		    cur_tok=cur_chr+other_token;
-		store_new_token(cur_tok);
-	    }
-	} else {
-	    while (1) {
-		get_token();
-		if (cur_tok==0) 
-		    break;  /* |cur_cmd=cur_chr=0| will occur at the end of the line */
-		if (align_state<1000000) { /* unmatched `\.\}' aborts the line */
-		    do { get_token(); } while (cur_tok!=0);
-		    align_state=1000000; 
-		    break;
-		}
-		store_new_token(cur_tok);
-	    }
-	}
-	end_file_reading();
+        }
+        ilimit = last;
+        if (end_line_char_inactive())
+            decr(ilimit);
+        else
+            buffer[ilimit] = int_par(param_end_line_char_code);
+        first = ilimit + 1;
+        iloc = istart;
+        istate = new_line;
+        /* Handle \.{\\readline} and |goto done|; */
+        if (j == 1) {
+            while (iloc <= ilimit) {    /* current line not yet finished */
+                cur_chr = buffer[iloc];
+                incr(iloc);
+                if (cur_chr == ' ')
+                    cur_tok = space_token;
+                else
+                    cur_tok = cur_chr + other_token;
+                store_new_token(cur_tok);
+            }
+        } else {
+            while (1) {
+                get_token();
+                if (cur_tok == 0)
+                    break;      /* |cur_cmd=cur_chr=0| will occur at the end of the line */
+                if (align_state < 1000000) {    /* unmatched `\.\}' aborts the line */
+                    do {
+                        get_token();
+                    } while (cur_tok != 0);
+                    align_state = 1000000;
+                    break;
+                }
+                store_new_token(cur_tok);
+            }
+        }
+        end_file_reading();
 
-    } while (align_state!=1000000);
-    cur_val=def_ref; 
-    scanner_status=normal; 
-    align_state=s;
+    } while (align_state != 1000000);
+    cur_val = def_ref;
+    scanner_status = normal;
+    align_state = s;
 }
 
 
 
-str_number tokens_to_string (halfword p) /* return a string from tokens list */
-{
+str_number tokens_to_string(halfword p)
+{                               /* return a string from tokens list */
     int old_setting;
     if (selector == new_string)
-        pdf_error("tokens", "tokens_to_string() called while selector = new_string");
-    old_setting=selector; 
-    selector=new_string;
-    show_token_list(token_link(p),null,pool_size-pool_ptr);
-    selector=old_setting;
+        pdf_error("tokens",
+                  "tokens_to_string() called while selector = new_string");
+    old_setting = selector;
+    selector = new_string;
+    show_token_list(token_link(p), null, pool_size - pool_ptr);
+    selector = old_setting;
     return make_string();
 }

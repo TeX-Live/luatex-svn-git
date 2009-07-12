@@ -399,10 +399,9 @@ integer get_del_code_num(integer n)
     } else {
         delcodeval d = delcode_heap[ret];
         if (d.origin_value == tex_mathcode) {
-            return (
-                (d.small_family_value*256 + d.small_character_value) * 4096 
-                + 
-                (d.large_family_value*256) + d.large_character_value);
+            return ((d.small_family_value * 256 +
+                     d.small_character_value) * 4096 +
+                    (d.large_family_value * 256) + d.large_character_value);
         } else {
             return -1;
         }

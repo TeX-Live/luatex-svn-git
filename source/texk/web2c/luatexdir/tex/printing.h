@@ -102,16 +102,16 @@ extern void prompt_input(char *s);
 extern void print_glue(scaled d, integer order, char *s);       /* prints a glue component */
 extern void print_spec(integer p, char *s);     /* prints a glue specification */
 
-extern integer font_in_short_display; /* an internal font number */
-extern void print_font_identifier( internal_font_number f);
-extern void short_display(integer p); /* prints highlights of list |p| */
-extern void print_font_and_char(integer p); /* prints |char_node| data */
-extern void print_mark(integer p); /* prints token list data in braces */
+extern integer font_in_short_display;   /* an internal font number */
+extern void print_font_identifier(internal_font_number f);
+extern void short_display(integer p);   /* prints highlights of list |p| */
+extern void print_font_and_char(integer p);     /* prints |char_node| data */
+extern void print_mark(integer p);      /* prints token list data in braces */
 extern void print_rule_dimen(scaled d); /* prints dimension in rule node */
 extern void print_skip_param(integer n);
-extern integer depth_threshold ; /* maximum nesting depth in box displays */
-extern integer breadth_max ; /* maximum number of items shown at the same list level */
+extern integer depth_threshold; /* maximum nesting depth in box displays */
+extern integer breadth_max;     /* maximum number of items shown at the same list level */
 extern void show_box(halfword p);
-extern void short_display_n(integer p, integer m); /* prints highlights of list |p| */
+extern void short_display_n(integer p, integer m);      /* prints highlights of list |p| */
 
 #endif

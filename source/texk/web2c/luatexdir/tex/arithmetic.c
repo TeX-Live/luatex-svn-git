@@ -728,7 +728,7 @@ integer norm_rand(void)
    breakpoint for debugging.
 */
 
-integer fix_int (integer val, integer min, integer max)
+integer fix_int(integer val, integer min, integer max)
 {
-    return ( val < min ? min : (val > max ? max : val));
+    return (val < min ? min : (val > max ? max : val));
 }

@@ -448,7 +448,7 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                     cur_val = last_badness;
                     break;
                 case last_item_pdftex_version_code:
-		    cur_val = pdftex_version;
+                    cur_val = pdftex_version;
                     break;
                 case last_item_luatex_version_code:
                     cur_val = get_luatexversion();

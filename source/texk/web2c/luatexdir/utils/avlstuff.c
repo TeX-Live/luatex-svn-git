@@ -60,4 +60,3 @@ int comp_string_entry(const void *pa, const void *pb, void *p)
     (void) p;
     return strcmp((const char *) pa, (const char *) pb);
 }
-

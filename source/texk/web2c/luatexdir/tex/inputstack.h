@@ -345,11 +345,11 @@ extern void clear_for_error_prompt(void);
 extern void initialize_inputstack(void);
 
 extern halfword pseudo_files;
-extern void pseudo_from_string (void);
-extern void pseudo_start (void);
-extern void lua_string_start (void);
-extern boolean pseudo_input (void);
-extern void pseudo_close (void);
+extern void pseudo_from_string(void);
+extern void pseudo_start(void);
+extern void lua_string_start(void);
+extern boolean pseudo_input(void);
+extern void pseudo_close(void);
 
 
 #endif
