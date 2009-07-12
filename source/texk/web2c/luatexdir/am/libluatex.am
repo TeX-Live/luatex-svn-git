@@ -157,6 +157,8 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/conditional.h \
 	luatexdir/tex/directions.c \
 	luatexdir/tex/directions.h \
+	luatexdir/tex/equivalents.c \
+	luatexdir/tex/equivalents.h \
 	luatexdir/tex/errors.c \
 	luatexdir/tex/errors.h \
 	luatexdir/tex/expand.c \
