@@ -1,7 +1,7 @@
 /* mapfile.c
    
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -551,6 +551,8 @@ static void fm_scan_line(void)
         set_std_t1font(fm);
     if (is_fontfile(fm) && strlen(fm_fontfile(fm)) > 3) {
         if (strcasecmp(strend(fm_fontfile(fm)) - 4, ".ttf") == 0)
+            set_truetype(fm);
+        else if (strcasecmp(strend(fm_fontfile(fm)) - 4, ".ttc") == 0)
             set_truetype(fm);
         else if (strcasecmp(strend(fm_fontfile(fm)) - 4, ".otf") == 0)
             set_opentype(fm);
