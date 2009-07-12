@@ -588,19 +588,8 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
 
     /* In the end of shipping out a page we reset all the lists holding objects
        have been created during the page shipping. */
-    /* Flush resource lists */
-    flush_object_list(pdf, obj_type_font);
-    flush_object_list(pdf, obj_type_obj);
-    flush_object_list(pdf, obj_type_xform);
-    flush_object_list(pdf, obj_type_ximage);
 
-    if (shipping_page) {
-        /* Flush PDF mark lists */
-        flush_object_list(pdf, obj_type_annot);
-        flush_object_list(pdf, obj_type_link);
-        flush_object_list(pdf, obj_type_dest);
-        flush_object_list(pdf, obj_type_bead);
-    }
+    flush_resource_lists(pdf);
 
   DONE:
     if ((tracing_output <= 0) && (post_callback_id == 0) && shipping_page) {

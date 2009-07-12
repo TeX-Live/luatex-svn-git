@@ -152,8 +152,8 @@ extern void pdf_print_mag_bp(PDF, scaled);
 
 extern void reset_resource_lists(pdf_resource_struct * p);
 extern void append_object_list(PDF pdf, pdf_obj_type t, integer f);
-extern void flush_object_list(PDF pdf, pdf_obj_type t);
 extern pdf_object_list *lookup_object_list(PDF pdf, pdf_obj_type t, integer f);
+void flush_resource_lists(PDF pdf);
 
 #  define set_ff(A)  do {                         \
         if (pdf_font_num(A) < 0)                \

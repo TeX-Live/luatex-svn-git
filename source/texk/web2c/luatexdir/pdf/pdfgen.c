@@ -646,7 +646,32 @@ void append_object_list(PDF pdf, pdf_obj_type t, integer f)
     return;
 }
 
-void flush_object_list(PDF pdf, pdf_obj_type t)
+/* return zero on failure, or the object  */
+pdf_object_list *lookup_object_list(PDF pdf, pdf_obj_type t, integer f)
+{
+    pdf_object_list *p;
+    switch (t) {
+    /* *INDENT-OFF* */
+    case obj_type_obj:    p = pdf->resources->obj_list; break;
+    case obj_type_font:   p = pdf->resources->font_list; break;
+    case obj_type_xform:  p = pdf->resources->xform_list; break;
+    case obj_type_ximage: p = pdf->resources->ximage_list; break;
+    case obj_type_dest:   p = pdf->resources->dest_list; break;
+    case obj_type_link:   p = pdf->resources->link_list; break;
+    case obj_type_annot:  p = pdf->resources->annot_list; break;
+    case obj_type_bead:   p = pdf->resources->bead_list; break;
+    default:              return NULL;  break;  /* shouldnt happen */ 
+    /* *INDENT-ON* */
+    }
+    while (p != NULL) {
+        if (p->info == f)
+            return p;
+        p = p->link;
+    }
+    return NULL;
+}
+
+static void flush_object_list(PDF pdf, pdf_obj_type t)
 {
     pdf_object_list *q, *p;
     switch (t) {
@@ -682,29 +707,17 @@ void flush_object_list(PDF pdf, pdf_obj_type t)
     }
 }
 
-/* return zero on failure, or the object  */
-pdf_object_list *lookup_object_list(PDF pdf, pdf_obj_type t, integer f)
+void flush_resource_lists(PDF pdf)
 {
-    pdf_object_list *p;
-    switch (t) {
-    /* *INDENT-OFF* */
-    case obj_type_obj:    p = pdf->resources->obj_list; break;
-    case obj_type_font:   p = pdf->resources->font_list; break;
-    case obj_type_xform:  p = pdf->resources->xform_list; break;
-    case obj_type_ximage: p = pdf->resources->ximage_list; break;
-    case obj_type_dest:   p = pdf->resources->dest_list; break;
-    case obj_type_link:   p = pdf->resources->link_list; break;
-    case obj_type_annot:  p = pdf->resources->annot_list; break;
-    case obj_type_bead:   p = pdf->resources->bead_list; break;
-    default:              return NULL;  break;  /* shouldnt happen */ 
-    /* *INDENT-ON* */
-    }
-    while (p != NULL) {
-        if (p->info == f)
-            return p;
-        p = p->link;
-    }
-    return NULL;
+    flush_object_list(pdf, obj_type_font);
+    flush_object_list(pdf, obj_type_obj);
+    flush_object_list(pdf, obj_type_xform);
+    flush_object_list(pdf, obj_type_ximage);
+    /* the following lists are nonzero only if shipping_page */
+    flush_object_list(pdf, obj_type_annot);
+    flush_object_list(pdf, obj_type_link);
+    flush_object_list(pdf, obj_type_dest);
+    flush_object_list(pdf, obj_type_bead);
 }
 
 /**********************************************************************/
