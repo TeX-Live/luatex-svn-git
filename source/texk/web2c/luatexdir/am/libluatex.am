@@ -153,21 +153,28 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/arithmetic.h \
 	luatexdir/tex/buildpage.c \
 	luatexdir/tex/buildpage.h \
+	luatexdir/tex/commands.c \
 	luatexdir/tex/conditional.c \
 	luatexdir/tex/conditional.h \
 	luatexdir/tex/directions.c \
 	luatexdir/tex/directions.h \
+	luatexdir/tex/dumpdata.c \
+	luatexdir/tex/dumpdata.h \
 	luatexdir/tex/equivalents.c \
 	luatexdir/tex/equivalents.h \
 	luatexdir/tex/errors.c \
 	luatexdir/tex/errors.h \
 	luatexdir/tex/expand.c \
 	luatexdir/tex/expand.h \
+	luatexdir/tex/extensions.c \
+	luatexdir/tex/extensions.h \
 	luatexdir/tex/filename.c \
 	luatexdir/tex/inputstack.c \
 	luatexdir/tex/inputstack.h \
 	luatexdir/tex/linebreak.h \
 	luatexdir/tex/linebreak.c \
+	luatexdir/tex/mainbody.c \
+	luatexdir/tex/mainbody.h \
 	luatexdir/tex/maincontrol.c \
 	luatexdir/tex/maincontrol.h \
 	luatexdir/tex/math.c \
