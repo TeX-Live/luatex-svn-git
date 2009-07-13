@@ -504,7 +504,7 @@ int font_to_lua(lua_State * L, int f)
     }
 
     for (k = font_bc(f); k <= font_ec(f); k++) {
-        if (char_exists(f, k)) {
+        if (quick_char_exists(f, k)) {
             lua_pushnumber(L, k);
             co = get_charinfo(f, k);
             font_char_to_lua(L, f, co);

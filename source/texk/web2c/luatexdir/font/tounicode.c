@@ -502,7 +502,7 @@ integer write_cid_tounicode(PDF pdf, fo_entry * fo, internalfontnumber f)
     for (k = 1; k <= max_font_id(); k++) {
         if (k == f || -f == pdf_font_num(k)) {
             for (i = font_bc(k); i <= font_ec(k); i++) {
-                if (char_exists(k, i) && char_used(k, i)) {
+                if (quick_char_exists(k, i) && char_used(k, i)) {
                     j = char_index(k, i);
                     if (gtab[j].code == UNI_UNDEF) {
                         set_cid_glyph_unicode(i, &gtab[j], f);

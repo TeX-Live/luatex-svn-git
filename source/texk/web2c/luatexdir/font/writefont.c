@@ -881,7 +881,7 @@ static void mark_cid_subset_glyphs(fo_entry * fo, internal_font_number f)
         if (k == f || -f == pdf_font_num(k)) {
             l = pdf_font_size(k);
             for (i = font_bc(k); i <= font_ec(k); i++) {
-                if (char_exists(k, i) && char_used(k, i)) {
+                if (quick_char_exists(k, i) && char_used(k, i)) {
                     j = xtalloc(1, glw_entry);
                     j->id = char_index(k, i);
                     j->wd = divide_scaled_n(char_width(k, i), l, 10000.0);

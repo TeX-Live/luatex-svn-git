@@ -1111,7 +1111,7 @@ void delete_font(integer f)
         set_right_boundary(f, NULL);
 
         for (i = font_bc(f); i <= font_ec(f); i++) {
-            if (char_exists(f, i)) {
+            if (quick_char_exists(f, i)) {
                 co = char_info(f, i);
                 set_charinfo_name(co, NULL);
                 set_charinfo_tounicode(co, NULL);
@@ -1561,7 +1561,7 @@ void dump_font(int f)
     }
 
     for (i = font_bc(f); i <= font_ec(f); i++) {
-        if (char_exists(f, i)) {
+        if (quick_char_exists(f, i)) {
             dump_charinfo(f, i);
         }
     }

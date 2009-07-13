@@ -1468,7 +1468,7 @@ internal_font_number auto_expand_font(internal_font_number f, integer e)
     snprintf(fn, i, "%s%s%d", font_name(f), (e > 0 ? "+" : ""), (int) e);
     set_font_name(k, fn);
     for (i = font_bc(k); i <= font_ec(k); i++) {
-        if (char_exists(k, i)) {
+        if (quick_char_exists(k, i)) {
             co = get_charinfo(k, i);
             w = round_xn_over_d(char_width(f, i), 1000 + e, 1000);
             set_charinfo_width(co, w);

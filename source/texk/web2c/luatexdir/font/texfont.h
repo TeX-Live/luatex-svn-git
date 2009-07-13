@@ -51,7 +51,7 @@ typedef struct extinfo {
     int advance;
     int extender;
 } extinfo;
-
+/* todo: maybe create a 'math info structure' */
 typedef struct charinfo {
     char *name;                 /* postscript character name */
     liginfo *ligatures;         /* ligature items */
@@ -399,6 +399,12 @@ typedef enum {
 extern charinfo *get_charinfo(internal_font_number f, integer c);
 extern integer char_exists(internal_font_number f, integer c);
 extern charinfo *char_info(internal_font_number f, integer c);
+
+/* Here is a quick way to test if a glyph exists, when you are
+already certain the font |f| exists, and that the |c| is a regular
+glyph id, not one of the two special boundary objects.
+*/
+#define quick_char_exists(f,c) get_sa_item(font_tables[f]->characters,c)
 
 extern void set_charinfo_width(charinfo * ci, scaled val);
 extern void set_charinfo_height(charinfo * ci, scaled val);

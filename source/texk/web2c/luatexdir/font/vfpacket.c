@@ -255,7 +255,7 @@ integer *packet_local_fonts(internal_font_number f, integer * num)
     eight_bits *vf_packets;
     k = 0;
     for (c = font_bc(f); c <= font_ec(f); c++) {
-        if (char_exists(f, c)) {
+        if (quick_char_exists(f, c)) {
             co = get_charinfo(f, c);
             vf_packets = get_charinfo_packets(co);
             if (vf_packets == NULL)
@@ -322,7 +322,7 @@ replace_packet_fonts(internal_font_number f, integer * old_fontid,
 
     k = 0;
     for (c = font_bc(f); c <= font_ec(f); c++) {
-        if (char_exists(f, c)) {
+        if (quick_char_exists(f, c)) {
             co = get_charinfo(f, c);
             vf_packets = get_charinfo_packets(co);
             if (vf_packets == NULL)

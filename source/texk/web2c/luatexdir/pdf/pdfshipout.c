@@ -795,7 +795,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version,
                     i = -pdf_font_num(k);
                     assert(pdf_font_num(i) > 0);
                     for (j = font_bc(k); j <= font_ec(k); j++)
-                        if (pdf_char_marked(k, j))
+                        if (quick_char_exists(k,j) && pdf_char_marked(k, j))
                             pdf_mark_char(i, j);
                     if ((pdf_font_attr(i) == 0) && (pdf_font_attr(k) != 0)) {
                         set_pdf_font_attr(i, pdf_font_attr(k));
