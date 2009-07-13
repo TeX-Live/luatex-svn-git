@@ -823,8 +823,8 @@ halfword hpack(halfword p, scaled w, int m)
             tprint("--");
         } else {
             tprint(") detected at line ");
-            print_int(line);
         }
+        print_int(line);
     }
     print_ln();
     font_in_short_display = null_font;
