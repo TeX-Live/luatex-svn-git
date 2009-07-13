@@ -342,8 +342,8 @@ void show_token_list(integer p, integer q, integer l)
             if (!((inhibit_par_tokens) && (token_info(p) == par_token)))
                 print_cs(token_info(p) - cs_token_flag);
         } else {
-            m = token_info(p) / STRING_OFFSET;
-            c = token_info(p) % STRING_OFFSET;
+            m = token_cmd(token_info(p));
+            c = token_chr(token_info(p));
             if (token_info(p) < 0) {
                 tprint_esc("BAD.");
             } else {
@@ -1416,8 +1416,8 @@ static boolean get_next_tokenlist(void)
         }
         cur_chr = equiv(cur_cs);
     } else {
-        cur_cmd = t >> STRING_OFFSET_BITS;      /* cur_cmd=t / string_offset; */
-        cur_chr = t & (STRING_OFFSET - 1);      /* cur_chr=t % string_offset; */
+        cur_cmd = token_cmd(t);
+        cur_chr = token_chr(t);
         switch (cur_cmd) {
         case left_brace_cmd:
             align_state++;
@@ -1495,7 +1495,7 @@ void get_token(void)
     get_token_lua();
     no_new_control_sequence = true;
     if (cur_cs == 0)
-        cur_tok = (cur_cmd * STRING_OFFSET) + cur_chr;
+        cur_tok = token_val(cur_cmd, cur_chr);
     else
         cur_tok = cs_token_flag + cur_cs;
 }

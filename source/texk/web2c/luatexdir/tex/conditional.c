@@ -197,7 +197,7 @@ static boolean test_for_cs(void)
             if (max_buf_stack == buf_size)
                 check_buffer_overflow(max_buf_stack);
         }
-        s = token_info(p) % STRING_OFFSET;
+        s = token_chr(token_info(p));
         if (s <= 0x7F) {
             buffer[m++] = s;
         } else if (s <= 0x7FF) {

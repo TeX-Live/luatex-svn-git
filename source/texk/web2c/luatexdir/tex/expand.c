@@ -216,7 +216,7 @@ void expand(void)
                     if (t > max_command_cmd) {
                         cur_cmd = t;
                         cur_chr = get_prim_equiv(cur_cs);
-                        cur_tok = (cur_cmd * STRING_OFFSET) + cur_chr;
+                        cur_tok = token_val(cur_cmd, cur_chr);
                         cur_cs = 0;
                         goto RESWITCH;
                     } else {
@@ -357,7 +357,7 @@ void manufacture_csname(void)
             if (max_buf_stack == buf_size)
                 check_buffer_overflow(max_buf_stack);
         }
-        s = token_info(p) % STRING_OFFSET;
+        s = token_chr(token_info(p));
         if (s <= 0x7F) {
             buffer[j++] = s;
         } else if (s <= 0x7FF) {
@@ -437,7 +437,7 @@ void get_x_token(void)
     goto RESTART;
   DONE:
     if (cur_cs == 0)
-        cur_tok = (cur_cmd * STRING_OFFSET) + cur_chr;
+        cur_tok = token_val(cur_cmd, cur_chr);
     else
         cur_tok = cs_token_flag + cur_cs;
 }
@@ -455,7 +455,7 @@ void x_token(void)
         get_token_lua();
     }
     if (cur_cs == 0)
-        cur_tok = (cur_cmd * STRING_OFFSET) + cur_chr;
+        cur_tok = token_val(cur_cmd, cur_chr);
     else
         cur_tok = cs_token_flag + cur_cs;
 }

@@ -207,7 +207,7 @@ static int get_cur_cmd(lua_State * L)
         }
         lua_pop(L, len);
         if (cur_cs == 0)
-            cur_tok = (cur_cmd * STRING_OFFSET) + cur_chr;
+            cur_tok = token_val(cur_cmd, cur_chr);
         else
             cur_tok = cs_token_flag + cur_cs;
     }
@@ -231,7 +231,7 @@ static int token_from_lua(lua_State * L)
         }
         lua_pop(L, len);
         if (cs == 0) {
-            return (cmd * STRING_OFFSET) + chr;
+            return token_val(cmd, chr);
         } else {
             return cs_token_flag + cs;
         }
@@ -393,8 +393,8 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
             if (infop < 0) {
                 Print_esc("BAD.");
             } else {
-                m = infop >> STRING_OFFSET_BITS;
-                c = infop & (STRING_OFFSET - 1);
+                m = token_cmd(infop);
+                c = token_chr(infop);
                 switch (m) {
                 case 10:
                 case 11:
@@ -471,8 +471,8 @@ void tokenlist_to_lua(lua_State * L, int p)
             chr = zget_equiv(cs);
             make_token_table(L, cmd, chr, cs);
         } else {
-            cmd = token_info(p) / STRING_OFFSET;
-            chr = token_info(p) % STRING_OFFSET;
+            cmd = token_cmd(token_info(p));
+            chr = token_chr(token_info(p));
             make_token_table(L, cmd, chr, 0);
         }
         lua_rawseti(L, -2, i++);
@@ -517,9 +517,9 @@ int tokenlist_from_lua(lua_State * L)
         s = (char *) lua_tolstring(L, -1, &j);
         for (i = 0; i < j; i++) {
             if (s[i] == 32) {
-                tok = (10 * STRING_OFFSET) + s[i];
+                tok = token_val(10,s[i]);
             } else {
-                tok = (12 * STRING_OFFSET) + s[i];
+                tok = token_val(12,s[i]);
             }
             store_new_token(tok);
         }

@@ -849,7 +849,7 @@ void scan_something_internal(int level, boolean negative)
                 if (cur_cs != undefined_primitive) {
                     cur_cmd = get_prim_eq_type(cur_cs);
                     cur_chr = get_prim_equiv(cur_cs);
-                    cur_tok = (cur_cmd * STRING_OFFSET) + cur_chr;
+                    cur_tok = token_val(cur_cmd, cur_chr);
                 } else {
                     cur_cmd = relax_cmd;
                     cur_chr = 0;
@@ -1101,7 +1101,7 @@ void scan_int(void)
         if (cur_cs != undefined_primitive) {
             cur_cmd = get_prim_eq_type(cur_cs);
             cur_chr = get_prim_equiv(cur_cs);
-            cur_tok = (cur_cmd * STRING_OFFSET) + cur_chr;
+            cur_tok = token_val(cur_cmd, cur_chr);
         } else {
             cur_cmd = relax_cmd;
             cur_chr = 0;
