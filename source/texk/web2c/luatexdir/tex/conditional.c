@@ -171,12 +171,12 @@ static boolean test_for_cs(void)
     n = get_avail();
     p = n;                      /*head of the list of characters */
     b = false;
-    do {
+    while (1) {
         get_x_token();
-        if (cur_cs == 0) {
-            store_new_token(cur_tok);
-        }
-    } while (cur_cs == 0);
+        if (cur_cs != 0) 
+            break;
+        store_new_token(cur_tok);
+    }
     if (cur_cmd != end_cs_name_cmd) {
         if (int_par(param_suppress_ifcsname_error_code)) {
             do {
@@ -208,10 +208,10 @@ static boolean test_for_cs(void)
             buffer[m++] = 0x80 + (s % 0x1000) / 0x40;
             buffer[m++] = 0x80 + (s % 0x1000) % 0x40;
         } else {
-            buffer[m] = 0xF0 + s / 0x40000;
-            buffer[m] = 0x80 + (s % 0x40000) / 0x1000;
-            buffer[m] = 0x80 + ((s % 0x40000) % 0x1000) / 0x40;
-            buffer[m] = 0x80 + ((s % 0x40000) % 0x1000) % 0x40;
+            buffer[m++] = 0xF0 + s / 0x40000;
+            buffer[m++] = 0x80 + (s % 0x40000) / 0x1000;
+            buffer[m++] = 0x80 + ((s % 0x40000) % 0x1000) / 0x40;
+            buffer[m++] = 0x80 + ((s % 0x40000) % 0x1000) % 0x40;
         }
         p = token_link(p);
     }
