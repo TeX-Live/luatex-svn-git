@@ -39,7 +39,7 @@ static const char _svn_version[] =
 #define incompleat_noad aux.cint
 
 #define cur_fam int_par(cur_fam_code)
-#define text_direction eqtb[int_base + text_direction_code].cint
+#define text_direction dir_par(text_direction_code)
 
 #define var_code 7
 
@@ -785,9 +785,9 @@ void new_save_level_math(group_code c)
     text_dir_ptr = new_dir(math_direction);
     incr(save_ptr);
     new_save_level(c);
-    eq_word_define(int_base + body_direction_code, math_direction);
-    eq_word_define(int_base + par_direction_code, math_direction);
-    eq_word_define(int_base + text_direction_code, math_direction);
+    eq_word_define(dir_base + body_direction_code, math_direction);
+    eq_word_define(dir_base + par_direction_code, math_direction);
+    eq_word_define(dir_base + text_direction_code, math_direction);
     eq_word_define(int_base + level_local_dir_code, cur_level);
 }
 

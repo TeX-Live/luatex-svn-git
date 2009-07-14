@@ -40,8 +40,8 @@ static const char _svn_version[] =
 #define count(A) eqtb[count_base+(A)].hh.rh
 #define box(A) equiv(box_base+(A))
 
-#define text_direction int_par(text_direction_code)
-#define body_direction int_par(body_direction_code)
+#define text_direction dir_par(text_direction_code)
+#define body_direction dir_par(body_direction_code)
 /*
 Let's turn now to some procedures that \TeX\ calls upon frequently to digest
 certain kinds of patterns in the input. Most of these are quite simple;

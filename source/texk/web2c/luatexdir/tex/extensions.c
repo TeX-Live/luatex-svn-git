@@ -29,7 +29,6 @@ static const char _svn_version[] =
 #define prev_graf     cur_list.pg_field
 #define dir_save      cur_list.dirs_field
 
-#define dir_par(A) eqtb[dir_base+(A)].cint /* a direction parameter */
 #define tracing_nesting int_par(tracing_nesting_code)
 #define box(A) eqtb[box_base+(A)].hh.rh
 #define global_defs int_par(global_defs_code)

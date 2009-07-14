@@ -31,7 +31,6 @@ static const char _svn_version[] =
 #define adjust_pre subtype
 #define attribute(A) eqtb[attribute_base+(A)].cint
 
-#define dir_par(A) eqtb[dir_base+(A)].cint
 #define text_direction dir_par(text_direction_code)
 #define uc_hyph int_par(uc_hyph_code)
 #define cur_lang int_par(cur_lang_code)

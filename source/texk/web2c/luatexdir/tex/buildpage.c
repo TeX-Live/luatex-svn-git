@@ -34,8 +34,8 @@ static const char _svn_version[] =
 #define vbadness int_par(vbadness_code)
 #define max_dead_cycles int_par(max_dead_cycles_code)
 #define output_box int_par(output_box_code)
-#define text_direction int_par(text_direction_code)
-#define body_direction int_par(body_direction_code)
+#define text_direction dir_par(text_direction_code)
+#define body_direction dir_par(body_direction_code)
 #define holding_inserts int_par(holding_inserts_code)
 
 #define vsize dimen_par(vsize_code)

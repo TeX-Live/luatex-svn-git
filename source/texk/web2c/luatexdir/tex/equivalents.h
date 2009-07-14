@@ -395,7 +395,7 @@ extern void print_length_param(integer n);
 #define dimen_par(A) eqtb[dimen_base+(A)].cint
 #define loc_par(A)   equiv(local_base+(A))
 #define glue_par(A)  equiv(glue_base+(A))
-
+#define dir_par(A) eqtb[dir_base+(A)].cint /* a direction parameter */
 
 typedef enum {
     bottom_level = 0,           /* group code for the outside world */

@@ -86,7 +86,6 @@ static const char _svn_version[] =
 #define hang_after int_par(hang_after_code)
 #define inter_line_penalties_ptr equiv(inter_line_penalties_loc)
 
-#define dir_par(A) eqtb[dir_base+(A)].cint /* a direction parameter */
 #define box(A) eqtb[box_base+(A)].hh.rh
 #define cur_font equiv(cur_font_loc)
 #define hsize dimen_par(hsize_code)

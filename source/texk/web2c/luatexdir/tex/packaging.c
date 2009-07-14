@@ -32,8 +32,8 @@ static const char _svn_version[] =
 #define space_factor    cur_list.aux_field.hh.lhfield
 #define box(A) eqtb[box_base+(A)].hh.rh
 
-#define text_direction int_par(text_direction_code)
-#define body_direction int_par(body_direction_code)
+#define text_direction dir_par(text_direction_code)
+#define body_direction dir_par(body_direction_code)
 #define every_hbox equiv(every_hbox_loc)
 #define every_vbox equiv(every_vbox_loc)
 
