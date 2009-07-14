@@ -297,18 +297,9 @@ between characters and strings.
 
 
 /* initializes the string pool, but returns |false| if something goes wrong */
+/* this is now a no-op */
 boolean get_strings_started(void)
 {
-    str_number g;               /* garbage */
-    pool_ptr = 0;
-    str_start[0] = 0;
-    /* Read the other strings from the \.{TEX.POOL} file and return |true|,
-       or give an error message and return |false| */
-    g = loadpoolstrings((pool_size - string_vacancies));
-    if (g == 0) {
-        fprintf(stdout, "! You have to increase POOLSIZE.\n");
-        return false;
-    }
     return true;
 }
 
