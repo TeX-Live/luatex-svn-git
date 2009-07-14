@@ -122,10 +122,6 @@ typedef integer font_index; /* index into |font_info| */
 
 typedef integer save_pointer;
 
-#define _text_char ASCII_code /* the data type of characters in text files */
-#define _first_text_char 0 /* ordinal number of the smallest element of |text_char| */
-#define _last_text_char 255 /*ordinal number of the largest element of |text_char| */
-
 #define null_code '\0' /* ASCII code that might disappear */
 #define carriage_return '\r' /* ASCII code used at end of line */
 #define _invalid_code 0177 /* ASCII code that many systems prohibit in text files */
@@ -172,11 +168,6 @@ extern boolean quoted_filename;
 
 #define fix_date_and_time() dateandtime(int_par(time_code),int_par(day_code),int_par(month_code),int_par(year_code))
 
-/* next(#) == hash[#].lh {link for coalesced lists} */
-/* text(#) == hash[#].rh {string number for control sequence name} */
-/* hash_is_full == (hash_used=hash_base) {test if all positions are occupied} */
-/* font_id_text(#) == text(font_id_base+#) {a frozen font identifier's name} */
-
 extern two_halves *hash; /* the hash table */
 extern halfword hash_used; /* allocation pointer for |hash| */
 extern integer hash_extra; /* |hash_extra=hash| above |eqtb_size| */
@@ -196,8 +187,6 @@ extern halfword cur_cs; /* control sequence found here, zero if none found */
 extern halfword cur_tok; /* packed representative of |cur_cmd| and |cur_chr| */
 
 extern void show_cur_cmd_chr (void);
-
-/* #define max_dimen 07777777777 *//* $2^{30}-1$ */
 
 extern integer font_bytes;
 
