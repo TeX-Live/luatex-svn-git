@@ -348,7 +348,7 @@ void print_banner(char *v, int e)
     integer callback_id;
     callback_id = callback_defined(start_run_callback);
     if (callback_id == 0) {
-        fprintf(term_out, "This is LuaTeX, Version %s%d", v, e);
+        fprintf(term_out, "This is LuaTeX, Version %s-%d", v, e);
         fprintf(term_out, versionstring);
         if (format_ident > 0)
             slow_print(format_ident);
