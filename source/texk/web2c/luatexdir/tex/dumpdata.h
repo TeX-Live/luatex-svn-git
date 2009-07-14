@@ -51,7 +51,7 @@ extern void do_zundump (char *, int, int, FILE *);
 	if ((&(base))[i] < (low) || (&(base))[i] > (high)) {		\
 	  FATAL5 ("Item %u (=%ld) of .fmt array at %lx <%ld or >%ld",	\
                 i, (unsigned long) (&(base))[i], (unsigned long) &(base), \
-                (unsigned long) low, (integer) high);			\
+                (unsigned long) low, (unsigned long) high);			\
       }                                                                 \
     }									\
   } while (0)
