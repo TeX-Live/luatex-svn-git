@@ -38,24 +38,25 @@ extern double rint(double x);
 
 /* Replicate these here. They are hardcoded anyway */
 
-#define eTeX_version_string "2.2" /* current \eTeX\ version */
-#define eTeX_version 2 /* \.{\\eTeXversion}  */
-#define eTeX_minor_version 2 /* \.{\\eTeXminorversion}  */
-#define eTeX_revision ".2" /* \.{\\eTeXrevision} */
+#  define eTeX_version_string "2.2"     /* current \eTeX\ version */
+#  define eTeX_version 2        /* \.{\\eTeXversion}  */
+#  define eTeX_minor_version 2  /* \.{\\eTeXminorversion}  */
+#  define eTeX_revision ".2"    /* \.{\\eTeXrevision} */
 
-#define Omega_version_string "1.15" /* \.{\\OmegaVersion}  */
-#define Omega_version 1 /* \.{\\Omegaversion} */
-#define Omega_minor_version 15 /* \.{\\Omegaminorversion} */
-#define Omega_revision ".15" /* \.{\\Omegarevision} */
+#  define Omega_version_string "1.15"   /* \.{\\OmegaVersion}  */
+#  define Omega_version 1       /* \.{\\Omegaversion} */
+#  define Omega_minor_version 15/* \.{\\Omegaminorversion} */
+#  define Omega_revision ".15"  /* \.{\\Omegarevision} */
 
-#define Aleph_version_string "0.0" /* \.{\\AlephVersion} */
-#define Aleph_version 0 /* \.{\\Alephversion}  */
-#define Aleph_minor_version 0 /* \.{\\Alephminorversion} */
-#define Aleph_revision ".0" /* \.{\\Alephrevision} */
+#  define Aleph_version_string "0.0"    /* \.{\\AlephVersion} */
+#  define Aleph_version 0       /* \.{\\Alephversion}  */
+#  define Aleph_minor_version 0 /* \.{\\Alephminorversion} */
+#  define Aleph_revision ".0"   /* \.{\\Alephrevision} */
 
-#define pdftex_version_string "-2.00.0" /* current \pdfTeX\ version */
-#define pdftex_version 200 /* \.{\\pdftexversion} */
-#define pdftex_revision "0" /* \.{\\pdftexrevision} */
+#  define pdftex_version_string "-2.00.0"
+                                        /* current \pdfTeX\ version */
+#  define pdftex_version 200    /* \.{\\pdftexversion} */
+#  define pdftex_revision "0"   /* \.{\\pdftexrevision} */
 
 #  include <../lua51/lua.h>
 

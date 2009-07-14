@@ -510,9 +510,9 @@ int tokenlist_from_lua(lua_State * L)
         s = (char *) lua_tolstring(L, -1, &j);
         for (i = 0; i < j; i++) {
             if (s[i] == 32) {
-                tok = token_val(10,s[i]);
+                tok = token_val(10, s[i]);
             } else {
-                tok = token_val(12,s[i]);
+                tok = token_val(12, s[i]);
             }
             store_new_token(tok);
         }

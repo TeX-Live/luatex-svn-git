@@ -112,15 +112,15 @@ locations for control sequences that are perpetually defined
 #  define end_write (frozen_control_sequence+8) /* permanent `\.{\\endwrite}' */
 #  define frozen_dont_expand (frozen_control_sequence+9 )
                                                         /* permanent `\.{\\notexpanded:}' */
-#  define frozen_primitive (frozen_control_sequence+11 )/* permanent `\.{\\pdfprimitive}' */
+#  define frozen_primitive (frozen_control_sequence+11 )        /* permanent `\.{\\pdfprimitive}' */
 #  define frozen_special (frozen_control_sequence+12 )  /* permanent `\.{\\special}' */
-#  define frozen_null_font (frozen_control_sequence+13 )/* permanent `\.{\\nullfont}' */
+#  define frozen_null_font (frozen_control_sequence+13 )        /* permanent `\.{\\nullfont}' */
 #  define font_id_base (frozen_null_font-font_base )    /* begins table of |number_fonts| permanent font identifiers */
 #  define frozen_null_ocp (frozen_null_font+number_fonts )      /* permanent `\.{\\nullocp}' */
 #  define ocp_id_base (frozen_null_ocp-ocp_base )
                                                 /* begins table of |number_ocps| permanent ocp identifiers */
 #  define frozen_null_ocp_list (frozen_null_ocp+number_ocps )   /* permanent `\.{\\nullocplist}' */
-#  define ocp_list_id_base (frozen_null_ocp_list-ocp_list_base )/* begins table of |number_ocp_lists| permanent ocp list identifiers */
+#  define ocp_list_id_base (frozen_null_ocp_list-ocp_list_base )        /* begins table of |number_ocp_lists| permanent ocp list identifiers */
 #  define undefined_control_sequence (frozen_null_ocp_list+number_ocp_lists)
 #  define glue_base (undefined_control_sequence+1)      /* beginning of region 3 */
 
@@ -136,7 +136,7 @@ locations for control sequences that are perpetually defined
 #  define left_skip_code 7      /* glue at left of justified lines */
 #  define right_skip_code 8     /* glue at right of justified lines */
 #  define top_skip_code 9       /* glue at top of main pages */
-#  define split_top_skip_code 10/* glue at top of split pages */
+#  define split_top_skip_code 10        /* glue at top of split pages */
 #  define tab_skip_code 11      /* glue between aligned entries */
 #  define space_skip_code 12    /* glue between words (if not |zero_glue|) */
 #  define xspace_skip_code 13   /* glue after sentences (if not |zero_glue|) */
@@ -166,10 +166,10 @@ locations for control sequences that are perpetually defined
 #  define pdf_pages_attr_loc (pdftex_first_loc + 0)     /* points to token list for \.{\\pdfpagesattr} */
 #  define pdf_page_attr_loc (pdftex_first_loc + 1)      /* points to token list for \.{\\pdfpageattr} */
 #  define pdf_page_resources_loc (pdftex_first_loc + 2) /* points to token list for \.{\\pdfpageresources} */
-#  define pdf_pk_mode_loc (pdftex_first_loc + 3)/* points to token list for \.{\\pdfpkmode} */
+#  define pdf_pk_mode_loc (pdftex_first_loc + 3)        /* points to token list for \.{\\pdfpkmode} */
 #  define pdf_toks (pdftex_first_loc+4) /* end of \pdfTeX's token list parameters */
 #  define etex_toks_base (pdf_toks)     /* base for \eTeX's token list parameters */
-#  define every_eof_loc (etex_toks_base)/* points to token list for \.{\\everyeof} */
+#  define every_eof_loc (etex_toks_base)        /* points to token list for \.{\\everyeof} */
 #  define etex_toks (etex_toks_base+1)  /* end of \eTeX's token list parameters */
 #  define ocp_trace_level_base (etex_toks)
 #  define ocp_active_number_base (ocp_trace_level_base+1)
@@ -189,7 +189,7 @@ locations for control sequences that are perpetually defined
 #  define cur_font_loc (box_base+number_regs)   /* internal font number outside math mode */
 #  define internal_math_param_base (cur_font_loc+1 )    /* current math parameter data index  */
 #  define cat_code_base (internal_math_param_base+1)    /* current category code data index  */
-#  define lc_code_base (cat_code_base+1)/* table of |number_chars| lowercase mappings */
+#  define lc_code_base (cat_code_base+1)        /* table of |number_chars| lowercase mappings */
 #  define uc_code_base (lc_code_base+1) /* table of |number_chars| uppercase mappings */
 #  define sf_code_base (uc_code_base+1) /* table of |number_chars| spacefactor mappings */
 #  define math_code_base (sf_code_base+1)
@@ -210,7 +210,7 @@ locations for control sequences that are perpetually defined
 #  define pre_display_penalty_code 11   /* penalty for breaking just before a displayed formula */
 #  define post_display_penalty_code 12  /* penalty for breaking just after a displayed formula */
 #  define inter_line_penalty_code 13    /* additional penalty between lines */
-#  define double_hyphen_demerits_code 14/* demerits for double hyphen break */
+#  define double_hyphen_demerits_code 14        /* demerits for double hyphen break */
 #  define final_hyphen_demerits_code 15 /* demerits for final hyphen break */
 #  define adj_demerits_code 16  /* demerits for adjacent incompatible lines */
 #  define mag_code 17           /* magnification ratio */
@@ -221,21 +221,21 @@ locations for control sequences that are perpetually defined
 #  define month_code 22         /* current month of the year */
 #  define year_code 23          /* current year of our Lord */
 #  define show_box_breadth_code 24      /* nodes per level in |show_box| */
-#  define show_box_depth_code 25/* maximum level in |show_box| */
+#  define show_box_depth_code 25        /* maximum level in |show_box| */
 #  define hbadness_code 26      /* hboxes exceeding this badness will be shown by |hpack| */
 #  define vbadness_code 27      /* vboxes exceeding this badness will be shown by |vpack| */
 #  define pausing_code 28       /* pause after each line is read from a file */
-#  define tracing_online_code 29/* show diagnostic output on terminal */
-#  define tracing_macros_code 30/* show macros as they are being expanded */
+#  define tracing_online_code 29        /* show diagnostic output on terminal */
+#  define tracing_macros_code 30        /* show macros as they are being expanded */
 #  define tracing_stats_code 31 /* show memory usage if \TeX\ knows it */
 #  define tracing_paragraphs_code 32    /* show line-break calculations */
 #  define tracing_pages_code 33 /* show page-break calculations */
-#  define tracing_output_code 34/* show boxes when they are shipped out */
+#  define tracing_output_code 34        /* show boxes when they are shipped out */
 #  define tracing_lost_chars_code 35    /* show characters that aren't in the font */
 #  define tracing_commands_code 36      /* show command codes at |big_switch| */
 #  define tracing_restores_code 37      /* show equivalents when they are restored */
 #  define uc_hyph_code 38       /* hyphenate words beginning with a capital letter */
-#  define output_penalty_code 39/* penalty found at current page break */
+#  define output_penalty_code 39        /* penalty found at current page break */
 #  define max_dead_cycles_code 40
                                 /* bound on consecutive dead cycles of output */
 #  define hang_after_code 41    /* hanging indentation changes after this many lines */
@@ -286,13 +286,13 @@ locations for control sequences that are perpetually defined
                                                                 /*digits after the decimal point of numbers */
 #  define pdf_move_chars_code (pdftex_first_integer_code + 3)   /*move chars 0..31 to higher area if possible */
 #  define pdf_image_resolution_code (pdftex_first_integer_code + 4)     /*default image resolution */
-#  define pdf_pk_resolution_code (pdftex_first_integer_code + 5)/*default resolution of PK font */
+#  define pdf_pk_resolution_code (pdftex_first_integer_code + 5)        /*default resolution of PK font */
 #  define pdf_unique_resname_code (pdftex_first_integer_code + 6)
                                                                 /*generate unique names for resouces */
-#  define pdf_minor_version_code (pdftex_first_integer_code + 9)/*fractional part of the PDF version produced */
+#  define pdf_minor_version_code (pdftex_first_integer_code + 9)        /*fractional part of the PDF version produced */
 #  define pdf_pagebox_code (pdftex_first_integer_code + 11)     /*default pagebox to use for PDF inclusion */
-#  define pdf_inclusion_errorlevel_code (pdftex_first_integer_code + 12)/*if the PDF inclusion should treat pdfs 
-                                                                           newer than |pdf_minor_version| as an error */
+#  define pdf_inclusion_errorlevel_code (pdftex_first_integer_code + 12)        /*if the PDF inclusion should treat pdfs 
+                                                                                   newer than |pdf_minor_version| as an error */
 #  define pdf_gamma_code (pdftex_first_integer_code + 13)
 #  define pdf_image_gamma_code (pdftex_first_integer_code + 14)
 #  define pdf_image_hicolor_code (pdftex_first_integer_code + 15)
@@ -305,7 +305,7 @@ locations for control sequences that are perpetually defined
 #  define pdf_gen_tounicode_code (pdftex_first_integer_code + 24)
                                                                 /*generate ToUnicode for fonts? */
 #  define pdf_draftmode_code (pdftex_first_integer_code + 25)   /*switch on draftmode if positive */
-#  define pdf_replace_font_code (pdftex_first_integer_code + 26)/*generate ToUnicode for fonts? */
+#  define pdf_replace_font_code (pdftex_first_integer_code + 26)        /*generate ToUnicode for fonts? */
 #  define pdf_inclusion_copy_font_code (pdftex_first_integer_code + 27) /*generate ToUnicode for fonts? */
 #  define pdf_int_pars (pdftex_first_integer_code + 28) /*total number of \pdfTeX's integer parameters */
 #  define etex_int_base (pdf_int_pars)  /*base for \eTeX's integer parameters */
@@ -313,7 +313,7 @@ locations for control sequences that are perpetually defined
 #  define tracing_groups_code (etex_int_base+1) /*show save/restore groups */
 #  define tracing_ifs_code (etex_int_base+2)    /*show conditionals */
 #  define tracing_scan_tokens_code (etex_int_base+3)    /*show pseudo file open and close */
-#  define tracing_nesting_code (etex_int_base+4)/*show incomplete groups and ifs within files */
+#  define tracing_nesting_code (etex_int_base+4)        /*show incomplete groups and ifs within files */
 #  define pre_display_direction_code (etex_int_base+5)  /*text direction preceding a display */
 #  define last_line_fit_code (etex_int_base+6)  /*adjustment for last line of paragraph */
 #  define saving_vdiscards_code (etex_int_base+7)
@@ -327,7 +327,7 @@ locations for control sequences that are perpetually defined
 #  define etex_int_pars (etex_int_base+13)      /*total number of \eTeX's integer parameters */
 #  define synctex_code (etex_int_pars)  /* is synctex file generation enabled ?  */
 #  define int_pars (synctex_code+1)     /*total number of integer parameters */
-#  define count_base (int_base+int_pars)/*|number_regs| user \.{\\count} registers */
+#  define count_base (int_base+int_pars)        /*|number_regs| user \.{\\count} registers */
 #  define attribute_base (count_base+number_regs)
                                                 /*|number_attrs| user \.{\\attribute} registers */
 #  define del_code_base (attribute_base+number_attrs)   /*|number_chars| delimiter code mappings */
@@ -335,11 +335,11 @@ locations for control sequences that are perpetually defined
 
 #  define par_indent_code 0     /* indentation of paragraphs */
 #  define math_surround_code 1  /* space around math in text */
-#  define line_skip_limit_code 2/* threshold for |line_skip| instead of |baseline_skip| */
+#  define line_skip_limit_code 2        /* threshold for |line_skip| instead of |baseline_skip| */
 #  define hsize_code 3          /* line width in horizontal mode */
 #  define vsize_code 4          /* page height in vertical mode */
 #  define max_depth_code 5      /* maximum depth of boxes on main pages */
-#  define split_max_depth_code 6/* maximum depth of boxes on split pages */
+#  define split_max_depth_code 6        /* maximum depth of boxes on split pages */
 #  define box_max_depth_code 7  /* maximum depth of explicit vboxes */
 #  define hfuzz_code 8          /* tolerance for overfull hbox messages */
 #  define vfuzz_code 9          /* tolerance for overfull vbox messages */
@@ -348,7 +348,7 @@ locations for control sequences that are perpetually defined
 #  define script_space_code 12  /* extra space after subscript or superscript */
 #  define pre_display_size_code 13      /* length of text preceding a display */
 #  define display_width_code 14 /* length of line for displayed equation */
-#  define display_indent_code 15/* indentation of line for displayed equation */
+#  define display_indent_code 15        /* indentation of line for displayed equation */
 #  define overfull_rule_code 16 /* width of rule that identifies overfull hboxes */
 #  define hang_indent_code 17   /* amount of hanging indentation */
 #  define h_offset_code 18      /* amount of horizontal offset when shipping pages out */
@@ -372,7 +372,7 @@ locations for control sequences that are perpetually defined
 #  define pdf_each_line_depth_code   (pdftex_first_dimen_code + 10)
 #  define pdf_ignored_dimen_code   (pdftex_first_dimen_code + 11)
 #  define pdf_px_dimen_code       (pdftex_first_dimen_code + 12)
-#  define pdftex_last_dimen_code  (pdftex_first_dimen_code + 12)/* last number defined in this section */
+#  define pdftex_last_dimen_code  (pdftex_first_dimen_code + 12)        /* last number defined in this section */
 #  define dimen_pars (pdftex_last_dimen_code + 1)
                                                 /* total number of dimension parameters */
 
@@ -445,7 +445,7 @@ typedef enum {
     fin_row_group               /* box code for a provisory line in an alignment */
 } tex_group_codes;
 
-#  define max_group_code local_box_group/* which is wrong, but is what the web says */
+#  define max_group_code local_box_group        /* which is wrong, but is what the web says */
 
 extern memory_word *save_stack;
 extern integer save_ptr;        /* first unused entry on |save_stack| */

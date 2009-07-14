@@ -1039,10 +1039,10 @@ When \TeX\ has scanned `\.{\\hyphenation}', it calls on a procedure named
 |new_hyph_exceptions| to do the right thing.
 */
 
-void new_hyph_exceptions (void) /* enters new exceptions */
-{
-    (void)scan_toks(false,true);
-    load_tex_hyphenation(int_par(language_code),def_ref);
+void new_hyph_exceptions(void)
+{                               /* enters new exceptions */
+    (void) scan_toks(false, true);
+    load_tex_hyphenation(int_par(language_code), def_ref);
     flush_list(def_ref);
 }
 
@@ -1051,10 +1051,10 @@ Similarly, when \TeX\ has scanned `\.{\\patterns}', it calls on a
 procedure named |new_patterns|.
 */
 
-void new_patterns (void) /* initializes the hyphenation pattern data */
-{ 
-    (void)scan_toks(false,true);
-    load_tex_patterns(int_par(language_code),def_ref);
+void new_patterns(void)
+{                               /* initializes the hyphenation pattern data */
+    (void) scan_toks(false, true);
+    load_tex_patterns(int_par(language_code), def_ref);
     flush_list(def_ref);
 }
 
@@ -1064,18 +1064,18 @@ void new_patterns (void) /* initializes the hyphenation pattern data */
 defaults are ascii hyphen ("-") and zero (nul).
 */
 
-void new_pre_hyphen_char (void)
+void new_pre_hyphen_char(void)
 {
     scan_optional_equals();
     scan_int();
-    set_pre_hyphen_char(int_par(language_code),cur_val);
+    set_pre_hyphen_char(int_par(language_code), cur_val);
 }
 
-void new_post_hyphen_char (void)
+void new_post_hyphen_char(void)
 {
-    scan_optional_equals(); 
+    scan_optional_equals();
     scan_int();
-    set_post_hyphen_char(int_par(language_code),cur_val);
+    set_post_hyphen_char(int_par(language_code), cur_val);
 }
 
 /*
@@ -1084,17 +1084,16 @@ void new_post_hyphen_char (void)
 defaults are both zero (nul).
 */
 
-void new_pre_exhyphen_char (void)
+void new_pre_exhyphen_char(void)
 {
-    scan_optional_equals(); 
+    scan_optional_equals();
     scan_int();
-    set_pre_exhyphen_char(int_par(language_code),cur_val);
+    set_pre_exhyphen_char(int_par(language_code), cur_val);
 }
 
-void new_post_exhyphen_char (void)
+void new_post_exhyphen_char(void)
 {
-    scan_optional_equals(); 
+    scan_optional_equals();
     scan_int();
-    set_post_exhyphen_char(int_par(language_code),cur_val);
+    set_post_exhyphen_char(int_par(language_code), cur_val);
 }
-

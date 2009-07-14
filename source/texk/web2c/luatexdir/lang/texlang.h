@@ -70,14 +70,12 @@ extern void dump_language_data(void);
 extern void undump_language_data(void);
 extern char *exception_strings(struct tex_language *lang);
 
-extern void new_hyph_exceptions (void);
-extern void new_patterns (void);
-extern void new_pre_hyphen_char (void);
-extern void new_post_hyphen_char (void);
-extern void new_pre_exhyphen_char (void);
-extern void new_post_exhyphen_char (void);
+extern void new_hyph_exceptions(void);
+extern void new_patterns(void);
+extern void new_pre_hyphen_char(void);
+extern void new_post_hyphen_char(void);
+extern void new_pre_exhyphen_char(void);
+extern void new_post_exhyphen_char(void);
 
 
 #endif
-
-

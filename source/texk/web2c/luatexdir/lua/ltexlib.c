@@ -283,8 +283,7 @@ integer get_item_index(lua_State * L, int i, integer base)
     if (lua_type(L, i) == LUA_TSTRING) {
         s = (char *) lua_tolstring(L, i, &kk);
         cur_cs = string_lookup(s, kk);
-        if (cur_cs == undefined_control_sequence ||
-            cur_cs == undefined_cs_cmd) {
+        if (cur_cs == undefined_control_sequence || cur_cs == undefined_cs_cmd) {
             k = -1;             /* guarandeed invalid */
         } else {
             k = (equiv(cur_cs) - base);
@@ -757,8 +756,7 @@ int settex(lua_State * L)
             } else if (is_toks_assign(cur_cmd)) {
                 if (lua_isstring(L, i)) {
                     j = tokenlist_from_lua(L);  /* uses stack -1 */
-                    assign_internal_value((isglobal ? 4 : 0),
-                                          equiv(cur_cs), j);
+                    assign_internal_value((isglobal ? 4 : 0), equiv(cur_cs), j);
 
                 } else {
                     lua_pushstring(L, "unsupported value type");
@@ -803,14 +801,14 @@ int do_convert(lua_State * L, int cur_code)
     case pdf_creation_date_code:       /* ? */
     case pdf_insert_ht_code:   /* arg <register int> */
     case pdf_ximage_bbox_code: /* arg 2 ints */
-    case lua_code:     /* arg complex */
+    case lua_code:             /* arg complex */
     case lua_escape_string_code:       /* arg token list */
     case pdf_colorstack_init_code:     /* arg complex */
     case left_margin_kern_code:        /* arg box */
     case right_margin_kern_code:       /* arg box */
         break;
-    case string_code:  /* arg token */
-    case meaning_code: /* arg token */
+    case string_code:          /* arg token */
+    case meaning_code:         /* arg token */
         break;
 
         /* the next fall through, and come from 'official' indices! */
@@ -820,7 +818,7 @@ int do_convert(lua_State * L, int cur_code)
     case pdf_font_objnum_code: /* arg fontid */
     case pdf_font_size_code:   /* arg fontid */
     case uniform_deviate_code: /* arg int */
-    case number_code:  /* arg int */
+    case number_code:          /* arg int */
     case roman_numeral_code:   /* arg int */
     case pdf_page_ref_code:    /* arg int */
     case pdf_xform_name_code:  /* arg int */

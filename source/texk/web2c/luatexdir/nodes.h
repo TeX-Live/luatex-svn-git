@@ -730,21 +730,21 @@ typedef enum {
 #  define stretching 1
 #  define shrinking 2
 
-#  define is_running(A) ((A)==null_flag)/* tests for a running dimension */
+#  define is_running(A) ((A)==null_flag)        /* tests for a running dimension */
 
-extern halfword tail_of_list (halfword p);
+extern halfword tail_of_list(halfword p);
 extern void delete_glue_ref(halfword p);
 
 extern integer var_used;
-extern halfword temp_ptr; 
+extern halfword temp_ptr;
 
-#define cache_disabled max_halfword
+#  define cache_disabled max_halfword
 
 extern integer max_used_attr;
 extern halfword attr_list_cache;
 
-extern halfword new_null_box (void);
-extern halfword new_rule (void);
+extern halfword new_null_box(void);
+extern halfword new_rule(void);
 extern halfword new_glyph(integer f, integer c);
 extern quarterword norm_min(integer h);
 extern halfword new_char(integer f, integer c);
@@ -756,8 +756,8 @@ extern halfword new_math(scaled w, int s);
 extern halfword new_spec(halfword p);
 extern halfword new_param_glue(int n);
 extern halfword new_glue(halfword q);
-extern halfword new_skip_param(int n); 
-extern halfword new_kern(scaled w) ;
+extern halfword new_skip_param(int n);
+extern halfword new_kern(scaled w);
 extern halfword new_penalty(integer m);
 
 #endif

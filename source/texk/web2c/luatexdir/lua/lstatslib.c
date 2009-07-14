@@ -146,9 +146,9 @@ static lua_Number get_dest_names_ptr(void)
     return (lua_Number) 0;
 }
 
-static int get_hash_size (void)
+static int get_hash_size(void)
 {
-    return hash_size; /* is a #define */
+    return hash_size;           /* is a #define */
 }
 
 extern int luabytecode_max;

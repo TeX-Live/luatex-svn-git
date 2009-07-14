@@ -1961,8 +1961,7 @@ void conv_toks(void)
             p = null;
             if (q != null) {
                 p = prev_rightmost(q, null);
-                if ((p != null) && (!is_char_node(p)) &&
-                    (type(p) == glue_node)
+                if ((p != null) && (!is_char_node(p)) && (type(p) == glue_node)
                     && (subtype(p) == right_skip_code + 1))
                     p = prev_rightmost(q, p);
             }

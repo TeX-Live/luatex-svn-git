@@ -63,30 +63,31 @@ The ``expandable'' commands come first.
 
 typedef enum {
     relax_cmd = 0,              /* do nothing ( \.{\\relax} ) */
-#define escape_cmd  relax_cmd   /* escape delimiter (called \.\\ in {\sl The \TeX book\/}) */
+#  define escape_cmd  relax_cmd /* escape delimiter (called \.\\ in {\sl The \TeX book\/}) */
     left_brace_cmd,             /* beginning of a group ( \.\{ ) */
     right_brace_cmd,            /* ending of a group ( \.\} ) */
     math_shift_cmd,             /* mathematics shift character ( \.\$ ) */
     tab_mark_cmd,               /* alignment delimiter ( \.\&, \.{\\span} ) */
     car_ret_cmd,                /* end of line ( |carriage_return|, \.{\\cr}, \.{\\crcr} ) */
-#define out_param_cmd  car_ret_cmd      /* output a macro parameter */
+#  define out_param_cmd  car_ret_cmd    /* output a macro parameter */
     mac_param_cmd,              /* macro parameter symbol ( \.\# ) */
     sup_mark_cmd,               /* superscript ( \.{\char'136} ) */
     sub_mark_cmd,               /* subscript ( \.{\char'137} ) */
     endv_cmd,                   /* end of \<v_j> list in alignment template */
-#define ignore_cmd endv_cmd     /* characters to ignore ( \.{\^\^@@} ) */
+#  define ignore_cmd endv_cmd   /* characters to ignore ( \.{\^\^@@} ) */
     spacer_cmd,                 /* characters equivalent to blank space ( \.{\ } ) */
     letter_cmd,                 /* characters regarded as letters ( \.{A..Z}, \.{a..z} ) */
     other_char_cmd,             /* none of the special character types */
     par_end_cmd,                /* end of paragraph ( \.{\\par} ) */
-#define active_char_cmd par_end_cmd     /* characters that invoke macros ( \.{\char`\~} ) */
-#define match_cmd par_end_cmd   /* match a macro parameter */
+#  define active_char_cmd par_end_cmd   /* characters that invoke macros ( \.{\char`\~} ) */
+#  define match_cmd par_end_cmd /* match a macro parameter */
     stop_cmd,                   /* end of job ( \.{\\end}, \.{\\dump} ) */
-#define comment_cmd stop_cmd    /* characters that introduce comments ( \.\% ) */
-#define end_match_cmd stop_cmd  /* end of parameters to macro */
+#  define comment_cmd stop_cmd  /* characters that introduce comments ( \.\% ) */
+#  define end_match_cmd stop_cmd/* end of parameters to macro */
     delim_num_cmd,              /* specify delimiter numerically ( \.{\\delimiter} ) */
-#define invalid_char_cmd delim_num_cmd  /* characters that shouldn't appear ( \.{\^\^?} ) */
-#define max_char_code_cmd delim_num_cmd /* largest catcode for individual characters */
+#  define invalid_char_cmd delim_num_cmd/* characters that shouldn't appear ( \.{\^\^?} ) */
+#  define max_char_code_cmd delim_num_cmd
+                                        /* largest catcode for individual characters */
     char_num_cmd,               /* character specified numerically ( \.{\\char} ) */
     math_char_num_cmd,          /* explicit math code ( \.{\\mathchar} ) */
     mark_cmd,                   /* mark definition ( \.{\\mark} ) */
@@ -145,12 +146,13 @@ typedef enum {
     char_ghost_cmd,             /* \.{\\ghostleft}, \.{\\ghostright} character for kerning */
     assign_local_box_cmd,       /* box for guillemets \.{\\localleftbox} or \.{\\localrightbox} */
     char_given_cmd,             /* character code defined by \.{\\chardef} */
-#define min_internal_cmd char_given_cmd /* the smallest code that can follow \.{\\the} */
+#  define min_internal_cmd char_given_cmd
+                                        /* the smallest code that can follow \.{\\the} */
     math_given_cmd,             /* math code defined by \.{\\mathchardef} */
     omath_given_cmd,            /* math code defined by \.{\\omathchardef} */
     xmath_given_cmd,            /* math code defined by \.{\\LuaTeXmathchardef} */
     last_item_cmd,              /* most recent item ( \.{\\lastpenalty}, \.{\\lastkern}, \.{\\lastskip} ) */
-#define max_non_prefixed_command_cmd last_item_cmd      /* largest command code that can't be \.{\\global} */
+#  define max_non_prefixed_command_cmd last_item_cmd    /* largest command code that can't be \.{\\global} */
     toks_register_cmd,          /* token list register ( \.{\\toks} ) */
     assign_toks_cmd,            /* special token list ( \.{\\output}, \.{\\everypar}, etc.~) */
     assign_int_cmd,             /* user-defined integer ( \.{\\tolerance}, \.{\\day}, etc.~) */
@@ -178,7 +180,8 @@ typedef enum {
     register_cmd,               /* internal register ( \.{\\count}, \.{\\dimen}, etc.~) */
     assign_box_dir_cmd,         /* (\.{\\boxdir}) */
     assign_dir_cmd,             /* (\.{\\pagedir}, \.{\\textdir}) */
-#define max_internal_cmd assign_dir_cmd /* the largest code that can follow \.{\\the} */
+#  define max_internal_cmd assign_dir_cmd
+                                        /* the largest code that can follow \.{\\the} */
     advance_cmd,                /* advance a register or parameter ( \.{\\advance} ) */
     multiply_cmd,               /* multiply a register or parameter ( \.{\\multiply} ) */
     divide_cmd,                 /* divide a register or parameter ( \.{\\divide} ) */
@@ -224,9 +227,9 @@ typedef enum {
     data_cmd,                   /* the equivalent is simply a halfword number */
 } tex_command_code;
 
-#define max_command_cmd ocp_trace_level_cmd     /* the largest command code seen at |big_switch| */
-#define last_cmd data_cmd
-#define max_non_prefixed_command last_item_cmd
+#  define max_command_cmd ocp_trace_level_cmd   /* the largest command code seen at |big_switch| */
+#  define last_cmd data_cmd
+#  define max_non_prefixed_command last_item_cmd
 
 typedef enum {
     above_code = 0,
@@ -236,116 +239,117 @@ typedef enum {
 } fraction_codes;
 
 typedef enum {
-    number_code = 0,    /* command code for \.{\\number} */
-    roman_numeral_code, /* command code for \.{\\romannumeral} */
-    string_code,        /* command code for \.{\\string} */
-    meaning_code,       /* command code for \.{\\meaning} */
-    font_name_code,     /* command code for \.{\\fontname} */
-    etex_code,          /* command code for \.{\\eTeXVersion} */
-    omega_code,         /* command code for \.{\\OmegaVersion} */
-    aleph_code,         /* command code for \.{\\AlephVersion} */
-    format_name_code,   /* command code for \.{\\AlephVersion} */
+    number_code = 0,            /* command code for \.{\\number} */
+    roman_numeral_code,         /* command code for \.{\\romannumeral} */
+    string_code,                /* command code for \.{\\string} */
+    meaning_code,               /* command code for \.{\\meaning} */
+    font_name_code,             /* command code for \.{\\fontname} */
+    etex_code,                  /* command code for \.{\\eTeXVersion} */
+    omega_code,                 /* command code for \.{\\OmegaVersion} */
+    aleph_code,                 /* command code for \.{\\AlephVersion} */
+    format_name_code,           /* command code for \.{\\AlephVersion} */
     pdftex_revision_code,       /* command code for \.{\\pdftexrevision} */
-#define pdftex_first_expand_code pdftex_revision_code   /* base for \pdfTeX's command codes */
-    pdftex_banner_code, /* command code for \.{\\pdftexbanner} */
-    pdf_font_name_code, /* command code for \.{\\pdffontname} */
+#  define pdftex_first_expand_code pdftex_revision_code /* base for \pdfTeX's command codes */
+    pdftex_banner_code,         /* command code for \.{\\pdftexbanner} */
+    pdf_font_name_code,         /* command code for \.{\\pdffontname} */
     pdf_font_objnum_code,       /* command code for \.{\\pdffontobjnum} */
-    pdf_font_size_code, /* command code for \.{\\pdffontsize} */
-    pdf_page_ref_code,  /* command code for \.{\\pdfpageref} */
+    pdf_font_size_code,         /* command code for \.{\\pdffontsize} */
+    pdf_page_ref_code,          /* command code for \.{\\pdfpageref} */
     pdf_xform_name_code,        /* command code for \.{\\pdfxformname} */
     left_margin_kern_code,      /* command code for \.{\\leftmarginkern} */
     right_margin_kern_code,     /* command code for \.{\\rightmarginkern} */
     pdf_creation_date_code,     /* command code for \.{\\pdfcreationdate} */
     uniform_deviate_code,       /* command code for \.{\\uniformdeviate} */
     normal_deviate_code,        /* command code for \.{\\normaldeviate} */
-    pdf_insert_ht_code, /* command code for \.{\\pdfinsertht} */
+    pdf_insert_ht_code,         /* command code for \.{\\pdfinsertht} */
     pdf_ximage_bbox_code,       /* command code for \.{\\pdfximagebbox} */
-    lua_code,           /* command code for \.{\\directlua} */
+    lua_code,                   /* command code for \.{\\directlua} */
     lua_escape_string_code,     /* command code for \.{\\luaescapestring} */
     pdf_colorstack_init_code,   /* command code for \.{\\pdfcolorstackinit} */
     luatex_revision_code,       /* command code for \.{\\luatexrevision} */
-    luatex_date_code,   /* command code for \.{\\luatexdate} */
-    math_style_code,    /* command code for \.{\\mathstyle} */
-    expanded_code,      /* command code for \.{\\expanded} */
-    job_name_code,      /* command code for \.{\\jobname} */
+    luatex_date_code,           /* command code for \.{\\luatexdate} */
+    math_style_code,            /* command code for \.{\\mathstyle} */
+    expanded_code,              /* command code for \.{\\expanded} */
+    job_name_code,              /* command code for \.{\\jobname} */
     Aleph_revision_code,        /* command code for \.{\\Alephrevision} */
     Omega_revision_code,        /* command code for \.{\\Omegarevision} */
-    eTeX_revision_code, /* command code for \.{\\eTeXrevision} */
+    eTeX_revision_code,         /* command code for \.{\\eTeXrevision} */
     font_identifier_code,       /* command code for \.{tex.fontidentifier} (virtual) */
 } convert_codes;
 
 typedef enum {
-    lastpenalty_code = 0,     /* code for \.{\\lastpenalty} */
-    lastattr_code,    /* not used */
-    lastkern_code,    /* code for \.{\\lastkern} */
-    lastskip_code,    /* code for \.{\\lastskip} */
-    last_node_type_code,      /* code for \.{\\lastnodetype} */
-    input_line_no_code,       /* code for \.{\\inputlineno} */
-    badness_code,     /* code for \.{\\badness} */
-    pdftex_version_code,      /* code for \.{\\pdftexversion} */
-#define pdftex_first_rint_code   pdftex_version_code        /* base for \pdfTeX's command codes */
-    pdf_last_obj_code,        /* code for \.{\\pdflastobj} */
-    pdf_last_xform_code,      /* code for \.{\\pdflastxform} */
-    pdf_last_ximage_code,     /* code for \.{\\pdflastximage} */
-    pdf_last_ximage_pages_code,       /* code for \.{\\pdflastximagepages} */
-    pdf_last_annot_code,      /* code for \.{\\pdflastannot} */
-    pdf_last_x_pos_code,      /* code for \.{\\pdflastxpos} */
-    pdf_last_y_pos_code,      /* code for \.{\\pdflastypos} */
-    pdf_retval_code,  /* global multi-purpose return value */
-    pdf_last_ximage_colordepth_code,  /* code for \.{\\pdflastximagecolordepth} */
-    random_seed_code, /* code for \.{\\pdfrandomseed} */
-    pdf_last_link_code,       /* code for \.{\\pdflastlink} */
-    luatex_version_code,      /* code for \.{\\luatexversion} */
-    Aleph_version_code,       /* code for \.{\\Alephversion} */
-#define Aleph_int Aleph_version_code
-    Omega_version_code,       /* code for \.{\\Omegaversion} */
-    Aleph_minor_version_code, /* code for \.{\\Alephminorversion} */
-    Omega_minor_version_code, /* code for \.{\\Omegaminorversion} */
-    eTeX_minor_version_code,  /* code for \.{\\eTeXminorversion} */
-    eTeX_version_code,        /* code for \.{\\eTeXversion} */
-#define eTeX_int eTeX_version_code  /* first of \eTeX\ codes for integers */
-    current_group_level_code, /* code for \.{\\currentgrouplevel} */
-    current_group_type_code,  /* code for \.{\\currentgrouptype} */
-    current_if_level_code,    /* code for \.{\\currentiflevel} */
-    current_if_type_code,     /* code for \.{\\currentiftype} */
-    current_if_branch_code,   /* code for \.{\\currentifbranch} */
-    glue_stretch_order_code,  /* code for \.{\\gluestretchorder} */
-    glue_shrink_order_code,   /* code for \.{\\glueshrinkorder} */
-    font_char_wd_code,        /* code for \.{\\fontcharwd} */
-#define eTeX_dim font_char_wd_code  /* first of \eTeX\ codes for dimensions */
-    font_char_ht_code,        /* code for \.{\\fontcharht} */
-    font_char_dp_code,        /* code for \.{\\fontchardp} */
-    font_char_ic_code,        /* code for \.{\\fontcharic} */
-    par_shape_length_code,    /* code for \.{\\parshapelength} */
-    par_shape_indent_code,    /* code for \.{\\parshapeindent} */
-    par_shape_dimen_code,     /* code for \.{\\parshapedimen} */
-    glue_stretch_code,        /* code for \.{\\gluestretch} */
-    glue_shrink_code, /* code for \.{\\glueshrink} */
-    mu_to_glue_code,  /* code for \.{\\mutoglue} */
-#define eTeX_glue mu_to_glue_code   /* first of \eTeX\ codes for glue */
-    glue_to_mu_code,  /* code for \.{\\gluetomu} */
-#define eTeX_mu glue_to_mu_code     /* first of \eTeX\ codes for muglue */
-    numexpr_code,     /* code for \.{\\numexpr} */
-#define eTeX_expr numexpr_code      /* first of \eTeX\ codes for expressions */
-    attrexpr_code,    /* not used */
-    dimexpr_code,     /* code for \.{\\dimexpr} */
-    glueexpr_code,    /* code for \.{\\glueexpr} */
-    muexpr_code,      /* code for \.{\\muexpr} */
+    lastpenalty_code = 0,       /* code for \.{\\lastpenalty} */
+    lastattr_code,              /* not used */
+    lastkern_code,              /* code for \.{\\lastkern} */
+    lastskip_code,              /* code for \.{\\lastskip} */
+    last_node_type_code,        /* code for \.{\\lastnodetype} */
+    input_line_no_code,         /* code for \.{\\inputlineno} */
+    badness_code,               /* code for \.{\\badness} */
+    pdftex_version_code,        /* code for \.{\\pdftexversion} */
+#  define pdftex_first_rint_code   pdftex_version_code  /* base for \pdfTeX's command codes */
+    pdf_last_obj_code,          /* code for \.{\\pdflastobj} */
+    pdf_last_xform_code,        /* code for \.{\\pdflastxform} */
+    pdf_last_ximage_code,       /* code for \.{\\pdflastximage} */
+    pdf_last_ximage_pages_code, /* code for \.{\\pdflastximagepages} */
+    pdf_last_annot_code,        /* code for \.{\\pdflastannot} */
+    pdf_last_x_pos_code,        /* code for \.{\\pdflastxpos} */
+    pdf_last_y_pos_code,        /* code for \.{\\pdflastypos} */
+    pdf_retval_code,            /* global multi-purpose return value */
+    pdf_last_ximage_colordepth_code,    /* code for \.{\\pdflastximagecolordepth} */
+    random_seed_code,           /* code for \.{\\pdfrandomseed} */
+    pdf_last_link_code,         /* code for \.{\\pdflastlink} */
+    luatex_version_code,        /* code for \.{\\luatexversion} */
+    Aleph_version_code,         /* code for \.{\\Alephversion} */
+#  define Aleph_int Aleph_version_code
+    Omega_version_code,         /* code for \.{\\Omegaversion} */
+    Aleph_minor_version_code,   /* code for \.{\\Alephminorversion} */
+    Omega_minor_version_code,   /* code for \.{\\Omegaminorversion} */
+    eTeX_minor_version_code,    /* code for \.{\\eTeXminorversion} */
+    eTeX_version_code,          /* code for \.{\\eTeXversion} */
+#  define eTeX_int eTeX_version_code    /* first of \eTeX\ codes for integers */
+    current_group_level_code,   /* code for \.{\\currentgrouplevel} */
+    current_group_type_code,    /* code for \.{\\currentgrouptype} */
+    current_if_level_code,      /* code for \.{\\currentiflevel} */
+    current_if_type_code,       /* code for \.{\\currentiftype} */
+    current_if_branch_code,     /* code for \.{\\currentifbranch} */
+    glue_stretch_order_code,    /* code for \.{\\gluestretchorder} */
+    glue_shrink_order_code,     /* code for \.{\\glueshrinkorder} */
+    font_char_wd_code,          /* code for \.{\\fontcharwd} */
+#  define eTeX_dim font_char_wd_code    /* first of \eTeX\ codes for dimensions */
+    font_char_ht_code,          /* code for \.{\\fontcharht} */
+    font_char_dp_code,          /* code for \.{\\fontchardp} */
+    font_char_ic_code,          /* code for \.{\\fontcharic} */
+    par_shape_length_code,      /* code for \.{\\parshapelength} */
+    par_shape_indent_code,      /* code for \.{\\parshapeindent} */
+    par_shape_dimen_code,       /* code for \.{\\parshapedimen} */
+    glue_stretch_code,          /* code for \.{\\gluestretch} */
+    glue_shrink_code,           /* code for \.{\\glueshrink} */
+    mu_to_glue_code,            /* code for \.{\\mutoglue} */
+#  define eTeX_glue mu_to_glue_code     /* first of \eTeX\ codes for glue */
+    glue_to_mu_code,            /* code for \.{\\gluetomu} */
+#  define eTeX_mu glue_to_mu_code
+                                /* first of \eTeX\ codes for muglue */
+    numexpr_code,               /* code for \.{\\numexpr} */
+#  define eTeX_expr numexpr_code/* first of \eTeX\ codes for expressions */
+    attrexpr_code,              /* not used */
+    dimexpr_code,               /* code for \.{\\dimexpr} */
+    glueexpr_code,              /* code for \.{\\glueexpr} */
+    muexpr_code,                /* code for \.{\\muexpr} */
 } last_item_codes;
 
-#define explicit 1
-#define acc_kern 2
-#define lp_code_base 2
-#define rp_code_base 3
-#define ef_code_base 4
-#define tag_code 5
-#define auto_kern explicit
-#define no_lig_code 6
+#  define explicit 1
+#  define acc_kern 2
+#  define lp_code_base 2
+#  define rp_code_base 3
+#  define ef_code_base 4
+#  define tag_code 5
+#  define auto_kern explicit
+#  define no_lig_code 6
 
-#define immediate_code 4 /* command modifier for \.{\\immediate} */
+#  define immediate_code 4      /* command modifier for \.{\\immediate} */
 
-extern void initialize_commands (void);
+extern void initialize_commands(void);
 
-extern void initialize_etex_commands (void);
+extern void initialize_etex_commands(void);
 
 #endif

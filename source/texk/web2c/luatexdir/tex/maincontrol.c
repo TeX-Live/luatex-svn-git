@@ -2824,9 +2824,8 @@ void assign_internal_value(int a, halfword p, integer cur_val)
                      "using \\savecatcodetable or \\initcatcodetable, or to table 0");
                 error();
             }
-        } else
-            if ((p == (int_base + output_box_code)
-                 && ((cur_val > 65535) | (cur_val < 0)))) {
+        } else if ((p == (int_base + output_box_code)
+                    && ((cur_val > 65535) | (cur_val < 0)))) {
             print_err("Invalid \\outputbox");
             help1("The value for \\outputbox has to be between 0 and 65535.");
             error();
