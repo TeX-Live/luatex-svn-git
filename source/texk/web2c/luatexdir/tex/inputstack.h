@@ -43,7 +43,6 @@ typedef struct in_state_record {
     boolean nofilter_field : 8;     /* used by token filtering */
 } in_state_record;
 
-
 extern in_state_record *input_stack;
 extern integer input_ptr;
 extern integer max_in_stack;

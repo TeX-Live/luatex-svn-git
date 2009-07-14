@@ -22,6 +22,45 @@
 #ifndef COMMANDS_H
 #  define COMMANDS_H
 
+/*
+Before we can go any further, we need to define symbolic names for the internal
+code numbers that represent the various commands obeyed by \TeX. These codes
+are somewhat arbitrary, but not completely so. For example, the command
+codes for character types are fixed by the language, since a user says,
+e.g., `\.{\\catcode \`\\\${} = 3}' to make \.{\char'44} a math delimiter,
+and the command code |math_shift| is equal to~3. Some other codes have
+been made adjacent so that |case| statements in the program need not consider
+cases that are widely spaced, or so that |case| statements can be replaced
+by |if| statements.
+
+At any rate, here is the list, for future reference. First come the
+``catcode'' commands, several of which share their numeric codes with
+ordinary commands when the catcode cannot emerge from \TeX's scanning routine.
+
+@ Next are the ordinary run-of-the-mill command codes.  Codes that are
+|min_internal| or more represent internal quantities that might be
+expanded by `\.{\\the}'.
+
+
+@ The next codes are special; they all relate to mode-independent
+assignment of values to \TeX's internal registers or tables.
+Codes that are |max_internal| or less represent internal quantities
+that might be expanded by `\.{\\the}'.
+
+There is no matching primitive to go with |assign_attr|, but even if
+there was no \.{\\attributedef}, a reserved number would still be
+needed because there is an implied correspondence between the
+|assign_xxx| commands and |xxx_val| expression values. That would
+break down otherwise.
+
+@ The remaining command codes are extra special, since they cannot get through
+\TeX's scanner to the main control routine. They have been given values higher
+than |max_command| so that their special nature is easily discernible.
+The ``expandable'' commands come first.
+
+
+*/
+
 typedef enum {
     relax_cmd = 0,              /* do nothing ( \.{\\relax} ) */
 #define escape_cmd  relax_cmd   /* escape delimiter (called \.\\ in {\sl The \TeX book\/}) */
