@@ -362,7 +362,7 @@ extern memory_word *eqtb;
 
 extern halfword eqtb_top; /* maximum of the |eqtb| */
 
-extern quarterword xeq_level[eqtb_size];
+extern quarterword xeq_level[(eqtb_size+1)];
 extern void initialize_equivalents (void);
 
 #define eq_level_field(A) (A).hh.b1

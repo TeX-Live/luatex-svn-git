@@ -78,7 +78,7 @@ called |xeq_level|.
 
 memory_word *eqtb;
 halfword eqtb_top; /* maximum of the |eqtb| */
-quarterword xeq_level[eqtb_size];
+quarterword xeq_level[(eqtb_size+1)];
 
 void initialize_equivalents (void)
 {
