@@ -53,7 +53,7 @@ into some integer greater than~|STRING_OFFSET|.
 packed_ASCII_code *str_pool;    /* the characters */
 pool_pointer *str_start;        /* the starting pointers */
 pool_pointer pool_ptr;          /* first unused position in |str_pool| */
-str_number str_ptr;             /* number of the current string being created */
+str_number str_ptr = (STRING_OFFSET+1);  /* number of the current string being created */
 pool_pointer init_pool_ptr;     /* the starting value of |pool_ptr| */
 str_number init_str_ptr;        /* the starting value of |str_ptr| */
 
@@ -301,7 +301,6 @@ boolean get_strings_started(void)
 {
     str_number g;               /* garbage */
     pool_ptr = 0;
-    str_ptr = STRING_OFFSET;
     str_start[0] = 0;
     /* Read the other strings from the \.{TEX.POOL} file and return |true|,
        or give an error message and return |false| */
