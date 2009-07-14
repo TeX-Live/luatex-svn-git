@@ -1667,7 +1667,8 @@ void main_body (void)
     initialize_math();
     fixup_selector(log_opened);
     check_texconfig_init();
-    if ((iloc<ilimit)&&(get_cat_code(int_par(cat_code_table_code),buffer[iloc])!='\\')) 
+    if ((iloc<ilimit)&&(get_cat_code(int_par(cat_code_table_code),
+                                     buffer[iloc])!=int_par(escape_char_code)))
 	start_input(); /* \.{\\input} assumed */
     /* DIR: Initialize |text_dir_ptr| */
     text_dir_ptr=new_dir(0);
