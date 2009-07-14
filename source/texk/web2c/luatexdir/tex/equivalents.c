@@ -24,7 +24,6 @@ static const char _svn_version[] =
     "$URL$";
 
 
-#define max_quarterword 0xFFFF
 #define par_shape_ptr equiv(par_shape_loc)
 
 /*
