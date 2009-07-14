@@ -1818,27 +1818,26 @@ void print_node_mem_stats(void)
     char msg[256];
     char *s;
     integer free_chain_counts[MAX_CHAIN_SIZE] = { 0 };
-    snprintf(msg, 255, "node memory in use: %d words out of %d",
-             (int) (var_used + my_prealloc), (int) var_mem_max);
+    snprintf(msg, 255, " %d words of node memory still in use:",
+             (int) (var_used + my_prealloc));
     tprint_nl(msg);
-    tprint_nl("rapidly available: ");
+    s = sprint_node_mem_usage();
+    tprint_nl("   ");
+    tprint(s);
+    free(s);
+    tprint(" nodes");
+    tprint_nl("   avail lists: ");
     b = 0;
     for (i = 1; i < MAX_CHAIN_SIZE; i++) {
         for (j = free_chain[i]; j != null; j = vlink(j))
             free_chain_counts[i]++;
         if (free_chain_counts[i] > 0) {
-            snprintf(msg, 255, "%s%d:%d", (b ? ", " : ""), i,
+            snprintf(msg, 255, "%s%d:%d", (b ? "," : ""), i,
                      (int) free_chain_counts[i]);
             tprint(msg);
             b = 1;
         }
     }
-    tprint(" nodes");
-    s = sprint_node_mem_usage();
-    tprint_nl("current usage: ");
-    tprint(s);
-    free(s);
-    tprint(" nodes");
     print_nlp();                /* newline, if needed */
 }
 

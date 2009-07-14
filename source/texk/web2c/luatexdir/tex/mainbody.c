@@ -1459,42 +1459,26 @@ void close_files_and_terminate(void)
              */
 
             if (log_opened) {
-                wlog_cr();
-                fprintf(log_file, "  ");
-                wlog_cr();
                 fprintf(log_file,
-                        "Here is how much of TeX''s memory you used:");
-                wlog_cr();
-                fprintf(log_file, " %d ", (int) (str_ptr - init_str_ptr));
-                if (str_ptr != init_str_ptr + 1)
-                    fprintf(log_file, "strings");
-                else
-                    fprintf(log_file, "string");
-                fprintf(log_file, " out of %ld",
-                        (long) (max_strings - init_str_ptr + STRING_OFFSET));
-                wlog_cr();
-                fprintf(log_file, " %d string characters out of %d",
+                        "\n\nHere is how much of LuaTeX's memory you used:\n");
+                fprintf(log_file, " %d string%s out of %d\n",
+                        (int) (str_ptr - init_str_ptr),
+                        (str_ptr == (init_str_ptr + 1) ? "" : "s"),
+                        (int) (max_strings - init_str_ptr + STRING_OFFSET));
+                fprintf(log_file, " %d string characters out of %d\n",
                         (int) (pool_ptr - init_pool_ptr),
                         (int) (pool_size - init_pool_ptr));
-                wlog_cr();
                 fprintf(log_file, " %d,%d words of node,token memory allocated",
                         (int) var_mem_max, (int) fix_mem_max);
                 print_node_mem_stats();
-                wlog_cr();
                 fprintf(log_file,
-                        " %d multiletter control sequences out of %ld+%d",
+                        " %d multiletter control sequences out of %ld+%d\n",
                         (int) cs_count, (long) hash_size, (int) hash_extra);
-                wlog_cr();
-                fprintf(log_file, " %d ", (int) max_font_id());
-                if (max_font_id() != 1)
-                    fprintf(log_file, "fonts");
-                else
-                    fprintf(log_file, "font");
-                wlog_cr();
-                fprintf(log_file, " using %d bytes", (int) font_bytes);
-                wlog_cr();
+                fprintf(log_file, " %d font%s using %d bytes\n",
+                        (int) max_font_id(), (max_font_id() == 1 ? "" : "s"),
+                        (int) font_bytes);
                 fprintf(log_file,
-                        " %di,%dn,%dp,%db,%ds stack positions out of %di,%dn,%dp,%db,%ds",
+                        " %di,%dn,%dp,%db,%ds stack positions out of %di,%dn,%dp,%db,%ds\n",
                         (int) max_in_stack, (int) max_nest_stack,
                         (int) max_param_stack, (int) max_buf_stack,
                         (int) max_save_stack + 6, (int) stack_size,
