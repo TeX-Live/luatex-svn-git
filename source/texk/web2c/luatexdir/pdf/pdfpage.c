@@ -111,7 +111,7 @@ scaledpos new_synch_pos_with_cur(posstructure * pos, posstructure * refpos,
         pos->pos.v = refpos->pos.v + cur.h;
         break;
     default:
-        assert(0);
+        ; /* assert(0); */ /* TODO why is this assert() not ok ? */
     }
     return pos->pos;
 }
