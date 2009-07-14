@@ -1573,14 +1573,14 @@ void main_body (void)
 	    hash_top=undefined_control_sequence;
 	else
 	    hash_top=eqtb_top;
-	hash=xmallocarray (two_halves,1+hash_top);
-	next(hash_base)=0; 
-	text(hash_base)=0;
-	for (hash_used=hash_base+1;hash_used<=hash_top;hash_used++) 
-	    hash[hash_used]=hash[hash_base];
-	eqtb=xmallocarray (memory_word, eqtb_top);
+	hash=xmallocarray (two_halves,(hash_top+1));
+    memset(hash,0,sizeof(two_halves)*(hash_top+1));
+	eqtb=xmallocarray (memory_word, (eqtb_top+1));
+    memset(eqtb,0,sizeof(memory_word)*(eqtb_top+1));
 	str_start=xmallocarray (pool_pointer, max_strings);
+    memset(str_start, 0, max_strings*sizeof(pool_pointer));
 	str_pool=xmallocarray (packed_ASCII_code, pool_size);
+    memset(str_pool, 0, pool_size*sizeof(packed_ASCII_code));
     }
 
     history=fatal_error_stop; /* in case we quit during initialization */
