@@ -126,7 +126,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
             }
         }
     }
-    if ((tracing_output > 0) && (post_callback_id == 0) && shipping_page) {
+    if ((tracing_output > 0) && shipping_page) {
         print_char(']');
         update_terminal();
         begin_diagnostic();
