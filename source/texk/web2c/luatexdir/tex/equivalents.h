@@ -358,8 +358,7 @@ locations for control sequences that are perpetually defined
 #define scaled_base (dimen_base+dimen_pars) /* table of |number_regs| user-defined \.{\\dimen} registers */
 #define eqtb_size (scaled_base+biggest_reg) /* largest subscript of |eqtb| */
 
-extern memory_word *zeqtb;
-#define eqtb zeqtb
+extern memory_word *eqtb;
 
 extern halfword eqtb_top; /* maximum of the |eqtb| */
 

@@ -76,7 +76,7 @@ but \TeX\ needs to store the |eq_level| information in another array
 called |xeq_level|.
 */
 
-memory_word *zeqtb;
+memory_word *eqtb;
 halfword eqtb_top; /* maximum of the |eqtb| */
 quarterword xeq_level[eqtb_size];
 
@@ -84,7 +84,7 @@ void initialize_equivalents (void)
 {
     integer k;
     for (k=int_base;k<=eqtb_size;k++) 
-	xeq_level[k]=level_one;
+        xeq_level[k]=level_one;
 }
 
 
