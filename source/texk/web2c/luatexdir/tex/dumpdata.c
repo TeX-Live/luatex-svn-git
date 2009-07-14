@@ -401,15 +401,11 @@ boolean load_fmt_file (void)
 	hash_extra=hash_high;
     eqtb_top=eqtb_size+hash_extra;
     if (hash_extra==0) 
-	hash_top=undefined_control_sequence;
+        hash_top=undefined_control_sequence;
     else
-	hash_top=eqtb_top;
+        hash_top=eqtb_top;
     hash=xmallocarray(two_halves,1+hash_top);
-
-    next(hash_base)=0; 
-    text(hash_base)=0;
-    for (x=hash_base+1;x<=hash_top;x++) 
-	 hash[x]=hash[hash_base];
+    memset(hash,0,sizeof(two_halves)*(hash_top+1));
     eqtb=xmallocarray (memory_word,eqtb_top+1);
     set_eq_type(undefined_control_sequence,undefined_cs_cmd);
     set_equiv(undefined_control_sequence,null);
