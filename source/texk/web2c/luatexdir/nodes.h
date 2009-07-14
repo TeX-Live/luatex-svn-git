@@ -735,7 +735,7 @@ typedef enum {
 extern halfword tail_of_list (halfword p);
 extern void delete_glue_ref(halfword p);
 
-extern halfword var_used;
+extern integer var_used;
 extern halfword temp_ptr; 
 
 #define cache_disabled max_halfword

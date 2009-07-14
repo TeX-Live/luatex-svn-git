@@ -1466,7 +1466,7 @@ void free_node_chain(halfword q, integer s)
 }
 
 
-void init_node_mem(halfword t)
+void init_node_mem(integer t)
 {
     my_prealloc = var_mem_stat_max;
     assert(whatsit_node_data[user_defined_node].id == user_defined_node);
@@ -2896,7 +2896,7 @@ void delete_glue_ref(halfword p) /* |p| points to a glue specification */
   fast_delete_glue_ref(p);
 }
 
-halfword var_used;
+integer var_used;
 halfword temp_ptr; /* a pointer variable for occasional emergency use */
 
 /*
