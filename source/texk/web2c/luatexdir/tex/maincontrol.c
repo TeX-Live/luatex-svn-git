@@ -3584,7 +3584,7 @@ void initialize (void) /* this procedure gets things started properly */
 	set_eq_type(undefined_control_sequence,undefined_cs_cmd);
 	set_equiv(undefined_control_sequence,null);
 	set_eq_level(undefined_control_sequence,level_zero);
-	for (k=null_cs;k<=eqtb_top-1;k++)
+	for (k=null_cs;k<=(eqtb_top-1);k++)
 	    eqtb[k]=eqtb[undefined_control_sequence];
 	set_equiv(glue_base,zero_glue); 
 	set_eq_level(glue_base,level_one);
@@ -3596,14 +3596,14 @@ void initialize (void) /* this procedure gets things started properly */
 	par_shape_ptr=null;
 	set_eq_type(par_shape_loc,shape_ref_cmd);
 	set_eq_level(par_shape_loc,level_one);
-	for (k=etex_pen_base;k<=etex_pens-1;k++) 
+	for (k=etex_pen_base;k<=(etex_pens-1);k++) 
 	    eqtb[k]=eqtb[par_shape_loc];
 	for (k=output_routine_loc;k<=toks_base+biggest_reg;k++) 
 	    eqtb[k]=eqtb[undefined_control_sequence];
 	box(0)=null;
 	set_eq_type(box_base,box_ref_cmd); 
 	set_eq_level(box_base,level_one);
-	for (k=box_base+1;k<=box_base+biggest_reg;k++) 
+	for (k=box_base+1;k<=(box_base+biggest_reg);k++) 
 	    eqtb[k]=eqtb[box_base];
 	cur_font=null_font; 
 	set_eq_type(cur_font_loc,data_cmd);
