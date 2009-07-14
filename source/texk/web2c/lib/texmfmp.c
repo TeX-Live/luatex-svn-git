@@ -2266,7 +2266,7 @@ do_dump (char *p, int item_size, int nitems,  FILE *out_file)
 #ifdef XeTeX
   if (gzwrite (out_file, p, item_size * nitems) != item_size * nitems)
 #else
-  if (fwrite (p, item_size, nitems, out_file) != nitems)
+  if (fwrite (p, item_size, nitems, out_file) != (unsigned)nitems)
 #endif
     {
       fprintf (stderr, "! Could not write %d %d-byte item(s).\n",

@@ -179,7 +179,7 @@ extern boolean quoted_filename;
 
 extern two_halves *hash; /* the hash table */
 extern halfword hash_used; /* allocation pointer for |hash| */
-extern halfword hash_extra; /* |hash_extra=hash| above |eqtb_size| */
+extern integer hash_extra; /* |hash_extra=hash| above |eqtb_size| */
 extern halfword hash_top; /* maximum of the hash array */
 extern halfword hash_high; /* pointer to next high hash location */
 extern boolean no_new_control_sequence; /* are new identifiers legal? */

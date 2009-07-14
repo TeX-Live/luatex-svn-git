@@ -925,7 +925,7 @@ that's a convenient module in which to put it.)
 void print_csnames (integer hstart, integer hfinish)
 {
     integer c, h;
-    fprintf(stderr, "fmtdebug:csnames from %d to %d:", hstart, hfinish);
+    fprintf(stderr, "fmtdebug:csnames from %d to %d:", (int)hstart, (int)hfinish);
     for (h=hstart;h<=hfinish;h++) {
 	if (text(h) > 0) { /* if have anything at this position */
 	    for (c=str_start_macro(text(h));c<=str_start_macro(text(h) + 1) - 1;c++) {

@@ -335,7 +335,7 @@ read an integer value |x| that is supposed to be in the range |a<=x<=b|.
 
 #define format_debug(A,B) do {					\
 	if (debug_format_file) {				\
-	    fprintf (stderr, "fmtdebug: %s=%d", (A), (B));	\
+	    fprintf (stderr, "fmtdebug: %s=%d", (A), (int)(B));	\
 	}							\
     } while (0)
 
@@ -432,7 +432,7 @@ boolean load_fmt_file (void)
 	max_strings=str_ptr+strings_free;
     str_start=xmallocarray(pool_pointer, max_strings);
     str_ptr=str_ptr + STRING_OFFSET;
-    undump_checked_things(0, pool_ptr, str_start[0], (str_ptr-STRING_OFFSET)+1);
+    undump_checked_things(0, pool_ptr, str_start[0], (unsigned)((str_ptr-STRING_OFFSET)+1));
     str_pool=xmallocarray(packed_ASCII_code, pool_size);
     undump_things(str_pool[0], pool_ptr);
     init_str_ptr=str_ptr; 

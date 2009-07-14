@@ -1068,7 +1068,7 @@ A global boolean variable called |no_new_control_sequence| is set to
 
 two_halves *hash; /* the hash table */
 halfword hash_used; /* allocation pointer for |hash| */
-halfword hash_extra; /* |hash_extra=hash| above |eqtb_size| */
+integer hash_extra; /* |hash_extra=hash| above |eqtb_size| */
 halfword hash_top; /* maximum of the hash array */
 halfword hash_high; /* pointer to next high hash location */
 boolean no_new_control_sequence; /* are new identifiers legal? */
@@ -1610,7 +1610,7 @@ void main_body (void)
 
     if (bad>0) {
 	wterm_cr();
-	fprintf(term_out,"Ouch---my internal constants have been clobbered! ---case %d",bad);
+	fprintf(term_out,"Ouch---my internal constants have been clobbered! ---case %d",(int)bad);
 	goto FINAL_END;
     }
     initialize(); /* set global variables to their starting values */
@@ -1721,33 +1721,33 @@ void close_files_and_terminate (void)
 		wlog_cr();
 		fprintf(log_file, "Here is how much of TeX''s memory you used:");
 		wlog_cr();
-		fprintf(log_file, " %d ", (str_ptr-init_str_ptr));
+		fprintf(log_file, " %d ", (int)(str_ptr-init_str_ptr));
 		if (str_ptr!=init_str_ptr+1) 
 		    fprintf(log_file, "strings") ;
 		else 
 		    fprintf(log_file, "string");
 		fprintf(log_file, " out of %ld", (long)(max_strings-init_str_ptr+STRING_OFFSET));
 		wlog_cr();
-		fprintf(log_file, " %d string characters out of %d", (pool_ptr-init_pool_ptr),
-			(pool_size-init_pool_ptr));
+		fprintf(log_file, " %d string characters out of %d", (int)(pool_ptr-init_pool_ptr),
+			(int)(pool_size-init_pool_ptr));
 		wlog_cr();
-		fprintf(log_file,  " %d,%d words of node,token memory allocated", var_mem_max, fix_mem_max);
+		fprintf(log_file,  " %d,%d words of node,token memory allocated", (int)var_mem_max, (int)fix_mem_max);
 		print_node_mem_stats();
 		wlog_cr();
-		fprintf(log_file, " %d multiletter control sequences out of %ld+%d", cs_count,
-			(long)hash_size, hash_extra);
+		fprintf(log_file, " %d multiletter control sequences out of %ld+%d", (int)cs_count,
+			(long)hash_size, (int)hash_extra);
 		wlog_cr();
-		fprintf(log_file," %d ", max_font_id());
+		fprintf(log_file," %d ", (int)max_font_id());
 		if (max_font_id()!=1) 
 		    fprintf(log_file, "fonts");
 		else 
 		    fprintf(log_file, "font");
 		wlog_cr();
-		fprintf(log_file," using %d bytes", font_bytes);
+		fprintf(log_file," using %d bytes", (int)font_bytes);
 		wlog_cr();
 		fprintf(log_file," %di,%dn,%dp,%db,%ds stack positions out of %di,%dn,%dp,%db,%ds",
-			max_in_stack,max_nest_stack,max_param_stack,max_buf_stack, max_save_stack+6,
-			stack_size, nest_size,param_size,buf_size,save_size);
+			(int)max_in_stack,(int)max_nest_stack,(int)max_param_stack,(int)max_buf_stack,(int)max_save_stack+6,
+			(int)stack_size, (int)nest_size, (int)param_size, (int)buf_size, (int)save_size);
 	    }
 	}
     }
