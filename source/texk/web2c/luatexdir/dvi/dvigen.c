@@ -2319,11 +2319,12 @@ void dvi_ship_out(halfword p)
         end_diagnostic(true);
     }
     /* Ship box |p| out */
-    if (box_dir(p) != page_direction)
+    if (box_dir(p) != page_direction) {
         pdf_warning("\\shipout",
                     "\\pagedir != \\bodydir; "
-                    "\\box255 may be placed wrongly on the page.",
+                    "\\box\\outputbox may be placed wrongly on the page.",
                     true, true);
+    }
     /* Update the values of |max_h| and |max_v|; but if the page is too large,
        |goto done| */
     /* Sometimes the user will generate a huge page because other error messages
