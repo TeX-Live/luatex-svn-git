@@ -42,6 +42,8 @@ static const char __svn_version[] =
 void scan_direction(void)
 {
     integer d1, d2, d3;
+    int save_cur_cmd = cur_cmd;
+    int save_cur_chr = cur_chr;
     get_x_token();
     if (cur_cmd == assign_dir_cmd) {
         cur_val = eqtb[cur_chr].cint;
@@ -61,6 +63,8 @@ void scan_direction(void)
     if (cur_cmd != spacer_cmd)
         back_input();
     cur_val = d1 * 8 + dir_rearrange[d2] * 4 + d3;
+    cur_cmd = save_cur_cmd;
+    cur_chr = save_cur_chr;
 }
 
 /* the next two are used by postlinebreak.c */
